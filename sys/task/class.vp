@@ -296,6 +296,7 @@
 	;create new task control block and stack
 	(call :sys_mem :alloc {ushort(func - ubyte(func - +byte_size) - +short_size) + tk_node_size} {tcb, tcb_size})
 (errorcase
+	;fill with test pattern so we can show max extent in netmon
 	(call :sys_mem :fill {tcb, tcb_size, tk_stack_canary}))
 
 	;alloc task mailbox and tls
@@ -333,9 +334,6 @@
 
 	(def-vars
 		(ptr statics tcb))
-(errorcase
-	(def-vars
-		(pptr stack stack_end)))
 
 	(push-scope)
 
@@ -351,17 +349,6 @@
 	(vp-rdef (tcb next_tcb))
 	(assign {tcb} (list tcb))
 	(ln-remove-node tcb next_tcb)
-
-(errorcase
-	;test stack space canary
-	(assign {&tcb->tk_node_size} {stack})
-	(assign {stack + tk_stack_margin} {stack_end})
-	(loop-while {stack /= stack_end})
-		(vpif {*stack /= tk_stack_canary})
-			(abort "Stack overrun !")
-		(endif)
-		(assign {stack + +ptr_size} {stack})
-	(loop-end))
 
 	;free our task control block
 	(call :sys_mem :free {tcb})
