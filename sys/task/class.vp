@@ -451,8 +451,6 @@
 
 	(vp-rdef (stack_top sptr node node_offset) '(:r3 :r4))
 
-	(vp-push :r0 :r1 :r2 :r3 :r4)
-
 	;print stack dump
 	(fn-bind 'sys/statics/statics stack_top)
 	(assign `((,stack_top statics_sys_task_current_tcb) (& :rsp ,(* +ptr_size 5))) `(,stack_top ,sptr))
@@ -484,9 +482,7 @@
 		(call :host_os :pii_write_num `(2 ,node 10))
 		(call :host_os :pii_write_str `(2 ,(cat ")" (ascii-char 10))))
 	(endif)
-
-	(vp-pop :r0 :r1 :r2 :r3 :r4)
-	(vp-ret)
+	(jump :sys_task :stop)
 
 (def-func-end))
 
@@ -501,8 +497,7 @@
 	(vpif '(:r1 /= 0) '(:r1 /= :r0))
 		(vp-add-cr (+ tk_node_size tk_stack_margin) :r1)
 		(vpif '(:rsp < :r1))
-			(call :sys_task :dump)
-			(jump :sys_task :stop)
+			(jump :sys_task :dump)
 		(endif)
 	(endif)
 	(vp-pop :r0 :r1)

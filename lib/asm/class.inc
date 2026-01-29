@@ -423,6 +423,10 @@
 				(vp-xor-rr :r0 :r0)
 			(endif)
 		(endif)
+	(validatecase
+		(vpif `(:r0 = 0))
+			(jump :sys_task :dump)
+		(endif))
 		(vp-ret)
 	(def-func-end))
 

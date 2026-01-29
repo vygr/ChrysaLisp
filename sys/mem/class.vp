@@ -123,8 +123,7 @@
 	(call :host_os :pii_write_str `(2 "Malloc fail !!! "))
 	(call :host_os :pii_write_num `(2 :r2 16))
 	(call :host_os :pii_write_str `(2 ,(ascii-char 10)))
-	(call :sys_task :dump)
-	(jump :sys_task :stop))
+	(jump :sys_task :dump))
 
 (def-func-end)
 

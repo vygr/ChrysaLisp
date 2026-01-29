@@ -23,6 +23,9 @@ the `sys/` classes gets stack validated at it's entry point. If the stack is out
 of bounds it will stack dump and report what script was running and any repl
 info available. To turn on this build mode just run "make it validate".
 
+Added runtime validation of the object pointer in `(gen-create)` if the returned
+value is 0, validate mode will trap.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.
