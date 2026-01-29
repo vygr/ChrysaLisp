@@ -267,7 +267,7 @@ Later on when we need to perform the "+" operator we see the dereference. The
 full example showing the output.
 
 ```vdu
-(let ((*debug_inst* :t))
+(let ((*build_inst* :t))
 	(def-vars (int a b c))
 	(push-scope)
 	(assign {a + b} {c})
@@ -306,7 +306,7 @@ uses this to exchange between CScript and VP level source !
 Take another example:
 
 ```vdu
-(let ((*debug_inst* :t))
+(let ((*build_inst* :t))
 	(def-vars (int a b c d) (ushort x y))
 	(push-scope)
 	(assign {a + b, x - y} {c, d})

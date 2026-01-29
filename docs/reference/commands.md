@@ -254,6 +254,7 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
 	apps:       only the apps !
 	release:    it/apps release mode.
 	debug:      it/apps debug mode.
+	validate:   it/apps validate mode.
 	test:       test make timings.
 ```
 ## mv

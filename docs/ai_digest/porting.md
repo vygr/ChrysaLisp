@@ -531,7 +531,7 @@ As mentioned in 3.3.1, `cmd/make.lisp` needs to be aware of the new platform:
 
     * Use `(print)` extensively in your Lisp translator code.
 
-    * The `*debug_emit*` and `*debug_inst*` flags (see `vp_assignment.md`) can
+    * The `*build_emit*` and `*build_inst*` flags (see `vp_assignment.md`) can
       show the VP instructions before and after optimization, and the final Lisp
       forms passed to `emit-translate`.
 

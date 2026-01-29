@@ -40,7 +40,7 @@
 					;read job
 					(defq *reply_key* (getf *msg* +_job_key) *reply_mbox* (getf *msg* +_job_reply))
 					(each (# (def *compile_env* %0 %1))
-						'(*files* *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)
+						'(*files* *abi* *cpu* *build_mode* *build_emit* *build_inst*)
 						(first (read (string-stream (slice *msg* +_job_params -1)))))
 					;compile the file list and catch any errors
 					(setq *msg* (list))

@@ -175,8 +175,8 @@
 ; errorcase
 ;;;;;;;;;;;;
 
-(defmacro errorcase (&rest e) (if (> *debug_mode* 0) `(progn ~e)))
-(defmacro noterrorcase (&rest e) (if (<= *debug_mode* 0) `(progn ~e)))
+(defmacro errorcase (&rest e) (if (> *build_mode* 0) `(progn ~e)))
+(defmacro noterrorcase (&rest e) (if (<= *build_mode* 0) `(progn ~e)))
 (defmacro errorif (e l) `(errorcase (gotoif ,e ,l)))
 (defmacro errorifnot (e l) `(errorcase (gotoifnot ,e ,l)))
 

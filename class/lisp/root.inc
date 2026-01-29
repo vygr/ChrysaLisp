@@ -1323,10 +1323,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;compilation options
-;debug_mode 0, release, strip all error checking
-;debug_mode 1, normal, with error checking
-;debug_mode 2, validate, with extra runtime validation checking
-(defq *debug_mode* 1 *debug_emit* :nil *debug_inst* :nil)
+;build_mode 0, release, strip all error checking
+;build_mode 1, normal, with error checking
+;build_mode 2, validate, with extra runtime validation checking
+(defq *build_mode* 1 *build_emit* :nil *build_inst* :nil)
 
 (defun os ()
 	; (os) -> sym

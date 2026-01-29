@@ -121,7 +121,7 @@ orthogonal, RISC-like instruction set.
     benchmark, the `vp64` `boot_image` serves as the portable "golden master."
     It can be used to bootstrap a native ChrysaLisp environment on any platform
     that can compile its simple C++ host application. The installer itself is
-    built in release mode (`*debug_mode* 0`), with all debug checks compiled out
+    built in release mode (`*build_mode* 0`), with all debug checks compiled out
     to minimize installation time.
 
 *   **The Hardware Hypothetical:** The simplicity of the VP64 instruction set

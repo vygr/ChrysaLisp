@@ -85,7 +85,7 @@
 
 ;debug helpers
 (defun debug-num (s n)
-	(when (> *debug_mode* 0)
+	(when (> *build_mode* 0)
 		(def-vars
 			(ptr _a _b _c))
 		(push-scope)
@@ -100,7 +100,7 @@
 		(pop-scope)))
 
 (defun debug-str (s)
-	(when (> *debug_mode* 0)
+	(when (> *build_mode* 0)
 		(def-vars
 			(ptr _a _b))
 		(push-scope)

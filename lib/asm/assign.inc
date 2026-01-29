@@ -156,11 +156,11 @@
 	(when (/= 0 (length dst))
 		(reset-reg-stack (length src))
 		(each (# (cscript %0) (compile-arrow)) dst)
-		(when *debug_inst*
+		(when *build_inst*
 			(print "pre opt:")
 			(each (const print-inst) *inst*))
 		(opt-inst-list *inst*)
-		(when *debug_inst*
+		(when *build_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
 		(def-reg-map (reverse src) %2)
@@ -172,11 +172,11 @@
 	(when (/= 0 (length dst))
 		(reset-reg-stack 0)
 		(each (# (cscript %0) (compile-deref?)) src)
-		(when *debug_inst*
+		(when *build_inst*
 			(print "pre opt:")
 			(each (const print-inst) *inst*))
 		(opt-inst-list *inst*)
-		(when *debug_inst*
+		(when *build_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
 		(def-reg-map (cat dst) %2)
@@ -191,11 +191,11 @@
 		(reset-reg-stack 0)
 		(each cscript src)
 		(reach (# (cscript %0) (compile-arrow)) dst)
-		(when *debug_inst*
+		(when *build_inst*
 			(print "pre opt:")
 			(each (const print-inst) *inst*))
 		(opt-inst-list *inst*)
-		(when *debug_inst*
+		(when *build_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
 		(def-reg-map :nil %2)

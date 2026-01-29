@@ -992,11 +992,11 @@ These functions provide structured coding constructs for the VP assembler.
 
     * `(def-bit name base &rest lines)`
 
-*   **`errorcase`**: A macro that only executes its body if `*debug_mode*` is greater than 0.
+*   **`errorcase`**: A macro that only executes its body if `*build_mode*` is greater than 0.
 
     * `(errorcase &rest body)`
 
-*   **`noterrorcase`**: A macro that only executes its body if `*debug_mode*` is 0 or less.
+*   **`noterrorcase`**: A macro that only executes its body if `*build_mode*` is 0 or less.
 
     * `(noterrorcase &rest body)`
 

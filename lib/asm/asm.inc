@@ -49,7 +49,7 @@
 		(shuffle files)
 		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 2)
 			select (list (mail-mbox) (mail-mbox) (mail-mbox))
-			jobs (map (# (str (list (list %0) *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*))) files)
+			jobs (map (# (str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst*))) files)
 			farm (Local (const create) (const destroy) (length files) (max 1 (min 8 (length (lisp-nodes))))))
 		(mail-timeout (elem-get select +select_timer) timer_rate 0)
 		(while working
@@ -192,10 +192,10 @@
 
 (defun make-them (action &optional mode files)
 	(setd files (all-vp-files))
-	(if mode (defq *debug_mode* mode))
+	(if mode (defq *build_mode* mode))
 	(each (# (action files %0 %1)) +supported_abi +supported_cpu)
-	(ifn mode (defq *debug_mode* 0))
-	(defq *debug_mode* (min *debug_mode* 1))
+	(ifn mode (defq *build_mode* 0))
+	(defq *build_mode* (min *build_mode* 1))
 	(action files 'VP64 'vp64))
 
 (defun make-platforms (&optional mode) (make-them (const make) mode))

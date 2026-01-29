@@ -86,17 +86,17 @@ mode build.
 
 The main way to wrap code that we do not want to include in `release mode` is
 by use of the `(errorcase)` macro. This macro simply tests the value of
-`*debug_mode*`, and if greater than 0, includes the wrapped code.
+`*build_mode*`, and if greater than 0, includes the wrapped code.
 
 ```vdu
-(defmacro errorcase (&rest e) (if (> *debug_mode* 0) `(progn ~e)))
+(defmacro errorcase (&rest e) (if (> *build_mode* 0) `(progn ~e)))
 ```
 
-The direct opposite, so inclusion of code, when not `(<= *debug_mode* 0)`, is
+The direct opposite, so inclusion of code, when not `(<= *build_mode* 0)`, is
 also provided.
 
 ```vdu
-(defmacro noterrorcase (&rest e) (if (<= *debug_mode* 0) `(progn ~e)))
+(defmacro noterrorcase (&rest e) (if (<= *build_mode* 0) `(progn ~e)))
 ```
 
 Simple jump macros that wrap a `(gotoif)` or `(gotoifnot)`.

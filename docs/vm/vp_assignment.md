@@ -245,17 +245,17 @@ variables, with their correct data type.
 ## Errorcases and debug modes
 
 If you are curious to see the code emitted by the compiler you can switch on
-printing of the emitted code by use of the `*debug_emit*` and `*debug_inst*`
-flags. A `(setq *debug_inst* :t)` will enable printing of each expression
-compilation, `(setq *debug_emit* :t)` will enable printing of the entire
-functions final instructions. Be sure to `(setq *debug_inst* :nil)` and `(setq
-*debug_emit* :nil)` after the section of code or function to turn emit printing
+printing of the emitted code by use of the `*build_emit*` and `*build_inst*`
+flags. A `(setq *build_inst* :t)` will enable printing of each expression
+compilation, `(setq *build_emit* :t)` will enable printing of the entire
+functions final instructions. Be sure to `(setq *build_inst* :nil)` and `(setq
+*build_emit* :nil)` after the section of code or function to turn emit printing
 off.
 
 This is the output from wrapping the `:hmap :insert` line in the example above:
 
 ```vdu
-(let ((*debug_inst* :t))
+(let ((*build_inst* :t))
 	(call :hmap :insert {statics->statics_sys_mail_service_map, name, id})
 )
 ```
@@ -283,7 +283,7 @@ You can wrap the `(def-func-end)` of a VP function or method with the following
 to see the final VP code output.
 
 ```vdu
-(let ((*debug_emit* :t))
+(let ((*build_emit* :t))
 	(def-func-end)
 )
 ```
@@ -335,7 +335,7 @@ For example the `:array :append` method.
 (emit-label '_7)
 ```
 
-`*debug_mode*` setting in the `class/lisp/root.inc` file lets you set the
+`*build_mode*` setting in the `class/lisp/root.inc` file lets you set the
 compile option for the system. The various mode are:
 
 * 0 release, strip all error checking
@@ -343,7 +343,7 @@ compile option for the system. The various mode are:
 * 1 normal, with error checking
 
 The `(errorcase)`, `(errorif)` and `(errorifnot)` macros alow you to
-conditionally include source code if the `*debug_mode*` is greater than 0.
+conditionally include source code if the `*build_mode*` is greater than 0.
 
 For example adding conditional type checking of input parameters that will be
 removed in release mode. The `(signature)` macro drops the label `sig` at the

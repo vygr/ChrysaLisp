@@ -21,7 +21,7 @@
 	(elem-set (elem-get (scope-new) -3) 0
 		(setq *scopes_sp* (align *scopes_sp* stack_align)))
 	(when (/= *scopes_sp* 0)
-		(if *debug_inst* (print "(vp-alloc " *scopes_sp* ")"))
+		(if *build_inst* (print "(vp-alloc " *scopes_sp* ")"))
 		(vp-alloc *scopes_sp*)
 		(setq *scopes_sp* 0)))
 
@@ -37,7 +37,7 @@
 
 (defun pop-scope ()
 	(when (/= (defq offset (pop-scope-syms)) 0)
-		(if *debug_inst* (print "(vp-free " offset ")"))
+		(if *build_inst* (print "(vp-free " offset ")"))
 		(vp-free offset)))
 
 (defun pop-scope-checked ()
@@ -47,12 +47,12 @@
 
 (defun scope-unwind ()
 	(when (/= (defq offset (scope-offset -1)) 0)
-		(if *debug_inst* (print "(vp-free " offset ")"))
+		(if *build_inst* (print "(vp-free " offset ")"))
 		(vp-free offset)))
 
 (defun return ()
 	(scope-unwind)
-	(if *debug_inst* (print "(vp-ret)"))
+	(if *build_inst* (print "(vp-ret)"))
 	(vp-ret))
 
 (defun scope-def (name type &rest attribs)
