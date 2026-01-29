@@ -54,6 +54,8 @@
 			(cond
 				((eql "f-path" token) (merge classes (list (elem-get input (inc (!))))))
 				((eql "vec-set" token) (merge classes '(":sys_math")))
+				((starts-with "lisp_" token) (merge classes '(":lisp")))
+				((starts-with "str_" token) (merge classes '(":str")))
 				((starts-with "mem_" token) (merge classes '(":sys_mem")))
 				((starts-with "view_" token) (merge classes '(":view")))
 				((starts-with "rect_" token) (merge classes '(":region")))
