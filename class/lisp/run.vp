@@ -27,7 +27,6 @@
 
 	;create lisp class
 	(call :lisp :create {script, obj, obj, obj} {lisp})
-	(assign {script} {lisp->lisp_script_name})
 	(call :obj :deref {obj})
 	(vpif {lisp})
 		;do we have a main ?

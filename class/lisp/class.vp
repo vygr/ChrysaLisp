@@ -46,6 +46,7 @@
 	(s-call :lisp :init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
+		(assign {script} {this->lisp_script_name})
 		(call :obj :ref {stdin} {this->lisp_stdin})
 		(call :obj :ref {stdout} {this->lisp_stdout})
 		(call :obj :ref {stderr} {this->lisp_stderr})

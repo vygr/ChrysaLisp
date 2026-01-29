@@ -442,6 +442,9 @@
 		(call :host_os :pii_write_str `(2 " ("))
 		(assign `((,sptr lisp_stream_name)) `(,node))
 		(call :host_os :pii_write_str `(2 (& ,node str_data)))
+		(call :host_os :pii_write_str `(2 " "))
+		(assign `((,sptr lisp_stream_line)) `(,node))
+		(call :host_os :pii_write_num `(2 ,node 10))
 		(call :host_os :pii_write_str `(2 ,(cat ")" (ascii-char 10))))
 	(endif)
 
