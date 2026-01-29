@@ -46,13 +46,6 @@ restore task
 
 ### :dump -> sys/task/dump
 
-```code
-inputs
-:rsp = task stack pointer (ptr)
-trashes
-none
-```
-
 ### :mailbox -> sys/task/mailbox
 
 ```code
@@ -101,6 +94,8 @@ none
 info
 0 for yield
 ```
+
+### :stack -> sys/task/stack
 
 ### :stacks -> sys/task/stacks
 

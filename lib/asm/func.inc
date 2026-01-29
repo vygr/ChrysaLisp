@@ -74,7 +74,11 @@
 	(push-scope)
 	(defq *emit_start* (length *emit_list*))
 	(def *compile_env* '*func_env* (env))
-	(env-push))
+	(env-push)
+	(validatecase
+		(and (not (ends-with "/vtable" (str *func_name*)))
+			(not (starts-with "sys/" (str *func_name*)))
+			(call :sys_task :stack))))
 
 (defun def-func-end ()
 	(env-pop)

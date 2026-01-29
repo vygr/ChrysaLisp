@@ -22,6 +22,7 @@
 	(dec-method :timer sys/task/timer :static :nil (:r0))
 	(dec-method :stacks sys/task/stacks :static :nil (:r0))
 	(dec-method :dump sys/task/dump)
+	(dec-method :stack sys/task/stack)
 	(dec-method :task_callback class/obj/null :static (:r0))
 	(dec-method :lisp_count sys/task/lisp_count :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_sleep sys/task/lisp_sleep :static (:r0 :r1) (:r0 :r1))

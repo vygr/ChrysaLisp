@@ -175,7 +175,8 @@
 ; errorcase
 ;;;;;;;;;;;;
 
-(defmacro errorcase (&rest e) (if (> *build_mode* 0) `(progn ~e)))
+(defmacro validatecase (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
+(defmacro errorcase (&rest e) (if (>= *build_mode* 1) `(progn ~e)))
 (defmacro noterrorcase (&rest e) (if (<= *build_mode* 0) `(progn ~e)))
 (defmacro errorif (e l) `(errorcase (gotoif ,e ,l)))
 (defmacro errorifnot (e l) `(errorcase (gotoifnot ,e ,l)))
@@ -267,7 +268,7 @@
 	errorif-lisp-args-len errorif-lisp-args-sig errorif-lisp-args-sig-range
 	errorif-lisp-args-match errorif-lisp-args-type
 	switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot
-	vpif vpifnot else elseif elseifnot endif
+	vpif vpifnot else elseif elseifnot endif validatecase
 	break breakif breakifnot goto gotoif gotoifnot exitif exitifnot
 	loop-start loop-end loop-while loop-whilenot loop-until loop-untilnot
 	continue continueif continueifnot repeatif repeatifnot))
