@@ -19,6 +19,7 @@
 	apps:       only the apps !
 	release:    it/apps release mode.
 	debug:      it/apps debug mode.
+	validate:   it/apps validate mode.
 	test:       test make timings.")
 ))
 
@@ -203,8 +204,8 @@
 			(defq args (options stdio usage)))
 		(each (# (def (penv) (sym %0) (find %0 args)))
 			'("all" "platforms" "boot" "docs" "it" "apps"
-				"release" "debug" "test" "ai"))
-		(defq mode (or (if debug 1) (if release 0)))
+				"release" "debug" "validate" "test" "ai"))
+		(defq mode (or (if validate 2) (if debug 1) (if release 0)))
 		(cond
 			(test (make-test))
 			(it (remake-all-platforms mode) (make-docs))

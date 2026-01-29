@@ -13,6 +13,9 @@ Added enhanced stack trace information from `:sys_stask :dump`, will now give
 the stack dump and the Lisp launch script name, with the current repl stream
 name and line number.
 
+New `*debug_mode* 2`, `validate` mode that builds in runtime validation checks.
+The VP64 build will max out at `*debug_mode* 1`, `debug` mode.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

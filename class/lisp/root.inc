@@ -1325,6 +1325,7 @@
 ;compilation options
 ;debug_mode 0, release, strip all error checking
 ;debug_mode 1, normal, with error checking
+;debug_mode 2, validate, with extra runtime validation checking
 (defq *debug_mode* 1 *debug_emit* :nil *debug_inst* :nil)
 
 (defun os ()
