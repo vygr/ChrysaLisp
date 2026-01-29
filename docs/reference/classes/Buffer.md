@@ -288,6 +288,12 @@ cursors format: ((cx cy ax ay sx) ...)
 (. buffer :redo) -> buffer
 ```
 
+### :rewind
+
+```code
+(. buffer :rewind) -> buffer
+```
+
 ### :right
 
 ```code

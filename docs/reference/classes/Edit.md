@@ -28,6 +28,10 @@
 (. edit :constraint) -> (width height)
 ```
 
+### :copy
+
+### :cut
+
 ### :delete
 
 ### :down
@@ -122,7 +126,13 @@
 (. edit :mouse_wheel event) -> edit
 ```
 
+### :paste
+
+### :redo
+
 ### :reflow
+
+### :rewind
 
 ### :right
 
@@ -209,6 +219,8 @@
 
 create the masks for selections, brackets and cursors
 ```
+
+### :undo
 
 ### :unique
 
