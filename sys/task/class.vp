@@ -1,5 +1,6 @@
 (include "lib/asm/func.inc")
-(include "class/obj/class.inc")
+(include "class/str/class.inc")
+(include "class/lisp/class.inc")
 (include "././statics/class.inc")
 (include "././load/class.inc")
 (include "././kernel/class.inc")
@@ -415,6 +416,7 @@
 
 	(vp-push :r0 :r1 :r2 :r3 :r4)
 
+	;print stack dump
 	(fn-bind 'sys/statics/statics stack_top)
 	(assign `((,stack_top statics_sys_task_current_tcb) (& :rsp ,(* +ptr_size 5))) `(,stack_top ,sptr))
 	(assign `((,stack_top tk_node_stack_top)) `(,stack_top))
@@ -430,6 +432,18 @@
 		(endif)
 		(vp-add-cr +ptr_size sptr)
 	(loop-end)
+	;print any task info
+	(fn-bind 'sys/statics/statics sptr)
+	(assign `((,sptr statics_sys_task_current_tcb)) `(,sptr))
+	(assign `((,sptr tk_node_lisp)) `(,sptr))
+	(vpif `(,sptr /= 0))
+		(assign `((,sptr lisp_script_name)) `(,node))
+		(call :host_os :pii_write_str `(2 (& ,node str_data)))
+		(call :host_os :pii_write_str `(2 " ("))
+		(assign `((,sptr lisp_stream_name)) `(,node))
+		(call :host_os :pii_write_str `(2 (& ,node str_data)))
+		(call :host_os :pii_write_str `(2 ,(cat ")" (ascii-char 10))))
+	(endif)
 
 	(vp-pop :r0 :r1 :r2 :r3 :r4)
 	(vp-ret)
