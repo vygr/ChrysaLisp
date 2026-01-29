@@ -41,6 +41,7 @@
 	(defproxymethod :right_bracket () :buffer)
 	(defproxymethod :right_white_space () :buffer)
 	(defproxymethod :left_white_space () :buffer)
+
 	(defproxymethod :left_select () :buffer)
 	(defproxymethod :right_select () :buffer)
 	(defproxymethod :up_select () :buffer)
@@ -50,9 +51,17 @@
 	(defproxymethod :top_select () :buffer)
 	(defproxymethod :bottom_select () :buffer)
 	(defproxymethod :floor_selection () :buffer)
+
 	(defproxymethod :backspace () :buffer)
 	(defproxymethod :delete () :buffer)
 	(defproxymethod :insert (text) :buffer)
+	(defproxymethod :undo () :buffer)
+	(defproxymethod :redo () :buffer)
+	(defproxymethod :rewind () :buffer)
+	(defproxymethod :cut () :buffer :t)
+	(defproxymethod :copy () :buffer :t)
+	(defproxymethod :paste (text) :buffer)
+
 	(defproxymethod :get_cursor () :buffer :t)
 	(defproxymethod :set_cursor (cx cy &optional ax ay) :buffer)
 	(defproxymethod :clip_cursor (cx cy &optional ax ay sx) :buffer :t)

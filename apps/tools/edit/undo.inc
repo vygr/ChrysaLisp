@@ -3,15 +3,15 @@
 ;;;;;;;;;;;;;;
 
 (defun action-undo ()
-	(.-> *edit* :get_buffer :undo)
+	(. *edit* :undo)
 	(refresh))
 
 (defun action-redo ()
-	(.-> *edit* :get_buffer :redo)
+	(. *edit* :redo)
 	(refresh))
 
 (defun action-rewind ()
-	(.-> *edit* :get_buffer :rewind)
+	(. *edit* :rewind)
 	(refresh))
 
 (defun action-undo-global ()

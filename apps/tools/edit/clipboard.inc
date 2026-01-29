@@ -3,15 +3,15 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (defun action-cut ()
-	(clip-put-rpc (.-> *edit* :get_buffer :cut))
+	(clip-put-rpc (. *edit* :cut))
 	(refresh))
 
 (defun action-copy ()
-	(clip-put-rpc (.-> *edit* :get_buffer :copy))
+	(clip-put-rpc (. *edit* :copy))
 	(refresh))
 
 (defun action-paste ()
-	(.-> *edit* :get_buffer (:paste (clip-get-rpc)))
+	(. *edit* :paste (clip-get-rpc))
 	(refresh))
 
 (defun action-cut-word ()
