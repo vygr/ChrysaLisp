@@ -11,8 +11,7 @@
 	(refresh))
 
 (defun action-rewind ()
-	(defq buffer (. *edit* :get_buffer))
-	(while (> (length (get :undo_stack buffer)) 0) (. buffer :undo))
+	(.-> *edit* :get_buffer :rewind)
 	(refresh))
 
 (defun action-undo-global ()

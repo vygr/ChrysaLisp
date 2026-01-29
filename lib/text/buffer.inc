@@ -1040,6 +1040,11 @@
 			(set this :redo_stack redo_stack))
 		this)
 
+	(defmethod :rewind ()
+		; (. buffer :rewind) -> buffer
+		(while (> (length (get :undo_stack this)) 0) (. this :undo))
+		this)
+
 ;;;;;;;;;;;;;;;;;;
 ; bracket matching
 ;;;;;;;;;;;;;;;;;;
