@@ -18,6 +18,11 @@ Renamed the `*debug_mode*` settings to `*build_mode*`.
 New `*build_mode* 2`, `validate` mode that builds in runtime validation checks.
 The VP64 build will max out at `*build_mode* 1`, `debug` mode.
 
+Added runtime stack validation in validate build mode. Every function outside of
+the `sys/` classes gets stack validated at it's entry point. If the stack is out
+of bounds it will stack dump and report what script was running and any repl
+info available. To turn on this build mode just run "make it validate".
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.
