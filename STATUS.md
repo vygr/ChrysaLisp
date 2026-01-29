@@ -9,6 +9,10 @@ objects traced. This is used by the author to run single node TUI and GUI in
 order to see what objects get allocated statically into the root environment,
 and what calls to `num-intern` could be added etc.
 
+Added enhanced stack trace information from `:sys_stask :dump`, will now give
+the stack dump and the Lisp launch script name, with the current repl stream
+name and line number.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.
