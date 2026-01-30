@@ -125,7 +125,8 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this stream string sstream))
+		(ptr this stream string sstream)
+		(uint len))
 
 	(push-scope)
 	(entry :error :print {this, stream})
@@ -158,10 +159,11 @@
 	(call :obj :print {this->error_object, sstream})
 	(call :sstream :ref_string {sstream} {_, string})
 	(call :obj :destroy {sstream})
-	(vpif {string->str_length > 256})
-		(assign {0} {ubyte(&string->str_data + 256)})
+	(assign {string->str_length} {len})
+	(vpif {len >256})
+		(assign {256} {len})
 	(endif)
-	(call :stream :write {stream, &string->str_data, string->str_length})
+	(call :stream :write {stream, &string->str_data, len})
 	(call :str :destroy {string})
 
 	(exit :error :print {this})
