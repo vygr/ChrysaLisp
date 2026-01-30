@@ -26,6 +26,9 @@ info available. To turn on this build mode just run "make it validate".
 Added runtime validation of the object pointer in `(gen-create)` if the returned
 value is 0, validate mode will trap.
 
+`obj-get` and `obj-set` functions now range check the field access in debug
+build mode.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

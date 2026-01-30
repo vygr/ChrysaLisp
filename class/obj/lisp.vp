@@ -13,14 +13,31 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-rdef (this obj args offset type) '(:r8))
+	(vp-rdef (this obj args offset type osize fsize sizes) '(:r8))
 
-	(entry :obj :lisp_get '(:r0 :r1))
+	(entry :obj :lisp_get `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(assign '(:r0) `(,this))
 	(list-bind-args args `(,obj ,offset ,type) '(:obj :num :num))
+
+(errorcase
+	(gotoif `(,offset < 0) 'error1)
+	(gotoif `(,type < +type_real) 'error)
+	(vp-cpy-ir obj (- sys_mem_header_heap sys_mem_header_size) osize)
+	(assign `((,osize hp_heap_cellsize)) `(,osize))
+	(vp-sub-cr sys_mem_header_size osize)
+	(vp-cpy-rr type fsize)
+	(vpif `(,type = 0))
+		(vp-cpy-cr +ptr_size fsize)
+	(elseif `(,type < 0))
+		(vp-lea-p 'type_sizes sizes)
+		(vp-sub-rr type sizes)
+		(vp-cpy-ir-ub sizes 0 fsize)
+	(endif)
+	(vp-add-rr offset fsize)
+	(gotoif `(,fsize > ,osize) 'error1))
+
 	(switch)
 	(vpcase `(,type >= 0))
 		(vpif `(,type = 0))
@@ -71,8 +88,12 @@
 	(vp-ret)
 
 (errorcase
+(vp-label 'error1)
+	(jump :lisp :repl_error `(,this "(obj-get obj offset type)" +error_msg_not_valid_index ,args))
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(obj-get obj offset type)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error `(,this "(obj-get obj offset type)" +error_msg_wrong_types ,args))
+(vp-label 'type_sizes)
+	(vp-byte 0 8 1 1 2 2 4 4 8 8 8)
 	(signature '(:obj :num :num)))
 
 (def-func-end)
@@ -91,7 +112,7 @@
 		(ptr this obj val)
 		(int offset))
 
-	(vp-rdef (this args obj offset type val num))
+	(vp-rdef (this args obj offset type val num osize fsize sizes))
 
 	(entry :obj :lisp_set `(,this ,args))
 
@@ -99,6 +120,24 @@
 
 	(push-scope)
 	(list-bind-args args `(,obj ,offset ,type ,val) '(:obj :num :num :obj))
+
+(errorcase
+	(gotoif `(,offset < 0) 'error1)
+	(gotoif `(,type < +type_real) 'error)
+	(vp-cpy-ir obj (- sys_mem_header_heap sys_mem_header_size) osize)
+	(assign `((,osize hp_heap_cellsize)) `(,osize))
+	(vp-sub-cr sys_mem_header_size osize)
+	(vp-cpy-rr type fsize)
+	(vpif `(,type = 0))
+		(vp-cpy-cr +ptr_size fsize)
+	(elseif `(,type < 0))
+		(vp-lea-p 'type_sizes sizes)
+		(vp-sub-rr type sizes)
+		(vp-cpy-ir-ub sizes 0 fsize)
+	(endif)
+	(vp-add-rr offset fsize)
+	(gotoif `(,fsize > ,osize) 'error1))
+
 	(assign `(,this ,obj) {this, obj})
 	(assign `((,val num_value)) `(,num))
 	(switch 'exit)
@@ -149,8 +188,12 @@
 	(vp-ret)
 
 (errorcase
+(vp-label 'error1)
+	(jump :lisp :repl_error `(,this "(obj-set obj offset type)" +error_msg_not_valid_index ,args))
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this "(obj-set obj offset type val)" +error_msg_wrong_types ,args))
+(vp-label 'type_sizes)
+	(vp-byte 0 8 1 1 2 2 4 4 8 8 8)
 	(signature '(:obj :num :num :obj)))
 
 (def-func-end)
