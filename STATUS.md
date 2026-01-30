@@ -29,6 +29,9 @@ value is 0, validate mode will trap.
 `obj-get` and `obj-set` functions now range check the field access in debug
 build mode.
 
+Lisp `error` objects now carry the initial Lisp script name along with the repl
+info at the point of the error throw.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

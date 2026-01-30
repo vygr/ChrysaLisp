@@ -89,6 +89,18 @@ trashes
 :r1
 ```
 
+### :get_script -> class/error/get_script
+
+```code
+inputs
+:r0 = error object (ptr)
+outputs
+:r0 = error object (ptr)
+:r1 = str object (ptr)
+trashes
+:r1
+```
+
 ### :init -> class/error/init
 
 ```code
@@ -98,9 +110,10 @@ inputs
 :r2 = description c string (pubyte)
 :r3 = 0, else error msg index (uint)
 :r4 = error payload object (ptr)
-:r5 = filename string (ptr)
-:r6 = line number (uint)
-:r7 = stack frame (ptr)
+:r5 = script string (ptr)
+:r6 = stream string (ptr)
+:r7 = stream line number (uint)
+:r8 = stack frame (ptr)
 outputs
 :r0 = error object (ptr)
 :r1 = 0 if error, else ok

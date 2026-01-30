@@ -17,9 +17,10 @@
 	;:r2 = description c string (pubyte)
 	;:r3 = 0, else error msg index (uint)
 	;:r4 = error payload object (ptr)
-	;:r5 = filename string (ptr)
-	;:r6 = line number (uint)
-	;:r7 = stack frame (ptr)
+	;:r5 = script string (ptr)
+	;:r6 = stream string (ptr)
+	;:r7 = stream line number (uint)
+	;:r8 = stack frame (ptr)
 	;outputs
 	;:r0 = error object (ptr)
 	;:r1 = 0 if error, else ok
@@ -31,9 +32,9 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(assign '(:r0 :r2 :r3 :r4 :r5 :r6 :r7)
-		'((:rsp local_this) (:r0 error_description) (:r0 error_msg i)
-		(:r0 error_object) (:r0 error_file) (:r0 error_line i) (:r0 error_frame)))
+	(assign '(:r0 :r2 :r3 :r4 :r5 :r6 :r7 :r8)
+		'((:rsp local_this) (:r0 error_description) (:r0 error_msg i) (:r0 error_object)
+		(:r0 error_script) (:r0 error_file) (:r0 error_line i) (:r0 error_frame)))
 
 	;init parent
 	(s-call :error :init '(:r0 :r1) '(:r0 :r1))
@@ -42,10 +43,11 @@
 		(call :str :create_from_cstr '((:r0 error_description)) '(:r0))
 		(assign '((:rsp local_this)) '(:r1))
 		(assign '(:r0) '((:r1 error_description)))
-		(call :obj :ref '((:r1 error_file)) '(:r0))
-		(assign '((:rsp local_this)) '(:r1))
-		(assign '(:r0) '((:r1 error_file)))
-		(call :obj :ref '((:r1 error_object)))
+		(call :obj :ref '((:r1 error_script)))
+		(assign '((:rsp local_this)) '(:r0))
+		(call :obj :ref '((:r0 error_file)))
+		(assign '((:rsp local_this)) '(:r0))
+		(call :obj :ref '((:r0 error_object)))
 		(assign '((:rsp local_this)) '(:r0))
 	(endif)
 
@@ -64,6 +66,8 @@
 
 	(vp-push :r0)
 	(call :obj :deref '((:r0 error_description)))
+	(assign '((:rsp 0)) '(:r0))
+	(call :obj :deref '((:r0 error_script)))
 	(assign '((:rsp 0)) '(:r0))
 	(call :obj :deref '((:r0 error_file)))
 	(assign '((:rsp 0)) '(:r0))
@@ -134,9 +138,11 @@
 	(call :stream :write_cstr '((:rsp local_stream) :r1) '(:r0))
 
 	(call :stream :write_cstr '(:r0 " Repl: "))
+	(call :error :get_script '((:rsp local_this)) '(_ :r1))
+	(call :stream :write '((:rsp local_stream) (& :r1 str_data) (:r1 str_length)) '(:r0))
+	(call :stream :write_char '(:r0 +char_space))
 	(call :error :get_file '((:rsp local_this)) '(_ :r1))
-	(assign '((:r1 str_length)) '(:r2))
-	(call :stream :write '((:rsp local_stream) (& :r1 str_data) :r2) '(:r0))
+	(call :stream :write '((:rsp local_stream) (& :r1 str_data) (:r1 str_length)) '(:r0))
 	(call :stream :write_char '(:r0 +char_lrb))
 	(call :error :get_line '((:rsp local_this)) '(_ :r1))
 	(call :str :create_from_long '(:r1 10) '(:r0))

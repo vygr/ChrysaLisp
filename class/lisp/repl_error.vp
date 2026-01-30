@@ -30,7 +30,8 @@
 		(call :list :create :nil {frame})
 	(endif)
 
-	(call :error :create {desc, msg, payload, this->lisp_stream_name, this->lisp_stream_line, frame} {frame})
+	(call :error :create {desc, msg, payload, this->lisp_script_name,
+		this->lisp_stream_name, this->lisp_stream_line, frame} {frame})
 
 	(exit :lisp :repl_error {this, frame})
 	(pop-scope)
