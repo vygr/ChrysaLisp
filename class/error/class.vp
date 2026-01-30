@@ -64,18 +64,20 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-push :r0)
-	(call :obj :deref '((:r0 error_description)))
-	(assign '((:rsp 0)) '(:r0))
-	(call :obj :deref '((:r0 error_script)))
-	(assign '((:rsp 0)) '(:r0))
-	(call :obj :deref '((:r0 error_file)))
-	(assign '((:rsp 0)) '(:r0))
-	(call :obj :deref '((:r0 error_object)))
-	(assign '((:rsp 0)) '(:r0))
-	(call :obj :deref '((:r0 error_frame)))
-	(vp-pop :r0)
-	(s-jump :error :deinit '(:r0))
+	(def-vars
+		(ptr this))
+
+	(push-scope)
+	(entry :error :deinit {this})
+
+	(call :obj :deref {this->error_description})
+	(call :obj :deref {this->error_script})
+	(call :obj :deref {this->error_file})
+	(call :obj :deref {this->error_object})
+	(call :obj :deref {this->error_frame})
+	(s-jump :error :deinit {this})
+
+	(pop-scope-syms)
 
 (def-func-end)
 
