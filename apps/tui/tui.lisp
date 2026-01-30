@@ -1,6 +1,7 @@
 (import "usr/env.inc")
 (import "lib/task/pipe.inc")
 (import "lib/files/files.inc")
+(import "lib/files/urls.inc")
 (import "apps/system/terminal/state.inc")
 
 (defq tmbox (mail-mbox)
@@ -86,7 +87,11 @@
 							(when (< cursor (length buffer))
 								(setq buffer (erase buffer cursor (inc cursor)))
 								(redraw-line)))))
-				((or (= c 9) (<= 32 c 126)) ; Printable or Tab
+				((= c 9) ;Tab
+					(defq auto (url-ext buffer cursor))
+					(setq buffer (insert buffer cursor auto) cursor (+ cursor (length auto)))
+					(redraw-line))
+				((<= 32 c 126) ; Printable
 					(setq buffer (insert buffer cursor (char c)))
 					(++ cursor)
 					(redraw-line))))

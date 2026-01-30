@@ -32,6 +32,8 @@ build mode.
 Lisp `error` objects now carry the initial Lisp script name along with the repl
 info at the point of the error throw.
 
+Tab completion added to TUI.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.
