@@ -414,10 +414,6 @@
 		;...
 		(assign %2 %3)
 		(call :sys_mem :alloc `(,(sym (cat (rest %0) "_size"))) '(:r0 _))
-	(validatecase
-		(vpif `(:r0 = 0))
-			(jump :sys_task :dump)
-		(endif))
 		(vpif '(:r0 /= 0))
 			;init the object
 			(call %0 (if %1 (sym (cat :init_ %1)) :init) `(:r0 (@ ,(f-path %0 :vtable)) ~%3) '(:r0 :r1))
