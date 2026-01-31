@@ -1035,12 +1035,39 @@
 		(loop-start)
 			(vp-cpy-ir-ub src 0 ch)
 			(vp-add-cr +byte_size src)
-			(vpif `(,ch = +char_backslash))
+			(vpif `(,ch = +char_backslash) 'esc)
 				(breakif `(,src = ,end))
 				(vp-cpy-ir-ub src 0 ch)
 				(vp-add-cr +byte_size src)
+				(vpif `(,ch = +char_x))
+					;do we have 2 bytes left for hex
+					(vp-lea-i src 2 len)
+					(vpif `(,len <= ,end))
+						;high nibble
+						(vp-cpy-ir-ub src 0 ch)
+						(vp-cpy-rr ch len)
+						(vp-and-cr 0xf ch)
+						(vp-shr-cr 6 len)
+						(vp-mul-cr 9 len)
+						(vp-add-rr len ch)
+						(vp-shl-cr 4 ch)
+						;low nibble
+						(vp-cpy-ir-ub src 1 ch1)
+						(vp-cpy-rr ch1 len)
+						(vp-and-cr 0xf ch1)
+						(vp-shr-cr 6 len)
+						(vp-mul-cr 9 len)
+						(vp-add-rr len ch1)
+						;combine
+						(vp-add-rr ch1 ch)
+						(vp-add-cr 2 src)
+						(break 'esc)
+					(endif)
+					;fallback if not enough chars or malformed: keep 'x'
+					(vp-cpy-cr +char_x ch)
+				(endif)
 				(vp-lea-p 'esc_chars codes)
-				(loop-start 'esc)
+				(loop-start)
 					(vp-cpy-ir-ub codes 0 ch1)
 					(breakif `(,ch1 = 0))
 					(vpif `(,ch = ,ch1))
@@ -1063,9 +1090,9 @@
 	(vp-ret)
 
 (vp-label 'esc_chars)
-	(vp-cstr "rfvntq")
+	(vp-cstr (cat "rfvntq" (ascii-char +char_double_quote)))
 (vp-label 'esc_codes)
 	(vp-byte +char_cr +char_ff +char_vt +char_lf	
-		+char_tab +char_double_quote)
+		+char_tab +char_double_quote +char_double_quote)
 
 (def-func-end)

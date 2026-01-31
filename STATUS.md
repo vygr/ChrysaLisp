@@ -37,7 +37,8 @@ Tab completion added to TUI.
 New VP `:str :unescape` method, and Lisp level `(unescape str) -> str` function
 in `root.inc`.
 
-Lisp `read` function now does basic string escape processing. "\r\n\f\v\t\q".
+Lisp `read` function now does basic string escape processing.
+"\r\n\f\v\t\q\x\"".
 
 ------
 
