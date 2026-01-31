@@ -157,7 +157,7 @@
 	(call :sstream :ref_string {sstream} {_, string})
 	(call :obj :destroy {sstream})
 	(assign {string->str_length} {len})
-	(vpif {len >256})
+	(vpif {len > 256})
 		(assign {256} {len})
 	(endif)
 	(call :stream :write {stream, &string->str_data, len})
