@@ -1065,7 +1065,7 @@
 (vp-label 'esc_chars)
 	(vp-cstr "rfvntq")
 (vp-label 'esc_codes)
-	(vp-byte +char_cr +char_ff +char_vf +char_lf	
+	(vp-byte +char_cr +char_ff +char_vt +char_lf	
 		+char_tab +char_double_quote)
 
 (def-func-end)

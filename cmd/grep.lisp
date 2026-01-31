@@ -27,7 +27,7 @@
 		() group
 		\\r return
 		\\f form feed
-		\\v vertical feed
+		\\v vertical tab
 		\\n line feed
 		\\q double quote
 		\\t tab

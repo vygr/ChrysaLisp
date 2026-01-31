@@ -7,7 +7,7 @@
 	+char_delete 127
 	+char_tab 9
 	+char_lf 10
-	+char_vf 11
+	+char_vt 11
 	+char_ff 12
 	+char_cr 13
 	+char_esc 27
