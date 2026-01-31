@@ -879,7 +879,7 @@
 		(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(push text (. this :icopy cx cy ax ay)))
 			(get :cursors this))
-		(join text (const (unescape "\f"))))
+		(join text "\f"))
 
 	(defmethod :cut ()
 		; (. buffer :cut) -> text
@@ -889,12 +889,12 @@
 				(push text (. this :icopy cx cy ax ay))) (get :cursors this))
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(. this :idelete cx cy ax ay)) (get :cursors this)))
-		(join text (const (unescape "\f"))))
+		(join text "\f"))
 
 	(defmethod :paste (text)
 		; (. buffer :paste text) -> buffer
 		(undoable this
-			(defq parts (split text (const (unescape "\f"))))
+			(defq parts (split text "\f"))
 			(cond
 				((= (length parts) (length (get :cursors this)))
 					;matching number of parts !
@@ -904,7 +904,7 @@
 					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this)))
 				(:t ;none matching parts !
-					(defq parts (join parts (unescape "\n") 2))
+					(defq parts (join parts "\n" 2))
 					(reach (lambda (csr) (task-slice)
 						(bind '(cx cy) (csr-sort-top csr))
 						(. this :iinsert cx cy parts)) (get :cursors this))
@@ -927,7 +927,7 @@
 		(lines! (lambda (line)
 				(task-slice)
 				(setq line (cat
-						(expand (trim-end line (const (unescape "\r"))) tab_width)
+						(expand (trim-end line "\r") tab_width)
 						+char_class_lf)
 					max_width (max max_width (length line)))
 				(push-line line))

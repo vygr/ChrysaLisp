@@ -25,24 +25,24 @@
 		|  or
 		[] class, [0-9], [abc123]
 		() group
-		\r return
-		\f form feed
-		\v vertical tab
-		\n line feed
-		\q double quote
-		\t tab
-		\s [ \t]
-		\S [^ \r\f\v\n\t]
-		\d [0-9]
-		\D [^0-9]
-		\l [a-z]
-		\u [A-Z]
-		\a [A-Za-z]
-		\p [A-Za-z0-9]
-		\w [A-Za-z0-9_]
-		\W [^A-Za-z0-9_]
-		\x [A-Fa-f0-9]
-		\\ esc for \ etc
+		\\r return
+		\\f form feed
+		\\v vertical feed
+		\\n line feed
+		\\q double quote
+		\\t tab
+		\\s [ \\t]
+		\\S [^ \\r\\f\\v\\n\\t]
+		\\d [0-9]
+		\\D [^0-9]
+		\\l [a-z]
+		\\u [A-Z]
+		\\a [A-Za-z]
+		\\p [A-Za-z0-9]
+		\\w [A-Za-z0-9_]
+		\\W [^A-Za-z0-9_]
+		\\x [A-Fa-f0-9]
+		\\\\ esc for \\ etc
 
 	If no paths given on command line
 	then will grep from stdin.")

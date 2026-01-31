@@ -240,6 +240,12 @@ returns :t if csr2 is enclosed within (or equal to) csr1
 (escape str) -> str
 ```
 
+### escape-regexp
+
+```code
+(escape-regexp str) -> str
+```
+
 ### even?
 
 ```code

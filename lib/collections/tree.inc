@@ -21,16 +21,23 @@
 		((sym? atom) atom)
 		((num? atom) atom)
 		((str? atom)
+			;if detect binary, first try escaping the string
+			(if (defq has_bin (/= (rbskip (const (cat " !" {""}
+					"#$%&'()*+,-./0123456789:;<=>?@"
+					"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`"
+					"abcdefghijklmnopqrstuvwxyz{|}~"))
+					atom -1) 0))
+				(setq atom (escape atom)))
 			(defq has_quote (/= (rbskipn {""} atom -1) 0)
 				has_curly (/= (rbskipn "{}" atom -1) 0)
 				has_bin (/= (rbskip (const (cat " !" {""}
-						"#$%&'()*+,-./0123456789:;<=>?@"
-						"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`"
-						"abcdefghijklmnopqrstuvwxyz{|}~"))
-						atom -1) 0))
+					"#$%&'()*+,-./0123456789:;<=>?@"
+					"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`"
+					"abcdefghijklmnopqrstuvwxyz{|}~"))
+					atom -1) 0))
 			(cond
 				((or has_bin (and has_quote has_curly))
-					(cat {"} (hex-encode atom) {"}))
+					(cat "\q" (hex-encode atom) "\q"))
 				(has_quote (cat "{[" atom "]}"))
 				((cat {"[} atom {]"}))))
 		((throw "Invalid tree encode !" atom))))

@@ -6,8 +6,8 @@
 	(cat "0x" (int-to-hex-str %0)))
 
 (defq +disabled_prefix ";;; "
-	+auto_pattern (cat "^(" +disabled_prefix ")?\(debug-brk \q0x\x+\q\)\n$")
-	+user_pattern (cat "^(" +disabled_prefix ")?\(debug-brk \q.+\q\)\n$"))
+	+auto_pattern (cat "^(" +disabled_prefix ")?\\(debug-brk \q0x\\x+\q\\)\n$")
+	+user_pattern (cat "^(" +disabled_prefix ")?\\(debug-brk \q.+\q\\)\n$"))
 
 (defun file-app (file)
 	(defq app :nil)

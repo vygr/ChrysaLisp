@@ -1022,7 +1022,7 @@
 	;outputs
 	;:r0 = str object (ptr)
 	;trashes
-	;:r0-:r6
+	;:r0-:r8
 
 	(vp-rdef (this begin len src dst end ch codes ch1))
 

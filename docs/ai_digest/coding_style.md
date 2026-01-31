@@ -290,7 +290,7 @@ by its capture group slices.
 
 ```vdu
 (defq line "INFO: v2 2024-05-15 data.zip")
-(defq match (matches line "(\w+): v(\d) (\S+) (\S+)"))
+(defq match (matches line "(\\w+): v(\\d) (\\S+) (\\S+)"))
 ;; match -> (((0 28) (0 4) (7 8) (9 19) (20 28)))
 
 ;; We only want the version, &ignore is perfect for this.

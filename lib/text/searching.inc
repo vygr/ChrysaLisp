@@ -30,7 +30,7 @@
 (defun query (_p _w _r)
 	; (query pattern whole_words regexp) -> (engine meta pattern)
 	(if (and (nql _p "") _w (not _r))
-		(setq _p (escape _p)))
+		(setq _p (escape-regexp _p)))
 	(defq _e (if (or _w _r) +regexp +substr)
 		_p (if _w (cat "!" _p "!") _p))
 	(list _e (. _e :compile _p) _p))
@@ -51,7 +51,7 @@
 					(push c_map (list (length p_nums) group))
 					(setq last_idx me)
 					(push p_nums 0 0 0 0))
-				(matches rep_str "\$(\d+)") (nums)))
+				(matches rep_str "\\$(\\d+)") (nums)))
 		; final literal tail
 		(push p_nums 0 0 last_idx -1)
 		; build the zero template vector for fast runtime cloning

@@ -18,7 +18,7 @@
 	; (Pipe cmdline [user_select]) -> pipe | :nil
 	(setd user_select '())
 	(bind '(cmdpipe args) (reduce (#
-		(bind '(((x x1))) (matches %1 "^\S+"))
+		(bind '(((x x1))) (matches %1 "^\\S+"))
 		(push (first %0) (cat "cmd/" (slice %1 x x1) ".lisp"))
 		(push (second %0) %1) %0) (pipe-split cmdline) (lists 2)))
 	(cond

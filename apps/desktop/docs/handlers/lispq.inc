@@ -5,7 +5,7 @@
 	; (handler state page line) -> state
 	(defq lines '())
 	(cond
-		((match? line "^\s*```")
+		((match? line "^\\s*```")
 			(defq ss (string-stream (join lines (ascii-char 10)))
 				result (eval
 					(static-qq (progn

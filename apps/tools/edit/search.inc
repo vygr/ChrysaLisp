@@ -92,7 +92,7 @@
 
 (defun action-set-find-text ()
 	(defq text (. *edit* :get_select))
-	(if *regexp* (setq text (escape text)))
+	(if *regexp* (setq text (escape-regexp text)))
 	(.-> *find_text* (:set_text text) :layout :dirty)
 	(.-> *edit* :get_buffer (:find text *whole_words* *regexp*))
 	(refresh))

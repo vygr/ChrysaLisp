@@ -200,10 +200,6 @@ coding should NOT be doing ! There is no need to keep making the system from
 scratch each time ! Running your tests via this script launcher is what you
 should be doing.
 
-If you wish to use escape sequences in strings, ChrysaLisp does NO escape
-processing in the `(read)` function !, use the `(unescape string)`, function
-from the `(import "lib/text/charclass.inc")`, library.
-
 In order to run a `cmd/` app, from a raw script, you need to wrap the
 `cmd/appname.lisp` in a `(pipe-run command_line)` function, from the `(import
 "lib/task/pipe.inc")` library.
@@ -219,11 +215,9 @@ builds and testing.
 ```lisp
 ;use of (pipe-run command_line)
 (import "lib/task/pipe.inc")
-;use of (unescape string)
-(import "lib/text/charclass.inc")
 
 (defun my-test ()
-    (defq test_string (unescape "string with new line\n"))
+    (defq test_string "string with new line\n")
     ...
     (pipe-run appname)
     ...

@@ -26,7 +26,7 @@
 						(setq x x2)) match)
 					(apply (const cat) (push seqs (slice line x -1))))
 				(line)))
-		'(("\*\*[^*]+\*\*" "\*[^*]+\*") "bi" (2 1)) line)))
+		'(("\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*") "bi" (2 1)) line)))
 	(cond
 		((nempty? quoted)
 			(reach (# (if (eql %0 "<q>") (elem-set words (!) (pop quoted)))) words)
@@ -99,7 +99,7 @@
 	; (handler state page line) -> state
 	(defq lines '())
 	(cond
-		((match? line "^\s*```")
+		((match? line "^\\s*```")
 			;section start
 			(if (eql (setq state (sym (cat ":" (slice line (rfind "`" line) -1)))) :) :code state))
 		(:t ;body text
@@ -109,7 +109,7 @@
 					(when (nempty? lines)
 						(defq line (first lines) style ""
 							indent (slice line 0 (bskip +char_class_space line 0))
-							match (matches line "^\s*((\p\.)+\s+|[*-]\s+)"))
+							match (matches line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)"))
 						(when (nempty? match)
 							(bind '(((& cx2) (sx1 sx2) &ignore)) match)
 							(setq style (slice line sx1 sx2) line (slice line cx2 -1)))

@@ -48,13 +48,13 @@ Within regular expression patterns placing brackets around an expression will
 return the sub matches along with the main match.
 
 ```lisp
-(matches "abc xyz 123 abc 567" "(\d+)\D+(\d+)")
+(matches "abc xyz 123 abc 567" "(\\d+)\\D+(\\d+)")
 ```
 
 There can also be more than one match within a search.
 
 ```lisp
-(matches "abc xyz 123 abc 567 xyz 123 abc 567" "(\d+)\D+(\d+)")
+(matches "abc xyz 123 abc 567 xyz 123 abc 567" "(\\d+)\\D+(\\d+)")
 ```
 
 The results are slice indices that you can use to retrieve the resulting

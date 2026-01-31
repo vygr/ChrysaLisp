@@ -114,7 +114,7 @@ Usage: grep [options] [pattern] [path] ...
 		() group
 		\r return
 		\f form feed
-		\v vertical tab
+		\v vertical feed
 		\n line feed
 		\q double quote
 		\t tab

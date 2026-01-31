@@ -22,7 +22,7 @@
 (defun handler (state page line)
 	; (handler state page line) -> state
 	(cond
-		((match? line "^\s*```")
+		((match? line "^\\s*```")
 			:text)
 		(:t (case line
 				("root-funcs"

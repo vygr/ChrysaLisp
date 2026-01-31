@@ -405,7 +405,7 @@ inputs
 outputs
 :r0 = str object (ptr)
 trashes
-:r0-:r6
+:r0-:r8
 ```
 
 ### :vtable -> class/str/vtable

@@ -6,6 +6,15 @@
 	; (escape str) -> str
 	(when (>= (length string) 1)
 		(setq string (apply (const cat) (reduce
+			(# (if (defq i (find %1 "\t\n\v\f\r"))
+				(push %0 "\\" (elem-get "tnvfr" i))
+				(push %0 %1))) string (list)))))
+	string)
+
+(defun escape-regexp (string)
+	; (escape-regexp str) -> str
+	(when (>= (length string) 1)
+		(setq string (apply (const cat) (reduce
 			(# (if (find %1 "^$!.*+?\|[]()")
 				(push %0 {\})) (push %0 %1)) string (list)))))
 	string)

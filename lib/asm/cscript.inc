@@ -13,7 +13,7 @@
 	+op_chars (char-class "-+*/%~^<=>!&|.")
 	+follow_on_op_chars (char-class "/%<=>&|")
 	+bracket_chars (char-class "()[]")
-	+stringy_chars (char-class (cat (ascii-char 34) "$@")))
+	+stringy_chars (char-class "\q$@"))
 
 (defmacro is-symbol-char? (%0) (static-qqp (bfind ,%0 +symbol_chars)))
 (defmacro is-path-char? (%0) (static-qqp (bfind ,%0 +char_class_path)))

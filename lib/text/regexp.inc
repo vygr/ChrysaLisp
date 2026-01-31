@@ -60,12 +60,12 @@
 			(:esc
 				(case c
 					(:t (output :lit c))
-					("q" (output :lit (char-class "\q")))
-					("r" (output :lit (char-class "\r")))
-					("f" (output :lit (char-class "\f")))
-					("v" (output :lit (char-class "\v")))
-					("n" (output :lit (char-class "\n")))
-					("t" (output :lit (char-class "\t")))
+					("q" (output :lit "\q"))
+					("r" (output :lit "\r"))
+					("f" (output :lit "\f"))
+					("v" (output :lit "\v"))
+					("n" (output :lit "\n"))
+					("t" (output :lit "\t"))
 					("s" (output :class " \t"))
 					("S" (output :class "^ \r\f\v\n\t"))
 					("d" (output :class "0-9"))
