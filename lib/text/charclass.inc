@@ -10,22 +10,6 @@
 				(push %0 {\})) (push %0 %1)) string (list)))))
 	string)
 
-(defun unescape (string)
-	; (unescape str) -> str
-	(when (>= (length string) 2)
-		(defq out (cap (length string) (list)) state :nil)
-		(each (# (case state
-				(:\ (push out (if (defq i (find %0 "rfvntq"))
-						(elem-get (static-q
-							((ascii-char 13) (ascii-char 12)
-							(ascii-char 11) (ascii-char 10)
-							(ascii-char 9) (ascii-char 34))) i) %0))
-					(setq state :nil))
-				(:t (if (eql %0 {\}) (setq state :\) (push out %0)))))
-			string)
-		(setq string (apply (const cat) out)))
-	string)
-
 (defun char-class (k)
 	; (char-class key) -> str
 	;create char class

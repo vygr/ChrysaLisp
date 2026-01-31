@@ -34,6 +34,9 @@ info at the point of the error throw.
 
 Tab completion added to TUI.
 
+New VP `:str :unescape` method, and Lisp level `(unescape str) -> str` function
+in `root.inc`.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

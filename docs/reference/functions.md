@@ -1293,12 +1293,6 @@ patch stream a with stream b, write to stream c
 (ui-tool-tips view tips)
 ```
 
-### unescape
-
-```code
-(unescape str) -> str
-```
-
 ### unique
 
 ```code

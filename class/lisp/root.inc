@@ -266,6 +266,8 @@
 ; (starts-with str str) -> :nil | :t
 (ffi "class/str/lisp_endw" ends-with)
 ; (ends-with str str) -> :nil | :t
+(ffi "class/str/lisp_unescape" unescape)
+; (unescape str) -> str
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Symbol and Environment Operations

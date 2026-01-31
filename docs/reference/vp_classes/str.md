@@ -44,6 +44,8 @@
 
 ### (str-to-num str) -> num
 
+### (unescape str) -> str
+
 ## VP methods
 
 ### :bfind -> class/str/bfind
@@ -393,6 +395,17 @@ outputs
 :r1 = 0 if match, else not
 trashes
 :r1-:r6
+```
+
+### :unescape -> class/str/unescape
+
+```code
+inputs
+:r0 = str object (ptr)
+outputs
+:r0 = str object (ptr)
+trashes
+:r0-:r6
 ```
 
 ### :vtable -> class/str/vtable

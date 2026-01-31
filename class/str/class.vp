@@ -1015,3 +1015,57 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :str :unescape)
+	;inputs
+	;:r0 = str object (ptr)
+	;outputs
+	;:r0 = str object (ptr)
+	;trashes
+	;:r0-:r6
+
+	(vp-rdef (this begin len src dst end ch codes ch1))
+
+	(entry :str :unescape `(,this))
+
+	(assign `((,this str_length) (& ,this str_data)) `(,len ,src))
+	(vpif `(,len /= 0))
+		(vp-simd vp-cpy-rr `(,src) `(,dst ,begin))
+		(vp-lea-d src len end)
+		(loop-start)
+			(vp-cpy-ir-ub src 0 ch)
+			(vp-add-cr +byte_size src)
+			(vpif `(,ch = +char_backslash))
+				(breakif `(,src = ,end))
+				(vp-cpy-ir-ub src 0 ch)
+				(vp-add-cr +byte_size src)
+				(vp-lea-p 'esc_chars codes)
+				(loop-start 'esc)
+					(vp-cpy-ir-ub codes 0 ch1)
+					(breakif `(,ch1 = 0))
+					(vpif `(,ch = ,ch1))
+						(vp-cpy-ir-ub codes '`(- ,(label-sym 'esc_codes) ,(label-sym 'esc_chars)) ch)
+						(break 'esc)
+					(endif)
+					(vp-add-cr +byte_size codes)
+				(loop-end)
+			(endif)
+			(vp-cpy-ri-b ch dst 0)
+			(vp-add-cr +byte_size dst)
+		(loop-until `(,src = ,end))
+		(vp-xor-rr ch ch)
+		(vp-cpy-ri-b ch dst 0)
+		(vp-sub-rr begin dst)
+		(assign `(,dst) `((,this str_length)))
+	(endif)
+
+	(exit :str :unescape `(,this))
+	(vp-ret)
+
+(vp-label 'esc_chars)
+	(vp-cstr "rfvntq")
+(vp-label 'esc_codes)
+	(vp-byte +char_cr +char_ff +char_vf +char_lf	
+		+char_tab +char_double_quote)
+
+(def-func-end)
