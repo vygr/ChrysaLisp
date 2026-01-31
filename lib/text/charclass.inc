@@ -15,7 +15,7 @@
 	; (escape-regexp str) -> str
 	(when (>= (length string) 1)
 		(setq string (apply (const cat) (reduce
-			(# (if (find %1 "^$!.*+?\|[]()")
+			(# (if (find %1 "^$!.*+?|[]()\\")
 				(push %0 {\})) (push %0 %1)) string (list)))))
 	string)
 
