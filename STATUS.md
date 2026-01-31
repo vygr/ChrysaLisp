@@ -23,11 +23,8 @@ the `sys/` classes gets stack validated at it's entry point. If the stack is out
 of bounds it will stack dump and report what script was running and any repl
 info available. To turn on this build mode just run "make it validate".
 
-Added runtime validation of the object pointer in `(gen-create)` if the returned
-value is 0, validate mode will trap.
-
-`obj-get` and `obj-set` functions now range check the field access in debug
-build mode.
+`obj-get` and `obj-set` functions now range and align check the field access in
+debug build mode.
 
 Lisp `error` objects now carry the initial Lisp script name along with the repl
 info at the point of the error throw.
