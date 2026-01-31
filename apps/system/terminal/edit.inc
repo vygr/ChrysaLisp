@@ -69,7 +69,7 @@
 								(bind '(history) (gather *meta_map* :history))
 								(if (defq i (find cmd history))
 									(setq history (erase history i (inc i))))
-								(push history cmd)
+								(push history (trim cmd))
 								(scatter *meta_map* :history history)
 								(setq *history_idx* (length history)))
 							;error with pipe

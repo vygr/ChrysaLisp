@@ -62,7 +62,7 @@
 									(bind '(history) (gather *meta_map* :history))
 									(if (defq i (find buffer history))
 										(setq history (erase history i (inc i))))
-									(push history buffer)
+									(push history (trim buffer))
 									(scatter *meta_map* :history history)
 									(setq *history_idx* (length history) *history* history)
 									(state-save)))))
