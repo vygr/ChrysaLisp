@@ -141,7 +141,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-rdef (this id0 id1 id2 seqnum state ackid msg data len))
+	(vp-rdef (this seqnum state ackid id0 id1 id2 msg data len))
 
 	(entry :out :flush `(,this))
 
