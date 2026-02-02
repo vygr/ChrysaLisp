@@ -21,9 +21,9 @@
 	;:r1-:r14
 
 	(entry :out :init '(:r0 :r1 :r2 :r3 :r4))
-	(save-net-id :r0 out_id :r2 :r3 :r4)
 
 	;init parent
+	(save-net-id :r0 out_id :r2 :r3 :r4)
 	(s-call :out :init '(:r0 :r1 0 0 0 0) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
@@ -49,26 +49,28 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :out :deinit '(:r0))
+	(vp-rdef (this buffer tmp))
+
+	(entry :out :deinit `(,this))
 
 	;stopping then stopped
-	(call :out :set_state '(:r0 stream_mail_state_stopping) '(:r0))
-	(call :out :set_state '(:r0 stream_mail_state_stopped) '(:r0))
+	(call :out :set_state `(,this stream_mail_state_stopping) `(,this))
+	(call :out :set_state `(,this stream_mail_state_stopped) `(,this))
 
 	;free any stream mail buffer
-	(vp-push :r0)
-	(vp-xor-rr :r1 :r1)
-	(assign '((:r0 stream_buffer)) '(:r2))
-	(assign '(:r1) '((:r0 stream_buffer)))
-	(call :sys_mail :free '(:r2))
+	(vp-push this)
+	(assign `((,this stream_buffer)) `(,buffer))
+	(vp-xor-rr tmp tmp)
+	(assign `(,tmp) `((,this stream_buffer)))
+	(call :sys_mail :free `(,buffer))
 
 	;free ack mailbox
-	(assign '((:rsp 0)) '(:r0))
-	(call :sys_mail :free_mbox '((:r0 out_ack_mbox_id)))
+	(assign '((:rsp 0)) `(,this))
+	(call :sys_mail :free_mbox `((,this out_ack_mbox_id)))
 
 	;deinit parent
-	(vp-pop :r0)
-	(s-jump :out :deinit '(:r0))
+	(vp-pop this)
+	(s-jump :out :deinit `(,this))
 
 (def-func-end)
 
@@ -81,19 +83,21 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :out :set_state '(:r0 :r1))
+	(vp-rdef (this state ostate))
+
+	(entry :out :set_state `(,this ,state))
 
 	;only move state forward
-	(assign '((:r0 out_state)) '(:r2))
-	(vpif '(:r2 < :r1))
-		(vp-push :r1)
-		(call :out :write_next '(:r0) '(:r0))
-		(vp-pop :r1)
-		(assign '(:r1) '((:r0 out_state)))
-		(call :out :flush '(:r0) '(:r0))
+	(assign `((,this out_state)) `(,ostate))
+	(vpif `(,ostate < ,state))
+		(vp-push state)
+		(call :out :write_next `(,this) `(,this))
+		(vp-pop state)
+		(assign `(,state) `((,this out_state)))
+		(call :out :flush `(,this) `(,this))
 	(endif)
 
-	(exit :out :set_state '(:r0))
+	(exit :out :set_state `(,this))
 	(vp-ret)
 
 (def-func-end)
@@ -107,22 +111,24 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :out :wait_acks '(:r0 :r1))
+	(vp-rdef (this ack_num seq_num))
+
+	(entry :out :wait_acks `(,this ,ack_num))
 
 	(loop-start)
-		(assign '((:r0 out_ack_seqnum)) '(:r2))
-		(breakif '(:r1 = :r2))
+		(assign `((,this out_ack_seqnum)) `(,seq_num))
+		(breakif `(,ack_num = ,seq_num))
 		;next ack seq num
-		(vp-add-cr 1 :r2)
-		(assign '(:r2) '((:r0 out_ack_seqnum)))
+		(vp-add-cr 1 seq_num)
+		(assign `(,seq_num) `((,this out_ack_seqnum)))
 		;wait for an ack
-		(vp-push :r0 :r1)
-		(call :sys_mail :read '((:r0 out_ack_mbox_addr)) '(:r0 _))
-		(call :sys_mail :free '(:r0))
-		(vp-pop :r0 :r1)
+		(vp-push this ack_num)
+		(call :sys_mail :read `((,this out_ack_mbox_addr)) `(,this _))
+		(call :sys_mail :free `(,this))
+		(vp-pop this ack_num)
 	(loop-end)
 
-	(exit :out :wait_acks '(:r0))
+	(exit :out :wait_acks `(,this))
 	(vp-ret)
 
 (def-func-end)
@@ -135,46 +141,49 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :out :flush '(:r0))
+	(vp-rdef (this id0 id1 id2 seqnum state ackid msg data len))
 
-	(assign '((:r0 stream_buffer)) '(:r9))
-	(vpif '(:r9 /= 0))
-		(vp-push :r0)
-		(vp-xor-rr :r2 :r2)
-		(assign '(:r2) '((:r0 stream_buffer)))
+	(entry :out :flush `(,this))
 
-		;send current buffer
-		(assign '((:r9 msg_frag_data) (:r0 stream_bufp)) '(:r2 :r3))
-		(vp-sub-rr :r2 :r3)
-		(assign '(:r3) '((:r9 msg_frag_length)))
-		(load-net-id :r0 out_id :r3 :r4 :r5)
-		(assign `((:r0 out_seqnum) (:r0 out_state) (:r0 out_ack_mbox_id))
-			'(:r6 :r7 :r8))
-		(save-net-id :r9 msg_dest :r3 :r4 :r5)
-		(assign '(:r6 :r7 :r8)
-			`((:r2 stream_msg_seqnum) (:r2 stream_msg_state)
-			(:r2 ,(+ stream_msg_ack_id net_id_mbox_id))))
+	(assign `((,this stream_buffer)) `(,msg))
+	(vpif `(,msg /= 0))
+		(vp-push this)
+		(vp-xor-rr data data)
+		(assign `(,data) `((,this stream_buffer)))
+
+		;send current msg buffer
+		(assign `((,msg msg_frag_data) (,this stream_bufp)) `(,data ,len))
+		(vp-sub-rr data len)
+		(assign `(,len) `((,msg msg_frag_length)))
+		(load-net-id this out_id id0 id1 id2)
+		(load-fields this
+			'(out_seqnum out_state out_ack_mbox_id)
+			`(,seqnum ,state ,ackid))
+		(save-net-id msg msg_dest id0 id1 id2)
+		(save-fields data
+			`(stream_msg_seqnum stream_msg_state ,(+ stream_msg_ack_id net_id_mbox_id))
+			`(,seqnum ,state ,ackid))
 		(call :sys_kernel :id :nil
-			`((:r2 ,(+ stream_msg_ack_id net_id_node_id node_id_node1))
-			(:r2 ,(+ stream_msg_ack_id net_id_node_id node_id_node2))))
-		(call :sys_mail :send '(:r9))
+			`((,data ,(+ stream_msg_ack_id net_id_node_id node_id_node1))
+			(,data ,(+ stream_msg_ack_id net_id_node_id node_id_node2))))
+		(call :sys_mail :send `(,msg))
 
 		;wait for acks ?
-		(vp-pop :r0)
-		(assign '((:r0 out_seqnum)) '(:r1))
-		(vp-shr-cr out_ack_shift :r1)
-		(call :out :wait_acks '(:r0 :r1) '(:r0))
+		(vp-pop this)
+		(assign `((,this out_seqnum)) `(,seqnum))
+		(vp-shr-cr out_ack_shift seqnum)
+		(call :out :wait_acks `(,this ,seqnum) `(,this))
 
 		;next seq num
-		(assign '((:r0 out_seqnum)) '(:r1))
-		(vp-add-cr 1 :r1)
-		(assign '(:r1) '((:r0 out_seqnum)))
+		(assign `((,this out_seqnum)) `(,seqnum))
+		(vp-add-cr 1 seqnum)
+		(assign `(,seqnum) `((,this out_seqnum)))
 
 		;parent actions
-		(s-call :out :flush '(:r0) '(:r0))
+		(s-call :out :flush `(,this) `(,this))
 	(endif)
 
-	(exit :out :flush '(:r0))
+	(exit :out :flush `(,this))
 	(vp-ret)
 
 (def-func-end)
@@ -187,17 +196,19 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :out :write_next '(:r0))
+	(vp-rdef (this bufp bufe buffer))
 
-	(vp-push :r0)
-	(call :stream :flush '(:r0))
-	(call :sys_mail :alloc '(lk_data_size) '(:r2 :r1))
-	(vp-pop :r0)
-	(vp-lea-i :r1 lk_data_size :r3)
-	(vp-add-cr stream_msg_data :r1)
-	(assign '(:r2 :r1 :r3) '((:r0 stream_buffer) (:r0 stream_bufp) (:r0 stream_bufe)))
+	(entry :out :write_next `(,this))
 
-	(exit :out :write_next '(:r0))
+	(vp-push this)
+	(call :stream :flush  `(,this))
+	(call :sys_mail :alloc '(lk_data_size) `(,buffer ,bufp))
+	(vp-pop this)
+	(vp-lea-i bufp lk_data_size bufe)
+	(vp-add-cr stream_msg_data bufp)
+	(save-fields this '(stream_buffer stream_bufp stream_bufe) `(,buffer ,bufp ,bufe))
+
+	(exit :out :write_next  `(,this))
 	(vp-ret)
 
 (def-func-end)
