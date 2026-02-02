@@ -1071,7 +1071,9 @@
 					(vp-cpy-ir-ub codes 0 ch1)
 					(breakif `(,ch1 = 0))
 					(vpif `(,ch = ,ch1))
-						(vp-cpy-ir-ub codes '`(- ,(label-sym 'esc_codes) ,(label-sym 'esc_chars)) ch)
+;FIXME vp-opt
+;						(vp-cpy-ir-ub codes '`(- ,(label-sym 'esc_codes) ,(label-sym 'esc_chars)) ch)
+						(vp-cpy-ir-ub codes 8 ch)
 						(break 'esc)
 					(endif)
 					(vp-add-cr +byte_size codes)
