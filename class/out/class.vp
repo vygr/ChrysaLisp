@@ -20,23 +20,25 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :out :init '(:r0 :r1 :r2 :r3 :r4))
+	(vp-rdef (this vtable id0 id1 id2 zero state))
+
+	(entry :out :init `(,this ,vtable ,id0 ,id1 ,id2))
 
 	;init parent
-	(save-net-id :r0 out_id :r2 :r3 :r4)
-	(s-call :out :init '(:r0 :r1 0 0 0 0) '(:r0 :r1))
-	(vpif '(:r1 /= 0))
+	(save-net-id this out_id id0 id1 id2)
+	(s-call :out :init `(,this ,vtable 0 0 0 0) `(,this ,vtable))
+	(vpif `(,vtable /= 0))
 		;init myself
-		(vp-xor-rr :r2 :r2)
-		(assign '(:r2 :r2 stream_mail_state_started) '((:r0 out_seqnum) (:r0 out_ack_seqnum) :r2))
-		(assign '(:r2) '((:r0 out_state)))
-		(vp-push :r0)
-		(call :sys_mail :alloc_mbox :nil '(:r2 :r1))
-		(vp-pop :r0)
-		(assign '(:r2 :r1 :r0) '((:r0 out_ack_mbox_id) (:r0 out_ack_mbox_addr) :r1))
+		(assign '(0 stream_mail_state_started) `(,zero ,state))
+		(save-fields this '(out_seqnum out_ack_seqnum out_state) `(,zero ,zero ,state))
+		(vp-push this)
+		(call :sys_mail :alloc_mbox :nil `(,id0 ,id1))
+		(vp-pop this)
+		(save-fields this '(out_ack_mbox_id out_ack_mbox_addr) `(,id0 ,id1))
+		(vp-cpy-rr this vtable)
 	(endif)
 
-	(exit :out :init '(:r0 :r1))
+	(exit :out :init `(,this ,vtable))
 	(vp-ret)
 
 (def-func-end)
