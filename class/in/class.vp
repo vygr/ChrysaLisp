@@ -19,33 +19,33 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :in :init '(:r0 :r1 :r2))
-	(assign '(:r2) '((:r0 in_mbox_oid)))
+	(vp-rdef (this vtable zero state oid))
+
+	(entry :in :init `(,this ,vtable ,oid))
 
 	;init parent
-	(s-call :in :init '(:r0 :r1 0 0 0 0) '(:r0 :r1))
-	(vpif '(:r1 /= 0))
+	(assign `(,oid) `((,this in_mbox_oid)))
+	(s-call :in :init `(,this ,vtable 0 0 0 0) `(,this ,vtable))
+	(vpif `(,vtable /= 0))
 		;init myself
-		(vp-xor-rr :r1 :r1)
-		(assign '(:r1 :r1 stream_mail_state_started) '((:r0 in_seqnum) (:r0 in_ack_seqnum) :r1))
-		(vp-push :r0)
-		(assign '(:r1 (:r0 in_mbox_oid)) '((:r0 in_state) :r1))
-		(vpif '(:r1 = 0))
+		(assign '(0 stream_mail_state_started) `(,zero ,state))
+		(save-fields this '(in_seqnum in_ack_seqnum in_state) `(,zero ,zero ,state))
+		(assign `((,this in_mbox_oid)) `(,oid))
+		(vp-push this)
+		(vpif `(,oid = 0))
 			;need a new mailbox
-			(call :sys_mail :alloc_mbox :nil '(:r2 :r1))
-			(vp-pop :r0)
-			(assign '(:r2) '((:r0 in_mbox_id)))
+			(call :sys_mail :alloc_mbox :nil `(,oid ,vtable))
 		(else)
 			;given an existing mailbox
-			(assign '(:r1) '((:r0 in_mbox_id)))
-			(call :sys_mail :validate '(:r1) '(:r1))
-			(vp-pop :r0)
+			(call :sys_mail :validate `(,oid) `(,vtable))
 		(endif)
-		(assign '(:r1 (& :r0 in_list)) '((:r0 in_mbox_addr) :r1))
-		(lh-init :r1 :r2)
+		(vp-pop this)
+		(save-fields this '(in_mbox_id in_mbox_addr) `(,oid ,vtable))
+		(assign `((& ,this in_list)) `(,vtable))
+		(lh-init vtable oid)
 	(endif)
 
-	(exit :in :init '(:r0 :r1))
+	(exit :in :init `(,this ,vtable))
 	(vp-ret)
 
 (def-func-end)
