@@ -37,6 +37,8 @@ in `root.inc`.
 Lisp `read` function now does basic string escape processing.
 "\r\n\f\v\t\q\x\"".
 
+Fixed bug in `condn` where is was not detecting error values correctly.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

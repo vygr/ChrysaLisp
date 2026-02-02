@@ -323,6 +323,11 @@
 			(class/array/get_both tmp iter_begin iter_end)
 			(jump :lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
 		(endif)
+
+	(errorcase
+		(assign `((,value obj_vtable) (,this lisp_error)) `(,vtable ,tmp))
+		(breakif `(,vtable = ,tmp)))
+
 		(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
 	(loop-end)
 

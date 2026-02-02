@@ -90,10 +90,11 @@
 		((find (first inst) +opt_read_kill_ops) -1)))
 
 (defun opt-read-after-read-write ()
-	(when (defq i (find-past-rw (!)
+	(when (and (num? (third inst))
+			(defq i (find-past-rw (!)
 			(elem-get +opt_read_ops c)
 			(elem-get +opt_write_ops c)
-			(second inst) (third inst)))
+			(second inst) (third inst))))
 		(defq rs (elem-get (elem-get emit_list i) c))
 		(unless (some! (# (trashes-reg? rs %0)) (list emit_list) :nil (inc i) (!))
 			(elem-set emit_list (!)
