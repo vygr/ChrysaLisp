@@ -89,30 +89,32 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :stdio :deinit '(:r0))
+	(vp-rdef (this))
+
+	(entry :stdio :deinit `(,this))
 
 	;flush remaining stdout, stderr
-	(vp-push :r0)
-	(call :out :flush '((:r0 stdio_stderr)))
+	(vp-push this)
+	(call :out :flush `((,this stdio_stderr)))
 
 	;send stopping on stdout
-	(assign '((:rsp 0)) '(:r0))
-	(call :out :set_state '((:r0 stdio_stdout) stream_mail_state_stopping) '(:r0))
+	(assign '((:rsp 0)) `(,this))
+	(call :out :set_state `((,this stdio_stdout) stream_mail_state_stopping) `(,this))
 
 	;free stdin, stdout and stderr
-	(assign '((:rsp 0)) '(:r0))
-	(call :in :deref '((:r0 stdio_stdin)))
-	(assign '((:rsp 0)) '(:r0))
-	(call :out :deref '((:r0 stdio_stdout)))
-	(assign '((:rsp 0)) '(:r0))
-	(call :out :deref '((:r0 stdio_stderr)))
+	(assign '((:rsp 0)) `(,this))
+	(call :in :deref `((,this stdio_stdin)))
+	(assign '((:rsp 0)) `(,this))
+	(call :out :deref `((,this stdio_stdout)))
+	(assign '((:rsp 0)) `(,this))
+	(call :out :deref `((,this stdio_stderr)))
 
 	;free args
-	(assign '((:rsp 0)) '(:r0))
-	(call :list :deref '((:r0 stdio_args)))
-	(vp-pop :r0)
+	(assign '((:rsp 0)) `(,this))
+	(call :list :deref `((,this stdio_args)))
+	(vp-pop this)
 
 	;deinit parent
-	(s-jump :stdio :deinit '(:r0))
+	(s-jump :stdio :deinit `(,this))
 
 (def-func-end)
