@@ -58,36 +58,39 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :in :deinit '(:r0))
+	(vp-rdef (this msg state))
+	(vp-rdef (mid oid zero) (list msg this state))
+
+	(entry :in :deinit `(,this))
 
 	;wait till stopped
+	(vp-push this)
 	(loop-start)
-		(assign '((:r0 in_state)) '(:r1))
-		(breakif '(:r1 = stream_mail_state_stopped))
-		(call :in :next_msg '(:r0) '(:r0))
+		(assign `((,this in_state)) `(,state))
+		(breakif `(,state = stream_mail_state_stopped))
+		(call :in :next_msg `(,this) `(,this))
 	(loop-end)
 
 	;free any stream mail buffer
-	(vp-push :r0)
-	(vp-xor-rr :r1 :r1)
-	(assign '((:r0 stream_buffer)) '(:r2))
-	(assign '(:r1) '((:r0 stream_buffer)))
-	(call :sys_mail :free '(:r2))
+	(vp-xor-rr zero zero)
+	(assign `((,this stream_buffer)) `(,msg))
+	(assign `(,zero) `((,this stream_buffer)))
+	(call :sys_mail :free `(,msg))
 
 	;free any allocated mailbox
-	(assign '((:rsp 0)) '(:r0))
-	(assign '((:r0 in_mbox_oid) (:r0 in_mbox_id)) '(:r1 :r0))
-	(vpif '(:r0 /= :r1))
-		(call :sys_mail :free_mbox '(:r0))
+	(assign '((:rsp 0)) `(,this))
+	(load-fields this '(in_mbox_oid in_mbox_id) `(,oid ,mid))
+	(vpif `(,oid /= ,mid))
+		(call :sys_mail :free_mbox `(,mid))
 	(endif)
 
 	;splice any junk sequence mail to postman
-	(assign '((:rsp 0)) '(:r0))
-	(call :sys_mail :junk_mail '((& :r0 in_list)))
+	(assign '((:rsp 0)) `(,this))
+	(call :sys_mail :junk_mail `((& ,this in_list)))
 
 	;deinit parent
-	(vp-pop :r0)
-	(s-jump :in :deinit '(:r0))
+	(vp-pop this)
+	(s-jump :in :deinit `(,this))
 
 (def-func-end)
 
@@ -198,26 +201,28 @@
 	;:r0 = in object (ptr)
 	;:r1 = -1 for EOF, else more data
 	;trashes
-	;:r1-:r14
+	;:r1-:r8
 
-	(entry :in :read_next '(:r0))
+	(vp-rdef (this eof bufp bufe state))
+
+	(entry :in :read_next `(,this))
 
 	;if started state
 	(loop-start)
-		(assign '((:r0 in_state)) '(:r1))
-		(breakif '(:r1 /= stream_mail_state_started))
-		(call :in :next_msg '(:r0) '(:r0))
-		(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r1 :r2))
-	(loop-until '(:r1 /= :r2))
+		(assign `((,this in_state)) `(,state))
+		(breakif `(,state /= stream_mail_state_started))
+		(call :in :next_msg `(,this) `(,this))
+		(assign `((,this stream_bufp) (,this stream_bufe)) `(,bufp ,bufe))
+	(loop-until `(,bufp /= ,bufe))
 
 	;return -1 if not in started state
-	(assign '((:r0 in_state)) '(:r2))
-	(vp-xor-rr :r1 :r1)
-	(vpif '(:r2 /= stream_mail_state_started))
-		(vp-cpy-cr -1 :r1)
+	(assign `((,this in_state)) `(,state))
+	(vp-xor-rr eof eof)
+	(vpif `(,state /= stream_mail_state_started))
+		(vp-cpy-cr -1 eof)
 	(endif)
 
-	(exit :in :read_next '(:r0 :r1))
+	(exit :in :read_next `(,this ,eof))
 	(vp-ret)
 
 (def-func-end)

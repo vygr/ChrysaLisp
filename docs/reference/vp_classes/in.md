@@ -57,7 +57,7 @@ outputs
 :r0 = in object (ptr)
 :r1 = -1 for EOF, else more data
 trashes
-:r1-:r14
+:r1-:r8
 ```
 
 ### :vtable -> class/in/vtable
