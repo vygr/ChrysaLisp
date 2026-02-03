@@ -45,7 +45,7 @@ inputs
 outputs
 :r0 = in object (ptr)
 trashes
-:r1-:r14
+:r1-:r8
 ```
 
 ### :read_next -> class/in/read_next

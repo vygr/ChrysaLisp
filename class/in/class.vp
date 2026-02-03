@@ -21,10 +21,10 @@
 
 	(vp-rdef (this vtable zero state oid))
 
-	(entry :in :init `(,this ,vtable ,oid))
+	(entry :in :init `(,this ,vtable ,zero))
 
 	;init parent
-	(assign `(,oid) `((,this in_mbox_oid)))
+	(assign `(,zero) `((,this in_mbox_oid)))
 	(s-call :in :init `(,this ,vtable 0 0 0 0) `(,this ,vtable))
 	(vpif `(,vtable /= 0))
 		;init myself
@@ -97,93 +97,96 @@
 	;outputs
 	;:r0 = in object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r8
 
-	(entry :in :next_msg '(:r0))
+	(vp-rdef (msg acknum seqnum bufp bufe state mbox buffer this))
+	(vp-rdef (id0 id1 id2 tmp) (list bufp bufe state acknum))
+
+	(entry :in :next_msg `(,this))
 
 	;free any current msg
-	(vp-push :r0)
-	(call :sys_mail :free '((:r0 stream_buffer)))
+	(call :sys_mail :free `((,this stream_buffer)))
 
 	;read next in sequence, blocking if not
-	(assign '((:rsp 0)) '(:r9))
-	(vp-xor-rr :r0 :r0)
+	(vp-xor-rr msg msg)
 	(loop-start)
-		(call 'next_seq '((& :r9 in_list) :r0 (:r9 in_seqnum)) '(:r4 :r8))
-		(breakif '(:r4 /= 0))
-		(call :sys_mail :read '((:r9 in_mbox_addr)) '(:r0 _))
+		(call 'next_seq `(,msg (& ,this in_list) (,this in_seqnum)) `(,buffer))
+		(breakif `(,buffer /= 0))
+		(call :sys_mail :read `((,this in_mbox_addr)) `(,msg _))
 	(loop-end)
-	(assign '((:r9 in_seqnum)) '(:r2))
-	(vp-add-cr 1 :r2)
-	(assign '(:r2) '((:r9 in_seqnum)))
+	(assign `((,this in_seqnum)) `(,seqnum))
+	(vp-add-cr 1 seqnum)
+	(assign `(,seqnum) `((,this in_seqnum)))
 
 	;do we have the next msg already ?
-	(call 'next_seq '((& :r9 in_list) 0 :r2) '(:r0 _))
-	(vpif '(:r0 /= 0))
+	(call 'next_seq `(0 (& ,this in_list) ,seqnum) `(,msg))
+	(vpif `(,msg /= 0))
 		;put it in the mailbox so 'select' or 'poll' will trigger !
-		(assign '((:r9 in_mbox_addr)) '(:r1))
-		(vp-add-cr mbox_list :r1)
-		(lh-add-at-tail :r1 :r0 :r2)
+		(assign `((,this in_mbox_addr)) `(,mbox))
+		(vp-add-cr mbox_list mbox)
+		(lh-add-at-tail mbox msg tmp)
 	(endif)
 
 	;save msg buffer details
-	(assign '(:r4) '((:r9 stream_buffer)))
-	(vp-lea-i :r8 stream_msg_data :r2)
-	(assign '((:r4 msg_frag_length) (:r8 stream_msg_state)) '(:r3 :r4))
-	(vp-add-rr :r8 :r3)
-	(assign '(:r2 :r3 :r4) '((:r9 stream_bufp) (:r9 stream_bufe) (:r9 in_state)))
+	(load-fields buffer '(msg_frag_data msg_frag_length) `(,bufp ,bufe))
+	(load-fields bufp '(stream_msg_state stream_msg_seqnum) `(,state ,seqnum))
+	(vp-add-rr bufp bufe)
+	(vp-add-cr stream_msg_data bufp)
+	(save-fields this '(stream_buffer stream_bufp stream_bufe in_state)
+		`(,buffer ,bufp ,bufe ,state))
 
 	;send ack if needed
-	(assign '((:r8 stream_msg_seqnum) (:r9 in_ack_seqnum)) '(:r2 :r3))
-	(vp-shr-cr out_ack_shift :r2)
-	(vpif '(:r3 = :r2))
+	(assign `((,this in_ack_seqnum)) `(,acknum))
+	(vp-shr-cr out_ack_shift seqnum)
+	(vpif `(,acknum = ,seqnum))
 		;next ack seq num
-		(vp-add-cr 1 :r3)
-		(assign '(:r3) '((:r9 in_ack_seqnum)))
-		(call :sys_mail :alloc '(0) '(:r0 _))
-		(load-net-id :r8 stream_msg_ack_id :r2 :r3 :r4)
-		(save-net-id :r0 msg_dest :r2 :r3 :r4)
-		(call :sys_mail :send '(:r0))
+		(vp-add-cr 1 acknum)
+		(assign `(,acknum) `((,this in_ack_seqnum)))
+		(call :sys_mail :alloc '(0) `(,msg _))
+		(assign `((,buffer msg_frag_data)) `(,buffer))
+		(load-net-id buffer stream_msg_ack_id id0 id1 id2)
+		(save-net-id msg msg_dest id0 id1 id2)
+		(call :sys_mail :send `(,msg))
 	(endif)
 
-	(vp-pop :r0)
-	(exit :in :next_msg '(:r0))
+	(exit :in :next_msg `(,this))
 	(vp-ret)
 
 (vp-label 'next_seq)
 	;inputs
-	;:r0 = list head (ptr)
-	;:r1 = 0, else new stream msg (ptr)
+	;:r0 = 0, else new stream msg (ptr)
+	;:r1 = list head (ptr)
 	;:r2 = seqnum (long)
 	;outputs
 	;:r0 = 0, else next stream msg (ptr)
-	;:r1 = 0, else string data (pubyte)
 	;trashes
-	;:r0-:r3
+	;:r0-:r1, :r3
 
-	(entry '(:r0 :r1 :r2))
+	(vp-rdef (msg lst seqnum tmp))
+
+	(entry `(,msg ,lst ,seqnum))
 
 	;save any new msg
-	(vpif '(:r1 /= 0))
-		(lh-add-at-tail :r0 :r1 :r3)
+	(vpif `(,msg /= 0))
+		(lh-add-at-tail lst msg tmp)
 	(endif)
 
 	;scan for seqnum
-	(loop-list-forward :r0 0 :r0 :r1)
-		(assign '((:r0 msg_frag_data)) '(:r3))
-		(assign '((:r3 stream_msg_seqnum)) '(:r3))
-	(loop-until '(:r2 = :r3))
-	(vpif '(:r1 = 0))
+	(loop-list-forward lst 0 msg lst)
+		(assign `((,msg msg_frag_data)) `(,tmp))
+		(assign `((,tmp stream_msg_seqnum)) `(,tmp))
+	(loop-until `(,seqnum = ,tmp))
+	(vpif `(,lst = 0))
 		;not found
-		(exit '(:r1 :r1))
+		(exit `(,lst))
 		(vp-ret)
 	(endif)
 
 	;remove found from list
-	(vp-cpy-rr :r0 :r1)
-	(ln-remove-node :r1 :r2)
+	(vp-cpy-rr msg lst)
+	(ln-remove-node lst tmp)
 
-	(exit '(:r0 (:r0 msg_frag_data)))
+	(exit `(,msg))
 	(vp-ret)
 
 (def-func-end)
