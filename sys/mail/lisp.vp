@@ -51,30 +51,35 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :sys_mail :lisp_read '(:r0 :r1))
+	(vp-rdef (this args msg mbox))
+
+	(entry :sys_mail :lisp_read `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-push :r0)
-	(list-bind-args :r1 '(:r0) '(:obj))
-	(vp-cpy-ir :r0 str_data :r0)
-	(call :sys_mail :validate '(:r0) '(:r0))
-	(vpif '(:r0 /= 0))
-		(call :sys_mail :read '(:r0) '(:r0 _))
-		(call :sys_mail :free_obj '(:r0) '(:r1 _ _))
+	(vp-push this)
+	(list-bind-args args `(,mbox) '(:obj))
+	(vp-cpy-ir mbox str_data mbox)
+	(call :sys_mail :validate `(,mbox) `(,mbox))
+	(vpif `(,mbox /= 0))
+		(call :sys_mail :read `(,mbox) `(,msg _))
+		(errorif `(,msg = 0) 'error1)
+		(call :sys_mail :free_obj `(,msg) `(,args _ _))
 	(else)
-		(assign '((:rsp 0)) '(:r1))
-		(assign '((:r1 lisp_sym_nil)) '(:r1))
-		(class/obj/ref :r1 :r2)
+		(assign '((:rsp 0)) `(,this))
+		(assign `((,this lisp_sym_nil)) `(,args))
+		(class/obj/ref args msg)
 	(endif)
-	(vp-pop :r0)
+	(vp-pop this)
 
-	(exit :sys_mail :lisp_read '(:r0 :r1))
+	(exit :sys_mail :lisp_read `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(mail-read mbox)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error `(,this "(mail-read mbox)" +error_msg_wrong_types ,args))
+(vp-label 'error1)
+	(jump :lisp :repl_error `(,this "(mail-read mbox)" +error_msg_abort_signal ,args))
 	(signature '(:str)))
 
 (def-func-end)

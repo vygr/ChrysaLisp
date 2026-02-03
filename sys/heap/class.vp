@@ -92,7 +92,7 @@
 	(assign `((,this hp_heap_cellsize)) `(,cellsize))
 	(assign `((,this hp_heap_blocksize)) `(,blocksize))
 	(call :host_os :pii_mmap `(,blocksize -1 +mmap_data) `(,block))
-	(errorif `(,block = 0) 'error)
+	(assert `(,block /= 0))
 	(fn-bind 'sys/statics/statics statics)
 	(assign `((:rsp 0)) `(,this))
 	(assign `((,statics statics_sys_mem_total)) `(,cnt))
@@ -119,10 +119,6 @@
 	(assign `(,cnt) `((,block hp_block_cellcnt)))
 	(vp-pop blocksize cellsize block blockend cnt this)
 	(goto 'got_cell)
-
-(errorcase
-(vp-label 'error)
-	(abort))
 
 (def-func-end)
 

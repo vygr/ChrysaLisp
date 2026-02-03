@@ -24,4 +24,4 @@
 (defcvar 'out_ack_shift 5)
 
 (def-enum stream_mail_state 0
-	(enum started stopping stopped))
+	(enum started stopping stopped aborted))

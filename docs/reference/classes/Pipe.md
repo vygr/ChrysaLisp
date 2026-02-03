@@ -4,6 +4,14 @@
 (Pipe cmdline [user_select]) -> pipe | :nil
 ```
 
+### :abort
+
+```code
+(. pipe :abort) -> pipe
+
+flag all streams as aborted, wake the in streams
+```
+
 ### :close
 
 ```code

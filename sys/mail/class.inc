@@ -57,7 +57,7 @@
 
 (def-struct mbox ln_node_size
 	(struct list lh_list_size)
-	(ptr tcb)
+	(ptr tcb owner_tcb)
 	(uint id))
 
 (def-struct msg ln_node_size

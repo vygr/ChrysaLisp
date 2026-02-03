@@ -5,6 +5,8 @@
 ;module
 (env-push)
 
+(defq +pipe_abort_delay 2000000)
+
 (defun pipe-split (cmdline)
 	; (pipe-split cmdline) -> (e0 [e1] ...)
 	(defq i 0 out (list) quotes (partition (substr cmdline (ascii-char 34)) 2))
@@ -41,7 +43,7 @@
 			(push streams stdout (out-stream stdout_mbox))
 			(push select (in-mbox stdout))
 			(def this :select (cat user_select select) :user_select user_select
-				:streams streams :state :t)))
+				:streams streams :ids mboxs :state :t)))
 
 	(defmethod :poll ()
 		; (. pipe :poll) -> :nil | :t
@@ -70,20 +72,48 @@
 		(stream-flush stream)
 		this)
 
+	(defmethod :abort ()
+		; (. pipe :abort) -> pipe
+		;flag all streams as aborted, wake the in streams
+		(raise :select :streams)
+		(each (# (case (pop (type-of %0))
+				(:out (out-set-state %0 +stream_mail_state_aborted))
+				(:in (in-set-state %0 +stream_mail_state_aborted)
+					(mail-send (in-mbox %0) ""))))
+			streams)
+		;signal kernel of node(id) targeting mbox(id)
+		(each (lambda (id)
+			(mail-send (cat (char 0 +long_size) (slice id +long_size -1))
+				(setf-> (str-alloc +kn_msg_signal_size)
+					(+kn_msg_func +kn_call_signal)
+					(+kn_msg_signal_mbox (get-long id 0))
+					(+kn_msg_signal_flags +tk_flag_aborted))))
+			(get :ids this))
+		;now destroy all the streams
+		(while (pop streams) (pop select))
+		this)
+
 	(defmethod :close ()
 		; (. pipe :close) -> pipe
 		;clear the stdin stream, which will send stopping and stopped
 		(raise :select :streams)
-		(pop streams)
-		(pop select)
+		(pop streams) (pop select)
 		;wait for stdout and stderr streams to stop
+		;if it goes on too long, then abort !
+		(push select (mail-mbox))
+		(mail-timeout (last select) +pipe_abort_delay 0)
 		(defq user_select_len (length (get :user_select this)))
-		(while (> (length select) user_select_len)
-			(if (= (in-get-state (in-next-msg (elem-get streams
-						(defq idx (mail-select (slice select user_select_len -1))))))
-					+stream_mail_state_stopped)
+		(while (and (> (length select) (inc user_select_len))
+					(< (defq mboxs (slice select user_select_len -1) idx (mail-select mboxs))
+						(dec (length mboxs))))
+			(if (= (in-get-state (in-next-msg (elem-get streams idx))) +stream_mail_state_stopped)
 				(setq streams (erase streams idx (inc idx))
 					select (erase select (+ idx user_select_len) (+ idx user_select_len 1)))))
+		;did we break out due to the abort timer ?
+		(pop select)
+		(when (> (length select) user_select_len)
+			(lower :select :streams)
+			(. this :abort))
 		this)
 	)
 

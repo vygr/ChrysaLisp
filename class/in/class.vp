@@ -63,11 +63,11 @@
 
 	(entry :in :deinit `(,this))
 
-	;wait till stopped
+	;wait till stopped/aborted
 	(vp-push this)
 	(loop-start)
 		(assign `((,this in_state)) `(,state))
-		(breakif `(,state = stream_mail_state_stopped))
+		(breakif `(,state >= stream_mail_state_stopped))
 		(call :in :next_msg `(,this) `(,this))
 	(loop-end)
 
@@ -115,7 +115,14 @@
 	(loop-start)
 		(call 'next_seq `(,msg (& ,this in_list) (,this in_seqnum)) `(,buffer))
 		(breakif `(,buffer /= 0))
+	(errorcase
+		(assign `((,this in_state)) `(,state))
+		(gotoif `(,state = stream_mail_state_aborted) 'abort))
 		(call :sys_mail :read `((,this in_mbox_addr)) `(,msg _))
+	(errorcase
+		(gotoif `(,msg = 0) 'abort)
+		(assign `((,this in_state)) `(,state))
+		(gotoif `(,state = stream_mail_state_aborted) 'abort))
 	(loop-end)
 	(assign `((,this in_seqnum)) `(,seqnum))
 	(vp-add-cr 1 seqnum)
@@ -135,8 +142,13 @@
 	(load-fields bufp '(stream_msg_state stream_msg_seqnum) `(,state ,seqnum))
 	(vp-add-rr bufp bufe)
 	(vp-add-cr stream_msg_data bufp)
-	(save-fields this '(stream_buffer stream_bufp stream_bufe in_state)
-		`(,buffer ,bufp ,bufe ,state))
+	(save-fields this '(stream_buffer stream_bufp stream_bufe) `(,buffer ,bufp ,bufe))
+
+	;only move state forwards !
+	(assign `((,this in_state)) `(,tmp))
+	(vpif `(,state > ,tmp))
+		(assign `(,state) `((,this in_state)))
+	(endif)
 
 	;send ack if needed
 	(assign `((,this in_ack_seqnum)) `(,acknum))
@@ -154,6 +166,16 @@
 
 	(exit :in :next_msg `(,this))
 	(vp-ret)
+
+(errorcase
+(vp-label 'abort)
+	;abort signal
+	(vp-xor-rr buffer buffer)
+	(vp-cpy-cr stream_mail_state_aborted state)
+	(save-fields this '(stream_buffer stream_bufp stream_bufe in_state)
+		`(,buffer ,buffer ,buffer ,state))
+	(exit :in :next_msg `(,this))
+	(vp-ret))
 
 (vp-label 'next_seq)
 	;inputs

@@ -149,6 +149,7 @@
 
 ```code
 (ascii-code "d") action-escape
+(ascii-code "D") action-abort
 (ascii-code "w") action-select-word
 (ascii-code "W") action-copy-word
 (ascii-code "l") action-select-line

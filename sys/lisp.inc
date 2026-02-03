@@ -60,3 +60,6 @@
 
 (enums +file_open 0
 	(enum read write append))
+
+(bits +tk_flag 0
+	(bit aborted))

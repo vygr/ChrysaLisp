@@ -40,7 +40,11 @@
 (def-struct tk_node ln_node_size
 	(ptr stack stack_top mbox_addr lisp)
 	(long time)
-	(uint priority mbox_id))
+	(uint priority mbox_id flags))
+
+;task flags
+(def-bit tk_flag 0
+	(bit aborted))
 
 ;number of distinct priorities
 ;currently experimenting with

@@ -91,8 +91,9 @@
 
 	;allocate mailbox with this id
 	(call :sys_heap :alloc '((& :r4 statics_sys_mail_mbox_heap)) '(_ :r1))
+	(assign '((:r4 statics_sys_task_current_tcb)) '(:r4))
 	(vp-xor-rr :r2 :r2)
-	(assign '(:r3 :r2) '((:r1 mbox_id) (:r1 mbox_tcb)))
+	(save-fields :r1 '(mbox_id mbox_tcb mbox_owner_tcb) '(:r3 :r2 :r4))
 	(vp-lea-i :r1 mbox_list :r0)
 	(lh-init :r0 :r2)
 	(vp-add-cr statics_sys_mail_mbox_buckets :r5)
@@ -309,6 +310,11 @@
 	;:r1 = string data (pubyte)
 	;trashes
 	;:r0-:r2
+	;info
+	;in *build_mode* > 0
+	;a signal to a Lisp task can return 0 here !
+	;:lisp_read method is aware and throws if so.
+	;a VP task should never see this happen !
 
 	(entry :sys_mail :read '(:r0))
 
@@ -316,8 +322,18 @@
 	(vpif '(:r2 = 0))
 		(fn-bind 'sys/statics/statics :r1)
 		(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
+	(errorcase
+		(assign '((:r1 tk_node_flags)) '(:r2))
+		(gotoif '(:r2 /= 0) 'abort))
 		(assign '(:r1) '((:r0 mbox_tcb)))
 		(call :sys_task :suspend)
+	(errorcase
+		(assign '((:r1 tk_node_flags)) '(:r2))
+		(breakif '(:r2 = 0))
+	(vp-label 'abort)
+		;signal to Lisp task
+		(exit :sys_mail :read '(0 0))
+		(vp-ret))
 	(endif)
 	(lh-get-head :r0 mbox_list :r0)
 	(vp-cpy-rr :r0 :r1)

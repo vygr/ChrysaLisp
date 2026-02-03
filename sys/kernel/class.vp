@@ -219,6 +219,21 @@
 				;wake originator
 				(call :sys_task :resume {data->kn_msg_reply_id.net_id_mbox_id)})
 				(call :sys_mail :free {msg})
+				(break)
+			(vpcase '(:r0 = kn_call_signal))
+				;signal a task
+				(call :sys_mail :validate {data->kn_msg_signal_mbox} '(:r0))
+				(vpif '(:r0 /= 0))
+					(assign {data} '(:r1))
+					(assign '((:r1 kn_msg_signal_flags)) '(:r1))
+					(assign '((:r0 mbox_owner_tcb)) '(:r0))
+					(assign '((:r0 tk_node_flags)) '(:r2))
+					(vp-or-rr :r1 :r2)
+					(assign '(:r2) '((:r0 tk_node_flags)))
+				(errorcase
+					(call :sys_task :resume '(:r0)))
+				(endif)
+				(call :sys_mail :free {msg})
 			(endswitch)
 		(loop-end)
 

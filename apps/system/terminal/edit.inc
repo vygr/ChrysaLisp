@@ -88,3 +88,13 @@
 			(. buffer :insert (cat +char_class_lf *env_terminal_prompt*)))
 		(setq *margin_x* *cursor_x*)
 		(refresh)))
+
+(defun action-abort ()
+	(when *pipe*
+		(input-cursor
+			;abort
+			(. *pipe* :abort)
+			(setq *pipe* :nil)
+			(. buffer :insert (cat +char_class_lf *env_terminal_prompt*)))
+		(setq *margin_x* *cursor_x*)
+		(refresh)))

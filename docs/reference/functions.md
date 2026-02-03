@@ -808,6 +808,12 @@ scan the stdio args and process according to the optlist
 (os) -> sym
 ```
 
+### out-set-state
+
+```code
+(out-set-state out num) -> out
+```
+
 ### pad
 
 ```code

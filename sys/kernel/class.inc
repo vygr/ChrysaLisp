@@ -13,7 +13,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (def-enum kn_call 0
-	(enum exit callback ping open child))
+	(enum exit callback ping open child signal))
 
 ;;;;;;;;;;;;;;;;;;
 ; kernel mail data
@@ -35,3 +35,6 @@
 	(struct origin node_id_size)
 	(uint session hops)
 	(offset services))
+
+(def-struct kn_msg_signal 0
+	(long func mbox flags))

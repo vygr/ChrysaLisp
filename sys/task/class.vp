@@ -299,17 +299,17 @@
 	;fill with test pattern so we can show max extent in netmon
 	(call :sys_mem :fill {tcb, tcb_size, tk_stack_canary}))
 
-	;alloc task mailbox and tls
+	;alloc task mailbox and set its owner to itself
 	(call :sys_mail :alloc_mbox :nil {tcb->tk_node_mbox_id, tcb->tk_node_mbox_addr})
-	(assign {0} {tcb->tk_node_lisp})
+	(assign {0, tcb} {tcb->tk_node_lisp, tcb->tk_node_mbox_addr->mbox_owner_tcb})
 
 	;init task control block stack, pc and stop address's
-	(assign {func, tcb, tcb + tcb_size, -1, num_task_lists - 1} '(:r1 :r4 :r0 :r2 :r3))
+	(assign {func, tcb, tcb + tcb_size, -1, num_task_lists - 1, 0} '(:r1 :r4 :r0 :r2 :r3 :r6))
 	(fn-bind 'sys/statics/statics :r5)
 	(assign '(:r2) '((:r4 tk_node_time)))
 	(vp-add-cr statics_sys_task_suspend_list :r5)
 	(lh-add-at-tail :r5 :r4 :r2)
-	(assign '(:r3 :r0) '((:r4 tk_node_priority) (:r4 tk_node_stack_top)))
+	(save-fields :r4 '(tk_node_priority tk_node_stack_top tk_node_flags) '(:r3 :r0 :r6))
 	(f-bind :sys_task :stop :r2)
 	(vp-stack-init :r0 :r1 :r2)
 	(assign '(:r0) {tcb->tk_node_stack})
