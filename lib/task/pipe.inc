@@ -67,6 +67,7 @@
 
 	(defmethod :write (string)
 		; (. pipe :write string) -> pipe
+		;last stream is :out to first pipe element
 		(defq stream (last (get :streams this)))
 		(write-blk stream string)
 		(stream-flush stream)
@@ -94,22 +95,22 @@
 
 	(defmethod :close ()
 		; (. pipe :close) -> pipe
-		;clear the stdin stream, which will send stopping and stopped
+		;clear the stdin stream, which will send
+		;stopping and stopped into the pipe
 		(raise :select :streams)
-		(pop streams) (pop select)
+		(pop streams)
 		;wait for stdout and stderr streams to stop
 		;if it goes on too long, then abort !
 		(mail-timeout (last (push select (mail-mbox))) +pipe_abort_delay 0)
 		(defq user_select_len (length (get :user_select this)))
-		(while (and (> (length select) (inc user_select_len))
+		(while (and (nempty? streams)
 					(< (defq mboxs (slice select user_select_len -1) idx (mail-select mboxs))
 						(dec (length mboxs))))
 			(if (>= (in-get-state (in-next-msg (elem-get streams idx))) +stream_mail_state_stopped)
 				(setq streams (erase streams idx (inc idx))
 					select (erase select (+ idx user_select_len) (+ idx user_select_len 1)))))
 		;did we break out due to the abort timer ?
-		(pop select)
-		(when (> (length select) user_select_len)
+		(when (nempty? streams)
 			(lower :select :streams)
 			(. this :abort))
 		this)
