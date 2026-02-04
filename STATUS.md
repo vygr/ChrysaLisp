@@ -39,6 +39,11 @@ Lisp `read` function now does basic string escape processing.
 
 Fixed bug in `condn` where is was not detecting error values correctly.
 
+`(mail-send mbox str)` now only takes a `:str` object as the payload. `gui-rpc`
+functions, Whiteboard and Files apps, have been changed to use a `:str`.
+
+Fix drag on Boing/Freeball `action-mouse-motion` problem.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

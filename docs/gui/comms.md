@@ -32,12 +32,12 @@ debugging purposes.
 ## Messages
 
 Messages consist of two parts, the message header and the message body. The
-message body consists of a referenceable object, most often a String object. The
-header is like a postage stamp on the objects data. Large objects will have
-multiple message headers created, by the system, to break up the sending of the
-data into smaller packets. These packets are routed from the source node to the
-destination node and reconstructed at the destination into the original message
-before delivery into the target mailbox.
+message body consists of a String object. The header is like a postage stamp on
+the objects data. Large objects will have multiple message headers created, by
+the system, to break up the sending of the data into smaller packets. These
+packets are routed from the source node to the destination node and
+reconstructed at the destination into the original message before delivery into
+the target mailbox.
 
 Individual message packets travel via parallel communication routes across the
 network from source to destination. No guarantee is given for the order in which

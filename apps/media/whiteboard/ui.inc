@@ -51,13 +51,13 @@
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(mail-send (setq *picker_mode* :t *picker_mbox*
 		(open-child "apps/system/files/child.lisp" +kn_call_open))
-		(list (elem-get select +select_picker) "Save Whiteboard..." "." "")))
+		(cat (elem-get select +select_picker) "Save Whiteboard..." "|" ".")))
 
 (defun action-load ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(mail-send (setq *picker_mode* :nil *picker_mbox*
 		(open-child "apps/system/files/child.lisp" +kn_call_open))
-		(list (elem-get select +select_picker) "Load Whiteboard..." "." ".cwb")))
+		(cat (elem-get select +select_picker) "Load Whiteboard..." "|" "." "|" ".cwb")))
 
 (defun action-stroke ()
 	;display in flight strokes

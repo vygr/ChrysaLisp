@@ -166,40 +166,25 @@
 	;trashes
 	;:r1-:r14
 
-	(def-vars
-		(ptr this args value)
-		(long arg0 arg1 arg2))
+	(vp-rdef (this mbox data msg args) '(:r11 :r12 :r13))
 
-	(push-scope)
-	(entry :sys_mail :lisp_send {this, args})
+	(entry :sys_mail :lisp_send `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(call :lisp :env_args_set {args, 0, &arg0})
-	(call :obj :inst_of (cat {arg1, @} (f-path :str :vtable)) '(_ tmp))
-	(vpif `(,tmp /= 0))
-		(call :sys_mail :alloc_obj {arg1, &arg1->str_data, arg1->str_length} {arg2})
-		(goto 'sendit)
-	(endif)
-(errorcase
-	(call :obj :inst_of (cat {arg1, @} (f-path :list :vtable)) '(_ tmp))
-	(gotoif `(,tmp = 0) 'error))
-	(call :sys_mail :alloc_obj {arg1, arg1->array_begin, arg1->array_length * +long_size} {arg2})
-(vp-label 'sendit)
-	(assign {arg0, arg2} '(:r1 :r0))
-	(assign-net-id :r1 str_data :r0 msg_dest)
-	(call :sys_mail :send '(:r0))
-	(call :obj :ref {arg0} {value})
+	(list-bind-args args `(,mbox ,data) '(:obj :obj))
+	(call :sys_mail :alloc_obj `(,data (& ,data str_data) (,data str_length)) `(,msg))
+	(assign-net-id mbox str_data msg msg_dest)
+	(call :sys_mail :send `(,msg))
+	(call :obj :ref `(,data) `(,args))
 
-	(exit :sys_mail :lisp_send {this, value})
-	(return)
+	(exit :sys_mail :lisp_send `(,this ,args))
+	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error {this, "(mail-send mbox obj)", +error_msg_wrong_types, args})
-	(signature '(:str :obj)))
-
-	(pop-scope-syms)
+	(jump :lisp :repl_error `(,this "(mail-send mbox str)" +error_msg_wrong_types ,args))
+	(signature '(:str :str)))
 
 (def-func-end)
 

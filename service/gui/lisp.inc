@@ -49,24 +49,37 @@
 	+ev_key_mod_alt (+ +ev_key_mod_left_alt +ev_key_mod_right_alt)
 	+ev_key_mod_meta (+ +ev_key_mod_left_meta +ev_key_mod_right_meta))
 
-;add/sub from screen
+;gui rpc msgs
+
+(enums +gui_rpc_type 0
+	(enum quit logout sub add_front add_back))
+
+(structure +gui_rpc 0
+	(netid reply_id)
+	(netid owner_id)
+	(long weak_view)
+	(uint type))
 
 (defun gui-rpc (view cmd)
 	; (gui-rpc (view cmd) -> :nil | view
 	(when (nempty? (defq service (mail-enquire "Gui,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
-		(mail-send service (list cmd view (task-mbox) mbox))
+		(mail-send service (setf-> (str-alloc +gui_rpc_size)
+			(+gui_rpc_type cmd)
+			(+gui_rpc_reply_id mbox)
+			(+gui_rpc_owner_id (task-mbox))
+			(+gui_rpc_weak_view (weak-ref (ifn view 0)))))
 		(mail-read mbox)
 		view))
 
-(defmacro gui-quit-rpc () `(gui-rpc :nil 0))
+(defmacro gui-quit-rpc () `(gui-rpc :nil +gui_rpc_type_quit))
 ; (gui-quit-rpc) -> :nil
-(defmacro gui-logout-rpc () `(gui-rpc :nil 1))
+(defmacro gui-logout-rpc () `(gui-rpc :nil +gui_rpc_type_logout))
 ; (gui-logout-rpc) -> :nil
-(defmacro gui-sub-rpc (view) `(gui-rpc ,view 2))
+(defmacro gui-sub-rpc (view) `(gui-rpc ,view +gui_rpc_type_sub))
 ; (gui-sub-rpc view) -> view
-(defmacro gui-add-front-rpc (view) `(gui-rpc ,view 3))
+(defmacro gui-add-front-rpc (view) `(gui-rpc ,view +gui_rpc_type_add_front))
 ; (gui-add-front-rpc view) -> view
-(defmacro gui-add-back-rpc (view) `(gui-rpc ,view 4))
+(defmacro gui-add-back-rpc (view) `(gui-rpc ,view +gui_rpc_type_add_back))
 ; (gui-add-back-rpc view) -> view

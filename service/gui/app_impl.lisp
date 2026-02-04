@@ -91,19 +91,27 @@
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))
 			(case idx
 				(+select_main	;main mailbox
-					(bind '(cmd view owner reply) msg)
+					(bind '(cmd view owner reply) (getf-> msg
+						+gui_rpc_type +gui_rpc_weak_view
+						+gui_rpc_owner_id +gui_rpc_reply_id))
+					(setq view (obj-ref view))
 					(case cmd
-						(0	;quit all
+						(+gui_rpc_type_quit
+							;quit all
 							(close-apps :t))
-						(1	;quit all, restart login
+						(+gui_rpc_type_logout
+							;quit all, restart login
 							(close-apps :nil))
-						(2	;hide and sub view
+						(+gui_rpc_type_sub
+							;hide and sub view
 							(.-> view :hide :sub))
-						(3	;add view at front
+						(+gui_rpc_type_add_front
+							;add view at front
 							(. view :set_owner owner)
 							(. *screen* :add_back view)
 							(. view :to_front))
-						(4	;add view at back
+						(+gui_rpc_type_add_back
+							;add view at back
 							(. view :set_owner owner)
 							(. *screen* :add_back view)
 							(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
