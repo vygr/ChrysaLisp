@@ -47,6 +47,8 @@ Fix drag on Boing/Freeball `action-mouse-motion` problem.
 `forward` and `grep` commands now accept the `opt_j` batch size option, defaults
 to 1.
 
+TUI uses login name for prompt.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

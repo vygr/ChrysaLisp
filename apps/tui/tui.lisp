@@ -27,13 +27,11 @@
 			(str a)))
 		args))
 
-(defun prompt () ">")
-
 (defun redraw-line ()
 	;CR, Prompt, Buffer, Clear-To-End
-	(print +CR (prompt) buffer +CSI "K")
+	(print +CR *env_terminal_prompt* buffer +CSI "K")
 	;Move cursor to visual position: CR, Prompt, Right-N
-	(print +CR (prompt))
+	(print +CR *env_terminal_prompt*)
 	(if (> cursor 0) (print +CSI (str cursor) "C")))
 
 (defun terminal-input (c)
@@ -66,7 +64,7 @@
 									(scatter *meta_map* :history history)
 									(setq *history_idx* (length history) *history* history)
 									(state-save)))))
-					(if (not cmd) (print (prompt)))
+					(if (not cmd) (print *env_terminal_prompt*))
 					(setq buffer "" cursor 0))
 				((or (= c 127) (= c 8)) ; Ctrl-H, Backspace (often 127 on TUI)
 					(when (> cursor 0)
@@ -79,7 +77,7 @@
 							(progn ; EOF to pipe
 								(. cmd :close)
 								(setq cmd :nil buffer "")
-								(print +CR +LF (prompt)))
+								(print +CR +LF *env_terminal_prompt*))
 							(progn ; Exit shell
 								(print +CR +LF "Exiting..." +CR +LF)
 								((ffi "service/gui/lisp_deinit"))))
@@ -152,7 +150,7 @@
 (defun main ()
 	;sign on msg
 	(mail-declare tmbox "Terminal" "Terminal Services 0.2")
-	(print "ChrysaLisp Terminal" +LF (prompt))
+	(print "ChrysaLisp Terminal" +LF *env_terminal_prompt*)
 	;create child and send args
 	(mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_open) (task-mbox))
 	(defq cmd :nil buffer "" cursor 0 esc_state 0 last_input 0
@@ -169,6 +167,6 @@
 				;pipe is closed
 				(. cmd :close)
 				(setq cmd :nil)
-				(print +CR +LF (prompt)))
+				(print +CR +LF *env_terminal_prompt*))
 			(:t ;string from pipe
 				(print data)))))
