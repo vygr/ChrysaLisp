@@ -78,8 +78,7 @@
 		(raise :select :streams)
 		(each (# (case (pop (type-of %0))
 				(:out (out-set-state %0 +stream_mail_state_aborted))
-				(:in (in-set-state %0 +stream_mail_state_aborted)
-					(mail-send (in-mbox %0) ""))))
+				(:in (in-set-state %0 +stream_mail_state_aborted))))
 			streams)
 		;signal kernel of node(id) targeting mbox(id)
 		(each (lambda (id)
@@ -100,13 +99,12 @@
 		(pop streams) (pop select)
 		;wait for stdout and stderr streams to stop
 		;if it goes on too long, then abort !
-		(push select (mail-mbox))
-		(mail-timeout (last select) +pipe_abort_delay 0)
+		(mail-timeout (last (push select (mail-mbox))) +pipe_abort_delay 0)
 		(defq user_select_len (length (get :user_select this)))
 		(while (and (> (length select) (inc user_select_len))
 					(< (defq mboxs (slice select user_select_len -1) idx (mail-select mboxs))
 						(dec (length mboxs))))
-			(if (= (in-get-state (in-next-msg (elem-get streams idx))) +stream_mail_state_stopped)
+			(if (>= (in-get-state (in-next-msg (elem-get streams idx))) +stream_mail_state_stopped)
 				(setq streams (erase streams idx (inc idx))
 					select (erase select (+ idx user_select_len) (+ idx user_select_len 1)))))
 		;did we break out due to the abort timer ?
