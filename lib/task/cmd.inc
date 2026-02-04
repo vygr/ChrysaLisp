@@ -26,7 +26,7 @@
 (defun destroy (key val)
 	(when (defq child (get :child val)) (mail-send child ""))
 	(when (defq job (get :job val))
-		(print "Restarting cmd job ! -> " job)
+		;(print "Restarting cmd job ! -> " job)
 		(push jobs job)
 		(undef val :job :timestamp)))
 
@@ -43,6 +43,9 @@
 	(while working
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
+			((not msg)
+				;task aborted
+				(setq working :nil))
 			((= idx +select_task)
 				;child launch response
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))

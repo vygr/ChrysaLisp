@@ -35,4 +35,3 @@
 (deferror "wrong_num_of_args")
 (deferror "wrong_types")
 (deferror "rebind_constant")
-(deferror "abort_signal")
