@@ -313,18 +313,22 @@
 	;info
 	;in *build_mode* > 0
 	;a signal to a Lisp task can return 0 here !
-	;:lisp_read method is aware and throws if so.
-	;a VP task should never see this happen !
+	;:lisp_read method is aware and returns :nil.
+	;a VP level task should never see this happen !
 
 	(entry :sys_mail :read '(:r0))
 
+(errorcase
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
+	(assign '((:r1 tk_node_flags)) '(:r2))
+	(gotoif '(:r2 /= 0) 'abort))
+
 	(lh-is-empty :r0 mbox_list :r2)
 	(vpif '(:r2 = 0))
+	(noterrorcase
 		(fn-bind 'sys/statics/statics :r1)
-		(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
-	(errorcase
-		(assign '((:r1 tk_node_flags)) '(:r2))
-		(gotoif '(:r2 /= 0) 'abort))
+		(assign '((:r1 statics_sys_task_current_tcb)) '(:r1)))
 		(assign '(:r1) '((:r0 mbox_tcb)))
 		(call :sys_task :suspend)
 	(errorcase
