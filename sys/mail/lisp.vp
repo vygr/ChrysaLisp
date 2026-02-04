@@ -63,9 +63,10 @@
 	(call :sys_mail :validate `(,mbox) `(,mbox))
 	(vpif `(,mbox /= 0))
 		(call :sys_mail :read `(,mbox) `(,msg _))
-		(errorif `(,msg = 0) 'error1)
+		(gotoif `(,msg = 0) 'invalid)
 		(call :sys_mail :free_obj `(,msg) `(,args _ _))
 	(else)
+	(vp-label 'invalid)
 		(assign '((:rsp 0)) `(,this))
 		(assign `((,this lisp_sym_nil)) `(,args))
 		(class/obj/ref args msg)
@@ -78,8 +79,6 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this "(mail-read mbox)" +error_msg_wrong_types ,args))
-(vp-label 'error1)
-	(jump :lisp :repl_error `(,this "(mail-read mbox)" +error_msg_abort_signal ,args))
 	(signature '(:str)))
 
 (def-func-end)
