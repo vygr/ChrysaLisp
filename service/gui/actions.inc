@@ -126,8 +126,8 @@
 			(+ev_msg_mouse_buttons *mouse_buttons*)
 			(+ev_msg_mouse_count 0))))
 	(mouse-type view
-		(- *mouse_x* (getf view +view_ctx_x 0))
-		(- *mouse_y* (getf view +view_ctx_y 0))))
+		(- *mouse_x* (if view (getf view +view_ctx_x 0) 0))
+		(- *mouse_y* (if view (getf view +view_ctx_y 0) 0))))
 
 (defun action-mouse-button-down ()
 	(setq *mouse_x* (getf msg +sdl_mouse_button_event_x)
