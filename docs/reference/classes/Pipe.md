@@ -17,7 +17,8 @@ flag all streams as aborted, wake the in streams
 ```code
 (. pipe :close) -> pipe
 
-clear the stdin stream, which will send stopping and stopped
+clear the stdin stream, which will send
+stopping and stopped into the pipe
 ```
 
 ### :poll
@@ -39,5 +40,7 @@ clear the stdin stream, which will send stopping and stopped
 
 ```code
 (. pipe :write string) -> pipe
+
+last stream is :out to first pipe element
 ```
 
