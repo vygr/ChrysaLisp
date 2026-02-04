@@ -4,6 +4,8 @@
 
 ### (task-count bias) -> count
 
+### (task-flags) -> flags
+
 ### (task-mbox) -> netid
 
 ### (task-sleep usec)

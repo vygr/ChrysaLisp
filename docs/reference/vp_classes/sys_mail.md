@@ -109,7 +109,7 @@ trashes
 inputs
 :r0 = mail message (ptr)
 trashes
-:r0-:r14
+:r0-:r3
 ```
 
 ### :free_mbox -> sys/mail/free_mbox

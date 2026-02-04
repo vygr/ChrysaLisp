@@ -27,7 +27,8 @@
 	(dec-method :lisp_count sys/task/lisp_count :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_sleep sys/task/lisp_sleep :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_timeslice sys/task/lisp_timeslice :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_mailbox sys/task/lisp_mailbox :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_mailbox sys/task/lisp_mailbox :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_flags sys/task/lisp_flags :static (:r0 :r1) (:r0 :r1)))
 
 ;;;;;;;;;;;;;;;;;
 ; task structures

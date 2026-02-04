@@ -420,6 +420,8 @@
 ;;;;;;;;;;;;;;;;;;;;
 ; Task Management
 ;;;;;;;;;;;;;;;;;;;;
+(ffi "sys/task/lisp_flags" task-flags)
+; (task-flags) -> flags
 (ffi "sys/task/lisp_mailbox" task-mbox)
 ; (task-mbox) -> netid
 (ffi "sys/task/lisp_count" task-count)
