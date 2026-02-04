@@ -224,8 +224,7 @@
 				;signal a task
 				(call :sys_mail :validate {data->kn_msg_signal_mbox} '(:r0))
 				(vpif '(:r0 /= 0))
-					(assign {data} '(:r1))
-					(assign '((:r1 kn_msg_signal_flags)) '(:r1))
+					(assign {data->kn_msg_signal_flags} '(:r1))
 					(assign '((:r0 mbox_owner_tcb)) '(:r0))
 					(assign '((:r0 tk_node_flags)) '(:r2))
 					(vp-or-rr :r1 :r2)
