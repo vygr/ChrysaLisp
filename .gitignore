@@ -1,10 +1,10 @@
 .vs/
 .vscode/
-obj/
-x64/
-ai/
-tests/
-usr/*/*.tre
+/obj/
+/x64/
+/ai/
+/tests/
+/usr/*/*.tre
 os
 cpu
 abi
