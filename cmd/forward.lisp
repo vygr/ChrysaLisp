@@ -8,12 +8,14 @@
 
 	options:
 		-h --help: this help info.
+		-j --jobs num: max jobs per batch, default 1.
 
 	Scan source files for use of forward
 	references to functions or macros.
 
 	If no paths given on command line
 	then will test files from stdin.")
+(("-j" "--jobs") ,(opt-num 'opt_j))
 ))
 
 ;do the work on a file
@@ -37,14 +39,17 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq args (options stdio usage)))
+			(defq opt_j 1 args (options stdio usage)))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
-		(if (<= (length jobs) 1)
-			;have to do the work when just 1 file !
-			(work (pop jobs))
+		(if (<= (length jobs) opt_j)
+			;do the work when batch size ok !
+			(each (const work) jobs)
 			;do them all out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
-				(pipe-farm (map (# (cat (first args) " " %0)) jobs))))))
+				(pipe-farm (map (# (str (first args)
+						" -j " opt_j
+						" " (slice (str %0) 1 -2)))
+					(partition jobs opt_j)))))))

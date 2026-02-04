@@ -44,6 +44,9 @@ functions, Whiteboard and Files apps, have been changed to use a `:str`.
 
 Fix drag on Boing/Freeball `action-mouse-motion` problem.
 
+`forward` and `grep` commands now accept the `opt_j` batch size option, defaults
+to 1.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

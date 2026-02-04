@@ -81,6 +81,7 @@ Usage: forward [options] [path] ...
 
 	options:
 		-h --help: this help info.
+		-j --jobs num: max jobs per batch, default 1.
 
 	Scan source files for use of forward
 	references to functions or macros.
@@ -100,6 +101,7 @@ Usage: grep [options] [pattern] [path] ...
 		-r --regexp: regexp mode, default :nil.
 		-c --coded: encoded pattern mode, default :nil.
 		-m --md: md doc mode, default :nil.
+		-j --jobs num: max jobs per batch, default 1.
 
 	pattern:
 		^  start of line
