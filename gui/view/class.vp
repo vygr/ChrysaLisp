@@ -6,7 +6,7 @@
 (include "./class.inc")
 (include "././region/class.inc")
 
-(gen-create1 :view)
+(gen-create :view)
 (gen-vtable :view)
 
 (def-method :view :init)

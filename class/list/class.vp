@@ -4,7 +4,7 @@
 (include "././sym/class.inc")
 (include "././stream/class.inc")
 
-(gen-create1 :list)
+(gen-create :list)
 (gen-vtable :list)
 (gen-type :list)
 

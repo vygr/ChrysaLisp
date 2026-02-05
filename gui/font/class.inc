@@ -1,4 +1,5 @@
 (include "class/obj/class.inc")
+(include "./struct.inc")
 
 (def-class :font :obj
 	(dec-method :vtable gui/font/vtable)
@@ -21,27 +22,5 @@
 	(dec-method :lisp_glyph_paths gui/font/lisp_glyph_paths :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_glyph_bounds gui/font/lisp_glyph_bounds :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_texture gui/font/lisp_texture :static (:r0 :r1) (:r0 :r1)))
-
-(def-struct font +obj_size
-	(uint pixels)
-	(ptr data sym_map name chars))
-
-(def-struct font_data 0
-	(int ascent descent))
-
-(def-struct font_page 0
-	(uint end start))
-
-(def-struct font_path 0
-	(uint width len))
-
-(def-struct font_path_element 0
-	(uint type))
-
-(def-struct font_line_element font_path_element_size
-	(int x y))
-
-(def-struct font_curve_element font_line_element_size
-	(int x1 y1 x2 y2))
 
 (defcvar 'font_max_word_cache 2048)

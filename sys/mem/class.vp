@@ -12,13 +12,13 @@
 
 	;mem_slots heaps
 	(vp-add-cr statics_sys_mem_heaps :r0)
-	(vp-cpy-cr mem_cell_min_size :r4)    ;start object size
-	(vp-cpy-cr max_cell_count :r3)       ;start cell count
+	(vp-cpy-cr +mem_cell_min_size :r4)    ;start object size
+	(vp-cpy-cr +max_cell_count :r3)       ;start cell count
 	(vp-lea-i :r0 (* (length mem_heap_cell_sizes) hp_heap_size) :r5)
 	(loop-start)
-		(vp-add-cr sys_mem_header_size :r4)
+		(vp-add-cr +sys_mem_header_size :r4)
 		(call :sys_heap :init '(:r0 :r4 :r3) '(:r0))
-		(vp-sub-cr sys_mem_header_size :r4)
+		(vp-sub-cr +sys_mem_header_size :r4)
 		(vp-add-cr hp_heap_size :r0)
 		(vp-add-rr :r4 :r4)
 		(vp-shr-cr 1 :r3)
@@ -50,7 +50,7 @@
 	;free all unused blocks
 
 	(fn-bind 'sys/statics/statics :r0)
-	(vp-cpy-cr mem_cell_min_size :r9)
+	(vp-cpy-cr +mem_cell_min_size :r9)
 	(vp-add-cr statics_sys_mem_heaps :r0)
 	(vp-lea-i :r0 (* (length mem_heap_cell_sizes) hp_heap_size) :r9)
 	(loop-start)
@@ -69,7 +69,7 @@
 
 	(fn-bind 'sys/statics/statics :r2)
 	(vp-xor-rr :r0 :r0)
-	(vp-cpy-cr mem_cell_min_size :r1)
+	(vp-cpy-cr +mem_cell_min_size :r1)
 	(vp-add-cr statics_sys_mem_heaps :r2)
 	(vp-lea-i :r2 (* (length mem_heap_cell_sizes) hp_heap_size) :r4)
 	(loop-start)
@@ -93,10 +93,10 @@
 	;:r0-:r2
 
 	(entry :sys_mem :alloc '(:r0))
-	(errorif `(:r0 > ,(- (last mem_heap_cell_sizes) sys_mem_header_size)) 'error)
+	(errorif `(:r0 > ,(- (last mem_heap_cell_sizes) +sys_mem_header_size)) 'error)
 
 	;extra bytes for allocation header
-	(vp-lea-i :r0 sys_mem_header_size :r1)
+	(vp-lea-i :r0 +sys_mem_header_size :r1)
 
 	;find object heap
 	(fn-bind 'sys/statics/statics :r0)
@@ -109,11 +109,11 @@
 
 	;allocate object from this heap
 	(call :sys_heap :alloc '(:r0) '(:r0 :r1))
-	(vp-cpy-ri :r0 :r1 sys_mem_header_heap)
+	(vp-cpy-ri :r0 :r1 +sys_mem_header_heap)
 	(vp-swp-rr :r0 :r1)
 	(assign '((:r1 hp_heap_cellsize)) '(:r1))
-	(vp-add-cr sys_mem_header_size :r0)
-	(vp-sub-cr sys_mem_header_size :r1)
+	(vp-add-cr +sys_mem_header_size :r0)
+	(vp-sub-cr +sys_mem_header_size :r1)
 	(exit :sys_mem :alloc '(:r0 :r1))
 	(vp-ret)
 
@@ -159,8 +159,8 @@
 	(entry :sys_mem :free '(:r0))
 
 	(vpif '(:r0 /= 0))
-		(vp-cpy-ir :r0 (- sys_mem_header_heap sys_mem_header_size) :r1)
-		(vp-sub-cr sys_mem_header_size :r0)
+		(vp-cpy-ir :r0 (- +sys_mem_header_heap +sys_mem_header_size) :r1)
+		(vp-sub-cr +sys_mem_header_size :r0)
 		(hp-freecell :r1 :r0 :r2)
 	(endif)
 

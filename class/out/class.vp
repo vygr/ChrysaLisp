@@ -5,7 +5,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :out)
+(gen-create :out)
 (gen-vtable :out)
 (gen-type :out)
 

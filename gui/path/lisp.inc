@@ -1,3 +1,5 @@
+(import "./struct.inc")
+
 ;lisp bindings
 (ffi "gui/path/lisp_gen_arc" path-gen-arc)
 ; (path-gen-arc cx cy start end radius dst) -> dst
@@ -17,12 +19,6 @@
 ; (path-transform m3x2 src dst) -> dst
 (ffi "gui/path/lisp_svg" path-svg)
 ; (path-svg d) -> commands
-
-(enums +join 0
-	(enum miter bevel round))
-
-(enums +cap 0
-	(enum butt square tri arrow round))
 
 (defun path-smooth (src)
 	; (path-smooth src) -> dst

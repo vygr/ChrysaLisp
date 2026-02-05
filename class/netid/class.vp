@@ -4,7 +4,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :netid)
+(gen-create :netid)
 (gen-vtable :netid)
 (gen-type :netid)
 

@@ -8,7 +8,7 @@
 (include "././pixmap/class.inc")
 (include "././ctx/class.inc")
 
-(gen-create1 :vdu)
+(gen-create :vdu)
 (gen-vtable :vdu)
 
 (def-method :vdu :init)

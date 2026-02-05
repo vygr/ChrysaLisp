@@ -93,9 +93,9 @@
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r13))
-	(vp-cpy-ir :r13 font_name :r0)
+	(vp-cpy-ir :r13 +font_name :r0)
 	(call :str :create_from_buffer '((& :r0 +str_data) (:r0 +str_length)) '(:r12))
-	(call :num :create '((:r13 font_pixels)) '(:r11))
+	(call :num :create '((:r13 +font_pixels)) '(:r11))
 	(call :list :create :nil '(:r0))
 	(call :list :push_back2 '(:r0 :r12 :r11) '(:r1 _ _ _ _))
 	(vp-pop :r0)

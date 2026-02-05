@@ -6,7 +6,7 @@
 (include "././list/class.inc")
 (include "././in/class.inc")
 
-(gen-create1 :stdio)
+(gen-create :stdio)
 (gen-vtable :stdio)
 (gen-type :stdio)
 

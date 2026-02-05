@@ -3,7 +3,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :dim)
+(gen-create :dim)
 (gen-vtable :dim)
 (gen-type :dim)
 

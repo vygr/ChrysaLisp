@@ -3,7 +3,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :hmap)
+(gen-create :hmap)
 (gen-vtable :hmap)
 (gen-type :hmap)
 

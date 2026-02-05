@@ -5,7 +5,7 @@
 (include "././stream/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :real)
+(gen-create :real)
 (gen-vtable :real)
 (gen-type :real)
 

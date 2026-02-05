@@ -3,7 +3,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :reals)
+(gen-create :reals)
 (gen-vtable :reals)
 (gen-type :reals)
 

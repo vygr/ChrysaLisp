@@ -16,7 +16,7 @@
 	(entry :texture :deinit '(:r0))
 
 	(vp-push :r0)
-	(call :sys_task :callback '((:r0 texture_handle) ($ close_callback)))
+	(call :sys_task :callback '((:r0 +texture_handle) ($ close_callback)))
 	(vp-pop :r0)
 	(s-jump :texture :deinit '(:r0))
 

@@ -6,7 +6,7 @@
 (include "././sstream/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :error)
+(gen-create :error)
 (gen-vtable :error)
 (gen-type :error)
 

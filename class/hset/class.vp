@@ -3,7 +3,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :hset)
+(gen-create :hset)
 (gen-vtable :hset)
 (gen-type :hset)
 

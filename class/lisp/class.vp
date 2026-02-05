@@ -7,7 +7,7 @@
 (include "././func/class.inc")
 (include "././fstream/class.inc")
 
-(gen-create1 :lisp)
+(gen-create :lisp)
 (gen-vtable :lisp)
 (gen-type :lisp)
 

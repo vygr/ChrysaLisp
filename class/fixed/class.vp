@@ -6,7 +6,7 @@
 (include "././stream/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :fixed)
+(gen-create :fixed)
 (gen-vtable :fixed)
 (gen-type :fixed)
 

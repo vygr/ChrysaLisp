@@ -5,7 +5,7 @@
 (include "././stream/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :func)
+(gen-create :func)
 (gen-vtable :func)
 (gen-type :func)
 

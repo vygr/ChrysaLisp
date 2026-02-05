@@ -24,9 +24,9 @@
 (errorcase
 	(gotoif `(,offset < 0) 'error1)
 	(gotoif `(,type < +type_real) 'error)
-	(vp-cpy-ir obj (- sys_mem_header_heap sys_mem_header_size) osize)
+	(vp-cpy-ir obj (- +sys_mem_header_heap +sys_mem_header_size) osize)
 	(assign `((,osize hp_heap_cellsize)) `(,osize))
-	(vp-sub-cr sys_mem_header_size osize)
+	(vp-sub-cr +sys_mem_header_size osize)
 	(vp-cpy-rr type fsize)
 	(vpif `(,type <= 0))
 		(vp-lea-p 'type_sizes sizes)
@@ -129,9 +129,9 @@
 (errorcase
 	(gotoif `(,offset < 0) 'error1)
 	(gotoif `(,type < +type_real) 'error)
-	(vp-cpy-ir obj (- sys_mem_header_heap sys_mem_header_size) osize)
+	(vp-cpy-ir obj (- +sys_mem_header_heap +sys_mem_header_size) osize)
 	(assign `((,osize hp_heap_cellsize)) `(,osize))
-	(vp-sub-cr sys_mem_header_size osize)
+	(vp-sub-cr +sys_mem_header_size osize)
 	(vp-cpy-rr type fsize)
 	(vpif `(,type <= 0))
 		(vp-lea-p 'type_sizes sizes)

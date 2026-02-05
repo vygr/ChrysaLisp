@@ -3,10 +3,7 @@
 ;;;;;;;;;
 
 (import "class/obj/lisp.inc")
-
-(structure +texture +obj_size
-	(long handle)
-	(uint width height))
+(import "./struct.inc")
 
 (defun texture-metrics (this)
 	; (texture-metrics texture) -> (handle width height)

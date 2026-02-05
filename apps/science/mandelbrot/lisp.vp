@@ -97,7 +97,7 @@
 	(loop-start)
 		(assign {x} {xp})
 		(loop-start)
-			(assign {lut[+long_size * *data]} {canvas->canvas_color})
+			(assign {lut[+long_size * *data]} {canvas->+canvas_color})
 			(call :canvas :plot {canvas, xp, yp})
 			(assign {data + +byte_size} {data})
 		(loop-until {(xp + 1 => xp) = x1})

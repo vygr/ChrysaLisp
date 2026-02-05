@@ -400,32 +400,6 @@
 		(vtable-emit %0)
 	(def-func-end))
 
-(defun gen-create1 (%0 &optional %1)
-	;%0 = class name
-	;%1 = create/init name
-	(defq m (method-lookup %0 (if %1 (sym (cat :create_ %1)) :create)) %2 (ifn (third m) '())
-		%3 (slice '(:r14 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13) 0 (length %2)))
-	(def-func (f-path %0 (if %1 (sym (cat :create_ %1)) :create)))
-		;inputs
-		;...
-		;outputs
-		;:r0 = 0 if error, else object (ptr)
-		;trashes
-		;...
-		(assign %2 %3)
-		(call :sys_mem :alloc `(,(sym (cat "+" (rest %0) "_size"))) '(:r0 _))
-		(vpif '(:r0 /= 0))
-			;init the object
-			(call %0 (if %1 (sym (cat :init_ %1)) :init) `(:r0 (@ ,(f-path %0 :vtable)) ~%3) '(:r0 :r1))
-			(vpif '(:r1 = 0))
-				;error with init
-				(call :sys_mem :free '(:r0))
-				(vp-xor-rr :r0 :r0)
-			(endif)
-		(endif)
-		(vp-ret)
-	(def-func-end))
-
 (defun gen-create (%0 &optional %1)
 	;%0 = class name
 	;%1 = create/init name
@@ -439,7 +413,7 @@
 		;trashes
 		;...
 		(assign %2 %3)
-		(call :sys_mem :alloc `(,(sym (cat (rest %0) "_size"))) '(:r0 _))
+		(call :sys_mem :alloc `(,(sym (cat "+" (rest %0) "_size"))) '(:r0 _))
 		(vpif '(:r0 /= 0))
 			;init the object
 			(call %0 (if %1 (sym (cat :init_ %1)) :init) `(:r0 (@ ,(f-path %0 :vtable)) ~%3) '(:r0 :r1))

@@ -7,7 +7,7 @@
 (include "././list/class.inc")
 (include "././hset/class.inc")
 
-(gen-create1 :num)
+(gen-create :num)
 (gen-vtable :num)
 (gen-type :num)
 

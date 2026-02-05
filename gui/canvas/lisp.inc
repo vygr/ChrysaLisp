@@ -5,6 +5,7 @@
 (import "././view/lisp.inc")
 (import "././texture/lisp.inc")
 (import "././pixmap/lisp.inc")
+(import "./struct.inc")
 
 ;lisp bindings
 (ffi "gui/canvas/lisp_to_argb32" canvas-to-argb32)
@@ -14,21 +15,6 @@
 
 ;init pixmap shared cache map
 (def *root_env* '*pixmap_cache* (Lmap))
-
-(structure +canvas +view_size
-	(ptr pixmap edges texture)
-	(pptr edges_start)
-	(pubyte coverage)
-	(uint scale cx cy cx1 cy1 color flags))
-
-(bits +load_flag 0
-	(bit shared film noswap))
-
-(bits +canvas_flag 0
-	(bit antialias))
-
-(enums +winding 0
-	(enum odd_even none_zero))
 
 (defun canvas-darker (col)
 	; (canvas-darker col) -> col

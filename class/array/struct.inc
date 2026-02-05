@@ -1,3 +1,6 @@
+(import "class/seq/struct.inc")
+(import "sys/mem/struct.inc")
+
 (structure +array +seq_size
 	(plong begin)
 	(uint length capacity)

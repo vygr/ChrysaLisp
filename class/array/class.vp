@@ -5,7 +5,7 @@
 (include "././num/class.inc")
 (include "././list/class.inc")
 
-(gen-create1 :array)
+(gen-create :array)
 (gen-vtable :array)
 (gen-type :array)
 
