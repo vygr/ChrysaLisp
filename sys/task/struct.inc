@@ -5,4 +5,5 @@
 (structure +tk_node +ln_node_size
 	(ptr stack stack_top mbox_addr lisp)
 	(long time)
-	(uint priority mbox_id flags))
+	(uint priority mbox_id flags)
+	(align))
