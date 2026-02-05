@@ -68,7 +68,7 @@
 (defun obj-args (field &optional offset)
 	; (obj-args field &optional offset) -> args
 	; convert to obj-get/obj-set common args
-	(defq type (case (eval (sym (cat field "_t")))
+	(defq type (case (defq type (eval (sym (cat field "_t"))))
 		("p" +type_ptr) ("l" +type_long)
 		("b" +type_byte) ("B" +type_ubyte)
 		("s" +type_short) ("S" +type_ushort)
@@ -76,7 +76,7 @@
 		("F" +type_fixed) ("R" +type_real)
 		(("pb" "ps" "pi" "pl" "pB" "pS" "pI" "pF" "pR" "pp") +type_pptr)
 		("no" +node_id_size) ("ne" +net_id_size)
-		((num-intern (str-to-num type)))))
+		(:t (num-intern (str-to-num type)))))
 	(list (num-intern (+ (eval field) (ifn offset +str_data))) type))
 
 (defmacro getf (obj field &optional offset)
