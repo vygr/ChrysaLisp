@@ -346,15 +346,15 @@
 		;:r1-:r14
 
 	(def-struct local 0
-		(ptr this func ctx pivot iter lower upper))
+		(ptr this func ctx pivt iter lowr uppr))
 
 	(vp-alloc local_size)
 	(entry :array :pivot '(:r0 :r1 :r2 :r3 :r4))
 	(save-fields :rsp
-		'(local_this local_lower local_upper local_func local_ctx local_pivot)
+		'(local_this local_lowr local_uppr local_func local_ctx local_pivt)
 		'(:r0 :r1 :r2 :r3 :r4 :r1))
 
-	;pivot selection: swap middle to first (lower) to avoid O(n^2) on sorted data
+	;pivot selection: swap middle to first (lowr) to avoid O(n^2) on sorted data
 	(vp-cpy-rr :r2 :r6)
 	(vp-sub-rr :r1 :r6)
 	(vp-shr-cr 1 :r6)
@@ -368,18 +368,18 @@
 	(loop-start)
 		(vp-add-cr +long_size :r1)
 		(breakif '(:r1 >= :r2))
-		(assign '((:rsp local_ctx) (:rsp local_lower) :r1) '(:r0 :r2 (:rsp local_iter)))
+		(assign '((:rsp local_ctx) (:rsp local_lowr) :r1) '(:r0 :r2 (:rsp local_iter)))
 		(vp-call-i :rsp local_func)
-		(assign '((:rsp local_iter) (:rsp local_upper)) '(:r1 :r2))
+		(assign '((:rsp local_iter) (:rsp local_uppr)) '(:r1 :r2))
 		(continueif '(:r0 >= 0))
-		(assign '((:rsp local_pivot)) '(:r0))
+		(assign '((:rsp local_pivt)) '(:r0))
 		(vp-add-cr +long_size :r0)
-		(assign '(:r0) '((:rsp local_pivot)))
+		(assign '(:r0) '((:rsp local_pivt)))
 		(continueif '(:r0 = :r1))
 		(assign '((:r0 0) (:r1 0)) '(:r3 :r4))
 		(assign '(:r3 :r4) '((:r1 0) (:r0 0)))
 	(loop-end)
-	(assign '((:rsp local_pivot) (:rsp local_lower)) '(:r1 :r0))
+	(assign '((:rsp local_pivt) (:rsp local_lowr)) '(:r1 :r0))
 	(vpif '(:r1 /= :r0))
 		(assign '((:r0 0) (:r1 0)) '(:r2 :r3))
 		(assign '(:r2 :r3) '((:r1 0) (:r0 0)))
@@ -415,32 +415,32 @@
 
 	(def-vars
 		(ptr this func ctx stack)
-		(pptr pivot iter_begin)
+		(pptr pivt iter_begin)
 		(union
 			(uint low high)
 			(long interval))
 		(union
-			(pptr lower upper)
-			(uint start length)))
+			(pptr lowr uppr)
+			(uint start len)))
 
 	(push-scope)
-	(entry :array :sort {this, stack, lower, upper, func, ctx})
+	(entry :array :sort {this, stack, lowr, uppr, func, ctx})
 
 	(call :array :get_begin {this} {_, iter_begin})
-	(assign {(lower - iter_begin) >> 3, (upper - iter_begin) >> 3} {low, high})
+	(assign {(lowr - iter_begin) >> 3, (uppr - iter_begin) >> 3} {low, high})
 	(d-call :array :get_length {stack} {_, start})
 	(loop-start)
 		(vpif {low < high})
 			(call :array :pivot {this, low * +long_size + iter_begin, high * +long_size + iter_begin, func, ctx}
-				{_, pivot})
-			(assign {high} {length})
-			(assign {(pivot - iter_begin) >> 3} {high})
+				{_, pivt})
+			(assign {high} {len})
+			(assign {(pivt - iter_begin) >> 3} {high})
 			(call :array :push_back {stack, interval})
-			(assign {high + 1, length} {low, high})
+			(assign {high + 1, len} {low, high})
 			(call :array :push_back {stack, interval})
 		(endif)
-		(d-call :array :get_length {stack} {_, length})
-		(breakif {length = start})
+		(d-call :array :get_length {stack} {_, len})
+		(breakif {len = start})
 		(call :array :pop_back {stack} {_, interval})
 	(loop-end)
 
