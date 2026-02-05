@@ -1,39 +1,6 @@
-; Lisp (getf ...)
-
 (import "class/obj/lisp.inc")
+(import "./struct.inc")
 (import "lib/xml/svg.inc")
-
-(structure +pixmap +obj_size
-	(uint type)
-	(ptr texture stream bufp)
-	(uint stream_type width height stride)
-	(align)
-	(offset data))
-
-;module
-(env-push)
-
-(structure +cpm 0
-	(uint ident)        ;ident .CPM or .FLM
-	(uint bytes)        ;0 if not known, else total size
-	(uint version)      ;version number
-	(uint type)         ;image type
-	(uint width)        ;image w
-	(uint height)       ;image h
-	(uint trans))       ;image transparent colour
-
-(structure +tga 0
-	(ubyte imagedata)   ;id field offset
-	(ubyte colmap)      ;color map
-	(ubyte type)        ;targa type
-	(ubyte a b)         ;nint16 colmap_fei  ;color map origin (non aligned !)
-	(ubyte c d)         ;nint16 colmap_num  ;color map number (non aligned !)
-	(ubyte colmap_size) ;color map size
-	(struct pad 4)      ;padding ?
-	(ushort width)
-	(ushort height)
-	(ubyte depth)
-	(ubyte origin))
 
 (defun pixmap-cpm-info (stream)
 	; (pixmap-cpm-info stream) -> (width height type) | (-1 -1 -1)
@@ -82,8 +49,3 @@
 				((const (ffi "gui/pixmap/lisp_load_cpm")) stream))
 			((ends-with ".tga" file)
 				((const (ffi "gui/pixmap/lisp_load_tga")) stream)))))
-
-;module
-(export-symbols
-	'(pixmap-info pixmap-tga-info pixmap-cpm-info pixmap-save pixmap-load))
-(env-pop)

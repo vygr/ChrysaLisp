@@ -24,7 +24,7 @@
 	;create new pixmap object
 	(vp-mul-rr :r1 :r0)
 	(vp-mul-cr +int_size :r0)
-	(vp-add-cr pixmap_data :r0)
+	(vp-add-cr +pixmap_data :r0)
 	(call :sys_mem :alloc '(:r0) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;init the object
@@ -55,9 +55,9 @@
 	;:r1-:r14
 
 	(entry :pixmap :init '(:r0 :r1 :r2 :r3 :r4))
-	(assign '(:r2 :r3 :r4) '((:r0 pixmap_width) (:r0 pixmap_height) (:r0 pixmap_type)))
+	(assign '(:r2 :r3 :r4) '((:r0 +pixmap_width) (:r0 +pixmap_height) (:r0 +pixmap_type)))
 	(vp-mul-cr +int_size :r2)
-	(assign '(:r2) '((:r0 pixmap_stride)))
+	(assign '(:r2) '((:r0 +pixmap_stride)))
 
 	;init parent
 	(s-call :pixmap :init '(:r0 :r1) '(:r0 :r1))
@@ -65,13 +65,13 @@
 		(vp-push :r0)
 		(assign '(0) '(:r1))
 		(assign '(:r1 :r1 :r1 :r1)
-			'((:r0 pixmap_texture) (:r0 pixmap_stream)
-			(:r0 pixmap_bufp) (:r0 pixmap_stream_type)))
+			'((:r0 +pixmap_texture) (:r0 +pixmap_stream)
+			(:r0 +pixmap_bufp) (:r0 +pixmap_stream_type)))
 
 		;clear pixel buffer
-		(assign '((:r0 pixmap_height) (:r0 pixmap_stride)) '(:r1 :r2))
+		(assign '((:r0 +pixmap_height) (:r0 +pixmap_stride)) '(:r1 :r2))
 		(vp-mul-rr :r2 :r1)
-		(call :sys_mem :fill '((& :r0 pixmap_data) :r1 0))
+		(call :sys_mem :fill '((& :r0 +pixmap_data) :r1 0))
 		(vp-pop :r0)
 	(endif)
 
@@ -91,11 +91,11 @@
 	(vp-push :r0)
 
 	;free any flm stream
-	(call :stream :deref_if '((:r0 pixmap_stream)))
+	(call :stream :deref_if '((:r0 +pixmap_stream)))
 
 	;free any texture
 	(assign '((:rsp 0)) '(:r0))
-	(call :texture :deref_if '((:r0 pixmap_texture)))
+	(call :texture :deref_if '((:r0 +pixmap_texture)))
 
 	(vp-pop :r0)
 	(s-jump :pixmap :deinit '(:r0))
@@ -142,16 +142,16 @@
 
 	;free any texture
 	(assign {user->local_this} {this})
-	(call :texture :deref_if {this->pixmap_texture})
+	(call :texture :deref_if {this->+pixmap_texture})
 
 	;create SDL surface from pixel buffer, convert to texture
-	(host-gui-call :host_gui :create_texture {&this->pixmap_data,
-			this->pixmap_width, this->pixmap_height,
-			this->pixmap_stride, user->local_flags}
+	(host-gui-call :host_gui :create_texture {&this->+pixmap_data,
+			this->+pixmap_width, this->+pixmap_height,
+			this->+pixmap_stride, user->local_flags}
 		{tex_id})
 
 	;new texture
-	(call :texture :create {tex_id, this->pixmap_width, this->pixmap_height} {this->pixmap_texture})
+	(call :texture :create {tex_id, this->+pixmap_width, this->+pixmap_height} {this->+pixmap_texture})
 
 	(assign {old_stack} '(:rsp))
 	(pop-scope-syms)
@@ -238,7 +238,7 @@
 	(vp-shl-cr 32 :r1)
 	(vp-cpy-rr :r0 :r4)
 	(vp-add-rr :r1 :r2)
-	(assign '((:r0 pixmap_height) (:r0 pixmap_stride) (& :r0 pixmap_data)) '(:r1 :r3 :r0))
+	(assign '((:r0 +pixmap_height) (:r0 +pixmap_stride) (& :r0 +pixmap_data)) '(:r1 :r3 :r0))
 	(vp-mul-rr :r3 :r1)
 	(call :sys_mem :fill '(:r0 :r1 :r2))
 
@@ -260,12 +260,12 @@
 
 	(entry :pixmap :as_argb `(,this))
 
-	(assign `((,this pixmap_type)) `(,pix))
+	(assign `((,this +pixmap_type)) `(,pix))
 	(vpif `(,pix < 0))
 		(vp-mul-cr -1 pix)
-		(assign `(,pix) `((,this pixmap_type)))
+		(assign `(,pix) `((,this +pixmap_type)))
 
-		(assign `((& ,this pixmap_data) (,this pixmap_stride) (,this pixmap_height))
+		(assign `((& ,this +pixmap_data) (,this +pixmap_stride) (,this +pixmap_height))
 			`(,dst ,end ,height))
 		(vp-mul-rr height end)
 		(vp-simd vp-xor-rr `(,pmul ,argb) `(,pmul ,argb))
@@ -299,12 +299,12 @@
 
 	(entry :pixmap :as_premul `(,this))
 
-	(assign `((,this pixmap_type)) `(,pix))
+	(assign `((,this +pixmap_type)) `(,pix))
 	(vpif `(,pix < 0))
 		(vp-mul-cr -1 pix)
-		(assign `(,pix) `((,this pixmap_type)))
+		(assign `(,pix) `((,this +pixmap_type)))
 
-		(assign `((& ,this pixmap_data) (,this pixmap_stride) (,this pixmap_height))
+		(assign `((& ,this +pixmap_data) (,this +pixmap_stride) (,this +pixmap_height))
 			`(,dst ,end ,height))
 		(vp-mul-rr height end)
 		(vp-simd vp-xor-rr `(,pmul ,argb) `(,pmul ,argb))

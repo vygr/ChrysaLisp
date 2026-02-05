@@ -44,8 +44,8 @@
 	;create pixmap
 	(call :pixmap :create {header.tga_width, header.tga_height, 32} {this})
 	(vpif {this})
-		(assign {&this->pixmap_data} {data})
-		(assign {data + this->pixmap_height * this->pixmap_stride} {data_end})
+		(assign {&this->+pixmap_data} {data})
+		(assign {data + this->+pixmap_height * this->+pixmap_stride} {data_end})
 		(assign {0 => bit_pool} {bit_pool_size})
 
 		;decode according to type

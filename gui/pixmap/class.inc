@@ -1,4 +1,5 @@
 (include "class/obj/class.inc")
+(include "./struct.inc")
 
 (def-class :pixmap :obj
 	(dec-method :vtable gui/pixmap/vtable)
@@ -23,10 +24,3 @@
 	(dec-method :lisp_save_cpm gui/pixmap/lisp_save_cpm :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_load_cpm gui/pixmap/lisp_load_cpm :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_load_tga gui/pixmap/lisp_load_tga :static (:r0 :r1) (:r0 :r1)))
-
-(def-struct pixmap +obj_size
-	(int type)
-	(ptr texture stream bufp)
-	(uint stream_type width height stride)
-	(align)
-	(offset data))
