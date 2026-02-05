@@ -51,6 +51,12 @@ TUI uses user login name for prompt.
 
 New `(task-flags) -> flags` function.
 
+Separate the VP class information from the VP object information. We now have
+the `class.inc` containing the method related code and `struct.inc` containing
+the object structure code. The `struct.inc` files are shared with the Lisp
+system for `getf` and `setf` interaction. This avoid replication of structure
+information.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.
