@@ -27,7 +27,7 @@
 			(ptr link))
 		(ptr statics mbox_addr msg data tuple key best_nodes)
 		(pptr iter_begin iter_end)
-		(struct node_id +node_id_size)
+		(nodeid node_id)
 		(long time)
 		(uint link_cnt best_cnt best_rand))
 
@@ -407,7 +407,7 @@
 
 	(def-vars
 		(ptr arg func msg)
-		(struct id +net_id_size)
+		(netid id)
 		(uint length))
 
 	(push-scope)

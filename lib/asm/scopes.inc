@@ -104,13 +104,15 @@
 			(:t
 				(if (defq alignment (find (first line)
 						'(short int long ushort uint long ptr pptr
-							pubyte pushort puint pbyte pshort pint plong)))
+							pubyte pushort puint pbyte pshort pint plong
+							nodeid netid)))
 					(push prog
 						`(setq *scopes_sp* (align *scopes_sp* ,(elem-get
 							'(+short_size +int_size +long_size +short_size
 								+int_size +long_size +ptr_size +ptr_size
 								+ptr_size +ptr_size +ptr_size +ptr_size
-								+ptr_size +ptr_size +ptr_size)
+								+ptr_size +ptr_size +ptr_size
+								+long_size +long_size)
 							alignment)))))
 				(each! (lambda (var)
 					(case (first line)
@@ -129,7 +131,9 @@
 						(pbyte (scope-new-var "pb" +ptr_size))
 						(pshort (scope-new-var "ps" +ptr_size))
 						(pint (scope-new-var "pi" +ptr_size))
-						(plong (scope-new-var "pl" +ptr_size))))
+						(plong (scope-new-var "pl" +ptr_size))
+						(nodeid (scope-new-var "no" +node_id_size))
+						(netid (scope-new-var "ne" +net_id_size))))
 					(list line) 1)))) lines)
 	prog)
 

@@ -13,7 +13,7 @@
 		(ptr statics params msg data mem)
 		(pubyte pdata)
 		(long handle)
-		(struct node_id +node_id_size))
+		(nodeid node_id))
 
 	(push-scope)
 
@@ -84,7 +84,7 @@
 
 	(def-vars
 		(ptr statics lk_node msg data tx tx_msg key)
-		(struct node_id +node_id_size))
+		(nodeid node_id))
 
 	(push-scope)
 
@@ -186,7 +186,7 @@
 
 	(def-vars
 		(ptr lk_node msg data rx rx_msg)
-		(struct node_id +node_id_size))
+		(nodeid node_id))
 
 	(push-scope)
 

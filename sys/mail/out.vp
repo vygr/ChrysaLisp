@@ -9,7 +9,7 @@
 
 	(def-vars
 		(ptr msg data statics)
-		(struct node_id +node_id_size))
+		(nodeid node_id))
 
 	(vp-rdef (id0 id1 id2 heap msg offchip data obj frag time len off amount tot))
 
