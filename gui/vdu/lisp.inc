@@ -3,12 +3,7 @@
 ;;;;;;;;;;;;
 
 (import "././view/lisp.inc")
-
-(structure +vdu +view_size
-	(ptr font textures)
-	(plong chars)
-	(uint width height)
-	(ushort char_width char_height))
+(import "./struct.inc")
 
 (defclass Vdu () (View)
 	; (Vdu) -> vdu

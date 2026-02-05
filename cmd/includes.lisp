@@ -61,6 +61,7 @@
 				((starts-with "+char_" token) (merge requires '("lib/consts/chars.inc")))
 				((starts-with "+argb_" token) (merge requires '("lib/consts/colors.inc")))
 				((starts-with "+pixmap_" token) (merge classes '(":pixmap")))
+				((starts-with "+vdu_" token) (merge classes '(":vdu")))
 				((starts-with "mem_" token) (merge classes '(":sys_mem")))
 				((starts-with "rect_" token) (merge classes '(":region")))
 				((starts-with "lk_" token) (merge classes '(":sys_link")))
