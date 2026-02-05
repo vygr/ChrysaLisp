@@ -1,4 +1,5 @@
 (include "././stream/class.inc")
+(include "./struct.inc")
 
 (def-class :sstream :stream
 	(dec-method :vtable class/sstream/vtable)
@@ -8,5 +9,3 @@
 	(dec-method :claim_string class/sstream/claim_string :static (:r0) (:r0 :r1))
 	(dec-method :write_next class/sstream/write_next :final)
 	(dec-method :flush class/sstream/flush :final))
-
-(def-struct sstream stream_size)

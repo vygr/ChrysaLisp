@@ -3,7 +3,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create :fixeds)
+(gen-create1 :fixeds)
 (gen-vtable :fixeds)
 (gen-type :fixeds)
 

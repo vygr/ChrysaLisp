@@ -1,4 +1,5 @@
 (include "././obj/class.inc")
+(include "./struct.inc")
 
 (def-class :seq :obj
 	(dec-method :vtable class/seq/vtable)
@@ -29,8 +30,6 @@
 	(dec-method :lisp_some class/seq/lisp_some :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_filter class/seq/lisp_filter :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_pling class/seq/lisp_pling :static (:r0 :r1) (:r0 :r1)))
-
-(def-struct seq obj_size)
 
 (defun seq-elem-index (idx len)
 	(vpif `(,idx < 0))

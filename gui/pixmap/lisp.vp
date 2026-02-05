@@ -55,7 +55,7 @@
 	(call :pixmap :load_cpm in '(:r1))
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
-		(assign '((:r0 lisp_sym_nil)) '(:r1))
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
 
@@ -89,7 +89,7 @@
 	(call :pixmap :load_tga in '(:r1))
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
-		(assign '((:r0 lisp_sym_nil)) '(:r1))
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
 

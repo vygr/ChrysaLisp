@@ -1,9 +1,10 @@
 ;import symbols
-(import "./kernel/lisp.inc")
+(import "./kernel/struct.inc")
+(import "./list/struct.inc")
+(import "./task/struct.inc")
+(import "./mail/struct.inc")
+(import "./pii/struct.inc")
 (import "service/lock/app.inc")
-
-(structure +mail_timeout 0
-	(long time id))
 
 (defun task-mboxes (size)
 	; (task-mboxes size) -> ((task-mbox) [temp_mbox] ...)
@@ -57,9 +58,3 @@
 		(when (some (# (> file_age (age (cat obj_prefix %0)))) products)
 			(catch (within-compile-env (# (include file))) :nil))
 		(lock-release-rpc obj_prefix)))
-
-(enums +file_open 0
-	(enum read write append))
-
-(bits +tk_flag 0
-	(bit aborted))

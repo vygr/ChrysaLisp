@@ -1,20 +1,8 @@
 ;lisp bindings
 (import "service/gui/lisp.inc")
-(import "sys/list/lisp.inc")
+(import "sys/list/struct.inc")
 (import "class/hmap/lisp.inc")
-
-(structure +view +hmap_size
-	(offset start)
-	(struct node +ln_node_size)
-	(struct list +lh_list_size)
-	(netid owner_id)
-	(pptr dirty_region opaque_region ctx_node)
-	(long id)
-	(uint flags)
-	(int ctx_x ctx_y x y w h cw ch))
-
-(bits +view_flag 0
-	(bit solid opaque dirty_all hidden at_back at_front subtree))
+(import "./struct.inc")
 
 (defun view-fit (x y w h)
 	; (view-fit x y w h) -> (x y w h)

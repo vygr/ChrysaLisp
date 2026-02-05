@@ -9,21 +9,21 @@
 
 	(def-vars
 		(ptr msg data statics)
-		(struct node_id node_id_size))
+		(struct node_id +node_id_size))
 
 	(vp-rdef (id0 id1 id2 heap msg offchip data obj frag time len off amount tot))
 
 	(push-scope)
 
 	(call :sys_task :set_priority '(1))
-	(call :sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
 	(assign {@sys/statics/statics} {statics})
 
 	(loop-start 'mail_loop)
 		;read parcel or junk mail
 		(call :sys_mail :mymail :nil {msg, data})
-		(vpifnot {(msg->msg_dest.net_id_node_id.node_id_node1 - node_id.node_id_node1)
-			| (msg->msg_dest.net_id_node_id.node_id_node2 - node_id.node_id_node2)})
+		(vpifnot {(msg->+msg_dest.+net_id_node_id.+node_id_node1 - node_id.+node_id_node1)
+			| (msg->+msg_dest.+net_id_node_id.+node_id_node2 - node_id.+node_id_node2)})
 			;we got some junk mail, just free it for now
 			(call :sys_mail :free {msg})
 			(continue 'mail_loop)
@@ -37,7 +37,7 @@
 		(assign {msg, &statics->statics_sys_mail_msg_heap,
 				&statics->statics_sys_mail_offchip_list,
 				0, data} `(,msg ,heap ,offchip ,off ,data))
-		(load-fields msg '(msg_obj msg_frag_length) `(,obj ,tot))
+		(load-fields msg '(+msg_obj +msg_frag_length) `(,obj ,tot))
 		(vp-cpy-rr tot amount)
 		(loop-start)
 			;create fragment
@@ -47,12 +47,12 @@
 			;fill in fragment
 			(vp-cpy-rr amount len)
 			(vp-min-cr lk_data_size len)
-			(assign {statics->statics_sys_mail_session, node_id.node_id_node1,
-				node_id.node_id_node2} `(,id0 ,id1 ,id2))
-			(save-net-id frag msg_src id0 id1 id2)
-			(assign-net-id msg msg_dest frag msg_dest id0 id1 id2)
+			(assign {statics->statics_sys_mail_session, node_id.+node_id_node1,
+				node_id.+node_id_node2} `(,id0 ,id1 ,id2))
+			(save-net-id frag +msg_src id0 id1 id2)
+			(assign-net-id msg +msg_dest frag +msg_dest id0 id1 id2)
 			(save-fields
-				frag '(msg_obj msg_timestamp msg_frag_length msg_frag_offset msg_total_length msg_frag_data)
+				frag '(+msg_obj +msg_timestamp +msg_frag_length +msg_frag_offset +msg_total_length +msg_frag_data)
 				`(,obj ,time ,len ,off ,tot ,data))
 
 			;move on

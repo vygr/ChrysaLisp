@@ -19,17 +19,17 @@
 
 	(entry :nums :lisp_vecop1 `(,this ,args ,func))
 
-	(assign `((,args array_length)) `(,argc))
+	(assign `((,args +array_length)) `(,argc))
 (errorcase
 	(gotoif `(,argc > 3) 'error)
 	(call :lisp :env_args_match `(,args (@ ,(f-path :nums :vtable)) 2) '(tmp))
 	(gotoif `(,tmp = 0) 'error))
-	(assign `((,args array_begin)) `(,iter_begin))
+	(assign `((,args +array_begin)) `(,iter_begin))
 	(array-get-args iter_begin `(,nums1 ,nums2))
-	(assign `((,nums1 array_length)) `(,len1))
+	(assign `((,nums1 +array_length)) `(,len1))
 (errorcase
 	(gotoif `(,len1 = 0) 'error)
-	(assign `((,nums2 array_length)) `(,len2))
+	(assign `((,nums2 +array_length)) `(,len2))
 	(gotoif `(,len1 > ,len2) 'error))
 	(vpif `(,argc = 2))
 		(v-call :nums :vcreate `(,dst) `(,dst) nums1 iter_begin)
@@ -38,7 +38,7 @@
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
 	(errorcase
-		(assign `((,dst array_length)) `(,len2))
+		(assign `((,dst +array_length)) `(,len2))
 		(gotoif `(,len1 > ,len2) 'error))
 		(call :obj :ref `(,dst) `(,dst))
 	(endif)
@@ -73,14 +73,14 @@
 
 	(entry :nums :lisp_vecop2 `(,this ,args ,func))
 
-	(assign `((,args array_length)) `(,argc))
+	(assign `((,args +array_length)) `(,argc))
 (errorcase
 	(gotoif `(,argc > 2) 'error)
 	(call :lisp :env_args_match `(,args (@ ,(f-path :nums :vtable)) 1) '(tmp))
 	(gotoif `(,tmp = 0) 'error))
-	(assign `((,args array_begin)) `(,iter_begin))
+	(assign `((,args +array_begin)) `(,iter_begin))
 	(array-get-args iter_begin `(,nums1))
-	(assign `((,nums1 array_length)) `(,len1))
+	(assign `((,nums1 +array_length)) `(,len1))
 	(errorif `(,len1 = 0) 'error)
 	(vpif `(,argc = 1))
 		(v-call :nums :vcreate `(,dst) `(,dst) nums1 iter_begin)
@@ -89,7 +89,7 @@
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 1) dst)
 	(errorcase
-		(assign `((,dst array_length)) `(,len2))
+		(assign `((,dst +array_length)) `(,len2))
 		(gotoif `(,len1 > ,len2) 'error))
 		(call :obj :ref `(,dst) `(,dst))
 	(endif)
@@ -348,10 +348,10 @@
 
 	(errorif-lisp-args-sig 'error :r1 2 3)
 
-	(assign `((,args array_length)) `(,argc))
-	(assign `((,args array_begin)) `(,iter_begin))
+	(assign `((,args +array_length)) `(,argc))
+	(assign `((,args +array_begin)) `(,iter_begin))
 	(array-get-args iter_begin `(,nums1 ,scale))
-	(assign `((,nums1 array_length)) `(,len1))
+	(assign `((,nums1 +array_length)) `(,len1))
 	(errorif `(,len1 = 0) 'error)
 	(vpif `(,argc = 2))
 		(v-call :nums :vcreate `(,dst) `(,dst) nums1 iter_begin)
@@ -360,11 +360,11 @@
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
 	(errorcase
-		(assign `((,dst array_length)) `(,len2))
+		(assign `((,dst +array_length)) `(,len2))
 		(gotoif `(,len1 > ,len2) 'error))
 		(call :obj :ref `(,dst) `(,dst))
 	(endif)
-	(call :nums :scale `(,dst ,nums1 (,scale num_value)) `(,dst))
+	(call :nums :scale `(,dst ,nums1 (,scale +num_value)) `(,dst))
 
 	(exit :nums :lisp_scale `(,this ,dst))
 	(vp-ret)
@@ -423,8 +423,8 @@
 	(array-bind-args :r1 '(:r0 :r1))
 
 (errorcase
-	(assign '((:r0 array_length)) '(:r2))
-	(assign '((:r1 array_length)) '(:r3))
+	(assign '((:r0 +array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r3))
 	(gotoif '(:r2 = 0) 'error1)
 	(gotoif '(:r2 > :r3) 'error1))
 

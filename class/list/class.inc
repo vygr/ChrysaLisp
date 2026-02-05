@@ -1,4 +1,5 @@
 (include "././array/class.inc")
+(include "./struct.inc")
 
 (def-class :list :array
 	(dec-method :vtable class/list/vtable)
@@ -28,8 +29,6 @@
 	(dec-method :lisp_match class/list/lisp_match :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_copy class/list/lisp_copy :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct list array_size)
-
 ;;;;;;;;;;;;;;;;;;;
 ; parameter helpers
 ;;;;;;;;;;;;;;;;;;;
@@ -41,9 +40,9 @@
 	;outputs
 	;cast register list
 	(assign (map (# (case %1
-		((:num :fixed :real) (list %0 num_value))
-		(:str (list '& %0 str_data))
-		(:char (list %0 str_data 'ub))
+		((:num :fixed :real) (list %0 +num_value))
+		(:str (list '& %0 +str_data))
+		(:char (list %0 +str_data 'ub))
 		(:t %0))) src types) (ifn dst src)))
 
 (defun list-bind-args (l src types &optional dst)

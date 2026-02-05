@@ -2,9 +2,7 @@
 ; func structure
 ;;;;;;;;;;;;;;;;
 
-; Lisp (getf ...)
-
-(import "sys/list/lisp.inc")
+(import "sys/list/struct.inc")
 
 (structure +fn_header +ln_fnode_size
 	(ushort length)

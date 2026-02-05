@@ -16,11 +16,11 @@
 ; heap structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct hp_heap lh_list_size
+(def-struct hp_heap +lh_list_size
 	(ptr free_flist)
 	(uint cellsize blocksize))
 
-(def-struct hp_block ln_node_size
+(def-struct hp_block +ln_node_size
 	(ptr free_flist free_flist_tail)
 	(uint cellcnt freecnt))
 

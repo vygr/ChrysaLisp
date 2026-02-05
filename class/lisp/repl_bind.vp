@@ -23,9 +23,9 @@
 	;a none empty list ?
 	(switch)
 	(f-bind :list :vtable :r2)
-	(assign '((:r1 obj_vtable)) '(:r3))
+	(assign '((:r1 +obj_vtable)) '(:r3))
 	(breakif '(:r2 /= :r3))
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(breakif '(:r2 = 0))
 	(default)
 		;it's a none empty list
@@ -40,30 +40,30 @@
 
 			;first element checks
 			;is it quote or qquote function ?
-			(assign '((:r0 lisp_func_quote)) '(:r2))
+			(assign '((:r0 +lisp_func_quote)) '(:r2))
 			(gotoif '(:r1 = :r2) 'next_list)
-			(assign '((:r0 lisp_func_qquote)) '(:r2))
+			(assign '((:r0 +lisp_func_qquote)) '(:r2))
 			(gotoif '(:r1 = :r2) 'next_list)
 			;is it a prebound lambda or macro function ?
-			(assign '((:r0 lisp_func_lambda)) '(:r2))
+			(assign '((:r0 +lisp_func_lambda)) '(:r2))
 			(gotoif '(:r1 = :r2) 'next_list)
-			(assign '((:r0 lisp_func_macro)) '(:r2))
+			(assign '((:r0 +lisp_func_macro)) '(:r2))
 			(gotoif '(:r1 = :r2) 'next_list)
 
 			;is it a compiled function ?
 			(f-bind :func :vtable :r2)
-			(assign '((:r1 obj_vtable)) '(:r3))
+			(assign '((:r1 +obj_vtable)) '(:r3))
 			(gotoif '(:r3 = :r2) 'skip_first)
 
 			;is it quote or qquote symbol ?
-			(assign '((:r0 lisp_sym_quote)) '(:r2))
+			(assign '((:r0 +lisp_sym_quote)) '(:r2))
 			(gotoif '(:r1 = :r2) 'bind_quote)
-			(assign '((:r0 lisp_sym_qquote)) '(:r2))
+			(assign '((:r0 +lisp_sym_qquote)) '(:r2))
 			(vpif '(:r1 = :r2))
-				(assign '((:r0 lisp_func_qquote)) '(:r3))
+				(assign '((:r0 +lisp_func_qquote)) '(:r3))
 				(goto 'bind_qquote)
 			(vp-label 'bind_quote)
-				(assign '((:r0 lisp_func_quote)) '(:r3))
+				(assign '((:r0 +lisp_func_quote)) '(:r3))
 			(vp-label 'bind_qquote)
 				;bind function call site and skip this list
 				(assign '((:rsp local_iter_begin)) '(:r1))
@@ -74,14 +74,14 @@
 			(endif)
 
 			;is it lambda or macro symbol ?
-			(assign '((:r0 lisp_sym_lambda)) '(:r2))
+			(assign '((:r0 +lisp_sym_lambda)) '(:r2))
 			(gotoif '(:r1 = :r2) 'bind_lambda)
-			(assign '((:r0 lisp_sym_macro)) '(:r2))
+			(assign '((:r0 +lisp_sym_macro)) '(:r2))
 			(vpif '(:r1 = :r2))
-				(assign '((:r0 lisp_func_macro)) '(:r3))
+				(assign '((:r0 +lisp_func_macro)) '(:r3))
 				(goto 'bind_function)
 			(vp-label 'bind_lambda)
-				(assign '((:r0 lisp_func_lambda)) '(:r3))
+				(assign '((:r0 +lisp_func_lambda)) '(:r3))
 			(vp-label 'bind_function)
 				;bind function call site then skip over the parameters
 				(assign '((:rsp local_iter_begin)) '(:r1))
@@ -99,23 +99,23 @@
 
 			;find symbol binding
 			;is it a compiled function ?
-			(call :hmap :search '((:r0 lisp_environment) :r1) '(_ :r1 _))
+			(call :hmap :search '((:r0 +lisp_environment) :r1) '(_ :r1 _))
 			(breakif '(:r1 = 0))
 			(assign '((:r1 +ptr_size)) '(:r1))
 			(f-bind :func :vtable :r2)
-			(assign '((:r1 obj_vtable)) '(:r3))
+			(assign '((:r1 +obj_vtable)) '(:r3))
 			(gotoif '(:r2 = :r3) 'bind_it)
 
 			;is it a none compiled function ?
 			(f-bind :list :vtable :r2)
 			(breakif '(:r2 /= :r3))
-			(assign '((:r1 array_length)) '(:r2))
+			(assign '((:r1 +array_length)) '(:r2))
 			(breakif '(:r2 = 0))
 			(assign '((:rsp local_this)) '(:r0))
 			(array-bind-args :r1 '(:r2))
-			(assign '((:r0 lisp_func_lambda)) '(:r3))
+			(assign '((:r0 +lisp_func_lambda)) '(:r3))
 			(gotoif '(:r2 = :r3) 'bind_it)
-			(assign '((:r0 lisp_sym_lambda)) '(:r3))
+			(assign '((:r0 +lisp_sym_lambda)) '(:r3))
 			(breakif '(:r2 /= :r3))
 			(default)
 			(vp-label 'bind_it)
@@ -139,15 +139,15 @@
 				(assign '(:r1 (:r1 0)) '((:rsp local_iter_begin) :r1))
 
 				(f-bind :sym :vtable :r2)
-				(assign '((:r1 obj_vtable)) '(:r3))
+				(assign '((:r1 +obj_vtable)) '(:r3))
 				(vpif '(:r2 = :r3) 'next_elem)
 					;is this symbol a defined constant symbol ?
-					(assign '((:r1 str_length)) '(:r2))
+					(assign '((:r1 +str_length)) '(:r2))
 					(breakif '(:r2 <= 1))
-					(assign '((:r1 str_data ub)) '(:r2))
+					(assign '((:r1 +str_data ub)) '(:r2))
 					(breakif '(:r2 /= +char_plus))
 					(assign '((:rsp local_this)) '(:r0))
-					(call :hmap :get '((:r0 lisp_environment) :r1) '(_ :r1))
+					(call :hmap :get '((:r0 +lisp_environment) :r1) '(_ :r1))
 					(breakif '(:r1 = 0))
 					;yes so bind it
 					(assign '((:rsp local_iter_begin)) '(:r2))
@@ -157,12 +157,12 @@
 					;a none empty list ?
 					(f-bind :list :vtable :r2)
 					(breakif '(:r2 /= :r3))
-					(assign '((:r1 array_length)) '(:r2))
+					(assign '((:r1 +array_length)) '(:r2))
 					(breakif '(:r2 = 0))
 					;stack this list for scanning
 					(assign '((:rsp local_stack)) '(:r0))
 				(errorcase
-					(assign '((:r0 array_length)) '(:r2))
+					(assign '((:r0 +array_length)) '(:r2))
 					(vpif '(:r2 >= 2000))
 						(debug-str '("Excessive prebind recursion !"))
 						(break 'next_elem)
@@ -177,10 +177,10 @@
 		(vp-label 'next_list)
 			;pop next list off stack, break if empty
 			(assign '((:rsp local_stack)) '(:r2))
-			(assign '((:r2 array_length)) '(:r1))
+			(assign '((:r2 +array_length)) '(:r1))
 			(breakif '(:r1 = 0))
 			(vp-sub-cr 1 :r1)
-			(assign '(:r1) '((:r2 array_length)))
+			(assign '(:r1) '((:r2 +array_length)))
 			(class/array/get_elem :r2 :r1 :r1 :r2)
 		(loop-end)
 		(call :array :deref '((:rsp local_stack)))

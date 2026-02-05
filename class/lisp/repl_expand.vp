@@ -21,7 +21,7 @@
 	;expand it if list ?
 	(vp-cpy-ir :r1 0 :r2)
 	(f-bind :list :vtable :r3)
-	(assign '((:r2 obj_vtable)) '(:r4))
+	(assign '((:r2 +obj_vtable)) '(:r4))
 	(vpif '(:r4 = :r3))
 		(vp-alloc local_size)
 		(assign '(:r0 :r1 :r2) '((:rsp local_this) (:rsp local_iter) (:rsp local_form)))
@@ -33,43 +33,43 @@
 				;check if a macro
 				(switch)
 				;not 0 length !
-				(assign '((:r2 array_length)) '(:r3))
+				(assign '((:r2 +array_length)) '(:r3))
 				(breakif '(:r3 = 0) 'next_iter)
 				;not quoted lists !
 				(array-bind-args :r2 '(:r3))
 				(vp-simd vp-cpy-ir '(:r0)
-					`(,lisp_sym_quote ,lisp_sym_qquote ,lisp_func_quote ,lisp_func_qquote)
+					`(,+lisp_sym_quote ,+lisp_sym_qquote ,+lisp_func_quote ,+lisp_func_qquote)
 					'(:r4 :r5 :r6 :r7))
 				(breakif '(:r3 = :r4) '(:r3 = :r5) '(:r3 = :r6) '(:r3 = :r7) 'next_iter)
 
 				;is a symbol ?
 				(assign '(:r1 :r2) '((:rsp local_iter) (:rsp local_form)))
 				(f-bind :sym :vtable :r4)
-				(assign '((:r3 obj_vtable)) '(:r5))
+				(assign '((:r3 +obj_vtable)) '(:r5))
 				(breakif '(:r4 /= :r5))
 				;is defined ?
-				(call :hmap :search '((:r0 lisp_environment) :r3) '(_ :r1 _))
+				(call :hmap :search '((:r0 +lisp_environment) :r3) '(_ :r1 _))
 				(breakif '(:r1 = 0))
 				;is a list ?
 				(assign '((:r1 +ptr_size)) '(:r1))
 				(f-bind :list :vtable :r2)
-				(assign '((:r1 obj_vtable)) '(:r3))
+				(assign '((:r1 +obj_vtable)) '(:r3))
 				(breakif '(:r2 /= :r3))
 				;not 0 length !
-				(assign '((:r1 array_length)) '(:r2))
+				(assign '((:r1 +array_length)) '(:r2))
 				(breakif '(:r2 = 0))
 				;is a macro ?
 				(assign '((:rsp local_this)) '(:r0))
 				(array-bind-args :r1 '(:r2))
-				(assign '((:r0 lisp_sym_macro)) '(:r3))
+				(assign '((:r0 +lisp_sym_macro)) '(:r3))
 				(gotoif '(:r2 = :r3) 'macro_expand)
-				(assign '((:r0 lisp_func_macro)) '(:r3))
+				(assign '((:r0 +lisp_func_macro)) '(:r3))
 				(breakif '(:r2 /= :r3))
 				(default)
 				(vp-label 'macro_expand)
 					;replace form with macro expansion
 					(assign '((:rsp local_form) :r1) '(:r0 (:rsp local_macro)))
-					(d-call :list :slice '(:r0 1 (:r0 array_length)) '((:rsp local_args)))
+					(d-call :list :slice '(:r0 1 (:r0 +array_length)) '((:rsp local_args)))
 					(call :obj :deref '((:rsp local_form)))
 					(call :lisp :repl_apply '((:rsp local_this) (:rsp local_args) (:rsp local_macro)) '(_ :r1))
 					(assign '((:rsp local_iter)) '(:r0))
@@ -78,7 +78,7 @@
 					(assign '((:rsp local_iter) (:rsp local_this)) '(:r1 :r0))
 					(vp-cpy-ir :r1 0 :r2)
 					(f-bind :list :vtable :r3)
-					(assign '((:r2 obj_vtable)) '(:r4))
+					(assign '((:r2 +obj_vtable)) '(:r4))
 					(continueif '(:r4 = :r3) 'try_expand)
 					(break 'next_iter)
 				(endswitch)
@@ -87,7 +87,7 @@
 				(assign '((:rsp local_stack) (:rsp local_form)) '(:r0 :r6))
 
 			(errorcase
-				(assign '((:r0 array_length)) '(:r2))
+				(assign '((:r0 +array_length)) '(:r2))
 				(vpif '(:r2 >= 1000))
 					(debug-str '("Excessive macro recursion !"))
 					(break 'next_iter)
@@ -99,7 +99,7 @@
 				(loop-start)
 					(vp-cpy-ir :r1 (neg +ptr_size) :r2)
 					(vp-sub-cr +ptr_size :r1)
-					(assign '((:r2 obj_vtable)) '(:r2))
+					(assign '((:r2 +obj_vtable)) '(:r2))
 					(vpif '(:r2 = :r7))
 						(call :array :push_back '(:r0 :r1) '(:r0 :r1 _ _))
 					(endif)
@@ -108,10 +108,10 @@
 
 			;pop back stack
 			(assign '((:rsp local_stack)) '(:r2))
-			(assign '((:r2 array_length)) '(:r1))
+			(assign '((:r2 +array_length)) '(:r1))
 			(breakif '(:r1 = 0))
 			(vp-sub-cr 1 :r1)
-			(assign '(:r1) '((:r2 array_length)))
+			(assign '(:r1) '((:r2 +array_length)))
 			(class/array/get_elem :r2 :r1 :r1 :r2)
 			(vp-cpy-ir :r1 0 :r2)
 		(loop-end)

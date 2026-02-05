@@ -1,10 +1,6 @@
 (import "class/stream/lisp.inc")
-(import "sys/list/lisp.inc")
-
-(structure +in +stream_size
-	(struct list +lh_list_size)
-	(ptr mbox_addr)
-	(uint mbox_oid mbox_id ack_seqnum seqnum state))
+(import "sys/list/struct.inc")
+(import "./struct.inc")
 
 (defun in-mbox (in)
 	; (in-mbox in) -> mbox

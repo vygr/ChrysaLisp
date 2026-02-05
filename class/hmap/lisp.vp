@@ -13,7 +13,7 @@
 	(entry :hmap %0 '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 (errorcase
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(gotoif '(:r2 < 3) 'error1)
 	(vp-and-cr 1 :r2)
 	(gotoif '(:r2 = 0) 'error1))
@@ -28,7 +28,7 @@
 		(assign '(:r3) '((:rsp local_iter_begin)))
 		(array-get-args :r3 '(:r1 :r2))
 	(errorcase
-		(assign '((:r1 obj_vtable)) '(:r3))
+		(assign '((:r1 +obj_vtable)) '(:r3))
 		(f-bind :sym :vtable :r4)
 		(gotoif '(:r3 /= :r4) 'error3))
 		(assign '((:rsp local_env)) '(:r0))
@@ -85,7 +85,7 @@
 	(defset :lisp_set
 		'(progn
 		(errorcase
-			(assign '((:r1 str_data ub)) '(:r3))
+			(assign '((:r1 +str_data ub)) '(:r3))
 			(gotoif '(:r3 = +char_plus) 'error5))
 			(call :hmap :set '(:r0 :r1 :r2) '(:r0 :r1))
 			(errorif '(:r1 = 0) 'error4)))
@@ -120,7 +120,7 @@
 	(entry :hmap %0 '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 (errorcase
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(gotoif '(:r2 < 3) 'error1)
 	(vp-and-cr 1 :r2)
 	(gotoif '(:r2 = 0) 'error1))
@@ -134,15 +134,15 @@
 		(call :lisp :repl_eval '((:rsp local_this) (:r1 +ptr_size)) '(:r0 :r1))
 		(assign '(:r1) '((:rsp local_val)))
 	(errorcase
-		(assign '((:r1 obj_vtable) (:r0 lisp_error)) '(:r3 :r4))
+		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r3 :r4))
 		(breakif '(:r3 = :r4)))
 		(assign '(:r1 (:rsp local_iter_begin)) '(:r2 :r1))
 		(assign '((:r1 0)) '(:r1))
 	(errorcase
-		(assign '((:r1 obj_vtable)) '(:r3))
+		(assign '((:r1 +obj_vtable)) '(:r3))
 		(f-bind :sym :vtable :r4)
 		(gotoif '(:r3 /= :r4) 'error2))
-		(assign '((:r0 lisp_environment)) '(:r0))
+		(assign '((:r0 +lisp_environment)) '(:r0))
 		(exec p)
 		(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) '(:r1 :r2))
 		(vp-add-cr (* +ptr_size 2) :r1)
@@ -192,7 +192,7 @@
 	(defsetq :lisp_setq
 		'(progn
 		(errorcase
-			(assign '((:r1 str_data ub)) '(:r3))
+			(assign '((:r1 +str_data ub)) '(:r3))
 			(gotoif '(:r3 = +char_plus) 'error4))
 			(call :hmap :set '(:r0 :r1 :r2) '(_ :r1))
 			(errorif '(:r1 = 0) 'error3)))
@@ -230,10 +230,10 @@
 
 	(errorif-lisp-args-sig 'error :r1 1 2)
 
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(vp-push :r0)
 	(vpif '(:r2 = 1))
-		(assign '((:r0 lisp_environment)) '(:r0))
+		(assign '((:r0 +lisp_environment)) '(:r0))
 		(array-bind-args :r1 '(:r1))
 	(else)
 		(array-bind-args :r1 '(:r1 :r0))
@@ -243,7 +243,7 @@
 	(vpif '(:r1 /= 0))
 		(assign '((:r1 +ptr_size)) '(:r1))
 	(else)
-		(assign '((:r0 lisp_sym_nil)) '(:r1))
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
 	(endif)
 	(class/obj/ref :r1 :r2)
 
@@ -271,10 +271,10 @@
 
 	(errorif-lisp-args-sig 'error :r1 1 2)
 
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(vp-push :r0)
 	(vpif '(:r2 = 1))
-		(assign '((:r0 lisp_environment)) '(:r0))
+		(assign '((:r0 +lisp_environment)) '(:r0))
 		(array-bind-args :r1 '(:r1))
 	(else)
 		(array-bind-args :r1 '(:r1 :r0))
@@ -284,7 +284,7 @@
 	(vpif '(:r1 /= 0))
 		(assign '((:r1 +ptr_size)) '(:r1))
 	(else)
-		(assign '((:r0 lisp_sym_nil)) '(:r1))
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
 	(endif)
 	(class/obj/ref :r1 :r2)
 
@@ -310,12 +310,12 @@
 
 	(entry :hmap :lisp_env '(:r0 :r1))
 
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(errorif '(:r2 > 1) 'error)
 	(vpif '(:r2 /= 0))
 		(array-bind-args :r1 '(:r2))
 	(errorcase
-		(assign '((:r2 obj_vtable)) '(:r3))
+		(assign '((:r2 +obj_vtable)) '(:r3))
 		(f-bind :num :vtable :r4)
 		(gotoif '(:r3 /= :r4) 'error))
 		(list-cast-args '(:r2) '(:num))
@@ -324,7 +324,7 @@
 		(call :hmap :create '(0 :r2) '(:r1))
 		(vp-pop :r0)
 	(else)
-		(assign '((:r0 lisp_environment)) '(:r1))
+		(assign '((:r0 +lisp_environment)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
 
@@ -396,7 +396,7 @@
 	(loop-start)
 		(assign '((:r3 0) :r3) '(:r1 (:rsp local_iter_begin)))
 	(errorcase
-		(assign '((:r1 obj_vtable)) '(:r3))
+		(assign '((:r1 +obj_vtable)) '(:r3))
 		(f-bind :sym :vtable :r4)
 		(gotoif '(:r3 /= :r4) 'error3))
 		(call :hmap :find '((:rsp local_env) :r1) '(:r0 :r1 :r2))
@@ -443,15 +443,15 @@
 
 	(errorif-lisp-args-sig 'error :r1 0 1)
 
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(vpif '(:r2 = 0))
-		(assign '((:r0 lisp_environment)) '(:r1))
+		(assign '((:r0 +lisp_environment)) '(:r1))
 	(else)
 		(array-bind-args :r1 '(:r1))
 	(endif)
-	(assign '((:r1 hmap_parent)) '(:r1))
+	(assign '((:r1 +hmap_parent)) '(:r1))
 	(vpif '(:r1 = 0))
-		(assign '((:r0 lisp_sym_nil)) '(:r1))
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
 	(endif)
 	(class/obj/ref :r1 :r2)
 
@@ -481,9 +481,9 @@
 
 	(vp-push this args)
 	(bind '(hmap size) (method-input :hmap :resize))
-	(assign `((,args array_length)) '(:r14))
+	(assign `((,args +array_length)) '(:r14))
 	(vpif '(:r14 = 1))
-		(assign `((,this lisp_environment)) `(,hmap))
+		(assign `((,this +lisp_environment)) `(,hmap))
 		(list-bind-args args `(,size) '(:num))
 	(else)
 		(list-bind-args args `(,size ,hmap) '(:num :env))

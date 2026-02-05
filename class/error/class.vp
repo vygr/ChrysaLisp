@@ -6,7 +6,7 @@
 (include "././sstream/class.inc")
 (include "././list/class.inc")
 
-(gen-create :error)
+(gen-create1 :error)
 (gen-vtable :error)
 (gen-type :error)
 
@@ -33,21 +33,21 @@
 	;save inputs
 	(vp-alloc local_size)
 	(assign '(:r0 :r2 :r3 :r4 :r5 :r6 :r7 :r8)
-		'((:rsp local_this) (:r0 error_description) (:r0 error_msg i) (:r0 error_object)
-		(:r0 error_script) (:r0 error_file) (:r0 error_line i) (:r0 error_frame)))
+		'((:rsp local_this) (:r0 +error_description) (:r0 +error_msg i) (:r0 +error_object)
+		(:r0 +error_script) (:r0 +error_file) (:r0 +error_line i) (:r0 +error_frame)))
 
 	;init parent
 	(s-call :error :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init self
-		(call :str :create_from_cstr '((:r0 error_description)) '(:r0))
+		(call :str :create_from_cstr '((:r0 +error_description)) '(:r0))
 		(assign '((:rsp local_this)) '(:r1))
-		(assign '(:r0) '((:r1 error_description)))
-		(call :obj :ref '((:r1 error_script)))
+		(assign '(:r0) '((:r1 +error_description)))
+		(call :obj :ref '((:r1 +error_script)))
 		(assign '((:rsp local_this)) '(:r0))
-		(call :obj :ref '((:r0 error_file)))
+		(call :obj :ref '((:r0 +error_file)))
 		(assign '((:rsp local_this)) '(:r0))
-		(call :obj :ref '((:r0 error_object)))
+		(call :obj :ref '((:r0 +error_object)))
 		(assign '((:rsp local_this)) '(:r0))
 	(endif)
 
@@ -70,11 +70,11 @@
 	(push-scope)
 	(entry :error :deinit {this})
 
-	(call :obj :deref {this->error_description})
-	(call :obj :deref {this->error_script})
-	(call :obj :deref {this->error_file})
-	(call :obj :deref {this->error_object})
-	(call :obj :deref {this->error_frame})
+	(call :obj :deref {this->+error_description})
+	(call :obj :deref {this->+error_script})
+	(call :obj :deref {this->+error_file})
+	(call :obj :deref {this->+error_object})
+	(call :obj :deref {this->+error_frame})
 	(s-jump :error :deinit {this})
 
 	(pop-scope-syms)
@@ -92,7 +92,7 @@
 
 	(entry :error :get_msg '(:r0))
 
-	(assign '(:r0 "" (:r0 error_msg) ($ msgs)) '(:r3 :r4 :r5 :r0))
+	(assign '(:r0 "" (:r0 +error_msg) ($ msgs)) '(:r3 :r4 :r5 :r0))
 	(loop-while '(:r5 /= 0))
 		(vp-cpy-ir-ub :r0 0 :r1)
 		(breakif '(:r1 = 0))
@@ -132,35 +132,35 @@
 	(entry :error :print {this, stream})
 
 	(call :stream :write_cstr {stream, "Error: "})
-	(call :stream :write_cstr {stream, &this->error_description->str_data} '(stream))
+	(call :stream :write_cstr {stream, &this->+error_description->+str_data} '(stream))
 	(call :stream :write_char `(,stream +char_space))
 	(call :error :get_msg {this} {_, string})
 	(call :stream :write_cstr {stream, string})
 
 	(call :stream :write_cstr {stream, " Repl: "})
-	(call :stream :write_cstr {stream, &this->error_script->str_data} '(stream))
+	(call :stream :write_cstr {stream, &this->+error_script->+str_data} '(stream))
 	(call :stream :write_char `(,stream +char_space))
-	(call :stream :write_cstr {stream, &this->error_file->str_data} '(stream))
+	(call :stream :write_cstr {stream, &this->+error_file->+str_data} '(stream))
 	(call :stream :write_char `(,stream +char_lrb))
-	(call :str :create_from_long {this->error_line, 10} {string})
-	(call :stream :write_cstr {stream, &string->str_data} '(stream))
+	(call :str :create_from_long {this->+error_line, 10} {string})
+	(call :stream :write_cstr {stream, &string->+str_data} '(stream))
 	(call :stream :write_char `(,stream +char_rrb))
 	(call :str :destroy {string})
 
 	(call :stream :write_cstr {stream, " Frame: "})
-	(call :obj :print {this->error_frame, stream})
+	(call :obj :print {this->+error_frame, stream})
 
 	(call :stream :write_cstr {stream, " Obj: "})
 	(call :str :create_from_buffer {0, str_gap} {string})
 	(call :sstream :create {string} {sstream})
-	(call :obj :print {this->error_object, sstream})
+	(call :obj :print {this->+error_object, sstream})
 	(call :sstream :ref_string {sstream} {_, string})
 	(call :obj :destroy {sstream})
-	(assign {string->str_length} {len})
+	(assign {string->+str_length} {len})
 	(vpif {len > 256})
 		(assign {256} {len})
 	(endif)
-	(call :stream :write {stream, &string->str_data, len})
+	(call :stream :write {stream, &string->+str_data, len})
 	(call :str :destroy {string})
 
 	(exit :error :print {this})

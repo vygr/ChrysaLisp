@@ -4,7 +4,7 @@
 (include "././sym/class.inc")
 (include "././stream/class.inc")
 
-(gen-create :list)
+(gen-create1 :list)
 (gen-vtable :list)
 (gen-type :list)
 
@@ -112,7 +112,7 @@
 
 	(entry :list :set_elem '(:r0 :r1 :r2))
 
-	(assign '((:r0 array_begin)) '(:r3))
+	(assign '((:r0 +array_begin)) '(:r3))
 	(vp-shl-cr (log2 +ptr_size) :r2)
 	(vp-push :r0)
 	(assign '((:r2 :r3) :r1) '(:r0 (:r2 :r3)))
@@ -142,10 +142,10 @@
 		(assign '(:r1 :r2 :r3) '(:r6 :r7 :r8))
 
 		;extend list
-		(assign '((:r0 array_length)) '(:r9))
+		(assign '((:r0 +array_length)) '(:r9))
 		(vp-sub-rr :r2 :r3)
 		(assign '((& :r3 :r9)) '(:r1))
-		(assign '(:r1) '((:r0 array_length)))
+		(assign '(:r1) '((:r0 +array_length)))
 		(call :list :set_cap '(:r0 :r1) '(:r0))
 
 		;append and ref elements
@@ -183,7 +183,7 @@
 
 	;what type of element search ?
 	(f-bind :sym :vtable iter_begin)
-	(assign '((:r1 obj_vtable)) `(,iter_end))
+	(assign '((:r1 +obj_vtable)) `(,iter_end))
 	(vpif `(,iter_begin = ,iter_end))
 		;symbol
 		(s-jump :list :find '(:r0 :r1 :r2))
@@ -204,7 +204,7 @@
 	(vp-ret)
 
 (vp-label 'found)
-	(assign `((,this array_begin)) `(,iter_end))
+	(assign `((,this +array_begin)) `(,iter_end))
 	(vp-sub-rr iter_end iter_begin)
 	(vp-shr-cr (log2 +ptr_size) iter_begin)
 
@@ -233,13 +233,13 @@
 	(gotoif '(:r2 = 0) 'exit)
 	;what type of element search ?
 	(f-bind :sym :vtable iter_begin)
-	(assign '((:r1 obj_vtable)) `(,iter_end))
+	(assign '((:r1 +obj_vtable)) `(,iter_end))
 	(vpif `(,iter_begin = ,iter_end))
 		;symbol
 		(s-jump :list :rfind '(:r0 :r1 :r2))
 	(endif)
 	(assign '(:r0 :r1) `(,this ,elm))
-	(assign `((,this array_begin)) `(,iter_end))
+	(assign `((,this +array_begin)) `(,iter_end))
 	(vp-shl-cr (log2 +long_size) :r2)
 	(vp-lea-d iter_end :r2 iter_begin)
 	(loop-start)
@@ -318,7 +318,7 @@
 	(loop-start)
 		;replace form with copy, deref can't cause destroy !
 		(vp-cpy-ir :r9 0 :r0)
-		(d-call :list :slice '(:r0 0 (:r0 array_length)) '(:r1))
+		(d-call :list :slice '(:r0 0 (:r0 +array_length)) '(:r1))
 		(vp-cpy-ir :r9 0 :r0)
 		(class/obj/ref :r0 :r2 -1)
 		(vp-cpy-ri :r1 :r9 0)
@@ -328,7 +328,7 @@
 		(assign '(:r10) '(:r0))
 		(loop-while '(:r1 /= :r6))
 			(vp-cpy-ir :r1 0 :r2)
-			(assign '((:r2 obj_vtable)) '(:r2))
+			(assign '((:r2 +obj_vtable)) '(:r2))
 			(vpif '(:r2 = :r12))
 				(call :array :push_back '(:r0 :r1) '(:r0 :r1 _ _))
 			(endif)
@@ -336,10 +336,10 @@
 		(loop-end)
 
 		;pop back stack
-		(assign '((:r0 array_length)) '(:r1))
+		(assign '((:r0 +array_length)) '(:r1))
 		(breakif '(:r1 = 0))
 		(vp-sub-cr 1 :r1)
-		(assign '(:r1) '((:r0 array_length)))
+		(assign '(:r1) '((:r0 +array_length)))
 		(class/array/get_elem :r0 :r1 :r9 :r2)
 	(loop-end)
 	(call :array :deref '(:r10))

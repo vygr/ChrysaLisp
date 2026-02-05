@@ -26,7 +26,7 @@
 (defun for-each-visible-rect (%0)
 	;for each rect on the dirty region
 	(assign '((:rsp local_this)) '(:r0))
-	(assign '((& :r0 view_dirty_region)) '(:r0))
+	(assign '((& :r0 +view_dirty_region)) '(:r0))
 	(loop-flist :r0 0 :r0 :r0)
 		(assign '(:r0) '((:rsp local_dirty_rect)))
 
@@ -74,7 +74,7 @@
 	(assign '(:r3) '((:rsp local_old_stack)))
 
 	;save draw rectangle info
-	(assign '((:r0 view_ctx_x) (:r0 view_ctx_y) :r0 :r1) '(:r11 :r12 (:rsp local_this) (:rsp local_texture)))
+	(assign '((:r0 +view_ctx_x) (:r0 +view_ctx_y) :r0 :r1) '(:r11 :r12 (:rsp local_this) (:rsp local_texture)))
 	(vp-simd vp-add-rr '(:r11 :r12) '(:r7 :r8))
 	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
 		(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
@@ -120,7 +120,7 @@
 
 	;save draw rectangle info
 	(assign '(:r0) '((:rsp local_this)))
-	(assign '((:r0 view_ctx_x) (:r0 view_ctx_y)) '(:r11 :r12))
+	(assign '((:r0 +view_ctx_x) (:r0 +view_ctx_y)) '(:r11 :r12))
 	(vp-simd vp-add-rr '(:r11 :r12) '(:r7 :r8))
 	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
 		(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
@@ -157,7 +157,7 @@
 
 	;save draw rectangle info
 	(assign '(:r0) '((:rsp local_this)))
-	(assign '((:r0 view_ctx_x) (:r0 view_ctx_y)) '(:r11 :r12))
+	(assign '((:r0 +view_ctx_x) (:r0 +view_ctx_y)) '(:r11 :r12))
 	(vp-simd vp-add-rr '(:r11 :r12) '(:r7 :r8))
 	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
 		(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))

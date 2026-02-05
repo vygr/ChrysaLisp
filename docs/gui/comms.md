@@ -126,7 +126,7 @@ tasks main mailbox.
 (include "sys/kernel/class.inc")
 
 (def-struct reply 0
-	(struct node_id node_id_size)
+	(nodeid node_id)
 	(uint task_count mem_used))
 
 (def-func 'apps/system/netmon/child)

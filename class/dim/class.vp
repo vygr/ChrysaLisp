@@ -3,7 +3,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create :dim)
+(gen-create1 :dim)
 (gen-vtable :dim)
 (gen-type :dim)
 
@@ -25,7 +25,7 @@
 		;init self
 		(class/obj/ref :r2 :r1)
 		(class/obj/ref :r3 :r1)
-		(assign '(:r2 :r3) '((:r0 dim_dims) (:r0 dim_elems)))
+		(assign '(:r2 :r3) '((:r0 +dim_dims) (:r0 +dim_elems)))
 	(endif)
 	(vp-ret)
 
@@ -42,9 +42,9 @@
 	(entry :dim :deinit '(:r0))
 
 	(vp-push :r0)
-	(call :obj :deref '((:r0 dim_dims)))
+	(call :obj :deref '((:r0 +dim_dims)))
 	(assign '((:rsp 0)) '(:r0))
-	(call :obj :deref '((:r0 dim_elems)))
+	(call :obj :deref '((:r0 +dim_elems)))
 	(vp-pop :r0)
 	(s-jump :dim :deinit '(:r0))
 

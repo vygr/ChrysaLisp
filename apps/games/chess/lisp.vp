@@ -28,7 +28,7 @@
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 
 	(call :str :create_from_buffer `(0 ,(* 8 16)) '(:r0))
-	(assign '(:r0 (& :r0 str_data) (:rsp local_args)) `((:rsp local_yield) ,yield_data :r0))
+	(assign '(:r0 (& :r0 +str_data) (:rsp local_args)) `((:rsp local_yield) ,yield_data :r0))
 	(list-bind-args :r0 `(,brd ,cx ,vectors) '(:str :num :list))
 
 	(assign `(,cx) `(,cy))
@@ -58,9 +58,9 @@
 	(loop-until `(,iter_begin = ,iter_end))
 
 	(assign '((:rsp local_yield) 0) '(:r1 :r0))
-	(assign `((& :r1 str_data) :r0) `(:r2 (,yield_data 0 ub)))
+	(assign `((& :r1 +str_data) :r0) `(:r2 (,yield_data 0 ub)))
 	(vp-sub-rr :r2 yield_data)
-	(assign `(,yield_data) '((:r1 str_length)))
+	(assign `(,yield_data) '((:r1 +str_length)))
 
 	(exit '((:rsp local_this) :r1))
 	(vp-free local_size)

@@ -92,7 +92,7 @@
 	(list-bind-args :r1 '(:r0 :r1 :r2) '(:canvas :str :array))
 	(array-get-args :r1 '(:r7 :r8 :r9 :r10) 'ui)
 	(vp-add-cr (* 4 +int_size) :r1)
-	(assign '((:r2 array_begin)) '(:r2))
+	(assign '((:r2 +array_begin)) '(:r2))
 	(assign '(:r0 :r1 :r2 :r7 :r8 :r9 :r10 :r8) {canvas, data, lut, x, y, x1, y1, yp})
 	(loop-start)
 		(assign {x} {xp})

@@ -83,7 +83,7 @@
 	(assign `((,this hp_heap_free_flist)) `(,cell))
 	(vpif `(,cell /= 0))
 	(vp-label 'got_cell)
-		(assign `((,cell ln_fnode_next)) `(,next))
+		(assign `((,cell +ln_fnode_next)) `(,next))
 		(assign `(,next) `((,this hp_heap_free_flist)))
 		(exit :sys_heap :alloc `(,this ,cell))
 		(vp-ret)
@@ -110,7 +110,7 @@
 	(assign `(,cnt) `((,block hp_block_freecnt)))
 	(loop-start)
 		(assign `(,block) `((,cell ,(- hp_cell_block hp_cell_next))))
-		(assign `(,next) `((,cell ln_fnode_next)))
+		(assign `(,next) `((,cell +ln_fnode_next)))
 		(vp-lea-d cell cellsize next)
 		(vp-add-cr 1 cnt)
 		(breakif `(,next > ,blockend))
@@ -142,7 +142,7 @@
 	(assign `((,this hp_heap_free_flist)) `(,next))
 	(loop-while `(,next /= 0))
 		(vp-cpy-rr next cel)
-		(assign `((,next ln_fnode_next)) `(,next))
+		(assign `((,next +ln_fnode_next)) `(,next))
 
 		;transfer to blocks free list
 		(assign `((,cel ,(- hp_cell_block hp_cell_next))) `(,blk))
@@ -174,7 +174,7 @@
 		(assign `((,blk hp_block_free_flist)) '(:r0))
 		(continueif '(:r0 = 0))
 		(assign `((,blk hp_block_free_flist_tail) (,this hp_heap_free_flist)) '(:r1 :r2))
-		(assign '(:r0 :r2) `((,this hp_heap_free_flist) (:r1 ln_fnode_next)))
+		(assign '(:r0 :r2) `((,this hp_heap_free_flist) (:r1 +ln_fnode_next)))
 		;reset free count and free list
 		(assign `(,cel) `((,blk hp_block_free_flist)))
 		(assign `(,cel) `((,blk hp_block_free_flist_tail)))

@@ -1,20 +1,8 @@
 (include "lib/asm/class.inc")
+(include "./struct.inc")
 
 (def-class :sys_list :nil
 	(dec-method :init sys/list/init :static (:r0)))
-
-;;;;;;;;;;;;;;;;;
-; list structures
-;;;;;;;;;;;;;;;;;
-
-(def-struct lh_list 0
-	(ptr head tail tailpred))
-
-(def-struct ln_node 0
-	(ptr succ pred))
-
-(def-struct ln_fnode 0
-	(ptr next))
 
 ;;;;;;;;;;;;;;;;;;
 ; list node macros
@@ -29,7 +17,7 @@
 	;%0 = list node
 	;%2 = succ
 
-	(vp-cpy-ri %2 %0 (+ ln_node_succ %1)))
+	(vp-cpy-ri %2 %0 (+ +ln_node_succ %1)))
 
 (defun ln-set-pred (%0 %1 %2)
 	;inputs
@@ -40,7 +28,7 @@
 	;%0 = list node
 	;%2 = pred
 
-	(vp-cpy-ri %2 %0 (+ ln_node_pred %1)))
+	(vp-cpy-ri %2 %0 (+ +ln_node_pred %1)))
 
 (defun ln-get-succ (%0 %1 %2)
 	;inputs
@@ -51,7 +39,7 @@
 	;%0 = list node
 	;%2 = succ
 
-	(vp-cpy-ir %0 (+ ln_node_succ %1) %2))
+	(vp-cpy-ir %0 (+ +ln_node_succ %1) %2))
 
 (defun ln-get-pred (%0 %1 %2)
 	;inputs
@@ -62,7 +50,7 @@
 	;%0 = list node
 	;%2 = pred
 
-	(vp-cpy-ir %0 (+ ln_node_pred %1) %2))
+	(vp-cpy-ir %0 (+ +ln_node_pred %1) %2))
 
 (defun ln-add-node-after (%0 %1 %2)
 	;inputs
@@ -156,7 +144,7 @@
 (defun lh-list-object (l)
 	(vp-align +ptr_size)
 (vp-label l)
-	(times lh_list_size (vp-byte 0)))
+	(times +lh_list_size (vp-byte 0)))
 
 (defun lh-set-head (%0 %1 %2)
 	;inputs
@@ -167,7 +155,7 @@
 	;%0 = list head
 	;%2 = list node
 
-	(vp-cpy-ri %2 %0 (+ lh_list_head %1)))
+	(vp-cpy-ri %2 %0 (+ +lh_list_head %1)))
 
 (defun lh-set-tail (%0 %1 %2)
 	;inputs
@@ -178,7 +166,7 @@
 	;%0 = list head
 	;%2 = list node
 
-	(vp-cpy-ri %2 %0 (+ lh_list_tailpred %1)))
+	(vp-cpy-ri %2 %0 (+ +lh_list_tailpred %1)))
 
 (defun lh-get-head (%0 %1 %2)
 	;inputs
@@ -189,7 +177,7 @@
 	;%0 = list head
 	;%2 = list node
 
-	(vp-cpy-ir %0 (+ lh_list_head %1) %2))
+	(vp-cpy-ir %0 (+ +lh_list_head %1) %2))
 
 (defun lh-get-tail (%0 %1 %2)
 	;inputs
@@ -200,7 +188,7 @@
 	;%0 = list head
 	;%2 = list node
 
-	(vp-cpy-ir %0 (+ lh_list_tailpred %1) %2))
+	(vp-cpy-ir %0 (+ +lh_list_tailpred %1) %2))
 
 (defun lh-init (%0 %1)
 	;inputs
@@ -211,9 +199,9 @@
 	;%1 = list tail
 
 	(vp-xor-rr %1 %1)
-	(vp-cpy-ri %1 %0 lh_list_tail)
+	(vp-cpy-ri %1 %0 +lh_list_tail)
 	(lh-set-tail %0 0 %0)
-	(vp-lea-i %0 lh_list_tail %1)
+	(vp-lea-i %0 +lh_list_tail %1)
 	(lh-set-head %0 0 %1))
 
 (defun lh-add-at-head (%0 %1 %2)
@@ -238,9 +226,9 @@
 	;%1 = list node
 	;%2 = list node pred
 
-	(vp-lea-i %0 lh_list_tail %0)
+	(vp-lea-i %0 +lh_list_tail %0)
 	(ln-add-node-before %0 %1 %2)
-	(vp-lea-i %0 (neg lh_list_tail) %0))
+	(vp-lea-i %0 (neg +lh_list_tail) %0))
 
 (defun lh-remove-head (%0 %1 %2)
 	;inputs
@@ -308,7 +296,7 @@
 	;%0, %1
 
 	(vp-cpy-rr %0 %1)
-	(vp-cpy-ir %0 ln_fnode_next %0)
+	(vp-cpy-ir %0 +ln_fnode_next %0)
 	(breakif `(,%0 = ,0)))
 
 (defun ln-remove-fnode (%0 %1)
@@ -320,8 +308,8 @@
 	;trashes
 	;%0
 
-	(vp-cpy-ir %0 ln_fnode_next %0)
-	(vp-cpy-ri %0 %1 ln_fnode_next)
+	(vp-cpy-ir %0 +ln_fnode_next %0)
+	(vp-cpy-ri %0 %1 +ln_fnode_next)
 	(vp-cpy-rr %1 %0))
 
 (defun ln-add-fnode (%0 %1 %2 %3)
@@ -333,9 +321,9 @@
 	;trashes
 	;%3
 
-	(vp-cpy-ir %0 (+ %1 ln_fnode_next) %3)
-	(vp-cpy-ri %3 %2 ln_fnode_next)
-	(vp-cpy-ri %2 %0 (+ %1 ln_fnode_next)))
+	(vp-cpy-ir %0 (+ %1 +ln_fnode_next) %3)
+	(vp-cpy-ri %3 %2 +ln_fnode_next)
+	(vp-cpy-ri %2 %0 (+ %1 +ln_fnode_next)))
 
 ;;;;;;;;;;;;;;;;;;
 ; list loop macros
@@ -389,7 +377,7 @@
 	;%2 = list node
 	;%3 = list last
 
-	(vp-lea-i %0 (+ %1 ln_fnode_next) %2)
+	(vp-lea-i %0 (+ %1 +ln_fnode_next) %2)
 	(loop-start %4)
 		(ln-next-fnode %2 %3))
 

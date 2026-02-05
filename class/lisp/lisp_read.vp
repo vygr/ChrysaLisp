@@ -19,7 +19,7 @@
 
 	(errorif-lisp-args-sig 'error1 :r1 1 2)
 
-	(assign `((,args array_length)) `(,value))
+	(assign `((,args +array_length)) `(,value))
 	(vpif `(,value = 1))
 		(list-bind-args args `(,stream) '(:stream))
 		(assign `(,(ascii-code " ")) `(,value))
@@ -27,7 +27,7 @@
 		(list-bind-args args `(,stream ,value) '(:stream :num))
 	(endif)
 	(call :lisp :read `(,this ,stream ,value) `(,this ,form ,value))
-	(assign `((,this lisp_error) (,form obj_vtable)) '(:r3 :r4))
+	(assign `((,this +lisp_error) (,form +obj_vtable)) '(:r3 :r4))
 	(vpif '(:r3 = :r4))
 		(assign `(,form) `(,args))
 	(else)

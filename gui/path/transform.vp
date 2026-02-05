@@ -18,7 +18,7 @@
 
 	(class/array/get_both iter_begin iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
-		(assign `((,this array_begin)) `(,iter_this))
+		(assign `((,this +array_begin)) `(,iter_this))
 		(array-bind-args m00 `(,m00 ,m01 ,m02 ,m10 ,m11 ,m12))
 		(loop-start)
 			(vp-simd vp-cpy-ir `(,iter_begin) `(0 ,+long_size) `(,x ,y))

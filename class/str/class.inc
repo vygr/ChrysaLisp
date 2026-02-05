@@ -1,4 +1,5 @@
 (include "././seq/class.inc")
+(include "./struct.inc")
 
 (def-class :str :seq
 	(dec-method :vtable class/str/vtable)
@@ -52,14 +53,8 @@
 	(dec-method :lisp_startw class/str/lisp_startw :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_endw class/str/lisp_endw :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct str seq_size
-	(int hashslot)
-	(uint hashcode length)
-	(align)
-	(offset data))
-
 (defcvar 'str_gap (some! (lambda (%0)
-		(if (< str_data %0) (- %0 str_data 1)))
+		(if (< +str_data %0) (- %0 +str_data 1)))
 	(list mem_heap_cell_sizes)))
 
 ;;;;;;;;;;;;;;;;
@@ -74,4 +69,4 @@
 	;:r1 = string length (bytes)
 	;trashes
 	;:r1
-	(assign '((:r0 str_length)) '(:r1)))
+	(assign '((:r0 +str_length)) '(:r1)))

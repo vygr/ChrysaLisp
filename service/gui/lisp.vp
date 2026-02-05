@@ -35,8 +35,8 @@
 	(assign '(:r0) '((:r1 statics_gui_temps)))
 	;fill in lisp object tls for kernel :lisp_draw callbacks !!!
 	(assign '((:r1 statics_sys_task_current_tcb) (:r1 statics_sys_task_kernel_tcb)) '(:r2 :r3))
-	(assign '((:r2 tk_node_lisp)) '(:r2))
-	(assign '(:r2) '((:r3 tk_node_lisp)))
+	(assign '((:r2 +tk_node_lisp)) '(:r2))
+	(assign '(:r2) '((:r3 +tk_node_lisp)))
 	;gui priority
 	(call :sys_task :set_priority '(2))
 
@@ -78,7 +78,7 @@
 		(assign '(:r0) '((:rsp local_this)))
 		(call :sys_task :callback '(:rsp ($ deinit_callback)))
 		(assign '((:rsp local_this)) '(:r0))
-		(assign '((:r0 lisp_sym_nil)) '(:r1))
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
 
@@ -145,7 +145,7 @@
 	(vp-push :r0)
 	(call :host_gui :update '(:r3 :r1 :r2))
 	(vp-pop :r0)
-	(assign '((:r0 lisp_sym_nil)) '(:r1))
+	(assign '((:r0 +lisp_sym_nil)) '(:r1))
 	(class/obj/ref :r1 :r2)
 
 	(exit :host_gui :lisp_update '(:r0 :r1))
@@ -201,11 +201,11 @@
 		(call :str :create_from_buffer '(0 256) '(:r0))
 		(assign '((:rsp local1_user)) '(:r1))
 		(assign '(:r0) '((:r1 local_event)))
-		(host-gui-call :host_gui :poll_event '((& :r0 str_data)))
+		(host-gui-call :host_gui :poll_event '((& :r0 +str_data)))
 	(else)
 		(assign '((:rsp local1_user)) '(:r0))
 		(assign '((:r0 local_this)) '(:r1))
-		(assign '((:r1 lisp_sym_nil)) '(:r1))
+		(assign '((:r1 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 		(assign '(:r1) '((:r0 local_event)))
 	(endif)
@@ -243,7 +243,7 @@
 		(vpif '(:r1 /= 0))
 			;have screen
 			(fn-bind 'sys/statics/statics :r0)
-			(assign '((:r1 view_w) (:r1 view_h)) '(:r9 :r10))
+			(assign '((:r1 +view_w) (:r1 +view_h)) '(:r9 :r10))
 			(assign '((:r0 statics_gui_mouse_x) (:r0 statics_gui_mouse_y)) '(:r7 :r8))
 		(endif)
 		(call :list :create :nil '(:r11))
@@ -254,7 +254,7 @@
 		(call :list :push_back2 '(:r11 :r7 :r8) '(:r0 _ _ _ _))
 		(call :list :push_back2 '(:r0 :r9 :r10) '(:r1 _ _ _ _))
 	(else)
-		(call :obj :ref '((:r0 lisp_sym_nil)) '(:r1))
+		(call :obj :ref '((:r0 +lisp_sym_nil)) '(:r1))
 	(endif)
 	(vp-pop :r0)
 

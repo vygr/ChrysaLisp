@@ -342,7 +342,7 @@ This is an example of a 'pair class, first the `class.inc` file.
 	(dec-method :set_second class/pair/set_second :static (:r0 :r1) (:r0))
 	(dec-method :deinit class/pair/deinit :final))
 
-(def-struct pair obj_size
+(def-struct pair +obj_size
 	(ptr first)
 	(ptr second))
 

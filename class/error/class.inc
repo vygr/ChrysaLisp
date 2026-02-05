@@ -1,4 +1,5 @@
 (include "././obj/class.inc")
+(include "./struct.inc")
 
 (def-class :error :obj
 	(dec-method :vtable class/error/vtable)
@@ -7,10 +8,6 @@
 	(dec-method :get_msg class/error/get_msg :static (:r0) (:r0 :r1))
 	(dec-method :print class/error/print :final)
 	(dec-method :deinit class/error/deinit :final))
-
-(def-struct error obj_size
-	(ptr description object script file frame)
-	(uint msg line))
 
 ;;;;;;;;;;;;
 ; error msgs

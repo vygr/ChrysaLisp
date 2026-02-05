@@ -39,7 +39,7 @@
 	(assign {0} {data})
 	(loop-while {iter_begin /= iter_end})
 		(assign {*iter_begin} {this})
-		(call :sys_str :compare {&this->font_name->str_data, name} '(tmp))
+		(call :sys_str :compare {&this->font_name->+str_data, name} '(tmp))
 		(vpif `(,tmp = 0))
 			(assign {this->font_data} {data})
 			(gotoif {this->font_pixels = pixels} 'found)
@@ -146,7 +146,7 @@
 	(entry :font :get_metrics '(:r0))
 
 	(assign '((:r0 font_data) (:r0 font_pixels)) '(:r3 :r4))
-	(vp-add-cr str_data :r3)
+	(vp-add-cr +str_data :r3)
 	(assign '((:r3 font_data_ascent) (:r3 font_data_descent)) '(:r1 :r2))
 	(vp-mul-rr :r4 :r1)
 	(vp-mul-rr :r4 :r2)
@@ -175,7 +175,7 @@
 	(entry :font :glyph_data `(,this ,c))
 
 	(assign `((,this font_data)) `(,data))
-	(vp-add-cr (+ str_data font_data_size) data)
+	(vp-add-cr (+ +str_data font_data_size) data)
 	(loop-start)
 		(assign `((,data font_page_end)) `(,end))
 		(breakif `(,end = 0))
@@ -186,7 +186,7 @@
 			(vp-shl-cr (log2 +int_size) c)
 			(assign `((,data ,c ui)) `(,c))
 			(assign `((,this font_data)) `(,data))
-			(vp-add-cr str_data data)
+			(vp-add-cr +str_data data)
 			(vp-add-rr c data)
 
 			(exit :font :glyph_data `(,this ,data))
@@ -219,7 +219,7 @@
 
 	(call :array :create :nil `(,info))
 	(assign `((,this font_data)) `(,data))
-	(vp-add-cr (+ str_data font_data_size) data)
+	(vp-add-cr (+ +str_data font_data_size) data)
 	(loop-start)
 		(assign `((,data font_page_end)) `(,end))
 		(breakif `(,end = 0))
@@ -252,8 +252,8 @@
 	(entry :font :glyph_info `(,this ,utf8))
 
 	(call :array :create :nil `(,info))
-	(call :array :set_cap `(,info (,utf8 str_length)) `(,info))
-	(assign `((& ,utf8 str_data)) `(,data))
+	(call :array :set_cap `(,info (,utf8 +str_length)) `(,info))
+	(assign `((& ,utf8 +str_data)) `(,data))
 	(loop-start)
 		(call :sys_str :read_utf8 `(,data) `(,data ,c))
 		(breakif `(,c = 0))
@@ -282,7 +282,7 @@
 	(entry :font :glyph_bounds `(,this ,info))
 
 	(assign `((,this font_data)) `(,iter_begin))
-	(vp-add-cr str_data iter_begin)
+	(vp-add-cr +str_data iter_begin)
 	(assign `((,iter_begin font_data_ascent) (,iter_begin font_data_descent)) `(,h ,gap))
 	(vp-add-rr gap h)
 	(vp-cpy-rr h gap)
@@ -345,7 +345,7 @@
 	(push-scope)
 	(entry :font :glyph_paths {this, info})
 
-	(assign {&this->font_data->str_data} {iter_begin})
+	(assign {&this->font_data->+str_data} {iter_begin})
 	(assign {iter_begin->font_data_ascent + iter_begin->font_data_descent} {height})
 	(assign {height >> 4} {gap})
 	(call :list :create :nil {paths})
@@ -408,7 +408,7 @@
 		(endif)
 		(assign {iter_begin + +ptr_size} {iter_begin})
 	(loop-end)
-	(assign {&this->font_data->str_data} {iter_begin})
+	(assign {&this->font_data->+str_data} {iter_begin})
 
 	(exit :font :glyph_paths {this, paths, (ox * this->font_pixels >> 24) + 1, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 24})
 	(pop-scope)
@@ -541,15 +541,15 @@
 		(breakif {index = length})
 		(call :list :get_elem {flat_set, index} {_, font})
 		(vpif {font->font_chars})
-			(vpif {font->font_chars->obj_count = 1})
+			(vpif {font->font_chars->+obj_count = 1})
 				;during deref font_chars could be written to !
 				(assign {font->font_chars} {tmp})
 				(assign {0} {font->font_chars})
 				(call :list :deref {tmp})
 			(endif)
 		(endif)
-		(call :hmap :create {font->font_sym_map->hset_key_callback,
-			font->font_sym_map->hset_num_buckets} {new_map})
+		(call :hmap :create {font->font_sym_map->+hset_key_callback,
+			font->font_sym_map->+hset_num_buckets} {new_map})
 		(call :hmap :each {font->font_sym_map, $flush_callback, new_map})
 		;during deref font_sym_map could be written to !
 		(assign {font->font_sym_map} {tmp})
@@ -571,7 +571,7 @@
 	;:r1-:r14
 
 	(assign '((:r1 0) (:r1 +ptr_size)) '(:r1 :r2))
-	(assign '((:r2 obj_count)) '(:r3))
+	(assign '((:r2 +obj_count)) '(:r3))
 	(switch)
 	(vpcase '(:r3 /= 1))
 		(class/obj/ref :r1 :r3)

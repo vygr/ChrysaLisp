@@ -24,7 +24,7 @@
 	(bind '(dst sp m3x2) (method-input :path :transform))
 	(list-bind-args :r1 `(,m3x2 ,sp ,dst) '(:fixeds :path :path))
 	(errorcase
-		(assign `((,m3x2 array_length)) '(:r14))
+		(assign `((,m3x2 +array_length)) '(:r14))
 		(gotoif '(:r14 < 6) 'error1))
 	(call :path :transform `(,dst ,sp ,m3x2) '(:r0))
 	(call :obj :ref '(:r0) '(:r1))

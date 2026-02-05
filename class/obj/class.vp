@@ -45,12 +45,12 @@
 
 	(entry :obj :inst_of '(:r0 :r2))
 
-	(vp-lea-i :r0 obj_vtable :r1)
+	(vp-lea-i :r0 +obj_vtable :r1)
 	(loop-start)
-		(assign '((:r1 ln_fnode_next)) '(:r1))
+		(assign '((:r1 +ln_fnode_next)) '(:r1))
 		(gotoif '(:r1 = 0) 'funcexit)
 	(loop-until '(:r1 = :r2))
-	(assign '((:r0 obj_vtable)) '(:r1))
+	(assign '((:r0 +obj_vtable)) '(:r1))
 (vp-label 'funcexit)
 
 	(exit :obj :inst_of '(:r0 :r1))
@@ -73,14 +73,14 @@
 	(entry :obj :deref '(:r0))
 
 	;destroy if 1
-	(assign '((:r0 obj_count)) '(:r1))
+	(assign '((:r0 +obj_count)) '(:r1))
 	(vpif '(:r1 = 1))
 		(jump :obj :destroy '(:r0))
 	(endif)
 
 	;dec ref count
 	(vp-sub-cr 1 :r1)
-	(assign '(:r1) '((:r0 obj_count)))
+	(assign '(:r1) '((:r0 +obj_count)))
 	(vp-ret)
 
 (def-func-end)
@@ -134,7 +134,7 @@
 	(vp-push :r0)
 	(call :stream :write_char '(:r1 +char_at) '(:r0))
 	(assign '((:rsp 0)) '(:r1))
-	(assign '((:r1 obj_vtable)) '(:r1))
+	(assign '((:r1 +obj_vtable)) '(:r1))
 	(vp-cpy-ir-ub :r1 -1 :r2)
 	(vp-sub-rr :r2 :r1)
 	(call :stream :write_cstr '(:r0 :r1))

@@ -1,4 +1,5 @@
 (include "././obj/class.inc")
+(include "./struct.inc")
 
 (def-class :hset :obj
 	(dec-method :vtable class/hset/vtable)
@@ -13,7 +14,3 @@
 	(dec-method :flush class/hset/flush :static (:r0) (:r0))
 	(dec-method :key_callback class/obj/null :static (:r0 :r1) (:r0 :r1))
 	(dec-method :each_callback class/obj/null :static (:r0 :r1 :r2)))
-
-(def-struct hset obj_size
-	(uint num_buckets)
-	(ptr buckets key_callback))

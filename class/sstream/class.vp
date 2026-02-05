@@ -3,7 +3,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create :sstream)
+(gen-create1 :sstream)
 (gen-vtable :sstream)
 (gen-type :sstream)
 
@@ -21,7 +21,7 @@
 	(entry :sstream :init '(:r0 :r1 :r2))
 
 	;init parent
-	(s-jump :sstream :init '(:r0 :r1 :r2 0 (& :r2 str_data) (:r2 str_length)))
+	(s-jump :sstream :init '(:r0 :r1 :r2 0 (& :r2 +str_data) (:r2 +str_length)))
 
 (def-func-end)
 
@@ -37,11 +37,11 @@
 	(entry :sstream :ref_string '(:r0))
 
 	(vp-push :r0)
-	(assign '((:r0 stream_bufp) (:r0 stream_object)) '(:r1 :r0))
+	(assign '((:r0 +stream_bufp) (:r0 +stream_object)) '(:r1 :r0))
 	(vp-xor-rr :r2 :r2)
-	(assign '(:r2 :r2 (& :r0 str_data)) '((:r1 0 b) (:r0 str_hashcode) :r2))
+	(assign '(:r2 :r2 (& :r0 +str_data)) '((:r1 0 b) (:r0 +str_hashcode) :r2))
 	(vp-sub-rr :r2 :r1)
-	(assign '(:r1) '((:r0 str_length)))
+	(assign '(:r1) '((:r0 +str_length)))
 	(call :str :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
@@ -66,16 +66,16 @@
 	(entry :sstream :claim_string '(:r0))
 	(assign '(:r0) '((:rsp local_this)))
 
-	(assign '((:r0 stream_bufp) (:r0 stream_object)) '(:r1 :r0))
+	(assign '((:r0 +stream_bufp) (:r0 +stream_object)) '(:r1 :r0))
 	(vp-xor-rr :r2 :r2)
-	(assign '(:r2 :r2 (& :r0 str_data)) '((:r1 0 b) (:r0 str_hashcode) :r2))
+	(assign '(:r2 :r2 (& :r0 +str_data)) '((:r1 0 b) (:r0 +str_hashcode) :r2))
 	(vp-sub-rr :r2 :r1)
-	(assign '(:r0 :r1) '((:rsp local_string) (:r0 str_length)))
+	(assign '(:r0 :r1) '((:rsp local_string) (:r0 +str_length)))
 	(call :str :create_from_buffer '(0 str_gap) '(:r0))
 	(assign '((:rsp local_this)) '(:r1))
-	(assign '((& :r0 str_data) (:r0 str_length)) '(:r2 :r3))
+	(assign '((& :r0 +str_data) (:r0 +str_length)) '(:r2 :r3))
 	(vp-add-rr :r2 :r3)
-	(assign '(:r0 :r2 :r3) '((:r1 stream_object) (:r1 stream_bufp) (:r1 stream_bufe)))
+	(assign '(:r0 :r2 :r3) '((:r1 +stream_object) (:r1 +stream_bufp) (:r1 +stream_bufe)))
 
 	(exit :sstream :claim_string '(:r1 (:rsp local_string)))
 	(vp-free local_size)
@@ -98,14 +98,14 @@
 	(push-scope)
 	(entry :sstream :write_next {this})
 
-	(assign {this->stream_bufp - &this->stream_object->str_data} {len})
+	(assign {this->+stream_bufp - &this->+stream_object->+str_data} {len})
 	(call :str :create_from_buffer {0, len * 2} {new_str})
-	(call :sys_mem :copy {&this->stream_object->str_data, &new_str->str_data, len} {_, this->stream_bufp})
+	(call :sys_mem :copy {&this->+stream_object->+str_data, &new_str->+str_data, len} {_, this->+stream_bufp})
 	(assign {(new_str - sys_mem_header_size)} {cell})
-	(assign {cell + cell->sys_mem_header_heap->hp_heap_cellsize - 1} {this->stream_bufe})
-	(assign {this->stream_bufe - &new_str->str_data} {new_str->str_length})
-	(call :str :deref {this->stream_object})
-	(assign {new_str} {this->stream_object})
+	(assign {cell + cell->sys_mem_header_heap->hp_heap_cellsize - 1} {this->+stream_bufe})
+	(assign {this->+stream_bufe - &new_str->+str_data} {new_str->+str_length})
+	(call :str :deref {this->+stream_object})
+	(assign {new_str} {this->+stream_object})
 
 	(exit :sstream :write_next {this})
 	(pop-scope)
@@ -124,11 +124,11 @@
 	(entry :sstream :flush '(:r0))
 
 	;nul byte
-	(assign '((:r0 stream_bufp) 0) '(:r1 :r2))
-	(assign '(:r2 (:r0 stream_object)) '((:r1 0 b) :r2))
-	(vp-add-cr str_data :r2)
+	(assign '((:r0 +stream_bufp) 0) '(:r1 :r2))
+	(assign '(:r2 (:r0 +stream_object)) '((:r1 0 b) :r2))
+	(vp-add-cr +str_data :r2)
 	(vpif '(:r1 > :r2))
-		(assign '(:r2 :r0) '((:r0 stream_bufp) :r3))
+		(assign '(:r2 :r0) '((:r0 +stream_bufp) :r3))
 		(call :host_os :pii_write_str '(1 :r2))
 		(vp-cpy-rr :r3 :r0)
 	(endif)

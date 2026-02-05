@@ -1,4 +1,5 @@
 (include "././seq/class.inc")
+(include "./struct.inc")
 
 (def-class :array :seq
 	(dec-method :vtable class/array/vtable)
@@ -53,13 +54,6 @@
 	(dec-method :lisp_pop class/array/lisp_pop :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_cap class/array/lisp_cap :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct array seq_size
-	(plong begin)
-	(uint length capacity)
-	;use all remaining cells for short array storage
-	(struct elems (some! (lambda (%0)
-		(if (< base %0) (- (* %0 2) base))) (list mem_heap_cell_sizes))))
-
 ;;;;;;;;;;;;;;;;;;;
 ; parameter helpers
 ;;;;;;;;;;;;;;;;;;;
@@ -83,7 +77,7 @@
 	;outputs
 	;load register list from array
 	(setd i (last dst))
-	(assign `((,a array_begin)) `(,i))
+	(assign `((,a +array_begin)) `(,i))
 	(array-get-args i dst))
 
 ;;;;;;;;;;;;;;;;
@@ -100,10 +94,10 @@
 	;trashes
 	;:r1-:r2
 	(vp-xor-rr :r2 :r2)
-	(assign `(:r2 ,(>> (- array_size array_elems) (log2 +long_size))) '((:r0 array_length) :r2))
-	(assign '(:r2) '((:r0 array_capacity)))
-	(vp-lea-i :r0 array_elems :r2)
-	(assign '(:r2) '((:r0 array_begin)))
+	(assign `(:r2 ,(>> (- +array_size +array_elems) (log2 +long_size))) '((:r0 +array_length) :r2))
+	(assign '(:r2) '((:r0 +array_capacity)))
+	(vp-lea-i :r0 +array_elems :r2)
+	(assign '(:r2) '((:r0 +array_begin)))
 	(s-call :array :init '(:r0 :r1) '(:r0 :r1)))
 
 (defun class/array/get_cap ()
@@ -114,7 +108,7 @@
 	;:r1 = capacity (uint)
 	;trashes
 	;:r1
-	(assign '((:r0 array_capacity)) '(:r1)))
+	(assign '((:r0 +array_capacity)) '(:r1)))
 
 (defun class/array/get_length ()
 	;inputs
@@ -124,7 +118,7 @@
 	;:r1 = length (uint)
 	;trashes
 	;:r1
-	(assign '((:r0 array_length)) '(:r1)))
+	(assign '((:r0 +array_length)) '(:r1)))
 
 (defun class/array/set_length ()
 	;inputs
@@ -135,7 +129,7 @@
 	;:r1 = length (uint)
 	;trashes
 	;none
-	(assign '(:r1) '((:r0 array_length))))
+	(assign '(:r1) '((:r0 +array_length))))
 
 (defun class/array/get_begin ()
 	;inputs
@@ -145,7 +139,7 @@
 	;:r1 = begin element iter (plong)
 	;trashes
 	;:r1
-	(assign '((:r0 array_begin)) '(:r1)))
+	(assign '((:r0 +array_begin)) '(:r1)))
 
 (defun class/array/get_first ()
 	;inputs
@@ -155,7 +149,7 @@
 	;:r1 = element (long)
 	;trashes
 	;:r1
-	(assign '((:r0 array_begin)) '(:r1))
+	(assign '((:r0 +array_begin)) '(:r1))
 	(assign '((:r1 0)) '(:r1)))
 
 (defun class/array/get_second ()
@@ -166,7 +160,7 @@
 	;:r1 = element (long)
 	;trashes
 	;:r1
-	(assign '((:r0 array_begin)) '(:r1))
+	(assign '((:r0 +array_begin)) '(:r1))
 	(assign '((:r1 +long_size)) '(:r1)))
 
 (defun class/array/get_iter (&optional o ei b)
@@ -181,7 +175,7 @@
 	(setd o :r0 ei :r1 b :r2)
 	(if (or (eql o ei) (eql b ei))
 		(throw "Invalid object, index or base !" (list o ei b)))
-	(assign `((,o array_begin)) `(,b))
+	(assign `((,o +array_begin)) `(,b))
 	(vp-shl-cr (log2 +long_size) ei)
 	(vp-add-rr b ei))
 
@@ -196,7 +190,7 @@
 	(setd o :r0 e :r1 b :r2)
 	(if (eql o e)
 		(throw "Invalid object, end or base !" (list o e b)))
-	(assign `((,o array_length)) `(,e))
+	(assign `((,o +array_length)) `(,e))
 	(class/array/get_iter o e b))
 
 (defun class/array/get_both (&optional o b e)
@@ -211,7 +205,7 @@
 	(setd o :r0 b :r1 e :r2)
 	(if (or (eql o e) (eql b e))
 		(throw "Invalid object, begin or end !" (list o b e)))
-	(assign `((,o array_length) (,o array_begin)) `(,e ,b))
+	(assign `((,o +array_length) (,o +array_begin)) `(,e ,b))
 	(vp-shl-cr (log2 +long_size) e)
 	(vp-add-rr b e))
 
@@ -229,7 +223,7 @@
 	(setd o :r0 bi :r1 ei :r2 b :r3)
 	(if (or (eql o bi) (eql o ei) (eql bi ei) (eql b bi) (eql b ei))
 		(throw "Invalid object, begin, end or base !" (list o bi ei b)))
-	(assign `((,o array_begin)) `(,b))
+	(assign `((,o +array_begin)) `(,b))
 	(vp-shl-cr (log2 +long_size) bi)
 	(vp-shl-cr (log2 +long_size) ei)
 	(vp-add-rr b bi)
@@ -247,7 +241,7 @@
 	(setd o :r0 ei :r1 e :r1 b :r2)
 	(if (or (eql o ei) (eql b ei))
 		(throw "Invalid object, index, element or base !" (list o ei e b)))
-	(assign `((,o array_begin)) `(,b))
+	(assign `((,o +array_begin)) `(,b))
 	(vp-shl-cr (log2 +long_size) ei)
 	(vp-cpy-dr b ei e))
 
@@ -260,7 +254,7 @@
 	;:r0 = array object (ptr)
 	;trashes
 	;:r2-:r3
-	(assign '((:r0 array_begin)) '(:r3))
+	(assign '((:r0 +array_begin)) '(:r3))
 	(vp-shl-cr (log2 +long_size) :r2)
 	(vp-cpy-rd :r1 :r3 :r2))
 
@@ -272,9 +266,9 @@
 	;:r1 = element (long)
 	;trashes
 	;:r1-:r2
-	(assign '((:r0 array_length) (:r0 array_begin)) '(:r1 :r2))
+	(assign '((:r0 +array_length) (:r0 +array_begin)) '(:r1 :r2))
 	(vp-sub-cr 1 :r1)
-	(assign '(:r1) '((:r0 array_length)))
+	(assign '(:r1) '((:r0 +array_length)))
 	(vp-shl-cr (log2 +long_size) :r1)
 	(vp-cpy-dr :r2 :r1 :r1))
 
@@ -287,9 +281,9 @@
 	;:r2 = element2 (long)
 	;trashes
 	;:r1-:r2
-	(assign '((:r0 array_length) (:r0 array_begin)) '(:r1 :r2))
+	(assign '((:r0 +array_length) (:r0 +array_begin)) '(:r1 :r2))
 	(vp-sub-cr 2 :r1)
-	(assign '(:r1) '((:r0 array_length)))
+	(assign '(:r1) '((:r0 +array_length)))
 	(vp-shl-cr (log2 +long_size) :r1)
 	(vp-add-rr :r1 :r2)
 	(array-get-args :r2 '(:r1 :r2)))
@@ -302,7 +296,7 @@
 	;trashes
 	;:r1
 	(vp-xor-rr :r1 :r1)
-	(assign '(:r1) '((:r0 array_length))))
+	(assign '(:r1) '((:r0 +array_length))))
 
 (defun class/array/get_first2 ()
 	;inputs
@@ -325,7 +319,7 @@
 	;:r2 = element2 (long)
 	;trashes
 	;:r1-:r2
-	(assign '((:r0 array_begin)) '(:r2))
+	(assign '((:r0 +array_begin)) '(:r2))
 	(vp-shl-cr (log2 +long_size) :r1)
 	(vp-add-rr :r1 :r2)
 	(array-get-args :r2 '(:r1 :r2)))

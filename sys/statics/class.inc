@@ -8,15 +8,15 @@
 
 (def-struct statics 0
 	;sys_task statics
-	(struct sys_task_kernel_node_id node_id_size)
+	(struct sys_task_kernel_node_id +node_id_size)
 	(ptr sys_task_current_tcb sys_task_kernel_tcb)
 	(long sys_task_then)
 	(uint sys_task_task_count)
 	(align)
 	;keep these together
-	(struct sys_task_suspend_list lh_list_size)
-	(struct sys_task_timer_list lh_list_size)
-	(struct sys_task_task_lists (* num_task_lists lh_list_size))
+	(struct sys_task_suspend_list +lh_list_size)
+	(struct sys_task_timer_list +lh_list_size)
+	(struct sys_task_task_lists (* num_task_lists +lh_list_size))
 	(align)
 
 	;sys_mail statics
@@ -25,14 +25,14 @@
 	(struct sys_mail_msg_heap hp_heap_size)
 	(struct sys_mail_mbox_heap hp_heap_size)
 	;keep these together
-	(struct sys_mail_timeout_list lh_list_size)
-	(struct sys_mail_offchip_list lh_list_size)
-	(struct sys_mail_parcel_list lh_list_size)
-	(struct sys_mail_mbox_buckets (* num_mbox_buckets lh_list_size))
+	(struct sys_mail_timeout_list +lh_list_size)
+	(struct sys_mail_offchip_list +lh_list_size)
+	(struct sys_mail_parcel_list +lh_list_size)
+	(struct sys_mail_mbox_buckets (* num_mbox_buckets +lh_list_size))
 	(align)
 
 	;sys_mem statics
-	(struct sys_mem_obj_list lh_list_size)
+	(struct sys_mem_obj_list +lh_list_size)
 	(long sys_mem_total)
 	(struct sys_mem_heaps (* (length mem_heap_cell_sizes) hp_heap_size))
 	(align)

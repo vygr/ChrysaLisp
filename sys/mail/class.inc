@@ -48,22 +48,21 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct node_id 0
+(def-struct +node_id 0
 	(long node1 node2))
 
-(def-struct net_id 0
+(def-struct +net_id 0
 	(long mbox_id)
-	(struct node_id node_id_size))
+	(nodeid node_id))
 
-(def-struct mbox ln_node_size
-	(struct list lh_list_size)
+(def-struct +mbox +ln_node_size
+	(struct list +lh_list_size)
 	(ptr tcb owner_tcb)
 	(uint id))
 
-(def-struct msg ln_node_size
+(def-struct +msg +ln_node_size
 	(long timestamp)
-	(struct dest net_id_size)
-	(struct src net_id_size)
+	(netid dest src)
 	(uint frag_length frag_offset total_length)
 	(align)
 	(ptr obj frag_data))
@@ -75,11 +74,11 @@
 
 (defun load-node-id (src so &optional t1 t2)
 	(setd t1 :r3 t2 :r4)
-	(load-fields src (list (+ so node_id_node1) (+ so node_id_node2)) (list t1 t2)))
+	(load-fields src (list (+ so +node_id_node1) (+ so +node_id_node2)) (list t1 t2)))
 
 (defun save-node-id (dst do &optional t1 t2)
 	(setd t1 :r3 t2 :r4)
-	(save-fields dst (list (+ do node_id_node1) (+ do node_id_node2)) (list t1 t2)))
+	(save-fields dst (list (+ do +node_id_node1) (+ do +node_id_node2)) (list t1 t2)))
 
 (defun assign-node-id (src so dst do &optional t1 t2)
 	(load-node-id src so t1 t2)
@@ -88,13 +87,13 @@
 (defun load-net-id (src so &optional t1 t2 t3)
 	(setd t1 :r2 t2 :r3 t3 :r4)
 	(load-fields src
-		(list (+ so net_id_mbox_id) (+ so net_id_node_id node_id_node1) (+ so net_id_node_id node_id_node2))
+		(list (+ so +net_id_mbox_id) (+ so +net_id_node_id +node_id_node1) (+ so +net_id_node_id +node_id_node2))
 		(list t1 t2 t3)))
 
 (defun save-net-id (dst do &optional t1 t2 t3)
 	(setd t1 :r2 t2 :r3 t3 :r4)
 	(save-fields dst
-		(list (+ do net_id_mbox_id) (+ do net_id_node_id node_id_node1) (+ do net_id_node_id node_id_node2))
+		(list (+ do +net_id_mbox_id) (+ do +net_id_node_id +node_id_node1) (+ do +net_id_node_id +node_id_node2))
 		(list t1 t2 t3)))
 
 (defun assign-net-id (src so dst do &optional t1 t2 t3)

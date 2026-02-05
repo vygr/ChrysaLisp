@@ -1,4 +1,5 @@
 (include "././hset/class.inc")
+(include "./struct.inc")
 
 (def-class :hmap :hset
 	(dec-method :vtable class/hmap/vtable)
@@ -27,6 +28,3 @@
 	(dec-method :lisp_list class/hmap/lisp_tolist :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_resize class/hmap/lisp_resize :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_copy class/hmap/lisp_copy :static (:r0 :r1) (:r0 :r1)))
-
-(def-struct hmap hset_size
-	(ptr parent))

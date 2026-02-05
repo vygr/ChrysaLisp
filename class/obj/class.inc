@@ -1,4 +1,5 @@
 (include "lib/asm/class.inc")
+(include "./struct.inc")
 
 (def-class :obj :nil
 	(dec-method :vtable class/obj/vtable)
@@ -24,10 +25,6 @@
 	(dec-method :lisp_obj_ref class/obj/lisp_oref :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_type class/obj/lisp_type :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct obj 0
-	(pptr vtable)
-	(uint count))
-
 ;;;;;;;;;;;;;;;;
 ; inline methods
 ;;;;;;;;;;;;;;;;
@@ -41,8 +38,8 @@
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1
-	(assign '(:r1 1) '((:r0 obj_vtable) :r1))
-	(assign '(:r1) '((:r0 obj_count))))
+	(assign '(:r1 1) '((:r0 +obj_vtable) :r1))
+	(assign '(:r1) '((:r0 +obj_count))))
 
 (defun class/obj/ref (&optional o c x)
 	;inputs
@@ -53,11 +50,11 @@
 	;:r1
 	(setd o :r0 c :r1 x 1)
 	(if (eql o c) (throw "Invalid object or count !" (list o c)))
-	(assign `((,o obj_count)) `(,c))
+	(assign `((,o +obj_count)) `(,c))
 	(if (vp-rreg? x)
 		(vp-add-rr x c)
 		(vp-add-cr x c))
-	(assign `(,c) `((,o obj_count))))
+	(assign `(,c) `((,o +obj_count))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; field helpers, sorted load, saves and transfer

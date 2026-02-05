@@ -1,5 +1,3 @@
-; Lisp (getf ...)
-
 (structure +lh_list 0
 	(ptr head tail tailpred))
 

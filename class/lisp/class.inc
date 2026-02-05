@@ -1,6 +1,7 @@
 (include "././obj/class.inc")
 (include "././error/class.inc")
 (include "././list/class.inc")
+(include "./struct.inc")
 
 (def-class :lisp :obj
 	(dec-method :vtable class/lisp/vtable)
@@ -59,13 +60,3 @@
 	(dec-method :lisp_identity class/lisp/lisp_identity :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_repl_info class/lisp/lisp_repl_info :static (:r0 :r1) (:r0 :r1))
 	(dec-method :run class/lisp/run))
-
-(def-struct lisp obj_size
-	;this first block of ptrs gets derefed on deinit
-	(ptr stdin stdout stderr environment
-		sym_underscore sym_optional sym_rest sym_ignore sym_most sym_ampersand sym_nil
-		sym_t sym_lambda sym_macro sym_quote sym_qquote sym_unquote sym_trunc
-		sym_splicing sym_ffi sym_stack_frame func_ffi func_lambda func_macro func_quote
-		func_qquote stream_name script_name)
-	(ptr error)
-	(uint seq_idx stream_line nextsym))

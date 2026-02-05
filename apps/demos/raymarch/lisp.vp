@@ -45,7 +45,7 @@
 	(errorif-lisp-args-sig 'error :r1 1)
 	(array-bind-args args `(,pos))
 (errorcase
-	(assign `((,pos array_length)) `(,len))
+	(assign `((,pos +array_length)) `(,len))
 	(gotoif `(,len /= 3) 'error))
 
 	(vp-push this)
@@ -92,13 +92,13 @@
 	(array-bind-args args `(,ray_org ,ray_dir ,len ,max_len ,min_dist ,march_factor))
 
 (errorcase
-	(assign `((,ray_org array_length)) `(,cnt))
+	(assign `((,ray_org +array_length)) `(,cnt))
 	(gotoif `(,cnt /= 3) 'error)
-	(assign `((,ray_dir array_length)) `(,cnt))
+	(assign `((,ray_dir +array_length)) `(,cnt))
 	(gotoif `(,cnt /= 3) 'error))
 
 	(vp-push this)
-	(assign `((,ray_org array_begin) (,ray_dir array_begin)) `(,ray_org ,ray_dir))
+	(assign `((,ray_org +array_begin) (,ray_dir +array_begin)) `(,ray_org ,ray_dir))
 	(list-cast-args
 		`(,len ,max_len ,min_dist ,march_factor)
 		'(:real :real :real :real)

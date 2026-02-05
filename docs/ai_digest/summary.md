@@ -63,7 +63,7 @@ the Lisp root environment.
 * **Object System:** ChrysaLisp features a class-based object system. Classes
 are defined with `def-class`, methods with `def-method`. It supports
 inheritance (e.g., `View` is a base for many GUI widgets), virtual methods, and
-a vtable mechanism. Reference counting (`obj_count`) is used for object
+a vtable mechanism. Reference counting (`+obj_count`) is used for object
 lifetime management.
 
 * **Core Data Types:**

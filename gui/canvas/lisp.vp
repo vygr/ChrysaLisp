@@ -372,7 +372,7 @@
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0 :r13))
 (errorcase
-	(assign '((:r13 array_length)) '(:r2))
+	(assign '((:r13 +array_length)) '(:r2))
 	(gotoif '(:r2 /= 6) 'error1))
 	(defq in (method-input :canvas :ftri))
 	(array-bind-args :r13 (rest in))

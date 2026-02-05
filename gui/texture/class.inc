@@ -7,7 +7,7 @@
 	(dec-method :get_metrics gui/texture/get_metrics :static (:r0) (:r0 :r1 :r2 :r3))
 	(dec-method :deinit gui/texture/deinit :final))
 
-(def-struct texture obj_size
+(def-struct texture +obj_size
 	(long handle)
 	(uint width height))
 

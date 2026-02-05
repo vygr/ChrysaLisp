@@ -5,7 +5,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create :out)
+(gen-create1 :out)
 (gen-vtable :out)
 (gen-type :out)
 
@@ -25,16 +25,16 @@
 	(entry :out :init `(,this ,vtable ,id0 ,id1 ,id2))
 
 	;init parent
-	(save-net-id this out_id id0 id1 id2)
+	(save-net-id this +out_id id0 id1 id2)
 	(s-call :out :init `(,this ,vtable 0 0 0 0) `(,this ,vtable))
 	(vpif `(,vtable /= 0))
 		;init myself
-		(assign '(0 stream_mail_state_started) `(,zero ,state))
-		(save-fields this '(out_seqnum out_ack_seqnum out_state) `(,zero ,zero ,state))
+		(assign '(0 +stream_mail_state_started) `(,zero ,state))
+		(save-fields this '(+out_seqnum +out_ack_seqnum +out_state) `(,zero ,zero ,state))
 		(vp-push this)
 		(call :sys_mail :alloc_mbox :nil `(,id0 ,id1))
 		(vp-pop this)
-		(save-fields this '(out_ack_mbox_id out_ack_mbox_addr) `(,id0 ,id1))
+		(save-fields this '(+out_ack_mbox_id +out_ack_mbox_addr) `(,id0 ,id1))
 		(vp-cpy-rr this vtable)
 	(endif)
 
@@ -56,19 +56,19 @@
 	(entry :out :deinit `(,this))
 
 	;stopping then stopped
-	(call :out :set_state `(,this stream_mail_state_stopping) `(,this))
-	(call :out :set_state `(,this stream_mail_state_stopped) `(,this))
+	(call :out :set_state `(,this +stream_mail_state_stopping) `(,this))
+	(call :out :set_state `(,this +stream_mail_state_stopped) `(,this))
 
 	;free any stream mail buffer
 	(vp-push this)
-	(assign `((,this stream_buffer)) `(,buffer))
+	(assign `((,this +stream_buffer)) `(,buffer))
 	(vp-xor-rr tmp tmp)
-	(assign `(,tmp) `((,this stream_buffer)))
+	(assign `(,tmp) `((,this +stream_buffer)))
 	(call :sys_mail :free `(,buffer))
 
 	;free ack mailbox
 	(assign '((:rsp 0)) `(,this))
-	(call :sys_mail :free_mbox `((,this out_ack_mbox_id)))
+	(call :sys_mail :free_mbox `((,this +out_ack_mbox_id)))
 
 	;deinit parent
 	(vp-pop this)
@@ -90,12 +90,12 @@
 	(entry :out :set_state `(,this ,state))
 
 	;only move state forward
-	(assign `((,this out_state)) `(,ostate))
+	(assign `((,this +out_state)) `(,ostate))
 	(vpif `(,ostate < ,state))
 		(vp-push state)
 		(call :out :write_next `(,this) `(,this))
 		(vp-pop state)
-		(assign `(,state) `((,this out_state)))
+		(assign `(,state) `((,this +out_state)))
 		(call :out :flush `(,this) `(,this))
 	(endif)
 
@@ -118,17 +118,17 @@
 	(entry :out :wait_acks `(,this ,ack_num))
 
 	(loop-start)
-		(assign `((,this out_ack_seqnum)) `(,seq_num))
+		(assign `((,this +out_ack_seqnum)) `(,seq_num))
 		(breakif `(,ack_num = ,seq_num))
 		;next ack seq num
 		(vp-add-cr 1 seq_num)
-		(assign `(,seq_num) `((,this out_ack_seqnum)))
+		(assign `(,seq_num) `((,this +out_ack_seqnum)))
 		;wait for an ack
 		(vp-push this ack_num)
 	(errorcase
-		(assign `((,this out_state)) `(,state))
-		(gotoif `(,state = stream_mail_state_aborted) 'abort))
-		(call :sys_mail :read `((,this out_ack_mbox_addr)) `(,this _))
+		(assign `((,this +out_state)) `(,state))
+		(gotoif `(,state = +stream_mail_state_aborted) 'abort))
+		(call :sys_mail :read `((,this +out_ack_mbox_addr)) `(,this _))
 		(errorif `(,this = 0) 'abort)
 		(call :sys_mail :free `(,this))
 		(vp-pop this ack_num)
@@ -157,39 +157,39 @@
 
 	(entry :out :flush `(,this))
 
-	(assign `((,this stream_buffer)) `(,msg))
+	(assign `((,this +stream_buffer)) `(,msg))
 	(vpif `(,msg /= 0))
 		(vp-push this)
 		(vp-xor-rr data data)
-		(assign `(,data) `((,this stream_buffer)))
+		(assign `(,data) `((,this +stream_buffer)))
 
 		;send current msg buffer
-		(assign `((,msg msg_frag_data) (,this stream_bufp)) `(,data ,len))
+		(assign `((,msg +msg_frag_data) (,this +stream_bufp)) `(,data ,len))
 		(vp-sub-rr data len)
-		(assign `(,len) `((,msg msg_frag_length)))
-		(load-net-id this out_id id0 id1 id2)
+		(assign `(,len) `((,msg +msg_frag_length)))
+		(load-net-id this +out_id id0 id1 id2)
 		(load-fields this
-			'(out_seqnum out_state out_ack_mbox_id)
+			'(+out_seqnum +out_state +out_ack_mbox_id)
 			`(,seqnum ,state ,ackid))
-		(save-net-id msg msg_dest id0 id1 id2)
+		(save-net-id msg +msg_dest id0 id1 id2)
 		(save-fields data
-			`(stream_msg_seqnum stream_msg_state ,(+ stream_msg_ack_id net_id_mbox_id))
+			`(+stream_msg_seqnum +stream_msg_state ,(+ +stream_msg_ack_id +net_id_mbox_id))
 			`(,seqnum ,state ,ackid))
 		(call :sys_kernel :id :nil
-			`((,data ,(+ stream_msg_ack_id net_id_node_id node_id_node1))
-			(,data ,(+ stream_msg_ack_id net_id_node_id node_id_node2))))
+			`((,data ,(+ +stream_msg_ack_id +net_id_node_id +node_id_node1))
+			(,data ,(+ +stream_msg_ack_id +net_id_node_id +node_id_node2))))
 		(call :sys_mail :send `(,msg))
 
 		;wait for acks ?
 		(vp-pop this)
-		(assign `((,this out_seqnum)) `(,seqnum))
+		(assign `((,this +out_seqnum)) `(,seqnum))
 		(vp-shr-cr out_ack_shift seqnum)
 		(call :out :wait_acks `(,this ,seqnum) `(,this))
 
 		;next seq num
-		(assign `((,this out_seqnum)) `(,seqnum))
+		(assign `((,this +out_seqnum)) `(,seqnum))
 		(vp-add-cr 1 seqnum)
-		(assign `(,seqnum) `((,this out_seqnum)))
+		(assign `(,seqnum) `((,this +out_seqnum)))
 
 		;parent actions
 		(s-call :out :flush `(,this) `(,this))
@@ -217,8 +217,8 @@
 	(call :sys_mail :alloc '(lk_data_size) `(,buffer ,bufp))
 	(vp-pop this)
 	(vp-lea-i bufp lk_data_size bufe)
-	(vp-add-cr stream_msg_data bufp)
-	(save-fields this '(stream_buffer stream_bufp stream_bufe) `(,buffer ,bufp ,bufe))
+	(vp-add-cr +stream_msg_data bufp)
+	(save-fields this '(+stream_buffer +stream_bufp +stream_bufe) `(,buffer ,bufp ,bufe))
 
 	(exit :out :write_next  `(,this))
 	(vp-ret)

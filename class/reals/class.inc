@@ -1,4 +1,5 @@
 (include "././fixeds/class.inc")
+(include "./struct.inc")
 
 (def-class :reals :fixeds
 	(dec-method :vtable class/reals/vtable)
@@ -21,5 +22,3 @@
 	(dec-method :ceil class/reals/ceil :final)
 	(dec-method :quant class/reals/quant :final (:r0 :r1 :r2) (:r0))
 	(dec-method :lisp_quant class/reals/lisp_quant :static (:r0 :r1) (:r0 :r1)))
-
-(def-struct reals fixeds_size)

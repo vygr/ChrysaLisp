@@ -23,7 +23,7 @@
 	(list-bind-args :r1 `(,dims ,elems) '(:nums :array))
 
 (errorcase
-	(assign `((,dims array_length)) '(:r14))
+	(assign `((,dims +array_length)) '(:r14))
 	(gotoif '(:r14 = 0) 'error1))
 
 	(call :dim :create `(,dims ,elems) '(:r1))
@@ -61,12 +61,12 @@
 
 	(vp-push :r0 :r1)
 	(list-bind-args :r1 `(,dims ,indices) '(:dim :nums))
-	(assign `((,dims dim_dims) (,dims dim_elems)) `(,dims ,elems))
-	(assign `((,dims array_length) (,indices array_length)) `(,dims_len ,indices_len))
+	(assign `((,dims +dim_dims) (,dims +dim_elems)) `(,dims ,elems))
+	(assign `((,dims +array_length) (,indices +array_length)) `(,dims_len ,indices_len))
 
 	(errorif `(,indices_len > ,dims_len) 'error1)
 
-	(assign `((,dims array_begin) (,indices array_begin)) `(,dims_iter_begin ,indices_iter_begin))
+	(assign `((,dims +array_begin) (,indices +array_begin)) `(,dims_iter_begin ,indices_iter_begin))
 	(vp-shl-cr (log2 +ptr_size) indices_len)
 	(vp-lea-d dims_iter_begin indices_len dims_iter_end)
 
@@ -80,7 +80,7 @@
 	(loop-until `(,dims_iter_begin = ,dims_iter_end))
 
 (errorcase
-	(assign `((,elems array_length)) `(,indices_len))
+	(assign `((,elems +array_length)) `(,indices_len))
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indices_len) 'error1))
 
@@ -120,12 +120,12 @@
 
 	(vp-push :r0 :r1)
 	(list-bind-args :r1 `(,dims ,indices ,obj) '(:dim :nums :obj))
-	(assign `((,dims dim_dims) (,dims dim_elems)) `(,dims ,elems))
-	(assign `((,dims array_length) (,indices array_length)) `(,dims_len ,indices_len))
+	(assign `((,dims +dim_dims) (,dims +dim_elems)) `(,dims ,elems))
+	(assign `((,dims +array_length) (,indices +array_length)) `(,dims_len ,indices_len))
 
 	(errorif `(,indices_len > ,dims_len) 'error1)
 
-	(assign `((,dims array_begin) (,indices array_begin)) `(,dims_iter_begin ,indices_iter_begin))
+	(assign `((,dims +array_begin) (,indices +array_begin)) `(,dims_iter_begin ,indices_iter_begin))
 	(vp-shl-cr (log2 +ptr_size) indices_len)
 	(vp-lea-d dims_iter_begin indices_len dims_iter_end)
 
@@ -139,11 +139,11 @@
 	(loop-until `(,dims_iter_begin = ,dims_iter_end))
 
 (errorcase
-	(assign `((,elems array_length)) `(,indices_len))
+	(assign `((,elems +array_length)) `(,indices_len))
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indices_len) 'error1))
 
-	(assign `((,elems obj_vtable) (@ ,(f-path :list :vtable))) '(:r12 :r13))
+	(assign `((,elems +obj_vtable) (@ ,(f-path :list :vtable))) '(:r12 :r13))
 	(assign `(,obj) '((:rsp 0)))
 	(vpif '(:r12 = :r13))
 		(class/obj/ref obj :r14)
@@ -151,7 +151,7 @@
 		(vp-simd vp-cpy-rr `(,elems ,obj ,index) '(:r12 :r13 :r14))
 		(call :obj :inst_of `(,obj (@ ,(f-path :num :vtable))) '(_ tmp))
 		(vpif `(,tmp /= 0))
-			(assign '((:r13 num_value)) '(:r13))
+			(assign '((:r13 +num_value)) '(:r13))
 		(endif)
 		(vp-simd vp-cpy-rr '(:r12 :r13 :r14) `(,elems ,obj ,index))
 	(endif)

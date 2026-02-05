@@ -62,7 +62,7 @@
 
 	;load vdu with line text
 	(call :sys_mem :fill {vdu->vdu_chars, vdu->vdu_width * vdu->vdu_height * +long_size, +char_space})
-	(assign {lines->array_length - oy} {len})
+	(assign {lines->+array_length - oy} {len})
 	(vpif {len > 0})
 		(vpif {len > vdu->vdu_height})
 			(assign {vdu->vdu_height} {len})
@@ -72,10 +72,10 @@
 		(assign {vdu->vdu_chars} {cursor})
 		(loop-start)
 			(assign {*iter_begin} {line})
-			(vpif (cat {line->obj_vtable = @} (f-path :str :vtable)))
-				(vpif {(line->str_length - ox => len) > 0})
+			(vpif (cat {line->+obj_vtable = @} (f-path :str :vtable)))
+				(vpif {(line->+str_length - ox => len) > 0})
 					;copy bytes to longs
-					(assign {&line->str_data + ox, cursor, len, vdu->vdu_width} '(:r0 :r1 :r2 :r3))
+					(assign {&line->+str_data + ox, cursor, len, vdu->vdu_width} '(:r0 :r1 :r2 :r3))
 					(vpif '(:r2 > :r3))
 						(vp-cpy-rr :r3 :r2)
 					(endif)
@@ -89,12 +89,12 @@
 				(endif)
 			(else)
 			(errorcase
-				(vpif (cat {line->obj_vtable /= @} (f-path :array :vtable)))
-					(gotoif (cat {line->obj_vtable /= @} (f-path :nums :vtable)) 'exit)
+				(vpif (cat {line->+obj_vtable /= @} (f-path :array :vtable)))
+					(gotoif (cat {line->+obj_vtable /= @} (f-path :nums :vtable)) 'exit)
 				(endif))
-				(vpif {(line->array_length - ox => len) > 0})
+				(vpif {(line->+array_length - ox => len) > 0})
 					;copy longs to longs
-					(assign {line->array_begin + (ox * +long_size), cursor, len, vdu->vdu_width} '(:r0 :r1 :r2 :r3))
+					(assign {line->+array_begin + (ox * +long_size), cursor, len, vdu->vdu_width} '(:r0 :r1 :r2 :r3))
 					(vpif '(:r2 > :r3))
 						(vp-cpy-rr :r3 :r2)
 					(endif)

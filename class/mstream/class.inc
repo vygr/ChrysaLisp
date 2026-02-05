@@ -1,4 +1,5 @@
 (include "././stream/class.inc")
+(include "./struct.inc")
 
 (def-class :mstream :stream
 	(dec-method :vtable class/mstream/vtable)
@@ -11,9 +12,5 @@
 	(dec-method :flush class/mstream/flush :final)
 	(dec-method :ptoi class/mstream/ptoi :static (:r0 :r1) (:r0 :r1 :r2 :r3))
 	(dec-method :itop class/mstream/itop :static (:r0 :r1) (:r0 :r1 :r2 :r3 :r4 :r5)))
-
-(def-struct mstream stream_size
-	(ptr chunks)
-	(uint pos total index))
 
 (defcvar 'mstream_buf_size 4096)

@@ -18,10 +18,10 @@
 	(entry :nodeid :create '(:r5))
 
 	;create new str object
-	(call :sys_mem :alloc `(,nodeid_size) '(:r0 _))
+	(call :sys_mem :alloc `(,+nodeid_size) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;init the object
-		(call :nodeid :init `(:r0 (@ ,(f-path :nodeid :vtable)) :r5 node_id_size) '(:r0 :r1))
+		(call :nodeid :init `(:r0 (@ ,(f-path :nodeid :vtable)) :r5 +node_id_size) '(:r0 :r1))
 		(vpif '(:r1 = 0))
 			;error with init
 			(call :sys_mem :free '(:r0))
@@ -45,8 +45,8 @@
 
 	(entry :nodeid :hash '(:r0))
 
-	(vp-cpy-ir :r0 (+ nodeid_id node_id_node1) :r1)
-	(vp-cpy-ir :r0 (+ nodeid_id node_id_node2) :r2)
+	(vp-cpy-ir :r0 (+ +nodeid_id +node_id_node1) :r1)
+	(vp-cpy-ir :r0 (+ +nodeid_id +node_id_node2) :r2)
 	(vp-xor-rr :r2 :r1)
 
 	(exit :nodeid :hash '(:r0 :r1))

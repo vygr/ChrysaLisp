@@ -174,7 +174,7 @@ symbolic resolution is complete.
     efficiency:
 
     1. **Get VTable Address:** The address of the object's vtable-function is
-       retrieved from its header: `mov r1, [my_widget_instance + obj_vtable]`.
+       retrieved from its header: `mov r1, [my_widget_instance + +obj_vtable]`.
        `r1` now points to the code section of a function like
        `class/button/vtable`.
 

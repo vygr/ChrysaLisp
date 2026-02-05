@@ -14,7 +14,7 @@
 
 	(entry :lisp :lisp_eval '(:r0 :r1))
 
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(vpif '(:r2 = 1))
 		(array-bind-args :r1 '(:r1))
 		(jump :lisp :repl_eval '(:r0 :r1))
@@ -23,11 +23,11 @@
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(array-bind-args :r1 '(:r1 :r2))
-	(assign '((:r0 lisp_environment) :r2) '(:r3 (:r0 lisp_environment)))
+	(assign '((:r0 +lisp_environment) :r2) '(:r3 (:r0 +lisp_environment)))
 	(vp-push :r3)
 	(call :lisp :repl_eval '(:r0 :r1) '(:r0 :r1))
 	(vp-pop :r2)
-	(assign '(:r2) '((:r0 lisp_environment)))
+	(assign '(:r2) '((:r0 +lisp_environment)))
 
 	(exit :lisp :lisp_eval '(:r0 :r1))
 	(vp-ret)
@@ -53,19 +53,19 @@
 
 	(errorif-lisp-args-sig 'error :r1 1 2)
 
-	(assign '((:r1 array_length) (:r0 lisp_environment)) '(:r4 :r2))
+	(assign '((:r1 +array_length) (:r0 +lisp_environment)) '(:r4 :r2))
 	(vpif '(:r4 = 1))
 		(array-bind-args :r1 '(:r1))
 	(else)
 		(array-bind-args :r1 '(:r1 :r3))
-		(assign '(:r3) '((:r0 lisp_environment)))
+		(assign '(:r3) '((:r0 +lisp_environment)))
 	(endif)
 	(vp-push :r2 :r1)
 	(call :lisp :repl_eval_list '(:r0 :r1) '(:r0 :r1))
 	(vp-pop :r2 :r3)
-	(assign '(:r2) '((:r0 lisp_environment)))
+	(assign '(:r2) '((:r0 +lisp_environment)))
 (errorcase
-	(assign '((:r0 lisp_error) (:r1 obj_vtable)) '(:r4 :r5))
+	(assign '((:r0 +lisp_error) (:r1 +obj_vtable)) '(:r4 :r5))
 	(gotoif '(:r4 = :r5) 'exit))
 	(class/obj/ref :r3 :r2)
 	(class/obj/ref :r1 :r2 -1)

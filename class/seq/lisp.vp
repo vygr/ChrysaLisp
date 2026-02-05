@@ -133,9 +133,9 @@
 
 	(list-bind-args args `(,src1 ,src2 ,idxs) '(:seq :seq :nums))
 (errorcase
-	(assign `((,src1 obj_vtable) (,src2 obj_vtable)) `(,si ,ei))
+	(assign `((,src1 +obj_vtable) (,src2 +obj_vtable)) `(,si ,ei))
 	(gotoif `(,si /= ,ei) 'error1)
-	(assign `((,idxs array_length)) `(,si))
+	(assign `((,idxs +array_length)) `(,si))
 	(vp-and-cr 1 si)
 	(gotoif `(,si /= 0) 'error1)
 	(class/array/get_both idxs idx_begin idx_end)
@@ -222,7 +222,7 @@
 
 	(errorif-lisp-args-sig 'error :r1 2 3)
 
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(vp-cpy-rr :r1 args)
 	(vp-push :r0)
 	(vpif '(:r2 = 3))
@@ -231,12 +231,12 @@
 		(list-bind-args :r1 `(,element ,sequence) '(:obj :seq))
 		(vp-cpy-cr 0 idx)
 	(endif)
-	(assign `((,sequence obj_vtable)) `(,ovtable))
+	(assign `((,sequence +obj_vtable)) `(,ovtable))
 	(switch)
 	(f-bind :str :vtable vtable)
 	(vpcase `(,ovtable = ,vtable))
 	(errorcase
-		(assign `((,element obj_vtable)) `(,ovtable))
+		(assign `((,element +obj_vtable)) `(,ovtable))
 		(gotoif `(,ovtable /= ,vtable) 'error1))
 		(list-cast-args `(,element) '(:char))
 		(goto 'dofind)
@@ -258,7 +258,7 @@
 		(vpif `(,idx = -1))
 		(vp-label 'empty)
 			(assign '((:rsp 0)) '(:r0))
-			(call :obj :ref '((:r0 lisp_sym_nil)) '(:r0))
+			(call :obj :ref '((:r0 +lisp_sym_nil)) '(:r0))
 		(else)
 			(call :num :create `(,idx) '(:r0))
 		(endif)
@@ -299,7 +299,7 @@
 
 	(errorif-lisp-args-sig 'error :r1 2 3)
 
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(vp-cpy-rr :r1 args)
 	(vp-push :r0)
 	(vpif '(:r2 = 3))
@@ -308,12 +308,12 @@
 		(list-bind-args :r1 `(,element ,sequence) '(:obj :seq))
 		(vp-cpy-cr -1 idx)
 	(endif)
-	(assign `((,sequence obj_vtable)) `(,ovtable))
+	(assign `((,sequence +obj_vtable)) `(,ovtable))
 	(switch)
 	(f-bind :str :vtable vtable)
 	(vpcase `(,ovtable = ,vtable))
 	(errorcase
-		(assign `((,element obj_vtable)) `(,ovtable))
+		(assign `((,element +obj_vtable)) `(,ovtable))
 		(gotoif `(,ovtable /= ,vtable) 'error1))
 		(list-cast-args `(,element) '(:char))
 		(goto 'dofind)
@@ -335,7 +335,7 @@
 		(vpif `(,idx = 0))
 		(vp-label 'empty)
 			(assign '((:rsp 0)) '(:r0))
-			(call :obj :ref '((:r0 lisp_sym_nil)) '(:r0))
+			(call :obj :ref '((:r0 +lisp_sym_nil)) '(:r0))
 		(else)
 			(call :num :create `(,idx) '(:r0))
 		(endif)
@@ -379,7 +379,7 @@
 	(vpif '(:r1 > 0))
 		(call :seq :ref_elem '(:r0 0) '(_ :r1))
 	(else)
-		(assign '((:r13 lisp_sym_nil)) '(:r1))
+		(assign '((:r13 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
 
@@ -413,7 +413,7 @@
 	(vpif '(:r1 > 1))
 		(call :seq :ref_elem '(:r0 1) '(_ :r1))
 	(else)
-		(assign '((:r13 lisp_sym_nil)) '(:r1))
+		(assign '((:r13 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
 
@@ -447,7 +447,7 @@
 	(vpif '(:r1 > 2))
 		(call :seq :ref_elem '(:r0 2) '(_ :r1))
 	(else)
-		(assign '((:r13 lisp_sym_nil)) '(:r1))
+		(assign '((:r13 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
 
@@ -481,7 +481,7 @@
 	(vpif '(:r1 > 0))
 		(call :seq :ref_elem '(:r0 (& :r1 -1)) '(_ :r1))
 	(else)
-		(assign '((:r13 lisp_sym_nil)) '(:r1))
+		(assign '((:r13 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
 
@@ -579,7 +579,7 @@
 
 	(errorif-lisp-args-sig 'error :r1 1 2)
 
-	(assign `((,args array_length)) `(,len))
+	(assign `((,args +array_length)) `(,len))
 	(vpif `(,len = 1))
 		(list-bind-args args `(,seq) '(:seq))
 		(vp-cpy-cr 1 cnt)

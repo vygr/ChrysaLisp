@@ -1,4 +1,5 @@
 (include "././nums/class.inc")
+(include "./struct.inc")
 
 (def-class :fixeds :nums
 	(dec-method :vtable class/fixeds/vtable)
@@ -16,5 +17,3 @@
 	(dec-method :lisp_frac class/fixeds/lisp_frac :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_floor class/fixeds/lisp_floor :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_ceil class/fixeds/lisp_ceil :static (:r0 :r1) (:r0 :r1)))
-
-(def-struct fixeds nums_size)

@@ -24,7 +24,7 @@
 	(dec-method :lisp_load_cpm gui/pixmap/lisp_load_cpm :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_load_tga gui/pixmap/lisp_load_tga :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct pixmap obj_size
+(def-struct pixmap +obj_size
 	(int type)
 	(ptr texture stream bufp)
 	(uint stream_type width height stride)

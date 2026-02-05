@@ -14,10 +14,10 @@
 	(vp-xor-rr :r1 :r1)
 	(vp-cpy-ri :r1 :r0 statics_sys_task_then)
 	(vp-add-cr statics_sys_task_suspend_list :r0)
-	(vp-lea-i :r0 (* (+ num_task_lists 2) lh_list_size) :r1)
+	(vp-lea-i :r0 (* (+ num_task_lists 2) +lh_list_size) :r1)
 	(loop-start)
 		(lh-init :r0 :r2)
-		(vp-add-cr lh_list_size :r0)
+		(vp-add-cr +lh_list_size :r0)
 	(loop-until '(:r0 = :r1))
 	(vp-ret)
 
@@ -64,17 +64,17 @@
 	(entry :sys_task :callback `(,usr ,addr))
 
 	;allocate mail message
-	(call :sys_mail :alloc '(kn_msg_callback_size) `(,msg ,data))
+	(call :sys_mail :alloc '(+kn_msg_callback_size) `(,msg ,data))
 
 	;fill in destination, reply and function
 	(call :sys_kernel :id :nil '(:r0 :r1))
 	(vp-xor-rr :r2 :r2)
-	(save-net-id msg msg_dest :r2 :r0 :r1)
-	(vp-cpy-cr kn_call_callback :r0)
-	(assign `(,usr) `((,data ,kn_msg_key)))
-	(assign '(:r0) `((,data ,kn_msg_func)))
-	(assign `(,tcb) `((,data ,(+ kn_msg_reply_id net_id_mbox_id))))
-	(assign `(,addr) `((,data ,kn_msg_callback_addr)))
+	(save-net-id msg +msg_dest :r2 :r0 :r1)
+	(vp-cpy-cr +kn_call_callback :r0)
+	(assign `(,usr) `((,data ,+kn_msg_key)))
+	(assign '(:r0) `((,data ,+kn_msg_func)))
+	(assign `(,tcb) `((,data ,(+ +kn_msg_reply_id +net_id_mbox_id))))
+	(assign `(,addr) `((,data ,+kn_msg_callback_addr)))
 
 	;send mail to kernel then suspend till kernel wakes us
 	(call :sys_mail :send `(,msg))
@@ -89,11 +89,11 @@
 	;:r0-:r2
 
 	(fn-bind 'sys/statics/statics :r0)
-	(assign `((:r0 ,(+ statics_sys_task_kernel_node_id node_id_node1))
-			(:r0 ,(+ statics_sys_task_kernel_node_id node_id_node2))
+	(assign `((:r0 ,(+ statics_sys_task_kernel_node_id +node_id_node1))
+			(:r0 ,(+ statics_sys_task_kernel_node_id +node_id_node2))
 			(:r0 statics_sys_task_current_tcb))
 		'(:r1 :r2 :r0))
-	(assign '((:r0 tk_node_mbox_id)) '(:r0))
+	(assign '((:r0 +tk_node_mbox_id)) '(:r0))
 
 	(exit :sys_task :mailbox '(:r0 :r1 :r2))
 	(vp-ret)
@@ -112,9 +112,9 @@
 		(lh-get-head :r1 0 :r0)
 		(ln-get-succ :r0 0 :r3)
 		(breakif '(:r3 /= 0))
-		(vp-add-cr lh_list_size :r1)
+		(vp-add-cr +lh_list_size :r1)
 	(loop-end)
-	(assign '(:r0 (:r0 tk_node_stack)) '((:r2 statics_sys_task_current_tcb) :rsp))
+	(assign '(:r0 (:r0 +tk_node_stack)) '((:r2 statics_sys_task_current_tcb) :rsp))
 
 	;pop task state
 	(tk-load-state)
@@ -136,8 +136,8 @@
 	;save stack pointer
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_sys_task_current_tcb)) '(:r2))
-	(vp-cpy-ri :rsp :r2 tk_node_stack)
-	(assign '(:r0 (:r0 tk_node_stack)) '((:r1 statics_sys_task_current_tcb) :rsp))
+	(vp-cpy-ri :rsp :r2 +tk_node_stack)
+	(assign '(:r0 (:r0 +tk_node_stack)) '((:r1 statics_sys_task_current_tcb) :rsp))
 
 	;pop task state
 	(tk-load-state)
@@ -157,11 +157,11 @@
 	;save stack pointer
 	(fn-bind 'sys/statics/statics :r3)
 	(assign '((:r3 statics_sys_task_current_tcb)) '(:r0))
-	(vp-cpy-ri :rsp :r0 tk_node_stack)
+	(vp-cpy-ri :rsp :r0 +tk_node_stack)
 
 	;move task to suspend list, and flag as suspended
 	(vp-cpy-cr -1 :r1)
-	(assign '(:r1) '((:r0 tk_node_time)))
+	(assign '(:r1) '((:r0 +tk_node_time)))
 	(vp-cpy-rr :r0 :r1)
 	(ln-remove-node :r1 :r2)
 	(vp-add-cr statics_sys_task_suspend_list :r3)
@@ -183,16 +183,16 @@
 	(entry :sys_task :resume '(:r0))
 
 	;is it in suspended state ?
-	(assign '((:r0 tk_node_time)) '(:r1))
+	(assign '((:r0 +tk_node_time)) '(:r1))
 	(vpif '(:r1 = -1))
 		(vp-xor-rr :r1 :r1)
-		(assign '(:r1) '((:r0 tk_node_time)))
+		(assign '(:r1) '((:r0 +tk_node_time)))
 		;move from suspend list to priority list
 		(vp-cpy-rr :r0 :r1)
 		(ln-remove-node :r1 :r2)
-		(assign '((:r0 tk_node_priority)) '(:r2))
+		(assign '((:r0 +tk_node_priority)) '(:r2))
 		(fn-bind 'sys/statics/statics :r1)
-		(vp-mul-cr lh_list_size :r2)
+		(vp-mul-cr +lh_list_size :r2)
 		(vp-add-cr statics_sys_task_task_lists :r1)
 		(vp-add-rr :r2 :r1)
 		(lh-add-at-tail :r1 :r0 :r2)
@@ -219,7 +219,7 @@
 	;save stack pointer
 	(fn-bind 'sys/statics/statics :r4)
 	(assign '((:r4 statics_sys_task_current_tcb)) '(:r1))
-	(vp-cpy-ri :rsp :r1 tk_node_stack)
+	(vp-cpy-ri :rsp :r1 +tk_node_stack)
 
 	;remove task control block
 	(vp-cpy-rr :r1 :r2)
@@ -234,11 +234,11 @@
 		(vp-cpy-rr :r0 :r2)
 		(call :host_os :pii_time :nil '(:r0))
 		(vp-add-rr :r2 :r0)
-		(assign '(:r0) '((:r1 tk_node_time)))
+		(assign '(:r0) '((:r1 +tk_node_time)))
 
 		;insert into timer list
 		(loop-list-forward :r4 statics_sys_task_timer_list :r4 :r2)
-			(assign '((:r4 tk_node_time)) '(:r3))
+			(assign '((:r4 +tk_node_time)) '(:r3))
 		(loop-until '(:r0 < :r3))
 		(ln-add-node-before :r4 :r1 :r0)
 	(endif)
@@ -258,14 +258,14 @@
 
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_sys_task_current_tcb)) '(:r2))
-	(assign '(:r0) '((:r2 tk_node_priority)))
+	(assign '(:r0) '((:r2 +tk_node_priority)))
 
 	;remove task control block
 	(vp-cpy-rr :r2 :r3)
 	(ln-remove-node :r3 :r4)
 
 	;add to task new list
-	(vp-mul-cr lh_list_size :r0)
+	(vp-mul-cr +lh_list_size :r0)
 	(vp-add-cr statics_sys_task_task_lists :r1)
 	(vp-add-rr :r0 :r1)
 	(lh-add-at-head :r1 :r2 :r3)
@@ -294,25 +294,25 @@
 	(call :sys_task :count '(1))
 
 	;create new task control block and stack
-	(call :sys_mem :alloc {ushort(func - ubyte(func - +byte_size) - +short_size) + tk_node_size} {tcb, tcb_size})
+	(call :sys_mem :alloc {ushort(func - ubyte(func - +byte_size) - +short_size) + +tk_node_size} {tcb, tcb_size})
 (errorcase
 	;fill with test pattern so we can show max extent in netmon
 	(call :sys_mem :fill {tcb, tcb_size, tk_stack_canary}))
 
 	;alloc task mailbox and set its owner to itself
-	(call :sys_mail :alloc_mbox :nil {tcb->tk_node_mbox_id, tcb->tk_node_mbox_addr})
-	(assign {0, tcb} {tcb->tk_node_lisp, tcb->tk_node_mbox_addr->mbox_owner_tcb})
+	(call :sys_mail :alloc_mbox :nil {tcb->+tk_node_mbox_id, tcb->+tk_node_mbox_addr})
+	(assign {0, tcb} {tcb->+tk_node_lisp, tcb->+tk_node_mbox_addr->+mbox_owner_tcb})
 
 	;init task control block stack, pc and stop address's
 	(assign {func, tcb, tcb + tcb_size, -1, num_task_lists - 1, 0} '(:r1 :r4 :r0 :r2 :r3 :r6))
 	(fn-bind 'sys/statics/statics :r5)
-	(assign '(:r2) '((:r4 tk_node_time)))
+	(assign '(:r2) '((:r4 +tk_node_time)))
 	(vp-add-cr statics_sys_task_suspend_list :r5)
 	(lh-add-at-tail :r5 :r4 :r2)
-	(save-fields :r4 '(tk_node_priority tk_node_stack_top tk_node_flags) '(:r3 :r0 :r6))
+	(save-fields :r4 '(+tk_node_priority +tk_node_stack_top +tk_node_flags) '(:r3 :r0 :r6))
 	(f-bind :sys_task :stop :r2)
 	(vp-stack-init :r0 :r1 :r2)
-	(assign '(:r0) {tcb->tk_node_stack})
+	(assign '(:r0) {tcb->+tk_node_stack})
 
 	;resume new task
 	(call :sys_task :resume {tcb})
@@ -320,9 +320,9 @@
 	;return tcb and mailbox info
 	(assign {@sys/statics/statics} {statics})
 	(exit :sys_task :start
-		{tcb, tcb->tk_node_mbox_addr, tcb->tk_node_mbox_id,
-		statics->statics_sys_task_kernel_node_id.node_id_node1,
-		statics->statics_sys_task_kernel_node_id.node_id_node2})
+		{tcb, tcb->+tk_node_mbox_addr, tcb->+tk_node_mbox_id,
+		statics->statics_sys_task_kernel_node_id.+node_id_node1,
+		statics->statics_sys_task_kernel_node_id.+node_id_node2})
 	(pop-scope)
 	(return)
 
@@ -343,7 +343,7 @@
 	;free task mailbox and tls
 	(assign {@sys/statics/statics} {statics})
 	(assign {statics->statics_sys_task_current_tcb} {tcb})
-	(call :sys_mail :free_mbox {tcb->tk_node_mbox_id})
+	(call :sys_mail :free_mbox {tcb->+tk_node_mbox_id})
 
 	;remove task control block
 	(vp-rdef (tcb next_tcb))
@@ -370,16 +370,16 @@
 	(call :host_os :pii_time :nil '(:r6))
 	(fn-bind 'sys/statics/statics :r3)
 	(loop-list-forward :r3 statics_sys_task_timer_list :r0 :r7)
-		(assign '((:r0 tk_node_time)) '(:r1))
+		(assign '((:r0 +tk_node_time)) '(:r1))
 		(breakif '(:r1 > :r6))
 		;resume task
 		(vp-cpy-cr -1 :r1)
-		(assign '(:r1) '((:r0 tk_node_time)))
+		(assign '(:r1) '((:r0 +tk_node_time)))
 		(call :sys_task :resume '(:r0))
 	(loop-end)
 	(fn-bind 'sys/statics/statics :r5)
 	(loop-list-forward :r5 statics_sys_mail_timeout_list :r5 :r7)
-		(assign '((:r5 msg_frag_data)) '(:r1))
+		(assign '((:r5 +msg_frag_data)) '(:r1))
 		(assign '((:r1 0)) '(:r1))
 		(breakif '(:r1 > :r6))
 		;remove msg from timeout list and post
@@ -405,24 +405,24 @@
 	(fn-bind 'sys/statics/statics statics)
 	(assign `((,statics statics_sys_task_kernel_tcb)) `(,kernel_tcb))
 	(assign `((& ,statics statics_sys_task_suspend_list)) `(,tasks))
-	(assign `((& ,tasks ,(* (+ num_task_lists 2) lh_list_size))) `(,tasks_end))
+	(assign `((& ,tasks ,(* (+ num_task_lists 2) +lh_list_size))) `(,tasks_end))
 	(vp-cpy-cr tk_stack_canary canary)
 	(loop-start)
 		(loop-list-forward tasks 0 node next)
 			(continueif `(,node = ,kernel_tcb))
-			(assign `((,node tk_node_stack)) `(,stack))
+			(assign `((,node +tk_node_stack)) `(,stack))
 		(errorcase
-			(assign `((& ,node tk_node_size)) `(,stack))
+			(assign `((& ,node +tk_node_size)) `(,stack))
 			(loop-start)
 				(vp-cpy-ir stack +ptr_size statics)
 				(breakif `(,statics /= ,canary))
 				(vp-add-cr +ptr_size stack)
 			(loop-end))
-			(assign `((,node tk_node_stack_top)) `(,stack_top))
+			(assign `((,node +tk_node_stack_top)) `(,stack_top))
 			(vp-sub-rr stack stack_top)
 			(vp-max-rr stack_top max_stack)
 		(loop-end)
-		(vp-add-cr lh_list_size tasks)
+		(vp-add-cr +lh_list_size tasks)
 	(loop-until `(,tasks = ,tasks_end))
 
 	(exit :sys_task :stacks `(,max_stack))
@@ -441,7 +441,7 @@
 	;print stack dump
 	(fn-bind 'sys/statics/statics stack_top)
 	(assign `((,stack_top statics_sys_task_current_tcb) (& :rsp ,(* +ptr_size 5))) `(,stack_top ,sptr))
-	(assign `((,stack_top tk_node_stack_top)) `(,stack_top))
+	(assign `((,stack_top +tk_node_stack_top)) `(,stack_top))
 	(loop-while `(,sptr < ,stack_top))
 		(call :sys_load :find `((,sptr 0)) `(,node ,node_offset))
 		(vpif `(,node /= 0))
@@ -457,15 +457,15 @@
 	;print any task info
 	(fn-bind 'sys/statics/statics sptr)
 	(assign `((,sptr statics_sys_task_current_tcb)) `(,sptr))
-	(assign `((,sptr tk_node_lisp)) `(,sptr))
+	(assign `((,sptr +tk_node_lisp)) `(,sptr))
 	(vpif `(,sptr /= 0))
-		(assign `((,sptr lisp_script_name)) `(,node))
-		(call :host_os :pii_write_str `(2 (& ,node str_data)))
+		(assign `((,sptr +lisp_script_name)) `(,node))
+		(call :host_os :pii_write_str `(2 (& ,node +str_data)))
 		(call :host_os :pii_write_str `(2 " ("))
-		(assign `((,sptr lisp_stream_name)) `(,node))
-		(call :host_os :pii_write_str `(2 (& ,node str_data)))
+		(assign `((,sptr +lisp_stream_name)) `(,node))
+		(call :host_os :pii_write_str `(2 (& ,node +str_data)))
 		(call :host_os :pii_write_str `(2 " "))
-		(assign `((,sptr lisp_stream_line)) `(,node))
+		(assign `((,sptr +lisp_stream_line)) `(,node))
 		(call :host_os :pii_write_num `(2 ,node 10))
 		(call :host_os :pii_write_str `(2 ,(cat ")" (ascii-char 10))))
 	(endif)
@@ -482,7 +482,7 @@
 	(assign '((:r0 statics_sys_task_current_tcb) (:r0 statics_sys_task_kernel_tcb))
 		'(:r1 :r0))
 	(vpif '(:r1 /= 0) '(:r1 /= :r0))
-		(vp-add-cr (+ tk_node_size tk_stack_margin) :r1)
+		(vp-add-cr (+ +tk_node_size tk_stack_margin) :r1)
 		(vpif '(:rsp < :r1))
 			(jump :sys_task :dump)
 		(endif)

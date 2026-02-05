@@ -20,11 +20,11 @@
 	(errorif-lisp-args-sig 'error :r1 1)
 	(list-bind-args args `(,nums) '(:nums))
 (errorcase
-	(assign `((,nums array_length)) `(,len))
+	(assign `((,nums +array_length)) `(,len))
 	(gotoif `(,len < 4) 'error))
 
 	(call :nums :slice `(,nums 0 4) `(,nums))
-	(assign `((,nums array_begin)) `(,iter))
+	(assign `((,nums +array_begin)) `(,iter))
 	(vp-simd vp-cpy-ir `(,iter)
 		`(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size))
 		`(,cx ,cy ,ax ,ay))
@@ -63,13 +63,13 @@
 	(errorif-lisp-args-sig 'error :r1 2)
 	(list-bind-args args `(,nums1 ,nums2) '(:nums :nums))
 (errorcase
-	(assign `((,nums1 array_length)) `(,len))
+	(assign `((,nums1 +array_length)) `(,len))
 	(gotoif `(,len < 4) 'error)
-	(assign `((,nums2 array_length)) `(,len))
+	(assign `((,nums2 +array_length)) `(,len))
 	(gotoif `(,len < 4) 'error))
 
-	(assign `((,nums1 array_begin)) `(,nums1))
-	(assign `((,nums2 array_begin)) `(,nums2))
+	(assign `((,nums1 +array_begin)) `(,nums1))
+	(assign `((,nums2 +array_begin)) `(,nums2))
 	(vp-simd vp-cpy-ir `(,nums1) `(,+long_size ,(* 3 +long_size)) `(,cy1 ,ay1))
 	(vp-simd vp-cpy-ir `(,nums2) `(,+long_size ,(* 3 +long_size)) `(,cy2 ,ay2))
 	(vp-min-rr ay1 cy1)

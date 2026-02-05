@@ -14,7 +14,7 @@
 
 	(entry :seq :lisp_pling '(:r13 :r1))
 
-	(call :num :create '((:r0 lisp_seq_idx)) '(:r1))
+	(call :num :create '((:r0 +lisp_seq_idx)) '(:r1))
 
 	(exit :seq :lisp_pling '(:r13 :r1))
 	(vp-ret)
@@ -44,12 +44,12 @@
 
 (errorcase
 	(errorif-lisp-args-sig 'error1 :r1 2 4)
-	(assign '((:r1 array_begin)) '(:r1))
+	(assign '((:r1 +array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
 	(errorif-lisp-args-type 'error1 :r1 :seq 0))
 
 	(assign {seqs} '(:r1))
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(assign '(0 -1) `(,idx ,end))
 	(vpif '(:r2 = 2))
 		(list-bind-args :r1 `(,func ,seqs) '(:obj :list))
@@ -58,7 +58,7 @@
 	(else)
 		(list-bind-args :r1 `(,func ,seqs ,idx ,end) '(:obj :list :num :num))
 	(endif)
-	(call :obj :ref {this->lisp_sym_nil} {value})
+	(call :obj :ref {this->+lisp_sym_nil} {value})
 
 	(call :list :min_length `(,seqs) '(_ len))
 	(vpif `(,len /= +max_int))
@@ -80,8 +80,8 @@
 
 		(assign {this} `(,this))
 		(assign `(,dir ,end ,func ,seqs) {dir, end, func, seqs})
-		(assign `((,this lisp_seq_idx)) `(,old_idx))
-		(assign `(,idx) `((,this lisp_seq_idx)))
+		(assign `((,this +lisp_seq_idx)) `(,old_idx))
+		(assign `(,idx) `((,this +lisp_seq_idx)))
 		(assign `(,old_idx) {old_idx})
 
 		(loop-start)
@@ -89,7 +89,7 @@
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :obj :deref {value})
 			(call :list :create :nil {args})
-			(call :list :collect {args, seqs, this->lisp_seq_idx} `(,%1))
+			(call :list :collect {args, seqs, this->+lisp_seq_idx} `(,%1))
 			(assign {this, func} `(,%0 ,%2))
 			(call :lisp :repl_apply `(,%0 ,%1 ,%2) {_, value})
 			(call :obj :deref {args})
@@ -97,15 +97,15 @@
 
 		(errorcase
 			(assign {value} `(,value))
-			(assign `((,this lisp_error) (,value obj_vtable)) `(,vt1 ,vt2))
+			(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
 			(breakif `(,vt1 = ,vt2)))
 
-			(assign `((,this lisp_seq_idx)) `(,idx))
+			(assign `((,this +lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
-			(assign `(,idx) `((,this lisp_seq_idx)))
+			(assign `(,idx) `((,this +lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
-		(assign {old_idx} {this->lisp_seq_idx})
+		(assign {old_idx} {this->+lisp_seq_idx})
 	(endif)
 
 	(exit :seq :lisp_each {this, value})
@@ -146,16 +146,16 @@
 
 (errorcase
 	(errorif-lisp-args-sig 'error1 :r1 2 5)
-	(assign '((:r1 array_begin)) '(:r1))
+	(assign '((:r1 +array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
 	(errorif-lisp-args-type 'error1 :r1 :seq 0))
 
 	(assign {seqs} '(:r1))
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(assign '(0 -1) `(,idx ,end))
 	(vpif '(:r2 = 2))
 		(list-bind-args :r1 `(,func ,seqs) '(:obj :list))
-		(assign {this->lisp_sym_nil} `(,mode))
+		(assign {this->+lisp_sym_nil} `(,mode))
 	(elseif '(:r2 = 3))
 		(list-bind-args :r1 `(,func ,seqs ,mode) '(:obj :list :obj))
 	(elseif '(:r2 = 4))
@@ -185,8 +185,8 @@
 
 		(assign {this} `(,this))
 		(assign `(,dir ,end ,mode ,func ,seqs) {dir, end, mode, func, seqs})
-		(assign `((,this lisp_seq_idx)) `(,old_idx))
-		(assign `(,idx) `((,this lisp_seq_idx)))
+		(assign `((,this +lisp_seq_idx)) `(,old_idx))
+		(assign `(,idx) `((,this +lisp_seq_idx)))
 		(assign `(,old_idx) {old_idx})
 
 		(loop-start 'exit)
@@ -194,30 +194,30 @@
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :obj :deref {value})
 			(call :list :create :nil {args})
-			(call :list :collect {args, seqs, this->lisp_seq_idx} `(,%1))
+			(call :list :collect {args, seqs, this->+lisp_seq_idx} `(,%1))
 			(assign {this, func} `(,%0 ,%2))
 			(call :lisp :repl_apply `(,%0 ,%1 ,%2) {_, value})
 			(call :obj :deref {args})
 			(assign {this, value, mode, dir, end} `(,this ,value ,mode ,dir ,end))
 
 		(errorcase
-			(assign `((,this lisp_error) (,value obj_vtable)) `(,vt1 ,vt2))
+			(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
 			(breakif `(,vt1 = ,vt2)))
 
 			;break out based on mode and new value
-			(assign `((,this lisp_sym_nil)) `(,vt1))
+			(assign `((,this +lisp_sym_nil)) `(,vt1))
 			(vpif `(,vt1 /= ,mode))
 				(breakif `(,vt1 = ,value) 'exit)
 			(else)
 				(breakif `(,vt1 /= ,value) 'exit)
 			(endif)
 
-			(assign `((,this lisp_seq_idx)) `(,idx))
+			(assign `((,this +lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
-			(assign `(,idx) `((,this lisp_seq_idx)))
+			(assign `(,idx) `((,this +lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
-		(assign {old_idx} {this->lisp_seq_idx})
+		(assign {old_idx} {this->+lisp_seq_idx})
 	(endif)
 
 	(exit :seq :lisp_some {this, value})
@@ -258,12 +258,12 @@
 
 (errorcase
 	(errorif-lisp-args-sig 'error1 :r1 2 5)
-	(assign '((:r1 array_begin)) '(:r1))
+	(assign '((:r1 +array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
 	(errorif-lisp-args-type 'error1 :r1 :seq 0))
 
 	(assign {seqs} '(:r1))
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(assign '(0 -1) `(,idx ,end))
 	(vpif '(:r2 = 2))
 		(list-bind-args :r1 `(,func ,seqs) '(:obj :list))
@@ -300,12 +300,12 @@
 
 		(assign {this} `(,this))
 		(assign `(,dir ,end ,func ,seqs) {dir, end, func, seqs})
-		(assign `((,this lisp_seq_idx)) `(,old_idx))
-		(assign `(,idx) `((,this lisp_seq_idx)))
+		(assign `((,this +lisp_seq_idx)) `(,old_idx))
+		(assign `(,idx) `((,this +lisp_seq_idx)))
 		(assign `(,old_idx) {old_idx})
 
 		(assign {out} '(:r0))
-		(assign '((:r0 array_length)) '(:r1))
+		(assign '((:r0 +array_length)) '(:r1))
 		(vp-cpy-rr end :r2)
 		(vp-sub-rr idx :r2)
 		(vp-mul-rr dir :r2)
@@ -316,25 +316,25 @@
 			;get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :list :create :nil {args})
-			(call :list :collect {args, seqs, this->lisp_seq_idx} `(,%1))
+			(call :list :collect {args, seqs, this->+lisp_seq_idx} `(,%1))
 			(assign {this, func} `(,%0 ,%2))
 			(call :lisp :repl_apply `(,%0 ,%1 ,%2) {_, value})
 			(call :obj :deref {args})
 
 		(errorcase
-			(assign {value->obj_vtable, this->lisp_error} `(,vt1 ,vt2))
+			(assign {value->+obj_vtable, this->+lisp_error} `(,vt1 ,vt2))
 			(gotoif `(,vt1 = ,vt2) 'error3))
 
 			;collect value of function call
 			(call :list :push_back {out, value})
 
 			(assign {this, dir, end} `(,this ,dir ,end))
-			(assign `((,this lisp_seq_idx)) `(,idx))
+			(assign `((,this +lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
-			(assign `(,idx) `((,this lisp_seq_idx)))
+			(assign `(,idx) `((,this +lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
-		(assign {old_idx} {this->lisp_seq_idx})
+		(assign {old_idx} {this->+lisp_seq_idx})
 	(endif)
 
 	(exit :seq :lisp_map {this, out})
@@ -379,12 +379,12 @@
 
 (errorcase
 	(errorif-lisp-args-sig 'error1 :r1 3 5)
-	(assign '((:r1 array_begin)) '(:r1))
+	(assign '((:r1 +array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
 	(errorif-lisp-args-type 'error1 :r1 :seq 0))
 
 	(assign {seqs} `(,seqs))
-	(assign `((,seqs array_length)) '(:r2))
+	(assign `((,seqs +array_length)) '(:r2))
 	(assign '(0 -1) `(,idx ,end))
 	(vpif '(:r2 = 3))
 		(list-bind-args seqs `(,func ,seqs ,value) '(:obj :list :obj))
@@ -416,8 +416,8 @@
 
 		(assign {this} `(,this))
 		(assign `(,dir ,end ,func ,seqs) {dir, end, func, seqs})
-		(assign `((,this lisp_seq_idx)) `(,old_idx))
-		(assign `(,idx) `((,this lisp_seq_idx)))
+		(assign `((,this +lisp_seq_idx)) `(,old_idx))
+		(assign `(,idx) `((,this +lisp_seq_idx)))
 		(assign `(,old_idx) {old_idx})
 
 		(loop-start)
@@ -426,7 +426,7 @@
 			(bind '(%3 %4 %5) (method-input :list :collect))
 			(call :list :create :nil {args})
 			(call :list :push_back {args, value} `(,%3 _ _ _))
-			(assign {seqs, this->lisp_seq_idx} `(,%4 ,%5))
+			(assign {seqs, this->+lisp_seq_idx} `(,%4 ,%5))
 			(call :list :collect `(,%3 ,%4 ,%5) `(,%1))
 			(assign {this, func} `(,%0 ,%2))
 			(call :lisp :repl_apply `(,%0 ,%1 ,%2) {_, value})
@@ -435,15 +435,15 @@
 
 		(errorcase
 			(assign {value} `(,value))
-			(assign `((,this lisp_error) (,value obj_vtable)) `(,vt1 ,vt2))
+			(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
 			(breakif `(,vt1 = ,vt2)))
 
-			(assign `((,this lisp_seq_idx)) `(,idx))
+			(assign `((,this +lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
-			(assign `(,idx) `((,this lisp_seq_idx)))
+			(assign `(,idx) `((,this +lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
-		(assign {old_idx} {this->lisp_seq_idx})
+		(assign {old_idx} {this->+lisp_seq_idx})
 	(endif)
 
 	(exit :seq :lisp_reduce {this, value})
@@ -485,7 +485,7 @@
 	(errorif-lisp-args-sig 'error1 :r1 2 5)
 
 	(assign {seq} '(:r1))
-	(assign '((:r1 array_length)) '(:r2))
+	(assign '((:r1 +array_length)) '(:r2))
 	(assign '(0 -1) `(,idx ,end))
 	(vpif '(:r2 = 2))
 		(list-bind-args :r1 `(,func ,seq) '(:obj :seq))
@@ -522,12 +522,12 @@
 
 		(assign {this} `(,this))
 		(assign `(,dir ,end ,func ,seq) {dir, end, func, seq})
-		(assign `((,this lisp_seq_idx)) `(,old_idx))
-		(assign `(,idx) `((,this lisp_seq_idx)))
+		(assign `((,this +lisp_seq_idx)) `(,old_idx))
+		(assign `(,idx) `((,this +lisp_seq_idx)))
 		(assign `(,old_idx) {old_idx})
 
 		(assign {out} '(:r0))
-		(assign '((:r0 array_length)) '(:r1))
+		(assign '((:r0 +array_length)) '(:r1))
 		(vp-cpy-rr end :r2)
 		(vp-sub-rr idx :r2)
 		(vp-mul-rr dir :r2)
@@ -539,7 +539,7 @@
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(bind '(%3 %4) (method-input :list :push_back))
 			(call :list :create :nil {args})
-			(call :seq :ref_elem {seq, this->lisp_seq_idx} `(_ ,%4))
+			(call :seq :ref_elem {seq, this->+lisp_seq_idx} `(_ ,%4))
 			(assign {args} `(,%3))
 			(call :list :push_back `(,%3 ,%4) `(,%1 _ _ _))
 			(assign {this, func} `(,%0 ,%2))
@@ -547,11 +547,11 @@
 			(assign {this, value} `(,this ,value))
 
 		(errorcase
-			(assign `((,this lisp_error) (,value obj_vtable)) `(,vt1 ,vt2))
+			(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
 			(gotoif `(,vt1 = ,vt2) 'error3))
 
 			;collect or ignore item
-			(assign `((,this lisp_sym_nil)) `(,vt1))
+			(assign `((,this +lisp_sym_nil)) `(,vt1))
 			(vpif `(,value /= ,vt1))
 				(call :list :pop_back {args} `(_ ,%4))
 				(assign {out} `(,%3))
@@ -561,12 +561,12 @@
 			(call :obj :deref {args})
 
 			(assign {this, dir, end} `(,this ,dir ,end))
-			(assign `((,this lisp_seq_idx)) `(,idx))
+			(assign `((,this +lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
-			(assign `(,idx) `((,this lisp_seq_idx)))
+			(assign `(,idx) `((,this +lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
-		(assign {old_idx} {this->lisp_seq_idx})
+		(assign {old_idx} {this->+lisp_seq_idx})
 	(endif)
 
 	(exit :seq :lisp_filter {this, out})

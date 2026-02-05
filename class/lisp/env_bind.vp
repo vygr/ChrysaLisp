@@ -15,12 +15,12 @@
 	(entry :lisp :env_push '(:r0))
 
 	(vp-push :r0)
-	(assign '((:r0 lisp_environment)) '(:r0))
-	(call :hmap :create '((:r0 hset_key_callback) 1) '(:r0))
+	(assign '((:r0 +lisp_environment)) '(:r0))
+	(call :hmap :create '((:r0 +hset_key_callback) 1) '(:r0))
 	(assign '((:rsp 0)) '(:r1))
-	(call :hmap :set_parent '(:r0 (:r1 lisp_environment)) '(:r1))
+	(call :hmap :set_parent '(:r0 (:r1 +lisp_environment)) '(:r1))
 	(vp-pop :r0)
-	(assign '(:r1) '((:r0 lisp_environment)))
+	(assign '(:r1) '((:r0 +lisp_environment)))
 
 	(exit :lisp :env_push '(:r0 :r1))
 	(vp-ret)
@@ -42,13 +42,13 @@
 	(vp-alloc local_size)
 	(entry :lisp :env_pop '(:r0))
 
-	(assign '(:r0 (:r0 lisp_environment)) '((:rsp local_this) :r0))
-	(assign '((:r0 hmap_parent)) '(:r1))
+	(assign '(:r0 (:r0 +lisp_environment)) '((:rsp local_this) :r0))
+	(assign '((:r0 +hmap_parent)) '(:r1))
 	(assign '(:r1) '((:rsp local_new_env)))
 	(class/obj/ref :r1 :r2)
 	(call :obj :deref '(:r0))
 	(assign '((:rsp local_this) (:rsp local_new_env)) '(:r0 :r1))
-	(assign '(:r1) '((:r0 lisp_environment)))
+	(assign '(:r1) '((:r0 +lisp_environment)))
 
 	(exit :lisp :env_pop '(:r0 :r1))
 	(vp-free local_size)
@@ -78,12 +78,12 @@
 	(entry :lisp :env_bind {this, vars, vals})
 
 (errorcase
-	(gotoif (cat {vars->obj_vtable /= @} (f-path :list :vtable)) 'error1)
+	(gotoif (cat {vars->+obj_vtable /= @} (f-path :list :vtable)) 'error1)
 	(call :obj :inst_of (cat {vals, @} (f-path :seq :vtable)) '(_ tmp))
 	(gotoif `(,tmp = 0) 'error2))
 
 	(assign {+state_normal => index_vars => index_vals} {state})
-	(call :obj :ref {this->lisp_sym_nil} {value})
+	(call :obj :ref {this->+lisp_sym_nil} {value})
 	(d-call :list :get_length {vars} {_, len_vars})
 	(call :seq :get_length {vals} {_, len_vals})
 	(loop-start 'next_bind)
@@ -95,7 +95,7 @@
 		(assign {this, vars, state} `(,this ,vars ,state))
 		(assign `(,index_vars) `(,symbol))
 		(load-fields this
-			'(lisp_sym_optional lisp_sym_rest lisp_sym_ignore lisp_sym_most lisp_sym_ampersand)
+			'(+lisp_sym_optional +lisp_sym_rest +lisp_sym_ignore +lisp_sym_most +lisp_sym_ampersand)
 			`(,optn ,rst ,ign ,mst ,blk))
 		(class/array/get_elem vars symbol symbol this)
 		(switch)
@@ -122,14 +122,14 @@
 
 		(call :obj :deref {value})
 		(call :list :get_elem {vars, index_vars} {_, symbol})
-		(vpif (cat {symbol->obj_vtable = @} (f-path :sym :vtable)))
+		(vpif (cat {symbol->+obj_vtable = @} (f-path :sym :vtable)))
 			;standard symbol
 			(vp-rdef (vals index_vals len_vals value index_vars len_vars state))
 			(assign {vals, index_vals, len_vals, state} (list vals index_vals len_vals state))
 			(vpif `(,state = ,+state_optional))
 				;optional
 				(gotoif `(,index_vals /= ,len_vals) 'normal)
-				(call :obj :ref {this->lisp_sym_nil} (list value))
+				(call :obj :ref {this->+lisp_sym_nil} (list value))
 				(assign {index_vals} (list index_vals))
 			(elseif `(,state = ,+state_rest))
 				;rest
@@ -156,16 +156,16 @@
 			(assign {index_vars} (list index_vars))
 			(vp-add-cr 1 index_vars)
 			(assign (list index_vars index_vals value) {index_vars, index_vals, value})
-			(call :hmap :insert {this->lisp_environment, symbol, value})
+			(call :hmap :insert {this->+lisp_environment, symbol, value})
 		(else)
 			;destructureing ?
-			(errorif (cat {symbol->obj_vtable /= @} (f-path :list :vtable)) 'error1)
+			(errorif (cat {symbol->+obj_vtable /= @} (f-path :list :vtable)) 'error1)
 			(errorif {index_vals = len_vals} 'error)
 			(call :seq :ref_elem {vals, index_vals} {_, args})
 			(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
 			(call :lisp :env_bind {this, symbol, args} {_, value})
 			(call :obj :deref {args})
-			(errorif {value->obj_vtable = this->lisp_error} 'funcexit)
+			(errorif {value->+obj_vtable = this->+lisp_error} 'funcexit)
 		(endif)
 	(loop-end)
 	(errorif {index_vals /= len_vals} 'error4)

@@ -5,7 +5,7 @@
 (include "././num/class.inc")
 (include "././list/class.inc")
 
-(gen-create :array)
+(gen-create1 :array)
 (gen-vtable :array)
 (gen-type :array)
 
@@ -20,7 +20,7 @@
 	(entry :array :deinit '(:r0))
 
 	;free any dynamic array
-	(assign '((:r0 array_begin) (& :r0 array_elems)) '(:r2 :r1))
+	(assign '((:r0 +array_begin) (& :r0 +array_elems)) '(:r2 :r1))
 	(vpif '(:r2 /= :r1))
 		(vp-cpy-rr :r0 :r3)
 		(call :sys_mem :free '(:r2))
@@ -63,7 +63,7 @@
 
 	(entry :array :find `(,this ,elm ,idx))
 
-	(assign `((,this array_length) (,this array_begin)) `(,tmp ,base))
+	(assign `((,this +array_length) (,this +array_begin)) `(,tmp ,base))
 	(vp-simd vp-shl-cr `(,(log2 +long_size)) `(,idx ,tmp))
 	(vp-add-rr base idx)
 	(vp-add-rr tmp base)
@@ -79,7 +79,7 @@
 	(vp-ret)
 
 (vp-label 'found)
-	(assign `((,this array_begin)) `(,base))
+	(assign `((,this +array_begin)) `(,base))
 	(vp-sub-cr +long_size idx)
 	(vp-sub-rr base idx)
 	(vp-shr-cr (log2 +long_size) idx)
@@ -105,7 +105,7 @@
 
 	(entry :array :rfind `(,this ,elm ,idx))
 
-	(assign `((,this array_begin)) `(,base))
+	(assign `((,this +array_begin)) `(,base))
 	(vp-shl-cr (log2 +long_size) idx)
 	(vp-add-rr base idx)
 	(vpif `(,idx /= ,base))
@@ -156,15 +156,15 @@
 	(entry :array :push_back '(:r0 :r1))
 
 	;increase capacity ?
-	(assign '((:r0 array_length) (:r0 array_capacity)) '(:r3 :r2))
+	(assign '((:r0 +array_length) (:r0 +array_capacity)) '(:r3 :r2))
 	(vp-add-cr 1 :r3)
-	(assign '(:r3) '((:r0 array_length)))
+	(assign '(:r3) '((:r0 +array_length)))
 	(vpif '(:r3 > :r2))
 		;double the capacity
 		(vp-add-rr :r2 :r2)
 		(vp-push :r1)
 		(call :array :set_cap '(:r0 :r2) '(:r0))
-		(assign '((:r0 array_length)) '(:r3))
+		(assign '((:r0 +array_length)) '(:r3))
 		(vp-pop :r1)
 	(endif)
 
@@ -194,15 +194,15 @@
 	(entry :array :push_back2 '(:r0 :r1 :r2))
 
 	;increase capacity ?
-	(assign '((:r0 array_length) (:r0 array_capacity)) '(:r4 :r3))
+	(assign '((:r0 +array_length) (:r0 +array_capacity)) '(:r4 :r3))
 	(vp-add-cr 2 :r4)
-	(assign '(:r4) '((:r0 array_length)))
+	(assign '(:r4) '((:r0 +array_length)))
 	(vpif '(:r4 > :r3))
 		;double the capacity
 		(vp-add-rr :r3 :r3)
 		(vp-push :r1 :r2)
 		(call :array :set_cap '(:r0 :r3) '(:r0))
-		(assign '((:r0 array_length)) '(:r4))
+		(assign '((:r0 +array_length)) '(:r4))
 		(vp-pop :r1 :r2)
 	(endif)
 
@@ -226,9 +226,9 @@
 
 	(entry :array :ref_back '(:r0))
 
-	(assign '((:r0 array_length) (:r0 array_begin)) '(:r1 :r2))
+	(assign '((:r0 +array_length) (:r0 +array_begin)) '(:r1 :r2))
 	(vp-sub-cr 1 :r1)
-	(assign '(:r1) '((:r0 array_length)))
+	(assign '(:r1) '((:r0 +array_length)))
 	(vp-shl-cr (log2 +long_size) :r1)
 	(vp-cpy-rr :r0 :r3)
 	(v-call :array :velement '((:r2 :r1)) '(:r0) :r3 :r1)
@@ -271,11 +271,11 @@
 	(entry :array :set_cap '(:r0 :r1))
 
 	;do we already have room ?
-	(assign '((:r0 array_capacity)) '(:r2))
+	(assign '((:r0 +array_capacity)) '(:r2))
 	(vpif '(:r1 > :r2))
 		;realloc the dynamic array
 		(vp-push :r0)
-		(assign '((& :r0 array_elems) (:r0 array_begin)) '(:r3 :r0))
+		(assign '((& :r0 +array_elems) (:r0 +array_begin)) '(:r3 :r0))
 		(vp-shl-cr (log2 +long_size) :r1)
 		(vpif '(:r0 = :r3))
 			(call :sys_mem :alloc '(:r1) '(:r1 :r2))
@@ -285,10 +285,10 @@
 					(vp-cpy-ir :r0 e0 :r3)
 					(if e1 (vp-cpy-ir :r0 e1 :r4))
 					(if e2 (vp-cpy-ir :r0 e2 :r5))
-					(vp-cpy-ri :r3 :r1 (- e0 array_elems))
-					(if e1 (vp-cpy-ri :r4 :r1 (- e1 array_elems)))
-					(if e2 (vp-cpy-ri :r5 :r1 (- e2 array_elems))))
-				(partition (range array_elems array_size +long_size) 3))
+					(vp-cpy-ri :r3 :r1 (- e0 +array_elems))
+					(if e1 (vp-cpy-ri :r4 :r1 (- e1 +array_elems)))
+					(if e2 (vp-cpy-ri :r5 :r1 (- e2 +array_elems))))
+				(partition (range +array_elems +array_size +long_size) 3))
 		(else)
 			(vp-shl-cr (log2 +long_size) :r2)
 			(vp-swp-rr :r1 :r2)
@@ -296,7 +296,7 @@
 			(vp-pop :r0)
 		(endif)
 		(vp-shr-cr (log2 +long_size) :r2)
-		(assign '(:r1 :r2) '((:r0 array_begin) (:r0 array_capacity)))
+		(assign '(:r1 :r2) '((:r0 +array_begin) (:r0 +array_capacity)))
 	(endif)
 
 	(exit :array :set_cap '(:r0))
@@ -469,10 +469,10 @@
 		(assign '(:r1 :r2 :r3) '(:r6 :r7 :r8))
 
 		;extend array
-		(assign '((:r0 array_length)) '(:r9))
+		(assign '((:r0 +array_length)) '(:r9))
 		(vp-sub-rr :r2 :r3)
 		(assign '((& :r3 :r9)) '(:r1))
-		(assign '(:r1) '((:r0 array_length)))
+		(assign '(:r1) '((:r0 +array_length)))
 		(call :array :set_cap '(:r0 :r1) '(:r0))
 
 		;append elements
@@ -546,9 +546,9 @@
 	(entry :array :erase '(:r0 :r1))
 
 	;swap last entry for erased entry
-	(assign '((:r0 array_length) (:r0 array_begin)) '(:r2 :r3))
+	(assign '((:r0 +array_length) (:r0 +array_begin)) '(:r2 :r3))
 	(vp-sub-cr 1 :r2)
-	(assign '(:r2) '((:r0 array_length)))
+	(assign '(:r2) '((:r0 +array_length)))
 	(vp-shl-cr (log2 +long_size) :r2)
 	(vp-add-rr :r3 :r2)
 	(vpif '(:r2 /= :r1))
@@ -574,9 +574,9 @@
 	(entry :array :erase2 '(:r0 :r1))
 
 	;swap last entry for erased entry
-	(assign '((:r0 array_length) (:r0 array_begin)) '(:r2 :r3))
+	(assign '((:r0 +array_length) (:r0 +array_begin)) '(:r2 :r3))
 	(vp-sub-cr 2 :r2)
-	(assign '(:r2) '((:r0 array_length)))
+	(assign '(:r2) '((:r0 +array_length)))
 	(vp-shl-cr (log2 +long_size) :r2)
 	(vp-add-rr :r3 :r2)
 	(vpif '(:r2 /= :r1))
@@ -604,12 +604,12 @@
 	(entry :array :eql `(,this ,that))
 
 	(gotoif `(,this = ,that) 'same)
-	(assign `((,this obj_vtable) (,that obj_vtable)) `(,len1 ,len2))
+	(assign `((,this +obj_vtable) (,that +obj_vtable)) `(,len1 ,len2))
 	(gotoif `(,len1 /= ,len2) 'not_same)
-	(assign `((,this array_length) (,that array_length)) `(,len1 ,len2))
+	(assign `((,this +array_length) (,that +array_length)) `(,len1 ,len2))
 	(gotoif `(,len1 /= ,len2) 'not_same)
 	(gotoif `(,len1 = 0) 'same)
-	(assign `((,this array_begin) (,that array_begin)) `(,itr1 ,itr2))
+	(assign `((,this +array_begin) (,that +array_begin)) `(,itr1 ,itr2))
 	(vp-shl-cr (log2 +ptr_size) len1)
 	(vp-add-rr itr1 len1)
 	(loop-start)
@@ -650,13 +650,13 @@
 		(loop-start)
 			(assign `((,seqs_begin 0)) `(,src))
 			(vp-add-cr +ptr_size seqs_begin)
-			(assign `((,src array_length)) `(,len))
+			(assign `((,src +array_length)) `(,len))
 			(vp-add-rr len total)
 		(loop-until `(,seqs_begin = ,seqs_end))
-		(assign `(,total) `((,this array_length)))
+		(assign `(,total) `((,this +array_length)))
 		(call :array :set_cap `(,this ,total) `(,this))
 		;now transfer the sequences
-		(assign `((,this array_begin) (,seqs array_begin)) `(,di ,seqs_begin))
+		(assign `((,this +array_begin) (,seqs +array_begin)) `(,di ,seqs_begin))
 		(loop-start)
 			(assign `((,seqs_begin 0)) `(,src))
 			(vp-add-cr +ptr_size seqs_begin)
@@ -697,11 +697,11 @@
 		(vp-cpy-rr si total)
 		(vp-sub-rr ei total)
 		(vp-abs-rr total total)
-		(assign `(,total) `((,this array_length)))
+		(assign `(,total) `((,this +array_length)))
 		(call :array :set_cap `(,this ,total) `(,this))
 		;now transfer the slice, reversed if needed
 		(class/array/get_iters src si ei)
-		(assign `((,this array_begin)) `(,di))
+		(assign `((,this +array_begin)) `(,di))
 		(vpif `(,si < ,ei))
 			(loop-start)
 				(vp-cpy-ir si 0 total)
@@ -741,7 +741,7 @@
 	(class/array/get_both idxs idx_begin idx_end)
 	(vpif `(,idx_begin /= ,idx_end))
 		;first set the capacity/length
-		(assign `((,src1 array_length) (,src2 array_length)) `(,len ,ei))
+		(assign `((,src1 +array_length) (,src2 +array_length)) `(,len ,ei))
 		(vp-cpy-rr len swp_xor)
 		(vp-xor-rr ei swp_xor)
 		(vp-xor-rr total total)
@@ -758,10 +758,10 @@
 			(vp-abs-rr ei ei)
 			(vp-add-rr ei total)
 		(loop-until `(,idx_begin = ,idx_end))
-		(assign `(,total) `((,this array_length)))
+		(assign `(,total) `((,this +array_length)))
 		(call :array :set_cap `(,this ,total) `(,this))
 		;now transfer the slices
-		(assign `((,this array_begin) (,idxs array_begin)) `(,di ,idx_begin))
+		(assign `((,this +array_begin) (,idxs +array_begin)) `(,di ,idx_begin))
 		(vp-cpy-rr src1 swp_xor)
 		(vp-xor-rr src2 swp_xor)
 		(loop-start)
@@ -769,7 +769,7 @@
 			(vp-simd vp-cpy-ir `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
 			(vp-add-cr (* +long_size 2) idx_begin)
 			;the source this time
-			(assign `((,src1 array_begin) (,src1 array_length)) `(,src2 ,len))
+			(assign `((,src1 +array_begin) (,src1 +array_length)) `(,src2 ,len))
 			(seq-elem-index si len)
 			(seq-elem-index ei len)
 			(vp-xor-rr swp_xor src1)

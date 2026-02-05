@@ -48,7 +48,7 @@
 			;object reference
 			(assign `((,obj ,offset)) `(,args))
 			(vpif `(,args = 0))
-				(assign `((,this lisp_sym_nil)) `(,args))
+				(assign `((,this +lisp_sym_nil)) `(,args))
 			(endif)
 			(class/obj/ref args obj)
 			(exit :obj :lisp_get `(,this ,args))
@@ -148,7 +148,7 @@
 	(endif))
 
 	(assign `(,this ,obj) {this, obj})
-	(assign `((,val num_value)) `(,num))
+	(assign `((,val +num_value)) `(,num))
 	(switch 'exit)
 	(vpcase `(,type >= 0))
 		(vpif `(,type = 0))
@@ -156,7 +156,7 @@
 			(assign `(,val ,offset) {val, offset})
 			(call :obj :deref_if `((,obj ,offset)))
 			(assign {this, obj, val, offset} `(,this ,obj ,val ,offset))
-			(assign `((,this lisp_sym_nil)) `(,this))
+			(assign `((,this +lisp_sym_nil)) `(,this))
 			(vpif `(,val = ,this))
 				(vp-xor-rr val val)
 			(else)
@@ -166,7 +166,7 @@
 			(break 'exit)
 		(endif)
 		;sub struct
-		(call :sys_mem :copy `((& ,val str_data) (& ,obj ,offset) ,type))
+		(call :sys_mem :copy `((& ,val +str_data) (& ,obj ,offset) ,type))
 		(break)
 	(vpcase `(,type = ,+type_byte))
 		(assign `(,num) `((,obj ,offset b)))
@@ -282,7 +282,7 @@
 	(errorif-lisp-args-len 'error :r1 /= 1)
 
 	(list-bind-args :r1 '(:r2) '(:obj))
-	(assign '((:r0 lisp_sym_nil)) '(:r1))
+	(assign '((:r0 +lisp_sym_nil)) '(:r1))
 	(vpif '(:r1 = :r2))
 		(class/obj/ref :r1 :r2)
 	(else)
@@ -316,12 +316,12 @@
 	(errorif-lisp-args-len 'error :r1 /= 1)
 
 	(list-bind-args :r1 '(:r2) '(:obj))
-	(assign '((:r0 lisp_sym_nil)) '(:r1))
+	(assign '((:r0 +lisp_sym_nil)) '(:r1))
 	(vpif '(:r1 /= :r2))
 	(errorcase
-		(assign `((@ ,(f-path :num :vtable)) (:r2 obj_vtable)) '(:r3 :r1))
+		(assign `((@ ,(f-path :num :vtable)) (:r2 +obj_vtable)) '(:r3 :r1))
 		(gotoif '(:r3 /= :r1) 'error1))
-		(assign '((:r2 num_value)) '(:r1))
+		(assign '((:r2 +num_value)) '(:r1))
 	(endif)
 	(class/obj/ref :r1 :r2)
 
@@ -352,15 +352,15 @@
 	(entry :obj :lisp_eql `(,this ,args))
 
 (errorcase
-	(assign `((,args array_length)) `(,obj1))
+	(assign `((,args +array_length)) `(,obj1))
 	(gotoif `(,obj1 /= 2) 'error))
 
 	(array-bind-args args `(,obj1 ,obj2))
 	(call :obj :eql `(,obj1 ,obj2) '(_ tmp))
 	(vpif `(,tmp /= 0))
-		(assign `((,this lisp_sym_nil)) `(,args))
+		(assign `((,this +lisp_sym_nil)) `(,args))
 	(else)
-		(assign `((,this lisp_sym_t)) `(,args))
+		(assign `((,this +lisp_sym_t)) `(,args))
 	(endif)
 	(class/obj/ref args obj1)
 
@@ -388,15 +388,15 @@
 	(entry :obj :lisp_nql `(,this ,args))
 
 (errorcase
-	(assign `((,args array_length)) `(,obj1))
+	(assign `((,args +array_length)) `(,obj1))
 	(gotoif `(,obj1 /= 2) 'error))
 
 	(array-bind-args args `(,obj1 ,obj2))
 	(call :obj :eql `(,obj1 ,obj2) '(_ tmp))
 	(vpif `(,tmp = 0))
-		(assign `((,this lisp_sym_nil)) `(,args))
+		(assign `((,this +lisp_sym_nil)) `(,args))
 	(else)
-		(assign `((,this lisp_sym_t)) `(,args))
+		(assign `((,this +lisp_sym_t)) `(,args))
 	(endif)
 	(class/obj/ref args obj1)
 

@@ -1,4 +1,5 @@
 (include "class/hmap/class.inc")
+(include "./struct.inc")
 
 (def-class :view :hmap
 	(dec-method :vtable gui/view/vtable)
@@ -39,17 +40,3 @@
 	(dec-method :lisp_hit_tree gui/view/lisp_hit_tree :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_to_front gui/view/lisp_to_front :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_to_back gui/view/lisp_to_back :static (:r0 :r1) (:r0 :r1)))
-
-(def-struct view hmap_size
-	(offset start)
-	(struct node ln_node_size)
-	(struct list lh_list_size)
-	(struct owner_id net_id_size)
-	(ptr dirty_region opaque_region ctx_node)
-	(long id)
-	(uint flags)
-	(int ctx_x ctx_y x y w h cw ch))
-
-;view flags
-(def-bit view_flag 0
-	(bit solid opaque dirty_all hidden at_back at_front subtree))

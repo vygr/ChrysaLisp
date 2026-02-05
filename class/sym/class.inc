@@ -1,4 +1,5 @@
 (include "././str/class.inc")
+(include "./struct.inc")
 
 (def-class :sym :str
 	(dec-method :vtable class/sym/vtable)
@@ -13,8 +14,6 @@
 	(dec-method :eql_str class/sym/eql_str :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_sym class/sym/lisp_sym :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_gensym class/sym/lisp_gensym :static (:r0 :r1) (:r0 :r1)))
-
-(def-struct sym str_size)
 
 (defcvar 'num_sym_buckets 499)
 

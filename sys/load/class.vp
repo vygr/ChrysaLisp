@@ -272,7 +272,7 @@
 
 	;test for regular file only
 	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r0))
-	(assign '((:r0 stat_mode)) '(:r0))
+	(assign '((:r0 +stat_mode)) '(:r0))
 	(vp-and-cr s_ifmt :r0)
 	(gotoif '(:r0 /= s_ifreg) 'funcexit)
 
@@ -280,7 +280,7 @@
 	(assign '((:r7 statics_sys_load_block_start) (:r7 statics_sys_load_block_end) (:r7 statics_sys_load_stat_buffer))
 		'(:r1 :r2 :r0))
 	(vp-sub-rr :r1 :r2)
-	(assign '((:r0 stat_fsize)) '(:r0))
+	(assign '((:r0 +stat_fsize)) '(:r0))
 	(vpif '(:r2 < :r0))
 		;not enough so allocate new function buffer
 		(call :host_os :pii_mmap '(ld_block_size -1 +mmap_data) '(:r0))
@@ -301,16 +301,16 @@
 
 	;read into buffer
 	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r2))
-	(call :host_os :pii_read '(:r6 (:r7 statics_sys_load_block_start) (:r2 stat_fsize)))
+	(call :host_os :pii_read '(:r6 (:r7 statics_sys_load_block_start) (:r2 +stat_fsize)))
 	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r2))
-	(call :host_os :pii_clear_icache '((:r7 statics_sys_load_block_start) (:r2 stat_fsize)))
+	(call :host_os :pii_clear_icache '((:r7 statics_sys_load_block_start) (:r2 +stat_fsize)))
 
 	;close function file
 	(call :host_os :pii_close '(:r6))
 
 	;check loaded length equals file size
 	(assign '((:r7 statics_sys_load_block_start) (:r7 statics_sys_load_stat_buffer)) '(:r3 :r2))
-	(assign '((:r3 +fn_header_length) (:r2 stat_fsize)) '(:r0 :r1))
+	(assign '((:r3 +fn_header_length) (:r2 +stat_fsize)) '(:r0 :r1))
 	(vpif '(:r0 /= :r1))
 		(call :host_os :pii_write_str '(2 "Length field error !"))
 		(call :host_os :pii_exit '(1))

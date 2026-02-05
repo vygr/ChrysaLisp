@@ -22,7 +22,7 @@
 	(dec-method :lisp_glyph_bounds gui/font/lisp_glyph_bounds :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_texture gui/font/lisp_texture :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct font obj_size
+(def-struct font +obj_size
 	(uint pixels)
 	(ptr data sym_map name chars))
 

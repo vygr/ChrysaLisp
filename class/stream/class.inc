@@ -1,4 +1,5 @@
 (include "././obj/class.inc")
+(include "./struct.inc")
 
 (def-class :stream :obj
 	(dec-method :vtable class/stream/vtable)
@@ -35,10 +36,6 @@
 	(dec-method :lisp_writeline class/stream/lisp_writeline :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_each class/stream/lisp_each :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct stream obj_size
-	(ptr object buffer)
-	(pubyte bufp bufe))
-
 ;;;;;;;;;;;;;;;;
 ; inline methods
 ;;;;;;;;;;;;;;;;
@@ -51,7 +48,7 @@
 	;:r1 = available space (bytes)
 	;trashes
 	;:r1-:r2
-	(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r1))
+	(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r1))
 	(vp-sub-rr :r2 :r1))
 
 (defun class/stream/flush ()
@@ -62,4 +59,4 @@
 	;trashes
 	;:r1
 	(vp-xor-rr :r1 :r1)
-	(assign '(:r1 :r1) '((:r0 stream_bufp) (:r0 stream_bufe))))
+	(assign '(:r1 :r1) '((:r0 +stream_bufp) (:r0 +stream_bufe))))

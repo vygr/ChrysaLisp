@@ -1,4 +1,5 @@
 (include "././obj/class.inc")
+(include "./struct.inc")
 
 (def-class :num :obj
 	(dec-method :vtable class/num/vtable)
@@ -58,9 +59,6 @@
 	(dec-method :lisp_n2f class/num/lisp_n2f :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_n2r class/num/lisp_n2r :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct num obj_size
-	(long value))
-
 (defcvar 'num_num_buckets 101)
 
 ;;;;;;;;;;;;;;;;
@@ -77,7 +75,7 @@
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1
-	(assign '(:r2) '((:r0 num_value)))
+	(assign '(:r2) '((:r0 +num_value)))
 	(s-call :num :init '(:r0 :r1) '(:r0 :r1)))
 
 (defun class/num/get_value ()
@@ -88,7 +86,7 @@
 	;:r1 = value (long)
 	;trashes
 	;:r1
-	(assign '((:r0 num_value)) '(:r1)))
+	(assign '((:r0 +num_value)) '(:r1)))
 
 (defun class/num/set_value ()
 	;inputs
@@ -99,4 +97,4 @@
 	;:r1 = value (long)
 	;trashes
 	;none
-	(assign '(:r1) '((:r0 num_value))))
+	(assign '(:r1) '((:r0 +num_value))))

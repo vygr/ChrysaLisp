@@ -6,7 +6,7 @@
 (include "./class.inc")
 (include "././region/class.inc")
 
-(gen-create :view)
+(gen-create1 :view)
 (gen-vtable :view)
 
 (def-method :view :init)
@@ -24,14 +24,14 @@
 	(vpif '(:r1 /= 0))
 		;init myself
 		(vp-push :r0)
-		(call :sys_mem :fill `((& :r0 view_start) ,(- view_size view_start) 0))
+		(call :sys_mem :fill `((& :r0 +view_start) ,(- +view_size +view_start) 0))
 		(vp-pop :r0)
 		(fn-bind 'sys/statics/statics :r1)
 		(assign '((:r1 statics_gui_next_id)) '(:r2))
 		(vp-sub-cr 1 :r2)
-		(assign '(:r2 :r2) '((:r1 statics_gui_next_id) (:r0 view_id)))
-		(vp-cpy-cr view_flag_solid :r1)
-		(assign '(:r1 (& :r0 view_list)) '((:r0 view_flags) :r1))
+		(assign '(:r2 :r2) '((:r1 statics_gui_next_id) (:r0 +view_id)))
+		(vp-cpy-cr +view_flag_solid :r1)
+		(assign '(:r1 (& :r0 +view_list)) '((:r0 +view_flags) :r1))
 		(lh-init :r1 :r2)
 	(endif)
 	(vp-ret)
@@ -54,8 +54,8 @@
 
 	;deref any child views
 	(assign '((:rsp 0)) '(:r0))
-	(loop-list-forward :r0 view_list :r0 :r1)
-		(vp-sub-cr view_node :r0)
+	(loop-list-forward :r0 +view_list :r0 :r1)
+		(vp-sub-cr +view_node :r0)
 		(vp-push :r1)
 		(call :view :sub '(:r0))
 		(call :view :deref '(:r0))
@@ -66,9 +66,9 @@
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-add-cr statics_gui_rect_heap :r0)
 	(assign '((:rsp 0)) '(:r1))
-	(call :region :free '(:r0 (& :r1 view_dirty_region)))
+	(call :region :free '(:r0 (& :r1 +view_dirty_region)))
 	(assign '((:rsp 0)) '(:r1))
-	(call :region :free '(:r0 (& :r1 view_opaque_region)))
+	(call :region :free '(:r0 (& :r1 +view_opaque_region)))
 
 	;deinit parent
 	(vp-pop :r0)
@@ -90,10 +90,10 @@
 	(call :view :sub '(:r1))
 
 	;add to parent
-	(assign '(:r3) '((:r0 hmap_parent)))
-	(vp-lea-i :r0 view_node :r2)
+	(assign '(:r3) '((:r0 +hmap_parent)))
+	(vp-lea-i :r0 +view_node :r2)
 	(vp-cpy-rr :r3 :r0)
-	(vp-add-cr view_list :r3)
+	(vp-add-cr +view_list :r3)
 	(lh-add-at-head :r3 :r2 :r1)
 	(vp-ret)
 
@@ -113,10 +113,10 @@
 	(call :view :sub '(:r1))
 
 	;add to parent
-	(assign '(:r3) '((:r0 hmap_parent)))
-	(vp-lea-i :r0 view_node :r2)
+	(assign '(:r3) '((:r0 +hmap_parent)))
+	(vp-lea-i :r0 +view_node :r2)
 	(vp-cpy-rr :r3 :r0)
-	(vp-add-cr view_list :r3)
+	(vp-add-cr +view_list :r3)
 	(lh-add-at-tail :r3 :r2 :r1)
 	(vp-ret)
 
@@ -131,14 +131,14 @@
 	;:r1-:r2
 
 	;test parent
-	(assign '((:r0 hmap_parent)) '(:r1))
+	(assign '((:r0 +hmap_parent)) '(:r1))
 	(vpif '(:r1 /= 0))
 		;clear parent field
 		(vp-xor-rr :r2 :r2)
-		(assign '(:r2) '((:r0 hmap_parent)))
+		(assign '(:r2) '((:r0 +hmap_parent)))
 
 		;remove from parent list
-		(vp-lea-i :r0 view_node :r2)
+		(vp-lea-i :r0 +view_node :r2)
 		(ln-remove-node :r2 :r1)
 	(endif)
 	(vp-ret)
@@ -154,12 +154,12 @@
 	;:r1-:r14
 
 	;test parent
-	(assign '((:r0 hmap_parent)) '(:r1))
+	(assign '((:r0 +hmap_parent)) '(:r1))
 	(vpif '(:r1 /= 0))
 		(vp-push :r0)
 
 		;add dirty
-		(assign '((& :r0 view_dirty_region) 1 0 0 (:r0 view_w) (:r0 view_h)) '(:r1 :r2 :r7 :r8 :r9 :r10))
+		(assign '((& :r0 +view_dirty_region) 1 0 0 (:r0 +view_w) (:r0 +view_h)) '(:r1 :r2 :r7 :r8 :r9 :r10))
 		(fn-bind 'sys/statics/statics :r0)
 		(assign '(:r2) '((:r0 statics_gui_dirty_flag)))
 		(vp-add-cr statics_gui_rect_heap :r0)
@@ -172,18 +172,18 @@
 
 		;remove from parent list and splice in temp
 		(vp-pop :r0)
-		(vp-lea-i :r0 view_node :r2)
-		(vp-lea-i :r1 view_node :r3)
+		(vp-lea-i :r0 +view_node :r2)
+		(vp-lea-i :r1 +view_node :r3)
 		(ln-replace-node :r2 :r3 :r4)
 
 		;splice over dirty region etc
-		(assign '(0 (:r0 hmap_parent) (:r0 view_dirty_region) (:r0 view_x) (:r0 view_y) (:r0 view_w) (:r0 view_h))
+		(assign '(0 (:r0 +hmap_parent) (:r0 +view_dirty_region) (:r0 +view_x) (:r0 +view_y) (:r0 +view_w) (:r0 +view_h))
 			'(:r4 :r3 :r2 :r7 :r8 :r9 :r10))
 		(assign '(:r3 :r2 :r7 :r8 :r9 :r10)
-			'((:r1 hmap_parent) (:r1 view_dirty_region) (:r1 view_x) (:r1 view_y) (:r1 view_w) (:r1 view_h)))
+			'((:r1 +hmap_parent) (:r1 +view_dirty_region) (:r1 +view_x) (:r1 +view_y) (:r1 +view_w) (:r1 +view_h)))
 
 		;clear parent field etc
-		(assign '(:r4 :r4 :r4) '((:r1 view_flags) (:r0 hmap_parent) (:r0 view_dirty_region)))
+		(assign '(:r4 :r4 :r4) '((:r1 +view_flags) (:r0 +hmap_parent) (:r0 +view_dirty_region)))
 	(endif)
 	(vp-ret)
 
@@ -197,29 +197,29 @@
 	;trashes
 	;:r1-:r14
 
-	(assign '((:r0 hmap_parent)) '(:r5))
+	(assign '((:r0 +hmap_parent)) '(:r5))
 	(vpif '(:r5 /= 0))
 		;are we already front ?
-		(ln-get-pred :r0 view_node :r3)
+		(ln-get-pred :r0 +view_node :r3)
 		(vp-cpy-rr :r3 :r2)
 		(loop-start)
 			(vp-cpy-rr :r3 :r1)
 			(ln-get-pred :r3 0 :r3)
 			(breakif '(:r3 = 0))
-			(vp-lea-i :r1 (neg view_node) :r4)
-			(assign '((:r4 view_flags)) '(:r4))
-			(vp-and-cr view_flag_at_front :r4)
+			(vp-lea-i :r1 (neg +view_node) :r4)
+			(assign '((:r4 +view_flags)) '(:r4))
+			(vp-and-cr +view_flag_at_front :r4)
 		(loop-until '(:r4 /= 0))
 		(vpif '(:r1 /= :r2))
 			;no, so move to back of front item
 			(vp-push :r1 :r5)
-			(vp-lea-i :r0 view_node :r1)
+			(vp-lea-i :r0 +view_node :r1)
 			(ln-remove-node :r1 :r2)
-			(call :view :set_flags '(:r0 view_flag_dirty_all view_flag_dirty_all) '(:r0 _))
+			(call :view :set_flags '(:r0 +view_flag_dirty_all +view_flag_dirty_all) '(:r0 _))
 			(vp-pop :r1 :r5)
-			(vp-lea-i :r0 view_node :r2)
+			(vp-lea-i :r0 +view_node :r2)
 			(ln-add-node-after :r1 :r2 :r3)
-			(assign '(:r5) '((:r0 hmap_parent)))
+			(assign '(:r5) '((:r0 +hmap_parent)))
 		(endif)
 	(endif)
 	(vp-ret)
@@ -234,27 +234,27 @@
 	;trashes
 	;:r1-:r14
 
-	(assign '((:r0 hmap_parent)) '(:r5))
+	(assign '((:r0 +hmap_parent)) '(:r5))
 	(vpif '(:r5 /= 0))
 		;are we already back ?
-		(ln-get-succ :r0 view_node :r3)
+		(ln-get-succ :r0 +view_node :r3)
 		(vp-cpy-rr :r3 :r2)
 		(loop-start)
 			(vp-cpy-rr :r3 :r1)
 			(ln-get-succ :r3 0 :r3)
 			(breakif '(:r3 = 0))
-			(vp-lea-i :r1 (neg view_node) :r4)
-			(assign '((:r4 view_flags)) '(:r4))
-			(vp-and-cr view_flag_at_back :r4)
+			(vp-lea-i :r1 (neg +view_node) :r4)
+			(assign '((:r4 +view_flags)) '(:r4))
+			(vp-and-cr +view_flag_at_back :r4)
 		(loop-until '(:r4 /= 0))
 		(vpif '(:r1 /= :r2))
 			;no, so move to front of back item
 			(vp-push :r1 :r5)
 			(call :view :hide '(:r0) '(:r0))
 			(vp-pop :r1 :r5)
-			(vp-lea-i :r0 view_node :r2)
+			(vp-lea-i :r0 +view_node :r2)
 			(ln-add-node-before :r1 :r2 :r3)
-			(assign '(:r5) '((:r0 hmap_parent)))
+			(assign '(:r5) '((:r0 +hmap_parent)))
 		(endif)
 	(endif)
 	(vp-ret)
@@ -296,10 +296,10 @@
 		(breakif '(:r1 = 0))
 
 		;down to child
-		(lh-get-head :r0 view_list :r1)
-		(vp-sub-cr view_node :r1)
+		(lh-get-head :r0 +view_list :r1)
+		(vp-sub-cr +view_node :r1)
 
-		(ln-get-succ :r1 view_node :r2)
+		(ln-get-succ :r1 +view_node :r2)
 	(loop-until '(:r2 = 0))
 	(loop-start)
 		;up callback
@@ -311,14 +311,14 @@
 		(breakif '(:r0 = :r2))
 
 		;across to sibling
-		(ln-get-succ :r0 view_node :r1)
-		(vp-sub-cr view_node :r1)
+		(ln-get-succ :r0 +view_node :r1)
+		(vp-sub-cr +view_node :r1)
 
-		(ln-get-succ :r1 view_node :r2)
+		(ln-get-succ :r1 +view_node :r2)
 		(gotoif '(:r2 /= 0) 'down_loop_ctx)
 
 		;up to parent
-		(assign '((:r0 hmap_parent)) '(:r0))
+		(assign '((:r0 +hmap_parent)) '(:r0))
 	(loop-end)
 
 	(vp-free local_size)
@@ -361,10 +361,10 @@
 		(breakif '(:r1 = 0))
 
 		;down to child
-		(lh-get-tail :r0 view_list :r1)
-		(vp-sub-cr view_node :r1)
+		(lh-get-tail :r0 +view_list :r1)
+		(vp-sub-cr +view_node :r1)
 
-		(ln-get-pred :r1 view_node :r2)
+		(ln-get-pred :r1 +view_node :r2)
 	(loop-until '(:r2 = 0))
 	(loop-start)
 		;up callback
@@ -376,14 +376,14 @@
 		(breakif '(:r0 = :r2))
 
 		;across to sibling
-		(ln-get-pred :r0 view_node :r1)
-		(vp-sub-cr view_node :r1)
+		(ln-get-pred :r0 +view_node :r1)
+		(vp-sub-cr +view_node :r1)
 
-		(ln-get-pred :r1 view_node :r2)
+		(ln-get-pred :r1 +view_node :r2)
 		(gotoif '(:r2 /= 0) 'down_loop_ctx)
 
 		;up to parent
-		(assign '((:r0 hmap_parent)) '(:r0))
+		(assign '((:r0 +hmap_parent)) '(:r0))
 	(loop-end)
 
 	(vp-free local_size)
@@ -414,11 +414,11 @@
 			;jump to VP draw method ?
 			(assign '((:r1 +ptr_size)) '(:r1))
 			(f-bind :func :vtable :r0)
-			(assign '((:r1 obj_vtable)) '(:r2))
+			(assign '((:r1 +obj_vtable)) '(:r2))
 			(vpif '(:r0 = :r2))
 				;VP :draw method
 				(assign '((:rsp local_this)) '(:r0))
-				(vp-call-i :r1 num_value)
+				(vp-call-i :r1 +num_value)
 			(else)
 				;Lisp :draw method
 				(assign '(:r1) '(:r13))
@@ -429,7 +429,7 @@
 				(assign '(:r1) '((:rsp local_args)))
 				(fn-bind 'sys/statics/statics :r0)
 				(assign '((:r0 statics_sys_task_current_tcb)) '(:r0))
-				(assign '((:r0 tk_node_lisp)) '(:r0))
+				(assign '((:r0 +tk_node_lisp)) '(:r0))
 				(vpif '(:r0 /= 0))
 					(call :lisp :repl_apply '(:r0 :r1 :r13) '(_ :r1))
 					(call :obj :deref '(:r1))
@@ -477,7 +477,7 @@
 
 	(assign '((:r1 local_view)) '(:r2))
 	(gotoif '(:r2 /= 0) 'down_exit)
-	(assign '((:r0 view_id) (:r1 local_id)) '(:r2 :r3))
+	(assign '((:r0 +view_id) (:r1 local_id)) '(:r2 :r3))
 	(vpif '(:r2 = :r3))
 		(assign '(:r0) '((:r1 local_view)))
 	(vp-label 'down_exit)
@@ -502,13 +502,13 @@
 	;:r1
 
 	(vpif '(:r7 >= 0) '(:r8 >= 0))
-		(assign '((:r0 view_w)) '(:r1))
+		(assign '((:r0 +view_w)) '(:r1))
 		(vpif '(:r7 < :r1))
-			(assign '((:r0 view_h)) '(:r1))
+			(assign '((:r0 +view_h)) '(:r1))
 			(vpif '(:r8 < :r1))
 				;hit ?
-				(assign '((:r0 view_flags)) '(:r1))
-				(vp-and-cr view_flag_solid :r1)
+				(assign '((:r0 +view_flags)) '(:r1))
+				(vp-and-cr +view_flag_solid :r1)
 				(vp-ret)
 			(endif)
 		(endif)
@@ -548,9 +548,9 @@
 	(vp-ret)
 
 (vp-label 'hit_down_callback)
-	(assign '((:r0 view_x)) '(:r1))
+	(assign '((:r0 +view_x)) '(:r1))
 	(vp-sub-rr :r1 :r7)
-	(assign '((:r0 view_y)) '(:r1))
+	(assign '((:r0 +view_y)) '(:r1))
 	(vp-sub-rr :r1 :r8)
 	(d-jump :view :hit '(:r0 :r7 :r8))
 
@@ -562,9 +562,9 @@
 			(assign '(:r0) '((:r2 local_hit)))
 			(vp-ret)
 		(endif)
-		(assign '((:r0 view_x)) '(:r1))
+		(assign '((:r0 +view_x)) '(:r1))
 		(vp-add-rr :r1 :r7)
-		(assign '((:r0 view_y)) '(:r1))
+		(assign '((:r0 +view_y)) '(:r1))
 		(vp-add-rr :r1 :r8)
 		(vp-xor-rr :r1 :r1)
 	(endif)
@@ -585,13 +585,13 @@
 
 	(entry :view :set_flags '(:r0 :r1 :r2))
 
-	(assign '((:r0 view_flags)) '(:r3))
+	(assign '((:r0 +view_flags)) '(:r3))
 	(vp-xor-cr -1 :r2)
 	(vp-and-rr :r2 :r3)
 	(vp-or-rr :r3 :r1)
-	(assign '((@ sys/statics/statics) :r1 :r1) '(:r2 :r3 (:r0 view_flags)))
+	(assign '((@ sys/statics/statics) :r1 :r1) '(:r2 :r3 (:r0 +view_flags)))
 	(assign '((:r2 statics_gui_dirty_flag)) '(:r4))
-	(vp-and-cr view_flag_dirty_all :r3)
+	(vp-and-cr +view_flag_dirty_all :r3)
 	(vp-or-rr :r4 :r3)
 	(assign '(:r3) '((:r2 statics_gui_dirty_flag)))
 
@@ -656,7 +656,7 @@
 
 	(call :view :get_prop '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
-		(assign '((:r1 num_value)) '(:r1))
+		(assign '((:r1 +num_value)) '(:r1))
 	(endif)
 
 	(exit :view :get_long_prop '(:r0 :r1))

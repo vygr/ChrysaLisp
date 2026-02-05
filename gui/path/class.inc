@@ -26,7 +26,7 @@
 	(dec-method :lisp_stroke_polygon gui/path/lisp_stroke_polygon :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_svg gui/path/lisp_svg :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct path fixeds_size)
+(def-struct path +fixeds_size)
 
 (def-enum join 0
 	(enum miter bevel round))

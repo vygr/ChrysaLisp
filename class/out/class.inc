@@ -1,4 +1,5 @@
 (include "././stream/class.inc")
+(include "./struct.inc")
 
 (def-class :out :stream
 	(dec-method :vtable class/out/vtable)
@@ -11,17 +12,4 @@
 	(dec-method :write_next class/out/write_next :final)
 	(dec-method :lisp_create class/out/lisp_create :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct out stream_size
-	(struct id net_id_size)
-	(ptr ack_mbox_addr)
-	(uint ack_mbox_id ack_seqnum seqnum state))
-
-(def-struct stream_msg 0
-	(struct ack_id net_id_size)
-	(uint seqnum state)
-	(offset data))
-
 (defcvar 'out_ack_shift 5)
-
-(def-enum stream_mail_state 0
-	(enum started stopping stopped aborted))

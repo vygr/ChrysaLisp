@@ -27,7 +27,7 @@
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_cstr)))
 	(call :sys_task :callback '(:rsp ($ put_callback)))
 	(assign '((:rsp local_this)) '(:r0))
-	(call :obj :ref '((:r0 lisp_sym_t)) '(:r1))
+	(call :obj :ref '((:r0 +lisp_sym_t)) '(:r1))
 	(vp-free local_size)
 
 	(exit :host_clipboard :lisp_put '(:r0 :r1))
@@ -81,7 +81,7 @@
 	(vp-cpy-rr tmp :r12)
 	(vpif `(,tmp = 0))
 		(assign '((:r13 local_this)) '(:r0))
-		(call :obj :ref '((:r0 lisp_sym_nil)) '(:r1))
+		(call :obj :ref '((:r0 +lisp_sym_nil)) '(:r1))
 	(else)
 		(call :str :create_from_cstr `(,tmp) '(:r1))
 	(endif)

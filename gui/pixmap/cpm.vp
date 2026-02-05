@@ -100,7 +100,7 @@
 			(endif)
 			(assign (list data) {data})
 		(loop-until `(,data = ,data_end))
-		(assign {stream->stream_bufp} {this->pixmap_bufp})
+		(assign {stream->+stream_bufp} {this->pixmap_bufp})
 	(endif)
 
 	(exit :pixmap :load_cpm {this})
@@ -250,7 +250,7 @@
 			(loop-start)
 				(call :stream :read_char {this->pixmap_stream} (list '_ len))
 				(breakif (list len '/= -1))
-				(assign {this->pixmap_bufp} {this->pixmap_stream->stream_bufp})
+				(assign {this->pixmap_bufp} {this->pixmap_stream->+stream_bufp})
 			(loop-end)
 
 			;decode token

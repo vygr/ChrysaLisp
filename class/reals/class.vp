@@ -3,7 +3,7 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create :reals)
+(gen-create1 :reals)
 (gen-vtable :reals)
 (gen-type :reals)
 
@@ -405,8 +405,8 @@
 		(fn-consts (n2r 0.5) (n2r 1.0))
 		`(,half ,one))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
+	(assign `((,src1 +array_length)) `(,src_end))
+	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,+array_begin) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 

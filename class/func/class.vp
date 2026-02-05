@@ -5,7 +5,7 @@
 (include "././stream/class.inc")
 (include "././list/class.inc")
 
-(gen-create :func)
+(gen-create1 :func)
 (gen-vtable :func)
 (gen-type :func)
 
@@ -23,7 +23,7 @@
 	(vp-push :r0)
 	(call :stream :write_char '(:r1 +char_hash) '(:r0))
 	(assign '((:rsp 0)) '(:r1))
-	(assign '((:r1 num_value)) '(:r1))
+	(assign '((:r1 +num_value)) '(:r1))
 	(vp-and-cr -8 :r1)
 	(vp-cpy-ir-ub :r1 -1 :r2)
 	(vp-sub-rr :r2 :r1)

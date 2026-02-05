@@ -106,9 +106,9 @@
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
 		(vp-cpy-rr :r2 :r7)
-		(call :sym :create_from_buffer '((& :r0 str_data) (:r0 str_length)) '(:r0))
+		(call :sym :create_from_buffer '((& :r0 +str_data) (:r0 +str_length)) '(:r0))
 		(assign `((@ ,(f-path :sym :vtable)) :r0 :r7) '(:r2 :r1 :r0))
-		(assign '(:r2) '((:r1 obj_vtable)))
+		(assign '(:r2) '((:r1 +obj_vtable)))
 		(call :list :push_back '(:r0 :r1) '(_ :r1 _ _))
 	(else)
 		(assign '((:r1 0)) '(:r1))
@@ -148,7 +148,7 @@
 		(pubyte str_begin str_end)
 		(uint hcode))
 
-	(vp-rdef (iter_begin iter_end str_begin str_end str_size bucket symbol str_len)
+	(vp-rdef (iter_begin iter_end str_begin str_end +str_size bucket symbol str_len)
 		'(:r6 :r7 :r8 :r9 :r10 :r11))
 
 	(push-scope)
@@ -156,28 +156,28 @@
 
 	(call :str :hash_pstr {str_begin, str_end} {hcode})
 	(assign {@sys/statics/statics.statics_sym_intern} {intern})
-	(call :list :get_elem {intern->hset_buckets, hcode % intern->hset_num_buckets} `(_ ,bucket))
+	(call :list :get_elem {intern->+hset_buckets, hcode % intern->+hset_num_buckets} `(_ ,bucket))
 
 	(assign {str_end, str_begin} `(,str_end ,str_begin))
 	(class/array/get_both bucket iter_begin iter_end)
-	(vp-cpy-rr str_end str_size)
-	(vp-sub-rr str_begin str_size)
+	(vp-cpy-rr str_end +str_size)
+	(vp-sub-rr str_begin +str_size)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
 			(assign `((,iter_begin 0)) `(,symbol))
 			(vp-add-cr +ptr_size iter_begin)
-			(assign `((,symbol str_length)) `(,str_len))
-			(vpif `(,str_len = ,str_size))
-				(call :str :same_pstr `(,str_begin ,str_end (& ,symbol str_data)) '(found))
+			(assign `((,symbol +str_length)) `(,str_len))
+			(vpif `(,str_len = ,+str_size))
+				(call :str :same_pstr `(,str_begin ,str_end (& ,symbol +str_data)) '(found))
 				(gotoif `(,found = 0) 'exit)
 			(endif)
 		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
 
-	(call :sym :create_from_buffer `(,str_begin ,str_size) `(,symbol))
+	(call :sym :create_from_buffer `(,str_begin ,+str_size) `(,symbol))
 	(assign `((@ ,(f-path :sym :vtable))) `(,str_len))
-	(assign {hcode} `(,str_size))
-	(assign `(,str_len ,str_size) `((,symbol obj_vtable) (,symbol str_hashcode)))
+	(assign {hcode} `(,+str_size))
+	(assign `(,str_len ,+str_size) `((,symbol +obj_vtable) (,symbol +str_hashcode)))
 	(call :list :push_back `(,bucket ,symbol) `(_ ,symbol _ _))
 
 (vp-label 'exit)
@@ -201,7 +201,7 @@
 
 	(vp-push :r0)
 	(vp-cpy-rr :r1 :r3)
-	(call :stream :write '(:r3 (& :r0 str_data) (:r0 str_length)))
+	(call :stream :write '(:r3 (& :r0 +str_data) (:r0 +str_length)))
 	(vp-pop :r0)
 
 	(exit :sym :print '(:r0))
@@ -224,7 +224,7 @@
 	(entry :sym :eql_str `(,this ,that))
 
 	(gotoif `(,this = ,that) 'same)
-	(assign `((,this str_length) (,that str_length)) `(,len1 ,len2))
+	(assign `((,this +str_length) (,that +str_length)) `(,len1 ,len2))
 	(gotoif `(,len1 /= ,len2) 'not_same)
 	(jump :str :starts_with `(,this ,that))
 

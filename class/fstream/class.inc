@@ -1,4 +1,5 @@
 (include "././stream/class.inc")
+(include "./struct.inc")
 
 (def-class :fstream :stream
 	(dec-method :vtable class/fstream/vtable)
@@ -9,9 +10,5 @@
 	(dec-method :write_next class/fstream/write_next :final)
 	(dec-method :flush class/fstream/flush :final)
 	(dec-method :seek class/fstream/seek :final))
-
-(def-struct fstream stream_size
-	(long handle)
-	(uint mode buf_len))
 
 (defcvar 'fstream_buf_size 4096)

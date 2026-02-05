@@ -1,6 +1,7 @@
 (include "././list/class.inc")
 (include "././heap/class.inc")
 (include "././mail/class.inc")
+(include "./struct.inc")
 
 ;;;;;;;;;;;;;;;;;;;
 ; task static class
@@ -37,15 +38,6 @@
 (defcvar 'tk_stack_size (* 1024 10))
 (defcvar 'tk_stack_margin (* 512 1))
 (defcvar 'tk_stack_canary 0xbadf00d123456789)
-
-(def-struct tk_node ln_node_size
-	(ptr stack stack_top mbox_addr lisp)
-	(long time)
-	(uint priority mbox_id flags))
-
-;task flags
-(def-bit tk_flag 0
-	(bit aborted))
 
 ;number of distinct priorities
 ;currently experimenting with

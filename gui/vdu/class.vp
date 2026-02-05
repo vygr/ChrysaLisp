@@ -80,11 +80,11 @@
 
 	;draw vdu chars
 	(vpif {font && this->vdu_chars && this->vdu_textures})
-		(call :region :bounds {&this->view_dirty_region} {bx, by, bx1, by1})
-		(assign {(bx - this->view_ctx_x) / this->vdu_char_width} {bx})
-		(assign {(bx1 - this->view_ctx_x - 1) / this->vdu_char_width} {bx1})
-		(assign {(by - this->view_ctx_y) / this->vdu_char_height} {by})
-		(assign {(by1 - this->view_ctx_y - 1) / this->vdu_char_height} {by1})
+		(call :region :bounds {&this->+view_dirty_region} {bx, by, bx1, by1})
+		(assign {(bx - this->+view_ctx_x) / this->vdu_char_width} {bx})
+		(assign {(bx1 - this->+view_ctx_x - 1) / this->vdu_char_width} {bx1})
+		(assign {(by - this->+view_ctx_y) / this->vdu_char_height} {by})
+		(assign {(by1 - this->+view_ctx_y - 1) / this->vdu_char_height} {by1})
 		(vpif {bx1 >= this->vdu_width})
 			(assign {this->vdu_width - 1} {bx1})
 		(endif)

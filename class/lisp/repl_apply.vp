@@ -15,10 +15,10 @@
 
 	(entry :lisp :repl_apply '(:r0 :r1 :r2))
 
-	(assign `((:r2 obj_vtable) (@ ,(f-path :func :vtable))) '(:r3 :r4))
+	(assign `((:r2 +obj_vtable) (@ ,(f-path :func :vtable))) '(:r3 :r4))
 	(vpif '(:r3 = :r4))
 		;built in or compiled function
-		(assign '((:r2 num_value)) '(:r2))
+		(assign '((:r2 +num_value)) '(:r2))
 		(vp-and-cr (neg +ptr_size) :r2)
 		(vp-jmp-r :r2)
 	(endif)
@@ -26,7 +26,7 @@
 (errorcase
 	(f-bind :list :vtable :r4)
 	(gotoif '(:r3 /= :r4) 'error2)
-	(assign '((:r2 array_length)) '(:r3))
+	(assign '((:r2 +array_length)) '(:r3))
 	(gotoif '(:r3 < 2) 'error1))
 
 	(class/array/get_both :r2 :r3 :r4)
@@ -34,13 +34,13 @@
 (errorcase
 	(array-get-args :r3 '(:r5))
 	(switch)
-	(assign '((:r0 lisp_func_lambda)) '(:r6))
+	(assign '((:r0 +lisp_func_lambda)) '(:r6))
 	(breakif '(:r5 = :r6))
-	(assign '((:r0 lisp_func_macro)) '(:r6))
+	(assign '((:r0 +lisp_func_macro)) '(:r6))
 	(breakif '(:r5 = :r6))
-	(assign '((:r0 lisp_sym_lambda)) '(:r6))
+	(assign '((:r0 +lisp_sym_lambda)) '(:r6))
 	(breakif '(:r5 = :r6))
-	(assign '((:r0 lisp_sym_macro)) '(:r6))
+	(assign '((:r0 +lisp_sym_macro)) '(:r6))
 	(gotoif '(:r5 /= :r6) 'error2)
 	(endswitch))
 

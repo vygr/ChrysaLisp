@@ -34,7 +34,7 @@
 			'((:r0 canvas_cx) (:r0 canvas_cy) (:r0 canvas_flags)
 			(:r0 canvas_edges_start) (:r0 canvas_coverage) (:r0 canvas_texture) (:r0 canvas_color)))
 		(assign '(:r0 (:r0 canvas_cx1) (:r0 canvas_cy1) (:r0 canvas_scale)) '(:r3 :r0 :r1 :r2))
-		(assign '(:r0 :r1) '((:r3 view_w) (:r3 view_h)))
+		(assign '(:r0 :r1) '((:r3 +view_w) (:r3 +view_h)))
 		(vp-simd vp-mul-rr '(:r2) '(:r0 :r1))
 		(assign '(:r0 :r1) '((:r3 canvas_cx1) (:r3 canvas_cy1)))
 
@@ -79,7 +79,7 @@
 			(:r0 canvas_scale) (:r0 canvas_color)))
 		(assign '((:r0 canvas_pixmap)) '(:r1))
 		(assign '((:r1 pixmap_width) (:r1 pixmap_height) (:r1 pixmap_texture)) '(:r1 :r2 :r3))
-		(assign '(:r1 :r2 :r1 :r2 :r3) '((:r0 view_w) (:r0 view_h) (:r0 canvas_cx1) (:r0 canvas_cy1)
+		(assign '(:r1 :r2 :r1 :r2 :r3) '((:r0 +view_w) (:r0 +view_h) (:r0 canvas_cx1) (:r0 canvas_cy1)
 			(:r0 canvas_texture)))
 		(vpif '(:r3 /= 0))
 			(class/obj/ref :r3 :r1)

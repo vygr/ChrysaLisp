@@ -26,7 +26,7 @@
 
 	;init parent
 	(vp-add-rr :r4 :r5)
-	(assign '(:r2 :r3 :r4 :r5) '((:r0 stream_object) (:r0 stream_buffer) (:r0 stream_bufp) (:r0 stream_bufe)))
+	(assign '(:r2 :r3 :r4 :r5) '((:r0 +stream_object) (:r0 +stream_buffer) (:r0 +stream_bufp) (:r0 +stream_bufe)))
 	(s-call :stream :init '(:r0 :r1) '(:r0 :r1))
 
 	(exit :stream :init '(:r0 :r1))
@@ -46,11 +46,11 @@
 
 	;deref any buffer object
 	(vp-push :r0)
-	(call :obj :deref_if '((:r0 stream_object)))
+	(call :obj :deref_if '((:r0 +stream_object)))
 
 	;free any buffer
 	(assign '((:rsp 0)) '(:r0))
-	(call :sys_mem :free '((:r0 stream_buffer)))
+	(call :sys_mem :free '((:r0 +stream_buffer)))
 	(vp-pop :r0)
 
 	;parent deinit
@@ -118,17 +118,17 @@
 
 	(entry :stream :read_char '(:r0))
 
-	(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r1))
+	(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r1))
 	(vpif '(:r1 = :r2))
 		(loop-start)
 			(call :stream :read_next '(:r0) '(:r0 :r1))
 			(gotoif '(:r1 = -1) 'eof)
-			(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r1))
+			(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r1))
 		(loop-until '(:r1 /= :r2))
 	(endif)
 	(vp-cpy-ir-ub :r2 0 :r1)
 	(vp-add-cr +byte_size :r2)
-	(assign '(:r2) '((:r0 stream_bufp)))
+	(assign '(:r2) '((:r0 +stream_bufp)))
 
 (vp-label 'eof)
 	(exit :stream :read_char '(:r0 :r1))
@@ -147,17 +147,17 @@
 
 	(entry :stream :write_char '(:r0 :r1))
 
-	(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r3))
+	(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r3))
 	(vpif '(:r2 = :r3))
 		(vp-push :r1)
 		(call :stream :write_next '(:r0) '(:r0))
 		(vp-pop :r1)
-		(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r3))
+		(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r3))
 		(gotoif '(:r2 = :r3) 'eof)
 	(endif)
 	(vp-cpy-ri-b :r1 :r2 0)
 	(vp-add-cr +byte_size :r2)
-	(assign '(:r2) '((:r0 stream_bufp)))
+	(assign '(:r2) '((:r0 +stream_bufp)))
 
 (vp-label 'eof)
 	(exit :stream :write_char '(:r0))
@@ -282,7 +282,7 @@
 	(endif)
 
 	(assign '(:r0 :r2 0) '(:r5 :r4 :r6))
-	(assign '((:r5 stream_bufp) (:r5 stream_bufe)) '(:r0 :r2))
+	(assign '((:r5 +stream_bufp) (:r5 +stream_bufe)) '(:r0 :r2))
 	(loop-while '(:r4 /= 0) 'exit)
 		(vpif '(:r2 /= :r0))
 			(vp-sub-rr :r0 :r2)
@@ -292,7 +292,7 @@
 			(vp-sub-rr :r2 :r4)
 			(vp-add-rr :r2 :r6)
 			(call :sys_mem :copy '(:r0 :r1 :r2) '(:r0 :r1))
-			(assign '(:r0 (:r5 stream_bufe)) '((:r5 stream_bufp) :r2))
+			(assign '(:r0 (:r5 +stream_bufe)) '((:r5 +stream_bufp) :r2))
 		(else)
 			(vp-push :r1 :r4 :r6)
 			(call :stream :read_next '(:r5) '(:r5 :r0))
@@ -302,7 +302,7 @@
 				(vp-cpy-rr :r0 :r6)
 				(break 'exit)
 			(endif)
-			(assign '((:r5 stream_bufp) (:r5 stream_bufe)) '(:r0 :r2))
+			(assign '((:r5 +stream_bufp) (:r5 +stream_bufe)) '(:r0 :r2))
 			(breakif '(:r2 = :r0) 'exit)
 		(endif)
 	(loop-end)
@@ -330,7 +330,7 @@
 	(endif)
 
 	(assign '(:r0 :r1 :r2) '(:r5 :r0 :r4))
-	(assign '((:r5 stream_bufp) (:r5 stream_bufe)) '(:r1 :r2))
+	(assign '((:r5 +stream_bufp) (:r5 +stream_bufe)) '(:r1 :r2))
 
 	(switch)
 	(breakif '(:r4 = 0))
@@ -342,14 +342,14 @@
 		(endif)
 		(vp-sub-rr :r2 :r4)
 		(call :sys_mem :copy '(:r0 :r1 :r2) '(:r0 :r1))
-		(assign '(:r1) '((:r5 stream_bufp)))
+		(assign '(:r1) '((:r5 +stream_bufp)))
 		(breakif '(:r4 = 0))
-		(assign '((:r5 stream_bufe)) '(:r2))
+		(assign '((:r5 +stream_bufe)) '(:r2))
 		(gotoif '(:r2 /= :r1) 'next_chunk)
 	(default)
 		(vp-push :r0 :r4)
 		(call :stream :write_next '(:r5) '(:r5))
-		(assign '((:r5 stream_bufp) (:r5 stream_bufe)) '(:r1 :r2))
+		(assign '((:r5 +stream_bufp) (:r5 +stream_bufe)) '(:r1 :r2))
 		(vp-pop :r0 :r4)
 		(gotoif '(:r2 /= :r1) 'next_chunk)
 	(endswitch)
@@ -378,15 +378,15 @@
 	(switch)
 		(vp-rdef (this bufp bufe ch bufps))
 		(assign {this} (list this))
-		(vp-cpy-ir this stream_bufp bufp)
-		(vp-cpy-ir this stream_bufe bufe)
+		(vp-cpy-ir this +stream_bufp bufp)
+		(vp-cpy-ir this +stream_bufe bufe)
 		(vp-cpy-rr bufp bufps)
 		(loop-start)
 			(gotoif `(,bufp = ,bufe) 'slow_but_sure)
 			(vp-cpy-ir-ub bufp 0 ch)
 			(vp-add-cr +byte_size bufp)
 		(loop-until (list ch '= +char_lf))
-		(vp-cpy-ri bufp this stream_bufp)
+		(vp-cpy-ri bufp this +stream_bufp)
 		(vp-sub-rr bufps bufp)
 		(vp-sub-cr +byte_size bufp)
 		(call :str :create_from_buffer (list bufps bufp) {value})

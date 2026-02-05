@@ -183,7 +183,7 @@
 
 (defmacro errorif-lisp-args-len (l args cnd len)
 	`(errorcase
-		(assign '((,args array_length)) '(:r2))
+		(assign '((,args +array_length)) '(:r2))
 		(gotoif '(:r2 ,cnd ,len) ,l)))
 
 (defmacro errorif-lisp-args-sig (l args len1 &optional len2)

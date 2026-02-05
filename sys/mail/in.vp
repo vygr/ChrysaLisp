@@ -21,34 +21,34 @@
 	(assign {@sys/statics/statics.statics_sys_mail_parcel_list, rx_msg} `(,parcels ,rx_msg))
 	(load-net-id rx_msg lk_buf_src src1 src2 src3)
 	(loop-list-forward parcels 0 node next)
-		(load-net-id node msg_src psrc1 psrc2 psrc3)
+		(load-net-id node +msg_src psrc1 psrc2 psrc3)
 	(loop-until `(,src1 = ,psrc1) `(,src2 = ,psrc2) `(,src3 = ,psrc3))
 	(vpif `(,next = 0))
 		;new parcel
 		(assign `((,rx_msg lk_buf_total_length)) `(,total))
 		(call :sys_mail :alloc `(,total) `(,node _))
-		(assign `(,total) `((,node msg_total_length)))
-		(assign-net-id rx_msg lk_buf_dest node msg_dest src1 src2 src3)
-		(assign-net-id rx_msg lk_buf_src node msg_src src1 src2 src3)
+		(assign `(,total) `((,node +msg_total_length)))
+		(assign-net-id rx_msg lk_buf_dest node +msg_dest src1 src2 src3)
+		(assign-net-id rx_msg lk_buf_src node +msg_src src1 src2 src3)
 		(lh-add-at-tail parcels node next)
 	(endif)
 	(assign `(,node) {msg})
 
 	;timestamp last change
-	(call :host_os :pii_time :nil {msg->msg_timestamp})
+	(call :host_os :pii_time :nil {msg->+msg_timestamp})
 
 	;copy fragment data
 	(assign {rx_msg->lk_buf_frag_length} {len})
-	(assign {msg->msg_frag_offset + len} {msg->msg_frag_offset})
-	(assign {msg->msg_total_length - len} {msg->msg_total_length})
+	(assign {msg->+msg_frag_offset + len} {msg->+msg_frag_offset})
+	(assign {msg->+msg_total_length - len} {msg->+msg_total_length})
 	(call :sys_mem :copy {&rx_msg->lk_buf_data,
-		msg->msg_frag_data + rx_msg->lk_buf_frag_offset, len})
+		msg->+msg_frag_data + rx_msg->lk_buf_frag_offset, len})
 
 	;clear link status
 	(assign {lk_chan_status_ready} {rx_msg->lk_buf_status})
 
 	;got all needed ?
-	(vpifnot {msg->msg_total_length})
+	(vpifnot {msg->+msg_total_length})
 		;yes, remove parcel and post it
 		(assign {msg} `(,node))
 		(ln-remove-node node next)

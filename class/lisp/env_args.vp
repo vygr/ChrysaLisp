@@ -16,7 +16,7 @@
 
 	(entry :lisp :env_args_sig '(:r1 :r3 :r4 :r5))
 
-	(assign '(:r0 :r1 (:r1 array_length)) '(:r6 :r7 :r2))
+	(assign '(:r0 :r1 (:r1 +array_length)) '(:r6 :r7 :r2))
 	(switch 'fail)
 		;must be in range and match signature
 		(breakif '(:r2 < :r4) '(:r2 > :r5) 'fail)
@@ -55,7 +55,7 @@
 
 	(entry :lisp :env_args_type '(:r1 :r3 :r4))
 
-	(assign '(:r0 :r1 (:r1 array_length)) '(:r6 :r7 :r2))
+	(assign '(:r0 :r1 (:r1 +array_length)) '(:r6 :r7 :r2))
 	(switch 'fail)
 		;must be in range and of this type
 		(breakif '(:r2 < :r4) 'fail)
@@ -92,7 +92,7 @@
 
 	(entry :lisp :env_args_match '(:r1 :r3 :r4))
 
-	(assign '(:r0 :r1 (:r1 array_length)) '(:r6 :r7 :r2))
+	(assign '(:r0 :r1 (:r1 +array_length)) '(:r6 :r7 :r2))
 	(switch 'fail)
 		;must be in range and of this type and all identical
 		(breakif '(:r2 < :r4) 'fail)
@@ -104,7 +104,7 @@
 			(breakif '(:r4 = :r5))
 			(loop-start)
 				(assign '((:r4 0)) '(:r0))
-				(assign '((:r0 obj_vtable)) '(:r0))
+				(assign '((:r0 +obj_vtable)) '(:r0))
 				(breakif '(:r1 /= :r0) 'fail)
 				(vp-add-cr +ptr_size :r4)
 			(loop-until '(:r4 = :r5))
@@ -131,14 +131,14 @@
 
 	(entry :lisp :env_args_set '(:r0 :r3 :r5))
 
-	(assign '((:r0 array_length)) '(:r4))
+	(assign '((:r0 +array_length)) '(:r4))
 	(class/array/get_iters :r0 :r3 :r4 :r1)
 	(vpif '(:r3 /= :r4))
 		(loop-start)
 			(call :obj :inst_of `((:r3 0) (@ ,(f-path :num :vtable))) '(:r0 :r1))
 			(vp-add-cr +ptr_size :r3)
 			(vpif '(:r1 /= 0))
-				(assign '((:r0 num_value)) '(:r0))
+				(assign '((:r0 +num_value)) '(:r0))
 			(endif)
 			(assign '(:r0) '((:r5 0)))
 			(vp-add-cr +ptr_size :r5)

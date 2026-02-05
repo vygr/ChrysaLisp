@@ -1,4 +1,5 @@
 (include "././array/class.inc")
+(include "./struct.inc")
 
 (def-class :nums :array
 	(dec-method :vtable class/nums/vtable)
@@ -30,8 +31,6 @@
 	(dec-method :lisp_max class/nums/lisp_max :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_abs class/nums/lisp_abs :static (:r0 :r1) (:r0 :r1)))
 
-(def-struct nums array_size)
-
 ;;;;;;;;;;;;;;;;;;;;;
 ; inline vector loops
 ;;;;;;;;;;;;;;;;;;;;;
@@ -52,8 +51,8 @@
 	(endif))
 
 (defun vec-map (sobs dobs elms sitrs ditrs eitr func &optional fpre fpost)
-	(assign `((,(first sobs) array_length)) `(,eitr))
-	(vp-simd vp-cpy-ir (cat sobs dobs) (list array_begin) (cat sitrs ditrs))
+	(assign `((,(first sobs) +array_length)) `(,eitr))
+	(vp-simd vp-cpy-ir (cat sobs dobs) (list +array_begin) (cat sitrs ditrs))
 	(vp-shl-cr (log2 +ptr_size) eitr)
 	(vp-add-rr (first sitrs) eitr)
 	(if fpre (fpre))
@@ -61,8 +60,8 @@
 	(if fpost (fpost)))
 
 (defun vec-reduce (sobs elms sitrs eitr func &optional fpre fpost)
-	(assign `((,(first sobs) array_length)) `(,eitr))
-	(vp-simd vp-cpy-ir sobs (list array_begin) sitrs)
+	(assign `((,(first sobs) +array_length)) `(,eitr))
+	(vp-simd vp-cpy-ir sobs (list +array_begin) sitrs)
 	(vp-shl-cr (log2 +ptr_size) eitr)
 	(vp-add-rr (first sitrs) eitr)
 	(if fpre (fpre))
@@ -78,8 +77,8 @@
 	(loop-until `(,(first idxs) = ,(last idxs))))
 
 (defun vec-map-idx (sobs dobs elms sitrs ditrs idxs func &optional fpre fpost)
-	(assign `((,(first sobs) array_length)) `(,(last idxs)))
-	(vp-simd vp-cpy-ir (cat sobs dobs) (list array_begin) (cat sitrs ditrs))
+	(assign `((,(first sobs) +array_length)) `(,(last idxs)))
+	(vp-simd vp-cpy-ir (cat sobs dobs) (list +array_begin) (cat sitrs ditrs))
 	(vp-xor-rr (first idxs) (first idxs))
 	(vp-shl-cr (log2 +ptr_size) (last idxs))
 	(if fpre (fpre))
@@ -87,8 +86,8 @@
 	(if fpost (fpost)))
 
 (defun vec-reduce-idx (sobs elms sitrs idxs func &optional fpre fpost)
-	(assign `((,(first sobs) array_length)) `(,(last idxs)))
-	(vp-simd vp-cpy-ir sobs (list array_begin) sitrs)
+	(assign `((,(first sobs) +array_length)) `(,(last idxs)))
+	(vp-simd vp-cpy-ir sobs (list +array_begin) sitrs)
 	(vp-xor-rr (first idxs) (first idxs))
 	(vp-shl-cr (log2 +ptr_size) (last idxs))
 	(if fpre (fpre))

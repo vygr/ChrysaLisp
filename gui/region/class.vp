@@ -986,7 +986,7 @@
 	(entry :region :bounds `(,region))
 
 	;is empty ?
-	(assign `((,region ln_fnode_next)) `(,rec))
+	(assign `((,region +ln_fnode_next)) `(,rec))
 	(vpif `(,rec = 0))
 		(vp-simd vp-cpy-rr `(,rec) `(,bx ,by ,bx1 ,by1))
 	(else)
@@ -1044,7 +1044,7 @@
 	(entry :region :free `(,heap ,region))
 
 	;empty ?
-	(assign `((,region ln_fnode_next)) `(,rec0))
+	(assign `((,region +ln_fnode_next)) `(,rec0))
 	(vpif `(,rec0 /= 0))
 		;find end of region list
 		(loop-flist rec0 0 rec recn)
@@ -1052,10 +1052,10 @@
 		;splice region onto heap free list
 		(assign `((,heap hp_heap_free_flist)) `(,rec))
 		(assign `(,rec0) `((,heap hp_heap_free_flist)))
-		(assign `(,rec) `((,recn ln_fnode_next)))
+		(assign `(,rec) `((,recn +ln_fnode_next)))
 		;free region list
 		(vp-xor-rr rec rec)
-		(assign `(,rec) `((,region ln_fnode_next)))
+		(assign `(,rec) `((,region +ln_fnode_next)))
 	(endif)
 
 	(exit :region :free `(,heap ,region))

@@ -1,4 +1,5 @@
 (include "lib/asm/class.inc")
+(include "./struct.inc")
 (include "./abi.inc")
 
 (def-class :host_os :nil
@@ -110,16 +111,6 @@
 		(call :host_os :pii_write_char '(2 10))
 		(assign {_a, _b} '(:r0 :r1))
 		(pop-scope)))
-
-(def-enum +file_open 0
-	(enum read write append))
-
-(def-enum +mmap 0
-	(enum data exec shared none))
-
-(def-struct stat 0
-	(long mtime fsize)
-	(ushort mode))
 
 (defcvar 's_ifmt 0xf000)
 (defcvar 's_ifdir 0x4000)
