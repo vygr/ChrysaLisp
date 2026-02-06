@@ -356,26 +356,26 @@ struct u128 { uint64_t lo; uint64_t hi; };
 }
 
 #define vp_call_abi(n, base, offset) { \
-				int64_t fptr_addr = *(uint64_t*)(regs[base] + (offset)); \
-				switch (n) \
-				{ \
-					case 0: regs[0] = (((uint64_t(*)(void))fptr_addr)()); break; \
-					case 1: regs[0] = (((uint64_t(*)(uint64_t))fptr_addr)(regs[0])); break; \
-					case 2: regs[0] = (((uint64_t(*)(uint64_t, uint64_t))fptr_addr)(regs[0], regs[1])); break; \
-					case 3: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2])); break; \
-					case 4: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3])); break; \
-					case 5: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4])); break; \
-					case 6: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5])); break; \
-					case 7: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6])); break; \
-					case 8: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7])); break; \
-					case 9: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8])); break; \
-					case 10: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9])); break; \
-					case 11: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10])); break; \
-					case 12: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11])); break; \
-					case 13: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11], regs[12])); break; \
-					case 14: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11], regs[12], regs[13])); break; \
-					case 15: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11], regs[12], regs[13], regs[14])); break; \
-				} \
+	int64_t fptr_addr = *(uint64_t*)(regs[base] + (offset)); \
+	switch (n) \
+	{ \
+		case 0: regs[0] = (((uint64_t(*)(void))fptr_addr)()); break; \
+		case 1: regs[0] = (((uint64_t(*)(uint64_t))fptr_addr)(regs[0])); break; \
+		case 2: regs[0] = (((uint64_t(*)(uint64_t, uint64_t))fptr_addr)(regs[0], regs[1])); break; \
+		case 3: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2])); break; \
+		case 4: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3])); break; \
+		case 5: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4])); break; \
+		case 6: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5])); break; \
+		case 7: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6])); break; \
+		case 8: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7])); break; \
+		case 9: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8])); break; \
+		case 10: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9])); break; \
+		case 11: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10])); break; \
+		case 12: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11])); break; \
+		case 13: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11], regs[12])); break; \
+		case 14: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11], regs[12], regs[13])); break; \
+		case 15: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11], regs[12], regs[13], regs[14])); break; \
+	} \
 }
 
 #define vp_cpy_pr(offset, dr) regs[dr] = *(int64_t*)((char*)pc + offset)
@@ -398,10 +398,10 @@ struct u128 { uint64_t lo; uint64_t hi; };
 
 #define vp_fbeq(offset) if (compare_f1 == compare_f2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
 #define vp_fbne(offset) if (compare_f1 != compare_f2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
-#define vp_fbge(offset) if (compare_f2 >= compare_f1) pc = (int16_t*)((char*)pc + (int8_t)(offset))
-#define vp_fblt(offset) if (compare_f2 < compare_f1) pc = (int16_t*)((char*)pc + (int8_t)(offset))
-#define vp_fble(offset) if (compare_f2 <= compare_f1) pc = (int16_t*)((char*)pc + (int8_t)(offset))
-#define vp_fbgt(offset) if (compare_f2 > compare_f1) pc = (int16_t*)((char*)pc + (int8_t)(offset))
+#define vp_fbge(offset) if (compare_f2 >= compare_f1) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_fblt(offset) if (compare_f2 < compare_f1) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_fble(offset) if (compare_f2 <= compare_f1) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_fbgt(offset) if (compare_f2 > compare_f1) pc = (int16_t*)((char*)pc + (int64_t)(offset))
 
 #define vp_cpy_if(base_reg, offset, dr) fregs[dr] = *(double*)(regs[base_reg] + offset)
 #define vp_cpy_fi(sr, base_reg, offset) *(double*)(regs[base_reg] + offset) = fregs[sr]
