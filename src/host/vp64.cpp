@@ -259,7 +259,7 @@ struct u128 { uint64_t lo; uint64_t hi; };
 #define vp_shl_rr(sr, dr) regs[dr] <<= regs[sr]
 #define vp_shr_rr(sr, dr) regs[dr] = (uint64_t)regs[dr] >> regs[sr]
 #define vp_asr_rr(sr, dr) regs[dr] >>= regs[sr]
-#define vp_lnot_rr(sr, dr) regs[dr] = !regs[sr]
+#define vp_lnot_rr(sr, dr) regs[dr] = !regs[dr]
 #define vp_land_rr(sr, dr) regs[dr] = regs[dr] && regs[sr]
 #define vp_swp_rr(sr, dr) { int64_t t = regs[dr]; regs[dr] = regs[sr]; regs[sr] = t; }
 #define vp_ext_rr(sr, dr) regs[dr] = (regs[sr] >> 63)
@@ -773,7 +773,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 			case VP64_LNOT_RR:
 			{
-				vp_lnot_rr((ir >> 8) & 0xf, (ir >> 8) & 0xf);
+				vp_lnot_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
