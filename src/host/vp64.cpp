@@ -332,12 +332,9 @@ struct u128 { uint64_t lo; uint64_t hi; };
 #define vp_bgt(offset) if (compare1 > compare2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
 
 #define vp_call(offset) regs[15] -= 8; *(int16_t**)regs[15] = pc; pc = (int16_t*)((char*)pc + (int64_t)(offset))
-#define vp_call_1(offset, next_pc) regs[15] -= 8; *(int16_t**)regs[15] = (next_pc); pc = (int16_t*)((char*)pc + (int64_t)(offset))
 #define vp_jmp(offset) pc = (int16_t*)((char*)pc + (int64_t)(offset))
-#define vp_jmp_1(offset) pc = (int16_t*)((char*)pc + (int64_t)(offset))
 
 #define vp_call_p(offset) regs[15] -= 8; *(int16_t**)regs[15] = pc; pc = *(int16_t**)((char*)pc + (int64_t)(offset))
-#define vp_call_p_1(offset, next_pc) regs[15] -= 8; *(int16_t**)regs[15] = (next_pc); pc = *(int16_t**)((char*)pc + (int64_t)(offset))
 #define vp_jmp_p(offset) pc = *(int16_t**)((char*)pc + (int64_t)(offset))
 
 #define vp_call_r(dr) regs[15] -= 8; *(int16_t**)regs[15] = pc; pc = (int16_t*)regs[dr]
@@ -1207,7 +1204,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			case VP64_CALL_1:
 			{
 				int64_t o = ((int64_t)*pc++ << 8) + ((ir >> 8) & 0xff);
-				vp_call_1(o, pc);
+				vp_call(o);
 			}
 			break;
 
@@ -1220,7 +1217,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			case VP64_JMP_1:
 			{
 				int64_t o = ((int64_t)*pc++ << 8) + ((ir >> 8) & 0xff);
-				vp_jmp_1(o);
+				vp_jmp(o);
 			}
 			break;
 
@@ -1233,7 +1230,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			case VP64_CALL_P_1:
 			{
 				int64_t o = ((int64_t)*pc++ << 8) + ((ir >> 8) & 0xff);
-				vp_call_p_1(o, pc);
+				vp_call_p(o);
 			}
 			break;
 
