@@ -63,7 +63,6 @@
 				((starts-with "+pixmap_" token) (merge classes '(":pixmap")))
 				((starts-with "+vdu_" token) (merge classes '(":vdu")))
 				((starts-with "+mem_" token) (merge classes '(":sys_mem")))
-				((starts-with "mem_" token) (merge classes '(":sys_mem")))
 				((starts-with "rect_" token) (merge classes '(":region")))
 				((starts-with "lk_" token) (merge classes '(":sys_link")))
 				((starts-with "ld_" token) (merge classes '(":sys_load")))

@@ -14,7 +14,7 @@
 	(vp-add-cr statics_sys_mem_heaps :r0)
 	(vp-cpy-cr +mem_cell_min_size :r4)    ;start object size
 	(vp-cpy-cr +max_cell_count :r3)       ;start cell count
-	(vp-lea-i :r0 (* (length mem_heap_cell_sizes) hp_heap_size) :r5)
+	(vp-lea-i :r0 (* (length +mem_heap_cell_sizes) hp_heap_size) :r5)
 	(loop-start)
 		(vp-add-cr +sys_mem_header_size :r4)
 		(call :sys_heap :init '(:r0 :r4 :r3) '(:r0))
@@ -34,7 +34,7 @@
 	;free memory heaps
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-add-cr statics_sys_mem_heaps :r0)
-	(vp-lea-i :r0 (* (length mem_heap_cell_sizes) hp_heap_size) :r7)
+	(vp-lea-i :r0 (* (length +mem_heap_cell_sizes) hp_heap_size) :r7)
 	(loop-start)
 		(call :sys_heap :deinit '(:r0) '(:r0))
 		(vp-add-cr hp_heap_size :r0)
@@ -52,7 +52,7 @@
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-cpy-cr +mem_cell_min_size :r9)
 	(vp-add-cr statics_sys_mem_heaps :r0)
-	(vp-lea-i :r0 (* (length mem_heap_cell_sizes) hp_heap_size) :r9)
+	(vp-lea-i :r0 (* (length +mem_heap_cell_sizes) hp_heap_size) :r9)
 	(loop-start)
 		(call :sys_heap :collect '(:r0) '(:r0))
 		(vp-add-cr hp_heap_size :r0)
@@ -71,7 +71,7 @@
 	(vp-xor-rr :r0 :r0)
 	(vp-cpy-cr +mem_cell_min_size :r1)
 	(vp-add-cr statics_sys_mem_heaps :r2)
-	(vp-lea-i :r2 (* (length mem_heap_cell_sizes) hp_heap_size) :r4)
+	(vp-lea-i :r2 (* (length +mem_heap_cell_sizes) hp_heap_size) :r4)
 	(loop-start)
 		(loop-flist :r2 hp_heap_free_flist :r3 :r3)
 			(vp-add-rr :r1 :r0)
@@ -93,7 +93,7 @@
 	;:r0-:r2
 
 	(entry :sys_mem :alloc '(:r0))
-	(errorif `(:r0 > ,(- (last mem_heap_cell_sizes) +sys_mem_header_size)) 'error)
+	(errorif `(:r0 > ,(- (last (last +mem_heap_cell_sizes)) +sys_mem_header_size)) 'error)
 
 	;extra bytes for allocation header
 	(vp-lea-i :r0 +sys_mem_header_size :r1)

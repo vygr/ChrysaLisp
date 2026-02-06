@@ -34,7 +34,7 @@
 	;sys_mem statics
 	(struct sys_mem_obj_list +lh_list_size)
 	(long sys_mem_total)
-	(struct sys_mem_heaps (* (length mem_heap_cell_sizes) hp_heap_size))
+	(struct sys_mem_heaps (* (length (last +mem_heap_cell_sizes)) hp_heap_size))
 	(align)
 
 	;sys_load statics
