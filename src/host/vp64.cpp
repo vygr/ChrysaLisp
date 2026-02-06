@@ -215,6 +215,212 @@ enum Opcodes
 	VP64_CPY_FD,
 };
 
+// VP macros
+#include <atomic>
+#ifdef _WIN64
+#include <intrin.h>
+#endif
+
+struct i128 { int64_t lo; int64_t hi; };
+struct u128 { uint64_t lo; uint64_t hi; };
+
+// Arithmetic & Logic (CR)
+#define vp_cpy_cr(c, dr) regs[dr] = (c)
+#define vp_add_cr(c, dr) regs[dr] += (c)
+#define vp_sub_cr(c, dr) regs[dr] -= (c)
+#define vp_cmp_cr(c, dr) compare1 = regs[dr]; compare2 = (c)
+#define vp_mul_cr(c, dr) regs[dr] *= (c)
+#define vp_and_cr(c, dr) regs[dr] &= (c)
+#define vp_or_cr(c, dr) regs[dr] |= (c)
+#define vp_xor_cr(c, dr) regs[dr] ^= (c)
+#define vp_shl_cr(val, dr) regs[dr] <<= (val)
+#define vp_shr_cr(val, dr) regs[dr] = (uint64_t)regs[dr] >> (val)
+#define vp_asr_cr(val, dr) regs[dr] >>= (val)
+
+#define vp_seq_cr(c, dr) regs[dr] = regs[dr] == (c)
+#define vp_sne_cr(c, dr) regs[dr] = regs[dr] != (c)
+#define vp_slt_cr(c, dr) regs[dr] = regs[dr] < (c)
+#define vp_sle_cr(c, dr) regs[dr] = regs[dr] <= (c)
+#define vp_sgt_cr(c, dr) regs[dr] = regs[dr] > (c)
+#define vp_sge_cr(c, dr) regs[dr] = regs[dr] >= (c)
+
+#define vp_min_cr(c, dr) { int64_t val = (c); if (val < regs[dr]) regs[dr] = val; }
+#define vp_max_cr(c, dr) { int64_t val = (c); if (val > regs[dr]) regs[dr] = val; }
+
+// Arithmetic & Logic (RR)
+#define vp_cpy_rr(sr, dr) regs[dr] = regs[sr]
+#define vp_add_rr(sr, dr) regs[dr] += regs[sr]
+#define vp_sub_rr(sr, dr) regs[dr] -= regs[sr]
+#define vp_cmp_rr(sr, dr) compare1 = regs[dr]; compare2 = regs[sr]
+#define vp_mul_rr(sr, dr) regs[dr] *= regs[sr]
+#define vp_and_rr(sr, dr) regs[dr] &= regs[sr]
+#define vp_or_rr(sr, dr) regs[dr] |= regs[sr]
+#define vp_xor_rr(sr, dr) regs[dr] ^= regs[sr]
+#define vp_shl_rr(sr, dr) regs[dr] <<= regs[sr]
+#define vp_shr_rr(sr, dr) regs[dr] = (uint64_t)regs[dr] >> regs[sr]
+#define vp_asr_rr(sr, dr) regs[dr] >>= regs[sr]
+#define vp_lnot_rr(sr, dr) regs[dr] = !regs[sr]
+#define vp_land_rr(sr, dr) regs[dr] = regs[dr] && regs[sr]
+#define vp_swp_rr(sr, dr) { int64_t t = regs[dr]; regs[dr] = regs[sr]; regs[sr] = t; }
+#define vp_ext_rr(sr, dr) regs[dr] = (regs[sr] >> 63)
+
+#ifdef _WIN64
+#define vp_div_rrr(sr, dr, divisor_reg) regs[dr] = _div128(regs[sr], regs[dr], regs[divisor_reg], &regs[sr])
+#define vp_div_rrr_u(sr, dr, divisor_reg) regs[dr] = _udiv128((uint64_t)regs[sr], (uint64_t)regs[dr], (uint64_t)regs[divisor_reg], (uint64_t*)&regs[sr])
+#else
+#define vp_div_rrr(sr, dr, divisor_reg) { \
+	i128 value = {regs[dr], regs[sr]}; \
+	int64_t div = regs[divisor_reg]; \
+	regs[dr] = (__int128_t&)value / div; \
+	regs[sr] = (__int128_t&)value % div; \
+}
+#define vp_div_rrr_u(sr, dr, divisor_reg) { \
+	u128 value = {(uint64_t)regs[dr], (uint64_t)regs[sr]}; \
+	uint64_t div = (uint64_t)regs[divisor_reg]; \
+	regs[dr] = (__uint128_t&)value / div; \
+	regs[sr] = (__uint128_t&)value % div; \
+}
+#endif
+
+#define vp_seq_rr(sr, dr) regs[dr] = regs[dr] == regs[sr]
+#define vp_sne_rr(sr, dr) regs[dr] = regs[dr] != regs[sr]
+#define vp_slt_rr(sr, dr) regs[dr] = regs[dr] < regs[sr]
+#define vp_sle_rr(sr, dr) regs[dr] = regs[dr] <= regs[sr]
+#define vp_sgt_rr(sr, dr) regs[dr] = regs[dr] > regs[sr]
+#define vp_sge_rr(sr, dr) regs[dr] = regs[dr] >= regs[sr]
+
+#define vp_min_rr(sr, dr) if (regs[sr] < regs[dr]) regs[dr] = regs[sr]
+#define vp_max_rr(sr, dr) if (regs[sr] > regs[dr]) regs[dr] = regs[sr]
+#define vp_abs_rr(sr, dr) { int64_t val = regs[sr]; regs[dr] = (val < 0) ? -val : val; }
+
+// Memory (IR/RI)
+#define vp_cpy_ir(sr, offset, dr) regs[dr] = (int64_t)*(int64_t*)(regs[sr] + offset)
+#define vp_cpy_ir_b(sr, offset, dr) regs[dr] = (int64_t)*(int8_t*)(regs[sr] + offset)
+#define vp_cpy_ir_s(sr, offset, dr) regs[dr] = (int64_t)*(int16_t*)(regs[sr] + offset)
+#define vp_cpy_ir_i(sr, offset, dr) regs[dr] = (int64_t)*(int32_t*)(regs[sr] + offset)
+#define vp_cpy_ir_ub(sr, offset, dr) regs[dr] = (uint64_t)*(uint8_t*)(regs[sr] + offset)
+#define vp_cpy_ir_us(sr, offset, dr) regs[dr] = (uint64_t)*(uint16_t*)(regs[sr] + offset)
+#define vp_cpy_ir_ui(sr, offset, dr) regs[dr] = (uint64_t)*(uint32_t*)(regs[sr] + offset)
+#define vp_lea_i(sr, offset, dr) regs[dr] = regs[sr] + offset
+
+#define vp_cpy_ri(sr, dr, offset) *(int64_t*)(regs[dr] + offset) = regs[sr]
+#define vp_cpy_ri_b(sr, dr, offset) *(int8_t*)(regs[dr] + offset) = (int8_t)regs[sr]
+#define vp_cpy_ri_s(sr, dr, offset) *(int16_t*)(regs[dr] + offset) = (int16_t)regs[sr]
+#define vp_cpy_ri_i(sr, dr, offset) *(int32_t*)(regs[dr] + offset) = (int32_t)regs[sr]
+
+// Memory (DR/RD) - Indirect addressing (Reg + Reg)
+#define vp_cpy_rd(sr_idx, base_idx, dr_idx) *(uint64_t*)(regs[base_idx] + regs[dr_idx]) = regs[sr_idx]
+#define vp_cpy_rd_b(sr_idx, base_idx, dr_idx) *(uint8_t*)(regs[base_idx] + regs[dr_idx]) = (uint8_t)regs[sr_idx]
+#define vp_cpy_rd_s(sr_idx, base_idx, dr_idx) *(uint16_t*)(regs[base_idx] + regs[dr_idx]) = (uint16_t)regs[sr_idx]
+#define vp_cpy_rd_i(sr_idx, base_idx, dr_idx) *(uint32_t*)(regs[base_idx] + regs[dr_idx]) = (uint32_t)regs[sr_idx]
+
+#define vp_cpy_dr(base_idx, sr_idx, dr_idx) regs[dr_idx] = (uint64_t)*(int64_t*)(regs[base_idx] + regs[sr_idx])
+#define vp_cpy_dr_b(base_idx, sr_idx, dr_idx) regs[dr_idx] = (uint64_t)*(int8_t*)(regs[base_idx] + regs[sr_idx])
+#define vp_cpy_dr_s(base_idx, sr_idx, dr_idx) regs[dr_idx] = (uint64_t)*(int16_t*)(regs[base_idx] + regs[sr_idx])
+#define vp_cpy_dr_i(base_idx, sr_idx, dr_idx) regs[dr_idx] = (uint64_t)*(int32_t*)(regs[base_idx] + regs[sr_idx])
+#define vp_cpy_dr_ub(base_idx, sr_idx, dr_idx) regs[dr_idx] = (uint64_t)*(uint8_t*)(regs[base_idx] + regs[sr_idx])
+#define vp_cpy_dr_us(base_idx, sr_idx, dr_idx) regs[dr_idx] = (uint64_t)*(uint16_t*)(regs[base_idx] + regs[sr_idx])
+#define vp_cpy_dr_ui(base_idx, sr_idx, dr_idx) regs[dr_idx] = (uint64_t)*(uint32_t*)(regs[base_idx] + regs[sr_idx])
+#define vp_lea_d(base_idx, sr_idx, dr_idx) regs[dr_idx] = regs[base_idx] + regs[sr_idx]
+
+// Control Flow
+#define vp_beq(offset) if (compare1 == compare2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_bne(offset) if (compare1 != compare2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_bge(offset) if (compare1 >= compare2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_blt(offset) if (compare1 < compare2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_ble(offset) if (compare1 <= compare2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_bgt(offset) if (compare1 > compare2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+
+#define vp_call(offset) regs[15] -= 8; *(int16_t**)regs[15] = pc; pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_call_1(offset, next_pc) regs[15] -= 8; *(int16_t**)regs[15] = (next_pc); pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_jmp(offset) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_jmp_1(offset) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+
+#define vp_call_p(offset) regs[15] -= 8; *(int16_t**)regs[15] = pc; pc = *(int16_t**)((char*)pc + (int64_t)(offset))
+#define vp_call_p_1(offset, next_pc) regs[15] -= 8; *(int16_t**)regs[15] = (next_pc); pc = *(int16_t**)((char*)pc + (int64_t)(offset))
+#define vp_jmp_p(offset) pc = *(int16_t**)((char*)pc + (int64_t)(offset))
+#define vp_jmp_p_1(offset) pc = *(int16_t**)((char*)pc + (int64_t)(offset))
+
+#define vp_call_r(dr) regs[15] -= 8; *(int16_t**)regs[15] = pc; pc = (int16_t*)regs[dr]
+#define vp_jmp_r(dr) pc = (int16_t*)regs[dr]
+
+#define vp_call_i(base_reg, offset) { \
+	int64_t base = regs[base_reg]; \
+	regs[15] -= 8; \
+	*(int16_t**)regs[15] = pc; \
+	pc = *(int16_t**)(base + offset); \
+}
+#define vp_jmp_i(base_reg, offset) { \
+	int64_t base = regs[base_reg]; \
+	pc = *(int16_t**)(base + offset); \
+}
+
+#define vp_call_abi(n, base, offset) { \
+				int64_t fptr_addr = *(uint64_t*)(regs[base] + (offset)); \
+				switch (n) \
+				{ \
+					case 0: regs[0] = (((uint64_t(*)(void))fptr_addr)()); break; \
+					case 1: regs[0] = (((uint64_t(*)(uint64_t))fptr_addr)(regs[0])); break; \
+					case 2: regs[0] = (((uint64_t(*)(uint64_t, uint64_t))fptr_addr)(regs[0], regs[1])); break; \
+					case 3: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2])); break; \
+					case 4: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3])); break; \
+					case 5: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4])); break; \
+					case 6: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5])); break; \
+					case 7: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6])); break; \
+					case 8: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7])); break; \
+					case 9: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8])); break; \
+					case 10: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t))fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9])); break; \
+					case 11: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10])); break; \
+					case 12: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11])); break; \
+					case 13: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11], regs[12])); break; \
+					case 14: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11], regs[12], regs[13])); break; \
+					case 15: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) fptr_addr)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11], regs[12], regs[13], regs[14])); break; \
+				} \
+}
+
+#define vp_cpy_pr(offset, dr) regs[dr] = *(int64_t*)((char*)pc + offset)
+#define vp_lea_p(offset, dr) regs[dr] = (int64_t)((char*)pc + offset)
+
+#define vp_ret() pc = *(int16_t**)regs[15]; regs[15] += 8
+#define vp_sync(code) sync.store((code), std::memory_order_seq_cst)
+#define vp_brk(code) std::cout << "brk " << (int)(code) << std::endl
+
+// Floating Point
+#define vp_add_ff(sr, dr) fregs[dr] += fregs[sr]
+#define vp_sub_ff(sr, dr) fregs[dr] -= fregs[sr]
+#define vp_mul_ff(sr, dr) fregs[dr] *= fregs[sr]
+#define vp_div_ff(sr, dr) fregs[dr] /= fregs[sr]
+#define vp_min_ff(sr, dr) fregs[dr] = std::fmin(fregs[dr], fregs[sr])
+#define vp_max_ff(sr, dr) fregs[dr] = std::fmax(fregs[dr], fregs[sr])
+#define vp_sqrt_ff(sr, dr) fregs[dr] = std::sqrt(fregs[sr])
+#define vp_abs_ff(sr, dr) fregs[dr] = std::abs(fregs[sr])
+#define vp_neg_ff(sr, dr) fregs[dr] = -fregs[sr]
+
+#define vp_fbeq(offset) if (compare_f1 == compare_f2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_fbne(offset) if (compare_f1 != compare_f2) pc = (int16_t*)((char*)pc + (int64_t)(offset))
+#define vp_fbge(offset) if (compare_f2 >= compare_f1) pc = (int16_t*)((char*)pc + (int8_t)(offset))
+#define vp_fblt(offset) if (compare_f2 < compare_f1) pc = (int16_t*)((char*)pc + (int8_t)(offset))
+#define vp_fble(offset) if (compare_f2 <= compare_f1) pc = (int16_t*)((char*)pc + (int8_t)(offset))
+#define vp_fbgt(offset) if (compare_f2 > compare_f1) pc = (int16_t*)((char*)pc + (int8_t)(offset))
+
+#define vp_cpy_if(base_reg, offset, dr) fregs[dr] = *(double*)(regs[base_reg] + offset)
+#define vp_cpy_fi(sr, base_reg, offset) *(double*)(regs[base_reg] + offset) = fregs[sr]
+#define vp_cpy_df(base_reg, index_reg, dr) fregs[dr] = *(double*)(regs[base_reg] + regs[index_reg])
+#define vp_cpy_fd(sr, base_reg, index_reg) *(double*)(regs[base_reg] + regs[index_reg]) = fregs[sr]
+
+#define vp_cvt_rf(sr, dr) fregs[dr] = (double)regs[sr]
+#define vp_cvt_fr(sr, dr) regs[dr] = (int64_t)fregs[sr]
+
+#define vp_cpy_ff(sr, dr) fregs[dr] = fregs[sr]
+#define vp_cpy_rf(sr, dr) *(int64_t*)&fregs[dr] = regs[sr]
+#define vp_cpy_fr(sr, dr) regs[dr] = *(int64_t*)&fregs[sr]
+#define vp_cmp_f(sr, dr) compare_f1 = fregs[sr]; compare_f2 = fregs[dr]
+
+// System Helpers
+#define vp_reg(n) regs[n]
+#define vp_abi_ret(val) regs[0] = val
+#define vp_abi_fetch_ptr(base_reg, offset) *(uint64_t*)(regs[base_reg] + (offset))
+
 int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, int64_t* host_gui_funcs, int64_t* host_audio_funcs)
 {
 	int64_t regs[16];
@@ -243,13 +449,13 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 		{
 			case VP64_CPY_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] = ir >> 12;
+				vp_cpy_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] = ((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4);
+				vp_cpy_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -257,7 +463,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] = ((ir >> 12) & 0xf) | o1 | o2;
+				vp_cpy_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -267,19 +473,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
 				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
 				int64_t o3 = (int64_t)*pc++ << 48;
-				regs[(ir >> 8) & 0xf] = (o0 | o1 | o2 | o3);
+				vp_cpy_cr((o0 | o1 | o2 | o3), (ir >> 8) & 0xf);
 			}
 			break;
 		
 			case VP64_ADD_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] += ir >> 12;
+				vp_add_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_ADD_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] += ((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4);
+				vp_add_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -287,7 +493,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] += ((ir >> 12) & 0xf) | o1 | o2;
+				vp_add_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -297,19 +503,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
 				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
 				int64_t o3 = (int64_t)*pc++ << 48;
-				regs[(ir >> 8) & 0xf] += (o0 | o1 | o2 | o3);
+				vp_add_cr((o0 | o1 | o2 | o3), (ir >> 8) & 0xf);
 			}
 			break;
 		
 			case VP64_SUB_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] -= ir >> 12;
+				vp_sub_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SUB_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] -= ((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4);
+				vp_sub_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -317,7 +523,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] -= ((ir >> 12) & 0xf) | o1 | o2;
+				vp_sub_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -327,21 +533,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
 				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
 				int64_t o3 = (int64_t)*pc++ << 48;
-				regs[(ir >> 8) & 0xf] -= (o0 | o1 | o2 | o3);
+				vp_sub_cr((o0 | o1 | o2 | o3), (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CMP_CR_0:
 			{
-				compare1 = regs[(ir >> 8) & 0xf];
-				compare2 = ir >> 12;
+				vp_cmp_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CMP_CR_1:
 			{
-				compare1 = regs[(ir >> 8) & 0xf];
-				compare2 = ((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4);
+				vp_cmp_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -349,8 +553,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				compare1 = regs[(ir >> 8) & 0xf];
-				compare2 = ((ir >> 12) & 0xf) | o1 | o2;
+				vp_cmp_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -360,20 +563,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
 				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
 				int64_t o3 = (int64_t)*(uint16_t*)pc++ << 48;
-				compare1 = regs[(ir >> 8) & 0xf];
-				compare2 = (o0 | o1 | o2 | o3);
+				vp_cmp_cr((o0 | o1 | o2 | o3), (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MUL_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] *= ir >> 12;
+				vp_mul_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MUL_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] *= ((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4);
+				vp_mul_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -381,7 +583,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] *= ((ir >> 12) & 0xf) | o1 | o2;
+				vp_mul_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -391,19 +593,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
 				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
 				int64_t o3 = (int64_t)*pc++ << 48;
-				regs[(ir >> 8) & 0xf] *= (o0 | o1 | o2 | o3);
+				vp_mul_cr((o0 | o1 | o2 | o3), (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_AND_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] &= ir >> 12;
+				vp_and_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_AND_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] &= ((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4);
+				vp_and_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -411,7 +613,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] &= ((ir >> 12) & 0xf) | o1 | o2;
+				vp_and_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -421,19 +623,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
 				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
 				int64_t o3 = (int64_t)*pc++ << 48;
-				regs[(ir >> 8) & 0xf] &= (o0 | o1 | o2 | o3);
+				vp_and_cr((o0 | o1 | o2 | o3), (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_OR_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] |= ir >> 12;
+				vp_or_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_OR_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] |= ((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4);
+				vp_or_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -441,7 +643,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] |= ((ir >> 12) & 0xf) | o1 | o2;
+				vp_or_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -451,19 +653,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
 				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
 				int64_t o3 = (int64_t)*pc++ << 48;
-				regs[(ir >> 8) & 0xf] |= (o0 | o1 | o2 | o3);
+				vp_or_cr((o0 | o1 | o2 | o3), (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_XOR_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] ^= ir >> 12;
+				vp_xor_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_XOR_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] ^= ((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4);
+				vp_xor_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -471,7 +673,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] ^= ((ir >> 12) & 0xf) | o1 | o2;
+				vp_xor_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -481,167 +683,141 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
 				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
 				int64_t o3 = (int64_t)*pc++ << 48;
-				regs[(ir >> 8) & 0xf] ^= (o0 | o1 | o2 | o3);
+				vp_xor_cr((o0 | o1 | o2 | o3), (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SHL_CR:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] << (uint64_t)*(uint16_t*)pc++;
+				vp_shl_cr((uint64_t)*(uint16_t*)pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SHR_CR:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)regs[(ir >> 8) & 0xf] >> (uint64_t)*(uint16_t*)pc++;
+				vp_shr_cr((uint64_t)*(uint16_t*)pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_ASR_CR:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] >> (uint64_t)*(uint16_t*)pc++;
+				vp_asr_cr((uint64_t)*(uint16_t*)pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_RR:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 12) & 0xf];
+				vp_cpy_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_ADD_RR:
 			{
-				regs[(ir >> 8) & 0xf] += regs[(ir >> 12) & 0xf];
+				vp_add_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SUB_RR:
 			{
-				regs[(ir >> 8) & 0xf] -= regs[(ir >> 12) & 0xf];
+				vp_sub_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CMP_RR:
 			{
-				compare1 = regs[(ir >> 8) & 0xf];
-				compare2 = regs[(ir >> 12) & 0xf];
+				vp_cmp_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MUL_RR:
 			{
-				regs[(ir >> 8) & 0xf] *= regs[(ir >> 12) & 0xf];
+				vp_mul_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_AND_RR:
 			{
-				regs[(ir >> 8) & 0xf] &= regs[(ir >> 12) & 0xf];
+				vp_and_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_OR_RR:
 			{
-				regs[(ir >> 8) & 0xf] |= regs[(ir >> 12) & 0xf];
+				vp_or_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_XOR_RR:
 			{
-				regs[(ir >> 8) & 0xf] ^= regs[(ir >> 12) & 0xf];
+				vp_xor_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SHL_RR:
 			{
-				regs[(ir >> 8) & 0xf] <<= regs[(ir >> 12) & 0xf];
+				vp_shl_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SHR_RR:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)regs[(ir >> 8) & 0xf] >> regs[(ir >> 12) & 0xf];
+				vp_shr_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_ASR_RR:
 			{
-				regs[(ir >> 8) & 0xf] >>= regs[(ir >> 12) & 0xf];
+				vp_asr_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_LNOT_RR:
 			{
-				regs[(ir >> 8) & 0xf] = !regs[(ir >> 8) & 0xf];
+				vp_lnot_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_LAND_RR:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] && regs[(ir >> 12) & 0xf];
+				vp_land_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SWP_RR:
 			{
-				int64_t t = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 12) & 0xf];
-				regs[(ir >> 12) & 0xf] = t;
+				vp_swp_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_EXT_RR:
 			{
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 12) & 0xf] >> 63);
+				vp_ext_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_DIV_RRR:
 			{
-			#ifdef _WIN64
-				regs[(ir >> 8) & 0xf] = _div128(regs[(ir >> 12) & 0xf], regs[(ir >> 8) & 0xf], regs[*pc++], &regs[(ir >> 12) & 0xf]);
-			#else
-				struct i128
-				{
-					int64_t lo;
-					int64_t hi;
-				};
-				i128 value = {regs[(ir >> 8) & 0xf], regs[(ir >> 12) & 0xf]};
-				int64_t div = regs[*pc++];
-				regs[(ir >> 8) & 0xf] = (__int128_t&)value / div;
-				regs[(ir >> 12) & 0xf] = (__int128_t&)value % div;
-			#endif
+				int64_t divisor_reg = *pc++;
+				vp_div_rrr((ir >> 12) & 0xf, (ir >> 8) & 0xf, divisor_reg);
 			}
 			break;
 
 			case VP64_DIV_RRR_U:
 			{
-			#ifdef _WIN64
-				regs[(ir >> 8) & 0xf] = _udiv128(regs[(ir >> 12) & 0xf], regs[(ir >> 8) & 0xf], regs[*pc++], (uint64_t*)&regs[(ir >> 12) & 0xf]);
-			#else
-				struct u128
-				{
-					uint64_t lo;
-					uint64_t hi;
-				};
-				u128 value = {(uint64_t)regs[(ir >> 8) & 0xf], (uint64_t)regs[(ir >> 12) & 0xf]};
-				uint64_t div = regs[*pc++];
-				regs[(ir >> 8) & 0xf] = (__uint128_t&)value / div;
-				regs[(ir >> 12) & 0xf] = (__uint128_t&)value % div;
-			#endif
+				int64_t divisor_reg = *pc++;
+				vp_div_rrr_u((ir >> 12) & 0xf, (ir >> 8) & 0xf, divisor_reg);
 			}
 			break;
 
 			case VP64_SEQ_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] == ir >> 12;
+				vp_seq_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SEQ_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] == (((ir >> 12) & 0xf) |
-					((int64_t)*pc++ << 4)));
+				vp_seq_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -649,20 +825,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] == (((ir >> 12) & 0xf) | o1 | o2));
+				vp_seq_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SNE_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] != ir >> 12;
+				vp_sne_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SNE_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] != (((ir >> 12) & 0xf) |
-					((int64_t)*pc++ << 4)));
+				vp_sne_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -670,20 +845,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] != (((ir >> 12) & 0xf) | o1 | o2));
+				vp_sne_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SLT_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] < ir >> 12;
+				vp_slt_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SLT_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] < (((ir >> 12) & 0xf) |
-					((int64_t)*pc++ << 4)));
+				vp_slt_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -691,20 +865,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] < (((ir >> 12) & 0xf) | o1 | o2));
+				vp_slt_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SLE_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] <= ir >> 12;
+				vp_sle_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SLE_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] <= (((ir >> 12) & 0xf) |
-					((int64_t)*pc++ << 4)));
+				vp_sle_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -712,20 +885,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] <= (((ir >> 12) & 0xf) | o1 | o2));
+				vp_sle_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SGT_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] > ir >> 12;
+				vp_sgt_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SGT_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] > (((ir >> 12) & 0xf) |
-					((int64_t)*pc++ << 4)));
+				vp_sgt_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -733,20 +905,19 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] > (((ir >> 12) & 0xf) | o1 | o2));
+				vp_sgt_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SGE_CR_0:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] >= ir >> 12;
+				vp_sge_cr(ir >> 12, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SGE_CR_1:
 			{
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] >= (((ir >> 12) & 0xf) |
-					((int64_t)*pc++ << 4)));
+				vp_sge_cr(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4), (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -754,566 +925,407 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t o2 = (int64_t)*pc++ << 20;
-				regs[(ir >> 8) & 0xf] = (regs[(ir >> 8) & 0xf] >= (((ir >> 12) & 0xf) | o1 | o2));
+				vp_sge_cr(((ir >> 12) & 0xf) | o1 | o2, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SEQ_RR:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] == regs[(ir >> 12) & 0xf];
+				vp_seq_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SNE_RR:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] != regs[(ir >> 12) & 0xf];
+				vp_sne_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 			
 			case VP64_SLT_RR:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] < regs[(ir >> 12) & 0xf];
+				vp_slt_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SLE_RR:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] <= regs[(ir >> 12) & 0xf];
+				vp_sle_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SGT_RR:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] > regs[(ir >> 12) & 0xf];
+				vp_sgt_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SGE_RR:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 8) & 0xf] >= regs[(ir >> 12) & 0xf];
+				vp_sge_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_BEQ_0:
 			{
-				if (compare1 == compare2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_beq((int8_t)(ir >> 8));
 			}
 			break;
 
 			case VP64_BEQ_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare1 == compare2) pc = (int16_t*)((char*)pc + offset);
+				vp_beq(offset);
 			}
 			break;
 
 			case VP64_BNE_0:
 			{
-				if (compare1 != compare2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_bne((int8_t)(ir >> 8));
 			}
 			break;
 
 			case VP64_BNE_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare1 != compare2) pc = (int16_t*)((char*)pc + offset);
+				vp_bne(offset);
 			}
 			break;
 
 			case VP64_BGE_0:
 			{
-				if (compare1 >= compare2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_bge((int8_t)(ir >> 8));
 			}
 			break;
 
 			case VP64_BGE_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare1 >= compare2) pc = (int16_t*)((char*)pc + offset);
+				vp_bge(offset);
 			}
 			break;
 
 			case VP64_BLT_0:
 			{
-				if (compare1 < compare2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_blt((int8_t)(ir >> 8));
 			}
 			break;
 
 			case VP64_BLT_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare1 < compare2) pc = (int16_t*)((char*)pc + offset);
+				vp_blt(offset);
 			}
 			break;
 
 			case VP64_BLE_0:
 			{
-				if (compare1 <= compare2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_ble((int8_t)(ir >> 8));
 			}
 			break;
 
 			case VP64_BLE_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare1 <= compare2) pc = (int16_t*)((char*)pc + offset);
+				vp_ble(offset);
 			}
 			break;
 
 			case VP64_BGT_0:
 			{
-				if (compare1 > compare2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_bgt((int8_t)(ir >> 8));
 			}
 			break;
 
 			case VP64_BGT_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare1 > compare2) pc = (int16_t*)((char*)pc + offset);
+				vp_bgt(offset);
 			}
 			break;
 
 			case VP64_CPY_IR_0:
 			{
-				regs[(ir >> 8) & 0xf] = (int64_t)*(int64_t*)(regs[(ir >> 12) & 0xf] + (int64_t)*pc++);
+				vp_cpy_ir((ir >> 12) & 0xf, (int64_t)*pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_IR_B_0:
 			{
-				regs[(ir >> 8) & 0xf] = (int64_t)*(int8_t*)(regs[(ir >> 12) & 0xf] + (int64_t)*pc++);
+				vp_cpy_ir_b((ir >> 12) & 0xf, (int64_t)*pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_IR_S_0:
 			{
-				regs[(ir >> 8) & 0xf] = (int64_t)*(int16_t*)(regs[(ir >> 12) & 0xf] + (int64_t)*pc++);
+				vp_cpy_ir_s((ir >> 12) & 0xf, (int64_t)*pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_IR_I_0:
 			{
-				regs[(ir >> 8) & 0xf] = (int64_t)*(int32_t*)(regs[(ir >> 12) & 0xf] + (int64_t)*pc++);
+				vp_cpy_ir_i((ir >> 12) & 0xf, (int64_t)*pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_IR_UB_0:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)*(uint8_t*)(regs[(ir >> 12) & 0xf] + (int64_t)*pc++);
+				vp_cpy_ir_ub((ir >> 12) & 0xf, (int64_t)*pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_IR_US_0:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)*(uint16_t*)(regs[(ir >> 12) & 0xf] + (int64_t)*pc++);
+				vp_cpy_ir_us((ir >> 12) & 0xf, (int64_t)*pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_IR_UI_0:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)*(uint32_t*)(regs[(ir >> 12) & 0xf] + (int64_t)*pc++);
+				vp_cpy_ir_ui((ir >> 12) & 0xf, (int64_t)*pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_LEA_I_0:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 12) & 0xf] + (int64_t)*pc++;
+				vp_lea_i((ir >> 12) & 0xf, (int64_t)*pc++, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_RI_0:
 			{
-				*(int64_t*)(regs[(ir >> 8) & 0xf] + (int64_t)*pc++) = regs[(ir >> 12) & 0xf];
+				vp_cpy_ri((ir >> 12) & 0xf, (ir >> 8) & 0xf, (int64_t)*pc++);
 			}
 			break;
 
 			case VP64_CPY_RI_B_0:
 			{
-				*(int8_t*)(regs[(ir >> 8) & 0xf] + (int64_t)*pc++) = (int8_t)regs[(ir >> 12) & 0xf];
+				vp_cpy_ri_b((ir >> 12) & 0xf, (ir >> 8) & 0xf, (int64_t)*pc++);
 			}
 			break;
 
 			case VP64_CPY_RI_S_0:
 			{
-				*(int16_t*)(regs[(ir >> 8) & 0xf] + (int64_t)*pc++) = (int16_t)regs[(ir >> 12) & 0xf];
+				vp_cpy_ri_s((ir >> 12) & 0xf, (ir >> 8) & 0xf, (int64_t)*pc++);
 			}
 			break;
 
 			case VP64_CPY_RI_I_0:
 			{
-				*(int32_t*)(regs[(ir >> 8) & 0xf] + (int64_t)*pc++) = (int32_t)regs[(ir >> 12) & 0xf];
+				vp_cpy_ri_i((ir >> 12) & 0xf, (ir >> 8) & 0xf, (int64_t)*pc++);
 			}
 			break;
 
 			case VP64_CPY_RD:
 			{
-				*(uint64_t*)(regs[(ir >> 8) & 0xf] + regs[(ir >> 12) & 0xf]) = regs[*pc++];
+				int64_t sr_idx = *pc++;
+				vp_cpy_rd(sr_idx, (ir >> 8) & 0xf, (ir >> 12) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_RD_B:
 			{
-				*(uint8_t*)(regs[(ir >> 8) & 0xf] + regs[(ir >> 12) & 0xf]) = (uint8_t)regs[*pc++];
+				int64_t sr_idx = *pc++;
+				vp_cpy_rd_b(sr_idx, (ir >> 8) & 0xf, (ir >> 12) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_RD_S:
 			{
-				*(uint16_t*)(regs[(ir >> 8) & 0xf] + regs[(ir >> 12) & 0xf]) = (uint16_t)regs[*pc++];
+				int64_t sr_idx = *pc++;
+				vp_cpy_rd_s(sr_idx, (ir >> 8) & 0xf, (ir >> 12) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_RD_I:
 			{
-				*(uint32_t*)(regs[(ir >> 8) & 0xf] + regs[(ir >> 12) & 0xf]) = (uint32_t)regs[*pc++];
+				int64_t sr_idx = *pc++;
+				vp_cpy_rd_i(sr_idx, (ir >> 8) & 0xf, (ir >> 12) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_DR:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)*(int64_t*)(regs[(ir >> 12) & 0xf] + regs[*pc++]);
+				int64_t sr_idx = *pc++;
+				vp_cpy_dr((ir >> 12) & 0xf, sr_idx, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_DR_B:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)*(int8_t*)(regs[(ir >> 12) & 0xf] + regs[*pc++]);
+				int64_t sr_idx = *pc++;
+				vp_cpy_dr_b((ir >> 12) & 0xf, sr_idx, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_DR_S:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)*(int16_t*)(regs[(ir >> 12) & 0xf] + regs[*pc++]);
+				int64_t sr_idx = *pc++;
+				vp_cpy_dr_s((ir >> 12) & 0xf, sr_idx, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_DR_I:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)*(int32_t*)(regs[(ir >> 12) & 0xf] + regs[*pc++]);
+				int64_t sr_idx = *pc++;
+				vp_cpy_dr_i((ir >> 12) & 0xf, sr_idx, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_DR_UB:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)*(uint8_t*)(regs[(ir >> 12) & 0xf] + regs[*pc++]);
+				int64_t sr_idx = *pc++;
+				vp_cpy_dr_ub((ir >> 12) & 0xf, sr_idx, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_DR_US:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)*(uint16_t*)(regs[(ir >> 12) & 0xf] + regs[*pc++]);
+				int64_t sr_idx = *pc++;
+				vp_cpy_dr_us((ir >> 12) & 0xf, sr_idx, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_DR_UI:
 			{
-				regs[(ir >> 8) & 0xf] = (uint64_t)*(uint32_t*)(regs[(ir >> 12) & 0xf] + regs[*pc++]);
+				int64_t sr_idx = *pc++;
+				vp_cpy_dr_ui((ir >> 12) & 0xf, sr_idx, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_LEA_D:
 			{
-				regs[(ir >> 8) & 0xf] = regs[(ir >> 12) & 0xf] + regs[*pc++];
+				int64_t sr_idx = *pc++;
+				vp_lea_d((ir >> 12) & 0xf, sr_idx, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CALL_0:
 			{
-				regs[15] -= 8;
-				*(int16_t**)regs[15] = pc;
-				pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_call(ir >> 8);
 			}
 			break;
 
 			case VP64_CALL_1:
 			{
-				regs[15] -= 8;
-				*(int16_t**)regs[15] = pc + 1;
 				int64_t o = ((int64_t)*pc++ << 8) + ((ir >> 8) & 0xff);
-				pc = (int16_t*)((char*)pc + o);
+				vp_call_1(o, pc);
 			}
 			break;
 
 			case VP64_JMP_0:
 			{
-				pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_jmp(ir >> 8);
 			}
 			break;
 
 			case VP64_JMP_1:
 			{
 				int64_t o = ((int64_t)*pc++ << 8) + ((ir >> 8) & 0xff);
-				pc = (int16_t*)((char*)pc + o);
+				vp_jmp_1(o);
 			}
 			break;
 
 			case VP64_CALL_P_0:
 			{
-				regs[15] -= 8;
-				*(int16_t**)regs[15] = pc;
-				pc = *(int16_t**)((char*)pc + (ir >> 8));
+				vp_call_p(ir >> 8);
 			}
 			break;
 
 			case VP64_CALL_P_1:
 			{
-				regs[15] -= 8;
-				*(int16_t**)regs[15] = pc+1;
 				int64_t o = ((int64_t)*pc++ << 8) + ((ir >> 8) & 0xff);
-				pc = *(int16_t**)((char*)pc + o);
+				vp_call_p_1(o, pc);
 			}
 			break;
 
 			case VP64_JMP_P_0:
 			{
-				pc = *(int16_t**)((char*)pc + (ir >> 8));
+				vp_jmp_p(ir >> 8);
 			}
 			break;
 
 			case VP64_JMP_P_1:
 			{
 				int64_t o = ((int64_t)*pc++ << 8) + ((ir >> 8) & 0xff);
-				pc = *(int16_t**)((char*)pc + o);
+				vp_jmp_p_1(o);
 			}
 			break;
 
 			case VP64_CALL_ABI:
 			{
-				switch ((ir >> 12) & 0xf)
-				{
-					case 0:
-					{
-						typedef uint64_t(*FUNCPTR)(void);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)();
-					}
-					break;
-
-					case 1:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0]);
-					}
-					break;
-
-					case 2:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1]);
-					}
-					break;
-
-					case 3:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2]);
-					}
-					break;
-
-					case 4:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3]);
-					}
-					break;
-
-					case 5:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4]);
-					}
-					break;
-
-					case 6:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
-										regs[5]);
-					}
-					break;
-
-					case 7:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
-										  regs[5], regs[6]);
-					}
-					break;
-
-					case 8:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
-							regs[5], regs[6], regs[7]);
-					}
-					break;
-
-					case 9:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t, uint64_t,uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
-							regs[5], regs[6], regs[7], regs[8]);
-					}
-					break;
-
-					case 10:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t, uint64_t,uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
-							regs[5], regs[6], regs[7], regs[8], regs[9]);
-					}
-					break;
-
-					case 11:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
-							regs[5], regs[6], regs[7], regs[8], regs[9],
-							regs[10]);
-					}
-					break;
-
-					case 12:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
-							regs[5], regs[6], regs[7], regs[8], regs[9],
-							regs[10], regs[11]);
-					}
-					break;
-
-					case 13:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
-							regs[5], regs[6], regs[7], regs[8], regs[9],
-							regs[10], regs[11], regs[12]);
-					}
-					break;
-
-					case 14:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
-							regs[5], regs[6], regs[7], regs[8], regs[9],
-							regs[10], regs[11], regs[12], regs[13]);
-					}
-					break;
-
-					case 15:
-					{
-						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-												   uint64_t, uint64_t, uint64_t);
-						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
-							regs[5], regs[6], regs[7], regs[8], regs[9],
-							regs[10], regs[11], regs[12], regs[13], regs[14]);
-					}
-					break;
-				}
+				uint64_t o = (uint64_t)*(uint16_t*)pc++;
+				vp_call_abi((ir >> 12) & 0xf, (ir >> 8) & 0xf, o);
 			}
 			break;
 
 			case VP64_CALL_R:
 			{
-				regs[15] -= 8;
-				*(int16_t**)regs[15] = pc;
-				pc = (int16_t*)regs[(ir >> 8) & 0xf];			
+				vp_call_r((ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_JMP_R:
 			{
-				pc = (int16_t*)regs[(ir >> 8) & 0xf];
+				vp_jmp_r((ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CALL_I:
 			{
-				int64_t base = regs[(ir >> 8) & 0xf];
 				int64_t o = ((int64_t)*pc++ << 4) + ((ir >> 12) & 0xf);
-				regs[15] -= 8;
-				*(int16_t**)regs[15] = pc;
-				pc = *(int16_t**)(base + o);
+				vp_call_i((ir >> 8) & 0xf, o);
 			}
 			break;
 
 			case VP64_JMP_I:
 			{
 				int64_t o = ((int64_t)*pc++ << 4) + ((ir >> 12) & 0xf);
-				pc = *(int16_t**)(regs[(ir >> 8) & 0xf] + o);
+				vp_jmp_i((ir >> 8) & 0xf, o);
 			}
 			break;
 
 			case VP64_CPY_PR:
 			{
 				int64_t o = ((int64_t)*pc++ << 4) + ((ir >> 12) & 0xf);
-				regs[(ir >> 8) & 0xf] = *(int64_t*)((char*)pc + o);
+				vp_cpy_pr(o, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_LEA_P:
 			{
 				int64_t o = ((int64_t)*pc++ << 4) + ((ir >> 12) & 0xf);
-				regs[(ir >> 8) & 0xf] = (int64_t)((char*)pc + o);
+				vp_lea_p(o, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_RET:
 			{
-				pc = *(int16_t**)regs[15];
-				regs[15] += 8;
+				vp_ret();
 			}
 			break;
 
 			case VP64_SYNC:
 			{
-				sync.store(ir >> 8, std::memory_order_seq_cst);
+				vp_sync(ir >> 8);
 			}
 			break;
 
 			case VP64_BRK:
 			{
-				std::cout << "brk " << ((ir >> 8) & 0xff) << std::endl;
+				vp_brk((ir >> 8) & 0xff);
 			}
 			break;
 
 			case VP64_MIN_CR_0:
 			{
-				int64_t c = (int64_t)(ir << 52) >> 60;
-				int64_t d = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = (c < d) ? c : d;
+				vp_min_cr((int64_t)(ir << 52) >> 60, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MIN_CR_1:
 			{
 				int64_t c = (int64_t)(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4));
-				int64_t d = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = (c < d) ? c : d;
+				vp_min_cr(c, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -1321,8 +1333,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t c = (int64_t)(((ir >> 12) & 0xf) | o1 | ((int64_t)*pc++ << 20));
-				int64_t d = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = (c < d) ? c : d;
+				vp_min_cr(c, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -1332,24 +1343,20 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
 				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
 				int64_t c = (int64_t)(o0 | o1 | o2 | ((int64_t)*pc++ << 48));
-				int64_t d = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = (c < d) ? c : d;
+				vp_min_cr(c, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MAX_CR_0:
 			{
-				int64_t c = (int64_t)(ir << 52) >> 60;
-				int64_t d = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = (c > d) ? c : d;
+				vp_max_cr((int64_t)(ir << 52) >> 60, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MAX_CR_1:
 			{
 				int64_t c = (int64_t)(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4));
-				int64_t d = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = (c > d) ? c : d;
+				vp_max_cr(c, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -1357,8 +1364,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
 				int64_t c = (int64_t)(((ir >> 12) & 0xf) | o1 | ((int64_t)*pc++ << 20));
-				int64_t d = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = (c > d) ? c : d;
+				vp_max_cr(c, (ir >> 8) & 0xf);
 			}
 			break;
 
@@ -1368,232 +1374,221 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
 				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
 				int64_t c = (int64_t)(o0 | o1 | o2 | ((int64_t)*pc++ << 48));
-				int64_t d = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = (c > d) ? c : d;
+				vp_max_cr(c, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MIN_RR:
 			{
-				int64_t s = regs[(ir >> 12) & 0xf];
-				int64_t d = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = (s < d) ? s : d;
+				vp_min_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MAX_RR:
 			{
-				int64_t s = regs[(ir >> 12) & 0xf];
-				int64_t d = regs[(ir >> 8) & 0xf];
-				regs[(ir >> 8) & 0xf] = (s > d) ? s : d;
+				vp_max_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_ABS_RR:
 			{
-				int64_t s = regs[(ir >> 12) & 0xf];
-				regs[(ir >> 8) & 0xf] = (s < 0) ? -s : s;
+				vp_abs_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CMP_F:
 			{
-				compare_f1 = fregs[(ir >> 12) & 0xf];
-				compare_f2 = fregs[(ir >> 8) & 0xf];
+				vp_cmp_f((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_FF:
 			{
-				fregs[(ir >> 8) & 0xf] = fregs[(ir >> 12) & 0xf];
+				vp_cpy_ff((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_RF:
 			{
-				*(int64_t*)&fregs[(ir >> 8) & 0xf] = regs[(ir >> 12) & 0xf];
+				vp_cpy_rf((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_FR:
 			{
-				regs[(ir >> 8) & 0xf] = *(int64_t*)&fregs[(ir >> 12) & 0xf];
+				vp_cpy_fr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CVT_RF:
 			{
-				fregs[(ir >> 8) & 0xf] = (double)regs[(ir >> 12) & 0xf];
+				vp_cvt_rf((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CVT_FR:
 			{
-				regs[(ir >> 8) & 0xf] = (int64_t)fregs[(ir >> 12) & 0xf];
+				vp_cvt_fr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_ADD_FF:
 			{
-				fregs[(ir >> 8) & 0xf] += fregs[(ir >> 12) & 0xf];
+				vp_add_ff((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SUB_FF:
 			{
-				fregs[(ir >> 8) & 0xf] -= fregs[(ir >> 12) & 0xf];
+				vp_sub_ff((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MUL_FF:
 			{
-				fregs[(ir >> 8) & 0xf] *= fregs[(ir >> 12) & 0xf];
+				vp_mul_ff((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_DIV_FF:
 			{
-				fregs[(ir >> 8) & 0xf] /= fregs[(ir >> 12) & 0xf];
+				vp_div_ff((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MIN_FF:
 			{
-				double s = fregs[(ir >> 12) & 0xf];
-				double d = fregs[(ir >> 8) & 0xf];
-				fregs[(ir >> 8) & 0xf] = (s < d) ? s : d;
+				vp_min_ff((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_MAX_FF:
 			{
-				double s = fregs[(ir >> 12) & 0xf];
-				double d = fregs[(ir >> 8) & 0xf];
-				fregs[(ir >> 8) & 0xf] = (s > d) ? s : d;
+				vp_max_ff((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_SQRT_FF:
 			{
-				fregs[(ir >> 8) & 0xf] = std::sqrt(fregs[(ir >> 12) & 0xf]);
+				vp_sqrt_ff((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_FBEQ_0:
 			{
-				if (compare_f1 == compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_fbeq(ir >> 8);
 			}
 			break;
 
 			case VP64_FBEQ_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare_f1 == compare_f2) pc = (int16_t*)((char*)pc + offset);
+				vp_fbeq(offset);
 			}
 			break;
 
 			case VP64_FBNE_0:
 			{
-				if (compare_f1 != compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_fbne(ir >> 8);
 			}
 			break;
 
 			case VP64_FBNE_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare_f1 != compare_f2) pc = (int16_t*)((char*)pc + offset);
+				vp_fbne(offset);
 			}
 			break;
 
 			case VP64_FBLT_0:
 			{
-				if (compare_f2 < compare_f1) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_fblt(ir >> 8);
 			}
 			break;
 
 			case VP64_FBLT_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare_f2 < compare_f1) pc = (int16_t*)((char*)pc + offset);
+				vp_fblt(offset);
 			}
 			break;
 
 			case VP64_FBLE_0:
 			{
-				if (compare_f2 <= compare_f1) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_fble(ir >> 8);
 			}
 			break;
 
 			case VP64_FBLE_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare_f2 <= compare_f1) pc = (int16_t*)((char*)pc + offset);
+				vp_fble(offset);
 			}
 			break;
 
 			case VP64_FBGT_0:
 			{
-				if (compare_f2 > compare_f1) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_fbgt(ir >> 8);
 			}
 			break;
 
 			case VP64_FBGT_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare_f2 > compare_f1) pc = (int16_t*)((char*)pc + offset);
+				vp_fbgt(offset);
 			}
 			break;
 
 			case VP64_FBGE_0:
 			{
-				if (compare_f2 >= compare_f1) pc = (int16_t*)((char*)pc + (ir >> 8));
+				vp_fbge(ir >> 8);
 			}
 			break;
 
 			case VP64_FBGE_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare_f2 >= compare_f1) pc = (int16_t*)((char*)pc + offset);
+				vp_fbge(offset);
 			}
 			break;
 
 			case VP64_CPY_IF:
 			{
-				int64_t base = regs[(ir >> 12) & 0xf];
 				int64_t offset = (int64_t)*pc++;
-				fregs[(ir >> 8) & 0xf] = *(double*)(base + offset);
+				vp_cpy_if((ir >> 12) & 0xf, offset, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_CPY_FI:
 			{
-				int64_t base = regs[(ir >> 8) & 0xf];
 				int64_t offset = (int64_t)*pc++;
-				*(double*)(base + offset) = fregs[(ir >> 12) & 0xf];
+				vp_cpy_fi((ir >> 12) & 0xf, (ir >> 8) & 0xf, offset);
 			}
 			break;
 
             case VP64_CPY_DF:
             {
-                fregs[(ir >> 8) & 0xf] = *(double*)(regs[(ir >> 12) & 0xf] + regs[*pc++]);
+                int64_t index_reg = *pc++;
+                vp_cpy_df((ir >> 12) & 0xf, index_reg, (ir >> 8) & 0xf);
             }
             break;
 
             case VP64_CPY_FD:
             {
-                *(double*)(regs[(ir >> 12) & 0xf] + regs[*pc++]) = fregs[(ir >> 8) & 0xf];
+                int64_t index_reg = *pc++;
+                vp_cpy_fd((ir >> 8) & 0xf, (ir >> 12) & 0xf, index_reg);
             }
             break;
 
 			case VP64_ABS_FF:
 			{
-				fregs[(ir >> 8) & 0xf] = std::abs(fregs[(ir >> 12) & 0xf]);
+				vp_abs_ff((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
 			case VP64_NEG_FF:
 			{
-				fregs[(ir >> 8) & 0xf] = -fregs[(ir >> 12) & 0xf];
+				vp_neg_ff((ir >> 12) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
