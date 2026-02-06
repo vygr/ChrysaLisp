@@ -773,7 +773,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 			case VP64_LNOT_RR:
 			{
-				vp_lnot_rr((ir >> 12) & 0xf, (ir >> 8) & 0xf);
+				vp_lnot_rr((ir >> 8) & 0xf, (ir >> 8) & 0xf);
 			}
 			break;
 
