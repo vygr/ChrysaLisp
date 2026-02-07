@@ -107,32 +107,34 @@ struct u128 { uint64_t lo; uint64_t hi; };
 #define vp_abs_rr(sr, dr) { int64_t _sr = regs[sr]; regs[dr] = (_sr < 0) ? -_sr : _sr; }
 
 #define vp_mem_ir(sr, o, dr, t) regs[dr] = (int64_t)*(t*)(regs[sr] + o)
-#define vp_cpy_ir(sr, o, dr) vp_mem_ir(sr, o, dr, int64_t)
+#define vp_mem_ri(sr, dr, o, t) *(t*)(regs[dr] + o) = (t)regs[sr]
+#define vp_lea_i(sr, o, dr) regs[dr] = regs[sr] + o
 #define vp_cpy_ir_b(sr, o, dr) vp_mem_ir(sr, o, dr, int8_t)
 #define vp_cpy_ir_s(sr, o, dr) vp_mem_ir(sr, o, dr, int16_t)
 #define vp_cpy_ir_i(sr, o, dr) vp_mem_ir(sr, o, dr, int32_t)
-#define vp_cpy_ir_ub(sr, o, dr) regs[dr] = (uint64_t)*(uint8_t*)(regs[sr] + o)
-#define vp_cpy_ir_us(sr, o, dr) regs[dr] = (uint64_t)*(uint16_t*)(regs[sr] + o)
-#define vp_cpy_ir_ui(sr, o, dr) regs[dr] = (uint64_t)*(uint32_t*)(regs[sr] + o)
-#define vp_lea_i(sr, o, dr) regs[dr] = regs[sr] + o
-#define vp_cpy_ri(sr, dr, o) *(int64_t*)(regs[dr] + o) = regs[sr]
-#define vp_cpy_ri_b(sr, dr, o) *(int8_t*)(regs[dr] + o) = (int8_t)regs[sr]
-#define vp_cpy_ri_s(sr, dr, o) *(int16_t*)(regs[dr] + o) = (int16_t)regs[sr]
-#define vp_cpy_ri_i(sr, dr, o) *(int32_t*)(regs[dr] + o) = (int32_t)regs[sr]
+#define vp_cpy_ir(sr, o, dr) vp_mem_ir(sr, o, dr, int64_t)
+#define vp_cpy_ir_ub(sr, o, dr) vp_mem_ir(sr, o, dr, uint8_t)
+#define vp_cpy_ir_us(sr, o, dr) vp_mem_ir(sr, o, dr, uint16_t)
+#define vp_cpy_ir_ui(sr, o, dr) vp_mem_ir(sr, o, dr, uint32_t)
+#define vp_cpy_ri_b(sr, dr, o) vp_mem_ri(sr, dr, o, int8_t)
+#define vp_cpy_ri_s(sr, dr, o) vp_mem_ri(sr, dr, o, int16_t)
+#define vp_cpy_ri_i(sr, dr, o) vp_mem_ri(sr, dr, o, int32_t)
+#define vp_cpy_ri(sr, dr, o) vp_mem_ri(sr, dr, o, int64_t)
 
-#define vp_cpy_rd(sr, b, dr) *(uint64_t*)(regs[b] + regs[dr]) = regs[sr]
-#define vp_cpy_rd_b(sr, b, dr) *(uint8_t*)(regs[b] + regs[dr]) = (uint8_t)regs[sr]
-#define vp_cpy_rd_s(sr, b, dr) *(uint16_t*)(regs[b] + regs[dr]) = (uint16_t)regs[sr]
-#define vp_cpy_rd_i(sr, b, dr) *(uint32_t*)(regs[b] + regs[dr]) = (uint32_t)regs[sr]
-#define vp_mem_dr(b, sr, dr, t) regs[dr] = (uint64_t)*(t*)(regs[b] + regs[sr])
-#define vp_cpy_dr(b, sr, dr) vp_mem_dr(b, sr, dr, int64_t)
+#define vp_mem_dr(b, sr, dr, t) regs[dr] = (int64_t)*(t*)(regs[b] + regs[sr])
+#define vp_mem_rd(sr, b, dr, t) *(t*)(regs[b] + regs[dr]) = (t)regs[sr]
+#define vp_lea_d(b, sr, dr) regs[dr] = regs[b] + regs[sr]
+#define vp_cpy_rd_b(sr, b, dr) vp_mem_rd(sr, b, dr, uint8_t)
+#define vp_cpy_rd_s(sr, b, dr) vp_mem_rd(sr, b, dr, uint16_t)
+#define vp_cpy_rd_i(sr, b, dr) vp_mem_rd(sr, b, dr, uint32_t)
+#define vp_cpy_rd(sr, b, dr) vp_mem_rd(sr, b, dr, uint64_t)
 #define vp_cpy_dr_b(b, sr, dr) vp_mem_dr(b, sr, dr, int8_t)
 #define vp_cpy_dr_s(b, sr, dr) vp_mem_dr(b, sr, dr, int16_t)
 #define vp_cpy_dr_i(b, sr, dr) vp_mem_dr(b, sr, dr, int32_t)
+#define vp_cpy_dr(b, sr, dr) vp_mem_dr(b, sr, dr, int64_t)
 #define vp_cpy_dr_ub(b, sr, dr) vp_mem_dr(b, sr, dr, uint8_t)
 #define vp_cpy_dr_us(b, sr, dr) vp_mem_dr(b, sr, dr, uint16_t)
 #define vp_cpy_dr_ui(b, sr, dr) vp_mem_dr(b, sr, dr, uint32_t)
-#define vp_lea_d(b, sr, dr) regs[dr] = regs[b] + regs[sr]
 
 #define vp_branch(c, o) { int64_t _o = (o); if (c) pc = (int16_t*)((char*)pc + _o); }
 #define vp_beq(o) vp_branch(compare1 == compare2, o)
