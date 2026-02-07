@@ -45,7 +45,8 @@ enum Opcodes {
 	vp64_sge_cr_0, vp64_sge_cr_1, vp64_sge_cr_2,
 
 	// Group 7: Set-on-Comparison (RR)
-	vp64_seq_rr, vp64_sne_rr, vp64_slt_rr, vp64_sle_rr, vp64_sgt_rr, vp64_sge_rr,
+	vp64_seq_rr, vp64_sne_rr, vp64_slt_rr,
+	vp64_sle_rr, vp64_sgt_rr, vp64_sge_rr,
 
 	// Group 11: Load/Store (Indexed I)
 	vp64_cpy_ir, vp64_cpy_ir_b, vp64_cpy_ir_s, vp64_cpy_ir_i,
@@ -80,8 +81,8 @@ enum Opcodes {
 	vp64_cpy_pr, vp64_lea_p, vp64_call_abi, vp64_ret, vp64_sync, vp64_brk,
 
 	// Group 14: Float ALU
-	vp64_add_ff, vp64_sub_ff, vp64_mul_ff, vp64_div_ff,
-	vp64_min_ff, vp64_max_ff, vp64_sqrt_ff, vp64_abs_ff, vp64_neg_ff, vp64_cpy_ff,
+	vp64_add_ff, vp64_sub_ff, vp64_mul_ff, vp64_div_ff, vp64_min_ff,
+	vp64_max_ff, vp64_sqrt_ff, vp64_abs_ff, vp64_neg_ff, vp64_cpy_ff,
 
 	// Group 15: Float Convert/Copy
 	vp64_cvt_rf, vp64_cvt_fr, vp64_cpy_rf, vp64_cpy_fr,
@@ -284,7 +285,8 @@ struct u128 { uint64_t lo; uint64_t hi; };
 	case vp64_##op##_cr_0: vp_##op##_cr(vd_c0(), vd_dr()); break; \
 	case vp64_##op##_cr_1: vp_##op##_cr(vd_c1(), vd_dr()); break; \
 	case vp64_##op##_cr_2: vp_##op##_cr(vd_c2(), vd_dr()); break;
-#define VP_OP_RR(op, type) case vp64_##op##_##type: vp_##op##_##type(vd_sr(), vd_dr()); break;
+#define VP_OP_RR(op, type) \
+	case vp64_##op##_##type: vp_##op##_##type(vd_sr(), vd_dr()); break;
 #define VP_B_OP(op) \
 	case vp64_##op##_0: vp_##op(vd_o0()); break; \
 	case vp64_##op##_1: vp_##op(vd_o1()); break;
