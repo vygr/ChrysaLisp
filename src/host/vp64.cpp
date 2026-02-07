@@ -48,9 +48,9 @@ enum Opcodes {
 	vp64_seq_rr, vp64_sne_rr, vp64_slt_rr, vp64_sle_rr, vp64_sgt_rr, vp64_sge_rr,
 
 	// Group 11: Load/Store (Indexed I)
-	vp64_cpy_ir_0, vp64_cpy_ir_b_0, vp64_cpy_ir_s_0, vp64_cpy_ir_i_0,
-	vp64_cpy_ir_ub_0, vp64_cpy_ir_us_0, vp64_cpy_ir_ui_0, vp64_lea_i_0,
-	vp64_cpy_ri_0, vp64_cpy_ri_b_0, vp64_cpy_ri_s_0, vp64_cpy_ri_i_0,
+	vp64_cpy_ir, vp64_cpy_ir_b, vp64_cpy_ir_s, vp64_cpy_ir_i,
+	vp64_cpy_ir_ub, vp64_cpy_ir_us, vp64_cpy_ir_ui, vp64_lea_i,
+	vp64_cpy_ri, vp64_cpy_ri_b, vp64_cpy_ri_s, vp64_cpy_ri_i,
 
 	// Group 12: Load/Store (Indexed D)
 	vp64_cpy_rd, vp64_cpy_rd_b, vp64_cpy_rd_s, vp64_cpy_rd_i,
@@ -289,18 +289,18 @@ struct u128 { uint64_t lo; uint64_t hi; };
 	case vp64_##op##_0: vp_##op(vd_o0()); break; \
 	case vp64_##op##_1: vp_##op(vd_o1()); break;
 #define VP_IR_OP(op) \
-	case vp64_##op##_ir_0: vp_##op##_ir(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_b_0: vp_##op##_ir_b(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_s_0: vp_##op##_ir_s(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_i_0: vp_##op##_ir_i(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_ub_0: vp_##op##_ir_ub(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_us_0: vp_##op##_ir_us(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_ui_0: vp_##op##_ir_ui(vd_sr(), vd_i(), vd_dr()); break;
+	case vp64_##op##_ir: vp_##op##_ir(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_b: vp_##op##_ir_b(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_s: vp_##op##_ir_s(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_i: vp_##op##_ir_i(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_ub: vp_##op##_ir_ub(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_us: vp_##op##_ir_us(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_ui: vp_##op##_ir_ui(vd_sr(), vd_i(), vd_dr()); break;
 #define VP_RI_OP(op) \
-	case vp64_##op##_ri_0: vp_##op##_ri(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_##op##_ri_b_0: vp_##op##_ri_b(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_##op##_ri_s_0: vp_##op##_ri_s(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_##op##_ri_i_0: vp_##op##_ri_i(vd_sr(), vd_dr(), vd_i()); break;
+	case vp64_##op##_ri: vp_##op##_ri(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_##op##_ri_b: vp_##op##_ri_b(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_##op##_ri_s: vp_##op##_ri_s(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_##op##_ri_i: vp_##op##_ri_i(vd_sr(), vd_dr(), vd_i()); break;
 #define VP_RD_OP(op) \
 	case vp64_##op##_rd: vp_##op##_rd(vd_sc(), vd_dr(), vd_sr()); break; \
 	case vp64_##op##_rd_b: vp_##op##_rd_b(vd_sc(), vd_dr(), vd_sr()); break; \
@@ -380,7 +380,7 @@ struct u128 { uint64_t lo; uint64_t hi; };
 
 #define VP_IR_ALL \
 	VP_IR_OP(cpy) \
-	case vp64_lea_i_0: vp_lea_i(vd_sr(), vd_i(), vd_dr()); break;
+	case vp64_lea_i: vp_lea_i(vd_sr(), vd_i(), vd_dr()); break;
 
 #define VP_RI_ALL \
 	VP_RI_OP(cpy)
