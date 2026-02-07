@@ -8,34 +8,34 @@
 #include "pii.h"
 
 enum Opcodes {
-	VP64_CPY_CR_0, VP64_CPY_CR_1, VP64_CPY_CR_2, VP64_CPY_CR_3, VP64_ADD_CR_0, VP64_ADD_CR_1, VP64_ADD_CR_2, VP64_ADD_CR_3,
-	VP64_SUB_CR_0, VP64_SUB_CR_1, VP64_SUB_CR_2, VP64_SUB_CR_3, VP64_CMP_CR_0, VP64_CMP_CR_1, VP64_CMP_CR_2, VP64_CMP_CR_3,
-	VP64_MUL_CR_0, VP64_MUL_CR_1, VP64_MUL_CR_2, VP64_MUL_CR_3, VP64_AND_CR_0, VP64_AND_CR_1, VP64_AND_CR_2, VP64_AND_CR_3,
-	VP64_OR_CR_0, VP64_OR_CR_1, VP64_OR_CR_2, VP64_OR_CR_3, VP64_XOR_CR_0, VP64_XOR_CR_1, VP64_XOR_CR_2, VP64_XOR_CR_3,
-	VP64_SHL_CR, VP64_SHR_CR, VP64_ASR_CR,
-	VP64_CPY_RR, VP64_ADD_RR, VP64_SUB_RR, VP64_CMP_RR, VP64_MUL_RR, VP64_AND_RR, VP64_OR_RR, VP64_XOR_RR,
-	VP64_SHL_RR, VP64_SHR_RR, VP64_ASR_RR, VP64_LNOT_RR, VP64_LAND_RR, VP64_SWP_RR, VP64_EXT_RR,
-	VP64_DIV_RRR, VP64_DIV_RRR_U,
-	VP64_SEQ_CR_0, VP64_SEQ_CR_1, VP64_SEQ_CR_2, VP64_SNE_CR_0, VP64_SNE_CR_1, VP64_SNE_CR_2,
-	VP64_SLT_CR_0, VP64_SLT_CR_1, VP64_SLT_CR_2, VP64_SLE_CR_0, VP64_SLE_CR_1, VP64_SLE_CR_2,
-	VP64_SGT_CR_0, VP64_SGT_CR_1, VP64_SGT_CR_2, VP64_SGE_CR_0, VP64_SGE_CR_1, VP64_SGE_CR_2,
-	VP64_SEQ_RR, VP64_SNE_RR, VP64_SLT_RR, VP64_SLE_RR, VP64_SGT_RR, VP64_SGE_RR,
-	VP64_BEQ_0, VP64_BEQ_1, VP64_BNE_0, VP64_BNE_1, VP64_BGE_0, VP64_BGE_1,
-	VP64_BLT_0, VP64_BLT_1, VP64_BLE_0, VP64_BLE_1, VP64_BGT_0, VP64_BGT_1,
-	VP64_CPY_IR_0, VP64_CPY_IR_B_0, VP64_CPY_IR_S_0, VP64_CPY_IR_I_0, VP64_CPY_IR_UB_0, VP64_CPY_IR_US_0, VP64_CPY_IR_UI_0, VP64_LEA_I_0,
-	VP64_CPY_RI_0, VP64_CPY_RI_B_0, VP64_CPY_RI_S_0, VP64_CPY_RI_I_0,
-	VP64_CPY_RD, VP64_CPY_RD_B, VP64_CPY_RD_S, VP64_CPY_RD_I,
-	VP64_CPY_DR, VP64_CPY_DR_B, VP64_CPY_DR_S, VP64_CPY_DR_I, VP64_CPY_DR_UB, VP64_CPY_DR_US, VP64_CPY_DR_UI, VP64_LEA_D,
-	VP64_CALL_R, VP64_JMP_R, VP64_CALL_I, VP64_JMP_I, VP64_CPY_PR, VP64_LEA_P,
-	VP64_CALL_0, VP64_CALL_1, VP64_JMP_0, VP64_JMP_1, VP64_CALL_P_0, VP64_CALL_P_1, VP64_JMP_P_0, VP64_JMP_P_1,
-	VP64_CALL_ABI, VP64_RET, VP64_SYNC, VP64_BRK,
-	VP64_MIN_CR_0, VP64_MIN_CR_1, VP64_MIN_CR_2, VP64_MIN_CR_3, VP64_MAX_CR_0, VP64_MAX_CR_1, VP64_MAX_CR_2, VP64_MAX_CR_3,
-	VP64_MIN_RR, VP64_MAX_RR, VP64_ABS_RR,
-	VP64_CMP_F, VP64_CPY_FF, VP64_CPY_RF, VP64_CPY_FR, VP64_CVT_RF, VP64_CVT_FR,
-	VP64_ADD_FF, VP64_SUB_FF, VP64_MUL_FF, VP64_DIV_FF, VP64_MIN_FF, VP64_MAX_FF, VP64_SQRT_FF,
-	VP64_FBEQ_0, VP64_FBEQ_1, VP64_FBNE_0, VP64_FBNE_1, VP64_FBGE_0, VP64_FBGE_1,
-	VP64_FBLT_0, VP64_FBLT_1, VP64_FBLE_0, VP64_FBLE_1, VP64_FBGT_0, VP64_FBGT_1,
-	VP64_CPY_IF, VP64_CPY_FI, VP64_ABS_FF, VP64_NEG_FF, VP64_CPY_DF, VP64_CPY_FD,
+	vp64_cpy_cr_0, vp64_cpy_cr_1, vp64_cpy_cr_2, vp64_cpy_cr_3, vp64_add_cr_0, vp64_add_cr_1, vp64_add_cr_2, vp64_add_cr_3,
+	vp64_sub_cr_0, vp64_sub_cr_1, vp64_sub_cr_2, vp64_sub_cr_3, vp64_cmp_cr_0, vp64_cmp_cr_1, vp64_cmp_cr_2, vp64_cmp_cr_3,
+	vp64_mul_cr_0, vp64_mul_cr_1, vp64_mul_cr_2, vp64_mul_cr_3, vp64_and_cr_0, vp64_and_cr_1, vp64_and_cr_2, vp64_and_cr_3,
+	vp64_or_cr_0, vp64_or_cr_1, vp64_or_cr_2, vp64_or_cr_3, vp64_xor_cr_0, vp64_xor_cr_1, vp64_xor_cr_2, vp64_xor_cr_3,
+	vp64_shl_cr, vp64_shr_cr, vp64_asr_cr,
+	vp64_cpy_rr, vp64_add_rr, vp64_sub_rr, vp64_cmp_rr, vp64_mul_rr, vp64_and_rr, vp64_or_rr, vp64_xor_rr,
+	vp64_shl_rr, vp64_shr_rr, vp64_asr_rr, vp64_lnot_rr, vp64_land_rr, vp64_swp_rr, vp64_ext_rr,
+	vp64_div_rrr, vp64_div_rrr_u,
+	vp64_seq_cr_0, vp64_seq_cr_1, vp64_seq_cr_2, vp64_sne_cr_0, vp64_sne_cr_1, vp64_sne_cr_2,
+	vp64_slt_cr_0, vp64_slt_cr_1, vp64_slt_cr_2, vp64_sle_cr_0, vp64_sle_cr_1, vp64_sle_cr_2,
+	vp64_sgt_cr_0, vp64_sgt_cr_1, vp64_sgt_cr_2, vp64_sge_cr_0, vp64_sge_cr_1, vp64_sge_cr_2,
+	vp64_seq_rr, vp64_sne_rr, vp64_slt_rr, vp64_sle_rr, vp64_sgt_rr, vp64_sge_rr,
+	vp64_beq_0, vp64_beq_1, vp64_bne_0, vp64_bne_1, vp64_bge_0, vp64_bge_1,
+	vp64_blt_0, vp64_blt_1, vp64_ble_0, vp64_ble_1, vp64_bgt_0, vp64_bgt_1,
+	vp64_cpy_ir_0, vp64_cpy_ir_b_0, vp64_cpy_ir_s_0, vp64_cpy_ir_i_0, vp64_cpy_ir_ub_0, vp64_cpy_ir_us_0, vp64_cpy_ir_ui_0, vp64_lea_i_0,
+	vp64_cpy_ri_0, vp64_cpy_ri_b_0, vp64_cpy_ri_s_0, vp64_cpy_ri_i_0,
+	vp64_cpy_rd, vp64_cpy_rd_b, vp64_cpy_rd_s, vp64_cpy_rd_i,
+	vp64_cpy_dr, vp64_cpy_dr_b, vp64_cpy_dr_s, vp64_cpy_dr_i, vp64_cpy_dr_ub, vp64_cpy_dr_us, vp64_cpy_dr_ui, vp64_lea_d,
+	vp64_call_r, vp64_jmp_r, vp64_call_i, vp64_jmp_i, vp64_cpy_pr, vp64_lea_p,
+	vp64_call_0, vp64_call_1, vp64_jmp_0, vp64_jmp_1, vp64_call_p_0, vp64_call_p_1, vp64_jmp_p_0, vp64_jmp_p_1,
+	vp64_call_abi, vp64_ret, vp64_sync, vp64_brk,
+	vp64_min_cr_0, vp64_min_cr_1, vp64_min_cr_2, vp64_min_cr_3, vp64_max_cr_0, vp64_max_cr_1, vp64_max_cr_2, vp64_max_cr_3,
+	vp64_min_rr, vp64_max_rr, vp64_abs_rr,
+	vp64_cmp_f, vp64_cpy_ff, vp64_cpy_rf, vp64_cpy_fr, vp64_cvt_rf, vp64_cvt_fr,
+	vp64_add_ff, vp64_sub_ff, vp64_mul_ff, vp64_div_ff, vp64_min_ff, vp64_max_ff, vp64_sqrt_ff,
+	vp64_fbeq_0, vp64_fbeq_1, vp64_fbne_0, vp64_fbne_1, vp64_fbge_0, vp64_fbge_1,
+	vp64_fblt_0, vp64_fblt_1, vp64_fble_0, vp64_fble_1, vp64_fbgt_0, vp64_fbgt_1,
+	vp64_cpy_if, vp64_cpy_fi, vp64_abs_ff, vp64_neg_ff, vp64_cpy_df, vp64_cpy_fd,
 };
 
 #include <atomic>
@@ -224,149 +224,149 @@ struct u128 { uint64_t lo; uint64_t hi; };
 #define vd_o0() ((int8_t)(ir >> 8))
 #define vd_o1() (((ir >> 8) & 0xff) + ((int64_t)*pc++ << 8))
 
-#define VP_CR_OP(op, lop) \
-	case VP64_##op##_CR_0: vp_##lop##_cr(vd_c0(), vd_dr()); break; \
-	case VP64_##op##_CR_1: vp_##lop##_cr(vd_c1(), vd_dr()); break; \
-	case VP64_##op##_CR_2: vp_##lop##_cr(vd_c2(), vd_dr()); break; \
-	case VP64_##op##_CR_3: vp_##lop##_cr(vd_c3(), vd_dr()); break;
-#define VP_CR_OP3(op, lop) \
-	case VP64_##op##_CR_0: vp_##lop##_cr(vd_c0(), vd_dr()); break; \
-	case VP64_##op##_CR_1: vp_##lop##_cr(vd_c1(), vd_dr()); break; \
-	case VP64_##op##_CR_2: vp_##lop##_cr(vd_c2(), vd_dr()); break;
-#define VP_OP_RR(op, lop, type, ltype) case VP64_##op##_##type: vp_##lop##_##ltype(vd_sr(), vd_dr()); break;
-#define VP_B_OP(op, lop) \
-	case VP64_##op##_0: vp_##lop(vd_o0()); break; \
-	case VP64_##op##_1: vp_##lop(vd_o1()); break;
-#define VP_IR_OP(op, lop) \
-	case VP64_##op##_IR_0: vp_##lop##_ir(vd_sr(), vd_i(), vd_dr()); break; \
-	case VP64_##op##_IR_B_0: vp_##lop##_ir_b(vd_sr(), vd_i(), vd_dr()); break; \
-	case VP64_##op##_IR_S_0: vp_##lop##_ir_s(vd_sr(), vd_i(), vd_dr()); break; \
-	case VP64_##op##_IR_I_0: vp_##lop##_ir_i(vd_sr(), vd_i(), vd_dr()); break; \
-	case VP64_##op##_IR_UB_0: vp_##lop##_ir_ub(vd_sr(), vd_i(), vd_dr()); break; \
-	case VP64_##op##_IR_US_0: vp_##lop##_ir_us(vd_sr(), vd_i(), vd_dr()); break; \
-	case VP64_##op##_IR_UI_0: vp_##lop##_ir_ui(vd_sr(), vd_i(), vd_dr()); break;
-#define VP_RI_OP(op, lop) \
-	case VP64_##op##_RI_0: vp_##lop##_ri(vd_sr(), vd_dr(), vd_i()); break; \
-	case VP64_##op##_RI_B_0: vp_##lop##_ri_b(vd_sr(), vd_dr(), vd_i()); break; \
-	case VP64_##op##_RI_S_0: vp_##lop##_ri_s(vd_sr(), vd_dr(), vd_i()); break; \
-	case VP64_##op##_RI_I_0: vp_##lop##_ri_i(vd_sr(), vd_dr(), vd_i()); break;
-#define VP_RD_OP(op, lop) \
-	case VP64_##op##_RD: vp_##lop##_rd(vd_sc(), vd_dr(), vd_sr()); break; \
-	case VP64_##op##_RD_B: vp_##lop##_rd_b(vd_sc(), vd_dr(), vd_sr()); break; \
-	case VP64_##op##_RD_S: vp_##lop##_rd_s(vd_sc(), vd_dr(), vd_sr()); break; \
-	case VP64_##op##_RD_I: vp_##lop##_rd_i(vd_sc(), vd_dr(), vd_sr()); break;
-#define VP_DR_OP(op, lop) \
-	case VP64_##op##_DR: vp_##lop##_dr(vd_sr(), vd_sc(), vd_dr()); break; \
-	case VP64_##op##_DR_B: vp_##lop##_dr_b(vd_sr(), vd_sc(), vd_dr()); break; \
-	case VP64_##op##_DR_S: vp_##lop##_dr_s(vd_sr(), vd_sc(), vd_dr()); break; \
-	case VP64_##op##_DR_I: vp_##lop##_dr_i(vd_sr(), vd_sc(), vd_dr()); break; \
-	case VP64_##op##_DR_UB: vp_##lop##_dr_ub(vd_sr(), vd_sc(), vd_dr()); break; \
-	case VP64_##op##_DR_US: vp_##lop##_dr_us(vd_sr(), vd_sc(), vd_dr()); break; \
-	case VP64_##op##_DR_UI: vp_##lop##_dr_ui(vd_sr(), vd_sc(), vd_dr()); break;
+#define VP_CR_OP(op) \
+	case vp64_##op##_cr_0: vp_##op##_cr(vd_c0(), vd_dr()); break; \
+	case vp64_##op##_cr_1: vp_##op##_cr(vd_c1(), vd_dr()); break; \
+	case vp64_##op##_cr_2: vp_##op##_cr(vd_c2(), vd_dr()); break; \
+	case vp64_##op##_cr_3: vp_##op##_cr(vd_c3(), vd_dr()); break;
+#define VP_CR_OP3(op) \
+	case vp64_##op##_cr_0: vp_##op##_cr(vd_c0(), vd_dr()); break; \
+	case vp64_##op##_cr_1: vp_##op##_cr(vd_c1(), vd_dr()); break; \
+	case vp64_##op##_cr_2: vp_##op##_cr(vd_c2(), vd_dr()); break;
+#define VP_OP_RR(op, type) case vp64_##op##_##type: vp_##op##_##type(vd_sr(), vd_dr()); break;
+#define VP_B_OP(op) \
+	case vp64_##op##_0: vp_##op(vd_o0()); break; \
+	case vp64_##op##_1: vp_##op(vd_o1()); break;
+#define VP_IR_OP(op) \
+	case vp64_##op##_ir_0: vp_##op##_ir(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_b_0: vp_##op##_ir_b(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_s_0: vp_##op##_ir_s(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_i_0: vp_##op##_ir_i(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_ub_0: vp_##op##_ir_ub(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_us_0: vp_##op##_ir_us(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_##op##_ir_ui_0: vp_##op##_ir_ui(vd_sr(), vd_i(), vd_dr()); break;
+#define VP_RI_OP(op) \
+	case vp64_##op##_ri_0: vp_##op##_ri(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_##op##_ri_b_0: vp_##op##_ri_b(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_##op##_ri_s_0: vp_##op##_ri_s(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_##op##_ri_i_0: vp_##op##_ri_i(vd_sr(), vd_dr(), vd_i()); break;
+#define VP_RD_OP(op) \
+	case vp64_##op##_rd: vp_##op##_rd(vd_sc(), vd_dr(), vd_sr()); break; \
+	case vp64_##op##_rd_b: vp_##op##_rd_b(vd_sc(), vd_dr(), vd_sr()); break; \
+	case vp64_##op##_rd_s: vp_##op##_rd_s(vd_sc(), vd_dr(), vd_sr()); break; \
+	case vp64_##op##_rd_i: vp_##op##_rd_i(vd_sc(), vd_dr(), vd_sr()); break;
+#define VP_DR_OP(op) \
+	case vp64_##op##_dr: vp_##op##_dr(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_##op##_dr_b: vp_##op##_dr_b(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_##op##_dr_s: vp_##op##_dr_s(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_##op##_dr_i: vp_##op##_dr_i(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_##op##_dr_ub: vp_##op##_dr_ub(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_##op##_dr_us: vp_##op##_dr_us(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_##op##_dr_ui: vp_##op##_dr_ui(vd_sr(), vd_sc(), vd_dr()); break;
 
 #define VP_CR_ALL \
-	VP_CR_OP(CPY, cpy) \
-	VP_CR_OP(ADD, add) \
-	VP_CR_OP(SUB, sub) \
-	VP_CR_OP(CMP, cmp) \
-	VP_CR_OP(MUL, mul) \
-	VP_CR_OP(AND, and) \
-	VP_CR_OP(OR, or) \
-	VP_CR_OP(XOR, xor)
+	VP_CR_OP(cpy) \
+	VP_CR_OP(add) \
+	VP_CR_OP(sub) \
+	VP_CR_OP(cmp) \
+	VP_CR_OP(mul) \
+	VP_CR_OP(and) \
+	VP_CR_OP(or) \
+	VP_CR_OP(xor)
 
 #define VP_RR_ALL \
-	VP_OP_RR(CPY, cpy, RR, rr) \
-	VP_OP_RR(ADD, add, RR, rr) \
-	VP_OP_RR(SUB, sub, RR, rr) \
-	VP_OP_RR(CMP, cmp, RR, rr) \
-	VP_OP_RR(MUL, mul, RR, rr) \
-	VP_OP_RR(AND, and, RR, rr) \
-	VP_OP_RR(OR, or, RR, rr) \
-	VP_OP_RR(XOR, xor, RR, rr) \
-	VP_OP_RR(SHL, shl, RR, rr) \
-	VP_OP_RR(SHR, shr, RR, rr) \
-	VP_OP_RR(ASR, asr, RR, rr) \
-	VP_OP_RR(LNOT, lnot, RR, rr) \
-	VP_OP_RR(LAND, land, RR, rr) \
-	VP_OP_RR(SWP, swp, RR, rr) \
-	VP_OP_RR(EXT, ext, RR, rr)
+	VP_OP_RR(cpy, rr) \
+	VP_OP_RR(add, rr) \
+	VP_OP_RR(sub, rr) \
+	VP_OP_RR(cmp, rr) \
+	VP_OP_RR(mul, rr) \
+	VP_OP_RR(and, rr) \
+	VP_OP_RR(or, rr) \
+	VP_OP_RR(xor, rr) \
+	VP_OP_RR(shl, rr) \
+	VP_OP_RR(shr, rr) \
+	VP_OP_RR(asr, rr) \
+	VP_OP_RR(lnot, rr) \
+	VP_OP_RR(land, rr) \
+	VP_OP_RR(swp, rr) \
+	VP_OP_RR(ext, rr)
 
 #define VP_CMP_ALL \
-	VP_CR_OP3(SEQ, seq) \
-	VP_CR_OP3(SNE, sne) \
-	VP_CR_OP3(SLT, slt) \
-	VP_CR_OP3(SLE, sle) \
-	VP_CR_OP3(SGT, sgt) \
-	VP_CR_OP3(SGE, sge) \
-	VP_OP_RR(SEQ, seq, RR, rr) \
-	VP_OP_RR(SNE, sne, RR, rr) \
-	VP_OP_RR(SLT, slt, RR, rr) \
-	VP_OP_RR(SLE, sle, RR, rr) \
-	VP_OP_RR(SGT, sgt, RR, rr) \
-	VP_OP_RR(SGE, sge, RR, rr)
+	VP_CR_OP3(seq) \
+	VP_CR_OP3(sne) \
+	VP_CR_OP3(slt) \
+	VP_CR_OP3(sle) \
+	VP_CR_OP3(sgt) \
+	VP_CR_OP3(sge) \
+	VP_OP_RR(seq, rr) \
+	VP_OP_RR(sne, rr) \
+	VP_OP_RR(slt, rr) \
+	VP_OP_RR(sle, rr) \
+	VP_OP_RR(sgt, rr) \
+	VP_OP_RR(sge, rr)
 
 #define VP_B_ALL \
-	VP_B_OP(BEQ, beq) \
-	VP_B_OP(BNE, bne) \
-	VP_B_OP(BGE, bge) \
-	VP_B_OP(BLT, blt) \
-	VP_B_OP(BLE, ble) \
-	VP_B_OP(BGT, bgt)
+	VP_B_OP(beq) \
+	VP_B_OP(bne) \
+	VP_B_OP(bge) \
+	VP_B_OP(blt) \
+	VP_B_OP(ble) \
+	VP_B_OP(bgt)
 
 #define VP_F_ALL \
-	VP_OP_RR(CPY, cpy, FF, ff) \
-	VP_OP_RR(CPY, cpy, RF, rf) \
-	VP_OP_RR(CPY, cpy, FR, fr) \
-	VP_OP_RR(CVT, cvt, RF, rf) \
-	VP_OP_RR(CVT, cvt, FR, fr) \
-	VP_OP_RR(ADD, add, FF, ff) \
-	VP_OP_RR(SUB, sub, FF, ff) \
-	VP_OP_RR(MUL, mul, FF, ff) \
-	VP_OP_RR(DIV, div, FF, ff) \
-	VP_OP_RR(MIN, min, FF, ff) \
-	VP_OP_RR(MAX, max, FF, ff) \
-	VP_OP_RR(SQRT, sqrt, FF, ff) \
-	VP_B_OP(FBEQ, fbeq) \
-	VP_B_OP(FBNE, fbne) \
-	VP_B_OP(FBGE, fbge) \
-	VP_B_OP(FBLT, fblt) \
-	VP_B_OP(FBLE, fble) \
-	VP_B_OP(FBGT, fbgt) \
-	VP_OP_RR(ABS, abs, FF, ff) \
-	VP_OP_RR(NEG, neg, FF, ff)
+	VP_OP_RR(cpy, ff) \
+	VP_OP_RR(cpy, rf) \
+	VP_OP_RR(cpy, fr) \
+	VP_OP_RR(cvt, rf) \
+	VP_OP_RR(cvt, fr) \
+	VP_OP_RR(add, ff) \
+	VP_OP_RR(sub, ff) \
+	VP_OP_RR(mul, ff) \
+	VP_OP_RR(div, ff) \
+	VP_OP_RR(min, ff) \
+	VP_OP_RR(max, ff) \
+	VP_OP_RR(sqrt, ff) \
+	VP_B_OP(fbeq) \
+	VP_B_OP(fbne) \
+	VP_B_OP(fbge) \
+	VP_B_OP(fblt) \
+	VP_B_OP(fble) \
+	VP_B_OP(fbgt) \
+	VP_OP_RR(abs, ff) \
+	VP_OP_RR(neg, ff)
 
 #define VP_IR_ALL \
-	VP_IR_OP(CPY, cpy) \
-	case VP64_LEA_I_0: vp_lea_i(vd_sr(), vd_i(), vd_dr()); break;
+	VP_IR_OP(cpy) \
+	case vp64_lea_i_0: vp_lea_i(vd_sr(), vd_i(), vd_dr()); break;
 
 #define VP_RI_ALL \
-	VP_RI_OP(CPY, cpy)
+	VP_RI_OP(cpy)
 
 #define VP_RD_ALL \
-	VP_RD_OP(CPY, cpy)
+	VP_RD_OP(cpy)
 
 #define VP_DR_ALL \
-	VP_DR_OP(CPY, cpy) \
-	case VP64_LEA_D: vp_lea_d(vd_sr(), vd_sc(), vd_dr()); break;
+	VP_DR_OP(cpy) \
+	case vp64_lea_d: vp_lea_d(vd_sr(), vd_sc(), vd_dr()); break;
 
 #define VP_BC_ALL \
-	VP_B_OP(CALL, call) \
-	VP_B_OP(JMP, jmp) \
-	VP_B_OP(CALL_P, call_p) \
-	VP_B_OP(JMP_P, jmp_p)
+	VP_B_OP(call) \
+	VP_B_OP(jmp) \
+	VP_B_OP(call_p) \
+	VP_B_OP(jmp_p)
 
 #define VP_M_ALL \
-	case VP64_MIN_CR_0: vp_min_cr(vd_c0(), vd_dr()); break; \
-	case VP64_MIN_CR_1: vp_min_cr(vd_c1(), vd_dr()); break; \
-	case VP64_MIN_CR_2: vp_min_cr(vd_c2(), vd_dr()); break; \
-	case VP64_MIN_CR_3: vp_min_cr(vd_c3(), vd_dr()); break; \
-	case VP64_MAX_CR_0: vp_max_cr(vd_c0(), vd_dr()); break; \
-	case VP64_MAX_CR_1: vp_max_cr(vd_c1(), vd_dr()); break; \
-	case VP64_MAX_CR_2: vp_max_cr(vd_c2(), vd_dr()); break; \
-	case VP64_MAX_CR_3: vp_max_cr(vd_c3(), vd_dr()); break; \
-	VP_OP_RR(MIN, min, RR, rr) \
-	VP_OP_RR(MAX, max, RR, rr) \
-	VP_OP_RR(ABS, abs, RR, rr)
+	case vp64_min_cr_0: vp_min_cr(vd_c0(), vd_dr()); break; \
+	case vp64_min_cr_1: vp_min_cr(vd_c1(), vd_dr()); break; \
+	case vp64_min_cr_2: vp_min_cr(vd_c2(), vd_dr()); break; \
+	case vp64_min_cr_3: vp_min_cr(vd_c3(), vd_dr()); break; \
+	case vp64_max_cr_0: vp_max_cr(vd_c0(), vd_dr()); break; \
+	case vp64_max_cr_1: vp_max_cr(vd_c1(), vd_dr()); break; \
+	case vp64_max_cr_2: vp_max_cr(vd_c2(), vd_dr()); break; \
+	case vp64_max_cr_3: vp_max_cr(vd_c3(), vd_dr()); break; \
+	VP_OP_RR(min, rr) \
+	VP_OP_RR(max, rr) \
+	VP_OP_RR(abs, rr)
 
 int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, int64_t* host_gui_funcs, int64_t* host_audio_funcs)
 {
@@ -395,30 +395,30 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 		switch (ir & 0xff)
 		{
 			VP_CR_ALL
-			case VP64_SHL_CR: vp_shl_cr(vd_sc(), vd_dr()); break;
-			case VP64_SHR_CR: vp_shr_cr(vd_sc(), vd_dr()); break;
-			case VP64_ASR_CR: vp_asr_cr(vd_sc(), vd_dr()); break;
+			case vp64_shl_cr: vp_shl_cr(vd_sc(), vd_dr()); break;
+			case vp64_shr_cr: vp_shr_cr(vd_sc(), vd_dr()); break;
+			case vp64_asr_cr: vp_asr_cr(vd_sc(), vd_dr()); break;
 			VP_RR_ALL
-			case VP64_DIV_RRR: vp_div_rrr(vd_sr(), vd_dr(), vd_sc()); break;
-			case VP64_DIV_RRR_U: vp_div_rrr_u(vd_sr(), vd_dr(), vd_sc()); break;
+			case vp64_div_rrr: vp_div_rrr(vd_sr(), vd_dr(), vd_sc()); break;
+			case vp64_div_rrr_u: vp_div_rrr_u(vd_sr(), vd_dr(), vd_sc()); break;
 			VP_CMP_ALL VP_B_ALL VP_IR_ALL VP_RI_ALL VP_RD_ALL VP_DR_ALL VP_BC_ALL
-			case VP64_CALL_ABI: vp_call_abi(vd_sr(), vd_dr(), vd_sc()); break;
-			case VP64_CALL_R: vp_call_r(vd_dr()); break;
-			case VP64_JMP_R: vp_jmp_r(vd_dr()); break;
-			case VP64_CALL_I: vp_call_i(vd_dr(), vd_c1()); break;
-			case VP64_JMP_I: vp_jmp_i(vd_dr(), vd_c1()); break;
-			case VP64_CPY_PR: vp_cpy_pr(vd_c1(), vd_dr()); break;
-			case VP64_LEA_P: vp_lea_p(vd_c1(), vd_dr()); break;
-			case VP64_RET: vp_ret(); break;
-			case VP64_SYNC: vp_sync(ir >> 8); break;
-			case VP64_BRK: vp_brk((ir >> 8) & 0xff); break;
+			case vp64_call_abi: vp_call_abi(vd_sr(), vd_dr(), vd_sc()); break;
+			case vp64_call_r: vp_call_r(vd_dr()); break;
+			case vp64_jmp_r: vp_jmp_r(vd_dr()); break;
+			case vp64_call_i: vp_call_i(vd_dr(), vd_c1()); break;
+			case vp64_jmp_i: vp_jmp_i(vd_dr(), vd_c1()); break;
+			case vp64_cpy_pr: vp_cpy_pr(vd_c1(), vd_dr()); break;
+			case vp64_lea_p: vp_lea_p(vd_c1(), vd_dr()); break;
+			case vp64_ret: vp_ret(); break;
+			case vp64_sync: vp_sync(ir >> 8); break;
+			case vp64_brk: vp_brk((ir >> 8) & 0xff); break;
 			VP_M_ALL
-			case VP64_CMP_F: vp_cmp_f(vd_sr(), vd_dr()); break;
+			case vp64_cmp_f: vp_cmp_f(vd_sr(), vd_dr()); break;
 			VP_F_ALL
-			case VP64_CPY_IF: vp_cpy_if(vd_sr(), vd_i(), vd_dr()); break;
-			case VP64_CPY_FI: vp_cpy_fi(vd_sr(), vd_dr(), vd_i()); break;
-			case VP64_CPY_DF: vp_cpy_df(vd_sr(), vd_sc(), vd_dr()); break;
-			case VP64_CPY_FD: vp_cpy_fd(vd_dr(), vd_sr(), vd_sc()); break;
+			case vp64_cpy_if: vp_cpy_if(vd_sr(), vd_i(), vd_dr()); break;
+			case vp64_cpy_fi: vp_cpy_fi(vd_sr(), vd_dr(), vd_i()); break;
+			case vp64_cpy_df: vp_cpy_df(vd_sr(), vd_sc(), vd_dr()); break;
+			case vp64_cpy_fd: vp_cpy_fd(vd_dr(), vd_sr(), vd_sc()); break;
 			default: std::cout << "Unrecognised opcode " << (ir & 0xff) << " " << std::endl; break;
 		}
 	}
