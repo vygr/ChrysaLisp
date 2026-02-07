@@ -100,7 +100,7 @@ struct u128 { uint64_t lo; uint64_t hi; };
 #define vp_sge_rr(sr, dr) vp_op_rr(>=, sr, dr)
 #define vp_min_rr(sr, dr) if (regs[sr] < regs[dr]) regs[dr] = regs[sr]
 #define vp_max_rr(sr, dr) if (regs[sr] > regs[dr]) regs[dr] = regs[sr]
-#define vp_abs_rr(sr, dr) { int64_t _sr = regs[sr]; regs[dr] = (_sr < 0) ? -_sr : _sr; }
+#define vp_abs_rr(sr, dr) { int64_t t = regs[sr]; regs[dr] = (t < 0) ? -t : t; }
 
 #define vp_mem_ir(sr, o, dr, t) regs[dr] = (int64_t)*(t*)(regs[sr] + o)
 #define vp_mem_ri(sr, dr, o, t) *(t*)(regs[dr] + o) = (t)regs[sr]
