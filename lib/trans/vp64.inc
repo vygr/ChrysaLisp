@@ -31,6 +31,7 @@
 			(emitm-short (+ (+ o 2) (<< r 8) (<< c 12)) (>>> c 4) (>>> c 20)))
 		(:t (emitm-short (+ (+ o 3) (<< r 8)) c (>>> c 16) (>>> c 32) (>>> c 48)))))
 
+; Group 1: ALU (CR)
 (defun emit-cpy-cr (c r) (vp64-cr (next-opcode 4) c r))
 (defun emit-add-cr (c r) (unless (= c 0) (vp64-cr (next-opcode 4) c r)))
 (defun emit-sub-cr (c r) (unless (= c 0) (vp64-cr (next-opcode 4) c r)))
@@ -40,6 +41,17 @@
 (defun emit-or-cr (c r) (unless (= c 0) (vp64-cr (next-opcode 4) c r)))
 (defun emit-xor-cr (c r) (unless (= c 0) (vp64-cr (next-opcode 4) c r)))
 
+; Group 2: ALU (RR)
+(defun emit-cpy-rr (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
+(defun emit-add-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-sub-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun vp64-cmp-r (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-mul-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-and-rr (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
+(defun emit-or-rr (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
+(defun emit-xor-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
+; Group 3: Shift/Logic
 (defun vp64-shift-cr (o c r)
 	(cond
 		((= c 0))
@@ -51,14 +63,6 @@
 (defun emit-shr-cr (c r) (vp64-shift-cr (next-opcode) c r))
 (defun emit-asr-cr (c r) (vp64-shift-cr (next-opcode) c r))
 
-(defun emit-cpy-rr (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
-(defun emit-add-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-sub-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun vp64-cmp-r (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-mul-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-and-rr (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
-(defun emit-or-rr (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
-(defun emit-xor-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
 (defun emit-shl-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
 (defun emit-shr-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
 (defun emit-asr-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
@@ -66,9 +70,19 @@
 (defun emit-land-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
 (defun emit-swp-rr (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
 (defun emit-ext-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
+; Group 4: Division
 (defun emit-div-rrr (s d2 d1) (emitm-short (+ (next-opcode) (<< d1 8) (<< d2 12)) s))
 (defun emit-div-rrr-u (s d2 d1) (emitm-short (+ (next-opcode) (<< d1 8) (<< d2 12)) s))
 
+; Group 5: Min/Max/Abs
+(defun emit-min-cr (c d l m) (vp64-cr (next-opcode 4) c d))
+(defun emit-max-cr (c d l m) (vp64-cr (next-opcode 4) c d))
+(defun emit-min-rr (s d l m) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
+(defun emit-max-rr (s d l m) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
+(defun emit-abs-rr (s d l m) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
+; Group 6: Set-on-Comparison (CR)
 (defun vp64-scr (o c d)
 	(cond
 		((vp64-within c 4)
@@ -86,6 +100,7 @@
 (defun emit-sgt-cr (c d) (vp64-scr (next-opcode 3) c d))
 (defun emit-sge-cr (c d) (vp64-scr (next-opcode 3) c d))
 
+; Group 7: Set-on-Comparison (RR)
 (defun emit-seq-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
 (defun emit-sne-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
 (defun emit-slt-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
@@ -93,6 +108,62 @@
 (defun emit-sgt-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
 (defun emit-sge-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
 
+; Group 11: Load/Store (Indexed I)
+(defun vp64-ir (o s c d)
+	(cond
+		((vp64-within c 16)
+			(emitm-short (+ o (<< d 8) (<< s 12)) c))
+		(:t (throw "vp64-ir constant out of range !" c))))
+
+(defun emit-cpy-ir (s c d) (vp64-ir (next-opcode) s c d))
+(defun emit-cpy-ir-b (s c d) (vp64-ir (next-opcode) s c d))
+(defun emit-cpy-ir-s (s c d) (vp64-ir (next-opcode) s c d))
+(defun emit-cpy-ir-i (s c d) (vp64-ir (next-opcode) s c d))
+(defun emit-cpy-ir-ub (s c d) (vp64-ir (next-opcode) s c d))
+(defun emit-cpy-ir-us (s c d) (vp64-ir (next-opcode) s c d))
+(defun emit-cpy-ir-ui (s c d) (vp64-ir (next-opcode) s c d))
+(defun emit-lea-i (s c d) (vp64-ir (next-opcode) s c d))
+
+(defun vp64-ri (o s d c)
+	(cond
+		((vp64-within c 16)
+			(emitm-short (+ o (<< d 8) (<< s 12)) c))
+		(:t (throw "vp64-ri constant out of range !" c))))
+
+(defun emit-cpy-ri (s d c) (vp64-ri (next-opcode) s d c))
+(defun emit-cpy-ri-b (s d c) (vp64-ri (next-opcode) s d c))
+(defun emit-cpy-ri-s (s d c) (vp64-ri (next-opcode) s d c))
+(defun emit-cpy-ri-i (s d c) (vp64-ri (next-opcode) s d c))
+
+; Group 12: Load/Store (Indexed D)
+(defun vp64-rd (o s d1 d2)
+	(emitm-short (+ o (<< d1 8) (<< d2 12)) s))
+
+(defun emit-cpy-rd (s d1 d2) (vp64-rd (next-opcode) s d1 d2))
+(defun emit-cpy-rd-b (s d2 d1) (vp64-rd (next-opcode) s d1 d2))
+(defun emit-cpy-rd-s (s d2 d1) (vp64-rd (next-opcode) s d1 d2))
+(defun emit-cpy-rd-i (s d2 d1) (vp64-rd (next-opcode) s d1 d2))
+
+(defun vp64-dr (o s1 s2 d)
+	(emitm-short (+ o (<< d 8) (<< s1 12)) s2))
+
+(defun emit-cpy-dr (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-b (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-s (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-i (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-ub (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-us (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-ui (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
+(defun emit-lea-d (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
+
+; Group 16: Float Memory/Cmp
+(defun emit-cpy-if (s c d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)) c))
+(defun emit-cpy-fi (s d c) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)) c))
+(defun emit-cpy-df (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-fd (s d1 d2) (vp64-dr (next-opcode) d1 d2 s))
+(defun vp64-cmp-f (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
+; Group 8: Branch (Conditional)
 (defun vp64-branch (o l d)
 	(defq m (elem-get *offsets* d) l (- l *pc*))
 	(and (> *pass* 0) (> (abs l) (abs m)) (elem-set *offsets* d (setq m l)))
@@ -124,73 +195,15 @@
 (defun emit-ble-rr (s d l m) (vp64-cmp-r s d) (vp64-ble l m))
 (defun emit-bgt-rr (s d l m) (vp64-cmp-r s d) (vp64-bgt l m))
 
-(defun vp64-ir (o s c d)
-	(cond
-		((vp64-within c 16)
-			(emitm-short (+ o (<< d 8) (<< s 12)) c))
-		(:t (throw "vp64-ir constant out of range !" c))))
+; Group 9: Branch (Float)
+(defun emit-beq-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+(defun emit-bne-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+(defun emit-bge-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+(defun emit-blt-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+(defun emit-ble-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+(defun emit-bgt-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
 
-(defun emit-cpy-ir (s c d) (vp64-ir (next-opcode) s c d))
-(defun emit-cpy-ir-b (s c d) (vp64-ir (next-opcode) s c d))
-(defun emit-cpy-ir-s (s c d) (vp64-ir (next-opcode) s c d))
-(defun emit-cpy-ir-i (s c d) (vp64-ir (next-opcode) s c d))
-(defun emit-cpy-ir-ub (s c d) (vp64-ir (next-opcode) s c d))
-(defun emit-cpy-ir-us (s c d) (vp64-ir (next-opcode) s c d))
-(defun emit-cpy-ir-ui (s c d) (vp64-ir (next-opcode) s c d))
-(defun emit-lea-i (s c d) (vp64-ir (next-opcode) s c d))
-
-(defun vp64-ri (o s d c)
-	(cond
-		((vp64-within c 16)
-			(emitm-short (+ o (<< d 8) (<< s 12)) c))
-		(:t (throw "vp64-ri constant out of range !" c))))
-
-(defun emit-cpy-ri (s d c) (vp64-ri (next-opcode) s d c))
-(defun emit-cpy-ri-b (s d c) (vp64-ri (next-opcode) s d c))
-(defun emit-cpy-ri-s (s d c) (vp64-ri (next-opcode) s d c))
-(defun emit-cpy-ri-i (s d c) (vp64-ri (next-opcode) s d c))
-
-(defun vp64-rd (o s d1 d2)
-	(emitm-short (+ o (<< d1 8) (<< d2 12)) s))
-
-(defun emit-cpy-rd (s d1 d2) (vp64-rd (next-opcode) s d1 d2))
-(defun emit-cpy-rd-b (s d2 d1) (vp64-rd (next-opcode) s d1 d2))
-(defun emit-cpy-rd-s (s d2 d1) (vp64-rd (next-opcode) s d1 d2))
-(defun emit-cpy-rd-i (s d2 d1) (vp64-rd (next-opcode) s d1 d2))
-
-(defun vp64-dr (o s1 s2 d)
-	(emitm-short (+ o (<< d 8) (<< s1 12)) s2))
-
-(defun emit-cpy-dr (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
-(defun emit-cpy-dr-b (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
-(defun emit-cpy-dr-s (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
-(defun emit-cpy-dr-i (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
-(defun emit-cpy-dr-ub (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
-(defun emit-cpy-dr-us (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
-(defun emit-cpy-dr-ui (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
-(defun emit-lea-d (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
-
-(defun emit-call-r (r) (emitm-short (+ (next-opcode) (<< r 8))))
-(defun emit-jmp-r (r) (emitm-short (+ (next-opcode) (<< r 8))))
-
-(defun vp64-call-jmp-i (o r c)
-	(cond
-		((vp64-within c 20)
-			(emitm-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
-		(:t (throw "vp64-call-jmp-i constant out of range !" c))))
-
-(defun emit-call-i (r c) (vp64-call-jmp-i (next-opcode) r c))
-(defun emit-jmp-i (r c) (vp64-call-jmp-i (next-opcode) r c))
-
-(defun vp64-p (o r l)
-	(cond
-		((vp64-within (defq c (- l *pc* 4)) 20)
-			(emitm-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
-		(:t (throw "vp64-p constant out of range !" c))))
-
-(defun emit-cpy-pr (l r) (vp64-p (next-opcode) r l))
-(defun emit-lea-p (l r) (vp64-p (next-opcode) r l))
-
+; Group 10: Jump/Call
 (defun vp64-call-jmp-p (o l)
 	(cond
 		((vp64-within (defq c (- l *pc* 2)) 8)
@@ -204,6 +217,28 @@
 (defun emit-call-p (l) (vp64-call-jmp-p (next-opcode 2) l))
 (defun emit-jmp-p (l) (vp64-call-jmp-p (next-opcode 2) l))
 
+(defun emit-call-r (r) (emitm-short (+ (next-opcode) (<< r 8))))
+(defun emit-jmp-r (r) (emitm-short (+ (next-opcode) (<< r 8))))
+
+(defun vp64-call-jmp-i (o r c)
+	(cond
+		((vp64-within c 20)
+			(emitm-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
+		(:t (throw "vp64-call-jmp-i constant out of range !" c))))
+
+(defun emit-call-i (r c) (vp64-call-jmp-i (next-opcode) r c))
+(defun emit-jmp-i (r c) (vp64-call-jmp-i (next-opcode) r c))
+
+; Group 13: PC Relative / System
+(defun vp64-p (o r l)
+	(cond
+		((vp64-within (defq c (- l *pc* 4)) 20)
+			(emitm-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
+		(:t (throw "vp64-p constant out of range !" c))))
+
+(defun emit-cpy-pr (l r) (vp64-p (next-opcode) r l))
+(defun emit-lea-p (l r) (vp64-p (next-opcode) r l))
+
 (case *abi*
 (VP64
 (defun emit-call-abi (r b c n &rest x)
@@ -213,17 +248,31 @@
 		(:t (throw "emit-call-abi constant out of range !" c)))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
-(defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-ret () (emitm-short (next-opcode)))
 (defun emit-sync (n) (emitm-short (+ (next-opcode) (<< n 8))))
 (defun emit-brk (n) (emitm-short (+ (next-opcode) (<< n 8))))
 
-(defun emit-min-cr (c d l m) (vp64-cr (next-opcode 4) c d))
-(defun emit-max-cr (c d l m) (vp64-cr (next-opcode 4) c d))
-(defun emit-min-rr (s d l m) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
-(defun emit-max-rr (s d l m) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
-(defun emit-abs-rr (s d l m) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+; Group 14: Float ALU
+(defun emit-add-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-sub-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-mul-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-div-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-min-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-max-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-sqrt-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-abs-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-neg-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-cpy-ff (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
+
+; Group 15: Float Convert/Copy
+(defun emit-cvt-rf (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-cvt-fr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-cpy-rf (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-cpy-fr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
+; Helper functions (not opcodes)
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
+(defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 
 (defun emit-push (&rest b)
 	(when (/= 0 (length b))
@@ -242,39 +291,6 @@
 	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
 	(emit-cpy-ri f s tk_state_size)
 	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))
-
-(defun vp64-cmp-f (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-
-(defun emit-cpy-ff (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
-(defun emit-cpy-rf (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-cpy-fr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-
-(defun emit-cvt-rf (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-cvt-fr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-
-(defun emit-add-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-sub-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-mul-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-div-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-min-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-max-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-sqrt-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-
-(defun emit-beq-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
-(defun emit-bne-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
-(defun emit-bge-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
-(defun emit-blt-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
-(defun emit-ble-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
-(defun emit-bgt-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
-
-(defun emit-cpy-if (s c d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)) c))
-(defun emit-cpy-fi (s d c) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)) c))
-
-(defun emit-abs-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-(defun emit-neg-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
-
-(defun emit-cpy-df (s1 s2 d) (vp64-dr (next-opcode) s1 s2 d))
-(defun emit-cpy-fd (s d1 d2) (vp64-dr (next-opcode) d1 d2 s))
 
 ;module, that exports everything !
 (export-symbols (map (const first) (tolist (env))))
