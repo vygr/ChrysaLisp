@@ -57,6 +57,8 @@ the object structure code, `lisp.inc` contains Lisp level functions and bindings
 to the VP layers. The `struct.inc` files are shared with the Lisp system for
 `getf` and `setf` interaction. This avoids replication of structure information.
 
+Aggressive refactoring of the VP64 EMU, in `src/host/vp64.cpp`.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

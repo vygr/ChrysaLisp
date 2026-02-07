@@ -4,6 +4,7 @@
 #include <cmath>
 #ifdef _WIN64
 	#include <immintrin.h>
+	#include <intrin.h>
 #endif
 #include "pii.h"
 
@@ -37,11 +38,6 @@ enum Opcodes {
 	vp64_fblt_0, vp64_fblt_1, vp64_fble_0, vp64_fble_1, vp64_fbgt_0, vp64_fbgt_1,
 	vp64_cpy_if, vp64_cpy_fi, vp64_abs_ff, vp64_neg_ff, vp64_cpy_df, vp64_cpy_fd,
 };
-
-#include <atomic>
-#ifdef _WIN64
-#include <intrin.h>
-#endif
 
 struct i128 { int64_t lo; int64_t hi; };
 struct u128 { uint64_t lo; uint64_t hi; };
@@ -156,6 +152,12 @@ struct u128 { uint64_t lo; uint64_t hi; };
 #define vp_jmp_r(dr) pc = (int16_t*)regs[dr]
 #define vp_call_i(br, o) { int64_t b = regs[br], _o = (o); vp_push_pc(); pc = vp_pc_ind(b + _o); }
 #define vp_jmp_i(br, o) { int64_t b = regs[br], _o = (o); pc = vp_pc_ind(b + _o); }
+#define vp_cpy_pr(o, dr) { int64_t _o = (o); regs[dr] = *(int64_t*)vp_pc_rel(_o); }
+#define vp_lea_p(o, dr) { int64_t _o = (o); regs[dr] = (int64_t)vp_pc_rel(_o); }
+#define vp_ret() vp_pop_pc()
+
+#define vp_sync(c) sync.store((c), std::memory_order_seq_cst)
+#define vp_brk(c) std::cout << "brk " << (int)(c) << std::endl
 
 #define vp_call_abi(n, b, o) { \
 	int64_t f = *(uint64_t*)(regs[b] + (o)); \
@@ -178,11 +180,6 @@ struct u128 { uint64_t lo; uint64_t hi; };
 		case 15: regs[0] = (((uint64_t(*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)) f)(regs[0], regs[1], regs[2], regs[3], regs[4], regs[5], regs[6], regs[7], regs[8], regs[9], regs[10], regs[11], regs[12], regs[13], regs[14])); break; \
 	} \
 }
-#define vp_cpy_pr(o, dr) { int64_t _o = (o); regs[dr] = *(int64_t*)vp_pc_rel(_o); }
-#define vp_lea_p(o, dr) { int64_t _o = (o); regs[dr] = (int64_t)vp_pc_rel(_o); }
-#define vp_ret() vp_pop_pc()
-#define vp_sync(c) sync.store((c), std::memory_order_seq_cst)
-#define vp_brk(c) std::cout << "brk " << (int)(c) << std::endl
 
 #define vp_add_ff(sr, dr) vp_op_ff(+, sr, dr)
 #define vp_sub_ff(sr, dr) vp_op_ff(-, sr, dr)
