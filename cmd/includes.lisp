@@ -103,7 +103,7 @@
 						(write-line no_includes line)))
 				(file-stream file))
 			(defq stream (file-stream file +file_open_write))
-			(each (# (write-line stream (cat "(" {include "} %0 {"} ")"))) requires)
+			(each (# (write-line stream (cat "(include \q" %0 "\q)"))) requires)
 			(stream-seek no_includes 0 0)
 			(lines! (# (write-line stream %0)) no_includes))))
 

@@ -103,7 +103,7 @@
 	(when (/= 0 (age file))
 		;file exists !
 		(open-file file)
-		(when (defq pattern (cat {debug-brk "} brk_id {"})
+		(when (defq pattern (cat "debug-brk \q" brk_id "\q")
 				lines (.-> *edit* :get_buffer :get_buffer_lines)
 				cy (min line (length lines))
 				cy (some! (# (if (found? %0 pattern) (!))) (list lines)

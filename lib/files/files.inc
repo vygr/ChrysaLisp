@@ -40,9 +40,9 @@
 	(if (defq files (list) stream (file-stream file))
 		(lines! (lambda (line)
 			(and (eql "(" (first line))
-				(or (starts-with {(include "} line) (starts-with {(import "} line))
+				(or (starts-with "(include \q" line) (starts-with "(import \q" line))
 				(push files (path-to-absolute
-					(slice line (defq i (inc (find {"} line))) (find {"} line i)) file))))
+					(slice line (defq i (inc (find "\q" line))) (find "\q" line i)) file))))
 			stream)) files)
 
 (defun files-all-depends (files &optional imps)
