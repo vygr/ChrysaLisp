@@ -65,6 +65,10 @@ Unification of the VP level structure defining macros with the
 `bits`. The standard macros have been enhanced to make them much stricter on
 field redefinition testing.
 
+Docs app now overrides the `enum` macros for embedded `widget` content.
+
+Fix error in `:str :slice` for reversed strings.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

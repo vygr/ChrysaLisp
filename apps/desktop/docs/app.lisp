@@ -18,8 +18,19 @@
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))
 
-;lisp handler environment
-((# (def (penv) '*handler_env* (env))))
+;lisp handler environment and embedded enum override !
+(redefmacro enums (name base &rest lines)
+	; (enums name base [(enum field ...)] ...)
+	(defq syms (list) values (list))
+	(each (# (each! (#
+			(push syms (sym (cat name "_" %0)))
+			(push values 0))
+		(list %0) 1)) lines)
+	(push syms (sym (cat name "_size")))
+	(push values 0)
+	(static-qq (bind ',syms ',values)))
+((# (def (penv) '*handler_env* (env))
+	(def *handler_env* 'enums enums)))
 
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
