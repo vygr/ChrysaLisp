@@ -12,9 +12,6 @@
 (enums +dlist 0
 	(enum mask committed_canvas overlay_canvas committed_polygons overlay_paths))
 
-(enums +path 0
-	(enum mode color radius path))
-
 (enums +select 0
 	(enum main picker timer tip))
 
