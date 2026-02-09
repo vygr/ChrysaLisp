@@ -1,0 +1,10 @@
+(import "lib/task/pipe.inc")
+(print)
+(print "Building platform native boot image.")
+(print "Please wait...")
+(print)
+(while (< (length (lisp-nodes)) 8) (task-sleep 100000))
+(pipe-run "make all boot | time"
+	(lambda (%0) (prin %0) (stream-flush (io-stream "stdout"))))
+(print)
+((ffi "service/gui/lisp_deinit"))

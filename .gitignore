@@ -3,7 +3,6 @@
 /obj/
 /x64/
 /ai/
-/tests/
 /usr/*/*.tre
 os
 cpu
