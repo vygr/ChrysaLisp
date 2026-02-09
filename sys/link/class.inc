@@ -17,26 +17,26 @@
 (defq lk_page_size 4096)
 (defcvar 'lk_data_size (- 1024 +str_size +long_size +sys_mem_header_size))
 
-(def-enum lk_chan_status 0
+(enums lk_chan_status 0
 	(enum ready busy))
 
-(def-struct lk_node 0
+(structure lk_node 0
 	(nodeid peer_node_id)
 	(uint task_count))
 
-(def-struct lk_buf 0
+(structure lk_buf 0
 	(uint status hash task_count frag_length frag_offset total_length)
 	(nodeid peer_node_id)
 	(netid dest)
 	(netid src)
 	(struct data lk_data_size))
 
-(def-struct lk_chan 0
+(structure lk_chan 0
 	(struct msg0 lk_buf_size)
 	(struct msg1 lk_buf_size)
 	(struct msg2 lk_buf_size))
 
-(def-struct lk_shmem 0
+(structure lk_shmem 0
 	(struct chan_1 lk_chan_size)
 	(long towel)
 	(align lk_page_size)

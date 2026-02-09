@@ -6,7 +6,7 @@
 ; system statics class
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def-struct statics 0
+(structure statics 0
 	;sys_task statics
 	(struct sys_task_kernel_node_id +node_id_size)
 	(ptr sys_task_current_tcb sys_task_kernel_tcb)

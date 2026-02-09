@@ -5,10 +5,11 @@
 (include "././num/class.inc")
 (include "././lisp/class.inc")
 
+(structure local 0
+	(ptr this args env)
+	(pptr iter_begin iter_end))
+
 (defun defset (%0 p)
-	(def-struct local 0
-		(ptr this args env)
-		(pptr iter_begin iter_end))
 	(vp-alloc local_size)
 	(entry :hmap %0 '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
@@ -112,10 +113,11 @@
 
 (def-func-end)
 
+(structure local 0
+	(ptr this args val)
+	(pptr iter_begin iter_end))
+
 (defun defsetq (%0 p)
-	(def-struct local 0
-		(ptr this args val)
-		(pptr iter_begin iter_end))
 	(vp-alloc local_size)
 	(entry :hmap %0 '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
@@ -376,7 +378,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this args env)
 		(pptr iter_begin iter_end))
 

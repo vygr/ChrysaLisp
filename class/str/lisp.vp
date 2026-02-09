@@ -216,7 +216,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this stream)
 		(pptr iter_begin iter_end))
 

@@ -202,69 +202,9 @@
 		(call :lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
-;;;;;;;
-; enums
-;;;;;;;
-
-(defun def-enum-f (size)
-	(push syms (sym (cat name "_" field)))
-	(push values (num-intern base))
-	(++ base size))
-
-(defmacro def-enum (name base &rest lines)
-	; (def-enum name base [(enum field ...)] ...)
-	(if (def? (sym (cat name "_size")) *compile_env*) (throw "Enum redefined !" name))
-	(defq syms (list) values (list) base (eval base))
-	(each (lambda (line)
-		(each! (lambda (field)
-			(case (first line)
-				(enum (def-enum-f +byte_size))))
-			(list line) 1)) lines)
-	(push syms (sym (cat name "_size")))
-	(push values (num-intern base))
-	`(eval '(bind ',syms ',values) *compile_env*))
-
-;;;;;;
-; bits
-;;;;;;
-
-(defun def-bit-f ()
-	(push syms (sym (cat name "_" field)))
-	(push values (num-intern (<< 1 base)))
-	(++ base))
-
-(defmacro def-bit (name base &rest lines)
-	; (def-bit name base [(bit field ...)] ...)
-	(if (def? (sym (cat name "_size")) *compile_env*) (throw "Bit redefined !" name))
-	(defq syms (list) values (list) base (eval base))
-	(each (lambda (line)
-		(each! (lambda (field)
-			(case (first line)
-				(bit (def-bit-f))))
-			(list line) 1)) lines)
-	(push syms (sym (cat name "_size")))
-	(push values (num-intern base))
-	`(eval '(bind ',syms ',values) *compile_env*))
-
-;;;;;;;;;;;;
-; structures
-;;;;;;;;;;;;
-
-(defmacro def-struct (name base &rest lines)
-	; (def-struct name base [(byte field ...)] ...)
-	(unless (eql (cat name "_size") "local_size")
-		(if (def? (sym (cat name "_size")) *compile_env*) (throw "Structure redefined !" name)))
-	(defq syms (list) values (list) base (eval base))
-	(each (lambda (line)
-		(setq base (_structure base line))) lines)
-	(push syms (sym (cat name "_size")))
-	(push values (num-intern base))
-	`(eval '(bind ',syms ',values) *compile_env*))
-
 ;module
 (export-symbols
-	'(def-enum def-struct def-bit
-	errorcase noterrorcase errorif errorifnot
+	'(errorcase noterrorcase errorif errorifnot
 	errorif-lisp-args-len errorif-lisp-args-sig errorif-lisp-args-sig-range
 	errorif-lisp-args-match errorif-lisp-args-type
 	switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot

@@ -76,7 +76,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		;obj must be first
 		(ptr obj this))
 
@@ -123,7 +123,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr obj this))
 
 	;save inputs
@@ -166,7 +166,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this key bucket)
 		(pptr iter_begin iter_end))
 
@@ -244,7 +244,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this key value iter bucket))
 
 	;save inputs
@@ -291,7 +291,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this key))
 
 	(vp-alloc local_size)
@@ -323,7 +323,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this value))
 
 	(vp-alloc local_size)
@@ -383,7 +383,7 @@
 		;trashes
 		;...
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this predicate predicate_data bucket)
 		(pptr iter_begin iter_end iter_begin1 iter_end1))
 
@@ -444,7 +444,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this that))
 
 	(vp-alloc local_size)

@@ -14,7 +14,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this args yield))
 
 	(vp-rdef (x y cx cy dx dy len yield_data brd iter_begin iter_end vectors)

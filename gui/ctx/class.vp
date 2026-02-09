@@ -61,7 +61,7 @@
 	;trashes
 	;:r0-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(struct drect host_gui_rect_size)
 		(struct srect host_gui_rect_size)
 		(struct clip_rect host_gui_rect_size)
@@ -108,7 +108,7 @@
 	;trashes
 	;:r0-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(struct drect host_gui_rect_size)
 		(struct clip_rect host_gui_rect_size)
 		(ptr this dirty_rect old_stack))
@@ -145,7 +145,7 @@
 	;trashes
 	;:r0-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(struct drect host_gui_rect_size)
 		(struct clip_rect host_gui_rect_size)
 		(ptr this dirty_rect old_stack))

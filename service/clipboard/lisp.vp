@@ -14,7 +14,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this cstr))
 
 	(entry :host_clipboard :lisp_put '(:r0 :r1))
@@ -55,7 +55,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this text))
 
 	(entry :host_clipboard :lisp_get '(:r0 :r1))

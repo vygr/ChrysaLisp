@@ -125,7 +125,7 @@ tasks main mailbox.
 (include "lib/asm/func.inc")
 (include "sys/kernel/class.inc")
 
-(def-struct reply 0
+(structure reply 0
 	(nodeid node_id)
 	(uint task_count mem_used))
 

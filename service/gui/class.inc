@@ -47,31 +47,31 @@
 ; gui structures
 ;;;;;;;;;;;;;;;;
 
-(def-struct host_gui_rect 0
+(structure host_gui_rect 0
 	(int x y w h))
 
-(def-enum ev_type 0
+(enums ev_type 0
 	(enum mouse key action gui wheel enter exit))
 
-(def-struct ev_msg 0
+(structure ev_msg 0
 	(long target_id type))
 
-(def-struct ev_msg_mouse ev_msg_size
+(structure ev_msg_mouse ev_msg_size
 	(uint buttons count)
 	(int x y rx ry))
 
-(def-struct ev_msg_wheel ev_msg_size
+(structure ev_msg_wheel ev_msg_size
 	(uint direction)
 	(int x y))
 
-(def-struct ev_msg_key ev_msg_size
+(structure ev_msg_key ev_msg_size
 	(uint keycode key mod))
 
-(def-struct ev_msg_action ev_msg_size
+(structure ev_msg_action ev_msg_size
 	(long source_id))
 
-(def-struct ev_msg_gui ev_msg_size)
+(structure ev_msg_gui ev_msg_size)
 
-(def-struct ev_msg_enter ev_msg_size)
+(structure ev_msg_enter ev_msg_size)
 
-(def-struct ev_msg_exit ev_msg_size)
+(structure ev_msg_exit ev_msg_size)

@@ -504,7 +504,7 @@
 (def-method :sys_kernel :ping)
 	;started by kernel at boot
 
-	(def-struct local 0
+	(structure local 0
 		(nodeid node_id)
 		(long now))
 
@@ -547,7 +547,7 @@
 	;:r1 = element iterator (pptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(def-struct local 0
+	(structure local 0
 		(ptr bucket)
 		(pptr iter))
 
@@ -582,7 +582,7 @@
 	;:r0 = mail list (ptr)
 	;:r1 = now (long)
 
-	(def-struct local 0
+	(structure local 0
 		(ptr next)
 		(long now))
 

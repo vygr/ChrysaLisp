@@ -170,7 +170,7 @@ of Lisp "cells" or "tagging" on top of the VP objects for common types.
     * **Numbers (`:num`, `:fixed`, `:real`):** A Lisp number like `123` or `1.5`
     is an instance of the `:num` or `:fixed` VP class, respectively. The actual
     numeric value is stored in the `value` field (e.g., `num_value`) defined in
-    their respective `def-struct`.
+    their respective `structure`.
 
     * **Strings (`:str`):** A Lisp string `"hello"` is an instance of the `:str`
     VP class. The character data is pointed to by `str_data` (or stored in the

@@ -281,7 +281,7 @@
 		;trashes
 		;...
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this data down up))
 
 	(vp-alloc local_size)
@@ -346,7 +346,7 @@
 		;trashes
 		;...
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this data down up))
 
 	(vp-alloc local_size)
@@ -399,7 +399,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this args))
 
 	(vp-alloc local_size)
@@ -455,7 +455,7 @@
 	;trashes
 	;:r1-:r3
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this view)
 		(long id))
 
@@ -531,7 +531,7 @@
 	;trashes
 	;:r1-:r3
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this hit))
 
 	;save inputs

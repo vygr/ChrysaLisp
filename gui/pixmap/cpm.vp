@@ -2,7 +2,7 @@
 (include "class/stream/class.inc")
 (include "./class.inc")
 
-(def-struct cpm 0
+(structure cpm 0
 	(uint ident)        ;ident .CPM or .FLM
 	(uint bytes)        ;0 if not known, else total size
 	(uint version)      ;version number

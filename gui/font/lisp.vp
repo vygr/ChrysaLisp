@@ -49,7 +49,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this info paths))
 
 	(entry :font :lisp_glyph_paths '(:r0 :r1))
@@ -120,7 +120,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this info)
 		(uint w h))
 

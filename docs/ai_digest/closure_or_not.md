@@ -135,7 +135,7 @@ PERFORMANT mechanism for state encapsulation.**
 This is the correct, idiomatic way to achieve the goal of the `make-adder`
 pattern in ChrysaLisp:
 
-1.  **Define the Shape of the State:** A `def-struct` declares the fields that
+1.  **Define the Shape of the State:** A `structure` declares the fields that
     will hold the state. For an adder, this would be a single field, `:x`.
 
 2.  **Define the Behavior:** A `defclass` defines the methods that will operate

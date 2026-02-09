@@ -18,7 +18,7 @@
 	;because the boot image has relative link references
 	;to the 'sys/statics/statics' string in its header !
 
-	(def-struct local 0
+	(structure local 0
 		(ptr argv os gui audio statics)
 		(ptr boot_static_func boot_tail_func)
 		(ptr new_static_func new_tail_func)

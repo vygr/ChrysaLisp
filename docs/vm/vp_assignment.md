@@ -381,7 +381,7 @@ any future source or destination items.
 ## Auto typing
 
 If you don't provide a qualifier for the copy type, `i ui s us b ub`,
-`(assign)` will attempt to lookup the type as declared in any `(def-struct)`
+`(assign)` will attempt to lookup the type as declared in any `(structure)`
 for that field. If not found or not a symbol it'll default to a long. If the
 type is found it'll use the correct VP copy instruction that matches the
 field type.

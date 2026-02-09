@@ -72,7 +72,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct pdata 0
+	(structure pdata 0
 		(ptr this func params))
 
 	(def-vars

@@ -59,7 +59,7 @@
 	;:r2 = qcnt (uint)
 	;:r3 = ucnt (uint)
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this list)
 		(pptr iter iter_begin iter_end)
 		(uint qcnt ucnt))

@@ -27,7 +27,7 @@
 	;trashes
 	;:r1-:r6
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this))
 
 	;save inputs

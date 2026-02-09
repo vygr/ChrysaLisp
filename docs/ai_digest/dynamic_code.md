@@ -228,7 +228,7 @@ ChrysaLisp is not just a language with an assembler; it's a platform that
 encourages the creation of an entire ecosystem of these embedded,
 domain-specific **micro-compilers**.
 
-* `def-struct` is a micro-compiler for data layouts.
+* `structure` is a micro-compiler for data layouts.
 
 * The `assign` macro is a micro-compiler for assignment operations, choosing the
   optimal load/store instruction based on its analysis of the source and

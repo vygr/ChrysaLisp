@@ -17,7 +17,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this stream)
 		(pubyte bufp)
 		(int char sign)

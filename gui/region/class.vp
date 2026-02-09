@@ -824,7 +824,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr dlist)
 		(int dx dy))
 
@@ -862,7 +862,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr slist)
 		(int dx dy))
 
@@ -899,7 +899,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr node dlist)
 		(int dx dy))
 

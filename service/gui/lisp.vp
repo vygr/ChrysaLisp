@@ -63,7 +63,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this old_stack))
 
 	(vp-alloc local_size)
@@ -89,7 +89,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-	(def-struct local2 0
+	(structure local2 0
 		(ptr user old_stack))
 
 (vp-label 'deinit_callback)
@@ -168,7 +168,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this event old_stack))
 
 	(vp-alloc local_size)
@@ -185,7 +185,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-	(def-struct local1 0
+	(structure local1 0
 		(ptr user old_stack))
 
 (vp-label 'event_callback)

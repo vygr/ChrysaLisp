@@ -980,17 +980,17 @@ These functions are part of the C-Script compiler.
 
 These functions provide structured coding constructs for the VP assembler.
 
-*   **`def-enum`**: Defines an enumeration.
+*   **`enums`**: Defines an enumeration.
 
-    * `(def-enum name base &rest lines)`
+    * `(enums name base &rest lines)`
 
-*   **`def-struct`**: Defines a structure.
+*   **`structure`**: Defines a structure.
 
-    * `(def-struct name base &rest lines)`
+    * `(structure name base &rest lines)`
 
-*   **`def-bit`**: Defines a bitfield.
+*   **`bits`**: Defines a bitfield.
 
-    * `(def-bit name base &rest lines)`
+    * `(bits name base &rest lines)`
 
 *   **`errorcase`**: A macro that only executes its body if `*build_mode*` is greater than 0.
 

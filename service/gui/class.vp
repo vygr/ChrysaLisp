@@ -80,7 +80,7 @@
 	(vp-rdef (root heap region x y x1 y1 tmp)
 		'(:r0 :r0 :r1 :r7 :r8 :r9 :r10 :r1))
 
-	(def-struct local 0
+	(structure local 0
 		(ptr root ctx_flist ctx_next)
 		(ptr damaged_region)
 		(uint index)
@@ -138,7 +138,7 @@
 	(vp-rdef (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
 		'(:r0 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
-	(def-struct vis 0
+	(structure vis 0
 		(ptr this root next region))
 
 	;save inputs
@@ -304,7 +304,7 @@
 	(vp-rdef (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
 		'(:r0 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
-	(def-struct dist 0
+	(structure dist 0
 		(ptr this data next region))
 
 	;save inputs

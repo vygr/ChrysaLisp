@@ -11,7 +11,7 @@
 (gen-vtable :lisp)
 (gen-type :lisp)
 
-(def-struct built_in 0
+(structure built_in 0
 	(ushort symbol)
 	(ushort field))
 

@@ -12,7 +12,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this form args macro stack)
 		(pptr iter))
 

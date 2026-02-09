@@ -19,7 +19,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this)
 		(pint iter_edge1 iter_edge2 iter_begin_polygon iter_end_polygon)
 		(pptr iter_end_polygons iter_begin_polygons)

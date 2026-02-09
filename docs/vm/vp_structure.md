@@ -17,7 +17,7 @@ Allow you to define a set of incrementing constants. You can set the first
 value and each subsequent symbol gets the current value plus one.
 
 ```vdu
-(def-enum bert 24
+(enums bert 24
 	(enum a b c)
 	(enum d)
 	(enum e f))
@@ -42,7 +42,7 @@ Allow you to define a set of bit masks. Again you can set the initial bit
 offset and for each subsequent bit the mask is shifted left by 1.
 
 ```vdu
-(def-bit alf 2
+(bits alf 2
 	(bit a b c)
 	(bit d)
 	(bit e f))
@@ -70,13 +70,13 @@ Field offsets are aligned to the natural alignment for that type ! The size of
 the entire structure is not aligned.
 
 ```vdu
-(def-struct sue 0
+(structure sue 0
 	(byte a b c))
 
-(def-struct carl 0
+(structure carl 0
 	(short a b c))
 
-(def-struct bob 0
+(structure bob 0
 	(union
 		(struct a sue_size)
 		(struct b carl_size))
@@ -86,7 +86,7 @@ the entire structure is not aligned.
 	(long e)
 	(ptr f))
 
-(def-struct mary bob_size
+(structure mary bob_size
 	(ushort a)
 	(uint b)
 	(plong c)
@@ -342,7 +342,7 @@ This is an example of a 'pair class, first the `class.inc` file.
 	(dec-method :set_second class/pair/set_second :static (:r0 :r1) (:r0))
 	(dec-method :deinit class/pair/deinit :final))
 
-(def-struct pair +obj_size
+(structure pair +obj_size
 	(ptr first)
 	(ptr second))
 
@@ -386,7 +386,7 @@ This is an example of a 'pair class, first the `class.inc` file.
 ```
 
 The `(def-class)` declares the class name and which class it inherits its
-methods from. The `(def-struct)` declares the structure of the object instance,
+methods from. The `(structure)` declares the structure of the object instance,
 inheriting from that parent class instance.
 
 Here we can see an example of the use of inline methods. If a Lisp function is

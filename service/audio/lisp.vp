@@ -27,7 +27,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this)
 		(long c_ret))
 
@@ -80,7 +80,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this)
 		(long c_ret))
 
@@ -133,7 +133,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this)
 		(pubyte c_path)
 		(long c_ret))
@@ -191,7 +191,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this)
 		(long c_handle c_state c_ret))
 
@@ -248,7 +248,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this)
 		(long c_handle c_ret))
 
@@ -305,7 +305,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this)
 		(long c_handle c_ret))
 

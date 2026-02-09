@@ -3,7 +3,7 @@
 (include "class/stream/class.inc")
 (include "./class.inc")
 
-(def-struct tga 0
+(structure tga 0
 	(ubyte imagedata)   ;id field offset
 	(ubyte colmap)      ;color map
 	(ubyte type)        ;targa type

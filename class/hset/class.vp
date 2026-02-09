@@ -19,7 +19,7 @@
 	;trashes
 	;:r1-:r5
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this))
 
 	;save inputs
@@ -112,7 +112,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this key bucket)
 		(pptr iter_begin iter_end))
 
@@ -183,7 +183,7 @@
 		;trashes
 		;...
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this predicate predicate_data bucket)
 		(pptr iter_begin iter_end iter_begin1 iter_end1))
 
@@ -245,7 +245,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this)
 		(uint length))
 
@@ -285,7 +285,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this key))
 
 	;save inputs

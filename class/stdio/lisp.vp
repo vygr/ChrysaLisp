@@ -12,7 +12,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(structure local 0
 		(ptr this val stdin stdout stderr))
 
 	(entry :stdio :lisp_create '(:r0 :r1))

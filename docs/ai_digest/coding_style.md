@@ -35,7 +35,7 @@ understand the nature of a symbol at a glance.
 *   **`+constants` are prefixed by a plus sign `+`**.
 
     * This signals a bind-time constant whose value will be baked into the
-      compiled code, such as those created by `def-struct`.
+      compiled code, such as those created by `structure`.
 
     * Examples: `+max_retries`, `+argb_black`, `+my_msg_type`.
 
@@ -555,10 +555,9 @@ folding, replacing symbols with their literal values in the final compiled code.
     with that value**. The symbol itself never appears in the final executable
     code.
 
-*   **Structures and `getf`/`setf`:** This pattern is most powerfully used by
-    the `def-struct` (for VP assembler) and `structure` (for Lisp) macros. These
-    macros define a family of constants representing the memory offsets of
-    fields within a data structure.
+* **Structures and `getf`/`setf`:** This pattern is most powerfully used by the
+  `structure` macros. These macros define a family of constants representing the
+  memory offsets of fields within a data structure.
 
     ```vdu
     ;; Defines +my_msg_type as the literal integer 24, among other constants.
