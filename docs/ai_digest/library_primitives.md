@@ -752,10 +752,6 @@ These macros are used for defining structures, enums, and bitfields.
 
     * `(structure name base &rest lines)`
 
-*   **`_structure`**: Helper function for `structure`.
-
-    * `(_structure base line)`
-
 *   **`getf`**: Gets the value of a field from a structure.
 
     * `(getf obj field [offset]) -> value`

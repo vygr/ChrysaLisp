@@ -59,6 +59,12 @@ to the VP layers. The `struct.inc` files are shared with the Lisp system for
 
 Aggressive refactoring of the VP64 EMU, in `src/host/vp64.cpp`.
 
+Unification of the VP level structure defining macros with the
+`lib/class/struct.inc` way of doing things. `def-struct`, `def-enum` and
+`def-bit` have been removed and replaced by use of `structure`, `enums` and
+`bits`. The standard macros have been enhanced to make them much stricter on
+field redefinition testing.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

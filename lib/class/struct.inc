@@ -178,5 +178,5 @@
 		(static-qq (/= 0 (logand ,val ~masks)))))
 
 ;module
-(export-symbols '(structure _structure getf setf getf-> setf-> enums bits bits? bit-mask))
+(export-symbols '(structure getf setf getf-> setf-> enums bits bits? bit-mask))
 (env-pop)
