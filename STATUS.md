@@ -69,6 +69,9 @@ Docs app now overrides the `enum` macros for embedded `widget` content.
 
 Fix error in `:str :slice` for reversed strings.
 
+Added a bunch of simple unit tests, run with `./run_tui.sh -n 1 -f -s
+tests/run_all.lisp`.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.
