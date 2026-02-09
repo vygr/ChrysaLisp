@@ -44,29 +44,6 @@
 	(dec-method :lisp_free_mbox sys/mail/lisp_free_mbox :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_timeout sys/mail/lisp_timeout :static (:r0 :r1) (:r0 :r1)))
 
-;;;;;;;;;;;;;;;;;
-; mail structures
-;;;;;;;;;;;;;;;;;
-
-(def-struct +node_id 0
-	(long node1 node2))
-
-(def-struct +net_id 0
-	(long mbox_id)
-	(nodeid node_id))
-
-(def-struct +mbox +ln_node_size
-	(struct list +lh_list_size)
-	(ptr tcb owner_tcb)
-	(uint id))
-
-(def-struct +msg +ln_node_size
-	(long timestamp)
-	(netid dest src)
-	(uint frag_length frag_offset total_length)
-	(align)
-	(ptr obj frag_data))
-
 ;must be power 2
 (defcvar 'num_mbox_buckets 8)
 
