@@ -30,9 +30,6 @@
 (enums +dlist 0
 	(enum mask light_pos layer1_canvas layer1_verts))
 
-(enums +path 0
-	(enum mode color radius path))
-
 (enums +vertex 0
 	(enum p v r c))
 
