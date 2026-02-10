@@ -17,21 +17,21 @@
 	;align cell to +ptr_size
 	(vp-add-cr (dec +ptr_size) :r1)
 	(vp-and-cr (neg +ptr_size) :r1)
-	(assign '(:r1) '((:r0 hp_heap_cellsize)))
+	(assign '(:r1) '((:r0 +hp_heap_cellsize)))
 
 	;size of block to contain these cells
 	(vp-max-cr 1 :r2)
 	;allow for block pointer
-	(vp-add-cr hp_cell_next :r1)
+	(vp-add-cr +hp_cell_next :r1)
 	(vp-mul-rr :r1 :r2)
 	;round up to next page size
-	(vp-add-cr (+ hp_block_size (dec ld_page_size)) :r2)
+	(vp-add-cr (+ +hp_block_size (dec ld_page_size)) :r2)
 	(vp-and-cr (neg ld_page_size) :r2)
-	(assign '(:r2) '((:r0 hp_heap_blocksize)))
+	(assign '(:r2) '((:r0 +hp_heap_blocksize)))
 
 	;init lists
 	(vp-xor-rr :r2 :r2)
-	(assign '(:r2) '((:r0 hp_heap_free_flist)))
+	(assign '(:r2) '((:r0 +hp_heap_free_flist)))
 	(lh-init :r0 :r2)
 
 	(exit :sys_heap :init '(:r0))
@@ -54,7 +54,7 @@
 	(loop-list-forward :r5 0 :r6 :r4)
 		(vp-cpy-rr :r6 :r0)
 		(ln-remove-node :r6 :r1)
-		(assign '((:r5 hp_heap_blocksize)) '(:r1))
+		(assign '((:r5 +hp_heap_blocksize)) '(:r1))
 		(vp-sub-rr :r1 :r3)
 		(call :host_os :pii_munmap '(:r0 :r1 +mmap_data))
 	(loop-end)
@@ -80,17 +80,17 @@
 
 	(entry :sys_heap :alloc `(,this))
 
-	(assign `((,this hp_heap_free_flist)) `(,cell))
+	(assign `((,this +hp_heap_free_flist)) `(,cell))
 	(vpif `(,cell /= 0))
 	(vp-label 'got_cell)
 		(assign `((,cell +ln_fnode_next)) `(,next))
-		(assign `(,next) `((,this hp_heap_free_flist)))
+		(assign `(,next) `((,this +hp_heap_free_flist)))
 		(exit :sys_heap :alloc `(,this ,cell))
 		(vp-ret)
 	(endif)
 	(vp-push blocksize cellsize block blockend cnt this)
-	(assign `((,this hp_heap_cellsize)) `(,cellsize))
-	(assign `((,this hp_heap_blocksize)) `(,blocksize))
+	(assign `((,this +hp_heap_cellsize)) `(,cellsize))
+	(assign `((,this +hp_heap_blocksize)) `(,blocksize))
 	(call :host_os :pii_mmap `(,blocksize -1 +mmap_data) `(,block))
 	(assert `(,block /= 0))
 	(fn-bind 'sys/statics/statics statics)
@@ -99,24 +99,24 @@
 	(vp-add-rr blocksize cnt)
 	(assign `(,cnt) `((,statics statics_sys_mem_total)))
 	(lh-add-at-head this block next)
-	(vp-lea-i block (+ hp_block_size hp_cell_next) cell)
+	(vp-lea-i block (+ +hp_block_size +hp_cell_next) cell)
 	(vp-lea-d block blocksize blockend)
 	(vp-xor-rr next next)
 	(vp-xor-rr cnt cnt)
 	(vp-sub-rr cellsize blockend)
-	(vp-add-cr hp_cell_next cellsize)
-	(assign `(,next) `((,block hp_block_free_flist)))
-	(assign `(,next) `((,block hp_block_free_flist_tail)))
-	(assign `(,cnt) `((,block hp_block_freecnt)))
+	(vp-add-cr +hp_cell_next cellsize)
+	(assign `(,next) `((,block +hp_block_free_flist)))
+	(assign `(,next) `((,block +hp_block_free_flist_tail)))
+	(assign `(,cnt) `((,block +hp_block_freecnt)))
 	(loop-start)
-		(assign `(,block) `((,cell ,(- hp_cell_block hp_cell_next))))
+		(assign `(,block) `((,cell ,(- +hp_cell_block +hp_cell_next))))
 		(assign `(,next) `((,cell +ln_fnode_next)))
 		(vp-lea-d cell cellsize next)
 		(vp-add-cr 1 cnt)
 		(breakif `(,next > ,blockend))
 		(vp-swp-rr next cell)
 	(loop-end)
-	(assign `(,cnt) `((,block hp_block_cellcnt)))
+	(assign `(,cnt) `((,block +hp_block_cellcnt)))
 	(vp-pop blocksize cellsize block blockend cnt this)
 	(goto 'got_cell)
 
@@ -139,28 +139,28 @@
 	(assign '((:r0 statics_sys_mem_total)) `(,total))
 
 	;loop over free cells list
-	(assign `((,this hp_heap_free_flist)) `(,next))
+	(assign `((,this +hp_heap_free_flist)) `(,next))
 	(loop-while `(,next /= 0))
 		(vp-cpy-rr next cel)
 		(assign `((,next +ln_fnode_next)) `(,next))
 
 		;transfer to blocks free list
-		(assign `((,cel ,(- hp_cell_block hp_cell_next))) `(,blk))
-		(assign `((,blk hp_block_free_flist_tail)) `(,tail))
-		(ln-add-fnode blk hp_block_free_flist cel :r0)
+		(assign `((,cel ,(- +hp_cell_block +hp_cell_next))) `(,blk))
+		(assign `((,blk +hp_block_free_flist_tail)) `(,tail))
+		(ln-add-fnode blk +hp_block_free_flist cel :r0)
 		(vpif `(,tail = 0))
-			(assign `(,cel) `((,blk hp_block_free_flist_tail)))
+			(assign `(,cel) `((,blk +hp_block_free_flist_tail)))
 		(endif)
 
 		;do we have a free block ?
-		(assign `((,blk hp_block_freecnt)) '(:r1))
-		(assign `((,blk hp_block_cellcnt)) '(:r0))
+		(assign `((,blk +hp_block_freecnt)) '(:r1))
+		(assign `((,blk +hp_block_cellcnt)) '(:r0))
 		(vp-add-cr 1 :r1)
-		(assign '(:r1) `((,blk hp_block_freecnt)))
+		(assign '(:r1) `((,blk +hp_block_freecnt)))
 		(continueif '(:r0 /= :r1))
 
 		;free the block
-		(assign `((,this hp_heap_blocksize) ,blk) '(:r1 :r0))
+		(assign `((,this +hp_heap_blocksize) ,blk) '(:r1 :r0))
 		(ln-remove-node :r0 :r2)
 		(vp-sub-rr :r1 total)
 		(call :host_os :pii_munmap `(,blk :r1 +mmap_data))
@@ -168,17 +168,17 @@
 
 	;loop over all blocks
 	(vp-xor-rr cel cel)
-	(assign `(,cel) `((,this hp_heap_free_flist)))
+	(assign `(,cel) `((,this +hp_heap_free_flist)))
 	(loop-list-forward this 0 blk next)
 		;splice any free cells onto free list
-		(assign `((,blk hp_block_free_flist)) '(:r0))
+		(assign `((,blk +hp_block_free_flist)) '(:r0))
 		(continueif '(:r0 = 0))
-		(assign `((,blk hp_block_free_flist_tail) (,this hp_heap_free_flist)) '(:r1 :r2))
-		(assign '(:r0 :r2) `((,this hp_heap_free_flist) (:r1 +ln_fnode_next)))
+		(assign `((,blk +hp_block_free_flist_tail) (,this +hp_heap_free_flist)) '(:r1 :r2))
+		(assign '(:r0 :r2) `((,this +hp_heap_free_flist) (:r1 +ln_fnode_next)))
 		;reset free count and free list
-		(assign `(,cel) `((,blk hp_block_free_flist)))
-		(assign `(,cel) `((,blk hp_block_free_flist_tail)))
-		(assign `(,cel) `((,blk hp_block_freecnt)))
+		(assign `(,cel) `((,blk +hp_block_free_flist)))
+		(assign `(,cel) `((,blk +hp_block_free_flist_tail)))
+		(assign `(,cel) `((,blk +hp_block_freecnt)))
 	(loop-end)
 
 	;current total

@@ -72,6 +72,11 @@ Fix error in `:str :slice` for reversed strings.
 Added a bunch of simple unit tests, run with `./run_tui.sh -n 1 -f -s
 tests/run_all.lisp`.
 
+Added missing `:empty?` method in Emap class.
+
+Filled in the `struct.inc` import chain. Always import the base `struct.inc`
+file dependencies.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

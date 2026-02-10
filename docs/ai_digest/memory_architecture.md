@@ -29,7 +29,7 @@ and deallocation requests within the system.
     * **Allocation Strategy (`:sys_mem :alloc`):** When a request for memory is
     made via `:sys_mem :alloc`, it first adds `sys_mem_header_size` to the
     requested amount. Then, it iterates through its managed `:sys_heap`
-    instances to find the smallest heap whose `hp_heap_cellsize` can satisfy
+    instances to find the smallest heap whose `+hp_heap_cellsize` can satisfy
     the adjusted request. The allocation is then delegated to that specific
     `:sys_heap`.
 

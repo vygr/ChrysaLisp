@@ -1050,8 +1050,8 @@
 		(loop-flist rec0 0 rec recn)
 		(loop-end)
 		;splice region onto heap free list
-		(assign `((,heap hp_heap_free_flist)) `(,rec))
-		(assign `(,rec0) `((,heap hp_heap_free_flist)))
+		(assign `((,heap +hp_heap_free_flist)) `(,rec))
+		(assign `(,rec0) `((,heap +hp_heap_free_flist)))
 		(assign `(,rec) `((,recn +ln_fnode_next)))
 		;free region list
 		(vp-xor-rr rec rec)

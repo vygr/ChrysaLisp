@@ -22,18 +22,18 @@
 	(setq mutated :t)
 	(stop) (start))
 
-(defclass Local (create destroy &optional herd_max herd_init herd_growth) (Fmap)
-	; (Local fnc_create fnc_destroy [herd_max herd_init herd_growth]) -> local
-	(setd herd_max +max_int herd_init 1 herd_growth 1)
+(defclass Local (create destroy &optional herd_max herd_init herd_growth nodes) (Fmap)
+	; (Local fnc_create fnc_destroy [herd_max herd_init herd_growth nodes]) -> local
+	(setd herd_max +max_int herd_init 1 herd_growth 1 nodes (list (task-nodeid)))
 	(lower :create :destroy :herd_max :herd_growth
-		(:key -1 :nodes (list (task-nodeid))))
+		(:key -1 :nodes nodes))
 	(raise :nodes (now (pii-time) e (penv)))
 	(times (min herd_max (max herd_init 1)) (start))
 
 	(defmethod :refresh (&optional timeout)
 		; (. local :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
-		(defq known_nodes (map (const cat) (mail-nodes))
+		(defq known_nodes (push (map (const cat) (mail-nodes)) (task-nodeid))
 			nodes (filter (# (find %0 known_nodes)) (get :nodes this))
 			old_keys (list) old_vals (list)
 			create (get :create this) destroy (get :destroy this)

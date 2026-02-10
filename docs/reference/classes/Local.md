@@ -3,7 +3,7 @@
 ## Fmap
 
 ```code
-(Local fnc_create fnc_destroy [herd_max herd_init herd_growth]) -> local
+(Local fnc_create fnc_destroy [herd_max herd_init herd_growth nodes]) -> local
 ```
 
 ### :add_node

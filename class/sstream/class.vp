@@ -102,7 +102,7 @@
 	(call :str :create_from_buffer {0, len * 2} {new_str})
 	(call :sys_mem :copy {&this->+stream_object->+str_data, &new_str->+str_data, len} {_, this->+stream_bufp})
 	(assign {(new_str - +sys_mem_header_size)} {cell})
-	(assign {cell + cell->+sys_mem_header_heap->hp_heap_cellsize - 1} {this->+stream_bufe})
+	(assign {cell + cell->+sys_mem_header_heap->+hp_heap_cellsize - 1} {this->+stream_bufe})
 	(assign {this->+stream_bufe - &new_str->+str_data} {new_str->+str_length})
 	(call :str :deref {this->+stream_object})
 	(assign {new_str} {this->+stream_object})

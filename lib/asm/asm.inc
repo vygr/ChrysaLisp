@@ -50,7 +50,9 @@
 		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 2)
 			select (list (mail-mbox) (mail-mbox) (mail-mbox))
 			jobs (map (# (str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst*))) files)
-			farm (Local (const create) (const destroy) (length files) (max 1 (min 8 (length (lisp-nodes))))))
+			nodes (lisp-nodes)
+			nodes (if (nempty? nodes) nodes (list (task-nodeid)))
+			farm (Local (const create) (const destroy) (length files) (max 1 (min 8 (length nodes))) 1 nodes))
 		(mail-timeout (elem-get select +select_timer) timer_rate 0)
 		(while working
 			(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))

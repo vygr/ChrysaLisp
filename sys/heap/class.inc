@@ -1,5 +1,6 @@
 (include "././list/class.inc")
 (include "././mem/class.inc")
+(include "./struct.inc")
 
 ;;;;;;;;;;;;;;;;;;;
 ; heap static class
@@ -11,21 +12,6 @@
 	(dec-method :alloc sys/heap/alloc :static (:r0) (:r0 :r1))
 	(dec-method :free sys/heap/free :static (:r0 :r1))
 	(dec-method :collect sys/heap/collect :static (:r0) (:r0)))
-
-;;;;;;;;;;;;;;;;;
-; heap structures
-;;;;;;;;;;;;;;;;;
-
-(structure hp_heap +lh_list_size
-	(ptr free_flist)
-	(uint cellsize blocksize))
-
-(structure hp_block +ln_node_size
-	(ptr free_flist free_flist_tail)
-	(uint cellcnt freecnt))
-
-(structure hp_cell 0
-	(ptr block next))
 
 ;;;;;;;;;;;;;
 ; heap macros
@@ -41,7 +27,7 @@
 	;%1 = cell (ptr)
 	;%2 = old first cell (ptr)
 
-	(ln-add-fnode %0 hp_heap_free_flist %1 %2))
+	(ln-add-fnode %0 +hp_heap_free_flist %1 %2))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

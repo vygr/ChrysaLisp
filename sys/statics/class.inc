@@ -22,8 +22,8 @@
 	;sys_mail statics
 	(uint sys_mail_session sys_mail_next_mbox_id)
 	(ptr sys_mail_links_array sys_mail_node_map sys_mail_out_mbox_addr)
-	(struct sys_mail_msg_heap hp_heap_size)
-	(struct sys_mail_mbox_heap hp_heap_size)
+	(struct sys_mail_msg_heap +hp_heap_size)
+	(struct sys_mail_mbox_heap +hp_heap_size)
 	;keep these together
 	(struct sys_mail_timeout_list +lh_list_size)
 	(struct sys_mail_offchip_list +lh_list_size)
@@ -34,7 +34,7 @@
 	;sys_mem statics
 	(struct sys_mem_obj_list +lh_list_size)
 	(long sys_mem_total)
-	(struct sys_mem_heaps (* (length (last +mem_heap_cell_sizes)) hp_heap_size))
+	(struct sys_mem_heaps (* (length (last +mem_heap_cell_sizes)) +hp_heap_size))
 	(align)
 
 	;sys_load statics
@@ -63,7 +63,7 @@
 	(align)
 
 	;gui statics
-	(struct gui_rect_heap hp_heap_size)
+	(struct gui_rect_heap +hp_heap_size)
 	(ptr gui_init gui_screen gui_temps)
 	(long gui_next_id)
 	(uint gui_dirty_flag gui_old_region_index gui_flags)
