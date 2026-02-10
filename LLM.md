@@ -195,6 +195,12 @@ raw `script_name.lisp` file.
 
 Keep any test scripts and associated files in the `tests/` folder !
 
+There is a compreshensive test suite that can be run via.
+
+```
+./run_tui.sh -n 1 -f -s tests/run_all.lisp
+```
+
 If you are not changing the base VM or any VP level system files, which most app
 coding should NOT be doing ! There is no need to keep making the system from
 scratch each time ! Running your tests via this script launcher is what you
