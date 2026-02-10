@@ -34,6 +34,7 @@
     (import "tests/test_low_level_io.lisp")
     (import "tests/test_system.lisp")
     (import "tests/test_root_utils.lisp")
+    (import "tests/test_collections_all.lisp")
 
     (print-summary)
     
