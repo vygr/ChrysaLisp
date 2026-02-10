@@ -67,4 +67,8 @@
 		; (. emap :resize num_buckets) -> emap
 		(env-resize num_buckets (get :buckets this))
 		this)
+
+	(defmethod :empty? ()
+		; (. emap :empty?) -> :t | :nil
+		(= (length (tolist (get :buckets this))) 0))
 	)
