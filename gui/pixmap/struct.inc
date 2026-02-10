@@ -1,3 +1,5 @@
+(import "class/obj/struct.inc")
+
 (structure +pixmap +obj_size
 	(int type)
 	(ptr texture stream bufp)

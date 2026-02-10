@@ -1,3 +1,6 @@
+(import "gui/view/struct.inc")
+(import "sys/list/struct.inc")
+
 (structure +canvas +view_size
 	(ptr pixmap edges texture)
 	(pptr edges_start)

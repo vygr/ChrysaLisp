@@ -1,3 +1,5 @@
+(import "gui/view/struct.inc")
+
 (structure +vdu +view_size
 	(ptr font textures)
 	(plong chars)

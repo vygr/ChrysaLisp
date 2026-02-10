@@ -1,3 +1,6 @@
+(import "class/stream/struct.inc")
+(import "sys/list/struct.inc")
+
 (structure +in +stream_size
 	(struct list +lh_list_size)
 	(ptr mbox_addr)

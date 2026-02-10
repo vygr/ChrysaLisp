@@ -1,3 +1,5 @@
+(import "class/obj/struct.inc")
+
 (structure +lisp +obj_size
 	;this first block of ptrs gets derefed on deinit
 	(ptr stdin stdout stderr environment

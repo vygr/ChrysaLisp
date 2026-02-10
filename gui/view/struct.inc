@@ -1,3 +1,6 @@
+(import "class/hmap/struct.inc")
+(import "sys/list/struct.inc")
+
 (structure +view +hmap_size
 	(offset start)
 	(struct node +ln_node_size)

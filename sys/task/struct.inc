@@ -1,3 +1,5 @@
+(import "sys/list/struct.inc")
+
 ;task flags
 (bits +tk_flag 0
 	(bit aborted))

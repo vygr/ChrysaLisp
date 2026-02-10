@@ -1,3 +1,5 @@
+(import "class/seq/struct.inc")
+
 (structure +str +seq_size
 	(int hashslot)
 	(uint hashcode length)

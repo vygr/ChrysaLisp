@@ -1,3 +1,5 @@
+(import "class/obj/struct.inc")
+
 (structure +font +obj_size
 	(uint pixels)
 	(ptr data sym_map name chars))
