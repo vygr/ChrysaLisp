@@ -30,6 +30,12 @@
 (. emap :empty) -> emap
 ```
 
+### :empty?
+
+```code
+(. emap :empty?) -> :t | :nil
+```
+
 ### :erase
 
 ```code
