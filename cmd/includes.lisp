@@ -78,10 +78,10 @@
 				((eql "f-path" token) (merge classes (list (elem-get input (inc (!))))))
 				((eql "vec-set" token) (merge classes '(":sys_math")))
 				((some (lambda (item)
-					(if (some (# (starts-with %0 token)) (rest item))
+					(if (some! (# (starts-with %0 token)) (list item) :nil 1)
 						(progn (merge classes (list (first item))) :t))) +class_prefixes))
 				((some (lambda (item)
-					(if (some (# (starts-with %0 token)) (rest item))
+					(if (some! (# (starts-with %0 token)) (list item) :nil 1)
 						(progn (merge requires (list (first item))) :t))) +require_prefixes))))
 			input) :nil) +split_class)
 	;convert to the files we need, keep any apps/ include files !
