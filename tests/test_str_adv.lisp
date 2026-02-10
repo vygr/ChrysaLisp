@@ -59,3 +59,19 @@
 (defq s3 "123")
 (defq idxs_reorder (nums 2 3 1 2 0 1)) 
 (assert-eq "Splice Reorder" "321" (splice s3 s3 idxs_reorder))
+
+(assert-eq "expand" "    b" (expand "\tb" 4))
+(assert-eq "compress" "\tb" (compress "    b" 4))
+(assert-eq "cmp" 0 (cmp "abc" "abc"))
+(assert-true "cmp <" (< (cmp "abc" "def") 0))
+(assert-true "cmp >" (> (cmp "def" "abc") 0))
+
+(assert-eq "hex-encode" "414243" (hex-encode "ABC"))
+(assert-eq "hex-decode" "ABC" (hex-decode "414243"))
+(assert-eq "unescape" "a\nb" (unescape "a\\nb"))
+
+(assert-eq "bskip" 2 (bskip " " "  abc" 0))
+(assert-eq "bskipn" 0 (bskipn " " "  abc" 0))
+(defq rb_res (rbskip " " "abc  " 4))
+(assert-true "rbskip valid" (or (= rb_res 2) (= rb_res 3)))
+(assert-eq "rbskipn" 4 (rbskipn " " "abc  " 4))

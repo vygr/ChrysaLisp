@@ -49,3 +49,12 @@
 
 ; Progn
 (assert-eq "Progn last" 3 (progn 1 2 3))
+
+(assert-eq "ifn true"  "no"  (ifn :t "yes" "no"))
+(assert-eq "ifn false" "yes" (ifn :nil "yes" "no"))
+
+(defq condn_res (condn 
+    ((= 1 1) "A")
+    ((= 1 2) "B")
+    (:t "C")))
+(assert-eq "condn" "B" condn_res)

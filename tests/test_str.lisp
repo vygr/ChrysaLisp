@@ -12,6 +12,9 @@
 (assert-true "sym?"  (sym? 'abc))
 (assert-eq   "Type-of" :num (last (type-of 42)))
 
+(assert-eq "sym" 'hello (sym "hello"))
+(assert-true "gensym" (sym? (gensym)))
+
 ; String Ops
 (assert-eq "String Len" 11 (length s))
 (assert-eq "Char access" (ascii-code "e") (code (elem-get s 1)))

@@ -66,3 +66,6 @@
 (defq ss (string-stream "(a b c)"))
 (defq r_res (read ss))
 (assert-list-eq "read sstream" '(a b c) (first r_res))
+
+(defq ri (repl-info))
+(assert-true "repl-info" (and (list? ri) (>= (length ri) 2)))

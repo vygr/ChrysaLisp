@@ -78,3 +78,21 @@
 (def ep 'test_key 100)
 (assert-eq "env get" 100 (get 'test_key ep))
 (assert-true "env tolist find" (some (# (and (= (length %0) 2) (eql (first %0) 'test_key) (eql (second %0) 100))) (tolist ep)))
+
+(defq my_env (env))
+(def my_env 'test_sym 123)
+(assert-eq "def?" 123 (def? 'test_sym my_env))
+(undef my_env 'test_sym)
+(assert-eq "undef" :nil (def? 'test_sym my_env))
+
+(defq e1 (env))
+(def e1 'a 1)
+(defq e2 (env-copy e1 10))
+(assert-eq "env-copy" 1 (get 'a e2))
+
+(defq old_env (penv))
+(env-push)
+(defq inner_env (penv))
+(assert-true "env-push" (nql old_env inner_env))
+(env-pop)
+(assert-eq "env-pop" old_env (penv))

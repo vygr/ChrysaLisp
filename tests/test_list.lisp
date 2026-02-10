@@ -32,3 +32,18 @@
 (assert-eq "Reduce" 10 r)
 
 (assert-eq "Reverse" 3 (first (reverse (list 1 2 3))))
+
+(defq c_arr (array 1 2 3))
+(cap 10 c_arr)
+(assert-eq "cap" 3 (length c_arr)) 
+
+(clear c_arr)
+(assert-eq "clear" 0 (length c_arr))
+
+(defq es_arr (array 10 20 30))
+(elem-set es_arr 1 99)
+(assert-eq "elem-set" 99 (elem-get es_arr 1))
+
+(defq l1_m (list 1 2) l2_m (list 3 4))
+(merge l1_m l2_m)
+(assert-list-eq "merge" '(1 2 3 4) l1_m)

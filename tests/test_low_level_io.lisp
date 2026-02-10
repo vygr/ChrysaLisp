@@ -41,3 +41,32 @@
 (stream-seek ms 0 0)
 (assert-eq "read-byte signed"  -1 (read-byte ms))
 (assert-eq "read-short signed" -1 (read-short ms))
+
+; Additional Stream tests
+(defq ms2 (memory-stream))
+(write-char ms2 (ascii-code "A"))
+(write-blk ms2 "BC")
+(stream-seek ms2 0 0)
+(assert-eq "read-char" (ascii-code "A") (read-char ms2))
+(assert-eq "read-blk" "BC" (read-blk ms2 2))
+(assert-eq "stream-avail" 0 (stream-avail ms2))
+
+(stream-seek ms2 0 0)
+(write-line ms2 "Hello")
+(stream-seek ms2 0 0)
+(assert-eq "read-line" "Hello" (read-line ms2))
+
+; lines!
+(stream-seek ms2 0 0)
+(defq line_count_test 0)
+(lines! (lambda (l) (++ line_count_test)) ms2)
+(assert-eq "lines!" 1 line_count_test)
+
+; --- File and String Save/Load ---
+(defq test_file_io "tmp_test_file_io.txt")
+(save "Hello World" test_file_io)
+(assert-eq "save/load" "Hello World" (load test_file_io))
+(defq fs_test (file-stream test_file_io))
+(assert-true "file-stream" (not (nil? fs_test)))
+(assert-eq "file-stream read" "Hello" (read-blk fs_test 5))
+(pii-remove test_file_io)

@@ -66,3 +66,8 @@
 (defq w_ref (weak-ref o_ref))
 (assert-true "weak-ref number" (num? w_ref))
 (assert-eq "obj-ref" o_ref (obj-ref w_ref))
+
+(assert-true "hash" (num? (hash "test")))
+(defq s_obj (str-alloc 10))
+(obj-set s_obj +str_data +type_int 123456)
+(assert-eq "obj-get/set" 123456 (obj-get s_obj +str_data +type_int))

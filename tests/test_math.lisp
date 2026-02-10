@@ -43,3 +43,7 @@
 (assert-eq ">> logical" 9223372036854775804 (>> -8 1))
 (assert-eq ">>> arithmetic" -4 (>>> -8 1))
 (assert-eq "<< shift" 16 (<< 8 1))
+
+(assert-eq "n2i" 5 (n2i (n2r 5.7)))
+(defq rnd (random 100))
+(assert-true "random" (and (>= rnd 0) (< rnd 100)))
