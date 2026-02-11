@@ -1234,12 +1234,13 @@
 	;transform an absolute filename to a relative one
 	(defq t_parts (split target "/")
 		c_parts (split (ifn current (first (repl-info))) "/")
-		i (or (some (# (if (eql %0 %1) :nil (!))) t_parts c_parts)
+		i (or (some (# (if (nql %0 %1) (!))) t_parts c_parts)
 			(min (length t_parts) (length c_parts)))
-		out (list))
-	(times (- (length c_parts) i) (push out "."))
-	(setq out (cat out (slice t_parts i -1)))
-	(if (> (dec (length out)) (length t_parts)) target (join out "/")))
+		current (join (cat
+			(slice (static-q (const (reduce (lambda (%0 &) (push %0 ".")) (range 0 32) '())))
+				0 (- (length c_parts) i))
+			(slice t_parts i -1)) "/"))
+	(if (> (length current) (length target)) target current))
 
 (defun path-to-absolute (target &optional current)
 	; (path-to-absolute target [current]) -> path
