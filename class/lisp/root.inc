@@ -1249,8 +1249,7 @@
 			(defq c_parts (split (ifn current (first (repl-info))) "/")
 				p_parts (split target "/") i (rfind "." p_parts))
 			(if (> i (length c_parts)) (throw "No relative path !" target))
-			(join (cat (slice c_parts 0 (- (length c_parts) i))
-					   (slice p_parts i -1)) "/"))
+			(join (cat (slice c_parts 0 (- -1 i)) (slice p_parts i -1)) "/"))
 		(target)))
 
 (defun import (module &optional dst_env)
