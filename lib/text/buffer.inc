@@ -292,6 +292,8 @@
 
 	(defsetmethod :cursors)
 	(defsetmethod :tcursors)
+	(defsetmethod :tab_width)
+	(defsetmethod :wrap_width)
 
 	(defgetmethod :cursors)
 	(defgetmethod :tcursors)

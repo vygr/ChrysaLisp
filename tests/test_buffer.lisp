@@ -137,6 +137,13 @@
 (assert-eq "get_text_line" "ABC\n" (. b :get_text_line 0))
 (assert-eq "clip_cursor" (nums 3 0 3 0 -1) (. b :clip_cursor 10 0))
 
+; --- Getter/Setter Methods ---
+(defq b (Buffer))
+(. b :set_tab_width 8)
+(assert-eq "get_tab_width" 8 (. b :get_tab_width))
+(. b :set_wrap_width 120)
+(assert-eq "get_wrap_width" 120 (. b :get_wrap_width))
+
 ; --- White Space Navigation ---
 (defq b (Buffer))
 (. b :insert "  ABC  ")
