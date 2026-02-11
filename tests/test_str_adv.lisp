@@ -3,6 +3,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "String Advanced: Slice, Reverse, Splice")
 
+(import "lib/text/charclass.inc")
+
 (defq s "0123456789")
 
 ; --- Slicing (Forward) ---
@@ -70,8 +72,25 @@
 (assert-eq "hex-decode" "ABC" (hex-decode "414243"))
 (assert-eq "unescape" "a\nb" (unescape "a\\nb"))
 
-(assert-eq "bskip" 2 (bskip " " "  abc" 0))
-(assert-eq "bskipn" 0 (bskipn " " "  abc" 0))
-(defq rb_res (rbskip " " "abc  " 4))
-(assert-true "rbskip valid" (or (= rb_res 2) (= rb_res 3)))
-(assert-eq "rbskipn" 4 (rbskipn " " "abc  " 4))
+; --- bskip family tests ---
+
+; bskip: skip characters IN class
+(assert-eq "bskip space" 2 (bskip +char_class_space "  abc" 0))
+(assert-eq "bskip alpha" 3 (bskip +char_class_alpha "abc123" 0))
+(assert-eq "bskip digit" 3 (bskip +char_class_digit "123abc" 0))
+(assert-eq "bskip hex" 5 (bskip +char_class_hex "decaf_coffee" 0))
+
+; bskipn: skip characters NOT IN class
+(assert-eq "bskipn alpha" 3 (bskipn +char_class_alpha "123abc" 0))
+(assert-eq "bskipn digit" 3 (bskipn +char_class_digit "abc123" 0))
+(assert-eq "bskipn space" 3 (bskipn +char_class_space "abc  " 0))
+
+; rbskip: skip backward characters IN class
+(assert-eq "rbskip space" 3 (rbskip +char_class_space "abc  " 5))
+(assert-eq "rbskip alpha" 3 (rbskip +char_class_alpha "123abc" 6))
+(assert-eq "rbskip digit" 0 (rbskip +char_class_digit "123abc" 3))
+
+; rbskipn: skip backward characters NOT IN class
+(assert-eq "rbskipn alpha" 3 (rbskipn +char_class_alpha "abc123" 6))
+(assert-eq "rbskipn digit" 3 (rbskipn +char_class_digit "123abc" 6))
+(assert-eq "rbskipn space" 2 (rbskipn +char_class_space "  abc" 5))
