@@ -24,6 +24,7 @@
     (import "tests/test_multi_seq.lisp")
     (import "tests/test_str.lisp")
     (import "tests/test_str_adv.lisp")
+    (import "tests/test_buffer.lisp")
     (import "tests/test_splice.lisp")
     (import "tests/test_negative_indexing.lisp")
     (import "tests/test_str_utils.lisp")
