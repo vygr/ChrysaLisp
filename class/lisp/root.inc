@@ -1232,8 +1232,8 @@
 (defun path-to-relative (target &optional current)
 	; (path-to-relative target [current]) -> path
 	;transform an absolute filename to a relative one
-	(setd current (first (repl-info)))
-	(defq t_parts (split target "/") c_parts (split current "/")
+	(defq t_parts (split target "/")
+		c_parts (split (ifn current (first (repl-info))) "/")
 		i (or (some (# (if (eql %0 %1) :nil (!))) t_parts c_parts)
 			(min (length t_parts) (length c_parts)))
 		out (list))
@@ -1244,12 +1244,10 @@
 (defun path-to-absolute (target &optional current)
 	; (path-to-absolute target [current]) -> path
 	;transform a relative filename to an absolute one
-	(setd current (first (repl-info)))
 	(cond
 		((starts-with "." target)
-			(defq c_parts (split current "/") p_parts (split target "/")
-				i (or (some (# (if (eql %0 ".") :nil (!))) p_parts)
-					(length p_parts)))
+			(defq c_parts (split (ifn current (first (repl-info))) "/")
+				p_parts (split target "/") i (rfind "." p_parts))
 			(if (> i (length c_parts)) (throw "No relative path !" target))
 			(join (cat (slice c_parts 0 (- (length c_parts) i))
 					   (slice p_parts i -1)) "/"))
