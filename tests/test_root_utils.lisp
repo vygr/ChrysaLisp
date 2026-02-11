@@ -51,9 +51,14 @@
 
 ; --- path functions ---
 (assert-true "path-to-file" (str? (path-to-file)))
-(defq abs_p (path-to-absolute "./README.md"))
-(assert-true "path-to-absolute" (str? abs_p))
-(assert-true "path-to-relative" (str? (path-to-relative "/tmp/a/b" "/tmp/a")))
+(assert-eq "path-to-relative: child" "b" (path-to-relative "tmp/a/b" "tmp/a"))
+(assert-eq "path-to-relative: same level" "./b" (path-to-relative "tmp/b" "tmp/a"))
+(assert-eq "path-to-relative: up levels" "././c" (path-to-relative "tmp/c" "tmp/a/b"))
+
+(assert-eq "path-to-absolute: simple" "tmp/a/b" (path-to-absolute "./b" "tmp/a/c"))
+(assert-eq "path-to-absolute: nested" "tmp/a/b" (path-to-absolute "././b" "tmp/a/b/c"))
+(assert-eq "path-to-absolute: dir" "tmp/a" (path-to-absolute "." "tmp/a/c"))
+(assert-eq "path-to-absolute: up" "tmp" (path-to-absolute "./." "tmp/a/c"))
 
 ; --- System info ---
 (assert-true "abi" (sym? (abi)))
