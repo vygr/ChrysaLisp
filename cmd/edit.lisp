@@ -9,7 +9,7 @@
 	options:
 		-h --help: this help info.
 		-j --jobs num: max jobs per batch, default 1.
-		-c --cmd '...': command commands to execute.
+		-c --cmd '...': commands to execute.
 		-s --script path: file containing commands to execute.
 
 	Command line text editor.
