@@ -171,7 +171,7 @@ Find all instances of "foo" or "bar" and replace them with "baz".
 ```code
 files . .txt |
 edit -c
-"(edit-find \qfoo|bar\q :r) (edit-cursors) (edit-insert \qbaz\q)"
+"(edit-find {foo|bar} :r) (edit-cursors) (edit-insert {baz})"
 ```
 
 ### 2. Semantic Commenting
@@ -181,7 +181,7 @@ Find every definition of the function `main` and comment it out.
 ```code
 files . .lisp |
 edit -c
-"(edit-find \qdefun main\q) (edit-cursors) (edit-select-form) (edit-comment)"
+"(edit-find {defun main}) (edit-cursors) (edit-select-form) (edit-comment)"
 ```
 
 ### 3. Header Injection
@@ -191,7 +191,7 @@ Insert a copyright notice at the top of every file.
 ```code
 files . .lisp |
 edit -c
-"(edit-top) (edit-insert \q;; Copyright 2026\n\q)"
+"(edit-top) (edit-insert {;; Copyright 2026\n})"
 ```
 
 ### 4. Line Numbering (Variables and Loops)
@@ -212,7 +212,7 @@ my_script
 	(defun edit-script ()
 		(defq line_num 0)
 		(for-each-line
-			(edit-insert (str (++ line_num) \q: \q))
+			(edit-insert (str (++ line_num) {: }))
 			(edit-down)
 			(edit-home)))"
 ```
@@ -224,7 +224,7 @@ Only edit the file if it contains a specific Todo marker.
 ```code
 files . *.src |
 edit -c
-"(when (edit-find \qTODO_FIX_THIS\q)
+"(when (edit-find {TODO_FIX_THIS})
 	(edit-cursors)
 	(edit-select-line)
 	(edit-delete))"
@@ -237,7 +237,7 @@ Don't edit the file, just extract data. This finds all URLs and prints them.
 ```code
 files . *.ms |
 edit -c
-"(edit-find \qhttps://[^ \\q]+\q :r) (edit-cursors) (each edit-print (edit-get-text))"
+"(edit-find {https://[^ \q]+} :r) (edit-cursors) (each edit-print (edit-get-text))"
 ```
 
 ### 7. Massive Parallel Refactoring
@@ -248,5 +248,5 @@ nodes.
 ```code
 files -a . .lisp |
 edit -c
-"(edit-find \qold-func-name\q :w) (edit-cursors) (edit-insert \qnew-func-name\q)"
+"(edit-find {old-func-name} :w) (edit-cursors) (edit-insert {new-func-name})"
 ```
