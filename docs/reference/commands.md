@@ -68,19 +68,28 @@ Usage: edit [options] [path] ...
 	options:
 		-h --help: this help info.
 		-j --jobs num: max jobs per batch, default 1.
-		-c --cmd '...': command to execute.
+		-c --cmd '...': commands to execute.
 		-s --script path: file containing command to execute.
 
 	Command line text editor.
+
 	The `edit-script` is compiled and executed in a custom environment
 	populated with editing primitives.
 
+	With the -c option your script commands will be auto wrapped into an
+	`(defun edit-script () ...)` lambda, before execution.
+
+	With the -s option your script is assumed to use advanced ChrysaLisp features,
+	such as macros, and as such a simple wrapping will not suffice.
+	So the assumption is that you will provide the `(defun edit-script () ...)`
+	within the script file !
+
 	Available Commands:
 
-	Search:		(edit-find pattern [:w] [:r])
+	Search:  (edit-find pattern [:w :r])
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
-	Selection:	(edit-select-all) (edit-select-line)
+	Selection:  (edit-select-all) (edit-select-line)
 				(edit-select-word) (edit-select-block)
 				(edit-select-form) (edit-select-para)
 				(edit-select-left) (edit-select-right)
@@ -98,11 +107,13 @@ Usage: edit [options] [path] ...
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
 				(edit-indent) (edit-outdent)
 
-	Properties:	(edit-get-text) (edit-get-filename)
+	Properties: (edit-get-text) (edit-get-filename)
 
 	Example - Numbering lines:
 
-	edit -c
+	edit -s my_script file.txt
+
+	my_script
 		"(defmacro for-each-line (&rest body)
 			`(progn
 				(edit-top)
@@ -116,7 +127,6 @@ Usage: edit [options] [path] ...
 				(edit-insert (str (++ line_num) ": "))
 				(edit-down)
 				(edit-home)))"
-		file.txt
 ```
 ## files
 ```code
