@@ -47,12 +47,15 @@
 				(edit-bracket-left) (edit-bracket-right)
 				(edit-ws-left) (edit-ws-right)
 
-	Mutation:	(edit-insert text) (edit-delete) (edit-backspace)
+	Mutation:	(edit-insert txt) (edit-delete) (edit-backspace)
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
-				(edit-indent) (edit-outdent)
+				(edit-indent) (edit-outdent) (edit-cut) (edit-paste txt)
 
-	Properties:	(edit-get-text) (edit-get-filename)
+	Properties:	(edit-copy) (edit-get-text) (edit-get-filename)
+
+	Utilities:	(edit-split-text txt &optional cls)
+				(edit-join-text (txt ...) &optional cls)
 
 	Example - Numbering lines:
 
@@ -105,8 +108,9 @@
 (defun edit-find (pattern &rest flags) (. *doc* :find pattern (find :w flags) (find :r flags)))
 (defun edit-cursors () (. *doc* :set_found_cursors (. *doc* :get_buffer_found)))
 (defun edit-add-cursors () (. *doc* :add_found_cursors (. *doc* :get_buffer_found)))
-(defun edit-join (txt &optional cls) (join (split txt (ifn cls "\n\f")) "\n"))
-(defun edit-get-text () (edit-join (. *doc* :copy)))
+(defun edit-split-text (txt &optional cls) (split txt (ifn cls "\n\f")))
+(defun edit-join-text (txts &optional cls) (join txts (ifn cls "\n")))
+(defun edit-get-text () (edit-join-text (edit-split-text (. *doc* :copy))))
 (defun edit-print (&rest args) (apply (const print) (if (nempty? args) args (list (edit-get-text)))))
 
 (defun work (*file* *fnc*)

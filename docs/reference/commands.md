@@ -84,6 +84,10 @@ Usage: edit [options] [path] ...
 	So the assumption is that you will provide the `(defun edit-script () ...)`
 	within the script file !
 
+	If you specify both -c and -s, the -c option is compiled as is it was
+	in front of the -s script ! So it could be used to set configuration or
+	provide specific functions that the main script binds to etc.
+
 	Available Commands:
 
 	Search:		(edit-find pattern [:w :r])
@@ -102,12 +106,15 @@ Usage: edit [options] [path] ...
 				(edit-bracket-left) (edit-bracket-right)
 				(edit-ws-left) (edit-ws-right)
 
-	Mutation:	(edit-insert text) (edit-delete) (edit-backspace)
+	Mutation:	(edit-insert txt) (edit-delete) (edit-backspace)
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
-				(edit-indent) (edit-outdent)
+				(edit-indent) (edit-outdent) (edit-cut) (edit-paste txt)
 
-	Properties:	(edit-get-text) (edit-get-filename)
+	Properties:	(edit-copy) (edit-get-text) (edit-get-filename)
+
+	Utilities:	(edit-split-text txt &optional cls)
+				(edit-join-text (txt ...) &optional cls)
 
 	Example - Numbering lines:
 
