@@ -18,10 +18,10 @@
 
 	Available Commands:
 
-	Search:  (edit-find pattern [:w] [:r])
+	Search:		(edit-find pattern [:w] [:r])
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
-	Selection:  (edit-select-all) (edit-select-line)
+	Selection:	(edit-select-all) (edit-select-line)
 				(edit-select-word) (edit-select-block)
 				(edit-select-form) (edit-select-para)
 				(edit-select-left) (edit-select-right)
@@ -39,13 +39,17 @@
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
 				(edit-indent) (edit-outdent)
 
-	Properties: (edit-get-text) (edit-get-filename)
+	Properties:	(edit-get-text) (edit-get-filename)
 
 	Example - Numbering lines:
 
-	edit -c \q(edit-top) (defq i 0)
-		(while (edit-down)
-			(edit-home) (edit-insert (str (++ i) ': ')))\q
+	edit -c
+		"(edit-top)
+		(defq i 0 cy 0 dh (last (. *doc* :get_size)))
+		(while (/= cy dh)
+			(edit-insert (str (++ i) \q: \q))
+			(edit-down) (edit-home)
+			(bind '(& cy &ignore) (. *doc* :get_cursor)))"
 		file.txt"
 	)
 (("-j" "--jobs") ,(opt-num 'opt_j))
