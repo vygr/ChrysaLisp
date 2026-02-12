@@ -27,10 +27,10 @@
 
 	Available Commands:
 
-	Search:		(edit-find pattern [:w :r])
+	Search:  (edit-find pattern [:w :r])
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
-	Selection:	(edit-select-all) (edit-select-line)
+	Selection:  (edit-select-all) (edit-select-line)
 				(edit-select-word) (edit-select-block)
 				(edit-select-form) (edit-select-para)
 				(edit-select-left) (edit-select-right)
@@ -48,7 +48,7 @@
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
 				(edit-indent) (edit-outdent)
 
-	Properties:	(edit-get-text) (edit-get-filename)
+	Properties: (edit-get-text) (edit-get-filename)
 
 	Example - Numbering lines:
 
@@ -141,8 +141,9 @@
 							(defq body (list) form :t next (ascii-code " "))
 							(while form
 								(bind '(form next) (read script_stream next))
-								(push body form))
-							(defq fnc `(lambda () ~(macrobind body)))))
+								(if form (push body form)))
+							(setq body (macrobind body))
+							(defq fnc `(lambda () ~body))))
 					(each (# (work %0 fnc)) jobs))
 				; distribute to farm
 				(each (lambda ((job result)) (prin result))
