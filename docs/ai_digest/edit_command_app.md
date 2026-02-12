@@ -181,7 +181,7 @@ Find every definition of the function `main` and comment it out.
 ```code
 files . .lisp |
 edit -c
-"(edit-find {defun main}) (edit-cursors) (edit-select-block) (edit-comment)"
+"(edit-find {defun main}) (edit-cursors) (edit-select-paragraph) (edit-comment)"
 ```
 
 ### 3. Header Injection

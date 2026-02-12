@@ -82,7 +82,7 @@
 (gen-edit ws-left :left_white_space) (gen-edit ws-right :right_white_space)
 (gen-edit select-all :select_all) (gen-edit select-line :select_line)
 (gen-edit select-word :select_word) (gen-edit select-block :select_block)
-(gen-edit select-form :select_form) (gen-edit select-para :select_paragraph)
+(gen-edit select-form :select_form) (gen-edit select-paragraph :select_paragraph)
 (gen-edit select-left :left_select) (gen-edit select-right :right_select)
 (gen-edit select-up :up_select) (gen-edit select-down :down_select)
 (gen-edit select-home :home_select) (gen-edit select-end :end_select)
