@@ -68,19 +68,19 @@ Usage: edit [options] [path] ...
 	options:
 		-h --help: this help info.
 		-j --jobs num: max jobs per batch, default 1.
-		-c --cmd '...': command commands to execute.
-		-s --script path: file containing commands to execute.
+		-c --cmd '...': command to execute.
+		-s --script path: file containing command to execute.
 
 	Command line text editor.
-	The script is compiled into a function and executed in a
-	custom environment populated with editing primitives.
+	The `edit-script` is compiled and executed in a custom environment
+	populated with editing primitives.
 
 	Available Commands:
-	
-	Search:     (edit-find pattern [:w] [:r]) 
-	Cursors:    (edit-cursors) (edit-add-cursors)
 
-	Selection:  (edit-select-all) (edit-select-line)
+	Search:		(edit-find pattern [:w] [:r])
+	Cursors:	(edit-cursors) (edit-add-cursors)
+
+	Selection:	(edit-select-all) (edit-select-line)
 				(edit-select-word) (edit-select-block)
 				(edit-select-form) (edit-select-para)
 				(edit-select-left) (edit-select-right)
@@ -95,17 +95,28 @@ Usage: edit [options] [path] ...
 
 	Mutation:   (edit-insert text) (edit-delete) (edit-backspace)
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
-                (edit-lower) (edit-reflow) (edit-split) (edit-comment)
+				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
 				(edit-indent) (edit-outdent)
 
-	Properties: (edit-get-text) (edit-get-filename)
+	Properties:	(edit-get-text) (edit-get-filename)
 
 	Example - Numbering lines:
 
-	edit -c "(edit-top) (defq i 0)
-        (while (edit-down)
-            (edit-home) (edit-insert (str (++ i) ': '))) "
-        file.txt
+	edit -c
+		"(defmacro for-each-line (&rest body)
+			`(progn
+				(edit-top)
+				(defq cy 0)
+				(while (/= cy (last (. *doc* :get_size)))
+					~body
+					(bind '(& cy &ignore) (. *doc* :get_cursor)))))
+		(defun edit-script ()
+			(defq line_num 0)
+			(for-each-line
+				(edit-insert (str (++ line_num) ": "))
+				(edit-down)
+				(edit-home)))"
+		file.txt
 ```
 ## files
 ```code

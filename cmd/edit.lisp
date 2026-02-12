@@ -4,17 +4,17 @@
 
 (defq usage `(
 (("-h" "--help")
-"Usage: edit [options] [path] ...
+{Usage: edit [options] [path] ...
 
 	options:
 		-h --help: this help info.
 		-j --jobs num: max jobs per batch, default 1.
-		-c --cmd '...': commands to execute.
-		-s --script path: file containing commands to execute.
+		-c --cmd '...': command to execute.
+		-s --script path: file containing command to execute.
 
 	Command line text editor.
-	The script is compiled into a function and executed in a
-	custom environment populated with editing primitives.
+	The `edit-script` is compiled and executed in a custom environment
+	populated with editing primitives.
 
 	Available Commands:
 
@@ -44,13 +44,20 @@
 	Example - Numbering lines:
 
 	edit -c
-		"(edit-top)
-		(defq i 0 cy 0 dh (last (. *doc* :get_size)))
-		(while (/= cy dh)
-			(edit-insert (str (++ i) \q: \q))
-			(edit-down) (edit-home)
-			(bind '(& cy &ignore) (. *doc* :get_cursor)))"
-		file.txt"
+		"(defmacro for-each-line (&rest body)
+			`(progn
+				(edit-top)
+				(defq cy 0)
+				(while (/= cy (last (. *doc* :get_size)))
+					~body
+					(bind '(& cy &ignore) (. *doc* :get_cursor)))))
+		(defun edit-script ()
+			(defq line_num 0)
+			(for-each-line
+				(edit-insert (str (++ line_num) \": \"))
+				(edit-down)
+				(edit-home)))"
+		file.txt}
 	)
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-c" "--cmd") ,(opt-str 'opt_c))
@@ -84,17 +91,18 @@
 (defun edit-get-filename () *file*)
 (defun edit-print (&rest args) (apply print (if args args (list (. *doc* :get_select)))))
 
-(defun work (file)
-	; *doc* and *file* are bound here, visible to edit-script
-	; because edit-script executes in this scope
-	(defq *doc* (Document) *file* file)
-	(catch
-		(progn
-			(. *doc* :stream_load (file-stream file))
-			(edit-script)
-			(. *doc* :stream_save (file-stream file +file_open_write))
-			(print "Edited: " file))
-		(print "Error editing " file ": " _)))
+(defun work (*file* *fnc*)
+	; *doc* and *file* are bound here, visible to *fnc*
+	; because *fnc* executes in this scope
+	(when *fnc*
+		(defq *doc* (Document))
+		(catch
+			(progn
+				(. *doc* :stream_load (file-stream *file*))
+				(*fnc*)
+				(. *doc* :stream_save (file-stream *file* +file_open_write))
+				(print "Edited: " *file*))
+			(print "Error editing " *file* ": " _))))
 
 (defun main ()
 	; Initialize options
@@ -111,15 +119,12 @@
 		(when (and (>= (stream-seek script_stream 0 0) 0) (nempty? jobs))
 			(if (<= (length jobs) opt_j)
 				(progn
-					; parse user script(s)
-					(defq forms (list) next (ascii-code " ") form :t)
-					(while form
-						(bind '(form next) (read script_stream next))
-						(push forms form))
-					; compile user script into a function 'edit-script'
-					(defq edit-script (macrobind `(lambda () ~forms)))
-					; run locally
-					(each (const work) jobs))
+					; parse/run user script
+					(env-push)
+					(repl script_stream "edit-script")
+					(defq fnc (def? 'edit-script (env)))
+					(each (# (work %0 fnc)) jobs)
+					(env-pop))
 				; distribute to farm
 				(each (lambda ((job result)) (prin result))
 					(pipe-farm (map (# (str (first args)

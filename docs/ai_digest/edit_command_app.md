@@ -40,9 +40,9 @@ When `edit` runs, it performs the following steps:
 2. **API Binding**: It populates this environment with editor-specific functions
    (see `edit-` API Reference below).
 
-3. **Compilation**: It reads your script (from `-c` or `-s`), wraps it in a
-   `lambda`, and compiles it into a native function. This happens **once** on
-   each node.
+3. **Compilation**: It reads your script (from `-c` or `-s`), compiles it into
+   native code, assuming you created a function called `(edit-script)`. This
+   happens **once** on each node.
 
 4. **Distribution**: It spawns worker tasks (locally or across the network).
 
@@ -50,7 +50,7 @@ When `edit` runs, it performs the following steps:
 
 	* The file is loaded into a `Document` object (`*doc*`).
 
-	* Your compiled function is executed.
+	* Your compiled `(edit-script)` function is executed.
 
 	* If no error is thrown, the document is saved back to disk.
 
@@ -75,6 +75,8 @@ Because the script is standard ChrysaLisp, you can use:
 * **Iteration**: `(dotimes ...)`, `(map ...)`.
 
 * **Math**: All standard math functions.
+
+* **Macros**: Yes, even define macros, with all the power that comes with them.
 
 ## API Reference
 
@@ -161,7 +163,10 @@ Find all instances of "foo" or "bar" and replace them with "baz".
 ```code
 files . .txt |
 edit -c
-"(edit-find \qfoo|bar\q :r) (edit-cursors) (edit-insert \qbaz\q)"
+"(defun edit-script ()
+	(edit-find \qfoo|bar\q :r)
+	(edit-cursors)
+	(edit-insert \qbaz\q))"
 ```
 
 ### 2. Semantic Commenting
@@ -171,7 +176,11 @@ Find every definition of the function `main` and comment it out.
 ```code
 files . .lisp |
 edit -c
-"(edit-find \qdefun main\q) (edit-cursors) (edit-select-form) (edit-comment)"
+"(defun edit-script ()
+	(edit-find \qdefun main\q)
+	(edit-cursors)
+	(edit-select-form)
+	(edit-comment))"
 ```
 
 ### 3. Header Injection
@@ -181,7 +190,9 @@ Insert a copyright notice at the top of every file.
 ```code
 files . .lisp |
 edit -c
-"(edit-top) (edit-insert \q;; Copyright 2026\n\q)"
+"(defun edit-script ()
+	(edit-top)
+	(edit-insert \q;; Copyright 2026\n\q))"
 ```
 
 ### 4. Line Numbering (Variables and Loops)
@@ -190,11 +201,19 @@ Prepend line numbers to every line in a file.
 
 ```code
 edit -c
-"(defq i 0)
-(edit-top)
-(while (edit-down)
-	(edit-home)
-	(edit-insert (str (++ i) \q: \q)))"
+"(defmacro for-each-line (&rest body)
+	`(progn
+		(edit-top)
+		(defq cy 0)
+		(while (/= cy (last (. *doc* :get_size)))
+			~body
+			(bind '(& cy &ignore) (. *doc* :get_cursor)))))
+(defun edit-script ()
+	(defq line_num 0)
+	(for-each-line
+		(edit-insert (str (++ line_num) \q: \q))
+		(edit-down)
+		(edit-home)))"
 file.txt
 ```
 
@@ -204,11 +223,12 @@ Only edit the file if it contains a specific Todo marker.
 
 ```code
 files . *.src |
-edit -c "
-(when (edit-find \qTODO_FIX_THIS\q)
-	(edit-cursors)
-	(edit-select-line)
-	(edit-delete))"
+edit -c
+"(defun edit-script ()
+	(when (edit-find \qTODO_FIX_THIS\q)
+		(edit-cursors)
+		(edit-select-line)
+		(edit-delete)))"
 ```
 
 ### 6. Data Extraction
@@ -218,9 +238,10 @@ Don't edit the file, just extract data. This finds all URLs and prints them.
 ```code
 files . *.ms |
 edit -c
-"(edit-find \qhttps://[^ \\q]+\q :r)
-(edit-cursors)
-(each edit-print (edit-get-text))"
+"(defun edit-script ()
+	(edit-find \qhttps://[^ \\q]+\q :r)
+	(edit-cursors)
+	(each edit-print (edit-get-text)))"
 ```
 
 ### 7. Massive Parallel Refactoring
@@ -231,5 +252,8 @@ nodes.
 ```code
 files -a . .lisp |
 edit -c
-"(edit-find \qold-func-name\q :w) (edit-cursors) (edit-insert \qnew-func-name\q)"
+"(defun edit-script ()
+	(edit-find \qold-func-name\q :w)
+	(edit-cursors)
+	(edit-insert \qnew-func-name\q))"
 ```
