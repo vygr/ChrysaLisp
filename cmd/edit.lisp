@@ -48,7 +48,7 @@
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
 				(edit-indent) (edit-outdent)
 
-	Properties: (edit-get-text) (edit-get-filename)
+	Properties:	(edit-get-text) (edit-get-filename)
 
 	Example - Numbering lines:
 
@@ -99,7 +99,7 @@
 (defun edit-add-cursors () (. *doc* :add_found_cursors (. *doc* :get_buffer_found)))
 (defun edit-get-text () (join (split (. *doc* :copy) "\f") "\n"))
 (defun edit-get-filename () *file*)
-(defun edit-print (&rest args) (apply print (if args args (list (. *doc* :get_select)))))
+(defun edit-print (&rest args) (apply (const print) (if (nempty? args) args (list (edit-get-text)))))
 
 (defun work (*file* *fnc*)
 	; *doc* and *file* are bound here, visible to *fnc*
