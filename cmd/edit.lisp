@@ -110,7 +110,8 @@
 			(progn
 				(. *doc* :stream_load (file-stream *file*))
 				(*fnc*)
-				(. *doc* :stream_save (file-stream *file* +file_open_write))
+				(if (. *doc* :get_modified)
+					(. *doc* :stream_save (file-stream *file* +file_open_write)))
 				(print "Edited: " *file*))
 			(print "Error editing " *file* ": " _))))
 
