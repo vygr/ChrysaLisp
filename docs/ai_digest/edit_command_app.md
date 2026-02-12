@@ -222,7 +222,7 @@ my_script
 Only edit the file if it contains a specific Todo marker.
 
 ```code
-files . *.src |
+files . .src |
 edit -c
 "(when (edit-find {TODO_FIX_THIS})
 	(edit-cursors)
@@ -235,7 +235,7 @@ edit -c
 Don't edit the file, just extract data. This finds all URLs and prints them.
 
 ```code
-files . *.ms |
+files . .ms |
 edit -c
 "(edit-find {https://[^ \q]+} :r) (edit-cursors) (each edit-print (edit-get-text))"
 ```
