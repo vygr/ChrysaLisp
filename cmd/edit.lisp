@@ -27,7 +27,7 @@
 
 	Available Commands:
 
-	Search:  (edit-find pattern [:w :r])
+	Search:	 (edit-find pattern [:w :r])
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
 	Selection:  (edit-select-all) (edit-select-line)
