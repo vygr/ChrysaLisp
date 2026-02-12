@@ -61,6 +61,20 @@ Usage: echo [options] arg ...
 	options:
 		-h --help: this help info.
 ```
+## edit
+```code
+Usage: edit [options] [path] ...
+
+	options:
+		-h --help: this help info.
+		-j --jobs num: max jobs per batch, default 1.
+		-t --trim: trim leading/trailing whitespace and empty lines.
+
+	Command line text editor.
+
+	If no paths given on command line
+	then will take paths from stdin.
+```
 ## files
 ```code
 Usage: files [options] [prefix] [postfix]
