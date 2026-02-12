@@ -96,10 +96,12 @@
 (gen-edit upper :to_upper) (gen-edit lower :to_lower)
 (gen-edit reflow :reflow) (gen-edit split :split) (gen-edit comment :comment)
 (gen-edit indent :right_tab) (gen-edit outdent :left_tab)
+(gen-edit cut :cut) (gen-edit copy :copy)
 
 ; more complex commands
 (defun edit-get-filename () *file*)
 (defun edit-insert (txt) (. *doc* :insert txt))
+(defun edit-paste (txt) (. *doc* :paste txt))
 (defun edit-find (pattern &rest flags) (. *doc* :find pattern (find :w flags) (find :r flags)))
 (defun edit-cursors () (. *doc* :set_found_cursors (. *doc* :get_buffer_found)))
 (defun edit-add-cursors () (. *doc* :add_found_cursors (. *doc* :get_buffer_found)))
