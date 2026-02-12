@@ -25,6 +25,10 @@
 	So the assumption is that you will provide the `(defun edit-script () ...)`
 	within the script file !
 
+	If you specify both -c and -s, the -c option is compiled as is it was
+	in front of the -s script ! So it could be used to set configuration or
+	provide specific functions that the main script binds to etc.
+
 	Available Commands:
 
 	Search:		(edit-find pattern [:w :r])
@@ -125,7 +129,8 @@
 		; file list (args or stdin)
 		(if (empty? (defq jobs (rest args)))
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
-		; prepare the script stream, opt_s can use prior opt_c option !
+		; prepare the script stream, opt_s can use prior opt_c option
+		; maybe as config details etc !
 		(defq script_stream (memory-stream))
 		(if opt_c (write-blk script_stream opt_c))
 		(if opt_s (write-blk script_stream (load opt_s)))
@@ -137,7 +142,7 @@
 							; compile user script
 							(env-push)
 							(repl script_stream "edit-script")
-							(def (penv) 'fnc (def? 'edit-script (env)))
+							(def (penv) 'fnc (def? 'edit-script))
 							(env-pop))
 						(opt_c
 							; compile and wrap user commands
