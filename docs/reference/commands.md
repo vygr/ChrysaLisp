@@ -68,12 +68,44 @@ Usage: edit [options] [path] ...
 	options:
 		-h --help: this help info.
 		-j --jobs num: max jobs per batch, default 1.
-		-t --trim: trim leading/trailing whitespace and empty lines.
+		-c --cmd '...': command commands to execute.
+		-s --script path: file containing commands to execute.
 
 	Command line text editor.
+	The script is compiled into a function and executed in a
+	custom environment populated with editing primitives.
 
-	If no paths given on command line
-	then will take paths from stdin.
+	Available Commands:
+	
+	Search:     (edit-find pattern [:w] [:r]) 
+	Cursors:    (edit-cursors) (edit-add-cursors)
+
+	Selection:  (edit-select-all) (edit-select-line)
+				(edit-select-word) (edit-select-block)
+				(edit-select-form) (edit-select-para)
+				(edit-select-left) (edit-select-right)
+				(edit-select-up) (edit-select-down)
+				(edit-select-home) (edit-select-end)
+				(edit-select-top) (edit-select-bottom)
+
+	Navigation: (edit-top) (edit-bottom) (edit-up) (edit-down)
+				(edit-left) (edit-right) (edit-home) (edit-end)
+				(edit-bracket-left) (edit-bracket-right)
+				(edit-ws-left) (edit-ws-right)
+
+	Mutation:   (edit-insert text) (edit-delete) (edit-backspace)
+				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
+                (edit-lower) (edit-reflow) (edit-split) (edit-comment)
+				(edit-indent) (edit-outdent)
+
+	Properties: (edit-get-text) (edit-get-filename)
+
+	Example - Numbering lines:
+
+	edit -c "(edit-top) (defq i 0)
+        (while (edit-down)
+            (edit-home) (edit-insert (str (++ i) ': '))) "
+        file.txt
 ```
 ## files
 ```code
