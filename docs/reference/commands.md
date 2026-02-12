@@ -84,37 +84,42 @@ Usage: edit [options] [path] ...
 	So the assumption is that you will provide the `(defun edit-script () ...)`
 	within the script file !
 
-	If you specify both -c and -s, the -c option is compiled as is it was
+	If you specify both -c and -s, the -c option is compiled as if it was
 	in front of the -s script ! So it could be used to set configuration or
 	provide specific functions that the main script binds to etc.
 
 	Available Commands:
 
-	Search:		(edit-find pattern [:w :r])
+	Search:		(edit-find pattern [:w :r]) -> :t | :nil
+
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
 	Selection:	(edit-select-all) (edit-select-line)
 				(edit-select-word) (edit-select-block)
 				(edit-select-form) (edit-select-paragraph)
-				(edit-select-left) (edit-select-right)
-				(edit-select-up) (edit-select-down)
 				(edit-select-home) (edit-select-end)
 				(edit-select-top) (edit-select-bottom)
+				(edit-select-left [cnt]) (edit-select-right [cnt])
+				(edit-select-up [cnt]) (edit-select-down [cnt])
 
-	Navigation:	(edit-top) (edit-bottom) (edit-up) (edit-down)
-				(edit-left) (edit-right) (edit-home) (edit-end)
+	Navigation:	(edit-top) (edit-bottom) (edit-home) (edit-end)
 				(edit-bracket-left) (edit-bracket-right)
 				(edit-ws-left) (edit-ws-right)
+				(edit-up [cnt]) (edit-down [cnt])
+				(edit-left [cnt]) (edit-right [cnt])
 
-	Mutation:	(edit-insert txt) (edit-delete) (edit-backspace)
+	Mutation:	(edit-insert txt) (edit-paste txt)
+				(edit-delete [cnt]) (edit-backspace [cnt])
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
-				(edit-indent) (edit-outdent) (edit-cut) (edit-paste txt)
+				(edit-indent) (edit-outdent) (edit-cut)
 
-	Properties:	(edit-copy) (edit-get-text) (edit-get-filename)
+	Properties:	(edit-copy) -> txt
+				(edit-get-text) -> txt
+				(edit-get-filename) -> txt
 
-	Utilities:	(edit-split-text txt &optional cls)
-				(edit-join-text (txt ...) &optional cls)
+	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
+				(edit-join-text (txt ...) [cls]) -> txt
 
 	Example - Numbering lines:
 

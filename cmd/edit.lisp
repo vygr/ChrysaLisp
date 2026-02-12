@@ -25,37 +25,42 @@
 	So the assumption is that you will provide the `(defun edit-script () ...)`
 	within the script file !
 
-	If you specify both -c and -s, the -c option is compiled as is it was
+	If you specify both -c and -s, the -c option is compiled as if it was
 	in front of the -s script ! So it could be used to set configuration or
 	provide specific functions that the main script binds to etc.
 
 	Available Commands:
 
-	Search:		(edit-find pattern [:w :r])
+	Search:		(edit-find pattern [:w :r]) -> :t | :nil
+
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
 	Selection:	(edit-select-all) (edit-select-line)
 				(edit-select-word) (edit-select-block)
 				(edit-select-form) (edit-select-paragraph)
-				(edit-select-left) (edit-select-right)
-				(edit-select-up) (edit-select-down)
 				(edit-select-home) (edit-select-end)
 				(edit-select-top) (edit-select-bottom)
+				(edit-select-left [cnt]) (edit-select-right [cnt])
+				(edit-select-up [cnt]) (edit-select-down [cnt])
 
-	Navigation:	(edit-top) (edit-bottom) (edit-up) (edit-down)
-				(edit-left) (edit-right) (edit-home) (edit-end)
+	Navigation:	(edit-top) (edit-bottom) (edit-home) (edit-end)
 				(edit-bracket-left) (edit-bracket-right)
 				(edit-ws-left) (edit-ws-right)
+				(edit-up [cnt]) (edit-down [cnt])
+				(edit-left [cnt]) (edit-right [cnt])
 
-	Mutation:	(edit-insert txt) (edit-delete) (edit-backspace)
+	Mutation:	(edit-insert txt) (edit-paste txt)
+				(edit-delete [cnt]) (edit-backspace [cnt])
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
-				(edit-indent) (edit-outdent) (edit-cut) (edit-paste txt)
+				(edit-indent) (edit-outdent) (edit-cut)
 
-	Properties:	(edit-copy) (edit-get-text) (edit-get-filename)
+	Properties:	(edit-copy) -> txt
+				(edit-get-text) -> txt
+				(edit-get-filename) -> txt
 
-	Utilities:	(edit-split-text txt &optional cls)
-				(edit-join-text (txt ...) &optional cls)
+	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
+				(edit-join-text (txt ...) [cls]) -> txt
 
 	Example - Numbering lines:
 
@@ -81,25 +86,28 @@
 (("-s" "--script") ,(opt-str 'opt_s))
 ))
 
-; define simple proxy commands
-(defmacro gen-edit (n m) `(defun ,(sym (str "edit-" n)) () (. *doc* ,m)))
-(gen-edit top :top) (gen-edit bottom :bottom) (gen-edit up :up) (gen-edit down :down)
-(gen-edit left :left) (gen-edit right :right) (gen-edit home :home) (gen-edit end :end)
+; define proxy commands
+(redefmacro gen-edit (n m) `(defun ,(sym (str "edit-" n)) () (. *doc* ,m)))
+(gen-edit top :top) (gen-edit bottom :bottom) (gen-edit home :home) (gen-edit end :end)
 (gen-edit bracket-left :left_bracket) (gen-edit bracket-right :right_bracket)
 (gen-edit ws-left :left_white_space) (gen-edit ws-right :right_white_space)
 (gen-edit select-all :select_all) (gen-edit select-line :select_line)
 (gen-edit select-word :select_word) (gen-edit select-block :select_block)
 (gen-edit select-form :select_form) (gen-edit select-paragraph :select_paragraph)
-(gen-edit select-left :left_select) (gen-edit select-right :right_select)
-(gen-edit select-up :up_select) (gen-edit select-down :down_select)
 (gen-edit select-home :home_select) (gen-edit select-end :end_select)
 (gen-edit select-top :top_select) (gen-edit select-bottom :bottom_select)
-(gen-edit delete :delete) (gen-edit backspace :backspace)
 (gen-edit trim :trim) (gen-edit sort :sort) (gen-edit unique :unique)
 (gen-edit upper :to_upper) (gen-edit lower :to_lower)
 (gen-edit reflow :reflow) (gen-edit split :split) (gen-edit comment :comment)
-(gen-edit indent :right_tab) (gen-edit outdent :left_tab)
 (gen-edit cut :cut) (gen-edit copy :copy)
+
+; define proxy commands with optional repeat
+(redefmacro gen-edit (n m) `(defun ,(sym (str "edit-" n)) (&optional c) (times (ifn c 1) (. *doc* ,m))))
+(gen-edit up :up) (gen-edit down :down) (gen-edit left :left) (gen-edit right :right)
+(gen-edit select-left :left_select) (gen-edit select-right :right_select)
+(gen-edit select-up :up_select) (gen-edit select-down :down_select)
+(gen-edit delete :delete) (gen-edit backspace :backspace)
+(gen-edit indent :right_tab) (gen-edit outdent :left_tab)
 
 ; more complex commands
 (defun edit-get-filename () *file*)

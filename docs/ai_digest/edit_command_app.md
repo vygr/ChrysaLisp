@@ -60,7 +60,8 @@ When `edit` runs, it performs the following steps:
 
 	* Your compiled `(edit-script)` function is executed.
 
-	* If no error is thrown, the document is saved back to disk.
+	* If no error is thrown, and the document has been modified, the document is
+	  saved back to disk.
 
 ### Implicit Context
 
@@ -75,12 +76,11 @@ variables are implicitly bound and available to your script:
 
 Because the script is standard ChrysaLisp, you can use:
 
-* **Variables**: `(defq global_count 0)` (shared across the batch on a specific
-  node) or `(let ((i 0)) ...)` (local to the specific file pass).
+* **Variables**: `(defq global_count 0)` (local to the specific file pass).
 
 * **Control Flow**: `(if ...)` , `(cond ...)`, `(while ...)`.
 
-* **Iteration**: `(dotimes ...)`, `(map ...)`.
+* **Iteration**: `(times ...)`, `(map ...)`.
 
 * **Math**: All standard math functions.
 
@@ -100,8 +100,8 @@ state.
 | :--- | :--- |
 | `(edit-top)` / `(edit-bottom)` | Move to start/end of document. |
 | `(edit-home)` / `(edit-end)` | Move to start/end of current line. |
-| `(edit-left)` / `(edit-right)` | Move cursor left/right. |
-| `(edit-up)` / `(edit-down)` | Move cursor up/down. |
+| `(edit-left [cnt])` / `(edit-right [cnt])` | Move cursor left/right. |
+| `(edit-up [cnt])` / `(edit-down [cnt])` | Move cursor up/down. |
 | `(edit-bracket-left)` | Move to the matching opening bracket `(` |
 | `(edit-bracket-right)` | Move to the matching closing bracket `)` |
 | `(edit-ws-left)` | Jump left over whitespace. |
@@ -119,7 +119,8 @@ Create or modify selections.
 | `(edit-select-paragraph)` | Select the current paragraph(s) (block of text separated by blank lines). |
 | `(edit-select-block)` | Select the content inside surrounding brackets `(...)`. |
 | `(edit-select-form)` | Select the current S-expression/Lisp form(s). |
-| `(edit-select-left)` ... | Directional selection expansion (up/down/left/right/home/end/top/bottom). |
+| `(edit-select-home)` ... | Directional selection expansion (home/end/top/bottom). |
+| `(edit-select-up [cnt])` ... | Directional selection expansion (up/down/left/right). |
 
 ### Search & Cursors
 
@@ -140,8 +141,8 @@ Modify the text at the current cursor position(s) or selection(s).
 | Command | Description |
 | :--- | :--- |
 | `(edit-insert string)` | Insert text. If a selection exists, it replaces the selection. |
-| `(edit-delete)` | Delete character (or selection) to the right. |
-| `(edit-backspace)` | Delete character (or selection) to the left. |
+| `(edit-delete [cnt])` | Delete character (or selection) to the right. |
+| `(edit-backspace [cnt])` | Delete character (or selection) to the left. |
 | `(edit-trim)` | Remove trailing whitespace from lines and empty lines from ends of file. |
 | `(edit-sort)` | Sort selected lines alphabetically. |
 | `(edit-unique)` | Remove duplicate lines within the selection. |
@@ -149,8 +150,8 @@ Modify the text at the current cursor position(s) or selection(s).
 | `(edit-reflow)` | Reflow text in paragraph/selection (word wrap). |
 | `(edit-split)` | Split lines into words. |
 | `(edit-comment)` | Toggle line comment prefixes (`;;`). |
-| `(edit-indent)` | Indent selected lines (tab right). |
-| `(edit-outdent)` | Outdent selected lines (tab left). |
+| `(edit-indent [cnt])` | Indent selected lines (tab right). |
+| `(edit-outdent [cnt])` | Outdent selected lines (tab left). |
 
 ### Properties & IO
 
@@ -171,7 +172,7 @@ Find all instances of "foo" or "bar" and replace them with "baz".
 ```code
 files . .txt |
 edit -c
-"(edit-find {foo|bar} :r) (edit-cursors) (edit-insert {baz})"
+"(edit-find {foo|bar} :r)(edit-cursors)(edit-insert {baz})"
 ```
 
 ### 2. Semantic Commenting
@@ -181,7 +182,7 @@ Find every definition of the function `main` and comment it out.
 ```code
 files . .lisp |
 edit -c
-"(edit-find {defun main}) (edit-cursors) (edit-select-paragraph) (edit-comment)"
+"(edit-find {defun main})(edit-cursors)(edit-select-block)(edit-comment)"
 ```
 
 ### 3. Header Injection
@@ -191,7 +192,7 @@ Insert a copyright notice at the top of every file.
 ```code
 files . .lisp |
 edit -c
-"(edit-top) (edit-insert {;; Copyright 2026\n})"
+"(edit-top)(edit-insert {;; Copyright 2026\n\n})"
 ```
 
 ### 4. Line Numbering (Variables and Loops)
@@ -237,7 +238,7 @@ Don't edit the file, just extract data. This finds all URLs and prints them.
 ```code
 files . .ms |
 edit -c
-"(edit-find {https://[^ \q]+} :r) (edit-cursors) (each edit-print (edit-get-text))"
+"(edit-find {https://[^ \q]+} :r)(edit-cursors)(edit-print)"
 ```
 
 ### 7. Massive Parallel Refactoring
@@ -248,5 +249,5 @@ nodes.
 ```code
 files -a . .lisp |
 edit -c
-"(edit-find {old-func-name} :w) (edit-cursors) (edit-insert {new-func-name})"
+"(edit-find {old-func-name} :w)(edit-cursors)(edit-insert {new-func-name})"
 ```
