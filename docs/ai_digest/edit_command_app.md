@@ -26,8 +26,7 @@ edit [options] [path] ...
 * `-s --script path`: Script mode. A file path containing the Lisp script to
   execute.
 
-* `-j --jobs num`: The number of concurrent jobs/nodes to use. Defaults to 1
-  (local execution).
+* `-j --jobs num`: The number of jobs per node to use. Defaults to 1.
 
 If no file paths are provided arguments, `edit` reads paths from `stdin`.
 
@@ -39,10 +38,11 @@ When `edit` runs, it performs the following steps:
    from `*root_env*`.
 
 2. **API Binding**: It populates this environment with editor-specific functions
-   (see API Reference below).
+   (see `edit-` API Reference below).
 
 3. **Compilation**: It reads your script (from `-c` or `-s`), wraps it in a
-   `lambda`, and compiles it into a native function. This happens **once**.
+   `lambda`, and compiles it into a native function. This happens **once** on
+   each node.
 
 4. **Distribution**: It spawns worker tasks (locally or across the network).
 
@@ -105,10 +105,10 @@ Create or modify selections.
 | :--- | :--- |
 | `(edit-select-all)` | Select the entire document. |
 | `(edit-select-line)` | Select the current line(s). |
-| `(edit-select-word)` | Select the word under the cursor. |
-| `(edit-select-paragraph)` | Select the current paragraph (block of text separated by blank lines). |
+| `(edit-select-word)` | Select the word(s) under the cursor/s. |
+| `(edit-select-paragraph)` | Select the current paragraph(s) (block of text separated by blank lines). |
 | `(edit-select-block)` | Select the content inside surrounding brackets `(...)`. |
-| `(edit-select-form)` | Select the current S-expression/Lisp form. |
+| `(edit-select-form)` | Select the current S-expression/Lisp form(s). |
 | `(edit-select-left)` ... | Directional selection expansion (up/down/left/right/home/end/top/bottom). |
 
 ### Search & Cursors
@@ -137,7 +137,7 @@ Modify the text at the current cursor position(s) or selection(s).
 | `(edit-unique)` | Remove duplicate lines within the selection. |
 | `(edit-upper)` / `(edit-lower)` | Convert selection case. |
 | `(edit-reflow)` | Reflow text in paragraph/selection (word wrap). |
-| `(edit-split)` | Split lines (hard wrap) at column limit. |
+| `(edit-split)` | Split lines into words. |
 | `(edit-comment)` | Toggle line comment prefixes (`;;`). |
 | `(edit-indent)` | Indent selected lines (tab right). |
 | `(edit-outdent)` | Outdent selected lines (tab left). |
