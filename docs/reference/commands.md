@@ -91,7 +91,7 @@ Usage: edit [options] [path] ...
 
 	Selection:	(edit-select-all) (edit-select-line)
 				(edit-select-word) (edit-select-block)
-				(edit-select-form) (edit-select-para)
+				(edit-select-form) (edit-select-paragraph)
 				(edit-select-left) (edit-select-right)
 				(edit-select-up) (edit-select-down)
 				(edit-select-home) (edit-select-end)
