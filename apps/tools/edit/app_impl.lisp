@@ -94,7 +94,7 @@
 	(unless (defq buffer (. meta :find :buffer))
 		(. meta :insert :buffer (setq buffer (Document flags *syntax*)))
 		(when file
-			(. buffer :file_load file)
+			(. buffer :stream_load (file-stream file))
 			(each populate-dictionary (. buffer :get_buffer_lines)))))
 
 (defun populate-vdu (file)

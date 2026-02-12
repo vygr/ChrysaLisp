@@ -90,24 +90,6 @@ clips coordinates to valid buffer positions
 (. buffer :end_select) -> buffer
 ```
 
-### :file_load
-
-```code
-(. buffer :file_load filepath) -> buffer
-```
-
-### :file_load_hex
-
-```code
-(. buffer :file_load_hex filepath [width]) -> buffer
-```
-
-### :file_save
-
-```code
-(. buffer :file_save filepath) -> buffer
-```
-
 ### :find
 
 ```code
@@ -332,7 +314,29 @@ cursors format: ((cx cy ax ay sx) ...)
 (. buffer :set_found_cursors buffer_found) -> buffer
 ```
 
+### :set_tab_width
+
 ### :set_tcursors
+
+### :set_wrap_width
+
+### :stream_load
+
+```code
+(. buffer :stream_load stream) -> buffer
+```
+
+### :stream_load_hex
+
+```code
+(. buffer :stream_load_hex stream [width]) -> buffer
+```
+
+### :stream_save
+
+```code
+(. buffer :stream_save stream) -> buffer
+```
 
 ### :top
 

@@ -77,6 +77,8 @@ Added missing `:empty?` method in Emap class.
 Filled in the `struct.inc` import chain. Always import the base `struct.inc`
 file dependencies.
 
+Buffer load/save methods have switched to a streams based API.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.

@@ -6,7 +6,7 @@
 	(when (and file (defq meta (.-> *meta_map* (:find :files) (:find file))))
 		(bind '(buffer) (gather meta :buffer))
 		(when (.-> buffer :trim :get_modified)
-			(. buffer :file_save file))))
+			(. buffer :stream_save (file-stream file +file_open_write)))))
 
 (defun action-save ()
 	(save-file *current_file*)

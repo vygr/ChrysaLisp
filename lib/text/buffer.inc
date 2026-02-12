@@ -914,11 +914,11 @@
 						(. this :idelete cx cy ax ay)) (get :cursors this))))))
 
 ;;;;;;;;;;;;;;;;;;;;
-; file load and save
+; stream load and save
 ;;;;;;;;;;;;;;;;;;;;
 
-	(defmethod :file_load (filepath)
-		; (. buffer :file_load filepath) -> buffer
+	(defmethod :stream_load (stream)
+		; (. buffer :stream_load stream) -> buffer
 		(raise :syntax_engine :tab_width (buffer_lines (list) buffer_syntax (list)
 			buffer_states (list) buffer_found (list) buffer_brackets (list)
 			buffer_buckets (list) max_width 0))
@@ -933,19 +933,19 @@
 						+char_class_lf)
 					max_width (max max_width (length line)))
 				(push-line line))
-			(file-stream filepath))
+			stream)
 		(last-line)
 		(lower :buffer_lines :buffer_syntax :buffer_states
 			:buffer_found :buffer_brackets :buffer_buckets
 			:max_width (:dirty_flags -1 :modified :nil))
 		this)
 
-	(defmethod :file_load_hex (filepath &optional width)
-		; (. buffer :file_load_hex filepath [width]) -> buffer
+	(defmethod :stream_load_hex (stream &optional width)
+		; (. buffer :stream_load_hex stream [width]) -> buffer
 		(raise :syntax_engine :tab_width (buffer_lines (list) buffer_syntax (list)
 			buffer_states (list) buffer_found (list) buffer_brackets (list)
 			buffer_buckets (list) max_width 0 width (ifn width 8)
-			adr 0 stream (file-stream filepath)))
+			adr 0))
 		;clear them all now !
 		(lower :buffer_lines :buffer_syntax :buffer_states
 			:buffer_found :buffer_brackets :buffer_buckets)
@@ -968,9 +968,9 @@
 			:max_width (:dirty_flags -1 :modified :nil))
 		this)
 
-	(defmethod :file_save (filepath)
-		; (. buffer :file_save filepath) -> buffer
-		(raise :syntax_engine :tab_width (stream (file-stream filepath +file_open_write)))
+	(defmethod :stream_save (stream)
+		; (. buffer :stream_save stream) -> buffer
+		(raise :syntax_engine :tab_width)
 		(each! (lambda (line)
 				(task-slice)
 				(write-blk stream (compress line tab_width)))

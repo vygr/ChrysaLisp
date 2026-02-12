@@ -214,19 +214,20 @@
 (. b :rewind)
 (assert-eq "rewind" "\n" (elem-get (. b :get_buffer_lines) 0))
 
-; --- File Save/Load ---
+; --- Stream Save/Load ---
 (defq b (Buffer))
 (. b :insert "File Content")
-(. b :file_save "tests/tmp_buffer.txt")
+(defq ms (memory-stream))
+(. b :stream_save ms)
+(stream-seek ms 0 0)
 (defq b2 (Buffer))
-(. b2 :file_load "tests/tmp_buffer.txt")
-(assert-eq "file load content" "File Content\n" (elem-get (. b2 :get_buffer_lines) 0))
+(. b2 :stream_load ms)
+(assert-eq "stream load content" "File Content\n" (elem-get (. b2 :get_buffer_lines) 0))
 
+(stream-seek ms 0 0)
 (defq b3 (Buffer))
-(. b3 :file_load_hex "tests/tmp_buffer.txt" 8)
-(assert-eq "file load hex line 0" :t (nempty? (substr (elem-get (. b3 :get_buffer_lines) 0) "46 69 6C 65 20 43 6F 6E"))) ; "File Con"
-
-(pii-remove "tests/tmp_buffer.txt")
+(. b3 :stream_load_hex ms 8)
+(assert-eq "stream load hex line 0" :t (nempty? (substr (elem-get (. b3 :get_buffer_lines) 0) "46 69 6C 65 20 43 6F 6E"))) ; "File Con"
 
 ; --- mstream smoke test ---
 (defq ms (memory-stream))

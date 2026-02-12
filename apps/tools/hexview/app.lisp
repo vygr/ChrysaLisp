@@ -78,7 +78,7 @@
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)))))
 	;create new buffer
 	(. file_meta :insert :buffer (setq buffer (Document 0 *syntax*)))
-	(when file (. buffer :file_load_hex file 16)))
+	(when file (. buffer :stream_load_hex (file-stream file) 16)))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file

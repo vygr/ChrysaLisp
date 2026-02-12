@@ -143,7 +143,7 @@ ChrysaLisp, we simply drive the `Buffer` class:
     (defq buf (Buffer))
 
     ; 2. Load content
-    (. buf :file_load filename)
+    (. buf :stream_load (file-stream filename))
 
     ; 3. Find all occurrences of "foo". 
     ; :find returns a list of coordinate tuples, which :set_cursors accepts directly.
