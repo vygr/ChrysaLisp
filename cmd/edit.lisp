@@ -87,8 +87,9 @@
 (gen-edit select-up :up_select) (gen-edit select-down :down_select)
 (gen-edit select-home :home_select) (gen-edit select-end :end_select)
 (gen-edit select-top :top_select) (gen-edit select-bottom :bottom_select)
-(gen-edit delete :delete) (gen-edit backspace :backspace) (gen-edit trim :trim)
-(gen-edit sort :sort) (gen-edit unique :unique) (gen-edit upper :to_upper) (gen-edit lower :to_lower)
+(gen-edit delete :delete) (gen-edit backspace :backspace)
+(gen-edit trim :trim) (gen-edit sort :sort) (gen-edit unique :unique)
+(gen-edit upper :to_upper) (gen-edit lower :to_lower)
 (gen-edit reflow :reflow) (gen-edit split :split) (gen-edit comment :comment)
 (gen-edit indent :right_tab) (gen-edit outdent :left_tab)
 
@@ -105,7 +106,8 @@
 	; *doc* and *file* are bound here, visible to *fnc*
 	; because *fnc* executes in this scope
 	(when *fnc*
-		(defq *doc* (Document))
+		(defq *doc* (Document (if (notany (# (ends-with %0 *file*))
+				'(".md" ".txt")) +buffer_flag_syntax 0)))
 		(catch
 			(progn
 				(. *doc* :stream_load (file-stream *file*))
