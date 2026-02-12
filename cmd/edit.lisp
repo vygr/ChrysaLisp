@@ -105,7 +105,7 @@
 (defun edit-find (pattern &rest flags) (. *doc* :find pattern (find :w flags) (find :r flags)))
 (defun edit-cursors () (. *doc* :set_found_cursors (. *doc* :get_buffer_found)))
 (defun edit-add-cursors () (. *doc* :add_found_cursors (. *doc* :get_buffer_found)))
-(defun edit-join (txt) (join (split txt "\f") "\n"))
+(defun edit-join (txt &optional cls) (join (split txt (ifn cls "\n\f")) "\n"))
 (defun edit-get-text () (edit-join (. *doc* :copy)))
 (defun edit-print (&rest args) (apply (const print) (if (nempty? args) args (list (edit-get-text)))))
 
