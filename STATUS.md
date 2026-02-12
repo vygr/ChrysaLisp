@@ -79,6 +79,9 @@ file dependencies.
 
 Buffer load/save methods have switched to a streams based API.
 
+New `edit` command which is `The ChrysaLisp Parallel Programmable Editor`. See
+the new document for details.
+
 ------
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.
