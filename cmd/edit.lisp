@@ -27,10 +27,10 @@
 
 	Available Commands:
 
-	Search:	 (edit-find pattern [:w :r])
+	Search:		(edit-find pattern [:w :r])
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
-	Selection:  (edit-select-all) (edit-select-line)
+	Selection:	(edit-select-all) (edit-select-line)
 				(edit-select-word) (edit-select-block)
 				(edit-select-form) (edit-select-para)
 				(edit-select-left) (edit-select-right)
@@ -38,12 +38,12 @@
 				(edit-select-home) (edit-select-end)
 				(edit-select-top) (edit-select-bottom)
 
-	Navigation: (edit-top) (edit-bottom) (edit-up) (edit-down)
+	Navigation:	(edit-top) (edit-bottom) (edit-up) (edit-down)
 				(edit-left) (edit-right) (edit-home) (edit-end)
 				(edit-bracket-left) (edit-bracket-right)
 				(edit-ws-left) (edit-ws-right)
 
-	Mutation:   (edit-insert text) (edit-delete) (edit-backspace)
+	Mutation:	(edit-insert text) (edit-delete) (edit-backspace)
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
 				(edit-indent) (edit-outdent)
