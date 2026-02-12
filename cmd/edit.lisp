@@ -9,16 +9,25 @@
 	options:
 		-h --help: this help info.
 		-j --jobs num: max jobs per batch, default 1.
-		-c --cmd '...': command to execute.
+		-c --cmd '...': commands to execute.
 		-s --script path: file containing command to execute.
 
 	Command line text editor.
+
 	The `edit-script` is compiled and executed in a custom environment
 	populated with editing primitives.
 
+	With the -c option your script commands will be auto wrapped into an
+	`(defun edit-script () ...)` lambda, before execution.
+
+	With the -s option your script is assumed to use advanced ChrysaLisp features,
+	such as macros, and as such a simple wrapping will not suffice.
+	So the assumption is that you will provide the `(defun edit-script () ...)`
+	within the script file !
+
 	Available Commands:
 
-	Search:		(edit-find pattern [:w] [:r])
+	Search:		(edit-find pattern [:w :r])
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
 	Selection:	(edit-select-all) (edit-select-line)
@@ -43,7 +52,9 @@
 
 	Example - Numbering lines:
 
-	edit -c
+	edit -s my_script file.txt
+
+	my_script
 		"(defmacro for-each-line (&rest body)
 			`(progn
 				(edit-top)
@@ -56,8 +67,7 @@
 			(for-each-line
 				(edit-insert (str (++ line_num) \": \"))
 				(edit-down)
-				(edit-home)))"
-		file.txt}
+				(edit-home)))"}
 	)
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-c" "--cmd") ,(opt-str 'opt_c))
@@ -112,19 +122,28 @@
 		; file list (args or stdin)
 		(if (empty? (defq jobs (rest args)))
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
-		; prepare the script stream
+		; prepare the script stream, opt_s can use prior opt_c option !
 		(defq script_stream (memory-stream))
 		(if opt_c (write-blk script_stream opt_c))
 		(if opt_s (write-blk script_stream (load opt_s)))
 		(when (and (>= (stream-seek script_stream 0 0) 0) (nempty? jobs))
 			(if (<= (length jobs) opt_j)
 				(progn
-					; parse/run user script
-					(env-push)
-					(repl script_stream "edit-script")
-					(defq fnc (def? 'edit-script (env)))
-					(each (# (work %0 fnc)) jobs)
-					(env-pop))
+					(cond
+						(opt_s
+							; compile user script
+							(env-push)
+							(repl script_stream "edit-script")
+							(def (penv) 'fnc (def? 'edit-script (env)))
+							(env-pop))
+						(opt_c
+							; compile and wrap user commands
+							(defq body (list) form :t next (ascii-code " "))
+							(while form
+								(bind '(form next) (read script_stream next))
+								(push body form))
+							(defq fnc `(lambda () ~(macrobind body)))))
+					(each (# (work %0 fnc)) jobs))
 				; distribute to farm
 				(each (lambda ((job result)) (prin result))
 					(pipe-farm (map (# (str (first args)

@@ -20,7 +20,15 @@ edit [options] [path] ...
 
 ### Options
 
-* `-c --cmd "..."`: Immediate mode. A string containing the Lisp script to
+With the `-c` option your script commands will be auto wrapped into an `(defun
+edit-script () ...)` lambda, before execution.
+
+With the `-s` option your script is assumed to use advanced ChrysaLisp features,
+such as macros, and as such a simple wrapping will not suffice. So the
+assumption is that you will provide the `(defun edit-script () ...)` within the
+script file !
+
+* `-c --cmd "..."`: Immediate mode. A string containing the Lisp commands to
   execute.
 
 * `-s --script path`: Script mode. A file path containing the Lisp script to
@@ -41,8 +49,8 @@ When `edit` runs, it performs the following steps:
    (see `edit-` API Reference below).
 
 3. **Compilation**: It reads your script (from `-c` or `-s`), compiles it into
-   native code, assuming you created a function called `(edit-script)`. This
-   happens **once** on each node.
+   native code, wraps or assumes you created a function called `(edit-script)`.
+   This happens **once** on each node.
 
 4. **Distribution**: It spawns worker tasks (locally or across the network).
 
