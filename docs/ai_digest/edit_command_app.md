@@ -48,11 +48,11 @@ When `edit` runs, it performs the following steps:
 
 5. **Execution**: For each file:
 
-    * The file is loaded into a `Document` object (`*doc*`).
+	* The file is loaded into a `Document` object (`*doc*`).
 
-    * Your compiled function is executed.
+	* Your compiled function is executed.
 
-    * If no error is thrown, the document is saved back to disk.
+	* If no error is thrown, the document is saved back to disk.
 
 ### Implicit Context
 
@@ -159,7 +159,9 @@ Modify the text at the current cursor position(s) or selection(s).
 Find all instances of "foo" or "bar" and replace them with "baz".
 
 ```code
-edit -c "(edit-find 'foo|bar' :r) (edit-cursors) (edit-insert 'baz')" *.txt
+files . .txt |
+edit -c
+"(edit-find \qfoo|bar\q :r) (edit-cursors) (edit-insert \qbaz\q)"
 ```
 
 ### 2. Semantic Commenting
@@ -167,7 +169,9 @@ edit -c "(edit-find 'foo|bar' :r) (edit-cursors) (edit-insert 'baz')" *.txt
 Find every definition of the function `main` and comment it out.
 
 ```code
-edit -c "(edit-find 'defun main') (edit-cursors) (edit-select-form) (edit-comment)" *.lisp
+files . .lisp |
+edit -c
+"(edit-find \qdefun main\q) (edit-cursors) (edit-select-form) (edit-comment)"
 ```
 
 ### 3. Header Injection
@@ -175,7 +179,9 @@ edit -c "(edit-find 'defun main') (edit-cursors) (edit-select-form) (edit-commen
 Insert a copyright notice at the top of every file.
 
 ```code
-edit -c "(edit-top) (edit-insert ';; Copyright 2024\n')" *.lisp
+files . .lisp |
+edit -c
+"(edit-top) (edit-insert \q;; Copyright 2026\n\q)"
 ```
 
 ### 4. Line Numbering (Variables and Loops)
@@ -183,13 +189,13 @@ edit -c "(edit-top) (edit-insert ';; Copyright 2024\n')" *.lisp
 Prepend line numbers to every line in a file.
 
 ```code
-edit -c "
-(defq i 0) 
-(edit-top) 
-(while (edit-down) 
-    (edit-home) 
-    (edit-insert (str (++ i) ': '))
-)" file.txt
+edit -c
+"(defq i 0)
+(edit-top)
+(while (edit-down)
+	(edit-home)
+	(edit-insert (str (++ i) \q: \q)))"
+file.txt
 ```
 
 ### 5. Conditional Logic
@@ -197,14 +203,12 @@ edit -c "
 Only edit the file if it contains a specific Todo marker.
 
 ```code
+files . *.src |
 edit -c "
-(if (edit-find 'TODO_FIX_THIS') 
-    (progn 
-        (edit-cursors) 
-        (edit-select-line) 
-        (edit-delete)
-    )
-)" *.src
+(when (edit-find \qTODO_FIX_THIS\q)
+	(edit-cursors)
+	(edit-select-line)
+	(edit-delete))"
 ```
 
 ### 6. Data Extraction
@@ -212,11 +216,11 @@ edit -c "
 Don't edit the file, just extract data. This finds all URLs and prints them.
 
 ```code
-edit -c "
-(edit-find 'https://[^ \q]+' :r) 
-(edit-cursors) 
-(each edit-print (edit-get-text))
-" *.md
+files . *.ms |
+edit -c
+"(edit-find \qhttps://[^ \\q]+\q :r)
+(edit-cursors)
+(each edit-print (edit-get-text))"
 ```
 
 ### 7. Massive Parallel Refactoring
@@ -225,5 +229,7 @@ Rename a function across the entire OS codebase, utilizing all available compute
 nodes.
 
 ```code
-files -a . .lisp | edit -j 64 -c "(edit-find 'old-func-name' :w) (edit-cursors) (edit-insert 'new-func-name')"
+files -a . .lisp |
+edit -c
+"(edit-find \qold-func-name\q :w) (edit-cursors) (edit-insert \qnew-func-name\q)"
 ```

@@ -45,7 +45,7 @@
 
 	edit -c \q(edit-top) (defq i 0)
 		(while (edit-down)
-			(edit-home) (edit-insert (str (++ i) ': '))) \q
+			(edit-home) (edit-insert (str (++ i) ': ')))\q
 		file.txt"
 	)
 (("-j" "--jobs") ,(opt-num 'opt_j))
@@ -73,16 +73,12 @@
 
 ; more complex commands
 (defun edit-insert (txt) (. *doc* :insert txt))
-(defun edit-find (pattern &rest flags)
-	(. *doc* :find pattern (find :w flags) (find :r flags)))
-(defun edit-cursors ()
-	(. *doc* :set_found_cursors (. *doc* :get_buffer_found)))
-(defun edit-add-cursors ()
-	(. *doc* :add_found_cursors (. *doc* :get_buffer_found)))
+(defun edit-find (pattern &rest flags) (. *doc* :find pattern (find :w flags) (find :r flags)))
+(defun edit-cursors () (. *doc* :set_found_cursors (. *doc* :get_buffer_found)))
+(defun edit-add-cursors () (. *doc* :add_found_cursors (. *doc* :get_buffer_found)))
 (defun edit-get-text () (. *doc* :get_select))
 (defun edit-get-filename () *file*)
-(defun edit-print (&rest args)
-	(apply print (if args args (list (. *doc* :get_select)))))
+(defun edit-print (&rest args) (apply print (if args args (list (. *doc* :get_select)))))
 
 (defun work (file)
 	; *doc* and *file* are bound here, visible to edit-script
