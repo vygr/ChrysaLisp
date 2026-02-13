@@ -251,5 +251,5 @@ Remove all multi blank lines.
 ```code
 files . .vp |
 edit -c
-"(edit-find {^\s+$} :r)(edit-cursors)(edit-select-line)(edit-delete)(edit-insert {\n})"
+"(edit-find {^\s*$} :r)(edit-cursors)(edit-select-line)(edit-delete)(edit-insert {\n})"
 ```
