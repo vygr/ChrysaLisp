@@ -282,7 +282,7 @@
 		:buffer_states (list :nil) :buffer_brackets (list :nil)
 		:buffer_found (list :nil) :buffer_buckets (list (list)) :dirty_flags -1
 		:syntax_engine syntax :undo_stack (list) :redo_stack (list)
-		:max_width 0 :tab_width 4 :wrap_width 80
+		:max_width 0 :tab_width 4 :wrap_width 80 :last_find '("" :nil :nil)
 		:flags flags :next_mark -1 :modified :nil :last_key :nil
 		:cursors (list (nums 0 0 0 0 -1)) :tcursors '())
 
@@ -303,6 +303,7 @@
 	(defgetmethod :syntax_engine)
 	(defgetmethod :wrap_width)
 	(defgetmethod :tab_width)
+	(defgetmethod :last_find)
 
 ;;;;;;;;;;;;;;;;;;
 ; cursor clipping
@@ -1156,8 +1157,8 @@
 	(defmethod :find (pattern wmode rmode)
 		; (. buffer :find pattern wmode rmode) -> :nil | buffer_found
 		(raise :last_key :buffer_found (flag :nil))
-		(unless (eql (defq key (str (list wmode rmode pattern))) last_key)
-			(lower (:last_key key))
+		(unless (eql (defq key (str (list pattern wmode rmode))) last_key)
+			(lower (:last_key key :last_find (list pattern wmode rmode)))
 			(each (lambda (__) (elem-set buffer_found (!) :nil)) buffer_found))
 		(unless (eql pattern "")
 			(bind '(engine meta &ignore) (query pattern wmode rmode))
