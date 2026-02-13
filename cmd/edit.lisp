@@ -62,13 +62,14 @@
 	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
 				(edit-join-text (txt ...) [cls]) -> txt
 				(edit-eof?) -> :t | :nil
+				(edit-cx) -> num
+				(edit-cy) -> num
 
 	Example - Numbering lines:
 
 	edit -c
-		"(defq line_num 0)
-		(until (edit-eof?)
-			(edit-insert (str (++ line_num) \q: \q))
+		"(until (edit-eof?)
+			(edit-insert (str (edit-cy) \q: \q))
 			(edit-down)
 			(edit-home))"
 		file.txt}
@@ -113,6 +114,8 @@
 (defun edit-get-text () (edit-join-text (edit-split-text (. *doc* :copy))))
 (defun edit-print (&rest args) (apply (const print) (if (nempty? args) args (list (edit-get-text)))))
 (defun edit-eof? () (= (second (. *doc* :get_cursor)) (second (. *doc* :get_size))))
+(defun edit-cx () (first (. *doc* :get_cursor)))
+(defun edit-cy () (second (. *doc* :get_cursor)))
 
 (defun work (*file* *fnc*)
 	; *doc* and *file* are bound here, visible to *fnc*
