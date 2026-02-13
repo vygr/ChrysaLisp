@@ -200,22 +200,13 @@ edit -c
 Prepend line numbers to every line in a file.
 
 ```code
-edit -s my_script file.txt
-...
-my_script
-	"(defmacro for-each-line (&rest body)
-		`(progn
-			(edit-top)
-			(defq cy 0)
-			(while (/= cy (last (. *doc* :get_size)))
-				~body
-				(bind '(& cy &ignore) (. *doc* :get_cursor)))))
-	(defun edit-script ()
-		(defq line_num 0)
-		(for-each-line
-			(edit-insert (str (++ line_num) {: }))
-			(edit-down)
-			(edit-home)))"
+edit -c
+"(defq line_num 0)
+(until (edit-eof?)
+	(edit-insert (str (++ line_num) {: }))
+	(edit-down)
+	(edit-home))"
+file.txt
 ```
 
 ### 5. Conditional Logic

@@ -61,25 +61,17 @@
 
 	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
 				(edit-join-text (txt ...) [cls]) -> txt
+				(edit-eof?) -> :t | :nil
 
 	Example - Numbering lines:
 
-	edit -s my_script file.txt
-
-	my_script
-		"(defmacro for-each-line (&rest body)
-			`(progn
-				(edit-top)
-				(defq cy 0)
-				(while (/= cy (last (. *doc* :get_size)))
-					~body
-					(bind '(& cy &ignore) (. *doc* :get_cursor)))))
-		(defun edit-script ()
-			(defq line_num 0)
-			(for-each-line
-				(edit-insert (str (++ line_num) \": \"))
-				(edit-down)
-				(edit-home)))"}
+	edit -c
+		"(defq line_num 0)
+		(until (edit-eof?)
+			(edit-insert (str (++ line_num) \q: \q))
+			(edit-down)
+			(edit-home))"
+		file.txt}
 	)
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-c" "--cmd") ,(opt-str 'opt_c))
@@ -120,6 +112,7 @@
 (defun edit-join-text (txts &optional cls) (join txts (ifn cls "\n")))
 (defun edit-get-text () (edit-join-text (edit-split-text (. *doc* :copy))))
 (defun edit-print (&rest args) (apply (const print) (if (nempty? args) args (list (edit-get-text)))))
+(defun edit-eof? () (= (second (. *doc* :get_cursor)) (second (. *doc* :get_size))))
 
 (defun work (*file* *fnc*)
 	; *doc* and *file* are bound here, visible to *fnc*
@@ -176,3 +169,6 @@
 							(if opt_s (cat " -s " opt_s) "")
 							" " (slice (str %0) 1 -2)))
 						(partition jobs opt_j))))))))
+
+
+;edit -c "(defq line_num 0)(until (edit-eof?)(edit-insert (str (++ line_num) {: }))(edit-down)(edit-home)))" cmd/test.lisp
