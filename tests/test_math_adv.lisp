@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_math_adv.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Advanced Math & Predicates")
 
 ; Numeric Predicates
@@ -43,5 +40,5 @@
 ; Logical Macros
 (assert-true  "when"   (when :t :t))
 (assert-true  "unless" (unless :nil :t))
-(assert-eq    "or short" 5 (or :nil 5))
-(assert-eq    "and short" 10 (and :t 10))
+(assert-eq	"or short" 5 (or :nil 5))
+(assert-eq	"and short" 10 (and :t 10))

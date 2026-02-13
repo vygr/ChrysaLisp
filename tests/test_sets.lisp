@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_sets.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Sets: union, difference, intersect")
 
 (defq s1 (Fset 5))

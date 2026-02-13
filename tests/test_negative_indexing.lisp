@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_negative_indexing.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Negative Indexing: elem-get, slice, splice")
 
 ; --- Strings ---
@@ -9,7 +6,7 @@
 (assert-eq "elem-get string -3" "4" (elem-get s -3))
 (assert-eq "slice string 0 -1"  "012345" (slice s 0 -1))
 (assert-eq "slice string 0 -2"  "01234"  (slice s 0 -2))
-(assert-eq "slice string -3 -1" "45"     (slice s -3 -1))
+(assert-eq "slice string -3 -1" "45"	 (slice s -3 -1))
 
 ; splice with negative indices
 ; s[0, -2] -> "01234"

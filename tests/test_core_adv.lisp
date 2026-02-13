@@ -1,15 +1,12 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_core_adv.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Advanced Core: catch, bind, apply, eval")
 
 ; --- catch & throw ---
-(defq catch_res (catch 
-    (throw "error message" 42)
-    (progn 
-        ; In catch handler, _ is the error string containing the object
-        (assert-true "catch object in msg" (found? _ "42"))
-        "recovered")))
+(defq catch_res (catch
+	(throw "error message" 42)
+	(progn
+		; In catch handler, _ is the error string containing the object
+		(assert-true "catch object in msg" (found? _ "42"))
+		"recovered")))
 (assert-eq "catch recovery" "recovered" catch_res)
 
 ; --- bind options ---

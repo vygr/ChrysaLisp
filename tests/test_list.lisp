@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_list.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Lists & Sequences")
 
 (defq l (list 10 20 30 40))
@@ -35,7 +32,7 @@
 
 (defq c_arr (array 1 2 3))
 (cap 10 c_arr)
-(assert-eq "cap" 3 (length c_arr)) 
+(assert-eq "cap" 3 (length c_arr))
 
 (clear c_arr)
 (assert-eq "clear" 0 (length c_arr))

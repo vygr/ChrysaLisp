@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;
-; tests/test_str.lisp
-;;;;;;;;;;;;;;;;;;;;;
 (report-header "Strings & Types")
 
 (defq s "Hello World")

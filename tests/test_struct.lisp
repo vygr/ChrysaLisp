@@ -1,17 +1,14 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_struct.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Structures: getf, setf, enums, bits")
 
 ; --- Structure setf/getf ---
 (structure +st_test 0
-    (byte b_sig)
-    (ubyte b_unsig)
-    (short s1)
-    (int i1)
-    (long l1)
-    (fixed f1)
-    (real r1)
+	(byte b_sig)
+	(ubyte b_unsig)
+	(short s1)
+	(int i1)
+	(long l1)
+	(fixed f1)
+	(real r1)
 )
 
 (defq sobj (str-alloc +st_test_size))
@@ -37,21 +34,21 @@
 
 ; --- Collective Macros ---
 (setf-> sobj
-    (+st_test_b_sig 10)
-    (+st_test_s1 2000)
-    (+st_test_i1 3000000)
+	(+st_test_b_sig 10)
+	(+st_test_s1 2000)
+	(+st_test_i1 3000000)
 )
 (defq res (getf-> sobj +st_test_b_sig +st_test_s1 +st_test_i1))
 (assert-list-eq "getf-> results" '(10 2000 3000000) res)
 
 ; --- Sub-structures ---
 (structure +st_inner 0
-    (int x y)
+	(int x y)
 )
 (structure +st_outer 0
-    (byte head)
-    (struct sub +st_inner_size)
-    (byte tail)
+	(byte head)
+	(struct sub +st_inner_size)
+	(byte tail)
 )
 
 (defq out_obj (str-alloc +st_outer_size))
@@ -70,8 +67,8 @@
 
 ; Collective macros on sub-struct
 (setf-> sub_obj
-    (+st_inner_x 700)
-    (+st_inner_y 800)
+	(+st_inner_x 700)
+	(+st_inner_y 800)
 )
 (setf out_obj +st_outer_sub sub_obj)
 
@@ -82,8 +79,8 @@
 ; cat a header and a payload, then setf the header fields
 (defq payload "DATA")
 (defq msg (setf-> (cat (str-alloc +st_test_size) payload)
-            (+st_test_b_sig 1)
-            (+st_test_s1 42)
+			(+st_test_b_sig 1)
+			(+st_test_s1 42)
 ))
 (assert-eq "msg header field" 1 (getf msg +st_test_b_sig))
 (assert-eq "msg header field 2" 42 (getf msg +st_test_s1))
@@ -91,7 +88,7 @@
 
 ; --- enums ---
 (enums +en_test 10
-    (enum E1 E2 E3)
+	(enum E1 E2 E3)
 )
 (assert-eq "enum start" 10 +en_test_E1)
 (assert-eq "enum next"  11 +en_test_E2)
@@ -99,7 +96,7 @@
 
 ; --- bits ---
 (bits +bt_test 0
-    (bit B0 B1 B2)
+	(bit B0 B1 B2)
 )
 (assert-eq "bit 0" 1 +bt_test_B0)
 (assert-eq "bit 1" 2 +bt_test_B1)

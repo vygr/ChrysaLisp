@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_predicates.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Predicates & State")
 
 ; Basic Primitives
@@ -66,12 +63,12 @@
 ; mail-nodes might be empty in this test environment
 (defq nodes (mail-nodes))
 (if (nempty? nodes)
-    (assert-true "lisp-node? check" (or (lisp-node? (first nodes)) (cpp-node? (first nodes)))))
+	(assert-true "lisp-node? check" (or (lisp-node? (first nodes)) (cpp-node? (first nodes)))))
 
 ; eql vs = vs nql
 (assert-true "eql strings" (eql "abc" "abc"))
-(assert-true "eql nums"    (eql 123 123))
-(assert-true "= ints"      (= 10 10))
+(assert-true "eql nums"	(eql 123 123))
+(assert-true "= ints"	  (= 10 10))
 
 ; environment
 (defq ep (env))

@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_splice.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Sequence Splice: Mixed, Reversed, Dual Input")
 
 ; Note: ChrysaLisp slice/splice reversed indices:

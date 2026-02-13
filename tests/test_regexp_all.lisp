@@ -1,13 +1,10 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_regexp_all.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Comprehensive Regexp Test")
 
 (defmacro assert-match (name pattern text)
-    `(assert-true (cat "Regexp Match: " ,name) (match? ,text ,pattern)))
+	`(assert-true (cat "Regexp Match: " ,name) (match? ,text ,pattern)))
 
 (defmacro assert-no-match (name pattern text)
-    `(assert-true (cat "Regexp No Match: " ,name) (not (match? ,text ,pattern))))
+	`(assert-true (cat "Regexp No Match: " ,name) (not (match? ,text ,pattern))))
 
 ; --- Anchors ---
 (report-header "Regexp: Anchors")

@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_root_utils.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Root Utilities (defun)")
 
 ; --- exec ---
@@ -16,13 +13,13 @@
 ; --- export / export-symbols ---
 (defq e_dst (env))
 ((lambda ()
-    (defq exported_val 999)
-    (export e_dst '(exported_val))))
+	(defq exported_val 999)
+	(export e_dst '(exported_val))))
 (assert-eq "export" 999 (get 'exported_val e_dst))
 
 (defq *test_export_sym* 123)
 ; (export-symbols '(*test_export_sym*))
-; export-symbols exports to (penv (penv)). 
+; export-symbols exports to (penv (penv)).
 ; In tests, this level might be tricky. Let's just test export directly more thoroughly.
 (defq e_dst2 (env))
 (export e_dst2 '(*test_export_sym*))
@@ -70,8 +67,7 @@
 ; --- freq-update / freq-print ---
 ; These are currently commented out in root.inc, but let's check if they exist
 (if (def? 'freq-update)
-    (progn
-        (freq-update 'test_key)
-        (assert-true "freq-update" :t))
-    (print "[SKIP] freq-update not defined"))
-
+	(progn
+		(freq-update 'test_key)
+		(assert-true "freq-update" :t))
+	(print "[SKIP] freq-update not defined"))

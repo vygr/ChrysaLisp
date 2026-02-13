@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_objects.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Collections & Objects")
 
 ; --- Hash Maps (Fmap) ---
@@ -25,21 +22,21 @@
 (. s :insert "banana")
 
 (assert-eq "Fset Find" "apple" (. s :find "apple"))
-(assert-eq "Fset Miss" :nil    (. s :find "cherry"))
+(assert-eq "Fset Miss" :nil	(. s :find "cherry"))
 
 ; --- Object System ---
 
 ; Define a simple class
 (defclass TestPoint (x y) :nil
-    (def this :x x :y y)
-    
-    (defmethod :get_x ()
-        (get :x this))
-    
-    (defmethod :add (other)
-        (defq nx (+ (get :x this) (. other :get_x)))
-        (defq ny (+ (get :y this) (get :y other)))
-        (TestPoint nx ny))
+	(def this :x x :y y)
+
+	(defmethod :get_x ()
+		(get :x this))
+
+	(defmethod :add (other)
+		(defq nx (+ (get :x this) (. other :get_x)))
+		(defq ny (+ (get :y this) (get :y other)))
+		(TestPoint nx ny))
 )
 
 (defq p1 (TestPoint 10 20))
@@ -52,8 +49,8 @@
 ; Test Inheritance
 ; Inherit from TestPoint, initializing it with 0, 0
 (defclass TestPoint3D (z) (TestPoint 0 0)
-    (def this :z z)
-    (defmethod :get_z () (get :z this))
+	(def this :z z)
+	(defmethod :get_z () (get :z this))
 )
 
 (defq p3d (TestPoint3D 99))

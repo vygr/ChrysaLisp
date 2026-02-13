@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_low_level_io.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Low-Level IO: get/set and read/write")
 
 ; --- get-xxx and set-xxx (Raw Object access) ---

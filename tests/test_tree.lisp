@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_tree.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Tree Load/Save")
 
 (import "lib/collections/tree.inc")

@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_document.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Run with: ./run_tui.sh -e -n 1 -f -s tests/run_all.lisp
 
 (import "lib/text/document.inc")

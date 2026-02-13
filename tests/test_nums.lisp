@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_nums.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Nums Vectors (Integer)")
 
 (defq n1 (nums 1 2 3))

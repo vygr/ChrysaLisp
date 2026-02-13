@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_multi_seq.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Multi-Sequence Ops: map, some, reduce")
 
 ; --- Map Multi ---
@@ -9,19 +6,19 @@
 
 ; --- Some Multi ---
 ; some returns the first non-nil result
-(defq s_res (some (lambda (x y z) (if (eql x 'b) (list x y z))) 
-                 '(a b c) (nums 1 2 3) "abc"))
+(defq s_res (some (lambda (x y z) (if (eql x 'b) (list x y z)))
+				 '(a b c) (nums 1 2 3) "abc"))
 (assert-list-eq "some multi" '(b 2 "b") s_res)
 
 ; every (uses some! with :t mode)
-(assert-true "every multi" (every (lambda (x y) (eql (str x) (str y))) 
-                                 '(1 2 3) (nums 1 2 3)))
+(assert-true "every multi" (every (lambda (x y) (eql (str x) (str y)))
+								 '(1 2 3) (nums 1 2 3)))
 
 ; --- Reduce Multi ---
 ; Note: use reduce! for multi-sequence, as reduce macro wraps single sequence in list
-(defq r_res (reduce! (lambda (acc x y) (push acc (list x y))) 
-                    (list '(a b) (nums 10 20)) 
-                    (list)))
+(defq r_res (reduce! (lambda (acc x y) (push acc (list x y)))
+					(list '(a b) (nums 10 20))
+					(list)))
 (assert-list-eq "reduce multi" '((a 10) (b 20)) r_res)
 
 ; --- Length Mismatch ---

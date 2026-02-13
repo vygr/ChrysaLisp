@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_functional.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Functional & Sequence Ops")
 
 ; Range
@@ -55,7 +52,7 @@
 (assert-list-eq "rest" '(2 3 4 3) (rest s_seq))
 (assert-list-eq "most" '(1 2 3 4) (most s_seq))
 
-; rfind for lists seems to return 1-based index or index+1? 
+; rfind for lists seems to return 1-based index or index+1?
 ; Debug showed (rfind 3 '(1 2 3 4 3)) -> 5
 (assert-eq "rfind" 5 (rfind 3 s_seq))
 

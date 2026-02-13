@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_math.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Math & Logic")
 
 ; Arithmetic
@@ -11,8 +8,8 @@
 (assert-eq "Modulus"  1 (% 10 3))
 (assert-eq "Negate"  -5 (neg 5))
 (assert-eq "Abs val"  5 (abs -5))
-(assert-eq "Min"      2 (min 10 2 30))
-(assert-eq "Max"     30 (max 10 2 30))
+(assert-eq "Min"	  2 (min 10 2 30))
+(assert-eq "Max"	 30 (max 10 2 30))
 
 ; Bitwise
 (assert-eq "Logand"   1 (logand 3 1))
@@ -24,10 +21,10 @@
 ; Comparison
 (assert-true "Equal ="   (= 10 10))
 (assert-true "Not Eq /=" (/= 10 5))
-(assert-true "Less <"    (< 5 10))
+(assert-true "Less <"	(< 5 10))
 (assert-true "Greater >" (> 10 5))
-(assert-true "LTE <="    (<= 5 5))
-(assert-true "GTE >="    (>= 5 5))
+(assert-true "LTE <="	(<= 5 5))
+(assert-true "GTE >="	(>= 5 5))
 
 ; Logic
 (assert-true "AND logic" (and :t :t))

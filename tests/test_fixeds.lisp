@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_fixeds.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Fixeds Vectors")
 
 (defq v1 (fixeds 1.0 2.0 3.0))

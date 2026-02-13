@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_reals.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Reals (Floating Point)")
 
 ; Scalar Arithmetic

@@ -1,13 +1,10 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_text.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Text & Searching")
 
 ; --- Character Classes ---
 (defq cls (char-class "0-9A-F"))
 (assert-true "bfind match digit" (bfind "5" cls))
 (assert-true "bfind match hex"   (bfind "C" cls))
-(assert-true "bfind miss"        (not (bfind "G" cls)))
+(assert-true "bfind miss"		(not (bfind "G" cls)))
 
 (assert-eq "escape" "Hello\\nWorld" (escape "Hello\nWorld"))
 (assert-eq "escape-regexp" "Hello\\." (escape-regexp "Hello."))

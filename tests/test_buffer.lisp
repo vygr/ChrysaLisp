@@ -1,16 +1,12 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_buffer.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (import "lib/text/buffer.inc")
 
 (report-header "Text Buffer: Cursors & Mutation")
 
 ; Helper to create a buffer with some text
 (defun create-test-buffer (text)
-    (defq b (Buffer))
-    (undoable b (. b :insert text))
-    b)
+	(defq b (Buffer))
+	(undoable b (. b :insert text))
+	b)
 
 ; --- Basic Creation & Insertion ---
 (defq b (Buffer))
@@ -165,7 +161,7 @@
 (. b :set_found_cursors found)
 (assert-eq "Found cursors count" 2 (length (. b :get_cursors)))
 ; Matches are "Hello" at (0,0) to (5,0) and (0,1) to (5,1)
-; Cursors are stored as (ax ay cx cy sx), :set_found_cursors sets them as (x y x1 y 0) 
+; Cursors are stored as (ax ay cx cy sx), :set_found_cursors sets them as (x y x1 y 0)
 ; where x1 is start, x is end.
 (assert-eq "Found cursor 1" (nums 5 0 0 0) (first (. b :get_selected)))
 (assert-eq "Found cursor 2" (nums 5 1 0 1) (second (. b :get_selected)))

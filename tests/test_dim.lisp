@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_dim.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Multidimensional Arrays (dim)")
 
 ; 1. Basic 2x2 matrix with array

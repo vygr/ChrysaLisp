@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_core.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "Core & Control Flow")
 
 ; Definitions and Binding
@@ -15,16 +12,16 @@
 
 ; Scoping with lambda instead of let
 ((lambda (local_var)
-    (assert-eq "Lambda scoping" 50 local_var)) 50)
+	(assert-eq "Lambda scoping" 50 local_var)) 50)
 
 ; Conditionals
 (assert-eq "If true"  "yes" (if :t "yes" "no"))
 (assert-eq "If false" "no"  (if :nil "yes" "no"))
 
-(defq cond_res (cond 
-    ((= 1 2) "A")
-    ((= 1 1) "B")
-    (:t "C")))
+(defq cond_res (cond
+	((= 1 2) "A")
+	((= 1 1) "B")
+	(:t "C")))
 (assert-eq "Cond" "B" cond_res)
 
 (assert-eq "Case" "two" (case 2 (1 "one") (2 "two") (3 "three")))
@@ -37,14 +34,14 @@
 ; Loops
 (defq i 0 sum 0)
 (while (< i 5)
-    (setq sum (+ sum i))
-    (++ i))
+	(setq sum (+ sum i))
+	(++ i))
 ; 0+1+2+3+4 = 10
 (assert-eq "While loop" 10 sum)
 
 (defq i 0)
 (until (= i 5)
-    (++ i))
+	(++ i))
 (assert-eq "Until loop" 5 i)
 
 ; Progn
@@ -53,8 +50,8 @@
 (assert-eq "ifn true"  "no"  (ifn :t "yes" "no"))
 (assert-eq "ifn false" "yes" (ifn :nil "yes" "no"))
 
-(defq condn_res (condn 
-    ((= 1 1) "A")
-    ((= 1 2) "B")
-    (:t "C")))
+(defq condn_res (condn
+	((= 1 1) "A")
+	((= 1 2) "B")
+	(:t "C")))
 (assert-eq "condn" "B" condn_res)

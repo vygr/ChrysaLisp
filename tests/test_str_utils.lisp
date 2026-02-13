@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_str_utils.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;
 (report-header "String Utilities")
 
 ; Casing
@@ -10,7 +7,7 @@
 ; Trimming
 (assert-eq "trim-start" "abc  " (trim-start "  abc  "))
 (assert-eq "trim-end"   "  abc" (trim-end "  abc  "))
-(assert-eq "trim"       "abc"   (trim "  abc  "))
+(assert-eq "trim"	   "abc"   (trim "  abc  "))
 (assert-eq "trim custom" "abc"  (trim ",,abc.." (const (char-class ",."))))
 
 ; Padding

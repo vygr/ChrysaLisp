@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; tests/test_system.lisp
-;;;;;;;;;;;;;;;;;;;;;;
 (report-header "System & Tasking Smoke Tests")
 
 ; --- System Functions ---
