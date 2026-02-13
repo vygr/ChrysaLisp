@@ -64,7 +64,7 @@
 	;return :nil if nothing found !
 	(when (nql pattern "")
 		(defq buffer (. *edit* :get_buffer))
-		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
+		(when (. buffer :find pattern whole_words regexp)
 			(bind '(cx cy &ignore) (. *edit* :get_cursor))
 			(when (defq next (fnc cx cy))
 				(bind '(cx cy ax ay &ignore) next)
@@ -104,7 +104,7 @@
 			found (. buffer :find pattern whole_words regexp)
 			rep_meta (replace-compile rep_text))
 		(bind '(sx sy sx1 sy1) (csr-sort (. *edit* :get_cursor)))
-		(when (and (= sy sy1) (< sy (length found)))
+		(when (and found (= sy sy1) (< sy (length found)))
 			(defq match (elem-get found sy))
 			(when (defq match (some (lambda (m)
 						(bind '(x x1) (first m))
@@ -121,24 +121,25 @@
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			lines (. buffer :get_buffer_lines)
-			found (cat (. buffer :find pattern whole_words regexp))
+			found (. buffer :find pattern whole_words regexp)
 			rep_meta (replace-compile rep_text))
-		(undoable buffer
-			(defq sy 0 sy1 (length found))
-			(unless noclip
-				(bind '(fy fy fy1 fy1) (. *edit* :get_focus))
-				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
-			(each! (lambda (match)
-				(defq y (!))
-				(when match
-					(defq line (elem-get lines y)
-						edits (replace-edits line match rep_meta))
-					; apply edits in reverse order to preserve indices
-					(reach (lambda ((x x1 s))
-						(.-> buffer
-							(:set_cursor x y x1)
-							(:insert s))) edits)))
-				(list found) sy sy1))
+		(when found
+			(undoable buffer
+				(defq sy 0 sy1 (length (setq found (cat found))))
+				(unless noclip
+					(bind '(fy fy fy1 fy1) (. *edit* :get_focus))
+					(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
+				(each! (lambda (match)
+					(defq y (!))
+					(when match
+						(defq line (elem-get lines y)
+							edits (replace-edits line match rep_meta))
+						; apply edits in reverse order to preserve indices
+						(reach (lambda ((x x1 s))
+							(.-> buffer
+								(:set_cursor x y x1)
+								(:insert s))) edits)))
+					(list found) sy sy1)))
 		(refresh)))
 
 (defun action-replace-global (whole_words regexp pattern rep_text)
@@ -166,16 +167,16 @@
 
 (defun collect (&optional noclip)
 	(defq buffer (. *edit* :get_buffer)
-		found (. buffer :find pattern whole_words regexp)
-		lines (. buffer :get_buffer_lines)
-		sy 0 sy1 (length found))
-	(unless noclip
-		(bind '(fy fy fy1 fy1) (. *edit* :get_focus))
-		(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
-	(each! (lambda (line found)
-			(if found (each (lambda (((x x1) &ignore))
-				(push results (slice line x x1))) found)))
-		(list lines found) sy sy1))
+		found (. buffer :find pattern whole_words regexp))
+	(when found
+		(defq lines (. buffer :get_buffer_lines) sy 0 sy1 (length found))
+		(unless noclip
+			(bind '(fy fy fy1 fy1) (. *edit* :get_focus))
+			(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
+		(each! (lambda (line found)
+				(if found (each (lambda (((x x1) &ignore))
+					(push results (slice line x x1))) found)))
+			(list lines found) sy sy1)))
 
 (defun action-collect (whole_words regexp pattern)
 	(unless (eql pattern "")

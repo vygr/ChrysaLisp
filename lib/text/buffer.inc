@@ -1154,22 +1154,23 @@
 		this)
 
 	(defmethod :find (pattern wmode rmode)
-		; (. buffer :find pattern wmode rmode) -> buffer_found
-		(raise :last_key :buffer_found)
+		; (. buffer :find pattern wmode rmode) -> :nil | buffer_found
+		(raise :last_key :buffer_found (flag :nil))
 		(unless (eql (defq key (str (list wmode rmode pattern))) last_key)
 			(lower (:last_key key))
 			(each (lambda (__) (elem-set buffer_found (!) :nil)) buffer_found))
 		(unless (eql pattern "")
 			(bind '(engine meta &ignore) (query pattern wmode rmode))
-			(each (lambda (line index)
-				(if (> (length line) 1)
-					(unless index
-						(task-slice)
-						(elem-set buffer_found (!)
-							(. engine :search (slice line 0 -2) meta)))
-					(elem-set buffer_found (!) '())))
+			(each (lambda (line match)
+					(if (> (length line) 1)
+						(unless match
+							(task-slice)
+							(setq match (. engine :search (slice line 0 -2) meta)))
+						(setq match '()))
+					(elem-set buffer_found (!) match)
+					(and match (nempty? match) (setq flag :t)))
 				(get :buffer_lines this) buffer_found))
-		buffer_found)
+		(if flag buffer_found :nil))
 	)
 
 ;module

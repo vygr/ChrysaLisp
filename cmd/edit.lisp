@@ -31,7 +31,7 @@
 
 	Available Commands:
 
-	Search:		(edit-find pattern [:w :r]) -> :t | :nil
+	Search:		(edit-find pattern [:w :r]) -> :nil | buffer_found
 
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
@@ -172,6 +172,3 @@
 							(if opt_s (cat " -s " opt_s) "")
 							" " (slice (str %0) 1 -2)))
 						(partition jobs opt_j))))))))
-
-
-;edit -c "(defq line_num 0)(until (edit-eof?)(edit-insert (str (++ line_num) {: }))(edit-down)(edit-home)))" cmd/test.lisp
