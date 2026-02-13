@@ -69,7 +69,7 @@
 
 	edit -c
 		"(until (edit-eof?)
-			(edit-insert (str (edit-cy) \q: \q))
+			(edit-insert (str (inc (edit-cy)) \q: \q))
 			(edit-down)
 			(edit-home))"
 		file.txt}
