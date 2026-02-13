@@ -72,6 +72,8 @@ variables are implicitly bound and available to your script:
 
 * `*file*`: The string path of the current file.
 
+The primary cursor is at `(0 0 0 0)`. ie `(edit-top)`
+
 ### Variable Scope and Logic
 
 Because the script is standard ChrysaLisp, you can use:
@@ -201,9 +203,8 @@ Prepend line numbers to every line in a file.
 
 ```code
 edit -c
-"(defq line_num 0)
-(until (edit-eof?)
-	(edit-insert (str (++ line_num) {: }))
+"(until (edit-eof?)
+	(edit-insert (str (inc (edit-cy)) {: }))
 	(edit-down)
 	(edit-home))"
 file.txt
@@ -241,4 +242,14 @@ nodes.
 files -a . .lisp |
 edit -c
 "(edit-find {old-func-name} :w)(edit-cursors)(edit-insert {new-func-name})"
+```
+
+### 8. Remove all multi blank lines
+
+Remove all multi blank lines.
+
+```code
+files . .vp |
+edit -c
+"(edit-find {^\s+$} :r)(edit-cursors)(edit-select-line)(edit-delete)(edit-insert {\n})"
 ```

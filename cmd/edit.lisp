@@ -62,8 +62,8 @@
 	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
 				(edit-join-text (txt ...) [cls]) -> txt
 				(edit-eof?) -> :t | :nil
-				(edit-cx) -> num
-				(edit-cy) -> num
+				(edit-cx) -> cx
+				(edit-cy) -> cy
 
 	Example - Numbering lines:
 
