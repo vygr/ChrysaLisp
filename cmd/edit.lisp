@@ -49,7 +49,7 @@
 				(edit-up [cnt]) (edit-down [cnt])
 				(edit-left [cnt]) (edit-right [cnt])
 
-	Mutation:	(edit-insert txt) (edit-paste txt)
+	Mutation:	(edit-insert txt) (edit-paste txt) (edit-replace pattern)
 				(edit-delete [cnt]) (edit-backspace [cnt])
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
@@ -110,12 +110,22 @@
 (defun edit-cursors () (. *doc* :set_found_cursors (. *doc* :get_buffer_found)))
 (defun edit-add-cursors () (. *doc* :add_found_cursors (. *doc* :get_buffer_found)))
 (defun edit-split-text (txt &optional cls) (split txt (ifn cls "\n\f")))
-(defun edit-join-text (txts &optional cls) (join txts (ifn cls "\n")))
+(defun edit-join-text (txts &optional cls) (if (empty? txts) "" (join txts (ifn cls "\n"))))
 (defun edit-get-text () (edit-join-text (edit-split-text (. *doc* :copy))))
 (defun edit-print (&rest args) (apply (const print) (if (nempty? args) args (list (edit-get-text)))))
 (defun edit-eof? () (= (second (. *doc* :get_cursor)) (second (. *doc* :get_size))))
 (defun edit-cx () (first (. *doc* :get_cursor)))
 (defun edit-cy () (second (. *doc* :get_cursor)))
+
+; fancy replace
+(defun edit-replace (pattern)
+	(bind '(regexp wmode rmode) (. *doc* :get_last_find))
+	(unless (eql regexp "")
+		(defq csr_text (split (. *doc* :copy) "\f") pattern (replace-compile pattern))
+		(bind '(engine meta &ignore) (query regexp wmode rmode))
+		(defq csr_match (map (# (. engine :search %0 meta)) csr_text)
+			new_text (map (# (replace-matches %0 %1 pattern)) csr_text csr_match))
+		(. *doc* :paste (join new_text "\f"))))
 
 (defun work (*file* *fnc*)
 	; *doc* and *file* are bound here, visible to *fnc*

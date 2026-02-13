@@ -93,7 +93,7 @@ clips coordinates to valid buffer positions
 ### :find
 
 ```code
-(. buffer :find pattern wmode rmode) -> buffer_found
+(. buffer :find pattern wmode rmode) -> :nil | buffer_found
 ```
 
 ### :find_left_bracket
@@ -127,6 +127,8 @@ return last cursor position without sticky x
 ```
 
 ### :get_cursors
+
+### :get_last_find
 
 ### :get_modified
 

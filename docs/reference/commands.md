@@ -90,7 +90,7 @@ Usage: edit [options] [path] ...
 
 	Available Commands:
 
-	Search:		(edit-find pattern [:w :r]) -> :t | :nil
+	Search:		(edit-find pattern [:w :r]) -> :nil | buffer_found
 
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
@@ -108,7 +108,7 @@ Usage: edit [options] [path] ...
 				(edit-up [cnt]) (edit-down [cnt])
 				(edit-left [cnt]) (edit-right [cnt])
 
-	Mutation:	(edit-insert txt) (edit-paste txt)
+	Mutation:	(edit-insert txt) (edit-paste txt) (edit-replace pattern)
 				(edit-delete [cnt]) (edit-backspace [cnt])
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
@@ -120,25 +120,18 @@ Usage: edit [options] [path] ...
 
 	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
 				(edit-join-text (txt ...) [cls]) -> txt
+				(edit-eof?) -> :t | :nil
+				(edit-cx) -> cx
+				(edit-cy) -> cy
 
 	Example - Numbering lines:
 
-	edit -s my_script file.txt
-
-	my_script
-		"(defmacro for-each-line (&rest body)
-			`(progn
-				(edit-top)
-				(defq cy 0)
-				(while (/= cy (last (. *doc* :get_size)))
-					~body
-					(bind '(& cy &ignore) (. *doc* :get_cursor)))))
-		(defun edit-script ()
-			(defq line_num 0)
-			(for-each-line
-				(edit-insert (str (++ line_num) ": "))
-				(edit-down)
-				(edit-home)))"
+	edit -c
+		"(until (edit-eof?)
+			(edit-insert (str (inc (edit-cy)) ": "))
+			(edit-down)
+			(edit-home))"
+		file.txt
 ```
 ## files
 ```code

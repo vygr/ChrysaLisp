@@ -143,6 +143,7 @@ Modify the text at the current cursor position(s) or selection(s).
 | Command | Description |
 | :--- | :--- |
 | `(edit-insert string)` | Insert text. If a selection exists, it replaces the selection. |
+| `(edit-replace pattern)` | Replace text. Standard $n syntax pattern. Replaces the selection. |
 | `(edit-delete [cnt])` | Delete character (or selection) to the right. |
 | `(edit-backspace [cnt])` | Delete character (or selection) to the left. |
 | `(edit-trim)` | Remove trailing whitespace from lines and empty lines from ends of file. |
