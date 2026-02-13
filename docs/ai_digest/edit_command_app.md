@@ -20,23 +20,21 @@ edit [options] [path] ...
 
 ### Options
 
-With the `-c` option your script commands will be auto wrapped into an `(defun
-edit-script () ...)` lambda, before execution.
+* `-c --cmd "..."`: **Immediate mode.** A string containing the Lisp commands to
+  execute. These commands are automatically wrapped in a `(defun edit-script ()
+  ...)` lambda before compilation.
 
-With the `-s` option your script is assumed to use advanced ChrysaLisp features,
-such as macros, and as such a simple wrapping will not suffice. So the
-assumption is that you will provide the `(defun edit-script () ...)` within the
-script file !
-
-* `-c --cmd "..."`: Immediate mode. A string containing the Lisp commands to
-  execute.
-
-* `-s --script path`: Script mode. A file path containing the Lisp script to
-  execute.
+* `-s --script path`: **Script mode.** A file path containing the Lisp script to
+  execute. In this mode, **you must explicitly define** the entry point function
+  `(defun edit-script () ...)` within your file.
 
 * `-j --jobs num`: The number of jobs per node to use. Defaults to 1.
 
-If no file paths are provided arguments, `edit` reads paths from `stdin`.
+If both `-c` and `-s` are provided, the `-c` commands are compiled *before* the
+script file. This is useful for setting up configuration variables or defining
+helper functions that the script depends on.
+
+If no file paths are provided as arguments, `edit` reads paths from `stdin`.
 
 ## The Execution Model
 
@@ -46,22 +44,21 @@ When `edit` runs, it performs the following steps:
    from `*root_env*`.
 
 2. **API Binding**: It populates this environment with editor-specific functions
-   (see `edit-` API Reference below).
+   (see API Reference below).
 
-3. **Compilation**: It reads your script (from `-c` or `-s`), compiles it into
-   native code, wraps or assumes you created a function called `(edit-script)`.
-   This happens **once** on each node.
+3. **Compilation**: It reads your script, compiles it into native code, and
+   prepares the `(edit-script)` function. This happens **once** on each node.
 
 4. **Distribution**: It spawns worker tasks (locally or across the network).
 
 5. **Execution**: For each file:
 
-	* The file is loaded into a `Document` object (`*doc*`).
+    * The file is loaded into a `Document` object (`*doc*`).
 
-	* Your compiled `(edit-script)` function is executed.
+    * Your compiled `(edit-script)` function is executed.
 
-	* If no error is thrown, and the document has been modified, the document is
-	  saved back to disk.
+    * If no error is thrown, and the document has been modified, the document is
+      saved back to disk.
 
 ### Implicit Context
 
@@ -72,13 +69,13 @@ variables are implicitly bound and available to your script:
 
 * `*file*`: The string path of the current file.
 
-The primary cursor is at `(0 0 0 0)`. ie `(edit-top)`
+The primary cursor starts at `(0 0 0 0)` (Top of file).
 
 ### Variable Scope and Logic
 
 Because the script is standard ChrysaLisp, you can use:
 
-* **Variables**: `(defq global_count 0)` (local to the specific file pass).
+* **Variables**: `(defq count 0)` (local to the specific file pass).
 
 * **Control Flow**: `(if ...)` , `(cond ...)`, `(while ...)`.
 
@@ -86,7 +83,7 @@ Because the script is standard ChrysaLisp, you can use:
 
 * **Math**: All standard math functions.
 
-* **Macros**: Yes, even define macros, with all the power that comes with them.
+* **Macros**: You may define macros within your script.
 
 ## API Reference
 
@@ -95,76 +92,131 @@ the implicit `*doc*`.
 
 ### Navigation
 
-Move the cursor(s) around the document. Most operations respect multi-cursor
-state.
+Move the cursor(s) around the document.
 
-| Command | Description |
-| :--- | :--- |
-| `(edit-top)` / `(edit-bottom)` | Move to start/end of document. |
-| `(edit-home)` / `(edit-end)` | Move to start/end of current line. |
-| `(edit-left [cnt])` / `(edit-right [cnt])` | Move cursor left/right. |
-| `(edit-up [cnt])` / `(edit-down [cnt])` | Move cursor up/down. |
-| `(edit-bracket-left)` | Move to the matching opening bracket `(` |
-| `(edit-bracket-right)` | Move to the matching closing bracket `)` |
-| `(edit-ws-left)` | Jump left over whitespace. |
-| `(edit-ws-right)` | Jump right over whitespace. |
+* `(edit-top)` / `(edit-bottom)`: Move to start/end of document.
+
+* `(edit-home)` / `(edit-end)`: Move to start/end of current line.
+
+* `(edit-left [cnt])`: Move cursor left `cnt` times (default 1).
+
+* `(edit-right [cnt])`: Move cursor right `cnt` times (default 1).
+
+* `(edit-up [cnt])`: Move cursor up `cnt` lines.
+
+* `(edit-down [cnt])`: Move cursor down `cnt` lines.
+
+* `(edit-bracket-left)`: Move to the matching opening bracket `(`.
+
+* `(edit-bracket-right)`: Move to the matching closing bracket `)`.
+
+* `(edit-ws-left)`: Jump left over whitespace.
+
+* `(edit-ws-right)`: Jump right over whitespace.
+
+* `(edit-cx)`: Return primary cursor X position.
+
+* `(edit-cy)`: Return primary cursor Y position.
+
+* `(edit-eof?)`: Returns `:t` if primary cursor is at the end of the file.
 
 ### Selection
 
-Create or modify selections.
+Create or modify selections. ChrysaLisp uses a multi-cursor editing model.
 
-| Command | Description |
-| :--- | :--- |
-| `(edit-select-all)` | Select the entire document. |
-| `(edit-select-line)` | Select the current line(s). |
-| `(edit-select-word)` | Select the word(s) under the cursor/s. |
-| `(edit-select-paragraph)` | Select the current paragraph(s) (block of text separated by blank lines). |
-| `(edit-select-block)` | Select the content inside surrounding brackets `(...)`. |
-| `(edit-select-form)` | Select the current S-expression/Lisp form(s). |
-| `(edit-select-home)` ... | Directional selection expansion (home/end/top/bottom). |
-| `(edit-select-up [cnt])` ... | Directional selection expansion (up/down/left/right). |
+* `(edit-select-all)`: Select the entire document.
+
+* `(edit-select-line)`: Select the current line(s).
+
+* `(edit-select-word)`: Select the word(s) under the cursor/s.
+
+* `(edit-select-paragraph)`: Select the current paragraph(s).
+
+* `(edit-select-block)`: Select the content of surrounding brackets `(...)`.
+
+* `(edit-select-form)`: Select the current S-expression/Lisp form(s).
+
+* `(edit-select-home)`: Select from cursor to start of line.
+
+* `(edit-select-end)`: Select from cursor to end of line.
+
+* `(edit-select-top)`: Select from cursor to start of document.
+
+* `(edit-select-bottom)`: Select from cursor to end of document.
+
+* `(edit-select-left [cnt])`: Extend selection left.
+
+* `(edit-select-right [cnt])`: Extend selection right.
+
+* `(edit-select-up [cnt])`: Extend selection up.
+
+* `(edit-select-down [cnt])`: Extend selection down.
 
 ### Search & Cursors
 
-ChrysaLisp uses a multi-cursor editing model. Search operations do not move the
-cursor immediately; they populate a "found" buffer. You must explicitly convert
-matches to cursors.
+Search operations populate a "found" buffer. You must explicitly convert matches
+to cursors to edit them.
 
-| Command | Description |
-| :--- | :--- |
-| `(edit-find pattern [:w] [:r])` | Find all occurrences of `pattern`. <br>`:w` = Whole words only.<br>`:r` = Treat pattern as Regex. |
-| `(edit-cursors)` | **Replace** current cursors with cursors at every location found by `find`. |
-| `(edit-add-cursors)` | **Add** new cursors at found locations to the existing set of cursors. |
+* `(edit-find pattern [:w :r])`: Find occurrences of `pattern`. Use `:w` for
+  Whole words and `:r` for Regex mode.
+
+* `(edit-cursors)`: **Replace** current cursors with cursors at every location
+  found.
+
+* `(edit-add-cursors)`: **Add** new cursors at found locations to existing
+  cursors.
 
 ### Mutation
 
-Modify the text at the current cursor position(s) or selection(s).
+Modify text at current cursor positions or selections.
 
-| Command | Description |
-| :--- | :--- |
-| `(edit-insert string)` | Insert text. If a selection exists, it replaces the selection. |
-| `(edit-replace pattern)` | Replace text. Standard $n syntax pattern. Replaces the selection. |
-| `(edit-delete [cnt])` | Delete character (or selection) to the right. |
-| `(edit-backspace [cnt])` | Delete character (or selection) to the left. |
-| `(edit-trim)` | Remove trailing whitespace from lines and empty lines from ends of file. |
-| `(edit-sort)` | Sort selected lines alphabetically. |
-| `(edit-unique)` | Remove duplicate lines within the selection. |
-| `(edit-upper)` / `(edit-lower)` | Convert selection case. |
-| `(edit-reflow)` | Reflow text in paragraph/selection (word wrap). |
-| `(edit-split)` | Split lines into words. |
-| `(edit-comment)` | Toggle line comment prefixes (`;;`). |
-| `(edit-indent [cnt])` | Indent selected lines (tab right). |
-| `(edit-outdent [cnt])` | Outdent selected lines (tab left). |
+* `(edit-insert txt)`: Insert text. Replaces selection if one exists.
 
-### Properties & IO
+* `(edit-replace pattern)`: Replace selected text using `$n` regex substitution
+  patterns.
 
-| Command | Description |
-| :--- | :--- |
-| `(edit-get-text)` | Return the currently selected text as a string. |
-| `(edit-get-filename)` | Return the filename currently being processed. |
-| `(edit-print ...)` | Print to `stdout`. Useful for dry-runs or extraction. |
+* `(edit-delete [cnt])`: Delete character/selection to the right.
 
----
+* `(edit-backspace [cnt])`: Delete character/selection to the left.
+
+* `(edit-cut)`: Cut selection and return it.
+
+* `(edit-paste txt)`: Paste text at cursor(s).
+
+* `(edit-trim)`: Remove trailing whitespace and empty end lines.
+
+* `(edit-sort)`: Sort selected lines alphabetically.
+
+* `(edit-unique)`: Remove duplicate lines within selection.
+
+* `(edit-upper)` / `(edit-lower)`: Convert selection case.
+
+* `(edit-reflow)`: Reflow text in paragraph/selection.
+
+* `(edit-split)`: Split lines into words.
+
+* `(edit-comment)`: Toggle line comment prefixes (`;;`).
+
+* `(edit-indent [cnt])`: Indent selected lines (tab right).
+
+* `(edit-outdent [cnt])`: Outdent selected lines (tab left).
+
+### Properties & Utilities
+
+* `(edit-get-text)`: Return the currently selected text as a string.
+
+* `(edit-get-filename)`: Return the filename currently being processed.
+
+* `(edit-copy)`: Copy selection and return it.
+
+* `(edit-print ...)`: Print to `stdout` (useful for dry-runs). Defaults to the
+  selected text.
+
+* `(edit-split-text txt [cls])`: Utility: Split string by char class (default
+  form feed and newline).
+
+* `(edit-join-text list [cls])`: Utility: Join list into string (default
+  newline).
 
 ## Examples
 
@@ -198,16 +250,16 @@ edit -c
 "(edit-top)(edit-insert {;; Copyright 2026\n\n})"
 ```
 
-### 4. Line Numbering (Variables and Loops)
+### 4. Line Numbering
 
-Prepend line numbers to every line in a file.
+Prepend line numbers to every line in a file using a loop and `edit-cy`.
 
 ```code
 edit -c
 "(until (edit-eof?)
-	(edit-insert (str (inc (edit-cy)) {: }))
-	(edit-down)
-	(edit-home))"
+    (edit-insert (str (inc (edit-cy)) {: }))
+    (edit-down)
+    (edit-home))"
 file.txt
 ```
 
@@ -219,9 +271,9 @@ Only edit the file if it contains a specific Todo marker.
 files . .src |
 edit -c
 "(when (edit-find {TODO_FIX_THIS})
-	(edit-cursors)
-	(edit-select-line)
-	(edit-delete))"
+    (edit-cursors)
+    (edit-select-line)
+    (edit-delete))"
 ```
 
 ### 6. Data Extraction
@@ -236,7 +288,7 @@ edit -c
 
 ### 7. Massive Parallel Refactoring
 
-Rename a function across the entire OS codebase, utilizing all available compute
+Rename a function across the entire OS codebase using all available compute
 nodes.
 
 ```code
@@ -245,9 +297,9 @@ edit -c
 "(edit-find {old-func-name} :w)(edit-cursors)(edit-insert {new-func-name})"
 ```
 
-### 8. Remove all multi blank lines
+### 8. Remove Multiple Blank Lines
 
-Remove all multi blank lines.
+Use Regex to find empty lines and reduce them to a single newline.
 
 ```code
 files . .vp |
