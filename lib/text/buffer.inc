@@ -1243,7 +1243,8 @@
 	(defmethod :next_found_cursor (cx cy &optional fy fy1)
 		; (. buffer :next_found_cursor cx cy [fy fy1]) -> :nil | csr
 		(raise :buffer_found)
-		(defq h (length buffer_found))
+		(defq buffer_found (get :buffer_found this)
+			h (length buffer_found))
 		(setd fy 0 fy1 h)
 		(cond
 			((>= cy fy1) :nil)
@@ -1259,7 +1260,8 @@
 	(defmethod :prev_found_cursor (cx cy &optional fy fy1)
 		; (. buffer :prev_found_cursor cx cy [fy fy1]) -> :nil | csr
 		(raise :buffer_found)
-		(defq h (length buffer_found))
+		(defq buffer_found (get :buffer_found this)
+			h (length buffer_found))
 		(setd fy 0 fy1 h)
 		(cond
 			((< cy fy) :nil)
@@ -1270,7 +1272,7 @@
 						(rsome (lambda (((x x1) &ignore))
 							(if (or (< y cy) (< x cx)) (nums x y x1 y -1)))
 						match)))
-					(list buffer_found) :nil (min (dec fy1) cy) fy))))
+					(list buffer_found) :nil (inc (min (dec fy1) cy)) fy))))
 
 	(defmethod :find_next (&optional fy fy1)
 		; (. buffer :find_next [fy fy1]) -> buffer
