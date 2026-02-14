@@ -1,6 +1,8 @@
-; genric edit commands, these assume your environment contains
+; generic edit commands, these assume your environment contains
 ; a Document object bound to *edit* and a file related to that
 ; called *file*
+
+(import "lib/text/document.inc")
 
 ;module
 (env-push)
