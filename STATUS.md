@@ -37,7 +37,7 @@ editor model. `:next_found_cursor`, `:prev_found_cursor`, `:find_next`,
 `:find_prev` and `:find_add_next` now provide intuitive match boundary
 behavior and respect the focus region.
 
-New `edit-get-focus`, `edit-set-focus`, `edit-filter-cursors` and `edit-focus`
+New `edit-get-focus`, `edit-set-focus`, `edit-filter-cursors` and `edit-focus-cursors`
 proxy commands added to `edit.inc` and exported.
 
 Added safety check to `edit-replace` to handle cases with no matches gracefully.

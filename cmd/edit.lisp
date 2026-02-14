@@ -37,7 +37,7 @@
 	Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
 
 	Focus:		(edit-get-focus) (edit-set-focus [csr]) (edit-filter-cursors)
-				(edit-focus)
+				(edit-focus-cursors)
 
 	Selection:	(edit-select-all) (edit-select-line) (edit-select-word)
 				(edit-select-block) (edit-select-form) (edit-select-paragraph)

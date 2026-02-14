@@ -46,7 +46,7 @@
 (defun edit-find-add-next () (. *edit* :find_add_next))
 (defun edit-cursors () (. *edit* :set_found_cursors (. *edit* :get_buffer_found)))
 (defun edit-add-cursors () (. *edit* :add_found_cursors (. *edit* :get_buffer_found)))
-(defun edit-focus ()
+(defun edit-focus-cursors ()
 	(defq focus (. *edit* :get_focus))
 	(if (nql focus +invalid_focus)
 		(progn
@@ -79,7 +79,7 @@
 edit-add-cursors edit-backspace edit-bottom edit-bracket-left
 edit-bracket-right edit-comment edit-copy edit-cursors edit-cut edit-cx edit-cy
 edit-delete edit-down edit-end edit-eof? edit-filter-cursors edit-find edit-find-add-next
-edit-find-next edit-find-prev edit-focus edit-get-filename edit-get-focus edit-get-text
+edit-find-next edit-find-prev edit-focus-cursors edit-get-filename edit-get-focus edit-get-text
 edit-home edit-indent edit-insert edit-join-text edit-left
 edit-lower edit-outdent edit-paste edit-print edit-primary edit-reflow edit-replace
 edit-right edit-select-all edit-select-block edit-select-bottom

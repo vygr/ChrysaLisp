@@ -189,7 +189,7 @@ document.
 
 * `(edit-filter-cursors)`: Remove all cursors that are outside the focus region.
 
-* `(edit-focus)`: Set cursors to the subset of global found matches that fall
+* `(edit-focus-cursors)`: Set cursors to the subset of global found matches that fall
   within the current focus region.
 
 ### Mutation

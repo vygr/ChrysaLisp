@@ -372,11 +372,11 @@
 (assert-true "Focus after delete start" (or (= fy1 1) (= fy2 1)))
 (assert-true "Focus after delete end" (or (= fy1 4) (= fy2 4)))
 
-; Test edit-focus (bridge find to cursors in focus)
+; Test edit-focus-cursors (bridge find to cursors in focus)
 (edit-find "Line")
-(edit-focus)
-(assert-eq "edit-focus count" 3 (length (. *edit* :get_cursors)))
-(each (lambda (csr) (assert-true "Cursor in focus (edit-focus)" (csr-within (edit-get-focus) csr)))
+(edit-focus-cursors)
+(assert-eq "edit-focus-cursors count" 3 (length (. *edit* :get_cursors)))
+(each (lambda (csr) (assert-true "Cursor in focus (edit-focus-cursors)" (csr-within (edit-get-focus) csr)))
 	(. *edit* :get_cursors))
 
 ; Test complex scenario: find, select paragraph, set focus, refined find, replace
