@@ -1,17 +1,19 @@
-# The ChrysaLisp Text Stack: A Comprehensive Analysis
+# The ChrysaLisp Text Stack: A Unified Architecture
 
 This document analyzes the architecture of text handling in ChrysaLisp, tracing
 the hierarchy from low-level data management to high-level visual rendering and
-application logic. The architecture demonstrates a strict separation of
-concerns: **Logic/Data** (`Buffer`, `Document`) is separated from
-**Presentation** (`Edit`, `Mask`, `Vdu`), bridged by a unique delegation
-mechanism.
+application logic.
 
-## 1. The Foundation: Data & Logic
+The architecture demonstrates a strict separation of concerns, utilizing a
+**Model-View-Controller** pattern adapted for ChrysaLisp's object capabilities.
+A shared abstraction layer ensures that text manipulation logic is identical
+whether driven by a graphical user interface or a headless batch script.
 
-The core text manipulation logic resides in the library layer, specifically
-within `lib/text/`. These classes have no knowledge of pixels, fonts, or
-windows; they operate purely on coordinate tuples and strings.
+## 1. The Foundation: Data & Logic (The Model)
+
+The core text manipulation logic resides in the library layer (`lib/text/`).
+These classes have no knowledge of pixels, fonts, or windows; they operate
+purely on coordinate tuples and strings.
 
 ### 1.1. `Buffer` (`lib/text/buffer.inc`)
 
@@ -38,7 +40,7 @@ manages the raw state of the text and the "cursors" navigating it.
     * `sx` ("Sticky X"): Remembers the desired horizontal column when moving
       vertically through lines of varying lengths.
 
-*   **Key Responsibilities:**
+* **Key Responsibilities:**
 
     * **Atomic Mutation:** Methods like `:iinsert` (internal insert) and
       `:idelete` perform the actual string manipulation and record state for
@@ -79,19 +81,45 @@ in memory.
 
 * **I/O:**
 
-    * `:file_load` and `:file_save` manage reading from and writing to `stream`
-      objects.
+    * `:stream_load` and `:stream_save` manage reading from and writing to
+      `stream` objects.
 
     * Integrates with the `Syntax` engine to generate highlighting data
       (`buffer_syntax`) during load or mutation.
 
-## 2. The Presentation Layer: Composition & Rendering
+## 2. The Abstraction Layer (The Interface)
+
+To allow the same code to drive both a GUI editor and a headless script,
+ChrysaLisp utilizes a polymorphic abstraction layer.
+
+### 2.1. `lib/text/edit.inc`
+
+This file defines a suite of global functions (e.g., `edit-down`, `edit-insert`,
+`edit-copy`) that act as the public API for text manipulation. These functions
+do not contain logic themselves; they operate on a dynamic variable `*edit*`.
+
+```vdu
+(defmacro gen-edit (n m) `(defun ,(sym (str "edit-" n)) () (. *edit* ,m)))
+(gen-edit top :top)
+(defun edit-insert (txt) (. *edit* :insert txt))
+```
+
+* **Polymorphism:**
+
+    * In a **GUI context**, `*edit*` is bound to an `Edit` Widget.
+
+    * In a **CLI context**, `*edit*` is bound directly to a `Document`.
+
+    * Because the `Edit` widget proxies methods to its internal `Document`, the
+      API signature is identical in both contexts.
+
+## 3. The Presentation Layer: Composition & Rendering (The View)
 
 The GUI layer (`gui/`) is responsible for visualizing the `Document`. ChrysaLisp
 uses a composition approach where the editor widget aggregates several
 specialized sub-views.
 
-### 2.1. `Edit` (`gui/edit/lisp.inc`)
+### 3.1. `Edit` (`gui/edit/lisp.inc`)
 
 The `Edit` class is the main visual component. It inherits from `View`.
 Crucially, it **contains** a `Document` instance (stored in the `:buffer`
@@ -110,6 +138,19 @@ property) rather than inheriting from it.
 
     5. **`Mask` (Region):** Renders region locks/focus.
 
+* **Proxy Delegation:**
+
+    Because `Edit` *has-a* `Document` but needs to conform to the API expected
+    by `lib/text/edit.inc`, it uses `defproxymethod`.
+
+    ```vdu
+    (defproxymethod :left () :buffer)
+    (defproxymethod :insert (text) :buffer)
+    ```
+
+    This creates a method on `Edit` that looks up the object in `this->buffer`
+    and calls the corresponding method on it.
+
 * **The `:underlay` Method:**
 
     This is the rendering heart of the `Edit` class. Every frame (or upon
@@ -126,114 +167,85 @@ property) rather than inheriting from it.
 
     4. It loads the visible slice of text into the `Vdu`.
 
-*   **Proxy Delegation:**
+### 3.2. Sub-Components
 
-    Because `Edit` *has-a* `Document` but needs to expose `Document` methods
-    (like `:insert` or `:left`), it uses `defproxymethod`.
-    
-    ```vdu
-    (defproxymethod :left () :buffer)
-    (defproxymethod :insert (text) :buffer)
-    ```
-    
-    This macro creates a method on `Edit` that looks up the object in
-    `this->buffer` and calls the corresponding method on it. This effectively
-    flattens the API, allowing the application to treat the `Edit` widget as if
-    it were the text buffer itself.
+* **`Mask` (`gui/mask/lisp.inc`):** A lightweight `View`. Its `:draw` method
+  simply sets a color and fills the `+view_opaque_region`. This relies on the
+  efficient region arithmetic in the GUI kernel to draw complex, non-contiguous
+  selection shapes without manual geometry management.
 
-### 2.2. `Mask` (`gui/mask/lisp.inc`)
+* **`Vdu` (`gui/vdu/`):** A specialized view for monospaced text rendering. It
+  manages a texture cache of glyphs and a grid of characters.
 
-A lightweight `View`. Its `:draw` method simply sets a color and fills the
-`+view_opaque_region`. This relies on the efficient region arithmetic in the GUI
-kernel to draw complex, non-contiguous selection shapes without manual geometry
-management.
+## 4. The Application Layer (The Controllers)
 
-### 2.3. `Vdu` (`gui/vdu/`)
+Applications wire the model and view to user inputs or scripts.
 
-A specialized view for monospaced text rendering. It manages a texture cache of
-glyphs and a grid of characters (`vdu_chars`). The `Edit` class loads text into
-it via `:vdu_load`.
+### 4.1. GUI Editor (`apps/tools/edit/`)
 
-## 3. The Application Layer: Interaction & Orchestration
+This is the interactive controller.
 
-The applications (`apps/tools/edit` and `apps/tools/viewer`) wire the `Edit`
-widget to user inputs. They do not implement text logic; they implement
-*command* logic.
+* **Initialization:** Creates an `Editor-edit` widget (subclass of `Edit`) and a
+  `Document`.
 
-### 3.1. Controller Logic (`app.lisp` & `actions.inc`)
+* **Event Handling:** `actions.inc` maps key presses (via `*key_map*`) to the
+  functions in `lib/text/edit.inc` (e.g., `Ctrl+C` -> `action-copy` ->
+  `edit-copy`).
 
-The main loop consumes events from the kernel/GUI service.
+* **Feedback Loop:** After an action changes the buffer, `(refresh)` is called.
+  This triggers the `Edit` widget's `:underlay` method to update the visual
+  masks and VDU text.
 
-1. **Event Mapping:** Key presses and GUI events are mapped to Action Functions
-   via `*key_map*` and `*event_map*`.
+### 4.2. GUI Viewer (`apps/tools/viewer/`)
 
-    * *Example:* `Ctrl+C` -> `action-copy`. `ArrowUp` -> `action-up`.
+Inherits `Edit` functionality via `Viewer-edit` but overrides mouse interactions
+to support read-only behaviors (clicking to follow links) rather than placing
+cursors for typing. It reuses the exact same display logic as the Editor.
 
-2. **Action Functions:** These functions (defined in `edit.inc`, `cursor.inc`,
-   etc.) act as the controller.
+### 4.3. CLI Editor (`cmd/edit.lisp`)
 
-    * They perform logic (e.g., calculating scroll offset).
+This is the headless controller, used for batch processing or scripting.
 
-    * They invoke methods on the `*edit*` object (which proxies them to the
-      `buffer`).
+* **Architecture:** It instantiates a `Document` but **not** an `Edit` widget.
 
-    * **Example (`action-insert`):**
+* **Binding:** It binds the `Document` instance to the `*edit*` variable.
 
-        ```vdu
-        (defun action-insert (text)
-            (. *edit* :insert text) ; Proxies to Document:iinsert
-            (refresh))              ; Triggers UI redraw/slider updates
-        ```
+* **Execution:**
 
-3. **Macro Recording:**
+    * It accepts a script via `-c` (command string) or `-s` (script file).
 
-    Because all user interaction flows through these `action-*` functions, the
-    `Edit` app implements macro recording by simply logging the sequence of
-    action calls and their arguments into a list (`*macro_record*`), allowing
-    for complex replays.
+    * The script executes in an environment where functions like `(edit-down)`
+      or `(edit-replace "foo")` are available.
 
-### 3.2. `Editor-edit` vs `Viewer-edit`
+    * These functions operate directly on the `Document` via the `*edit*`
+      binding.
 
-The separation of logic (`Document`) and view (`Edit`) allows for easy
-specialization via inheritance.
+* **Result:** Complex editing operations (multi-cursor find/replace, block
+  moves) can be performed programmatically with zero GUI overhead, using the
+  exact same logic code as the interactive editor.
 
-* **`Editor-edit` (`apps/tools/edit/ui.inc`):** Inherits `Edit`. Handles mouse
-  interactions for full editing (setting cursor position, dragging to select).
-    
-* **`Viewer-edit` (`apps/tools/viewer/ui.inc`):** Inherits `Edit`. Overrides
-  mouse interactions to support read-only behaviors, such as clicking to follow
-  links (file navigation) rather than placing a cursor for typing.
+## Summary of Flow
 
-## Summary Flow
+When a command like `(edit-insert "A")` is executed:
 
-When a user types a character in the **Edit** application:
+1. **If in GUI:**
 
-1. **Input:** The kernel sends a Key Event to the App's mailbox.
+    * `lib/text/edit.inc` calls `(. *edit* :insert "A")`.
 
-2. **Dispatch:** `app.lisp` looks up the key in `*key_map*` or `*normal_map*`.
-   It resolves to `action-insert`.
+    * `*edit*` is an `Edit` widget. It proxies the call to its internal
+      `:buffer`.
 
-3. **Action:** `action-insert` calls `(. *edit* :insert char)`.
+    * `Buffer` updates text and cursors.
 
-4. **Proxy:** The `Edit` class proxy forwards the call to `(. buffer :insert
-   char)`.
+    * The App calls `(refresh)`, causing `Edit` to redraw masks and glyphs.
 
-5. **Logic:** `Document` (the buffer) calculates the new string state, updates
-   the undo stack, and moves the cursor `cx`.
+2. **If in CLI:**
 
-6. **Refresh:** The `action-insert` function calls `(refresh)`.
+    * `lib/text/edit.inc` calls `(. *edit* :insert "A")`.
 
-7. **Render Prep:** `refresh` calls `(. *edit* :underlay)`.
+    * `*edit*` is a `Document` object. It executes the update directly.
 
-8. **Masking:** `:underlay` calculates where the cursor is (pixels) and adds a
-   rect to `mask_ink`'s opaque region.
+    * No refresh or rendering occurs.
 
-9. **VDU Load:** `:underlay` pushes the relevant slice of text lines into the
-   `Vdu` widget.
-
-10. **Draw:** The GUI compositor traverses the view tree. `Mask` fills the
-    cursor rectangle. `Vdu` blits the glyph textures.
-
-This architecture ensures that the heavy lifting of text manipulation is
-isolated from the rendering, while the rendering leverages the OS's native
-region management for high performance.
+This architecture ensures zero duplication of effort, high performance, and
+total consistency between graphical and command-line text manipulation tools.
