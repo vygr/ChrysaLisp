@@ -53,19 +53,19 @@ When `edit` runs, it performs the following steps:
 
 5. **Execution**: For each file:
 
-    * The file is loaded into a `Document` object (`*doc*`).
+	* The file is loaded into a `Document` object (`*edit*`).
 
-    * Your compiled `(edit-script)` function is executed.
+	* Your compiled `(edit-script)` function is executed.
 
-    * If no error is thrown, and the document has been modified, the document is
-      saved back to disk.
+	* If no error is thrown, and the document has been modified, the document is
+	  saved back to disk.
 
 ### Implicit Context
 
 Your script executes within the scope of a worker function. Two special
 variables are implicitly bound and available to your script:
 
-* `*doc*`: The current `Document` object being edited.
+* `*edit*`: The current `Document` object being edited.
 
 * `*file*`: The string path of the current file.
 
@@ -88,7 +88,7 @@ Because the script is standard ChrysaLisp, you can use:
 ## API Reference
 
 These commands are available directly within your edit script. They operate on
-the implicit `*doc*`.
+the implicit `*edit*`.
 
 ### Navigation
 
@@ -257,9 +257,9 @@ Prepend line numbers to every line in a file using a loop and `edit-cy`.
 ```code
 edit -c
 "(until (edit-eof?)
-    (edit-insert (str (inc (edit-cy)) {: }))
-    (edit-down)
-    (edit-home))"
+	(edit-insert (str (inc (edit-cy)) {: }))
+	(edit-down)
+	(edit-home))"
 file.txt
 ```
 
@@ -271,9 +271,9 @@ Only edit the file if it contains a specific Todo marker.
 files . .src |
 edit -c
 "(when (edit-find {TODO_FIX_THIS})
-    (edit-cursors)
-    (edit-select-line)
-    (edit-delete))"
+	(edit-cursors)
+	(edit-select-line)
+	(edit-delete))"
 ```
 
 ### 6. Data Extraction
@@ -304,5 +304,5 @@ Use Regex to find empty lines and reduce them to a single newline.
 ```code
 files . .vp |
 edit -c
-"(edit-find {^\s*$} :r)(edit-cursors)(edit-select-line)(edit-delete)(edit-insert {\n})"
+"(edit-find {^\\s*$} :r)(edit-cursors)(edit-select-line)(edit-delete)(edit-insert {\n})"
 ```

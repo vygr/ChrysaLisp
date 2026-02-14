@@ -1,6 +1,7 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 (import "lib/text/document.inc")
+(import "lib/text/edit.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -31,11 +32,11 @@
 
 	Available Commands:
 
-	Search:		(edit-find pattern [:w :r]) -> :nil | buffer_found
+	Search:	 (edit-find pattern [:w :r]) -> :nil | buffer_found
 
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
-	Selection:	(edit-select-all) (edit-select-line)
+	Selection:  (edit-select-all) (edit-select-line)
 				(edit-select-word) (edit-select-block)
 				(edit-select-form) (edit-select-paragraph)
 				(edit-select-home) (edit-select-end)
@@ -43,23 +44,23 @@
 				(edit-select-left [cnt]) (edit-select-right [cnt])
 				(edit-select-up [cnt]) (edit-select-down [cnt])
 
-	Navigation:	(edit-top) (edit-bottom) (edit-home) (edit-end)
+	Navigation: (edit-top) (edit-bottom) (edit-home) (edit-end)
 				(edit-bracket-left) (edit-bracket-right)
 				(edit-ws-left) (edit-ws-right)
 				(edit-up [cnt]) (edit-down [cnt])
 				(edit-left [cnt]) (edit-right [cnt])
 
-	Mutation:	(edit-insert txt) (edit-paste txt) (edit-replace pattern)
+	Mutation:   (edit-insert txt) (edit-paste txt) (edit-replace pattern)
 				(edit-delete [cnt]) (edit-backspace [cnt])
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
 				(edit-indent) (edit-outdent) (edit-cut)
 
-	Properties:	(edit-copy) -> txt
+	Properties: (edit-copy) -> txt
 				(edit-get-text) -> txt
 				(edit-get-filename) -> txt
 
-	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
+	Utilities:  (edit-split-text txt [cls]) -> (txt ...)
 				(edit-join-text (txt ...) [cls]) -> txt
 				(edit-eof?) -> :t | :nil
 				(edit-cx) -> cx
@@ -79,66 +80,18 @@
 (("-s" "--script") ,(opt-str 'opt_s))
 ))
 
-; define proxy commands
-(redefmacro gen-edit (n m) `(defun ,(sym (str "edit-" n)) () (. *doc* ,m)))
-(gen-edit top :top) (gen-edit bottom :bottom) (gen-edit home :home) (gen-edit end :end)
-(gen-edit bracket-left :left_bracket) (gen-edit bracket-right :right_bracket)
-(gen-edit ws-left :left_white_space) (gen-edit ws-right :right_white_space)
-(gen-edit select-all :select_all) (gen-edit select-line :select_line)
-(gen-edit select-word :select_word) (gen-edit select-block :select_block)
-(gen-edit select-form :select_form) (gen-edit select-paragraph :select_paragraph)
-(gen-edit select-home :home_select) (gen-edit select-end :end_select)
-(gen-edit select-top :top_select) (gen-edit select-bottom :bottom_select)
-(gen-edit trim :trim) (gen-edit sort :sort) (gen-edit unique :unique)
-(gen-edit upper :to_upper) (gen-edit lower :to_lower)
-(gen-edit reflow :reflow) (gen-edit split :split) (gen-edit comment :comment)
-(gen-edit cut :cut) (gen-edit copy :copy)
-
-; define proxy commands with optional repeat
-(redefmacro gen-edit (n m) `(defun ,(sym (str "edit-" n)) (&optional c) (times (ifn c 1) (. *doc* ,m))))
-(gen-edit up :up) (gen-edit down :down) (gen-edit left :left) (gen-edit right :right)
-(gen-edit select-left :left_select) (gen-edit select-right :right_select)
-(gen-edit select-up :up_select) (gen-edit select-down :down_select)
-(gen-edit delete :delete) (gen-edit backspace :backspace)
-(gen-edit indent :right_tab) (gen-edit outdent :left_tab)
-
-; more complex commands
-(defun edit-get-filename () *file*)
-(defun edit-insert (txt) (. *doc* :insert txt))
-(defun edit-paste (txt) (. *doc* :paste txt))
-(defun edit-find (pattern &rest flags) (. *doc* :find pattern (find :w flags) (find :r flags)))
-(defun edit-cursors () (. *doc* :set_found_cursors (. *doc* :get_buffer_found)))
-(defun edit-add-cursors () (. *doc* :add_found_cursors (. *doc* :get_buffer_found)))
-(defun edit-split-text (txt &optional cls) (split txt (ifn cls "\n\f")))
-(defun edit-join-text (txts &optional cls) (if (empty? txts) "" (join txts (ifn cls "\n"))))
-(defun edit-get-text () (edit-join-text (edit-split-text (. *doc* :copy))))
-(defun edit-print (&rest args) (apply (const print) (if (nempty? args) args (list (edit-get-text)))))
-(defun edit-eof? () (= (second (. *doc* :get_cursor)) (second (. *doc* :get_size))))
-(defun edit-cx () (first (. *doc* :get_cursor)))
-(defun edit-cy () (second (. *doc* :get_cursor)))
-
-; fancy replace
-(defun edit-replace (pattern)
-	(bind '(regexp wmode rmode) (. *doc* :get_last_find))
-	(unless (eql regexp "")
-		(defq csr_text (split (. *doc* :copy) "\f") pattern (replace-compile pattern))
-		(bind '(engine meta &ignore) (query regexp wmode rmode))
-		(defq csr_match (map (# (. engine :search %0 meta)) csr_text)
-			new_text (map (# (replace-matches %0 %1 pattern)) csr_text csr_match))
-		(. *doc* :paste (join new_text "\f"))))
-
 (defun work (*file* *fnc*)
-	; *doc* and *file* are bound here, visible to *fnc*
+	; *edit* and *file* are bound here, visible to *fnc*
 	; because *fnc* executes in this scope
 	(when *fnc*
-		(defq *doc* (Document (if (notany (# (ends-with %0 *file*))
+		(defq *edit* (Document (if (notany (# (ends-with %0 *file*))
 				'(".md" ".txt")) +buffer_flag_syntax 0)))
 		(catch
 			(progn
-				(. *doc* :stream_load (file-stream *file*))
+				(. *edit* :stream_load (file-stream *file*))
 				(*fnc*)
-				(if (. *doc* :get_modified)
-					(. *doc* :stream_save (file-stream *file* +file_open_write)))
+				(if (. *edit* :get_modified)
+					(. *edit* :stream_save (file-stream *file* +file_open_write)))
 				(print "Edited: " *file*))
 			(print "Error editing " *file* ": " _))))
 

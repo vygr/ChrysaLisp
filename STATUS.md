@@ -80,7 +80,13 @@ file dependencies.
 Buffer load/save methods have switched to a streams based API.
 
 New `edit` command which is `The ChrysaLisp Parallel Programmable Editor`. See
-the new document for details.
+the new document for details. This comes with a new `lib/text/edit.inc` library
+available to all other applications.
+
+Implamented Kernel signals and the ability for the Terminal and TUI to force
+close pipelines of tasks. cntrl-D will abort the pipeline, ctnrl-d will send
+and EOF into the pipeline and wait for orderly shutdown, if the pipeline does
+not close within 2 seconds it will be aborted.
 
 ------
 
@@ -1805,19 +1811,19 @@ profiling to demo the output.
 
 ```code
 Whiteboard App
-Fun:           redraw Cnt:    261 Total ns:     1481
-Fun:          flatten Cnt:     13 Total ns:     1278
-Fun:           commit Cnt:     13 Total ns:     1374
-Fun:         snapshot Cnt:     13 Total ns:       77
-Fun:     radio-select Cnt:      8 Total ns:      132
-Fun:            trans Cnt:      8 Total ns:       13
-Fun:             main Cnt:      1 Total ns:        0
+Fun:		   redraw Cnt:	261 Total ns:	 1481
+Fun:		  flatten Cnt:	 13 Total ns:	 1278
+Fun:		   commit Cnt:	 13 Total ns:	 1374
+Fun:		 snapshot Cnt:	 13 Total ns:	   77
+Fun:	 radio-select Cnt:	  8 Total ns:	  132
+Fun:			trans Cnt:	  8 Total ns:	   13
+Fun:			 main Cnt:	  1 Total ns:		0
 
 Whiteboard Child
-Fun:           redraw Cnt:    820 Total ns:   758926
-Fun:            fpoly Cnt:    297 Total ns:   116142
-Fun:          flatten Cnt:    213 Total ns:    21736
-Fun:             main Cnt:      1 Total ns:        0
+Fun:		   redraw Cnt:	820 Total ns:   758926
+Fun:			fpoly Cnt:	297 Total ns:   116142
+Fun:		  flatten Cnt:	213 Total ns:	21736
+Fun:			 main Cnt:	  1 Total ns:		0
 ```
 
 New PROFILE_SERVICE app to allow multiple profile report viewing.
