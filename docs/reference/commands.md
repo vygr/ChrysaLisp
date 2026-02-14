@@ -121,6 +121,7 @@ Usage: edit [options] [path] ...
 
 	Properties:	(edit-copy) -> txt
 				(edit-get-text) -> txt
+				(edit-get-primary-text) -> txt
 				(edit-get-filename) -> txt
 
 	Utilities:	(edit-split-text txt [cls]) -> (txt ...)

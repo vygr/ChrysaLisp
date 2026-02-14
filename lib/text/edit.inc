@@ -58,6 +58,7 @@
 (defun edit-get-text ()
 	(defq txt (edit-join-text (edit-split-text (. *edit* :copy))))
 	(if (ends-with "\n" txt) (slice txt 0 -2) txt))
+(defun edit-get-primary-text () (. *edit* :get_primary_text))
 (defun edit-print (&rest args) (apply (const print) (if (nempty? args) args (list (edit-get-text)))))
 (defun edit-eof? () (= (second (. *edit* :get_cursor)) (second (. *edit* :get_size))))
 (defun edit-cx () (first (. *edit* :get_cursor)))
@@ -79,7 +80,7 @@
 edit-add-cursors edit-backspace edit-bottom edit-bracket-left
 edit-bracket-right edit-comment edit-copy edit-cursors edit-cut edit-cx edit-cy
 edit-delete edit-down edit-end edit-eof? edit-filter-cursors edit-find edit-find-add-next
-edit-find-next edit-find-prev edit-focus-cursors edit-get-filename edit-get-focus edit-get-text
+edit-find-next edit-find-prev edit-focus-cursors edit-get-filename edit-get-focus edit-get-primary-text edit-get-text
 edit-home edit-indent edit-insert edit-join-text edit-left
 edit-lower edit-outdent edit-paste edit-print edit-primary edit-reflow edit-replace
 edit-right edit-select-all edit-select-block edit-select-bottom

@@ -231,6 +231,9 @@ Modify text at current cursor positions or selections.
 
 * `(edit-get-text)`: Return the currently selected text as a string.
 
+* `(edit-get-primary-text)`: Return the text selected by the primary cursor as a
+  string.
+
 * `(edit-get-filename)`: Return the filename currently being processed.
 
 * `(edit-copy)`: Copy selection and return it.
