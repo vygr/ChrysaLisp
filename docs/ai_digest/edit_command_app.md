@@ -136,6 +136,12 @@ Create or modify selections. ChrysaLisp uses a multi-cursor editing model.
 
 * `(edit-select-form)`: Select the current S-expression/Lisp form(s).
 
+* `(edit-select-ws-left)` / `(edit-select-ws-right)`: Select following or
+  preceding whitespace.
+
+* `(edit-select-bracket-left)` / `(edit-select-bracket-right)`: Select from
+  cursor to matching bracket.
+
 * `(edit-select-home)`: Select from cursor to start of line.
 
 * `(edit-select-end)`: Select from cursor to end of line.
@@ -160,11 +166,31 @@ to cursors to edit them.
 * `(edit-find pattern [:w :r])`: Find occurrences of `pattern`. Use `:w` for
   Whole words and `:r` for Regex mode.
 
+* `(edit-find-next)` / `(edit-find-prev)`: Select the next or previous match.
+
+* `(edit-find-add-next)`: Add the next match to current cursors.
+
 * `(edit-cursors)`: **Replace** current cursors with cursors at every location
   found.
 
 * `(edit-add-cursors)`: **Add** new cursors at found locations to existing
   cursors.
+
+* `(edit-primary)`: **Collapse** all cursors into a single primary cursor.
+
+### Focus
+
+Focus operations restrict editing and searching to a specific region of the
+document.
+
+* `(edit-get-focus)`: Return the current focus region cursor.
+
+* `(edit-set-focus [csr])`: Set the focus region. Defaults to the last cursor.
+
+* `(edit-filter-cursors)`: Remove all cursors that are outside the focus region.
+
+* `(edit-focus)`: Set found matches to cursors, but only those within the current
+  focus region.
 
 ### Mutation
 

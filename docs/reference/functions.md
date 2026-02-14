@@ -1109,6 +1109,14 @@ adjust text offset
 (sort list [fcmp start end]) -> list
 ```
 
+### split-all
+
+```code
+(split-all str cls) -> strs
+
+split string by character class, preserving empty parts
+```
+
 ### start
 
 ```code

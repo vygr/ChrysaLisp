@@ -31,46 +31,16 @@
 
 		Available Commands:
 
-	
+	Search:		(edit-find pattern [:w :r]) (edit-find-next) (edit-find-prev)
+				(edit-find-add-next)
 
-		Search:	 (edit-find pattern [:w :r]) -> :nil | buffer_found
+	Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
 
-					(edit-find-next) (edit-find-prev)
+	Focus:		(edit-get-focus) (edit-set-focus [csr]) (edit-filter-cursors)
+				(edit-focus)
 
-	
-
-				Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
-
-	
-
-							(edit-find-add-next) (edit-focus)
-
-	
-
-		
-
-	
-
-				Focus:		(edit-get-focus) (edit-set-focus [csr])
-					(edit-filter-cursors)
-
-	
-
-		
-
-	
-
-				Selection:  (edit-select-all) (edit-select-line)
-
-	
-
-		
-
-	
-
-	
-				(edit-select-word) (edit-select-block)
-				(edit-select-form) (edit-select-paragraph)
+	Selection:	(edit-select-all) (edit-select-line) (edit-select-word)
+				(edit-select-block) (edit-select-form) (edit-select-paragraph)
 				(edit-select-ws-left) (edit-select-ws-right)
 				(edit-select-bracket-left) (edit-select-bracket-right)
 				(edit-select-home) (edit-select-end)
@@ -96,6 +66,7 @@
 
 	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
 				(edit-join-text (txt ...) [cls]) -> txt
+				(edit-print ...)
 				(edit-eof?) -> :t | :nil
 				(edit-cx) -> cx
 				(edit-cy) -> cy

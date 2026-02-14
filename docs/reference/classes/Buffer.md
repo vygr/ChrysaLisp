@@ -13,7 +13,7 @@
 ### :add_found_cursors
 
 ```code
-(. buffer :add_found_cursors buffer_found) -> buffer
+(. buffer :add_found_cursors buffer_found [fy fy1]) -> buffer
 ```
 
 ### :backspace
@@ -90,16 +90,40 @@ clips coordinates to valid buffer positions
 (. buffer :end_select) -> buffer
 ```
 
+### :filter_cursors
+
+```code
+(. buffer :filter_cursors cursors) -> cursors
+```
+
 ### :find
 
 ```code
 (. buffer :find pattern wmode rmode) -> :nil | buffer_found
 ```
 
+### :find_add_next
+
+```code
+(. buffer :find_add_next [fy fy1]) -> buffer
+```
+
 ### :find_left_bracket
 
 ```code
 (. buffer :find_left_bracket cx cy) -> (cx cy) | (:nil :nil)
+```
+
+### :find_next
+
+```code
+(. buffer :find_next [fy fy1]) -> buffer
+```
+
+### :find_prev
+
+```code
+(. buffer :find_prev [fy fy1]) -> buffer
 ```
 
 ### :find_right_bracket
@@ -127,6 +151,8 @@ return last cursor position without sticky x
 ```
 
 ### :get_cursors
+
+### :get_focus
 
 ### :get_last_find
 
@@ -260,6 +286,12 @@ insert text at position (cx cy)
 cursors format: ((cx cy ax ay sx) ...)
 ```
 
+### :next_found_cursor
+
+```code
+(. buffer :next_found_cursor cx cy [fy fy1]) -> :nil | csr
+```
+
 ### :next_mark
 
 ```code
@@ -270,6 +302,18 @@ cursors format: ((cx cy ax ay sx) ...)
 
 ```code
 (. buffer :paste text) -> buffer
+```
+
+### :prev_found_cursor
+
+```code
+(. buffer :prev_found_cursor cx cy [fy fy1]) -> :nil | csr
+```
+
+### :primary_cursor
+
+```code
+(. buffer :primary_cursor) -> buffer
 ```
 
 ### :push_undo
@@ -334,10 +378,12 @@ cursors format: ((cx cy ax ay sx) ...)
 
 ### :set_cursors
 
+### :set_focus
+
 ### :set_found_cursors
 
 ```code
-(. buffer :set_found_cursors buffer_found) -> buffer
+(. buffer :set_found_cursors buffer_found [fy fy1]) -> buffer
 ```
 
 ### :set_tab_width
