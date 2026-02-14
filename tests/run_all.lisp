@@ -51,7 +51,7 @@
 	(progn
 		(print "CRITICAL ERROR: Test suite crashed or threw exception.")
 		(print "Error object: " _)
-		:nil))
+		:t))
 
 ; Clean shutdown of the VP node
 ((ffi "service/gui/lisp_deinit"))
