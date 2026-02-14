@@ -57,13 +57,14 @@
 (export-symbols '(
 edit-add-cursors edit-backspace edit-bottom edit-bracket-left
 edit-bracket-right edit-comment edit-copy edit-cursors edit-cut edit-cx edit-cy
-edit-delete edit-down edit-end edit-eof? edit-get-filename edit-get-text
-edit-home edit-indent edit-insert edit-join-text edit-left edit-lower
-edit-outdent edit-paste edit-print edit-reflow edit-right edit-select-all
-edit-select-block edit-select-bottom edit-select-down edit-select-end
-edit-select-home edit-select-left edit-select-line edit-select-paragraph
-edit-select-right edit-select-top edit-select-up edit-select-word edit-sort
-edit-split edit-split-text edit-top edit-trim edit-unique edit-up edit-upper
-edit-ws-left edit-ws-right edit-find
+edit-delete edit-down edit-end edit-eof? edit-find edit-get-filename
+edit-get-text edit-home edit-indent edit-insert edit-join-text edit-left
+edit-lower edit-outdent edit-paste edit-print edit-reflow edit-replace
+edit-right edit-select-all edit-select-block edit-select-bottom
+edit-select-down edit-select-end edit-select-form edit-select-home
+edit-select-left edit-select-line edit-select-paragraph edit-select-right
+edit-select-top edit-select-up edit-select-word edit-sort edit-split
+edit-split-text edit-top edit-trim edit-unique edit-up edit-upper edit-ws-left
+edit-ws-right
 ))
 (env-pop)
