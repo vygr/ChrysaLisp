@@ -25,7 +25,7 @@
 	(bind '(sy sy sy1 sy1) (. *edit* :get_selected_extent))
 	(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
 	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))
-	(. *edit* :set_focus fx fy fx1 fy1)
+	(. *edit* :set_focus (nums fx fy fx1 fy1))
 	(toolbar-states *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
 	(refresh-display))
 

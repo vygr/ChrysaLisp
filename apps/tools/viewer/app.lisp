@@ -93,7 +93,7 @@
 	(bind '(fx fy fx1 fy1) '(0 0 0 0))
 	(.-> *edit* (:set_buffer buffer)
 		(:set_cursor cx cy ax ay)
-		(:set_focus fx fy fx1 fy1)
+		(:set_focus (nums fx fy fx1 fy1))
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
 	(toolbar-states *find_toolbar* (list :nil *whole_words* *regexp* :nil :nil))

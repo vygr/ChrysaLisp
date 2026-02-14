@@ -19,7 +19,6 @@
 		:mask_found (defq mask_found (Mask))
 		:mask_region (defq mask_region (Mask))
 		:scroll_x 0 :scroll_y 0
-		:find_x 0 :find_y 0 :find_x1 0 :find_y1 0
 		:buffer (Document)
 		:vdu_width 80 :vdu_height 40 :min_width 0 :min_height 0)
 	(each (# (. this :add_child (. %0 :set_flags 0 +view_flag_solid)))
@@ -28,6 +27,9 @@
 	(defsetmethod :buffer)
 	(defgetmethod :buffer)
 	(defgetmethod :vdu_text)
+
+	(defproxymethod :get_focus () :buffer :t)
+	(defproxymethod :set_focus (csr) :buffer)
 
 	(defproxymethod :left () :buffer)
 	(defproxymethod :right () :buffer)
@@ -64,9 +66,16 @@
 
 	(defproxymethod :get_cursor () :buffer :t)
 	(defproxymethod :set_cursor (cx cy &optional ax ay) :buffer)
+	(defproxymethod :add_cursor (cx cy &optional ax ay) :buffer)
+	(defproxymethod :primary_cursor () :buffer)
 	(defproxymethod :clip_cursor (cx cy &optional ax ay sx) :buffer :t)
 	(defproxymethod :get_selected_extent () :buffer :t)
 	(defproxymethod :find (pattern wmode rmode) :buffer :t)
+	(defproxymethod :get_buffer_found () :buffer :t)
+	(defproxymethod :next_found_cursor (cx cy &optional fy fy1) :buffer :t)
+	(defproxymethod :prev_found_cursor (cx cy &optional fy fy1) :buffer :t)
+	(defproxymethod :set_found_cursors (buffer_found &optional fy fy1) :buffer)
+	(defproxymethod :add_found_cursors (buffer_found &optional fy fy1) :buffer)
 
 	(defproxymethod :select_word () :buffer)
 	(defproxymethod :select_line () :buffer)
@@ -130,15 +139,6 @@
 		; (. edit :get_scroll) -> (x y)
 		(list (get :scroll_x this) (get :scroll_y this)))
 
-	(defmethod :get_focus ()
-		; (. edit :get_focus) -> (x y x1 y1)
-		(list (get :find_x this) (get :find_y this)
-			(get :find_x1 this) (get :find_y1 this)))
-
-	(defmethod :set_focus (find_x find_y find_x1 find_y1)
-		; (. edit :set_focus x y x1 y1) -> edit
-		(lower :find_x :find_y :find_x1 :find_y1) this)
-
 	(defmethod :set_scroll (scroll_x scroll_y)
 		; (. edit :set_scroll x y) -> edit
 		(lower :scroll_x :scroll_y) this)
@@ -179,16 +179,16 @@
 		(bind '(w h) (. this :get_size))
 		(bind '(bw bh) (. buffer :get_size))
 		(bind '(cw ch) (. (get :vdu_text this) :char_size))
-		(bind '(fx fy fx1 fy1) (. this :get_focus))
+		(bind '(fx fy fx1 fy1) (. buffer :get_focus))
 		(defq cc (max (>> cw 2) 1) cb (max (>> cw 3) 1)
 			scroll_y (min (max scroll_y 0) bh)
 			scroll_y1 (min (max (+ scroll_y (/ h ch)) scroll_y) bh))
 		;set the region mask
 		(. mask_region :clr_opaque)
-		(unless (or (<= fy1 scroll_y) (>= fy scroll_y1))
+		(unless (eql (nums fx fy fx1 fy1) +invalid_focus)
 			(. mask_region :add_opaque
-				0 (* (- fy scroll_y) ch)
-				w (* (- (min fy1 scroll_y1) fy) ch)))
+				0 (* (- (min fy fy1) scroll_y) ch)
+				w (* (- (max fy fy1) (min fy fy1)) ch)))
 		;set found mask
 		(. mask_found :clr_opaque)
 		(each! (# (when %0
