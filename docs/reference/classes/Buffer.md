@@ -228,6 +228,12 @@ insert text at position (cx cy)
 (. buffer :left_bracket) -> buffer
 ```
 
+### :left_bracket_select
+
+```code
+(. buffer :left_bracket_select) -> buffer
+```
+
 ### :left_select
 
 ```code
@@ -238,6 +244,12 @@ insert text at position (cx cy)
 
 ```code
 (. buffer :left_white_space) -> buffer
+```
+
+### :left_white_space_select
+
+```code
+(. buffer :left_white_space_select) -> buffer
 ```
 
 ### :merge_cursors
@@ -290,6 +302,12 @@ cursors format: ((cx cy ax ay sx) ...)
 (. buffer :right_bracket) -> buffer
 ```
 
+### :right_bracket_select
+
+```code
+(. buffer :right_bracket_select) -> buffer
+```
+
 ### :right_select
 
 ```code
@@ -300,6 +318,12 @@ cursors format: ((cx cy ax ay sx) ...)
 
 ```code
 (. buffer :right_white_space) -> buffer
+```
+
+### :right_white_space_select
+
+```code
+(. buffer :right_white_space_select) -> buffer
 ```
 
 ### :set_cursor

@@ -678,6 +678,28 @@
 				(get :cursors this)))))
 		this)
 
+	(defmethod :left_bracket_select ()
+		; (. buffer :left_bracket_select) -> buffer
+		(raise :buffer_lines)
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda (csr) (task-slice)
+					(bind '(cx cy ax ay sx) csr)
+					(if (bind '(ncx ncy) (. this :find_left_bracket cx cy))
+						(nums ncx ncy ax ay ncx) csr))
+				(get :cursors this)))))
+		this)
+
+	(defmethod :right_bracket_select ()
+		; (. buffer :right_bracket_select) -> buffer
+		(raise :buffer_lines)
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda (csr) (task-slice)
+					(bind '(cx cy ax ay sx) csr)
+					(if (bind '(ncx ncy) (. this :find_right_bracket cx cy))
+						(nums ncx ncy ax ay ncx) csr))
+				(get :cursors this)))))
+		this)
+
 	(defmethod :right_white_space ()
 		; (. buffer :right_white_space) -> buffer
 		(raise :buffer_lines)
@@ -711,6 +733,42 @@
 						(list buffer_lines) :nil (inc cy) 0))
 					(ifn cy (setq cx 0 cy 0))
 					(nums cx cy cx cy -1))
+				(get :cursors this)))))
+		this)
+
+	(defmethod :right_white_space_select ()
+		; (. buffer :right_white_space_select) -> buffer
+		(raise :buffer_lines)
+		(bind '(& h) (. this :get_size))
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda (csr) (task-slice)
+					(bind '(cx cy ax ay sx) csr)
+					(defq ncx cx ncy cy)
+					; skip white space
+					(setq ncy (some! (lambda (line)
+							(if (/= (setq ncx (bskip +char_class_white_space line ncx)) (length line))
+								(!) (progn (setq ncx 0) :nil)))
+						(list buffer_lines) :nil ncy h))
+					(ifn ncy (setq ncx 0 ncy h))
+					(nums ncx ncy ax ay ncx))
+				(get :cursors this)))))
+		this)
+
+	(defmethod :left_white_space_select ()
+		; (. buffer :left_white_space_select) -> buffer
+		(raise :buffer_lines)
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda (csr) (task-slice)
+					(bind '(cx cy ax ay sx) csr)
+					(defq ncx cx ncy cy)
+					; skip white space
+					(setq ncy (some! (lambda (line)
+							(if (/= (setq ncx (rbskip +char_class_white_space line
+										(min ncx (length line)))) 0)
+								(!) (progn (setq ncx +max_int) :nil)))
+						(list buffer_lines) :nil (inc ncy) 0))
+					(ifn ncy (setq ncx 0 ncy 0))
+					(nums ncx ncy ax ay ncx))
 				(get :cursors this)))))
 		this)
 

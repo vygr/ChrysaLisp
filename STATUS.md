@@ -81,12 +81,21 @@ Buffer load/save methods have switched to a streams based API.
 
 New `edit` command which is `The ChrysaLisp Parallel Programmable Editor`. See
 the new document for details. This comes with a new `lib/text/edit.inc` library
-available to all other applications.
+available to all applications.
 
-Implamented Kernel signals and the ability for the Terminal and TUI to force
+Implemented Kernel signals and the ability for the Terminal and TUI to force
 close pipelines of tasks. cntrl-D will abort the pipeline, ctnrl-d will send
 and EOF into the pipeline and wait for orderly shutdown, if the pipeline does
 not close within 2 seconds it will be aborted.
+
+Added `:left_white_space_select`, `:right_white_space_select`,
+`:left_bracket_select` and `:right_bracket_select` methods to Buffer class.
+`edit-select-ws-left`, `edit-select-ws-right`, `edit-select-bracket-left` and
+`edit-select-bracket-right` proxy commands added to `edit.inc` and exported.
+
+Exported missing `edit-replace` and `edit-select-form` symbols from `edit.inc`.
+
+Updated `edit` command help information to include the new selection commands.
 
 ------
 

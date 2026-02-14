@@ -1,6 +1,5 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
-(import "lib/text/document.inc")
 (import "lib/text/edit.inc")
 
 (defq usage `(
@@ -32,35 +31,37 @@
 
 	Available Commands:
 
-	Search:	 (edit-find pattern [:w :r]) -> :nil | buffer_found
+	Search:		(edit-find pattern [:w :r]) -> :nil | buffer_found
 
 	Cursors:	(edit-cursors) (edit-add-cursors)
 
-	Selection:  (edit-select-all) (edit-select-line)
+	Selection:	(edit-select-all) (edit-select-line)
 				(edit-select-word) (edit-select-block)
 				(edit-select-form) (edit-select-paragraph)
+				(edit-select-ws-left) (edit-select-ws-right)
+				(edit-select-bracket-left) (edit-select-bracket-right)
 				(edit-select-home) (edit-select-end)
 				(edit-select-top) (edit-select-bottom)
 				(edit-select-left [cnt]) (edit-select-right [cnt])
 				(edit-select-up [cnt]) (edit-select-down [cnt])
 
-	Navigation: (edit-top) (edit-bottom) (edit-home) (edit-end)
+	Navigation:	(edit-top) (edit-bottom) (edit-home) (edit-end)
 				(edit-bracket-left) (edit-bracket-right)
 				(edit-ws-left) (edit-ws-right)
 				(edit-up [cnt]) (edit-down [cnt])
 				(edit-left [cnt]) (edit-right [cnt])
 
-	Mutation:   (edit-insert txt) (edit-paste txt) (edit-replace pattern)
+	Mutation:	(edit-insert txt) (edit-paste txt) (edit-replace pattern)
 				(edit-delete [cnt]) (edit-backspace [cnt])
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
 				(edit-indent) (edit-outdent) (edit-cut)
 
-	Properties: (edit-copy) -> txt
+	Properties:	(edit-copy) -> txt
 				(edit-get-text) -> txt
 				(edit-get-filename) -> txt
 
-	Utilities:  (edit-split-text txt [cls]) -> (txt ...)
+	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
 				(edit-join-text (txt ...) [cls]) -> txt
 				(edit-eof?) -> :t | :nil
 				(edit-cx) -> cx
