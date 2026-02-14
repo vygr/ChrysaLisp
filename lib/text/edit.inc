@@ -71,7 +71,8 @@
 		(bind '(engine meta &ignore) (query regexp wmode rmode))
 		(defq csr_match (map (# (. engine :search %0 meta)) csr_text)
 			new_text (map (# (replace-matches %0 %1 pattern)) csr_text csr_match))
-		(. *edit* :paste (if (empty? new_text) "" (join new_text "\f")))))
+		(unless (empty? new_text)
+			(. *edit* :paste (join new_text "\f")))))
 
 ;module
 (export-symbols '(
