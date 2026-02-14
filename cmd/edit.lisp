@@ -29,17 +29,25 @@
 	in front of the -s script ! So it could be used to set configuration or
 	provide specific functions that the main script binds to etc.
 
-	Available Commands:
+		Available Commands:
+
+	
 
 		Search:	 (edit-find pattern [:w :r]) -> :nil | buffer_found
+
+					(edit-find-next) (edit-find-prev)
 
 	
 
 		Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
 
+					(edit-find-add-next)
+
 	
 
 		Selection:  (edit-select-all) (edit-select-line)
+
+	
 
 	
 				(edit-select-word) (edit-select-block)

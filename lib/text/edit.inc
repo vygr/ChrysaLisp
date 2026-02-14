@@ -38,6 +38,9 @@
 (defun edit-insert (txt) (. *edit* :insert txt))
 (defun edit-paste (txt) (. *edit* :paste txt))
 (defun edit-find (pattern &rest flags) (. *edit* :find pattern (find :w flags) (find :r flags)))
+(defun edit-find-next () (. *edit* :find_next))
+(defun edit-find-prev () (. *edit* :find_prev))
+(defun edit-find-add-next () (. *edit* :find_add_next))
 (defun edit-cursors () (. *edit* :set_found_cursors (. *edit* :get_buffer_found)))
 (defun edit-add-cursors () (. *edit* :add_found_cursors (. *edit* :get_buffer_found)))
 (defun edit-split-text (txt &optional cls) (split txt (ifn cls "\n\f")))
@@ -62,8 +65,9 @@
 (export-symbols '(
 edit-add-cursors edit-backspace edit-bottom edit-bracket-left
 edit-bracket-right edit-comment edit-copy edit-cursors edit-cut edit-cx edit-cy
-edit-delete edit-down edit-end edit-eof? edit-find edit-get-filename
-edit-get-text edit-home edit-indent edit-insert edit-join-text edit-left
+edit-delete edit-down edit-end edit-eof? edit-find edit-find-add-next
+edit-find-next edit-find-prev edit-get-filename edit-get-text
+ edit-home edit-indent edit-insert edit-join-text edit-left
 edit-lower edit-outdent edit-paste edit-print edit-primary edit-reflow edit-replace
 edit-right edit-select-all edit-select-block edit-select-bottom
 edit-select-bracket-left edit-select-bracket-right edit-select-down
