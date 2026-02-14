@@ -6,6 +6,10 @@
 (Edit) -> edit
 ```
 
+### :add_cursor
+
+### :add_found_cursors
+
 ### :backspace
 
 ### :bottom
@@ -48,13 +52,11 @@
 
 ### :get_buffer
 
+### :get_buffer_found
+
 ### :get_cursor
 
 ### :get_focus
-
-```code
-(. edit :get_focus) -> (x y x1 y1)
-```
 
 ### :get_scroll
 
@@ -126,7 +128,13 @@
 (. edit :mouse_wheel event) -> edit
 ```
 
+### :next_found_cursor
+
 ### :paste
+
+### :prev_found_cursor
+
+### :primary_cursor
 
 ### :redo
 
@@ -162,15 +170,13 @@
 
 ### :set_focus
 
-```code
-(. edit :set_focus x y x1 y1) -> edit
-```
-
 ### :set_found_color
 
 ```code
 (. edit :set_found_color argb) -> edit
 ```
+
+### :set_found_cursors
 
 ### :set_ink_color
 
