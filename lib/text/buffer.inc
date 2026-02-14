@@ -14,6 +14,8 @@
 (bits +buffer_flag 0
 	(bit syntax undo))
 
+(defq +invalid_focus (nums 0 0 0 -1))
+
 ;;;;;;;;;;;;;;
 ; line editing
 ;;;;;;;;;;;;;;
@@ -295,6 +297,7 @@
 		:syntax_engine syntax :undo_stack (list) :redo_stack (list)
 		:max_width 0 :tab_width 4 :wrap_width 80 :last_find '("" :nil :nil)
 		:flags flags :next_mark -1 :modified :nil :last_key :nil
+		:focus +invalid_focus
 		:cursors (list (nums 0 0 0 0 -1)) :tcursors '())
 
 ;;;;;;;;;;;;;;;
@@ -315,6 +318,13 @@
 	(defgetmethod :wrap_width)
 	(defgetmethod :tab_width)
 	(defgetmethod :last_find)
+	(defgetmethod :focus)
+
+	(defmethod :set_focus (csr)
+		(lower (:focus (if (and csr (nql csr +invalid_focus))
+			(csr-floor csr)
+			+invalid_focus)))
+		this)
 
 ;;;;;;;;;;;;;;;;;;
 ; cursor clipping
@@ -363,7 +373,14 @@
 				:tcursors '()))
 		this)
 
-;;;;;;;;;;;;;
+	(defmethod :filter_cursors (cursors)
+		; (. buffer :filter_cursors cursors) -> cursors
+		(defq focus (get :focus this))
+		(if (nql focus +invalid_focus)
+			(filter (# (csr-within focus %0)) cursors)
+			cursors))
+
+;;;;;;;;;;;
 ; buffer info
 ;;;;;;;;;;;;;
 
@@ -487,7 +504,14 @@
 					(lower (:cursors (cat
 						(slice cursors 0 si)
 						(. this :merge_cursors mid)
-						tail))))))
+						tail)))))
+			; map focus
+			(defq focus (get :focus this))
+			(unless (eql focus +invalid_focus)
+				(bind '(x1 y1 x2 y2 &ignore) focus)
+				(set this :focus (cat
+					(csr-map-delete x1 y1 cx cy ax ay)
+					(csr-map-delete x2 y2 cx cy ax ay)))))
 		this)
 
 	(defmethod :iinsert (cx cy text)
@@ -539,7 +563,14 @@
 					(lower (:cursors (cat
 						(slice cursors 0 si)
 						(. this :merge_cursors mid)
-						tail))))))
+						tail)))))
+			; map focus
+			(defq focus (get :focus this))
+			(unless (eql focus +invalid_focus)
+				(bind '(x1 y1 x2 y2 &ignore) focus)
+				(set this :focus (cat
+					(csr-map-insert x1 y1 icx icy ecx ecy dy x2 y2)
+					(csr-map-insert x2 y2 icx icy ecx ecy dy x1 y1)))))
 		this)
 
 ;;;;;;;;;;;;;;;;;
@@ -1210,26 +1241,29 @@
 ; pattern search
 ;;;;;;;;;;;;;;;;
 
-	(defmethod :set_found_cursors (buffer_found)
-		; (. buffer :set_found_cursors buffer_found) -> buffer
+	(defmethod :set_found_cursors (buffer_found &optional fy fy1)
+		; (. buffer :set_found_cursors buffer_found [fy fy1]) -> buffer
 		(defq stage (list))
 		(each (# (when %0
 			(defq y (!))
-			(each (lambda (((x x1) &ignore))
-				(push stage (nums x1 y x y 0))) %0))) buffer_found)
+			(unless (and fy (or (< y fy) (and fy1 (>= y fy1))))
+				(each (lambda (((x x1) &ignore))
+					(push stage (nums x1 y x y 0))) %0)))) buffer_found)
 		(if (nempty? stage)
-			(set this :cursors stage)
-			this))
+			(lower (:cursors stage))
+			this)
+		this)
 
-	(defmethod :add_found_cursors (buffer_found)
-		; (. buffer :add_found_cursors buffer_found) -> buffer
+	(defmethod :add_found_cursors (buffer_found &optional fy fy1)
+		; (. buffer :add_found_cursors buffer_found [fy fy1]) -> buffer
 		(defq stage (list))
 		(each (# (when %0
 			(defq y (!))
-			(each (lambda (((x x1) &ignore))
-				(push stage (nums x1 y x y 0))) %0))) buffer_found)
+			(unless (and fy (or (< y fy) (and fy1 (>= y fy1))))
+				(each (lambda (((x x1) &ignore))
+					(push stage (nums x1 y x y 0))) %0)))) buffer_found)
 		(when (nempty? stage)
-			(set this :cursors (. this :merge_cursors (cat (get :cursors this) stage))))
+			(lower (:cursors (. this :merge_cursors (cat (get :cursors this) stage)))))
 		this)
 
 	(defmethod :find (pattern wmode rmode)
@@ -1253,10 +1287,17 @@
 
 	(defmethod :next_found_cursor (cx cy &optional fy fy1)
 		; (. buffer :next_found_cursor cx cy [fy fy1]) -> :nil | csr
-		(raise :buffer_found)
 		(defq buffer_found (get :buffer_found this)
-			h (length buffer_found))
-		(setd fy 0 fy1 h)
+			h (length buffer_found)
+			focus (get :focus this))
+		(if (and (eql fy :nil) (eql fy1 :nil))
+			(if (nql focus +invalid_focus)
+				(progn
+					(bind '(_x1 _y1 _x2 _y2 &ignore) focus)
+					(setq fy (min _y1 _y2) fy1 (max _y1 _y2)))
+				(setq fy 0 fy1 h)))
+		(if (eql fy :nil) (setq fy 0))
+		(if (eql fy1 :nil) (setq fy1 h))
 		(cond
 			((>= cy fy1) :nil)
 			(:t (if (< cy fy) (setq cy fy cx 0))
@@ -1264,31 +1305,39 @@
 					(defq y (!))
 					(when match
 						(some (lambda (((x x1) &ignore))
-							(if (or (> y cy) (>= x cx)) (nums x1 y x y -1)))
+							(if (or (> y cy) (>= x1 cx)) (nums x1 y x y -1)))
 						match)))
-					(list buffer_found) :nil (max fy cy) fy1))))
+					(list buffer_found) :nil (max fy cy) (dec fy1)))))
 
 	(defmethod :prev_found_cursor (cx cy &optional fy fy1)
 		; (. buffer :prev_found_cursor cx cy [fy fy1]) -> :nil | csr
-		(raise :buffer_found)
 		(defq buffer_found (get :buffer_found this)
-			h (length buffer_found))
-		(setd fy 0 fy1 h)
+			h (length buffer_found)
+			focus (get :focus this))
+		(if (and (eql fy :nil) (eql fy1 :nil))
+			(if (nql focus +invalid_focus)
+				(progn
+					(bind '(_x1 _y1 _x2 _y2 &ignore) focus)
+					(setq fy (min _y1 _y2) fy1 (max _y1 _y2)))
+				(setq fy 0 fy1 h)))
+		(if (eql fy :nil) (setq fy 0))
+		(if (eql fy1 :nil) (setq fy1 h))
 		(cond
 			((< cy fy) :nil)
 			(:t (if (>= cy fy1) (setq cy (dec fy1) cx +max_int))
 				(some! (lambda (match)
 					(defq y (!))
 					(when match
-						(rsome (lambda (((x x1) &ignore))
-							(if (or (< y cy) (< x cx)) (nums x y x1 y -1)))
-						match)))
-					(list buffer_found) :nil (inc (min (dec fy1) cy)) fy))))
+						(some! (lambda (((x x1) &ignore))
+							(if (or (< y cy) (<= x cx)) (nums x y x1 y -1)))
+						(list match) :nil (dec (length match)) 0)))
+					(list buffer_found) :nil (min (dec fy1) cy) fy))))
 
 	(defmethod :find_next (&optional fy fy1)
 		; (. buffer :find_next [fy fy1]) -> buffer
-		(bind '(cx cy &ignore) (. this :get_cursor))
-		(if (defq next (. this :next_found_cursor cx cy fy fy1))
+		(bind '(cx cy ax ay &ignore) (. this :get_cursor))
+		(bind '(cx cy ax ay) (csr-sort (nums cx cy ax ay)))
+		(if (defq next (. this :next_found_cursor (inc ax) ay fy fy1))
 			(bind '(cx cy ax ay &ignore) next)
 			(if (defq next (. this :next_found_cursor -1 -1 fy fy1))
 				(bind '(cx cy ax ay &ignore) next)))
@@ -1298,7 +1347,7 @@
 	(defmethod :find_prev (&optional fy fy1)
 		; (. buffer :find_prev [fy fy1]) -> buffer
 		(bind '(cx cy &ignore) (. this :get_cursor))
-		(if (defq next (. this :prev_found_cursor cx cy fy fy1))
+		(if (defq next (. this :prev_found_cursor (dec cx) cy fy fy1))
 			(bind '(cx cy ax ay &ignore) next)
 			(if (defq next (. this :prev_found_cursor +max_int +max_int fy fy1))
 				(bind '(cx cy ax ay &ignore) next)))
@@ -1307,8 +1356,9 @@
 
 	(defmethod :find_add_next (&optional fy fy1)
 		; (. buffer :find_add_next [fy fy1]) -> buffer
-		(bind '(cx cy &ignore) (. this :get_cursor))
-		(if (defq next (. this :next_found_cursor cx cy fy fy1))
+		(bind '(cx cy ax ay &ignore) (. this :get_cursor))
+		(bind '(cx cy ax ay) (csr-sort (nums cx cy ax ay)))
+		(if (defq next (. this :next_found_cursor (inc ax) ay fy fy1))
 			(bind '(cx cy ax ay &ignore) next)
 			(if (defq next (. this :next_found_cursor -1 -1 fy fy1))
 				(bind '(cx cy ax ay &ignore) next)))
@@ -1319,5 +1369,6 @@
 ;module
 (export-classes '(Buffer))
 (export-symbols '(csr-sort csr-floor csr-sort-top csr-sort-bot csr-within
-	undoable blank-line? split-all +buffer_flag_syntax +buffer_flag_undo))
+	undoable blank-line? split-all +buffer_flag_syntax +buffer_flag_undo
+	+invalid_focus))
 (env-pop)
