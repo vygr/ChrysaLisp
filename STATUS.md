@@ -4,6 +4,28 @@
 
 ------
 
+Added `:focus` field to Buffer class to support restricted editing and searching
+regions. New `:get_focus`, `:set_focus` and `:filter_cursors` methods added
+to Buffer class.
+
+Refined search navigation logic in Buffer class to align with the programmable
+editor model. `:next_found_cursor`, `:prev_found_cursor`, `:find_next`,
+`:find_prev` and `:find_add_next` now provide intuitive match boundary
+behavior and respect the focus region.
+
+New `edit-get-focus`, `edit-set-focus`, `edit-filter-cursors` and `edit-focus`
+proxy commands added to `edit.inc` and exported.
+
+Added safety check to `edit-replace` to handle cases with no matches gracefully.
+
+Comprehensive unit tests for the new focus and search functionality added to
+`tests/test_buffer_new.lisp` and `tests/test_edit.lisp`.
+
+Updated `edit` command and documentation to include focus and search navigation
+features.
+
+------
+
 Extra information provided by `stats` command. `:list`, `:str` and `:nums`
 objects traced. This is used by the author to run single node TUI and GUI in
 order to see what objects get allocated statically into the root environment,
