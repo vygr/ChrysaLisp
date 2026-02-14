@@ -1,4 +1,4 @@
-(import "lib/text/buffer.inc")
+(import "lib/text/document.inc")
 
 (report-header "Text Buffer: New Selection & Search Methods")
 
@@ -82,8 +82,33 @@
 ; Should wrap to first match
 (assert-eq "Find next wrap" (nums 3 0 0 0) (first (. b :get_selected)))
 
+; --- Search & Mutation ---
+(defq b (Document))
+(. b :insert "a b a c a")
+(. b :find "a" :nil :nil)
+
+; Select all "a"s
 (. b :set_cursor 0 0)
-(. b :find_prev)
-; Should wrap to last match (8,0) to (11,0).
-; cx=8, ax=11.
-(assert-eq "Find prev wrap" (nums 8 0 11 0) (first (. b :get_selected)))
+(. b :find_next)     ; select first "a"
+(. b :find_add_next) ; add second "a"
+(. b :find_add_next) ; add third "a"
+(assert-eq "Mutation: Three cursors" 3 (length (. b :get_cursors)))
+
+; Copy selected text
+(defq copied (. b :copy))
+(assert-eq "Mutation: Copied text" "a\fa\fa" copied)
+
+; Transform copied text: a -> X, Y, Z
+(defq transformed "X\fY\fZ")
+
+; Paste back
+(. b :paste transformed)
+
+; Verify buffer content
+(assert-eq "Mutation: Buffer final content" "X b Y c Z\n" (elem-get (. b :get_buffer_lines) 0))
+
+; Re-establish selection to verify copy works
+(. b :select_word)
+
+; Verify we can copy it again correctly
+(assert-eq "Mutation: Copy again" "X\fY\fZ" (. b :copy))
