@@ -19,6 +19,7 @@
 (gen-edit select-bracket-left :left_bracket_select) (gen-edit select-bracket-right :right_bracket_select)
 (gen-edit select-home :home_select) (gen-edit select-end :end_select)
 (gen-edit select-top :top_select) (gen-edit select-bottom :bottom_select)
+(gen-edit primary :primary_cursor)
 (gen-edit trim :trim) (gen-edit sort :sort) (gen-edit unique :unique)
 (gen-edit upper :to_upper) (gen-edit lower :to_lower)
 (gen-edit reflow :reflow) (gen-edit split :split) (gen-edit comment :comment)
@@ -63,7 +64,7 @@ edit-add-cursors edit-backspace edit-bottom edit-bracket-left
 edit-bracket-right edit-comment edit-copy edit-cursors edit-cut edit-cx edit-cy
 edit-delete edit-down edit-end edit-eof? edit-find edit-get-filename
 edit-get-text edit-home edit-indent edit-insert edit-join-text edit-left
-edit-lower edit-outdent edit-paste edit-print edit-reflow edit-replace
+edit-lower edit-outdent edit-paste edit-print edit-primary edit-reflow edit-replace
 edit-right edit-select-all edit-select-block edit-select-bottom
 edit-select-bracket-left edit-select-bracket-right edit-select-down
 edit-select-end edit-select-form edit-select-home edit-select-left

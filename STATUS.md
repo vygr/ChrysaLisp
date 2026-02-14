@@ -89,9 +89,10 @@ and EOF into the pipeline and wait for orderly shutdown, if the pipeline does
 not close within 2 seconds it will be aborted.
 
 Added `:left_white_space_select`, `:right_white_space_select`,
-`:left_bracket_select` and `:right_bracket_select` methods to Buffer class.
-`edit-select-ws-left`, `edit-select-ws-right`, `edit-select-bracket-left` and
-`edit-select-bracket-right` proxy commands added to `edit.inc` and exported.
+`:left_bracket_select`, `:right_bracket_select` and `:primary_cursor` methods
+to Buffer class. `edit-select-ws-left`, `edit-select-ws-right`,
+`edit-select-bracket-left`, `edit-select-bracket-right` and `edit-primary`
+proxy commands added to `edit.inc` and exported.
 
 Exported missing `edit-replace` and `edit-select-form` symbols from `edit.inc`.
 

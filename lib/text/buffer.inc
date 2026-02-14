@@ -343,6 +343,15 @@
 			(push (get :cursors this) (. this :clip_cursor cx cy ax ay)))))
 		this)
 
+	(defmethod :primary_cursor ()
+		; (. buffer :primary_cursor) -> buffer
+		(defq cursors (get :cursors this))
+		(lower (:cursors (if (nempty? cursors)
+					(list (last cursors))
+					(list (nums 0 0 0 0 -1)))
+				:tcursors '()))
+		this)
+
 ;;;;;;;;;;;;;
 ; buffer info
 ;;;;;;;;;;;;;

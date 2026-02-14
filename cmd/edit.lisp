@@ -31,11 +31,17 @@
 
 	Available Commands:
 
-	Search:		(edit-find pattern [:w :r]) -> :nil | buffer_found
+		Search:	 (edit-find pattern [:w :r]) -> :nil | buffer_found
 
-	Cursors:	(edit-cursors) (edit-add-cursors)
+	
 
-	Selection:	(edit-select-all) (edit-select-line)
+		Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
+
+	
+
+		Selection:  (edit-select-all) (edit-select-line)
+
+	
 				(edit-select-word) (edit-select-block)
 				(edit-select-form) (edit-select-paragraph)
 				(edit-select-ws-left) (edit-select-ws-right)
