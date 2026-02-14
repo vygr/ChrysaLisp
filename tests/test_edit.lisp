@@ -10,7 +10,7 @@
 ; --- Basic Mutation ---
 (edit-insert "Line 1\nLine 2\nLine 3")
 (edit-select-all)
-; We expect 3 lines plus buffer final newline.
+; We expect 3 lines. edit-get-text joins with \n and trims final \n.
 (assert-eq "edit-get-text" "Line 1\nLine 2\nLine 3" (edit-get-text))
 (assert-eq "edit-get-filename" "test.txt" (edit-get-filename))
 
@@ -35,6 +35,7 @@
 ; --- Selection ---
 (edit-top)
 (edit-select-down 1)
+; Selecting down from (0,0) to (0,1) includes the newline of Line 1
 (assert-eq "edit-copy selection" "Line 1\n" (edit-copy))
 
 (edit-select-all)
@@ -103,7 +104,82 @@
 (edit-select-bracket-left)
 (assert-eq "edit-select-bracket-left" "(bracket)" (edit-copy))
 
-; --- Additional Tests ---
+; --- Multi-line Multi-cursor ---
+(edit-select-all) (edit-delete)
+(edit-insert "A1\nA2\nSEP\nB1\nB2")
+(edit-top)
+; Selection 1: A1\nA2\n (lines 0,1)
+(. *edit* :set_cursor 0 0 0 2)
+; Selection 2: B1\nB2\n (lines 3,4)
+(. *edit* :add_cursor 0 3 0 5) 
+(assert-eq "Multi-line: Two cursors" 2 (length (. *edit* :get_cursors)))
+
+; Verify copy: Expect "A1\nA2\n\fB1\nB2\n"
+(assert-eq "Multi-line: Copy result" "A1\nA2\n\fB1\nB2\n" (edit-copy))
+
+; Transform and Paste (Include trailing newlines in each part to match selections)
+(edit-paste "X1\nX2\n\fY1\nY2\n")
+(edit-select-all)
+(assert-eq "Multi-line: Paste result" "X1\nX2\nSEP\nY1\nY2" (edit-get-text))
+
+; --- Paste Scenarios ---
+(edit-select-all)
+(edit-delete)
+(edit-insert "A\nB")
+(edit-top)
+(edit-find "A") (edit-find-next)
+(edit-find "B") (edit-find-add-next)
+(assert-eq "Paste: Two cursors" 2 (length (. *edit* :get_cursors)))
+
+; Scenario 1: Matching parts
+(edit-paste "1\f2")
+(edit-select-all)
+(assert-eq "Paste: Matching parts content" "1\n2" (edit-get-text))
+
+; Scenario 2: Non-matching parts
+(edit-select-all) (edit-delete)
+(edit-insert "1\n2\n3")
+(edit-top)
+(edit-find "1") (edit-find-next)
+(edit-find "2") (edit-find-add-next)
+(edit-find "3") (edit-find-add-next)
+(assert-eq "Paste: Three cursors" 3 (length (. *edit* :get_cursors)))
+(edit-paste "X\fY") ; 2 parts, 3 cursors -> joins parts with \n -> "X\nY"
+(edit-select-all)
+(assert-eq "Paste: Non-matching parts content" "X\nY\nX\nY\nX\nY" (edit-get-text))
+
+; --- Paragraph Selection, Split, and Reflow ---
+(edit-select-all) (edit-delete)
+(edit-insert "P1 L1\n\nSEP\n\nP2 L1")
+(edit-top)
+(edit-select-paragraph)
+(assert-eq "edit-select-paragraph single" "P1 L1\n" (edit-copy))
+
+(edit-select-all) (edit-delete)
+(edit-insert "P1 L1\n\nSEP\n\nP2 L1")
+(edit-top)
+(edit-find "P1") (edit-find-next)
+(edit-find "P2") (edit-find-add-next)
+
+; Test split on both paragraphs
+(edit-split)
+(edit-select-all)
+(assert-eq "edit-split multi-paragraph" "P1\nL1\n\nSEP\n\nP2\nL1" (edit-get-text))
+
+; Test reflow on both paragraphs
+(edit-select-all) (edit-delete)
+(edit-insert "a b c\n\nSEP\n\ne f g")
+(edit-top)
+(edit-find "a") (edit-find-next)
+(edit-find "e") (edit-find-add-next)
+(defq old_wrap (. *edit* :get_wrap_width))
+(. *edit* :set_wrap_width 4)
+(edit-reflow)
+(edit-select-all)
+(assert-eq "edit-reflow multi-paragraph" "a b\nc\n\nSEP\n\ne f\ng" (edit-get-text))
+(. *edit* :set_wrap_width old_wrap)
+
+; --- Additional Utility Tests ---
 (edit-select-all)
 (edit-delete)
 (edit-insert "word1 word2 word3")
@@ -164,24 +240,13 @@
 (edit-select-all)
 (assert-eq "edit-unique" "A\nB\nC" (edit-get-text))
 
-; --- Trim & Reflow & Split ---
+; --- Trim & Split ---
 (edit-select-all)
 (edit-delete)
 (edit-insert "  text  ")
 (edit-trim)
 (edit-select-all)
 (assert-eq "edit-trim" "  text" (edit-get-text))
-
-(edit-select-all)
-(edit-delete)
-(edit-insert "a b c d e f g h i j k l")
-(edit-select-all)
-(defq old_wrap (. *edit* :get_wrap_width))
-(. *edit* :set_wrap_width 5)
-(edit-reflow)
-(edit-select-all)
-(assert-true "edit-reflow" (> (length (split (edit-get-text) "\n")) 1))
-(. *edit* :set_wrap_width old_wrap)
 
 (edit-select-all)
 (edit-delete)
@@ -248,9 +313,6 @@
 (edit-select-form)
 (assert-eq "edit-select-form" "form" (edit-copy))
 
-(edit-select-paragraph)
-(assert-eq "edit-select-paragraph" "(form (block))" (edit-get-text))
-
 (edit-select-all)
 (edit-delete)
 (edit-insert "Line 1\nLine 2")
@@ -273,32 +335,6 @@
 
 (edit-bracket-left)
 (assert-eq "edit-bracket-left nav" 8 (edit-cx)) ; should be back at '(' of (C)
-
-; --- Paste Scenarios ---
-(edit-select-all)
-(edit-delete)
-(edit-insert "A\nB")
-(edit-top)
-(edit-find "A") (edit-find-next)
-(edit-find "B") (edit-find-add-next)
-(assert-eq "Paste: Two cursors" 2 (length (. *edit* :get_cursors)))
-
-; Scenario 1: Matching parts
-(edit-paste "1\f2")
-(edit-select-all)
-(assert-eq "Paste: Matching parts content" "1\n2" (edit-get-text))
-
-; Scenario 2: Non-matching parts
-(edit-select-all) (edit-delete)
-(edit-insert "1\n2\n3")
-(edit-top)
-(edit-find "1") (edit-find-next)
-(edit-find "2") (edit-find-add-next)
-(edit-find "3") (edit-find-add-next)
-(assert-eq "Paste: Three cursors" 3 (length (. *edit* :get_cursors)))
-(edit-paste "X\fY") ; 2 parts, 3 cursors -> joins parts with \n -> "X\nY"
-(edit-select-all)
-(assert-eq "Paste: Non-matching parts content" "X\nY\nX\nY\nX\nY" (edit-get-text))
 
 ; --- Smoke Test ---
 (edit-print "Smoke test edit-print")

@@ -183,6 +183,17 @@
 (defun blank-line? (line)
 	(eql (rbskip +char_class_white_space line -1) 0))
 
+(defun split-all (str cls)
+	; (split-all str cls) -> strs
+	; split string by character class, preserving empty parts
+	(defq result (list) i 0 d (length str))
+	(while (< i d)
+		(defq j (bskipn cls str i))
+		(push result (slice str i j))
+		(setq i (inc j)))
+	(if (= i d) (push result ""))
+	result)
+
 (defun bracket-cursors (cursors start_y end_y)
 	; (bracket-cursors cursors start_y end_y) -> (si ei)
 	; find range of cursors intersecting [start_y, end_y].
@@ -964,7 +975,7 @@
 	(defmethod :paste (text)
 		; (. buffer :paste text) -> buffer
 		(undoable this
-			(defq parts (split text "\f"))
+			(defq parts (split-all text "\f"))
 			(cond
 				((= (length parts) (length (get :cursors this)))
 					;matching number of parts !
@@ -974,7 +985,7 @@
 					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this)))
 				(:t ;none matching parts !
-					(defq parts (join parts "\n" 2))
+					(defq parts (join parts "\n"))
 					(reach (lambda (csr) (task-slice)
 						(bind '(cx cy) (csr-sort-top csr))
 						(. this :iinsert cx cy parts)) (get :cursors this))
@@ -1308,5 +1319,5 @@
 ;module
 (export-classes '(Buffer))
 (export-symbols '(csr-sort csr-floor csr-sort-top csr-sort-bot csr-within
-	undoable blank-line? +buffer_flag_syntax +buffer_flag_undo))
+	undoable blank-line? split-all +buffer_flag_syntax +buffer_flag_undo))
 (env-pop)
