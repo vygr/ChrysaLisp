@@ -7,16 +7,16 @@
 
 (defmacro assert-eq (name expected form)
 	; (assert-eq "name" expected actual_expression)
-	(defq res (gensym) exp (gensym))
+	(defq res (gensym))
 	`(progn
-		(defq ,res ,form ,exp ,expected)
-		(if (eql ,exp ,res)
+		(defq ,res ,form)
+		(if (eql ,expected ,res)
 			(progn
 				(++ *test_passes*)
 				(print "[PASS] " ,name))
 			(progn
 				(++ *test_failures*)
-				(print "[FAIL] " ,name " | Expected: " ,exp " (hex: " (hex-encode (str ,exp)) ") | Got: " ,res " (hex: " (hex-encode (str ,res)) ")")))))
+				(print "[FAIL] " ,name " | Expected: " ,expected " | Got: " ,res)))))
 
 (defmacro assert-true (name form)
 	`(assert-eq ,name :t (if ,form :t :nil)))
@@ -35,7 +35,7 @@
 				(print "[PASS] " ,name))
 			(progn
 				(++ *test_failures*)
-				(print "[FAIL] " ,name " | Expected: " ,exp " (hex: " (hex-encode (str ,exp)) ") | Got: " ,res " (hex: " (hex-encode (str ,res)) ")")))))
+				(print "[FAIL] " ,name " | Expected: " ,exp " | Got: " ,res)))))
 
 (defun print-summary ()
 	(print)

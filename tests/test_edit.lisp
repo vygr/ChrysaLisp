@@ -7,14 +7,11 @@
 (defq *file* "test.txt")
 (defq *edit* (Document +buffer_flag_syntax))
 
-(defq line123 (join '("Line 1" "Line 2" "Line 3") "\n"))
-(defq LINE123 (join '("LINE 1" "LINE 2" "LINE 3") "\n"))
-(defq WORD123 (join '("WORD 1" "WORD 2" "WORD 3") "\n"))
-
 ; --- Basic Mutation ---
 (edit-insert "Line 1\nLine 2\nLine 3")
 (edit-select-all)
-(assert-list-eq "edit-get-text" line123 (edit-get-text))
+; We expect 3 lines plus buffer final newline.
+(assert-eq "edit-get-text" "Line 1\nLine 2\nLine 3" (edit-get-text))
 (assert-eq "edit-get-filename" "test.txt" (edit-get-filename))
 
 ; --- Navigation ---
@@ -41,7 +38,7 @@
 (assert-eq "edit-copy selection" "Line 1\n" (edit-copy))
 
 (edit-select-all)
-(assert-eq "edit-copy all" (cat line123 "\n") (edit-copy))
+(assert-eq "edit-copy all" "Line 1\nLine 2\nLine 3\n" (edit-copy))
 
 ; --- Search & Find ---
 (edit-top)
@@ -51,16 +48,17 @@
 
 (edit-find-add-next)
 (assert-eq "edit-find-add-next count" 2 (length (. *edit* :get_cursors)))
+(assert-eq "edit-copy multi-cursor formfeed" "Line\fLine" (edit-copy))
 
 ; --- Mutation Utilities ---
 (edit-select-all)
 (edit-upper)
 (edit-select-all)
-(assert-list-eq "edit-upper" LINE123 (edit-get-text))
+(assert-eq "edit-upper" "LINE 1\nLINE 2\nLINE 3" (edit-get-text))
 
 (edit-lower)
 (edit-select-all)
-(assert-list-eq "edit-lower" (to-lower line123) (edit-get-text))
+(assert-eq "edit-lower" "line 1\nline 2\nline 3" (edit-get-text))
 
 ; --- Complex Replace ---
 (edit-top)
@@ -68,7 +66,7 @@
 (edit-cursors) ; set cursors to all "line"
 (edit-replace "WORD")
 (edit-select-all)
-(assert-list-eq "edit-replace" WORD123 (edit-get-text))
+(assert-eq "edit-replace" "WORD 1\nWORD 2\nWORD 3" (edit-get-text))
 
 ; --- Split/Join ---
 (defq parts (edit-split-text "A\nB\fC"))
@@ -92,7 +90,7 @@
 (assert-eq "edit-select-ws-right" "  " (edit-copy))
 
 (edit-top)
-(edit-right 2) ; Move to '('
+(edit-right 2)
 (edit-select-bracket-right)
 (assert-eq "edit-select-bracket-right" "(bracket" (edit-copy))
 
@@ -101,7 +99,7 @@
 (assert-eq "edit-select-ws-left" "  " (edit-copy))
 
 (edit-end)
-(edit-left 2) ; Move to ')'
+(edit-left 2)
 (edit-select-bracket-left)
 (assert-eq "edit-select-bracket-left" "(bracket)" (edit-copy))
 
@@ -116,20 +114,191 @@
 (edit-select-all)
 (edit-indent)
 (edit-select-all)
-(assert-list-eq "edit-indent" "    word1 word2 word3" (edit-get-text))
+(assert-eq "edit-indent" "    word1 word2 word3" (edit-get-text))
 
 (edit-outdent)
 (edit-select-all)
-(assert-list-eq "edit-outdent" "word1 word2 word3" (edit-get-text))
+(assert-eq "edit-outdent" "word1 word2 word3" (edit-get-text))
 
 (edit-select-all)
 (edit-delete)
 (edit-insert "ABC")
 (edit-backspace 1)
 (edit-select-all)
-(assert-list-eq "edit-backspace ABC" "AB" (edit-get-text))
+(assert-eq "edit-backspace ABC" "AB" (edit-get-text))
 
 (edit-top)
 (edit-delete 1)
 (edit-select-all)
-(assert-list-eq "edit-delete AB" "B" (edit-get-text))
+(assert-eq "edit-delete AB" "B" (edit-get-text))
+
+; --- Commenting ---
+(edit-select-all)
+(edit-delete)
+(edit-insert "code")
+(edit-select-all)
+(edit-comment)
+(edit-select-all)
+(assert-eq "edit-comment" ";; code" (edit-get-text))
+(edit-comment) ; uncomment
+(edit-select-all)
+(assert-eq "edit-uncomment" "code" (edit-get-text))
+
+; --- Cut & Paste ---
+(edit-select-all)
+(defq cut_text (edit-cut))
+(assert-eq "edit-cut result" "code\n" cut_text)
+(edit-paste "pasted")
+(edit-select-all)
+(assert-eq "edit-paste" "pasted" (edit-get-text))
+
+; --- Sort & Unique ---
+(edit-select-all)
+(edit-delete)
+(edit-insert "C\nA\nB\nB")
+(edit-select-all)
+(edit-sort)
+(edit-select-all)
+(assert-eq "edit-sort" "A\nB\nB\nC" (edit-get-text))
+(edit-unique)
+(edit-select-all)
+(assert-eq "edit-unique" "A\nB\nC" (edit-get-text))
+
+; --- Trim & Reflow & Split ---
+(edit-select-all)
+(edit-delete)
+(edit-insert "  text  ")
+(edit-trim)
+(edit-select-all)
+(assert-eq "edit-trim" "  text" (edit-get-text))
+
+(edit-select-all)
+(edit-delete)
+(edit-insert "a b c d e f g h i j k l")
+(edit-select-all)
+(defq old_wrap (. *edit* :get_wrap_width))
+(. *edit* :set_wrap_width 5)
+(edit-reflow)
+(edit-select-all)
+(assert-true "edit-reflow" (> (length (split (edit-get-text) "\n")) 1))
+(. *edit* :set_wrap_width old_wrap)
+
+(edit-select-all)
+(edit-delete)
+(edit-insert "one two three")
+(edit-select-all)
+(edit-split)
+(edit-select-all)
+(assert-eq "edit-split" "one\ntwo\nthree" (edit-get-text))
+
+; --- More Selection & Navigation ---
+(edit-top)
+(edit-insert "Line 1\nLine 2")
+(edit-top)
+(edit-right 2)
+(edit-select-left 2)
+(assert-eq "edit-select-left" "Li" (edit-copy))
+
+(edit-top)
+(edit-select-right 2)
+(assert-eq "edit-select-right" "Li" (edit-copy))
+
+(edit-bottom)
+(edit-select-up 1)
+(assert-true "edit-select-up" (nempty? (edit-copy)))
+
+(edit-top)
+(edit-select-down 1)
+(assert-true "edit-select-down" (nempty? (edit-copy)))
+
+(edit-top)
+(edit-select-end)
+(assert-eq "edit-select-end" "Line 1" (edit-copy))
+
+(edit-select-home)
+(assert-eq "edit-select-home" "" (edit-copy)) ; collapsed to start
+
+(edit-bottom)
+(edit-select-top)
+(assert-true "edit-select-top" (nempty? (edit-copy)))
+
+(edit-top)
+(edit-select-bottom)
+(assert-true "edit-select-bottom" (nempty? (edit-copy)))
+
+(edit-top)
+(edit-insert "  word")
+(edit-top)
+(edit-ws-right)
+(assert-eq "edit-ws-right" 2 (edit-cx))
+(edit-ws-left)
+(assert-eq "edit-ws-left" 0 (edit-cx))
+
+; --- Structural Selection ---
+(edit-select-all)
+(edit-delete)
+(edit-insert "(form (block))")
+(edit-top)
+(edit-right 7) ; Inside (block)
+(edit-select-block)
+(assert-eq "edit-select-block" "(block)" (edit-copy))
+
+(edit-top)
+(edit-right 1) ; on 'f' of form
+(edit-select-form)
+(assert-eq "edit-select-form" "form" (edit-copy))
+
+(edit-select-paragraph)
+(assert-eq "edit-select-paragraph" "(form (block))" (edit-get-text))
+
+(edit-select-all)
+(edit-delete)
+(edit-insert "Line 1\nLine 2")
+(edit-top)
+(edit-select-line)
+(assert-eq "edit-select-line" "Line 1\n" (edit-copy))
+
+(edit-select-all)
+(edit-delete)
+(edit-insert "(A) (B) (C)")
+(edit-find "B")
+(edit-find-next)
+(edit-find-prev)
+(assert-eq "edit-find-prev" "B" (edit-copy))
+
+(edit-bottom)
+(. *edit* :set_cursor 8 0) ; Move to '(' of (C)
+(edit-bracket-right)
+(assert-eq "edit-bracket-right nav" 10 (edit-cx)) ; should be at ')' of (C)
+
+(edit-bracket-left)
+(assert-eq "edit-bracket-left nav" 8 (edit-cx)) ; should be back at '(' of (C)
+
+; --- Paste Scenarios ---
+(edit-select-all)
+(edit-delete)
+(edit-insert "A\nB")
+(edit-top)
+(edit-find "A") (edit-find-next)
+(edit-find "B") (edit-find-add-next)
+(assert-eq "Paste: Two cursors" 2 (length (. *edit* :get_cursors)))
+
+; Scenario 1: Matching parts
+(edit-paste "1\f2")
+(edit-select-all)
+(assert-eq "Paste: Matching parts content" "1\n2" (edit-get-text))
+
+; Scenario 2: Non-matching parts
+(edit-select-all) (edit-delete)
+(edit-insert "1\n2\n3")
+(edit-top)
+(edit-find "1") (edit-find-next)
+(edit-find "2") (edit-find-add-next)
+(edit-find "3") (edit-find-add-next)
+(assert-eq "Paste: Three cursors" 3 (length (. *edit* :get_cursors)))
+(edit-paste "X\fY") ; 2 parts, 3 cursors -> joins parts with \n -> "X\nY"
+(edit-select-all)
+(assert-eq "Paste: Non-matching parts content" "X\nY\nX\nY\nX\nY" (edit-get-text))
+
+; --- Smoke Test ---
+(edit-print "Smoke test edit-print")
