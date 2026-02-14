@@ -596,6 +596,12 @@
 					(push text (slice (elem-get buffer_lines cy) 0 ax)))))
 		(if (empty? text) "" (apply (const cat) text)))
 
+	(defmethod :get_primary_text ()
+			; (. buffer :get_primary_text) -> text
+			; get the primary cursor text
+			(bind '(cx cy ax ay) (. this :get_cursor))
+			(first (split (. this :icopy cx cy ax ay) +char_class_lf)))
+
 ;;;;;;;;;;;;;;;;;;;
 ; cursor navigation
 ;;;;;;;;;;;;;;;;;;;

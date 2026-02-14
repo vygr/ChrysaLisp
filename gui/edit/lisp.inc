@@ -80,6 +80,7 @@
 	(defproxymethod :prev_found_cursor (cx cy &optional fy fy1) :buffer :t)
 	(defproxymethod :set_found_cursors (buffer_found &optional fy fy1) :buffer)
 	(defproxymethod :add_found_cursors (buffer_found &optional fy fy1) :buffer)
+	(defproxymethod :get_primary_text () :buffer :t)
 
 	(defproxymethod :select_word () :buffer)
 	(defproxymethod :select_line () :buffer)
@@ -132,12 +133,6 @@
 				(. child :set_bounds 0 0 w h))
 			(. this :children))
 		this)
-
-	(defmethod :get_select ()
-		; (. edit :get_select) -> text
-		(raise :buffer)
-		(bind '(cx cy ax ay) (.-> buffer :get_cursor))
-		(first (split (. buffer :icopy cx cy ax ay) +char_class_lf)))
 
 	(defmethod :get_scroll ()
 		; (. edit :get_scroll) -> (x y)

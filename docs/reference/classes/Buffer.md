@@ -158,6 +158,14 @@ return last cursor position without sticky x
 
 ### :get_modified
 
+### :get_primary_text
+
+```code
+(. buffer :get_primary_text) -> text
+
+get the primary cursor text
+```
+
 ### :get_selected
 
 ```code

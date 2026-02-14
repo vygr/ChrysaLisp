@@ -57,7 +57,7 @@
 		(refresh)))
 
 (defun action-set-find-text ()
-	(defq text (. *edit* :get_select))
+	(defq text (. *edit* :get_primary_text))
 	(if *regexp* (setq text (escape-regexp text)))
 	(.-> *find_text* (:set_text text) :layout :dirty)
 	(. *edit* :find text *whole_words* *regexp*)

@@ -58,16 +58,12 @@
 
 ### :get_focus
 
+### :get_primary_text
+
 ### :get_scroll
 
 ```code
 (. edit :get_scroll) -> (x y)
-```
-
-### :get_select
-
-```code
-(. edit :get_select) -> text
 ```
 
 ### :get_selected_extent
@@ -92,11 +88,15 @@
 
 ### :left_bracket
 
+### :left_bracket_select
+
 ### :left_select
 
 ### :left_tab
 
 ### :left_white_space
+
+### :left_white_space_select
 
 ### :max_size
 
@@ -146,11 +146,15 @@
 
 ### :right_bracket
 
+### :right_bracket_select
+
 ### :right_select
 
 ### :right_tab
 
 ### :right_white_space
+
+### :right_white_space_select
 
 ### :select_all
 
