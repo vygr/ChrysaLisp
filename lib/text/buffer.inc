@@ -14,7 +14,7 @@
 (bits +buffer_flag 0
 	(bit syntax undo))
 
-(defq +invalid_focus (nums 0 0 0 -1))
+(defq +invalid_focus (nums 0 0 0 0))
 
 ;;;;;;;;;;;;;;
 ; line editing
