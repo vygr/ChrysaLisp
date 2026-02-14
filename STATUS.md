@@ -4,6 +4,30 @@
 
 ------
 
+Refactored GUI `Edit` widget to delegate all focus region management to the
+underlying `Buffer`/`Document` object. This involved removing local focus
+properties and adding a comprehensive set of proxy methods for search,
+navigation, and focus operations.
+
+Unified toolbar update logic across the Editor and Viewer applications. The
+`update-find-toolbar` helper now correctly handles different toolbar layouts
+and provides consistent visual feedback for focus and search states.
+
+Simplified search action logic in tool applications by leveraging the buffer's
+native support for focus-bounded match navigation.
+
+Updated Editor, Viewer, and Hexview applications to use the new cursor-based
+`:set_focus` API and the updated `Edit` widget proxies.
+
+Added safety checks and improved error handling in `edit-replace` and
+`find-count` to handle cases with empty results or inactive focus regions
+gracefully.
+
+Enabled and verified all comprehensive unit tests for the text editing library,
+ensuring 100% pass rate for focus and search refinements.
+
+------
+
 Added `:focus` field to Buffer class to support restricted editing and searching
 regions. New `:get_focus`, `:set_focus` and `:filter_cursors` methods added
 to Buffer class.
