@@ -39,13 +39,32 @@
 
 	
 
-		Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
-
-					(edit-find-add-next)
+				Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
 
 	
 
-		Selection:  (edit-select-all) (edit-select-line)
+							(edit-find-add-next) (edit-focus)
+
+	
+
+		
+
+	
+
+				Focus:		(edit-get-focus) (edit-set-focus [csr])
+					(edit-filter-cursors)
+
+	
+
+		
+
+	
+
+				Selection:  (edit-select-all) (edit-select-line)
+
+	
+
+		
 
 	
 

@@ -20,6 +20,9 @@
 (gen-edit select-home :home_select) (gen-edit select-end :end_select)
 (gen-edit select-top :top_select) (gen-edit select-bottom :bottom_select)
 (gen-edit primary :primary_cursor)
+(defun edit-get-focus () (. *edit* :get_focus))
+(defun edit-set-focus (&optional csr) (. *edit* :set_focus (ifn csr (last (. *edit* :get_cursors)) csr)))
+(defun edit-filter-cursors () (. *edit* :set_cursors (. *edit* :filter_cursors (. *edit* :get_cursors))))
 (gen-edit trim :trim) (gen-edit sort :sort) (gen-edit unique :unique)
 (gen-edit upper :to_upper) (gen-edit lower :to_lower)
 (gen-edit reflow :reflow) (gen-edit split :split) (gen-edit comment :comment)
@@ -43,6 +46,13 @@
 (defun edit-find-add-next () (. *edit* :find_add_next))
 (defun edit-cursors () (. *edit* :set_found_cursors (. *edit* :get_buffer_found)))
 (defun edit-add-cursors () (. *edit* :add_found_cursors (. *edit* :get_buffer_found)))
+(defun edit-focus ()
+	(defq focus (. *edit* :get_focus))
+	(if (nql focus +invalid_focus)
+		(progn
+			(bind '(x1 y1 x2 y2) focus)
+			(. *edit* :set_found_cursors (. *edit* :get_buffer_found) (min y1 y2) (max y1 y2)))
+		(edit-cursors)))
 (defun edit-split-text (txt &optional cls) (split-all txt (ifn cls "\n\f")))
 (defun edit-join-text (txts &optional cls) (if (empty? txts) "" (join txts (ifn cls "\n"))))
 (defun edit-get-text ()
@@ -61,14 +71,14 @@
 		(bind '(engine meta &ignore) (query regexp wmode rmode))
 		(defq csr_match (map (# (. engine :search %0 meta)) csr_text)
 			new_text (map (# (replace-matches %0 %1 pattern)) csr_text csr_match))
-		(. *edit* :paste (join new_text "\f"))))
+		(. *edit* :paste (if (empty? new_text) "" (join new_text "\f")))))
 
 ;module
 (export-symbols '(
 edit-add-cursors edit-backspace edit-bottom edit-bracket-left
 edit-bracket-right edit-comment edit-copy edit-cursors edit-cut edit-cx edit-cy
-edit-delete edit-down edit-end edit-eof? edit-find edit-find-add-next
-edit-find-next edit-find-prev edit-get-filename edit-get-text
+edit-delete edit-down edit-end edit-eof? edit-filter-cursors edit-find edit-find-add-next
+edit-find-next edit-find-prev edit-focus edit-get-filename edit-get-focus edit-get-text
  edit-home edit-indent edit-insert edit-join-text edit-left
 edit-lower edit-outdent edit-paste edit-print edit-primary edit-reflow edit-replace
 edit-right edit-select-all edit-select-block edit-select-bottom
@@ -76,7 +86,7 @@ edit-select-bracket-left edit-select-bracket-right edit-select-down
 edit-select-end edit-select-form edit-select-home edit-select-left
 edit-select-line edit-select-paragraph edit-select-right edit-select-top
 edit-select-up edit-select-word edit-select-ws-left edit-select-ws-right
-edit-sort edit-split edit-split-text edit-top edit-trim edit-unique edit-up
+edit-set-focus edit-sort edit-split edit-split-text edit-top edit-trim edit-unique edit-up
 edit-upper edit-ws-left edit-ws-right
 ))
 (env-pop)
