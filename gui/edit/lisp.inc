@@ -185,7 +185,7 @@
 			scroll_y1 (min (max (+ scroll_y (/ h ch)) scroll_y) bh))
 		;set the region mask
 		(. mask_region :clr_opaque)
-		(unless (eql (nums fx fy fx1 fy1) +invalid_focus)
+		(if (nql (nums fx fy fx1 fy1) +invalid_focus)
 			(. mask_region :add_opaque
 				0 (* (- (min fy fy1) scroll_y) ch)
 				w (* (- (max fy fy1) (min fy fy1)) ch)))

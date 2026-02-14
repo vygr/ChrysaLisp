@@ -217,7 +217,7 @@
 	*event_map* *key_map* *key_map_shift* *key_map_control*
 	action-insert action-save-all action-maximise action-breakpoint
 	select-word action-select-word action-insert
-	macro-record state-load state-save find-count))
+	macro-record state-load state-save find-count update-find-toolbar))
 (export-classes
 	'(Editor-edit))
 (env-pop)

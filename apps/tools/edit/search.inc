@@ -13,10 +13,11 @@
 	(refresh-display))
 
 (defun action-region ()
-	(bind '(sy sy sy1 sy1) (. *edit* :get_selected_extent))
-	(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
-	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))
-	(. *edit* :set_focus (nums fx fy fx1 fy1))
+	(if (nql (. *edit* :get_focus) +invalid_focus)
+		(. *edit* :set_focus +invalid_focus)
+		(progn
+			(bind '(& sy & sy1) (. *edit* :get_selected_extent))
+			(. *edit* :set_focus (nums 0 sy 0 sy1))))
 	(update-find-toolbar)
 	(refresh-display))
 

@@ -11,22 +11,21 @@
 
 (redefun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
-	(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
-	(toolbar-states *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
+	(update-find-toolbar)
 	(refresh-display))
 
 (redefun action-regexp ()
 	(setq *regexp* (not *regexp*))
-	(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
-	(toolbar-states *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
+	(update-find-toolbar)
 	(refresh-display))
 
 (redefun action-region ()
-	(bind '(sy sy sy1 sy1) (. *edit* :get_selected_extent))
-	(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
-	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))
-	(. *edit* :set_focus (nums fx fy fx1 fy1))
-	(toolbar-states *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
+	(if (nql (. *edit* :get_focus) +invalid_focus)
+		(. *edit* :set_focus +invalid_focus)
+		(progn
+			(bind '(& sy & sy1) (. *edit* :get_selected_extent))
+			(. *edit* :set_focus (nums 0 sy 0 sy1))))
+	(update-find-toolbar)
 	(refresh-display))
 
 (redefun action-pop ()

@@ -111,7 +111,7 @@
 		(:set_focus (nums fx fy fx1 fy1))
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
-	(toolbar-states *find_toolbar* (list :nil :nil *whole_words* *regexp* :nil :nil))
+	(update-find-toolbar)
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty)
 	(refresh))

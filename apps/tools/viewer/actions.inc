@@ -89,7 +89,7 @@
 (export-symbols
 	'(*find_actions*
 	*event_map* *key_map* *key_map_shift* *key_map_control*
-	action-minimise find-count))
+	action-minimise find-count update-find-toolbar))
 (export-classes
 	'(Viewer-edit))
 (env-pop)
