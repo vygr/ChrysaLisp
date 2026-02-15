@@ -31,62 +31,63 @@ ensuring uniqueness, producing an optimized string ready for searching.
 
 **`bfind` (Binary Find)**
 
-This function is the fundamental building block. It performs a binary search for
-a character within a `char-class`.
+This function is the fundamental building block. It performs a binary search
+for a character within a `char-class`.
 
 *   **Signature:** `(bfind char cls) -> :nil | idx`
 
 *   **Action:** If the character `char` exists in the `char-class` string `cls`,
     it returns its index; otherwise, it returns `:nil`. Because of its binary
-    search nature, it is significantly faster than a linear scan for determining
-    character membership in a set.
+    search nature, it is significantly faster than a linear scan for
+    determining character membership in a set.
 
 **The `bskip` Family (Forward Skipping)**
 
 These functions iterate forward through a string from a given index.
 
 *   **`bskip`**: Skips characters that **are** in the `char-class`. It returns
-    the index of the first character *not* found in the class. This is ideal for
-    consuming leading characters, like whitespace.
+    the index of the first character *not* found in the class. This is ideal
+    for consuming leading characters, like whitespace.
 
-    * **Signature:** `(bskip cls str idx) -> idx`
+    *   **Signature:** `(bskip cls str idx) -> idx`
 
 *   **`bskipn`**: The inverse of `bskip`. It skips characters that **are not**
     in the `char-class`. It returns the index of the first character that *is*
     found in the class. This is useful for finding the beginning of a token or
     delimiter.
 
-    * **Signature:** `(bskipn cls str idx) -> idx`
+    *   **Signature:** `(bskipn cls str idx) -> idx`
 
 **The `rbskip` Family (Reverse Skipping)**
 
-These functions perform the same logic as their forward counterparts but search
-backward from a given index. A key design feature is that the returned index is
-"slice-compatible," meaning it can be used directly as the `end` parameter in a
-`slice` operation without needing manual adjustments.
+These functions perform the same logic as their forward counterparts but
+search backward from a given index. A key design feature is that the returned
+index is "slice-compatible," meaning it can be used directly as the `end`
+parameter in a `slice` operation without needing manual adjustments.
 
 *   **`rbskip`**: Searches backward from an index to find the first character
-    *not* in the `char-class`. This is perfect for trimming trailing characters.
+    *not* in the `char-class`. This is perfect for trimming trailing
+    characters.
 
-    * **Signature:** `(rbskip cls str idx) -> idx`
+    *   **Signature:** `(rbskip cls str idx) -> idx`
 
-*   **`rbskipn`**: Searches backward from an index to find the first character
-    *in* the `char-class`.
+*   **`rbskipn`**: Searches backward from an index to find the first
+    character *in* the `char-class`.
 
-    * **Signature:** `(rbskipn cls str idx) -> idx`
+    *   **Signature:** `(rbskipn cls str idx) -> idx`
 
 ## Practical Examples from ChrysaLisp's Source
 
-The elegance of this system is best demonstrated by how these simple primitives
-are composed to build robust, high-level parsing logic.
+The elegance of this system is best demonstrated by how these simple
+primitives are composed to build robust, high-level parsing logic.
 
 **Example 1: The `trim` and `split` Functions**
 
 These fundamental string utilities are implemented concisely using the `bskip`
 family.
 
-*   **`trim-start`**: Uses `bskip` to find the index of the first non-whitespace
-    character and returns a slice from that point.
+*   **`trim-start`**: Uses `bskip` to find the index of the first
+    non-whitespace character and returns a slice from that point.
 
     ```vdu
     (defun trim-start (s &optional cls)
@@ -104,8 +105,8 @@ family.
     ```
 
 *   **`trim`**: This function perfectly combines the forward and reverse skip
-    functions into a single, elegant line. It uses `bskip` for the `start` index
-    of the slice and `rbskip` for the `end` index.
+    functions into a single, elegant line. It uses `bskip` for the `start`
+    index of the slice and `rbskip` for the `end` index.
 
     ```vdu
     (defun trim (s &optional cls)
@@ -124,16 +125,16 @@ family.
             ; Skip any delimiters at the current position
             (if (/= (defq j (bskip cls s i)) i) (setq i j))
             ; Find the next delimiter to mark the end of the word
-            (if (/= (defq j (bskipn cls s i)) i) 
-                (push out (slice s i (setq i j))))) 
+            (if (/= (defq j (bskipn cls s i)) i)
+                (push out (slice s i (setq i j)))))
         out)
     ```
 
 **Example 2: Syntax Highlighting State Machine**
 
-The syntax highlighter uses `bfind` to quickly determine a character's category
-and decide the parser's next state. This avoids complex, multi-character
-lookaheads.
+The syntax highlighter uses `bfind` to quickly determine a character's
+category and decide the parser's next state. This avoids complex,
+multi-character lookaheads.
 
 ```vdu
 ; From lib/text/syntax.inc
@@ -150,13 +151,14 @@ lookaheads.
 ```
 
 Here, `bfind` instantly checks if a character is a quote, colon, semicolon, or
-brace, returning a new state symbol if it is. If not, it proceeds to check other
-character classes.
+brace, returning a new state symbol if it is. If not, it proceeds to check
+other character classes.
 
 **Example 3: Command Line Options Parsing**
 
-The `options-split` function in the options library uses `bskip` and `bskipn` to
-tokenize the command line, correctly handling whitespace and quoted arguments.
+The `options-split` function in the options library uses `bskip` and `bskipn`
+to tokenize the command line, correctly handling whitespace and quoted
+arguments.
 
 ```vdu
 ; From lib/options/options.inc
@@ -179,10 +181,10 @@ tokenize the command line, correctly handling whitespace and quoted arguments.
 			(:quote
 				; Find the closing quote
 				(push out (slice args i (setq i (bskipn (ascii-char 34) args i))))
-				(setq i (inc i) state :space)))) 
+				(setq i (inc i) state :space))))
     out)
 ```
 
-By composing these fast, low-level primitives, ChrysaLisp achieves powerful and
-efficient text parsing without the overhead of a traditional regex engine,
+By composing these fast, low-level primitives, ChrysaLisp achieves powerful
+and efficient text parsing without the overhead of a traditional regex engine,
 staying true to its core design principles.

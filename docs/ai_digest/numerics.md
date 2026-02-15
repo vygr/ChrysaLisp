@@ -4,8 +4,8 @@ ChrysaLisp provides a set of numeric object types and corresponding vector
 formats designed for efficiency and control, particularly with an eye towards
 systems programming and performance on integer-based hardware. This document
 details these numeric types—`Num` (integer), `Fixed` (fixed-point), and `Real`
-(a custom floating-point representation)—along with their vector counterparts
-and the broader vision for numeric computation in the ChrysaLisp ecosystem.
+(IEEE double floating-point)—along with their vector counterparts and the
+broader vision for numeric computation in the ChrysaLisp ecosystem.
 
 ## Numeric Object Types
 
@@ -30,17 +30,14 @@ integers.
     (`.`) is parsed into a `:num` object.
     
     * Radix can be specified with prefixes: `0b` for binary, `0x` for
-    hexadecimal, and `0o` for octal (though octal support isn't explicitly
-    mentioned in the provided docs, it's a common Lisp convention that might be
-    present).
+    hexadecimal, and `0o` for octal.
     
     * `:num` objects parsed during `(read)` are interned using a global hash
-    table, similar to symbols, for efficiency (as implied by the `:intern`
-    method in `num.md`).
+    table, similar to symbols, for efficiency.
 
 * **Constants:** Useful constants like `+min_long`, `+max_long`, `+min_int`,
-`+max_int` are defined in `class/lisp/root.inc` (mentioned in `lisp.md`) and
-relate to the range of values representable.
+`+max_int` are defined in `class/lisp/root.inc` and relate to the range of
+values representable.
 
 **`Fixed` (Fixed-Point)**
 
@@ -64,8 +61,7 @@ field (inherited from the `:num` class), scaled appropriately.
     * `:fixed` objects parsed during `(read)` are also interned.
 
 * **Usage:** Extensively used by the `Canvas` class drawing operations for
-coordinates, and its internal operations are conducted in this format
-(`numerics.md`).
+coordinates, and its internal operations are conducted in this format.
 
 * **CScript Integration:** The CScript compiler supports direct operations on
 `:fixed` values using the `*>` (fixed-point multiply) and `</` (fixed-point
@@ -76,12 +72,6 @@ divide) operators.
     
     * `</`: Represents a shift left by `+fp_shift` (16) bits followed by a
     division.
-    
-    (As described in `numerics.md` and `cscript.md`).
-
-* **VP DSL:** An extensive set of VP-level DSL macros and functions for
-fixed-format vector math is available in `sys/math/class.inc`, heavily used by
-`gui/canvas/` drawing functions (`numerics.md`).
 
 * **Constants:**
 
@@ -90,28 +80,30 @@ fixed-format vector math is available in `sys/math/class.inc`, heavily used by
     
     * Pre-calculated fixed-point values for Pi: `+fp_2pi`, `+fp_pi`, `+fp_hpi`
     (half Pi), `+fp_rpi` (reciprocal of Pi) are defined in
-    `class/lisp/root.inc` (mentioned in `numerics.md`).
+    `class/lisp/root.inc`.
 
 **`Real` (Floating-Point)**
 
-* **Description:** Implements a 64bit IEEE floating-point number format.
+* **Description:** Implements a 64bit IEEE floating-point number format
+(double).
 
 * **VP Class:** `class/real/class.inc` and `class/real/class.vp`. It inherits
 from `:fixed`.
 
 * **Internal Storage:** The `:real` value is stored in the `num_value` field
-  (inherited from `:num`). It uses an IEEE double format:
+  (inherited from `:num`). It uses an IEEE double format.
 
 * **Constants:** Pre-calculated `:real` constants are defined in
-  `lib/math/vector.inc` (mentioned in `numerics.md`), such as `+real_0` to
-  `+real_10`, `+real_pi`, etc. These are instances of the `:real` VP class.
+  `lib/math/vector.inc`, such as `+real_0` to `+real_10`, `+real_pi`, etc.
+  These are instances of the `:real` VP class.
 
 ## Numeric Conversions
 
 ChrysaLisp provides built-in functions for converting between these numeric
-types (`numerics.md`):
+types:
 
-* `(n2i num)`: Converts a number (`Num`, `Fixed`, or `Real`) to an integer (`Num`).
+* `(n2i num)`: Converts a number (`Num`, `Fixed`, or `Real`) to an integer
+  (`Num`).
 
 * `(n2f num)`: Converts a number to fixed-point (`Fixed`).
 
@@ -129,15 +121,12 @@ bits are discarded, not rounded.
 ## Numeric Functions
 
 ChrysaLisp offers a comprehensive set of functions that operate on these
-numeric types (`numerics.md`, `num.md`, `fixed.md`, `real.md`). Many are
-implemented as efficient VP methods.
+numeric types. Many are implemented as efficient VP methods.
 
 * **Basic Arithmetic:** `(+)`, `(-)`, `(*)`, `(/)`, `(%)`. These generally
 operate on any numeric type and return a result of the same type as the first
 argument, or a "promoted" type if operands differ (e.g., `Fixed + Num ->
-Fixed`). Division by zero will typically result in an error or a specific
-representation like infinity if supported by the type (though the docs don't
-detail this for `Real`).
+Fixed`).
 
 * **Extended Arithmetic:** `(abs)`, `(max)`, `(min)`, `(neg)`, `(sqrt)`,
 `(sign)`. These also operate on any numeric type and return results of the same
@@ -150,7 +139,7 @@ type.
 `(logand)`, `(logior)`, `(logxor)`. Return a `Num`.
 
 * **Bitwise Shifts (operate on the underlying integer representation):** `(>>)`
-(arithmetic right), `(>>>)` (logical right), `(<<)` (left). Return a `Num`.
+(logical right), `(>>>)` (arithmetic right), `(<<)` (left). Return a `Num`.
 
 * **Comparison:** `(/=)`, `(<)`, `(<=)`, `(=)`, `(>)`, `(>=)`. Operate on any
 numeric type and return `:t` or `:nil`.
@@ -160,6 +149,9 @@ numeric type and return `:t` or `:nil`.
 trailing zeros), `(nto)` (number of trailing ones), `(nlz)` (number of leading
 zeros), `(nlo)` (number of leading ones).
 
+* **Quantization:** `(quant real tolerance)` and `(reals-quant reals tolerance
+  [out])`. Used for floating-point comparisons.
+
 ## Vector Types
 
 ChrysaLisp provides typed arrays for `Num`, `Fixed`, and `Real` values,
@@ -168,8 +160,8 @@ These are `:nums`, `:fixeds`, and `:reals` respectively.
 
 **Introduction to Vector Types**
 
-* **Purpose:** To store sequences of raw numeric values contiguously (or in
-large contiguous chunks), rather than as lists of boxed numeric objects.
+* **Purpose:** To store sequences of raw numeric values contiguously, rather
+than as lists of boxed numeric objects.
 
 * **Performance:** This design aims for:
 
@@ -177,9 +169,7 @@ large contiguous chunks), rather than as lists of boxed numeric objects.
     pointers.
     
     * **SIMD Amenability:** Contiguous data is well-suited for Single
-    Instruction, Multiple Data (SIMD) operations, a key feature of modern CPUs
-    and GPUs. ChrysaLisp's design anticipates leveraging such hardware
-    capabilities.
+    Instruction, Multiple Data (SIMD) operations.
     
     * **Reduced Overhead:** Less memory overhead per element for dense
     collections compared to lists of `:obj` pointers.
@@ -193,25 +183,22 @@ large contiguous chunks), rather than as lists of boxed numeric objects.
 * `(reals [real-literal ...])`: Creates a vector of `Real` values.
 
 * **Type-Agnostic Packing:** These constructor functions are designed to be
-flexible. They typically take Lisp numbers (which might be `:num`, `:fixed`, or
-`:real` objects) and pack their underlying `num_value` fields into the typed
-array, performing necessary conversions if the input literal's type doesn't
-match the vector's native type (`numerics.md`). For instance, `(nums 1.5 2)`
-would likely store the integer parts.
+flexible. They typically take Lisp numbers and pack their underlying
+`num_value` fields into the typed array, performing necessary conversions if
+the input literal's type doesn't match the vector's native type.
 
 **`lib/math/vector.inc` Library**
 
 This library provides a host of Lisp-level functions and macros for working
-with these numeric vectors (`numerics.md`):
+with these numeric vectors:
 
 * **Constructor Macros:** Convenience macros like `(Vec3-f x y z)` (for a
 3-element `:fixeds` vector), `(Vec4-r x y z w)`, etc., simplify vector creation.
 
-* **Optional Output Vector:** Many vector operations (e.g., `vec-add`) can take
-an optional output vector as an argument. If provided, the result is stored in
-this vector, avoiding a new memory allocation and potentially improving
-performance by reusing existing memory. If not provided, a new vector is
-created.
+* **Optional Output Vector:** Many vector operations (e.g., `vector-add`) can
+take an optional output vector as an argument. If provided, the result is
+stored in this vector, avoiding a new memory allocation. If not provided, a
+new vector is created.
 
 * **Temporary Vector Constants:** The library defines constants like
 `+fixeds_tmp3`, `+reals_tmp4`, `+fixeds_zero3` which are pre-allocated vectors
@@ -230,8 +217,8 @@ These methods operate directly on the raw numeric data within the vectors.
 `:div`, `:dot` (dot product), `:scale` to perform element-wise or specialized
 vector arithmetic.
 
-    * For example, `:nums :add` (from `nums.md`) takes two source `:nums` objects
-    and a destination `:nums` object, performing element-wise addition.
+    * For example, `:nums :add` takes two source `:nums` objects and a
+    destination `:nums` object, performing element-wise addition.
     
     * `:fixeds :dot` calculates the dot product of two `:fixeds` vectors.
     
@@ -247,31 +234,23 @@ dispatch for each element.
 ChrysaLisp's numeric and vector architecture is designed with future evolution
 in mind, particularly concerning hardware acceleration:
 
-1. **VP Extensibility for FPU:** The VP model itself is not static. It can be
-extended in the future to include dedicated floating-point registers (for
-single and double precision IEEE 754 numbers) and associated FPU instructions.
-This would allow `Real` (or new IEEE float types) to be mapped to hardware FPU
-operations where available.
+1. **VP Extensibility for FPU:** The VP model can be extended to include
+dedicated floating-point registers and associated FPU instructions.
 
-2. **Integer Efficiency Focus:** The current custom `Real` format and the
-emphasis on `Fixed` point arithmetic reflect a pragmatic approach to achieve
-good performance on systems primarily or solely equipped with integer ALUs.
+2. **Integer Efficiency Focus:** The emphasis on `Fixed` point arithmetic
+reflects a pragmatic approach to achieve good performance on systems primarily
+or solely equipped with integer ALUs.
 
 3. **Hardware Vector Primitives:** The use of contiguous typed arrays (`:nums`,
-`:fixeds`, `:reals`) makes the system inherently amenable to hardware-accelerated
-vector operations. Future translators or VP extensions could map high-level
-vector operations or specific VP vector instructions to:
+`:fixeds`, `:reals`) makes the system inherently amenable to
+hardware-accelerated vector operations. Future translators or VP extensions
+could map high-level vector operations or specific VP vector instructions to
+CPU SIMD instructions (e.g., SSE, AVX on x86; NEON on ARM).
 
-    * CPU SIMD instructions (e.g., SSE, AVX on x86; NEON on ARM).
-    
-    * GPU computation (offloading large-scale vector/matrix operations to a 
-      GPU).
-
-4. **Host Interface Table for Native Vector Arithmetic:** A potential future
-development could involve a "host interface table" that allows ChrysaLisp's VP
-runtime to call out to highly optimized native libraries (e.g., BLAS, LAPACK,
-or custom SIMD/GPU kernels) for specific vector and matrix arithmetic tasks.
-This would provide a bridge to leverage existing high-performance native code.
+4. **Native Vector Libraries:** A potential future development could involve a
+"host interface table" that allows ChrysaLisp's VP runtime to call out to
+highly optimized native libraries (e.g., BLAS, LAPACK) for specific vector and
+matrix arithmetic tasks.
 
 ## Conclusion
 
@@ -281,5 +260,4 @@ a `48.16` fixed-point type well-suited for graphics and embedded control, and a
 types (`:nums`, `:fixeds`, `:reals`) are crucial for performance, providing
 efficient, contiguous storage and enabling optimized low-level VP operations.
 This architecture balances current needs for efficiency on diverse hardware with
-a clear path towards future enhancements, including more extensive hardware FPU
-and vector processing support.
+a clear path towards future enhancements.

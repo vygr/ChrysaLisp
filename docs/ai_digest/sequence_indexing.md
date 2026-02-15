@@ -1,8 +1,8 @@
 # ChrysaLisp Sequence Indexing & Memory Model
 
 In ChrysaLisp, `:seq` is the base class for all ordered collections, including
-`:array`, `:list`, `:str`, `:nums`, `:fixeds`, and `:reals`. Because they share this
-lineage, they share a unified set of manipulation functions and a unique
+`:array`, `:list`, `:str`, `:nums`, `:fixeds`, and `:reals`. Because they share
+this lineage, they share a unified set of manipulation functions and a unique
 indexing logic designed for high-performance string and buffer manipulation.
 
 ## The Golden Rule of Slicing
@@ -41,8 +41,8 @@ Negative:	-6	-5	-4	-3	-2	-1
 
 ### The Resolution Formula
 
-When the system receives a negative index, it resolves the absolute index using
-this logic: RealIndex = Length + InputIndex + 1.
+When the system receives a negative index, it resolves the absolute index
+using this logic: RealIndex = Length + InputIndex + 1.
 
 * Input `-1`: 5 + (-1) + 1 = 5 (The Length / End Boundary).
 
@@ -70,9 +70,9 @@ count** of the original object and returns it.
 
 ### Forcing a Copy
 
-Because `slice` may return a reference, if you strictly require a new, distinct
-copy of a sequence (e.g., to modify it without affecting the original), you must
-use `cat`:
+Because `slice` may return a reference, if you strictly require a new,
+distinct copy of a sequence (e.g., to modify it without affecting the
+original), you must use `cat`:
 
 ```vdu
 (defq my-copy (cat seq))
@@ -120,8 +120,8 @@ Consider: `(defq path "home/user/dev/main.lisp")`
 
 1.  **Get the Filename:**
 
-	We want everything *after* the last slash. `rfind` searches backwards for `/`.
-	It finds it at index 13, but returns **14** (the index of 'm').
+	We want everything *after* the last slash. `rfind` searches backwards for
+    `/`. It finds it at index 13, but returns **14** (the index of 'm').
 
 	```lisp
 	(defq path "lib/asm/file.inc")
@@ -154,8 +154,8 @@ to an actual item, not a boundary.
 	(elem-get seq -2)
 	```
 
-*Warning: Attempting `(elem-get seq -1)` is an Out of Bounds error, because `-1`
-resolves to the slot after the data ends.*
+*Warning: Attempting `(elem-get seq -1)` is an Out of Bounds error, because
+`-1` resolves to the slot after the data ends.*
 
 ## Iteration: The `(!)` Operator
 

@@ -1,8 +1,8 @@
 # ChrysaLisp Vector Graphics Architecture
 
-This document details the architecture of the ChrysaLisp vector graphics engine.
-It is a high-performance, software-based rendering system written in VP
-assembly. It handles the conversion of abstract geometric paths into
+This document details the architecture of the ChrysaLisp vector graphics
+engine. It is a high-performance, software-based rendering system written in
+VP assembly. It handles the conversion of abstract geometric paths into
 anti-aliased pixels.
 
 The pipeline consists of two distinct stages:
@@ -23,11 +23,12 @@ contained in `gui/path/stroke_joints.vp` and `gui/path/stroke_polyline.vp`.
 ### 1. Vector Geometry Engine
 
 The stroking engine relies heavily on the SIMD-like capabilities of the VP
-architecture (`vp-simd` instructions) to handle X and Y coordinates in parallel.
-It uses fixed-point arithmetic (16.16 format) for all geometric calculations to
-ensure precision and speed.
+architecture (`vp-simd` instructions) to handle X and Y coordinates in
+parallel. It uses fixed-point arithmetic (16.16 format) for all geometric
+calculations to ensure precision and speed.
 
-For every segment of a path (defined by points *P_1* and *P_2*), the engine calculates:
+For every segment of a path (defined by points *P_1* and *P_2*), the engine
+calculates:
 
 * **Vector (V):** *P_2 - P_1*
 
@@ -42,14 +43,14 @@ line by calculating *P + R* and *P - R*.
 
 ### 2. Join Styles
 
-When two line segments meet at a vertex, the engine must generate a Join. The
-logic in `stroke_joints.vp` calculates the angle between the incoming segment
-and the outgoing segment using dot products.
+When two line segments meet at a vertex, the engine must generate a Join.
+The logic in `stroke_joints.vp` calculates the angle between the incoming
+segment and the outgoing segment using dot products.
 
-* **Miter Join:** The engine calculates the intersection point of the two outer
-  edge lines using `:f_intersect` (a linear algebra solver). This creates a
-  sharp point. If the angle is too acute (approaching parallel), it falls back
-  to Bevel to prevent infinite spikes.
+* **Miter Join:** The engine calculates the intersection point of the two
+  outer edge lines using `:f_intersect` (a linear algebra solver). This
+  creates a sharp point. If the angle is too acute (approaching parallel),
+  it falls back to Bevel to prevent infinite spikes.
 
 * **Bevel Join:** The engine simply connects the outer corner of the incoming
   segment to the outer corner of the outgoing segment with a straight line,
@@ -68,23 +69,24 @@ Handled in `stroke_polyline.vp`, caps define how the line starts and ends.
 * **Square:** The geometry is projected forward by the line width radius,
   creating a box end.
 
-* **Triangle:** Two points are generated to form a sharp tip extending from the
-  endpoint.
+* **Triangle:** Two points are generated to form a sharp tip extending from
+  the endpoint.
 
 * **Arrow:** A specialized cap that generates a re-entrant arrowhead shape.
 
-* **Round:** Similar to the Round Join, generates a semi-circle at the endpoint.
+* **Round:** Similar to the Round Join, generates a semi-circle at the
+  endpoint.
 
 ## Part 2: The Rasterizer (`gui/canvas/fpoly`)
 
-Once paths are converted into polygons (lists of points), `fpoly` is responsible
-for rendering them. It uses an Active Edge List (AEL) scanline algorithm with a
-unique "Virtual Scanline" approach for anti-aliasing.
+Once paths are converted into polygons (lists of points), `fpoly` is
+responsible for rendering them. It uses an Active Edge List (AEL) scanline
+algorithm with a unique "Virtual Scanline" approach for anti-aliasing.
 
 ### 1. Edge Generation & Clipping (`:set_edges`)
 
-The rendering process begins by converting the polygon's vertices into a list of
-"Edges". An `Edge` structure contains:
+The rendering process begins by converting the polygon's vertices into a list
+of "Edges". An `Edge` structure contains:
 
 * `x`: Current X position (fixed point).
 
@@ -100,22 +102,23 @@ The system performs Y-axis clipping analytically during edge generation.
 
 * Segments completely outside the vertical bounds are discarded.
 
-* Segments crossing the top or bottom bounds are clipped mathematically; the X
-  coordinate at the intersection is calculated, and the `ys`/`ye` are clamped.
+* Segments crossing the top or bottom bounds are clipped mathematically;
+  the X coordinate at the intersection is calculated, and the `ys`/`ye` are
+  clamped.
 
 ### 2. The Bucketing System
 
 To avoid sorting all edges every frame (which would be *O(N log N)*), the
 system uses a bucket sort.
 
-* An array of pointers `canvas_edges_start` is allocated, one slot per scanline
-  height.
+* An array of pointers `canvas_edges_start` is allocated, one slot per
+  scanline height.
 
 * Edges are linked into a list at the index corresponding to their `ys`
   (starting scanline).
 
-* This allows the rasterizer to find new edges entering the scene in *O(1)* time
-  as it iterates down the image.
+* This allows the rasterizer to find new edges entering the scene in *O(1)*
+  time as it iterates down the image.
 
 ### 3. The Anti-Aliasing System (Coverage Mask)
 
@@ -124,16 +127,16 @@ efficiency. It does not allocate a full supersampled buffer.
 
 **Virtual Scanlines:**
 
-If AA is enabled, the rasterizer processes the image at 8x vertical resolution.
-For every physical pixel row, it processes 8 "Virtual" rows.
+If AA is enabled, the rasterizer processes the image at 8x vertical
+resolution. For every physical pixel row, it processes 8 "Virtual" rows.
 
 **Jittered Sampling:**
 
 It uses a look-up table (`sample_offsets`) containing 8 specific sub-pixel
 offsets (e.g., 0.25, 0.875). As the edges are processed on the virtual
 scanlines, their X positions are jittered by these offsets. This converts
-aliasing patterns (stair-steps) into noise, which looks smoother to the human
-eye.
+aliasing patterns (stair-steps) into noise, which looks smoother to the
+human eye.
 
 **The Coverage Buffer:**
 
@@ -197,8 +200,9 @@ This architecture provides a "best of both worlds" approach.
 
 * **High Quality:** 8x supersampling provides excellent edge smoothing.
 
-* **Low Memory:** It only requires one line of extra memory buffer, regardless
-  of image height.
+* **Low Memory:** It only requires one line of extra memory buffer,
+  regardless of image height.
 
-* **Flexibility:** The separation of Stroking and Rasterizing allows the same
-  engine to render thin lines, thick strokes, fonts, and complex SVG shapes.
+* **Flexibility:** The separation of Stroking and Rasterizing allows the
+  same engine to render thin lines, thick strokes, fonts, and complex SVG
+  shapes.

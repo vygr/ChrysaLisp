@@ -1,17 +1,17 @@
 # ChrysaLisp coding guidelines
 
 To write truly effective ChrysaLisp code is to understand its underlying
-philosophies. This document explores the core idioms and patterns that flow from
-its first-principles design. It is a guide not just to syntax, but to a way of
-thinking, showing how aligning with the system's architecture leads naturally to
-elegant and performant solutions.
+philosophies. This document explores the core idioms and patterns that flow
+from its first-principles design. It is a guide not just to syntax, but to a
+way of thinking, showing how aligning with the system's architecture leads
+naturally to elegant and performant solutions.
 
 ## General Style and Naming Conventions
 
 While the ChrysaLisp compiler is flexible and prioritizes programmer freedom, a
-set of strong conventions has emerged to promote readability, maintainability,
-and the prevention of common errors. Adhering to this style makes your code
-instantly understandable to other ChrysaLisp developers.
+set of strong conventions has emerged to promote readability,
+maintainability, and the prevention of common errors. Adhering to this style
+makes your code instantly understandable to other ChrysaLisp developers.
 
 ### Naming Conventions: Communicating Intent
 
@@ -41,8 +41,8 @@ understand the nature of a symbol at a glance.
 
 *   **`*globals*` are surrounded by asterisks `*` ("earmuffs")**.
 
-    * This warns that the variable is a dynamic global or special variable that
-      might be rebound and have wide-ranging side effects.
+    * This warns that the variable is a dynamic global or special variable
+      that might be rebound and have wide-ranging side effects.
 
     * Examples: `*root_env*`, `*build_mode*`.
 
@@ -54,7 +54,9 @@ understand the nature of a symbol at a glance.
 
 #### The Shadowing Guideline: Avoid Redefining Functions Locally
 
-ChrysaLisp allows you to define a local variable that has the same name as a global function or macro. The system assumes you have a good reason for doing this.
+ChrysaLisp allows you to define a local variable that has the same name as a
+global function or macro. The system assumes you have a good reason for doing
+this.
 
 ```vdu
 ;; LEGAL, BUT EXTREMELY BAD PRACTICE
@@ -70,9 +72,9 @@ ChrysaLisp allows you to define a local variable that has the same name as a glo
 function or macro.**
 
 This is the most critical style rule for preventing subtle and confusing bugs.
-The naming convention is your primary tool for avoiding this mistake. By naming
-your local variables with underscores (`my_list`) and your functions with
-hyphens (`(list ...)`), you will never accidentally conflict.
+The naming convention is your primary tool for avoiding this mistake. By
+naming your local variables with underscores (`my_list`) and your functions
+with hyphens (`(list ...)`), you will never accidentally conflict.
 
 Tooling, such as the `Editor` app with syntax highlighting, also provides a
 strong visual cue when this error occurs.
@@ -80,25 +82,26 @@ strong visual cue when this error occurs.
 ## Efficient State Management with `defq` and `setq`
 
 A disciplined approach to state management is critical for writing
-high-performance, idiomatic ChrysaLisp code. The core goal of this discipline is
-to **minimize the number of forms the interpreter's evaluation loop must
+high-performance, idiomatic ChrysaLisp code. The core goal of this discipline
+is to **minimize the number of forms the interpreter's evaluation loop must
 process.** This is achieved by understanding the precise roles of `defq` and
 `setq` and leveraging their capabilities to group related state operations.
 
 ### Core Principle: Local Set-or-Define vs. Global-Aware Mutate-Only
 
-The fundamental distinction between `defq` and `setq` lies in how they interact
-with lexical scopes. This directly impacts their performance and intended use.
+The fundamental distinction between `defq` and `setq` lies in how they
+interact with lexical scopes. This directly impacts their performance and
+intended use.
 
 *   **`(defq <symbol> <value> ...)`**: This is the **Local Set-or-Define
-    Operator** and should be considered the default tool for all local variable
-    manipulation.
+    Operator** and should be considered the default tool for all local
+    variable manipulation.
 
     * For each symbol, `defq` performs a **local-only** search within the
       *current* environment (`:hmap`).
 
-    * If a binding for the symbol already exists in the current scope, its value
-      is **mutated in-place**.
+    * If a binding for the symbol already exists in the current scope, its
+      value is **mutated in-place**.
 
     * If no local binding exists, a **new binding is created** in the current
       environment.
@@ -117,15 +120,15 @@ with lexical scopes. This directly impacts their performance and intended use.
     * It **mutates** the first binding it finds, wherever it may be in the
       chain.
 
-    * If no binding is found anywhere, it raises a `symbol_not_bound` **error**.
-      `setq` can never create a new binding.
+    * If no binding is found anywhere, it raises a `symbol_not_bound`
+      **error**. `setq` can never create a new binding.
 
 ### The Performance Idiom: Fusing Operations to Minimize Forms
 
-The primary stylistic and performance guideline is to **group logically related
-state changes into the longest possible `defq` or `setq` statement.** A single
-multi-binding form is more efficient than multiple single-binding forms because
-it reduces the work for the interpreter.
+The primary stylistic and performance guideline is to **group logically
+related state changes into the longest possible `defq` or `setq` statement.**
+A single multi-binding form is more efficient than multiple single-binding
+forms because it reduces the work for the interpreter.
 
 The key optimization idiom is to **fuse local mutations into a necessary
 `defq`**.
@@ -147,9 +150,9 @@ state change and, when operating on a known local variable, is just as fast as
 
 **2. For Maximum Performance, Fuse Operations with `defq`**
 
-If you are already introducing a new variable with `defq`, you should "fuse" any
-nearby local `setq` operations into that single `defq` form to reduce the total
-number of forms the interpreter must handle.
+If you are already introducing a new variable with `defq`, you should "fuse"
+any nearby local `setq` operations into that single `defq` form to reduce the
+total number of forms the interpreter must handle.
 
 **Verbose Style (Multiple Interpreter Forms):**
 
@@ -186,9 +189,9 @@ This second style is preferred for its superior performance and conciseness.
     stylistically appropriate** as it clearly signals intent. There is no
     performance penalty in this specific case.
 
-*   **When creating a new local variable with `defq`, seize the opportunity to
-    fuse subsequent local `setq`s into that same `defq` form.** This is a key
-    optimization pattern that reduces strain on the interpreter.
+*   **When creating a new local variable with `defq`, seize the opportunity
+    to fuse subsequent local `setq`s into that same `defq` form.** This is a
+    key optimization pattern that reduces strain on the interpreter.
 
 *   **Reserve `setq` for its two main use cases:**
 
@@ -199,15 +202,15 @@ This second style is preferred for its superior performance and conciseness.
 
 ## The `bind` Operator: De-structuring and Pattern Matching
 
-Beyond the simple assignment of `defq`, ChrysaLisp provides the powerful `bind`
-operator. While `defq` is ideal for binding single values to symbols, `bind`
-excels at de-structuring sequences, allowing a programmer to extract multiple
-values from a list or array and bind them to local variables in a single,
-declarative operation.
+Beyond the simple assignment of `defq`, ChrysaLisp provides the powerful
+`bind` operator. While `defq` is ideal for binding single values to symbols,
+`bind` excels at de-structuring sequences, allowing a programmer to extract
+multiple values from a list or array and bind them to local variables in a
+single, declarative operation.
 
 Mastering `bind` is essential for writing concise, readable, and efficient
-ChrysaLisp code, especially when interacting with functions that return multiple
-values or when processing nested data structures.
+ChrysaLisp code, especially when interacting with functions that return
+multiple values or when processing nested data structures.
 
 ### Basic Syntax
 
@@ -215,10 +218,10 @@ values or when processing nested data structures.
 (bind '<pattern-list> <source-sequence>)
 ```
 
-*   **`<pattern-list>`**: A *quoted literal list* that describes the "shape" of
-    the data you expect. It contains symbols that will become local variables.
-    Quoting the pattern is crucial; it tells the interpreter to treat the list
-    as data to be matched, not as code to be executed.
+*   **`<pattern-list>`**: A *quoted literal list* that describes the "shape"
+    of the data you expect. It contains symbols that will become local
+    variables. Quoting the pattern is crucial; it tells the interpreter to
+    treat the list as data to be matched, not as code to be executed.
 
 *   **`<source-sequence>`**: The sequence containing the data to be
     de-structured.
@@ -231,8 +234,8 @@ variables created with `defq`.
 
 *   **Handling Multiple Return Values**
 
-    Many system functions return multiple results as a list. `bind` is the ideal
-    way to receive these values without creating unnecessary temporary
+    Many system functions return multiple results as a list. `bind` is the
+    ideal way to receive these values without creating unnecessary temporary
     variables.
 
     ```vdu
@@ -263,17 +266,17 @@ variables created with `defq`.
 
 ### Advanced Pattern Matching Keywords
 
-`bind` supports the same powerful keywords as a function's lambda list, allowing
-for sophisticated pattern matching.
+`bind` supports the same powerful keywords as a function's lambda list,
+allowing for sophisticated pattern matching.
 
 *   **`_` (The "Ignore" Convention)** By convention, the underscore symbol is
-    used in a pattern to consume a positional value that will not be used. It is
-    a signal to the reader, but it **still performs a binding** to the `_`
+    used in a pattern to consume a positional value that will not be used. It
+    is a signal to the reader, but it **still performs a binding** to the `_`
     symbol. It is best used for ignoring single, interspersed values.
 
-*   **`&rest <symbol>`** This keyword collects **all remaining** elements of the
-    source sequence into a single new list and binds that list to the specified
-    `<symbol>`.
+*   **`&rest <symbol>`** This keyword collects **all remaining** elements of
+    the source sequence into a single new list and binds that list to the
+    specified `<symbol>`.
 
 *   **`&ignore` (The Terminator Keyword)** This is the most efficient way to
     ignore trailing values. When `&ignore` is encountered in a pattern, the
@@ -284,9 +287,9 @@ for sophisticated pattern matching.
 
 **Example: Parsing a Regexp Match**
 
-The `Regexp` library provides a perfect use case. The `matches` function returns
-a list where each element is a sub-list containing the full match slice followed
-by its capture group slices.
+The `Regexp` library provides a perfect use case. The `matches` function
+returns a list where each element is a sub-list containing the full match
+slice followed by its capture group slices.
 
 ```vdu
 (defq line "INFO: v2 2024-05-15 data.zip")
@@ -323,8 +326,8 @@ lexical scope.
 
 A crucial concept to understand is that **GUI widget trees ARE Lisp
 environments.** The hmap chain of properties from a widget to its container
-forms a runtime property inheritance hierarchy, which functions exactly like the
-lexical environment chain that `setq` traverses.
+forms a runtime property inheritance hierarchy, which functions exactly like
+the lexical environment chain that `setq` traverses.
 
 The `defq` and `setq` forms COULD be provided as macros, but they are
 implemented as VP functions for performance reasons. ! eg.
@@ -346,17 +349,17 @@ implemented as VP functions for performance reasons. ! eg.
       object instance.
 
     - This is the standard way to **set or override a property for a specific
-      widget**, making it independent of its parents. `def` will never search up
-      the parent chain.
+      widget**, making it independent of its parents. `def` will never search
+      up the parent chain.
 
 *   **`(set <object> <key-expression> <value>)`**: The **Inherited Property
     Mutator**.
 
-    - It performs an `:hmap :search`, starting with the `<object>` and **searching
-      up the parent chain** until it finds the property `<key>`.
+    - It performs an `:hmap :search`, starting with the `<object>` and
+      **searching up the parent chain** until it finds the property `<key>`.
 
-    - It then **mutates the value of that property on whichever ancestor it was
-      found**.
+    - It then **mutates the value of that property on whichever ancestor it
+      was found**.
 
     - This is a powerful tool for changing a shared property on a container,
       thereby affecting all children that inherit it. It should be used
@@ -366,12 +369,13 @@ implemented as VP functions for performance reasons. ! eg.
 ### Static vs. Dynamic Property Keys
 
 A key feature of `def` and `set` is that their `<key-expression>` argument is
-**evaluated at runtime**. This allows for powerful dynamic programming patterns.
+**evaluated at runtime**. This allows for powerful dynamic programming
+patterns.
 
-*   **Static Properties (Most Common)**: When you know the name of the property
-    at compile time, you should use a **quoted symbol**, typically a keyword
-    (e.g., `:color`, `:text`). Keywords evaluate to themselves and are the
-    idiomatic choice for property keys.
+*   **Static Properties (Most Common)**: When you know the name of the
+    property at compile time, you should use a **quoted symbol**, typically a
+    keyword (e.g., `:color`, `:text`). Keywords evaluate to themselves and
+    are the idiomatic choice for property keys.
 
     ```vdu
     (defclass My-Button () (Button)
@@ -380,8 +384,8 @@ A key feature of `def` and `set` is that their `<key-expression>` argument is
         (def this :text "Clicked!" :color +argb_red)))
     ```
 
-*   **Dynamic Properties (Advanced)**: When the property name is determined at
-    runtime, you can use an expression that evaluates to a symbol. This is
+*   **Dynamic Properties (Advanced)**: When the property name is determined
+    at runtime, you can use an expression that evaluates to a symbol. This is
     essential for writing generic, data-driven code.
 
     ```vdu
@@ -401,60 +405,60 @@ A key feature of `def` and `set` is that their `<key-expression>` argument is
 **Conclusion**
 
 *   **Always use `def` to set properties on an object instance.** This is the
-    safe, expected, and most common operation. It ensures you are only modifying
-    the state of the object you are explicitly targeting.
+    safe, expected, and most common operation. It ensures you are only
+    modifying the state of the object you are explicitly targeting.
 
-*   **Only use `set` when your explicit intent is to find and mutate a property
-    higher up in the inheritance chain**, thereby affecting the object and
-    potentially its siblings that also inherit that property.
+*   **Only use `set` when your explicit intent is to find and mutate a
+    property higher up in the inheritance chain**, thereby affecting the
+    object and potentially its siblings that also inherit that property.
 
-This distinction is key to harnessing the power of ChrysaLisp's unified property
-inheritance and lexical scoping model without introducing subtle bugs from
-unintended side effects.
+This distinction is key to harnessing the power of ChrysaLisp's unified
+property inheritance and lexical scoping model without introducing subtle
+bugs from unintended side effects.
 
 ## Iteration over Recursion: A Core Discipline
 
 In ChrysaLisp, there is a strong and architecturally-enforced preference for
 **iteration over recursion**. Adhering to this discipline is not merely a
 stylistic choice; it is fundamental to creating robust, high-performance, and
-massively concurrent applications. This design choice creates a virtuous circle
-where cooperative multitasking, efficient memory use, and fast symbol lookup all
-reinforce each other.
+massively concurrent applications. This design choice creates a virtuous
+circle where cooperative multitasking, efficient memory use, and fast symbol
+lookup all reinforce each other.
 
 ### The "Why": Small Stacks and O(1) Caching
 
 The preference for iteration stems from two core architectural principles:
 
 *   **Cooperative Tasks and Small Stacks:** ChrysaLisp is built for massive
-    concurrency, where tens of thousands of tasks can run on a single core. To
-    make this possible, each task is given a small, fixed-size machine stack
-    (typically 4KB). This makes tasks extremely memory-efficient, but it also
-    makes deep recursion on the machine stack physically impossible—it would
-    quickly lead to a stack overflow.
+    concurrency, where tens of thousands of tasks can run on a single core.
+    To make this possible, each task is given a small, fixed-size machine
+    stack (typically 4KB). This makes tasks extremely memory-efficient, but
+    it also makes deep recursion on the machine stack physically
+    impossible—it would quickly lead to a stack overflow.
 
-*   **Stable Scopes for O(1) Lookups:** A recursive style creates a deep chain
-    of nested lexical environments (`:hmap`s). This leads to frequent shadowing
-    and un-shadowing of variables as the call stack grows and shrinks, causing
-    constant invalidation and repair of the `str_hashslot` cache. An iterative
-    style typically operates within a single, flat lexical scope. This keeps the
-    `str_hashslot` cache stable, maximizing its effectiveness and ensuring
-    consistent O(1) lookup performance.
+*   **Stable Scopes for O(1) Lookups:** A recursive style creates a deep
+    chain of nested lexical environments (`:hmap`s). This leads to frequent
+    shadowing and un-shadowing of variables as the call stack grows and
+    shrinks, causing constant invalidation and repair of the `str_hashslot`
+    cache. An iterative style typically operates within a single, flat
+    lexical scope. This keeps the `str_hashslot` cache stable, maximizing its
+    effectiveness and ensuring consistent O(1) lookup performance.
 
 ### The Idiomatic Pattern: The Explicit Work Stack
 
-Since recursion on the machine stack is not an option, the canonical ChrysaLisp
-pattern for handling nested data structures is **iteration using a
+Since recursion on the machine stack is not an option, the canonical
+ChrysaLisp pattern for handling nested data structures is **iteration using a
 heap-allocated `:list` as an explicit work stack.**
 
-This pattern is used pervasively throughout the system, from the Lisp parser to
-the GUI compositor. It guarantees that a function's machine stack usage remains
-minimal and constant, regardless of the complexity or depth of the data it is
-processing.
+This pattern is used pervasively throughout the system, from the Lisp parser
+to the GUI compositor. It guarantees that a function's machine stack usage
+remains minimal and constant, regardless of the complexity or depth of the
+data it is processing.
 
 **Example: The `flatten` function**
 
-The `flatten` function is a perfect illustration of this idiom. It can process a
-list of any depth without ever growing the machine stack.
+The `flatten` function is a perfect illustration of this idiom. It can
+process a list of any depth without ever growing the machine stack.
 
 ```vdu
 (defun flatten (lst)
@@ -482,34 +486,40 @@ scalable, and performant.
 
 ## Modules and Bind-Time Optimization
 
-ChrysaLisp's evaluation model includes a powerful **pre-binding** stage that occurs before final execution. This architectural feature is central to the system's performance and enables a simple yet robust module system that combines information hiding with extreme efficiency. By understanding this process, developers can write code that is both highly readable and maximally performant.
+ChrysaLisp's evaluation model includes a powerful **pre-binding** stage that
+occurs before final execution. This architectural feature is central to the
+system's performance and enables a simple yet robust module system that
+combines information hiding with extreme efficiency. By understanding this
+process, developers can write code that is both highly readable and maximally
+performant.
 
 ### The `repl_bind` Pass: An Ahead-of-Time Optimization
 
-Before a Lisp form is executed, it passes through the `:lisp :repl_bind` stage.
-This pass walks the macro-expanded code tree and attempts to resolve a
+Before a Lisp form is executed, it passes through the `:lisp :repl_bind`
+stage. This pass walks the macro-expanded code tree and attempts to resolve a
 `function` or `constant` symbol to its definition in the current environment.
 
-*   If a symbol's definition is found, the symbol in the code is **replaced with
-    a direct pointer** to its binding (e.g., a function address or a constant's
-    value).
+*   If a symbol's definition is found, the symbol in the code is **replaced
+    with a direct pointer** to its binding (e.g., a function address or a
+    constant's value).
 
-*   This effectively means that at runtime, no `:hmap` lookup is required. The
-    call or access is a direct memory operation, which is the fastest possible
-    way to execute.
+*   This effectively means that at runtime, no `:hmap` lookup is required.
+    The call or access is a direct memory operation, which is the fastest
+    possible way to execute.
 
-This mechanism leads to a critical programming discipline: **Define functions
-and variables before they are used.** Adhering to this "no forward references"
-rule is a performance contract with the compiler. The `forward` command is
-provided to help developers identify and fix violations of this guideline.
+This mechanism leads to a critical programming discipline: **Define
+functions and variables before they are used.** Adhering to this "no forward
+references" rule is a performance contract with the compiler. The `forward`
+command is provided to help developers identify and fix violations of this
+guideline.
 
 ### Information Hiding: The `def`/`use`/`export` Pattern
 
-The "no forward references" guide is leveraged to create a simple and effective
-module system, used pervasively throughout the standard libraries.
+The "no forward references" guide is leveraged to create a simple and
+effective module system, used pervasively throughout the standard libraries.
 
-1.  **Define Internals First:** All helper functions and private constants are
-    defined at the top of a module file. Because they have not yet been
+1.  **Define Internals First:** All helper functions and private constants
+    are defined at the top of a module file. Because they have not yet been
     exported, they are effectively "private" to the module's scope during
     compilation.
 
@@ -521,8 +531,8 @@ module system, used pervasively throughout the standard libraries.
 3.  **Export the Public Interface:** At the very end of the file, an
     `(export-symbols '(...))` form is used. This function takes a list of
     symbols and adds them and their definitions to a shared environment
-    (typically the parent), making them visible to other modules that `import`
-    this file.
+    (typically the parent), making them visible to other modules that
+    `import` this file.
 
 **Example:**
 
@@ -547,17 +557,18 @@ keywords or namespace syntax.
 ### Bind-Time Constants for Maximum Speed
 
 A key feature of the pre-binding process is its ability to perform constant
-folding, replacing symbols with their literal values in the final compiled code.
+folding, replacing symbols with their literal values in the final compiled
+code.
 
 *   **The `+` Prefix Convention:** Symbols prefixed with a `+` (e.g.,
     `+max_retries`) are, by convention, treated as bind-time constants. When
-    `repl_bind` encounters such a symbol, it will **replace the symbol entirely
-    with that value**. The symbol itself never appears in the final executable
-    code.
+    `repl_bind` encounters such a symbol, it will **replace the symbol
+    entirely with that value**. The symbol itself never appears in the final
+    executable code.
 
-* **Structures and `getf`/`setf`:** This pattern is most powerfully used by the
-  `structure` macros. These macros define a family of constants representing the
-  memory offsets of fields within a data structure.
+* **Structures and `getf`/`setf`:** This pattern is most powerfully used by
+  the `structure` macros. These macros define a family of constants
+  representing the memory offsets of fields within a data structure.
 
     ```vdu
     ;; Defines +my_msg_type as the literal integer 24, among other constants.
@@ -567,21 +578,21 @@ folding, replacing symbols with their literal values in the final compiled code.
     (setf my_msg +my_msg_type +ev_type_action)
     ```
 
-    At compile time, the `setf` macro is expanded. It evaluates `+my_msg_type`
-    to its literal value, `24`. The final code generated is equivalent to
-    `(obj-set my_msg 24 4 +ev_type_action)`, which becomes a single,
-    highly-optimized memory write instruction. This allows developers to work
-    with high-level, symbolic field names while the system guarantees C-level
-    performance for data access.
+    At compile time, the `setf` macro is expanded. It evaluates
+    `+my_msg_type` to its literal value, `24`. The final code generated is
+    equivalent to `(obj-set my_msg 24 4 +ev_type_action)`, which becomes a
+    single, highly-optimized memory write instruction. This allows
+    developers to work with high-level, symbolic field names while the system
+    guarantees C-level performance for data access.
 
 ## The Path to Performance: A Three-Stage Optimization Strategy
 
-ChrysaLisp is designed to offer a spectrum of performance, allowing developers
-to choose the right balance between rapid development and raw execution speed.
-The system's philosophy is not one of premature optimization, but rather of
-providing a clear, structured path for when performance becomes critical. The
-core mantra is: **"First, make it work. Then, make it right. Then, if you must,
-make it fast."**
+ChrysaLisp is designed to offer a spectrum of performance, allowing
+developers to choose the right balance between rapid development and raw
+execution speed. The system's philosophy is not one of premature
+optimization, but rather of providing a clear, structured path for when
+performance becomes critical. The core mantra is: **"First, make it work.
+Then, make it right. Then, if you must, make it fast."**
 
 This progression typically follows three distinct stages, moving from the
 highest level of abstraction to the most direct hardware control.
@@ -595,14 +606,14 @@ Every new piece of functionality should begin as a pure ChrysaLisp function.
 *   **Environment:** Full access to the high-level Lisp environment, its
     libraries, and the REPL for interactive testing.
 
-*   **Performance:** The code is handled by the hyper-fast Lisp interpreter. For
-    many tasks, especially those that are not in a tight loop or are I/O-bound,
-    this level of performance is more than sufficient.
+*   **Performance:** The code is handled by the hyper-fast Lisp interpreter.
+    For many tasks, especially those that are not in a tight loop or are
+    I/O-bound, this level of performance is more than sufficient.
 
-**Guideline:** Always start here. Prove your logic is sound. Create a baseline
-for functionality and, if needed, performance. If the Lisp function meets your
-performance requirements, your work is done. There is no need to proceed
-further.
+**Guideline:** Always start here. Prove your logic is sound. Create a
+baseline for functionality and, if needed, performance. If the Lisp function
+meets your performance requirements, your work is done. There is no need to
+proceed further.
 
 **Example: A Simple `sum-of-squares` Function**
 
@@ -612,13 +623,14 @@ further.
   (reduce! (# (+ %0 (* %1 %1))) number_list 0))
 ```
 
-This version is easy to write, understand, and debug. For most applications, its
-performance would be excellent.
+This version is easy to write, understand, and debug. For most applications,
+its performance would be excellent.
 
 ### Stage 2: The C-Script VP Function — Robust Performance
 
-If benchmarking (e.g., using the `cmd/test` app) reveals that the Lisp function
-is a bottleneck, the next step is to translate it into a C-Script VP function.
+If benchmarking (e.g., using the `cmd/test` app) reveals that the Lisp
+function is a bottleneck, the next step is to translate it into a C-Script
+VP function.
 
 *   **Primary Goal:** To gain significant performance by eliminating Lisp
     interpreter overhead, while still maintaining a high level of abstraction
@@ -626,12 +638,13 @@ is a bottleneck, the next step is to translate it into a C-Script VP function.
 
 *   **Environment:** C-Script uses a more C-like syntax within a `(def-func)`
     block. You declare local variables with `def-vars`, and the assembler
-    handles mapping them to stack locations or registers. You are protected from
-    many of the complexities of manual register allocation.
+    handles mapping them to stack locations or registers. You are protected
+    from many of the complexities of manual register allocation.
 
-*   **Performance:** C-Script compiles down to highly efficient VP code. It is
-    significantly faster than the interpreted Lisp version and is the right
-    choice for the vast majority of performance-critical application code.
+*   **Performance:** C-Script compiles down to highly efficient VP code. It
+    is significantly faster than the interpreted Lisp version and is the
+    right choice for the vast majority of performance-critical application
+    code.
 
 **Guideline:** Move to this stage to prove your algorithm's performance at a
 lower level. This is the ideal environment to refine the logic with the
@@ -677,22 +690,23 @@ optimization stage is to write a pure VP assembly method.
     execution speed by controlling the hardware at the most direct level
     possible.
 
-*   **Environment:** You manually allocate registers using `(vp-rdef ...)` and
-    write code using direct register symbols (`:r0`, `:r1`, etc.). You are
+*   **Environment:** You manually allocate registers using `(vp-rdef ...)`
+    and write code using direct register symbols (`:r0`, `:r1`, etc.). You are
     responsible for managing register lifetimes and avoiding conflicts. The
     stack may be used sparingly or, in many cases, avoided entirely for leaf
     functions.
 
-*   **Performance:** This is "bare metal" on the Virtual Processor. There is no
-    abstraction layer left. Code written at this level forms the hyper-optimized
-    engine upon which the rest of the system is built.
+*   **Performance:** This is "bare metal" on the Virtual Processor. There is
+    no abstraction layer left. Code written at this level forms the
+    hyper-optimized engine upon which the rest of the system is built.
 
 **Guideline:** Only proceed to this stage when you have an absolutely correct
 and benchmarked C-Script version, and you have determined that even greater
-performance is required. This level of optimization requires careful thought but
-yields the best results. The core kernel and class libraries are the ultimate
-expression of this stage. The `:canvas :fpoly` method is a prime example of a
-complex algorithm implemented at this level for maximum performance.
+performance is required. This level of optimization requires careful thought
+but yields the best results. The core kernel and class libraries are the
+ultimate expression of this stage. The `:canvas :fpoly` method is a prime
+example of a complex algorithm implemented at this level for maximum
+performance.
 
 **Example: `sum-of-squares` as an Optimized VP Method**
 
@@ -724,7 +738,8 @@ complex algorithm implemented at this level for maximum performance.
 ### The Unifying Philosophy
 
 This three-stage process embodies ChrysaLisp's pragmatic approach to
-engineering. It provides a smooth "performance gradient," allowing a developer
-to move from a high-level, safe environment to direct, low-level control only
-when and where it is needed. This structured path empowers you to write code
-that is readable, maintainable, and, when necessary, exceptionally fast.
+engineering. It provides a smooth "performance gradient," allowing a
+developer to move from a high-level, safe environment to direct, low-level
+control only when and where it is needed. This structured path empowers you
+to write code that is readable, maintainable, and, when necessary,
+exceptionally fast.

@@ -210,8 +210,8 @@ sequences of 2D coordinates for vector drawing.
 
 ## Vectorized Numeric Operations (`:nums`, `:fixeds`, `:reals`)
 
-These functions perform operations on entire vectors of numbers (`:nums`, `:reals`
-or `:fixeds` types) at once.
+These functions perform operations on entire vectors of numbers (`:nums`,
+`:reals` or `:fixeds` types) at once.
 
 *   **`nums-abs` / `fixeds-frac` / `fixeds-floor`**: Perform element-wise
     operations on a vector.
@@ -397,7 +397,8 @@ These functions are used for stream manipulation.
 
     * `(huffman-compress in-stream out-stream token-bits)`
 
-*   **`huffman-decompress`**: Decompresses a stream using adaptive Huffman coding.
+*   **`huffman-decompress`**: Decompresses a stream using adaptive Huffman
+    coding.
 
     * `(huffman-decompress in-stream out-stream token-bits)`
 
@@ -413,11 +414,13 @@ These functions are used for stream manipulation.
 
     * `(huffman-read-codebook in-stream) -> (root codebook token-bits)`
 
-*   **`huffman-compress-static`**: Compresses a stream using static Huffman coding.
+*   **`huffman-compress-static`**: Compresses a stream using static Huffman
+    coding.
 
     * `(huffman-compress-static in-stream out-stream model)`
 
-*   **`huffman-decompress-static`**: Decompresses a stream using static Huffman coding.
+*   **`huffman-decompress-static`**: Decompresses a stream using static Huffman
+    coding.
 
     * `(huffman-decompress-static in-stream out-stream model)`
 
@@ -506,26 +509,33 @@ These functions are used for math operations.
 *   **`Vec4-f`**: Creates a 4D fixed vector.
 *   **`Vec3-r`**: Creates a 3D real vector.
 *   **`Vec4-r`**: Creates a 4D real vector.
-*   **`vec-clamp`**: Clamps a vector between two other vectors.
-*   **`vec-reflect`**: Reflects a vector off a surface.
-*   **`vec-length-squared`**: Calculates the squared length of a vector.
-*   **`vec-length`**: Calculates the length of a vector.
-*   **`vec-norm`**: Normalizes a vector.
-*   **`vec-sdist`**: Calculates the squared distance between two vectors.
-*   **`vec-dist`**: Calculates the distance between two vectors.
-*   **`vec-dist-to-line`**: Calculates the distance from a point to a line.
-*   **`vec-sdist-to-line`**: Calculates the squared distance from a point to a line.
-*   **`vec-manhattan-distance`**: Calculates the Manhattan distance between two vectors.
-*   **`vec-euclidean-distance`**: Calculates the Euclidean distance between two vectors.
-*   **`vec-squared-euclidean-distance`**: Calculates the squared Euclidean distance between two vectors.
-*   **`vec-chebyshev-distance`**: Calculates the Chebyshev distance between two vectors.
-*   **`vec-perp-2d`**: Calculates the perpendicular of a 2D vector.
-*   **`vec-det`**: Calculates the determinant of two 2D vectors.
-*   **`vec-cross-3d`**: Calculates the cross product of two 3D vectors.
-*   **`vec-intersect-2d`**: Calculates the intersection of two 2D lines.
-*   **`vec-intersect-lines-2d`**: Calculates the intersection of two 2D line segments.
-*   **`vec-collide-lines-2d`**: Checks if two 2D line segments collide.
-*   **`vec-collide-thick-lines-2d`**: Checks if two thick 2D line segments collide.
+*   **`vector-clamp`**: Clamps a vector between two other vectors.
+*   **`vector-reflect`**: Reflects a vector off a surface.
+*   **`vector-length-squared`**: Calculates the squared length of a vector.
+*   **`vector-length`**: Calculates the length of a vector.
+*   **`vector-norm`**: Normalizes a vector.
+*   **`vector-sdist`**: Calculates the squared distance between two vectors.
+*   **`vector-dist`**: Calculates the distance between two vectors.
+*   **`vector-dist-to-line`**: Calculates the distance from a point to a line.
+*   **`vector-sdist-to-line`**: Calculates the squared distance from a point
+    to a line.
+*   **`vector-manhattan-distance`**: Calculates the Manhattan distance between
+    two vectors.
+*   **`vector-euclidean-distance`**: Calculates the Euclidean distance between
+    two vectors.
+*   **`vector-squared-euclidean-distance`**: Calculates the squared Euclidean
+    distance between two vectors.
+*   **`vector-chebyshev-distance`**: Calculates the Chebyshev distance between
+    two vectors.
+*   **`vector-perp-2d`**: Calculates the perpendicular of a 2D vector.
+*   **`vector-det`**: Calculates the determinant of two 2D vectors.
+*   **`vector-cross-3d`**: Calculates the cross product of two 3D vectors.
+*   **`vector-intersect-2d`**: Calculates the intersection of two 2D lines.
+*   **`vector-intersect-lines-2d`**: Calculates the intersection of two 2D line
+    segments.
+*   **`vector-collide-lines-2d`**: Checks if two 2D line segments collide.
+*   **`vector-collide-thick-lines-2d`**: Checks if two thick 2D line segments
+    collide.
 *   **`bounding-box`**: Calculates the bounding box of a set of vertices.
 *   **`bounding-sphere`**: Calculates the bounding sphere of a set of vertices.
 
@@ -541,7 +551,8 @@ This function is used for URL manipulation.
 
 These functions are used for file and directory manipulation.
 
-*   **`files-all`**: Returns a list of all files in a directory and its subdirectories.
+*   **`files-all`**: Returns a list of all files in a directory and its
+    subdirectories.
 
     * `(files-all &optional root extensions cut_start cut_end) -> (file ...)`
 
@@ -549,7 +560,8 @@ These functions are used for file and directory manipulation.
 
     * `(files-dirs paths) -> (directory ...)`
 
-*   **`files-all-depends`**: Returns a list of all dependencies for a list of files.
+*   **`files-all-depends`**: Returns a list of all dependencies for a list of
+    files.
 
     * `(files-all-depends files &optional implicit-imports) -> (file ...)`
 
@@ -870,7 +882,8 @@ These functions are used for managing stack scopes.
 
 *   **`scope-operator`**: Defines a new operator.
 
-    * `(scope-operator name precedence &optional associativity implementation)`
+    * `(scope-operator name precedence &optional associativity
+      implementation)`
 
 *   **`scope-new`**: Creates a new scope.
 
@@ -988,11 +1001,13 @@ These functions provide structured coding constructs for the VP assembler.
 
     * `(bits name base &rest lines)`
 
-*   **`errorcase`**: A macro that only executes its body if `*build_mode*` is greater than 0.
+*   **`errorcase`**: A macro that only executes its body if `*build_mode*` is
+    greater than 0.
 
     * `(errorcase &rest body)`
 
-*   **`noterrorcase`**: A macro that only executes its body if `*build_mode*` is 0 or less.
+*   **`noterrorcase`**: A macro that only executes its body if `*build_mode*` is
+    0 or less.
 
     * `(noterrorcase &rest body)`
 
@@ -1000,23 +1015,28 @@ These functions provide structured coding constructs for the VP assembler.
 
     * `(errorif condition label)`
 
-*   **`errorifnot`**: Jumps to a label if a condition is false, only in debug mode.
+*   **`errorifnot`**: Jumps to a label if a condition is false, only in debug
+    mode.
 
     * `(errorifnot condition label)`
 
-*   **`errorif-lisp-args-len`**: Checks the number of Lisp arguments, only in debug mode.
+*   **`errorif-lisp-args-len`**: Checks the number of Lisp arguments, only in
+    debug mode.
 
     * `(errorif-lisp-args-len label args condition length)`
 
-*   **`errorif-lisp-args-sig`**: Checks the signature of Lisp arguments, only in debug mode.
+*   **`errorif-lisp-args-sig`**: Checks the signature of Lisp arguments, only in
+    debug mode.
 
     * `(errorif-lisp-args-sig label args len1 &optional len2)`
 
-*   **`errorif-lisp-args-match`**: Checks if Lisp arguments match a class, only in debug mode.
+*   **`errorif-lisp-args-match`**: Checks if Lisp arguments match a class, only
+    in debug mode.
 
     * `(errorif-lisp-args-match label args class len)`
 
-*   **`errorif-lisp-args-type`**: Checks the type of Lisp arguments, only in debug mode.
+*   **`errorif-lisp-args-type`**: Checks the type of Lisp arguments, only in
+    debug mode.
 
     * `(errorif-lisp-args-type label args class len)`
 
@@ -1132,11 +1152,13 @@ These functions provide structured coding constructs for the VP assembler.
 
     * `(continue &optional label)`
 
-*   **`continueif`**: Continues to the next iteration of a loop if a condition is true.
+*   **`continueif`**: Continues to the next iteration of a loop if a condition
+    is true.
 
     * `(continueif &rest expressions)`
 
-*   **`continueifnot`**: Continues to the next iteration of a loop if a condition is false.
+*   **`continueifnot`**: Continues to the next iteration of a loop if a
+    condition is false.
 
     * `(continueifnot &rest expressions)`
 
@@ -1190,7 +1212,8 @@ These functions are used for defining classes and methods.
 
 *   **`v-call`**: Calls a virtual method.
 
-    * `(v-call class member &optional in-params out-params obj-reg dispatch-reg)`
+    * `(v-call class member &optional in-params out-params obj-reg
+      dispatch-reg)`
 
 *   **`d-jump`**: Jumps to a method directly.
 
@@ -1288,7 +1311,8 @@ These functions are part of the VP assembler and the build system.
 
     * `(all-class-files) -> (file ...)`
 
-*   **`make-info`**: Creates lists of immediate dependencies and products for a file.
+*   **`make-info`**: Creates lists of immediate dependencies and products for a
+    file.
 
     * `(make-info file) -> (dependencies products)`
 
@@ -1296,7 +1320,8 @@ These functions are part of the VP assembler and the build system.
 
     * `(file-age file) -> num`
 
-*   **`make`**: Compiles a list of files, automatically determining dependencies.
+*   **`make`**: Compiles a list of files, automatically determining
+    dependencies.
 
     * `(make &optional files *abi* *cpu*)`
 
@@ -1375,8 +1400,8 @@ is implicitly bound to the result of the test expression.
 
 ## Audio Service
 
-These functions provide an RPC interface to a separate audio service for playing
-sound.
+These functions provide an RPC interface to a separate audio service for
+playing sound.
 
 *   **`audio-add-rpc`**: Loads a sound file (e.g., a `.wav`) and returns a
     handle.

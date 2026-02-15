@@ -69,8 +69,8 @@ obj
 *   **Inherits From:** None (Root Class)
 
 *   **Purpose:** The fundamental base class for all objects in the system. It
-    provides the core mechanisms for reference counting, type introspection, and
-    polymorphism. Every other class ultimately inherits from `:obj`.
+    provides the core mechanisms for reference counting, type introspection,
+    and polymorphism. Every other class ultimately inherits from `:obj`.
 
 *   **Key Methods:**
 
@@ -81,14 +81,15 @@ obj
       `:deinit` is `virtual`, allowing subclasses to clean up their specific
       resources.
 
-    * `:type`: A `virtual` method that returns a `:list` of symbols representing
-      the object's class hierarchy (e.g., `(:real :fixed :num :obj)`).
+    * `:type`: A `virtual` method that returns a `:list` of symbols
+      representing the object's class hierarchy (e.g., `(:real :fixed :num
+      :obj)`).
 
-    * `:hash`: A `virtual` method for generating a hash value, essential for use
-      in `:hset` and `:hmap`.
+    * `:hash`: A `virtual` method for generating a hash value, essential for
+      use in `:hset` and `:hmap`.
 
-    * `:print`: A `virtual` method for generating a string representation of the
-      object.
+    * `:print`: A `virtual` method for generating a string representation of
+      the object.
 
 **`:seq`** (Sequence)
 
@@ -106,7 +107,8 @@ obj
 
     * `:ref_elem`: Retrieves an element at a given index.
 
-    * `:slice`: Returns a new sequence containing a sub-section of the original.
+    * `:slice`: Returns a new sequence containing a sub-section of the
+      original.
 
     * `:cat`: Concatenates a list of sequences into a new one.
 
@@ -127,12 +129,12 @@ obj
 
     * `:read_char` / `:write_char`: Handle single bytes.
 
-    * `:flush`: A `virtual` method to commit any buffered data to the underlying
-      source.
+    * `:flush`: A `virtual` method to commit any buffered data to the
+      underlying source.
 
     * `:read_next` / `:write_next`: `virtual` methods that subclasses must
-      implement to get more data from or send data to the underlying source when
-      the buffer is exhausted/full.
+      implement to get more data from or send data to the underlying source
+      when the buffer is exhausted/full.
 
 ### 2. Concrete Data Structures
 
@@ -142,8 +144,9 @@ obj
 
 *   **Purpose:** A concrete, general-purpose dynamic array for storing raw
     `long` values (which can be numbers or pointers). It implements the `:seq`
-    interface and manages its own capacity, reallocating memory as needed. It is
-    the foundation for more specialized collections like `:list` and `:nums`.
+    interface and manages its own capacity, reallocating memory as needed. It
+    is the foundation for more specialized collections like `:list` and
+    `:nums`.
 
 *   **Key Methods:**
 
@@ -175,15 +178,16 @@ obj
 
     * `:ref_elem`: Returns an element and increments its reference count.
 
-    * It inherits `:push_back`, `:pop_back`, etc., but because it stores object
-      pointers, these methods effectively manage lists of heterogeneous objects.
+    * It inherits `:push_back`, `:pop_back`, etc., but because it stores
+      object pointers, these methods effectively manage lists of
+      heterogeneous objects.
 
 **`:str`** (String)
 
 *   **Inherits From:** `:seq`
 
-*   **Purpose:** The fundamental, immutable string type. It is a vector of bytes
-    with associated length and hash-caching fields.
+*   **Purpose:** The fundamental, immutable string type. It is a vector of
+    bytes with associated length and hash-caching fields.
 
 *   **Key Methods:**
 
@@ -204,9 +208,9 @@ obj
 
 *   **Purpose:** The Lisp symbolic atom. It inherits all the properties of a
     string but adds the crucial concept of **interning**. Interned symbols are
-    guaranteed to have a single, unique object instance for any given character
-    sequence, allowing for fast pointer comparisons instead of slow string
-    comparisons.
+    guaranteed to have a single, unique object instance for any given
+    character sequence, allowing for fast pointer comparisons instead of slow
+    string comparisons.
 
 *   **Key Methods:**
 
@@ -229,8 +233,8 @@ obj
 
 *   **Inherits From:** `:str`
 
-*   **Purpose:** A specialized string used to represent the unique network ID of
-    a temporary ChrysaLisp mailbox instance.
+*   **Purpose:** A specialized string used to represent the unique network ID
+    of a temporary ChrysaLisp mailbox instance.
 
 ### 3. Numerical Types
 
@@ -246,9 +250,10 @@ obj
 
     * `:create`: Creates a `:num` object from a raw `long`.
 
-    * Arithmetic methods (`:add`, `:sub`, `:mul`, etc.): These methods uniquely
-      operate on a `:list` of `:num` objects, performing a reduction (e.g.,
-      `(+)` sums the list) and returning a *new* `:num` object with the result.
+    * Arithmetic methods (`:add`, `:sub`, `:mul`, etc.): These methods
+      uniquely operate on a `:list` of `:num` objects, performing a reduction
+      (e.g., `(+)` sums the list) and returning a *new* `:num` object with the
+      result.
 
 **`:fixed`**
 
@@ -270,13 +275,13 @@ obj
 
 *   **Inherits From:** `:fixed`
 
-*   **Purpose:** A software-implemented floating-point number type.
+*   **Purpose:** A 64bit IEEE floating-point number format (double).
 
 *   **Key Methods:**
 
-    * Overrides all arithmetic and mathematical methods (`:add`, `:sub`, `:sin`,
-      `:sqrt`, etc.) to delegate the calculations to the `:sys_math` library,
-      which contains the low-level floating-point routines.
+    * Overrides all arithmetic and mathematical methods (`:add`, `:sub`,
+      `:sin`, `:sqrt`, etc.) to delegate the calculations to the `:sys_math`
+      library, which contains the low-level floating-point routines.
 
 ### 4. Vectorized Numerical Types
 
@@ -290,9 +295,9 @@ obj
 *   **Key Methods:**
 
     * Arithmetic methods (`:add`, `:sub`, `:mul`, `:div`): These methods take
-      two source `:nums` vectors and perform the operation on each corresponding
-      pair of elements, storing the result in a destination vector. They are
-      implemented using optimized `vec-loop` macros.
+      two source `:nums` vectors and perform the operation on each
+      corresponding pair of elements, storing the result in a destination
+      vector. They are implemented using optimized `vec-loop` macros.
 
     * `:dot`: Computes the dot product.
 
@@ -314,14 +319,14 @@ obj
 
 *   **Inherits From:** `:fixeds`
 
-*   **Purpose:** A high-performance vector of software-implemented
-    floating-point numbers.
+*   **Purpose:** A high-performance vector of 64bit IEEE floating-point
+    numbers (doubles).
 
 *   **Key Methods:**
 
     * Overrides all arithmetic methods to call the corresponding `:sys_math`
-      routine (e.g., `:r_add`, `:r_mul`) for each element pair inside the vector
-      loop.
+      routine (e.g., `:r_add`, `:r_mul`) for each element pair inside the
+      vector loop.
 
 ### 5. I/O Stream Implementations
 
@@ -346,8 +351,8 @@ obj
 
 *   **Inherits From:** `:stream`
 
-*   **Purpose:** Implements the `:stream` API for reading from and writing to an
-    in-memory `:str` object. This is extremely useful for building strings
+*   **Purpose:** Implements the `:stream` API for reading from and writing to
+    an in-memory `:str` object. This is extremely useful for building strings
     piece-by-piece.
 
 *   **Key Methods:**
@@ -357,34 +362,34 @@ obj
     * `:ref_string` / `:claim_string`: Methods to get the underlying `:str`
       object.
 
-    * `:write_next`: When the buffer is full, it automatically allocates a new,
-      larger `:str` object and copies the old content over, making it
+    * `:write_next`: When the buffer is full, it automatically allocates a
+      new, larger `:str` object and copies the old content over, making it
       dynamically resizable.
 
 **`:mstream`** (Memory Stream)
 
 *   **Inherits From:** `:stream`
 
-*   **Purpose:** Implements the `:stream` API for reading from and writing to an
-    in-memory list of `:str` objects. This is extremely useful for in memory
-    buffering.
+*   **Purpose:** Implements the `:stream` API for reading from and writing to
+    an in-memory list of `:str` objects. This is extremely useful for in
+    memory buffering.
 
 *   **Key Methods:**
 
-    * `:seek`: Works within the bounds of the stream. You can rewind, over read
-      and wright as you please.
+    * `:seek`: Works within the bounds of the stream. You can rewind, over
+      read and wright as you please.
 
-    * `:write_next`: When the buffer is full, it automatically allocates a new,
-      `:str` object and pushes it on the end of the chucks list.
+    * `:write_next`: When the buffer is full, it automatically allocates a
+      new, `:str` object and pushes it on the end of the chucks list.
 
 **`:in` / `:out`**
 
 *   **Inherits From:** `:stream`
 
 *   **Purpose:** These two classes work together to provide a reliable,
-    sequenced, stream-like interface over the OS's unreliable, message-passing
-    mail system. `:in` receives messages and reassembles them in order, while
-    `:out` sends them.
+    sequenced, stream-like interface over the OS's unreliable,
+    message-passing mail system. `:in` receives messages and reassembles them
+    in order, while `:out` sends them.
 
 *   **Key Methods:**
 
@@ -423,8 +428,8 @@ obj
 *   **Inherits From:** `:num`
 
 *   **Purpose:** Represents a callable function. Its underlying value is a raw
-    pointer to the function's executable entry point. The Lisp interpreter uses
-    the `:func` vtable to distinguish it from a plain `:num`.
+    pointer to the function's executable entry point. The Lisp interpreter
+    uses the `:func` vtable to distinguish it from a plain `:num`.
 
 *   **Key Methods:**
 
@@ -435,10 +440,10 @@ obj
 
 *   **Inherits From:** `:obj` / `:hset`
 
-*   **Purpose:** The fundamental associative data structures. `:hset` provides
-    the core hashing and bucketing logic. `:hmap` extends `:hset` to store
-    key-value pairs and adds a `:parent` pointer to model lexical scope, making
-    it the central component of the Lisp environment.
+*   **Purpose:** The fundamental associative data structures. `:hset`
+    provides the core hashing and bucketing logic. `:hmap` extends `:hset` to
+    store key-value pairs and adds a `:parent` pointer to model lexical
+    scope, making it the central component of the Lisp environment.
 
 *   **Key Methods:**
 
@@ -473,5 +478,5 @@ obj
 
     * `:init`: Takes a `:nums` object specifying the dimensions (e.g.,
       `(nums 10 20)`) and a flat `:array` object containing the data. Lisp
-      functions like `dim-get` and `dim-set` use the dimension info to calculate
-      the correct index into the flat data array.
+      functions like `dim-get` and `dim-set` use the dimension info to
+      calculate the correct index into the flat data array.

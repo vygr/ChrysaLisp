@@ -1,26 +1,26 @@
 # ChrysaLisp Native Acceleration Guide
 
 This is a detailed breakdown of the native code acceleration used in the
-Mandelbrot and Raymarch applications. This guide explains how to write `lisp.vp`
-files, handle floating-point mathematics in the Virtual Processor (VP), and
-integrate them into ChrysaLisp applications.
+Mandelbrot and Raymarch applications. This guide explains how to write
+`lisp.vp` files, handle floating-point mathematics in the Virtual Processor
+(VP), and integrate them into ChrysaLisp applications.
 
 ## Analyzing Mandelbrot and Raymarch
 
-In ChrysaLisp, performance-critical code can be offloaded from the interpreter
-to the Virtual Processor (VP) assembly. These files are typically named
-`lisp.vp`. They define native functions that can be called directly from Lisp
-code via the Foreign Function Interface (FFI).
+In ChrysaLisp, performance-critical code can be offloaded from the
+interpreter to the Virtual Processor (VP) assembly. These files are typically
+named `lisp.vp`. They define native functions that can be called directly
+from Lisp code via the Foreign Function Interface (FFI).
 
-This guide analyzes `apps/science/mandelbrot/lisp.vp` and `apps/demos/raymarch/lisp.vp` to
-demonstrate register management, floating-point math, constant loading, and SIMD
-operations.
+This guide analyzes `apps/science/mandelbrot/lisp.vp` and
+`apps/demos/raymarch/lisp.vp` to demonstrate register management,
+floating-point math, constant loading, and SIMD operations.
 
 ### 1. The Anatomy of a Native Function
 
-A native function is defined using `def-func` and ended with `def-func-end`. The
-entry point expects arguments in specific registers (Standard ABI: `:r0` =
-`this`, `:r1` = `args`).
+A native function is defined using `def-func` and ended with `def-func-end`.
+The entry point expects arguments in specific registers (Standard ABI: `:r0`
+= `this`, `:r1` = `args`).
 
 #### Basic Structure
 
@@ -80,14 +80,15 @@ manually manage `:r3` vs `:r4` unless interfacing with specific ABI calls.*
 
 ### 3. Handling Constants in Native Code
 
-Unlike immediate integers, floating-point constants cannot be embedded directly
-into arithmetic instructions. They must be stored in a data section and loaded
-into registers.
+Unlike immediate integers, floating-point constants cannot be embedded
+directly into arithmetic instructions. They must be stored in a data section
+and loaded into registers.
 
 #### Step 1: Define the Constants Data Block
 
-At the end of the function (before `def-func-end`), `fn-const` and `fn-consts`,
-define a label and the raw representation of the floating-point numbers for you.
+At the end of the function (before `def-func-end`), `fn-const` and
+`fn-consts`, define a label and the raw representation of the
+floating-point numbers for you.
 
 ```vdu
     (vp-align +long_size)
@@ -144,10 +145,10 @@ usually `_ff`.
 
 ### 5. Advanced: SIMD in Raymarch
 
-The Raymarch app (`apps/demos/raymarch/lisp.vp`) demonstrates `vp-simd`, a powerful
-macro that unrolls operations to process vectors (X, Y, Z) in parallel. While
-VP64 is scalar, this macro generates the sequence of scalar instructions
-automatically, making code cleaner.
+The Raymarch app (`apps/demos/raymarch/lisp.vp`) demonstrates `vp-simd`, a
+powerful macro that unrolls operations to process vectors (X, Y, Z) in
+parallel. While VP64 is scalar, this macro generates the sequence of scalar
+instructions automatically, making code cleaner.
 
 **Example from `apps/demos/raymarch/lisp.vp`:**
 
@@ -169,8 +170,8 @@ automatically, making code cleaner.
 
 To make these functions available to the high-level Lisp interpreter:
 
-1. **JIT Compile:** In the app script (e.g., `apps/science/mandelbrot/child.lisp`),
-   compile the VP file.
+1. **JIT Compile:** In the app script (e.g.,
+   `apps/science/mandelbrot/child.lisp`), compile the VP file.
 
     ```vdu
     (jit "apps/science/mandelbrot/" "lisp.vp" '("depth"))
@@ -225,7 +226,7 @@ Here is the breakdown of the inner loop of the Mandelbrot set calculator
     ; y = 2 * x * y + y0
     (vp-mul-ff two yc)
     (vp-mul-ff xc yc)
-    (vp-add-ff y0 yc) ; Note: In source, this add happens implicitly in SIMD logic or via accumulation
+    (vp-add-ff y0 yc) ; Note: In source, this add happens implicitly
 
     ; x = x2 - y2 + x0
     (vp-cpy-ff x2 xc)
@@ -249,7 +250,8 @@ Here is the breakdown of the inner loop of the Mandelbrot set calculator
    efficiently unpack Lisp data structures into registers.
 
 3. **Constant Tables**: Group all floating-point constants at the end of the
-   function and load them once at the start using `vp-lea-p` and `load-fields`.
+   function and load them once at the start using `vp-lea-p` and
+   `load-fields`.
 
 4. **Error Safety**: Always use `errorif-lisp-args-sig` to verify input types
    before processing.

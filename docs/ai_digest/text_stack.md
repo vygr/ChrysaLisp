@@ -1,13 +1,14 @@
 # The ChrysaLisp Text Stack: A Unified Architecture
 
-This document analyzes the architecture of text handling in ChrysaLisp, tracing
-the hierarchy from low-level data management to high-level visual rendering and
-application logic.
+This document analyzes the architecture of text handling in ChrysaLisp,
+tracing the hierarchy from low-level data management to high-level visual
+rendering and application logic.
 
 The architecture demonstrates a strict separation of concerns, utilizing a
-**Model-View-Controller** pattern adapted for ChrysaLisp's object capabilities.
-A shared abstraction layer ensures that text manipulation logic is identical
-whether driven by a graphical user interface or a headless batch script.
+**Model-View-Controller** pattern adapted for ChrysaLisp's object
+capabilities. A shared abstraction layer ensures that text manipulation
+logic is identical whether driven by a graphical user interface or a
+headless batch script.
 
 ## 1. The Foundation: Data & Logic (The Model)
 
@@ -17,25 +18,25 @@ purely on coordinate tuples and strings.
 
 ### 1.1. `Buffer` (`lib/text/buffer.inc`)
 
-The `Buffer` class is the base unit of text storage and atomic manipulation. It
-manages the raw state of the text and the "cursors" navigating it.
+The `Buffer` class is the base unit of text storage and atomic manipulation.
+It manages the raw state of the text and the "cursors" navigating it.
 
 * **State:**
 
     * `buffer_lines`: A list of strings representing the file content.
 
-    * `cursors`: A list of cursor tuples. ChrysaLisp supports **multi-cursor
-      editing** natively at this low level.
+    * `cursors`: A list of cursor tuples. ChrysaLisp supports
+      **multi-cursor editing** natively at this low level.
 
     * `undo_stack` / `redo_stack`: Built-in history management.
 
-* **The Cursor Tuple:** A cursor is not just an X/Y pair. It is defined as `(cx
-  cy ax ay sx)`.
+* **The Cursor Tuple:** A cursor is not just an X/Y pair. It is defined as
+  `(cx cy ax ay sx)`.
 
     * `cx, cy`: The active cursor position (the "head").
 
-    * `ax, ay`: The anchor position (the "tail"). If distinct from `cx, cy`, a
-      selection exists.
+    * `ax, ay`: The anchor position (the "tail"). If distinct from `cx, cy`,
+      a selection exists.
 
     * `sx` ("Sticky X"): Remembers the desired horizontal column when moving
       vertically through lines of varying lengths.
@@ -53,14 +54,14 @@ manages the raw state of the text and the "cursors" navigating it.
       overlapping or touching are combined into single selection ranges,
       preventing logic errors during bulk edits.
 
-    * **Clipping:** `:clip_cursor` ensures coordinates remain within the bounds
-      of the text content.
+    * **Clipping:** `:clip_cursor` ensures coordinates remain within the
+      bounds of the text content.
 
 ### 1.2. `Document` (`lib/text/document.inc`)
 
 `Document` inherits from `Buffer`. It expands the low-level character
-manipulations into higher-level semantic text operations. It represents a "file"
-in memory.
+manipulations into higher-level semantic text operations. It represents a
+"file" in memory.
 
 * **Semantic Selection:**
 
@@ -73,8 +74,8 @@ in memory.
 
 * **Text Processing:**
 
-    * Implements functional text transformations like `:to_upper`, `:to_lower`,
-      `:sort` (lines), and `:unique`.
+    * Implements functional text transformations like `:to_upper`,
+      `:to_lower`, `:sort` (lines), and `:unique`.
 
     * Handles Indentation (`:tab`, `:left_tab`) and reformatting (`:reflow`,
       `:split`).
@@ -94,9 +95,10 @@ ChrysaLisp utilizes a polymorphic abstraction layer.
 
 ### 2.1. `lib/text/edit.inc`
 
-This file defines a suite of global functions (e.g., `edit-down`, `edit-insert`,
-`edit-copy`) that act as the public API for text manipulation. These functions
-do not contain logic themselves; they operate on a dynamic variable `*edit*`.
+This file defines a suite of global functions (e.g., `edit-down`,
+`edit-insert`, `edit-copy`) that act as the public API for text
+manipulation. These functions do not contain logic themselves; they operate
+on a dynamic variable `*edit*`.
 
 ```vdu
 (defmacro gen-edit (n m) `(defun ,(sym (str "edit-" n)) () (. *edit* ,m)))
@@ -110,14 +112,14 @@ do not contain logic themselves; they operate on a dynamic variable `*edit*`.
 
     * In a **CLI context**, `*edit*` is bound directly to a `Document`.
 
-    * Because the `Edit` widget proxies methods to its internal `Document`, the
-      API signature is identical in both contexts.
+    * Because the `Edit` widget proxies methods to its internal `Document`,
+      the API signature is identical in both contexts.
 
 ## 3. The Presentation Layer: Composition & Rendering (The View)
 
-The GUI layer (`gui/`) is responsible for visualizing the `Document`. ChrysaLisp
-uses a composition approach where the editor widget aggregates several
-specialized sub-views.
+The GUI layer (`gui/`) is responsible for visualizing the `Document`.
+ChrysaLisp uses a composition approach where the editor widget aggregates
+several specialized sub-views.
 
 ### 3.1. `Edit` (`gui/edit/lisp.inc`)
 
@@ -132,7 +134,8 @@ property) rather than inheriting from it.
 
     2. **`Mask` (Ink):** Renders bracket matching highlights.
 
-    3. **`Mask` (Selected):** Renders selection backgrounds (e.g., grey blocks).
+    3. **`Mask` (Selected):** Renders selection backgrounds (e.g., grey
+       blocks).
 
     4. **`Mask` (Found):** Renders search result highlights.
 
@@ -140,16 +143,16 @@ property) rather than inheriting from it.
 
 * **Proxy Delegation:**
 
-    Because `Edit` *has-a* `Document` but needs to conform to the API expected
-    by `lib/text/edit.inc`, it uses `defproxymethod`.
+    Because `Edit` *has-a* `Document` but needs to conform to the API
+    expected by `lib/text/edit.inc`, it uses `defproxymethod`.
 
     ```vdu
     (defproxymethod :left () :buffer)
     (defproxymethod :insert (text) :buffer)
     ```
 
-    This creates a method on `Edit` that looks up the object in `this->buffer`
-    and calls the corresponding method on it.
+    This creates a method on `Edit` that looks up the object in
+    `this->buffer` and calls the corresponding method on it.
 
 * **The `:underlay` Method:**
 
@@ -171,11 +174,11 @@ property) rather than inheriting from it.
 
 * **`Mask` (`gui/mask/lisp.inc`):** A lightweight `View`. Its `:draw` method
   simply sets a color and fills the `+view_opaque_region`. This relies on the
-  efficient region arithmetic in the GUI kernel to draw complex, non-contiguous
-  selection shapes without manual geometry management.
+  efficient region arithmetic in the GUI kernel to draw complex,
+  non-contiguous selection shapes without manual geometry management.
 
-* **`Vdu` (`gui/vdu/`):** A specialized view for monospaced text rendering. It
-  manages a texture cache of glyphs and a grid of characters.
+* **`Vdu` (`gui/vdu/`):** A specialized view for monospaced text rendering.
+  It manages a texture cache of glyphs and a grid of characters.
 
 ## 4. The Application Layer (The Controllers)
 
@@ -185,28 +188,30 @@ Applications wire the model and view to user inputs or scripts.
 
 This is the interactive controller.
 
-* **Initialization:** Creates an `Editor-edit` widget (subclass of `Edit`) and a
-  `Document`.
+* **Initialization:** Creates an `Editor-edit` widget (subclass of `Edit`)
+  and a `Document`.
 
 * **Event Handling:** `actions.inc` maps key presses (via `*key_map*`) to the
   functions in `lib/text/edit.inc` (e.g., `Ctrl+C` -> `action-copy` ->
   `edit-copy`).
 
-* **Feedback Loop:** After an action changes the buffer, `(refresh)` is called.
-  This triggers the `Edit` widget's `:underlay` method to update the visual
-  masks and VDU text.
+* **Feedback Loop:** After an action changes the buffer, `(refresh)` is
+  called. This triggers the `Edit` widget's `:underlay` method to update the
+  visual masks and VDU text.
 
 ### 4.2. GUI Viewer (`apps/tools/viewer/`)
 
-Inherits `Edit` functionality via `Viewer-edit` but overrides mouse interactions
-to support read-only behaviors (clicking to follow links) rather than placing
-cursors for typing. It reuses the exact same display logic as the Editor.
+Inherits `Edit` functionality via `Viewer-edit` but overrides mouse
+interactions to support read-only behaviors (clicking to follow links)
+rather than placing cursors for typing. It reuses the exact same display
+logic as the Editor.
 
 ### 4.3. CLI Editor (`cmd/edit.lisp`)
 
 This is the headless controller, used for batch processing or scripting.
 
-* **Architecture:** It instantiates a `Document` but **not** an `Edit` widget.
+* **Architecture:** It instantiates a `Document` but **not** an `Edit`
+  widget.
 
 * **Binding:** It binds the `Document` instance to the `*edit*` variable.
 
@@ -214,8 +219,8 @@ This is the headless controller, used for batch processing or scripting.
 
     * It accepts a script via `-c` (command string) or `-s` (script file).
 
-    * The script executes in an environment where functions like `(edit-down)`
-      or `(edit-replace "foo")` are available.
+    * The script executes in an environment where functions like
+      `(edit-down)` or `(edit-replace "foo")` are available.
 
     * These functions operate directly on the `Document` via the `*edit*`
       binding.
@@ -248,4 +253,5 @@ When a command like `(edit-insert "A")` is executed:
     * No refresh or rendering occurs.
 
 This architecture ensures zero duplication of effort, high performance, and
-total consistency between graphical and command-line text manipulation tools.
+total consistency between graphical and command-line text manipulation
+tools.

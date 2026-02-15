@@ -57,8 +57,8 @@ no cons, cdr or car stuff. Lists are just vector objects and you use `(push)`,
 departure, but one with profound implications.
 
 * **Lists as Arrays:** In ChrysaLisp, a Lisp `:list` is, under the hood, an
-instance of the `:array` VP class (which itself inherits from `:seq`). This means
-lists are dynamic, vector-like structures, offering O(1) indexed access.
+instance of the `:array` VP class (which itself inherits from `:seq`). This
+means lists are dynamic, vector-like structures, offering O(1) indexed access.
 
 * **Why this shift? Performance and Modern Hardware:**
 
@@ -71,22 +71,22 @@ lists are dynamic, vector-like structures, offering O(1) indexed access.
     blocks of data in parallel. Sequence-based primitives are much more
     amenable to vectorization and parallel processing than operations on
     individual, disparate cons cells. ChrysaLisp's design anticipates a world
-    where such hardware capabilities are leveraged. The `:nums`, `:fixeds`, and
-    `:reals` typed arrays, with their vectorized VP methods, are a testament to
-    this.
+    where such hardware capabilities are leveraged. The `:nums`, `:fixeds`,
+    and `:reals` typed arrays, with their vectorized VP methods, are a
+    testament to this.
 
-    * **Reduced Pointer Overhead:** For dense collections, arrays can have less
-    memory overhead per element compared to cons cells, each of which carries
-    two pointers.
+    * **Reduced Pointer Overhead:** For dense collections, arrays can have
+    less memory overhead per element compared to cons cells, each of which
+    carries two pointers.
 
 * **The `:seq` Abstraction (`class/seq/class.inc`):** ChrysaLisp introduces
 `:seq` as an abstract base class. This is brilliant because it allows a wide
 variety of underlying data structures to present a unified sequence interface
 to the Lisp programmer. As `iteration.md` lists, `:array`, `:list`, `:nums`,
 `:fixeds`, `:reals`, `:str`, `:sym`, and even `gui/path` all inherit from (or
-conform to the interface of) `:seq`. This means Lisp functions like `(length)`,
-`(elem-get)`, `(slice)`, `(map)`, `(each)` can operate on all these types
-transparently.
+conform to the interface of) `:seq`. This means Lisp functions like
+`(length)`, `(elem-get)`, `(slice)`, `(map)`, `(each)` can operate on all
+these types transparently.
 
 * **A Rich Toolkit for Sequence Manipulation (`iteration.md`, `functions.md`,
 `class/lisp/root.inc`):** ChrysaLisp provides an extensive set of built-in
@@ -94,10 +94,10 @@ functions and macros for sequence manipulation, all designed with performance
 in mind:
 
     * **Native Iteration Primitives:** `(each!)`, `(some!)`, `(map!)`,
-    `(reduce!)` are the workhorses, implemented directly in performant VP code
-    (`class/seq/lisp_each.vp`, etc.). They operate on slices, allow multiple
-    input sequences, and provide the `(!)` special form to access the current
-    index.
+    `(reduce!)` are the workhorses, implemented directly in performant VP
+    code (`class/seq/lisp_each.vp`, etc.). They operate on slices, allow
+    multiple input sequences, and provide the `(!)` special form to access
+    the current index.
 
     * **Convenience Macros:** `(each)`, `(map)`, `(reduce)`, `(filter)`,
       `(reverse)` build upon these primitives or provide common sequence
@@ -112,10 +112,10 @@ in mind:
     * **Searching:** `(find)`, `(rfind)`.
 
 The emphasis is clear: provide developers with powerful, efficient tools to
-work with collections *as sequences*. This approach is not just about mimicking
-array operations from other languages; it's about leveraging the strengths of
-Lisp's functional programming capabilities on data structures that are
-well-suited for modern hardware.
+work with collections *as sequences*. This approach is not just about
+mimicking array operations from other languages; it's about leveraging the
+strengths of Lisp's functional programming capabilities on data structures
+that are well-suited for modern hardware.
 
 ### Key Lisp Features, Reimagined
 
@@ -123,11 +123,12 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
 
 * **Symbols and Environments (`environment.md`, `class/hmap/class.vp`):**
 
-    * Symbols are interned for efficiency (fast comparisons, unique instances).
+    * Symbols are interned for efficiency (fast comparisons, unique
+      instances).
 
     * Environments are `:hmap` objects, forming a chain for lexical scoping.
-    `(env)`, `(penv)`, `(defq)`, `(setq)`, and `(bind)` provide the mechanisms
-    for managing these.
+    `(env)`, `(penv)`, `(defq)`, `(setq)`, and `(bind)` provide the
+    mechanisms for managing these.
 
     * The ability to create isolated environments with `(env num_buckets)` is
     powerful for modules and properties.
@@ -156,10 +157,10 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
     * The `(bind)` special form is exceptionally powerful, allowing
     destructuring of *any sequence type*, not just lists.
 
-    * Lambda list keywords (`&optional`, `&rest`, `&most`, `&ignore`) are fully
-    supported by the `:env_bind` VP method, providing flexible function
-    signatures. This is a significant feature that makes function definitions
-    clean and expressive.
+    * Lambda list keywords (`&optional`, `&rest`, `&most`, `&ignore`) are
+    fully supported by the `:env_bind` VP method, providing flexible
+    function signatures. This is a significant feature that makes function
+    definitions clean and expressive.
 
 * **Lisp Classes (`classes.md`):**
 
@@ -169,15 +170,15 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
     pointing to another `:hmap` (the class's method table).
 
     * Supports single inheritance (`(defclass Name (Super) ...)`), method
-    definition (`defmethod`), method calls (`. this :method`), superclass calls
-    (`.super`), and reflection (`.?`).
+    definition (`defmethod`), method calls (`. this :method`), superclass
+    calls (`.super`), and reflection (`.?`).
 
-    * The dynamic nature of `:hmap`s for vtables even opens the door for runtime
-    mixins, a feature hard to achieve in statically compiled languages like
-    C++.
+    * The dynamic nature of `:hmap`s for vtables even opens the door for
+    runtime mixins, a feature hard to achieve in statically compiled
+    languages like C++.
 
-* **Conditionals (`conditionals.md`, `:lisp :lisp_if`, `:lisp :lisp_cond`, `lisp
-:lisp_while`):**
+* **Conditionals (`conditionals.md`, `:lisp :lisp_if`, `:lisp :lisp_cond`,
+`lisp :lisp_while`):**
 
     * Standard conditional forms are available, implemented as efficient VP
     primitives or macros.
@@ -194,12 +195,13 @@ macros and replacing macro calls with their expansions. This is done
 recursively until no more macros are found.
 
 3. **Pre-bind Symbols (`:lisp :repl_bind`):** Traverses the expanded forms
-again. It replaces symbolic function/macro names with direct pointers to their
-function objects and known constant symbols (like `+char_lf`) with their
-values. This significantly speeds up evaluation by avoiding runtime lookups.
+again. It replaces symbolic function/macro names with direct pointers to
+their function objects and known constant symbols (like `+char_lf`) with
+their values. This significantly speeds up evaluation by avoiding runtime
+lookups.
 
-4. **Evaluate (`:lisp :repl_eval`):** Executes the fully expanded and pre-bound
-code.
+4. **Evaluate (`:lisp :repl_eval`):** Executes the fully expanded and
+pre-bound code.
 
     * Atoms evaluate to themselves (or their looked-up value for variables).
 
@@ -212,10 +214,11 @@ code.
 ChrysaLisp's Lisp is not an isolated island. It's deeply integrated with the
 system:
 
-* **FFI (Foreign Function Interface):** The `(ffi ...)` mechanism (implemented
-by `:lisp :lisp_ffi`) allows Lisp to call VP functions directly. A vast number
-of built-in Lisp functions are actually FFI wrappers around performant VP code
-(see `class/lisp/root.inc` and various `lisp.vp` files).
+* **FFI (Foreign Function Interface):** The `(ffi ...)` mechanism
+(implemented by `:lisp :lisp_ffi`) allows Lisp to call VP functions
+directly. A vast number of built-in Lisp functions are actually FFI wrappers
+around performant VP code (see `class/lisp/root.inc` and various `lisp.vp`
+files).
 
 * **CScript and `(assign)`:** Lisp code, especially within VP function
 definitions, can use the `(assign)` macro, which can invoke the CScript
@@ -224,8 +227,8 @@ efficient, register-level code generation.
 
 ### Error Handling: Pragmatic and Performant
 
-The error handling philosophy (`errors.md`) is "DON'T coddle!" and "First rule
-of error club is we don't pass errors."
+The error handling philosophy (`errors.md`) is "DON'T coddle!" and "First
+rule of error club is we don't pass errors."
 
 * Low-level VP code assumes correct inputs and may crash on bad data.
 
@@ -244,8 +247,8 @@ performance and minimal footprint. This is a powerful, pragmatic approach.
 pre-binding, and optional stripping of debug checks all contribute to high
 performance.
 
-* **Expressiveness:** Retains Lisp's powerful macros and functional programming
-capabilities, especially for sequence manipulation.
+* **Expressiveness:** Retains Lisp's powerful macros and functional
+programming capabilities, especially for sequence manipulation.
 
 * **System-Level Control:** FFI and CScript integration provide deep control
 and allow Lisp to be used for tasks traditionally reserved for C/C++.
@@ -253,29 +256,29 @@ and allow Lisp to be used for tasks traditionally reserved for C/C++.
 * **Modern Approach:** The design choices align well with the strengths of
 modern hardware.
 
-* **Pragmatism:** Focuses on what's effective for its goals, rather than strict
-adherence to historical Lisp conventions.
+* **Pragmatism:** Focuses on what's effective for its goals, rather than
+strict adherence to historical Lisp conventions.
 
 **Trade-offs:**
 
 * **Manual Cycle Management:** The lack of a GC means developers are
-responsible for breaking reference cycles to avoid memory leaks. This requires
-more discipline than in a GC'd Lisp.
+responsible for breaking reference cycles to avoid memory leaks. This
+requires more discipline than in a GC'd Lisp.
 
-* **Learning Curve for Traditional Lispers:** The absence of `cons/car/cdr` and
-the array-based nature of lists might require an adjustment for those
+* **Learning Curve for Traditional Lispers:** The absence of `cons/car/cdr`
+and the array-based nature of lists might require an adjustment for those
 accustomed to traditional Lisp.
 
 ## Conclusion: Lisp, Evolved for Systems
 
 ChrysaLisp's Lisp implementation is a fascinating and compelling take on what
 Lisp can be in the 21st century. By embracing sequences as its primary
-collection type and building highly optimized operations around them, it carves
-out a niche for Lisp as a performant language suitable for systems programming,
-embedded applications, and anywhere direct control and efficiency are
-paramount. It doesn't discard Lisp's powerful heritage of macros and symbolic
-processing; instead, it reframes it within a context that is acutely aware of
-underlying hardware and performance considerations. It's a Lisp that's not
-afraid to get its hands dirty at the bit and byte level, all while offering the
-high-level abstractions that make Lisp such a joy to use for manipulating
-complex data and logic. It's Lisp, evolved.
+collection type and building highly optimized operations around them, it
+carves out a niche for Lisp as a performant language suitable for systems
+programming, embedded applications, and anywhere direct control and
+efficiency are paramount. It doesn't discard Lisp's powerful heritage of
+macros and symbolic processing; instead, it reframes it within a context
+that is acutely aware of underlying hardware and performance considerations.
+It's a Lisp that's not afraid to get its hands dirty at the bit and byte
+level, all while offering the high-level abstractions that make Lisp such a
+joy to use for manipulating complex data and logic. It's Lisp, evolved.

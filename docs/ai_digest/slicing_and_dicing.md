@@ -5,14 +5,14 @@ This document expands upon previous analysis. It is crucial to understand that
 where a `list` is a chain of cons cells (linked list), a ChrysaLisp `:list`
 inherits from `:array`.
 
-Both `:str` (byte strings) and `:list` (object vectors) are contiguous blocks of
-memory. This architecture dictates that sequence manipulation is not done via
-pointer swapping (`set-cdr!`), but through high-performance memory block
+Both `:str` (byte strings) and `:list` (object vectors) are contiguous blocks
+of memory. This architecture dictates that sequence manipulation is not done
+via pointer swapping (`set-cdr!`), but through high-performance memory block
 operations (`memcpy`, `memmove`).
 
 The system relies on a trinity of primitives—**cat**, **slice**, and
-**splice**—which serve as the foundation for the standard library macros and the
-advanced Regular Expression replacement compiler.
+**splice**—which serve as the foundation for the standard library macros and
+the advanced Regular Expression replacement compiler.
 
 ## 1. The Core Primitives
 
@@ -33,7 +33,8 @@ O(N) performance characteristics as `:str`.
 
     1. **Measure:** Iterates inputs to calculate total element count.
 
-    2. **Allocate:** Allocates a single contiguous memory block for the result.
+    2. **Allocate:** Allocates a single contiguous memory block for the
+       result.
 
     3. **Blit:** Performs a linear copy of each source buffer into the
        destination buffer.
@@ -94,16 +95,16 @@ alternating between chunks of `src1` and `src2` based on the `index_vector`.
 **Implication for Lists:**
 
 In a linked-list Lisp, splicing often involves mutating pointers (O(1) if you
-have the cons cell). In ChrysaLisp, `splice` allows you to construct a modified
-version of a list without mutating the original, and because of CPU cache
-locality and hardware `memcpy` optimization, this is often faster than pointer
-chasing for small to medium lists.
+have the cons cell). In ChrysaLisp, `splice` allows you to construct a
+modified version of a list without mutating the original, and because of CPU
+cache locality and hardware `memcpy` optimization, this is often faster than
+pointer chasing for small to medium lists.
 
 ## 2. The Macro Layer
 
 ChrysaLisp uses macros to map high-level editing concepts (insert, erase) into
-specific `splice` topological vectors. These macros work identically for strings
-and lists.
+specific `splice` topological vectors. These macros work identically for
+strings and lists.
 
 Definitions found in `class/lisp/root.inc`.
 
@@ -171,8 +172,8 @@ Definitions found in `class/lisp/root.inc`.
     4. `k..-1` (Tail)
 
 * **Significance:** Performing a rotation on a linked list requires changing
-  multiple pointer links and potentially traversing to finding `k`. On a vector,
-  this is simply copying 4 memory blocks into a new container.
+  multiple pointer links and potentially traversing to finding `k`. On a
+  vector, this is simply copying 4 memory blocks into a new container.
 
 ## 3. The Search & Replace Compiler
 
@@ -182,7 +183,8 @@ single allocation.
 
 ### 3.1 `replace-compile`
 
-Compiles a replacement template (e.g., `"Value: $1"`) into a vector "blueprint".
+Compiles a replacement template (e.g., `"Value: $1"`) into a vector
+"blueprint".
 
 * **Output:** A `z_nums` (Zero Nums) vector. This acts as a pre-allocated
   structure for the `splice` index vector.
@@ -190,8 +192,8 @@ Compiles a replacement template (e.g., `"Value: $1"`) into a vector "blueprint".
 ### 3.2 `replace-matches`
 
 Because strings are vectors, we cannot insert text in-place efficiently.
-`replace-matches` solves this by calculating the topology of the *entire* final
-string before creating it.
+`replace-matches` solves this by calculating the topology of the *entire*
+final string before creating it.
 
 **The Algorithm:**
 
@@ -201,8 +203,8 @@ string before creating it.
 
     * It identifies ranges of the *original* text to keep (between matches).
 
-    * It patches the `z_nums` blueprint with the indices of capture groups found
-      in the match.
+    * It patches the `z_nums` blueprint with the indices of capture groups
+      found in the match.
 
 3. **Execution:** `(splice text replacement_template huge_index_vector)`
 
@@ -210,20 +212,20 @@ string before creating it.
 
     * `src2`: The replacement template string.
 
-    * `index_vector`: A map interleaving chunks of original text with chunks of
-      the template (or capture groups from the original text).
+    * `index_vector`: A map interleaving chunks of original text with chunks
+      of the template (or capture groups from the original text).
 
 **Why Vectors Win Here:**
 
-If this were a linked-list of characters, this operation would be horrific. As
-vectors, the `splice` command effectively becomes a "Scatter-Gather DMA"
+If this were a linked-list of characters, this operation would be horrific.
+As vectors, the `splice` command effectively becomes a "Scatter-Gather DMA"
 operation for the CPU, streaming data from two source pointers into one
 destination pointer sequentially.
 
 ## 4. Interaction with Rosinante (Iterators)
 
-The "Rosinante" primitives (`each`, `map`, `filter`, `reduce`) are designed to
-work over these contiguous memory blocks.
+The "Rosinante" primitives (`each!`, `map!`, `filter!`, `reduce!`) are
+designed to work over these contiguous memory blocks.
 
 ### 4.1 The Cost of `rest`
 
@@ -234,9 +236,9 @@ In ChrysaLisp, `(rest list)` calls `(slice list 1 -1)`.
 
 * **Cost:** O(N). It allocates a new vector and copies the data.
 
-* **Impact:** Recursive algorithms that consume a list one item at a time (`func
-  (first list) (recurse (rest list))`) are **O(N^2)** in ChrysaLisp (Triangle
-  number memory usage).
+* **Impact:** Recursive algorithms that consume a list one item at a time
+  (`func (first list) (recurse (rest list))`) are **O(N^2)** in ChrysaLisp
+  (Triangle number memory usage).
 
 ### 4.2 The Solution: Iterators and Indices
 
@@ -244,11 +246,11 @@ To compliment the vector architecture, Rosinante iterators do not consume the
 list via `rest`. They iterate an **index** or a **pointer** across the
 contiguous memory block.
 
-* **`each`:** Iterates a pointer from `array_begin` to `array_begin + length`.
-  Zero allocation.
+* **`each!`:** Iterates a pointer from `array_begin` to `array_begin +
+  length`. Zero allocation.
 
-* **`map`:** Allocates the result vector *once* (size is known), then iterates
-  pointers filling it.
+* **`map!`:** Allocates the result vector *once* (size is known), then
+  iterates pointers filling it.
 
 ### 4.3 Slicing as "Windowing"
 
@@ -256,7 +258,8 @@ When you need to process a sub-section of a list, the iteration primitives all
 multiple sequences and take optional slice indices ! Even allow reverse
 iteration of multi sequences.
 
-See the document specifically on the "Rosinante" primitives for all the details.
+See the document specifically on the "Rosinante" primitives for all the
+details.
 
 ```vdu
 (each! print (list my_list my_nums my_strings) 20 10)
@@ -264,18 +267,18 @@ See the document specifically on the "Rosinante" primitives for all the details.
 
 ## 5. Summary
 
-ChrysaLisp's identity as a **Vector Lisp** fundamentally changes the performance
-profile of sequence operations.
+ChrysaLisp's identity as a **Vector Lisp** fundamentally changes the
+performance profile of sequence operations.
 
 1. **Identity:** Lists are Arrays. Arrays are Memory Blocks.
 
-2. **`splice`:** The universal primitive for reshaping memory blocks. It allows
-   complex permutations (insert, delete, rotate, regex-replace) to be expressed
-   as a single allocation and copy pass.
+2. **`splice`:** The universal primitive for reshaping memory blocks. It
+   allows complex permutations (insert, delete, rotate, regex-replace) to be
+   expressed as a single allocation and copy pass.
 
 3. **Efficiency:** It trades the O(1) insert/delete of linked lists for the
    cache-friendly, pre-fetchable, linear access patterns of vectors.
 
 4. **Macros:** The high-level editing macros (`insert`, `erase`) serve to
-   abstract the complexity of generating `splice` vectors, providing a familiar
-   Lisp API over a flat-memory architecture.
+   abstract the complexity of generating `splice` vectors, providing a
+   familiar Lisp API over a flat-memory architecture.

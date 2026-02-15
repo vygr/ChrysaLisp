@@ -8,19 +8,19 @@ messages, the routing algorithms, and the system's self-cleaning mechanisms.
 
 ## 1. The Link Drivers (`sys/link`)
 
-The Link Driver is the bridge between the logical message queue and the physical
-transport layer (Shared Memory). It provides a lock-free, ring-buffered
-communication channel between two nodes.
+The Link Driver is the bridge between the logical message queue and the
+physical transport layer (Shared Memory). It provides a lock-free,
+ring-buffered communication channel between two nodes.
 
 Other link types are available, see the `ChrysaLib` github project for machine
-to machine, USB and IP link drivers in use, to bridge physical machines via the
-same abstraction.
+to machine, USB and IP link drivers in use, to bridge physical machines via
+the same abstraction.
 
 ### Shared Memory Structure
 
-Defined in `sys/link/class.inc`, the shared memory region (`lk_shmem`) is mapped
-into the address space of both communicating nodes. It is divided into two
-unidirectional channels.
+Defined in `sys/link/class.inc`, the shared memory region (`lk_shmem`) is
+mapped into the address space of both communicating nodes. It is divided into
+two unidirectional channels.
 
 * **Size:** 4KB (`lk_page_size`)
 
@@ -77,9 +77,9 @@ The `:out` task (in `sys/link/class.vp`):
 
 	* Advances to the next buffer in the ring.
 
-5. If no message exists, it sends a **Ping** (empty payload with `total_length`
-   = -1) to maintain routing table aliveness and exchange load-balancing stats
-   (`task_count`).
+5. If no message exists, it sends a **Ping** (empty payload with
+   `total_length` = -1) to maintain routing table aliveness and exchange
+   load-balancing stats (`task_count`).
 
 ### Reception (`:in` task)
 
@@ -95,12 +95,12 @@ The `:in` task (in `sys/link/class.vp`):
 
 	* If it is a Ping, it updates local load-balancing stats.
 
-	* If it is a Data Fragment destined for *this* node, it calls `:sys_mail :in`
-	  to handle reassembly.
+	* If it is a Data Fragment destined for *this* node, it calls `:sys_mail
+	  :in` to handle reassembly.
 
-	* If it is destined for *another* node, it allocates a new message container,
-	  copies the data, and reinjects it into the local mail system via `:sys_mail
-	  :send` for forwarding.
+	* If it is destined for *another* node, it allocates a new message
+	  container, copies the data, and reinjects it into the local mail system
+	  via `:sys_mail :send` for forwarding.
 
 5. Sets status to `ready` (signaling the sender can reuse the slot).
 
@@ -114,8 +114,8 @@ ChrysaLisp supports messages larger than the physical link packet size
 
 ### Fragmentation (`sys/mail/out.vp`)
 
-When `:sys_mail :send` detects a message larger than `lk_data_size`, it queues
-it to the **Postman** task (`:sys_mail :out`).
+When `:sys_mail :send` detects a message larger than `lk_data_size`, it
+queues it to the **Postman** task (`:sys_mail :out`).
 
 1. **Session ID:** A unique session ID is incremented for the transaction.
 
@@ -150,14 +150,14 @@ The `:sys_mail :in` method handles incoming fragments from the Link Driver.
 4. **Tracking:** It decrements a tracking counter on the Parcel object by
    `frag_length`.
 
-5. **Completion:** When the tracking counter reaches 0 (all bytes received), the
-   completed Parcel is removed from the reassembly list and delivered to the
-   destination mailbox via `:sys_mail :send`.
+5. **Completion:** When the tracking counter reaches 0 (all bytes received),
+   the completed Parcel is removed from the reassembly list and delivered to
+   the destination mailbox via `:sys_mail :send`.
 
 ## 3. Kernel Routing
 
-ChrysaLisp uses a decentralized, flood-fill-style routing algorithm to discover
-paths and services.
+ChrysaLisp uses a decentralized, flood-fill-style routing algorithm to
+discover paths and services.
 
 ### Node Mapping (`node_map`)
 
@@ -165,16 +165,16 @@ The kernel maintains a `node_map` (`sys/statics/class.inc`), mapping a target
 `node_id` to a routing tuple: `[service_set, timestamp, session, hops,
 via_node_1, via_node_2]`
 
-* **via_node:** The immediate neighbor to send messages to in order to reach the
-  target.
+* **via_node:** The immediate neighbor to send messages to in order to reach
+  the target.
 
 ### The Ping Cycle (`sys/kernel/class.vp`)
 
 Every `ping_period` (approx 5 seconds + random jitter), the Kernel `:ping` task
 runs:
 
-1. **Broadcast:** Sends a `kn_msg_ping` to all immediate neighbors via the Link
-   Drivers.
+1. **Broadcast:** Sends a `kn_msg_ping` to all immediate neighbors via the
+   Link Drivers.
 
 2. **Payload:** Contains the sender's origin ID, session ID, hop count
    (initially 0), and a list of offered services.
@@ -226,20 +226,21 @@ entries.
 
 ### The Purge Cycle
 
-The Kernel `:ping` task (in `sys/kernel/class.vp`) triggers cleanup logic at the
-end of every cycle.
+The Kernel `:ping` task (in `sys/kernel/class.vp`) triggers cleanup logic at
+the end of every cycle.
 
 ### 1. Route Purging
 
 * **Target:** `statics_sys_mail_node_map`
 
-* **Logic:** A callback (`purge_callback`) checks the timestamp of every entry
-  in the routing table.
+* **Logic:** A callback (`purge_callback`) checks the timestamp of every
+  entry in the routing table.
 
-* **Threshold:** If `last_seen < (current_time - ping_period * 2)`, the node is
-  presumed dead/disconnected.
+* **Threshold:** If `last_seen < (current_time - ping_period * 2)`, the node
+  is presumed dead/disconnected.
 
-* **Action:** The route and associated service lists are removed from the map.
+* **Action:** The route and associated service lists are removed from the
+  map.
 
 ### 2. Message Purging
 
@@ -260,8 +261,8 @@ end of every cycle.
 
 * **Threshold:** Same as above.
 
-* **Action:** Incomplete parcels (where parts were lost or the sender died) are
-  freed.
+* **Action:** Incomplete parcels (where parts were lost or the sender died)
+  are freed.
 
-This architecture ensures that the system self-heals after network partitions or
-node failures without manual intervention.
+This architecture ensures that the system self-heals after network partitions
+or node failures without manual intervention.

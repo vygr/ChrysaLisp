@@ -1,16 +1,18 @@
 # The ChrysaLisp Parallel Programmable Editor
 
-The `edit` command (`cmd/edit.lisp`) is not merely a search-and-replace tool; it
-is a massively parallel, programmable document processing engine.
+The `edit` command (`cmd/edit.lisp`) is not merely a search-and-replace tool;
+it is a massively parallel, programmable document processing engine.
 
-Unlike traditional tools like `sed` or `awk` which use specialized, restricted
-mini-languages, `edit` allows you to write full **ChrysaLisp** programs to
-manipulate text. These scripts are compiled into native code and executed within
-a specialized environment populated with high-level editing primitives.
+Unlike traditional tools like `sed` or `awk` which use specialized,
+restricted mini-languages, `edit` allows you to write full **ChrysaLisp**
+programs to manipulate text. These scripts are compiled into native code and
+executed within a specialized environment populated with high-level editing
+primitives.
 
-Because the editing logic is encapsulated in a pure function, the operation can
-be trivially distributed across the network using the `-j` (jobs) flag, allowing
-you to refactor thousands of files simultaneously across a compute cluster.
+Because the editing logic is encapsulated in a pure function, the operation
+can be trivially distributed across the network using the `-j` (jobs) flag,
+allowing you to refactor thousands of files simultaneously across a compute
+cluster.
 
 ## Usage
 
@@ -20,19 +22,19 @@ edit [options] [path] ...
 
 ### Options
 
-* `-c --cmd "..."`: **Immediate mode.** A string containing the Lisp commands to
-  execute. These commands are automatically wrapped in a `(defun edit-script ()
-  ...)` lambda before compilation.
+* `-c --cmd "..."`: **Immediate mode.** A string containing the Lisp
+  commands to execute. These commands are automatically wrapped in a
+  `(defun edit-script () ...)` lambda before compilation.
 
-* `-s --script path`: **Script mode.** A file path containing the Lisp script to
-  execute. In this mode, **you must explicitly define** the entry point function
-  `(defun edit-script () ...)` within your file.
+* `-s --script path`: **Script mode.** A file path containing the Lisp
+  script to execute. In this mode, **you must explicitly define** the entry
+  point function `(defun edit-script () ...)` within your file.
 
 * `-j --jobs num`: The number of jobs per node to use. Defaults to 1.
 
-If both `-c` and `-s` are provided, the `-c` commands are compiled *before* the
-script file. This is useful for setting up configuration variables or defining
-helper functions that the script depends on.
+If both `-c` and `-s` are provided, the `-c` commands are compiled *before*
+the script file. This is useful for setting up configuration variables or
+defining helper functions that the script depends on.
 
 If no file paths are provided as arguments, `edit` reads paths from `stdin`.
 
@@ -40,11 +42,11 @@ If no file paths are provided as arguments, `edit` reads paths from `stdin`.
 
 When `edit` runs, it performs the following steps:
 
-1. **Environment Setup**: It creates a specialized Lisp environment inheriting
-   from `*root_env*`.
+1. **Environment Setup**: It creates a specialized Lisp environment
+   inheriting from `*root_env*`.
 
-2. **API Binding**: It populates this environment with editor-specific functions
-   (see API Reference below).
+2. **API Binding**: It populates this environment with editor-specific
+   functions (see API Reference below).
 
 3. **Compilation**: It reads your script, compiles it into native code, and
    prepares the `(edit-script)` function. This happens **once** on each node.
@@ -57,8 +59,8 @@ When `edit` runs, it performs the following steps:
 
 	* Your compiled `(edit-script)` function is executed.
 
-	* If no error is thrown, and the document has been modified, the document is
-	  saved back to disk.
+	* If no error is thrown, and the document has been modified, the
+	  document is saved back to disk.
 
 ### Implicit Context
 
@@ -160,18 +162,18 @@ Create or modify selections. ChrysaLisp uses a multi-cursor editing model.
 
 ### Search & Cursors
 
-Search operations populate a "found" buffer. You must explicitly convert matches
-to cursors to edit them.
+Search operations populate a "found" buffer. You must explicitly convert
+matches to cursors to edit them.
 
-* `(edit-find pattern [:w :r])`: Find occurrences of `pattern`. Use `:w` for
-  Whole words and `:r` for Regex mode.
+* `(edit-find pattern [:w :r])`: Find occurrences of `pattern`. Use `:w`
+  for Whole words and `:r` for Regex mode.
 
 * `(edit-find-next)` / `(edit-find-prev)`: Select the next or previous match.
 
 * `(edit-find-add-next)`: Add the next match to current cursors.
 
-* `(edit-cursors)`: **Replace** current cursors with cursors at every location
-  found.
+* `(edit-cursors)`: **Replace** current cursors with cursors at every
+  location found.
 
 * `(edit-add-cursors)`: **Add** new cursors at found locations to existing
   cursors.
@@ -185,12 +187,14 @@ document.
 
 * `(edit-get-focus)`: Return the current focus region cursor.
 
-* `(edit-set-focus [csr])`: Set the focus region. Defaults to the last cursor.
+* `(edit-set-focus [csr])`: Set the focus region. Defaults to the last
+  cursor.
 
-* `(edit-filter-cursors)`: Remove all cursors that are outside the focus region.
+* `(edit-filter-cursors)`: Remove all cursors that are outside the focus
+  region.
 
-* `(edit-focus-cursors)`: Set cursors to the subset of global found matches that fall
-  within the current focus region.
+* `(edit-focus-cursors)`: Set cursors to the subset of global found matches
+  that fall within the current focus region.
 
 ### Mutation
 
@@ -198,8 +202,8 @@ Modify text at current cursor positions or selections.
 
 * `(edit-insert txt)`: Insert text. Replaces selection if one exists.
 
-* `(edit-replace pattern)`: Replace selected text using `$n` regex substitution
-  patterns.
+* `(edit-replace pattern)`: Replace selected text using `$n` regex
+  substitution patterns.
 
 * `(edit-delete [cnt])`: Delete character/selection to the right.
 
@@ -231,18 +235,18 @@ Modify text at current cursor positions or selections.
 
 * `(edit-get-text)`: Return the currently selected text as a string.
 
-* `(edit-get-primary-text)`: Return the text selected by the primary cursor as a
-  string.
+* `(edit-get-primary-text)`: Return the text selected by the primary cursor
+  as a string.
 
 * `(edit-get-filename)`: Return the filename currently being processed.
 
 * `(edit-copy)`: Copy selection and return it.
 
-* `(edit-print ...)`: Print to `stdout` (useful for dry-runs). Defaults to the
-  selected text.
+* `(edit-print ...)`: Print to `stdout` (useful for dry-runs). Defaults to
+  the selected text.
 
-* `(edit-split-text txt [cls])`: Utility: Split string by char class (default
-  form feed and newline).
+* `(edit-split-text txt [cls])`: Utility: Split string by char class
+  (default form feed and newline).
 
 * `(edit-join-text list [cls])`: Utility: Join list into string (default
   newline).
@@ -307,7 +311,8 @@ edit -c
 
 ### 6. Data Extraction
 
-Don't edit the file, just extract data. This finds all URLs and prints them.
+Don't edit the file, just extract data. This finds all URLs and prints
+them.
 
 ```code
 files . .ms |

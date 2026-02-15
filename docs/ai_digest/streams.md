@@ -9,10 +9,10 @@ low-level, high-performance Virtual Processor (VP) methods.
 
 ## The Core Abstraction: The `:stream` Class
 
-The foundation of the I/O system is the `:stream` class, which defines a common
-interface and behavior for all stream types. It is an inheritable class, meaning
-specialized stream classes like `:fstream` and `:sstream` build upon its
-foundation.
+The foundation of the I/O system is the `:stream` class, which defines a
+common interface and behavior for all stream types. It is an inheritable class,
+meaning specialized stream classes like `:fstream` and `:sstream` build upon
+its foundation.
 
 A key design feature is its set of `:static` VP methods. These methods are
 generic and can be used with any stream subclass, providing a unified API for
@@ -32,12 +32,13 @@ common operations.
     bits, using a bit pool to handle operations that don't align to byte
     boundaries.
 
-*   **`:read`**: Reads a block of bytes from the stream into a specified buffer.
+*   **`:read`**: Reads a block of bytes from the stream into a specified
+    buffer.
 
 *   **`:write`**: Writes a block of bytes from a buffer to the stream.
 
-*   **`:read_line`**: Reads a line of text from the stream, ending at a newline
-    character.
+*   **`:read_line`**: Reads a line of text from the stream, ending at a
+    newline character.
 
 *   **`:write_cstr`**: Writes a C-style null-terminated string to the stream.
 
@@ -73,19 +74,20 @@ operating system.
 
 ### `:sstream`: String Streams
 
-The `:sstream` class provides a stream interface for reading from and writing to
-in-memory strings, allowing string manipulation with the standard stream API.
+The `:sstream` class provides a stream interface for reading from and writing
+to in-memory strings, allowing string manipulation with the standard stream
+API.
 
 *   **Lisp Constructor**: `(string-stream str)`
 
-    * Creates a new string stream associated with the given string `str`. It can
-      be used to dynamically build or parse strings.
+    * Creates a new string stream associated with the given string `str`. It
+      can be used to dynamically build or parse strings.
 
 ### `:mstream`: Memory Streams
 
-The `:mstream` class operates on a dynamically sized list of memory chunks. This
-is ideal for situations where the total size of the data is unknown, as it can
-grow on demand without requiring large contiguous memory allocations.
+The `:mstream` class operates on a dynamically sized list of memory chunks.
+This is ideal for situations where the total size of the data is unknown, as it
+can grow on demand without requiring large contiguous memory allocations.
 
 *   **Lisp Constructor**: `(memory-stream)`
 
@@ -93,22 +95,23 @@ grow on demand without requiring large contiguous memory allocations.
 
 ## Specialized IPC Streams: `:in` and `:out`
 
-The `:in` and `:out` streams are specialized, high-performance classes that form
-the bridge between the stream abstraction and ChrysaLisp's core message-passing
-IPC system. They are the foundation of the pipe I/O system.
+The `:in` and `:out` streams are specialized, high-performance classes that
+form the bridge between the stream abstraction and ChrysaLisp's core
+message-passing IPC system. They are the foundation of the pipe I/O system.
 
 ### `:out`: The Sending End of a Pipe
 
 The `:out` stream is a write-only stream that packetizes data and sends it as
-sequenced messages to a destination `netid` (a `mailbox_id` and `node_id` pair).
+sequenced messages to a destination `netid` (a `mailbox_id` and `node_id`
+pair).
 
 *   **Lisp Constructor**: `(out-stream mbox)`
 
     * Creates a new `:out` stream that will send data to the specified `mbox`
         `netid`.
 
-*   **Operation**: The `:out` stream manages the protocol for reliable, ordered
-    delivery.
+*   **Operation**: The `:out` stream manages the protocol for reliable,
+    ordered delivery.
 
     1. **Packetizing**: When its internal buffer is full or `(stream-flush)` is
        called, it packages the buffered data into a `stream_msg` structure,
@@ -117,9 +120,9 @@ sequenced messages to a destination `netid` (a `mailbox_id` and `node_id` pair).
     2. **Sending**: It sends this message to the destination `netid`.
 
     3. **Acknowledgement**: It can be configured to wait for acknowledgements
-       (`ack`) from the receiving `:in` stream. By tracking the `ack_seqnum`, it
-       ensures data has been received before sending more, preventing buffer
-       overruns and guaranteeing reliability.
+       (`ack`) from the receiving `:in` stream. By tracking the `ack_seqnum`,
+       it ensures data has been received before sending more, preventing
+       buffer overruns and guaranteeing reliability.
 
     4. **Closing**: On deinitialization, it sends special messages with
        `stream_mail_state_stopping` and `stream_mail_state_stopped` flags to
@@ -127,14 +130,14 @@ sequenced messages to a destination `netid` (a `mailbox_id` and `node_id` pair).
 
 ### `:in`: The Receiving End of a Pipe
 
-The `:in` stream is a read-only stream that receives sequenced messages from its
-mailbox and reconstructs the original, ordered byte stream.
+The `:in` stream is a read-only stream that receives sequenced messages from
+its mailbox and reconstructs the original, ordered byte stream.
 
 *   **Lisp Constructor**: `(in-stream)`
 
-    * Creates a new `:in` stream, which automatically allocates a unique mailbox.
-      The `netid` of this stream can then be shared with other tasks to
-      establish a communication channel.
+    * Creates a new `:in` stream, which automatically allocates a unique
+      mailbox. The `netid` of this stream can then be shared with other tasks
+      to establish a communication channel.
 
 *   **Operation**:
 
@@ -142,23 +145,23 @@ mailbox and reconstructs the original, ordered byte stream.
        stream's mailbox, waiting for a message to arrive.
 
     2. **Reordering**: It inspects the `seqnum` of incoming messages. If a
-       message arrives out of order, it is buffered internally until the missing
-       packets arrive, ensuring the data presented to the reader is always in
-       the correct sequence.
+       message arrives out of order, it is buffered internally until the
+       missing packets arrive, ensuring the data presented to the reader is
+       always in the correct sequence.
 
     3. **Acknowledgement**: It periodically sends `ack` messages back to the
        `:out` stream, confirming which sequence numbers it has successfully
        received.
 
     4. **End-of-Stream**: When it receives a message with the
-       `stream_mail_state_stopped` flag, it signals an end-of-stream condition,
-       causing subsequent reads to return -1.
+       `stream_mail_state_stopped` flag, it signals an end-of-stream
+       condition, causing subsequent reads to return -1.
 
 ## The Pipe I/O System: Tying It All Together
 
 The `:in` and `:out` streams create the ChrysaLisp pipe system, a
-location-transparent communication mechanism that allows tasks to interact as if
-they were reading from and writing to a simple file.
+location-transparent communication mechanism that allows tasks to interact as
+if they were reading from and writing to a simple file.
 
 1.  **Establishment**: A receiving task creates an `(in-stream)` and shares its
     `netid`.
@@ -206,7 +209,8 @@ specify a byte width, which greatly simplifies the serialization of binary
 numeric data.
 
 *   `(read-char stream [width]) -> num`: Reads a numeric value of `width` bytes
-    from the stream. If `width` is omitted, it reads a single byte.
+    from the stream. If `width` is omitted, it reads a single byte. Positive
+    width indicates signed, negative width indicates unsigned.
 
 *   `(write-char stream list|num [width]) -> bytes`: Writes a numeric `list` or
     `num` to the stream with a specified `width`.

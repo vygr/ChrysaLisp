@@ -3,9 +3,9 @@
 The ChrysaLisp host interface is the bridge between the ChrysaLisp Virtual
 Processor (VP) environment and the underlying native operating system and
 hardware. It provides access to essential services like file I/O, memory
-management, time, GUI rendering, and audio playback. This interface is primarily
-defined by a set of C/C++ functions whose addresses are passed to the ChrysaLisp
-`sys/load/init` function when a boot image is started.
+management, time, GUI rendering, and audio playback. This interface is
+primarily defined by a set of C/C++ functions whose addresses are passed to the
+ChrysaLisp `sys/load/init` function when a boot image is started.
 
 ## Host ABI Vtables
 
@@ -70,8 +70,8 @@ the host.
     * The specific implementation is chosen at compile time based on the `GUI`
       make variable, which sets the `_HOST_GUI` preprocessor define.
 
-    * `_HOST_GUI = 0` (Default or `GUI=sdl`): Uses `src/host/gui_sdl.cpp`. This
-      relies on the SDL2 library for windowing, event handling, and 2D
+    * `_HOST_GUI = 0` (Default or `GUI=sdl`): Uses `src/host/gui_sdl.cpp`.
+      This relies on the SDL2 library for windowing, event handling, and 2D
       rendering.
 
     * `_HOST_GUI = 1` (`GUI=fb`): Uses `src/host/gui_fb.c`. This is for direct
@@ -118,13 +118,14 @@ the host.
         * `host_gui_end_composite`: (SDL) Resets render target. (FB/Raw) Might
           be a no-op.
 
-        * `host_gui_flush`: Copies the relevant portion of the backbuffer to the
-          visible screen.
+        * `host_gui_flush`: Copies the relevant portion of the backbuffer to
+          the visible screen.
 
         * `host_gui_resize`: Handles window resize events.
 
-        * `host_gui_poll_event`: Polls for host system events (keyboard, mouse,
-          window) and translates them into an `SDL_Event`-like structure.
+        * `host_gui_poll_event`: Polls for host system events (keyboard,
+          mouse, window) and translates them into an `SDL_Event`-like
+          structure.
 
 3. **`host_audio_funcs` (Audio Layer):**
 
@@ -152,8 +153,8 @@ the host.
 
 ## Bootstrapping, Emulation, and the Install Process
 
-ChrysaLisp has a clever bootstrapping mechanism that can involve a VP64 bytecode
-interpreter.
+ChrysaLisp has a clever bootstrapping mechanism that can involve a VP64
+bytecode interpreter.
 
 **`main.cpp` (The Host Program Entry Point):**
 
@@ -196,21 +197,22 @@ interpreter.
             * Pointers to `host_os_funcs`, `host_gui_funcs`, and
               `host_audio_funcs`.
 
-        * `vp64()` then interprets the VP64 bytecode instructions from the boot
-          image. When the bytecode executes a `VP64_CALL_ABI` instruction, the
-          interpreter uses the passed-in host function tables to call the
-          appropriate native C/C++ function.
+        * `vp64()` then interprets the VP64 bytecode instructions from the
+          boot image. When the bytecode executes a `VP64_CALL_ABI`
+          instruction, the interpreter uses the passed-in host function
+          tables to call the appropriate native C/C++ function.
 
     * **If `run_emu` is `false` (Native Mode):**
 
-        * The loaded boot image (which must be native code for the host CPU/ABI)
-          is made executable using `pii_mprotect(..., mmap_exec)` and
-          `pii_flush_icache`.
+        * The loaded boot image (which must be native code for the host
+          CPU/ABI) is made executable using `pii_mprotect(..., mmap_exec)`
+          and `pii_flush_icache`.
 
-        * The `main.cpp` then calls directly into the ChrysaLisp `sys/load/init`
-          function within the boot image. The entry point address is hardcoded
-          or read from a fixed offset in the boot image header (specifically,
-          `data[5]` which is `fn_header_entry` if `data` is `uint16_t*`).
+        * The `main.cpp` then calls directly into the ChrysaLisp
+          `sys/load/init` function within the boot image. The entry point
+          address is hardcoded or read from a fixed offset in the boot image
+          header (specifically, `data[5]` which is `fn_header_entry` if `data`
+          is `uint16_t*`).
 
         * The `sys/load/init` function receives `argv` and the host function
           tables as arguments.
@@ -220,18 +222,18 @@ interpreter.
 * This is a C++ function that implements a simple interpreter loop for VP64
   bytecode.
 
-* It maintains a set of 16 virtual registers (`regs[16]`) and a program counter
-  (`pc`).
+* It maintains a set of 16 virtual registers (`regs[16]`) and a program
+  counter (`pc`).
 
 * It fetches opcodes (which are `int16_t`), decodes them, and executes the
   corresponding operation on the virtual registers or memory (which is the
   host's memory space).
 
 * The `VP64_CALL_ABI` opcode is special: it looks up a function pointer in the
-  `host_os_funcs`, `host_gui_funcs`, or `host_audio_funcs` (the table is likely
-  implied by the specific ABI call number) and calls it, marshalling arguments
-  from the virtual registers and placing the return value back into a virtual
-  register.
+  `host_os_funcs`, `host_gui_funcs`, or `host_audio_funcs` (the table is
+  likely implied by the specific ABI call number) and calls it, marshalling
+  arguments from the virtual registers and placing the return value back into
+  a virtual register.
 
 **Install Process (`make install`):**
 
@@ -241,16 +243,17 @@ interpreter.
 
 * Let's break down the `run_tui.sh -i -e -f` command:
 
-    * `run_tui.sh`: This script (and its PowerShell equivalent `run_tui.ps1`) is
-      designed to launch multiple ChrysaLisp nodes connected in a default
+    * `run_tui.sh`: This script (and its PowerShell equivalent `run_tui.ps1`)
+      is designed to launch multiple ChrysaLisp nodes connected in a default
       fully-connected mesh topology.
 
     * `-i`: This tells `run_tui.sh` to set the initial script for the primary
       node (CPU 0) to `apps/tui/install.lisp` instead of the default
       `apps/tui/tui.lisp`.
 
-    * `-e`: This is the crucial part for installation. It tells `main.cpp` (via
-      `run_tui.sh` which passes arguments through) to use the emulator mode.
+    * `-e`: This is the crucial part for installation. It tells `main.cpp`
+      (via `run_tui.sh` which passes arguments through) to use the emulator
+      mode.
 
     * `-f`: Runs the primary node in the foreground.
 
@@ -261,30 +264,30 @@ interpreter.
     * `run_tui.sh` launches 8 instances of `main_tui` (or `main_tui.exe`).
 
     * Each `main_tui` instance, due to the `-e` flag, loads
-    `obj/vp64/VP64/sys/boot_image` and starts the `vp64()` interpreter.
+      `obj/vp64/VP64/sys/boot_image` and starts the `vp64()` interpreter.
 
-    * The primary node's `vp64()` interpreter, after initializing, receives the
-    `-run apps/tui/install.lisp` argument.
+    * The primary node's `vp64()` interpreter, after initializing, receives
+      the `-run apps/tui/install.lisp` argument.
 
     * The Lisp environment within the emulated primary node then executes
-    `apps/tui/install.lisp`.
+      `apps/tui/install.lisp`.
 
     * `apps/tui/install.lisp` likely contains commands such as `(make all
-    platforms boot)` or similar, which compiles all ChrysaLisp source code into
-    *native* object files (`obj/$(CPU)/$(ABI)/...`) and creates native boot
-    images.
+      platforms boot)` or similar, which compiles all ChrysaLisp source code
+      into *native* object files (`obj/$(CPU)/$(ABI)/...`) and creates
+      native boot images.
 
 * **Outcome:** The initial build and "installation" (compilation of the entire
-system into native code) of ChrysaLisp is performed by running the Lisp `make`
-command *inside the VP64 emulated environment*. After this, subsequent runs
-(without `-e`) can use the newly built native boot images.
+  system into native code) of ChrysaLisp is performed by running the Lisp
+  `make` command *inside the VP64 emulated environment*. After this,
+  subsequent runs (without `-e`) can use the newly built native boot images.
 
 ## Run Scripts and Network Topologies
 
-The `run*.sh` (for Linux/macOS) and `run*.ps1` (for Windows PowerShell) scripts
-are used to launch multiple ChrysaLisp VP nodes and connect them in various
-network topologies. They share common helper functions from `funcs.sh` or
-`funcs.ps1`.
+The `run*.sh` (for Linux/macOS) and `run*.ps1` (for Windows PowerShell)
+scripts are used to launch multiple ChrysaLisp VP nodes and connect them in
+various network topologies. They share common helper functions from
+`funcs.sh` or `funcs.ps1`.
 
 **Helper Functions (e.g., in `funcs.sh`):**
 
@@ -300,7 +303,8 @@ network topologies. They share common helper functions from `funcs.sh` or
     * Constructs a link string like `-l 001-002`.
 
     * Ensures that links are specified consistently (e.g., always
-      `smaller-larger`) to avoid duplicates in the `links` variable for a node.
+      `smaller-larger`) to avoid duplicates in the `links` variable for a
+      node.
 
     * Appends the link string to a global `links` variable if it's a new link
       for the current node being configured.
@@ -321,12 +325,12 @@ network topologies. They share common helper functions from `funcs.sh` or
       script.
 
     * The `<initial_script>` is typically `service/gui/app.lisp` for
-      `boot_cpu_gui` and `apps/tui/tui.lisp` for `boot_cpu_tui` for the primary
-      node (node 0 in the script's context). Other nodes usually don't get an
-      initial `-run` script and just start their link drivers.
+      `boot_cpu_gui` and `apps/tui/tui.lisp` for `boot_cpu_tui` for the
+      primary node (node 0 in the script's context). Other nodes usually
+      don't get an initial `-run` script and just start their link drivers.
 
-    * They handle backgrounding (`&`) for all but the primary foreground node
-      (if `-f` is used).
+    * They handle backgrounding (`&`) for all but the primary foreground
+      node (if `-f` is used).
 
 **Topologies:**
 
@@ -335,8 +339,8 @@ network topologies. They share common helper functions from `funcs.sh` or
     * Typically launches 10 nodes (`num_cpu=10`).
 
     * Each node `cpu` is linked to every other node `lcpu` (`for lcpu=0;
-      lcpu<$num_cpu; lcpu++`). This creates a fully connected mesh where every
-      node has a direct link to every other node.
+      lcpu<$num_cpu; lcpu++`). This creates a fully connected mesh where
+      every node has a direct link to every other node.
 
 * **`run_ring.sh`, `run_ring.ps1`:**
 
@@ -350,16 +354,17 @@ network topologies. They share common helper functions from `funcs.sh` or
     * Launches `num_cpu * num_cpu` nodes (default 8x8 = 64).
 
     * Nodes are arranged in a 2D grid. Each node `(cpu_x, cpu_y)` is linked to
-      its neighbors: `(cpu_x-1, cpu_y)`, `(cpu_x+1, cpu_y)`, `(cpu_x, cpu_y-1)`,
-      `(cpu_x, cpu_y+1)`, with wrapping at the edges (toroidal mesh).
+      its neighbors: `(cpu_x-1, cpu_y)`, `(cpu_x+1, cpu_y)`, `(cpu_x,
+      cpu_y-1)`, `(cpu_x, cpu_y+1)`, with wrapping at the edges (toroidal
+      mesh).
 
 * **`run_cube.sh` (No `.ps1` directly provided, but logic is similar):**
 
     * Launches `num_cpu * num_cpu * num_cpu` nodes (default 4x4x4 = 64).
 
     * Nodes in a 3D grid. Each node `(x,y,z)` is linked to its 6 Cartesian
-      neighbors `(x±1,y,z)`, `(x,y±1,z)`, `(x,y,z±1)`, with wrapping (toroidal
-      cube/3D torus).
+      neighbors `(x±1,y,z)`, `(x,y±1,z)`, `(x,y,z±1)`, with wrapping
+      (toroidal cube/3D torus).
 
 * **`run_star.sh`, `run_star.ps1`:**
 
@@ -397,9 +402,9 @@ The run scripts accept common arguments:
 
 ## Stop Scripts
 
-* **`stop.sh`:** Uses `killall main_gui -KILL` and `killall main_tui -KILL` to
-  forcefully terminate all ChrysaLisp node processes. It also removes link files
-  from `/tmp/` (e.g., `rm -f /tmp/???-???`).
+* **`stop.sh`:** Uses `killall main_gui -KILL` and `killall main_tui -KILL`
+  to forcefully terminate all ChrysaLisp node processes. It also removes
+  link files from `/tmp/` (e.g., `rm -f /tmp/???-???`).
 
 * **`stop.ps1`:** Uses `Stop-Process -Name main_gui -Force` and `Stop-Process
   -Name main_tui -Force`.
@@ -407,7 +412,8 @@ The run scripts accept common arguments:
 * **`stop.bat`:** Uses `taskkill /IM main_tui.exe /F` and `taskkill /IM
   main_gui.exe /F`.
 
-These scripts provide a simple way to clean up all running ChrysaLisp processes.
+These scripts provide a simple way to clean up all running ChrysaLisp
+processes.
 
 ## Makefile Overview (`Makefile`)
 
@@ -439,8 +445,8 @@ These scripts provide a simple way to clean up all running ChrysaLisp processes.
       build environment. It also creates necessary object directories.
 
     * `install`: Runs `clean`, `hostenv`, `tui`, `gui`, then `inst`. The `inst`
-      rule executes `./run_tui.sh -n 8 -i -e -f`, performing the initial system
-      compilation using the emulator as described above.
+      rule executes `./run_tui.sh -n 8 -i -e -f`, performing the initial
+      system compilation using the emulator as described above.
 
     * `snapshot`: Creates `snapshot.zip` containing the VP64 boot image and
       pre-built Windows executables, for distribution.
@@ -454,17 +460,17 @@ These scripts provide a simple way to clean up all running ChrysaLisp processes.
       object files (in `$(OBJ_DIR_GUI)`) and TUI-specific object files (in
       `$(OBJ_DIR_TUI)`).
 
-    * GUI builds conditionally include SDL cflags (`sdl2-config --cflags`) and
-      link against SDL and SDL_mixer libs (`sdl2-config --libs -lSDL2_mixer`),
-      unless `GUI=fb` is specified.
+    * GUI builds conditionally include SDL cflags (`sdl2-config --cflags`)
+      and link against SDL and SDL_mixer libs (`sdl2-config --libs
+      -lSDL2_mixer`), unless `GUI=fb` is specified.
 
-    * The `_HOST_GUI` and `_HOST_AUDIO` defines are passed to the compiler to
-      select the correct host driver code.
+    * The `_HOST_GUI` and `_HOST_AUDIO` defines are passed to the compiler
+      to select the correct host driver code.
 
 * **Dependency Management:** `-include $(OBJ_FILES:.o=.d)` includes
   auto-generated dependency files.
 
 This detailed host setup allows ChrysaLisp to be both bootstrapped on new
-platforms using its own VP64 interpreter and then run natively for performance,
-while providing a flexible way to interface with diverse host system
-capabilities.
+platforms using its own VP64 interpreter and then run natively for
+performance, while providing a flexible way to interface with diverse host
+system capabilities.
