@@ -58,22 +58,21 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-rdef (dst iter_begin nums1 nums2 this args argc len1 len2)
-		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12 :r13))
+	(vp-rdef (dst iter_begin nums1 nums2 this args argc len)
+		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12))
 
 	(entry :reals :lisp_mat4x4_mul `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2 3)
 
-	(assign `((,args +array_length)) `(,argc))
-	(assign `((,args +array_begin)) `(,iter_begin))
-
+	(assign `((,args +array_begin) (,args +array_length)) `(,iter_begin ,argc))
 	(array-get-args iter_begin `(,nums1 ,nums2))
 
-	(assign `((,nums1 +array_length)) `(,len1))
-	(errorif `(,len1 /= 16) 'error)
-	(assign `((,nums2 +array_length)) `(,len2))
-	(errorif `(,len2 /= 16) 'error)
+(errorcase
+	(assign `((,nums1 +array_length)) `(,len))
+	(gotoif `(,len /= 16) 'error)
+	(assign `((,nums2 +array_length)) `(,len))
+	(gotoif `(,len /= 16) 'error))
 
 	(vpif `(,argc = 2))
 		(call :reals :create :nil `(,dst))
@@ -81,15 +80,10 @@
 		(call :reals :set_length `(,dst 16) `(,dst _))
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
-		(vpif `(,dst = +lisp_sym_nil))
-			(call :reals :create :nil `(,dst))
-			(call :reals :set_cap `(,dst 16) `(,dst))
-			(call :reals :set_length `(,dst 16) `(,dst _))
-		(else)
-			(assign `((,dst +array_length)) `(,len1))
-			(errorif `(,len1 < 16) 'error)
-			(call :obj :ref `(,dst) `(,dst))
-		(endif)
+	(errorcase
+		(assign `((,dst +array_length)) `(,len))
+		(gotoif `(,len < 16) 'error))
+		(call :obj :ref `(,dst) `(,dst))
 	(endif)
 	(call :reals :mat4x4_mul `(,dst ,nums1 ,nums2) `(,dst))
 
@@ -113,22 +107,21 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-rdef (dst iter_begin nums1 nums2 this args argc len1 len2)
-		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12 :r13))
+	(vp-rdef (dst iter_begin nums1 nums2 this args argc len)
+		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12))
 
 	(entry :reals :lisp_mat4x4_v4_mul `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2 3)
 
-	(assign `((,args +array_length)) `(,argc))
-	(assign `((,args +array_begin)) `(,iter_begin))
-
+	(assign `((,args +array_begin) (,args +array_length)) `(,iter_begin ,argc))
 	(array-get-args iter_begin `(,nums1 ,nums2))
 
-	(assign `((,nums1 +array_length)) `(,len1))
-	(errorif `(,len1 /= 16) 'error)
-	(assign `((,nums2 +array_length)) `(,len2))
-	(errorif `(,len2 /= 4) 'error)
+(errorcase
+	(assign `((,nums1 +array_length)) `(,len))
+	(gotoif `(,len /= 16) 'error)
+	(assign `((,nums2 +array_length)) `(,len))
+	(gotoif `(,len /= 4) 'error))
 
 	(vpif `(,argc = 2))
 		(call :reals :create :nil `(,dst))
@@ -136,15 +129,10 @@
 		(call :reals :set_length `(,dst 4) `(,dst _))
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
-		(vpif `(,dst = +lisp_sym_nil))
-			(call :reals :create :nil `(,dst))
-			(call :reals :set_cap `(,dst 4) `(,dst))
-			(call :reals :set_length `(,dst 4) `(,dst _))
-		(else)
-			(assign `((,dst +array_length)) `(,len2))
-			(errorif `(,len2 < 4) 'error)
-			(call :obj :ref `(,dst) `(,dst))
-		(endif)
+	(errorcase
+		(assign `((,dst +array_length)) `(,len))
+		(gotoif `(,len < 4) 'error))
+		(call :obj :ref `(,dst) `(,dst))
 	(endif)
 	(call :reals :mat4x4_v4_mul `(,dst ,nums1 ,nums2) `(,dst))
 
@@ -168,22 +156,21 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-rdef (dst iter_begin nums1 nums2 this args argc len1 len2)
-		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12 :r13))
+	(vp-rdef (dst iter_begin nums1 nums2 this args argc len)
+		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12))
 
 	(entry :reals :lisp_mat4x4_v3_mul `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2 3)
 
-	(assign `((,args +array_length)) `(,argc))
-	(assign `((,args +array_begin)) `(,iter_begin))
-
+	(assign `((,args +array_begin) (,args +array_length)) `(,iter_begin ,argc))
 	(array-get-args iter_begin `(,nums1 ,nums2))
 
-	(assign `((,nums1 +array_length)) `(,len1))
-	(errorif `(,len1 /= 16) 'error)
-	(assign `((,nums2 +array_length)) `(,len2))
-	(errorif `(,len2 /= 3) 'error)
+(errorcase
+	(assign `((,nums1 +array_length)) `(,len))
+	(gotoif `(,len /= 16) 'error)
+	(assign `((,nums2 +array_length)) `(,len))
+	(gotoif `(,len /= 3) 'error))
 
 	(vpif `(,argc = 2))
 		(call :reals :create :nil `(,dst))
@@ -191,15 +178,10 @@
 		(call :reals :set_length `(,dst 3) `(,dst _))
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
-		(vpif `(,dst = +lisp_sym_nil))
-			(call :reals :create :nil `(,dst))
-			(call :reals :set_cap `(,dst 3) `(,dst))
-			(call :reals :set_length `(,dst 3) `(,dst _))
-		(else)
-			(assign `((,dst +array_length)) `(,len2))
-			(errorif `(,len2 < 3) 'error)
-			(call :obj :ref `(,dst) `(,dst))
-		(endif)
+	(errorcase
+		(assign `((,dst +array_length)) `(,len))
+		(gotoif `(,len < 3) 'error)
+		(call :obj :ref `(,dst) `(,dst)))
 	(endif)
 	(call :reals :mat4x4_v3_mul `(,dst ,nums1 ,nums2) `(,dst))
 
