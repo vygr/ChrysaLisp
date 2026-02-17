@@ -97,6 +97,53 @@
 
 (def-func-end)
 
+(def-method :reals :lisp_mat4x4_inv)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(vp-rdef (dst iter_begin reals1 this args argc len)
+		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11))
+
+	(entry :reals :lisp_mat4x4_inv `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 1 2)
+
+	(assign `((,args +array_begin) (,args +array_length)) `(,iter_begin ,argc))
+	(array-get-args iter_begin `(,reals1))
+
+(errorcase
+	(assign `((,reals1 +array_length)) `(,len))
+	(gotoif `(,len /= 16) 'error))
+
+	(vpif `(,argc = 1))
+		(call :reals :create :nil `(,dst))
+		(call :reals :set_cap `(,dst 16) `(,dst))
+		(call :reals :set_length `(,dst 16) `(,dst _))
+	(else)
+		(vp-cpy-ir iter_begin (* +ptr_size 1) dst)
+	(errorcase
+		(assign `((,dst +array_length)) `(,len))
+		(gotoif `(,len < 16) 'error))
+		(call :obj :ref `(,dst) `(,dst))
+	(endif)
+	(call :reals :mat4x4_inv `(,dst ,reals1) `(,dst))
+
+	(exit :reals :lisp_mat4x4_inv `(,this ,dst))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error `(,this "(mat4x4-inv ma [out])" +error_msg_wrong_types ,args))
+	(signature '(:reals :reals)))
+
+(def-func-end)
+
 (def-method :reals :lisp_mat4x4_v4_mul)
 	;inputs
 	;:r0 = lisp object (ptr)

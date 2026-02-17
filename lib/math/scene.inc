@@ -225,7 +225,7 @@
 		(. scene :walk_nodes
 			(lambda (object children)
 				(defq mat4x4_obj (mat4x4-mul (last matrix_stack) (. object :get_matrix))
-					imat4x4_obj (mat4x4-invert mat4x4_obj))
+					imat4x4_obj (mat4x4-inv mat4x4_obj))
 				(push matrix_stack mat4x4_obj)
 				(when (def? :mesh object)
 					(defq mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))

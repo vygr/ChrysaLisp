@@ -162,6 +162,8 @@
 ; (reals-quant reals tol [reals]) -> reals
 (ffi "class/reals/lisp_mat4x4_mul" mat4x4-mul)
 ; (mat4x4-mul reals reals [reals]) -> reals
+(ffi "class/reals/lisp_mat4x4_inv" mat4x4-inv)
+; (mat4x4-inv reals [reals]) -> reals
 (ffi "class/reals/lisp_mat4x4_v4_mul" mat4x4-vec4-mul)
 ; (mat4x4-vec4-mul reals reals [reals]) -> reals
 (ffi "class/reals/lisp_mat4x4_v3_mul" mat4x4-vec3-mul)
