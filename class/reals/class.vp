@@ -435,10 +435,10 @@
 	;:r0 = output reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r10, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
-	(vp-rdef (out ma mb data_o data_a data_b)
-		'(:r0 :r1 :r2 :r3 :r4 :r5))
+	(vp-rdef (out ma mb data_o data_a data_b r_row r_col ptr_a ptr_b ptr_o off_r off_c)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12))
 	(vp-fdef (a0 a1 a2 a3 b0 b1 b2 b3)
 		'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7))
 
@@ -447,26 +447,33 @@
 	(assign `((,ma +array_begin) (,mb +array_begin) (,out +array_begin))
 		`(,data_a ,data_b ,data_o))
 
-	(defq row 0)
-	(times 4
-		; Load Row A (4 elements, 8 bytes each = 32 bytes stride)
-		(vp-simd vp-cpy-if `(,data_a)
-			`(,(* row 32) ,(+ (* row 32) 8) ,(+ (* row 32) 16) ,(+ (* row 32) 24))
-			`(,a0 ,a1 ,a2 ,a3))
+	(vp-cpy-cr 0 r_row)
+	(loop-while `(,r_row < 4))
+		; Load Row A
+		(vp-cpy-rr r_row off_r)
+		(vp-shl-cr 5 off_r) ; row * 32
+		(vp-lea-d data_a off_r ptr_a)
+		(vp-simd vp-cpy-if `(,ptr_a) '(0 8 16 24) `(,a0 ,a1 ,a2 ,a3))
 
-		(defq col 0)
-		(times 4
-			; Load column of B (strided for column-major storage)
-			(vp-simd vp-cpy-if `(,data_b)
-				`(,(* col 8) ,(+ (* col 8) 32) ,(+ (* col 8) 64) ,(+ (* col 8) 96))
-				`(,b0 ,b1 ,b2 ,b3))
+		(vp-cpy-cr 0 r_col)
+		(loop-while `(,r_col < 4))
+			; Load column of B
+			(vp-cpy-rr r_col off_c)
+			(vp-shl-cr 3 off_c) ; col * 8
+			(vp-lea-d data_b off_c ptr_b)
+			(vp-simd vp-cpy-if `(,ptr_b) '(0 32 64 96) `(,b0 ,b1 ,b2 ,b3))
+
 			(vp-simd vp-mul-ff `(,a0 ,a1 ,a2 ,a3) `(,b0 ,b1 ,b2 ,b3))
 			(vp-simd vp-add-ff `(,b1 ,b3) `(,b0 ,b2))
 			(vp-add-ff b2 b0)
 
-			(vp-cpy-fi b0 data_o (+ (* row 32) (* col 8)))
-			(setq col (inc col)))
-		(setq row (inc row)))
+			(vp-lea-d off_r off_c ptr_o)
+			(vp-lea-d data_o ptr_o ptr_o)
+			(vp-cpy-fi b0 ptr_o 0)
+			(vp-add-cr 1 r_col)
+		(loop-end)
+		(vp-add-cr 1 r_row)
+	(loop-end)
 
 	(exit :reals :mat4x4_mul `(,out -1))
 	(vp-ret)
@@ -482,10 +489,10 @@
 	;:r0 = output reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r10, :f0-:f7
+	;:r1-:r14, :f0-:f7
 
-	(vp-rdef (out ma v data_o data_a data_v)
-		'(:r0 :r1 :r2 :r3 :r4 :r5))
+	(vp-rdef (out ma v data_o data_a data_v r_row ptr_a ptr_o off_r off_o)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10))
 	(vp-fdef (a0 a1 a2 a3 v0 v1 v2 v3)
 		'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7))
 
@@ -497,20 +504,25 @@
 	; Load Vector V
 	(vp-simd vp-cpy-if `(,data_v) '(0 8 16 24) `(,v0 ,v1 ,v2 ,v3))
 
-	(defq row 0)
-	(times 4
+	(vp-cpy-cr 0 r_row)
+	(loop-while `(,r_row < 4))
 		; Load Row A
-		(vp-simd vp-cpy-if `(,data_a)
-			`(,(* row 32) ,(+ (* row 32) 8) ,(+ (* row 32) 16) ,(+ (* row 32) 24))
-			`(,a0 ,a1 ,a2 ,a3))
+		(vp-cpy-rr r_row off_r)
+		(vp-shl-cr 5 off_r) ; row * 32
+		(vp-lea-d data_a off_r ptr_a)
+		(vp-simd vp-cpy-if `(,ptr_a) '(0 8 16 24) `(,a0 ,a1 ,a2 ,a3))
 
 		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v3) `(,a0 ,a1 ,a2 ,a3))
 		(vp-simd vp-add-ff `(,a1 ,a3) `(,a0 ,a2))
 		(vp-add-ff a2 a0)
 
 		; Write Component
-		(vp-cpy-fi a0 data_o (* row 8))
-		(setq row (inc row)))
+		(vp-cpy-rr r_row off_o)
+		(vp-shl-cr 3 off_o) ; row * 8
+		(vp-lea-d data_o off_o ptr_o)
+		(vp-cpy-fi a0 ptr_o 0)
+		(vp-add-cr 1 r_row)
+	(loop-end)
 
 	(exit :reals :mat4x4_v4_mul `(,out -1))
 	(vp-ret)
@@ -526,10 +538,10 @@
 	;:r0 = output reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r10, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
-	(vp-rdef (out ma mb data_o data_a data_b)
-		'(:r0 :r1 :r2 :r3 :r4 :r5))
+	(vp-rdef (out ma mb data_o data_a data_b r_row r_col ptr_a ptr_b ptr_o off_r off_c tmp)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13))
 	(vp-fdef (a0 a1 a2 b0 b1 b2)
 		'(:f0 :f1 :f2 :f3 :f4 :f5))
 
@@ -538,26 +550,35 @@
 	(assign `((,ma +array_begin) (,mb +array_begin) (,out +array_begin))
 		`(,data_a ,data_b ,data_o))
 
-	(defq r 0)
-	(times 3
-		; Load Row A (3 elements, 8 bytes each = 24 bytes stride)
-		(vp-simd vp-cpy-if `(,data_a)
-			`(,(* r 24) ,(+ (* r 24) 8) ,(+ (* r 24) 16))
-			`(,a0 ,a1 ,a2))
+	(vp-cpy-cr 0 r_row)
+	(loop-while `(,r_row < 3))
+		; Load Row A
+		(vp-cpy-rr r_row off_r)
+		(vp-shl-cr 4 off_r) ; row * 16
+		(vp-cpy-rr r_row tmp)
+		(vp-shl-cr 3 tmp) ; row * 8
+		(vp-add-rr tmp off_r) ; row * 24
+		(vp-lea-d data_a off_r ptr_a)
+		(vp-simd vp-cpy-if `(,ptr_a) '(0 8 16) `(,a0 ,a1 ,a2))
 
-		(defq c 0)
-		(times 3
-			; Load column of B (strided for column-major storage)
-			(vp-simd vp-cpy-if `(,data_b)
-				`(,(* c 8) ,(+ (* c 8) 24) ,(+ (* c 8) 48))
-				`(,b0 ,b1 ,b2))
+		(vp-cpy-cr 0 r_col)
+		(loop-while `(,r_col < 3))
+			; Load column of B
+			(vp-cpy-rr r_col off_c)
+			(vp-shl-cr 3 off_c) ; col * 8
+			(vp-lea-d data_b off_c ptr_b)
+			(vp-simd vp-cpy-if `(,ptr_b) '(0 24 48) `(,b0 ,b1 ,b2))
 			(vp-simd vp-mul-ff `(,a0 ,a1 ,a2) `(,b0 ,b1 ,b2))
 			(vp-add-ff b1 b0)
 			(vp-add-ff b2 b0)
 
-			(vp-cpy-fi b0 data_o (+ (* r 24) (* c 8)))
-			(setq c (inc c)))
-		(setq r (inc r)))
+			(vp-lea-d off_r off_c ptr_o)
+			(vp-lea-d data_o ptr_o ptr_o)
+			(vp-cpy-fi b0 ptr_o 0)
+			(vp-add-cr 1 r_col)
+		(loop-end)
+		(vp-add-cr 1 r_row)
+	(loop-end)
 
 	(exit :reals :mat3x3_mul `(,out -1))
 	(vp-ret)
@@ -573,10 +594,10 @@
 	;:r0 = output reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r10, :f0-:f7
+	;:r1-:r14, :f0-:f7
 
-	(vp-rdef (out ma v data_o data_a data_v)
-		'(:r0 :r1 :r2 :r3 :r4 :r5))
+	(vp-rdef (out ma v data_o data_a data_v r_row ptr_a ptr_o off_r off_o tmp)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11))
 	(vp-fdef (a0 a1 a2 v0 v1 v2)
 		'(:f0 :f1 :f2 :f3 :f4 :f5))
 
@@ -588,20 +609,28 @@
 	; Load Vector V
 	(vp-simd vp-cpy-if `(,data_v) '(0 8 16) `(,v0 ,v1 ,v2))
 
-	(defq r 0)
-	(times 3
+	(vp-cpy-cr 0 r_row)
+	(loop-while `(,r_row < 3))
 		; Load Row A
-		(vp-simd vp-cpy-if `(,data_a)
-			`(,(* r 24) ,(+ (* r 24) 8) ,(+ (* r 24) 16))
-			`(,a0 ,a1 ,a2))
+		(vp-cpy-rr r_row off_r)
+		(vp-shl-cr 4 off_r) ; row * 16
+		(vp-cpy-rr r_row tmp)
+		(vp-shl-cr 3 tmp) ; row * 8
+		(vp-add-rr tmp off_r) ; row * 24
+		(vp-lea-d data_a off_r ptr_a)
+		(vp-simd vp-cpy-if `(,ptr_a) '(0 8 16) `(,a0 ,a1 ,a2))
 
 		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2) `(,a0 ,a1 ,a2))
 		(vp-add-ff a1 a0)
 		(vp-add-ff a2 a0)
 
 		; Write Component
-		(vp-cpy-fi a0 data_o (* r 8))
-		(setq r (inc r)))
+		(vp-cpy-rr r_row off_o)
+		(vp-shl-cr 3 off_o) ; row * 8
+		(vp-lea-d data_o off_o ptr_o)
+		(vp-cpy-fi a0 ptr_o 0)
+		(vp-add-cr 1 r_row)
+	(loop-end)
 
 	(exit :reals :mat3x3_v3_mul `(,out -1))
 	(vp-ret)
