@@ -164,6 +164,8 @@
 ; (mat4x4-mul reals reals [reals]) -> reals
 (ffi "class/reals/lisp_mat4x4_v4_mul" mat4x4-vec4-mul)
 ; (mat4x4-vec4-mul reals reals [reals]) -> reals
+(ffi "class/reals/lisp_mat4x4_v3_mul" mat4x4-vec3-mul)
+; (mat4x4-vec3-mul reals reals [reals]) -> reals
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Sequence, Array, and List Operations

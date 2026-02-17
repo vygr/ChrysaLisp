@@ -500,3 +500,38 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :reals :mat4x4_v3_mul)
+	;inputs
+	;:r0 = output reals object (ptr)
+	;:r1 = matrix ma reals object (ptr)
+	;:r2 = vector reals object (ptr)
+	;outputs
+	;:r0 = output reals object (ptr)
+	;trashes
+	;:r1-:r4, :f0-:f5
+
+	(vp-rdef (this ptr_a ptr_v ptr_o ptr_ae))
+	(vp-fdef (a0 a1 a2 v0 v1 v2))
+
+	(entry :reals :mat4x4_v3_mul `(,this ,ptr_a ,ptr_v))
+
+	(vp-simd vp-cpy-ir `(,ptr_a ,ptr_v ,this) `(,+array_begin) `(,ptr_a ,ptr_v ,ptr_o))
+	; load v
+	(vp-simd vp-cpy-if `(,ptr_v) '(0 8 16) `(,v0 ,v1 ,v2))
+	(vp-lea-i ptr_a (* 3 4 +long_size) ptr_ae)
+	(loop-start)
+		; load row of a
+		(vp-simd vp-cpy-if `(,ptr_a) '(0 8 16) `(,a0 ,a1 ,a2))
+		(vp-add-cr (* 4 +long_size) ptr_a)
+		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2) `(,a0 ,a1 ,a2))
+		(vp-add-ff a1 a0)
+		(vp-add-ff a2 a0)
+		(vp-cpy-fi a0 ptr_o 0)
+		(vp-add-cr +long_size ptr_o)
+	(loop-until `(,ptr_a = ,ptr_ae))
+
+	(exit :reals :mat4x4_v3_mul `(,this))
+	(vp-ret)
+
+(def-func-end)

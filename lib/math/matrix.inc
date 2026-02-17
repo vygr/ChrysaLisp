@@ -52,11 +52,6 @@
 		+real_0 +real_0 (* (+ near far) nf) (* (* (* +real_2 near) far) nf)
 		+real_0 +real_0 +real_-1 +real_0))
 
-(defun mat4x4-vec3-mul (m v)
-	(Vec3-r (nums-dot v (slice m 0 4))
-		(nums-dot v (slice m 4 8))
-		(nums-dot v (slice m 8 12))))
-
 (defun mat4x4-invert (m)
 	; (mat4x4-invert mat4x4) -> mat4x4
 	(bind '(m00 m01 m02 m03 m10 m11 m12 m13 m20 m21 m22 m23 m30 m31 m32 m33) m)

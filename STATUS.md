@@ -4,6 +4,10 @@
 
 ------
 
+Native VP support for `mat4x4-mul`, `mat4x4-vec4-mul` and `mat4x4-vec3-mul`.
+
+------
+
 Refactored GUI `Edit` widget to delegate all focus region management to the
 underlying `Buffer`/`Document` object. This involved removing local focus
 properties and adding a comprehensive set of proxy methods for search,

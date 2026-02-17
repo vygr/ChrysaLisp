@@ -6,6 +6,8 @@
 
 ### (mat4x4-mul reals reals [reals]) -> reals
 
+### (mat4x4-vec3-mul reals reals [reals]) -> reals
+
 ### (mat4x4-vec4-mul reals reals [reals]) -> reals
 
 ### (reals-quant reals tol [reals]) -> reals
@@ -114,6 +116,19 @@ outputs
 :r0 = output reals object (ptr)
 trashes
 :r1-:r5, :f0-:f7
+```
+
+### :mat4x4_v3_mul -> class/reals/mat4x4_v3_mul
+
+```code
+inputs
+:r0 = output reals object (ptr)
+:r1 = matrix ma reals object (ptr)
+:r2 = vector reals object (ptr)
+outputs
+:r0 = output reals object (ptr)
+trashes
+:r1-:r4, :f0-:f5
 ```
 
 ### :mat4x4_v4_mul -> class/reals/mat4x4_v4_mul
