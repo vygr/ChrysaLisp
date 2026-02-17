@@ -4,39 +4,11 @@
 
 (import "./vector.inc")
 
-(defun Mat3x3-unity ()
-	(reals +real_1 +real_0 +real_0
-		+real_0 +real_1 +real_0
-		+real_0 +real_0 +real_1))
-
 (defun Mat4x4-unity ()
 	(reals +real_1 +real_0 +real_0 +real_0
 		+real_0 +real_1 +real_0 +real_0
 		+real_0 +real_0 +real_1 +real_0
 		+real_0 +real_0 +real_0 +real_1))
-
-(defun Mat3x3-rotx (a)
-	(defq s (sin a) c (cos a))
-	(reals +real_1 +real_0 +real_0
-		+real_0 c (neg s)
-		+real_0 s c))
-
-(defun Mat3x3-roty (a)
-	(defq s (sin a) c (cos a))
-	(reals c +real_0 s
-		+real_0 +real_1 +real_0
-		(neg s) +real_0 c))
-
-(defun Mat3x3-rotz (a)
-	(defq s (sin a) c (cos a))
-	(reals c (neg s) +real_0
-		s c +real_0
-		+real_0 +real_0 +real_1))
-
-(defun Mat3x3-scale (s)
-	(reals s +real_0 +real_0
-		+real_0 s +real_0
-		+real_0 +real_0 s))
 
 (defun Mat4x4-rotx (a)
 	(defq s (sin a) c (cos a))
@@ -131,13 +103,7 @@
 		(+ (* m00 a1212) (neg (* m01 a0212)) (* m02 a0112))) det))
 
 (defun print-mat (m)
-	(cond
-		((= (length m) 9)
-			(print (slice m 0 3))
-			(print (slice m 3 6))
-			(print (slice m 6 9)))
-		((= (length m) 16)
-			(print (slice m 0 4))
-			(print (slice m 4 8))
-			(print (slice m 8 12))
-			(print (slice m 12 16)))))
+	(print (slice m 0 4))
+	(print (slice m 4 8))
+	(print (slice m 8 12))
+	(print (slice m 12 16)))

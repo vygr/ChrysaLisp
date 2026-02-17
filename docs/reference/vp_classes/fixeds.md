@@ -10,14 +10,6 @@
 
 ### (fixeds-frac fixeds [fixeds]) -> fixeds
 
-### (mat3x3-mul ma mb [out]) -> fixeds
-
-### (mat3x3-v3-mul ma v [out]) -> fixeds
-
-### (mat4x4-mul ma mb [out]) -> fixeds
-
-### (mat4x4-v4-mul ma v [out]) -> fixeds
-
 ## VP methods
 
 ### :ceil -> class/fixeds/ceil
@@ -83,62 +75,6 @@ outputs
 :r0 = fixeds object (ptr)
 trashes
 :r1-:r6
-```
-
-### :mat3x3_mul -> class/fixeds/mat3x3_mul
-
-```code
-inputs
-:r0 = output fixeds object (ptr)
-:r1 = ma fixeds object (ptr)
-:r2 = mb fixeds object (ptr)
-outputs
-:r0 = output fixeds object (ptr)
-:r1 = 0 if error, else ok
-trashes
-:r1-:r13
-```
-
-### :mat3x3_v3_mul -> class/fixeds/mat3x3_v3_mul
-
-```code
-inputs
-:r0 = output fixeds object (ptr)
-:r1 = matrix ma fixeds object (ptr)
-:r2 = vector v fixeds object (ptr)
-outputs
-:r0 = output fixeds object (ptr)
-:r1 = 0 if error, else ok
-trashes
-:r1-:r13
-```
-
-### :mat4x4_mul -> class/fixeds/mat4x4_mul
-
-```code
-inputs
-:r0 = output fixeds object (ptr)
-:r1 = ma fixeds object (ptr)
-:r2 = mb fixeds object (ptr)
-outputs
-:r0 = output fixeds object (ptr)
-:r1 = 0 if error, else ok
-trashes
-:r1-:r13
-```
-
-### :mat4x4_v4_mul -> class/fixeds/mat4x4_v4_mul
-
-```code
-inputs
-:r0 = output fixeds object (ptr)
-:r1 = matrix ma fixeds object (ptr)
-:r2 = vector v fixeds object (ptr)
-outputs
-:r0 = output fixeds object (ptr)
-:r1 = 0 if error, else ok
-trashes
-:r1-:r13
 ```
 
 ### :mod -> class/fixeds/mod

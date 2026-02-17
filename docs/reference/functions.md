@@ -586,22 +586,10 @@ very basic attenuation, diffuse and specular
 (mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f
 ```
 
-### mat3x3-mul
-
-```code
-(mat3x3-mul mat3x3_a mat3x3_b) -> mat3x3
-```
-
 ### mat4x4-invert
 
 ```code
 (mat4x4-invert mat4x4) -> mat4x4
-```
-
-### mat4x4-mul
-
-```code
-(mat4x4-mul mat4x4_a mat4x4_b) -> mat4x4
 ```
 
 ### match
