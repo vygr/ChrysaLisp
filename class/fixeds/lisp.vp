@@ -129,7 +129,7 @@
 			(call :obj :ref `(,dst) `(,dst))
 		(endif)
 	(endif)
-	(v-call :fixeds :mat4x4_mul `(,dst ,nums1 ,nums2) `(,dst :r1) dst iter_begin)
+	(v-call :fixeds :mat4x4_mul `(,dst ,nums1 ,nums2) `(,dst) dst iter_begin)
 
 	(exit :fixeds :lisp_mat4x4_mul `(,this ,dst))
 	(vp-ret)
@@ -184,7 +184,7 @@
 			(call :obj :ref `(,dst) `(,dst))
 		(endif)
 	(endif)
-	(v-call :fixeds :mat4x4_v4_mul `(,dst ,nums1 ,nums2) `(,dst :r1) dst iter_begin)
+	(v-call :fixeds :mat4x4_v4_mul `(,dst ,nums1 ,nums2) `(,dst) dst iter_begin)
 
 	(exit :fixeds :lisp_mat4x4_v4_mul `(,this ,dst))
 	(vp-ret)
@@ -239,7 +239,7 @@
 			(call :obj :ref `(,dst) `(,dst))
 		(endif)
 	(endif)
-	(v-call :fixeds :mat3x3_mul `(,dst ,nums1 ,nums2) `(,dst :r1) dst iter_begin)
+	(v-call :fixeds :mat3x3_mul `(,dst ,nums1 ,nums2) `(,dst) dst iter_begin)
 
 	(exit :fixeds :lisp_mat3x3_mul `(,this ,dst))
 	(vp-ret)
@@ -294,7 +294,7 @@
 			(call :obj :ref `(,dst) `(,dst))
 		(endif)
 	(endif)
-	(v-call :fixeds :mat3x3_v3_mul `(,dst ,nums1 ,nums2) `(,dst :r1) dst iter_begin)
+	(v-call :fixeds :mat3x3_v3_mul `(,dst ,nums1 ,nums2) `(,dst) dst iter_begin)
 
 	(exit :fixeds :lisp_mat3x3_v3_mul `(,this ,dst))
 	(vp-ret)
