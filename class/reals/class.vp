@@ -474,27 +474,37 @@
 	;outputs
 	;:r0 = output reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f7
+	;:r1-:r3, :f0-:f11
 
-	(vp-rdef (this ptr_a ptr_v ptr_o ptr_ae))
-	(vp-fdef (a0 a1 a2 a3 v0 v1 v2 v3))
+	(vp-rdef (this ptr_a ptr_v ptr_o))
+	(vp-fdef (a0 a1 a2 a3 a4 a5 a6 a7 v0 v1 v2 v3))
 
 	(entry :reals :mat4x4_v4_mul `(,this ,ptr_a ,ptr_v))
 
 	(vp-simd vp-cpy-ir `(,ptr_a ,ptr_v ,this) `(,+array_begin) `(,ptr_a ,ptr_v ,ptr_o))
-	; load v
-	(vp-simd vp-cpy-if `(,ptr_v) '(0 8 16 24) `(,v0 ,v1 ,v2 ,v3))
-	(vp-lea-i ptr_a (* 4 4 +long_size) ptr_ae)
-	(loop-start)
-		; load row of a
-		(vp-simd vp-cpy-if `(,ptr_a) '(0 8 16 24) `(,a0 ,a1 ,a2 ,a3))
-		(vp-add-cr (* 4 +long_size) ptr_a)
-		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v3) `(,a0 ,a1 ,a2 ,a3))
-		(vp-simd vp-add-ff `(,a1 ,a3) `(,a0 ,a2))
-		(vp-add-ff a2 a0)
-		(vp-cpy-fi a0 ptr_o 0)
-		(vp-add-cr +long_size ptr_o)
-	(loop-until `(,ptr_a = ,ptr_ae))
+	(vp-simd vp-cpy-if `(,ptr_v)
+		`(,(* +long_size 0) ,(* +long_size 1) ,(* +long_size 2) ,(* +long_size 3))
+		`(,v0 ,v1 ,v2 ,v3))
+	; batch 1
+	(vp-simd vp-cpy-if `(,ptr_a)
+		`(,(* +long_size 0) ,(* +long_size 1) ,(* +long_size 2) ,(* +long_size 3)
+		  ,(* +long_size 4) ,(* +long_size 5) ,(* +long_size 6) ,(* +long_size 7))
+		`(,a0 ,a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7))
+	(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v3 ,v0 ,v1 ,v2 ,v3)
+		`(,a0 ,a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7))
+	(vp-simd vp-add-ff `(,a1 ,a3 ,a5 ,a7) `(,a0 ,a2 ,a4 ,a6))
+	(vp-simd vp-add-ff `(,a2 ,a6) `(,a0 ,a4))
+	(vp-simd vp-cpy-fi `(,a0 ,a4) `(,ptr_o) `(,(* +long_size 0) ,(* +long_size 1)))
+	; batch 2
+	(vp-simd vp-cpy-if `(,ptr_a)
+		`(,(* +long_size 8) ,(* +long_size 9) ,(* +long_size 10) ,(* +long_size 11)
+		  ,(* +long_size 12) ,(* +long_size 13) ,(* +long_size 14) ,(* +long_size 15))
+		`(,a0 ,a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7))
+	(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v3 ,v0 ,v1 ,v2 ,v3)
+		`(,a0 ,a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7))
+	(vp-simd vp-add-ff `(,a1 ,a3 ,a5 ,a7) `(,a0 ,a2 ,a4 ,a6))
+	(vp-simd vp-add-ff `(,a2 ,a6) `(,a0 ,a4))
+	(vp-simd vp-cpy-fi `(,a0 ,a4) `(,ptr_o) `(,(* +long_size 2) ,(* +long_size 3)))
 
 	(exit :reals :mat4x4_v4_mul `(,this))
 	(vp-ret)
