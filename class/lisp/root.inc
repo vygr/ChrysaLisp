@@ -156,18 +156,18 @@
 ; (fixeds-floor fixeds [fixeds]) -> fixeds
 (ffi "class/fixeds/lisp_ceil" fixeds-ceil)
 ; (fixeds-ceil fixeds [fixeds]) -> fixeds
-(ffi "class/fixeds/lisp_mat4x4_mul" mat4x4-mul)
-; (mat4x4-mul ma mb [out]) -> fixeds
-(ffi "class/fixeds/lisp_mat4x4_v4_mul" mat4x4-v4-mul)
-; (mat4x4-v4-mul ma v [out]) -> fixeds
-(ffi "class/fixeds/lisp_mat3x3_mul" mat3x3-mul)
-; (mat3x3-mul ma mb [out]) -> fixeds
-(ffi "class/fixeds/lisp_mat3x3_v3_mul" mat3x3-v3-mul)
-; (mat3x3-v3-mul ma v [out]) -> fixeds
 (ffi "class/real/lisp_quant" quant)
 ; (quant real tol) -> real
 (ffi "class/reals/lisp_quant" reals-quant)
 ; (reals-quant reals tol [reals]) -> reals
+;; (ffi "class/fixeds/lisp_mat4x4_mul" mat4x4-mul)
+;; ; (mat4x4-mul ma mb [out]) -> fixeds
+;; (ffi "class/fixeds/lisp_mat4x4_v4_mul" mat4x4-v4-mul)
+;; ; (mat4x4-v4-mul ma v [out]) -> fixeds
+;; (ffi "class/fixeds/lisp_mat3x3_mul" mat3x3-mul)
+;; ; (mat3x3-mul ma mb [out]) -> fixeds
+;; (ffi "class/fixeds/lisp_mat3x3_v3_mul" mat3x3-v3-mul)
+;; ; (mat3x3-v3-mul ma v [out]) -> fixeds
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Sequence, Array, and List Operations

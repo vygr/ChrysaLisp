@@ -11,119 +11,141 @@
 	(enum r0 r1 r2 r3))
 
 (defun Mat3x3-unity ()
-	(list (Vec3-r +real_1 +real_0 +real_0)
-		(Vec3-r +real_0 +real_1 +real_0)
-		(Vec3-r +real_0 +real_0 +real_1)))
+	(reals +real_1 +real_0 +real_0
+		+real_0 +real_1 +real_0
+		+real_0 +real_0 +real_1))
 
 (defun Mat4x4-unity ()
-	(list (Vec4-r +real_1 +real_0 +real_0 +real_0)
-		(Vec4-r +real_0 +real_1 +real_0 +real_0)
-		(Vec4-r +real_0 +real_0 +real_1 +real_0)
-		(Vec4-r +real_0 +real_0 +real_0 +real_1)))
+	(reals +real_1 +real_0 +real_0 +real_0
+		+real_0 +real_1 +real_0 +real_0
+		+real_0 +real_0 +real_1 +real_0
+		+real_0 +real_0 +real_0 +real_1))
 
 (defun Mat3x3-rotx (a)
-	(list (Vec3-r +real_1 +real_0 +real_0)
-		(Vec3-r +real_0 (cos a) (* (sin a) +real_-1))
-		(Vec3-r +real_0 (sin a) (cos a))))
+	(defq s (sin a) c (cos a))
+	(reals +real_1 +real_0 +real_0
+		+real_0 c (neg s)
+		+real_0 s c))
 
 (defun Mat3x3-roty (a)
-	(list (Vec3-r (cos a) +real_0 (sin a))
-		(Vec3-r +real_0 +real_1 +real_0)
-		(Vec3-r (* (sin a) +real_-1) +real_0 (cos a))))
+	(defq s (sin a) c (cos a))
+	(reals c +real_0 s
+		+real_0 +real_1 +real_0
+		(neg s) +real_0 c))
 
 (defun Mat3x3-rotz (a)
-	(list (Vec3-r (cos a) (* (sin a) +real_-1) +real_0)
-		(Vec3-r (sin a) (cos a) +real_0)
-		(Vec3-r +real_0 +real_0 +real_1)))
+	(defq s (sin a) c (cos a))
+	(reals c (neg s) +real_0
+		s c +real_0
+		+real_0 +real_0 +real_1))
 
 (defun Mat3x3-scale (s)
-	(list (Vec3-r s +real_0 +real_0)
-		(Vec3-r +real_0 s +real_0)
-		(Vec3-r +real_0 +real_0 s)))
+	(reals s +real_0 +real_0
+		+real_0 s +real_0
+		+real_0 +real_0 s))
 
 (defun Mat4x4-rotx (a)
-	(list (Vec4-r +real_1 +real_0 +real_0 +real_0)
-		(Vec4-r +real_0 (cos a) (* (sin a) +real_-1) +real_0)
-		(Vec4-r +real_0 (sin a) (cos a) +real_0)
-		(Vec4-r +real_0 +real_0 +real_0 +real_1)))
+	(defq s (sin a) c (cos a))
+	(reals +real_1 +real_0 +real_0 +real_0
+		+real_0 c (neg s) +real_0
+		+real_0 s c +real_0
+		+real_0 +real_0 +real_0 +real_1))
 
 (defun Mat4x4-roty (a)
-	(list (Vec4-r (cos a) +real_0 (sin a) +real_0)
-		(Vec4-r +real_0 +real_1 +real_0 +real_0)
-		(Vec4-r (* (sin a) +real_-1) +real_0 (cos a) +real_0)
-		(Vec4-r +real_0 +real_0 +real_0 +real_1)))
+	(defq s (sin a) c (cos a))
+	(reals c +real_0 s +real_0
+		+real_0 +real_1 +real_0 +real_0
+		(neg s) +real_0 c +real_0
+		+real_0 +real_0 +real_0 +real_1))
 
 (defun Mat4x4-rotz (a)
-	(list (Vec4-r (cos a) (* (sin a) +real_-1) +real_0 +real_0)
-		(Vec4-r (sin a) (cos a) +real_0 +real_0)
-		(Vec4-r +real_0 +real_0 +real_1 +real_0)
-		(Vec4-r +real_0 +real_0 +real_0 +real_1)))
+	(defq s (sin a) c (cos a))
+	(reals c (neg s) +real_0 +real_0
+		s c +real_0 +real_0
+		+real_0 +real_0 +real_1 +real_0
+		+real_0 +real_0 +real_0 +real_1))
 
 (defun Mat4x4-translate (x y z)
-	(list (Vec4-r +real_1 +real_0 +real_0 x)
-		(Vec4-r +real_0 +real_1 +real_0 y)
-		(Vec4-r +real_0 +real_0 +real_1 z)
-		(Vec4-r +real_0 +real_0 +real_0 +real_1)))
+	(reals +real_1 +real_0 +real_0 x
+		+real_0 +real_1 +real_0 y
+		+real_0 +real_0 +real_1 z
+		+real_0 +real_0 +real_0 +real_1))
 
 (defun Mat4x4-scale (x y z)
-	(list (Vec4-r x +real_0 +real_0 +real_0)
-		(Vec4-r +real_0 y +real_0 +real_0)
-		(Vec4-r +real_0 +real_0 z +real_0)
-		(Vec4-r +real_0 +real_0 +real_0 +real_1)))
+	(reals x +real_0 +real_0 +real_0
+		+real_0 y +real_0 +real_0
+		+real_0 +real_0 z +real_0
+		+real_0 +real_0 +real_0 +real_1))
 
 (defun Mat4x4-frustum (left right top bottom near far)
-	(list (Vec4-r (/ (* +real_2 near) (- right left)) +real_0 (/ (+ left right) (- right left)) +real_0)
-		(Vec4-r +real_0 (/ (* +real_2 near) (- top bottom)) (/ (+ top bottom) (- top bottom)) +real_0)
-		(Vec4-r +real_0 +real_0 (/ (+ near far) (- near far)) (/ (* +real_2 near far) (- near far)))
-		(Vec4-r +real_0 +real_0 +real_-1 +real_0)))
+	(defq rl (recip (- right left))
+		tb (recip (- top bottom))
+		nf (recip (- near far)))
+	(reals (* (* +real_2 near) rl) +real_0 (* (+ left right) rl) +real_0
+		+real_0 (* (* +real_2 near) tb) (* (+ top bottom) tb) +real_0
+		+real_0 +real_0 (* (+ near far) nf) (* (* (* +real_2 near) far) nf)
+		+real_0 +real_0 +real_-1 +real_0))
 
 (defun mat3x3-vec3-mul (m v)
-	(Vec3-r (nums-dot v (elem-get m +mat3x3_r0))
-		(nums-dot v (elem-get m +mat3x3_r1))
-		(nums-dot v (elem-get m +mat3x3_r2))))
+	(bind '(m00 m01 m02 m10 m11 m12 m20 m21 m22) m)
+	(bind '(vx vy vz) v)
+	(Vec3-r (+ (* m00 vx) (* m01 vy) (* m02 vz))
+		(+ (* m10 vx) (* m11 vy) (* m12 vz))
+		(+ (* m20 vx) (* m21 vy) (* m22 vz))))
 
 (defun mat4x4-vec3-mul (m v)
-	(Vec3-r (nums-dot v (elem-get m +mat4x4_r0))
-		(nums-dot v (elem-get m +mat4x4_r1))
-		(nums-dot v (elem-get m +mat4x4_r2))))
+	(bind '(m00 m01 m02 m03 m10 m11 m12 m13 m20 m21 m22 m23) m)
+	(bind '(vx vy vz) v)
+	(Vec3-r (+ (* m00 vx) (* m01 vy) (* m02 vz))
+		(+ (* m10 vx) (* m11 vy) (* m12 vz))
+		(+ (* m20 vx) (* m21 vy) (* m22 vz))))
 
 (defun mat4x4-vec4-mul (m v)
-	(Vec4-r (nums-dot v (elem-get m +mat4x4_r0))
-		(nums-dot v (elem-get m +mat4x4_r1))
-		(nums-dot v (elem-get m +mat4x4_r2))
-		(nums-dot v (elem-get m +mat4x4_r3))))
+	(bind '(m00 m01 m02 m03 m10 m11 m12 m13 m20 m21 m22 m23 m30 m31 m32 m33) m)
+	(bind '(vx vy vz vw) v)
+	(Vec4-r (+ (* m00 vx) (* m01 vy) (* m02 vz) (* m03 vw))
+		(+ (* m10 vx) (* m11 vy) (* m12 vz) (* m13 vw))
+		(+ (* m20 vx) (* m21 vy) (* m22 vz) (* m23 vw))
+		(+ (* m30 vx) (* m31 vy) (* m32 vz) (* m33 vw))))
 
 (defun mat3x3-mul (ma mb)
-	; (mat3x3-mul mat3x3_a mat3x3_b) -> mat3x3
-	(bind '(mar0 mar1 mar2) ma)
-	(bind '(mbr0 mbr1 mbr2) mb)
-	(defq mbc0 (Vec3-r (first mbr0) (first mbr1) (first mbr2))
-		mbc1 (Vec3-r (second mbr0) (second mbr1) (second mbr2))
-		mbc2 (Vec3-r (third mbr0) (third mbr1) (third mbr2)))
-	(list (Vec3-r (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2))
-		(Vec3-r (nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2))
-		(Vec3-r (nums-dot mar2 mbc0) (nums-dot mar2 mbc1) (nums-dot mar2 mbc2))))
+	(bind '(a00 a01 a02 a10 a11 a12 a20 a21 a22) ma)
+	(bind '(b00 b01 b02 b10 b11 b12 b20 b21 b22) mb)
+	(reals
+		(+ (* a00 b00) (* a01 b10) (* a02 b20))
+		(+ (* a00 b01) (* a01 b11) (* a02 b21))
+		(+ (* a00 b02) (* a01 b12) (* a02 b22))
+		(+ (* a10 b00) (* a11 b10) (* a12 b20))
+		(+ (* a10 b01) (* a11 b11) (* a12 b21))
+		(+ (* a10 b02) (* a11 b12) (* a12 b22))
+		(+ (* a20 b00) (* a21 b10) (* a22 b20))
+		(+ (* a20 b01) (* a21 b11) (* a22 b21))
+		(+ (* a20 b02) (* a21 b12) (* a22 b22))))
 
 (defun mat4x4-mul (ma mb)
-	; (mat4x4-mul mat4x4_a mat4x4_b) -> mat4x4
-	(bind '(mar0 mar1 mar2 mar3) ma)
-	(bind '(mbr0 mbr1 mbr2 mbr3) mb)
-	(defq mbc0 (Vec4-r (first mbr0) (first mbr1) (first mbr2) (first mbr3))
-		mbc1 (Vec4-r (second mbr0) (second mbr1) (second mbr2) (second mbr3))
-		mbc2 (Vec4-r (third mbr0) (third mbr1) (third mbr2) (third mbr3))
-		mbc3 (Vec4-r (elem-get mbr0 3) (elem-get mbr1 3) (elem-get mbr2 3) (elem-get mbr3 3)))
-	(list (Vec4-r (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2) (nums-dot mar0 mbc3))
-		(Vec4-r (nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2) (nums-dot mar1 mbc3))
-		(Vec4-r (nums-dot mar2 mbc0) (nums-dot mar2 mbc1) (nums-dot mar2 mbc2) (nums-dot mar2 mbc3))
-		(Vec4-r (nums-dot mar3 mbc0) (nums-dot mar3 mbc1) (nums-dot mar3 mbc2) (nums-dot mar3 mbc3))))
+	(bind '(a00 a01 a02 a03 a10 a11 a12 a13 a20 a21 a22 a23 a30 a31 a32 a33) ma)
+	(bind '(b00 b01 b02 b03 b10 b11 b12 b13 b20 b21 b22 b23 b30 b31 b32 b33) mb)
+	(reals
+		(+ (* a00 b00) (* a01 b10) (* a02 b20) (* a03 b30))
+		(+ (* a00 b01) (* a01 b11) (* a02 b21) (* a03 b31))
+		(+ (* a00 b02) (* a01 b12) (* a02 b22) (* a03 b32))
+		(+ (* a00 b03) (* a01 b13) (* a02 b23) (* a03 b33))
+		(+ (* a10 b00) (* a11 b10) (* a12 b20) (* a13 b30))
+		(+ (* a10 b01) (* a11 b11) (* a12 b21) (* a13 b31))
+		(+ (* a10 b02) (* a11 b12) (* a12 b22) (* a13 b32))
+		(+ (* a10 b03) (* a11 b13) (* a12 b23) (* a13 b33))
+		(+ (* a20 b00) (* a21 b10) (* a22 b20) (* a23 b30))
+		(+ (* a20 b01) (* a21 b11) (* a22 b21) (* a23 b31))
+		(+ (* a20 b02) (* a21 b12) (* a22 b22) (* a23 b32))
+		(+ (* a20 b03) (* a21 b13) (* a22 b23) (* a23 b33))
+		(+ (* a30 b00) (* a31 b10) (* a32 b20) (* a33 b30))
+		(+ (* a30 b01) (* a31 b11) (* a32 b21) (* a33 b31))
+		(+ (* a30 b02) (* a31 b12) (* a32 b22) (* a33 b32))
+		(+ (* a30 b03) (* a31 b13) (* a32 b23) (* a33 b33))))
 
 (defun mat4x4-invert (m)
 	; (mat4x4-invert mat4x4) -> mat4x4
-	(bind '(mr0 mr1 mr2 mr3) m)
-	(bind '(m00 m01 m02 m03) mr0)
-	(bind '(m10 m11 m12 m13) mr1)
-	(bind '(m20 m21 m22 m23) mr2)
-	(bind '(m30 m31 m32 m33) mr3)
+	(bind '(m00 m01 m02 m03 m10 m11 m12 m13 m20 m21 m22 m23 m30 m31 m32 m33) m)
 	(defq
 		a2323 (- (* m22 m33) (* m23 m32))
 		a1323 (- (* m21 m33) (* m23 m31))
@@ -148,27 +170,34 @@
 			(* m01 (- (* m12 a0323) (* m10 a2323) (* m13 a0223)))
 			(* m02 (+ (* m10 a1323) (neg (* m11 a0323)) (* m13 a0123)))
 			(* m03 (+ (* m11 a0223) (* m10 a1223) (* m12 a0123))))))
-	(list
-		(nums-scale (Vec4-r
-			(+ (* m11 a2323) (neg (* m12 a1323)) (* m13 a1223))
-			(- (* m02 a1323) (* m01 a2323) (* m03 a1223))
-			(+ (* m01 a2313) (neg (* m02 a1313)) (* m03 a1213))
-			(- (* m02 a1312) (* m01 a2312) (* m03 a1212))) det)
-		(nums-scale (Vec4-r
-			(- (* m12 a0323) (* m10 a2323) (* m13 a0223))
-			(+ (* m00 a2323) (neg (* m02 a0323)) (* m03 a0223))
-			(- (* m02 a0313) (* m00 a2313) (* m03 a0213))
-			(+ (* m00 a2312) (neg (* m02 a0312)) (* m03 a0212))) det)
-		(nums-scale (Vec4-r
-			(+ (* m10 a1323) (neg (* m11 a0323)) (* m13 a0123))
-			(- (* m01 a0323) (* m00 a1323) (* m03 a0123))
-			(+ (* m00 a1313) (neg (* m01 a0313)) (* m03 a0113))
-			(- (* m01 a0312) (* m00 a1312) (* m03 a0112))) det)
-		(nums-scale (Vec4-r
-			(- (* m11 a0223) (* m10 a1223) (* m12 a0123))
-			(+ (* m00 a1223) (neg (* m01 a0223)) (* m02 a0123))
-			(- (* m01 a0213) (* m00 a1213) (* m02 a0113))
-			(+ (* m00 a1212) (neg (* m01 a0212)) (* m02 a0112))) det)))
+	(nums-scale (reals
+		(+ (* m11 a2323) (neg (* m12 a1323)) (* m13 a1223))
+		(- (* m02 a1323) (* m01 a2323) (* m03 a1223))
+		(+ (* m01 a2313) (neg (* m02 a1313)) (* m03 a1213))
+		(- (* m02 a1312) (* m01 a2312) (* m03 a1212))
+		(- (* m12 a0323) (* m10 a2323) (* m13 a0223))
+		(+ (* m00 a2323) (neg (* m02 a0323)) (* m03 a0223))
+		(- (* m02 a0313) (* m00 a2313) (* m03 a0213))
+		(+ (* m00 a2312) (neg (* m02 a0312)) (* m03 a0212))
+		(+ (* m10 a1323) (neg (* m11 a0323)) (* m13 a0123))
+		(- (* m01 a0323) (* m00 a1323) (* m03 a0123))
+		(+ (* m00 a1313) (neg (* m01 a0313)) (* m03 a0113))
+		(- (* m01 a0312) (* m00 a1312) (* m03 a0112))
+		(- (* m11 a0223) (* m10 a1223) (* m12 a0123))
+		(+ (* m00 a1223) (neg (* m01 a0223)) (* m02 a0123))
+		(- (* m01 a0213) (* m00 a1213) (* m02 a0113))
+		(+ (* m00 a1212) (neg (* m01 a0212)) (* m02 a0112))) det))
 
 (defun print-mat (m)
-	(each (# (print-vec %0)) m))
+	(cond
+		((= (count m) 9)
+			(bind '(m00 m01 m02 m10 m11 m12 m20 m21 m22) m)
+			(print (Vec3-r m00 m01 m02))
+			(print (Vec3-r m10 m11 m12))
+			(print (Vec3-r m20 m21 m22)))
+		((= (count m) 16)
+			(bind '(m00 m01 m02 m03 m10 m11 m12 m13 m20 m21 m22 m23 m30 m31 m32 m33) m)
+			(print (Vec4-r m00 m01 m02 m03))
+			(print (Vec4-r m10 m11 m12 m13))
+			(print (Vec4-r m20 m21 m22 v23))
+			(print (Vec4-r m30 m31 m32 m33)))))
