@@ -4,12 +4,6 @@
 
 (import "./vector.inc")
 
-(enums +mat3x3 0
-	(enum r0 r1 r2))
-
-(enums +mat4x4 0
-	(enum r0 r1 r2 r3))
-
 (defun Mat3x3-unity ()
 	(reals +real_1 +real_0 +real_0
 		+real_0 +real_1 +real_0
@@ -190,14 +184,12 @@
 
 (defun print-mat (m)
 	(cond
-		((= (count m) 9)
-			(bind '(m00 m01 m02 m10 m11 m12 m20 m21 m22) m)
-			(print (Vec3-r m00 m01 m02))
-			(print (Vec3-r m10 m11 m12))
-			(print (Vec3-r m20 m21 m22)))
-		((= (count m) 16)
-			(bind '(m00 m01 m02 m03 m10 m11 m12 m13 m20 m21 m22 m23 m30 m31 m32 m33) m)
-			(print (Vec4-r m00 m01 m02 m03))
-			(print (Vec4-r m10 m11 m12 m13))
-			(print (Vec4-r m20 m21 m22 v23))
-			(print (Vec4-r m30 m31 m32 m33)))))
+		((= (length m) 9)
+			(print (slice m 0 3))
+			(print (slice m 3 6))
+			(print (slice m 6 9)))
+		((= (length m) 16)
+			(print (slice m 0 4))
+			(print (slice m 4 8))
+			(print (slice m 8 12))
+			(print (slice m 12 16)))))
