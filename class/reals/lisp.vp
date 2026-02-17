@@ -26,7 +26,7 @@
 	(assign `((,nums1 +array_length)) `(,len1))
 	(errorif `(,len1 = 0) 'error)
 	(vpif `(,argc = 2))
-		(v-call :reals :vcreate `(,dst) `(,dst) nums1 iter_begin)
+		(call :reals :create :nil `(,dst))
 		(call :reals :set_cap `(,dst ,len1) `(,dst))
 		(call :reals :set_length `(,dst ,len1) `(,dst _))
 	(else)

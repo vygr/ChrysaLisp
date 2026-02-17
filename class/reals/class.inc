@@ -20,7 +20,7 @@
 	(dec-method :frac class/reals/frac :final)
 	(dec-method :floor class/reals/floor :final)
 	(dec-method :ceil class/reals/ceil :final)
-	(dec-method :quant class/reals/quant :final (:r0 :r1 :r2) (:r0))
+	(dec-method :quant class/reals/quant :static (:r0 :r1 :r2) (:r0))
 	(dec-method :mat4x4_mul class/reals/mat4x4_mul :static (:r0 :r1 :r2) (:r0))
 	(dec-method :mat4x4_v4_mul class/reals/mat4x4_v4_mul :static (:r0 :r1 :r2) (:r0))
 	(dec-method :mat4x4_v3_mul class/reals/mat4x4_v3_mul :static (:r0 :r1 :r2) (:r0))
