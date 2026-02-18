@@ -6,6 +6,8 @@
 
 Native VP support for `mat4x4-mul`, `mat4x4-vec4-mul` and `mat4x4-vec3-mul`.
 
+Support added for `real` and `fixed` types in CScript.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the

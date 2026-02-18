@@ -648,9 +648,9 @@
 	(vp-fdef (m0 m1 m2 m3 m4 m5 m6 m7 t0 t1 t2 t3 t4 t5 det s))
 
 	(def-vars
-		(long d23_0 d23_1 d23_2 d23_3 d23_4 d23_5)
-		(long d13_0 d13_1 d13_2 d13_3 d13_4 d13_5)
-		(long d12_0 d12_1 d12_2 d12_3 d12_4 d12_5))
+		(real d23_0 d23_1 d23_2 d23_3 d23_4 d23_5)
+		(real d13_0 d13_1 d13_2 d13_3 d13_4 d13_5)
+		(real d12_0 d12_1 d12_2 d12_3 d12_4 d12_5))
 
 	(push-scope)
 	(entry :reals :mat4x4_inv `(,this ,ptr_m))
@@ -676,9 +676,9 @@
 	(vp-cpy-ff m4 s) (vp-mul-ff m3 s) (vp-sub-ff s t3)
 	(vp-cpy-ff m4 s) (vp-mul-ff m2 s) (vp-sub-ff s t4)
 	(vp-cpy-ff m4 s) (vp-mul-ff m1 s) (vp-sub-ff s t5)
-
-	(assign {d23_0, d23_1, d23_2, d23_3, d23_4, d23_5} `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5))
-
+	
+	(assign `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5) {d23_0, d23_1, d23_2, d23_3, d23_4, d23_5})
+	
 	; --- Step 2: Compute 2x2 determinants of Rows 1 & 3 (D13) ---
 	(vp-simd vp-cpy-if `(,ptr_m)
 		`(,(* 4 +long_size) ,(* 5 +long_size) ,(* 6 +long_size) ,(* 7 +long_size)
@@ -694,9 +694,9 @@
 	(vp-cpy-ff m4 s) (vp-mul-ff m3 s) (vp-sub-ff s t3)
 	(vp-cpy-ff m4 s) (vp-mul-ff m2 s) (vp-sub-ff s t4)
 	(vp-cpy-ff m4 s) (vp-mul-ff m1 s) (vp-sub-ff s t5)
-
-	(assign {d13_0, d13_1, d13_2, d13_3, d13_4, d13_5} `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5))
-
+	
+	(assign `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5) {d13_0, d13_1, d13_2, d13_3, d13_4, d13_5})
+	
 	; --- Step 3: Compute 2x2 determinants of Rows 1 & 2 (D12) ---
 	(vp-simd vp-cpy-if `(,ptr_m)
 		`(,(* 4 +long_size) ,(* 5 +long_size) ,(* 6 +long_size) ,(* 7 +long_size)
@@ -712,11 +712,11 @@
 	(vp-cpy-ff m4 s) (vp-mul-ff m3 s) (vp-sub-ff s t3)
 	(vp-cpy-ff m4 s) (vp-mul-ff m2 s) (vp-sub-ff s t4)
 	(vp-cpy-ff m4 s) (vp-mul-ff m1 s) (vp-sub-ff s t5)
-
-	(assign {d12_0, d12_1, d12_2, d12_3, d12_4, d12_5} `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5))
-
+	
+	(assign `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5) {d12_0, d12_1, d12_2, d12_3, d12_4, d12_5})
+	
 	; --- Step 4: Compute Determinant and Cofactor Row 0 ---
-	(assign `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5) {d23_0, d23_1, d23_2, d23_3, d23_4, d23_5})
+	(assign {d23_0, d23_1, d23_2, d23_3, d23_4, d23_5} `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5))
 	(vp-simd vp-cpy-if `(,ptr_m)
 		`(,(* 4 +long_size) ,(* 5 +long_size) ,(* 6 +long_size) ,(* 7 +long_size))
 		`(,m4 ,m5 ,m6 ,m7)) ; Row 1
@@ -757,7 +757,7 @@
 	(vp-simd vp-cpy-fi `(,m0 ,m1 ,m2 ,m3) `(,ptr_o) `(0 32 64 96))
 
 	; --- Step 5: Compute Cofactor Row 1 (Uses D23) ---
-	(assign `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5) {d23_0, d23_1, d23_2, d23_3, d23_4, d23_5})
+	(assign {d23_0, d23_1, d23_2, d23_3, d23_4, d23_5} `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5))
 	(vp-simd vp-cpy-if `(,ptr_m) `(0 8 16 24) `(,m4 ,m5 ,m6 ,m7)) ; Row 0
 	
 	; C10
@@ -786,7 +786,7 @@
 	(vp-simd vp-cpy-fi `(,m0 ,m1 ,t1 ,m3) `(,ptr_o) `(8 40 72 104))
 
 	; --- Step 6: Compute Cofactor Row 2 (Uses D13) ---
-	(assign `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5) {d13_0, d13_1, d13_2, d13_3, d13_4, d13_5})
+	(assign {d13_0, d13_1, d13_2, d13_3, d13_4, d13_5} `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5))
 
 	; C20
 	(vp-simd vp-cpy-ff `(,t0 ,t1 ,t2) `(,m0 ,m1 ,m2))
@@ -813,7 +813,7 @@
 	(vp-simd vp-cpy-fi `(,m0 ,m1 ,m2 ,m3) `(,ptr_o) `(16 48 80 112))
 
 	; --- Step 7: Compute Cofactor Row 3 (Uses D12) ---
-	(assign `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5) {d12_0, d12_1, d12_2, d12_3, d12_4, d12_5})
+	(assign {d12_0, d12_1, d12_2, d12_3, d12_4, d12_5} `(,t0 ,t1 ,t2 ,t3 ,t4 ,t5))
 
 	; C30
 	(vp-simd vp-cpy-ff `(,t0 ,t1 ,t2) `(,m0 ,m1 ,m2))
