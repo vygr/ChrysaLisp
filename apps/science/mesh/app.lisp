@@ -15,7 +15,7 @@
 (enums +select 0
 	(enum main task reply tip frame_timer retry_timer))
 
-(defq anti_alias :nil frame_timer_rate (/ 1000000 30) retry_timer_rate 2000000
+(defq anti_alias :nil frame_timer_rate (/ 1000000 30) retry_timer_rate 1000000
 	retry_timeout (task-timeout 10) +min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
@@ -96,8 +96,8 @@
 	(each (lambda ((name command))
 			(push job_que (cat (str-alloc +job_name) (pad name 16) command)))
 		'(("sphere.1" "(Mesh-iso (Iso-sphere 40 40 40) (n2r 0.25))")
-		("capsule" "(Mesh-iso (Iso-capsule 40 40 40) (n2r 0.25))")
 		("cube.1" "(Mesh-iso (Iso-cube 10 10 10) (n2r 0.45))")
+		("capsule" "(Mesh-iso (Iso-capsule 40 40 40) (n2r 0.25))")
 		("torus.1" "(Mesh-torus +real_1 +real_1/3 40)")
 		("sphere.2" "(Mesh-sphere +real_1/2 20)")))
 	;create scene graph
@@ -127,15 +127,12 @@
 	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
-	;; (defq then (pii-time))
-	;; (times 10 (Mesh-iso (Iso-capsule 30 30 30) (n2r 0.25)))
-	;; (prin (time-in-seconds (- (pii-time) then)))(print)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
 	(. *style_toolbar* :set_selected 0)
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(defq select (task-mboxes +select_size) *running* :t *dirty* :t
-		jobs (list) scene (create-scene jobs) farm (Local create destroy 4))
+		jobs (list) scene (create-scene jobs) farm (Local create destroy 4 2))
 	(tooltips (elem-get select +select_tip))
 	(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
 	(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0)
@@ -151,11 +148,12 @@
 				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
 					(def val :child child)
+					(. farm :add_node (task-nodeid child))
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child mesh response
 				(defq key (getf *msg* +job_reply_key)
-					mesh_name (trim-start (slice *msg* +job_reply_name +job_reply_data))
+					mesh_name (trim (getf *msg* +job_reply_name))
 					mesh (Mesh-data
 							(getf *msg* +job_reply_num_verts)
 							(getf *msg* +job_reply_num_norms)
@@ -169,7 +167,7 @@
 				;retry timer event
 				(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0)
 				(. farm :refresh retry_timeout)
-				(when (= 0 (length jobs))
+				(when (nempty? jobs)
 					(defq working :nil)
 					(. farm :each (lambda (key val)
 						(setq working (or working (get :job val)))))

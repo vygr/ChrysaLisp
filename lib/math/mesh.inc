@@ -11,7 +11,7 @@
 	(enum i0 i1 i2 in))
 
 (defmacro Tri (i0 i1 i2 in)
-	`(list ,i0 ,i1 ,i2 ,in))
+	`(nums ,i0 ,i1 ,i2 ,in))
 
 (defun Normal (p0 p1 p2)
 	(defq n (apply reals (vector-cross-3d
@@ -20,7 +20,7 @@
 	(if (eql n +reals_zero3) +reals_zero3 (vector-norm n)))
 
 (defun opt-vectors (vectors)
-	; (opt-vectors vectors) -> (new_vectors new_indexs)
+	; (opt-vectors vectors) -> (new_vectors new_indices)
 	(defq vec_fmap (Fmap 101) vec_imap (cap (length vectors) (list)) new_vecs (list))
 	(each (lambda (v)
 		(setq v (apply (const reals) (map (# (quant %0 (const (n2r 0.0001)))) v)))
@@ -51,9 +51,12 @@
 		tris)
 	(list norms new_tris))
 
+(defun flat-reals (l) (apply (const cat) l))
+(defun flat-nums (l) (apply (const cat) l))
+
 (defclass Mesh () :nil
 	; (Mesh) -> mesh
-	(def this :verts (list) :norms (list) :tris (list))
+	(def this :verts (reals) :norms (reals) :tris (nums))
 
 	(defgetmethod :verts)
 	(defgetmethod :norms)
@@ -62,14 +65,14 @@
 	(defmethod :normals ()
 		; (. mesh :normals) -> mesh
 		(raise :verts :tris)
-		(bind '(norms tris) (gen-norms norms tris))
-		(lower :norms :tris))
+		(bind '(norms tris) (gen-norms (partition verts 4) (partition tris 4)))
+		(lower (:norms (flat-reals norms) :tris (flat-nums tris))))
 
 	(defmethod :optimise ()
 		; (. mesh :optimise) -> mesh
 		(raise :verts :norms :tris)
-		(bind '(verts norms tris) (opt-mesh verts norms tris))
-		(lower :verts :norms :tris))
+		(bind '(verts norms tris) (opt-mesh (partition verts 4) (partition norms 3) (partition tris 4)))
+		(lower (:verts (flat-reals verts) :norms (flat-reals norms) :tris (flat-nums tris))))
 	)
 
 (defclass Mesh-sphere (radius eps) (Mesh)
@@ -120,7 +123,7 @@
 		(++ x))
 	(each (# (push %0 +real_1)) verts)
 	(shuffle tris)
-	(lower :verts :norms :tris))
+	(lower (:verts (flat-reals verts) :norms (flat-reals norms) :tris (flat-nums tris))))
 
 (defclass Mesh-torus (radius_ring radius_body eps) (Mesh)
 	; (Mesh-torus radius_ring radius_body eps) -> mesh
@@ -159,7 +162,7 @@
 		(++ y))
 	(each (# (push %0 +real_1)) verts)
 	(shuffle tris)
-	(lower :verts :norms :tris))
+	(lower (:verts (flat-reals verts) :norms (flat-reals norms) :tris (flat-nums tris))))
 
 (defclass Mesh-iso (iso isolevel) (Mesh)
 	; (Mesh-iso iso isolevel) -> mesh
@@ -181,33 +184,35 @@
 	(bind '(verts norms tris) (opt-mesh verts norms tris))
 	(each (# (push %0 +real_1)) verts)
 	(shuffle tris)
-	(lower :verts :norms :tris))
+	(lower (:verts (flat-reals verts) :norms (flat-reals norms) :tris (flat-nums tris))))
 
 (defclass Mesh-data (num_verts num_norms num_tris data) (Mesh)
 	; (Mesh-data num_verts num_norms num_tris data) -> mesh
-	(defq verts (cap num_verts (list)) norms (cap num_norms (list))
-		tris (cap num_tris (list)) i 0)
+	(defq verts (reals) norms (reals) tris (nums) i 0)
+	(cap (* num_verts 4) verts)
+	(cap (* num_norms 3) norms)
+	(cap (* num_tris 4) tris)
 	(times num_verts
-		(push verts (Vec4-r
-			(get-long data i)
-			(get-long data (+ i +long_size))
-			(get-long data (+ i (const (* +long_size 2))))
-			(get-long data (+ i (const (* +long_size 3))))))
+		(push verts
+			(get-real data i)
+			(get-real data (+ i +long_size))
+			(get-real data (+ i (const (* +long_size 2))))
+			(get-real data (+ i (const (* +long_size 3)))))
 		(setq i (+ i (const (* +long_size +vec4_size)))))
 	(times num_norms
-		(push norms (Vec3-r
-			(get-long data i)
-			(get-long data (+ i +long_size))
-			(get-long data (+ i (const (* +long_size 2))))))
+		(push norms
+			(get-real data i)
+			(get-real data (+ i +long_size))
+			(get-real data (+ i (const (* +long_size 2)))))
 		(setq i (+ i (const (* +long_size +vec3_size)))))
 	(times num_tris
-		(push tris (Tri
+		(push tris
 			(get-uint data i)
 			(get-uint data (+ i +int_size))
 			(get-uint data (+ i (const (* +int_size 2))))
-			(get-uint data (+ i (const (* +int_size 3))))))
+			(get-uint data (+ i (const (* +int_size 3)))))
 		(setq i (+ i (const (* +int_size +tri_size)))))
-	(lower :verts :norms :tris))
+	(lower (:verts verts :norms norms :tris tris)))
 
 ;module
 (export-symbols '(+tri_size))

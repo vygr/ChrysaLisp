@@ -196,15 +196,15 @@
 
 	(defmethod :get_verts ()
 		; (. scene_node :get_verts) -> verts
-		(. (get :mesh this) :get_verts))
+		(partition (. (get :mesh this) :get_verts) 4))
 
 	(defmethod :get_norms ()
 		; (. scene_node :get_norms) -> norms
-		(. (get :mesh this) :get_norms))
+		(partition (. (get :mesh this) :get_norms) 3))
 
 	(defmethod :get_tris ()
 		; (. scene_node :get_tris) -> tris
-		(. (get :mesh this) :get_tris))
+		(partition (. (get :mesh this) :get_tris) 4))
 
 	(defmethod :get_color ()
 		; (. scene_node :get_color) -> color
