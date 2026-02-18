@@ -52,7 +52,7 @@
 				;child launch response
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
-					(. farm :add_node (slice child +mailbox_id_size -1))
+					(. farm :add_node (task-nodeid child))
 					(def val :child child)
 					(dispatch-job key val)))
 			((= idx +select_reply)

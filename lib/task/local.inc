@@ -15,58 +15,60 @@
 	(defq key (def this :key (inc (get :key this))) val (env 1))
 	(. this :insert key val)
 	(def val :timestamp now)
-	(callback create e key val nodes))
+	(callback create e key val worker_nodes))
 
 (defun restart ()
 	;restart a child
 	(setq mutated :t)
 	(stop) (start))
 
-(defclass Local (create destroy &optional herd_max herd_init herd_growth nodes) (Fmap)
-	; (Local fnc_create fnc_destroy [herd_max herd_init herd_growth nodes]) -> local
-	(setd herd_max +max_int herd_init 1 herd_growth 1 nodes (list (task-nodeid)))
+(defclass Local (create destroy &optional herd_max herd_init herd_growth worker_nodes) (Fmap)
+	; (Local fnc_create fnc_destroy [herd_max herd_init herd_growth worker_nodes]) -> local
+	(setd herd_max +max_int herd_init 1 herd_growth 1 worker_nodes (list (task-nodeid)))
 	(lower :create :destroy :herd_max :herd_growth
-		(:key -1 :nodes nodes))
-	(raise :nodes (now (pii-time) e (penv)))
+		(:key -1 :worker_nodes worker_nodes))
+	(raise :worker_nodes (now (pii-time) e (penv)))
 	(times (min herd_max (max herd_init 1)) (start))
 
 	(defmethod :refresh (&optional timeout)
 		; (. local :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
-		(defq known_nodes (push (map (const cat) (mail-nodes)) (task-nodeid))
-			nodes (filter (# (find %0 known_nodes)) (get :nodes this))
+		(defq network_nodes (push (map (const cat) (mail-nodes)) (task-nodeid))
+			worker_nodes (filter (# (find %0 network_nodes)) (get :worker_nodes this))
 			old_keys (list) old_vals (list)
 			create (get :create this) destroy (get :destroy this)
 			mutated :nil now (pii-time) e (penv))
-		(def this :nodes nodes)
-		(. this :each (lambda (key val) (push old_keys key) (push old_vals val)))
+		(lower :worker_nodes)
+		(. this :each (# (push old_keys %0) (push old_vals %1)))
 		;test for vanished and timeout nodes
 		(each (lambda (key val)
+			(defq child (get :child val))
 			(cond
 				((or (not (defq child (get :child val)))
-					(find (slice child +mailbox_id_size -1) nodes))
-					;waiting on child launching, or found child in nodes, so check timestamp
+					(find (task-nodeid child) network_nodes))
+					;waiting on child launching, or found child in network_nodes
+					;so check timestamp
 					(and timeout
 						(defq then (get :timestamp val))
 						(> (- now then) timeout)
 						(restart)))
-				(:t ;not found child
+				(:t ;not found child node on network !
 					(restart)))) old_keys old_vals)
 		mutated)
 
 	(defmethod :restart (key val)
 		; (. local :restart key val)
 		;restart task
-		(raise :nodes :create :destroy (mutated :nil now (pii-time) e (penv)))
+		(raise :worker_nodes :create :destroy (mutated :nil now (pii-time) e (penv)))
 		(restart))
 
 	(defmethod :add_node (node)
 		; (. local :add_node node)
 		;add new node
-		(raise :nodes :herd_max)
-		(unless (find node nodes)
-			(lower (:nodes (push nodes node)))
-			(when (> (-- herd_max (length nodes)) 0)
+		(raise :worker_nodes :herd_max)
+		(unless (find node worker_nodes)
+			(lower (:worker_nodes (push worker_nodes node)))
+			(when (> (-- herd_max (length worker_nodes)) 0)
 				(raise :create :herd_growth (now (pii-time) e (penv)))
 				(times (max 1 (min herd_max herd_growth)) (start)))))
 

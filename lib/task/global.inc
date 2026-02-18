@@ -9,7 +9,7 @@
 	(defmethod :refresh (&optional timeout)
 		; (. global :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update node map
-		(defq keys (map (const cat) (lisp-nodes))
+		(defq network_nodes (map (const cat) (lisp-nodes))
 			old_keys (list) old_vals (list)
 			create (get :create this) destroy (get :destroy this)
 			mutated :nil now (pii-time) e (penv))
@@ -17,7 +17,7 @@
 		;test for vanished and timeout nodes
 		(each (lambda (key val)
 			(cond
-				((find key keys)
+				((find key network_nodes)
 					;found, so check timestamp
 					(and timeout
 						(defq then (get :timestamp val))
@@ -35,8 +35,8 @@
 			(unless (find key old_keys)
 				(setq mutated :t)
 				;must (cat key) to convert to pure string key !
-				(. this :insert (cat key) (callback create e key now)))) keys)
-		(def this :size (length keys))
+				(. this :insert (cat key) (callback create e key now)))) network_nodes)
+		(def this :size (length network_nodes))
 		mutated)
 
 	(defmethod :close ()

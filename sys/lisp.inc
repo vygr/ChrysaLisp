@@ -41,8 +41,10 @@
 		(if (= 0 (get-long tail 0)) (setq tail (task-mbox))))
 	ids)
 
-(defun task-nodeid ()
-	(slice (task-mbox) +mailbox_id_size -1))
+(defun task-nodeid (&optional mbox)
+	; (task-nodeid [mbox]) -> nodeid
+	(setd mbox (task-mbox))
+	(slice mbox +mailbox_id_size -1))
 
 (defun task-timeout (time)
 	; (task-timeout s) -> ns

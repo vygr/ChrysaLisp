@@ -259,6 +259,12 @@ should provide the concreate handler
 (get-long str idx) -> num
 ```
 
+### get-real
+
+```code
+(get-real str idx) -> real
+```
+
 ### get-short
 
 ```code
@@ -527,6 +533,12 @@ should provide the concreate handler
 
 ```code
 (set-long str idx num) -> str
+```
+
+### set-real
+
+```code
+(set-real str idx num) -> str
 ```
 
 ### set-short

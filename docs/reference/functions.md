@@ -755,7 +755,7 @@ convert to obj-set args
 ### opt-vectors
 
 ```code
-(opt-vectors vectors) -> (new_vectors new_indexs)
+(opt-vectors vectors) -> (new_vectors new_indices)
 ```
 
 ### options
@@ -1171,6 +1171,12 @@ patch stream a with stream b, write to stream c
 
 ```code
 (task-mboxes size) -> ((task-mbox) [temp_mbox] ...)
+```
+
+### task-nodeid
+
+```code
+(task-nodeid [mbox]) -> nodeid
 ```
 
 ### task-timeout
