@@ -13,9 +13,10 @@
 	+opt_sxx_rr_ops
 		''(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr)
 	+opt_read_ops
-		''(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui)
+		''(vp-cpy-ir vp-cpy-if vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i
+			vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui)
 	+opt_write_ops
-		''(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i)
+		''(vp-cpy-ri vp-cpy-fi vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i)
 	+opt_rr_ops
 		''(vp-add-rr vp-sub-rr vp-mul-rr vp-and-rr vp-or-rr vp-xor-rr vp-shl-rr vp-shr-rr vp-asr-rr)
 	+opt_cr_ops

@@ -64,7 +64,7 @@
 					(if (find (last (push out_tokens (slice line i (setq state :space unary :nil i
 							(bskip +symbol_chars line (inc i))))))
 						'("pptr" "byte" "ubyte" "short" "ushort"
-						"int" "uint" "long" "ptr"))
+						"int" "uint" "long" "ptr" "real" "fixed"))
 					:operator :symbol)))
 			(:operator
 				(push out_types :operator)
@@ -167,8 +167,9 @@
 	(set-type z)
 	(setq w (elem-get
 		'(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
-		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir)
-		(find w "bBsSiIlp")))
+		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir
+		vp-cpy-if vp-cpy-ir)
+		(find w "bBsSiIlpfx")))
 	(add-inst (list w x 0 x)))
 
 (defun compile-deref? ()
@@ -197,8 +198,9 @@
 	(if %0 (push-reg :nil))
 	(setq w (elem-get
 		'(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
-		vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri)
-		 (find w "bBsSiIlp")))
+		vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri
+		vp-cpy-fi vp-cpy-ri)
+		 (find w "bBsSiIlpfx")))
 	(add-inst (list w x y 0)))
 
 (defun compile-ref (%0)
@@ -225,8 +227,8 @@
 		(:t (throw "Symbol not a variable !" %0))))
 
 (defun compile-cast (%0)
-	(if (defq c (find (sym %0) '(ptr byte ubyte short ushort int uint long pptr)))
-		(set-type (elem-get '("p" "b" "B" "s" "S" "i" "I" "l" "pp") c))
+	(if (defq c (find (sym %0) '(ptr byte ubyte short ushort int uint long pptr real fixed)))
+		(set-type (elem-get '("p" "b" "B" "s" "S" "i" "I" "l" "pp" "f" "x") c))
 		(throw "Unknown type cast" %0)))
 
 (defun compile-member (%0)
@@ -378,6 +380,8 @@
 (scope-operator "uint" 0 1 compile-cast)
 (scope-operator "long" 0 1 compile-cast)
 (scope-operator "pptr" 0 1 compile-cast)
+(scope-operator "real" 0 1 compile-cast)
+(scope-operator "fixed" 0 1 compile-cast)
 (scope-operator "." 1 0 compile-field)
 (scope-operator "->" 1 0 compile-member)
 (scope-operator "[]" 1 0 compile-index)
