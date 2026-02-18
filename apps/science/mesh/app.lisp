@@ -15,7 +15,7 @@
 (enums +select 0
 	(enum main task reply tip frame_timer retry_timer))
 
-(defq anti_alias :nil frame_timer_rate (/ 1000000 30) retry_timer_rate 1000000
+(defq anti_alias :nil frame_timer_rate (/ 1000000 30) retry_timer_rate 2000000
 	retry_timeout (task-timeout 10) +min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
