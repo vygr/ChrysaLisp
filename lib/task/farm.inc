@@ -35,7 +35,7 @@
 			old_keys (list) old_vals (list)
 			create (get :create this) destroy (get :destroy this)
 			mutated :nil now (pii-time) e (penv))
-		(. this :each (# (push old_keys %0) (push old_vals %0)))
+		(. this :each (# (push old_keys %0) (push old_vals %1)))
 		;test for vanished and timeout nodes
 		(each (lambda (key val)
 			(cond
