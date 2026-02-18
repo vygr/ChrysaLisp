@@ -1180,6 +1180,10 @@
 	; (get-long str idx) -> num
 	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_long)))
 
+(defmacro get-real (obj idx)
+	; (get-real str idx) -> real
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_real)))
+
 (defmacro get-byte (obj idx)
 	; (get-byte str idx) -> num
 	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_byte)))
@@ -1215,6 +1219,10 @@
 (defmacro set-long (obj idx val)
 	; (set-long str idx num) -> str
 	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_long ,val)))
+
+(defmacro set-real (obj idx val)
+	; (set-real str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_real ,val)))
 
 (defmacro set-str (obj idx val)
 	; (set-str str idx val) -> str
