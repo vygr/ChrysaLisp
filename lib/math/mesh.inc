@@ -36,14 +36,12 @@
 	(bind '(new_verts vert_map) (opt-vector verts 4))
 	(bind '(new_norms norm_map) (opt-vector norms 3))
 	(defq new_tris (reduce (lambda (tris (i0 i1 i2 in))
-			(if (eql (slice norms (* in 3) (* (inc in) 3)) +reals_zero3)
-				tris
-				(push tris
-					(elem-get vert_map i0)
-					(elem-get vert_map i1)
-					(elem-get vert_map i2)
-					(elem-get norm_map in))))
-			(partition tris 4) (nums)))
+			(push tris
+				(elem-get vert_map i0)
+				(elem-get vert_map i1)
+				(elem-get vert_map i2)
+				(elem-get norm_map in)))
+		(partition tris 4) (nums)))
 	(list new_verts new_norms new_tris))
 
 (defun gen-norms (verts tris)
