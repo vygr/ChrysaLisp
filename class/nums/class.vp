@@ -293,7 +293,7 @@
 	(vec-reduce (list src) (list e0) (list src1) src_end
 		(# (vp-xor-rr %0 val))
 		(# (vp-sub-rr val val))
-		(# (vp-abs-rr val val)))
+		(# (vp-shr-cr 1 val)))
 
 	(exit :nums :hash `(,src ,val))
 	(vp-ret)
