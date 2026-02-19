@@ -13,6 +13,8 @@ Support added for `real` and `fixed` types in CScript variables.
 object data for any other type ! You can even push data from a `:str` into a
 `:reals` for example, which is great for message data.
 
+`:reals :mat4x4_v4_mul` and `:reals :mat4x4_v3_mul` now support long vectors.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the

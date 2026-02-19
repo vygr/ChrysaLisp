@@ -201,7 +201,7 @@
 	(push verts (slice data i (++ i (* num_verts (const (* +long_size +vec4_size))))))
 	(push norms (slice data i (++ i (* num_norms (const (* +long_size +vec3_size))))))
 	(push tris (slice data i (++ i (* num_tris (const (* +long_size +tri_size))))))
-	(lower (:verts verts :norms norms :tris tris)))
+	(lower :verts :norms :tris))
 
 ;module
 (export-symbols '(+tri_size))

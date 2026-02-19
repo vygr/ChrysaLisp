@@ -168,12 +168,12 @@
 	(assign `((,reals1 +array_length)) `(,len))
 	(gotoif `(,len /= 16) 'error)
 	(assign `((,reals2 +array_length)) `(,len))
-	(gotoif `(,len /= 4) 'error))
+	(gotoif `(,len < 4) 'error))
 
 	(vpif `(,argc = 2))
 		(call :reals :create :nil `(,dst))
-		(call :reals :set_cap `(,dst 4) `(,dst))
-		(call :reals :set_length `(,dst 4) `(,dst _))
+		(call :reals :set_cap `(,dst ,len) `(,dst))
+		(call :reals :set_length `(,dst ,len) `(,dst _))
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
 	(errorcase
@@ -217,12 +217,12 @@
 	(assign `((,reals1 +array_length)) `(,len))
 	(gotoif `(,len /= 16) 'error)
 	(assign `((,reals2 +array_length)) `(,len))
-	(gotoif `(,len /= 3) 'error))
+	(gotoif `(,len < 3) 'error))
 
 	(vpif `(,argc = 2))
 		(call :reals :create :nil `(,dst))
-		(call :reals :set_cap `(,dst 3) `(,dst))
-		(call :reals :set_length `(,dst 3) `(,dst _))
+		(call :reals :set_cap `(,dst ,len) `(,dst))
+		(call :reals :set_length `(,dst ,len) `(,dst _))
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
 	(errorcase
