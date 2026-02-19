@@ -562,10 +562,10 @@
 	;outputs
 	;:r0 = output reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f11
+	;:r1-:r4, :f0-:f15
 
 	(vp-rdef (this ptr_a ptr_v ptr_o ptr_ve))
-	(vp-fdef (a0 a1 a2 a3 a4 a5 a6 a7 v0 v1 v2 v3))
+	(vp-fdef (m0 m1 m2 m3 m4 m5 m6 m7 v0 v1 v2 v3 t0 t1 t2 t3))
 
 	(entry :reals :mat4x4_v4_mul `(,this ,ptr_a ,ptr_v))
 
@@ -574,35 +574,52 @@
 	(vp-shl-cr (log2 +long_size) ptr_ve)
 	(vp-add-rr ptr_v ptr_ve)
 
-	;loop through entire vector
+	; Cache Rows 0 and 1 (8 floats)
+	(vp-simd vp-cpy-if `(,ptr_a)
+		`(,(* 0 +long_size) ,(* 1 +long_size) ,(* 2 +long_size) ,(* 3 +long_size)
+		  ,(* 4 +long_size) ,(* 5 +long_size) ,(* 6 +long_size) ,(* 7 +long_size))
+		`(,m0 ,m1 ,m2 ,m3 ,m4 ,m5 ,m6 ,m7))
+
+	;loop through entire vector array
 	(loop-start)
+		; Load vector (4 floats)
 		(vp-simd vp-cpy-if `(,ptr_v)
-			`(,(* +long_size 0) ,(* +long_size 1) ,(* +long_size 2) ,(* +long_size 3))
+			`(,(* 0 +long_size) ,(* 1 +long_size) ,(* 2 +long_size) ,(* 3 +long_size))
 			`(,v0 ,v1 ,v2 ,v3))
 
-		; batch 1
-		(vp-simd vp-cpy-if `(,ptr_a)
-			`(,(* +long_size 0) ,(* +long_size 1) ,(* +long_size 2) ,(* +long_size 3)
-			,(* +long_size 4) ,(* +long_size 5) ,(* +long_size 6) ,(* +long_size 7))
-			`(,a0 ,a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7))
-		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v3 ,v0 ,v1 ,v2 ,v3)
-			`(,a0 ,a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7))
-		(vp-simd vp-add-ff `(,a1 ,a3 ,a5 ,a7) `(,a0 ,a2 ,a4 ,a6))
-		(vp-simd vp-add-ff `(,a2 ,a6) `(,a0 ,a4))
-		(vp-simd vp-cpy-fi `(,a0 ,a4) `(,ptr_o) `(,(* +long_size 0) ,(* +long_size 1)))
+		; Row 0
+		(vp-simd vp-cpy-ff `(,m0 ,m1 ,m2 ,m3) `(,t0 ,t1 ,t2 ,t3))
+		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v3) `(,t0 ,t1 ,t2 ,t3))
+		(vp-simd vp-add-ff `(,t1 ,t3) `(,t0 ,t2))
+		(vp-add-ff t2 t0)
+		(vp-cpy-fi t0 ptr_o (* 0 +long_size))
 
-		; batch 2
-		(vp-simd vp-cpy-if `(,ptr_a)
-			`(,(* +long_size 8) ,(* +long_size 9) ,(* +long_size 10) ,(* +long_size 11)
-			,(* +long_size 12) ,(* +long_size 13) ,(* +long_size 14) ,(* +long_size 15))
-			`(,a0 ,a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7))
-		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v3 ,v0 ,v1 ,v2 ,v3)
-			`(,a0 ,a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7))
-		(vp-simd vp-add-ff `(,a1 ,a3 ,a5 ,a7) `(,a0 ,a2 ,a4 ,a6))
-		(vp-simd vp-add-ff `(,a2 ,a6) `(,a0 ,a4))
-		(vp-simd vp-cpy-fi `(,a0 ,a4) `(,ptr_o) `(,(* +long_size 2) ,(* +long_size 3)))
+		; Row 1
+		(vp-simd vp-cpy-ff `(,m4 ,m5 ,m6 ,m7) `(,t0 ,t1 ,t2 ,t3))
+		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v3) `(,t0 ,t1 ,t2 ,t3))
+		(vp-simd vp-add-ff `(,t1 ,t3) `(,t0 ,t2))
+		(vp-add-ff t2 t0)
+		(vp-cpy-fi t0 ptr_o (* 1 +long_size))
 
-		(vp-simd vp-add-cr `(,(* +long_size 4)) `(,ptr_v ,ptr_o))
+		; Row 2 (Load from memory to temps)
+		(vp-simd vp-cpy-if `(,ptr_a)
+			`(,(* 8 +long_size) ,(* 9 +long_size) ,(* 10 +long_size) ,(* 11 +long_size))
+			`(,t0 ,t1 ,t2 ,t3))
+		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v3) `(,t0 ,t1 ,t2 ,t3))
+		(vp-simd vp-add-ff `(,t1 ,t3) `(,t0 ,t2))
+		(vp-add-ff t2 t0)
+		(vp-cpy-fi t0 ptr_o (* 2 +long_size))
+
+		; Row 3 (Load from memory to temps)
+		(vp-simd vp-cpy-if `(,ptr_a)
+			`(,(* 12 +long_size) ,(* 13 +long_size) ,(* 14 +long_size) ,(* 15 +long_size))
+			`(,t0 ,t1 ,t2 ,t3))
+		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v3) `(,t0 ,t1 ,t2 ,t3))
+		(vp-simd vp-add-ff `(,t1 ,t3) `(,t0 ,t2))
+		(vp-add-ff t2 t0)
+		(vp-cpy-fi t0 ptr_o (* 3 +long_size))
+
+		(vp-simd vp-add-cr `(,(* 4 +long_size)) `(,ptr_v ,ptr_o))
 	(loop-until `(,ptr_v >= ,ptr_ve))
 
 	(exit :reals :mat4x4_v4_mul `(,this))
@@ -618,39 +635,51 @@
 	;outputs
 	;:r0 = output reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f12
+	;:r1-:r4, :f0-:f14
 
 	(vp-rdef (this ptr_a ptr_v ptr_o ptr_ve))
-	(vp-fdef (a0 a1 a2 a3 a4 a5 a6 a7 a8 v0 v1 v2))
+	(vp-fdef (m0 m1 m2 m3 m4 m5 m6 m7 m8 v0 v1 v2 t0 t1 t2))
 
 	(entry :reals :mat4x4_v3_mul `(,this ,ptr_a ,ptr_v))
 
-	;set vector start and end
 	(assign `((,ptr_v +array_length)) `(,ptr_ve))
 	(vp-simd vp-cpy-ir `(,ptr_a ,ptr_v ,this) `(,+array_begin) `(,ptr_a ,ptr_v ,ptr_o))
 	(vp-shl-cr (log2 +long_size) ptr_ve)
 	(vp-add-rr ptr_v ptr_ve)
 
-	;loop through entire vector
+	; Cache 3x3 Matrix (9 floats)
+	(vp-simd vp-cpy-if `(,ptr_a)
+		`(,(* 0 +long_size) ,(* 1 +long_size) ,(* 2 +long_size)
+		  ,(* 4 +long_size) ,(* 5 +long_size) ,(* 6 +long_size)
+		  ,(* 8 +long_size) ,(* 9 +long_size) ,(* 10 +long_size))
+		`(,m0 ,m1 ,m2 ,m3 ,m4 ,m5 ,m6 ,m7 ,m8))
+
+	;loop through entire vector array
 	(loop-start)
-		; load v and a
-		(vp-simd vp-cpy-if `(,ptr_v) `(,(* +long_size 0) ,(* +long_size 1) ,(* +long_size 2))
+		; Load vector (3 floats)
+		(vp-simd vp-cpy-if `(,ptr_v)
+			`(,(* 0 +long_size) ,(* 1 +long_size) ,(* 2 +long_size))
 			`(,v0 ,v1 ,v2))
 
-		(vp-simd vp-cpy-if `(,ptr_a)
-			`(,(* +long_size 0) ,(* +long_size 1) ,(* +long_size 2)
-				,(* +long_size 4) ,(* +long_size 5) ,(* +long_size 6)
-				,(* +long_size 8) ,(* +long_size 9) ,(* +long_size 10))
-			`(,a0 ,a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7 ,a8))
-		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2 ,v0 ,v1 ,v2 ,v0 ,v1 ,v2)
-			`(,a0 ,a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7 ,a8))
-		(vp-simd vp-add-ff `(,a1 ,a4 ,a7) `(,a0 ,a3 ,a6))
-		(vp-simd vp-add-ff `(,a2 ,a5 ,a8) `(,a0 ,a3 ,a6))
+		; Row 0
+		(vp-simd vp-cpy-ff `(,m0 ,m1 ,m2) `(,t0 ,t1 ,t2))
+		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2) `(,t0 ,t1 ,t2))
+		(vp-add-ff t1 t0) (vp-add-ff t2 t0)
+		(vp-cpy-fi t0 ptr_o (* 0 +long_size))
 
-		(vp-simd vp-cpy-fi `(,a0 ,a3 ,a6) `(,ptr_o)
-			`(,(* +long_size 0) ,(* +long_size 1) ,(* +long_size 2)))
+		; Row 1
+		(vp-simd vp-cpy-ff `(,m3 ,m4 ,m5) `(,t0 ,t1 ,t2))
+		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2) `(,t0 ,t1 ,t2))
+		(vp-add-ff t1 t0) (vp-add-ff t2 t0)
+		(vp-cpy-fi t0 ptr_o (* 1 +long_size))
 
-		(vp-simd vp-add-cr `(,(* +long_size 3)) `(,ptr_v ,ptr_o))
+		; Row 2
+		(vp-simd vp-cpy-ff `(,m6 ,m7 ,m8) `(,t0 ,t1 ,t2))
+		(vp-simd vp-mul-ff `(,v0 ,v1 ,v2) `(,t0 ,t1 ,t2))
+		(vp-add-ff t1 t0) (vp-add-ff t2 t0)
+		(vp-cpy-fi t0 ptr_o (* 2 +long_size))
+
+		(vp-simd vp-add-cr `(,(* 3 +long_size)) `(,ptr_v ,ptr_o))
 	(loop-until `(,ptr_v >= ,ptr_ve))
 
 	(exit :reals :mat4x4_v3_mul `(,this))

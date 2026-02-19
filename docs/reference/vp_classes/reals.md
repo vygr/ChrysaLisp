@@ -142,7 +142,7 @@ inputs
 outputs
 :r0 = output reals object (ptr)
 trashes
-:r1-:r4, :f0-:f12
+:r1-:r4, :f0-:f14
 ```
 
 ### :mat4x4_v4_mul -> class/reals/mat4x4_v4_mul
@@ -155,7 +155,7 @@ inputs
 outputs
 :r0 = output reals object (ptr)
 trashes
-:r1-:r4, :f0-:f11
+:r1-:r4, :f0-:f15
 ```
 
 ### :max -> class/reals/max
