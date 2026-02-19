@@ -412,12 +412,12 @@
 
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
 		(#  (vp-div-ff tol %0)
+			(vp-add-ff half %0)
 			(vp-cvt-fr %0 trunc)
 			(vp-cvt-rf trunc ftrunc)
 			(vpif `(,ftrunc > ,%%0))
 				(vp-sub-ff one ftrunc)
 			(endif)
-			(vp-add-ff half ftrunc)
 			(vp-mul-ff tol ftrunc)
 			ftrunc))
 

@@ -493,11 +493,13 @@
 
 	(assign `((,this +num_value) (,tol +num_value)) `(,v ,tmp))
 
-	; val / tol
+	; v = val / tol
 	(vp-div-ff tmp v)
+	; v = v + 0.5
 	(vp-lea-p 'fn_consts tol)
-
-	; floor(v)
+	(assign `((,tol (fn-const (n2r 0.5)))) `(,half))
+	(vp-add-ff half v)
+	; v = floor(v)
 	(vp-cvt-fr v trunc)
 	(vp-cvt-rf trunc ftrunc)
 	(vpif `(,ftrunc > ,v))
@@ -505,12 +507,7 @@
 		(vp-sub-ff one ftrunc)
 	(endif)
 	(vp-cpy-ff ftrunc v)
-
-	; + 0.5
-	(assign `((,tol (fn-const (n2r 0.5)))) `(,half))
-	(vp-add-ff half v)
-
-	; * tol
+	; v = v * tol
 	(vp-mul-ff tmp v)
 	(jump :real :create `(,v))
 
