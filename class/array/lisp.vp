@@ -210,10 +210,8 @@
 	(assign `((,src 0)) `(,obj))
 
 (errorcase
-	;trashes
-	;:r1-:r2
-	(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj v))
+	(gotoif `(,v = 0) 'error))
 
 	(assign `((@ ,(f-path :list :vtable)) (,obj +obj_vtable)) `(,vt1 ,vt2))
 	(vpif `(,vt1 = ,vt2))
@@ -231,14 +229,10 @@
 			(vp-cpy-ir src 0 vt1)
 			(vp-add-cr +ptr_size src)
 			(switch)
-				;trashes
-				;:r1-:r2
 				(call :obj :inst_of `(,vt1 (@ ,(f-path :array :vtable))) '(o v))
 				(nextcaseif `(,v = 0))
 				(assign `((,o +array_length)) `(,len))
 			(else)
-				;trashes
-				;:r1-:r2
 				(call :obj :inst_of `(,vt1 (@ ,(f-path :str :vtable))) '(o v))
 				(nextcaseif `(,v = 0))
 				(assign `((,o +str_length)) `(,len))
@@ -253,8 +247,6 @@
 		(assign `((,obj +array_length)) `(,len))
 		(vp-cpy-rr len old_len)
 		(vp-add-rr argc len)
-		;trashes
-		;:r1-:r5
 		(call :array :set_cap `(,obj ,len) `(,obj))
 		(assign `(,len) `((,obj +array_length)))
 
@@ -266,32 +258,23 @@
 		(loop-start)
 			(vp-cpy-ir src 0 vt1)
 			(switch)
-				;trashes
-				;:r1-:r2
 				(call :obj :inst_of `(,vt1 (@ ,(f-path :num :vtable))) '(o v))
 				(nextcaseif `(,v = 0))
-				(assign `((& ,o +num_value)) `(,vt1))
+				(assign `((,o +num_value)) `(,vt1))
 				(goto 'single)
-			(else)
-				;trashes
-				;:r1-:r2
+			(default)
 				(call :obj :inst_of `(,vt1 (@ ,(f-path :array :vtable))) '(o v))
 				(nextcaseif `(,v = 0))
-				(assign `((,o +array_begin) (,o +array_length)) `(,src_begin ,len))
+				(assign `((,o +array_begin) (,o +array_length)) `(,vt1 ,len))
 				(vp-shl-cr (log2 +long_size) len)
-				;trashes
-				;:r0-:r3
-				(call :sys_mem :copy `(,src_begin ,dst ,len) `(_ ,dst))
-			(else)
-				;trashes
-				;:r1-:r2
+				(goto 'multiple)
+			(default)
 				(call :obj :inst_of `(,vt1 (@ ,(f-path :str :vtable))) '(o v))
 				(nextcaseif `(,v = 0))
-				(assign `((& ,o +str_data) (,o +str_length)) `(,src_begin ,len))
+				(assign `((& ,o +str_data) (,o +str_length)) `(,vt1 ,len))
 				(vp-and-cr (neg +long_size) len)
-				;trashes
-				;:r0-:r3
-				(call :sys_mem :copy `(,src_begin ,dst ,len) `(_ ,dst))
+			(vp-label 'multiple)
+				(call :sys_mem :copy `(,vt1 ,dst ,len) `(_ ,dst))
 			(else)
 			(vp-label 'single)
 				(vp-cpy-ri vt1 dst 0)
