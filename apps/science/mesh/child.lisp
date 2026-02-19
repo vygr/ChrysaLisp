@@ -10,7 +10,7 @@
 		reply_msg (setf-> (str-alloc (+ +job_reply_size
 				(* (length verts) +long_size)
 				(* (length norms) +long_size)
-				(* (length tris) +int_size)))
+				(* (length tris) +long_size)))
 			(+job_reply_key key)
 			(+job_reply_num_verts (/ (length verts) 4))
 			(+job_reply_num_norms (/ (length norms) 3))
@@ -19,7 +19,7 @@
 		data (+ +str_data +job_reply_data))
 	(each (# (obj-set reply_msg data +type_real %0) (++ data +long_size)) verts)
 	(each (# (obj-set reply_msg data +type_real %0) (++ data +long_size)) norms)
-	(each (# (obj-set reply_msg data +type_int %0) (++ data +int_size)) tris)
+	(each (# (obj-set reply_msg data +type_long %0) (++ data +long_size)) tris)
 	(mail-send mbox reply_msg))
 
 (defun main ()

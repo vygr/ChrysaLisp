@@ -87,17 +87,6 @@ trashes
 :r2-:r7
 ```
 
-### :env_args_set -> class/lisp/env_args_set
-
-```code
-inputs
-:r0 = args list object (ptr)
-:r3 = args offset (uint)
-:r5 = args dest (ptr)
-trashes
-:r0-:r5
-```
-
 ### :env_args_sig -> class/lisp/env_args_sig
 
 ```code

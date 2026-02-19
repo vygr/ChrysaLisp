@@ -9,6 +9,10 @@ Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
 
 Support added for `real` and `fixed` types in CScript variables.
 
+`(push array ...)` will now push object references for `:list` and flattened
+object data for any other array type ! You can even push data from a `:str` into
+a `:reals` for example.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the

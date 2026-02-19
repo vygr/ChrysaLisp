@@ -752,10 +752,10 @@ convert to obj-set args
 (opt-str 'opt_var) -> args
 ```
 
-### opt-vectors
+### opt-vector
 
 ```code
-(opt-vectors vectors) -> (new_vectors new_indices)
+(opt-vector vector part) -> (new_vector new_indices)
 ```
 
 ### options
