@@ -29,9 +29,9 @@
 (assert-eq "Real Sin PI/2" 1.0 (n2f (sin (n2r 1.57079632679))))
 (assert-eq "Real Cos PI/2" 0.0 (n2f (cos (n2r 1.57079632679))))
 
-; Quantization in ChrysaLisp seems to be (floor(v/tol) + 0.5) * tol
-(assert-eq "Real Quant" (n2r 1.5) (quant (n2r 1.2) (n2r 1.0)))
-(assert-eq "Real Quant 2" (n2r 2.75) (quant (n2r 2.9) (n2r 0.5)))
+; Quantization is round(v / tol) * tol
+(assert-eq "Real Quant" (n2r 1.0) (quant (n2r 1.2) (n2r 1.0)))
+(assert-eq "Real Quant 2" (n2r 3.0) (quant (n2r 2.9) (n2r 0.5)))
 
 (report-header "Reals Vectors")
 
@@ -58,7 +58,7 @@
 (assert-eq "Reals Frac"  (reals (n2r 0.5) (n2r 0.5) (n2r 0.75)) (fixeds-frac rv_fp))
 
 (defq rv_q (reals (n2r 1.2) (n2r 0.8) (n2r 2.1) (n2r -0.6)))
-(assert-eq "Reals Quant" (reals (n2r 1.25) (n2r 0.75) (n2r 2.25) (n2r -0.75)) (reals-quant rv_q (n2r 0.5)))
+(assert-eq "Reals Quant" (reals (n2r 1.0) (n2r 1.0) (n2r 2.0) (n2r -0.5)) (reals-quant rv_q (n2r 0.5)))
 
 ; verify types
 (assert-true "Is reals?" (reals? rv1))
