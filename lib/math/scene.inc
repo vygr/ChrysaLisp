@@ -44,7 +44,7 @@
 
 (defun render-object-verts (size mat4x4_proj object)
 	(defq sp (* +real_1/2 (n2r (dec size)))
-		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts))
+		proj_verts (mat4x4-vec4-mul mat4x4_proj (. object :get_verts))
 		col (. object :get_color))
 	(each (lambda ((x y z w))
 			(defq rw (recip w) z (* z rw))
@@ -53,16 +53,17 @@
 					sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
 				(push (elem-get poly_buckets (n2i (* (+ z +real_1) (const (n2r (/ +num_poly_buckets 2))))))
 					(list (circle r) (lighting col at) (n2f sx) (n2f sy)))))
-		proj_verts))
+		(partition proj_verts 4)))
 
 (defun render-object-tris (size imat4x4_obj mat4x4_proj object)
 	(defq verts (. object :get_verts) norms (. object :get_norms) col (. object :get_color)
 		cam_pos (mat4x4-vec4-mul imat4x4_obj (const (Vec4-r +real_0 +real_0 +real_0 +real_1)))
 		light_vec (mat4x4-vec3-mul imat4x4_obj (const (Vec3-r (n2r 0.55) (n2r 0.55) (n2r -0.55))))
-		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) verts)
-		screen_verts (cap (length verts) (list))
-		screen_zs (cap (length verts) (list))
-		ats (cap (length verts) (list))
+		proj_verts (mat4x4-vec4-mul mat4x4_proj verts)
+		verts (partition verts 4) norms (partition norms 3) num_verts (length verts)
+		screen_verts (cap num_verts (list))
+		screen_zs (cap num_verts (list))
+		ats (cap num_verts (list))
 		sp (* +real_1/2 (n2r (dec size))))
 	(each (lambda ((x y z w))
 			(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
@@ -70,7 +71,7 @@
 			(push screen_zs z)
 			(push screen_verts (path (n2f sx) (n2f sy)))
 			(push ats at))
-		proj_verts)
+		(partition proj_verts 4))
 	(each (lambda ((i0 i1 i2 in))
 			(when (and (> (vector-dot (defq n (elem-get norms in)) (vector-sub (elem-get verts i0) cam_pos)) +real_0)
 					(<= +real_-1 (elem-get screen_zs i1) +real_1)
@@ -83,7 +84,7 @@
 				(push (elem-get poly_buckets bucket) (list
 					(cat (elem-get screen_verts i0) (elem-get screen_verts i1) (elem-get screen_verts i2))
 					(lighting-at3 col at sp)))))
-		(. object :get_tris)))
+		(partition (. object :get_tris) 4)))
 
 (defclass Scene-node (&optional name) :nil
 	; (Scene-node [name]) -> scene_node
@@ -196,15 +197,15 @@
 
 	(defmethod :get_verts ()
 		; (. scene_node :get_verts) -> verts
-		(partition (. (get :mesh this) :get_verts) 4))
+		(. (get :mesh this) :get_verts))
 
 	(defmethod :get_norms ()
 		; (. scene_node :get_norms) -> norms
-		(partition (. (get :mesh this) :get_norms) 3))
+		(. (get :mesh this) :get_norms))
 
 	(defmethod :get_tris ()
 		; (. scene_node :get_tris) -> tris
-		(partition (. (get :mesh this) :get_tris) 4))
+		(. (get :mesh this) :get_tris))
 
 	(defmethod :get_color ()
 		; (. scene_node :get_color) -> color
