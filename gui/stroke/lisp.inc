@@ -4,9 +4,14 @@
 
 (import "././view/lisp.inc")
 
+(env-push)
+
+(defun snap (v s)
+	(if (= s 0) v (* (/ (+ v (/ s 2)) s) s)))
+
 (defclass Stroke () (View)
 	(def (. this :set_flags +view_flag_solid +view_flag_solid)
-		:strokes (list) :states (list) :color 0)
+		:strokes (list) :states (list) :color 0 :snap_x 0 :snap_y 0)
 
 	(defgetmethod :strokes)
 	(defgetmethod :states)
@@ -21,29 +26,40 @@
 		(lower (:strokes out_strokes :states out_states))
 		this)
 
+	(defmethod :set_snap (x y)
+		; (. stroke :set_snap x y) -> stroke
+		(def this :snap_x x :snap_y y)
+		this)
+
 	(defmethod :mouse_down (event)
 		; (. stroke :mouse_down event) -> stroke
-		(raise :strokes :states)
+		(raise :strokes :states :snap_x :snap_y)
 		(push strokes (array
-			(getf event +ev_msg_mouse_rx)
-			(getf event +ev_msg_mouse_ry)))
+			(snap (getf event +ev_msg_mouse_rx) snap_x)
+			(snap (getf event +ev_msg_mouse_ry) snap_y)))
 		(push states (if (bits? (getf event +ev_msg_mouse_buttons) 2) -1 1))
+		(lower :strokes :states)
 		(. this :emit))
 
 	(defmethod :mouse_up (event)
 		; (. stroke :mouse_up event) -> stroke
-		(raise :strokes :states)
+		(raise :strokes :states :snap_x :snap_y)
 		(push (last strokes)
-			(getf event +ev_msg_mouse_rx)
-			(getf event +ev_msg_mouse_ry))
+			(snap (getf event +ev_msg_mouse_rx) snap_x)
+			(snap (getf event +ev_msg_mouse_ry) snap_y))
 		(elem-set states -2 (if (= (elem-get states -2) 1) -2 2))
+		(lower :strokes :states)
 		(. this :emit))
 
 	(defmethod :mouse_move (event)
 		; (. stroke :mouse_move event) -> stroke
-		(raise :strokes)
+		(raise :strokes :snap_x :snap_y)
 		(push (last strokes)
-			(getf event +ev_msg_mouse_rx)
-			(getf event +ev_msg_mouse_ry))
+			(snap (getf event +ev_msg_mouse_rx) snap_x)
+			(snap (getf event +ev_msg_mouse_ry) snap_y))
+		(lower :strokes)
 		(. this :emit))
 	)
+
+(export-classes '(Stroke))
+(env-pop)

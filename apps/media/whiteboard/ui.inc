@@ -25,8 +25,14 @@
 	(setq *stroke_radius* (elem-get *radiuss* (. *radius_toolbar* :get_selected))))
 
 (defun action-style ()
-	(def (. *backdrop* :dirty) :style
-		(elem-get '(:plain :grid :lines :axis) (. *style_toolbar* :get_selected))))
+	(defq style (elem-get '(:plain :grid :lines :axis) (. *style_toolbar* :get_selected))
+		  spacing (get :spacing *backdrop*))
+	(def (. *backdrop* :dirty) :style style)
+	(case style
+		(:grid (. *strokes* :set_snap spacing spacing))
+		(:axis (. *strokes* :set_snap spacing spacing))
+		(:lines (. *strokes* :set_snap 0 spacing))
+		(:plain (. *strokes* :set_snap 0 0))))
 
 (defun action-clear ()
 	(snapshot)

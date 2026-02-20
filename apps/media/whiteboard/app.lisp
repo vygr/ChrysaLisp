@@ -126,6 +126,7 @@
 	(. *committed_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *underlay_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
+	(action-style)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
