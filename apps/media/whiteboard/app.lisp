@@ -10,7 +10,7 @@
 (import "./widgets.inc")
 
 (enums +dlist 0
-	(enum mask committed_canvas overlay_canvas committed_polygons overlay_paths moving_polygons underlay_canvas underlay_paths))
+	(enum mask committed_canvas overlay_canvas committed_polygons overlay_paths moving_polygons underlay_canvas underlay_paths moving_underlay_polygons))
 
 (enums +select 0
 	(enum main picker timer tip))
@@ -73,12 +73,16 @@
 	(elem-set dlist +dlist_underlay_paths (cat *underlay_paths*))
 	(elem-set dlist +dlist_mask (logior (elem-get dlist +dlist_mask) mask)))
 
-(defun commit (p front)
-	;commit a stroke to the canvas
-	(bind '(col poly) (flatten_path p))
+(defun commit_poly (col poly front)
+	;commit a polygon to the canvas
 	(if front
 		(push *committed_polygons* (list col poly (vector-path-bbox poly)))
 		(setq *committed_polygons* (insert *committed_polygons* 0 (list (list col poly (vector-path-bbox poly)))))))
+
+(defun commit (p front)
+	;commit a stroke to the canvas
+	(bind '(col poly) (flatten_path p))
+	(commit_poly col poly front))
 
 (defun fpoly (canvas col mode _)
 	;draw a polygon on a canvas
@@ -93,6 +97,8 @@
 		(each (lambda (p)
 			(bind '(col poly) (flatten_path p))
 			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_underlay_paths))
+		(each (lambda ((col poly))
+			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_moving_underlay_polygons))
 		(. canvas :swap 0))
 	(when (bits? (elem-get dlist +dlist_mask) +layer_committed)
 		(defq canvas (elem-get dlist +dlist_committed_canvas))
@@ -116,7 +122,7 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *id* :t
-		dlist (list +layer_all *committed_canvas* *overlay_canvas* (list) (list) (list) *underlay_canvas* (list)))
+		dlist (list +layer_all *committed_canvas* *overlay_canvas* (list) (list) (list) *underlay_canvas* (list) (list)))
 	(. *committed_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *underlay_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
