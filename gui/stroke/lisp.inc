@@ -47,9 +47,9 @@
 		(defq p (nums
 			(snap (getf event +ev_msg_mouse_rx) snap_x)
 			(snap (getf event +ev_msg_mouse_ry) snap_y)))
-		(unless (nql p (last strokes))
+		(when (nql p (last strokes))
 			(push (last strokes) p))
-		(elem-set states -2 (if (= (elem-get states -2) 1) -2 2))
+		(elem-set states -2 (if (= (last states) 1) -2 2))
 		(lower :strokes :states)
 		(. this :emit))
 

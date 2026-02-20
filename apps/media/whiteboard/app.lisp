@@ -10,22 +10,22 @@
 (import "./widgets.inc")
 
 (enums +dlist 0
-	(enum mask committed_canvas overlay_canvas committed_polygons overlay_paths moving_polygons underlay_canvas underlay_paths moving_underlay_polygons))
+	(enum mask committed_canvas staging_canvas committed_polygons staging_paths moving_polygons))
 
 (enums +select 0
 	(enum main picker timer tip))
 
 (bits +layer 0
-	(bit committed overlay underlay))
+	(bit committed staging))
 
 (defq +tol 3.0
 	*radiuss* (map (const n2f) '(2 6 12)) *stroke_radius* (first *radiuss*)
 	*undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (first *palette*) *stroke_mode* +event_pen
-	*committed_polygons* (list) *overlay_paths* (list) *underlay_paths* (list)
+	*committed_polygons* (list) *staging_paths* (list)
 	*grabbed_polygons* (list)
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
-	rate (/ 1000000 60) +layer_all (+ +layer_committed +layer_overlay +layer_underlay))
+	rate (/ 1000000 60) +layer_all (+ +layer_committed +layer_staging))
 
 (defun flatten_path ((mode col rad pnts))
 	;flatten_path path to polygon
@@ -69,8 +69,7 @@
 (defun redraw-layers (mask)
 	;redraw layer/s
 	(elem-set dlist +dlist_committed_polygons (cat *committed_polygons*))
-	(elem-set dlist +dlist_overlay_paths (cat *overlay_paths*))
-	(elem-set dlist +dlist_underlay_paths (cat *underlay_paths*))
+	(elem-set dlist +dlist_staging_paths (cat *staging_paths*))
 	(elem-set dlist +dlist_mask (logior (elem-get dlist +dlist_mask) mask)))
 
 (defun commit_poly (col poly front)
@@ -91,27 +90,18 @@
 
 (defun redraw (dlist)
 	;redraw layer/s
-	(when (bits? (elem-get dlist +dlist_mask) +layer_underlay)
-		(defq canvas (elem-get dlist +dlist_underlay_canvas))
-		(. canvas :fill 0)
-		(each (lambda (p)
-			(bind '(col poly) (flatten_path p))
-			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_underlay_paths))
-		(each (lambda ((col poly))
-			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_moving_underlay_polygons))
-		(. canvas :swap 0))
 	(when (bits? (elem-get dlist +dlist_mask) +layer_committed)
 		(defq canvas (elem-get dlist +dlist_committed_canvas))
 		(. canvas :fill 0)
 		(each (lambda ((col poly &ignore))
 			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_committed_polygons))
 		(. canvas :swap 0))
-	(when (bits? (elem-get dlist +dlist_mask) +layer_overlay)
-		(defq canvas (elem-get dlist +dlist_overlay_canvas))
+	(when (bits? (elem-get dlist +dlist_mask) +layer_staging)
+		(defq canvas (elem-get dlist +dlist_staging_canvas))
 		(. canvas :fill 0)
 		(each (lambda (p)
 			(bind '(col poly) (flatten_path p))
-			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_overlay_paths))
+			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_staging_paths))
 		(each (lambda ((col poly))
 			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_moving_polygons))
 		(. canvas :swap 0))
@@ -122,10 +112,9 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *id* :t
-		dlist (list +layer_all *committed_canvas* *overlay_canvas* (list) (list) (list) *underlay_canvas* (list) (list)))
+		dlist (list +layer_all *committed_canvas* *staging_canvas* (list) (list) (list)))
 	(. *committed_canvas* :set_canvas_flags +canvas_flag_antialias)
-	(. *underlay_canvas* :set_canvas_flags +canvas_flag_antialias)
-	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
+	(. *staging_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(action-style)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
