@@ -73,7 +73,8 @@
 
 (defun commit (p)
 	;commit a stroke to the canvas
-	(push *committed_polygons* (flatten_path p)))
+	(bind '(col poly) (flatten_path p))
+	(push *committed_polygons* (list col poly (vector-path-bbox poly))))
 
 (defun fpoly (canvas col mode _)
 	;draw a polygon on a canvas
@@ -85,7 +86,7 @@
 	(when (bits? (elem-get dlist +dlist_mask) +layer_committed)
 		(defq canvas (elem-get dlist +dlist_committed_canvas))
 		(. canvas :fill 0)
-		(each (lambda ((col poly))
+		(each (lambda ((col poly &ignore))
 			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_committed_polygons))
 		(. canvas :swap 0))
 	(when (bits? (elem-get dlist +dlist_mask) +layer_overlay)
@@ -138,7 +139,7 @@
 								+file_open_write)
 							(scatter (Emap)
 								:version 2
-								:polygons *committed_polygons*)))
+								:polygons (map (lambda ((col poly &ignore)) (list col poly)) *committed_polygons*))))
 					;load whiteboard
 					(:t (when (ends-with ".cwb" *msg*)
 							(bind '(version polygons)
@@ -146,7 +147,7 @@
 									:version :polygons))
 							(when (eql version 2)
 								(snapshot)
-								(setq *committed_polygons* polygons)
+								(setq *committed_polygons* (map (lambda ((col poly)) (list col poly (vector-path-bbox poly))) polygons))
 								(redraw-layers +layer_committed))))))
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action
