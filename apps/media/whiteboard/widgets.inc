@@ -3,7 +3,7 @@
 	(enum undo redo save load clear)
 	(enum stroke)
 	(enum style radius ink)
-	(enum pen line arrow1 arrow2 box circle fbox fcircle))
+	(enum move pen line arrow1 arrow2 box circle fbox fcircle))
 
 (defun trans (%0)
 	;transparent colour
@@ -21,8 +21,8 @@
 		(. (ui-radio-bar *style_toolbar* (0xe976 0xe9a3 0xe9d4 0xe9f0)
 			(:color *env_toolbar2_col*)) :connect +event_style)
 		(. (ui-radio-bar *radius_toolbar* (0xe979 0xe97d 0xe97b)) :connect +event_radius)
-		(. (ui-radio-bar *mode_toolbar* (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f)
-			(:color *env_toolbar2_col*)) :connect +event_pen))
+		(. (ui-radio-bar *mode_toolbar* (0xe9a5 0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f)
+			(:color *env_toolbar2_col*)) :connect +event_move))
 	(. (ui-radio-bar *ink_toolbar* (0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982
 			0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04)
 			(:font *env_medium_toolbar_font* :color *env_toolbar2_col*))
@@ -45,12 +45,12 @@
 	'("small" "medium" "large"))
 
 (ui-tool-tips *mode_toolbar*
-	'("pen" "line" "arrow" "double arrow" "rect"
+	'("move" "pen" "line" "arrow" "double arrow" "rect"
 	"circle" "filled rect" "filled circle"))
 
 (each (# (def %0 :ink_color %1)) (. *ink_toolbar* :children) *palette*)
 (. *ink_toolbar* :set_selected 0)
-(. *mode_toolbar* :set_selected 0)
+(. *mode_toolbar* :set_selected 1)
 (. *radius_toolbar* :set_selected 0)
 (. *style_toolbar* :set_selected 1)
 (. *strokes_stack* :change 0 0 +canvas_width +canvas_height)

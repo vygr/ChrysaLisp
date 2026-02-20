@@ -10,7 +10,7 @@
 (import "./widgets.inc")
 
 (enums +dlist 0
-	(enum mask committed_canvas overlay_canvas committed_polygons overlay_paths))
+	(enum mask committed_canvas overlay_canvas committed_polygons overlay_paths moving_polygons))
 
 (enums +select 0
 	(enum main picker timer tip))
@@ -23,6 +23,7 @@
 	*undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (first *palette*) *stroke_mode* +event_pen
 	*committed_polygons* (list) overlay_paths (list)
+	*grabbed_polygons* (list)
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
 	rate (/ 1000000 60) +layer_all (+ +layer_committed +layer_overlay))
 
@@ -95,6 +96,8 @@
 		(each (lambda (p)
 			(bind '(col poly) (flatten_path p))
 			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_overlay_paths))
+		(each (lambda ((col poly))
+			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_moving_polygons))
 		(. canvas :swap 0))
 	(elem-set dlist +dlist_mask 0))
 
@@ -103,7 +106,7 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *id* :t
-		dlist (list +layer_all *committed_canvas* *overlay_canvas* (list) (list)))
+		dlist (list +layer_all *committed_canvas* *overlay_canvas* (list) (list) (list)))
 	(. *committed_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(def *window* :tip_mbox (elem-get select +select_tip))

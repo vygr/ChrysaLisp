@@ -14,7 +14,7 @@
 	+event_close action-close
 	+event_style action-style
 	+event_radius action-radius
-	+event_pen action-mode
+	+event_move action-mode
 	+event_clear action-clear
 	+event_undo action-undo
 	+event_redo action-redo
