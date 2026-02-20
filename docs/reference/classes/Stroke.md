@@ -30,3 +30,9 @@
 (. stroke :mouse_up event) -> stroke
 ```
 
+### :set_snap
+
+```code
+(. stroke :set_snap x y) -> stroke
+```
+

@@ -15,7 +15,13 @@ object data for any other type ! You can even push data from a `:str` into a
 
 `:reals :mat4x4_v4_mul` and `:reals :mat4x4_v3_mul` now support long vectors.
 
-Added `move` mode to Whiteboard app.
+Added `move` mode to Whiteboard app. Snap to grid. Left button draw in front,
+right button draw in back.
+
+Added `:set_snap x y` methods to Strokes widget.
+
+Added `(vector-path-bbox paths) -> (min_x min_y max_x max_y)` and
+`(vector-point-in-polygon px py paths) -> :t | :nil` functions to vector lib.
 
 ------
 

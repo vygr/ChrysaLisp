@@ -974,6 +974,12 @@ run pipe farm and collect output
 (reflow words line_width) -> lines
 ```
 
+### render-object-tris
+
+```code
+project verts to screen
+```
+
 ### replace-compile
 
 ```code
@@ -1309,6 +1315,18 @@ patch stream a with stream b, write to stream c
 
 ```code
 (usort list [fcmp start end]) -> list
+```
+
+### vector-path-bbox
+
+```code
+(vector-path-bbox paths) -> (min_x min_y max_x max_y)
+```
+
+### vector-point-in-polygon
+
+```code
+(vector-point-in-polygon px py paths) -> :t | :nil
 ```
 
 ### vertex-interp
