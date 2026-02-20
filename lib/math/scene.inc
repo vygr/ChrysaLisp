@@ -53,14 +53,14 @@
 					sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
 				(push (elem-get poly_buckets (n2i (* (+ z +real_1) (const (n2r (/ +num_poly_buckets 2))))))
 					(list (circle r) (lighting col at) (n2f sx) (n2f sy)))))
-		(partition proj_verts 4)))
+		(partition proj_verts +vec4_size)))
 
 (defun render-object-tris (size imat4x4_obj mat4x4_proj object)
 	(defq verts (. object :get_verts) norms (. object :get_norms) col (. object :get_color)
 		cam_pos (mat4x4-vec4-mul imat4x4_obj (const (Vec4-r +real_0 +real_0 +real_0 +real_1)))
 		light_vec (mat4x4-vec3-mul imat4x4_obj (const (Vec3-r (n2r 0.55) (n2r 0.55) (n2r -0.55))))
 		proj_verts (mat4x4-vec4-mul mat4x4_proj verts)
-		verts (partition verts 4) norms (partition norms 3) num_verts (length verts)
+		verts (partition verts +vec4_size) norms (partition norms +vec3_size) num_verts (length verts)
 		screen_verts (cap num_verts (list))
 		screen_zs (cap num_verts (list))
 		ats (cap num_verts (list))
@@ -71,7 +71,7 @@
 			(push screen_zs z)
 			(push screen_verts (path (n2f sx) (n2f sy)))
 			(push ats at))
-		(partition proj_verts 4))
+		(partition proj_verts +vec4_size))
 	(each (lambda ((i0 i1 i2 in))
 			(when (and (> (vector-dot (defq n (elem-get norms in)) (vector-sub (elem-get verts i0) cam_pos)) +real_0)
 					(<= +real_-1 (elem-get screen_zs i1) +real_1)
@@ -84,7 +84,7 @@
 				(push (elem-get poly_buckets bucket) (list
 					(cat (elem-get screen_verts i0) (elem-get screen_verts i1) (elem-get screen_verts i2))
 					(lighting-at3 col at sp)))))
-		(partition (. object :get_tris) 4)))
+		(partition (. object :get_tris) +tri_size)))
 
 (defclass Scene-node (&optional name) :nil
 	; (Scene-node [name]) -> scene_node

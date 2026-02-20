@@ -51,9 +51,3 @@
 		+real_0 (* (* +real_2 near) tb) (* (+ top bottom) tb) +real_0
 		+real_0 +real_0 (* (+ near far) nf) (* (* (* +real_2 near) far) nf)
 		+real_0 +real_0 +real_-1 +real_0))
-
-(defun print-mat (m)
-	(print (slice m 0 4))
-	(print (slice m 4 8))
-	(print (slice m 8 12))
-	(print (slice m 12 16)))
