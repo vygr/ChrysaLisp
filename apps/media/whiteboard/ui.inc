@@ -143,7 +143,7 @@
 			; draw mode
 			(clear *staging_paths*)
 			(each (lambda (stroke state)
-					(when (and (= (abs state) 1) (= (length stroke) 2))
+					(when (= (abs state) 1)
 						; reorder the staging canvas on mouse down
 						(. *staging_canvas* :sub)
 						(if (> state 0)
