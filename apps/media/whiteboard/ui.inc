@@ -60,19 +60,17 @@
 		(cat (elem-get select +select_picker) "Load Whiteboard..." "|" "." "|" ".cwb")))
 
 (defun action-stroke ()
-	(defq strokes (. *strokes* :get_strokes)
-		  states (. *strokes* :get_states))
-	
+	(defq strokes (. *strokes* :get_strokes) states (. *strokes* :get_states))
 	(if (= *stroke_mode* +event_move)
 		(progn
-			; MOVE MODE: 1. Sync grabbed objects with new touches
+			; mobve mode, sync grabbed objects with new touches
 			(while (< (length *grabbed_polygons*) (length strokes))
 				(defq new_stroke (elem-get strokes (length *grabbed_polygons*))
 					  px (n2f (first new_stroke))
 					  py (n2f (second new_stroke))
 					  hit_idx :nil
 					  i (length *committed_polygons*))
-				; Hit test from top to bottom (reverse draw order)
+				; hit test from top to bottom (reverse draw order)
 				(while (> i 0)
 					(-- i)
 					(bind '(col poly bbox) (elem-get *committed_polygons* i))
@@ -82,13 +80,13 @@
 						(setq hit_idx i i 0)))
 				(if hit_idx
 					(progn
-						(snapshot) ; Snapshot before modifying the committed layer
+						 ; snapshot before modifying the committed layer
+						(snapshot)
 						(push *grabbed_polygons* (elem-get *committed_polygons* hit_idx))
 						(setq *committed_polygons* (erase *committed_polygons* hit_idx (inc hit_idx)))
 						(redraw-layers +layer_committed))
 					(push *grabbed_polygons* :nil)))
-			
-			; 2. Build live translated paths for the overlay
+			; build live translated paths for the overlay
 			(defq moving_polygons (list))
 			(each (lambda (grabbed stroke)
 				(when grabbed
@@ -107,8 +105,7 @@
 				*grabbed_polygons* strokes)
 			(elem-set dlist +dlist_moving_polygons moving_polygons)
 			(redraw-layers +layer_overlay)
-			
-			; 3. Commit translated objects on Mouse Up
+			; commit translated objects on Mouse Up
 			(when (some (const identity) states)
 				(each (lambda (grabbed stroke)
 					(when grabbed
@@ -130,7 +127,7 @@
 				(. *strokes* :clear)
 				(redraw-layers +layer_all)))
 		(progn
-			; DRAW MODE: Original logic
+			; draw mode
 			(clear overlay_paths)
 			(each (# (unless (= *stroke_mode* +event_pen)
 						(if (> (length %0) 4)

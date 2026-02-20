@@ -15,6 +15,8 @@ object data for any other type ! You can even push data from a `:str` into a
 
 `:reals :mat4x4_v4_mul` and `:reals :mat4x4_v3_mul` now support long vectors.
 
+Added `move` mode to Whiteboard app.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
