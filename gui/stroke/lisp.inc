@@ -15,7 +15,7 @@
 		; (. stroke :clear) -> stroke
 		(raise :strokes :states)
 		(defq out_strokes (list) out_states (list))
-		(each (# (unless %1
+		(each (# (when (or (= %1 1) (= %1 -1))
 				(push out_strokes %0)
 				(push out_states %1))) strokes states)
 		(lower (:strokes out_strokes :states out_states))
@@ -27,7 +27,7 @@
 		(push strokes (array
 			(getf event +ev_msg_mouse_rx)
 			(getf event +ev_msg_mouse_ry)))
-		(push states :nil)
+		(push states (if (bits? (getf event +ev_msg_mouse_buttons) 2) -1 1))
 		(. this :emit))
 
 	(defmethod :mouse_up (event)
@@ -36,7 +36,7 @@
 		(push (last strokes)
 			(getf event +ev_msg_mouse_rx)
 			(getf event +ev_msg_mouse_ry))
-		(elem-set states -2 :t)
+		(elem-set states -2 (if (= (elem-get states -2) 1) -2 2))
 		(. this :emit))
 
 	(defmethod :mouse_move (event)
