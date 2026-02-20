@@ -34,7 +34,7 @@
 	(defmethod :mouse_down (event)
 		; (. stroke :mouse_down event) -> stroke
 		(raise :strokes :states :snap_x :snap_y)
-		(push strokes (array
+		(push strokes (nums
 			(snap (getf event +ev_msg_mouse_rx) snap_x)
 			(snap (getf event +ev_msg_mouse_ry) snap_y)))
 		(push states (if (bits? (getf event +ev_msg_mouse_buttons) 2) -1 1))
@@ -44,9 +44,11 @@
 	(defmethod :mouse_up (event)
 		; (. stroke :mouse_up event) -> stroke
 		(raise :strokes :states :snap_x :snap_y)
-		(push (last strokes)
+		(defq p (nums
 			(snap (getf event +ev_msg_mouse_rx) snap_x)
-			(snap (getf event +ev_msg_mouse_ry) snap_y))
+			(snap (getf event +ev_msg_mouse_ry) snap_y)))
+		(unless (nql p (last strokes))
+			(push (last strokes) p))
 		(elem-set states -2 (if (= (elem-get states -2) 1) -2 2))
 		(lower :strokes :states)
 		(. this :emit))
@@ -54,11 +56,14 @@
 	(defmethod :mouse_move (event)
 		; (. stroke :mouse_move event) -> stroke
 		(raise :strokes :snap_x :snap_y)
-		(push (last strokes)
+		(defq p (nums
 			(snap (getf event +ev_msg_mouse_rx) snap_x)
-			(snap (getf event +ev_msg_mouse_ry) snap_y))
-		(lower :strokes)
-		(. this :emit))
+			(snap (getf event +ev_msg_mouse_ry) snap_y)))
+		(unless (nql p (last strokes))
+			(push (last strokes) p)
+			(lower :strokes)
+			(. this :emit))
+		this)
 	)
 
 (export-classes '(Stroke))
