@@ -75,8 +75,8 @@
 (defun commit_poly (col poly front)
 	;commit a polygon to the canvas
 	(if front
-		(push *committed_polygons* (list col poly (vector-path-bbox poly)))
-		(setq *committed_polygons* (insert *committed_polygons* 0 (list (list col poly (vector-path-bbox poly)))))))
+		(push *committed_polygons* (list col poly (vector-bounds-2d poly)))
+		(setq *committed_polygons* (insert *committed_polygons* 0 (list (list col poly (vector-bounds-2d poly)))))))
 
 (defun commit (p front)
 	;commit a stroke to the canvas
@@ -157,7 +157,7 @@
 									:version :polygons))
 							(when (eql version 2)
 								(snapshot)
-								(setq *committed_polygons* (map (lambda ((col poly)) (list col poly (vector-path-bbox poly))) polygons))
+								(setq *committed_polygons* (map (lambda ((col poly)) (list col poly (vector-bounds-2d poly))) polygons))
 								(redraw-layers +layer_committed))))))
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action

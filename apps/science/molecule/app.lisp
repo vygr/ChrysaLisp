@@ -140,7 +140,7 @@
 				("P" (list (const (n2r (* 98 canvas_scale))) (elem-get +palette 7)))
 				(:t (list (const (n2r (* 100 canvas_scale))) (const (Vec3-f 1.0 1.0 0.0))))))
 			(push balls (list (Vec3-r x y z) radius col)))
-		(bind '(center radius) (bounding-sphere balls (# (elem-get %0 +ball_vertex))))
+		(bind '(center radius) (vector-bounds-sphere balls (# (elem-get %0 +ball_vertex))))
 		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius))
 		(each (lambda (ball)
 			(bind '(v r &ignore) ball)

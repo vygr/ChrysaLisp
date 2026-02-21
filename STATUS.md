@@ -20,7 +20,7 @@ right button draw in back.
 
 Added `:set_snap x y` methods to Strokes widget.
 
-Added `(vector-path-bbox paths) -> (min_x min_y max_x max_y)` and
+Added `(vector-bounds-2d paths) -> ((min_x min_y) (max_x max_y))` and
 `(vector-point-in-polygon px py paths) -> :t | :nil` functions to vector lib.
 
 ------

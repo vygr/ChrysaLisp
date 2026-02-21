@@ -87,7 +87,7 @@
 				(while (> i 0)
 					(-- i)
 					(bind '(col poly bbox) (elem-get *committed_polygons* i))
-					(bind '(minx miny maxx maxy) bbox)
+					(bind '((minx miny) (maxx maxy)) bbox)
 					(when (and (<= minx px maxx) (<= miny py maxy)
 							   (vector-point-in-polygon px py poly))
 						(setq hit_idx i i 0)))

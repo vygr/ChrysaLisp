@@ -536,8 +536,8 @@ These functions are used for math operations.
 *   **`vector-collide-lines-2d`**: Checks if two 2D line segments collide.
 *   **`vector-collide-thick-lines-2d`**: Checks if two thick 2D line segments
     collide.
-*   **`bounding-box`**: Calculates the bounding box of a set of vertices.
-*   **`bounding-sphere`**: Calculates the bounding sphere of a set of vertices.
+*   **`vector-bounds-3d`**: Calculates the bounding box of a set of vertices.
+*   **`vector-bounds-sphere`**: Calculates the bounding sphere of a set of vertices.
 
 ## URLs
 

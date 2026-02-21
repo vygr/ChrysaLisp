@@ -194,17 +194,17 @@
 		((<= (vector-sdist-to-line l1_p1 l2_p1 l2_p2) r))
 		((<= (vector-sdist-to-line l1_p2 l2_p1 l2_p2) r))))
 
-(defun bounding-box (verts fnc)
-	; (bounding-box verts vec3-extract-fnc) -> (min_v3 max_v3)
+(defun vector-bounds-3d (verts fnc)
+	; (vector-bounds-3d verts vec3-extract-fnc) -> (min_v3 max_v3)
 	(defq min_v (cat (fnc (first verts))) max_v (cat min_v))
 	(each! (#
 		(vector-min (defq v (fnc %0)) min_v min_v)
 		(vector-max v max_v max_v)) (list verts) 1)
 	(list min_v max_v))
 
-(defun bounding-sphere (verts fnc)
-	; (bounding-sphere verts vec3-extract-fnc) -> (center_v3 radius)
-	(bind '(min_v max_v) (bounding-box verts fnc))
+(defun vector-bounds-sphere (verts fnc)
+	; (vector-bounds-sphere verts vec3-extract-fnc) -> (center_v3 radius)
+	(bind '(min_v max_v) (vector-bounds-3d verts fnc))
 	(defq center (vector-scale (vector-add min_v max_v) +real_1/2)
 		radius (* (reduce max (vector-sub max_v min_v)) +real_1/2))
 	(each (#
@@ -214,20 +214,14 @@
 			(vector-sub p (vector-scale (vector-norm pv) radius +reals_tmp3) center))) verts)
 	(list center radius))
 
-(defun vector-path-bbox (paths)
-	; (vector-path-bbox paths) -> (min_x min_y max_x max_y)
-	(defq minx (const (n2f 1000000.0)) miny minx
-		maxx (const (n2f -1000000.0)) maxy maxx)
-	(each (lambda (p)
-		(defq i 0 l (length p))
-		(while (< i l)
-			(defq x (elem-get p i) y (elem-get p (inc i)))
-			(setq minx (min minx x) maxx (max maxx x)
-				  miny (min miny y) maxy (max maxy y))
-			(setq i (+ i 2)))) paths)
-	(if (> minx maxx)
-		(list 0.0 0.0 0.0 0.0)
-		(list minx miny maxx maxy)))
+(defun vector-bounds-2d (paths)
+	; (vector-bounds-2d paths) -> (min_v2 max_v2)
+	(defq min_v (path 1000000.0 1000000.0)
+		max_v (path -1000000.0 -1000000.0))
+	(each (# (each (# (setq
+		min_v (vector-min %0 min_v)
+		max_v (vector-max %0 max_v))) (partition %0 2))) paths)
+	(list min_v max_v))
 
 (defun vector-point-in-polygon (px py paths)
 	; (vector-point-in-polygon px py paths) -> :t | :nil

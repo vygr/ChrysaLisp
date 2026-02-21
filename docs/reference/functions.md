@@ -76,18 +76,6 @@ launch logout app
 (bit-mask mask ...) -> val
 ```
 
-### bounding-box
-
-```code
-(bounding-box verts vec3-extract-fnc) -> (min_v3 max_v3)
-```
-
-### bounding-sphere
-
-```code
-(bounding-sphere verts vec3-extract-fnc) -> (center_v3 radius)
-```
-
 ### bracket-cursors
 
 ```code
@@ -1317,10 +1305,22 @@ patch stream a with stream b, write to stream c
 (usort list [fcmp start end]) -> list
 ```
 
-### vector-path-bbox
+### vector-bounds-2d
 
 ```code
-(vector-path-bbox paths) -> (min_x min_y max_x max_y)
+(vector-bounds-2d paths) -> (min_v2 max_v2)
+```
+
+### vector-bounds-3d
+
+```code
+(vector-bounds-3d verts vec3-extract-fnc) -> (min_v3 max_v3)
+```
+
+### vector-bounds-sphere
+
+```code
+(vector-bounds-sphere verts vec3-extract-fnc) -> (center_v3 radius)
 ```
 
 ### vector-point-in-polygon
