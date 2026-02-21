@@ -26,7 +26,7 @@
 
 (defun action-style ()
 	(defq style (elem-get '(:plain :grid :lines :axis) (. *style_toolbar* :get_selected))
-		  spacing (get :spacing *backdrop*))
+		spacing (/ (get :spacing *backdrop*) 2))
 	(def (. *backdrop* :dirty) :style style)
 	(case style
 		(:grid (. *strokes* :set_snap spacing spacing))
