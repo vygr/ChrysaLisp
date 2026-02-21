@@ -9,6 +9,9 @@
 (defun snap (v s)
 	(if (= s 0) v (* (/ (+ v (/ s 2)) s) s)))
 
+;multiple potential strokes, each having a state !
+;we could be multi touch here !
+
 (defclass Stroke () (View)
 	(def (. this :set_flags +view_flag_solid +view_flag_solid)
 		:strokes (list) :states (list) :color 0 :snap_x 0 :snap_y 0)
@@ -18,17 +21,18 @@
 
 	(defmethod :clear ()
 		; (. stroke :clear) -> stroke
+		;clear out finished strokes
 		(raise :strokes :states)
 		(defq out_strokes (list) out_states (list))
-		(each (# (when (or (= %1 1) (= %1 -1))
-				(push out_strokes %0)
-				(push out_states %1))) strokes states)
+		(each (# (when (= (abs %1) 1)
+			(push out_strokes %0)
+			(push out_states %1))) strokes states)
 		(lower (:strokes out_strokes :states out_states))
 		this)
 
-	(defmethod :set_snap (x y)
+	(defmethod :set_snap (snap_x snap_y)
 		; (. stroke :set_snap x y) -> stroke
-		(def this :snap_x x :snap_y y)
+		(lower :snap_x :snap_y)
 		this)
 
 	(defmethod :mouse_down (event)
@@ -44,13 +48,10 @@
 	(defmethod :mouse_up (event)
 		; (. stroke :mouse_up event) -> stroke
 		(raise :strokes :states :snap_x :snap_y)
-		(defq p (nums
+		(push (last strokes) (nums
 			(snap (getf event +ev_msg_mouse_rx) snap_x)
 			(snap (getf event +ev_msg_mouse_ry) snap_y)))
-		(when (nql p (last strokes))
-			(push (last strokes) p))
-		(elem-set states -2 (if (= (last states) 1) -2 2))
-		(lower :strokes :states)
+		(elem-set states -2 (* (last states) 2))
 		(. this :emit))
 
 	(defmethod :mouse_move (event)
@@ -59,9 +60,8 @@
 		(defq p (nums
 			(snap (getf event +ev_msg_mouse_rx) snap_x)
 			(snap (getf event +ev_msg_mouse_ry) snap_y)))
-		(when (nql p (last strokes))
+		(when (nql p (slice (last strokes) -3 -1))
 			(push (last strokes) p)
-			(lower :strokes)
 			(. this :emit))
 		this)
 	)
