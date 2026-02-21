@@ -196,8 +196,7 @@
 
 (defun vector-bounds-2d (paths)
 	; (vector-bounds-2d paths) -> (min_v2 max_v2)
-	(defq min_v (path 1000000.0 1000000.0)
-		max_v (path -1000000.0 -1000000.0))
+	(defq min_v (slice (first paths) 0 2) max_v (cat min_v))
 	(each (# (each (# (setq
 		min_v (vector-min %0 min_v)
 		max_v (vector-max %0 max_v))) (partition %0 2))) paths)
