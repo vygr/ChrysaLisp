@@ -52,6 +52,6 @@
 (. *ink_toolbar* :set_selected 0)
 (. *mode_toolbar* :set_selected 1)
 (. *radius_toolbar* :set_selected 0)
-(. *style_toolbar* :set_selected 1)
+(. *style_toolbar* :set_selected 0)
 (. *strokes_stack* :change 0 0 +canvas_width +canvas_height)
 (. *image_scroll* :layout)
