@@ -194,6 +194,15 @@
 		((<= (vector-sdist-to-line l1_p1 l2_p1 l2_p2) r))
 		((<= (vector-sdist-to-line l1_p2 l2_p1 l2_p2) r))))
 
+(defun vector-bounds-2d (paths)
+	; (vector-bounds-2d paths) -> (min_v2 max_v2)
+	(defq min_v (path 1000000.0 1000000.0)
+		max_v (path -1000000.0 -1000000.0))
+	(each (# (each (# (setq
+		min_v (vector-min %0 min_v)
+		max_v (vector-max %0 max_v))) (partition %0 2))) paths)
+	(list min_v max_v))
+
 (defun vector-bounds-3d (verts fnc)
 	; (vector-bounds-3d verts vec3-extract-fnc) -> (min_v3 max_v3)
 	(defq min_v (cat (fnc (first verts))) max_v (cat min_v))
@@ -213,15 +222,6 @@
 			(setq radius (* (+ radius rv) +real_1/2))
 			(vector-sub p (vector-scale (vector-norm pv) radius +reals_tmp3) center))) verts)
 	(list center radius))
-
-(defun vector-bounds-2d (paths)
-	; (vector-bounds-2d paths) -> (min_v2 max_v2)
-	(defq min_v (path 1000000.0 1000000.0)
-		max_v (path -1000000.0 -1000000.0))
-	(each (# (each (# (setq
-		min_v (vector-min %0 min_v)
-		max_v (vector-max %0 max_v))) (partition %0 2))) paths)
-	(list min_v max_v))
 
 (defun vector-point-in-polygon (px py paths)
 	; (vector-point-in-polygon px py paths) -> :t | :nil
