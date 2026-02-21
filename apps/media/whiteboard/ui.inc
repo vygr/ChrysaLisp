@@ -89,7 +89,7 @@
 					(bind '(col poly bbox) (elem-get *committed_polygons* i))
 					(bind '((minx miny) (maxx maxy)) bbox)
 					(when (and (<= minx px maxx) (<= miny py maxy)
-							   (vector-point-in-polygon (Vec2-f px py) poly +winding_none_zero))
+							   (vector-point-in-polygon (path px py) poly +winding_none_zero))
 						(setq hit_idx i i 0)))
 				(if hit_idx
 					(progn
