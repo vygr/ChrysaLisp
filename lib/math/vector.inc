@@ -197,19 +197,19 @@
 (defun vector-bounds-2d (paths)
 	; (vector-bounds-2d paths) -> (min_v2 max_v2)
 	(defq min_v (slice (first paths) 0 2) max_v (cat min_v))
-	(each (# (each (# (setq
-		min_v (vector-min %0 min_v)
-		max_v (vector-max %0 max_v))) (partition %0 2))) paths)
+	(each (# (each (#
+		(vector-min %0 min_v min_v)
+		(vector-max %0 max_v max_v)) (partition %0 2))) paths)
 	(list min_v max_v))
 
 (defun vector-bounds-3d (verts &optional stride)
 	; (vector-bounds-3d verts [stride]) -> (min_v3 max_v3)
 	(setd stride +vec3_size)
 	(defq min_v (slice verts 0 +vec3_size) max_v (cat min_v))
-	(each (lambda (v)
-		(if (> stride +vec3_size) (setq v (slice v 0 +vec3_size)))
-		(vector-min v min_v min_v)
-		(vector-max v max_v max_v)) (partition verts stride))
+	(each (# (if (> stride +vec3_size)
+			(setq %0 (slice %0 0 +vec3_size)))
+		(vector-min %0 min_v min_v)
+		(vector-max %0 max_v max_v)) (partition verts stride))
 	(list min_v max_v))
 
 (defun vector-bounds-sphere (verts &optional stride)
