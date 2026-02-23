@@ -80,13 +80,12 @@
 						(. *backdrop* :add_back *staging_canvas*)))
 				; hit test from top to bottom (reverse draw order)
 				(defq new_stroke (elem-get strokes (length *grabbed_polygons*))
-					px (n2f (first new_stroke)) py (n2f (second new_stroke))
-					p (path px py))
-				(defq hit_idx (some! (lambda ((col poly ((minx miny) (maxx maxy))))
-						(if (and (<= minx px maxx) (<= miny py maxy)
-								(vector-point-in-polygon p poly +winding_none_zero))
-							(!)))
-					(list *committed_polygons*) :nil -1 0))
+					px (n2f (first new_stroke)) py (n2f (second new_stroke)) p (path px py)
+					hit_idx (rsome (lambda ((col poly ((minx miny) (maxx maxy))))
+								(if (and (<= minx px maxx) (<= miny py maxy)
+										(vector-point-in-polygon p poly +winding_none_zero))
+									(!)))
+								*committed_polygons*))
 				(if hit_idx
 					(progn
 						; snapshot before modifying the committed layer
