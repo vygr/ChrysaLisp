@@ -113,11 +113,10 @@
 			(if commits
 				(progn
 					(. *strokes* :clear)
-					(clear *grabbed_polygons*)
-					(elem-set dlist +dlist_moving_polygons (list))
+					(clear *grabbed_polygons* *moving_polygons*)
 					(redraw-layers +layer_all))
 				(progn
-					(elem-set dlist +dlist_moving_polygons moving_polygons)
+					(setq *moving_polygons* moving_polygons)
 					(redraw-layers +layer_staging))))
 		(progn
 			; a drawing mode

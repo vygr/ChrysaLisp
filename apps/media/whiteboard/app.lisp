@@ -9,9 +9,6 @@
 (import "lib/math/vector.inc")
 (import "./widgets.inc")
 
-(enums +dlist 0
-	(enum mask committed_canvas staging_canvas committed_polygons staging_paths moving_polygons))
-
 (enums +select 0
 	(enum main picker timer tip))
 
@@ -23,9 +20,10 @@
 	*undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (first *palette*) *stroke_mode* +event_pen
 	*committed_polygons* (list) *staging_paths* (list)
-	*grabbed_polygons* (list)
+	*grabbed_polygons* (list) *moving_polygons* (list)
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
-	rate (/ 1000000 60) +layer_all (+ +layer_committed +layer_staging))
+	rate (/ 1000000 60) +layer_all (+ +layer_committed +layer_staging)
+	*redraw_mask* +layer_all)
 
 (defun flatten_path ((mode col rad pnts))
 	;flatten_path path to polygon
@@ -67,10 +65,8 @@
 	(clear *redo_stack*))
 
 (defun redraw-layers (mask)
-	;redraw layer/s
-	(elem-set dlist +dlist_committed_polygons (cat *committed_polygons*))
-	(elem-set dlist +dlist_staging_paths (cat *staging_paths*))
-	(elem-set dlist +dlist_mask (logior (elem-get dlist +dlist_mask) mask)))
+	;flag layer/s for redraw
+	(setq *redraw_mask* (logior *redraw_mask* mask)))
 
 (defun commit_poly (col poly front)
 	;commit a polygon to the canvas
@@ -88,31 +84,28 @@
 	(. canvas :set_color col)
 	(. canvas :fpoly 0.0 0.0 mode _))
 
-(defun redraw (dlist)
+(defun redraw ()
 	;redraw layer/s
-	(when (bits? (elem-get dlist +dlist_mask) +layer_committed)
-		(defq canvas (elem-get dlist +dlist_committed_canvas))
-		(. canvas :fill 0)
+	(when (bits? *redraw_mask* +layer_committed)
+		(. *committed_canvas* :fill 0)
 		(each (lambda ((col poly &ignore))
-			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_committed_polygons))
-		(. canvas :swap 0))
-	(when (bits? (elem-get dlist +dlist_mask) +layer_staging)
-		(defq canvas (elem-get dlist +dlist_staging_canvas))
-		(. canvas :fill 0)
+			(fpoly *committed_canvas* col +winding_none_zero poly)) *committed_polygons*)
+		(. *committed_canvas* :swap 0))
+	(when (bits? *redraw_mask* +layer_staging)
+		(. *staging_canvas* :fill 0)
 		(each (lambda (p)
 			(bind '(col poly) (flatten_path p))
-			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_staging_paths))
+			(fpoly *staging_canvas* col +winding_none_zero poly)) *staging_paths*)
 		(each (lambda ((col poly))
-			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_moving_polygons))
-		(. canvas :swap 0))
-	(elem-set dlist +dlist_mask 0))
+			(fpoly *staging_canvas* col +winding_none_zero poly)) *moving_polygons*)
+		(. *staging_canvas* :swap 0))
+	(setq *redraw_mask* 0))
 
 ;import actions and bindings
 (import "./actions.inc")
 
 (defun main ()
-	(defq select (task-mboxes +select_size) *id* :t
-		dlist (list +layer_all *committed_canvas* *staging_canvas* (list) (list) (list)))
+	(defq select (task-mboxes +select_size) *id* :t)
 	(. *committed_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *staging_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(action-style)
@@ -132,7 +125,7 @@
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem-get select +select_timer) rate 0)
-				(redraw dlist))
+				(redraw))
 			((= idx +select_picker)
 				;save/load picker response
 				(setq *msg* (trim *msg*))
