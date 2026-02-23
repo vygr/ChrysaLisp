@@ -78,19 +78,15 @@
 					(if (> state 0)
 						(. *backdrop* :add_front *staging_canvas*)
 						(. *backdrop* :add_back *staging_canvas*)))
-				(defq new_stroke (elem-get strokes (length *grabbed_polygons*))
-					px (n2f (first new_stroke))
-					py (n2f (second new_stroke))
-					hit_idx :nil
-					i (length *committed_polygons*))
 				; hit test from top to bottom (reverse draw order)
-				(while (> i 0)
-					(-- i)
-					(bind '(col poly bbox) (elem-get *committed_polygons* i))
-					(bind '((minx miny) (maxx maxy)) bbox)
-					(when (and (<= minx px maxx) (<= miny py maxy)
-							   (vector-point-in-polygon (path px py) poly +winding_none_zero))
-						(setq hit_idx i i 0)))
+				(defq new_stroke (elem-get strokes (length *grabbed_polygons*))
+					px (n2f (first new_stroke)) py (n2f (second new_stroke))
+					p (path px py))
+				(defq hit_idx (some! (lambda ((col poly ((minx miny) (maxx maxy))))
+						(if (and (<= minx px maxx) (<= miny py maxy)
+								(vector-point-in-polygon p poly +winding_none_zero))
+							(!)))
+					(list *committed_polygons*) :nil -1 0))
 				(if hit_idx
 					(progn
 						; snapshot before modifying the committed layer
