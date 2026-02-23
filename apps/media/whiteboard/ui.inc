@@ -140,10 +140,10 @@
 				(elem-set dlist +dlist_moving_polygons (list))
 				(redraw-layers +layer_all)))
 		(progn
-			; draw mode
+			; a drawing mode
 			(clear *staging_paths*)
 			(each (lambda (stroke state)
-					(when (= (abs state) 1)
+					(when (and (= (abs state) 1) (<= (length stroke) 4))
 						; reorder the staging canvas on mouse down
 						(. *staging_canvas* :sub)
 						(if (> state 0)
