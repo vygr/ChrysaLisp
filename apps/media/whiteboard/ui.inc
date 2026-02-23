@@ -120,28 +120,27 @@
 		(progn
 			; a drawing mode
 			(clear *staging_paths*)
-			(defq commits (some (# (= (abs %0) 2)) states))
-			(if commits (snapshot))
+			(if (defq commits (some (# (= (abs %0) 2)) states)) (snapshot))
 			(each (lambda (stroke state)
-				(defq abs_state (abs state))
-				(when (and (= abs_state 1) (<= (length stroke) 4))
-					; reorder the staging canvas on mouse down
-					(. *staging_canvas* :sub)
-					(if (> state 0)
-						(. *backdrop* :add_front *staging_canvas*)
-						(. *backdrop* :add_back *staging_canvas*)))
-				; parse, smooth, and filter the stroke coordinates once
-				(unless (= *stroke_mode* +event_pen)
-					(if (> (length stroke) 4)
-						(setq stroke (cat (slice stroke 0 2) (slice stroke -3 -1)))))
-				(setq stroke (apply (const path) (map (const n2f) stroke)))
-				(if (= *stroke_mode* +event_pen) (setq stroke (path-smooth stroke)))
-				(defq path_data (list *stroke_mode* *stroke_col* *stroke_radius*
-					(path-filter +tol stroke stroke)))
-				; route to the commit layer or the active staging overlay
-				(if (and commits (= abs_state 2))
-					(commit path_data (= state 2))
-					(push *staging_paths* path_data)))
+					(defq abs_state (abs state))
+					(when (and (= abs_state 1) (<= (length stroke) 4))
+						; reorder the staging canvas on mouse down
+						(. *staging_canvas* :sub)
+						(if (> state 0)
+							(. *backdrop* :add_front *staging_canvas*)
+							(. *backdrop* :add_back *staging_canvas*)))
+					; parse, smooth, and filter the stroke coordinates once
+					(unless (= *stroke_mode* +event_pen)
+						(if (> (length stroke) 4)
+							(setq stroke (cat (slice stroke 0 2) (slice stroke -3 -1)))))
+					(setq stroke (apply (const path) (map (const n2f) stroke)))
+					(if (= *stroke_mode* +event_pen) (setq stroke (path-smooth stroke)))
+					(defq path_data (list *stroke_mode* *stroke_col* *stroke_radius*
+						(path-filter +tol stroke stroke)))
+					; route to the commit layer or the active staging overlay
+					(if (and commits (= abs_state 2))
+						(commit path_data (= state 2))
+						(push *staging_paths* path_data)))
 				strokes states)
 			(if commits
 				(progn
