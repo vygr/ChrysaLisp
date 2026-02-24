@@ -19,14 +19,15 @@
 	*radiuss* (map (const n2f) '(2 6 12)) *stroke_radius* (first *radiuss*)
 	*undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (first *palette*) *stroke_mode* +event_pen
-	*committed_polygons* (list) *staging_paths* (list)
-	*grabbed_polygons* (list) *moving_polygons* (list)
+	*committed_groups* (list) *staging_paths* (list)
+	*grabbed_groups* (list) *moving_groups* (list)
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
 	rate (/ 1000000 60) +layer_all (+ +layer_committed +layer_staging)
-	*redraw_mask* +layer_all)
+	*redraw_mask* +layer_all
+	*last_commit_time* 0 *group_timeout* 1000000 *stroke_start_time* 0)
 
 (defun flatten_path ((mode col rad pnts))
-	;flatten a path to polygon
+	;flatten_path path to polygon
 	(list col (cond
 		((< (length pnts) 2)
 			;a runt so nothing
@@ -61,23 +62,41 @@
 
 (defun snapshot ()
 	;take a snapshot of the canvas state
-	(push *undo_stack* (cat *committed_polygons*))
+	(push *undo_stack* (cat *committed_groups*))
 	(clear *redo_stack*))
 
 (defun redraw-layers (mask)
 	;flag layer/s for redraw
 	(setq *redraw_mask* (logior *redraw_mask* mask)))
 
-(defun commit_poly (col poly front)
-	;commit a polygon to the canvas
+(defun create-group (strokes)
+	(bind '(& & (gmin gmax)) (first strokes))
+	(defq gmin (cat gmin) gmax (cat gmax))
+	(each! (lambda ((& & (min_v max_v)))
+			(vector-min min_v gmin gmin)
+			(vector-max max_v gmax gmax))
+		(list strokes) 1)
+	(list (list gmin gmax) strokes))
+
+(defun commit-group (group front)
+	;commit a group to the canvas
 	(if front
-		(push *committed_polygons* (list col poly (vector-bounds-2d poly)))
-		(setq *committed_polygons* (insert *committed_polygons* 0 (list (list col poly (vector-bounds-2d poly)))))))
+		(push *committed_groups* group)
+		(setq *committed_groups* (insert *committed_groups* 0 (list group)))))
 
 (defun commit (p front)
 	;commit a stroke to the canvas
 	(bind '(col poly) (flatten_path p))
-	(commit_poly col poly front))
+	(when (nempty? poly)
+		(defq stroke (list col poly (vector-bounds-2d poly)))
+		(if (and (< (- *stroke_start_time* *last_commit_time*) *group_timeout*) (nempty? *committed_groups*))
+			(defq target_idx (if front (dec (length *committed_groups*)) 0)
+				group (elem-get *committed_groups* target_idx)
+				; Use cat to create a new list so we don't mutate the version in the undo stack!
+				new_strokes (cat (second group) (list stroke))
+				_ (elem-set *committed_groups* target_idx (create-group new_strokes)))
+			(commit-group (create-group (list stroke)) front))
+		(setq *last_commit_time* (pii-time))))
 
 (defun fpoly (canvas col mode _)
 	;draw a polygon on a canvas
@@ -88,16 +107,18 @@
 	;redraw layer/s
 	(when (bits? *redraw_mask* +layer_committed)
 		(. *committed_canvas* :fill 0)
-		(each (lambda ((col poly &ignore))
-			(fpoly *committed_canvas* col +winding_none_zero poly)) *committed_polygons*)
+		(each (lambda ((group_bbox strokes))
+			(each (lambda ((col poly bbox))
+				(fpoly *committed_canvas* col +winding_none_zero poly)) strokes)) *committed_groups*)
 		(. *committed_canvas* :swap 0))
 	(when (bits? *redraw_mask* +layer_staging)
 		(. *staging_canvas* :fill 0)
 		(each (lambda (p)
 			(bind '(col poly) (flatten_path p))
 			(fpoly *staging_canvas* col +winding_none_zero poly)) *staging_paths*)
-		(each (lambda ((col poly))
-			(fpoly *staging_canvas* col +winding_none_zero poly)) *moving_polygons*)
+		(each (lambda ((group_bbox strokes))
+			(each (lambda ((col poly bbox))
+				(fpoly *staging_canvas* col +winding_none_zero poly)) strokes)) *moving_groups*)
 		(. *staging_canvas* :swap 0))
 	(setq *redraw_mask* 0))
 
@@ -141,16 +162,20 @@
 								(cat (slice *msg* 0 (if (defq i (rfind "." *msg*)) (dec i) -1)) ".cwb")
 								+file_open_write)
 							(scatter (Emap)
-								:version 2
-								:polygons (map (lambda ((col poly &ignore)) (list col poly)) *committed_polygons*))))
+								:version 3
+								:groups *committed_groups*)))
 					;load whiteboard
 					(:t (when (ends-with ".cwb" *msg*)
-							(bind '(version polygons)
+							(bind '(version groups polygons)
 								(gather (tree-load (file-stream *msg*))
-									:version :polygons))
-							(when (eql version 2)
+									:version :groups :polygons))
+							(when (>= version 2)
 								(snapshot)
-								(setq *committed_polygons* (map (lambda ((col poly)) (list col poly (vector-bounds-2d poly))) polygons))
+								(if (= version 2)
+									(setq *committed_groups* (map (lambda ((col poly))
+											(create-group (list (list col poly (vector-bounds-2d poly)))))
+										(filter (lambda ((col poly)) (nempty? poly)) polygons)))
+									(setq *committed_groups* groups))
 								(redraw-layers +layer_committed))))))
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action
