@@ -26,7 +26,7 @@
 	*redraw_mask* +layer_all)
 
 (defun flatten_path ((mode col rad pnts))
-	;flatten_path path to polygon
+	;flatten a path to polygon
 	(list col (cond
 		((< (length pnts) 2)
 			;a runt so nothing
