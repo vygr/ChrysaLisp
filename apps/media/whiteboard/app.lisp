@@ -24,7 +24,7 @@
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
 	rate (/ 1000000 60) +layer_all (+ +layer_committed +layer_staging)
 	*redraw_mask* +layer_all
-	*last_commit_time* 0 *group_timeout* 1000000 *stroke_start_time* 0)
+	*last_commit_time* 0 *group_timeout* 2000000 *stroke_start_time* 0)
 
 (defun flatten_path ((mode col rad pnts))
 	;flatten_path path to polygon
