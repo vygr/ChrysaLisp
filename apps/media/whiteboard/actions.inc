@@ -21,7 +21,10 @@
 	+event_save action-save
 	+event_load action-load
 	+event_min action-minimise
-	+event_max action-maximise)
+	+event_max action-maximise
+	+event_group action-group
+	+event_ungroup action-ungroup
+	+event_delete action-delete)
 
 *key_map* (scatter (Fmap))
 
@@ -33,5 +36,6 @@
 
 ;module
 (export-symbols
-	'(*event_map* *key_map* *key_map_shift* *key_map_control* action-style))
+	'(*event_map* *key_map* *key_map_shift* *key_map_control* action-style
+		action-group action-ungroup action-delete))
 (env-pop)

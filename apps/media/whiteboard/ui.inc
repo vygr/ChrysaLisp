@@ -44,14 +44,14 @@
 	(when (/= 0 (length *undo_stack*))
 		(push *redo_stack* *committed_groups*)
 		(setq *committed_groups* (pop *undo_stack*))
-		(redraw-layers +layer_committed)))
+		(redraw-layers +layer_all)))
 
 (defun action-redo ()
 	;move state from redo to undo stack and restore old state
 	(when (/= 0 (length *redo_stack*))
 		(push *undo_stack* *committed_groups*)
 		(setq *committed_groups* (pop *redo_stack*))
-		(redraw-layers +layer_committed)))
+		(redraw-layers +layer_all)))
 
 (defun action-save ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
@@ -64,6 +64,38 @@
 	(mail-send (setq *picker_mode* :nil *picker_mbox*
 		(open-child "apps/system/files/child.lisp" +kn_call_open))
 		(cat (elem-get select +select_picker) "Load Whiteboard..." "|" "." "|" ".cwb")))
+
+(defun action-group ()
+	;merge all selected groups into one group, result stays selected
+	(defq selected (filter (# (bits? (elem-get %0 2) +group_selected)) *committed_groups*)
+		non_selected (filter (# (not (bits? (elem-get %0 2) +group_selected))) *committed_groups*))
+	(when (nempty? selected)
+		(snapshot)
+		(defq all_strokes (apply cat (map second selected))
+			new_group (create-group all_strokes +group_selected))
+		(setq *committed_groups* (cat non_selected (list new_group)))
+		(redraw-layers +layer_all)))
+
+(defun action-ungroup ()
+	;split each selected group into individual stroke groups, all stay selected
+	(when (some (# (bits? (elem-get %0 2) +group_selected)) *committed_groups*)
+		(snapshot)
+		(setq *committed_groups*
+			(apply cat (map (lambda (group)
+				(if (bits? (elem-get group 2) +group_selected)
+					;split: each stroke becomes its own group, marked selected
+					(map (# (create-group (list %0) +group_selected)) (second group))
+					;keep non-selected groups unchanged
+					(list group))) *committed_groups*)))
+		(redraw-layers +layer_all)))
+
+(defun action-delete ()
+	;delete all selected groups
+	(when (some (# (bits? (elem-get %0 2) +group_selected)) *committed_groups*)
+		(snapshot)
+		(setq *committed_groups*
+			(filter (# (not (bits? (elem-get %0 2) +group_selected))) *committed_groups*))
+		(redraw-layers +layer_all)))
 
 (defun action-stroke ()
 	(defq strokes (. *strokes* :get_strokes) states (. *strokes* :get_states))
@@ -83,7 +115,7 @@
 					py (n2f (second new_stroke))
 					p (path px py))
 				; hit test from top to bottom (reverse draw order)
-				(defq hit_idx (some! (lambda ((group_bbox group_strokes))
+				(defq hit_idx (some! (lambda ((group_bbox group_strokes group_flags))
 						(bind '((gminx gminy) (gmaxx gmaxy)) group_bbox)
 						(if (and (<= gminx px gmaxx) (<= gminy py gmaxy)
 								(some (lambda ((col poly ((minx miny) (maxx maxy))))
@@ -106,20 +138,21 @@
 
 			(each (lambda (grabbed_info stroke state)
 				(when grabbed_info
-					(bind '((group_bbox group_strokes) &ignore) grabbed_info)
+					(bind '((group_bbox group_strokes group_flags) &ignore) grabbed_info)
 					(defq len (length stroke)
 						dx (- (n2f (elem-get stroke (- len 2))) (n2f (first stroke)))
 						dy (- (n2f (elem-get stroke (- len 1))) (n2f (second stroke))))
 					(bind '((gminx gminy) (gmaxx gmaxy)) group_bbox)
 					(defq translated_group (list
-							(list (list (+ gminx dx) (+ gminy dy)) (list (+ gmaxx dx) (+ gmaxy dy)))
+							(list (path (+ gminx dx) (+ gminy dy)) (path (+ gmaxx dx) (+ gmaxy dy)))
 							(map (lambda ((col poly ((minx miny) (maxx maxy))))
 								(list col
 									  (map (lambda (pth)
 										  (reduce (lambda (new_p (x y)) (push new_p (+ x dx) (+ y dy)))
 											  (partition pth 2) (path))) poly)
-									  (list (list (+ minx dx) (+ miny dy)) (list (+ maxx dx) (+ maxy dy)))))
-								 group_strokes)))
+									  (list (path (+ minx dx) (+ miny dy)) (path (+ maxx dx) (+ maxy dy)))))
+								group_strokes)
+							group_flags))
 					(if (and commits (= (abs state) 2))
 						(commit-group translated_group (= state 2))
 						(push moving_groups translated_group))))
@@ -133,40 +166,71 @@
 				(progn
 					(setq *moving_groups* moving_groups)
 					(redraw-layers +layer_staging))))
-		(progn
-			; a drawing mode
-			(clear *staging_paths*)
-			(defq commits (some (# (= (abs %0) 2)) states))
-			(if commits (snapshot))
-
-			(each (lambda (stroke state)
-				(defq abs_state (abs state))
-				(when (and (= abs_state 1) (<= (length stroke) 4))
-					(setq *stroke_start_time* (pii-time))
-					; reorder the staging canvas on mouse down
-					(. *staging_canvas* :sub)
-					(if (> state 0)
-						(. *backdrop* :add_front *staging_canvas*)
-						(. *backdrop* :add_back *staging_canvas*)))
-
-				; Parse, smooth, and filter the stroke coordinates once
-				(unless (= *stroke_mode* +event_pen)
-					(if (> (length stroke) 4)
-						(setq stroke (cat (slice stroke 0 2) (slice stroke -3 -1)))))
-				(setq stroke (apply (const path) (map (const n2f) stroke)))
-				(if (= *stroke_mode* +event_pen) (setq stroke (path-smooth stroke)))
-				
-				(defq path_data (list *stroke_mode* *stroke_col* *stroke_radius*
-					(path-filter +tol stroke stroke)))
-
-				; Route to the commit layer or the active staging overlay
-				(if (and commits (= abs_state 2))
-					(commit path_data (= state 2))
-					(push *staging_paths* path_data)))
-				strokes states)
-
-			(if commits
-				(progn
+		(if (= *stroke_mode* +event_select)
+			(progn
+				; select mode - hit test and toggle +group_selected flag
+				(defq commits (some (# (= (abs %0) 2)) states))
+				(when commits
+					(each (lambda (stroke state)
+						(when (= (abs state) 2)
+							(defq px (n2f (first stroke))
+								py (n2f (second stroke))
+								p (path px py))
+							(defq hit_idx (some! (lambda ((group_bbox group_strokes group_flags))
+									(bind '((gminx gminy) (gmaxx gmaxy)) group_bbox)
+									(if (and (<= gminx px gmaxx) (<= gminy py gmaxy)
+											(some (lambda ((col poly ((minx miny) (maxx maxy))))
+													(if (and (<= minx px maxx) (<= miny py maxy)
+															(vector-point-in-polygon p poly +winding_none_zero))
+														:t)) group_strokes))
+										(!)))
+								(list *committed_groups*) :nil -1 0))
+							(if hit_idx
+								; toggle selection on whatever was hit
+								(defq group (elem-get *committed_groups* hit_idx)
+									_ (elem-set *committed_groups* hit_idx
+										(list (first group) (second group)
+											(logxor (elem-get group 2) +group_selected))))
+								; clicked empty space - clear all selection
+								(setq *committed_groups*
+									(map (lambda (g) (list (first g) (second g) 0)) *committed_groups*)))))
+						strokes states)
 					(. *strokes* :clear)
-					(redraw-layers +layer_all))
-				(redraw-layers +layer_staging)))))
+					(redraw-layers +layer_committed)))
+			(progn
+				; a drawing mode
+				(clear *staging_paths*)
+				(defq commits (some (# (= (abs %0) 2)) states))
+				(if commits (snapshot))
+
+				(each (lambda (stroke state)
+					(defq abs_state (abs state))
+					(when (and (= abs_state 1) (<= (length stroke) 4))
+						(setq *stroke_start_time* (pii-time))
+						; reorder the staging canvas on mouse down
+						(. *staging_canvas* :sub)
+						(if (> state 0)
+							(. *backdrop* :add_front *staging_canvas*)
+							(. *backdrop* :add_back *staging_canvas*)))
+
+					; Parse, smooth, and filter the stroke coordinates once
+					(unless (= *stroke_mode* +event_pen)
+						(if (> (length stroke) 4)
+							(setq stroke (cat (slice stroke 0 2) (slice stroke -3 -1)))))
+					(setq stroke (apply (const path) (map (const n2f) stroke)))
+					(if (= *stroke_mode* +event_pen) (setq stroke (path-smooth stroke)))
+					
+					(defq path_data (list *stroke_mode* *stroke_col* *stroke_radius*
+						(path-filter +tol stroke stroke)))
+
+					; Route to the commit layer or the active staging overlay
+					(if (and commits (= abs_state 2))
+						(commit path_data (= state 2))
+						(push *staging_paths* path_data)))
+					strokes states)
+
+				(if commits
+					(progn
+						(. *strokes* :clear)
+						(redraw-layers +layer_all))
+					(redraw-layers +layer_staging))))))

@@ -3,7 +3,11 @@
 	(enum undo redo save load clear)
 	(enum stroke)
 	(enum style radius ink)
-	(enum move pen line arrow1 arrow2 box circle fbox fcircle))
+	(enum move pen line arrow1 arrow2 box circle fbox fcircle select)
+	(enum group ungroup delete))
+
+(bits +group 0
+	(bit selected))
 
 (defun trans (%0)
 	;transparent colour
@@ -21,8 +25,10 @@
 		(. (ui-radio-bar *style_toolbar* (0xe976 0xe9a3 0xe9d4 0xe9f0)
 			(:color *env_toolbar2_col*)) :connect +event_style)
 		(. (ui-radio-bar *radius_toolbar* (0xe979 0xe97d 0xe97b)) :connect +event_radius)
-		(. (ui-radio-bar *mode_toolbar* (0xe9a5 0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f)
-			(:color *env_toolbar2_col*)) :connect +event_move))
+		(. (ui-radio-bar *mode_toolbar* (0xe9a5 0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f 0xe9dd)
+			(:color *env_toolbar2_col*)) :connect +event_move)
+		(ui-tool-bar *selection_toolbar* ()
+			(ui-buttons (0xe94e 0xe94d 0xe94c) +event_group)))
 	(. (ui-radio-bar *ink_toolbar* (0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982
 			0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04)
 			(:font *env_medium_toolbar_font* :color *env_toolbar2_col*))
@@ -46,7 +52,10 @@
 
 (ui-tool-tips *mode_toolbar*
 	'("move" "pen" "line" "arrow" "double arrow" "rect"
-	"circle" "filled rect" "filled circle"))
+	"circle" "filled rect" "filled circle" "select"))
+
+(ui-tool-tips *selection_toolbar*
+	'("group" "ungroup" "delete"))
 
 (each (# (def %0 :ink_color %1)) (. *ink_toolbar* :children) *palette*)
 (. *ink_toolbar* :set_selected 0)

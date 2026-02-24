@@ -69,14 +69,14 @@
 	;flag layer/s for redraw
 	(setq *redraw_mask* (logior *redraw_mask* mask)))
 
-(defun create-group (strokes)
+(defun create-group (strokes flags)
 	(bind '(& & (gmin gmax)) (first strokes))
 	(defq gmin (cat gmin) gmax (cat gmax))
 	(each! (lambda ((& & (min_v max_v)))
 			(vector-min min_v gmin gmin)
 			(vector-max max_v gmax gmax))
 		(list strokes) 1)
-	(list (list gmin gmax) strokes))
+	(list (list gmin gmax) strokes flags))
 
 (defun commit-group (group front)
 	;commit a group to the canvas
@@ -94,8 +94,9 @@
 				group (elem-get *committed_groups* target_idx)
 				; Use cat to create a new list so we don't mutate the version in the undo stack!
 				new_strokes (cat (second group) (list stroke))
-				_ (elem-set *committed_groups* target_idx (create-group new_strokes)))
-			(commit-group (create-group (list stroke)) front))
+				; preserve existing flags (e.g. selected) when adding stroke to existing group
+				_ (elem-set *committed_groups* target_idx (create-group new_strokes (elem-get group 2))))
+			(commit-group (create-group (list stroke) 0) front))
 		(setq *last_commit_time* (pii-time))))
 
 (defun fpoly (canvas col mode _)
@@ -103,22 +104,28 @@
 	(. canvas :set_color col)
 	(. canvas :fpoly 0.0 0.0 mode _))
 
+(defun draw-group (canvas (group_bbox strokes flags))
+	;draw a group's strokes and optional selection bounding box onto canvas
+	(each (lambda ((col poly bbox))
+		(fpoly canvas col +winding_none_zero poly)) strokes)
+	(when (bits? flags +group_selected)
+		(bind '((gminx gminy) (gmaxx gmaxy)) group_bbox)
+		(fpoly canvas +argb_cyan +winding_none_zero
+			(path-stroke-polygons (list) 1.0 +join_miter
+				(list (path gminx gminy gmaxx gminy gmaxx gmaxy gminx gmaxy))))))
+
 (defun redraw ()
 	;redraw layer/s
 	(when (bits? *redraw_mask* +layer_committed)
 		(. *committed_canvas* :fill 0)
-		(each (lambda ((group_bbox strokes))
-			(each (lambda ((col poly bbox))
-				(fpoly *committed_canvas* col +winding_none_zero poly)) strokes)) *committed_groups*)
+		(each (# (draw-group *committed_canvas* %0)) *committed_groups*)
 		(. *committed_canvas* :swap 0))
 	(when (bits? *redraw_mask* +layer_staging)
 		(. *staging_canvas* :fill 0)
 		(each (lambda (p)
 			(bind '(col poly) (flatten_path p))
 			(fpoly *staging_canvas* col +winding_none_zero poly)) *staging_paths*)
-		(each (lambda ((group_bbox strokes))
-			(each (lambda ((col poly bbox))
-				(fpoly *staging_canvas* col +winding_none_zero poly)) strokes)) *moving_groups*)
+		(each (# (draw-group *staging_canvas* %0)) *moving_groups*)
 		(. *staging_canvas* :swap 0))
 	(setq *redraw_mask* 0))
 
@@ -163,7 +170,8 @@
 								+file_open_write)
 							(scatter (Emap)
 								:version 3
-								:groups *committed_groups*)))
+								;strip selection flags before saving
+								:groups (map (lambda (g) (list (first g) (second g) 0)) *committed_groups*))))
 					;load whiteboard
 					(:t (when (ends-with ".cwb" *msg*)
 							(bind '(version groups polygons)
@@ -173,9 +181,11 @@
 								(snapshot)
 								(if (= version 2)
 									(setq *committed_groups* (map (lambda ((col poly))
-											(create-group (list (list col poly (vector-bounds-2d poly)))))
+											(create-group (list (list col poly (vector-bounds-2d poly))) 0))
 										(filter (lambda ((col poly)) (nempty? poly)) polygons)))
-									(setq *committed_groups* groups))
+									;normalize v3 groups: ensure flags field present (default 0, never restore selection)
+									(setq *committed_groups* (map (lambda (g)
+											(list (first g) (second g) 0)) groups)))
 								(redraw-layers +layer_committed))))))
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action
