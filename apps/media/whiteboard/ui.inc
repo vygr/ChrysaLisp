@@ -231,16 +231,18 @@
 						  pminx (n2f s_minx) pminy (n2f s_miny)
 						  pmaxx (n2f s_maxx) pmaxy (n2f s_maxy))
 
+					(when (and (>= abs_state 1) (not commits))
+						(push *staging_paths* (list +event_box (if (> state 0) +argb_cyan +argb_magenta) 1.0
+							(path pminx pminy pmaxx pmaxy))))
+
 					(if (= abs_state 1)
 						(progn
 							(setq *stroke_start_time* (pii-time))
 							(. *staging_canvas* :sub)
 							(if (> state 0)
 								(. *backdrop* :add_front *staging_canvas*)
-								(. *backdrop* :add_back *staging_canvas*))
-							(push *staging_paths* (list +event_box (if (> state 0) +argb_cyan +argb_magenta) 1.0
-								(list (path pminx pminy pmaxx pminy pmaxx pmaxy pminx pmaxy)))))
-						(progn
+								(. *backdrop* :add_back *staging_canvas*)))
+						(when commits
 							(snapshot)
 							(if (< area 100)
 								(progn
