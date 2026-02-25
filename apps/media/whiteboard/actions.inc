@@ -24,7 +24,13 @@
 	+event_max action-maximise
 	+event_group action-group
 	+event_ungroup action-ungroup
-	+event_delete action-delete)
+	+event_delete action-delete
+	+event_align_left action-align-left
+	+event_align_vcenter action-align-vcenter
+	+event_align_right action-align-right
+	+event_align_top action-align-top
+	+event_align_hcenter action-align-hcenter
+	+event_align_bottom action-align-bottom)
 
 *key_map* (scatter (Fmap))
 
@@ -37,5 +43,6 @@
 ;module
 (export-symbols
 	'(*event_map* *key_map* *key_map_shift* *key_map_control* action-style
-		action-group action-ungroup action-delete))
+		action-group action-ungroup action-delete action-align-left action-align-vcenter
+		action-align-right action-align-top action-align-hcenter action-align-bottom))
 (env-pop)

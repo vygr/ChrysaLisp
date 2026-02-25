@@ -4,7 +4,7 @@
 	(enum stroke)
 	(enum style radius ink)
 	(enum move pen line arrow1 arrow2 box circle fbox fcircle select)
-	(enum group ungroup delete))
+	(enum group ungroup delete align_left align_vcenter align_right align_top align_hcenter align_bottom))
 
 (bits +group 0
 	(bit selected))
@@ -27,12 +27,15 @@
 		(. (ui-radio-bar *radius_toolbar* (0xe979 0xe97d 0xe97b)) :connect +event_radius)
 		(. (ui-radio-bar *mode_toolbar* (0xe9a5 0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f 0xe9dd)
 			(:color *env_toolbar2_col*)) :connect +event_move)
+		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *selection_toolbar* ()
-			(ui-buttons (0xe94e 0xe94d 0xe94c) +event_group)))
-	(. (ui-radio-bar *ink_toolbar* (0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982
-			0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04)
-			(:font *env_medium_toolbar_font* :color *env_toolbar2_col*))
-		:connect +event_ink)
+			(ui-buttons (0xe94e 0xe94d 0xe94c 0xe90a 0xe909 0xe90b 0xe90c 0xe90d 0xe908) +event_group))
+		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(. (ui-radio-bar *ink_toolbar* (0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982
+				0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04)
+				(:font *env_medium_toolbar_font* :color *env_toolbar2_col*)) :connect +event_ink))
 	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +min_width :min_height +min_height)
 		(ui-flow *strokes_stack* (:flow_flags +flow_stack_fill)
@@ -55,7 +58,7 @@
 	"circle" "filled rect" "filled circle" "select"))
 
 (ui-tool-tips *selection_toolbar*
-	'("group" "ungroup" "delete"))
+	'("group" "ungroup" "delete" "align left" "align vcenter" "align right" "align top" "align hcenter" "align bottom"))
 
 (each (# (def %0 :ink_color %1)) (. *ink_toolbar* :children) *palette*)
 (. *ink_toolbar* :set_selected 0)
