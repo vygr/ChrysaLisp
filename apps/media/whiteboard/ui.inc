@@ -115,15 +115,15 @@
 						(bind '((gminx gminy) (gmaxx gmaxy)) (first g))
 						(defq gcx (+ gminx (/ (- gmaxx gminx) 2.0))
 							  gcy (+ gminy (/ (- gmaxy gminy) 2.0))
-							  dx 0 dy 0)
+							  dx 0.0 dy 0.0)
 						(case mode
 							(:left (setq dx (- min_x gminx)))
-							(:vcenter (setq dy (- cy gcy)))
+							(:hcenter (setq dy (- cy gcy)))
 							(:right (setq dx (- max_x gmaxx)))
 							(:top (setq dy (- min_y gminy)))
-							(:hcenter (setq dx (- cx gcx)))
+							(:vcenter (setq dx (- cx gcx)))
 							(:bottom (setq dy (- max_y gmaxy))))
-						(if (and (= dx 0) (= dy 0))
+						(if (and (= dx 0.0) (= dy 0.0))
 							g
 							(list
 								(list (path (+ gminx dx) (+ gminy dy)) (path (+ gmaxx dx) (+ gmaxy dy)))
