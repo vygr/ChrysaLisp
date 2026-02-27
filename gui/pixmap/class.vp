@@ -261,7 +261,7 @@
 	(entry :pixmap :as_argb `(,this))
 
 	(assign `((,this +pixmap_type)) `(,pix))
-	(vpif `(,pix < 0))
+	(vpif `(,pix > 0))
 		(vp-mul-cr -1 pix)
 		(assign `(,pix) `((,this +pixmap_type)))
 
