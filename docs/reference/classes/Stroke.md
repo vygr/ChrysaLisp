@@ -6,6 +6,8 @@
 
 ```code
 (. stroke :clear) -> stroke
+
+clear out finished strokes
 ```
 
 ### :get_states

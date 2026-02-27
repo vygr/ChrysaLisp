@@ -1,5 +1,17 @@
 # Functions
 
+### CWB-Canvas
+
+```code
+(CWB-Canvas stream [scale]) -> :nil | canvas
+```
+
+### CWB-info
+
+```code
+(CWB-info stream) -> (width height type) | (-1 -1 -1)
+```
+
 ### SVG-Canvas
 
 ```code
@@ -1314,19 +1326,19 @@ patch stream a with stream b, write to stream c
 ### vector-bounds-3d
 
 ```code
-(vector-bounds-3d verts vec3-extract-fnc) -> (min_v3 max_v3)
+(vector-bounds-3d verts [stride]) -> (min_v3 max_v3)
 ```
 
 ### vector-bounds-sphere
 
 ```code
-(vector-bounds-sphere verts vec3-extract-fnc) -> (center_v3 radius)
+(vector-bounds-sphere verts [stride]) -> (center_v3 radius)
 ```
 
 ### vector-point-in-polygon
 
 ```code
-(vector-point-in-polygon px py paths) -> :t | :nil
+(vector-point-in-polygon p paths winding_mode) -> :t | :nil
 ```
 
 ### vertex-interp
