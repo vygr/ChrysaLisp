@@ -53,7 +53,9 @@
 					(.-> canvas (:set_color col) (:fpoly 0.0 0.0 +winding_none_zero transformed_poly)))
 					(second group)))
 				groups)
-			canvas)))
+			;resize to final output
+			(bind '(w h) (. canvas :pref_size))
+			(. (Canvas w h 1) :resize canvas))))
 
 ;module
 (export-symbols '(CWB-Canvas CWB-info))
