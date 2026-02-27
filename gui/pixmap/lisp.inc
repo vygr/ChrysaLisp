@@ -1,6 +1,6 @@
 (import "class/obj/lisp.inc")
 (import "./struct.inc")
-(import "lib/xml/svg.inc")
+(import "lib/image/svg.inc")
 (import "lib/image/cwb.inc")
 
 (defun pixmap-cpm-info (stream)

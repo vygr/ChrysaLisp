@@ -1,8 +1,8 @@
 ;;;;;;;;;;;;
-; svg parser
+; svg loader
 ;;;;;;;;;;;;
 
-(import "./parse.inc")
+(import "././xml/parse.inc")
 (import "lib/consts/colors.inc")
 (import "gui/path/lisp.inc")
 (import "gui/canvas/lisp.inc")

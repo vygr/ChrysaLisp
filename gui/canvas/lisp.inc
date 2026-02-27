@@ -6,7 +6,7 @@
 (import "././texture/lisp.inc")
 (import "././pixmap/lisp.inc")
 (import "./struct.inc")
-(import "lib/xml/svg.inc")
+(import "lib/image/svg.inc")
 (import "lib/image/cwb.inc")
 
 ;lisp bindings
