@@ -316,7 +316,7 @@
 				(vp-cpy-rr col argb)
 				(call :pixmap :to_premul `(,col) `(,pmul))
 			(endif)
-			(vp-cpy-ri-i argb dst (neg +int_size))
+			(vp-cpy-ri-i pmul dst (neg +int_size))
 		(loop-until `(,dst = ,end))
 	(endif)
 
@@ -343,7 +343,7 @@
 		(defq sw (width sm) dw (width dm))
 		(cond
 			((> (/ dw sw) 2)
-				;fractional muliply
+				;fractional multiply
 				(defq pipe `((vp-cpy-rr ,col ,dr)
 					(vp-and-cr ,sm ,dr) (vp-mul-cr ,(/ dm sm) ,dr)))
 				(if (/= sw 1) (push pipe `(vp-cpy-cr ,dm ,sr) `(vp-and-rr ,sr ,dr))))
