@@ -31,7 +31,8 @@ functions from the `lib/image/cwb.inc` library. Can now load and view `.cwb`
 files from the Images app and any apps/commands that use the `canvas-load`
 functions.
 
-Fix to the `:pixmap :as_argb` method premul alpha format type test.
+Fix to the `:pixmap :as_argb` method premul alpha format type test. Plus a fix
+to the pixel conversion cache in the `:pixmap :as_premul` method.
 
 ------
 
