@@ -9,7 +9,7 @@
 (enums +select 0
 	(enum main tip))
 
-(defq +file_types ''(".cpm" ".flm" ".tga" ".svg"))
+(defq +file_types ''(".cpm" ".flm" ".tga" ".svg" ".cwb"))
 
 (defun win-refresh (file)
 	(bind '(w h) (. (defq canvas (canvas-load file 0)) :pref_size))

@@ -6,6 +6,8 @@
 (import "././texture/lisp.inc")
 (import "././pixmap/lisp.inc")
 (import "./struct.inc")
+(import "lib/xml/svg.inc")
+(import "lib/image/cwb.inc")
 
 ;lisp bindings
 (ffi "gui/canvas/lisp_to_argb32" canvas-to-argb32)
@@ -126,6 +128,8 @@
 			(cond
 				((ends-with ".svg" file)
 					(SVG-Canvas stream 2))
+				((ends-with ".cwb" file)
+					(CWB-Canvas stream 2))
 				((or (ends-with ".cpm" file) (ends-with ".flm" file))
 					(if (defq this ((const (ffi "gui/pixmap/lisp_load_cpm")) stream))
 						(Canvas-pixmap this)))

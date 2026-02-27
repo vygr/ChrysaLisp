@@ -1,6 +1,7 @@
 (import "class/obj/lisp.inc")
 (import "./struct.inc")
 (import "lib/xml/svg.inc")
+(import "lib/image/cwb.inc")
 
 (defun pixmap-cpm-info (stream)
 	; (pixmap-cpm-info stream) -> (width height type) | (-1 -1 -1)
@@ -31,6 +32,8 @@
 				(pixmap-tga-info stream))
 			((ends-with ".svg" file)
 				(SVG-info stream))
+			((ends-with ".cwb" file)
+				(CWB-info stream))
 			(:t (list -1 -1 -1)))
 		(list -1 -1 -1)))
 
