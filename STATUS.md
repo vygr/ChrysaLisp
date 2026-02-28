@@ -36,7 +36,8 @@ to the pixel conversion cache in the `:pixmap :as_premul` method.
 
 TGA loader moved to pure Lisp library, this is not time critical. As we gather
 the image import tools into this library we will eventually add a VP helper
-function for faster Canvas writes.
+function for faster Canvas writes. Plus a tidy up of the Canvas loader helper
+functions.
 
 ------
 
