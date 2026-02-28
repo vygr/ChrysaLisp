@@ -2,6 +2,7 @@
 (import "./struct.inc")
 (import "lib/image/svg.inc")
 (import "lib/image/cwb.inc")
+(import "lib/image/tga.inc")
 
 (defun pixmap-cpm-info (stream)
 	; (pixmap-cpm-info stream) -> (width height type) | (-1 -1 -1)
@@ -9,14 +10,6 @@
 		(case (char (getf header +cpm_ident) +int_size)
 			(("MPC." "MLF.")
 				(getf-> header +cpm_width +cpm_height +cpm_type))
-			(:t (list -1 -1 -1)))
-		(list -1 -1 -1)))
-
-(defun pixmap-tga-info (stream)
-	; (pixmap-tga-info stream) -> (width height type) | (-1 -1 -1)
-	(if (= (length (defq header (read-blk stream +tga_size))) +tga_size)
-		(case (getf header +tga_type)
-			(2 (getf-> header +tga_width +tga_height +tga_depth))
 			(:t (list -1 -1 -1)))
 		(list -1 -1 -1)))
 
@@ -29,7 +22,7 @@
 			((ends-with ".flm" file)
 				(pixmap-cpm-info stream))
 			((ends-with ".tga" file)
-				(pixmap-tga-info stream))
+				(TGA-info stream))
 			((ends-with ".svg" file)
 				(SVG-info stream))
 			((ends-with ".cwb" file)

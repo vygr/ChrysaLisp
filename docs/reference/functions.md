@@ -24,6 +24,18 @@
 (SVG-info stream) -> (width height type) | (-1 -1 -1)
 ```
 
+### TGA-Canvas
+
+```code
+(TGA-Canvas stream [scale]) -> :nil | canvas
+```
+
+### TGA-info
+
+```code
+(TGA-info stream) -> (width height type) | (-1 -1 -1)
+```
+
 ### XML-parse
 
 ```code
@@ -906,12 +918,6 @@ run pipe farm and collect output
 
 ```code
 (pixmap-save pixmap file type) -> :nil | pixmap
-```
-
-### pixmap-tga-info
-
-```code
-(pixmap-tga-info stream) -> (width height type) | (-1 -1 -1)
 ```
 
 ### pos?

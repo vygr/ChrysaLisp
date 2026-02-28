@@ -8,6 +8,7 @@
 (import "./struct.inc")
 (import "lib/image/svg.inc")
 (import "lib/image/cwb.inc")
+(import "lib/image/tga.inc")
 
 ;lisp bindings
 (ffi "gui/canvas/lisp_to_argb32" canvas-to-argb32)
@@ -130,11 +131,10 @@
 					(SVG-Canvas stream 2))
 				((ends-with ".cwb" file)
 					(CWB-Canvas stream 2))
+				((ends-with ".tga" file)
+					(TGA-Canvas stream 1))
 				((or (ends-with ".cpm" file) (ends-with ".flm" file))
 					(if (defq this ((const (ffi "gui/pixmap/lisp_load_cpm")) stream))
-						(Canvas-pixmap this)))
-				((ends-with ".tga" file)
-					(if (defq this ((const (ffi "gui/pixmap/lisp_load_tga")) stream))
 						(Canvas-pixmap this)))))
 		(when this
 			(defq pixmap (getf this +canvas_pixmap 0))

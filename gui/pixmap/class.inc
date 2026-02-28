@@ -22,5 +22,4 @@
 	(dec-method :from_argb32 gui/pixmap/from_argb32 :static (:r1 :r2) (:r1))
 	(dec-method :deinit gui/pixmap/deinit :override)
 	(dec-method :lisp_save_cpm gui/pixmap/lisp_save_cpm :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_load_cpm gui/pixmap/lisp_load_cpm :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_load_tga gui/pixmap/lisp_load_tga :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_load_cpm gui/pixmap/lisp_load_cpm :static (:r0 :r1) (:r0 :r1)))

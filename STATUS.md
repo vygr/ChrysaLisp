@@ -34,6 +34,10 @@ functions.
 Fix to the `:pixmap :as_argb` method premul alpha format type test. Plus a fix
 to the pixel conversion cache in the `:pixmap :as_premul` method.
 
+TGA loader moved to pure Lisp library, this is not time critical. As we gather
+the image import tools into this library we will eventually add a VP helper
+function for faster Canvas writes.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the

@@ -6,8 +6,6 @@
 
 ### (pixmap-load-cpm stream)
 
-### (pixmap-load-tga stream)
-
 ### (pixmap-save-cpm pixmap stream format)
 
 ## VP methods
@@ -110,15 +108,6 @@ trashes
 ```
 
 ### :load_tga -> gui/pixmap/load_tga
-
-```code
-inputs
-:r5 = stream object (ptr)
-outputs
-:r0 = 0 if error, else pixmap object (ptr)
-trashes
-:r0-:r14
-```
 
 ### :next_frame -> gui/pixmap/next_frame
 
