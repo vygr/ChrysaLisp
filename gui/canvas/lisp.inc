@@ -114,6 +114,11 @@
 	(defq super this this ((const (ffi "gui/canvas/lisp_create_pixmap")) pixmap))
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
 
+; ... (helper for CPM mapping)
+(defun canvas-load-cpm (stream &optional scale)
+	(if (defq canvas ((const (ffi "gui/pixmap/lisp_load_cpm")) stream))
+		(Canvas-pixmap canvas)))
+
 (defun canvas-load (file flags)
 	; (canvas-load file flags) -> :nil | canvas
 	(defq this :nil)
@@ -126,16 +131,10 @@
 				(string-stream (load file)) (file-stream file))))
 		;load and maybe add to cache
 		(defq this
-			(cond
-				((ends-with ".svg" file)
-					(SVG-Canvas stream 2))
-				((ends-with ".cwb" file)
-					(CWB-Canvas stream 2))
-				((ends-with ".tga" file)
-					(TGA-Canvas stream 1))
-				((or (ends-with ".cpm" file) (ends-with ".flm" file))
-					(if (defq this ((const (ffi "gui/pixmap/lisp_load_cpm")) stream))
-						(Canvas-pixmap this)))))
+			(some (# (if (ends-with %0 file) (%1 stream %2)))
+				'(".svg" ".cwb" ".tga" ".cpm" ".flm")
+				(const `'(,SVG-Canvas ,CWB-Canvas ,TGA-Canvas ,canvas-load-cpm ,canvas-load-cpm))
+				'(2 2 1 :nil :nil)))
 		(when this
 			(defq pixmap (getf this +canvas_pixmap 0))
 			(if (bits? flags +load_flag_shared)

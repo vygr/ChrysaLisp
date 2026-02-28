@@ -15,19 +15,10 @@
 
 (defun pixmap-info (file)
 	; (pixmap-info file) -> (width height type) | (-1 -1 -1)
-	(if (defq stream (file-stream file))
-		(cond
-			((ends-with ".cpm" file)
-				(pixmap-cpm-info stream))
-			((ends-with ".flm" file)
-				(pixmap-cpm-info stream))
-			((ends-with ".tga" file)
-				(TGA-info stream))
-			((ends-with ".svg" file)
-				(SVG-info stream))
-			((ends-with ".cwb" file)
-				(CWB-info stream))
-			(:t (list -1 -1 -1)))
+	(or (if (defq stream (file-stream file))
+			(some (# (if (ends-with %0 file) (%1 stream)))
+				'(".cpm" ".flm" ".tga" ".svg" ".cwb")
+				(const `'(,pixmap-cpm-info ,pixmap-cpm-info ,TGA-info ,SVG-info ,CWB-info))))
 		(list -1 -1 -1)))
 
 (defun pixmap-save (pixmap file type)
@@ -42,6 +33,4 @@
 	(if (defq stream (file-stream file))
 		(cond
 			((ends-with ".cpm" file)
-				((const (ffi "gui/pixmap/lisp_load_cpm")) stream))
-			((ends-with ".tga" file)
-				((const (ffi "gui/pixmap/lisp_load_tga")) stream)))))
+				((const (ffi "gui/pixmap/lisp_load_cpm")) stream)))))
