@@ -123,3 +123,10 @@ time.
 
 It is the readability and dynamism of Lisp, executing with the mechanical
 efficiency of a C jump table.
+
+Using `(const ...)` to force compile-time evaluation, combined with the
+quasi-quote `` `'(,A ,B) `` to evaluate the symbols into function pointers and
+return a literal list, is a masterclass in ChrysaLisp macros. It completely
+bypasses the prebind AST logic by handing the compiler a fully resolved list of
+function objects, while keeping the scope perfectly tight (no need for a
+module-level defq). Zero runtime overhead, zero namespace pollution.
