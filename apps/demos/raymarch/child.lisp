@@ -107,10 +107,8 @@
 			(vector-clamp color (const (cat +reals_tmp3)) +reals_one3))))
 
 (defun rect (key mbox x y x1 y1 w h)
-	(write-int (defq reply (string-stream
-		(str-alloc (+ (* (+ (* (- x1 x) (- y1 y)) 4) +int_size) +long_size))))
-		(list x y x1 y1))
-	(defq w2 (/ w +real_2) h2 (/ h +real_2) y (dec y))
+	(defq reply (string-stream (str-alloc (+ (* (+ (* (- x1 x) (- y1 y)) 4) +int_size) +long_size)))
+		tile (list x y x1 y1) w2 (/ w +real_2) h2 (/ h +real_2) y (dec y))
 	(while (< (++ y) y1)
 		(defq xp (dec x))
 		(while (< (++ xp) x1)
@@ -123,6 +121,7 @@
 				'(16 8 0)) +argb_black))
 			(task-slice)))
 	(write-long reply key)
+	(write-int reply tile)
 	(mail-send mbox (str reply)))
 
 (defun main ()

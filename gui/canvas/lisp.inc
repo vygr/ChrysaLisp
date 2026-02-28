@@ -16,6 +16,8 @@
 ; (canvas-to-argb32 pixel type) -> argb32
 (ffi "gui/canvas/lisp_from_argb32" canvas-from-argb32)
 ; (canvas-from-argb32 pixel type) -> pixel
+(ffi "gui/canvas/lisp_tile" canvas-tile)
+; (canvas-tile canvas data x1 y1 x2 y2) -> area
 
 ;init pixmap shared cache map
 (def *root_env* '*pixmap_cache* (Lmap))

@@ -1,8 +1,5 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
-;jit compile apps native functions
-(jit *app_root* "lisp.vp" '("tile"))
-
 (import "gui/lisp.inc")
 (import "lib/task/farm.inc")
 (import "./app.inc")
@@ -29,21 +26,6 @@
 (ui-window *window* ()
 	(ui-title-bar _ "Raymarch" (0xea19) +event_close)
 	(ui-canvas canvas +width +height +scale))
-
-(defun tile (canvas data)
-	; (tile canvas data) -> area
-	(defq data (string-stream data) x (read-int data) y (read-int data)
-		x1 (read-int data) y1 (read-int data) yp (dec y))
-	(while (/= (++ yp) y1)
-		(defq xp (dec x))
-		(while (/= (++ xp) x1)
-			(.-> canvas (:set_color (read-int data)) (:plot xp yp)))
-		(task-slice))
-	(* (- x1 x) (- y1 y)))
-
-;native versions
-(ffi (cat *app_root* "tile") tile)
-; (tile canvas data) -> area
 
 (defun dispatch-job (key val)
 	;send another job to child
@@ -96,11 +78,12 @@
 					(dispatch-job key val)))
 			(+select_reply
 				;child response
-				(defq key (get-long msg (- (length msg) +long_size)))
+				(bind '(key x y x1 y1) (getf-> (slice msg (- -1 +job_reply) -1)
+					+job_key +job_x +job_y +job_x1 +job_y1))
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
 				(setq dirty :t)
-				(tile canvas msg))
+				(canvas-tile canvas msg x y x1 y1))
 			(:t ;timer event
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 				(. farm :refresh +retry_timeout)

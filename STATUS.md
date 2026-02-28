@@ -39,6 +39,9 @@ the image import tools into this library we will eventually add a VP helper
 function for faster Canvas writes. Plus a tidy up of the Canvas loader helper
 functions.
 
+New `(canvas-tile canvas data x1 y1 x2 y2) -> area)` function. This is the
+Raymarch app tile helper promoted to a Canvas function for others to use.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the

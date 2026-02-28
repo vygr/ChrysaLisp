@@ -26,6 +26,8 @@
 
 ### (canvas-swap canvas flags)
 
+### (canvas-tile canvas data x1 y1 x2 y2) -> area
+
 ### (canvas-to-argb32 pixel type) -> argb32
 
 ## VP methods

@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "class/lisp/class.inc")
 (include "class/fixed/class.inc")
+(include "class/str/class.inc")
 (include "./class.inc")
 (include "././pixmap/class.inc")
 (include "././path/class.inc")
@@ -389,5 +390,52 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 "(canvas-ftri canvas path)" +error_msg_wrong_types :r1))
 	(signature '(:canvas :path)))
+
+(def-func-end)
+
+(def-method :canvas :lisp_tile)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this canvas)
+		(puint data)
+		(uint x y x1 y1 xp yp))
+
+	(entry :canvas :lisp_tile '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 6)
+
+	(push-scope)
+	(assign '(:r0) {this})
+
+	(list-bind-args :r1 '(:r0 :r1 :r7 :r8 :r9 :r10) '(:canvas :str :num :num :num :num))
+	(assign '(:r0 :r1 :r7 :r8 :r9 :r10 :r8) {canvas, data, x, y, x1, y1, yp})
+	(loop-start)
+		(assign {x} {xp})
+		(loop-start)
+			(assign {*data} {canvas->+canvas_color})
+			(call :canvas :plot {canvas, xp, yp})
+			(assign {data + +int_size} {data})
+		(loop-until {(xp + 1 => xp) = x1})
+	(loop-until {(yp + 1 => yp) = y1})
+
+	(call :num :create {(x1 - x) * (y1 - y)} '(:r1))
+
+	(assign {this} '(:r0))
+	(exit :canvas :lisp_tile '(:r0 :r1))
+	(pop-scope)
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r0 "(canvas-tile canvas data x1 y1 x2 y2)" +error_msg_wrong_types :r1))
+	(signature '(:canvas :str :num :num :num :num)))
 
 (def-func-end)

@@ -1,5 +1,17 @@
 # Functions
 
+### CPM-Canvas
+
+```code
+(CPM-Canvas stream [scale]) -> :nil | canvas
+```
+
+### CPM-info
+
+```code
+(CPM-info stream) -> (width height type) | (-1 -1 -1)
+```
+
 ### CWB-Canvas
 
 ```code
@@ -894,12 +906,6 @@ run pipe farm and collect output
 
 ```code
 (pipe-split cmdline) -> (e0 [e1] ...)
-```
-
-### pixmap-cpm-info
-
-```code
-(pixmap-cpm-info stream) -> (width height type) | (-1 -1 -1)
 ```
 
 ### pixmap-info
