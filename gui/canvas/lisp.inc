@@ -9,6 +9,7 @@
 (import "lib/image/svg.inc")
 (import "lib/image/cwb.inc")
 (import "lib/image/tga.inc")
+(import "lib/image/cpm.inc")
 
 ;lisp bindings
 (ffi "gui/canvas/lisp_to_argb32" canvas-to-argb32)
@@ -133,7 +134,7 @@
 		(defq this
 			(some (# (if (ends-with %0 file) (%1 stream %2)))
 				'(".svg" ".cwb" ".tga" ".cpm" ".flm")
-				(const `'(,SVG-Canvas ,CWB-Canvas ,TGA-Canvas ,canvas-load-cpm ,canvas-load-cpm))
+				(const `'(,SVG-Canvas ,CWB-Canvas ,TGA-Canvas ,CPM-Canvas ,canvas-load-cpm))
 				'(2 2 1 :nil :nil)))
 		(when this
 			(defq pixmap (getf this +canvas_pixmap 0))
