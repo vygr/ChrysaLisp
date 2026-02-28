@@ -38,7 +38,7 @@
 		(vp-simd vp-mul-rr '(:r2) '(:r0 :r1))
 		(assign '(:r0 :r1) '((:r3 +canvas_cx1) (:r3 +canvas_cy1)))
 
-		;alloc pixmap
+		;alloc pixmap, type premul 32bit !
 		(call :pixmap :create '(:r0 :r1 -32) '(:r0))
 		(assign '((:rsp 0)) '(:r1))
 		(assign '(:r0) '((:r1 +canvas_pixmap)))
@@ -349,52 +349,56 @@
 	;outputs
 	;:r0 = canvas object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r8
 
-	(entry :canvas :plot '(:r0 :r7 :r8))
+	(vp-rdef (this col dcol cx cy cx1 cy1 x y))
+
+	(entry :canvas :plot `(,this ,x ,y))
 
 	;clip check
-	(assign '((:r0 +canvas_cx) (:r0 +canvas_cy) (:r0 +canvas_cx1) (:r0 +canvas_cy1)) '(:r3 :r4 :r5 :r6))
+	(vp-simd vp-cpy-ir-ui `(,this)
+		`(,+canvas_cx ,+canvas_cy ,+canvas_cx1 ,+canvas_cy1)
+		`(,cx ,cy ,cx1 ,cy1))
 	(switch)
-	(breakif '(:r7 < :r3) '(:r8 < :r4) '(:r7 >= :r5) '(:r8 >= :r6))
-	(assign '((:r0 +canvas_color)) '(:r1))
-	(call :pixmap :to_premul '(:r1) '(:r1))
-	(vp-cpy-rr :r1 :r2)
-	(vp-shr-cr 24 :r2)
-	(breakif '(:r2 = 0))
-	(vpcase '(:r2 = 0xff))
-		(assign '((:r0 +canvas_pixmap)) '(:r3))
-		(assign '((:r3 +pixmap_stride) (& :r3 +pixmap_data)) '(:r2 :r3))
-		(vp-mul-rr :r2 :r8)
-		(vp-shl-cr (log2 +int_size) :r7)
-		(vp-add-rr :r8 :r3)
-		(vp-cpy-rd-i :r1 :r3 :r7)
+	(breakif `(,x < ,cx) `(,y < ,cy) `(,x >= ,cx1) `(,y >= ,cy1))
+	(assign `((,this +canvas_color)) `(,col))
+	(call :pixmap :to_premul `(,col) `(,col))
+	(vp-cpy-rr col dcol)
+	(vp-shr-cr 24 dcol)
+	(breakif `(,dcol = 0))
+	(vpcase `(,dcol = 0xff))
+		(assign `((,this +canvas_pixmap)) `(,cx))
+		(assign `((,cx +pixmap_stride) (& ,cx +pixmap_data)) `(,dcol ,cx))
+		(vp-mul-rr dcol y)
+		(vp-shl-cr (log2 +int_size) x)
+		(vp-add-rr y cx)
+		(vp-cpy-rd-i col cx x)
 
-		(exit :canvas :plot '(:r0))
+		(exit :canvas :plot `(,this))
 		(vp-ret)
 	(default)
-		(vp-simd vp-cpy-cr '(0xff 0x00ff00ff 0xff00ff00) '(:r6 :r4 :r5))
-		(vp-sub-rr :r2 :r6)
+		(vp-simd vp-cpy-cr '(0xff 0x00ff00ff 0xff00ff00) `(,cy1 ,cy ,cx1))
+		(vp-sub-rr dcol cy1)
 
-		(assign '((:r0 +canvas_pixmap)) '(:r3))
-		(assign '((:r3 +pixmap_stride) (& :r3 +pixmap_data)) '(:r2 :r3))
-		(vp-mul-rr :r2 :r8)
-		(vp-shl-cr (log2 +int_size) :r7)
-		(vp-simd vp-add-rr '(:r8 :r3) '(:r3 :r7))
+		(assign `((,this +canvas_pixmap)) `(,cx))
+		(assign `((,cx +pixmap_stride) (& ,cx +pixmap_data)) `(,dcol ,cx))
+		(vp-mul-rr dcol y)
+		(vp-shl-cr (log2 +int_size) x)
+		(vp-simd vp-add-rr `(,y ,cx) `(,cx ,x))
 
-		(vp-cpy-ir-ui :r7 0 :r2)
-		(vp-cpy-rr :r2 :r3)
+		(vp-cpy-ir-ui x 0 dcol)
+		(vp-cpy-rr dcol cx)
 
-		(vp-simd vp-and-rr '(:r4 :r5) '(:r2 :r3))
-		(vp-simd vp-mul-rr '(:r6) '(:r2 :r3))
-		(vp-simd vp-shr-cr '(8) '(:r2 :r3))
-		(vp-simd vp-and-rr '(:r4 :r5) '(:r2 :r3))
-		(vp-add-rr :r3 :r2) (vp-add-rr :r1 :r2)
+		(vp-simd vp-and-rr `(,cy ,cx1) `(,dcol ,cx))
+		(vp-simd vp-mul-rr `(,cy1) `(,dcol ,cx))
+		(vp-simd vp-shr-cr '(8) `(,dcol ,cx))
+		(vp-simd vp-and-rr `(,cy ,cx1) `(,dcol ,cx))
+		(vp-add-rr cx dcol) (vp-add-rr col dcol)
 
-		(vp-cpy-ri-i :r2 :r7 0)
+		(vp-cpy-ri-i dcol x 0)
 	(endswitch)
 
-	(exit :canvas :plot '(:r0))
+	(exit :canvas :plot `(,this))
 	(vp-ret)
 
 (def-func-end)

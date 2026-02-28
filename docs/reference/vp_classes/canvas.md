@@ -148,7 +148,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14
+:r1-:r8
 ```
 
 ### :set_clip -> gui/canvas/set_clip
