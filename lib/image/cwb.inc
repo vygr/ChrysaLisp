@@ -13,9 +13,9 @@
 (defun bounds (groups)
 	(bind '(((min_v max_v) &ignore) &ignore) groups)
 	(defq min_v (cat min_v) max_v (cat max_v))
-	(each (lambda (((gmin gmax) &ignore))
+	(each! (lambda (((gmin gmax) &ignore))
 		(vector-min min_v gmin min_v)
-		(vector-max max_v gmax max_v)) groups)
+		(vector-max max_v gmax max_v)) (list groups) 1)
 	(list min_v max_v))
 
 (defun CWB-info (stream)
