@@ -137,3 +137,45 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :sstream :seek)
+	;inputs
+	;:r0 = sstream object (ptr)
+	;:r1 = offset (long)
+	;:r2 = whence (uint)
+	;outputs
+	;:r0 = sstream object (ptr)
+	;:r1 = -1 for error, else file position
+	;trashes
+	;:r1-:r6
+
+	(vp-rdef (this offset whence obj start max_pos bufp))
+
+	(entry :sstream :seek `(,this ,offset ,whence))
+
+	(assign `((,this +stream_object) (,this +stream_bufe)) `(,obj ,max_pos))
+	(vp-lea-i obj +str_data start)
+	(vp-sub-rr start max_pos)
+
+	(switch)
+	(vpcase `(,whence = 0))
+		(break)
+	(vpcase `(,whence = 1))
+		(assign `((,this +stream_bufp)) `(,bufp))
+		(vp-sub-rr start bufp)
+		(vp-add-rr bufp offset)
+		(break)
+	(vpcase `(,whence = 2))
+		(vp-add-rr max_pos offset)
+	(endswitch)
+
+	(vp-max-cr 0 offset)
+	(vp-min-rr max_pos offset)
+
+	(vp-lea-d start offset bufp)
+	(assign `(,bufp) `((,this +stream_bufp)))
+
+	(exit :sstream :seek `(,this ,offset))
+	(vp-ret)
+
+(def-func-end)

@@ -8,4 +8,5 @@
 	(dec-method :ref_string class/sstream/ref_string :static (:r0) (:r0 :r1))
 	(dec-method :claim_string class/sstream/claim_string :static (:r0) (:r0 :r1))
 	(dec-method :write_next class/sstream/write_next :final)
+	(dec-method :seek class/sstream/seek :final)
 	(dec-method :flush class/sstream/flush :final))

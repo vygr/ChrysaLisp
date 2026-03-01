@@ -42,6 +42,9 @@ functions.
 New `(canvas-tile canvas data x1 y1 x2 y2) -> area)` function. This is the
 Raymarch app tile helper promoted to a Canvas function for others to use.
 
+String stream class now supports the `:seek` method. And therefore the
+`(stream-seek)` Lisp level function.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
