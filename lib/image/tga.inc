@@ -46,7 +46,9 @@
 			(bind '(w h depth) (getf-> header +tga_width +tga_height +tga_depth))
 			(setq canvas (Canvas w h scale))
 			(. canvas :set_canvas_flags +canvas_flag_antialias)
-			(defq bit_pool (array 0 0) y 0)
+			(defq bit_pool (array 0 0) y 0
+				line_str (str-alloc (* w +int_size))
+				line_buf (string-stream line_str))
 			(while (< y h)
 				(defq x 0)
 				(while (< x w)
@@ -57,8 +59,13 @@
 						(progn
 							; opaque alpha for 24-bit TGA
 							(if (= depth 24) (setq col (+ col +argb_black)))
-							(.-> canvas (:set_color col) (:plot x y))
+							(write-int line_buf col)
 							(++ x))))
+				(when canvas
+					; flush the line buffer to the canvas
+					(canvas-tile canvas line_str 0 y w (inc y))
+					; rewind the stream to reuse the string buffer for the next line
+					(stream-seek line_buf 0 0))
 				(++ y)
 				(task-slice))
 			(when canvas

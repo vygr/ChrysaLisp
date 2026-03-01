@@ -44,6 +44,9 @@
 					; 12 and 15 bit images are padded to 16 num_bits in the stream
 					(if (or (= num_bits 12) (= num_bits 15)) (setq num_bits 16))
 					(. canvas :set_canvas_flags +canvas_flag_antialias)
+					(defq line_str (str-alloc (* w +int_size))
+						  line_buf (string-stream line_str)
+						  x 0 y 0)
 					(while (< i total)
 						(defq len (read-bits stream bit_pool 8))
 						(if (= len -1)
@@ -58,25 +61,40 @@
 										(setq i total canvas :nil)
 										(progn
 											(setq col (canvas-to-argb32 col type))
-											(when (/= col trans)
-												(. canvas :set_color col)
-												(times len
-													(. canvas :plot (% i w) (/ i w))
-													(++ i)))
-											(when (= col trans)
-												(setq i (+ i len))))))
+											(if (= col trans) (setq col 0))
+											(setq i (+ i len))
+											(while (> len 0)
+												(defq chunk (min len (- w x)))
+												(times chunk (write-int line_buf col))
+												(setq len (- len chunk) x (+ x chunk))
+												(when (= x w)
+													(if canvas (canvas-tile canvas line_str 0 y w (inc y)))
+													(stream-seek line_buf 0 0)
+													(++ y)
+													(setq x 0))))))
 								(:t ; block of raw pixels
 									(setq len (inc len))
-									(times len
-										(defq col (read-bits stream bit_pool num_bits))
-										(if (= col -1)
-											(setq i total canvas :nil)
-											(progn
-												(setq col (canvas-to-argb32 col type))
-												(when (/= col trans)
-													(.-> canvas (:set_color col) (:plot (% i w) (/ i w))))
-												(++ i)))))))
+									(setq i (+ i len))
+									(while (> len 0)
+										(defq chunk (min len (- w x)))
+										(times chunk
+											(defq col (read-bits stream bit_pool num_bits))
+											(if (= col -1)
+												(setq len 0 chunk 0 i total canvas :nil)
+												(progn
+													(setq col (canvas-to-argb32 col type))
+													(write-int line_buf (if (= col trans) 0 col)))))
+										(when canvas
+											(setq len (- len chunk) x (+ x chunk))
+											(when (= x w)
+												(canvas-tile canvas line_str 0 y w (inc y))
+												(stream-seek line_buf 0 0)
+												(++ y)
+												(setq x 0)))))))
 						(task-slice))
+					; flush any residual un-tiled pixels on a premature EOF or odd width
+					(when (and canvas (> x 0))
+						(canvas-tile canvas line_str 0 y x (inc y)))
 					(when canvas
 						; resize to final output
 						(bind '(fw fh) (. canvas :pref_size))
