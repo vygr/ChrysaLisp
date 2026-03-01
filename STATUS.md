@@ -45,6 +45,9 @@ Raymarch app tile helper promoted to a Canvas function for others to use.
 String stream class now supports the `:seek` method. And therefore the
 `(stream-seek)` Lisp level function.
 
+TGA and CPM import libraries updated to use `canvas-tile` and `string-stream`
+line buffer.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
