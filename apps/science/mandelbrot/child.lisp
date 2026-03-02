@@ -18,9 +18,8 @@
 ; (depth x0 y0) -> cnt
 
 (defun mandel (key mbox x y x1 y1 w h cx cy z)
-	(write-int (defq reply (string-stream
-		(str-alloc (+ (* (- x1 x) (- y1 y)) (* 4 +int_size) +long_size))))
-		(list x y x1 y1))
+	(defq reply (string-stream (str-alloc (+ (* (- x1 x) (- y1 y)) (* 4 +int_size) +long_size)))
+		tile (list x y x1 y1))
 	;convert to reals
 	(bind '(w h) (map (const n2r) (list w h)))
 	;cx, cy, and z (which were read as longs from the message)
@@ -31,6 +30,7 @@
 			(write-char reply (depth (+ (real-offset (n2r xp) w z) cx) (+ (real-offset (n2r y) h z) cy))))
 		(task-slice))
 	(write-long reply key)
+	(write-int reply tile)
 	(mail-send mbox (str reply)))
 
 (defun main ()

@@ -48,6 +48,8 @@ String stream class now supports the `:seek` method. And therefore the
 TGA and CPM import libraries updated to use `canvas-tile` and `string-stream`
 line buffer.
 
+Mandelbrot demo now uses the generic `canvas-tile` function.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the

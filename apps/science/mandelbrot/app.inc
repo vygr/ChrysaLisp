@@ -4,8 +4,9 @@
 
 (structure +job 0
 	(long key)
+	(int x y x1 y1)
 	(netid reply)
-	(long x y x1 y1 w h)
+	(long w h)
 	(real cx cy z))
 
 ;math

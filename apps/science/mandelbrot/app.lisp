@@ -1,8 +1,5 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
-;jit compile apps native functions
-(jit *app_root* "lisp.vp" '("tile"))
-
 (import "gui/lisp.inc")
 (import "lib/task/farm.inc")
 (import "./app.inc")
@@ -14,7 +11,7 @@
 	(enum main task reply timer))
 
 (defun generate-lut ()
-	(defq lut (array) i -1)
+	(defq lut (list) i -1)
 	(while (< (++ i) 255)
 		(defq
 			; Frequency
@@ -24,37 +21,19 @@
 			g (n2i (+ (* (sin (+ (* f fi) 2.0)) 127.0) 128.0))
 			b (n2i (+ (* (sin (+ (* f fi) 4.0)) 127.0) 128.0)))
 		; Combine into ARGB, force Alpha 0xFF
-		(push lut (+ 0xFF000000 (<< r 16) (<< g 8) b)))
+		(push lut (char (+ 0xFF000000 (<< r 16) (<< g 8) b) +int_size)))
 	; Set index 255 to Black
-	(push lut +argb_black)
-	(list quote lut))
+	(push lut (char +argb_black +int_size)))
 
 (defq +width 800 +height 800 +line_batch 2 +scale 2
 	+timer_rate (/ 500000 1) id :t dirty :nil
 	center_x +real_-1/2 center_y +real_0 zoom +real_1
 	+retry_timeout (task-timeout 5) jobs :nil farm :nil
-	+mandel_lut (generate-lut))
+	+mandel_lut `',(generate-lut))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close)
 	(ui-canvas *canvas* +width +height +scale))
-
-(defun tile (canvas data lut)
-	; (tile canvas data lut) -> area
-	(defq data (string-stream data) x (read-int data) y (read-int data)
-		x1 (read-int data) y1 (read-int data) yp (dec y))
-	(while (/= (++ yp) y1)
-		(defq xp (dec x))
-		(while (/= (++ xp) x1)
-			(.-> canvas
-				(:set_color (elem-get lut (read-ubyte data)))
-				(:plot xp yp)))
-		(task-slice))
-	(* (- x1 x) (- y1 y)))
-
-;native versions
-(ffi (cat *app_root* "tile") tile)
-; (tile canvas data lut) -> area
 
 (defun dispatch-job (key val)
 	;send another job to child
@@ -137,11 +116,12 @@
 					(dispatch-job key val)))
 			(+select_reply
 				;child response
-				(defq key (get-long msg (- (length msg) +long_size)))
+				(bind '(key x y x1 y1) (getf-> (slice msg (- -1 +job_reply) -1)
+					+job_key +job_x +job_y +job_x1 +job_y1))
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
 				(setq dirty :t)
-				(tile *canvas* msg +mandel_lut))
+				(canvas-tile *canvas* (apply cat (map (# (elem-get +mandel_lut (code %0))) msg)) x y x1 y1))
 			(:t ;timer event
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 				(. farm :refresh +retry_timeout)
