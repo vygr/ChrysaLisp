@@ -4,7 +4,7 @@
 
 ## Lisp Bindings
 
-### (pixmap-save-cpm pixmap stream format)
+### (pixmap-as-argb pixmap) -> pixmap
 
 ## VP methods
 
@@ -139,19 +139,6 @@ outputs
 :r0 = pixmap object (ptr)
 trashes
 :r1-:r14
-```
-
-### :save_cpm -> gui/pixmap/save_cpm
-
-```code
-inputs
-:r4 = pixmap object (ptr)
-:r6 = stream object (ptr)
-:r7 = format (uint)
-outputs
-:r0 = pixmap object (ptr)
-trashes
-:r0-:r14
 ```
 
 ### :to_argb -> gui/pixmap/to_argb

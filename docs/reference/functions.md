@@ -12,6 +12,12 @@
 (CPM-info stream) -> (width height type) | (-1 -1 -1)
 ```
 
+### CPM-save
+
+```code
+(CPM-save pixmap stream format) -> pixmap
+```
+
 ### CWB-Canvas
 
 ```code

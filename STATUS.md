@@ -50,6 +50,9 @@ line buffer.
 
 Mandelbrot demo now uses the generic `canvas-tile` function.
 
+New `(CPM-save pixmap stream format) -> pixmap` function in CPM image library.
+This replacves the VP version.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
