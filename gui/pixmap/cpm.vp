@@ -166,7 +166,7 @@
 				(loop-start)
 					(assign (list len) {length})
 					(call :stream :read_bits {this->+pixmap_stream, this->+pixmap_stream_type, 0, 0} {_, col, _, _})
-;					(breakif {col = -1} 'error)
+					(breakif {col = -1} 'error)
 					(call :pixmap :to_argb32 {col, this->+pixmap_stream_type} (list col))
 					(call :pixmap :to_premul (list col) (list col))
 					(assign {length, data, data_end} (list len data data_end))

@@ -44,7 +44,6 @@
 					   (= (getf header +tga_depth) 32)))
 			(bind '(w h depth) (getf-> header +tga_width +tga_height +tga_depth))
 			(setq canvas (Canvas w h 1))
-			(. canvas :set_canvas_flags +canvas_flag_antialias)
 			(defq bit_pool (array 0 0) y 0
 				line_str (str-alloc (* w +int_size))
 				line_buf (string-stream line_str))

@@ -42,7 +42,8 @@
 						total (* w h) i 0)
 					; 12 and 15 bit images are padded to 16 num_bits in the stream
 					(if (or (= num_bits 12) (= num_bits 15)) (setq num_bits 16))
-					(. canvas :set_canvas_flags +canvas_flag_antialias)
+					; save stream type for any film players !
+					(setf (getf canvas +canvas_pixmap 0) +pixmap_stream_type num_bits 0)
 					(defq line_str (str-alloc (* w +int_size))
 						  line_buf (string-stream line_str)
 						  x 0 y 0)
