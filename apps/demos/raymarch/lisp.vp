@@ -1,6 +1,4 @@
 (include "lib/asm/func.inc")
-(include "gui/canvas/class.inc")
-(include "class/str/class.inc")
 (include "class/reals/class.inc")
 (include "class/real/class.inc")
 (include "class/lisp/class.inc")
