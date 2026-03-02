@@ -131,7 +131,7 @@
 		(defq this
 			(some (# (if (ends-with %0 file) (%1 stream)))
 				'(".svg" ".cwb" ".tga" ".cpm" ".flm")
-				(const `'(,SVG-Canvas ,CWB-Canvas ,TGA-Canvas ,CPM-Canvas ,CPM-Canvas))))
+				(const `'(,SVG-load ,CWB-load ,TGA-load ,CPM-load ,CPM-load))))
 		(when this
 			(defq pixmap (getf this +canvas_pixmap 0))
 			(if (bits? flags +load_flag_shared)

@@ -27,8 +27,8 @@
 					(setq out (getf-> header +cpm_width +cpm_height +cpm_type))))))
 	out)
 
-(defun CPM-Canvas (stream)
-	; (CPM-Canvas stream) -> :nil | canvas
+(defun CPM-load (stream)
+	; (CPM-load stream) -> :nil | canvas
 	(defq canvas :nil)
 	(when stream
 		(defq header (read-blk stream +cpm_size))
@@ -155,5 +155,5 @@
 	pixmap)
 
 ;module
-(export-symbols '(CPM-Canvas CPM-info CPM-save))
+(export-symbols '(CPM-load CPM-info CPM-save))
 (env-pop)

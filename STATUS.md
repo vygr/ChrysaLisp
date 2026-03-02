@@ -26,7 +26,7 @@ vector lib.
 
 New `lib/image/` folder for image format handlers. Start with new `.cwb` format
 loader for Whiteboard application format files. `(CWB-info stream) -> (width
-height type) | (-1 -1 -1)` and `(CWB-Canvas stream [scale]) -> :nil | canvas`
+height type) | (-1 -1 -1)` and `(CWB-load stream [scale]) -> :nil | canvas`
 functions from the `lib/image/cwb.inc` library. Can now load and view `.cwb`
 files from the Images app and any apps/commands that use the `canvas-load`
 functions.

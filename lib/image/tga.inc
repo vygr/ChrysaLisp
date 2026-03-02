@@ -33,8 +33,8 @@
 			(setq out (getf-> header +tga_width +tga_height +tga_depth))))
 	out)
 
-(defun TGA-Canvas (stream)
-	; (TGA-Canvas stream) -> :nil | canvas
+(defun TGA-load (stream)
+	; (TGA-load stream) -> :nil | canvas
 	(defq canvas :nil)
 	(when stream
 		(defq header (read-blk stream +tga_size))
@@ -69,5 +69,5 @@
 	canvas)
 
 ;module
-(export-symbols '(TGA-Canvas TGA-info))
+(export-symbols '(TGA-load TGA-info))
 (env-pop)

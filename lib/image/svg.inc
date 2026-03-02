@@ -192,8 +192,8 @@
 									stroke_linejoin stroke_linecap stroke_linecap)))))
 							paths (list)))))))
 
-(defun SVG-Canvas (stream &optional scale)
-	; (SVG-Canvas stream [scale]) -> :nil | canvas
+(defun SVG-load (stream &optional scale)
+	; (SVG-load stream [scale]) -> :nil | canvas
 	(setq scale (n2f (ifn scale 1)))
 	(defq canvas :nil stack
 		(list (scatter (Lmap)
@@ -311,5 +311,5 @@
 	(list width height 32))
 
 ;module
-(export-symbols '(SVG-Canvas SVG-info))
+(export-symbols '(SVG-load SVG-info))
 (env-pop)

@@ -1,15 +1,15 @@
 # Functions
 
-### CPM-Canvas
-
-```code
-(CPM-Canvas stream) -> :nil | canvas
-```
-
 ### CPM-info
 
 ```code
 (CPM-info stream) -> (width height type) | (-1 -1 -1)
+```
+
+### CPM-load
+
+```code
+(CPM-load stream) -> :nil | canvas
 ```
 
 ### CPM-save
@@ -18,22 +18,16 @@
 (CPM-save pixmap stream format) -> pixmap
 ```
 
-### CWB-Canvas
-
-```code
-(CWB-Canvas stream [scale]) -> :nil | canvas
-```
-
 ### CWB-info
 
 ```code
 (CWB-info stream) -> (width height type) | (-1 -1 -1)
 ```
 
-### SVG-Canvas
+### CWB-load
 
 ```code
-(SVG-Canvas stream [scale]) -> :nil | canvas
+(CWB-load stream [scale]) -> :nil | canvas
 ```
 
 ### SVG-info
@@ -42,16 +36,22 @@
 (SVG-info stream) -> (width height type) | (-1 -1 -1)
 ```
 
-### TGA-Canvas
+### SVG-load
 
 ```code
-(TGA-Canvas stream) -> :nil | canvas
+(SVG-load stream [scale]) -> :nil | canvas
 ```
 
 ### TGA-info
 
 ```code
 (TGA-info stream) -> (width height type) | (-1 -1 -1)
+```
+
+### TGA-load
+
+```code
+(TGA-load stream) -> :nil | canvas
 ```
 
 ### XML-parse

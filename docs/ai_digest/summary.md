@@ -187,7 +187,7 @@ custom Virtual Processor (VP64).
   (`scene.inc`) libraries.
 
 * **XML/SVG Parsing (`lib/xml/`):** Basic XML/SVG parsing capabilities
-  (`XML-parse`, `SVG-Canvas`, `SVG-info`).
+  (`XML-parse`, `SVG-load`, `SVG-info`).
 
 * **Streams (`lib/streams/diff.inc`):** Text stream diffing and patching
   utilities.

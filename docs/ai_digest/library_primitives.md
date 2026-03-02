@@ -273,9 +273,9 @@ or `:fixed` values.
 
 These functions are used for SVG parsing.
 
-*   **`SVG-Canvas`**: Renders an SVG stream to a canvas.
+*   **`SVG-load`**: Renders an SVG stream to a canvas.
 
-    * `(SVG-Canvas stream &optional scale) -> :nil | canvas`
+    * `(SVG-load stream &optional scale) -> :nil | canvas`
 
 *   **`SVG-info`**: Returns information about an SVG stream.
 

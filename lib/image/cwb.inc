@@ -32,8 +32,8 @@
 			(setq out (list (n2i (+ w (* (const (n2f 2.0)) margin))) (n2i (+ h (* (const (n2f 2.0)) margin))) 32))))
 	out)
 
-(defun CWB-Canvas (stream &optional scale)
-	; (CWB-Canvas stream [scale]) -> :nil | canvas
+(defun CWB-load (stream &optional scale)
+	; (CWB-load stream [scale]) -> :nil | canvas
 	(setd scale 1)
 	(when (and (defq data (tree-load stream))
 			(>= (. data :find :version) 2)
@@ -58,5 +58,5 @@
 			(. (Canvas w h 1) :resize canvas))))
 
 ;module
-(export-symbols '(CWB-Canvas CWB-info))
+(export-symbols '(CWB-load CWB-info))
 (env-pop)
