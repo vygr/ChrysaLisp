@@ -2,10 +2,10 @@
 ; canvas widget
 ;;;;;;;;;;;;;;;
 
+(import "./struct.inc")
 (import "././view/lisp.inc")
 (import "././texture/lisp.inc")
 (import "././pixmap/lisp.inc")
-(import "./struct.inc")
 (import "lib/image/svg.inc")
 (import "lib/image/cwb.inc")
 (import "lib/image/tga.inc")
@@ -117,11 +117,6 @@
 	(defq super this this ((const (ffi "gui/canvas/lisp_create_pixmap")) pixmap))
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
 
-; ... (helper for CPM mapping)
-(defun canvas-load-cpm (stream &optional scale)
-	(if (defq canvas ((const (ffi "gui/pixmap/lisp_load_cpm")) stream))
-		(Canvas-pixmap canvas)))
-
 (defun canvas-load (file flags)
 	; (canvas-load file flags) -> :nil | canvas
 	(defq this :nil)
@@ -136,7 +131,7 @@
 		(defq this
 			(some (# (if (ends-with %0 file) (%1 stream)))
 				'(".svg" ".cwb" ".tga" ".cpm" ".flm")
-				(const `'(,SVG-Canvas ,CWB-Canvas ,TGA-Canvas ,CPM-Canvas ,canvas-load-cpm))))
+				(const `'(,SVG-Canvas ,CWB-Canvas ,TGA-Canvas ,CPM-Canvas ,CPM-Canvas))))
 		(when this
 			(defq pixmap (getf this +canvas_pixmap 0))
 			(if (bits? flags +load_flag_shared)

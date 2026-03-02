@@ -91,9 +91,14 @@
 												(++ y)
 												(setq x 0)))))))
 						(task-slice))
-					; flush any residual un-tiled pixels on a premature EOF or odd width
-					(when (and canvas (> x 0))
-						(canvas-tile canvas line_str 0 y x (inc y)))))))
+					(when canvas
+						;store index for film players
+						(when (getf stream +stream_object 0)
+							(print (int-to-hex-str (- (getf stream +stream_bufp 0)
+									(+ (weak-ref (getf stream +stream_object 0)) +str_data))))
+							(print))
+						(setf (getf canvas +canvas_pixmap 0) +pixmap_bufp
+							(getf stream +stream_bufp 0) 0))))))
 	canvas)
 
 ;module

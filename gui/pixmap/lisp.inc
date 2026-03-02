@@ -19,10 +19,3 @@
 		(cond
 			((ends-with ".cpm" file)
 				((const (ffi "gui/pixmap/lisp_save_cpm")) pixmap stream type)))))
-
-(defun pixmap-load (file)
-	; (pixmap-load file) -> :nil | pixmap
-	(if (defq stream (file-stream file))
-		(cond
-			((ends-with ".cpm" file)
-				((const (ffi "gui/pixmap/lisp_load_cpm")) stream)))))

@@ -2,7 +2,8 @@
 
 (structure +pixmap +obj_size
 	(int type)
-	(ptr texture stream bufp)
+	(ptr texture stream)
+	(pubyte bufp)
 	(uint stream_type width height stride)
 	(align)
 	(offset data))

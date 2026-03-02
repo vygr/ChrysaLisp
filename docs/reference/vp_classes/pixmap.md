@@ -4,8 +4,6 @@
 
 ## Lisp Bindings
 
-### (pixmap-load-cpm stream)
-
 ### (pixmap-save-cpm pixmap stream format)
 
 ## VP methods
@@ -95,19 +93,6 @@ outputs
 trashes
 :r1-:r14
 ```
-
-### :load_cpm -> gui/pixmap/load_cpm
-
-```code
-inputs
-:r5 = stream object (ptr)
-outputs
-:r0 = 0 if error, else pixmap object (ptr)
-trashes
-:r0-:r14
-```
-
-### :load_tga -> gui/pixmap/load_tga
 
 ### :next_frame -> gui/pixmap/next_frame
 

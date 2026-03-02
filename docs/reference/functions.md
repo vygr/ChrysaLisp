@@ -914,12 +914,6 @@ run pipe farm and collect output
 (pixmap-info file) -> (width height type) | (-1 -1 -1)
 ```
 
-### pixmap-load
-
-```code
-(pixmap-load file) -> :nil | pixmap
-```
-
 ### pixmap-save
 
 ```code

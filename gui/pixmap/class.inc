@@ -3,6 +3,7 @@
 
 (def-class :pixmap :obj
 	(dec-method :vtable gui/pixmap/vtable)
+	(dec-method :deinit gui/pixmap/deinit :override)
 	(dec-method :create gui/pixmap/create :static (:r0 :r1 :r2) (:r0))
 	(dec-method :init gui/pixmap/init :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))
 	(dec-method :upload gui/pixmap/upload :static (:r0 :r1) (:r0))
@@ -14,12 +15,8 @@
 	(dec-method :to_argb gui/pixmap/to_argb :static (:r1) (:r1))
 	(dec-method :as_argb gui/pixmap/as_argb :static (:r0) (:r0))
 	(dec-method :as_premul gui/pixmap/as_premul :static (:r0) (:r0))
-	(dec-method :load_cpm gui/pixmap/load_cpm :static (:r5) (:r0))
-	(dec-method :load_tga gui/pixmap/load_tga :static (:r5) (:r0))
 	(dec-method :to_argb32 gui/pixmap/to_argb32 :static (:r1 :r2) (:r1))
 	(dec-method :next_frame gui/pixmap/next_frame :static (:r0) (:r0))
 	(dec-method :save_cpm gui/pixmap/save_cpm :static (:r4 :r6 :r7) (:r0))
 	(dec-method :from_argb32 gui/pixmap/from_argb32 :static (:r1 :r2) (:r1))
-	(dec-method :deinit gui/pixmap/deinit :override)
-	(dec-method :lisp_save_cpm gui/pixmap/lisp_save_cpm :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_load_cpm gui/pixmap/lisp_load_cpm :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_save_cpm gui/pixmap/lisp_save_cpm :static (:r0 :r1) (:r0 :r1)))
