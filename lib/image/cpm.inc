@@ -94,6 +94,65 @@
 						(task-slice))))))
 	canvas)
 
+(defun CPM-save (pixmap stream format)
+	; (CPM-save pixmap stream format) -> pixmap
+	(pixmap-as-argb pixmap)
+	(defq header (setf-> (str-alloc +cpm_size)
+			(+cpm_ident (code "MPC." 4))
+			(+cpm_bytes 0)
+			(+cpm_version 1)
+			(+cpm_type format)
+			(+cpm_width (getf pixmap +pixmap_width 0))
+			(+cpm_height (getf pixmap +pixmap_height 0))
+			(+cpm_trans 0)))
+	(write-blk stream header)
+
+	(defq w (getf pixmap +pixmap_width 0) h (getf pixmap +pixmap_height 0)
+		len (* w h) num_bits format bit_pool_state (array 0 0)
+		state 0 j 0 col 0 next_col 0 i 0)
+	(if (or (= num_bits 12) (= num_bits 15)) (setq num_bits 16))
+
+	(while (< i len)
+		(task-slice)
+		(case state
+			(0	; no state
+				(setq col (canvas-from-argb32 (obj-get pixmap (+ +pixmap_data (* i +int_size)) +type_uint) format))
+				(setq j i)
+				(++ i)
+				(if (= i len)
+					(progn
+						(write-bits stream bit_pool_state 0 8)
+						(write-bits stream bit_pool_state col num_bits))
+					(progn
+						(setq next_col (canvas-from-argb32 (obj-get pixmap (+ +pixmap_data (* i +int_size)) +type_uint) format))
+						(if (= col next_col)
+							(setq state 1)
+							(setq state 2)))))
+			(1	; repeat state
+				(setq next_col (canvas-from-argb32 (obj-get pixmap (+ +pixmap_data (* i +int_size)) +type_uint) format))
+				(++ i)
+				(when (or (/= col next_col) (= i len) (= (- i j) 128))
+					(if (/= col next_col) (-- i))
+					(write-bits stream bit_pool_state (+ (- i j 1) 128) 8)
+					(write-bits stream bit_pool_state col num_bits)
+					(setq state 0)))
+			(2	; block state
+				(setq next_col (canvas-from-argb32 (obj-get pixmap (+ +pixmap_data (* i +int_size)) +type_uint) format))
+				(++ i)
+				(if (or (= col next_col) (= i len) (= (- i j) 128))
+					(progn
+						(if (= col next_col) (-- i))
+						(write-bits stream bit_pool_state (- i j 1) 8)
+						(defq k j)
+						(while (< k i)
+							(write-bits stream bit_pool_state (canvas-from-argb32 (obj-get pixmap (+ +pixmap_data (* k +int_size)) +type_uint) format) num_bits)
+							(++ k))
+						(setq state 0))
+					(setq col next_col)))))
+	(write-bits stream bit_pool_state 0 7)
+	(flush-bits stream bit_pool_state)
+	pixmap)
+
 ;module
-(export-symbols '(CPM-Canvas CPM-info))
+(export-symbols '(CPM-Canvas CPM-info CPM-save))
 (env-pop)

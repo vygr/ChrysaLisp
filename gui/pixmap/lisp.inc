@@ -5,6 +5,9 @@
 (import "lib/image/tga.inc")
 (import "lib/image/cpm.inc")
 
+(ffi "gui/pixmap/lisp_as_argb" pixmap-as-argb)
+; (pixmap-as-argb pixmap) -> pixmap
+
 (defun pixmap-info (file)
 	; (pixmap-info file) -> (width height type) | (-1 -1 -1)
 	(or (if (defq stream (file-stream file))
@@ -18,4 +21,4 @@
 	(if (defq stream (file-stream file +file_open_write))
 		(cond
 			((ends-with ".cpm" file)
-				((const (ffi "gui/pixmap/lisp_save_cpm")) pixmap stream type)))))
+				(CPM-save pixmap stream type)))))
