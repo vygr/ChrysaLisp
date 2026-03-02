@@ -27,9 +27,8 @@
 					(setq out (getf-> header +cpm_width +cpm_height +cpm_type))))))
 	out)
 
-(defun CPM-Canvas (stream &optional scale)
-	; (CPM-Canvas stream [scale]) -> :nil | canvas
-	(setd scale 1)
+(defun CPM-Canvas (stream)
+	; (CPM-Canvas stream) -> :nil | canvas
 	(defq canvas :nil)
 	(when stream
 		(defq header (read-blk stream +cpm_size))
@@ -38,7 +37,7 @@
 				(("MPC." "MLF.")
 					(bind '(w h type) (getf-> header +cpm_width +cpm_height +cpm_type))
 					(defq trans (getf header +cpm_trans)
-						canvas (Canvas w h scale)
+						canvas (Canvas w h 1)
 						num_bits type bit_pool (array 0 0)
 						total (* w h) i 0)
 					; 12 and 15 bit images are padded to 16 num_bits in the stream
@@ -94,11 +93,7 @@
 						(task-slice))
 					; flush any residual un-tiled pixels on a premature EOF or odd width
 					(when (and canvas (> x 0))
-						(canvas-tile canvas line_str 0 y x (inc y)))
-					(when canvas
-						; resize to final output
-						(bind '(fw fh) (. canvas :pref_size))
-						(setq canvas (. (Canvas fw fh 1) :resize canvas)))))))
+						(canvas-tile canvas line_str 0 y x (inc y)))))))
 	canvas)
 
 ;module

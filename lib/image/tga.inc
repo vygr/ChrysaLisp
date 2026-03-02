@@ -33,9 +33,8 @@
 			(setq out (getf-> header +tga_width +tga_height +tga_depth))))
 	out)
 
-(defun TGA-Canvas (stream &optional scale)
-	; (TGA-Canvas stream [scale]) -> :nil | canvas
-	(setd scale 1)
+(defun TGA-Canvas (stream)
+	; (TGA-Canvas stream) -> :nil | canvas
 	(defq canvas :nil)
 	(when stream
 		(defq header (read-blk stream +tga_size))
@@ -44,7 +43,7 @@
 				   (or (= (getf header +tga_depth) 24)
 					   (= (getf header +tga_depth) 32)))
 			(bind '(w h depth) (getf-> header +tga_width +tga_height +tga_depth))
-			(setq canvas (Canvas w h scale))
+			(setq canvas (Canvas w h 1))
 			(. canvas :set_canvas_flags +canvas_flag_antialias)
 			(defq bit_pool (array 0 0) y 0
 				line_str (str-alloc (* w +int_size))
@@ -67,11 +66,7 @@
 					; rewind the stream to reuse the string buffer for the next line
 					(stream-seek line_buf 0 0))
 				(++ y)
-				(task-slice))
-			(when canvas
-				; resize to final output
-				(bind '(w h) (. canvas :pref_size))
-				(setq canvas (. (Canvas w h 1) :resize canvas)))))
+				(task-slice))))
 	canvas)
 
 ;module

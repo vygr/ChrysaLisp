@@ -3,7 +3,7 @@
 ### CPM-Canvas
 
 ```code
-(CPM-Canvas stream [scale]) -> :nil | canvas
+(CPM-Canvas stream) -> :nil | canvas
 ```
 
 ### CPM-info
@@ -39,7 +39,7 @@
 ### TGA-Canvas
 
 ```code
-(TGA-Canvas stream [scale]) -> :nil | canvas
+(TGA-Canvas stream) -> :nil | canvas
 ```
 
 ### TGA-info

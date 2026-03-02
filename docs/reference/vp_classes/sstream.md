@@ -55,6 +55,20 @@ trashes
 :r1-:r2
 ```
 
+### :seek -> class/sstream/seek
+
+```code
+inputs
+:r0 = sstream object (ptr)
+:r1 = offset (long)
+:r2 = whence (uint)
+outputs
+:r0 = sstream object (ptr)
+:r1 = -1 for error, else file position
+trashes
+:r1-:r6
+```
+
 ### :vtable -> class/sstream/vtable
 
 ### :write_next -> class/sstream/write_next
