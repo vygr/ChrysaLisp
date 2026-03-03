@@ -70,6 +70,7 @@ Usage: edit [options] [path] ...
 		-j --jobs num: max jobs per batch, default 1.
 		-c --cmd '...': commands to execute.
 		-s --script path: file containing command to execute.
+		-q --quiet: quiet mode, no output except from (edit-print).
 
 	Command line text editor.
 

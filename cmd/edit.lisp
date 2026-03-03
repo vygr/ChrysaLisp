@@ -11,6 +11,7 @@
 		-j --jobs num: max jobs per batch, default 1.
 		-c --cmd '...': commands to execute.
 		-s --script path: file containing command to execute.
+		-q --quiet: quiet mode, no output except from (edit-print).
 
 	Command line text editor.
 
@@ -84,6 +85,7 @@
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-c" "--cmd") ,(opt-str 'opt_c))
 (("-s" "--script") ,(opt-str 'opt_s))
+(("-q" "--quiet") ,(opt-flag 'opt_q))
 ))
 
 (defun work (*file* *fnc*)
@@ -98,14 +100,14 @@
 				(*fnc*)
 				(if (. *edit* :get_modified)
 					(. *edit* :stream_save (file-stream *file* +file_open_write)))
-				(print "Edited: " *file*))
-			(print "Error editing " *file* ": " _))))
+				(unless opt_q (print "Edited: " *file*)))
+			(unless opt_q (print "Error editing " *file* ": " _)))))
 
 (defun main ()
 	; Initialize options
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_j 1 opt_c :nil opt_s :nil args (options stdio usage)))
+			(defq opt_j 1 opt_c :nil opt_s :nil opt_q :nil args (options stdio usage)))
 		; file list (args or stdin)
 		(if (empty? (defq jobs (rest args)))
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
@@ -137,6 +139,7 @@
 				(each (lambda ((job result)) (prin result))
 					(pipe-farm (map (# (str (first args)
 							" -j " opt_j
+							(if opt_q " -q" "")
 							(if opt_c (cat " -c \q" opt_c "\q") "")
 							(if opt_s (cat " -s " opt_s) "")
 							" " (slice (str %0) 1 -2)))

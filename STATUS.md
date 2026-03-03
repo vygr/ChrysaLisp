@@ -56,6 +56,8 @@ This replaces the VP version.
 `CPM-save` switched to use the RLE library and added improvements to the RLE
 library for a sliding window algorithm.
 
+Added quiet mode the `cmd/edit.lisp`, `-q` option.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
