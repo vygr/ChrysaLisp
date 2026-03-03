@@ -53,8 +53,8 @@ Mandelbrot demo now uses the generic `canvas-tile` function.
 New `(CPM-save pixmap stream format) -> pixmap` function in CPM image library.
 This replaces the VP version.
 
-`CPM-save` switched to use the RLE library and added improvements to the RLE
-library for a sliding window algorithm.
+`CPM-load` and `CPM-save` switched to use the RLE library and added improvements
+to the RLE library for a sliding window algorithm.
 
 Added quiet mode the `cmd/edit.lisp`, `-q` option.
 
