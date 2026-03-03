@@ -65,6 +65,7 @@
 
 	; Read breaking gracefully on -1 (EOF) or hitting token limit
 	(while (and (> max_tokens 0) (/= -1 (setq control_token (read-bits in_stream read_pool_state run_bits))))
+		(task-slice)
 		(cond
 			((bits? control_token sign_bit_mask)
 				; Repeated Run (MSB is set)

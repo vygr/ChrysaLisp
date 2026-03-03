@@ -57,6 +57,7 @@
 					
 					; loop and copy direct to the pixmap's pixel buffer
 					(while (< pixel_data pixel_data_end)
+						(task-slice)
 						(defq col (read-bits mem_stream read_pool_state num_bits))
 						(if (= col -1)
 							; premature EOF
