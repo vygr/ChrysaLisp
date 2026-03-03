@@ -13,13 +13,13 @@
 		(clear literals)))
 
 (defun rle-compress (in_stream out_stream &optional token_bits run_bits)
-	; (rle-compress in_stream out_stream [token_bits run_bits])
+	; (rle-compress in_stream out_stream[token_bits run_bits])
 	(setd token_bits 8 run_bits 8)
 	(defq read_pool_state (array 0 0)   ; State for the input stream
 		  write_pool_state (array 0 0)  ; State for the output stream
 		  sign_bit_mask (<< 1 (dec run_bits))
 		  length_mask (dec sign_bit_mask)
-		  max_run_length (+ 2 length_mask)
+		  max_run_length (inc length_mask)
 		  max_literals (inc length_mask)
 		  literals (list)
 		  lookahead (list))
@@ -29,11 +29,16 @@
 								  (read-bits in_stream read_pool_state token_bits))))
 
 		; Peek ahead to find run length of identical tokens
-		(defq run_length 1)
-		(while (and (< run_length max_run_length) (eql (defq next_token (read-bits in_stream read_pool_state token_bits)) token))
-			(push lookahead next_token)
-			(++ run_length))
-		(unless (eql next_token -1) (push lookahead next_token))
+		(defq run_length 1 matched :t)
+		(while (and (< run_length max_run_length) matched)
+			(defq next_token (read-bits in_stream read_pool_state token_bits))
+			(if (eql next_token token)
+				(progn
+					(push lookahead next_token)
+					(++ run_length))
+				(setq matched :nil)))
+		; Make sure we don't drop or duplicate the token that broke the run
+		(unless (or matched (eql next_token -1)) (push lookahead next_token))
 
 		(if (>= run_length 2)
 			(progn

@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
+(import "lib/streams/rle.inc")
 
 ;module
 (env-push)
@@ -99,7 +100,6 @@
 	(pixmap-as-argb pixmap)
 	(defq w (getf pixmap +pixmap_width 0) h (getf pixmap +pixmap_height 0)
 		num_bits format bit_pool_state (array 0 0)
-		state 0 pixel_data_start 0 col 0 next_col 0
 		pixel_data +pixmap_data
 		pixel_data_end (+ +pixmap_data (* w h +int_size)))
 	(if (or (= num_bits 12) (= num_bits 15)) (setq num_bits 16))
@@ -113,45 +113,13 @@
 		(+cpm_height h)
 		(+cpm_trans 0)))
 	;data
+	(defq mem_stream (memory-stream))
 	(until (= pixel_data pixel_data_end)
-		(task-slice)
-		(case state
-			(0	; no state
-				(setq col (canvas-from-argb32 (obj-get pixmap pixel_data +type_uint) format)
-					pixel_data_start pixel_data
-					pixel_data (+ pixel_data +int_size))
-				(if (= pixel_data pixel_data_end)
-					(progn
-						(write-bits stream bit_pool_state 0 8)
-						(write-bits stream bit_pool_state col num_bits))
-					(progn
-						(setq next_col (canvas-from-argb32 (obj-get pixmap pixel_data +type_uint) format))
-						(if (= col next_col)
-							(setq state 1)
-							(setq state 2)))))
-			(1	; repeat state
-				(setq next_col (canvas-from-argb32 (obj-get pixmap pixel_data +type_uint) format)
-					pixel_data (+ pixel_data +int_size))
-				(when (or (/= col next_col) (= pixel_data pixel_data_end) (= (- pixel_data pixel_data_start) (* 128 +int_size)))
-					(if (/= col next_col) (setq pixel_data (- pixel_data +int_size)))
-					(write-bits stream bit_pool_state (+ (/ (- pixel_data pixel_data_start) +int_size) 127) 8)
-					(write-bits stream bit_pool_state col num_bits)
-					(setq state 0)))
-			(2	; block state
-				(setq next_col (canvas-from-argb32 (obj-get pixmap pixel_data +type_uint) format)
-					pixel_data (+ pixel_data +int_size))
-				(if (or (= col next_col) (= pixel_data pixel_data_end) (= (- pixel_data pixel_data_start) (* 128 +int_size)))
-					(progn
-						(if (= col next_col) (setq pixel_data (- pixel_data +int_size)))
-						(write-bits stream bit_pool_state (dec (/ (- pixel_data pixel_data_start) +int_size)) 8)
-						(defq k pixel_data_start)
-						(while (< k pixel_data)
-							(write-bits stream bit_pool_state (canvas-from-argb32 (obj-get pixmap k +type_uint) format) num_bits)
-							(setq k (+ k +int_size)))
-						(setq state 0))
-					(setq col next_col)))))
-	(write-bits stream bit_pool_state 0 7)
-	(flush-bits stream bit_pool_state)
+		(write-bits mem_stream bit_pool_state (canvas-from-argb32 (obj-get pixmap pixel_data +type_uint) format) num_bits)
+		(setq pixel_data (+ pixel_data +int_size)))
+	(flush-bits mem_stream bit_pool_state)
+	(stream-seek mem_stream 0 0)
+	(rle-compress mem_stream stream num_bits 8)
 	pixmap)
 
 ;module
