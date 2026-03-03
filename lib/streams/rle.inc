@@ -9,36 +9,27 @@
 	(when (nempty? literals)
 		; Control token MSB is 0 for literal run. Value is length-1.
 		(write-bits out_stream write_pool_state (dec (length literals)) run_bits)
-		(each (lambda (token) (write-bits out_stream write_pool_state token token_bits)) literals)
+		(each (# (write-bits out_stream write_pool_state %0 token_bits)) literals)
 		(clear literals)))
 
 (defun rle-compress (in_stream out_stream &optional token_bits run_bits)
 	; (rle-compress in_stream out_stream[token_bits run_bits])
 	(setd token_bits 8 run_bits 8)
 	(defq read_pool_state (array 0 0)   ; State for the input stream
-		  write_pool_state (array 0 0)  ; State for the output stream
-		  sign_bit_mask (<< 1 (dec run_bits))
-		  length_mask (dec sign_bit_mask)
-		  max_run_length (inc length_mask)
-		  max_literals (inc length_mask)
-		  literals (list)
-		  lookahead (list))
-
-	(while (/= -1 (defq token (if (nempty? lookahead)
-								  (pop lookahead)
-								  (read-bits in_stream read_pool_state token_bits))))
-
-		; Peek ahead to find run length of identical tokens
-		(defq run_length 1 matched :t)
-		(while (and (< run_length max_run_length) matched)
-			(defq next_token (read-bits in_stream read_pool_state token_bits))
-			(if (eql next_token token)
-				(progn
-					(push lookahead next_token)
-					(++ run_length))
-				(setq matched :nil)))
-		; Make sure we don't drop or duplicate the token that broke the run
-		(unless (or matched (eql next_token -1)) (push lookahead next_token))
+		write_pool_state (array 0 0)  ; State for the output stream
+		sign_bit_mask (<< 1 (dec run_bits))
+		length_mask (dec sign_bit_mask)
+		max_run_length (inc length_mask)
+		max_literals (inc length_mask)
+		literals (list) ; list to prevent object re-allocation thrashing
+		token (read-bits in_stream read_pool_state token_bits))
+	
+	(while (/= token -1)
+		; Peek ahead to find run length of identical tokens (no lookahead list needed!)
+		(defq run_length 1 next_token (read-bits in_stream read_pool_state token_bits))
+		(while (and (< run_length max_run_length) (eql next_token token))
+			(++ run_length)
+			(setq next_token (read-bits in_stream read_pool_state token_bits)))
 
 		(if (>= run_length 2)
 			(progn
@@ -46,17 +37,16 @@
 				(flush_literals out_stream write_pool_state literals token_bits run_bits)
 
 				; Write the repeated run: control token and the token itself
-				(defq encoded_length (logior (- run_length 1) sign_bit_mask))
-				(write-bits out_stream write_pool_state encoded_length run_bits)
-				(write-bits out_stream write_pool_state token token_bits)
-
-				; Consume the matching tokens from the lookahead buffer
-				(setq lookahead (slice lookahead (dec run_length) -1)))
+				(write-bits out_stream write_pool_state (logior (dec run_length) sign_bit_mask) run_bits)
+				(write-bits out_stream write_pool_state token token_bits))
 			(progn
 				; Not a long enough run, treat as literal
 				(push literals token)
 				(when (= (length literals) max_literals)
-					(flush_literals out_stream write_pool_state literals token_bits run_bits)))))
+					(flush_literals out_stream write_pool_state literals token_bits run_bits))))
+		
+		; Slide the window forward
+		(setq token next_token))
 
 	; After loop, flush any remaining literals
 	(flush_literals out_stream write_pool_state literals token_bits run_bits)
@@ -72,32 +62,31 @@
 	; (rle-decompress in_stream out_stream [token_bits run_bits])
 	(setd token_bits 8 run_bits 8)
 	(defq read_pool_state (array 0 0)   ; State for the input stream
-		  write_pool_state (array 0 0)  ; State for the output stream
-		  sign_bit_mask (<< 1 (dec run_bits))
-		  length_mask (dec sign_bit_mask)
-		  running :t) ; Add a flag to control the main loop.
+		write_pool_state (array 0 0)  ; State for the output stream
+		sign_bit_mask (<< 1 (dec run_bits))
+		length_mask (dec sign_bit_mask)
+		control_token 0)
 
-	(while (and running (/= -1 (defq control_token (read-bits in_stream read_pool_state run_bits))))
+	; Read directly into the while condition, breaking gracefully on -1 (EOF) or the EOS token
+	(while (and (/= -1 (setq control_token (read-bits in_stream read_pool_state run_bits)))
+				(/= control_token sign_bit_mask))
 		(cond
-			; Check for the special End-Of-Stream control code first.
-			((eql control_token sign_bit_mask)
-				(setq running :nil)) ; Cleanly stop the loop.
-
 			((bits? control_token sign_bit_mask)
 				; Repeated Run (MSB is set)
-				(defq run_length (inc (logand control_token length_mask)))
-				(defq token_to_repeat (read-bits in_stream read_pool_state token_bits))
-				(times run_length (write-bits out_stream write_pool_state token_to_repeat token_bits)))
+				(defq run_length (inc (logand control_token length_mask))
+					token_to_repeat (read-bits in_stream read_pool_state token_bits))
+				; Fast integer loop
+				(while (> run_length 0)
+					(write-bits out_stream write_pool_state token_to_repeat token_bits)
+					(-- run_length)))
 
 			(:t
 				; Literal Run (MSB is clear)
-				(defq literal_length (inc control_token))
-				(times literal_length
-					(defq literal_token (read-bits in_stream read_pool_state token_bits))
-					; Check for unexpected end of stream inside a literal run.
-					(if (= literal_token -1)
-						(setq running :nil)
-						(write-bits out_stream write_pool_state literal_token token_bits))))))
+				(defq literal_length (inc control_token) literal_token 0)
+				(while (and (> literal_length 0) 
+							(/= -1 (setq literal_token (read-bits in_stream read_pool_state token_bits))))
+					(write-bits out_stream write_pool_state literal_token token_bits)
+					(-- literal_length)))))
 
 	; Flush any partial byte at the end of the output stream
 	(flush-bits out_stream write_pool_state))
