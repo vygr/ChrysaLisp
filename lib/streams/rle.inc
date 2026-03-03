@@ -76,17 +76,13 @@
 				(defq run_length (inc (logand control_token length_mask))
 					token_to_repeat (read-bits in_stream read_pool_state token_bits))
 				; Fast integer loop
-				(while (> run_length 0)
-					(write-bits out_stream write_pool_state token_to_repeat token_bits)
-					(-- run_length)))
-
-			(:t
-				; Literal Run (MSB is clear)
+				(while (>= (-- run_length) 0)
+					(write-bits out_stream write_pool_state token_to_repeat token_bits)))
+			(:t	; Literal Run (MSB is clear)
 				(defq literal_length (inc control_token) literal_token 0)
-				(while (and (> literal_length 0) 
+				(while (and (>= (-- literal_length) 0) 
 							(/= -1 (setq literal_token (read-bits in_stream read_pool_state token_bits))))
-					(write-bits out_stream write_pool_state literal_token token_bits)
-					(-- literal_length)))))
+					(write-bits out_stream write_pool_state literal_token token_bits)))))
 
 	; Flush any partial byte at the end of the output stream
 	(flush-bits out_stream write_pool_state))
