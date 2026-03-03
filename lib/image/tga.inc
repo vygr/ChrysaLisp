@@ -55,7 +55,7 @@
 				(defq col (read-bits stream bit_pool num_bits))
 				(if (= col -1)
 					; premature EOF
-					(setq canvas :nil)
+					(setq pixel_data pixel_data_end canvas :nil)
 					(progn
 						; opaque alpha for 24-bit TGA
 						(if (= depth 24) (setq col (+ col +argb_black)))
