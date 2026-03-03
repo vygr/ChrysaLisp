@@ -13,7 +13,7 @@
 		(clear literals)))
 
 (defun rle-compress (in_stream out_stream &optional token_bits run_bits)
-	; (rle-compress in_stream out_stream[token_bits run_bits])
+	; (rle-compress in_stream out_stream [token_bits run_bits])
 	(setd token_bits 8 run_bits 8)
 	(defq read_pool_state (array 0 0)   ; State for the input stream
 		write_pool_state (array 0 0)  ; State for the output stream
