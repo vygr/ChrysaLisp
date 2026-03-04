@@ -1278,8 +1278,8 @@
 				(get :buffer_lines this) buffer_found))
 		(if flag buffer_found :nil))
 
-	(defmethod :next_found_cursor (cx cy &optional fy fy1)
-		; (. buffer :next_found_cursor cx cy [fy fy1]) -> :nil | csr
+	(defmethod :next_found_cursor (cx cy ax ay &optional fy fy1)
+		; (. buffer :next_found_cursor cx cy ax ay [fy fy1]) -> :nil | csr
 		(defq buffer_found (get :buffer_found this)
 			h (length buffer_found)
 			focus (get :focus this))
@@ -1294,16 +1294,19 @@
 		(cond
 			((>= cy fy1) :nil)
 			(:t (if (< cy fy) (setq cy fy cx 0))
+				(defq min_x (min cx ax) max_x (max cx ax))
 				(some! (lambda (match)
 					(defq y (!))
 					(when match
 						(some (lambda (((x x1) &ignore))
-							(if (or (> y cy) (>= x cx)) (nums x1 y x y -1)))
+							(if (and (or (> y cy) (>= x cx))
+									 (not (and (= y cy) (= y ay) (= x min_x) (= x1 max_x))))
+								(nums x1 y x y -1)))
 						match)))
 					(list buffer_found) :nil (max fy cy) fy1))))
 
-	(defmethod :prev_found_cursor (cx cy &optional fy fy1)
-		; (. buffer :prev_found_cursor cx cy [fy fy1]) -> :nil | csr
+	(defmethod :prev_found_cursor (cx cy ax ay &optional fy fy1)
+		; (. buffer :prev_found_cursor cx cy ax ay [fy fy1]) -> :nil | csr
 		(defq buffer_found (get :buffer_found this)
 			h (length buffer_found)
 			focus (get :focus this))
@@ -1318,40 +1321,43 @@
 		(cond
 			((< cy fy) :nil)
 			(:t (if (>= cy fy1) (setq cy (dec fy1) cx +max_int))
+				(defq min_x (min cx ax) max_x (max cx ax))
 				(some! (lambda (match)
 					(defq y (!))
 					(when match
 						(rsome (lambda (((x x1) &ignore))
-							(if (or (< y cy) (< x cx)) (nums x y x1 y -1)))
+							(if (and (or (< y cy) (< x cx))
+									 (not (and (= y cy) (= y ay) (= x min_x) (= x1 max_x))))
+								(nums x y x1 y -1)))
 						match)))
 					(list buffer_found) :nil (inc (min (dec fy1) cy)) fy))))
 
 	(defmethod :find_next (&optional fy fy1)
 		; (. buffer :find_next [fy fy1]) -> buffer
-		(bind '(cx cy &ignore) (. this :get_cursor))
-		(if (defq next (. this :next_found_cursor cx cy fy fy1))
+		(bind '(cx cy ax ay &ignore) (. this :get_cursor))
+		(if (defq next (. this :next_found_cursor cx cy ax ay fy fy1))
 			(bind '(cx cy ax ay &ignore) next)
-			(if (defq next (. this :next_found_cursor -1 -1 fy fy1))
+			(if (defq next (. this :next_found_cursor -1 -1 -1 -1 fy fy1))
 				(bind '(cx cy ax ay &ignore) next)))
 		(if next (. this :set_cursor cx cy ax ay))
 		this)
 
 	(defmethod :find_prev (&optional fy fy1)
 		; (. buffer :find_prev [fy fy1]) -> buffer
-		(bind '(cx cy &ignore) (. this :get_cursor))
-		(if (defq next (. this :prev_found_cursor cx cy fy fy1))
+		(bind '(cx cy ax ay &ignore) (. this :get_cursor))
+		(if (defq next (. this :prev_found_cursor cx cy ax ay fy fy1))
 			(bind '(cx cy ax ay &ignore) next)
-			(if (defq next (. this :prev_found_cursor +max_int +max_int fy fy1))
+			(if (defq next (. this :prev_found_cursor +max_int +max_int +max_int +max_int fy fy1))
 				(bind '(cx cy ax ay &ignore) next)))
 		(if next (. this :set_cursor cx cy ax ay))
 		this)
 
 	(defmethod :find_add_next (&optional fy fy1)
 		; (. buffer :find_add_next [fy fy1]) -> buffer
-		(bind '(cx cy &ignore) (. this :get_cursor))
-		(if (defq next (. this :next_found_cursor cx cy fy fy1))
+		(bind '(cx cy ax ay &ignore) (. this :get_cursor))
+		(if (defq next (. this :next_found_cursor cx cy ax ay fy fy1))
 			(bind '(cx cy ax ay &ignore) next)
-			(if (defq next (. this :next_found_cursor -1 -1 fy fy1))
+			(if (defq next (. this :next_found_cursor -1 -1 -1 -1 fy fy1))
 				(bind '(cx cy ax ay &ignore) next)))
 		(if next (. this :add_cursor cx cy ax ay))
 		this)
