@@ -64,6 +64,9 @@ Renamed `pixmap-save` and `pixmap-info` functions to `canvas-save` and
 Updated Buffer, Regexp classes, and the Editor app, to handle blank line `$`
 matches correctly.
 
+Fix typo bug in the Regexp `:search` method to `(const bind)` -> `(const bfind)`
+to enable the fast path to work correctly.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
