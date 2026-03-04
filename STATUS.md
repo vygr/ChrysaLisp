@@ -61,6 +61,9 @@ Added quiet mode the `cmd/edit.lisp`, `-q` option.
 Renamed `pixmap-save` and `pixmap-info` functions to `canvas-save` and
 `canvas-info`.
 
+Updated Buffer, Regexp classes, and the Editor app, to handle blank line `$`
+matches correctly.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
