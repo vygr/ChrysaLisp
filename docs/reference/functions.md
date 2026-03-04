@@ -15,7 +15,7 @@
 ### CPM-save
 
 ```code
-(CPM-save pixmap stream format) -> pixmap
+(CPM-save canvas stream format) -> canvas
 ```
 
 ### CWB-info
@@ -163,10 +163,22 @@ flush any shared pixmaps that have no users.
 4 refs are held by the cache Lmap and this loop !
 ```
 
+### canvas-info
+
+```code
+(canvas-info file) -> (width height type) | (-1 -1 -1)
+```
+
 ### canvas-load
 
 ```code
 (canvas-load file flags) -> :nil | canvas
+```
+
+### canvas-save
+
+```code
+(canvas-save canvas file type) -> :nil | canvas
 ```
 
 ### char-class
@@ -914,18 +926,6 @@ run pipe farm and collect output
 (pipe-split cmdline) -> (e0 [e1] ...)
 ```
 
-### pixmap-info
-
-```code
-(pixmap-info file) -> (width height type) | (-1 -1 -1)
-```
-
-### pixmap-save
-
-```code
-(pixmap-save pixmap file type) -> :nil | pixmap
-```
-
 ### pos?
 
 ```code
@@ -1062,7 +1062,7 @@ restart a child
 ### rle-decompress
 
 ```code
-(rle-decompress in_stream out_stream [token_bits run_bits])
+(rle-decompress in_stream out_stream [token_bits run_bits max_tokens])
 ```
 
 ### scatter

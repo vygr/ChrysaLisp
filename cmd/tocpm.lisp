@@ -24,7 +24,7 @@
 			(some (# (eql x %0)) '("cpm" "tga" "svg" "cwb")))
 		(defq out_file (cat (slice file 0 i) "cpm")
 			canvas (canvas-load file +load_flag_noswap))
-		(. canvas :save out_file opt_f)
+		(canvas-save canvas out_file opt_f)
 		(print file " -> " out_file)))
 
 (defun main ()

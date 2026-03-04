@@ -68,12 +68,6 @@
 (. canvas :resize canvas) -> canvas
 ```
 
-### :save
-
-```code
-(. canvas :save file format) -> :nil | canvas
-```
-
 ### :set_canvas_flags
 
 ```code

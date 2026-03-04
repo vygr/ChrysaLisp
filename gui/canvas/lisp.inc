@@ -44,10 +44,6 @@
 			(. this :ctx_blit tid +argb_white ox oy tw th))
 		this)
 
-	(defmethod :save (file format)
-		; (. canvas :save file format) -> :nil | canvas
-		(if (pixmap-save (getf this +canvas_pixmap 0) file format) this))
-
 	(defmethod :swap (flags)
 		; (. canvas :swap flags) -> canvas
 		(. ((const (ffi "gui/canvas/lisp_swap")) this flags) :dirty))
@@ -116,6 +112,22 @@
 	; override the default 'this' env with a Canvas component
 	(defq super this this ((const (ffi "gui/canvas/lisp_create_pixmap")) pixmap))
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
+
+
+(defun canvas-info (file)
+	; (canvas-info file) -> (width height type) | (-1 -1 -1)
+	(or (if (defq stream (file-stream file))
+			(some (# (if (ends-with %0 file) (%1 stream)))
+				'(".cpm" ".flm" ".tga" ".svg" ".cwb")
+				(const `'(,CPM-info ,CPM-info ,TGA-info ,SVG-info ,CWB-info))))
+		(list -1 -1 -1)))
+
+(defun canvas-save (canvas file type)
+	; (canvas-save canvas file type) -> :nil | canvas
+	(if (defq stream (file-stream file +file_open_write))
+		(some (# (if (ends-with %0 file) (%1 canvas stream type)))
+			'(".cpm")
+			(const `'(,CPM-save)))))
 
 (defun canvas-load (file flags)
 	; (canvas-load file flags) -> :nil | canvas

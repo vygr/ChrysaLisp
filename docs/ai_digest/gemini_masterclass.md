@@ -17,7 +17,7 @@ Consider a typical file loader that checks file extensions to determine which
 decoding function to call. A standard approach uses a `cond` block:
 
 ```vdu
-(defun pixmap-info (file)
+(defun canvas-info (file)
 	(or (if (defq stream (file-stream file))
 			(cond
 				((ends-with ".cpm" file) (pixmap-cpm-info stream))
@@ -37,7 +37,7 @@ becomes unwieldy.
 Here is the fully optimized ChrysaLisp idiom to solve this:
 
 ```vdu
-(defun pixmap-info (file)
+(defun canvas-info (file)
 	(or (if (defq stream (file-stream file))
 			(some (# (if (ends-with %0 file) (%1 stream)))
 				  '(".cpm" ".flm" ".tga" ".svg" ".cwb")

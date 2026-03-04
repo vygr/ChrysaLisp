@@ -68,10 +68,10 @@
 								(setq pixel_data (+ pixel_data +int_size)))))))))
 	canvas)
 
-(defun CPM-save (pixmap stream format)
-	; (CPM-save pixmap stream format) -> pixmap
-	(pixmap-as-argb pixmap)
-	(defq w (getf pixmap +pixmap_width 0) h (getf pixmap +pixmap_height 0)
+(defun CPM-save (canvas stream format)
+	; (CPM-save canvas stream format) -> canvas
+	(defq pixmap (getf canvas +canvas_pixmap 0)
+		w (getf pixmap +pixmap_width 0) h (getf pixmap +pixmap_height 0)
 		num_bits format bit_pool_state (array 0 0)
 		pixel_data +pixmap_data
 		pixel_data_end (+ +pixmap_data (* w h +int_size)))
@@ -86,6 +86,7 @@
 		(+cpm_height h)
 		(+cpm_trans 0)))
 	;data
+	(pixmap-as-argb pixmap)
 	(defq mem_stream (memory-stream))
 	(until (= pixel_data pixel_data_end)
 		(write-bits mem_stream bit_pool_state (canvas-from-argb32 (obj-get pixmap pixel_data +type_uint) format) num_bits)
@@ -93,7 +94,7 @@
 	(flush-bits mem_stream bit_pool_state)
 	(stream-seek mem_stream 0 0)
 	(rle-compress mem_stream stream num_bits 8)
-	pixmap)
+	canvas)
 
 ;module
 (export-symbols '(CPM-load CPM-info CPM-save))
