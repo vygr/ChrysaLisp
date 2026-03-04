@@ -125,7 +125,7 @@
 					(static-qq (((bfind s ,token) 1))))))
 			(:assert (case token
 				("^" (static-q ((:nil (if (<= si 0) 1)))))
-				("$" (static-q ((:nil (if (>= si tl) 1)))))
+				("$" (static-q ((:nil (if (or (>= si tl) (eql (elem-get text si) "\n")) 1)))))
 				("!" (static-q ((:nil (if (or (<= si 0) (>= si tl)
 					(bfind s +char_class_not_whole_word)
 					(bfind (elem-get text si) +char_class_not_whole_word)) 1)))))))
@@ -258,23 +258,22 @@
 					;class first !
 					(defq cls (third i) j 0)
 					(while (< (defq i (bskipn cls text j)) (length text))
-						(if (> (bind '(l j) (search text meta i)) i)
+						(if (>= (bind '(l j) (search text meta i)) i)
 							(setq j (length text) out :t)
 							(setq j (inc i)))))
 				((eql (first i) (const if))
 					;not class first !
 					(defq cls (third (second i)) j 0)
 					(while (< (defq i (bskip cls text j)) (length text))
-						(if (> (bind '(l j) (search text meta i)) i)
+						(if (>= (bind '(l j) (search text meta i)) i)
 							(setq j (length text) out :t)
 							(setq j (inc i)))))
 				(:t ;do it the hard way :(
 					(defq i 0)
 					(while (< i (length text))
 						(cond
-							((> (bind '(l j) (search text meta i)) i)
-								(setq i +max_int out :t)
-								(setq i j))
+							((>= (bind '(l j) (search text meta i)) i)
+								(setq i +max_int out :t))
 							((++ i)))))))
 		out)
 
@@ -284,27 +283,31 @@
 		(defq out (list))
 		(when meta
 			(cond
-				((eql (first (defq i (first (second meta)))) (const bind))
+				((eql (first (defq i (first (second meta)))) (const bfind))
 					;class first !
 					(defq cls (third i) j 0)
 					(while (< (defq i (bskipn cls text j)) (length text))
-						(if (> (bind '(l j) (search text meta i)) i)
-							(push out l)
+						(if (>= (bind '(l j) (search text meta i)) i)
+							(progn
+								(push out l)
+								(setq j (if (= i j) (inc j) j)))
 							(setq j (inc i)))))
 				((eql (first i) (const if))
 					;not class first !
 					(defq cls (third (second i)) j 0)
 					(while (< (defq i (bskip cls text j)) (length text))
-						(if (> (bind '(l j) (search text meta i)) i)
-							(push out l)
+						(if (>= (bind '(l j) (search text meta i)) i)
+							(progn
+								(push out l)
+								(setq j (if (= i j) (inc j) j)))
 							(setq j (inc i)))))
 				(:t ;do it the hard way :(
 					(defq i 0)
 					(while (< i (length text))
 						(cond
-							((> (bind '(l j) (search text meta i)) i)
+							((>= (bind '(l j) (search text meta i)) i)
 								(push out l)
-								(setq i j))
+								(setq i (if (= i j) (inc j) j)))
 							((++ i)))))))
 		out)
 	)

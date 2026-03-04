@@ -1270,11 +1270,9 @@
 		(unless (eql pattern "")
 			(bind '(engine meta &ignore) (query pattern wmode rmode))
 			(each (lambda (line match)
-					(if (> (length line) 1)
-						(unless match
-							(task-slice)
-							(setq match (. engine :search (slice line 0 -2) meta)))
-						(setq match '()))
+					(unless match
+						(task-slice)
+						(setq match (. engine :search line meta)))
 					(elem-set buffer_found (!) match)
 					(and match (nempty? match) (setq flag :t)))
 				(get :buffer_lines this) buffer_found))
