@@ -338,5 +338,5 @@ Use Regex to find empty lines and reduce them to a single newline.
 ```code
 files . .vp |
 edit -c
-"(edit-find {^\\s*$} :r)(edit-cursors)(edit-select-line)(edit-delete)(edit-insert {\n})"
+"(when(edit-find {^\\s*$} :r)(edit-cursors)(edit-select-line)(edit-delete)(edit-insert {\n}))"
 ```
