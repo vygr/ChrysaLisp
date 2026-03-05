@@ -297,7 +297,7 @@ cursors format: ((cx cy ax ay sx) ...)
 ### :next_found_cursor
 
 ```code
-(. buffer :next_found_cursor cx cy [fy fy1]) -> :nil | csr
+(. buffer :next_found_cursor cx cy ax ay [fy fy1]) -> :nil | csr
 ```
 
 ### :next_mark
@@ -315,7 +315,7 @@ cursors format: ((cx cy ax ay sx) ...)
 ### :prev_found_cursor
 
 ```code
-(. buffer :prev_found_cursor cx cy [fy fy1]) -> :nil | csr
+(. buffer :prev_found_cursor cx cy ax ay [fy fy1]) -> :nil | csr
 ```
 
 ### :primary_cursor

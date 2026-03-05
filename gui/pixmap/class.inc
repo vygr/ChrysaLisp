@@ -18,4 +18,6 @@
 	(dec-method :to_argb32 gui/pixmap/to_argb32 :static (:r1 :r2) (:r1))
 	(dec-method :next_frame gui/pixmap/next_frame :static (:r0) (:r0))
 	(dec-method :from_argb32 gui/pixmap/from_argb32 :static (:r1 :r2) (:r1))
-	(dec-method :lisp_as_argb gui/pixmap/lisp_as_argb :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_as_argb gui/pixmap/lisp_as_argb :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_to_argb32 gui/pixmap/lisp_to_argb32 :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_from_argb32 gui/pixmap/lisp_from_argb32 :static (:r0 :r1) (:r0 :r1)))

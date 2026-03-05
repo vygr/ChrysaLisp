@@ -40,8 +40,8 @@
 
 (defun read-col (val)
 	(case (length val)
-		(4 (canvas-to-argb32 (str-to-num (cat "0xf" (rest val))) 12))
-		(7 (canvas-to-argb32 (str-to-num (cat "0x" (rest val))) 24))
+		(4 (pixmap-to-argb32 (str-to-num (cat "0xf" (rest val))) 12))
+		(7 (pixmap-to-argb32 (str-to-num (cat "0x" (rest val))) 24))
 		(:t (throw "Unknown # val !" val))))
 
 (defun read-rgb (val)

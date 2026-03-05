@@ -6,6 +6,10 @@
 
 ### (pixmap-as-argb pixmap) -> pixmap
 
+### (pixmap-from-argb32 pixel type) -> pixel
+
+### (pixmap-to-argb32 pixel type) -> argb32
+
 ## VP methods
 
 ### :as_argb -> gui/pixmap/as_argb

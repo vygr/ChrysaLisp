@@ -153,15 +153,15 @@ These functions handle loading, inspecting, and rendering text using `.ctf`
 These functions provide low-level control over raster graphics on a `:canvas`
 object.
 
-*   **`canvas-to-argb32`**: Converts a color from a specific pixel format to a
+*   **`pixmap-to-argb32`**: Converts a color from a specific pixel format to a
     standard 32-bit ARGB value.
 
-    * `(canvas-to-argb32 pixel type) -> argb_num`
+    * `(pixmap-to-argb32 pixel type) -> argb_num`
 
-*   **`canvas-from-argb32`**: Converts a 32-bit ARGB color to a specific pixel
+*   **`pixmap-from-argb32`**: Converts a 32-bit ARGB color to a specific pixel
     format.
 
-    * `(canvas-from-argb32 pixel type) -> num`
+    * `(pixmap-from-argb32 pixel type) -> num`
 
 ## Path and Vector Graphics
 

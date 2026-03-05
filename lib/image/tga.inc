@@ -42,25 +42,12 @@
 				(= (getf header +tga_type) 2)
 				(or (= (getf header +tga_depth) 24)
 					(= (getf header +tga_depth) 32)))
-			(bind '(w h depth) (getf-> header +tga_width +tga_height +tga_depth))
-			(defq num_bits depth
-				canvas (Canvas w h 1)
-				pixmap (getf canvas +canvas_pixmap 0)
-				pixel_data +pixmap_data
-				pixel_data_end (+ +pixmap_data (* w h +int_size))
-				bit_pool (array 0 0) y 0)
+			(bind '(w h type) (getf-> header +tga_width +tga_height +tga_depth))
+			(defq canvas (Canvas w h 1) pixmap (getf canvas +canvas_pixmap 0))
 			(setf pixmap +pixmap_type 32 0)
-			(while (< pixel_data pixel_data_end)
-				(task-slice)
-				(defq col (read-bits stream bit_pool num_bits))
-				(if (= col -1)
-					; premature EOF
-					(setq pixel_data pixel_data_end canvas :nil)
-					(progn
-						; opaque alpha for 24-bit TGA
-						(if (= depth 24) (setq col (+ col +argb_black)))
-						(obj-set pixmap pixel_data +type_uint col)
-						(setq pixel_data (+ pixel_data +int_size)))))))
+			; loop and copy direct to the pixmap's pixel buffer
+			(ifn (pixmap-read pixmap stream type 0)
+				(setq canvas :nil))))
 	canvas)
 
 ;module

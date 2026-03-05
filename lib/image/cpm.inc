@@ -37,61 +37,39 @@
 			(case (char (getf header +cpm_ident) +int_size)
 				(("MPC." "MLF.")
 					(bind '(w h type) (getf-> header +cpm_width +cpm_height +cpm_type))
-					(defq trans (getf header +cpm_trans)
-						canvas (Canvas w h 1) num_bits type
+					(defq canvas (Canvas w h 1) num_bits type
 						pixmap (getf canvas +canvas_pixmap 0))
 					; 12 and 15 bit images are padded to 16 num_bits in the stream
-					(if (or (= num_bits 12) (= num_bits 15)) (setq num_bits 16))
+					(if (or (= type 12) (= type 15)) (setq num_bits 16))
 					; save stream type for any film players !
-					(setf pixmap +pixmap_stream_type num_bits 0)
-					(setf pixmap +pixmap_type 32 0)
-
+					(setf-> pixmap (+pixmap_stream_type num_bits 0) (+pixmap_type 32 0))
 					; decompress exactly one frame straight into our memory stream
 					; max_tokens cap ensures .flm files are respected!
-					(defq mem_stream (memory-stream)
-						read_pool_state (array 0 0)
-						pixel_data +pixmap_data
-						pixel_data_end (+ +pixmap_data (* w h +int_size)))
+					(defq mem_stream (memory-stream))
 					(rle-decompress stream mem_stream num_bits 8 (* w h))
 					(stream-seek mem_stream 0 0)
-					
 					; loop and copy direct to the pixmap's pixel buffer
-					(while (< pixel_data pixel_data_end)
-						(task-slice)
-						(defq col (read-bits mem_stream read_pool_state num_bits))
-						(if (= col -1)
-							; premature EOF
-							(setq pixel_data pixel_data_end canvas :nil)
-							(progn
-								(if (/= (setq col (canvas-to-argb32 col type)) trans)
-									(obj-set pixmap pixel_data +type_uint col))
-								(setq pixel_data (+ pixel_data +int_size)))))))))
+					(ifn (pixmap-read pixmap mem_stream type (getf header +cpm_trans))
+						(setq canvas :nil))))))
 	canvas)
 
-(defun CPM-save (canvas stream format)
-	; (CPM-save canvas stream format) -> canvas
-	(defq pixmap (getf canvas +canvas_pixmap 0)
-		w (getf pixmap +pixmap_width 0) h (getf pixmap +pixmap_height 0)
-		num_bits format bit_pool_state (array 0 0)
-		pixel_data +pixmap_data
-		pixel_data_end (+ +pixmap_data (* w h +int_size)))
-	(if (or (= num_bits 12) (= num_bits 15)) (setq num_bits 16))
+(defun CPM-save (canvas stream type)
+	; (CPM-save canvas stream type) -> canvas
+	(defq pixmap (getf canvas +canvas_pixmap 0) num_bits type)
+	(if (or (= type 12) (= type 15)) (setq num_bits 16))
 	;header
 	(write-blk stream (setf-> (str-alloc +cpm_size)
 		(+cpm_ident (code "MPC." 4))
 		(+cpm_bytes 0)
 		(+cpm_version 1)
-		(+cpm_type format)
-		(+cpm_width w)
-		(+cpm_height h)
+		(+cpm_type type)
+		(+cpm_width (getf pixmap +pixmap_width 0))
+		(+cpm_height (getf pixmap +pixmap_height 0))
 		(+cpm_trans 0)))
 	;data
-	(pixmap-as-argb pixmap)
 	(defq mem_stream (memory-stream))
-	(until (= pixel_data pixel_data_end)
-		(write-bits mem_stream bit_pool_state (canvas-from-argb32 (obj-get pixmap pixel_data +type_uint) format) num_bits)
-		(setq pixel_data (+ pixel_data +int_size)))
-	(flush-bits mem_stream bit_pool_state)
+	(pixmap-as-argb pixmap)
+	(pixmap-write pixmap mem_stream type)
 	(stream-seek mem_stream 0 0)
 	(rle-compress mem_stream stream num_bits 8)
 	canvas)

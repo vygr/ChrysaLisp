@@ -12,10 +12,6 @@
 (import "lib/image/cpm.inc")
 
 ;lisp bindings
-(ffi "gui/canvas/lisp_to_argb32" canvas-to-argb32)
-; (canvas-to-argb32 pixel type) -> argb32
-(ffi "gui/canvas/lisp_from_argb32" canvas-from-argb32)
-; (canvas-from-argb32 pixel type) -> pixel
 (ffi "gui/canvas/lisp_tile" canvas-tile)
 ; (canvas-tile canvas data x1 y1 x2 y2) -> area
 
@@ -112,7 +108,6 @@
 	; override the default 'this' env with a Canvas component
 	(defq super this this ((const (ffi "gui/canvas/lisp_create_pixmap")) pixmap))
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
-
 
 (defun canvas-info (file)
 	; (canvas-info file) -> (width height type) | (-1 -1 -1)
