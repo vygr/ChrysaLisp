@@ -926,18 +926,6 @@ run pipe farm and collect output
 (pipe-split cmdline) -> (e0 [e1] ...)
 ```
 
-### pixmap-read
-
-```code
-(pixmap-read pixmap stream type trans) -> :nil | pixmap
-```
-
-### pixmap-write
-
-```code
-(pixmap-write pixmap stream type) -> pixmap
-```
-
 ### pos?
 
 ```code

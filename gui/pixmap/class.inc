@@ -20,4 +20,6 @@
 	(dec-method :from_argb32 gui/pixmap/from_argb32 :static (:r1 :r2) (:r1))
 	(dec-method :lisp_as_argb gui/pixmap/lisp_as_argb :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_to_argb32 gui/pixmap/lisp_to_argb32 :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_from_argb32 gui/pixmap/lisp_from_argb32 :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_from_argb32 gui/pixmap/lisp_from_argb32 :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_read gui/pixmap/lisp_read :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_write gui/pixmap/lisp_write :static (:r0 :r1) (:r0 :r1)))

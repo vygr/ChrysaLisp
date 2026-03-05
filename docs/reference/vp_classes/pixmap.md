@@ -8,7 +8,11 @@
 
 ### (pixmap-from-argb32 pixel type) -> pixel
 
+### (pixmap-read pixmap stream type trans) -> :nil | pixmap
+
 ### (pixmap-to-argb32 pixel type) -> argb32
+
+### (pixmap-write pixmap stream type) -> pixmap
 
 ## VP methods
 

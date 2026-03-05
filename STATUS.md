@@ -67,6 +67,8 @@ matches correctly.
 Fix typo bug in the Regexp `:search` method to `(const bind)` -> `(const bfind)`
 to enable the fast path to work correctly.
 
+VP versions of `pixmap-read` and `pixmap-write` functions.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
