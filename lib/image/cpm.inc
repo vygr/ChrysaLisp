@@ -67,9 +67,7 @@
 		(+cpm_height (getf pixmap +pixmap_height 0))
 		(+cpm_trans 0)))
 	;data
-	(defq mem_stream (memory-stream))
-	(pixmap-as-argb pixmap)
-	(pixmap-write pixmap mem_stream type)
+	(pixmap-write (pixmap-as-argb pixmap) (defq mem_stream (memory-stream)) type)
 	(stream-seek mem_stream 0 0)
 	(rle-compress mem_stream stream num_bits 8)
 	canvas)

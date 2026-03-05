@@ -109,8 +109,8 @@
 	(def-vars
 		(ptr this args pixmap stream)
 		(puint data data_end)
-		(long bit_pool)
-		(uint type num_bits bit_pool_size last_col last_conv))
+		(long bit_pool last_col)
+		(uint type num_bits bit_pool_size last_conv))
 
 	(vp-rdef (this args pixmap stream type num_bits data data_end w h))
 
@@ -134,7 +134,9 @@
 
 	;set state
 	(vp-xor-rr args args)
-	(assign `(,args ,args ,args ,args) {bit_pool, bit_pool_size, last_col, last_conv})
+	(assign `(,args ,args ,args) {bit_pool, bit_pool_size, last_conv})
+	(vp-sub-cr 1 args)
+	(assign `(,args) {last_col})
 
 	;data region
 	(assign {pixmap} `(,data))
@@ -210,8 +212,8 @@
 	(def-vars
 		(ptr this args pixmap stream)
 		(puint data data_end)
-		(long bit_pool)
-		(uint type num_bits bit_pool_size last_col last_conv trans))
+		(long bit_pool last_col)
+		(uint type num_bits bit_pool_size last_conv trans))
 
 	(vp-rdef (this args pixmap stream type trans num_bits data data_end w h))
 
@@ -235,7 +237,9 @@
 
 	;set state
 	(vp-xor-rr args args)
-	(assign `(,args ,args ,args ,args) {bit_pool, bit_pool_size, last_col, last_conv})
+	(assign `(,args ,args ,args) {bit_pool, bit_pool_size, last_conv})
+	(vp-sub-cr 1 args)
+	(assign `(,args) {last_col})
 
 	;data region
 	(assign {pixmap} `(,data))
@@ -275,10 +279,9 @@
 
 		;write pixel
 		(assign {trans, data, data_end} `(,trans ,data ,data_end))
-		(vpif `(,col = ,trans))
-			(vp-xor-rr col col)
+		(vpif `(,col /= ,trans))
+			(vp-cpy-ri-i col data 0)
 		(endif)
-		(vp-cpy-ri-i col data 0)
 		(vp-add-cr +int_size data)
 	(loop-end)
 
