@@ -42,7 +42,7 @@
 					; 12 and 15 bit images are padded to 16 num_bits in the stream
 					(if (or (= type 12) (= type 15)) (setq num_bits 16))
 					; save stream type for any film players !
-					(setf-> pixmap (+pixmap_stream_type num_bits 0) (+pixmap_type 32 0))
+					(setf-> pixmap (+pixmap_stream_type type 0) (+pixmap_type 32 0))
 					; decompress exactly one frame straight into our memory stream
 					; max_tokens cap ensures .flm files are respected!
 					(defq mem_stream (memory-stream))
