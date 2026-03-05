@@ -288,13 +288,12 @@
 	(loop-end)
 
 	(assign {this, pixmap} `(,this ,args))
-	(class/obj/ref args w)
-	(exit :pixmap :lisp_read `(,this ,args))
-	(return)
+	(goto 'exit)
 
 (vp-label 'eof)
 	(assign {this} `(,this))
 	(assign `((,this +lisp_sym_nil)) `(,args))
+(vp-label 'exit)
 	(class/obj/ref args w)
 	(exit :pixmap :lisp_read `(,this ,args))
 	(pop-scope)
