@@ -114,10 +114,11 @@
 
 	(vp-rdef (this args pixmap stream type num_bits data data_end w h))
 
-	(push-scope)
 	(entry :pixmap :lisp_write `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 3)
+
+	(push-scope)
 	(assign `(,this ,args) {this, args})
 	(list-bind-args args `(,pixmap ,stream ,type) '(:pixmap :stream :num))
 	(assign `(,pixmap ,stream ,type) {pixmap, stream, type})
@@ -217,10 +218,11 @@
 
 	(vp-rdef (this args pixmap stream type trans num_bits data data_end w h))
 
-	(push-scope)
 	(entry :pixmap :lisp_read `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 4)
+
+	(push-scope)
 	(assign `(,this ,args) {this, args})
 	(list-bind-args args `(,pixmap ,stream ,type ,trans) '(:pixmap :stream :num :num))
 	(assign `(,pixmap ,stream ,type ,trans) {pixmap, stream, type, trans})
