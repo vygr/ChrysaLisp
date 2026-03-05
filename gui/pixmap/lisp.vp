@@ -143,13 +143,10 @@
 	(vp-add-cr +pixmap_data data)
 	(vp-shl-cr (log2 +int_size) w)
 	(vp-lea-d data w data_end)
-	(assign `(,data ,data_end) {data, data_end})
+	(assign `(,data_end) {data_end})
 
 	;loop for pixels
-	(loop-start)
-		(assign {data, data_end} `(,data ,data_end))
-		(breakif `(,data = ,data_end))
-
+	(loop-while `(,data /= ,data_end))
 		;read pixel
 		(vp-rdef (col type last_col last_conv) (method-input :pixmap :from_argb32))
 		(vp-cpy-ir-ui data 0 col)
@@ -174,6 +171,8 @@
 			`(,stream ,num_bits ,bit_pool ,bit_pool_size))
 		(call :stream :write_bits `(,stream ,val ,num_bits ,bit_pool ,bit_pool_size)
 			{_, bit_pool, bit_pool_size})
+
+		(assign {data, data_end} `(,data ,data_end))
 	(loop-end)
 
 	; flush bits
