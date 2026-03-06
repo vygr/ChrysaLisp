@@ -23,6 +23,9 @@
 		+  one or more
 		*  zero or more
 		?  zero or one
+		+? lazy one or more
+		*? lazy zero or more
+		?? lazy zero or one
 		|  or
 		[] class, [0-9], [abc123]
 		() group
