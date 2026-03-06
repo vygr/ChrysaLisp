@@ -22,8 +22,10 @@
 
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil
-		out_types (list) out_tokens (list))
-	(each (lambda (c)
+		out_types (list) out_tokens (list)
+		i 0 l (length line))
+	(while (< i l)
+		(defq c (elem-get line i))
 		(case state
 			(:space
 				(cond
@@ -31,7 +33,11 @@
 						(concat?)
 						(setq state :esc))
 					((defq _ (is-op-char? c))
-						(output :op c)
+						(if (and (find c "+*?") (< (inc i) l) (eql (elem-get line (inc i)) "?"))
+							(progn
+								(output :op (cat c "?"))
+								(++ i))
+							(output :op c))
 						(setq concat (elem-get (static-q (+op_cat +op_cat +op_cat :nil)) _)))
 					((defq _ (is-bracket-char? c))
 						(concat? (elem-get (list concat +op_tac) _))
@@ -77,7 +83,8 @@
 					("w" (output :class "A-Za-z0-9_"))
 					("W" (output :class "^A-Za-z0-9_"))
 					("x" (output :class "A-Fa-f0-9")))
-				(setq concat +op_cat state :space)))) line)
+				(setq concat +op_cat state :space)))
+		(++ i))
 	(unless (eql state :space) (throw "Regexp bad state !" state))
 	(list out_tokens out_types))
 
@@ -96,9 +103,9 @@
 				(until (eql "(" (setq token (pop stack)))
 					(output :op token)))
 			(:op ;precedence
-				(defq p (find token +op_presidence) x :t)
+				(defq p (find (first token) +op_presidence) x :t)
 				(while (and x (/= 0 (length stack)))
-					(defq ps (find (last stack) +op_presidence))
+					(defq ps (find (first (last stack)) +op_presidence))
 					(cond
 						((>= p ps) (output :op (pop stack)))
 						(:t (setq x :nil))))
@@ -136,28 +143,34 @@
 			(:rrb (cache (static-qq ((:nil
 				(progn (elem-set trace ,token si) 1))))))
 			(:op (defq a (pop stack))
-				(and (find token +op_chars) (notany (const first) a)
+				(and (find (first token) +op_chars) (notany (const first) a)
 					(throw "Regexp bad operator !" token))
 				(case token
 					((+op_cat +op_tac) (cat (pop stack) a))
 					("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
-						(cat (cache `((:nil 1 ,ob))) b (cache `((:nil ,oa))) a))
+						(cat (cache `((:nil ,ob 1))) b (cache `((:nil ,oa))) a))
 					("?" (defq oa (inc (length a)))
+						(cat (cache `((:nil ,oa 1))) a))
+					("??" (defq oa (inc (length a)))
 						(cat (cache `((:nil 1 ,oa))) a))
-					("*" (defq b (length a) oa (+ b 2) ob (neg b))
-						(cat (cache `((:nil 1 ,oa))) a (cache `((:nil 1 ,ob)))))
-					("+" (defq oa (neg (length a)))
-						(cat a (cache `((:nil 1 ,oa)))))
-					))))) postfix_output) (pop stack))
+					("*" (defq la (length a) oa (+ la 2) ob (neg (inc la)))
+						(cat (cache `((:nil ,oa 1))) a (cache `((:nil ,ob)))))
+					("*?" (defq la (length a) oa (+ la 2) ob (neg (inc la)))
+						(cat (cache `((:nil 1 ,oa))) a (cache `((:nil ,ob)))))
+					("+" (defq ob (neg (length a)))
+						(cat a (cache `((:nil 1 ,ob)))))
+					("+?" (defq ob (neg (length a)))
+						(cat a (cache `((:nil ,ob 1)))))))))) postfix_output) (pop stack))
 
 (defun insertelem (meta next seen trace elem)
-	(defq stack (rest elem) index (last trace))
+	(defq stack (rest elem) index (last trace) matched :nil)
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
 			(if (= (defq new_index (+ index offset)) (length meta))
 				;stopped, so matched something !
-				(if (> si end) (setq end si end_trace trace))
+				(progn
+					(setq end si end_trace trace matched :t stack (list)))
 				;not stopped
 				(if (first (defq elem (elem-get meta new_index)))
 					;not a split
@@ -166,37 +179,41 @@
 						(push next (push (most trace) new_index)))
 					;a split
 					(each! (# (if (setq %0 (eval %0)) (push stack (+ offset %0))))
-						(list elem) 1))))) next)
+						(list elem) 1))))) matched)
 
 (defun insertelem-no-trace (meta next index elem)
-	(defq stack (rest elem))
+	(defq stack (rest elem) matched :nil)
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
 			(if (= (defq new_index (+ index offset)) (length meta))
 				;stopped, so matched something !
-				(if (> si end) (setq end si))
+				(setq end si matched :t stack (list))
 				;not stopped
 				(if (first (defq elem (elem-get meta new_index)))
 					;not a split
 					(unless (find new_index next) (push next new_index))
 					;a split
 					(each! (# (if (setq %0 (eval %0)) (push stack (+ offset %0))))
-						(list elem) 1))))) next)
+						(list elem) 1))))) matched)
 
 (defun firstelem (meta current)
 	(if (first (defq elem (first meta)))
 		;not a split
 		(push current (array 0))
 		;a split
-		(insertelem meta current (list) (array 0) elem)))
+		(progn
+			(insertelem meta current (list) (array 0) elem)
+			current)))
 
 (defun firstelem-no-trace (meta current)
 	(if (first (defq elem (first meta)))
 		;not a split
 		(push current 0)
 		;a split
-		(insertelem-no-trace meta current 0 elem)))
+		(progn
+			(insertelem-no-trace meta current 0 elem)
+			current)))
 
 (defun search (text meta start)
 	; (search text meta start) -> (list submatches {-1 | end})
@@ -205,9 +222,13 @@
 		current (firstelem meta (list)) seen (list) next (list))
 	(some! (lambda (s) (defq si (inc (!)))
 			;for each current trace
-			(each (# (if (eval (first (defq elem (elem-get meta (last %0)))))
-				;matched text char, so insert next traces
-				(insertelem meta next seen %0 elem))) current)
+			(defq matched :nil)
+			(each (lambda (tr) 
+				(unless matched
+					(if (eval (first (defq elem (elem-get meta (last tr)))))
+						;matched text char, so insert next traces
+						(if (insertelem meta next seen tr elem)
+							(setq matched :t))))) current)
 			;swap to new traces
 			(defq tmp current)
 			(setq current next next tmp)
@@ -225,9 +246,13 @@
 		current (firstelem-no-trace meta (list)) next (list))
 	(some! (lambda (s) (defq si (inc (!)))
 			;for each current index
-			(each (# (if (eval (first (defq elem (elem-get meta %0))))
-				;matched text char, so insert next index
-				(insertelem-no-trace meta next %0 elem))) current)
+			(defq matched :nil)
+			(each (lambda (idx)
+				(unless matched
+					(if (eval (first (defq elem (elem-get meta idx))))
+						;matched text char, so insert next index
+						(if (insertelem-no-trace meta next idx elem)
+							(setq matched :t))))) current)
 			;swap to new indices
 			(defq tmp current)
 			(setq current next next (clear tmp))
