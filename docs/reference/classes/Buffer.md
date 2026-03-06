@@ -105,7 +105,7 @@ clips coordinates to valid buffer positions
 ### :find_add_next
 
 ```code
-(. buffer :find_add_next [fy fy1]) -> buffer
+(. buffer :find_add_next [fy fy1]) -> :nil | buffer
 ```
 
 ### :find_left_bracket
@@ -117,13 +117,13 @@ clips coordinates to valid buffer positions
 ### :find_next
 
 ```code
-(. buffer :find_next [fy fy1]) -> buffer
+(. buffer :find_next [fy fy1]) -> :nil | buffer
 ```
 
 ### :find_prev
 
 ```code
-(. buffer :find_prev [fy fy1]) -> buffer
+(. buffer :find_prev [fy fy1]) -> :nil | buffer
 ```
 
 ### :find_right_bracket

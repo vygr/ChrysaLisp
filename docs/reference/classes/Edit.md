@@ -48,6 +48,12 @@
 
 ### :find
 
+### :find_add_next
+
+### :find_next
+
+### :find_prev
+
 ### :floor_selection
 
 ### :get_buffer

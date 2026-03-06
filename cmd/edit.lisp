@@ -32,8 +32,10 @@
 
 		Available Commands:
 
-	Search:		(edit-find pattern [:w :r]) (edit-find-next) (edit-find-prev)
-				(edit-find-add-next)
+	Search:		(edit-find pattern [:w :r]) -> :nil | buffer_found
+				(edit-find-next) -> :nil | buffer
+				(edit-find-prev) -> :nil | buffer
+				(edit-find-add-next) -> :nil | buffer
 
 	Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
 

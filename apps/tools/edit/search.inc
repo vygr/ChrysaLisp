@@ -47,11 +47,7 @@
 	(find-next (const find-prev-cursor) whole_words regexp pattern))
 
 (defun action-add-next ()
-	(defq next (find-next-cursor (. *edit* :get_cursor)))
-	(unless next (setq next (find-next-cursor (nums -1 -1 -1 -1))))
-	(when next
-		(bind '(cx cy ax ay &ignore) next)
-		(. *edit* :add_cursor cx cy ax ay)
+	(when (. *edit* :find_add_next)
 		(refresh)))
 
 (defun action-set-find-text ()
