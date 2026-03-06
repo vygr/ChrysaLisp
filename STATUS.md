@@ -71,6 +71,8 @@ VP versions of `pixmap-read` and `pixmap-write` functions.
 
 Regexp class updated with support for lazy quantifiers `*?`, `+?` and `??`.
 
+Fix to Edit class to highlight zero length matches, which are now possible.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
