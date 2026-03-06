@@ -193,7 +193,7 @@
 		(each! (# (when %0
 				(defq y (* (- (!) scroll_y) ch))
 				(each (lambda (((x x1) &ignore))
-					(defq x1 (* (- x1 x) cw) x (* (- x scroll_x) cw))
+					(defq x1 (max cc (* (- x1 x) cw)) x (* (- x scroll_x) cw))
 					(. mask_found :add_opaque x y x1 ch)) %0)))
 			(list (. buffer :get_buffer_found)) scroll_y scroll_y1)
 		;set ink mask
