@@ -1280,7 +1280,7 @@
 
 	(defmethod :next_found_cursor (csr &optional fy fy1)
 		; (. buffer :next_found_cursor csr [fy fy1]) -> :nil | csr
-		(bind '(cx cy) (csr-sort-top csr))
+		(bind '(cx cy) (csr-sort-bot csr))
 		(defq buffer_found (get :buffer_found this)
 			h (length buffer_found) focus (get :focus this))
 		(if (and (eql fy :nil) (eql fy1 :nil))
@@ -1297,7 +1297,7 @@
 					(when match
 						(defq y (!))
 						(some (lambda (((x x1) &ignore))
-							(when (or (> y cy) (> x cx))
+							(when (or (> y cy) (> x1 cx))
 								(if (= x1 (length (. this :get_text_line y)))
 									(nums 0 (inc y) x y -1)
 									(nums x1 y x y -1))))

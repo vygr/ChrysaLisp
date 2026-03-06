@@ -59,6 +59,7 @@
 (assert-eq "Find next 2" (nums 7 0 4 0) (first (. b :get_selected)))
 
 ; find_prev
+(. b :right)
 (. b :find_prev)
 ; From (7,0), find_prev finds Match 1 (4..7) again, but at its START.
 ; next = (nums 4 0 7 0 -1). cx=4, ax=7.
@@ -77,7 +78,7 @@
 (assert-eq "Find add next 2" (nums 7 0 4 0) (second (. b :get_selected)))
 
 ; Wrap around test
-(. b :set_cursor 10 0)
+(. b :set_cursor 11 0)
 (. b :find_next)
 ; Should wrap to first match
 (assert-eq "Find next wrap" (nums 3 0 0 0) (first (. b :get_selected)))
