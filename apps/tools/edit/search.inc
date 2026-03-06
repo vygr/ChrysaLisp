@@ -57,11 +57,11 @@
 		(refresh)))
 
 (defun action-set-find-text ()
-	(defq text (. *edit* :get_primary_text))
-	(if *regexp* (setq text (escape-regexp text)))
-	(.-> *find_text* (:set_text text) :layout :dirty)
-	(. *edit* :find text *whole_words* *regexp*)
-	(refresh))
+	(when (defq text (. *edit* :get_primary_text))
+		(if *regexp* (setq text (escape-regexp text)))
+		(.-> *find_text* (:set_text text) :layout :dirty)
+		(. *edit* :find text *whole_words* *regexp*)
+		(refresh)))
 
 (defun action-replace (whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
