@@ -1289,8 +1289,7 @@
 					(bind '(_x1 _y1 _x2 _y2 &ignore) focus)
 					(setq fy (min _y1 _y2) fy1 (max _y1 _y2)))
 				(setq fy 0 fy1 h)))
-		(if (eql fy :nil) (setq fy 0))
-		(if (eql fy1 :nil) (setq fy1 h))
+		(setd fy 0 fy1 h)
 		(cond
 			((>= cy fy1) :nil)
 			(:t (if (< cy fy) (setq cy fy cx 0))
@@ -1301,7 +1300,10 @@
 						(some (lambda (((x x1) &ignore))
 							(if (and (or (> y cy) (>= x cx))
 									 (not (and (= y cy) (= y ay) (= x min_x) (= x1 max_x))))
-								(nums x1 y x y -1)))
+								(progn
+									(if (= x1 (length (. this :get_text_line y)))
+										(nums 0 (inc y) x y -1)
+										(nums x1 y x y -1)))))
 						match)))
 					(list buffer_found) :nil (max fy cy) fy1))))
 
@@ -1316,8 +1318,7 @@
 					(bind '(_x1 _y1 _x2 _y2 &ignore) focus)
 					(setq fy (min _y1 _y2) fy1 (max _y1 _y2)))
 				(setq fy 0 fy1 h)))
-		(if (eql fy :nil) (setq fy 0))
-		(if (eql fy1 :nil) (setq fy1 h))
+		(setd fy 0 fy1 h)
 		(cond
 			((< cy fy) :nil)
 			(:t (if (>= cy fy1) (setq cy (dec fy1) cx +max_int))

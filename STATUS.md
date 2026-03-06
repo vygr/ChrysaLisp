@@ -73,6 +73,10 @@ Regexp class updated with support for lazy quantifiers `*?`, `+?` and `??`.
 
 Fix to Edit class to highlight zero length matches, which are now possible.
 
+Fix to Buffer class `:next_found_cursor` method to correctly move the cursor to
+the start of the next line if the match is at the end of the line, ie includes
+the "\n".
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
