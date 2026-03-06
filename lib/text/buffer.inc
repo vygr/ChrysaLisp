@@ -1293,10 +1293,10 @@
 		(cond
 			((>= cy fy1) :nil)
 			(:t (if (< cy fy) (setq cy fy cx 0))
-				(defq min_x (min cx ax) max_x (max cx ax))
+				(defq min_x (dec (min cx ax)) max_x (max cx ax))
 				(some! (lambda (match)
-					(defq y (!))
 					(when match
+						(defq y (!))
 						(some (lambda (((x x1) &ignore))
 							(if (and (or (> y cy) (>= x cx))
 									 (not (and (= y cy) (= y ay) (= x min_x) (= x1 max_x))))
@@ -1322,10 +1322,10 @@
 		(cond
 			((< cy fy) :nil)
 			(:t (if (>= cy fy1) (setq cy (dec fy1) cx +max_int))
-				(defq min_x (min cx ax) max_x (max cx ax))
+				(defq min_x (min cx ax) max_x (inc (max cx ax)))
 				(some! (lambda (match)
-					(defq y (!))
 					(when match
+						(defq y (!))
 						(rsome (lambda (((x x1) &ignore))
 							(if (and (or (< y cy) (< x cx))
 									 (not (and (= y cy) (= y ay) (= x min_x) (= x1 max_x))))
