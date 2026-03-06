@@ -1269,13 +1269,14 @@
 			(each (lambda (__) (elem-set buffer_found (!) :nil)) buffer_found))
 		(unless (eql pattern "")
 			(bind '(engine meta &ignore) (query pattern wmode rmode))
-			(each (lambda (line match)
-					(unless match
-						(task-slice)
-						(setq match (. engine :search line meta)))
-					(elem-set buffer_found (!) match)
-					(and match (nempty? match) (setq flag :t)))
-				(get :buffer_lines this) buffer_found))
+			(when meta
+				(each (lambda (line match)
+						(unless match
+							(task-slice)
+							(setq match (. engine :search line meta)))
+						(elem-set buffer_found (!) match)
+						(and match (nempty? match) (setq flag :t)))
+					(get :buffer_lines this) buffer_found)))
 		(if flag buffer_found :nil))
 
 	(defmethod :next_found_cursor (csr &optional fy fy1)
