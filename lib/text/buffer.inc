@@ -1280,7 +1280,7 @@
 
 	(defmethod :next_found_cursor (csr &optional fy fy1)
 		; (. buffer :next_found_cursor csr [fy fy1]) -> :nil | csr
-		(bind '(cx cy ax ay &ignore) csr)
+		(bind '(cx cy) (csr-sort-top csr))
 		(defq buffer_found (get :buffer_found this)
 			h (length buffer_found) focus (get :focus this))
 		(if (and (eql fy :nil) (eql fy1 :nil))
@@ -1293,23 +1293,20 @@
 		(cond
 			((>= cy fy1) :nil)
 			(:t (if (< cy fy) (setq cy fy cx 0))
-				(defq min_x (min cx ax) max_x (max cx ax))
 				(some! (lambda (match)
 					(when match
 						(defq y (!))
 						(some (lambda (((x x1) &ignore))
-							(if (and (or (> y cy) (>= x cx))
-									(not (and (= y cy) (= y ay) (= x min_x) (= x1 max_x))))
-								(progn
-									(if (= x1 (length (. this :get_text_line y)))
-										(nums 0 (inc y) x y -1)
-										(nums x1 y x y -1)))))
+							(when (or (> y cy) (> x cx))
+								(if (= x1 (length (. this :get_text_line y)))
+									(nums 0 (inc y) x y -1)
+									(nums x1 y x y -1))))
 						match)))
 					(list buffer_found) :nil (max fy cy) fy1))))
 
 	(defmethod :prev_found_cursor (csr &optional fy fy1)
 		; (. buffer :prev_found_cursor csr [fy fy1]) -> :nil | csr
-		(bind '(cx cy ax ay &ignore) csr)
+		(bind '(cx cy) (csr-sort-top csr))
 		(defq buffer_found (get :buffer_found this)
 			h (length buffer_found) focus (get :focus this))
 		(if (and (eql fy :nil) (eql fy1 :nil))
@@ -1322,13 +1319,11 @@
 		(cond
 			((< cy fy) :nil)
 			(:t (if (>= cy fy1) (setq cy (dec fy1) cx +max_int))
-				(defq min_x (min cx ax) max_x (max cx ax))
 				(some! (lambda (match)
 					(when match
 						(defq y (!))
 						(rsome (lambda (((x x1) &ignore))
-							(if (and (or (< y cy) (< x cx))
-									(not (and (= y cy) (= y ay) (= x min_x) (= x1 max_x))))
+							(when (or (< y cy) (< x cx))
 								(nums x y x1 y -1)))
 						match)))
 					(list buffer_found) :nil (inc (min (dec fy1) cy)) fy))))
