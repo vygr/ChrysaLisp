@@ -69,6 +69,8 @@ to enable the fast path to work correctly.
 
 VP versions of `pixmap-read` and `pixmap-write` functions.
 
+Regexp class updated with support for lazy quantifiers `*?`, `+?` and `??`.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
