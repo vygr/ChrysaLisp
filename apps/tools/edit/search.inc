@@ -21,20 +21,19 @@
 	(update-find-toolbar)
 	(refresh-display))
 
-(defun find-next-cursor (cx cy ax ay)
-		; (find-next-cursor cx cy ax ay) -> :nil | csr
-		(. *edit* :next_found_cursor cx cy ax ay))
+(defun find-next-cursor (csr)
+	; (find-next-cursor csr) -> :nil | csr
+	(. *edit* :next_found_cursor csr))
 
-(defun find-prev-cursor (cx cy ax ay)
-	; (find-prev-cursor cx cy ax ay) -> :nil | csr
-	(. *edit* :prev_found_cursor cx cy ax ay))
+(defun find-prev-cursor (csr)
+	; (find-prev-cursor csr) -> :nil | csr
+	(. *edit* :prev_found_cursor csr))
 
 (defun find-next (fnc whole_words regexp pattern)
 	;return :nil if nothing found !
 	(when (nql pattern "")
 		(when (. *edit* :find pattern whole_words regexp)
-			(bind '(cx cy ax ay &ignore) (. *edit* :get_cursor))
-			(when (defq next (fnc cx cy ax ay))
+			(when (defq next (fnc (. *edit* :get_cursor)))
 				(bind '(cx cy ax ay &ignore) next)
 				(. *edit* :set_cursor cx cy ax ay)
 				(refresh) :t))))
@@ -48,9 +47,8 @@
 	(find-next (const find-prev-cursor) whole_words regexp pattern))
 
 (defun action-add-next ()
-	(bind '(cx cy ax ay &ignore) (. *edit* :get_cursor))
-	(defq next (find-next-cursor cx cy ax ay))
-	(unless next (setq next (find-next-cursor -1 -1 -1 -1)))
+	(defq next (find-next-cursor (. *edit* :get_cursor)))
+	(unless next (setq next (find-next-cursor (nums -1 -1 -1 -1))))
 	(when next
 		(bind '(cx cy ax ay &ignore) next)
 		(. *edit* :add_cursor cx cy ax ay)
