@@ -286,8 +286,7 @@
 		:syntax_engine syntax :undo_stack (list) :redo_stack (list)
 		:max_width 0 :tab_width 4 :wrap_width 80 :last_find '("" :nil :nil)
 		:flags flags :next_mark -1 :modified :nil :last_key :nil
-		:focus +invalid_focus
-		:cursors (list (nums 0 0 0 0 -1)) :tcursors '())
+		:focus +invalid_focus :cursors (list (nums 0 0 0 0 -1)) :tcursors '())
 
 ;;;;;;;;;;;;;;;
 ; basic get/set
