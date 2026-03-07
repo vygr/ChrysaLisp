@@ -46,7 +46,8 @@
 	+require_prefixes ''(
 		("sys/statics/class.inc" "statics_" "sys/statics/statics")
 		("lib/consts/chars.inc" "+char_")
-		("lib/consts/colors.inc" "+argb_")))
+		("lib/consts/colors.inc" "+argb_")
+		("lib/consts/scodes.inc" "+sc_")))
 
 ;lookup the file the class was defined in
 ;else just use one they all need
