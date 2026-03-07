@@ -13,9 +13,9 @@
 
 ;wallpaper images
 (defq *env_wallpaper_images*
-	'("apps/system/wallpaper/data/wallpaper640x480.cpm"
-	"apps/system/wallpaper/data/wallpaper1280x1024.cpm"
-	"apps/system/wallpaper/data/wallpaper1920x1080.cpm"))
+	'("apps/system/wallpaper/data/wallpaper640x480.tga"
+	"apps/system/wallpaper/data/wallpaper1280x1024.tga"
+	"apps/system/wallpaper/data/wallpaper1920x1080.tga"))
 
 ;terminal prompt and scroll back
 (defq *env_terminal_prompt* (cat *env_user* "> ") *env_terminal_lines* 500)
