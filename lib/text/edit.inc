@@ -46,13 +46,6 @@
 (defun edit-set-focus (&optional csr) (. *edit* :set_focus (ifn csr (last (. *edit* :get_cursors)) csr)))
 (defun edit-add-cursors () (. *edit* :add_found_cursors (. *edit* :get_buffer_found)))
 (defun edit-filter-cursors () (. *edit* :set_cursors (. *edit* :filter_cursors (. *edit* :get_cursors))))
-(defun edit-focus-cursors ()
-	(defq focus (. *edit* :get_focus))
-	(if (nql focus +invalid_focus)
-		(progn
-			(bind '(x1 y1 x2 y2) focus)
-			(. *edit* :set_found_cursors (. *edit* :get_buffer_found) (min y1 y2) (max y1 y2)))
-		(edit-cursors)))
 (defun edit-split-text (txt &optional cls) (split txt (ifn cls "\n\f")))
 (defun edit-join-text (txts &optional cls) (if (empty? txts) "" (join txts (ifn cls "\n"))))
 (defun edit-get-text () (edit-join-text (edit-split-text (. *edit* :copy))))

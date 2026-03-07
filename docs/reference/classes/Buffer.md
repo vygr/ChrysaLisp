@@ -13,7 +13,7 @@
 ### :add_found_cursors
 
 ```code
-(. buffer :add_found_cursors buffer_found [fy fy1]) -> buffer
+(. buffer :add_found_cursors buffer_found) -> buffer
 ```
 
 ### :backspace
@@ -105,7 +105,7 @@ clips coordinates to valid buffer positions
 ### :find_add_next
 
 ```code
-(. buffer :find_add_next [fy fy1]) -> :nil | buffer
+(. buffer :find_add_next) -> :nil | buffer
 ```
 
 ### :find_left_bracket
@@ -117,13 +117,13 @@ clips coordinates to valid buffer positions
 ### :find_next
 
 ```code
-(. buffer :find_next [fy fy1]) -> :nil | buffer
+(. buffer :find_next) -> :nil | buffer
 ```
 
 ### :find_prev
 
 ```code
-(. buffer :find_prev [fy fy1]) -> :nil | buffer
+(. buffer :find_prev) -> :nil | buffer
 ```
 
 ### :find_right_bracket
@@ -297,7 +297,7 @@ cursors format: ((cx cy ax ay sx) ...)
 ### :next_found_cursor
 
 ```code
-(. buffer :next_found_cursor csr [fy fy1]) -> :nil | csr
+(. buffer :next_found_cursor csr) -> :nil | csr
 ```
 
 ### :next_mark
@@ -315,7 +315,7 @@ cursors format: ((cx cy ax ay sx) ...)
 ### :prev_found_cursor
 
 ```code
-(. buffer :prev_found_cursor csr [fy fy1]) -> :nil | csr
+(. buffer :prev_found_cursor csr) -> :nil | csr
 ```
 
 ### :primary_cursor
@@ -391,7 +391,7 @@ cursors format: ((cx cy ax ay sx) ...)
 ### :set_found_cursors
 
 ```code
-(. buffer :set_found_cursors buffer_found [fy fy1]) -> buffer
+(. buffer :set_found_cursors buffer_found) -> buffer
 ```
 
 ### :set_tab_width

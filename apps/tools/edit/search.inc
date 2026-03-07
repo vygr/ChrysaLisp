@@ -21,22 +21,19 @@
 	(update-find-toolbar)
 	(refresh-display))
 
-(defun find-next-cursor (csr)
-	; (find-next-cursor csr) -> :nil | csr
-	(. *edit* :next_found_cursor csr))
+(defun find-next-cursor ()
+	; (find-next-cursor) -> :nil | buffer
+	(. *edit* :find_next))
 
-(defun find-prev-cursor (csr)
-	; (find-prev-cursor csr) -> :nil | csr
-	(. *edit* :prev_found_cursor csr))
+(defun find-prev-cursor ()
+	; (find-prev-cursor) -> :nil | buffer
+	(. *edit* :find_prev))
 
 (defun find-next (fnc whole_words regexp pattern)
 	;return :nil if nothing found !
 	(when (nql pattern "")
 		(when (. *edit* :find pattern whole_words regexp)
-			(when (defq next (fnc (. *edit* :get_cursor)))
-				(bind '(cx cy ax ay &ignore) next)
-				(. *edit* :set_cursor cx cy ax ay)
-				(refresh) :t))))
+			(when (fnc) (refresh) :t))))
 
 (defun action-find-down (whole_words regexp pattern)
 	(. *edit* :find pattern whole_words regexp)
