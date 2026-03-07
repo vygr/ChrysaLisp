@@ -223,7 +223,7 @@
 	(some! (lambda (s) (defq si (inc (!)))
 			;for each current trace
 			(defq matched :nil)
-			(each (lambda (tr) 
+			(each (lambda (tr)
 				(unless matched
 					(if (eval (first (defq elem (elem-get meta (last tr)))))
 						;matched text char, so insert next traces

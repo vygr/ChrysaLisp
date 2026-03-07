@@ -23,7 +23,7 @@
 		max_literals (inc length_mask)
 		literals (list) ; list to prevent object re-allocation thrashing
 		token (read-bits in_stream read_pool_state token_bits))
-	
+
 	(while (/= token -1)
 		; Peek ahead to find run length of identical tokens
 		(defq run_length 1 next_token (read-bits in_stream read_pool_state token_bits))
@@ -44,7 +44,7 @@
 				(push literals token)
 				(when (= (length literals) max_literals)
 					(flush_literals out_stream write_pool_state literals token_bits run_bits))))
-		
+
 		; Slide the window forward
 		(setq token next_token))
 
@@ -76,11 +76,11 @@
 				; Fast integer loop
 				(while (>= (-- run_length) 0)
 					(write-bits out_stream write_pool_state token_to_repeat token_bits)))
-			(:t	; Literal Run (MSB is clear)
+			(:t ; Literal Run (MSB is clear)
 				(defq literal_length (inc control_token) literal_token 0)
 				(if (> literal_length max_tokens) (setq literal_length max_tokens))
 				(setq max_tokens (- max_tokens literal_length))
-				(while (and (>= (-- literal_length) 0) 
+				(while (and (>= (-- literal_length) 0)
 							(/= -1 (setq literal_token (read-bits in_stream read_pool_state token_bits))))
 					(write-bits out_stream write_pool_state literal_token token_bits)))))
 
