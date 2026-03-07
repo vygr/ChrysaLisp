@@ -146,6 +146,10 @@ Deep dives into specialized areas:
 
 48. **[The Text Stack](docs/ai_digest/text_stack.md)** - A Comprehensive Analysis.
 
+49. **[Edit Command](docs/ai_digest/edit_command_app.md)** - The ChrysaLisp Parallel Programmable Editor.
+
+50. **[VP64 Emulator](docs/ai_digest/vp64_emu.md)** - The VP64 C/C++ Emulator Implementation.
+
 ---
 
 ## Reading Paths
