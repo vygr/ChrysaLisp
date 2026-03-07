@@ -13,6 +13,10 @@ scheduler, allowing for introspection and control over the system's execution.
 
     * `(kernel-stats) -> (task_count mem_used mem_avail max_stack)`
 
+*   **`task-flags`**: Returns the flags of the current task.
+
+    * `(task-flags) -> flags`
+
 *   **`load-path`**: Returns the base path for loading object files, specific to
     the current CPU and ABI.
 
@@ -245,6 +249,10 @@ or `:fixed` values.
 
     * `(sqrt num) -> num`
 
+*   **`ceil`**: Calculates the ceiling.
+
+    * `(ceil num) -> num`
+
 *   **`sign`**: Returns the sign of a number (-1, 0, or 1).
 
     * `(sign num) -> -1 | 0 | 1`
@@ -297,6 +305,11 @@ These functions and classes are used for text manipulation.
 
     * `(unescape string) -> string`
 
+*   **`escape-regexp`**: Escapes special characters in a string for use in a
+    regular expression.
+
+    * `(escape-regexp string) -> string`
+
 *   **`char-class`**: Creates a character class string.
 
     * `(char-class key) -> string`
@@ -340,6 +353,36 @@ These functions and classes are used for text manipulation.
 *   **`Substr`**: A class for substring searching.
 
     * `(Substr &optional num_buckets) -> substr`
+
+*   **`replace-compile`**: Compiles a replacement string.
+
+    * `(replace-compile rep_str) -> compiled_rep`
+
+*   **`replace-matches`**: Replaces all matches in a string.
+
+    * `(replace-matches text match_lst compiled) -> new_text`
+
+*   **`replace-edits`**: Generates a list of edit operations for a list of matches.
+
+    * `(replace-edits text match_lst compiled) -> edits`
+
+*   **`replace-regex-edits`**: Generates a list of edit operations using a
+    regular expression.
+
+    * `(replace-regex-edits text pattern compiled) -> edits`
+
+*   **`replace-str-edits`**: Generates a list of edit operations using a
+    substring.
+
+    * `(replace-str-edits text pattern compiled) -> edits`
+
+*   **`replace-regex`**: Replaces all matches of a regular expression.
+
+    * `(replace-regex text pattern compiled) -> new_text`
+
+*   **`replace-str`**: Replaces all matches of a substring.
+
+    * `(replace-str text pattern compiled) -> new_text`
 
 *   **`Syntax`**: A class for syntax highlighting.
 
@@ -460,24 +503,17 @@ These functions are used for math operations.
 
 ### Matrix Math
 
-*   **`Mat3x3-unity`**: Returns a 3x3 identity matrix.
 *   **`Mat4x4-unity`**: Returns a 4x4 identity matrix.
-*   **`Mat3x3-rotx`**: Returns a 3x3 rotation matrix around the x-axis.
-*   **`Mat3x3-roty`**: Returns a 3x3 rotation matrix around the y-axis.
-*   **`Mat3x3-rotz`**: Returns a 3x3 rotation matrix around the z-axis.
-*   **`Mat3x3-scale`**: Returns a 3x3 scaling matrix.
 *   **`Mat4x4-rotx`**: Returns a 4x4 rotation matrix around the x-axis.
 *   **`Mat4x4-roty`**: Returns a 4x4 rotation matrix around the y-axis.
 *   **`Mat4x4-rotz`**: Returns a 4x4 rotation matrix around the z-axis.
 *   **`Mat4x4-translate`**: Returns a 4x4 translation matrix.
 *   **`Mat4x4-scale`**: Returns a 4x4 scaling matrix.
 *   **`Mat4x4-frustum`**: Returns a 4x4 frustum projection matrix.
-*   **`mat3x3-vec3-mul`**: Multiplies a 3x3 matrix by a 3D vector.
 *   **`mat4x4-vec3-mul`**: Multiplies a 4x4 matrix by a 3D vector.
 *   **`mat4x4-vec4-mul`**: Multiplies a 4x4 matrix by a 4D vector.
-*   **`mat3x3-mul`**: Multiplies two 3x3 matrices.
 *   **`mat4x4-mul`**: Multiplies two 4x4 matrices.
-*   **`mat4x4-invert`**: Inverts a 4x4 matrix.
+*   **`mat4x4-inv`**: Inverts a 4x4 matrix.
 *   **`print-mat`**: Prints a matrix.
 
 ### Mesh

@@ -144,6 +144,10 @@ combining sequences like lists, arrays, and strings.
     * `(slice seq start end) -> seq`: Returns a new sequence containing
       elements from `start` up to (but not including) `end`.
 
+*   **`splice`**: Merges two sequences using an index vector.
+
+    * `(splice seq1 seq2 idxs) -> seq`
+
 *   **`partition`**: Divides a sequence into a list of smaller sequences.
 
     * `(partition seq [cnt]) -> (seq ...)`: Groups elements of `seq` into
@@ -351,6 +355,10 @@ combining sequences like lists, arrays, and strings.
 
     * `(atom? o) -> :t | :nil`
 
+*   **`msafe?`**: Checks if a form is safe for use in certain macros without multiple evaluation.
+
+    * `(msafe? o) -> :t | :nil`
+
 *   **`empty?`**: Checks if a sequence is empty.
 
     * `(empty? form) -> :t | :nil`
@@ -416,6 +424,10 @@ combining sequences like lists, arrays, and strings.
 *   **`sqrt`**: Calculates the square root of a number.
 
     * `(sqrt num) -> num`
+
+*   **`ceil`**: Calculates the ceiling of a number.
+
+    * `(ceil num) -> num`
 
 *   **`sign`**: Returns the sign of a number.
 
@@ -618,9 +630,41 @@ combining sequences like lists, arrays, and strings.
 
     * `(get-int str idx) -> num`
 
+*   **`get-real`**: Gets a real from a string.
+
+    * `(get-real str idx) -> real`
+
+*   **`get-str`**: Gets a string from a string.
+
+    * `(get-str str idx bytes) -> str`
+
 *   **`get-cstr`**: Gets a C-style string from a string.
 
     * `(get-cstr str idx) -> str`
+
+*   **`set-byte`**: Sets a byte in a string.
+
+    * `(set-byte str idx val) -> str`
+
+*   **`set-short`**: Sets a short in a string.
+
+    * `(set-short str idx val) -> str`
+
+*   **`set-int`**: Sets an integer in a string.
+
+    * `(set-int str idx val) -> str`
+
+*   **`set-long`**: Sets a long in a string.
+
+    * `(set-long str idx val) -> str`
+
+*   **`set-real`**: Sets a real in a string.
+
+    * `(set-real str idx val) -> str`
+
+*   **`set-str`**: Sets a string in a string.
+
+    * `(set-str str idx val) -> str`
 
 *   **`type-to-size`**: Returns the size of a type.
 
@@ -630,6 +674,11 @@ combining sequences like lists, arrays, and strings.
     seconds.
 
     * `(time-in-seconds time) -> str`
+
+*   **`time-it`**: Measures the time taken to execute a body of code and prints
+    it.
+
+    * `(time-it heading body)`
 
 *   **`lisp-nodes`**: Returns a list of Lisp nodes.
 
@@ -658,6 +707,18 @@ combining sequences like lists, arrays, and strings.
 *   **`import-from`**: Imports symbols and classes from a file.
 
     * `(import-from [symbols classes])`
+
+*   **`read-ubyte`**: Reads an unsigned byte from a stream.
+
+    * `(read-ubyte stream) -> num`
+
+*   **`read-ushort`**: Reads an unsigned short from a stream.
+
+    * `(read-ushort stream) -> num`
+
+*   **`read-uint`**: Reads an unsigned integer from a stream.
+
+    * `(read-uint stream) -> num`
 
 *   **`read-long`**: Reads a long from a stream.
 
@@ -700,6 +761,18 @@ combining sequences like lists, arrays, and strings.
 
     * `(within-compile-env lambda)`
 
+*   **`defcvar`**: Defines a variable in the compilation environment.
+
+    * `(defcvar sym val)`
+
+*   **`deffvar`**: Defines a variable in the function environment.
+
+    * `(deffvar sym val)`
+
+*   **`include`**: Includes a module within the compilation environment.
+
+    * `(include module)`
+
 ## Sequence Searching and Matching Functions
 
 These functions are used to find elements or subsequences within a sequence,
@@ -731,6 +804,16 @@ with specialized functions for character classes.
     are *not* present in the given character class.
 
     * `(bskipn cls str idx) -> idx`: The inverse of `bskip`.
+
+*   **`rbskip`**: Moves an index backward in a string as long as the characters
+    are present in the given character class.
+
+    * `(rbskip cls str idx) -> idx`
+
+*   **`rbskipn`**: Moves an index backward in a string as long as the characters
+    are *not* present in the given character class.
+
+    * `(rbskipn cls str idx) -> idx`
 
 ## Sequence Operation Functions (Iterators)
 
@@ -925,6 +1008,18 @@ operations, and type conversion.
 *   **`expand`**: Replaces tab characters in a string with spaces.
 
     * `(expand str tab_width) -> str`
+
+*   **`compress`**: Replaces spaces in a string with tab characters.
+
+    * `(compress str tab_width) -> str`
+
+*   **`hex-encode`**: Encodes a string into its hexadecimal representation.
+
+    * `(hex-encode str) -> str`
+
+*   **`hex-decode`**: Decodes a hexadecimal string back into its original form.
+
+    * `(hex-decode str) -> str`
 
 *   **`cmp`**: Compares two strings lexicographically.
 
