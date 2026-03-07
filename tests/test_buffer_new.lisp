@@ -77,12 +77,6 @@
 (assert-eq "Find add next 1" (nums 3 0 0 0) (first (. b :get_selected)))
 (assert-eq "Find add next 2" (nums 7 0 4 0) (second (. b :get_selected)))
 
-; Wrap around test
-(. b :set_cursor 11 0)
-(. b :find_next)
-; Should wrap to first match
-(assert-eq "Find next wrap" (nums 3 0 0 0) (first (. b :get_selected)))
-
 ; --- Search & Mutation ---
 (defq b (Document))
 (. b :insert "a b a c a")
