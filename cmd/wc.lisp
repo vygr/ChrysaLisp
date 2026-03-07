@@ -23,26 +23,27 @@
 
 ;do the work on a file
 (defun work (file)
-	(defq word_count 0 line_count 0 paragraph_count 0 in_paragraph_flag :nil)
-	(lines! (lambda (line)
-		;good practice for long files
-		(task-slice)
-		(setq line_count (inc line_count))
-		;word count for the current line
-		(defq words_on_line (split line)
-			word_count (+ word_count (length words_on_line)))
-		;paragraph count logic
-		(if (empty? words_on_line)
-			(setq in_paragraph_flag :nil)
-			(if (not in_paragraph_flag)
-				(setq paragraph_count (inc paragraph_count) in_paragraph_flag :t))))
-		(file-stream file))
-	;construct output string
-	(defq output_parts (list file))
-	(if (or opt_wc default_all_flag) (push output_parts (str word_count)))
-	(if (or opt_lc default_all_flag) (push output_parts (str line_count)))
-	(if (or opt_pc default_all_flag) (push output_parts (str paragraph_count)))
-	(print (join output_parts ", ")))
+	(when (defq stream (file-stream file))
+		(defq word_count 0 line_count 0 paragraph_count 0 in_paragraph_flag :nil)
+		(lines! (lambda (line)
+			;good practice for long files
+			(task-slice)
+			(setq line_count (inc line_count))
+			;word count for the current line
+			(defq words_on_line (split line)
+				word_count (+ word_count (length words_on_line)))
+			;paragraph count logic
+			(if (empty? words_on_line)
+				(setq in_paragraph_flag :nil)
+				(if (not in_paragraph_flag)
+					(setq paragraph_count (inc paragraph_count) in_paragraph_flag :t))))
+			stream)
+		;construct output string
+		(defq output_parts (list file))
+		(if (or opt_wc default_all_flag) (push output_parts (str word_count)))
+		(if (or opt_lc default_all_flag) (push output_parts (str line_count)))
+		(if (or opt_pc default_all_flag) (push output_parts (str paragraph_count)))
+		(print (join output_parts ", "))))
 
 (defun main ()
 	;initialize flags for options
