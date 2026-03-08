@@ -28,9 +28,9 @@ common operations.
 
 *   **`:write_char`**: Writes a single character to the stream.
 
-*   **`:read_bits` / `:write_bits`**: Reads or writes a specified number of
-    bits, using a bit pool to handle operations that don't align to byte
-    boundaries.
+*   **`:read_bits` / `:write_bits` / `:fill_bits` / `:copy_bits`**: Methods for
+    reading, writing, filling, or copying a specified number of bits, using a
+    bit pool to handle operations that don't align to byte boundaries.
 
 *   **`:read`**: Reads a block of bytes from the stream into a specified
     buffer.

@@ -1193,6 +1193,10 @@ files, strings, or standard I/O channels.
     * `(file-stream path [mode]) -> :nil | stream`: `mode` can be
         `+file_open_read`, `+file_open_write`, etc.
 
+*   **`memory-stream`**: Creates a memory stream.
+
+    * `(memory-stream) -> stream`
+
 *   **`read-char`**: Reads a single character (as a num) from a stream.
 
     * `(read-char stream [width]) -> :nil | num`
@@ -1287,9 +1291,16 @@ files, strings, or standard I/O channels.
     * `(write-bits stream (array bit_pool bit_pool_size) data num_bits) ->
       stream`
 
-*   **`memory-stream`**: Creates a memory stream.
+*   **`fill-bits`**: Writes a repeating bit pattern to a stream.
 
-    * `(memory-stream) -> stream`
+    * `(fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt) ->
+      stream`
+
+*   **`copy-bits`**: Copies a specified number of bit sequences from one stream
+    to another.
+
+    * `(copy-bits wstream rstream (array wbit_pool wbit_pool_size) (array rbit_pool rbit_pool_size) num_bits cnt) ->
+      wstream`
 
 *   **`flush-bits`**: Flushes any remaining bits in the bit pool to the
     stream.
