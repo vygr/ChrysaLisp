@@ -70,7 +70,8 @@
 			(:t ; Literal Run (MSB is clear)
 				(setq max_tokens (- max_tokens len 1))
 				(while (>= (-- len) -1)
-					(write-bits out_stream write_pool_state (read-bits in_stream read_pool_state token_bits) token_bits)))))
+					(write-bits out_stream write_pool_state
+						(read-bits in_stream read_pool_state token_bits) token_bits)))))
 	; Flush any partial byte at the end of the output stream
 	(flush-bits out_stream write_pool_state))
 
