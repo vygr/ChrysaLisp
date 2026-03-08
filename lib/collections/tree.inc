@@ -24,7 +24,7 @@
 			;if detect binary, first try escaping the string
 			(if (defq has_bin (/= (rbskip (const (cat " !" {""}
 					"#$%&'()*+,-./0123456789:;<=>?@"
-					"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`"
+					"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
 					"abcdefghijklmnopqrstuvwxyz{|}~"))
 					atom -1) 0))
 				(setq atom (escape atom)))
@@ -32,7 +32,7 @@
 				has_curly (/= (rbskipn "{}" atom -1) 0)
 				has_bin (/= (rbskip (const (cat " !" {""}
 					"#$%&'()*+,-./0123456789:;<=>?@"
-					"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`"
+					"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
 					"abcdefghijklmnopqrstuvwxyz{|}~"))
 					atom -1) 0))
 			(cond
