@@ -65,13 +65,10 @@
 				(setq max_tokens (- max_tokens
 					(defq token (read-bits in_stream read_pool_state token_bits)
 						len (logand len length_mask)) 1))
-				(while (>= (-- len) -1)
-					(write-bits out_stream write_pool_state token token_bits)))
+				(fill-bits out_stream write_pool_state token token_bits (inc len)))
 			(:t ; Literal Run (MSB is clear)
 				(setq max_tokens (- max_tokens len 1))
-				(while (>= (-- len) -1)
-					(write-bits out_stream write_pool_state
-						(read-bits in_stream read_pool_state token_bits) token_bits)))))
+				(copy-bits out_stream in_stream write_pool_state read_pool_state token_bits (inc len)))))
 	; Flush any partial byte at the end of the output stream
 	(flush-bits out_stream write_pool_state))
 

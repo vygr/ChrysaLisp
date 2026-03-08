@@ -30,6 +30,8 @@
 	(dec-method :lisp_writechar class/stream/lisp_writechar :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_read_bits class/stream/lisp_read_bits :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_write_bits class/stream/lisp_write_bits :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_fill_bits class/stream/lisp_fill_bits :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_copy_bits class/stream/lisp_copy_bits :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_readblk class/stream/lisp_readblk :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_writeblk class/stream/lisp_writeblk :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_readline class/stream/lisp_readline :static (:r0 :r1) (:r0 :r1))

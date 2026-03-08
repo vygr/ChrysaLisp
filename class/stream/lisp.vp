@@ -782,3 +782,146 @@
 	(pop-scope-syms)
 
 (def-func-end)
+
+(def-method :stream :lisp_fill_bits)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this args stream parray)
+		(long data)
+		(uint num_bits cnt))
+
+	(vp-rdef (this args stream parray data num_bits cnt pool_state len))
+
+	(push-scope)
+	(entry :stream :lisp_fill_bits `(,this ,args))
+	(assign `(,this ,args) {this, args})
+
+	(errorif-lisp-args-sig 'error :r1 5)
+
+	(list-bind-args args `(,stream ,parray ,data ,num_bits ,cnt) '(:stream :array :num :num :num))
+	(assign `(,stream ,parray ,data ,num_bits ,cnt) {stream, parray, data, num_bits, cnt})
+
+(errorcase
+	(assign `((,parray +array_length)) `(,len))
+	(gotoif `(,len < 2) 'error))
+
+	;load write pool state
+	(vp-rdef (stream data num_bits bit_pool bit_pool_size) (method-input :stream :write_bits))
+	(assign `((,parray +array_begin)) `(,pool_state))
+	(vp-simd vp-cpy-ir `(,pool_state) `(0 ,+long_size) `(,bit_pool ,bit_pool_size))
+
+	;loop for fill
+	(assign {stream} `(,stream))
+	(loop-while `(,cnt /= 0))
+		(assign `(,cnt) {cnt})
+
+		;write data
+		(assign {data, num_bits} `(,data ,num_bits))
+		(call :stream :write_bits `(,stream ,data ,num_bits ,bit_pool ,bit_pool_size)
+			`(,stream ,bit_pool ,bit_pool_size))
+
+		(assign {cnt} `(,cnt))
+		(vp-sub-cr 1 cnt)
+	(loop-end)
+
+	;save write pool state
+	(assign {parray->+array_begin} `(,pool_state))
+	(vp-simd vp-cpy-ri `(,bit_pool ,bit_pool_size) `(,pool_state) `(0 ,+long_size))
+
+	(assign {this, stream} `(,this ,args))
+	(class/obj/ref args cnt)
+	(exit :stream :lisp_fill_bits `(,this ,args))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error {this, "(fill-bits stream parray data num_bits cnt)", +error_msg_wrong_types, args})
+	(signature '(:stream :array :num :num :num)))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method :stream :lisp_copy_bits)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this args wstream rstream)
+		(plong wparray rparray)
+		(uint num_bits cnt))
+
+	(vp-rdef (this args wstream rstream wparray rparray num_bits cnt pool_state len))
+
+	(push-scope)
+	(entry :stream :lisp_copy_bits `(,this ,args))
+	(assign `(,this ,args) {this, args})
+
+	(errorif-lisp-args-sig 'error :r1 6)
+
+	(list-bind-args args `(,wstream ,rstream ,wparray ,rparray ,num_bits ,cnt)
+		'(:stream :stream :array :array :num :num))
+
+(errorcase
+	(assign `((,wparray +array_length)) `(,len))
+	(gotoif `(,len < 2) 'error)
+	(assign `((,rparray +array_length)) `(,len))
+	(gotoif `(,len < 2) 'error))
+
+	(vp-simd vp-cpy-ir `(,wparray ,rparray) `(,+array_begin) `(,wparray ,rparray))
+	(assign `(,wstream ,rstream ,wparray ,rparray ,num_bits ,cnt)
+		{wstream, rstream, wparray, rparray, num_bits, cnt})
+
+	;loop for copy
+	(vp-rdef (wstream wval wnum_bits wbit_pool wbit_pool_size) (method-input :stream :write_bits))
+	(vp-rdef (rstream rval rbit_pool rbit_pool_size) (method-input :stream :read_bits))
+	(loop-while `(,cnt /= 0))
+		(assign `(,cnt) {cnt})
+
+		;read data
+		(assign {rparray, rstream, num_bits} `(,pool_state ,rstream ,rval))
+		(vp-simd vp-cpy-ir `(,pool_state) `(0 ,+long_size) `(,rbit_pool ,rbit_pool_size))
+		(call :stream :read_bits `(,rstream ,rval ,rbit_pool ,rbit_pool_size)
+			`(_ ,rval rbit_pool rbit_pool_size))
+		(assign {rparray} `(,pool_state))
+		(vp-simd vp-cpy-ri `(,rbit_pool ,rbit_pool_size) `(,pool_state) `(0 ,+long_size))
+
+		;write data
+		(assign {wparray, wstream, num_bits} `(,pool_state ,wstream ,wnum_bits))
+		(vp-simd vp-cpy-ir `(,pool_state) `(0 ,+long_size) `(,wbit_pool ,wbit_pool_size))
+		(call :stream :write_bits `(,wstream ,rval ,wnum_bits ,wbit_pool ,wbit_pool_size)
+			`(_ wbit_pool wbit_pool_size))
+		(assign {wparray} `(,pool_state))
+		(vp-simd vp-cpy-ri `(,wbit_pool ,wbit_pool_size) `(,pool_state) `(0 ,+long_size))
+
+		(assign {cnt} `(,cnt))
+		(vp-sub-cr 1 cnt)
+	(loop-end)
+
+	(assign {this, wstream} `(,this ,args))
+	(class/obj/ref args cnt)
+	(exit :stream :lisp_copy_bits `(,this ,args))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error {this, "(copy-bits wstream rstream parray parray num_bits cnt)", +error_msg_wrong_types, args})
+	(signature '(:stream :stream :array :array :num :num)))
+
+	(pop-scope-syms)
+
+(def-func-end)

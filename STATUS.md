@@ -77,6 +77,10 @@ Fix to Buffer class `:next_found_cursor` method to correctly move the cursor to
 the start of the next line if the match is at the end of the line, ie includes
 the "\n".
 
+New stream `(fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt)
+-> stream` and `(copy-bits wstream rstream (array bit_pool bit_pool_size) (array
+bit_pool bit_pool_size) num_bits cnt) -> wstream` VP functions.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the

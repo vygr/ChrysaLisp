@@ -346,6 +346,10 @@
 ; (read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)
 (ffi "class/stream/lisp_write_bits" write-bits)
 ; (write-bits stream (array bit_pool bit_pool_size) data num_bits) -> stream
+(ffi "class/stream/lisp_fill_bits" fill-bits)
+; (fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt) -> stream
+(ffi "class/stream/lisp_copy_bits" copy-bits)
+; (copy-bits wstream rstream (array bit_pool bit_pool_size) (array bit_pool bit_pool_size) num_bits cnt) -> wstream
 (ffi "class/stream/lisp_mstream" memory-stream)
 ; (memory-stream) -> stream
 (ffi "class/out/lisp_create" out-stream)
