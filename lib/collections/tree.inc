@@ -21,14 +21,9 @@
 		((sym? atom) atom)
 		((num? atom) atom)
 		((str? atom)
-			;if detect binary, first try escaping the string
-			(if (defq has_bin (/= (rbskip (const (cat " !" {""}
-					"#$%&'()*+,-./0123456789:;<=>?@"
-					"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
-					"abcdefghijklmnopqrstuvwxyz{|}~"))
-					atom -1) 0))
-				(setq atom (escape atom)))
-			(defq has_quote (/= (rbskipn {""} atom -1) 0)
+			;always escape the string
+			(defq atom (escape atom)
+				has_quote (/= (rbskipn {""} atom -1) 0)
 				has_curly (/= (rbskipn "{}" atom -1) 0)
 				has_bin (/= (rbskip (const (cat " !" {""}
 					"#$%&'()*+,-./0123456789:;<=>?@"
