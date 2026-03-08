@@ -45,11 +45,10 @@
 					(setf-> pixmap (+pixmap_stream_type type 0) (+pixmap_type 32 0))
 					; decompress exactly one frame straight into our memory stream
 					; max_tokens cap ensures .flm files are respected!
-					(defq mem_stream (memory-stream))
-					(rle-decompress stream mem_stream num_bits 8 (* w h))
-					(stream-seek mem_stream 0 0)
+					(rle-decompress stream (defq pixel_stream (memory-stream)) num_bits 8 (* w h))
+					(stream-seek pixel_stream 0 0)
 					; loop and copy direct to the pixmap's pixel buffer
-					(ifn (pixmap-read pixmap mem_stream type (getf header +cpm_trans))
+					(ifn (pixmap-read pixmap pixel_stream type (getf header +cpm_trans))
 						(setq canvas :nil))))))
 	canvas)
 
@@ -67,9 +66,9 @@
 		(+cpm_height (getf pixmap +pixmap_height 0))
 		(+cpm_trans 0)))
 	;data
-	(pixmap-write (pixmap-as-argb pixmap) (defq mem_stream (memory-stream)) type)
-	(stream-seek mem_stream 0 0)
-	(rle-compress mem_stream stream num_bits 8)
+	(pixmap-write (pixmap-as-argb pixmap) (defq pixel_stream (memory-stream)) type)
+	(stream-seek pixel_stream 0 0)
+	(rle-compress pixel_stream stream num_bits 8)
 	canvas)
 
 ;module
