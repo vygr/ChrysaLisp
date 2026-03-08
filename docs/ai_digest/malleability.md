@@ -9,8 +9,7 @@ Lisp is not Macros, it's not even Lists ! It is none of these things that you
 have herd about when folks try to explain the power of LIsp ! It is
 **malleability** !
 
-## The Magic of Lisp, The Speed of C: How ChrysaLisp Delivers Malleability
-Without Compromise
+## The Magic of Lisp, The Speed of C: How ChrysaLisp Delivers Malleability Without Compromise
 
 For decades, a fundamental trade-off has haunted programming language design.
 On one side stand languages like C++, C, and Forth, offering raw,
