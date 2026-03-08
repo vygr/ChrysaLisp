@@ -888,15 +888,15 @@
 
 	;loop for copy
 	(vp-rdef (wstream wval wnum_bits wbit_pool wbit_pool_size) (method-input :stream :write_bits))
-	(vp-rdef (rstream rval rbit_pool rbit_pool_size) (method-input :stream :read_bits))
+	(vp-rdef (rstream rnum_bits rbit_pool rbit_pool_size) (method-input :stream :read_bits))
 	(loop-while `(,cnt /= 0))
 		(assign `(,cnt) {cnt})
 
 		;read data
-		(assign {rparray, rstream, num_bits} `(,pool_state ,rstream ,rval))
+		(assign {rparray, rstream, num_bits} `(,pool_state ,rstream ,rnum_bits))
 		(vp-simd vp-cpy-ir `(,pool_state) `(0 ,+long_size) `(,rbit_pool ,rbit_pool_size))
-		(call :stream :read_bits `(,rstream ,rval ,rbit_pool ,rbit_pool_size)
-			`(_ ,rval rbit_pool rbit_pool_size))
+		(call :stream :read_bits `(,rstream ,rnum_bits ,rbit_pool ,rbit_pool_size)
+			`(_ rval rbit_pool rbit_pool_size))
 		(assign {rparray} `(,pool_state))
 		(vp-simd vp-cpy-ri `(,rbit_pool ,rbit_pool_size) `(,pool_state) `(0 ,+long_size))
 
