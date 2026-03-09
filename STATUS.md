@@ -81,6 +81,9 @@ New stream `(fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt)
 -> stream` and `(copy-bits wstream rstream (array bit_pool bit_pool_size) (array
 bit_pool bit_pool_size) num_bits cnt) -> wstream` VP functions.
 
+Updated all Windows `.ps1` launch scripts to latest options, bringing them
+inline with the `.sh` scripts.
+
 ------
 
 Refactored GUI `Edit` widget to delegate all focus region management to the
