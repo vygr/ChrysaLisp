@@ -80,31 +80,45 @@
 (defclass Mesh-sphere (radius eps) (Mesh)
 	; (Mesh-sphere radius eps) -> mesh
 	(defq y 1 eps2 (* eps 2) eps2_r (n2r eps2)
-		verts (reals) norms (reals) tris (nums))
-	;gen verts
+		step (/ +real_2pi eps2_r)
+		verts (reals) norms (reals) tris (nums)
+		x_sins (list) x_coses (list))
+	; Pre-calculate longitudinal (horizontal) angles
+	; prevents recalculating the same sines and cosines for every latitude ring
+	(defq x 0)
+	(while (< x eps2)
+		(defq xa (* (n2r x) step))
+		(push x_sins (sin xa))
+		(push x_coses (cos xa))
+		(++ x))
+	; gen verts
 	(while (< y eps)
 		(task-slice)
-		(defq x 0 ya (/ (* (n2r y) +real_2pi) eps2_r)
+		(defq x 0 ya (* (n2r y) step)
 			yv (* radius (cos ya)) r (* radius (sin ya)))
 		(while (< x eps2)
-			(defq xa (/ (* (n2r x) +real_2pi) eps2_r)
-				xv (* r (sin xa)) zv (* r (cos xa)))
-			(push verts xv yv zv +real_1)
+			(push verts 
+				(* r (elem-get x_sins x)) yv 
+				(* r (elem-get x_coses x)) +real_1)
 			(++ x))
 		(++ y))
 	(push verts +real_0 radius +real_0 +real_1 +real_0 (neg radius) +real_0 +real_1)
-	;gen norms and tris for mid section strips
+	; gen norms and tris for mid section strips
 	(defq y 1)
 	(while (< y (dec eps))
 		(task-slice)
-		(defq x 0)
+		; Hoist Y-based index out of the inner loop
+		(defq x 0 y_eps2 (* (dec y) eps2))
 		(while (< x eps2)
-			(defq i0 (+ x (* (dec y) eps2))
-				i1 (+ (% (inc x) eps2) (* (dec y) eps2))
+			; Avoid modulo division with a simple bounds wrap check
+			(when (= (defq xn (inc x)) eps2) (setq xn 0))
+			(defq i0 (+ x y_eps2)
+				i1 (+ xn y_eps2)
 				i2 (+ i0 eps2)
 				i3 (+ i1 eps2)
 				in (/ (length norms) +vec3_size))
 			(push tris i0 i1 i2 in i2 i1 i3 in)
+			; Scale indices to byte offsets for normal generation
 			(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
 			(push norms (Normal
 				(slice verts i0 (+ i0 +vec3_size))
@@ -112,11 +126,13 @@
 				(slice verts i2 (+ i2 +vec3_size))))
 			(++ x))
 		(++ y))
-	;gen norms and tris for end cap fans
+	; gen norms and tris for end cap fans
 	(defq x 0 y (* eps2 (- eps 2)))
 	(while (< x eps2)
+		; Avoid modulo division for the caps as well
+		(when (= (defq xn (inc x)) eps2) (setq xn 0))
 		(defq i0 (+ x y)
-			i1 (+ (% (inc x) eps2) y)
+			i1 (+ xn y)
 			i2 (dec (/ (length verts) +vec4_size))
 			in (/ (length norms) +vec3_size))
 		(push tris i0 i1 i2 in)
@@ -125,7 +141,7 @@
 			(slice verts i0 (+ i0 +vec3_size))
 			(slice verts i1 (+ i1 +vec3_size))
 			(slice verts i2 (+ i2 +vec3_size))))
-		(defq i0 (% (inc x) eps2)
+		(defq i0 xn
 			i1 x
 			i2 (- (/ (length verts) +vec4_size) 2)
 			in (/ (length norms) +vec3_size))
@@ -141,31 +157,45 @@
 (defclass Mesh-torus (radius_ring radius_body eps) (Mesh)
 	; (Mesh-torus radius_ring radius_body eps) -> mesh
 	(defq y 0 eps2 (* eps 2) eps_r (n2r eps) eps2_r (n2r eps2)
-		verts (reals) norms (reals) tris (nums))
-	;gen verts
+		y_step (/ +real_2pi eps_r) x_step (/ +real_2pi eps2_r)
+		verts (reals) norms (reals) tris (nums)
+		x_sins (list) x_coses (list))
+	; Pre-calculate toroidal (horizontal) angles
+	; prevents recalculating the same sines and cosines for every single ring
+	(defq x 0)
+	(while (< x eps2)
+		(defq xa (* (n2r x) x_step))
+		(push x_sins (sin xa))
+		(push x_coses (cos xa))
+		(++ x))
+	; gen verts
 	(while (< y eps)
 		(task-slice)
-		(defq x 0 ya (/ (* (n2r y) +real_2pi) eps_r)
+		(defq x 0 ya (* (n2r y) y_step)
 			yv (* radius_body (cos ya))
 			r (+ radius_ring (* radius_body (sin ya))))
 		(while (< x eps2)
-			(defq xa (/ (* (n2r x) +real_2pi) eps2_r)
-				xv (* r (sin xa)) zv (* r (cos xa)))
-			(push verts xv yv zv +real_1)
+			(push verts
+				(* r (elem-get x_sins x)) yv
+				(* r (elem-get x_coses x)) +real_1)
 			(++ x))
 		(++ y))
-	;gen norms and tris
+	; gen norms and tris
 	(defq y 0)
 	(while (< y eps)
 		(task-slice)
-		(defq x 0)
+		; Hoist the Y-based index calculations out of the inner X loop
+		(defq x 0 y_eps2 (* y eps2) yn_eps2 (* (% (inc y) eps) eps2))
 		(while (< x eps2)
-			(defq i0 (+ x (* y eps2))
-				i1 (+ (* y eps2) (% (inc x) eps2))
-				i2 (+ x (* (% (inc y) eps) eps2))
-				i3 (+ (% (inc x) eps2) (* (% (inc y) eps) eps2))
+			; Avoid an expensive modulo division in the inner loop with a simple reset
+			(when (= (defq xn (inc x)) eps2) (setq xn 0))
+			(defq i0 (+ x y_eps2)
+				i1 (+ xn y_eps2)
+				i2 (+ x yn_eps2)
+				i3 (+ xn yn_eps2)
 				in (/ (length norms) +vec3_size))
 			(push tris i2 i0 i1 in i2 i1 i3 in)
+			; Scale indices to byte offsets for the normal generation
 			(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
 			(push norms (Normal
 				(slice verts i0 (+ i0 +vec3_size))
