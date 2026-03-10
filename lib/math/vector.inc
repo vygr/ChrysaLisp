@@ -82,7 +82,7 @@
 	(if _ `(nums-min (nums-max ,p1 ,p2 ,_) ,p3 ,_) `(nums-min (nums-max ,p1 ,p2) ,p3)))
 
 (defun vector-reflect (p n)
-	(vector-sub p (vector-scale n (* (nums-sum (vector-mul p n)) +real_2))))
+	(vector-sub p (vector-scale n (* (vector-dot p n) +real_2))))
 
 (defun vector-length-squared (p)
 	(vector-dot p p))
@@ -100,18 +100,20 @@
 	(sqrt (vector-dot (defq p1 (vector-sub p2 p1)) p1)))
 
 (defun vector-dist-to-line (p p1 p2)
-	(if (<= (defq lv (vector-sub p2 p1) c1 (vector-dot (vector-sub p p1) lv)) 0)
+	(defq lv (vector-sub p2 p1) c1 (vector-dot (vector-sub p p1) lv))
+	(if (<= c1 0)
 		(vector-dist p p1)
 		(if (<= (defq c2 (vector-dot lv lv)) c1)
 			(vector-dist p p2)
-			(vector-dist p (vector-add p1 (vector-scale lv (/ c1 c2)))))))
+			(vector-dist p (vector-add p1 (vector-scale lv (/ c1 c2) lv) lv)))))
 
 (defun vector-sdist-to-line (p p1 p2)
-	(if (<= (defq lv (vector-sub p2 p1) c1 (vector-dot (vector-sub p p1) lv)) 0)
+	(defq lv (vector-sub p2 p1) c1 (vector-dot (vector-sub p p1) lv))
+	(if (<= c1 0)
 		(vector-sdist p p1)
 		(if (<= (defq c2 (vector-dot lv lv)) c1)
 			(vector-sdist p p2)
-			(vector-sdist p (vector-add p1 (vector-scale lv (/ c1 c2)) lv)))))
+			(vector-sdist p (vector-add p1 (vector-scale lv (/ c1 c2) lv) lv)))))
 
 (defun vector-manhattan-distance (p1 p2)
 	(nums-sum (nums-abs (nums-sub p1 p2))))
