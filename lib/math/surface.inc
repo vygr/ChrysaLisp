@@ -10,9 +10,6 @@
 	(enum p0 p1 p2 p3 p4 p5 p6 p7)
 	(enum v0 v1 v2 v3 v4 v5 v6 v7))
 
-(defmacro Gridcell (p0 p1 p2 p3 p4 p5 p6 p7 v0 v1 v2 v3 v4 v5 v6 v7)
-	`(list ,p0 ,p1 ,p2 ,p3 ,p4 ,p5 ,p6 ,p7 ,v0 ,v1 ,v2 ,v3 ,v4 ,v5 ,v6 ,v7))
-
 (defq +edge_table ''(
 		0x0   0x109 0x203 0x30a 0x406 0x50f 0x605 0x70c
 		0x80c 0x905 0xa0f 0xb06 0xc0a 0xd03 0xe09 0xf00
@@ -373,34 +370,6 @@
 	(defmethod :get_metrics ()
 		; (. iso :get_metrics) -> (width height depth)
 		(list (get :width this) (get :height this) (get :depth this)))
-
-	(defmethod :get_gridcell (x y z)
-		; (. iso :get_gridcell x y z) -> gridcell
-		(raise :width :height :depth :center :scale)
-		(defq ix (inc x) iy (inc y) iz (inc z)
-			rx (n2r x) ry (n2r y) rz (n2r z) rix (n2r ix) riy (n2r iy) riz (n2r iz)
-			get_scalar_fnc (.? this :get_scalar))
-		(Gridcell
-			(vector-mul scale (vector-sub (Vec3-r rx ry riz) center +reals_tmp3))
-			(vector-mul scale (vector-sub (Vec3-r rix ry riz) center +reals_tmp3))
-			(vector-mul scale (vector-sub (Vec3-r rix ry rz) center +reals_tmp3))
-			(vector-mul scale (vector-sub (Vec3-r rx ry rz) center +reals_tmp3))
-			(vector-mul scale (vector-sub (Vec3-r rx riy riz) center +reals_tmp3))
-			(vector-mul scale (vector-sub (Vec3-r rix riy riz) center +reals_tmp3))
-			(vector-mul scale (vector-sub (Vec3-r rix riy rz) center +reals_tmp3))
-			(vector-mul scale (vector-sub (Vec3-r rx riy rz) center +reals_tmp3))
-			(get_scalar_fnc this x y iz)
-			(get_scalar_fnc this ix y iz)
-			(get_scalar_fnc this ix y z)
-			(get_scalar_fnc this x y z)
-			(get_scalar_fnc this x iy iz)
-			(get_scalar_fnc this ix iy iz)
-			(get_scalar_fnc this ix iy z)
-			(get_scalar_fnc this x iy z)))
-
-	(defmethod :get_surface (x y z isolevel)
-		; (. iso :get_surface x y z isolevel) -> triangles
-		(iso-surface (. this :get_gridcell x y z) isolevel))
 	)
 
 (defclass Iso-sphere (width height depth) (Iso width height depth)
@@ -446,5 +415,6 @@
 	)
 
 ;module
+(export-symbols '(iso-surface))
 (export-classes '(Iso Iso-sphere Iso-tetra Iso-capsule Iso-cube))
 (env-pop)
