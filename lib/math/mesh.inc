@@ -205,6 +205,19 @@
 		(++ y))
 	(lower :verts :norms :tris))
 
+;evaluates a single 2D slice of the 3D volume
+(defun eval-slice (z)
+	(defq slc (cap (* gw gh 2) (list)) y 0 pz (elem-get z_points z))
+	(while (< y gh)
+		(defq x 0 py (elem-get y_points y))
+		(while (< x gw)
+			(push slc
+				(Vec3-r (elem-get x_points x) py pz)
+				(get_scalar_fnc iso x y z))
+			(++ x))
+		(++ y))
+	slc)
+
 (defclass Mesh-iso (iso isolevel) (Mesh)
 	; (Mesh-iso iso isolevel) -> mesh
 	(bind '(gw gh gd) (. iso :get_metrics))
@@ -227,18 +240,6 @@
 	(while (< z gd)
 		(push z_points (* (- (n2r z) cz) sz))
 		(++ z))
-	; Evaluates a single 2D slice of the 3D volume
-	(defun eval-slice (z)
-		(defq slc (cap (* gw gh 2) (list)) y 0 pz (elem-get z_points z))
-		(while (< y gh)
-			(defq x 0 py (elem-get y_points y))
-			(while (< x gw)
-				(push slc
-					(Vec3-r (elem-get x_points x) py pz)
-					(get_scalar_fnc iso x y z))
-				(++ x))
-			(++ y))
-		slc)
 	(defq slice_z (eval-slice 0) z 0)
 	; March through the Z depth
 	(while (< z cd)
