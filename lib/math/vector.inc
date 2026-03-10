@@ -79,7 +79,9 @@
 (undef (env) 'def_real 'vector-macro)
 
 (defmacro vector-clamp (p1 p2 p3 &optional _)
-	(if _ `(nums-min (nums-max ,p1 ,p2 ,_) ,p3 ,_) `(nums-min (nums-max ,p1 ,p2) ,p3)))
+	(if _
+		`(nums-min (nums-max ,p1 ,p2 ,_) ,p3 ,_)
+		`(nums-min (nums-max ,p1 ,p2) ,p3)))
 
 (defun vector-reflect (p n)
 	(vector-sub p (vector-scale n (* (vector-dot p n) +real_2))))
