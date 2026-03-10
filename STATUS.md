@@ -4,6 +4,12 @@
 
 ------
 
+Added a few more `&optional` outputs to the vector library functions.
+
+Optimised the `Mesh` and `Surface` classes.
+
+------
+
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
 `mat4x4-vec3-mul`.
 
