@@ -83,17 +83,21 @@
 		`(nums-min (nums-max ,p1 ,p2 ,_) ,p3 ,_)
 		`(nums-min (nums-max ,p1 ,p2) ,p3)))
 
-(defun vector-reflect (p n)
-	(vector-sub p (vector-scale n (* (vector-dot p n) +real_2))))
+(defmacro vector-reflect (p n &optional _)
+	(if _
+		`(vector-sub ,p (vector-scale ,n (* (vector-dot ,p ,n) +real_2) ,_) ,_)
+		`(vector-sub ,p (vector-scale ,n (* (vector-dot ,p ,n) +real_2)))))
 
-(defun vector-length-squared (p)
-	(vector-dot p p))
+(defmacro vector-length-squared (p)
+	`(vector-dot ,p ,p))
 
 (defun vector-length (p)
 	(sqrt (vector-dot p p)))
 
-(defun vector-norm (p)
-	(vector-scale p (recip (sqrt (vector-dot p p)))))
+(defmacro vector-norm (p &optional _)
+	(if _
+		`(vector-scale ,p (recip (sqrt (vector-dot ,p ,p))) ,_)
+		`(vector-scale ,p (recip (sqrt (vector-dot ,p ,p))))))
 
 (defun vector-sdist (p1 p2)
 	(vector-dot (defq p1 (vector-sub p2 p1)) p1))
