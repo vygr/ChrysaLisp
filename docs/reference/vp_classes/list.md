@@ -139,7 +139,7 @@ inputs
 :r0 = list of seq objects (ptr)
 outputs
 :r0 = list of seq objects (ptr)
-:r1 = +max_int, or minimum length (uint)
+:r1 = +max_long, or minimum length (uint)
 trashes
 :r1-:r5
 ```

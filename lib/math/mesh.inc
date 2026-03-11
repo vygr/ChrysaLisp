@@ -85,26 +85,22 @@
 		x_sins (list) x_coses (list))
 	; Pre-calculate longitudinal (horizontal) angles
 	; prevents recalculating the same sines and cosines for every latitude ring
-	(defq x 0)
-	(while (< x eps2)
-		(defq xa (* (n2r x) step))
+	(for 0 eps2
+		(defq xa (* (n2r (!)) step))
 		(push x_sins (sin xa))
-		(push x_coses (cos xa))
-		(++ x))
+		(push x_coses (cos xa)))
 	; gen verts
-	(while (< y eps)
+	(for y eps
 		(task-slice)
-		(defq ya (* (n2r y) step) yv (* radius (cos ya)) r (* radius (sin ya)))
-		(each! (# (push verts (* r %0) yv (* r %1) +real_1)) (list x_sins x_coses))
-		(++ y))
+		(defq ya (* (n2r (!)) step) yv (* radius (cos ya)) r (* radius (sin ya)))
+		(each! (# (push verts (* r %0) yv (* r %1) +real_1)) (list x_sins x_coses)))
 	(push verts +real_0 radius +real_0 +real_1 +real_0 (neg radius) +real_0 +real_1)
 	; gen norms and tris for mid section strips
-	(defq y 1)
-	(while (< y (dec eps))
+	(for 1 (dec eps)
 		(task-slice)
 		; Hoist Y-based index out of the inner loop
-		(defq y_eps2 (* (dec y) eps2))
-		(each (lambda (&)
+		(defq y_eps2 (* (dec (!)) eps2))
+		(for 0 eps2
 			; Avoid modulo division with a simple bounds wrap check
 			(when (= (defq xn (inc (!))) eps2) (setq xn 0))
 			(defq i0 (+ (!) y_eps2) i1 (+ xn y_eps2)
@@ -116,11 +112,10 @@
 			(push norms (Normal
 				(slice verts i0 (+ i0 +vec3_size))
 				(slice verts i1 (+ i1 +vec3_size))
-				(slice verts i2 (+ i2 +vec3_size))))) x_sins)
-		(++ y))
+				(slice verts i2 (+ i2 +vec3_size))))))
 	; gen norms and tris for end cap fans
 	(defq y (* eps2 (- eps 2)))
-	(each (lambda (&)
+	(for 0 eps2
 		; Avoid modulo division for the caps as well
 		(when (= (defq xn (inc (!))) eps2) (setq xn 0))
 		(defq i0 (+ (!) y) i1 (+ xn y)
@@ -140,7 +135,7 @@
 		(push norms (Normal
 			(slice verts i0 (+ i0 +vec3_size))
 			(slice verts i1 (+ i1 +vec3_size))
-			(slice verts i2 (+ i2 +vec3_size))))) x_sins)
+			(slice verts i2 (+ i2 +vec3_size)))))
 	(lower :verts :norms :tris))
 
 (defclass Mesh-torus (radius_ring radius_body eps) (Mesh)
@@ -151,26 +146,22 @@
 		x_sins (list) x_coses (list))
 	; Pre-calculate toroidal (horizontal) angles
 	; prevents recalculating the same sines and cosines for every single ring
-	(defq x 0)
-	(while (< x eps2)
-		(defq xa (* (n2r x) x_step))
+	(for 0 eps2
+		(defq xa (* (n2r (!)) x_step))
 		(push x_sins (sin xa))
-		(push x_coses (cos xa))
-		(++ x))
+		(push x_coses (cos xa)))
 	; gen verts
-	(while (< y eps)
+	(for 0 eps
 		(task-slice)
-		(defq ya (* (n2r y) y_step) yv (* radius_body (cos ya))
+		(defq ya (* (n2r (!)) y_step) yv (* radius_body (cos ya))
 			r (+ radius_ring (* radius_body (sin ya))))
-		(each! (# (push verts (* r %0) yv (* r %1) +real_1)) (list x_sins x_coses))
-		(++ y))
+		(each! (# (push verts (* r %0) yv (* r %1) +real_1)) (list x_sins x_coses)))
 	; gen norms and tris
-	(defq y 0)
-	(while (< y eps)
+	(for 0 eps
 		(task-slice)
 		; Hoist the Y-based index calculations out of the inner X loop
-		(defq y_eps2 (* y eps2) yn_eps2 (* (% (inc y) eps) eps2))
-		(each (lambda (&)
+		(defq y_eps2 (* (!) eps2) yn_eps2 (* (% (inc (!)) eps) eps2))
+		(for 0 eps2
 			; Avoid an expensive modulo division in the inner loop with a simple reset
 			(when (= (defq xn (inc (!))) eps2) (setq xn 0))
 			(defq i0 (+ (!) y_eps2)
@@ -184,8 +175,7 @@
 			(push norms (Normal
 				(slice verts i0 (+ i0 +vec3_size))
 				(slice verts i1 (+ i1 +vec3_size))
-				(slice verts i2 (+ i2 +vec3_size))))) x_sins)
-		(++ y))
+				(slice verts i2 (+ i2 +vec3_size))))))
 	(lower :verts :norms :tris))
 
 ;evaluates a single 2D slice of the 3D volume

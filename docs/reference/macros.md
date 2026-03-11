@@ -241,6 +241,12 @@ should provide the concreate handler
 (filter lambda seq) -> list
 ```
 
+### for
+
+```code
+(for start end [body])
+```
+
 ### get-byte
 
 ```code
@@ -359,6 +365,12 @@ should provide the concreate handler
 
 ```code
 (let* ([(sym val) ...]) body)
+```
+
+### lists
+
+```code
+(lists n) -> ((list0) ... (listn-1))
 ```
 
 ### lower

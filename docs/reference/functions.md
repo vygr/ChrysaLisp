@@ -580,12 +580,6 @@ very basic attenuation, diffuse and specular
 (list? form) -> :t | :nil
 ```
 
-### lists
-
-```code
-(lists n) -> ((list0) ... (listn-1))
-```
-
 ### load-stream
 
 ```code

@@ -61,17 +61,16 @@
 	(call :obj :ref {this->+lisp_sym_nil} {value})
 
 	(call :list :min_length `(,seqs) '(_ len))
-	(vpif `(,len /= +max_int))
-		(seq-elem-index idx len)
-		(seq-elem-index end len)
+	(seq-elem-index idx len)
+	(seq-elem-index end len)
 
-	(errorcase
-		(gotoif `(,idx < 0) 'error2)
-		(gotoif `(,end < 0) 'error2)
-		(gotoif `(,idx > ,len) 'error2)
-		(gotoif `(,end > ,len) 'error2))
+(errorcase
+	(gotoif `(,idx < 0) 'error2)
+	(gotoif `(,end < 0) 'error2)
+	(gotoif `(,idx > ,len) 'error2)
+	(gotoif `(,end > ,len) 'error2))
 
-		(breakif `(,idx = ,end))
+	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
 		(vpif `(,idx > ,end))
 			(vp-simd vp-sub-rr `(,dir) `(,idx ,end))
@@ -166,17 +165,16 @@
 	(call :obj :ref `(,mode) {value})
 
 	(call :list :min_length `(,seqs) '(_ len))
-	(vpif `(,len /= +max_int))
-		(seq-elem-index idx len)
-		(seq-elem-index end len)
+	(seq-elem-index idx len)
+	(seq-elem-index end len)
 
-	(errorcase
-		(gotoif `(,idx < 0) 'error2)
-		(gotoif `(,end < 0) 'error2)
-		(gotoif `(,idx > ,len) 'error2)
-		(gotoif `(,end > ,len) 'error2))
+(errorcase
+	(gotoif `(,idx < 0) 'error2)
+	(gotoif `(,end < 0) 'error2)
+	(gotoif `(,idx > ,len) 'error2)
+	(gotoif `(,end > ,len) 'error2))
 
-		(breakif `(,idx = ,end))
+	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
 		(vpif `(,idx > ,end))
 			(vp-simd vp-sub-rr `(,dir) `(,idx ,end))
@@ -281,17 +279,16 @@
 	(assign '(:r0) {out})
 
 	(call :list :min_length `(,seqs) '(_ len))
-	(vpif `(,len /= +max_int))
-		(seq-elem-index idx len)
-		(seq-elem-index end len)
+	(seq-elem-index idx len)
+	(seq-elem-index end len)
 
-	(errorcase
-		(gotoif `(,idx < 0) 'error2)
-		(gotoif `(,end < 0) 'error2)
-		(gotoif `(,idx > ,len) 'error2)
-		(gotoif `(,end > ,len) 'error2))
+(errorcase
+	(gotoif `(,idx < 0) 'error2)
+	(gotoif `(,end < 0) 'error2)
+	(gotoif `(,idx > ,len) 'error2)
+	(gotoif `(,end > ,len) 'error2))
 
-		(breakif `(,idx = ,end))
+	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
 		(vpif `(,idx > ,end))
 			(vp-simd vp-sub-rr `(,dir) `(,idx ,end))
@@ -397,17 +394,16 @@
 	(class/obj/ref value dir)
 
 	(call :list :min_length `(,seqs) `(,seqs len))
-	(vpif `(,len /= +max_int))
-		(seq-elem-index idx len)
-		(seq-elem-index end len)
+	(seq-elem-index idx len)
+	(seq-elem-index end len)
 
-	(errorcase
-		(gotoif `(,idx < 0) 'error2)
-		(gotoif `(,end < 0) 'error2)
-		(gotoif `(,idx > ,len) 'error2)
-		(gotoif `(,end > ,len) 'error2))
+(errorcase
+	(gotoif `(,idx < 0) 'error2)
+	(gotoif `(,end < 0) 'error2)
+	(gotoif `(,idx > ,len) 'error2)
+	(gotoif `(,end > ,len) 'error2))
 
-		(breakif `(,idx = ,end))
+	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
 		(vpif `(,idx > ,end))
 			(vp-simd vp-sub-rr `(,dir) `(,idx ,end))
@@ -503,17 +499,16 @@
 	(assign '(:r0) {out})
 
 	(call :seq :get_length `(,seq) '(_ len))
-	(vpif `(,len /= +max_int))
-		(seq-elem-index idx len)
-		(seq-elem-index end len)
+	(seq-elem-index idx len)
+	(seq-elem-index end len)
 
-	(errorcase
-		(gotoif `(,idx < 0) 'error2)
-		(gotoif `(,end < 0) 'error2)
-		(gotoif `(,idx > ,len) 'error2)
-		(gotoif `(,end > ,len) 'error2))
+(errorcase
+	(gotoif `(,idx < 0) 'error2)
+	(gotoif `(,end < 0) 'error2)
+	(gotoif `(,idx > ,len) 'error2)
+	(gotoif `(,end > ,len) 'error2))
 
-		(breakif `(,idx = ,end))
+	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
 		(vpif `(,idx > ,end))
 			(vp-simd vp-sub-rr `(,dir) `(,idx ,end))

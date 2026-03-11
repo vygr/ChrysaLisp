@@ -750,6 +750,10 @@
 ; Functional
 ;;;;;;;;;;;;
 
+(defmacro for (s e &rest %2)
+	; (for start end [body])
+	`(each! (# ~%2) '() ,s ,e))
+
 (defun range (b e &optional s)
 	; (range start end [step]) -> list
 	(defq s (ifn s 1 (abs s)) l (cap (/ (abs (- b e)) s) (list)))
@@ -866,11 +870,9 @@
 			(static-qq (splice (defq ,_s ,s) ,_s
 				(nums 0 (defq ,_i ,i) (defq ,_j ,j) (defq ,_k ,k) ,_i ,_j ,_k -1))))))
 
-(defun lists (n)
+(defmacro lists (n)
 	; (lists n) -> ((list0) ... (listn-1))
-	(defq out (cap n (list)))
-	(while (>= (-- n) 0) (push out (list)))
-	out)
+	`(map! (const list) '() (list) 0 ,n))
 
 (defun join (seqs seq &optional mode)
 	; (join seqs seq [mode]) -> seq

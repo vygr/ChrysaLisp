@@ -394,7 +394,7 @@
 	;:r0 = list of seq objects (ptr)
 	;outputs
 	;:r0 = list of seq objects (ptr)
-	;:r1 = +max_int, or minimum length (uint)
+	;:r1 = +max_long, or minimum length (uint)
 	;trashes
 	;:r1-:r5
 
@@ -402,7 +402,7 @@
 
 	(entry :list :min_length `(,this))
 
-	(vp-cpy-cr +max_int min_len)
+	(vp-cpy-cr +max_long min_len)
 	(class/array/get_both this iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)

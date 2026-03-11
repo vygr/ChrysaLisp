@@ -8,6 +8,13 @@ Added a few more `&optional` outputs to the vector library functions.
 
 Optimised the `Mesh` and `Surface` classes.
 
+Allow an empty list of sequences to the `!` iterator functions ! As a result you
+can do raw numeric iteration. ie. `(map! ! '() (list) 0 10) -> (0 1 2 3 4 5 6 7
+8 9)`, `(map! ! '() (list) 10 0) -> (9 8 7 6 5 4 3 2 1 0)`.
+
+Added basic `(for start end [body])` numeric loops using the empty sequence
+iterators.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
