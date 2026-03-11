@@ -213,8 +213,7 @@
 
 (defclass Scene (&optional name) (Scene-node name)
 	; (Scene [name]) -> scene_node
-	(def this :poly_buckets (defq poly_buckets (cap +num_poly_buckets (list))))
-	(times +num_poly_buckets (push poly_buckets (list)))
+	(def this :poly_buckets (defq poly_buckets (lists +num_poly_buckets)))
 
 	(defmethod :render (canvas size left right top bottom near far mode)
 		; (. scene_node :render canvas size left right top bottom near far) -> scene_node
