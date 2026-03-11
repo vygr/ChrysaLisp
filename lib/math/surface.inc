@@ -323,40 +323,36 @@
 	; (iso-surface grid isolevel) -> tris
 	;determine the index into the edge table which
 	;tells us which vertices are inside the surface
-	(defq cubeindex (reduce (lambda (cubeindex (b v))
-				(+ cubeindex (if (<= (elem-get grid v) isolevel) b 0)))
-			(static-q (
-			(1 +gridcell_v0) (2 +gridcell_v1)
-			(4 +gridcell_v2) (8 +gridcell_v3)
-			(16 +gridcell_v4) (32 +gridcell_v5)
-			(64 +gridcell_v6) (128 +gridcell_v7))) 0))
+	(defq cubeindex (+
+		(if (<= (elem-get grid +gridcell_v0) isolevel) 1 0)
+		(if (<= (elem-get grid +gridcell_v1) isolevel) 2 0)
+		(if (<= (elem-get grid +gridcell_v2) isolevel) 4 0)
+		(if (<= (elem-get grid +gridcell_v3) isolevel) 8 0)
+		(if (<= (elem-get grid +gridcell_v4) isolevel) 16 0)
+		(if (<= (elem-get grid +gridcell_v5) isolevel) 32 0)
+		(if (<= (elem-get grid +gridcell_v6) isolevel) 64 0)
+		(if (<= (elem-get grid +gridcell_v7) isolevel) 128 0)))
 	(cond
 		((= (defq cube (elem-get +edge_table cubeindex)) 0)
 			;cube is entirely in/out of the surface
 			'())
 		(:t ;find the vertices where the surface intersects the cube
-			(defq vertlist (reduce (lambda (vertlist (i p0 p1 v0 v1))
-						(push vertlist (if (= (logand cube i) 0) :nil
-							(vertex-interp isolevel
-								(elem-get grid p0) (elem-get grid p1)
-								(elem-get grid v0) (elem-get grid v1)))))
-					(static-q (
-					(1 +gridcell_p0 +gridcell_p1 +gridcell_v0 +gridcell_v1)
-					(2 +gridcell_p1 +gridcell_p2 +gridcell_v1 +gridcell_v2)
-					(4 +gridcell_p2 +gridcell_p3 +gridcell_v2 +gridcell_v3)
-					(8 +gridcell_p3 +gridcell_p0 +gridcell_v3 +gridcell_v0)
-					(16 +gridcell_p4 +gridcell_p5 +gridcell_v4 +gridcell_v5)
-					(32 +gridcell_p5 +gridcell_p6 +gridcell_v5 +gridcell_v6)
-					(64 +gridcell_p6 +gridcell_p7 +gridcell_v6 +gridcell_v7)
-					(128 +gridcell_p7 +gridcell_p4 +gridcell_v7 +gridcell_v4)
-					(256 +gridcell_p0 +gridcell_p4 +gridcell_v0 +gridcell_v4)
-					(512 +gridcell_p1 +gridcell_p5 +gridcell_v1 +gridcell_v5)
-					(1024 +gridcell_p2 +gridcell_p6 +gridcell_v2 +gridcell_v6)
-					(2048 +gridcell_p3 +gridcell_p7 +gridcell_v3 +gridcell_v7))) (list)))
+			(defq vertlist (list
+				(if (bits? cube 1) (vertex-interp isolevel (elem-get grid +gridcell_p0) (elem-get grid +gridcell_p1) (elem-get grid +gridcell_v0) (elem-get grid +gridcell_v1)) :nil)
+				(if (bits? cube 2) (vertex-interp isolevel (elem-get grid +gridcell_p1) (elem-get grid +gridcell_p2) (elem-get grid +gridcell_v1) (elem-get grid +gridcell_v2)) :nil)
+				(if (bits? cube 4) (vertex-interp isolevel (elem-get grid +gridcell_p2) (elem-get grid +gridcell_p3) (elem-get grid +gridcell_v2) (elem-get grid +gridcell_v3)) :nil)
+				(if (bits? cube 8) (vertex-interp isolevel (elem-get grid +gridcell_p3) (elem-get grid +gridcell_p0) (elem-get grid +gridcell_v3) (elem-get grid +gridcell_v0)) :nil)
+				(if (bits? cube 16) (vertex-interp isolevel (elem-get grid +gridcell_p4) (elem-get grid +gridcell_p5) (elem-get grid +gridcell_v4) (elem-get grid +gridcell_v5)) :nil)
+				(if (bits? cube 32) (vertex-interp isolevel (elem-get grid +gridcell_p5) (elem-get grid +gridcell_p6) (elem-get grid +gridcell_v5) (elem-get grid +gridcell_v6)) :nil)
+				(if (bits? cube 64) (vertex-interp isolevel (elem-get grid +gridcell_p6) (elem-get grid +gridcell_p7) (elem-get grid +gridcell_v6) (elem-get grid +gridcell_v7)) :nil)
+				(if (bits? cube 128) (vertex-interp isolevel (elem-get grid +gridcell_p7) (elem-get grid +gridcell_p4) (elem-get grid +gridcell_v7) (elem-get grid +gridcell_v4)) :nil)
+				(if (bits? cube 256) (vertex-interp isolevel (elem-get grid +gridcell_p0) (elem-get grid +gridcell_p4) (elem-get grid +gridcell_v0) (elem-get grid +gridcell_v4)) :nil)
+				(if (bits? cube 512) (vertex-interp isolevel (elem-get grid +gridcell_p1) (elem-get grid +gridcell_p5) (elem-get grid +gridcell_v1) (elem-get grid +gridcell_v5)) :nil)
+				(if (bits? cube 1024) (vertex-interp isolevel (elem-get grid +gridcell_p2) (elem-get grid +gridcell_p6) (elem-get grid +gridcell_v2) (elem-get grid +gridcell_v6)) :nil)
+				(if (bits? cube 2048) (vertex-interp isolevel (elem-get grid +gridcell_p3) (elem-get grid +gridcell_p7) (elem-get grid +gridcell_v3) (elem-get grid +gridcell_v7)) :nil)))
 			;return the triangles
-			(map (lambda ((p0 p1 p2))
-					(list (elem-get vertlist p0) (elem-get vertlist p1) (elem-get vertlist p2)))
-				(elem-get +tri_table cubeindex)))))
+			(map! (# (list (elem-get vertlist (first %0)) (elem-get vertlist (second %0)) (elem-get vertlist (third %0))))
+				(list (elem-get +tri_table cubeindex))))))
 
 (defclass Iso (width height depth) :nil
 	; (Iso) -> iso
