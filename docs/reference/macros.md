@@ -630,7 +630,7 @@ print the time for the body
 ### times
 
 ```code
-(times num body)
+(times num [body])
 ```
 
 ### ui-backdrop

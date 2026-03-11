@@ -695,11 +695,6 @@
 	; (and [tst] ...) -> :t | :nil | tst
 	(map! (const list) (list %0) (list (const condn))))
 
-(defmacro times (c &rest %1)
-	; (times num body)
-	(static-qq (progn (defq ,(defq _c (gensym)) ,c)
-		(while (<= 0 (setq ,_c (dec ,_c))) ~%1))))
-
 ;;;;;;;;;;;;;;;;;;;;
 ; sort and randomise
 ;;;;;;;;;;;;;;;;;;;;
@@ -752,7 +747,11 @@
 
 (defmacro for (s e &rest %2)
 	; (for start end [body])
-	`(each! (# ~%2) '() ,s ,e))
+	(static-qq (each! (,'lambda () ~%2) '() ,s ,e)))
+
+(defmacro times (c &rest %1)
+	; (times num [body])
+	(static-qq (each! (,'lambda () ~%1) '() 0 ,c)))
 
 (defun range (b e &optional s)
 	; (range start end [step]) -> list
@@ -872,7 +871,7 @@
 
 (defmacro lists (n)
 	; (lists n) -> ((list0) ... (listn-1))
-	`(map! (const list) '() (list) 0 ,n))
+	(static-qq (map! (const list) '() (list) 0 ,n)))
 
 (defun join (seqs seq &optional mode)
 	; (join seqs seq [mode]) -> seq
