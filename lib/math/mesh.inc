@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;
-; lib/math/mesh.inc
-;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;
 ; tri mesh
 ;;;;;;;;;;
@@ -24,45 +21,39 @@
 
 (defun opt-vector (vector part)
 	; (opt-vector vector part) -> (new_vector new_indices)
-	(defq vec_map (Fmap 101) vec_imap (nums) new_vecs (reals) num_vecs (/ (length vector) part))
-	(for 0 num_vecs
-		(defq idx (* (!) part) v (slice vector idx (+ idx part)))
-		(vector-quant v (const (n2r 0.0001)) v)
-		(unless (defq i (. vec_map :find v))
+	(defq vec_map (Fmap 101) vec_imap (nums) new_vecs (reals))
+	(each (#
+		(vector-quant %0 (const (n2r 0.0001)) %0)
+		(unless (defq i (. vec_map :find %0))
 			(setq i (/ (length new_vecs) part))
-			(. vec_map :insert v i)
-			(push new_vecs v))
-		(push vec_imap i))
+			(. vec_map :insert %0 i)
+			(push new_vecs %0))
+		(push vec_imap i)) (partition vector part))
 	(list new_vecs vec_imap))
 
 (defun opt-mesh (verts norms tris)
 	; (opt-mesh verts norms tris) -> (new_verts new_norms new_tris)
 	(bind '(new_verts vert_map) (opt-vector verts +vec4_size))
 	(bind '(new_norms norm_map) (opt-vector norms +vec3_size))
-	(defq new_tris (nums) num_tris (/ (length tris) +tri_size))
-	(for 0 num_tris
-		(defq idx (* (!) +tri_size))
-		(push new_tris
-			(elem-get vert_map (elem-get tris idx))
-			(elem-get vert_map (elem-get tris (+ idx 1)))
-			(elem-get vert_map (elem-get tris (+ idx 2)))
-			(elem-get norm_map (elem-get tris (+ idx 3)))))
+	(defq new_tris (reduce (lambda (tris (i0 i1 i2 in))
+			(push tris
+				(elem-get vert_map i0)
+				(elem-get vert_map i1)
+				(elem-get vert_map i2)
+				(elem-get norm_map in)))
+		(partition tris +vec4_size) (nums)))
 	(list new_verts new_norms new_tris))
 
 (defun gen-norms (verts tris)
 	; (gen-norms verts tris) -> (norms new_tris)
-	(defq norms (reals) new_tris (nums) num_tris (/ (length tris) +tri_size))
-	(for 0 num_tris
-		(defq idx (* (!) +tri_size)
-			i0 (elem-get tris idx)
-			i1 (elem-get tris (+ idx 1))
-			i2 (elem-get tris (+ idx 2)))
-		(push new_tris i0 i1 i2 (/ (length norms) +vec3_size))
-		(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
-		(push norms (Normal
-			(slice verts i0 (+ i0 +vec3_size))
-			(slice verts i1 (+ i1 +vec3_size))
-			(slice verts i2 (+ i2 +vec3_size)))))
+	(defq norms (reals) new_tris (nums))
+	(each (lambda ((i0 i1 i2 &ignore))
+			(push new_tris i0 i1 i2 (/ (length norms) +vec3_size))
+			(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
+			(push norms (Normal
+				(slice verts i0 (+ i0 +vec3_size))
+				(slice verts i1 (+ i1 +vec3_size))
+				(slice verts i2 (+ i2 +vec3_size))))) tris)
 	(list norms new_tris))
 
 (defclass Mesh () :nil
@@ -210,19 +201,15 @@
 		x_points (list) y_points (list) z_points (list))
 	; Precalculate axes coordinates to avoid vector math in the inner loops
 	(defq cx (first center) sx (first scale))
-	(for 0 gw
-		(push x_points (* (- (n2r (!)) cx) sx)))
+	(for 0 gw (push x_points (* (- (n2r (!)) cx) sx)))
 	(defq cy (second center) sy (second scale))
-	(for 0 gh
-		(push y_points (* (- (n2r (!)) cy) sy)))
+	(for 0 gh (push y_points (* (- (n2r (!)) cy) sy)))
 	(defq cz (third center) sz (third scale))
-	(for 0 gd
-		(push z_points (* (- (n2r (!)) cz) sz)))
-		
-	(defq slice_z (eval-slice 0))
+	(for 0 gd (push z_points (* (- (n2r (!)) cz) sz)))
 	; March through the Z depth
+	(defq slice_z (eval-slice 0))
 	(for 0 cd
-		(defq z (!) slice_z1 (eval-slice (inc z)))
+		(defq slice_z1 (eval-slice (inc (!))))
 		(for 0 ch
 			(task-slice)
 			(defq y (!)
