@@ -65,6 +65,13 @@ controlling the flow of execution based on conditions.
     * `(until tst [body])`: Executes the `body` repeatedly until `tst`
       evaluates to a non `:nil` value.
 
+*   **`for`**: A looping macro that iterates from a start value to an end
+    value.
+
+    * `(for start end [body])`: Executes the `body` for each integer in the
+      range from `start` (inclusive) to `end` (exclusive). The current iteration
+      index can be accessed using the anaphoric symbol `!`.
+
 *   **`case`**: A multi-way branching macro that compares a key expression
     against several literal values.
 

@@ -31,9 +31,9 @@ bindings), it offers predictable performance and footprint.
 
 2. **No Tail Recursion Optimization (TRO):** Instead of relying on TRO for
 iteration, ChrysaLisp provides powerful, native-coded iteration primitives like
-`(while)` and the `(each!)`, `(some!)`, `(map!)`, `(reduce!)` family. This
-again points to a focus on explicit, performant looping constructs over
-implicit ones that depend on compiler heroics.
+`(while)` and the `(each!)`, `(some!)`, `(map!)`, `(reduce!)` family, along with
+the `(for)` macro for numeric ranges. This again points to a focus on explicit,
+performant looping constructs over implicit ones that depend on compiler heroics.
 
 3. **No Lisp-Level `(return)`:** Functions execute to completion. This
 encourages a cleaner, more functional style where control flow is managed
@@ -99,9 +99,10 @@ in mind:
     multiple input sequences, and provide the `(!)` special form to access
     the current index.
 
-    * **Convenience Macros:** `(each)`, `(map)`, `(reduce)`, `(filter)`,
+    * **Convenience Macros:** `(for)`, `(each)`, `(map)`, `(reduce)`, `(filter)`,
       `(reverse)` build upon these primitives or provide common sequence
-      operations.
+      operations. `(for start end [body])` provides a concise way to loop
+      over a numeric range, leveraging `(each!)` internally.
 
     * **Powerful Slicing and Concatenation:** `(slice seq start end)` (with
     support for negative indices) and `(cat seq ...)` are fundamental.
