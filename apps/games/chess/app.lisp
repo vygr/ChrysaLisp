@@ -15,7 +15,7 @@
 (defq vdu_width 38 vdu_height 12 text_buf :nil
 	flicker_rate (/ 1000000 8) timer_rate (/ 1000000 1) max_move_time 10000000 id :t
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr"
-	history (list brd) color +white start_time (pii-time) replys (list) next_seq 0
+	history (list brd) color +white start_time (pii-time) last_move_time 0 replys (list) next_seq 0
 	human_color +white selected_idx :nil legal_boards (list))
 
 (ui-window *window* (:color +argb_black)
@@ -79,7 +79,7 @@
 			(+job_color color)))
 	;update display
 	(setq text_buf (vdu-print vdu (list "")
-		(cat (LF) "Elapsed Time: " (time-in-seconds (- (pii-time) start_time)) (LF)
+		(cat (LF) "Last Move: " (time-in-seconds last_move_time) " s" (LF)
 			(if (= color +white) "White to move:" "Black to move:") (LF))))
 	;reset reply sequence
 	(clear replys)
@@ -135,7 +135,7 @@
 									(push history (setq color (neg color) brd target_board))
 									(display-board brd)
 									;start engine farm
-									(setq start_time (pii-time) farm (Farm create destroy 1)))
+									(setq last_move_time (- (pii-time) start_time) start_time (pii-time) farm (Farm create destroy 1)))
 								(:t ;select piece if it belongs to human
 									(defq piece (elem-get brd board_idx) is_black (= color +black))
 									(when (and (nql piece " ") (eql (< (code piece) (ascii-code "Z")) is_black))
@@ -166,7 +166,7 @@
 								(task-sleep flicker_rate))
 							(push history (setq color (neg color) brd data))
 							(if farm (. farm :close))
-							(setq start_time (pii-time) farm (Farm create destroy 1)))
+							(setq last_move_time (- (pii-time) start_time) start_time (pii-time) farm (Farm create destroy 1)))
 						;moves for human
 						((= data_type (ascii-code "m"))
 							(setq legal_boards (partition data 64))
