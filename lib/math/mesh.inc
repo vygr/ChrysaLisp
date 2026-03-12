@@ -176,13 +176,11 @@
 ;evaluates a single 2D slice of the 3D volume
 (defun eval-slice (z)
 	(defq slc (cap (* gw gh 2) (list)) pz (elem-get z_points z))
-	(for 0 gh
-		(defq y (!) py (elem-get y_points y))
-		(for 0 gw
-			(defq x (!))
-			(push slc
-				(Vec3-r (elem-get x_points x) py pz)
-				(get_scalar_fnc iso x y z))))
+	(each (lambda (py) (defq y (!))
+		(each (lambda (px) (defq x (!))
+				(push slc (Vec3-r px py pz) (get_scalar_fnc iso x y z)))
+			x_points))
+		y_points)
 	slc)
 
 (defclass Mesh-iso (iso isolevel) (Mesh)
