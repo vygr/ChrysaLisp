@@ -389,32 +389,46 @@
 	(enum main timeout))
 
 (defun main ()
-	(defq select (task-mboxes +select_size))
-	(mail-timeout (elem-get select +select_timeout) 1000000 0)
-	(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-	(cond
-		;timeout or quit
-		((or (= idx +select_timeout) (eql msg "")))
-		;main mailbox, reset timeout and reply with move
-		((= idx +select_main)
-			(mail-timeout (elem-get select +select_timeout) 0 0)
-			;read job
-			(defq reply_mbox (getf msg +job_reply)
-				max_time_per_move (getf msg +job_move_time)
-				color (getf msg +job_color)
-				brd (slice msg +job_board (+ +job_board 64))
-				history (list) history_offset (+ +job_board 64)
-				next_seq 0)
-			(while (< history_offset (length msg))
-				(push history (slice msg history_offset (setq history_offset (+ history_offset 64)))))
-			;next move
-			(defq new_brd (best-move brd color history))
-			(cond
-				((not new_brd)
-					(if (in-check brd color)
-						(reply "e" (cat (LF) "** Checkmate **" (LF)))
-						(reply "e" (cat (LF) "** Stalemate **" (LF)))))
-				((>= (reduce (lambda (cnt past_brd)
-						(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-					(reply "e" (cat (LF) "** Draw **" (LF))))
-				(:t (reply "b" new_brd))))))
+	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
+	(while running
+		(mail-timeout (elem-get select +select_timeout) +timeout 0)
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
+		(cond
+			((or (= idx +select_timeout) (eql msg ""))
+				;timeout or quit
+				(setq running :nil))
+			((= idx +select_main)
+				;main mailbox, reset timeout and reply with move
+				(mail-timeout (elem-get select +select_timeout) 0 0)
+				;read job
+				(defq reply_mbox (getf msg +job_reply)
+					max_time_per_move (getf msg +job_move_time)
+					job_type (getf msg +job_type)
+					color (getf msg +job_color)
+					brd (slice msg +job_board (+ +job_board 64))
+					history (list) history_offset (+ +job_board 64)
+					next_seq 0)
+				(while (< history_offset (length msg))
+					(push history (slice msg history_offset (setq history_offset (+ history_offset 64)))))
+				(if (= job_type +job_type_move)
+					(progn
+						;next move
+						(defq new_brd (best-move brd color history))
+						(cond
+							((not new_brd)
+								(if (in-check brd color)
+									(reply "e" (cat (LF) "** Checkmate **" (LF)))
+									(reply "e" (cat (LF) "** Stalemate **" (LF)))))
+							((>= (reduce (lambda (cnt past_brd)
+									(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
+								(reply "e" (cat (LF) "** Draw **" (LF))))
+							(:t (reply "b" new_brd))))
+					(progn
+						;get moves
+						;return list of legal boards for `color`
+						(defq legal_boards (all-moves brd color))
+						(if (empty? legal_boards)
+							(if (in-check brd color)
+								(reply "e" (cat (LF) "** Checkmate **" (LF)))
+								(reply "e" (cat (LF) "** Stalemate **" (LF))))
+							(reply "m" (apply (const cat) legal_boards)))))))))

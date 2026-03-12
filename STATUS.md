@@ -19,6 +19,8 @@ New `imports` command for optimizing import paths.
 
 New `vpgraph` command for creating/listing VP function/s call graph.
 
+Chess demo is now playable !
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
