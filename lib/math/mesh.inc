@@ -196,11 +196,10 @@
 	(defq verts (reals) norms (reals) tris (nums)
 		cw (dec gw) ch (dec gh) cd (dec gd)
 		get_scalar_fnc (.? iso :get_scalar)
-		center (get :center iso) scale (get :scale iso)
 		x_points (list) y_points (list) z_points (list))
 	; Precalculate axes coordinates to avoid vector math in the inner loops
-	(bind '(cx cy cz) center)
-	(bind '(sx sy sz) scale)
+	(bind '(cx cy cz) (get :center iso))
+	(bind '(sx sy sz) (get :scale iso))
 	(for 0 gw (push x_points (* (- (n2r (!)) cx) sx)))
 	(for 0 gh (push y_points (* (- (n2r (!)) cy) sy)))
 	(for 0 gd (push z_points (* (- (n2r (!)) cz) sz)))
