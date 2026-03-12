@@ -101,9 +101,8 @@
 		; Hoist Y-based index out of the inner loop
 		(defq y_eps2 (* (dec (!)) eps2))
 		(for 0 eps2
-			; Avoid modulo division with a simple bounds wrap check
-			(when (= (defq xn (inc (!))) eps2) (setq xn 0))
-			(defq i0 (+ (!) y_eps2) i1 (+ xn y_eps2)
+			(defq xn (% (inc (!)) eps2)
+				i0 (+ (!) y_eps2) i1 (+ xn y_eps2)
 				i2 (+ i0 eps2) i3 (+ i1 eps2)
 				in (/ (length norms) +vec3_size))
 			(push tris i0 i1 i2 in i2 i1 i3 in)
@@ -116,9 +115,8 @@
 	; gen norms and tris for end cap fans
 	(defq y (* eps2 (- eps 2)))
 	(for 0 eps2
-		; Avoid modulo division for the caps as well
-		(when (= (defq xn (inc (!))) eps2) (setq xn 0))
-		(defq i0 (+ (!) y) i1 (+ xn y)
+		(defq xn (% (inc (!)) eps2)
+			i0 (+ (!) y) i1 (+ xn y)
 			i2 (dec (/ (length verts) +vec4_size))
 			in (/ (length norms) +vec3_size))
 		(push tris i0 i1 i2 in)
@@ -162,12 +160,9 @@
 		; Hoist the Y-based index calculations out of the inner X loop
 		(defq y_eps2 (* (!) eps2) yn_eps2 (* (% (inc (!)) eps) eps2))
 		(for 0 eps2
-			; Avoid an expensive modulo division in the inner loop with a simple reset
-			(when (= (defq xn (inc (!))) eps2) (setq xn 0))
-			(defq i0 (+ (!) y_eps2)
-				i1 (+ xn y_eps2)
-				i2 (+ (!) yn_eps2)
-				i3 (+ xn yn_eps2)
+			(defq xn (% (inc (!)) eps2)
+				i0 (+ (!) y_eps2) i1 (+ xn y_eps2)
+				i2 (+ (!) yn_eps2) i3 (+ xn yn_eps2)
 				in (/ (length norms) +vec3_size))
 			(push tris i2 i0 i1 in i2 i1 i3 in)
 			; Scale indices to byte offsets for the normal generation
