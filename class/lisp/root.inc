@@ -1387,7 +1387,7 @@
 (import "lib/collections/collections.inc")
 (import "lib/text/searching.inc")
 (import "sys/lisp.inc")
-(import "class/lisp.inc")
+(import "././lisp.inc")
 
 ;useful frequency trackers
 ;; (defq *freq_map* (Fmap 101))

@@ -1,4 +1,4 @@
-(import "class/num/struct.inc")
+(import "././num/struct.inc")
 
 (enums +func_type 0
 	(enum args_eval args_raw))

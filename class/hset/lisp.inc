@@ -1,2 +1,2 @@
-(import "class/obj/lisp.inc")
+(import "././obj/lisp.inc")
 (import "./struct.inc")

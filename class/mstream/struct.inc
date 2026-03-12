@@ -1,4 +1,4 @@
-(import "class/stream/struct.inc")
+(import "././stream/struct.inc")
 
 (structure +mstream +stream_size
 	(ptr chunks)

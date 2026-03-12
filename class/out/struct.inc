@@ -1,4 +1,4 @@
-(import "class/stream/struct.inc")
+(import "././stream/struct.inc")
 
 (enums +stream_mail_state 0
 	(enum started stopping stopped aborted))

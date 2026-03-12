@@ -1,4 +1,4 @@
-(import "class/obj/struct.inc")
+(import "././obj/struct.inc")
 
 (structure +error +obj_size
 	(ptr description object script file frame)

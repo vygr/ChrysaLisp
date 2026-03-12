@@ -1,4 +1,4 @@
-(import "gui/view/struct.inc")
+(import "././view/struct.inc")
 (import "sys/list/struct.inc")
 
 (structure +canvas +view_size

@@ -1,4 +1,4 @@
-(import "sys/list/struct.inc")
+(import "././list/struct.inc")
 
 ;task flags
 (bits +tk_flag 0

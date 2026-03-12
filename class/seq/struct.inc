@@ -1,3 +1,3 @@
-(import "class/obj/struct.inc")
+(import "././obj/struct.inc")
 
 (structure +seq +obj_size)

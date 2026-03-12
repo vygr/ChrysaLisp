@@ -2,7 +2,7 @@
 (import "lib/task/pipe.inc")
 (import "lib/files/files.inc")
 (import "lib/files/urls.inc")
-(import "apps/system/terminal/state.inc")
+(import "././system/terminal/state.inc")
 
 (defq tmbox (mail-mbox)
 	+LF (ascii-char 10)

@@ -1,4 +1,4 @@
-(import "class/str/struct.inc")
+(import "././str/struct.inc")
 
 (structure +nodeid +str_size
 	(nodeid id)

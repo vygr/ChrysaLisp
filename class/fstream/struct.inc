@@ -1,4 +1,4 @@
-(import "class/stream/struct.inc")
+(import "././stream/struct.inc")
 
 (structure +fstream +stream_size
 	(long handle)

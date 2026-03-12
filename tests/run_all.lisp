@@ -1,7 +1,7 @@
 ; Run with: ./run_tui.sh -e -n 1 -f -s tests/run_all.lisp
 
 (import "lib/task/pipe.inc")
-(import "tests/utils.inc")
+(import "./utils.inc")
 
 (defun run-suite ()
 	(print "Starting ChrysaLisp Functional Test Suite...")

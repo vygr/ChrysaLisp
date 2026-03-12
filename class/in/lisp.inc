@@ -1,4 +1,4 @@
-(import "class/stream/lisp.inc")
+(import "././stream/lisp.inc")
 (import "sys/list/struct.inc")
 (import "./struct.inc")
 

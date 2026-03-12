@@ -1,3 +1,3 @@
-(import "class/array/struct.inc")
+(import "././array/struct.inc")
 
 (structure +list +array_size)

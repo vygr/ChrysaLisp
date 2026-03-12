@@ -1,4 +1,4 @@
-(import "class/stream/struct.inc")
+(import "././stream/struct.inc")
 (import "sys/list/struct.inc")
 
 (structure +in +stream_size

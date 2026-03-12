@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;
 
 (import "././xml/parse.inc")
-(import "lib/consts/colors.inc")
+(import "././consts/colors.inc")
 (import "gui/path/lisp.inc")
 (import "gui/canvas/lisp.inc")
 

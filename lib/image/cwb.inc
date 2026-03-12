@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
-(import "lib/math/vector.inc")
+(import "././math/vector.inc")
 
 ;module
 (env-push)

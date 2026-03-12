@@ -1,3 +1,3 @@
-(import "class/num/struct.inc")
+(import "././num/struct.inc")
 
 (structure +fixed +num_size)

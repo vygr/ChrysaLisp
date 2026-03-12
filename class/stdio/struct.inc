@@ -1,4 +1,4 @@
-(import "class/obj/struct.inc")
+(import "././obj/struct.inc")
 
 (structure +stdio +obj_size
 	(ptr stdin stdout stderr args))

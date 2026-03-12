@@ -1,4 +1,4 @@
-(import "sys/list/struct.inc")
+(import "././list/struct.inc")
 
 (structure +hp_heap +lh_list_size
 	(ptr free_flist)

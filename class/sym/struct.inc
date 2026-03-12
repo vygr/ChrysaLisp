@@ -1,3 +1,3 @@
-(import "class/str/struct.inc")
+(import "././str/struct.inc")
 
 (structure +sym +str_size)

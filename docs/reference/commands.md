@@ -279,6 +279,22 @@ Usage: huff [options] [file]
 	If no file is given, it reads from stdin.
 	Output is written to stdout.
 ```
+## imports
+```code
+Usage: imports [options] [path] ...
+
+	options:
+		-h --help: this help info.
+		-j --jobs num: max jobs per batch, default 8.
+		-w --write: write new file, default :nil.
+
+	Scan for import statements in .vp, .inc, .lisp files,
+	replacing any import lines with an optimal relative or
+	absolute file path.
+
+	If no paths given on command line
+	then will take paths from stdin.
+```
 ## includes
 ```code
 Usage: includes [options] [path] ...

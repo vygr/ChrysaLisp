@@ -1,6 +1,6 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-(import "./././tools/edit/rpc.inc")
+(import "apps/tools/edit/rpc.inc")
 
 ;our UI widgets and events
 (import "./config.inc")

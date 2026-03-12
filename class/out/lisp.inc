@@ -1,4 +1,4 @@
-(import "class/stream/lisp.inc")
+(import "././stream/lisp.inc")
 (import "./struct.inc")
 
 (defun out-set-state (out state)

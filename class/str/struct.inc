@@ -1,4 +1,4 @@
-(import "class/seq/struct.inc")
+(import "././seq/struct.inc")
 
 (structure +str +seq_size
 	(int hashslot)

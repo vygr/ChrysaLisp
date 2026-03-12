@@ -1,4 +1,4 @@
-(import "sys/list/struct.inc")
+(import "././list/struct.inc")
 
 (structure +mail_timeout 0
 	(long time id))

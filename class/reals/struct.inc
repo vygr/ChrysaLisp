@@ -1,3 +1,3 @@
-(import "class/fixeds/struct.inc")
+(import "././fixeds/struct.inc")
 
 (structure +reals +fixeds_size)

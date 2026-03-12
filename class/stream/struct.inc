@@ -1,4 +1,4 @@
-(import "class/obj/struct.inc")
+(import "././obj/struct.inc")
 
 (structure +stream +obj_size
 	(ptr object buffer)

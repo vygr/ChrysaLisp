@@ -15,6 +15,8 @@ can do raw numeric iteration. ie. `(map! ! '() (list) 0 10) -> (0 1 2 3 4 5 6 7
 Added basic `(for start end [body])` numeric loops using the empty sequence
 iterators.
 
+New `imports` command for optimizing import paths.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and

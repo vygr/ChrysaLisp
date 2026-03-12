@@ -1,4 +1,4 @@
-(import "gui/view/struct.inc")
+(import "././view/struct.inc")
 
 (structure +vdu +view_size
 	(ptr font textures)

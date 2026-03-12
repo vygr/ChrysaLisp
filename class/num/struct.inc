@@ -1,4 +1,4 @@
-(import "class/obj/struct.inc")
+(import "././obj/struct.inc")
 
 (structure +num +obj_size
 	(long value))

@@ -2,7 +2,7 @@
 ; clipboard actions
 ;;;;;;;;;;;;;;;;;;;
 
-(import "./././tools/edit/clipboard.inc")
+(import "apps/tools/edit/clipboard.inc")
 
 (redefun action-paste ()
 	(unless (eql (defq data (clip-get-rpc)) "")
