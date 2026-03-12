@@ -196,10 +196,10 @@
 	(for 0 gw (push x_points (* (- (n2r (!)) cx) sx)))
 	(for 0 gh (push y_points (* (- (n2r (!)) cy) sy)))
 	(for 0 gd (push z_points (* (- (n2r (!)) cz) sz)))
-	; March through the Z depth
-	(defq slice_z (eval-slice 0))
+	; march through the Z depth, on slice at a time
+	(defq slice_z :nil slice_z1 (eval-slice 0))
 	(for 0 cd
-		(defq slice_z1 (eval-slice (inc (!))))
+		(setq slice_z slice_z1 slice_z1 (eval-slice (inc (!))))
 		(for 0 ch
 			(task-slice)
 			(defq y (!) i_y0 (* y gw 2) i_y1 (* (inc y) gw 2))
@@ -232,9 +232,7 @@
 						(elem-get slice_z1 (inc idx_01))
 						(elem-get slice_z1 (inc idx_11))
 						(elem-get slice_z (inc idx_11))
-						(elem-get slice_z (inc idx_01))) isolevel))))
-		; Shift the slice cache forward
-		(setq slice_z slice_z1))
+						(elem-get slice_z (inc idx_01))) isolevel)))))
 	(bind '(verts norms tris) (opt-mesh verts norms tris))
 	(lower :verts :norms :tris))
 
