@@ -17,6 +17,8 @@ iterators.
 
 New `imports` command for optimizing import paths.
 
+New `vpgraph` command for creating/listing a VP functions call graph.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and

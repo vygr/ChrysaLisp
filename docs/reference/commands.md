@@ -620,6 +620,17 @@ Usage: unrle [options] [file]
 	If no file is given, it reads from stdin.
 	Output is written to stdout.
 ```
+## vpgraph
+```code
+Usage: vpgraph [options] [path] ...
+
+	options:
+		-h --help: this help info.
+
+	Scan .vp files and create a VP function/method call graph.
+	If no paths are given on the command line, it will read
+	paths from stdin.
+```
 ## vpstats
 ```code
 Usage: vpstats [options] [path] ...
