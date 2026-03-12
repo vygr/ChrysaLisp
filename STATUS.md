@@ -17,7 +17,7 @@ iterators.
 
 New `imports` command for optimizing import paths.
 
-New `vpgraph` command for creating/listing a VP functions call graph.
+New `vpgraph` command for creating/listing VP function/s call graph.
 
 ------
 
