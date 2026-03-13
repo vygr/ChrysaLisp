@@ -24,6 +24,9 @@ undo/redo/reset, and config files etc.
 
 The `Tree` widget has completely merged into the `Files` widget.
 
+Addition of optional start and end line index to lines! function. `(lines!
+lambda stream [start end]) -> :nil`.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and

@@ -8,7 +8,7 @@
 
 ### (copy-bits wstream rstream (array bit_pool bit_pool_size) (array bit_pool bit_pool_size) num_bits cnt) -> wstream
 
-### (lines! lambda stream) -> :nil
+### (lines! lambda stream [start end]) -> :nil
 
 ### (fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt) -> stream
 
