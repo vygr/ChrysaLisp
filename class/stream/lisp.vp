@@ -900,7 +900,7 @@
 	(assign `(,old_idx) {old_idx})
 
 	(loop-start)
-		(assign {this, end} `(,this ,end))
+		(assign {end} `(,end))
 		(breakif `(,idx >= ,end))
 		(assign `(,idx) `((,this +lisp_seq_idx)))
 
@@ -911,7 +911,6 @@
 		(assign `((,this +lisp_seq_idx)) `(,idx))
 		(vpif `(,idx < ,start))
 			(call :obj :deref {value})
-			(assign {this} `(,this))
 		(else)
 			(call :list :create :nil {call_args})
 			(call :list :push_back {call_args, value})
@@ -923,9 +922,9 @@
 			(gotoif `(,vt1 = ,vt2) 'error))
 
 			(call :obj :deref {value})
-			(assign {this} `(,this))
 		(endif)
 
+		(assign {this} `(,this))
 		(assign `((,this +lisp_seq_idx)) `(,idx))
 		(vp-add-cr 1 idx)
 	(loop-end)
