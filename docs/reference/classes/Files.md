@@ -16,12 +16,37 @@
 
 ```code
 (. files :add_route route) -> files
+
+routes are:
+"a/b/c/file"
+"a/b/c/."
+```
+
+### :collapse
+
+```code
+(. files :collapse) -> files
 ```
 
 ### :empty
 
 ```code
 (. files :empty) -> files
+```
+
+### :expand
+
+```code
+(. files :expand) -> files
+```
+
+### :find_node
+
+```code
+(. files :find_node route) -> node | :nil
+
+routes are:
+"a/b/c/node"
 ```
 
 ### :get_route
@@ -34,6 +59,8 @@
 
 ```code
 (. files :highlight route [state]) -> files
+
+highlight/lolight a tree route
 ```
 
 ### :layout_tree
@@ -45,12 +72,14 @@
 ### :populate
 
 ```code
-(. files :populate [root exts n mode]) -> files
+(. files :populate[root exts n mode]) -> files
+
+load up a file tree
 ```
 
 ### :select_node
 
 ```code
-(. files :select_node file) -> files
+(. files :select_node route) -> files
 ```
 

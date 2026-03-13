@@ -15,7 +15,6 @@
 (import "./flow/lisp.inc")
 (import "./stroke/lisp.inc")
 (import "./stack/lisp.inc")
-(import "./tree/lisp.inc")
 (import "./vdu/lisp.inc")
 (import "./button/lisp.inc")
 (import "./node/lisp.inc")
@@ -108,10 +107,6 @@
 		:shadow *env_window_shadow*)
 	(static-qqp (ui-root ,n (Window) ,p
 		(ui-flow _ (:flow_flags +flow_down_fill) ~x))))
-
-(defmacro ui-tree (n e &optional p)
-	; (ui-tree name event [props]) -> tree
-	(static-qqp (ui-element ,n (Tree ,e) ,p)))
 
 (defmacro ui-files (n t e &optional p)
 	; (ui-files name title event [props]) -> files

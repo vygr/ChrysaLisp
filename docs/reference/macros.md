@@ -783,12 +783,6 @@ print the time for the body
 (ui-tool-bar name [props] [body]) -> flow
 ```
 
-### ui-tree
-
-```code
-(ui-tree name event [props]) -> tree
-```
-
 ### ui-vdu
 
 ```code

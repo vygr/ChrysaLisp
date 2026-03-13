@@ -1087,50 +1087,67 @@ are made available via `gui/lisp.inc`.
 
 ---
 
-### `Tree`
+---
+
+### `Files`
 
 * **Inherits:** `Flow`
 
-* **Lisp Class:** `(Tree event)` (from `gui/tree/lisp.inc`)
+* **Lisp Class:** `(Files title event)` (from `gui/files/lisp.inc`)
 
-* **UI Macro:** `(ui-tree name event [props])`
+* **UI Macro:** `(ui-files name title event [props])`
 
-* **Description:** A widget for displaying hierarchical data, like a file
-  system tree. Nodes can be expanded or collapsed.
+* **Description:** A composite widget for displaying hierarchical data,
+  typically used for file system navigation. It provides a complete,
+  ready-to-use component containing a title bar (with expand/collapse all
+  buttons), a scrollable area, and the hierarchical node tree itself.
 
-* **Key Properties:**
+* **Key Arguments / Properties:**
 
-    * `:action_event`: Base event ID for folder toggle actions. Leaf node
-      actions are `(inc action_event)`.
+    * `title`: The text label displayed in the widget's title bar.
 
-* **Key Methods (from `Tree.md` and `gui/tree/lisp.inc`):**
+    * `event`: Base event ID for actions. Clicks on folder/branch nodes will
+      trigger this event, while clicks on leaf nodes (files) trigger `(inc
+      event)`.
 
-    * `(:action event)`: Handles clicks on toggle icons to expand/collapse
-      branches.
+* **Key Methods:**
 
-    * `(:add_route route)`: Adds a path to the tree, creating intermediate
-      nodes as needed.
+    * `(:populate [root exts n mode])`: Populates the tree from a file system
+      directory. `exts` is a list of allowed extensions, `n` is the depth to
+      scan, and `mode` dictates whether to load dirs, files, or both.
 
-    * `(:populate [root exts n mode])`: Populates the tree from a file
-      system directory.
+    * `(:empty)`: Clears all nodes from the tree.
 
-    * `(:empty)`: Clears the tree.
+    * `(:add_route route)`: Adds a path string (e.g., "a/b/c/file") to the tree,
+      creating intermediate nodes as needed.
 
-    * `(:expand)`, `(:collapse)`: Expand/collapse all nodes.
+    * `(:find_node route)`: Finds and returns a node object by its path string.
 
-    * `(:find_node route)`: Finds a node by its path string.
+    * `(:get_route node)`: Gets the full path string for a given node object.
 
-    * `(:get_route node)`: Gets the path string for a given node.
+    * `(:expand)` / `(:collapse)`: Expands or collapses all branch nodes in the
+      tree.
 
-    * `(:select route)`, `(:highlight route [state])`: Manage selection and
-      highlighting.
+    * `(:select_node route)`: Selects a node by its path string and
+      automatically scrolls the view so it is visible.
+
+    * `(:highlight route [state])`: Toggles highlight formatting for a specific
+      tree route.
+
+    * `(:layout_tree)`: Recalculates the internal dimensions and layout bounds
+      of the tree and scrollbar.
 
 *Example:*
 
 ```vdu
-(ui-tree *file_browser_tree* +event_file_folder_action
-    (:font *env_medium_terminal_font*))
-(. *file_browser_tree* :populate "." '(".lisp" ".inc"))
+(ui-files *file_selector* "Project Files" +event_file_folder_action
+    (:color +argb_grey14 :font *env_medium_terminal_font*))
+
+; Populate with all .lisp and .inc files from the current directory, up to depth 2
+(. *file_selector* :populate "." '(".lisp" ".inc") 2)
+
+; Programmatically select a specific file
+(. *file_selector* :select_node "apps/desktop/docs/app.lisp")
 ```
 
 ---
