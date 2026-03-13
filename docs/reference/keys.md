@@ -22,6 +22,28 @@
 (ascii-code "-") action-minimise
 ```
 
+## apps/games/chess/actions.inc
+
+### *key_map*
+
+```code
+(ascii-code "r") action-reset
+(ascii-code "u") action-undo
+```
+
+### *key_map_control*
+
+```code
+(ascii-code "z") action-undo
+(ascii-code "Z") action-redo
+```
+
+### *key_map_shift*
+
+```code
+(ascii-code "U") action-redo
+```
+
 ## apps/media/images/actions.inc
 
 ## apps/media/whiteboard/actions.inc

@@ -19,7 +19,8 @@ New `imports` command for optimizing import paths.
 
 New `vpgraph` command for creating/listing VP function/s call graph.
 
-Chess demo is now playable !
+Chess demo is now playable ! Reorganised to be an action based app,
+undo/redo/reset, and config files etc.
 
 ------
 
