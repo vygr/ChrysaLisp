@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/chess/app_impl.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")

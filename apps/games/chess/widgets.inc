@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/chess/widgets.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (enums +event 0
 	(enum close)
 	(enum reset undo redo)
