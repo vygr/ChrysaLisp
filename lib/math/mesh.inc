@@ -82,13 +82,10 @@
 	(defq eps2 (* eps 2) eps2_r (n2r eps2)
 		step (/ +real_2pi eps2_r)
 		verts (reals) norms (reals) tris (nums)
-		x_sins (list) x_coses (list))
-	; Pre-calculate longitudinal (horizontal) angles
-	; prevents recalculating the same sines and cosines for every latitude ring
-	(for 0 eps2
-		(defq xa (* (n2r (!)) step))
-		(push x_sins (sin xa))
-		(push x_coses (cos xa)))
+		;pre-calculate longitudinal (horizontal) angles
+		;prevents recalculating the same sines and cosines for every latitude ring
+		x_sins (map! (# (sin (* (n2r (!)) step))) '() (list) 0 eps2)
+		x_coses (map! (# (cos (* (n2r (!)) step))) '() (list) 0 eps2))
 	; gen verts
 	(for 1 eps
 		(task-slice)
@@ -141,13 +138,10 @@
 	(defq eps2 (* eps 2) eps_r (n2r eps) eps2_r (n2r eps2)
 		y_step (/ +real_2pi eps_r) x_step (/ +real_2pi eps2_r)
 		verts (reals) norms (reals) tris (nums)
-		x_sins (list) x_coses (list))
-	; Pre-calculate toroidal (horizontal) angles
-	; prevents recalculating the same sines and cosines for every single ring
-	(for 0 eps2
-		(defq xa (* (n2r (!)) x_step))
-		(push x_sins (sin xa))
-		(push x_coses (cos xa)))
+		;pre-calculate toroidal (horizontal) angles
+		;prevents recalculating the same sines and cosines for every single ring
+		x_sins (map! (# (sin (* (n2r (!)) x_step))) '() (list) 0 eps2)
+		x_coses (map! (# (cos (* (n2r (!)) x_step))) '() (list) 0 eps2))
 	; gen verts
 	(for 0 eps
 		(task-slice)
@@ -186,16 +180,15 @@
 (defclass Mesh-iso (iso isolevel) (Mesh)
 	; (Mesh-iso iso isolevel) -> mesh
 	(bind '(gw gh gd) (. iso :get_metrics))
+	(bind '(cx cy cz) (get :center iso))
+	(bind '(sx sy sz) (get :scale iso))
 	(defq verts (reals) norms (reals) tris (nums)
 		cw (dec gw) ch (dec gh) cd (dec gd)
 		get_scalar_fnc (.? iso :get_scalar)
-		x_points (list) y_points (list) z_points (list))
-	; Precalculate axes coordinates to avoid vector math in the inner loops
-	(bind '(cx cy cz) (get :center iso))
-	(bind '(sx sy sz) (get :scale iso))
-	(for 0 gw (push x_points (* (- (n2r (!)) cx) sx)))
-	(for 0 gh (push y_points (* (- (n2r (!)) cy) sy)))
-	(for 0 gd (push z_points (* (- (n2r (!)) cz) sz)))
+		;precalculate axes coordinates to avoid vector math in the inner loops
+		x_points (map! (# (* (- (n2r (!)) cx) sx)) '() (list) 0 gw)
+		y_points (map! (# (* (- (n2r (!)) cy) sy)) '() (list) 0 gh)
+		z_points (map! (# (* (- (n2r (!)) cz) sz)) '() (list) 0 gd))
 	; march through the Z depth, on slice at a time
 	(defq slice_z :nil slice_z1 (eval-slice 0))
 	(for 0 cd
