@@ -45,12 +45,26 @@
 				(slice word_list j k))
 			((list))))
 
-	(defmethod :find_matches_case (prefix)
-		; (. dictionary :find_matches_case prefix) -> (word ...)
-		(unique (map (# (cat prefix (slice %0 (length prefix) -1)))
-			(reduce (const merge)
-				(map (# (. this :find_matches %0))
-					(list prefix (to-lower prefix) (to-upper prefix)))))))
+	(defmethod :find_matches_case (prefix &optional context)
+			; (. dictionary :find_matches_case prefix [context]) -> (word ...)
+			(defq match (unique (map (# (cat prefix (slice %0 (length prefix) -1)))
+				(reduce (const merge)
+					(map (# (. this :find_matches %0))
+						(list prefix (to-lower prefix) (to-upper prefix)))))))
+			(if context
+				(progn
+					;create a frequency map of the context words
+					(defq freq (Fmap 31))
+					(each (lambda (word)
+						(. freq :update word (# (if %0 (inc %0) 1)))) context)
+					;sort matches by frequency (descending), then alphabetically
+					(sort match (lambda (a b)
+						(defq fa (. freq :find a) fb (. freq :find b))
+						(setd fa 0 fb 0)
+						(if (= fa fb)
+							(cmp a b)
+							(- fb fa)))))
+				match))
 	)
 
 ;module

@@ -65,3 +65,13 @@
 	fc)
 
 (defq +range_0_10 `'(~(range 0 10)))
+
+(defun context-words (window)
+	; (context-words window) -> (word ...)
+	; Grabs words from 'window' lines above and below the cursor
+	(bind '(& cy &ignore) (. *edit* :get_cursor))
+	(defq buffer (. *edit* :get_buffer)
+		lines (. buffer :get_buffer_lines)
+		sy (max 0 (- cy window))
+		ey (min (length lines) (+ cy window 1)))
+	(split (join (slice lines sy ey) " ") +char_class_not_whole_word))

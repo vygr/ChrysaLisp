@@ -162,8 +162,10 @@
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(bind '(x x1) (select-word))
 	(when (>= (- x1 x) +min_word_size)
+		; supply a 20-line radius of context words for intelligent sorting
 		(defq match_words (. dictionary :find_matches_case
-			(slice (. buffer :get_text_line cy) x x1)))
+			(slice (. buffer :get_text_line cy) x x1)
+			(context-words 20)))
 		(when (> (length match_words) 0)
 			(if (> (length match_words) +max_matches)
 				(setq match_words (slice match_words 0 +max_matches)))
