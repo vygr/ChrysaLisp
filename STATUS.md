@@ -30,6 +30,8 @@ lambda stream [start end]) -> :nil`.
 Add a smart context window of words around the cursor to the Editor word
 completion, Dictionary class now take these words as an optional context.
 
+Rename of Dictionary class `:find_matches_case` to `:find_various`.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and

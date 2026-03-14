@@ -10,10 +10,10 @@
 (. dictionary :find_matches prefix) -> (word ...)
 ```
 
-### :find_matches_case
+### :find_various
 
 ```code
-(. dictionary :find_matches_case prefix) -> (word ...)
+(. dictionary :find_various prefix [context]) -> (word ...)
 ```
 
 ### :insert_word

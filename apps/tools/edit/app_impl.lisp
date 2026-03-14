@@ -163,7 +163,7 @@
 	(bind '(x x1) (select-word))
 	(when (>= (- x1 x) +min_word_size)
 		; supply a 20-line radius of context words for intelligent sorting
-		(defq match_words (. dictionary :find_matches_case
+		(defq match_words (. dictionary :find_various
 			(slice (. buffer :get_text_line cy) x x1)
 			(context-words 20)))
 		(when (> (length match_words) 0)
