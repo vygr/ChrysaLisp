@@ -130,7 +130,7 @@ The emulator can be activated using the `-e` command-line flag when starting the
 main executable. This forces the host to use the `vp64` VM implementation
 instead of attempting to execute native machine code.
 
-```bash
+```code
 ./run.sh -e
 ```
 
