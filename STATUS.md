@@ -35,6 +35,8 @@ Rename of Dictionary class `:find_matches_case` to `:find_various`.
 `:fstream :read_next` now allows space for a single char to be pushed back into
 the stream.
 
+Added Castling to the Chess app.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
