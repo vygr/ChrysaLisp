@@ -2,13 +2,13 @@
 ; configuration
 ;;;;;;;;;;;;;;;
 
-(defq *config* :nil *config_version* 1
+(defq *config* :nil *config_version* 2
 	*config_file* (cat *env_home* "chess.tre"))
 
 (defun config-default ()
 	(scatter (Emap)
 		:version *config_version*
-		:history (list "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
+		:history (list "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr    ")
 		:redo_stack (list)
 		:human_color +white
 		:color +white))

@@ -247,13 +247,53 @@
 			(defq eval_values (piece-map piece_evaluation_map piece))
 			(if (> (code piece) (ascii-code "Z"))
 				(setq white_score (+ white_score (elem-get eval_values 64) (elem-get eval_values (!))))
-				(setq black_score (+ black_score (elem-get eval_values 64) (elem-get eval_values (!))))))) (list brd))
+				(setq black_score (+ black_score (elem-get eval_values 64) (elem-get eval_values (!))))))) (list (slice brd 0 64)))
 	(* (- white_score black_score) color))
 
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
 (defun piece-moves (yield brd index color moves)
 	(defq piece (elem-get brd index) cx (logand index 7) cy (>> index 3)
 		promote (if (= color +black) '("QRBN") '("qrbn")))
+
+	;castling generation
+	(when (eql piece "K")
+		(when (and (eql (elem-get brd 64) " ")
+				   (eql (elem-get brd 5) " ")
+				   (eql (elem-get brd 6) " ")
+				   (not (in-check brd color))
+				   (not (in-check (cat (slice brd 0 4) " K" (slice brd 6 -1)) color))
+				   (not (in-check (cat (slice brd 0 4) "  K" (slice brd 7 -1)) color)))
+			(defq newbrd (cat (slice brd 0 4) " RK " (slice brd 8 64) "xx" (slice brd 66 -1)))
+			(push yield newbrd))
+		(when (and (eql (elem-get brd 65) " ")
+				   (eql (elem-get brd 1) " ")
+				   (eql (elem-get brd 2) " ")
+				   (eql (elem-get brd 3) " ")
+				   (not (in-check brd color))
+				   (not (in-check (cat (slice brd 0 3) "K " (slice brd 5 -1)) color))
+				   (not (in-check (cat (slice brd 0 2) "K  " (slice brd 5 -1)) color)))
+			(defq newbrd (cat "  KR " (slice brd 5 64) "xx" (slice brd 66 -1)))
+			(push yield newbrd)))
+
+	(when (eql piece "k")
+		(when (and (eql (elem-get brd 66) " ")
+				   (eql (elem-get brd 61) " ")
+				   (eql (elem-get brd 62) " ")
+				   (not (in-check brd color))
+				   (not (in-check (cat (slice brd 0 60) " k" (slice brd 62 -1)) color))
+				   (not (in-check (cat (slice brd 0 60) "  k" (slice brd 63 -1)) color)))
+			(defq newbrd (cat (slice brd 0 60) " rk " (slice brd 64 66) "xx"))
+			(push yield newbrd))
+		(when (and (eql (elem-get brd 67) " ")
+				   (eql (elem-get brd 57) " ")
+				   (eql (elem-get brd 58) " ")
+				   (eql (elem-get brd 59) " ")
+				   (not (in-check brd color))
+				   (not (in-check (cat (slice brd 0 59) "k " (slice brd 61 -1)) color))
+				   (not (in-check (cat (slice brd 0 58) "k  " (slice brd 61 -1)) color)))
+			(defq newbrd (cat (slice brd 0 56) "  kr " (slice brd 61 64) (slice brd 64 66) "xx"))
+			(push yield newbrd)))
+
 	(each! (lambda ((dx dy len flag))
 		(defq x cx y cy)
 		;special length for pawns so we can adjust for starting 2 hop
@@ -279,13 +319,28 @@
 							(setq len 0))
 						(:t ;try this move
 							(defq newbrd (cat (slice brd 0 index) " " (slice brd (inc index) -1)))
+							;update castling rights dynamically on string
+							(defq c64 (elem-get newbrd 64) c65 (elem-get newbrd 65) c66 (elem-get newbrd 66) c67 (elem-get newbrd 67))
+							(if (eql piece "K") (setq c64 "x" c65 "x"))
+							(if (eql piece "k") (setq c66 "x" c67 "x"))
+							(if (and (eql piece "R") (= index 0)) (setq c65 "x"))
+							(if (and (eql piece "R") (= index 7)) (setq c64 "x"))
+							(if (and (eql piece "r") (= index 56)) (setq c67 "x"))
+							(if (and (eql piece "r") (= index 63)) (setq c66 "x"))
+							(if (= newindex 0) (setq c65 "x"))
+							(if (= newindex 7) (setq c64 "x"))
+							(if (= newindex 56) (setq c67 "x"))
+							(if (= newindex 63) (setq c66 "x"))
+							(if (or (nql c64 (elem-get newbrd 64)) (nql c65 (elem-get newbrd 65))
+									(nql c66 (elem-get newbrd 66)) (nql c67 (elem-get newbrd 67)))
+								(setq newbrd (cat (slice newbrd 0 64) c64 c65 c66 c67)))
 							(cond
 								((and (or (= y 0) (= y 7)) (or (eql piece "P") (eql piece "p")))
 									;try all the pawn promotion possibilities
 									(each! (lambda (promote_piece)
-										(setq newbrd (cat (slice newbrd 0 newindex) promote_piece (slice newbrd (inc newindex) -1)))
-										(unless (in-check newbrd color)
-											(push yield newbrd))) promote))
+										(defq promo_brd (cat (slice newbrd 0 newindex) promote_piece (slice newbrd (inc newindex) -1)))
+										(unless (in-check promo_brd color)
+											(push yield promo_brd))) promote))
 								(:t ;generate this as a possible move
 									(setq newbrd (cat (slice newbrd 0 newindex) piece (slice newbrd (inc newindex) -1)))
 									(unless (in-check newbrd color)
@@ -305,7 +360,7 @@
 			(when (eql (< (code piece) (ascii-code "Z")) is_black)
 				;one of our pieces ! so gather all boards from possible moves of this piece
 				(task-slice)
-				(piece-moves yield brd (!) color (piece-map moves_map piece))))) (list brd)) yield)
+				(piece-moves yield brd (!) color (piece-map moves_map piece))))) (list (slice brd 0 64))) yield)
 
 ;generate next moves (boards) from the given colours square
 (defun next-moves (yield brd color idx)
@@ -317,7 +372,7 @@
 				;one of our pieces ! so gather all boards from possible moves of this piece
 				(task-slice)
 				(piece-moves yield brd (!) color (piece-map moves_map piece))
-				(if (nempty? yield) (inc (!)))))) (list brd) :nil idx))
+				(if (nempty? yield) (inc (!)))))) (list (slice brd 0 64)) :nil idx))
 
 ;generate next move (board) for the given colours turn
 (defun next-move (ctx brd color)
@@ -405,11 +460,11 @@
 					max_time_per_move (getf msg +job_move_time)
 					job_type (getf msg +job_type)
 					color (getf msg +job_color)
-					brd (slice msg +job_board (+ +job_board 64))
-					history (list) history_offset (+ +job_board 64)
+					brd (slice msg +job_board (+ +job_board 68))
+					history (list) history_offset (+ +job_board 68)
 					next_seq 0)
 				(while (< history_offset (length msg))
-					(push history (slice msg history_offset (setq history_offset (+ history_offset 64)))))
+					(push history (slice msg history_offset (setq history_offset (+ history_offset 68)))))
 				(if (= job_type +job_type_move)
 					(progn
 						;next move
