@@ -247,7 +247,7 @@
 			(defq eval_values (piece-map piece_evaluation_map piece))
 			(if (> (code piece) (ascii-code "Z"))
 				(setq white_score (+ white_score (elem-get eval_values 64) (elem-get eval_values (!))))
-				(setq black_score (+ black_score (elem-get eval_values 64) (elem-get eval_values (!))))))) (list (slice brd 0 64)))
+				(setq black_score (+ black_score (elem-get eval_values 64) (elem-get eval_values (!))))))) (list brd) 0 64)
 	(* (- white_score black_score) color))
 
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
@@ -360,7 +360,7 @@
 			(when (eql (< (code piece) (ascii-code "Z")) is_black)
 				;one of our pieces ! so gather all boards from possible moves of this piece
 				(task-slice)
-				(piece-moves yield brd (!) color (piece-map moves_map piece))))) (list (slice brd 0 64))) yield)
+				(piece-moves yield brd (!) color (piece-map moves_map piece))))) (list brd) 0 64) yield)
 
 ;generate next moves (boards) from the given colours square
 (defun next-moves (yield brd color idx)
@@ -372,7 +372,7 @@
 				;one of our pieces ! so gather all boards from possible moves of this piece
 				(task-slice)
 				(piece-moves yield brd (!) color (piece-map moves_map piece))
-				(if (nempty? yield) (inc (!)))))) (list (slice brd 0 64)) :nil idx))
+				(if (nempty? yield) (inc (!)))))) (list brd) :nil idx 64))
 
 ;generate next move (board) for the given colours turn
 (defun next-move (ctx brd color)
