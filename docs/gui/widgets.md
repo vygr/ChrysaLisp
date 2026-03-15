@@ -294,20 +294,20 @@ optional property list and nested forms.
 
 `:font`
 
-### (ui-tree name event [props]) -> tree
+### (ui-files name title event [props]) -> files
 
 ```file
-gui/lisp.inc "macro ui-tree" ""
+gui/lisp.inc "macro ui-files" ""
 ```
 
 ```lisp
 (enums +event 0
 	(enum file_folder_action file_leaf_action))
 
-(ui-window *ui_tree*
+(ui-window *ui_files*
 	(:min_width 128
 	:min_height 128)
-	(ui-tree view +event_file_folder_action
+	(ui-files view "Files" +event_file_folder_action
 		(:min_width 0
 		:color 0
 		:font *env_medium_terminal_font*)))
@@ -316,10 +316,10 @@ gui/lisp.inc "macro ui-tree" ""
 (bind '(w h) (. view :pref_size))
 (. view :change 0 0 w h)
 
-*ui_tree*
+*ui_files*
 ```
 
-Creates a Tree instance, with name, base event id and optional property list.
+Creates a Files instance, with name, base event id and optional property list.
 
 #### Properties
 
