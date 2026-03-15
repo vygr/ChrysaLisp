@@ -129,13 +129,16 @@
 
 	;read next block of data
 	(vp-push :r0)
-	(call :host_os :pii_read '((:r0 +fstream_handle) (:r0 +stream_buffer) (:r0 +fstream_buf_len)) '(:r1))
+	(assign '((:r0 +fstream_handle) (:r0 +stream_buffer) (:r0 +fstream_buf_len)) '(:r0 :r1 :r2))
+	(vp-simd vp-add-cr '(1 -1) '(:r1 :r2))
+	(call :host_os :pii_read '(:r0 :r1 :r2) '(:r1))
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
 		;eof
 		(assign '(-1) '(:r1))
 	(else)
 		(assign '((:r0 +stream_buffer)) '(:r2))
+		(vp-add-cr 1 :r2)
 		(assign '((& :r2 :r1)) '(:r3))
 		(assign '(:r2 :r3) '((:r0 +stream_bufp) (:r0 +stream_bufe)))
 	(endif)

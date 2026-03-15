@@ -1056,7 +1056,7 @@
 (defun ascii-lower (%0)
 	; (ascii-lower num) -> num
 	(if (<= (ascii-code "A") %0 (ascii-code "Z"))
-		(+ %0 (const (num-intern ( - (ascii-code "a") (ascii-code "A"))))) %0))
+		(+ %0 (const (num-intern (- (ascii-code "a") (ascii-code "A"))))) %0))
 
 (defun to-upper (%0)
 	; (to-upper str) -> str
