@@ -7,7 +7,7 @@
 
 (defun action-reset ()
 	(if farm (. farm :close))
-	(setq history (list "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
+	(setq history (list "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr    ")
 		redo_stack (list)
 		color +white
 		brd (last history)
