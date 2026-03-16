@@ -20,10 +20,8 @@
 (defun work (file)
 	(when (and file
 			(defq i (rfind "." file))
-			(defq x (slice file i -1))
-			(some (# (eql x %0)) '("cpm" "tga" "svg" "cwb")))
-		(defq out_file (cat (slice file 0 i) "cpm")
-			canvas (canvas-load file +load_flag_noswap))
+			(defq canvas (canvas-load file +load_flag_noswap)))
+		(defq out_file (cat (slice file 0 i) "cpm"))
 		(canvas-save canvas out_file opt_f)
 		(print file " -> " out_file)))
 
