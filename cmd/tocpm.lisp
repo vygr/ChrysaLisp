@@ -23,7 +23,8 @@
 			(defq canvas (canvas-load file +load_flag_noswap)))
 		(defq out_file (cat (slice file 0 i) "cpm"))
 		(canvas-save canvas out_file opt_f)
-		(print file " -> " out_file)))
+		(prin file " -> " out_file)
+		(print)))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

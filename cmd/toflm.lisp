@@ -96,5 +96,6 @@
 							; swap streams for next iteration
 							(defq temp p_stream)
 							(setq p_stream c_stream c_stream temp)))
-					(print file " -> " opt_n))) jobs)
+					(prin file " -> " opt_n)
+					(print))) jobs)
 			(stream-flush out_stream))))
