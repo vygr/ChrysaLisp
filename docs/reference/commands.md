@@ -580,6 +580,20 @@ Usage: tocpm [options] [path] ...
 	If no paths given on command line
 	then paths are read from stdin.
 ```
+## toflm
+```code
+Usage: toflm [options] [path] ...
+
+	options:
+		-h --help: this help info.
+		-f --format 1|8|12|15|16|24|32: pixel format, default 32.
+		-n --name path: output film filename, default film.flm.
+
+	Convert images to a .flm animation.
+
+	If no paths given on command line
+	then paths are read from stdin.
+```
 ## unhuff
 ```code
 Usage: unrle [options] [file]

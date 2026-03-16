@@ -14,7 +14,7 @@
 	options:
 		-h --help: this help info.
 		-f --format 1|8|12|15|16|24|32: pixel format, default 32.
-		-n --name path: output film filename, default \"film.flm\".
+		-n --name path: output film filename, default film.flm.
 
 	Convert images to a .flm animation.
 

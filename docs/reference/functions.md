@@ -15,7 +15,7 @@
 ### CPM-save
 
 ```code
-(CPM-save canvas stream type) -> canvas
+(CPM-save canvas stream type [ident]) -> canvas
 ```
 
 ### CWB-info
