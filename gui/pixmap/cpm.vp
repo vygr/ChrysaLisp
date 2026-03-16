@@ -13,8 +13,9 @@
 	(def-vars
 		(ptr this)
 		(puint data data_end)
-		(long col)
-		(int length))
+		(long col bit_pool)
+		(int len)
+		(uint bit_pool_size))
 
 	;save inputs
 	(push-scope)
@@ -32,12 +33,14 @@
 		;decode according to type
 		(assign {&this->+pixmap_data} {data})
 		(assign {data + this->+pixmap_height * this->+pixmap_stride} {data_end})
+		(assign {0, 0} {bit_pool, bit_pool_size})
 
-		(vp-rdef (len col data data_end))
+		(vp-rdef (len col data data_end bit_pool bit_pool_size))
 		(loop-start)
 			;get token, loop back if stream end
 			(loop-start)
-				(call :stream :read_char {this->+pixmap_stream} `(_ ,len))
+				(call :stream :read_bits {this->+pixmap_stream, 8, bit_pool, bit_pool_size}
+					`(_ ,len ,bit_pool ,bit_pool_size))
 				(breakif `(,len /= -1))
 				(assign {this->+pixmap_bufp} {this->+pixmap_stream->+stream_bufp})
 			(loop-end)
@@ -45,27 +48,30 @@
 			;decode token
 			(vpif `(,len >= 128))
 				;skip
-				(assign {data, data_end} (list data data_end))
+				(assign {data, data_end, bit_pool, bit_pool_size}
+					`(,data ,data_end ,bit_pool ,bit_pool_size))
 				(vp-sub-cr 256 len)
 				(vp-shl-cr (log2 +int_size) len)
 				(vp-sub-rr len data)
 			(else)
 				;block of pixels
 				(loop-start)
-					(assign (list len) {length})
-					(call :stream :read_bits {this->+pixmap_stream, this->+pixmap_stream_type, 0, 0} {_, col, _, _})
+					(assign `(,len) {len})
+					(call :stream :read_bits {this->+pixmap_stream, this->+pixmap_stream_type, bit_pool, bit_pool_size}
+						{_, col, bit_pool, bit_pool_size})
 					(breakif {col = -1} 'error)
-					(call :pixmap :to_argb32 {col, this->+pixmap_stream_type} (list col))
-					(call :pixmap :to_premul (list col) (list col))
-					(assign {length, data, data_end} (list len data data_end))
+					(call :pixmap :to_argb32 {col, this->+pixmap_stream_type} `(,col))
+					(call :pixmap :to_premul `(,col) `(,col))
+					(assign {len, data, data_end, bit_pool, bit_pool_size}
+						`(,len ,data ,data_end ,bit_pool ,bit_pool_size))
 					(breakif `(,data >= ,data_end) 'error)
 					(vp-cpy-ri-i col data 0)
 					(vp-sub-cr 1 len)
 					(vp-add-cr +int_size data)
-					(assign (list data) {data})
+					(assign `(,data) {data})
 				(loop-until `(,len = 0))
 			(endif)
-			(assign (list data) {data})
+			(assign `(,data) {data})
 		(loop-until `(,data = ,data_end))
 	(endif)
 
