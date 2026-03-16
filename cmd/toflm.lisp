@@ -103,6 +103,8 @@
 								(if (eql mode :skip)
 									(when (> count 0)
 										(write-bits out_stream w_state (- 256 count) 8)))
+								
+								; Only flush to 8-bit boundaries at the very end of the frame!
 								(flush-bits out_stream w_state)
 
 								; swap streams for next iteration

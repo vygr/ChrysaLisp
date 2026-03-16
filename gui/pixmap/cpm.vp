@@ -35,21 +35,23 @@
 		(assign {data + this->+pixmap_height * this->+pixmap_stride} {data_end})
 		(assign {0, 0} {bit_pool, bit_pool_size})
 
-		(vp-rdef (len col data data_end bit_pool bit_pool_size))
+		(vp-rdef (stream len bit_pool bit_pool_size col data data_end)
+			(method-input :stream :read_bits))
 		(loop-start)
 			;get token, loop back if stream end
 			(loop-start)
 				(call :stream :read_bits {this->+pixmap_stream, 8, bit_pool, bit_pool_size}
-					`(_ ,len ,bit_pool ,bit_pool_size))
+					`(,stream ,len ,bit_pool ,bit_pool_size))
 				(breakif `(,len /= -1))
-				(assign {this->+pixmap_bufp} {this->+pixmap_stream->+stream_bufp})
+				(assign {this->+pixmap_bufp, 0, 0}
+					{this->+pixmap_stream->+stream_bufp, bit_pool, bit_pool_size})
 			(loop-end)
+			(assign `(,bit_pool ,bit_pool_size) {bit_pool, bit_pool_size})
 
 			;decode token
 			(vpif `(,len >= 128))
 				;skip
-				(assign {data, data_end, bit_pool, bit_pool_size}
-					`(,data ,data_end ,bit_pool ,bit_pool_size))
+				(assign {data, data_end} `(,data ,data_end))
 				(vp-sub-cr 256 len)
 				(vp-shl-cr (log2 +int_size) len)
 				(vp-sub-rr len data)
@@ -62,8 +64,7 @@
 					(breakif {col = -1} 'error)
 					(call :pixmap :to_argb32 {col, this->+pixmap_stream_type} `(,col))
 					(call :pixmap :to_premul `(,col) `(,col))
-					(assign {len, data, data_end, bit_pool, bit_pool_size}
-						`(,len ,data ,data_end ,bit_pool ,bit_pool_size))
+					(assign {len, data, data_end} `(,len ,data ,data_end))
 					(breakif `(,data >= ,data_end) 'error)
 					(vp-cpy-ri-i col data 0)
 					(vp-sub-cr 1 len)

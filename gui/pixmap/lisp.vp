@@ -123,14 +123,8 @@
 	(list-bind-args args `(,pixmap ,stream ,type) '(:pixmap :stream :num))
 	(assign `(,pixmap ,stream ,type) {pixmap, stream, type})
 
-	;num bits
+	;num bits (no artificial overriding)
 	(vp-cpy-rr type num_bits)
-	(vpif `(,type = 12))
-		(vp-cpy-cr 16 num_bits)
-	(endif)
-	(vpif `(,type = 15))
-		(vp-cpy-cr 16 num_bits)
-	(endif)
 	(assign `(,num_bits) {num_bits})
 
 	;set state
@@ -227,14 +221,8 @@
 	(list-bind-args args `(,pixmap ,stream ,type ,trans) '(:pixmap :stream :num :num))
 	(assign `(,pixmap ,stream ,type ,trans) {pixmap, stream, type, trans})
 
-	;num bits
+	;num bits (no artificial overriding)
 	(vp-cpy-rr type num_bits)
-	(vpif `(,type = 12))
-		(vp-cpy-cr 16 num_bits)
-	(endif)
-	(vpif `(,type = 15))
-		(vp-cpy-cr 16 num_bits)
-	(endif)
 	(assign `(,num_bits) {num_bits})
 
 	;set state
