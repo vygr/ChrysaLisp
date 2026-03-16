@@ -33,7 +33,7 @@
 			(setq opt_n (cat opt_n ".flm")))
 		(when (nempty? jobs)
 			(defq out_stream (file-stream opt_n +file_open_write)
-			      num_bits opt_f
+			      num_bits (if (or (= opt_f 12) (= opt_f 15)) 16 opt_f)
 			      p_stream (memory-stream)
 			      c_stream (memory-stream)
 			      total_pixels 0

@@ -15,7 +15,7 @@
 		(puint data data_end)
 		(long col bit_pool)
 		(int len)
-		(uint bit_pool_size))
+		(uint bit_pool_size num_bits))
 
 	;save inputs
 	(push-scope)
@@ -31,6 +31,13 @@
 		(call :pixmap :as_premul {this})
 
 		;decode according to type
+		(assign {this->+pixmap_stream_type} {num_bits})
+		(vpif {num_bits = 12})
+			(assign {16} {num_bits})
+		(endif)
+		(vpif {num_bits = 15})
+			(assign {16} {num_bits})
+		(endif)
 		(assign {&this->+pixmap_data} {data})
 		(assign {data + this->+pixmap_height * this->+pixmap_stride} {data_end})
 		(assign {0, 0} {bit_pool, bit_pool_size})
@@ -59,7 +66,7 @@
 				;block of pixels
 				(loop-start)
 					(assign `(,len) {len})
-					(call :stream :read_bits {this->+pixmap_stream, this->+pixmap_stream_type, bit_pool, bit_pool_size}
+					(call :stream :read_bits {this->+pixmap_stream, num_bits, bit_pool, bit_pool_size}
 						{_, col, bit_pool, bit_pool_size})
 					(breakif {col = -1} 'error)
 					(call :pixmap :to_argb32 {col, this->+pixmap_stream_type} `(,col))
