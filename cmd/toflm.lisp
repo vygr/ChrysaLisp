@@ -37,67 +37,66 @@
 				p_stream (memory-stream) c_stream (memory-stream)
 				total_pixels 0 first_frame :t)
 			(each (lambda (file)
-				(when (and file (some (# (ends-with %0 file)) '("cpm" "tga" "svg" "cwb")))
-					(when (defq canvas (canvas-load file +load_flag_noswap))
-						(defq pixmap (getf canvas +canvas_pixmap 0))
-						(if first_frame
-							(progn
-								; First frame - use existing CPM-save logic to write full frame
-								(CPM-save canvas out_stream opt_f "MLF.")
-								(setq total_pixels (* (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0)))
-								(pixmap-write (pixmap-as-argb pixmap) p_stream opt_f)
-								(setq first_frame :nil))
-							(progn
-								; Subsequent frames - RLE diff encoding
-								(stream-seek p_stream 0 0)
-								(stream-seek c_stream 0 0)
-								(pixmap-write (pixmap-as-argb pixmap) c_stream opt_f)
-								(stream-seek c_stream 0 0)
-								(defq p_state (array 0 0) c_state (array 0 0) w_state (array 0 0)
-									mode :none count 0 draw_buf (list))
-								(times total_pixels
-									(defq p (read-bits p_stream p_state num_bits)
-										c (read-bits c_stream c_state num_bits))
-									(if (= p -1) (setq p 0))
-									(if (= c -1) (setq c 0))
-									(cond
-										((= p c)
-											(if (eql mode :draw)
-												(progn
-													(write-bits out_stream w_state count 8)
-													(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)
-													(clear draw_buf)
-													(setq count 0 mode :skip)))
-											(setq mode :skip)
-											(++ count)
-											(when (= count 128)
-												(write-bits out_stream w_state (- 256 128) 8)
-												(setq count 0)))
-										(:t	(if (eql mode :skip)
-												(progn
-													(if (> count 0)
-														(write-bits out_stream w_state (- 256 count) 8))
-													(setq count 0 mode :draw)))
-											(setq mode :draw)
-											(push draw_buf c)
-											(++ count)
-											(when (= count 127)
-												(write-bits out_stream w_state 127 8)
+				(when (defq canvas (canvas-load file +load_flag_noswap))
+					(defq pixmap (getf canvas +canvas_pixmap 0))
+					(if first_frame
+						(progn
+							; First frame - use existing CPM-save logic to write full frame
+							(CPM-save canvas out_stream opt_f "MLF.")
+							(setq total_pixels (* (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0)))
+							(pixmap-write (pixmap-as-argb pixmap) p_stream opt_f)
+							(setq first_frame :nil))
+						(progn
+							; Subsequent frames - RLE diff encoding
+							(stream-seek p_stream 0 0)
+							(stream-seek c_stream 0 0)
+							(pixmap-write (pixmap-as-argb pixmap) c_stream opt_f)
+							(stream-seek c_stream 0 0)
+							(defq p_state (array 0 0) c_state (array 0 0) w_state (array 0 0)
+								mode :none count 0 draw_buf (list))
+							(times total_pixels
+								(defq p (read-bits p_stream p_state num_bits)
+									c (read-bits c_stream c_state num_bits))
+								(if (= p -1) (setq p 0))
+								(if (= c -1) (setq c 0))
+								(cond
+									((= p c)
+										(if (eql mode :draw)
+											(progn
+												(write-bits out_stream w_state count 8)
 												(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)
 												(clear draw_buf)
-												(setq count 0)))))
-								; Flush remaining tokens
-								(if (eql mode :draw)
-									(when (> count 0)
-										(write-bits out_stream w_state count 8)
-										(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)))
-								(if (eql mode :skip)
-									(when (> count 0)
-										(write-bits out_stream w_state (- 256 count) 8)))
-								; Only flush to 8-bit boundaries at the very end of the frame!
-								(flush-bits out_stream w_state)
-								; swap streams for next iteration
-								(defq temp p_stream)
-								(setq p_stream c_stream c_stream temp)))
-						(print file " -> " opt_n)))) jobs)
+												(setq count 0 mode :skip)))
+										(setq mode :skip)
+										(++ count)
+										(when (= count 128)
+											(write-bits out_stream w_state (- 256 128) 8)
+											(setq count 0)))
+									(:t	(if (eql mode :skip)
+											(progn
+												(if (> count 0)
+													(write-bits out_stream w_state (- 256 count) 8))
+												(setq count 0 mode :draw)))
+										(setq mode :draw)
+										(push draw_buf c)
+										(++ count)
+										(when (= count 127)
+											(write-bits out_stream w_state 127 8)
+											(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)
+											(clear draw_buf)
+											(setq count 0)))))
+							; Flush remaining tokens
+							(if (eql mode :draw)
+								(when (> count 0)
+									(write-bits out_stream w_state count 8)
+									(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)))
+							(if (eql mode :skip)
+								(when (> count 0)
+									(write-bits out_stream w_state (- 256 count) 8)))
+							; Only flush to 8-bit boundaries at the very end of the frame!
+							(flush-bits out_stream w_state)
+							; swap streams for next iteration
+							(defq temp p_stream)
+							(setq p_stream c_stream c_stream temp)))
+					(print file " -> " opt_n))) jobs)
 			(stream-flush out_stream))))
