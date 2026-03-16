@@ -38,8 +38,7 @@
 				total_pixels 0 first_frame :t)
 			(each (lambda (file)
 				(when (and file (some (# (ends-with %0 file)) '("cpm" "tga" "svg" "cwb")))
-					(defq canvas (canvas-load file +load_flag_noswap))
-					(when canvas
+					(when (defq canvas (canvas-load file +load_flag_noswap))
 						(defq pixmap (getf canvas +canvas_pixmap 0))
 						(if first_frame
 							(progn
@@ -74,8 +73,7 @@
 											(when (= count 128)
 												(write-bits out_stream w_state (- 256 128) 8)
 												(setq count 0)))
-										(:t
-											(if (eql mode :skip)
+										(:t	(if (eql mode :skip)
 												(progn
 													(if (> count 0)
 														(write-bits out_stream w_state (- 256 count) 8))
