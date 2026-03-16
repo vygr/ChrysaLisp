@@ -153,8 +153,7 @@
 	(list-bind-args :r1 '(:r0) '(:canvas))
 	(assign '(:r0 (:r0 +canvas_pixmap)) '((:rsp local_canvas) :r0))
 	(call :pixmap :next_frame '(:r0))
-	(assign '((:rsp local_canvas)) '(:r0))
-	(call :canvas :swap '(:r0 0) '(:r1))
+	(assign '((:rsp local_canvas)) '(:r1))
 	(class/obj/ref :r1 :r2)
 
 	(exit :canvas :lisp_next_frame '((:rsp local_this) :r1))
