@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;
-; cmd/toflm.lisp
-;;;;;;;;;;;;;;;;
 (import "gui/lisp.inc")
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
@@ -36,7 +33,7 @@
 			(setq opt_n (cat opt_n ".flm")))
 		(when (nempty? jobs)
 			(defq out_stream (file-stream opt_n +file_open_write)
-			      num_bits (if (or (= opt_f 12) (= opt_f 15)) 16 opt_f)
+			      num_bits opt_f
 			      p_stream (memory-stream)
 			      c_stream (memory-stream)
 			      total_pixels 0
@@ -74,41 +71,39 @@
 										((= p c)
 											(if (eql mode :draw)
 												(progn
-													(write-char out_stream count)
+													(write-bits out_stream w_state count 8)
 													(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)
-													(flush-bits out_stream w_state)
 													(clear draw_buf)
 													(setq count 0 mode :skip)))
 											(setq mode :skip)
 											(++ count)
 											(when (= count 128)
-												(write-char out_stream (- 256 128))
+												(write-bits out_stream w_state (- 256 128) 8)
 												(setq count 0)))
 										(:t
 											(if (eql mode :skip)
 												(progn
 													(if (> count 0)
-														(write-char out_stream (- 256 count)))
+														(write-bits out_stream w_state (- 256 count) 8))
 													(setq count 0 mode :draw)))
 											(setq mode :draw)
 											(push draw_buf c)
 											(++ count)
 											(when (= count 127)
-												(write-char out_stream 127)
+												(write-bits out_stream w_state 127 8)
 												(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)
-												(flush-bits out_stream w_state)
 												(clear draw_buf)
 												(setq count 0)))))
 
 								; Flush remaining tokens
 								(if (eql mode :draw)
 									(when (> count 0)
-										(write-char out_stream count)
-										(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)
-										(flush-bits out_stream w_state)))
+										(write-bits out_stream w_state count 8)
+										(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)))
 								(if (eql mode :skip)
 									(when (> count 0)
-										(write-char out_stream (- 256 count))))
+										(write-bits out_stream w_state (- 256 count) 8)))
+								(flush-bits out_stream w_state)
 
 								; swap streams for next iteration
 								(defq temp p_stream)
