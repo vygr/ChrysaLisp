@@ -52,13 +52,14 @@
 						(setq canvas :nil))))))
 	canvas)
 
-(defun CPM-save (canvas stream type)
-	; (CPM-save canvas stream type) -> canvas
+(defun CPM-save (canvas stream type &optional ident)
+	; (CPM-save canvas stream type [ident]) -> canvas
+	(setd ident "MPC.")
 	(defq pixmap (getf canvas +canvas_pixmap 0) num_bits type)
 	(if (or (= type 12) (= type 15)) (setq num_bits 16))
 	;header
 	(write-blk stream (setf-> (str-alloc +cpm_size)
-		(+cpm_ident (code "MPC." 4))
+		(+cpm_ident (code ident 4))
 		(+cpm_bytes 0)
 		(+cpm_version 1)
 		(+cpm_type type)
