@@ -39,6 +39,8 @@
 					(bind '(w h type) (getf-> header +cpm_width +cpm_height +cpm_type))
 					(defq canvas (Canvas w h 1) num_bits type
 						pixmap (getf canvas +canvas_pixmap 0))
+					; 12 and 15 bit images are padded to 16 num_bits in the stream
+					(if (or (= type 12) (= type 15)) (setq num_bits 16))
 					; save stream type for any film players !
 					(setf-> pixmap (+pixmap_stream_type type 0) (+pixmap_type 32 0))
 					; decompress exactly one frame straight into our memory stream
@@ -54,6 +56,7 @@
 	; (CPM-save canvas stream type [ident]) -> canvas
 	(setd ident "MPC.")
 	(defq pixmap (getf canvas +canvas_pixmap 0) num_bits type)
+	(if (or (= type 12) (= type 15)) (setq num_bits 16))
 	;header
 	(write-blk stream (setf-> (str-alloc +cpm_size)
 		(+cpm_ident (code ident 4))
