@@ -10,12 +10,12 @@
 
 (structure +cpm 0
 	(uint ident)        ;ident .CPM or .FLM
-	(uint bytes)        ;0 if not known, else total size
+	(uint reserved_0)   ;reserved 0
 	(uint version)      ;version number
 	(int type)          ;image type
 	(uint width)        ;image w
 	(uint height)       ;image h
-	(uint trans))       ;image transparent colour
+	(uint reserved_1))  ;reserved 1
 
 (defun CPM-info (stream)
 	; (CPM-info stream) -> (width height type) | (-1 -1 -1)
@@ -48,7 +48,7 @@
 					(rle-decompress stream (defq pixel_stream (memory-stream)) num_bits 8 (* w h))
 					(stream-seek pixel_stream 0 0)
 					; loop and copy direct to the pixmap's pixel buffer
-					(ifn (pixmap-read pixmap pixel_stream type (getf header +cpm_trans))
+					(ifn (pixmap-read pixmap pixel_stream type)
 						(setq canvas :nil))))))
 	canvas)
 
@@ -60,12 +60,12 @@
 	;header
 	(write-blk stream (setf-> (str-alloc +cpm_size)
 		(+cpm_ident (code ident 4))
-		(+cpm_bytes 0)
+		(+cpm_reserved_0 0)
 		(+cpm_version 1)
 		(+cpm_type type)
 		(+cpm_width (getf pixmap +pixmap_width 0))
 		(+cpm_height (getf pixmap +pixmap_height 0))
-		(+cpm_trans 0)))
+		(+cpm_reserved_1 0)))
 	;data
 	(pixmap-write (pixmap-as-argb pixmap) (defq pixel_stream (memory-stream)) type)
 	(stream-seek pixel_stream 0 0)

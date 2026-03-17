@@ -46,7 +46,7 @@
 			(defq canvas (Canvas w h 1) pixmap (getf canvas +canvas_pixmap 0))
 			(setf pixmap +pixmap_type 32 0)
 			; loop and copy direct to the pixmap's pixel buffer
-			(ifn (pixmap-read pixmap stream type 0)
+			(ifn (pixmap-read pixmap stream type)
 				(setq canvas :nil))))
 	canvas)
 

@@ -40,6 +40,8 @@ Added Castling to the Chess app.
 New `toflm.lisp` command. This will take a series of frames and encode a `.flm`
 format movie file.
 
+Reserve legacy `.cpm` header fields.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and

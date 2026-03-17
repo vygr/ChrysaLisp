@@ -214,18 +214,18 @@
 		(ptr this args pixmap stream)
 		(puint data data_end)
 		(long bit_pool last_col)
-		(uint type num_bits bit_pool_size last_conv trans))
+		(uint type num_bits bit_pool_size last_conv))
 
-	(vp-rdef (this args pixmap stream type trans num_bits data data_end w h))
+	(vp-rdef (this args pixmap stream type num_bits data data_end w h))
 
 	(entry :pixmap :lisp_read `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(errorif-lisp-args-sig 'error :r1 3)
 
 	(push-scope)
 	(assign `(,this ,args) {this, args})
-	(list-bind-args args `(,pixmap ,stream ,type ,trans) '(:pixmap :stream :num :num))
-	(assign `(,pixmap ,stream ,type ,trans) {pixmap, stream, type, trans})
+	(list-bind-args args `(,pixmap ,stream ,type) '(:pixmap :stream :num))
+	(assign `(,pixmap ,stream ,type) {pixmap, stream, type})
 
 	;num bits
 	(vp-cpy-rr type num_bits)
@@ -266,7 +266,7 @@
 		(assign `(,bit_pool ,bit_pool_size) {bit_pool, bit_pool_size})
 
 		;convert pixel, with cache
-		(vp-rdef (col type last_col last_conv trans) (method-input :pixmap :to_argb32))
+		(vp-rdef (col type last_col last_conv) (method-input :pixmap :to_argb32))
 		(assign `(,val) `(,col))
 
 		(assign {last_col} `(,last_col))
@@ -280,10 +280,8 @@
 		(endif)
 
 		;write pixel
-		(assign {trans, data, data_end} `(,trans ,data ,data_end))
-		(vpif `(,col /= ,trans))
-			(vp-cpy-ri-i col data 0)
-		(endif)
+		(assign {data, data_end} `(,data ,data_end))
+		(vp-cpy-ri-i col data 0)
 		(vp-add-cr +int_size data)
 	(loop-end)
 
@@ -301,7 +299,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(pixmap-read pixmap stream type trans)" +error_msg_wrong_types ,args))
-	(signature '(:pixmap :stream :num :num)))
+	(jump :lisp :repl_error `(,this "(pixmap-read pixmap stream type)" +error_msg_wrong_types ,args))
+	(signature '(:pixmap :stream :num)))
 
 (def-func-end)

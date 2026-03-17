@@ -10,4 +10,4 @@
 (ffi "gui/pixmap/lisp_write" pixmap-write)
 ; (pixmap-write pixmap stream type) -> pixmap
 (ffi "gui/pixmap/lisp_read" pixmap-read)
-; (pixmap-read pixmap stream type trans) -> :nil | pixmap
+; (pixmap-read pixmap stream type) -> :nil | pixmap
