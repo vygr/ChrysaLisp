@@ -62,6 +62,10 @@
 
 ### :get_cursor
 
+### :get_cursors_extent
+
+### :get_cursors_sorted
+
 ### :get_focus
 
 ### :get_primary_text
@@ -72,7 +76,7 @@
 (. edit :get_scroll) -> (x y)
 ```
 
-### :get_selected_extent
+### :get_tcursor
 
 ### :get_vdu_text
 
@@ -211,6 +215,8 @@
 ```code
 (. edit :set_select_color argb) -> edit
 ```
+
+### :set_tcursor
 
 ### :sort
 

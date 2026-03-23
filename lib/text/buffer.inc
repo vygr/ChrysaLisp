@@ -14,7 +14,7 @@
 (bits +buffer_flag 0
 	(bit syntax undo))
 
-(defq +invalid_focus (nums 0 0 0 0))
+(defq +invalid_focus (nums 0 0 0 0) +invalid_cursor (nums -1 -1 -1 -1 -1))
 
 ;;;;;;;;;;;;;;
 ; line editing
@@ -286,19 +286,17 @@
 		:syntax_engine syntax :undo_stack (list) :redo_stack (list)
 		:max_width 0 :tab_width 4 :wrap_width 80 :last_find '("" :nil :nil)
 		:flags flags :next_mark -1 :modified :nil :last_key :nil
-		:focus +invalid_focus :cursors (list (nums 0 0 0 0 -1)) :tcursors '())
+		:focus +invalid_focus :cursors (list (nums 0 0 0 0 -1)))
 
 ;;;;;;;;;;;;;;;
 ; basic get/set
 ;;;;;;;;;;;;;;;
 
 	(defsetmethod :cursors)
-	(defsetmethod :tcursors)
 	(defsetmethod :tab_width)
 	(defsetmethod :wrap_width)
 
 	(defgetmethod :cursors)
-	(defgetmethod :tcursors)
 	(defgetmethod :modified)
 	(defgetmethod :buffer_found)
 	(defgetmethod :buffer_lines)
@@ -357,8 +355,7 @@
 		(defq cursors (get :cursors this))
 		(lower (:cursors (if (nempty? cursors)
 					(list (last cursors))
-					(list (nums 0 0 0 0 -1)))
-				:tcursors '()))
+					(list (nums 0 0 0 0 -1)))))
 		this)
 
 	(defmethod :filter_cursors (cursors)
@@ -389,18 +386,19 @@
 ; cursor range info
 ;;;;;;;;;;;;;;;;;;;
 
-	(defmethod :get_selected ()
-		; (. buffer :get_selected) -> ((cx cy ax ay) ...)
-		; return cursors sorted by position, without sx
-		(map (# (task-slice) (most %0))
-			(sort-bucket this (cat (get :cursors this) (get :tcursors this))
-				(const csr-cmp))))
+	(defmethod :get_cursors_sorted ()
+		; (. buffer :get_cursors_sorted) -> ((cx cy ax ay sx) ...)
+		; return cursors sorted by position
+		(sort-bucket this (get :cursors this) (const csr-cmp)))
 
-	(defmethod :get_selected_unsorted ()
-		; (. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
-		; return cursors in original order, without sx
-		(map (# (task-slice) (most %0))
-			(cat (get :cursors this) (get :tcursors this))))
+	(defmethod :get_cursors_extent ()
+		; (. buffer :get_cursors_extent) -> csr
+		(defq max_x 0 min_x +max_int max_y 0 min_y +max_int)
+		(each (lambda ((sx1 sy1 sx sy))
+				(setq max_x (max max_x sx1) min_x (min min_x sx)
+					max_y (max max_y sy1) min_y (min min_y sy)))
+			(map (const csr-floor) (. this :get_cursors_sorted)))
+		(list min_x min_y max_x max_y))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; cursor merging
@@ -496,7 +494,7 @@
 			; map focus
 			(defq focus (get :focus this))
 			(unless (eql focus +invalid_focus)
-				(bind '(x1 y1 x2 y2 &ignore) focus)
+				(bind '(x1 y1 x2 y2) focus)
 				(set this :focus (cat
 					(csr-map-delete x1 y1 cx cy ax ay)
 					(csr-map-delete x2 y2 cx cy ax ay)))))
@@ -555,7 +553,7 @@
 			; map focus
 			(defq focus (get :focus this))
 			(unless (eql focus +invalid_focus)
-				(bind '(x1 y1 x2 y2 &ignore) focus)
+				(bind '(x1 y1 x2 y2) focus)
 				(set this :focus (cat
 					(csr-map-insert x1 y1 icx icy ecx ecy dy x2 y2)
 					(csr-map-insert x2 y2 icx icy ecx ecy dy x1 y1)))))
@@ -926,15 +924,6 @@
 			(map (# (push (csr-floor %0) -1)) (get :cursors this)))))
 		this)
 
-	(defmethod :get_selected_extent ()
-		; (. buffer :get_selected_extent) -> csr
-		(defq max_x 0 min_x +max_int max_y 0 min_y +max_int)
-		(each (lambda ((sx1 sy1 sx sy))
-				(setq max_x (max max_x sx1) min_x (min min_x sx)
-					max_y (max max_y sy1) min_y (min min_y sy)))
-			(map (const csr-floor) (. this :get_selected)))
-		(list min_x min_y max_x max_y))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; multi cursor text mutation
 ; undoable !
@@ -1260,7 +1249,7 @@
 			h (length buffer_found) focus (get :focus this))
 		(if (nql focus +invalid_focus)
 			(progn
-				(bind '(_x1 _y1 _x2 _y2 &ignore) focus)
+				(bind '(_x1 _y1 _x2 _y2) focus)
 				(defq fy (min _y1 _y2) fy1 (max _y1 _y2)))
 			(defq fy 0 fy1 h))
 		(cond
@@ -1284,7 +1273,7 @@
 			h (length buffer_found) focus (get :focus this))
 		(if (nql focus +invalid_focus)
 			(progn
-				(bind '(_x1 _y1 _x2 _y2 &ignore) focus)
+				(bind '(_x1 _y1 _x2 _y2) focus)
 				(defq fy (min _y1 _y2) fy1 (max _y1 _y2)))
 			(defq fy 0 fy1 h))
 		(cond
@@ -1322,7 +1311,7 @@
 		(defq stage (list) focus (get :focus this))
 		(if (nql focus +invalid_focus)
 			(progn
-				(bind '(_x1 _y1 _x2 _y2 &ignore) focus)
+				(bind '(_x1 _y1 _x2 _y2) focus)
 				(defq fy (min _y1 _y2) fy1 (max _y1 _y2)))
 			(defq fy 0 fy1 (last (. this :get_size))))
 		(each (# (when %0
@@ -1340,7 +1329,7 @@
 		(defq stage (list) focus (get :focus this))
 		(if (nql focus +invalid_focus)
 			(progn
-				(bind '(_x1 _y1 _x2 _y2 &ignore) focus)
+				(bind '(_x1 _y1 _x2 _y2) focus)
 				(defq fy (min _y1 _y2) fy1 (max _y1 _y2)))
 			(defq fy 0 fy1 (last (. this :get_size))))
 		(each (# (when %0
@@ -1356,5 +1345,6 @@
 ;module
 (export-classes '(Buffer))
 (export-symbols '(csr-sort csr-floor csr-sort-top csr-sort-bot csr-within
-	undoable blank-line? +buffer_flag_syntax +buffer_flag_undo +invalid_focus))
+	undoable blank-line? +buffer_flag_syntax +buffer_flag_undo
+	+invalid_focus +invalid_cursor))
 (env-pop)

@@ -23,7 +23,7 @@
 	(if (nql (. *edit* :get_focus) +invalid_focus)
 		(. *edit* :set_focus +invalid_focus)
 		(progn
-			(bind '(& sy & sy1) (. *edit* :get_selected_extent))
+			(bind '(& sy & sy1) (. *edit* :get_cursors_extent))
 			(. *edit* :set_focus (nums 0 sy 0 sy1))))
 	(update-find-toolbar)
 	(refresh-display))

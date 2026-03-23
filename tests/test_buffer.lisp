@@ -27,9 +27,9 @@
 
 ; Check cursor positions after insert
 ; Each "!" insertion moves its cursor
-(defq cs (. b :get_selected))
-(assert-eq "Cursor 1 pos" (nums 1 0 1 0) (first cs))
-(assert-eq "Cursor 2 pos" (nums 5 0 5 0) (second cs))
+(defq cs (. b :get_cursors_sorted))
+(assert-eq "Cursor 1 pos" (nums 1 0 1 0 -1) (first cs))
+(assert-eq "Cursor 2 pos" (nums 5 0 5 0 -1) (second cs))
 
 ; --- Selection & Deletion ---
 (defq b (Buffer))
@@ -163,8 +163,8 @@
 ; Matches are "Hello" at (0,0) to (5,0) and (0,1) to (5,1)
 ; Cursors are stored as (ax ay cx cy sx), :set_found_cursors sets them as (x y x1 y 0)
 ; where x1 is start, x is end.
-(assert-eq "Found cursor 1" (nums 5 0 0 0) (first (. b :get_selected)))
-(assert-eq "Found cursor 2" (nums 5 1 0 1) (second (. b :get_selected)))
+(assert-eq "Found cursor 1" (nums 5 0 0 0 0) (first (. b :get_cursors_sorted)))
+(assert-eq "Found cursor 2" (nums 5 1 0 1 0) (second (. b :get_cursors_sorted)))
 
 (. b :add_found_cursors found) ; Should merge since they are identical
 (assert-eq "Add found cursors (merge)" 2 (length (. b :get_cursors)))
@@ -174,18 +174,18 @@
 (. b :insert "ABC\nDEF")
 (. b :set_cursor 0 1 2 1) ; "DE" at (0,1)-(2,1)
 (. b :add_cursor 0 0 2 0) ; "AB" at (0,0)-(2,0)
-(assert-eq "get_selected count" 2 (length (. b :get_selected)))
+(assert-eq "get_selected count" 2 (length (. b :get_cursors_sorted)))
 ; get_selected returns (cx cy ax ay) because sx is stripped by (most %0)
 ; sorted should be (0 0 2 0) then (0 1 2 1)
-(assert-eq "get_selected (sorted)" (nums 0 0 2 0) (first (. b :get_selected)))
-(assert-list-eq "get_selected_extent" (nums 0 0 0 2) (. b :get_selected_extent))
+(assert-eq "get_selected (sorted)" (nums 0 0 2 0 -1) (first (. b :get_cursors_sorted)))
+(assert-list-eq "get_selected_extent" (nums 0 0 0 2) (. b :get_cursors_extent))
 
 ; --- Floor Selection ---
 (defq b (Buffer))
 (. b :insert "ABC\nDEF")
 (. b :set_cursor 1 0 2 0) ; point in middle of line
 (. b :floor_selection)
-(assert-list-eq "floor_selection" (nums 0 1 0 0) (first (. b :get_selected)))
+(assert-list-eq "floor_selection" (nums 0 1 0 0 -1) (first (. b :get_cursors_sorted)))
 
 ; --- Bracket Matching ---
 ; Needs +buffer_flag_syntax

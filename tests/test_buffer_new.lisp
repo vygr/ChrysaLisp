@@ -8,12 +8,12 @@
 (. b :set_cursor 0 0)
 (. b :right_white_space_select)
 ; Should select from (0,0) to (2,0)
-(assert-eq "Right white space select" (nums 2 0 0 0) (first (. b :get_selected)))
+(assert-eq "Right white space select" (nums 2 0 0 0 2) (first (. b :get_cursors_sorted)))
 
 (. b :set_cursor 7 0)
 (. b :left_white_space_select)
 ; Should select from (7,0) back to (5,0)
-(assert-eq "Left white space select" (nums 5 0 7 0) (first (. b :get_selected)))
+(assert-eq "Left white space select" (nums 5 0 7 0 5) (first (. b :get_cursors_sorted)))
 
 ; --- Bracket Selection ---
 (defq b (Buffer +buffer_flag_syntax))
@@ -21,12 +21,12 @@
 (. b :set_cursor 0 0)
 (. b :right_bracket_select)
 ; Should select from (0,0) to (4,0)
-(assert-eq "Right bracket select" (nums 4 0 0 0) (first (. b :get_selected)))
+(assert-eq "Right bracket select" (nums 4 0 0 0 4) (first (. b :get_cursors_sorted)))
 
 (. b :set_cursor 4 0)
 (. b :left_bracket_select)
 ; Should select from (4,0) to (0,0)
-(assert-eq "Left bracket select" (nums 0 0 4 0) (first (. b :get_selected)))
+(assert-eq "Left bracket select" (nums 0 0 4 0 0) (first (. b :get_cursors_sorted)))
 
 ; --- Primary Cursor ---
 (defq b (Buffer))
@@ -53,29 +53,29 @@
 (. b :set_cursor 0 0)
 (. b :find_next)
 ; First match is 0..3. next = (nums 3 0 0 0 -1). cx=3, ax=0.
-(assert-eq "Find next 1" (nums 3 0 0 0) (first (. b :get_selected)))
+(assert-eq "Find next 1" (nums 3 0 0 0 -1) (first (. b :get_cursors_sorted)))
 (. b :find_next)
 ; Second match is 4..7. next = (nums 7 0 4 0 -1). cx=7, ax=4.
-(assert-eq "Find next 2" (nums 7 0 4 0) (first (. b :get_selected)))
+(assert-eq "Find next 2" (nums 7 0 4 0 -1) (first (. b :get_cursors_sorted)))
 
 ; find_prev
 (. b :right)
 (. b :find_prev)
 ; From (7,0), find_prev finds Match 1 (4..7) again, but at its START.
 ; next = (nums 4 0 7 0 -1). cx=4, ax=7.
-(assert-eq "Find prev 1" (nums 4 0 7 0) (first (. b :get_selected)))
+(assert-eq "Find prev 1" (nums 4 0 7 0 -1) (first (. b :get_cursors_sorted)))
 (. b :find_prev)
 ; From (4,0), find_prev finds Match 0 (0..3).
 ; next = (nums 0 0 3 0 -1). cx=0, ax=3.
-(assert-eq "Find prev 2" (nums 0 0 3 0) (first (. b :get_selected)))
+(assert-eq "Find prev 2" (nums 0 0 3 0 -1) (first (. b :get_cursors_sorted)))
 
 ; find_add_next
 (. b :set_cursor 0 0)
 (. b :find_next) ; select first "ABC" (3,0)-(0,0)
 (. b :find_add_next) ; add second "ABC" (7,0)-(4,0)
 (assert-eq "Find add next count" 2 (length (. b :get_cursors)))
-(assert-eq "Find add next 1" (nums 3 0 0 0) (first (. b :get_selected)))
-(assert-eq "Find add next 2" (nums 7 0 4 0) (second (. b :get_selected)))
+(assert-eq "Find add next 1" (nums 3 0 0 0 -1) (first (. b :get_cursors_sorted)))
+(assert-eq "Find add next 2" (nums 7 0 4 0 -1) (second (. b :get_cursors_sorted)))
 
 ; --- Search & Mutation ---
 (defq b (Document))

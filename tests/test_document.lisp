@@ -9,27 +9,27 @@
 (. d :insert "Hello World")
 (. d :set_cursor 2 0) ; middle of "Hello"
 (. d :select_word)
-(assert-eq "select_word" (nums 5 0 0 0) (first (. d :get_selected)))
+(assert-eq "select_word" (nums 5 0 0 0 -1) (first (. d :get_cursors_sorted)))
 
 ; --- Line Selection ---
 (defq d (Document))
 (. d :insert "Line 1\nLine 2")
 (. d :set_cursor 2 0)
 (. d :select_line)
-(assert-eq "select_line" (nums 0 1 0 0) (first (. d :get_selected)))
+(assert-eq "select_line" (nums 0 1 0 0 -1) (first (. d :get_cursors_sorted)))
 
 ; --- Paragraph Selection ---
 (defq d (Document))
 (. d :insert "P1\n\nP2")
 (. d :set_cursor 0 0)
 (. d :select_paragraph)
-(assert-eq "select_paragraph P1" (nums 0 1 0 0) (first (. d :get_selected)))
+(assert-eq "select_paragraph P1" (nums 0 1 0 0 -1) (first (. d :get_cursors_sorted)))
 
 ; --- All Selection ---
 (defq d (Document))
 (. d :insert "ABC\nDEF")
 (. d :select_all)
-(assert-eq "select_all" (nums 0 2 0 0) (first (. d :get_selected)))
+(assert-eq "select_all" (nums 0 2 0 0 -1) (first (. d :get_cursors_sorted)))
 
 ; --- Tabbing (Indent/Outdent) ---
 (defq d (Document))
@@ -88,10 +88,10 @@
 (. d :insert "(outer (inner))")
 (. d :set_cursor 8 0) ; middle of "inner"
 (. d :select_block)
-(assert-list-eq "select_block" (nums 14 0 7 0) (first (. d :get_selected)))
+(assert-list-eq "select_block" (nums 14 0 7 0 -1) (first (. d :get_cursors_sorted)))
 (. d :set_cursor 7 0) ; on the "(" of "(inner"
 (. d :select_form)
-(assert-list-eq "select_form" (nums 14 0 7 0) (first (. d :get_selected)))
+(assert-list-eq "select_form" (nums 14 0 7 0 -1) (first (. d :get_cursors_sorted)))
 
 ; --- Tabbing (Single Cursor) ---
 (defq d (Document))

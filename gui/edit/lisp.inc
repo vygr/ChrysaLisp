@@ -19,14 +19,16 @@
 		:mask_found (defq mask_found (Mask))
 		:mask_region (defq mask_region (Mask))
 		:scroll_x 0 :scroll_y 0
-		:buffer (Document)
+		:buffer (Document) :tcursor +invalid_cursor
 		:vdu_width 80 :vdu_height 40 :min_width 0 :min_height 0)
 	(each (# (. this :add_child (. %0 :set_flags 0 +view_flag_solid)))
 		(list vdu_text mask_ink mask_selected mask_found mask_region))
 
 	(defsetmethod :buffer)
+	(defsetmethod :tcursor)
 	(defgetmethod :buffer)
 	(defgetmethod :vdu_text)
+	(defgetmethod :tcursor)
 
 	(defproxymethod :get_focus () :buffer :t)
 	(defproxymethod :set_focus (csr) :buffer)
@@ -73,7 +75,8 @@
 	(defproxymethod :add_cursor (cx cy &optional ax ay) :buffer)
 	(defproxymethod :primary_cursor () :buffer)
 	(defproxymethod :clip_cursor (cx cy &optional ax ay sx) :buffer :t)
-	(defproxymethod :get_selected_extent () :buffer :t)
+	(defproxymethod :get_cursors_sorted () :buffer :t)
+	(defproxymethod :get_cursors_extent () :buffer :t)
 	(defproxymethod :find (pattern wmode rmode) :buffer :t)
 	(defproxymethod :get_buffer_found () :buffer :t)
 	(defproxymethod :next_found_cursor (csr) :buffer :t)
@@ -259,7 +262,9 @@
 								(* (- ay scroll_y) ch)
 								(* ax cw)
 								ch))))))
-			(. buffer :get_selected_unsorted))
+			(if (eql +invalid_cursor (. this :get_tcursor))
+				(. buffer :get_cursors)
+				(cat (. buffer :get_cursors) (list (. this :get_tcursor)))))
 		this)
 
 	(defmethod :mouse_down (event)
@@ -268,7 +273,7 @@
 		(bind '(x y) (. this :char_pos event))
 		(if (= 1 (defq mouse_state (getf event +ev_msg_mouse_buttons)))
 			(. buffer :set_cursor x y x y))
-		(. buffer :set_tcursors (list (. buffer :clip_cursor x y)))
+		(. this :set_tcursor (. buffer :clip_cursor x y))
 		(lower :mouse_state)
 		this)
 
@@ -276,8 +281,8 @@
 		; (. edit :mouse_move event) -> edit
 		(raise :buffer :mouse_state)
 		(bind '(x y) (. this :char_pos event))
-		(bind '((cx cy ax ay sx)) (. buffer :get_tcursors))
-		(. buffer :set_tcursors (list (. buffer :clip_cursor x y ax ay)))
+		(bind '(cx cy ax ay &ignore) (. this :get_tcursor))
+		(. this :set_tcursor (. buffer :clip_cursor x y ax ay))
 		(if (= 1 mouse_state)
 			(. buffer :set_cursor x y ax ay))
 		this)
@@ -285,11 +290,11 @@
 	(defmethod :mouse_up (event)
 		; (. vdu :mouse_up event) -> vdu
 		(raise :buffer :mouse_state)
-		(bind '((cx cy ax ay sx)) (. buffer :get_tcursors))
+		(bind '(cx cy ax ay &ignore) (. this :get_tcursor))
 		(if (= 1 mouse_state)
 			(. buffer :set_cursor cx cy ax ay)
 			(. buffer :add_cursor cx cy ax ay))
-		(. buffer :set_tcursors '())
+		(. this :set_tcursor +invalid_cursor)
 		this)
 
 	(defmethod :mouse_wheel (event)

@@ -152,6 +152,20 @@ return last cursor position without sticky x
 
 ### :get_cursors
 
+### :get_cursors_extent
+
+```code
+(. buffer :get_cursors_extent) -> csr
+```
+
+### :get_cursors_sorted
+
+```code
+(. buffer :get_cursors_sorted) -> ((cx cy ax ay sx) ...)
+
+return cursors sorted by position
+```
+
 ### :get_focus
 
 ### :get_last_find
@@ -166,28 +180,6 @@ return last cursor position without sticky x
 get the primary cursor text
 ```
 
-### :get_selected
-
-```code
-(. buffer :get_selected) -> ((cx cy ax ay) ...)
-
-return cursors sorted by position, without sx
-```
-
-### :get_selected_extent
-
-```code
-(. buffer :get_selected_extent) -> csr
-```
-
-### :get_selected_unsorted
-
-```code
-(. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
-
-return cursors in original order, without sx
-```
-
 ### :get_size
 
 ```code
@@ -197,8 +189,6 @@ return cursors in original order, without sx
 ### :get_syntax_engine
 
 ### :get_tab_width
-
-### :get_tcursors
 
 ### :get_text_line
 
@@ -395,8 +385,6 @@ cursors format: ((cx cy ax ay sx) ...)
 ```
 
 ### :set_tab_width
-
-### :set_tcursors
 
 ### :set_wrap_width
 
