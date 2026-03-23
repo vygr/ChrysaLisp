@@ -392,13 +392,13 @@
 		(sort-bucket this (get :cursors this) (const csr-cmp)))
 
 	(defmethod :get_cursors_extent ()
-		; (. buffer :get_cursors_extent) -> csr
-		(defq max_x 0 min_x +max_int max_y 0 min_y +max_int)
-		(each (lambda ((sx1 sy1 sx sy))
-				(setq max_x (max max_x sx1) min_x (min min_x sx)
-					max_y (max max_y sy1) min_y (min min_y sy)))
-			(map (const csr-floor) (. this :get_cursors_sorted)))
-		(list min_x min_y max_x max_y))
+			; (. buffer :get_cursors_extent) -> csr
+			(defq cursors (. this :get_cursors_sorted)
+				max_x 0 min_x +max_int max_y 0 min_y +max_int)
+			(when (nempty? cursors)
+				(bind '(max_x & min_x min_y) (csr-floor (first cursors)))
+				(bind '(& max_y &ignore) (csr-floor (last cursors))))
+			(nums min_x min_y max_x max_y))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; cursor merging
