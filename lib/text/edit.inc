@@ -67,19 +67,6 @@
 			(. *edit* :paste (join new_text "\f")))))
 
 ;module
-(export-symbols '(
-edit-add-cursors edit-backspace edit-bottom edit-bracket-left
-edit-bracket-right edit-comment edit-copy edit-cursors edit-cut edit-cx edit-cy
-edit-delete edit-down edit-end edit-eof? edit-filter-cursors edit-find edit-find-add-next
-edit-find-next edit-find-prev edit-focus-cursors edit-get-filename edit-get-focus edit-get-primary-text edit-get-text
-edit-home edit-indent edit-insert edit-join-text edit-left
-edit-lower edit-outdent edit-paste edit-print edit-primary edit-reflow edit-replace
-edit-right edit-select-all edit-select-block edit-select-bottom
-edit-select-bracket-left edit-select-bracket-right edit-select-down
-edit-select-end edit-select-form edit-select-home edit-select-left
-edit-select-line edit-select-paragraph edit-select-right edit-select-top
-edit-select-up edit-select-word edit-select-ws-left edit-select-ws-right
-edit-set-focus edit-sort edit-split edit-split-text edit-top edit-trim edit-unique edit-up
-edit-upper edit-ws-left edit-ws-right
-))
+;export all symbols beginning with "edit-"
+(export-symbols (filter (# (starts-with "edit-" %0)) (map (const first) (tolist (env)))))
 (env-pop)
