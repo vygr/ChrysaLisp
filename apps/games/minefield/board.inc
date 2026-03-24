@@ -19,10 +19,11 @@
 
 (defun adjacent-elem (c w h)
 	(defq coords (list))
-	(aeach ord_vals
+	(each (lambda (it)
 		(defq ord_pos (sum-xy c it))
 		(when (in-bounds ord_pos w h)
-			(push coords (coord-elem ord_pos w h)))) coords)
+			(push coords (coord-elem ord_pos w h)))) ord_vals)
+	coords)
 
 (defun mine-list (l n s w h)
 	(defq count 0 m (list))

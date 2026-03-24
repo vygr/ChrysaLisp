@@ -46,6 +46,9 @@ Move the transient `:tcursor` cursor API to the Edit class, and avoid extra
 cursor list copying. Added Buffer methods `:get_cursors_sorted` and
 `:get_cursors_extent`.
 
+Removed the `anaphoric.inc` library. Not used, and don't want to encourage used
+of this.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and

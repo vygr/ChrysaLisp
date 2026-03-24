@@ -1,6 +1,5 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-(import "lib/anaphoric/anaphoric.inc")
 (import "./board.inc")
 
 (enums +event 0
@@ -85,10 +84,10 @@
 	(while (defq cell (pop work))
 		(unless (eql (elem-get game_map cell) "r")
 			(elem-set game_map cell "r")
-			(aeach (elem-get game_adj cell)
-				(cond
+			(each (lambda (it) (cond
 					((= (elem-get game_board it) 0) (push work it))
-					((< 0 (elem-get game_board it) 9) (elem-set game_map it "r"))))))
+					((< 0 (elem-get game_board it) 9) (elem-set game_map it "r"))))
+				(elem-get game_adj cell))))
 	(rebuild-board))
 
 (defun clicked-flag (cell)

@@ -1401,39 +1401,6 @@ These functions are part of the VP assembler and the build system.
 
     * `(compile-test &optional *abi* *cpu*)`
 
-## Anaphoric Macros
-
-These macros provide anaphoric variants of common control structures, where `it`
-is implicitly bound to the result of the test expression.
-
-*   **`aif`**: Anaphoric `if`.
-
-    * `(aif test-form then-form [else-form])`
-
-*   **`awhen`**: Anaphoric `when`.
-
-    * `(awhen test-form &rest body)`
-
-*   **`awhile`**: Anaphoric `while`.
-
-    * `(awhile test-form &rest body)`
-
-*   **`aand`**: Anaphoric `and`.
-
-    * `(aand [form] ...)`
-
-*   **`acond`**: Anaphoric `cond`.
-
-    * `(acond (test-form body) ...)`
-
-*   **`aeach`**: Anaphoric `each`.
-
-    * `(aeach sequence body)`
-
-*   **`asome`**: Anaphoric `some`.
-
-    * `(asome sequence body)`
-
 ## Audio Service
 
 These functions provide an RPC interface to a separate audio service for

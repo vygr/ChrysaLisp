@@ -195,9 +195,6 @@ custom Virtual Processor (VP64).
 * **Constants (`lib/consts/`):** Defines constants for colors, characters,
   and keyboard scancodes.
 
-* **Anaphoric Macros (`lib/anaphoric/anaphoric.inc`):** Provides anaphoric
-  macros like `aif`, `awhen`.
-
 ## 5. Applications (`apps/`)
 
 ChrysaLisp comes with a variety of applications, demonstrating its
