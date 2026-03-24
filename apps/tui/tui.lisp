@@ -9,7 +9,10 @@
 	+CR (ascii-char 13)
 	+ESC (ascii-char 27)
 	+CSI (cat +ESC "[")
-	+state_filename "terminal.tre")
+	+state_filename "terminal.tre"
+	+tab_spaces 4
+	*column* 0
+	*esc_state_out* 0)
 
 ;override print for TUI output
 (redefun print (&rest args)
@@ -18,11 +21,35 @@
 		(each (lambda (c)
 			(setq c (code c))
 			(cond
+				((= *esc_state_out* 1)
+					; In ESC sequence
+					(pii-write-char 1 c)
+					(if (= c 91) ; '[' starts a CSI sequence
+						(setq *esc_state_out* 2)
+						(setq *esc_state_out* 0)))
+				((= *esc_state_out* 2)
+					; In CSI sequence
+					(pii-write-char 1 c)
+					(if (and (>= c 64) (<= c 126)) ; 0x40-0x7E terminates CSI sequence
+						(setq *esc_state_out* 0)))
+				((= c 27) ; ESC
+					(setq *esc_state_out* 1)
+					(pii-write-char 1 c))
 				((= c 9)
-					;print tab
-					(pii-write-char 1 32) (pii-write-char 1 32)
-					(pii-write-char 1 32) (pii-write-char 1 32))
-				(:t ;print char
+					;print tab to nearest 4-space column
+					(defq spaces (- +tab_spaces (% *column* +tab_spaces)))
+					(setq *column* (+ *column* spaces))
+					(times spaces (pii-write-char 1 32)))
+				((or (= c 10) (= c 13))
+					; newline/return resets column
+					(setq *column* 0)
+					(pii-write-char 1 c))
+				((= c 8)
+					; backspace decrements column
+					(setq *column* (max 0 (dec *column*)))
+					(pii-write-char 1 c))
+				(:t ;print normal char
+					(++ *column*)
 					(pii-write-char 1 c))))
 			(str a)))
 		args))
