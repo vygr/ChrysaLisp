@@ -859,7 +859,7 @@ lists and arrays.
 
 *   **`lines!`**: Iterates over each line in a stream, applying a lambda.
 
-    * `(lines! lambda stream) -> :nil`
+    * `(lines! lambda stream [start end]) -> :nil`
 
 *   **`!`**: A special anaphoric symbol available inside `...!` loops that
     returns the current iteration index.
