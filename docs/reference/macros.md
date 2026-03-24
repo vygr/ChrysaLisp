@@ -38,30 +38,6 @@ the original template args are renamed for safety !
 (.super this :method [arg ...])
 ```
 
-### aand
-
-```code
-(aand [form] ...)
-```
-
-### acond
-
-```code
-(acond (tst body) ...)
-```
-
-### aeach
-
-```code
-(aeach seq body)
-```
-
-### aif
-
-```code
-(aif form form [form])
-```
-
 ### and
 
 ```code
@@ -78,24 +54,6 @@ the original template args are renamed for safety !
 
 ```code
 (ascii-code char) -> num
-```
-
-### asome
-
-```code
-(asome seq body)
-```
-
-### awhen
-
-```code
-(awhen form body)
-```
-
-### awhile
-
-```code
-(awhile form body)
 ```
 
 ### bits
