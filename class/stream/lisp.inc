@@ -1,4 +1,3 @@
-(import "././obj/lisp.inc")
 (import "./struct.inc")
 
 (defun flush-bits (stream bit_pool_state)

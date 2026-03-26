@@ -2,7 +2,6 @@
 ; texture
 ;;;;;;;;;
 
-(import "class/obj/lisp.inc")
 (import "./struct.inc")
 
 (defun texture-metrics (this)
