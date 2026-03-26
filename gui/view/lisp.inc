@@ -1,7 +1,5 @@
 ;lisp bindings
 (import "service/gui/lisp.inc")
-(import "sys/list/struct.inc")
-(import "class/hmap/struct.inc")
 (import "./struct.inc")
 
 (defun view-fit (x y w h)
