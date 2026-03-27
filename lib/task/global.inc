@@ -4,12 +4,13 @@
 
 (defclass Global (fnc_create fnc_destroy) (Fmap)
 	; (Global fnc_create fnc_destroy) -> global
-	(def this :size 0 :create fnc_create :destroy fnc_destroy)
+	(def this :create fnc_create :destroy fnc_destroy)
 
 	(defmethod :refresh (&optional timeout)
 		; (. global :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update node map
-		(defq network_nodes (map (const cat) (lisp-nodes))
+		;merge local node to bypass eventual consistency UI lag
+		(defq network_nodes (merge (map (const cat) (lisp-nodes)) (list (task-nodeid)))
 			old_keys (list) old_vals (list)
 			create (get :create this) destroy (get :destroy this)
 			mutated :nil now (pii-time) e (penv))
@@ -36,18 +37,11 @@
 				(setq mutated :t)
 				;must (cat key) to convert to pure string key !
 				(. this :insert (cat key) (callback create e key now)))) network_nodes)
-		(def this :size (length network_nodes))
 		mutated)
 
 	(defmethod :close ()
 		; (. global :close)
 		;close tasks
 		(defq e (penv) destroy (get :destroy this))
-		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty)
-		(def this :size 0))
-
-	(defmethod :size ()
-		; (. global :size) -> size
-		;size of tasks
-		(get :size this))
+		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty))
 	)
