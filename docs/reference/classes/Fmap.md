@@ -72,6 +72,12 @@
 (. fmap :resize num_buckets) -> fmap
 ```
 
+### :size
+
+```code
+(. fmap :size) -> size
+```
+
 ### :update
 
 ```code

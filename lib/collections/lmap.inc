@@ -95,6 +95,10 @@
 	(defmethod :empty? ()
 		; (. lmap :empty?) -> :t | :nil
 		(= (length (get :keys this)) 0))
+
+	(defmethod :size ()
+		; (. lmap :size) -> size
+		(length (get :keys this)))
 	)
 
 ;module

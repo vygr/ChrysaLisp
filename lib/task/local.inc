@@ -68,9 +68,9 @@
 		(raise :worker_nodes :herd_max)
 		(unless (find node worker_nodes)
 			(push worker_nodes node)
-			(when (> (-- herd_max (length worker_nodes)) 0)
+			(when (> (defq remaining (- herd_max (. this :size))) 0)
 				(raise :create :herd_growth (now (pii-time) e (penv)))
-				(times (max 1 (min herd_max herd_growth)) (start)))))
+				(times (max 1 (min remaining herd_growth)) (start)))))
 
 	(defmethod :close ()
 		; (. local :close)

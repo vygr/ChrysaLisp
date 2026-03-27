@@ -24,6 +24,8 @@
 		; (. map :resize num_buckets) -> map
 	(defabstractmethod :empty? ())
 		; (. map :empty?) -> :t | :nil
+	(defabstractmethod :size ())
+		; (. map :size) -> size
 	(defabstractmethod :update (key func))
 		; (. map :update key lambda) -> val
 	(defabstractmethod :memoize (key func))

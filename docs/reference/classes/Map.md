@@ -70,6 +70,12 @@
 (. map :resize num_buckets) -> map
 ```
 
+### :size
+
+```code
+(. map :size) -> size
+```
+
 ### :update
 
 ```code

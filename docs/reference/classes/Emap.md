@@ -72,6 +72,12 @@
 (. emap :resize num_buckets) -> emap
 ```
 
+### :size
+
+```code
+(. emap :size) -> size
+```
+
 ### :update
 
 ```code

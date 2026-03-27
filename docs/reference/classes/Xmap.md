@@ -72,6 +72,12 @@
 (. xmap :resize num_buckets) -> xmap
 ```
 
+### :size
+
+```code
+(. xmap :size) -> size
+```
+
 ### :update
 
 ```code

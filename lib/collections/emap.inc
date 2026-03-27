@@ -71,4 +71,8 @@
 	(defmethod :empty? ()
 		; (. emap :empty?) -> :t | :nil
 		(= (length (tolist (get :buckets this))) 0))
+
+	(defmethod :size ()
+		; (. emap :size) -> size
+		(length (tolist (get :buckets this))))
 	)

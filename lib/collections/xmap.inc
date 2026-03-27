@@ -111,6 +111,10 @@
 	(defmethod :empty? ()
 		; (. xmap :empty?) -> :t | :nil
 		(every (# (= (length %0) 0)) (get :buckets this)))
+
+	(defmethod :size ()
+		; (. xmap :size) -> size
+		(/ (reduce (# (+ %0 (length %1))) (get :buckets this) 0) 2))
 	)
 
 ;module
