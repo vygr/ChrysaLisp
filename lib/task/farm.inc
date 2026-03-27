@@ -25,13 +25,15 @@
 (defclass Farm (create destroy size) (Fmap)
 	; (Farm fnc_create fnc_destroy size) -> farm
 	(def this :create create :destroy destroy :key -1)
-	(defq network_nodes (map (const cat) (lisp-nodes)) now (pii-time) e (penv))
+	; merge local node to bypass eventual consistency delay
+	(defq network_nodes (merge (map (const cat) (lisp-nodes)) (list (task-nodeid))) 
+		now (pii-time) e (penv))
 	(times size (start))
 
 	(defmethod :refresh (&optional timeout)
 		; (. farm :refresh [timeout]) -> :t | :nil
-		;scan known nodes and update map
-		(defq network_nodes (map (const cat) (lisp-nodes))
+		;scan known nodes and update map, merge local node here as well
+		(defq network_nodes (merge (map (const cat) (lisp-nodes)) (list (task-nodeid)))
 			old_keys (list) old_vals (list)
 			create (get :create this) destroy (get :destroy this)
 			mutated :nil now (pii-time) e (penv))
@@ -54,7 +56,7 @@
 	(defmethod :restart (key val)
 		; (. farm :restart key val)
 		;restart task
-		(defq network_nodes (map (const cat) (lisp-nodes))
+		(defq network_nodes (merge (map (const cat) (lisp-nodes)) (list (task-nodeid)))
 			create (get :create this) destroy (get :destroy this)
 			mutated :nil now (pii-time) e (penv))
 		(restart))
