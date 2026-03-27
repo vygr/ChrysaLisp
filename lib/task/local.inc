@@ -26,7 +26,7 @@
 	; (Local fnc_create fnc_destroy [herd_max herd_init herd_growth worker_nodes]) -> local
 	(setd herd_max +max_int herd_init 1 herd_growth 1 worker_nodes (list (task-nodeid)))
 	(lower :create :destroy :herd_max :herd_growth
-		(:key -1 :worker_nodes worker_nodes))
+		(:key -1 :worker_nodes (map (const cat) worker_nodes)))
 	(raise :worker_nodes (now (pii-time) e (penv)))
 	(times (min herd_max (max herd_init 1)) (start))
 

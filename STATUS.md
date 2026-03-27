@@ -51,6 +51,8 @@ of this.
 
 Better tab handling for the TUI print code.
 
+Fix issue in `Local` farm class which was causing 1 extra task to be launched.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
