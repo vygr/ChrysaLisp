@@ -19,7 +19,7 @@ close tasks
 ```code
 (. farm :refresh [timeout]) -> :t | :nil
 
-scan known nodes and update map
+scan known nodes and update map, merge local node here as well
 ```
 
 ### :restart

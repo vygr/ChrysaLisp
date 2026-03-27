@@ -20,13 +20,6 @@ close tasks
 (. global :refresh [timeout]) -> :t | :nil
 
 scan known nodes and update node map
-```
-
-### :size
-
-```code
-(. global :size) -> size
-
-size of tasks
+merge local node to bypass eventual consistency UI lag
 ```
 
