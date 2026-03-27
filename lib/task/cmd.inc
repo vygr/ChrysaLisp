@@ -20,6 +20,7 @@
 			(undef val :job :timestamp))))
 
 (defun create (key val nodes)
+	(defq nodes (slice nodes (/ (length nodes) 2) -1))
 	(open-task "lib/task/cmd.lisp" (elem-get nodes (random (length nodes)))
 		+kn_call_child key (elem-get select +select_task)))
 
@@ -38,9 +39,7 @@
 	(defq timer_rate (/ 1000000 1) working :t results (cap (length jobs) (list))
 		retry_timeout (task-timeout retry_timeout)
 		select (list (mail-mbox) (mail-mbox) (mail-mbox))
-		nodes (lisp-nodes)
-		nodes (if (nempty? nodes) nodes (list (task-nodeid)))
-		farm (Local (const create) (const destroy) (length jobs) (max 1 (min 8 (length nodes))) 1 nodes))
+		farm (Local (const create) (const destroy) (length jobs) 10))
 	(mail-timeout (elem-get select +select_timer) timer_rate 0)
 	(while working
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))

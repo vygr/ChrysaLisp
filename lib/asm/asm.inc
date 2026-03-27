@@ -30,6 +30,8 @@
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
+	;bias to go out to the edge nodes
+	(defq nodes (slice nodes (/ (length nodes) 2) -1))
 	(open-task "lib/asm/asm.lisp" (elem-get nodes (random (length nodes)))
 		+kn_call_child key (elem-get select +select_task)))
 
@@ -50,9 +52,7 @@
 		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 2)
 			select (list (mail-mbox) (mail-mbox) (mail-mbox))
 			jobs (map (# (str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst*))) files)
-			nodes (lisp-nodes)
-			nodes (if (nempty? nodes) nodes (list (task-nodeid)))
-			farm (Local (const create) (const destroy) (length files) (max 1 (min 8 (length nodes))) 1 nodes))
+			farm (Local (const create) (const destroy) (length files) 10))
 		(mail-timeout (elem-get select +select_timer) timer_rate 0)
 		(while working
 			(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
