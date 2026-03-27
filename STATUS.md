@@ -55,6 +55,9 @@ Fix issue in `Local` farm class which was causing 1 extra task to be launched.
 
 `:size` method added to Map classes.
 
+`(lisp-nodes)` function now maps to `str` and merges the local VP node by
+default.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and

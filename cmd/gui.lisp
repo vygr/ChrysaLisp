@@ -22,7 +22,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage))
-			(> (length (defq nodes (map cat (lisp-nodes)))) 0))
+			(> (length (defq nodes (lisp-nodes))) 0))
 		(if (<= (length args) 1)
 			;convert from stdin
 			(lines! launch (io-stream 'stdin))

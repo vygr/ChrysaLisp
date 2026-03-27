@@ -10,8 +10,7 @@
 		; (. global :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update node map
 		;merge local node to bypass eventual consistency UI lag
-		(defq network_nodes (merge (map (const cat) (lisp-nodes)) (list (task-nodeid)))
-			old_keys (list) old_vals (list)
+		(defq network_nodes (lisp-nodes) old_keys (list) old_vals (list)
 			create (get :create this) destroy (get :destroy this)
 			mutated :nil now (pii-time) e (penv))
 		(. this :each (lambda (key val) (push old_keys key) (push old_vals val)))

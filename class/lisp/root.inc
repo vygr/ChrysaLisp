@@ -1135,7 +1135,8 @@
 
 (defun lisp-nodes ()
 	; (lisp-nodes) -> nodes
-	(filter (const lisp-node?) (mail-nodes)))
+	(merge (map (const cat) (filter (const lisp-node?) (mail-nodes)))
+		(list (slice (task-mbox) +mailbox_id_size -1))))
 
 (defun max-length (%0)
 	; (max-length list) -> max
