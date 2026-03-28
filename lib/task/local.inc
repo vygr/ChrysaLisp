@@ -28,14 +28,13 @@
 	(lower :create :destroy :herd_max :herd_growth
 		(:key -1 :worker_nodes (list (task-nodeid))))
 	(raise :worker_nodes (now (pii-time) e (penv)))
-	(times (min herd_max (max herd_init 1)) (start))
+	(times (max 1 (min herd_max herd_init)) (start))
 
 	(defmethod :refresh (&optional timeout)
 		; (. local :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
-		(defq network_nodes (merge (map (const cat) (mail-nodes)) (list (task-nodeid)))
+		(defq network_nodes (lisp-nodes) old_keys (list) old_vals (list)
 			worker_nodes (filter (# (find %0 network_nodes)) (get :worker_nodes this))
-			old_keys (list) old_vals (list)
 			create (get :create this) destroy (get :destroy this)
 			mutated :nil now (pii-time) e (penv))
 		(lower :worker_nodes)

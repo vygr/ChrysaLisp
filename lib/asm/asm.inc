@@ -10,7 +10,7 @@
 (env-push)
 
 (enums +select 0
-	(enum task reply timer))
+	(enum reply launch timer))
 
 (defun dispatch-job (key val)
 	;send another job to child
@@ -33,7 +33,7 @@
 	;bias to go out to the edge nodes
 	(defq nodes (slice nodes (/ (length nodes) 2) -1))
 	(open-task "lib/asm/asm.lisp" (elem-get nodes (random (length nodes)))
-		+kn_call_child key (elem-get select +select_task)))
+		+kn_call_child key (elem-get select +select_launch)))
 
 (defun destroy (key val)
 	; (destroy key val)
@@ -52,7 +52,10 @@
 		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 2)
 			select (list (mail-mbox) (mail-mbox) (mail-mbox))
 			jobs (map (# (str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst*))) files)
-			farm (Local (const create) (const destroy) (length files) 10))
+			max_workers (length files)
+			init_workers (/ (* max_workers 10) 100)
+			new_workers (/ (* init_workers 10) 100)
+			farm (Local (const create) (const destroy) max_workers init_workers new_workers))
 		(mail-timeout (elem-get select +select_timer) timer_rate 0)
 		(while working
 			(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -60,7 +63,7 @@
 				((not msg)
 					;task aborted
 					(setq working :nil))
-				((= idx +select_task)
+				((= idx +select_launch)
 					;child launch response
 					(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
 					(when (defq val (. farm :find key))
