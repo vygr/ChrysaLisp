@@ -20,6 +20,7 @@
 	(undoable buffer
 		(reach (lambda (csr) (task-slice)
 				(bind '(cx cy ax ay &ignore) (csr-sort csr))
+				(bind '(cx cy ax ay &ignore) (. buffer :clip_cursor cx cy ax ay))
 				(when (or (/= cx ax) (/= cy ay))
 					(. buffer :idelete cx cy ax ay))
 				(defq line (. buffer :get_text_line cy)
