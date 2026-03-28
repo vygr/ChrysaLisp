@@ -150,6 +150,8 @@ Deep dives into specialized areas:
 
 50. **[VP64 Emulator](docs/ai_digest/vp64_emu.md)** - The VP64 C/C++ Emulator Implementation.
 
+51. **[Task Farming](docs/ai_digest/task_farming.md)** - The Task farm libraries.
+
 ---
 
 ## Reading Paths
