@@ -6,6 +6,12 @@
 (Document [flags syntax]) -> document
 ```
 
+### :break
+
+```code
+(. document :break) -> document
+```
+
 ### :comment
 
 ```code

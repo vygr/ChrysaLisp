@@ -85,6 +85,24 @@
 		; (. document :select_all) -> document
 		(. this :set_cursor 0 (dec (length (get :buffer_lines this))) 0 0))
 
+	(defmethod :break ()
+		; (. document :break) -> document
+		(undoable this
+			(reach (lambda (csr) (task-slice)
+					(bind '(cx cy ax ay &ignore) (csr-sort csr))
+					(bind '(cx cy ax ay &ignore) (. this :clip_cursor cx cy ax ay))
+					(when (or (/= cx ax) (/= cy ay))
+						(. this :idelete cx cy ax ay))
+					(defq line (. this :get_text_line cy)
+						  indent_len (bskip +char_class_space line 0)
+						  indent_str (slice line 0 (min indent_len cx))
+						  trim_left (rbskip +char_class_space line cx)
+						  trim_right (bskip +char_class_space line cx))
+					(. this :idelete trim_left cy trim_right cy)
+					(. this :iinsert trim_left cy (cat +char_class_lf indent_str)))
+				(. this :merge_cursors (. this :get_cursors))))
+		this)
+
 	(defmethod :tab ()
 		; (. document :tab) -> document
 		(undoable this

@@ -30,7 +30,7 @@
 (gen-edit up :up) (gen-edit down :down) (gen-edit left :left) (gen-edit right :right)
 (gen-edit select-left :left_select) (gen-edit select-right :right_select)
 (gen-edit select-up :up_select) (gen-edit select-down :down_select)
-(gen-edit delete :delete) (gen-edit backspace :backspace)
+(gen-edit delete :delete) (gen-edit backspace :backspace) (gen-edit break :break)
 (gen-edit indent :right_tab) (gen-edit outdent :left_tab)
 
 ; more complex commands

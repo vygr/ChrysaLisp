@@ -100,6 +100,7 @@
 	(defproxymethod :to_lower () :buffer)
 	(defproxymethod :to_upper () :buffer)
 	(defproxymethod :reflow () :buffer)
+	(defproxymethod :break () :buffer)
 	(defproxymethod :split () :buffer)
 	(defproxymethod :sort () :buffer)
 	(defproxymethod :invert () :buffer)

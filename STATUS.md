@@ -58,7 +58,8 @@ Fix issue in `Local` farm class which was causing 1 extra task to be launched.
 `(lisp-nodes)` function now maps to `str` and merges the local VP node by
 default.
 
-Editor now does multi-cursor auto indent after line-break action.
+Editor now does multi-cursor auto indent after line-break action. Document class
+supports this via the new `:break` method.
 
 ------
 

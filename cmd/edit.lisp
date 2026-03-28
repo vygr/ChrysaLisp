@@ -60,7 +60,7 @@
 				(edit-delete [cnt]) (edit-backspace [cnt])
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
-				(edit-indent) (edit-outdent) (edit-cut)
+				(edit-indent) (edit-outdent) (edit-cut) (edit-break)
 
 	Properties:	(edit-copy) -> txt
 				(edit-get-text) -> txt
