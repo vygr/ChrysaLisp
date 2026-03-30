@@ -11,7 +11,7 @@
 (enums +select 0
 	(enum main task reply timer))
 
-(defq +width 600 +height 600 +line_batch 1 +scale 1
+(defq +width 600 +height 600 +line_batch 4 +scale 1
 	+timer_rate (/ 1000000 1) id :t dirty :nil
 	+retry_timeout (task-timeout 5)
 	+num_frames 40 frame_idx 0 z_start (n2r -3.0) z_dist (n2r 2.0)
@@ -113,8 +113,8 @@
 							(mail-timeout (elem-get select +select_timer) 0 0)
 							(when lst_stream
 								(defq cpm_name (cat "raymarch_" (str frame_idx) ".cpm")
-									  cpm_path (cat "apps/media/films/data/" cpm_name))
-								(canvas-save canvas cpm_path 32)
+									cpm_path (cat "apps/media/films/data/" cpm_name))
+								(canvas-save canvas cpm_path 16)
 								(write-line lst_stream cpm_path)
 								(stream-flush lst_stream)
 								(setq frame_idx (inc frame_idx))
