@@ -117,20 +117,16 @@
 								(canvas-save canvas cpm_path 32)
 								(write-line lst_stream cpm_path)
 								(stream-flush lst_stream)
-								(print "Saved frame " frame_idx)
 								(setq frame_idx (inc frame_idx))
-								
 								; Terminate old farm before next frame
 								(if farm (. farm :close))
 								(setq farm :nil)
-
 								(if (< frame_idx +num_frames)
 									(start-frame)
 									(progn
 										(write-line lst_stream "apps/media/films/data/raymarch_0.cpm")
 										(stream-flush lst_stream)
-										(setq lst_stream :nil)
-										(print "Animation generation complete."))))))))))
+										(setq lst_stream :nil))))))))))
 	;close window and children
 	(if farm (. farm :close))
 	(gui-sub-rpc *window*))
