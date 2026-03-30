@@ -28,7 +28,7 @@
 
 (defun action-layout ()
 	(bind '(w h) (. *main_widget* :get_size))
-	(setq canvas_size (max w h) *dirty* :t))
+	(setq canvas_size (min w h) *dirty* :t))
 
 (defun action-close ()
 	(setq *running* :nil))
