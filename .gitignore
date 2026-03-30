@@ -3,6 +3,7 @@
 /obj/
 /x64/
 /ai/
+/apps/science/molecule/data/balls/
 /usr/*/*.tre
 os
 cpu

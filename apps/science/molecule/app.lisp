@@ -3,6 +3,7 @@
 (import "gui/lisp.inc")
 (import "lib/math/matrix.inc")
 (import "lib/files/files.inc")
+(import "./balls.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -18,7 +19,6 @@
 	(enum vertex radius col))
 
 (defq anti_alias :t timer_rate (/ 1000000 30) +min_size 450 +max_size 800
-	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	*rotx* +real_0 *roty* +real_0 *rotz* +real_0 +focal_dist +real_4
 	+near +focal_dist +far (+ +near +real_4)
 	+top (* +focal_dist +real_1/3) +bottom (* +focal_dist +real_-1/3)
@@ -26,6 +26,7 @@
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	*verts* (reals) *radii* (reals) *colors* (list) *num_balls* 0
+	ball_draw_list (list) canvas_size +min_size
 	mol_files (sort (files-all (cat *app_root* "data/") '(".sdf")))
 	+palette (push `(,quote) (map (lambda (%0) (Vec3-f
 			(n2f (/ (logand (>> %0 16) 0xff) 0xff))
@@ -33,6 +34,16 @@
 			(n2f (/ (logand %0 0xff) 0xff))))
 		(list +argb_black +argb_white +argb_red +argb_green
 			+argb_cyan +argb_blue +argb_yellow +argb_magenta))))
+
+(defclass Molecule-backdrop () (Backdrop)
+	(def this :ball_draw_list (list))
+	(defmethod :draw ()
+		(.super this :draw)
+		(raise :ball_draw_list)
+		(each (lambda ((tid col x y tw th))
+			(. this :ctx_blit tid col x y tw th)) ball_draw_list)
+		this)
+	)
 
 (ui-window *window* ()
 	(ui-title-bar *title* "" (0xea19 0xea1b 0xea1a) +event_close)
@@ -54,9 +65,9 @@
 				:connect +event_yrot)
 			(. (ui-slider *zrot_slider* (:value 0 :maximum 1000 :portion 10 :color +argb_green))
 				:connect +event_zrot)))
-	(ui-backdrop *main_backdrop* (:style :grid :color +argb_black :ink_color +argb_grey8
-			:min_width +min_size :min_height +min_size)
-		(ui-canvas *main_widget* canvas_size canvas_size canvas_scale)))
+	(ui-element *main_widget* (Molecule-backdrop)
+		(:style :grid :color +argb_black :ink_color +argb_grey8
+			:min_width +min_size :min_height +min_size)))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))
@@ -72,41 +83,12 @@
 (defun get-rot (slider)
 	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
 
-(defun circle (r)
-	;cached circle generation, quantised to 1/4 pixel
-	(defq r (* (floor (* (n2f r) 4.0)) 0.25))
-	(memoize r (list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) 13))
-
-(defun fpoly (canvas col x y p)
-	;draw a polygon on a canvas
-	(.-> canvas (:set_color col) (:fpoly (n2f x) (n2f y) +winding_odd_even p)))
-
 (defun lighting (col at)
 	;very basic attenuation and diffuse
 	(bind '(r g b) (vector-min (vector-add (vector-scale col (* (n2f at) 255.0) +fixeds_tmp3)
 		(const (Vec3-f 32.0 32.0 32.0)) +fixeds_tmp3)
 		(const (Vec3-f 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ 0xff000000 (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
-
-(defun render-balls (canvas tverts indices)
-	(defq sp (* +real_1/2 (n2r (dec (* canvas_size canvas_scale)))))
-	(each (lambda (i)
-		(defq vi (* i 4)
-			w (elem-get tverts (+ vi 3))
-			rw (recip w)
-			z (* (elem-get tverts (+ vi 2)) rw))
-		(when (<= +real_-1 z +real_1)
-			(defq x (* (elem-get tverts vi) rw)
-				  y (* (elem-get tverts (+ vi 1)) rw)
-				  at (recip (+ z +real_2))
-				  r (* (elem-get *radii* i) sp rw)
-				  r4 (* r +real_1/4) r8 (* r +real_1/8) r16 (* r +real_1/16)
-				  sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp)
-				  c (elem-get *colors* i))
-			(fpoly canvas (lighting c (* at +real_1/2)) sx sy (circle r))
-			(fpoly canvas (lighting c at) (- sx r16) (- sy r16) (circle (- r r16)))
-			(fpoly canvas (lighting (const (Vec3-f 1.5 1.5 1.5)) at) (- sx r4) (- sy r4) (circle r8))
-			(task-slice))) indices))
 
 (defun render ()
 	(defq mrx (Mat4x4-rotx *rotx*) mry (Mat4x4-roty *roty*) mrz (Mat4x4-rotz *rotz*)
@@ -121,9 +103,29 @@
 					(list)))
 	(setq indices (sort indices (# (if (<= (elem-get tverts (+ (* %0 4) 3))
 										   (elem-get tverts (+ (* %1 4) 3))) 1 -1))))
-	(. *main_widget* :fill 0)
-	(render-balls *main_widget* tverts indices)
-	(. *main_widget* :swap 0))
+	
+	(defq sp (* +real_1/2 (n2r (dec canvas_size))) new_draw_list (list))
+	(each (lambda (i)
+		(defq vi (* i 4)
+			w (elem-get tverts (+ vi 3))
+			rw (recip w)
+			z (* (elem-get tverts (+ vi 2)) rw))
+		(when (<= +real_-1 z +real_1)
+			(defq x (* (elem-get tverts vi) rw)
+				y (* (elem-get tverts (+ vi 1)) rw)
+				at (recip (+ z +real_2))
+				r (* (elem-get *radii* i) sp rw)
+				sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp)
+				c (elem-get *colors* i))
+			(bind '(tid tw th) (get-ball-texture r))
+			(when tid
+				(defq col (lighting c (* at +real_1/2))
+					blit_x (n2i (- sx (n2r (/ tw 2))))
+					blit_y (n2i (- sy (n2r (/ th 2)))))
+				(push new_draw_list (list tid col blit_x blit_y tw th)))
+			(task-slice))) indices)
+	(set *main_widget* :ball_draw_list new_draw_list)
+	(. *main_widget* :dirty))
 
 (defun ball-file (index)
 	(when (defq stream (file-stream (defq file (elem-get mol_files index))))
@@ -139,15 +141,15 @@
 				(/ (n2r (str-as-num (elem-get line 1))) (const (n2r 65536)))
 				(/ (n2r (str-as-num (elem-get line 2))) (const (n2r 65536))))
 			(case (elem-get line 3)
-				("C" (push *radii* (const (n2r (* 70 canvas_scale)))) (push *colors* (first +palette)))
-				("H" (push *radii* (const (n2r (* 25 canvas_scale)))) (push *colors* (second +palette)))
-				("O" (push *radii* (const (n2r (* 60 canvas_scale)))) (push *colors* (third +palette)))
-				("N" (push *radii* (const (n2r (* 65 canvas_scale)))) (push *colors* (elem-get +palette 3)))
-				("F" (push *radii* (const (n2r (* 50 canvas_scale)))) (push *colors* (elem-get +palette 4)))
-				("S" (push *radii* (const (n2r (* 88 canvas_scale)))) (push *colors* (elem-get +palette 6)))
-				("Si" (push *radii* (const (n2r (* 111 canvas_scale)))) (push *colors* (elem-get +palette 6)))
-				("P" (push *radii* (const (n2r (* 98 canvas_scale)))) (push *colors* (elem-get +palette 7)))
-				(:t (push *radii* (const (n2r (* 100 canvas_scale)))) (push *colors* (const (Vec3-f 1.0 1.0 0.0))))))
+				("C" (push *radii* (const (n2r 70))) (push *colors* (first +palette)))
+				("H" (push *radii* (const (n2r 25))) (push *colors* (second +palette)))
+				("O" (push *radii* (const (n2r 60))) (push *colors* (third +palette)))
+				("N" (push *radii* (const (n2r 65))) (push *colors* (elem-get +palette 3)))
+				("F" (push *radii* (const (n2r 50))) (push *colors* (elem-get +palette 4)))
+				("S" (push *radii* (const (n2r 88))) (push *colors* (elem-get +palette 6)))
+				("Si" (push *radii* (const (n2r 111))) (push *colors* (elem-get +palette 6)))
+				("P" (push *radii* (const (n2r 98))) (push *colors* (elem-get +palette 7)))
+				(:t (push *radii* (const (n2r 100))) (push *colors* (const (Vec3-f 1.0 1.0 0.0))))))
 		(bind '(center radius) (vector-bounds-sphere *verts* 3))
 		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius)
 			  new_verts (reals))
@@ -170,7 +172,6 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
 	(. *style_toolbar* :set_selected 1)
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(tooltips)

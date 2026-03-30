@@ -12,22 +12,13 @@
 		*dirty* :t)
 	(ball-file *mol_index*))
 
-(defun set-canvas (size)
-	(defq parent (penv *main_widget*))
-	(. *main_widget* :sub)
-	(setq *main_widget* (Canvas size size canvas_scale) canvas_size size *dirty* :t)
-	(bind '(w h) (. parent :get_size))
-	(. parent :add_child *main_widget*)
-	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:change 0 0 w h))
-	(. *window* :layout))
-
 (defun set-size (size)
-	(def (defq parent (penv *main_widget*)) :min_width size :min_height size)
+	(setq canvas_size size)
+	(def *main_widget* :min_width size :min_height size)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
 	(. *window* :change_dirty x y w h)
-	(def parent :min_width +min_size :min_height +min_size)
-	(set-canvas size))
+	(def *main_widget* :min_width +min_size :min_height +min_size))
 
 (defun action-minimise ()
 	(set-size +min_size))
@@ -36,8 +27,8 @@
 	(set-size +max_size))
 
 (defun action-layout ()
-	(bind '(w h) (. (penv *main_widget*) :get_size))
-	(set-canvas (min w h)))
+	(bind '(w h) (. *main_widget* :get_size))
+	(setq canvas_size (max w h)))
 
 (defun action-close ()
 	(setq *running* :nil))
@@ -62,5 +53,5 @@
 	(setq *rotz* (get-rot *zrot_slider*) *dirty* :t))
 
 (defun action-style ()
-	(def (. *main_backdrop* :dirty) :style
+	(def (. *main_widget* :dirty) :style
 		(elem-get '(:plain :grid :axis) (. *style_toolbar* :get_selected))))

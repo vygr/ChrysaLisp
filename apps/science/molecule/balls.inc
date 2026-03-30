@@ -1,0 +1,53 @@
+(import "lib/math/vector.inc")
+(import "gui/canvas/lisp.inc")
+(import "lib/consts/colors.inc")
+
+(env-push)
+
+(defq ball_cache (Fmap 31) ball_data_dir "apps/science/molecule/data/balls/")
+
+(defun generate-ball (key file)
+	(defq canvas (Canvas key key 1) r (/ (n2r key) (n2r 2.0))
+		l_vec (vector-norm (Vec3-r (n2r -1.0) (n2r -1.0) (n2r -2.0))))
+	(.-> canvas (:set_canvas_flags +canvas_flag_antialias) (:fill 0))
+	(defq iy 0)
+	(while (< iy key)
+		(defq y (+ (n2r iy) (n2r 0.5))
+			ny (/ (- y r) r)
+			ix 0)
+		(while (< ix key)
+			(defq x (+ (n2r ix) (n2r 0.5))
+				nx (/ (- x r) r)
+				d2 (+ (* nx nx) (* ny ny)))
+			(if (<= d2 (n2r 1.0))
+				(progn
+					(defq nz (neg (sqrt (- (n2r 1.0) d2)))
+						n_vec (Vec3-r nx ny nz)
+						diffuse (max (n2r 0.0) (vector-dot n_vec l_vec))
+						intensity (+ (n2r 0.25) (* (n2r 0.75) diffuse))
+						c (n2i (* intensity (n2r 255.0)))
+						col (+ 0xff000000 (<< c 16) (<< c 8) c))
+					(.-> canvas (:set_color col) (:plot ix iy))))
+			(++ ix))
+		(++ iy))
+	(. canvas :swap 0)
+	(canvas-save canvas file 32)
+	canvas)
+
+(defun get-ball-texture (radius)
+	(defq key (n2i (+ (* radius (n2r 2.0)) (n2r 0.5))) canvas :nil)
+	(if (> key 0)
+		(progn
+			(unless (setq canvas (. ball_cache :find key))
+				(defq file (cat ball_data_dir "ball_" (str key) ".cpm"))
+				(setq canvas (canvas-load file +load_flag_shared))
+				(unless canvas
+					(setq canvas (generate-ball key file)))
+				(. ball_cache :insert key canvas))))
+	(if canvas
+		(texture-metrics (getf canvas +canvas_texture 0))
+		(list :nil 0 0)))
+
+; Export all the symbols needed when these templates run inside app.lisp
+(export-symbols '(get-ball-texture ball_cache ball_data_dir generate-ball))
+(env-pop)
