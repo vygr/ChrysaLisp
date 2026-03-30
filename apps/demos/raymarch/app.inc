@@ -4,4 +4,4 @@
 	(long key)
 	(uint x y x1 y1)
 	(netid reply)
-	(real w h))
+	(real w h cam_z light_x light_z))

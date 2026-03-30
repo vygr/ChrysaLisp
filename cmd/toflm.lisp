@@ -63,9 +63,10 @@
 									((= p c)
 										(if (eql mode :draw)
 											(progn
-												(write-bits out_stream w_state count 8)
-												(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)
-												(clear draw_buf)
+												(when (> count 0)
+													(write-bits out_stream w_state count 8)
+													(each (# (write-bits out_stream w_state %0 num_bits)) draw_buf)
+													(clear draw_buf))
 												(setq count 0 mode :skip)))
 										(setq mode :skip)
 										(when (= (++ count) 128)

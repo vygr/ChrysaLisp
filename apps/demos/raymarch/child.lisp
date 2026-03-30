@@ -20,8 +20,7 @@
 	+shadow_softness (n2r 64.0)
 	+attenuation (n2r 0.05)
 	+ambient (n2r 0.05)
-	+ref_coef (n2r 0.25)
-	+light_pos (reals (n2r -0.1) (n2r -0.1) (n2r -3.0)))
+	+ref_coef (n2r 0.25))
 
 ;field equation for a sphere
 ; (defun sphere (p c r)
@@ -66,11 +65,11 @@
 			(++ l h)))
 	(max s +real_1/10))
 
-(defun lighting (surface_pos surface_norm cam_pos)
+(defun lighting (surface_pos surface_norm cam_pos light_pos)
 	(defq obj_color (vector-floor (vector-mod (vector-add surface_pos
 			(const (reals +real_1000 +real_1000 +real_1000)))
 			(const (reals +real_2 +real_2 +real_2))))
-		light_vec (vector-sub +light_pos surface_pos)
+		light_vec (vector-sub light_pos surface_pos)
 		light_dis (vector-length light_vec)
 		light_norm (vector-scale light_vec (/ +real_1 light_dis) light_vec)
 		light_atten (min (/ +real_1 (* light_dis light_dis +attenuation)) +real_1)
@@ -84,7 +83,7 @@
 		obj_color (vector-add obj_color (reals specular specular specular) +reals_tmp3))
 	(vector-mul obj_color light_col))
 
-(defun scene-ray (ray_origin ray_dir)
+(defun scene-ray (ray_origin ray_dir light_pos)
 	(defq l (ray-march ray_origin ray_dir +real_0 +clipfar +min_distance +march_factor))
 	(if (>= l +clipfar)
 		(const (cat +reals_zero3))
@@ -92,7 +91,7 @@
 			;diffuse lighting
 			(defq surface_pos (vector-add ray_origin (vector-scale ray_dir l +reals_tmp3))
 				surface_norm (get-normal surface_pos)
-				color (lighting surface_pos surface_norm ray_origin)
+				color (lighting surface_pos surface_norm ray_origin light_pos)
 				i +ref_depth r +ref_coef)
 			;reflections
 			(while (and (>= (-- i) 0)
@@ -102,22 +101,24 @@
 					(defq surface_pos (vector-add ray_origin (vector-scale ray_dir l +reals_tmp3))
 						surface_norm (get-normal surface_pos)
 						color (vector-add (vector-scale color (- +real_1 r) (const (cat +reals_tmp3)))
-								(vector-scale (lighting surface_pos surface_norm ray_origin) r +reals_tmp3))
+								(vector-scale (lighting surface_pos surface_norm ray_origin light_pos) r +reals_tmp3))
 						r (* r +ref_coef)))
 			(vector-clamp color (const (cat +reals_tmp3)) +reals_one3))))
 
-(defun rect (key mbox x y x1 y1 w h)
+(defun rect (key mbox x y x1 y1 w h cam_z light_x light_z)
 	(defq reply (string-stream (str-alloc (+ (* (+ (* (- x1 x) (- y1 y)) 4) +int_size) +long_size)))
-		tile (list x y x1 y1) w2 (/ w +real_2) h2 (/ h +real_2) y (dec y))
+		tile (list x y x1 y1) w2 (/ w +real_2) h2 (/ h +real_2) y (dec y)
+		light_pos (reals light_x (n2r -0.1) light_z)
+		screen_z (+ cam_z (const (n2r 3.0))))
 	(while (< (++ y) y1)
 		(defq xp (dec x))
 		(while (< (++ xp) x1)
-			(defq ray_origin (const (reals +real_0 +real_0 +real_-3))
+			(defq ray_origin (reals +real_0 +real_0 cam_z)
 				ray_dir (vector-norm (vector-sub
 					(reals (/ (* (- (n2r xp) w2) +real_1) w2)
-						(/ (* (- (n2r y) h2) +real_1) h2) +real_0) ray_origin)))
+						(/ (* (- (n2r y) h2) +real_1) h2) screen_z) ray_origin)))
 			(write-int reply (reduce! (# (+ %0 (<< (n2i %1) %2))) (list
-				(vector-scale (scene-ray ray_origin ray_dir) +real_255 +reals_tmp3)
+				(vector-scale (scene-ray ray_origin ray_dir light_pos) +real_255 +reals_tmp3)
 				'(16 8 0)) +argb_black))
 			(task-slice)))
 	(write-long reply key)
@@ -137,4 +138,4 @@
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(apply rect (getf-> msg +job_key +job_reply
-					+job_x +job_y +job_x1 +job_y1 +job_w +job_h))))))
+					+job_x +job_y +job_x1 +job_y1 +job_w +job_h +job_cam_z +job_light_x +job_light_z))))))
