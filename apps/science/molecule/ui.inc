@@ -13,7 +13,7 @@
 	(ball-file *mol_index*))
 
 (defun set-size (size)
-	(setq canvas_size size)
+	(setq canvas_size size *dirty* :t)
 	(def *main_widget* :min_width size :min_height size)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -28,7 +28,7 @@
 
 (defun action-layout ()
 	(bind '(w h) (. *main_widget* :get_size))
-	(setq canvas_size (max w h)))
+	(setq canvas_size (max w h) *dirty* :t))
 
 (defun action-close ()
 	(setq *running* :nil))
