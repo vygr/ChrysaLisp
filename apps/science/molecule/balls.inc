@@ -4,7 +4,7 @@
 
 (env-push)
 
-(defq ball_cache (Fmap 31) ball_data_dir "apps/science/molecule/data/balls/")
+(defq ball_cache (Fmap 31) ball_data_dir "apps/science/molecule/data/cache/")
 
 (defun generate-ball (key file)
 	(defq size (* key 2) big_canvas (Canvas key key 2)
