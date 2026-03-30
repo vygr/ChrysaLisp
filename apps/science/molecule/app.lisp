@@ -85,8 +85,8 @@
 
 (defun lighting (col at)
 	;very basic attenuation and diffuse
-	(bind '(r g b) (vector-min (vector-add (vector-scale col (* (n2f at) 255.0) +fixeds_tmp3)
-		(const (Vec3-f 32.0 32.0 32.0)) +fixeds_tmp3)
+	(bind '(r g b) (vector-min (vector-add (vector-scale col (* (n2f at) 380.0) +fixeds_tmp3)
+		(const (Vec3-f 48.0 48.0 48.0)) +fixeds_tmp3)
 		(const (Vec3-f 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ 0xff000000 (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
