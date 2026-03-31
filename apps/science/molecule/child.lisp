@@ -19,13 +19,13 @@
 			(defq x (+ (n2r ix) +real_1/2) nx (/ (- x r) r) d2 (+ (* nx nx) (* ny ny)))
 			(if (<= d2 +real_1)
 				(progn
-					(defq nz (neg (sqrt (- +real_1 d2)))
-						n_vec (Vec3-r nx ny nz)
+					(defq n_vec (Vec3-r nx ny (neg (sqrt (- +real_1 d2))))
 						diffuse (max +real_0 (vector-dot n_vec +l_vec))
 						spec_d (max +real_0 (vector-dot n_vec +h_vec))
-						s2 (* spec_d spec_d) s4 (* s2 s2) s8 (* s4 s4)
-						s16 (* s8 s8) s32 (* s16 s16) s64 (* s32 s32)
-						intensity (+ (const (n2r 0.3)) (* (const (n2r 0.7)) diffuse) s64)
+						spec_d (* spec_d spec_d) spec_d (* spec_d spec_d)
+						spec_d (* spec_d spec_d) spec_d (* spec_d spec_d)
+						spec_d (* spec_d spec_d) spec_d (* spec_d spec_d)
+						intensity (+ (const (n2r 0.3)) (* (const (n2r 0.7)) diffuse) spec_d)
 						c (min 255 (n2i (* intensity (const (n2r 255.0))))))
 					(.-> canvas
 						(:set_color (+ 0xff000000 (<< c 16) (<< c 8) c))
