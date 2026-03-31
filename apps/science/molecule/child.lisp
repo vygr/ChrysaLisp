@@ -5,13 +5,14 @@
 (enums +select 0
 	(enum main timeout))
 
+;calculate the light and half-vectors entirely at compile-time!
+(defq +l_vec (vector-norm (Vec3-r (n2r -1.0) (n2r -1.0) (n2r -2.0)))
+	+h_vec (const (vector-norm (vector-add
+		(vector-norm (Vec3-r (n2r -1.0) (n2r -1.0) (n2r -2.0))) 
+		(Vec3-r (n2r 0.0) (n2r 0.0) (n2r -1.0))))))
+
 (defun generate-atom-image (key file)
-	(defq size (* key 2) big_canvas (Canvas key key 2) r (* (n2r size) +real_1/2)
-		;calculate the light and half-vectors entirely at compile-time!
-		l_vec (const (vector-norm (Vec3-r (n2r -1.0) (n2r -1.0) (n2r -2.0))))
-		h_vec (const (vector-norm (vector-add 
-			(vector-norm (Vec3-r (n2r -1.0) (n2r -1.0) (n2r -2.0))) 
-			(Vec3-r (n2r 0.0) (n2r 0.0) (n2r -1.0))))))
+	(defq size (* key 2) big_canvas (Canvas key key 2) r (* (n2r size) +real_1/2))
 	(.-> big_canvas (:set_canvas_flags +canvas_flag_antialias) (:fill 0))
 	(defq iy -1)
 	(while (< (++ iy) size)
@@ -23,8 +24,8 @@
 				(progn
 					(defq nz (neg (sqrt (- +real_1 d2)))
 						n_vec (Vec3-r nx ny nz)
-						diffuse (max +real_0 (vector-dot n_vec l_vec))
-						spec_d (max +real_0 (vector-dot n_vec h_vec))
+						diffuse (max +real_0 (vector-dot n_vec +l_vec))
+						spec_d (max +real_0 (vector-dot n_vec +h_vec))
 						s2 (* spec_d spec_d) s4 (* s2 s2) s8 (* s4 s4)
 						s16 (* s8 s8) s32 (* s16 s16) s64 (* s32 s32)
 						intensity (+ (const (n2r 0.3)) (* (const (n2r 0.7)) diffuse) s64)
