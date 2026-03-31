@@ -1,7 +1,6 @@
 ;message structures
 (structure +job 0
-	(long key)
-	(long atom_key)
+	(long key atom_key)
 	(netid reply)
 	(offset file))
 
