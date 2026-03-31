@@ -3,7 +3,7 @@
 (import "gui/lisp.inc")
 (import "lib/math/matrix.inc")
 (import "lib/files/files.inc")
-(import "./balls.inc")
+(import "./atoms.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -119,7 +119,7 @@
 				r (* (elem-get *radii* i) sp rw)
 				sx (+ cx (* x sp)) sy (+ cy (* y sp))
 				c (elem-get *colors* i))
-			(bind '(tid tw th) (get-ball-texture r))
+			(bind '(tid tw th) (get-atom-texture r))
 			(when tid
 				(defq col (lighting c (* at +real_1/2))
 					blit_x (n2i (- sx (n2r (/ tw 2))))

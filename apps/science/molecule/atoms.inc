@@ -4,9 +4,9 @@
 
 (env-push)
 
-(defq ball_cache (Fmap 31) ball_data_dir "apps/science/molecule/data/cache/")
+(defq atom_cache (Fmap 31) atom_cache_dir "apps/science/molecule/data/cache/")
 
-(defun generate-ball (key file)
+(defun generate-atom-image (key file)
 	(defq size (* key 2) big_canvas (Canvas key key 2)
 		r (/ (n2r size) (n2r 2.0))
 		l_vec (vector-norm (Vec3-r (n2r -1.0) (n2r -1.0) (n2r -2.0)))
@@ -44,20 +44,20 @@
 	(canvas-save canvas file 32)
 	canvas)
 
-(defun get-ball-texture (radius)
+(defun get-atom-texture (radius)
 	(defq key (n2i (+ (* radius (n2r 2.0)) (n2r 0.5))) canvas :nil)
 	(if (> key 0)
 		(progn
-			(unless (setq canvas (. ball_cache :find key))
-				(defq file (cat ball_data_dir "ball_" (str key) ".cpm"))
+			(unless (setq canvas (. atom_cache :find key))
+				(defq file (cat atom_cache_dir "ball_" (str key) ".cpm"))
 				(setq canvas (canvas-load file +load_flag_shared))
 				(unless canvas
-					(setq canvas (generate-ball key file)))
-				(. ball_cache :insert key canvas))))
+					(setq canvas (generate-atom-image key file)))
+				(. atom_cache :insert key canvas))))
 	(if canvas
 		(texture-metrics (getf canvas +canvas_texture 0))
 		(list :nil 0 0)))
 
 ; Export all the symbols needed when these templates run inside app.lisp
-(export-symbols '(get-ball-texture ball_cache ball_data_dir generate-ball))
+(export-symbols '(get-atom-texture atom_cache atom_cache_dir generate-atom-image))
 (env-pop)
