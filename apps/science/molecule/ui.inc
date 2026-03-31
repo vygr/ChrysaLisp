@@ -3,12 +3,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun action-prev ()
-	(setq *mol_index* (% (+ *mol_index* -1 (length mol_files)) (length mol_files))
+	(setq *mol_index* (% (+ *mol_index* -1 (length sdf_files)) (length sdf_files))
 		*dirty* :t)
 	(sdf-file *mol_index*))
 
 (defun action-next ()
-	(setq *mol_index* (% (+ *mol_index* 1 (length mol_files)) (length mol_files))
+	(setq *mol_index* (% (+ *mol_index* 1 (length sdf_files)) (length sdf_files))
 		*dirty* :t)
 	(sdf-file *mol_index*))
 

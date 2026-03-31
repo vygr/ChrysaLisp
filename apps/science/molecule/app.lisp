@@ -24,11 +24,10 @@
 	+near +focal_dist +far (+ +near +real_4)
 	+top (* +focal_dist +real_1/3) +bottom (* +focal_dist +real_-1/3)
 	+left (* +focal_dist +real_-1/3) +right (* +focal_dist +real_1/3)
-	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
-	*verts* (reals) *radii* (reals) *colors* (list) *num_balls* 0
+	*verts* (reals) *radii* (reals) *colors* (list) *num_atoms* 0
 	atom_draw_list (list) atom_cache (Fmap 31) canvas_size +min_size
-	mol_files (sort (files-all (cat *app_root* "data/") '(".sdf")))
+	sdf_files (sort (files-all (cat *app_root* "data/") '(".sdf")))
 	+max_workers 8 +init_workers_% 10 +grow_workers_% 10
 	+retry_timeout (task-timeout 5) +idle_timeout 5000000 +retry_timer_rate 1000000
 	+atom_cache_dir (cat *app_root* "data/cache/")
@@ -137,9 +136,9 @@
 		mfrust (Mat4x4-frustum +left +right +top +bottom +near +far)
 		matrix (mat4x4-mul mfrust (mat4x4-mul mtrans mrot))
 		tverts (mat4x4-vec4-mul matrix *verts*)
-		indices (if (> *num_balls* 0)
+		indices (if (> *num_atoms* 0)
 					(filter (# (<= +near (elem-get tverts (+ (* %0 4) 3)) +far))
-							(range 0 (dec *num_balls*)))
+							(range 0 (dec *num_atoms*)))
 					(list))
 		indices (sort indices (# (if (<= (elem-get tverts (+ (* %0 4) 3))
 										(elem-get tverts (+ (* %1 4) 3))) 1 -1))))
@@ -180,13 +179,13 @@
 		(. farm :each (lambda (key val) (unless (get :job val) (dispatch-job key val))))))
 
 (defun sdf-file (index)
-	(when (defq stream (file-stream (defq file (elem-get mol_files index))))
+	(when (defq stream (file-stream (defq file (elem-get sdf_files index))))
 		(def (.-> *title* :layout :dirty) :text
 			(cat "Molecule -> " (slice file (rfind "/" file) -1)))
 		(clear *verts* *radii* *colors*)
 		(times 3 (read-line stream))
-		(setq *num_balls* (str-as-num (first (split (read-line stream) +char_class_space))))
-		(times *num_balls*
+		(setq *num_atoms* (str-as-num (first (split (read-line stream) +char_class_space))))
+		(times *num_atoms*
 			(defq line (split (read-line stream) +char_class_space))
 			(push *verts*
 				(/ (n2r (str-as-num (elem-get line 0))) (const (n2r 65536)))
