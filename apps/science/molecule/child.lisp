@@ -6,10 +6,8 @@
 	(enum main timeout))
 
 ;calculate the light and half-vectors entirely at compile-time!
-(defq +l_vec (vector-norm (Vec3-r (n2r -1.0) (n2r -1.0) (n2r -2.0)))
-	+h_vec (vector-norm (vector-add
-		(vector-norm (Vec3-r (n2r -1.0) (n2r -1.0) (n2r -2.0))) 
-		(Vec3-r (n2r 0.0) (n2r 0.0) (n2r -1.0)))))
+(defq +l_vec (vector-norm (Vec3-r +real_-1 +real_-1 +real_-2)))
+(defq +h_vec (vector-norm (vector-add +l_vec (Vec3-r +real_0 +real_0 +real_-1))))
 
 (defun generate-atom-image (key file)
 	(defq size (* key 2) canvas (. (Canvas key key 2) :fill 0)
