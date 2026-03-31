@@ -7,9 +7,9 @@
 
 ;calculate the light and half-vectors entirely at compile-time!
 (defq +l_vec (vector-norm (Vec3-r (n2r -1.0) (n2r -1.0) (n2r -2.0)))
-	+h_vec (const (vector-norm (vector-add
+	+h_vec (vector-norm (vector-add
 		(vector-norm (Vec3-r (n2r -1.0) (n2r -1.0) (n2r -2.0))) 
-		(Vec3-r (n2r 0.0) (n2r 0.0) (n2r -1.0))))))
+		(Vec3-r (n2r 0.0) (n2r 0.0) (n2r -1.0)))))
 
 (defun generate-atom-image (key file)
 	(defq size (* key 2) big_canvas (Canvas key key 2) r (* (n2r size) +real_1/2))
