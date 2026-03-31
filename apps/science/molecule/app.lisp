@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/science/molecule/app.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
@@ -8,7 +5,6 @@
 (import "lib/files/files.inc")
 (import "lib/task/local.inc")
 (import "./app.inc")
-(import "./atoms.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -33,6 +29,7 @@
 	*verts* (reals) *radii* (reals) *colors* (list) *num_balls* 0
 	atom_draw_list (list) canvas_size +min_size
 	mol_files (sort (files-all (cat *app_root* "data/") '(".sdf")))
+	atom_cache (Fmap 31)
 	+max_workers 8
 	+init_workers_% 10
 	+grow_workers_% 10
@@ -102,16 +99,17 @@
 	(+ 0xff000000 (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
 (defun dispatch-job (node_key val)
-	(cond
-		((defq job_key (pop jobs_qued))
-			(push jobs_in_flight job_key)
-			(def val :job job_key :timestamp (pii-time))
-			(mail-send (get :child val)
-				(setf-> (cat (str-alloc +job_size) atom_cache_dir "atom_" (str job_key) ".cpm")
-					(+job_key node_key)
-					(+job_atom_key job_key)
-					(+job_reply (elem-get select +select_reply)))))
-		(:t (undef val :job :timestamp))))
+	(when (get :child val)
+		(cond
+			((defq job_key (pop jobs_qued))
+				(push jobs_in_flight job_key)
+				(def val :job job_key :timestamp (pii-time))
+				(mail-send (get :child val)
+					(setf-> (cat (str-alloc +job_size) atom_cache_dir "atom_" (str job_key) ".cpm")
+						(+job_key node_key)
+						(+job_atom_key job_key)
+						(+job_reply (elem-get select +select_reply)))))
+			(:t (undef val :job :timestamp)))))
 
 (defun create (key val nodes)
 	(open-task (const (cat *app_root* "child.lisp")) (elem-get nodes (random (length nodes)))
@@ -123,6 +121,18 @@
 		(setq jobs_in_flight (filter (# (nql %0 job_key)) jobs_in_flight))
 		(push jobs_qued job_key)
 		(undef val :job :timestamp)))
+
+(defun get-atom-texture (radius)
+	(defq key (n2i (+ (* radius (n2r 2.0)) (n2r 0.5))) canvas :nil file :nil)
+	(if (> key 0)
+		(progn
+			(setq file (cat atom_cache_dir "atom_" (str key) ".cpm"))
+			(unless (setq canvas (. atom_cache :find key))
+				(setq canvas (canvas-load file +load_flag_shared))
+				(if canvas (. atom_cache :insert key canvas)))))
+	(if canvas
+		(cat (texture-metrics (getf canvas +canvas_texture 0)) (list key file))
+		(list :nil 0 0 key file)))
 
 (defun render ()
 	(defq mrx (Mat4x4-rotx *rotx*) mry (Mat4x4-roty *roty*) mrz (Mat4x4-rotz *rotz*)
