@@ -54,7 +54,6 @@
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(bind '(key atom_key reply) (getf-> msg +job_key +job_atom_key +job_reply))
-				(defq file (slice msg +job_file -1))
-				(generate-atom-image atom_key file)
+				(generate-atom-image atom_key (slice msg +job_file -1))
 				(mail-send reply (setf-> (str-alloc +job_reply_size)
 					(+job_reply_key key)))))))
