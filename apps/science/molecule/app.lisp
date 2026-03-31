@@ -27,15 +27,11 @@
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	*verts* (reals) *radii* (reals) *colors* (list) *num_balls* 0
-	atom_draw_list (list) canvas_size +min_size
+	atom_draw_list (list) atom_cache (Fmap 31) canvas_size +min_size
 	mol_files (sort (files-all (cat *app_root* "data/") '(".sdf")))
-	atom_cache (Fmap 31)
-	+max_workers 8
-	+init_workers_% 10
-	+grow_workers_% 10
-	+retry_timeout (task-timeout 5)
-	+idle_timeout 5000000
-	retry_timer_rate 1000000
+	+max_workers 8 +init_workers_% 10 +grow_workers_% 10
+	+retry_timeout (task-timeout 5) +idle_timeout 5000000 +retry_timer_rate 1000000
+	+atom_cache_dir (cat *app_root* "data/cache/")
 	+palette (push `(,quote) (map (lambda (%0) (Vec3-f
 			(n2f (/ (logand (>> %0 16) 0xff) 0xff))
 			(n2f (/ (logand (>> %0 8) 0xff) 0xff))
@@ -105,7 +101,7 @@
 				(push jobs_in_flight job_key)
 				(def val :job job_key :timestamp (pii-time))
 				(mail-send (get :child val)
-					(setf-> (cat (str-alloc +job_size) atom_cache_dir "atom_" (str job_key) ".cpm")
+					(setf-> (cat (str-alloc +job_size) +atom_cache_dir "atom_" (str job_key) ".cpm")
 						(+job_key node_key)
 						(+job_atom_key job_key)
 						(+job_reply (elem-get select +select_reply)))))
@@ -126,7 +122,7 @@
 	(defq key (n2i (+ (* radius (n2r 2.0)) (n2r 0.5))) canvas :nil file :nil)
 	(if (> key 0)
 		(progn
-			(setq file (cat atom_cache_dir "atom_" (str key) ".cpm"))
+			(setq file (cat +atom_cache_dir "atom_" (str key) ".cpm"))
 			(unless (setq canvas (. atom_cache :find key))
 				(setq canvas (canvas-load file +load_flag_shared))
 				(if canvas (. atom_cache :insert key canvas)))))
@@ -180,7 +176,7 @@
 			(setq farm (Local (const create) (const destroy) +max_workers
 				(/ (* +max_workers +init_workers_%) 100)
 				(/ (* +max_workers +grow_workers_%) 100)))
-			(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0))
+			(mail-timeout (elem-get select +select_retry_timer) +retry_timer_rate 0))
 		(mail-timeout (elem-get select +select_idle_timer) +idle_timeout 0)
 		(. farm :each (lambda (key val) (unless (get :job val) (dispatch-job key val))))))
 
@@ -273,7 +269,7 @@
 					(dispatch-job node_key val)))
 			((= idx +select_retry_timer)
 				;retry timer event
-				(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0)
+				(mail-timeout (elem-get select +select_retry_timer) +retry_timer_rate 0)
 				(when farm (. farm :refresh +retry_timeout)))
 			((= idx +select_idle_timer)
 				;idle timer event
