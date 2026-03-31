@@ -66,7 +66,7 @@ Redo the Raymarch demo to create the frames of a full looped `.flm` file.
 Fixed an edge encodeing condition in the `toflm.lisp` command.
 
 Molecule demo now dynamically renders the atoms and caches the images as .cpm
-files.
+files. Updated to use a dynamic, none blocking, distributed render farm.
 
 ------
 

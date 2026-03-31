@@ -1,3 +1,6 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; apps/science/molecule/atoms.inc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (import "lib/math/vector.inc")
 (import "gui/canvas/lisp.inc")
 (import "lib/consts/colors.inc")
@@ -41,22 +44,19 @@
 	(bind '(w h) (. big_canvas :pref_size))
 	(defq canvas (. (Canvas w h 1) :resize big_canvas))
 	(. canvas :swap 0)
-	(canvas-save canvas file 32)
-	canvas)
+	(canvas-save canvas file 32))
 
 (defun get-atom-texture (radius)
-	(defq key (n2i (+ (* radius (n2r 2.0)) (n2r 0.5))) canvas :nil)
+	(defq key (n2i (+ (* radius (n2r 2.0)) (n2r 0.5))) canvas :nil file :nil)
 	(if (> key 0)
 		(progn
+			(setq file (cat atom_cache_dir "atom_" (str key) ".cpm"))
 			(unless (setq canvas (. atom_cache :find key))
-				(defq file (cat atom_cache_dir "ball_" (str key) ".cpm"))
 				(setq canvas (canvas-load file +load_flag_shared))
-				(unless canvas
-					(setq canvas (generate-atom-image key file)))
-				(. atom_cache :insert key canvas))))
+				(if canvas (. atom_cache :insert key canvas)))))
 	(if canvas
-		(texture-metrics (getf canvas +canvas_texture 0))
-		(list :nil 0 0)))
+		(cat (texture-metrics (getf canvas +canvas_texture 0)) (list key file))
+		(list :nil 0 0 key file)))
 
 ; Export all the symbols needed when these templates run inside app.lisp
 (export-symbols '(get-atom-texture atom_cache atom_cache_dir generate-atom-image))

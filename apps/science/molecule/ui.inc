@@ -5,12 +5,12 @@
 (defun action-prev ()
 	(setq *mol_index* (% (+ *mol_index* -1 (length mol_files)) (length mol_files))
 		*dirty* :t)
-	(ball-file *mol_index*))
+	(sdf-file *mol_index*))
 
 (defun action-next ()
 	(setq *mol_index* (% (+ *mol_index* 1 (length mol_files)) (length mol_files))
 		*dirty* :t)
-	(ball-file *mol_index*))
+	(sdf-file *mol_index*))
 
 (defun set-size (size)
 	(setq canvas_size size *dirty* :t)

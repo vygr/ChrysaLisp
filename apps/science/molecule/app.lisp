@@ -1,8 +1,13 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; apps/science/molecule/app.lisp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/math/matrix.inc")
 (import "lib/files/files.inc")
+(import "lib/task/local.inc")
+(import "./app.inc")
 (import "./atoms.inc")
 
 (enums +event 0
@@ -13,7 +18,7 @@
 	(enum style))
 
 (enums +select 0
-	(enum main tip timer))
+	(enum main tip timer task reply retry_timer idle_timer))
 
 (enums +ball 0
 	(enum vertex radius col))
@@ -26,8 +31,14 @@
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	*verts* (reals) *radii* (reals) *colors* (list) *num_balls* 0
-	ball_draw_list (list) canvas_size +min_size
+	atom_draw_list (list) canvas_size +min_size
 	mol_files (sort (files-all (cat *app_root* "data/") '(".sdf")))
+	+max_workers 8
+	+init_workers_% 10
+	+grow_workers_% 10
+	+retry_timeout (task-timeout 5)
+	+idle_timeout 5000000
+	retry_timer_rate 1000000
 	+palette (push `(,quote) (map (lambda (%0) (Vec3-f
 			(n2f (/ (logand (>> %0 16) 0xff) 0xff))
 			(n2f (/ (logand (>> %0 8) 0xff) 0xff))
@@ -36,12 +47,12 @@
 			+argb_cyan +argb_blue +argb_yellow +argb_magenta))))
 
 (defclass Molecule-backdrop () (Backdrop)
-	(def this :ball_draw_list (list))
+	(def this :atom_draw_list (list))
 	(defmethod :draw ()
 		(.super this :draw)
-		(raise :ball_draw_list)
+		(raise :atom_draw_list)
 		(each (lambda ((tid col x y tw th))
-			(. this :ctx_blit tid col x y tw th)) ball_draw_list)
+			(. this :ctx_blit tid col x y tw th)) atom_draw_list)
 		this)
 	)
 
@@ -90,6 +101,29 @@
 		(const (Vec3-f 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ 0xff000000 (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
+(defun dispatch-job (node_key val)
+	(cond
+		((defq job_key (pop jobs_qued))
+			(push jobs_in_flight job_key)
+			(def val :job job_key :timestamp (pii-time))
+			(mail-send (get :child val)
+				(setf-> (cat (str-alloc +job_size) atom_cache_dir "atom_" (str job_key) ".cpm")
+					(+job_key node_key)
+					(+job_atom_key job_key)
+					(+job_reply (elem-get select +select_reply)))))
+		(:t (undef val :job :timestamp))))
+
+(defun create (key val nodes)
+	(open-task (const (cat *app_root* "child.lisp")) (elem-get nodes (random (length nodes)))
+		+kn_call_child key (elem-get select +select_task)))
+
+(defun destroy (node_key val)
+	(when (defq child (get :child val)) (mail-send child ""))
+	(when (defq job_key (get :job val))
+		(setq jobs_in_flight (filter (# (nql %0 job_key)) jobs_in_flight))
+		(push jobs_qued job_key)
+		(undef val :job :timestamp)))
+
 (defun render ()
 	(defq mrx (Mat4x4-rotx *rotx*) mry (Mat4x4-roty *roty*) mrz (Mat4x4-rotz *rotz*)
 		mrot (mat4x4-mul (mat4x4-mul mrx mry) mrz)
@@ -119,17 +153,28 @@
 				r (* (elem-get *radii* i) sp rw)
 				sx (+ cx (* x sp)) sy (+ cy (* y sp))
 				c (elem-get *colors* i))
-			(bind '(tid tw th) (get-atom-texture r))
-			(when tid
-				(defq col (lighting c (* at +real_1/2))
-					blit_x (n2i (- sx (n2r (/ tw 2))))
-					blit_y (n2i (- sy (n2r (/ th 2)))))
-				(push new_draw_list (list tid col blit_x blit_y tw th)))
+			(bind '(tid tw th key file) (get-atom-texture r))
+			(if tid
+				(progn
+					(defq col (lighting c (* at +real_1/2))
+						blit_x (n2i (- sx (n2r (/ tw 2))))
+						blit_y (n2i (- sy (n2r (/ th 2)))))
+					(push new_draw_list (list tid col blit_x blit_y tw th)))
+				(when (and key file (not (find key jobs_qued)) (not (find key jobs_in_flight)))
+					(push jobs_qued key)))
 			(task-slice))) indices)
-	(set *main_widget* :ball_draw_list new_draw_list)
-	(. *main_widget* :dirty))
+	(set *main_widget* :atom_draw_list new_draw_list)
+	(. *main_widget* :dirty)
+	(when (nempty? jobs_qued)
+		(unless farm
+			(setq farm (Local (const create) (const destroy) +max_workers
+				(/ (* +max_workers +init_workers_%) 100)
+				(/ (* +max_workers +grow_workers_%) 100)))
+			(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0))
+		(mail-timeout (elem-get select +select_idle_timer) +idle_timeout 0)
+		(. farm :each (lambda (key val) (unless (get :job val) (dispatch-job key val))))))
 
-(defun ball-file (index)
+(defun sdf-file (index)
 	(when (defq stream (file-stream (defq file (elem-get mol_files index))))
 		(def (.-> *title* :layout :dirty) :text
 			(cat "Molecule -> " (slice file (rfind "/" file) -1)))
@@ -154,7 +199,7 @@
 				(:t (push *radii* (const (n2r 100))) (push *colors* (const (Vec3-f 1.0 1.0 0.0))))))
 		(bind '(center radius) (vector-bounds-sphere *verts* 3))
 		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius)
-			  new_verts (reals))
+			new_verts (reals))
 		(each (lambda (v)
 			(push new_verts (vector-scale (vector-sub v center v) scale_p v) +real_1))
 			(partition *verts* 3))
@@ -162,7 +207,7 @@
 		(vector-scale *radii* scale_r *radii*)))
 
 (defun reset ()
-	(ball-file 0)
+	(sdf-file 0)
 	(setq *dirty* :t))
 
 ;import actions and bindings
@@ -172,7 +217,8 @@
 	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
-	(defq select (task-mboxes +select_size) *running* :t)
+	(defq select (task-mboxes +select_size) *running* :t
+		farm :nil jobs_qued (list) jobs_in_flight (list))
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(. *style_toolbar* :set_selected 1)
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -200,6 +246,32 @@
 				(when *dirty*
 					(setq *dirty* :nil)
 					(render)))
+			((= idx +select_task)
+				;child task launch response
+				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))
+				(when (defq val (. farm :find key))
+					(def val :child child)
+					(. farm :add_node (task-nodeid child))
+					(dispatch-job key val)))
+			((= idx +select_reply)
+				;child response
+				(defq node_key (getf *msg* +job_reply_key))
+				(when (defq val (. farm :find node_key))
+					(defq job_key (get :job val))
+					(setq jobs_in_flight (filter (# (nql %0 job_key)) jobs_in_flight))
+					(setq *dirty* :t)
+					(dispatch-job node_key val)))
+			((= idx +select_retry_timer)
+				;retry timer event
+				(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0)
+				(when farm (. farm :refresh +retry_timeout)))
+			((= idx +select_idle_timer)
+				;idle timer event
+				(when (and farm (empty? jobs_qued) (empty? jobs_in_flight))
+					(. farm :close)
+					(setq farm :nil)
+					(mail-timeout (elem-get select +select_retry_timer) 0 0)
+					(mail-timeout (elem-get select +select_idle_timer) 0 0)))
 			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))
@@ -229,5 +301,6 @@
 						(char key))))
 			(:t ;gui event
 				(. *window* :event *msg*))))
+	(if farm (. farm :close))
 	(gui-sub-rpc *window*)
 	(profile-report "Molecule"))
