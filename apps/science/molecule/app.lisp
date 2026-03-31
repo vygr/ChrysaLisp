@@ -276,7 +276,10 @@
 					(. farm :close)
 					(setq farm :nil)
 					(mail-timeout (elem-get select +select_retry_timer) 0 0)
-					(mail-timeout (elem-get select +select_idle_timer) 0 0)))
+					(mail-timeout (elem-get select +select_idle_timer) 0 0)
+					; drop any stale network replies!
+					(elem-set select +select_task (mail-mbox))
+					(elem-set select +select_reply (mail-mbox))))
 			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))
