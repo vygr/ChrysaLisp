@@ -26,9 +26,10 @@
 						s2 (* spec_d spec_d) s4 (* s2 s2) s8 (* s4 s4)
 						s16 (* s8 s8) s32 (* s16 s16) s64 (* s32 s32)
 						intensity (+ (const (n2r 0.3)) (* (const (n2r 0.7)) diffuse) s64)
-						c (min 255 (n2i (* intensity (const (n2r 255.0)))))
-						col (+ 0xff000000 (<< c 16) (<< c 8) c))
-					(.-> canvas (:set_color col) (:plot ix iy))))))
+						c (min 255 (n2i (* intensity (const (n2r 255.0))))))
+					(.-> canvas
+						(:set_color (+ 0xff000000 (<< c 16) (<< c 8) c))
+						(:plot ix iy))))))
 	;resize to final output (anti-aliased downsample from 2x)
 	(bind '(w h) (. canvas :pref_size))
 	(canvas-save (. (Canvas w h 1) :resize canvas) file 32))
