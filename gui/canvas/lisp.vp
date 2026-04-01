@@ -1,7 +1,8 @@
 (include "lib/asm/func.inc")
+(include "sys/statics/class.inc")
+(include "class/str/class.inc")
 (include "class/lisp/class.inc")
 (include "class/fixed/class.inc")
-(include "class/str/class.inc")
 (include "./class.inc")
 (include "././pixmap/class.inc")
 (include "././path/class.inc")
@@ -117,8 +118,20 @@
 	(vp-push :r0)
 	(defq in (method-input :canvas :swap))
 	(list-bind-args :r1 in '(:canvas :num))
-	(call :canvas :swap in '(:r0))
-	(call :obj :ref '(:r0) '(:r1))
+	
+	;check we are on a GUI capable node before attempting to swap
+	(fn-bind 'sys/statics/statics :r2)
+	(assign '((:r2 statics_sys_load_host_gui_funcs)) '(:r2))
+	(vpif '(:r2 /= 0))
+		(call :canvas :swap in '(:r0))
+		(call :obj :ref '(:r0) '(:r1))
+	(else)
+		; :nil safely without crashing.
+		(assign '((:rsp 0)) '(:r1))
+		(assign '((:r1 +lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
+	(endif)
+	
 	(vp-pop :r0)
 
 	(exit :canvas :lisp_swap '(:r0 :r1))
