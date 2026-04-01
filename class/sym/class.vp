@@ -30,7 +30,7 @@
 	(assign {$props, statics + statics_static_syms} {next, sym_ptr})
 	(loop-start)
 		(call :sym :intern_cstr {next} {sym})
-		(assign {sym} {*sym_ptr}) ; <--- Safely write to pointer dereference
+		(assign {sym} {*sym_ptr})
 		(assign {sym_ptr + +ptr_size} {sym_ptr})
 		(call :sys_str :length {next} {_, length})
 	(loop-until {(next + length + +byte_size => next) = $props_end})
