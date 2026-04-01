@@ -68,6 +68,8 @@ Fixed an edge encodeing condition in the `toflm.lisp` command.
 Molecule demo now dynamically renders the atoms and caches the images as .cpm
 files. Updated to use a dynamic, none blocking, distributed render farm.
 
+Add GUI node protection to the swap call.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
