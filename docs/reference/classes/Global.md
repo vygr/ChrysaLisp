@@ -9,7 +9,7 @@
 ### :close
 
 ```code
-(. global :close)
+(. global :close) -> global
 
 close tasks
 ```

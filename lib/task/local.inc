@@ -56,23 +56,24 @@
 		mutated)
 
 	(defmethod :restart (key val)
-		; (. local :restart key val)
+		; (. local :restart key val) -> local
 		;restart task
 		(raise :worker_nodes :create :destroy (mutated :nil now (pii-time) e (penv)))
-		(restart))
+		(restart) this)
 
 	(defmethod :add_node (node)
-		; (. local :add_node node)
+		; (. local :add_node node) -> local
 		;add new node
 		(raise :worker_nodes :herd_max)
 		(unless (find node worker_nodes)
 			(push worker_nodes node)
 			(when (> (defq remaining (- herd_max (. this :size))) 0)
 				(raise :create :herd_growth (now (pii-time) e (penv)))
-				(times (max 1 (min remaining herd_growth)) (start)))))
+				(times (max 1 (min remaining herd_growth)) (start))))
+		this)
 
 	(defmethod :close ()
-		; (. local :close)
+		; (. local :close) -> local
 		;close tasks
 		(raise :destroy (e (penv)))
 		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty))

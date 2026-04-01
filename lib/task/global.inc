@@ -39,7 +39,7 @@
 		mutated)
 
 	(defmethod :close ()
-		; (. global :close)
+		; (. global :close) -> global
 		;close tasks
 		(defq e (penv) destroy (get :destroy this))
 		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty))

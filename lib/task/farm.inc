@@ -52,14 +52,14 @@
 		mutated)
 
 	(defmethod :restart (key val)
-		; (. farm :restart key val)
+		; (. farm :restart key val) -> farm
 		;restart task
 		(defq network_nodes (lisp-nodes) mutated :nil now (pii-time) e (penv)
 			create (get :create this) destroy (get :destroy this))
-		(restart))
+		(restart) this)
 
 	(defmethod :close ()
-		; (. farm :close)
+		; (. farm :close) -> farm
 		;close tasks
 		(defq e (penv) destroy (get :destroy this))
 		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty))

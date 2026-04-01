@@ -9,7 +9,7 @@
 ### :close
 
 ```code
-(. farm :close)
+(. farm :close) -> farm
 
 close tasks
 ```
@@ -25,7 +25,7 @@ scan known nodes and update map, merge local node here as well
 ### :restart
 
 ```code
-(. farm :restart key val)
+(. farm :restart key val) -> farm
 
 restart task
 ```

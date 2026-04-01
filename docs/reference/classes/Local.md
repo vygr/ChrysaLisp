@@ -9,7 +9,7 @@
 ### :add_node
 
 ```code
-(. local :add_node node)
+(. local :add_node node) -> local
 
 add new node
 ```
@@ -17,7 +17,7 @@ add new node
 ### :close
 
 ```code
-(. local :close)
+(. local :close) -> local
 
 close tasks
 ```
@@ -33,7 +33,7 @@ scan known nodes and update map
 ### :restart
 
 ```code
-(. local :restart key val)
+(. local :restart key val) -> local
 
 restart task
 ```
