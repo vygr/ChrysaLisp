@@ -84,7 +84,7 @@ ChrysaLisp engineers its environment to make lookups a direct, single-cycle
 memory access.
 
 *   **The Traditional Problem:** In a dynamic environment, looking up a
-    symbol `my-var` requires searching the current scope, then its parent,
+    symbol `my_var` requires searching the current scope, then its parent,
     and so on, often involving hash calculations and collision checks at
     each step. This is slow.
 
@@ -93,14 +93,14 @@ memory access.
     masterpiece.
 
     1. **Proactive Caching:** When a symbol is first defined (e.g.,
-        `(defq my-var 42)`), the system doesn't just store the binding. It
+        `(defq my_var 42)`), the system doesn't just store the binding. It
         finds the symbol's location in the environment's internal list and
         **writes that index directly onto the globally interned symbol
         object itself**, into a field called `str_hashslot`.
 
-    2. **Lookup Becomes Array Access:** A subsequent lookup for `my-var` is
+    2. **Lookup Becomes Array Access:** A subsequent lookup for `my_var` is
         no longer a search. It becomes a single, O(1) operation:
-        `environment.list[my-var.str_hashslot]`. There is no hashing, no
+        `environment.list[my_var.str_hashslot]`. There is no hashing, no
         iteration, no comparison.
 
     3. **Self-Repairing:** If a variable is shadowed in a deeper scope, its
