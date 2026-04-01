@@ -1,7 +1,7 @@
 (include "././task/class.inc")
 (include "././mem/class.inc")
 (include "service/gui/class.inc")
-(include "class/sym/class.inc") ; <--- Added include
+(include "class/sym/class.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; system statics class
@@ -52,7 +52,7 @@
 
 	;sym statics
 	(ptr sym_intern)
-	(struct static_syms (* (length *static_syms*) +ptr_size)) ; <--- Flat static symbol map
+	(struct static_syms (* (length *static_syms*) +ptr_size))
 	(align)
 
 	;num statics
