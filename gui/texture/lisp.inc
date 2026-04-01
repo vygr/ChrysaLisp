@@ -6,6 +6,4 @@
 
 (defun texture-metrics (this)
 	; (texture-metrics texture) -> (handle width height)
-	(list (getf this +texture_handle 0)
-		(getf this +texture_width 0)
-		(getf this +texture_height 0)))
+	(getf-> this (+texture_handle 0) (+texture_width 0) (+texture_height 0)))
