@@ -135,3 +135,18 @@
 (. d :trim)
 (assert-eq "trim content" "  Spaced Line\n" (. d :get_text_line 0))
 (assert-eq "trim height" 1 (second (. d :get_size)))
+
+; --- Break (Smart Newline) ---
+(defq d (Document))
+(. d :insert "    Line with indent")
+(. d :set_cursor 8 0) ; after "Line"
+(. d :break)
+(assert-eq "break indent" "    Line\n" (. d :get_text_line 0))
+(assert-eq "break newline" "    with indent\n" (. d :get_text_line 1))
+
+(defq d (Document))
+(. d :insert "    Hello    World")
+(. d :set_cursor 11 0) ; middle of "    "
+(. d :break)
+(assert-eq "break trim left" "    Hello\n" (. d :get_text_line 0))
+(assert-eq "break trim right" "    World\n" (. d :get_text_line 1))

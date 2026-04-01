@@ -404,5 +404,13 @@
 (edit-set-focus +invalid_focus)
 (assert-eq "Clear focus" +invalid_focus (edit-get-focus))
 
+; --- Break (Smart Newline) ---
+(edit-select-all) (edit-delete)
+(edit-insert "    Edit line")
+(. *edit* :set_cursor 13 0) ; end of "line"
+(edit-break)
+(assert-eq "edit-break L0" "    Edit line\n" (. *edit* :get_text_line 0))
+(assert-eq "edit-break L1" "    \n" (. *edit* :get_text_line 1))
+
 ; --- Smoke Test ---
 (edit-print "Smoke test edit-print")
