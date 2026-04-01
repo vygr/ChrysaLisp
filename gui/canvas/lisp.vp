@@ -118,7 +118,7 @@
 	(vp-push :r0)
 	(defq in (method-input :canvas :swap))
 	(list-bind-args :r1 in '(:canvas :num))
-	
+
 	;check we are on a GUI capable node before attempting to swap
 	(fn-bind 'sys/statics/statics :r2)
 	(assign '((:r2 statics_sys_load_host_gui_funcs)) '(:r2))
@@ -131,7 +131,7 @@
 		(assign '((:r1 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
-	
+
 	(vp-pop :r0)
 
 	(exit :canvas :lisp_swap '(:r0 :r1))
