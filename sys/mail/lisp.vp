@@ -2,7 +2,6 @@
 (include "class/num/class.inc")
 (include "class/netid/class.inc")
 (include "class/lisp/class.inc")
-(include "././statics/class.inc")
 
 (def-method :sys_mail :lisp_validate)
 	;inputs

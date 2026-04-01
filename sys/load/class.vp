@@ -2,7 +2,6 @@
 (include "lib/consts/chars.inc")
 (include "./class.inc")
 (include "././str/class.inc")
-(include "././statics/class.inc")
 
 (def-method :sys_load :init)
 	;inputs

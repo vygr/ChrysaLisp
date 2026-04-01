@@ -1,5 +1,4 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
 
 (def-func 'sys/statics/statics)
 (def-func-end)

@@ -1,9 +1,7 @@
 (include "lib/asm/func.inc")
-(include "sys/statics/class.inc")
 (include "lib/consts/chars.inc")
 (include "gui/view/class.inc")
 (include "./class.inc")
-(include "././sym/class.inc")
 (include "././sstream/class.inc")
 
 (def-func 'class/lisp/run)

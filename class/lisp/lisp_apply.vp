@@ -1,6 +1,5 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
-(include "././sym/class.inc")
 (include "././hmap/class.inc")
 
 (def-method :lisp :lisp_apply)
@@ -54,7 +53,8 @@
 	(gotoif '(:r1 = 0) 'error)
 	(gotoif '(:r4 /= :r5) 'error))
 
-	(call :sym :get_static_sym '(static_sym_vtable) '(:r1))
+	(fn-bind 'sys/statics/statics :r1)
+	(assign `((:r1 ,(+ statics_static_syms static_sym_vtable))) '(:r1))
 	(call :hmap :find '(:r0 :r1) '(_ :r1 _))
 	(errorif '(:r1 = 0) 'error1)
 	(call :hmap :find '((:r1 +ptr_size) :r13) '(_ :r1 _))

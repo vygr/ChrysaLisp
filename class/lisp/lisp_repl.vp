@@ -2,7 +2,6 @@
 (include "lib/consts/chars.inc")
 (include "./class.inc")
 (include "././stream/class.inc")
-(include "././str/class.inc")
 (include "././num/class.inc")
 
 (def-method :lisp :lisp_repl)

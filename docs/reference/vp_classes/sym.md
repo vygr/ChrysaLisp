@@ -36,17 +36,6 @@ trashes
 :r1-:r6
 ```
 
-### :get_static_sym -> class/sym/get_static_sym
-
-```code
-inputs
-:r1 = static sym num (uint)
-outputs
-:r1 = sym object (ptr)
-trashes
-:r1, :r3
-```
-
 ### :intern_cstr -> class/sym/intern_cstr
 
 ```code
@@ -93,17 +82,6 @@ outputs
 :r0 = sym object (ptr)
 trashes
 :r1-:r14
-```
-
-### :ref_static_sym -> class/sym/ref_static_sym
-
-```code
-inputs
-:r1 = static sym num (uint)
-outputs
-:r1 = sym object (ptr)
-trashes
-:r1, :r3
 ```
 
 ### :statics_init -> class/sym/statics_init

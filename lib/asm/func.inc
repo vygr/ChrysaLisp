@@ -10,6 +10,7 @@
 
 (include "sys/pii/class.inc")
 (include "sys/task/class.inc")
+(include "sys/statics/class.inc")
 
 ;;;;;;;;;;;
 ; functions

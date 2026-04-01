@@ -234,7 +234,7 @@ trashes
 ```code
 inputs
 :r0 = view object (ptr)
-:r1 = static sym num (uint)
+:r1 = static sym offset (uint)
 outputs
 :r0 = view object (ptr)
 :r1 = 0 else, property object (ptr)

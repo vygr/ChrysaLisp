@@ -1,6 +1,4 @@
 (include "lib/asm/func.inc")
-(include "sys/statics/class.inc")
-(include "class/sym/class.inc")
 (include "class/lisp/class.inc")
 (include "class/func/class.inc")
 (include "./class.inc")
@@ -405,10 +403,12 @@
 	(vp-alloc local_size)
 	(entry :view :draw '((:rsp local_this)))
 
-	(call :sym :get_static_sym '(static_sym_vtable) '(:r1))
+	(fn-bind 'sys/statics/statics :r1)
+	(assign `((:r1 ,(+ statics_static_syms static_sym_vtable))) '(:r1))
 	(call :view :find '((:rsp local_this) :r1) '(_ :r2 _))
 	(vpif '(:r2 /= 0))
-		(call :sym :get_static_sym '(static_sym_draw) '(:r1))
+		(fn-bind 'sys/statics/statics :r1)
+		(assign `((:r1 ,(+ statics_static_syms static_sym_draw))) '(:r1))
 		(call :view :find '((:r2 +ptr_size) :r1) '(_ :r1 _))
 		(vpif '(:r1 /= 0))
 			;jump to VP draw method ?
@@ -603,7 +603,7 @@
 (def-method :view :ref_prop)
 	;inputs
 	;:r0 = view object (ptr)
-	;:r1 = static sym num (uint)
+	;:r1 = static sym offset (uint)
 	;outputs
 	;:r0 = view object (ptr)
 	;:r1 = 0 else, property object (ptr)
@@ -612,7 +612,9 @@
 
 	(entry :view :ref_prop '(:r0 :r1))
 
-	(call :sym :get_static_sym '(:r1) '(:r1))
+	(fn-bind 'sys/statics/statics :r2)
+	(vp-add-cr statics_static_syms :r1)
+	(assign '((:r2 :r1)) '(:r1))
 	(call :view :get '(:r0 :r1) '(:r0 :r1))
 
 	(exit :view :ref_prop '(:r0 :r1))

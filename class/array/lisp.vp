@@ -3,7 +3,6 @@
 (include "././reals/class.inc")
 (include "././num/class.inc")
 (include "././lisp/class.inc")
-(include "././str/class.inc")
 
 (defun to-array (%0)
 	(entry :array (sym (cat :lisp_ (rest %0))) '(:r0 :r1))

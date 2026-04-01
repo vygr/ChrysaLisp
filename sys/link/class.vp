@@ -2,7 +2,6 @@
 (include "class/nodeid/class.inc")
 (include "class/array/class.inc")
 (include "./class.inc")
-(include "././statics/class.inc")
 (include "././kernel/class.inc")
 
 (def-method :sys_link :link)

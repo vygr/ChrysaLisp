@@ -1,5 +1,4 @@
 (include "lib/asm/func.inc")
-(include "././statics/class.inc")
 (include "././load/class.inc")
 
 (def-method :sys_heap :init)

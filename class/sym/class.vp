@@ -1,7 +1,5 @@
 (include "lib/asm/func.inc")
 (include "sys/str/class.inc")
-(include "sys/statics/class.inc")
-(include "./class.inc")
 (include "././stream/class.inc")
 (include "././list/class.inc")
 (include "././hset/class.inc")
@@ -14,7 +12,8 @@
 	;:r0-:r14
 
 	(def-vars
-		(ptr sym syms)
+		(ptr sym statics)
+		(pptr sym_ptr)
 		(pubyte next)
 		(uint length))
 
@@ -24,20 +23,19 @@
 	;init symbol set
 	(call :hset :create `((@ ,(f-path :sym :eql_str)) num_sym_buckets) '(:r0))
 	(fn-bind 'sys/statics/statics :r1)
+	(assign '(:r1) {statics})
 	(assign '(:r0) '((:r1 statics_sym_intern)))
 
 	;add static symbols
-	(call :list :create :nil {syms})
-	(call :list :set_cap (cat {syms, } (str (length *static_syms*))))
-	(assign {$props} {next})
+	(assign {$props, statics + statics_static_syms} {next, sym_ptr})
 	(loop-start)
 		(call :sym :intern_cstr {next} {sym})
-		(call :list :push_back {syms, sym})
+		(assign {sym} {*sym_ptr}) ; <--- Safely write to pointer dereference
+		(assign {sym_ptr + +ptr_size} {sym_ptr})
 		(call :sys_str :length {next} {_, length})
 	(loop-until {(next + length + +byte_size => next) = $props_end})
-	(assign {syms} {@sys/statics/statics.statics_sym_syms})
 
-	(exit :sym :get_static_sym {sym})
+	(exit :sym :statics_init {})
 	(pop-scope)
 	(return)
 
@@ -48,43 +46,6 @@
 (vp-label 'props)
 	(each (lambda (%0) (vp-cstr %0)) *static_syms*)
 (vp-label 'props_end)
-
-(def-func-end)
-
-(def-method :sym :get_static_sym)
-	;inputs
-	;:r1 = static sym num (uint)
-	;outputs
-	;:r1 = sym object (ptr)
-	;trashes
-	;:r1, :r3
-
-	(entry :sym :get_static_sym '(:r1))
-
-	(fn-bind 'sys/statics/statics :r3)
-	(assign '((:r3 statics_sym_syms)) '(:r3))
-	(class/array/get_elem :r3 :r1 :r1 :r3)
-
-	(exit :sym :get_static_sym '(:r1))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method :sym :ref_static_sym)
-	;inputs
-	;:r1 = static sym num (uint)
-	;outputs
-	;:r1 = sym object (ptr)
-	;trashes
-	;:r1, :r3
-
-	(entry :sym :ref_static_sym '(:r1))
-
-	(call :sym :get_static_sym '(:r1))
-	(class/obj/ref :r1 :r3)
-
-	(exit :sym :ref_static_sym '(:r1))
-	(vp-ret)
 
 (def-func-end)
 

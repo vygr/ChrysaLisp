@@ -428,7 +428,6 @@
 
 (defun gen-type (%0)
 	(def-func (f-path %0 :type))
-		;%0 = class name
 		;inputs
 		;:r0 = ... object (ptr)
 		;outputs
@@ -439,7 +438,9 @@
 		(entry %0 :type '(:r0))
 		(s-call %0 :type '(:r0) '(:r0 :r1))
 		(vp-push :r0 :r1)
-		(call :sym :ref_static_sym `(,(sym (cat "static_sym_" (rest %0)))) '(:r1))
+		(fn-bind 'sys/statics/statics :r1)
+		(assign `((:r1 ,(+ statics_static_syms (eval (sym (cat "static_sym_" (rest %0))))))) '(:r1))
+		(class/obj/ref :r1 :r2)
 		(call :list :push_back '((:rsp 0) :r1))
 		(vp-pop :r0 :r1)
 		(exit %0 :type '(:r0 :r1))
