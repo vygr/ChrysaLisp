@@ -8,9 +8,10 @@
 ;calculate the light and half-vectors entirely at compile-time!
 (defq +l_vec (vector-norm (Vec3-r +real_-1 +real_-1 +real_-2)))
 (defq +h_vec (vector-norm (vector-add +l_vec (Vec3-r +real_0 +real_0 +real_-1))))
+(defq +anti_alias 3)
 
 (defun generate-atom-image (key file)
-	(defq size (* key 2) canvas (. (Canvas key key 2) :fill 0)
+	(defq size (* key +anti_alias) canvas (. (Canvas key key +anti_alias) :fill 0)
 		r (* (n2r size) +real_1/2) iy -1)
 	(while (< (++ iy) size)
 		(task-slice)
@@ -30,7 +31,7 @@
 					(.-> canvas
 						(:set_color (+ 0xff000000 (<< c 16) (<< c 8) c))
 						(:plot ix iy))))))
-	;resize to final output (anti-aliased downsample from 2x)
+	;resize to final output (anti-aliased downsample from +anti_alias)
 	(bind '(w h) (. canvas :pref_size))
 	(canvas-save (. (Canvas w h 1) :resize canvas) file 32))
 
