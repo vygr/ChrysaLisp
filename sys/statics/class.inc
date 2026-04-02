@@ -50,11 +50,6 @@
 	(long sys_math_seed)
 	(align)
 
-	;sym statics
-	(ptr sym_intern)
-	(struct static_syms (* (length *static_syms*) +ptr_size))
-	(align)
-
 	;num statics
 	(ptr num_intern)
 	(align)
@@ -74,4 +69,9 @@
 
 	;lisp statics
 	(ptr lisp_root_env)
+	(align)
+
+	;sym statics
+	(ptr sym_intern)
+	(struct static_syms (* (length *static_syms*) +ptr_size))
 	(align))

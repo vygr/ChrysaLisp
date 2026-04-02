@@ -27,5 +27,4 @@
 	'(:vtable :num :fixed :real :nums :fixeds :reals :func :seq :str :sym :array
 	:list :path :hmap :font :text :ink_color :vdu_width :vdu_height :draw
 	:stream :sstream :fstream :mstream :netid :nodeid :in :out :stdio :lisp :error
-	:hset :dim
-	main))
+	:hset :dim main))
