@@ -24,10 +24,10 @@
 	+near +focal_dist +far (+ +near +real_4)
 	+top (* +focal_dist +real_1/3) +bottom (* +focal_dist +real_-1/3)
 	+left (* +focal_dist +real_-1/3) +right (* +focal_dist +real_1/3)
-	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	*verts* (reals) *radii* (reals) *colors* (list) *num_atoms* 0
 	atom_draw_list (list) atom_cache (Fmap 31) canvas_size +min_size
-	sdf_files (sort (files-all (cat *app_root* "data/") '(".sdf")))
+	sdf_files (sort (files-all (cat *app_root* "data") '(".sdf")))
+	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	+max_workers 8 +init_workers_% 10 +grow_workers_% 10
 	+retry_timeout (task-timeout 5) +idle_timeout 5000000 +retry_timer_rate 1000000
 	+atom_cache_dir (cat *app_root* "data/cache/")
@@ -211,8 +211,9 @@
 		(vector-scale *radii* scale_r *radii*)))
 
 (defun reset ()
-	(sdf-file 0)
-	(setq *dirty* :t))
+	(setq *dirty* :t
+		*mol_index* (ifn (some (# (if (ends-with "/maltose.sdf" %0) (!))) sdf_files) 0))
+	(sdf-file *mol_index*))
 
 ;import actions and bindings
 (import "./actions.inc")
