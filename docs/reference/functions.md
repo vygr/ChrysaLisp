@@ -1151,6 +1151,7 @@ stop a child
 (stream-diff a b c)
 
 difference between streams a and b, write to stream c
+outputs in standard "Normal diff" format
 ```
 
 ### stream-patch
@@ -1159,6 +1160,7 @@ difference between streams a and b, write to stream c
 (stream-patch a b c)
 
 patch stream a with stream b, write to stream c
+accepts standard "Normal diff" format
 ```
 
 ### substr

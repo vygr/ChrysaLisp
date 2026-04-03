@@ -61,7 +61,7 @@ default.
 Editor now does multi-cursor auto indent after line-break action. Document class
 supports this via the new `:break` method.
 
-Redo the Raymarch demo to create the frames of a full looped `.flm` file.
+Redo of the Raymarch demo to create the frames of a full looped `.flm` file.
 
 Fixed an edge encodeing condition in the `toflm.lisp` command.
 
@@ -70,11 +70,13 @@ files. Updated to use a dynamic, none blocking, distributed render farm.
 
 Add GUI node protection to the swap call.
 
-Rework the static symbol system to remove `:get_static_sym` and
+Reworked the static symbol system to remove `:get_static_sym` and
 `:ref_static_sym` methods.
 
 `diff` and `patch` commands and library updated to use output/input in standard
 "Normal diff" format.
+
+Fix for Terminal app pipe finish and update prompt race condition.
 
 ------
 
