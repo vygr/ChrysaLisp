@@ -80,6 +80,11 @@ Fix for Terminal app pipe finish and update prompt race condition.
 
 Don't require the SDL libs in GUI=fb builds.
 
+Added texture mode 2 for the `:swap` call. We now have mode 0, for normal, 1 for
+glyph mode, and 2 for greyscale mode.
+
+`canvas-load` takes optional for pixmap swap mode.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and

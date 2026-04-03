@@ -103,7 +103,7 @@
 				(if farm (. farm :refresh +retry_timeout))
 				(when dirty
 					(setq dirty :nil)
-					(. canvas :swap 0)
+					(. canvas :swap +pixmap_mode_normal)
 					(when (= 0 (length jobs))
 						(defq working :nil)
 						(if farm

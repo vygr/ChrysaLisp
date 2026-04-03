@@ -126,18 +126,18 @@ void host_gui_flush(const SDL_Rect *rect)
 
 void *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
-	auto tt = m ? sizeof(alpha_t) : sizeof(pixel_t);
+	auto tt = (m == 1) ? sizeof(alpha_t) : (m == 2 ? 2 : sizeof(pixel_t));
 	Texture *t = (Texture*)malloc(sizeof(Texture) + w * h * tt);
-	t->w = w;
-	t->h = h;
-	t->s = w * tt;
-	t->m = m;
+	t->w = (int32_t)w;
+	t->h = (int32_t)h;
+	t->s = (int32_t)(w * tt);
+	t->m = (int32_t)m;
 	t->rb = ((0xff + 1) << 16) + (0xff + 1);
 	t->g = (0xff + 1) << 8;
 	pixel_t *src_end = (pixel_t*)((uint8_t*)src + h * s);
-	uint32_t span = w * sizeof(pixel_t);
+	uint32_t span = (uint32_t)(w * sizeof(pixel_t));
 	s -= span;
-	if (m)
+	if (m == 1)
 	{
 		// glyph mode texture
 		alpha_t *dst = (alpha_t*)t->data;
@@ -145,6 +145,20 @@ void *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t s, 
 		{
 			pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
 			do { *dst++ = *src++ >> 24; } while (src != src_end_line);
+			src = (pixel_t*)((uint8_t*)src + s);
+		} while (src != src_end);
+	}
+	else if (m == 2)
+	{
+		// colorized alpha blended mode
+		uint16_t *dst = (uint16_t*)t->data;
+		do
+		{
+			pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
+			do {
+				pixel_t p = *src++;
+				*dst++ = (uint16_t)(((p >> 16) & 0xff00) | ((p >> 16) & 0xff));
+			} while (src != src_end_line);
 			src = (pixel_t*)((uint8_t*)src + s);
 		} while (src != src_end);
 	}
@@ -295,7 +309,7 @@ void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
 		dr.y * scr_stride + dr.x * sizeof(pixel_t));
 	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
 		(dr.h - dr.y) * scr_stride);
-	if (t->m)
+	if (t->m == 1)
 	{
 		//texture mode 1 ie. glyph mode
 		alpha_t *src = (alpha_t*)((uint8_t*)t->data +
@@ -333,6 +347,49 @@ void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
 			} while (dst != dst_end_line);
 			dst = (pixel_t*)((uint8_t*)dst + dstride);
 			src = (alpha_t*)((uint8_t*)src + sstride);
+		} while (dst != dst_end);
+	}
+	else if (t->m == 2)
+	{
+		//texture mode 2 ie. colorized alpha blended mode
+		uint16_t *src = (uint16_t*)((uint8_t*)t->data +
+			sr.y * t->s + sr.x * 2);
+		uint32_t span = (dr.w - dr.x);
+		uint32_t sstride = t->s - span * 2;
+		span *= sizeof(pixel_t);
+		uint32_t dstride = scr_stride - span;
+		do
+		{
+			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
+			do
+			{
+				uint16_t sca = *src++;
+				alpha_t sa = (alpha_t)(sca >> 8);
+				if (sa != 0)
+				{
+					uint32_t tc = sca & 0xff;
+					uint32_t combined_a = (sa * (tc + 1)) >> 8;
+					pixel_t sg = ((combined_a * t->g) >> 8) & 0xff00;
+					pixel_t srb = ((combined_a * t->rb) >> 8) & 0xff00ff;
+					if (sa != 0xff)
+					{
+						pixel_t da = 0xff - sa;
+						pixel_t drb = *dst;
+						pixel_t dg = drb & 0xff00;
+						drb = drb & 0xff00ff;
+						drb = ((drb * da >> 8) & 0xff00ff) + srb;
+						dg = ((dg * da >> 8) & 0xff00) + sg;
+						*dst = drb + dg;
+					}
+					else
+					{
+						*dst = srb + sg;
+					}
+				}
+				dst++;
+			} while (dst != dst_end_line);
+			dst = (pixel_t*)((uint8_t*)dst + dstride);
+			src = (uint16_t*)((uint8_t*)src + sstride);
 		} while (dst != dst_end);
 	}
 	else

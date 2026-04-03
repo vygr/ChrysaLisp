@@ -7,3 +7,7 @@
 	(uint stream_type width height stride)
 	(align)
 	(offset data))
+
+;upload modes
+(enums +pixmap_mode 0
+	(enum normal glyph greyscale))

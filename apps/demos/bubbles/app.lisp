@@ -111,7 +111,7 @@
 		(render-verts canvas
 			(sort (clip-verts hsw hsh (elem-get dlist +dlist_layer1_verts))
 				(# (if (<= (last (first %0)) (last (first %1))) 1 -1))))
-		(. canvas :swap 0))
+		(. canvas :swap +pixmap_mode_normal))
 	(elem-set dlist +dlist_mask 0))
 
 (defun tooltips ()

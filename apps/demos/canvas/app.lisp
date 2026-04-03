@@ -94,7 +94,7 @@
 	(fpoly 0xff000000 +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_pi) +fp2))
 	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_hpi) +fp3))
 	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) (* -1.0 +fp_hpi)) +fp4))
-	(. *canvas* :swap 0))
+	(. *canvas* :swap +pixmap_mode_normal))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) id :t)

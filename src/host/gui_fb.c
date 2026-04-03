@@ -195,7 +195,7 @@ void host_gui_set_texture_color(void *handle, uint8_t r, uint8_t g, uint8_t b)
 void *host_gui_create_texture(pixel_t *src, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
 {
     Texture *t;
-    int s = (mode == 1)? sizeof(alpha_t): sizeof(pixel_t);
+    int s = (mode == 1)? sizeof(alpha_t): (mode == 2 ? 2 : sizeof(pixel_t));
     int size = height * width * s;
 
     t = malloc(sizeof(Texture) + size);
@@ -220,6 +220,16 @@ void *host_gui_create_texture(pixel_t *src, uint64_t width, uint64_t height, uin
             pixel_t *src_end_line = (pixel_t *)((uint8_t *)src + span);
             do {
                 *dst++ = *src++ >> 24;
+            } while (src != src_end_line);
+            src = (pixel_t *)((uint8_t *)src + pitch);
+        } while (src != src_end);
+    } else if (mode == 2) { // colorized alpha blended mode
+        uint16_t *dst = (uint16_t *)t->pixels;
+        do {
+            pixel_t *src_end_line = (pixel_t *)((uint8_t *)src + span);
+            do {
+                pixel_t p = *src++;
+                *dst++ = (uint16_t)(((p >> 16) & 0xff00) | ((p >> 16) & 0xff));
             } while (src != src_end_line);
             src = (pixel_t *)((uint8_t *)src + pitch);
         } while (src != src_end);
@@ -414,6 +424,43 @@ static void blit_colormod(Drawable *ts, const SDL_Rect *srect, Drawable *td, con
     } while (--y > 0);
 }
 
+/* colorized alpha blended mod blit, no clipping */
+static void blit_colorblend(Drawable *ts, const SDL_Rect *srect, Drawable *td, const SDL_Rect *drect)
+{
+    pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * td->bytespp);
+    uint16_t *src = (uint16_t *)(ts->pixels + srect->y * ts->pitch + srect->x * 2);
+    int dspan = td->pitch - (drect->w * td->bytespp);
+    int sspan = ts->pitch - (drect->w * 2);
+    int y = drect->h;
+    do {
+        int x = drect->w;
+        do {
+            uint16_t sca = *src++;
+            alpha_t sa = (alpha_t)(sca >> 8);
+            if (sa != 0) {
+                uint32_t tc = sca & 0xff;
+                uint32_t combined_a = (sa * (tc + 1)) >> 8;
+                pixel_t srb = ((combined_a * (ts->color & 0xff00ff)) >> 8) & 0xff00ff;
+                pixel_t sg =  ((combined_a * (ts->color & 0x00ff00)) >> 8) & 0x00ff00;
+                if (sa != 0xff) {
+                    pixel_t da = 0xff - sa;
+                    pixel_t drb = *dst;
+                    pixel_t dg = drb & 0x00ff00;
+                           drb = drb & 0xff00ff;
+                    drb = ((drb * da >> 8) & 0xff00ff) + srb;
+                    dg =   ((dg * da >> 8) & 0x00ff00) + sg;
+                    *dst = drb + dg;
+                } else {
+                    *dst = srb + sg;
+                }
+            }
+            dst++;
+        } while (--x > 0);
+        dst = (pixel_t *)((uint8_t *)dst + dspan);
+        src = (uint16_t *)((uint8_t *)src + sspan);
+    } while (--y > 0);
+}
+
 /* draw pixels from passed texture handle */
 void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
 {
@@ -428,6 +475,8 @@ void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
     if (clip.y > drect->y) sr2.y += clip.y - drect->y;
     if (t->mode == 1)
         blit_colormod(t, &sr2, &bb, cr);
+    else if (t->mode == 2)
+        blit_colorblend(t, &sr2, &bb, cr);
     else blit_blend(t, &sr2, &bb, cr);
 }
 

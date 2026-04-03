@@ -119,14 +119,14 @@
 	(when (bits? *redraw_mask* +layer_committed)
 		(. *committed_canvas* :fill 0)
 		(each (# (draw-group *committed_canvas* %0)) *committed_groups*)
-		(. *committed_canvas* :swap 0))
+		(. *committed_canvas* :swap +pixmap_mode_normal))
 	(when (bits? *redraw_mask* +layer_staging)
 		(. *staging_canvas* :fill 0)
 		(each (lambda (p)
 			(bind '(col poly) (flatten_path p))
 			(fpoly *staging_canvas* col +winding_none_zero poly)) *staging_paths*)
 		(each (# (draw-group *staging_canvas* %0)) *moving_groups*)
-		(. *staging_canvas* :swap 0))
+		(. *staging_canvas* :swap +pixmap_mode_normal))
 	(setq *redraw_mask* 0))
 
 ;import actions and bindings

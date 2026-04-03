@@ -4,6 +4,7 @@
 (include "class/list/class.inc")
 (include "./class.inc")
 (include "././texture/class.inc")
+(include "././pixmap/class.inc")
 (include "././path/class.inc")
 (include "././canvas/class.inc")
 
@@ -446,7 +447,7 @@
 		(call :canvas :fpoly {sym_canvas, 0, h << (+fp_shift + 1), +winding_odd_even, paths})
 
 		;take texture from canvas
-		(call :canvas :swap {sym_canvas, 1})
+		(call :canvas :swap {sym_canvas, +pixmap_mode_glyph})
 		(assign {sym_canvas->+canvas_texture} {txt})
 		(assign {0} {sym_canvas->+canvas_texture})
 

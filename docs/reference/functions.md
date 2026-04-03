@@ -172,7 +172,7 @@ flush any shared pixmaps that have no users.
 ### canvas-load
 
 ```code
-(canvas-load file flags) -> :nil | canvas
+(canvas-load file flags [swap_mode]) -> :nil | canvas
 ```
 
 ### canvas-save

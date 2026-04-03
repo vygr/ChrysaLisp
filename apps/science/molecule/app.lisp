@@ -123,7 +123,7 @@
 		(progn
 			(setq file (cat +atom_cache_dir "atom_" (str key) ".cpm"))
 			(unless (setq canvas (. atom_cache :find key))
-				(setq canvas (canvas-load file +load_flag_shared))
+				(setq canvas (canvas-load file +load_flag_shared +pixmap_mode_greyscale))
 				(if canvas (. atom_cache :insert key canvas)))))
 	(if canvas
 		(cat (texture-metrics (getf canvas +canvas_texture 0)) (list key file))

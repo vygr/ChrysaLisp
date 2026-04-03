@@ -103,7 +103,7 @@
 				(when clock
 					(make-analog-time)
 					(view-analog-time (* (n2f clock_size) (n2f clock_scale)))
-					(. clock :swap 0))
+					(. clock :swap +pixmap_mode_normal))
 				(when *display*
 					(make-digital-time)
 					(set *display* :text (view-digital-time))

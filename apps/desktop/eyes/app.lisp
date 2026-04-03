@@ -135,7 +135,7 @@
 		(:set_color +argb_white)
 		(:fpoly (+ r_iris_px (* pupil_radius -0.4)) (+ r_iris_py (* pupil_radius -0.4)) +winding_odd_even (circle highlight_radius)))
 
-	(. *canvas* :swap 0))
+	(. *canvas* :swap +pixmap_mode_normal))
 
 ;;;;;;;;;;;
 ; Main Loop

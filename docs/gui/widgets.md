@@ -789,7 +789,7 @@ gui/lisp.inc "macro ui-canvas" ""
 	(.-> canvas
 		(:set_color col)
 		(:fbox x y (- x1 x) (- y1 y))))
-(. canvas :swap 0)
+(. canvas :swap +pixmap_mode_normal)
 
 *ui_canvas*
 ```

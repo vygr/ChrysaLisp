@@ -124,9 +124,10 @@
 			'(".cpm")
 			(const `'(,CPM-save)))))
 
-(defun canvas-load (file flags)
-	; (canvas-load file flags) -> :nil | canvas
+(defun canvas-load (file flags &optional swap_mode)
+	; (canvas-load file flags [swap_mode]) -> :nil | canvas
 	(defq this :nil)
+	(setd swap_mode +pixmap_mode_normal)
 	(when (bits? flags +load_flag_shared)
 		;check cache first
 		(when (defq this (. *pixmap_cache* :find file))
@@ -146,7 +147,7 @@
 			(if (bits? flags +load_flag_film)
 				(setf pixmap +pixmap_stream stream 0))
 			(ifn (bits? flags +load_flag_noswap)
-				(. this :swap 0))))
+				(. this :swap swap_mode))))
 	this)
 
 (defun canvas-flush ()
