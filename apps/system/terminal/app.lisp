@@ -112,7 +112,7 @@
 					((eql *msg* :nil)
 						;pipe finished
 						(. *pipe* :close)
-						(setq *pipe* :nil)
+						(setq *pipe* :nil *key* :t)
 						(action-insert (cat (ascii-char +char_lf) *env_terminal_prompt*)))
 					((action-insert *msg* +line_wrap_len)))
 				(setq *margin_x* *cursor_x*))
