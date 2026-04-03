@@ -184,7 +184,7 @@
 			(cat "Molecule -> " (slice file (rfind "/" file) -1)))
 		(clear *verts* *radii* *colors*)
 		(times 3 (read-line stream))
-		(setq *num_atoms* (str-as-num (first (split (read-line stream) +char_class_space))))
+		(setq *num_atoms* (str-as-num (slice (read-line stream) 0 3)))
 		(times *num_atoms*
 			(defq line (split (read-line stream) +char_class_space))
 			(push *verts*
