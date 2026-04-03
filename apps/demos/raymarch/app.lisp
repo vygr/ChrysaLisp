@@ -115,6 +115,10 @@
 								(defq cpm_name (cat "raymarch_" (str frame_idx) ".cpm")
 									cpm_path (cat "apps/media/films/data/" cpm_name))
 								(canvas-save canvas cpm_path 16)
+								; flip pixmap type back to Premultiplied (-32).
+								; all our pixels are opaque (Alpha=0xFF), ARGB == Premul ARGB,
+								; so we skip the expensive CPU math and GPU texture upload.
+								(setf (getf canvas +canvas_pixmap 0) +pixmap_type -32 0)
 								(write-line lst_stream cpm_path)
 								(stream-flush lst_stream)
 								(setq frame_idx (inc frame_idx))
