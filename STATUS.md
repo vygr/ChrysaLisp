@@ -78,6 +78,8 @@ Reworked the static symbol system to remove `:get_static_sym` and
 
 Fix for Terminal app pipe finish and update prompt race condition.
 
+Don't require the SDL libs in GUI=fb builds.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
