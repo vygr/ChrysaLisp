@@ -73,6 +73,9 @@ Add GUI node protection to the swap call.
 Rework the static symbol system to remove `:get_static_sym` and
 `:ref_static_sym` methods.
 
+`diff` and `patch` commands and library updated to use output/input in standard
+"Normal diff" format.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
