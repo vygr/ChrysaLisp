@@ -17,7 +17,7 @@
 	(defq n (apply reals (vector-cross-3d
 		(vector-sub p0 p1 +reals_tmp3)
 		(vector-sub p0 p2 (const (cat +reals_tmp3))))))
-	(if (eql n +reals_zero3) +reals_zero3 (vector-norm n)))
+	(if (= (vector-dot n n) +real_0) +reals_zero3 (vector-norm n)))
 
 (defun opt-vector (vector part)
 	; (opt-vector vector part) -> (new_vector new_indices)
@@ -258,8 +258,17 @@
 							(push tris i0 i1 i2 0)
 							(setq i1 i2)) (slice f 2 -1)))))))
 		stream)
-	(bind '(norms tris) (gen-norms verts tris))
-	(bind '(verts norms tris) (opt-mesh verts norms tris))
+	(bind '(min_v max_v) (vector-bounds-3d verts +vec4_size))
+	(defq center (vector-scale (vector-add min_v max_v) +real_1/2)
+		extent (vector-sub max_v min_v)
+		radius (* (reduce max extent) +real_1/2)
+		inv_radius (if (> radius +real_0) (/ (const (n2r 1)) radius) +real_1)
+		new_verts (reals))
+	(each (lambda ((x y z _))
+			(push new_verts (vector-scale (vector-sub (reals x y z) center) inv_radius) +real_1))
+		(partition verts +vec4_size))
+	(bind '(norms tris) (gen-norms new_verts tris))
+	(bind '(verts norms tris) (opt-mesh new_verts norms tris))
 	(lower :verts :norms :tris))
 
 ;module

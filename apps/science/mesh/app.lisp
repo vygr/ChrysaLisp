@@ -125,7 +125,7 @@
 	(.-> torus_obj (:add_node sphere2_obj) (:add_node cube_obj))
 	(.-> sphere_obj (:add_node capsule1_obj) (:add_node capsule2_obj))
 	(.-> teapot_obj
-		(:set_translation +real_0 +real_1/2 +real_0)
+		(:set_translation +real_0 +real_1/2 (- +real_0 +focal_dist +real_1))
 		(:set_rotation +real_0 +real_hpi +real_0))
 	(.-> scene (:add_node sphere_obj) (:add_node torus_obj) (:add_node teapot_obj)))
 
