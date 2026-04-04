@@ -85,6 +85,12 @@ glyph mode, and 2 for greyscale mode.
 
 `canvas-load` takes optional for pixmap swap mode.
 
+New `(str-to-real str) -> real` function that handles scientific notation like
+1.5e-3 or 9.97231e-09.
+
+New `Mesh-obj` class for loading `.obj` files. Mesh demo now loads a test
+teapot.obj.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
