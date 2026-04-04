@@ -1087,8 +1087,7 @@
 				(setq exp_val (+ (* exp_val 10) d))
 				(if in_frac
 					(setq frac_val (+ (* frac_val 10) d) frac_scale (* frac_scale 10))
-					(setq int_val (+ (* int_val 10) d)))))))
-		%0)
+					(setq int_val (+ (* int_val 10) d))))))) %0)
 	(defq result (n2r int_val))
 	(when (> frac_scale 1)
 		(setq result (+ result (/ (n2r frac_val) (n2r frac_scale)))))
