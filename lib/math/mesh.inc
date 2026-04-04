@@ -249,7 +249,7 @@
 				((eql type "v")
 					(push verts (apply (const reals) (map (# (str-to-real %0)) (rest tokens))) +real_1))
 				((eql type "f")
-					(defq f (map (# (str-as-num (first (split %0 "/")))) (rest tokens)))
+					(defq f (map (# (str-to-num (first (split %0 "/")))) (rest tokens)))
 					(when (>= (length f) 3)
 						(defq i0 (dec (if (< (elem-get f 0) 0) (+ (/ (length verts) +vec4_size) (elem-get f 0) 1) (elem-get f 0)))
 							i1 (dec (if (< (elem-get f 1) 0) (+ (/ (length verts) +vec4_size) (elem-get f 1) 1) (elem-get f 1))))
