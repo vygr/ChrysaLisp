@@ -1,6 +1,10 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+
+(import "lib/debug/frames.inc")
+
+(import "lib/math/mesh.inc")
 (import "lib/math/scene.inc")
 (import "lib/task/local.inc")
 (import "./app.inc")
@@ -93,15 +97,16 @@
 (defun create-scene (job_que)
 	; (create-scene job_que) -> scene_root
 	;create mesh loader jobs
+	(defq teapot_cmd (cat "(Mesh-obj (file-stream " *app_root* "data/teapot.obj"))
 	(each (lambda ((name command))
 			(push job_que (cat (str-alloc +job_name) (pad name 16) command)))
-		'(
+		`(
 		("sphere.1" "(Mesh-iso (Iso-sphere 40 40 40) (n2r 0.25))")
 		("cube.1" "(Mesh-iso (Iso-cube 10 10 10) (n2r 0.45))")
 		("capsule" "(Mesh-iso (Iso-capsule 40 40 40) (n2r 0.25))")
 		("torus.1" "(Mesh-torus +real_1 +real_1/3 40)")
 		("sphere.2" "(Mesh-sphere +real_1/2 20)")
-		("teapot" "(Mesh-obj (file-stream (cat (path-to-file) \"data/teapot.obj\")))")
+		("teapot.1" ,teapot_cmd)
 		))
 	;create scene graph
 	(defq scene (Scene "root")
@@ -111,7 +116,8 @@
 		cube_obj (Scene-object :nil (fixeds 0.8 1.0 1.0 0.0) "cube.1")
 		torus_obj (Scene-object :nil (fixeds 1.0 0.0 1.0 0.0) "torus.1")
 		sphere2_obj (Scene-object :nil (fixeds 0.8 1.0 0.0 1.0) "sphere.2")
-		teapot_obj (Scene-object :nil (fixeds 1.0 0.5 0.0 1.0) "teapot"))
+		;teapot_obj (Scene-object :nil (fixeds 1.0 0.5 0.0 1.0) "teapot.1")
+		)
 	(. sphere_obj :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +real_1))
 	(. torus_obj :set_translation (+ +real_1/3 +real_1/3) (+ +real_1/3 +real_1/3) (- +real_0 +focal_dist +real_2))
 	(. sphere2_obj :set_translation +real_0 +real_1/2 +real_0)
