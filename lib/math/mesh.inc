@@ -243,7 +243,7 @@
 	; (Mesh-obj stream) -> mesh
 	(defq verts (reals) tris (nums))
 	(lines! (lambda (line)
-		(when (nempty? (defq tokens (split (trim line) +char_class_space)))
+		(when (nempty? (defq tokens (split (trim line) +char_class_white_space)))
 			(defq type (first tokens))
 			(cond
 				((eql type "v")
