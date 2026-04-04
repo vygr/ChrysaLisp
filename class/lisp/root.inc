@@ -1073,6 +1073,27 @@
 	(if (= (% num div) 0) num
 		(+ (* (/ num div) div) div)))
 
+(defun str-to-real (%0)
+	; (str-to-real str) -> real
+	(defq negated :nil result (n2r 0) int_val 0 frac_val 0 frac_scale 1)
+	(when (eql (first %0) "-")
+		(setq negated :t))
+	(each (# (cond
+		((eql %0 "-"))
+		((eql %0 ".")
+			(setq frac_scale -1))
+		((<= (ascii-code "0") (code %0) (ascii-code "9"))
+			(defq d (- (code %0) (ascii-code "0")))
+			(if (= frac_scale -1)
+				(setq frac_val (+ (* frac_val 10) d) frac_scale (* frac_scale 10))
+				(setq int_val (+ (* int_val 10) d) frac_val 0 frac_scale 1)))))
+		%0)
+	(setq result (n2r int_val))
+	(when (> frac_scale 1)
+		(setq result (+ result (/ (n2r frac_val) (n2r frac_scale)))))
+	(when negated (setq result (* result (const (n2r -1)))))
+	result)
+
 (defun str-as-num (%0)
 	; (str-as-num str) -> num
 	(pop (nums (str-to-num %0))))
