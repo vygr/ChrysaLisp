@@ -1,3 +1,4 @@
+(defq *app_root* (path-to-file))
 (import "lib/math/mesh.inc")
 (import "./app.inc")
 

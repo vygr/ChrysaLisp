@@ -258,7 +258,7 @@
 					in (if (< fn 0)
 						(+ (/ (length norms) +vec3_size) fn 1)
 						(if (defq f3 (elem-get f 2)) (dec f3) (dec fn))))
-				(push tris (dec i0) (dec i1) (dec i2) in)) (rest tokens)))
+				(push tris (dec i0) (dec i1) (dec i2) in)) (rest tokens))))
 		stream)
 	(bind '(verts norms tris) (opt-mesh verts norms tris))
 	(lower :verts :norms :tris))

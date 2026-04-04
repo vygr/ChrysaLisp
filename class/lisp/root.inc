@@ -1073,6 +1073,34 @@
 	(if (= (% num div) 0) num
 		(+ (* (/ num div) div) div)))
 
+(defun str-to-real (%0)
+	; (str-to-real str) -> real
+	; handles scientific notation like 1.5e-3 or 9.97231e-09
+	(defq int_val 0 frac_val 0 frac_scale 1 exp_val 0 exp_neg :nil in_exp :nil)
+	(each (# (cond
+		((eql %0 "-") (if in_exp (setq exp_neg :t)))
+		((eql %0 ".") (unless in_exp (setq frac_scale -1)))
+		((eql %0 "e") (setq in_exp :t))
+		((eql %0 "E") (setq in_exp :t))
+		((<= (ascii-code "0") (code %0) (ascii-code "9"))
+			(defq d (- (code %0) (ascii-code "0")))
+			(if in_exp
+				(setq exp_val (+ (* exp_val 10) d))
+				(if (= frac_scale -1)
+					(setq frac_val (+ (* frac_val 10) d) frac_scale (* frac_scale 10))
+					(setq int_val (+ (* int_val 10) d) frac_val 0 frac_scale 1))))))
+		%0)
+	(defq result (n2r int_val))
+	(when (> frac_scale 1)
+		(setq result (+ result (/ (n2r frac_val) (n2r frac_scale)))))
+	(when (> exp_val 0)
+		(setq result (if exp_neg
+			(/ result (n2r (pow 10 exp_val)))
+			(* result (n2r (pow 10 exp_val))))))
+	(when (eql (first %0) "-")
+		(setq result (* result (const (n2r -1)))))
+	result)
+
 (defun str-as-num (%0)
 	; (str-as-num str) -> num
 	(pop (nums (str-to-num %0))))
