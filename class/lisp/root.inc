@@ -1080,10 +1080,8 @@
 	(each (# (cond
 		((eql %0 "-") (if in_exp (setq exp_neg :t)))
 		((eql %0 ".") (unless in_exp (setq frac_scale -1)))
-		((eql %0 "e") (setq in_exp :t))
-		((eql %0 "E") (setq in_exp :t))
-		((<= (ascii-code "0") (code %0) (ascii-code "9"))
-			(defq d (- (code %0) (ascii-code "0")))
+		((find %0 "eE") (setq in_exp :t))
+		((defq d (find %0 "0123456789"))
 			(if in_exp
 				(setq exp_val (+ (* exp_val 10) d))
 				(if (= frac_scale -1)
