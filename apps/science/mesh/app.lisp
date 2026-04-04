@@ -115,7 +115,7 @@
 		teapot_obj (Scene-object :nil (fixeds 1.0 1.0 1.0 1.0) "teapot.1")
 		)
 	(. sphere_obj :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +real_1))
-	(. torus_obj :set_translation (+ +real_1/3 +real_1/3) (+ +real_1/3 +real_1/3) (- +real_0 +focal_dist +real_2))
+	(. torus_obj :set_translation (- +real_1/2 +real_1/3) (+ +real_1/2 +real_1/3) (- +real_0 +focal_dist +real_2))
 	(. sphere2_obj :set_translation +real_0 +real_1/2 +real_0)
 	(. cube_obj :set_translation +real_0 +real_-1/2 +real_0)
 	(.-> capsule1_obj
@@ -125,7 +125,7 @@
 	(.-> torus_obj (:add_node sphere2_obj) (:add_node cube_obj))
 	(.-> sphere_obj (:add_node capsule1_obj) (:add_node capsule2_obj))
 	(.-> teapot_obj
-		(:set_translation +real_0 +real_1/2 (- +real_0 +focal_dist +real_1))
+		(:set_translation (- +real_1/2 +real_-1/3) (+ +real_-1/2 +real_-1/3) (- +real_0 +focal_dist +real_1))
 		(:set_rotation +real_0 +real_hpi +real_0))
 	(.-> scene (:add_node sphere_obj) (:add_node torus_obj) (:add_node teapot_obj)))
 

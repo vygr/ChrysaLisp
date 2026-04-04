@@ -15,9 +15,10 @@
 
 (defun Normal (p0 p1 p2)
 	(defq n (apply reals (vector-cross-3d
-		(vector-sub p0 p1 +reals_tmp3)
-		(vector-sub p0 p2 (const (cat +reals_tmp3))))))
-	(if (= (vector-dot n n) +real_0) +reals_zero3 (vector-norm n)))
+			(vector-sub p0 p1 +reals_tmp3)
+			(vector-sub p0 p2 (const (cat +reals_tmp3)))))
+		d (vector-dot n n))
+	(if (= d +real_0) +reals_zero3 (vector-scale n (recip (sqrt d)))))
 
 (defun opt-vector (vector part)
 	; (opt-vector vector part) -> (new_vector new_indices)
