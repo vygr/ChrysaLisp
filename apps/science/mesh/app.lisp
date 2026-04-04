@@ -1,9 +1,6 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-
-(import "lib/debug/frames.inc")
-
 (import "lib/math/mesh.inc")
 (import "lib/math/scene.inc")
 (import "lib/task/local.inc")
@@ -115,7 +112,7 @@
 		cube_obj (Scene-object :nil (fixeds 0.8 1.0 1.0 0.0) "cube.1")
 		torus_obj (Scene-object :nil (fixeds 1.0 0.0 1.0 0.0) "torus.1")
 		sphere2_obj (Scene-object :nil (fixeds 0.8 1.0 0.0 1.0) "sphere.2")
-		teapot_obj (Scene-object :nil (fixeds 1.0 0.5 0.0 1.0) "teapot.1")
+		teapot_obj (Scene-object :nil (fixeds 1.0 1.0 1.0 1.0) "teapot.1")
 		)
 	(. sphere_obj :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +real_1))
 	(. torus_obj :set_translation (+ +real_1/3 +real_1/3) (+ +real_1/3 +real_1/3) (- +real_0 +focal_dist +real_2))
@@ -127,8 +124,9 @@
 	(. capsule2_obj :set_translation +real_0 +real_-1/2 +real_0)
 	(.-> torus_obj (:add_node sphere2_obj) (:add_node cube_obj))
 	(.-> sphere_obj (:add_node capsule1_obj) (:add_node capsule2_obj))
-	(. teapot_obj :set_translation +real_0 +real_-1/4 +real_0)
-	(. teapot_obj :set_rotation +real_0 +real_hpi +real_0)
+	(.-> teapot_obj
+		(:set_translation +real_0 +real_1/2 +real_0)
+		(:set_rotation +real_0 +real_hpi +real_0))
 	(.-> scene (:add_node sphere_obj) (:add_node torus_obj) (:add_node teapot_obj)))
 
 ;import actions and bindings

@@ -1,5 +1,3 @@
-(import "lib/debug/frames.inc")
-
 (import "lib/math/mesh.inc")
 (import "./app.inc")
 
