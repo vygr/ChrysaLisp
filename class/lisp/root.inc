@@ -1076,17 +1076,17 @@
 (defun str-to-real (%0)
 	; (str-to-real str) -> real
 	; handles scientific notation like 1.5e-3 or 9.97231e-09
-	(defq int_val 0 frac_val 0 frac_scale 1 exp_val 0 exp_neg :nil in_exp :nil)
+	(defq int_val 0 frac_val 0 frac_scale 1 exp_val 0 exp_neg :nil in_exp :nil in_frac :nil)
 	(each (# (cond
 		((eql %0 "-") (if in_exp (setq exp_neg :t)))
-		((eql %0 ".") (unless in_exp (setq frac_scale -1)))
+		((eql %0 ".") (unless in_exp (setq in_frac :t)))
 		((find %0 "eE") (setq in_exp :t))
 		((defq d (find %0 "0123456789"))
 			(if in_exp
 				(setq exp_val (+ (* exp_val 10) d))
-				(if (= frac_scale -1)
+				(if in_frac
 					(setq frac_val (+ (* frac_val 10) d) frac_scale (* frac_scale 10))
-					(setq int_val (+ (* int_val 10) d) frac_val 0 frac_scale 1))))))
+					(setq int_val (+ (* int_val 10) d)))))))
 		%0)
 	(defq result (n2r int_val))
 	(when (> frac_scale 1)
