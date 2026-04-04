@@ -1096,7 +1096,7 @@
 			(/ result (n2r (pow 10 exp_val)))
 			(* result (n2r (pow 10 exp_val))))))
 	(when (eql (first %0) "-")
-		(setq result (* result (const (n2r -1)))))
+		(setq result (neg result)))
 	result)
 
 (defun str-as-num (%0)
