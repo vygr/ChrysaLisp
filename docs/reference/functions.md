@@ -1139,6 +1139,14 @@ stop a child
 (str-as-num str) -> num
 ```
 
+### str-to-real
+
+```code
+(str-to-real str) -> real
+
+handles scientific notation like 1.5e-3 or 9.97231e-09
+```
+
 ### str?
 
 ```code
