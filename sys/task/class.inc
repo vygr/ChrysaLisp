@@ -52,7 +52,7 @@
 ;;;;;;;;;;;;;
 
 (defun tk-save-state ()
-	(apply vp-push stack_state))
+	(apply (const vp-push) stack_state))
 
 (defun tk-load-state ()
-	(apply vp-pop stack_state))
+	(apply (const vp-pop) stack_state))

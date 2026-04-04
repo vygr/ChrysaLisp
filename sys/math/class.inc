@@ -237,9 +237,9 @@
 (defun vec-flength (n)
 	(vec-flength-squared n)
 	(defq r (slice +vp_rregs_0_14 0 (dec (if (>= *vsp* 4) 5 *vsp*))))
-	(if (/= (length r) 0) (apply vp-push r))
+	(if (/= (length r) 0) (apply (const vp-push) r))
 	(call :sys_math :f_sqrt (vec-top 1) (vec-top 1))
-	(if (/= (length r) 0) (apply vp-pop r)))
+	(if (/= (length r) 0) (apply (const vp-pop) r)))
 
 (defun vec-fdistance-squared (n)
 	(vec-sub n)

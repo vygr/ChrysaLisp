@@ -25,7 +25,7 @@
 (defun Record (id layer_line)
 	(defq p1 (slice layer_line +layer_line_x1 +layer_line_x2)
 		p2 (slice layer_line +layer_line_x2 +layer_line_radius)
-		pv (apply fixeds (vector-perp-2d (vector-sub p2 p1)))
+		pv (apply (const fixeds) (vector-perp-2d (vector-sub p2 p1)))
 		l (vector-length pv))
 	(if (= l 0.0)
 		(defq norm +fixeds_zero2 dist 0.0)

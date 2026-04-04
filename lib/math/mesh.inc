@@ -14,7 +14,7 @@
 	`(nums ,i0 ,i1 ,i2 ,in))
 
 (defun Normal (p0 p1 p2)
-	(defq n (apply reals (vector-cross-3d
+	(defq n (apply (const reals) (vector-cross-3d
 			(vector-sub p0 p1 +reals_tmp3)
 			(vector-sub p0 p2 (const (cat +reals_tmp3)))))
 		d (vector-dot n n))

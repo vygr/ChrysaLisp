@@ -71,7 +71,7 @@
 		non_selected (filter (# (not (bits? (elem-get %0 2) +group_selected))) *committed_groups*))
 	(when (nempty? selected)
 		(snapshot)
-		(defq all_strokes (apply cat (map second selected))
+		(defq all_strokes (apply (const cat) (map second selected))
 			new_group (create-group all_strokes +group_selected))
 		(setq *committed_groups* (cat non_selected (list new_group)))
 		(redraw-layers +layer_all)))
@@ -81,7 +81,7 @@
 	(when (some (# (bits? (elem-get %0 2) +group_selected)) *committed_groups*)
 		(snapshot)
 		(setq *committed_groups*
-			(apply cat (map (lambda (group)
+			(apply (const cat) (map (lambda (group)
 				(if (bits? (elem-get group 2) +group_selected)
 					;split: each stroke becomes its own group, marked selected
 					(map (# (create-group (list %0) +group_selected)) (second group))
