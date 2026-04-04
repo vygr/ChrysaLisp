@@ -243,8 +243,7 @@
 	; (Mesh-obj stream) -> mesh
 	(defq verts (reals) tris (nums))
 	(lines! (lambda (line)
-		(defq tokens (split (trim line) +char_class_space))
-		(when (nempty? tokens)
+		(when (nempty? (defq tokens (split (trim line) +char_class_space)))
 			(defq type (first tokens))
 			(cond
 				((eql type "v")
@@ -261,15 +260,13 @@
 		stream)
 	(bind '(min_v max_v) (vector-bounds-3d verts +vec4_size))
 	(defq center (vector-scale (vector-add min_v max_v) +real_1/2)
-		extent (vector-sub max_v min_v)
-		radius (* (reduce max extent) +real_1/2)
-		inv_radius (if (> radius +real_0) (/ (const (n2r 1)) radius) +real_1)
-		new_verts (reals))
-	(each (lambda ((x y z _))
-			(push new_verts (vector-scale (vector-sub (reals x y z) center) inv_radius) +real_1))
-		(partition verts +vec4_size))
-	(bind '(norms tris) (gen-norms new_verts tris))
-	(bind '(verts norms tris) (opt-mesh new_verts norms tris))
+		radius (* (reduce (const max) (vector-sub max_v min_v)) +real_1/2)
+		radius (if (> radius +real_0) (recip radius) +real_1)
+		verts (reduce (lambda (v (x y z _))
+				(push v (vector-scale (vector-sub (reals x y z) center) radius) +real_1))
+			(partition verts +vec4_size) (reals)))
+	(bind '(norms tris) (gen-norms verts tris))
+	(bind '(verts norms tris) (opt-mesh verts norms tris))
 	(lower :verts :norms :tris))
 
 ;module
