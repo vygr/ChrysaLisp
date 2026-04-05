@@ -272,7 +272,7 @@
 		  ;in-place SIMD math.
 		  verts (reduce (#
 					(push %0 (vector-scale (vector-sub %1 center %1) radius %1)))
-				(partition verts +vec4_size) (reals)))
+				(partition verts +vec4_size) (cap (length verts) (reals))))
 	(bind '(norms tris) (gen-norms verts tris))
 	(bind '(verts norms tris) (opt-mesh verts norms tris))
 	(lower :verts :norms :tris))
