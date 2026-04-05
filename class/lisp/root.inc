@@ -1076,25 +1076,26 @@
 (defun str-to-real (%0)
 	; (str-to-real str) -> real
 	; handles scientific notation like 1.5e-3 or 9.97231e-09
-	(defq int_val 0 frac_val 0 frac_scale 1 exp_val 0
-		exp_neg :nil in_exp :nil in_frac :nil)
+	(defq result (const (n2r 0)) frac_val (const (n2r 0)) frac_scale (const (n2r 1))
+		exp_val 0 exp_neg :nil in_exp :nil in_frac :nil)
 	(each (# (cond
 		((eql %0 "-") (if in_exp (setq exp_neg :t)))
-		((eql %0 ".") (unless in_exp (setq in_frac :t)))
+		((eql %0 "+") :nil)
+		((eql %0 ".") (ifn in_exp (setq in_frac :t)))
 		((find %0 "eE") (setq in_exp :t))
 		((defq d (find %0 "0123456789"))
 			(if in_exp
-				(setq exp_val (+ (* exp_val 10) d))
+				(setq exp_val (min 325 (+ (* exp_val 10) d)))
 				(if in_frac
-					(setq frac_val (+ (* frac_val 10) d) frac_scale (* frac_scale 10))
-					(setq int_val (+ (* int_val 10) d))))))) %0)
-	(defq result (n2r int_val))
-	(when (> frac_scale 1)
-		(setq result (+ result (/ (n2r frac_val) (n2r frac_scale)))))
+					(setq frac_val (+ (* frac_val (const (n2r 10))) (n2r d))
+						frac_scale (* frac_scale (const (n2r 10))))
+					(setq result (+ (* result (const (n2r 10))) (n2r d)))))))) %0)
+	(when (> frac_scale (const (n2r 1)))
+		(setq result (+ result (/ frac_val frac_scale))))
 	(when (> exp_val 0)
-		(setq result (if exp_neg
-			(/ result (n2r (pow 10 exp_val)))
-			(* result (n2r (pow 10 exp_val))))))
+		(times exp_val (setq result (if exp_neg
+			(/ result (const (n2r 10)))
+			(* result (const (n2r 10)))))))
 	(if (eql (first %0) "-") (neg result) result))
 
 (defun str-as-num (%0)
