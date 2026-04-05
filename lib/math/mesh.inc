@@ -42,12 +42,12 @@
 				(elem-get vert_map i1)
 				(elem-get vert_map i2)
 				(elem-get norm_map in)))
-		(partition tris +tri_size) (nums)))
+		(partition tris +tri_size) (cap (length tris) (nums))))
 	(list new_verts new_norms new_tris))
 
 (defun gen-norms (verts tris)
 	; (gen-norms verts tris) -> (norms new_tris)
-	(defq norms (reals) new_tris (nums))
+	(cap (length tris) (defq norms (reals)) (defq new_tris (nums)))
 	(each (lambda ((i0 i1 i2 &ignore))
 		(push new_tris i0 i1 i2 (/ (length norms) +vec3_size))
 		(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
@@ -233,11 +233,10 @@
 
 (defclass Mesh-data (num_verts num_norms num_tris data) (Mesh)
 	; (Mesh-data num_verts num_norms num_tris data) -> mesh
-	(defq verts (reals) norms (reals) tris (nums) i 0)
-	(push verts (slice data i (++ i (* num_verts (const (* +long_size +vec4_size))))))
-	(push norms (slice data i (++ i (* num_norms (const (* +long_size +vec3_size))))))
-	(push tris (slice data i (++ i (* num_tris (const (* +long_size +tri_size))))))
-	(lower :verts :norms :tris))
+	(lower
+		(:verts (push (reals) (slice data (defq i 0) (++ i (* num_verts (const (* +long_size +vec4_size)))))))
+		(:norms (push (reals) (slice data i (++ i (* num_norms (const (* +long_size +vec3_size)))))))
+		(:tris (push (nums) (slice data i (++ i (* num_tris (const (* +long_size +tri_size)))))))))
 
 (defclass Mesh-obj (stream) (Mesh)
 	; (Mesh-obj stream) -> mesh
