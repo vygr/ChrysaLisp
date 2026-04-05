@@ -72,7 +72,7 @@
 						(dispatch-job key val)))
 				((= idx +select_reply)
 					;child worker response
-					(defq key (str-as-num (pop (defq msg (split msg (ascii-char 10)))))
+					(defq key (str-as-num (pop (defq msg (split msg "\n"))))
 						error_flag :nil)
 					(each (# (cond
 						((starts-with "Error:" %0)

@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defq +debug_width 60 +LF (ascii-char 10))
+(defq +debug_width 60 +LF "\n")
 
 (structure +debug 0
 	(netid reply origin)
@@ -55,9 +55,9 @@
 	(apply (const cat) (push msg +LF)))
 
 (defun debug-msg (rval sform e n)
-    (when (defq service (debug-service))
-        (debug-ipc service 0 (if (eql *debug_state* ":forward")
-            "" (debug-info rval sform e n))))
+	(when (defq service (debug-service))
+		(debug-ipc service 0 (if (eql *debug_state* ":forward")
+			"" (debug-info rval sform e n))))
 	rval)
 
 (defun debug-brk-func (break_info condition)

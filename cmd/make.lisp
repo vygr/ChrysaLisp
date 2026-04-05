@@ -23,7 +23,7 @@
 	test:       test make timings.")
 ))
 
-(defq +LF (ascii-char 10))
+(defq +LF "\n")
 
 (defun information (stream info)
 	(when (nempty? info)

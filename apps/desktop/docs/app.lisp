@@ -63,7 +63,7 @@
 		(lines! (lambda (line)
 				(task-slice)
 				(catch (setq state ((handler-func state)
-							state page (trim-end line (ascii-char 13))))
+							state page (trim-end line "\r")))
 					(progn (prin _) (print) (setq state :text) :t)))
 			(file-stream file))
 		(catch ((handler-func state) state page "")

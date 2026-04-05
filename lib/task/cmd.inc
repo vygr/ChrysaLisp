@@ -34,7 +34,7 @@
 (defun pipe-farm (jobs &optional retry_timeout)
 	; (pipe-farm jobs [retry_timeout]) -> ((job result) ...)
 	;run pipe farm and collect output
-	(task-count -1)	;we will be only collating results !
+	(task-count -1) ;we will be only collating results !
 	(setd retry_timeout 1000000)
 	(defq timer_rate (/ 1000000 1) working :t results (cap (length jobs) (list))
 		retry_timeout (task-timeout retry_timeout)
@@ -56,7 +56,7 @@
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child worker response
-				(defq key_pos (find (ascii-char 10) msg)
+				(defq key_pos (find "\n" msg)
 					key (str-as-num (slice msg 0 key_pos))
 					msg (slice msg (inc key_pos) -1))
 				(when (defq val (. farm :find key))
@@ -71,7 +71,7 @@
 				(mail-timeout (elem-get select +select_timer) timer_rate 0)
 				(. farm :refresh retry_timeout))))
 	(. farm :close)
-	(task-count 1)	;we where only collating results !
+	(task-count 1)  ;we where only collating results !
 	results)
 
 ;module

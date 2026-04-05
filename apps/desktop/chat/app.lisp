@@ -26,7 +26,7 @@
 (defun vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
-			((eql c (ascii-char 10))
+			((eql c "\n")
 				;line feed and truncate
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice buf (const (dec (neg vdu_height))) -1))))
@@ -35,7 +35,7 @@
 	(. vdu :load buf 0 0 (length (last buf)) (dec (length buf))) buf)
 
 (defun broadcast (text)
-	(setq text (cat "<" (get :clear_text chat_user) "> " text (ascii-char 10)))
+	(setq text (cat "<" (get :clear_text chat_user) "> " text "\n"))
 	(each (# (mail-send (hex-decode (second (split %0 ","))) text)) (mail-enquire "*Chat")))
 
 (defun tooltips ()

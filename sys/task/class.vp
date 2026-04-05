@@ -448,7 +448,7 @@
 			(call :host_os :pii_write_str `(2 " ("))
 			(vp-pop node_offset)
 			(call :host_os :pii_write_num `(2 ,node_offset 10))
-			(call :host_os :pii_write_str `(2 ,(cat ")" (ascii-char 10))))
+			(call :host_os :pii_write_str '(2 ")\n"))
 		(endif)
 		(vp-add-cr +ptr_size sptr)
 	(loop-end)
@@ -465,7 +465,7 @@
 		(call :host_os :pii_write_str `(2 " "))
 		(assign `((,sptr +lisp_stream_line)) `(,node))
 		(call :host_os :pii_write_num `(2 ,node 10))
-		(call :host_os :pii_write_str `(2 ,(cat ")" (ascii-char 10))))
+		(call :host_os :pii_write_str '(2 ")\n"))
 	(endif)
 	(jump :sys_task :stop)
 

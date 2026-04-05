@@ -6,7 +6,7 @@
 (env-push)
 
 (setq *profile_map* (env 101))
-(defq +LF (ascii-char 10))
+(defq +LF "\n")
 
 (defun profile-service ()
 	(when (/= 0 (length (defq services (mail-enquire "*Profile"))))

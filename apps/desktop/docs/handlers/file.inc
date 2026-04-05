@@ -20,7 +20,7 @@
 			(cond
 				((eql end_exp "")
 					(while (and end_exp (defq line (read-line stream)))
-						(if (or (eql line "") (eql line (ascii-char 13)))
+						(if (or (eql line "") (eql line "\r"))
 							(setq end_exp :nil)
 							(push lines line))))
 				(end_exp
@@ -32,7 +32,7 @@
 						(push lines line))))
 			;trim and left align
 			(defq margin +max_int lines (map (#
-				(setq %0 (trim %0 (ascii-char 13)))
+				(setq %0 (trim %0 "\r"))
 				(and (defq m (find "(" %0)) (setq margin (min m margin)))
 				%0) lines))
 			(and (/= margin 0) (/= margin +max_int)

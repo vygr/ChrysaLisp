@@ -54,7 +54,7 @@
 (defun vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
-			((eql c (ascii-char 10))
+			((eql c "\n")
 				;line feed and truncate
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice buf (const (dec (neg vdu_height))) -1))))

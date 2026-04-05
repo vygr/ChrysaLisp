@@ -5,8 +5,8 @@
 (import "././system/terminal/state.inc")
 
 (defq tmbox (mail-mbox)
-	+LF (ascii-char 10)
-	+CR (ascii-char 13)
+	+LF "\n"
+	+CR "\r"
 	+ESC (ascii-char 27)
 	+CSI (cat +ESC "[")
 	+state_filename "terminal.tre"

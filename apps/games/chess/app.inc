@@ -1,5 +1,5 @@
 ;lf macro
-(defmacro LF () (ascii-char 10))
+(defmacro LF () "\n")
 
 ;board square/piece types
 (defq +white 1 +empty 0 +black -1)

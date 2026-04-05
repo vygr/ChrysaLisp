@@ -14,7 +14,7 @@
 
 ;redirect print
 (redefun print (&rest args)
-	(push *msg* (apply (const str) (push args (ascii-char 10)))))
+	(push *msg* (apply (const str) (push args "\n"))))
 
 ;debug options
 (case :nil
