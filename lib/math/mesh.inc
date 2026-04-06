@@ -261,18 +261,14 @@
 							(setq i2 (dec (if (< i2 0) (+ num_v i2 1) i2)))
 							(push tris i0 i1 i2 0)
 							(setq i1 i2)) (slice f 2 -1))))))) stream)
-	(bind '(min_v max_v) (vector-bounds-3d verts +vec4_size))
-	(defq radius (* (reduce (const max) (vector-sub max_v min_v)) +real_1/2)
-		  ;assemble the 4D center in one shot using the calculated radius
-		  center (push (vector-scale (vector-add min_v max_v) +real_1/2)
-					(if (> radius +real_0) (- +real_1 radius) +real_0))
-		  ;mutate radius to its reciprocal for the scale multiplier
-		  radius (if (> radius +real_0) (recip radius) +real_1)
-		  ;in-place SIMD math.
-		  verts (reduce (#
-					(push %0 (vector-scale (vector-sub %1 center %1) radius %1)))
-				(partition verts +vec4_size) (cap (length verts) (reals))))
-	(bind '(norms tris) (gen-norms verts tris))
+	(bind '((cx cy cz) scale) (vector-bounds-sphere verts +vec4_size))
+	(defq scale (if (> scale +real_0) (recip scale) +real_1)
+		matrix (reals
+			scale +real_0 +real_0 (* scale (neg cx))
+			+real_0 scale +real_0 (* scale (neg cy))
+			+real_0 +real_0 scale (* scale (neg cz))
+			+real_0 +real_0 +real_0 +real_1))
+	(bind '(norms tris) (gen-norms (mat4x4-vec4-mul matrix verts verts) tris))
 	(bind '(verts norms tris) (opt-mesh verts norms tris))
 	(lower :verts :norms :tris))
 
