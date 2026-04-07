@@ -51,3 +51,8 @@
 (defq arr_copy (copy arr_orig))
 ; In this environment, copy seems to return an eql object (same pointer?)
 (assert-true "array copy equal" (equal? arr_orig arr_copy))
+
+; --- swap ---
+(defq sw_arr (array 1 2 3))
+(swap sw_arr 0 2)
+(assert-list-eq "swap" '(3 2 1) (map identity sw_arr))

@@ -57,7 +57,7 @@
 
 	; System and Low-level
 	(import "tests/system/test_system.lisp")
-	(import "tests/system/test_root_utils.lisp")
+	(import "tests/system/test_fs_paths.lisp")
 	(import "tests/system/test_mail.lisp")
 
 	(print-summary)

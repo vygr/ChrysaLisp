@@ -14,3 +14,9 @@
 (assert-eq "get-int"   -1  (get-int raw_obj 3))
 (assert-eq "get-long"  0x123456789ABCDEF0 (get-long raw_obj 7))
 (assert-eq "get-str"   "HELLO" (get-str raw_obj 15 5))
+
+; --- type-to-size ---
+(assert-eq "type-to-size int" +int_size (type-to-size 'i))
+(assert-eq "type-to-size ubyte" +byte_size (type-to-size 'ub))
+; type-to-size in root.inc has a default that returns nil or +long_size depending on match
+(assert-eq "type-to-size default" :nil (type-to-size 'unknown))

@@ -19,3 +19,18 @@
 (assert-true "mail-nodes" (seq? (mail-nodes)))
 (defq mbox_test (mail-mbox))
 (assert-true "mail-validate" (mail-validate mbox_test))
+
+; --- System info ---
+(assert-true "abi" (sym? (abi)))
+
+; --- Debug/Profile stubs ---
+(profile-report "test")
+(assert-true "profile-report" :t)
+
+; --- freq-update / freq-print ---
+; These are currently commented out in root.inc, but let's check if they exist
+(if (def? 'freq-update)
+	(progn
+		(freq-update 'test_key)
+		(assert-true "freq-update" :t))
+	(print "[SKIP] freq-update not defined"))

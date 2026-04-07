@@ -47,3 +47,24 @@
 
 ; --- Time Utils ---
 (assert-eq "time-in-seconds" "1.234567" (time-in-seconds 1234567))
+
+; --- String root parsing utilities ---
+(assert-eq "str-as-num" 123 (str-as-num "123"))
+
+(assert-eq "str-to-real int" (n2r 123) (str-to-real "123"))
+(assert-eq "str-to-real zero" (n2r 0) (str-to-real "0"))
+(assert-eq "str-to-real neg int" (n2r -45) (str-to-real "-45"))
+(assert-true "str-to-real returns real" (real? (str-to-real "1")))
+
+; Float tests
+(defq f05 (str-to-real "0.5"))
+(assert-true "str-to-real 0.5 is real" (real? f05))
+(assert-eq "str-to-real 0.5 type" :real (last (type-of f05)))
+
+; Scientific notation tests
+(assert-eq "str-to-real 1e2" (n2r 100) (str-to-real "1e2"))
+(assert-true "str-to-real 1e-2" (real? (str-to-real "1e-02")))
+(assert-true "str-to-real 9.97231e-09" (real? (str-to-real "9.97231e-09")))
+
+(defq cs "ABC\x00DEF")
+(assert-eq "get-cstr" "ABC" (get-cstr cs 0))

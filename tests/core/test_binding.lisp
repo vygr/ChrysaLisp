@@ -79,3 +79,20 @@
 (defclass TestClassExtra () :nil (defmethod :test (this) 123))
 (export-classes '(TestClassExtra))
 (assert-true "export-classes" (not (nil? (get 'TestClassExtra))))
+
+; --- exec ---
+(defq exec_res :nil)
+(exec '(setq exec_res 123))
+(assert-eq "exec" 123 exec_res)
+
+; --- export / export-symbols ---
+(defq e_dst (env))
+((lambda ()
+	(defq exported_val 999)
+	(export e_dst '(exported_val))))
+(assert-eq "export root" 999 (get 'exported_val e_dst))
+
+(defq *test_export_sym* 123)
+(defq e_dst2 (env))
+(export e_dst2 '(*test_export_sym*))
+(assert-eq "export direct root" 123 (get '*test_export_sym* e_dst2))
