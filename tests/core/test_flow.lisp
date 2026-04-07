@@ -24,6 +24,9 @@
 	(:t "C")))
 (assert-eq "Cond" "B" cond_res)
 
+(assert-eq "cond passthrough" 123 (cond (:nil) (123)))
+(assert-eq "cond passthrough 2" 45 (cond (45) (123)))
+
 (assert-eq "Case" "two" (case 2 (1 "one") (2 "two") (3 "three")))
 (assert-eq "Case list keys" "even" (case 2 ((1 3) "odd") ((2 4) "even") (:t "unknown")))
 (assert-eq "Case default" "many" (case 5 (1 "one") (:t "many")))
@@ -49,12 +52,17 @@
 
 (assert-eq "ifn true"  "no"  (ifn :t "yes" "no"))
 (assert-eq "ifn false" "yes" (ifn :nil "yes" "no"))
+(assert-eq "ifn passthrough" 123 (ifn 123 45)) ; test form is true, so it passes it through!
+(assert-eq "ifn default" 45 (ifn :nil 45))       ; test form is false, evaluates the default
 
 (defq condn_res (condn
 	((= 1 1) "A")
 	((= 1 2) "B")
 	(:t "C")))
 (assert-eq "condn" "B" condn_res)
+
+(assert-eq "condn passthrough" 456 (condn (456)))
+(assert-eq "condn false passthrough" :nil (condn (123) (:nil)))
 
 ; --- Logical Macros ---
 (assert-true "AND logic" (and :t :t))
