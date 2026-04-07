@@ -102,3 +102,10 @@
 (assert-list-eq "static-qq" '(10 20 30) (static-qq (,sq_a ,sq_b 30)))
 (assert-list-eq "static-qq splice" '(10 20 30) (static-qq (~(list 10 20) 30)))
 (assert-list-eq "static-qqp" '(1 2 3) (static-qqp (1 2 3)))
+
+; --- nested #
+(defq out_a (list) out_b (list))
+(map (# (push out_a %0) (map (# (bind '(%%0 %%1) %0) (push out_b %0 %1)) %0))
+	'(((1 a) (2 b) (3 c)) ((4 d) (5 e) (6 f)) ((7 x) (8 y) (9 z))))
+(assert-list-eq "nested # a" '(((1 a) (2 b) (3 c)) ((4 d) (5 e) (6 f)) ((7 x) (8 y) (9 z))) out_a)
+(assert-list-eq "nested # b" '(1 a 2 b 3 c 4 d 5 e 6 f 7 x 8 y 9 z) out_b)
