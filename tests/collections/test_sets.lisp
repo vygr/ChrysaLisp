@@ -66,3 +66,98 @@
 (. fm1 :erase 'b)
 (assert-eq "Fmap 1-bucket erase b" :nil (. fm1 :find 'b))
 (assert-eq "Fmap 1-bucket still a" 1 (. fm1 :find 'a))
+
+(defmacro test-set-variety (name constructor)
+	`(progn
+		(report-header (cat "Set: " ,name))
+		(defq s (,constructor))
+
+		; insert / find
+		(. s :insert "A")
+		(assert-eq (cat ,name " find existing") "A" (. s :find "A"))
+		(assert-eq (cat ,name " find missing") :nil (. s :find "B"))
+
+		; inserted
+		(if (eql ,name "Fset")
+			(progn
+				(assert-true (cat ,name " inserted new") (. s :inserted "B"))
+				(assert-true (cat ,name " inserted existing") (not (. s :inserted "A"))))
+			(progn
+				(assert-true (cat ,name " inserted new") (not (. s :inserted "B")))
+				(assert-true (cat ,name " inserted existing") (. s :inserted "A"))))
+
+		; intern
+		(assert-eq (cat ,name " intern existing") "A" (. s :intern "A"))
+		(assert-eq (cat ,name " intern new") "C" (. s :intern "C"))
+
+		; each
+		(defq items (list))
+		(. s :each (lambda (i) (push items i)))
+		(assert-eq (cat ,name " each count") 3 (length items))
+
+		; copy / isolation
+		(defq s2 (. s :copy))
+		(. s2 :insert "D")
+		(assert-eq (cat ,name " copy isolation") :nil (. s :find "D"))
+
+		; deep_copy
+		(defq complex_item (list 1 2))
+		(. s :insert complex_item)
+		(defq s_dc (. s :deep_copy))
+		(defq found_item (. s_dc :find complex_item))
+		(assert-true (cat ,name " deep_copy equal") (equal? complex_item found_item))
+		(assert-true (cat ,name " deep_copy not eql") (not (eql (weak-ref complex_item) (weak-ref found_item))))
+
+		; set ops
+		(defq sa (,constructor) sb (,constructor))
+		(. sa :insert "1") (. sa :insert "2")
+		(. sb :insert "2") (. sb :insert "3")
+
+		(defq u (. (. sa :copy) :union sb))
+		(assert-true (cat ,name " union 1") (. u :find "1"))
+		(assert-true (cat ,name " union 3") (. u :find "3"))
+
+		(defq i (. (. sa :copy) :intersect sb))
+		(assert-eq (cat ,name " intersect") "2" (. i :find "2"))
+		(assert-eq (cat ,name " intersect miss") :nil (. i :find "1"))
+
+		(defq d (. (. sa :copy) :difference sb))
+		(assert-eq (cat ,name " diff") "1" (. d :find "1"))
+		(assert-eq (cat ,name " diff miss") :nil (. d :find "2"))
+
+		(defq ni (. (. sa :copy) :not_intersect sb))
+		(assert-true (cat ,name " ni 1") (. ni :find "1"))
+		(assert-true (cat ,name " ni 3") (. ni :find "3"))
+		(assert-eq (cat ,name " ni miss") :nil (. ni :find "2"))
+
+		; empty? / empty
+		(assert-true (cat ,name " not empty?") (not (. s :empty?)))
+		(. s :empty)
+		(assert-true (cat ,name " is empty?") (. s :empty?))
+
+		; move
+		(. s :insert "X")
+		(defq s3 (. s :move))
+		(assert-eq (cat ,name " move find") "X" (. s3 :find "X"))
+		(assert-true (cat ,name " move empty") (. s :empty?))
+
+		; erase
+		(. s3 :erase "X")
+		(assert-eq (cat ,name " erase") :nil (. s3 :find "X"))
+
+		; resize
+		(. s3 :insert "Y")
+		(. s3 :resize 23)
+		(assert-eq (cat ,name " resize find") "Y" (. s3 :find "Y"))
+	))
+
+(test-set-variety "Fset" (# (Fset 11)))
+(test-set-variety "Xset" (# (Xset 11)))
+
+(report-header "Custom Xset")
+(defun my-hash (s) (hash (to-lower s)))
+(defun my-cmp (a b) (eql (to-lower a) (to-lower b)))
+
+(defq cxs (Xset 11 my-cmp my-hash))
+(. cxs :insert "World")
+(assert-eq "custom Xset find" "World" (. cxs :find "WORLD"))

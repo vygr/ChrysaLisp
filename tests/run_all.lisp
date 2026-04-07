@@ -25,8 +25,10 @@
 	; Collections
 	(import "tests/collections/test_list.lisp")
 	(import "tests/collections/test_sets.lisp")
+	(import "tests/collections/test_maps.lisp")
 	(import "tests/collections/test_tree.lisp")
-	(import "tests/collections/test_collections_all.lisp")
+	(import "tests/collections/test_scatter_gather.lisp")
+	(import "tests/collections/test_memoize.lisp")
 
 	; Sequences
 	(import "tests/sequences/test_seq_ops.lisp")
