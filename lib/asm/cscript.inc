@@ -57,7 +57,7 @@
 			(:string
 				(push out_types :string)
 				(push out_tokens (slice line i (setq state :space j
-					(bskipn (ascii-char 34) line i))))
+					(bskipn "\q" line i))))
 				(setq unary :nil i (inc j)))
 			(:symbol
 				(push out_types

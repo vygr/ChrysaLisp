@@ -96,7 +96,7 @@
 					(push token_list (slice line i (setq state :text j l))))
 				(:string1
 					(push state_list :string1)
-					(if (setq j (find (ascii-char 34) line (inc i)))
+					(if (setq j (find "\q" line (inc i)))
 						(push token_list (slice line i (setq state :text j (inc j) i j)))
 						(push token_list (slice line i (setq j l)))))
 				(:string2

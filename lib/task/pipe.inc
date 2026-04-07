@@ -9,7 +9,7 @@
 
 (defun pipe-split (cmdline)
 	; (pipe-split cmdline) -> (e0 [e1] ...)
-	(defq i 0 out (list) quotes (partition (substr cmdline (ascii-char 34)) 2))
+	(defq i 0 out (list) quotes (partition (substr cmdline "\q") 2))
 	(each (lambda (((x x1)))
 		(unless (some (lambda ((((qx &)) ((& qx1)))) (<= qx x x1 qx1)) quotes)
 			(defq j i) (setq i x1) (push out (trim (slice cmdline j x)))))

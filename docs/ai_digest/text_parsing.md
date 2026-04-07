@@ -171,7 +171,7 @@ arguments.
 			(:space
 				; Consume whitespace
 				(when (< (setq i (bskip +char_class_white_space args i)) (length args))
-					(if (eql (elem-get args i) (ascii-char 34))
+					(if (eql (elem-get args i) "\q")
 						(setq i (inc i) state :quote)
 						(setq state :normal))))
 			(:normal
@@ -180,7 +180,7 @@ arguments.
 					(bskipn +char_class_white_space args i)))))
 			(:quote
 				; Find the closing quote
-				(push out (slice args i (setq i (bskipn (ascii-char 34) args i))))
+				(push out (slice args i (setq i (bskipn "\q" args i))))
 				(setq i (inc i) state :space))))
     out)
 ```
