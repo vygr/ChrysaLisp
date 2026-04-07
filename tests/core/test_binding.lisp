@@ -97,30 +97,6 @@
 (export e_dst2 '(*test_export_sym*))
 (assert-eq "export direct root" 123 (get '*test_export_sym* e_dst2))
 
-; --- Nested Lambda (#) Isolation ---
-;; (defq nested_hash_func
-;; 	(#
-;; 		(map
-;; 			(# (+ %0 1)) ; Inner %0 shadows outer %0 locally
-;; 			(list %0)    ; Outer %0
-;; 		)
-;; 	)
-;; )
-;; (assert-list-eq "nested # isolation" '(6) (nested_hash_func 5))
-
-;; ; Prove that %1 in the inner lambda does not leak to the outer signature
-;; (defq nested_hash_leak_test
-;; 	(#
-;; 		(map
-;; 			(# (+ %0 %1)) ; Needs 2 args locally
-;; 			(list 10)     ; Map passes 10 and 0
-;; 		)
-;; 	)
-;; )
-;; ; It creates a 0-arity lambda because NO variables leaked!
-;; (defq hl_res (nested_hash_leak_test)) 
-;; (assert-eq "nested # leak test" 10 (first hl_res))
-
 ; --- Quasi-Quotation (static-qq) ---
 (defq sq_a 10 sq_b 20)
 (assert-list-eq "static-qq" '(10 20 30) (static-qq (,sq_a ,sq_b 30)))
