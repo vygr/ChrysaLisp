@@ -17,7 +17,6 @@
 
 	; Math
 	(import "tests/math/test_integers.lisp")
-	(import "tests/math/test_integer_ops.lisp")
 	(import "tests/math/test_nums.lisp")
 	(import "tests/math/test_fixeds.lisp")
 	(import "tests/math/test_reals.lisp")

@@ -55,3 +55,12 @@
 	((= 1 2) "B")
 	(:t "C")))
 (assert-eq "condn" "B" condn_res)
+
+; --- Logical Macros ---
+(assert-true "AND logic" (and :t :t))
+(assert-eq   "AND short" :nil (and :nil (throw "Should not eval" :nil)))
+(assert-true "OR logic"  (or :nil :t))
+(assert-true  "when"   (when :t :t))
+(assert-true  "unless" (unless :nil :t))
+(assert-eq	"or short 2" 5 (or :nil 5))
+(assert-eq	"and short 2" 10 (and :t 10))
