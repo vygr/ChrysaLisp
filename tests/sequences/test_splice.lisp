@@ -51,3 +51,25 @@
 ; f2[2,1] -> 0.2
 (defq idxs6 (nums 0 1 2 1))
 (assert-true "Splice Fixeds: Dual Mixed" (equal? (fixeds 1.5 0.2) (splice f1 f2 idxs6)))
+
+; --- High-Level Splicing Macros (insert, erase, replace, rotate) ---
+
+(report-header "Sequence Splice Macros: insert, erase, replace, rotate")
+
+; insert (seq pos ins_seq)
+(defq ins_arr (array 1 3))
+(assert-true "insert array" (equal? (array 1 2 3) (insert ins_arr 1 (array 2))))
+
+; erase (seq start end)
+(defq er_list (list 'a 'b 'c 'd))
+(assert-list-eq "erase list" '(a d) (erase er_list 1 3))
+
+; replace (seq start end ins_seq)
+(defq rep_list (list 1 2 3 4))
+(assert-list-eq "replace list" '(1 9 9 4) (replace rep_list 1 3 (list 9 9)))
+
+; rotate (seq start mid end)
+; swaps [start, mid) with [mid, end)
+(defq rot_list (list 'A 'B 'C 'D 'E 'F))
+; rotate 1 3 5 -> swaps [1,3)="B C" with [3,5)="D E" -> A D E B C F
+(assert-list-eq "rotate list" '(A D E B C F) (rotate rot_list 1 3 5))
