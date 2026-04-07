@@ -10,6 +10,12 @@
 (setd setd_var 99)
 (assert-eq "setd keep" 42 setd_var)
 
+(defq setd_a :nil setd_b 15 setd_c :nil)
+(setd setd_a 10 setd_b 20 setd_c 30)
+(assert-eq "setd multi a" 10 setd_a)
+(assert-eq "setd multi b" 15 setd_b) ; should keep original
+(assert-eq "setd multi c" 30 setd_c)
+
 ; Scoping with lambda instead of let
 ((lambda (local_var)
 	(assert-eq "Lambda scoping" 50 local_var)) 50)
