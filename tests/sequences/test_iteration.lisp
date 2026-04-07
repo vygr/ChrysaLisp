@@ -23,3 +23,24 @@
 
 ; --- map! ---
 (assert-list-eq "map!" '(2 4 6) (map! (lambda (x) (* x 2)) (list (list 1 2 3))))
+
+; --- High Level Iterators (map, each, reduce, filter) ---
+(defq t_seq '(1 2 3 4))
+(assert-list-eq "map" '(2 4 6 8) (map (# (* %0 2)) t_seq))
+(assert-eq "reduce" 10 (reduce (const +) t_seq 0))
+(assert-list-eq "filter" '(2 4) (filter (const even?) t_seq))
+
+(defq acc_each_hl 0)
+(each (# (setq acc_each_hl (+ acc_each_hl %0))) t_seq)
+(assert-eq "each" 10 acc_each_hl)
+
+; --- Reverse Iterators (reverse, rmap, reach, rreduce, rsome) ---
+(assert-list-eq "reverse" '(4 3 2 1) (reverse t_seq))
+(assert-list-eq "rmap" '(8 6 4 2) (rmap (# (* %0 2)) t_seq))
+(assert-eq "rreduce" 10 (rreduce (const +) t_seq 0))
+
+(defq acc_reach "")
+(reach (# (setq acc_reach (cat acc_reach (str %0)))) t_seq)
+(assert-eq "reach" "4321" acc_reach)
+
+(assert-eq "rsome" 3 (rsome (# (if (odd? %0) %0 :nil)) t_seq))
