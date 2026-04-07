@@ -22,12 +22,11 @@
 
 (defun opt-vector (vector part)
 	; (opt-vector vector part) -> (new_vector new_indices)
-	(defq vec_map (Fmap 101) vec_imap (nums) new_vecs (reals))
+	(defq vec_map (Fmap 101) vec_imap (nums) new_vecs (reals) idx -1)
 	(each (#
 		(vector-quant %0 (const (n2r 0.0001)) %0)
 		(unless (defq i (. vec_map :find %0))
-			(setq i (/ (length new_vecs) part))
-			(. vec_map :insert %0 i)
+			(. vec_map :insert %0 (setq idx (inc idx) i idx))
 			(push new_vecs %0))
 		(push vec_imap i)) (partition vector part))
 	(list new_vecs vec_imap))
