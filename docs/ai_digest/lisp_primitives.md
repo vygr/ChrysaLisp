@@ -9,7 +9,7 @@
 ## Core Lisp Primitives
 
 These are the fundamental building blocks of the Lisp language and evaluation
-model, defined via FFI calls to the core Lisp class.
+model, defined via FFI calls to the core Lisp class or foundational macros.
 
 *   **`ffi`**: The Foreign Function Interface, used to bind a Lisp symbol to an
     underlying VP machine code implementation. This is the foundation for
@@ -25,6 +25,119 @@ model, defined via FFI calls to the core Lisp class.
 *   **`quasi-quote`**: Similar to `quote`, but allows for selective evaluation
     of sub-expressions within the form using `unquote` (`,`) and
     `unquote-splicing` (`~`).
+
+*   **`progn`**: Evaluates a sequence of forms and returns the value of the
+    last one.
+
+    * `(progn [body]) -> 'form`
+
+*   **`catch`**: Evaluates a form. If a `throw` occurs during its execution,
+    the error form is evaluated.
+
+    * `(catch form eform) -> 'form`
+
+*   **`throw`**: Unwinds the stack until a matching `catch` is found.
+
+    * `(throw str form)`
+
+*   **`bind`**: Destructures a sequence, binding its elements to a list of
+    symbols.
+
+    * `(bind (sym ...) seq) -> val`
+
+*   **`identity`**: Returns its argument unchanged.
+
+    * `(identity [form]) -> :nil | form`
+
+## Evaluation and Metaprogramming Functions
+
+These are the core tools for defining new functions, macros, and
+controlling evaluation.
+
+*   **`eval`**: Evaluates a Lisp form.
+
+    * `(eval form [env]) -> 'form`: Executes the form within the specified
+        (or current) environment.
+
+*   **`eval-list`**: Evaluates each element in a list.
+
+    * `(eval-list list [env]) -> list`
+
+*   **`apply`**: Calls a function with a list of arguments.
+
+    * `(apply lambda seq) -> form`
+
+*   **`macroexpand`**: Expands a macro call, showing what code it generates
+    without executing it.
+
+    * `(macroexpand form) -> 'form`
+
+*   **`prebind`**: A performance optimization that resolves symbol lookups
+    in a form at compile-time rather than runtime.
+
+    * `(prebind form) -> form`
+
+*   **`macrobind`**: Prebinds and macroexpands a form.
+
+    * `(macrobind form) -> (prebind (macroexpand form))`
+
+*   **`exec`**: Evaluates a macrobinded form.
+
+    * `(exec form)`
+
+*   **`const`**: Evaluates a form at compile time.
+
+    * `(const form)`
+
+*   **`static-q`**: Statically quotes a form.
+
+    * `(static-q form) -> 'form`
+
+*   **`static-qq`**: Statically quasi-quotes a form.
+
+    * `(static-qq form) -> `form`
+
+*   **`static-qqp`**: Statically quasi-quotes a form, prebind only.
+
+    * `(static-qqp form) -> `form`
+
+*   **`read`**: Reads a single S-expression from a stream.
+
+    * `(read stream [last_char]) -> :nil | (form next_char)`
+
+*   **`repl`**: Starts a Read-Eval-Print Loop on a given stream.
+
+    * `(repl stream name) -> form`
+
+*   **`repl-info`**: Returns the name and current line number of the file
+    being processed by the REPL.
+
+    * `(repl-info) -> (name line)`
+
+*   **`defun` / `redefun`**: Defines a new function.
+
+    * `(defun name ([arg ...]) body)`: Binds `name` to a new lambda
+      function.
+
+    * `(redefun name ([arg ...]) body)`: Re-defines an existing function.
+
+*   **`defmacro` / `redefmacro`**: Defines a new macro.
+
+    * `(defmacro name ([arg ...]) body)`: Binds `name` to a new macro.
+
+    * `(redefmacro name ([arg ...]) body)`: Re-defines an existing macro.
+
+*   **`callback`**: Creates a callback.
+
+    * `(callback lambda env arg ...)`
+
+*   **`setd`**: Sets default values for symbols.
+
+    * `(setd sym val [sym val] ...)`
+
+*   **`#`**: A reader macro for creating lambdas.
+
+    * `(# (< %9 %0 %3) ...)`
 
 ## Conditional and Control Flow Functions
 
@@ -164,25 +277,139 @@ combining sequences like lists, arrays, and strings.
 
     * `(cat seq ...) -> seq`
 
-*   **`sort`**: Sorts a list.
+*   **`join`**: Joins a sequence of sequences with a separator.
 
-    * `(sort list [fcmp start end]) -> list`
+    * `(join seqs seq [mode]) -> seq`
 
-*   **`swap`**: Swaps two elements in a list.
+*   **`unzip`**: Unzips a sequence into a sequence of sequences.
 
-    * `(swap list idx idx)`
+    * `(unzip seq cnt) -> seqs`
 
-*   **`shuffle`**: Shuffles a list.
+*   **`zip`**: Zips multiple sequences into a single sequence.
 
-    * `(shuffle list [start end]) -> list`
+    * `(zip seq ...) -> seq`
 
-*   **`range`**: Creates a list of numbers within a specified range.
+*   **`unique`**: Removes duplicate elements from a sequence.
 
-    * `(range start end [step]) -> list`
+    * `(unique seq) -> seq`
 
-*   **`each-mergeable`**: Applies a lambda to each element of a sequence.
+*   **`flatten`**: Flattens a nested list.
 
-    * `(each-mergeable lambda seq) -> seq`
+    * `(flatten list) -> list`
+
+*   **`max-length`**: Returns the maximum length of a list of lists.
+
+    * `(max-length list) -> max`
+
+*   **`min-length`**: Returns the minimum length of a list of lists.
+
+    * `(min-length list) -> min`
+
+*   **`erase`**: Erases a part of a sequence.
+
+    * `(erase seq start end) -> seq`
+
+*   **`insert`**: Inserts a sequence into another sequence.
+
+    * `(insert seq pos seq) -> seq`
+
+*   **`replace`**: Replaces a part of a sequence with another sequence.
+
+    * `(replace seq start end seq) -> seq`
+
+*   **`rotate`**: Rotates a part of a sequence.
+
+    * `(rotate seq start mid end) -> seq`
+
+*   **`reverse`**: Reverses a sequence.
+
+    * `(reverse seq) -> seq`
+
+## Sequence Searching and Matching Functions
+
+These functions are used to find elements or subsequences within a sequence,
+with specialized functions for character classes.
+
+*   **`find` / `rfind`**: Perform a linear search for an element in a
+    sequence.
+
+    * `(find elem seq [idx]) -> :nil | idx`: Searches forward from the
+        beginning (or an optional start `idx`) and returns the index of the
+        first match.
+
+    * `(rfind elem seq [idx]) -> :nil | idx`: Searches backward from the end
+        (or an optional start `idx`).
+
+*   **`bfind`**: Performs a fast binary search to check if a character exists
+    within a sorted character class string.
+
+    * `(bfind char cls) -> :nil | idx`: Returns the index if the character is
+      found, otherwise `:nil`.
+
+*   **`bskip`**: Moves an index forward in a string as long as the characters
+    are present in the given character class.
+
+    * `(bskip cls str idx) -> idx`: Returns the new index after skipping all
+      matching characters.
+
+*   **`bskipn`**: Moves an index forward in a string as long as the characters
+    are *not* present in the given character class.
+
+    * `(bskipn cls str idx) -> idx`: The inverse of `bskip`.
+
+*   **`rbskip`**: Moves an index backward in a string as long as the characters
+    are present in the given character class.
+
+    * `(rbskip cls str idx) -> idx`
+
+*   **`rbskipn`**: Moves an index backward in a string as long as the characters
+    are *not* present in the given character class.
+
+    * `(rbskipn cls str idx) -> idx`
+
+## Sequence Operation Functions (Iterators)
+
+ChrysaLisp's design heavily favors iteration over recursion. The `...!`
+functions are the core iterative primitives for operating on sequences like
+lists and arrays.
+
+*   **`each!`**: Iterates over one or more sequences, applying a lambda
+    function to the elements at each index.
+
+    * `(each! lambda seqs [start end])`: Applies the `lambda` to corresponding
+      elements from each sequence in `seqs`.
+
+*   **`some!`**: Similar to `each!`, but stops and returns the first non
+    `:nil` value returned by the lambda.
+
+    * `(some! lambda seqs [mode start end]) -> :nil | val`: The `mode`
+      argument can alter the termination condition.
+
+*   **`map!`**: Applies a lambda to elements from sequences and collects the
+    results into a new list.
+
+    * `(map! lambda seqs [out start end]) -> out | (...)`: If an `out` list is
+      provided, results are pushed into it; otherwise, a new list is created.
+
+*   **`reduce!`**: Accumulates a single value by repeatedly applying a lambda
+    to an accumulator and elements from sequences.
+
+    * `(reduce! lambda seqs init [start end]) -> val`: The `init` value is the
+      starting point for the reduction.
+
+*   **`filter!`**: Creates a new list containing only the elements from a
+    sequence for which the lambda returns a non `:nil` value.
+
+    * `(filter! lambda seq [out start end]) -> out | (...)`
+
+*   **`lines!`**: Iterates over each line in a stream, applying a lambda.
+
+    * `(lines! lambda stream [start end]) -> :nil`
+
+*   **`!`**: A special anaphoric symbol available inside `...!` loops that
+    returns the current iteration index.
+
+    * `(each! (# (print (!))) my-list)`
 
 *   **`each`**: Applies a lambda to each element of one or more sequences.
 
@@ -216,65 +443,101 @@ combining sequences like lists, arrays, and strings.
 
     * `(filter lambda seq) -> list`
 
-*   **`reverse`**: Reverses a sequence.
+*   **`some`**: Applies a lambda to each element of a sequence, returning the
+    first non-nil result.
 
-    * `(reverse seq) -> seq`
+    * `(some lambda seq ...)`
+
+*   **`rsome`**: Applies a lambda to each element of a sequence in reverse,
+    returning the first non-nil result.
+
+    * `(rsome lambda seq ...)`
+
+*   **`every`**: Applies a lambda to each element of a sequence, returning true
+    if all results are non-nil.
+
+    * `(every lambda seq ...)`
+
+*   **`notany`**: Applies a lambda to each element of a sequence, returning
+    true if all results are nil.
+
+    * `(notany lambda seq ...)`
+
+*   **`notevery`**: Applies a lambda to each element of a sequence, returning
+    true if at least one result is nil.
+
+    * `(notevery lambda seq ...)`
+
+*   **`each-mergeable`**: Applies a lambda to each element of a sequence.
+
+    * `(each-mergeable lambda seq) -> seq`
+
+## Array and List Specific Functions
+
+These functions are specialized for mutable `:array` and `:list` data
+structures.
+
+*   **`cap`**: Sets the initial capacity of an array or list.
+
+    * `(cap len array ...) -> array`
+
+*   **`clear`**: Removes all elements from an array or list.
+
+    * `(clear array ...) -> array`
+
+*   **`push`**: Adds one or more elements to the end of an array or list.
+
+    * `(push array elem ...) -> array`
+
+*   **`pop`**: Removes and returns the last element from an array or list.
+
+    * `(pop array) -> elem | :nil` Returns `:nil` if empty.
+
+*   **`elem-set`**: Replaces the element at a specific index.
+
+    * `(elem-set array idx elem) -> array`
+
+*   **`merge`**: Merges the elements of a source list into a destination list,
+    ensuring uniqueness.
+
+    * `(merge dlist slist) -> dlist`
+
+*   **`pivot`**: Partitions a list around a pivot element for sorting
+    algorithms.
+
+    * `(pivot lambda list start end)`
+
+*   **`lmatch?`**: Compares two lists for structural and content equality.
+
+    * `(lmatch? list list) -> :nil | :t`
+
+*   **`copy`**: Creates a deep copy of a form.
+
+    * `(copy form) -> 'form`
+
+*   **`sort`**: Sorts a list.
+
+    * `(sort list [fcmp start end]) -> list`
+
+*   **`swap`**: Swaps two elements in a list.
+
+    * `(swap list idx idx)`
+
+*   **`shuffle`**: Shuffles a list.
+
+    * `(shuffle list [start end]) -> list`
+
+*   **`usort`**: Sorts a list and removes duplicate elements.
+
+    * `(usort list [fcmp start end]) -> list`
+
+*   **`range`**: Creates a list of numbers within a specified range.
+
+    * `(range start end [step]) -> list`
 
 *   **`lists`**: Creates a list of lists.
 
     * `(lists n) -> ((list0) ... (listn-1))`
-
-*   **`starts-with`**: Checks if a string starts with a given prefix.
-
-    * `(starts-with str str) -> :t | :nil`
-
-*   **`ends-with`**: Checks if a string ends with a given suffix.
-
-    * `(ends-with str str) -> :t | :nil`
-
-*   **`erase`**: Erases a part of a sequence.
-
-    * `(erase seq start end) -> seq`
-
-*   **`insert`**: Inserts a sequence into another sequence.
-
-    * `(insert seq pos seq) -> seq`
-
-*   **`replace`**: Replaces a part of a sequence with another sequence.
-
-    * `(replace seq start end seq) -> seq`
-
-*   **`rotate`**: Rotates a part of a sequence.
-
-    * `(rotate seq start mid end) -> seq`
-
-*   **`join`**: Joins a sequence of sequences with a separator.
-
-    * `(join seqs seq [mode]) -> seq`
-
-*   **`unzip`**: Unzips a sequence into a sequence of sequences.
-
-    * `(unzip seq cnt) -> seqs`
-
-*   **`zip`**: Zips multiple sequences into a single sequence.
-
-    * `(zip seq ...) -> seq`
-
-*   **`unique`**: Removes duplicate elements from a sequence.
-
-    * `(unique seq) -> seq`
-
-*   **`flatten`**: Flattens a nested list.
-
-    * `(flatten list) -> list`
-
-*   **`max-length`**: Returns the maximum length of a list of lists.
-
-    * `(max-length list) -> max`
-
-*   **`min-length`**: Returns the minimum length of a list of lists.
-
-    * `(min-length list) -> min`
 
 ## Predicates
 
@@ -398,11 +661,83 @@ combining sequences like lists, arrays, and strings.
 
     * `(even? num) -> :t | :nil`
 
-## Math Functions
+## Numeric and Arithmetic Functions
+
+This family contains functions for comparison, arithmetic, bitwise
+operations, and type conversion.
+
+### Comparison Operators
+
+*   `=` / `/=` / `<` / `>` / `<=` / `>=`: Standard numeric comparison
+    operators.
+
+    * `(= num num ...) -> :t | :nil`
+
+### Arithmetic Operators
+
+*   **`+` / `-` / `*` / `/` / `%`**: Standard arithmetic operations.
+
+    * `(+ num num ...) -> num`
+
+*   **`min` / `max`**: Return the minimum or maximum value from a sequence of
+    numbers.
+
+    * `(min num num ...) -> num`
+
+*   **`neg` / `abs`**: Negate a number or return its absolute value.
+
+    * `(neg num) -> num`
+
+    * `(abs num) -> num`
+
+### Bitwise and Logical Operators
+
+*   **`>>` / `>>>` / `<<`**: Bitwise right shift, arithmetic right shift, and
+    left shift.
+
+    * `(>> num cnt) -> num`
+
+    * `(>>> num cnt) -> num`
+
+    * `(<< num cnt) -> num`
+
+*   **`logand` / `logior` / `logxor`**: Bitwise AND, OR, and XOR operations.
+
+    * `(logand [num] ...) -> num`
+
+    * `(logior [num] ...) -> num`
+
+    * `(logxor [num] ...) -> num`
 
 *   **`lognot`**: Calculates the bitwise NOT of a number.
 
     * `(lognot num) -> num`
+
+*   **`bit-mask`**: Creates a bit mask.
+
+    * `(bit-mask &rest masks) -> val`
+
+### Type Conversion
+
+*   **`n2i` / `n2f` / `n2r`**: Convert a generic number to an integer,
+    fixed-point, or real number.
+
+    * `(n2i num) -> num`
+
+    * `(n2f num) -> fixed`
+
+    * `(n2r num) -> real`
+
+### Other Numeric Functions
+
+*   **`random`**: Generates a random number within a specified range.
+
+    * `(random num) -> num`
+
+*   **`num-intern`**: Interns a number, ensuring that identical numerical
+    values share the same object representation.
+
+    * `(num-intern num) -> num`
 
 *   **`log2`**: Calculates the base-2 logarithm of a number.
 
@@ -440,536 +775,9 @@ combining sequences like lists, arrays, and strings.
 
     * `(sign num) -> -1 | 0 | 1`
 
-*   **`quant`**: Quantizes a real number to a given tolerance.
-
-    * `(quant real tolerance) -> real`
-
-*   **`reals-quant`**: Quantizes a real vector to a given tolerance.
-
-    * `(reals-quant reals tolerance [out_reals]) -> reals`
-
-## Macros
-
-*   **`macrobind`**: Prebinds and macroexpands a form.
-
-    * `(macrobind form) -> (prebind (macroexpand form))`
-
-*   **`exec`**: Evaluates a macrobinded form.
-
-    * `(exec form)`
-
-*   **`const`**: Evaluates a form at compile time.
-
-    * `(const form)`
-
-*   **`static-q`**: Statically quotes a form.
-
-    * `(static-q form) -> 'form`
-
-*   **`static-qq`**: Statically quasi-quotes a form.
-
-    * `(static-qq form) -> `form`
-
-*   **`static-qqp`**: Statically quasi-quotes a form, prebind only.
-
-    * `(static-qqp form) -> `form`
-
-*   **`callback`**: Creates a callback.
-
-    * `(callback lambda env arg ...)`
-
-*   **`debug-brk`**: Creates a debug breakpoint.
-
-    * `(debug-brk brk_id [condition])`
-
-*   **`profile-report`**: Generates a profile report.
-
-    * `(profile-report name [reset])`
-
-*   **`setd`**: Sets default values for symbols.
-
-    * `(setd sym val [sym val] ...)`
-
-*   **`#`**: A reader macro for creating lambdas.
-
-    * `(# (< %9 %0 %3) ...)`
-
-*   **`some`**: Applies a lambda to each element of a sequence, returning the
-    first non-nil result.
-
-    * `(some lambda seq ...)`
-
-*   **`rsome`**: Applies a lambda to each element of a sequence in reverse,
-    returning the first non-nil result.
-
-    * `(rsome lambda seq ...)`
-
-*   **`every`**: Applies a lambda to each element of a sequence, returning true
-    if all results are non-nil.
-
-    * `(every lambda seq ...)`
-
-*   **`notany`**: Applies a lambda to each element of a sequence, returning
-    true if all results are nil.
-
-    * `(notany lambda seq ...)`
-
-*   **`notevery`**: Applies a lambda to each element of a sequence, returning
-    true if at least one result is nil.
-
-    * `(notevery lambda seq ...)`
-
-## Utilities
-
-*   **`usort`**: Sorts a list and removes duplicate elements.
-
-    * `(usort list [fcmp start end]) -> list`
-
-*   **`export`**: Exports symbols to an environment.
-
-    * `(export env symbols)`
-
-*   **`export-symbols`**: Exports symbols to the parent environment.
-
-    * `(export-symbols symbols)`
-
-*   **`export-classes`**: Exports classes to the parent environment.
-
-    * `(export-classes classes)`
-
-*   **`ascii-code`**: Returns the ASCII code of a character.
-
-    * `(ascii-code char) -> num`
-
-*   **`ascii-char`**: Returns the character for an ASCII code.
-
-    * `(ascii-char num) -> char`
-
-*   **`ascii-upper`**: Converts a character to uppercase.
-
-    * `(ascii-upper num) -> num`
-
-*   **`ascii-lower`**: Converts a character to lowercase.
-
-    * `(ascii-lower num) -> num`
-
-*   **`to-upper`**: Converts a string to uppercase.
-
-    * `(to-upper str) -> str`
-
-*   **`to-lower`**: Converts a string to lowercase.
-
-    * `(to-lower str) -> str`
-
 *   **`align`**: Aligns a number to a specified boundary.
 
     * `(align num div) -> num`
-
-*   **`str-as-num`**: Converts a string to a number.
-
-    * `(str-as-num str) -> num`
-
-*   **`num-to-utf8`**: Converts a number to a UTF-8 string.
-
-    * `(num-to-utf8 num) -> str`
-
-*   **`byte-to-hex-str`**: Converts a byte to a hex string.
-
-    * `(byte-to-hex-str num) -> str`
-
-*   **`short-to-hex-str`**: Converts a short to a hex string.
-
-    * `(short-to-hex-str num) -> str`
-
-*   **`int-to-hex-str`**: Converts an integer to a hex string.
-
-    * `(int-to-hex-str num) -> str`
-
-*   **`long-to-hex-str`**: Converts a long to a hex string.
-
-    * `(long-to-hex-str num) -> str`
-
-*   **`trim-start`**: Trims whitespace from the beginning of a string.
-
-    * `(trim-start str [cls]) -> str`
-
-*   **`trim-end`**: Trims whitespace from the end of a string.
-
-    * `(trim-end str [cls]) -> str`
-
-*   **`trim`**: Trims whitespace from the beginning and end of a string.
-
-    * `(trim str [cls]) -> str`
-
-*   **`split`**: Splits a string into a list of strings.
-
-    * `(split str [cls]) -> strs`
-
-*   **`pad`**: Pads a string to a specified length.
-
-    * `(pad form width [str]) -> str`
-
-*   **`get-ubyte`**: Gets an unsigned byte from a string.
-
-    * `(get-ubyte str idx) -> num`
-
-*   **`get-ushort`**: Gets an unsigned short from a string.
-
-    * `(get-ushort str idx) -> num`
-
-*   **`get-uint`**: Gets an unsigned integer from a string.
-
-    * `(get-uint str idx) -> num`
-
-*   **`get-long`**: Gets a long from a string.
-
-    * `(get-long str idx) -> num`
-
-*   **`get-byte`**: Gets a byte from a string.
-
-    * `(get-byte str idx) -> num`
-
-*   **`get-short`**: Gets a short from a string.
-
-    * `(get-short str idx) -> num`
-
-*   **`get-int`**: Gets an integer from a string.
-
-    * `(get-int str idx) -> num`
-
-*   **`get-real`**: Gets a real from a string.
-
-    * `(get-real str idx) -> real`
-
-*   **`get-str`**: Gets a string from a string.
-
-    * `(get-str str idx bytes) -> str`
-
-*   **`get-cstr`**: Gets a C-style string from a string.
-
-    * `(get-cstr str idx) -> str`
-
-*   **`set-byte`**: Sets a byte in a string.
-
-    * `(set-byte str idx val) -> str`
-
-*   **`set-short`**: Sets a short in a string.
-
-    * `(set-short str idx val) -> str`
-
-*   **`set-int`**: Sets an integer in a string.
-
-    * `(set-int str idx val) -> str`
-
-*   **`set-long`**: Sets a long in a string.
-
-    * `(set-long str idx val) -> str`
-
-*   **`set-real`**: Sets a real in a string.
-
-    * `(set-real str idx val) -> str`
-
-*   **`set-str`**: Sets a string in a string.
-
-    * `(set-str str idx val) -> str`
-
-*   **`type-to-size`**: Returns the size of a type.
-
-    * `(type-to-size sym) -> num`
-
-*   **`time-in-seconds`**: Converts a time in nanoseconds to a string in
-    seconds.
-
-    * `(time-in-seconds time) -> str`
-
-*   **`time-it`**: Measures the time taken to execute a body of code and prints
-    it.
-
-    * `(time-it heading body)`
-
-*   **`lisp-nodes`**: Returns a list of Lisp nodes.
-
-    * `(lisp-nodes) -> nodes`
-
-*   **`age`**: Returns the age of a file.
-
-    * `(age path) -> 0 | time ns`
-
-*   **`load-stream`**: Loads a file into a stream.
-
-    * `(load-stream path) -> :nil | stream`
-
-*   **`path-to-absolute`**: Converts a relative path to an absolute path.
-
-    * `(path-to-absolute path [current]) -> path`
-
-*   **`path-to-relative`**: Converts an absolute path to a relative path.
-
-    * `(path-to-relative path [current]) -> path`
-
-*   **`import`**: Imports a file.
-
-    * `(import path [env]) -> env`
-
-*   **`import-from`**: Imports symbols and classes from a file.
-
-    * `(import-from [symbols classes])`
-
-*   **`read-ubyte`**: Reads an unsigned byte from a stream.
-
-    * `(read-ubyte stream) -> num`
-
-*   **`read-ushort`**: Reads an unsigned short from a stream.
-
-    * `(read-ushort stream) -> num`
-
-*   **`read-uint`**: Reads an unsigned integer from a stream.
-
-    * `(read-uint stream) -> num`
-
-*   **`read-long`**: Reads a long from a stream.
-
-    * `(read-long stream) -> num`
-
-*   **`read-int`**: Reads an integer from a stream.
-
-    * `(read-int stream) -> num`
-
-*   **`read-short`**: Reads a short from a stream.
-
-    * `(read-short stream) -> num`
-
-*   **`write-long`**: Writes a long to a stream.
-
-    * `(write-long stream list|num) -> bytes`
-
-*   **`write-int`**: Writes an integer to a stream.
-
-    * `(write-int stream list|num) -> bytes`
-
-*   **`write-short`**: Writes a short to a stream.
-
-    * `(write-short stream list|num) -> bytes`
-
-*   **`os`**: Returns the operating system.
-
-    * `(os) -> sym`
-
-*   **`cpu`**: Returns the CPU architecture.
-
-    * `(cpu) -> sym`
-
-*   **`abi`**: Returns the ABI.
-
-    * `(abi) -> sym`
-
-*   **`within-compile-env`**: Executes a lambda within a compilation
-    environment.
-
-    * `(within-compile-env lambda)`
-
-*   **`defcvar`**: Defines a variable in the compilation environment.
-
-    * `(defcvar sym val)`
-
-*   **`deffvar`**: Defines a variable in the function environment.
-
-    * `(deffvar sym val)`
-
-*   **`include`**: Includes a module within the compilation environment.
-
-    * `(include module)`
-
-## Sequence Searching and Matching Functions
-
-These functions are used to find elements or subsequences within a sequence,
-with specialized functions for character classes.
-
-*   **`find` / `rfind`**: Perform a linear search for an element in a
-    sequence.
-
-    * `(find elem seq [idx]) -> :nil | idx`: Searches forward from the
-        beginning (or an optional start `idx`) and returns the index of the
-        first match.
-
-    * `(rfind elem seq [idx]) -> :nil | idx`: Searches backward from the end
-        (or an optional start `idx`).
-
-*   **`bfind`**: Performs a fast binary search to check if a character exists
-    within a sorted character class string.
-
-    * `(bfind char cls) -> :nil | idx`: Returns the index if the character is
-      found, otherwise `:nil`.
-
-*   **`bskip`**: Moves an index forward in a string as long as the characters
-    are present in the given character class.
-
-    * `(bskip cls str idx) -> idx`: Returns the new index after skipping all
-      matching characters.
-
-*   **`bskipn`**: Moves an index forward in a string as long as the characters
-    are *not* present in the given character class.
-
-    * `(bskipn cls str idx) -> idx`: The inverse of `bskip`.
-
-*   **`rbskip`**: Moves an index backward in a string as long as the characters
-    are present in the given character class.
-
-    * `(rbskip cls str idx) -> idx`
-
-*   **`rbskipn`**: Moves an index backward in a string as long as the characters
-    are *not* present in the given character class.
-
-    * `(rbskipn cls str idx) -> idx`
-
-## Sequence Operation Functions (Iterators)
-
-ChrysaLisp's design heavily favors iteration over recursion. The `...!`
-functions are the core iterative primitives for operating on sequences like
-lists and arrays.
-
-*   **`each!`**: Iterates over one or more sequences, applying a lambda
-    function to the elements at each index.
-
-    * `(each! lambda seqs [start end])`: Applies the `lambda` to corresponding
-      elements from each sequence in `seqs`.
-
-*   **`some!`**: Similar to `each!`, but stops and returns the first non
-    `:nil` value returned by the lambda.
-
-    * `(some! lambda seqs [mode start end]) -> :nil | val`: The `mode`
-      argument can alter the termination condition.
-
-*   **`map!`**: Applies a lambda to elements from sequences and collects the
-    results into a new list.
-
-    * `(map! lambda seqs [out start end]) -> out | (...)`: If an `out` list is
-      provided, results are pushed into it; otherwise, a new list is created.
-
-*   **`reduce!`**: Accumulates a single value by repeatedly applying a lambda
-    to an accumulator and elements from sequences.
-
-    * `(reduce! lambda seqs init [start end]) -> val`: The `init` value is the
-      starting point for the reduction.
-
-*   **`filter!`**: Creates a new list containing only the elements from a
-    sequence for which the lambda returns a non `:nil` value.
-
-    * `(filter! lambda seq [out start end]) -> out | (...)`
-
-*   **`lines!`**: Iterates over each line in a stream, applying a lambda.
-
-    * `(lines! lambda stream [start end]) -> :nil`
-
-*   **`!`**: A special anaphoric symbol available inside `...!` loops that
-    returns the current iteration index.
-
-    * `(each! (# (print (!))) my-list)`
-
-## Array and List Specific Functions
-
-These functions are specialized for mutable `:array` and `:list` data
-structures.
-
-*   **`cap`**: Sets the initial capacity of an array or list.
-
-    * `(cap len array ...) -> array`
-
-*   **`clear`**: Removes all elements from an array or list.
-
-    * `(clear array ...) -> array`
-
-*   **`push`**: Adds one or more elements to the end of an array or list.
-
-    * `(push array elem ...) -> array`
-
-*   **`pop`**: Removes and returns the last element from an array or list.
-
-    * `(pop array) -> elem | :nil` Returns `:nil` if empty.
-
-*   **`elem-set`**: Replaces the element at a specific index.
-
-    * `(elem-set array idx elem) -> array`
-
-*   **`merge`**: Merges the elements of a source list into a destination list,
-    ensuring uniqueness.
-
-    * `(merge dlist slist) -> dlist`
-
-*   **`pivot`**: Partitions a list around a pivot element for sorting
-    algorithms.
-
-    * `(pivot lambda list start end)`
-
-*   **`lmatch?`**: Compares two lists for structural and content equality.
-
-    * `(lmatch? list list) -> :nil | :t`
-
-*   **`copy`**: Creates a deep copy of a form.
-
-    * `(copy form) -> 'form`
-
-## Numeric and Arithmetic Functions
-
-This family contains functions for comparison, arithmetic, bitwise
-operations, and type conversion.
-
-### Comparison Operators
-
-*   `=` / `/=` / `<` / `>` / `<=` / `>=`: Standard numeric comparison
-    operators.
-
-    * `(= num num ...) -> :t | :nil`
-
-### Arithmetic Operators
-
-*   **`+` / `-` / `*` / `/` / `%`**: Standard arithmetic operations.
-
-    * `(+ num num ...) -> num`
-
-*   **`min` / `max`**: Return the minimum or maximum value from a sequence of
-    numbers.
-
-    * `(min num num ...) -> num`
-
-*   **`neg` / `abs`**: Negate a number or return its absolute value.
-
-    * `(neg num) -> num`
-
-    * `(abs num) -> num`
-
-### Bitwise and Logical Operators
-
-*   **`>>` / `>>>` / `<<`**: Bitwise right shift, arithmetic right shift, and
-    left shift.
-
-    * `(>> num cnt) -> num`
-
-*   **`logand` / `logior` / `logxor`**: Bitwise AND, OR, and XOR operations.
-
-    * `(logand [num] ...) -> num`
-
-### Type Conversion
-
-*   **`n2i` / `n2f` / `n2r`**: Convert a generic number to an integer,
-    fixed-point, or real number.
-
-    * `(n2i num) -> num`
-
-    * `(n2f num) -> fixed`
-
-    * `(n2r num) -> real`
-
-### Other Numeric Functions
-
-*   **`random`**: Generates a random number within a specified range.
-
-    * `(random num) -> num`
-
-*   **`num-intern`**: Interns a number, ensuring that identical numerical
-    values share the same object representation.
-
-    * `(num-intern num) -> num`
 
 ### Fixed Point Math Functions
 
@@ -1003,6 +811,14 @@ operations, and type conversion.
 *   **`str-to-num`**: Parses a string and converts it to a number.
 
     * `(str-to-num str) -> num`
+
+*   **`str-as-num`**: Converts a string to a number.
+
+    * `(str-as-num str) -> num`
+
+*   **`str-to-real`**: Parses a string as a real number, supporting scientific notation.
+
+    * `(str-to-real str) -> real`
 
 *   **`char`**: Creates a string from one or more numeric character codes.
 
@@ -1044,6 +860,98 @@ operations, and type conversion.
 
     * `(str-alloc size) -> str`
 
+*   **`starts-with`**: Checks if a string starts with a given prefix.
+
+    * `(starts-with str str) -> :t | :nil`
+
+*   **`ends-with`**: Checks if a string ends with a given suffix.
+
+    * `(ends-with str str) -> :t | :nil`
+
+*   **`unescape`**: Unescapes a string.
+
+    * `(unescape str) -> str`
+
+*   **`split`**: Splits a string into a list of strings.
+
+    * `(split str [cls]) -> strs`
+
+*   **`to-upper`**: Converts a string to uppercase.
+
+    * `(to-upper str) -> str`
+
+*   **`to-lower`**: Converts a string to lowercase.
+
+    * `(to-lower str) -> str`
+
+*   **`ascii-code`**: Returns the ASCII code of a character.
+
+    * `(ascii-code char) -> num`
+
+*   **`ascii-char`**: Returns the character for an ASCII code.
+
+    * `(ascii-char num) -> char`
+
+*   **`ascii-upper`**: Converts a character code to uppercase.
+
+    * `(ascii-upper num) -> num`
+
+*   **`ascii-lower`**: Converts a character code to lowercase.
+
+    * `(ascii-lower num) -> num`
+
+*   **`num-to-utf8`**: Converts a number to its UTF-8 string representation.
+
+    * `(num-to-utf8 num) -> str`
+
+*   **`byte-to-hex-str`**: Converts a byte to a hex string.
+
+    * `(byte-to-hex-str num) -> str`
+
+*   **`short-to-hex-str`**: Converts a short to a hex string.
+
+    * `(short-to-hex-str num) -> str`
+
+*   **`int-to-hex-str`**: Converts an integer to a hex string.
+
+    * `(int-to-hex-str num) -> str`
+
+*   **`long-to-hex-str`**: Converts a long to a hex string.
+
+    * `(long-to-hex-str num) -> str`
+
+*   **`trim`**: Trims whitespace (or characters from `cls`) from both ends of a string.
+
+    * `(trim str [cls]) -> str`
+
+*   **`trim-start`**: Trims whitespace from the beginning of a string.
+
+    * `(trim-start str [cls]) -> str`
+
+*   **`trim-end`**: Trims whitespace from the end of a string.
+
+    * `(trim-end str [cls]) -> str`
+
+*   **`pad`**: Pads a string to a specified width.
+
+    * `(pad form width [str]) -> str`
+
+*   **`get-ubyte` / `get-ushort` / `get-uint` / `get-long` / `get-real` / `get-byte` / `get-short` / `get-int`**: Retrieves a typed value from a string (or object memory) at a given offset.
+
+    * `(get-ubyte obj idx) -> num`
+
+*   **`get-str`**: Retrieves a substring from a string at a given offset.
+
+    * `(get-str obj idx bytes) -> str`
+
+*   **`get-cstr`**: Retrieves a C-style null-terminated string from a string at a given offset.
+
+    * `(get-cstr obj idx) -> str`
+
+*   **`set-byte` / `set-short` / `set-int` / `set-long` / `set-real` / `set-str`**: Sets a typed value in a string (or object memory) at a given offset.
+
+    * `(set-byte obj idx val) -> str`
+
 ## Symbol Functions
 
 *   **`sym`**: Interns a string, returning the corresponding unique symbol.
@@ -1083,20 +991,6 @@ These functions manage variables and their values within lexical scopes
     * `(set env sym val [sym val] ...)`: Re-assigns values in the specified
       environment `env`.
 
-*   **`bind`**: Destructures a sequence, binding its elements to a list of
-    symbols.
-
-    * `(bind (sym ...) seq)`
-
-*   **`let` / `let*`**: Create a new lexical scope and bind variables within
-    it.
-
-    * `(let ([(sym val) ...]) body)`: Binds all `val` expressions first, then
-      creates the new scope with the `sym` bindings.
-
-    * `(let* ([(sym val) ...]) body)`: Binds each `(sym val)` pair
-      sequentially, allowing later bindings to refer to earlier ones.
-
 *   **`get` / `def?`**: Look up a symbol's value in the environment chain.
 
     * `(get sym [env]) -> :nil | val`: Searches for `sym` starting from the
@@ -1113,6 +1007,27 @@ These functions manage variables and their values within lexical scopes
 *   **`tolist`**: Converts an environment into a list of key-value pairs.
 
     * `(tolist env) -> ((sym val) ...)`
+
+*   **`let` / `let*`**: Create a new lexical scope and bind variables within
+    it.
+
+    * `(let ([(sym val) ...]) body)`: Binds all `val` expressions first, then
+      creates the new scope with the `sym` bindings.
+
+    * `(let* ([(sym val) ...]) body)`: Binds each `(sym val)` pair
+      sequentially, allowing later bindings to refer to earlier ones.
+
+*   **`export`**: Exports symbols to an environment.
+
+    * `(export env symbols)`
+
+*   **`export-symbols`**: Exports symbols to the parent environment.
+
+    * `(export-symbols symbols)`
+
+*   **`export-classes`**: Exports classes to the parent environment.
+
+    * `(export-classes classes)`
 
 ## Environment Tree (Scoping) Functions
 
@@ -1259,17 +1174,17 @@ files, strings, or standard I/O channels.
 
     * `(in-mbox in) -> mbox`
 
-*   **`in-get-state`**: Gets the state of an input stream.
+*   **`in-get-state` / `in-set-state`**: Gets or sets the state of an input stream.
 
     * `(in-get-state in) -> num`
-
-*   **`in-set-state`**: Sets the state of an input stream.
-
-    * `(in-set-state in num) -> in`
 
 *   **`out-stream`**: Creates an output stream.
 
     * `(out-stream mbox) -> out_stream`
+
+*   **`out-set-state`**: Sets the state of an output stream.
+
+    * `(out-set-state out num) -> out`
 
 *   **`create-stdio`**: Creates a standard I/O stream object.
 
@@ -1290,96 +1205,37 @@ files, strings, or standard I/O channels.
 
 *   **`read-bits`**: Reads a specified number of bits from a stream.
 
-    * `(read-bits stream (array bit_pool bit_pool_size) num_bits) ->
-      (data|-1)`
+    * `(read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)`
 
 *   **`write-bits`**: Writes a specified number of bits to a stream.
 
-    * `(write-bits stream (array bit_pool bit_pool_size) data num_bits) ->
-      stream`
+    * `(write-bits stream (array bit_pool bit_pool_size) data num_bits) -> stream`
 
 *   **`fill-bits`**: Writes a repeating bit pattern to a stream.
 
-    * `(fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt) ->
-      stream`
+    * `(fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt) -> stream`
 
 *   **`copy-bits`**: Copies a specified number of bit sequences from one stream
     to another.
 
-    * `(copy-bits wstream rstream (array wbit_pool wbit_pool_size) (array rbit_pool rbit_pool_size) num_bits cnt) ->
-      wstream`
+    * `(copy-bits wstream rstream (array wbit_pool wbit_pool_size) (array rbit_pool rbit_pool_size) num_bits cnt) -> wstream`
 
 *   **`flush-bits`**: Flushes any remaining bits in the bit pool to the
     stream.
 
-    * `(flush-bits stream bit_pool_state)`
+    * `(flush-bits stream (array bit_pool bit_pool_size))`
 
-## Evaluation and Metaprogramming Functions
+*   **`load-stream`**: Loads a file into a string-stream.
 
-These are the core tools for defining new functions, macros, and
-controlling evaluation.
+    * `(load-stream path) -> :nil | stream`
 
-*   **`defun` / `redefun`**: Defines a new function.
+*   **`read-ubyte` / `read-ushort` / `read-uint` / `read-long` / `read-int` / `read-short`**: Reads a typed value from a stream.
 
-    * `(defun name ([arg ...]) body)`: Binds `name` to a new lambda
-      function.
+    * `(read-ubyte stream) -> num`
 
-    * `(redefun name ([arg ...]) body)`: Re-defines an existing function.
+*   **`write-long` / `write-int` / `write-short` / `write-byte`**: Writes a typed value to a stream.
 
-*   **`defmacro` / `redefmacro`**: Defines a new macro.
-
-    * `(defmacro name ([arg ...]) body)`: Binds `name` to a new macro.
-
-    * `(redefmacro name ([arg ...]) body)`: Re-defines an existing macro.
-
-*   **`eval`**: Evaluates a Lisp form.
-
-    * `(eval form [env]) -> 'form`: Executes the form within the specified
-        (or current) environment.
-
-*   **`eval-list`**: Evaluates each element in a list.
-
-    * `(eval-list list [env]) -> list`
-
-*   **`apply`**: Calls a function with a list of arguments.
-
-    * `(apply lambda seq) -> form`
-
-*   **`macroexpand`**: Expands a macro call, showing what code it generates
-    without executing it.
-
-    * `(macroexpand form) -> 'form`
-
-*   **`prebind`**: A performance optimization that resolves symbol lookups
-    in a form at compile-time rather than runtime.
-
-    * `(prebind form) -> form`
-
-*   **`read`**: Reads a single S-expression from a stream.
-
-    * `(read stream [last_char]) -> :nil | (form next_char)`
-
-*   **`repl`**: Starts a Read-Eval-Print Loop on a given stream.
-
-    * `(repl stream name)`
-
-*   **`repl-info`**: Returns the name and current line number of the file
-    being processed by the REPL.
-
-    * `(repl-info) -> (name line)`
-
-*   **`progn`**: Evaluates a sequence of forms and returns the value of the
-    last one.
-
-    * `(progn [body]) -> 'form`
-
-*   **`catch` / `throw`**: A non-local exit mechanism.
-
-    * `(catch form eform)`: Evaluates `form`. If a `throw` occurs during
-        its execution, `eform` is evaluated.
-
-    * `(throw str form)`: Unwinds the stack until a matching `catch` is
-      found.
+    * `(write-long stream list|num) -> bytes`
 
 ## Object and Class System Functions
 
@@ -1387,6 +1243,54 @@ controlling evaluation.
 
     * `(. env sym [...]) -> form`: Calls the method `sym` on the object
       `env` with optional arguments.
+
+*   **`defclass`**: Defines a new class.
+
+    * `(defclass Name ([arg ...]) (super ...)|:nil body)`
+
+*   **`defmethod`**: Defines a new method for a class.
+
+    * `(defmethod name ([arg ...]) body)`
+
+*   **`defabstractmethod`**: Defines an abstract method.
+
+    * `(defabstractmethod ([arg ...]) body)`
+
+*   **`deffimethod`**: Defines a method using a foreign function interface.
+
+    * `(deffimethod name ffi)`
+
+*   **`defgetmethod`**: Defines a getter method for a field.
+
+    * `(defgetmethod :field)`
+
+*   **`defsetmethod`**: Defines a setter method for a field.
+
+    * `(defsetmethod :field)`
+
+*   **`defproxymethod`**: Defines a proxy method.
+
+    * `(defproxymethod name args field [ret_flag])`
+
+*   **`.?`**: Checks if a method exists on an object.
+
+    * `(.? this method) -> :nil | lambda`
+
+*   **`.super`**: Calls a superclass method.
+
+    * `(.super this :method [arg ...])`
+
+*   **`.->`**: Chains method calls.
+
+    * `(.-> this form ...)`
+
+*   **`raise`**: Binds fields from `this` to local variables.
+
+    * `(raise field | (sym val) ...)`
+
+*   **`lower`**: Sets fields on `this` from local variables.
+
+    * `(lower field | (field sym) ...)`
 
 *   **`type-of`**: Returns the inheritance chain of an object as a list of
     symbols.
@@ -1405,42 +1309,9 @@ controlling evaluation.
 
     * `(nql form form) -> :nil | :t`
 
-*   **`identity`**: Returns its argument unchanged.
-
-    * `(identity [form]) -> :nil | form`
-
-## System and Platform Interface (PII) Functions
-
-These functions interact directly with the underlying host operating
-system.
-
-*   **`pii-dirlist`**: Lists the contents of a directory.
-
-    * `(pii-dirlist path) -> info`
-
-*   **`pii-fstat`**: Retrieves file status information (modification time,
-    size).
-
-    * `(pii-fstat path) -> info`
-
-*   **`pii-read-char` / `pii-write-char`**: Read or write a single character
-    from/to a file descriptor.
-
-    * `(pii-read-char fd) -> char`
-
-    * `(pii-write-char fd char) -> char`
-
-*   **`pii-remove`**: Deletes a file.
-
-    * `(pii-remove path)`
-
-*   **`pii-time`**: Returns the current system time in nanoseconds.
-
-    * `(pii-time) -> ns`
-
 ## Low-Level Object Manipulation
 
-These functions provide direct, unsafe access to the underlying memory
+These functions provide direct access to the underlying memory
 representation of objects.
 
 *   **`obj-get`**: Reads a value from an object at a specific memory offset.
@@ -1460,3 +1331,51 @@ representation of objects.
     object reference.
 
     * `(obj-ref num) -> obj`
+
+## Utilities
+
+*   **`identity`**: Returns its argument unchanged.
+
+    * `(identity [form]) -> :nil | form`
+
+*   **`time-it`**: Measures the time taken to execute a body of code and prints
+    it.
+
+    * `(time-it heading body)`
+
+*   **`age`**: Returns the age of a file (modification time).
+
+    * `(age path) -> 0 | time ns`
+
+*   **`path-to-absolute`**: Converts a relative path to an absolute path.
+
+    * `(path-to-absolute path [current]) -> path`
+
+*   **`path-to-relative`**: Converts an absolute path to a relative path.
+
+    * `(path-to-relative path [current]) -> path`
+
+*   **`path-to-file`**: Returns the path to the current file being evaluated.
+
+    * `(path-to-file) -> path`
+
+*   **`import`**: Imports a module.
+
+    * `(import path [env]) -> env`
+
+*   **`import-from`**: Imports specific symbols and classes from a module.
+
+    * `(import-from module [symbols classes])`
+
+*   **`type-to-size`**: Returns the size in bytes of a given type symbol.
+
+    * `(type-to-size sym) -> num`
+
+*   **`time-in-seconds`**: Converts a time in nanoseconds to a string in
+    seconds.
+
+    * `(time-in-seconds time) -> str`
+
+*   **`lisp-nodes`**: Returns a list of available Lisp nodes on the network.
+
+    * `(lisp-nodes) -> nodes`
