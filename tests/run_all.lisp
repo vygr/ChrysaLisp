@@ -14,6 +14,7 @@
 	(import "tests/core/test_predicates.lisp")
 	(import "tests/core/test_objects.lisp")
 	(import "tests/core/test_structs.lisp")
+	(import "tests/core/test_memory.lisp")
 
 	; Math
 	(import "tests/math/test_integers.lisp")
@@ -52,9 +53,9 @@
 	(import "tests/streams/test_rle.lisp")
 	(import "tests/streams/test_huffman.lisp")
 	(import "tests/streams/test_bits.lisp")
+	(import "tests/streams/test_io.lisp")
 
 	; System and Low-level
-	(import "tests/system/test_low_level_io.lisp")
 	(import "tests/system/test_system.lisp")
 	(import "tests/system/test_root_utils.lisp")
 	(import "tests/system/test_mail.lisp")
