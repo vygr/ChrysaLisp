@@ -1,0 +1,12 @@
+(report-header "Streams: RLE Compression")
+(import "lib/streams/rle.inc")
+
+(defq rle_in_str "AAAAABBBCCDAAAAA")
+(defq rle_in_ms (string-stream rle_in_str))
+(defq rle_out_ms (memory-stream))
+(rle-compress rle_in_ms rle_out_ms 8 8)
+(stream-seek rle_out_ms 0 0)
+(defq rle_dec_ms (memory-stream))
+(rle-decompress rle_out_ms rle_dec_ms 8 8)
+(stream-seek rle_dec_ms 0 0)
+(assert-eq "RLE Roundtrip" rle_in_str (read-blk rle_dec_ms (length rle_in_str)))

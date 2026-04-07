@@ -48,11 +48,16 @@
 	(import "tests/text/test_document.lisp")
 	(import "tests/text/test_regexp.lisp")
 
+	; Streams
+	(import "tests/streams/test_rle.lisp")
+	(import "tests/streams/test_huffman.lisp")
+	(import "tests/streams/test_bits.lisp")
+
 	; System and Low-level
 	(import "tests/system/test_low_level_io.lisp")
 	(import "tests/system/test_system.lisp")
 	(import "tests/system/test_root_utils.lisp")
-	(import "tests/system/test_extra_primitives.lisp")
+	(import "tests/system/test_mail.lisp")
 
 	(print-summary)
 

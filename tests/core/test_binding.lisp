@@ -66,3 +66,16 @@
 
 (defq ri (repl-info))
 (assert-true "repl-info" (and (list? ri) (>= (length ri) 2)))
+
+; --- Core Environment Utils ---
+(defq e_parent (env))
+(defq e_child (env-push e_parent))
+((lambda ()
+	(defq local_sym 555)
+	(export-symbols '(local_sym))
+))
+(assert-eq "export-symbols" 555 (get 'local_sym e_parent))
+
+(defclass TestClassExtra () :nil (defmethod :test (this) 123))
+(export-classes '(TestClassExtra))
+(assert-true "export-classes" (not (nil? (get 'TestClassExtra))))

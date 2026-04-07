@@ -1,0 +1,11 @@
+(report-header "System: Mail Messaging")
+
+(defq test_mbox (mail-mbox))
+(defq service_name "TestService")
+(defq service_info "TestInfo")
+(defq service_key (mail-declare test_mbox service_name service_info))
+(assert-true "mail-declare" (not (nil? service_key)))
+(task-sleep 10000)
+(defq enquiries (mail-enquire service_name))
+(assert-true "mail-enquire" (nempty? enquiries))
+(mail-forget service_key)

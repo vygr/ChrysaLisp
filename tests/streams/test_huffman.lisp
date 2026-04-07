@@ -1,0 +1,16 @@
+(report-header "Streams: Huffman Compression (Static)")
+(import "lib/streams/huffman.inc")
+
+(defq huff_in_str "the quick brown fox jumps over the lazy dog")
+(defq huff_in_ms (string-stream huff_in_str))
+(defq freq_map (huffman-build-freq-map huff_in_ms 8))
+(stream-seek huff_in_ms 0 0)
+(defq huff_out_ms (memory-stream))
+(defq model (build_tree_and_codebook freq_map))
+(push model 8) ; token_bits = 8
+(huffman-compress-static huff_in_ms huff_out_ms model)
+(stream-seek huff_out_ms 0 0)
+(defq huff_dec_ms (memory-stream))
+(huffman-decompress-static huff_out_ms huff_dec_ms model)
+(stream-seek huff_dec_ms 0 0)
+(assert-eq "Huffman Static Roundtrip" huff_in_str (read-blk huff_dec_ms (length huff_in_str)))
