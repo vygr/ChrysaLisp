@@ -6,40 +6,51 @@
 (defun run-suite ()
 	(print "Starting ChrysaLisp Functional Test Suite...")
 
-	; Import separate test modules
-	; These are imported into the current environment sequentially
-	(import "tests/test_core.lisp")
-	(import "tests/test_core_adv.lisp")
-	(import "tests/test_math.lisp")
-	(import "tests/test_math_adv.lisp")
-	(import "tests/test_nums.lisp")
-	(import "tests/test_fixeds.lisp")
-	(import "tests/test_reals.lisp")
-	(import "tests/test_list.lisp")
-	(import "tests/test_functional.lisp")
-	(import "tests/test_multi_seq.lisp")
-	(import "tests/test_str.lisp")
-	(import "tests/test_str_adv.lisp")
-	(import "tests/test_buffer.lisp")
-	(import "tests/test_buffer_new.lisp")
-	(import "tests/test_edit.lisp")
-	(import "tests/test_document.lisp")
-	(import "tests/test_splice.lisp")
-	(import "tests/test_negative_indexing.lisp")
-	(import "tests/test_str_utils.lisp")
-	(import "tests/test_text.lisp")
-	(import "tests/test_predicates.lisp")
-	(import "tests/test_objects.lisp")
-	(import "tests/test_sets.lisp")
-	(import "tests/test_dim.lisp")
-	(import "tests/test_struct.lisp")
-	(import "tests/test_tree.lisp")
-	(import "tests/test_low_level_io.lisp")
-	(import "tests/test_system.lisp")
-	(import "tests/test_root_utils.lisp")
-	(import "tests/test_collections_all.lisp")
-	(import "tests/test_regexp_all.lisp")
-	(import "tests/test_extra_primitives.lisp")
+	; Import separate test modules organized by category
+
+	; Core Language
+	(import "tests/core/test_core.lisp")
+	(import "tests/core/test_core_adv.lisp")
+	(import "tests/core/test_predicates.lisp")
+	(import "tests/core/test_objects.lisp")
+	(import "tests/core/test_struct.lisp")
+
+	; Math
+	(import "tests/math/test_math.lisp")
+	(import "tests/math/test_math_adv.lisp")
+	(import "tests/math/test_nums.lisp")
+	(import "tests/math/test_fixeds.lisp")
+	(import "tests/math/test_reals.lisp")
+
+	; Collections
+	(import "tests/collections/test_list.lisp")
+	(import "tests/collections/test_sets.lisp")
+	(import "tests/collections/test_tree.lisp")
+	(import "tests/collections/test_collections_all.lisp")
+
+	; Sequences
+	(import "tests/sequences/test_functional.lisp")
+	(import "tests/sequences/test_multi_seq.lisp")
+	(import "tests/sequences/test_splice.lisp")
+	(import "tests/sequences/test_negative_indexing.lisp")
+	(import "tests/sequences/test_dim.lisp")
+
+	; Text and Strings
+	(import "tests/text/test_str.lisp")
+	(import "tests/text/test_str_adv.lisp")
+	(import "tests/text/test_str_utils.lisp")
+	(import "tests/text/test_text.lisp")
+	(import "tests/text/test_buffer.lisp")
+	(import "tests/text/test_buffer_new.lisp")
+	(import "tests/text/test_edit.lisp")
+	(import "tests/text/test_document.lisp")
+	(import "tests/text/test_regexp_all.lisp")
+
+	; System and Low-level
+	(import "tests/system/test_low_level_io.lisp")
+	(import "tests/system/test_system.lisp")
+	(import "tests/system/test_root_utils.lisp")
+	(import "tests/system/test_extra_primitives.lisp")
 
 	(print-summary)
 
