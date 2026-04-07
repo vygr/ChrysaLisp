@@ -1,4 +1,4 @@
-(report-header "Advanced Core: catch, bind, apply, eval")
+(report-header "Binding: bind, apply, eval, catch/throw")
 
 ; --- catch & throw ---
 (defq catch_res (catch

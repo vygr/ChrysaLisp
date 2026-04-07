@@ -1,4 +1,4 @@
-(report-header "Math & Logic")
+(report-header "Integers: arithmetic, bitwise, comparison, shifts")
 
 ; Arithmetic
 (assert-eq "Add ints" 5 (+ 2 3))

@@ -1,4 +1,4 @@
-(report-header "Advanced Math & Predicates")
+(report-header "Integer Ops: neg?/pos?/odd?/even?, log2/pow, nlz/ntz, inc/dec")
 
 ; Numeric Predicates
 (assert-true "neg? true"  (neg? -5))

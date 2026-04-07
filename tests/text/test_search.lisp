@@ -1,13 +1,4 @@
-(report-header "Text & Searching")
-
-; --- Character Classes ---
-(defq cls (char-class "0-9A-F"))
-(assert-true "bfind match digit" (bfind "5" cls))
-(assert-true "bfind match hex"   (bfind "C" cls))
-(assert-true "bfind miss"		(not (bfind "G" cls)))
-
-(assert-eq "escape" "Hello\\nWorld" (escape "Hello\nWorld"))
-(assert-eq "escape-regexp" "Hello\\." (escape-regexp "Hello."))
+(report-header "Text Search: found, match, matches, replace")
 
 ; --- Pattern Searching ---
 (defq txt "The quick brown fox jumps over the lazy dog")

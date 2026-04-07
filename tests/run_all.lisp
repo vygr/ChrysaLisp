@@ -9,15 +9,15 @@
 	; Import separate test modules organized by category
 
 	; Core Language
-	(import "tests/core/test_core.lisp")
-	(import "tests/core/test_core_adv.lisp")
+	(import "tests/core/test_flow.lisp")
+	(import "tests/core/test_binding.lisp")
 	(import "tests/core/test_predicates.lisp")
 	(import "tests/core/test_objects.lisp")
-	(import "tests/core/test_struct.lisp")
+	(import "tests/core/test_structs.lisp")
 
 	; Math
-	(import "tests/math/test_math.lisp")
-	(import "tests/math/test_math_adv.lisp")
+	(import "tests/math/test_integers.lisp")
+	(import "tests/math/test_integer_ops.lisp")
 	(import "tests/math/test_nums.lisp")
 	(import "tests/math/test_fixeds.lisp")
 	(import "tests/math/test_reals.lisp")
@@ -29,22 +29,23 @@
 	(import "tests/collections/test_collections_all.lisp")
 
 	; Sequences
-	(import "tests/sequences/test_functional.lisp")
+	(import "tests/sequences/test_seq_ops.lisp")
+	(import "tests/sequences/test_iteration.lisp")
+	(import "tests/sequences/test_sorting.lisp")
 	(import "tests/sequences/test_multi_seq.lisp")
 	(import "tests/sequences/test_splice.lisp")
 	(import "tests/sequences/test_negative_indexing.lisp")
 	(import "tests/sequences/test_dim.lisp")
 
 	; Text and Strings
-	(import "tests/text/test_str.lisp")
-	(import "tests/text/test_str_adv.lisp")
-	(import "tests/text/test_str_utils.lisp")
-	(import "tests/text/test_text.lisp")
+	(import "tests/text/test_strings.lisp")
+	(import "tests/text/test_string_utils.lisp")
+	(import "tests/text/test_charclass.lisp")
+	(import "tests/text/test_search.lisp")
 	(import "tests/text/test_buffer.lisp")
-	(import "tests/text/test_buffer_new.lisp")
 	(import "tests/text/test_edit.lisp")
 	(import "tests/text/test_document.lisp")
-	(import "tests/text/test_regexp_all.lisp")
+	(import "tests/text/test_regexp.lisp")
 
 	; System and Low-level
 	(import "tests/system/test_low_level_io.lisp")

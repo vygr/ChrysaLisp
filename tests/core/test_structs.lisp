@@ -1,4 +1,4 @@
-(report-header "Structures: getf, setf, enums, bits")
+(report-header "Structs: structure, setf/getf, enums, bits")
 
 ; --- Structure setf/getf ---
 (structure +st_test 0
