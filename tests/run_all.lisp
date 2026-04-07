@@ -39,6 +39,7 @@
 	(import "tests/test_root_utils.lisp")
 	(import "tests/test_collections_all.lisp")
 	(import "tests/test_regexp_all.lisp")
+	(import "tests/test_extra_primitives.lisp")
 
 	(print-summary)
 
