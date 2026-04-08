@@ -1137,6 +1137,8 @@ stop a child
 
 ```code
 (str-as-num str) -> num
+
+return as type num even for fixed point
 ```
 
 ### str-to-real

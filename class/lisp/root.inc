@@ -1100,7 +1100,8 @@
 
 (defun str-as-num (%0)
 	; (str-as-num str) -> num
-	(pop (nums (str-to-num %0))))
+	;return as type num even for fixed point
+	(logior (str-to-num %0)))
 
 (defun num-to-utf8 (%0)
 	; (num-to-utf8 num) -> str
