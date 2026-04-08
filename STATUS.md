@@ -91,6 +91,8 @@ New `(str-to-real str) -> real` function that handles scientific notation like
 New `Mesh-obj` class for loading `.obj` files. Mesh demo now loads a test
 teapot.obj.
 
+Micro optimization work on `:hmap :find` and `:hset :find` VP methods.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
