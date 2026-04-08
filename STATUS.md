@@ -93,6 +93,9 @@ teapot.obj.
 
 Micro optimization work on `:hmap :find` and `:hset :find` VP methods.
 
+Added more unit tests and reoganized the `tests/` folder into better more
+granular files and folders.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
