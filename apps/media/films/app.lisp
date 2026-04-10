@@ -3,59 +3,79 @@
 (import "gui/lisp.inc")
 (import "lib/files/files.inc")
 
+;our UI widgets
+(import "./widgets.inc")
+
 (enums +select 0
 	(enum main timer tip))
 
-(enums +event 0
-	(enum close)
-	(enum prev next))
+(defq +file_types ''(".flm") canvas :nil +rate (/ 1000000 30))
 
-(defq films (files-all (cat *app_root* "data") '(".flm")) index 0 canvas :nil id :t
-	+rate (/ 1000000 30))
+(defun win-refresh (file)
+	(when (defq new_canvas (canvas-load file +load_flag_film))
+		(setq canvas new_canvas)
+		(bind '(w h) (. canvas :pref_size))
+		(def *image_scroll* :min_width w :min_height h)
+		(def *window_title* :text (cat "Films -> " (slice file (ifn (rfind "/" file) 0) -1)))
+		(. *image_scroll* :add_child canvas)
+		(. *window_title* :layout)
+		(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+		(def *image_scroll* :min_width 128 :min_height 128)
+		(. *file_selector* :select_node file)
+		(. *window* :change_dirty x y w h)))
 
-(ui-window *window* ()
-	(ui-title-bar *window_title* "" (0xea19) +event_close)
-	(ui-tool-bar *main_toolbar* ()
-		(ui-buttons (0xe91d 0xe91e) +event_prev))
-	(ui-scroll *image_scroll* +scroll_flag_both))
+;import actions and bindings
+(import "./actions.inc")
 
-(defun win-refresh (%0)
-	(defq file (elem-get films (setq index %0)))
-	(bind '(w h) (. (setq canvas (canvas-load file +load_flag_film)) :pref_size))
-	(def *image_scroll* :min_width w :min_height h)
-	(def *window_title* :text (cat "Films -> " (slice file (ifn (rfind "/" file) 0) -1)))
-	(. *image_scroll* :add_child canvas)
-	(. *window_title* :layout)
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(def *image_scroll* :min_width 32 :min_height 32)
-	(. *window* :change_dirty x y w h))
-
-(defun tooltips ()
-	(def *window* :tip_mbox (elem-get select +select_tip))
-	(ui-tool-tips *main_toolbar*
-		'("prev" "next")))
+(defun dispatch-action (&rest action)
+	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
-	(defq select (task-mboxes +select_size))
-	(tooltips)
-	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
+	(defq select (task-mboxes +select_size) *running* :t)
+	(def *window* :tip_mbox (elem-get select +select_tip))
+	(. *file_selector* :populate "." +file_types 2)
+	(bind '(x y w h) (apply view-locate
+		(. (win-refresh (cat *app_root* "data/raymarch.flm")) :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
-	(while id
+	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
-				;tip time mail
+				;tip event
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			((= idx +select_timer)
-				;timer event)
+				;timer event
 				(mail-timeout (elem-get select +select_timer) +rate 0)
-				(.-> canvas :next_frame (:swap 0)))
-			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq id :nil))
-			((<= +event_prev id +event_next)
-				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length films)) (length films))))
-			(:t (. *window* :event *msg*))))
-	;close window
+				(if canvas (.-> canvas :next_frame (:swap 0))))
+			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
+				;call bound event action
+				(dispatch-action action))
+			((and (not (Textfield? (. *window* :find_id id)))
+					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
+					(> (getf *msg* +ev_msg_key_scode) 0))
+				;key event
+				(bind '(key mod) (getf-> *msg* +ev_msg_key_key +ev_msg_key_mod))
+				(cond
+					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
+						;call bound control/command key action
+						(when (defq action (. *key_map_control* :find key))
+							(dispatch-action action)))
+					((bits? mod +ev_key_mod_shift)
+						;call bound shift key action, else insert
+						(cond
+							((defq action (. *key_map_shift* :find key))
+								(dispatch-action action))
+							((<= +char_space key +char_tilde)
+								;insert char etc ...
+								(char key))))
+					((defq action (. *key_map* :find key))
+						;call bound key action
+						(dispatch-action action))
+					((<= +char_space key +char_tilde)
+						;insert char etc ...
+						(char key))))
+			(:t ;gui event
+				(. *window* :event *msg*))))
 	(gui-sub-rpc *window*))
