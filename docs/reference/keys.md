@@ -44,9 +44,14 @@
 (ascii-code "U") action-redo
 ```
 
-## apps/media/films/actions.inc
-
 ## apps/media/images/actions.inc
+
+### *key_map_control*
+
+```code
+(ascii-code "=") action-maximise
+(ascii-code "-") action-minimise
+```
 
 ## apps/media/whiteboard/actions.inc
 

@@ -9,14 +9,15 @@
 (enums +select 0
 	(enum main tip))
 
-(defq +file_types ''(".cpm" ".flm" ".tga" ".svg" ".cwb"))
+(defq +file_types ''(".cpm" ".flm" ".tga" ".svg" ".cwb") *canvas* :nil)
 
 (defun win-refresh (file)
-	(when (defq canvas (canvas-load file 0))
-		(bind '(w h) (. canvas :pref_size))
+	(when (defq new_canvas (canvas-load file 0))
+		(setq *canvas* new_canvas)
+		(bind '(w h) (. *canvas* :pref_size))
 		(def *image_scroll* :min_width w :min_height h)
 		(def *window_title* :text (cat "Images -> " (slice file (ifn (rfind "/" file) 0) -1)))
-		(. *image_scroll* :add_child canvas)
+		(. *image_scroll* :add_child *canvas*)
 		(. *window_title* :layout)
 		(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 		(def *image_scroll* :min_width 128 :min_height 128)
