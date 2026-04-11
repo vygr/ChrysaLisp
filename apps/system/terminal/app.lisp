@@ -88,6 +88,9 @@
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
 
+(defun dispatch-action (&rest action)
+	(eval action))
+
 (defun main ()
 	(defq *select* (task-mboxes +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* :t *pipe* :nil
@@ -120,33 +123,7 @@
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
-			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
-				;call bound event action
-				(action))
-			((and (not (Textfield? (. *window* :find_id id)))
-					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
-					(> (getf *msg* +ev_msg_key_scode) 0))
-				;key event
-				(bind '(key mod) (getf-> *msg* +ev_msg_key_key +ev_msg_key_mod))
-				(setq *key* :t)
-				(cond
-					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
-						;call bound control/command key action
-						(when (defq action (. *key_map_control* :find key))
-							(action)))
-					((bits? mod +ev_key_mod_shift)
-						;call bound shift key action, else insert
-						(cond
-							((defq action (. *key_map_shift* :find key))
-								(action))
-							((<= +char_space key +char_tilde)
-								(action-insert (char key)))))
-					((defq action (. *key_map* :find key))
-						;call bound key action
-						(action))
-					((<= +char_space key +char_tilde)
-						;insert the char
-						(action-insert (char key)))))
+			((. *window* :dispatch *msg* dispatch-action action-insert))
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	(if *pipe* (. *pipe* :close))

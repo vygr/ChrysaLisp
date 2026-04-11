@@ -209,15 +209,21 @@
 
 (defun dispatch-action (&rest action)
 	(defq func (first action))
-	(if (find func *find_actions*)
-		(push action *whole_words* *regexp* (. *find_text* :get_text)))
-	(if (find func *replace_actions*)
-		(push action (. *replace_text* :get_text)))
-	(and *macro_record* (find func *recorded_actions*)
-		(macro-record action))
-	(catch (eval action)
-		(progn (prin _) (print)
-			(setq *refresh_mode* (list 0)) :t)))
+	(if (eql func action-insert)
+		(progn
+			(catch (eval action)
+				(progn (prin _) (print) (setq *refresh_mode* (list 0)) :t))
+			(show-matches))
+		(progn
+			(clear-matches)
+			(if (find func *find_actions*)
+				(push action *whole_words* *regexp* (. *find_text* :get_text)))
+			(if (find func *replace_actions*)
+				(push action (. *replace_text* :get_text)))
+			(and *macro_record* (find func *recorded_actions*)
+				(macro-record action))
+			(catch (eval action)
+				(progn (prin _) (print) (setq *refresh_mode* (list 0)) :t)))))
 
 (defun main ()
 	(defq select (task-mboxes +select_size)
@@ -265,53 +271,25 @@
 						(mail-send (getf *msg* +edit_rpc_reply_id) "")
 						(bind '(brk_id file line) (split (slice *msg* +edit_rpc_jump_names -1) "|"))
 						(action-breakpoint brk_id file (str-to-num line)))))
-			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
-				;call bound event action
-				(dispatch-action action))
 			((= (getf *msg* +ev_msg_type) +ev_type_key_up)
 				;key up event
 				)
-			((and (not (Textfield? (. *window* :find_id id)))
-					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
-					(> (getf *msg* +ev_msg_key_scode) 0))
-				;key down event
-				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
+			((and match_window (= (getf *msg* +ev_msg_type) +ev_type_key_down)
+					(defq key (getf *msg* +ev_msg_key_key))
+					(or (= key 0x40000052) (= key 0x40000051)
+						(and (or (= key +char_lf) (= key +char_cr) (= key +char_space))
+							(>= match_index 0))))
+				;matches navigation and selection
 				(cond
-					((and match_window (or (= key 0x40000052) (= key 0x40000051)
-							(and (or (= key +char_lf) (= key +char_cr) (= key +char_space))
-								(>= match_index 0))))
-						;matches navigation and selection
-						(cond
-							((or (= key +char_lf) (= key +char_cr) (= key +char_space))
-								;choose a match
-								(defq word (get :text (elem-get (. match_flow :children) match_index)))
-								(if (= key +char_space) (setq word (cat word " ")))
-								(clear-matches)
-								(dispatch-action action-select-word)
-								(dispatch-action action-insert word))
-							((select-match (if (= key 0x40000052) -1 1)))))
-					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
-						;call bound control/command key action
-						(when (defq action (. *key_map_control* :find key))
-							(clear-matches)
-							(dispatch-action action)))
-					((bits? mod +ev_key_mod_shift)
-						;call bound shift key action, else insert
-						(cond
-							((defq action (. *key_map_shift* :find key))
-								(clear-matches)
-								(dispatch-action action))
-							((<= +char_space key +char_tilde)
-								(dispatch-action action-insert (char key))
-								(show-matches))))
-					((defq action (. *key_map* :find key))
-						;call bound key action
+					((or (= key +char_lf) (= key +char_cr) (= key +char_space))
+						;choose a match
+						(defq word (get :text (elem-get (. match_flow :children) match_index)))
+						(if (= key +char_space) (setq word (cat word " ")))
 						(clear-matches)
-						(dispatch-action action))
-					((<= +char_space key +char_tilde)
-						;insert the char
-						(dispatch-action action-insert (char key))
-						(show-matches))))
+						(dispatch-action action-select-word)
+						(dispatch-action action-insert word))
+					((select-match (if (= key 0x40000052) -1 1)))))
+			((. *window* :dispatch *msg* dispatch-action action-insert))
 			(:t ;gui event
 				(clear-matches)
 				(. *window* :event *msg*)))

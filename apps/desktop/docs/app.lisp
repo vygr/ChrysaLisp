@@ -85,6 +85,9 @@
 ;import actions
 (import "./actions.inc")
 
+(defun dispatch-action (&rest action)
+	(catch (eval action) (progn (prin _) (print) :t)))
+
 (defun main ()
 	(defq select (task-mboxes +select_size) handlers (Emap) syntax (Syntax)
 		scroll_pos (Fmap) *running* :t *current_file* "docs/ai_digest/summary.md"
@@ -113,26 +116,7 @@
 					(not (Title? view))
 					(. *window* :event *msg*)))
 			;must be +select_main
-			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
-				;call bound event action
-				(action))
-			((and (not (Textfield? (. *window* :find_id id)))
-					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
-					(> (getf *msg* +ev_msg_key_scode) 0))
-				;key event
-				(bind '(key mod) (getf-> *msg* +ev_msg_key_key +ev_msg_key_mod))
-				(cond
-					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
-						;call bound control/command key action
-						(if (defq action (. *key_map_control* :find key))
-							(action)))
-					((bits? mod +ev_key_mod_shift)
-						;call bound shift key action
-						(if (defq action (. *key_map_shift* :find key))
-							(action)))
-					((defq action (. *key_map* :find key))
-						;call bound key action
-						(action))))
+			((. *window* :dispatch *msg* dispatch-action))
 			(:t (. *window* :event *msg*)
 				;save scroll position
 				(. scroll_pos :insert *current_file* (get :value (get :vslider *page_scroll*))))))

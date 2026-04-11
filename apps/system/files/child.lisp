@@ -13,6 +13,9 @@
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
 
+(defun dispatch-action (&rest action)
+	(catch (eval action) (progn (prin _) (print) :t)))
+
 (defun main ()
 	;read parameters from parent
 	(defq msg (mail-read (task-mbox)) reply_mbox (slice msg 0 +net_id_size))
@@ -29,9 +32,8 @@
 		(cond
 			((eql *msg* "")
 				(setq *running* :nil))
-			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
-				;call bound event action
-				(action))
+			;must be gui event to main mailbox
+			((. *window* :dispatch *msg* dispatch-action))
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub-rpc *window*))

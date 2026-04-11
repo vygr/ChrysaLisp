@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;
 
 (import "././scroll/lisp.inc")
+(import "././textfield/lisp.inc")
 
 (defclass Window () (View)
 	; (Window) -> window
@@ -141,4 +142,38 @@
 					(if (defq fnc (.? target :action))
 						(fnc target event)))))
 		this)
+
+	(defmethod :dispatch (msg dispatch_fnc &optional insert_fnc)
+		; (. window :dispatch msg dispatch_fnc [insert_fnc]) -> :t | :nil
+		; standard action and keyboard event dispatching
+		(defq id (getf msg +ev_msg_target_id)
+			emap (get '*event_map*) kcmap (get '*key_map_control*)
+			ksmap (get '*key_map_shift*) kmap (get '*key_map*))
+		(cond
+			((and emap (defq action (. emap :find id)))
+				(dispatch_fnc action)
+				:t)
+			((and (not (Textfield? (. this :find_id id)))
+					(= (getf msg +ev_msg_type) +ev_type_key_down)
+					(> (getf msg +ev_msg_key_scode) 0))
+				(bind '(key mod) (getf-> msg +ev_msg_key_key +ev_msg_key_mod))
+				(cond
+					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
+						(when (and kcmap (defq action (. kcmap :find key)))
+							(dispatch_fnc action)
+							:t))
+					((bits? mod +ev_key_mod_shift)
+						(cond
+							((and ksmap (defq action (. ksmap :find key)))
+								(dispatch_fnc action)
+								:t)
+							((<= (ascii-code " ") key (ascii-code "~"))
+								(if insert_fnc (dispatch_fnc insert_fnc (char key)))
+								:t)))
+					((and kmap (defq action (. kmap :find key)))
+						(dispatch_fnc action)
+						:t)
+					((<= (ascii-code " ") key (ascii-code "~"))
+						(if insert_fnc (dispatch_fnc insert_fnc (char key)))
+						:t)))))
 	)

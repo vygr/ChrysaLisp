@@ -132,6 +132,9 @@
 ;import actions and bindings
 (import "./actions.inc")
 
+(defun dispatch-action (&rest action)
+	(catch (eval action) (progn (prin _) (print) :t)))
+
 (defun main ()
 	(defq select (task-mboxes +select_size) *id* :t)
 	(. *committed_canvas* :set_canvas_flags +canvas_flag_antialias)
@@ -187,26 +190,8 @@
 									(setq *committed_groups* (map (lambda (g)
 											(list (first g) (second g) 0)) groups)))
 								(redraw-layers +layer_committed))))))
-			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
-				;call bound event action
-				(action))
-			((and (not (Textfield? (. *window* :find_id *id*)))
-					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
-					(> (getf *msg* +ev_msg_key_scode) 0))
-				;key event
-				(bind '(key mod) (getf-> *msg* +ev_msg_key_key +ev_msg_key_mod))
-				(cond
-					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
-						;call bound control/command key action
-						(if (defq action (. *key_map_control* :find key))
-							(action)))
-					((bits? mod +ev_key_mod_shift)
-						;call bound shift key action
-						(if (defq action (. *key_map_shift* :find key))
-							(action)))
-					((defq action (. *key_map* :find key))
-						;call bound key action
-						(action))))
+			;must be gui event to main mailbox
+			((. *window* :dispatch *msg* dispatch-action))
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	;close window

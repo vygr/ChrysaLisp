@@ -109,8 +109,7 @@
 			((= idx +select_main)
 				(defq target_id (getf *msg* +ev_msg_target_id))
 				(cond
-					((defq action (. *event_map* :find target_id))
-						(dispatch-action action))
+					((. *window* :dispatch *msg* dispatch-action))
 					((>= target_id +event_button)
 						;board click
 						(defq board_idx (- target_id +event_button))
@@ -143,18 +142,6 @@
 										(setq selected_idx board_idx)
 										(display-board brd)))))
 						(. *window* :event *msg*))
-					((and (not (Textfield? (. *window* :find_id target_id)))
-							(= (getf *msg* +ev_msg_type) +ev_type_key_down)
-							(> (getf *msg* +ev_msg_key_scode) 0))
-						;key event
-						(bind '(key mod) (getf-> *msg* +ev_msg_key_key +ev_msg_key_mod))
-						(cond
-							((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
-								(when (defq action (. *key_map_control* :find key)) (dispatch-action action)))
-							((bits? mod +ev_key_mod_shift)
-								(when (defq action (. *key_map_shift* :find key)) (dispatch-action action)))
-							((defq action (. *key_map* :find key))
-								(dispatch-action action))))
 					(:t (. *window* :event *msg*))))
 			((= idx +select_task)
 				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))

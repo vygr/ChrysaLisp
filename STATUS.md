@@ -98,6 +98,8 @@ granular files and folders.
 
 Update Film player app to have file selector and actions style app organisation.
 
+New Window `:dispatch` method to handle common actions for apps.
+
 ------
 
 Native VP support for `mat4x4-mul`, `mat4x4-inv`, `mat4x4-vec4-mul` and
