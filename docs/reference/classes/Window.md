@@ -18,6 +18,14 @@
 (. window :constraint) -> (width height)
 ```
 
+### :dispatch
+
+```code
+(. window :dispatch event) -> :t | :nil
+
+standard action and keyboard event dispatching
+```
+
 ### :drag_mode
 
 ```code

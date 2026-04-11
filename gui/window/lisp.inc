@@ -143,10 +143,10 @@
 						(fnc target event)))))
 		this)
 
-	(defmethod :dispatch (msg)
-		; (. window :dispatch msg) -> :t | :nil
+	(defmethod :dispatch (event)
+		; (. window :dispatch event) -> :t | :nil
 		; standard action and keyboard event dispatching
-		(defq id (getf msg +ev_msg_target_id)
+		(defq id (getf event +ev_msg_target_id)
 			dispatch_fnc (get 'dispatch-action) insert_fnc (get 'action-insert)
 			emap (get '*event_map*) kcmap (get '*key_map_control*)
 			ksmap (get '*key_map_shift*) kmap (get '*key_map*))
@@ -155,9 +155,9 @@
 				(dispatch_fnc action)
 				:t)
 			((and (not (Textfield? (. this :find_id id)))
-					(= (getf msg +ev_msg_type) +ev_type_key_down)
-					(> (getf msg +ev_msg_key_scode) 0))
-				(bind '(key mod) (getf-> msg +ev_msg_key_key +ev_msg_key_mod))
+					(= (getf event +ev_msg_type) +ev_type_key_down)
+					(> (getf event +ev_msg_key_scode) 0))
+				(bind '(key mod) (getf-> event +ev_msg_key_key +ev_msg_key_mod))
 				(cond
 					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
 						(when (and kcmap (defq action (. kcmap :find key)))
