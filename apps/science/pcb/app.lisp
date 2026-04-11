@@ -130,7 +130,7 @@
 				(set (. progress :dirty) :value (getf *msg* +progress_current)
 					:maximum (getf *msg* +progress_total)))
 			;must be gui event to main mailbox
-			((. *window* :dispatch *msg* dispatch-action))
+			((. *window* :dispatch *msg*))
 			(:t (. *window* :event *msg*))))
 	(stop-route)
 	(gui-sub-rpc *window*))

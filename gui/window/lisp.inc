@@ -143,10 +143,11 @@
 						(fnc target event)))))
 		this)
 
-	(defmethod :dispatch (msg dispatch_fnc &optional insert_fnc)
-		; (. window :dispatch msg dispatch_fnc [insert_fnc]) -> :t | :nil
+	(defmethod :dispatch (msg)
+		; (. window :dispatch msg) -> :t | :nil
 		; standard action and keyboard event dispatching
 		(defq id (getf msg +ev_msg_target_id)
+			dispatch_fnc (get 'dispatch-action) insert_fnc (get 'action-insert)
 			emap (get '*event_map*) kcmap (get '*key_map_control*)
 			ksmap (get '*key_map_shift*) kmap (get '*key_map*))
 		(cond

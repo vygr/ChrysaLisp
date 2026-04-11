@@ -33,7 +33,7 @@
 			((eql *msg* "")
 				(setq *running* :nil))
 			;must be gui event to main mailbox
-			((. *window* :dispatch *msg* dispatch-action))
+			((. *window* :dispatch *msg*))
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub-rpc *window*))

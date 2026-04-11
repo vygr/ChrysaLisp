@@ -191,7 +191,7 @@
 											(list (first g) (second g) 0)) groups)))
 								(redraw-layers +layer_committed))))))
 			;must be gui event to main mailbox
-			((. *window* :dispatch *msg* dispatch-action))
+			((. *window* :dispatch *msg*))
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	;close window

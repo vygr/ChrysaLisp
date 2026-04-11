@@ -97,7 +97,7 @@
 					buf (elem-get buf_rec +profile_rec_buf))
 				(vdu-print (if (= index selected_index) *vdu*) buf data))
 			;must be GUI event
-			((. *window* :dispatch *msg* dispatch-action))
+			((. *window* :dispatch *msg*))
 			;otherwise
 			(:t (. *window* :event *msg*))))
 	(mail-forget entry)

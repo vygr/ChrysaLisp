@@ -178,7 +178,7 @@
 			((= (getf *msg* +ev_msg_type) +ev_type_key_up)
 				;key up event
 				)
-			((. *window* :dispatch *msg* dispatch-action))
+			((. *window* :dispatch *msg*))
 			(:t ;gui event
 				(. *window* :event *msg*)))
 		;update meta data

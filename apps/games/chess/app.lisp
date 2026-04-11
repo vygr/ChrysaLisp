@@ -109,7 +109,7 @@
 			((= idx +select_main)
 				(defq target_id (getf *msg* +ev_msg_target_id))
 				(cond
-					((. *window* :dispatch *msg* dispatch-action))
+					((. *window* :dispatch *msg*))
 					((>= target_id +event_button)
 						;board click
 						(defq board_idx (- target_id +event_button))

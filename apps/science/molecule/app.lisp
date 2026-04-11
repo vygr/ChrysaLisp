@@ -280,7 +280,7 @@
 					; drop any stale network replies!
 					(elem-set select +select_task (mail-mbox))
 					(elem-set select +select_reply (mail-mbox))))
-			((. *window* :dispatch *msg* dispatch-action))
+			((. *window* :dispatch *msg*))
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	(if farm (. farm :close))

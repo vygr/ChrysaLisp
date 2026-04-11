@@ -123,7 +123,7 @@
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
-			((. *window* :dispatch *msg* dispatch-action action-insert))
+			((. *window* :dispatch *msg*))
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	(if *pipe* (. *pipe* :close))

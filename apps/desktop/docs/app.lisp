@@ -116,7 +116,7 @@
 					(not (Title? view))
 					(. *window* :event *msg*)))
 			;must be +select_main
-			((. *window* :dispatch *msg* dispatch-action))
+			((. *window* :dispatch *msg*))
 			(:t (. *window* :event *msg*)
 				;save scroll position
 				(. scroll_pos :insert *current_file* (get :value (get :vslider *page_scroll*))))))

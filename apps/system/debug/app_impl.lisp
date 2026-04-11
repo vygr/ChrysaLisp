@@ -133,7 +133,7 @@
 				;exit mail
 				(setq *running* :nil))
 			;must be GUI event
-			((. *window* :dispatch *msg* dispatch-action))
+			((. *window* :dispatch *msg*))
 			;otherwise
 			(:t (. *window* :event *msg*))))
 	(gui-sub-rpc *window*)

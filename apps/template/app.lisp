@@ -39,7 +39,7 @@
 				;timer event
 				(mail-timeout (elem-get select +select_timer) +rate 0))
 			;must be +select_main
-			((. *window* :dispatch *msg* dispatch-action))
+			((. *window* :dispatch *msg*))
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub-rpc *window*)
