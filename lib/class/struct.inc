@@ -114,8 +114,7 @@
 	(bind '(offsets types)
 		(map! (const list) (map (# (if (list? %0)
 			(apply (const obj-args) %0) (obj-args %0))) fields)))
-	(static-qq (reduce! (# (push %0 (obj-get ,obj %1 %2)))
-		'(,offsets ,types) (list))))
+	(static-qq (map! (# (obj-get ,obj %0 %1)) '(,offsets ,types))))
 
 ;;;;;;;
 ; enums
