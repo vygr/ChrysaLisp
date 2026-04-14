@@ -30,7 +30,7 @@
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	+max_workers 8 +init_workers_% 10 +grow_workers_% 10
 	+retry_timeout (task-timeout 5) +idle_timeout 5000000 +retry_timer_rate 1000000
-	+atom_cache_dir (cat *app_root* "data/cache/")
+	+atom_cache_dir (cat *app_root* "data/cache/") +radius_quant (n2r 1.0)
 	+palette (push `(,quote) (map (lambda (%0) (Vec3-f
 			(n2f (/ (logand (>> %0 16) 0xff) 0xff))
 			(n2f (/ (logand (>> %0 8) 0xff) 0xff))
@@ -118,7 +118,8 @@
 		(undef val :job :timestamp)))
 
 (defun get-atom-texture (radius)
-	(defq key (n2i (+ (* radius (n2r 2.0)) (n2r 0.5))) canvas :nil file :nil)
+	(defq key (n2i (+ (* (quant radius +radius_quant) (n2r 2.0)) (n2r 0.5)))
+		canvas :nil file :nil)
 	(if (> key 0)
 		(progn
 			(setq file (cat +atom_cache_dir "atom_" (str key) ".cpm"))
