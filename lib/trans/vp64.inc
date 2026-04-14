@@ -7,9 +7,11 @@
 
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
-(defun emit-native-reg? (r)
-	(if (defq i (find r +vp_rregs)) i
-		(find r +vp_fregs)))
+(defq +emit_native_regs
+	(reduce (# (def %0 %1 (!)) %0) +vp_rregs
+	(reduce (# (def %0 %1 (!)) %0) +vp_fregs (env 1))))
+
+(defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (def? r +emit_native_regs)))
 
 (defq opcode 0)
 (defmacro next-opcode (&optional i)

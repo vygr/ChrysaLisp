@@ -7,20 +7,23 @@
 
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
 
-(defun emit-native-reg? (r)
-	(or (find r
-			'(:r29 :r30 :rsp                                ;zero, ra, sp (x0-x2)
-			:r15 :r16                                       ;gp, tp (x3-x4)
-			:r17 :r18 :r19                                  ;t0-t1, t2 (x5-x7)
-			:r20 :r21                                       ;s0-s1 (x8-x9) saved
-			:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7                 ;a0-a7 (x10-x17)
-			:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r22 :r23 :r24 ;s2-s11 (x18-x27) saved
-			:r25 :r26 :r27 :r28))                           ;t3-t6 (x28-x31)
-		(find r
-			'(:f12 :f13 :f14 :f15 :f16 :f17 :f18 :f19       ;f0-f7 (ft0-ft7)
-			:f0 :f1 :f20 :f21 :f22 :f23 :f24 :f25 :f26 :f27 ;f8-f17 (fs0-fs1, fa0-fa7)
-			:f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11       ;f18-f27 (fs2-fs11)
-			:f28 :f29 :f30 :f31))))                         ;f28-f31 (ft8-ft11)
+(defq +emit_native_regs
+	(reduce (# (def %0 %1 (!)) %0)
+		'(:r29 :r30 :rsp                                ;zero, ra, sp (x0-x2)
+		:r15 :r16                                       ;gp, tp (x3-x4)
+		:r17 :r18 :r19                                  ;t0-t1, t2 (x5-x7)
+		:r20 :r21                                       ;s0-s1 (x8-x9) saved
+		:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7                 ;a0-a7 (x10-x17)
+		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r22 :r23 :r24 ;s2-s11 (x18-x27) saved
+		:r25 :r26 :r27 :r28)                            ;t3-t6 (x28-x31)
+	(reduce (# (def %0 %1 (!)) %0)
+		'(:f12 :f13 :f14 :f15 :f16 :f17 :f18 :f19       ;f0-f7 (ft0-ft7)
+		:f0 :f1 :f20 :f21 :f22 :f23 :f24 :f25 :f26 :f27 ;f8-f17 (fs0-fs1, fa0-fa7)
+		:f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11       ;f18-f27 (fs2-fs11)
+		:f28 :f29 :f30 :f31)                            ;f28-f31 (ft8-ft11)
+		(env 1))))
+
+(defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (def? r +emit_native_regs)))
 
 (defq +riscv64_rlnk (emit-native-reg? :r30)
 	+riscv64_rzero (emit-native-reg? :r29)

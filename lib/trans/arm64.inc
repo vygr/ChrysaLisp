@@ -7,19 +7,22 @@
 
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
 
-(defun emit-native-reg? (r)
-	(or (find r
-			'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7				;args (x0-x7)
-			:r15											;indirect (x8)
-			:r16 :r17 :r18 :r19 :r20 :r21 :r22				;temps (x9-x15)
-			:r23 :r24 :r25									;ip0, ip1, platform
-			:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :rsp	;callee saves (x19-x28)
-			:r29 :r30 :r31))								;frm, lnk, stack
-		(find r
-			'(:f16 :f17 :f18 :f19 :f20 :f21 :f22 :f23		;d0-d7 (Volatile / Args / Ret)
-			:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7					;d8-d15 (Callee Saved)
-			:f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15			;d16-d23 (Volatile)
-			:f24 :f25 :f26 :f27 :f28 :f29 :f30 :f31))))		;d24-d31 (Volatile)
+(defq +emit_native_regs
+ 	(reduce (# (def %0 %1 (!)) %0)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7				;args (x0-x7)
+		:r15											;indirect (x8)
+		:r16 :r17 :r18 :r19 :r20 :r21 :r22				;temps (x9-x15)
+		:r23 :r24 :r25									;ip0, ip1, platform
+		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :rsp	;callee saves (x19-x28)
+		:r29 :r30 :r31)
+	(reduce (# (def %0 %1 (!)) %0)
+		'(:f16 :f17 :f18 :f19 :f20 :f21 :f22 :f23		;d0-d7 (Volatile / Args / Ret)
+		:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7					;d8-d15 (Callee Saved)
+		:f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15			;d16-d23 (Volatile)
+		:f24 :f25 :f26 :f27 :f28 :f29 :f30 :f31)		;d24-d31 (Volatile)
+		(env 1))))
+
+(defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (def? r +emit_native_regs)))
 
 ;VP stack is NOT the ARM64 stack !
 ;due to not wanting to suffer the 16 byte alignment restriction on calls etc.
