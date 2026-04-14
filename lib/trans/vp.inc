@@ -12,31 +12,31 @@
 
 (defun emit-label (label) (set (penv) label *pc*))
 (defun emit-tlabel (temp) (set (penv) temp *pc*))
-(defun emit-string (string) (setq *pc* (+ *pc* (write-blk *stream* string))))
-(defun emit-byte (&rest data) (setq *pc* (+ *pc* (write-char *stream* data))))
-(defun emit-short (&rest data) (setq *pc* (+ *pc* (write-char *stream* data +short_size))))
-(defun emit-int (&rest data) (setq *pc* (+ *pc* (write-char *stream* data +int_size))))
-(defun emit-long (&rest data) (setq *pc* (+ *pc* (write-char *stream* data +long_size))))
+(defun emit-string (string) (++ *pc* (write-blk *stream* string)))
+(defun emit-byte (&rest data) (++ *pc* (write-char *stream* data)))
+(defun emit-short (&rest data) (++ *pc* (write-char *stream* data +short_size)))
+(defun emit-int (&rest data) (++ *pc* (write-char *stream* data +int_size)))
+(defun emit-long (&rest data) (++ *pc* (write-char *stream* data +long_size)))
 
 (defmacro emitm-byte (&rest data)
 	(if (= (length data) 1)
-		(static-qq (setq *pc* (+ *pc* (write-char *stream* ~data))))
-		(static-qq (setq *pc* (+ *pc* (write-char *stream* (list ~data)))))))
+		(static-qq (++ *pc* (write-char *stream* ~data)))
+		(static-qq (++ *pc* (write-char *stream* (list ~data))))))
 
 (defmacro emitm-short (&rest data)
 	(if (= (length data) 1)
-		(static-qq (setq *pc* (+ *pc* (write-char *stream* ~data +short_size))))
-		(static-qq (setq *pc* (+ *pc* (write-char *stream* (list ~data) +short_size))))))
+		(static-qq (++ *pc* (write-char *stream* ~data +short_size)))
+		(static-qq (++ *pc* (write-char *stream* (list ~data) +short_size)))))
 
 (defmacro emitm-int (&rest data)
 	(if (= (length data) 1)
-		(static-qq (setq *pc* (+ *pc* (write-char *stream* ~data +int_size))))
-		(static-qq (setq *pc* (+ *pc* (write-char *stream* (list ~data) +int_size))))))
+		(static-qq (++ *pc* (write-char *stream* ~data +int_size)))
+		(static-qq (++ *pc* (write-char *stream* (list ~data) +int_size)))))
 
 (defmacro emitm-long (&rest data)
 	(if (= (length data) 1)
-		(static-qq (setq *pc* (+ *pc* (write-char *stream* ~data +long_size))))
-		(static-qq (setq *pc* (+ *pc* (write-char *stream* (list ~data) +long_size))))))
+		(static-qq (++ *pc* (write-char *stream* ~data +long_size)))
+		(static-qq (++ *pc* (write-char *stream* (list ~data) +long_size)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; native emit functions
