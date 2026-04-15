@@ -52,9 +52,9 @@
 		; (. canvas :fill argb) -> canvas
 		((const (ffi "gui/canvas/lisp_fill")) this argb))
 
-	(defmethod :tile (data x y x1 y1)
+	(defmethod :tile (data x1 y1 x2 y2)
 		; (. canvas :tile data x1 y1 x2 y2) -> area
-		((const (ffi "gui/canvas/lisp_tile")) this data x y x1 y1))
+		((const (ffi "gui/canvas/lisp_tile")) this data x1 y1 x2 y2))
 
 	(defmethod :set_canvas_flags (flags)
 		; (. canvas :set_canvas_flags flags) -> canvas
