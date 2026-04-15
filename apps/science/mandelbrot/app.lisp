@@ -127,7 +127,7 @@
 				(when (defq val (. farm :find key)) (dispatch-job key val))
 				(setq dirty :t)
 				(if (and (/= fill_value -1) (= ix x) (= iy y) (= ix1 x1) (= iy1 y1))
-					;fill covers the WHOLE area, skip canvas-tile completely!
+					;fill covers the WHOLE area, skip :tile completely!
 					(.-> *canvas*
 						(:set_color (get-int (elem-get +mandel_lut fill_value) 0))
 						(:fbox x y (- x1 x) (- y1 y)))

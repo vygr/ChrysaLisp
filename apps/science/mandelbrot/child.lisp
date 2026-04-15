@@ -54,15 +54,18 @@
 			(setq fill_value ring_depth ix rx iy ry ix1 rx1 iy1 ry1 running :nil)
 			(++ r))
 		(task-slice))
-	;fill tail of the allocated msg and send
-	(mail-send mbox (set-str buf (* bw bh)
-		(setf-> (str-alloc +job_reply_size)
-			(+job_reply_key key)
-			(+job_reply_x x) (+job_reply_y y)
-			(+job_reply_x1 x1) (+job_reply_y1 y1)
-			(+job_reply_ix ix) (+job_reply_iy iy)
-			(+job_reply_ix1 ix1) (+job_reply_iy1 iy1)
-			(+job_reply_fill_value fill_value)))))
+	;tail of the reply
+	(defq tail (setf-> (str-alloc +job_reply_size)
+		(+job_reply_key key)
+		(+job_reply_x x) (+job_reply_y y)
+		(+job_reply_x1 x1) (+job_reply_y1 y1)
+		(+job_reply_ix ix) (+job_reply_iy iy)
+		(+job_reply_ix1 ix1) (+job_reply_iy1 iy1)
+		(+job_reply_fill_value fill_value)))
+	;if we need the data then write to end of buf, else just send tail
+	(if (and (/= fill_value -1) (= ix x) (= iy y) (= ix1 x1) (= iy1 y1))
+		(mail-send mbox tail)
+		(mail-send mbox (set-str buf (* bw bh) tail))))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
