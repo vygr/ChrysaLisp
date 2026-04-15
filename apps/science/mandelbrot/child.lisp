@@ -17,21 +17,52 @@
 (ffi (cat *app_root* "depth") depth)
 ; (depth x0 y0) -> cnt
 
+; evaluates a pixel depth. if it deviates from the perimeter's 
+; tracking color, it flags 'solid' as false to continue the ring scan inwards.
+(defmacro eval-px-py (px py)
+	`(progn
+		(defq d (depth (+ (real-offset (n2r ,px) w z) cx)
+					(+ (real-offset (n2r ,py) h z) cy)))
+		(set-byte buf (+ (- ,px x) (* (- ,py y) bw)) d)
+		(if (= ring_depth -1) (setq ring_depth d))
+		(if (/= d ring_depth) (setq solid :nil))))
+
 (defun mandel (key mbox x y x1 y1 w h cx cy z)
-	(defq reply (string-stream (str-alloc (+ (* (- x1 x) (- y1 y)) (* 4 +int_size) +long_size)))
-		tile (list x y x1 y1))
-	;convert to reals
 	(bind '(w h) (map (const n2r) (list w h)))
-	;cx, cy, and z (which were read as longs from the message)
-	(defq y (dec y))
-	(while (< (++ y) y1)
-		(defq xp (dec x))
-		(while (< (++ xp) x1)
-			(write-char reply (depth (+ (real-offset (n2r xp) w z) cx) (+ (real-offset (n2r y) h z) cy))))
+	(defq bw (- x1 x) bh (- y1 y) buf (str-alloc (+ (* bw bh) +job_reply_size))
+		r 0 running :t fill_value -1 ix x iy y ix1 x1 iy1 y1)
+	;scan perimeters
+	(while (and running (< (* r 2) bw) (< (* r 2) bh))
+		(defq rx (+ x r) ry (+ y r) rx1 (- x1 r) ry1 (- y1 r) solid :t ring_depth -1)
+		;top edge
+		(defq px (dec rx))
+		(while (< (++ px) rx1) (eval-px-py px ry))
+		;bottom edge (skips evaluating the same row if height is 1)
+		(when (> ry1 (inc ry))
+			(setq px (dec rx))
+			(while (< (++ px) rx1) (eval-px-py px (dec ry1))))
+		;left edge (skips corners)
+		(defq py ry)
+		(while (< (++ py) (dec ry1)) (eval-px-py rx py))
+		;right edge (skips corners, checks width)
+		(when (> rx1 (inc rx))
+			(setq py ry)
+			(while (< (++ py) (dec ry1)) (eval-px-py (dec rx1) py)))
+		(if solid
+			;uniform ring was found! 
+			;we can safely short-circuit and flag the remaining inner bounds.
+			(setq fill_value ring_depth ix rx iy ry ix1 rx1 iy1 ry1 running :nil)
+			(++ r))
 		(task-slice))
-	(write-long reply key)
-	(write-int reply tile)
-	(mail-send mbox (str reply)))
+	;fill tail of the allocated msg and send
+	(mail-send mbox (set-str buf (* bw bh)
+		(setf-> (str-alloc +job_reply_size)
+			(+job_reply_key key)
+			(+job_reply_x x) (+job_reply_y y)
+			(+job_reply_x1 x1) (+job_reply_y1 y1)
+			(+job_reply_ix ix) (+job_reply_iy iy)
+			(+job_reply_ix1 ix1) (+job_reply_iy1 iy1)
+			(+job_reply_fill_value fill_value)))))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t +timeout 5000000)

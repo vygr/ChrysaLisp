@@ -25,7 +25,7 @@
 	; Set index 255 to Black
 	(push lut (char +argb_black +int_size)))
 
-(defq +width 800 +height 800 +line_batch 2 +scale 2
+(defq +width 800 +height 800 +job_rect_size 32 +scale 2
 	+timer_rate (/ 500000 1) id :t dirty :nil
 	center_x +real_-1/2 center_y +real_0 zoom +real_1
 	+retry_timeout (task-timeout 5) jobs :nil farm :nil
@@ -65,19 +65,22 @@
 	(mail-timeout (elem-get select +select_timer) 0 0)
 	(if farm (. farm :close))
 	(elem-set select +select_reply (mail-mbox))
-	(setq jobs (map (lambda (y1)
-			(setf-> (str-alloc +job_size)
-				(+job_x 0)
-				(+job_y (- y1 (* +line_batch +scale)))
-				(+job_x1 (* +width +scale))
-				(+job_y1 y1)
+	(setq jobs (list))
+	(each (lambda (y)
+		(each (lambda (x)
+			(push jobs (setf-> (str-alloc +job_size)
+				(+job_x x)
+				(+job_y y)
+				(+job_x1 (min (* +width +scale) (+ x (* +job_rect_size +scale))))
+				(+job_y1 (min (* +height +scale) (+ y (* +job_rect_size +scale))))
 				(+job_w (* +width +scale))
 				(+job_h (* +height +scale))
 				(+job_cx center_x)
 				(+job_cy center_y)
-				(+job_z zoom)))
-			(range (* +height +scale) 0 (* +line_batch +scale)))
-		farm (Farm create destroy (* 2 (length (lisp-nodes)))))
+				(+job_z zoom))))
+			(range 0 (* +width +scale) (* +job_rect_size +scale))))
+		(range 0 (* +height +scale) (* +job_rect_size +scale)))
+	(setq farm (Farm create destroy (min (length jobs) (* 2 (length (lisp-nodes))))))
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0))
 
 (defun main ()
@@ -116,12 +119,27 @@
 					(dispatch-job key val)))
 			(+select_reply
 				;child response
-				(bind '(key x y x1 y1) (getf-> (slice msg (- -1 +job_reply) -1)
-					+job_key +job_x +job_y +job_x1 +job_y1))
-				(when (defq val (. farm :find key))
-					(dispatch-job key val))
+				(defq reply_data (slice msg (- -1 +job_reply_size) -1))
+				(bind '(key x y x1 y1 ix iy ix1 iy1 fill_value) 
+					(getf-> reply_data
+						+job_reply_key +job_reply_x +job_reply_y +job_reply_x1 +job_reply_y1 
+						+job_reply_ix +job_reply_iy +job_reply_ix1 +job_reply_iy1 +job_reply_fill_value))
+				(when (defq val (. farm :find key)) (dispatch-job key val))
 				(setq dirty :t)
-				(canvas-tile *canvas* (apply cat (map (# (elem-get +mandel_lut (code %0))) msg)) x y x1 y1))
+				(if (and (/= fill_value -1) (= ix x) (= iy y) (= ix1 x1) (= iy1 y1))
+					;fill covers the WHOLE area, skip canvas-tile completely!
+					(.-> *canvas*
+						(:set_color (get-int (elem-get +mandel_lut fill_value) 0))
+						(:fbox x y (- x1 x) (- y1 y)))
+					(progn
+						;tile the full buffer (draws computed perimeter rings + uninitialized interior garbage)
+						(canvas-tile *canvas* (apply cat (map (# (elem-get +mandel_lut (code %0)))
+							(slice msg 0 (- -1 +job_reply_size)))) x y x1 y1)
+						;overwrite the uninitialized interior garbage with any solid fill!
+						(when (/= fill_value -1)
+							(.-> *canvas*
+								(:set_color (get-int (elem-get +mandel_lut fill_value) 0))
+								(:fbox ix iy (- ix1 ix) (- iy1 iy)))))))
 			(:t ;timer event
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 				(. farm :refresh +retry_timeout)

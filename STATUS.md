@@ -4,6 +4,10 @@
 
 ------
 
+Mandelbrot now demonstrates a boundary scan algorithm.
+
+------
+
 Added a few more `&optional` outputs to the vector library functions.
 
 Optimised the `Mesh` and `Surface` classes.
