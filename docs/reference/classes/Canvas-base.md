@@ -86,3 +86,9 @@
 (. canvas :swap flags) -> canvas
 ```
 
+### :tile
+
+```code
+(. canvas :tile data x1 y1 x2 y2) -> area
+```
+

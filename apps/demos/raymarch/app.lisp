@@ -97,7 +97,7 @@
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
 				(setq dirty :t)
-				(canvas-tile canvas msg x y x1 y1))
+				(. canvas :tile msg x y x1 y1))
 			(:t ;timer event
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 				(if farm (. farm :refresh +retry_timeout))

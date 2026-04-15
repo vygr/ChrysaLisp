@@ -6,6 +6,9 @@
 
 Mandelbrot now demonstrates a boundary scan algorithm.
 
+`(canvas-tile canvas data x1 y1 x2 y2) -> area)` function promoted to `:canvas
+:tile` method.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.

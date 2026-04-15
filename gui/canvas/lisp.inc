@@ -11,10 +11,6 @@
 (import "lib/image/tga.inc")
 (import "lib/image/cpm.inc")
 
-;lisp bindings
-(ffi "gui/canvas/lisp_tile" canvas-tile)
-; (canvas-tile canvas data x1 y1 x2 y2) -> area
-
 ;init pixmap shared cache map
 (def *root_env* '*pixmap_cache* (Lmap))
 
@@ -55,6 +51,10 @@
 	(defmethod :fill (argb)
 		; (. canvas :fill argb) -> canvas
 		((const (ffi "gui/canvas/lisp_fill")) this argb))
+
+	(defmethod :tile (data x y x1 y1)
+		; (. canvas :tile data x1 y1 x2 y2) -> area
+		((const (ffi "gui/canvas/lisp_tile")) this data x y x1 y1))
 
 	(defmethod :set_canvas_flags (flags)
 		; (. canvas :set_canvas_flags flags) -> canvas

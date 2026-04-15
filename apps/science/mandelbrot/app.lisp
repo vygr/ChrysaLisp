@@ -133,7 +133,7 @@
 						(:fbox x y (- x1 x) (- y1 y)))
 					(progn
 						;tile the full buffer (draws computed perimeter rings + uninitialized interior garbage)
-						(canvas-tile *canvas* (apply cat (map (# (elem-get +mandel_lut (code %0)))
+						(. *canvas* :tile (apply cat (map (# (elem-get +mandel_lut (code %0)))
 							(slice msg 0 (- -1 +job_reply_size)))) x y x1 y1)
 						;overwrite the uninitialized interior garbage with any solid fill!
 						(when (/= fill_value -1)
