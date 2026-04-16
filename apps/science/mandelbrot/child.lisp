@@ -23,9 +23,8 @@
 	`(progn
 		(defq d (depth (+ (real-offset (n2r ,px) w z) cx)
 					(+ (real-offset (n2r ,py) h z) cy)))
-		(set-byte buf (+ (- ,px x) (* (- ,py y) bw)) d)
-		(if (= ring_depth -1) (setq ring_depth d))
-		(if (/= d ring_depth) (setq solid :nil))))
+		(set-byte buf (+ (- ,px x) (* (- ,py y) bw) +job_reply_size) d)
+		(if (/= d (setd ring_depth d)) (setq solid :nil))))
 
 (defun mandel (key mbox x y x1 y1 w h cx cy z)
 	(bind '(w h) (map (const n2r) (list w h)))
@@ -33,7 +32,7 @@
 		r 0 running :t fill_value -1 ix x iy y ix1 x1 iy1 y1)
 	;scan perimeters
 	(while (and running (< (* r 2) bw) (< (* r 2) bh))
-		(defq rx (+ x r) ry (+ y r) rx1 (- x1 r) ry1 (- y1 r) solid :t ring_depth -1)
+		(defq rx (+ x r) ry (+ y r) rx1 (- x1 r) ry1 (- y1 r) solid :t ring_depth :nil)
 		;top edge
 		(defq px (dec rx))
 		(while (< (++ px) rx1) (eval-px-py px ry))
@@ -55,17 +54,17 @@
 			(++ r))
 		(task-slice))
 	;tail of the reply
-	(defq tail (setf-> (str-alloc +job_reply_size)
+	(defq header (setf-> (str-alloc +job_reply_size)
 		(+job_reply_key key)
 		(+job_reply_x x) (+job_reply_y y)
 		(+job_reply_x1 x1) (+job_reply_y1 y1)
 		(+job_reply_ix ix) (+job_reply_iy iy)
 		(+job_reply_ix1 ix1) (+job_reply_iy1 iy1)
 		(+job_reply_fill_value fill_value)))
-	;if we need the data then write to end of buf, else just send tail
+	;if we need the data then write to head of buf, else just send it
 	(if (and (/= fill_value -1) (= ix x) (= iy y) (= ix1 x1) (= iy1 y1))
-		(mail-send mbox tail)
-		(mail-send mbox (set-str buf (* bw bh) tail))))
+		(mail-send mbox header)
+		(mail-send mbox (set-str buf 0 header))))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t +timeout 5000000)

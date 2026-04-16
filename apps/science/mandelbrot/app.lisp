@@ -119,11 +119,9 @@
 					(dispatch-job key val)))
 			(+select_reply
 				;child response
-				(defq reply_data (slice msg (- -1 +job_reply_size) -1))
-				(bind '(key x y x1 y1 ix iy ix1 iy1 fill_value) 
-					(getf-> reply_data
-						+job_reply_key +job_reply_x +job_reply_y +job_reply_x1 +job_reply_y1 
-						+job_reply_ix +job_reply_iy +job_reply_ix1 +job_reply_iy1 +job_reply_fill_value))
+				(bind '(key x y x1 y1 ix iy ix1 iy1 fill_value) (getf-> msg
+					+job_reply_key +job_reply_x +job_reply_y +job_reply_x1 +job_reply_y1 
+					+job_reply_ix +job_reply_iy +job_reply_ix1 +job_reply_iy1 +job_reply_fill_value))
 				(when (defq val (. farm :find key)) (dispatch-job key val))
 				(setq dirty :t)
 				(if (and (/= fill_value -1) (= ix x) (= iy y) (= ix1 x1) (= iy1 y1))
@@ -133,8 +131,8 @@
 						(:fbox x y (- x1 x) (- y1 y)))
 					(progn
 						;tile the full buffer (draws computed perimeter rings + uninitialized interior garbage)
-						(. *canvas* :tile (apply cat (map (# (elem-get +mandel_lut (code %0)))
-							(slice msg 0 (- -1 +job_reply_size)))) x y x1 y1)
+						(. *canvas* :tile (apply cat (map! (# (elem-get +mandel_lut (code %0)))
+							(list msg) (list) +job_reply_size -1)) x y x1 y1)
 						;overwrite the uninitialized interior garbage with any solid fill!
 						(when (/= fill_value -1)
 							(.-> *canvas*
