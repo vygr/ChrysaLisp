@@ -10,7 +10,7 @@
 
 ### (elem-get seq idx) -> elem
 
-### (filter! lambda seq [out start end]) -> out | (...)
+### (filter! lambda seq [start end out]) -> out | (...)
 
 ### (find elem seq [idx]) -> :nil | idx
 

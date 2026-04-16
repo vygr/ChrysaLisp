@@ -9,6 +9,9 @@ Mandelbrot now demonstrates a boundary scan algorithm.
 `(canvas-tile canvas data x1 y1 x2 y2) -> area)` function promoted to `:canvas
 :tile` method.
 
+Parameter switch for the `map!` and `filter!` optionals. `(map! lambda seq
+[start end out])`, `(map! lambda seqs [start end out])`.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
@@ -827,7 +830,7 @@ Big tidy up of the `(ffi path [sym flags])` syntax and optional values.
 New `(lines! lambda stream)` function than replaces `(each-line)`, accses the
 line index with `(!)`.
 
-New `(filter! lambda seq [out start end])` function than replaces
+New `(filter! lambda seq [start end out])` function than replaces
 `(filter-array)` with a simple macro `(filter lambda seq)`.
 
 New callback macro. `(callback lambda env arg ...) -> (eval `(apply ,lambda

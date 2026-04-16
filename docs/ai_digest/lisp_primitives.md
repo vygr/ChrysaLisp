@@ -400,7 +400,7 @@ lists and arrays.
 *   **`filter!`**: Creates a new list containing only the elements from a
     sequence for which the lambda returns a non `:nil` value.
 
-    * `(filter! lambda seq [out start end]) -> out | (...)`
+    * `(filter! lambda seq [start end out]) -> out | (...)`
 
 *   **`lines!`**: Iterates over each line in a stream, applying a lambda.
 

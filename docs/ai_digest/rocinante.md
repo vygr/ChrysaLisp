@@ -148,7 +148,7 @@ most cases, leading to cleaner, faster, and more memory-efficient code.
 *   **Purpose:** The selective collector. It is the one primitive that
     operates on a **single sequence**.
 
-*   **Signature:** `(filter! lambda seq [out start end])`
+*   **Signature:** `(filter! lambda seq [start end out])`
 
 *   **Composable Collecting:** It participates beautifully in the collector
     pattern.
@@ -159,10 +159,10 @@ most cases, leading to cleaner, faster, and more memory-efficient code.
 
     ;; A two-stage pipeline with no intermediate lists:
     ;; 1. Collect all lines from the file that contain "ERROR".
-    (filter! (lambda (line) (found? "ERROR" line)) results
+    (filter! (lambda (line) (found? "ERROR" line)) results 0 -1
         (lines! (lambda (x) x) stream))
     ;; 2. Now, collect all lines that contain "CRITICAL".
-    (filter! (lambda (line) (found? "CRITICAL" line)) results
+    (filter! (lambda (line) (found? "CRITICAL" line)) results 0 -1
         (lines! (lambda (x) x) stream))
     ```
 

@@ -209,7 +209,7 @@
 (ffi "class/seq/lisp_map" map!)
 ; (map! lambda seqs [start end out]) -> out | (...)
 (ffi "class/seq/lisp_filter" filter!)
-; (filter! lambda seq [out start end]) -> out | (...)
+; (filter! lambda seq [start end out]) -> out | (...)
 (ffi "class/seq/lisp_reduce" reduce!)
 ; (reduce! lambda seqs init [start end]) -> val
 (ffi "class/array/lisp_cap" cap)
