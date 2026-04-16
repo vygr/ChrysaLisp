@@ -224,10 +224,10 @@ The function being called can access the current index value by use of the
 
 You can iterate over sequences or slices of sequences, forwards or backwards,
 while collecting the results of a function that will be called with the grouped
-elements from each index position, by use of the `(map! lambda seqs [list start
-end])` function. `(map)` and `(rmap)` are macros that assume the index
-values cover the full extent of the sequences and take those sequences as
-arguments rather than an explicit list.
+elements from each index position, by use of the `(map! lambda seqs [start end
+list])` function. `(map)` and `(rmap)` are macros that assume the index values
+cover the full extent of the sequences and take those sequences as arguments
+rather than an explicit list.
 
 Reduction, with `(reduce! lambda seqs init [start end])`, transforms sequences
 or slices of sequences by providing an accumulated item along with each grouped

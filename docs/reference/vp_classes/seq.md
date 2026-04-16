@@ -20,7 +20,7 @@
 
 ### (length seq) -> num
 
-### (map! lambda seqs [out start end]) -> out | (...)
+### (map! lambda seqs [start end out]) -> out | (...)
 
 ### (most seq) -> empty | seq
 

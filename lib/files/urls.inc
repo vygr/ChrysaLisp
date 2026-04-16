@@ -7,7 +7,7 @@
 
 (defun url-list (url)
 	(map! (lambda (f m) (cat f (if (eql m "4") "/" " ")))
-		(unzip (split (pii-dirlist url) ",") 2) (list)))
+		(unzip (split (pii-dirlist url) ",") 2)))
 
 (defun url-split (url ctx)
 	(if (defq i (rfind "/" url))

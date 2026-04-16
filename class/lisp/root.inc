@@ -207,7 +207,7 @@
 (ffi "class/seq/lisp_some" some!)
 ; (some! lambda seqs [mode start end]) -> :nil | val
 (ffi "class/seq/lisp_map" map!)
-; (map! lambda seqs [out start end]) -> out | (...)
+; (map! lambda seqs [start end out]) -> out | (...)
 (ffi "class/seq/lisp_filter" filter!)
 ; (filter! lambda seq [out start end]) -> out | (...)
 (ffi "class/seq/lisp_reduce" reduce!)
@@ -689,11 +689,11 @@
 
 (defmacro or (&rest %0)
 	; (or [tst] ...) -> :nil | tst
-	(map! (const list) (list %0) (list (const cond))))
+	(map! (const list) (list %0) 0 -1 (list (const cond))))
 
 (defmacro and (&rest %0)
 	; (and [tst] ...) -> :t | :nil | tst
-	(map! (const list) (list %0) (list (const condn))))
+	(map! (const list) (list %0) 0 -1 (list (const condn))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; sort and randomise
@@ -780,7 +780,7 @@
 
 (defmacro rmap (f &rest %1)
 	; (rmap lambda seq ...) -> list
-	(static-qq (map! ,f (list ~%1) (list) -1 0)))
+	(static-qq (map! ,f (list ~%1) -1 0)))
 
 (defmacro reduce (f s &optional i)
 	; (reduce lambda seq [init]) -> form
@@ -871,7 +871,7 @@
 
 (defmacro lists (n)
 	; (lists n) -> ((list0) ... (listn-1))
-	(static-qq (map! (const list) '() (list) 0 ,n)))
+	(static-qq (map! (const list) '() 0 ,n)))
 
 (defun join (seqs seq &optional mode)
 	; (join seqs seq [mode]) -> seq

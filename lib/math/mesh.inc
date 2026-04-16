@@ -85,8 +85,8 @@
 		verts (reals) norms (reals) tris (nums)
 		;pre-calculate longitudinal (horizontal) angles
 		;prevents recalculating the same sines and cosines for every latitude ring
-		x_sins (map! (# (sin (* (n2r (!)) step))) '() (list) 0 eps2)
-		x_coses (map! (# (cos (* (n2r (!)) step))) '() (list) 0 eps2))
+		x_sins (map! (# (sin (* (n2r (!)) step))) '() 0 eps2)
+		x_coses (map! (# (cos (* (n2r (!)) step))) '() 0 eps2))
 	; gen verts
 	(for 1 eps
 		(task-slice)
@@ -141,8 +141,8 @@
 		verts (reals) norms (reals) tris (nums)
 		;pre-calculate toroidal (horizontal) angles
 		;prevents recalculating the same sines and cosines for every single ring
-		x_sins (map! (# (sin (* (n2r (!)) x_step))) '() (list) 0 eps2)
-		x_coses (map! (# (cos (* (n2r (!)) x_step))) '() (list) 0 eps2))
+		x_sins (map! (# (sin (* (n2r (!)) x_step))) '() 0 eps2)
+		x_coses (map! (# (cos (* (n2r (!)) x_step))) '() 0 eps2))
 	; gen verts
 	(for 0 eps
 		(task-slice)
@@ -187,9 +187,9 @@
 		cw (dec gw) ch (dec gh) cd (dec gd)
 		get_scalar_fnc (.? iso :get_scalar)
 		;precalculate axes coordinates to avoid vector math in the inner loops
-		x_points (map! (# (* (- (n2r (!)) cx) sx)) '() (list) 0 gw)
-		y_points (map! (# (* (- (n2r (!)) cy) sy)) '() (list) 0 gh)
-		z_points (map! (# (* (- (n2r (!)) cz) sz)) '() (list) 0 gd))
+		x_points (map! (# (* (- (n2r (!)) cx) sx)) '() 0 gw)
+		y_points (map! (# (* (- (n2r (!)) cy) sy)) '() 0 gh)
+		z_points (map! (# (* (- (n2r (!)) cz) sz)) '() 0 gd))
 	; march through the Z depth, on slice at a time
 	(defq slice_z :nil slice_z1 (eval-slice 0))
 	(for 0 cd

@@ -477,7 +477,7 @@
 						(progn
 							(defq delta (nums 0 dy 0 dy 0))
 							(map! (# (nums-add %0 delta))
-								(list cursors) (list) ei -1))))
+								(list cursors) ei -1))))
 					; map changes for mid cursors
 					(defq mid (map! (lambda (csr)
 						(bind '(pcx pcy pax pay psx) csr)
@@ -485,7 +485,7 @@
 							(csr-map-delete pcx pcy cx cy ax ay)
 							(csr-map-delete pax pay cx cy ax ay)
 							(nums psx)))
-						(list cursors) (list) si ei))
+						(list cursors) si ei))
 					; sort and merge mid (plus potentially bracketing cursors)
 					(lower (:cursors (cat
 						(slice cursors 0 si)
@@ -536,7 +536,7 @@
 						(progn
 							(defq delta (nums 0 dy 0 dy 0))
 							(map! (# (nums-add %0 delta))
-								(list cursors) (list) ei -1))))
+								(list cursors) ei -1))))
 					; map changes for mid cursors
 					(defq mid (map! (lambda (csr)
 						(bind '(pcx pcy pax pay psx) csr)
@@ -544,7 +544,7 @@
 							(csr-map-insert pcx pcy icx icy ecx ecy dy pax pay)
 							(csr-map-insert pax pay icx icy ecx ecy dy pcx pcy)
 							(nums psx)))
-						(list cursors) (list) si ei))
+						(list cursors) si ei))
 					; sort and merge mid
 					(lower (:cursors (cat
 						(slice cursors 0 si)

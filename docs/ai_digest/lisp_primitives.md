@@ -388,7 +388,7 @@ lists and arrays.
 *   **`map!`**: Applies a lambda to elements from sequences and collects the
     results into a new list.
 
-    * `(map! lambda seqs [out start end]) -> out | (...)`: If an `out` list is
+    * `(map! lambda seqs [start end out]) -> out | (...)`: If an `out` list is
       provided, results are pushed into it; otherwise, a new list is created.
 
 *   **`reduce!`**: Accumulates a single value by repeatedly applying a lambda
