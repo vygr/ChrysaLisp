@@ -9,7 +9,7 @@ Mandelbrot now demonstrates a boundary scan algorithm.
 `(canvas-tile canvas data x1 y1 x2 y2) -> area)` function promoted to `:canvas
 :tile` method.
 
-Parameter switch for the `map!` and `filter!` optionals. `(map! lambda seq
+Parameter switch for the `map!` and `filter!` optionals. `(filter! lambda seq
 [start end out])`, `(map! lambda seqs [start end out])`.
 
 ------
