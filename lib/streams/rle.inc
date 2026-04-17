@@ -24,6 +24,7 @@
 		literals (list) ; list to prevent object re-allocation thrashing
 		token (read-bits in_stream read_pool_state token_bits))
 	(while (/= token -1)
+		(task-slice)
 		; Peek ahead to find run length of identical tokens
 		(defq run_length 1 next_token (read-bits in_stream read_pool_state token_bits))
 		(while (and (< run_length max_run_length) (eql next_token token))
