@@ -12,6 +12,8 @@ Mandelbrot now demonstrates a boundary scan algorithm.
 Parameter switch for the `map!` and `filter!` optionals. `(filter! lambda seq
 [start end out])`, `(map! lambda seqs [start end out])`.
 
+Optimizations for the optional args processing for the `!` iterators.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
