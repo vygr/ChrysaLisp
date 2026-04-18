@@ -171,8 +171,9 @@
 	; Return exact length slice of decoded data
 	(slice dec_block 0 d_pos))
 
-(defun lz4-compress (in_stream out_stream opt_w)
-	; (lz4-compress in_stream out_stream opt_w)
+(defun lz4-compress (in_stream out_stream &optional window_size)
+	; (lz4-compress in_stream out_stream window_size)
+	(setd window_size 65536)
 	(defq hash_table (cap 8192 (nums)))
 	(times 8192 (push hash_table -65536))
 
@@ -181,7 +182,7 @@
 	(write-int out_stream +lz4_magic)
 	(write-byte out_stream '(0x60 0x40 0x82))
 
-	(defq chunk (read-blk in_stream opt_w))
+	(defq chunk (read-blk in_stream window_size))
 	(while chunk
 		(task-slice)
 		(times 8192 (elem-set hash_table (!) -65536)) ; Reset hash table
@@ -198,13 +199,14 @@
 				(write-int out_stream (length comp))
 				(write-blk out_stream comp)))
 				
-		(setq chunk (read-blk in_stream opt_w)))
+		(setq chunk (read-blk in_stream window_size)))
 
 	; Write 0-byte EndMark
 	(write-int out_stream 0))
 
-(defun lz4-decompress (in_stream out_stream opt_w)
-	; (lz4-decompress in_stream out_stream opt_w)
+(defun lz4-decompress (in_stream out_stream &optional window_size)
+	; (lz4-decompress in_stream out_stream window_size)
+	(setd window_size 65536)
 	(when (= (read-int in_stream) +lz4_magic)
 		(defq flg (read-byte in_stream)
 			  bd  (read-byte in_stream)
@@ -229,7 +231,7 @@
 							(write-blk out_stream chunk)
 							(if (not block_indep) (setq window (cat window chunk))))
 						(progn
-							(defq dec_block (lz4-decode-raw chunk window opt_w))
+							(defq dec_block (lz4-decode-raw chunk window window_size))
 							(write-blk out_stream dec_block)
 							(if (not block_indep) (setq window (cat window dec_block)))))
 
