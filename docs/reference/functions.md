@@ -604,6 +604,34 @@ very basic attenuation, diffuse and specular
 (long-to-hex-str num) -> str
 ```
 
+### lz4-compress
+
+```code
+(lz4-compress in_stream out_stream opt_w)
+```
+
+### lz4-compress-raw
+
+```code
+(lz4-compress-raw string nums_array) -> string
+
+Compresses a single independent raw LZ4 block.
+```
+
+### lz4-decode-raw
+
+```code
+(lz4-decode-raw string string num) -> string
+
+Decodes a raw LZ4 block, resolving overlaps smoothly.
+```
+
+### lz4-decompress
+
+```code
+(lz4-decompress in_stream out_stream opt_w)
+```
+
 ### macro-func?
 
 ```code

@@ -340,6 +340,19 @@ Usage: lisp [options] [path] ...
 	If no paths given on command line
 	then will REPL from stdin.
 ```
+## lz4
+```code
+Usage: lz4 [options] [file]
+
+	options:
+		-h --help: this help info.
+		-w --window num: max window size, default 65536.
+
+	Compresses a file using standard LZ4 Framed encoding.
+
+	If no file is given, it reads from stdin.
+	Output is written to stdout.
+```
 ## make
 ```code
 Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
@@ -619,6 +632,19 @@ Usage: unique [options] [line] ...
 
 	If no lines given on command line
 	then will read lines from stdin.
+```
+## unlz4
+```code
+Usage: unlz4 [options] [file]
+
+	options:
+		-h --help: this help info.
+		-w --window num: max window size, default 65536.
+
+	Decompresses a standard LZ4 Framed encoded file.
+
+	If no file is given, it reads from stdin.
+	Output is written to stdout.
 ```
 ## unrle
 ```code

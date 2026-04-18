@@ -14,6 +14,9 @@ Parameter switch for the `map!` and `filter!` optionals. `(filter! lambda seq
 
 Optimizations for the optional args processing for the `!` iterators.
 
+New LZ4 library and command apps. `lib/streams/lz4.inc`, `cmd/lz4.lisp` and
+`cmd/unlz4.lisp`.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.

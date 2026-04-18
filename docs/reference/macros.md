@@ -337,6 +337,12 @@ should provide the concreate handler
 (lower field | (field sym) ...) -> (set this field sym ...)
 ```
 
+### lz4-hash
+
+```code
+13 bits = 8192 slots. Constant 2654435761 spreads entropy.
+```
+
 ### macrobind
 
 ```code
