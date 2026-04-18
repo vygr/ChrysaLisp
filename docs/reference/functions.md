@@ -607,7 +607,7 @@ very basic attenuation, diffuse and specular
 ### lz4-compress
 
 ```code
-(lz4-compress in_stream out_stream opt_w)
+(lz4-compress in_stream out_stream [window_size])
 ```
 
 ### lz4-compress-raw
@@ -629,7 +629,7 @@ Decodes a raw LZ4 block, resolving overlaps smoothly.
 ### lz4-decompress
 
 ```code
-(lz4-decompress in_stream out_stream opt_w)
+(lz4-decompress in_stream out_stream [window_size])
 ```
 
 ### macro-func?

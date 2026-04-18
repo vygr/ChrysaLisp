@@ -172,7 +172,7 @@
 	(slice dec_block 0 d_pos))
 
 (defun lz4-compress (in_stream out_stream &optional window_size)
-	; (lz4-compress in_stream out_stream window_size)
+	; (lz4-compress in_stream out_stream [window_size])
 	(setd window_size 65536)
 	(defq hash_table (cap 8192 (nums)))
 	(times 8192 (push hash_table -65536))
@@ -205,7 +205,7 @@
 	(write-int out_stream 0))
 
 (defun lz4-decompress (in_stream out_stream &optional window_size)
-	; (lz4-decompress in_stream out_stream window_size)
+	; (lz4-decompress in_stream out_stream [window_size])
 	(setd window_size 65536)
 	(when (= (read-int in_stream) +lz4_magic)
 		(defq flg (read-byte in_stream)
