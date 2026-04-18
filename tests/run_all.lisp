@@ -54,6 +54,7 @@
 	(import "tests/streams/test_huffman.lisp")
 	(import "tests/streams/test_bits.lisp")
 	(import "tests/streams/test_io.lisp")
+	(import "tests/streams/test_lz4.lisp")
 
 	; System and Low-level
 	(import "tests/system/test_system.lisp")
