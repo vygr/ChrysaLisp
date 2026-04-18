@@ -55,21 +55,21 @@
 					(defq rem (- lit_len 15))
 					(while (>= rem 255)
 						(set-byte tok_buf t_pos 255) (++ t_pos)
-						(setq rem (- rem 255)))
+						(-- rem 255))
 					(set-byte tok_buf t_pos rem) (++ t_pos))
 
 				(defq t_mid t_pos)
 
 				; Write Offset (16-bit LE)
 				(defq offset (- i m_pos))
-				(set-short tok_buf t_pos offset) (setq t_pos (+ t_pos 2))
+				(set-short tok_buf t_pos offset) (++ t_pos 2)
 
 				; Write Match Length Extras
 				(when (>= (- m_len 4) 15)
 					(defq rem (- m_len 19))
 					(while (>= rem 255)
 						(set-byte tok_buf t_pos 255) (++ t_pos)
-						(setq rem (- rem 255)))
+						(-- rem 255))
 					(set-byte tok_buf t_pos rem) (++ t_pos))
 
 				(defq t_end t_pos)
@@ -95,7 +95,7 @@
 		(defq rem (- lit_len 15))
 		(while (>= rem 255)
 			(set-byte tok_buf t_pos 255) (++ t_pos)
-			(setq rem (- rem 255)))
+			(-- rem 255))
 		(set-byte tok_buf t_pos rem) (++ t_pos))
 
 	(defq t_mid t_pos)
@@ -124,7 +124,7 @@
 			(while (= v 255)
 				(setq v (get-ubyte chunk c_pos))
 				(++ c_pos)
-				(setq lit_len (+ lit_len v))))
+				(++ lit_len v)))
 
 		(when (> lit_len 0)
 			(defq end_c (+ c_pos lit_len))
@@ -145,8 +145,8 @@
 				(while (= v 255)
 					(setq v (get-ubyte chunk c_pos))
 					(++ c_pos)
-					(setq match_len (+ match_len v))))
-			(setq match_len (+ match_len 4))
+					(++ match_len v)))
+			(++ match_len 4)
 
 			(defq end_d (+ d_pos match_len))
 
@@ -207,7 +207,7 @@
 (defun lz4-decompress (in_stream out_stream &optional window_size)
 	; (lz4-decompress in_stream out_stream [window_size])
 	(setd window_size 65536)
-	(when (= (read-int in_stream) +lz4_magic)
+	(when (and (defq magic (read-int in_stream)) (= magic +lz4_magic))
 		(defq flg (read-byte in_stream)
 			  bd  (read-byte in_stream)
 			  hc  (read-byte in_stream))
@@ -238,6 +238,7 @@
 					; Using negative index to cleanly truncate window circular buffer
 					(if (and (not block_indep) (> (length window) 65536))
 						(setq window (slice window -65536 -1))))))))
+
 
 ;module
 (export-symbols '(lz4-compress lz4-decompress lz4-compress-raw lz4-decode-raw))
