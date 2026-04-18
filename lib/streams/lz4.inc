@@ -178,11 +178,8 @@
 
 	; Write Standard LZ4 Frame Header
 	; FLG=0x60 (V1, Block Indep), BD=0x40 (64KB Max) -> HC=0x82
-	(write-blk out_stream (cat
-		(char +lz4_magic +int_size)
-		(char 0x60 +byte_size)
-		(char 0x40 +byte_size)
-		(char 0x82 +byte_size)))
+	(write-int out_stream +lz4_magic)
+	(write-byte out_stream '(0x60 0x40 0x82))
 
 	(defq chunk (read-blk in_stream opt_w))
 	(while chunk
@@ -208,8 +205,7 @@
 
 (defun lz4-decompress (in_stream out_stream opt_w)
 	; (lz4-decompress in_stream out_stream opt_w)
-	(defq magic (read-blk in_stream +int_size))
-	(when (and magic (= (get-int magic 0) +lz4_magic))
+	(when (= (read-int in_stream) +lz4_magic)
 		(defq flg (read-byte in_stream)
 			  bd  (read-byte in_stream)
 			  hc  (read-byte in_stream))
@@ -220,30 +216,26 @@
 
 		(while running
 			(task-slice)
-			(defq size_bytes (read-blk in_stream +int_size))
-			(if (or (not size_bytes) (= (length size_bytes) 0))
-				(setq running :nil)
+			(defq size (read-uint in_stream))
+			(if (or (not size) (= size 0))
+				(setq running :nil) ; EndMark or EOF detected
 				(progn
-					(defq size (get-int size_bytes 0))
-					(if (= size 0)
-						(setq running :nil) ; EndMark detected
+					(defq uncompressed (bits? size 0x80000000)
+						  real_size (logand size 0x7FFFFFFF)
+						  chunk (read-blk in_stream real_size))
+
+					(if uncompressed
 						(progn
-							(defq uncompressed (bits? size 0x80000000)
-								  real_size (logand size 0x7FFFFFFF)
-								  chunk (read-blk in_stream real_size))
+							(write-blk out_stream chunk)
+							(if (not block_indep) (setq window (cat window chunk))))
+						(progn
+							(defq dec_block (lz4-decode-raw chunk window opt_w))
+							(write-blk out_stream dec_block)
+							(if (not block_indep) (setq window (cat window dec_block)))))
 
-							(if uncompressed
-								(progn
-									(write-blk out_stream chunk)
-									(if (not block_indep) (setq window (cat window chunk))))
-								(progn
-									(defq dec_block (lz4-decode-raw chunk window opt_w))
-									(write-blk out_stream dec_block)
-									(if (not block_indep) (setq window (cat window dec_block)))))
-
-							; Using negative index to cleanly truncate window circular buffer
-							(if (and (not block_indep) (> (length window) 65536))
-								(setq window (slice window -65536 -1))))))))))
+					; Using negative index to cleanly truncate window circular buffer
+					(if (and (not block_indep) (> (length window) 65536))
+						(setq window (slice window -65536 -1))))))))
 
 ;module
 (export-symbols '(lz4-compress lz4-decompress lz4-compress-raw lz4-decode-raw))
