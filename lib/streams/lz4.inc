@@ -7,9 +7,8 @@
 
 (defq +lz4_magic 0x184D2204)
 
-(defmacro lz4-hash (v)
-	; 13 bits = 8192 slots. Constant 2654435761 spreads entropy.
-	`(logand (>> (* ,v 2654435761) 19) 8191))
+; 13 bits = 8192 slots
+(defmacro lz4-hash (v) `(logand (hash ,v) 8191))
 
 (defun lz4-compress-raw (chunk hash_table)
 	; (lz4-compress-raw string nums_array) -> string
