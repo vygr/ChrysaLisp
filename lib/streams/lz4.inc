@@ -32,9 +32,9 @@
 					(= val (get-uint chunk m_pos)))
 				; --- MATCH FOUND ---
 				; 1. Find match length
-				(defq limit (- c_len 5) m_len 4)
+				(defq m_len 4)
 				(some! (# (if (eql %0 (elem-get chunk (+ m_pos m_len))) (++ m_len)))
-					(list chunk) :t (+ i m_len) limit)
+					(list chunk) :t (+ i m_len) (- c_len 5))
 
 				; 2. Calculate Token
 				(defq lit_len (- i anchor)
