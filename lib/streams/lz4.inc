@@ -95,10 +95,12 @@
 	; Perform the atomic slice/concat!
 	(splice chunk tok_buf indices))
 
-(defun lz4-decode-raw (chunk window block_size)
-	; (lz4-decode-raw chunk window block_size) -> string
+(defun lz4-decode-raw (chunk window max_block_size)
+	; (lz4-decode-raw chunk window max_block_size) -> string
 	; Decodes a raw LZ4 block, resolving overlaps smoothly.
-	(defq dec_block (str-alloc block_size)
+
+	; Safely allocate using the actual Max Block Size
+	(defq dec_block (str-alloc max_block_size)
 		c_pos 0 c_len (length chunk) d_pos 0 w_len (length window))
 
 	(while (< c_pos c_len)
@@ -193,6 +195,8 @@
 	(setd window_size 65536)
 	(when (and (defq magic (read-int in_stream)) (= magic +lz4_magic))
 		(defq flg (read-byte in_stream) bd (read-byte in_stream) hc (read-byte in_stream))
+		;calculate actual Max Block Size from the BD byte per LZ4 spec
+		(defq max_block_size (<< 1 (+ 8 (* 2 (logand (>> bd 4) 7)))))
 		;frame defines independent blocks or sliding window
 		(defq block_indep (bits? flg 0x20) window "" running :t)
 		(while running
@@ -201,19 +205,22 @@
 				;EndMark or EOF detected
 				(setq running :nil)
 				(progn
-					(defq uncompressed (bits? size 0x80000000)
-						chunk (read-blk in_stream (logand size 0x7FFFFFFF)))
-					(if uncompressed
-						(progn
-							(write-blk out_stream chunk)
-							(if (not block_indep) (setq window (cat window chunk))))
-						(progn
-							(defq dec_block (lz4-decode-raw chunk window window_size))
-							(write-blk out_stream dec_block)
-							(if (not block_indep) (setq window (cat window dec_block)))))
-					;truncate window circular buffer
-					(if (and (not block_indep) (> (length window) 65536))
-						(setq window (slice window -65536 -1))))))))
+					(defq chunk (read-blk in_stream (logand size 0x7FFFFFFF)))
+					(ifn (bits? size 0x80000000)
+						;compressed block - pass max_block_size for safe allocation!
+						(setq chunk (lz4-decode-raw chunk window max_block_size)))
+					(write-blk out_stream chunk)
+					(unless block_indep
+						;safely append and truncate sliding window circular buffer (ZERO WASTE)
+						(if (> (+ (length window) (length chunk)) window_size)
+							(if (>= (length chunk) window_size)
+								;chunk is huge, we don't need the old window at all
+								(setq window (slice chunk (neg window_size) -1))
+								;splice old window tail + new chunk into exactly 1 allocation
+								(setq window (splice window chunk
+									(nums (- (length chunk) window_size) -1 0 -1))))
+							;window hasn't wrapped yet
+							(setq window (cat window chunk)))))))))
 
 ;module
 (export-symbols '(lz4-compress lz4-decompress lz4-compress-raw lz4-decode-raw))
