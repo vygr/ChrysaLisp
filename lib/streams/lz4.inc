@@ -11,7 +11,7 @@
 (defmacro lz4-hash (v) `(logand (hash ,v) 8191))
 
 (defun lz4-compress-raw (chunk hash_table)
-	; (lz4-compress-raw string nums_array) -> string
+	; (lz4-compress-raw chunk hash_table) -> string
 	; Compresses a single independent raw LZ4 block.
 	(defq i 0 anchor 0 c_len (length chunk)
 		tok_buf (str-alloc (+ c_len 65536)) ; Safe upper bound for tokens
@@ -32,11 +32,9 @@
 					(= val (get-uint chunk m_pos)))
 				; --- MATCH FOUND ---
 				; 1. Find match length
-				(defq m_len 4 limit (- c_len 5))
-				(while (and (< (+ i m_len) limit)
-							(= (get-ubyte chunk (+ i m_len))
-							   (get-ubyte chunk (+ m_pos m_len))))
-					(++ m_len))
+				(defq limit (- c_len 5) m_len 4)
+				(some! (# (if (eql %0 (elem-get chunk (+ m_pos m_len))) (++ m_len)))
+					(list chunk) :t (+ i m_len) limit)
 
 				; 2. Calculate Token
 				(defq lit_len (- i anchor)
@@ -98,7 +96,7 @@
 	(splice chunk tok_buf indices))
 
 (defun lz4-decode-raw (chunk window block_size)
-	; (lz4-decode-raw string string num) -> string
+	; (lz4-decode-raw chunk window block_size) -> string
 	; Decodes a raw LZ4 block, resolving overlaps smoothly.
 	(defq dec_block (str-alloc block_size)
 		c_pos 0 c_len (length chunk) d_pos 0 w_len (length window))
@@ -165,55 +163,46 @@
 (defun lz4-compress (in_stream out_stream &optional window_size)
 	; (lz4-compress in_stream out_stream [window_size])
 	(setd window_size 65536)
-	(defq hash_table (cap 8192 (nums)))
+	(defq hash_table (cap 8192 (list)))
 	(times 8192 (push hash_table -65536))
-
-	; Write Standard LZ4 Frame Header
-	; FLG=0x60 (V1, Block Indep), BD=0x40 (64KB Max) -> HC=0x82
+	;standard LZ4 Frame Header
+	;FLG=0x60 (V1, Block Indep), BD=0x40 (64KB Max) -> HC=0x82
 	(write-int out_stream +lz4_magic)
 	(write-byte out_stream '(0x60 0x40 0x82))
-
-	(defq chunk (read-blk in_stream window_size))
-	(while chunk
+	(while (defq chunk (read-blk in_stream window_size))
 		(task-slice)
-		(times 8192 (elem-set hash_table (!) -65536)) ; Reset hash table
-		
+		;reset hash table
+		(clear hash_table)
+		(times 8192 (push hash_table -65536))
 		(defq comp (lz4-compress-raw chunk hash_table))
-		
 		(if (>= (length comp) (length chunk))
 			(progn
-				; Highest bit set indicates uncompressed
+				;highest bit set indicates uncompressed
 				(write-int out_stream (logior 0x80000000 (length chunk)))
 				(write-blk out_stream chunk))
 			(progn
-				; Output compressed length
+				;output compressed length
 				(write-int out_stream (length comp))
 				(write-blk out_stream comp)))
-				
 		(setq chunk (read-blk in_stream window_size)))
-
-	; Write 0-byte EndMark
+	;write 0-byte EndMark
 	(write-int out_stream 0))
 
 (defun lz4-decompress (in_stream out_stream &optional window_size)
 	; (lz4-decompress in_stream out_stream [window_size])
 	(setd window_size 65536)
 	(when (and (defq magic (read-int in_stream)) (= magic +lz4_magic))
-		(defq flg (read-byte in_stream)
-			bd (read-byte in_stream) hc (read-byte in_stream))
-
-		; Frame defines independent blocks or sliding window
+		(defq flg (read-byte in_stream) bd (read-byte in_stream) hc (read-byte in_stream))
+		;frame defines independent blocks or sliding window
 		(defq block_indep (bits? flg 0x20) window "" running :t)
-
 		(while running
 			(task-slice)
 			(if (or (not (defq size (read-uint in_stream))) (= size 0))
-				(setq running :nil) ; EndMark or EOF detected
+				;EndMark or EOF detected
+				(setq running :nil)
 				(progn
 					(defq uncompressed (bits? size 0x80000000)
-						real_size (logand size 0x7FFFFFFF)
-						chunk (read-blk in_stream real_size))
-
+						chunk (read-blk in_stream (logand size 0x7FFFFFFF)))
 					(if uncompressed
 						(progn
 							(write-blk out_stream chunk)
@@ -222,8 +211,7 @@
 							(defq dec_block (lz4-decode-raw chunk window window_size))
 							(write-blk out_stream dec_block)
 							(if (not block_indep) (setq window (cat window dec_block)))))
-
-					; Using negative index to cleanly truncate window circular buffer
+					;truncate window circular buffer
 					(if (and (not block_indep) (> (length window) 65536))
 						(setq window (slice window -65536 -1))))))))
 
