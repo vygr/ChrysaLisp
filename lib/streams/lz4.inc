@@ -194,11 +194,11 @@
 	; (lz4-decompress in_stream out_stream [window_size])
 	(setd window_size 65536)
 	(when (and (defq magic (read-int in_stream)) (= magic +lz4_magic))
-		(defq flg (read-byte in_stream) bd (read-byte in_stream) hc (read-byte in_stream))
 		;calculate actual Max Block Size from the BD byte per LZ4 spec
-		(defq max_block_size (<< 1 (+ 8 (* 2 (logand (>> bd 4) 7)))))
 		;frame defines independent blocks or sliding window
-		(defq block_indep (bits? flg 0x20) window "" running :t)
+		(defq flg (read-byte in_stream) bd (read-byte in_stream) hc (read-byte in_stream)
+			max_block_size (<< 1 (+ 8 (* 2 (logand (>> bd 4) 7))))
+			block_indep (bits? flg 0x20) window "" running :t)
 		(while running
 			(task-slice)
 			(if (or (not (defq size (read-uint in_stream))) (= size 0))
@@ -211,17 +211,16 @@
 						(setq chunk (lz4-decode-raw chunk window max_block_size)))
 					(write-blk out_stream chunk)
 					;safely append and truncate sliding window circular buffer (ZERO WASTE)
-					(cond
-						(block_indep)
+					(setq window (cond
+						(block_indep window)
 						((<= (+ (length window) (length chunk)) window_size)
 							;window hasn't wrapped yet
-							(setq window (cat window chunk)))
+							(cat window chunk))
 						((>= (length chunk) window_size)
 							;chunk is huge, we don't need the old window at all
-							(setq window (slice chunk (neg window_size) -1)))
+							(slice chunk (neg window_size) -1))
 						;splice old window tail + new chunk into exactly 1 allocation
-						((setq window (splice window chunk
-							(nums (- (length chunk) window_size) -1 0 -1))))))))))
+						((splice window chunk (nums (- (length chunk) window_size) -1 0 -1))))))))))
 
 ;module
 (export-symbols '(lz4-compress lz4-decompress lz4-compress-raw lz4-decode-raw))
