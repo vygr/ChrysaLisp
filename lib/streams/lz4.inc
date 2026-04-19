@@ -210,17 +210,18 @@
 						;compressed block - pass max_block_size for safe allocation!
 						(setq chunk (lz4-decode-raw chunk window max_block_size)))
 					(write-blk out_stream chunk)
-					(unless block_indep
-						;safely append and truncate sliding window circular buffer (ZERO WASTE)
-						(if (> (+ (length window) (length chunk)) window_size)
-							(if (>= (length chunk) window_size)
-								;chunk is huge, we don't need the old window at all
-								(setq window (slice chunk (neg window_size) -1))
-								;splice old window tail + new chunk into exactly 1 allocation
-								(setq window (splice window chunk
-									(nums (- (length chunk) window_size) -1 0 -1))))
+					;safely append and truncate sliding window circular buffer (ZERO WASTE)
+					(cond
+						(block_indep)
+						((<= (+ (length window) (length chunk)) window_size)
 							;window hasn't wrapped yet
-							(setq window (cat window chunk)))))))))
+							(setq window (cat window chunk)))
+						((>= (length chunk) window_size)
+							;chunk is huge, we don't need the old window at all
+							(setq window (slice chunk (neg window_size) -1)))
+						;splice old window tail + new chunk into exactly 1 allocation
+						((setq window (splice window chunk
+							(nums (- (length chunk) window_size) -1 0 -1))))))))))
 
 ;module
 (export-symbols '(lz4-compress lz4-decompress lz4-compress-raw lz4-decode-raw))
