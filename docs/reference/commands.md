@@ -442,6 +442,17 @@ Usage: rm [options] [path] ...
 	If no paths given on command line
 	then paths are read from stdin.
 ```
+## save
+```code
+Usage: save [options] [path] ...
+
+	options:
+		-h --help: this help info.
+		-s --stdout: pass through, default :nil.
+
+	Read from stdin, write to all given paths,
+	optionally write to stdout.
+```
 ## sdir
 ```code
 Usage: sdir [options] [prefix]
@@ -529,15 +540,6 @@ Usage: tail [options file]
 	Returns lines from end of file or stdin.
 
 	Defaults to last 10 lines.
-```
-## tee
-```code
-Usage: tee [options] [path] ...
-
-	options:
-		-h --help: this help info.
-
-	Read from stdin, write to stdout and all given paths.
 ```
 ## template
 ```code

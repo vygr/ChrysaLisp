@@ -613,7 +613,7 @@ very basic attenuation, diffuse and specular
 ### lz4-compress-raw
 
 ```code
-(lz4-compress-raw string nums_array) -> string
+(lz4-compress-raw chunk hash_table) -> string
 
 Compresses a single independent raw LZ4 block.
 ```
@@ -621,7 +621,7 @@ Compresses a single independent raw LZ4 block.
 ### lz4-decode-raw
 
 ```code
-(lz4-decode-raw string string num) -> string
+(lz4-decode-raw chunk window block_size) -> string
 
 Decodes a raw LZ4 block, resolving overlaps smoothly.
 ```

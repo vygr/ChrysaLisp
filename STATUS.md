@@ -17,6 +17,9 @@ Optimizations for the optional args processing for the `!` iterators.
 New LZ4 library and command apps. `lib/streams/lz4.inc`, `cmd/lz4.lisp` and
 `cmd/unlz4.lisp`.
 
+Rename `tee` command to `save` and added `-s, --stdout` flag to pass through to
+stdout, defaults to :nil.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
