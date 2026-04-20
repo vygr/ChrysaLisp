@@ -1258,7 +1258,10 @@
 
 (defmacro set-str (obj idx val)
 	; (set-str str idx val) -> str
-	(static-qq (obj-set ,obj (+ +str_data ,idx) (length ,val) ,val)))
+	(if (msafe? val)
+		(static-qq (obj-set ,obj (+ +str_data ,idx) (length ,val) ,val))
+		(static-qq (obj-set ,obj (+ +str_data ,idx)
+			(length (defq ,(defq _val (gensym)) ,val)) ,_val))))
 
 ;;;;;;;;;
 ; Streams

@@ -20,6 +20,8 @@ New LZ4 library and command apps. `lib/streams/lz4.inc`, `cmd/lz4.lisp` and
 Rename `tee` command to `save` and added `-s, --stdout` flag to pass through to
 stdout, defaults to :nil.
 
+Fix to `set-str` macro to avoid potential double eval of the `val` argument.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
