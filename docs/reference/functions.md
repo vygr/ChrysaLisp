@@ -613,23 +613,40 @@ very basic attenuation, diffuse and specular
 ### lz4-compress-raw
 
 ```code
-(lz4-compress-raw chunk hash_table) -> string
+(lz4-compress-raw window start_idx hash_table) -> string
 
-Compresses a single independent raw LZ4 block.
+Compresses the new chunk appended to the sliding window.
 ```
 
 ### lz4-decode-raw
 
 ```code
-(lz4-decode-raw chunk window block_size) -> string
+(lz4-decode-raw chunk dec_buf d_pos) -> d_pos
 
-Decodes a raw LZ4 block, resolving overlaps smoothly.
+Decodes a raw LZ4 block into dec_buf at d_pos.
+dec_buf[0..d_pos) contains the sliding window history.
 ```
 
 ### lz4-decompress
 
 ```code
 (lz4-decompress in_stream out_stream [window_size])
+```
+
+### lz4-read-len
+
+```code
+(lz4-read-len chunk c_pos base) -> (c_pos base)
+
+Read LZ4 variable length extras from chunk, returns updated pos and length.
+```
+
+### lz4-write-len
+
+```code
+(lz4-write-len buf pos len) -> pos
+
+Write LZ4 variable length extras to buf at pos.
 ```
 
 ### macro-func?
