@@ -2,6 +2,8 @@
 ; LZ4 Fast Compression
 ;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/text/ring.inc")
+
 ;module
 (env-push)
 
@@ -33,11 +35,9 @@
 	(defq i start_idx anchor start_idx c_len (length window)
 		tok_buf (str-alloc (+ (- c_len start_idx) 65536))
 		t_pos 0 indices (nums))
-
 	(while (< i (- c_len 12))
 		(task-slice)
-		(defq val (get-uint window i) h (lz4-hash val)
-			m_pos (elem-get hash_table h))
+		(defq val (get-uint window i) h (lz4-hash val) m_pos (elem-get hash_table h))
 		(elem-set hash_table h i)
 		(cond
 			((and (>= m_pos 0)
@@ -66,7 +66,6 @@
 				; advance past match
 				(setq i (+ i m_len) anchor i))
 			((++ i))))
-
 	; final literal sequence
 	(defq lit_len (- c_len anchor) t_start t_pos)
 	(set-byte tok_buf t_pos (<< (min lit_len 15) 4)) (++ t_pos)
@@ -75,24 +74,21 @@
 	(push indices 0 0 t_start t_pos anchor c_len)
 	(splice window tok_buf indices))
 
-(defun lz4-decode-raw (chunk dec_buf d_pos)
-	; (lz4-decode-raw chunk dec_buf d_pos) -> d_pos
-	; Decodes a raw LZ4 block into dec_buf at d_pos.
-	; dec_buf[0..d_pos) contains the sliding window history.
+(defun lz4-decode-raw (chunk ring)
+	; (lz4-decode-raw chunk ring) -> ring
+	; Decodes a raw LZ4 block into the ring buffer.
 	(defq c_pos 0 c_len (length chunk))
-
 	(while (< c_pos c_len)
 		(task-slice)
 		(defq token (get-ubyte chunk c_pos)) (++ c_pos)
-
 		; literals
 		(defq lit_len (>> token 4))
 		(when (= lit_len 15)
 			(bind '(c_pos lit_len) (lz4-read-len chunk c_pos lit_len)))
 		(when (> lit_len 0)
-			(set-str dec_buf d_pos (slice chunk c_pos (++ c_pos lit_len)))
-			(++ d_pos lit_len))
-
+			(defq next_pos (+ c_pos lit_len))
+			(. ring :write (slice chunk c_pos next_pos))
+			(setq c_pos next_pos))
 		; match (if not at EOF)
 		(when (< c_pos c_len)
 			(defq offset (logior (get-ubyte chunk c_pos)
@@ -101,16 +97,8 @@
 			(defq ml (logand token 0x0F) match_len (+ ml 4))
 			(when (= ml 15)
 				(bind '(c_pos match_len) (lz4-read-len chunk c_pos match_len)))
-			(defq m_pos (- d_pos offset))
-			(if (>= offset match_len)
-				; no overlap: fast block copy
-				(set-str dec_buf d_pos (slice dec_buf m_pos (+ m_pos match_len)))
-				; overlap: byte-by-byte for RLE repeating patterns
-				(for d_pos (+ d_pos match_len)
-					(set-byte dec_buf (!) (get-ubyte dec_buf m_pos))
-					(++ m_pos)))
-			(++ d_pos match_len)))
-	d_pos)
+			(. ring :match offset match_len)))
+	ring)
 
 (defun lz4-compress (in_stream out_stream &optional window_size)
 	; (lz4-compress in_stream out_stream [window_size])
@@ -154,23 +142,18 @@
 		(defq flg (read-byte in_stream) bd (read-byte in_stream) hc (read-byte in_stream)
 			max_block_size (<< 1 (+ 8 (* 2 (logand (>> bd 4) 7))))
 			block_indep (bits? flg 0x20)
-			decode_space (str-alloc max_block_size)
-			dec_buf "" d_pos 0)
+			ring (Ring (max window_size max_block_size)))
 		(while (and (defq size (read-uint in_stream)) (/= size 0))
 			(task-slice)
 			(defq chunk (read-blk in_stream (logand size 0x7FFFFFFF))
-				w_start (if block_indep d_pos (max 0 (- d_pos window_size)))
-				w_len (- d_pos w_start))
-			; single splice: window tail from old buffer + new data source
+				old_pos (. ring :get_pos))
 			(if (bits? size 0x80000000)
-				; uncompressed: window tail + chunk
-				(setq dec_buf (splice dec_buf chunk (nums w_start d_pos 0 -1))
-					d_pos (+ w_len (length chunk)))
-				; compressed: window tail + decode space, then decode
-				(setq dec_buf (splice dec_buf decode_space (nums w_start d_pos 0 -1))
-					d_pos (lz4-decode-raw chunk dec_buf w_len)))
+				; uncompressed
+				(. ring :write chunk)
+				; compressed
+				(lz4-decode-raw chunk ring))
 			; output decoded bytes
-			(write-blk out_stream (slice dec_buf w_len d_pos)))))
+			(. ring :write_stream out_stream (- (. ring :get_pos) old_pos)))))
 
 ;module
 (export-symbols '(lz4-compress lz4-decompress lz4-compress-raw lz4-decode-raw))

@@ -18,16 +18,14 @@
 		; (. ring :write data) -> ring
 		(raise :capacity :mask :buf :pos)
 		(defq slen (length data) start (logand pos mask))
-		; Safe-guard: if payload is larger than ring, only keep the tail
+		; if payload is larger than ring, only keep the tail
 		(when (> slen capacity)
-			(setq data (slice data (- slen capacity) slen)
-				slen capacity))
-
+			(setq data (slice data (- slen capacity) slen) slen capacity))
 		(defq space (- capacity start))
 		(if (<= slen space)
-			; Fits without wrapping
+			; without wrapping
 			(set-str buf start data)
-			; Wraps around buffer physically
+			; wraps around buffer physically
 			(progn
 				(set-str buf start (slice data 0 space))
 				(set-str buf 0 (slice data space slen))))
@@ -39,18 +37,18 @@
 		; (. ring :match offset match_len) -> ring
 		(raise :capacity :mask :buf :pos)
 		(if (>= offset match_len)
-			; No physical overlap in logical stream, can bulk copy
+			; no overlap in logical stream, can bulk copy
 			(progn
 				(defq m_pos (logand (- pos offset) mask)
 					space (- capacity m_pos))
 				(if (<= match_len space)
-					; Source doesn't wrap
+					; source doesn't wrap
 					(. this :write (slice buf m_pos (+ m_pos match_len)))
-					; Source wraps around boundary
+					; source wraps around boundary
 					(progn
 						(. this :write (slice buf m_pos capacity))
 						(. this :write (slice buf 0 (- match_len space))))))
-			; Overlap - fallback to byte-by-byte for RLE replication mechanism
+			; fallback to byte-by-byte for RLE replication mechanism
 			(progn
 				(defq m_pos (- pos offset) b buf m mask p pos)
 				(times match_len
