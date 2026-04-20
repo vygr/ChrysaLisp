@@ -10,11 +10,11 @@
 ; 13 bits = 8192 slots
 (defmacro lz4-hash (v) `(logand (hash ,v) 8191))
 
-(defun lz4-compress-raw (chunk hash_table)
-	; (lz4-compress-raw chunk hash_table) -> string
-	; Compresses a single independent raw LZ4 block.
-	(defq i 0 anchor 0 c_len (length chunk)
-		tok_buf (str-alloc (+ c_len 65536)) ; Safe upper bound for tokens
+(defun lz4-compress-raw (window start_idx hash_table)
+	; (lz4-compress-raw window start_idx hash_table) -> string
+	; Compresses the new chunk appended to the sliding window.
+	(defq i start_idx anchor start_idx c_len (length window)
+		tok_buf (str-alloc (+ (- c_len start_idx) 65536)) ; Safe upper bound for tokens
 		t_pos 0 indices (nums))
 
 	; Stop looking for matches 12 bytes before the end.
@@ -22,19 +22,19 @@
 	(while (< i (- c_len 12))
 		(task-slice)
 		; Read 4 bytes natively as an unsigned 32-bit int
-		(defq val (get-uint chunk i) h (lz4-hash val)
+		(defq val (get-uint window i) h (lz4-hash val)
 			m_pos (elem-get hash_table h))
 		(elem-set hash_table h i)
 
 		(cond
 			((and (>= m_pos 0)
 					(<= (- i m_pos) 65535)
-					(= val (get-uint chunk m_pos)))
+					(= val (get-uint window m_pos)))
 				; --- MATCH FOUND ---
-				; 1. Find match length
+				; 1. Find match length (safely bound to the combined window)
 				(defq m_len 4)
-				(some! (# (if (eql %0 (elem-get chunk (+ m_pos m_len))) (++ m_len)))
-					(list chunk) :t (+ i m_len) (- c_len 5))
+				(some! (# (if (eql %0 (elem-get window (+ m_pos m_len))) (++ m_len)))
+					(list window) :t (+ i m_len) (- c_len 5))
 
 				; 2. Calculate Token
 				(defq lit_len (- i anchor)
@@ -66,8 +66,8 @@
 						(-- rem 255))
 					(set-byte tok_buf t_pos rem) (++ t_pos))
 
-				; Splice strictly alternates between chunk and tok_buf.
-				; (Empty chunk) -> (Token + Lit Extra) -> (Literals) -> (Offset + Match Extra)
+				; Splice strictly alternates between window and tok_buf.
+				; (Empty window) -> (Token + Lit Extra) -> (Literals) -> (Offset + Match Extra)
 				(push indices 0 0 t_start t_mid anchor i t_mid (defq t_end t_pos))
 
 				; Fast forward over the match
@@ -89,11 +89,11 @@
 			(-- rem 255))
 		(set-byte tok_buf t_pos rem) (++ t_pos))
 	
-	; Final append: (Empty chunk) -> (Final Token + Extras) -> (Final Literals)
+	; Final append: (Empty window) -> (Final Token + Extras) -> (Final Literals)
 	(push indices 0 0 t_start (defq t_mid t_pos) anchor c_len)
 
 	; Perform the atomic slice/concat!
-	(splice chunk tok_buf indices))
+	(splice window tok_buf indices))
 
 (defun lz4-decode-raw (chunk window max_block_size)
 	; (lz4-decode-raw chunk window max_block_size) -> string
@@ -165,27 +165,36 @@
 (defun lz4-compress (in_stream out_stream &optional window_size)
 	; (lz4-compress in_stream out_stream [window_size])
 	(setd window_size 65536)
-	(defq hash_table (cap 8192 (list)))
+	(defq hash_table (cap 8192 (list)) window "")
 	(times 8192 (push hash_table -65536))
 	;standard LZ4 Frame Header
-	;FLG=0x60 (V1, Block Indep), BD=0x40 (64KB Max) -> HC=0x82
+	;FLG=0x40 (V1, Block Dep), BD=0x40 (64KB Max) -> HC=0x73
 	(write-int out_stream +lz4_magic)
-	(write-byte out_stream '(0x60 0x40 0x82))
+	(write-byte out_stream '(0x40 0x40 0x73))
 	(while (defq chunk (read-blk in_stream window_size))
 		(task-slice)
-		;reset hash table
-		(clear hash_table)
-		(times 8192 (push hash_table -65536))
-		(defq comp (lz4-compress-raw chunk hash_table))
+		;append and truncate sliding window
+		(defq chunk_len (length chunk) win_len (length window))
 		(cond
-			((>= (length comp) (length chunk))
+			((= win_len 0)
+				;first chunk
+				(defq start_idx 0 window chunk))
+			(:t	;subsequent chunks: keep exactly the previous chunk as history
+				(defq shift (- win_len window_size) start_idx window_size
+					window (splice window chunk (nums (neg window_size) -1 0 -1)))
+				;shift hash table down if the window actually slid (Iteration 3+)
+				(if (> shift 0) (setq hash_table (map (# (- %0 shift)) hash_table)))))
+		;compress the newly appended chunk portion
+		(defq comp (lz4-compress-raw window start_idx hash_table))
+		(cond
+			((>= (length comp) chunk_len)
 				;highest bit set indicates uncompressed
-				(write-int out_stream (logior 0x80000000 (length chunk)))
+				(write-int out_stream (logior 0x80000000 chunk_len))
 				(write-blk out_stream chunk))
 			(:t ;output compressed length
 				(write-int out_stream (length comp))
 				(write-blk out_stream comp))))
-	;write 0-byte EndMark
+	;write 0 EndMark
 	(write-int out_stream 0))
 
 (defun lz4-decompress (in_stream out_stream &optional window_size)
