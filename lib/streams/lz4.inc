@@ -181,7 +181,7 @@
 				(defq start_idx 0 window chunk))
 			(:t	;subsequent chunks: keep exactly the previous chunk as history
 				(defq shift (- win_len window_size) start_idx window_size
-					window (splice window chunk (nums (neg window_size) -1 0 -1)))
+					window (splice window chunk (nums (- -1 window_size) -1 0 -1)))
 				;shift hash table down if the window actually slid (Iteration 3+)
 				(if (> shift 0) (setq hash_table (map (# (- %0 shift)) hash_table)))))
 		;compress the newly appended chunk portion
@@ -221,9 +221,9 @@
 					(cat window chunk))
 				((>= (length chunk) window_size)
 					;chunk is huge, we don't need the old window at all
-					(slice chunk (neg window_size) -1))
+					(slice chunk (- -1 window_size) -1))
 				;splice old window tail + new chunk into exactly 1 allocation
-				((splice window chunk (nums (- (length chunk) window_size) -1 0 -1))))))))
+				((splice window chunk (nums (- (length chunk) window_size 1) -1 0 -1))))))))
 
 ;module
 (export-symbols '(lz4-compress lz4-decompress lz4-compress-raw lz4-decode-raw))
