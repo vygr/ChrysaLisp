@@ -184,8 +184,7 @@
 				(write-blk out_stream chunk))
 			(:t ;output compressed length
 				(write-int out_stream (length comp))
-				(write-blk out_stream comp)))
-		(setq chunk (read-blk in_stream window_size)))
+				(write-blk out_stream comp))))
 	;write 0-byte EndMark
 	(write-int out_stream 0))
 
