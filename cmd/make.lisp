@@ -194,7 +194,7 @@
 			(. folders :update folder (# (if %0 (push %0 file) (list file)))))
 		(filter (lambda (file) (notany (# (starts-with %0 file)) '("usr/" "tests/")))
 			(files-all "." '("Makefile" ".vp" ".inc" ".lisp" ".c" ".cpp" ".h" ".sh" ".ps1" ".bat") 2)))
-	(. folders :each (# (push cmds (cat "cat -f " (join %1 " ") " | tee ai/" %0 ".txt | null"))))
+	(. folders :each (# (push cmds (cat "cat -f " (join %1 " ") " | save ai/" %0 ".txt"))))
 	(pipe-farm cmds))
 
 (defun main ()
