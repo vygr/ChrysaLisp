@@ -102,9 +102,13 @@
 			(when (= ml 15)
 				(bind '(c_pos match_len) (lz4-read-len chunk c_pos match_len)))
 			(defq m_pos (- d_pos offset))
-			(for d_pos (+ d_pos match_len)
-				(set-byte dec_buf (!) (get-ubyte dec_buf m_pos))
-				(++ m_pos))
+			(if (>= offset match_len)
+				; no overlap: fast block copy
+				(set-str dec_buf d_pos (slice dec_buf m_pos (+ m_pos match_len)))
+				; overlap: byte-by-byte for RLE repeating patterns
+				(for d_pos (+ d_pos match_len)
+					(set-byte dec_buf (!) (get-ubyte dec_buf m_pos))
+					(++ m_pos)))
 			(++ d_pos match_len)))
 	d_pos)
 
