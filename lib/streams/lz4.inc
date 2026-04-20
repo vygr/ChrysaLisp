@@ -90,10 +90,8 @@
 		(when (= lit_len 15)
 			(bind '(c_pos lit_len) (lz4-read-len chunk c_pos lit_len)))
 		(when (> lit_len 0)
-			(for c_pos (+ c_pos lit_len)
-				(set-byte dec_buf d_pos (get-ubyte chunk (!)))
-				(++ d_pos))
-			(++ c_pos lit_len))
+			(set-str dec_buf d_pos (slice chunk c_pos (++ c_pos lit_len)))
+			(++ d_pos lit_len))
 
 		; match (if not at EOF)
 		(when (< c_pos c_len)
