@@ -105,7 +105,7 @@
 
 ; --- nested #
 (defq out_a (list) out_b (list))
-(map (# (push out_a %0) (map (# (bind '(%%0 %%1) %0) (push out_b %0 %1)) %0))
+(map (# (push out_a %0) (map (# (bind '(a b) %0) (push out_b a b)) %0))
 	'(((1 a) (2 b) (3 c)) ((4 d) (5 e) (6 f)) ((7 x) (8 y) (9 z))))
 (assert-list-eq "nested # a" '(((1 a) (2 b) (3 c)) ((4 d) (5 e) (6 f)) ((7 x) (8 y) (9 z))) out_a)
 (assert-list-eq "nested # b" '(1 a 2 b 3 c 4 d 5 e 6 f 7 x 8 y 9 z) out_b)

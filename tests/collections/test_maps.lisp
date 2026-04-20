@@ -70,8 +70,8 @@
 
 (report-header "Custom Xmap")
 ; Custom case-insensitive string hash/cmp
-(defun my-hash (s) (hash (to-lower s)))
-(defun my-cmp (a b) (eql (to-lower a) (to-lower b)))
+(redefun my-hash (s) (hash (to-lower s)))
+(redefun my-cmp (a b) (eql (to-lower a) (to-lower b)))
 
 (defq cxm (Xmap 11 my-cmp my-hash))
 (. cxm :insert "Hello" 123)
