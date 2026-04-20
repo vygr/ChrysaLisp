@@ -10,7 +10,7 @@
 	; Creates a generic ring-buffer over a :str
 	(defq _cap 1)
 	(while (< _cap capacity_req) (setq _cap (<< _cap 1)))
-	(def this :capacity _cap :mask (- _cap 1) :pos 0 :buf (str-alloc _cap))
+	(def this :capacity _cap :mask (dec _cap) :pos 0 :buf (str-alloc _cap))
 
 	(defgetmethod :pos)
 
