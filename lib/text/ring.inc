@@ -5,33 +5,32 @@
 ;module
 (env-push)
 
-(defclass Ring (capacity_req &optional init_seq) :nil
-	; (Ring capacity_req [init_seq]) -> ring
-	; Creates a generic ring-buffer over a init_sequence (defaults to str).
+(defclass Ring (capacity_req) :nil
+	; (Ring capacity_req) -> ring
+	; Creates a generic ring-buffer over a :str
 	(defq _cap 1)
 	(while (< _cap capacity_req) (setq _cap (<< _cap 1)))
-	(def this :capacity _cap :mask (- _cap 1) :pos 0
-		:buf (if init_seq init_seq (str-alloc _cap)))
+	(def this :capacity _cap :mask (- _cap 1) :pos 0 :buf (str-alloc _cap))
 
 	(defgetmethod :pos)
 
-	(defmethod :write (init_seq)
-		; (. ring :write init_seq) -> ring
+	(defmethod :write (data)
+		; (. ring :write data) -> ring
 		(raise :capacity :mask :buf :pos)
-		(defq slen (length init_seq) start (logand pos mask))
+		(defq slen (length data) start (logand pos mask))
 		; Safe-guard: if payload is larger than ring, only keep the tail
 		(when (> slen capacity)
-			(setq init_seq (slice init_seq (- slen capacity) slen)
+			(setq data (slice data (- slen capacity) slen)
 				slen capacity))
 
 		(defq space (- capacity start))
 		(if (<= slen space)
 			; Fits without wrapping
-			(set-str buf start init_seq)
+			(set-str buf start data)
 			; Wraps around buffer physically
 			(progn
-				(set-str buf start (slice init_seq 0 space))
-				(set-str buf 0 (slice init_seq space slen))))
+				(set-str buf start (slice data 0 space))
+				(set-str buf 0 (slice data space slen))))
 		(setq pos (+ pos slen))
 		(lower :pos)
 		this)
