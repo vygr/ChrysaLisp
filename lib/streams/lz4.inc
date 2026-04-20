@@ -177,13 +177,12 @@
 		(clear hash_table)
 		(times 8192 (push hash_table -65536))
 		(defq comp (lz4-compress-raw chunk hash_table))
-		(if (>= (length comp) (length chunk))
-			(progn
+		(cond
+			((>= (length comp) (length chunk))
 				;highest bit set indicates uncompressed
 				(write-int out_stream (logior 0x80000000 (length chunk)))
 				(write-blk out_stream chunk))
-			(progn
-				;output compressed length
+			(:t ;output compressed length
 				(write-int out_stream (length comp))
 				(write-blk out_stream comp)))
 		(setq chunk (read-blk in_stream window_size)))
@@ -198,29 +197,25 @@
 		;frame defines independent blocks or sliding window
 		(defq flg (read-byte in_stream) bd (read-byte in_stream) hc (read-byte in_stream)
 			max_block_size (<< 1 (+ 8 (* 2 (logand (>> bd 4) 7))))
-			block_indep (bits? flg 0x20) window "" running :t)
-		(while running
+			block_indep (bits? flg 0x20) window "")
+		(while (and (defq size (read-uint in_stream)) (/= size 0))
 			(task-slice)
-			(if (or (not (defq size (read-uint in_stream))) (= size 0))
-				;EndMark or EOF detected
-				(setq running :nil)
-				(progn
-					(defq chunk (read-blk in_stream (logand size 0x7FFFFFFF)))
-					(ifn (bits? size 0x80000000)
-						;compressed block - pass max_block_size for safe allocation!
-						(setq chunk (lz4-decode-raw chunk window max_block_size)))
-					(write-blk out_stream chunk)
-					;safely append and truncate sliding window circular buffer (ZERO WASTE)
-					(setq window (cond
-						(block_indep window)
-						((<= (+ (length window) (length chunk)) window_size)
-							;window hasn't wrapped yet
-							(cat window chunk))
-						((>= (length chunk) window_size)
-							;chunk is huge, we don't need the old window at all
-							(slice chunk (neg window_size) -1))
-						;splice old window tail + new chunk into exactly 1 allocation
-						((splice window chunk (nums (- (length chunk) window_size) -1 0 -1))))))))))
+			(defq chunk (read-blk in_stream (logand size 0x7FFFFFFF)))
+			(ifn (bits? size 0x80000000)
+				;compressed block - pass max_block_size for safe allocation!
+				(setq chunk (lz4-decode-raw chunk window max_block_size)))
+			(write-blk out_stream chunk)
+			;safely append and truncate sliding window circular buffer (ZERO WASTE)
+			(setq window (cond
+				(block_indep window)
+				((<= (+ (length window) (length chunk)) window_size)
+					;window hasn't wrapped yet
+					(cat window chunk))
+				((>= (length chunk) window_size)
+					;chunk is huge, we don't need the old window at all
+					(slice chunk (neg window_size) -1))
+				;splice old window tail + new chunk into exactly 1 allocation
+				((splice window chunk (nums (- (length chunk) window_size) -1 0 -1))))))))
 
 ;module
 (export-symbols '(lz4-compress lz4-decompress lz4-compress-raw lz4-decode-raw))
