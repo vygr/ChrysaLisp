@@ -218,7 +218,7 @@
 
 	(def-vars
 		(ptr this args chunk buf)
-		(pubyte c b src_ptr dst_ptr)
+		(pubyte c b)
 		(long p c_pos c_len cap mask token lit_len v space m_pos match_len offset tmp dst_pos dst_space len))
 
 	(vp-rdef (r_chunk r_buf r_p))
@@ -307,14 +307,11 @@
 			; Overlap exists, must copy byte-by-byte (RLE pattern replication)
 			(assign {p - offset} {m_pos})
 			(assign {match_len} {tmp})
-			(loop-while {tmp > 0})
-				(assign {b + (m_pos & mask)} {src_ptr})
-				(assign {b + (p & mask)} {dst_ptr})
-				(assign {*src_ptr} {*dst_ptr})
+			(loop-start)
+				(assign {ubyte(b + (m_pos & mask))} {ubyte(b + (p & mask))})
 				(assign {m_pos + 1} {m_pos})
 				(assign {p + 1} {p})
-				(assign {tmp - 1} {tmp})
-			(loop-end)
+			(loop-until {(tmp - 1 => tmp) = 0})
 		(endif)
 	(loop-end)
 
