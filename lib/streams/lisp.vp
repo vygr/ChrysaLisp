@@ -34,7 +34,8 @@
 	(assign `(,r_window ,r_start_idx ,r_hash_table ,r_shift) {window, start_idx, hash_table, shift})
 
 	(assign {window->+str_length, hash_table->+array_length} {w_len, cap})
-	(assign {&window->+str_data, &hash_table->+array_begin[0]} {w, ht})
+	(assign {&window->+str_data} {w})
+	(assign {hash_table->+array_begin} {ht})
 
 	; Apply sliding window shift to the hash table natively
 	(vpif {shift > 0})
@@ -53,7 +54,7 @@
 
 	; Allocate token buffer (Worst-case LZ4 expansion size)
 	(assign {w_len - start_idx} {c_len})
-	(assign {c_len + (c_len / 255) + 16} {max_comp_len})
+	(assign {c_len + (c_len / 255) + 32} {max_comp_len})
 	(call :str :create_from_buffer {0, max_comp_len} {tok_buf})
 	(assign {&tok_buf->+str_data} {t})
 	(assign {0} {t_pos})

@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-;(ffi (path-to-absolute "./lz4_encode_raw") lz4-encode-raw)
+(ffi (path-to-absolute "./lz4_encode_raw") lz4-encode-raw)
 (ffi (path-to-absolute "./lz4_decode_raw") lz4-decode-raw)
 (ffi (path-to-absolute "./lz4_write") lz4-write)
 (ffi (path-to-absolute "./lz4_write_stream") lz4-write-stream)
@@ -32,7 +32,7 @@
 		(++ c_pos) (++ base v))
 	(list c_pos base))
 
-(defun lz4-encode-raw (window start_idx hash_table)
+(defun lz4-encode-raw-lisp (window start_idx hash_table)
 	; (lz4-encode-raw window start_idx hash_table) -> string
 	; Compresses the new chunk appended to the sliding window.
 	(defq i start_idx anchor start_idx c_len (length window)
@@ -80,7 +80,7 @@
 (defun lz4-compress (in_stream out_stream &optional window_size)
 	; (lz4-compress in_stream out_stream [window_size])
 	(setd window_size 65536)
-	(defq hash_table (cap 8192 (list)) window "")
+	(defq hash_table (cap 8192 (nums)) window "")
 	(times 8192 (push hash_table -65536))
 	;standard LZ4 Frame Header
 	;FLG=0x40 (V1, Block Dep), BD=0x40 (64KB Max) -> HC=0x73
@@ -93,14 +93,12 @@
 		(cond
 			((= win_len 0)
 				;first chunk
-				(defq start_idx 0 window chunk))
+				(defq start_idx 0 window chunk shift 0))
 			(:t	;subsequent chunks: keep exactly the previous chunk as history
 				(defq shift (- win_len window_size) start_idx window_size
-					window (splice window chunk (nums (- -1 window_size) -1 0 -1)))
-				;shift hash table down if the window actually slid (Iteration 3+)
-				(if (> shift 0) (setq hash_table (map (# (- %0 shift)) hash_table)))))
+					window (splice window chunk (nums (- -1 window_size) -1 0 -1)))))
 		;compress the newly appended chunk portion
-		(defq comp (lz4-encode-raw window start_idx hash_table))
+		(defq comp (lz4-encode-raw window start_idx hash_table shift))
 		(cond
 			((>= (length comp) chunk_len)
 				;highest bit set indicates uncompressed
