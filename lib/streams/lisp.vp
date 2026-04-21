@@ -1,0 +1,332 @@
+(include "lib/asm/func.inc")
+(include "class/nums/class.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+
+(def-func (path-to-absolute "./lz4_encode_raw"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this args window hash_table tok_buf)
+		(pubyte w t t_ptr ptr_m ptr_i)
+		(plong ht h_ptr)
+		(long start_idx shift w_len c_len max_comp_len i anchor cap)
+		(long val m_val h m_pos offset m_len match_limit lit_len)
+		(long lit_nibble match_nibble token t_pos rem end_limit ch_m ch_i))
+
+	(vp-rdef (r_window r_start_idx r_hash_table r_shift r_w r_v r_i r_t))
+
+	(push-scope)
+	(entry {this, args})
+
+	(errorif-lisp-args-sig 'error :r1 4)
+	
+	; Unpack args list into vp-rdef registers, then assign to CScript variables
+	(list-bind-args :r1 `(,r_window ,r_start_idx ,r_hash_table ,r_shift) '(:obj :num :obj :num))
+	(assign `(,r_window ,r_start_idx ,r_hash_table ,r_shift) {window, start_idx, hash_table, shift})
+
+	(assign {window->+str_length, hash_table->+array_length} {w_len, cap})
+	(assign {&window->+str_data, &hash_table->+array_begin[0]} {w, ht})
+
+	; Apply sliding window shift to the hash table natively
+	(vpif {shift > 0})
+		(assign {0} {i})
+		(loop-while {i < cap})
+			(assign {ht + (i * +long_size)} {h_ptr})
+			(assign {*h_ptr} {val})
+			(vpif {val >= shift})
+				(assign {val - shift} {*h_ptr})
+			(else)
+				(assign {-65536} {*h_ptr})
+			(endif)
+			(assign {i + 1} {i})
+		(loop-end)
+	(endif)
+
+	; Allocate token buffer (Worst-case LZ4 expansion size)
+	(assign {w_len - start_idx} {c_len})
+	(assign {c_len + (c_len / 255) + 16} {max_comp_len})
+	(call :str :create_from_buffer {0, max_comp_len} {tok_buf})
+	(assign {&tok_buf->+str_data} {t})
+	(assign {0} {t_pos})
+
+	(assign {start_idx} {i})
+	(assign {start_idx} {anchor})
+	(assign {w_len - 12} {end_limit})
+	(assign {w_len - 5} {match_limit})
+
+	(loop-while {i < end_limit})
+		; unaligned 32-bit unsigned read
+        (assign {w + i, 0} `(,r_w ,r_v))
+        (times 4
+            (vp-cpy-ir-ub r_w (!) r_t)
+            (vp-shl-cr (* (!) 8) r_t)
+            (vp-or-rr r_t r_v))
+        (assign `(,r_v) {val})
+
+		; 32-bit hashing multiplier
+		(assign {val * 2654435761} {h})
+		(assign {(h & 0xffffffff) >> 19} {h})
+		(assign {h & 8191} {h})
+
+		; Lookup & Update
+		(assign {ht + (h * +long_size)} {h_ptr})
+		(assign {*h_ptr} {m_pos})
+		(assign {i} {*h_ptr})
+
+		(vpif {m_pos >= 0})
+			(assign {i - m_pos} {offset})
+			(vpif {offset <= 65535})
+                ; unaligned 32-bit unsigned read
+                (assign {w + m_pos, 0} `(,r_w ,r_v))
+                (times 4
+                    (vp-cpy-ir-ub r_w (!) r_t)
+                    (vp-shl-cr (* (!) 8) r_t)
+                    (vp-or-rr r_t r_v))
+                (assign `(,r_v) {m_val})
+
+				(vpif {val = m_val})
+					; --- MATCH FOUND ---
+					(assign {4} {m_len})
+					(loop-while {i + m_len < match_limit})
+						(assign {w + m_pos + m_len} {ptr_m})
+						(assign {w + i + m_len} {ptr_i})
+						(assign {*ptr_m} {ch_m})
+						(assign {*ptr_i} {ch_i})
+						(breakif {ch_m /= ch_i})
+						(assign {m_len + 1} {m_len})
+					(loop-end)
+
+					(assign {i - anchor} {lit_len})
+
+					; Token
+					(assign {lit_len} {lit_nibble})
+					(vpif {lit_nibble >= 15}) (assign {15} {lit_nibble}) (endif)
+
+					(assign {m_len - 4} {match_nibble})
+					(vpif {match_nibble >= 15}) (assign {15} {match_nibble}) (endif)
+
+					(assign {(lit_nibble << 4) | match_nibble} {token})
+					(assign {t + t_pos} {t_ptr})
+					(assign {token} {*t_ptr})
+					(assign {t_pos + 1} {t_pos})
+
+					; Literal length extras
+					(vpif {lit_len >= 15})
+						(assign {lit_len - 15} {rem})
+						(loop-while {rem >= 255})
+							(assign {t + t_pos} {t_ptr})
+							(assign {255} {*t_ptr})
+							(assign {t_pos + 1} {t_pos})
+							(assign {rem - 255} {rem})
+						(loop-end)
+						(assign {t + t_pos} {t_ptr})
+						(assign {rem} {*t_ptr})
+						(assign {t_pos + 1} {t_pos})
+					(endif)
+
+					; Literals
+					(vpif {lit_len > 0})
+						(call :sys_mem :copy {w + anchor, t + t_pos, lit_len})
+						(assign {t_pos + lit_len} {t_pos})
+					(endif)
+
+					; Offset
+					(assign {t + t_pos} {t_ptr})
+					(assign {offset & 255} {*t_ptr})
+					(assign {t + t_pos + 1} {t_ptr})
+					(assign {(offset >> 8) & 255} {*t_ptr})
+					(assign {t_pos + 2} {t_pos})
+
+					; Match length extras
+					(vpif {m_len - 4 >= 15})
+						(assign {m_len - 19} {rem})
+						(loop-while {rem >= 255})
+							(assign {t + t_pos} {t_ptr})
+							(assign {255} {*t_ptr})
+							(assign {t_pos + 1} {t_pos})
+							(assign {rem - 255} {rem})
+						(loop-end)
+						(assign {t + t_pos} {t_ptr})
+						(assign {rem} {*t_ptr})
+						(assign {t_pos + 1} {t_pos})
+					(endif)
+
+					(assign {i + m_len} {i})
+					(assign {i} {anchor})
+					(goto 'end_match_check)
+				(endif)
+			(endif)
+		(endif)
+		(assign {i + 1} {i})
+	(vp-label 'end_match_check)
+	(loop-end)
+
+	; --- Final Literals ---
+	(assign {w_len - anchor} {lit_len})
+	(assign {lit_len} {lit_nibble})
+	(vpif {lit_nibble >= 15}) (assign {15} {lit_nibble}) (endif)
+
+	(assign {t + t_pos} {t_ptr})
+	(assign {lit_nibble << 4} {*t_ptr})
+	(assign {t_pos + 1} {t_pos})
+
+	(vpif {lit_len >= 15})
+		(assign {lit_len - 15} {rem})
+		(loop-while {rem >= 255})
+			(assign {t + t_pos} {t_ptr})
+			(assign {255} {*t_ptr})
+			(assign {t_pos + 1} {t_pos})
+			(assign {rem - 255} {rem})
+		(loop-end)
+		(assign {t + t_pos} {t_ptr})
+		(assign {rem} {*t_ptr})
+		(assign {t_pos + 1} {t_pos})
+	(endif)
+
+	(vpif {lit_len > 0})
+		(call :sys_mem :copy {w + anchor, t + t_pos, lit_len})
+		(assign {t_pos + lit_len} {t_pos})
+	(endif)
+
+	; Truncate the dynamically allocated string buffer directly to exact size!
+	(assign {t_pos} {tok_buf->+str_length})
+	(assign {tok_buf} {args})
+
+	(exit {this, args})
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error {this, "(lz4-compress-raw window start_idx hash_table shift)", +error_msg_wrong_types, args})
+	(signature '(:str :num :nums :num)))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func (path-to-absolute "./lz4_decode_raw"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this args chunk buf)
+		(pubyte c b src_ptr dst_ptr)
+		(long p c_pos c_len cap mask token lit_len v space m_pos match_len offset tmp dst_pos dst_space len))
+
+	(vp-rdef (r_chunk r_buf r_p))
+
+	(push-scope)
+	(entry {this, args})
+
+	(errorif-lisp-args-sig 'error :r1 3)
+	
+	; Bind args as (:obj :obj :num) -> (chunk, buffer, position)
+	(list-bind-args :r1 `(,r_chunk ,r_buf ,r_p) '(:obj :obj :num))
+	(assign `(,r_chunk ,r_buf ,r_p) {chunk, buf, p})
+
+	(assign {chunk->+str_length, buf->+str_length} {c_len, cap})
+	(assign {cap - 1} {mask})
+	(assign {&chunk->+str_data, &buf->+str_data} {c, b})
+	(assign {0} {c_pos})
+
+	(loop-while {c_pos < c_len})
+		(assign {c[c_pos]} {token})
+		(assign {c_pos + 1} {c_pos})
+
+		; --- Literals ---
+		(assign {token >> 4} {lit_len})
+		(vpif {lit_len = 15})
+			(assign {255} {v})
+			(loop-while {v = 255})
+				(assign {c[c_pos]} {v})
+				(assign {c_pos + 1} {c_pos})
+				(assign {lit_len + v} {lit_len})
+			(loop-end)
+		(endif)
+
+		(vpif {lit_len > 0})
+			(assign {cap - (p & mask)} {space})
+			(vpif {lit_len <= space})
+				(call :sys_mem :copy {c + c_pos, b + (p & mask), lit_len})
+			(else)
+				(call :sys_mem :copy {c + c_pos, b + (p & mask), space})
+				(call :sys_mem :copy {c + c_pos + space, b, lit_len - space})
+			(endif)
+			(assign {p + lit_len} {p})
+			(assign {c_pos + lit_len} {c_pos})
+		(endif)
+
+		(breakif {c_pos >= c_len})
+
+		; --- Match ---
+		(assign {c[c_pos] | (c[c_pos + 1] << 8)} {offset})
+		(assign {c_pos + 2} {c_pos})
+
+		(assign {(token & 15) + 4} {match_len})
+		(vpif {match_len = 19})
+			(assign {255} {v})
+			(loop-while {v = 255})
+				(assign {c[c_pos]} {v})
+				(assign {c_pos + 1} {c_pos})
+				(assign {match_len + v} {match_len})
+			(loop-end)
+		(endif)
+
+		(vpif {offset >= match_len})
+			; No overlap in logical stream, can bulk copy
+			(assign {(p - offset) & mask} {m_pos})
+			(assign {match_len} {tmp})
+			(loop-while {tmp > 0})
+				(assign {p & mask} {dst_pos})
+				(assign {cap - dst_pos} {dst_space})
+				(assign {cap - m_pos} {space})
+				(assign {tmp} {len})
+				(vpif {dst_space < len}) (assign {dst_space} {len}) (endif)
+				(vpif {space < len}) (assign {space} {len}) (endif)
+				(call :sys_mem :copy {b + m_pos, b + dst_pos, len})
+				(assign {p + len} {p})
+				(assign {(m_pos + len) & mask} {m_pos})
+				(assign {tmp - len} {tmp})
+			(loop-end)
+		(else)
+			; Overlap exists, must copy byte-by-byte (RLE pattern replication)
+			(assign {p - offset} {m_pos})
+			(assign {match_len} {tmp})
+			(loop-while {tmp > 0})
+				(assign {b + (m_pos & mask)} {src_ptr})
+				(assign {b + (p & mask)} {dst_ptr})
+				(assign {*src_ptr} {*dst_ptr})
+				(assign {m_pos + 1} {m_pos})
+				(assign {p + 1} {p})
+				(assign {tmp - 1} {tmp})
+			(loop-end)
+		(endif)
+	(loop-end)
+
+	(call :num :create {p} {args})
+
+	(exit {this, args})
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error {this, "(lz4-decode-raw chunk buf pos)", +error_msg_wrong_types, args})
+	(signature '(:str :str :num)))
+
+	(pop-scope-syms)
+
+(def-func-end)
