@@ -74,30 +74,12 @@
 	(push indices 0 0 t_start t_pos anchor c_len)
 	(splice window tok_buf indices))
 
+(ffi (path-to-absolute "./lz4_decode_raw") lz4-decode-raw-vp)
+
 (defun lz4-decode-raw (chunk ring)
 	; (lz4-decode-raw chunk ring) -> ring
-	; Decodes a raw LZ4 block into the ring buffer.
-	(defq c_pos 0 c_len (length chunk))
-	(while (< c_pos c_len)
-		(task-slice)
-		(defq token (get-ubyte chunk c_pos)) (++ c_pos)
-		; literals
-		(defq lit_len (>> token 4))
-		(when (= lit_len 15)
-			(bind '(c_pos lit_len) (lz4-read-len chunk c_pos lit_len)))
-		(when (> lit_len 0)
-			(defq next_pos (+ c_pos lit_len))
-			(. ring :write (slice chunk c_pos next_pos))
-			(setq c_pos next_pos))
-		; match (if not at EOF)
-		(when (< c_pos c_len)
-			(defq offset (logior (get-ubyte chunk c_pos)
-				(<< (get-ubyte chunk (++ c_pos)) 8)))
-			(++ c_pos)
-			(defq ml (logand token 0x0F) match_len (+ ml 4))
-			(when (= ml 15)
-				(bind '(c_pos match_len) (lz4-read-len chunk c_pos match_len)))
-			(. ring :match offset match_len)))
+	; Decodes a raw LZ4 block into the ring buffer natively.
+	(. ring :set_pos (lz4-decode-raw-vp chunk (. ring :get_buf) (. ring :get_pos)))
 	ring)
 
 (defun lz4-compress (in_stream out_stream &optional window_size)

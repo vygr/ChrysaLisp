@@ -252,10 +252,15 @@
 		(vpif {lit_len = 15})
 			(assign {255} {v})
 			(loop-while {v = 255})
+				(breakif {c_pos >= c_len})
 				(assign {c[c_pos]} {v})
 				(assign {c_pos + 1} {c_pos})
 				(assign {lit_len + v} {lit_len})
 			(loop-end)
+		(endif)
+
+		(vpif {c_pos + lit_len > c_len})
+			(assign {c_len - c_pos} {lit_len})
 		(endif)
 
 		(vpif {lit_len > 0})
@@ -273,6 +278,7 @@
 		(breakif {c_pos >= c_len})
 
 		; --- Match ---
+		(breakif {c_pos + 1 >= c_len})
 		(assign {c[c_pos] | (c[c_pos + 1] << 8)} {offset})
 		(assign {c_pos + 2} {c_pos})
 
@@ -280,6 +286,7 @@
 		(vpif {match_len = 19})
 			(assign {255} {v})
 			(loop-while {v = 255})
+				(breakif {c_pos >= c_len})
 				(assign {c[c_pos]} {v})
 				(assign {c_pos + 1} {c_pos})
 				(assign {match_len + v} {match_len})
