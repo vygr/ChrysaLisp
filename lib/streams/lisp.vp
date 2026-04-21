@@ -16,11 +16,11 @@
 
 	(def-vars
 		(ptr this args window hash_table tok_buf)
-		(pubyte w t t_ptr ptr_m ptr_i ptr_limit)
+		(pubyte w t ptr_m ptr_i ptr_limit)
 		(plong ht h_ptr h_end)
 		(long start_idx shift w_len c_len max_comp_len i anchor hmul hand)
 		(long val m_val h m_pos offset m_len match_limit lit_len)
-		(long lit_nibble match_nibble token t_pos rem end_limit ch_m ch_i))
+		(long lit_nibble match_nibble t_pos rem end_limit ch_m ch_i))
 
 	(vp-rdef (r_window r_start_idx r_hash_table r_shift r_w r_v r_i r_t))
 
@@ -119,22 +119,18 @@
 					(assign {m_len - 4} {match_nibble})
 					(vpif {match_nibble >= 15}) (assign {15} {match_nibble}) (endif)
 
-					(assign {(lit_nibble << 4) | match_nibble} {token})
-					(assign {t + t_pos} {t_ptr})
-					(assign {token} {*t_ptr})
+					(assign {(lit_nibble << 4) | match_nibble} {ubyte(t + t_pos)})
 					(assign {t_pos + 1} {t_pos})
 
 					; Literal length extras
 					(vpif {lit_len >= 15})
 						(assign {lit_len - 15} {rem})
 						(loop-while {rem >= 255})
-							(assign {t + t_pos} {t_ptr})
-							(assign {255} {*t_ptr})
+							(assign {255} {ubyte(t + t_pos)})
 							(assign {rem - 255} {rem})
 							(assign {t_pos + 1} {t_pos})
 						(loop-end)
-						(assign {t + t_pos} {t_ptr})
-						(assign {rem} {*t_ptr})
+						(assign {rem} {ubyte(t + t_pos)})
 						(assign {t_pos + 1} {t_pos})
 					(endif)
 
@@ -145,23 +141,18 @@
 					(endif)
 
 					; Offset
-					(assign {t + t_pos} {t_ptr})
-					(assign {offset & 255} {*t_ptr})
-					(assign {t + t_pos + 1} {t_ptr})
-					(assign {(offset >> 8) & 255} {*t_ptr})
+					(assign {offset} {ushort(t + t_pos)})
 					(assign {t_pos + 2} {t_pos})
 
 					; Match length extras
 					(vpif {m_len - 4 >= 15})
 						(assign {m_len - 19} {rem})
 						(loop-while {rem >= 255})
-							(assign {t + t_pos} {t_ptr})
-							(assign {255} {*t_ptr})
+							(assign {255} {ubyte(t + t_pos)})
 							(assign {rem - 255} {rem})
 							(assign {t_pos + 1} {t_pos})
 						(loop-end)
-						(assign {t + t_pos} {t_ptr})
-						(assign {rem} {*t_ptr})
+						(assign {rem} {ubyte(t + t_pos)})
 						(assign {t_pos + 1} {t_pos})
 					(endif)
 
@@ -180,20 +171,17 @@
 	(assign {lit_len} {lit_nibble})
 	(vpif {lit_nibble >= 15}) (assign {15} {lit_nibble}) (endif)
 
-	(assign {t + t_pos} {t_ptr})
-	(assign {lit_nibble << 4} {*t_ptr})
+	(assign {lit_nibble << 4} {ubyte(t + t_pos)})
 	(assign {t_pos + 1} {t_pos})
 
 	(vpif {lit_len >= 15})
 		(assign {lit_len - 15} {rem})
 		(loop-while {rem >= 255})
-			(assign {t + t_pos} {t_ptr})
-			(assign {255} {*t_ptr})
+			(assign {255} {ubyte(t + t_pos)})
 			(assign {rem - 255} {rem})
 			(assign {t_pos + 1} {t_pos})
 		(loop-end)
-		(assign {t + t_pos} {t_ptr})
-		(assign {rem} {*t_ptr})
+		(assign {rem} {ubyte(t + t_pos)})
 		(assign {t_pos + 1} {t_pos})
 	(endif)
 
