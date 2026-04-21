@@ -20,8 +20,9 @@
 		(plong ht h_ptr h_end)
 		(int shift m_pos)
 		(uint start_idx w_len c_len lit_len max_comp_len i anchor hmul)
-		(uint val m_val offset m_len match_limit)
-		(uint lit_nibble match_nibble t_pos rem end_limit ch_m ch_i))
+		(uint val m_val m_len match_limit rem end_limit t_pos)
+		(ushort offset)
+		(ubyte lit_nibble match_nibble ch_m ch_i))
 
 	(vp-rdef (r_window r_start_idx r_hash_table r_shift r_w r_v r_i r_t))
 
@@ -200,7 +201,9 @@
 		(ptr this args chunk buf)
 		(pubyte c b)
 		(long p)
-		(uint c_pos c_len cap mask token lit_len v space m_pos match_len offset tmp dst_pos dst_space len))
+		(uint c_pos c_len cap mask lit_len space m_pos match_len tmp dst_pos dst_space len)
+		(ushort offset)
+		(ubyte token v))
 
 	(vp-rdef (r_chunk r_buf r_p))
 
