@@ -616,30 +616,6 @@ very basic attenuation, diffuse and specular
 (lz4-decompress in_stream out_stream [window_size])
 ```
 
-### lz4-encode-raw-lisp
-
-```code
-(lz4-encode-raw window start_idx hash_table) -> string
-
-Compresses the new chunk appended to the sliding window.
-```
-
-### lz4-read-len
-
-```code
-(lz4-read-len chunk c_pos base) -> (c_pos base)
-
-Read LZ4 variable length extras from chunk, returns updated pos and length.
-```
-
-### lz4-write-len
-
-```code
-(lz4-write-len buf pos len) -> pos
-
-Write LZ4 variable length extras to buf at pos.
-```
-
 ### macro-func?
 
 ```code
