@@ -1,3 +1,4 @@
+;run with ./run_tui.sh -f -s tests/build/test_build.lisp
 (import "lib/task/pipe.inc")
 (print)
 (print "Building platform native boot image.")
