@@ -18,9 +18,10 @@
 		(ptr this args window hash_table tok_buf)
 		(pubyte w t ptr_m ptr_i ptr_limit)
 		(plong ht h_ptr h_end)
-		(long start_idx shift w_len c_len max_comp_len i anchor hmul hand)
-		(long val m_val h m_pos offset m_len match_limit lit_len)
-		(long lit_nibble match_nibble t_pos rem end_limit ch_m ch_i))
+		(int shift m_pos)
+		(uint start_idx w_len c_len lit_len max_comp_len i anchor hmul)
+		(uint val m_val offset m_len match_limit)
+		(uint lit_nibble match_nibble t_pos rem end_limit ch_m ch_i))
 
 	(vp-rdef (r_window r_start_idx r_hash_table r_shift r_w r_v r_i r_t))
 
@@ -53,15 +54,11 @@
 	(assign {w_len - start_idx} {c_len})
 	(assign {c_len + (c_len / 255) + 32} {max_comp_len})
 	(call :str :create_from_buffer {0, max_comp_len} {tok_buf})
-	(assign {&tok_buf->+str_data} {t})
-	(assign {0} {t_pos})
 
-	(assign {start_idx} {i})
-	(assign {start_idx} {anchor})
-	(assign {w_len - 12} {end_limit})
-	(assign {w_len - 5} {match_limit})
-
-    (assign {2654435761, 0xffffffff} {hmul, hand})
+	(assign {&tok_buf->+str_data, 0} {t, t_pos})
+	(assign {start_idx, start_idx} {i, anchor})
+	(assign {w_len - 12, w_len - 5} {end_limit, match_limit})
+    (assign {2654435761} {hmul})
 
 	(loop-while {i < end_limit})
 		; unaligned 32-bit unsigned read
@@ -72,13 +69,8 @@
             (vp-or-rr r_t r_v))
         (assign `(,r_v) {val})
 
-		; hash
-		(assign {val * hmul} {h})
-		(assign {(h & hand) >> 19} {h})
-		(assign {h & 8191} {h})
-
-		; Lookup & Update
-		(assign {ht + (h * +long_size)} {h_ptr})
+		; hash lookup and update
+		(assign {ht + ((((val * hmul) >> 19) & 8191) * +long_size)} {h_ptr})
 		(assign {*h_ptr} {m_pos})
 		(assign {i} {*h_ptr})
 
@@ -95,22 +87,17 @@
 
 				(vpif {val = m_val})
 					; --- MATCH FOUND ---
-					(assign {w + m_pos + 4} {ptr_m})
 					(assign {w + i + 4} {ptr_i})
 					(assign {w + match_limit} {ptr_limit})
 					(vpif {ptr_i < ptr_limit})
+						(assign {w + m_pos + 4} {ptr_m})
 						(loop-start)
-							(assign {*ptr_m} {ch_m})
-							(assign {*ptr_i} {ch_i})
+							(assign {*ptr_m, *ptr_i} {ch_m, ch_i})
 							(breakif {ch_m /= ch_i})
 							(assign {ptr_m + 1} {ptr_m})
 						(loop-until {(ptr_i + 1 => ptr_i) = ptr_limit})
 					(endif)
-
-					(assign {ptr_i - w} {m_len})
-					(assign {m_len - i} {m_len})
-
-					(assign {i - anchor} {lit_len})
+					(assign {ptr_i - w - i, i - anchor} {m_len, lit_len})
 
 					; Token
 					(assign {lit_len} {lit_nibble})
@@ -126,8 +113,7 @@
 					(vpif {lit_len >= 15})
 						(assign {lit_len - 15} {rem})
 						(loop-while {rem >= 255})
-							(assign {255} {ubyte(t + t_pos)})
-							(assign {rem - 255} {rem})
+							(assign {255, rem - 255} {ubyte(t + t_pos), rem})
 							(assign {t_pos + 1} {t_pos})
 						(loop-end)
 						(assign {rem} {ubyte(t + t_pos)})
@@ -148,16 +134,14 @@
 					(vpif {m_len - 4 >= 15})
 						(assign {m_len - 19} {rem})
 						(loop-while {rem >= 255})
-							(assign {255} {ubyte(t + t_pos)})
-							(assign {rem - 255} {rem})
+							(assign {255, rem - 255} {ubyte(t + t_pos), rem})
 							(assign {t_pos + 1} {t_pos})
 						(loop-end)
 						(assign {rem} {ubyte(t + t_pos)})
 						(assign {t_pos + 1} {t_pos})
 					(endif)
 
-					(assign {i + m_len} {i})
-					(assign {i} {anchor})
+					(assign {(i + m_len => i)} {anchor})
 					(goto 'end_match_check)
 				(endif)
 			(endif)
@@ -167,8 +151,7 @@
 	(loop-end)
 
 	; --- Final Literals ---
-	(assign {w_len - anchor} {lit_len})
-	(assign {lit_len} {lit_nibble})
+	(assign {(w_len - anchor => lit_len)} {lit_nibble})
 	(vpif {lit_nibble >= 15}) (assign {15} {lit_nibble}) (endif)
 
 	(assign {lit_nibble << 4} {ubyte(t + t_pos)})
@@ -177,8 +160,7 @@
 	(vpif {lit_len >= 15})
 		(assign {lit_len - 15} {rem})
 		(loop-while {rem >= 255})
-			(assign {255} {ubyte(t + t_pos)})
-			(assign {rem - 255} {rem})
+			(assign {255, rem - 255} {ubyte(t + t_pos), rem})
 			(assign {t_pos + 1} {t_pos})
 		(loop-end)
 		(assign {rem} {ubyte(t + t_pos)})
@@ -192,9 +174,7 @@
 
 	; Truncate the dynamically allocated string buffer directly to exact size!
 	(assign {t_pos} {tok_buf->+str_length})
-	(assign {tok_buf} {args})
-
-	(exit {this, args})
+	(exit {this, tok_buf})
 	(return)
 
 (errorcase
@@ -219,7 +199,8 @@
 	(def-vars
 		(ptr this args chunk buf)
 		(pubyte c b)
-		(long p c_pos c_len cap mask token lit_len v space m_pos match_len offset tmp dst_pos dst_space len))
+		(long p)
+		(uint c_pos c_len cap mask token lit_len v space m_pos match_len offset tmp dst_pos dst_space len))
 
 	(vp-rdef (r_chunk r_buf r_p))
 
@@ -248,8 +229,7 @@
 			(loop-while {v = 255})
 				(breakif {c_pos >= c_len})
 				(assign {c[c_pos]} {v})
-				(assign {c_pos + 1} {c_pos})
-				(assign {lit_len + v} {lit_len})
+				(assign {c_pos + 1, lit_len + v} {c_pos, lit_len})
 			(loop-end)
 		(endif)
 
@@ -282,8 +262,7 @@
 			(loop-while {v = 255})
 				(breakif {c_pos >= c_len})
 				(assign {c[c_pos]} {v})
-				(assign {c_pos + 1} {c_pos})
-				(assign {match_len + v} {match_len})
+				(assign {c_pos + 1, match_len + v} {c_pos, match_len})
 			(loop-end)
 		(endif)
 
@@ -293,8 +272,7 @@
 			(assign {match_len} {tmp})
 			(loop-while {tmp > 0})
 				(assign {p & mask} {dst_pos})
-				(assign {cap - dst_pos} {dst_space})
-				(assign {cap - m_pos} {space})
+				(assign {cap - dst_pos, cap - m_pos} {dst_space, space})
 				(assign {tmp} {len})
 				(vpif {dst_space < len}) (assign {dst_space} {len}) (endif)
 				(vpif {space < len}) (assign {space} {len}) (endif)
@@ -305,12 +283,10 @@
 			(loop-end)
 		(else)
 			; Overlap exists, must copy byte-by-byte (RLE pattern replication)
-			(assign {p - offset} {m_pos})
-			(assign {match_len} {tmp})
+			(assign {p - offset, match_len} {m_pos, tmp})
 			(loop-start)
 				(assign {ubyte(b + (m_pos & mask))} {ubyte(b + (p & mask))})
-				(assign {m_pos + 1} {m_pos})
-				(assign {p + 1} {p})
+				(assign {m_pos + 1, p + 1} {m_pos, p})
 			(loop-until {(tmp - 1 => tmp) = 0})
 		(endif)
 	(loop-end)
@@ -342,7 +318,8 @@
 	(def-vars
 		(ptr this args buf data)
 		(pubyte b d)
-		(long p cap mask d_len start space tmp))
+		(long p)
+		(uint cap mask d_len start space tmp))
 
 	(vp-rdef (r_buf r_p r_data))
 
@@ -403,7 +380,8 @@
 	(def-vars
 		(ptr this args buf stm)
 		(pubyte b)
-		(long p out_len cap mask start space tmp))
+		(long p)
+		(uint out_len cap mask start space tmp))
 
 	(vp-rdef (r_buf r_p r_stm r_out_len))
 
