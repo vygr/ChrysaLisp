@@ -7,6 +7,10 @@
 ;module
 (env-push)
 
+(ffi (path-to-absolute "./lz4_decode_raw") lz4-decode-raw)
+(ffi (path-to-absolute "./lz4_write") lz4-write)
+(ffi (path-to-absolute "./lz4_write_stream") lz4-write-stream)
+
 (defq +lz4_magic 0x184D2204)
 
 ; 13 bits = 8192 slots
@@ -74,14 +78,6 @@
 	(push indices 0 0 t_start t_pos anchor c_len)
 	(splice window tok_buf indices))
 
-(ffi (path-to-absolute "./lz4_decode_raw") lz4-decode-raw-vp)
-
-(defun lz4-decode-raw (chunk ring)
-	; (lz4-decode-raw chunk ring) -> ring
-	; Decodes a raw LZ4 block into the ring buffer natively.
-	(. ring :set_pos (lz4-decode-raw-vp chunk (. ring :get_buf) (. ring :get_pos)))
-	ring)
-
 (defun lz4-compress (in_stream out_stream &optional window_size)
 	; (lz4-compress in_stream out_stream [window_size])
 	(setd window_size 65536)
@@ -124,18 +120,20 @@
 		(defq flg (read-byte in_stream) bd (read-byte in_stream) hc (read-byte in_stream)
 			max_block_size (<< 1 (+ 8 (* 2 (logand (>> bd 4) 7))))
 			block_indep (bits? flg 0x20)
-			ring (Ring (max window_size max_block_size)))
+			ring_size (max window_size max_block_size)
+			window_size 1 pos 0)
+		(while (< window_size ring_size) (setq window_size (<< window_size 1)))
+		(defq ring_buf (str-alloc window_size))
 		(while (and (defq size (read-uint in_stream)) (/= size 0))
 			(task-slice)
-			(defq chunk (read-blk in_stream (logand size 0x7FFFFFFF))
-				old_pos (. ring :get_pos))
+			(defq chunk (read-blk in_stream (logand size 0x7FFFFFFF)) old_pos pos)
 			(if (bits? size 0x80000000)
 				; uncompressed
-				(. ring :write chunk)
+				(setq pos (lz4-write ring_buf pos chunk))
 				; compressed
-				(lz4-decode-raw chunk ring))
+				(setq pos (lz4-decode-raw chunk ring_buf pos)))
 			; output decoded bytes
-			(. ring :write_stream out_stream (- (. ring :get_pos) old_pos)))))
+			(lz4-write-stream ring_buf pos out_stream (- pos old_pos)))))
 
 ;module
 (export-symbols '(lz4-compress lz4-decompress lz4-compress-raw lz4-decode-raw))
