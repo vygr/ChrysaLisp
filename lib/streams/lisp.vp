@@ -22,7 +22,7 @@
 		(uint start_idx w_len c_len lit_len max_comp_len i anchor hmul)
 		(uint val m_val m_len match_limit rem end_limit t_pos)
 		(ushort offset)
-		(ubyte lit_nibble match_nibble ch_m ch_i))
+		(ubyte lit_nibble match_nibble))
 
 	(vp-rdef (r_window r_start_idx r_hash_table r_shift r_w r_v r_i r_t))
 
@@ -53,7 +53,7 @@
 
 	; Allocate token buffer (Worst-case LZ4 expansion size)
 	(assign {w_len - start_idx} {c_len})
-	(assign {c_len + (c_len / 255) + 32} {max_comp_len})
+	(assign {(c_len / 255) + c_len + 32} {max_comp_len})
 	(call :str :create_from_buffer {0, max_comp_len} {tok_buf})
 
 	(assign {&tok_buf->+str_data, 0} {t, t_pos})
@@ -92,9 +92,7 @@
 					(assign {w + match_limit} {ptr_limit})
 					(vpif {ptr_i < ptr_limit})
 						(assign {w + m_pos + 4} {ptr_m})
-						(loop-start)
-							(assign {*ptr_m, *ptr_i} {ch_m, ch_i})
-							(breakif {ch_m /= ch_i})
+						(loop-while {*ptr_m = *ptr_i})
 							(assign {ptr_m + 1} {ptr_m})
 						(loop-until {(ptr_i + 1 => ptr_i) = ptr_limit})
 					(endif)
