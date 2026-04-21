@@ -610,18 +610,18 @@ very basic attenuation, diffuse and specular
 (lz4-compress in_stream out_stream [window_size])
 ```
 
-### lz4-compress-raw
-
-```code
-(lz4-compress-raw window start_idx hash_table) -> string
-
-Compresses the new chunk appended to the sliding window.
-```
-
 ### lz4-decompress
 
 ```code
 (lz4-decompress in_stream out_stream [window_size])
+```
+
+### lz4-encode-raw-lisp
+
+```code
+(lz4-encode-raw window start_idx hash_table) -> string
+
+Compresses the new chunk appended to the sliding window.
 ```
 
 ### lz4-read-len

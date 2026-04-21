@@ -32,3 +32,21 @@
 
 ; Test 6: Overlapping matches
 (test-lz4 "LZ4 Overlap" "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" 65536)
+
+; Test 7: Large literal block (> 15 bytes)
+(defq large_lit "" i 0)
+(while (< i 100)
+	(setq large_lit (cat large_lit (char (+ (code "a") (% i 26)))))
+	(++ i))
+(test-lz4 "LZ4 Large Literals" large_lit 65536)
+
+; Test 8: Large match block (> 19 bytes)
+(defq large_match "START")
+(times 300 (setq large_match (cat large_match "A")))
+(setq large_match (cat large_match "END"))
+(test-lz4 "LZ4 Large Match" large_match 65536)
+
+; Test 9: Large dataset with sliding window (256KB)
+(defq large_data "")
+(times 1024 (setq large_data (cat large_data "ChrysaLisp LZ4 Sliding Window Test Case Data Block ")))
+(test-lz4 "LZ4 Large Sliding Window" large_data 65536)
