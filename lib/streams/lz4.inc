@@ -2,11 +2,10 @@
 ; LZ4 Fast Compression
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/text/ring.inc")
-
 ;module
 (env-push)
 
+;(ffi (path-to-absolute "./lz4_encode_raw") lz4-encode-raw)
 (ffi (path-to-absolute "./lz4_decode_raw") lz4-decode-raw)
 (ffi (path-to-absolute "./lz4_write") lz4-write)
 (ffi (path-to-absolute "./lz4_write_stream") lz4-write-stream)
@@ -33,8 +32,8 @@
 		(++ c_pos) (++ base v))
 	(list c_pos base))
 
-(defun lz4-compress-raw (window start_idx hash_table)
-	; (lz4-compress-raw window start_idx hash_table) -> string
+(defun lz4-encode-raw (window start_idx hash_table)
+	; (lz4-encode-raw window start_idx hash_table) -> string
 	; Compresses the new chunk appended to the sliding window.
 	(defq i start_idx anchor start_idx c_len (length window)
 		tok_buf (str-alloc (+ (- c_len start_idx) 65536))
@@ -101,7 +100,7 @@
 				;shift hash table down if the window actually slid (Iteration 3+)
 				(if (> shift 0) (setq hash_table (map (# (- %0 shift)) hash_table)))))
 		;compress the newly appended chunk portion
-		(defq comp (lz4-compress-raw window start_idx hash_table))
+		(defq comp (lz4-encode-raw window start_idx hash_table))
 		(cond
 			((>= (length comp) chunk_len)
 				;highest bit set indicates uncompressed

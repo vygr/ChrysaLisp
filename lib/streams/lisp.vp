@@ -18,7 +18,7 @@
 		(ptr this args window hash_table tok_buf)
 		(pubyte w t t_ptr ptr_m ptr_i)
 		(plong ht h_ptr)
-		(long start_idx shift w_len c_len max_comp_len i anchor cap)
+		(long start_idx shift w_len c_len max_comp_len i anchor cap hmul hand)
 		(long val m_val h m_pos offset m_len match_limit lit_len)
 		(long lit_nibble match_nibble token t_pos rem end_limit ch_m ch_i))
 
@@ -63,6 +63,8 @@
 	(assign {w_len - 12} {end_limit})
 	(assign {w_len - 5} {match_limit})
 
+    (assign {2654435761, 0xffffffff} {hmul, hand})
+
 	(loop-while {i < end_limit})
 		; unaligned 32-bit unsigned read
         (assign {w + i, 0} `(,r_w ,r_v))
@@ -72,9 +74,9 @@
             (vp-or-rr r_t r_v))
         (assign `(,r_v) {val})
 
-		; 32-bit hashing multiplier
-		(assign {val * 2654435761} {h})
-		(assign {(h & 0xffffffff) >> 19} {h})
+		; hash
+		(assign {val * hmul} {h})
+		(assign {(h & hand) >> 19} {h})
 		(assign {h & 8191} {h})
 
 		; Lookup & Update
@@ -206,7 +208,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error {this, "(lz4-compress-raw window start_idx hash_table shift)", +error_msg_wrong_types, args})
+	(jump :lisp :repl_error {this, "(lz4-encode-raw window start_idx hash_table shift)", +error_msg_wrong_types, args})
 	(signature '(:str :num :nums :num)))
 
 	(pop-scope-syms)

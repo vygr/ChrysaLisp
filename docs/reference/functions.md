@@ -618,15 +618,6 @@ very basic attenuation, diffuse and specular
 Compresses the new chunk appended to the sliding window.
 ```
 
-### lz4-decode-raw
-
-```code
-(lz4-decode-raw chunk dec_buf d_pos) -> d_pos
-
-Decodes a raw LZ4 block into dec_buf at d_pos.
-dec_buf[0..d_pos) contains the sliding window history.
-```
-
 ### lz4-decompress
 
 ```code
