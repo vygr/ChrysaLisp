@@ -5,7 +5,8 @@
 (print "Please wait...")
 (print)
 (while (< (length (lisp-nodes)) 8) (task-sleep 100000))
-(pipe-run "make all boot | time"
-	(lambda (%0) (prin %0) (stream-flush (io-stream "stdout"))))
-(print)
+(defq out (memory-stream))
+(pipe-run "make all boot | time" (# (write-blk out %0)))
+(stream-seek out 0 0)
+(lines! (# (print %0) (stream-flush (io-stream 'stdout)) (task-sleep 10)) out)
 ((ffi "service/gui/lisp_deinit"))
