@@ -5,8 +5,8 @@
 ;module
 (env-push)
 
-(ffi (path-to-absolute "./lz4_encode_raw") lz4-encode-raw)
-(ffi (path-to-absolute "./lz4_decode_raw") lz4-decode-raw)
+(ffi (path-to-absolute "./lz4_encode") lz4-encode)
+(ffi (path-to-absolute "./lz4_decode") lz4-decode)
 (ffi (path-to-absolute "./lz4_write_stream") lz4-write-stream)
 (ffi (path-to-absolute "./lz4_write") lz4-write)
 
@@ -25,8 +25,7 @@
 		(task-slice)
 		(defq chunk_len (length chunk))
 		;compress the newly appended chunk portion
-		(bind '(comp new_pos) (lz4-encode-raw ring_buf pos chunk hash_table))
-		(setq pos new_pos)
+		(bind '(comp pos) (lz4-encode ring_buf pos chunk hash_table))
 		(cond
 			((>= (length comp) chunk_len)
 				;highest bit set indicates uncompressed
@@ -56,10 +55,10 @@
 				; uncompressed
 				(setq pos (lz4-write ring_buf pos chunk))
 				; compressed
-				(setq pos (lz4-decode-raw ring_buf pos chunk)))
+				(setq pos (lz4-decode ring_buf pos chunk)))
 			; output decoded bytes
 			(lz4-write-stream ring_buf pos out_stream (- pos old_pos)))))
 
 ;module
-(export-symbols '(lz4-compress lz4-decompress lz4-compress-raw lz4-decode-raw))
+(export-symbols '(lz4-compress lz4-decompress lz4-compress lz4-decode))
 (env-pop)
