@@ -35,8 +35,7 @@
 	(list-bind-args :r1 `(,r_window ,r_start_idx ,r_hash_table ,r_shift) '(:obj :num :obj :num))
 	(assign `(,r_window ,r_start_idx ,r_hash_table ,r_shift) {window, start_idx, hash_table, shift})
 
-	(assign {window->+str_length} {w_len})
-	(assign {&window->+str_data} {w})
+	(assign {window->+str_length, &window->+str_data} {w_len, w})
 
 	(call :nums :get_both {hash_table} {_, ht, h_end})
 	(vpif {shift > 0})
@@ -56,40 +55,36 @@
 	(assign {(c_len / 255) + c_len + 32} {max_comp_len})
 	(call :str :create_from_buffer {0, max_comp_len} {tok_buf})
 
-	(assign {&tok_buf->+str_data, 0} {t, t_pos})
-	(assign {start_idx, start_idx} {i, anchor})
-	(assign {w_len - 12, w_len - 5} {end_limit, match_limit})
-    (assign {2654435761} {hmul})
+	(assign {&tok_buf->+str_data, 0, start_idx, start_idx, w_len - 12, w_len - 5, 2654435761} 
+		{t, t_pos, i, anchor, end_limit, match_limit, hmul})
 
 	(loop-while {i < end_limit})
 		; unaligned 32-bit unsigned read
-        (assign {w + i, 0} `(,r_w ,r_v))
-        (times 4
-            (vp-cpy-ir-ub r_w (!) r_t)
-            (vp-shl-cr (* (!) 8) r_t)
-            (vp-or-rr r_t r_v))
-        (assign `(,r_v) {val})
+		(assign {w + i, 0} `(,r_w ,r_v))
+		(times 4
+			(vp-cpy-ir-ub r_w (!) r_t)
+			(vp-shl-cr (* (!) 8) r_t)
+			(vp-or-rr r_t r_v))
+		(assign `(,r_v) {val})
 
 		; hash lookup and update
 		(assign {ht + ((((val * hmul) >> 19) & 8191) * +long_size)} {h_ptr})
-		(assign {*h_ptr} {m_pos})
-		(assign {i} {*h_ptr})
+		(assign {i, *h_ptr} {*h_ptr, m_pos})
 
 		(vpif {m_pos >= 0})
 			(assign {i - m_pos} {offset})
 			(vpif {offset <= 65535})
-                ; unaligned 32-bit unsigned read
-                (assign {w + m_pos, 0} `(,r_w ,r_v))
-                (times 4
-                    (vp-cpy-ir-ub r_w (!) r_t)
-                    (vp-shl-cr (* (!) 8) r_t)
-                    (vp-or-rr r_t r_v))
-                (assign `(,r_v) {m_val})
+				; unaligned 32-bit unsigned read
+				(assign {w + m_pos, 0} `(,r_w ,r_v))
+				(times 4
+					(vp-cpy-ir-ub r_w (!) r_t)
+					(vp-shl-cr (* (!) 8) r_t)
+					(vp-or-rr r_t r_v))
+				(assign `(,r_v) {m_val})
 
 				(vpif {val = m_val})
 					; --- MATCH FOUND ---
-					(assign {w + i + 4} {ptr_i})
-					(assign {w + match_limit} {ptr_limit})
+					(assign {w + i + 4, w + match_limit} {ptr_i, ptr_limit})
 					(vpif {ptr_i < ptr_limit})
 						(assign {w + m_pos + 4} {ptr_m})
 						(loop-while {*ptr_m = *ptr_i})
@@ -105,18 +100,15 @@
 					(assign {m_len - 4} {match_nibble})
 					(vpif {match_nibble >= 15}) (assign {15} {match_nibble}) (endif)
 
-					(assign {(lit_nibble << 4) | match_nibble} {ubyte(t + t_pos)})
-					(assign {t_pos + 1} {t_pos})
+					(assign {t_pos + 1, (lit_nibble << 4) | match_nibble} {t_pos, ubyte(t + t_pos)})
 
 					; Literal length extras
 					(vpif {lit_len >= 15})
 						(assign {lit_len - 15} {rem})
 						(loop-while {rem >= 255})
-							(assign {255, rem - 255} {ubyte(t + t_pos), rem})
-							(assign {t_pos + 1} {t_pos})
+							(assign {t_pos + 1, 255, rem - 255} {t_pos, ubyte(t + t_pos), rem})
 						(loop-end)
-						(assign {rem} {ubyte(t + t_pos)})
-						(assign {t_pos + 1} {t_pos})
+						(assign {t_pos + 1, rem} {t_pos, ubyte(t + t_pos)})
 					(endif)
 
 					; Literals
@@ -126,18 +118,15 @@
 					(endif)
 
 					; Offset
-					(assign {offset} {ushort(t + t_pos)})
-					(assign {t_pos + 2} {t_pos})
+					(assign {t_pos + 2, offset} {t_pos, ushort(t + t_pos)})
 
 					; Match length extras
 					(vpif {m_len - 4 >= 15})
 						(assign {m_len - 19} {rem})
 						(loop-while {rem >= 255})
-							(assign {255, rem - 255} {ubyte(t + t_pos), rem})
-							(assign {t_pos + 1} {t_pos})
+							(assign {t_pos + 1, 255, rem - 255} {t_pos, ubyte(t + t_pos), rem})
 						(loop-end)
-						(assign {rem} {ubyte(t + t_pos)})
-						(assign {t_pos + 1} {t_pos})
+						(assign {t_pos + 1, rem} {t_pos, ubyte(t + t_pos)})
 					(endif)
 
 					(assign {(i + m_len => i)} {anchor})
@@ -153,17 +142,14 @@
 	(assign {(w_len - anchor => lit_len)} {lit_nibble})
 	(vpif {lit_nibble >= 15}) (assign {15} {lit_nibble}) (endif)
 
-	(assign {lit_nibble << 4} {ubyte(t + t_pos)})
-	(assign {t_pos + 1} {t_pos})
+	(assign {t_pos + 1, lit_nibble << 4} {t_pos, ubyte(t + t_pos)})
 
 	(vpif {lit_len >= 15})
 		(assign {lit_len - 15} {rem})
 		(loop-while {rem >= 255})
-			(assign {255, rem - 255} {ubyte(t + t_pos), rem})
-			(assign {t_pos + 1} {t_pos})
+			(assign {t_pos + 1, 255, rem - 255} {t_pos, ubyte(t + t_pos), rem})
 		(loop-end)
-		(assign {rem} {ubyte(t + t_pos)})
-		(assign {t_pos + 1} {t_pos})
+		(assign {t_pos + 1, rem} {t_pos, ubyte(t + t_pos)})
 	(endif)
 
 	(vpif {lit_len > 0})
@@ -215,13 +201,10 @@
 	(assign `(,r_chunk ,r_buf ,r_p) {chunk, buf, p})
 
 	(assign {chunk->+str_length, buf->+str_length} {c_len, cap})
-	(assign {cap - 1} {mask})
-	(assign {&chunk->+str_data, &buf->+str_data} {c, b})
-	(assign {0} {c_pos})
+	(assign {cap - 1, &chunk->+str_data, &buf->+str_data, 0} {mask, c, b, c_pos})
 
 	(loop-while {c_pos < c_len})
-		(assign {c[c_pos]} {token})
-		(assign {c_pos + 1} {c_pos})
+		(assign {c_pos + 1, c[c_pos]} {c_pos, token})
 
 		; --- Literals ---
 		(assign {token >> 4} {lit_len})
@@ -229,8 +212,7 @@
 			(assign {255} {v})
 			(loop-while {v = 255})
 				(breakif {c_pos >= c_len})
-				(assign {c[c_pos]} {v})
-				(assign {c_pos + 1, lit_len + v} {c_pos, lit_len})
+				(assign {c_pos + 1, lit_len + c[c_pos], c[c_pos]} {c_pos, lit_len, v})
 			(loop-end)
 		(endif)
 
@@ -246,24 +228,21 @@
 				(call :sys_mem :copy {c + c_pos, b + (p & mask), space})
 				(call :sys_mem :copy {c + c_pos + space, b, lit_len - space})
 			(endif)
-			(assign {p + lit_len} {p})
-			(assign {c_pos + lit_len} {c_pos})
+			(assign {p + lit_len, c_pos + lit_len} {p, c_pos})
 		(endif)
 
 		(breakif {c_pos >= c_len})
 
 		; --- Match ---
 		(breakif {c_pos + 1 >= c_len})
-		(assign {c[c_pos] | (c[c_pos + 1] << 8)} {offset})
-		(assign {c_pos + 2} {c_pos})
+		(assign {c_pos + 2, c[c_pos] | (c[c_pos + 1] << 8)} {c_pos, offset})
 
 		(assign {(token & 15) + 4} {match_len})
 		(vpif {match_len = 19})
 			(assign {255} {v})
 			(loop-while {v = 255})
 				(breakif {c_pos >= c_len})
-				(assign {c[c_pos]} {v})
-				(assign {c_pos + 1, match_len + v} {c_pos, match_len})
+				(assign {c_pos + 1, match_len + c[c_pos], c[c_pos]} {c_pos, match_len, v})
 			(loop-end)
 		(endif)
 
@@ -273,21 +252,17 @@
 			(assign {match_len} {tmp})
 			(loop-while {tmp > 0})
 				(assign {p & mask} {dst_pos})
-				(assign {cap - dst_pos, cap - m_pos} {dst_space, space})
-				(assign {tmp} {len})
+				(assign {cap - dst_pos, cap - m_pos, tmp} {dst_space, space, len})
 				(vpif {dst_space < len}) (assign {dst_space} {len}) (endif)
 				(vpif {space < len}) (assign {space} {len}) (endif)
 				(call :sys_mem :copy {b + m_pos, b + dst_pos, len})
-				(assign {p + len} {p})
-				(assign {(m_pos + len) & mask} {m_pos})
-				(assign {tmp - len} {tmp})
+				(assign {p + len, (m_pos + len) & mask, tmp - len} {p, m_pos, tmp})
 			(loop-end)
 		(else)
 			; Overlap exists, must copy byte-by-byte (RLE pattern replication)
 			(assign {p - offset, match_len} {m_pos, tmp})
 			(loop-start)
-				(assign {ubyte(b + (m_pos & mask))} {ubyte(b + (p & mask))})
-				(assign {m_pos + 1, p + 1} {m_pos, p})
+				(assign {p + 1, m_pos + 1, ubyte(b + (m_pos & mask))} {p, m_pos, ubyte(b + (p & mask))})
 			(loop-until {(tmp - 1 => tmp) = 0})
 		(endif)
 	(loop-end)
@@ -334,13 +309,11 @@
 	(assign `(,r_buf ,r_p ,r_data) {buf, p, data})
 
 	(assign {buf->+str_length, data->+str_length} {cap, d_len})
-	(assign {cap - 1} {mask})
-	(assign {&buf->+str_data, &data->+str_data} {b, d})
+	(assign {cap - 1, &buf->+str_data, &data->+str_data} {mask, b, d})
 
 	(vpif {d_len > cap})
 		(assign {d_len - cap} {tmp})
-		(assign {d + tmp} {d})
-		(assign {cap} {d_len})
+		(assign {cap, d + tmp} {d_len, d})
 	(endif)
 
 	(assign {p & mask} {start})
@@ -396,8 +369,7 @@
 	(assign `(,r_buf ,r_p ,r_stm ,r_out_len) {buf, p, stm, out_len})
 
 	(assign {buf->+str_length} {cap})
-	(assign {cap - 1} {mask})
-	(assign {&buf->+str_data} {b})
+	(assign {cap - 1, &buf->+str_data} {mask, b})
 
 	(assign {(p - out_len) & mask} {start})
 	(assign {cap - start} {space})
