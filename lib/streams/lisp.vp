@@ -4,7 +4,7 @@
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
-(defmacro read-uint32 (src dst))
+(defmacro read-uint32 (src dst)
 	`(progn
 		(vp-rdef (r_m r_b r_v r_i r_t))
 		(assign (cat ,src ", 0") `(,r_b ,r_m ,r_i ,r_v))
@@ -14,7 +14,7 @@
 			(vp-add-cr 1 r_i)
 			(vp-shl-cr (* (!) 8) r_t)
 			(vp-add-rr r_t r_v))
-		(assign `(,r_v) ,dst))
+		(assign `(,r_v) ,dst)))
 
 (defmacro subroutine (addr)
 	(defq ret_label (gensym))
