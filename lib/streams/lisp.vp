@@ -56,7 +56,7 @@
 
 	(assign {buf->+str_length, chunk->+str_length} {cap, c_len})
 	(assign {cap - 1, &buf->+str_data, &chunk->+str_data} {mask, buf, chunk})
-	(call :nums :get_both {hash_table} {_, hash_table, _})
+	(assign {hash_table->+array_begin} {hash_table})
 
 	; --- 1. Write chunk into logical ring buffer ---
 	(call :sys_mem :copy_ring {chunk, buf + (pos & mask), c_len, cap, buf})
