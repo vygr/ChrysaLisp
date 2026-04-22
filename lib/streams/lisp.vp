@@ -147,8 +147,7 @@
 					(assign {t_pos + 1} {t_pos})
 				(endif)
 
-				(assign {i + m_len} {anchor})
-				(assign {i + m_len} {i})
+				(assign {(i + m_len) => anchor} {i})
 				(goto 'end_match_check)
 			(endif)
 		(endif)
