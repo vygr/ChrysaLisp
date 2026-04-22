@@ -4,6 +4,18 @@
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
+(defmacro read-uint32 (src dst))
+	`(progn
+		(vp-rdef (r_m r_b r_v r_i r_t))
+		(assign (cat ,src ", 0") `(,r_b ,r_m ,r_i ,r_v))
+		(times 4
+			(vp-and-rr r_m r_i)
+			(vp-cpy-dr-ub r_b r_i r_t)
+			(vp-add-cr 1 r_i)
+			(vp-shl-cr (* (!) 8) r_t)
+			(vp-add-rr r_t r_v))
+		(assign `(,r_v) ,dst))
+
 (def-func (path-to-absolute "./lz4_encode"))
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -24,7 +36,7 @@
 		(uint offset)
 		(ubyte lit_nibble match_nibble))
 
-	(vp-rdef (r_window r_start_idx r_hash_table r_shift r_w r_v r_i r_t))
+	(vp-rdef (r_window r_start_idx r_hash_table r_shift))
 
 	(push-scope)
 	(entry {this, args})
@@ -63,8 +75,7 @@
 
 	(loop-while {i < end_limit})
 		; Safely read 32-bit unaligned across ring buffer
-		(assign {b[i & mask] + (b[(i + 1) & mask] << 8) +
-			(b[(i + 2) & mask] << 16) + (b[(i + 3) & mask] <<24)} {val})
+		(read-uint32 {b, mask, i} {val})
 
 		; Hash lookup (absolute logical position avoids ever needing to slide/clear the hash table!)
 		(assign {ht + ((((val * hmul) >> 19) & 8191) * +long_size)} {h_ptr})
@@ -73,8 +84,8 @@
 
 		(assign {i - m_pos} {offset})
 		(vpif {offset <= 65535})
-			(assign {b[m_pos & mask] + (b[(m_pos + 1) & mask] << 8) +
-				(b[(m_pos + 2) & mask] << 16) + (b[(m_pos + 3) & mask] <<24)} {m_val})
+			; Safely read 32-bit unaligned across ring buffer
+			(read-uint32 {b, mask, m_pos} {m_val})
 
 			(vpif {val = m_val})
 				; --- MATCH FOUND ---
