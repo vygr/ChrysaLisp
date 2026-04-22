@@ -15,7 +15,7 @@
 (defun lz4-compress (in_stream out_stream &optional window_size)
 	; (lz4-compress in_stream out_stream [window_size])
 	(setd window_size 65536)
-	(defq hash_table (cap 8192 (nums)) window "")
+	(defq hash_table (cap 8192 (nums)) ring_buf (str-alloc window_size) pos 0)
 	(times 8192 (push hash_table -65536))
 	;standard LZ4 Frame Header
 	;FLG=0x40 (V1, Block Dep), BD=0x40 (64KB Max) -> HC=0x73
@@ -23,17 +23,10 @@
 	(write-byte out_stream '(0x40 0x40 0x73))
 	(while (defq chunk (read-blk in_stream window_size))
 		(task-slice)
-		;append and truncate sliding window
-		(defq chunk_len (length chunk) win_len (length window))
-		(cond
-			((= win_len 0)
-				;first chunk
-				(defq start_idx 0 window chunk shift 0))
-			(:t	;subsequent chunks: keep exactly the previous chunk as history
-				(defq shift (- win_len window_size) start_idx window_size
-					window (splice window chunk (nums (- -1 window_size) -1 0 -1)))))
+		(defq chunk_len (length chunk))
 		;compress the newly appended chunk portion
-		(defq comp (lz4-encode-raw window start_idx hash_table shift))
+		(bind '(comp new_pos) (lz4-encode-raw ring_buf pos chunk hash_table))
+		(setq pos new_pos)
 		(cond
 			((>= (length comp) chunk_len)
 				;highest bit set indicates uncompressed
