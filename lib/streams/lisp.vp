@@ -198,7 +198,7 @@
 		(uint offset)
 		(ubyte token v))
 
-	(vp-rdef (r_chunk r_buf r_p))
+	(vp-rdef (r_chunk r_buf r_pos))
 
 	(push-scope)
 	(entry {this, args})
@@ -206,8 +206,8 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 	
 	; Bind args as (:obj :num :obj) -> (buffer, position, chunk)
-	(list-bind-args :r1 `(,r_buf ,r_p ,r_chunk) '(:obj :num :obj))
-	(assign `(,r_chunk ,r_buf ,r_p) {chunk, buf, pos})
+	(list-bind-args :r1 `(,r_buf ,r_pos ,r_chunk) '(:obj :num :obj))
+	(assign `(,r_chunk ,r_buf ,r_pos) {chunk, buf, pos})
 
 	(assign {chunk->+str_length, buf->+str_length} {c_len, cap})
 	(assign {cap - 1, &chunk->+str_data, &buf->+str_data, 0} {mask, chunk, buf, c_pos})
@@ -307,15 +307,15 @@
 		(long pos)
 		(uint cap d_len))
 
-	(vp-rdef (r_buf r_p r_data))
+	(vp-rdef (r_buf r_pos r_data))
 
 	(push-scope)
 	(entry {this, args})
 
 	(errorif-lisp-args-sig 'error :r1 3)
 	
-	(list-bind-args :r1 `(,r_buf ,r_p ,r_data) '(:obj :num :obj))
-	(assign `(,r_buf ,r_p ,r_data) {buf, pos, data})
+	(list-bind-args :r1 `(,r_buf ,r_pos ,r_data) '(:obj :num :obj))
+	(assign `(,r_buf ,r_pos ,r_data) {buf, pos, data})
 
 	(assign {buf->+str_length, data->+str_length} {cap, d_len})
 	(assign {&buf->+str_data, &data->+str_data} {buf, data})
@@ -353,15 +353,15 @@
 		(long pos)
 		(uint out_len cap start space))
 
-	(vp-rdef (r_buf r_p r_stm r_out_len))
+	(vp-rdef (r_buf r_pos r_stm r_out_len))
 
 	(push-scope)
 	(entry {this, args})
 
 	(errorif-lisp-args-sig 'error :r1 4)
 	
-	(list-bind-args :r1 `(,r_buf ,r_p ,r_stm ,r_out_len) '(:obj :num :stream :num))
-	(assign `(,r_buf ,r_p ,r_stm ,r_out_len) {buf, pos, stm, out_len})
+	(list-bind-args :r1 `(,r_buf ,r_pos ,r_stm ,r_out_len) '(:obj :num :stream :num))
+	(assign `(,r_buf ,r_pos ,r_stm ,r_out_len) {buf, pos, stm, out_len})
 
 	(assign {buf->+str_length, &buf->+str_data} {cap, buf})
 	(assign {(pos - out_len) & (cap - 1)} {start})
