@@ -22,7 +22,7 @@
 		(uint c_len cap mask max_comp_len i end_limit match_limit hmul)
 		(uint val m_val m_len lit_len rem t_pos start space l_space)
 		(uint offset)
-		(ubyte lit_nibble match_nibble v0 v1 v2 v3))
+		(ubyte lit_nibble match_nibble))
 
 	(vp-rdef (r_window r_start_idx r_hash_table r_shift r_w r_v r_i r_t))
 
@@ -64,8 +64,8 @@
 
 	(loop-while {i < end_limit})
 		; Safely read 32-bit unaligned across ring buffer
-		(assign {b[i & mask], b[(i + 1) & mask], b[(i + 2) & mask], b[(i + 3) & mask]} {v0, v1, v2, v3})
-		(assign {v0 | (v1 << 8) | (v2 << 16) | (v3 << 24)} {val})
+		(assign {b[i & mask] + (b[(i + 1) & mask] << 8) +
+			(b[(i + 2) & mask] << 16) + (b[(i + 3) & mask] <<24)} {val})
 
 		; Hash lookup (absolute logical position avoids ever needing to slide/clear the hash table!)
 		(assign {ht + ((((val * hmul) >> 19) & 8191) * +long_size)} {h_ptr})
@@ -74,8 +74,8 @@
 
 		(assign {i - m_pos} {offset})
 		(vpif {offset <= 65535})
-			(assign {b[m_pos & mask], b[(m_pos + 1) & mask], b[(m_pos + 2) & mask], b[(m_pos + 3) & mask]} {v0, v1, v2, v3})
-			(assign {v0 | (v1 << 8) | (v2 << 16) | (v3 << 24)} {m_val})
+			(assign {b[m_pos & mask] + (b[(m_pos + 1) & mask] << 8) +
+				(b[(m_pos + 2) & mask] << 16) + (b[(m_pos + 3) & mask] <<24)} {m_val})
 
 			(vpif {val = m_val})
 				; --- MATCH FOUND ---
