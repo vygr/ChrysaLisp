@@ -22,6 +22,8 @@ stdout, defaults to :nil.
 
 Fix to `set-str` macro to avoid potential double eval of the `val` argument.
 
+New `:sys_mem :copy_ring` method for ring buffer copy operations.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.

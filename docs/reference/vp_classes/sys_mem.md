@@ -58,6 +58,24 @@ trashes
 :r0-:r3
 ```
 
+### :copy_ring -> sys/mem/copy_ring
+
+```code
+inputs
+:r0 = source address (ptr)
+:r1 = destination address (ptr)
+:r2 = length of source data (bytes)
+:r3 = length of destination buffer (bytes)
+:r4 = start of destination buffer (ptr)
+outputs
+:r0 = source address end (ptr)
+:r1 = destination address end (ptr)
+trashes
+:r0-:r5
+info
+wraps the memory copy if required
+```
+
 ### :fill -> sys/mem/fill
 
 ```code

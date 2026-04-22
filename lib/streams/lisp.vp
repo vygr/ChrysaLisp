@@ -39,7 +39,7 @@
 		(plong ht h_ptr)
 		(long p m_pos ptr_m ptr_i ptr_limit anchor)
 		(uint c_len cap mask i end_limit match_limit hmul)
-		(uint val m_val m_len lit_len rem t_pos start space)
+		(uint val m_val m_len lit_len rem t_pos)
 		(uint offset)
 		(ubyte lit_nibble match_nibble))
 
@@ -59,14 +59,7 @@
 	(call :nums :get_both {hash_table} {_, ht, _})
 
 	; --- 1. Write chunk into logical ring buffer ---
-	(assign {p & mask} {start})
-	(assign {cap - start} {space})
-	(vpif {c_len <= space})
-		(call :sys_mem :copy {c, b + start, c_len})
-	(else)
-		(call :sys_mem :copy {c, b + start, space})
-		(call :sys_mem :copy {c + space, b, c_len - space})
-	(endif)
+	(call :sys_mem :copy_ring {c, b + (p & mask), c_len, cap, b})
 
 	; --- 2. Allocate token buffer (Worst-case LZ4 expansion size) ---
 	(call :str :create_from_buffer {0, (c_len / 255) + c_len + 32} {tok_buf})
@@ -156,13 +149,7 @@
 	(endif)
 
 	(vpif {lit_len > 0})
-		(assign {cap - (anchor & mask)} {space})
-		(vpif {lit_len <= space})
-			(call :sys_mem :copy {b + (anchor & mask), t + t_pos, lit_len})
-		(else)
-			(call :sys_mem :copy {b + (anchor & mask), t + t_pos, space})
-			(call :sys_mem :copy {b, t + t_pos + space, lit_len - space})
-		(endif)
+		(call :sys_mem :copy_ring {b + (anchor & mask), t + t_pos, lit_len, cap, t})
 		(assign {t_pos + lit_len} {t_pos})
 	(endif)
 
@@ -247,13 +234,7 @@
 		(endif)
 
 		(vpif {lit_len > 0})
-			(assign {cap - (p & mask)} {space})
-			(vpif {lit_len <= space})
-				(call :sys_mem :copy {c + c_pos, b + (p & mask), lit_len})
-			(else)
-				(call :sys_mem :copy {c + c_pos, b + (p & mask), space})
-				(call :sys_mem :copy {c + c_pos + space, b, lit_len - space})
-			(endif)
+			(call :sys_mem :copy_ring {c + c_pos, b + (p & mask), lit_len, cap, b})
 			(assign {p + lit_len, c_pos + lit_len} {p, c_pos})
 		(endif)
 
@@ -324,7 +305,7 @@
 		(ptr this args buf data)
 		(pubyte b d)
 		(long p)
-		(uint cap mask d_len start space tmp))
+		(uint cap mask d_len tmp))
 
 	(vp-rdef (r_buf r_p r_data))
 
@@ -344,16 +325,7 @@
 		(assign {cap, d + tmp} {d_len, d})
 	(endif)
 
-	(assign {p & mask} {start})
-	(assign {cap - start} {space})
-
-	(vpif {d_len <= space})
-		(call :sys_mem :copy {d, b + start, d_len})
-	(else)
-		(call :sys_mem :copy {d, b + start, space})
-		(call :sys_mem :copy {d + space, b, d_len - space})
-	(endif)
-
+	(call :sys_mem :copy_ring {d, b + (p & mask), d_len, cap, b})
 	(assign {p + d_len} {p})
 	(call :num :create {p} {args})
 
