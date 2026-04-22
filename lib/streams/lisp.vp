@@ -34,10 +34,10 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this args ring_buf chunk hash_table tok_buf ret_num ret_adr)
-		(pubyte b c t)
-		(plong ht h_ptr)
-		(long p m_pos ptr_m ptr_i ptr_limit anchor)
+		(ptr this args tok_buf ret_adr)
+		(pubyte buf chunk t)
+		(plong hash_table h_ptr)
+		(long pos m_pos ptr_m ptr_i ptr_limit anchor)
 		(uint c_len cap mask i end_limit match_limit hmul)
 		(uint val m_val m_len lit_len rem t_pos)
 		(uint offset)
@@ -50,49 +50,49 @@
 
 	(errorif-lisp-args-sig 'error :r1 4)
 	
-	; Bind args as (:obj :num :obj :obj) -> (ring_buf, pos, chunk, hash_table)
+	; Bind args as (:obj :num :obj :obj) -> (buf, pos, chunk, hash_table)
 	(list-bind-args :r1 `(,r_window ,r_start_idx ,r_hash_table ,r_shift) '(:obj :num :obj :obj))
-	(assign `(,r_window ,r_start_idx ,r_hash_table ,r_shift) {ring_buf, p, chunk, hash_table})
+	(assign `(,r_window ,r_start_idx ,r_hash_table ,r_shift) {buf, pos, chunk, hash_table})
 
-	(assign {ring_buf->+str_length, chunk->+str_length} {cap, c_len})
-	(assign {cap - 1, &ring_buf->+str_data, &chunk->+str_data} {mask, b, c})
-	(call :nums :get_both {hash_table} {_, ht, _})
+	(assign {buf->+str_length, chunk->+str_length} {cap, c_len})
+	(assign {cap - 1, &buf->+str_data, &chunk->+str_data} {mask, buf, chunk})
+	(call :nums :get_both {hash_table} {_, hash_table, _})
 
 	; --- 1. Write chunk into logical ring buffer ---
-	(call :sys_mem :copy_ring {c, b + (p & mask), c_len, cap, b})
+	(call :sys_mem :copy_ring {chunk, buf + (pos & mask), c_len, cap, buf})
 
 	; --- 2. Allocate token buffer (Worst-case LZ4 expansion size) ---
 	(call :str :create_from_buffer {0, (c_len / 255) + c_len + 32} {tok_buf})
 	(assign {&tok_buf->+str_data, 0} {t, t_pos})
 
 	; --- 3. Encode Loop ---
-	(assign {p, p, 2654435761} {i, anchor, hmul})
+	(assign {pos, pos, 2654435761} {i, anchor, hmul})
 	(vpif {c_len >= 12})
-		(assign {p + c_len - 12, p + c_len - 5} {end_limit, match_limit})
+		(assign {pos + c_len - 12, pos + c_len - 5} {end_limit, match_limit})
 	(else)
-		(assign {p, p} {end_limit, match_limit})
+		(assign {pos, pos} {end_limit, match_limit})
 	(endif)
 
 	(loop-while {i < end_limit})
 		; Safely read 32-bit unaligned across ring buffer
-		(read-uint32 {b, mask, i} {val})
+		(read-uint32 {buf, mask, i} {val})
 
 		; Hash lookup (absolute logical position avoids ever needing to slide/clear the hash table!)
-		(assign {ht + ((((val * hmul) >> 19) & 8191) * +long_size)} {h_ptr})
+		(assign {hash_table + ((((val * hmul) >> 19) & 8191) * +long_size)} {h_ptr})
 		(assign {*h_ptr} {m_pos})
 		(assign {i} {*h_ptr})
 
 		(assign {i - m_pos} {offset})
 		(vpif {offset <= 65535})
 			; Safely read 32-bit unaligned across ring buffer
-			(read-uint32 {b, mask, m_pos} {m_val})
+			(read-uint32 {buf, mask, m_pos} {m_val})
 
 			(vpif {val = m_val})
 				; --- MATCH FOUND ---
 				(assign {i + 4, m_pos + 4, match_limit} {ptr_i, ptr_m, ptr_limit})
 				(vpif {ptr_i < ptr_limit})
 					(loop-start)
-						(breakif {b[ptr_m & mask] /= b[ptr_i & mask]})
+						(breakif {buf[ptr_m & mask] /= buf[ptr_i & mask]})
 						(assign {ptr_m + 1, ptr_i + 1} {ptr_m, ptr_i})
 					(loop-until {ptr_i = ptr_limit})
 				(endif)
@@ -111,7 +111,7 @@
 	(loop-end)
 
 	; --- Final Literals ---
-	(assign {p + c_len - anchor, 0, 0} {lit_len, match_nibble, offset})
+	(assign {pos + c_len - anchor, 0, 0} {lit_len, match_nibble, offset})
 
 	;subroutine call while keeping stack context !
 	(subroutine literals)
@@ -119,9 +119,9 @@
 	; Truncate buffer size
 	(assign {t_pos} {tok_buf->+str_length})
 
-	(call :num :create {p + c_len} {ret_num})
+	(call :num :create {pos + c_len} {ret_adr})
 	(call :list :create :nil {args})
-	(call :list :push_back2 {args, tok_buf, ret_num})
+	(call :list :push_back2 {args, tok_buf, ret_adr})
 
 	(exit {this, args})
 	(return)
@@ -149,7 +149,7 @@
 	(endif)
 
 	(vpif {lit_len > 0})
-		(call :sys_mem :copy_ring {b + (anchor & mask), t + t_pos, lit_len, cap, t})
+		(call :sys_mem :copy_ring {buf + (anchor & mask), t + t_pos, lit_len, cap, t})
 		(assign {t_pos + lit_len} {t_pos})
 	(endif)
 
@@ -173,7 +173,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error {this, "(lz4-encode ring_buf pos chunk hash_table)", +error_msg_wrong_types, args})
+	(jump :lisp :repl_error {this, "(lz4-encode buf pos chunk hash_table)", +error_msg_wrong_types, args})
 	(signature '(:str :num :str :nums)))
 
 	(pop-scope-syms)
@@ -191,9 +191,9 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this args chunk buf)
-		(pubyte c b)
-		(long p m_pos)
+		(ptr this args)
+		(pubyte chunk buf)
+		(long pos m_pos)
 		(uint c_pos c_len cap mask lit_len space match_len tmp dst_pos dst_space len)
 		(uint offset)
 		(ubyte token v))
@@ -207,14 +207,14 @@
 	
 	; Bind args as (:obj :num :obj) -> (buffer, position, chunk)
 	(list-bind-args :r1 `(,r_buf ,r_p ,r_chunk) '(:obj :num :obj))
-	(assign `(,r_chunk ,r_buf ,r_p) {chunk, buf, p})
+	(assign `(,r_chunk ,r_buf ,r_p) {chunk, buf, pos})
 
 	(assign {chunk->+str_length, buf->+str_length} {c_len, cap})
-	(assign {cap - 1, &chunk->+str_data, &buf->+str_data, 0} {mask, c, b, c_pos})
+	(assign {cap - 1, &chunk->+str_data, &buf->+str_data, 0} {mask, chunk, buf, c_pos})
 
 	(loop-while {c_pos < c_len})
 		; Fully separate read and increment
-		(assign {c[c_pos]} {token})
+		(assign {chunk[c_pos]} {token})
 		(assign {c_pos + 1} {c_pos})
 
 		; --- Literals ---
@@ -223,7 +223,7 @@
 			(assign {255} {v})
 			(loop-while {v = 255})
 				(breakif {c_pos >= c_len})
-				(assign {c[c_pos]} {v})
+				(assign {chunk[c_pos]} {v})
 				(assign {lit_len + v} {lit_len})
 				(assign {c_pos + 1} {c_pos})
 			(loop-end)
@@ -234,15 +234,15 @@
 		(endif)
 
 		(vpif {lit_len > 0})
-			(call :sys_mem :copy_ring {c + c_pos, b + (p & mask), lit_len, cap, b})
-			(assign {p + lit_len, c_pos + lit_len} {p, c_pos})
+			(call :sys_mem :copy_ring {chunk + c_pos, buf + (pos & mask), lit_len, cap, buf})
+			(assign {pos + lit_len, c_pos + lit_len} {pos, c_pos})
 		(endif)
 
 		(breakif {c_pos >= c_len})
 
 		; --- Match ---
 		(breakif {c_pos + 1 >= c_len})
-		(assign {c[c_pos] | (c[c_pos + 1] << 8)} {offset})
+		(assign {chunk[c_pos] | (chunk[c_pos + 1] << 8)} {offset})
 		(assign {c_pos + 2} {c_pos})
 
 		(assign {(token & 15) + 4} {match_len})
@@ -250,7 +250,7 @@
 			(assign {255} {v})
 			(loop-while {v = 255})
 				(breakif {c_pos >= c_len})
-				(assign {c[c_pos]} {v})
+				(assign {chunk[c_pos]} {v})
 				(assign {match_len + v} {match_len})
 				(assign {c_pos + 1} {c_pos})
 			(loop-end)
@@ -258,26 +258,26 @@
 
 		(vpif {offset >= match_len})
 			; Bulk copy
-			(assign {(p - offset) & mask, match_len} {m_pos, tmp})
+			(assign {(pos - offset) & mask, match_len} {m_pos, tmp})
 			(loop-while {tmp > 0})
-				(assign {p & mask} {dst_pos})
+				(assign {pos & mask} {dst_pos})
 				(assign {cap - dst_pos, cap - m_pos, tmp} {dst_space, space, len})
 				(vpif {dst_space < len}) (assign {dst_space} {len}) (endif)
 				(vpif {space < len}) (assign {space} {len}) (endif)
-				(call :sys_mem :copy {b + m_pos, b + dst_pos, len})
-				(assign {p + len, (m_pos + len) & mask, tmp - len} {p, m_pos, tmp})
+				(call :sys_mem :copy {buf + m_pos, buf + dst_pos, len})
+				(assign {pos + len, (m_pos + len) & mask, tmp - len} {pos, m_pos, tmp})
 			(loop-end)
 		(else)
 			; Byte-by-byte (RLE overlap replication)
-			(assign {p - offset, match_len} {m_pos, tmp})
+			(assign {pos - offset, match_len} {m_pos, tmp})
 			(loop-start)
-				(assign {b[m_pos & mask]} {b[p & mask]})
-				(assign {p + 1, m_pos + 1} {p, m_pos})
+				(assign {buf[m_pos & mask]} {buf[pos & mask]})
+				(assign {pos + 1, m_pos + 1} {pos, m_pos})
 			(loop-until {(tmp - 1 => tmp) = 0})
 		(endif)
 	(loop-end)
 
-	(call :num :create {p} {args})
+	(call :num :create {pos} {args})
 
 	(exit {this, args})
 	(return)
@@ -302,10 +302,10 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this args buf data)
-		(pubyte b d)
-		(long p)
-		(uint cap mask d_len tmp))
+		(ptr this args)
+		(pubyte buf data)
+		(long pos)
+		(uint cap d_len))
 
 	(vp-rdef (r_buf r_p r_data))
 
@@ -315,19 +315,15 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 	
 	(list-bind-args :r1 `(,r_buf ,r_p ,r_data) '(:obj :num :obj))
-	(assign `(,r_buf ,r_p ,r_data) {buf, p, data})
+	(assign `(,r_buf ,r_p ,r_data) {buf, pos, data})
 
 	(assign {buf->+str_length, data->+str_length} {cap, d_len})
-	(assign {cap - 1, &buf->+str_data, &data->+str_data} {mask, b, d})
-
+	(assign {&buf->+str_data, &data->+str_data} {buf, data})
 	(vpif {d_len > cap})
-		(assign {d_len - cap} {tmp})
-		(assign {cap, d + tmp} {d_len, d})
+		(assign {cap, data + (d_len - cap)} {d_len, data})
 	(endif)
-
-	(call :sys_mem :copy_ring {d, b + (p & mask), d_len, cap, b})
-	(assign {p + d_len} {p})
-	(call :num :create {p} {args})
+	(call :sys_mem :copy_ring {data, buf + (pos & (cap - 1)), d_len, cap, buf})
+	(call :num :create {pos + d_len} {args})
 
 	(exit {this, args})
 	(return)
@@ -352,10 +348,10 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this args buf stm)
-		(pubyte b)
-		(long p)
-		(uint out_len cap mask start space tmp))
+		(ptr this args stm)
+		(pubyte buf)
+		(long pos)
+		(uint out_len cap start space))
 
 	(vp-rdef (r_buf r_p r_stm r_out_len))
 
@@ -365,20 +361,16 @@
 	(errorif-lisp-args-sig 'error :r1 4)
 	
 	(list-bind-args :r1 `(,r_buf ,r_p ,r_stm ,r_out_len) '(:obj :num :stream :num))
-	(assign `(,r_buf ,r_p ,r_stm ,r_out_len) {buf, p, stm, out_len})
+	(assign `(,r_buf ,r_p ,r_stm ,r_out_len) {buf, pos, stm, out_len})
 
-	(assign {buf->+str_length} {cap})
-	(assign {cap - 1, &buf->+str_data} {mask, b})
-
-	(assign {(p - out_len) & mask} {start})
+	(assign {buf->+str_length, &buf->+str_data} {cap, buf})
+	(assign {(pos - out_len) & (cap - 1)} {start})
 	(assign {cap - start} {space})
-
 	(vpif {out_len <= space})
-		(call :stream :write {stm, b + start, out_len})
+		(call :stream :write {stm, buf + start, out_len})
 	(else)
-		(call :stream :write {stm, b + start, space})
-		(assign {out_len - space} {tmp})
-		(call :stream :write {stm, b, tmp})
+		(call :stream :write {stm, buf + start, space})
+		(call :stream :write {stm, buf, out_len - space})
 	(endif)
 
 	(call :obj :ref {this->+lisp_sym_nil} {args})
