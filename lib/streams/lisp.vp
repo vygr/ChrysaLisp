@@ -16,6 +16,13 @@
 			(vp-add-rr r_t r_v))
 		(assign `(,r_v) ,dst))
 
+(defmacro subroutine (addr)
+	(defq ret_label (gensym))
+	`(progn
+		(assign (cat {$} ',ret_label) {ret_adr})
+		(vp-jmp ',addr)
+	(vp-label ',ret_label)))
+
 (def-func (path-to-absolute "./lz4_encode"))
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -27,7 +34,7 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this args ring_buf chunk hash_table tok_buf ret_num)
+		(ptr this args ring_buf chunk hash_table tok_buf ret_num ret_adr)
 		(pubyte b c t)
 		(plong ht h_ptr)
 		(long p m_pos ptr_m ptr_i ptr_limit anchor)
@@ -99,53 +106,8 @@
 
 				(assign {ptr_i - i, i - anchor} {m_len, lit_len})
 
-				; Token
-				(assign {lit_len} {lit_nibble})
-				(vpif {lit_nibble >= 15}) (assign {15} {lit_nibble}) (endif)
-
-				(assign {m_len - 4} {match_nibble})
-				(vpif {match_nibble >= 15}) (assign {15} {match_nibble}) (endif)
-
-				(assign {(lit_nibble << 4) | match_nibble} {t[t_pos]})
-				(assign {t_pos + 1} {t_pos})
-
-				; Literal length extras
-				(vpif {lit_len >= 15})
-					(assign {lit_len - 15} {rem})
-					(loop-while {rem >= 255})
-						(assign {255} {t[t_pos]})
-						(assign {rem - 255, t_pos + 1} {rem, t_pos})
-					(loop-end)
-					(assign {rem} {t[t_pos]})
-					(assign {t_pos + 1} {t_pos})
-				(endif)
-
-				; Literals
-				(vpif {lit_len > 0})
-					(assign {cap - (anchor & mask)} {space})
-					(vpif {lit_len <= space})
-						(call :sys_mem :copy {b + (anchor & mask), t + t_pos, lit_len})
-					(else)
-						(call :sys_mem :copy {b + (anchor & mask), t + t_pos, space})
-						(call :sys_mem :copy {b, t + t_pos + space, lit_len - space})
-					(endif)
-					(assign {t_pos + lit_len} {t_pos})
-				(endif)
-
-				; Offset
-				(assign {offset & 255, offset >> 8} {t[t_pos], t[t_pos + 1]})
-				(assign {t_pos + 2} {t_pos})
-
-				; Match length extras
-				(vpif {m_len - 4 >= 15})
-					(assign {m_len - 19} {rem})
-					(loop-while {rem >= 255})
-						(assign {255} {t[t_pos]})
-						(assign {rem - 255, t_pos + 1} {rem, t_pos})
-					(loop-end)
-					(assign {rem} {t[t_pos]})
-					(assign {t_pos + 1} {t_pos})
-				(endif)
+				;subroutine call while keeping stack context !
+				(subroutine literals)
 
 				(assign {(i + m_len) => anchor} {i})
 				(goto 'end_match_check)
@@ -156,11 +118,31 @@
 	(loop-end)
 
 	; --- Final Literals ---
-	(assign {p + c_len - anchor} {lit_len})
+	(assign {p + c_len - anchor, 0, 0} {lit_len, match_nibble, offset})
+
+	;subroutine call while keeping stack context !
+	(subroutine literals)
+
+	; Truncate buffer size
+	(assign {t_pos} {tok_buf->+str_length})
+
+	(call :num :create {p + c_len} {ret_num})
+	(call :list :create :nil {args})
+	(call :list :push_back2 {args, tok_buf, ret_num})
+
+	(exit {this, args})
+	(return)
+
+(vp-label 'literals)
 	(assign {lit_len} {lit_nibble})
 	(vpif {lit_nibble >= 15}) (assign {15} {lit_nibble}) (endif)
 
-	(assign {lit_nibble << 4} {t[t_pos]})
+	(vpif {offset > 0})
+		(assign {m_len - 4} {match_nibble})
+		(vpif {match_nibble >= 15}) (assign {15} {match_nibble}) (endif)
+	(endif)
+
+	(assign {(lit_nibble << 4) | match_nibble} {t[t_pos]})
 	(assign {t_pos + 1} {t_pos})
 
 	(vpif {lit_len >= 15})
@@ -184,15 +166,23 @@
 		(assign {t_pos + lit_len} {t_pos})
 	(endif)
 
-	; Truncate buffer size
-	(assign {t_pos} {tok_buf->+str_length})
+	(vpif {offset > 0})
+		(assign {offset & 255, offset >> 8} {t[t_pos], t[t_pos + 1]})
+		(assign {t_pos + 2} {t_pos})
 
-	(call :num :create {p + c_len} {ret_num})
-	(call :list :create :nil {args})
-	(call :list :push_back2 {args, tok_buf, ret_num})
+		(vpif {m_len - 4 >= 15})
+			(assign {m_len - 19} {rem})
+			(loop-while {rem >= 255})
+				(assign {255} {t[t_pos]})
+				(assign {rem - 255, t_pos + 1} {rem, t_pos})
+			(loop-end)
+			(assign {rem} {t[t_pos]})
+			(assign {t_pos + 1} {t_pos})
+		(endif)
+	(endif)
 
-	(exit {this, args})
-	(return)
+	(assign {ret_adr} '(:r0))
+	(vp-jmp-r :r0)
 
 (errorcase
 (vp-label 'error)
