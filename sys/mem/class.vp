@@ -353,7 +353,7 @@
 
 (def-func-end)
 
-(def-method :sys_mem :copy_ring)
+(def-method :sys_mem :copy_to_ring)
 	;inputs
 	;:r0 = source address (ptr)
 	;:r1 = destination address (ptr)
@@ -368,7 +368,7 @@
 	;info
 	;wraps the memory copy if required
 
-	(entry :sys_mem :copy_ring '(:r0 :r1 :r2 :r3 :r4))
+	(entry :sys_mem :copy_to_ring '(:r0 :r1 :r2 :r3 :r4))
 
 	(vp-add-rr :r4 :r3)
 	(vp-lea-d :r1 :r2 :r5)
@@ -377,6 +377,35 @@
 		(vp-sub-rr :r5 :r2)
 		(call :sys_mem :copy '(:r0 :r1 :r2) '(:r0 _))
 		(vp-simd vp-cpy-rr '(:r4 :r5) '(:r1 :r2))
+	(endif)
+	(jump :sys_mem :copy '(:r0 :r1 :r2))
+
+(def-func-end)
+
+(def-method :sys_mem :copy_from_ring)
+	;inputs
+	;:r0 = source address (ptr)
+	;:r1 = destination address (ptr)
+	;:r2 = length of source data (bytes)
+	;:r3 = length of source buffer (bytes)
+	;:r4 = start of source buffer (ptr)
+	;outputs
+	;:r0 = source address end (ptr)
+	;:r1 = destination address end (ptr)
+	;trashes
+	;:r0-:r5
+	;info
+	;wraps the memory copy if required
+
+	(entry :sys_mem :copy_from_ring '(:r0 :r1 :r2 :r3 :r4))
+
+	(vp-add-rr :r4 :r3)
+	(vp-lea-d :r0 :r2 :r5)
+	(vpif '(:r5 > :r3))
+		(vp-sub-rr :r3 :r5)
+		(vp-sub-rr :r5 :r2)
+		(call :sys_mem :copy '(:r0 :r1 :r2) '(_ :r1))
+		(vp-simd vp-cpy-rr '(:r4 :r5) '(:r0 :r2))
 	(endif)
 	(jump :sys_mem :copy '(:r0 :r1 :r2))
 

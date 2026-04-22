@@ -59,7 +59,7 @@
 	(assign {hash_table->+array_begin} {hash_table})
 
 	; --- 1. Write chunk into logical ring buffer ---
-	(call :sys_mem :copy_ring {chunk, buf + (pos & mask), c_len, cap, buf})
+	(call :sys_mem :copy_to_ring {chunk, buf + (pos & mask), c_len, cap, buf})
 
 	; --- 2. Allocate token buffer (Worst-case LZ4 expansion size) ---
 	(call :str :create_from_buffer {0, (c_len / 255) + c_len + 32} {tok_buf})
@@ -149,7 +149,7 @@
 	(endif)
 
 	(vpif {lit_len > 0})
-		(call :sys_mem :copy_ring {buf + (anchor & mask), t + t_pos, lit_len, cap, t})
+		(call :sys_mem :copy_from_ring {buf + (anchor & mask), t + t_pos, lit_len, cap, buf})
 		(assign {t_pos + lit_len} {t_pos})
 	(endif)
 
@@ -234,7 +234,7 @@
 		(endif)
 
 		(vpif {lit_len > 0})
-			(call :sys_mem :copy_ring {chunk + c_pos, buf + (pos & mask), lit_len, cap, buf})
+			(call :sys_mem :copy_to_ring {chunk + c_pos, buf + (pos & mask), lit_len, cap, buf})
 			(assign {pos + lit_len, c_pos + lit_len} {pos, c_pos})
 		(endif)
 
@@ -322,7 +322,7 @@
 	(vpif {d_len > cap})
 		(assign {cap, data + (d_len - cap)} {d_len, data})
 	(endif)
-	(call :sys_mem :copy_ring {data, buf + (pos & (cap - 1)), d_len, cap, buf})
+	(call :sys_mem :copy_to_ring {data, buf + (pos & (cap - 1)), d_len, cap, buf})
 	(call :num :create {pos + d_len} {args})
 
 	(exit {this, args})
