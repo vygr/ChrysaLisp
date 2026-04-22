@@ -6,13 +6,13 @@
 
 (defmacro read-uint32 (src dst)
 	`(progn
-		(vp-rdef (r_m r_b r_v r_i r_t))
+		(vp-rdef (r_b r_m r_i r_v r_t))
 		(assign (cat ,src ", 0") `(,r_b ,r_m ,r_i ,r_v))
 		(times 4
 			(vp-and-rr r_m r_i)
 			(vp-cpy-dr-ub r_b r_i r_t)
-			(vp-add-cr 1 r_i)
-			(vp-shl-cr (* (!) 8) r_t)
+			(if (/= (!) 3) (vp-add-cr 1 r_i))
+			(if (/= (!) 0) (vp-shl-cr (* (!) 8) r_t))
 			(vp-add-rr r_t r_v))
 		(assign `(,r_v) ,dst)))
 
