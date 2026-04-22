@@ -43,7 +43,7 @@
 		(uint offset)
 		(ubyte lit_nibble match_nibble))
 
-	(vp-rdef (r_window r_start_idx r_hash_table r_shift))
+	(vp-rdef (r_buf r_pos r_chunk r_hash_table))
 
 	(push-scope)
 	(entry {this, args})
@@ -51,8 +51,8 @@
 	(errorif-lisp-args-sig 'error :r1 4)
 	
 	; Bind args as (:obj :num :obj :obj) -> (buf, pos, chunk, hash_table)
-	(list-bind-args :r1 `(,r_window ,r_start_idx ,r_hash_table ,r_shift) '(:obj :num :obj :obj))
-	(assign `(,r_window ,r_start_idx ,r_hash_table ,r_shift) {buf, pos, chunk, hash_table})
+	(list-bind-args :r1 `(,r_buf ,r_pos ,r_chunk ,r_hash_table) '(:obj :num :obj :obj))
+	(assign `(,r_buf ,r_pos ,r_chunk ,r_hash_table) {buf, pos, chunk, hash_table})
 
 	(assign {buf->+str_length, chunk->+str_length} {cap, c_len})
 	(assign {cap - 1, &buf->+str_data, &chunk->+str_data} {mask, buf, chunk})
