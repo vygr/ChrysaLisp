@@ -989,7 +989,7 @@ run pipe farm and collect output
 ### reflow
 
 ```code
-(reflow words line_width) -> lines
+(reflow words line_width [indent tab_width]) -> lines
 ```
 
 ### render-object-tris
