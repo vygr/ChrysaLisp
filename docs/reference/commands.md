@@ -577,6 +577,7 @@ Usage: time [options]
 
 	options:
 		-h --help: this help info.
+		-s --stdout: pass through, default :nil.
 
 	Time the duration of the stdin stream.
 

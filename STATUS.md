@@ -4,6 +4,9 @@
 
 ------
 
+Added '-s, --stdout' option to 'time' command to pass through to stdout,
+defaults to :nil.
+
 Mandelbrot now demonstrates a boundary scan algorithm.
 
 `(canvas-tile canvas data x1 y1 x2 y2) -> area)` function promoted to `:canvas
