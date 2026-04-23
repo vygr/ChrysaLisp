@@ -340,36 +340,38 @@
 	;trashes
 	;:r1-:r14
 
-	(def-vars
-		(ptr this args)
-		(pubyte buf data)
-		(long pos)
-		(uint cap d_len))
-
 	(vp-rdef (this args))
+	(vp-rdef (data pos d_len b_len buf mask new_pos saved_this)
+		(method-input :sys_mem :copy_to_ring))
 
 	(entry `(,this ,args))
 	(errorif-lisp-args-sig 'error :r1 3)
+	(vp-cpy-rr this saved_this)
 
-	(push-scope)
-	(assign `(,this ,args) {this, args})
-
-	(vp-rdef (buf pos data))
 	(list-bind-args args `(,buf ,pos ,data) '(:obj :num :obj))
-	(assign `(,buf ,pos ,data) {buf, pos, data})
+	(assign `((,buf +str_length) (,data +str_length) (& ,buf +str_data) (& ,data +str_data))
+		`(,b_len ,d_len ,buf ,data))
 
-	(assign {buf->+str_length, data->+str_length, &buf->+str_data, &data->+str_data} 
-		{cap, d_len, buf, data})
-	(vpif {d_len > cap})
-		(assign {cap, data + (d_len - cap)} {d_len, data})
+	;just tail of data if too large
+	(vpif `(,d_len > ,b_len))
+		(vp-sub-rr b_len d_len)
+		(vp-add-rr d_len data)
+		(vp-cpy-rr b_len d_len)
 	(endif)
-	(call :sys_mem :copy_to_ring {data, buf + (pos & (cap - 1)), d_len, cap, buf})
-	(call :num :create {pos + d_len} {args})
+	(vp-lea-d d_len pos new_pos)
 
-	(exit {this, args})
-	(return)
+	;position in ring buf
+	(vp-cpy-rr b_len mask)
+	(vp-sub-cr 1 mask)
+	(vp-and-rr mask pos)
+	(vp-add-rr buf pos)
 
-	(pop-scope-syms)
+	;store the data and return next position
+	(call :sys_mem :copy_to_ring `(,data ,pos ,d_len ,b_len ,buf))
+	(call :num :create `(,new_pos) `(,args))
+
+	(exit `(,saved_this ,args))
+	(vp-ret)
 
 (errorcase
 (vp-label 'error)
