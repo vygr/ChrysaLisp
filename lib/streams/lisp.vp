@@ -6,15 +6,15 @@
 
 (defmacro read-uint32 (src dst)
 	`(progn
-		(vp-rdef (r_b r_m r_i r_v r_t))
-		(assign (cat ,src ", 0") `(,r_b ,r_m ,r_i ,r_v))
+		(vp-rdef (buf mask i val t))
+		(assign (cat ,src ", 0") `(,buf ,mask ,i ,val))
 		(times 4
-			(vp-and-rr r_m r_i)
-			(vp-cpy-dr-ub r_b r_i r_t)
-			(if (/= (!) 3) (vp-add-cr 1 r_i))
-			(if (/= (!) 0) (vp-shl-cr (* (!) 8) r_t))
-			(vp-add-rr r_t r_v))
-		(assign `(,r_v) ,dst)))
+			(vp-and-rr mask i)
+			(vp-cpy-dr-ub buf i t)
+			(if (/= (!) 3) (vp-add-cr 1 i))
+			(if (/= (!) 0) (vp-shl-cr (* (!) 8) t))
+			(vp-add-rr t val))
+		(assign `(,val) ,dst)))
 
 (defmacro subroutine (addr)
 	(defq ret_label (gensym))
@@ -48,9 +48,9 @@
 
 	(errorif-lisp-args-sig 'error :r1 4)
 	
-	(vp-rdef (r_buf r_pos r_chunk r_hash_table))
-	(list-bind-args :r1 `(,r_buf ,r_pos ,r_chunk ,r_hash_table) '(:obj :num :obj :obj))
-	(assign `(,r_buf ,r_pos ,r_chunk ,r_hash_table) {buf, pos, chunk, hash_table})
+	(vp-rdef (buf pos chunk hash_table))
+	(list-bind-args :r1 `(,buf ,pos ,chunk ,hash_table) '(:obj :num :obj :obj))
+	(assign `(,buf ,pos ,chunk ,hash_table) {buf, pos, chunk, hash_table})
 
 	(assign {buf->+str_length, chunk->+str_length} {cap, c_len})
 	(assign {cap - 1, &buf->+str_data, &chunk->+str_data, hash_table->+array_begin} 
@@ -89,16 +89,16 @@
 				; --- MATCH FOUND ---
 				(assign {i + 4, m_pos + 4} {ptr_i, ptr_m})
 				(vpif {ptr_i < match_limit})
-					(vp-rdef (r_b r_mk r_i r_m r_l r_v1 r_v2))
-					(assign {buf, mask, ptr_i, ptr_m, match_limit} `(,r_b ,r_mk ,r_i ,r_m ,r_l))
+					(vp-rdef (buf mask ptr_i ptr_m match_limit v1 v2))
+					(assign {buf, mask, ptr_i, ptr_m, match_limit} `(,buf ,mask ,ptr_i ,ptr_m ,match_limit))
 					(loop-start)
-						(vp-simd vp-cpy-rr `(,r_m ,r_i) `(,r_v2 ,r_v1))
-						(vp-simd vp-and-rr `(,r_mk) `(,r_v2 ,r_v1))
-						(vp-simd vp-cpy-dr-ub `(,r_b) `(,r_v2 ,r_v1) `(,r_v2 ,r_v1))
-						(breakif `(,r_v1 /= ,r_v2))
-						(vp-simd vp-add-cr '(1) `(,r_m ,r_i))
-					(loop-until `(,r_i = ,r_l))
-					(assign `(,r_i ,r_m) {ptr_i, ptr_m})
+						(vp-simd vp-cpy-rr `(,ptr_m ,ptr_i) `(,v2 ,v1))
+						(vp-simd vp-and-rr `(,mask) `(,v2 ,v1))
+						(vp-simd vp-cpy-dr-ub `(,buf) `(,v2 ,v1) `(,v2 ,v1))
+						(breakif `(,v1 /= ,v2))
+						(vp-simd vp-add-cr '(1) `(,ptr_m ,ptr_i))
+					(loop-until `(,ptr_i = ,match_limit))
+					(assign `(,ptr_i ,ptr_m) {ptr_i, ptr_m})
 				(endif)
 
 				(assign {ptr_i - i, i - anchor} {m_len, lit_len})
@@ -148,19 +148,19 @@
 	(assign {t_pos + 1} {t_pos})
 
 	(vpif {lit_len >= 15})
-		(vp-rdef (r_v r_tp r_t r_c))
-		(assign {lit_len - 15, t_pos, t, 255} `(,r_v ,r_tp ,r_t ,r_c))
-		(vp-add-rr r_t r_tp)
+		(vp-rdef (v t_pos t c))
+		(assign {lit_len - 15, t_pos, t, 255} `(,v ,t_pos ,t ,c))
+		(vp-add-rr t t_pos)
 		(loop-start)
-			(breakif `(,r_v < 255))
-			(vp-cpy-ri-b r_c r_tp 0)
-			(vp-sub-cr 255 r_v)
-			(vp-add-cr 1 r_tp)
+			(breakif `(,v < 255))
+			(vp-cpy-ri-b c t_pos 0)
+			(vp-sub-cr 255 v)
+			(vp-add-cr 1 t_pos)
 		(loop-end)
-		(vp-cpy-ri-b r_v r_tp 0)
-		(vp-add-cr 1 r_tp)
-		(vp-sub-rr r_t r_tp)
-		(assign `(,r_tp) {t_pos})
+		(vp-cpy-ri-b v t_pos 0)
+		(vp-add-cr 1 t_pos)
+		(vp-sub-rr t t_pos)
+		(assign `(,t_pos) {t_pos})
 	(endif)
 
 	(vpif {lit_len > 0})
@@ -173,19 +173,19 @@
 		(assign {t_pos + 2} {t_pos})
 
 		(vpif {m_len - 4 >= 15})
-			(vp-rdef (r_v r_tp r_t r_c))
-			(assign {m_len - 19, t_pos, t, 255} `(,r_v ,r_tp ,r_t ,r_c))
-			(vp-add-rr r_t r_tp)
+			(vp-rdef (v t_pos t c))
+			(assign {m_len - 19, t_pos, t, 255} `(,v ,t_pos ,t ,c))
+			(vp-add-rr t t_pos)
 			(loop-start)
-				(breakif `(,r_v < 255))
-				(vp-cpy-ri-b r_c r_tp 0)
-				(vp-sub-cr 255 r_v)
-				(vp-add-cr 1 r_tp)
+				(breakif `(,v < 255))
+				(vp-cpy-ri-b c t_pos 0)
+				(vp-sub-cr 255 v)
+				(vp-add-cr 1 t_pos)
 			(loop-end)
-			(vp-cpy-ri-b r_v r_tp 0)
-			(vp-add-cr 1 r_tp)
-			(vp-sub-rr r_t r_tp)
-			(assign `(,r_tp) {t_pos})
+			(vp-cpy-ri-b v t_pos 0)
+			(vp-add-cr 1 t_pos)
+			(vp-sub-rr t t_pos)
+			(assign `(,t_pos) {t_pos})
 		(endif)
 	(endif)
 
@@ -230,9 +230,9 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 	
 	; Bind args as (:obj :num :obj) -> (buffer, position, chunk)
-	(vp-rdef (r_chunk r_buf r_pos))
-	(list-bind-args :r1 `(,r_buf ,r_pos ,r_chunk) '(:obj :num :obj))
-	(assign `(,r_chunk ,r_buf ,r_pos) {chunk, buf, pos})
+	(vp-rdef (chunk buf pos))
+	(list-bind-args :r1 `(,buf ,pos ,chunk) '(:obj :num :obj))
+	(assign `(,chunk ,buf ,pos) {chunk, buf, pos})
 
 	(assign {chunk->+str_length, buf->+str_length, &chunk->+str_data, &buf->+str_data, 0} 
 		{c_len, cap, chunk, buf, c_pos})
@@ -335,9 +335,9 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 	
-	(vp-rdef (r_buf r_pos r_data))
-	(list-bind-args :r1 `(,r_buf ,r_pos ,r_data) '(:obj :num :obj))
-	(assign `(,r_buf ,r_pos ,r_data) {buf, pos, data})
+	(vp-rdef (buf pos data))
+	(list-bind-args :r1 `(,buf ,pos ,data) '(:obj :num :obj))
+	(assign `(,buf ,pos ,data) {buf, pos, data})
 
 	(assign {buf->+str_length, data->+str_length, &buf->+str_data, &data->+str_data} 
 		{cap, d_len, buf, data})
@@ -380,9 +380,9 @@
 
 	(errorif-lisp-args-sig 'error :r1 4)
 	
-	(vp-rdef (r_buf r_pos r_stm r_out_len))
-	(list-bind-args :r1 `(,r_buf ,r_pos ,r_stm ,r_out_len) '(:obj :num :stream :num))
-	(assign `(,r_buf ,r_pos ,r_stm ,r_out_len) {buf, pos, stm, out_len})
+	(vp-rdef (buf pos stm out_len))
+	(list-bind-args :r1 `(,buf ,pos ,stm ,out_len) '(:obj :num :stream :num))
+	(assign `(,buf ,pos ,stm ,out_len) {buf, pos, stm, out_len})
 
 	(assign {buf->+str_length, &buf->+str_data} {cap, buf})
 	(assign {(pos - out_len) & (cap - 1)} {start})
