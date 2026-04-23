@@ -34,13 +34,13 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this args tok_buf ret_adr)
+		(ptr this args tok_buf hash_table)
 		(pubyte buf chunk t)
-		(plong hash_table h_ptr)
-		(long pos m_pos ptr_m ptr_i ptr_limit anchor)
-		(uint c_len cap mask i end_limit match_limit hmul)
-		(uint val m_val m_len lit_len rem t_pos)
-		(uint offset)
+		(long pos m_pos ptr_i ptr_m anchor)
+		(union
+			(plong h_ptr)
+			(ptr ret_adr))
+		(uint c_len cap mask i end_limit match_limit val m_val m_len lit_len t_pos offset hmul)
 		(ubyte lit_nibble match_nibble))
 
 	(vp-rdef (r_buf r_pos r_chunk r_hash_table))
@@ -50,13 +50,12 @@
 
 	(errorif-lisp-args-sig 'error :r1 4)
 	
-	; Bind args as (:obj :num :obj :obj) -> (buf, pos, chunk, hash_table)
 	(list-bind-args :r1 `(,r_buf ,r_pos ,r_chunk ,r_hash_table) '(:obj :num :obj :obj))
 	(assign `(,r_buf ,r_pos ,r_chunk ,r_hash_table) {buf, pos, chunk, hash_table})
 
 	(assign {buf->+str_length, chunk->+str_length} {cap, c_len})
-	(assign {cap - 1, &buf->+str_data, &chunk->+str_data} {mask, buf, chunk})
-	(assign {hash_table->+array_begin} {hash_table})
+	(assign {cap - 1, &buf->+str_data, &chunk->+str_data, hash_table->+array_begin} 
+		{mask, buf, chunk, hash_table})
 
 	; --- 1. Write chunk into logical ring buffer ---
 	(call :sys_mem :copy_to_ring {chunk, buf + (pos & mask), c_len, cap, buf})
@@ -89,12 +88,12 @@
 
 			(vpif {val = m_val})
 				; --- MATCH FOUND ---
-				(assign {i + 4, m_pos + 4, match_limit} {ptr_i, ptr_m, ptr_limit})
-				(vpif {ptr_i < ptr_limit})
+				(assign {i + 4, m_pos + 4} {ptr_i, ptr_m})
+				(vpif {ptr_i < match_limit})
 					(loop-start)
 						(breakif {buf[ptr_m & mask] /= buf[ptr_i & mask]})
 						(assign {ptr_m + 1, ptr_i + 1} {ptr_m, ptr_i})
-					(loop-until {ptr_i = ptr_limit})
+					(loop-until {ptr_i = match_limit})
 				(endif)
 
 				(assign {ptr_i - i, i - anchor} {m_len, lit_len})
@@ -102,7 +101,8 @@
 				;subroutine call while keeping stack context !
 				(subroutine literals)
 
-				(assign {(i + m_len) => anchor} {i})
+				(assign {i + m_len} {anchor})
+				(assign {anchor} {i})
 				(goto 'end_match_check)
 			(endif)
 		(endif)
@@ -128,23 +128,27 @@
 
 (vp-label 'literals)
 	(assign {lit_len} {lit_nibble})
-	(vpif {lit_nibble >= 15}) (assign {15} {lit_nibble}) (endif)
+	(vpif {lit_nibble >= 15})
+		(assign {15} {lit_nibble})
+	(endif)
 
 	(vpif {offset > 0})
 		(assign {m_len - 4} {match_nibble})
-		(vpif {match_nibble >= 15}) (assign {15} {match_nibble}) (endif)
+		(vpif {match_nibble >= 15})
+			(assign {15} {match_nibble})
+		(endif)
 	(endif)
 
 	(assign {(lit_nibble << 4) | match_nibble} {t[t_pos]})
 	(assign {t_pos + 1} {t_pos})
 
 	(vpif {lit_len >= 15})
-		(assign {lit_len - 15} {rem})
-		(loop-while {rem >= 255})
+		(assign {lit_len - 15} {val})
+		(loop-while {val >= 255})
 			(assign {255} {t[t_pos]})
-			(assign {rem - 255, t_pos + 1} {rem, t_pos})
+			(assign {val - 255, t_pos + 1} {val, t_pos})
 		(loop-end)
-		(assign {rem} {t[t_pos]})
+		(assign {val} {t[t_pos]})
 		(assign {t_pos + 1} {t_pos})
 	(endif)
 
@@ -158,12 +162,12 @@
 		(assign {t_pos + 2} {t_pos})
 
 		(vpif {m_len - 4 >= 15})
-			(assign {m_len - 19} {rem})
-			(loop-while {rem >= 255})
+			(assign {m_len - 19} {val})
+			(loop-while {val >= 255})
 				(assign {255} {t[t_pos]})
-				(assign {rem - 255, t_pos + 1} {rem, t_pos})
+				(assign {val - 255, t_pos + 1} {val, t_pos})
 			(loop-end)
-			(assign {rem} {t[t_pos]})
+			(assign {val} {t[t_pos]})
 			(assign {t_pos + 1} {t_pos})
 		(endif)
 	(endif)
@@ -194,9 +198,14 @@
 		(ptr this args)
 		(pubyte chunk buf)
 		(long pos m_pos)
-		(uint c_pos c_len cap mask lit_len match_len tmp dst_pos dst_space)
-		(uint offset)
-		(ubyte token v))
+		(uint c_pos c_len cap mask lit_len match_len offset)
+		(union
+			(uint dst_pos)
+			(uint tmp)
+			(ubyte v))
+		(union
+			(uint dst_space)
+			(ubyte token)))
 
 	(vp-rdef (r_chunk r_buf r_pos))
 
@@ -209,13 +218,13 @@
 	(list-bind-args :r1 `(,r_buf ,r_pos ,r_chunk) '(:obj :num :obj))
 	(assign `(,r_chunk ,r_buf ,r_pos) {chunk, buf, pos})
 
-	(assign {chunk->+str_length, buf->+str_length} {c_len, cap})
-	(assign {cap - 1, &chunk->+str_data, &buf->+str_data, 0} {mask, chunk, buf, c_pos})
+	(assign {chunk->+str_length, buf->+str_length, &chunk->+str_data, &buf->+str_data, 0} 
+		{c_len, cap, chunk, buf, c_pos})
+	(assign {cap - 1} {mask})
 
 	(loop-while {c_pos < c_len})
 		; Fully separate read and increment
-		(assign {chunk[c_pos]} {token})
-		(assign {c_pos + 1} {c_pos})
+		(assign {chunk[c_pos], c_pos + 1} {token, c_pos})
 
 		; --- Literals ---
 		(assign {token >> 4} {lit_len})
@@ -224,8 +233,7 @@
 			(loop-while {v = 255})
 				(breakif {c_pos >= c_len})
 				(assign {chunk[c_pos]} {v})
-				(assign {lit_len + v} {lit_len})
-				(assign {c_pos + 1} {c_pos})
+				(assign {lit_len + v, c_pos + 1} {lit_len, c_pos})
 			(loop-end)
 		(endif)
 
@@ -242,8 +250,7 @@
 
 		; --- Match ---
 		(breakif {c_pos + 1 >= c_len})
-		(assign {chunk[c_pos] | (chunk[c_pos + 1] << 8)} {offset})
-		(assign {c_pos + 2} {c_pos})
+		(assign {chunk[c_pos] | (chunk[c_pos + 1] << 8), c_pos + 2} {offset, c_pos})
 
 		(assign {(token & 15) + 4} {match_len})
 		(vpif {match_len = 19})
@@ -251,15 +258,13 @@
 			(loop-while {v = 255})
 				(breakif {c_pos >= c_len})
 				(assign {chunk[c_pos]} {v})
-				(assign {match_len + v} {match_len})
-				(assign {c_pos + 1} {c_pos})
+				(assign {match_len + v, c_pos + 1} {match_len, c_pos})
 			(loop-end)
 		(endif)
 
 		(vpif {offset >= match_len})
 			; Bulk copy
-			(assign {(pos - offset) & mask} {m_pos})
-			(assign {pos & mask} {dst_pos})
+			(assign {(pos - offset) & mask, pos & mask} {m_pos, dst_pos})
 			(assign {cap - dst_pos} {dst_space})
 			(vpif {match_len <= dst_space})
 				(call :sys_mem :copy_from_ring {buf + m_pos, buf + dst_pos, match_len, cap, buf})
@@ -319,8 +324,8 @@
 	(list-bind-args :r1 `(,r_buf ,r_pos ,r_data) '(:obj :num :obj))
 	(assign `(,r_buf ,r_pos ,r_data) {buf, pos, data})
 
-	(assign {buf->+str_length, data->+str_length} {cap, d_len})
-	(assign {&buf->+str_data, &data->+str_data} {buf, data})
+	(assign {buf->+str_length, data->+str_length, &buf->+str_data, &data->+str_data} 
+		{cap, d_len, buf, data})
 	(vpif {d_len > cap})
 		(assign {cap, data + (d_len - cap)} {d_len, data})
 	(endif)
