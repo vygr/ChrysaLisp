@@ -21,8 +21,8 @@ background of high-performance systems languages. ChrysaLisp is conceived at
 the intersection of these worlds, aiming to deliver the "magic of Lisp"
 without the performance compromises often associated with traditional
 dynamic languages. It's an operating system and language designed to be
-both a skilled gymnast—flexible and powerful—and a lightning-fast martial
-artist—precise and incredibly efficient.
+both a skilled gymnast-flexible and powerful-and a lightning-fast martial
+artist-precise and incredibly efficient.
 
 This document delves into one of the core "techniques" of ChrysaLisp: how
 its environment system and function call mechanisms are engineered for raw
@@ -195,9 +195,9 @@ strategy:
 
 * **B. Fast Dynamic Lookup (When Pre-Binding Isn't Possible):**
 
-    * For truly dynamic calls—e.g., `(apply
+    * For truly dynamic calls-e.g., `(apply
       some-variable-holding-a-function-name args)`, or code constructed and
-      evaluated at runtime via `eval`—a runtime symbol lookup for the
+      evaluated at runtime via `eval`-a runtime symbol lookup for the
       function name still occurs.
 
     * This is where the hyper-optimized `:hmap` lookup (leveraging

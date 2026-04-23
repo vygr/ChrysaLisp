@@ -434,7 +434,7 @@ The preference for iteration stems from two core architectural principles:
     To make this possible, each task is given a small, fixed-size machine
     stack (typically 4KB). This makes tasks extremely memory-efficient, but
     it also makes deep recursion on the machine stack physically
-    impossible—it would quickly lead to a stack overflow.
+    impossible-it would quickly lead to a stack overflow.
 
 *   **Stable Scopes for O(1) Lookups:** A recursive style creates a deep
     chain of nested lexical environments (`:hmap`s). This leads to frequent
@@ -597,7 +597,7 @@ Then, make it right. Then, if you must, make it fast."**
 This progression typically follows three distinct stages, moving from the
 highest level of abstraction to the most direct hardware control.
 
-### Stage 1: The Lisp Prototype — Correctness and Clarity First
+### Stage 1: The Lisp Prototype - Correctness and Clarity First
 
 Every new piece of functionality should begin as a pure ChrysaLisp function.
 
@@ -626,7 +626,7 @@ proceed further.
 This version is easy to write, understand, and debug. For most applications,
 its performance would be excellent.
 
-### Stage 2: The C-Script VP Function — Robust Performance
+### Stage 2: The C-Script VP Function - Robust Performance
 
 If benchmarking (e.g., using the `cmd/test` app) reveals that the Lisp
 function is a bottleneck, the next step is to translate it into a C-Script
@@ -680,10 +680,10 @@ manual register management.
 (def-func-end)
 ```
 
-### Stage 3: The Optimized VP Method — Maximum Velocity
+### Stage 3: The Optimized VP Method - Maximum Velocity
 
-For the most demanding parts of the system—core class methods, kernel
-primitives, or routines in an extreme performance-critical loop—the final
+For the most demanding parts of the system-core class methods, kernel
+primitives, or routines in an extreme performance-critical loop-the final
 optimization stage is to write a pure VP assembly method.
 
 *   **Primary Goal:** To achieve the smallest footprint and highest possible

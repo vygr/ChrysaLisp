@@ -45,7 +45,7 @@ handshakes, acknowledgements, retries, and error codes to hide the chaotic,
 unreliable nature of the underlying hardware. They offer guarantees.
 
 ChrysaLisp rejects this entirely. Its foundation is a deliberate,
-philosophical "nothingness"—a void where these guarantees would normally be.
+philosophical "nothingness"-a void where these guarantees would normally be.
 This is not a limitation; it is the source of its strength.
 
 *   **The Unreliable Sea:** The mail transport layer is the epitome of this.
@@ -56,8 +56,8 @@ This is not a limitation; it is the source of its strength.
     addressed to a node that no longer exists.
 
 *   **No Central Authority:** There is no master node, no central registry, no
-    single source of truth. The state of the network—its topology, the
-    services available—is an emergent property, not a centrally managed fact.
+    single source of truth. The state of the network-its topology, the
+    services available-is an emergent property, not a centrally managed fact.
     All knowledge is local and eventually consistent.
 
 *   **Embracing Failure:** The system assumes that any component can vanish
@@ -202,7 +202,7 @@ abstractions.
 
 Instead, you embrace it. You build on "nothing." You provide the simplest
 possible primitives and a single, powerful guarantee of identity. You trust
-that by doing so, you will empower—indeed, compel—the creation of
+that by doing so, you will empower-indeed, compel-the creation of
 applications that are resilient not by fighting against the nature of the
 system, but by being a perfect expression of it.
 

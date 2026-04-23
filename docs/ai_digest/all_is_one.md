@@ -67,10 +67,10 @@ adding its own methods.
 *   A call like `(. my_button :draw)` does not walk an inheritance chain.
 
 *   It performs a single O(1) `:hmap :find` directly on the `*class_Button*`
-    vtable.
+	vtable.
 
-This is a profound choice. The "shape" of inheritance is the same—a tree of
-associative maps—but its implementation is transformed for maximum
+This is a profound choice. The "shape" of inheritance is the same-a tree of
+associative maps-but its implementation is transformed for maximum
 performance. There is no runtime cost for deep inheritance. The class system
 is not simulating inheritance; it is a direct, static embodiment of it !
 
@@ -81,11 +81,11 @@ most dynamic manifestation. Every widget, from a `Window` to a `Button`, is an
 instance of an `:hmap`.
 
 *   A widget's `:parent` property points to its container, forming a scene
-    graph tree.
+	graph tree.
 
 *   Property inheritance is implemented via runtime traversal of this tree. A
-    search for a widget's `:font` property will call `:hmap :search` on the
-    widget itself, and if not found, will recurse up the `:parent` chain.
+	search for a widget's `:font` property will call `:hmap :search` on the
+	widget itself, and if not found, will recurse up the `:parent` chain.
 
 This is where the synergy becomes clear. This runtime traversal would be
 unacceptably slow in other systems, but in ChrysaLisp, the lookup at *each
@@ -99,13 +99,13 @@ structure; they are a deeply interconnected, co-operating system of ideas:
 *   **Cooperative Scheduling** enables small, fixed-size stacks.
 
 *   **Small Stacks** mandate an **iterative style** using heap-allocated
-    `:list`s for managing nested structures.
+	`:list`s for managing nested structures.
 
 *   The **Iterative Style** creates flatter, more stable lexical scopes,
-    which **maximizes the effectiveness of the `str_hashslot` cache**.
+	which **maximizes the effectiveness of the `str_hashslot` cache**.
 
-*   The **O(1) Cache Performance** makes all three `:hmap` patterns—environment
-    lookup, method dispatch, and property inheritance—hyper-efficient.
+*   The **O(1) Cache Performance** makes all three `:hmap` patterns-environment
+	lookup, method dispatch, and property inheritance-hyper-efficient.
 
 The entire system is a virtuous circle. Each part "knows" about the others and
 is designed to amplify their strengths. The result is a dynamic, Lisp-based
@@ -123,7 +123,7 @@ everything else.
 
 The philosophy is not "everything *must be made* to fit." It is the discovery
 that, at a fundamental level of abstraction, **everything already fits**. All
-of Lisp is about association. The environment, the class, the object—they are
+of Lisp is about association. The environment, the class, the object-they are
 all just specialized forms of maps. ChrysaLisp's genius lies in recognizing
 this unifying truth and building a single, perfect, "round" implementation of
 that idea, which it then uses to effortlessly construct its universe. It

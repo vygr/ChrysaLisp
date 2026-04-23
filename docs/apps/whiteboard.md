@@ -195,7 +195,7 @@ polygons, it is perfectly adequate.
 ### 5. File I/O and Inter-App Communication
 
 The Whiteboard demonstrates how a ChrysaLisp application can use another
-application as a service—in this case, using the File Browser app as a "file
+application as a service-in this case, using the File Browser app as a "file
 dialog."
 
 *   **`action-save` & `action-load`:** These functions do not implement their

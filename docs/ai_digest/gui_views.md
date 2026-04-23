@@ -2,8 +2,8 @@
 
 The `View` class is the abstract base and fundamental building block for every
 element in the ChrysaLisp Graphical User Interface (GUI). It is the superclass
-from which all other widgets—`Window`, `Button`, `Label`, `Flow`, `Canvas`,
-etc.—are derived. Inheriting directly from the `:hmap` class, every `View`
+from which all other widgets-`Window`, `Button`, `Label`, `Flow`, `Canvas`,
+etc.-are derived. Inheriting directly from the `:hmap` class, every `View`
 instance is fundamentally a hash map, embodying the system's "Recursive
 Architecture" philosophy. This design allows the entire GUI to be represented
 as a tree of views, known as the scene graph, which governs rendering, layout,

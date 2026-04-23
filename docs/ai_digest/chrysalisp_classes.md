@@ -105,8 +105,8 @@ ChrysaLisp's dynamic dispatch is deceptively fast, achieving O(1) performance
 through the **proactive `str_hashslot` caching mechanism**.
 
 1.  **Proactive Cache Setting:** When any key (a symbol) is inserted into any
-    `:hmap`—be it a class vtable via `defmethod` or an object property via
-    `def`—the `:hmap :insert` function **immediately writes the index of that
+    `:hmap`-be it a class vtable via `defmethod` or an object property via
+    `def`-the `:hmap :insert` function **immediately writes the index of that
     key's location within the `:hmap`'s internal bucket into the global
     symbol's `str_hashslot` field.** This cache is set at definition time,
     not on first use.

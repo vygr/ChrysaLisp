@@ -3,8 +3,8 @@
 ChrysaLisp provides a set of numeric object types and corresponding vector
 formats designed for efficiency and control, particularly with an eye towards
 systems programming and performance on integer-based hardware. This document
-details these numeric types—`Num` (integer), `Fixed` (fixed-point), and `Real`
-(IEEE double floating-point)—along with their vector counterparts and the
+details these numeric types-`Num` (integer), `Fixed` (fixed-point), and `Real`
+(IEEE double floating-point)-along with their vector counterparts and the
 broader vision for numeric computation in the ChrysaLisp ecosystem.
 
 ## Numeric Object Types

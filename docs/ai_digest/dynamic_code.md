@@ -204,7 +204,7 @@ is called, which emits the final bytecode into the function being compiled.
 When an application calls `(. pixmap :to_argb32 pixel 16)`, it doesn't execute
 the Lisp generator code. It executes the pre-generated, hyper-optimized VP
 assembly. The runtime code has no `switch` statements, no `if`s, no function
-calls—just a flat sequence of bit-twiddling instructions to perform the
+calls-just a flat sequence of bit-twiddling instructions to perform the
 conversion at maximum speed.
 
 ## Conclusion

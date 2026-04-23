@@ -39,7 +39,7 @@ minimal.
     * A real application would replace or augment this with its own data
         structures to hold its state (e.g., a list of items, a game board, user
         settings). The template shows *where* this state should be
-        managed—within the `main` function's scope or as globals in `app.lisp`.
+        managed-within the `main` function's scope or as globals in `app.lisp`.
 
 *   **View (User Interface):**
 
@@ -190,6 +190,6 @@ ecosystem. It is not meant to be used as-is but to be copied and modified. By
 providing a clean, working, and well-organized skeleton, it demonstrates the
 idiomatic way to structure a GUI application, separating UI definition
 (`widgets.inc`), event mapping (`actions.inc`), and application logic (`ui.inc`,
-`app.lisp`). For a new programmer, following this pattern—extending the UI,
-mapping new events, and filling in the action stubs—is the most direct path to
+`app.lisp`). For a new programmer, following this pattern-extending the UI,
+mapping new events, and filling in the action stubs-is the most direct path to
 mastering GUI development in ChrysaLisp.

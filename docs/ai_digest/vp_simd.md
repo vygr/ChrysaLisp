@@ -14,7 +14,7 @@ This provides the most compelling "why" for the existence of the pseudo-op.
 At first glance, `vp-simd` in ChrysaLisp's assembly language appears to be a
 convenient compile-time macro for reducing repetitive code. While it does
 achieve this, its true purpose is far more profound. `vp-simd` is a **hardware
-abstraction**—a carefully designed pseudo-operation that specifies a set of
+abstraction**-a carefully designed pseudo-operation that specifies a set of
 parallel, independent operations. It is a tool that allows the programmer to
 **reduce the cognitive load of multi-dimensional problems by expressing them
 in a single, linear dimension of code.**

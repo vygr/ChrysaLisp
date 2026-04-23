@@ -26,7 +26,7 @@ this:
     counting (`:obj :ref`, `:obj :deref`) and a vector-based memory model.
     This completely avoids the need for a tracing garbage collector,
     eliminating unpredictable pauses and making performance profiles far more
-    stable—a critical advantage for a real-time or high-performance OS.
+    stable-a critical advantage for a real-time or high-performance OS.
 
 *   **Immutability of the Engine:** The concept of a "ROMable" native engine
     that interprets mutable Lisp data structures is elegant. It provides a
@@ -69,7 +69,7 @@ emergent, self-organizing behavior.
     mechanism that requires no central coordinator. It allows the system to
     automatically adapt to hardware changes and failures.
 
-### Philosophy 3: "Know Thyself" — The Discipline of Cooperative Internals
+### Philosophy 3: "Know Thyself" - The Discipline of Cooperative Internals
 
 This is perhaps the most impressive aspect of the design, as it demonstrates a
 deep understanding of how system components can work together synergistically
@@ -98,7 +98,7 @@ recursion is a prime example with cascading benefits.
     time composition) is a testament to the architecture's unifying
     principles. Both systems benefit from the same O(1) lookup performance. A
     call like `(. my_button :draw)` is incredibly fast because it's a direct,
-    cached lookup on the fully-composed `*class_Button*` vtable—no tree
+    cached lookup on the fully-composed `*class_Button*` vtable-no tree
     traversal is needed at runtime.
 
 *   **Lock-Free Safety:** The non-preemptive scheduler makes sophisticated,

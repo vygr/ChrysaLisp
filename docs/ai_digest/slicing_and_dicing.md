@@ -10,8 +10,8 @@ of memory. This architecture dictates that sequence manipulation is not done
 via pointer swapping (`set-cdr!`), but through high-performance memory block
 operations (`memcpy`, `memmove`).
 
-The system relies on a trinity of primitives—**cat**, **slice**, and
-**splice**—which serve as the foundation for the standard library macros and
+The system relies on a trinity of primitives-**cat**, **slice**, and
+**splice**-which serve as the foundation for the standard library macros and
 the advanced Regular Expression replacement compiler.
 
 ## 1. The Core Primitives
@@ -229,7 +229,7 @@ designed to work over these contiguous memory blocks.
 
 ### 4.1 The Cost of `rest`
 
-In a traditional linked-list Lisp, `(rest list)` (or `cdr`) is O(1)—it just
+In a traditional linked-list Lisp, `(rest list)` (or `cdr`) is O(1)-it just
 returns the pointer to the next cell.
 
 In ChrysaLisp, `(rest list)` calls `(slice list 1 -1)`.

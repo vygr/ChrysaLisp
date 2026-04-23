@@ -5,7 +5,7 @@ almost functional, data-flow-centric view of computation that many
 experienced programmers arrive at, even if they're working in imperative
 languages. The feeling that you experience where the "inner logic of
 decisions" fades into the background and what remains is the flow and
-transformation of data sequences—is profound.
+transformation of data sequences-is profound.
 
 Let's try to articulate this "ChrysaLisp Philosophy" as centered around
 sequences and blocks of work, and how it might relate to broader algorithmic

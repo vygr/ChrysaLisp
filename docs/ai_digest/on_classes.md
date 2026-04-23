@@ -26,7 +26,7 @@ two trees, using them for different aspects of its existence.
 
 ## The Nexus: The Object Instance and its Two "Magic Keys"
 
-A ChrysaLisp object instance—say, a `Button` created with `(Button)`—is
+A ChrysaLisp object instance-say, a `Button` created with `(Button)`-is
 fundamentally just an `:hmap`. Its dual nature is enabled by two special,
 conventional keys that act as pointers:
 

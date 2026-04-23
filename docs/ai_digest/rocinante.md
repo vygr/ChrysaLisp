@@ -6,12 +6,12 @@ mighty `loop` macro? The profound insight of the ChrysaLisp design is that
 these are not missing; they are simply emergent properties of a smaller, more
 powerful, and vastly more performant set of foundational primitives.
 
-These core primitives—`each!`, `map!`, `some!`, `reduce!`, and `filter!`—are
+These core primitives-`each!`, `map!`, `some!`, `reduce!`, and `filter!`-are
 the **Rocinante Primitives**. Like Don Quixote's faithful steed, they are not
 flashy, but they are the tireless, reliable workhorses that carry the entire
 system. They are the engine of idiomatic ChrysaLisp. To truly master the
-language—to wield its forms like nun-chucks with speed, precision, and
-grace—one must first learn to ride Rocinante.
+language-to wield its forms like nun-chucks with speed, precision, and
+grace-one must first learn to ride Rocinante.
 
 This document serves as a comprehensive guide to these primitives, explaining
 not just *what* they do, but *why* their specific design is a direct
@@ -246,8 +246,8 @@ is.
 The `!` is not a variable, nor a standard function. It is a **special form**
 that provides a zero-overhead bridge to the iteration engine. When the
 interpreter calls `!`, it directly reads the `lisp_seq_idx` from the current
-task's state—the index being managed by the currently active Rocinante
-primitive—and wraps it in a `:num` object. This makes the loop index
+task's state-the index being managed by the currently active Rocinante
+primitive-and wraps it in a `:num` object. This makes the loop index
 "ambiently" available inside a lambda without cluttering the signature or
 incurring function call overhead.
 

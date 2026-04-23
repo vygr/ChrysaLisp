@@ -15,7 +15,7 @@ impose the past on others !
 
 If you are a seasoned Lisp programmer, your understanding of closures is one
 of the most powerful tools in your arsenal. You expect a `lambda` to be a
-"closure"—a function that captures and carries its defining lexical
+"closure"-a function that captures and carries its defining lexical
 environment with it, allowing it to reference variables from its birth scope,
 no matter where or when it is eventually executed. This is the foundation of
 many powerful Lisp idioms.
@@ -75,10 +75,10 @@ Functions and Macros are for *Behavior* !
 In ChrysaLisp, a function is a pure blueprint for computation. It is
 stateless.
 
-*   A Lisp-level `lambda` is just **data**—a simple `:list` that contains the
+*   A Lisp-level `lambda` is just **data**-a simple `:list` that contains the
     argument list and the code for the body.
 
-*   A compiled `def-method` is just a **code pointer**—a raw entry point into
+*   A compiled `def-method` is just a **code pointer**-a raw entry point into
     the Virtual Processor's instruction set.
 
 Critically, neither of these holds a reference to its defining environment.

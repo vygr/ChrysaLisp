@@ -3,8 +3,8 @@
 ChrysaLisp's architecture is inherently designed to support robust
 distributed processing. A core tenet of its philosophy is that distributed
 applications can be structured as dynamic, restartable trees of tasks. When
-failures occur—be it a VP node crashing or a communication link
-dropping—the system provides mechanisms to detect these failures, isolate
+failures occur-be it a VP node crashing or a communication link
+dropping-the system provides mechanisms to detect these failures, isolate
 affected sub-trees, potentially restart or rebuild those components, and
 allow the overall application to continue or gracefully degrade. This
 document explores this philosophy using the Raymarch, Mandelbrot, NetSpeed,

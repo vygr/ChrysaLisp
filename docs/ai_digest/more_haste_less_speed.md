@@ -11,7 +11,7 @@ Let's do this again, with the correct perspective...
 In the craft of software development, we are faced with a paradox. We are
 driven to create, to build, to bring solutions to life with urgency and
 efficiency. Yet, we are troubled by the knowledge that a blind pursuit of raw
-velocity—of "speed"—often leads to flawed, brittle work that ultimately slows
+velocity-of "speed"-often leads to flawed, brittle work that ultimately slows
 us down. This is the tension between the brutishness of speed and the art of
 haste.
 
@@ -20,7 +20,7 @@ argument for a specific kind of craftsmanship: one that rejects thoughtless
 speed in favor of a deliberate, focused haste. This haste is not about
 rushing; it is the swift, efficient, and seemingly effortless execution that
 becomes possible only *after* deep thought, careful planning, and disciplined
-practice. True, sustainable velocity—a performant and reliable system—is the
+practice. True, sustainable velocity-a performant and reliable system-is the
 *result* of this craftsman's haste.
 
 We will use the ChrysaLisp operating system as a primary case study. Its

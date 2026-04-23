@@ -6,8 +6,8 @@ principles, a yin and yang of systems engineering. The first, a humorous
 dictum for architectural avoidance, is **"Well, don't do that then!"**. The
 second, a mandate for implementation intelligence, is **"Know what you do
 do!"**, or more classically, "Know Thyself." Together, these principles guide
-a set of deeply interconnected design choices—from task scheduling and memory
-management to the very style of programming—that result in a system of
+a set of deeply interconnected design choices-from task scheduling and memory
+management to the very style of programming-that result in a system of
 remarkable performance, stability, and elegance. This is not a system of
 isolated features, but a holistic architecture where every component
 co-operates with every other.

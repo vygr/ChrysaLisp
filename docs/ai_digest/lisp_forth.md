@@ -10,8 +10,8 @@ critique.
 
 This document is for the Forth community, a community to which a great debt
 of gratitude is owed. It comes from a place of deep respect for the elegant
-minimalism and raw power pioneered by Chuck Moore. The Forth philosophy—of
-building a universe from a handful of well-chosen primitives—is a powerful
+minimalism and raw power pioneered by Chuck Moore. The Forth philosophy-of
+building a universe from a handful of well-chosen primitives-is a powerful
 and correct one. This author’s own journey included implementing a Forth,
 an experience that cemented a lifelong appreciation for its design.
 
@@ -22,8 +22,8 @@ developer think like the machine, a beautiful discipline that can also be a
 barrier. "Who is going to use this?" became a pressing question.
 
 ChrysaLisp is an attempt to answer that question. It is a spiritual successor
-to Forth, an effort to build a system with the **soul of Forth**—its speed,
-minimalism, and interactivity—but with the **body of a Lisp**, providing the
+to Forth, an effort to build a system with the **soul of Forth**-its speed,
+minimalism, and interactivity-but with the **body of a Lisp**, providing the
 grounding in symbols and named parameters that brings clarity and
 approachability. This document aims to explain how ChrysaLisp is, in essence,
 a Lisp Forth, and how it seeks to carry the flame of the Forth philosophy
@@ -36,7 +36,7 @@ they will immediately recognize a kindred spirit. The core tenets of the
 "Forth way" are the foundational pillars of ChrysaLisp.
 
 *   **The Tiny, Fast Core:** A classic Forth fits in kilobytes. The entire
-    ChrysaLisp `boot_image` for a modern processor is around 200 KB—small
+    ChrysaLisp `boot_image` for a modern processor is around 200 KB-small
     enough to live entirely within an L1 cache. Both systems are built on the
     principle that the core engine should be microscopic, immutable, and
     hyper-efficient.
@@ -64,7 +64,7 @@ they will immediately recognize a kindred spirit. The core tenets of the
 
 *   **Directness:** The `(!)` functions in ChrysaLisp are a direct homage to
     Forth's `!` (store) and `@` (fetch). It is a syntactic signal of direct,
-    imperative intent—"get me the index now!"—that mirrors the spirit of
+    imperative intent-"get me the index now!"-that mirrors the spirit of
     Forth's concise and powerful operators.
 
 ### Section 2: The Challenge of Anonymity - Why Forth Can Feel "Too Abstract"
@@ -89,8 +89,8 @@ challenging. The abstraction is not in the machine model, but in the
     data that can be manipulated.
 
 This leads to a system that is incredibly efficient for the machine, but can
-be cognitively demanding for the human. It is this specific abstraction—the
-abstraction of anonymous data flow—that ChrysaLisp seeks to solve.
+be cognitively demanding for the human. It is this specific abstraction-the
+abstraction of anonymous data flow-that ChrysaLisp seeks to solve.
 
 ### Section 3: The ChrysaLisp Resolution - Grounding in Symbols
 
@@ -132,7 +132,7 @@ syntax to perfectly replicate the function of Forth's colon definer.
 This fusion provides the best of both worlds. You can create a rich
 vocabulary of named functions just like in Forth, but you also gain the
 ability to use anonymous functions (lambdas) as first-class data, passing
-them directly to higher-order functions like `map!`—a pattern that is
+them directly to higher-order functions like `map!`-a pattern that is
 cumbersome in standard Forth but natural here.
 
 ## Conclusion: An Invitation to a Lisp Forth, the offering hand to The Forth
@@ -150,7 +150,7 @@ first-class data objects, all while ruthlessly optimizing the underlying
 engine to retain Forth-like speed.
 
 The result is a Lisp Forth. It is offered not as a replacement, but as an
-evolution—an exploration of how the powerful ideas pioneered by Chuck Moore
+evolution-an exploration of how the powerful ideas pioneered by Chuck Moore
 and the Forth community can be expressed in a new way, to build the robust,
 emergent, and distributed systems of the future. It is an invitation to see a
 familiar philosophy reflected in a new mirror.
