@@ -43,13 +43,12 @@
 		(uint c_len cap mask i end_limit match_limit val m_val m_len lit_len t_pos offset hmul)
 		(ubyte lit_nibble match_nibble))
 
-	(vp-rdef (r_buf r_pos r_chunk r_hash_table))
-
 	(push-scope)
 	(entry {this, args})
 
 	(errorif-lisp-args-sig 'error :r1 4)
 	
+	(vp-rdef (r_buf r_pos r_chunk r_hash_table))
 	(list-bind-args :r1 `(,r_buf ,r_pos ,r_chunk ,r_hash_table) '(:obj :num :obj :obj))
 	(assign `(,r_buf ,r_pos ,r_chunk ,r_hash_table) {buf, pos, chunk, hash_table})
 
@@ -225,14 +224,13 @@
 			(uint dst_space)
 			(ubyte token)))
 
-	(vp-rdef (r_chunk r_buf r_pos))
-
 	(push-scope)
 	(entry {this, args})
 
 	(errorif-lisp-args-sig 'error :r1 3)
 	
 	; Bind args as (:obj :num :obj) -> (buffer, position, chunk)
+	(vp-rdef (r_chunk r_buf r_pos))
 	(list-bind-args :r1 `(,r_buf ,r_pos ,r_chunk) '(:obj :num :obj))
 	(assign `(,r_chunk ,r_buf ,r_pos) {chunk, buf, pos})
 
@@ -332,13 +330,12 @@
 		(long pos)
 		(uint cap d_len))
 
-	(vp-rdef (r_buf r_pos r_data))
-
 	(push-scope)
 	(entry {this, args})
 
 	(errorif-lisp-args-sig 'error :r1 3)
 	
+	(vp-rdef (r_buf r_pos r_data))
 	(list-bind-args :r1 `(,r_buf ,r_pos ,r_data) '(:obj :num :obj))
 	(assign `(,r_buf ,r_pos ,r_data) {buf, pos, data})
 
@@ -378,13 +375,12 @@
 		(long pos)
 		(uint out_len cap start space))
 
-	(vp-rdef (r_buf r_pos r_stm r_out_len))
-
 	(push-scope)
 	(entry {this, args})
 
 	(errorif-lisp-args-sig 'error :r1 4)
 	
+	(vp-rdef (r_buf r_pos r_stm r_out_len))
 	(list-bind-args :r1 `(,r_buf ,r_pos ,r_stm ,r_out_len) '(:obj :num :stream :num))
 	(assign `(,r_buf ,r_pos ,r_stm ,r_out_len) {buf, pos, stm, out_len})
 
