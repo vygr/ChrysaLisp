@@ -1009,19 +1009,21 @@
 ; Utilities
 ;;;;;;;;;;;
 
-(defun reflow (words line_width)
-	; (reflow words line_width) -> lines
-	(defq cnt 0 line (list) lines (list))
+(defun reflow (words line_width &optional indent tab_width)
+	; (reflow words line_width [indent tab_width]) -> lines
+	(setd indent "" tab_width 4)
+	(defq indent_len (length (expand indent tab_width))
+		cnt indent_len line (list) lines (list))
 	(each (lambda (word)
 		(cond
-			((> (setq cnt (+ cnt (length word) 1)) line_width)
+			((and (> (setq cnt (+ cnt (length word) 1)) line_width) (> (length line) 0))
 				(task-slice)
-				(push lines (join line " "))
+				(push lines (cat indent (join line " ")))
 				(push (clear line) word)
-				(setq cnt (+ (length word) 1)))
+				(setq cnt (+ indent_len (length word) 1)))
 			(:t (push line word)))) words)
 	(if (> (length line) 0)
-		(push lines (join line " ")) lines))
+		(push lines (cat indent (join line " "))) lines))
 
 (defun usort (_a &optional _f _l _h)
 	; (usort list [fcmp start end]) -> list

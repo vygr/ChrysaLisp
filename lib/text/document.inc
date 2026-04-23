@@ -175,8 +175,10 @@
 			(. this :select_paragraph)
 			(reach (lambda ((& cy & ay &ignore))
 				(when (/= ay cy)
-					(defq lines (reflow (split (. this :icopy 0 ay 0 cy) +char_class_white_space)
-						(. this :get_wrap_width)))
+					(defq first_line (. this :get_text_line ay)
+						indent_str (slice first_line 0 (bskip +char_class_white_space first_line 0))
+						lines (reflow (split (. this :icopy 0 ay 0 cy) +char_class_white_space)
+							(. this :get_wrap_width) indent_str (. this :get_tab_width)))
 					(.-> this
 						(:idelete 0 ay 0 cy)
 						(:iinsert 0 ay (join lines +char_class_lf 2)))))

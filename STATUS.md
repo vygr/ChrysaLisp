@@ -25,6 +25,8 @@ Fix to `set-str` macro to avoid potential double eval of the `val` argument.
 New `:sys_mem :copy_to_ring` and `:sys_mem :copy_from_ring` methods for ring
 buffer copy operations.
 
+`(reflow)` function, now take optional indent string and tab_width arguments.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
