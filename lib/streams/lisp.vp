@@ -240,7 +240,6 @@
 	(vp-xor-rr c_pos c_pos)
 
 	(loop-while `(,c_pos < ,c_len))
-
 		;token
 		(vp-cpy-dr-ub chunk c_pos token)
 		(vp-add-cr 1 c_pos)
@@ -280,7 +279,7 @@
 			(vp-add-cr 1 cp_cap)          ; cp_cap = mask + 1
 			
 			;advance loop positions BEFORE the sys_mem call trashes lit_len!
-			(vp-simd vp-add-rr `(,lit_len ,lit_len) `(,c_pos ,pos))
+			(vp-simd vp-add-rr `(,lit_len) `(,c_pos ,pos))
 			(call :sys_mem :copy_to_ring `(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
 		(endif)
 
@@ -334,17 +333,15 @@
 			(assign `(,cp_cap) `(,dst_space))
 			(vp-sub-rr cp_dst dst_space)
 
+			(vp-add-rr match_len pos)
 			(vpif `(,match_len <= ,dst_space))
 				(assign `(,m_pos ,match_len) `(,cp_src ,cp_len))
-				(vp-add-rr buf cp_src)
-				(vp-add-rr buf cp_dst)
-				(vp-add-rr match_len pos)
+				(vp-simd vp-add-rr `(,buf) `(,cp_src ,cp_dst))
 				(call :sys_mem :copy_from_ring `(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
 			(else)
 				;wrapped split copy
 				(assign `(,m_pos ,dst_space) `(,cp_src ,cp_len))
-				(vp-add-rr buf cp_src)
-				(vp-add-rr buf cp_dst)
+				(vp-simd vp-add-rr `(,buf) `(,cp_src ,cp_dst))
 				(call :sys_mem :copy_from_ring `(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
 				
 				;restore trashed loop registers required for the second boundary
@@ -358,8 +355,6 @@
 				(vp-add-rr buf cp_src)
 				(vp-xor-rr cp_dst cp_dst)
 				(vp-add-rr buf cp_dst)
-				
-				(vp-add-rr match_len pos)
 				(call :sys_mem :copy_from_ring `(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
 			(endif)
 		(else)
