@@ -220,6 +220,10 @@
 		(ptr saved_this saved_args))
 
 	(vp-rdef (this args))
+	;persistent state: survives ALL calls (requires :r9 to :r14)
+	(vp-rdef (buf pos chunk c_pos c_len mask) '(:r9 :r10 :r11 :r12 :r13 :r14))
+	;semi-persistent state: survives copy_to_ring, dead before copy_in_ring (:r6 to :r8)
+	(vp-rdef (token offset match_len) '(:r6 :r7 :r8))
 
 	(entry `(,this ,args))
 	(errorif-lisp-args-sig 'error :r1 3)
@@ -228,12 +232,7 @@
 	;spill this and args to CScript stack
 	(assign `(,this ,args) {saved_this, saved_args})
 	
-	;bind core state securely into a safe register bank (:r6 to :r14)
-	(vp-rdef (chunk buf pos c_pos c_len mask token offset dst_space) 
-		'(:r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-	
 	(list-bind-args args `(,buf ,pos ,chunk) '(:obj :num :obj))
-	
 	(assign `((,chunk +str_length) (,buf +str_length) (& ,chunk +str_data) (& ,buf +str_data)) 
 		`(,c_len ,mask ,chunk ,buf))
 	(vp-sub-cr 1 mask)
@@ -298,7 +297,6 @@
 		(vp-or-rr t1 offset)
 		(vp-add-cr 2 c_pos)
 
-		(vp-rdef (match_len) '(:r12)) ;alias token (it's safe to overwrite now)
 		(vp-cpy-rr token match_len)
 		(vp-and-cr 15 match_len)
 		(vp-add-cr 4 match_len)
@@ -314,52 +312,23 @@
 		(vpif `(,offset >= ,match_len))
 			;bulk copy
 			(vp-rdef (cp_src cp_dst cp_len cp_cap cp_buf)
-				(method-input :sys_mem :copy_from_ring))
-			(vp-rdef (m_pos) '(:r13)) ;alias offset (safe to overwrite)
+				(method-input :sys_mem :copy_in_ring))
 			
-			(assign `(,mask ,buf) `(,cp_cap ,cp_buf))
+			(vp-rdef (m_pos) '(:r0))
+			(vp-cpy-rr pos m_pos)
+			(vp-sub-rr offset m_pos)
+			(assign `(,m_pos ,pos ,match_len ,mask ,buf) 
+				`(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
 			(vp-add-cr 1 cp_cap)
+			(vp-simd vp-and-rr `(,mask) `(,cp_src ,cp_dst))
+			(vp-simd vp-add-rr `(,buf) `(,cp_src ,cp_dst))
 			
-			;compute match position
-			(vp-rdef (t1) '(:r0))
-			(vp-cpy-rr pos t1)
-			(vp-sub-rr offset t1)
-			(vp-cpy-rr t1 m_pos)
-			
-			(assign `(,pos) `(,cp_dst))
-			(vp-and-rr mask m_pos)
-			(vp-and-rr mask cp_dst)
-			
-			(assign `(,cp_cap) `(,dst_space))
-			(vp-sub-rr cp_dst dst_space)
-
+			;advance pos BEFORE call trashes match_len
 			(vp-add-rr match_len pos)
-			(vpif `(,match_len <= ,dst_space))
-				(assign `(,m_pos ,match_len) `(,cp_src ,cp_len))
-				(vp-simd vp-add-rr `(,buf) `(,cp_src ,cp_dst))
-				(call :sys_mem :copy_from_ring `(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
-			(else)
-				;wrapped split copy
-				(assign `(,m_pos ,dst_space) `(,cp_src ,cp_len))
-				(vp-simd vp-add-rr `(,buf) `(,cp_src ,cp_dst))
-				(call :sys_mem :copy_from_ring `(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
-				
-				;restore trashed loop registers required for the second boundary
-				(assign `(,mask ,buf) `(,cp_cap ,cp_buf))
-				(vp-add-cr 1 cp_cap)
-				
-				(vp-add-rr dst_space m_pos)
-				(vp-and-rr mask m_pos)
-				(assign `(,m_pos ,match_len) `(,cp_src ,cp_len))
-				(vp-sub-rr dst_space cp_len)
-				(vp-add-rr buf cp_src)
-				(vp-xor-rr cp_dst cp_dst)
-				(vp-add-rr buf cp_dst)
-				(call :sys_mem :copy_from_ring `(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
-			(endif)
+			(call :sys_mem :copy_in_ring `(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
 		(else)
 			;byte-by-byte (RLE overlap replication)
-			(vp-rdef (m_pos v t2) '(:r0 :r1 :r2))
+			(vp-rdef (m_pos v t2))
 			(vp-cpy-rr pos m_pos)
 			(vp-sub-rr offset m_pos)
 			(loop-start)
@@ -381,7 +350,7 @@
 
 (errorcase
 (vp-label 'error)
-	;error path didn't trash this or args, or create a scope
+	;error path didn't trash `this` or `args`, or create a scope
 	(jump :lisp :repl_error `(,this "(lz4-decode buf pos chunk)" +error_msg_wrong_types ,args))
 	(signature '(:str :num :str)))
 
