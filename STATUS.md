@@ -30,6 +30,8 @@ buffer copy operations.
 
 `(reflow)` function, now take optional indent string and tab_width arguments.
 
+New `docs/ai_digest/type_system.md` document.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.

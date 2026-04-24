@@ -152,6 +152,8 @@ Deep dives into specialized areas:
 
 51. **[Task Farming](docs/ai_digest/task_farming.md)** - The Task farm libraries.
 
+52. **[Type System](docs/ai_digest/type_system.md)** - The ChrysaLisp type system and mechanism.
+
 ---
 
 ## Reading Paths
