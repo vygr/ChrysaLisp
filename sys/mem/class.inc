@@ -15,6 +15,7 @@
 	(dec-method :copy sys/mem/copy :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :copy_to_ring sys/mem/copy_to_ring :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))
 	(dec-method :copy_from_ring sys/mem/copy_from_ring :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))
+	(dec-method :copy_in_ring sys/mem/copy_in_ring :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))
 	(dec-method :realloc sys/mem/realloc :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :recalloc sys/mem/recalloc :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :avail sys/mem/avail :static :nil (:r0))

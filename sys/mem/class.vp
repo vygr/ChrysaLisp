@@ -358,8 +358,8 @@
 	;:r0 = source address (ptr)
 	;:r1 = destination address (ptr)
 	;:r2 = length of source data (bytes)
-	;:r3 = length of destination buffer (bytes)
-	;:r4 = start of destination buffer (ptr)
+	;:r3 = length of ring buffer (bytes)
+	;:r4 = start of ring buffer (ptr)
 	;outputs
 	;:r0 = source address end (ptr)
 	;:r1 = destination address end (ptr)
@@ -387,8 +387,8 @@
 	;:r0 = source address (ptr)
 	;:r1 = destination address (ptr)
 	;:r2 = length of source data (bytes)
-	;:r3 = length of source buffer (bytes)
-	;:r4 = start of source buffer (ptr)
+	;:r3 = length of ring buffer (bytes)
+	;:r4 = start of ring buffer (ptr)
 	;outputs
 	;:r0 = source address end (ptr)
 	;:r1 = destination address end (ptr)
@@ -408,5 +408,37 @@
 		(vp-simd vp-cpy-rr '(:r4 :r5) '(:r0 :r2))
 	(endif)
 	(jump :sys_mem :copy '(:r0 :r1 :r2))
+
+(def-func-end)
+
+(def-method :sys_mem :copy_in_ring)
+	;inputs
+	;:r0 = source address (ptr)
+	;:r1 = destination address (ptr)
+	;:r2 = length of source data (bytes)
+	;:r3 = length of ring buffer (bytes)
+	;:r4 = start of ring buffer (ptr)
+	;outputs
+	;:r0 = source address end (ptr)
+	;:r1 = destination address end (ptr)
+	;trashes
+	;:r0-:r8
+	;info
+	;copies within a ring buffer, handling wraps for both src and dst.
+	;assumes non-overlapping regions.
+
+	(entry :sys_mem :copy_in_ring '(:r0 :r1 :r2 :r3 :r4))
+
+	(vp-lea-d :r4 :r3 :r6)
+	(vp-lea-d :r0 :r2 :r5)
+	(vpif '(:r5 > :r6))
+		;source wraps
+		(vp-sub-rr :r6 :r5)
+		(vp-sub-rr :r5 :r2)
+		(assign `(:r3 :r4 :r5) `(:r6 :r7 :r8))
+		(call :sys_mem :copy_to_ring '(:r0 :r1 :r2 :r3 :r4) '(_ :r1))
+		(assign `(:r6 :r7 :r8) `(:r3 :r0 :r2))
+	(endif)
+	(jump :sys_mem :copy_to_ring '(:r0 :r1 :r2 :r3 :r4))
 
 (def-func-end)

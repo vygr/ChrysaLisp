@@ -32,6 +32,8 @@ buffer copy operations.
 
 New `docs/ai_digest/type_system.md` document.
 
+New `:sys_mem :copy_in_ring` method for ring to ring none overlapping copies.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.

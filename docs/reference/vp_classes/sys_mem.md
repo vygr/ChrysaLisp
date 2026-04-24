@@ -65,8 +65,8 @@ inputs
 :r0 = source address (ptr)
 :r1 = destination address (ptr)
 :r2 = length of source data (bytes)
-:r3 = length of source buffer (bytes)
-:r4 = start of source buffer (ptr)
+:r3 = length of ring buffer (bytes)
+:r4 = start of ring buffer (ptr)
 outputs
 :r0 = source address end (ptr)
 :r1 = destination address end (ptr)
@@ -76,6 +76,25 @@ info
 wraps the memory copy if required
 ```
 
+### :copy_in_ring -> sys/mem/copy_in_ring
+
+```code
+inputs
+:r0 = source address (ptr)
+:r1 = destination address (ptr)
+:r2 = length of source data (bytes)
+:r3 = length of ring buffer (bytes)
+:r4 = start of ring buffer (ptr)
+outputs
+:r0 = source address end (ptr)
+:r1 = destination address end (ptr)
+trashes
+:r0-:r8
+info
+copies within a ring buffer, handling wraps for both src and dst.
+assumes non-overlapping regions.
+```
+
 ### :copy_to_ring -> sys/mem/copy_to_ring
 
 ```code
@@ -83,8 +102,8 @@ inputs
 :r0 = source address (ptr)
 :r1 = destination address (ptr)
 :r2 = length of source data (bytes)
-:r3 = length of destination buffer (bytes)
-:r4 = start of destination buffer (ptr)
+:r3 = length of ring buffer (bytes)
+:r4 = start of ring buffer (ptr)
 outputs
 :r0 = source address end (ptr)
 :r1 = destination address end (ptr)
