@@ -228,7 +228,7 @@
 	;spill this and args to CScript stack
 	(assign `(,this ,args) {saved_this, saved_args})
 	
-	; bind core state securely into a safe register bank (:r6 to :r14)
+	;bind core state securely into a safe register bank (:r6 to :r14)
 	(vp-rdef (chunk buf pos c_pos c_len mask token offset dst_space) 
 		'(:r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 	
@@ -241,12 +241,12 @@
 
 	(loop-while `(,c_pos < ,c_len))
 
-		; --- Token ---
+		;token
 		(vp-cpy-dr-ub chunk c_pos token)
 		(vp-add-cr 1 c_pos)
 
-		; --- Literals ---
-		(vp-rdef (lit_len) '(:r5)) ; Safe to use :r5 here, volatile but untouched until call
+		;literals
+		(vp-rdef (lit_len) '(:r5)) ;safe to use :r5 here, volatile but untouched until call
 		(vp-cpy-rr token lit_len)
 		(vp-shr-cr 4 lit_len)
 		(vpif `(,lit_len = 15))
@@ -259,7 +259,7 @@
 			(loop-until `(,v /= 255))
 		(endif)
 
-		; Guard against buffer overflow
+		;guard against buffer overflow
 		(vp-rdef (t1) '(:r0))
 		(vp-cpy-rr c_len t1)
 		(vp-sub-rr c_pos t1)
