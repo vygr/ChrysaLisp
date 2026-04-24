@@ -330,7 +330,7 @@
 
 (def-func-end)
 
-(def-func (path-to-absolute "./lz4_write"))
+(def-func (path-to-absolute "./lz4_read_stream"))
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -340,43 +340,46 @@
 	;trashes
 	;:r1-:r14
 
+	(def-vars
+		(ptr this args stm)
+		(pubyte buf)
+		(long pos)
+		(uint in_len cap start space))
+
 	(vp-rdef (this args))
-	(vp-rdef (data pos d_len b_len buf mask new_pos saved_this)
-		(method-input :sys_mem :copy_to_ring))
 
 	(entry `(,this ,args))
-	(errorif-lisp-args-sig 'error :r1 3)
-	(vp-cpy-rr this saved_this)
+	(errorif-lisp-args-sig 'error :r1 4)
 
-	(list-bind-args args `(,buf ,pos ,data) '(:obj :num :obj))
-	(assign `((,buf +str_length) (,data +str_length) (& ,buf +str_data) (& ,data +str_data))
-		`(,b_len ,d_len ,buf ,data))
+	(push-scope)
+	(assign `(,this ,args) {this, args})
 
-	;just tail of data if too large
-	(vpif `(,d_len > ,b_len))
-		(vp-sub-rr b_len d_len)
-		(vp-add-rr d_len data)
-		(vp-cpy-rr b_len d_len)
+	(vp-rdef (buf pos stm in_len))
+	(list-bind-args args `(,buf ,pos ,stm ,in_len) '(:obj :num :stream :num))
+	(assign `(,buf ,pos ,stm ,in_len) {buf, pos, stm, in_len})
+
+	(assign {buf->+str_length, &buf->+str_data} {cap, buf})
+	(assign {pos & (cap - 1)} {start})
+	(assign {cap - start} {space})
+	
+	(vpif {in_len <= space})
+		(call :stream :read {stm, buf + start, in_len})
+	(else)
+		(call :stream :read {stm, buf + start, space})
+		(call :stream :read {stm, buf, in_len - space})
 	(endif)
-	(vp-lea-d d_len pos new_pos)
 
-	;position in ring buf
-	(vp-cpy-rr b_len mask)
-	(vp-sub-cr 1 mask)
-	(vp-and-rr mask pos)
-	(vp-add-rr buf pos)
+	(call :num :create {pos + in_len} {args})
 
-	;store the data and return next position
-	(call :sys_mem :copy_to_ring `(,data ,pos ,d_len ,b_len ,buf))
-	(call :num :create `(,new_pos) `(,args))
+	(exit {this, args})
+	(return)
 
-	(exit `(,saved_this ,args))
-	(vp-ret)
+	(pop-scope-syms)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(lz4-write buf pos data)" +error_msg_wrong_types ,args))
-	(signature '(:str :num :str)))
+	(jump :lisp :repl_error `(,this "(lz4-read-stream buf pos stream in_len)" +error_msg_wrong_types ,args))
+	(signature '(:str :num :stream :num)))
 
 (def-func-end)
 
@@ -418,7 +421,7 @@
 		(call :stream :write {stm, buf, out_len - space})
 	(endif)
 
-	(call :obj :ref {this->+lisp_sym_nil} {args})
+	(call :num :create {pos} {args})
 
 	(exit {this, args})
 	(return)

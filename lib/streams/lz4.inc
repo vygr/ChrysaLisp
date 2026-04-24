@@ -8,7 +8,7 @@
 (ffi (path-to-absolute "./lz4_encode") lz4-encode)
 (ffi (path-to-absolute "./lz4_decode") lz4-decode)
 (ffi (path-to-absolute "./lz4_write_stream") lz4-write-stream)
-(ffi (path-to-absolute "./lz4_write") lz4-write)
+(ffi (path-to-absolute "./lz4_read_stream") lz4-read-stream)
 
 (defq +lz4_magic 0x184D2204)
 
@@ -53,15 +53,14 @@
 		(defq ring_buf (str-alloc w))
 		(while (and (defq size (read-uint in_stream)) (/= size 0))
 			(task-slice)
-			(defq chunk (read-blk in_stream (logand size 0x7FFFFFFF)) old_pos pos)
-			(if (bits? size 0x80000000)
-				; uncompressed
-				(setq pos (lz4-write ring_buf pos chunk))
+			(defq old_pos pos pos (if (bits? size 0x80000000)
+				; uncompressed, read directly into ring buffer
+				(lz4-read-stream ring_buf pos in_stream (logand size 0x7FFFFFFF))
 				; compressed
-				(setq pos (lz4-decode ring_buf pos chunk)))
+				(lz4-decode ring_buf pos (read-blk in_stream (logand size 0x7FFFFFFF)))))
 			; output decoded bytes
 			(lz4-write-stream ring_buf pos out_stream (- pos old_pos)))))
 
 ;module
-(export-symbols '(lz4-compress lz4-decompress lz4-compress lz4-decode))
+(export-symbols '(lz4-compress lz4-decompress lz4-encode lz4-decode))
 (env-pop)
