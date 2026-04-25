@@ -156,6 +156,8 @@ Deep dives into specialized areas:
 
 53. **[Exceptions](docs/ai_digest/exceptions.md)** - The ChrysaLisp exceptions mechanism.
 
+53. **[Task Pipelines](docs/ai_digest/task_pipelines.md)** - The ChrysaLisp task pipeline library.
+
 ---
 
 ## Reading Paths
