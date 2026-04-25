@@ -22,15 +22,15 @@ Here is the philosophy behind how ChrysaLisp thinks about types.
 
 At its core, ChrysaLisp is **strongly typed**. An object in memory never lies
 about what it is. Because every object's first slot is a pointer to its vtable,
-a `num` is fundamentally distinct from a `str`, and the Virtual Processor (VP)
+a `:num` is fundamentally distinct from a `:str`, and the Virtual Processor (VP)
 handles them uniquely at the hardware level. There is no implicit, weak coercion
 (like JavaScript treating `"5" + 1` as `"51"`).
 
 However, while the *values* are strongly typed, the *variables* are completely
-formless. A variable in ChrysaLisp is merely a symbol bound in a lexical `hmap`.
-It imposes no constraints on the data it holds. You do not declare a variable as
-a `String` or an `Int`; you simply pour data into it. The variable takes the
-shape of the data.
+formless. A variable in ChrysaLisp is merely a symbol bound in a lexical
+`:hmap`. It imposes no constraints on the data it holds. You do not declare a
+variable as a `String` or an `Int`; you simply pour data into it. The variable
+takes the shape of the data.
 
 ## 2. No Closures: Functions as Pure Templates
 
@@ -62,10 +62,10 @@ The golden rule of ChrysaLisp is: ***If it splits like a sequence and cats like
 a sequence, it's a sequence!***
 
 You do not need to check if an object inherits from `:seq`. If you pass a
-`list`, an `array`, a `str`, a `nums` (numeric vector), or a `fixeds` vector
-into a function, and that function calls `(slice obj 0 2)` or `(length obj)`, it
-will simply work. The dot-syntax method dispatch `(. obj :method)` routes the
-operation to the correct VP-level or Script-level vtable.
+`:list`, an `:array`, a `:str`, a `:nums` (numeric vector), or a `:fixeds`
+vector into a function, and that function calls `(slice obj 0 2)` or `(length
+obj)`, it will simply work. The dot-syntax method dispatch `(. obj :method)`
+routes the operation to the correct VP-level or Script-level vtable.
 
 The developer focuses entirely on the *behavior* required by the algorithm, not
 the *lineage* of the data.
