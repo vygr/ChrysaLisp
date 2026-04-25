@@ -16,6 +16,8 @@ dynamically evaluated, structurally polymorphic language built on pure
 templates**. It embodies the Bruce Lee principle: *"Be formless, shapeless, like
 water."*
 
+"So What is it ?" Cat, Red Dwarf.
+
 Here is the philosophy behind how ChrysaLisp thinks about types.
 
 ## 1. Strongly Typed Values, Formless Variables

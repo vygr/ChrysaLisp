@@ -158,6 +158,8 @@ Deep dives into specialized areas:
 
 53. **[Task Pipelines](docs/ai_digest/task_pipelines.md)** - The ChrysaLisp task pipeline library.
 
+54. **[Type Philosophy](docs/ai_digest/type_philosophy.md)** - Type mussings.
+
 ---
 
 ## Reading Paths
