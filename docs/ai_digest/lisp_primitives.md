@@ -779,6 +779,10 @@ operations, and type conversion.
 
     * `(align num div) -> num`
 
+*   **`quant`**: Quantizes a real number to a given tolerance.
+
+    * `(quant real tol) -> real`
+
 ### Fixed Point Math Functions
 
 *   **`sin`**: Calculates the sine of a fixed-point number.

@@ -314,6 +314,12 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 
     * `(nums-abs nums [out_nums]) -> nums`
 
+    * `(fixeds-frac fixeds [out_fixeds]) -> fixeds`
+
+    * `(fixeds-floor fixeds [out_fixeds]) -> fixeds`
+
+    * `(fixeds-ceil fixeds [out_fixeds]) -> fixeds`
+
 *   **`nums-scale`**: Scales a vector by a scalar.
 
     * `(nums-scale nums scale [out_nums]) -> nums`
@@ -321,6 +327,10 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 *   **`nums-add` / `nums-sub` / `nums-mul` / `nums-div` / `nums-mod` / `nums-min` / `nums-max`**: Element-wise arithmetic/comparison.
 
     * `(nums-add nums1 nums2 [out_nums]) -> nums`
+
+    * `(nums-min nums1 nums2 [out_nums]) -> nums`
+
+    * `(nums-max nums1 nums2 [out_nums]) -> nums`
 
 *   **`nums-sum`**: Returns the sum of all elements.
 
@@ -330,13 +340,21 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 
     * `(nums-dot nums1 nums2) -> num`
 
-*   **`reals-quant`**: Quantizes a real vector.
+*   **`reals-quant` / `quant`**: Quantizes a real vector or single real value.
 
     * `(reals-quant reals tol [reals]) -> reals`
+
+    * `(quant real tol) -> real`
 
 *   **`mat4x4-mul` / `mat4x4-inv` / `mat4x4-vec4-mul` / `mat4x4-vec3-mul`**: Matrix operations.
 
     * `(mat4x4-mul reals reals [reals]) -> reals`
+
+    * `(mat4x4-inv reals [reals]) -> reals`
+
+    * `(mat4x4-vec4-mul reals reals [reals]) -> reals`
+
+    * `(mat4x4-vec3-mul reals reals [reals]) -> reals`
 
 *   **`mat3x2-mul-f`**: Multiplies two 3x2 fixed-point matrices.
 
@@ -414,7 +432,7 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 
 *   **`reflow`**: Reflows words into lines of a given width.
 
-    * `(reflow words line_width) -> lines`
+    * `(reflow words line_width [indent tab_width]) -> lines`
 
 ## Tasks and Parallelism
 
@@ -428,7 +446,17 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 
     * `(pipe-run cmdline [outfun])`
 
+    * `(pipe-split cmdline) -> ((mode cmd) ...)`
+
 *   **`open-child` / `open-pipe` / `open-remote` / `open-task`**: Low-level task creation and communication.
+
+    * `(open-child task mode) -> net_id`
+
+    * `(open-pipe tasks [modes]) -> ([net_id | 0] ...)`
+
+    * `(open-remote task node mode) -> net_id`
+
+    * `(open-task task node mode key_num reply)`
 
 *   **`start` / `stop` / `restart`**: Controls child tasks.
 
@@ -442,6 +470,8 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 
     * `(huffman-compress in_stream out_stream token_bits)`
 
+    * `(huffman-decompress in_stream out_stream token_bits)`
+
 *   **`huffman-build-freq-map` / `huffman-write-codebook` / `huffman-read-codebook`**: Huffman model management.
 
 *   **`huffman-compress-static` / `huffman-decompress-static`**: Static Huffman coding.
@@ -449,6 +479,20 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 *   **`rle-compress` / `rle-decompress`**: Run-length encoding.
 
     * `(rle-compress in_stream out_stream [token_bits run_bits])`
+
+    * `(rle-decompress in_stream out_stream [token_bits run_bits])`
+
+*   **`lz4-compress` / `lz4-decompress`**: LZ4 frame compression and decompression.
+
+    * `(lz4-compress in_stream out_stream [window_size])`
+
+    * `(lz4-decompress in_stream out_stream [window_size])`
+
+*   **`lz4-encode` / `lz4-decode`**: Low-level LZ4 block encoding and decoding.
+
+    * `(lz4-encode ring_buf pos chunk hash_table) -> (comp_blk new_pos)`
+
+    * `(lz4-decode ring_buf pos comp_blk) -> new_pos`
 
 *   **`build_tree_and_codebook`**: Builds a Huffman tree and codebook.
 
@@ -513,6 +557,14 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 ## Compiler and Assembler
 
 *   **`within-compile-env` / `defcvar` / `deffvar` / `include`**: Compilation environment management.
+
+    * `(within-compile-env lambda)`
+
+    * `(defcvar sym val [sym val] ...)`
+
+    * `(deffvar sym val [sym val] ...)`
+
+    * `(include module)`
 
 *   **`func-load` / `func-refs`**: Loads function objects and lists their references.
 
