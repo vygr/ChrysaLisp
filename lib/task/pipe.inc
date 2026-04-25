@@ -14,8 +14,8 @@
 		(unless (some (lambda ((((qx &)) ((& qx1)))) (<= qx x x1 qx1)) quotes)
 			(defq j i) (setq i x1) 
 			(push out (list mode (trim (slice cmdline j x))))
-			(setq mode (if (eql (slice cmdline x x1) " ! ") +kn_call_open +kn_call_child))))
-		(push (sort (cat (substr cmdline " | ") (substr cmdline " ! "))
+			(setq mode (if (eql (slice cmdline x x1) "!") +kn_call_open +kn_call_child))))
+		(push (sort (cat (substr cmdline "|") (substr cmdline "!"))
 			(# (- (first (first %0)) (first (first %1))))) '((-1 0))))
 	out)
 

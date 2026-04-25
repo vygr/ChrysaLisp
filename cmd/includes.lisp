@@ -159,7 +159,7 @@
 			(each (lambda ((job result)) (prin result))
 				(pipe-farm (map (# (str (first args)
 						" -j " opt_j
-						(if opt_d (cat " -d " opt_d) "")
+						(if opt_d (cat " -d \q" opt_d "\q") "")
 						(if opt_w " -w " "")
 						" " (slice (str %0) 1 -2)))
 					(partition jobs opt_j)))))))

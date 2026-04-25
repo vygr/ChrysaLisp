@@ -761,7 +761,7 @@ convert to obj-set args
 ### open-pipe
 
 ```code
-(open-pipe tasks) -> ([net_id | 0] ...)
+(open-pipe tasks [modes]) -> ([net_id | 0] ...)
 ```
 
 ### open-remote
@@ -929,7 +929,7 @@ run pipe farm and collect output
 ### pipe-split
 
 ```code
-(pipe-split cmdline) -> (e0 [e1] ...)
+(pipe-split cmdline) -> ((mode cmd) ...)
 ```
 
 ### pos?
