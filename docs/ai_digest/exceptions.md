@@ -15,7 +15,7 @@ The system is built on a strict division of responsibility:
 * **The Inner Core:** Virtual Processor (VP) assembler routines and low-level
   data structures (the inner core) perform absolutely *zero* error checking.
   They assume the data they are given is perfectly valid. This allows critical
-  paths, like `hmap` lookups or vector math, to run at maximum possible speed
+  paths, like `:hmap` lookups or vector math, to run at maximum possible speed
   without branching overhead.
 
 * **The FFI Boundary:** Error checking is pushed as far up the call stack as
@@ -199,13 +199,13 @@ When this file is imported, it immediately redefines the core `defun` and
 If an error is thrown anywhere inside an instrumented application, the `:lisp
 :repl_error` VP method executes the following logic:
 
-* It searches the current lexical environment (`hmap`) for the symbol
+* It searches the current lexical environment (`:hmap`) for the symbol
   `*stack_frame*`.
 
 * If found, it makes a safe reference copy of that list.
 
 * It embeds this list directly into the `frame` property of the resulting
-  `+error` object.
+  `:error` type object.
 
 When the error is eventually printed to the REPL or log via `(. err :print)`, it
 outputs the exact file, line number, the failing payload object, and a

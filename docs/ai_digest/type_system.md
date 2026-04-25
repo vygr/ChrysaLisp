@@ -127,7 +127,7 @@ ChrysaLisp implements this without external allocations:
 
 ChrysaLisp features two distinct architectural realms: the underlying bare-metal
 VP classes (implemented in `.vp` assembler) and the Script/GUI level classes
-(implemented in Lisp via `hmap` vtable composition). The type system gracefully
+(implemented in Lisp via `:hmap` vtable composition). The type system gracefully
 unites these two domains.
 
 * **VP-Level `(type-of)`:** When you call the standard Lisp `(type-of)`

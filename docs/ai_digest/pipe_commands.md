@@ -23,7 +23,7 @@ provides detailed examples using the `grep`, `forward`, and `make` commands.
 
     * When a command application is invoked, it runs as a ChrysaLisp task.
 
-2. **Piping (`|`):**
+2. **Piping (`|` or `!`):**
 
     * Like Unix shells, ChrysaLisp allows the stdout of one command to be
       "piped" to the stdin of another. For example: `cat file.txt | grep
@@ -31,6 +31,8 @@ provides detailed examples using the `grep`, `forward`, and `make` commands.
 
     * This creates a pipeline where data flows sequentially through a series
       of processing stages.
+
+    * The `|` is the ditrubuted operator, `!` is the pining operator.
 
 3. **Distribution:**
 
