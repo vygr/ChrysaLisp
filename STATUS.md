@@ -34,6 +34,8 @@ New `docs/ai_digest/type_system.md` document.
 
 New `:sys_mem :copy_in_ring` method for ring to ring none overlapping copies.
 
+New `docs/ai_digest/exeptions.md` document.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.

@@ -154,6 +154,8 @@ Deep dives into specialized areas:
 
 52. **[Type System](docs/ai_digest/type_system.md)** - The ChrysaLisp type system and mechanism.
 
+53. **[Exceptions](docs/ai_digest/exceptions.md)** - The ChrysaLisp exceptions mechanism.
+
 ---
 
 ## Reading Paths
