@@ -140,7 +140,7 @@ from them:
 ## The Anatomy of the Error Object
 
 When an exception is thrown, the `:lisp :repl_error` method instantiates a
-highly detailed `+error` object (inheriting from `+obj`).
+highly detailed `:error` object (inheriting from `:obj`).
 
 This object is designed to capture the exact state of the runtime at the moment
 of failure. It is defined in `class/error/struct.inc` and contains the following
