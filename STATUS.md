@@ -36,6 +36,11 @@ New `:sys_mem :copy_in_ring` method for ring to ring none overlapping copies.
 
 New `docs/ai_digest/exeptions.md` document.
 
+New `(open-pipe tasks [modes])`, optional modes list. `Pipe` class now uses this
+to implement the new `|` (distribution) and `!` (pinning) operators.
+
+New `docs/ai_disgest/task_pipelines.md` document.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.

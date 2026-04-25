@@ -8,24 +8,29 @@
 (defq +pipe_abort_delay 2000000)
 
 (defun pipe-split (cmdline)
-	; (pipe-split cmdline) -> (e0 [e1] ...)
-	(defq i 0 out (list) quotes (partition (substr cmdline "\q") 2))
+	; (pipe-split cmdline) -> ((mode cmd) ...)
+	(defq i 0 out (list) quotes (partition (substr cmdline "\q") 2) mode +kn_call_child)
 	(each (lambda (((x x1)))
 		(unless (some (lambda ((((qx &)) ((& qx1)))) (<= qx x x1 qx1)) quotes)
-			(defq j i) (setq i x1) (push out (trim (slice cmdline j x)))))
-		(push (substr cmdline " | ") '((-1 0))))
+			(defq j i) (setq i x1) 
+			(push out (list mode (trim (slice cmdline j x))))
+			(setq mode (if (eql (slice cmdline x x1) " ! ") +kn_call_open +kn_call_child))))
+		(push (sort (cat (substr cmdline " | ") (substr cmdline " ! "))
+			(# (- (first (first %0)) (first (first %1))))) '((-1 0))))
 	out)
 
 (defclass Pipe (cmdline &optional user_select) :nil
 	; (Pipe cmdline [user_select]) -> pipe | :nil
 	(setd user_select '())
-	(bind '(cmdpipe args) (reduce (#
-		(bind '(((x x1))) (matches %1 "^\\S+"))
-		(push (first %0) (cat "cmd/" (slice %1 x x1) ".lisp"))
-		(push (second %0) %1) %0) (pipe-split cmdline) (lists 2)))
+	(bind '(cmdmodes cmdpipe args) (reduce (#
+		(bind '(mode cmd_str) %1)
+		(bind '(((x x1))) (matches cmd_str "^\\S+"))
+		(push (first %0) mode)
+		(push (second %0) (cat "cmd/" (slice cmd_str x x1) ".lisp"))
+		(push (third %0) cmd_str) %0) (pipe-split cmdline) (lists 3)))
 	(cond
 		;error with pipe element ?
-		((some (# (= 0 (get-long %0 0))) (defq mboxs (open-pipe cmdpipe)))
+		((some (# (= 0 (get-long %0 0))) (defq mboxs (open-pipe cmdpipe cmdmodes)))
 			;send abort to any started pipe elements
 			(each (# (if (/= 0 (get-long %0 0)) (mail-send %0 ""))) mboxs)
 			(setq this :nil))

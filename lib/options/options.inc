@@ -15,6 +15,8 @@
 	; (options-find optlist arg) -> :nil | opt_entry
 	(some (# (if (find arg (first %0)) %0)) optlist))
 
+(defq +split_class_combo (char-class " \r\f\v\n\t|!"))
+
 (defun options-split (args)
 	; (options-split args) -> (a0 [a1] ...)
 	(defq out (list) i 0 state :space)
@@ -24,10 +26,12 @@
 				(when (< (setq i (bskip +char_class_white_space args i)) (length args))
 					(if (eql (elem-get args i) "\q")
 						(setq i (inc i) state :quote)
-						(setq state :normal))))
+						(if (bfind (elem-get args i) +split_class_combo)
+							(push out (slice args i (setq i (inc i))))
+							(setq state :normal)))))
 			(:normal
 				(push out (slice args i (setq state :space i
-					(bskipn +char_class_white_space args i)))))
+					(bskipn +split_class_combo args i)))))
 			(:quote
 				(push out (slice args i (setq i (bskipn "\q" args i))))
 				(setq i (inc i) state :space)))) out)
