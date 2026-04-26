@@ -145,7 +145,7 @@ outputs
 :r0 = obj object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r14
+:r1-:r3
 ```
 
 ### :vtable -> class/obj/vtable

@@ -436,13 +436,13 @@
 		;trashes
 		;:r1-:r5
 		(entry %0 :type '(:r0))
-		(s-call %0 :type '(:r0) '(:r0 :r1))
-		(vp-push :r0 :r1)
+		(vp-push :r0)
+		(s-call %0 :type '(:r0) '(_ :r0))
 		(fn-bind 'sys/statics/statics :r1)
 		(assign `((:r1 ,(+ statics_static_syms (eval (sym (cat "static_sym_" (rest %0))))))) '(:r1))
 		(class/obj/ref :r1 :r2)
-		(call :list :push_back '((:rsp 0) :r1))
-		(vp-pop :r0 :r1)
+		(call :list :push_back '(:r0 :r1) '(:r1 _ _ _))
+		(vp-pop :r0)
 		(exit %0 :type '(:r0 :r1))
 		(vp-ret)
 	(def-func-end))

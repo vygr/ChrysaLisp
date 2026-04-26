@@ -152,15 +152,13 @@
 	;:r0 = obj object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3
 
-	(entry :obj :type '(:r0))
+	(entry :obj :type '(:r3))
 
-	(vp-push :r0)
 	(call :list :create :nil '(:r1))
-	(vp-pop :r0)
 
-	(exit :obj :type '(:r0 :r1))
+	(exit :obj :type '(:r3 :r1))
 	(vp-ret)
 
 (def-func-end)
