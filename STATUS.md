@@ -41,6 +41,8 @@ to implement the new `|` (distribution) and `!` (pinning) operators.
 
 New `docs/ai_disgest/task_pipelines.md` document.
 
+New `docs/ai_disgest/type_philosophy.md` document.
+
 Rename `(num-intern)` funtion to `(num)`, to match `(sym)`.
  
 ------
