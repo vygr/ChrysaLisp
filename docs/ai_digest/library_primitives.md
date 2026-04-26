@@ -177,13 +177,13 @@ These functions manage the main GUI window and event loop.
 
     * `(gui-add-back-rpc view) -> view`
 
+*   **`gui-sub-rpc`**: Remove a view from the GUI.
+
+    * `(gui-sub-rpc view) -> view`
+
 *   **`gui-logout-rpc` / `gui-quit-rpc`**: Logs out or quits the GUI system.
 
     * `(gui-logout-rpc) -> :nil`
-
-*   **`gui-sub-rpc`**: Subscribes to GUI events.
-
-    * `(gui-sub-rpc view) -> view`
 
 ## Font and Glyph Functions
 
