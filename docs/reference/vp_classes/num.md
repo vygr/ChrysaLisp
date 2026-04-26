@@ -20,8 +20,6 @@
 
 ### (> num num ...) -> :t | :nil
 
-### (num-intern num) -> num
-
 ### (<= num num ...) -> :t | :nil
 
 ### (< num num ...) -> :t | :nil
@@ -43,6 +41,8 @@
 ### (/= num num ...) -> :t | :nil
 
 ### (neg num) -> num
+
+### (num num) -> num
 
 ### (logior [num] ...) -> num
 

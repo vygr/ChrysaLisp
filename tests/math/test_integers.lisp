@@ -70,7 +70,7 @@
 (assert-eq "--" 9 x)
 
 ; --- Misc ---
-(assert-eq "num-intern" 42 (num-intern 42))
+(assert-eq "num" 42 (num 42))
 (assert-eq "n2i" 5 (n2i (n2r 5.7)))
 (defq rnd (random 100))
 (assert-true "random" (and (>= rnd 0) (< rnd 100)))

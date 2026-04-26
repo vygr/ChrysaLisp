@@ -18,13 +18,13 @@
 (defmacro bits?1 (val &rest masks)
 	; (bits? val mask ...) -> :t | :nil
 	(if (> (length masks) 1)
-		(static-qq (/= 0 (logand ,val ,(num-intern (apply (const logior) (eval-list masks))))))
+		(static-qq (/= 0 (logand ,val ,(num (apply (const logior) (eval-list masks))))))
 		(static-qq (/= 0 (logand ,val ~masks)))))
 
 (defmacro bits?2 (val &rest masks)
 	; (bits? val mask ...) -> :t | :nil
 	(if (> (length masks) 1)
-		(static-qq (/= 0 (logand ,val ,(num-intern (apply (const logior) (map (const eval) masks))))))
+		(static-qq (/= 0 (logand ,val ,(num (apply (const logior) (map (const eval) masks))))))
 		(static-qq (/= 0 (logand ,val ~masks)))))
 
 (defmacro bits?3 (val &rest masks)

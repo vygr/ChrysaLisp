@@ -734,10 +734,10 @@ operations, and type conversion.
 
     * `(random num) -> num`
 
-*   **`num-intern`**: Interns a number, ensuring that identical numerical
+*   **`num`**: Interns a number, ensuring that identical numerical
     values share the same object representation.
 
-    * `(num-intern num) -> num`
+    * `(num num) -> num`
 
 *   **`log2`**: Calculates the base-2 logarithm of a number.
 

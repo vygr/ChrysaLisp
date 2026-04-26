@@ -14,7 +14,7 @@
 				(and field_type_value (nql field_type_value type)))
 			(throw "Field redefined !" field_name)))
 	(push syms field_name field_type)
-	(push values (num-intern base) type)
+	(push values (num base) type)
 	(++ base alloc))
 
 (defun _structure (base line)
@@ -25,7 +25,7 @@
 				(setq base (align base +long_size))))
 		(offset
 			(push syms (sym (cat name "_" (second line))))
-			(push values (num-intern base)))
+			(push values (num base)))
 		(struct
 			(defq field (second line) alloc (eval (third line)))
 			(new-field (str alloc) alloc +byte_size))
@@ -70,7 +70,7 @@
 		(and field_value (nql field_value base)
 			(throw "Field redefined !" field_name)))
 	(push syms field_name)
-	(push values (num-intern base))
+	(push values (num base))
 	(static-qq (bind ',syms ',values)))
 
 (defun obj-args (field &optional offset)
@@ -84,8 +84,8 @@
 		("F" +type_fixed) ("R" +type_real)
 		(("pb" "ps" "pi" "pl" "pB" "pS" "pI" "pF" "pR" "pp") +type_pptr)
 		("no" +node_id_size) ("ne" +net_id_size)
-		(:t (num-intern (str-to-num type)))))
-	(list (num-intern (+ (eval field) (ifn offset +str_data))) type))
+		(:t (num (str-to-num type)))))
+	(list (num (+ (eval field) (ifn offset +str_data))) type))
 
 (defmacro getf (obj field &optional offset)
 	; (getf obj field [offset]) -> value
@@ -124,7 +124,7 @@
 	(defq field_name (sym (cat name "_" field)) field_value (get field_name (penv)))
 	(and field_value (nql field_value base) (throw "Enum redefined !" field_name))
 	(push syms (sym (cat name "_" field)))
-	(push values (num-intern base))
+	(push values (num base))
 	(++ base size))
 
 (defmacro enums (name base &rest lines)
@@ -138,7 +138,7 @@
 	(defq field_name (sym (cat name "_size")) field_value (get field_name (penv)))
 	(and field_value (nql field_value base) (throw "Enum redefined !" field_name))
 	(push syms field_name)
-	(push values (num-intern base))
+	(push values (num base))
 	(static-qq (bind ',syms ',values)))
 
 ;;;;;;
@@ -149,7 +149,7 @@
 	(defq field_name (sym (cat name "_" field)) field_value (get field_name (penv)))
 	(and field_value (nql field_value (<< 1 base)) (throw "Bit redefined !" field_name))
 	(push syms field_name)
-	(push values (num-intern (<< 1 base)))
+	(push values (num (<< 1 base)))
 	(++ base))
 
 (defmacro bits (name base &rest lines)
@@ -163,17 +163,17 @@
 	(defq field_name (sym (cat name "_size")) field_value (get field_name (penv)))
 	(and field_value (nql field_value base) (throw "Bit redefined !" field_name))
 	(push syms field_name)
-	(push values (num-intern base))
+	(push values (num base))
 	(static-qq (bind ',syms ',values)))
 
 (defun bit-mask (&rest masks)
 	; (bit-mask mask ...) -> val
-	(num-intern (apply (const logior) masks)))
+	(num (apply (const logior) masks)))
 
 (defmacro bits? (val &rest masks)
 	; (bits? val mask ...) -> :t | :nil
 	(if (> (length masks) 1)
-		(static-qq (/= 0 (logand ,val ,(num-intern (apply (const logior) (eval-list masks))))))
+		(static-qq (/= 0 (logand ,val ,(num (apply (const logior) (eval-list masks))))))
 		(static-qq (/= 0 (logand ,val ~masks)))))
 
 ;module

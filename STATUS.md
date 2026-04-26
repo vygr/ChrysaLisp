@@ -41,6 +41,8 @@ to implement the new `|` (distribution) and `!` (pinning) operators.
 
 New `docs/ai_disgest/task_pipelines.md` document.
 
+Rename `(num-intern)` funtion to `(num)`, to match `(sym)`.
+ 
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
@@ -272,7 +274,7 @@ features.
 Extra information provided by `stats` command. `:list`, `:str` and `:nums`
 objects traced. This is used by the author to run single node TUI and GUI in
 order to see what objects get allocated statically into the root environment,
-and what calls to `num-intern` could be added etc.
+and what calls to `num` could be added etc.
 
 Added enhanced stack trace information from `:sys_task :dump`, will now give
 the stack dump and the Lisp launch script name, with the current repl stream
@@ -2043,7 +2045,7 @@ critical compositor methods will remain in VP code.
 
 Rename (class) and (method) to (defclass) and (defmethod) !
 
-New `(num-intern)` for manual internment of number objects. `(read)` now
+New `(num)` for manual internment of number objects. `(read)` now
 interns number objects.
 
 ------

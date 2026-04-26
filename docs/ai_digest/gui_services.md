@@ -376,7 +376,7 @@ are made available via `gui/lisp.inc`.
 
 * **UI Macro:** `(ui-button name [props] [body])`
 
-    * Default props (from `gui/lisp.inc`): `:flow_flags (num-intern (logior
+    * Default props (from `gui/lisp.inc`): `:flow_flags (num (logior
       +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))`,
       `:border *env_button_border*`.
 
@@ -645,7 +645,7 @@ are made available via `gui/lisp.inc`.
 
 * **UI Macro:** `(ui-label name [props] [body])`
 
-    * Default props (from `gui/lisp.inc`): `:flow_flags (num-intern (logior
+    * Default props (from `gui/lisp.inc`): `:flow_flags (num (logior
       +flow_flag_right +flow_flag_align_vcenter))`, `:border
       *env_label_border*`.
 
@@ -1016,7 +1016,7 @@ are made available via `gui/lisp.inc`.
 
 * **UI Macro:** `(ui-textfield name [props])`
 
-    * Default props (from `gui/lisp.inc`): `:flow_flags (num-intern (logior
+    * Default props (from `gui/lisp.inc`): `:flow_flags (num (logior
       +flow_flag_right +flow_flag_align_vcenter))`, `:border
       *env_textfield_border*`.
 
