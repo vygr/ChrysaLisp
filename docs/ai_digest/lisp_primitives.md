@@ -409,7 +409,7 @@ lists and arrays.
 *   **`!`**: A special anaphoric symbol available inside `...!` loops that
     returns the current iteration index.
 
-    * `(each! (# (print (!))) my-list)`
+    * `(each! (# (print (!))) my_list)`
 
 *   **`each`**: Applies a lambda to each element of one or more sequences.
 

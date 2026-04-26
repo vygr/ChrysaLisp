@@ -90,7 +90,7 @@ sequences or final aggregate results.
 
     * Describing a process as a series of transformations on sequences can
       be very clear and closely mirror human thought about data
-      manipulation. `(map (lambda (x) (* x 2)) (filter even? my-list))` is
+      manipulation. `(map (lambda (x) (* x 2)) (filter even? my_list))` is
       arguably more direct than an explicit loop with an if-statement and an
       accumulator.
 
