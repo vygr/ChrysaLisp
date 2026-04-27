@@ -53,6 +53,9 @@ compression layers !
 `canvas-save` now take any number of optionals and passes them through to the
 file format save function if present.
 
+Fixed Mandelbrot demo to not use the `(vp-sub-ff :f0 :f0)` trick ! Dosn't work
+on x64 MacBooks.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.

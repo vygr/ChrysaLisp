@@ -30,7 +30,7 @@
 
 	;init i=0, xc=0.0, yc=0.0, x2=0.0, y2=0.0
 	(vp-xor-rr cnt cnt)
-	(vp-simd vp-sub-ff `(,xc ,yc ,x2 ,y2)  `(,xc ,yc ,x2 ,y2))
+	(vp-simd vp-cvt-rf `(,cnt)  `(,xc ,yc ,x2 ,y2))
 
 	(loop-start)
 		(vp-cpy-ff x2 temp)
