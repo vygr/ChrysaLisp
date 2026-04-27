@@ -47,6 +47,9 @@ Rename `(num-intern)` funtion to `(num)`, to match `(sym)`.
 
 New `docs/ai_disgest/flow_through.md` document.
 
+Added lz4 layer support for CPM image format. Both RLE and LZ4 are now optional
+compression layers !
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
