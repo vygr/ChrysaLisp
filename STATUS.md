@@ -44,7 +44,9 @@ New `docs/ai_disgest/task_pipelines.md` document.
 New `docs/ai_disgest/type_philosophy.md` document.
 
 Rename `(num-intern)` funtion to `(num)`, to match `(sym)`.
- 
+
+New `docs/ai_disgest/flow_through.md` document.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
