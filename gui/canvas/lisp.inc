@@ -121,11 +121,8 @@
 	; (canvas-save canvas file type [optionals...]) -> :nil | canvas
 	(if (defq stream (file-stream file +file_open_write))
 		(some (# (if (ends-with %0 file)
-					(if (empty? optionals)
-						(%1 canvas stream type)
-						(apply %1 (cat (list canvas stream type) optionals)))))
-			'(".cpm")
-			(const `'(,CPM-save)))))
+					(apply %1 (cat (list canvas stream type) optionals))))
+			'(".cpm") (const `'(,CPM-save)))))
 
 (defun canvas-load (file flags &optional swap_mode)
 	; (canvas-load file flags [swap_mode]) -> :nil | canvas
