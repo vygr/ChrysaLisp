@@ -590,6 +590,8 @@ Usage: tocpm [options] [path] ...
 	options:
 		-h --help: this help info.
 		-f --format 1|8|12|15|16|24|32: pixel format, default 32.
+		-r --rle: enable run-length encoding, default :nil.
+		-l --lz4: enable lz4 compression, default :nil.
 
 	Load the images and save as .cpm images.
 

@@ -117,10 +117,13 @@
 				(const `'(,CPM-info ,CPM-info ,TGA-info ,SVG-info ,CWB-info))))
 		(list -1 -1 -1)))
 
-(defun canvas-save (canvas file type)
-	; (canvas-save canvas file type) -> :nil | canvas
+(defun canvas-save (canvas file type &rest optionals)
+	; (canvas-save canvas file type [optionals...]) -> :nil | canvas
 	(if (defq stream (file-stream file +file_open_write))
-		(some (# (if (ends-with %0 file) (%1 canvas stream type)))
+		(some (# (if (ends-with %0 file)
+					(if (empty? optionals)
+						(%1 canvas stream type)
+						(apply %1 (cat (list canvas stream type) optionals)))))
 			'(".cpm")
 			(const `'(,CPM-save)))))
 

@@ -15,7 +15,7 @@
 ### CPM-save
 
 ```code
-(CPM-save canvas stream type [ident]) -> canvas
+(CPM-save canvas stream type [ident rle lz4]) -> canvas
 ```
 
 ### CWB-info
@@ -178,7 +178,7 @@ flush any shared pixmaps that have no users.
 ### canvas-save
 
 ```code
-(canvas-save canvas file type) -> :nil | canvas
+(canvas-save canvas file type [optionals...]) -> :nil | canvas
 ```
 
 ### char-class

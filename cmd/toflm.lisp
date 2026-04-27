@@ -37,6 +37,7 @@
 				p_stream (memory-stream) c_stream (memory-stream)
 				total_pixels 0 first_frame :t)
 			(each (lambda (file)
+				(task-slice)
 				(when (defq canvas (canvas-load file +load_flag_noswap))
 					(defq pixmap (getf canvas +canvas_pixmap 0))
 					(if first_frame
