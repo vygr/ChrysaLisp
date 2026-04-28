@@ -203,7 +203,6 @@
 	(if mode (defq *build_mode* mode))
 	(each (# (action files %0 %1)) +supported_abi +supported_cpu)
 	(ifn mode (defq *build_mode* 0))
-	(defq *build_mode* (min *build_mode* 1))
 	(action files 'VP64 'vp64))
 
 (defun make-platforms (&optional mode) (make-them (const make) mode))

@@ -115,6 +115,10 @@
 	(assign '(:r0 (:r0 +tk_node_stack)) '((:r2 statics_sys_task_current_tcb) :rsp))
 
 	;pop task state
+(validatecase
+	(vp-cpy-cr 0x7FF8000000000000 :r0)
+	(vp-simd vp-cpy-rf '(:r0)
+		'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)))
 	(tk-load-state)
 	(vp-ret)
 
