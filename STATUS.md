@@ -48,7 +48,7 @@ Rename `(num-intern)` funtion to `(num)`, to match `(sym)`.
 New `docs/ai_disgest/flow_through.md` document.
 
 Added lz4 layer support for CPM image format. Both RLE and LZ4 are now optional
-compression layers !
+compression layers ! RAW -> RLE -> LZ4
 
 `canvas-save` now take any number of optionals and passes them through to the
 file format save function if present.
