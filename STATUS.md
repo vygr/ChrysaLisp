@@ -56,7 +56,8 @@ file format save function if present.
 Fixed Mandelbrot demo to not use the `(vp-sub-ff :f0 :f0)` trick ! Dosn't work
 on x64 MacBooks.
 
-Validate clears the float registers to `NaN` on each task restore !
+Validate clears the float registers to `NaN` on each task restore ! Caught all
+cases of `(vp-sub-ff zero zero)` cheat code !
 
 Swap order of optionals on `(CPM-save canvas stream type [rle lz4 ident])`.
 

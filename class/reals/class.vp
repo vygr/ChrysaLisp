@@ -151,7 +151,7 @@
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(#  (errorif `(,%%1 = ,zero) 'error)
 			(vp-div-ff %1 %0) %0)
-		(# 	(vp-sub-ff zero zero)))
+		(# 	(vp-cvt-rf idx1 zero)))
 
 	(exit :reals :div `(,dst -1))
 	(vp-ret)
@@ -187,7 +187,7 @@
 			(vp-mul-ff %1 ftrunc)
 			(vp-sub-ff ftrunc %0)
 			%0)
-		(# 	(vp-sub-ff zero zero)))
+		(# 	(vp-cvt-rf idx1 zero)))
 
 	(exit :reals :mod `(,dst -1))
 	(vp-ret)
@@ -220,7 +220,7 @@
 				(vp-add-ff one %0)
 			(endif)
 			%0)
-		(# (vp-sub-ff zero zero)
+		(# (vp-cvt-rf idx1 zero)
 			(vp-cpy-cr 1 trunc)
 			(vp-cvt-rf trunc one)))
 
@@ -352,7 +352,8 @@
 
 	(vec-reduce (list this) (list e0) (list src1) src_end
 		(# (vp-add-ff %0 sum))
-		(# (vp-sub-ff sum sum)))
+		(# (vp-xor-rr e0 e0)
+			(vp-cvt-rf e0 sum)))
 
 	(exit :reals :sum `(,this ,sum))
 	(vp-ret)
@@ -376,7 +377,7 @@
 
 	(vec-reduce-idx (list this src2) (list e0 e1) (list src1 src2) (list idx1 idx2)
 		(# (vp-mul-ff %0 %1) (vp-add-ff %1 dot))
-		(# (vp-sub-ff dot dot)))
+		(# (vp-cvt-rf idx1 dot)))
 
 	(exit :reals :dot `(,this ,dot))
 	(vp-ret)
