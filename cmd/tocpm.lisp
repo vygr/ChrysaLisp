@@ -28,7 +28,7 @@
 			(defq canvas (canvas-load file +load_flag_noswap)))
 		(defq out_file (cat (slice file 0 i) "cpm"))
 		(when (defq out_stream (file-stream out_file +file_open_write))
-			(CPM-save canvas out_stream opt_f "MPC." opt_r opt_l))
+			(CPM-save canvas out_stream opt_f opt_r opt_l))
 		(prin file " -> " out_file)
 		(print)))
 

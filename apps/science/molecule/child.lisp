@@ -32,7 +32,7 @@
 					(:plot ix iy)))))
 	;resize to final output (anti-aliased downsample from +anti_alias)
 	(bind '(w h) (. canvas :pref_size))
-	(canvas-save (. (Canvas w h 1) :resize canvas) file 32 :nil :t :t))
+	(canvas-save (. (Canvas w h 1) :resize canvas) file 32 :t :t))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t +timeout 5000000)

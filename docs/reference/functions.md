@@ -15,7 +15,7 @@
 ### CPM-save
 
 ```code
-(CPM-save canvas stream type [ident rle lz4]) -> canvas
+(CPM-save canvas stream type [rle lz4 ident]) -> canvas
 ```
 
 ### CWB-info

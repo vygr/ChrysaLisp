@@ -72,8 +72,8 @@
 						(setq canvas :nil))))))
 	canvas)
 
-(defun CPM-save (canvas stream type &optional ident rle lz4)
-	; (CPM-save canvas stream type [ident rle lz4]) -> canvas
+(defun CPM-save (canvas stream type &optional rle lz4 ident)
+	; (CPM-save canvas stream type [rle lz4 ident]) -> canvas
 	(setd ident "MPC.")
 	(defq pixmap (getf canvas +canvas_pixmap 0) num_bits type
 		flags (+ (if rle +cpm_flag_rle 0) (if lz4 +cpm_flag_lz4 0)))

@@ -114,7 +114,7 @@
 							(when lst_stream
 								(defq cpm_name (cat "raymarch_" (str frame_idx) ".cpm")
 									cpm_path (cat "apps/media/films/data/" cpm_name))
-								(canvas-save canvas cpm_path 16 :nil :t :t)
+								(canvas-save canvas cpm_path 16 :t :t)
 								; flip pixmap type back to Premultiplied (-32).
 								; all our pixels are opaque (Alpha=0xFF), ARGB == Premul ARGB,
 								; so we skip the expensive CPU math and GPU texture upload.

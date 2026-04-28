@@ -43,7 +43,7 @@
 					(if first_frame
 						(progn
 							; First frame - use existing CPM-save logic to write full frame
-							(CPM-save canvas out_stream opt_f "MLF." :t :t)
+							(CPM-save canvas out_stream opt_f :t :t "MLF.")
 							(setq total_pixels (* (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0)))
 							(pixmap-write (pixmap-as-argb pixmap) p_stream opt_f)
 							(setq first_frame :nil))

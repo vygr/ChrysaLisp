@@ -56,6 +56,10 @@ file format save function if present.
 Fixed Mandelbrot demo to not use the `(vp-sub-ff :f0 :f0)` trick ! Dosn't work
 on x64 MacBooks.
 
+Validate clears the float registers to `NaN` on each task restore !
+
+Swap order of optionals on `(CPM-save canvas stream type [rle lz4 ident])`.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
