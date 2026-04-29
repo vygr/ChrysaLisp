@@ -213,10 +213,12 @@ register number !
 ```vdu
 `(,this ,args)
 (vp-cpy-ir this 64 args)
+(assign `((,this 64)) `(,args))
 ```
 
 **these are CScript `def-vars` stack slots** !
 
 ```vdu
 {this, args}
+(assign {this -> 64} {args})
 ```
