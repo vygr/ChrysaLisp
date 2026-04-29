@@ -63,7 +63,7 @@ cases of `(vp-sub-ff zero zero)` cheat code !
 
 Swap order of optionals on `(CPM-save canvas stream type [rle lz4 ident])`.
 
-New `docs/ai_disgest/csript_compiler.md` document.
+New `docs/ai_disgest/cscript_compiler.md` document.
 
 ------
 

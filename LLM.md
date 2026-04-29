@@ -160,6 +160,8 @@ Deep dives into specialized areas:
 
 54. **[Type Philosophy](docs/ai_digest/type_philosophy.md)** - Type mussings.
 
+55. **[Type Philosophy](docs/ai_digest/cscript_compiler.md)** - CScript compiler and assign.
+
 ---
 
 ## Reading Paths
