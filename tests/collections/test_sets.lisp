@@ -73,22 +73,21 @@
 		(defq s (,constructor))
 
 		; insert / find
+		(assert-eq (cat ,name " size 0") 0 (. s :size))
 		(. s :insert "A")
+		(assert-eq (cat ,name " size 1") 1 (. s :size))
 		(assert-eq (cat ,name " find existing") "A" (. s :find "A"))
 		(assert-eq (cat ,name " find missing") :nil (. s :find "B"))
 
 		; inserted
-		(if (eql ,name "Fset")
-			(progn
-				(assert-true (cat ,name " inserted new") (. s :inserted "B"))
-				(assert-true (cat ,name " inserted existing") (not (. s :inserted "A"))))
-			(progn
-				(assert-true (cat ,name " inserted new") (not (. s :inserted "B")))
-				(assert-true (cat ,name " inserted existing") (. s :inserted "A"))))
+		(assert-true (cat ,name " inserted new") (. s :inserted "B"))
+		(assert-true (cat ,name " inserted existing") (not (. s :inserted "A")))
 
 		; intern
 		(assert-eq (cat ,name " intern existing") "A" (. s :intern "A"))
+		(assert-eq (cat ,name " size still 2") 2 (. s :size))
 		(assert-eq (cat ,name " intern new") "C" (. s :intern "C"))
+		(assert-eq (cat ,name " size 3 after intern") 3 (. s :size))
 
 		; each
 		(defq items (list))
@@ -132,8 +131,10 @@
 
 		; empty? / empty
 		(assert-true (cat ,name " not empty?") (not (. s :empty?)))
+		(assert-true (cat ,name " size before empty") (> (. s :size) 0))
 		(. s :empty)
 		(assert-true (cat ,name " is empty?") (. s :empty?))
+		(assert-eq (cat ,name " size after empty") 0 (. s :size))
 
 		; move
 		(. s :insert "X")

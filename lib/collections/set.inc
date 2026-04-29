@@ -22,6 +22,8 @@
 		; (. set :move) -> set
 	(defabstractmethod :resize (num_buckets))
 		; (. set :resize num_buckets) -> set
+	(defabstractmethod :size ())
+		; (. set :size) -> size
 	(defabstractmethod :empty? ())
 		; (. set :empty?) -> :t | :nil
 	(defabstractmethod :inserted (key))

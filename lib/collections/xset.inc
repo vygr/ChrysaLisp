@@ -30,8 +30,8 @@
 	(defmethod :inserted (key)
 		; (. xset :inserted key) -> :nil | xset
 		(cond
-			((slot) this)
-			((push _kl key) :nil)))
+			((slot) :nil)
+			((push _kl key) this)))
 
 	(defmethod :intern (key)
 		; (. xset :intern key) -> key
@@ -124,6 +124,10 @@
 	(defmethod :empty? ()
 		; (. xset :empty?) -> :t | :nil
 		(every (# (= (length %0) 0)) (get :buckets this)))
+
+	(defmethod :size ()
+		; (. xset :size) -> size
+		(reduce (# (+ %0 (length %1))) (get :buckets this) 0))
 	)
 
 ;module

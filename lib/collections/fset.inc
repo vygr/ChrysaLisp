@@ -123,6 +123,10 @@
 	(defmethod :empty? ()
 		; (. fset :empty?) -> :t | :nil
 		(every (# (= (length %0) 0)) (get :buckets this)))
+
+	(defmethod :size ()
+		; (. fset :size) -> size
+		(reduce (# (+ %0 (length %1))) (get :buckets this) 0))
 	)
 
 ;module

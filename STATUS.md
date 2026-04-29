@@ -4,6 +4,8 @@
 
 ------
 
+`:size` method added to Set classes.
+
 Added '-s, --stdout' option to 'time' command to pass through to stdout,
 defaults to :nil.
 
