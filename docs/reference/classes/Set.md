@@ -94,6 +94,12 @@
 (. set :resize num_buckets) -> set
 ```
 
+### :size
+
+```code
+(. set :size) -> size
+```
+
 ### :union
 
 ```code
