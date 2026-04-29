@@ -222,3 +222,42 @@ register number !
 {this, args}
 (assign {this -> 64} {args})
 ```
+
+## Advanced example
+
+This code snippet is from the `:canvas :fpoly` method. Note how is uses a
+`vp-rdef` with the input register list from the `:span` method it will call
+during the loop !
+
+This ensures that the code generated up to that call, taking those inputs, will
+already be using the exact registers the call will require ! The call itself
+will produce no extra register shuffling as we pre-loaded the register symbols
+with what the call will require.
+
+```vdu
+(vp-rdef (this c x y x1 mask m om max_x mask_to_coverage v) (method-input :canvas :span))
+(assign {this, min_x, max_x, ys >> 3} (list this x max_x y))
+(breakif `(,x > ,max_x))
+(vp-add-cr 1 max_x)
+(vp-xor-rr om om)
+(assign (list max_x y om) {max_x, y, om})
+(loop-start)
+    (assign {$mask_to_coverage} (list mask_to_coverage))
+    (vp-cpy-ir this +canvas_coverage mask)
+    (vp-cpy-rr x x1)
+    (vp-cpy-rr om m)
+    (loop-start)
+        (vp-cpy-dr-ub mask x1 c)
+        (vp-add-cr 1 x1)
+        (vp-xor-rr c m)
+        (breakif `(,x1 >= ,max_x))
+    (loop-until `(,m /= ,om))
+    (vp-lea-i x1 -1 v)
+    (vp-xor-rr c c)
+    (vp-cpy-rd-b c mask v)
+    (vp-cpy-dr-ub mask_to_coverage om c)
+    (assign (list m x1) {om, x})
+    (call :canvas :span_noclip (list this c x y x1) (list this))
+    (assign {x, max_x, y, om} (list x max_x y om))
+(loop-until `(,x >= ,max_x))
+```
