@@ -60,8 +60,8 @@ default set:
 ; this --> :r2
 ; that --> :r3
 ; a --> :r5
-; b	--> :r6
-; c	--> :r7
+; b --> :r6
+; c --> :r7
 ```
 
 Alternatively, you can force the first few registers to specific values and let
@@ -71,9 +71,9 @@ the rest default via the merge:
 (vp-rdef (this that a b c) '(:r13 :14))
 ; this --> :r13
 ; that --> :r14
-; a	--> :r0
-; b	--> :r1
-; c	--> :r2
+; a --> :r0
+; b --> :r1
+; c --> :r2
 ```
 
 ### Class Interfaces
@@ -88,9 +88,9 @@ matches a function's requirements:
 (vp-rdef (this vtable a b c) (method-input :obj :inst_of))
 ; this --> :r0
 ; vtable --> :r1
-; a	--> :r2
-; b	--> :r3
-; c	--> :r4
+; a --> :r2
+; b --> :r3
+; c --> :r4
 ```
 
 ## Mixing CScript and VP Assembly
@@ -168,7 +168,7 @@ between them inside the compiler or within `assign` statements.
 
 ```vdu
 (def-vars
-	(ptr this args))
+    (ptr this args))
 
 (vp-rdef (this args))
 
@@ -186,7 +186,7 @@ Or:
 
 ```vdu
 (def-vars
-	(ptr this args))
+    (ptr this args))
 
 (vp-rdef (this args))
 
