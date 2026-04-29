@@ -204,18 +204,18 @@ Or:
 
 ## Golden rules
 
-If it's encloded in `{}` it is a CScript stack variable ! If it's in a
+If it's enclosed in a `{}` it is a CScript stack variable ! If it's in a
 backticked list, or a free symbol, it is a `(vp-rdef)` symbol for a raw VP
 register number !
 
-**these are symbolic VP registers** !
+**these are symbolic VP `(vp-rdef)` registers** !
 
 ```vdu
 `(,this ,args)
 (vp-cpy-ir this 64 args)
 ```
 
-**these are CScript def-vars stack slots** !
+**these are CScript `def-vars` stack slots** !
 
 ```vdu
 {this, args}
