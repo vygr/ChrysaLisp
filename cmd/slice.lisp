@@ -20,4 +20,9 @@
 			(defq stdio (create-stdio))
 			(defq opt_s 0 opt_e -1 args (options stdio usage)))
 		;slice stdin
-		(lines! (# (print (slice %0 opt_s opt_e))) (io-stream 'stdin))))
+		(lines! (lambda (line)
+				(defq len (length line)
+					s (if (< opt_s 0) (+ len 1 opt_s) opt_s)
+					e (if (< opt_e 0) (+ len 1 opt_e) opt_e))
+				(print (slice line (max 0 (min s len)) (max 0 (min e len)))))
+			(io-stream 'stdin))))

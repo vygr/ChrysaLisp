@@ -67,6 +67,8 @@ Swap order of optionals on `(CPM-save canvas stream type [rle lz4 ident])`.
 
 New `docs/ai_digest/cscript_compiler.md` document.
 
+Fix `cmd/slice.lisp` to clamp the slice to the line length.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
