@@ -13,7 +13,8 @@
 
 	(defmethod :find (key)
 		; (. lset :find key) -> :nil | key
-		(if (defq _si (find key (get :keys this))) (elem-get (get :keys this) _si)))
+		(raise :keys)
+		(if (defq _si (find key keys)) (elem-get keys _si)))
 
 	(defmethod :insert (key)
 		; (. lset :insert key) -> lset
@@ -61,9 +62,12 @@
 		that)
 
 	(defmethod :union (that)
-		; (. lset :union lset) -> lset
+		; (. lset :union set) -> lset
+		(raise :keys)
 		(unless (eql this that)
-			(. that :each (# (. this :insert %0))))
+			(if (defq that_keys (get :keys that))
+				(merge keys that_keys)
+				(. that :each (# (. this :insert %0)))))
 		this)
 
 	(defmethod :difference (that)

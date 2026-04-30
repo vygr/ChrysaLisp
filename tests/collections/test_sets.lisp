@@ -183,3 +183,35 @@
 (assert-true "Lset tree load B" (. ls2 :find "B"))
 (assert-eq "Lset tree size" 2 (. ls2 :size))
 
+(report-header "Mixed-Type Set Operations")
+
+(defq fs (Fset 5)) (. fs :insert "A") (. fs :insert "B")
+(defq ls (Lset))   (. ls :insert "B") (. ls :insert "C")
+(defq xs (Xset 5)) (. xs :insert "C") (. xs :insert "D")
+
+; Lset + Fset
+(defq u1 (. (. ls :copy) :union fs))
+(assert-eq "Lset+Fset union size" 3 (. u1 :size))
+(assert-true "Lset+Fset union has A" (. u1 :find "A"))
+(assert-true "Lset+Fset union has B" (. u1 :find "B"))
+(assert-true "Lset+Fset union has C" (. u1 :find "C"))
+
+; Fset + Lset
+(defq u2 (. (. fs :copy) :union ls))
+(assert-eq "Fset+Lset union size" 3 (. u2 :size))
+(assert-true "Fset+Lset union has A" (. u2 :find "A"))
+(assert-true "Fset+Lset union has B" (. u2 :find "B"))
+(assert-true "Fset+Lset union has C" (. u2 :find "C"))
+
+; Xset + Fset
+(defq u3 (. (. xs :copy) :union fs))
+(assert-eq "Xset+Fset union size" 4 (. u3 :size))
+(assert-true "Xset+Fset union has A" (. u3 :find "A"))
+(assert-true "Xset+Fset union has B" (. u3 :find "B"))
+(assert-true "Xset+Fset union has C" (. u3 :find "C"))
+(assert-true "Xset+Fset union has D" (. u3 :find "D"))
+
+; Lset intersect Xset
+(defq i1 (. (. ls :copy) :intersect xs))
+(assert-eq "Lset^Xset intersect size" 1 (. i1 :size))
+(assert-true "Lset^Xset intersect has C" (. i1 :find "C"))
