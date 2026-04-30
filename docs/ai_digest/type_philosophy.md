@@ -72,7 +72,7 @@ routes the operation to the correct VP-level or Script-level vtable.
 The developer focuses entirely on the *behavior* required by the algorithm, not
 the *lineage* of the data.
 
-## 4. Schrödinger’s Strictness: The Dual-Mode Paradigm
+## 4. Schrodinger's Strictness: The Dual-Mode Paradigm
 
 If ChrysaLisp relies on fluid duck typing, how does it prevent absolute chaos in
 a concurrent operating system? It achieves this through a dual-mode philosophy
