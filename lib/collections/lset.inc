@@ -71,7 +71,7 @@
 		this)
 
 	(defmethod :difference (that)
-		; (. lset :difference lset) -> lset
+		; (. lset :difference set) -> lset
 		(cond
 			((eql this that)
 				(. this :empty))
@@ -79,13 +79,13 @@
 				this)))
 
 	(defmethod :intersect (that)
-		; (. lset :intersect lset) -> lset
+		; (. lset :intersect set) -> lset
 		(unless (eql this that)
 			(set this :keys (filter (# (. that :find %0)) (get :keys this))))
 		this)
 
 	(defmethod :not_intersect (that)
-		; (. lset :not_intersect lset) -> lset
+		; (. lset :not_intersect set) -> lset
 		(cond
 			((eql this that)
 				(. this :empty))

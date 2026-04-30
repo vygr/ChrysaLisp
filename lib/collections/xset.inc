@@ -69,13 +69,13 @@
 		that)
 
 	(defmethod :union (that)
-		; (. xset :union xset) -> xset
+		; (. xset :union set) -> xset
 		(unless (eql this that)
 			(. that :each (# (. this :insert %0))))
 		this)
 
 	(defmethod :difference (that)
-		; (. xset :difference xset) -> xset
+		; (. xset :difference set) -> xset
 		(cond
 			((eql this that)
 				(. this :empty))
@@ -83,14 +83,14 @@
 				this)))
 
 	(defmethod :intersect (that)
-		; (. xset :intersect xset) -> xset
+		; (. xset :intersect set) -> xset
 		(unless (eql this that)
 			(each (# (elem-set _b (!) (filter (# (. that :find %0)) %0)))
 				(defq _b (get :buckets this))))
 		this)
 
 	(defmethod :not_intersect (that)
-		; (. xset :not_intersect xset) -> xset
+		; (. xset :not_intersect set) -> xset
 		(cond
 			((eql this that)
 				(. this :empty))

@@ -21,7 +21,7 @@
 ### :difference
 
 ```code
-(. fset :difference fset) -> fset
+(. fset :difference set) -> fset
 ```
 
 ### :each
@@ -75,7 +75,7 @@
 ### :intersect
 
 ```code
-(. fset :intersect fset) -> fset
+(. fset :intersect set) -> fset
 ```
 
 ### :move
@@ -87,7 +87,7 @@
 ### :not_intersect
 
 ```code
-(. fset :not_intersect fset) -> fset
+(. fset :not_intersect set) -> fset
 ```
 
 ### :resize
@@ -105,6 +105,6 @@
 ### :union
 
 ```code
-(. fset :union fset) -> fset
+(. fset :union set) -> fset
 ```
 
