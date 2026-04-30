@@ -41,13 +41,13 @@ New `docs/ai_digest/exeptions.md` document.
 New `(open-pipe tasks [modes])`, optional modes list. `Pipe` class now uses this
 to implement the new `|` (distribution) and `!` (pinning) operators.
 
-New `docs/ai_disgest/task_pipelines.md` document.
+New `docs/ai_digest/task_pipelines.md` document.
 
-New `docs/ai_disgest/type_philosophy.md` document.
+New `docs/ai_digest/type_philosophy.md` document.
 
 Rename `(num-intern)` funtion to `(num)`, to match `(sym)`.
 
-New `docs/ai_disgest/flow_through.md` document.
+New `docs/ai_digest/flow_through.md` document.
 
 Added lz4 layer support for CPM image format. Both RLE and LZ4 are now optional
 compression layers ! RAW -> RLE -> LZ4
@@ -63,7 +63,7 @@ cases of `(vp-sub-ff zero zero)` cheat code !
 
 Swap order of optionals on `(CPM-save canvas stream type [rle lz4 ident])`.
 
-New `docs/ai_disgest/cscript_compiler.md` document.
+New `docs/ai_digest/cscript_compiler.md` document.
 
 ------
 
