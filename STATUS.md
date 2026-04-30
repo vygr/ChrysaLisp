@@ -4,6 +4,8 @@
 
 ------
 
+New `Lset` linear set class with tree library support.
+
 `:size` method added to Set classes.
 
 Added '-s, --stdout' option to 'time' command to pass through to stdout,

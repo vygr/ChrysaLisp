@@ -23,7 +23,7 @@
 
 	(defmethod :insert (key)
 		; (. fset :insert key) -> fset
-		(if (slot) :nil (push _kl key))
+		(merge (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) (list key))
 		this)
 
 	(defmethod :inserted (key)

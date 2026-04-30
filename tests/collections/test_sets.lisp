@@ -152,8 +152,12 @@
 		(assert-eq (cat ,name " resize find") "Y" (. s3 :find "Y"))
 	))
 
+(import "lib/collections/fset.inc")
+(import "lib/collections/lset.inc")
+
 (test-set-variety "Fset" (# (Fset 11)))
 (test-set-variety "Xset" (# (Xset 11)))
+(test-set-variety "Lset" (# (Lset)))
 
 (report-header "Custom Xset")
 (defun my-hash (s) (hash (to-lower s)))
@@ -162,3 +166,20 @@
 (defq cxs (Xset 11 my-cmp my-hash))
 (. cxs :insert "World")
 (assert-eq "custom Xset find" "World" (. cxs :find "WORLD"))
+
+(report-header "Lset tree support")
+(import "lib/collections/tree.inc")
+
+(defq ls (Lset))
+(. ls :insert "A")
+(. ls :insert "B")
+
+(defq ms (memory-stream))
+(tree-save ms ls)
+(stream-seek ms 0 0)
+(defq ls2 (tree-load ms))
+
+(assert-true "Lset tree load A" (. ls2 :find "A"))
+(assert-true "Lset tree load B" (. ls2 :find "B"))
+(assert-eq "Lset tree size" 2 (. ls2 :size))
+
