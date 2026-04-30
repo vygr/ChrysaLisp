@@ -36,6 +36,14 @@ However, this set is extendable by providing your own hash and equality testing
 functions on construction. This allows you to create arbitrary sets where the
 keys can be anything your hash and equal function can work with.
 
+### Lset
+
+The `Lset` is a set class built with a single list holding the keys. It uses
+the `(find)` function to search the key list for `:find` operations.
+
+When you are dealing with a relatively small number of keys. This type of set
+has excellent cache line characteristics.
+
 ## Maps
 
 All map classes inherit from the `Map` base class, `lib/collections/map.inc`.

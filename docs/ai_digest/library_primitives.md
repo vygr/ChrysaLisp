@@ -518,7 +518,7 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 
 ## Collections
 
-*   **`Emap` / `Fmap` / `Fset` / `Lmap` / `Map` / `Set` / `Xmap` / `Xset`**: Various collection classes (hash maps, sets, etc.).
+*   **`Emap` / `Fmap` / `Fset` / `Lmap` / `Lset` / `Map` / `Set` / `Xmap` / `Xset`**: Various collection classes (hash maps, sets, etc.).
 
 *   **`tree-load` / `tree-save`**: Loads/saves collection trees.
 
