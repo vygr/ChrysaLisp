@@ -22,18 +22,16 @@
 	(defq words (split (reduce! (lambda (line pattern tag c)
 		(cond
 			((nempty? (defq match (matches line pattern)))
-				(defq idxs (clear idxs) x 0
-					seq2 (cat " <" tag ">  </" tag "> ")
-					t1_e (+ 4 (length tag)))
+				(defq idxs (clear idxs) x 0)
 				(each (lambda (((x1 x2)))
 					; src1: keep leading text (x to x1)
-					; src2: insert open tag (0 to t1_e)
+					; src2: insert open tag (0 to 5)
 					; src1: keep inner text (x1+c to x2-c)
-					; src2: insert close tag (t1_e to -1)
-					(push idxs x x1 0 t1_e (+ x1 c) (- x2 c) t1_e -1)
+					; src2: insert close tag (4 to -1)
+					(push idxs x x1 0 5 (+ x1 c) (- x2 c) 4 -1)
 					(setq x x2)) match)
 				;one allocation, atomic scatter copy!
-				(splice line seq2 (push idxs x -1)))
+				(splice line (cat " <" tag "> </" tag "> ") (push idxs x -1)))
 			(line)))
 		'(("~~[^~]+~~" "==[^=]+==" "\\*\\*\\*[^*]+\\*\\*\\*" "\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*") 
 		"shxbi" (2 2 3 2 1)) line)))
