@@ -7,15 +7,15 @@
 (defun parse-line (line)
 	;pre-process code blocks and quotes
 	(when (nempty? (defq quoted (list) match (matches line "\q[^\q]+\q|`[^`]+`")))
-		(defq idxs (nums) x 0 seq2 " <c> <q> </c>  <q> ")
+		(defq idxs (nums) x 0 seq2 " <c> <q> </c> ")
 		(each (lambda (((x1 x2)))
 			(cond
 				((eql (elem-get line x1) "`")
-					;alternate src1 (line) and src2 (seq2 indices 0 to 14)
-					(push idxs x x1 0 14)
+					;alternate src1 (line) and src2 (seq2 indices 0 to -1)
+					(push idxs x x1 0 -1)
 					(push quoted (split (slice line (inc x1) (dec x2)))))
-				(:t ;alternate src1 (line) and src2 (seq2 indices 14 to -1)
-					(push idxs x x1 14 -1)
+				(:t ;alternate src1 (line) and src2 (seq2 indices 4 to 9)
+					(push idxs x x1 4 9)
 					(push quoted (split (slice line x1 x2)))))
 			(setq x x2)) match)
 		;one allocation, atomic scatter copy!
