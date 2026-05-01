@@ -77,15 +77,15 @@
 	text)
 
 (defun line-flow (&optional size)
-    (def (defq flow (Flow)) :flow_flags +flow_right)
-    (. page :add_child flow)
-    (when size
-        (def flow :font (create-font +doc_font (page-scale size))
-            :font_bold (create-font +doc_font_bold (page-scale size))
-            :font_italic (create-font +doc_font_italic (page-scale size))
-            :font_bold_italic (create-font +doc_font_bold_italic (page-scale size))
-            :font_term (create-font +term_font (page-scale size))))
-    flow)
+	(def (defq flow (Flow)) :flow_flags +flow_right)
+	(. page :add_child flow)
+	(when size
+		(def flow :font (create-font +doc_font (page-scale size))
+			:font_bold (create-font +doc_font_bold (page-scale size))
+			:font_italic (create-font +doc_font_italic (page-scale size))
+			:font_bold_italic (create-font +doc_font_bold_italic (page-scale size))
+			:font_term (create-font +term_font (page-scale size))))
+	flow)
 
 (defun blank-line ()
 	(def (defq text (Text)) :text "")
