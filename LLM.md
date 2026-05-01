@@ -179,78 +179,82 @@ ChrysaLisp's sophisticated graphical interface:
 42. **[Edit Command](docs/ai_digest/edit_command_app.md)** - The ChrysaLisp
     parallel programmable editor.
 
+43. **[Docs Architecture](docs/ai_digest/docs_rendering.md)** - Internal
+    architecture of the Docs application: word-as-widget rendering, dynamic
+    section handlers, and distributed search.
+
 ## System Architecture
 
 Understanding ChrysaLisp as a distributed operating system:
 
-43. **[Fault Tolerant](docs/ai_digest/fault_tolerant.md)** - How ChrysaLisp
+44. **[Fault Tolerant](docs/ai_digest/fault_tolerant.md)** - How ChrysaLisp
     achieves fault tolerance through restartable task trees, job requeueing, and
     ephemeral mailboxes.
 
-44. **[Dynamic Code](docs/ai_digest/dynamic_code.md)** - The assembler as a Lisp
+45. **[Dynamic Code](docs/ai_digest/dynamic_code.md)** - The assembler as a Lisp
     library: how dynamic code generation works (demonstrated with pixmap format
     conversion).
 
-45. **[Coding Style](docs/ai_digest/coding_style.md)** - Guidelines for writing
+46. **[Coding Style](docs/ai_digest/coding_style.md)** - Guidelines for writing
     idiomatic ChrysaLisp: naming conventions, state management, iteration
     patterns, and the three-stage optimization path.
 
-46. **[Network & IPC](docs/ai_digest/messages_and_routing.md)** - ChrysaLisp
+47. **[Network & IPC](docs/ai_digest/messages_and_routing.md)** - ChrysaLisp
     network and IPC architecture.
 
-47. **[Task Farming](docs/ai_digest/task_farming.md)** - The task farm
+48. **[Task Farming](docs/ai_digest/task_farming.md)** - The task farm
     libraries.
 
-48. **[Task Pipelines](docs/ai_digest/task_pipelines.md)** - The ChrysaLisp task
+49. **[Task Pipelines](docs/ai_digest/task_pipelines.md)** - The ChrysaLisp task
     pipeline library.
 
 ## Philosophy and Performance
 
 Understanding the "why" behind ChrysaLisp's design:
 
-49. **[Evidence Not Faith](docs/ai_digest/evidence_not_faith.md)** - Benchmarks
+50. **[Evidence Not Faith](docs/ai_digest/evidence_not_faith.md)** - Benchmarks
     proving the sub-second rebuild claims and demonstrating performance across
     platforms.
 
-50. **[Malleability](docs/ai_digest/malleability.md)** - How ChrysaLisp delivers
+51. **[Malleability](docs/ai_digest/malleability.md)** - How ChrysaLisp delivers
     Lisp's dynamic malleability without sacrificing C-like performance.
 
-51. **[Gemini Masterclass](docs/ai_digest/gemini_masterclass.md)** - Advanced
+52. **[Gemini Masterclass](docs/ai_digest/gemini_masterclass.md)** - Advanced
     data-driven dispatch using `some`, `#` anaphoric lambdas, and `const`
     compile-time resolution.
 
-52. **[More Haste Less Speed](docs/ai_digest/more_haste_less_speed.md)** - The
+53. **[More Haste Less Speed](docs/ai_digest/more_haste_less_speed.md)** - The
     philosophy of deliberate craftsmanship: achieving performance through
     thoughtful design rather than raw speed.
 
-53. **[The Tao of Now](docs/ai_digest/the_tao_of_now.md)** - It's all a dream.
+54. **[The Tao of Now](docs/ai_digest/the_tao_of_now.md)** - It's all a dream.
     The system is a consensus reality.
 
 ## Practical Implementation
 
 Getting ChrysaLisp running and building applications:
 
-54. **[Host Interface](docs/ai_digest/host_interface.md)** - The bridge between
+55. **[Host Interface](docs/ai_digest/host_interface.md)** - The bridge between
     ChrysaLisp and the host OS: PII functions, GUI/audio layers, and the VP64
     emulator.
 
-55. **[Porting](docs/ai_digest/porting.md)** - Comprehensive guide to porting
+56. **[Porting](docs/ai_digest/porting.md)** - Comprehensive guide to porting
     ChrysaLisp to new operating systems and CPU architectures.
 
-56. **[App Configuration](docs/ai_digest/app_configuration.md)** - The standard
+57. **[App Configuration](docs/ai_digest/app_configuration.md)** - The standard
     pattern for managing application state and user preferences.
 
-57. **[Application Acceleration](docs/ai_digest/app_acceleration.md)** - Adding
+58. **[Application Acceleration](docs/ai_digest/app_acceleration.md)** - Adding
     native functions to applications.
 
-58. **[Coding Domains](docs/ai_digest/coding_domains.md)** - Know your coding
+59. **[Coding Domains](docs/ai_digest/coding_domains.md)** - Know your coding
     domain and stick to it.
 
 ## Advanced Topics
 
 Deep dives into meta-commentary and design philosophy:
 
-59. **[Udat AI Shares](docs/ai_digest/udat_ai_shares.md)** - AI commentary on
+60. **[Udat AI Shares](docs/ai_digest/udat_ai_shares.md)** - AI commentary on
     ChrysaLisp's architectural coherence and design philosophy.
 
 ---
@@ -261,30 +265,30 @@ Depending on your goals, you might follow different reading paths:
 
 ### For Understanding the System
 
-Follow the order above from 0–59 for a complete understanding.
+Follow the order above from 0–60 for a complete understanding.
 
 ### For Application Development
 
 Focus on the language, standard libraries, and GUI framework.
 
-Read: 1, 4, 14, 45, 18, 19, 16, 17, 24, 29, 31, 36, 37, 38, 56, 43, 53, 51
+Read: 1, 4, 14, 46, 18, 19, 16, 17, 24, 29, 31, 36, 37, 38, 43, 57, 44, 54, 52
 
 ### For System Programming
 
 Focus on the Virtual Processor, memory model, and host integration.
 
-Read: 1, 3, 5, 7, 9, 10, 11, 12, 54, 55, 23, 44, 25, 28
+Read: 1, 3, 5, 7, 9, 10, 11, 12, 55, 56, 23, 45, 25, 28
 
 ### For Language Design Insights
 
 Focus on the philosophical divergences from traditional Lisp and architectural
 unification.
 
-Read: 2, 3, 6, 15, 19, 21, 22, 49, 50, 52, 53, 59
+Read: 2, 3, 6, 15, 19, 21, 22, 50, 51, 53, 54, 60
 
 ### Quick Start
 
-Read: 1, 4, 14, 16, 45, 18, 58, 20
+Read: 1, 4, 14, 16, 46, 18, 59, 20
 
 ---
 

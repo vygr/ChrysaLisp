@@ -68,12 +68,12 @@ string to be painted, but as a hierarchical UI tree.
 
 The document parser does not hardcode the logic for every possible markdown
 block. Instead, it utilizes a powerful Delegation Pattern driven by Markdown's
-fenced code blocks (````tag`).
+fenced code blocks ("```tag").
 
 * **Lazy Module Loading**
 
   * When the parser encounters a fenced block, it reads the tag (e.g.,
-    ````lisp`, ````image`).
+    "```lisp", "```image").
 
   * It passes this tag to the `handler-func` router. The router checks an
     environment map (`handlers`) for an existing function.

@@ -74,6 +74,8 @@ New `docs/ai_digest/cscript_skills.md` document.
 Added support for `strikethrough`, `highlight` and `bold-italic` to the Docs app
 text handler.
 
+New `docs/ai_digest/docs_rendering.md` document.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
