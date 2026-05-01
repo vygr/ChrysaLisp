@@ -13,6 +13,7 @@
 	+doc_font (first (font-info *env_window_font*))
 	+doc_font_bold (cat (first (split (first (font-info *env_window_font*)) "-")) "-Bold.ctf")
 	+doc_font_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-Italic.ctf")
+	+doc_font_bold_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-BoldItalic.ctf")
 	+term_font (first (font-info *env_terminal_font*)))
 
 (defun page-scale (s)
@@ -29,6 +30,7 @@
 	(push syms (sym (cat name "_size")))
 	(push values 0)
 	(static-qq (bind ',syms ',values)))
+
 ((# (def (penv) '*handler_env* (env))
 	(def *handler_env* 'enums enums)))
 
@@ -55,6 +57,7 @@
 			(ui-flow page (:flow_flags +flow_down_fill
 				:font_bold (create-font +doc_font_bold (page-scale 18))
 				:font_italic (create-font +doc_font_italic (page-scale 18))
+				:font_bold_italic (create-font +doc_font_bold_italic (page-scale 18))
 				:font_term (create-font +term_font (page-scale 18))
 				:font_term_small (get :font vdu)
 				:min_width (first (. vdu :pref_size))))

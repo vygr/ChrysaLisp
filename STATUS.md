@@ -71,6 +71,9 @@ Fix `cmd/slice.lisp` to clamp the slice to the line length.
 
 New `docs/ai_digest/cscript_skills.md` document.
 
+Added support for `strikethrough`, `highlight` and `bold-italic` to the Docs app
+text handler.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.

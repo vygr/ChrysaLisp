@@ -2,7 +2,7 @@
 (env-push)
 
 (bits +state 0
-	(bit code bold italic))
+	(bit code bold italic bold_italic highlight strike))
 
 (defun parse-line (line)
 	(when (nempty? (defq quoted (list) match (matches line "\q[^\q]+\q|`[^`]+`")))
@@ -26,7 +26,8 @@
 						(setq x x2)) match)
 					(apply (const cat) (push seqs (slice line x -1))))
 				(line)))
-		'(("\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*") "bi" (2 1)) line)))
+		'(("~~[^~]+~~" "==[^=]+==" "\\*\\*\\*[^*]+\\*\\*\\*" "\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*") 
+		  "shxbi"  (2 2 3 2 1)) line)))
 	(cond
 		((nempty? quoted)
 			(reach (# (if (eql %0 "<q>") (elem-set words (!) (pop quoted)))) words)
@@ -41,15 +42,26 @@
 		("</b>" (setq state (logand state (lognot +state_bold))))
 		("<i>" (setq state (logior state +state_italic)))
 		("</i>" (setq state (logand state (lognot +state_italic))))
+		("<x>" (setq state (logior state +state_bold_italic)))
+		("</x>" (setq state (logand state (lognot +state_bold_italic))))
+		("<h>" (setq state (logior state +state_highlight)))
+		("</h>" (setq state (logand state (lognot +state_highlight))))
+		("<s>" (setq state (logior state +state_strike)))
+		("</s>" (setq state (logand state (lognot +state_strike))))
 		(:t -1)))
 
 (defun create-word (word state)
 	(. flow :add_child (defq text (Text)))
 	(push *search_widgets* text)
 	(def text :text (. *page_words* :intern (cat word " ")))
+	;font changes
 	(if (bits? state +state_italic) (def text :font (get :font_italic flow)))
 	(if (bits? state +state_bold) (def text :font (get :font_bold flow)))
+	(if (bits? state +state_bold_italic) (def text :font (get :font_bold_italic flow)))
+	;color overrides
 	(if (bits? state +state_code) (def text :ink_color +argb_blue :font (get :font_term flow)))
+	(if (bits? state +state_strike) (def text :ink_color +argb_grey8))
+	(if (bits? state +state_highlight) (def text :color +argb_yellow :ink_color +argb_black))
 	text)
 
 (defun line-flow (&optional size)
