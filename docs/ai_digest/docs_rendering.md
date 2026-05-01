@@ -47,6 +47,29 @@ string to be painted, but as a hierarchical UI tree.
     string to the next rung (e.g., italic), resulting in a clean, tokenized
     string ready for the state machine.
 
+* **Atomic Scatter-Copy Formatting via `splice`**
+
+  * To ensure extreme performance and prevent memory-allocation thrashing
+    during the `reduce!` ladder passes, the parser completely avoids creating
+    intermediate string objects.
+
+  * Instead of using repeated `slice` and `cat` operations for every matched
+    markdown token, the parser uses ChrysaLisp's highly optimized, native
+    `splice` sequence primitive.
+
+  * As the regex engine finds formatting matches (like bold or italic words),
+    the parser simply pushes raw byte-offsets into an interleaved numeric
+    vector (`nums`).
+
+  * These offsets are paired to alternate between two sources: the next
+    segment of preserved text from the original line (`src1`), and the
+    required injected markup tags from a secondary string (`src2`).
+
+  * Once the regex pass is complete, a single call to `splice` is made. The
+    CScript engine calculates the exact required size of the final buffer,
+    performs a single memory allocation, and executes a hardware-accelerated
+    scatter-copy to stitch the alternating text and tags together instantly.
+
 * **Flow-Based Word Wrapping**
 
   * Mathematical word wrapping is completely offloaded to the emergent behavior

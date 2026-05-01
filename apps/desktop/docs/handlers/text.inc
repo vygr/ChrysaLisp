@@ -21,12 +21,12 @@
 		;one allocation, atomic scatter copy!
 		(setq line (splice line seq2 (push idxs x -1))))
 	;the formatter Ladder
-	(defq words (split (reduce! (lambda (line pattern tag c)
+	(defq idxs (nums) words (split (reduce! (lambda (line pattern tag c)
 			(cond
 				((nempty? (defq match (matches line pattern)))
-					(defq idxs (nums) x 0
-						  seq2 (cat " <" tag ">  </" tag "> ")
-						  t1_e (+ 4 (length tag)))
+					(defq idxs (clear idxs) x 0
+						seq2 (cat " <" tag ">  </" tag "> ")
+						t1_e (+ 4 (length tag)))
 					(each (lambda (((x1 x2)))
 						; src1: keep leading text (x to x1)
 						; src2: insert open tag (0 to t1_e)
@@ -37,8 +37,8 @@
 					;one allocation, atomic scatter copy!
 					(splice line seq2 (push idxs x -1)))
 				(line)))
-		'(("~~[^~]+~~" "==[^=]+==" "\\*\\*\\*[^*]+\\*\\*\\*" "\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*") 
-		"shxbi" (2 2 3 2 1)) line)))
+			'(("~~[^~]+~~" "==[^=]+==" "\\*\\*\\*[^*]+\\*\\*\\*" "\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*") 
+			"shxbi" (2 2 3 2 1)) line)))
 	;splice quoted sections back in
 	(cond
 		((nempty? quoted)
