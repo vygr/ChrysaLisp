@@ -14,7 +14,7 @@
 
 (structure +cpm 0
 	(uint ident)        ;ident .CPM or .FLM
-	(uint flags)        ;flags (formerly reserved 0)
+	(uint flags)        ;flags
 	(uint version)      ;version number
 	(int type)          ;image type
 	(uint width)        ;image w
@@ -45,7 +45,7 @@
 					(if (= ver 1)
 						(setq rle :t)
 						(setq rle (bits? flags +cpm_flag_rle)
-							  lz4 (bits? flags +cpm_flag_lz4)))
+							lz4 (bits? flags +cpm_flag_lz4)))
 					(defq canvas (Canvas w h 1) num_bits type
 						pixmap (getf canvas +canvas_pixmap 0))
 					; 12 and 15 bit images are padded to 16 num_bits in the stream
