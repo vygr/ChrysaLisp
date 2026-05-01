@@ -5,29 +5,41 @@
 	(bit code bold italic bold_italic highlight strike))
 
 (defun parse-line (line)
+	;pre-process code blocks and quotes
 	(when (nempty? (defq quoted (list) match (matches line "\q[^\q]+\q|`[^`]+`")))
-		(defq seqs (list) x 0)
+		(defq idxs (nums) x 0 seq2 " <c> <q> </c>  <q> ")
 		(each (lambda (((x1 x2)))
 			(cond
 				((eql (elem-get line x1) "`")
-					(push seqs (slice line x x1) " <c> <q> </c> ")
+					;alternate src1 (line) and src2 (seq2 indices 0 to 14)
+					(push idxs x x1 0 14)
 					(push quoted (split (slice line (inc x1) (dec x2)))))
-				((push seqs (slice line x x1) " <q> ")
+				(:t ;alternate src1 (line) and src2 (seq2 indices 14 to -1)
+					(push idxs x x1 14 -1)
 					(push quoted (split (slice line x1 x2)))))
 			(setq x x2)) match)
-		(setq line (apply (const cat) (push seqs (slice line x -1)))))
+		;one allocation, atomic scatter copy!
+		(setq line (splice line seq2 (push idxs x -1))))
+	;the formatter Ladder
 	(defq words (split (reduce! (lambda (line pattern tag c)
 			(cond
 				((nempty? (defq match (matches line pattern)))
-					(defq seqs (list) x 0)
+					(defq idxs (nums) x 0
+						  seq2 (cat " <" tag ">  </" tag "> ")
+						  t1_e (+ 4 (length tag)))
 					(each (lambda (((x1 x2)))
-						(push seqs (slice line x x1) " <" tag "> "
-							(slice line (+ x1 c) (- x2 c)) " </" tag "> ")
+						; src1: keep leading text (x to x1)
+						; src2: insert open tag (0 to t1_e)
+						; src1: keep inner text (x1+c to x2-c)
+						; src2: insert close tag (t1_e to -1)
+						(push idxs x x1 0 t1_e (+ x1 c) (- x2 c) t1_e -1)
 						(setq x x2)) match)
-					(apply (const cat) (push seqs (slice line x -1))))
+					;one allocation, atomic scatter copy!
+					(splice line seq2 (push idxs x -1)))
 				(line)))
 		'(("~~[^~]+~~" "==[^=]+==" "\\*\\*\\*[^*]+\\*\\*\\*" "\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*") 
-		  "shxbi"  (2 2 3 2 1)) line)))
+		"shxbi" (2 2 3 2 1)) line)))
+	;splice quoted sections back in
 	(cond
 		((nempty? quoted)
 			(reach (# (if (eql %0 "<q>") (elem-set words (!) (pop quoted)))) words)

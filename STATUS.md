@@ -76,6 +76,8 @@ text handler.
 
 New `docs/ai_digest/docs_rendering.md` document.
 
+Docs app `parse-line` function upgraded to use the new `(splice)` functionality.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.
