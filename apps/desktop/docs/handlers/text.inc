@@ -80,6 +80,7 @@
 			:font_bold (create-font +doc_font_bold (page-scale size))
 			:font_italic (create-font +doc_font_italic (page-scale size))
 			:font_bold_italic (create-font +doc_font_bold_italic (page-scale size))
+			:font_bullet (create-font +bullet_font (page-scale size))
 			:font_term (create-font +term_font (page-scale size))))
 	flow)
 
@@ -97,8 +98,10 @@
 		indent_width :nil flow (line-flow font_size))
 	(unless (and (eql indent "") (eql style ""))
 		;needs an indent or bullet style
-		(def (defq text (Text))
-			:text (cat indent indent style))
+		(defq text (Text))
+		(if (find "*" style)
+			(def text :text (cat indent indent (num-to-utf8 0xe979) " ") :font (get :font_bullet flow))
+			(def text :text (cat indent indent style)))
 		(. flow :add_child text)
 		(setq cnt (setq indent_width (first (. text :pref_size)))))
 	(each (lambda (word)

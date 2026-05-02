@@ -14,7 +14,8 @@
 	+doc_font_bold (cat (first (split (first (font-info *env_window_font*)) "-")) "-Bold.ctf")
 	+doc_font_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-Italic.ctf")
 	+doc_font_bold_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-BoldItalic.ctf")
-	+term_font (first (font-info *env_terminal_font*)))
+	+term_font (first (font-info *env_terminal_font*))
+	+bullet_font (first (font-info *env_toolbar_font*)))
 
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))
@@ -59,6 +60,7 @@
 				:font_italic (create-font +doc_font_italic (page-scale 18))
 				:font_bold_italic (create-font +doc_font_bold_italic (page-scale 18))
 				:font_term (create-font +term_font (page-scale 18))
+				:font_bullet (create-font +bullet_font (page-scale 24))
 				:font_term_small (get :font vdu)
 				:min_width (first (. vdu :pref_size))))
 			(ui-label _ (:min_width +margin_width)))
