@@ -95,8 +95,8 @@ copying.
 
 The engine includes several optimizations:
 
-1. **Fast Path Scanning:** Before running the full NFA, the `match?` and
-   `search` methods check if the pattern starts with a literal or a character
+1. **Fast Path Scanning:** Before running the full NFA, the `:match?` and
+   `:search` methods check if the pattern starts with a literal or a character
    class. If so, they use the high-speed `bskipn` or `bskip` primitives to
    rapidly skip over text that cannot possibly match.
 
