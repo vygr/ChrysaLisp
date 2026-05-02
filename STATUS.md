@@ -10,6 +10,8 @@ Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
 Fix to the `+?` lazy quantifier in `lib/text/regexp.inc` to correctly prioritize
 the loop exit over the repetition.
 
+New `docs/ai_digest/regexp_system.md` document detailing the NFA-based engine.
+
 `:size` method added to Set classes.
 
 Added '-s, --stdout' option to 'time' command to pass through to stdout,
