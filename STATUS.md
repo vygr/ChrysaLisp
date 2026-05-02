@@ -4,7 +4,11 @@
 
 ------
 
-New `Lset` linear set class with tree library support.
+Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
+`tests/text/test_lazy.lisp`, including mixed lazy and greedy scenarios.
+
+Fix to the `+?` lazy quantifier in `lib/text/regexp.inc` to correctly prioritize
+the loop exit over the repetition.
 
 `:size` method added to Set classes.
 

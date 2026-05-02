@@ -48,6 +48,7 @@
 	(import "tests/text/test_edit.lisp")
 	(import "tests/text/test_document.lisp")
 	(import "tests/text/test_regexp.lisp")
+	(import "tests/text/test_lazy.lisp")
 
 	; Streams
 	(import "tests/streams/test_rle.lisp")
