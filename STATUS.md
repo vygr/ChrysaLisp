@@ -87,6 +87,8 @@ New `docs/ai_digest/docs_rendering.md` document.
 
 Docs app `parse-line` function upgraded to use the new `(splice)` functionality.
 
+Rename the `*env_toolbar_font*` etc to `*env_symbol_font*`.
+
 ------
 
 Added a few more `&optional` outputs to the vector library functions.

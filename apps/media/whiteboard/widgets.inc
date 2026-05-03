@@ -35,7 +35,7 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *ink_toolbar* (0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982
 				0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04)
-				(:font *env_medium_toolbar_font* :color *env_toolbar2_col*)) :connect +event_ink))
+				(:font *env_medium_symbol_font* :color *env_toolbar2_col*)) :connect +event_ink))
 	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +min_width :min_height +min_height)
 		(ui-flow *strokes_stack* (:flow_flags +flow_stack_fill)

@@ -749,7 +749,7 @@ are made available via `gui/lisp.inc`.
   symbols [props])`
 
     * Default props (from `gui/lisp.inc`): `:color *env_toolbar_col*`, `:font
-      *env_toolbar_font*`, `:border *env_button_border*`.
+      *env_symbol_font*`, `:border *env_button_border*`.
 
 * **Description:** A bar of buttons that can operate in radio mode (only one
   selected) or toggle mode (multiple can be selected).
@@ -1216,7 +1216,7 @@ combinations of widgets:
       buttons or other controls.
 
     * Default props (from `gui/lisp.inc`): `:flow_flags +flow_right`, `:color
-      *env_toolbar_col*`, `:font *env_toolbar_font*`.
+      *env_toolbar_col*`, `:font *env_symbol_font*`.
 
 *Example using combination macros:*
 

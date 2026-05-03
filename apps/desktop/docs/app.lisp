@@ -15,7 +15,7 @@
 	+doc_font_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-Italic.ctf")
 	+doc_font_bold_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-BoldItalic.ctf")
 	+term_font (first (font-info *env_terminal_font*))
-	+bullet_font (first (font-info *env_toolbar_font*)))
+	+bullet_font (first (font-info *env_symbol_font*)))
 
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))

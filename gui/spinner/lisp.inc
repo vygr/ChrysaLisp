@@ -9,7 +9,7 @@
 (defclass Spinner () (Flow)
 	; (Spinner) -> spinner
 	(def (defq button_grid (Grid))
-		:grid_width 1 :border 1 :font *env_tiny_toolbar_font*)
+		:grid_width 1 :border 1 :font *env_tiny_symbol_font*)
 	(def (defq label (Label))
 		:text (str (get :value this)) :border *env_textfield_border*
 		:color +argb_white :min_width 32)

@@ -171,7 +171,7 @@
 	; (ui-radio-bar name symbols [props])
 	(ui-props p
 		:color *env_toolbar_col*
-		:font *env_toolbar_font*
+		:font *env_symbol_font*
 		:border *env_button_border*)
 	(static-qqp (ui-element ,n (Radiobar '(~s)) ,p)))
 
@@ -179,7 +179,7 @@
 	; (ui-toggle-bar name symbols [props])
 	(ui-props p
 		:color *env_toolbar_col*
-		:font *env_toolbar_font*
+		:font *env_symbol_font*
 		:border *env_button_border*)
 	(static-qqp (ui-element ,n (Radiobar '(~s) :t) ,p)))
 
@@ -187,7 +187,7 @@
 	; (ui-tool-bar name [props] [body]) -> flow
 	(ui-props p
 		:flow_flags +flow_right
-		:color *env_toolbar_col* :font *env_toolbar_font*)
+		:color *env_toolbar_col* :font *env_symbol_font*)
 	(static-qqp (ui-flow ,n ,p ~x)))
 
 (defmacro ui-textfield (n &optional p)
