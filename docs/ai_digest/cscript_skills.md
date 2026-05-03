@@ -216,7 +216,7 @@ register number !
 (assign `((,this 64)) `(,args))
 ```
 
-**these are CScript `def-vars` stack slots** !
+**these are CScript `(def-vars)` stack slots** !
 
 ```vdu
 {this, args}
