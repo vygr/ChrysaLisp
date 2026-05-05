@@ -4,6 +4,12 @@
 
 ------
 
+Updated link drivers with variable poling, with exponential backoff, increased
+the link buffer size and one extra buffer per direction. Prioritises the hot
+channels across the network to lower latency.
+
+------
+
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
 `tests/text/test_lazy.lisp`, including mixed lazy and greedy scenarios.
 
