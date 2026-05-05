@@ -83,7 +83,8 @@
 
 	(def-vars
 		(ptr statics lk_node msg data tx tx_msg key)
-		(nodeid node_id))
+		(nodeid node_id)
+		(long sleep_time))
 
 	(push-scope)
 
@@ -109,6 +110,7 @@
 		(assign {tx + lk_shmem_chan_2} {tx})
 	(endif)
 	(assign {&tx->lk_chan_msg0} {tx_msg})
+	(assign {lk_sleep_min} {sleep_time})
 
 	;write messages through the shared buffer
 	(loop-start)
@@ -124,6 +126,8 @@
 				lk_node->lk_node_peer_node_id.+node_id_node2,
 				key} {msg})
 			(vpif {msg})
+				;reset min poling
+				(assign {lk_sleep_min} {sleep_time})
 				;copy message data
 				(vp-rdef (tx_msg msg len off tot))
 				(assign {tx_msg, msg} `(,tx_msg ,msg))
@@ -169,7 +173,10 @@
 		(loop-end)
 
 		;small sleep if nothing to do
-		(call :sys_task :sleep '(1000))
+		(call :sys_task :sleep {sleep_time})
+		(vpif {((sleep_time << 1) => sleep_time) > lk_sleep_max})
+			(assign {lk_sleep_max} {sleep_time})
+		(endif)
 
 		;exit if signaled by kernel...
 	(loop-end)
@@ -185,7 +192,8 @@
 
 	(def-vars
 		(ptr lk_node msg data rx rx_msg)
-		(nodeid node_id))
+		(nodeid node_id)
+		(long sleep_time))
 
 	(push-scope)
 
@@ -208,6 +216,7 @@
 		(assign {rx + lk_shmem_chan_1} {rx})
 	(endif)
 	(assign {&rx->lk_chan_msg0} {rx_msg})
+	(assign {lk_sleep_min} {sleep_time})
 
 	;read messages from the shared buffer
 	(loop-start)
@@ -219,6 +228,8 @@
 
 			;is this just a ping ?
 			(vpif {rx_msg->lk_buf_total_length /= 0xffffffff})
+				;reset pole to min
+				(assign {lk_sleep_min} {sleep_time})
 				;is this msg part of a parcel for this node
 				(vpif {rx_msg->lk_buf_total_length
 					&& rx_msg->lk_buf_dest.+net_id_node_id.+node_id_node1 = node_id.+node_id_node1
@@ -259,7 +270,10 @@
 		(loop-end)
 
 		;small sleep as nothing to do
-		(call :sys_task :sleep '(1000))
+		(call :sys_task :sleep {sleep_time})
+		(vpif {((sleep_time << 1) => sleep_time) > lk_sleep_max})
+			(assign {lk_sleep_max} {sleep_time})
+		(endif)
 
 		;exit if signaled by kernel...
 	(loop-end)

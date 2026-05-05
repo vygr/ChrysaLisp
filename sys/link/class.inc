@@ -14,8 +14,8 @@
 
 ;msg data area max size when allocated as a string object
 ;allowing for heap pointer and null byte, rounded down for faster memcpy
-(defq lk_page_size 4096)
-(defcvar 'lk_data_size (- 1024 +str_size +long_size +sys_mem_header_size))
+(defq lk_page_size 4096 lk_sleep_min 100 lk_sleep_max 800)
+(defcvar 'lk_data_size (- 4096 +str_size +long_size +sys_mem_header_size))
 
 (enums lk_chan_status 0
 	(enum ready busy))
@@ -34,7 +34,8 @@
 (structure lk_chan 0
 	(struct msg0 lk_buf_size)
 	(struct msg1 lk_buf_size)
-	(struct msg2 lk_buf_size))
+	(struct msg2 lk_buf_size)
+	(struct msg3 lk_buf_size))
 
 (structure lk_shmem 0
 	(struct chan_1 lk_chan_size)
