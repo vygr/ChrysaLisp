@@ -8,6 +8,9 @@ Updated link drivers with variable poling, with exponential backoff, increased
 the link buffer size and one extra buffer per direction. Prioritises the hot
 channels across the network to lower latency.
 
+Fix for Windows, timer sleep function in the `pii_windows.cpp`. Needed to use
+higher resolution timer and yield code.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in

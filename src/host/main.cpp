@@ -98,6 +98,8 @@ int main(int argc, char *argv[])
 					enableRawMode();
 				#ifndef _WIN64
 					fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
+				#else
+					timeBeginPeriod(1);
 				#endif
 					if (run_emu)
 					{
