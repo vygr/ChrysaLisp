@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 #include <memory>
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef uint32_t pixel_t;
 typedef uint8_t alpha_t;

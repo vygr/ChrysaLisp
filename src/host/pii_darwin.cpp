@@ -14,13 +14,12 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
-#include <random>
-#include <thread>
-#include <iostream>
+#include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <sched.h>
 #include <libkern/OSCacheControl.h>
 
 static char pii_path_buf[4096];
@@ -115,7 +114,7 @@ int64_t pii_open_shared(const char *path, size_t len)
 		while (1)
 		{
 			if (stat(link_buf, &pii_stat_fs) == 0 && pii_stat_fs.st_size == (off_t)len) break;
-			std::this_thread::yield();
+			sched_yield();
 		}
 		hndl = open(link_buf, O_RDWR, S_IRUSR | S_IWUSR);
 	}
@@ -152,14 +151,6 @@ int64_t pii_stat(const char *path, struct pii_stat_info *st)
 	st->mode = pii_stat_fs.st_mode;
 	return 0;
 }
-
-/*
-	int walk_directory(
-		const char *path,
-		int (*filevisitor)(const char*),
-		int (*foldervisitor)(const char *, int))
-	Opens a directory and invokes a visitor (fn) for each entry
-*/
 
 #define FOLDER_PRE 0
 #define FOLDER_POST 1
@@ -248,33 +239,16 @@ int walk_directory(char* path,
 	return 0;
 }
 
-/*
-	int file_visit_remove(const char *fname)
-	Removes file being visited
-*/
 int file_visit_remove(const char *fname)
 {
 	return unlink(fname);
 }
-
-/*
-	int folder_visit_remove(const char fname, int state)
-	Folder visit both pre-walk and post-walk states
-	For post-walk the folder is removed
-*/
 
 int folder_visit_remove(const char *fname, int state)
 {
 	return ( state == FOLDER_PRE ) ? 0 : rmdir(fname);
 }
 
-/*
-	int64_t pii_remove(const char *fqname) -> 0 | -1
-	Will remove a file or a directory
-	If a directory name is given, it'll walk
-	the directory and remove all files and
-	subdirectories in it's path
-*/
 int64_t pii_remove(const char *fqname)
 {
 	if(stat(fqname, &pii_stat_fs) == 0)
@@ -350,19 +324,30 @@ void *pii_flush_icache(void* addr, size_t len)
 	return addr;
 }
 
-std::random_device rd;
-std::mt19937 rng(rd());
-std::uniform_int_distribution<int> dist(0, 255);
-
 void pii_random(char* addr, size_t len)
 {
-	for (int i = 0; i < len; ++i) addr[i] = dist(rng);
+	int fd = open("/dev/urandom", O_RDONLY);
+	if (fd >= 0) {
+		read(fd, addr, len);
+		close(fd);
+	} else {
+		// Fallback if urandom fails
+		static bool seeded = false;
+		if (!seeded) {
+			srand((unsigned int)pii_gettime() ^ (unsigned int)getpid());
+			seeded = true;
+		}
+		for (size_t i = 0; i < len; ++i) addr[i] = rand() & 0xff;
+	}
 }
 
 void pii_sleep(uint64_t usec)
 {
-	uint64_t delay = std::max(usec, static_cast<uint64_t>(1));
-	std::this_thread::sleep_for(std::chrono::microseconds(delay));
+	if (usec < 100) {
+		sched_yield();
+		return;
+	}
+	usleep(usec > 0 ? usec : 1);
 }
 
 uint64_t pii_close(uint64_t fd)

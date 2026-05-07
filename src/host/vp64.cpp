@@ -1,5 +1,5 @@
 #include <sys/types.h>
-#include <iostream>
+#include <stdio.h>
 #include <atomic>
 #include <cmath>
 #ifdef _WIN64
@@ -206,7 +206,7 @@ struct u128 { uint64_t lo; uint64_t hi; };
 #define vp_ret() vp_pop_pc()
 
 #define vp_sync(c) sync.store((c), std::memory_order_seq_cst)
-#define vp_brk(c) std::cout << "brk " << (int)(c) << std::endl
+#define vp_brk(c) printf("brk %d\n", (int)(c))
 
 #define vp_call_abi(n, b, o) { \
 	int64_t f = *(uint64_t*)(regs[b] + (o)); \
@@ -482,7 +482,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			VP_CR_ALL VP_RR_ALL VP_SHIFT_ALL VP_DIV_ALL VP_M_ALL VP_CMP_ALL
 			VP_IR_ALL VP_RI_ALL VP_RD_ALL VP_DR_ALL VP_F_MEM_ALL VP_B_ALL
 			VP_F_BRANCH_ALL VP_JC_ALL VP_SYS_ALL VP_F_ALU_ALL VP_F_CVT_ALL
-			default: std::cout << "Unrecognised opcode " << (ir & 0xff) << " " << std::endl; break;
+			default: printf("Unrecognised opcode %d\n", (int)(ir & 0xff)); break;
 		}
 	}
 	return 0;

@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <unordered_map>
 #include <string>
-#include <iostream>
+#include <stdio.h>
 
 struct SoundEffect {
     Mix_Chunk* chunk;
@@ -19,7 +19,7 @@ static std::unordered_map<uint32_t, SoundEffect> soundEffectMap;
 static uint32_t nextHandle = 0x1000;
 
 void logSDLError(const char* msg) {
-    std::cerr << msg << " error: " << Mix_GetError() << std::endl;
+    fprintf(stderr, "%s error: %s\n", msg, Mix_GetError());
 }
 
 int host_audio_init()

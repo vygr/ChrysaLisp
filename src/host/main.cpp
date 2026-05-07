@@ -3,7 +3,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef _WIN64
 #include <io.h>
@@ -131,17 +132,17 @@ int main(int argc, char *argv[])
 				else
 				{
 					pii_close((int)fd);
-					std::cout << "Error, failed reading boot_image!" << std::endl;
+					printf("Error, failed reading boot_image!\n");
 				}
 			}
 			else
 			{
 				pii_close((int)fd);
-				std::cout << "Error, READ/WRITE/EXEC pages failed!" << std::endl;
+				printf("Error, READ/WRITE/EXEC pages failed!\n");
 			}
 		}
-		else std::cout << "Error, boot_image not found!" << std::endl;
+		else printf("Error, boot_image not found!\n");
 	}
-	else std::cout << "Error, no boot_image arg!" << std::endl;
+	else printf("Error, no boot_image arg!\n");
 	return ret_val;
 }

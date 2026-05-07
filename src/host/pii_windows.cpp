@@ -14,9 +14,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
-#include <random>
-#include <thread>
-#include <iostream>
+#include <stdlib.h>
 #define _CRT_SECURE_NO_WARNINGS
 #define DELTA_EPOCH_IN_MICROSECS 11644473600000000ULL
 #include <time.h>
@@ -171,14 +169,6 @@ int64_t pii_stat(const char *path, struct pii_stat_info *st)
 	return 0;
 }
 
-/*
-	int walk_directory(
-		const char *path,
-		int (*filevisitor)(const char*),
-		int (*foldervisitor)(const char *, int))
-	Opens a directory and invokes a visitor (fn) for each entry
-*/
-
 #define FOLDER_PRE 0
 #define FOLDER_POST 1
 #define MAX_DIR_DEPTH 64
@@ -197,12 +187,12 @@ int walk_directory(char* path,
 	int stack_ptr = 0;
 	size_t initial_len = strlen(path);
 	
-	if (initial_len + 5 >= 4096) return -1; // path plus \*.* plus null
+	if (initial_len + 5 >= 4096) return -1;
 	
 	strcpy(path + initial_len, "\\*.*");
 	WIN32_FIND_DATAA FindData;
 	HANDLE h = FindFirstFileA(path, &FindData);
-	path[initial_len] = '\0'; // restore path
+	path[initial_len] = '\0';
 	
 	if (h == INVALID_HANDLE_VALUE) return -1;
 	
@@ -264,7 +254,7 @@ int walk_directory(char* path,
 
 			strcpy(path + sub_len, "\\*.*");
 			HANDLE sub = FindFirstFileA(path, &fd);
-			path[sub_len] = '\0'; // restore path
+			path[sub_len] = '\0';
 			
 			if (sub != INVALID_HANDLE_VALUE)
 			{
@@ -285,33 +275,16 @@ int walk_directory(char* path,
 	return 0;
 }
 
-/*
-	int file_visit_remove(const char *fname)
-	Removes file being visited
-*/
 int file_visit_remove(const char *fname)
 {
 	return unlink(fname);
 }
-
-/*
-	int folder_visit_remove(const char fname, int state)
-	Folder visit both pre-walk and post-walk states
-	For post-walk the folder is removed
-*/
 
 int folder_visit_remove(const char *fname, int state)
 {
 	return ( state == FOLDER_PRE ) ? 0 : rmdir(fname);
 }
 
-/*
-	int64_t pii_remove(const char *fqname) -> 0 | -1
-	Will remove a file or a directory
-	If a directory name is given, it'll walk
-	the directory and remove all files and
-	subdirectories in it's path
-*/
 int64_t pii_remove(const char *fqname)
 {
 	if(stat(fqname, &pii_stat_fs) == 0)
@@ -415,24 +388,25 @@ void *pii_flush_icache(void* addr, size_t len)
 	return addr;
 }
 
-std::random_device rd;
-std::mt19937 rng(rd());
-std::uniform_int_distribution<int> dist(0, 255);
-
 void pii_random(char* addr, size_t len)
 {
-	for (int i = 0; i < len; ++i) addr[i] = dist(rng);
+	static bool seeded = false;
+	if (!seeded) {
+		// XOR time with unique Process ID so concurrent nodes get different seeds
+		srand((unsigned int)pii_gettime() ^ (unsigned int)GetCurrentProcessId());
+		seeded = true;
+	}
+	for (size_t i = 0; i < len; ++i) addr[i] = rand() & 0xff;
 }
 
 void pii_sleep(uint64_t usec)
 {
-	uint64_t delay = std::max(usec, static_cast<uint64_t>(1));
-
 	if (usec < 300) {
-		std::this_thread::yield();
+		SwitchToThread();
 		return;
 	}
-	std::this_thread::sleep_for(std::chrono::microseconds(delay));
+	DWORD ms = (DWORD)(usec / 1000);
+	Sleep(ms > 0 ? ms : 1);
 }
 
 uint64_t pii_close(uint64_t fd)

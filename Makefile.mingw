@@ -1,4 +1,4 @@
-# Makefile.mingw - Cross-compilation for Windows on MacOS/Linux
+# Makefile.mingw - Cross-compilation for Windows on macOS/Linux
 CXX := x86_64-w64-mingw32-g++
 CC  := x86_64-w64-mingw32-gcc
 OS  := Windows
@@ -14,19 +14,23 @@ SDL_CFLAGS := -I$(SDL2_PATH)/include/SDL2 -I$(SDL2_MIXER_PATH)/include/SDL2
 SDL_LIBS   := -L$(SDL2_PATH)/lib -L$(SDL2_MIXER_PATH)/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lwinmm
 
 # Standard flags for ChrysaLisp
-# We add -D_WIN64 to ensure Windows paths and APIs are used in src/host files
-CFLAGS := -O3 -nostdlib -fno-exceptions -MMD -D_WIN64
+# Add Dead Code Elimination and LTO to compilation flags
+CFLAGS := -O3 -nostdlib -fno-exceptions -MMD -D_WIN64 -ffunction-sections -fdata-sections -flto
 CPPFLAGS := -std=c++14
 
 include Makefile
 
-# Add .exe to the targets
-# We place the final .exe files in obj/$(CPU)/$(ABI)/$(OS)/ as requested
+# Force MinGW to statically link its C/C++ runtime and pthread library,
+# AND strip debug symbols (-s) to prevent massive executables.
+# Add Section GC and LTO to the linker flags
+MINGW_LDFLAGS := -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -Wl,-Bdynamic -s -Wl,--gc-sections -flto
+
+# Add the MINGW_LDFLAGS to the final linkage targets
 obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe:	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
-	$(CXX) -o $@ $^ $(SDL_LIBS) -mwindows
+	$(CXX) -o $@ $^ $(SDL_LIBS) $(MINGW_LDFLAGS) -mwindows
 
 obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe:	$(OBJ_FILES_CORE_TUI)
-	$(CXX) -o $@ $^ -lwinmm
+	$(CXX) -o $@ $^ -lwinmm $(MINGW_LDFLAGS)
 
 # Helper target to just build TUI
 windows_tui: hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe
