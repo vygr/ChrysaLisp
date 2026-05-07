@@ -1,6 +1,6 @@
 SRC_DIR := ./src
-OBJ_DIR_GUI := ./src/obj/gui
-OBJ_DIR_TUI := ./src/obj/tui
+OBJ_DIR_GUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/gui
+OBJ_DIR_TUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/tui
 
 SRC_DIRS := $(shell find $(SRC_DIR) -type d | grep -v "/obj")
 OBJ_DIRS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_GUI)/%,$(SRC_DIRS))
@@ -18,20 +18,20 @@ OBJ_FILES_TUI := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR_TUI)/%.o,$(OBJ_FILES_TUI))
 OBJ_FILES := $(OBJ_FILES_GUI)
 OBJ_FILES += $(OBJ_FILES_TUI)
 
-CFLAGS := -O3 -nostdlib -fno-exceptions -MMD
-CPPFLAGS := -std=c++14
+CFLAGS ?= -O3 -nostdlib -fno-exceptions -MMD
+CPPFLAGS ?= -std=c++14
 HGUI := $(shell echo $(GUI) | tr '[:upper:]' '[:lower:]')
 
-OS := $(shell uname)
-CPU := $(shell uname -m)
+OS ?= $(shell uname)
+CPU ?= $(shell uname -m)
 ifeq ($(CPU),x86_64)
-	ABI := AMD64
+	ABI ?= AMD64
 else
 	ifeq ($(CPU),riscv64)
-		ABI := RISCV64
+		ABI ?= RISCV64
 	else
 		CPU := arm64
-		ABI := ARM64
+		ABI ?= ARM64
 	endif
 endif
 
@@ -48,13 +48,13 @@ endif
 
 ifneq ($(HOST_GUI),1)
 	HOST_AUDIO := 0
-	SDL_CFLAGS := $(shell sdl2-config --cflags)
-	SDL_LIBS := $(shell sdl2-config --libs) -lSDL2_mixer
+	SDL_CFLAGS ?= $(shell sdl2-config --cflags)
+	SDL_LIBS ?= $(shell sdl2-config --libs) -lSDL2_mixer
 	AUDIO_FLAGS := -D_HOST_AUDIO=$(HOST_AUDIO)
 else
 	HOST_AUDIO := -1
-	SDL_CFLAGS := 
-	SDL_LIBS := 
+	SDL_CFLAGS ?= 
+	SDL_LIBS ?= 
 	AUDIO_FLAGS := -Dhost_audio_funcs=nullptr
 endif
 
@@ -92,24 +92,24 @@ inst:
 	@./run_tui.sh -i -e -f
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
-	c++ -o $@ $^ $(SDL_LIBS)
+	$(CXX) -o $@ $^ $(SDL_LIBS)
 
 obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_TUI)
-	c++ -o $@ $^
+	$(CXX) -o $@ $^
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp
-	c++ -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -D_HOST_GUI=$(HOST_GUI) $(AUDIO_FLAGS) \
+	$(CXX) -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -D_HOST_GUI=$(HOST_GUI) $(AUDIO_FLAGS) \
 		$(SDL_CFLAGS)
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.c
-	cc -c -o $@ $< $(CFLAGS) -D_HOST_GUI=$(HOST_GUI) $(AUDIO_FLAGS) \
+	$(CC) -c -o $@ $< $(CFLAGS) -D_HOST_GUI=$(HOST_GUI) $(AUDIO_FLAGS) \
 		$(SDL_CFLAGS)
 
 $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.cpp
-	c++ -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
+	$(CXX) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
 
 $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.c
-	cc -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
 	@rm -rf ./obj

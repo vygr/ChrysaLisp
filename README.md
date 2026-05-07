@@ -113,6 +113,8 @@ cd ChrysaLisp
 
   * Copy SDL2 and SDL2_mixer DLLs (64-bit) into the ChrysaLisp root directory. See `docs/intro.md` for details.
 
+  * **macOS Cross-Compile**: To build Windows executables on macOS: `brew install mingw-w64` then `make -f Makefile.mingw windows_all`.
+
 * **Raspberry Pi (Framebuffer mode)**:
 
   * Follow specific setup in `docs/framebuffer.md` or the comprehensive `docs/intro.md`.

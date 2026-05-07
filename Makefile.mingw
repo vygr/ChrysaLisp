@@ -1,0 +1,46 @@
+# Makefile.mingw - Cross-compilation for Windows on macOS
+CXX := x86_64-w64-mingw32-g++
+CC  := x86_64-w64-mingw32-gcc
+OS  := Windows
+CPU := x86_64
+ABI := WIN64
+
+# Point these to where you extract the SDL2 MinGW development files if you want GUI
+SDL2_PATH := $(CURDIR)/deps/SDL2-2.30.3/x86_64-w64-mingw32
+SDL2_MIXER_PATH := $(CURDIR)/deps/SDL2_mixer-2.8.0/x86_64-w64-mingw32
+
+# Default SDL flags for MinGW
+SDL_CFLAGS := -I$(SDL2_PATH)/include/SDL2 -I$(SDL2_MIXER_PATH)/include/SDL2
+SDL_LIBS   := -L$(SDL2_PATH)/lib -L$(SDL2_MIXER_PATH)/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lwinmm
+
+# Standard flags for ChrysaLisp
+# We add -D_WIN64 to ensure Windows paths and APIs are used in src/host files
+CFLAGS := -O3 -nostdlib -fno-exceptions -MMD -D_WIN64
+CPPFLAGS := -std=c++14
+
+include Makefile
+
+# Override variables that were set with := in Makefile
+SDL_CFLAGS := -I$(SDL2_PATH)/include/SDL2 -I$(SDL2_MIXER_PATH)/include/SDL2
+SDL_LIBS   := -L$(SDL2_PATH)/lib -L$(SDL2_MIXER_PATH)/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lwinmm
+
+# Add .exe to the targets
+obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
+	$(CXX) -o $@.exe $^ $(SDL_LIBS) -static-libgcc -static-libstdc++ -mwindows
+
+obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_TUI)
+	$(CXX) -o $@.exe $^ -static-libgcc -static-libstdc++ -lwinmm
+
+# Helper target to just build TUI
+windows_tui: hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
+
+# Automated dependency download
+deps:
+	mkdir -p deps
+	curl -L https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-devel-2.30.3-mingw.tar.gz -o deps/SDL2.tar.gz
+	curl -L https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.8.0/SDL2_mixer-devel-2.8.0-mingw.tar.gz -o deps/SDL2_mixer.tar.gz
+	tar -C deps -xzf deps/SDL2.tar.gz
+	tar -C deps -xzf deps/SDL2_mixer.tar.gz
+
+windows_all: deps hostenv tui gui
+

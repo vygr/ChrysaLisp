@@ -133,7 +133,7 @@ struct u128 { uint64_t lo; uint64_t hi; };
 #define vp_swp_rr(sr, dr) { int64_t t = regs[dr]; regs[dr] = regs[sr]; regs[sr] = t; }
 #define vp_ext_rr(sr, dr) regs[dr] = (regs[sr] >> 63)
 
-#ifdef _WIN64
+#if defined(_MSC_VER)
 #define vp_div_rrr(sr, dr, drr) regs[dr] = _div128(regs[sr], regs[dr], regs[drr], &regs[sr])
 #define vp_div_rrr_u(sr, dr, drr) regs[dr] = _udiv128((uint64_t)regs[sr], (uint64_t)regs[dr], (uint64_t)regs[drr], (uint64_t*)&regs[sr])
 #else

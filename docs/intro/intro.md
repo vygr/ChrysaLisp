@@ -60,7 +60,25 @@ sudo apt-get install libsdl2-dev libsdl2-mixer-dev
    release snapshot typically includes pre-built Windows executables 
    (`main_tui.exe`, `main_gui.exe`).
 
-2. **SDL2 and SDL2_mixer**: Download the 64-bit development libraries:
+2. **Cross-Compiling from macOS**: If you are on a macOS machine and want to 
+   build the Windows executables yourself, you can use the provided 
+   `Makefile.mingw`. This requires the `mingw-w64` toolchain:
+
+```code
+brew install mingw-w64
+```
+
+   Then run the build:
+
+```code
+make -f Makefile.mingw windows_all
+```
+
+   This will automatically download the necessary Windows SDL2 development 
+   libraries into a `deps/` folder and build both `main_tui.exe` and 
+   `main_gui.exe` in `obj/x86_64/WIN64/Windows/`.
+
+3. **SDL2 and SDL2_mixer**: Download the 64-bit development libraries:
 
     * SDL2: From [libsdl.org/download-2.0.php](https://www.libsdl.org/download-2.0.php) 
       (e.g., `SDL2-devel-2.x.x-mingw.tar.gz` or `SDL2-devel-2.x.x-VC.zip`).

@@ -39,6 +39,8 @@ to be considered for merging.
     * If your contribution involves changes to the C++ Platform Implementation
       Interface (PII) or any other platform-specific code, you are required to
       test and validate your changes across **all supported platforms**.
+      Developers on macOS can use `Makefile.mingw` to cross-compile and verify 
+      Windows host changes locally.
 
 4. **Build Verification and Reproducibility:** The ChrysaLisp build system is
    designed to be fully deterministic. Your contributions must uphold this

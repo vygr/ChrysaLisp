@@ -1,6 +1,7 @@
 .vs/
 .vscode/
 /obj/
+deps/
 /x64/
 /ai/
 cache/

@@ -18,7 +18,7 @@
 #include <thread>
 #include <iostream>
 #define _CRT_SECURE_NO_WARNINGS
-#define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
+#define DELTA_EPOCH_IN_MICROSECS 11644473600000000ULL
 #include <time.h>
 #include <io.h>
 #include <windows.h>
