@@ -17,7 +17,6 @@
 extern int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs, int64_t* host_audio_funcs);
 extern bool run_emu;
 
-extern struct stat fs;
 extern int64_t pii_open(const char *path, uint64_t mode);
 extern uint64_t pii_close(uint64_t fd);
 extern void *pii_mmap(size_t len, int64_t fd, uint64_t mode);
@@ -86,8 +85,9 @@ int main(int argc, char *argv[])
 		int64_t fd = pii_open(argv[1], file_open_read);
 		if (fd != -1)
 		{
-			stat(argv[1], &fs);
-			size_t data_size = fs.st_size;
+			struct stat st;
+			stat(argv[1], &st);
+			size_t data_size = st.st_size;
 			uint16_t *data = (uint16_t*)pii_mmap(data_size, -1, mmap_data);
 			if (data != (uint16_t*)-1)
 			{

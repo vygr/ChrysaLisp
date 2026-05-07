@@ -23,43 +23,46 @@
 #include <dirent.h>
 #include <libkern/OSCacheControl.h>
 
-char dirbuf[1024];
+static char pii_path_buf[4096];
+static char pii_rmdir_buf[4096];
 
 int64_t pii_dirlist(const char *path, char *buf, size_t buf_len)
 {
-	char *fbuf = NULL;
-	size_t fbuf_len = 0;
-	struct dirent *entry;
 	DIR *dir = opendir(path);
 	if (dir == NULL) return 0;
+
+	int64_t total_len = 0;
+	struct dirent *entry;
 	while ((entry = readdir(dir)) != NULL)
 	{
 		size_t len = strlen(entry->d_name);
-		fbuf = (char*)realloc(fbuf, fbuf_len + len + 3);
-		memcpy(fbuf + fbuf_len, entry->d_name, len);
-		fbuf_len += len;
-		fbuf[fbuf_len++] = ',';
-		fbuf[fbuf_len++] = entry->d_type + '0';
-		fbuf[fbuf_len++] = ',';
+		size_t entry_len = len + 3; // name,type,
+
+		if (buf && total_len + entry_len <= buf_len)
+		{
+			memcpy(buf + total_len, entry->d_name, len);
+			buf[total_len + len] = ',';
+			buf[total_len + len + 1] = entry->d_type + '0';
+			buf[total_len + len + 2] = ',';
+		}
+		total_len += entry_len;
 	}
 	closedir(dir);
-	if (buf) memcpy(buf, fbuf, fbuf_len > buf_len ? buf_len : fbuf_len);
-	free(fbuf);
-	return fbuf_len;
+	return total_len;
 }
 
 static void rmkdir(const char *path)
 {
 	char *p = NULL;
-	size_t len;
-	len = strlen(path);
-	memcpy(dirbuf, path, len + 1);
-	for (p = dirbuf + 1; *p; p++)
+	size_t len = strlen(path);
+	if (len >= sizeof(pii_rmdir_buf)) return;
+	memcpy(pii_rmdir_buf, path, len + 1);
+	for (p = pii_rmdir_buf + 1; *p; p++)
 	{
 		if(*p == '/')
 		{
 			*p = 0;
-			mkdir(dirbuf, S_IRWXU);
+			mkdir(pii_rmdir_buf, S_IRWXU);
 			*p = '/';
 		}
 	}
@@ -100,7 +103,7 @@ int64_t pii_open(const char *path, uint64_t mode)
 }
 
 char link_buf[128];
-struct stat fs;
+static struct stat pii_stat_fs;
 
 int64_t pii_open_shared(const char *path, size_t len)
 {
@@ -111,9 +114,8 @@ int64_t pii_open_shared(const char *path, size_t len)
 	{
 		while (1)
 		{
-			stat(link_buf, &fs);
-			if (fs.st_size == len) break;
-			sleep(0);
+			if (stat(link_buf, &pii_stat_fs) == 0 && pii_stat_fs.st_size == (off_t)len) break;
+			std::this_thread::yield();
 		}
 		hndl = open(link_buf, O_RDWR, S_IRUSR | S_IWUSR);
 	}
@@ -144,10 +146,10 @@ int64_t pii_seek(int64_t fd, int64_t pos, unsigned char offset)
 
 int64_t pii_stat(const char *path, struct pii_stat_info *st)
 {
-	if (stat(path, &fs) != 0) return -1;
-	st->mtime = fs.st_mtime;
-	st->fsize = fs.st_size;
-	st->mode = fs.st_mode;
+	if (stat(path, &pii_stat_fs) != 0) return -1;
+	st->mtime = pii_stat_fs.st_mtime;
+	st->fsize = pii_stat_fs.st_size;
+	st->mode = pii_stat_fs.st_mode;
 	return 0;
 }
 
@@ -161,50 +163,89 @@ int64_t pii_stat(const char *path, struct pii_stat_info *st)
 
 #define FOLDER_PRE 0
 #define FOLDER_POST 1
+#define MAX_DIR_DEPTH 64
+
+struct WalkState {
+	DIR* dir;
+	size_t path_len;
+};
+
+static WalkState walk_stack[MAX_DIR_DEPTH];
 
 int walk_directory(char* path,
 		int (*filevisitor)(const char*),
 		int (*foldervisitor)(const char *, int))
 {
-	char slash = '/';
-	DIR* dir;
-	struct dirent *ent;
-	char *NulPosition = &path[strlen(path)];
-	if ((dir = opendir(path)) != NULL)
+	int stack_ptr = 0;
+	DIR* d = opendir(path);
+	if (!d) return -1;
+	
+	size_t initial_len = strlen(path);
+	if (foldervisitor(path, FOLDER_PRE))
 	{
-		foldervisitor(path, FOLDER_PRE);
-		while ((ent = readdir(dir)) != NULL)
-		{
-			if((strcmp(ent->d_name, ".") != 0) && (strcmp(ent->d_name, "..") != 0))
-			{
-				snprintf(NulPosition, sizeof(ent->d_name) + 1, "%c%s", slash, ent->d_name);
-				if (ent->d_type == DT_DIR)
-				{
-					if (walk_directory(path, filevisitor, foldervisitor))
-					{
-						closedir(dir);
-						return -1;
-					}
-				}
-				else
-				{
-					if(filevisitor(path))
-					{
-						closedir(dir);
-						return -1;
-					}
-				}
-				*NulPosition = '\0';
-			}
-		}	 // end while
-	} // opendir == NULL
-	else
-	{
+		closedir(d);
 		return -1;
 	}
-	// Natural pii_close
-	closedir(dir);
-	return foldervisitor(path, FOLDER_POST);
+	
+	walk_stack[stack_ptr].dir = d;
+	walk_stack[stack_ptr].path_len = initial_len;
+	stack_ptr++;
+	
+	while (stack_ptr > 0)
+	{
+		WalkState* s = &walk_stack[stack_ptr - 1];
+		struct dirent* ent = readdir(s->dir);
+		
+		if (!ent)
+		{
+			closedir(s->dir);
+			path[s->path_len] = '\0';
+			int res = foldervisitor(path, FOLDER_POST);
+			stack_ptr--;
+			if (res && stack_ptr > 0)
+			{
+				while (stack_ptr > 0) closedir(walk_stack[--stack_ptr].dir);
+				return -1;
+			}
+			continue;
+		}
+		
+		if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) continue;
+		
+		path[s->path_len] = '/';
+		strcpy(path + s->path_len + 1, ent->d_name);
+		
+		if (ent->d_type == DT_DIR)
+		{
+			if (stack_ptr >= MAX_DIR_DEPTH)
+			{
+				while (stack_ptr > 0) closedir(walk_stack[--stack_ptr].dir);
+				return -1;
+			}
+			DIR* sub = opendir(path);
+			if (sub)
+			{
+				if (foldervisitor(path, FOLDER_PRE))
+				{
+					closedir(sub);
+					while (stack_ptr > 0) closedir(walk_stack[--stack_ptr].dir);
+					return -1;
+				}
+				walk_stack[stack_ptr].dir = sub;
+				walk_stack[stack_ptr].path_len = strlen(path);
+				stack_ptr++;
+			}
+		}
+		else
+		{
+			if (filevisitor(path))
+			{
+				while (stack_ptr > 0) closedir(walk_stack[--stack_ptr].dir);
+				return -1;
+			}
+		}
+	}
+	return 0;
 }
 
 /*
@@ -236,20 +277,21 @@ int folder_visit_remove(const char *fname, int state)
 */
 int64_t pii_remove(const char *fqname)
 {
-	int res = -1;
-	if(stat(fqname, &fs) == 0)
+	if(stat(fqname, &pii_stat_fs) == 0)
 	{
-		if(S_ISDIR(fs.st_mode) != 0 )
+		if(S_ISDIR(pii_stat_fs.st_mode) != 0 )
 		{
-			strcpy(dirbuf, fqname);
-			return walk_directory(dirbuf, file_visit_remove, folder_visit_remove);
+			size_t len = strlen(fqname);
+			if (len >= sizeof(pii_path_buf)) return -1;
+			memcpy(pii_path_buf, fqname, len + 1);
+			return walk_directory(pii_path_buf, file_visit_remove, folder_visit_remove);
 		}
-		else if (S_ISREG(fs.st_mode) != 0)
+		else if (S_ISREG(pii_stat_fs.st_mode) != 0)
 		{
 			return unlink(fqname);
 		}
 	}
-	return res;
+	return -1;
 }
 
 struct timeval tv;

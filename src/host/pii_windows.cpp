@@ -27,57 +27,64 @@
 #include <conio.h>
 #undef max
 
-char dirbuf[1024];
+static char pii_path_buf[4096];
+static char pii_rmdir_buf[4096];
+static char pii_win_buf[4096];
 
 int64_t pii_dirlist(const char *path, char *buf, size_t buf_len)
 {
-	char *fbuf = NULL;
-	size_t fbuf_len = 0;
 	size_t path_len = strlen(path);
-	size_t cwd_len = GetCurrentDirectory(1024, dirbuf);
-	HANDLE hFind;
-	WIN32_FIND_DATA FindData;
-	dirbuf[cwd_len++] = '\\';
-	strcpy(dirbuf + cwd_len, path);
+	size_t cwd_len = GetCurrentDirectoryA(sizeof(pii_win_buf), pii_win_buf);
+	if (cwd_len == 0 || cwd_len + path_len + 3 >= sizeof(pii_win_buf)) return 0;
+
+	pii_win_buf[cwd_len++] = '\\';
+	memcpy(pii_win_buf + cwd_len, path, path_len);
 	cwd_len += path_len;
-	dirbuf[cwd_len++] = '\\';
-	dirbuf[cwd_len++] = '*';
-	dirbuf[cwd_len++] = 0;
-	hFind = FindFirstFile(dirbuf, &FindData);
+	pii_win_buf[cwd_len++] = '\\';
+	pii_win_buf[cwd_len++] = '*';
+	pii_win_buf[cwd_len++] = 0;
+
+	WIN32_FIND_DATAA FindData;
+	HANDLE hFind = FindFirstFileA(pii_win_buf, &FindData);
 	if (hFind == INVALID_HANDLE_VALUE) return 0;
+
+	int64_t total_len = 0;
 	do
 	{
 		size_t len = strlen(FindData.cFileName);
-		fbuf = (char *)realloc(fbuf, fbuf_len + len + 3);
-		memcpy(fbuf + fbuf_len, FindData.cFileName, len);
-		fbuf_len += len;
-		fbuf[fbuf_len++] = ',';
-		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		size_t entry_len = len + 3; // name,type,
+
+		if (buf && total_len + entry_len <= buf_len)
 		{
-			fbuf[fbuf_len++] = '4';
+			memcpy(buf + total_len, FindData.cFileName, len);
+			buf[total_len + len] = ',';
+			if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				buf[total_len + len + 1] = '4';
+			}
+			else buf[total_len + len + 1] = '8';
+			buf[total_len + len + 2] = ',';
 		}
-		else fbuf[fbuf_len++] = '8';
-		fbuf[fbuf_len++] = ',';
-	} while (FindNextFile(hFind, &FindData) != 0);
+		total_len += entry_len;
+	} while (FindNextFileA(hFind, &FindData) != 0);
 	FindClose(hFind);
-	if (buf) memcpy(buf, fbuf, fbuf_len > buf_len ? buf_len : fbuf_len);
-	free(fbuf);
-	return fbuf_len;
+	return total_len;
 }
 
 static void rmkdir(const char *path)
 {
 	char *p = NULL;
-	size_t len;
-	len = strlen(path);
-	memcpy(dirbuf, path, len + 1);
-	for (p = dirbuf + 1; *p; p++)
+	size_t len = strlen(path);
+	if (len >= sizeof(pii_rmdir_buf)) return;
+	memcpy(pii_rmdir_buf, path, len + 1);
+	for (p = pii_rmdir_buf + 1; *p; p++)
 	{
-		if(*p == '/')
+		if(*p == '/' || *p == '\\')
 		{
+			char old = *p;
 			*p = 0;
-			_mkdir(dirbuf); //, _S_IREAD | _S_IWRITE
-			*p = '/';
+			_mkdir(pii_rmdir_buf);
+			*p = old;
 		}
 	}
 }
@@ -117,11 +124,11 @@ int64_t pii_open(const char *path, uint64_t mode)
 }
 
 char link_buf[128];
-struct stat fs;
+static struct stat pii_stat_fs;
 
 int64_t pii_open_shared(const char *path, size_t len)
 {
-	return (int64_t)CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, len, path);
+	return (int64_t)CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, (DWORD)len, path);
 }
 
 int64_t pii_close_shared(const char *path, int64_t hndl)
@@ -134,33 +141,33 @@ int64_t pii_read(int64_t fd, void *addr, size_t len)
 {
 	if (!fd)
 	{
-		if (!kbhit()) return -1;
-		int ch = getch();
+		if (!_kbhit()) return -1;
+		int ch = _getch();
 		putchar(ch);
 		if (ch == 13) putchar(10);
 		if (ch == 8) putchar(32), putchar(8);
-		*((char*)addr) = ch;
+		*((char*)addr) = (char)ch;
 		return 1;
 	}
-	return read((int)fd, addr, len);
+	return read((int)fd, addr, (unsigned int)len);
 }
 
 int64_t pii_write(int64_t fd, void *addr, size_t len)
 {
-	return write((int)fd, addr, len);
+	return write((int)fd, addr, (unsigned int)len);
 }
 
 int64_t pii_seek(int64_t fd, int64_t pos, unsigned char offset)
 {
-	return (lseek((int)fd, pos, offset));
+	return (lseek((int)fd, (long)pos, offset));
 }
 
 int64_t pii_stat(const char *path, struct pii_stat_info *st)
 {
-	if (stat(path, &fs) != 0) return -1;
-	st->mtime = fs.st_mtime;
-	st->fsize = fs.st_size;
-	st->mode = fs.st_mode;
+	if (stat(path, &pii_stat_fs) != 0) return -1;
+	st->mtime = pii_stat_fs.st_mtime;
+	st->fsize = pii_stat_fs.st_size;
+	st->mode = pii_stat_fs.st_mode;
 	return 0;
 }
 
@@ -174,50 +181,108 @@ int64_t pii_stat(const char *path, struct pii_stat_info *st)
 
 #define FOLDER_PRE 0
 #define FOLDER_POST 1
+#define MAX_DIR_DEPTH 64
+
+struct WalkState {
+	HANDLE hFind;
+	size_t path_len;
+};
+
+static WalkState walk_stack[MAX_DIR_DEPTH];
 
 int walk_directory(char* path,
 	int (*filevisitor)(const char*),
 	int (*foldervisitor)(const char*, int))
 {
-	char dirpathwild[_MAX_PATH] = { 0 };
-	WIN32_FIND_DATAA wfd = { 0 };
-	int err = 0;
-	sprintf_s(dirpathwild, _MAX_PATH, "%s\\*.*", path);
-	HANDLE hFind = FindFirstFileA(dirpathwild, &wfd);
-	if (hFind) {
-		do {
-			if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-				if (strstr(wfd.cFileName, ".") != wfd.cFileName) {
-					err = foldervisitor(wfd.cFileName, FOLDER_PRE);
-					char buffer[_MAX_PATH] = { 0 };
-					sprintf_s(buffer, _MAX_PATH, "%s\\%s\\", path, wfd.cFileName);
-					walk_directory(buffer, filevisitor, foldervisitor);
-
-					if (wfd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) {
-						err = _chmod(buffer, _S_IWRITE);
-					}
-
-					err = foldervisitor(buffer, FOLDER_POST);
-				}
-			}
-			else {
-				char buffer[_MAX_PATH] = { 0 };
-				sprintf_s(buffer, _MAX_PATH, "%s\\%s", path, wfd.cFileName);
-
-				if (wfd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) {
-					err = _chmod(buffer, _S_IWRITE);
-				}
-
-				err = filevisitor(buffer);
-			}
-		} while (FindNextFileA(hFind, &wfd));
-
-
-		FindClose(hFind);
-		err = foldervisitor(path, FOLDER_POST);
+	int stack_ptr = 0;
+	size_t initial_len = strlen(path);
+	
+	if (initial_len + 5 >= 4096) return -1; // path plus \*.* plus null
+	
+	strcpy(path + initial_len, "\\*.*");
+	WIN32_FIND_DATAA FindData;
+	HANDLE h = FindFirstFileA(path, &FindData);
+	path[initial_len] = '\0'; // restore path
+	
+	if (h == INVALID_HANDLE_VALUE) return -1;
+	
+	if (foldervisitor(path, FOLDER_PRE))
+	{
+		FindClose(h);
+		return -1;
 	}
+	
+	walk_stack[stack_ptr].hFind = h;
+	walk_stack[stack_ptr].path_len = initial_len;
+	stack_ptr++;
+	
+	while (stack_ptr > 0)
+	{
+		WalkState* s = &walk_stack[stack_ptr - 1];
+		WIN32_FIND_DATAA fd;
+		BOOL found = FindNextFileA(s->hFind, &fd);
+		
+		if (!found)
+		{
+			FindClose(s->hFind);
+			path[s->path_len] = '\0';
+			int res = foldervisitor(path, FOLDER_POST);
+			stack_ptr--;
+			if (res && stack_ptr > 0)
+			{
+				while (stack_ptr > 0) FindClose(walk_stack[--stack_ptr].hFind);
+				return -1;
+			}
+			continue;
+		}
+		
+		if (strcmp(fd.cFileName, ".") == 0 || strcmp(fd.cFileName, "..") == 0) continue;
+		
+		path[s->path_len] = '\\';
+		strcpy(path + s->path_len + 1, fd.cFileName);
+		
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (stack_ptr >= MAX_DIR_DEPTH)
+			{
+				while (stack_ptr > 0) FindClose(walk_stack[--stack_ptr].hFind);
+				return -1;
+			}
+			
+			size_t sub_len = strlen(path);
+			if (sub_len + 5 >= 4096)
+			{
+				while (stack_ptr > 0) FindClose(walk_stack[--stack_ptr].hFind);
+				return -1;
+			}
+			
+			if (foldervisitor(path, FOLDER_PRE))
+			{
+				while (stack_ptr > 0) FindClose(walk_stack[--stack_ptr].hFind);
+				return -1;
+			}
 
-	return (1);
+			strcpy(path + sub_len, "\\*.*");
+			HANDLE sub = FindFirstFileA(path, &fd);
+			path[sub_len] = '\0'; // restore path
+			
+			if (sub != INVALID_HANDLE_VALUE)
+			{
+				walk_stack[stack_ptr].hFind = sub;
+				walk_stack[stack_ptr].path_len = sub_len;
+				stack_ptr++;
+			}
+		}
+		else
+		{
+			if (filevisitor(path))
+			{
+				while (stack_ptr > 0) FindClose(walk_stack[--stack_ptr].hFind);
+				return -1;
+			}
+		}
+	}
+	return 0;
 }
 
 /*
@@ -249,20 +314,21 @@ int folder_visit_remove(const char *fname, int state)
 */
 int64_t pii_remove(const char *fqname)
 {
-	int res = -1;
-	if(stat(fqname, &fs) == 0)
+	if(stat(fqname, &pii_stat_fs) == 0)
 	{
-		if(S_ISDIR(fs.st_mode) != 0 )
+		if(S_ISDIR(pii_stat_fs.st_mode) != 0 )
 		{
-			strcpy(dirbuf, fqname);
-			return walk_directory(dirbuf, file_visit_remove, folder_visit_remove);
+			size_t len = strlen(fqname);
+			if (len >= sizeof(pii_path_buf)) return -1;
+			memcpy(pii_path_buf, fqname, len + 1);
+			return walk_directory(pii_path_buf, file_visit_remove, folder_visit_remove);
 		}
-		else if (S_ISREG(fs.st_mode) != 0)
+		else if (S_ISREG(pii_stat_fs.st_mode) != 0)
 		{
 			return unlink(fqname);
 		}
 	}
-	return res;
+	return -1;
 }
 
 int gettimeofday(struct timeval *tv, struct timezone *tz)
