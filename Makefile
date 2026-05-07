@@ -1,27 +1,4 @@
 SRC_DIR := ./src
-OBJ_DIR_GUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/gui
-OBJ_DIR_TUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/tui
-
-SRC_DIRS := $(shell find $(SRC_DIR) -type d | grep -v "/obj")
-OBJ_DIRS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_GUI)/%,$(SRC_DIRS))
-OBJ_DIRS += $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_TUI)/%,$(SRC_DIRS))
-
-SRC_FILES := $(shell find $(SRC_DIR) -name "*.cpp")
-SRC_FILES += $(shell find $(SRC_DIR) -name "*.c")
-
-OBJ_FILES_GUI := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES))
-OBJ_FILES_GUI := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR_GUI)/%.o,$(OBJ_FILES_GUI))
-
-OBJ_FILES_TUI := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR_TUI)/%.o,$(SRC_FILES))
-OBJ_FILES_TUI := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR_TUI)/%.o,$(OBJ_FILES_TUI))
-
-OBJ_FILES := $(OBJ_FILES_GUI)
-OBJ_FILES += $(OBJ_FILES_TUI)
-
-CFLAGS ?= -O3 -nostdlib -fno-exceptions -MMD
-CPPFLAGS ?= -std=c++14
-HGUI := $(shell echo $(GUI) | tr '[:upper:]' '[:lower:]')
-
 OS ?= $(shell uname)
 CPU ?= $(shell uname -m)
 ifeq ($(CPU),x86_64)
@@ -34,6 +11,28 @@ else
 		ABI ?= ARM64
 	endif
 endif
+
+OBJ_DIR_GUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/gui
+OBJ_DIR_TUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/tui
+
+SRC_DIRS := $(shell find $(SRC_DIR) -type d | grep -v "/obj")
+OBJ_DIRS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_GUI)/%,$(SRC_DIRS))
+OBJ_DIRS += $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_TUI)/%,$(SRC_DIRS))
+
+SRC_FILES_CORE := src/host/main.cpp src/host/vp64.cpp src/host/pii_linux.cpp src/host/pii_windows.cpp src/host/pii_darwin.cpp
+SRC_FILES_DRIVERS := src/host/audio_sdl.cpp src/host/gui_sdl.cpp src/host/gui_raw.cpp src/host/gui_fb.c
+
+OBJ_FILES_CORE_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_CORE))
+OBJ_FILES_DRIVERS_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_DRIVERS))
+OBJ_FILES_DRIVERS_GUI := $(patsubst src/%.c,$(OBJ_DIR_GUI)/%.o,$(OBJ_FILES_DRIVERS_GUI))
+
+OBJ_FILES_CORE_TUI := $(patsubst src/%.cpp,$(OBJ_DIR_TUI)/%.o,$(SRC_FILES_CORE))
+
+OBJ_FILES := $(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI) $(OBJ_FILES_CORE_TUI)
+
+CFLAGS ?= -O3 -nostdlib -fno-exceptions -MMD
+CPPFLAGS ?= -std=c++14
+HGUI := $(shell echo $(GUI) | tr '[:upper:]' '[:lower:]')
 
 HOST_GUI := 0
 ifeq ($(HGUI),sdl)
@@ -91,10 +90,10 @@ snapshot:
 inst:
 	@./run_tui.sh -i -e -f
 
-obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
+obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
 	$(CXX) -o $@ $^ $(SDL_LIBS)
 
-obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_TUI)
+obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_CORE_TUI)
 	$(CXX) -o $@ $^
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp

@@ -20,19 +20,16 @@ CPPFLAGS := -std=c++14
 
 include Makefile
 
-# Override variables that were set with := in Makefile
-SDL_CFLAGS := -I$(SDL2_PATH)/include/SDL2 -I$(SDL2_MIXER_PATH)/include/SDL2
-SDL_LIBS   := -L$(SDL2_PATH)/lib -L$(SDL2_MIXER_PATH)/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lwinmm
-
 # Add .exe to the targets
-obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
-	$(CXX) -o $@.exe $^ $(SDL_LIBS) -static-libgcc -static-libstdc++ -mwindows
+# We place the final .exe files in obj/$(CPU)/$(ABI)/$(OS)/ as requested
+obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe:	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
+	$(CXX) -o $@ $^ $(SDL_LIBS) -mwindows
 
-obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_TUI)
-	$(CXX) -o $@.exe $^ -static-libgcc -static-libstdc++ -lwinmm
+obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe:	$(OBJ_FILES_CORE_TUI)
+	$(CXX) -o $@ $^ -lwinmm
 
 # Helper target to just build TUI
-windows_tui: hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
+windows_tui: hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe
 
 # Automated dependency download
 deps:
@@ -42,5 +39,4 @@ deps:
 	tar -C deps -xzf deps/SDL2.tar.gz
 	tar -C deps -xzf deps/SDL2_mixer.tar.gz
 
-windows_all: deps hostenv tui gui
-
+windows_all: deps hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe
