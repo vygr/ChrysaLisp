@@ -1,4 +1,4 @@
-# Makefile.mingw - Cross-compilation for Windows on macOS
+# Makefile.mingw - Cross-compilation for Windows on MacOS/Linux
 CXX := x86_64-w64-mingw32-g++
 CC  := x86_64-w64-mingw32-gcc
 OS  := Windows
