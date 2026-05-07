@@ -4,6 +4,10 @@
 
 ------
 
+Refactored PII directory listing and removal functions to be iterative and use
+off-stack static buffers for all OS platforms, ensuring low machine stack
+usage for ChrysaLisp tasks.
+
 Updated link drivers with variable poling, with exponential backoff, increased
 the link buffer size and one extra buffer per direction. Prioritises the hot
 channels across the network to lower latency.
