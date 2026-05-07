@@ -4,9 +4,9 @@
 
 ------
 
-Added cross-compilation support for Windows host executables on macOS using
-`mingw-w64` and a new `Makefile.mingw`. Includes automated dependency download
-for Windows SDL2 libraries.
+Added cross-compilation support for Windows host executables on MacOS/Linux
+using `mingw-w64` and a new `Makefile.mingw`. Includes automated dependency
+download for Windows SDL2 libraries.
 
 Refactored PII directory listing and removal functions to be iterative and use
 off-stack static buffers for all OS platforms, ensuring low machine stack
