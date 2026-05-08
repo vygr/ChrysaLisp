@@ -6,10 +6,11 @@
 #define PII_H
 
 #include <inttypes.h>
+#include <stddef.h>
 
 //hard values for now matching sys/link/class.inc
 const uint32_t lk_page_size = 4096;
-const uint32_t lk_data_size = 984;
+const uint32_t lk_data_size = 4056;
 
 enum
 {
@@ -87,15 +88,17 @@ struct lk_chan
 	lk_buf m_msg0;
 	lk_buf m_msg1;
 	lk_buf m_msg2;
+	lk_buf m_msg3;
 };
 
 struct lk_shmem
 {
 	lk_chan m_chan_1;
 	uint64_t m_towel;
-	char m_pad1[lk_page_size - sizeof(lk_chan) - sizeof(uint64_t)];
-	lk_chan m_chan_2;
-	char m_pad2[lk_page_size - sizeof(lk_chan)];
+	alignas(lk_page_size) lk_chan m_chan_2;
 };
+
+static_assert(sizeof(lk_shmem) % lk_page_size == 0, "lk_shmem size must be a multiple of lk_page_size");
+static_assert(offsetof(lk_shmem, m_chan_2) % lk_page_size == 0, "lk_shmem::m_chan_2 must be page aligned");
 
 #endif
