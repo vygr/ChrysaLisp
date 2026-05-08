@@ -19,6 +19,10 @@ channels across the network to lower latency.
 Fix for Windows, timer sleep function in the `pii_windows.cpp`. Needed to use
 higher resolution timer and yield code.
 
+Reduce stack usage on GUI service startup by loading in dependacy order. Add the
+`*module_class/lisp/root.inc* :t` definition to show that `root.inc` has been
+loaded by the system.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in

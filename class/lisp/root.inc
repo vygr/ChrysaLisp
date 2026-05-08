@@ -470,6 +470,7 @@
 ; (mail-timeout mbox ns id) -> mbox
 
 (defq *root_env* (env)
+	*module_class/lisp/root.inc* :t
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
 	+str_data 24 +mailbox_id_size 8 +node_id_size 16 +net_id_size 24
 	+type_ptr 0 +type_pptr -1 +type_byte -2 +type_ubyte -3
