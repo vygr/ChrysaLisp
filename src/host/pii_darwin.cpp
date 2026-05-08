@@ -331,7 +331,6 @@ void pii_random(char* addr, size_t len)
 		read(fd, addr, len);
 		close(fd);
 	} else {
-		// Fallback if urandom fails
 		static bool seeded = false;
 		if (!seeded) {
 			srand((unsigned int)pii_gettime() ^ (unsigned int)getpid());
@@ -343,10 +342,6 @@ void pii_random(char* addr, size_t len)
 
 void pii_sleep(uint64_t usec)
 {
-	if (usec < 100) {
-		sched_yield();
-		return;
-	}
 	usleep(usec > 0 ? usec : 1);
 }
 

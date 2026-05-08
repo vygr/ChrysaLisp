@@ -6,16 +6,18 @@
 #include <SDL_rwops.h>
 
 #include <stdint.h>
-#include <unordered_map>
-#include <string>
 #include <stdio.h>
+#include <string.h>
+
+#define MAX_SFX 256
 
 struct SoundEffect {
+    uint32_t handle;
     Mix_Chunk* chunk;
-    std::string filename;
 };
 
-static std::unordered_map<uint32_t, SoundEffect> soundEffectMap;
+static SoundEffect soundEffects[MAX_SFX];
+static int sfxCount = 0;
 static uint32_t nextHandle = 0x1000;
 
 void logSDLError(const char* msg) {
@@ -35,30 +37,32 @@ int host_audio_init()
         return -1;
     }
 
+    sfxCount = 0;
     nextHandle = 0x1000;
     return 0;
 }
 
 int host_audio_deinit()
 {
-    for (auto& entry : soundEffectMap) {
-        Mix_FreeChunk(entry.second.chunk);
+    for (int i = 0; i < sfxCount; ++i) {
+        Mix_FreeChunk(soundEffects[i].chunk);
     }
-    soundEffectMap.clear();
+    sfxCount = 0;
     Mix_CloseAudio();
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 
     return (0);
 }
 
-bool hasWavExtension(const std::string& filePath) {
-    std::string extension = filePath.substr(filePath.find_last_of(".") + 1);
-    return extension == "wav" || extension == "WAV";
-}
-
 uint32_t host_audio_add_sfx(const char* filePath) {
-    if (!hasWavExtension(filePath)) {
+    const char* ext = strrchr(filePath, '.');
+    if (!ext || (strcmp(ext, ".wav") != 0 && strcmp(ext, ".WAV") != 0)) {
         logSDLError("Invalid file extension. Only .wav files are supported.");
+        return -1;
+    }
+
+    if (sfxCount >= MAX_SFX) {
+        logSDLError("Maximum number of sound effects reached.");
         return -1;
     }
 
@@ -68,33 +72,43 @@ uint32_t host_audio_add_sfx(const char* filePath) {
         return -1;
     }
 
-    SoundEffect soundEffect = { chunk, filePath };
     uint32_t handle = nextHandle++;
-    soundEffectMap[handle] = soundEffect;
+    soundEffects[sfxCount].handle = handle;
+    soundEffects[sfxCount].chunk = chunk;
+    sfxCount++;
     return handle;
 }
 
 int host_audio_play_sfx(uint32_t handle) {
-    if (soundEffectMap.find(handle) == soundEffectMap.end()) {
-        logSDLError("Invalid handle");
-        return(-1);
+    for (int i = 0; i < sfxCount; ++i) {
+        if (soundEffects[i].handle == handle) {
+            Mix_PlayChannel(-1, soundEffects[i].chunk, 0); // Play on any available channel
+            return 0;
+        }
     }
-
-    Mix_PlayChannel(-1, soundEffectMap[handle].chunk, 0); // Play on any available channel
-
-    return (0);
+    
+    logSDLError("Invalid handle");
+    return -1;
 }
 
 int host_audio_change_sfx(uint32_t handle, int state) {
-    if (soundEffectMap.find(handle) == soundEffectMap.end()) {
+    bool found = false;
+    for (int i = 0; i < sfxCount; ++i) {
+        if (soundEffects[i].handle == handle) {
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
         logSDLError("Invalid handle");
-        return (-1);
+        return -1;
     }
 
     int channel = Mix_Playing(-1);
     if (channel == -1) {
         logSDLError("No channel is currently playing");
-        return (-2);
+        return -2;
     }
 
     switch (state) {
@@ -111,19 +125,22 @@ int host_audio_change_sfx(uint32_t handle, int state) {
         logSDLError("Invalid state");
     }
 
-    return (0);
+    return 0;
 }
 
 int host_audio_remove_sfx(uint32_t handle) {
-    if (soundEffectMap.find(handle) == soundEffectMap.end()) {
-        logSDLError("Invalid handle");
-        return (-1);
+    for (int i = 0; i < sfxCount; ++i) {
+        if (soundEffects[i].handle == handle) {
+            Mix_FreeChunk(soundEffects[i].chunk);
+            // Swap with the last element to keep array packed
+            soundEffects[i] = soundEffects[sfxCount - 1];
+            sfxCount--;
+            return 0;
+        }
     }
-
-    Mix_FreeChunk(soundEffectMap[handle].chunk);
-    soundEffectMap.erase(handle);
-
-    return(0);
+    
+    logSDLError("Invalid handle");
+    return -1;
 }
 
 void (*host_audio_funcs[]) = {

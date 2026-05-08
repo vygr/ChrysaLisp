@@ -111,8 +111,8 @@ $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
-	@rm -rf ./obj
-	@rm -rf ./src/obj
+	@rm -rf ./obj/$(CPU)/$(ABI)/$(OS)
+	@rm -rf ./src/obj/$(CPU)/$(ABI)/$(OS)
 	@unzip -oq snapshot.zip
 
  -include $(OBJ_FILES:.o=.d)

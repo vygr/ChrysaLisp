@@ -42,7 +42,8 @@ int64_t pii_dirlist(const char *path, char *buf, size_t buf_len)
 	pii_win_buf[cwd_len++] = '*';
 	pii_win_buf[cwd_len++] = 0;
 
-	WIN32_FIND_DATAA FindData;
+    // Made static to keep it off the tiny 8KB ChrysaLisp stack
+	static WIN32_FIND_DATAA FindData;
 	HANDLE hFind = FindFirstFileA(pii_win_buf, &FindData);
 	if (hFind == INVALID_HANDLE_VALUE) return 0;
 
@@ -190,8 +191,9 @@ int walk_directory(char* path,
 	if (initial_len + 5 >= 4096) return -1;
 	
 	strcpy(path + initial_len, "\\*.*");
-	WIN32_FIND_DATAA FindData;
-	HANDLE h = FindFirstFileA(path, &FindData);
+    // Made static to keep it off the tiny 8KB stack
+	static WIN32_FIND_DATAA fd;
+	HANDLE h = FindFirstFileA(path, &fd);
 	path[initial_len] = '\0';
 	
 	if (h == INVALID_HANDLE_VALUE) return -1;
@@ -209,7 +211,6 @@ int walk_directory(char* path,
 	while (stack_ptr > 0)
 	{
 		WalkState* s = &walk_stack[stack_ptr - 1];
-		WIN32_FIND_DATAA fd;
 		BOOL found = FindNextFileA(s->hFind, &fd);
 		
 		if (!found)
@@ -392,7 +393,7 @@ void pii_random(char* addr, size_t len)
 {
 	static bool seeded = false;
 	if (!seeded) {
-		// XOR time with unique Process ID so concurrent nodes get different seeds
+        // XOR Time and PID guarantees concurrent nodes won't generate the same ID
 		srand((unsigned int)pii_gettime() ^ (unsigned int)GetCurrentProcessId());
 		seeded = true;
 	}
@@ -405,8 +406,29 @@ void pii_sleep(uint64_t usec)
 		SwitchToThread();
 		return;
 	}
-	DWORD ms = (DWORD)(usec / 1000);
-	Sleep(ms > 0 ? ms : 1);
+
+    // High precision hybrid spin/sleep for Windows
+	static LARGE_INTEGER freq = { 0 };
+	if (freq.QuadPart == 0) {
+		QueryPerformanceFrequency(&freq);
+	}
+
+	LARGE_INTEGER start, current;
+	QueryPerformanceCounter(&start);
+	uint64_t wait_ticks = (usec * freq.QuadPart) / 1000000;
+
+	while (true) {
+		QueryPerformanceCounter(&current);
+		uint64_t elapsed = current.QuadPart - start.QuadPart;
+		if (elapsed >= wait_ticks) break;
+
+		uint64_t remaining_usec = ((wait_ticks - elapsed) * 1000000) / freq.QuadPart;
+		if (remaining_usec > 2000) {
+			Sleep(1);
+		} else {
+			SwitchToThread();
+		}
+	}
 }
 
 uint64_t pii_close(uint64_t fd)

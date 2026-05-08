@@ -5,37 +5,34 @@ OS  := Windows
 CPU := x86_64
 ABI := WIN64
 
-# Point these to where you extract the SDL2 MinGW development files if you want GUI
+# Dependencies
 SDL2_PATH := $(CURDIR)/deps/SDL2-2.30.3/x86_64-w64-mingw32
 SDL2_MIXER_PATH := $(CURDIR)/deps/SDL2_mixer-2.8.0/x86_64-w64-mingw32
 
-# Default SDL flags for MinGW
 SDL_CFLAGS := -I$(SDL2_PATH)/include/SDL2 -I$(SDL2_MIXER_PATH)/include/SDL2
 SDL_LIBS   := -L$(SDL2_PATH)/lib -L$(SDL2_MIXER_PATH)/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lwinmm
 
-# Standard flags for ChrysaLisp
-# Add Dead Code Elimination and LTO to compilation flags
 CFLAGS := -O3 -nostdlib -fno-exceptions -MMD -D_WIN64 -ffunction-sections -fdata-sections -flto
 CPPFLAGS := -std=c++14
 
 include Makefile
 
-# Force MinGW to statically link its C/C++ runtime and pthread library,
-# AND strip debug symbols (-s) to prevent massive executables.
-# Add Section GC and LTO to the linker flags
+# Linker flags: Static toolchain libs, dynamic SDL, strip symbols, and GC sections
 MINGW_LDFLAGS := -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -Wl,-Bdynamic -s -Wl,--gc-sections -flto
 
-# Add the MINGW_LDFLAGS to the final linkage targets
-obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe:	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
+# Replace the hostenv dependency with a local directory creation target
+# This prevents overwriting the 'os', 'cpu', and 'abi' files on your Mac
+win_dirs:
+	@mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIRS)
+
+obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe: $(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
 	$(CXX) -o $@ $^ $(SDL_LIBS) $(MINGW_LDFLAGS) -mwindows
 
-obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe:	$(OBJ_FILES_CORE_TUI)
+obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe: $(OBJ_FILES_CORE_TUI)
 	$(CXX) -o $@ $^ -lwinmm $(MINGW_LDFLAGS)
 
-# Helper target to just build TUI
-windows_tui: hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe
+windows_tui: win_dirs obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe
 
-# Automated dependency download
 deps:
 	mkdir -p deps
 	curl -L https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-devel-2.30.3-mingw.tar.gz -o deps/SDL2.tar.gz
@@ -43,4 +40,5 @@ deps:
 	tar -C deps -xzf deps/SDL2.tar.gz
 	tar -C deps -xzf deps/SDL2_mixer.tar.gz
 
-windows_all: deps hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe
+# Changed dependency from hostenv to win_dirs
+windows_all: deps win_dirs obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe
