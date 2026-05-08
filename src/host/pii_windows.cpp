@@ -181,7 +181,7 @@ struct WalkState {
 
 static WalkState walk_stack[MAX_DIR_DEPTH];
 
-int walk_directory(char* path,
+int walk_directory(char* path, size_t max_len,
 	int (*filevisitor)(const char*),
 	int (*foldervisitor)(const char*, int))
 {
@@ -229,6 +229,9 @@ int walk_directory(char* path,
 		
 		if (strcmp(fd.cFileName, ".") == 0 || strcmp(fd.cFileName, "..") == 0) continue;
 		
+		size_t next_len = s->path_len + 1 + strlen(fd.cFileName);
+		if (next_len >= max_len) return -1;
+
 		path[s->path_len] = '\\';
 		strcpy(path + s->path_len + 1, fd.cFileName);
 		
@@ -295,7 +298,7 @@ int64_t pii_remove(const char *fqname)
 			size_t len = strlen(fqname);
 			if (len >= sizeof(pii_path_buf)) return -1;
 			memcpy(pii_path_buf, fqname, len + 1);
-			return walk_directory(pii_path_buf, file_visit_remove, folder_visit_remove);
+		return walk_directory(pii_path_buf, sizeof(pii_path_buf), file_visit_remove, folder_visit_remove);
 		}
 		else if (S_ISREG(pii_stat_fs.st_mode) != 0)
 		{
