@@ -2,10 +2,9 @@
 ;import into the shared boot env of this node !
 ;comment next line out if need to profile...
 (defq _ *root_env*)
-;import the GUI system in depencancy order to keep machine stack usage small
+;import the GUI system in dependency order to keep machine stack usage small
 (import "lib/files/files.inc" _)
-(reach (# (import %0 _))
-	(files-all-depends '("sys/lisp.inc" "class/lisp.inc" "gui/lisp.inc")))
+(reach (# (import %0 _)) (files-all-depends '("sys/lisp.inc" "class/lisp.inc" "gui/lisp.inc")))
 (undef (env) '_)
 (task-slice)
 
