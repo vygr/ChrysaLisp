@@ -74,7 +74,7 @@
 	(static-qq (bind ',syms ',values)))
 
 (defun obj-args (field &optional offset)
-	; (obj-args field &optional offset) -> args
+	; (obj-args field [offset]) -> args
 	; convert to obj-get/obj-set common args
 	(defq type (case (defq type (eval (sym (cat field "_t"))))
 		("p" +type_ptr) ("l" +type_long)
@@ -93,7 +93,7 @@
 	(static-qq (obj-get ,obj ,field ,type)))
 
 (defun obj-set-args ((field value &optional offset))
-	; (obj-set-args (field value &optional offset)) -> args
+	; (obj-set-args (field value [offset])) -> args
 	; convert to obj-set args
 	(push (obj-args field offset) value))
 

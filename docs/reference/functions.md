@@ -733,7 +733,7 @@ very basic attenuation, diffuse and specular
 ### obj-args
 
 ```code
-(obj-args field &optional offset) -> args
+(obj-args field [offset]) -> args
 
 convert to obj-get/obj-set common args
 ```
@@ -741,7 +741,7 @@ convert to obj-get/obj-set common args
 ### obj-set-args
 
 ```code
-(obj-set-args (field value &optional offset)) -> args
+(obj-set-args (field value [offset])) -> args
 
 convert to obj-set args
 ```
