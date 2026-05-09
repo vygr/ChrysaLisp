@@ -6,8 +6,8 @@
 (env-push)
 
 ;cpu specific requirements
-;:r0-:r1 used for task stack setup, :r30 for link register
-(defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r30))
+;:r30 for link register
+(defcvar 'stack_align 8 'stack_state '(:r30))
 
 (defq +emit_native_regs
 	(reduce (# (def %0 %1 (!)) %0)
@@ -545,16 +545,16 @@
 
 (defun emit-stack-init (s f x)
 	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(emit-sub-cr tk_state_size s)
+	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
 	(emit-and-cr -16 s)
-	(emit-cpy-ri f s (- tk_state_size +ptr_size))
-	(emit-cpy-ri x s (- tk_state_size (* +ptr_size 2)))
-	(emit-lea-p (+ *pc* 16) f)
-	(emit-cpy-ri f s 0)
-	(emit-jmp (+ *pc* 12) 0)
+	(emit-cpy-ri f s tk_state_size)
+	(emit-cpy-ri x s (+ tk_state_size +ptr_size))
+	(emit-lea-p (+ *pc* 16) +riscv64_rtmp1)
+	(emit-cpy-ri +riscv64_rtmp1 s 0)
+	(emit-jmp (+ *pc* 20) 0)
 ;riscv_start
-	(emit-cpy-rr (const (emit-native-reg? :r1)) +riscv64_rlnk)
-	(emit-jmp-r (const (emit-native-reg? :r0))))
+	(emit-pop +riscv64_rlnk +riscv64_rtmp1)
+	(emit-jmp-r +riscv64_rtmp1))
 ;riscv_exit
 
 (case *abi*

@@ -6,8 +6,8 @@
 (env-push)
 
 ;cpu specific requirements
-;:r0-:r1 used for task stack setup, :r30 for link register
-(defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r30))
+;:r30 for link register
+(defcvar 'stack_align 8 'stack_state '(:r30))
 
 (defq +emit_native_regs
  	(reduce (# (def %0 %1 (!)) %0)
@@ -595,16 +595,16 @@
 
 (defun emit-stack-init (s f x)
 	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(emit-sub-cr tk_state_size s)
+	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
 	(emit-and-cr -16 s)
-	(emit-cpy-ri f s (- tk_state_size +ptr_size))
-	(emit-cpy-ri x s (- tk_state_size (* +ptr_size 2)))
-	(emit-lea-p (+ *pc* 12) f)
-	(emit-cpy-ri f s 0)
+	(emit-cpy-ri f s tk_state_size)
+	(emit-cpy-ri x s (+ tk_state_size +ptr_size))
+	(emit-lea-p (+ *pc* 12) +arm64_rtmp)
+	(emit-cpy-ri +arm64_rtmp s 0)
 	(emit-jmp (+ *pc* 12) 0)
 ;arm_start
-	(emit-cpy-rr (const (emit-native-reg? :r1)) +arm64_rlnk)
-	(emit-jmp-r (const (emit-native-reg? :r0))))
+	(emit-pop +arm64_rlnk +arm64_rtmp)
+	(emit-jmp-r +arm64_rtmp))
 ;arm_exit
 
 (case *abi*
