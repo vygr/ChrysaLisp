@@ -34,8 +34,8 @@
 		(if (and dir (not (find dir dirs)))
 			(push dirs dir) dirs)) paths (list)))
 
-(defun files-depends (file)
-	; (files-depends path) -> paths
+(defun files-depends (file &optional end)
+	; (files-depends path [end]) -> paths
 	;create list of immediate dependencies
 	(if (defq files (list) stream (file-stream file))
 		(lines! (lambda (line)
@@ -43,12 +43,12 @@
 				(or (starts-with "(include \q" line) (starts-with "(import \q" line))
 				(push files (path-to-absolute
 					(slice line (defq i (inc (find "\q" line))) (find "\q" line i)) file))))
-			stream)) files)
+			stream 0 (ifn end +max_long))) files)
 
-(defun files-all-depends (files &optional imps)
-	; (files-all-depends paths &optional imps) -> paths
+(defun files-all-depends (files &optional imps end)
+	; (files-all-depends paths [imps end]) -> paths
 	;create list of all dependencies, with implicit options
-	(each-mergeable (# (task-slice) (each (lambda (&rest %0) (merge files %0)) (files-depends %0)))
+	(each-mergeable (# (task-slice) (each (lambda (&rest %0) (merge files %0)) (files-depends %0 end)))
 		(setq files (merge (merge (usort (cat files)) (ifn imps '()))
 			'("class/lisp/root.inc" "class/lisp/task.inc")))) files)
 

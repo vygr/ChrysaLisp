@@ -23,6 +23,9 @@ Reduce stack usage on GUI service startup by loading in dependacy order. Add the
 `*module_class/lisp/root.inc* :t` definition to show that `root.inc` has been
 loaded by the system.
 
+Add optional `end` value to `(files-all-depends paths [imps end]) -> paths` and
+`(files-depends path [end]) -> paths` functions.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in

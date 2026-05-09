@@ -4,7 +4,7 @@
 (defq _ *root_env*)
 ;import the GUI system in dependency order to keep machine stack usage small
 (import "lib/files/files.inc" _)
-(reach (# (import %0 _)) (files-all-depends '("sys/lisp.inc" "class/lisp.inc" "gui/lisp.inc")))
+(reach (# (import %0 _)) (files-all-depends '("sys/lisp.inc" "class/lisp.inc" "gui/lisp.inc") :nil 40))
 (undef (env) '_)
 (task-slice)
 

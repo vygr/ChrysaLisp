@@ -329,7 +329,7 @@ all source files from root downwards, none recursive
 ### files-all-depends
 
 ```code
-(files-all-depends paths &optional imps) -> paths
+(files-all-depends paths [imps end]) -> paths
 
 create list of all dependencies, with implicit options
 ```
@@ -337,7 +337,7 @@ create list of all dependencies, with implicit options
 ### files-depends
 
 ```code
-(files-depends path) -> paths
+(files-depends path [end]) -> paths
 
 create list of immediate dependencies
 ```
