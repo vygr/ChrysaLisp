@@ -306,7 +306,7 @@
 							(setq stroke (cat (slice stroke 0 2) (slice stroke -3 -1)))))
 					(setq stroke (apply (const path) (map (const n2f) stroke)))
 					(if (= *stroke_mode* +event_pen) (setq stroke (path-smooth stroke)))
-					
+
 					(defq path_data (list *stroke_mode* *stroke_col* *stroke_radius*
 						(path-filter +tol stroke stroke)))
 

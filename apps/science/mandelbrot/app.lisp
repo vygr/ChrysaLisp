@@ -120,7 +120,7 @@
 			(+select_reply
 				;child response
 				(bind '(key x y x1 y1 ix iy ix1 iy1 fill_value) (getf-> msg
-					+job_reply_key +job_reply_x +job_reply_y +job_reply_x1 +job_reply_y1 
+					+job_reply_key +job_reply_x +job_reply_y +job_reply_x1 +job_reply_y1
 					+job_reply_ix +job_reply_iy +job_reply_ix1 +job_reply_iy1 +job_reply_fill_value))
 				(when (defq val (. farm :find key)) (dispatch-job key val))
 				(setq dirty :t)

@@ -19,7 +19,7 @@
 	*config* :nil
 	*config_version* 1
 	*config_file* (cat *env_home* "calculator.tre")
-	
+
 	; App State
 	*operands* (list)
 	*operators* (list)
@@ -28,24 +28,24 @@
 	*memory* 0
 	*error_state* :nil
 	*new_entry* :t
-	
+
 	; Component grouping
 	*hex_buttons* (list)
 	*other_base_buttons* (list)
-	
+
 	; Static references
 	+operators ''("=" "+" "-" "*" "/" "%" "AND" "OR" "XOR")
 	+disabled_color +argb_grey4
 	+disabled_ink_color *env_hint_col*
 	+digit_list (static-q (map identity "0123456789ABCDEF"))
 	+calculator_font (create-font "fonts/Hack-Regular.ctf" 22)
-	
+
 	; Evaluation Presedence
 	+precedence (scatter (Fmap)
 		"*" 2 "/" 2 "%" 2
 		"+" 1 "-" 1
 		"AND" 1 "OR" 1 "XOR" 1)
-	
+
 	; Scancode mappings
 	key_map (scatter (Fmap)
 		+sc_0 "0" +sc_1 "1" +sc_2 "2" +sc_3 "3" +sc_4 "4"

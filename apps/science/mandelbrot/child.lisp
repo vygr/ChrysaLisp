@@ -17,7 +17,7 @@
 (ffi (cat *app_root* "depth") depth)
 ; (depth x0 y0) -> cnt
 
-; evaluates a pixel depth. if it deviates from the perimeter's 
+; evaluates a pixel depth. if it deviates from the perimeter's
 ; tracking color, it flags 'solid' as false to continue the ring scan inwards.
 (defmacro eval-px-py (px py)
 	`(progn
@@ -48,7 +48,7 @@
 			(setq py ry)
 			(while (< (++ py) (dec ry1)) (eval-px-py (dec rx1) py)))
 		(if solid
-			;uniform ring was found! 
+			;uniform ring was found!
 			;we can safely short-circuit and flag the remaining inner bounds.
 			(setq fill_value ring_depth ix rx iy ry ix1 rx1 iy1 ry1 running :nil)
 			(++ r))
