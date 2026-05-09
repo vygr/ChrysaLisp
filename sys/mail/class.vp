@@ -325,7 +325,9 @@
 		(fn-bind 'sys/statics/statics :r1)
 		(assign '((:r1 statics_sys_task_current_tcb)) '(:r1)))
 		(assign '(:r1) '((:r0 +mbox_tcb)))
+		(apply vp-push +vp_rregs_0_14)
 		(call :sys_task :suspend)
+		(apply vp-pop +vp_rregs_0_14)
 	(errorcase
 		(assign '((:r1 +tk_node_flags)) '(:r2))
 		(breakif '(:r2 = 0))
@@ -458,7 +460,9 @@
 		(vp-call 'set_tcbs)
 
 		;suspend till some mail arrives
+		(apply vp-push +vp_rregs_0_14)
 		(call :sys_task :suspend)
+		(apply vp-pop +vp_rregs_0_14)
 
 		;clear all tcb's !
 		(vp-xor-rr tcb tcb)

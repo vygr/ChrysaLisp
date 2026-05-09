@@ -159,7 +159,6 @@
 	(call :host_os :pii_write '(:r0 (& :r11 +str_data) (:r11 +str_length)))
 	(call :host_os :pii_close '(:r10))
 	(class/obj/ref :r11 :r2)
-	(call :sys_task :sleep '(0))
 
 	(exit :str :lisp_save '(:r12 :r11))
 	(vp-ret)

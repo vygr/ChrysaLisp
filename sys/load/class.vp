@@ -29,7 +29,6 @@
 	(if (eql *cpu* 'arm64) (vp-cpy-rr :r31 :rsp))
 
 	;save inputs
-	(tk-save-state)
 	(vp-alloc local_size)
 	(entry :sys_load :init '((:rsp local_argv) (:rsp local_os) (:rsp local_gui) (:rsp local_audio)))
 
@@ -131,7 +130,6 @@
 
 	;return with code 0
 	(vp-free local_size)
-	(tk-load-state)
 	(vp-xor-rr :r0 :r0)
 	(exit :sys_load :init '(:r0))
 	(vp-ret)

@@ -26,6 +26,9 @@ loaded by the system.
 Add optional `end` value to `(files-all-depends paths [imps end]) -> paths` and
 `(files-depends path [end]) -> paths` functions.
 
+Tuning of `tk_stack_state` settings for each CPU, don't save any registers but
+those required on a context switch.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in

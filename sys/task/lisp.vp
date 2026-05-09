@@ -75,7 +75,11 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :sys_task :lisp_timeslice '(:r3 :r4))
+	(def-vars
+		(ptr this args))
+
+	(push-scope)
+	(entry :sys_task :lisp_timeslice {this, args})
 
 	(call :host_os :pii_time :nil '(:r0))
 	(fn-bind 'sys/statics/statics :r2)
@@ -85,10 +89,11 @@
 		(assign '(:r0) '((:r2 statics_sys_task_then)))
 		(call :sys_task :sleep '(0))
 	(endif)
-	(class/obj/ref :r4 :r1)
 
-	(exit :sys_task :lisp_timeslice '(:r3 :r4))
-	(vp-ret)
+	(exit :sys_task :lisp_timeslice {this, args})
+	(class/obj/ref :r1 :r2)
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

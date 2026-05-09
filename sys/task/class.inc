@@ -56,7 +56,8 @@
 
 (defun tk-load-state ()
 (validatecase
+	;validate mode trashes all registers !
 	(vp-cpy-cr 0x7FF8000000000000 :r0)
-	(vp-simd vp-cpy-rf '(:r0)
-		'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)))
+	(vp-simd vp-cpy-rf '(:r0) +vp_fregs)
+	(vp-simd vp-cpy-rr '(:r0) +vp_rregs_0_14))
 	(apply (const vp-pop) stack_state))

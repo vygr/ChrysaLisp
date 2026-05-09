@@ -41,7 +41,7 @@ trashes
 inputs
 :r0 = task control node to defer to (ptr)
 trashes
-none
+:r0-:r14
 info
 restore task
 ```
@@ -92,7 +92,7 @@ trashes
 inputs
 :r0 = time delay in usec (long)
 trashes
-none
+:r0-:r14
 info
 0 for yield
 ```
@@ -139,7 +139,7 @@ stop current task, switch to next task
 
 ```code
 trashes
-none
+:r0-:r14
 info
 suspend current task, switch to next task
 ```
