@@ -33,7 +33,7 @@
 				;one allocation, atomic scatter copy!
 				(splice line (cat " <" tag "> </" tag "> ") (push idxs x -1)))
 			(line)))
-		'(("~~[^~]+~~" "==[^=]+==" "\\*\\*\\*[^*]+\\*\\*\\*" "\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*") 
+		'(("~~[^~]+~~" "==[^=]+==" "\\*\\*\\*[^*]+\\*\\*\\*" "\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*")
 		"shxbi" (2 2 3 2 1)) line)))
 	;splice quoted sections back in
 	(cond
