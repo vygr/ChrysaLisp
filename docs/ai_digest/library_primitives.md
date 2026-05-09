@@ -145,6 +145,40 @@ system.
 
     * `(pii-remove path)`
 
+## File and Directory Utilities
+
+These functions provide higher-level utilities for working with files,
+directories, and dependencies.
+
+*   **`files-all`**: Returns a list of all source files from a root directory
+    downwards (recursive).
+
+    * `(files-all [root exts cut_start cut_end]) -> paths`
+
+*   **`files-dirs`**: Returns all unique directory paths from a list of file
+    paths.
+
+    * `(files-dirs paths) -> paths`
+
+*   **`files-depends`**: Creates a list of immediate dependencies (includes
+    and imports) for a given file.
+
+    * `(files-depends path [end]) -> paths`
+
+*   **`files-all-depends`**: Creates a list of all dependencies for a set of
+    files, optionally including implicit ones.
+
+    * `(files-all-depends paths [imps end]) -> paths`
+
+*   **`files-scan`**: Iterates through files, processing lines with a handler
+    function.
+
+    * `(files-scan files handler [split_class comment]) -> files`
+
+*   **`url-ext`**: Helper for URL or path extension autocompletion.
+
+    * `(url-ext url cx [ctx]) -> str`
+
 ## GUI System Management
 
 These functions manage the main GUI window and event loop.
@@ -358,9 +392,29 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 
 *   **`mat3x2-mul-f`**: Multiplies two 3x2 fixed-point matrices.
 
+*   **`Mat4x4-unity` / `Mat4x4-rotx` / `Mat4x4-roty` / `Mat4x4-rotz`**: Matrix constructors.
+
+    * `(Mat4x4-unity) -> reals`
+
+*   **`Mat4x4-translate` / `Mat4x4-scale` / `Mat4x4-frustum`**: Matrix transformations.
+
+    * `(Mat4x4-translate x y z) -> reals`
+
+*   **`vector-length` / `vector-dist` / `vector-norm`**: Vector properties.
+
+    * `(vector-length p) -> real`
+
+    * `(vector-dist p1 p2) -> real`
+
+*   **`vector-cross-3d`**: Vector cross product.
+
+    * `(vector-cross-3d v1 v2) -> list`
+
 *   **`opt-vector`**: Optimizes a vector.
 
 ## Math and Optimization
+
+*   **`Mesh` / `Mesh-sphere` / `Mesh-torus` / `Mesh-iso` / `Mesh-obj`**: Classes for 3D mesh generation and manipulation.
 
 *   **`iso-surface`**: Generates triangles from an isosurface grid.
 
@@ -546,11 +600,23 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 
 ## Debugging
 
-*   **`debug-brk`**: Sets a breakpoint.
+*   **`debug-on` / `debug-off` / `debug-brk`**: Control the debugger and breakpoints.
+
+    * `(debug-on)`
+
+    * `(debug-off)`
 
     * `(debug-brk break-id &optional condition)`
 
-*   **`profile-report`**: Generates a profile report.
+*   **`debug-log` / `debug-info` / `debug-warn` / `debug-err` / `debug-perf`**: Send messages to the debug service.
+
+    * `(debug-log msg)`
+
+*   **`profile-on` / `profile-off` / `profile-report`**: Control the profiler.
+
+    * `(profile-on)`
+
+    * `(profile-off)`
 
     * `(profile-report name [reset])`
 
@@ -577,6 +643,10 @@ These functions perform operations on entire vectors of numbers (`:nums`, `:real
 *   **`def-class` / `def-method` / `entry` / `exit` / `call` / `jump` / `v-call` / `gen-vtable`**: Low-level class/method definition for the assembler.
 
 *   **`make` / `compile` / `make-all` / `remake` / `make-platforms`**: Build system commands.
+
+*   **`boot-image` / `func-obj-path`**: Tools for creating system boot images.
+
+    * `(boot-image [funcs abi cpu])`
 
 ## Audio Service
 
