@@ -53,18 +53,20 @@
 	(. *edit* :set_scroll sx sy))
 
 (defun refresh ()
-	(when (or *key* (not (input-poll)))
-		;refresh display and ensure cursor is visible
-		(setq *key* :nil)
-		(bind '(cx cy &ignore) (. *edit* :get_cursor))
-		(bind '(sx sy) (. *edit* :get_scroll))
-		(bind '(w h) (.-> *edit* :get_vdu_text :vdu_size))
-		(if (< cx sx) (setq sx cx))
-		(if (< cy sy) (setq sy cy))
-		(if (>= cx (+ sx w)) (setq sx (- cx w -1)))
-		(if (>= cy (+ sy h)) (setq sy (- cy h -1)))
-		(. *edit* :set_scroll sx sy)
-		(refresh-sliders) (refresh-display)))
+	(if (or *key* (not (input-poll)))
+		(progn
+			;refresh display and ensure cursor is visible
+			(setq *key* :nil *needs_refresh* :nil)
+			(bind '(cx cy &ignore) (. *edit* :get_cursor))
+			(bind '(sx sy) (. *edit* :get_scroll))
+			(bind '(w h) (.-> *edit* :get_vdu_text :vdu_size))
+			(if (< cx sx) (setq sx cx))
+			(if (< cy sy) (setq sy cy))
+			(if (>= cx (+ sx w)) (setq sx (- cx w -1)))
+			(if (>= cy (+ sy h)) (setq sy (- cy h -1)))
+			(. *edit* :set_scroll sx sy)
+			(refresh-sliders) (refresh-display))
+		(setq *needs_refresh* :t)))
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
@@ -95,7 +97,7 @@
 	(defq *select* (task-mboxes +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* :t *pipe* :nil
 		*page_scale* 1.0 *edit* (Terminal-edit) *key* :nil
-		*meta_map* :nil *history_idx* (state-load))
+		*meta_map* :nil *history_idx* (state-load) *needs_refresh* :nil)
 	(. *edit* :set_select_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :font *env_terminal_font*)
@@ -107,6 +109,7 @@
 	(action-insert (cat "ChrysaLisp Terminal" (ascii-char +char_lf) *env_terminal_prompt*))
 	(defq *margin_x* *cursor_x*)
 	(while *running*
+		(when (and *needs_refresh* (not (input-poll))) (refresh))
 		(bind '(*msg* idx) (input-select))
 		(cond
 			((= idx +select_pipe)
