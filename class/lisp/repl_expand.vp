@@ -36,7 +36,7 @@
 				(breakif '(:r3 = 0) 'next_iter)
 				;not quoted lists !
 				(array-bind-args :r2 '(:r3))
-				(vp-simd vp-cpy-ir '(:r0)
+				(load-fields :r0
 					`(,+lisp_sym_quote ,+lisp_sym_qquote ,+lisp_func_quote ,+lisp_func_qquote)
 					'(:r4 :r5 :r6 :r7))
 				(breakif '(:r3 = :r4) '(:r3 = :r5) '(:r3 = :r6) '(:r3 = :r7) 'next_iter)
