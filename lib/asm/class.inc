@@ -5,7 +5,6 @@
 ;module
 (env-push)
 
-(defq +vp_regs_calls ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 (defcvar '*vtables* (env 1) '*supers* (env 1))
 
 ;;;;;;;;;;;;;;;
@@ -58,15 +57,15 @@
 	;%0 = in parameters
 	(cond
 		((not %0))
-		((str? %0) (assign (slice +vp_regs_calls 0 (length (split %0 ","))) %0))
-		((assign (slice +vp_regs_calls 0 (length %0)) %0))))
+		((str? %0) (assign (slice +vp_rregs_0_14 0 (length (split %0 ","))) %0))
+		((assign (slice +vp_rregs_0_14 0 (length %0)) %0))))
 
 (defun l-exit (%0)
 	;%0 = out parameters
 	(cond
 		((not %0))
-		((str? %0) (assign %0 (slice +vp_regs_calls 0 (length (split %0 ",")))))
-		((assign %0 (slice +vp_regs_calls 0 (length %0))))))
+		((str? %0) (assign %0 (slice +vp_rregs_0_14 0 (length (split %0 ",")))))
+		((assign %0 (slice +vp_rregs_0_14 0 (length %0))))))
 
 ;;;;;;;;;;;;;;;;;;
 ; class definition
@@ -164,13 +163,13 @@
 		(:t ;l-call
 			(cond
 				((not %1))
-				((str? %1) (assign %1 (slice +vp_regs_calls 0 (length (split %1 ",")))))
-				((assign %1 (slice +vp_regs_calls 0 (length %1)))))
+				((str? %1) (assign %1 (slice +vp_rregs_0_14 0 (length (split %1 ",")))))
+				((assign %1 (slice +vp_rregs_0_14 0 (length %1)))))
 			(vp-call %0)
 			(cond
 				((not %2))
-				((str? %2) (assign (slice +vp_regs_calls 0 (length (split %2 ","))) %2))
-				((assign (slice +vp_regs_calls 0 (length %2)) %2))))))
+				((str? %2) (assign (slice +vp_rregs_0_14 0 (length (split %2 ","))) %2))
+				((assign (slice +vp_rregs_0_14 0 (length %2)) %2))))))
 
 (defun jump (%0 %1 &optional %2)
 	;%0 = class name
@@ -376,13 +375,13 @@
 	;%2 = out parameters
 	(cond
 		((not %1))
-		((str? %1) (assign %1 (slice +vp_regs_calls 0 (length (split %1 ",")))))
-		((assign %1 (slice +vp_regs_calls 0 (length %1)))))
+		((str? %1) (assign %1 (slice +vp_rregs_0_14 0 (length (split %1 ",")))))
+		((assign %1 (slice +vp_rregs_0_14 0 (length %1)))))
 	(vp-call %0)
 	(cond
 		((not %2))
-		((str? %2) (assign (slice +vp_regs_calls 0 (length (split %2 ","))) %2))
-		((assign (slice +vp_regs_calls 0 (length %2)) %2))))
+		((str? %2) (assign (slice +vp_rregs_0_14 0 (length (split %2 ","))) %2))
+		((assign (slice +vp_rregs_0_14 0 (length %2)) %2))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction
