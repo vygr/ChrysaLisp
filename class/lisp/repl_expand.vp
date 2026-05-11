@@ -11,7 +11,7 @@
 	;trashes
 	;:r1-:r14
 
-	(structure local 0
+	(def-vars
 		(ptr this form args macro stack)
 		(pptr iter))
 
@@ -22,12 +22,12 @@
 	(f-bind :list :vtable :r3)
 	(assign '((:r2 +obj_vtable)) '(:r4))
 	(vpif '(:r4 = :r3))
-		(vp-alloc local_size)
-		(assign '(:r0 :r1 :r2) '((:rsp local_this) (:rsp local_iter) (:rsp local_form)))
-		(call :array :create :nil '((:rsp local_stack)))
-		(assign '((:rsp local_iter) (:rsp local_form)) '(:r1 :r2))
+		(push-scope)
+		(assign '(:r0 :r1 :r2) {this, iter, form})
+		(call :array :create :nil {stack})
+		(assign {iter, form} '(:r1 :r2))
 		(loop-start 'try_expand)
-			(assign '((:rsp local_this)) '(:r0))
+			(assign {this} '(:r0))
 			(switch 'next_iter)
 				;check if a macro
 				(switch)
@@ -42,7 +42,7 @@
 				(breakif '(:r3 = :r4) '(:r3 = :r5) '(:r3 = :r6) '(:r3 = :r7) 'next_iter)
 
 				;is a symbol ?
-				(assign '(:r1 :r2) '((:rsp local_iter) (:rsp local_form)))
+				(assign '(:r1 :r2) {iter, form})
 				(f-bind :sym :vtable :r4)
 				(assign '((:r3 +obj_vtable)) '(:r5))
 				(breakif '(:r4 /= :r5))
@@ -58,7 +58,7 @@
 				(assign '((:r1 +array_length)) '(:r2))
 				(breakif '(:r2 = 0))
 				;is a macro ?
-				(assign '((:rsp local_this)) '(:r0))
+				(assign {this} '(:r0))
 				(array-bind-args :r1 '(:r2))
 				(assign '((:r0 +lisp_sym_macro)) '(:r3))
 				(gotoif '(:r2 = :r3) 'macro_expand)
@@ -67,14 +67,15 @@
 				(default)
 				(vp-label 'macro_expand)
 					;replace form with macro expansion
-					(assign '((:rsp local_form) :r1) '(:r0 (:rsp local_macro)))
-					(d-call :list :slice '(:r0 1 (:r0 +array_length)) '((:rsp local_args)))
-					(call :obj :deref '((:rsp local_form)))
-					(call :lisp :repl_apply '((:rsp local_this) (:rsp local_args) (:rsp local_macro)) '(_ :r1))
-					(assign '((:rsp local_iter)) '(:r0))
+					(assign {form} '(:r0))
+					(assign '(:r1) {macro})
+					(d-call :list :slice '(:r0 1 (:r0 +array_length)) {args})
+					(call :obj :deref {form})
+					(call :lisp :repl_apply {this, args, macro} '(_ :r1))
+					(assign {iter} '(:r0))
 					(vp-cpy-ri :r1 :r0 0)
-					(call :obj :deref '((:rsp local_args)))
-					(assign '((:rsp local_iter) (:rsp local_this)) '(:r1 :r0))
+					(call :obj :deref {args})
+					(assign {iter, this} '(:r1 :r0))
 					(vp-cpy-ir :r1 0 :r2)
 					(f-bind :list :vtable :r3)
 					(assign '((:r2 +obj_vtable)) '(:r4))
@@ -83,7 +84,7 @@
 				(endswitch)
 
 				;down this lists branches
-				(assign '((:rsp local_stack) (:rsp local_form)) '(:r0 :r6))
+				(assign {stack, form} '(:r0 :r6))
 
 			(errorcase
 				(assign '((:r0 +array_length)) '(:r2))
@@ -106,7 +107,7 @@
 			(endswitch)
 
 			;pop back stack
-			(assign '((:rsp local_stack)) '(:r2))
+			(assign {stack} '(:r2))
 			(assign '((:r2 +array_length)) '(:r1))
 			(breakif '(:r1 = 0))
 			(vp-sub-cr 1 :r1)
@@ -114,9 +115,9 @@
 			(class/array/get_elem :r2 :r1 :r1 :r2)
 			(vp-cpy-ir :r1 0 :r2)
 		(loop-end)
-		(call :array :deref '((:rsp local_stack)))
-		(assign '((:rsp local_this)) '(:r0))
-		(vp-free local_size)
+		(call :array :deref {stack})
+		(assign {this} '(:r0))
+		(pop-scope)
 	(endif)
 
 	(exit :lisp :repl_expand '(:r0))

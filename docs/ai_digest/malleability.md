@@ -6,7 +6,7 @@ with hard-systems performance-is crucial. This document breaks down this
 concept, using the philosophies and code provided as evidence.
 
 Lisp is not Macros, it's not even Lists ! It is none of these things that you
-have herd about when folks try to explain the power of LIsp ! It is
+have herd about when folks try to explain the power of Lisp ! It is
 **malleability** !
 
 ## The Magic of Lisp, The Speed of C: How ChrysaLisp Delivers Malleability Without Compromise

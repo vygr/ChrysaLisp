@@ -14,10 +14,10 @@
 	;trashes
 	;:r1-:r14
 
-	(structure local 0
+	(def-vars
 		(ptr this form value func args))
 
-	(vp-alloc local_size)
+	(push-scope)
 	(entry :lisp :repl_eval '(:r0 :r1))
 
 	;evaluate based on type
@@ -28,46 +28,48 @@
 		;eval to symbol binding ?
 		(assign '((:r1 +str_data ub)) '(:r2))
 		(gotoif '(:r2 = +char_colon) 'toself)
-		(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_form)))
+		(assign '(:r0 :r1) {this, form})
 		(call :hmap :get '((:r0 +lisp_environment) :r1) '(_ :r1))
 		(errorif '(:r1 = 0) 'error2)
-		(assign '((:rsp local_this)) '(:r0))
+		(assign {this} '(:r0))
 		(break)
 	(vpcase '(:r2 = :r4))
 		;apply function, don't eval args if special form
 	(errorcase
 		(assign '((:r1 +array_length)) '(:r2))
 		(gotoif '(:r2 = 0) 'error1))
-		(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_form)))
+		(assign '(:r0 :r1) {this, form})
 		(array-bind-args :r1 '(:r1))
 		(call :lisp :repl_eval '(:r0 :r1) '(:r0 :r1))
 		(assign '((:r1 +obj_vtable)) '(:r2))
 	(errorcase
 		(assign '((:r0 +lisp_error)) '(:r3))
 		(breakif '(:r2 = :r3)))
-		(assign '(:r1) '((:rsp local_func)))
+		(assign '(:r1) {func})
 		(f-bind :func :vtable :r3)
 		(vpif '(:r2 = :r3))
 			;check if special form
 			(assign '((:r1 +num_value)) '(:r2))
 			(vp-and-cr 7 :r2)
 			(nextcaseif '(:r2 = 0))
-			(call :lisp :repl_apply '(:r0 (:rsp local_form) :r1) '(_ (:rsp local_value)))
+			(assign '(:r1) '(:r2))
+			(assign {form} '(:r1))
+			(call :lisp :repl_apply '(:r0 :r1 :r2) {_, value})
 		(else)
-			(assign '((:rsp local_form)) '(:r0))
-			(d-call :list :slice '(:r0 1 (:r0 +array_length)) '((:rsp local_args)))
-			(call :lisp :repl_eval_list '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
+			(assign {form} '(:r0))
+			(d-call :list :slice '(:r0 1 (:r0 +array_length)) {args})
+			(call :lisp :repl_eval_list {this, args} '(:r0 :r1))
 		(errorcase
 			(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
-			(assign '(:r1) '((:rsp local_value)))
+			(assign '(:r1) {value})
 			(gotoif '(:r2 = :r3) 'error))
 			(call :obj :deref '(:r1))
-			(call :lisp :repl_apply '((:rsp local_this) (:rsp local_args) (:rsp local_func)) '(_ (:rsp local_value)))
+			(call :lisp :repl_apply {this, args, func} {_, value})
 		(vp-label 'error)
-			(call :obj :deref '((:rsp local_args)))
+			(call :obj :deref {args})
 		(endif)
-		(call :obj :deref '((:rsp local_func)))
-		(assign '((:rsp local_this) (:rsp local_value)) '(:r0 :r1))
+		(call :obj :deref {func})
+		(assign {this, value} '(:r0 :r1))
 	(else)
 	(vp-label 'toself)
 		;eval to self
@@ -75,17 +77,15 @@
 	(endswitch)
 
 	(exit :lisp :repl_eval '(:r0 :r1))
-	(vp-free local_size)
-	(vp-ret)
+	(return)
 
 (errorcase
 (vp-label 'error1)
-	(vp-free local_size)
 	(jump :lisp :repl_error '(:r0 "(eval form [env])" +error_msg_not_a_function :r1))
 (vp-label 'error2)
-	(assign '((:rsp local_this) (:rsp local_form)) '(:r0 :r3))
-	(vp-free local_size)
-	(jump :lisp :repl_error '(:r0 "(eval form [env])" +error_msg_symbol_not_bound :r3)))
+	(jump :lisp :repl_error {this, "(eval form [env])", +error_msg_symbol_not_bound, form}))
+
+	(pop-scope-syms)
 
 (def-func-end)
 
@@ -99,11 +99,11 @@
 	;trashes
 	;:r1-:r14
 
-	(structure local 0
+	(def-vars
 		(ptr this)
 		(pptr iter_begin iter_end))
 
-	(vp-alloc local_size)
+	(push-scope)
 	(entry :lisp :repl_eval_list '(:r0 :r1))
 
 	(assign '((:r1 +array_begin) (:r1 +array_length) (:r0 +lisp_sym_nil)) '(:r3 :r2 :r1))
@@ -111,18 +111,17 @@
 	(vpcase '(:r2 /= 0))
 		(vp-shl-cr (log2 +long_size) :r2)
 		(vp-add-rr :r3 :r2)
-		(assign '(:r0 :r2) '((:rsp local_this) (:rsp local_iter_end)))
+		(assign '(:r0 :r2) {this, iter_end})
 		(loop-start)
-			(assign '(:r3) '((:rsp local_iter_begin)))
+			(assign '(:r3) {iter_begin})
 			(call :lisp :repl_eval '(:r0 (:r3 0)) '(:r0 :r1))
 		(errorcase
 			(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r3 :r2))
 			(breakif '(:r2 = :r3) 'exit))
-			(assign '((:rsp local_iter_begin)) '(:r3))
+			(assign {iter_begin} '(:r3))
 			(assign '((:r3 0) :r1) '(:r0 (:r3 0)))
 			(call :obj :deref '(:r0))
-			(assign '((:rsp local_iter_begin) (:rsp local_iter_end) (:rsp local_this))
-				'(:r3 :r2 :r0))
+			(assign {iter_begin, iter_end, this} '(:r3 :r2 :r0))
 			(vp-add-cr +ptr_size :r3)
 		(loop-until '(:r3 = :r2))
 		(vp-cpy-ir :r3 (neg +ptr_size) :r1)
@@ -131,7 +130,7 @@
 	(endswitch)
 
 	(exit :lisp :repl_eval_list '(:r0 :r1))
-	(vp-free local_size)
-	(vp-ret)
+	(pop-scope)
+	(return)
 
 (def-func-end)
