@@ -439,7 +439,7 @@
 	;outputs
 	;:r0 = mailbox index (uint)
 	;trashes
-	;:r0-:r8
+	;:r0-:r14
 
 	(vp-rdef (idx iter_begin iter_end iter ids tcb) '(:r0 :r4 :r5 :r6 :r7 :r8))
 
@@ -460,9 +460,9 @@
 		(vp-call 'set_tcbs)
 
 		;suspend till some mail arrives
-		(apply vp-push +vp_rregs_0_14)
+		(vp-push ids iter_begin iter_end)
 		(call :sys_task :suspend)
-		(apply vp-pop +vp_rregs_0_14)
+		(vp-pop ids iter_begin iter_end)
 
 		;clear all tcb's !
 		(vp-xor-rr tcb tcb)
