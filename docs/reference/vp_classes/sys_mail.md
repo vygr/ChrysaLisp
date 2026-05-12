@@ -226,7 +226,7 @@ inputs
 outputs
 :r0 = mailbox index (uint)
 trashes
-:r0-:r8
+:r0-:r14
 ```
 
 ### :send -> sys/mail/send
