@@ -696,8 +696,7 @@
 			(bind '(fused_op is_load size limit b_idx c_idx d_idx) info)
 			(defq base (elem-get %0 b_idx) c1 (elem-get %0 c_idx) d1 (elem-get %0 d_idx))
 			(some! (# (defq next_op (first %0))
-				(cond ;skip already fused nops
- 					((eql next_op 'emit-nop) :nil)
+				(cond
 					((eql next_op op)
 						(when (eql base (elem-get %0 b_idx))
 							(defq c2 (elem-get %0 c_idx) d2 (elem-get %0 d_idx))
@@ -708,6 +707,7 @@
 									(list fused_op d1 d2 base c2)))
 								(elem-set emit_list (!) '(emit-nop))))
 						:t) ; stop looking after first real instruction of same type
+					((eql next_op 'emit-nop) :nil) ; skip already fused nops
 					(:t))) ; stop looking on ANY other instruction
 				seqs :nil (inc i))))
 		(defq seqs (list emit_list)) 1)
