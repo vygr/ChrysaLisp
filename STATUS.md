@@ -29,6 +29,10 @@ Add optional `end` value to `(files-all-depends paths [imps end]) -> paths` and
 Tuning of `tk_stack_state` settings for each CPU, don't save any registers but
 those required on a context switch.
 
+New `(emit-prepass)` function added for the translators, the ARM64 now uses this
+to implement LDP/STP instruction fusing. Good results, for a small impact of
+system build speed, we reduced the boot_image by 6KB.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
