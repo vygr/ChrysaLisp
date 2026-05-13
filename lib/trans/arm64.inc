@@ -666,12 +666,9 @@
 			emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-fp))
 
 (defq +arm64_fuse_map
-	(reduce! (# (defq op (elem-get +arm64_fuse_ops %1))
-		(def %0 op (list
-			(elem-get +arm64_fuse_emit_ops %1)
-			(find op +arm64_fuse_load_ops)
-			(if (find op +arm64_fuse_long_ops) +long_size +int_size))) %0)
-		(list (range 0 (length +arm64_fuse_ops))) (env 1)))
+	(reduce! (# (def %0 %1 (list %2 (find %1 +arm64_fuse_load_ops)
+			(if (find %1 +arm64_fuse_long_ops) +long_size +int_size))) %0)
+		(list +arm64_fuse_ops +arm64_fuse_emit_ops) (env 1)))
 
 (defmacro arm64-ldpstp (opc imm7 r2 rn r1)
 	`(emitm-int (+ ,opc
