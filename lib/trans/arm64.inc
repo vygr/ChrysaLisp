@@ -655,7 +655,7 @@
 
 (defq +arm64_fuse_map
 	(reduce! (# (defq is_load (find %1 '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if))
-			size (if (find %1 '(emit-cpy-ir emit-cpy-if emit-cpy-ri emit-cpy-fi)) +long_size +int_size))
+			size (if (find %1 '(emit-cpy-ir-i emit-cpy-ri-i emit-cpy-ir-ui)) +int_size +long_size))
 		(def %0 %1 (list %2 is_load size (* size 64)
 			(if is_load 1 2) (if is_load 2 3) (if is_load 3 1))) %0) ; b_idx c_idx d_idx
 		'((emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if emit-cpy-ri emit-cpy-ri-i emit-cpy-fi)
