@@ -666,8 +666,10 @@
 			emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-fp))
 
 (defq +arm64_fuse_map
-	(reduce! (# (def %0 %1 (list %2 (find %1 +arm64_fuse_load_ops)
-			(if (find %1 +arm64_fuse_long_ops) +long_size +int_size))) %0)
+	(reduce! (# (defq is_load (find %1 +arm64_fuse_load_ops)
+					size (if (find %1 +arm64_fuse_long_ops) +long_size +int_size))
+		(def %0 %1 (list %2 is_load size (* size 64)
+			(if is_load 1 2) (if is_load 2 3) (if is_load 3 1))) %0) ; b_idx c_idx d_idx
 		(list +arm64_fuse_ops +arm64_fuse_emit_ops) (env 1)))
 
 (defmacro arm64-ldpstp (opc imm7 r2 rn r1)
@@ -698,24 +700,17 @@
 
 (redefun emit-prepass (emit_list)
 	(defq seqs (list emit_list))
-	(each! (#
-		(defq op (first %0) i (!))
+	(each! (# (defq op (first %0) i (!))
 		(when (defq info (def? op +arm64_fuse_map))
-			(bind '(fused_op is_load size) info)
-			(defq limit (* size 64)
-				base (if is_load (second %0) (third %0))
-				c1 (if is_load (third %0) (last %0))
-				d1 (if is_load (last %0) (second %0)))
-			(some! (#
-				(defq next_op (first %0))
+			(bind '(fused_op is_load size limit b_idx c_idx d_idx) info)
+			(defq base (elem-get %0 b_idx) c1 (elem-get %0 c_idx) d1 (elem-get %0 d_idx))
+			(some! (# (defq next_op (first %0))
 				(cond
  					;skip already fused nops
  					((eql next_op 'emit-nop) :nil)
 					((eql next_op op)
-						(defq next_base (if is_load (second %0) (third %0)))
-						(when (eql base next_base)
-							(defq c2 (if is_load (third %0) (last %0))
-								d2 (if is_load (last %0) (second %0)))
+						(when (eql base (elem-get %0 b_idx))
+							(defq c2 (elem-get %0 c_idx) d2 (elem-get %0 d_idx))
 							(when (defq res (arm64-fusable? limit size is_load base c1 d1 c2 d2))
 								(bind '(c2 d1 d2) res)
 								(elem-set emit_list i (if is_load
