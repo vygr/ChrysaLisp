@@ -699,7 +699,6 @@
 				(list ,c2 ,d2 ,d1)))))
 
 (redefun emit-prepass (emit_list)
-	(defq seqs (list emit_list))
 	(each! (# (defq op (first %0) i (!))
 		(when (defq info (def? op +arm64_fuse_map))
 			(bind '(fused_op is_load size limit b_idx c_idx d_idx) info)
@@ -719,7 +718,7 @@
 						:t) ; stop looking after first real instruction of same type
 					(:t))) ; stop looking on ANY other instruction
 				seqs :nil (inc i))))
-		seqs 1)
+		(defq seqs (list emit_list)) 1)
 	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
 
 ;module, that exports everything !
