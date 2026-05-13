@@ -649,6 +649,75 @@
 				(emit-cpy-rr +arm64_rtmp +arm64_rlnk)))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ARM64 Specific LDP / STP Emission
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defmacro arm64-ldpstp (opc imm7 r2 rn r1)
+	`(emitm-int (+ ,opc
+		(<< (logand ,imm7 0x7f) 15)
+		(<< ,r2 10)
+		(<< ,rn 5)
+		,r1)))
+
+; Valid Signed Offset LDP/STP Encodings (Bits 25:23 = 010)
+(defun emit-arm64-ldp (s c d1 d2) (arm64-ldpstp 0xA9400000 (>>> c (const (log2 +long_size))) d2 s d1))
+(defun emit-arm64-ldp-ui (s c d1 d2) (arm64-ldpstp 0x29400000 (>>> c (const (log2 +int_size))) d2 s d1))
+(defun emit-arm64-ldpsw (s c d1 d2)  (arm64-ldpstp 0x69400000 (>>> c (const (log2 +int_size))) d2 s d1))
+(defun emit-arm64-ldp-fp (s c d1 d2) (arm64-ldpstp 0x6D400000 (>>> c (const (log2 +long_size))) d2 s d1))
+
+(defun emit-arm64-stp (s1 s2 d c) (arm64-ldpstp 0xA9000000 (>>> c (const (log2 +long_size))) s2 d s1))
+(defun emit-arm64-stp-i (s1 s2 d c) (arm64-ldpstp 0x29000000 (>>> c (const (log2 +int_size))) s2 d s1))
+(defun emit-arm64-stp-fp (s1 s2 d c) (arm64-ldpstp 0x6D000000 (>>> c (const (log2 +long_size))) s2 d s1))
+
+(defun arm64-fusable? (op is_load base c1 d1 c2 d2)
+	(if (and (num? c1) (num? c2) (nql d1 d2) (nql d1 :rsp) (nql d2 :rsp)
+			 (or (not is_load) (and (nql d1 base) (nql d2 base))))
+		(progn
+			(defq size (if (find op '(emit-cpy-ir emit-cpy-if emit-cpy-ri emit-cpy-fi)) 8 4)
+				limit (* size 64))
+			(cond
+				((and (= c2 (+ c1 size)) (= (% c1 size) 0) (<= (- 0 limit) c1 (- limit size)))
+					(list c1 d1 d2))
+				((and (= c1 (+ c2 size)) (= (% c2 size) 0) (<= (- 0 limit) c2 (- limit size)))
+					(list c2 d2 d1))))))
+
+(redefun emit-prepass (emit_list)
+	(defq i 0 l (length emit_list))
+	(while (< i (dec l))
+		(defq inst (elem-get emit_list i) op (first inst))
+		(when (find op '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if
+						 emit-cpy-ri emit-cpy-ri-i emit-cpy-fi))
+			(defq is_load (find op '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if))
+				base (if is_load (second inst) (third inst))
+				c1 (if is_load (third inst) (last inst))
+				d1 (if is_load (last inst) (second inst))
+				j (inc i))
+			(while (< j l)
+				(defq next_inst (elem-get emit_list j) next_op (first next_inst))
+				(cond
+					((eql next_op 'emit-nop)
+						(++ j)) ; skip already fused nops
+					((eql next_op op)
+						(defq next_base (if is_load (second next_inst) (third next_inst))
+							c2 (if is_load (third next_inst) (last next_inst))
+							d2 (if is_load (last next_inst) (second next_inst)))
+						(when (and (eql base next_base) (defq res (arm64-fusable? op is_load base c1 d1 c2 d2)))
+							(bind '(c_f d1_f d2_f) res)
+							(defq fused_op (elem-get '(emit-arm64-ldp emit-arm64-ldp-ui emit-arm64-ldpsw emit-arm64-ldp-fp
+														emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-fp)
+												(find op '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if
+															emit-cpy-ri emit-cpy-ri-i emit-cpy-fi))))
+							(elem-set emit_list i (if is_load
+								(list fused_op base c_f d1_f d2_f)
+								(list fused_op d1_f d2_f base c_f)))
+							(elem-set emit_list j '(emit-nop)))
+						(setq j l)) ; stop looking after first real instruction of same type
+					(:t (setq j l))))) ; stop looking on ANY other instruction
+		(++ i))
+	; safely compact the list, removing any fused instructions
+	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
+
 ;module, that exports everything !
 (export-symbols (map (const first) (tolist (env))))
 (env-pop)
