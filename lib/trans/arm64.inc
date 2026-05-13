@@ -681,13 +681,11 @@
 (defun emit-arm64-stp-fp (s1 s2 d c) (arm64-ldpstp 0x6D000000 (>>> c (const (log2 +long_size))) s2 d s1))
 
 (defmacro arm64-fusable? (limit size is_load base c1 d1 c2 d2)
-	`(when (and (nql ,d1 ,d2) (nql ,d1 :rsp) (nql ,d2 :rsp))
+	`(when (and (nql ,d1 ,d2) (nql ,d1 :rsp) (nql ,d2 :rsp) (or (not ,is_load) (nql ,d1 ,base)))
 		(cond
-			((and (or (not ,is_load) (nql ,d1 ,base))
-					(= ,c2 (+ ,c1 ,size)) (= (% ,c1 ,size) 0) (<= (- 0 ,limit) ,c1 (- ,limit ,size)))
+			((and (= ,c2 (+ ,c1 ,size)) (= (% ,c1 ,size) 0) (<= (- 0 ,limit) ,c1 (- ,limit ,size)))
 				(list ,c1 ,d1 ,d2))
-			((and (or (not ,is_load) (nql ,d2 ,base))
-					(= ,c1 (+ ,c2 ,size)) (= (% ,c2 ,size) 0) (<= (- 0 ,limit) ,c2 (- ,limit ,size)))
+			((and (= ,c1 (+ ,c2 ,size)) (= (% ,c2 ,size) 0) (<= (- 0 ,limit) ,c2 (- ,limit ,size)))
 				(list ,c2 ,d2 ,d1)))))
 
 (redefun emit-prepass (emit_list)
