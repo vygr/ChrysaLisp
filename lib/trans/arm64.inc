@@ -670,7 +670,7 @@
 		(<< ,rn 5)
 		,r1)))
 
-; Valid Signed Offset LDP/STP Encodings (Bits 25:23 = 010)
+;LDP/STP Encodings (Bits 25:23 = 010)
 (defun emit-arm64-ldp (s c d1 d2) (arm64-ldpstp 0xA9400000 (>>> c (const (log2 +long_size))) d2 s d1))
 (defun emit-arm64-ldp-ui (s c d1 d2) (arm64-ldpstp 0x29400000 (>>> c (const (log2 +int_size))) d2 s d1))
 (defun emit-arm64-ldpsw (s c d1 d2)  (arm64-ldpstp 0x69400000 (>>> c (const (log2 +int_size))) d2 s d1))
@@ -681,8 +681,7 @@
 (defun emit-arm64-stp-fp (s1 s2 d c) (arm64-ldpstp 0x6D000000 (>>> c (const (log2 +long_size))) s2 d s1))
 
 (defmacro arm64-fusable? (limit size is_load base c1 d1 c2 d2)
-	`(when (and (nql ,d1 ,d2) (nql ,d1 :rsp) (nql ,d2 :rsp)
-			(or (not ,is_load) (nql ,d1 ,base)))
+	`(when (and (nql ,d1 ,d2) (nql ,d1 :rsp) (nql ,d2 :rsp) (or (not ,is_load) (nql ,d1 ,base)))
 		(cond
 			((and (= ,c2 (+ ,c1 ,size)) (= (% ,c1 ,size) 0) (<= (- 0 ,limit) ,c1 (- ,limit ,size)))
 				(list ,c1 ,d1 ,d2))
