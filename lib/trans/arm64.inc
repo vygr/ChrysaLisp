@@ -712,11 +712,11 @@
 							(defq c2 (if is_load (third %0) (last %0))
 								d2 (if is_load (last %0) (second %0)))
 							(when (defq res (arm64-fusable? limit size is_load base c1 d1 c2 d2))
-								(bind '(c_f d1_f d2_f) res)
+								(bind '(c2 d1 d2) res)
 								(defq fused_op (elem-get +arm64_fuse_emit_ops idx_op))
 								(elem-set emit_list i (if is_load
-									(list fused_op base c_f d1_f d2_f)
-									(list fused_op d1_f d2_f base c_f)))
+									(list fused_op base c2 d1 d2)
+									(list fused_op d1 d2 base c2)))
 								(elem-set emit_list (!) '(emit-nop))))
 						:t) ; stop looking after first real instruction of same type
 					(:t))) ; stop looking on ANY other instruction
