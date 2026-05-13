@@ -705,8 +705,7 @@
 			(bind '(fused_op is_load size limit b_idx c_idx d_idx) info)
 			(defq base (elem-get %0 b_idx) c1 (elem-get %0 c_idx) d1 (elem-get %0 d_idx))
 			(some! (# (defq next_op (first %0))
-				(cond
- 					;skip already fused nops
+				(cond ;skip already fused nops
  					((eql next_op 'emit-nop) :nil)
 					((eql next_op op)
 						(when (eql base (elem-get %0 b_idx))
