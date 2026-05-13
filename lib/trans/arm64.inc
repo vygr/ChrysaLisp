@@ -654,16 +654,24 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq
-	+arm64_fuse_emit_ops
-		''(emit-arm64-ldp emit-arm64-ldp-ui emit-arm64-ldpsw emit-arm64-ldp-fp
-			emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-fp)
 	+arm64_fuse_ops
 		''(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if
 			emit-cpy-ri emit-cpy-ri-i emit-cpy-fi)
 	+arm64_fuse_load_ops
 		''(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if)
 	+arm64_fuse_long_ops
-		''(emit-cpy-ir emit-cpy-if emit-cpy-ri emit-cpy-fi))
+		''(emit-cpy-ir emit-cpy-if emit-cpy-ri emit-cpy-fi)
+	+arm64_fuse_emit_ops
+		''(emit-arm64-ldp emit-arm64-ldp-ui emit-arm64-ldpsw emit-arm64-ldp-fp
+			emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-fp))
+
+(defq +arm64_fuse_map
+	(reduce! (# (defq op (elem-get +arm64_fuse_ops %1))
+		(def %0 op (list
+			(elem-get +arm64_fuse_emit_ops %1)
+			(find op +arm64_fuse_load_ops)
+			(if (find op +arm64_fuse_long_ops) +long_size +int_size))) %0)
+		(list (range 0 (length +arm64_fuse_ops))) (env 1)))
 
 (defmacro arm64-ldpstp (opc imm7 r2 rn r1)
 	`(emitm-int (+ ,opc
@@ -692,12 +700,12 @@
 				(list ,c2 ,d2 ,d1)))))
 
 (redefun emit-prepass (emit_list)
+	(defq seqs (list emit_list))
 	(each! (#
 		(defq op (first %0) i (!))
-		(when (defq idx_op (find op +arm64_fuse_ops))
-			(defq is_load (find op +arm64_fuse_load_ops)
-				size (if (find op +arm64_fuse_long_ops) +long_size +int_size)
-				limit (* size 64)
+		(when (defq info (def? op +arm64_fuse_map))
+			(bind '(fused_op is_load size) info)
+			(defq limit (* size 64)
 				base (if is_load (second %0) (third %0))
 				c1 (if is_load (third %0) (last %0))
 				d1 (if is_load (last %0) (second %0)))
@@ -713,15 +721,14 @@
 								d2 (if is_load (last %0) (second %0)))
 							(when (defq res (arm64-fusable? limit size is_load base c1 d1 c2 d2))
 								(bind '(c2 d1 d2) res)
-								(defq fused_op (elem-get +arm64_fuse_emit_ops idx_op))
 								(elem-set emit_list i (if is_load
 									(list fused_op base c2 d1 d2)
 									(list fused_op d1 d2 base c2)))
 								(elem-set emit_list (!) '(emit-nop))))
 						:t) ; stop looking after first real instruction of same type
 					(:t))) ; stop looking on ANY other instruction
-				(list emit_list) :nil (inc i))))
-		(list emit_list) 1)
+				seqs :nil (inc i))))
+		seqs 1)
 	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
 
 ;module, that exports everything !
