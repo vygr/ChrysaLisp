@@ -682,45 +682,46 @@
 (defun emit-arm64-stp-i (s1 s2 d c) (arm64-ldpstp 0x29000000 (>>> c (const (log2 +int_size))) s2 d s1))
 (defun emit-arm64-stp-fp (s1 s2 d c) (arm64-ldpstp 0x6D000000 (>>> c (const (log2 +long_size))) s2 d s1))
 
-(defun arm64-fusable? (op is_load base c1 d1 c2 d2)
-	(when (and (nql d1 d2) (nql d1 :rsp) (nql d2 :rsp)
-			(or (not is_load) (nql d1 base)))
-		(defq size (if (find op +arm64_fuse_long_ops) +long_size +int_size) limit (* size 64))
+(defmacro arm64-fusable? (limit size is_load base c1 d1 c2 d2)
+	`(when (and (nql ,d1 ,d2) (nql ,d1 :rsp) (nql ,d2 :rsp)
+			(or (not ,is_load) (nql ,d1 ,base)))
 		(cond
-			((and (= c2 (+ c1 size)) (= (% c1 size) 0) (<= (- 0 limit) c1 (- limit size)))
-				(list c1 d1 d2))
-			((and (= c1 (+ c2 size)) (= (% c2 size) 0) (<= (- 0 limit) c2 (- limit size)))
-				(list c2 d2 d1)))))
+			((and (= ,c2 (+ ,c1 ,size)) (= (% ,c1 ,size) 0) (<= (- 0 ,limit) ,c1 (- ,limit ,size)))
+				(list ,c1 ,d1 ,d2))
+			((and (= ,c1 (+ ,c2 ,size)) (= (% ,c2 ,size) 0) (<= (- 0 ,limit) ,c2 (- ,limit ,size)))
+				(list ,c2 ,d2 ,d1)))))
 
 (redefun emit-prepass (emit_list)
-	(defq i 0 l (length emit_list))
-	(while (< (++ i) l)
-		(defq inst (elem-get emit_list i) op (first inst))
-		(when (find op +arm64_fuse_ops)
+	(each! (#
+		(defq op (first %0) i (!))
+		(when (defq idx_op (find op +arm64_fuse_ops))
 			(defq is_load (find op +arm64_fuse_load_ops)
-				base (if is_load (second inst) (third inst))
-				c1 (if is_load (third inst) (last inst))
-				d1 (if is_load (last inst) (second inst))
-				j (inc i))
-			(while (< j l)
-				(defq next_inst (elem-get emit_list j) next_op (first next_inst))
+				size (if (find op +arm64_fuse_long_ops) +long_size +int_size)
+				limit (* size 64)
+				base (if is_load (second %0) (third %0))
+				c1 (if is_load (third %0) (last %0))
+				d1 (if is_load (last %0) (second %0)))
+			(some! (#
+				(defq next_op (first %0))
 				(cond
-					((eql next_op 'emit-nop)
-						(++ j)) ; skip already fused nops
+ 					;skip already fused nops
+ 					((eql next_op 'emit-nop) :nil)
 					((eql next_op op)
-						(defq next_base (if is_load (second next_inst) (third next_inst))
-							c2 (if is_load (third next_inst) (last next_inst))
-							d2 (if is_load (last next_inst) (second next_inst)))
-						(when (and (eql base next_base) (defq res (arm64-fusable? op is_load base c1 d1 c2 d2)))
-							(bind '(c_f d1_f d2_f) res)
-							(defq fused_op (elem-get +arm64_fuse_emit_ops (find op +arm64_fuse_ops)))
-							(elem-set emit_list i (if is_load
-								(list fused_op base c_f d1_f d2_f)
-								(list fused_op d1_f d2_f base c_f)))
-							(elem-set emit_list j '(emit-nop)))
-						(setq j l)) ; stop looking after first real instruction of same type
-					((setq j l)))))) ; stop looking on ANY other instruction
-	; compact the list, removing any fused instructions
+						(defq next_base (if is_load (second %0) (third %0)))
+						(when (eql base next_base)
+							(defq c2 (if is_load (third %0) (last %0))
+								d2 (if is_load (last %0) (second %0)))
+							(when (defq res (arm64-fusable? limit size is_load base c1 d1 c2 d2))
+								(bind '(c_f d1_f d2_f) res)
+								(defq fused_op (elem-get +arm64_fuse_emit_ops idx_op))
+								(elem-set emit_list i (if is_load
+									(list fused_op base c_f d1_f d2_f)
+									(list fused_op d1_f d2_f base c_f)))
+								(elem-set emit_list (!) '(emit-nop))))
+						:t) ; stop looking after first real instruction of same type
+					(:t))) ; stop looking on ANY other instruction
+				(list emit_list) :nil (inc i))))
+		(list emit_list) 1)
 	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
 
 ;module, that exports everything !
