@@ -706,8 +706,8 @@
 									(list fused_op d1 d2 base c2)))
 								(elem-set emit_list (!) '(emit-nop))))
 						:t) ; stop looking after first real instruction of same type
-					((eql next_op 'emit-nop) :nil) ; skip already fused nops
-					(:t))) ; stop looking on ANY other instruction
+ 					; skip already fused nops, stop on ANY other instruction
+ 					((nql next_op 'emit-nop))))
 				seqs :nil (inc i))))
 		(defq seqs (list emit_list)) 1)
 	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
