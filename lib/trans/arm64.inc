@@ -659,8 +659,8 @@
 		(def %0 %1 (list %2 is_load size (* size 64)
 			(if is_load 1 2) (if is_load 2 3) (if is_load 3 1))) %0) ; b_idx c_idx d_idx
 		'((emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if emit-cpy-ri emit-cpy-ri-i emit-cpy-fi)
-			(emit-arm64-ldp emit-arm64-ldp-ui emit-arm64-ldpsw emit-arm64-ldp-fp
-				emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-fp)) (env 1)))
+			(emit-arm64-ldp emit-arm64-ldp-ui emit-arm64-ldp-i emit-arm64-ldp-f
+				emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-f)) (env 1)))
 
 (defmacro arm64-ldpstp (opc imm7 r2 rn r1)
 	`(emitm-int (+ ,opc
@@ -671,13 +671,13 @@
 
 ;LDP/STP Encodings (Bits 25:23 = 010)
 (defun emit-arm64-ldp (s c d1 d2) (arm64-ldpstp 0xA9400000 (>>> c (const (log2 +long_size))) d2 s d1))
+(defun emit-arm64-ldp-i (s c d1 d2)  (arm64-ldpstp 0x69400000 (>>> c (const (log2 +int_size))) d2 s d1))
 (defun emit-arm64-ldp-ui (s c d1 d2) (arm64-ldpstp 0x29400000 (>>> c (const (log2 +int_size))) d2 s d1))
-(defun emit-arm64-ldpsw (s c d1 d2)  (arm64-ldpstp 0x69400000 (>>> c (const (log2 +int_size))) d2 s d1))
-(defun emit-arm64-ldp-fp (s c d1 d2) (arm64-ldpstp 0x6D400000 (>>> c (const (log2 +long_size))) d2 s d1))
+(defun emit-arm64-ldp-f (s c d1 d2) (arm64-ldpstp 0x6D400000 (>>> c (const (log2 +long_size))) d2 s d1))
 
 (defun emit-arm64-stp (s1 s2 d c) (arm64-ldpstp 0xA9000000 (>>> c (const (log2 +long_size))) s2 d s1))
 (defun emit-arm64-stp-i (s1 s2 d c) (arm64-ldpstp 0x29000000 (>>> c (const (log2 +int_size))) s2 d s1))
-(defun emit-arm64-stp-fp (s1 s2 d c) (arm64-ldpstp 0x6D000000 (>>> c (const (log2 +long_size))) s2 d s1))
+(defun emit-arm64-stp-f (s1 s2 d c) (arm64-ldpstp 0x6D000000 (>>> c (const (log2 +long_size))) s2 d s1))
 
 (defmacro arm64-fusable? (limit size is_load base c1 d1 c2 d2)
 	`(when (and (nql ,d1 ,d2) (nql ,d1 :rsp) (nql ,d2 :rsp)
