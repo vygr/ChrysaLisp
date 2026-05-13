@@ -653,24 +653,15 @@
 ; ARM64 Specific LDP / STP Emission
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+arm64_fuse_ops
-		''(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if
-			emit-cpy-ri emit-cpy-ri-i emit-cpy-fi)
-	+arm64_fuse_load_ops
-		''(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if)
-	+arm64_fuse_long_ops
-		''(emit-cpy-ir emit-cpy-if emit-cpy-ri emit-cpy-fi)
-	+arm64_fuse_emit_ops
-		''(emit-arm64-ldp emit-arm64-ldp-ui emit-arm64-ldpsw emit-arm64-ldp-fp
-			emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-fp))
-
 (defq +arm64_fuse_map
-	(reduce! (# (defq is_load (find %1 +arm64_fuse_load_ops)
-					size (if (find %1 +arm64_fuse_long_ops) +long_size +int_size))
+	(reduce! (# (defq is_load (find %1 '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if))
+			size (if (find %1 '(emit-cpy-ir emit-cpy-if emit-cpy-ri emit-cpy-fi)) +long_size +int_size))
 		(def %0 %1 (list %2 is_load size (* size 64)
 			(if is_load 1 2) (if is_load 2 3) (if is_load 3 1))) %0) ; b_idx c_idx d_idx
-		(list +arm64_fuse_ops +arm64_fuse_emit_ops) (env 1)))
+		(list '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if
+				emit-cpy-ri emit-cpy-ri-i emit-cpy-fi)
+			 '(emit-arm64-ldp emit-arm64-ldp-ui emit-arm64-ldpsw emit-arm64-ldp-fp
+				emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-fp)) (env 1)))
 
 (defmacro arm64-ldpstp (opc imm7 r2 rn r1)
 	`(emitm-int (+ ,opc
