@@ -684,7 +684,7 @@
 
 (defun arm64-fusable? (op is_load base c1 d1 c2 d2)
 	(when (and (nql d1 d2) (nql d1 :rsp) (nql d2 :rsp)
-			(or (not is_load) (and (nql d1 base))))
+			(or (not is_load) (nql d1 base)))
 		(defq size (if (find op +arm64_fuse_long_ops) +long_size +int_size) limit (* size 64))
 		(cond
 			((and (= c2 (+ c1 size)) (= (% c1 size) 0) (<= (- 0 limit) c1 (- limit size)))
