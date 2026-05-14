@@ -653,9 +653,10 @@
 ; ARM64 Specific LDP / STP Emission
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq all_emits (merge (filter (# (starts-with "emit-" %0)) (map (const first) (tolist (env))))
-		'(emit-prepass emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui
-			emit-arm64-ldp-f emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-f))
+(defq all_emits (merge (filter (# (starts-with "emit-" %0))
+		(merge (map (const first) (tolist (penv))) (map (const first) (tolist (env)))))
+		'(emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui emit-arm64-ldp-f
+			emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-f))
 	+arm64_fuse_map
 		(reduce! (#
 			(def %0 %1 (when (defq i (find %1 '(emit-cpy-ir emit-cpy-ir-i emit-cpy-ir-ui
