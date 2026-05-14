@@ -261,6 +261,9 @@ Deep dives into meta-commentary and design philosophy:
 61. **[Udat AI Shares](docs/ai_digest/udat_ai_shares.md)** - AI commentary on
     ChrysaLisp's architectural coherence and design philosophy.
 
+62. **[Turbo Charging](docs/ai_digest/turbo_charging.md)** - Translator Turbo
+    charging of environment maps.
+
 ---
 
 ## Reading Paths

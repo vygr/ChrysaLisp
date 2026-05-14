@@ -39,6 +39,8 @@ any blanks with `:nil`. Now achieving the same speed for a full build as before
 the arm64 LDP/STP pass, 0.074s, and showing a 5 platform full build time, on the
 M4 MacBook, of 0.38s.
 
+New `docs/ai_digest/turbo_charging.md` doc.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
