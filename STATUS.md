@@ -33,6 +33,12 @@ New `(emit-prepass)` function added for the translators, the ARM64 now uses this
 to implement LDP/STP instruction fusing. Good results, for a small impact of
 system build speed, we reduced the boot_image by 6KB.
 
+Restructured the translator instruction maps to avoid ANY linear scans. Align
+all the instruction symbol `str_hashslot` values across all the maps, and fill
+any blanks with `:nil`. Now achieving the same speed for a full build as before
+the arm64 LDP/STP pass, 0.074s, and showing a 5 platform full build time, on the
+M4 MacBook, of 0.38s.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
