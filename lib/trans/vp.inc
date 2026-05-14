@@ -51,17 +51,18 @@
 ; gather all the emit funcs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;env with all jump/branch instructions
-(defq +emit_jmps (reduce (lambda (e k) (def e k k) e)
-	'(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr
-	emit-bge-rr emit-ble-rr emit-bge-cr emit-ble-cr emit-blt-cr
-	emit-blt-rr emit-bgt-rr emit-bgt-cr emit-min-cr emit-max-cr
-	emit-min-rr emit-max-rr emit-abs-rr emit-beq-ff emit-bne-ff
-	emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff) (env 1)))
-
-;env with all instructions, plus jump/branch are still in same slots !
+;env with all emit-* instructions
 (defq +emit_funcs (reduce (lambda (e (k v)) (if (starts-with "emit-" k) (def e k v)) e)
-	(tolist (env)) (env-copy +emit_jmps 1)))
+	(tolist (env)) (env 1)))
+
+;env with jump/branch instructions flagged
+(defq +emit_jmps (reduce (lambda (e (k v)) (def e k (find k
+		'(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr
+		emit-bge-rr emit-ble-rr emit-bge-cr emit-ble-cr emit-blt-cr
+		emit-blt-rr emit-bgt-rr emit-bgt-cr emit-min-cr emit-max-cr
+		emit-min-rr emit-max-rr emit-abs-rr emit-beq-ff emit-bne-ff
+		emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))) e)
+	(tolist +emit_funcs) (env 1)))
 
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
