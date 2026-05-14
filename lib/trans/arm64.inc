@@ -661,12 +661,12 @@
 		(reduce! (#
 			(def %0 %1 (when (defq i (find %1 '(emit-cpy-ir emit-cpy-ir-i emit-cpy-ir-ui
 								emit-cpy-ri emit-cpy-ri-i emit-cpy-if emit-cpy-fi)))
-						(defq is_load (find %1 '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if))
-							size (if (find %1 '(emit-cpy-ir-i emit-cpy-ri-i emit-cpy-ir-ui)) +int_size +long_size))
-						(list (elem-get '(emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui
-								emit-arm64-stp emit-arm64-stp-i emit-arm64-ldp-f emit-arm64-stp-f) i)
-							is_load size (* size 64)
-							(if is_load 1 2) (if is_load 2 3) (if is_load 3 1)))) %0) ; b_idx c_idx d_idx
+				(defq is_load (find %1 '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if))
+					size (if (find %1 '(emit-cpy-ir-i emit-cpy-ri-i emit-cpy-ir-ui)) +int_size +long_size))
+				(list (elem-get '(emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui
+						emit-arm64-stp emit-arm64-stp-i emit-arm64-ldp-f emit-arm64-stp-f) i)
+					is_load size
+					(* size 64) (if is_load 1 2) (if is_load 2 3) (if is_load 3 1)))) %0) ; b_idx c_idx d_idx
 			(list all_emits) (env 1)))
 
 (defmacro arm64-ldpstp (opc imm7 r2 rn r1)
