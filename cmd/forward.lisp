@@ -44,6 +44,8 @@
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+		;only source files
+		(setq jobs (filter (lambda (f) (some (# (ends-with %0 f)) '(".vp" ".inc" ".lisp"))) jobs))
 		(if (<= (length jobs) opt_j)
 			;do the work when batch size ok !
 			(each (const work) jobs)

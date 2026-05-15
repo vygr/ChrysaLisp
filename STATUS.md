@@ -46,6 +46,9 @@ Refactored the host C/C++ files to remove dependacies on extranious libraries.
 As a result the `snapshot.zip` asset, that includes the VP64 `boot_image` and
 the 2 TUI/GUI Windows .exe's, has dropped to 100KB.
 
+The `forward` command now auto filters to just `".vp" ".inc" ".lisp"` file
+extensions.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
