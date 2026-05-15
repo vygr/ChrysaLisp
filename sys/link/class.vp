@@ -248,7 +248,9 @@
 					(assign-net-id rx_msg lk_buf_dest msg +msg_dest)
 					(assign-net-id rx_msg lk_buf_src msg +msg_src)
 					(call :sys_mem :copy {&rx_msg->lk_buf_data, data, rx_msg->lk_buf_frag_length})
+
 					;clear status
+					(vp-sync)
 					(assign {lk_chan_status_ready} {rx_msg->lk_buf_status})
 
 					;send onwards
@@ -256,6 +258,7 @@
 				(endif)
 			(else)
 				;clear status
+				(vp-sync)
 				(assign {lk_chan_status_ready} {rx_msg->lk_buf_status})
 			(endif)
 
