@@ -216,13 +216,14 @@
 	;trashes
 	;:r0-:r6
 
-	(entry :sys_mail :alloc '(:r3))
+	(entry :sys_mail :alloc '(:r0))
 
-	(call :str :create_from_buffer '(0 :r3) '(:r4))
+	(call :str :create_from_buffer '(0 :r0) '(:r4))
 	(fn-bind 'sys/statics/statics :r0)
 	(call :sys_heap :alloc '((& :r0 statics_sys_mail_msg_heap)) '(_ :r0))
-	(vp-xor-rr :r2 :r2)
+	(vp-cpy-ir :r4 +str_length :r3)
 	(vp-lea-i :r4 +str_data :r1)
+	(vp-xor-rr :r2 :r2)
 	(assign '(:r4 :r1 :r3 :r2)
 		'((:r0 +msg_obj) (:r0 +msg_frag_data) (:r0 +msg_frag_length) (:r0 +msg_total_length)))
 

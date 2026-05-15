@@ -49,6 +49,10 @@ the 2 TUI/GUI Windows .exe's, has dropped to 100KB.
 The `forward` command now auto filters to just `".vp" ".inc" ".lisp"` file
 extensions.
 
+Fix to `:sys_mail :alloc` where it was not restoring the message fragment
+length, on rare occasions this could result in an incorrect message buffer size
+allocation.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
