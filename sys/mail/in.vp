@@ -44,6 +44,7 @@
 		msg->+msg_frag_data + rx_msg->lk_buf_frag_offset, len})
 
 	;clear link status
+	(vp-sync)
 	(assign {lk_chan_status_ready} {rx_msg->lk_buf_status})
 
 	;got all needed ?
