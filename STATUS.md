@@ -53,6 +53,10 @@ Fix to `:sys_mail :alloc` where it was not restoring the message fragment
 length, on rare occasions this could result in an incorrect message buffer size
 allocation.
 
+Review and update `vp-sync` memory barrier usage. Added missing acquire barriers
+to `sys/link/class.vp` to ensure correct synchronization on weakly ordered
+architectures like ARM64.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
