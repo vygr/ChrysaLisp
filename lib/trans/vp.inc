@@ -10,6 +10,7 @@
 	(setq *pc* (align pc size))
 	(while (<= (++ pc) *pc*) (write-char stream fill)))
 
+(defun emit-nop ())
 (defun emit-prepass (emit_list) emit_list)
 (defun emit-label (label) (set (penv) label *pc*))
 (defun emit-tlabel (temp) (set (penv) temp *pc*))
@@ -66,8 +67,8 @@
 
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
-	(setq emit_code (emit-prepass emit_code))
-	(defq buf "" last_buf "" *offsets* (cap 64 (list))
+	(defq emit_code (emit-prepass emit_code)
+		buf "" last_buf "" *offsets* (cap 64 (list))
 		*pass* 0 *stream* (string-stream buf) *pc* 0)
 	(each! (lambda (inst)
 			;map vp reg syms to native reg nums

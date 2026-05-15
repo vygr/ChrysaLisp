@@ -39,7 +39,12 @@ any blanks with `:nil`. Now achieving the same speed for a full build as before
 the arm64 LDP/STP pass, 0.074s, and showing a 5 platform full build time, on the
 M4 MacBook, of 0.38s.
 
-New `docs/ai_digest/turbo_charging.md` doc.
+New `docs/ai_digest/turbo_charging.md` doc, covering the Translator instruction
+maps.
+
+Refactored the host C/C++ files to remove dependacies on extranious libraries.
+As a result the `snapshot.zip` asset, that includes the VP64 `boot_image` and
+the 2 TUI/GUI Windows .exe's, has dropped to 100KB.
 
 ------
 
