@@ -377,7 +377,7 @@
 	(loop-end)
 	(fn-bind 'sys/statics/statics :r5)
 	(loop-list-forward :r5 statics_sys_mail_timeout_list :r5 :r7)
-		(assign '((:r5 +msg_frag_data)) '(:r1))
+		(assign '((:r5 +msg_data)) '(:r1))
 		(assign '((:r1 0)) '(:r1))
 		(breakif '(:r1 > :r6))
 		;remove msg from timeout list and post

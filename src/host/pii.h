@@ -11,6 +11,8 @@
 //hard values for now matching sys/link/class.inc
 const uint32_t lk_page_size = 4096;
 const uint32_t lk_data_size = 4056;
+const uint32_t lk_bufs_per_chan = 4;
+
 
 enum
 {
@@ -85,16 +87,12 @@ struct lk_buf
 
 struct lk_chan
 {
-	lk_buf m_msg0;
-	lk_buf m_msg1;
-	lk_buf m_msg2;
-	lk_buf m_msg3;
+	char m_data [lk_bufs_per_chan * sizeof(lk_buf)];
 };
 
 struct lk_shmem
 {
 	lk_chan m_chan_1;
-	uint64_t m_towel;
 	alignas(lk_page_size) lk_chan m_chan_2;
 };
 

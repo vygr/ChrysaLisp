@@ -14,39 +14,35 @@
 
 ;msg data area max size when allocated as a string object
 ;allowing for heap pointer and null byte, rounded down for faster memcpy
-(defq lk_page_size 4096 lk_sleep_min 100 lk_sleep_max 800)
-(defcvar 'lk_data_size (- lk_page_size +str_size +long_size +sys_mem_header_size))
+(defq lk_page_size 4096 lk_sleep_min 100 lk_sleep_max 800
+	lk_data_size (- lk_page_size +str_size +long_size +sys_mem_header_size)
+	lk_bufs_per_chan 4)
 
 (enums lk_chan_status 0
-	(enum ready busy))
+	(enum ready ping frag skip))
 
+;buffer transfer unit
+(structure lk_buf 0
+	(uint status length)
+	(offset data))
+
+;peer info
 (structure lk_node 0
 	(nodeid peer_node_id)
-	(uint task_count))
+	(uint task_count)
+	(align))
 
-(structure lk_buf 0
-	(uint status hash task_count frag_length frag_offset total_length)
-	(nodeid peer_node_id)
-	(netid dest)
-	(netid src)
-	(struct data lk_data_size))
+;fragment info
+(structure lk_frag 0
+	(netid dest src)
+	(uint length offset total)
+	(align)
+	(offset data))
 
 (structure lk_chan 0
-	(struct msg0 lk_buf_size)
-	(struct msg1 lk_buf_size)
-	(struct msg2 lk_buf_size)
-	(struct msg3 lk_buf_size))
+	(struct data (* (+ lk_buf_size lk_node_size lk_frag_size lk_data_size) lk_bufs_per_chan)))
 
 (structure lk_shmem 0
 	(struct chan_1 lk_chan_size)
-	(long towel)
 	(align lk_page_size)
-	(struct chan_2 lk_chan_size)
-	(align lk_page_size))
-
-;; (print "towel: " lk_shmem_towel)
-;; (print "page size: " lk_page_size)
-;; (print "packet size: " lk_data_size)
-;; (print "chan size: " lk_chan_size)
-;; (print "buffer size: " lk_shmem_size)
-;; (print "que size: " (/ lk_chan_size lk_buf_size))
+	(struct chan_2 lk_chan_size))

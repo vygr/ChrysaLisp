@@ -27,7 +27,7 @@
 	(dec-method :enquire sys/mail/enquire :static (:r0) (:r0))
 	(dec-method :devices sys/mail/devices :static () (:r0))
 	(dec-method :junk_mail sys/mail/junk_mail :static (:r3))
-	(dec-method :in sys/mail/in :static (:r0))
+	(dec-method :in sys/mail/in :static (:r0 :r1))
 	(dec-method :out sys/mail/out)
 	(dec-method :ready sys/mail/ready :static (:r0 :r1 :r2) (:r0))
 	(dec-method :lisp_validate sys/mail/lisp_validate :static (:r0 :r1) (:r0 :r1))

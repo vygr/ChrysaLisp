@@ -353,7 +353,7 @@
 		;insert into timeout list
 		(fn-bind 'sys/statics/statics :r4)
 		(loop-list-forward :r4 statics_sys_mail_timeout_list :r4 :r2)
-			(assign '((:r4 +msg_frag_data)) '(:r1))
+			(assign '((:r4 +msg_data)) '(:r1))
 			(assign '((:r1 0)) '(:r1))
 		(loop-until '(:r13 < :r1))
 		(ln-add-node-before :r4 :r0 :r1)

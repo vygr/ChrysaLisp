@@ -18,5 +18,5 @@
 (structure +msg +ln_node_size
 	(long timestamp)
 	(netid dest src)
-	(uint frag_length frag_offset total_length)
-	(ptr obj frag_data))
+	(uint length offset total)
+	(ptr obj data))

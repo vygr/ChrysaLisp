@@ -3,32 +3,34 @@
 
 (def-method :sys_mail :in)
 	;inputs
-	;:r0 = link input msg buffer (ptr)
+	;:r0 = link input buffer (ptr)
+	;:r1 = link input ring buffer (ptr)
 	;trashes
 	;:r0-:r14
 
 	(def-vars
-		(ptr rx_msg msg)
+		(ptr rx_buf rx_ring rx_frag msg)
 		(uint len))
 
-	(vp-rdef (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_msg total))
+	(vp-rdef (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_frag total))
 
 	(push-scope)
-	(entry :sys_mail :in {rx_msg})
+	(entry :sys_mail :in {rx_buf, rx_ring})
 
 	;look up parcel in mailbox
-	(assign {@sys/statics/statics.statics_sys_mail_parcel_list, rx_msg} `(,parcels ,rx_msg))
-	(load-net-id rx_msg lk_buf_src src1 src2 src3)
+	(assign {&rx_buf->lk_buf_data.lk_node_size} {rx_frag})
+	(assign {@sys/statics/statics.statics_sys_mail_parcel_list, rx_frag} `(,parcels ,rx_frag))
+	(load-net-id rx_frag lk_frag_src src1 src2 src3)
 	(loop-list-forward parcels 0 node next)
 		(load-net-id node +msg_src psrc1 psrc2 psrc3)
 	(loop-until `(,src1 = ,psrc1) `(,src2 = ,psrc2) `(,src3 = ,psrc3))
 	(vpif `(,next = 0))
 		;new parcel
-		(assign `((,rx_msg lk_buf_total_length)) `(,total))
+		(assign `((,rx_frag lk_frag_total)) `(,total))
 		(call :sys_mail :alloc `(,total) `(,node _))
-		(assign `(,total) `((,node +msg_total_length)))
-		(assign-net-id rx_msg lk_buf_dest node +msg_dest src1 src2 src3)
-		(assign-net-id rx_msg lk_buf_src node +msg_src src1 src2 src3)
+		(assign `(,total) `((,node +msg_total)))
+		(assign-net-id rx_frag lk_frag_dest node +msg_dest src1 src2 src3)
+		(assign-net-id rx_frag lk_frag_src node +msg_src src1 src2 src3)
 		(lh-add-at-tail parcels node next)
 	(endif)
 	(assign `(,node) {msg})
@@ -37,18 +39,19 @@
 	(call :host_os :pii_time :nil {msg->+msg_timestamp})
 
 	;copy fragment data
-	(assign {rx_msg->lk_buf_frag_length} {len})
-	(assign {msg->+msg_frag_offset + len} {msg->+msg_frag_offset})
-	(assign {msg->+msg_total_length - len} {msg->+msg_total_length})
-	(call :sys_mem :copy {&rx_msg->lk_buf_data,
-		msg->+msg_frag_data + rx_msg->lk_buf_frag_offset, len})
+	(assign {rx_frag->lk_frag_length} {len})
+	(assign {msg->+msg_offset + len} {msg->+msg_offset})
+	(assign {msg->+msg_total - len} {msg->+msg_total})
+	(call :sys_mem :copy_from_ring {&rx_frag->lk_frag_data,
+		msg->+msg_data + rx_frag->lk_frag_offset, len, lk_chan_size, rx_ring})
 
-	;clear link status
+	;clear status
+	;overlap the :send with new receive !
 	(vp-sync)
-	(assign {lk_chan_status_ready} {rx_msg->lk_buf_status})
+	(assign {lk_chan_status_ready} {rx_buf->lk_buf_status})
 
 	;got all needed ?
-	(vpifnot {msg->+msg_total_length})
+	(vpifnot {msg->+msg_total})
 		;yes, remove parcel and post it
 		(assign {msg} `(,node))
 		(ln-remove-node node next)

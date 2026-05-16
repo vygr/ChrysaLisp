@@ -30,14 +30,12 @@ two unidirectional channels.
 
 	* `chan_2` (Write for Node B, Read for Node A)
 
-	* `towel` (Arbitration flag)
-
 **The "Towel" Protocol:**
 
 To determine which node writes to `chan_1` vs `chan_2`, the driver uses a
 "towel" concept (found in `sys/link/class.vp`). When a link initializes:
 
-1. It checks `lk_shmem_towel`.
+1. It checks `lk_buf_peer_node_id`.
 
 2. If 0, it writes its own `node_id`. It becomes the "Owner" (writes to
    `chan_1`).

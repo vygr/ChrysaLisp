@@ -36,7 +36,7 @@
 		(assign {msg, &statics->statics_sys_mail_msg_heap,
 				&statics->statics_sys_mail_offchip_list,
 				0, data} `(,msg ,heap ,offchip ,off ,data))
-		(load-fields msg '(+msg_obj +msg_frag_length) `(,obj ,tot))
+		(load-fields msg '(+msg_obj +msg_length) `(,obj ,tot))
 		(vp-cpy-rr tot amount)
 		(loop-start)
 			;create fragment
@@ -51,7 +51,7 @@
 			(save-net-id frag +msg_src id0 id1 id2)
 			(assign-net-id msg +msg_dest frag +msg_dest id0 id1 id2)
 			(save-fields
-				frag '(+msg_obj +msg_timestamp +msg_frag_length +msg_frag_offset +msg_total_length +msg_frag_data)
+				frag '(+msg_obj +msg_timestamp +msg_length +msg_offset +msg_total +msg_data)
 				`(,obj ,time ,len ,off ,tot ,data))
 
 			;move on

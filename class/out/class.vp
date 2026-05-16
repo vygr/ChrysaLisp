@@ -163,9 +163,9 @@
 		(assign `(,data) `((,this +stream_buffer)))
 
 		;send current msg buffer
-		(assign `((,msg +msg_frag_data) (,this +stream_bufp)) `(,data ,len))
+		(assign `((,msg +msg_data) (,this +stream_bufp)) `(,data ,len))
 		(vp-sub-rr data len)
-		(assign `(,len) `((,msg +msg_frag_length)))
+		(assign `(,len) `((,msg +msg_length)))
 		(load-net-id this +out_id id0 id1 id2)
 		(load-fields this
 			'(+out_seqnum +out_state +out_ack_mbox_id)

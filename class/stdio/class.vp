@@ -34,7 +34,7 @@
 	(vpif {ok})
 		;init myself
 		(call :sys_mail :mymail :nil {msg, data})
-		(vpif {msg->+msg_frag_length})
+		(vpif {msg->+msg_length})
 			;create stdin, stdout, stderr
 			(call :sys_task :mailbox :nil {mbox, _, _})
 			(call :in :create {mbox} {this->+stdio_stdin})
@@ -50,7 +50,7 @@
 				{this->+stdio_stderr})
 
 			;create args string
-			(call :str :create_from_buffer {&data->+stdio_msg_init_args, msg->+msg_frag_length - +stdio_msg_init_size} {this->+stdio_args})
+			(call :str :create_from_buffer {&data->+stdio_msg_init_args, msg->+msg_length - +stdio_msg_init_size} {this->+stdio_args})
 
 			;send back ack with stdin mailbox
 			(assign {data->+stdio_msg_init_ack.+net_id_mbox_id,
@@ -64,7 +64,7 @@
 			(call :sys_kernel :id :nil
 				{data->+stdio_msg_init_stdout.+net_id_node_id.+node_id_node1,
 				data->+stdio_msg_init_stdout.+net_id_node_id.+node_id_node2})
-			(assign {+stdio_msg_init_reply} {msg->+msg_frag_length})
+			(assign {+stdio_msg_init_reply} {msg->+msg_length})
 			(call :sys_mail :send {msg})
 		(else)
 			;abort
