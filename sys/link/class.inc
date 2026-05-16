@@ -16,7 +16,7 @@
 ;allowing for heap pointer and null byte, rounded down for faster memcpy
 (defq lk_page_size 4096 lk_sleep_min 100 lk_sleep_max 800
 	lk_data_size (- lk_page_size +str_size +long_size +sys_mem_header_size)
-	lk_bufs_per_chan 4)
+	lk_bufs_per_chan 6)
 
 (enums lk_chan_status 0
 	(enum ready ping frag skip))
@@ -24,7 +24,7 @@
 ;buffer transfer unit
 (structure lk_buf 0
 	(uint status length)
-	(offset data))
+	(align))
 
 ;peer info
 (structure lk_node 0
@@ -36,8 +36,7 @@
 (structure lk_frag 0
 	(netid dest src)
 	(uint length offset total)
-	(align)
-	(offset data))
+	(align))
 
 (structure lk_chan 0
 	(struct data (* (+ lk_buf_size lk_node_size lk_frag_size lk_data_size) lk_bufs_per_chan)))

@@ -138,7 +138,8 @@ trashes
 
 ```code
 inputs
-:r0 = link input msg buffer (ptr)
+:r0 = link input buffer (ptr)
+:r1 = link input ring buffer (ptr)
 trashes
 :r0-:r14
 ```

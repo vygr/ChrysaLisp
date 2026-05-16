@@ -37,8 +37,8 @@
 	(call :host_os :pii_mmap {lk_shmem_size, handle, +mmap_shared} {mem})
 
 	;put my towel down if seams available
-	(vpifnot {mem->lk_buf_data.lk_node_peer_node_id.+node_id_node1})
-		(assign {node_id.+node_id_node1} {mem->lk_buf_data.lk_node_peer_node_id.+node_id_node1})
+	(vpifnot {mem->lk_buf_size.lk_node_peer_node_id.+node_id_node1})
+		(assign {node_id.+node_id_node1} {mem->lk_buf_size.lk_node_peer_node_id.+node_id_node1})
 	(endif)
 
 	;start out link and send params
@@ -82,10 +82,10 @@
 (def-method :sys_link :out)
 
 	(def-vars
-		(ptr statics lk_node msg data tx head tail key)
+		(ptr statics lk_node msg data tx head tail old_head key)
 		(nodeid node_id)
 		(long sleep_time)
-		(uint free))
+		(int free))
 
 	(push-scope)
 
@@ -105,7 +105,7 @@
 
 	;assign tx channel
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
-	(vpif {tx->lk_buf_data.lk_node_peer_node_id.+node_id_node1 = node_id.+node_id_node1})
+	(vpif {tx->lk_buf_size.lk_node_peer_node_id.+node_id_node1 = node_id.+node_id_node1})
 		(assign {tx + lk_shmem_chan_1} {tx})
 	(else)
 		(assign {tx + lk_shmem_chan_2} {tx})
@@ -114,87 +114,117 @@
 
 	;write messages through the shared buffer
 	(loop-start)
-		;reclaim space
-		(loop-while {(tail /= head) && (tail->lk_buf_status = lk_chan_status_ready)})
-			(vp-sync)
-			(vpif {(tail + tail->lk_buf_length => tail) >= &tx->lk_chan_size})
-				(assign {tail - lk_chan_size} {tail})
-			(endif)
-		(loop-end)
-
-		;calculate free space
-		(assign {tail - head} {free})
-		(vpif {free <= 0})
-			(assign {free + lk_chan_size} {free})
-		(endif)
-
-		;wait for space for at least one max fragment
-		(vpif {free >= (lk_chan_size / lk_bufs_per_chan)})
-			;are we able to send anything ?
-			(loop-while {head->lk_buf_status = lk_chan_status_ready})
-				;write my task count and cpu id
-				(assign {node_id.+node_id_node1,
-						node_id.+node_id_node2,
-						statics->statics_sys_task_task_count}
-					{head->lk_buf_data.lk_node_peer_node_id.+node_id_node1,
-					head->lk_buf_data.lk_node_peer_node_id.+node_id_node2,
-					head->lk_buf_data.lk_node_task_count})
-
-				;see if any mail for this link
-				(call :sys_mail :ready
-					{lk_node->lk_node_peer_node_id.+node_id_node1,
-					lk_node->lk_node_peer_node_id.+node_id_node2,
-					key} {msg})
-				(vpif {msg})
-					;reset to min poling
-					(assign {lk_sleep_min} {sleep_time})
-
-					;copy message data
-					(vp-rdef (tx_frag msg len off tot))
-					(assign {&head->lk_buf_data + lk_node_size, msg} `(,tx_frag ,msg))
-					(assign-fields
-						msg '(+msg_length +msg_offset +msg_total)
-						tx_frag '(lk_frag_length lk_frag_offset lk_frag_total)
-						`(,len ,off ,tot))
-					(assign-net-id msg +msg_dest tx_frag lk_frag_dest)
-					(assign-net-id msg +msg_src tx_frag lk_frag_src)
-					(call :sys_mem :copy_to_ring {msg->+msg_data,
-						&head->lk_buf_data + lk_node_size + lk_frag_data,
-						msg->+msg_length, lk_chan_size, tx})
-
-					;busy status
-					(assign {(msg->+msg_length + lk_buf_data + lk_node_size + lk_frag_data
-						+ +long_size - 1) & - +long_size} {head->lk_buf_length})
-					(vp-sync)
-					(assign {lk_chan_status_frag} {head->lk_buf_status})
-
-					;free message
-					(call :sys_mail :free {msg})
-				(else)
-					;just a ping, busy status
-					(assign {lk_buf_data + lk_node_size} {head->lk_buf_length})
-					(vp-sync)
-					(assign {lk_chan_status_ping} {head->lk_buf_status})
+		(loop-while {head->lk_buf_status = lk_chan_status_ready} 'sleep)
+			;reclaim space
+			(loop-while {tail /= head})
+				(breakif {tail->lk_buf_status /= lk_chan_status_ready})
+				(vp-sync)
+				(vpif {(tail + tail->lk_buf_length => tail) >= &tx->lk_chan_size})
+					(assign {tail - lk_chan_size} {tail})
 				(endif)
+			(loop-end)
+			(vpif {(tail - head => free) <= 0})
+				(assign {free + lk_chan_size} {free})
+			(endif)
 
-				;move on to next transfer
+			;wait for at least one max fragment, plus buf header as we
+			;must write another lk_chan_status_ready to halt the :in !
+			(breakif {free < ((lk_chan_size / lk_bufs_per_chan) + lk_buf_size)})
+
+			;write my task count and cpu id
+			(assign {node_id.+node_id_node1,
+					node_id.+node_id_node2,
+					statics->statics_sys_task_task_count}
+				{head->lk_buf_size.lk_node_peer_node_id.+node_id_node1,
+				head->lk_buf_size.lk_node_peer_node_id.+node_id_node2,
+				head->lk_buf_size.lk_node_task_count})
+
+			;see if any mail for this link
+			(call :sys_mail :ready
+				{lk_node->lk_node_peer_node_id.+node_id_node1,
+				lk_node->lk_node_peer_node_id.+node_id_node2,
+				key} {msg})
+			(vpif {msg})
+				;reset to min poling
+				(assign {lk_sleep_min} {sleep_time})
+
+				;copy message data
+				(vp-rdef (tx_frag msg len off tot))
+				(assign {&head->lk_buf_size.lk_node_size, msg} `(,tx_frag ,msg))
+				(assign-fields
+					msg '(+msg_length +msg_offset +msg_total)
+					tx_frag '(lk_frag_length lk_frag_offset lk_frag_total)
+					`(,len ,off ,tot))
+				(assign-net-id msg +msg_dest tx_frag lk_frag_dest)
+				(assign-net-id msg +msg_src tx_frag lk_frag_src)
+				(call :sys_mem :copy_to_ring {msg->+msg_data,
+					&head->lk_buf_size.lk_node_size.lk_frag_size,
+					msg->+msg_length, lk_chan_size, tx})
+
+				;busy status
+				(assign {(msg->+msg_length + lk_buf_size + lk_node_size + lk_frag_size
+					+ +long_size - 1) & (- +long_size)} {head->lk_buf_length})
+				(assign {head} {old_head})
+
+				;move on to next transfer, clear new status !
 				(vpif {(head + head->lk_buf_length => head) >= &tx->lk_chan_size})
 					(assign {head - lk_chan_size} {head})
 				(endif)
+				(assign {lk_chan_status_ready} {head->lk_buf_status})
+
+				;allow read from :in
+				(vp-sync)
+				(assign {lk_chan_status_frag} {old_head->lk_buf_status})
 
 				;do we have enough headroom, as only msg data can wrap ?
 				(vpif {&head->lk_buf_size.lk_node_size.lk_frag_size > &tx->lk_chan_size})
 					;send a skip
 					(assign {&tx->lk_chan_size - head} {head->lk_buf_length})
-					(vp-sync)
-					(assign {lk_chan_status_skip} {head->lk_buf_status})
+					(assign {head} {old_head})
 					(assign {tx} {head})
+					(assign {lk_chan_status_ready} {head->lk_buf_status})
+
+					;allow read from :in
+					(vp-sync)
+					(assign {lk_chan_status_skip} {old_head->lk_buf_status})
 				(endif)
 
-				;let other links run
-				(call :sys_task :sleep '(0))
-			(loop-end)
-		(endif)
+				;free message
+				(call :sys_mail :free {msg})
+			(else)
+				;just a ping
+				(assign {lk_buf_size + lk_node_size} {head->lk_buf_length})
+				(assign {head} {old_head})
+
+				;move on to next transfer, clear new status !
+				(vpif {(head + head->lk_buf_length => head) >= &tx->lk_chan_size})
+					(assign {head - lk_chan_size} {head})
+				(endif)
+				(assign {lk_chan_status_ready} {head->lk_buf_status})
+
+				;allow read from :in
+				(vp-sync)
+				(assign {lk_chan_status_ping} {old_head->lk_buf_status})
+
+				;do we have enough headroom, as only msg data can wrap ?
+				(vpif {&head->lk_buf_size.lk_node_size.lk_frag_size >= &tx->lk_chan_size})
+					;send a skip
+					(assign {&tx->lk_chan_size - head} {head->lk_buf_length})
+					(assign {head} {old_head})
+					(assign {tx} {head})
+					(assign {lk_chan_status_ready} {head->lk_buf_status})
+
+					;allow read from :in
+					(vp-sync)
+					(assign {lk_chan_status_skip} {old_head->lk_buf_status})
+				(endif)
+
+				(break 'sleep)
+			(endif)
+
+			;let other links run
+			(call :sys_task :sleep '(0))
+		(loop-end)
 
 		;small sleep if nothing to do
 		(call :sys_task :sleep {sleep_time})
@@ -235,7 +265,7 @@
 
 	;assign rx channel
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
-	(vpif {rx->lk_buf_data.lk_node_peer_node_id.+node_id_node1 = node_id.+node_id_node1})
+	(vpif {rx->lk_buf_size.lk_node_peer_node_id.+node_id_node1 = node_id.+node_id_node1})
 		(assign {rx + lk_shmem_chan_2} {rx})
 	(else)
 		(assign {rx + lk_shmem_chan_1} {rx})
@@ -253,9 +283,9 @@
 			(gotoif {status = lk_chan_status_skip} 'skip)
 
 			;read neighbor task count and peer id
-			(assign {head->lk_buf_data.lk_node_peer_node_id.+node_id_node1,
-					head->lk_buf_data.lk_node_peer_node_id.+node_id_node2,
-					head->lk_buf_data.lk_node_task_count}
+			(assign {head->lk_buf_size.lk_node_peer_node_id.+node_id_node1,
+					head->lk_buf_size.lk_node_peer_node_id.+node_id_node2,
+					head->lk_buf_size.lk_node_task_count}
 				{lk_node->lk_node_peer_node_id.+node_id_node1,
 				lk_node->lk_node_peer_node_id.+node_id_node2,
 				lk_node->lk_node_task_count})
@@ -266,24 +296,24 @@
 				(assign {lk_sleep_min} {sleep_time})
 
 				;is this msg part of a parcel for this node
-				(vpif {head->lk_buf_data.lk_node_size.lk_frag_total
-					&& head->lk_buf_data.lk_node_size.lk_frag_dest.+net_id_node_id.+node_id_node1 = node_id.+node_id_node1
-					&& head->lk_buf_data.lk_node_size.lk_frag_dest.+net_id_node_id.+node_id_node2 = node_id.+node_id_node2})
+				(vpif {head->lk_buf_size.lk_node_size.lk_frag_total
+					&& head->lk_buf_size.lk_node_size.lk_frag_dest.+net_id_node_id.+node_id_node1 = node_id.+node_id_node1
+					&& head->lk_buf_size.lk_node_size.lk_frag_dest.+net_id_node_id.+node_id_node2 = node_id.+node_id_node2})
 					;copy direct from link buffer to parcel !
 					(call :sys_mail :in {head, rx})
 				(else)
 					;allocate msg, copy over data
-					(call :sys_mail :alloc {head->lk_buf_data.lk_node_size.lk_frag_length} {msg, data})
+					(call :sys_mail :alloc {head->lk_buf_size.lk_node_size.lk_frag_length} {msg, data})
 					(vp-rdef (msg rx_frag len off tot))
-					(assign {msg, &head->lk_buf_data.lk_node_size} `(,msg ,rx_frag))
+					(assign {msg, &head->lk_buf_size.lk_node_size} `(,msg ,rx_frag))
 					(assign-fields
 						rx_frag '(lk_frag_length lk_frag_offset lk_frag_total)
 						msg '(+msg_length +msg_offset +msg_total)
 						`(,len ,off ,tot))
 					(assign-net-id rx_frag lk_frag_dest msg +msg_dest)
 					(assign-net-id rx_frag lk_frag_src msg +msg_src)
-					(call :sys_mem :copy_from_ring {&head->lk_buf_data.lk_node_size.lk_frag_data,
-						data, head->lk_buf_data.lk_node_size.lk_frag_length, lk_chan_size, rx})
+					(call :sys_mem :copy_from_ring {&head->lk_buf_size.lk_node_size.lk_frag_size,
+						data, head->lk_buf_size.lk_node_size.lk_frag_length, lk_chan_size, rx})
 
 					;clear status
 					;overlap the :send with new receive !
