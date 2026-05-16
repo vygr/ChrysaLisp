@@ -39,7 +39,7 @@
 	(align))
 
 (structure lk_chan 0
-	(struct data (* (+ lk_buf_size lk_node_size lk_frag_size lk_data_size) lk_bufs_per_chan)))
+	(struct data (* (+ lk_buf_size lk_frag_size lk_data_size) lk_bufs_per_chan)))
 
 (structure lk_shmem 0
 	(struct chan_1 lk_chan_size)

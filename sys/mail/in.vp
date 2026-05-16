@@ -18,7 +18,7 @@
 	(entry :sys_mail :in {rx_buf, rx_ring})
 
 	;look up parcel in mailbox
-	(assign {&rx_buf->lk_buf_size.lk_node_size} {rx_frag})
+	(assign {&rx_buf->lk_buf_size} {rx_frag})
 	(assign {@sys/statics/statics.statics_sys_mail_parcel_list, rx_frag} `(,parcels ,rx_frag))
 	(load-net-id rx_frag lk_frag_src src1 src2 src3)
 	(loop-list-forward parcels 0 node next)
