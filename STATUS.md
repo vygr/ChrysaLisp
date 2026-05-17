@@ -57,6 +57,10 @@ Review and update `vp-sync` memory barrier usage. Added missing acquire barriers
 to `sys/link/class.vp` to ensure correct synchronization on weakly ordered
 architectures like ARM64.
 
+Switched to a new byte ring buffer, rather than slots, based SH_MEM link
+protocol. This should allow tighter packing of small messages into the available
+link buffers memory.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
