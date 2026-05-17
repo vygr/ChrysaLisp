@@ -11,7 +11,7 @@
 		(struct lk_node lk_node_size)
 		(ptr statics params msg data mem)
 		(pubyte pdata)
-		(long handle)
+		(long handle is_owner)
 		(nodeid node_id))
 
 	(push-scope)
@@ -36,25 +36,38 @@
 	;map shared object
 	(call :host_os :pii_mmap {lk_shmem_size, handle, +mmap_shared} {mem})
 
-	;put my towel down if seams available
-	(vpifnot {mem->lk_buf_size.lk_node_peer_node_id.+node_id_node1})
-		(assign {node_id.+node_id_node1} {mem->lk_buf_size.lk_node_peer_node_id.+node_id_node1})
+	;try to claim host_a (embedded in chan_1 alignment padding)
+	(vpifnot {mem->lk_shmem_host_a.+node_id_node1})
+		(assign {node_id.+node_id_node1, node_id.+node_id_node2} 
+			{mem->lk_shmem_host_a.+node_id_node1, mem->lk_shmem_host_a.+node_id_node2})
+		;wait a fraction for bus propagation / simultaneous write collisions
+		(call :sys_task :sleep '(100000))
+	(endif)
+
+	;verify who won host_a
+	(vpif {mem->lk_shmem_host_a.+node_id_node1 = node_id.+node_id_node1})
+		(assign {1} {is_owner})
+	(else)
+		(assign {0} {is_owner})
+		;register as guest in host_b
+		(assign {node_id.+node_id_node1, node_id.+node_id_node2} 
+			{mem->lk_shmem_host_b.+node_id_node1, mem->lk_shmem_host_b.+node_id_node2})
 	(endif)
 
 	;start out link and send params
-	(call :sys_mail :alloc {16} {msg, data})
+	(call :sys_mail :alloc {24} {msg, data})
 	(call :sys_task :start (cat {@} (f-path :sys_link :out)) '(_ _ :r2 :r3 :r4))
-	(assign {msg, data, &lk_node, mem} '(:r0 :r1 :r5 :r6))
+	(assign {msg, data, &lk_node, mem, is_owner} '(:r0 :r1 :r5 :r6 :r7))
 	(save-net-id :r0 +msg_dest)
-	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
+	(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
 	(call :sys_mail :send '(:r0))
 
 	;start in link and send params
-	(call :sys_mail :alloc {16} {msg, data})
+	(call :sys_mail :alloc {24} {msg, data})
 	(call :sys_task :start (cat {@} (f-path :sys_link :in)) '(_ _ :r2 :r3 :r4))
-	(assign {msg, data, &lk_node, mem} '(:r0 :r1 :r5 :r6))
+	(assign {msg, data, &lk_node, mem, is_owner} '(:r0 :r1 :r5 :r6 :r7))
 	(save-net-id :r0 +msg_dest)
-	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
+	(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
 	(call :sys_mail :send '(:r0))
 
 	;wait till link dies or told to quit...
@@ -84,6 +97,7 @@
 	(def-vars
 		(ptr lk_node msg data rx head)
 		(nodeid node_id)
+		(long is_owner)
 		(uint length status sleep_time))
 
 	(push-scope)
@@ -92,16 +106,15 @@
 	(call :sys_mail :mymail :nil {msg, data})
 	(assign {ptr(data + 0)} {lk_node})
 	(assign {ptr(data + +ptr_size)} {rx})
+	(assign {ptr(data + (2 * +ptr_size))} {is_owner})
 	(call :sys_mail :free {msg})
 
-	;switch to link priority and sleep to
-	;let other links join us at this priority
+	;switch to link priority
 	(call :sys_task :set_priority '(1))
-	(call :sys_task :sleep '(1000000))
 
-	;assign rx channel
+	;assign rx channel deterministically based on leadership
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
-	(vpif {rx->lk_buf_size.lk_node_peer_node_id.+node_id_node1 = node_id.+node_id_node1})
+	(vpif {is_owner})
 		(assign {rx + lk_shmem_chan_2} {rx})
 	(else)
 		(assign {rx + lk_shmem_chan_1} {rx})
@@ -192,6 +205,7 @@
 	(def-vars
 		(ptr statics lk_node msg data tx head tail key)
 		(nodeid node_id)
+		(long is_owner)
 		(int free)
 		(uint last_count sleep_time))
 
@@ -204,16 +218,15 @@
 	(call :sys_mail :mymail :nil {msg, data})
 	(assign {ptr(data + 0)} {lk_node})
 	(assign {ptr(data + +ptr_size)} {tx})
+	(assign {ptr(data + (2 * +ptr_size))} {is_owner})
 	(call :sys_mail :free {msg})
 
-	;switch to link priority and sleep to
-	;let other links join us at this priority
+	;switch to link priority
 	(call :sys_task :set_priority '(1))
-	(call :sys_task :sleep '(500000))
 
-	;assign tx channel
+	;assign tx channel deterministically based on leadership
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
-	(vpif {tx->lk_buf_size.lk_node_peer_node_id.+node_id_node1 = node_id.+node_id_node1})
+	(vpif {is_owner})
 		(assign {tx + lk_shmem_chan_1} {tx})
 	(else)
 		(assign {tx + lk_shmem_chan_2} {tx})

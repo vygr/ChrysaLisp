@@ -101,6 +101,9 @@ struct lk_chan
 struct lk_shmem
 {
 	lk_chan m_chan_1;
+	// Negotiation "Towel" embedded in the alignment padding of chan_1
+	node_id m_host_a;
+	node_id m_host_b;
 	alignas(lk_page_size) lk_chan m_chan_2;
 };
 

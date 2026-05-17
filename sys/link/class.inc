@@ -43,5 +43,8 @@
 
 (structure lk_shmem 0
 	(struct chan_1 lk_chan_size)
+	; Negotiation "Towel" embedded in the alignment padding of chan_1
+	(nodeid host_a)
+	(nodeid host_b)
 	(align lk_page_size)
 	(struct chan_2 lk_chan_size))
