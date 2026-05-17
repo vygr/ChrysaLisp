@@ -11,8 +11,7 @@
 //hard values for now matching sys/link/class.inc
 const uint32_t lk_page_size = 4096;
 const uint32_t lk_data_size = 4056;
-const uint32_t lk_bufs_per_chan = 4;
-
+const uint32_t lk_bufs_per_chan = 6;
 
 enum
 {
@@ -47,47 +46,56 @@ struct fn_header
 	uint16_t pathname;
 };
 
-struct node_id
+struct alignas(8) node_id
 {
 	uint64_t m_node1;
 	uint64_t m_node2;
 };
 
-struct net_id
+struct alignas(8) net_id
 {
 	uint64_t m_mbox_id;
 	node_id m_node_id;
 };
 
+// Continuous ring buffer status types
 enum
 {
 	lk_chan_status_ready,
-	lk_chan_status_busy
+	lk_chan_status_ping,
+	lk_chan_status_frag,
+	lk_chan_status_skip
 };
 
-struct lk_node
-{
-	node_id m_peer_node_id;
-	uint32_t m_task_count;
-};
-
-struct lk_buf
+// Base transfer unit header
+struct alignas(8) lk_buf
 {
 	uint32_t m_status;
-	uint32_t m_hash;
-	uint32_t m_task_count;
-	uint32_t m_frag_length;
-	uint32_t m_frag_offset;
-	uint32_t m_total_length;
+	uint32_t m_length;
+};
+
+// Peer info payload for ping status
+struct alignas(8) lk_node
+{
 	node_id m_peer_node_id;
+	uint32_t m_task_count;
+};
+
+// Fragment header payload for frag status
+struct alignas(8) lk_frag
+{
 	net_id m_dest;
 	net_id m_src;
-	char m_data[lk_data_size];
+	uint32_t m_length;
+	uint32_t m_offset;
+	uint32_t m_total;
 };
+
+const uint32_t lk_chan_size = (sizeof(lk_buf) + sizeof(lk_frag) + lk_data_size) * lk_bufs_per_chan;
 
 struct lk_chan
 {
-	char m_data [lk_bufs_per_chan * sizeof(lk_buf)];
+	char m_data[lk_chan_size];
 };
 
 struct lk_shmem

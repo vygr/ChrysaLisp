@@ -8,259 +8,239 @@ messages, the routing algorithms, and the system's self-cleaning mechanisms.
 
 ## 1. The Link Drivers (`sys/link`)
 
-The Link Driver is the bridge between the logical message queue and the
-physical transport layer (Shared Memory). It provides a lock-free,
-ring-buffered communication channel between two nodes.
-
-Other link types are available, see the `ChrysaLib` github project for machine
-to machine, USB and IP link drivers in use, to bridge physical machines via
-the same abstraction.
+The Link Driver is the bridge between the logical message queue and the physical
+transport layer (Shared Memory). It provides a lock-free, continuous
+byte-ring-buffered communication channel between two nodes.
 
 ### Shared Memory Structure
 
-Defined in `sys/link/class.inc`, the shared memory region (`lk_shmem`) is
-mapped into the address space of both communicating nodes. It is divided into
-two unidirectional channels.
+Defined in `sys/link/class.inc`, the shared memory region (`lk_shmem`) is mapped
+into the address space of both communicating nodes. It is divided into two
+unidirectional continuous ring buffers, padded to page alignment:
 
-* **Size:** 4KB (`lk_page_size`)
+* `chan_1` (Write for Node A, Read for Node B)
 
-* **Topology:**
-
-	* `chan_1` (Write for Node A, Read for Node B)
-
-	* `chan_2` (Write for Node B, Read for Node A)
+* `chan_2` (Write for Node B, Read for Node A)
 
 **The "Towel" Protocol:**
 
-To determine which node writes to `chan_1` vs `chan_2`, the driver uses a
-"towel" concept (found in `sys/link/class.vp`). When a link initializes:
+To determine which node uses which channel, the driver uses a "towel" concept
+during initialization (in `sys/link/class.vp` `:link` task):
 
-1. It checks `lk_buf_peer_node_id`.
+1. The node checks if the memory is clear
+   (`mem->lk_buf_size.lk_node_peer_node_id` == 0).
 
-2. If 0, it writes its own `node_id`. It becomes the "Owner" (writes to
-   `chan_1`).
+2. If it is 0, it puts its "towel" down by writing its own `node_id`.
 
-3. If not 0, it reads the value. It becomes the "Guest" (writes to `chan_2`).
+3. When the TX (`:out`) and RX (`:in`) tasks start, they check this field
+   against their own `node_id`.
+
+4. If it matches, the local node owns `chan_1` for transmission and `chan_2` for
+   reception. If it doesn't match, the roles are reversed.
 
 ### Channel Protocol (`lk_chan`)
 
-Each channel contains a ring of 3 buffers (`msg0`, `msg1`, `msg2`). This
-triple-buffering allows for continuous throughput where one node writes while
-the other reads.
+Unlike earlier fixed-slot designs, the modern protocol treats the channel as a
+continuous byte ring buffer. Data is written in variable-sized chunks. Each
+chunk is prefixed with a header (`lk_buf`) containing the `length` and a
+`status`.
 
-**Buffer State (`lk_buf`):**
+**Buffer States (`lk_chan_status`):**
 
-* **`lk_chan_status_ready` (0):** The buffer is empty. The Writer may write to
-  it.
+* **`ready` (0):** The buffer segment is empty and available for the Writer.
 
-* **`lk_chan_status_busy` (1):** The buffer contains data. The Reader may
-  process it.
+* **`ping` (1):** Contains load-balancing/telemetry data (`task_count`).
+
+* **`frag` (2):** Contains a data fragment.
+
+* **`skip` (3):** Padding to instruct the Reader to wrap around to the start of
+  the ring.
 
 ### Transmission (`:out` task)
 
-The `:out` task (in `sys/link/class.vp`):
+The `:out` task (`sys/link/out.vp`) manages transmission:
 
-1. Monitors the current write-buffer in its assigned channel.
+1. **Space Check:** It calculates the `free` space between its write head and
+   the reader's tail. If insufficient, it yields.
 
-2. Waits for status to become `ready`.
+2. **Ping / Load Balancing:** If the local kernel's `task_count` has changed
+   since the last update, it writes a `ping` status block sharing the new load.
 
-3. Queries the Mail system via `:sys_mail :ready` for any messages waiting for
-   this link's peer.
+3. **Queue Polling:** It queries `:sys_mail :ready` for messages destined for
+   the peer.
 
-4. If a message exists:
+4. **Fragmentation & Write:**
 
-	* Copies the message header/payload into the shared memory buffer.
+   * It maps the message into an `lk_frag` header (dest, src, length, offset,
+     total).
 
-	* Sets status to `busy`.
+   * It copies the payload into the ring using the wrap-aware `:sys_mem
+     :copy_to_ring`.
 
-	* Advances to the next buffer in the ring.
+   * It commits the write by setting the buffer status to `frag`.
 
-5. If no message exists, it sends a **Ping** (empty payload with
-   `total_length` = -1) to maintain routing table aliveness and exchange
-   load-balancing stats (`task_count`).
+5. **Wrap-Around:** Because headers must be contiguous, if the write head nears
+   the end of the linear memory block and there isn't room for a header, it
+   writes a `skip` status to advance the reader's pointer back to 0.
 
 ### Reception (`:in` task)
 
-The `:in` task (in `sys/link/class.vp`):
+The `:in` task (`sys/link/in.vp`) handles incoming ring data:
 
-1. Monitors the current read-buffer in its assigned channel.
+1. **Poll:** It spins/yields, waiting for the head's `status` to change from
+   `ready`.
 
-2. Waits for status to become `busy`.
+2. **Process by Status:**
 
-3. Reads the header.
+   * **`skip` (3):** Wraps the read pointer back to the start of the ring.
 
-4. **Routing:**
+   * **`ping` (1):** Updates the local `lk_node` struct with the peer's current
+     `task_count` (used for emergent load balancing).
 
-	* If it is a Ping, it updates local load-balancing stats.
+   * **`frag` (2):**
 
-	* If it is a Data Fragment destined for *this* node, it calls `:sys_mail
-	  :in` to handle reassembly.
+     * If the fragment's destination `node_id` matches the *local* node, it
+       calls `:sys_mail :in` for zero-copy reassembly.
 
-	* If it is destined for *another* node, it allocates a new message
-	  container, copies the data, and reinjects it into the local mail system
-	  via `:sys_mail :send` for forwarding.
+     * If routing *through* this node, it allocates a new message, copies the
+       fragment out of the ring, and calls `:sys_mail :send` to forward it.
 
-5. Sets status to `ready` (signaling the sender can reuse the slot).
-
-6. Advances to the next buffer.
+3. **Reclaim:** Sets the processed buffer's status back to `ready` and advances
+   the pointer.
 
 ## 2. Fragmentation and Reassembly (`sys/mail`)
 
-ChrysaLisp supports messages larger than the physical link packet size
-(`lk_data_size`, 984 bytes). Large messages ("Parcels") are broken down by a
-"Postman" task and reassembled by the receiver kernel.
+Messages larger than `lk_data_size` are broken down into Fragments by a
+"Postman" task and reassembled seamlessly by the receiver.
 
 ### Fragmentation (`sys/mail/out.vp`)
 
-When `:sys_mail :send` detects a message larger than `lk_data_size`, it
-queues it to the **Postman** task (`:sys_mail :out`).
+When `:sys_mail :send` sees a message bound for an off-chip destination, if it
+exceeds `lk_data_size`, it routes it to the local Postman task (`:sys_mail
+:out`).
 
-1. **Session ID:** A unique session ID is incremented for the transaction.
+1. **Session Management:** The Postman increments a global `sys_mail_session`
+   ID.
 
-2. **Loop:** The Postman iterates over the source payload.
+2. **Loop & Slice:** It iteratively allocates fragments from
+   `sys_mail_msg_heap`.
 
-3. **Packet Allocation:** It allocates small fragments (size <= 984 bytes).
+3. **Header Generation:** Each fragment receives:
 
-4. **Header Generation:**
+   * `length`: Size of this chunk.
 
-	* `frag_offset`: The byte offset of this chunk.
+   * `offset`: Absolute byte offset into the original unfragmented message.
 
-	* `total_length`: The total size of the original message.
+   * `total`: Total length of the original message.
 
-	* `frag_length`: The size of this specific chunk.
-
-5. **Queueing:** Fragments are pushed to the `offchip_list`, intermixed with
-   other traffic to prevent a large message from blocking the network.
+4. **Queueing:** The fragments are queued to the `statics_sys_mail_offchip_list`
+   where Link drivers pick them up.
 
 ### Reassembly (`sys/mail/in.vp`)
 
-The `:sys_mail :in` method handles incoming fragments from the Link Driver.
+Reassembly is highly optimized and resilient to out-of-order delivery.
 
-1. **Lookup:** It searches the `statics_sys_mail_parcel_list` for an existing
-   reassembly buffer matching the `src` NetID.
+1. **Lookup:** When a `frag` arrives for the local node, `:sys_mail :in`
+   searches `statics_sys_mail_parcel_list` for a parcel matching the source
+   `netid`.
 
-2. **New Parcel:** If not found (and `frag_offset` is valid), it allocates a
-   buffer of size `total_length`.
+2. **Allocation:** If it's a new parcel, the kernel allocates a single
+   contiguous buffer matching the `total` length.
 
-3. **Copy:** It copies the fragment data from the Link Shared Memory directl y
-   into the Parcel heap object at `frag_offset`.
+3. **Zero-Copy Insert:** Using the absolute `offset` provided in the fragment
+   header, the payload is copied directly from the Link ring buffer into its
+   final position in the parcel (`msg->+msg_data + rx_frag->lk_frag_offset`).
 
-4. **Tracking:** It decrements a tracking counter on the Parcel object by
-   `frag_length`.
+4. **Completion:** `msg_total` is decremented by the fragment `length`. When it
+   reaches 0, the fully reassembled message is removed from the list and
+   dispatched.
 
-5. **Completion:** When the tracking counter reaches 0 (all bytes received),
-   the completed Parcel is removed from the reassembly list and delivered to
-   the destination mailbox via `:sys_mail :send`.
+## 3. Kernel Routing and Discovery
 
-## 3. Kernel Routing
-
-ChrysaLisp uses a decentralized, flood-fill-style routing algorithm to
-discover paths and services.
+ChrysaLisp relies on an emergent, decentralized routing algorithm to map the
+network.
 
 ### Node Mapping (`node_map`)
 
 The kernel maintains a `node_map` (`sys/statics/class.inc`), mapping a target
 `node_id` to a routing tuple: `[service_set, timestamp, session, hops,
-via_node_1, via_node_2]`
+via_node_1, via_node_2...]`.
 
-* **via_node:** The immediate neighbor to send messages to in order to reach
-  the target.
+* Multipath routing is supported by appending multiple `via_node`s to the tuple.
 
 ### The Ping Cycle (`sys/kernel/class.vp`)
 
-Every `ping_period` (approx 5 seconds + random jitter), the Kernel `:ping` task
-runs:
+Every `ping_period` (5,000,000 microseconds / 5 seconds), the Kernel `:ping`
+task:
 
-1. **Broadcast:** Sends a `kn_msg_ping` to all immediate neighbors via the
-   Link Drivers.
+1. Gathers all local services into a string.
 
-2. **Payload:** Contains the sender's origin ID, session ID, hop count
-   (initially 0), and a list of offered services.
+2. Broadcasts a `+kn_msg_ping` message out to the network.
+
+3. The message contains the sender's origin ID, session ID, hop count, and
+   services.
 
 ### Flood Fill Logic
 
-When a kernel receives a Ping (`kn_call_ping` in `sys/kernel/class.vp`):
+When a kernel receives a Ping (`flood_fill` in `sys/kernel/class.vp`):
 
-1. **New Session:** If the Ping `session` > known session for that Origin:
+1. **New Session:** If `session` > known session:
 
-	* Update table with new session/timestamp.
+   * Clear old routes, record new session/timestamp/hops, add the incoming link
+     as the `via` node, and flood the Ping to all *other* links.
 
-	* Flood the Ping to all *other* links (incrementing `hops`).
+2. **Better Route:** If `session` matches but `hops` < known hops:
 
-2. **Better Route:** If the Ping `session` matches but `hops` < known hops:
+   * Clear old routes, update hops, set the `via` node, and flood the Ping.
 
-	* Update table setting the "Via" to the link the Ping arrived on.
+3. **Equal Route:** If `hops` matches known hops:
 
-	* Flood the Ping.
+   * Add the link to the list of valid `via` nodes (enabling multipath). Do
+     *not* flood.
 
-3. **Equal Route:** If `hops` are equal:
+4. **Service Update:** The service list is parsed, and the `node_map`'s `hset`
+   is updated to reflect the origin's current capabilities.
 
-	* Add the link to the list of valid "Via" nodes (multipath routing).
+## 4. Self-Healing and Garbage Collection
 
-	* Do *not* flood (prevents storms).
+To maintain the "Formless" philosophy, nodes must cleanly forget state related
+to disconnected or crashed peers. This runs automatically at the end of every
+5-second `:ping` cycle.
 
-4. **Worse Route:** Discard.
+### 1. Route Purging (`purge_callback`)
 
-### Message Routing
+* Scans `statics_sys_mail_node_map`.
 
-When `:sys_mail :ready` is called by a Link Driver (looking for work):
+* If a route's `timestamp` is older than `ping_period * 2` (10 seconds), the
+  node is considered dead.
 
-1. It scans the `offchip_list` (outgoing queue).
+* The route and its advertised services are erased.
 
-2. It extracts the Destination Node ID.
+### 2. Message Purging (`purge_mail`)
 
-3. It looks up the Destination in `node_map`.
+* Scans the `statics_sys_mail_offchip_list` (outgoing queue).
 
-4. It checks the "Via" entry.
+* Any outbound message queued for longer than `ping_period * 2` is freed,
+  preventing undeliverable messages from causing memory leaks.
 
-5. If **Via == Peer Node of the Link**, the message is authorized for
-   transmission on that link.
+### 3. Parcel Purging (Reassembly Cleanup)
 
-## 4. Mail Purging (Garbage Collection)
+* Scans the `statics_sys_mail_parcel_list` (incoming reassembly queue).
 
-Because the network is formless and nodes may disappear, the system must
-aggressively clean up stale state to prevent memory leaks and zombie routing
-entries.
+* If a parcel hasn't received a fragment in `ping_period * 2`, it means the
+  sender crashed or the network partitioned mid-transmission. The incomplete
+  parcel is safely discarded.
 
-### The Purge Cycle
+## 5. Emergent Load Balancing
 
-The Kernel `:ping` task (in `sys/kernel/class.vp`) triggers cleanup logic at
-the end of every cycle.
+Load balancing ("Be like water") is inherently tied to the link protocol:
 
-### 1. Route Purging
+1. **Local Assessment:** Link drivers share their `task_count` via `ping` buffer
+   statuses continuously.
 
-* **Target:** `statics_sys_mail_node_map`
+2. **Downhill Flow:** When a task is spawned with `+kn_call_child`, the kernel
+   (`sys/kernel/class.vp`) checks the `task_count` of all connected peers.
 
-* **Logic:** A callback (`purge_callback`) checks the timestamp of every
-  entry in the routing table.
-
-* **Threshold:** If `last_seen < (current_time - ping_period * 2)`, the node
-  is presumed dead/disconnected.
-
-* **Action:** The route and associated service lists are removed from the
-  map.
-
-### 2. Message Purging
-
-* **Target:** `statics_sys_mail_offchip_list` (Outgoing queue)
-
-* **Logic:** `purge_mail` iterates the list.
-
-* **Threshold:** If `msg_timestamp < (current_time - ping_period * 2)`.
-
-* **Action:** The message is freed. This prevents messages destined for
-  unreachable nodes from clogging the outgoing queue indefinitely.
-
-### 3. Parcel Purging (Reassembly)
-
-* **Target:** `statics_sys_mail_parcel_list` (Incoming reassembly)
-
-* **Logic:** `purge_mail` iterates the list.
-
-* **Threshold:** Same as above.
-
-* **Action:** Incomplete parcels (where parts were lost or the sender died)
-  are freed.
-
-This architecture ensures that the system self-heals after network partitions
-or node failures without manual intervention.
+3. **Delegation:** If peer nodes have a lower `task_count`, the kernel aborts
+   local creation, picks a random less-loaded peer from the best candidates, and
+   forwards the creation request across the network.
