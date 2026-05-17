@@ -22,21 +22,28 @@ unidirectional continuous ring buffers, padded to page alignment:
 
 * `chan_2` (Write for Node B, Read for Node A)
 
-**The "Towel" Protocol:**
+**The Ownership Protocol:**
 
-To determine which node uses which channel, the driver uses a "towel" concept
-during initialization (in `sys/link/class.vp` `:link` task):
+To determine which node uses which channel, the driver uses a robust negotiation
+protocol during initialization (in `sys/link/class.vp` `:link` task):
 
-1. The node checks if the memory is clear
-   (`mem->lk_buf_size.lk_node_peer_node_id` == 0).
+1. The node checks if `host_a` (embedded in the alignment padding) is clear
+   (`mem->lk_shmem_host_a` == 0).
 
-2. If it is 0, it puts its "towel" down by writing its own `node_id`.
+2. If it is 0, it attempts to claim leadership by writing its `node_id` to
+   `host_a`. It then waits a short period (100 microseconds) for any bus
+   propagation or simultaneous write collisions to settle.
 
-3. When the TX (`:out`) and RX (`:in`) tasks start, they check this field
-   against their own `node_id`.
+3. It then re-reads `host_a`. If it matches its own ID, it has won leadership.
+   It sets itself as the `owner`, using `chan_1` for transmission and `chan_2`
+   for reception.
 
-4. If it matches, the local node owns `chan_1` for transmission and `chan_2` for
-   reception. If it doesn't match, the roles are reversed.
+4. If it doesn't match, it is the `guest`. It registers its `node_id` in
+   `host_b` to signal its presence to the owner. It uses `chan_2` for
+   transmission and `chan_1` for reception.
+
+5. Both nodes wait for both `host_a` and `host_b` to be non-zero before
+   starting the TX and RX tasks, ensuring a fully established link.
 
 ### Channel Protocol (`lk_chan`)
 
