@@ -669,7 +669,7 @@
 (defq emit_list (filter (# (starts-with "emit-" %0))
 		(merge (map (const first) (tolist (penv))) (map (const first) (tolist (env)))))
 	+arm64_fuse_map
-		(reduce! (#
+		(reduce (#
 			(def %0 %1 (when (defq i (find %1 '(emit-cpy-ir emit-cpy-ir-i emit-cpy-ir-ui
 								emit-cpy-ri emit-cpy-ri-i emit-cpy-if emit-cpy-fi)))
 				(defq is_load (find %1 '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if))
@@ -678,7 +678,7 @@
 						emit-arm64-stp emit-arm64-stp-i emit-arm64-ldp-f emit-arm64-stp-f) i)
 					is_load size (* size 64)
 					(if is_load 1 2) (if is_load 2 3) (if is_load 3 1)))) %0) ; b_idx c_idx d_idx
-			(list emit_list) (env 1)))
+			emit_list (env 1)))
 
 (defmacro arm64-fusable? (limit size is_load base c1 d1 c2 d2)
 	`(when (and (nql ,d1 ,d2) (nql ,d1 :rsp) (nql ,d2 :rsp)
