@@ -202,7 +202,7 @@
 (def-method :sys_link :out)
 
 	(def-vars
-		(ptr statics lk_node msg data tx head tail key)
+		(ptr statics lk_node key msg data tx head tail)
 		(nodeid node_id)
 		(long is_owner)
 		(int free)
@@ -281,11 +281,15 @@
 			(breakif {free < (lk_buf_size + lk_frag_size + lk_data_size + lk_buf_size)})
 
 			;see if any mail for this link
-			(call :sys_mail :ready
-				{lk_node->lk_node_peer_node_id.+node_id_node1,
-				lk_node->lk_node_peer_node_id.+node_id_node2,
-				key} {msg})
-			(breakifnot {msg})
+			(vp-rdef (node1 node2 key lk_node) (method-input :sys_mail :ready))
+			(vp-rdef (msg) (method-output :sys_mail :ready))
+			(assign {lk_node, key} `(,lk_node ,key))
+			(assign `((,lk_node (+ lk_node_peer_node_id +node_id_node1))
+					(,lk_node (+ lk_node_peer_node_id +node_id_node2)))
+				`(,node1 ,node2))
+			(call :sys_mail :ready `(,node1 ,node2 ,key) `(,msg))
+			(breakif `(,msg = 0))
+			(assign `(,msg) {msg})
 
 			;reset to min poling
 			(assign {lk_sleep_min} {sleep_time})
@@ -312,9 +316,14 @@
 
 		(vp-label 'yield)
 			;do we have enough headroom, as only msg data can wrap ?
-			(vpif {&head->lk_buf_size.lk_frag_size > &tx->lk_chan_size})
+			(vp-rdef (head tx status tx_end head_end))
+			(assign {head, tx} `(,head ,tx))
+			(vp-lea-i tx lk_chan_size tx_end)
+			(vp-lea-i head (+ lk_buf_size lk_frag_size) head_end)
+			(vpif `(,head_end > ,tx_end))
 				;write buf skip, wrap head and trigger :in
-				(call 'write_buf {head, tx, lk_chan_status_skip, &tx->lk_chan_size - head} {head})
+				(vp-sub-rr head tx_end)
+				(call 'write_buf `(,head ,tx lk_chan_status_skip ,tx_end) {head})
 			(endif)
 
 			;let other links run
