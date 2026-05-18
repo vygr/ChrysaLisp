@@ -69,7 +69,7 @@
 (validatecase
 	(unless (every (# (apply (const =) %0))
 		(map! (lambda (&rest %0) (map (const weak-ref) %0))
-			(map (# (reduce (# (push %0 (first %1))) %0 (list)))
+			(map (# (map (const first) %0))
 				(map (const tolist) (cat (list +emit_funcs +emit_jmps) prepass_maps)))))
 		(throw "Mismatching instruction maps !" :nil)))
 
