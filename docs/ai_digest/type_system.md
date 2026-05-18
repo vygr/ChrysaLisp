@@ -75,7 +75,7 @@ declared signatures (e.g., `(signature '(:str :num))`).
   table.
 
 * **Linkerless Predictability:** Because ChrysaLisp is effectively "linkerless"
-  (code sections never change size after compilation), these relative offsets
+  (code sections never mutate after compilation), these relative offsets
   are perfectly known at VP assembly time.
 
 * **Fast Runtime Evaluation:** When a method like `:lisp :env_args_sig` or
