@@ -65,6 +65,14 @@
 		emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))) e)
 	(tolist +emit_funcs) (env 1)))
 
+;validate that all instruction maps have identical slots
+(validatecase
+	(unless (every (# (apply (const =) %0))
+		(map! (lambda (&rest %0) (map (const weak-ref) %0))
+			(map (# (reduce (# (push %0 (first %1))) %0 (list)))
+				(map (const tolist) (cat (list +emit_funcs +emit_jmps) prepass_maps)))))
+		(throw "Mismatching instruction maps !" :nil)))
+
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
 	(defq emit_code (emit-prepass emit_code)

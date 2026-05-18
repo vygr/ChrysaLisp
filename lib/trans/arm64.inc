@@ -707,4 +707,8 @@
 
 ;module, that exports all emit-* !
 (export-symbols all_emits)
+;plus any private instruction maps if validating
+(validatecase
+	(defq prepass_maps (list +arm64_fuse_map))
+	(export-symbols '(prepass_maps)))
 (env-pop)

@@ -799,4 +799,8 @@
 
 ;module, that exports everything !
 (export-symbols (map (const first) (tolist (env))))
+;plus any private instruction maps if validating
+(validatecase
+	(defq prepass_maps (list))
+	(export-symbols '(prepass_maps)))
 (env-pop)
