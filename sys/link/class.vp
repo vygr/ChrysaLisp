@@ -175,9 +175,14 @@
 			(endif)
 
 			;move on to next transfer
-			(vpif {(head + length => head) >= &rx->lk_chan_size})
-				(assign {head - lk_chan_size} {head})
+			(vp-rdef (head rx len))
+			(assign {head, rx, length} `(,head ,rx ,len))
+			(vp-add-cr lk_chan_size rx)
+			(vp-add-rr len head)
+			(vpif `(,head >= ,rx))
+				(vp-sub-cr lk_chan_size head)
 			(endif)
+			(assign `(,head) {head})
 
 			;let other links run
 			(call :sys_task :sleep '(0))
