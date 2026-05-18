@@ -12,11 +12,13 @@
 ; link structures
 ;;;;;;;;;;;;;;;;;
 
-;msg data area max size when allocated as a string object
+;msg lk_data_size area max size when allocated as a string object
 ;allowing for heap pointer and null byte, rounded down for faster memcpy
-(defq lk_page_size 4096 lk_sleep_min 100 lk_sleep_max 800
-	lk_data_size (- lk_page_size +str_size +long_size +sys_mem_header_size)
-	lk_bufs_per_chan 6)
+;and fitted into an entire memory cell, 3032 ATM
+(defq lk_page_size 4096 lk_sleep_min 100 lk_sleep_max 800 lk_bufs_per_chan 6
+	lk_data_size  (some! (lambda (%0) (if (> %0 lk_page_size)
+			(- (elem-get +mem_heap_cell_sizes (dec (!))) +str_size +long_size +sys_mem_header_size)))
+		(list +mem_heap_cell_sizes)))
 
 (enums lk_chan_status 0
 	(enum ready ping frag skip))
