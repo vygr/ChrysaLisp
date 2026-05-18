@@ -69,6 +69,8 @@ string object that is >= `lk_page_size` and fits exactly in the memory cell that
 best fits that spec. 6104 bytes, but this is worked out dynamically, if the cell
 sizes change then this will compile to a better value.
 
+Validate build mode checks that all translator instruction maps match slots.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
