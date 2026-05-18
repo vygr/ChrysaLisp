@@ -64,6 +64,11 @@ link buffers memory.
 Added `:sys_task :wake_links` method and use it to wake any sleeping link tasks
 when a message gets posted to the off chip list.
 
+Adjust `lk_data_size` (the message fragment data packet), to best fit into a
+string object that is <= `lk_page_size` and fits exactly in the memory cell that
+best fits that spec. 3032 bytes, but this is worked out dynamically, if the cell
+sizes change then this will compile to a better value.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
