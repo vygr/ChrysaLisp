@@ -41,13 +41,12 @@
 		(assign {node_id.+node_id_node1, node_id.+node_id_node2} 
 			{mem->lk_shmem_host_a.+node_id_node1, mem->lk_shmem_host_a.+node_id_node2})
 		;wait a fraction for bus propagation / simultaneous write collisions
-		(call :sys_task :sleep '(100000))
+		(call :sys_task :sleep '(100))
 	(endif)
 
 	;verify who won host_a
-	(vpif {mem->lk_shmem_host_a.+node_id_node1 = node_id.+node_id_node1})
-		(assign {1} {is_owner})
-	(else)
+	(assign {1} {is_owner})
+	(vpif {mem->lk_shmem_host_a.+node_id_node1 /= node_id.+node_id_node1})
 		(assign {0} {is_owner})
 		;register as guest in host_b
 		(assign {node_id.+node_id_node1, node_id.+node_id_node2} 

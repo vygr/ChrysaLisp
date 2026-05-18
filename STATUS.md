@@ -61,7 +61,7 @@ Switched to a new byte ring buffer, rather than slots, based SH_MEM link
 protocol. This should allow tighter packing of small messages into the available
 link buffers memory.
 
-Added `:sys_task :wake_links` method and use it to wake any sleeping link task
+Added `:sys_task :wake_links` method and use it to wake any sleeping link tasks
 when a message gets posted to the off chip list.
 
 ------
