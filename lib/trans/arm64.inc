@@ -11,7 +11,7 @@
 
 (defq +emit_native_regs
 	(reduce (# (def %0 %1 (!)) %0)
-		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r17				;args (x0-x7)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7				;args (x0-x7)
 		:r15											;indirect (x8)
 		:r16 :r17 :r18 :r19 :r20 :r21 :r22				;temps (x9-x15)
 		:r23 :r24 :r25									;ip0, ip1, platform
