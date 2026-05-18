@@ -10,8 +10,8 @@
 (defcvar 'stack_align 8 'stack_state '(:r30))
 
 (defq +emit_native_regs
- 	(reduce (# (def %0 %1 (!)) %0)
-		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7				;args (x0-x7)
+	(reduce (# (def %0 %1 (!)) %0)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r17				;args (x0-x7)
 		:r15											;indirect (x8)
 		:r16 :r17 :r18 :r19 :r20 :r21 :r22				;temps (x9-x15)
 		:r23 :r24 :r25									;ip0, ip1, platform
@@ -583,10 +583,10 @@
 			(emitm-int (+ 0xfc000000 (<< (logand +arm64_rtmp 31) 5) (logand s 31))))))
 
 (defun emit-cpy-df (s1 s2 d)
-    (arm64-dr 0xFC606800 s1 s2 d))
+	(arm64-dr 0xFC606800 s1 s2 d))
 
 (defun emit-cpy-fd (s d1 d2)
-    (arm64-dr 0xFC206800 d1 d2 s))
+	(arm64-dr 0xFC206800 d1 d2 s))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +arm64_vp_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +arm64_vp_rsp))
