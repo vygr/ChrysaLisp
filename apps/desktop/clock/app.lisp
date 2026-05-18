@@ -96,7 +96,7 @@
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id :nil))
-					(:t (. *window* :event msg))))
+					((. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem-get select +select_timer) +rate 0)

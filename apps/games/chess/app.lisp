@@ -142,7 +142,7 @@
 										(setq selected_idx board_idx)
 										(display-board brd)))))
 						(. *window* :event *msg*))
-					(:t (. *window* :event *msg*))))
+					((. *window* :event *msg*))))
 			((= idx +select_task)
 				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))
 				(when (and farm (defq val (. farm :find key)))

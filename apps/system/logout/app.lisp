@@ -36,5 +36,5 @@
 		((= id +event_quit)
 			;quit button
 			(gui-quit-rpc))
-		(:t (. *window* :event msg))))
+		((. *window* :event msg))))
 	(gui-sub-rpc *window*))

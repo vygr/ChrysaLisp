@@ -110,7 +110,7 @@
 							zoom (* zoom (if (bits? (getf msg +ev_msg_mouse_buttons) 2)
 								+real_2 +real_1/2)))
 						(reset))
-					(:t (. *window* :event msg))))
+					((. *window* :event msg))))
 			(+select_task
 				;child launch response
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))

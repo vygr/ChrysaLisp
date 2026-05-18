@@ -228,8 +228,7 @@
 					((<= +char_space key +char_tilde)
 						;insert char etc ...
 						(char key))))
-			(:t ;gui event
-				(. *window* :event *msg*))))
+			((. *window* :event *msg*))))
 	(. farm :close)
 	(gui-sub-rpc *window*)
 	(profile-report "Mesh"))

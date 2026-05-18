@@ -83,7 +83,7 @@
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
 						(setq id :nil))
-					(:t (. *window* :event msg))))
+					((. *window* :event msg))))
 			(+select_task
 				;child launch response
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))

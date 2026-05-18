@@ -50,6 +50,5 @@
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(if *canvas* (.-> *canvas* :next_frame (:swap 0))))
 			((. *window* :dispatch *msg*))
-			(:t ;gui event
-				(. *window* :event *msg*))))
+			((. *window* :event *msg*))))
 	(gui-sub-rpc *window*))

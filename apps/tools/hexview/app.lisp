@@ -179,8 +179,7 @@
 				;key up event
 				)
 			((. *window* :dispatch *msg*))
-			(:t ;gui event
-				(. *window* :event *msg*)))
+			((. *window* :event *msg*)))
 		;update meta data
 		(update-meta-data))
 	(gui-sub-rpc *window*))

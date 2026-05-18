@@ -61,5 +61,5 @@
 					(open-child "apps/system/wallpaper/app.lisp" +kn_call_open)
 					:nil)
 				(:t :t)))
-		(:t (. *window* :event msg))))
+		((. *window* :event msg))))
 	(gui-sub-rpc *window*))

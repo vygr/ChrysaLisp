@@ -131,6 +131,6 @@
 					:maximum (getf *msg* +progress_total)))
 			;must be gui event to main mailbox
 			((. *window* :dispatch *msg*))
-			(:t (. *window* :event *msg*))))
+			((. *window* :event *msg*))))
 	(stop-route)
 	(gui-sub-rpc *window*))

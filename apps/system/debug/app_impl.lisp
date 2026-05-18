@@ -135,7 +135,7 @@
 			;must be GUI event
 			((. *window* :dispatch *msg*))
 			;otherwise
-			(:t (. *window* :event *msg*))))
+			((. *window* :event *msg*))))
 	(gui-sub-rpc *window*)
 	(config-save)
 	;restart any paused debug ipc

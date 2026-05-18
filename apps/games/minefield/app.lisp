@@ -157,8 +157,7 @@
 						(:t :nil)))
 				(:t :nil))
 			(is-game-over?))
-		(:t
-			(and (= (getf msg +ev_msg_type) +ev_type_mouse)
+		(:t (and (= (getf msg +ev_msg_type) +ev_type_mouse)
 				(/= 0 (getf msg +ev_msg_mouse_buttons))
 				(setq mouse_down (getf msg +ev_msg_mouse_buttons)))
 			(. *window* :event msg))))

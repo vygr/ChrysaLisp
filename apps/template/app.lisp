@@ -40,7 +40,6 @@
 				(mail-timeout (elem-get select +select_timer) +rate 0))
 			;must be +select_main
 			((. *window* :dispatch *msg*))
-			(:t ;gui event
-				(. *window* :event *msg*))))
+			((. *window* :event *msg*))))
 	(gui-sub-rpc *window*)
 	(profile-report "Template"))

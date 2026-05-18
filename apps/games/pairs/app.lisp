@@ -191,7 +191,7 @@
 					(update-view)))
 			((= (getf msg +ev_msg_type) +ev_type_action)
 				(dispatch-action (getf msg +ev_msg_target_id)))
-			(:t (. *window* :event msg))))
+			((. *window* :event msg))))
 
 	(config-save)
 	(gui-sub-rpc *window*))

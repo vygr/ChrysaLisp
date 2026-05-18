@@ -98,8 +98,7 @@
 				(vdu-print (if (= index selected_index) *vdu*) buf data))
 			;must be GUI event
 			((. *window* :dispatch *msg*))
-			;otherwise
-			(:t (. *window* :event *msg*))))
+			((. *window* :event *msg*))))
 	(mail-forget entry)
 	(gui-sub-rpc *window*)
 	(config-save))

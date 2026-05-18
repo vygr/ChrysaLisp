@@ -81,5 +81,5 @@
 			((= +event_copy id)
 				(clip-put-rpc (to-lower (get :tip_text
 					(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))
-			(:t (. *window* :event *msg*))))
+			((. *window* :event *msg*))))
 	(gui-sub-rpc *window*))

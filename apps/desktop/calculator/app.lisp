@@ -325,6 +325,6 @@
 						(if op
 							(action-input op)
 							(. *window* :event msg)))
-					(:t (. *window* :event msg))))))
+					((. *window* :event msg))))))
 	(config-save)
 	(gui-sub-rpc *window*))

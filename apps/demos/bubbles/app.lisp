@@ -194,7 +194,7 @@
 									(setq last_state :u))
 								(:u ;was up last time, so we are hovering
 									:t)))))
-			(:t (. *window* :event *msg*))))
+			((. *window* :event *msg*))))
 	;close window
 	(gui-sub-rpc *window*)
 	(profile-report "Bubbles"))

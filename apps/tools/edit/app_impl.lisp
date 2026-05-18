@@ -290,9 +290,7 @@
 						(dispatch-action action-insert word))
 					((select-match (if (= key 0x40000052) -1 1)))))
 			((. *window* :dispatch *msg*))
-			(:t ;gui event
-				(clear-matches)
-				(. *window* :event *msg*)))
+			((clear-matches) (. *window* :event *msg*)))
 		;update meta data
 		(update-meta-data))
 	(action-save-all)

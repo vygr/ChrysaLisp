@@ -127,8 +127,7 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			((. *window* :dispatch *msg*))
-			(:t ;gui event
-				(. *window* :event *msg*))))
+			((. *window* :event *msg*))))
 	(if *pipe* (. *pipe* :close))
 	(state-save)
 	(gui-sub-rpc *window*))

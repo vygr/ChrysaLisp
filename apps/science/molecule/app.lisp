@@ -282,8 +282,7 @@
 					(elem-set select +select_task (mail-mbox))
 					(elem-set select +select_reply (mail-mbox))))
 			((. *window* :dispatch *msg*))
-			(:t ;gui event
-				(. *window* :event *msg*))))
+			((. *window* :event *msg*))))
 	(if farm (. farm :close))
 	(gui-sub-rpc *window*)
 	(profile-report "Molecule"))
