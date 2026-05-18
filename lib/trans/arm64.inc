@@ -368,7 +368,8 @@
 			(if (>= c 0)
 				(emitm-int (+ 0x91000000 (<< (logand c 0xfff) 10) (<< s 5) d))
 				(emitm-int (+ 0xd1000000 (<< (logand (neg c) 0xfff) 10) (<< s 5) d))))
-		(:t (throw "emit-lea-i constant out of range !" c))))
+		(:t (emit-cpy-cr c +arm64_rtmp)
+			(arm64-rrr 0x8b000000 s +arm64_rtmp d))))
 
 (defun emit-lea-d (s1 s2 d) (arm64-rrr 0x8b000000 s1 s2 d))
 
