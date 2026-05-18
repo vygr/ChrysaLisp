@@ -387,6 +387,8 @@
 			(vp-cpy-ri :r0 :r4 +msg_timestamp)
 			(vp-add-cr statics_sys_mail_offchip_list :r1)
 			(lh-add-at-tail :r1 :r4 :r0)
+			;wake any sleeping link task
+			(call :sys_task :wake_links)
 		(endif)
 	(endif)
 	(vp-ret)

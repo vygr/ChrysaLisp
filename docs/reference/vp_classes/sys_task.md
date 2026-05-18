@@ -152,9 +152,18 @@ suspend current task, switch to next task
 outputs
 :r0 = current time (long)
 trashes
-:r0-:r14
+:r0-:r7
 info
 resume tasks ready to run.
-mail mailboxes on timouts.
+mail mailboxes on timeouts.
+```
+
+### :wake_links -> sys/task/wake_links
+
+```code
+trashes
+:r0-:r3
+info
+resume any links that are asleep
 ```
 
