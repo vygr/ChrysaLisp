@@ -36,7 +36,7 @@
 	(assign '((:r2 +tk_node_lisp)) '(:r2))
 	(assign '(:r2) '((:r3 +tk_node_lisp)))
 	;gui priority
-	(call :sys_task :set_priority '(2))
+	(call :sys_task :set_priority '(tk_gui_priority))
 
 	(vp-pop :r0 :r1)
 	(class/obj/ref :r1 :r2)

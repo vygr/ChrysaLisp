@@ -12,7 +12,7 @@
 	(vp-xor-rr :r1 :r1)
 	(vp-cpy-ri :r1 :r0 statics_sys_task_then)
 	(vp-add-cr statics_sys_task_suspend_list :r0)
-	(vp-lea-i :r0 (* (+ num_task_lists 2) +lh_list_size) :r1)
+	(vp-lea-i :r0 (* (+ tk_num_task_lists 2) +lh_list_size) :r1)
 	(loop-start)
 		(lh-init :r0 :r2)
 		(vp-add-cr +lh_list_size :r0)
@@ -302,7 +302,7 @@
 	(assign {0, tcb} {tcb->+tk_node_lisp, tcb->+tk_node_mbox_addr->+mbox_owner_tcb})
 
 	;init task control block stack, pc and stop address's
-	(assign {func, tcb, tcb + tcb_size, -1, num_task_lists - 1, 0} '(:r1 :r4 :r0 :r2 :r3 :r6))
+	(assign {func, tcb, tcb + tcb_size, -1, tk_app_priority, 0} '(:r1 :r4 :r0 :r2 :r3 :r6))
 	(fn-bind 'sys/statics/statics :r5)
 	(assign '(:r2) '((:r4 +tk_node_time)))
 	(vp-add-cr statics_sys_task_suspend_list :r5)
@@ -426,7 +426,7 @@
 	(fn-bind 'sys/statics/statics statics)
 	(assign `((,statics statics_sys_task_kernel_tcb)) `(,kernel_tcb))
 	(assign `((& ,statics statics_sys_task_suspend_list)) `(,tasks))
-	(assign `((& ,tasks ,(* (+ num_task_lists 2) +lh_list_size))) `(,tasks_end))
+	(assign `((& ,tasks ,(* (+ tk_num_task_lists 2) +lh_list_size))) `(,tasks_end))
 	(vp-cpy-cr tk_stack_canary canary)
 	(loop-start)
 		(loop-list-forward tasks 0 node next)

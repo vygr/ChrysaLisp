@@ -385,7 +385,7 @@
 			;timestamp it and queue it on the outgoing packet list
 			(call :host_os :pii_time :nil '(:r0))
 			(vp-cpy-ri :r0 :r4 +msg_timestamp)
-			(vp-add-cr statics_sys_mail_offchip_list :r1)
+			(vp-add-cr statics_sys_mail_outbound_list :r1)
 			(lh-add-at-tail :r1 :r4 :r0)
 			;wake any sleeping link task
 			(call :sys_task :wake_links)
@@ -767,7 +767,7 @@
 	(entry :sys_mail :ready `(,peer1 ,peer2 ,key))
 
 	(fn-bind 'sys/statics/statics next)
-	(loop-list-forward next statics_sys_mail_offchip_list node next 'exit)
+	(loop-list-forward next statics_sys_mail_outbound_list node next 'exit)
 		(load-node-id node (+ +msg_dest +net_id_node_id) via1 via2)
 		(vpif `(,peer1 = ,via1))
 			(breakif `(,peer2 = ,via2) 'exit)

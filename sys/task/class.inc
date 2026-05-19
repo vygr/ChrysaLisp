@@ -36,17 +36,19 @@
 ; task structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar 'tk_stack_size (* 1024 6))
-(defcvar 'tk_stack_margin (* 512 1))
-(defcvar 'tk_stack_canary 0xbadf00d123456789)
-
 ;number of distinct priorities
 ;currently experimenting with
 ;0 Kernel process and interrupts
-;1 Link Drivers and Postman process
-;2 GUI process
-;3 Applications
-(defcvar 'num_task_lists 4)
+;1 Out Link Drivers and Postman process
+;2 In Link Drivers process
+;3 GUI process
+;4 Applications
+
+(defq tk_num_task_lists 5 tk_kernel_priority 0
+	tk_out_link_priority 1 tk_in_link_priority 2
+	tk_gui_priority 3 tk_app_priority (dec tk_num_task_lists)
+	tk_stack_size (* 1024 6) tk_stack_margin (* 512 1)
+	tk_stack_canary 0xbadf00d123456789)
 
 ;;;;;;;;;;;;;
 ; task macros

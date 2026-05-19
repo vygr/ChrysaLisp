@@ -79,7 +79,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 	;loop till no other tasks running
-	(call :sys_task :set_priority '(0))
+	(call :sys_task :set_priority '(tk_kernel_priority))
 	(loop-start 'exit)
 		;service all kernel mail
 		(loop-start 'kernel_loop)
@@ -240,7 +240,7 @@
 		;find next task we could defer to
 		(assign {statics} '(:r3))
 		(assign '((& :r3 (+ statics_sys_task_task_lists +lh_list_size))) '(:r1))
-		(assign '((& :r3 (+ statics_sys_task_task_lists (* num_task_lists +lh_list_size)))) '(:r2))
+		(assign '((& :r3 (+ statics_sys_task_task_lists (* tk_num_task_lists +lh_list_size)))) '(:r2))
 		(loop-start)
 			(lh-get-head :r1 0 :r4)
 			(ln-get-succ :r4 0 :r5)
@@ -526,7 +526,7 @@
 
 		;purge stale messages and parcels
 		(fn-bind 'sys/statics/statics :r0)
-		(call 'purge_mail '((& :r0 statics_sys_mail_offchip_list) (:rsp local_now)))
+		(call 'purge_mail '((& :r0 statics_sys_mail_outbound_list) (:rsp local_now)))
 		(fn-bind 'sys/statics/statics :r0)
 		(call 'purge_mail '((& :r0 statics_sys_mail_parcel_list) (:rsp local_now)))
 

@@ -140,7 +140,7 @@ exceeds `lk_data_size`, it routes it to the local Postman task (`:sys_mail
 
    * `total`: Total length of the original message.
 
-4. **Queueing:** The fragments are queued to the `statics_sys_mail_offchip_list`
+4. **Queueing:** The fragments are queued to the `statics_sys_mail_outbound_list`
    where Link drivers pick them up.
 
 ### Reassembly (`sys/mail/in.vp`)
@@ -225,7 +225,7 @@ to disconnected or crashed peers. This runs automatically at the end of every
 
 ### 2. Message Purging (`purge_mail`)
 
-* Scans the `statics_sys_mail_offchip_list` (outgoing queue).
+* Scans the `statics_sys_mail_outbound_list` (outgoing queue).
 
 * Any outbound message queued for longer than `ping_period * 2` is freed,
   preventing undeliverable messages from causing memory leaks.

@@ -17,7 +17,7 @@
 	;keep these together
 	(struct sys_task_suspend_list +lh_list_size)
 	(struct sys_task_timer_list +lh_list_size)
-	(struct sys_task_task_lists (* num_task_lists +lh_list_size))
+	(struct sys_task_task_lists (* tk_num_task_lists +lh_list_size))
 	(align)
 
 	;sys_mail statics
@@ -27,7 +27,7 @@
 	(struct sys_mail_mbox_heap +hp_heap_size)
 	;keep these together
 	(struct sys_mail_timeout_list +lh_list_size)
-	(struct sys_mail_offchip_list +lh_list_size)
+	(struct sys_mail_outbound_list +lh_list_size)
 	(struct sys_mail_parcel_list +lh_list_size)
 	(struct sys_mail_mbox_buckets (* num_mbox_buckets +lh_list_size))
 	(align)

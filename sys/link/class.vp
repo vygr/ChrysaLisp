@@ -109,7 +109,7 @@
 	(call :sys_mail :free {msg})
 
 	;switch to link priority
-	(call :sys_task :set_priority '(1))
+	(call :sys_task :set_priority '(tk_in_link_priority))
 
 	;assign rx channel deterministically based on leadership
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
@@ -226,7 +226,7 @@
 	(call :sys_mail :free {msg})
 
 	;switch to link priority
-	(call :sys_task :set_priority '(1))
+	(call :sys_task :set_priority '(tk_out_link_priority))
 
 	;assign tx channel deterministically based on leadership
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})

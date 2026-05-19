@@ -71,6 +71,9 @@ sizes change then this will compile to a better value.
 
 Validate build mode checks that all translator instruction maps match slots.
 
+`:in` links now get task priority 2, `:out` links get priority 1, posting to the
+outbound mail list wakes all priority 1 tasks.
+
 ------
 
 Added comprehensive unit tests for lazy quantifiers `*?`, `+?` and `??` in
