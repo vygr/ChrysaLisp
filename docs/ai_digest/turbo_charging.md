@@ -91,7 +91,7 @@ the maps:
   overhead. The map is effectively just a flat array.
 
 * **Identical Insertion Order:** The translator gathers a master list of all
-  emit functions (`all_emits` or `+emit_funcs`). Every single map is then
+  emit functions (`emit_list` or `+emit_funcs`). Every single map is then
   populated by iterating over this exact same master list.
 
 * Because the maps have a single bucket, and because they are populated with the
@@ -130,12 +130,12 @@ instructions, and uses `reduce!` to populate its fusion map in the exact same
 order:
 
 ```vdu
-(defq all_emits (merge (filter (# (starts-with "emit-" %0)) ...) '(emit-arm64-ldp ...))
+(defq emit_list (merge (filter (# (starts-with "emit-" %0)) ...) '(emit-arm64-ldp ...))
 	+arm64_fuse_map
-		(reduce! (#
+		(reduce (#
 			(def %0 %1 (when (defq i (find %1 '(emit-cpy-ir ...)))
 				... fusion data ...)) %0)
-			(list all_emits) (env 1)))
+			emit_list (env 1)))
 ```
 
 ## The Result
