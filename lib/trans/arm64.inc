@@ -709,6 +709,6 @@
 (export-symbols emit_list)
 ;plus any private instruction maps if validating
 (validatecase
-	(defq prepass_maps (list +arm64_fuse_map))
-	(export-symbols '(prepass_maps)))
+	(defq emit_maps (list +arm64_fuse_map))
+	(export-symbols '(emit_maps)))
 (env-pop)

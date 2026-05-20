@@ -68,7 +68,7 @@
 ;validate that all instruction maps have identical symbols and slots
 (validatecase
 	(defq emit_lists (map (# (map (const first) %0)) (map (const tolist)
-		(cat (list +emit_funcs +emit_jmps) prepass_maps))))
+		(cat (list +emit_funcs +emit_jmps) emit_maps))))
 	(unless (and (apply (const =) (map (const length) emit_lists))
 				(every (# (apply (const =) %0))
 					(map! (lambda (&rest %0) (map (const weak-ref) %0)) emit_lists)))
