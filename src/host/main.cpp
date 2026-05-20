@@ -144,5 +144,8 @@ int main(int argc, char *argv[])
 		else printf("Error, boot_image not found!\n");
 	}
 	else printf("Error, no boot_image arg!\n");
+#ifdef _WIN64
+	timeEndPeriod(1);
+#endif
 	return ret_val;
 }
