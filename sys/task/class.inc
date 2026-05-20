@@ -38,11 +38,11 @@
 
 ;number of distinct priorities
 ;currently experimenting with
-;0 Kernel process and interrupts
-;1 Out Link Drivers and Postman process
-;2 In Link Drivers process
-;3 GUI process
-;4 Applications
+;0 Kernel task
+;1 Out Link tasks and Postman task
+;2 In Link tasks
+;3 GUI task
+;4 Application tasks
 
 (defq tk_num_task_lists 5 tk_kernel_priority 0
 	tk_out_link_priority 1 tk_in_link_priority 2
