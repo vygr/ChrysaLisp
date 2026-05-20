@@ -405,7 +405,7 @@ void pii_random(char* addr, size_t len)
 
 void pii_sleep(uint64_t usec)
 {
-	if (usec < 300) {
+	if (usec < 100) {
 		SwitchToThread();
 		return;
 	}
