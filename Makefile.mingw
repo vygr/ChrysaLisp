@@ -4,6 +4,10 @@ CC  := x86_64-w64-mingw32-gcc
 OS  := Windows
 CPU := x86_64
 ABI := WIN64
+EXE_EXT := .exe
+
+# Define the default target for this file
+default: windows_all
 
 # Dependencies
 SDL2_PATH := $(CURDIR)/deps/SDL2-2.30.3/x86_64-w64-mingw32
@@ -15,21 +19,18 @@ SDL_LIBS   := -L$(SDL2_PATH)/lib -L$(SDL2_MIXER_PATH)/lib -lmingw32 -lSDL2main -
 CFLAGS := -O3 -nostdlib -fno-exceptions -MMD -D_WIN64 -ffunction-sections -fdata-sections -flto
 CPPFLAGS := -std=c++14
 
-include Makefile
-
 # Linker flags: Static toolchain libs, dynamic SDL, strip symbols, and GC sections
 MINGW_LDFLAGS := -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -Wl,-Bdynamic -s -Wl,--gc-sections -flto
+LDFLAGS := $(MINGW_LDFLAGS)
 
-# Replace the hostenv dependency with a local directory creation target
-# This prevents overwriting the 'os', 'cpu', and 'abi' files on your Mac
+include Makefile
+
+# Target-specific variables to append necessary flags for Windows binaries
+obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe: LDFLAGS += -mwindows
+obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe: LDFLAGS += -lwinmm
+
 win_dirs:
 	@mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIRS)
-
-obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe: $(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
-	$(CXX) -o $@ $^ $(SDL_LIBS) $(MINGW_LDFLAGS) -mwindows
-
-obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe: $(OBJ_FILES_CORE_TUI)
-	$(CXX) -o $@ $^ -lwinmm $(MINGW_LDFLAGS)
 
 windows_tui: win_dirs obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe
 
@@ -40,5 +41,4 @@ deps:
 	tar -C deps -xzf deps/SDL2.tar.gz
 	tar -C deps -xzf deps/SDL2_mixer.tar.gz
 
-# Changed dependency from hostenv to win_dirs
 windows_all: deps win_dirs obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe

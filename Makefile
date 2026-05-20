@@ -12,6 +12,8 @@ else
 	endif
 endif
 
+EXE_EXT ?=
+
 OBJ_DIR_GUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/gui
 OBJ_DIR_TUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/tui
 
@@ -32,6 +34,7 @@ OBJ_FILES := $(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI) $(OBJ_FILES_CORE_TUI
 
 CFLAGS ?= -O3 -nostdlib -fno-exceptions -MMD
 CPPFLAGS ?= -std=c++14
+LDFLAGS ?=
 HGUI := $(shell echo $(GUI) | tr '[:upper:]' '[:lower:]')
 
 HOST_GUI := 0
@@ -58,8 +61,8 @@ else
 endif
 
 all:		hostenv tui gui
-gui:		hostenv obj/$(CPU)/$(ABI)/$(OS)/main_gui
-tui:		hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
+gui:		hostenv obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT)
+tui:		hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui$(EXE_EXT)
 install:	clean hostenv tui gui inst
 
 hostenv:
@@ -75,9 +78,11 @@ endif
 ifeq ($(HOST_AUDIO),0)
 	@echo Building sdl AUDIO driver.
 endif
+ifneq ($(OS),Windows)
 	@echo $(CPU) > cpu
 	@echo $(OS) > os
 	@echo $(ABI) > abi
+endif
 	@mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIRS)
 
 snapshot:
@@ -90,11 +95,11 @@ snapshot:
 inst:
 	@./run_tui.sh -i -e -f
 
-obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
-	$(CXX) -o $@ $^ $(SDL_LIBS)
+obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT):	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
+	$(CXX) -o $@ $^ $(SDL_LIBS) $(LDFLAGS)
 
-obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_CORE_TUI)
-	$(CXX) -o $@ $^
+obj/$(CPU)/$(ABI)/$(OS)/main_tui$(EXE_EXT):	$(OBJ_FILES_CORE_TUI)
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -D_HOST_GUI=$(HOST_GUI) $(AUDIO_FLAGS) \
