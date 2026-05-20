@@ -404,7 +404,7 @@
 	(fn-bind 'sys/statics/statics node)
 	(loop-list-forward node statics_sys_task_timer_list node next)
 		(assign `((,node +tk_node_priority)) `(,data))
-		(continueif `(,data /= 1))
+		(continueif `(,data /= tk_out_link_priority))
 		;resume link task
 		(vp-cpy-cr -1 data)
 		(assign `(,data) `((,node +tk_node_time)))
