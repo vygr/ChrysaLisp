@@ -102,22 +102,13 @@
 					; Calculate dynamic margin (based on the defined percentage of the span, min 500 us)
 					(defq margin (max 500 (/ (* (- *worst_val* *best_val*) *margin_percent*) 100))
 						target_min (- *best_val* margin) target_max (+ *worst_val* margin))
-					; Filter minimum boundary: instant expansion, smooth contraction
-					(cond
-						((= *scale_min* +max_long)
-							(setq *scale_min* target_min))
-						((< target_min *scale_min*)
-							(setq *scale_min* target_min))
-						((> target_min *scale_min*)
-							(setq *scale_min* (glide *scale_min* target_min))))
-					; Filter maximum boundary: instant expansion, smooth contraction
-					(cond
-						((= *scale_max* 0)
-							(setq *scale_max* target_max))
-						((> target_max *scale_max*)
-							(setq *scale_max* target_max))
-						((< target_max *scale_max*)
-							(setq *scale_max* (glide *scale_max* target_max))))
+					; Glide boundaries smoothly to target values (expansion and contraction)
+					(if (= *scale_min* +max_long)
+						(setq *scale_min* target_min)
+						(setq *scale_min* (glide *scale_min* target_min)))
+					(if (= *scale_max* 0)
+						(setq *scale_max* target_max)
+						(setq *scale_max* (glide *scale_max* target_max)))
 					; Update UI with consolidated list of values
 					(update-display (list mean_val *best_val* *worst_val*))
 					; Update title bar with formatted elapsed seconds
