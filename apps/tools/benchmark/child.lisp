@@ -1,8 +1,8 @@
 ; Override print and prin to suppress console output during benchmarking.
 ; This must precede all imports to ensure the prebinder resolves downstream
 ; library calls to these silent definitions.
-(redefun print (&rest args) :nil)
-(redefun prin (&rest args) :nil)
+(redefun print (&ignore) :nil)
+(redefun prin (&ignore) :nil)
 
 (import "usr/env.inc")
 (import "lib/asm/asm.inc")
