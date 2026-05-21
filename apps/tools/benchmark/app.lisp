@@ -10,7 +10,7 @@
 	*chart_list* (list) *bar_list* (list) *mean_accum* (list)
 	*best_val* +max_long *worst_val* 0
 	*scale_min* +max_long *scale_max* 0
-	*margin* 500 *smooth_steps* 100
+	*margin_percent* 5 *smooth_steps* 100
 	*run_count* 0 *child* :nil)
 
 (defun smooth-result (results val)
@@ -35,16 +35,18 @@
 		(. mark :constrain :t)) scale))
 
 (defun update-display (vals)
-	; Determine range of display
-	(defq scale_range (- *scale_max* *scale_min*))
+	; Determine range of display (safely check for uninitialized bounds)
+	(defq min_val (if (= *scale_min* +max_long) 0 *scale_min*)
+		max_val (if (= *scale_max* 0) 0 *scale_max*)
+		scale_range (- max_val min_val))
 	(if (<= scale_range 0) (setq scale_range 1))
 
 	; Map over charts, bars, and values simultaneously (netmon style)
 	(each (lambda (chart bar val)
 			; Apply the custom bracketed scale to the chart markers
-			(update-scale-custom chart *scale_min* *scale_max*)
+			(update-scale-custom chart min_val max_val)
 			; Set the progress bar offset relative to the minimum scale boundary
-			(def bar :maximum scale_range :value (max 0 (- val *scale_min*)))
+			(def bar :maximum scale_range :value (max 0 (- val min_val)))
 			(. bar :dirty))
 		*chart_list* *bar_list* vals)
 
@@ -97,9 +99,9 @@
 						; Otherwise, update sticky min/max
 						(setq *best_val* (min *best_val* duration)
 							*worst_val* (max *worst_val* duration)))
-					; Calculate targets
-					(defq target_min (- *best_val* *margin*)
-						target_max (+ *worst_val* *margin*))
+					; Calculate dynamic margin (based on the defined percentage of the span, min 500 us)
+					(defq margin (max 500 (/ (* (- *worst_val* *best_val*) *margin_percent*) 100))
+						target_min (- *best_val* margin) target_max (+ *worst_val* margin))
 					; Filter minimum boundary: instant expansion, smooth contraction
 					(cond
 						((= *scale_min* +max_long)
@@ -122,14 +124,11 @@
 					(def *title* :text (cat "Benchmark -> " (time-in-seconds mean_val) " seconds"))
 					(.-> *title* :layout :dirty))
 				; Poll for the next run if the parent is still active
-				(if *running*
-					(mail-send *child* (elem-get select +select_child_reply))))
+				(mail-send *child* (elem-get select +select_child_reply)))
 			((= idx +select_main)
-				(defq id (getf msg +ev_msg_target_id))
-				(cond
-					((= id +event_close)
-						(setq *running* :nil))
-					((. *window* :event msg))))))
+				(if (= (defq id (getf msg +ev_msg_target_id)) +event_close)
+					(setq *running* :nil)
+					(. *window* :event msg)))))
 	; Clean up and signal child to terminate
 	(if *child* (mail-send *child* ""))
 	(gui-sub-rpc *window*))
