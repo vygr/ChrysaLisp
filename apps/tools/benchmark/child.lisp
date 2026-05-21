@@ -14,8 +14,7 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size)
-		*working* :t files (all-vp-files)
-		*abi* (abi) *cpu* (cpu))
+		*working* :t files (all-vp-files))
 	(while *working*
 		(mail-timeout (elem-get select +select_timeout) +timeout 0)
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
