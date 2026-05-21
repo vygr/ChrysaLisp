@@ -41,16 +41,15 @@
 
 	; Map over charts, bars, and values simultaneously (netmon style)
 	(each (lambda (chart bar val)
-		; Apply the custom bracketed scale to the chart markers
-		(update-scale-custom chart *scale_min* *scale_max*)
-		; Set the progress bar offset relative to the minimum scale boundary
-		(def bar :maximum scale_range :value (max 0 (- val *scale_min*)))
-		(. bar :dirty))
+			; Apply the custom bracketed scale to the chart markers
+			(update-scale-custom chart *scale_min* *scale_max*)
+			; Set the progress bar offset relative to the minimum scale boundary
+			(def bar :maximum scale_range :value (max 0 (- val *scale_min*)))
+			(. bar :dirty))
 		*chart_list* *bar_list* vals)
 
 	; Redraw window
-	(. *window* :layout)
-	(. *window* :dirty_all))
+	(.-> *window* :layout :dirty_all))
 
 (defun main ()
 	(defq select (task-mboxes +select_size))
@@ -60,7 +59,7 @@
 	(setq *chart_list* (. *charts* :children)
 		*bar_list* (map (# (. %0 :add_bar)) *chart_list*))
 
-	; Explicitly set the minimum height of the progress bars to 64 pixels
+	; Explicitly set the minimum height of the progress bars
 	(each (# (def %0 :min_height 32)) *bar_list*)
 
 	; Position window
@@ -68,7 +67,7 @@
 	(gui-add-front-rpc (. *window* :change x y w h))
 
 	; Start the child benchmark task
-	(setq *child* (open-child (cat *app_root* "child.lisp") +kn_call_open))
+	(setq *child* (open-child (cat *app_root* "child.lisp") +kn_call_child))
 	
 	; Initial empty display
 	(update-display (list 0 0 0))
@@ -88,7 +87,7 @@
 				(defq duration (str-as-num msg))
 				(when (> duration 0)
 					; Increment run counter
-					(setq *run_count* (inc *run_count*))
+					(++ *run_count*)
 					; Calculate smoothed mean
 					(bind '(new_accum mean_val) (smooth-result *mean_accum* duration))
 					(setq *mean_accum* new_accum)
