@@ -25,6 +25,15 @@
 		(setq step (if (> diff 0) 1 -1)))
 	(+ current step))
 
+(defun update-scale-custom (chart min_val max_val)
+	(defq scale (.-> (get :scale_grid chart) :dirty_all :children)
+		scale_range (- max_val min_val))
+	(each (lambda (mark)
+		; Calculate evenly divided values from min_val to max_val
+		(defq val (+ min_val (/ (* scale_range (inc (!))) (length scale))))
+		(def mark :text (str val "|"))
+		(. mark :constrain :t)) scale))
+
 (defun update-display (vals)
 	; Determine range of display
 	(defq scale_range (- *scale_max* *scale_min*))
@@ -42,15 +51,6 @@
 	; Redraw window
 	(. *window* :layout)
 	(. *window* :dirty_all))
-
-(defun update-scale-custom (chart min_val max_val)
-	(defq scale (.-> (get :scale_grid chart) :dirty_all :children)
-		scale_range (- max_val min_val))
-	(each (lambda (mark)
-		; Calculate evenly divided values from min_val to max_val
-		(defq val (+ min_val (/ (* scale_range (inc (!))) (length scale))))
-		(def mark :text (str val "|"))
-		(. mark :constrain :t)) scale))
 
 (defun main ()
 	(defq select (task-mboxes +select_size))
@@ -120,7 +120,7 @@
 					; Update UI with consolidated list of values
 					(update-display (list mean_val *best_val* *worst_val*))
 					; Update title bar with formatted elapsed seconds
-					(def *title* :text (cat "Benchmark -> " (time-in-seconds mean_val) " second"))
+					(def *title* :text (cat "Benchmark -> " (time-in-seconds mean_val) " seconds"))
 					(.-> *title* :layout :dirty))
 				; Poll for the next run if the parent is still active
 				(if *running*
