@@ -4,6 +4,13 @@
 
 ------
 
+New `benchmark` GUI app for a visual full build benchmark result. The mean time
+is smoothed and displayed in the title bar as well as running values for mean,
+best and worst times. This is in effect a GUI version of the `make test`
+command.
+
+------
+
 Added cross-compilation support for Windows host executables on MacOS/Linux
 using `mingw-w64` and a new `Makefile.mingw`. Includes automated dependency
 download for Windows SDL2 libraries.
