@@ -10,10 +10,10 @@
 (defcvar 'stack_align 8 'stack_state '())
 
 (defq +emit_native_regs
-	(reduce (# (def %0 %1 (!)) %0) 
+	(reduce (# (def %0 %1 (!)) %0)
 		'(:r0 :r1 :r2 :r3 :rsp :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
-	(reduce (# (def %0 %1 (!)) %0) 
-		'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15) 
+	(reduce (# (def %0 %1 (!)) %0)
+		'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
 		(env 1))))
 
 (defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (def? r +emit_native_regs)))

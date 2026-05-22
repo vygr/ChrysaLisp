@@ -45,7 +45,7 @@
 			(if (nempty? jobs) (work (pop jobs)))
 			;do them all out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
-				(pipe-farm (map (# (str (first args) " -f " opt_f 
+				(pipe-farm (map (# (str (first args) " -f " opt_f
 								(if opt_r " -r" "")
 								(if opt_l " -l" "")
 								" " %0)) jobs)

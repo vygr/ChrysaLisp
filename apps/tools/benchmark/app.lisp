@@ -70,7 +70,7 @@
 
 	; Start the child benchmark task
 	(setq *child* (open-child (cat *app_root* "child.lisp") +kn_call_child))
-	
+
 	; Initial empty display
 	(update-display (list 0 0 0))
 

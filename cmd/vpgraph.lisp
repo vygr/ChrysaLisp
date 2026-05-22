@@ -68,7 +68,7 @@
 												(setq callee (third tokens))))
 										(. (. graph :find current_caller) :insert callee)))))
 						((find "/" type)
-							; Handle fast inline macro inclusions (eg: class/obj/ref) 
+							; Handle fast inline macro inclusions (eg: class/obj/ref)
 							(when current_caller
 								(. (. graph :find current_caller) :insert type)))
 					))) stream))) files)

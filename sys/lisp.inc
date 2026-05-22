@@ -35,7 +35,7 @@
 	(setd modes (list))
 	(defq ids (cap (length tasks) (list)) mbox (mail-mbox) index -1 tail (task-mbox))
 	(while (< (++ index) (length tasks))
-		(open-task (elem-get tasks index) (slice tail +long_size -1) 
+		(open-task (elem-get tasks index) (slice tail +long_size -1)
 			(if (< index (length modes)) (elem-get modes index) +kn_call_child) 0 mbox)
 		(defq tail (getf (mail-read mbox) +kn_msg_reply_id))
 		(push ids tail)

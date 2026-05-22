@@ -12,7 +12,7 @@
 	(defq i 0 out (list) quotes (partition (substr cmdline "\q") 2) mode +kn_call_child)
 	(each (lambda (((x x1)))
 		(unless (some (lambda ((((qx &)) ((& qx1)))) (<= qx x x1 qx1)) quotes)
-			(defq j i) (setq i x1) 
+			(defq j i) (setq i x1)
 			(push out (list mode (trim (slice cmdline j x))))
 			(setq mode (if (eql (slice cmdline x x1) "!") +kn_call_open +kn_call_child))))
 		(push (sort (cat (substr cmdline "|") (substr cmdline "!"))
@@ -123,7 +123,7 @@
 
 (defun pipe-run (cmdline &optional out)
 	; (pipe-run cmdline [outfun])
-	(task-count -1)	;we will be only collating results !
+	(task-count -1) ;we will be only collating results !
 	(setd out print)
 	(defq pipe (Pipe cmdline))
 	(while pipe
@@ -135,7 +135,7 @@
 				(setq pipe :nil))
 			(:t ;string from pipe
 				(callback out (penv) data))))
-	(task-count 1))	;we where only collating results !
+	(task-count 1)) ;we where only collating results !
 
 ;module
 (export-classes '(Pipe))
