@@ -10,7 +10,10 @@ best and worst times. This is in effect a GUI version of the `make test`
 command.
 
 Fix `Buffer :paste` issue with empty text.
- 
+
+Created a VSCode language syntax highlighting set to match the Edit app scheme.
+`vscode_chrysalisp_syntax.zip` contains the extension and example settings.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
