@@ -1231,8 +1231,7 @@
 			(lower (:last_key key :last_find (list pattern wmode rmode)))
 			(each (lambda (__) (elem-set buffer_found (!) :nil)) buffer_found))
 		(unless (eql pattern "")
-			(bind '(engine meta &ignore) (query pattern wmode rmode))
-			(when meta
+			(when (bind '(engine meta &ignore) (query pattern wmode rmode))
 				(each (lambda (line match)
 						(unless match
 							(task-slice)

@@ -60,11 +60,11 @@
 	(bind '(regexp wmode rmode) (. *edit* :get_last_find))
 	(unless (eql regexp "")
 		(defq csr_text (split (. *edit* :copy) "\f") pattern (replace-compile pattern))
-		(bind '(engine meta &ignore) (query regexp wmode rmode))
-		(defq csr_match (map (# (. engine :search %0 meta)) csr_text)
-			new_text (map (# (replace-matches %0 %1 pattern)) csr_text csr_match))
-		(unless (empty? new_text)
-			(. *edit* :paste (join new_text "\f")))))
+		(when (bind '(engine meta &ignore) (query regexp wmode rmode))
+			(defq csr_match (map (# (. engine :search %0 meta)) csr_text)
+				new_text (map (# (replace-matches %0 %1 pattern)) csr_text csr_match))
+			(unless (empty? new_text)
+				(. *edit* :paste (join new_text "\f"))))))
 
 ;module
 ;export all symbols beginning with "edit-"

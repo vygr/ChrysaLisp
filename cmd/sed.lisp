@@ -36,8 +36,8 @@
 			(defq opt_w :nil opt_e :nil opt_r "" opt_g :nil opt_x :nil
 				args (options stdio usage))
 			opt_e)
-		(bind '(engine find_meta &ignore) (query opt_e opt_w opt_x))
-		(defq rep_meta (replace-compile opt_r))
-		(if (empty? (defq files (rest args)))
-			(process (io-stream 'stdin) engine find_meta rep_meta opt_g)
-			(each (# (process (file-stream %0) engine find_meta rep_meta opt_g)) files))))
+		(when (bind '(engine find_meta &ignore) (query opt_e opt_w opt_x))
+			(defq rep_meta (replace-compile opt_r))
+			(if (empty? (defq files (rest args)))
+				(process (io-stream 'stdin) engine find_meta rep_meta opt_g)
+				(each (# (process (file-stream %0) engine find_meta rep_meta opt_g)) files)))))
