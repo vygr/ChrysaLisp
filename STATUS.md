@@ -9,6 +9,8 @@ is smoothed and displayed in the title bar as well as running values for mean,
 best and worst times. This is in effect a GUI version of the `make test`
 command.
 
+Fix `Buffer :paste` issue with empty text.
+ 
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

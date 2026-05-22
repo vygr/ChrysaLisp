@@ -989,8 +989,8 @@
 	(defmethod :paste (text)
 		; (. buffer :paste text) -> buffer
 		(undoable this
-			(defq parts (split text "\f"))
 			(cond
+				((empty? (defq parts (split text "\f"))))
 				((= (length parts) (length (get :cursors this)))
 					;matching number of parts !
 					(reach (lambda (csr text) (task-slice)
