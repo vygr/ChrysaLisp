@@ -1,6 +1,6 @@
 ;jit compile apps native functions
 (defq *app_root* (path-to-file))
-(jit *app_root*  "lisp.vp" '("ray_march" "scene"))
+(jit *app_root* "lisp.vp" '("ray_march" "scene"))
 
 (import "gui/lisp.inc")
 (import "lib/math/vector.inc")

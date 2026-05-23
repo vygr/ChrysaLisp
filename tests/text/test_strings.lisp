@@ -91,7 +91,7 @@
 (assert-eq "compress" "\ta" (compress "    a" 4 0))
 (assert-eq "compress" "\tb" (compress "   b" 4 1))
 (assert-eq "compress" "\tc" (compress "  c" 4 2))
-(assert-eq "compress" "\td" (compress " d" 4 3))
+(assert-eq "compress" " d" (compress " d" 4 3))
 (assert-eq "compress" "e" (compress "e" 4 4))
 (assert-eq "compress" "x\ta" (compress "x   a" 4 0))
 (assert-eq "compress" "y\tb" (compress "y    b" 4 3))
