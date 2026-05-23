@@ -16,7 +16,7 @@
 
 ### (code str [width idx]) -> num
 
-### (compress str tab_width) -> str
+### (compress str tab_width idx) -> str
 
 ### (str-alloc size) -> str
 
@@ -26,7 +26,7 @@
 
 ### (ends-with str str) -> :nil | :t
 
-### (expand str tab_width) -> str
+### (expand str tab_width idx) -> str
 
 ### (load path) -> str
 

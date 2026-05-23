@@ -151,22 +151,28 @@
 	(defmethod :line_expand (line tab_width)
 		; (. syntax :line_expand line tab_width) -> line
 		(cond
-			((eql line "") line)
-			((bind '(token_list state_list) (. this :tokenize line))
-			(apply (const cat) (map (lambda (token state)
-				(if (find state '(:string1 :string2))
-					token
-					(expand token tab_width))) token_list state_list)))))
+			((empty? line) line)
+			((defq idx 0)
+			(apply (const cat) (map! (lambda (token state)
+					(defq res (if (find state '(:string1 :string2))
+						token
+						(expand token tab_width idx)))
+					(++ idx (length res))
+					res)
+				(. this :tokenize line))))))
 
 	(defmethod :line_compress (line tab_width)
 		; (. syntax :line_compress line tab_width) -> line
 		(cond
-			((eql line "") line)
-			((bind '(token_list state_list) (. this :tokenize line))
-			(apply (const cat) (map (lambda (token state)
-				(if (find state '(:string1 :string2))
-					token
-					(compress token tab_width))) token_list state_list)))))
+			((empty? line) line)
+			((defq idx 0)
+			(apply (const cat) (map! (lambda (token state)
+					(defq res (if (find state '(:string1 :string2))
+						token
+						(compress token tab_width idx)))
+					(++ idx (length token))
+					res)
+				(. this :tokenize line))))))
 	)
 
 ;module

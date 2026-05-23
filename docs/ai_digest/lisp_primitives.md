@@ -834,11 +834,11 @@ operations, and type conversion.
 
 *   **`expand`**: Replaces tab characters in a string with spaces.
 
-    * `(expand str tab_width) -> str`
+    * `(expand str tab_width idx) -> str`
 
 *   **`compress`**: Replaces spaces in a string with tab characters.
 
-    * `(compress str tab_width) -> str`
+    * `(compress str tab_width idx) -> str`
 
 *   **`hex-encode`**: Encodes a string into its hexadecimal representation.
 

@@ -295,14 +295,16 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-rdef (div out rem in tab_width iter_begin iter_end iter_out len cursor ch sp flag))
+	(vp-rdef (div out rem in tab_width iter_begin iter_end iter_out len cursor ch sp flag idx))
 
 	(entry :str :lisp_expand '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(errorif-lisp-args-sig 'error :r1 3)
 
-	(list-bind-args :r1 `(,in ,tab_width) '(:obj :num))
-	(errorif `(,tab_width <= 0) 'error)
+	(list-bind-args :r1 `(,in ,tab_width ,idx) '(:obj :num :num))
+(errorcase
+	(gotoif `(,tab_width <= 0) 'error)
+	(gotoif `(,idx < 0) 'error))
 
 	(vp-push :r0)
 	(assign `((,in +str_length)) `(,len))
@@ -313,6 +315,7 @@
 	(vp-push iter_begin iter_end)
 	(vp-call 'expand)
 	(vpif `(,flag /= 0))
+		(vp-sub-rr idx cursor)
 		(call :str :create_from_buffer `(0 ,cursor) `(,out))
 		(vp-pop iter_begin iter_end)
 		(assign `((& ,out +str_data)) `(,iter_out))
@@ -329,7 +332,7 @@
 	(vp-ret)
 
 (vp-label 'expand)
-	(vp-xor-rr cursor cursor)
+	(vp-cpy-rr idx cursor)
 	(vp-xor-rr flag flag)
 	(vp-cpy-cr 32 sp)
 	(loop-start)
@@ -362,8 +365,8 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(expand str tab_width)" +error_msg_wrong_types :r1))
-	(signature '(:str :num)))
+	(jump :lisp :repl_error '(:r0 "(expand str tab_width idx)" +error_msg_wrong_types :r1))
+	(signature '(:str :num :num)))
 
 (def-func-end)
 
@@ -377,47 +380,36 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-rdef (this args sp tb ch dst end start tab_width cnt src))
+	(vp-rdef (this args sp tb ch dst end start tab_width src idx idx1 idx2 idx3))
 
 	(entry :str :lisp_compress `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(errorif-lisp-args-sig 'error :r1 3)
 
-	(list-bind-args args `(,src ,tab_width) '(:obj :num))
-	(errorif `(,tab_width <= 0) 'error)
+	(list-bind-args args `(,src ,tab_width ,idx) '(:obj :num :num))
+(errorcase
+	(gotoif `(,tab_width <= 0) 'error)
+	(gotoif `(,idx < 0) 'error))
 
 	(vp-push this)
-	(assign `((,src +str_length)) `(,cnt))
-	(call :str :create_from_buffer `(0 ,cnt) `(,args))
-	(vpif `(,cnt /= 0))
+	(assign `((,src +str_length)) `(,idx1))
+	(call :str :create_from_buffer `(0 ,idx1) `(,args))
+	(vpif `(,idx1 /= 0))
 		(assign `((& ,src +str_data) (& ,args +str_data)) `(,src ,dst))
-		(assign `((& ,src ,cnt) ,dst 32 9) `(,end ,start ,sp ,tb))
-		(vp-xor-rr cnt cnt)
+		(assign `((& ,src ,idx1) ,dst 32 9) `(,end ,start ,sp ,tb))
+		(vp-cpy-rr idx idx1)
 		(loop-start)
 			(vp-cpy-ir-ub src 0 ch)
 			(vp-add-cr +byte_size src)
-			(vpif `(,ch = ,sp))
-				(vp-add-cr 1 cnt)
-				(vpif `(,cnt = ,tab_width))
-					(vp-cpy-ri-b tb dst 0)
-					(vp-add-cr +byte_size dst)
-					(vp-xor-rr cnt cnt)
-				(endif)
-			(else)
-				(loop-while `(,cnt > 0))
-					(vp-cpy-ri-b sp dst 0)
-					(vp-add-cr +byte_size dst)
-					(vp-sub-cr 1 cnt)
-				(loop-end)
+			(vpif `(,ch /= ,sp))
+				(vp-call 'tab_fill)
 				(vp-cpy-ri-b ch dst 0)
 				(vp-add-cr +byte_size dst)
+				(vp-add-cr 1 idx)
 			(endif)
+			(vp-add-cr 1 idx1)
 		(loop-until `(,src = ,end))
-		(loop-while `(,cnt > 0))
-			(vp-cpy-ri-b sp dst 0)
-			(vp-add-cr +byte_size dst)
-			(vp-sub-cr 1 cnt)
-		(loop-end)
+		(vp-call 'tab_fill)
 		(vp-xor-rr sp sp)
 		(vp-cpy-ri-b sp dst 0)
 		(vp-sub-rr start dst)
@@ -428,10 +420,48 @@
 	(exit :str :lisp_compress `(,this ,args))
 	(vp-ret)
 
+(vp-label 'tab_fill)
+	(vpif `(,idx < ,idx1))
+		;lower tab bound
+		(vp-cpy-rr idx this)
+		(vp-xor-rr idx2 idx2)
+		(vp-div-rrr-u tab_width idx2 this)
+		(vpif `(,idx2 = 0))
+			(vp-cpy-rr idx idx2)
+		(else)
+			(vp-mul-cr -1 idx2)
+			(vp-add-rr tab_width idx2)
+			(vp-add-rr idx idx2)
+		(endif)
+		;upper tab bound
+		(vp-cpy-rr idx1 this)
+		(vp-xor-rr idx3 idx3)
+		(vp-div-rrr-u tab_width idx3 this)
+		(vp-mul-cr -1 idx3)
+		(vp-add-rr idx1 idx3)
+		;fill with spaces and tabs
+		(vpif `(,idx < ,idx2))
+			(vp-cpy-ri-b tb dst 0)
+			(vp-add-cr +byte_size dst)
+			(vp-cpy-rr idx2 idx)
+		(endif)
+		(loop-while `(,idx < ,idx3))
+			(vp-cpy-ri-b tb dst 0)
+			(vp-add-cr +byte_size dst)
+			(vp-add-rr tab_width idx)
+		(loop-end)
+		(loop-while `(,idx < ,idx1))
+			(vp-cpy-ri-b sp dst 0)
+			(vp-add-cr +byte_size dst)
+			(vp-add-cr 1 idx)
+		(loop-end)
+	(endif)
+	(vp-ret)
+
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(compress str tab_width)" +error_msg_wrong_types ,args))
-	(signature '(:str :num)))
+	(jump :lisp :repl_error `(,this "(compress str tab_width idx)" +error_msg_wrong_types :r1))
+	(signature '(:str :num :num)))
 
 (def-func-end)
 

@@ -22,6 +22,9 @@ Added syntax aware tab compression/expantion to the Syntax class. Buffer
 `:stream_load` and `:stream_save` now use these methods rather than the raw
 string functions.
 
+`(compress str tab_width idx) -> str` and `(expand str tab_width idx) -> str`
+functions now take the logical char index.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

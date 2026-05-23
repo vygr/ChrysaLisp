@@ -239,9 +239,9 @@
 (ffi "class/str/lisp_tonum" str-to-num)
 ; (str-to-num str) -> num
 (ffi "class/str/lisp_expand" expand)
-; (expand str tab_width) -> str
+; (expand str tab_width idx) -> str
 (ffi "class/str/lisp_compress" compress)
-; (compress str tab_width) -> str
+; (compress str tab_width idx) -> str
 (ffi "class/str/lisp_char" char)
 ; (char num [width]) -> str
 (ffi "class/str/lisp_code" code)
@@ -1013,7 +1013,7 @@
 (defun reflow (words line_width &optional indent tab_width)
 	; (reflow words line_width [indent tab_width]) -> lines
 	(setd indent "" tab_width 4)
-	(defq indent_len (length (expand indent tab_width))
+	(defq indent_len (length (expand indent tab_width 0))
 		cnt indent_len line (list) lines (list))
 	(each (lambda (word)
 		(cond
