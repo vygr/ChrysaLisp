@@ -172,6 +172,8 @@ return cursors sorted by position
 
 ### :get_modified
 
+### :get_next_mark
+
 ### :get_primary_text
 
 ```code

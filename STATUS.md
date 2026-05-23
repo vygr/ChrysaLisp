@@ -18,6 +18,10 @@ Switch to a unified globally tracked undo/redo system in the Edit app. No need
 to have separate global unod/redo actions anymore. And it's logically more
 consistent for the user.
 
+Added syntax aware tab compression/expantion to the Syntax class. Buffer
+`:stream_load` and `:stream_save` now use these methods rather than the raw
+string functions.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

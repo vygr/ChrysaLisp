@@ -60,11 +60,8 @@
 		(. colors :each (# (set this %0 (num (<< (pixmap-from-argb32 %1 15) 32)))))
 		this)
 
-	(defmethod :colorise (line)
-		; (. syntax :colorise str) -> array
-
-		;tokenise the string starting with the current state
-		;save the state at the end as we may wish to continue
+	(defmethod :tokenize (line)
+		; (. syntax :tokenize line) -> (token_list state_list)
 		(defq j 0 l (length line) state (get :state this) i 0
 			token_list (list) state_list (cap l (list)))
 		(while (< j l)
@@ -105,8 +102,12 @@
 						(slice line i (setq state :text j (inc j) i j))
 						(slice line i (setq j l)))))))
 		(set this :state state)
+		(list token_list state_list))
 
+	(defmethod :colorise (line)
+		; (. syntax :colorise str) -> array
 		;assign colours
+		(bind '(token_list state_list) (. this :tokenize line))
 		(defq state (cap (length token_list) (list)))
 		(each (lambda (type token)
 			(case type
@@ -137,7 +138,6 @@
 				(:text
 					(push state (get :ink_text this)))))
 			state_list token_list)
-
 		;build line array
 		(cond
 			((nempty? state_list)
@@ -147,6 +147,26 @@
 					token_list state)
 				(apply (const array) state_list))
 			((array))))
+
+	(defmethod :line_expand (line tab_width)
+		; (. syntax :line_expand line tab_width) -> line
+		(cond
+			((eql line "") line)
+			((bind '(token_list state_list) (. this :tokenize line))
+			(apply (const cat) (map (lambda (token state)
+				(if (find state '(:string1 :string2))
+					token
+					(expand token tab_width))) token_list state_list)))))
+
+	(defmethod :line_compress (line tab_width)
+		; (. syntax :line_compress line tab_width) -> line
+		(cond
+			((eql line "") line)
+			((bind '(token_list state_list) (. this :tokenize line))
+			(apply (const cat) (map (lambda (token state)
+				(if (find state '(:string1 :string2))
+					token
+					(compress token tab_width))) token_list state_list)))))
 	)
 
 ;module

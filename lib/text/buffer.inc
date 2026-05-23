@@ -1020,10 +1020,12 @@
 		(lower :buffer_lines :buffer_syntax :buffer_states
 			:buffer_found :buffer_brackets :buffer_buckets)
 		(clear (get :undo_stack this) (get :redo_stack this))
+		;reset the syntax state to :text for the start of the file
+		(. syntax_engine :set_state :text)
 		(lines! (lambda (line)
 				(task-slice)
 				(setq line (cat
-						(expand (trim-end line "\r") tab_width)
+						(. syntax_engine :line_expand (trim-end line "\r") tab_width)
 						+char_class_lf)
 					max_width (max max_width (length line)))
 				(push-line line))
@@ -1065,9 +1067,11 @@
 	(defmethod :stream_save (stream)
 		; (. buffer :stream_save stream) -> buffer
 		(raise :syntax_engine :tab_width)
+		;reset the syntax state to :text for the start of the file
+		(. syntax_engine :set_state :text)
 		(each! (lambda (line)
 				(task-slice)
-				(write-blk stream (compress line tab_width)))
+				(write-blk stream (. syntax_engine :line_compress line tab_width)))
 			(list (get :buffer_lines this)) 0 (bind '(w h) (. this :get_size)))
 		(lower (:modified :nil)) this)
 
