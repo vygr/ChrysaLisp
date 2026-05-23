@@ -15,7 +15,7 @@ Created a VSCode language syntax highlighting set to match the Edit app scheme.
 `vscode_chrysalisp_syntax.zip` contains the extension and example settings.
 
 Switch to a unified globally tracked undo/redo system in the Edit app. No need
-to have separate global unod/redo actions anymore. And it's logically more
+to have separate global undo/redo actions anymore. And it's logically more
 consistent for the user.
 
 Added syntax aware tab compression/expantion to the Syntax class. Buffer
