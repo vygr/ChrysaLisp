@@ -29,6 +29,6 @@
 (defun action-rewind ()
 	(. *edit* :rewind)
 	;clean up the global stacks for this file since its local history is gone
-	(setq *global_undo_stack* (clean-stack *global_undo_stack* *current_file*))
-	(setq *global_redo_stack* (clean-stack *global_redo_stack* *current_file*))
+	(setq *global_undo_stack* (clean-stack *global_undo_stack* *current_file*)
+		*global_redo_stack* (clean-stack *global_redo_stack* *current_file*))
 	(refresh))
