@@ -200,7 +200,9 @@
 	action-set-find-text action-sort action-split action-tab action-to-lower
 	action-to-upper action-top action-top-select action-trim action-undo
 	action-unique action-up action-up-select action-select-form action-copy-form
-	action-cut-form action-left-white-space action-right-white-space)
+	action-cut-form action-left-white-space action-right-white-space
+	action-find-function action-prev-buffer action-next-buffer
+	action-collect-global action-collect)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)
