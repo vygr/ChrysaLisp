@@ -20,37 +20,37 @@ understand the nature of a symbol at a glance.
 
 *   **`function-names` and `macro-names` use hyphens `-`**.
 
-    *   This clearly identifies callable code.
+	*   This clearly identifies callable code.
 
-    *   Examples: `(defun my-helper-function ...)` `(defmacro ui-window ...)`
+	*   Examples: `(defun my-helper-function ...)` `(defmacro ui-window ...)`
 
 *   **`local_variables` and `:object_properties` use underscores `_`**.
 
-    * This identifies data containers and distinguishes them from functions.
-      Keywords (symbols starting with a colon) are the idiomatic choice for
-      property keys.
+	* This identifies data containers and distinguishes them from functions.
+	  Keywords (symbols starting with a colon) are the idiomatic choice for
+	  property keys.
 
-    * Examples: `(defq my_local_var 0)` `(def this :ink_color +argb_red)`
+	* Examples: `(defq my_local_var 0)` `(def this :ink_color +argb_red)`
 
 *   **`+constants` are prefixed by a plus sign `+`**.
 
-    * This signals a bind-time constant whose value will be baked into the
-      compiled code, such as those created by `structure`.
+	* This signals a bind-time constant whose value will be baked into the
+	  compiled code, such as those created by `structure`.
 
-    * Examples: `+max_retries`, `+argb_black`, `+my_msg_type`.
+	* Examples: `+max_retries`, `+argb_black`, `+my_msg_type`.
 
 *   **`*globals*` are surrounded by asterisks `*` ("earmuffs")**.
 
-    * This warns that the variable is a dynamic global or special variable
-      that might be rebound and have wide-ranging side effects.
+	* This warns that the variable is a dynamic global or special variable
+	  that might be rebound and have wide-ranging side effects.
 
-    * Examples: `*root_env*`, `*build_mode*`.
+	* Examples: `*root_env*`, `*build_mode*`.
 
 *   **`Class` has an uppercase first letter**.
 
-    * This shows that this function creates a class instance.
+	* This shows that this function creates a class instance.
 
-    * Examples: `Button`, `Regexp`.
+	* Examples: `Button`, `Regexp`.
 
 #### The Shadowing Guideline: Avoid Redefining Functions Locally
 
@@ -63,7 +63,7 @@ this.
 (defun my-bad-function ()
   ;; 'list' is now a local variable, shadowing the global function.
   (defq list '(a b c))
-  
+
   ;; This will now FAIL because 'list' is no longer a function.
   (print (list 1 2 3)))
 ```
@@ -94,34 +94,34 @@ interact with lexical scopes. This directly impacts their performance and
 intended use.
 
 *   **`(defq <symbol> <value> ...)`**: This is the **Local Set-or-Define
-    Operator** and should be considered the default tool for all local
-    variable manipulation.
+	Operator** and should be considered the default tool for all local
+	variable manipulation.
 
-    * For each symbol, `defq` performs a **local-only** search within the
-      *current* environment (`:hmap`).
+	* For each symbol, `defq` performs a **local-only** search within the
+	  *current* environment (`:hmap`).
 
-    * If a binding for the symbol already exists in the current scope, its
-      value is **mutated in-place**.
+	* If a binding for the symbol already exists in the current scope, its
+	  value is **mutated in-place**.
 
-    * If no local binding exists, a **new binding is created** in the current
-      environment.
+	* If no local binding exists, a **new binding is created** in the current
+	  environment.
 
-    * Crucially, `defq` **will never search or modify a parent environment**.
-      This makes it predictably fast and prevents accidental side effects on
-      outer scopes.
+	* Crucially, `defq` **will never search or modify a parent environment**.
+	  This makes it predictably fast and prevents accidental side effects on
+	  outer scopes.
 
 *   **`(setq <symbol> <value> ...)`**: This is the **Global-Aware, Mutate-Only
-    Operator**. It is a specific tool for intentionally modifying variables in
-    outer scopes.
+	Operator**. It is a specific tool for intentionally modifying variables in
+	outer scopes.
 
-    * For each symbol, `setq` performs a search up the **entire environment
-      chain**, starting from the current scope.
+	* For each symbol, `setq` performs a search up the **entire environment
+	  chain**, starting from the current scope.
 
-    * It **mutates** the first binding it finds, wherever it may be in the
-      chain.
+	* It **mutates** the first binding it finds, wherever it may be in the
+	  chain.
 
-    * If no binding is found anywhere, it raises a `symbol_not_bound`
-      **error**. `setq` can never create a new binding.
+	* If no binding is found anywhere, it raises a `symbol_not_bound`
+	  **error**. `setq` can never create a new binding.
 
 ### The Performance Idiom: Fusing Operations to Minimize Forms
 
@@ -143,9 +143,9 @@ state change and, when operating on a known local variable, is just as fast as
 ```vdu
 (defq counter 0)
 (while (< counter 10)
-    ;; Clear and idiomatic. 'setq' signals a mutation.
-    ;; This is a fast, local operation.
-    (setq counter (inc counter)))
+	;; Clear and idiomatic. 'setq' signals a mutation.
+	;; This is a fast, local operation.
+	(setq counter (inc counter)))
 ```
 
 **2. For Maximum Performance, Fuse Operations with `defq`**
@@ -158,10 +158,10 @@ total number of forms the interpreter must handle.
 
 ```vdu
 (defun process-data (data_list)
-    (defq result (list))                  ; Form 1
-    (setq *last_processed_id* (get-id data_list)) ; Form 2
-    (setq *item_count* (+ *item_count* (length data_list))) ; Form 3
-    ; ...
+	(defq result (list))				  ; Form 1
+	(setq *last_processed_id* (get-id data_list)) ; Form 2
+	(setq *item_count* (+ *item_count* (length data_list))) ; Form 3
+	; ...
 )
 ```
 
@@ -169,12 +169,12 @@ total number of forms the interpreter must handle.
 
 ```vdu
 (defun process-data (data_list)
-    ;; A single 'defq' handles all related local state logic.
-    ;; The pairs are evaluated sequentially, allowing later bindings to use earlier ones.
-    (defq result          (list)                          ; New binding
-        *last_processed_id* (get-id data_list)              ; Mutates existing local
-        *item_count*    (+ *item_count* (length data_list)))  ; Mutates existing local
-    ; ...
+	;; A single 'defq' handles all related local state logic.
+	;; The pairs are evaluated sequentially, allowing later bindings to use earlier ones.
+	(defq result		  (list)						  ; New binding
+		*last_processed_id* (get-id data_list)			  ; Mutates existing local
+		*item_count*	(+ *item_count* (length data_list)))  ; Mutates existing local
+	; ...
 )
 ```
 
@@ -183,22 +183,22 @@ This second style is preferred for its superior performance and conciseness.
 **Conclusion**
 
 *   **Use `defq` for all initial variable bindings.** Group related
-    initializations into a single `defq` form.
+	initializations into a single `defq` form.
 
 *   **For simple, standalone mutations of a known local variable, `setq` is
-    stylistically appropriate** as it clearly signals intent. There is no
-    performance penalty in this specific case.
+	stylistically appropriate** as it clearly signals intent. There is no
+	performance penalty in this specific case.
 
 *   **When creating a new local variable with `defq`, seize the opportunity
-    to fuse subsequent local `setq`s into that same `defq` form.** This is a
-    key optimization pattern that reduces strain on the interpreter.
+	to fuse subsequent local `setq`s into that same `defq` form.** This is a
+	key optimization pattern that reduces strain on the interpreter.
 
 *   **Reserve `setq` for its two main use cases:**
 
-    1. Simple, standalone local mutations where semantic clarity is desired.
+	1. Simple, standalone local mutations where semantic clarity is desired.
 
-    2. Intentional modification of variables in outer scopes, with full
-        awareness of the associated environment search.
+	2. Intentional modification of variables in outer scopes, with full
+		awareness of the associated environment search.
 
 ## The `bind` Operator: De-structuring and Pattern Matching
 
@@ -219,12 +219,12 @@ multiple values or when processing nested data structures.
 ```
 
 *   **`<pattern-list>`**: A *quoted literal list* that describes the "shape"
-    of the data you expect. It contains symbols that will become local
-    variables. Quoting the pattern is crucial; it tells the interpreter to
-    treat the list as data to be matched, not as code to be executed.
+	of the data you expect. It contains symbols that will become local
+	variables. Quoting the pattern is crucial; it tells the interpreter to
+	treat the list as data to be matched, not as code to be executed.
 
 *   **`<source-sequence>`**: The sequence containing the data to be
-    de-structured.
+	de-structured.
 
 The symbols introduced in the pattern list are created as new bindings in the
 current lexical scope and benefit from the same O(1) lookup performance as
@@ -234,35 +234,35 @@ variables created with `defq`.
 
 *   **Handling Multiple Return Values**
 
-    Many system functions return multiple results as a list. `bind` is the
-    ideal way to receive these values without creating unnecessary temporary
-    variables.
+	Many system functions return multiple results as a list. `bind` is the
+	ideal way to receive these values without creating unnecessary temporary
+	variables.
 
-    ```vdu
-    ;; Less Idiomatic: Creates a temporary 'bounds' variable.
-    (defq bounds (. my_view :get_bounds))
-    (defq x (first bounds) y (second bounds))
+	```vdu
+	;; Less Idiomatic: Creates a temporary 'bounds' variable.
+	(defq bounds (. my_view :get_bounds))
+	(defq x (first bounds) y (second bounds))
 
-    ;; Idiomatic ChrysaLisp: Direct, clean, and avoids the temporary.
-    (bind '(x y w h) (. my_view :get_bounds))
-    ```
+	;; Idiomatic ChrysaLisp: Direct, clean, and avoids the temporary.
+	(bind '(x y w h) (. my_view :get_bounds))
+	```
 
 *   **De-structuring Nested Data**
 
-    `bind` excels at cleanly unpacking complex, nested data structures. The
-    pattern can be a nested list that mirrors the shape of the source data.
+	`bind` excels at cleanly unpacking complex, nested data structures. The
+	pattern can be a nested list that mirrors the shape of the source data.
 
-    ```vdu
-    (defq data '(("Player1" (100 50)) (:score 5000)))
-    
-    ;; Clumsy and hard to read with defq and accessors.
-    (defq player_name (first (first data)))
-    (defq player_pos  (second (first data)))
-    (defq score       (second (second data)))
+	```vdu
+	(defq data '(("Player1" (100 50)) (:score 5000)))
 
-    ;; Clean, declarative, and efficient with a single bind.
-    (bind '(((player_name (x y)) (_ score))) data)
-    ```
+	;; Clumsy and hard to read with defq and accessors.
+	(defq player_name (first (first data)))
+	(defq player_pos  (second (first data)))
+	(defq score	   (second (second data)))
+
+	;; Clean, declarative, and efficient with a single bind.
+	(bind '(((player_name (x y)) (_ score))) data)
+	```
 
 ### Advanced Pattern Matching Keywords
 
@@ -270,20 +270,20 @@ variables created with `defq`.
 allowing for sophisticated pattern matching.
 
 *   **`_` (The "Ignore" Convention)** By convention, the underscore symbol is
-    used in a pattern to consume a positional value that will not be used. It
-    is a signal to the reader, but it **still performs a binding** to the `_`
-    symbol. It is best used for ignoring single, interspersed values.
+	used in a pattern to consume a positional value that will not be used. It
+	is a signal to the reader, but it **still performs a binding** to the `_`
+	symbol. It is best used for ignoring single, interspersed values.
 
 *   **`&rest <symbol>`** This keyword collects **all remaining** elements of
-    the source sequence into a single new list and binds that list to the
-    specified `<symbol>`.
+	the source sequence into a single new list and binds that list to the
+	specified `<symbol>`.
 
 *   **`&ignore` (The Terminator Keyword)** This is the most efficient way to
-    ignore trailing values. When `&ignore` is encountered in a pattern, the
-    `bind` operation **immediately terminates**. No further symbols in the
-    pattern are processed, and no more values from the source sequence are
-    consumed. This is the ideal tool when you only need the first *N* elements
-    of a list.
+	ignore trailing values. When `&ignore` is encountered in a pattern, the
+	`bind` operation **immediately terminates**. No further symbols in the
+	pattern are processed, and no more values from the source sequence are
+	consumed. This is the ideal tool when you only need the first *N* elements
+	of a list.
 
 **Example: Parsing a Regexp Match**
 
@@ -334,37 +334,37 @@ implemented as VP functions for performance reasons. ! eg.
 
 ```vdu
 (defmacro defq (&rest _)
-    (reduce! (lambda (out (s v)) (push out (list 'quote s) v))
-        (partition _ 2) (list `def `(env))))
+	(reduce! (lambda (out (s v)) (push out (list 'quote s) v))
+		(partition _ 2) (list `def `(env))))
 ```
 
 ### Operator Roles: Local Override vs. Inherited Mutation
 
 *   **`(def <object> <key-expression> <value>)`**: The **Local Property
-    Operator**.
+	Operator**.
 
-    - It operates **only** on the `:hmap` of the specified `<object>`.
+	- It operates **only** on the `:hmap` of the specified `<object>`.
 
-    - It creates a new property or mutates an existing one directly on that
-      object instance.
+	- It creates a new property or mutates an existing one directly on that
+	  object instance.
 
-    - This is the standard way to **set or override a property for a specific
-      widget**, making it independent of its parents. `def` will never search
-      up the parent chain.
+	- This is the standard way to **set or override a property for a specific
+	  widget**, making it independent of its parents. `def` will never search
+	  up the parent chain.
 
 *   **`(set <object> <key-expression> <value>)`**: The **Inherited Property
-    Mutator**.
+	Mutator**.
 
-    - It performs an `:hmap :search`, starting with the `<object>` and
-      **searching up the parent chain** until it finds the property `<key>`.
+	- It performs an `:hmap :search`, starting with the `<object>` and
+	  **searching up the parent chain** until it finds the property `<key>`.
 
-    - It then **mutates the value of that property on whichever ancestor it
-      was found**.
+	- It then **mutates the value of that property on whichever ancestor it
+	  was found**.
 
-    - This is a powerful tool for changing a shared property on a container,
-      thereby affecting all children that inherit it. It should be used
-      deliberately. If the property is not found anywhere in the inheritance
-      chain, `set` will raise an error.
+	- This is a powerful tool for changing a shared property on a container,
+	  thereby affecting all children that inherit it. It should be used
+	  deliberately. If the property is not found anywhere in the inheritance
+	  chain, `set` will raise an error.
 
 ### Static vs. Dynamic Property Keys
 
@@ -373,44 +373,44 @@ A key feature of `def` and `set` is that their `<key-expression>` argument is
 patterns.
 
 *   **Static Properties (Most Common)**: When you know the name of the
-    property at compile time, you should use a **quoted symbol**, typically a
-    keyword (e.g., `:color`, `:text`). Keywords evaluate to themselves and
-    are the idiomatic choice for property keys.
+	property at compile time, you should use a **quoted symbol**, typically a
+	keyword (e.g., `:color`, `:text`). Keywords evaluate to themselves and
+	are the idiomatic choice for property keys.
 
-    ```vdu
-    (defclass My-Button () (Button)
-      (defmethod :on_click ()
-        ;; Sets the :text and :color properties on the 'this' object.
-        (def this :text "Clicked!" :color +argb_red)))
-    ```
+	```vdu
+	(defclass My-Button () (Button)
+	  (defmethod :on_click ()
+		;; Sets the :text and :color properties on the 'this' object.
+		(def this :text "Clicked!" :color +argb_red)))
+	```
 
 *   **Dynamic Properties (Advanced)**: When the property name is determined
-    at runtime, you can use an expression that evaluates to a symbol. This is
-    essential for writing generic, data-driven code.
+	at runtime, you can use an expression that evaluates to a symbol. This is
+	essential for writing generic, data-driven code.
 
-    ```vdu
-    (defun populate-from-data (widget data_list)
-      ;; For each [prop_name prop_value] pair in the list...
-      (each (lambda ((prop_name prop_value))
-              ;; 'prop_name' is a variable holding a symbol.
-              ;; It is evaluated to get the key before 'def' is called.
-              (def widget prop_name prop_value))
-        data_list))
+	```vdu
+	(defun populate-from-data (widget data_list)
+	  ;; For each [prop_name prop_value] pair in the list...
+	  (each (lambda ((prop_name prop_value))
+			  ;; 'prop_name' is a variable holding a symbol.
+			  ;; It is evaluated to get the key before 'def' is called.
+			  (def widget prop_name prop_value))
+		data_list))
 
-    (defq my_widget (View))
-    (defq config_data '((:color +argb_red) (:width 200)))
-    (populate-from-data my_widget config_data)
-    ```
+	(defq my_widget (View))
+	(defq config_data '((:color +argb_red) (:width 200)))
+	(populate-from-data my_widget config_data)
+	```
 
 **Conclusion**
 
 *   **Always use `def` to set properties on an object instance.** This is the
-    safe, expected, and most common operation. It ensures you are only
-    modifying the state of the object you are explicitly targeting.
+	safe, expected, and most common operation. It ensures you are only
+	modifying the state of the object you are explicitly targeting.
 
 *   **Only use `set` when your explicit intent is to find and mutate a
-    property higher up in the inheritance chain**, thereby affecting the
-    object and potentially its siblings that also inherit that property.
+	property higher up in the inheritance chain**, thereby affecting the
+	object and potentially its siblings that also inherit that property.
 
 This distinction is key to harnessing the power of ChrysaLisp's unified
 property inheritance and lexical scoping model without introducing subtle
@@ -430,19 +430,19 @@ lookup all reinforce each other.
 The preference for iteration stems from two core architectural principles:
 
 *   **Cooperative Tasks and Small Stacks:** ChrysaLisp is built for massive
-    concurrency, where tens of thousands of tasks can run on a single core.
-    To make this possible, each task is given a small, fixed-size machine
-    stack (typically 4KB). This makes tasks extremely memory-efficient, but
-    it also makes deep recursion on the machine stack physically
-    impossible-it would quickly lead to a stack overflow.
+	concurrency, where tens of thousands of tasks can run on a single core.
+	To make this possible, each task is given a small, fixed-size machine
+	stack (typically 4KB). This makes tasks extremely memory-efficient, but
+	it also makes deep recursion on the machine stack physically
+	impossible-it would quickly lead to a stack overflow.
 
 *   **Stable Scopes for O(1) Lookups:** A recursive style creates a deep
-    chain of nested lexical environments (`:hmap`s). This leads to frequent
-    shadowing and un-shadowing of variables as the call stack grows and
-    shrinks, causing constant invalidation and repair of the `str_hashslot`
-    cache. An iterative style typically operates within a single, flat
-    lexical scope. This keeps the `str_hashslot` cache stable, maximizing its
-    effectiveness and ensuring consistent O(1) lookup performance.
+	chain of nested lexical environments (`:hmap`s). This leads to frequent
+	shadowing and un-shadowing of variables as the call stack grows and
+	shrinks, causing constant invalidation and repair of the `str_hashslot`
+	cache. An iterative style typically operates within a single, flat
+	lexical scope. This keeps the `str_hashslot` cache stable, maximizing its
+	effectiveness and ensuring consistent O(1) lookup performance.
 
 ### The Idiomatic Pattern: The Explicit Work Stack
 
@@ -464,20 +464,20 @@ process a list of any depth without ever growing the machine stack.
 (defun flatten (lst)
 	; (flatten list) -> list
 	(defq out (list) stack (list lst 0))
-    ; 'stack' is the explicit work list on the heap.
-	
+	; 'stack' is the explicit work list on the heap.
+
 	(while (defq idx (pop stack) lst (pop stack))
 		(some! (lambda (%0)
 			(cond
-				((list? %0) 
-                    ; Found a sub-list. Don't recurse. Instead, push the
-                    ; parent list and the next index back onto our work stack
-                    ; to be processed later. Then, push the new sub-list.
-                    (push stack lst (inc (!)) %0 0) 
-                    :nil) ; Stop processing this list and restart the 'while' loop.
+				((list? %0)
+					; Found a sub-list. Don't recurse. Instead, push the
+					; parent list and the next index back onto our work stack
+					; to be processed later. Then, push the new sub-list.
+					(push stack lst (inc (!)) %0 0)
+					:nil) ; Stop processing this list and restart the 'while' loop.
 				((push out %0)))) ; It's an atom, collect it in the output.
-            (list lst) :t idx)) 
-    out)
+			(list lst) :t idx))
+	out)
 ```
 
 By following this discipline, programmers work *with* the ChrysaLisp
@@ -500,12 +500,12 @@ stage. This pass walks the macro-expanded code tree and attempts to resolve a
 `function` or `constant` symbol to its definition in the current environment.
 
 *   If a symbol's definition is found, the symbol in the code is **replaced
-    with a direct pointer** to its binding (e.g., a function address or a
-    constant's value).
+	with a direct pointer** to its binding (e.g., a function address or a
+	constant's value).
 
 *   This effectively means that at runtime, no `:hmap` lookup is required.
-    The call or access is a direct memory operation, which is the fastest
-    possible way to execute.
+	The call or access is a direct memory operation, which is the fastest
+	possible way to execute.
 
 This mechanism leads to a critical programming discipline: **Define
 functions and variables before they are used.** Adhering to this "no forward
@@ -519,20 +519,20 @@ The "no forward references" guide is leveraged to create a simple and
 effective module system, used pervasively throughout the standard libraries.
 
 1.  **Define Internals First:** All helper functions and private constants
-    are defined at the top of a module file. Because they have not yet been
-    exported, they are effectively "private" to the module's scope during
-    compilation.
+	are defined at the top of a module file. Because they have not yet been
+	exported, they are effectively "private" to the module's scope during
+	compilation.
 
 2.  **Use Internals to Build the Public API:** Public functions are defined
-    next, freely using the "private" helpers. During the compilation of this
-    file, `repl_bind` resolves all these internal calls to fast, direct
-    pointers.
+	next, freely using the "private" helpers. During the compilation of this
+	file, `repl_bind` resolves all these internal calls to fast, direct
+	pointers.
 
 3.  **Export the Public Interface:** At the very end of the file, an
-    `(export-symbols '(...))` form is used. This function takes a list of
-    symbols and adds them and their definitions to a shared environment
-    (typically the parent), making them visible to other modules that
-    `import` this file.
+	`(export-symbols '(...))` form is used. This function takes a list of
+	symbols and adds them and their definitions to a shared environment
+	(typically the parent), making them visible to other modules that
+	`import` this file.
 
 **Example:**
 
@@ -561,29 +561,29 @@ folding, replacing symbols with their literal values in the final compiled
 code.
 
 *   **The `+` Prefix Convention:** Symbols prefixed with a `+` (e.g.,
-    `+max_retries`) are, by convention, treated as bind-time constants. When
-    `repl_bind` encounters such a symbol, it will **replace the symbol
-    entirely with that value**. The symbol itself never appears in the final
-    executable code.
+	`+max_retries`) are, by convention, treated as bind-time constants. When
+	`repl_bind` encounters such a symbol, it will **replace the symbol
+	entirely with that value**. The symbol itself never appears in the final
+	executable code.
 
 * **Structures and `getf`/`setf`:** This pattern is most powerfully used by
   the `structure` macros. These macros define a family of constants
   representing the memory offsets of fields within a data structure.
 
-    ```vdu
-    ;; Defines +my_msg_type as the literal integer 24, among other constants.
-    (structure +my_msg 0 (netid reply_id) (uint type))
+	```vdu
+	;; Defines +my_msg_type as the literal integer 24, among other constants.
+	(structure +my_msg 0 (netid reply_id) (uint type))
 
-    ;; A programmer writes this clean, symbolic code:
-    (setf my_msg +my_msg_type +ev_type_action)
-    ```
+	;; A programmer writes this clean, symbolic code:
+	(setf my_msg +my_msg_type +ev_type_action)
+	```
 
-    At compile time, the `setf` macro is expanded. It evaluates
-    `+my_msg_type` to its literal value, `24`. The final code generated is
-    equivalent to `(obj-set my_msg 24 4 +ev_type_action)`, which becomes a
-    single, highly-optimized memory write instruction. This allows
-    developers to work with high-level, symbolic field names while the system
-    guarantees C-level performance for data access.
+	At compile time, the `setf` macro is expanded. It evaluates
+	`+my_msg_type` to its literal value, `24`. The final code generated is
+	equivalent to `(obj-set my_msg 24 4 +ev_type_action)`, which becomes a
+	single, highly-optimized memory write instruction. This allows
+	developers to work with high-level, symbolic field names while the system
+	guarantees C-level performance for data access.
 
 ## The Path to Performance: A Three-Stage Optimization Strategy
 
@@ -604,11 +604,11 @@ Every new piece of functionality should begin as a pure ChrysaLisp function.
 *   **Primary Goal:** Algorithm correctness, clarity, and rapid development.
 
 *   **Environment:** Full access to the high-level Lisp environment, its
-    libraries, and the REPL for interactive testing.
+	libraries, and the REPL for interactive testing.
 
 *   **Performance:** The code is handled by the hyper-fast Lisp interpreter.
-    For many tasks, especially those that are not in a tight loop or are
-    I/O-bound, this level of performance is more than sufficient.
+	For many tasks, especially those that are not in a tight loop or are
+	I/O-bound, this level of performance is more than sufficient.
 
 **Guideline:** Always start here. Prove your logic is sound. Create a
 baseline for functionality and, if needed, performance. If the Lisp function
@@ -633,18 +633,18 @@ function is a bottleneck, the next step is to translate it into a C-Script
 VP function.
 
 *   **Primary Goal:** To gain significant performance by eliminating Lisp
-    interpreter overhead, while still maintaining a high level of abstraction
-    and safety.
+	interpreter overhead, while still maintaining a high level of abstraction
+	and safety.
 
 *   **Environment:** C-Script uses a more C-like syntax within a `(def-func)`
-    block. You declare local variables with `def-vars`, and the assembler
-    handles mapping them to stack locations or registers. You are protected
-    from many of the complexities of manual register allocation.
+	block. You declare local variables with `def-vars`, and the assembler
+	handles mapping them to stack locations or registers. You are protected
+	from many of the complexities of manual register allocation.
 
 *   **Performance:** C-Script compiles down to highly efficient VP code. It
-    is significantly faster than the interpreted Lisp version and is the
-    right choice for the vast majority of performance-critical application
-    code.
+	is significantly faster than the interpreted Lisp version and is the
+	right choice for the vast majority of performance-critical application
+	code.
 
 **Guideline:** Move to this stage to prove your algorithm's performance at a
 lower level. This is the ideal environment to refine the logic with the
@@ -656,26 +656,26 @@ manual register management.
 ```vdu
 (def-func 'my-sum-of-squares)
 
-    (def-vars
-        (ptr list_obj)
-        (pptr iter iter_end)
-        (long sum val))
+	(def-vars
+		(ptr list_obj)
+		(pptr iter iter_end)
+		(long sum val))
 
-    (push-scope)
-    (entry {list_obj})
+	(push-scope)
+	(entry {list_obj})
 
-    (assign {0} {sum})
-    (call :array :get_both {list_obj} {_, iter, iter_end})
-    (loop-while {iter /= iter_end})
-        (call :num :get_value {*iter} {_, val})
-        (assign {val * val + sum} {sum})
-        (assign {iter + +ptr_size} {iter})
-    (loop-end)
-    (call :num :create {sum} {list_obj})
+	(assign {0} {sum})
+	(call :array :get_both {list_obj} {_, iter, iter_end})
+	(loop-while {iter /= iter_end})
+		(call :num :get_value {*iter} {_, val})
+		(assign {val * val + sum} {sum})
+		(assign {iter + +ptr_size} {iter})
+	(loop-end)
+	(call :num :create {sum} {list_obj})
 
-    (exit {list_obj})
-    (pop-scope)
-    (return)
+	(exit {list_obj})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 ```
@@ -687,18 +687,18 @@ primitives, or routines in an extreme performance-critical loop-the final
 optimization stage is to write a pure VP assembly method.
 
 *   **Primary Goal:** To achieve the smallest footprint and highest possible
-    execution speed by controlling the hardware at the most direct level
-    possible.
+	execution speed by controlling the hardware at the most direct level
+	possible.
 
 *   **Environment:** You manually allocate registers using `(vp-rdef ...)`
-    and write code using direct register symbols (`:r0`, `:r1`, etc.). You are
-    responsible for managing register lifetimes and avoiding conflicts. The
-    stack may be used sparingly or, in many cases, avoided entirely for leaf
-    functions.
+	and write code using direct register symbols (`:r0`, `:r1`, etc.). You are
+	responsible for managing register lifetimes and avoiding conflicts. The
+	stack may be used sparingly or, in many cases, avoided entirely for leaf
+	functions.
 
 *   **Performance:** This is "bare metal" on the Virtual Processor. There is
-    no abstraction layer left. Code written at this level forms the
-    hyper-optimized engine upon which the rest of the system is built.
+	no abstraction layer left. Code written at this level forms the
+	hyper-optimized engine upon which the rest of the system is built.
 
 **Guideline:** Only proceed to this stage when you have an absolutely correct
 and benchmarked C-Script version, and you have determined that even greater
@@ -714,23 +714,23 @@ performance.
 ;; Stage 3: Direct register manipulation for maximum speed.
 (def-method :my_class :sum_of_squares)
 
-    (vp-rdef (this iter iter_end sum val) '(:r8 :r9 :r10 :r11 :r12))
+	(vp-rdef (this iter iter_end sum val) '(:r8 :r9 :r10 :r11 :r12))
 
-    (entry :my_class :sum_of_squares `(,this))
+	(entry :my_class :sum_of_squares `(,this))
 
-    (assign '(0) `(,sum))
-    (class/array/get_both this iter iter_end)
-    (loop-while `(,iter /= ,iter_end))
-        (assign `((,iter 0)) `(,val))
-        (assign `((,val num_value)) `(,val))
-        (vp-mul-rr val val)
-        (vp-add-rr val sum)
-        (vp-add-cr +ptr_size iter)
-    (loop-end)
-    (call :num :create `(,sum) `(,sum))
+	(assign '(0) `(,sum))
+	(class/array/get_both this iter iter_end)
+	(loop-while `(,iter /= ,iter_end))
+		(assign `((,iter 0)) `(,val))
+		(assign `((,val num_value)) `(,val))
+		(vp-mul-rr val val)
+		(vp-add-rr val sum)
+		(vp-add-cr +ptr_size iter)
+	(loop-end)
+	(call :num :create `(,sum) `(,sum))
 
-    (exit :my_class :sum_of_squares `(,this ,sum))
-    (vp-ret)
+	(exit :my_class :sum_of_squares `(,this ,sum))
+	(vp-ret)
 
 (def-func-end)
 ```

@@ -49,12 +49,12 @@ simultaneously:
 
 3. **Map and Merge:**
 
-    * For every mutation (e.g., `:iinsert` at cursor A), the buffer calculates
-      the offset and automatically adjusts the coordinates of all other cursors
-      via helper functions like `csr-map-insert` and `csr-map-delete`.
+	* For every mutation (e.g., `:iinsert` at cursor A), the buffer calculates
+	  the offset and automatically adjusts the coordinates of all other cursors
+	  via helper functions like `csr-map-insert` and `csr-map-delete`.
 
-    * Finally, `:merge_cursors` is called. If two cursors collide or overlap,
-      they are mathematically merged into a single cursor/selection.
+	* Finally, `:merge_cursors` is called. If two cursors collide or overlap,
+	  they are mathematically merged into a single cursor/selection.
 
 ### 1.2 The Document Class (`lib/text/document.inc`)
 
@@ -128,37 +128,37 @@ with "bar", and wraps the containing line in parentheses.
 (import "lib/text/document.inc")
 
 (defun batch-process (filename)
-    ; 1. Instantiate a headless document (which is a Buffer)
-    (defq doc (Document))
+	; 1. Instantiate a headless document (which is a Buffer)
+	(defq doc (Document))
 
-    ; 2. Load content from a file stream
-    (. doc :stream_load (file-stream filename))
+	; 2. Load content from a file stream
+	(. doc :stream_load (file-stream filename))
 
-    ; 3. Find all occurrences of "foo".
-    ; :find returns a buffer_found structure (list of matches per line).
-    (defq matches (. doc :find "foo" :nil :nil))
-    
-    (if matches
-        (progn
-            ; 4. Set cursors to ALL matches simultaneously
-            (. doc :set_found_cursors matches)
+	; 3. Find all occurrences of "foo".
+	; :find returns a buffer_found structure (list of matches per line).
+	(defq matches (. doc :find "foo" :nil :nil))
 
-            ; 5. Replace "foo" with "bar" at all locations
-            ; . doc :insert handles deleting selections and inserting new text
-            (. doc :insert "bar")
+	(if matches
+		(progn
+			; 4. Set cursors to ALL matches simultaneously
+			(. doc :set_found_cursors matches)
 
-            ; 6. Select the lines we just modified
-            (. doc :select_line)
+			; 5. Replace "foo" with "bar" at all locations
+			; . doc :insert handles deleting selections and inserting new text
+			(. doc :insert "bar")
 
-            ; 7. Copy the lines, wrap them, and paste back
-            (defq lines (split (. doc :copy) "\f"))
-            (defq wrapped (join (map (# (str "(" %0 ")")) lines) "\f"))
-            (. doc :paste wrapped)
+			; 6. Select the lines we just modified
+			(. doc :select_line)
 
-            ; 8. Save the result back to the stream
-            (. doc :stream_save (file-stream filename :write))
-            (print "Processed matches.")))
-    )
+			; 7. Copy the lines, wrap them, and paste back
+			(defq lines (split (. doc :copy) "\f"))
+			(defq wrapped (join (map (# (str "(" %0 ")")) lines) "\f"))
+			(. doc :paste wrapped)
+
+			; 8. Save the result back to the stream
+			(. doc :stream_save (file-stream filename :write))
+			(print "Processed matches.")))
+	)
 ```
 
 ### Advantages of this Approach

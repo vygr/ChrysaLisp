@@ -14,6 +14,10 @@ Fix `Buffer :paste` issue with empty text.
 Created a VSCode language syntax highlighting set to match the Edit app scheme.
 `vscode_chrysalisp_syntax.zip` contains the extension and example settings.
 
+Switch to a unified globally tracked undo/redo system in the Edit app. No need
+to have separate global unod/redo actions anymore. And it's logically more
+consistent for the user.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

@@ -91,16 +91,16 @@ Usage: edit [options] [path] ...
 
 		Available Commands:
 
-	Search:		(edit-find pattern [:w :r]) -> :nil | buffer_found
+	Search:	 (edit-find pattern [:w :r]) -> :nil | buffer_found
 				(edit-find-next) -> :nil | buffer
 				(edit-find-prev) -> :nil | buffer
 				(edit-find-add-next) -> :nil | buffer
 
 	Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
 
-	Focus:		(edit-get-focus) (edit-set-focus [csr]) (edit-filter-cursors)
+	Focus:	  (edit-get-focus) (edit-set-focus [csr]) (edit-filter-cursors)
 
-	Selection:	(edit-select-all) (edit-select-line) (edit-select-word)
+	Selection:  (edit-select-all) (edit-select-line) (edit-select-word)
 				(edit-select-block) (edit-select-form) (edit-select-paragraph)
 				(edit-select-ws-left) (edit-select-ws-right)
 				(edit-select-bracket-left) (edit-select-bracket-right)
@@ -109,24 +109,24 @@ Usage: edit [options] [path] ...
 				(edit-select-left [cnt]) (edit-select-right [cnt])
 				(edit-select-up [cnt]) (edit-select-down [cnt])
 
-	Navigation:	(edit-top) (edit-bottom) (edit-home) (edit-end)
+	Navigation: (edit-top) (edit-bottom) (edit-home) (edit-end)
 				(edit-bracket-left) (edit-bracket-right)
 				(edit-ws-left) (edit-ws-right)
 				(edit-up [cnt]) (edit-down [cnt])
 				(edit-left [cnt]) (edit-right [cnt])
 
-	Mutation:	(edit-insert txt) (edit-paste txt) (edit-replace pattern)
+	Mutation:   (edit-insert txt) (edit-paste txt) (edit-replace pattern)
 				(edit-delete [cnt]) (edit-backspace [cnt])
 				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
 				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
 				(edit-indent) (edit-outdent) (edit-cut) (edit-break)
 
-	Properties:	(edit-copy) -> txt
+	Properties: (edit-copy) -> txt
 				(edit-get-text) -> txt
 				(edit-get-primary-text) -> txt
 				(edit-get-filename) -> txt
 
-	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
+	Utilities:  (edit-split-text txt [cls]) -> (txt ...)
 				(edit-join-text (txt ...) [cls]) -> txt
 				(edit-print ...)
 				(edit-eof?) -> :t | :nil
@@ -154,7 +154,7 @@ Usage: files [options] [prefix] [postfix]
 
 	Find all paths that match the prefix and postfix.
 
-		prefix default 
+		prefix default
 ```
 ## forward
 ```code
@@ -361,16 +361,16 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
 	options:
 		-h --help: this help info.
 
-	all:        include all .vp files.
-	boot:       create a boot image.
+	all:		include all .vp files.
+	boot:	   create a boot image.
 	platforms:  for all platforms not just the host.
-	docs:       scan source files and create documentation.
-	it:         all of the above !
-	apps:       only the apps !
-	release:    it/apps release mode.
-	debug:      it/apps debug mode.
+	docs:	   scan source files and create documentation.
+	it:		 all of the above !
+	apps:	   only the apps !
+	release:	it/apps release mode.
+	debug:	  it/apps debug mode.
 	validate:   it/apps validate mode.
-	test:       test make timings.
+	test:	   test make timings.
 ```
 ## mv
 ```code

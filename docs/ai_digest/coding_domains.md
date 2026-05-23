@@ -105,7 +105,7 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
 			; 'assign' handles the math/move
 			(assign {count + 1} {count})
 		(endif)
-		
+
 		; Cleanup and return
 		(exit :my_class :my_method {this})
 		; Dealloc stack space

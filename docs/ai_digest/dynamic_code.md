@@ -31,24 +31,24 @@ select the correct conversion logic at runtime.
 
 ```code
 void convert_pixel(uint32_t src_pixel, PixelFormat src_fmt, PixelFormat dst_fmt) {
-    switch (src_fmt) {
-        case RGB565:
-            switch (dst_fmt) {
-                case ARGB8888:
-                    // ... logic for 565 -> 8888 ...
-                    break;
-                // ... other destination formats ...
-            }
-            break;
-        // ... other source formats ...
-    }
+	switch (src_fmt) {
+		case RGB565:
+			switch (dst_fmt) {
+				case ARGB8888:
+					// ... logic for 565 -> 8888 ...
+					break;
+				// ... other destination formats ...
+			}
+			break;
+		// ... other source formats ...
+	}
 }
 ```
 
 *   **Flaw:** This is disastrous for performance. The conversion logic for a
-    full bitmap is inside a tight loop. This `switch` statement introduces
-    repeated, unpredictable branches, which are poison to modern CPUs with
-    deep instruction pipelines.
+	full bitmap is inside a tight loop. This `switch` statement introduces
+	repeated, unpredictable branches, which are poison to modern CPUs with
+	deep instruction pipelines.
 
 **Approach B: The C Preprocessor Macro**
 
@@ -56,18 +56,18 @@ A developer might try to use the C preprocessor to generate code.
 
 ```code
 #define CONVERT_565_TO_8888(src_pixel) \
-    ((((src_pixel >> 11) & 0x1F) * 255 / 31) << 16) | \
-    ((((src_pixel >> 5) & 0x3F) * 255 / 63) << 8) | ...
+	((((src_pixel >> 11) & 0x1F) * 255 / 31) << 16) | \
+	((((src_pixel >> 5) & 0x3F) * 255 / 63) << 8) | ...
 
 // In the loop:
 *dst++ = CONVERT_565_TO_8888(*src++);
 ```
 
 *   **Flaw:** The C preprocessor is just a text-substitution engine. It has no
-    understanding of logic, types, or algorithms. It cannot, for example,
-    algorithmically determine the correct bit shifts and scaling factors from
-    a set of bitmasks. The developer must still hand-write and maintain a
-    macro for every single conversion pair, which is tedious and error-prone.
+	understanding of logic, types, or algorithms. It cannot, for example,
+	algorithmically determine the correct bit shifts and scaling factors from
+	a set of bitmasks. The developer must still hand-write and maintain a
+	macro for every single conversion pair, which is tedious and error-prone.
 
 **Approach C: Hand-Written Functions**
 
@@ -76,9 +76,9 @@ every single conversion pair: `convert_565_to_8888()`, `convert_555_to_8888()`,
 `convert_888_to_565()`, etc.
 
 *   **Flaw:** This gives the best runtime performance but is a maintenance
-    nightmare. Adding a new pixel format requires writing N new functions. It
-    leads to massive code bloat and a high probability of bugs in
-    less-frequently used conversion paths.
+	nightmare. Adding a new pixel format requires writing N new functions. It
+	leads to massive code bloat and a high probability of bugs in
+	less-frequently used conversion paths.
 
 ChrysaLisp finds all three approaches unacceptable and provides a fourth way.
 
@@ -117,19 +117,19 @@ The VP source file defines the method like this:
 	; ... (register definitions)
 	(defun conv (...) ...) ; Helper Lisp function
 	(defun pipeline (...) ...) ; Helper Lisp function
-	
+
 	(entry :pixmap :to_argb32 (list col pix))
 	(switch)
-	    (vpcase `(,pix = 16))
-		    (to-argb32
-			    0b0000000000000000 ; Alpha mask
-			    0b1111100000000000 ; Red mask
-			    0b0000011111100000 ; Green mask
-			    0b0000000000011111 ; Blue mask
-		    )
-		    (break)
-        ; ... other cases
-    (endswitch)
+		(vpcase `(,pix = 16))
+			(to-argb32
+				0b0000000000000000 ; Alpha mask
+				0b1111100000000000 ; Red mask
+				0b0000011111100000 ; Green mask
+				0b0000000000011111 ; Blue mask
+			)
+			(break)
+		; ... other cases
+	(endswitch)
 	(exit :pixmap :to_argb32 (list col))
 	(vp-ret)
 (def-func-end)
@@ -146,21 +146,21 @@ channel. This is the core code generator.
 
 ```vdu
 (defun conv (col sr dr sm dm)
-    (defq sw (width sm) dw (width dm)) ; Calculate source and dest bit widths
-    (cond
-        ; ... logic to handle up-scaling ...
-        (:t ; left bit replicate
-            (defq ls (- (nlz sm) (nlz dm)) pipe
-                `((vp-cpy-rr ,col ,sr) (vp-and-cr ,sm ,sr)
-                  (vp-shl-cr ,ls ,sr) (vp-cpy-rr ,sr ,dr))
-                ; ...
-            )
-            (while (> dw 0)
-                (push pipe `(vp-shr-cr ,sw ,sr) `(vp-add-rr ,sr ,dr))
-                ; ...
-            )
-        ...
-    pipe) ; <--- RETURNS A LIST OF LISP FORMS
+	(defq sw (width sm) dw (width dm)) ; Calculate source and dest bit widths
+	(cond
+		; ... logic to handle up-scaling ...
+		(:t ; left bit replicate
+			(defq ls (- (nlz sm) (nlz dm)) pipe
+				`((vp-cpy-rr ,col ,sr) (vp-and-cr ,sm ,sr)
+				  (vp-shl-cr ,ls ,sr) (vp-cpy-rr ,sr ,dr))
+				; ...
+			)
+			(while (> dw 0)
+				(push pipe `(vp-shr-cr ,sw ,sr) `(vp-add-rr ,sr ,dr))
+				; ...
+			)
+		...
+	pipe) ; <--- RETURNS A LIST OF LISP FORMS
 ```
 
 The `conv` function analyzes the source and destination masks (`sm`, `dm`) and
@@ -187,17 +187,17 @@ is called, which emits the final bytecode into the function being compiled.
 2.  It begins processing `gui/pixmap/class.vp`.
 
 3.  Inside `def-method :pixmap :to_argb32`, it hits the `(to-argb32 ...)` Lisp
-    function call.
+	function call.
 
 4.  `to-argb32` and its helpers `conv` and `pipeline` run. They generate a
-    list of assembly instructions, perfectly tailored for the RGB565 ->
-    ARGB8888 conversion.
+	list of assembly instructions, perfectly tailored for the RGB565 ->
+	ARGB8888 conversion.
 
 5.  `eval` is called on each instruction in the list, which executes the
-    bytecode emitters (`vp-shl-cr`, `vp-add-rr`, etc.).
+	bytecode emitters (`vp-shl-cr`, `vp-add-rr`, etc.).
 
 6.  The final, optimized, branchless VP bytecode is written into the body of
-    the `:pixmap :to_argb32` method in the output object file.
+	the `:pixmap :to_argb32` method in the output object file.
 
 **At Runtime:**
 

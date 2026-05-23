@@ -305,6 +305,7 @@
 	(defgetmethod :tab_width)
 	(defgetmethod :last_find)
 	(defgetmethod :focus)
+	(defgetmethod :next_mark)
 
 	(defmethod :set_focus (csr)
 		(lower (:focus (if (and csr (nql csr +invalid_focus))

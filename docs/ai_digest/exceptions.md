@@ -66,18 +66,18 @@ For example, a typical Lisp FFI binding in the source code looks like this:
 
 ```vdu
 (def-method :seq :lisp_elem)
-    (entry :seq :lisp_elem '(:r0 :r1))
-    
-    (errorif-lisp-args-sig 'error1 :r1 2)
-    
-    ; ... payload extraction ...
-    
+	(entry :seq :lisp_elem '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error1 :r1 2)
+
+	; ... payload extraction ...
+
 (errorcase
-    (gotoif '(:r11 < 0) 'error2)
-    (gotoif '(:r11 >= :r1) 'error2))
-    
-    (call :seq :ref_elem '(:r0 :r11) '(_ :r1))
-    ; ...
+	(gotoif '(:r11 < 0) 'error2)
+	(gotoif '(:r11 >= :r1) 'error2))
+
+	(call :seq :ref_elem '(:r0 :r11) '(_ :r1))
+	; ...
 ```
 
 In Release mode, the `errorif-lisp-args-sig` (which wraps an `errorcase`) and

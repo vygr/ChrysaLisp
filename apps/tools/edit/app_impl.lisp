@@ -37,7 +37,7 @@
 			(second (. buffer :get_size))
 			(+ start_line (get :vdu_height *edit*)))))
 	(while (< (setq start_line (inc start_line)) end_line)
-		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
+		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "	")))
 	(. buffer :find (. *find_text* :get_text) *whole_words* *regexp*)
 	(. *edit* :underlay)
 	(. *vdu_lines* :load lines 0 0 -1 -1)
@@ -208,7 +208,16 @@
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(defq func (first action))
+	(defq func (first action)
+		;collect all active buffer keys (open files and the ":nil" scratchpad)
+		keys (cat (map (const str) *open_files*) (list ":nil"))
+		get_marker (lambda (f)
+			(if (defq meta (.-> *meta_map* (:find :files) (:find f)))
+				(if (defq buf (. meta :find :buffer))
+					(. buf :get_next_mark) -1) -1))
+		;take a snapshot of the transaction markers before the action
+		old_markers (map (# (list %0 (get_marker %0))) keys))
+	;execute the action
 	(if (eql func action-insert)
 		(progn
 			(catch (eval action)
@@ -223,7 +232,18 @@
 			(and *macro_record* (find func *recorded_actions*)
 				(macro-record action))
 			(catch (eval action)
-				(progn (prin _) (print) (setq *refresh_mode* (list 0)) :t)))))
+				(progn (prin _) (print) (setq *refresh_mode* (list 0)) :t))))
+	;identify all buffers whose transaction marker increased
+	(defq modified_files (list))
+	(each (lambda ((f old_mark))
+			(when (> (get_marker f) old_mark)
+				;use ":nil" with the colon, and map it back to the symbol :nil
+				(push modified_files (if (eql f ":nil") :nil f))))
+		old_markers)
+	;if any buffers changed, push them as a single grouped transaction
+	(when (nempty? modified_files)
+		(push *global_undo_stack* modified_files)
+		(clear *global_redo_stack*)))
 
 (defun main ()
 	(defq select (task-mboxes +select_size)

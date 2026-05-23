@@ -40,11 +40,18 @@
 	(populate-vdu :nil)
 	(select-node :nil))
 
+(defun clean-stack (stack file)
+	;filter out closed files from each transaction group, and remove empty groups
+	(filter (const nempty?) (map (# (filter (# (nql %0 file)) %0)) stack)))
+
 (defun close-file (file)
 	(save-file file)
 	(when (and file (defq i (find file *open_files*)))
 		(.-> *meta_map* (:find :files) (:erase file))
-		(setq *open_files* (erase *open_files* i (inc i)))
+		;purge references to the closed file from the global history stacks
+		(setq *open_files* (erase *open_files* i (inc i))
+			*global_undo_stack* (clean-stack *global_undo_stack* file)
+			*global_redo_stack* (clean-stack *global_redo_stack* file))
 		(defq files (cat *open_files*))
 		(if (= (length files) 0) (push files :nil))
 		(elem-get files (% i (length files)))))

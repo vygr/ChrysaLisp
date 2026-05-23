@@ -59,8 +59,6 @@
 	+event_undo action-undo
 	+event_redo action-redo
 	+event_rewind action-rewind
-	+event_gundo action-undo-global
-	+event_gredo action-redo-global
 	+event_cut action-cut
 	+event_copy action-copy
 	+event_paste action-paste
@@ -215,6 +213,7 @@
 (export-symbols
 	'(*recorded_actions* *find_actions* *replace_actions*
 	*event_map* *key_map* *key_map_shift* *key_map_control*
+	*global_undo_stack* *global_redo_stack*
 	action-insert action-save-all action-maximise action-breakpoint
 	select-word action-select-word action-insert context-words
 	macro-record state-load state-save find-count update-find-toolbar))

@@ -3,7 +3,7 @@
 	(enum layout xscroll yscroll)
 	(enum file_folder_action file_leaf_action)
 	(enum open_folder_action open_leaf_action)
-	(enum undo redo rewind gundo gredo
+	(enum undo redo rewind
 		cut copy paste
 		split reflow paragraph tab_left tab_right
 		block bracket_left bracket_right
@@ -24,7 +24,7 @@
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xe938 0xe971
+			(ui-buttons (0xe9fe 0xe99d 0xe9ff
 				0xea08 0xe9ca 0xe9c9
 				0xe901 0xe909 0xe90d 0xe90a 0xe90b
 				0xe955 0xe93c 0xe93d
@@ -79,7 +79,7 @@
 						(ui-backdrop _ (:style :lines :ink_color +argb_white))))))))
 
 (ui-tool-tips *main_toolbar*
-	'("undo" "redo" "rewind" "global undo" "global redo"
+	'("undo" "redo" "rewind"
 	"cut" "copy" "paste" "split" "reflow" "select paragraph"
 	"outdent" "indent" "select form" "start form"
 	"end form" "upper case" "lower case" "sort" "unique"
