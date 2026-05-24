@@ -29,7 +29,8 @@
 				(def vdu :vdu_width w)
 				(bind '(rw rh) (. vdu :pref_size))
 				(.-> vdu (:change 0 0 rw rh))
-				(. buffer :vdu_load vdu 0 0 :text)
+				(.-> buffer (:set_cursor 0 100000)
+					(:vdu_load vdu 0 0 :text))
 
 				;layout container backdrop and optional scroll
 				(def (defq backdrop (Backdrop))
