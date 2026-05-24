@@ -2,6 +2,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/task/cmd.inc")
+(import "lib/text/document.inc")
 
 ;our UI widgets and events
 (import "./widgets.inc")
@@ -98,7 +99,7 @@
 		scroll_pos (Fmap) *running* :t *current_file* "docs/ai_digest/summary.md"
 		*page_scale* 1.0 *regexp* :nil *whole_words* :nil
 		*last_key* "" *last_files* (list) *page_words* (Fset 101)
-		*last_widget* :nil *search_widgets* (list))
+		*last_widget* :nil *search_widgets* (list) *mem_stream* :nil)
 	(.-> *file_selector* (:populate "docs" '(".md")) :pref_size)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(def *page_scroll* :min_height 800)

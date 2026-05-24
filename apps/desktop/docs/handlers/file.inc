@@ -1,8 +1,6 @@
 ;module
 (env-push)
 
-(import "lib/text/document.inc")
-
 (defun handler (state page line)
 	; (handler state page line) -> state
 	(cond
@@ -11,10 +9,11 @@
 		(:t (bind '(file &optional start_exp end_exp)
 				(first (read (string-stream (cat "(" line ")")))))
 			;skip to start and write directly to a memory-stream
-			(defq stream (file-stream file) mstream (memory-stream))
+			(defq stream (file-stream file))
+			(setq *mem_stream* (memory-stream))
 			(while (and start_exp (defq line (read-line stream)))
 				(when (found? line start_exp)
-					(write-line mstream (trim line "\r"))
+					(write-line *mem_stream* (trim line "\r"))
 					(setq start_exp :nil)))
 			;skip to end
 			(cond
@@ -22,19 +21,19 @@
 					(while (and end_exp (defq line (read-line stream)))
 						(if (or (eql line "") (eql line "\r"))
 							(setq end_exp :nil)
-							(write-line mstream (trim line "\r")))))
+							(write-line *mem_stream* (trim line "\r")))))
 				(end_exp
 					(while (and end_exp (defq line (read-line stream)))
 						(if (found? line end_exp)
 							(setq end_exp :nil)
-							(write-line mstream (trim line "\r")))))
+							(write-line *mem_stream* (trim line "\r")))))
 				(:t (while (defq line (read-line stream))
-						(write-line mstream (trim line "\r")))))
-			(stream-seek mstream 0 0)
+						(write-line *mem_stream* (trim line "\r")))))
+			(stream-seek *mem_stream* 0 0)
 
 			;load the memory-stream into a Document and trim it
 			(defq buffer (Document +buffer_flag_syntax syntax))
-			(.-> buffer (:stream_load mstream) :trim)
+			(.-> buffer (:stream_load *mem_stream*) :trim)
 
 			;insert a blank line at the front and end of the buffer
 			(. buffer :iinsert 0 0 "\n")
@@ -82,6 +81,9 @@
 				(. scroll :add_child (. backdrop :change 0 0 rw rh))
 				(setq backdrop scroll))
 			(.-> page (:add_child backdrop) (:add_child text))
+
+			;reset the stream for the next handler
+			(setq *mem_stream* :nil)
 			state)))
 
 ;module
