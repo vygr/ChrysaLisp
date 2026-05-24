@@ -1161,7 +1161,7 @@
 		(while (and (> (length (get :redo_stack this)) 0)
 					(or (not mark)
 						(and (defq top (last (get :redo_stack this)))
-							(<= (second top) (inc mark)))))
+							(<= (second top) mark))))
 			(. this :redo))
 		this)
 

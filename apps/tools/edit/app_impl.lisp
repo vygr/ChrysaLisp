@@ -238,9 +238,10 @@
     ;identify all buffers whose transaction marker increased
     (defq modified_files (list))
     (each (lambda ((f old_mark))
-            (when (> (get_marker f) old_mark)
+            (defq new_mark (get_marker f))
+            (when (> new_mark old_mark)
                 ;use ":nil" with the colon, and map it back to the symbol :nil
-                (push modified_files (list (if (eql f ":nil") :nil f) old_mark))))
+                (push modified_files (list (if (eql f ":nil") :nil f) old_mark new_mark))))
         old_markers)
     ;if any buffers changed, push them as a single grouped transaction
     (when (nempty? modified_files)

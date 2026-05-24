@@ -10,9 +10,9 @@
 		(progn
 			(defq transaction (pop *global_undo_stack*))
 			;undo each modified buffer in reverse chronological order
-			(reach (lambda ((file mark))
+			(reach (lambda ((file old_mark &optional new_mark))
 					(unless (eql file *current_file*) (switch-file file))
-					(. *edit* :rewind mark))
+					(. *edit* :rewind old_mark))
 				transaction)
 			(push *global_redo_stack* transaction)))
 	(refresh))
@@ -23,9 +23,9 @@
 		(progn
 			(defq transaction (pop *global_redo_stack*))
 			;redo each modified buffer in original chronological order
-			(each (lambda ((file mark))
+			(each (lambda ((file old_mark &optional new_mark))
 					(unless (eql file *current_file*) (switch-file file))
-					(. *edit* :forwardwind mark))
+					(. *edit* :forwardwind (ifn new_mark (inc old_mark) new_mark)))
 				transaction)
 			(push *global_undo_stack* transaction)))
 	(refresh))
