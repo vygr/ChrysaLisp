@@ -28,6 +28,9 @@ functions now take the logical char index.
 Edit app undo/redo now jump to the known group transaction markers. Plus only
 perform tab expand/compress on syntax aware buffers.
 
+Docs app now uses a Document buffer and memory-stream to collect and display
+`file` markup handler content.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
