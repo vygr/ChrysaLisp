@@ -31,29 +31,29 @@
 				(:t (while (defq line (read-line stream))
 						(write-line mstream (trim line "\r")))))
 			(stream-seek mstream 0 0)
-			
+
 			;load the memory-stream into a Document and trim it
 			(defq buffer (Document +buffer_flag_syntax syntax))
 			(.-> buffer (:stream_load mstream) :trim)
-			
+
 			;insert a blank line at the front and end of the buffer
 			(. buffer :iinsert 0 0 "\n")
 			(bind '(& h) (. buffer :get_size))
 			(. buffer :iinsert (length (. buffer :get_text_line h)) h "\n")
-			
+
 			;calculate the minimum margin directly from the pre-expanded buffer lines
 			(defq margin +max_int lines (. buffer :get_buffer_lines))
 			(each (# (task-slice)
 					 (and (defq m (find "(" %0)) (setq margin (min m margin))))
 				  lines)
-			
+
 			;strip the common margin in-place
 			(when (and (/= margin 0) (/= margin +max_int))
 				(each (lambda (&ignore)
 						 (task-slice)
 						 (. buffer :idelete 0 (!) (min margin (length (. buffer :get_text_line (!)))) (!)))
 					  lines))
-			
+
 			;measure and configure the Vdu
 			(bind '(w h) (. buffer :get_size))
 			(def (defq vdu (Vdu))
@@ -67,7 +67,7 @@
 			(bind '(rw rh) (. vdu :pref_size))
 			(.-> vdu (:change 0 0 rw rh))
 			(. buffer :vdu_load vdu 0 0 :text)
-			
+
 			;layout container backdrop and optional scroll
 			(def (defq backdrop (Backdrop))
 				:color +argb_grey1
