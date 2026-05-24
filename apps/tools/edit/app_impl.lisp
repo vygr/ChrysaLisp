@@ -207,14 +207,15 @@
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
 
+(defun get_marker (f)
+	(if (defq meta (.-> *meta_map* (:find :files) (:find f)))
+		(if (defq buf (. meta :find :buffer))
+			(. buf :get_next_mark) -1) -1))
+
 (defun dispatch-action (&rest action)
 	(defq func (first action)
 		;collect all active buffer keys (open files and the ":nil" scratchpad)
 		keys (cat (map (const str) *open_files*) (list ":nil"))
-		get_marker (lambda (f)
-			(if (defq meta (.-> *meta_map* (:find :files) (:find f)))
-				(if (defq buf (. meta :find :buffer))
-					(. buf :get_next_mark) -1) -1))
 		;take a snapshot of the transaction markers before the action
 		old_markers (map (# (list %0 (get_marker %0))) keys))
 	;execute the action
@@ -238,7 +239,7 @@
 	(each (lambda ((f old_mark))
 			(when (> (get_marker f) old_mark)
 				;use ":nil" with the colon, and map it back to the symbol :nil
-				(push modified_files (if (eql f ":nil") :nil f))))
+				(push modified_files (list (if (eql f ":nil") :nil f) old_mark))))
 		old_markers)
 	;if any buffers changed, push them as a single grouped transaction
 	(when (nempty? modified_files)

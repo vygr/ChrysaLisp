@@ -1013,7 +1013,7 @@
 
 	(defmethod :stream_load (stream)
 		; (. buffer :stream_load stream) -> buffer
-		(raise :syntax_engine :tab_width (buffer_lines (list) buffer_syntax (list)
+		(raise :syntax_engine :tab_width :flags (buffer_lines (list) buffer_syntax (list)
 			buffer_states (list) buffer_found (list) buffer_brackets (list)
 			buffer_buckets (list) max_width 0))
 		;clear them all now !
@@ -1024,8 +1024,11 @@
 		(. syntax_engine :set_state :text)
 		(lines! (lambda (line)
 				(task-slice)
-				(setq line (cat
-						(. syntax_engine :line_expand (trim-end line "\r") tab_width)
+				(setq line (trim-end line "\r")
+					line (cat
+						(if (bits? flags +buffer_flag_syntax)
+							(. syntax_engine :line_expand line tab_width)
+							line)
 						+char_class_lf)
 					max_width (max max_width (length line)))
 				(push-line line))
@@ -1034,6 +1037,21 @@
 		(lower :buffer_lines :buffer_syntax :buffer_states
 			:buffer_found :buffer_brackets :buffer_buckets
 			:max_width (:dirty_flags -1 :modified :nil))
+		this)
+
+	(defmethod :stream_save (stream)
+		; (. buffer :stream_save stream) -> buffer
+		(raise :syntax_engine :tab_width :flags)
+		;reset the syntax state to :text for the start of the file
+		(. syntax_engine :set_state :text)
+		(each! (lambda (line)
+				(task-slice)
+				(write-blk stream
+					(if (bits? flags +buffer_flag_syntax)
+						(. syntax_engine :line_compress line tab_width)
+						line)))
+			(list (get :buffer_lines this)) 0 (bind '(w h) (. this :get_size)))
+		(lower (:modified :nil))
 		this)
 
 	(defmethod :stream_load_hex (stream &optional width)
@@ -1063,17 +1081,6 @@
 			:buffer_found :buffer_brackets :buffer_buckets
 			:max_width (:dirty_flags -1 :modified :nil))
 		this)
-
-	(defmethod :stream_save (stream)
-		; (. buffer :stream_save stream) -> buffer
-		(raise :syntax_engine :tab_width)
-		;reset the syntax state to :text for the start of the file
-		(. syntax_engine :set_state :text)
-		(each! (lambda (line)
-				(task-slice)
-				(write-blk stream (. syntax_engine :line_compress line tab_width)))
-			(list (get :buffer_lines this)) 0 (bind '(w h) (. this :get_size)))
-		(lower (:modified :nil)) this)
 
 ;;;;;;;;;;;;;;
 ; vdu transfer
@@ -1140,9 +1147,22 @@
 			(set this :redo_stack redo_stack))
 		this)
 
-	(defmethod :rewind ()
-		; (. buffer :rewind) -> buffer
-		(while (> (length (get :undo_stack this)) 0) (. this :undo))
+	(defmethod :rewind (&optional mark)
+		; (. buffer :rewind [mark]) -> buffer
+		(while (and (> (length (get :undo_stack this)) 0)
+					(or (not mark)
+						(and (defq top (last (get :undo_stack this)))
+							(> (second top) mark))))
+			(. this :undo))
+		this)
+
+	(defmethod :forwardwind (&optional mark)
+		; (. buffer :forwardwind [mark]) -> buffer
+		(while (and (> (length (get :redo_stack this)) 0)
+					(or (not mark)
+						(and (defq top (last (get :redo_stack this)))
+							(<= (second top) (inc mark)))))
+			(. this :redo))
 		this)
 
 ;;;;;;;;;;;;;;;;;;

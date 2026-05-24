@@ -25,6 +25,9 @@ string functions.
 `(compress str tab_width idx) -> str` and `(expand str tab_width idx) -> str`
 functions now take the logical char index.
 
+Edit app undo/redo now jump to the known group transaction markers. Plus only
+perform tab expand/compress on syntax aware buffers.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

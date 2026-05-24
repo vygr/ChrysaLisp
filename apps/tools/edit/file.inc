@@ -42,7 +42,8 @@
 
 (defun clean-stack (stack file)
 	;filter out closed files from each transaction group, and remove empty groups
-	(filter (const nempty?) (map (# (filter (# (nql %0 file)) %0)) stack)))
+	(filter (const nempty?)
+		(map (# (filter (lambda ((f &ignore)) (nql f file)) %0)) stack)))
 
 (defun close-file (file)
 	(save-file file)

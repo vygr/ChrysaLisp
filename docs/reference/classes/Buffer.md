@@ -138,6 +138,12 @@ clips coordinates to valid buffer positions
 (. buffer :floor_selection) -> buffer
 ```
 
+### :forwardwind
+
+```code
+(. buffer :forwardwind [mark]) -> buffer
+```
+
 ### :get_buffer_found
 
 ### :get_buffer_lines
@@ -331,7 +337,7 @@ cursors format: ((cx cy ax ay sx) ...)
 ### :rewind
 
 ```code
-(. buffer :rewind) -> buffer
+(. buffer :rewind [mark]) -> buffer
 ```
 
 ### :right
