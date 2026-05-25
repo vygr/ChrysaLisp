@@ -4,12 +4,12 @@
 (("-h" "--help")
 "Usage: cat [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-f --file: prepend file name.
+    options:
+        -h --help: this help info.
+        -f --file: prepend file name.
 
-	If no paths given on command line
-	then paths are read from stdin.")
+    If no paths given on command line
+    then paths are read from stdin.")
 (("-f" "--file") ,(opt-flag 'opt_f))
 ))
 

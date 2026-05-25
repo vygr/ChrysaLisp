@@ -6,15 +6,15 @@
 (("-h" "--help")
 "Usage: forward [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
 
-	Scan source files for use of forward
-	references to functions or macros.
+    Scan source files for use of forward
+    references to functions or macros.
 
-	If no paths given on command line
-	then will test files from stdin.")
+    If no paths given on command line
+    then will test files from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
 ))
 
@@ -33,7 +33,7 @@
 					(# (if %0 (push %0 idx) (list idx))))) uses)) :nil))
 	(. uses_map :each (lambda (k v)
 		(when (defq n (. defs_map :find k))
-			(each (# (if (< %0 n) (print file " (" (inc %0)  ") " k))) v)))))
+			(each (# (if (< %0 n) (print file " (" (inc %0)	 ") " k))) v)))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

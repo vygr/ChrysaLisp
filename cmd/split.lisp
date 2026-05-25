@@ -4,15 +4,15 @@
 (("-h" "--help")
 "Usage: split [options]
 
-	options:
-		-h --help: this help info.
-		-s --sep separator: default ,.
-		-e --sel num: selected element, default :nil.
+    options:
+        -h --help: this help info.
+        -s --sep separator: default ,.
+        -e --sel num: selected element, default :nil.
 
-	Split the lines from stdin to stdout.
+    Split the lines from stdin to stdout.
 
-	Optionally select a specific element of
-	the split.")
+    Optionally select a specific element of
+    the split.")
 (("-s" "--sep") ,(opt-num 'opt_s))
 (("-e" "--elem") ,(opt-num 'opt_e))
 ))

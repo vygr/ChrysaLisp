@@ -5,15 +5,15 @@
 (("-h" "--help")
 "Usage: unrle [options] [file]
 
-	options:
-		-h --help: this help info.
-		-t --tbits num: bit size for data tokens, default 8.
-		-r --rbits num: bit size for run length tokens, default 8.
+    options:
+        -h --help: this help info.
+        -t --tbits num: bit size for data tokens, default 8.
+        -r --rbits num: bit size for run length tokens, default 8.
 
-	Decompresses a file using Run-Length encoding.
+    Decompresses a file using Run-Length encoding.
 
-	If no file is given, it reads from stdin.
-	Output is written to stdout.")
+    If no file is given, it reads from stdin.
+    Output is written to stdout.")
 (("-t" "--tbits") ,(opt-num 'opt_t))
 (("-r" "--rbits") ,(opt-num 'opt_r))
 ))

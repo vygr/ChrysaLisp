@@ -2,705 +2,705 @@
 ```code
 Usage: cat [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-f --file: prepend file name.
+    options:
+        -h --help: this help info.
+        -f --file: prepend file name.
 
-	If no paths given on command line
-	then paths are read from stdin.
+    If no paths given on command line
+    then paths are read from stdin.
 ```
 ## cp
 ```code
 Usage: cp [options] path1 path2
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Copy file path1 to path2.
+    Copy file path1 to path2.
 ```
 ## diff
 ```code
 Usage: diff [options] file_a [file_b]
 
-	options:
-		-h --help: this help info.
-		-s --swap: swap sources.
+    options:
+        -h --help: this help info.
+        -s --swap: swap sources.
 
-	Calculate patch between text file a and text file b.
-	If no second file is given it will be read from stdin.
+    Calculate patch between text file a and text file b.
+    If no second file is given it will be read from stdin.
 ```
 ## docs
 ```code
 Usage: docs [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
 
-	Scan for documentation in files, creates
-	a merged tree of all the information.
+    Scan for documentation in files, creates
+    a merged tree of all the information.
 
-	If no paths given on command line
-	then will take paths from stdin.
+    If no paths given on command line
+    then will take paths from stdin.
 ```
 ## dump
 ```code
 Usage: dump [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-c --chunk num: chunk size, default 8.
+    options:
+        -h --help: this help info.
+        -c --chunk num: chunk size, default 8.
 
-	If no paths given on command line
-	then will dump stdin.
+    If no paths given on command line
+    then will dump stdin.
 ```
 ## echo
 ```code
 Usage: echo [options] arg ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 ```
 ## edit
 ```code
 Usage: edit [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
-		-c --cmd '...': commands to execute.
-		-s --script path: file containing command to execute.
-		-q --quiet: quiet mode, no output except from (edit-print).
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
+        -c --cmd '...': commands to execute.
+        -s --script path: file containing command to execute.
+        -q --quiet: quiet mode, no output except from (edit-print).
 
-	Command line text editor.
+    Command line text editor.
 
-	The `edit-script` is compiled and executed in a custom environment
-	populated with editing primitives.
+    The `edit-script` is compiled and executed in a custom environment
+    populated with editing primitives.
 
-	With the -c option your script commands will be auto wrapped into an
-	`(defun edit-script () ...)` lambda, before execution.
+    With the -c option your script commands will be auto wrapped into an
+    `(defun edit-script () ...)` lambda, before execution.
 
-	With the -s option your script is assumed to use advanced ChrysaLisp features,
-	such as macros, and as such a simple wrapping will not suffice.
-	So the assumption is that you will provide the `(defun edit-script () ...)`
-	within the script file !
+    With the -s option your script is assumed to use advanced ChrysaLisp features,
+    such as macros, and as such a simple wrapping will not suffice.
+    So the assumption is that you will provide the `(defun edit-script () ...)`
+    within the script file !
 
-	If you specify both -c and -s, the -c option is compiled as if it was
-	in front of the -s script ! So it could be used to set configuration or
-	provide specific functions that the main script binds to etc.
+    If you specify both -c and -s, the -c option is compiled as if it was
+    in front of the -s script ! So it could be used to set configuration or
+    provide specific functions that the main script binds to etc.
 
-		Available Commands:
+    Available Commands:
 
-	Search:		(edit-find pattern [:w :r]) -> :nil | buffer_found
-				(edit-find-next) -> :nil | buffer
-				(edit-find-prev) -> :nil | buffer
-				(edit-find-add-next) -> :nil | buffer
+    Search:     (edit-find pattern [:w :r]) -> :nil | buffer_found
+                (edit-find-next) -> :nil | buffer
+                (edit-find-prev) -> :nil | buffer
+                (edit-find-add-next) -> :nil | buffer
 
-	Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
+    Cursors:    (edit-cursors) (edit-add-cursors) (edit-primary)
 
-	Focus:		(edit-get-focus) (edit-set-focus [csr]) (edit-filter-cursors)
+    Focus:      (edit-get-focus) (edit-set-focus [csr]) (edit-filter-cursors)
 
-	Selection:	(edit-select-all) (edit-select-line) (edit-select-word)
-				(edit-select-block) (edit-select-form) (edit-select-paragraph)
-				(edit-select-ws-left) (edit-select-ws-right)
-				(edit-select-bracket-left) (edit-select-bracket-right)
-				(edit-select-home) (edit-select-end)
-				(edit-select-top) (edit-select-bottom)
-				(edit-select-left [cnt]) (edit-select-right [cnt])
-				(edit-select-up [cnt]) (edit-select-down [cnt])
+    Selection:  (edit-select-all) (edit-select-line) (edit-select-word)
+                (edit-select-block) (edit-select-form) (edit-select-paragraph)
+                (edit-select-ws-left) (edit-select-ws-right)
+                (edit-select-bracket-left) (edit-select-bracket-right)
+                (edit-select-home) (edit-select-end)
+                (edit-select-top) (edit-select-bottom)
+                (edit-select-left [cnt]) (edit-select-right [cnt])
+                (edit-select-up [cnt]) (edit-select-down [cnt])
 
-	Navigation:	(edit-top) (edit-bottom) (edit-home) (edit-end)
-				(edit-bracket-left) (edit-bracket-right)
-				(edit-ws-left) (edit-ws-right)
-				(edit-up [cnt]) (edit-down [cnt])
-				(edit-left [cnt]) (edit-right [cnt])
+    Navigation: (edit-top) (edit-bottom) (edit-home) (edit-end)
+                (edit-bracket-left) (edit-bracket-right)
+                (edit-ws-left) (edit-ws-right)
+                (edit-up [cnt]) (edit-down [cnt])
+                (edit-left [cnt]) (edit-right [cnt])
 
-	Mutation:	(edit-insert txt) (edit-paste txt) (edit-replace pattern)
-				(edit-delete [cnt]) (edit-backspace [cnt])
-				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
-				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
-				(edit-indent) (edit-outdent) (edit-cut) (edit-break)
+    Mutation:   (edit-insert txt) (edit-paste txt) (edit-replace pattern)
+                (edit-delete [cnt]) (edit-backspace [cnt])
+                (edit-trim) (edit-sort) (edit-unique) (edit-upper)
+                (edit-lower) (edit-reflow) (edit-split) (edit-comment)
+                (edit-indent) (edit-outdent) (edit-cut) (edit-break)
 
-	Properties:	(edit-copy) -> txt
-				(edit-get-text) -> txt
-				(edit-get-primary-text) -> txt
-				(edit-get-filename) -> txt
+    Properties: (edit-copy) -> txt
+                (edit-get-text) -> txt
+                (edit-get-primary-text) -> txt
+                (edit-get-filename) -> txt
 
-	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
-				(edit-join-text (txt ...) [cls]) -> txt
-				(edit-print ...)
-				(edit-eof?) -> :t | :nil
-				(edit-cx) -> cx
-				(edit-cy) -> cy
+    Utilities:  (edit-split-text txt [cls]) -> (txt ...)
+                (edit-join-text (txt ...) [cls]) -> txt
+                (edit-print ...)
+                (edit-eof?) -> :t | :nil
+                (edit-cx) -> cx
+                (edit-cy) -> cy
 
-	Example - Numbering lines:
+    Example - Numbering lines:
 
-	edit -c
-		"(until (edit-eof?)
-			(edit-insert (str (inc (edit-cy)) ": "))
-			(edit-down)
-			(edit-home))"
-		file.txt
+    edit -c
+        "(until (edit-eof?)
+            (edit-insert (str (inc (edit-cy)) ": "))
+            (edit-down)
+            (edit-home))"
+        file.txt
 ```
 ## files
 ```code
 Usage: files [options] [prefix] [postfix]
 
-	options:
-		-h --help: this help info.
-		-i --imm: immediate dependencies.
-		-a --all: all dependencies.
-		-d --dirs: directories.
+    options:
+        -h --help: this help info.
+        -i --imm: immediate dependencies.
+        -a --all: all dependencies.
+        -d --dirs: directories.
 
-	Find all paths that match the prefix and postfix.
+    Find all paths that match the prefix and postfix.
 
-		prefix default 
+        prefix default 
 ```
 ## forward
 ```code
 Usage: forward [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
 
-	Scan source files for use of forward
-	references to functions or macros.
+    Scan source files for use of forward
+    references to functions or macros.
 
-	If no paths given on command line
-	then will test files from stdin.
+    If no paths given on command line
+    then will test files from stdin.
 ```
 ## grep
 ```code
 Usage: grep [options] [pattern] [path] ...
 
-	options:
-		-h --help: this help info.
-		-e --exp pattern: regular expression.
-		-f --file: file mode, default :nil.
-		-w --words: whole words mode, default :nil.
-		-r --regexp: regexp mode, default :nil.
-		-c --coded: encoded pattern mode, default :nil.
-		-m --md: md doc mode, default :nil.
-		-j --jobs num: max jobs per batch, default 1.
+    options:
+        -h --help: this help info.
+        -e --exp pattern: regular expression.
+        -f --file: file mode, default :nil.
+        -w --words: whole words mode, default :nil.
+        -r --regexp: regexp mode, default :nil.
+        -c --coded: encoded pattern mode, default :nil.
+        -m --md: md doc mode, default :nil.
+        -j --jobs num: max jobs per batch, default 1.
 
-	pattern:
-		^  start of line
-		$  end of line
-		!  start/end of word
-		.  any char
-		+  one or more
-		*  zero or more
-		?  zero or one
-		+? lazy one or more
-		*? lazy zero or more
-		?? lazy zero or one
-		|  or
-		[] class, [0-9], [abc123]
-		() group
-		\r return
-		\f form feed
-		\v vertical tab
-		\n line feed
-		\q double quote
-		\t tab
-		\s [ \t]
-		\S [^ \r\f\v\n\t]
-		\d [0-9]
-		\D [^0-9]
-		\l [a-z]
-		\u [A-Z]
-		\a [A-Za-z]
-		\p [A-Za-z0-9]
-		\w [A-Za-z0-9_]
-		\W [^A-Za-z0-9_]
-		\x [A-Fa-f0-9]
-		\\ esc for \ etc
+    pattern:
+        ^  start of line
+        $  end of line
+        !  start/end of word
+        .  any char
+        +  one or more
+        *  zero or more
+        ?  zero or one
+        +? lazy one or more
+        *? lazy zero or more
+        ?? lazy zero or one
+        |  or
+        [] class, [0-9], [abc123]
+        () group
+        \r return
+        \f form feed
+        \v vertical tab
+        \n line feed
+        \q double quote
+        \t tab
+        \s [ \t]
+        \S [^ \r\f\v\n\t]
+        \d [0-9]
+        \D [^0-9]
+        \l [a-z]
+        \u [A-Z]
+        \a [A-Za-z]
+        \p [A-Za-z0-9]
+        \w [A-Za-z0-9_]
+        \W [^A-Za-z0-9_]
+        \x [A-Fa-f0-9]
+        \\ esc for \ etc
 
-	If no paths given on command line
-	then will grep from stdin.
+    If no paths given on command line
+    then will grep from stdin.
 ```
 ## gui
 ```code
 Usage: gui [node ...]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Launch a GUI on nodes.
+    Launch a GUI on nodes.
 
-	If none present on command line then
-	will read from stdin.
+    If none present on command line then
+    will read from stdin.
 ```
 ## hbook
 ```code
 Usage: hbook [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
-		-t --tbits num: bit size for data tokens, default 8.
-		-c --codebook path: codebook filename, default :nil.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
+        -t --tbits num: bit size for data tokens, default 8.
+        -c --codebook path: codebook filename, default :nil.
 
-	Scan files for Huffman frequency information, creates
-	a merged tree of all the information.
+    Scan files for Huffman frequency information, creates
+    a merged tree of all the information.
 
-	Optionally create and save a codebook for use with
-	the static huffman library.
+    Optionally create and save a codebook for use with
+    the static huffman library.
 
-	If no paths given on command line
-	then will take paths from stdin.
+    If no paths given on command line
+    then will take paths from stdin.
 ```
 ## head
 ```code
 Usage: head [options file]
 
-	options:
-		-h --help: this help info.
-		-c --count num: line count, default 10.
+    options:
+        -h --help: this help info.
+        -c --count num: line count, default 10.
 
-	Returns lines from start of file or stdin.
+    Returns lines from start of file or stdin.
 
-	Defaults to first 10 lines.
+    Defaults to first 10 lines.
 ```
 ## huff
 ```code
 Usage: huff [options] [file]
 
-	options:
-		-h --help: this help info.
-		-t --tbits num: bit size for data tokens, default 8.
-		-c --codebook path: codebook filename, default :nil.
+    options:
+        -h --help: this help info.
+        -t --tbits num: bit size for data tokens, default 8.
+        -c --codebook path: codebook filename, default :nil.
 
-	Compresses a file using static or adaptive Huffman coding.
-	If a codebook is provided then it will load that model for
-	static operation.
+    Compresses a file using static or adaptive Huffman coding.
+    If a codebook is provided then it will load that model for
+    static operation.
 
-	If no file is given, it reads from stdin.
-	Output is written to stdout.
+    If no file is given, it reads from stdin.
+    Output is written to stdout.
 ```
 ## imports
 ```code
 Usage: imports [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 8.
-		-w --write: write new file, default :nil.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 8.
+        -w --write: write new file, default :nil.
 
-	Scan for import statements in .vp, .inc, .lisp files,
-	replacing any import lines with an optimal relative or
-	absolute file path.
+    Scan for import statements in .vp, .inc, .lisp files,
+    replacing any import lines with an optimal relative or
+    absolute file path.
 
-	If no paths given on command line
-	then will take paths from stdin.
+    If no paths given on command line
+    then will take paths from stdin.
 ```
 ## includes
 ```code
 Usage: includes [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 8.
-		-d --defs defs: class definitions map, default :nil.
-		-w --write: write new file, default :nil.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 8.
+        -d --defs defs: class definitions map, default :nil.
+        -w --write: write new file, default :nil.
 
-	Scan for needed includes in .vp files, optionally
-	edits the file rewriting the include block.
+    Scan for needed includes in .vp files, optionally
+    edits the file rewriting the include block.
 
-	If no paths given on command line
-	then will take paths from stdin.
+    If no paths given on command line
+    then will take paths from stdin.
 ```
 ## link
 ```code
 Usage: link [options] CLB-L1 CLB-L2 000-000 ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Start SHMEM link driver/s.
+    Start SHMEM link driver/s.
 
-	`CLB-L1 CLB-L2`, are the names of the ChrysaLib `-shm` links.
-	If you're bridging Lisp subnets over CLB.
+    `CLB-L1 CLB-L2`, are the names of the ChrysaLib `-shm` links.
+    If you're bridging Lisp subnets over CLB.
 
-	Internal Lisp subnet links are of the form `001-002`, or if
-	connecting local Lisp subnets the recommended form is
-	`000-000` for subnet bridge 1, `001-001` for subnet bridge 2 etc.
+    Internal Lisp subnet links are of the form `001-002`, or if
+    connecting local Lisp subnets the recommended form is
+    `000-000` for subnet bridge 1, `001-001` for subnet bridge 2 etc.
 
-	If no links names given on command line
-	then names are read from stdin.
+    If no links names given on command line
+    then names are read from stdin.
 ```
 ## lisp
 ```code
 Usage: lisp [options] [path] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	If no paths given on command line
-	then will REPL from stdin.
+    If no paths given on command line
+    then will REPL from stdin.
 ```
 ## lz4
 ```code
 Usage: lz4 [options] [file]
 
-	options:
-		-h --help: this help info.
-		-w --window num: max window size, default 65536.
+    options:
+        -h --help: this help info.
+        -w --window num: max window size, default 65536.
 
-	Compresses a file using standard LZ4 Framed encoding.
+    Compresses a file using standard LZ4 Framed encoding.
 
-	If no file is given, it reads from stdin.
-	Output is written to stdout.
+    If no file is given, it reads from stdin.
+    Output is written to stdout.
 ```
 ## make
 ```code
 Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
-	[release] [debug] [test]
+    [release] [debug] [test]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	all:        include all .vp files.
-	boot:       create a boot image.
-	platforms:  for all platforms not just the host.
-	docs:       scan source files and create documentation.
-	it:         all of the above !
-	apps:       only the apps !
-	release:    it/apps release mode.
-	debug:      it/apps debug mode.
-	validate:   it/apps validate mode.
-	test:       test make timings.
+    all:        include all .vp files.
+    boot:       create a boot image.
+    platforms:  for all platforms not just the host.
+    docs:       scan source files and create documentation.
+    it:         all of the above !
+    apps:       only the apps !
+    release:    it/apps release mode.
+    debug:      it/apps debug mode.
+    validate:   it/apps validate mode.
+    test:       test make timings.
 ```
 ## mv
 ```code
 Usage: mv [options] path1 path2
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Move file path1 to path2.
+    Move file path1 to path2.
 ```
 ## nodes
 ```code
 Usage: nodes [options]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 ```
 ## null
 ```code
 Usage: null [options]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 ```
 ## patch
 ```code
 Usage: patch [options] file_a [file_b]
 
-	options:
-		-h --help: this help info.
-		-s --swap: swap sources.
+    options:
+        -h --help: this help info.
+        -s --swap: swap sources.
 
-	Patch text file a with text file b.
+    Patch text file a with text file b.
 
-	If no second file is given it will
-	be read from stdin.
+    If no second file is given it will
+    be read from stdin.
 ```
 ## repeat
 ```code
 Usage: repeat [options] command_line
 
-	options:
-		-h --help: this help info.
-		-c --count: count, default 10.
+    options:
+        -h --help: this help info.
+        -c --count: count, default 10.
 
-	Repeat run command line.
+    Repeat run command line.
 ```
 ## rle
 ```code
 Usage: rle [options] [file]
 
-	options:
-		-h --help: this help info.
-		-t --tbits num: bit size for data tokens, default 8.
-		-r --rbits num: bit size for run length tokens, default 8.
+    options:
+        -h --help: this help info.
+        -t --tbits num: bit size for data tokens, default 8.
+        -r --rbits num: bit size for run length tokens, default 8.
 
-	Compresses a file using Run-Length encoding.
+    Compresses a file using Run-Length encoding.
 
-	If no file is given, it reads from stdin.
-	Output is written to stdout.
+    If no file is given, it reads from stdin.
+    Output is written to stdout.
 ```
 ## rm
 ```code
 Usage: rm [options] [path] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	If no paths given on command line
-	then paths are read from stdin.
+    If no paths given on command line
+    then paths are read from stdin.
 ```
 ## save
 ```code
 Usage: save [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-s --stdout: pass through, default :nil.
+    options:
+        -h --help: this help info.
+        -s --stdout: pass through, default :nil.
 
-	Read from stdin, write to all given paths,
-	optionally write to stdout.
+    Read from stdin, write to all given paths,
+    optionally write to stdout.
 ```
 ## sdir
 ```code
 Usage: sdir [options] [prefix]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 ```
 ## sed
 ```code
 Usage: sed [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-e --expression pattern: search pattern.
-		-r --replace string: replacement string, default "".
-		-g --global: replace all occurrences.
-		-w --words: whole words.
-		-x --regexp: treat pattern as regular expression.
+    options:
+        -h --help: this help info.
+        -e --expression pattern: search pattern.
+        -r --replace string: replacement string, default "".
+        -g --global: replace all occurrences.
+        -w --words: whole words.
+        -x --regexp: treat pattern as regular expression.
 
-	Stream editor. Reads from stdin if no files specified.
-	Writes to stdout.
+    Stream editor. Reads from stdin if no files specified.
+    Writes to stdout.
 ```
 ## shuffle
 ```code
 Usage: shuffle [options] [line] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	If no lines given on command line
-	then will shuffle lines from stdin.
+    If no lines given on command line
+    then will shuffle lines from stdin.
 ```
 ## slice
 ```code
 Usage: slice [options]
 
-	options:
-		-h --help: this help info.
-		-s --start num: start char index, default 0.
-		-e --end num: end char index, default -1.
+    options:
+        -h --help: this help info.
+        -s --start num: start char index, default 0.
+        -e --end num: end char index, default -1.
 
-	Slice the lines from stdin to stdout.
+    Slice the lines from stdin to stdout.
 ```
 ## sort
 ```code
 Usage: sort [options] [line] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	If no lines given on command line
-	then will sort lines from stdin.
+    If no lines given on command line
+    then will sort lines from stdin.
 ```
 ## split
 ```code
 Usage: split [options]
 
-	options:
-		-h --help: this help info.
-		-s --sep separator: default ,.
-		-e --sel num: selected element, default :nil.
+    options:
+        -h --help: this help info.
+        -s --sep separator: default ,.
+        -e --sel num: selected element, default :nil.
 
-	Split the lines from stdin to stdout.
+    Split the lines from stdin to stdout.
 
-	Optionally select a specific element of
-	the split.
+    Optionally select a specific element of
+    the split.
 ```
 ## stats
 ```code
 Usage: stats [options]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Some simple object statistics.
+    Some simple object statistics.
 ```
 ## tail
 ```code
 Usage: tail [options file]
 
-	options:
-		-h --help: this help info.
-		-c --count num: line count, default 10.
+    options:
+        -h --help: this help info.
+        -c --count num: line count, default 10.
 
-	Returns lines from end of file or stdin.
+    Returns lines from end of file or stdin.
 
-	Defaults to last 10 lines.
+    Defaults to last 10 lines.
 ```
 ## template
 ```code
 Usage: template [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
 
-	Template command app for you to copy as
-	a starting point.
+    Template command app for you to copy as
+    a starting point.
 
-	Add your description here.
+    Add your description here.
 
-	If no paths given on command line
-	then will take paths from stdin.
+    If no paths given on command line
+    then will take paths from stdin.
 ```
 ## test
 ```code
 Usage: test [options]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Simple timing test framework.
+    Simple timing test framework.
 
-	To be stable and accurate this should be
-	run on a single node !
+    To be stable and accurate this should be
+    run on a single node !
 
-	./run_tui.sh -n 1
+    ./run_tui.sh -n 1
 ```
 ## time
 ```code
 Usage: time [options]
 
-	options:
-		-h --help: this help info.
-		-s --stdout: pass through, default :nil.
+    options:
+        -h --help: this help info.
+        -s --stdout: pass through, default :nil.
 
-	Time the duration of the stdin stream.
+    Time the duration of the stdin stream.
 
-	Print result to stderr.
+    Print result to stderr.
 ```
 ## tocpm
 ```code
 Usage: tocpm [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-f --format 1|8|12|15|16|24|32: pixel format, default 32.
-		-r --rle: enable run-length encoding, default :nil.
-		-l --lz4: enable lz4 compression, default :nil.
+    options:
+        -h --help: this help info.
+        -f --format 1|8|12|15|16|24|32: pixel format, default 32.
+        -r --rle: enable run-length encoding, default :nil.
+        -l --lz4: enable lz4 compression, default :nil.
 
-	Load the images and save as .cpm images.
+    Load the images and save as .cpm images.
 
-	If no paths given on command line
-	then paths are read from stdin.
+    If no paths given on command line
+    then paths are read from stdin.
 ```
 ## toflm
 ```code
 Usage: toflm [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-f --format 1|8|12|15|16|24|32: pixel format, default 32.
-		-n --name path: output film filename, default film.flm.
+    options:
+        -h --help: this help info.
+        -f --format 1|8|12|15|16|24|32: pixel format, default 32.
+        -n --name path: output film filename, default film.flm.
 
-	Convert images to a .flm animation.
+    Convert images to a .flm animation.
 
-	If no paths given on command line
-	then paths are read from stdin.
+    If no paths given on command line
+    then paths are read from stdin.
 ```
 ## unhuff
 ```code
 Usage: unrle [options] [file]
 
-	options:
-		-h --help: this help info.
-		-t --tbits num: bit size for data tokens, default 8.
-		-c --codebook path: codebook filename, default :nil.
+    options:
+        -h --help: this help info.
+        -t --tbits num: bit size for data tokens, default 8.
+        -c --codebook path: codebook filename, default :nil.
 
-	Deompresses a file using static or adaptive Huffman coding.
-	If a codebook is provided then it will load that model for
-	static operation.
+    Deompresses a file using static or adaptive Huffman coding.
+    If a codebook is provided then it will load that model for
+    static operation.
 
-	If no file is given, it reads from stdin.
-	Output is written to stdout.
+    If no file is given, it reads from stdin.
+    Output is written to stdout.
 ```
 ## unique
 ```code
 Usage: unique [options] [line] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	If no lines given on command line
-	then will read lines from stdin.
+    If no lines given on command line
+    then will read lines from stdin.
 ```
 ## unlz4
 ```code
 Usage: unlz4 [options] [file]
 
-	options:
-		-h --help: this help info.
-		-w --window num: max window size, default 65536.
+    options:
+        -h --help: this help info.
+        -w --window num: max window size, default 65536.
 
-	Decompresses a standard LZ4 Framed encoded file.
+    Decompresses a standard LZ4 Framed encoded file.
 
-	If no file is given, it reads from stdin.
-	Output is written to stdout.
+    If no file is given, it reads from stdin.
+    Output is written to stdout.
 ```
 ## unrle
 ```code
 Usage: unrle [options] [file]
 
-	options:
-		-h --help: this help info.
-		-t --tbits num: bit size for data tokens, default 8.
-		-r --rbits num: bit size for run length tokens, default 8.
+    options:
+        -h --help: this help info.
+        -t --tbits num: bit size for data tokens, default 8.
+        -r --rbits num: bit size for run length tokens, default 8.
 
-	Decompresses a file using Run-Length encoding.
+    Decompresses a file using Run-Length encoding.
 
-	If no file is given, it reads from stdin.
-	Output is written to stdout.
+    If no file is given, it reads from stdin.
+    Output is written to stdout.
 ```
 ## vpgraph
 ```code
 Usage: vpgraph [options] [path] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Scan .vp files and create a VP function/method call graph.
-	If no paths are given on the command line, it will read
-	paths from stdin.
+    Scan .vp files and create a VP function/method call graph.
+    If no paths are given on the command line, it will read
+    paths from stdin.
 ```
 ## vpstats
 ```code
 Usage: vpstats [options] [path] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Scan for VP instruction usage stats.
+    Scan for VP instruction usage stats.
 
-	If no paths given on command line
-	then will take paths from stdin.
+    If no paths given on command line
+    then will take paths from stdin.
 ```
 ## wc
 ```code
 Usage: wc [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-wc: count words.
-		-lc: count lines.
-		-pc: count paragraphs.
+    options:
+        -h --help: this help info.
+        -wc: count words.
+        -lc: count lines.
+        -pc: count paragraphs.
 
-	If no count options are given, defaults
-	to all (words, lines, paragraphs).
+    If no count options are given, defaults
+    to all (words, lines, paragraphs).
 
-	If no paths given on command line
-	then paths are read from stdin.
+    If no paths given on command line
+    then paths are read from stdin.
 ```

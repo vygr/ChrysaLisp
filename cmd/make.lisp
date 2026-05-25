@@ -6,21 +6,21 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
-	[release] [debug] [test]
+    [release] [debug] [test]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	all:        include all .vp files.
-	boot:       create a boot image.
-	platforms:  for all platforms not just the host.
-	docs:       scan source files and create documentation.
-	it:         all of the above !
-	apps:       only the apps !
-	release:    it/apps release mode.
-	debug:      it/apps debug mode.
-	validate:   it/apps validate mode.
-	test:       test make timings.")
+    all:        include all .vp files.
+    boot:       create a boot image.
+    platforms:  for all platforms not just the host.
+    docs:       scan source files and create documentation.
+    it:         all of the above !
+    apps:       only the apps !
+    release:    it/apps release mode.
+    debug:      it/apps debug mode.
+    validate:   it/apps validate mode.
+    test:       test make timings.")
 ))
 
 (defq +LF "\n")

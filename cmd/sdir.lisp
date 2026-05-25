@@ -4,8 +4,8 @@
 (("-h" "--help")
 "Usage: sdir [options] [prefix]
 
-	options:
-		-h --help: this help info.")
+    options:
+        -h --help: this help info.")
 ))
 
 (defun main ()

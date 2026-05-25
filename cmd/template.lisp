@@ -5,17 +5,17 @@
 (("-h" "--help")
 "Usage: template [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
 
-	Template command app for you to copy as
-	a starting point.
+    Template command app for you to copy as
+    a starting point.
 
-	Add your description here.
+    Add your description here.
 
-	If no paths given on command line
-	then will take paths from stdin.")
+    If no paths given on command line
+    then will take paths from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
 ))
 

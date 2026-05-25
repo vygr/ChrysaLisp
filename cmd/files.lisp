@@ -5,15 +5,15 @@
 (("-h" "--help")
 "Usage: files [options] [prefix] [postfix]
 
-	options:
-		-h --help: this help info.
-		-i --imm: immediate dependencies.
-		-a --all: all dependencies.
-		-d --dirs: directories.
+    options:
+        -h --help: this help info.
+        -i --imm: immediate dependencies.
+        -a --all: all dependencies.
+        -d --dirs: directories.
 
-	Find all paths that match the prefix and postfix.
+    Find all paths that match the prefix and postfix.
 
-		prefix default "."
+        prefix default "."
 		postfix default ""
 
 	eg.

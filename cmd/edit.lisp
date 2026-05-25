@@ -6,82 +6,82 @@
 (("-h" "--help")
 {Usage: edit [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
-		-c --cmd '...': commands to execute.
-		-s --script path: file containing command to execute.
-		-q --quiet: quiet mode, no output except from (edit-print).
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
+        -c --cmd '...': commands to execute.
+        -s --script path: file containing command to execute.
+        -q --quiet: quiet mode, no output except from (edit-print).
 
-	Command line text editor.
+    Command line text editor.
 
-	The `edit-script` is compiled and executed in a custom environment
-	populated with editing primitives.
+    The `edit-script` is compiled and executed in a custom environment
+    populated with editing primitives.
 
-	With the -c option your script commands will be auto wrapped into an
-	`(defun edit-script () ...)` lambda, before execution.
+    With the -c option your script commands will be auto wrapped into an
+    `(defun edit-script () ...)` lambda, before execution.
 
-	With the -s option your script is assumed to use advanced ChrysaLisp features,
-	such as macros, and as such a simple wrapping will not suffice.
-	So the assumption is that you will provide the `(defun edit-script () ...)`
-	within the script file !
+    With the -s option your script is assumed to use advanced ChrysaLisp features,
+    such as macros, and as such a simple wrapping will not suffice.
+    So the assumption is that you will provide the `(defun edit-script () ...)`
+    within the script file !
 
-	If you specify both -c and -s, the -c option is compiled as if it was
-	in front of the -s script ! So it could be used to set configuration or
-	provide specific functions that the main script binds to etc.
+    If you specify both -c and -s, the -c option is compiled as if it was
+    in front of the -s script ! So it could be used to set configuration or
+    provide specific functions that the main script binds to etc.
 
-		Available Commands:
+    Available Commands:
 
-	Search:		(edit-find pattern [:w :r]) -> :nil | buffer_found
-				(edit-find-next) -> :nil | buffer
-				(edit-find-prev) -> :nil | buffer
-				(edit-find-add-next) -> :nil | buffer
+    Search:     (edit-find pattern [:w :r]) -> :nil | buffer_found
+                (edit-find-next) -> :nil | buffer
+                (edit-find-prev) -> :nil | buffer
+                (edit-find-add-next) -> :nil | buffer
 
-	Cursors:	(edit-cursors) (edit-add-cursors) (edit-primary)
+    Cursors:    (edit-cursors) (edit-add-cursors) (edit-primary)
 
-	Focus:		(edit-get-focus) (edit-set-focus [csr]) (edit-filter-cursors)
+    Focus:      (edit-get-focus) (edit-set-focus [csr]) (edit-filter-cursors)
 
-	Selection:	(edit-select-all) (edit-select-line) (edit-select-word)
-				(edit-select-block) (edit-select-form) (edit-select-paragraph)
-				(edit-select-ws-left) (edit-select-ws-right)
-				(edit-select-bracket-left) (edit-select-bracket-right)
-				(edit-select-home) (edit-select-end)
-				(edit-select-top) (edit-select-bottom)
-				(edit-select-left [cnt]) (edit-select-right [cnt])
-				(edit-select-up [cnt]) (edit-select-down [cnt])
+    Selection:  (edit-select-all) (edit-select-line) (edit-select-word)
+                (edit-select-block) (edit-select-form) (edit-select-paragraph)
+                (edit-select-ws-left) (edit-select-ws-right)
+                (edit-select-bracket-left) (edit-select-bracket-right)
+                (edit-select-home) (edit-select-end)
+                (edit-select-top) (edit-select-bottom)
+                (edit-select-left [cnt]) (edit-select-right [cnt])
+                (edit-select-up [cnt]) (edit-select-down [cnt])
 
-	Navigation:	(edit-top) (edit-bottom) (edit-home) (edit-end)
-				(edit-bracket-left) (edit-bracket-right)
-				(edit-ws-left) (edit-ws-right)
-				(edit-up [cnt]) (edit-down [cnt])
-				(edit-left [cnt]) (edit-right [cnt])
+    Navigation: (edit-top) (edit-bottom) (edit-home) (edit-end)
+                (edit-bracket-left) (edit-bracket-right)
+                (edit-ws-left) (edit-ws-right)
+                (edit-up [cnt]) (edit-down [cnt])
+                (edit-left [cnt]) (edit-right [cnt])
 
-	Mutation:	(edit-insert txt) (edit-paste txt) (edit-replace pattern)
-				(edit-delete [cnt]) (edit-backspace [cnt])
-				(edit-trim) (edit-sort) (edit-unique) (edit-upper)
-				(edit-lower) (edit-reflow) (edit-split) (edit-comment)
-				(edit-indent) (edit-outdent) (edit-cut) (edit-break)
+    Mutation:   (edit-insert txt) (edit-paste txt) (edit-replace pattern)
+                (edit-delete [cnt]) (edit-backspace [cnt])
+                (edit-trim) (edit-sort) (edit-unique) (edit-upper)
+                (edit-lower) (edit-reflow) (edit-split) (edit-comment)
+                (edit-indent) (edit-outdent) (edit-cut) (edit-break)
 
-	Properties:	(edit-copy) -> txt
-				(edit-get-text) -> txt
-				(edit-get-primary-text) -> txt
-				(edit-get-filename) -> txt
+    Properties: (edit-copy) -> txt
+                (edit-get-text) -> txt
+                (edit-get-primary-text) -> txt
+                (edit-get-filename) -> txt
 
-	Utilities:	(edit-split-text txt [cls]) -> (txt ...)
-				(edit-join-text (txt ...) [cls]) -> txt
-				(edit-print ...)
-				(edit-eof?) -> :t | :nil
-				(edit-cx) -> cx
-				(edit-cy) -> cy
+    Utilities:  (edit-split-text txt [cls]) -> (txt ...)
+                (edit-join-text (txt ...) [cls]) -> txt
+                (edit-print ...)
+                (edit-eof?) -> :t | :nil
+                (edit-cx) -> cx
+                (edit-cy) -> cy
 
-	Example - Numbering lines:
+    Example - Numbering lines:
 
-	edit -c
-		"(until (edit-eof?)
-			(edit-insert (str (inc (edit-cy)) \q: \q))
-			(edit-down)
-			(edit-home))"
-		file.txt}
+    edit -c
+        "(until (edit-eof?)
+            (edit-insert (str (inc (edit-cy)) \q: \q))
+            (edit-down)
+            (edit-home))"
+        file.txt}
 	)
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-c" "--cmd") ,(opt-str 'opt_c))

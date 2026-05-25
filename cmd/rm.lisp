@@ -4,11 +4,11 @@
 (("-h" "--help")
 "Usage: rm [options] [path] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	If no paths given on command line
-	then paths are read from stdin.")
+    If no paths given on command line
+    then paths are read from stdin.")
 ))
 
 (defun main ()

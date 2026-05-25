@@ -5,14 +5,14 @@
 (("-h" "--help")
 "Usage: unlz4 [options] [file]
 
-	options:
-		-h --help: this help info.
-		-w --window num: max window size, default 65536.
+    options:
+        -h --help: this help info.
+        -w --window num: max window size, default 65536.
 
-	Decompresses a standard LZ4 Framed encoded file.
+    Decompresses a standard LZ4 Framed encoded file.
 
-	If no file is given, it reads from stdin.
-	Output is written to stdout.")
+    If no file is given, it reads from stdin.
+    Output is written to stdout.")
 (("-w" "--window") ,(opt-num 'opt_w))
 ))
 

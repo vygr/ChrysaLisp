@@ -6,17 +6,17 @@
 (("-h" "--help")
 "Usage: includes [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 8.
-		-d --defs defs: class definitions map, default :nil.
-		-w --write: write new file, default :nil.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 8.
+        -d --defs defs: class definitions map, default :nil.
+        -w --write: write new file, default :nil.
 
-	Scan for needed includes in .vp files, optionally
-	edits the file rewriting the include block.
+    Scan for needed includes in .vp files, optionally
+    edits the file rewriting the include block.
 
-	If no paths given on command line
-	then will take paths from stdin.")
+    If no paths given on command line
+    then will take paths from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-d" "--defs") ,(opt-str 'opt_d))
 (("-w" "--write") ,(opt-flag 'opt_w))
@@ -135,7 +135,7 @@
 				(each (# (bind '(cls file) (split %0 "|"))
 						(. defs_map :insert cls file))
 					(split opt_d "[]")))
-			(:t	;must build a defs map
+			(:t ;must build a defs map
 				(each (lambda (file)
 						(lines! (# (defq input (split %0 +split_class))
 								(when (eql (first input) "def-class")

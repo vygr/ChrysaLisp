@@ -7,16 +7,16 @@
 (("-h" "--help")
 "Usage: tocpm [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-f --format 1|8|12|15|16|24|32: pixel format, default 32.
-		-r --rle: enable run-length encoding, default :nil.
-		-l --lz4: enable lz4 compression, default :nil.
+    options:
+        -h --help: this help info.
+        -f --format 1|8|12|15|16|24|32: pixel format, default 32.
+        -r --rle: enable run-length encoding, default :nil.
+        -l --lz4: enable lz4 compression, default :nil.
 
-	Load the images and save as .cpm images.
+    Load the images and save as .cpm images.
 
-	If no paths given on command line
-	then paths are read from stdin.")
+    If no paths given on command line
+    then paths are read from stdin.")
 (("-f" "--format") ,(opt-num 'opt_f))
 (("-r" "--rle") ,(opt-flag 'opt_r))
 (("-l" "--lz4") ,(opt-flag 'opt_l))

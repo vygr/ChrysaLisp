@@ -4,13 +4,13 @@
 (("-h" "--help")
 "Usage: vpstats [options] [path] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Scan for VP instruction usage stats.
+    Scan for VP instruction usage stats.
 
-	If no paths given on command line
-	then will take paths from stdin.")
+    If no paths given on command line
+    then will take paths from stdin.")
 ))
 
 ;do the work on a file

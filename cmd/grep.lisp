@@ -5,51 +5,51 @@
 (("-h" "--help")
 "Usage: grep [options] [pattern] [path] ...
 
-	options:
-		-h --help: this help info.
-		-e --exp pattern: regular expression.
-		-f --file: file mode, default :nil.
-		-w --words: whole words mode, default :nil.
-		-r --regexp: regexp mode, default :nil.
-		-c --coded: encoded pattern mode, default :nil.
-		-m --md: md doc mode, default :nil.
-		-j --jobs num: max jobs per batch, default 1.
+    options:
+        -h --help: this help info.
+        -e --exp pattern: regular expression.
+        -f --file: file mode, default :nil.
+        -w --words: whole words mode, default :nil.
+        -r --regexp: regexp mode, default :nil.
+        -c --coded: encoded pattern mode, default :nil.
+        -m --md: md doc mode, default :nil.
+        -j --jobs num: max jobs per batch, default 1.
 
-	pattern:
-		^  start of line
-		$  end of line
-		!  start/end of word
-		.  any char
-		+  one or more
-		*  zero or more
-		?  zero or one
-		+? lazy one or more
-		*? lazy zero or more
-		?? lazy zero or one
-		|  or
-		[] class, [0-9], [abc123]
-		() group
-		\\r return
-		\\f form feed
-		\\v vertical tab
-		\\n line feed
-		\\q double quote
-		\\t tab
-		\\s [ \\t]
-		\\S [^ \\r\\f\\v\\n\\t]
-		\\d [0-9]
-		\\D [^0-9]
-		\\l [a-z]
-		\\u [A-Z]
-		\\a [A-Za-z]
-		\\p [A-Za-z0-9]
-		\\w [A-Za-z0-9_]
-		\\W [^A-Za-z0-9_]
-		\\x [A-Fa-f0-9]
-		\\\\ esc for \\ etc
+    pattern:
+        ^  start of line
+        $  end of line
+        !  start/end of word
+        .  any char
+        +  one or more
+        *  zero or more
+        ?  zero or one
+        +? lazy one or more
+        *? lazy zero or more
+        ?? lazy zero or one
+        |  or
+        [] class, [0-9], [abc123]
+        () group
+        \\r return
+        \\f form feed
+        \\v vertical tab
+        \\n line feed
+        \\q double quote
+        \\t tab
+        \\s [ \\t]
+        \\S [^ \\r\\f\\v\\n\\t]
+        \\d [0-9]
+        \\D [^0-9]
+        \\l [a-z]
+        \\u [A-Z]
+        \\a [A-Za-z]
+        \\p [A-Za-z0-9]
+        \\w [A-Za-z0-9_]
+        \\W [^A-Za-z0-9_]
+        \\x [A-Fa-f0-9]
+        \\\\ esc for \\ etc
 
-	If no paths given on command line
-	then will grep from stdin.")
+    If no paths given on command line
+    then will grep from stdin.")
 (("-e" "--exp") ,(opt-str 'pattern))
 (("-f" "--file") ,(opt-flag 'opt_f))
 (("-w" "--words") ,(opt-flag 'opt_w))

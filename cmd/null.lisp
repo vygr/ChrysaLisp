@@ -4,8 +4,8 @@
 (("-h" "--help")
 "Usage: null [options]
 
-	options:
-		-h --help: this help info.")
+    options:
+        -h --help: this help info.")
 (("-e" "--example")
 	,(lambda (args arg)
 		(options-print "handler for: " arg) args))

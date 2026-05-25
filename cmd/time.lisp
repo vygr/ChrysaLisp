@@ -4,13 +4,13 @@
 (("-h" "--help")
 "Usage: time [options]
 
-	options:
-		-h --help: this help info.
-		-s --stdout: pass through, default :nil.
+    options:
+        -h --help: this help info.
+        -s --stdout: pass through, default :nil.
 
-	Time the duration of the stdin stream.
+    Time the duration of the stdin stream.
 
-	Print result to stderr.")
+    Print result to stderr.")
 (("-s" "--stdout") ,(opt-flag 'opt_s))
 ))
 

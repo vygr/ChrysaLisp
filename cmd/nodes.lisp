@@ -4,8 +4,8 @@
 (("-h" "--help")
 "Usage: nodes [options]
 
-	options:
-		-h --help: this help info.")
+    options:
+        -h --help: this help info.")
 ))
 
 (defun main ()

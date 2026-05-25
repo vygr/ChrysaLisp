@@ -4,8 +4,8 @@
 (("-h" "--help")
 "Usage: echo [options] arg ...
 
-	options:
-		-h --help: this help info.")
+    options:
+        -h --help: this help info.")
 ))
 
 (defun main ()

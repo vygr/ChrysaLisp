@@ -5,12 +5,12 @@
 (("-h" "--help")
 "Usage: vpgraph [options] [path] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Scan .vp files and create a VP function/method call graph.
-	If no paths are given on the command line, it will read
-	paths from stdin.")
+    Scan .vp files and create a VP function/method call graph.
+    If no paths are given on the command line, it will read
+    paths from stdin.")
 ))
 
 (defun strip-colon (s)

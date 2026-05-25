@@ -4,11 +4,11 @@
 (("-h" "--help")
 "Usage: shuffle [options] [line] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	If no lines given on command line
-	then will shuffle lines from stdin.")
+    If no lines given on command line
+    then will shuffle lines from stdin.")
 ))
 
 (defun main ()

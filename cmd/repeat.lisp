@@ -5,11 +5,11 @@
 (("-h" "--help")
 "Usage: repeat [options] command_line
 
-	options:
-		-h --help: this help info.
-		-c --count: count, default 10.
+    options:
+        -h --help: this help info.
+        -c --count: count, default 10.
 
-	Repeat run command line.")
+    Repeat run command line.")
 (("-c" "--count") ,(opt-num 'opt_c))
 ))
 

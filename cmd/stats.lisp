@@ -4,10 +4,10 @@
 (("-h" "--help")
 "Usage: stats [options]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Some simple object statistics.")
+    Some simple object statistics.")
 ))
 
 (defun count-up (%0)

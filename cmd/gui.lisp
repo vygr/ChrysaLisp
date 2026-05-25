@@ -4,13 +4,13 @@
 (("-h" "--help")
 "Usage: gui [node ...]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Launch a GUI on nodes.
+    Launch a GUI on nodes.
 
-	If none present on command line then
-	will read from stdin.")
+    If none present on command line then
+    will read from stdin.")
 ))
 
 (defun launch (node)

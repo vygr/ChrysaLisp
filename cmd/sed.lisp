@@ -4,16 +4,16 @@
 (("-h" "--help")
 {Usage: sed [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-e --expression pattern: search pattern.
-		-r --replace string: replacement string, default "".
-		-g --global: replace all occurrences.
-		-w --words: whole words.
-		-x --regexp: treat pattern as regular expression.
+    options:
+        -h --help: this help info.
+        -e --expression pattern: search pattern.
+        -r --replace string: replacement string, default "".
+        -g --global: replace all occurrences.
+        -w --words: whole words.
+        -x --regexp: treat pattern as regular expression.
 
-	Stream editor. Reads from stdin if no files specified.
-	Writes to stdout.})
+    Stream editor. Reads from stdin if no files specified.
+    Writes to stdout.})
 (("-e" "--expression") ,(opt-str 'opt_e))
 (("-r" "--replace") ,(opt-str 'opt_r))
 (("-g" "--global") ,(opt-flag 'opt_g))
@@ -22,7 +22,7 @@
 ))
 
 (defun process (stream engine find_meta rep_meta global)
- 	(lines! (lambda (line) (task-slice)
+	(lines! (lambda (line) (task-slice)
 		(print (cond
 			((empty? (defq match (. engine :search line find_meta))) line)
 			(:t (unless global (setq match (slice match 0 1)))

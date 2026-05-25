@@ -5,14 +5,14 @@
 (("-h" "--help")
 "Usage: lz4 [options] [file]
 
-	options:
-		-h --help: this help info.
-		-w --window num: max window size, default 65536.
+    options:
+        -h --help: this help info.
+        -w --window num: max window size, default 65536.
 
-	Compresses a file using standard LZ4 Framed encoding.
+    Compresses a file using standard LZ4 Framed encoding.
 
-	If no file is given, it reads from stdin.
-	Output is written to stdout.")
+    If no file is given, it reads from stdin.
+    Output is written to stdout.")
 (("-w" "--window") ,(opt-num 'opt_w))
 ))
 

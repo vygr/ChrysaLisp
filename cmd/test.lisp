@@ -4,15 +4,15 @@
 (("-h" "--help")
 "Usage: test [options]
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Simple timing test framework.
+    Simple timing test framework.
 
-	To be stable and accurate this should be
-	run on a single node !
+    To be stable and accurate this should be
+    run on a single node !
 
-	./run_tui.sh -n 1")
+    ./run_tui.sh -n 1")
 ))
 
 (defmacro bits?1 (val &rest masks)

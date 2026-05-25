@@ -4,10 +4,10 @@
 (("-h" "--help")
 "Usage: cp [options] path1 path2
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Copy file path1 to path2.")
+    Copy file path1 to path2.")
 ))
 
 (defun main ()

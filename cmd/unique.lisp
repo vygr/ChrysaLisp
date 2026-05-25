@@ -4,11 +4,11 @@
 (("-h" "--help")
 "Usage: unique [options] [line] ...
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	If no lines given on command line
-	then will read lines from stdin.")
+    If no lines given on command line
+    then will read lines from stdin.")
 ))
 
 (defun main ()

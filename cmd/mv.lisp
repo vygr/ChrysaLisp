@@ -4,10 +4,10 @@
 (("-h" "--help")
 "Usage: mv [options] path1 path2
 
-	options:
-		-h --help: this help info.
+    options:
+        -h --help: this help info.
 
-	Move file path1 to path2.")
+    Move file path1 to path2.")
 ))
 
 (defun main ()

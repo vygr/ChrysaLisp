@@ -6,20 +6,20 @@
 (("-h" "--help")
 "Usage: hbook [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
-		-t --tbits num: bit size for data tokens, default 8.
-		-c --codebook path: codebook filename, default :nil.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
+        -t --tbits num: bit size for data tokens, default 8.
+        -c --codebook path: codebook filename, default :nil.
 
-	Scan files for Huffman frequency information, creates
-	a merged tree of all the information.
+    Scan files for Huffman frequency information, creates
+    a merged tree of all the information.
 
-	Optionally create and save a codebook for use with
-	the static huffman library.
+    Optionally create and save a codebook for use with
+    the static huffman library.
 
-	If no paths given on command line
-	then will take paths from stdin.")
+    If no paths given on command line
+    then will take paths from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-t" "--tbits") ,(opt-num 'opt_t))
 (("-c" "--codebook") ,(opt-str 'opt_c))

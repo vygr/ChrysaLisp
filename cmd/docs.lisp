@@ -5,15 +5,15 @@
 (("-h" "--help")
 "Usage: docs [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
 
-	Scan for documentation in files, creates
-	a merged tree of all the information.
+    Scan for documentation in files, creates
+    a merged tree of all the information.
 
-	If no paths given on command line
-	then will take paths from stdin.")
+    If no paths given on command line
+    then will take paths from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
 ))
 

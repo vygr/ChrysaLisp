@@ -8,15 +8,15 @@
 (("-h" "--help")
 "Usage: toflm [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-f --format 1|8|12|15|16|24|32: pixel format, default 32.
-		-n --name path: output film filename, default film.flm.
+    options:
+        -h --help: this help info.
+        -f --format 1|8|12|15|16|24|32: pixel format, default 32.
+        -n --name path: output film filename, default film.flm.
 
-	Convert images to a .flm animation.
+    Convert images to a .flm animation.
 
-	If no paths given on command line
-	then paths are read from stdin.")
+    If no paths given on command line
+    then paths are read from stdin.")
 (("-f" "--format") ,(opt-num 'opt_f))
 (("-n" "--name") ,(opt-str 'opt_n))
 ))
@@ -73,7 +73,7 @@
 										(when (= (++ count) 128)
 											(write-bits out_stream w_state (- 256 128) 8)
 											(setq count 0)))
-									(:t	(if (eql mode :skip)
+									(:t (if (eql mode :skip)
 											(progn
 												(if (> count 0)
 													(write-bits out_stream w_state (- 256 count) 8))

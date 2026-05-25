@@ -4,12 +4,12 @@
 (("-h" "--help")
 "Usage: save [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-s --stdout: pass through, default :nil.
+    options:
+        -h --help: this help info.
+        -s --stdout: pass through, default :nil.
 
-	Read from stdin, write to all given paths,
-	optionally write to stdout.")
+    Read from stdin, write to all given paths,
+    optionally write to stdout.")
 (("-s" "--stdout") ,(opt-flag 'opt_s))
 ))
 

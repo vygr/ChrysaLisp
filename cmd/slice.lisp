@@ -4,12 +4,12 @@
 (("-h" "--help")
 "Usage: slice [options]
 
-	options:
-		-h --help: this help info.
-		-s --start num: start char index, default 0.
-		-e --end num: end char index, default -1.
+    options:
+        -h --help: this help info.
+        -s --start num: start char index, default 0.
+        -e --end num: end char index, default -1.
 
-	Slice the lines from stdin to stdout.")
+    Slice the lines from stdin to stdout.")
 (("-s" "--start") ,(opt-num 'opt_s))
 (("-e" "--end") ,(opt-num 'opt_e))
 ))
