@@ -8,14 +8,10 @@
 			(when *mem_stream*
 				(stream-seek *mem_stream* 0 0)
 
-				;load the memory-stream into a plain-text Document and trim it
+				;load the memory-stream into a plain-text Document
+				;trim it nicely
 				(defq buffer (Document 0 :nil))
 				(.-> buffer (:stream_load *mem_stream*) :trim)
-
-				;insert a blank line at the front and end of the buffer
-				(. buffer :iinsert 0 0 "\n")
-				(bind '(& h) (. buffer :get_size))
-				(. buffer :iinsert (length (. buffer :get_text_line h)) h "\n")
 
 				;measure and configure the Vdu
 				(bind '(w h) (. buffer :get_size))
