@@ -33,8 +33,8 @@
 
 			;load the memory-stream into a plain-text Document
 			;trim and frame it nicely
-			(defq buffer (Document +buffer_flag_syntax syntax))
-			(.-> buffer (:stream_load *mem_stream*) :trim
+			(.-> (defq buffer (Document +buffer_flag_syntax syntax))
+				(:stream_load *mem_stream*) :trim
 				(:insert "\n") :bottom (:insert "\n"))
 
 			;calculate the minimum margin directly from the pre-expanded buffer lines

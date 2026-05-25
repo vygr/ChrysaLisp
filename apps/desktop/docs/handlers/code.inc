@@ -10,8 +10,8 @@
 
 				;load the memory-stream into a plain-text Document
 				;trim it nicely
-				(defq buffer (Document 0 :nil))
-				(.-> buffer (:stream_load *mem_stream*) :trim)
+				(.-> (defq buffer (Document 0 :nil))
+					(:stream_load *mem_stream*) :trim)
 
 				;measure and configure the Vdu
 				(bind '(w h) (. buffer :get_size))
