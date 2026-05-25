@@ -5,26 +5,24 @@
 (defq *global_undo_stack* (list) *global_redo_stack* (list))
 
 (defun action-undo ()
-	(if (empty? *global_undo_stack*)
+	(ifn (defq transaction (pop *global_undo_stack*))
 		(. *edit* :undo)
 		(progn
-			(defq transaction (pop *global_undo_stack*))
 			;undo each modified buffer in reverse chronological order
-			(reach (lambda ((file old_mark new_mark))
-					(unless (eql file *current_file*) (switch-file file))
+			(reach (lambda ((file old_mark &))
+					(ifn (eql file *current_file*) (switch-file file))
 					(. *edit* :rewind old_mark))
 				transaction)
 			(push *global_redo_stack* transaction)))
 	(refresh))
 
 (defun action-redo ()
-	(if (empty? *global_redo_stack*)
+	(ifn (defq transaction (pop *global_redo_stack*))
 		(. *edit* :redo)
 		(progn
-			(defq transaction (pop *global_redo_stack*))
 			;redo each modified buffer in original chronological order
-			(each (lambda ((file old_mark new_mark))
-					(unless (eql file *current_file*) (switch-file file))
+			(each (lambda ((file & new_mark))
+					(ifn (eql file *current_file*) (switch-file file))
 					(. *edit* :forwardwind new_mark))
 				transaction)
 			(push *global_undo_stack* transaction)))

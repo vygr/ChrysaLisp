@@ -176,9 +176,9 @@ return cursors sorted by position
 
 ### :get_last_find
 
-### :get_modified
+### :get_mark
 
-### :get_next_mark
+### :get_modified
 
 ### :get_primary_text
 

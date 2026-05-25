@@ -285,7 +285,7 @@
 		:buffer_found (list :nil) :buffer_buckets (list (list)) :dirty_flags -1
 		:syntax_engine syntax :undo_stack (list) :redo_stack (list)
 		:max_width 0 :tab_width 4 :wrap_width 80 :last_find '("" :nil :nil)
-		:flags flags :next_mark -1 :modified :nil :last_key :nil
+		:flags flags :mark -1 :modified :nil :last_key :nil
 		:focus +invalid_focus :cursors (list (nums 0 0 0 0 -1)))
 
 ;;;;;;;;;;;;;;;
@@ -305,7 +305,7 @@
 	(defgetmethod :tab_width)
 	(defgetmethod :last_find)
 	(defgetmethod :focus)
-	(defgetmethod :next_mark)
+	(defgetmethod :mark)
 
 	(defmethod :set_focus (csr)
 		(lower (:focus (if (and csr (nql csr +invalid_focus))
@@ -1099,7 +1099,7 @@
 
 	(defmethod :next_mark ()
 		; (. buffer :next_mark) -> mark
-		(lower (:next_mark (inc (get :next_mark this)))))
+		(lower (:mark (inc (get :mark this)))))
 
 	(defmethod :push_undo (&rest records)
 		; (. buffer :push_undo record ...) -> buffer

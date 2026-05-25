@@ -557,19 +557,14 @@ Usage: template [options] [path] ...
     If no paths given on command line
     then will take paths from stdin.
 ```
-## test
+## tests
 ```code
-Usage: test [options]
+Usage: tests [options]
 
     options:
         -h --help: this help info.
 
-    Simple timing test framework.
-
-    To be stable and accurate this should be
-    run on a single node !
-
-    ./run_tui.sh -n 1
+    Run the unit tests.
 ```
 ## time
 ```code

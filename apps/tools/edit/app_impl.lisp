@@ -210,14 +210,13 @@
 (defun get_marker (f)
 	(if (defq meta (.-> *meta_map* (:find :files) (:find f)))
 		(if (defq buf (. meta :find :buffer))
-			(. buf :get_next_mark) -1) -1))
+			(. buf :get_mark) -1) -1))
 
 (defun dispatch-action (&rest action)
     (defq func (first action)
         ;collect all active buffer keys (open files and the ":nil" scratchpad)
-        keys (cat (map (const str) *open_files*) (list ":nil"))
         ;take a snapshot of the transaction markers before the action
-        old_markers (map (# (list %0 (get_marker %0))) keys))
+        old_markers (map (# (list %0 (get_marker %0))) (push (cat *open_files*) ":nil")))
     ;record macro if enabled and action is recordable
     (and *macro_record* (find func *recorded_actions*)
         (macro-record action))
@@ -240,7 +239,7 @@
     (each (lambda ((f old_mark))
             (defq new_mark (get_marker f))
             (when (> new_mark old_mark)
-                ;use ":nil" with the colon, and map it back to the symbol :nil
+                ;map ":nil" back to the symbol :nil
                 (push modified_files (list (if (eql f ":nil") :nil f) old_mark new_mark))))
         old_markers)
     ;if any buffers changed, push them as a single grouped transaction
