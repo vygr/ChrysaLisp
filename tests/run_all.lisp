@@ -1,6 +1,5 @@
 ; Run with: ./run_tui.sh -n 1 -f -s tests/run_all.lisp
 
-(import "lib/task/pipe.inc")
 (import "./utils.inc")
 
 (defun run-suite ()
@@ -68,13 +67,14 @@
 	; Return true if 0 failures
 	(= *test_failures* 0))
 
-; Outer safety block
-(catch
-	(run-suite)
-	(progn
-		(print "CRITICAL ERROR: Test suite crashed or threw exception.")
-		(print "Error object: " _)
-		:t))
-
-; Clean shutdown of the VP node
-((ffi "service/gui/lisp_deinit"))
+(unless (def? 'options)
+	;outer safety block
+	(catch
+		(run-suite)
+		(progn
+			(print "CRITICAL ERROR: Test suite crashed or threw exception.")
+			(print "Error object: " _)
+			:t))
+	(print)
+	;shutdown of the VP node if not from Terminal
+	((ffi "service/gui/lisp_deinit")))
