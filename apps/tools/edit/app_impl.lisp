@@ -37,7 +37,7 @@
 			(second (. buffer :get_size))
 			(+ start_line (get :vdu_height *edit*)))))
 	(while (< (setq start_line (inc start_line)) end_line)
-		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "	")))
+		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
 	(. buffer :find (. *find_text* :get_text) *whole_words* *regexp*)
 	(. *edit* :underlay)
 	(. *vdu_lines* :load lines 0 0 -1 -1)
