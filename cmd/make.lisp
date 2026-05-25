@@ -192,7 +192,7 @@
 			(defq folder "host")
 			(if (defq i (find "/" file)) (setq folder (slice file 0 i)))
 			(. folders :update folder (# (if %0 (push %0 file) (list file)))))
-		(filter (lambda (file) (notany (# (starts-with %0 file)) '("usr/" "tests/" "deps/")))
+		(filter (lambda (file) (notany (# (starts-with %0 file)) '("usr/" "deps/")))
 			(files-all "." '("Makefile" "Makefile.mingw" ".vp" ".inc" ".lisp" ".c" ".cpp" ".h" ".sh" ".ps1" ".bat") 2)))
 	(. folders :each (# (push cmds (cat "cat -f " (join %1 " ") " | save ai/" %0 ".txt"))))
 	(pipe-farm cmds))

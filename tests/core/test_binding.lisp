@@ -68,16 +68,12 @@
 (assert-true "repl-info" (and (list? ri) (>= (length ri) 2)))
 
 ; --- Core Environment Utils ---
-(defq e_parent (env))
-(defq e_child (env-push e_parent))
-((lambda ()
-	(defq local_sym 555)
-	(export-symbols '(local_sym))
-))
-(assert-eq "export-symbols" 555 (get 'local_sym e_parent))
+((lambda () (defq local_sym 555)
+	(export-symbols '(local_sym))))
+(assert-eq "export-symbols" 555 (get 'local_sym))
 
-(defclass TestClassExtra () :nil (defmethod :test (this) 123))
-(export-classes '(TestClassExtra))
+((lambda () (defclass TestClassExtra () :nil (defmethod :test (this) 123))
+	(export-classes '(TestClassExtra))))
 (assert-true "export-classes" (not (nil? (get 'TestClassExtra))))
 
 ; --- exec ---
@@ -87,15 +83,15 @@
 
 ; --- export / export-symbols ---
 (defq e_dst (env))
-((lambda ()
-	(defq exported_val 999)
-	(export e_dst '(exported_val))))
+((lambda () (defq exported_val 999) (export e_dst '(exported_val))))
 (assert-eq "export root" 999 (get 'exported_val e_dst))
+(undef (env) 'e_dst)
 
 (defq *test_export_sym* 123)
-(defq e_dst2 (env))
-(export e_dst2 '(*test_export_sym*))
-(assert-eq "export direct root" 123 (get '*test_export_sym* e_dst2))
+(defq e_dst (env))
+(export e_dst '(*test_export_sym*))
+(assert-eq "export direct root" 123 (get '*test_export_sym* e_dst))
+(undef (env) 'e_dst)
 
 ; --- Quasi-Quotation (static-qq) ---
 (defq sq_a 10 sq_b 20)
