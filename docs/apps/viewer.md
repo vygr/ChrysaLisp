@@ -23,188 +23,210 @@ apps/tools/viewer/widgets.inc *window* 512 512
 
 ## Implementation Study
 
-The ChrysaLisp Viewer, located in `apps/tools/viewer/`, is a powerful read-only text
-and code viewer. It serves as a complementary tool to the Editor, sharing many
-of its core components while specializing in navigation, search, and file system
-browsing. This study examines its architecture and implementation, highlighting
-how it reuses and adapts core libraries for a different purpose.
+The ChrysaLisp Viewer, located in `apps/tools/viewer/`, is a lightweight,
+read-only document and code browser.
+
+It is designed to complement the Editor, leveraging ChrysaLisp’s modular GUI
+architecture to reuse model, view, and utility libraries while providing a
+streamlined interface dedicated to navigation, searching, and file system
+exploration.
 
 ### 1. Core Architecture and Components
 
-The Viewer's architecture is a testament to the component-based design of the
-ChrysaLisp GUI system. It intentionally reuses the same core **Model** and
-**View** components as the Editor, but provides a distinct **Controller** layer
-to enforce read-only behavior and offer specialized features.
+The Viewer's architecture showcases the highly reusable, component-based design
+of the ChrysaLisp GUI system.
 
-*   **Model (Text Management - Reused from Editor):**
+It adapts the Model and View layers used by the Editor, implementing a focused
+Controller layer to enforce read-only execution while retaining rich navigation
+features.
 
-    * **`Buffer` Class (`lib/text/buffer.inc`):** The Viewer uses the exact same
-        `Buffer` class as the Editor for all text management. Each file is
-        loaded into a `Buffer` instance. Crucially, the Viewer's application
-        logic only calls the *read* methods of the buffer (e.g.,
-        `:get_text_line`, `:get_size`, `:find`) and never the destructive ones
-        (like `:insert`, `:delete`).
+* **Model (Text Management - Reused from Editor):**
 
-    * **`Syntax` Class (`lib/text/syntax.inc`):** Syntax highlighting is fully
-        supported. An instance of `Syntax` (`*syntax*` in `app.lisp`) is passed
-        to each `Buffer` upon creation, providing the same rich code coloring as
-        the Editor.
+    * **`Buffer` Class (`lib/text/buffer.inc`):** The Viewer utilizes the exact
+      same `Buffer` class for text management. Each opened file is loaded into a
+      `Buffer` instance. The Viewer accesses only the non-destructive, read-only
+      methods of the buffer (such as `:get_text_line`, `:get_size`, and
+      `:find`), preventing text modification.
 
-*   **View (User Interface):**
+    * **`Document` Class (`lib/text/document.inc`):** Files are loaded as
+      `Document` objects (which inherit from `Buffer`) inside `populate-buffer`.
+      This provides high-level text selection features (word, line, form, and
+      paragraph) without editing capabilities.
 
-    * **`*window*` (`apps/tools/viewer/widgets.inc`):** The main `Window` widget that
-        serves as the root of the UI tree.
+    * **`Syntax` Class (`lib/text/syntax.inc`):** Code highlighting is fully
+      integrated. A global instance of the `Syntax` class (`*syntax*`) is passed
+      to each `Document` buffer during initialization, rendering the same color
+      schemes as those in the Editor.
 
-    * **`Viewer-edit` Class (`apps/tools/viewer/ui.inc`):** This is a custom class
-        that **inherits from `Edit`**. This is a key design choice. The Viewer
-        doesn't need a new rendering widget; it uses the powerful `Edit` widget
-        but overrides its mouse event handlers to implement read-only selection
-        behavior instead of text modification. The primary instance is named
-        `*edit*`.
+* **View (User Interface):**
 
-    * **`Edit` / `Vdu` Widgets (`gui/edit/lisp.inc`, `gui/vdu/lisp.inc`):** The
-        underlying rendering is handled by the same components as the Editor.
-        The `*edit*` widget uses child `Vdu` instances for displaying text,
-        selections, and highlights.
+    * **`*window*` (`apps/tools/viewer/widgets.inc`):** The top-level `Window`
+      container that serves as the root of the UI tree.
 
-    * **File Browser (`*file_selector*`):** A widget for navigating the
-      project's file system, which is a central feature of the Viewer.
+    * **`Viewer-edit` Class (`apps/tools/viewer/ui.inc`):** A custom class that
+      inherits from `Edit` (defined in `gui/edit/lisp.inc`). The Viewer reuses
+      the `Edit` widget but overrides its mouse event handlers to implement
+      read-only selection and copy actions, bypassing text modifications. The
+      primary editor controller instance is named `*edit*`.
 
-*   **Controller (Application Logic and Event Handling):**
+    * **`Vdu` Widget (`gui/vdu/lisp.inc`):** Low-level rendering is handled by
+      `Vdu` instances, drawing text characters, selections, and search
+      highlights onto the screen on top of the underlying mask elements.
 
-    * **`apps/tools/viewer/app.lisp`:** This is the main application file, containing
-        the `main` event loop and the functions that orchestrate the Viewer's
-        behavior.
+    * **Workspace Navigation (`*file_selector*`):** A hierarchical directory
+      tree (`ui-files` widget) is pinned to the left to browse and load files
+      within the workspace.
 
-    * **`apps/tools/viewer/actions.inc` (and includes):** Defines the `Fmap`s
-        (`*event_map*`, `*key_map*`, etc.) that map GUI events and keyboard
-        shortcuts to viewer-specific handler functions. The set of actions is
-        smaller and focused on navigation and search, omitting all editing
-        functions.
+* **Controller (Application Logic and Event Handling):**
 
-    * **`dispatch-action` helper (`app_impl.lisp`):** Just like the Editor, this
-        function evaluates actions retrieved from the event maps.
+    * **`apps/tools/viewer/app.lisp`:** The main application entry point. It
+      manages the `main` event loop and coordinates buffer state transitions.
+
+    * **`apps/tools/viewer/actions.inc`:** Defines the event map (`*event_map*`)
+      and key maps (`*key_map*`, `*key_map_shift*`, `*key_map_control*`) that
+      bind keyboard shortcuts and GUI button events to navigation and viewing
+      routines, omitting all mutation functions.
+
+    * **`dispatch-action`:** Evaluates actions retrieved from the event maps,
+      managing search states and view updates during user interactions.
 
 ### 2. UI Structure (`apps/tools/viewer/widgets.inc`)
 
-The Viewer's UI is simpler and more focused on browsing than the Editor's.
+The Viewer's UI is optimized for read-only navigation, file browsing, and search
+feedback.
 
-*   **Main Layout:** A `ui-flow` with a `:flow_right_fill` flag splits the main
-    area into two panes: the file browser on the left and the content viewer on
-    the right. This is in contrast to the Editor's tab-like system for open
-    files.
+* **Main Workspace Layout:** A `ui-flow` with a `:flow_right_fill` flag splits
+  the main area into two vertical panes: the file browser (`*file_selector*`) on
+  the left and the viewport area on the right.
 
-*   **Toolbars:**
+* **Toolbars:**
 
-    * `*main_toolbar*`: Provides essential read-only actions like "Copy",
-        "Select Paragraph", "Select Form".
+    * `*main_toolbar*`: Provides essential viewing actions like "Copy", "Select
+      Paragraph", "Select Form", and form boundary markers.
 
-    * `*find_toolbar*`: Contains widgets for search functionality, including
-        buttons for "Whole Words", "Regexp", and "Find Down/Up".
+    * `*find_toolbar*`: Hosts find and select-region controls, including "Select
+      Region", "Whole Words", "Regexp", and directional searches.
 
-*   **File Browser:** A `ui-files` This is populated by scanning the "docs" and
-    project root directories for files with supported extensions
-    (`+file_types`).
+* **Content Viewport:**
 
-*   **Content Viewer:**
+    * `*scale_flow*`: Wraps the coordinate view. It places line numbers
+      (`*vdu_lines*`) next to the main `*edit*` viewing widget.
 
-    * `*edit_flow*`: The main viewing area, which contains the `*edit*` widget
-        (the instance of `Viewer-edit`).
+    * `*xslider*` and `*yslider*`: Sliders for scrolling the viewport
+      horizontally and vertically.
 
-    * `*vdu_lines*`: Displays line numbers, similar to the Editor.
-
-    * `*xslider*`, `*yslider*`: Standard sliders for scrolling the content.
-
-*   **Status Bar:** A `ui-flow` at the bottom displays cursor position (`*cx*`,
-    `*cy*`), selection size (`*sw*`, `*sh*`), and the number of matches found
-    (`*fc*`).
+* **Status Panel:** A `ui-flow` at the bottom displaying the cursor position
+  (`*cx*`, `*cy*`), selection bounds (`*sw*`, `*sh*`), and the total number of
+  found matches (`*fc*`) matching the active search query.
 
 ### 3. Event Handling and Dispatch
 
-The event handling pattern in `apps/tools/viewer/app.lisp` mirrors the Editor's. The
-`main` function's event loop waits on `(mail-select)` and dispatches actions
-based on the source of the message (GUI, timer, etc.).
+The event loop in `apps/tools/viewer/app.lisp` monitors a select list of
+mailboxes created via `(task-mboxes +select_size)`, where `+select_size` is 2:
 
-*   GUI events are mapped via `*event_map*` and the various `*key_map*`s to
-    their handler functions (e.g., `action-find-down`, `action-select-word`).
+* `+select_main`: Handles GUI window events, routing keyboard and mouse inputs.
 
-*   The Viewer defines its own set of actions in `apps/tools/viewer/actions.inc` and
-    its includes. These actions are tailored for viewing:
+* `+select_tip`: Manages tooltips.
 
-    * **Navigation:** `action-left`, `action-right`, `action-home`, `action-end`
-        all map to the corresponding selection-aware methods in the
-        `Viewer-edit` widget.
+Because the Viewer is a read-only browser, it does not require a remote RPC
+mailbox to receive compiler or debugger jumps.
 
-    * **Search:** `action-find-down`, `action-find-up`.
+The event-routing logic matches the Editor's implementation, directing events to
+viewing-specific routines:
 
-    * **Selection:** `action-select-word`, `action-select-line`.
+* **Navigation:** Keyboard events (arrows, home, end, and page bounds) map to
+  selection-aware movement actions (e.g. `action-left`, `action-right`).
 
-    * **Clipboard:** `action-copy`. Note the conspicuous absence of `action-cut`
-        and `action-paste`.
+* **Search:** Links the find-text input and arrow buttons to directional matches
+  (`action-find-down`, `action-find-up`).
+
+* **Selections:** Leverages block, form, and paragraph-level selection logic.
+
+* **Clipboard:** Binds to `action-copy` (via `service/clipboard/app.inc`). All
+  text mutation actions (such as cut, paste, delete, and backspace) are
+  excluded.
 
 ### 4. File Management and State
 
-The Viewer manages files and state in a way that is similar to, but simpler
-than, the Editor.
+The Viewer manages document buffers dynamically through the global `*meta_map*`
+in a simpler manner than the Editor.
 
-*   **`*meta_map*` (`app.lisp`):** It uses the same `Emap`-based structure to
-    store metadata.
+* **`*meta_map*`:** An `Emap` that stores active metadata for opened files.
 
-*   **No Explicit `*open_files*` List:** Unlike the Editor, the Viewer does not
-    maintain a distinct list of "open" files. Its file navigation is based
-    directly on the `*file_selector*` which reflects the filesystem. A file's
-    buffer and state are loaded into the `*meta_map*` the first time it is
-    opened via `populate-buffer`.
+* **Buffer Lifecycle:** The Viewer does not maintain an explicit, open tab-bar
+  list of files. Instead, it relies on the `*file_selector*` sidebar. A file's
+  buffer is lazily loaded into `*meta_map*` the first time it is selected.
 
-*   **`*current_file*`:** Tracks the currently displayed file.
+* **`*current_file*`:** Tracks the path of the currently active file.
 
-*   **`populate-vdu` (`app.lisp`):** This function is the core of switching
-    between files. It retrieves the appropriate `Buffer` from the `*meta_map*`,
-    assigns it to the `*edit*` widget, restores scroll/cursor positions, and
-    calls `(refresh)`.
+* **`populate-vdu` (`app.lisp`):** Orchestrates buffer switching. It retrieves
+  the file's `Buffer` from `*meta_map*`, binds it to the `*edit*` widget,
+  restores the last saved cursor, selection, and scroll positions, and triggers
+  a full screen `(refresh)`.
 
-### 5. Read-Only Interaction: The `Viewer-edit` Class
+### 5. Specialized Read-Only View: The `Viewer-edit` Class
 
-This is the most significant point of specialization for the Viewer. It achieves
-its read-only nature not by using a different rendering widget, but by
-subclassing `Edit` and overriding its behavior.
+The Viewer enforces its read-only nature not by using a distinct rendering
+widget, but by subclassing the generic `Edit` view and overriding its
+interaction handlers inside `apps/tools/viewer/ui.inc`.
 
-*   **`Viewer-edit` (`apps/tools/viewer/ui.inc`):** Inherits from the `Edit` class.
+* **`Viewer-edit` (`ui.inc`):** Inherits from `Edit`.
 
-*   **Overridden Mouse Handlers:**
+* **Overridden Mouse Handlers:**
 
-    * `(:mouse_down event)`: Instead of preparing for text insertion, this
-        method simply sets the cursor position and clears any existing selection
-        by setting the anchor to the same spot.
+    * `(:mouse_down event)`: Overrides the cursor placement behavior. It sets
+      the cursor and anchor to the clicked coordinates, clearing any previous
+      selections without preparing for text input.
 
-    * `(:mouse_move event)`: If the mouse button is held down, this method
-        updates the cursor position, creating a text selection.
+    * `(:mouse_move event)`: If the mouse is dragged, it updates the selection
+      coordinates to highlight the text.
 
-    * `(:mouse_up event)`: Handles multi-click selections (double-click for
-        word, triple for line, etc.) by calling helper functions like
-        `action-select-word`.
+    * `(:mouse_up event)`: Handles multi-click selection events (double-click to
+      select a word, triple-click for a line, etc.).
 
-*   This approach demonstrates a powerful object-oriented pattern: inheriting a
-    component with rich rendering capabilities (`Edit`) and overriding only the
-    interaction logic to suit a different use case, maximizing code reuse.
+    * `(:mouse_wheel event)`: Adjusts scrolling offsets, stores coordinates to
+      metadata, and updates the scrollbar positions.
 
-### 6. Search and Integration (`apps/tools/edit/search.inc`)
+* This demonstrates a powerful object-oriented pattern: inheriting a complex
+  rendering component (`Edit`) and overriding only its interactive handlers to
+  enforce read-only constraints while preserving all selection-compositing
+  masks.
 
-The Viewer's search functionality is particularly powerful and showcases
-ChrysaLisp's system integration.
+### 6. Deep Utility Reuse
 
-*   **Local Find:** `action-find-down` and `action-find-up` search within the
-    currently displayed buffer. This uses the `(. buffer :find ...)` method,
-    which is the same as the Editor's.
+A major design strength of the Viewer is its direct reuse of the Editor's core
+utility modules.
+
+Rather than duplicating code, `apps/tools/viewer/actions.inc` imports the
+following modules directly:
+
+* `apps/tools/edit/utils.inc`: For coordinate sorting and selection-aware
+  viewport tracking.
+
+* `apps/tools/edit/cursor.inc`: For cursor stack push/pop history, allowing
+  users to jump to previous positions via `*cursor_stack*`.
+
+* `apps/tools/edit/select.inc`: For structural selections.
+
+* `apps/tools/edit/clipboard.inc`: For copying text.
+
+* `apps/tools/edit/search.inc`: For local buffer searches and parallelized,
+  cluster-wide global searches (`action-find-global`) using `pipe-farm`.
+
+This level of reuse ensures that enhancements made to the core search and
+selection utilities automatically benefit both the Editor and the Viewer.
 
 ## Conclusion
 
-The ChrysaLisp Viewer is an excellent example of software reuse and
-component-based design. By leveraging the same `Buffer` model and `Edit`
-rendering widget as the Editor, it avoids reinventing the wheel for complex
-tasks like text storage, syntax highlighting, and selection rendering. It
-achieves its distinct, read-only purpose by providing a simplified UI and a
-specialized `Viewer-edit` subclass that overrides interactive behaviors. Its
-standout feature is the `grep`-based global search, which integrates seamlessly
-with the file tree to provide a fast and powerful code and documentation
-browsing experience that leverages the distributed nature of the OS.
+The ChrysaLisp Viewer stands as a prime example of software reuse and
+component-based design. By leveraging the same `Buffer` model, `Document`
+structures, and `Edit` rendering logic as the Editor, it avoids duplicating
+complex text representation, syntax highlighting, and selection rendering code.
+
+It accomplishes its specialized read-only purpose simply by providing an
+intuitive split-pane layout and a lightweight `Viewer-edit` subclass that
+overrides interactive inputs.
+
+Its direct integration with the Editor's searching utilities enables powerful
+search capabilities, combining local buffer indexing with cluster-wide parallel
+searches to deliver a fast, responsive browsing experience.

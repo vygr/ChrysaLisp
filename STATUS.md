@@ -34,6 +34,11 @@ Docs app now uses a Document buffer and memory-stream to collect and display
 Vdu widget now shows up any embedded control chars, not LF, present. And cleaned
 up the Usage info sections of commands apps to not use embedded tabs.
 
+`cmd/tests.lisp` command for running the unit test suite from the command line.
+
+Updated implementation studies for the Editor, Viewer and Whiteboard
+applications.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

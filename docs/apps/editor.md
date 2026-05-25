@@ -22,231 +22,267 @@ apps/tools/edit/widgets.inc *window* 512 512
 
 ## Implementation Study
 
-The ChrysaLisp Editor, found in `apps/tools/edit/`, is a sophisticated,
-multi-buffer programmer's text editor tailored for the ChrysaLisp environment.
-It showcases many of the GUI system's strengths, including its event handling,
-widget composition, and the Lisp-centric property system. This document delves
-into its architecture, key features, and implementation details based on the
-provided source code.
+The ChrysaLisp Editor (found in `apps/tools/edit/`) is a highly integrated,
+multi-buffer programmer's text editor designed specifically for the ChrysaLisp
+parallel processing operating system. It serves as a prime demonstration of
+ChrysaLisp's graphical user interface, declarative widget framework, native
+Virtual Processor (VP) assembly speed, and distributed parallel capabilities.
 
-Its defining characteristics include:
+### 1. Core Editor Characteristics
 
-* **Multi-Cursor/Multi-Selection Editing:** Native support for simultaneous
-  editing at multiple locations.
+The ChrysaLisp Editor utilizes several key architectural elements of the OS:
 
-* **Distributed Architecture:** Capable of offloading search operations (`grep`)
-  to other nodes in the network via `pipe-farm`.
+* **Multi-Cursor / Multi-Selection Engine:** Built directly into the core
+  `Buffer` and `Document` classes, the editor supports editing at arbitrary
+  multiple locations simultaneously. Cursors are tracked as tuples of
+  coordinates: `(cx cy ax ay sx)` where `cx/cy` represent the cursor position,
+  `ax/ay` represent the selection anchor, and `sx` is a "sticky X" column index
+  used to preserve vertical alignment during vertical movements.
 
-* **Persistent State:** Automatically saves session state (open files, cursor
-  positions, macros) to disk.
+* **Distributed Parallel Grep:** Global search (`action-find-global` in
+  `search.inc`) maps file paths across active network nodes, executing parallel
+  search tasks via a `pipe-farm` command pipeline. It filters out common
+  dictionaries to optimize performance across the cluster.
 
-* **RPC Interface:** Acts as a service, allowing debuggers and external tools to
-  trigger file opens and line jumps.
+* **Intelligent Word Autocompletion:** Integrates a global `Dictionary` object
+  that indexes words from loaded files and standard text databases. The
+  `show-matches` system captures context words in a 20-line radius around the
+  cursor, sorting auto-completion matches by local frequency and alphabetical
+  order inside a floating overlay window (`match_window`).
 
-## 2. Application Architecture
+* **Multi-File Unified Undo/Redo:** Rather than restricting undo actions to the
+  current buffer, the editor maintains `*global_undo_stack*` and
+  `*global_redo_stack*` transaction groups. This tracks historical states across
+  all active buffers, allowing a single grouped edit (like a global macro
+  playback or replace-all) to be reverted cleanly across multiple files.
 
-The application follows a Model-View-Controller (MVC) pattern, distributed
-across several files and classes.
+* **RPC-Driven Inter-Process Communication:** Registers an "Edit" service using
+  `mail-declare` to handle remote requests like `+edit_rpc_type_jump`, enabling
+  external debugging tools (such as the ChrysaLisp Debugger) to trigger file
+  opening and cursor jump-to-line operations.
 
-### 2.1 Entry Point and Event Loop (`app_impl.lisp`)
+### 2. Application Architecture
 
-The `main` function initializes the application. It sets up the UI window, loads
-the previous session state, and enters the message handling loop.
+The editor uses a Model-View-Controller (MVC) design pattern that is tightly
+coupled with ChrysaLisp's cooperative internal scheduling.
 
-The event loop monitors a `select` list containing:
-
-1. **Main Mailbox:** Receives UI events (clicks, key presses) and Window Manager
-   messages.
-
-2. **Tip Mailbox:** Handles tooltips.
-
-3. **Remote Mailbox:** Listens for RPC calls (e.g., from the Debugger app) to
-   jump to specific code locations.
-
-### 2.2 Component Hierarchy
-
-1. **The Window (`ui-window` in `widgets.inc`):** The top-level container.
-
-2. **The Edit Widget (`Editor-edit` in `ui.inc`):** A custom subclass of the
-   core `Edit` class. It handles input routing and display logic.
-
-3. **The Buffer (`Buffer` in `lib/text/buffer.inc`):** The data model
-   representing the text, cursors, and undo history.
-
-4. **The VDU (`ui-vdu`):** The low-level rendering component used by the Edit
-   widget to draw text grids.
-
-## 3. The Core Editing Engine
-
-The text editing capabilities are split between the visual management (`Edit`
-class) and the logical manipulation (`Buffer` class).
-
-### 3.1 The `Edit` Class (`gui/edit/lisp.inc`)
-
-This class inherits from `View`. It acts as the **Controller** and **View**
-coordinator.
-
-* **Responsibility:** It manages the `Vdu` (Video Display Unit) widget, handles
-  scrolling offsets (`scroll_x`, `scroll_y`), and translates raw mouse
-  coordinates into text indices.
-
-* **Delegation:** It defines proxy methods (e.g., `defproxymethod :insert`) that
-  forward high-level actions directly to the `Buffer`.
-
-* **Rendering:** It implements `:draw` to render selection masks (colorizing
-  selected text regions) and overlays before asking the VDU to render the actual
-  characters.
-
-### 3.2 The `Buffer` Class (`lib/text/buffer.inc`)
-
-This is the **Model**. It contains the actual string data (`buffer_lines`) and
-the logic for manipulating it.
-
-* **Multi-Cursor Engine:** The buffer does not track a single cursor. It tracks
-  a list of cursors, where each cursor is a tuple: `(current_index anchor_index
-  sticky_x)`.
-
-* **State Management:** It manages the `undo_stack` and `redo_stack`.
-
-* **Syntax Highlighting:** It holds a reference to a `Syntax` engine instance,
-  which parses lines on demand to generate color maps for rendering.
-
-### 3.3 Subclassing for Specialization (`ui.inc`)
-
-The Editor app defines a specific subclass `Editor-edit` that inherits from
-`Edit`. This allows the application to override input behaviors, specifically
-mouse interaction, to integrate with the application-specific `refresh` logic
-and status bar updates.
-
-```vdu
-(defclass Editor-edit () (Edit)
-    ...
-    (defmethod :mouse_wheel (event)
-        (.super this :mouse_wheel event)
-        ; App-specific logic to update sliders and refresh display
-        (refresh-sliders) (refresh-display) this)
-)
+```code
+          +------------------+     (RPC/Service)
+          |   Edit Service   | <-----------------+
+          +------------------+                   |
+                   |                             |
+                   v                             |
+          +------------------+                   |
+          |  app_impl.lisp   | <-------+         |
+          |   (Controller)   |         |         |
+          +------------------+         |         |
+             |            |            |         |
+             v            v            |         |
+      +------------+  +------------+   |         |
+      | widgets.inc|  |   ui.inc   |   |         |
+      |   (View)   |  | (Editor-   |   |         |
+      +------------+  |   edit)    |   |         |
+                      +------------+   |         |
+                            |          |         |
+                            v          |         |
+                      +------------+   |         |
+                      |  Edit/VDU  |   |         |
+                      |   Layers   |   |         |
+                      +------------+   |         |
+                            |          |         |
+                            v          |         |
+                      +------------+   |         |
+                      |  Document  | --+ (Undo)  |
+                      |   Model    | ------------+
+                      +------------+
 ```
 
-## 4. Key Logic Subsystems
+#### 2.1 Entry Point and Event Loop (`app_impl.lisp`)
 
-### 4.1 Search and Replace (`search.inc`)
+The `main` function initializes the application, starting up the UI window,
+loading saved state, and listening on a select list of mailboxes created via
+`(task-mboxes +select_size)`. The select index mappings are managed via the
+`+select` enum:
 
-The editor implements a robust search system supporting:
+* `+select_main`: Handles GUI window events, routing keyboard and mouse inputs.
 
-* **Local Search:** Uses the `Buffer` methods `:find` to locate text within the
-  open file.
+* `+select_tip`: Manages tooltips.
 
-* **Global Search:** Uses the `grep` command via `pipe-farm`. This spawns search
-  tasks across the distributed network (available CPU nodes) to scan files in
-  parallel.
+* `+select_remote`: Manages incoming RPC requests (e.g., jump-to-line from the
+  debugger).
 
-* **Matches UI:** The application can spawn a floating window (`match_window`)
-  listing search results (like auto-complete suggestions or dictionary lookups).
+#### 2.2 Dual-Tree Workspace Layout
 
-### 4.2 Undo/Redo System (`utils.inc`, `undo.inc`)
+The UI layout (`widgets.inc`) features a sidebar on the left containing two
+hierarchical trees: `*open_files_selector*` (listing currently active buffers)
+and `*file_selector*` (for browsing the project directory). The right side
+places line numbers (`*vdu_lines*`) next to the main `*edit*` area with its
+scroll sliders (`*xslider*`, `*yslider*`).
 
-The editor utilizes an `undoable` macro that wraps editing operations. This
-macro performs a "snapshot" logic:
+### 3. Core Editing Engine
 
-1. Push a `:mark` to the undo stack.
+#### 3.1 The Controller-View Coordinate (`Edit` in `gui/edit/lisp.inc`)
 
-2. Save the current cursor positions.
+Inheriting from `View`, the `Edit` class manages the low-level `Vdu` (Video
+Display Unit) widget, tracks scrolling offsets (`scroll_x`, `scroll_y`), and
+maps physical coordinates to character cells. It acts as a proxy, delegating
+editing methods (such as `:insert`, `:delete`, `:backspace`, `:undo`, `:redo`)
+to the underlying `Buffer` model.
 
-3. Execute the editing code (which pushes specific line changes to the undo
-   stack).
+#### 3.2 Selection Mask Overlays (`underlay` in `app_impl.lisp`)
 
-4. Push a closing `:mark`.
+To render selections, cursor carets, and matching bracket highlights, the editor
+does not redraw the text. Instead, a custom `underlay` function calculates
+sub-regions and configures `Mask` overlay widgets (`mask_ink`, `mask_selected`,
+`mask_found`, `mask_region`) placed behind the translucent text layers. This
+allows the VDU to draw text as purely static layers while the GPU handles
+selection compositing.
 
-This groups atomic actions (like a global replace) into a single undoable block.
+#### 3.3 The Data Model (`Buffer` in `lib/text/buffer.inc`)
 
-### 4.3 Macros (`macros.inc`)
+`Buffer` represents the data model. It manages raw text lines (`buffer_lines`)
+and provides low-level, coordinate-safe mutation methods like `:iinsert`
+(internal insert), `:idelete` (internal delete), and `:icopy` (internal copy).
 
-The editor features a recording system.
+* **Smart Cursor Mapping:** When text is modified, other cursors on the same or
+  subsequent lines must be shifted to remain accurate. This is handled by
+  FFI-bound native functions `csr_map_insert` and `csr_map_delete` (compiled
+  from `lisp.vp`), preventing cursors from becoming misaligned during edits.
 
-1. **Recording:** When enabled (`*macro_record*`), specific actions defined in
-   `*recorded_actions*` are intercepted in `dispatch-action`.
+* **The Document Subclass (`Document` in `lib/text/document.inc`):** Inheriting
+  from `Buffer`, this subclass enriches the raw text model with high-level
+  block, word, paragraph, and form-level selection actions, alongside code
+  formatting tools such as `:reflow`, `:split`, `:sort`, `:unique`, `:comment`,
+  and `:trim`.
 
-2. **Storage:** Actions are stored in `+macro_map`.
+#### 3.4 Specialized Subclassing (`Editor-edit` in `ui.inc`)
 
-3. **Playback:** The `macro-playback` function iterates through the stored list,
-   executing the functions.
+The Editor app inherits from the generic `Edit` class to define `Editor-edit`.
+It overrides mouse and scroll wheel interactions, updates scroll sliders, and
+processes multi-clicks:
 
-4. **Persistence:** Macros are serialized into the `editor.tre` state file,
-   preserving them between reboots.
+* **Double-click:** Triggers `action-select-word`.
 
-### 4.4 File I/O (`file.inc`)
+* **Triple-click:** Triggers `action-select-line`.
 
-* **Loading:** Uses `populate-buffer` to create a `Buffer` object for a file. It
-  performs lazy loading where possible but ensures the `Syntax` engine scans
-  lines for coloring.
+* **Quadruple-click:** Triggers `action-select-paragraph`.
 
-* **Saving:** Checks the `:modified` flag on the buffer. It uses `file-stream`
-  to write the `buffer_lines` list back to disk.
+### 4. Key Subsystems
 
-## 5. User Interface Implementation
+#### 4.1 Search and Replace (`search.inc`)
 
-### 5.1 Widget Hierarchy (`widgets.inc`)
+Local search compiles the search query (`query` in `searching.inc`) and utilizes
+the `:find` method on the `Buffer`. Replacement uses `replace-compile` to build
+an optimized replacement template, patching capture group indices during edits
+via `:iinsert` and `:idelete`. Global searches are delegated to the distributed
+network via `pipe-farm`.
 
-The layout is defined using a declarative UI macro syntax.
+#### 4.2 The Macro Subsystem (`macros.inc`)
 
-* **Main Container:** A `ui-flow` that organizes toolbars and the main editing
-  area.
+When `*macro_record*` is active, user interactions matching `*recorded_actions*`
+are logged to a record buffer in `+macro_map`.
 
-* **Navigation:** A file tree (`ui-files`) is placed on the left or right
-  (depending on configuration) to browse the project directory.
+* **Playback Slots:** Supports saving macros to 10 independent slots (`0` to
+  `9`).
 
-* **Status Bar:** Located at the bottom, updating dynamically based on cursor
-  position (`*cx*`, `*cy*`) and selection status.
+* **Execution Modes:** Playback can run once, to the end of the file
+  (`action-macro-to-eof`), or globally across all open buffers
+  (`action-macro-global`).
 
-### 5.2 Event Dispatch (`actions.inc`)
+* **Recursive Safety:** Playback is protected against infinite recursion at
+  compile time by analyzing slot calls.
 
-The application uses a `scatter` map (hash map) to bind event IDs to functions.
+#### 4.3 Undo/Redo Subsystem (`undo.inc` / `buffer.inc`)
 
-* **`*event_map*`:** Maps UI button clicks (e.g., `+event_save`) to functions
-  (`action-save`).
+When editing, the `undoable` macro groups atomic edits inside a transaction
+boundaries by pushing a `:mark` and snapshotting active cursors.
 
-* **`*key_map*`:** Maps keyboard scancodes to movement or editing functions.
+* **Global Undo Coordination:** The global stack tracks buffer keys (the file
+  path string or `:nil` for the scratchpad) along with transaction marks.
 
-* **Dispatch Logic:** The `dispatch-action` function acts as the central router.
-  It checks modifiers (Shift/Ctrl), handles macro recording if active, and then
-  invokes the bound function via `eval`.
+* **Group Reversals:** Undoing or redoing pops the global transaction, switching
+  active buffers dynamically and calling `:rewind` or `:forwardwind` on each
+  affected buffer to sync their historical state.
 
-## 6. State Persistence (`state.inc`)
+#### 4.4 File Buffers and State Persistence (`state.inc`)
 
-The editor maintains continuity by saving its state to `editor.tre` in the
-user's home directory.
+Session state is saved to `editor.tre` in the user's home directory. It
+preserves:
 
-* **Data Saved:** Window dimensions, currently open files, cursor positions for
-  every open file, find/replace history, and recorded macros.
+* Window geometry (`x`, `y`, `width`, `height`).
 
-* **Mechanism:** It uses `tree-save` to serialize the `*meta_map*` (an `Emap`
-  containing configuration) to a structured text format. On startup,
-  `state-load` restores this environment, reopening files and restoring cursors
-  to their previous lines.
+* Search strings, regex, and whole-word flags.
 
-## 7. Remote Procedure Calls (RPC)
+* The open file list, including each buffer's cursors, selections, and scroll
+  positions.
 
-The editor registers itself as a service named "Edit".
+* Serialized/encoded macros across all 10 slots.
 
-* **Service Registration:** `(mail-declare (elem-get select +select_remote)
-  "Edit" ...)`
+### 5. User Interface and Event Dispatching
 
-* **Handling:** In the main loop, messages arriving at `+select_remote` are
-  parsed.
+#### 5.1 Declarative UI Construction
 
-* **Jump Command:** The `edit-jump-rpc` logic parses a payload string (e.g.,
-  "id|filename|line") and calls `action-breakpoint` to open the file and move
-  the cursor to the specific line, facilitating debugging integration.
+The UI is built using declarative macros (e.g., `ui-window`, `ui-flow`,
+`ui-scroll`, `ui-vdu`), enabling readable, non-backtracking layout
+configurations. The layout recalculates its metrics on window resize through a
+two-pass constraint and layout cycle.
 
-## Conclusion
+#### 5.2 Central Action Dispatcher (`app_impl.lisp` / `actions.inc`)
 
-In conclusion, the ChrysaLisp Editor serves as a definitive showcase of the
-operating system's architectural philosophy, combining a rigorous MVC separation
-with powerful, intrinsic features. Its reliance on the Buffer class enables
-complex multi-cursor editing natively, while its seamless integration with the
-distributed network allows for parallelized global search operations across
-available nodes. By incorporating self-persisting state management, a recordable
-macro system, and a service-oriented RPC interface for inter-process
-communication, the Editor demonstrates how high-level functionality can be built
-efficiently upon ChrysaLisp's low-level message-passing primitives.
+Events are routed through the `dispatch-action` function, which maps key inputs
+and UI events to their corresponding routines.
+
+```code
+              +--------------------+
+              |  Keyboard / Mouse  |
+              +--------------------+
+                        |
+                        v
+              +--------------------+
+              |    app_impl.lisp   |
+              |  (dispatch-action) |
+              +--------------------+
+                        |
+                  +----+----+
+                  |         |
+                  v         v
+              +----------+ +-----------+
+              |  Macro   | | Undo/Redo |
+              | Recorder | |  Tracker  |
+              +----------+ +-----------+
+                  |         |
+                  +----+----+
+                        |
+                        v
+              +--------------------+
+              |  Action Execution  | (e.g., action-insert)
+              +--------------------+
+```
+
+Keyboard events are categorized into three distinct maps to handle modifiers
+cleanly:
+
+* `*key_map*`: Maps raw scancodes (e.g., arrows, backspace, enter, tab).
+
+* `*key_map_shift*`: Handles shift modifiers (e.g., selecting text, outdenting).
+
+* `*key_map_control*`: Processes control commands (e.g., copy, paste, find,
+  macros, font scaling).
+
+### 6. Remote Procedure Calls (RPC)
+
+By registering with the local name server as the `"Edit"` service, the editor
+can receive cross-task messages. The `edit-jump-rpc` mechanism in `rpc.inc`
+allows external processes (such as compiling or debugging tasks) to transmit
+jump requests to the editor. The editor parses the `+edit_rpc_jump` message
+payload, opens the target file, and positions the primary cursor on the
+designated line.
+
+### Conclusion
+
+The ChrysaLisp Editor is a robust implementation of the operating system's
+architectural principles. By combining Model-View-Controller separation with
+low-overhead message-passing primitives, it achieves high performance within a
+small footprint. The native, FFI-bound cursor mapping and distributed parallel
+search engine demonstrate the speed and scalability of ChrysaLisp's Virtual
+Processor architecture.

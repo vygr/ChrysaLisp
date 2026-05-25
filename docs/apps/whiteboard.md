@@ -14,220 +14,178 @@ apps/media/whiteboard/widgets.inc *window* 512 512
 
 ## Implementation Study
 
-The ChrysaLisp Whiteboard, found in `apps/media/whiteboard/`, is a simple vector
-drawing application. It serves as an excellent case study for developers moving
-beyond text-based applications, demonstrating how to handle graphical input,
-manage complex object state, and implement features like undo/redo and file
-serialization. It showcases a different set of GUI components than the Editor,
-notably the `Canvas` and a custom `Stroke` capture widget.
+The ChrysaLisp Whiteboard, located in `apps/media/whiteboard/`, is a
+vector-based drawing and object manipulation application. It serves as an
+informative case study for developers transitioning from text-based utilities to
+interactive graphical environments, illustrating how to handle multi-touch
+inputs, manage complex transactional object states, perform spatial selection
+queries, and serialize vector data to disk.
 
 ### 1. Core Architecture and Components
 
-The Whiteboard application is a perfect illustration of the
-Model-View-Controller pattern in ChrysaLisp.
+The Whiteboard application is structured around a Model-View-Controller design
+tailored for ChrysaLisp's parallel, cooperative multitasking environment.
 
-*   **Model (The Drawing State):**
+* **Model (The Drawing State):**
 
-    * The core data of the application is the drawing itself. This is stored in
-        `app.lisp` in a few key Lisp `:list`s:
+    The core data represents the state of the vector canvas. This is stored in
+    `app.lisp` through several state variables:
 
-        * **`*committed_polygons*`**: A list where each element represents a
-            completed, flattened shape on the main canvas. This is the
-            "permanent" state of the drawing.
+    * **`*committed_groups*`**: A list of groups. Each group is structured as
+      `(group_bbox strokes flags)`, where `strokes` contains individual paths
+      with their respective color, polygon data, and local bounding box. It
+      represents the permanent vector state of the drawing.
 
-        * **`overlay_paths`**: A temporary list that holds the path(s) currently
-            being drawn by the user. It's cleared after each stroke is
-            finalized.
+    * **`*staging_paths*`**: A list of temporary, in-progress paths currently
+      being drawn or previewed on the canvas (e.g., pen lines, circle bounds,
+      selection boxes).
 
-        * **`*undo_stack*` and `*redo_stack*`**: Lisp `:list`s that store
-            previous states of `*committed_polygons*`, enabling the undo/redo
-            functionality.
+    * **`*grabbed_groups*` and `*moving_groups*`**: Lists used to track and
+      render groups currently selected and actively translated across the screen
+      by the user.
 
-    * The current tool settings are also part of the model's state:
-        `*stroke_col*`, `*stroke_radius*`, and `*stroke_mode*` store the
-        selected color, line width, and drawing tool (pen, line, box, etc.).
+    * **`*undo_stack*` and `*redo_stack*`**: Stacks storing snapshots of
+      `*committed_groups*` to facilitate transactional state reversal.
 
-*   **View (User Interface):**
+* **View (User Interface):**
 
-    * **`apps/media/whiteboard/widgets.inc`:** This file defines the UI. The central
-        element is a `ui-stack` widget named `*strokes_stack*`. This stack
-        cleverly overlays three different widgets to create the drawing
-        experience:
+    Defined in `apps/media/whiteboard/widgets.inc`, the drawing area utilizes a
+    `ui-flow` layout named `*strokes_stack*` with the `+flow_stack_fill` flag to
+    overlay several components:
 
-        1. **`*backdrop*` (bottom layer):** A `Backdrop` widget that provides
-            the background grid, axis, or plain color.
+    1. **`*backdrop*` (bottom layer):** A `Backdrop` widget rendering background
+       styles (plain, grid, lines, or axis) and handling canvas snapping.
 
-        2. **`*committed_canvas*` (middle layer):** A `Canvas` widget that
-            displays the finalized drawing by rendering the polygons from
-            `*committed_polygons*`.
+    2. **`*committed_canvas*` (middle layer):** A `Canvas` widget dedicated to
+       rendering finalized, static groups from `*committed_groups*`.
 
-        3. **`*overlay_canvas*` (top layer):** A `Canvas` widget used to render
-            the stroke currently being drawn (`overlay_paths`) in real-time,
-            providing immediate visual feedback.
+    3. **`*staging_canvas*` (top layer):** An independent `Canvas` widget
+       rendering active `*staging_paths*` and `*moving_groups*` dynamically
+       during drag operations.
 
-        4. **`*strokes*` (input layer):** A `Stroke` widget, which is a
-            specialized, transparent view placed on top of everything else. Its
-            sole purpose is to capture mouse drag events and report them as a
-            series of points.
+    4. **`*strokes*` (input layer):** A transparent `ui-stroke` widget at the
+       very top of the stack, designed solely to capture mouse/touch events and
+       emit raw coordinates.
 
-    * The rest of the UI consists of toolbars (`*main_toolbar*`,
-        `*mode_toolbar*`, etc.) populated with `Button`s and `Radiobar`s for
-        selecting tools and actions.
+* **Controller (Event Handling and Logic):**
 
-*   **Controller (Event Handling and Logic):**
+    * **`apps/media/whiteboard/app.lisp`**: Runs the main event loop, receiving
+      messages from the UI and timeouts. It implements the primary input
+      processing logic like `action-stroke`.
 
-    * **`apps/media/whiteboard/app.lisp`:** The `main` function runs the core event
-        loop, receiving messages from the UI and timers.
+    * **`apps/media/whiteboard/ui.inc`**: Implements standard action handlers
+      mapped by `*event_map*` in `actions.inc`, such as toolbar selections,
+      undo/redo, file operations, grouping, and alignment.
 
-    * **`apps/media/whiteboard/actions.inc`:** Defines the `*event_map*` which maps
-        user interactions (like clicking a tool button) to handler functions.
+### 2. The Drawing Lifecycle: Input to Vector Geometry
 
-    * **`apps/media/whiteboard/ui.inc`:** Implements the handler functions. These
-        functions are responsible for modifying the Model (e.g., changing
-        `*stroke_mode*` or adding a polygon to `*committed_polygons*`) and
-        triggering redraws of the View.
+The drawing lifecycle handles coordinate conversion, path smoothing, and
+rendering across separated canvas layers:
 
-### 2. The Drawing Lifecycle: From Mouse Click to Committed Shape
+1. **Input Capture**: When the user drags across the canvas, `*strokes*`
+   (`gui/stroke/lisp.inc`) records the coordinate streams.
 
-Understanding the sequence of events when a user draws a line is key to
-understanding the app's architecture.
+2. **Event Dispatch**: The `*strokes*` widget emits a `+event_stroke` message
+   containing the accumulated paths and touch states.
 
-1.  **Input Capture:** The user clicks and drags the mouse over the main drawing
-    area. The transparent `*strokes*` widget (`gui/stroke/lisp.inc`) captures
-    these events. It does not draw anything itself; it simply collects the
-    coordinates of the mouse path into an internal list.
+3. **Active Staging**: The event loop dispatches the message to `action-stroke`
+   in `app.lisp`.
 
-2.  **Event Emission:** As the user moves the mouse (or releases the button),
-    the `*strokes*` widget emits an `+event_stroke` event. This event's message
-    contains the list of points for the current stroke(s).
+    * If the selected tool is `+event_pen`, the coordinate stream is smoothed
+      using `path-smooth`.
 
-3.  **Action Dispatch:** The main event loop receives this message and, via
-    `*event_map*`, calls the `action-stroke` function in `ui.inc`.
+    * The points are converted to fixed-point format via `n2f` and filtered
+      using `path-filter` with a tolerance threshold `+tol`.
 
-4.  **Overlay Drawing:**
+    * The path is passed to `flatten_path` to generate output shapes (polylines
+      with rounded caps for the pen, bevel caps for arrows, or calculated
+      polygons for boxes/circles).
 
-    * `action-stroke` gets the raw point data from the `*strokes*` widget.
+    * The temporary geometry is pushed to `*staging_paths*`. `redraw-layers`
+      flags `+layer_staging` to refresh the `*staging_canvas*` without redrawing
+      the static committed canvas beneath it.
 
-    * It calls `flatten_path` to convert this raw data into a renderable
-        polygon. The shape of the polygon depends on the currently selected
-        `*stroke_mode*` (e.g., a simple polyline for the pen, or a rectangle for
-        the box tool).
+4. **Committing the Stroke**: Upon releasing the mouse (`commits` evaluates to
+   true):
 
-    * This flattened path is stored in the temporary `overlay_paths` list.
+    * A `(snapshot)` of the `*committed_groups*` is pushed onto `*undo_stack*`.
 
-    * `redraw-layers` is called with a mask that only includes the
-        `+layer_overlay`. This causes the `*overlay_canvas*` to be redrawn,
-        showing the user the line they are currently drawing in real-time.
+    * The path is committed to `*committed_groups*` via `(commit p front)`.
 
-5.  **Committing the Stroke:** When the user releases the mouse button, the
-    `*strokes*` widget signals that the stroke is complete.
+    * If consecutive strokes occur within the `*group_timeout*` threshold, the
+      new stroke is added directly to the existing group (using `cat` to create
+      a new list, preventing accidental mutation of shared undo stack entries).
+      Otherwise, a new group is initialized via `create-group`.
 
-    * The `action-stroke` function calls `(snapshot)` to save the current state
-        of `*committed_polygons*` to the `*undo_stack*`.
+    * The temporary `*staging_paths*` list is cleared, and `+layer_all` is
+      flagged to trigger a complete redraw.
 
-    * It then calls `(commit p)` to take the final path from `overlay_paths` and
-        append it to the main `*committed_polygons*` list.
+### 3. Selection, Grouping, and Alignment
 
-    * `overlay_paths` is cleared.
+The Whiteboard provides advanced vector manipulation utilities beyond basic path
+drawing:
 
-6.  **Final Redraw:**
+* **Selection Mode (`+event_select`)**: The user drags a selection box. The
+  application performs a bounding box intersection check or an exact polygon
+  point-in-polygon test via `vector-point-in-polygon`. Matching groups are
+  tagged with `+group_selected` in their flags field.
 
-    * `redraw-layers` is called with the `+layer_all` mask.
+* **Move Mode (`+event_move`)**: When dragging selected items, `action-stroke`
+  uses `*grabbed_groups*` to track selected elements and offset their path
+  coordinates. It draws the displaced shapes onto `*staging_canvas*` as
+  `*moving_groups*` until committed.
 
-    * This triggers `redraw` (`app.lisp`), which redraws both canvases. The
-        `*overlay_canvas*` is cleared, and the `*committed_canvas*` is redrawn
-        with the newly added shape.
+* **Grouping & Ungrouping**:
 
-    * Finally, the `*strokes*` widget's internal buffer is cleared, ready for
-        the next input.
+    * `action-group` filters selected groups, concatenates their internal stroke
+      arrays, and generates a new merged group utilizing `create-group` with the
+      `+group_selected` flag set.
 
-### 3. State Management and Tool Selection
+    * `action-ungroup` splits composite groups back into individual stroke
+      elements, keeping each resulting group selected.
 
-The various toolbars allow the user to change the drawing parameters. This is
-handled by a simple state-change pattern.
+* **Alignment**: `align-selected` calculates the collective bounding box of all
+  selected groups, determines the target alignment edge (`:left`, `:vcenter`,
+  `:right`, `:top`, `:hcenter`, `:bottom`), and applies a translation offset
+  vector to each polygon coordinate.
 
-*   **Tool Selection:** Widgets like `*ink_toolbar*`, `*radius_toolbar*`, and
-    `*mode_toolbar*` are `Radiobar`s. When a button in a `Radiobar` is clicked,
-    it emits its associated event (`+event_ink`, `+event_radius`, `+event_pen`).
+### 4. Transactional State Snapshots (Undo / Redo)
 
-*   **Action Handlers:** The corresponding action handlers in `ui.inc` are
-    extremely simple. For example:
+The undo/redo engine leverages Lisp's immutable list sharing characteristics to
+optimize memory usage:
 
-    ```vdu
-    (defun action-radius ()
-        (setq *stroke_radius* (elem-get *radiuss* (. *radius_toolbar* :get_selected))))
-    ```
+* **Shallow Copying**: The `(snapshot)` function performs `(push *undo_stack*
+  (cat *committed_groups*))`. By copying only the top-level list of group
+  references, it creates a fast, low-overhead snapshot.
 
-    This function simply updates the global `*stroke_radius*` variable. It
-    doesn't trigger any drawing itself. The new radius value will be used the
-    *next* time `action-stroke` is called. The same pattern applies to color and
-    drawing mode.
+* **Preventing Mutability Leakage**: When appending a new stroke to an existing
+  group, `(commit)` creates a new list using `cat` to modify the group structure
+  rather than mutating it in-place. This ensures that historical snapshots
+  stored in the `*undo_stack*` remain preserved.
 
-### 4. Undo and Redo System (`apps/media/whiteboard/undo.inc`)
+### 5. File I/O and Service Integration
 
-The undo system is a classic example of a state-snapshot implementation.
+The Whiteboard application demonstrates ChrysaLisp’s service-oriented design and
+inter-process messaging patterns:
 
-*   **`*undo_stack*` & `*redo_stack*`:** Two lists that hold previous versions
-    of the `*committed_polygons*` list.
+* **Leveraging External Services**: Instead of maintaining a complex, custom
+  file dialog within the whiteboard, the application requests the system's file
+  browser (`apps/system/files/child.lisp`) as an independent child task via
+  `(open-child ...)` with the `+kn_call_open` flag.
 
-*   **`snapshot()`:** This function is the core of the system. It is called
-    *before* any change is made to `*committed_polygons*` (e.g., in
-    `action-stroke` or `action-clear`). It pushes a *full copy* of the current
-    `*committed_polygons*` list onto the `*undo_stack*` and clears the
-    `*redo_stack*`.
+* **Asynchronous Message Exchange**: The Whiteboard passes a temporary mailbox
+  (`*picker_mbox*`) to the file browser. The main loop listens on this port.
+  When the user selects a file, the file browser sends the path back as a
+  string, and the temporary mailbox is closed.
 
-*   **`action-undo()`:**
+* **Structured Tree Serialization**:
 
-    1. Pushes the *current* `*committed_polygons*` state onto the `*redo_stack*`.
+    * **Saving**: `action-save` serializes the vector model via `tree-save` into
+      a `.cwb` (ChrysaLisp Whiteboard) formatted text file. It strips out
+      selection flags from the exported group structures to ensure clean file
+      state on load.
 
-    2. Pops the *previous* state from the `*undo_stack*` and makes it the new
-        `*committed_polygons*`.
-
-    3. Calls `(redraw-layers +layer_committed)` to update the view.
-
-*   **`action-redo()`:** Reverses the process, popping from redo and pushing to
-    undo.
-
-While simple, this method is robust and easy to implement. For an application
-with a more complex state, this could become memory-intensive, but for a list of
-polygons, it is perfectly adequate.
-
-### 5. File I/O and Inter-App Communication
-
-The Whiteboard demonstrates how a ChrysaLisp application can use another
-application as a service-in this case, using the File Browser app as a "file
-dialog."
-
-*   **`action-save` & `action-load`:** These functions do not implement their
-    own file browser UI. Instead, they launch the `apps/files/child.lisp`
-    application as a new task using `(open-child ...)`.
-
-*   **Communication:** They pass a newly created mailbox (`*picker_mbox*`) to
-    the file browser task. The main application then waits for a message on this
-    mailbox, which will contain the file path selected by the user.
-
-*   **Serialization (`tree-save`, `tree-load`):** Once a filename is received,
-    `action-save` uses `(tree-save ...)` from `lib/collections/tree.inc` to
-    serialize the application's state (specifically, the `*committed_polygons*`
-    list) into a text file with a `.cwb` extension. `action-load` uses
-    `(tree-load ...)` to parse this file and restore the state. This
-    demonstrates a simple, human-readable persistence format.
-
-## Conclusion
-
-The Whiteboard app is an excellent "next step" after the Template. It introduces
-fundamental concepts for graphical applications, including:
-
-*   A layered `Canvas` approach for separating background, committed, and
-    in-progress drawing.
-
-*   The use of a dedicated, non-rendering `Stroke` widget for capturing user
-    input.
-
-*   A clear, state-driven drawing pipeline where tool selection modifies global
-    state, and drawing actions use that state to produce graphical output.
-
-*   A straightforward and effective snapshot-based undo/redo system.
-
-*   A powerful example of inter-application communication, leveraging the File
-    Browser app to act as a system service.
+    * **Loading**: `tree-load` deserializes the file. The loader contains
+      backward-compatibility parsing logic for older versions (Version 2, which
+      used a flat list of `polygons`) and normalized validation for the current
+      Version 3 groups.
