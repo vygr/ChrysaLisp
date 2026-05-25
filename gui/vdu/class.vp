@@ -62,7 +62,7 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this txt font)
+		(ptr this font)
 		(long handle c)
 		(int x bx by bx1 by1)
 		(uint w h col paper ink))
@@ -94,6 +94,7 @@
 			(assign {bx} {x})
 			(loop-while {x <= bx1})
 				(assign {(this->+vdu_chars)[(by * this->+vdu_width + x) * +long_size]} {c})
+				;attributes
 				(vpif {c >> 32 => ink})
 					;has attributes
 					(call :pixmap :to_argb32 {ink >> 16, 15} {paper})
@@ -112,13 +113,22 @@
 					(call :ctx :set_color {this, paper})
 					(call :ctx :filled_box {this, x * this->+vdu_char_width, by * this->+vdu_char_height, this->+vdu_char_width, this->+vdu_char_height})
 				(endif)
-				(vpif {(c & 0x7fffffff => c) /= +char_lf})
-					(vpif {c > 0x7f || c < +char_space})
-						(assign {0x7f} {c})
+				;char texture
+				(vp-rdef (txt c))
+				(assign {c} `(,c))
+				(vp-and-cr 0x7fffffff c)
+				(vpif `(,c /= +char_lf))
+					(gotoif `(,c < +char_space) 'cntl_char)
+					(vpif `(,c > 0x7f))
+					(vp-label 'cntl_char)
+						(assign '(0x7f) `(,c))
 					(endif)
-					(call :list :get_elem {this->+vdu_textures, c - 33} {_, txt})
-					(call :texture :get_metrics {txt} {_, handle, w ,h})
+					(vp-sub-cr 33 c)
+					(assign {this->+vdu_textures} `(,txt))
+					(call :list :get_elem `(,txt ,c) `(_ ,txt))
+					(call :texture :get_metrics `(,txt) {_, handle, w ,h})
 					(vpif {handle})
+						;blit the char texture
 						(call :ctx :blit {this, handle, ink, x * this->+vdu_char_width + ((this->+vdu_char_width - w) >>> 1), by * this->+vdu_char_height, w, h})
 					(endif)
 				(endif)
