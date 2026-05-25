@@ -88,7 +88,7 @@ report me in your "hash code I have written" blog :)
 Here we see the field defined in the `:str` instance.
 
 ```file
-class/str/class.inc "seq_size" ""
+class/str/struct.inc "seq_size" ""
 ```
 
 ## Lisp level binding
