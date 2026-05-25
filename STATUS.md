@@ -29,7 +29,10 @@ Edit app undo/redo now jump to the known group transaction markers. Plus only
 perform tab expand/compress on syntax aware buffers.
 
 Docs app now uses a Document buffer and memory-stream to collect and display
-`file` markup handler content.
+`file`, `vdu` and `code` markup handler content.
+
+Vdu widget now shows up any embedded control chars, not LF, present. And cleaned
+up the Usage info sections of commands apps to not use embedded tabs.
 
 ------
 
