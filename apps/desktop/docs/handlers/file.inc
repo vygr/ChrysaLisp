@@ -39,15 +39,11 @@
 
 			;calculate the minimum margin directly from the pre-expanded buffer lines
 			(defq margin +max_int lines (. buffer :get_buffer_lines))
-			(each (# (task-slice)
-					(and (defq m (find "(" %0)) (setq margin (min m margin))))
-				lines)
+			(each (# (and (defq m (find "(" %0)) (setq margin (min m margin)))) lines)
 			;strip the common margin in-place
 			(when (and (/= margin 0) (/= margin +max_int))
-				(each (lambda (&ignore) (task-slice)
-						(. buffer :idelete 0 (!)
-							(min margin (length (. buffer :get_text_line (!)))) (!)))
-					lines))
+				(each (lambda (line)
+					(. buffer :idelete 0 (!) (min margin (length line)) (!))) lines))
 
 			;measure and configure the Vdu
 			(bind '(w h) (. buffer :get_size))
