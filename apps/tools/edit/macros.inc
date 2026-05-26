@@ -31,9 +31,9 @@
     (when (and (defq actions (. +macro_map :find (ifn slot 0)))
             (> (length actions) 0))
         (push *refresh_mode* 1)
-        (defq buffer (. *edit* :get_buffer) running :t)
+        (defq buffer (. *edit* :get_buffer)
+			running :t old_eof (. buffer :eof))
         (undoable buffer
-            (defq old_eof (. buffer :eof))
             (while (and running (> old_eof 0))
                 (macro-playback actions)
                 (if running
