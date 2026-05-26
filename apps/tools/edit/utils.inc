@@ -75,3 +75,9 @@
 		sy (max 0 (- cy window))
 		ey (min (length lines) (+ cy window 1)))
 	(split (join (slice lines sy ey) " ") +char_class_not_whole_word))
+
+(defmacro defaction (method &rest args)
+	(defq func (sym (cat "action-" (join (split (rest method) "_") "-"))))
+	`(defun ,func (~args)
+		(. *edit* ,method ~args)
+		(refresh)))

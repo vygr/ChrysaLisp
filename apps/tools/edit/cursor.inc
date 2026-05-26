@@ -2,85 +2,26 @@
 ; cursor actions
 ;;;;;;;;;;;;;;;;
 
-(defun action-top ()
-	(. *edit* :top)
-	(refresh))
-
-(defun action-bottom ()
-	(. *edit* :bottom)
-	(refresh))
-
-(defun action-home ()
-	(. *edit* :home)
-	(refresh))
-
-(defun action-end ()
-	(. *edit* :end)
-	(refresh))
-
-(defun action-left ()
-	(. *edit* :left)
-	(refresh))
-
-(defun action-right ()
-	(. *edit* :right)
-	(refresh))
-
-(defun action-up ()
-	(. *edit* :up)
-	(refresh))
-
-(defun action-down ()
-	(. *edit* :down)
-	(refresh))
-
-(defun action-top-select ()
-	(. *edit* :top_select)
-	(refresh))
-
-(defun action-bottom-select ()
-	(. *edit* :bottom_select)
-	(refresh))
-
-(defun action-home-select ()
-	(. *edit* :home_select)
-	(refresh))
-
-(defun action-end-select ()
-	(. *edit* :end_select)
-	(refresh))
-
-(defun action-left-select ()
-	(. *edit* :left_select)
-	(refresh))
-
-(defun action-right-select ()
-	(. *edit* :right_select)
-	(refresh))
-
-(defun action-up-select ()
-	(. *edit* :up_select)
-	(refresh))
-
-(defun action-down-select ()
-	(. *edit* :down_select)
-	(refresh))
-
-(defun action-left-bracket ()
-	(. *edit* :left_bracket)
-	(refresh))
-
-(defun action-right-bracket ()
-	(. *edit* :right_bracket)
-	(refresh))
-
-(defun action-left-white-space ()
-	(. *edit* :left_white_space)
-	(refresh))
-
-(defun action-right-white-space ()
-	(. *edit* :right_white_space)
-	(refresh))
+(defaction :top)
+(defaction :bottom)
+(defaction :home)
+(defaction :end)
+(defaction :left)
+(defaction :right)
+(defaction :up)
+(defaction :down)
+(defaction :top-select)
+(defaction :bottom-select)
+(defaction :home-select)
+(defaction :end-select)
+(defaction :left-select)
+(defaction :right-select)
+(defaction :up-select)
+(defaction :down-select)
+(defaction :left-bracket)
+(defaction :right-bracket)
+(defaction :left-white-space)
+(defaction :right-white-space)
 
 (defun action-push ()
 	(bind '(cx cy &ignore) (. *edit* :get_cursor))

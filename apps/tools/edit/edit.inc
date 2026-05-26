@@ -2,21 +2,10 @@
 ; editing actions
 ;;;;;;;;;;;;;;;;;
 
-(defun action-insert (text)
-	(. *edit* :insert text)
-	(refresh))
-
-(defun action-backspace ()
-	(. *edit* :backspace)
-	(refresh))
-
-(defun action-delete ()
-	(. *edit* :delete)
-	(refresh))
-
-(defun action-break ()
-	(. *edit* :break)
-	(refresh))
+(defaction :insert text)
+(defaction :backspace)
+(defaction :delete)
+(defaction :break)
 
 (defun action-tab ()
 	(defq buffer (. *edit* :get_buffer))

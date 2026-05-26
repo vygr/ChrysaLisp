@@ -2,46 +2,14 @@
 ; block actions
 ;;;;;;;;;;;;;;;
 
-(defun action-left-tab ()
-	(. *edit* :left_tab)
-	(refresh))
-
-(defun action-right-tab ()
-	(. *edit* :right_tab)
-	(refresh))
-
-(defun action-to-lower ()
-	(. *edit* :to_lower)
-	(refresh))
-
-(defun action-to-upper ()
-	(. *edit* :to_upper)
-	(refresh))
-
-(defun action-reflow ()
-	(. *edit* :reflow)
-	(refresh))
-
-(defun action-split ()
-	(. *edit* :split)
-	(refresh))
-
-(defun action-sort ()
-	(. *edit* :sort)
-	(refresh))
-
-(defun action-unique ()
-	(. *edit* :unique)
-	(refresh))
-
-(defun action-invert ()
-	(. *edit* :invert)
-	(refresh))
-
-(defun action-comment ()
-	(. *edit* :comment)
-	(refresh))
-
-(defun action-trim ()
-	(. *edit* :trim)
-	(refresh))
+(defaction :left_tab)
+(defaction :right_tab)
+(defaction :to_lower)
+(defaction :to_upper)
+(defaction :reflow)
+(defaction :split)
+(defaction :sort)
+(defaction :unique)
+(defaction :invert)
+(defaction :comment)
+(defaction :trim)
