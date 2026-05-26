@@ -47,13 +47,13 @@
 
 	(push-scope)
 	(assign `(,this ,args) {this, args})
-	
+
 	(vp-rdef (buf pos chunk hash_table))
 	(list-bind-args :r1 `(,buf ,pos ,chunk ,hash_table) '(:obj :num :obj :obj))
 	(assign `(,buf ,pos ,chunk ,hash_table) {buf, pos, chunk, hash_table})
 
 	(assign {buf->+str_length, chunk->+str_length} {cap, c_len})
-	(assign {cap - 1, &buf->+str_data, &chunk->+str_data, hash_table->+array_begin} 
+	(assign {cap - 1, &buf->+str_data, &chunk->+str_data, hash_table->+array_begin}
 		{mask, buf, chunk, hash_table})
 
 	; --- 1. Write chunk into logical ring buffer ---
@@ -231,9 +231,9 @@
 	(push-scope)
 	;spill this and args to CScript stack
 	(assign `(,this ,args) {saved_this, saved_args})
-	
+
 	(list-bind-args args `(,buf ,pos ,chunk) '(:obj :num :obj))
-	(assign `((,chunk +str_length) (,buf +str_length) (& ,chunk +str_data) (& ,buf +str_data)) 
+	(assign `((,chunk +str_length) (,buf +str_length) (& ,chunk +str_data) (& ,buf +str_data))
 		`(,c_len ,mask ,chunk ,buf))
 	(vp-sub-cr 1 mask)
 	(vp-xor-rr c_pos c_pos)
@@ -248,7 +248,7 @@
 		(vp-cpy-rr token lit_len)
 		(vp-shr-cr 4 lit_len)
 		(vpif `(,lit_len = 15))
-			(vp-rdef (v) '(:r0)) 
+			(vp-rdef (v) '(:r0))
 			(loop-while `(,c_pos < ,c_len))
 				(vp-cpy-dr-ub chunk c_pos v)
 				(vp-add-cr 1 c_pos)
@@ -268,15 +268,15 @@
 			;extract correct registers for call mapping (volatile :r0-:r4)
 			(vp-rdef (cp_src cp_dst cp_len cp_cap cp_buf)
 				(method-input :sys_mem :copy_to_ring))
-			
+
 			;setup call arguments in volatiles
 			(assign `(,c_pos ,pos ,mask ,buf ,lit_len)
 				`(,cp_src ,cp_dst ,cp_cap ,cp_buf ,cp_len))
-			(vp-add-rr chunk cp_src)      ; cp_src = chunk + c_pos
+			(vp-add-rr chunk cp_src)	  ; cp_src = chunk + c_pos
 			(vp-and-rr mask cp_dst)
-			(vp-add-rr buf cp_dst)        ; cp_dst = buf + (pos & mask)
-			(vp-add-cr 1 cp_cap)          ; cp_cap = mask + 1
-			
+			(vp-add-rr buf cp_dst)		  ; cp_dst = buf + (pos & mask)
+			(vp-add-cr 1 cp_cap)		  ; cp_cap = mask + 1
+
 			;advance loop positions BEFORE the sys_mem call trashes lit_len!
 			(vp-simd vp-add-rr `(,lit_len) `(,c_pos ,pos))
 			(call :sys_mem :copy_to_ring `(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
@@ -287,7 +287,7 @@
 		;match
 		(vp-add-cr 1 c_pos)
 		(breakif `(,c_pos >= ,c_len))
-		
+
 		;read 16-bit little-endian offset securely
 		(vp-rdef (t1) '(:r0))
 		(vp-cpy-dr-ub chunk c_pos t1)
@@ -313,16 +313,16 @@
 			;bulk copy
 			(vp-rdef (cp_src cp_dst cp_len cp_cap cp_buf)
 				(method-input :sys_mem :copy_in_ring))
-			
+
 			(vp-rdef (m_pos) '(:r0))
 			(vp-cpy-rr pos m_pos)
 			(vp-sub-rr offset m_pos)
-			(assign `(,m_pos ,pos ,match_len ,mask ,buf) 
+			(assign `(,m_pos ,pos ,match_len ,mask ,buf)
 				`(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
 			(vp-add-cr 1 cp_cap)
 			(vp-simd vp-and-rr `(,mask) `(,cp_src ,cp_dst))
 			(vp-simd vp-add-rr `(,buf) `(,cp_src ,cp_dst))
-			
+
 			;advance pos BEFORE call trashes match_len
 			(vp-add-rr match_len pos)
 			(call :sys_mem :copy_in_ring `(,cp_src ,cp_dst ,cp_len ,cp_cap ,cp_buf))
@@ -387,7 +387,7 @@
 	(assign {buf->+str_length, &buf->+str_data} {cap, buf})
 	(assign {pos & (cap - 1)} {start})
 	(assign {cap - start} {space})
-	
+
 	(vpif {in_len <= space})
 		(call :stream :read {stm, buf + start, in_len})
 	(else)

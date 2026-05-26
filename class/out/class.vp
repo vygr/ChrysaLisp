@@ -219,7 +219,7 @@
 	(vp-add-cr +stream_msg_data bufp)
 	(save-fields this '(+stream_buffer +stream_bufp +stream_bufe) `(,buffer ,bufp ,bufe))
 
-	(exit :out :write_next  `(,this))
+	(exit :out :write_next `(,this))
 	(vp-ret)
 
 (def-func-end)

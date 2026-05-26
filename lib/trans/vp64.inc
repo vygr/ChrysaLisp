@@ -22,8 +22,8 @@
 	ci)
 
 (defmacro vp64-within (c n)
-    (defq limit (<< 1 (dec n)))
-    `(<= ,(neg limit) ,c ,(dec limit)))
+	(defq limit (<< 1 (dec n)))
+	`(<= ,(neg limit) ,c ,(dec limit)))
 
 (defun vp64-cr (o c r)
 	(cond

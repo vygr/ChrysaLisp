@@ -38,7 +38,7 @@
 
 	;try to claim host_a (embedded in chan_1 alignment padding)
 	(vpifnot {mem->lk_shmem_host_a.+node_id_node1})
-		(assign {node_id.+node_id_node1, node_id.+node_id_node2} 
+		(assign {node_id.+node_id_node1, node_id.+node_id_node2}
 			{mem->lk_shmem_host_a.+node_id_node1, mem->lk_shmem_host_a.+node_id_node2})
 		;wait a fraction for bus propagation / simultaneous write collisions
 		(call :sys_task :sleep '(100))
@@ -49,7 +49,7 @@
 	(vpif {mem->lk_shmem_host_a.+node_id_node1 /= node_id.+node_id_node1})
 		(assign {0} {is_owner})
 		;register as guest in host_b
-		(assign {node_id.+node_id_node1, node_id.+node_id_node2} 
+		(assign {node_id.+node_id_node1, node_id.+node_id_node2}
 			{mem->lk_shmem_host_b.+node_id_node1, mem->lk_shmem_host_b.+node_id_node2})
 	(endif)
 

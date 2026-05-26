@@ -741,7 +741,7 @@
 			(vpif `(,i /= ,j))
 				(vp-cpy-rr j i)
 			(endif)
-			(call :str :bskipn  `(,string ,cls ,i) `(_ _ ,j))
+			(call :str :bskipn `(,string ,cls ,i) `(_ _ ,j))
 			(vpif `(,i /= ,j))
 				(d-call :str :slice `(,string ,i ,j) '(:r1))
 				(assign {lst} '(:r0))

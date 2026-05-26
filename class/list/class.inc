@@ -53,7 +53,7 @@
 	;outputs
 	;load and cast register list from list
 	(bind '(src types dst)
-		(reduce! (#	(when (nql %2 '&)
+		(reduce! (# (when (nql %2 '&)
 			(push (first %0) %1)
 			(push (second %0) %2)
 			(push (third %0) %3))

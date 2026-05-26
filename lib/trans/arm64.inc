@@ -15,7 +15,7 @@
 		:r15											;indirect (x8)
 		:r16 :r17 :r18 :r19 :r20 :r21 :r22				;temps (x9-x15)
 		:r23 :r24 :r25									;ip0, ip1, platform
-		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :rsp	;callee saves (x19-x28)
+		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :rsp ;callee saves (x19-x28)
 		:r29 :r30 :r31)
 	(reduce (# (def %0 %1 (!)) %0)
 		'(:f16 :f17 :f18 :f19 :f20 :f21 :f22 :f23		;d0-d7 (Volatile / Args / Ret)
@@ -659,7 +659,7 @@
 
 ;LDP/STP Encodings (Bits 25:23 = 010)
 (defun emit-arm64-ldp (s c d1 d2) (arm64-ldpstp 0xA9400000 (>>> c (const (log2 +long_size))) d2 s d1))
-(defun emit-arm64-ldp-i (s c d1 d2)  (arm64-ldpstp 0x69400000 (>>> c (const (log2 +int_size))) d2 s d1))
+(defun emit-arm64-ldp-i (s c d1 d2) (arm64-ldpstp 0x69400000 (>>> c (const (log2 +int_size))) d2 s d1))
 (defun emit-arm64-ldp-ui (s c d1 d2) (arm64-ldpstp 0x29400000 (>>> c (const (log2 +int_size))) d2 s d1))
 (defun emit-arm64-ldp-f (s c d1 d2) (arm64-ldpstp 0x6D400000 (>>> c (const (log2 +long_size))) d2 s d1))
 (defun emit-arm64-stp (s1 s2 d c) (arm64-ldpstp 0xA9000000 (>>> c (const (log2 +long_size))) s2 d s1))

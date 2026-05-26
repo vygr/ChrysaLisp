@@ -71,7 +71,7 @@
 				(mail-timeout (elem-get select +select_timer) timer_rate 0)
 				(. farm :refresh retry_timeout))))
 	(. farm :close)
-	(task-count 1)  ;we where only collating results !
+	(task-count 1)	;we where only collating results !
 	results)
 
 ;module

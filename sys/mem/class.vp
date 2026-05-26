@@ -11,8 +11,8 @@
 
 	;mem_slots heaps
 	(vp-add-cr statics_sys_mem_heaps :r0)
-	(vp-cpy-cr +mem_cell_min_size :r4)    ;start object size
-	(vp-cpy-cr +max_cell_count :r3)       ;start cell count
+	(vp-cpy-cr +mem_cell_min_size :r4)	  ;start object size
+	(vp-cpy-cr +max_cell_count :r3)		  ;start cell count
 	(vp-lea-i :r0 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r5)
 	(loop-start)
 		(vp-add-cr +sys_mem_header_size :r4)

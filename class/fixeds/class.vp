@@ -47,7 +47,7 @@
 
 	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
-		(#  (errorif `(,%%1 = 0) 'error)
+		(#	(errorif `(,%%1 = 0) 'error)
 			(vp-shl-cr +fp_shift %0)
 			(vp-ext-rr %0 high)
 			(vp-div-rrr %1 high %0)
@@ -78,7 +78,7 @@
 
 	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
-		(#  (errorif `(,%%1 = 0) 'error)
+		(#	(errorif `(,%%1 = 0) 'error)
 			(vp-cpy-rr %0 t0)
 			(vp-shl-cr +fp_shift %0)
 			(vp-ext-rr %0 high)
