@@ -2,20 +2,16 @@
 ; macro actions
 ;;;;;;;;;;;;;;;
 
-(defq +macro_map (scatter (Lmap) 0 (list) 1 (list) 2 (list) 3 (list) 4 (list)
-	5 (list) 6 (list) 7 (list) 8 (list) 9 (list)))
+(defq +macro_map (apply scatter (reduce
+	(# (push %0 %1 (list))) +range_0_10 (list (Lmap)))))
 
 (defun macro-playback (actions)
-	(some! (# (cond
-			((or (eql (defq func (first %0)) (const action-find-up))
-					(eql func (const action-find-down)))
-				(setq running (eval %0)))
-			(:t (eval %0) :t)))
-		(list actions) :t))
+	(every (# (if (find (first %0) (const `'(,action-find-up ,action-find-down)))
+			(setq running (eval %0)) (progn (eval %0) :t)))
+		actions))
 
 (defun macro-record (action)
-	(defq rec (. +macro_map :find 0))
-	(if (and (nempty? rec)
+	(if (and (nempty? (defq rec (. +macro_map :find 0)))
 			(eql (first action) (const action-insert))
 			(eql (first (defq last_action (last rec))) (const action-insert)))
 		;roll up inserts
@@ -23,29 +19,25 @@
 		(push rec action)))
 
 (defun action-macro-playback (&optional slot)
-	(setd slot 0)
-	(when (and (defq actions (. +macro_map :find slot))
+	(when (and (defq actions (. +macro_map :find (ifn slot 0)))
 			(> (length actions) 0))
-		(defq buffer (. *edit* :get_buffer) running :t)
 		(push *refresh_mode* 1)
-		(undoable buffer
-			(macro-playback actions))
+		(defq buffer (. *edit* :get_buffer) running :t)
+		(undoable buffer (macro-playback actions))
 		(pop *refresh_mode*)
 		(refresh)))
 
 (defun action-macro-to-eof (&optional slot)
-    (setd slot 0)
-    (when (and (defq actions (. +macro_map :find slot))
+    (when (and (defq actions (. +macro_map :find (ifn slot 0)))
             (> (length actions) 0))
-        (defq buffer (. *edit* :get_buffer) running :t)
         (push *refresh_mode* 1)
+        (defq buffer (. *edit* :get_buffer) running :t)
         (undoable buffer
             (defq old_eof (. buffer :eof))
             (while (and running (> old_eof 0))
                 (macro-playback actions)
-                (when running
-                    (defq new_eof (. buffer :eof))
-                    (if (>= new_eof old_eof)
+                (if running
+                    (if (>= (defq new_eof (. buffer :eof)) old_eof)
                         (setq running :nil)
                         (setq old_eof new_eof)))))
         (pop *refresh_mode*)
