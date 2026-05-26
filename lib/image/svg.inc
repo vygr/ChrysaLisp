@@ -183,7 +183,7 @@
 				(map (lambda (p) (path-transform transform p p))
 					(reduce (lambda (l (f p))
 						(cond
-							(f  ;closed
+							(f	;closed
 								(bind '(p1 p2) (path-stroke-polygon p (* 0.5 stroke_width)
 									stroke_linejoin))
 								(push l p1 p2))

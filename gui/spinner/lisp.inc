@@ -14,7 +14,7 @@
 		:text (str (get :value this)) :border *env_textfield_border*
 		:color +argb_white :min_width 32)
 	(def (defq up_button (Button)) :text (num-to-utf8 0xe946))
-	(def (defq down_button (Button)) :text  (num-to-utf8 0xe93b))
+	(def (defq down_button (Button)) :text (num-to-utf8 0xe93b))
 	(.-> this (:add_child label) (:add_child button_grid))
 	(.-> button_grid (:add_child up_button) (:add_child down_button))
 	(. up_button :connect (. this :get_id))

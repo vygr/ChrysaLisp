@@ -13,13 +13,13 @@
 	(bit rle lz4))
 
 (structure +cpm 0
-	(uint ident)        ;ident .CPM or .FLM
-	(uint flags)        ;flags
-	(uint version)      ;version number
-	(int type)          ;image type
-	(uint width)        ;image w
-	(uint height)       ;image h
-	(uint reserved_1))  ;reserved 1
+	(uint ident)		;ident .CPM or .FLM
+	(uint flags)		;flags
+	(uint version)		;version number
+	(int type)			;image type
+	(uint width)		;image w
+	(uint height)		;image h
+	(uint reserved_1))	;reserved 1
 
 (defun CPM-info (stream)
 	; (CPM-info stream) -> (width height type) | (-1 -1 -1)

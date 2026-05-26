@@ -213,39 +213,39 @@
 			(. buf :get_mark) -1) -1))
 
 (defun dispatch-action (&rest action)
-    (defq func (first action)
-        ;collect all active buffer keys (open files and the ":nil" scratchpad)
-        ;take a snapshot of the transaction markers before the action
-        old_markers (map (# (list %0 (get_marker %0))) (push (cat *open_files*) ":nil")))
-    ;record macro if enabled and action is recordable
-    (and *macro_record* (find func *recorded_actions*)
-        (macro-record action))
-    ;execute the action
-    (if (eql func action-insert)
-        (progn
-            (catch (eval action)
-                (progn (prin _) (print) (setq *refresh_mode* (list 0)) :t))
-            (show-matches))
-        (progn
-            (clear-matches)
-            (if (find func *find_actions*)
-                (push action *whole_words* *regexp* (. *find_text* :get_text)))
-            (if (find func *replace_actions*)
-                (push action (. *replace_text* :get_text)))
-            (catch (eval action)
-                (progn (prin _) (print) (setq *refresh_mode* (list 0)) :t))))
-    ;identify all buffers whose transaction marker increased
-    (defq modified_files (list))
-    (each (lambda ((f old_mark))
-            (defq new_mark (get_marker f))
-            (when (> new_mark old_mark)
-                ;map ":nil" back to the symbol :nil
-                (push modified_files (list (if (eql f ":nil") :nil f) old_mark new_mark))))
-        old_markers)
-    ;if any buffers changed, push them as a single grouped transaction
-    (when (nempty? modified_files)
-        (push *global_undo_stack* modified_files)
-        (clear *global_redo_stack*)))
+	(defq func (first action)
+		;collect all active buffer keys (open files and the ":nil" scratchpad)
+		;take a snapshot of the transaction markers before the action
+		old_markers (map (# (list %0 (get_marker %0))) (push (cat *open_files*) ":nil")))
+	;record macro if enabled and action is recordable
+	(and *macro_record* (find func *recorded_actions*)
+		(macro-record action))
+	;execute the action
+	(if (eql func action-insert)
+		(progn
+			(catch (eval action)
+				(progn (prin _) (print) (setq *refresh_mode* (list 0)) :t))
+			(show-matches))
+		(progn
+			(clear-matches)
+			(if (find func *find_actions*)
+				(push action *whole_words* *regexp* (. *find_text* :get_text)))
+			(if (find func *replace_actions*)
+				(push action (. *replace_text* :get_text)))
+			(catch (eval action)
+				(progn (prin _) (print) (setq *refresh_mode* (list 0)) :t))))
+	;identify all buffers whose transaction marker increased
+	(defq modified_files (list))
+	(each (lambda ((f old_mark))
+			(defq new_mark (get_marker f))
+			(when (> new_mark old_mark)
+				;map ":nil" back to the symbol :nil
+				(push modified_files (list (if (eql f ":nil") :nil f) old_mark new_mark))))
+		old_markers)
+	;if any buffers changed, push them as a single grouped transaction
+	(when (nempty? modified_files)
+		(push *global_undo_stack* modified_files)
+		(clear *global_redo_stack*)))
 
 (defun main ()
 	(defq select (task-mboxes +select_size)

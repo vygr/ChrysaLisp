@@ -20,7 +20,7 @@
 ; Configuration and State
 (defq *config_file* (cat *env_home* "solitaire.tre")
 	  *board* (list)
-	  *selected* :nil     ; Index of selected peg
+	  *selected* :nil	  ; Index of selected peg
 	  *undo_stack* (list)
 	  *pegs_left* 0
 	  *game_over* :nil
@@ -154,8 +154,8 @@
 							(push *undo_stack* (list *selected* (copy *board*)))
 							; Execute Move
 							(elem-set *board* from_idx +state_empty) ; Remove from origin
-							(elem-set *board* mid_idx +state_empty)  ; Remove jumped
-							(elem-set *board* to_idx +state_peg)     ; Place at dest
+							(elem-set *board* mid_idx +state_empty)	 ; Remove jumped
+							(elem-set *board* to_idx +state_peg)	 ; Place at dest
 							; Update
 							(setq *selected* :nil)
 							(update-gamestate)

@@ -8,7 +8,7 @@
 (1 (import "lib/debug/profile.inc"))
 (2 (import "lib/debug/debug.inc")))
 
-(cond   ;pick number format :t/:nil
+(cond	;pick number format :t/:nil
 	(:t ;reals
 		(defmacro vector (&rest %0) `(reals ~%0))
 		(defmacro i2n (%0) `(n2r ,%0))

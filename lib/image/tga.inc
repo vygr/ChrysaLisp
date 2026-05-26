@@ -8,13 +8,13 @@
 (env-push)
 
 (structure +tga 0
-	(ubyte imagedata)   ;id field offset
-	(ubyte colmap)      ;color map
-	(ubyte type)        ;targa type
-	(ubyte a b)         ;nint16 colmap_fei  ;color map origin (non aligned !)
-	(ubyte c d)         ;nint16 colmap_num  ;color map number (non aligned !)
+	(ubyte imagedata)	;id field offset
+	(ubyte colmap)		;color map
+	(ubyte type)		;targa type
+	(ubyte a b)			;nint16 colmap_fei	;color map origin (non aligned !)
+	(ubyte c d)			;nint16 colmap_num	;color map number (non aligned !)
 	(ubyte colmap_size) ;color map size
-	(struct pad 4)      ;padding ?
+	(struct pad 4)		;padding ?
 	(ushort width)
 	(ushort height)
 	(ubyte depth)

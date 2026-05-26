@@ -20,11 +20,11 @@
 	  *match_score* 10
 	  *mismatch_penalty* 1
 	  ; Game State
-	  *values* (list)       ; The hidden characters (as integer codes)
-	  *states* (list)       ; 0=Hidden, 1= revealed (temp), 2=Matched
+	  *values* (list)		; The hidden characters (as integer codes)
+	  *states* (list)		; 0=Hidden, 1= revealed (temp), 2=Matched
 	  *score* 0
-	  *first_pick* :nil     ; Index of first card flipped
-	  *locked* :nil         ; UI lock during mismatch timer
+	  *first_pick* :nil		; Index of first card flipped
+	  *locked* :nil			; UI lock during mismatch timer
 	  *font* (create-font "fonts/OpenSans-Bold.ctf" 32)
 	  *running* :t)
 

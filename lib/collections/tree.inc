@@ -123,7 +123,7 @@
 								(++ wc)
 								(push stack k 1)
 								(write-line stream (str p "(" (first k))))
-							(:t	(push stack l (length l))
+							(:t (push stack l (length l))
 								(each (# (write-line stream (cat p (slice (str %0) 1 -2))))
 									(partition (slice l 1 -1) 16)))))
 					(:t (defq k (elem-get l i))

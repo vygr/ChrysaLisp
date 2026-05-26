@@ -1426,10 +1426,10 @@
 ;; (defq *freq_map* (Fmap 101))
 
 ;; (defun freq-update (k)
-;; 	(. *freq_map* :update k (# (if %0 (inc %0) 1))) k)
+;;	(. *freq_map* :update k (# (if %0 (inc %0) 1))) k)
 
 ;; (defun freq-print ()
-;; 	(defq freq (list))
-;; 	(. *freq_map* :each (lambda (k v) (push freq (list k v))))
-;; 	(each (lambda ((k v)) (print k " -> " v))
-;; 		(reverse (sort freq (# (- (second %0) (second %1)))))))
+;;	(defq freq (list))
+;;	(. *freq_map* :each (lambda (k v) (push freq (list k v))))
+;;	(each (lambda ((k v)) (print k " -> " v))
+;;		(reverse (sort freq (# (- (second %0) (second %1)))))))
