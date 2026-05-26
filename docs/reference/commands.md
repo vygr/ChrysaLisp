@@ -130,6 +130,8 @@ Usage: edit [options] [path] ...
                 (edit-join-text (txt ...) [cls]) -> txt
                 (edit-print ...)
                 (edit-eof?) -> :t | :nil
+                (edit-eof cx cy) -> count
+                (edit-sof cx cy) -> count
                 (edit-cx) -> cx
                 (edit-cy) -> cy
 

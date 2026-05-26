@@ -52,6 +52,8 @@
 (defun edit-get-primary-text () (. *edit* :get_primary_text))
 (defun edit-print (&rest args) (apply (const print) (if (nempty? args) args (list (edit-get-text)))))
 (defun edit-eof? () (= (second (. *edit* :get_cursor)) (second (. *edit* :get_size))))
+(defun edit-eof (cx cy) (. *edit* :eof cx cy))
+(defun edit-sof (cx cy) (. *edit* :sof cx cy))
 (defun edit-cx () (first (. *edit* :get_cursor)))
 (defun edit-cy () (second (. *edit* :get_cursor)))
 

@@ -383,6 +383,20 @@
 		; (. buffer :get_text_line y) -> line
 		(elem-get (get :buffer_lines this) y))
 
+	(defmethod :eof (cx cy)
+		; (. buffer :eof cx cy) -> count
+		(raise :buffer_lines)
+		(bind '(cx cy &ignore) (. this :clip_cursor cx cy))
+		(reduce! (# (+ %0 (length %1)))
+			(list buffer_lines) (- (length (elem-get buffer_lines cy)) cx) (inc cy)))
+
+	(defmethod :sof (cx cy)
+		; (. buffer :sof cx cy) -> count
+		(raise :buffer_lines)
+		(bind '(cx cy &ignore) (. this :clip_cursor cx cy))
+		(reduce! (# (+ %0 (length %1)))
+			(list buffer_lines) cx 0 cy))
+
 ;;;;;;;;;;;;;;;;;;;
 ; cursor range info
 ;;;;;;;;;;;;;;;;;;;
@@ -1069,7 +1083,7 @@
 			(defq line (cat
 					(int-to-hex-str adr) " "
 					(join (partition (hex-encode blk) 2) " " 2)
-					(pad "" (* 3 (- width (length blk))) "            ")
+					(pad "" (* 3 (- width (length blk))) "        ")
 					(apply (const cat)
 						(map (# (if (bfind %0 +char_class_printable) %0 ".")) blk))
 					+char_class_lf)

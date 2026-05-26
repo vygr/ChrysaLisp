@@ -90,6 +90,12 @@ clips coordinates to valid buffer positions
 (. buffer :end_select) -> buffer
 ```
 
+### :eof
+
+```code
+(. buffer :eof cx cy) -> count
+```
+
 ### :filter_cursors
 
 ```code
@@ -395,6 +401,12 @@ cursors format: ((cx cy ax ay sx) ...)
 ### :set_tab_width
 
 ### :set_wrap_width
+
+### :sof
+
+```code
+(. buffer :sof cx cy) -> count
+```
 
 ### :stream_load
 

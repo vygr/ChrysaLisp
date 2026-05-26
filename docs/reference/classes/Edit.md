@@ -48,6 +48,8 @@
 
 ### :end_select
 
+### :eof
+
 ### :find
 
 ### :find_add_next
@@ -221,6 +223,8 @@
 ```
 
 ### :set_tcursor
+
+### :sof
 
 ### :sort
 

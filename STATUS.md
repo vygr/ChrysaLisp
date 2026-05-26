@@ -41,6 +41,11 @@ applications.
 
 Fixed `:set_focus` call args bug in action-macro-global.
 
+New `(. buffer :eof cx cy) -> count` and `(. buffer :sof cx cy) -> count`
+methods to return the number of chars till the end of the file or the start of
+file. Edit app `action-macro-to-eof` now uses this to track if the macro should
+stop playback.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
