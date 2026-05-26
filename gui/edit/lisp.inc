@@ -31,9 +31,9 @@
 	(defgetmethod :tcursor)
 
 	(defproxymethod :get_focus () :buffer :t)
-	(defproxymethod :set_focus (csr) :buffer)
-	(defproxymethod :eof (cx cy) :buffer :t)
-	(defproxymethod :sof (cx cy) :buffer :t)
+	(defproxymethod :set_focus (&optional csr) :buffer)
+	(defproxymethod :eof (&optional csr) :buffer :t)
+	(defproxymethod :sof (&optional csr) :buffer :t)
 
 	(defproxymethod :left () :buffer)
 	(defproxymethod :right () :buffer)

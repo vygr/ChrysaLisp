@@ -307,7 +307,8 @@
 	(defgetmethod :focus)
 	(defgetmethod :mark)
 
-	(defmethod :set_focus (csr)
+	(defmethod :set_focus (&optional csr)
+		(setd csr (. this :get_cursor))
 		(lower (:focus (if (and csr (nql csr +invalid_focus))
 			(csr-floor csr)
 			+invalid_focus)))
@@ -383,16 +384,16 @@
 		; (. buffer :get_text_line y) -> line
 		(elem-get (get :buffer_lines this) y))
 
-	(defmethod :eof (cx cy)
-		; (. buffer :eof cx cy) -> count
+	(defmethod :eof (&optional csr)
+		; (. buffer :eof [csr]) -> count
 		(raise :buffer_lines)
-		(bind '(cx cy &ignore) (. this :clip_cursor cx cy))
+		(bind '(cx cy &ignore) (ifn csr (. this :get_cursor)))
 		(reduce! (# (+ %0 (length %1)))
 			(list buffer_lines) (- (length (elem-get buffer_lines cy)) cx) (inc cy)))
 
-	(defmethod :sof (cx cy)
-		; (. buffer :sof cx cy) -> count
-		(bind '(cx cy &ignore) (. this :clip_cursor cx cy))
+	(defmethod :sof (&optional csr)
+		; (. buffer :sof [csr]) -> count
+		(bind '(cx cy &ignore) (ifn csr (. this :get_cursor)))
 		(reduce! (# (+ %0 (length %1)))
 			(list (get :buffer_lines this)) cx 0 cy))
 

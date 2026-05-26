@@ -93,7 +93,7 @@ clips coordinates to valid buffer positions
 ### :eof
 
 ```code
-(. buffer :eof cx cy) -> count
+(. buffer :eof [csr]) -> count
 ```
 
 ### :filter_cursors
@@ -405,7 +405,7 @@ cursors format: ((cx cy ax ay sx) ...)
 ### :sof
 
 ```code
-(. buffer :sof cx cy) -> count
+(. buffer :sof [csr]) -> count
 ```
 
 ### :stream_load

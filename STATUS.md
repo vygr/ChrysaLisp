@@ -41,10 +41,13 @@ applications.
 
 Fixed `:set_focus` call args bug in action-macro-global.
 
-New `(. buffer :eof cx cy) -> count` and `(. buffer :sof cx cy) -> count`
+New `(. buffer :eof [csr]) -> count` and `(. buffer :sof [csr]) -> count`
 methods to return the number of chars till the end of the file or the start of
 file. Edit app `action-macro-to-eof` now uses this to track if the macro should
 stop playback.
+
+`(. buffer :set_focus [csr])` now takes an optional cursor for the bound, else
+defaults to the primary cursor.
 
 ------
 

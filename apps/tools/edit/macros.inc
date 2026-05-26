@@ -40,15 +40,11 @@
         (defq buffer (. *edit* :get_buffer) running :t)
         (push *refresh_mode* 1)
         (undoable buffer
-            (bind '(cx cy &ignore) (. buffer :get_cursor))
-            (defq old_eof (. buffer :eof cx cy))
-            (while (and running (> old_eof 0)
-                        (not (some! (const blank-line?)
-                            (list (. buffer :get_buffer_lines)) :t cy)))
+            (defq old_eof (. buffer :eof))
+            (while (and running (> old_eof 0))
                 (macro-playback actions)
                 (when running
-                    (bind '(cx cy &ignore) (. buffer :get_cursor))
-                    (defq new_eof (. buffer :eof cx cy))
+                    (defq new_eof (. buffer :eof))
                     (if (>= new_eof old_eof)
                         (setq running :nil)
                         (setq old_eof new_eof)))))
