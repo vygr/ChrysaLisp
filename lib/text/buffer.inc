@@ -392,10 +392,9 @@
 
 	(defmethod :sof (cx cy)
 		; (. buffer :sof cx cy) -> count
-		(raise :buffer_lines)
 		(bind '(cx cy &ignore) (. this :clip_cursor cx cy))
 		(reduce! (# (+ %0 (length %1)))
-			(list buffer_lines) cx 0 cy))
+			(list (get :buffer_lines this)) cx 0 cy))
 
 ;;;;;;;;;;;;;;;;;;;
 ; cursor range info
