@@ -39,6 +39,8 @@ up the Usage info sections of commands apps to not use embedded tabs.
 Updated implementation studies for the Editor, Viewer and Whiteboard
 applications.
 
+Fixed `:set_focus` call args bug in action-macro-global.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
