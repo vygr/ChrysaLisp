@@ -118,15 +118,15 @@
 				((find text '("A" "B" "C" "D" "E" "F")) (push *hex_buttons* button))
 				((find text '("2" "3" "4" "5" "6" "7" "8" "9")) (push *other_base_buttons* button)))
 			(. button_grid :add_child button))
-			'("MC" "MR"  "M-" "M+"
+			'("MC" "MR"	 "M-" "M+"
 			  "AND" "OR"  "XOR" "NOT"
-			  ">>>" ">>"  "<<"  "NEG"
-			  "D"   "E"   "F"   "%"
-			  "A"   "B"   "C"   "/"
-			  "7"   "8"   "9"   "*"
-			  "4"   "5"   "6"   "-"
-			  "1"   "2"   "3"   "+"
-			  "0"   "CE"  "AC"  "=" ))))
+			  ">>>" ">>"  "<<"	"NEG"
+			  "D"	"E"	  "F"	"%"
+			  "A"	"B"	  "C"	"/"
+			  "7"	"8"	  "9"	"*"
+			  "4"	"5"	  "6"	"-"
+			  "1"	"2"	  "3"	"+"
+			  "0"	"CE"  "AC"	"=" ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Math and Display Formats
@@ -154,8 +154,8 @@
 (defun format-number (num base)
 	(case base
 		(16 (num-to-base-str num 16 "0123456789ABCDEF"))
-		(2  (num-to-base-str num 2 "01"))
-		(8  (num-to-base-str num 8 "01234567"))
+		(2 (num-to-base-str num 2 "01"))
+		(8 (num-to-base-str num 8 "01234567"))
 		(:t (str num))))
 
 (defun do_op (op v2 v1)
