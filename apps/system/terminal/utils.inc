@@ -11,3 +11,9 @@
 		~_
 		(bind '(x y &ignore) (. buffer :get_cursor))
 		(setq *cursor_x* x *cursor_y* y)))
+
+(defmacro defaction (method &rest args)
+	(defq func (sym (cat "action-" (join (split (rest method) "_") "-"))))
+	`(defun ,func (~args)
+		(. *edit* ,method ~args)
+		(refresh)))
