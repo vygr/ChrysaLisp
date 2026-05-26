@@ -9,11 +9,13 @@
 		(. *edit* :undo)
 		(progn
 			;undo each modified buffer in reverse chronological order
+			(push *refresh_mode* 1)
 			(reach (lambda ((file old_mark &))
 					(ifn (eql file *current_file*) (switch-file file))
 					(. *edit* :rewind old_mark))
 				transaction)
-			(push *global_redo_stack* transaction)))
+			(push *global_redo_stack* transaction)
+			(pop *refresh_mode*)))
 	(refresh))
 
 (defun action-redo ()
@@ -21,11 +23,13 @@
 		(. *edit* :redo)
 		(progn
 			;redo each modified buffer in original chronological order
+			(push *refresh_mode* 1)
 			(each (lambda ((file & new_mark))
 					(ifn (eql file *current_file*) (switch-file file))
 					(. *edit* :forwardwind new_mark))
 				transaction)
-			(push *global_undo_stack* transaction)))
+			(push *global_undo_stack* transaction)
+			(pop *refresh_mode*)))
 	(refresh))
 
 (defun action-rewind ()
