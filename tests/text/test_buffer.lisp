@@ -339,3 +339,37 @@
 
 ; Verify we can copy it again correctly
 (assert-eq "Mutation: Copy again" "X\fY\fZ" (. b :copy))
+
+; --- Start of File & End of File (sof / eof) ---
+(defq b (Buffer))
+(. b :insert "012\n456\n89") 
+; Buffer state contains:
+; Line 0: "012\n" (4 chars)
+; Line 1: "456\n" (4 chars)
+; Line 2: "89\n"  (3 chars)
+; Line 3: "\n"    (1 char) - Terminal empty line added by last-line
+; Total: 12 chars
+
+; 1. At start of file (0, 0)
+(assert-eq "sof at start" 0 (. b :sof 0 0))
+(assert-eq "eof at start" 12 (. b :eof 0 0))
+
+; 2. Inside line 0 (2, 0)
+(assert-eq "sof inside L0" 2 (. b :sof 2 0))
+(assert-eq "eof inside L0" 10 (. b :eof 2 0))
+
+; 3. At start of line 1 (0, 1)
+(assert-eq "sof start of L1" 4 (. b :sof 0 1))
+(assert-eq "eof start of L1" 8 (. b :eof 0 1))
+
+; 4. Inside line 1 (2, 1)
+(assert-eq "sof inside L1" 6 (. b :sof 2 1))
+(assert-eq "eof inside L1" 6 (. b :eof 2 1))
+
+; 5. At start of terminal line (0, 3)
+(assert-eq "sof start of terminal L3" 11 (. b :sof 0 3))
+(assert-eq "eof start of terminal L3" 1 (. b :eof 0 3))
+
+; 6. At absolute end of file (1, 3) - clips to (0, 3)
+(assert-eq "sof at end of file" 11 (. b :sof 1 3))
+(assert-eq "eof at end of file" 1 (. b :eof 1 3))
