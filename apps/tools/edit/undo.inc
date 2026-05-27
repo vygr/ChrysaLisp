@@ -8,9 +8,12 @@
 	(ifn (defq transaction (pop *global_undo_stack*))
 		(. *edit* :undo)
 		(progn
-			;undo each modified buffer in reverse chronological order
+			;if the active file is in the transaction, swap it to the end
+			(if (defq idx (some (# (if (eql (first %0) *current_file*) (!))) transaction))
+				(swap transaction idx (dec (length transaction))))
+			;redo each modified buffer ending back where we are
 			(push *refresh_mode* 1)
-			(reach (lambda ((file old_mark &))
+			(each (lambda ((file old_mark &))
 					(ifn (eql file *current_file*) (switch-file file))
 					(. *edit* :rewind old_mark))
 				transaction)
@@ -22,7 +25,10 @@
 	(ifn (defq transaction (pop *global_redo_stack*))
 		(. *edit* :redo)
 		(progn
-			;redo each modified buffer in original chronological order
+			;if the active file is in the transaction, swap it to the end
+			(if (defq idx (some (# (if (eql (first %0) *current_file*) (!))) transaction))
+				(swap transaction idx (dec (length transaction))))
+			;redo each modified buffer ending back where we are
 			(push *refresh_mode* 1)
 			(each (lambda ((file & new_mark))
 					(ifn (eql file *current_file*) (switch-file file))
