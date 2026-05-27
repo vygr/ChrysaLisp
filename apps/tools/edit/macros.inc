@@ -28,20 +28,20 @@
 		(refresh)))
 
 (defun action-macro-to-eof (&optional slot)
-    (when (and (defq actions (. +macro_map :find (ifn slot 0)))
-            (> (length actions) 0))
-        (push *refresh_mode* 1)
-        (defq buffer (. *edit* :get_buffer)
+	(when (and (defq actions (. +macro_map :find (ifn slot 0)))
+			(> (length actions) 0))
+		(push *refresh_mode* 1)
+		(defq buffer (. *edit* :get_buffer)
 			running :t old_eof (. buffer :eof))
-        (undoable buffer
-            (while (and running (> old_eof 0))
-                (macro-playback actions)
-                (if running
-                    (if (>= (defq new_eof (. buffer :eof)) old_eof)
-                        (setq running :nil)
-                        (setq old_eof new_eof)))))
-        (pop *refresh_mode*)
-        (refresh)))
+		(undoable buffer
+			(while (and running (> old_eof 1))
+				(macro-playback actions)
+				(if running
+					(if (>= (defq new_eof (. buffer :eof)) old_eof)
+						(setq running :nil)
+						(setq old_eof new_eof)))))
+		(pop *refresh_mode*)
+		(refresh)))
 
 (defun action-macro-global (&optional slot)
 	(for-all-buffers
