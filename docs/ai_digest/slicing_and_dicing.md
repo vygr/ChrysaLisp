@@ -112,9 +112,8 @@ Definitions found in `class/lisp/root.inc`.
 
 **Code:**
 
-```vdu
-(defmacro erase (s b e)
-    (static-qq (splice ,s ,s (nums 0 ,b ,e -1))))
+```file
+class/lisp/root.inc "(defmacro erase" ""
 ```
 
 * **Topological Map:** `[0...b]` from Source 1, `[e...EOF]` from Source 1.
@@ -126,9 +125,8 @@ Definitions found in `class/lisp/root.inc`.
 
 **Code:**
 
-```vdu
-(defmacro insert (s p i)
-    (static-qq (splice ,s ,i (nums 0 ,p 0 -1 ,p -1))))
+```file
+class/lisp/root.inc "(defmacro insert" ""
 ```
 
 * **Topological Map:**
@@ -145,9 +143,8 @@ Definitions found in `class/lisp/root.inc`.
 
 **Code:**
 
-```vdu
-(defmacro replace (s b e i)
-    (static-qq (splice ,s ,i (nums 0 ,b 0 -1 ,e -1))))
+```file
+class/lisp/root.inc "(defmacro replace" ""
 ```
 
 * **Topological Map:** Prefix of `s`, entire `i`, Suffix of `s`.
@@ -156,9 +153,8 @@ Definitions found in `class/lisp/root.inc`.
 
 **Code:**
 
-```vdu
-(defmacro rotate (s i j k)
-    (static-qq (splice ,s ,s (nums 0 ,i ,j ,k ,i ,j ,k -1))))
+```file
+class/lisp/root.inc "(defmacro rotate" ""
 ```
 
 * **Topological Map:**
