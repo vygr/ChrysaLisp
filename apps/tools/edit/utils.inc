@@ -28,10 +28,6 @@
 	(populate-file-trees)
 	(select-node *current_file*))
 
-(defun eof-gaps ()
-	(list (- (length (. buffer :get_text_line cy)) cx)
-		(- (second (. buffer :get_size)) cy)))
-
 (defmacro for-all-buffers (&rest _)
 	`(progn
 		(unless *current_file* (action-next-buffer))
