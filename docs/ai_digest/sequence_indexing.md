@@ -75,7 +75,7 @@ distinct copy of a sequence (e.g., to modify it without affecting the
 original), you must use `cat`:
 
 ```vdu
-(defq my-copy (cat seq))
+(defq my_copy (cat seq))
 ```
 
 `(cat)` with a single argument guarantees the creation of a new container with
@@ -171,7 +171,5 @@ index**.
   calculating relative offsets.
 
 ```lisp
-(map (lambda (item)
-	(list (cat item " ->") (!)))
-	"test")
+(map (lambda (item) (list (str item " -> " (!)))) "test")
 ```
