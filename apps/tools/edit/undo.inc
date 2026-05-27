@@ -12,7 +12,7 @@
 			(if (defq idx (some (# (if (eql (first %0) *current_file*) (!))) transaction))
 				(swap transaction idx (dec (length transaction))))
 			;redo each modified buffer ending back where we are
-			(push *refresh_mode* 1)
+			(push *refresh_mode* +refresh_mode_hidden)
 			(each (lambda ((file old_mark &))
 					(ifn (eql file *current_file*) (switch-file file))
 					(. *edit* :rewind old_mark))
@@ -29,7 +29,7 @@
 			(if (defq idx (some (# (if (eql (first %0) *current_file*) (!))) transaction))
 				(swap transaction idx (dec (length transaction))))
 			;redo each modified buffer ending back where we are
-			(push *refresh_mode* 1)
+			(push *refresh_mode* +refresh_mode_hidden)
 			(each (lambda ((file & new_mark))
 					(ifn (eql file *current_file*) (switch-file file))
 					(. *edit* :forwardwind new_mark))

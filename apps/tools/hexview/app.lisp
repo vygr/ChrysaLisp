@@ -10,6 +10,9 @@
 (enums +select 0
 	(enum main tip))
 
+(enums +refresh_mode 0
+	(enum visible hidden))
+
 (bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
 (defq +margin 2)
@@ -54,7 +57,7 @@
 	(. *edit* :set_scroll sx sy))
 
 (defun refresh ()
-	(when (<= (last *refresh_mode*) 0)
+	(when (<= (last *refresh_mode*) +refresh_mode_visible)
 		;refresh display and ensure cursor is visible
 		(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
 		(bind '(sx sy buffer) (gather meta :sx :sy :buffer))
@@ -150,7 +153,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size)
 		*running* :t *edit* (Viewer-edit) *page_scale* 1.0 *regexp* :nil
-		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
+		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list +refresh_mode_visible)
 		*meta_map* (scatter (Fmap) :files (Fmap)) *current_file* :nil
 		*cursor_stack* (list))
 	(.-> *edit* (:set_buffer (Document))

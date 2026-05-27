@@ -32,7 +32,7 @@
 	`(progn
 		(unless *current_file* (action-next-buffer))
 		(when (defq *exit* :nil *here* *current_file*)
-			(push *refresh_mode* 1)
+			(push *refresh_mode* +refresh_mode_hidden)
 			(until *exit*
 				~_
 				(update-meta-data)

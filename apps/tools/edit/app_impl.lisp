@@ -13,6 +13,9 @@
 (enums +select 0
 	(enum main tip remote))
 
+(enums +refresh_mode 0
+	(enum visible hidden))
+
 (bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
 (defq +min_word_size 3 +max_matches 20 +margin 2
@@ -61,7 +64,7 @@
 	(. *edit* :set_scroll sx sy))
 
 (defun refresh ()
-	(when (<= (last *refresh_mode*) 0)
+	(when (<= (last *refresh_mode*) +refresh_mode_visible)
 		;refresh display and ensure cursor is visible
 		(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
 		(bind '(sx sy buffer) (gather meta :sx :sy :buffer))
@@ -224,7 +227,8 @@
 	(if (eql func action-insert)
 		(progn
 			(catch (eval action)
-				(progn (prin _) (print) (setq *refresh_mode* (list 0)) :t))
+				(progn (prin _) (print)
+					(setq *refresh_mode* (list +refresh_mode_visible)) :t))
 			(show-matches))
 		(progn
 			(clear-matches)
@@ -233,7 +237,8 @@
 			(if (find func *replace_actions*)
 				(push action (. *replace_text* :get_text)))
 			(catch (eval action)
-				(progn (prin _) (print) (setq *refresh_mode* (list 0)) :t))))
+				(progn (prin _) (print)
+					(setq *refresh_mode* (list +refresh_mode_visible)) :t))))
 	;identify all buffers whose transaction marker increased
 	(defq modified_files (list))
 	(each (lambda ((f old_mark))
@@ -251,7 +256,7 @@
 	(defq select (task-mboxes +select_size)
 		edit_service (mail-declare (elem-get select +select_remote) "Edit" "Edit Service 1.0")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
-		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
+		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list +refresh_mode_visible)
 		*macro_record* :nil *macro_actions* (list) *cursor_stack* (list)
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
 		*meta_map* :nil *open_files* :nil
