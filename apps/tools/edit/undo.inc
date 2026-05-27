@@ -11,7 +11,7 @@
 			;if the active file is in the transaction, swap it to the end
 			(if (defq idx (some (# (if (eql (first %0) *current_file*) (!))) transaction))
 				(swap transaction idx (dec (length transaction))))
-			;redo each modified buffer ending back where we are
+			;undo each modified buffer ending back where we are
 			(push *refresh_mode* +refresh_mode_hidden)
 			(each (lambda ((file old_mark &))
 					(ifn (eql file *current_file*) (switch-file file))
