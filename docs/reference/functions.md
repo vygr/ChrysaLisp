@@ -1108,6 +1108,12 @@ adjust text offset
 (shuffle list [start end]) -> list
 ```
 
+### slices
+
+```code
+(slices seq) -> ((s0 e0) (s1 e1) ...)
+```
+
 ### sort
 
 ```code

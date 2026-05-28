@@ -54,6 +54,10 @@ environment from the user functions.
 
 `XML-parse` now supports Single-Quoted Attribute Values.
 
+New `(slices seq) -> ((s0 e0) (s1 e1) ...)` that takes a sequence of element
+indexes, `:array` types or `:list` of numbers, and returns a compact list of
+slices that cover all the elements.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
