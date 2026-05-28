@@ -50,9 +50,8 @@ stop playback.
 defaults to the primary cursor.
 
 `XML-parse` switched to using the `(callback f e [...])` macro to hide internal
-environment from the user functions.
-
-`XML-parse` now supports Single-Quoted Attribute Values.
+environment from the user functions and now supports Single-Quoted Attribute
+Values.
 
 New `(slices lst) -> ((s0 e0) (s1 e1) ...)` that takes a list of element
 indexes, numbers, and returns a compact list of slices that cover all the
