@@ -15,7 +15,7 @@
 	;:r1-:r14
 
 	(def-vars
-		(int c)
+		(int c q)
 		(ptr state)
 	(offset res_start)
 		(ptr states tokens) ;must be first 2 resources !
@@ -100,7 +100,7 @@
 		(assign `(,c) {c})
 	(vp-label 'proc_char)
 		(switch)
-		(vp-rdef (state sym c) '(:r0 :r2 :r1))
+		(vp-rdef (state sym c q) '(:r0 :r2 :r1 :r3))
 		(assign {state, sym_text, c} `(,state ,sym ,c))
 		(vpcase `(,state = ,sym))
 			(switch)
@@ -118,6 +118,11 @@
 				(output-state {sym_assign})
 				(continue 'next_char)
 			(vpcase `(,c = +char_double_quote))
+				(assign `(,c) {q})
+				(assign {sym_string} {state})
+				(continue 'next_char)
+			(vpcase `(,c = +char_quote))
+				(assign `(,c) {q})
 				(assign {sym_string} {state})
 				(continue 'next_char)
 			(default)
@@ -148,7 +153,8 @@
 			(assign {sym_text} {state})
 			(goto 'proc_char)
 		(default)
-			(gotoif `(,c /= +char_double_quote) 'write_token_then_next)
+			(assign {q} `(,q))
+			(gotoif `(,c /= ,q) 'write_token_then_next)
 		(vp-label 'output_then_next)
 			(output-token)
 			(output-state)

@@ -52,6 +52,8 @@ defaults to the primary cursor.
 `XML-parse` switched to using the `(callback f e [...])` macro to hide internal
 environment from the user functions.
 
+`XML-parse` now supports Single-Quoted Attribute Values.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
