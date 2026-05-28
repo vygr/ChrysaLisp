@@ -61,6 +61,12 @@ pass in `(cat lst)`.
 `(. set :tolist) -> list` and `(. map :tolist) -> list` methods added to Set and
 Map collections classes.
 
+`(scatter map|set ([key]|[key val] ...)) -> map|set` can now be used to populate
+`Set`s as well as `Map`s.
+
+`(scatter)` and `(gather)` can now be given a list of args, as well as take
+`&rest` args.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

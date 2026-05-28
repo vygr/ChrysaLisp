@@ -12,14 +12,18 @@
 (import "./tree.inc")
 
 (defun gather (m &rest _)
-	; (gather map key ...) -> (val ...)
-	; gather a list of values
+	; (gather map|set [key] ...) -> (val|key|:nil ...)
+	; gather a list of [key|val|:nil]
+	(if (list? (first _)) (setq _ (first _)))
 	(map (# (. m :find %0)) _))
 
 (defun scatter (m &rest _)
-	; (scatter map [key val] ...) -> map
-	; scatter a list of values
-	(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) m))
+	; (scatter map|set [key]|[key val] ...) -> map|set
+	; scatter a list of [key]|[key val]
+	(if (list? (first _)) (setq _ (first _)))
+	(if (rfind :Set (. m :type_of))
+		(reduce (lambda (m k) (. m :insert k)) _ m)
+		(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) m)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Fmap/Lmap memoization

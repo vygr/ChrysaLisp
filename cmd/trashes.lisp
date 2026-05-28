@@ -99,9 +99,7 @@
 				(:t (bind '(type &rest payload) (analyze-function f))
 					(cond
 						((eql type :external)
-							(defq initial_trashes (Lset))
-							(each (# (. initial_trashes :insert %0)) +no_regs)
-							(. db :insert f (list :external initial_trashes)))
+							(. db :insert f (list :external (scatter (Lset) +no_regs))))
 						((eql type :resolved)
 							(bind '(trashes_set call_sites) payload)
 							(. db :insert f (list :resolved trashes_set call_sites))

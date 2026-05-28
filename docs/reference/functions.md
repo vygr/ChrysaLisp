@@ -411,9 +411,9 @@ cache loading of function blobs etc
 ### gather
 
 ```code
-(gather map key ...) -> (val ...)
+(gather map|set [key] ...) -> (val|key|:nil ...)
 
-gather a list of values
+gather a list of [key|val|:nil]
 ```
 
 ### gen-norms
@@ -1073,9 +1073,9 @@ restart a child
 ### scatter
 
 ```code
-(scatter map [key val] ...) -> map
+(scatter map|set [key]|[key val] ...) -> map|set
 
-scatter a list of values
+scatter a list of [key]|[key val]
 ```
 
 ### search
