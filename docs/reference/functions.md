@@ -59,7 +59,6 @@
 ```code
 (XML-parse stream fnc_in fnc_out fnc_text)
 
-calls back to user code, so _ used for vars that would be in scope
 break the stream into svg tokens, symbols, strings etc
 parse the commands and attributes calling back to the user functions
 ```
