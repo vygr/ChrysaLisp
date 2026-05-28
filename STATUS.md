@@ -54,9 +54,10 @@ environment from the user functions.
 
 `XML-parse` now supports Single-Quoted Attribute Values.
 
-New `(slices seq) -> ((s0 e0) (s1 e1) ...)` that takes a sequence of element
-indexes, `:array` types or `:list` of numbers, and returns a compact list of
-slices that cover all the elements.
+New `(slices lst) -> ((s0 e0) (s1 e1) ...)` that takes a list of element
+indexes, numbers, and returns a compact list of slices that cover all the
+elements. The list passed in is sorted, so if you don't want it mutated, then
+pass in `(cat lst)`.
 
 `(. set :tolist) -> list` and `(. map :tolist) -> list` methods added to Set and
 Map collections classes.

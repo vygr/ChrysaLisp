@@ -761,13 +761,13 @@
 		(while (< b e) (push l b) (++ b s))
 		(while (> b e) (push l b) (-- b s))) l)
 
-(defun slices (seq)
-	; (slices seq) -> ((s0 e0) (s1 e1) ...)
+(defun slices (lst)
+	; (slices lst) -> ((s0 e0) (s1 e1) ...)
 	(reduce! (# (cond
 			((or (empty? %0) (> %1 (last (last %0))))
 				(push %0 (list %1 (inc %1))))
 			((elem-set (last %0) 1 (inc %1)) %0)))
-		(list (sort seq (const -))) (list)))
+		(list (sort lst (const -))) (list)))
 
 (defun each-mergeable (f s)
 	; (each-mergeable lambda seq) -> seq
