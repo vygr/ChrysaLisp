@@ -49,6 +49,9 @@ stop playback.
 `(. buffer :set_focus [csr])` now takes an optional cursor for the bound, else
 defaults to the primary cursor.
 
+`XML-parse` switched to using the `(callback f e [...])` macro to hide internal
+environment from the user functions.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

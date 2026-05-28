@@ -5,99 +5,98 @@
 ;module
 (env-push)
 
-(defun XML-parse (_stream _fnc_in _fnc_out _fnc_text)
+(defun XML-parse (stream fnc_in fnc_out fnc_text)
 	; (XML-parse stream fnc_in fnc_out fnc_text)
-	;calls back to user code, so _ used for vars that would be in scope
 	;break the stream into svg tokens, symbols, strings etc
 	;parse the commands and attributes calling back to the user functions
-	(defq _stack (list) _keys (list) _vals (list) _state :text)
-	(each! (lambda (_type _token)
-		(while _type
-			(case _state
+	(defq stack (list) keys (list) vals (list) state :text e (penv))
+	(each! (lambda (type token)
+		(while type
+			(case state
 				(:text
-					(case _type
+					(case type
 						((:symbol)
-							(_fnc_text _token)
-							(setq _type :nil))
-						(:t (setq _state :open))))
+							(callback fnc_text e token)
+							(setq type :nil))
+						(:t (setq state :open))))
 				(:open
-					(case _type
+					(case type
 						(:open
-							(case _token
-								("<!" (setq _state :line_comment1)
-									(push _stack _token))
-								("<?" (setq _state :line_comment2)
-									(push _stack _token))
-								("<!--" (setq _state :block_comment)
-									(push _stack _token))
-								("<" (setq _state :command))
-								("</" (setq _state :command))
-								(:t (throw "Unknown open _token !" _token))))
-						(:t (throw "Unknown open _type !" _type)))
-					(push _stack _token)
-					(setq _type :nil))
+							(case token
+								("<!" (setq state :line_comment1)
+									(push stack token))
+								("<?" (setq state :line_comment2)
+									(push stack token))
+								("<!--" (setq state :block_comment)
+									(push stack token))
+								("<" (setq state :command))
+								("</" (setq state :command))
+								(:t (throw "Unknown open token !" token))))
+						(:t (throw "Unknown open type !" type)))
+					(push stack token)
+					(setq type :nil))
 				(:line_comment1
-					(case _type
+					(case type
 						(:close
-							(case _token
-								(">" (setq _state :close))))
-						(:t (setq _type :nil))))
+							(case token
+								(">" (setq state :close))))
+						(:t (setq type :nil))))
 				(:line_comment2
-					(case _type
+					(case type
 						(:close
-							(case _token
-								("?>" (setq _state :close))))
-						(:t (setq _type :nil))))
+							(case token
+								("?>" (setq state :close))))
+						(:t (setq type :nil))))
 				(:block_comment
-					(case _type
+					(case type
 						(:close
-							(case _token
-								("-->" (setq _state :close))))
-						(:t (setq _type :nil))))
+							(case token
+								("-->" (setq state :close))))
+						(:t (setq type :nil))))
 				(:command
-					(case _type
+					(case type
 						(:symbol
-							(push _stack _token)
-							(clear _keys _vals)
-							(setq _state :symbol))
-						(:t (throw "Unknown command _type !" _type)))
-					(setq _type :nil))
+							(push stack token)
+							(clear keys vals)
+							(setq state :symbol))
+						(:t (throw "Unknown command type !" type)))
+					(setq type :nil))
 				(:symbol
-					(case _type
+					(case type
 						(:close
-							(when (eql (elem-get _stack -3) "<")
+							(when (eql (elem-get stack -3) "<")
 								(task-slice)
-								(_fnc_in (last _stack) _keys _vals))
-							(setq _state :close))
+								(callback fnc_in e (last stack) keys vals))
+							(setq state :close))
 						(:symbol
-							(push _keys _token)
-							(setq _state :assign _type :nil))
-						(:t (throw "Unknown symbol _type !" _type))))
+							(push keys token)
+							(setq state :assign type :nil))
+						(:t (throw "Unknown symbol type !" type))))
 				(:assign
-					(case _type
+					(case type
 						(:assign
-							(setq _state :string))
-						(:t (throw "Unknown assign _type !" _type)))
-					(setq _type :nil))
+							(setq state :string))
+						(:t (throw "Unknown assign type !" type)))
+					(setq type :nil))
 				(:string
-					(case _type
+					(case type
 						(:string
-							(push _vals _token)
-							(setq _state :symbol))
-						(:t (throw "Unknown string _type !" _type)))
-					(setq _type :nil))
+							(push vals token)
+							(setq state :symbol))
+						(:t (throw "Unknown string type !" type)))
+					(setq type :nil))
 				(:close
-					(case _type
+					(case type
 						(:close
-							(case _token
+							(case token
 								(("-->" "?>" ">" "/>"))
-								(:t (throw "Unknown close _token !" _token))))
-						(:t (throw "Unknown close _type !" _type)))
-					(if (or (eql _token "/>") (eql (elem-get _stack -3) "</"))
-						(_fnc_out (last _stack)))
-					(pop _stack)
-					(pop _stack)
-					(setq _type :nil _state :text))
+								(:t (throw "Unknown close token !" token))))
+						(:t (throw "Unknown close type !" type)))
+					(if (or (eql token "/>") (eql (elem-get stack -3) "</"))
+						(callback fnc_out e (last stack)))
+					(pop stack)
+					(pop stack)
+					(setq type :nil state :text))
 				))) ((const (ffi (path-to-absolute "./parse"))) stream)))
 
 ;module
