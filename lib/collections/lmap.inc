@@ -63,6 +63,10 @@
 			(get :keys this) (get :vals this))
 		this)
 
+	(defmethod :tolist ()
+		; (. lmap :tolist) -> list
+		(map! (const list) (list (get :keys this) (get :vals this))))
+
 	(defmethod :copy ()
 		; (. lmap :copy) -> lmap
 		(defq that ((get 'Lmap)))

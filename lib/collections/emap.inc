@@ -40,6 +40,10 @@
 		(each (lambda ((k v)) (callback fnc e k v)) (tolist (get :buckets this)))
 		this)
 
+	(defmethod :tolist ()
+		; (. emap :tolist) -> list
+		(tolist (get :buckets this)))
+
 	(defmethod :copy ()
 		; (. emap :copy) -> emap
 		(defq that ((get 'Emap) (get :num_buckets this)) that_buckets (get :buckets that))

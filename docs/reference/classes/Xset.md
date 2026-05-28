@@ -102,6 +102,12 @@
 (. xset :size) -> size
 ```
 
+### :tolist
+
+```code
+(. xset :tolist) -> list
+```
+
 ### :union
 
 ```code

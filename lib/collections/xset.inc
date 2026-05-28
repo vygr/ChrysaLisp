@@ -52,6 +52,10 @@
 		(each (# (each (lambda (k) (callback fnc e k)) %0)) (get :buckets this))
 		this)
 
+	(defmethod :tolist ()
+		; (. xset :tolist) -> list
+		(apply (const cat) (get :buckets this)))
+
 	(defmethod :copy ()
 		; (. xset :copy) -> xset
 		(defq that ((get 'Xset) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))

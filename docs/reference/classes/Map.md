@@ -76,6 +76,12 @@
 (. map :size) -> size
 ```
 
+### :tolist
+
+```code
+(. map :tolist) -> list
+```
+
 ### :update
 
 ```code

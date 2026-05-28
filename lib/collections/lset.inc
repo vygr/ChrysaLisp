@@ -49,6 +49,10 @@
 		(each (lambda (k) (callback fnc e k)) (get :keys this))
 		this)
 
+	(defmethod :tolist ()
+		; (. lset :tolist) -> list
+		(cat (get :keys this)))
+
 	(defmethod :copy ()
 		; (. lset :copy) -> lset
 		(defq that ((get 'Lset)))

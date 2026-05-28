@@ -68,6 +68,13 @@
 			(partition (get :buckets this) 2))
 		this)
 
+	(defmethod :tolist ()
+		; (. xmap :tolist) -> list
+		(defq out (list))
+		(each (# (setq out (map! (const list) %0 0 -1 out)))
+			(partition (get :buckets this) 2))
+		out)
+
 	(defmethod :copy ()
 		; (. xmap :copy) -> xmap
 		(defq that ((get 'Xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this))

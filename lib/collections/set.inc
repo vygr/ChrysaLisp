@@ -12,6 +12,8 @@
 		; (. set :erase key) -> set
 	(defabstractmethod :each (fnc))
 		; (. set :each lambda) -> set
+	(defabstractmethod :tolist ())
+		; (. set :tolist) -> list
 	(defabstractmethod :copy ())
 		; (. set :copy) -> set
 	(defabstractmethod :deep_copy ())

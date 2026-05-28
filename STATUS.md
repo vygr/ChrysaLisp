@@ -58,6 +58,9 @@ New `(slices seq) -> ((s0 e0) (s1 e1) ...)` that takes a sequence of element
 indexes, `:array` types or `:list` of numbers, and returns a compact list of
 slices that cover all the elements.
 
+`(. set :tolist) -> list` and `(. map :tolist) -> list` methods added to Set and
+Map collections classes.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

@@ -78,6 +78,12 @@
 (. emap :size) -> size
 ```
 
+### :tolist
+
+```code
+(. emap :tolist) -> list
+```
+
 ### :update
 
 ```code

@@ -78,6 +78,12 @@
 (. xmap :size) -> size
 ```
 
+### :tolist
+
+```code
+(. xmap :tolist) -> list
+```
+
 ### :update
 
 ```code

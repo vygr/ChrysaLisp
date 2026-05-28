@@ -100,6 +100,12 @@
 (. set :size) -> size
 ```
 
+### :tolist
+
+```code
+(. set :tolist) -> list
+```
+
 ### :union
 
 ```code
