@@ -609,6 +609,17 @@ Usage: toflm [options] [path] ...
     If no paths given on command line
     then paths are read from stdin.
 ```
+## trashes
+```code
+Usage: trashes [options] [function_name] ...
+
+	options:
+		-h --help: this help info.
+
+	Output transitive register TRASHES for given VP functions.
+	If no paths are given on the command line, it will read
+	paths from stdin.
+```
 ## unhuff
 ```code
 Usage: unrle [options] [file]
