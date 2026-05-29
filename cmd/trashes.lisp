@@ -31,9 +31,6 @@
 		(or (find r '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp))
 			(find r '(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)))))
 
-(defun strip-colon (s)
-	(if (starts-with ":" s) (slice s 1 -1) s))
-
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (setq e (dec e)))
 			(str prefix s)
@@ -154,12 +151,11 @@
 				;a dependency (not one of the initial targets) and has documented trashes, use them!
 				((and (not (find f functions)) (defq doc_trashes (. documented_map :find f)))
 					(. db :insert f (list :documented doc_trashes)))
-				(:t (bind '(type &rest payload) (analyze-function f))
+				(:t (bind '(type &optional trashes_set call_list) (analyze-function f))
 					(cond
 						((eql type :external)
 							(. db :insert f (list :external (scatter (Lset) +no_regs))))
 						((eql type :resolved)
-							(bind '(trashes_set call_list) payload)
 							(verbose 2 "\tfunction " f "\n\t\tcalls " call_list
 								"\n\t\ttrashes " (format-trashes trashes_set))
 							(. db :insert f (list :resolved trashes_set call_list))
@@ -173,10 +169,10 @@
 		(setq changed :nil)
 		(each (lambda (f)
 			(when (defq entry (. db :find f))
-				(bind '(type trashes_set &rest payload) entry)
+				(bind '(type &optional trashes_set call_list) entry)
 				(when (eql type :resolved)
 					(defq size_before (. trashes_set :size))
-					(each! (lambda (target)
+					(each (lambda (target)
 						(each (lambda (r) (. trashes_set :insert r))
 							(case target
 								(:abicall +float_regs)
@@ -184,7 +180,7 @@
 								(:t (if (defq callee_entry (. db :find target))
 										(. (second callee_entry) :tolist)
 										+no_regs)))))
-						payload)
+						call_list)
 					(setq changed (or changed (/= (. trashes_set :size) size_before))))))
 			worklist))
 	db)
