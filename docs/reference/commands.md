@@ -615,6 +615,7 @@ Usage: trashes [options] [function_name] ...
 
 	options:
 		-h --help: this help info.
+		-v --verbosity: how much info, default 0.
 
 	Output transitive register TRASHES for given VP functions.
 	If no paths are given on the command line, it will read

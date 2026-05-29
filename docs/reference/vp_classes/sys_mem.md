@@ -123,7 +123,7 @@ inputs
 outputs
 :r0 = address end (ptr)
 trashes
-:r0-:r3
+:r0-:r1, :r3
 ```
 
 ### :free -> sys/mem/free
