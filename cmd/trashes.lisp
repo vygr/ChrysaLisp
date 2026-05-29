@@ -164,7 +164,7 @@
 							(. db :insert f (list :external (scatter (Lset) +no_regs))))
 						((eql type :resolved)
 							(bind '(trashes_set call_list) payload)
-							(verbose 2 "\tfunction " f "\n\t\tcall_list " call_list
+							(verbose 2 "\tfunction " f "\n\t\tcalls " call_list
 								"\n\t\ttrashes " (format-trashes trashes_set))
 							(. db :insert f (list :resolved trashes_set call_list))
 							(each (lambda (target)
