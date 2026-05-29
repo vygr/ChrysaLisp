@@ -87,8 +87,8 @@
 				(cond
 					((eql op 'emit-label)
 						(if (defq pc (def? (last (second inst)) (penv)) ls (. label_map :find pc))
-							(. ls :union trace_set)
-							(. label_map :insert pc (. trace_set :copy))))
+							(. trace_set :union ls))
+						(. label_map :insert pc (. trace_set :copy)))
 					((eql op 'emit-ret)
 						(setq *pc* (. stack_map :find *rsp*) *rsp* (inc *rsp*))
 						(unless (and *pc* (num? *pc*))
@@ -122,6 +122,7 @@
 						(merge call_list '(:indirect)))
 					((find op '(emit-jmp-i emit-jmp-r))
 						(merge call_list '(:indirect))
+						(. trashes_set :union trace_set)
 						(setq *pc* (length insts)))
 					((eql op 'emit-call-abi)
 						;FIXME, should account for the platform abi trashes set !
