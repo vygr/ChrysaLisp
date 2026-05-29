@@ -1111,7 +1111,7 @@ adjust text offset
 ### slices
 
 ```code
-(slices lst) -> ((s0 e0) (s1 e1) ...)
+(slices list) -> ((s0 e0) (s1 e1) ...)
 ```
 
 ### sort

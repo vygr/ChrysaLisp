@@ -676,17 +676,17 @@
 	; (not form) -> :t | :nil
 	(static-qq (if ,%0 :nil :t)))
 
-(defmacro when (x &rest %1)
+(defmacro when (%0 &rest %1)
 	; (when tst body)
 	(if (= (length %1) 1)
-		(static-qq (if ,x ~%1))
-		(static-qq (cond (,x ~%1)))))
+		(static-qq (if ,%0 ~%1))
+		(static-qq (cond (,%0 ~%1)))))
 
-(defmacro unless (x &rest %1)
+(defmacro unless (%0 &rest %1)
 	; (unless tst body)
 	(if (= (length %1) 1)
-		(static-qq (ifn ,x ~%1))
-		(static-qq (condn (,x ~%1)))))
+		(static-qq (ifn ,%0 ~%1))
+		(static-qq (condn (,%0 ~%1)))))
 
 (defmacro or (&rest %0)
 	; (or [tst] ...) -> :nil | tst
@@ -761,13 +761,14 @@
 		(while (< b e) (push l b) (++ b s))
 		(while (> b e) (push l b) (-- b s))) l)
 
-(defun slices (lst)
-	; (slices lst) -> ((s0 e0) (s1 e1) ...)
-	(reduce! (# (cond
-			((or (empty? %0) (> %1 (last (last %0))))
-				(push %0 (list %1 (inc %1))))
-			((elem-set (last %0) 1 (inc %1)) %0)))
-		(list (sort lst (const -))) (list)))
+(defun slices (%0)
+	; (slices list) -> ((s0 e0) (s1 e1) ...)
+	(if (empty? %0) (list)
+		(reduce! (# (cond
+				((> %1 (last (last %0))) (push %0 (list %1 (inc %1))))
+				((elem-set (last %0) 1 (inc %1)) %0)))
+			(list (sort %0 (const -)))
+			(list (list (first %0) (inc (first %0)))) 1)))
 
 (defun each-mergeable (f s)
 	; (each-mergeable lambda seq) -> seq
