@@ -14,9 +14,12 @@
 	paths from stdin.")
 ))
 
-(defq +no_regs ''() +all_regs
+(defq +no_regs ''()
+	+all_regs
 		''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14
 		:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
+	+float_regs
+		''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
 	+opt_two_out_ops
 		''(emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr emit-div-rrr-u))
 
@@ -59,12 +62,12 @@
 		('())))
 
 (defun resolve-call (insts lbl)
-	(when (defq pc (def? lbl (penv)))
+	(when (defq pc (def? lbl (penv (penv))))
 		(defq inst (elem-get insts (inc pc)) op (first inst))
 		(when (eql op 'emit-long)
 			(defq expr (second inst))
 			(when (and (list? expr) (= (length expr) 3) (eql (first expr) '-))
-				(when (defq pc (def? (second expr) (penv)))
+				(when (defq pc (def? (second expr) (penv (penv))))
 					(defq inst (elem-get insts (inc pc)) op (first inst))
 					(when (eql op 'emit-string)
 						(second inst)))))))
@@ -82,8 +85,8 @@
 		(each-mergeable (lambda ((*pc* *rsp* stack_map trace_set n))
 			(while (< *pc* (length insts))
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
-				(print func_name " trace " n " pc " *pc*)
-				(print inst)
+				; (print func_name " trace " n " pc " *pc*)
+				; (print inst)
 				(cond
 					((eql op 'emit-label)
 						(if (defq pc (def? (last (second inst)) (penv)) ls (. label_map :find pc))
@@ -119,29 +122,35 @@
 							(push traces (list pc *rsp*
 								(. stack_map :copy) (. trace_set :copy) (++ trace)))))
 					((find op '(emit-call-i emit-call-r))
-						(push call_list :indirect))
+						(merge call_list '(:indirect)))
 					((find op '(emit-jmp-i emit-jmp-r))
-						(push call_list :indirect)
+						(merge call_list '(:indirect))
 						(setq *pc* (length insts)))
 					((eql op 'emit-call-abi)
 						;FIXME, should account for the platform abi trashes set !
+						(merge call_list '(:abicall))
 						(. trace_set :insert :r0)
 						(. trace_set :insert (second inst))
 						(. trace_set :insert (third inst)))
 					((eql op 'emit-call-p)
-						(push call_list (resolve-call insts (second inst))))
+						(merge call_list (list (resolve-call insts (second inst)))))
 					((eql op 'emit-jmp-p)
-						(push call_list (resolve-call insts (second inst)))
+						(merge call_list (list (resolve-call insts (second inst))))
 						(setq *pc* (length insts)))
 					((each (# (. trace_set :insert %0))
 						(get-modified-regs inst))))
-			(print (format-trashes trace_set))
-			(print))) traces)
+				; (print (format-trashes trace_set))
+				; (print)
+				))
+			traces)
+		(print "call_list -> " call_list)
+		(print "trashes -> " (format-trashes trashes_set))
 		(list :resolved trashes_set call_list))))
 
 (defun propagate-trashes (functions)
 	(defq db (Fmap 101) documented_map (Fmap 101) worklist (cat functions))
 	(each-mergeable (lambda (f)
+		(print "propagate -> " f)
 		(unless (. db :find f)
 			(cond
 				;a dependency (not one of the initial targets) and has documented trashes, use them!
@@ -155,9 +164,10 @@
 							(bind '(trashes_set call_list) payload)
 							(. db :insert f (list :resolved trashes_set call_list))
 							(each (lambda (target)
-									(if (str? target) (merge worklist (list target))))
+									(ifn (sym? target) (merge worklist (list target))))
 								call_list)))))))
 		worklist)
+	(print "worklist -> " worklist)
 	(defq changed :t)
 	(while changed
 		(setq changed :nil)
@@ -168,13 +178,14 @@
 					(defq size_before (. trashes_set :size))
 					(each! (lambda (target)
 						(each (lambda (r) (. trashes_set :insert r))
-							(if (find target '(:indirect :abicall))
-								+no_regs
-								(if (defq callee_entry (. db :find target))
-									(. (second callee_entry) :tolist)
-									+no_regs))))
+							(case target
+								(:abicall +float_regs)
+								(:indirect +no_regs)
+								(:t (if (defq callee_entry (. db :find target))
+										(. (second callee_entry) :tolist)
+										+no_regs)))))
 						payload)
-					(setq changed (/= (. trashes_set :size) size_before)))))
+					(setq changed (or changed (/= (. trashes_set :size) size_before))))))
 			worklist))
 	db)
 
