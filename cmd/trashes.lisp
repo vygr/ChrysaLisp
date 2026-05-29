@@ -141,6 +141,7 @@
 						(merge call_list (list (resolve-call insts (second inst)))))
 					((eql op 'emit-jmp-p)
 						(merge call_list (list (resolve-call insts (second inst))))
+						(. trashes_set :union trace_set)
 						(setq *pc* (length insts)))
 					((each (# (. trace_set :insert %0))
 						(get-modified-regs inst))))
