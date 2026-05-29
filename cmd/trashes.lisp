@@ -8,11 +8,16 @@
 
 	options:
 		-h --help: this help info.
+		-v --verbosity: how much info, default 0.
 
 	Output transitive register TRASHES for given VP functions.
 	If no paths are given on the command line, it will read
 	paths from stdin.")
+(("-v" "--verbosity") ,(opt-num 'opt_v))
 ))
+
+(defun verbose (v &rest info)
+	(if (<= v opt_v) (print (apply (const str) info))))
 
 (defq +no_regs ''()
 	+all_regs
@@ -82,11 +87,11 @@
 			(defq insts (first (read (file-stream obj_path)))))
 		(defq call_list (list) trashes_set (Lset) label_map (Lmap)
 			trace 0 traces (list (list _2 0 (Lmap) (Lset) trace)))
+		(verbose 3 "\ttracing " func_name)
 		(each-mergeable (lambda ((*pc* *rsp* stack_map trace_set n))
 			(while (< *pc* (length insts))
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
-				; (print func_name " trace " n " pc " *pc*)
-				; (print inst)
+				(verbose 3 "\t\t" func_name " trace " n " pc " *pc* "\n\t\t\t" inst)
 				(cond
 					((eql op 'emit-label)
 						(if (defq pc (def? (last (second inst)) (penv)) ls (. label_map :find pc))
@@ -139,18 +144,15 @@
 						(setq *pc* (length insts)))
 					((each (# (. trace_set :insert %0))
 						(get-modified-regs inst))))
-				; (print (format-trashes trace_set))
-				; (print)
+				(verbose 3 "\t\t\t" (format-trashes trace_set))
 				))
 			traces)
-		(print "call_list -> " call_list)
-		(print "trashes -> " (format-trashes trashes_set))
 		(list :resolved trashes_set call_list))))
 
 (defun propagate-trashes (functions)
 	(defq db (Fmap 101) documented_map (Fmap 101) worklist (cat functions))
+	(verbose 1 "functions " worklist)
 	(each-mergeable (lambda (f)
-		(print "propagate -> " f)
 		(unless (. db :find f)
 			(cond
 				;a dependency (not one of the initial targets) and has documented trashes, use them!
@@ -162,12 +164,14 @@
 							(. db :insert f (list :external (scatter (Lset) +no_regs))))
 						((eql type :resolved)
 							(bind '(trashes_set call_list) payload)
+							(verbose 2 "\tfunction " f "\n\t\tcall_list " call_list
+								"\n\t\ttrashes " (format-trashes trashes_set))
 							(. db :insert f (list :resolved trashes_set call_list))
 							(each (lambda (target)
 									(ifn (sym? target) (merge worklist (list target))))
 								call_list)))))))
 		worklist)
-	(print "worklist -> " worklist)
+	(verbose 1 "dependencies " worklist)
 	(defq changed :t)
 	(while changed
 		(setq changed :nil)
@@ -192,7 +196,7 @@
 (defun main ()
 	(when (and
 			(defq stdio (create-stdio))
-			(defq args (options stdio usage)))
+			(defq opt_v 0 args (options stdio usage)))
 		(defq targets (rest args))
 		(if (empty? targets)
 			(lines! (lambda (line) (push targets (trim line))) (io-stream 'stdin)))
