@@ -24,20 +24,15 @@
 		''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14
 		:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
 	+float_regs
-		''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
-	+opt_two_out_ops
-		''(emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr emit-div-rrr-u))
+		''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
 
 (defun reg? (r)
 	(and (sym? r)
-		(or (find r '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+		(or (find r '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp))
 			(find r '(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)))))
 
 (defun strip-colon (s)
 	(if (starts-with ":" s) (slice s 1 -1) s))
-
-(defun reg-index (r)
-	(str-to-num (slice r 2 -1)))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (setq e (dec e)))
@@ -48,21 +43,21 @@
 (defun format-trashes (trashes_set)
 	(defq r_indices (list) f_indices (list))
 	(each (# (if (starts-with ":r" %0)
-			(push r_indices (reg-index %0))
-			(push f_indices (reg-index %0))))
+			(push r_indices (reg? %0))
+			(push f_indices (reg? %0))))
 		(. trashes_set :tolist))
 	(defq formatted_parts (cat (format-group ":r" r_indices) (format-group ":f" f_indices)))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 
 (defun get-modified-regs (inst)
 	(cond
-		((find (defq op (first inst))
-			'(emit-push emit-alloc emit-free emit-ret emit-sync
-			emit-brk emit-nop emit-label emit-tlabel emit-align
-			emit-string emit-byte emit-short emit-int emit-long emit-cstr)) '())
-		((find op '(emit-call-p emit-call-i emit-call emit-call-r emit-call-abi)) '())
+		((find (defq op (first inst)) '(emit-push emit-alloc emit-free
+			emit-ret emit-sync emit-brk emit-nop emit-label emit-tlabel
+			emit-align emit-string emit-byte emit-short emit-int emit-long
+			emit-cstr emit-call-p emit-call-i emit-call emit-call-r emit-call-abi)) '())
 		((eql op 'emit-pop) (rest inst))
-		((find op +opt_two_out_ops) (slice inst -3 -1))
+		((find op '(emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr
+			emit-div-rrr-u)) (slice inst -3 -1))
 		((reg? (last inst)) (slice inst -2 -1))
 		('())))
 
