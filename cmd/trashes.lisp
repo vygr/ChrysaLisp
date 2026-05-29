@@ -17,7 +17,7 @@
 ))
 
 (defun verbose (v &rest info)
-	(if (<= v opt_v) (print (apply (const str) info))))
+	(if (<= v opt_v) (apply (const print) info)))
 
 (defq +no_regs ''()
 	+all_regs
