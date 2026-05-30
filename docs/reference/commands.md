@@ -416,7 +416,7 @@ Usage: repeat [options] command_line
 
     options:
         -h --help: this help info.
-        -c --count: count, default 10.
+        -c --count num: count, default 10.
 
     Repeat run command line.
 ```
@@ -615,7 +615,7 @@ Usage: trashes [options] [function_name] ...
 
 	options:
 		-h --help: this help info.
-		-v --verbosity: how much info, default 0.
+		-v --verbosity num: how much info, default 0.
 
 	Output transitive register TRASHES for given VP functions.
 	If no paths are given on the command line, it will read

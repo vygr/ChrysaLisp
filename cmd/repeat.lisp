@@ -7,7 +7,7 @@
 
     options:
         -h --help: this help info.
-        -c --count: count, default 10.
+        -c --count num: count, default 10.
 
     Repeat run command line.")
 (("-c" "--count") ,(opt-num 'opt_c))
