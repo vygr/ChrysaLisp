@@ -95,12 +95,13 @@
 							(. trace_set :union ls))
 						(. label_map :insert pc (. trace_set :copy)))
 					((eql op 'emit-ret)
-						(setq *pc* (. stack_map :find *rsp*) *rsp* (inc *rsp*))
+						(setq *pc* (. stack_map :find *rsp*))
+						(++ *rsp* +long_size)
 						(unless (and *pc* (num? *pc*))
 							(. func_set :union trace_set)
 							(setq *pc* (length insts))))
 					((eql op 'emit-call)
-						(. stack_map :insert (setq *rsp* (dec *rsp*)) *pc*)
+						(. stack_map :insert (-- *rsp* +long_size) *pc*)
 						(setq *pc* (get (second inst))))
 					((eql op 'emit-jmp)
 						(defq pc (get (last inst)) ls (. label_map :find pc))
@@ -112,12 +113,17 @@
 					((eql op 'emit-free)
 						(setq *rsp* (++ *rsp* (second inst))))
 					((eql op 'emit-push)
-						(each! (# (. stack_map :insert (-- *rsp* +long_size) %0))
+						;push the values of all registers pushed
+						(each! (# (. stack_map :insert (-- *rsp* +long_size)
+								(. reg_map :find %0)))
 							(list inst) 1))
 					((eql op 'emit-pop)
-						(each! (# (defq r (. stack_map :find *rsp*))
+						;push the values of all registers popped
+						;and flag if register is now restored
+						(each! (# (defq val (. stack_map :find *rsp*))
 								(++ *rsp* +long_size)
-								(if (eql r %0) (. trace_set :erase %0)))
+								(. reg_map :insert %0 val)
+								(if (eql val %0) (. trace_set :erase %0)))
 							(list inst) -1 1))
 					((find op '(emit-beq-cr emit-bne-cr emit-bge-cr
 								emit-ble-cr emit-blt-cr emit-bgt-cr
@@ -146,8 +152,9 @@
 						(merge call_list (list (resolve-call insts (second inst))))
 						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
-					((each (# (. trace_set :insert %0))
-						(get-modified-regs inst))))
+					(:t	;each modified register is flagged as trashed and value :nil
+						(each (# (. trace_set :insert %0) (. reg_map :insert %0 :nil))
+							(get-modified-regs inst))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set)))
 			(. trace_map :erase trace))
 		(list :resolved func_set call_list))))
