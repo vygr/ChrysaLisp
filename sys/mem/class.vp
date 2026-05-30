@@ -426,7 +426,7 @@
 	;:r0 = source address end (ptr)
 	;:r1 = destination address end (ptr)
 	;trashes
-	;:r0-:r8
+	;:r0-:r3, :r5-:r8
 	;info
 	;copies within a ring buffer, handling wraps for both src and dst.
 	;assumes non-overlapping regions.
@@ -439,9 +439,9 @@
 		;source wraps
 		(vp-sub-rr :r6 :r5)
 		(vp-sub-rr :r5 :r2)
-		(assign `(:r3 :r4 :r5) `(:r6 :r7 :r8))
+		(assign '(:r3 :r4 :r5) '(:r6 :r7 :r8))
 		(call :sys_mem :copy_to_ring '(:r0 :r1 :r2 :r3 :r4) '(_ :r1))
-		(assign `(:r6 :r7 :r8 :r7) `(:r3 :r4 :r2 :r0))
+		(assign '(:r6 :r7 :r8 :r7) '(:r3 :r4 :r2 :r0))
 	(endif)
 	(jump :sys_mem :copy_to_ring '(:r0 :r1 :r2 :r3 :r4))
 

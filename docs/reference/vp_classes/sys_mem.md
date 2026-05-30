@@ -89,7 +89,7 @@ outputs
 :r0 = source address end (ptr)
 :r1 = destination address end (ptr)
 trashes
-:r0-:r8
+:r0-:r3, :r5-:r8
 info
 copies within a ring buffer, handling wraps for both src and dst.
 assumes non-overlapping regions.
