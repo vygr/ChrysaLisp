@@ -350,14 +350,13 @@
 			(defq stdio (create-stdio))
 			(defq opt_v 0 opt_l :nil args (options stdio usage)))
 		(defq targets (rest args))
-		(if opt_l
-			(progn
-				(defq doc_db (load-doc-trashes))
-				(defq full_lint (empty? targets))
-				(if full_lint
-					(setq targets (map (const first) (. doc_db :tolist))))
-				(when (nempty? targets)
-					(defq db (propagate-trashes targets))
+		(if (empty? targets)
+			(lines! (lambda (line) (push targets (trim line))) (io-stream 'stdin)))
+		(when (nempty? targets)
+			(defq db (propagate-trashes targets))
+			(if opt_l
+				(progn
+					(defq doc_db (load-doc-trashes))
 					(each (lambda (f)
 							(when (defq entry (. db :find f))
 								(when (nql (first entry) :external)
@@ -372,12 +371,8 @@
 												(print "WARNING: Mismatch in " f)
 												(print "  Documented: " doc_val)
 												(print "  Calculated: " calc_val)))))))
-						targets)))
-			(progn
-				(if (empty? targets)
-					(lines! (lambda (line) (push targets (trim line))) (io-stream 'stdin)))
-				(when (nempty? targets)
-					(defq db (propagate-trashes targets))
+						targets))
+				(progn
 					(each (lambda (f)
 							(when (defq entry (. db :find f))
 								(print f " -> " (format-trashes (second entry)))))
