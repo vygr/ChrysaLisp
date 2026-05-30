@@ -290,9 +290,7 @@
 							(case target
 								(:abicall +float_regs)
 								(:indirect +no_regs)
-								(:t (if (defq callee_entry (. db :find target))
-										(. (second callee_entry) :tolist)
-										+no_regs)))))
+								(:t +no_regs))))
 						call_list)
 					(setq changed (or changed (/= (. func_set :size) size_before))))))
 			order))
