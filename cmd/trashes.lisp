@@ -363,8 +363,7 @@
 									(defq doc_val (. doc_db :find f))
 									(cond
 										((not doc_val)
-											(unless full_lint
-												(print "WARNING: No documentation found for " f)))
+											(print "WARNING: No documentation found for " f))
 										(:t
 											(defq calc_val (format-trashes (second entry)))
 											(unless (eql (normalize-trashes doc_val) (normalize-trashes calc_val))
