@@ -44,7 +44,7 @@
 	;outputs
 	;:r0 = heap (ptr)
 	;trashes
-	;:r1-:r6
+	;:r1-:r6, :f0-:f15
 
 	(entry :sys_heap :deinit '(:r5))
 
@@ -72,7 +72,7 @@
 	;:r0 = heap (ptr)
 	;:r1 = cell (ptr)
 	;trashes
-	;:r1-:r2
+	;:r1-:r2, :f0-:f15
 
 	(vp-rdef (this cell next blocksize cellsize block blockend cnt statics)
 		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r2))
@@ -127,7 +127,7 @@
 	;outputs
 	;:r0 = heap (ptr)
 	;trashes
-	;:r1-:r8
+	;:r1-:r8, :f0-:f15
 
 	(vp-rdef (_ _ _ this blk cel next tail total))
 

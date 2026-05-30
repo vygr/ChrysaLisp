@@ -11,7 +11,7 @@ outputs
 :r0 = heap (ptr)
 :r1 = cell (ptr)
 trashes
-:r1-:r2
+:r1-:r2, :f0-:f15
 ```
 
 ### :collect -> sys/heap/collect
@@ -22,7 +22,7 @@ inputs
 outputs
 :r0 = heap (ptr)
 trashes
-:r1-:r8
+:r1-:r8, :f0-:f15
 ```
 
 ### :deinit -> sys/heap/deinit
@@ -33,7 +33,7 @@ inputs
 outputs
 :r0 = heap (ptr)
 trashes
-:r1-:r6
+:r1-:r6, :f0-:f15
 ```
 
 ### :free -> sys/heap/free
