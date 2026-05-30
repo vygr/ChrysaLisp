@@ -205,7 +205,9 @@
 						(each! (# (defq val (. stack_map :find *rsp*))
 								(++ *rsp* +long_size)
 								(. reg_map :insert %0 val)
-								(if (eql val %0) (. trace_set :erase %0)))
+								(if (eql val %0)
+									(. trace_set :erase %0)
+									(. trace_set :insert %0)))
 							(list inst) -1 1))
 					((and (find op '(emit-cpy-ri emit-cpy-fi)) (eql (third inst) :rsp))
 						;stack spill 64 bit
