@@ -79,7 +79,48 @@
 					(when (eql op 'emit-string)
 						(second inst)))))))
 
-(defun analyze-function (func_name)
+(defun get-dependencies (func_name)
+	;scan the compiled VP object
+	(defq deps (Lset))
+	(when (and (nql func_name :indirect) (nql func_name :abicall)
+			(> (age (defq obj_path (cat "obj/vp/" func_name))) 0))
+		(defq insts (first (read (file-stream obj_path))))
+		;local labels so resolve-call can find them
+		(each (# (if (eql (first %0) 'emit-label)
+				(def (penv) (last (second %0)) (!))))
+			insts)
+		(each (# (defq op (first %0))
+			(and (find op '(emit-call-p emit-jmp-p))
+				(defq callee (resolve-call insts (second %0)))
+				(. deps :insert callee)))
+			insts))
+	(. deps :tolist))
+
+(defun topological-sort (targets)
+	;iterative topological sort using a heap-allocated DFS stack
+	(defq visited (Fset 101) visiting (Fset 101) order (list) stack (list))
+	;initialize the stack with the top-level targets
+	(each (# (push stack (list %0 :enter))) targets)
+	(while (nempty? stack)
+		(task-slice)
+		(bind '(node state) (pop stack))
+		(cond
+			((eql state :enter)
+				(unless (or (. visited :find node) (. visiting :find node))
+					(. visiting :insert node)
+					;push the exit state first so it is evaluated after its dependencies
+					(push stack (list node :exit))
+					;push all unvisited dependencies onto the stack
+					(each (# (unless (or (. visited :find %0) (. visiting :find %0))
+							(push stack (list %0 :enter))))
+						(get-dependencies node))))
+			((eql state :exit)
+				(. visiting :erase node)
+				(. visited :insert node)
+				(push order node))))
+	order)
+
+(defun analyze-function (func_name db)
 	(cond
 		((= (age (defq obj_path (cat "obj/vp/" func_name))) 0)
 			(list :external))
@@ -193,12 +234,23 @@
 						(each (# (. reg_map :insert %0 :nil) (. trace_set :insert %0))
 							(list :r0 (second inst) (third inst))))
 					((eql op 'emit-call-p)
-						;FIXME, should eventually use the callee trashes set !
-						(merge call_list (list (resolve-call insts (second inst)))))
+						;use the callee trashes set
+						(defq callee (resolve-call insts (second inst)))
+						(merge call_list (list callee))
+						;known trashed registers from db during symbolic execution
+						(when (defq callee_entry (. db :find callee))
+							(defq callee_trashes (second callee_entry))
+							(each (# (. trace_set :insert %0) (. reg_map :insert %0 :nil))
+								(if (list? callee_trashes) callee_trashes (. callee_trashes :tolist)))))
 					((eql op 'emit-jmp-p)
 						;exit function, merge and kill trace
-						;FIXME, should eventually use the callee trashes set !
-						(merge call_list (list (resolve-call insts (second inst))))
+						(defq callee (resolve-call insts (second inst)))
+						(merge call_list (list callee))
+						;known trashed registers from db during symbolic execution
+						(when (defq callee_entry (. db :find callee))
+							(defq callee_trashes (second callee_entry))
+							(each (# (. trace_set :insert %0) (. reg_map :insert %0 :nil))
+								(if (list? callee_trashes) callee_trashes (. callee_trashes :tolist))))
 						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
 					(:t	;each modified register is flagged as trashed and value :nil
@@ -210,27 +262,21 @@
 		(list :resolved func_set call_list))))
 
 (defun propagate-trashes (functions)
-	(defq db (Fmap 101) documented_map (Fmap 101) worklist (cat functions))
-	(verbose 1 "functions " worklist)
-	(each-mergeable (lambda (f)
+	(defq db (Fmap 101) order (topological-sort functions))
+	(verbose 1 "analysis order " order)
+	;each caller now accurately steps through callee clobber states
+	(each (lambda (f)
 		(unless (. db :find f)
+			(bind '(type &optional func_set call_list) (analyze-function f db))
 			(cond
-				;a dependency (not one of the initial targets) and has documented trashes, use them!
-				((and (not (find f functions)) (defq doc_trashes (. documented_map :find f)))
-					(. db :insert f (list :documented doc_trashes)))
-				(:t (bind '(type &optional func_set call_list) (analyze-function f))
-					(cond
-						((eql type :external)
-							(. db :insert f (list :external (scatter (Lset) +no_regs))))
-						((eql type :resolved)
-							(verbose 2 "\tfunction " f "\n\t\tcalls " call_list
-								"\n\t\ttrashes " (format-trashes func_set))
-							(. db :insert f (list :resolved func_set call_list))
-							(each (lambda (target)
-									(ifn (sym? target) (merge worklist (list target))))
-								call_list)))))))
-		worklist)
-	(verbose 1 "dependencies " worklist)
+				((eql type :external)
+					(. db :insert f (list :external (scatter (Lset) +no_regs))))
+				((eql type :resolved)
+					(verbose 2 "\tfunction " f "\n\t\tcalls " call_list
+						"\n\t\ttrashes " (format-trashes func_set))
+					(. db :insert f (list :resolved func_set call_list))))))
+		order)
+	;converge remaining transitive sets (such as recursive structures)
 	(defq changed :t)
 	(while changed
 		(setq changed :nil)
@@ -249,7 +295,7 @@
 										+no_regs)))))
 						call_list)
 					(setq changed (or changed (/= (. func_set :size) size_before))))))
-			worklist))
+			order))
 	db)
 
 (defun main ()
