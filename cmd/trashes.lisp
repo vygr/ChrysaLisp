@@ -24,12 +24,15 @@
 		''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14
 		:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
 	+float_regs
-		''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
+		''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
+	+regs_map
+		(reduce (# (def %0 %1 (!)) %0)
+			'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
+		(reduce (# (def %0 %1 (!)) %0)
+			'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
+			(env 1))))
 
-(defun reg? (r)
-	(and (sym? r)
-		(or (find r '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp))
-			(find r '(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)))))
+(defun reg? (r) (if (eql :sym (pop (type-of r))) (def? r +regs_map)))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (setq e (dec e)))
@@ -59,12 +62,12 @@
 		('())))
 
 (defun resolve-call (insts lbl)
-	(when (defq pc (def? lbl (penv (penv))))
+	(when (defq pc (get lbl (penv)))
 		(defq inst (elem-get insts (inc pc)) op (first inst))
 		(when (eql op 'emit-long)
 			(defq expr (second inst))
 			(when (and (list? expr) (= (length expr) 3) (eql (first expr) '-))
-				(when (defq pc (def? (second expr) (penv (penv))))
+				(when (defq pc (get (second expr) (penv)))
 					(defq inst (elem-get insts (inc pc)) op (first inst))
 					(when (eql op 'emit-string)
 						(second inst)))))))
@@ -78,15 +81,17 @@
 					(def (penv) (last (second %0)) (!))))
 			(defq insts (first (read (file-stream obj_path)))))
 		(defq call_list (list) trashes_set (Lset) label_map (Lmap)
-			trace 0 traces (list (list _2 0 (Lmap) (Lset) trace)))
+			trace -1 next_trace 0
+			trace_map (scatter (Lmap) 0 (list _2 0 (Lmap) (Lset))))
 		(verbose 3 "\ttracing " func_name)
-		(each-mergeable (lambda ((*pc* *rsp* stack_map trace_set n))
+		(while (<= (++ trace) next_trace)
+			(bind '(*pc* *rsp* stack_map trace_set) (. trace_map :find trace))
 			(while (< *pc* (length insts))
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
-				(verbose 3 "\t\t" func_name " trace " n " pc " *pc* "\n\t\t\t" inst)
+				(verbose 3 "\t\t" func_name " trace " trace " pc " *pc* "\n\t\t\t" inst)
 				(cond
 					((eql op 'emit-label)
-						(if (defq pc (def? (last (second inst)) (penv)) ls (. label_map :find pc))
+						(if (defq pc (get (last (second inst))) ls (. label_map :find pc))
 							(. trace_set :union ls))
 						(. label_map :insert pc (. trace_set :copy)))
 					((eql op 'emit-ret)
@@ -96,9 +101,9 @@
 							(setq *pc* (length insts))))
 					((eql op 'emit-call)
 						(. stack_map :insert (setq *rsp* (dec *rsp*)) *pc*)
-						(setq *pc* (def? (second inst) (penv))))
+						(setq *pc* (get (second inst))))
 					((eql op 'emit-jmp)
-						(defq pc (def? (last inst) (penv)) ls (. label_map :find pc))
+						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(if (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
 							(setq *pc* pc)
 							(setq *pc* (length insts))))
@@ -114,10 +119,10 @@
 								emit-ble-cr emit-blt-cr emit-bgt-cr
 								emit-beq-rr emit-bne-rr emit-bge-rr
 								emit-ble-rr emit-blt-rr emit-bgt-rr))
-						(defq pc (def? (last inst) (penv)) ls (. label_map :find pc))
+						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
-							(push traces (list pc *rsp*
-								(. stack_map :copy) (. trace_set :copy) (++ trace)))))
+							(. trace_map :insert (++ next_trace) (list pc *rsp*
+								(. stack_map :copy) (. trace_set :copy)))))
 					((find op '(emit-call-i emit-call-r))
 						(merge call_list '(:indirect)))
 					((find op '(emit-jmp-i emit-jmp-r))
@@ -138,9 +143,8 @@
 						(setq *pc* (length insts)))
 					((each (# (. trace_set :insert %0))
 						(get-modified-regs inst))))
-				(verbose 3 "\t\t\t" (format-trashes trace_set))
-				))
-			traces)
+				(verbose 3 "\t\t\t" (format-trashes trace_set)))
+			(. trace_map :erase trace))
 		(list :resolved trashes_set call_list))))
 
 (defun propagate-trashes (functions)
