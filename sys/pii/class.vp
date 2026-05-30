@@ -147,7 +147,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0
+	;:r0, :f0-:f15
 
 	(entry :host_os :pii_write_num '(:r0 :r1 :r2))
 	(abi-push-trashed :r1 :r2 :r3 :r4)
@@ -182,14 +182,14 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0
+	;:r0, :f0-:f15
 
 	(entry :host_os :pii_write_char '(:r0 :r1))
-	(abi-push-trashed :r1 :r13 :r14)
+	(abi-push-trashed :r1 :r2 :r13 :r14)
 	(vp-push :r1)
 	(host-os-call :host_os :write '(:r0 :rsp 1) '(:r0))
 	(vp-free +ptr_size)
-	(abi-pop-trashed :r1 :r13 :r14)
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_write_char '(:r0))
 	(vp-ret)
 
@@ -221,14 +221,14 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0
+	;:r0, :f0-:f15
 
 	(entry :host_os :pii_write_str '(:r0 :r1))
-	(abi-push-trashed :r1 :r3 :r13 :r14)
+	(abi-push-trashed :r1 :r2 :r3 :r13 :r14)
 	(vp-cpy-rr :r0 :r3)
 	(call :sys_str :length '(:r1) '(:r0 :r1))
 	(host-os-call :host_os :write '(:r3 :r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r3 :r13 :r14)
+	(abi-pop-trashed :r1 :r2 :r3 :r13 :r14)
 	(exit :host_os :pii_write_str '(:r0))
 	(vp-ret)
 
@@ -364,15 +364,15 @@
 	;outputs
 	;:r0 = char (long)
 	;trashes
-	;:r0
+	;:r0, :f0-:f15
 
 	(entry :host_os :pii_read_char '(:r0))
-	(abi-push-trashed :r13 :r14)
+	(abi-push-trashed :r1 :r2 :r13 :r14)
 	(vp-xor-rr :r1 :r1)
 	(vp-push :r1)
 	(host-os-call :host_os :read '(:r0 :rsp 1))
 	(vp-pop :r0)
-	(abi-pop-trashed :r13 :r14)
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_read_char '(:r0))
 	(vp-ret)
 

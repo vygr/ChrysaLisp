@@ -191,7 +191,7 @@ inputs
 outputs
 :r0 = char (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_remove -> sys/pii/remove
@@ -272,7 +272,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_write_num -> sys/pii/write_num
@@ -285,7 +285,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_write_str -> sys/pii/write_str
@@ -297,7 +297,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :rand -> :nil
