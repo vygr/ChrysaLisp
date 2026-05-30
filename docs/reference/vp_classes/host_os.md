@@ -47,7 +47,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_close -> sys/pii/close
@@ -58,7 +58,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_close_shared -> sys/pii/close_shared
@@ -70,7 +70,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_dirlist -> sys/pii/dirlist
@@ -83,7 +83,7 @@ inputs
 outputs
 :r0 = buffer length (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_exit -> sys/pii/exit
@@ -91,6 +91,8 @@ trashes
 ```code
 inputs
 :r0 = code (long)
+trashes
+:f0-:f15
 ```
 
 ### :pii_flush -> sys/pii/flush
@@ -105,7 +107,7 @@ inputs
 outputs
 :r0 = buffer (ptr)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_mprotect -> sys/pii/mprotect
@@ -118,7 +120,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_munmap -> sys/pii/munmap
@@ -131,7 +133,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_open -> sys/pii/open
@@ -143,7 +145,7 @@ inputs
 outputs
 :r0 = fd (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_open_shared -> sys/pii/open_shared
@@ -155,7 +157,7 @@ inputs
 outputs
 :r0 = handle (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_rand -> sys/pii/rand
@@ -165,7 +167,7 @@ inputs
 :r0 = data buffer pointer (pubyte)
 :r1 = length (uint)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_read -> sys/pii/read
@@ -178,7 +180,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_read_char -> sys/pii/read_char
@@ -200,7 +202,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_seek -> sys/pii/seek
@@ -213,7 +215,7 @@ inputs
 outputs
 :r0 = -1 if error, else file position (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_stat -> sys/pii/stat
@@ -225,7 +227,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_time -> sys/pii/time
@@ -234,7 +236,7 @@ trashes
 outputs
 :r0 = time in usec (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_unlink -> sys/pii/unlink
@@ -245,7 +247,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_write -> sys/pii/write
@@ -258,7 +260,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0
+:r0, :f0-:f15
 ```
 
 ### :pii_write_char -> sys/pii/write_char
