@@ -67,6 +67,9 @@ Map collections classes.
 `(scatter)` and `(gather)` can now be given a list of args, as well as take
 `&rest` args.
 
+New `cmd/trashes.lisp` command for static analysis of the VP output code. Has
+the ability to lint against the `docs/reference/vp_classes/` documents.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
