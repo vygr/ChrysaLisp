@@ -301,7 +301,7 @@ inputs
 outputs
 :r0 = str object (ptr)
 trashes
-:r1-:r5, :r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :ref_elem -> class/str/ref_elem

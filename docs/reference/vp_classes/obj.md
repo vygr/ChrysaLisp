@@ -28,7 +28,7 @@
 inputs
 :r0 = object (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :deref_if -> class/obj/deref_if
@@ -37,7 +37,7 @@ trashes
 inputs
 :r0 = 0, else object (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :destroy -> class/obj/destroy
@@ -46,7 +46,7 @@ trashes
 inputs
 :r0 = object (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :eql -> class/obj/eql
@@ -71,7 +71,7 @@ outputs
 :r0 = object (ptr)
 :r1 = hash code (long)
 trashes
-:r1-:r14
+:r1
 ```
 
 ### :init -> class/obj/init
@@ -111,7 +111,7 @@ inputs
 outputs
 :r0 = object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :ref -> class/obj/ref
@@ -145,7 +145,7 @@ outputs
 :r0 = obj object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3
+:r1-:r3, :f0-:f15
 ```
 
 ### :vtable -> class/obj/vtable

@@ -9,7 +9,7 @@
 	;inputs
 	;:r0 = object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	(entry :obj :destroy '(:r0))
 
@@ -25,7 +25,7 @@
 	;:r0 = object (ptr)
 	;:r1 = hash code (long)
 	;trashes
-	;:r1-:r14
+	;:r1
 
 	(entry :obj :hash '(:r0))
 	(exit :obj :hash '(:r0 :r0))
@@ -68,7 +68,7 @@
 	;inputs
 	;:r0 = object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	(entry :obj :deref '(:r0))
 
@@ -89,7 +89,7 @@
 	;inputs
 	;:r0 = 0, else object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	(entry :obj :deref_if '(:r0))
 
@@ -127,7 +127,7 @@
 	;outputs
 	;:r0 = object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :obj :print '(:r0 :r1))
 
@@ -152,7 +152,7 @@
 	;:r0 = obj object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3
+	;:r1-:r3, :f0-:f15
 
 	(entry :obj :type '(:r3))
 
