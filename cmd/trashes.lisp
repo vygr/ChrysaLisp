@@ -18,7 +18,8 @@
 ))
 
 (defun verbose (v &rest info)
-	(if (<= v opt_v) (apply (const print) info)))
+	(if (<= v opt_v) (apply (const print) info))
+	(stream-flush (io-stream 'stdout)))
 
 (defq +no_regs ''()
 	+all_regs
@@ -287,10 +288,10 @@
 
 (defun propagate-trashes (functions)
 	(defq db (Fmap 101) order (topological-sort functions))
-	(verbose 1 "analysis order " order)
 	;each caller now accurately steps through callee clobber states
 	(each (lambda (f)
 		(unless (. db :find f)
+			(verbose 1 "analyzing " f)
 			(bind '(type &optional func_set call_list) (analyze-function f db))
 			(cond
 				((eql type :external)
