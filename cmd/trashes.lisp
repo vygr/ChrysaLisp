@@ -126,7 +126,8 @@
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
 							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (. label_map :copy) (. trace_set :copy)))))
+								(. stack_map :copy) (. label_map :copy)
+								(. reg_map :copy) (. trace_set :copy)))))
 					((find op '(emit-call-i emit-call-r))
 						(merge call_list '(:indirect)))
 					((find op '(emit-jmp-i emit-jmp-r))
