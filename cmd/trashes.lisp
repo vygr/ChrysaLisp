@@ -1,6 +1,5 @@
 (import "lib/options/options.inc")
 (import "lib/files/files.inc")
-(import "lib/debug/frames.inc")
 
 (defq usage `(
 	(("-h" "--help")
@@ -9,11 +8,13 @@
 	options:
 		-h --help: this help info.
 		-v --verbosity num: how much info, default 0.
+		-l --lint: lint documented vs calculated trashes.
 
 	Output transitive register TRASHES for given VP functions.
 	If no paths are given on the command line, it will read
 	paths from stdin.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
+(("-l" "--lint") ,(opt-flag 'opt_l))
 ))
 
 (defun verbose (v &rest info)
@@ -272,7 +273,7 @@
 								(if (list? callee_trashes) callee_trashes (. callee_trashes :tolist))))
 						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
-					(:t	;each modified register is flagged as trashed and value :nil
+					(:t ;each modified register is flagged as trashed and value :nil
 						(each (# (. trace_set :insert %0) (. reg_map :insert %0 :nil))
 							(get-modified-regs inst))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
@@ -315,16 +316,69 @@
 			order))
 	db)
 
+(defun normalize-trashes (s)
+	(if (or (not s) (eql s "none"))
+		"none"
+		(to-lower (apply (const cat) (filter (# (not (find %0 " \t"))) s)))))
+
+(defun load-doc-trashes ()
+	(defq doc_db (Fmap 101) files (files-all "docs/reference/vp_classes" '(".md")))
+	(each (lambda (file)
+			(when (defq stream (file-stream file))
+				(defq current_func :nil in_trashes :nil)
+				(lines! (lambda (line)
+						(setq line (trim line))
+						(cond
+							((starts-with "### " line)
+								(setq in_trashes :nil)
+								(defq pos (find "-> " line))
+								(if pos
+									(setq current_func (trim (slice line (+ pos 3) -1)))
+									(setq current_func :nil)))
+							((and current_func (eql line "trashes"))
+								(setq in_trashes :t))
+							(in_trashes
+								(when (nempty? line)
+									(. doc_db :insert current_func line)
+									(setq in_trashes :nil current_func :nil)))))
+					stream)))
+		files)
+	doc_db)
+
 (defun main ()
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_v 0 args (options stdio usage)))
+			(defq opt_v 0 opt_l :nil args (options stdio usage)))
 		(defq targets (rest args))
-		(if (empty? targets)
-			(lines! (lambda (line) (push targets (trim line))) (io-stream 'stdin)))
-		(when (nempty? targets)
-			(defq db (propagate-trashes targets))
-			(each (lambda (f)
-				(when (defq entry (. db :find f))
-					(print f " -> " (format-trashes (second entry)))))
-				targets))))
+		(if opt_l
+			(progn
+				(defq doc_db (load-doc-trashes))
+				(defq full_lint (empty? targets))
+				(if full_lint
+					(setq targets (map (const first) (. doc_db :tolist))))
+				(when (nempty? targets)
+					(defq db (propagate-trashes targets))
+					(each (lambda (f)
+							(when (defq entry (. db :find f))
+								(when (nql (first entry) :external)
+									(defq doc_val (. doc_db :find f))
+									(cond
+										((not doc_val)
+											(unless full_lint
+												(print "WARNING: No documentation found for " f)))
+										(:t
+											(defq calc_val (format-trashes (second entry)))
+											(unless (eql (normalize-trashes doc_val) (normalize-trashes calc_val))
+												(print "WARNING: Mismatch in " f)
+												(print "  Documented: " doc_val)
+												(print "  Calculated: " calc_val)))))))
+						targets)))
+			(progn
+				(if (empty? targets)
+					(lines! (lambda (line) (push targets (trim line))) (io-stream 'stdin)))
+				(when (nempty? targets)
+					(defq db (propagate-trashes targets))
+					(each (lambda (f)
+							(when (defq entry (. db :find f))
+								(print f " -> " (format-trashes (second entry)))))
+						targets))))))
