@@ -146,6 +146,23 @@
 								(. reg_map :insert %0 val)
 								(if (eql val %0) (. trace_set :erase %0)))
 							(list inst) -1 1))
+					((and (find op '(emit-cpy-ri emit-cpy-fi)) (eql (third inst) :rsp))
+						;stack spill 64 bit
+						(bind '(& src & offset) inst)
+						(defq val (. reg_map :find src))
+						(. stack_map :insert (+ *rsp* offset) val))
+					((and (find op '(emit-cpy-ir emit-cpy-if)) (eql (second inst) :rsp))
+						;stack load 64 bit
+						(bind '(& & offset dst) inst)
+						(defq val (. stack_map :find (+ *rsp* offset)))
+						(. reg_map :insert dst val)
+						(if (eql val dst)
+							(. trace_set :erase dst)
+							(. trace_set :insert dst)))
+					((and (find op '(emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i)) (eql (third inst) :rsp))
+						;quantize offset down to the nearest 8-byte
+						;boundary and invalidate the slot
+						(. stack_map :insert (+ *rsp* (logand (neg +long_size) (last inst))) :nil))
 					((find op '(emit-beq-cr emit-bne-cr emit-bge-cr
 								emit-ble-cr emit-blt-cr emit-bgt-cr
 								emit-beq-rr emit-bne-rr emit-bge-rr
