@@ -92,7 +92,8 @@
 			trace_map (scatter (Lmap) 0 (list _2 0 (Lmap) (Lmap) reg_map (Lset))))
 		(verbose 3 "\ttracing " func_name)
 		(while (<= (++ trace) next_trace)
-			(bind '(*pc* *rsp* stack_map label_map reg_map trace_set) (. trace_map :find trace))
+			(bind '(*pc* *rsp* stack_map label_map reg_map trace_set)
+				(. trace_map :find trace))
 			(while (< *pc* (length insts))
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
 				(verbose 3 "\t\t" func_name " trace " trace " pc " *pc* "\n\t\t\t" inst)
@@ -109,6 +110,22 @@
 						(unless (and *pc* (num? *pc*))
 							(. func_set :union trace_set)
 							(setq *pc* (length insts))))
+					((find op '(emit-cpy-rr emit-cpy-ff))
+						;copy value and mark as trashed or restored
+						(bind '(%0 %1) (rest inst))
+						(defq val (. reg_map :find %0))
+						(. reg_map :insert %1 val)
+						(if (eql %1 val)
+							(. trace_set :erase %1)
+							(. trace_set :insert %1)))
+					((eql op 'emit-swp-rr)
+						;swap values and mark as trashed or restored
+						(each (# (. reg_map :insert %0 %1)
+								(if (eql %0 %1)
+									(. trace_set :erase %0)
+									(. trace_set :insert %0)))
+							;grab values before mutating them
+							(rest inst) (map (# (. reg_map :find %0)) (slice inst -1 1))))
 					((eql op 'emit-call)
 						(. stack_map :insert (-- *rsp* +long_size) *pc*)
 						(setq *pc* (get (second inst))))
@@ -159,8 +176,11 @@
 						(each (# (. reg_map :insert %0 :nil) (. trace_set :insert %0))
 							(list :r0 (second inst) (third inst))))
 					((eql op 'emit-call-p)
+						;FIXME, should eventually use the callee trashes set !
 						(merge call_list (list (resolve-call insts (second inst)))))
 					((eql op 'emit-jmp-p)
+						;exit function, merge and kill trace
+						;FIXME, should eventually use the callee trashes set !
 						(merge call_list (list (resolve-call insts (second inst))))
 						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
