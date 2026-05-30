@@ -34,6 +34,22 @@
 
 (defun reg? (r) (if (eql :sym (pop (type-of r))) (def? r +regs_index_map)))
 
+(defun gather-all-abi-trashed ()
+	(defq union_set (list))
+	(each (lambda ((*abi* *cpu*))
+			(env-push)
+			;evaluate the ABI case statement directly in this temporary scope
+			(import "sys/pii/abi.inc")
+			;collect the registers
+			(merge union_set (eval (abi-trashed)))
+			(env-pop))
+		'((AMD64 x86_64) (WIN64 x86_64) (ARM64 arm64) (RISCV64 riscv64) (VP64 vp64)))
+	(sort union_set (# (reg? %0) (reg? %1))))
+
+;(defq +all_abi_trashed_regs '`,(gather-all-abi-trashed))
+(defq +all_abi_trashed_regs
+	''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
+
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (setq e (dec e)))
 			(str prefix s)
@@ -58,10 +74,13 @@
 
 (defun get-modified-regs (inst)
 	(cond
+		;exclude instructions that do not modify registers
 		((find (defq op (first inst)) '(emit-push emit-alloc emit-free
 			emit-ret emit-sync emit-brk emit-nop emit-label emit-tlabel
 			emit-align emit-string emit-byte emit-short emit-int emit-long
-			emit-cstr emit-call-p emit-call-i emit-call emit-call-r emit-call-abi)) '())
+			emit-cstr emit-call-p emit-call-i emit-call emit-call-r emit-call-abi
+			emit-jmp-r emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i
+			emit-cpy-fd)) '())
 		((eql op 'emit-pop) (rest inst))
 		((find op '(emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr
 			emit-div-rrr-u)) (slice inst -3 -1))
@@ -229,10 +248,10 @@
 						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
 					((eql op 'emit-call-abi)
-						;FIXME, should account for the platform abi trashes set !
+						;simulate the union of all platform clobbers
 						(merge call_list '(:abicall))
 						(each (# (. reg_map :insert %0 :nil) (. trace_set :insert %0))
-							(list :r0 (second inst) (third inst))))
+							(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
 					((eql op 'emit-call-p)
 						;use the callee trashes set
 						(defq callee (resolve-call insts (second inst)))
@@ -288,7 +307,7 @@
 					(each (lambda (target)
 						(each (lambda (r) (. func_set :insert r))
 							(case target
-								(:abicall +float_regs)
+								(:abicall +no_regs)
 								(:indirect +no_regs)
 								(:t +no_regs))))
 						call_list)
