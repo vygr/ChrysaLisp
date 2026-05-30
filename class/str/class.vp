@@ -14,7 +14,7 @@
 	;outputs
 	;:r0 = 0 if error, else str object (ptr)
 	;trashes
-	;:r0-:r6
+	;:r0-:r6, :f0-:f15
 
 	;save size of data
 	(entry :str :create_from_buffer '(:r5 :r1))
@@ -43,7 +43,7 @@
 	;outputs
 	;:r0 = 0 if error, else str object (ptr)
 	;trashes
-	;:r0-:r6
+	;:r0-:r6, :f0-:f15
 
 	(entry :str :create_from_cstr '(:r0))
 
@@ -59,7 +59,7 @@
 	;outputs
 	;:r0 = 0 if error, else str object (ptr)
 	;trashes
-	;:r0-:r6
+	;:r0-:r6, :f0-:f15
 
 	;save c string pointer
 	(entry :str :create_from_file '(:r5))
@@ -107,7 +107,7 @@
 	;outputs
 	;:r0 = 0 if error, else str object (ptr)
 	;trashes
-	;:r0-:r6
+	;:r0-:r6, :f0-:f15
 
 	(entry :str :create_from_long '(:r0 :r1))
 
@@ -143,7 +143,7 @@
 	;:r0 = str object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6
+	;:r1-:r4
 
 	(entry :str :init '(:r0 :r1 :r2 :r3))
 
@@ -153,14 +153,14 @@
 		;init myself
 		(vp-xor-rr :r1 :r1)
 		(assign '(:r0 :r1 :r1 :r3 (& :r0 +str_data))
-			'(:r6 (:r0 +str_hashslot) (:r0 +str_hashcode) (:r0 +str_length) :r1))
+			'(:r4 (:r0 +str_hashslot) (:r0 +str_hashcode) (:r0 +str_length) :r1))
 		(vpif '(:r2 /= 0))
 			(call :sys_mem :copy '(:r2 :r1 :r3) '(_ :r1))
 		(else)
 			(vp-add-rr :r3 :r1)
 		(endif)
 		(vp-xor-rr :r0 :r0)
-		(assign '(:r0 :r6) '((:r1 0 b) :r0))
+		(assign '(:r0 :r4) '((:r1 0 b) :r0))
 	(endif)
 
 	(exit :str :init '(:r0 :r1))
@@ -178,7 +178,7 @@
 	;:r0 = str object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6
+	;:r1-:r2, :r4-:r5, :f0-:f15
 
 	(entry :str :init2 '(:r0 :r1 :r2 :r3))
 
@@ -188,22 +188,22 @@
 		;init myself
 		(vp-xor-rr :r1 :r1)
 		(assign '(:r0 :r1 :r1 :r3)
-			'(:r6 (:r0 +str_hashslot) (:r0 +str_hashcode) (:r0 +str_length)))
+			'(:r4 (:r0 +str_hashslot) (:r0 +str_hashcode) (:r0 +str_length)))
 
 		;open file
-		(call :host_os :pii_open '(:r2 +file_open_read) '(:r4))
+		(call :host_os :pii_open '(:r2 +file_open_read) '(:r5))
 
 		;read into buffer
-		(vp-lea-i :r6 +str_data :r0)
-		(vp-xor-rr :r2 :r2)
-		(vp-cpy-rd-b :r2 :r0 :r3)
-		(call :host_os :pii_read '(:r4 :r0 :r3))
+		(vp-lea-i :r4 +str_data :r0)
+		(vp-xor-rr :r1 :r1)
+		(vp-cpy-rd-b :r1 :r0 :r3)
+		(call :host_os :pii_read '(:r5 :r0 :r3))
 
 		;close file
-		(call :host_os :pii_close '(:r4))
+		(call :host_os :pii_close '(:r5))
 
-		(vp-cpy-rr :r6 :r0)
-		(vp-cpy-rr :r6 :r1)
+		(vp-cpy-rr :r4 :r0)
+		(vp-cpy-rr :r4 :r1)
 	(endif)
 
 	(exit :str :init2 '(:r0 :r1))
@@ -426,7 +426,7 @@
 	;:r0 = str object (ptr)
 	;:r1 = char str object (ptr)
 	;trashes
-	;:r1-:r7
+	;:r1-:r7, :f0-:f15
 
 	(entry :str :ref_elem '(:r0 :r1))
 
@@ -506,7 +506,7 @@
 	;outputs
 	;:r0 = str object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r5, :r14
 
 	(structure local 0
 		(ptr this stream))
@@ -533,7 +533,7 @@
 	;outputs
 	;:r1 = hash code (long)
 	;trashes
-	;:r1-:r4
+	;:r1-:r3
 
 	(vp-rdef (iter_begin iter_end hcode tmp) '(:r3 :r4 :r1 :r2))
 
@@ -578,7 +578,7 @@
 	;outputs
 	;:r4 = 0 if match, else not
 	;trashes
-	;:r1-:r5
+	;:r1, :r3-:r5
 
 	(vp-rdef (iter_begin1 iter_end1 iter_begin2 match tmp) '(:r1 :r2 :r3 :r4 :r5))
 
@@ -607,7 +607,7 @@
 	;:r0 = str object (ptr)
 	;:r1 = list of str objects (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r12, :f0-:f15
 
 	(vp-rdef (this splitc out iter_begin iter_end iter_start)
 		'(:r7 :r8 :r9 :r10 :r11 :r12))
@@ -749,7 +749,7 @@
 	;outputs
 	;:r0 = encoded str object (ptr)
 	;trashes
-	;:r1-:r8
+	;:r0-:r8, :f0-:f15
 
 	(vp-rdef (src len dst data c1 c2) '(:r7 :r8))
 
@@ -796,7 +796,7 @@
 	;outputs
 	;:r0 = decoded str object (ptr)
 	;trashes
-	;:r1-:r8
+	;:r0-:r8, :f0-:f15
 
 	(vp-rdef (src len dst data c1 c2) '(:r7 :r8))
 
@@ -844,7 +844,7 @@
 	;outputs
 	;:r0 = new str object (ptr)
 	;trashes
-	;:r0-:r8
+	;:r0-:r8, :f0-:f15
 
 	(vp-rdef (seqs seqs_end this di len total src seqs_begin) '(:r7 :r8))
 
@@ -888,7 +888,7 @@
 	;outputs
 	;:r0 = slice array object (ptr)
 	;trashes
-	;:r0-:r6
+	;:r0-:r6, :f0-:f15
 
 	(vp-rdef (this si ei len total di))
 
@@ -945,7 +945,7 @@
 	;outputs
 	;:r0 = new str object (ptr)
 	;trashes
-	;:r0-:r11
+	;:r0-:r11, :f0-:f15
 
 	(vp-rdef (this idx_begin di si ei swp_xor len total
 		src1 src2 idxs idx_end))
@@ -1020,7 +1020,7 @@
 	;outputs
 	;:r0 = str object (ptr)
 	;trashes
-	;:r0-:r8
+	;:r1-:r8
 
 	(vp-rdef (this begin len src dst end ch codes ch1))
 

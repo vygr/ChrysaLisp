@@ -101,7 +101,7 @@ inputs
 outputs
 :r0 = new str object (ptr)
 trashes
-:r0-:r8
+:r0-:r8, :f0-:f15
 ```
 
 ### :compare -> class/str/compare
@@ -126,7 +126,7 @@ inputs
 outputs
 :r0 = 0 if error, else str object (ptr)
 trashes
-:r0-:r6
+:r0-:r6, :f0-:f15
 ```
 
 ### :create_from_cstr -> class/str/create_from_cstr
@@ -137,7 +137,7 @@ inputs
 outputs
 :r0 = 0 if error, else str object (ptr)
 trashes
-:r0-:r6
+:r0-:r6, :f0-:f15
 ```
 
 ### :create_from_file -> class/str/create_from_file
@@ -148,7 +148,7 @@ inputs
 outputs
 :r0 = 0 if error, else str object (ptr)
 trashes
-:r0-:r6
+:r0-:r6, :f0-:f15
 ```
 
 ### :create_from_long -> class/str/create_from_long
@@ -160,7 +160,7 @@ inputs
 outputs
 :r0 = 0 if error, else str object (ptr)
 trashes
-:r0-:r6
+:r0-:r6, :f0-:f15
 ```
 
 ### :decode -> class/str/decode
@@ -171,7 +171,7 @@ inputs
 outputs
 :r0 = decoded str object (ptr)
 trashes
-:r1-:r8
+:r0-:r8, :f0-:f15
 ```
 
 ### :encode -> class/str/encode
@@ -182,7 +182,7 @@ inputs
 outputs
 :r0 = encoded str object (ptr)
 trashes
-:r1-:r8
+:r0-:r8, :f0-:f15
 ```
 
 ### :ends_with -> class/str/ends_with
@@ -259,7 +259,7 @@ inputs
 outputs
 :r1 = hash code (long)
 trashes
-:r1-:r4
+:r1-:r3
 ```
 
 ### :init -> class/str/init
@@ -274,7 +274,7 @@ outputs
 :r0 = str object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6
+:r1-:r4
 ```
 
 ### :init2 -> class/str/init2
@@ -289,7 +289,7 @@ outputs
 :r0 = str object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6
+:r1-:r2, :r4-:r5, :f0-:f15
 ```
 
 ### :print -> class/str/print
@@ -301,7 +301,7 @@ inputs
 outputs
 :r0 = str object (ptr)
 trashes
-:r1-:r14
+:r1-:r5, :r14
 ```
 
 ### :ref_elem -> class/str/ref_elem
@@ -314,7 +314,7 @@ outputs
 :r0 = str object (ptr)
 :r1 = char str object (ptr)
 trashes
-:r1-:r7
+:r1-:r7, :f0-:f15
 ```
 
 ### :rfind -> class/str/rfind
@@ -342,7 +342,7 @@ inputs
 outputs
 :r4 = 0 if match, else not
 trashes
-:r1-:r5
+:r1, :r3-:r5
 ```
 
 ### :slice -> class/str/slice
@@ -355,7 +355,7 @@ inputs
 outputs
 :r0 = slice array object (ptr)
 trashes
-:r0-:r6
+:r0-:r6, :f0-:f15
 ```
 
 ### :splice -> class/str/splice
@@ -368,7 +368,7 @@ inputs
 outputs
 :r0 = new str object (ptr)
 trashes
-:r0-:r11
+:r0-:r11, :f0-:f15
 ```
 
 ### :split -> class/str/split
@@ -381,7 +381,7 @@ outputs
 :r0 = str object (ptr)
 :r1 = list of str objects (ptr)
 trashes
-:r1-:r14
+:r1-:r12, :f0-:f15
 ```
 
 ### :starts_with -> class/str/starts_with
@@ -405,7 +405,7 @@ inputs
 outputs
 :r0 = str object (ptr)
 trashes
-:r0-:r8
+:r1-:r8
 ```
 
 ### :vtable -> class/str/vtable

@@ -333,7 +333,7 @@
 						(cond
 							((starts-with "### " line)
 								(setq in_trashes :nil)
-								(defq pos (find "-> " line))
+								(defq pos (find "-" line))
 								(if pos
 									(setq current_func (trim (slice line (+ pos 3) -1)))
 									(setq current_func :nil)))
