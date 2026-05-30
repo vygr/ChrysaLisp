@@ -21,18 +21,18 @@
 
 (defq +no_regs ''()
 	+all_regs
-		''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14
+		''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp
 		:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
 	+float_regs
 		''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
-	+regs_map
+	+regs_index_map
 		(reduce (# (def %0 %1 (!)) %0)
 			'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
 		(reduce (# (def %0 %1 (!)) %0)
 			'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
 			(env 1))))
 
-(defun reg? (r) (if (eql :sym (pop (type-of r))) (def? r +regs_map)))
+(defun reg? (r) (if (eql :sym (pop (type-of r))) (def? r +regs_index_map)))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (setq e (dec e)))
@@ -40,12 +40,12 @@
 			(str prefix s "-" prefix e)))
 		(slices indices)))
 
-(defun format-trashes (trashes_set)
+(defun format-trashes (func_set)
 	(defq r_indices (list) f_indices (list))
 	(each (# (if (starts-with ":r" %0)
 			(push r_indices (reg? %0))
 			(push f_indices (reg? %0))))
-		(. trashes_set :tolist))
+		(. func_set :tolist))
 	(defq formatted_parts (cat (format-group ":r" r_indices) (format-group ":f" f_indices)))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 
@@ -80,12 +80,12 @@
 		(each (# (if (eql (first %0) 'emit-label)
 					(def (penv) (last (second %0)) (!))))
 			(defq insts (first (read (file-stream obj_path)))))
-		(defq call_list (list) trashes_set (Lset) label_map (Lmap)
-			trace -1 next_trace 0
-			trace_map (scatter (Lmap) 0 (list _2 0 (Lmap) (Lset))))
+		(defq call_list (list) func_set (Lset) trace -1 next_trace 0
+			reg_map (scatter (Lmap) (zip +all_regs +all_regs))
+			trace_map (scatter (Lmap) 0 (list _2 0 (Lmap) (Lmap) reg_map (Lset))))
 		(verbose 3 "\ttracing " func_name)
 		(while (<= (++ trace) next_trace)
-			(bind '(*pc* *rsp* stack_map trace_set) (. trace_map :find trace))
+			(bind '(*pc* *rsp* stack_map label_map reg_map trace_set) (. trace_map :find trace))
 			(while (< *pc* (length insts))
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
 				(verbose 3 "\t\t" func_name " trace " trace " pc " *pc* "\n\t\t\t" inst)
@@ -97,7 +97,7 @@
 					((eql op 'emit-ret)
 						(setq *pc* (. stack_map :find *rsp*) *rsp* (inc *rsp*))
 						(unless (and *pc* (num? *pc*))
-							(. trashes_set :union trace_set)
+							(. func_set :union trace_set)
 							(setq *pc* (length insts))))
 					((eql op 'emit-call)
 						(. stack_map :insert (setq *rsp* (dec *rsp*)) *pc*)
@@ -107,12 +107,16 @@
 						(if (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
 							(setq *pc* pc)
 							(setq *pc* (length insts))))
+					((eql op 'emit-alloc)
+						(setq *rsp* (-- *rsp* (second inst))))
+					((eql op 'emit-free)
+						(setq *rsp* (++ *rsp* (second inst))))
 					((eql op 'emit-push)
-						(each! (# (. stack_map :insert (setq *rsp* (dec *rsp*)) %0))
+						(each! (# (. stack_map :insert (-- *rsp* +long_size) %0))
 							(list inst) 1))
 					((eql op 'emit-pop)
 						(each! (# (defq r (. stack_map :find *rsp*))
-								(setq *rsp* (inc *rsp*))
+								(++ *rsp* +long_size)
 								(if (eql r %0) (. trace_set :erase %0)))
 							(list inst) -1 1))
 					((find op '(emit-beq-cr emit-bne-cr emit-bge-cr
@@ -122,12 +126,12 @@
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
 							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (. trace_set :copy)))))
+								(. stack_map :copy) (. label_map :copy) (. trace_set :copy)))))
 					((find op '(emit-call-i emit-call-r))
 						(merge call_list '(:indirect)))
 					((find op '(emit-jmp-i emit-jmp-r))
 						(merge call_list '(:indirect))
-						(. trashes_set :union trace_set)
+						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
 					((eql op 'emit-call-abi)
 						;FIXME, should account for the platform abi trashes set !
@@ -139,13 +143,13 @@
 						(merge call_list (list (resolve-call insts (second inst)))))
 					((eql op 'emit-jmp-p)
 						(merge call_list (list (resolve-call insts (second inst))))
-						(. trashes_set :union trace_set)
+						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
 					((each (# (. trace_set :insert %0))
 						(get-modified-regs inst))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set)))
 			(. trace_map :erase trace))
-		(list :resolved trashes_set call_list))))
+		(list :resolved func_set call_list))))
 
 (defun propagate-trashes (functions)
 	(defq db (Fmap 101) documented_map (Fmap 101) worklist (cat functions))
@@ -156,14 +160,14 @@
 				;a dependency (not one of the initial targets) and has documented trashes, use them!
 				((and (not (find f functions)) (defq doc_trashes (. documented_map :find f)))
 					(. db :insert f (list :documented doc_trashes)))
-				(:t (bind '(type &optional trashes_set call_list) (analyze-function f))
+				(:t (bind '(type &optional func_set call_list) (analyze-function f))
 					(cond
 						((eql type :external)
 							(. db :insert f (list :external (scatter (Lset) +no_regs))))
 						((eql type :resolved)
 							(verbose 2 "\tfunction " f "\n\t\tcalls " call_list
-								"\n\t\ttrashes " (format-trashes trashes_set))
-							(. db :insert f (list :resolved trashes_set call_list))
+								"\n\t\ttrashes " (format-trashes func_set))
+							(. db :insert f (list :resolved func_set call_list))
 							(each (lambda (target)
 									(ifn (sym? target) (merge worklist (list target))))
 								call_list)))))))
@@ -174,11 +178,11 @@
 		(setq changed :nil)
 		(each (lambda (f)
 			(when (defq entry (. db :find f))
-				(bind '(type &optional trashes_set call_list) entry)
+				(bind '(type &optional func_set call_list) entry)
 				(when (eql type :resolved)
-					(defq size_before (. trashes_set :size))
+					(defq size_before (. func_set :size))
 					(each (lambda (target)
-						(each (lambda (r) (. trashes_set :insert r))
+						(each (lambda (r) (. func_set :insert r))
 							(case target
 								(:abicall +float_regs)
 								(:indirect +no_regs)
@@ -186,7 +190,7 @@
 										(. (second callee_entry) :tolist)
 										+no_regs)))))
 						call_list)
-					(setq changed (or changed (/= (. trashes_set :size) size_before))))))
+					(setq changed (or changed (/= (. func_set :size) size_before))))))
 			worklist))
 	db)
 
