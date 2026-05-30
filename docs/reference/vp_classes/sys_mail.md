@@ -35,7 +35,7 @@ outputs
 :r0 = mail message (ptr)
 :r1 = string data (pubyte)
 trashes
-:r0-:r6
+:r0-:r6, :f0-:f15
 ```
 
 ### :alloc_mbox -> sys/mail/alloc_mbox
@@ -45,7 +45,7 @@ outputs
 :r0 = mailbox id (uint)
 :r1 = mailbox address (ptr)
 trashes
-:r0-:r5
+:r0-:r5, :f0-:f15
 ```
 
 ### :alloc_obj -> sys/mail/alloc_obj
@@ -58,7 +58,7 @@ inputs
 outputs
 :r0 = mail message (ptr)
 trashes
-:r0-:r5
+:r0-:r5, :f0-:f15
 ```
 
 ### :declare -> sys/mail/declare
@@ -71,7 +71,7 @@ inputs
 outputs
 :r0 = service key str object (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :devices -> sys/mail/devices
@@ -80,7 +80,7 @@ trashes
 outputs
 :r0 = known network nodes list object (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :enquire -> sys/mail/enquire
@@ -91,7 +91,7 @@ inputs
 outputs
 :r0 = matching service entries list object (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :forget -> sys/mail/forget
@@ -100,7 +100,7 @@ trashes
 inputs
 :r0 = service key str object (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :free -> sys/mail/free
@@ -108,6 +108,10 @@ trashes
 ```code
 inputs
 :r0 = mail message (ptr)
+trashes
+:r0-:r14, :f0-:f15
+info
+only ever derefs a :str !
 trashes
 :r0-:r3
 ```
@@ -141,7 +145,7 @@ inputs
 :r0 = link input buffer (ptr)
 :r1 = link input ring buffer (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :junk_mail -> sys/mail/junk_mail
@@ -150,7 +154,7 @@ trashes
 inputs
 :r3 = mail list pointer (ptr)
 trashes
-:r0-:r4
+:r0-:r2, :r4
 ```
 
 ### :mymail -> sys/mail/mymail
@@ -168,13 +172,15 @@ trashes
 ```code
 info
 parcels going off chip or junk mail task
+trashes
+:r0-:r14, :f0-:f15
 ```
 
 ### :ping -> sys/mail/ping
 
 ```code
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 info
 ping services out to network
 ```
@@ -217,6 +223,8 @@ inputs
 :r2 = key node object (ptr)
 outputs
 :r0 = 0 if none, else msg (ptr)
+trashes
+:r0-:r14, :f0-:f15
 ```
 
 ### :select -> sys/mail/select
@@ -227,7 +235,7 @@ inputs
 outputs
 :r0 = mailbox index (uint)
 trashes
-:r0-:r14
+:r0-:r8
 ```
 
 ### :send -> sys/mail/send
@@ -235,6 +243,10 @@ trashes
 ```code
 inputs
 :r0 = mail message (ptr)
+trashes
+:r0-:r14, :f0-:f15
+info
+only ever derefs a :str !
 trashes
 :r0-:r4
 ```
@@ -249,7 +261,7 @@ inputs
 outputs
 :r0 = service entry str object (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :statics_init -> sys/mail/statics_init
@@ -257,6 +269,8 @@ trashes
 ```code
 info
 init the mailbox system, heap, buckets and id
+trashes
+:r0-:r3
 ```
 
 ### :statics_init1 -> sys/mail/statics_init1
@@ -264,6 +278,8 @@ init the mailbox system, heap, buckets and id
 ```code
 info
 init the mail system
+trashes
+:r0-:r7, :r14, :f0-:f15
 ```
 
 ### :validate -> sys/mail/validate

@@ -9,37 +9,41 @@
 (def-method :sys_mail :statics_init)
 	;info
 	;init the mailbox system, heap, buckets and id
+	;trashes
+	;:r0-:r3
 
-	(fn-bind 'sys/statics/statics :r12)
+	(fn-bind 'sys/statics/statics :r3)
 	(vp-xor-rr :r0 :r0)
-	(assign '(:r0 (& :r12 statics_sys_mail_timeout_list)) '((:r12 statics_sys_mail_next_mbox_id) :r0))
+	(assign '(:r0 (& :r3 statics_sys_mail_timeout_list)) '((:r3 statics_sys_mail_next_mbox_id) :r0))
 	(vp-lea-i :r0 (* (+ num_mbox_buckets 3) +lh_list_size) :r1)
 	(loop-start)
 		(lh-init :r0 :r2)
 		(vp-add-cr +lh_list_size :r0)
 	(loop-until '(:r0 = :r1))
-	(jump :sys_heap :init '((& :r12 statics_sys_mail_mbox_heap) +mbox_size 32))
+	(jump :sys_heap :init '((& :r3 statics_sys_mail_mbox_heap) +mbox_size 32))
 
 (def-func-end)
 
 (def-method :sys_mail :statics_init1)
 	;info
 	;init the mail system
+	;trashes
+	;:r0-:r7, :r14, :f0-:f15
 
 	;init postmen task
-	(fn-bind 'sys/statics/statics :r12)
+	(fn-bind 'sys/statics/statics :r7)
 	(vp-xor-rr :r0 :r0)
-	(assign '(:r0) '((:r12 statics_sys_mail_session)))
+	(assign '(:r0) '((:r7 statics_sys_mail_session)))
 	(call :sys_task :start `((@ ,(f-path :sys_mail :out))) '(_ :r1 _ _ _))
-	(fn-bind 'sys/statics/statics :r12)
-	(assign '(:r1) '((:r12 statics_sys_mail_out_mbox_addr)))
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '(:r1) '((:r7 statics_sys_mail_out_mbox_addr)))
 
 	;services, links and routing
-	(call :array :create :nil '((:r12 statics_sys_mail_links_array)))
-	(call :hmap :create '(($ key_node) 1) '((:r12 statics_sys_mail_node_map)))
+	(call :array :create :nil '((:r7 statics_sys_mail_links_array)))
+	(call :hmap :create '(($ key_node) 1) '((:r7 statics_sys_mail_node_map)))
 
 	;init header heap
-	(jump :sys_heap :init '((& :r12 statics_sys_mail_msg_heap) +msg_size 64))
+	(jump :sys_heap :init '((& :r7 statics_sys_mail_msg_heap) +msg_size 64))
 
 (vp-label 'key_node)
 	;inputs
@@ -66,7 +70,7 @@
 	;:r0 = mailbox id (uint)
 	;:r1 = mailbox address (ptr)
 	;trashes
-	;:r0-:r5
+	;:r0-:r5, :f0-:f15
 
 	;pick next id
 	(fn-bind 'sys/statics/statics :r4)
@@ -132,7 +136,7 @@
 	;inputs
 	;:r3 = mail list pointer (ptr)
 	;trashes
-	;:r0-:r4
+	;:r0-:r2, :r4
 
 	(entry :sys_mail :junk_mail '(:r3))
 
@@ -214,7 +218,7 @@
 	;:r0 = mail message (ptr)
 	;:r1 = string data (pubyte)
 	;trashes
-	;:r0-:r6
+	;:r0-:r6, :f0-:f15
 
 	(entry :sys_mail :alloc '(:r0))
 
@@ -239,7 +243,7 @@
 	;outputs
 	;:r0 = mail message (ptr)
 	;trashes
-	;:r0-:r5
+	;:r0-:r5, :f0-:f15
 
 	(entry :sys_mail :alloc_obj '(:r0 :r4 :r5))
 
@@ -258,6 +262,10 @@
 (def-method :sys_mail :free)
 	;inputs
 	;:r0 = mail message (ptr)
+	;trashes
+	;:r0-:r14, :f0-:f15
+	;info
+	;only ever derefs a :str !
 	;trashes
 	;:r0-:r3
 
@@ -348,6 +356,10 @@
 (def-method :sys_mail :send)
 	;inputs
 	;:r0 = mail message (ptr)
+	;trashes
+	;:r0-:r14, :f0-:f15
+	;info
+	;only ever derefs a :str !
 	;trashes
 	;:r0-:r4
 
@@ -441,7 +453,7 @@
 	;outputs
 	;:r0 = mailbox index (uint)
 	;trashes
-	;:r0-:r14
+	;:r0-:r8
 
 	(vp-rdef (idx iter_begin iter_end iter ids tcb) '(:r0 :r4 :r5 :r6 :r7 :r8))
 
@@ -496,7 +508,7 @@
 	;outputs
 	;:r0 = service entry str object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	(def-vars
 		(ptr name id info cat tmp1 tmp2))
@@ -532,7 +544,7 @@
 	;outputs
 	;:r0 = service key str object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	(def-vars
 		(ptr name id info key bucket set)
@@ -574,7 +586,7 @@
 	;outputs
 	;:r0 = matching service entries list object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr prefix entries))
@@ -626,7 +638,7 @@
 	;inputs
 	;:r0 = service key str object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	;find in service map and erase
 	(fn-bind 'sys/statics/statics :r1)
@@ -654,7 +666,7 @@
 
 (def-method :sys_mail :ping)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 	;info
 	;ping services out to network
 
@@ -729,7 +741,7 @@
 	;outputs
 	;:r0 = known network nodes list object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	(call :list :create :nil '(:r0))
 	(vp-push :r0)
@@ -760,6 +772,8 @@
 	;:r2 = key node object (ptr)
 	;outputs
 	;:r0 = 0 if none, else msg (ptr)
+	;trashes
+	;:r0-:r14, :f0-:f15
 
 	(vp-rdef (next node key peer1 peer2 tuple via1 via2 iter_begin iter_end)
 		'(:r13 :r12 :r11 :r10 :r9 :r1))

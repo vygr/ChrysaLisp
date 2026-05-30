@@ -5,6 +5,8 @@
 (def-method :sys_mail :out)
 	;info
 	;parcels going off chip or junk mail task
+	;trashes
+	;:r0-:r14, :f0-:f15
 
 	(def-vars
 		(ptr msg data statics)
@@ -68,6 +70,7 @@
 
 		;let other links get at some packets
 		(call :sys_task :sleep '(0))
+		;exit if signaled by kernel...
 	(loop-end)
 
 	(pop-scope)
