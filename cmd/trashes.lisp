@@ -8,7 +8,7 @@
 
 	options:
 		-h --help: this help info.
-		-v --verbosity: how much info, default 0.
+		-v --verbosity num: how much info, default 0.
 
 	Output transitive register TRASHES for given VP functions.
 	If no paths are given on the command line, it will read
@@ -45,9 +45,16 @@
 	(each (# (if (starts-with ":r" %0)
 			(push r_indices (reg? %0))
 			(push f_indices (reg? %0))))
-		(. func_set :tolist))
+		(if (list? func_set) func_set (. func_set :tolist)))
 	(defq formatted_parts (cat (format-group ":r" r_indices) (format-group ":f" f_indices)))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
+
+(defun format-values (reg_map)
+	(defq out (list))
+	(. (reduce (lambda (m (r v)) (. m :update v (# (ifn %0 (list r) (push %0 r)))) m)
+			(filter (lambda ((r v)) (nql r v)) (. reg_map :tolist)) (Lmap))
+		:each (lambda (v rs) (push out (str v " -> " (format-trashes rs)))))
+	(if (empty? out) "none" (join out " | ")))
 
 (defun get-modified-regs (inst)
 	(cond
@@ -149,6 +156,9 @@
 					((eql op 'emit-call-abi)
 						;FIXME, should account for the platform abi trashes set !
 						(merge call_list '(:abicall))
+						(. reg_map :insert :r0 :nil)
+						(. reg_map :insert :r1 :r2)
+						(. reg_map :insert :r3 :r2)
 						(. trace_set :insert :r0)
 						(. trace_set :insert (second inst))
 						(. trace_set :insert (third inst)))
@@ -162,7 +172,7 @@
 						(each (# (. trace_set :insert %0) (. reg_map :insert %0 :nil))
 							(get-modified-regs inst))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
-				(verbose 4 "\t\t\t" (filter (# (nql (first %0) (second %0))) (. reg_map :tolist))))
+				(verbose 4 "\t\t\t" (format-values reg_map)))
 			(. trace_map :erase trace))
 		(list :resolved func_set call_list))))
 
