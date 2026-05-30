@@ -24,7 +24,7 @@ outputs
 :r0 = c string end (pubyte)
 :r1 = c string copy end (pubyte)
 trashes
-:r2
+:r0-:r2
 ```
 
 ### :from_long -> sys/str/from_long
@@ -74,7 +74,7 @@ outputs
 :r3 = num | fixed (long)
 :r4 = fixed point position (uint)
 trashes
-:r0-:r4
+:r0, :r2-:r4
 ```
 
 ### :to_num -> sys/str/to_num

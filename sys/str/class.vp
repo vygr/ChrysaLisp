@@ -30,7 +30,7 @@
 	;:r0 = c string end (pubyte)
 	;:r1 = c string copy end (pubyte)
 	;trashes
-	;:r2
+	;:r0-:r2
 
 	(entry :sys_str :copy '(:r0 :r1))
 	(loop-start)
@@ -112,7 +112,7 @@
 	;:r3 = num | fixed (long)
 	;:r4 = fixed point position (uint)
 	;trashes
-	;:r0-:r4
+	;:r0, :r2-:r4
 
 	(vp-rdef (bufp base c num dot))
 
