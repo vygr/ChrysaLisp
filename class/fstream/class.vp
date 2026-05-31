@@ -16,7 +16,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this vtable path buf))
@@ -61,15 +61,14 @@
 	;outputs
 	;:r0 = fstream object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :fstream :deinit '(:r0))
 
 	;flush any data
-	(call :fstream :flush '(:r0) '(:r0))
-
-	;close file
 	(vp-push :r0)
+	(call :fstream :flush '(:r0) '(:r0))
+	;close file
 	(call :host_os :pii_close '((:r0 +fstream_handle)))
 	(vp-pop :r0)
 
@@ -84,7 +83,7 @@
 	;outputs
 	;:r0 = fstream object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r2, :f0-:f15
 
 	(entry :fstream :flush '(:r0))
 
@@ -115,11 +114,12 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = -1 for EOF, else more data
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :fstream :read_next '(:r0))
 
 	;flush any read/write data
+	(vp-push :r0)
 	(call :fstream :flush '(:r0) '(:r0))
 
 	;set read mode
@@ -127,7 +127,6 @@
 	(assign '(:r1) '((:r0 +fstream_mode)))
 
 	;read next block of data
-	(vp-push :r0)
 	(assign '((:r0 +fstream_handle) (:r0 +stream_buffer) (:r0 +fstream_buf_len)) '(:r0 :r1 :r2))
 	(vp-simd vp-add-cr '(1 -1) '(:r1 :r2))
 	(call :host_os :pii_read '(:r0 :r1 :r2) '(:r1))
@@ -153,12 +152,12 @@
 	;outputs
 	;:r0 = fstream object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r2, :f0-:f15
 
 	(entry :fstream :write_next '(:r0))
 
 	;flush any read/write data
-	(call :fstream :flush '(:r0) '(:r0))
+	(d-call :fstream :flush '(:r0) '(:r0))
 
 	;set write mode
 	(vp-cpy-cr +file_open_write :r1)
@@ -183,7 +182,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = -1 for error, else file position
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this)

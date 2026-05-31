@@ -27,7 +27,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r9
+:r1-:r9, :f0-:f15
 ```
 
 ### :cat -> class/list/cat
@@ -50,7 +50,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :collect -> class/list/collect
@@ -75,7 +75,7 @@ outputs
 :r0 = list object (ptr)
 :r1 = copy list object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :create -> class/list/create
@@ -88,7 +88,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :erase -> class/list/erase
@@ -101,7 +101,7 @@ outputs
 :r0 = list object (ptr)
 :r1 = element iterator (pptr)
 trashes
-:r2-:r14
+:r2-:r14, :f0-:f15
 ```
 
 ### :erase2 -> class/list/erase2
@@ -114,7 +114,7 @@ outputs
 :r0 = list object (ptr)
 :r1 = element iterator (pptr)
 trashes
-:r2-:r14
+:r2-:r14, :f0-:f15
 ```
 
 ### :find -> class/list/find
@@ -153,7 +153,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :ref_all -> class/list/ref_all
@@ -217,7 +217,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :slice -> class/list/slice

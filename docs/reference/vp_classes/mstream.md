@@ -14,7 +14,7 @@ inputs
 outputs
 :r0 = mstream object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :flush -> class/mstream/flush
@@ -38,7 +38,7 @@ outputs
 :r0 = mstream object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14
+:r1-:r5, :f0-:f15
 ```
 
 ### :itop -> class/mstream/itop
@@ -55,7 +55,7 @@ outputs
 :r4 = 0, else chunk str object (ptr)
 :r5 = 0, else chunk index (uint)
 trashes
-:r1-:r9
+:r2-:r9
 ```
 
 ### :ptoi -> class/mstream/ptoi
@@ -70,7 +70,7 @@ outputs
 :r2 = file size (uint)
 :r3 = 0, else file position (uint)
 trashes
-:r1-:r9
+:r2-:r9
 ```
 
 ### :read_next -> class/mstream/read_next
@@ -109,6 +109,6 @@ inputs
 outputs
 :r0 = sstream object (ptr)
 trashes
-:r1-:r14
+:r1-:r9, :f0-:f15
 ```
 

@@ -15,7 +15,7 @@
 	;:r0 = sstream object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5
+	;:r1, :r3-:r5
 
 	(entry :sstream :init '(:r0 :r1 :r2))
 
@@ -56,7 +56,7 @@
 	;:r0 = sstream object (ptr)
 	;:r1 = str object (ptr)
 	;trashes
-	;:r1-:r2
+	;:r1-:r6, :f0-:f15
 
 	(structure local 0
 		(ptr this string))
@@ -88,7 +88,7 @@
 	;outputs
 	;:r0 = sstream object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this new_str cell)
@@ -118,7 +118,7 @@
 	;outputs
 	;:r0 = sstream object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :f0-:f15
 
 	(entry :sstream :flush '(:r0))
 
@@ -146,7 +146,7 @@
 	;:r0 = sstream object (ptr)
 	;:r1 = -1 for error, else file position
 	;trashes
-	;:r1-:r6
+	;:r1, :r3-:r6
 
 	(vp-rdef (this offset whence obj start max_pos bufp))
 

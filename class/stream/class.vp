@@ -19,7 +19,7 @@
 	;:r0 = stream object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5
+	;:r1, :r5
 
 	(entry :stream :init '(:r0 :r1 :r2 :r3 :r4 :r5))
 
@@ -39,7 +39,7 @@
 	;outputs
 	;:r0 = stream object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :stream :deinit '(:r0))
 
@@ -64,7 +64,7 @@
 	;:r0 = stream object (ptr)
 	;:r1 = -1 for EOF, else more data
 	;trashes
-	;:r1-:r14
+	;:r1
 
 	(entry :stream :read_next '(:r0))
 	(exit :stream :read_next '(:r0 -1))
@@ -78,7 +78,7 @@
 	;outputs
 	;:r0 = stream object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1
 
 	(entry :stream :flush '(:r0))
 
@@ -98,7 +98,7 @@
 	;:r0 = stream object (ptr)
 	;:r1 = -1 for error, else file position
 	;trashes
-	;:r1-:r14
+	;:r1
 
 	(entry :stream :seek '(:r0 :r1 :r2))
 	(exit :stream :seek '(:r0 -1))
@@ -113,7 +113,7 @@
 	;:r0 = stream object (ptr)
 	;:r1 = -1 for EOF, else char read (int)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :stream :read_char '(:r0))
 

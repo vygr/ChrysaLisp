@@ -14,7 +14,7 @@ inputs
 outputs
 :r0 = fstream object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :flush -> class/fstream/flush
@@ -25,7 +25,7 @@ inputs
 outputs
 :r0 = fstream object (ptr)
 trashes
-:r1-:r14
+:r1-:r2, :f0-:f15
 ```
 
 ### :init -> class/fstream/init
@@ -40,7 +40,7 @@ outputs
 :r0 = fstream object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :read_next -> class/fstream/read_next
@@ -52,7 +52,7 @@ outputs
 :r0 = fstream object (ptr)
 :r1 = -1 for EOF, else more data
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :seek -> class/fstream/seek
@@ -66,7 +66,7 @@ outputs
 :r0 = fstream object (ptr)
 :r1 = -1 for error, else file position
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :vtable -> class/fstream/vtable
@@ -79,6 +79,6 @@ inputs
 outputs
 :r0 = fstream object (ptr)
 trashes
-:r1-:r14
+:r1-:r2, :f0-:f15
 ```
 

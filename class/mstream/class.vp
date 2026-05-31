@@ -14,7 +14,7 @@
 	;:r0 = mstream object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r5, :f0-:f15
 
 	(vp-rdef (this vtable tmp))
 
@@ -42,7 +42,7 @@
 	;outputs
 	;:r0 = mstream object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this tmp))
 
@@ -95,9 +95,9 @@
 	;outputs
 	;:r0 = sstream object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r9, :f0-:f15
 
-	(vp-rdef (this index chunks len chunk bufp bufe) '(:r11 :r12 :r13))
+	(vp-rdef (this index chunks len chunk bufp bufe) '(:r7 :r8 :r9))
 
 	(entry :mstream :write_next `(,this))
 
@@ -173,7 +173,7 @@
 	(entry :mstream :seek `(,this ,offset ,whence))
 
 	;what is the new position
-	(call :mstream :flush `(,this) `(,this))
+	(d-call :mstream :flush `(,this) `(,this))
 
 	(load-fields this '(+mstream_total +mstream_pos) `(,total ,pos))
 	(switch)
@@ -212,7 +212,7 @@
 	;:r2 = file size (uint)
 	;:r3 = 0, else file position (uint)
 	;trashes
-	;:r1-:r9
+	;:r2-:r9
 
 	(vp-rdef (this bufp total pos chunk iter_begin iter_end
 		chunk_len chunk_s chunk_e))
@@ -254,7 +254,7 @@
 	;:r4 = 0, else chunk str object (ptr)
 	;:r5 = 0, else chunk index (uint)
 	;trashes
-	;:r1-:r9
+	;:r2-:r9
 
 	(vp-rdef (this pos bufp bufe chunk index total
 		iter_begin iter_end chunk_len))

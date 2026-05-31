@@ -13,7 +13,7 @@
 	;outputs
 	;:r0 = list object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :list :deinit '(:r0))
 
@@ -28,7 +28,7 @@
 	;outputs
 	;:r0 = list object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this)
@@ -107,7 +107,7 @@
 	;outputs
 	;:r0 = list object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :list :set_elem '(:r0 :r1 :r2))
 
@@ -132,7 +132,7 @@
 	;outputs
 	;:r0 = list object (ptr)
 	;trashes
-	;:r1-:r9
+	;:r1-:r9, :f0-:f15
 
 	(entry :list :append '(:r0 :r1 :r2 :r3))
 
@@ -264,7 +264,7 @@
 	;:r0 = list object (ptr)
 	;:r1 = element iterator (pptr)
 	;trashes
-	;:r2-:r14
+	;:r2-:r14, :f0-:f15
 
 	(entry :list :erase '(:r0 :r1))
 
@@ -283,7 +283,7 @@
 	;:r0 = list object (ptr)
 	;:r1 = element iterator (pptr)
 	;trashes
-	;:r2-:r14
+	;:r2-:r14, :f0-:f15
 
 	(entry :list :erase2 '(:r0 :r1))
 
@@ -303,7 +303,7 @@
 	;:r0 = list object (ptr)
 	;:r1 = copy list object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :list :copy '(:r0))
 
@@ -356,7 +356,7 @@
 	;outputs
 	;:r0 = list object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this stream)

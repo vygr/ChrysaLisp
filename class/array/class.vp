@@ -14,7 +14,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3
 
 	(entry :array :deinit '(:r0))
 
@@ -150,7 +150,7 @@
 	;:r2 = begin element iter (plong)
 	;:r3 = end element iter (plong)
 	;trashes
-	;:r2-:r5
+	;:r2-:r5, :f0-:f15
 
 	(entry :array :push_back '(:r0 :r1))
 
@@ -188,7 +188,7 @@
 	;:r3 = begin element iter (plong)
 	;:r4 = end element iter (plong)
 	;trashes
-	;:r3-:r5
+	;:r3-:r5, :f0-:f15
 
 	(entry :array :push_back2 '(:r0 :r1 :r2))
 
@@ -265,7 +265,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r5
+	;:r1-:r5, :f0-:f15
 
 	(entry :array :set_cap '(:r0 :r1))
 
@@ -333,7 +333,7 @@
 	;:r0 = array object (ptr)
 	;:r1 = partition iter (plong)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 		;sort callback
 		;inputs
 		;:r0 = sort context (ptr)
@@ -342,7 +342,7 @@
 		;outputs
 		;:r0 = +, 0, -
 		;trashes
-		;:r1-:r14
+		;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this func ctx pivt iter lowr uppr))
@@ -401,7 +401,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 		;sort callback
 		;inputs
 		;:r0 = context (ptr)
@@ -410,7 +410,7 @@
 		;outputs
 		;:r0 = +, 0, -
 		;trashes
-		;:r1-:r14
+		;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this func ctx stack)
@@ -458,7 +458,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r9
+	;:r1-:r9, :f0-:f15
 
 	;save inputs
 	(entry :array :append '(:r0 :r1 :r2 :r3))
@@ -496,7 +496,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this stream)

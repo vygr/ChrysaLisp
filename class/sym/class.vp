@@ -9,7 +9,7 @@
 
 (def-method :sym :statics_init)
 	;trashes
-	;:r0-:r14
+	;:r0-:r11, :r14, :f0-:f15
 
 	(def-vars
 		(ptr sym statics)
@@ -55,7 +55,7 @@
 	;outputs
 	;:r0 = interned sym object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 	;info
 	;input str IS NOT derefed
 
@@ -87,7 +87,7 @@
 	;outputs
 	;:r0 = interned sym object (ptr)
 	;trashes
-	;:r0-:r11
+	;:r0-:r11, :f0-:f15
 
 	(entry :sym :intern_cstr '(:r0))
 	(call :sys_str :length '(:r0) '(:r0 :r1))
@@ -102,7 +102,7 @@
 	;outputs
 	;:r0 = interned sym object (ptr)
 	;trashes
-	;:r0-:r11
+	;:r0-:r11, :f0-:f15
 
 	(def-vars
 		(ptr intern)
@@ -156,7 +156,7 @@
 	;outputs
 	;:r0 = sym object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :sym :print '(:r0 :r1))
 

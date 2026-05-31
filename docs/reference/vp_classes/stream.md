@@ -64,7 +64,7 @@ inputs
 outputs
 :r0 = stream object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :flush -> class/stream/flush
@@ -75,7 +75,7 @@ inputs
 outputs
 :r0 = stream object (ptr)
 trashes
-:r1-:r14
+:r1
 ```
 
 ### :init -> class/stream/init
@@ -92,7 +92,7 @@ outputs
 :r0 = stream object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5
+:r1, :r5
 ```
 
 ### :read -> class/stream/read
@@ -135,7 +135,7 @@ outputs
 :r0 = stream object (ptr)
 :r1 = -1 for EOF, else char read (int)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :read_line -> class/stream/read_line
@@ -159,7 +159,7 @@ outputs
 :r0 = stream object (ptr)
 :r1 = -1 for EOF, else more data
 trashes
-:r1-:r14
+:r1
 ```
 
 ### :seek -> class/stream/seek
@@ -173,7 +173,7 @@ outputs
 :r0 = stream object (ptr)
 :r1 = -1 for error, else file position
 trashes
-:r1-:r14
+:r1
 ```
 
 ### :vtable -> class/stream/vtable
@@ -240,6 +240,6 @@ inputs
 outputs
 :r0 = stream object (ptr)
 trashes
-:r1-:r14
+:r1
 ```
 

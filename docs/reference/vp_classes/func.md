@@ -29,7 +29,7 @@ inputs
 outputs
 :r0 = func object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :vtable -> class/func/vtable

@@ -13,7 +13,7 @@ outputs
 :r0 = sstream object (ptr)
 :r1 = str object (ptr)
 trashes
-:r1-:r2
+:r1-:r6, :f0-:f15
 ```
 
 ### :create -> class/sstream/create
@@ -26,7 +26,7 @@ inputs
 outputs
 :r0 = sstream object (ptr)
 trashes
-:r1-:r14
+:r1-:r3, :f0-:f15
 ```
 
 ### :init -> class/sstream/init
@@ -40,7 +40,7 @@ outputs
 :r0 = sstream object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5
+:r1, :r3-:r5
 ```
 
 ### :ref_string -> class/sstream/ref_string
@@ -66,7 +66,7 @@ outputs
 :r0 = sstream object (ptr)
 :r1 = -1 for error, else file position
 trashes
-:r1-:r6
+:r1, :r3-:r6
 ```
 
 ### :vtable -> class/sstream/vtable
@@ -79,6 +79,6 @@ inputs
 outputs
 :r0 = sstream object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 

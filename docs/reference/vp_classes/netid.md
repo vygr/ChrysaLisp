@@ -14,7 +14,7 @@ inputs
 outputs
 :r0 = netid object (ptr)
 trashes
-:r1-:r14
+:r1-:r5
 ```
 
 ### :init -> class/netid/init
@@ -27,7 +27,7 @@ outputs
 :r0 = netid object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6
+:r1-:r6, :f0-:f15
 ```
 
 ### :vtable -> class/netid/vtable

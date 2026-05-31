@@ -12,7 +12,7 @@ inputs
 outputs
 :r0 = 0 if error, else nodeid object (ptr)
 trashes
-:r1-:r6
+:r0-:r5, :f0-:f15
 ```
 
 ### :hash -> class/nodeid/hash

@@ -37,7 +37,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r9
+:r1-:r9, :f0-:f15
 ```
 
 ### :cat -> class/array/cat
@@ -73,7 +73,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r14
+:r1-:r3
 ```
 
 ### :eql -> class/array/eql
@@ -309,7 +309,7 @@ outputs
 :r0 = array object (ptr)
 :r1 = partition iter (plong)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 sort callback
 inputs
 :r0 = sort context (ptr)
@@ -318,7 +318,7 @@ inputs
 outputs
 :r0 = +, 0, -
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :pop_back -> class/array/pop_back
@@ -355,7 +355,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :push_back -> class/array/push_back
@@ -370,7 +370,7 @@ outputs
 :r2 = begin element iter (plong)
 :r3 = end element iter (plong)
 trashes
-:r2-:r5
+:r2-:r5, :f0-:f15
 ```
 
 ### :push_back2 -> class/array/push_back2
@@ -387,7 +387,7 @@ outputs
 :r3 = begin element iter (plong)
 :r4 = end element iter (plong)
 trashes
-:r3-:r5
+:r3-:r5, :f0-:f15
 ```
 
 ### :ref_back -> class/array/ref_back
@@ -439,7 +439,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r5
+:r1-:r5, :f0-:f15
 ```
 
 ### :set_elem -> class/array/set_elem
@@ -494,7 +494,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 sort callback
 inputs
 :r0 = context (ptr)
@@ -503,7 +503,7 @@ inputs
 outputs
 :r0 = +, 0, -
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :sort_callback -> class/obj/null
