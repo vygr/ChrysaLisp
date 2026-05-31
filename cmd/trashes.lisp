@@ -22,17 +22,12 @@
 	(stream-flush (io-stream 'stdout)))
 
 (defq +no_regs ''()
-	+all_regs
-		''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14
-		:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
-	+float_regs
-		''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
+	+int_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
+	+float_regs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
+(defq +all_regs `'(~(last +int_regs) ~(last +float_regs))
 	+regs_index_map
-		(reduce (# (def %0 %1 (!)) %0)
-			'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
-		(reduce (# (def %0 %1 (!)) %0)
-			'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
-			(env 1))))
+		(reduce (# (def %0 %1 (!)) %0) +int_regs
+		(reduce (# (def %0 %1 (!)) %0) +float_regs (env 1))))
 
 (defun reg? (r) (if (eql :sym (pop (type-of r))) (def? r +regs_index_map)))
 
@@ -97,68 +92,46 @@
 			(when (and (list? expr) (= (length expr) 3) (eql (first expr) '-))
 				(when (defq pc (get (second expr) (penv)))
 					(defq inst (elem-get insts (inc pc)) op (first inst))
-					(when (eql op 'emit-string)
-						(second inst)))))))
+					(if (eql op 'emit-string) (second inst)))))))
 
-(defun get-dependencies (func_name)
+(defun get-dependencies (function)
 	;scan the compiled VP object
 	(defq deps (Lset))
-	(when (and (nql func_name :indirect) (nql func_name :abicall)
-			(> (age (defq obj_path (cat "obj/vp/" func_name))) 0))
+	(when (and (nql function :indirect) (nql function :abicall)
+			(> (age (defq obj_path (cat "obj/vp/" function))) 0))
 		(defq insts (first (read (file-stream obj_path))))
 		;local labels so resolve-call can find them
 		(each (# (if (eql (first %0) 'emit-label)
-				(def (penv) (last (second %0)) (!))))
-			insts)
-		(each (# (defq op (first %0))
-			(and (find op '(emit-call-p emit-jmp-p))
-				(defq callee (resolve-call insts (second %0)))
-				(. deps :insert callee)))
-			insts))
+				(def (penv) (last (second %0)) (!)))) insts)
+		(each (# (if (find (first %0) '(emit-call-p emit-jmp-p))
+				(. deps :insert (resolve-call insts (second %0))))) insts))
 	(. deps :tolist))
 
-(defun topological-sort (targets)
-	;iterative topological sort using a heap-allocated DFS stack
-	(defq visited (Fset 101) visiting (Fset 101) order (list) stack (list))
-	;initialize the stack with the top-level targets
-	(each (# (push stack (list %0 :enter))) targets)
-	(while (nempty? stack)
-		(task-slice)
-		(bind '(node state) (pop stack))
-		(cond
-			((eql state :enter)
-				(unless (or (. visited :find node) (. visiting :find node))
-					(. visiting :insert node)
-					;push the exit state first so it is evaluated after its dependencies
-					(push stack (list node :exit))
-					;push all unvisited dependencies onto the stack
-					(each (# (unless (or (. visited :find %0) (. visiting :find %0))
-							(push stack (list %0 :enter))))
-						(get-dependencies node))))
-			((eql state :exit)
-				(. visiting :erase node)
-				(. visited :insert node)
-				(push order node))))
-	order)
+(defun def-reg (%0 %1)
+	; define register value and trashed state
+	(. reg_map :insert %0 %1)
+	(if (eql %0 %1)
+		(. trace_set :erase %0)
+		(. trace_set :insert %0)))
 
-(defun analyze-function (func_name db)
+(defun analyze-function (function db)
 	(cond
-		((= (age (defq obj_path (cat "obj/vp/" func_name))) 0)
+		((= (age (defq obj_path (cat "obj/vp/" function))) 0)
 			(list :external))
 		(;register tracing simulation ! (as near as we can anyways)
 		(each (# (if (eql (first %0) 'emit-label)
-					(def (penv) (last (second %0)) (!))))
+				(def (penv) (last (second %0)) (!))))
 			(defq insts (first (read (file-stream obj_path)))))
 		(defq call_list (list) func_set (Lset) trace -1 next_trace 0
 			reg_map (scatter (Lmap) (zip +all_regs +all_regs))
 			trace_map (scatter (Lmap) 0 (list _2 0 (Lmap) (Lmap) reg_map (Lset))))
-		(verbose 3 "\ttracing " func_name)
+		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
 			(bind '(*pc* *rsp* stack_map label_map reg_map trace_set)
 				(. trace_map :find trace))
 			(while (< *pc* (length insts))
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
-				(verbose 3 "\t\t" func_name " trace " trace " pc " *pc* "\n\t\t\t" inst)
+				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
 				(cond
 					((eql op 'emit-label)
 						;update merged state at labels
@@ -174,19 +147,10 @@
 							(setq *pc* (length insts))))
 					((find op '(emit-cpy-rr emit-cpy-ff))
 						;copy value and mark as trashed or restored
-						(bind '(%0 %1) (rest inst))
-						(defq val (. reg_map :find %0))
-						(. reg_map :insert %1 val)
-						(if (eql %1 val)
-							(. trace_set :erase %1)
-							(. trace_set :insert %1)))
+						(def-reg (last inst) (. reg_map :find (second inst))))
 					((eql op 'emit-swp-rr)
 						;swap values and mark as trashed or restored
-						(each (# (. reg_map :insert %0 %1)
-								(if (eql %0 %1)
-									(. trace_set :erase %0)
-									(. trace_set :insert %0)))
-							;grab values before mutating them
+						(each (const def-reg)
 							(rest inst) (map (# (. reg_map :find %0)) (slice inst -1 1))))
 					((eql op 'emit-call)
 						(. stack_map :insert (-- *rsp* +long_size) *pc*)
@@ -205,10 +169,7 @@
 						;and flag if register is now restored
 						(each! (# (defq val (. stack_map :find *rsp*))
 								(++ *rsp* +long_size)
-								(. reg_map :insert %0 val)
-								(if (eql val %0)
-									(. trace_set :erase %0)
-									(. trace_set :insert %0)))
+								(def-reg %0 val))
 							(list inst) -1 1))
 					((and (find op '(emit-cpy-ri emit-cpy-fi)) (eql (third inst) :rsp))
 						;stack spill 64 bit
@@ -217,12 +178,7 @@
 						(. stack_map :insert (+ *rsp* offset) val))
 					((and (find op '(emit-cpy-ir emit-cpy-if)) (eql (second inst) :rsp))
 						;stack load 64 bit
-						(bind '(& & offset dst) inst)
-						(defq val (. stack_map :find (+ *rsp* offset)))
-						(. reg_map :insert dst val)
-						(if (eql val dst)
-							(. trace_set :erase dst)
-							(. trace_set :insert dst)))
+						(def-reg (last inst) (. stack_map :find (+ *rsp* (third inst)))))
 					((and (find op '(emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i)) (eql (third inst) :rsp))
 						;quantize offset down to the nearest 8-byte
 						;boundary and invalidate the slot
@@ -256,57 +212,52 @@
 					((eql op 'emit-call-abi)
 						;simulate the union of all platform clobbers
 						(merge call_list '(:abicall))
-						(each (# (. reg_map :insert %0 :nil) (. trace_set :insert %0))
+						(each (# (def-reg %0 :nil))
 							(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
 					((eql op 'emit-call-p)
 						;use the callee trashes set
-						(defq callee (resolve-call insts (second inst)))
-						(merge call_list (list callee))
+						(merge call_list (list (defq callee (resolve-call insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
-							(each (# (. trace_set :insert %0) (. reg_map :insert %0 :nil))
-								(if (list? callee_trashes) callee_trashes (. callee_trashes :tolist)))))
+							(each (# (def-reg %0 :nil)) (. callee_trashes :tolist))))
 					((eql op 'emit-jmp-p)
 						;exit function, merge and kill trace
-						(defq callee (resolve-call insts (second inst)))
-						(merge call_list (list callee))
+						(merge call_list (list (defq callee (resolve-call insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
-							(each (# (. trace_set :insert %0) (. reg_map :insert %0 :nil))
-								(if (list? callee_trashes) callee_trashes (. callee_trashes :tolist))))
+							(each (# (def-reg %0 :nil)) (. callee_trashes :tolist)))
 						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
 					(:t ;each modified register is flagged as trashed and value :nil
-						(each (# (. trace_set :insert %0) (. reg_map :insert %0 :nil))
-							(get-modified-regs inst))))
+						(each (# (def-reg %0 :nil)) (get-modified-regs inst))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
 				(verbose 4 "\t\t\t" (format-values reg_map)))
 			(. trace_map :erase trace))
 		(list :resolved func_set call_list))))
 
 (defun propagate-trashes (functions)
-	(defq db (Fmap 101) order (topological-sort functions))
+	(defq db (Fmap 101) order (tsort functions (const get-dependencies)))
 	;each caller now accurately steps through callee clobber states
-	(each (lambda (f)
-		(unless (. db :find f)
-			(verbose 1 "analyzing " f)
-			(bind '(type &optional func_set call_list) (analyze-function f db))
+	(each (lambda (function)
+		(unless (. db :find function)
+			(verbose 1 "analyzing " function)
+			(bind '(type &optional func_set call_list) (analyze-function function db))
 			(cond
 				((eql type :external)
-					(. db :insert f (list :external (scatter (Lset) +no_regs))))
+					(. db :insert function (list :external (scatter (Lset) +no_regs))))
 				((eql type :resolved)
-					(verbose 2 "\tfunction " f "\n\t\tcalls " call_list
+					(verbose 2 "\tfunction " function "\n\t\tcalls " call_list
 						"\n\t\ttrashes " (format-trashes func_set))
-					(. db :insert f (list :resolved func_set call_list))))))
+					(. db :insert function (list :resolved func_set call_list))))))
 		order)
 	;converge remaining transitive sets (such as recursive structures)
 	(defq changed :t)
 	(while changed
 		(setq changed :nil)
-		(each (lambda (f)
-			(when (defq entry (. db :find f))
+		(each (lambda (function)
+			(when (defq entry (. db :find function))
 				(bind '(type &optional func_set call_list) entry)
 				(when (eql type :resolved)
 					(defq size_before (. func_set :size))
@@ -321,32 +272,25 @@
 			order))
 	db)
 
-(defun normalize-trashes (s)
-	(if (or (not s) (eql s "none"))
-		"none"
-		(to-lower (apply (const cat) (filter (# (not (find %0 " \t"))) s)))))
-
 (defun load-doc-trashes ()
 	(defq doc_db (Fmap 101) files (files-all "docs/reference/vp_classes" '(".md")))
 	(each (lambda (file)
-			(when (defq stream (file-stream file))
-				(defq current_func :nil in_trashes :nil)
-				(lines! (lambda (line)
-						(setq line (trim line))
-						(cond
-							((starts-with "### " line)
-								(setq in_trashes :nil)
-								(defq pos (find "-" line))
-								(if pos
-									(setq current_func (trim (slice line (+ pos 3) -1)))
-									(setq current_func :nil)))
-							((and current_func (eql line "trashes"))
-								(setq in_trashes :t))
-							(in_trashes
-								(when (nempty? line)
-									(. doc_db :insert current_func line)
-									(setq in_trashes :nil current_func :nil)))))
-					stream)))
+		(when (defq stream (file-stream file))
+			(defq function :nil in_trashes :nil)
+			(lines! (lambda (line)
+				(cond
+					((starts-with "### " line)
+						(setq in_trashes :nil)
+						(if (defq pos (find "-" line))
+							(setq function (trim (slice line (+ pos 3) -1)))
+							(setq function :nil)))
+					((and function (eql line "trashes"))
+						(setq in_trashes :t))
+					(in_trashes
+						(when (nempty? line)
+							(. doc_db :insert function line)
+							(setq in_trashes :nil function :nil)))))
+				stream)))
 		files)
 	doc_db)
 
@@ -354,30 +298,31 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_v 0 opt_l :nil args (options stdio usage)))
-		(defq targets (rest args))
-		(if (empty? targets)
-			(lines! (lambda (line) (push targets (trim line))) (io-stream 'stdin)))
-		(when (nempty? targets)
-			(defq db (propagate-trashes targets))
+		(defq functions (rest args))
+		(if (empty? functions)
+			(lines! (# (push functions %0)) (io-stream 'stdin)))
+		(when (nempty? functions)
+			(defq functions (map (# (if (starts-with "obj/vp/" %0) (slice %0 7 -1) %0)) functions)
+				db (propagate-trashes functions))
 			(if opt_l
 				(progn
 					(defq doc_db (load-doc-trashes))
-					(each (lambda (f)
-							(when (defq entry (. db :find f))
-								(when (nql (first entry) :external)
-									(defq doc_val (. doc_db :find f))
-									(cond
-										((not doc_val)
-											(print "WARNING: No documentation found for " f))
-										(:t
-											(defq calc_val (format-trashes (second entry)))
-											(unless (eql (normalize-trashes doc_val) (normalize-trashes calc_val))
-												(print "WARNING: Mismatch in " f)
-												(print "  Documented: " doc_val)
-												(print "  Calculated: " calc_val)))))))
-						targets))
+					(each (lambda (function)
+						(when (defq entry (. db :find function))
+							(when (nql (first entry) :external)
+								(defq doc_set (. doc_db :find function))
+								(cond
+									((not doc_set)
+										(print "WARNING: No documentation found for " function))
+									(:t
+										(defq calc_set (format-trashes (second entry)))
+										(unless (eql doc_set calc_set)
+											(print "WARNING: Mismatch in " function)
+											(print "  Documented: " doc_set)
+											(print "  Calculated: " calc_set)))))))
+						functions))
 				(progn
-					(each (lambda (f)
-							(when (defq entry (. db :find f))
-								(print f " -> " (format-trashes (second entry)))))
-						targets))))))
+					(each (lambda (function)
+						(when (defq entry (. db :find function))
+							(print function " -> " (format-trashes (second entry)))))
+						functions))))))
