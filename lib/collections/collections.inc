@@ -25,6 +25,31 @@
 		(reduce (lambda (m k) (. m :insert k)) _ m)
 		(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) m)))
 
+(defun tsort (roots dep_fnc)
+	; (tsort roots dep_fnc) -> order
+	;iterative topological sort using a heap-allocated DFS stack
+	(defq visited (Fset 101) visiting (Fset 101)
+		order (list) stack (list) e (penv))
+	;initialize the stack with the top-level roots
+	(each (# (push stack %0 :enter)) roots)
+	(while (defq state (pop stack) node (pop stack))
+		(task-slice)
+		(cond
+			((eql state :enter)
+				(unless (or (. visited :find node) (. visiting :find node))
+					(. visiting :insert node)
+					;push the exit state first so it is evaluated after its dependencies
+					(push stack node :exit)
+					;push all unvisited dependencies onto the stack
+					(each (# (unless (or (. visited :find %0) (. visiting :find %0))
+							(push stack %0 :enter)))
+						(callback dep_fnc e node))))
+			((eql state :exit)
+				(. visiting :erase node)
+				(. visited :insert node)
+				(push order node))))
+	order)
+
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Fmap/Lmap memoization
 ;;;;;;;;;;;;;;;;;;;;;;;

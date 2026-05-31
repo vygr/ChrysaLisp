@@ -70,6 +70,10 @@ Map collections classes.
 New `cmd/trashes.lisp` command for static analysis of the VP output code. Has
 the ability to lint against the `docs/reference/vp_classes/` documents.
 
+New `(tsort roots dep_fnc) -> order` topological sort function. Takes the roots
+and the callback function that given a node will return that nodes dependant
+nodes.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
