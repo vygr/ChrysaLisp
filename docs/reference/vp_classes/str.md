@@ -101,7 +101,7 @@ inputs
 outputs
 :r0 = new str object (ptr)
 trashes
-:r0-:r8, :f0-:f15
+:r0-:r7, :f0-:f15
 ```
 
 ### :compare -> class/str/compare
@@ -126,7 +126,7 @@ inputs
 outputs
 :r0 = 0 if error, else str object (ptr)
 trashes
-:r0-:r6, :f0-:f15
+:r0-:r5, :f0-:f15
 ```
 
 ### :create_from_cstr -> class/str/create_from_cstr
@@ -137,7 +137,7 @@ inputs
 outputs
 :r0 = 0 if error, else str object (ptr)
 trashes
-:r0-:r6, :f0-:f15
+:r0-:r5, :f0-:f15
 ```
 
 ### :create_from_file -> class/str/create_from_file
@@ -160,7 +160,7 @@ inputs
 outputs
 :r0 = 0 if error, else str object (ptr)
 trashes
-:r0-:r6, :f0-:f15
+:r0-:r5, :f0-:f15
 ```
 
 ### :decode -> class/str/decode
@@ -171,7 +171,7 @@ inputs
 outputs
 :r0 = decoded str object (ptr)
 trashes
-:r0-:r8, :f0-:f15
+:r0-:r7, :f0-:f15
 ```
 
 ### :encode -> class/str/encode
@@ -182,7 +182,7 @@ inputs
 outputs
 :r0 = encoded str object (ptr)
 trashes
-:r0-:r8, :f0-:f15
+:r0-:r7, :f0-:f15
 ```
 
 ### :ends_with -> class/str/ends_with
@@ -314,7 +314,7 @@ outputs
 :r0 = str object (ptr)
 :r1 = char str object (ptr)
 trashes
-:r1-:r7, :f0-:f15
+:r1-:r6, :f0-:f15
 ```
 
 ### :rfind -> class/str/rfind
@@ -355,7 +355,7 @@ inputs
 outputs
 :r0 = slice array object (ptr)
 trashes
-:r0-:r6, :f0-:f15
+:r0-:r5, :f0-:f15
 ```
 
 ### :splice -> class/str/splice
@@ -381,7 +381,7 @@ outputs
 :r0 = str object (ptr)
 :r1 = list of str objects (ptr)
 trashes
-:r1-:r12, :f0-:f15
+:r1-:r11, :f0-:f15
 ```
 
 ### :starts_with -> class/str/starts_with

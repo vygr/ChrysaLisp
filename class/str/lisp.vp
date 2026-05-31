@@ -295,7 +295,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-rdef (div out rem in tab_width iter_begin iter_end iter_out len cursor ch sp flag idx))
+	(vp-rdef (div out rem in len iter_begin iter_end iter_out tab_width cursor ch sp flag idx))
 
 	(entry :str :lisp_expand '(:r0 :r1))
 
