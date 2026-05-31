@@ -20,7 +20,7 @@ inputs
 outputs
 :r0 = in object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :init -> class/in/init
@@ -34,7 +34,7 @@ outputs
 :r0 = in object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14
+:r1-:r5, :f0-:f15
 ```
 
 ### :next_msg -> class/in/next_msg

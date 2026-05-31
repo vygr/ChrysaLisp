@@ -17,7 +17,7 @@
 	;:r0 = out object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r6, :f0-:f15
 
 	(vp-rdef (this vtable id0 id1 id2 zero state))
 
@@ -48,18 +48,18 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this buffer tmp))
 
 	(entry :out :deinit `(,this))
 
 	;stopping then stopped
+	(vp-push this)
 	(call :out :set_state `(,this +stream_mail_state_stopping) `(,this))
 	(call :out :set_state `(,this +stream_mail_state_stopped) `(,this))
 
 	;free any stream mail buffer
-	(vp-push this)
 	(assign `((,this +stream_buffer)) `(,buffer))
 	(vp-xor-rr tmp tmp)
 	(assign `(,tmp) `((,this +stream_buffer)))
@@ -82,7 +82,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this state ostate))
 
@@ -92,10 +92,10 @@
 	(assign `((,this +out_state)) `(,ostate))
 	(vpif `(,ostate < ,state))
 		(vp-push state)
-		(call :out :write_next `(,this) `(,this))
+		(d-call :out :write_next `(,this) `(,this))
 		(vp-pop state)
 		(assign `(,state) `((,this +out_state)))
-		(call :out :flush `(,this) `(,this))
+		(d-call :out :flush `(,this) `(,this))
 	(endif)
 
 	(exit :out :set_state `(,this))
@@ -110,7 +110,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r2-:r14, :f0-:f15
 
 	(vp-rdef (this ack_num seq_num state))
 
@@ -150,7 +150,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this seqnum state ackid id0 id1 id2 msg data len))
 
@@ -205,14 +205,14 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this bufp bufe buffer))
 
 	(entry :out :write_next `(,this))
 
 	(vp-push this)
-	(call :stream :flush  `(,this))
+	(d-call :out :flush  `(,this))
 	(call :sys_mail :alloc '(lk_data_size) `(,buffer ,bufp))
 	(vp-pop this)
 	(vp-lea-i bufp lk_data_size bufe)
