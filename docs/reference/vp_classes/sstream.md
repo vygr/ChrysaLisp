@@ -13,7 +13,7 @@ outputs
 :r0 = sstream object (ptr)
 :r1 = str object (ptr)
 trashes
-:r1-:r6, :f0-:f15
+:r1-:r5, :f0-:f15
 ```
 
 ### :create -> class/sstream/create

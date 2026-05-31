@@ -109,6 +109,6 @@ inputs
 outputs
 :r0 = sstream object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r8, :f0-:f15
 ```
 
