@@ -127,6 +127,7 @@
 			trace_map (scatter (Lmap) 0 (list _2 0 (Lmap) (Lmap) reg_map (Lset))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
+			(task-slice)
 			(bind '(*pc* *rsp* stack_map label_map reg_map trace_set)
 				(. trace_map :find trace))
 			(while (< *pc* (length insts))
