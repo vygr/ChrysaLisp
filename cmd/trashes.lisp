@@ -124,11 +124,12 @@
 			(defq insts (first (read (file-stream obj_path)))))
 		(defq call_list (list) func_set (Lset) trace -1 next_trace 0
 			reg_map (scatter (Lmap) (zip +all_regs +all_regs))
-			trace_map (scatter (Lmap) 0 (list _2 0 (Lmap) (Lmap) reg_map (Lset))))
+			label_map (Lmap)
+			trace_map (scatter (Lmap) 0 (list _2 0 (Lmap) reg_map (Lset))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
 			(task-slice)
-			(bind '(*pc* *rsp* stack_map label_map reg_map trace_set)
+			(bind '(*pc* *rsp* stack_map reg_map trace_set)
 				(. trace_map :find trace))
 			(while (< *pc* (length insts))
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
@@ -143,7 +144,7 @@
 						;if ret would exit function merge and kill trace
 						(setq *pc* (. stack_map :find *rsp*))
 						(++ *rsp* +long_size)
-						(unless (and *pc* (num? *pc*))
+						(unless (num? *pc*)
 							(. func_set :union trace_set)
 							(setq *pc* (length insts))))
 					((find op '(emit-cpy-rr emit-cpy-ff))
@@ -153,9 +154,6 @@
 						;swap values and mark as trashed or restored
 						(each (const def-reg)
 							(rest inst) (map (# (. reg_map :find %0)) (slice inst -1 1))))
-					((eql op 'emit-call)
-						(. stack_map :insert (-- *rsp* +long_size) *pc*)
-						(setq *pc* (get (second inst))))
 					((eql op 'emit-alloc)
 						(setq *rsp* (-- *rsp* (second inst))))
 					((eql op 'emit-free)
@@ -192,8 +190,14 @@
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
 							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (. label_map :copy)
+								(. stack_map :copy)
 								(. reg_map :copy) (. trace_set :copy)))))
+					((eql op 'emit-call)
+						;if call would carry new state then call
+						(defq pc (get (last inst)) ls (. label_map :find pc))
+						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
+							(. stack_map :insert (-- *rsp* +long_size) *pc*)
+							(setq *pc* pc)))
 					((eql op 'emit-jmp)
 						;if jump would carry new state then jump, else dead trace
 						(defq pc (get (last inst)) ls (. label_map :find pc))

@@ -14,7 +14,7 @@ input
 output
 :r0 = 0 else, function entry pointer (ptr)
 trashes
-:r1-:r7
+:r0-:r7, :r13-:r14, :f0-:f15
 ```
 
 ### :find -> sys/load/find
@@ -37,6 +37,8 @@ system argv
 host OS function table
 host GUI function table
 host audio function table
+trashes
+:r0-:r14, :f0-:f15
 info
 register inputs are dependant on the platform ABI
 they are extracted via (abi-arg 0)-(abi-arg 2).
@@ -54,6 +56,6 @@ input
 output
 :r0 = 0 else, function entry pointer (ptr)
 trashes
-:r1-:r7
+:r0-:r7, :r13-:r14, :f0-:f15
 ```
 
