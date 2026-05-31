@@ -1316,6 +1316,14 @@ accepts standard "Normal diff" format
 (trim-start str [cls]) -> str
 ```
 
+### tsort
+
+```code
+(tsort roots dep_fnc) -> order
+
+iterative topological sort using a heap-allocated DFS stack
+```
+
 ### type-to-size
 
 ```code

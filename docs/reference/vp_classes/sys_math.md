@@ -26,7 +26,7 @@ inputs
 outputs
 :r0 = distance squared (fixed)
 trashes
-:r0-:r14
+:r0-:r3, :r6-:r10
 ```
 
 ### :f_intersect -> sys/math/f_intersect
@@ -45,7 +45,7 @@ outputs
 :r0 = ix (fixed)
 :r1 = iy (fixed)
 trashes
-:r0-:r14
+:r0-:r2, :r8-:r14
 ```
 
 ### :f_sin -> sys/math/f_sin
@@ -78,7 +78,7 @@ inputs
 outputs
 :r0 = random number in range (long)
 trashes
-:r0-:r3
+:r0-:r3, :f0-:f15
 ```
 
 ### :r_sin -> sys/math/r_sin
