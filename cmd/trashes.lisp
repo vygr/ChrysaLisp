@@ -50,7 +50,7 @@
 	''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
 
 (defun format-group (prefix indices)
-	(map (lambda ((s e)) (if (= s (setq e (dec e)))
+	(map (lambda ((s e)) (if (= s (-- e))
 			(str prefix s)
 			(str prefix s "-" prefix e)))
 		(slices indices)))
