@@ -25,13 +25,30 @@
 		(slices indices)))
 
 (defun format-regs (regs)
-	(defq r_indices (list) f_indices (list) s_indices (list))
+	(defq r_indices (list) f_indices (list) s_indices (list) expanded_regs (list))
+	;expand any ranges like :r0-:r14 or :f0-:f15
+	(each (lambda (r)
+		(defq parts (split (str r) "-"))
+		(if (and (= (length parts) 2)
+				(starts-with ":" (first parts))
+				(starts-with ":" (second parts)))
+			(progn
+				(defq r_start (first parts) r_end (second parts)
+					prefix (slice r_start 0 2)
+					start_val (str-to-num (slice r_start 2 -1))
+					end_val (str-to-num (slice r_end 2 -1)))
+				(each (lambda (val)
+					(push expanded_regs (sym (str prefix val))))
+					(range start_val (inc end_val))))
+			(push expanded_regs r)))
+		regs)
+	(setq regs expanded_regs)
 	(each (lambda (r)
 		(if (starts-with ":r" (str r))
-			(if (= (defq idx (reg-idx r)) 15)
+			(if (and (defq idx (reg-idx r)) (= idx 15))
 				(push s_indices ":rsp")
-				(push r_indices idx))
-			(push f_indices (reg-idx r))))
+				(if idx (push r_indices idx)))
+			(if (defq idx (reg-idx r)) (push f_indices idx))))
 		regs)
 	(defq formatted_parts (cat
 		(format-group ":r" (sort r_indices))
@@ -42,7 +59,7 @@
 (defun db-f-path (class_db class method)
 	(if (defq class_entry (. class_db :find class))
 		(if (defq method_entry (. (. class_entry :find :methods) :find method))
-			(get :function method_entry))))
+			(. method_entry :find :function))))
 
 (defun database-stale? (cache_file source_files)
 	(defq cache_age (age cache_file))
@@ -58,7 +75,7 @@
 				stream)))
 		files))
 
-(defun first-pass (files class_db)
+(defun first-pass (files class_db func_db)
 	(defq active_class :nil)
 	(scan-source-files files (lambda (line file idx)
 		(defq tokens (split line +split_class))
@@ -88,7 +105,18 @@
 							:function func_name
 							:inputs "none"
 							:outputs "none"
-							:trashes "none")))))))))
+							:trashes "none"))
+						; Populate func_db implements
+						(defq f_entry (. func_db :find func_name))
+						(unless f_entry
+							(setq f_entry (scatter (Emap)
+								:implements (list)
+								:inputs "none"
+								:outputs "none"
+								:trashes "none"))
+							(. func_db :insert func_name f_entry))
+						(push (. f_entry :find :implements) (list active_class method_name))
+						)))))))
 
 (defun second-pass (files class_db func_db)
 	(defq state :none func_name :nil inputs (list) outputs (list) trashes "none" comment_state :none)
@@ -114,7 +142,8 @@
 									(when (starts-with ":" content)
 										(push outputs (sym (first (split content (const (char-class " =("))))))))
 								((eql comment_state :trashes)
-									(setq trashes content)))))
+									(when (or (starts-with ":" content) (eql (to-lower content) "none"))
+										(setq trashes content comment_state :none))))))
 					(:t	(when (nql state :none)
 							(when func_name
 								(defq f_entry (. func_db :find func_name))
@@ -134,20 +163,11 @@
 							(defq op (first tokens))
 							(cond
 								((eql op "def-method")
-									(defq class_name (sym (second tokens))
-										method_name (sym (third tokens))
-										f_path_val (db-f-path class_db class_name method_name))
-									(when f_path_val
-										(setq func_name f_path_val state :method)
-										(defq f_entry (. func_db :find func_name))
-										(unless f_entry
-											(setq f_entry (scatter (Emap)
-												:implements (list)
-												:inputs "none"
-												:outputs "none"
-												:trashes "none"))
-											(. func_db :insert func_name f_entry))
-										(push (. f_entry :find :implements) (list class_name method_name))))
+										(defq class_name (sym (second tokens))
+											method_name (sym (third tokens))
+											f_path_val (db-f-path class_db class_name method_name))
+										(when f_path_val
+											(setq func_name f_path_val state :method)))
 								((eql op "def-func")
 									(setq func_name (if (eql (second tokens) "path-to-absolute")
 											(path-to-absolute (third tokens) file)
@@ -172,7 +192,7 @@
 (defun link-databases (class_db func_db)
 	(. class_db :each (lambda (class_name class_entry)
 		(. (. class_entry :find :methods) :each (lambda (method_name method_entry)
-			(defq func_name (get :function method_entry))
+			(defq func_name (. method_entry :find :function))
 			(when (defq f_entry (. func_db :find func_name))
 				(. method_entry :insert :inputs (. f_entry :find :inputs))
 				(. method_entry :insert :outputs (. f_entry :find :outputs))
@@ -180,7 +200,7 @@
 
 (defun build-and-save-databases (source_files)
 	(defq class_db (Emap) func_db (Fmap 101))
-	(first-pass source_files class_db)
+	(first-pass source_files class_db func_db)
 	(second-pass source_files class_db func_db)
 	(link-databases class_db func_db)
 	(when (defq stream (file-stream +class_db_file +file_open_write))
@@ -189,7 +209,7 @@
 		(tree-save stream func_db))
 	class_db)
 
-(defun file-classes-info ()
+(defun files-classes-info ()
 	(defq source_files (files-all-depends
 		(filter (# (not (starts-with "apps/" %0)))
 			(files-all "." '(".vp") 2))))
@@ -203,10 +223,10 @@
 			(files-all "." '(".vp") 2))))
 	(if (database-stale? +func_db_file source_files)
 		(progn
-			(unless class_db (setq class_db (file-classes-info)))
+			(unless class_db (setq class_db (files-classes-info)))
 			(tree-load (file-stream +func_db_file)))
 		(tree-load (file-stream +func_db_file))))
 
 ;module
-(export-symbols '(file-classes-info files-function-info))
+(export-symbols '(files-classes-info files-function-info))
 (env-pop)
