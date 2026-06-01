@@ -6,6 +6,7 @@ deps/
 /ai/
 cache/
 /usr/*/*.tre
+/lib/files/*/*.tre
 os
 cpu
 abi
