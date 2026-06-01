@@ -74,6 +74,9 @@ New `(tsort roots dep_fnc) -> order` topological sort function. Takes the roots
 and the callback function that given a node will return that nodes dependant
 nodes.
 
+Scanned the entire code base with the new `trashes` data flow analysis tool,
+corrected various bugs found and updated all the source trashes documentation.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
