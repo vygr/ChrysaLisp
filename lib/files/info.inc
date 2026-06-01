@@ -121,7 +121,7 @@
 (defun second-pass (files class_db func_db)
 	(defq state :none func_name :nil inputs (list) outputs (list) trashes "none" comment_state :none)
 	(each (lambda (file)
-		(when (and (ends-with ".vp" file) (defq stream (file-stream file)))
+		(when (and (or (ends-with ".vp" file) (ends-with ".inc" file)) (defq stream (file-stream file)))
 			(lines! (lambda (line) (task-slice)
 				(defq line_trim (trim line +char_class_space))
 				(cond
@@ -157,36 +157,25 @@
 								(. f_entry :insert :inputs (format-regs inputs))
 								(. f_entry :insert :outputs (format-regs outputs))
 								(. f_entry :insert :trashes trashes))
-							(setq state :none comment_state :none inputs (list) outputs (list) trashes "none"))
+							(setq state :none comment_state :none
+								inputs (list) outputs (list) trashes "none"))
 						(defq tokens (split line +split_class))
 						(when (nempty? tokens)
 							(defq op (first tokens))
 							(cond
 								((eql op "def-method")
-										(defq class_name (sym (second tokens))
-											method_name (sym (third tokens))
-											f_path_val (db-f-path class_db class_name method_name))
-										(when f_path_val
-											(setq func_name f_path_val state :method)))
-								((eql op "def-func")
-									(setq func_name (if (eql (second tokens) "path-to-absolute")
+									(defq class_name (sym (second tokens))
+										method_name (sym (third tokens))
+										f_path_val (db-f-path class_db class_name method_name))
+									(when f_path_val
+										(setq func_name f_path_val state :method)))
+								((or (eql op "def-func") (eql op "defun"))
+									(defq name (if (eql (second tokens) "path-to-absolute")
 											(path-to-absolute (third tokens) file)
-											(second tokens))
-										state :func)))))))
-				stream)
-			(when (and (nql state :none) func_name)
-				(defq f_entry (. func_db :find func_name))
-				(unless f_entry
-					(setq f_entry (scatter (Emap)
-						:implements (list)
-						:inputs "none"
-						:outputs "none"
-						:trashes "none"))
-					(. func_db :insert func_name f_entry))
-				(. f_entry :insert :inputs (format-regs inputs))
-				(. f_entry :insert :outputs (format-regs outputs))
-				(. f_entry :insert :trashes trashes)
-				(setq state :none comment_state :none inputs (list) outputs (list) trashes "none"))))
+											(second tokens)))
+									(when (or (eql op "def-func") (. func_db :find name))
+										(setq func_name name state :func))))))))
+				stream)))
 		files))
 
 (defun link-databases (class_db func_db)
