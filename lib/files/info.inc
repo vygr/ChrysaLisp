@@ -88,12 +88,29 @@
 							  mtype (if (and (> (length tokens) 3) (starts-with ":" (elem-get tokens 3)))
 										(sym (elem-get tokens 3))
 										:static)
-							  methods_map (.-> class_db (:find active_class) (:find :methods)))
+							  methods_map (.-> class_db (:find active_class) (:find :methods))
+							  ; Use standard global substr helper to find the end boundary of the function name
+							  f_matches (substr line func_name)
+							  sub_line (if (nempty? f_matches) (slice line (second (first (first f_matches))) -1) "")
+							  matches_list (matches sub_line "\\(([^)]*)\\)")
+							  inputs "none" outputs "none")
+						(cond
+							((= (length matches_list) 2)
+								(setq inputs (slice sub_line (first (second (first matches_list))) (second (second (first matches_list))))
+									  outputs (slice sub_line (first (second (second matches_list))) (second (second (second matches_list))))))
+							((= (length matches_list) 1)
+								(if (find ":nil" sub_line)
+									(setq outputs (slice sub_line (first (second (first matches_list))) (second (second (first matches_list)))))
+									(setq inputs (slice sub_line (first (second (first matches_list))) (second (second (first matches_list))))))))
+						(when (nql inputs "none")
+							(setq inputs (format-regs (map (const sym) (split inputs)))))
+						(when (nql outputs "none")
+							(setq outputs (format-regs (map (const sym) (split outputs)))))
 						(. methods_map :insert method_name (scatter (Emap)
 							:type mtype
 							:function func_name
-							:inputs "none"
-							:outputs "none"
+							:inputs inputs
+							:outputs outputs
 							:trashes "none"))
 						; Populate func_db implements
 						(defq f_entry (. func_db :find func_name))
@@ -104,9 +121,9 @@
 								:outputs "none"
 								:trashes "none"))
 							(. func_db :insert func_name f_entry))
-						(push (. f_entry :find :implements) (list active_class method_name))
-						))))
-		:nil) +split_class))
+						(push (. f_entry :find :implements) (list active_class method_name))))))
+		:nil)
+		+split_class))
 
 (defun second-pass (files class_db func_db)
 	(defq state :none func_name :nil inputs (list) outputs (list) trashes "none" comment_state :none
@@ -173,11 +190,33 @@
 				(. method_entry :insert :outputs (. f_entry :find :outputs))
 				(. method_entry :insert :trashes (. f_entry :find :trashes))))))))
 
+(defun inherit-signatures (class_db)
+	(. class_db :each (lambda (class_name class_entry)
+		(defq parent_name (. class_entry :find :parent))
+		(unless (eql parent_name :nil)
+			(. (. class_entry :find :methods) :each (lambda (method_name method_entry)
+				(when (and (eql (. method_entry :find :inputs) "none")
+						   (eql (. method_entry :find :outputs) "none"))
+					; Walk up the parent chain to find an ancestor with specified registers
+					(defq p_name parent_name p_entry :nil)
+					(while (and (nql p_name :nil) (not p_entry))
+						(when (defq p_class (. class_db :find p_name))
+							(when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
+								(unless (and (eql (. p_method :find :inputs) "none")
+											 (eql (. p_method :find :outputs) "none"))
+									(setq p_entry p_method)))
+							(setq p_name (. p_class :find :parent))))
+					(when p_entry
+						(. method_entry :insert :inputs (. p_entry :find :inputs))
+						(. method_entry :insert :outputs (. p_entry :find :outputs))
+						(. method_entry :insert :trashes (. p_entry :find :trashes))))))))))
+
 (defun build-and-save-databases (source_files)
 	(defq class_db (Emap) func_db (Fmap 101))
 	(first-pass source_files class_db func_db)
 	(second-pass source_files class_db func_db)
 	(link-databases class_db func_db)
+	(inherit-signatures class_db)
 	(when (defq stream (file-stream +class_db_file +file_open_write))
 		(tree-save stream class_db))
 	(when (defq stream (file-stream +func_db_file +file_open_write))
