@@ -80,7 +80,7 @@
 						(defq method_name (sym (second tokens))
 							  func_name (third tokens)
 							  mtype (if (and (> (length tokens) 3) (starts-with ":" (elem-get tokens 3)))
-										(sym (elem-get tokens 3) tokens)
+										(sym (elem-get tokens 3))
 										:static)
 							  methods_map (.-> class_db (:find active_class) (:find :methods)))
 						(. methods_map :insert method_name (scatter (Emap)
