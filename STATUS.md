@@ -79,6 +79,10 @@ corrected various bugs found and updated all the source trashes documentation.
 
 Added `tab` expand processing to the GUI Terminal app.
 
+Added `lib/files/info.inc` library. `(files-classes-info) -> classes_db` and
+`(files-function-info &optional classes_db) -> func_db` for source file scanning
+and caching !
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
