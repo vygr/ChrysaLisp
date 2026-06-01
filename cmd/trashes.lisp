@@ -1,6 +1,5 @@
 (import "lib/options/options.inc")
 (import "lib/files/files.inc")
-(import "lib/debug/frames.inc")
 
 (defq usage `(
 	(("-h" "--help")
