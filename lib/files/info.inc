@@ -84,16 +84,18 @@
 				((eql op "dec-method")
 					(when (and active_class (>= (length tokens) 3))
 						(defq method_name (sym (second tokens))
-							  func_name (third tokens)
-							  mtype (if (and (> (length tokens) 3) (starts-with ":" (elem-get tokens 3)))
-										(sym (elem-get tokens 3))
-										:static)
-							  methods_map (.-> class_db (:find active_class) (:find :methods))
-							  ; Use standard global substr helper to find the end boundary of the function name
-							  f_matches (substr line func_name)
-							  sub_line (if (nempty? f_matches) (slice line (second (first (first f_matches))) -1) "")
-							  matches_list (matches sub_line "\\(([^)]*)\\)")
-							  inputs "none" outputs "none")
+							func_name (third tokens)
+							mtype (if (and (> (length tokens) 3) (starts-with ":" (elem-get tokens 3)))
+									(sym (elem-get tokens 3))
+									:static)
+							methods_map (.-> class_db (:find active_class) (:find :methods))
+							;slice the line to scan only after the function
+							;name to avoid the leading (
+							f_pos (find func_name line)
+							f_matches (substr line func_name)
+							sub_line (if (nempty? f_matches) (slice line (second (first (first f_matches))) -1) "")
+							matches_list (matches sub_line "\\(([^)]*)\\)")
+							inputs "none" outputs "none")
 						(cond
 							((= (length matches_list) 2)
 								(setq inputs (slice sub_line (first (second (first matches_list))) (second (second (first matches_list))))
@@ -112,15 +114,22 @@
 							:inputs inputs
 							:outputs outputs
 							:trashes "none"))
-						; Populate func_db implements
+						;populate and update func_db implements
 						(defq f_entry (. func_db :find func_name))
-						(unless f_entry
-							(setq f_entry (scatter (Emap)
-								:implements (list)
-								:inputs "none"
-								:outputs "none"
-								:trashes "none"))
-							(. func_db :insert func_name f_entry))
+						(if f_entry
+							(progn
+								;update register profiles if they are currently unpopulated
+								(when (and (eql (. f_entry :find :inputs) "none") (nql inputs "none"))
+									(. f_entry :insert :inputs inputs))
+								(when (and (eql (. f_entry :find :outputs) "none") (nql outputs "none"))
+									(. f_entry :insert :outputs outputs)))
+							(progn
+								(setq f_entry (scatter (Emap)
+									:implements (list)
+									:inputs inputs
+									:outputs outputs
+									:trashes "none"))
+								(. func_db :insert func_name f_entry)))
 						(push (. f_entry :find :implements) (list active_class method_name))))))
 		:nil)
 		+split_class))
