@@ -74,7 +74,7 @@ inputs
 outputs
 :r0 = fixeds object (ptr)
 trashes
-:r1-:r6
+:r1-:r5
 ```
 
 ### :mod -> class/fixeds/mod
@@ -115,7 +115,7 @@ inputs
 outputs
 :r0 = fixeds object (ptr)
 trashes
-:r1-:r6
+:r1, :r3-:r6
 ```
 
 ### :vcreate -> class/fixeds/create

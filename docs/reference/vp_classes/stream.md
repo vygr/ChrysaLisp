@@ -147,7 +147,7 @@ outputs
 :r0 = stream object (ptr)
 :r1 = 0 for EOF, else str object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :read_next -> class/stream/read_next

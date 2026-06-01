@@ -80,7 +80,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = dot product (real)
 trashes
-:r1-:r4, :f0-:f1
+:r1-:r4, :f0-:f2
 ```
 
 ### :floor -> class/reals/floor
@@ -224,7 +224,7 @@ inputs
 outputs
 :r0 = reals object (ptr)
 trashes
-:r1-:r5, :f0-:f4
+:r1-:r4, :f0-:f4
 ```
 
 ### :scale -> class/reals/scale

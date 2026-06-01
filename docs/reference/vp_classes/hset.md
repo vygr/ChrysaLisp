@@ -14,7 +14,7 @@ outputs
 :r0 = hset object (ptr)
 :r1 = bucket list object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :clear -> class/hset/clear
@@ -25,7 +25,7 @@ inputs
 outputs
 :r0 = hset object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :create -> class/hset/create
@@ -38,7 +38,7 @@ inputs
 outputs
 :r0 = hset object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :each -> class/hset/each
@@ -51,14 +51,14 @@ inputs
 outputs
 :r0 = hset object (ptr)
 trashes
-:r1-:r4...
+:r1-:r14, :f0-:f15
 callback predicate
 inputs
 :r0 = predicate data (ptr)
 :r1 = element iterator (pptr)
 :r2 = bucket list pointer (ptr)
 trashes
-...
+:r0-:r14, :f0-:f15
 ```
 
 ### :each_callback -> class/obj/null
@@ -74,7 +74,7 @@ outputs
 :r1 = 0, else found iterator (pptr)
 :r2 = bucket list object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :flush -> class/hset/flush
@@ -85,7 +85,7 @@ inputs
 outputs
 :r0 = hset object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :init -> class/hset/init
@@ -100,7 +100,7 @@ outputs
 :r0 = hset object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5
+:r1-:r5, :f0-:f15
 ```
 
 ### :insert -> class/hset/insert
@@ -114,7 +114,7 @@ outputs
 :r1 = element iterator (pptr)
 :r2 = bucket list object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :key_callback -> class/obj/null

@@ -50,7 +50,7 @@
 	;:r1 = args list object (ptr)
 	;:r2 = 0 if error, else ok
 	;trashes
-	;:r2-:r7
+	;:r2, :r4-:r7
 
 	(entry :lisp :env_args_type '(:r1 :r3 :r4))
 
@@ -87,7 +87,7 @@
 	;:r1 = args list object (ptr)
 	;:r2 = 0 if error, else ok
 	;trashes
-	;:r2-:r7
+	;:r2, :r4-:r7
 
 	(entry :lisp :env_args_match '(:r1 :r3 :r4))
 

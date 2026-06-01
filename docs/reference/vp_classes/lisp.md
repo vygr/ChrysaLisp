@@ -70,7 +70,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :env_args_match -> class/lisp/env_args_match
@@ -84,7 +84,7 @@ outputs
 :r1 = args list object (ptr)
 :r2 = 0 if error, else ok
 trashes
-:r2-:r7
+:r2, :r4-:r7
 ```
 
 ### :env_args_sig -> class/lisp/env_args_sig
@@ -113,7 +113,7 @@ outputs
 :r1 = args list object (ptr)
 :r2 = 0 if error, else ok
 trashes
-:r2-:r7
+:r2, :r4-:r7
 ```
 
 ### :env_bind -> class/lisp/env_bind
@@ -127,7 +127,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :env_pop -> class/lisp/env_pop
@@ -139,7 +139,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = hmap object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :env_push -> class/lisp/env_push
@@ -151,7 +151,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = hmap object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :init -> class/lisp/init
@@ -168,7 +168,7 @@ outputs
 :r0 = lisp object object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :read -> class/lisp/read
@@ -183,7 +183,7 @@ outputs
 :r1 = form object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :read_char -> class/lisp/read_char
@@ -197,7 +197,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = next char (uint)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :read_num -> class/lisp/read_num
@@ -212,7 +212,7 @@ outputs
 :r1 = num object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :read_quasi -> class/lisp/read_quasi
@@ -228,7 +228,7 @@ outputs
 :r1 = list object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :read_str -> class/lisp/read_str
@@ -243,7 +243,7 @@ outputs
 :r1 = str object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :read_sym -> class/lisp/read_sym
@@ -258,7 +258,7 @@ outputs
 :r1 = return value object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :repl_apply -> class/lisp/repl_apply
@@ -272,7 +272,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :repl_bind -> class/lisp/repl_bind
@@ -284,7 +284,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :repl_error -> class/lisp/repl_error
@@ -299,7 +299,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = error object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :repl_eval -> class/lisp/repl_eval
@@ -312,7 +312,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :repl_eval_list -> class/lisp/repl_eval_list
@@ -325,7 +325,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :repl_expand -> class/lisp/repl_expand
@@ -337,7 +337,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :repl_print -> class/lisp/repl_print
@@ -351,7 +351,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :repl_progn -> class/lisp/repl_progn
@@ -366,7 +366,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :run -> class/lisp/run

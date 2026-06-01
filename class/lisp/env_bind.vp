@@ -9,7 +9,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = hmap object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :lisp :env_push '(:r0))
 
@@ -33,7 +33,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = hmap object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this new_env))
@@ -64,7 +64,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this vars vals symbol value args)

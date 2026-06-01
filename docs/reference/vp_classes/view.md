@@ -100,7 +100,7 @@ trashes
 :r1-:r14
 ```
 
-### :draw -> class/view/draw
+### :draw -> gui/view/draw
 
 ```code
 inputs

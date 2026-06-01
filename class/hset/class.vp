@@ -16,7 +16,7 @@
 	;:r0 = hset object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5
+	;:r1-:r5, :f0-:f15
 
 	(structure local 0
 		(ptr this))
@@ -58,7 +58,7 @@
 	;outputs
 	;:r0 = hset object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :hset :deinit '(:r0))
 
@@ -75,7 +75,7 @@
 	;outputs
 	;:r0 = hset object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :hset :clear '(:r0))
 
@@ -109,7 +109,7 @@
 	;:r1 = 0, else found iterator (pptr)
 	;:r2 = bucket list object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this key buckets)
@@ -171,14 +171,14 @@
 	;outputs
 	;:r0 = hset object (ptr)
 	;trashes
-	;:r1-:r4...
+	;:r1-:r14, :f0-:f15
 		;callback predicate
 		;inputs
 		;:r0 = predicate data (ptr)
 		;:r1 = element iterator (pptr)
 		;:r2 = bucket list pointer (ptr)
 		;trashes
-		;...
+		;:r0-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this predicate predicate_data bucket)
@@ -240,7 +240,7 @@
 	;:r0 = hset object (ptr)
 	;:r1 = bucket list object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this)
@@ -280,7 +280,7 @@
 	;:r1 = element iterator (pptr)
 	;:r2 = bucket list object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this key))
@@ -312,7 +312,7 @@
 	;outputs
 	;:r0 = hset object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(jump :hset :each '(:r0 ($ flush_callback) 0))
 

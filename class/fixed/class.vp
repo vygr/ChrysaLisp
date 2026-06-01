@@ -16,7 +16,7 @@
 	;outputs
 	;:r0 = fixed object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this stream tmp)
@@ -83,7 +83,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14, :f0-:f15
 
 	(addop :mul)
 
@@ -96,7 +96,7 @@
 	;outputs
 	;:r0 = 0 if error, else result fixed object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14, :f0-:f15
 
 	(entry :fixed :div '(:r0 :r1))
 
@@ -129,7 +129,7 @@
 	;outputs
 	;:r0 = 0 if error, else result fixed object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14, :f0-:f15
 
 	(entry :fixed :mod '(:r0 :r1))
 
@@ -167,7 +167,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r14, :f0-f1
+	;:r0-:r2, :r14, :f0-:f15
 
 	(mathop :sqrt
 		'(call :sys_math :f_sqrt '(:r0) '(:r0)))
@@ -180,7 +180,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r2, :r14, :f0-:f15
 
 	(mathop :sign
 		'(progn
@@ -198,7 +198,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f3
+	;:r0-:r2, :r14, :f0-:f15
 
 	(mathop :sin
 		'(call :sys_math :f_sin '(:r0) '(:r0)))
@@ -211,7 +211,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f3
+	;:r0-:r2, :r14, :f0-:f15
 
 	(mathop :cos
 		'(call :sys_math :f_cos '(:r0) '(:r0)))
@@ -224,7 +224,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r2, :r14, :f0-:f15
 
 	(mathop :frac
 		'(progn
@@ -239,7 +239,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r2, :r14, :f0-:f15
 
 	(mathop :floor
 		'(progn
@@ -254,7 +254,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r2, :r14, :f0-:f15
 
 	(mathop :ceil
 		'(progn
@@ -269,7 +269,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r2, :r14, :f0-:f15
 
 	(mathop :recip
 		'(progn

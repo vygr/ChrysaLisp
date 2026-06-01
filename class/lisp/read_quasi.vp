@@ -13,7 +13,7 @@
 	;:r1 = list object (ptr)
 	;:r2 = next char (uint)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this sym))

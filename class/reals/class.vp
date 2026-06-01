@@ -368,7 +368,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = dot product (real)
 	;trashes
-	;:r1-:r4, :f0-:f1
+	;:r1-:r4, :f0-:f2
 
 	(vp-rdef (this src2 src1 idx1 idx2))
 	(vp-fdef (dot e0 e1))
@@ -392,7 +392,7 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f4
+	;:r1-:r4, :f0-:f4
 
 	(vp-rdef (dst src1 dst1 src_end trunc))
 	(vp-fdef (e0 tol half one ftrunc))

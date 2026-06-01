@@ -12,7 +12,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = next char (uint)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :lisp :read_char '(:r0 :r1 :r2))
 
@@ -40,7 +40,7 @@
 	;:r1 = form object (ptr)
 	;:r2 = next char (uint)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this stream list item stack)

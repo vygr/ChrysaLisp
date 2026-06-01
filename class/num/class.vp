@@ -15,7 +15,7 @@
 	;outputs
 	;:r0 = interned num object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	(entry :num :intern '(:r0))
 
@@ -87,7 +87,7 @@
 	;outputs
 	;:r0 = num object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this stream tmp))
@@ -184,7 +184,7 @@
 	;outputs
 	;:r1 = result num object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r6
 
 	(minop :min
 		'(progn
@@ -202,7 +202,7 @@
 	;outputs
 	;:r1 = result num object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r6
 
 	(minop :max
 		'(progn
@@ -368,7 +368,7 @@
 	;outputs
 	;:r1 = 0, -1 (int)
 	;trashes
-	;:r1-:r14
+	;:r1-:r4
 
 	(compareop :eq
 		'(gotoif '(:r3 /= :r4) 'fail))
@@ -382,7 +382,7 @@
 	;outputs
 	;:r1 = 0, -1 (int)
 	;trashes
-	;:r1-:r14
+	;:r1-:r4
 
 	(compareop :ge
 		'(progn
@@ -398,7 +398,7 @@
 	;outputs
 	;:r1 = 0, -1 (int)
 	;trashes
-	;:r1-:r14
+	;:r1-:r4
 
 	(compareop :gt
 		'(progn
@@ -414,7 +414,7 @@
 	;outputs
 	;:r1 = 0, -1 (int)
 	;trashes
-	;:r1-:r14
+	;:r1-:r4
 
 	(compareop :le
 		'(progn
@@ -430,7 +430,7 @@
 	;outputs
 	;:r1 = 0, -1 (int)
 	;trashes
-	;:r1-:r14
+	;:r1-:r4
 
 	(compareop :lt
 		'(progn
@@ -446,7 +446,7 @@
 	;outputs
 	;:r1 = 0, -1 (int)
 	;trashes
-	;:r1-:r14
+	;:r1-:r6
 
 	(entry :num :ne '(:r0 :r1))
 

@@ -35,7 +35,7 @@ outputs
 :r0 = mail message (ptr)
 :r1 = string data (pubyte)
 trashes
-:r0-:r6, :f0-:f15
+:r0-:r5, :f0-:f15
 ```
 
 ### :alloc_mbox -> sys/mail/alloc_mbox

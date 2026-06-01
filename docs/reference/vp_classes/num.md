@@ -108,7 +108,7 @@ inputs
 outputs
 :r1 = 0, -1 (int)
 trashes
-:r1-:r14
+:r1-:r4
 ```
 
 ### :eql -> class/num/eql
@@ -133,7 +133,7 @@ inputs
 outputs
 :r1 = 0, -1 (int)
 trashes
-:r1-:r14
+:r1-:r4
 ```
 
 ### :get_value -> class/num/get_value
@@ -157,7 +157,7 @@ inputs
 outputs
 :r1 = 0, -1 (int)
 trashes
-:r1-:r14
+:r1-:r4
 ```
 
 ### :hash -> class/num/hash
@@ -194,7 +194,7 @@ inputs
 outputs
 :r0 = interned num object (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :le -> class/num/le
@@ -206,7 +206,7 @@ inputs
 outputs
 :r1 = 0, -1 (int)
 trashes
-:r1-:r14
+:r1-:r4
 ```
 
 ### :lt -> class/num/lt
@@ -218,7 +218,7 @@ inputs
 outputs
 :r1 = 0, -1 (int)
 trashes
-:r1-:r14
+:r1-:r4
 ```
 
 ### :max -> class/num/max
@@ -230,7 +230,7 @@ inputs
 outputs
 :r1 = result num object (ptr)
 trashes
-:r1-:r14
+:r1-:r6
 ```
 
 ### :min -> class/num/min
@@ -242,7 +242,7 @@ inputs
 outputs
 :r1 = result num object (ptr)
 trashes
-:r1-:r14
+:r1-:r6
 ```
 
 ### :mod -> class/num/mod
@@ -278,7 +278,7 @@ inputs
 outputs
 :r1 = 0, -1 (int)
 trashes
-:r1-:r14
+:r1-:r6
 ```
 
 ### :neg -> class/num/neg
@@ -301,7 +301,7 @@ inputs
 outputs
 :r0 = num object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :random -> class/num/random

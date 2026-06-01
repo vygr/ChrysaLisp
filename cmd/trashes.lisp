@@ -135,18 +135,26 @@
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
 				(cond
+					;labels and branches
 					((eql op 'emit-label)
 						;update merged state at labels
 						(if (defq pc (get (last (second inst))) ls (. label_map :find pc))
 							(. trace_set :union ls))
 						(. label_map :insert pc (. trace_set :copy)))
-					((eql op 'emit-ret)
-						;if ret would exit function merge and kill trace
-						(setq *pc* (. stack_map :find *rsp*))
-						(++ *rsp* +long_size)
-						(unless (num? *pc*)
-							(. func_set :union trace_set)
-							(setq *pc* (length insts))))
+					((find op '(emit-beq-cr emit-bne-cr emit-bge-cr
+								emit-ble-cr emit-blt-cr emit-bgt-cr
+								emit-beq-rr emit-bne-rr emit-bge-rr
+								emit-ble-rr emit-blt-rr emit-bgt-rr))
+						;if branch would carry new state then create new trace
+						(defq pc (get (last inst)) ls (. label_map :find pc))
+						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
+							(. trace_map :insert (++ next_trace) (list pc *rsp*
+								(. stack_map :copy)
+								;(. label_map :copy)
+								(. reg_map :copy)
+								(. trace_set :copy)))))
+
+					;register data flow
 					((find op '(emit-cpy-rr emit-cpy-ff))
 						;copy value and mark as trashed or restored
 						(def-reg (last inst) (. reg_map :find (second inst))))
@@ -154,6 +162,8 @@
 						;swap values and mark as trashed or restored
 						(each (const def-reg)
 							(rest inst) (map (# (. reg_map :find %0)) (slice inst -1 1))))
+
+					;stack tracking
 					((eql op 'emit-alloc)
 						(setq *rsp* (-- *rsp* (second inst))))
 					((eql op 'emit-free)
@@ -182,28 +192,31 @@
 						;quantize offset down to the nearest 8-byte
 						;boundary and invalidate the slot
 						(. stack_map :insert (+ *rsp* (logand (neg +long_size) (last inst))) :nil))
-					((find op '(emit-beq-cr emit-bne-cr emit-bge-cr
-								emit-ble-cr emit-blt-cr emit-bgt-cr
-								emit-beq-rr emit-bne-rr emit-bge-rr
-								emit-ble-rr emit-blt-rr emit-bgt-rr))
-						;if branch would carry new state then create new trace
-						(defq pc (get (last inst)) ls (. label_map :find pc))
-						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
-							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy)
-								(. reg_map :copy) (. trace_set :copy)))))
+
+					;internal call, jump and return
+					((eql op 'emit-ret)
+						;if ret would exit function merge and kill trace
+						(setq *pc* (. stack_map :find *rsp*))
+						(++ *rsp* +long_size)
+						(unless (num? *pc*)
+							(. func_set :union trace_set)
+							(setq *pc* (length insts))))
 					((eql op 'emit-call)
-						;if call would carry new state then call
-						(defq pc (get (last inst)) ls (. label_map :find pc))
-						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
-							(. stack_map :insert (-- *rsp* +long_size) *pc*)
-							(setq *pc* pc)))
+						(. func_set :union trace_set)
+						(setq *pc* (length insts)))
+						; ;if call would carry new state then call
+						; (defq pc (get (last inst)) ls (. label_map :find pc))
+						; (when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
+						; 	(. stack_map :insert (-- *rsp* +long_size) *pc*)
+						; 	(setq *pc* pc)))
 					((eql op 'emit-jmp)
-						;if jump would carry new state then jump, else dead trace
+						;if jump would carry new state then jump, else kill trace
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(if (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
 							(setq *pc* pc)
 							(setq *pc* (length insts))))
+
+					;external call and jump
 					((find op '(emit-call-i emit-call-r))
 						;FIXME, should track virtual method calls !
 						(merge call_list '(:indirect))
@@ -235,11 +248,14 @@
 							(each (# (def-reg %0 :nil)) (. callee_trashes :tolist)))
 						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
+
+					;everything else
 					(:t ;each modified register is flagged as trashed and value :nil
 						(each (# (def-reg %0 :nil)) (get-modified-regs inst))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
 				(verbose 4 "\t\t\t" (format-values reg_map)))
-			(. trace_map :erase trace))
+			(. trace_map :erase trace)
+			(verbose 4 "\t\tmerged " (format-trashes func_set)))
 		(list :resolved func_set call_list))))
 
 (defun propagate-trashes (functions)
