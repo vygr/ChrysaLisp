@@ -15,7 +15,7 @@
 	;:r0 = view object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r5, :f0-:f15
 
 	;init parent
 	(s-call :view :init '(:r0 :r1 0 1) '(:r0 :r1))
@@ -42,7 +42,7 @@
 	;outputs
 	;:r0 = view object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	;save object
 	(vp-push :r0)
@@ -149,7 +149,7 @@
 	;outputs
 	;:r0 = view object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	;test parent
 	(assign '((:r0 +hmap_parent)) '(:r1))
@@ -193,7 +193,7 @@
 	;outputs
 	;:r0 = view object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r5
 
 	(assign '((:r0 +hmap_parent)) '(:r5))
 	(vpif '(:r5 /= 0))
@@ -230,7 +230,7 @@
 	;outputs
 	;:r0 = view object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(assign '((:r0 +hmap_parent)) '(:r5))
 	(vpif '(:r5 /= 0))
@@ -268,7 +268,7 @@
 	;outputs
 	;:r0 = view object (ptr)
 	;trashes
-	;...
+	;:r1-:r14, :f0-:f15
 		;callback api
 		;inputs
 		;:r0 = view object (ptr)
@@ -318,6 +318,7 @@
 		;up to parent
 		(assign '((:r0 +hmap_parent)) '(:r0))
 	(loop-end)
+	(assign '((:rsp local_this)) '(:r0))
 
 	(vp-free local_size)
 	(vp-ret)
@@ -333,7 +334,7 @@
 	;outputs
 	;:r0 = view object (ptr)
 	;trashes
-	;...
+	;:r1-:r14, :f0-:f15
 		;callback api
 		;inputs
 		;:r0 = view object (ptr)
@@ -383,6 +384,7 @@
 		;up to parent
 		(assign '((:r0 +hmap_parent)) '(:r0))
 	(loop-end)
+	(assign '((:rsp local_this)) '(:r0))
 
 	(vp-free local_size)
 	(vp-ret)
@@ -395,7 +397,7 @@
 	;outputs
 	;:r0 = view object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this args))
@@ -608,7 +610,7 @@
 	;:r0 = view object (ptr)
 	;:r1 = 0 else, property object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :view :ref_prop '(:r0 :r1))
 
@@ -630,7 +632,7 @@
 	;:r0 = view object (ptr)
 	;:r1 = 0 else, property object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :view :get_prop '(:r0 :r1))
 
@@ -652,7 +654,7 @@
 	;:r0 = view object (ptr)
 	;:r1 = property value (long)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :view :get_long_prop '(:r0 :r1))
 

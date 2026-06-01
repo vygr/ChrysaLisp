@@ -17,7 +17,7 @@
 	;outputs
 	;:r0 = 0 if error, else font object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this name flat_set data)
@@ -69,7 +69,7 @@
 	;:r0 = font object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this name data)
@@ -112,7 +112,7 @@
 	;outputs
 	;:r0 = font object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :font :deinit '(:r0))
 
@@ -210,7 +210,7 @@
 	;:r0 = font object (ptr)
 	;:r1 = glyph ranges array object (ptr)
 	;trashes
-	;:r1-:r7
+	;:r1-:r7, :f0-:f15
 
 	(vp-rdef (this data info start end) '(:r6 :r7 :r0 :r1 :r2))
 
@@ -244,7 +244,7 @@
 	;:r0 = font object (ptr)
 	;:r1 = glyph info array object (ptr)
 	;trashes
-	;:r1-:r8
+	;:r1-:r8, :f0-:f15
 
 	(vp-rdef (this utf8 info data c) '(:r6 :r7 :r8 :r7 :r1))
 
@@ -324,7 +324,7 @@
 	;:r2 = width (pixels)
 	;:r3 = height (pixels)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(defun trans_xy (rx ry)
 		(vp-add-rr ox rx)
@@ -423,7 +423,7 @@
 	;:r0 = font object (ptr)
 	;:r1 = 0, else texture object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15, :rsp
 
 	(def-vars
 		(ptr this sym txt sym_canvas paths info)
@@ -484,7 +484,7 @@
 	;:r0 = font object (ptr)
 	;:r1 = list of ascii texture objects (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15, :rsp
 
 	(def-vars
 		(ptr this sym txt chars)
@@ -525,7 +525,7 @@
 
 (def-method :font :flush)
 	;trashes
-	;:r0-:r14
+	;:r0-:r14, :f0-:f15
 
 	(def-vars
 		(ptr font new_map flat_set tmp)

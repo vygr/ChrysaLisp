@@ -168,7 +168,7 @@ outputs
 :r0 = lisp object object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :f0-:f15, :rsp
 ```
 
 ### :read -> class/lisp/read

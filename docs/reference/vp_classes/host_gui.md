@@ -37,7 +37,7 @@ outputs
 :r9 = width (pixels)
 :r10 = height (pixels)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 info
 the dirty region bounds is returned for use by the :flush call !
 ```

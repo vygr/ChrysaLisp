@@ -27,7 +27,7 @@ outputs
 :r0 = font object (ptr)
 :r1 = list of ascii texture objects (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15, :rsp
 ```
 
 ### :create -> gui/font/create
@@ -40,14 +40,14 @@ inputs
 outputs
 :r0 = font object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :flush -> gui/font/flush
 
 ```code
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :get_metrics -> gui/font/get_metrics
@@ -101,7 +101,7 @@ outputs
 :r0 = font object (ptr)
 :r1 = glyph info array object (ptr)
 trashes
-:r1-:r8
+:r1-:r8, :f0-:f15
 ```
 
 ### :glyph_paths -> gui/font/glyph_paths
@@ -116,7 +116,7 @@ outputs
 :r2 = width (pixels)
 :r3 = height (pixels)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :glyph_ranges -> gui/font/glyph_ranges
@@ -128,7 +128,7 @@ outputs
 :r0 = font object (ptr)
 :r1 = glyph ranges array object (ptr)
 trashes
-:r1-:r7
+:r1-:r7, :f0-:f15
 ```
 
 ### :init -> gui/font/init
@@ -144,7 +144,7 @@ outputs
 :r0 = font object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :open -> gui/font/open
@@ -155,7 +155,7 @@ trashes
 outputs
 :r0 = 0 if error, else font object (ptr)
 trashes
-:r0-:r14
+:r0-:r14, :f0-:f15
 ```
 
 ### :sym_texture -> gui/font/sym_texture
@@ -168,7 +168,7 @@ outputs
 :r0 = font object (ptr)
 :r1 = 0, else texture object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15, :rsp
 ```
 
 ### :vtable -> gui/font/vtable

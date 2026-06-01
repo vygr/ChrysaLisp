@@ -26,7 +26,7 @@ inputs
 :r9 = width (pixels)
 :r10 = height (pixels)
 trashes
-:r0-:r14
+:r0-:r4, :r7-:r14, :f0-:f15
 ```
 
 ### :box -> gui/ctx/box
@@ -39,7 +39,7 @@ inputs
 :r9 = width (pixels)
 :r10 = height (pixels)
 trashes
-:r0-:r14
+:r0, :r3, :r7-:r14, :f0-:f15
 ```
 
 ### :filled_box -> gui/ctx/filled_box
@@ -52,7 +52,7 @@ inputs
 :r9 = width (pixels)
 :r10 = height (pixels)
 trashes
-:r0-:r14
+:r0, :r3, :r7-:r14, :f0-:f15
 ```
 
 ### :set_color -> gui/ctx/set_color
@@ -62,6 +62,6 @@ inputs
 :r0 = view object (ptr)
 :r1 = color (argb)
 trashes
-:r0-:r14
+:r0-:r3, :r13-:r14, :f0-:f15
 ```
 

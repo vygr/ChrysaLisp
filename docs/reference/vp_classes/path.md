@@ -36,7 +36,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14
+:r1-:r7
 ```
 
 ### :filter_polyline -> gui/path/filter_polyline
@@ -49,7 +49,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14
+:r1-:r7
 ```
 
 ### :gen_arc -> gui/path/gen_arc
@@ -65,7 +65,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :gen_clerp -> gui/path/gen_clerp
@@ -83,7 +83,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :gen_cubic -> gui/path/gen_cubic
@@ -102,7 +102,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :gen_quadratic -> gui/path/gen_quadratic
@@ -119,7 +119,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :simplify -> gui/path/simplify
@@ -132,7 +132,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :stroke_joints -> gui/path/stroke_joints
@@ -151,7 +151,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :stroke_polygon -> gui/path/stroke_polygon
@@ -166,7 +166,7 @@ outputs
 :r1 = output path1 object (ptr)
 :r2 = output path2 object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :stroke_polyline -> gui/path/stroke_polyline
@@ -182,7 +182,7 @@ outputs
 :r0 = path object (ptr)
 :r1 = output path object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :transform -> gui/path/transform

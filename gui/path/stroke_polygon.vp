@@ -11,7 +11,7 @@
 	;:r1 = output path1 object (ptr)
 	;:r2 = output path2 object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this path1 path2)

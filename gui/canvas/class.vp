@@ -20,7 +20,7 @@
 	;:r0 = canvas object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r7, :f0-:f15
 
 	(entry :canvas :init '(:r0 :r1 :r2 :r3 :r4))
 	(assign '(:r2 :r3 :r4) '((:r0 +canvas_cx1) (:r0 +canvas_cy1) (:r0 +canvas_scale)))
@@ -63,7 +63,7 @@
 	;:r0 = canvas object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r5, :f0-:f15
 
 	(entry :canvas :init_pixmap '(:r0 :r1 :r2))
 	(assign '(:r2) '((:r0 +canvas_pixmap)))
@@ -106,7 +106,7 @@
 	;outputs
 	;:r0 = canvas object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-push :r0)
 
@@ -140,7 +140,7 @@
 	;outputs
 	;:r0 = canvas object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15, :rsp
 
 	(def-vars
 		(ptr this pixmap texture)
@@ -185,7 +185,7 @@
 	;outputs
 	;:r0 = canvas object (ptr)
 	;trashes
-	;:r1-:r2
+	;:r1-:r2, :r7-:r10
 
 	(entry :canvas :set_clip '(:r0 :r7 :r8 :r9 :r10))
 
@@ -319,7 +319,7 @@
 	;:r0 = canvas object (ptr)
 	;:r1 = color (argb)
 	;trashes
-	;:r1-:r14
+	;:r1-:r8
 
 	(entry :canvas :pick '(:r0 :r7 :r8))
 
@@ -413,7 +413,7 @@
 	;outputs
 	;:r0 = canvas object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r9
 
 	(def-vars
 		(ptr this)

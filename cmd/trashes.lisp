@@ -1,5 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/files/files.inc")
+(import "lib/debug/frames.inc")
 
 (defq usage `(
 	(("-h" "--help")
@@ -22,9 +23,10 @@
 	(stream-flush (io-stream 'stdout)))
 
 (defq +no_regs ''()
-	+int_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
+	+int_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
 	+float_regs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
 (defq +all_regs `'(~(last +int_regs) ~(last +float_regs))
+	+all_extern_trashed_regs `'(~(most (last +int_regs)) ~(last +float_regs))
 	+regs_index_map
 		(reduce (# (def %0 %1 (!)) %0) +int_regs
 		(reduce (# (def %0 %1 (!)) %0) +float_regs (env 1))))
@@ -54,12 +56,17 @@
 		(slices indices)))
 
 (defun format-trashes (func_set)
-	(defq r_indices (list) f_indices (list))
+	(defq r_indices (list) f_indices (list) s_indices (list))
 	(each (# (if (starts-with ":r" %0)
-			(push r_indices (reg? %0))
+			(if (= (defq %0 (reg? %0)) 15)
+				(push s_indices ":rsp")
+				(push r_indices %0))
 			(push f_indices (reg? %0))))
 		(if (list? func_set) func_set (. func_set :tolist)))
-	(defq formatted_parts (cat (format-group ":r" r_indices) (format-group ":f" f_indices)))
+	(defq formatted_parts (cat
+		(format-group ":r" r_indices)
+		(format-group ":f" f_indices)
+		s_indices))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 
 (defun format-values (reg_map)
@@ -81,6 +88,8 @@
 		((eql op 'emit-pop) (rest inst))
 		((find op '(emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr
 			emit-div-rrr-u)) (slice inst -3 -1))
+		((find op '(emit-min-cr emit-min-rr emit-max-cr emit-max-rr vp-abs-rr))
+			(slice inst 2 3))
 		((reg? (last inst)) (slice inst -2 -1))
 		('())))
 
@@ -101,7 +110,7 @@
 			(> (age (defq obj_path (cat "obj/vp/" function))) 0))
 		(defq insts (first (read (file-stream obj_path))))
 		;local labels so resolve-call can find them
-		(each (# (if (eql (first %0) 'emit-label)
+		(each (# (if (find (first %0) '(emit-label emit-tlabel))
 				(def (penv) (last (second %0)) (!)))) insts)
 		(each (# (if (find (first %0) '(emit-call-p emit-jmp-p))
 				(. deps :insert (resolve-call insts (second %0))))) insts))
@@ -119,7 +128,7 @@
 		((= (age (defq obj_path (cat "obj/vp/" function))) 0)
 			(list :external))
 		(;register tracing simulation ! (as near as we can anyways)
-		(each (# (if (eql (first %0) 'emit-label)
+		(each (# (if (find (first %0) '(emit-label emit-tlabel))
 				(def (penv) (last (second %0)) (!))))
 			(defq insts (first (read (file-stream obj_path)))))
 		(defq call_list (list) func_set (Lset) trace -1 next_trace 0
@@ -136,7 +145,7 @@
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
 				(cond
 					;labels and branches
-					((eql op 'emit-label)
+					((find op '(emit-label emit-tlabel))
 						;update merged state at labels
 						(if (defq pc (get (last (second inst))) ls (. label_map :find pc))
 							(. trace_set :union ls))
@@ -220,11 +229,11 @@
 					((find op '(emit-call-i emit-call-r))
 						;FIXME, should track virtual method calls !
 						(merge call_list '(:indirect))
-						(each (# (. reg_map :insert %0 :nil) (. trace_set :insert %0)) +all_regs))
+						(each (# (. reg_map :insert %0 :nil) (. trace_set :insert %0)) +all_extern_trashed_regs))
 					((find op '(emit-jmp-i emit-jmp-r))
 						;FIXME, should track virtual method calls !
 						(merge call_list '(:indirect))
-						(each (# (. reg_map :insert %0 :nil) (. trace_set :insert %0)) +all_regs)
+						(each (# (. reg_map :insert %0 :nil) (. trace_set :insert %0)) +all_extern_trashed_regs)
 						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
 					((eql op 'emit-call-abi)

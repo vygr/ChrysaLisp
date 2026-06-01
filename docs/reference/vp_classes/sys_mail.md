@@ -164,7 +164,7 @@ outputs
 :r0 = mail address (ptr)
 :r1 = string data (pubyte)
 trashes
-:r0-:r2
+:r0-:r2, :rsp
 ```
 
 ### :out -> sys/mail/out
@@ -173,7 +173,9 @@ trashes
 info
 parcels going off chip or junk mail task
 trashes
-:r0-:r14, :f0-:f15
+none
+info
+never breaks out
 ```
 
 ### :ping -> sys/mail/ping
@@ -207,7 +209,7 @@ outputs
 :r0 = mail address (ptr)
 :r1 = string data (pubyte)
 trashes
-:r0-:r2
+:r0-:r2, :rsp
 info
 in *build_mode* > 0
 a signal to a Lisp task can return 0 here !

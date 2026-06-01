@@ -6,7 +6,9 @@
 	;info
 	;parcels going off chip or junk mail task
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;none
+	;info
+	;never breaks out
 
 	(def-vars
 		(ptr msg data statics)

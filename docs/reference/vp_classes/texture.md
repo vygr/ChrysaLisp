@@ -14,7 +14,7 @@ inputs
 outputs
 :r0 = texture object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15, :rsp
 ```
 
 ### :get_metrics -> gui/texture/get_metrics

@@ -8,7 +8,7 @@
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r13, :f0-:f15
 
 	(def-vars
 		(ptr this source)
@@ -145,7 +145,7 @@
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r2-:r12
 
 	(vp-rdef (this source sdata xdata ydata data rb ga srb sga sw mga mrb))
 
@@ -206,7 +206,7 @@
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r2-:r13
 
 	(vp-rdef (this source sdata xdata ydata data q rb ga srb sga sw mga mrb))
 

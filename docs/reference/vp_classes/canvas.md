@@ -40,7 +40,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :fbox -> gui/canvas/fbox
@@ -55,7 +55,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14
+:r1-:r9
 ```
 
 ### :fpoly -> gui/canvas/fpoly
@@ -70,7 +70,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :ftri -> gui/canvas/ftri
@@ -103,7 +103,7 @@ outputs
 :r0 = canvas object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14
+:r1-:r7, :f0-:f15
 ```
 
 ### :init_pixmap -> gui/canvas/init_pixmap
@@ -117,7 +117,7 @@ outputs
 :r0 = canvas object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14
+:r1-:r5, :f0-:f15
 ```
 
 ### :pick -> gui/canvas/pick
@@ -131,7 +131,7 @@ outputs
 :r0 = canvas object (ptr)
 :r1 = color (argb)
 trashes
-:r1-:r14
+:r1-:r8
 ```
 
 ### :plot -> gui/canvas/plot
@@ -159,7 +159,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r2
+:r1-:r2, :r7-:r10
 ```
 
 ### :set_edges -> gui/canvas/set_edges
@@ -178,7 +178,7 @@ outputs
 :r13 = max_x (fixed)
 :r14 = max_y (fixed)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :span -> gui/canvas/span
@@ -224,7 +224,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15, :rsp
 ```
 
 ### :vtable -> gui/canvas/vtable

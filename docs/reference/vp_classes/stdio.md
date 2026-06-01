@@ -18,7 +18,7 @@ inputs
 outputs
 :r0 = stdio object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :f0-:f15, :rsp
 ```
 
 ### :init -> class/stdio/init
@@ -31,7 +31,7 @@ outputs
 :r0 = stdio object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :f0-:f15, :rsp
 ```
 
 ### :vtable -> class/stdio/vtable

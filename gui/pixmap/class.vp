@@ -14,7 +14,7 @@
 	;outputs
 	;:r0 = 0 if error, else pixmap object (ptr)
 	;trashes
-	;:r1-:r7
+	;:r0-:r7, :f0-:f15
 
 	;save size of data
 	(entry :pixmap :create '(:r0 :r1 :r2))
@@ -51,7 +51,7 @@
 	;:r0 = pixmap object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r3
 
 	(entry :pixmap :init '(:r0 :r1 :r2 :r3 :r4))
 	(assign '(:r2 :r3 :r4) '((:r0 +pixmap_width) (:r0 +pixmap_height) (:r0 +pixmap_type)))
@@ -85,7 +85,7 @@
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-push :r0)
 
@@ -108,7 +108,7 @@
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15, :rsp
 
 	(structure local 0
 		(ptr this)
@@ -429,7 +429,7 @@
 	;outputs
 	;:r1 = col (uint)
 	;trashes
-	;:r1-:r5
+	;:r1, :r3-:r5
 
 	(vp-rdef (_ col pix r g b))
 

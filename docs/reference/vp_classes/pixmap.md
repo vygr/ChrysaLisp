@@ -48,7 +48,7 @@ inputs
 outputs
 :r0 = 0 if error, else pixmap object (ptr)
 trashes
-:r1-:r7
+:r0-:r7, :f0-:f15
 ```
 
 ### :deinit -> gui/pixmap/deinit
@@ -59,7 +59,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :fill -> gui/pixmap/fill
@@ -83,7 +83,7 @@ inputs
 outputs
 :r1 = col (uint)
 trashes
-:r1-:r5
+:r1, :r3-:r5
 ```
 
 ### :init -> gui/pixmap/init
@@ -99,7 +99,7 @@ outputs
 :r0 = pixmap object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14
+:r1-:r3
 ```
 
 ### :next_frame -> gui/pixmap/next_frame
@@ -110,7 +110,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :resize -> gui/pixmap/resize
@@ -122,7 +122,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r14
+:r1-:r13, :f0-:f15
 ```
 
 ### :resize_2 -> gui/pixmap/resize_2
@@ -134,7 +134,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r14
+:r2-:r12
 ```
 
 ### :resize_3 -> gui/pixmap/resize_3
@@ -146,7 +146,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r14
+:r2-:r13
 ```
 
 ### :to_argb -> gui/pixmap/to_argb
@@ -192,7 +192,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15, :rsp
 ```
 
 ### :vtable -> gui/pixmap/vtable

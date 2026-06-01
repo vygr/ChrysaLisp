@@ -22,7 +22,7 @@ inputs
 outputs
 :r0 = vdu object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :draw -> gui/vdu/draw
@@ -33,7 +33,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :init -> gui/vdu/init
@@ -46,7 +46,7 @@ outputs
 :r0 = vdu object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14
+:r1-:r5, :f0-:f15
 ```
 
 ### :vtable -> gui/vdu/vtable

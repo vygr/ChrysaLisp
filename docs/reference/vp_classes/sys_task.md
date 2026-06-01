@@ -21,7 +21,7 @@ inputs
 :r0 = user data address (ptr)
 :r1 = callback address (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :f0-:f15, :rsp
 ```
 
 ### :count -> sys/task/count
@@ -41,7 +41,7 @@ trashes
 inputs
 :r0 = task control node to defer to (ptr)
 trashes
-:r1-:r2
+:r1-:r2, :rsp
 info
 restore task
 ```
@@ -61,7 +61,7 @@ trashes
 
 ```code
 trashes
-:r0-:r3
+:r0-:r3, :rsp
 info
 restore next ready task
 ```
@@ -92,7 +92,7 @@ trashes
 inputs
 :r0 = time delay in usec (long)
 trashes
-:r0-:r4, :f0-:f15
+:r0-:r4, :f0-:f15, :rsp
 info
 0 for yield
 ```
@@ -134,7 +134,7 @@ trashes
 
 ```code
 trashes
-:r0-:r4
+:r0-:r4, :rsp
 info
 stop current task, switch to next task
 ```
@@ -143,7 +143,7 @@ stop current task, switch to next task
 
 ```code
 trashes
-:r0-:r3
+:r0-:r3, :rsp
 info
 suspend current task, switch to next task
 ```

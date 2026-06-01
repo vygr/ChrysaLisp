@@ -75,7 +75,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-...
+:r1-:r14, :f0-:f15
 callback api
 inputs
 :r0 = view object (ptr)
@@ -97,7 +97,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :draw -> gui/view/draw
@@ -108,7 +108,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :find_id -> gui/view/find_id
@@ -135,7 +135,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-...
+:r1-:r14, :f0-:f15
 callback api
 inputs
 :r0 = view object (ptr)
@@ -159,7 +159,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = property value (long)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :get_prop -> gui/view/get_prop
@@ -172,7 +172,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 else, property object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :hide -> gui/view/hide
@@ -183,7 +183,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :hit -> gui/view/hit
@@ -226,7 +226,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14
+:r1-:r5, :f0-:f15
 ```
 
 ### :ref_prop -> gui/view/ref_prop
@@ -239,7 +239,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 else, property object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :set_flags -> gui/view/set_flags
@@ -275,7 +275,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f15
 ```
 
 ### :to_front -> gui/view/to_front
@@ -286,7 +286,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14
+:r1-:r5
 ```
 
 ### :vtable -> gui/view/vtable
