@@ -205,14 +205,14 @@
 		(unless (eql parent_name :nil)
 			(. (. class_entry :find :methods) :each (lambda (method_name method_entry)
 				(when (and (eql (. method_entry :find :inputs) "none")
-						   (eql (. method_entry :find :outputs) "none"))
-					; Walk up the parent chain to find an ancestor with specified registers
+						(eql (. method_entry :find :outputs) "none"))
+					;walk up the parent chain to find an ancestor with specified registers
 					(defq p_name parent_name p_entry :nil)
 					(while (and (nql p_name :nil) (not p_entry))
 						(when (defq p_class (. class_db :find p_name))
 							(when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
 								(unless (and (eql (. p_method :find :inputs) "none")
-											 (eql (. p_method :find :outputs) "none"))
+											(eql (. p_method :find :outputs) "none"))
 									(setq p_entry p_method)))
 							(setq p_name (. p_class :find :parent))))
 					(when p_entry
