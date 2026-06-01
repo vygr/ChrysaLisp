@@ -67,10 +67,12 @@
 			(cond
 				((eql op "def-class")
 					(defq class_name (sym (second tokens))
-						  parent_name (sym (third tokens))
-						  class_entry (. class_db :find class_name))
+						parent_name (sym (third tokens))
+						class_entry (. class_db :find class_name))
 					(unless class_entry
-						(setq class_entry (scatter (Emap) :parent parent_name :methods (Emap)))
+						(setq class_entry (scatter (Emap)
+							:parent parent_name
+							:methods (Emap)))
 						(. class_db :insert class_name class_entry))
 					(setq active_class class_name))
 				((eql op "dec-method")
@@ -78,9 +80,9 @@
 						(defq method_name (sym (second tokens))
 							  func_name (third tokens)
 							  mtype (if (and (> (length tokens) 3) (starts-with ":" (elem-get tokens 3)))
-										(sym ((elem-get tokens 3) tokens))
+										(sym (elem-get tokens 3) tokens)
 										:static)
-							  methods_map (. (. class_db :find active_class) :find :methods))
+							  methods_map (.-> class_db (:find active_class) (:find :methods)))
 						(. methods_map :insert method_name (scatter (Emap)
 							:type mtype
 							:function func_name
@@ -113,12 +115,15 @@
 										(push outputs (sym (first (split content (const (char-class " =("))))))))
 								((eql comment_state :trashes)
 									(setq trashes content)))))
-					(:t
-						(when (nql state :none)
+					(:t	(when (nql state :none)
 							(when func_name
 								(defq f_entry (. func_db :find func_name))
 								(unless f_entry
-									(setq f_entry (scatter (Emap) :implements (list) :inputs "none" :outputs "none" :trashes "none"))
+									(setq f_entry (scatter (Emap)
+										:implements (list)
+										:inputs "none"
+										:outputs "none"
+										:trashes "none"))
 									(. func_db :insert func_name f_entry))
 								(. f_entry :insert :inputs (format-regs inputs))
 								(. f_entry :insert :outputs (format-regs outputs))
@@ -130,26 +135,33 @@
 							(cond
 								((eql op "def-method")
 									(defq class_name (sym (second tokens))
-										  method_name (sym (third tokens))
-										  f_path_val (db-f-path class_db class_name method_name))
+										method_name (sym (third tokens))
+										f_path_val (db-f-path class_db class_name method_name))
 									(when f_path_val
-										(setq func_name f_path_val
-											  state :method)
+										(setq func_name f_path_val state :method)
 										(defq f_entry (. func_db :find func_name))
 										(unless f_entry
-											(setq f_entry (scatter (Emap) :implements (list) :inputs "none" :outputs "none" :trashes "none"))
+											(setq f_entry (scatter (Emap)
+												:implements (list)
+												:inputs "none"
+												:outputs "none"
+												:trashes "none"))
 											(. func_db :insert func_name f_entry))
 										(push (. f_entry :find :implements) (list class_name method_name))))
 								((eql op "def-func")
 									(setq func_name (if (eql (second tokens) "path-to-absolute")
-														(path-to-absolute (third tokens) file)
-														(second tokens))
-											  state :func)))))))
+											(path-to-absolute (third tokens) file)
+											(second tokens))
+										state :func)))))))
 				stream)
 			(when (and (nql state :none) func_name)
 				(defq f_entry (. func_db :find func_name))
 				(unless f_entry
-					(setq f_entry (scatter (Emap) :implements (list) :inputs "none" :outputs "none" :trashes "none"))
+					(setq f_entry (scatter (Emap)
+						:implements (list)
+						:inputs "none"
+						:outputs "none"
+						:trashes "none"))
 					(. func_db :insert func_name f_entry))
 				(. f_entry :insert :inputs (format-regs inputs))
 				(. f_entry :insert :outputs (format-regs outputs))
@@ -162,9 +174,9 @@
 		(. (. class_entry :find :methods) :each (lambda (method_name method_entry)
 			(defq func_name (get :function method_entry))
 			(when (defq f_entry (. func_db :find func_name))
-				(. method_entry :insert :inputs (get :inputs f_entry))
-				(. method_entry :insert :outputs (get :outputs f_entry))
-				(. method_entry :insert :trashes (get :trashes f_entry))))))))
+				(. method_entry :insert :inputs (. f_entry :find :inputs))
+				(. method_entry :insert :outputs (. f_entry :find :outputs))
+				(. method_entry :insert :trashes (. f_entry :find :trashes))))))))
 
 (defun build-and-save-databases (source_files)
 	(defq class_db (Emap) func_db (Fmap 101))
@@ -178,13 +190,17 @@
 	class_db)
 
 (defun file-classes-info ()
-	(defq source_files (files-all-depends (filter (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2))))
+	(defq source_files (files-all-depends
+		(filter (# (not (starts-with "apps/" %0)))
+			(files-all "." '(".vp") 2))))
 	(if (database-stale? +class_db_file source_files)
 		(build-and-save-databases source_files)
 		(tree-load (file-stream +class_db_file))))
 
 (defun files-function-info (&optional class_db)
-	(defq source_files (files-all-depends (filter (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2))))
+	(defq source_files (files-all-depends
+		(filter (# (not (starts-with "apps/" %0)))
+			(files-all "." '(".vp") 2))))
 	(if (database-stale? +func_db_file source_files)
 		(progn
 			(unless class_db (setq class_db (file-classes-info)))
