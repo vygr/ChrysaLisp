@@ -14,8 +14,7 @@
 	(reduce (# (def %0 %1 (!)) %0) +int_regs
 	(reduce (# (def %0 %1 (!)) %0) +float_regs (env 1))))
 
-(defun reg-idx (r)
-	(get (sym (str r)) +regs_index_map))
+(defun reg-idx (r) (get (sym r) +regs_index_map))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
@@ -27,7 +26,7 @@
 	(defq r_indices (list) f_indices (list) s_indices (list) expanded_regs (list))
 	;expand any ranges like :r0-:r14 or :f0-:f15
 	(each (lambda (r)
-		(defq parts (split (str r) "-"))
+		(defq parts (split r "-"))
 		(if (and (= (length parts) 2)
 				(starts-with ":" (first parts))
 				(starts-with ":" (second parts)))
@@ -43,7 +42,7 @@
 		regs)
 	(setq regs expanded_regs)
 	(each (lambda (r)
-		(if (starts-with ":r" (str r))
+		(if (starts-with ":r" r)
 			(if (and (defq idx (reg-idx r)) (= idx 15))
 				(push s_indices ":rsp")
 				(if idx (push r_indices idx)))
@@ -57,7 +56,7 @@
 
 (defun db-f-path (class_db class method)
 	(if (defq class_entry (. class_db :find class))
-		(if (defq method_entry (. (. class_entry :find :methods) :find method))
+		(if (defq method_entry (.-> class_entry (:find :methods) (:find method)))
 			(. method_entry :find :function))))
 
 (defun database-stale? (cache_file source_files)
