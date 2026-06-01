@@ -16,12 +16,18 @@
 
 (defun wrap-text (text &optional wrap_width)
 	(setd wrap_width +max_int)
+	(defq first_line :t)
 	(while (defq idx (find +char_class_lf text))
 		(when (> idx 0) (task-slice)
-			(insert-line-wrapped buffer (slice text 0 idx) wrap_width))
+			;expand tabs on the current line
+			(defq line (expand (slice text 0 idx) (. buffer :get_tab_width) (if first_line x 0)))
+			(insert-line-wrapped buffer line wrap_width))
 		(. buffer :insert +char_class_lf)
-		(setq text (slice text (inc idx) -1)))
-	(when (> (length text) 0) (insert-line-wrapped buffer text wrap_width)))
+		(setq text (slice text (inc idx) -1) first_line :nil))
+	(when (> (length text) 0)
+		;expand tabs on any remaining text
+		(setq text (expand text (. buffer :get_tab_width) (if first_line x 0)))
+		(insert-line-wrapped buffer text wrap_width)))
 
 (defun action-insert (text &optional wrap_width)
 	(input-cursor (wrap-text text wrap_width))

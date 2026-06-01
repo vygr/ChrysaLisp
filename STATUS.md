@@ -77,6 +77,8 @@ nodes.
 Scanned the entire code base with the new `trashes` data flow analysis tool,
 corrected various bugs found and updated all the source trashes documentation.
 
+Added `tab` expand processing to the GUI Terminal app.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
