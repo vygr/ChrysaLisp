@@ -1,10 +1,11 @@
-(import "lib/files/files.inc")
+(import "./files.inc")
 
 ;module
 (env-push)
 
-(defq +class_db_file "lib/files/class_db.tre"
-	+func_db_file "lib/files/func_db.tre"
+(defq *lib_root* (path-to-file)
+	+class_db_file (cat *lib_root* "class_db.tre")
+	+func_db_file (cat *lib_root* "func_db.tre")
 	+split_class (char-class " ()'\t\r\q{@}<>")
 	+int_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
 	+float_regs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
@@ -48,8 +49,8 @@
 			(if (defq idx (reg-idx r)) (push f_indices idx))))
 		regs)
 	(defq formatted_parts (cat
-		(format-group ":r" (sort r_indices))
-		(format-group ":f" (sort f_indices))
+		(format-group ":r" r_indices)
+		(format-group ":f" f_indices)
 		s_indices))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 
