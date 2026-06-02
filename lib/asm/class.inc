@@ -158,7 +158,7 @@
 						(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 					(assign %2 _)
 					(vp-cpy-ir :r0 +obj_vtable :r14)
-					(vp-call-i :r14 (last m))))
+					(vp-call-i :r14 (last m) %0 %1)))
 			(if %3 (assign (elem-get m 3) %3)))
 		(:t ;l-call
 			(cond
@@ -185,7 +185,7 @@
 			(assign %2 _)
 			(vp-cpy-ir :r0 +obj_vtable :r14)
 			(scope-unwind)
-			(vp-jmp-i :r14 (last m)))))
+			(vp-jmp-i :r14 (last m) %0 %1))))
 
 (defmacro entry (&rest %0)
 	;either
@@ -286,7 +286,7 @@
 		(throw "Dispatch register conflicts with arg !" (list %5 _)))
 	(assign %2 _)
 	(vp-cpy-ir %4 +obj_vtable %5)
-	(vp-call-i %5 (last m))
+	(vp-call-i %5 (last m) %0 %1)
 	(if %3 (assign (elem-get m 3) %3)))
 
 (defun v-jump (%0 %1 &optional %2 %3 %4)
@@ -302,7 +302,7 @@
 	(assign %2 _)
 	(vp-cpy-ir %3 +obj_vtable %4)
 	(scope-unwind)
-	(vp-jmp-i %4 (last m)))
+	(vp-jmp-i %4 (last m) %0 %1))
 
 (defun v-bind (%0 %1 &optional %2 %3)
 	;%0 = class name
@@ -354,7 +354,7 @@
 	(if (find (setd %4 :r14) _)
 		(throw "Dispatch register conflicts with arg !" (list %4 _)))
 	(assign %2 (cat _ (list %4)))
-	(vp-call-r %4)
+	(vp-call-r %4 %0 %1)
 	(if %3 (assign (elem-get m 3) %3)))
 
 (defun r-jump (%0 %1 &optional %2 %3)
@@ -367,7 +367,7 @@
 		(throw "Dispatch register conflicts with arg !" (list %3 _)))
 	(assign %2 (cat _ (list %3)))
 	(scope-unwind)
-	(vp-jmp-r %3))
+	(vp-jmp-r %3 %0 %1))
 
 (defun l-call (%0 &optional %1 %2)
 	;%0 = label

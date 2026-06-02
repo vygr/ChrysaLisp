@@ -224,8 +224,8 @@
 			(emitm-int c))
 		(:t (throw "emit-call constant out of range !" c))))
 
-(defun emit-call-r (r) (x64-call-jump-r 0xd0 r))
-(defun emit-call-i (d c) (x64-call-jump-i 0x10 d c))
+(defun emit-call-r (r &ignore) (x64-call-jump-r 0xd0 r))
+(defun emit-call-i (d c &ignore) (x64-call-jump-i 0x10 d c))
 (defun emit-call-p (l) (x64-call-jump-p 0x15 l))
 
 (defun emit-jmp (l d)
@@ -239,8 +239,8 @@
 			(emitm-int (- c 5)))
 		(:t (throw "emit-jmp constant out of range !" c))))
 
-(defun emit-jmp-r (r) (x64-call-jump-r 0xe0 r))
-(defun emit-jmp-i (d c) (x64-call-jump-i 0x20 d c))
+(defun emit-jmp-r (r &ignore) (x64-call-jump-r 0xe0 r))
+(defun emit-jmp-i (d c &ignore) (x64-call-jump-i 0x20 d c))
 (defun emit-jmp-p (l) (x64-call-jump-p 0x25 l))
 
 (defun emit-lea-i (s c d) (unless (and (= c 0) (eql s d)) (x64-ir 0x8d s c d)))

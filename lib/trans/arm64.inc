@@ -331,12 +331,12 @@
 			(emitm-int (+ 0x58000000 (<< (logand c 0x1fffff) 3) d)))
 		(:t (throw "emit-cpy-pr constant out of range !" c))))
 
-(defun emit-call-r (r)
+(defun emit-call-r (r &ignore)
 	(emit-push +arm64_rlnk)
 	(emitm-int (+ 0xd63f0000 (<< r 5)))
 	(emit-pop +arm64_rlnk))
 
-(defun emit-call-i (d c)
+(defun emit-call-i (d c &ignore)
 	(emit-cpy-ir d c +arm64_rtmp)
 	(emit-call-r +arm64_rtmp))
 
@@ -350,10 +350,10 @@
 			(emitm-int (+ 0x14000000 (>> (logand c 0xfffffff) 2))))
 		(:t (throw "emit-jmp constant out of range !" c))))
 
-(defun emit-jmp-r (r)
+(defun emit-jmp-r (r &ignore)
 	(emitm-int (+ 0xd61f0000 (<< r 5))))
 
-(defun emit-jmp-i (d c)
+(defun emit-jmp-i (d c &ignore)
 	(emit-cpy-ir d c +arm64_rtmp)
 	(emit-jmp-r +arm64_rtmp))
 

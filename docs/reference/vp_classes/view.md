@@ -84,7 +84,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 if should not descend after down callback
 trashes
-...
+:r1-:r14, :f0-:f15
 ```
 
 ### :create -> gui/view/create
@@ -144,7 +144,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 if should not descend after down callback
 trashes
-...
+:r1-:r14, :f0-:f15
 ```
 
 ### :forward_tree_callback -> class/obj/null

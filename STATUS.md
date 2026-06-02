@@ -89,6 +89,11 @@ doing its own documentation scanning.
 `cmd/vpgraph.lisp` command has been deleted, `cmd/trashes.lisp` does everything
 and more than this old source based version.
 
+The instructions, `vp-call-r`, `vp-call-i`, `vp-jmp-r` and `vp-jmp-i`, now take
+optional arguments for the `:class` and `:method` info. This info is used by the
+static trashes tools to calculate the union'd set of trashes registers for the
+methods that could be called.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

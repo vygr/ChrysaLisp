@@ -382,18 +382,18 @@
 			(riscv64-j 0x6f +riscv64_rzero c))
 		(:t (throw "emit-jmp constant out of range !" c))))
 
-(defun emit-call-r (r)
+(defun emit-call-r (r &ignore)
 	(emit-push +riscv64_rlnk)
 	(riscv64-i 0x67 +riscv64_rlnk r 0x0 0x0)
 	(emit-pop +riscv64_rlnk))
 
-(defun emit-jmp-r (r) (riscv64-i 0x67 +riscv64_rzero r 0x0 0x0))
+(defun emit-jmp-r (r &ignore) (riscv64-i 0x67 +riscv64_rzero r 0x0 0x0))
 
-(defun emit-call-i (s i)
+(defun emit-call-i (s i &ignore)
 	(emit-cpy-ir s i +riscv64_rtmp1)
 	(emit-call-r +riscv64_rtmp1))
 
-(defun emit-jmp-i (s i)
+(defun emit-jmp-i (s i &ignore)
 	(emit-cpy-ir s i +riscv64_rtmp1)
 	(emit-jmp-r +riscv64_rtmp1))
 

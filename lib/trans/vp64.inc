@@ -221,8 +221,8 @@
 (defun emit-call-p (l) (vp64-call-jmp-p (next-opcode 2) l))
 (defun emit-jmp-p (l) (vp64-call-jmp-p (next-opcode 2) l))
 
-(defun emit-call-r (r) (emitm-short (+ (next-opcode) (<< r 8))))
-(defun emit-jmp-r (r) (emitm-short (+ (next-opcode) (<< r 8))))
+(defun emit-call-r (r &ignore) (emitm-short (+ (next-opcode) (<< r 8))))
+(defun emit-jmp-r (r &ignore) (emitm-short (+ (next-opcode) (<< r 8))))
 
 (defun vp64-call-jmp-i (o r c)
 	(cond
@@ -230,8 +230,8 @@
 			(emitm-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
 		(:t (throw "vp64-call-jmp-i constant out of range !" c))))
 
-(defun emit-call-i (r c) (vp64-call-jmp-i (next-opcode) r c))
-(defun emit-jmp-i (r c) (vp64-call-jmp-i (next-opcode) r c))
+(defun emit-call-i (r c &ignore) (vp64-call-jmp-i (next-opcode) r c))
+(defun emit-jmp-i (r c &ignore) (vp64-call-jmp-i (next-opcode) r c))
 
 ; Group 13: PC Relative / System
 (defun vp64-p (o r l)

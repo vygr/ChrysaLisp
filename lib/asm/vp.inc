@@ -76,13 +76,13 @@
 
 (defun vp-call-abi (r b i n x) (emit `(emit-call-abi ,r ,b ,i ,n ~x)))
 (defun vp-call (l) (emit `(emit-call ,(label-sym l))))
-(defun vp-call-r (d) (emit `(emit-call-r ,d)))
-(defun vp-call-i (b i) (emit (static-qqp (emit-call-i ,b ,(eval i (penv))))))
+(defun vp-call-r (d &optional c m) (emit `(emit-call-r ,d ,c ,m)))
+(defun vp-call-i (b i &optional c m) (emit (static-qqp (emit-call-i ,b ,(eval i (penv)) ,c ,m))))
 (defun vp-call-p (l) (emit `(emit-call-p ,(label-sym l))))
 
 (defun vp-jmp (l) (emit `(emit-jmp ,(label-sym l))))
-(defun vp-jmp-r (d) (emit `(emit-jmp-r ,d)))
-(defun vp-jmp-i (b i) (emit (static-qqp (emit-jmp-i ,b ,(eval i (penv))))))
+(defun vp-jmp-r (d &optional c m) (emit `(emit-jmp-r ,d ,c ,m)))
+(defun vp-jmp-i (b i &optional c m) (emit (static-qqp (emit-jmp-i ,b ,(eval i (penv)) ,c ,m))))
 (defun vp-jmp-p (l) (emit `(emit-jmp-p ,(label-sym l))))
 
 (defun vp-lea-i (b i d) (emit (static-qqp (emit-lea-i ,b ,(eval i (penv)) ,d))))
