@@ -190,12 +190,12 @@
 
 (defun link-databases (class_db func_db)
 	(. class_db :each (lambda (class_name class_entry)
-		(. (. class_entry :find :methods) :each (lambda (method_name method_entry)
+		(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
 			(defq func_name (. method_entry :find :function))
 			(when (defq f_entry (. func_db :find func_name))
 				(. method_entry :insert :inputs (. f_entry :find :inputs))
 				(. method_entry :insert :outputs (. f_entry :find :outputs))
-				(. method_entry :insert :trashes (. f_entry :find :trashes))))))))
+				(. method_entry :insert :trashes (. f_entry :find :trashes)))))))))
 
 (defun inherit-signatures (class_db)
 	(. class_db :each (lambda (class_name class_entry)
