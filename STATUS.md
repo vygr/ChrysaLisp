@@ -83,6 +83,9 @@ Added `lib/files/info.inc` library. `(files-classes-info) -> classes_db` and
 `(files-function-info &optional classes_db) -> func_db` for source file scanning
 and caching !
 
+`trashes` command updated to use the new `lib/files/info.inc` library instead of
+doing it's own documentation scanning.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
