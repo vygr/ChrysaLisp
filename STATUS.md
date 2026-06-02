@@ -84,7 +84,10 @@ Added `lib/files/info.inc` library. `(files-classes-info) -> classes_db` and
 and caching !
 
 `trashes` command updated to use the new `lib/files/info.inc` library instead of
-doing it's own documentation scanning.
+doing its own documentation scanning.
+
+`cmd/vpgraph.lisp` command has been deleted, `cmd/trashes.lisp` does everything
+and more than this old source based version.
 
 ------
 
