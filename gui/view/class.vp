@@ -455,7 +455,7 @@
 	;:r0 = view object (ptr)
 	;:r1 = 0 if not found, else view object (ptr)
 	;trashes
-	;:r1-:r3
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this view)
@@ -531,7 +531,7 @@
 	;:r7 = x relative to hit (pixels)
 	;:r8 = y relative to hit (pixels)
 	;trashes
-	;:r1-:r3
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this hit))

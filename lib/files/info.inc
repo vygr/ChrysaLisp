@@ -258,7 +258,8 @@
 		(tree-load (file-stream +class_db_file))))
 
 (defun files-function-info (&optional class_db)
-	(setd class_db (files-classes-info)))
+	(setd class_db (files-classes-info))
+	(tree-load (file-stream +func_db_file)))
 
 ;module
 (export-symbols '(files-classes-info files-function-info files-all-vp-source))

@@ -1,5 +1,5 @@
 (import "lib/options/options.inc")
-(import "lib/files/files.inc")
+(import "lib/files/info.inc")
 
 (defq usage `(
 	(("-h" "--help")
@@ -301,28 +301,6 @@
 			order))
 	db)
 
-(defun load-doc-trashes ()
-	(defq doc_db (Fmap 101) files (files-all "docs/reference/vp_classes" '(".md")))
-	(each (lambda (file)
-		(when (defq stream (file-stream file))
-			(defq function :nil in_trashes :nil)
-			(lines! (lambda (line)
-				(cond
-					((starts-with "### " line)
-						(setq in_trashes :nil)
-						(if (defq pos (find "-" line))
-							(setq function (trim (slice line (+ pos 3) -1)))
-							(setq function :nil)))
-					((and function (eql line "trashes"))
-						(setq in_trashes :t))
-					(in_trashes
-						(when (nempty? line)
-							(. doc_db :insert function line)
-							(setq in_trashes :nil function :nil)))))
-				stream)))
-		files)
-	doc_db)
-
 (defun main ()
 	(when (and
 			(defq stdio (create-stdio))
@@ -335,11 +313,12 @@
 				db (propagate-trashes functions))
 			(if opt_l
 				(progn
-					(defq doc_db (load-doc-trashes))
+					(defq doc_db (files-function-info))
 					(each (lambda (function)
 						(when (defq entry (. db :find function))
 							(when (nql (first entry) :external)
-								(defq doc_set (. doc_db :find function))
+								(defq doc_entry (. doc_db :find function)
+									doc_set (if doc_entry (. doc_entry :find :trashes)))
 								(cond
 									((not doc_set)
 										(print "WARNING: No documentation found for " function))
