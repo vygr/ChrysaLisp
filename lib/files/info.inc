@@ -6,7 +6,6 @@
 (defq +class_db_file "lib/files/class_db.tre"
 	+func_db_file "lib/files/func_db.tre"
 	+split_class (char-class " ()'\t\r\q{@}<>")
-	+implicit_file "lib/asm/func.inc"
 	+int_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
 	+float_regs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
 
@@ -58,12 +57,6 @@
 	(if (defq class_entry (. class_db :find class))
 		(if (defq method_entry (.-> class_entry (:find :methods) (:find method)))
 			(. method_entry :find :function))))
-
-(defun database-stale? (cache_file source_files)
-	(defq cache_age (age cache_file))
-	(if (= cache_age 0)
-		:t
-		(some (# (and (> (age %0) cache_age) (not (starts-with "apps/" %0)))) source_files)))
 
 (defun first-pass (files class_db func_db)
 	(defq active_class :nil)
@@ -232,24 +225,25 @@
 		(tree-save stream func_db))
 	class_db)
 
+(defun files-all-vp-source ()
+	; (files-all-vp-source) -> ordered_files
+	(tsort (filter (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2))
+		(const files-depends)))
+
+(defun database-stale? (cache_file source_files)
+	(defq cache_age (age cache_file))
+	(some (# (> (age %0) cache_age)) source_files)
+	;for testing !, return true always
+	:t)
+
 (defun files-classes-info ()
-	(defq source_files (files-all-depends
-		(filter (# (not (starts-with "apps/" %0)))
-			(files-all "." '(".vp") 2))))
-	(if (database-stale? +class_db_file source_files)
+	(if (database-stale? +class_db_file (defq source_files (files-all-vp-source)))
 		(build-and-save-databases source_files)
 		(tree-load (file-stream +class_db_file))))
 
 (defun files-function-info (&optional class_db)
-	(defq source_files (files-all-depends
-		(filter (# (not (starts-with "apps/" %0)))
-			(files-all "." '(".vp") 2))))
-	(if (database-stale? +func_db_file source_files)
-		(progn
-			(unless class_db (setq class_db (files-classes-info)))
-			(tree-load (file-stream +func_db_file)))
-		(tree-load (file-stream +func_db_file))))
+	(setd class_db (files-classes-info)))
 
 ;module
-(export-symbols '(files-classes-info files-function-info))
+(export-symbols '(files-classes-info files-function-info files-all-vp-source))
 (env-pop)
