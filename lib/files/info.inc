@@ -72,7 +72,7 @@
 	(. f_entry :insert :trashes trashes))
 
 (defun unified-pass (files class_db func_db)
-	(defq active_class :nil state :nil func_name :nil comment_state :nil
+	(defq active_class :nil state :nil func_name :nil
 		inputs (list) outputs (list) trashes "none")
 	(files-scan files (lambda (tokens file raw_line idx)
 		(defq is_comment (and (nempty? tokens) (starts-with ";" (first tokens))))
@@ -86,26 +86,27 @@
 					;parse metadata
 					(cond
 						((starts-with "inputs" (to-lower content))
-							(setq comment_state :inputs))
+							(setq state :inputs))
 						((starts-with "outputs" (to-lower content))
-							(setq comment_state :outputs))
+							(setq state :outputs))
 						((starts-with "trashes" (to-lower content))
-							(setq comment_state :trashes))
-						((eql comment_state :inputs)
+							(setq state :trashes)))
+					(case state
+						(:inputs
 							(when (starts-with ":" content)
 								(push inputs (sym (first (split content (const (char-class " =("))))))))
-						((eql comment_state :outputs)
+						(:outputs
 							(when (starts-with ":" content)
 								(push outputs (sym (first (split content (const (char-class " =("))))))))
-						((eql comment_state :trashes)
+						(:trashes
 							(when (or (starts-with ":" content) (eql (to-lower content) "none"))
-								(setq trashes content comment_state :nil))))))
+								(setq trashes content state :header))))))
 			;non-commented line (code line or completely blank line)
 			(:t ;a non-commented line terminates the header comment scanning state
 				(when state
 					(when func_name
 						(flush-metadata func_db func_name inputs outputs trashes))
-					(setq state :nil comment_state :nil
+					(setq state :nil
 						inputs (list) outputs (list) trashes "none" func_name :nil))
 				;process code line under normal compilation rules
 				(when (nempty? tokens)
@@ -177,14 +178,14 @@
 								method_name (sym (third tokens))
 								f_path_val (db-f-path class_db class_name method_name))
 							(when f_path_val
-								(setq func_name f_path_val state :method)))
+								(setq func_name f_path_val state :header)))
 						((or (eql op "def-func") (eql op "defun"))
 							(defq name (if (eql (second tokens) "path-to-absolute")
 									(path-to-absolute (third tokens) file)
 									(second tokens)))
 							(when (or (eql op "def-func") (. func_db :find name))
-								(setq func_name name state :func)))))))
-			:nil) +split_class " "))
+								(setq func_name name state :header)))))))
+		:nil) +split_class " "))
 
 (defun link-databases (class_db func_db)
 	(. class_db :each (lambda (class_name class_entry)
