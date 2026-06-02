@@ -59,143 +59,132 @@
 			(. method_entry :find :function))))
 
 (defun flush-metadata (func_db func_name inputs outputs trashes)
-    (defq f_entry (. func_db :find func_name))
-    (unless f_entry
-        (setq f_entry (scatter (Emap)
-            :implements (list)
-            :inputs "none"
-            :outputs "none"
-            :trashes "none"))
-        (. func_db :insert func_name f_entry))
-    (. f_entry :insert :inputs (format-regs inputs))
-    (. f_entry :insert :outputs (format-regs outputs))
-    (. f_entry :insert :trashes trashes))
+	(defq f_entry (. func_db :find func_name))
+	(unless f_entry
+		(setq f_entry (scatter (Emap)
+			:implements (list)
+			:inputs "none"
+			:outputs "none"
+			:trashes "none"))
+		(. func_db :insert func_name f_entry))
+	(. f_entry :insert :inputs (format-regs inputs))
+	(. f_entry :insert :outputs (format-regs outputs))
+	(. f_entry :insert :trashes trashes))
 
 (defun unified-pass (files class_db func_db)
-    (defq active_class :nil
-          state :none
-          func_name :nil
-          inputs (list)
-          outputs (list)
-          trashes "none"
-          comment_state :none)
-    (files-scan files (lambda (tokens file raw_line idx)
-        (defq is_comment (and (nempty? tokens) (starts-with ";" (first tokens))))
-        (cond
-            ; 1. Early-exit: Discard comments immediately if we are not parsing a header block
-            ((and is_comment (eql state :none)) :nil)
-
-            ; 2. Active Header Comment Parsing
-            (is_comment
-                (defq content (trim-start (slice (trim raw_line +char_class_space) 1 -1) " ;"))
-                (cond
-                    ; A blank comment line terminates the header comment state
-                    ((eql content "")
-                        (when func_name
-                            (flush-metadata func_db func_name inputs outputs trashes))
-                        (setq state :none comment_state :none
-                            inputs (list) outputs (list) trashes "none" func_name :nil))
-                    ; Parse metadata
-                    ((starts-with "inputs" (to-lower content))
-                        (setq comment_state :inputs))
-                    ((starts-with "outputs" (to-lower content))
-                        (setq comment_state :outputs))
-                    ((starts-with "trashes" (to-lower content))
-                        (setq comment_state :trashes))
-                    ((eql comment_state :inputs)
-                        (when (starts-with ":" content)
-                            (push inputs (sym (first (split content (const (char-class " =("))))))))
-                    ((eql comment_state :outputs)
-                        (when (starts-with ":" content)
-                            (push outputs (sym (first (split content (const (char-class " =("))))))))
-                    ((eql comment_state :trashes)
-                        (when (or (starts-with ":" content) (eql (to-lower content) "none"))
-                            (setq trashes content comment_state :none)))))
-
-            ; 3. Code Line (or blank line)
-            (:t
-                (when (nql state :none)
-                    (when func_name
-                        (flush-metadata func_db func_name inputs outputs trashes))
-                    (setq state :none comment_state :none
-                        inputs (list) outputs (list) trashes "none" func_name :nil))
-                (when (nempty? tokens)
-                    (defq op (first tokens))
-                    (cond
-                        ((eql op "def-class")
-                            (defq class_name (sym (second tokens))
-                                parent_name (sym (third tokens))
-                                class_entry (. class_db :find class_name))
-                            (unless class_entry
-                                (setq class_entry (scatter (Emap)
-                                    :parent parent_name
-                                    :methods (Emap)))
-                                (. class_db :insert class_name class_entry))
-                            (setq active_class class_name))
-                        ((eql op "dec-method")
-                            (when (and active_class (>= (length tokens) 3))
-                                (defq method_name (sym (second tokens))
-                                    dec_func_name (third tokens)
-                                    mtype (if (and (> (length tokens) 3) (starts-with ":" (elem-get tokens 3)))
-                                            (sym (elem-get tokens 3))
-                                            :static)
-                                    methods_map (.-> class_db (:find active_class) (:find :methods))
-                                    f_matches (substr raw_line dec_func_name)
-                                    dec_inputs "none"
-                                    dec_outputs "none")
-                                (when (nempty? f_matches)
-                                    (bind '(((start end) &ignore) &ignore) f_matches)
-                                    (defq sub_line (slice raw_line end -1)
-                                          matches_list (matches sub_line "\\(([^)]*)\\)"))
-                                    (when (nempty? matches_list)
-                                        (bind '((& (in_g_s in_g_e) &ignore) &optional out_match) matches_list)
-                                        (cond
-                                            (out_match
-                                                (bind '(& (out_g_s out_g_e) &ignore) out_match)
-                                                (setq dec_inputs (slice sub_line in_g_s in_g_e)
-                                                      dec_outputs (slice sub_line out_g_s out_g_e)))
-                                            (in_g_s
-                                                (if (or (found? sub_line ":nil") (found? sub_line "()"))
-                                                    (setq dec_outputs (slice sub_line in_g_s in_g_e))
-                                                    (setq dec_inputs (slice sub_line in_g_s in_g_e)))))))
-                                (when (nql dec_inputs "none")
-                                    (setq dec_inputs (format-regs (map (const sym) (split dec_inputs)))))
-                                (when (nql dec_outputs "none")
-                                    (setq dec_outputs (format-regs (map (const sym) (split dec_outputs)))))
-                                (. methods_map :insert method_name (scatter (Emap)
-                                    :type mtype
-                                    :function dec_func_name
-                                    :inputs dec_inputs
-                                    :outputs dec_outputs
-                                    :trashes "none"))
-                                (defq f_entry (. func_db :find dec_func_name))
-                                (if f_entry
-                                    (progn
-                                        (when (and (eql (. f_entry :find :inputs) "none") (nql dec_inputs "none"))
-                                            (. f_entry :insert :inputs dec_inputs))
-                                        (when (and (eql (. f_entry :find :outputs) "none") (nql dec_outputs "none"))
-                                            (. f_entry :insert :outputs dec_outputs)))
-                                    (progn
-                                        (setq f_entry (scatter (Emap)
-                                            :implements (list)
-                                            :inputs dec_inputs
-                                            :outputs dec_outputs
-                                            :trashes "none"))
-                                        (. func_db :insert dec_func_name f_entry)))
-                                (push (. f_entry :find :implements) (list active_class method_name))))
-                        ((eql op "def-method")
-                            (defq class_name (sym (second tokens))
-                                method_name (sym (third tokens))
-                                f_path_val (db-f-path class_db class_name method_name))
-                            (when f_path_val
-                                (setq func_name f_path_val state :method)))
-                        ((or (eql op "def-func") (eql op "defun"))
-                            (defq name (if (eql (second tokens) "path-to-absolute")
-                                    (path-to-absolute (third tokens) file)
-                                    (second tokens)))
-                            (when (or (eql op "def-func") (. func_db :find name))
-                                (setq func_name name state :func)))))))
-            :nil) +split_class " "))
+	(defq active_class :nil state :nil func_name :nil comment_state :nil
+		inputs (list) outputs (list) trashes "none")
+	(files-scan files (lambda (tokens file raw_line idx)
+		(defq is_comment (and (nempty? tokens) (starts-with ";" (first tokens))))
+		(cond
+			;discard comments immediately if we are not parsing a header block
+			((and is_comment (not state)) :nil)
+			;header comment parsing
+			(is_comment
+				(defq content (trim-start (slice (trim raw_line +char_class_space) 1 -1) " ;"))
+				(when (nql content "")
+					;parse metadata
+					(cond
+						((starts-with "inputs" (to-lower content))
+							(setq comment_state :inputs))
+						((starts-with "outputs" (to-lower content))
+							(setq comment_state :outputs))
+						((starts-with "trashes" (to-lower content))
+							(setq comment_state :trashes))
+						((eql comment_state :inputs)
+							(when (starts-with ":" content)
+								(push inputs (sym (first (split content (const (char-class " =("))))))))
+						((eql comment_state :outputs)
+							(when (starts-with ":" content)
+								(push outputs (sym (first (split content (const (char-class " =("))))))))
+						((eql comment_state :trashes)
+							(when (or (starts-with ":" content) (eql (to-lower content) "none"))
+								(setq trashes content comment_state :nil))))))
+			;non-commented line (code line or completely blank line)
+			(:t ;a non-commented line terminates the header comment scanning state
+				(when state
+					(when func_name
+						(flush-metadata func_db func_name inputs outputs trashes))
+					(setq state :nil comment_state :nil
+						inputs (list) outputs (list) trashes "none" func_name :nil))
+				;process code line under normal compilation rules
+				(when (nempty? tokens)
+					(defq op (first tokens))
+					(cond
+						((eql op "def-class")
+							(defq class_name (sym (second tokens))
+								parent_name (sym (third tokens))
+								class_entry (. class_db :find class_name))
+							(unless class_entry
+								(setq class_entry (scatter (Emap)
+									:parent parent_name
+									:methods (Emap)))
+								(. class_db :insert class_name class_entry))
+							(setq active_class class_name))
+						((eql op "dec-method")
+							(when (and active_class (>= (length tokens) 3))
+								(defq method_name (sym (second tokens))
+									dec_func_name (third tokens)
+									mtype (if (and (> (length tokens) 3) (starts-with ":" (elem-get tokens 3)))
+											(sym (elem-get tokens 3))
+											:static)
+									methods_map (.-> class_db (:find active_class) (:find :methods))
+									f_matches (substr raw_line dec_func_name)
+									dec_inputs "none"
+									dec_outputs "none")
+								(when (nempty? f_matches)
+									(bind '(((start end) &ignore) &ignore) f_matches)
+									(defq sub_line (slice raw_line end -1)
+										matches_list (matches sub_line "\\(([^)]*)\\)"))
+									(when (nempty? matches_list)
+										(bind '((& (in_g_s in_g_e) &ignore) &optional out_match) matches_list)
+										(cond
+											(out_match
+												(bind '(& (out_g_s out_g_e) &ignore) out_match)
+												(setq dec_inputs (slice sub_line in_g_s in_g_e)
+													dec_outputs (slice sub_line out_g_s out_g_e)))
+											(in_g_s
+												(if (or (found? sub_line ":nil") (found? sub_line "()"))
+													(setq dec_outputs (slice sub_line in_g_s in_g_e))
+													(setq dec_inputs (slice sub_line in_g_s in_g_e)))))))
+								(when (nql dec_inputs "none")
+									(setq dec_inputs (format-regs (map (const sym) (split dec_inputs)))))
+								(when (nql dec_outputs "none")
+									(setq dec_outputs (format-regs (map (const sym) (split dec_outputs)))))
+								(. methods_map :insert method_name (scatter (Emap)
+									:type mtype
+									:function dec_func_name
+									:inputs dec_inputs
+									:outputs dec_outputs
+									:trashes "none"))
+								(defq f_entry (. func_db :find dec_func_name))
+								(if f_entry
+									(progn
+										(when (and (eql (. f_entry :find :inputs) "none") (nql dec_inputs "none"))
+											(. f_entry :insert :inputs dec_inputs))
+										(when (and (eql (. f_entry :find :outputs) "none") (nql dec_outputs "none"))
+											(. f_entry :insert :outputs dec_outputs)))
+									(progn
+										(setq f_entry (scatter (Emap)
+											:implements (list)
+											:inputs dec_inputs
+											:outputs dec_outputs
+											:trashes "none"))
+										(. func_db :insert dec_func_name f_entry)))
+								(push (. f_entry :find :implements) (list active_class method_name))))
+						((eql op "def-method")
+							(defq class_name (sym (second tokens))
+								method_name (sym (third tokens))
+								f_path_val (db-f-path class_db class_name method_name))
+							(when f_path_val
+								(setq func_name f_path_val state :method)))
+						((or (eql op "def-func") (eql op "defun"))
+							(defq name (if (eql (second tokens) "path-to-absolute")
+									(path-to-absolute (third tokens) file)
+									(second tokens)))
+							(when (or (eql op "def-func") (. func_db :find name))
+								(setq func_name name state :func)))))))
+			:nil) +split_class " "))
 
 (defun link-databases (class_db func_db)
 	(. class_db :each (lambda (class_name class_entry)
@@ -258,7 +247,8 @@
 	(defq cache_age (age cache_file))
 	(some (# (> (age %0) cache_age)) source_files)
 	;for testing !, return true always
-	:t)
+	;:t
+	)
 
 (defun files-classes-info ()
 	(if (database-stale? +class_db_file (defq source_files (files-all-vp-source)))
