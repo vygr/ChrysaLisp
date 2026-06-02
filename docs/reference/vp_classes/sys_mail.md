@@ -145,7 +145,7 @@ inputs
 :r0 = link input buffer (ptr)
 :r1 = link input ring buffer (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :f0-:f15, :rsp
 ```
 
 ### :junk_mail -> sys/mail/junk_mail

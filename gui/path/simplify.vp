@@ -10,7 +10,7 @@
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15, :rsp
 
 	(def-vars
 		(ptr this that stack)

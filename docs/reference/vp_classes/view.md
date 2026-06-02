@@ -97,7 +97,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :f0-:f15, :rsp
 ```
 
 ### :draw -> gui/view/draw
@@ -108,7 +108,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :f0-:f15, :rsp
 ```
 
 ### :find_id -> gui/view/find_id
