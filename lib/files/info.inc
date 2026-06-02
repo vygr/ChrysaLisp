@@ -80,14 +80,14 @@
 	(defq active_class :nil state :nil func_name :nil
 		inputs (list) outputs (list) trashes "none")
 	(files-scan files (lambda (tokens file raw_line idx)
-		(defq is_comment (and (nempty? tokens) (starts-with ";" (first tokens))))
+		(defq is_comment (starts-with ";" (first tokens)))
 		(cond
 			;discard comments immediately if we are not parsing a header block
-			((and is_comment (not state)) :nil)
+			((and is_comment (not state)))
 			;header comment parsing
 			(is_comment
-				(defq content (trim-start (slice (trim raw_line +char_class_space) 1 -1) " ;"))
-				(when (nql content "")
+				(when (nql "" (defq content (trim-start raw_line
+						(const (char-class (cat +char_class_space ";"))))))
 					;parse metadata
 					(cond
 						((starts-with "inputs" (to-lower content))
@@ -111,17 +111,15 @@
 				(when state
 					(when func_name
 						(flush-metadata func_db func_name inputs outputs trashes))
-					(setq state :nil
-						inputs (list) outputs (list) trashes "none" func_name :nil))
+					(setq state :nil func_name :nil
+						inputs (list) outputs (list) trashes "none"))
 				;process code line under normal compilation rules
 				(when (nempty? tokens)
-					(defq op (first tokens))
 					(cond
-						((eql op "def-class")
-							(defq class_name (sym (second tokens))
-								parent_name (sym (third tokens))
-								class_entry (. class_db :find class_name))
-							(unless class_entry
+						((eql (defq op (first tokens)) "def-class")
+							(unless (defq class_name (sym (second tokens))
+										parent_name (sym (third tokens))
+										class_entry (. class_db :find class_name))
 								(setq class_entry (scatter (Emap)
 									:parent parent_name
 									:methods (Emap)))
@@ -163,8 +161,7 @@
 									:inputs dec_inputs
 									:outputs dec_outputs
 									:trashes "none"))
-								(defq f_entry (. func_db :find dec_func_name))
-								(if f_entry
+								(if (defq f_entry (. func_db :find dec_func_name))
 									(progn
 										(when (and (eql (. f_entry :find :inputs) "none") (nql dec_inputs "none"))
 											(. f_entry :insert :inputs dec_inputs))
@@ -179,10 +176,9 @@
 										(. func_db :insert dec_func_name f_entry)))
 								(push (. f_entry :find :implements) (list active_class method_name))))
 						((eql op "def-method")
-							(defq class_name (sym (second tokens))
-								method_name (sym (third tokens))
-								f_path_val (db-f-path class_db class_name method_name))
-							(when f_path_val
+							(when (defq class_name (sym (second tokens))
+									method_name (sym (third tokens))
+									f_path_val (db-f-path class_db class_name method_name))
 								(setq func_name f_path_val state :header)))
 						((or (eql op "def-func") (eql op "defun"))
 							(defq name (if (eql (second tokens) "path-to-absolute")
