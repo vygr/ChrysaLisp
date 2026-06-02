@@ -39,7 +39,7 @@ inputs
 outputs
 :r0 = new list object (ptr)
 trashes
-:r0-:r9
+:r0-:r14, :f0-:f15
 ```
 
 ### :clear -> class/list/clear
@@ -230,7 +230,7 @@ inputs
 outputs
 :r0 = slice list object (ptr)
 trashes
-:r0-:r8
+:r0-:r14, :f0-:f15
 ```
 
 ### :splice -> class/list/splice
@@ -243,7 +243,7 @@ inputs
 outputs
 :r0 = splice list object (ptr)
 trashes
-:r0-:r11
+:r0-:r14, :f0-:f15
 ```
 
 ### :vcreate -> class/list/create

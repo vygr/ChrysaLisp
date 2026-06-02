@@ -178,7 +178,7 @@
 		;:r1 = element iterator (pptr)
 		;:r2 = bucket list pointer (ptr)
 		;trashes
-		;:r0-:r14, :f0-:f15
+		;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this predicate predicate_data bucket)

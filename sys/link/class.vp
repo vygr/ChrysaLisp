@@ -92,6 +92,8 @@
 (def-func-end)
 
 (def-method :sys_link :in)
+	;trashes
+	;:r0-:r14, :f0-:f15, :rsp
 
 	(def-vars
 		(ptr lk_node msg data rx head)
@@ -205,6 +207,8 @@
 (def-func-end)
 
 (def-method :sys_link :out)
+	;trashes
+	;:r0-:r14, :f0-:f15, :rsp
 
 	(def-vars
 		(ptr statics lk_node key msg data tx head tail)

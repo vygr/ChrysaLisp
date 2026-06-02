@@ -212,7 +212,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (element sequence idx vtable ovtable args)
 		'(:r8 :r9 :r10 :r11 :r12 :r13))
@@ -289,7 +289,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (element sequence idx vtable ovtable args)
 		'(:r8 :r9 :r10 :r11 :r12 :r13))
@@ -569,7 +569,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (seq cnt idx len lst this args idx1)
 		'(:r13 :r12 :r11 :r10 :r9 :r0 :r1 :r2))

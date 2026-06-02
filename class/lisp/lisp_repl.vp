@@ -12,7 +12,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this args stream ast value old_name)
@@ -85,7 +85,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r5, :r11-:r14, :f0-:f15
 
 	(entry :lisp :lisp_repl_info '(:r0 :r1))
 

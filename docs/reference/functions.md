@@ -333,6 +333,12 @@ all source files from root downwards, none recursive
 create list of all dependencies, with implicit options
 ```
 
+### files-all-vp-source
+
+```code
+(files-all-vp-source) -> ordered_files
+```
+
 ### files-depends
 
 ```code

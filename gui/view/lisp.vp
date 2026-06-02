@@ -461,7 +461,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r0-:r14, :f0-:f15
 
 	(vp-rdef (this node nodes) '(:r13 :r12 :r11))
 

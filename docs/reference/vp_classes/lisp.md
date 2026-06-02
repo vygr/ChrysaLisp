@@ -375,6 +375,8 @@ trashes
 lisp run loop task
 inputs
 msg of lisp filename
+trashes
+:r0-:r14, :f0-:f15, :rsp
 ```
 
 ### :vtable -> class/lisp/vtable

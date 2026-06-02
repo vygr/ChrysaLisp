@@ -72,7 +72,7 @@ inputs
 :r0 = predicate data (ptr)
 :r1 = element iterator (pptr)
 trashes
-:r0-:r14, :f0-:f15
+:r1-:r14, :f0-:f15
 ```
 
 ### :find -> class/hmap/find

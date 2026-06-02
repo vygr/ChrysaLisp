@@ -18,6 +18,8 @@
 	;:r0 = argv pointer (pptr)
 	;info
 	;loader is already initialized when we get here !
+	;trashes
+	;:r1-:r11, :r14, :f0-:f15
 
 	(def-vars
 		(union
@@ -499,6 +501,8 @@
 
 (def-method :sys_kernel :ping)
 	;started by kernel at boot
+	;trashes
+	;:r0-:r14, :f0-:f15, :rsp
 
 	(structure local 0
 		(nodeid node_id)

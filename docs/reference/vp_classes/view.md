@@ -121,7 +121,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 if not found, else view object (ptr)
 trashes
-:r1-:r3
+:r1-:r14, :f0-:f15
 ```
 
 ### :forward_tree -> gui/view/forward_tree
@@ -213,7 +213,7 @@ outputs
 :r7 = x relative to hit (pixels)
 :r8 = y relative to hit (pixels)
 trashes
-:r1-:r3
+:r1-:r14, :f0-:f15
 ```
 
 ### :init -> gui/view/init

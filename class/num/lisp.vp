@@ -10,7 +10,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :num :lisp_num '(:r0 :r1))
 
@@ -211,7 +211,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :r13-:r14, :f0-:f15
 
 	(andop :and -1)
 
@@ -229,7 +229,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :r13-:r14, :f0-:f15
 
 	(andop :or 0)
 
@@ -275,7 +275,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r2, :r13-:r14, :f0-:f15
 
 	(shiftop :asr)
 
@@ -294,7 +294,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r2, :r13-:r14, :f0-:f15
 
 	(shiftop :shl)
 
@@ -313,7 +313,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r2, :r13-:r14, :f0-:f15
 
 	(shiftop :shr)
 
@@ -574,7 +574,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :r14, :f0-:f15
 
 	(entry :num :lisp_n2i '(:r0 :r1))
 
@@ -620,7 +620,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :r14, :f0-:f15
 
 	(entry :num :lisp_n2f '(:r0 :r1))
 
@@ -669,7 +669,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :r14, :f0-:f15
 
 	(entry :num :lisp_n2r '(:r0 :r1))
 

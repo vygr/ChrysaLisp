@@ -72,7 +72,7 @@
 	;outputs
 	;:r0 = new list object (ptr)
 	;trashes
-	;:r0-:r9
+	;:r0-:r14, :f0-:f15
 	(s-call :list :cat '(:r0 :r1) '(:r0))
 	(call :list :ref_all '(:r0) '(:r0)))
 
@@ -84,7 +84,7 @@
 	;outputs
 	;:r0 = splice list object (ptr)
 	;trashes
-	;:r0-:r11
+	;:r0-:r14, :f0-:f15
 	(s-call :list :splice '(:r0 :r1 :r2) '(:r0))
 	(call :list :ref_all '(:r0) '(:r0)))
 
@@ -96,6 +96,6 @@
 	;outputs
 	;:r0 = slice list object (ptr)
 	;trashes
-	;:r0-:r8
+	;:r0-:r14, :f0-:f15
 	(s-call :list :slice '(:r0 :r1 :r2) '(:r0))
 	(call :list :ref_all '(:r0) '(:r0)))

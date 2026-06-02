@@ -13,7 +13,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :r13-:r14, :f0-:f15
 
 	(entry :ctx :lisp_set_color '(:r0 :r1))
 
@@ -46,7 +46,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :r7-:r14, :f0-:f15
 
 	(entry :ctx :lisp_box '(:r0 :r1))
 
@@ -79,7 +79,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :r7-:r14, :f0-:f15
 
 	(entry :ctx :lisp_filled_box '(:r0 :r1))
 
@@ -112,7 +112,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :r7-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this view rect))
@@ -160,7 +160,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :r7-:r14, :f0-:f15
 
 	(entry :ctx :lisp_blit '(:r0 :r1))
 

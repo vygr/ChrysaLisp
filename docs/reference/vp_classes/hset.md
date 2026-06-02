@@ -58,7 +58,7 @@ inputs
 :r1 = element iterator (pptr)
 :r2 = bucket list pointer (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r1-:r14, :f0-:f15
 ```
 
 ### :each_callback -> class/obj/null
