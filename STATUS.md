@@ -94,6 +94,9 @@ optional arguments for the `:class` and `:method` info. This info is used by the
 static trashes tools to calculate the union'd set of trashes registers for the
 methods that could be called.
 
+`trashes` command now uses the instrumented virtual calls in the VP code to
+track the union of all class/subclasses for virtual call sites.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
