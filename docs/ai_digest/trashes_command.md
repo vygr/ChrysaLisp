@@ -51,8 +51,8 @@ model:
   (`emit-label`), the tracer merges their respective clobber sets (union).
 
 * **Trace Termination:** Tracing along a path terminates when it reaches a
-  return (`emit-ret`) or an unconditional jump (`emit-jmp`), at which point its
-  final clobber state is merged into the function's overall clobber set.
+  return (`emit-ret`) or an unconditional jump (`emit-jmp-p`), at which point
+  its final clobber state is merged into the function's overall clobber set.
 
 ## Dependency Tracking & Topological Sorting
 
