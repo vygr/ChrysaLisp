@@ -183,17 +183,25 @@
         (when (defq c_entry (. *class_db* :find c))
             (when (defq m_entry (.-> c_entry (:find :methods) (:find m)))
                 (when (defq func_name (. m_entry :find :function))
-                    (when (defq f_entry (. db :find func_name))
-                        (setq found_any :t)
+                    (if (defq f_entry (. db :find (cat func_name ":_2")))
+                        (progn
+                            (setq found_any :t)
+                            (each (lambda (r) (merge union_set (list r)))
+                                (. (second f_entry) :tolist)))
+                        ;not yet analyzed, assume worst-case
                         (each (lambda (r) (merge union_set (list r)))
-                            (. (second f_entry) :tolist))))
+                            +all_extern_trashed_regs)))
                 (when (defq over_m (. m_entry :find :overrides))
                     (each (lambda (over_c)
                         (when (defq func_name (resolve-method-function *class_db* over_c m))
-                            (when (defq f_entry (. db :find func_name))
-                                (setq found_any :t)
+                            (if (defq f_entry (. db :find (cat func_name ":_2")))
+                                (progn
+                                    (setq found_any :t)
+                                    (each (lambda (r) (merge union_set (list r)))
+                                        (. (second f_entry) :tolist)))
+                                ;not yet analyzed, assume worst-case
                                 (each (lambda (r) (merge union_set (list r)))
-                                    (. (second f_entry) :tolist)))))
+                                    +all_extern_trashed_regs))))
                         over_m)))))
     (ifn found_any
         +all_extern_trashed_regs
