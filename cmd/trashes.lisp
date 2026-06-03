@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "lib/text/document.inc")
 (import "lib/files/info.inc")
 
 (defq usage `(
@@ -403,7 +404,7 @@
 			(lines! (# (push functions %0)) (io-stream 'stdin)))
 		(when (nempty? functions)
 			(if opt_w (setq opt_l :t))
-			(setq functions (map (# (if (starts-with "obj/vp/" %0) (slice %0 7 -1) %0)) functions)
+			(defq functions (map (# (if (starts-with "obj/vp/" %0) (slice %0 7 -1) %0)) functions)
 				*class_db* (files-classes-info)
 				*doc_db* (files-function-info *class_db*)
 				db (propagate-trashes functions))
@@ -427,10 +428,10 @@
 											(print "  Documented: " doc_set)
 											(print "  Calculated: " calc_set)
 											(when (and opt_w (nql file "none") (nql line_num 0))
-												(. file_edits :update file (# (if %0 (push %0 (list line_num calc_set)) (list (list line_num calc_set))))))))))))
+												(. file_edits :update file (# (if %0 (push %0 (list line_num calc_set))
+													(list (list line_num calc_set))))))))))))
 						functions)
 					(when (and opt_w (not (. file_edits :empty?)))
-						(import "lib/text/document.inc")
 						(. file_edits :each (lambda (file edits)
 							(verbose 1 "Writing back changes to " file)
 							(defq doc (Document))
@@ -442,8 +443,7 @@
 								(. doc :idelete 0 line_num (dec (length orig_line)) line_num)
 								(. doc :iinsert 0 line_num (cat indent ";" calc_set)))
 								edits)
-							(. doc :stream_save (file-stream file +file_open_write))
-							(. doc :destroy)))))
+							(. doc :stream_save (file-stream file +file_open_write))))))
 				(progn
 					(each (lambda (function)
 						(when (defq entry (. db :find function))
