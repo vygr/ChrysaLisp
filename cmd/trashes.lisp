@@ -185,7 +185,7 @@
 							(. trashes_set :tolist)))))
 				(get-descendants *class_db* c))
 			(if (not found_any)
-				+all_extern_trashed_regs
+				(eval +all_extern_trashed_regs)
 				(. union_set :tolist)))
 		101))
 
@@ -385,10 +385,7 @@
 						(case target
 							(:abicall +no_regs)
 							(:indirect +no_regs)
-							(:t (cond
-									((sym? target) (each (lambda (r) (. func_set :insert r)) (lookup-trashes-union-from-key target)))
-									((defq target_entry (. db :find target))
-										(each (lambda (r) (. func_set :insert r)) (. (second target_entry) :tolist)))))))
+							(:t +no_regs)))
 						call_list)
 					(setq changed (or changed (/= (. func_set :size) size_before))))))
 			order))
