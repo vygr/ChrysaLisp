@@ -49,6 +49,12 @@ keys:
     * `:overrides`: For `:virtual` methods, a list of all subclass symbols that
       subsequently override or finalize this method.
 
+    * `:file`: The source file path string where the method's underlying
+      function is defined (e.g., `"class/nums/class.vp"`).
+
+    * `:trashes_line`: The 1-based line number of the `;trashes` comment in the
+      source file.
+
 #### Example Class Entry (`class_db.tre`)
 
 ```vdu
@@ -63,7 +69,9 @@ keys:
                 (:inputs ":r0-:r2")
                 (:outputs ":r0-:r1")
                 (:trashes ":r1-:r7")
-                (:overrides (:fixeds :reals)))))))))
+                (:overrides (:fixeds :reals))
+                (:file "class/nums/class.vp")
+                (:trashes_line 14))))))))
 ```
 
 ### 2. Function Database (`func_db.tre`)
@@ -83,6 +91,11 @@ Each function is represented as an `Emap` containing:
 
 * `:trashes`: The calculated or documented register clobbers.
 
+* `:file`: The source file path string where the function is defined.
+
+* `:trashes_line`: The 1-based line number of the `;trashes` comment in the
+  source file.
+
 #### Example Function Entry (`func_db.tre`)
 
 ```vdu
@@ -91,7 +104,9 @@ Each function is represented as an `Emap` containing:
         (:implements ((:nums :add)))
         (:inputs ":r0-:r2")
         (:outputs ":r0-:r1")
-        (:trashes ":r1-:r7"))))
+        (:trashes ":r1-:r7")
+        (:file "class/nums/class.vp")
+        (:trashes_line 14))))
 ```
 
 ## Compilation and Build Pipeline
@@ -117,12 +132,12 @@ when the database files on disk are missing or out of date.
       [unified-pass]                 [inherit-signatures]
              |                                 |
              v                                 v
-     [link-databases]               [build-method-overrides]
+      [link-databases]              [build-method-overrides]
              |                                 |
              +----------------+----------------+
                               |
                               v
-                       [tree-save]
+                         [tree-save]
 ```
 
 ### 1. Staleness Verification
@@ -151,13 +166,19 @@ parses structural operators to populate the raw maps:
   prompting the parser to scan the preceding header comment block for `:inputs`,
   `:outputs`, and `:trashes` annotations.
 
+* **Location Capture:** During this pass, `unified-pass` extracts the current
+  file path and line number coordinates of the `;trashes` metadata comment,
+  passing them to `flush-metadata` to populate the raw function entries.
+
 ### 3. Resolution and Inheritance (`link-databases` & `inherit-signatures`)
 
 Once raw parsing is complete, the compiler resolves references across the
 databases:
 
 * `link-databases`: Cross-references the `class_db` and `func_db` to ensure that
-  compiled function signatures match the declarations in class vtables.
+  compiled function signatures match the declarations in class vtables. This
+  step propagates the `:file` path and `:trashes_line` location fields from each
+  raw function entry over to its virtual method entry in the class database.
 
 * `inherit-signatures`: Walks up the class inheritance tree (from child to
   parent) to automatically resolve and propagate missing inputs, outputs, or
