@@ -96,7 +96,7 @@
 		((reg? (last inst)) (slice inst -2 -1))
 		('())))
 
-(defun resolve-call (insts lbl)
+(defun resolve-external-call (insts lbl)
 	(when (defq pc (get lbl (penv)))
 		(defq inst (elem-get insts (inc pc)) op (first inst))
 		(when (eql op 'emit-long)
@@ -127,11 +127,11 @@
 	(when (and (nql parent :indirect) (nql parent :abicall)
 			(> (age (defq obj_path (cat "obj/vp/" parent))) 0))
 		(defq insts (first (read (file-stream obj_path))))
-		;local labels so resolve-call can find them
+		;local labels so resolve-external-call can find them
 		(each (# (if (find (first %0) '(emit-label emit-tlabel))
 				(def (penv) (last (second %0)) (!)))) insts)
 		;determine starting PC for this subroutine/entry point
-		(defq start_pc (ifn (defq start_pc (get label (penv))) 0 start_pc))
+		(defq start_pc (ifn (defq start_pc (get label)) 0 start_pc))
 		(each (lambda (inst)
 			(defq op (first inst) c :nil m :nil)
 			(cond
@@ -140,7 +140,7 @@
 					(when (get target (penv))
 						(merge deps (list (cat parent ":" target)))))
 				((find op '(emit-call-p emit-jmp-p))
-					(when (defq target (resolve-call insts (second inst)))
+					(when (defq target (resolve-external-call insts (second inst)))
 						(merge deps (list (cat target ":_2")))))
 				((find op '(emit-call-i emit-jmp-i))
 					(bind '(& & & &optional c m) inst))
@@ -221,7 +221,7 @@
 		(each (# (if (find (first %0) '(emit-label emit-tlabel))
 				(def (penv) (last (second %0)) (!)))) insts)
 		;determine starting PC for this subroutine/entry point (defaulting to _2)
-		(defq start_pc (ifn (defq start_pc (get label (penv))) 0 start_pc))
+		(defq start_pc (ifn (defq start_pc (get label)) 0 start_pc))
 		(defq call_list (list) func_set (Lset) trace -1 next_trace 0
 			reg_map (scatter (Lmap) (zip +all_regs +all_regs))
 			label_map (Lmap)
@@ -297,7 +297,8 @@
 						(setq *pc* (length insts)))
 					((eql op 'emit-call)
 						;use the callee trashes set
-						(merge call_list (list (defq callee (cat (slice function 0 -3) (last inst)))))
+						(merge call_list (list (defq callee
+							(cat (slice function 0 (rfind ":" function)) (last inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
@@ -312,14 +313,14 @@
 					;external call and jump
 					((eql op 'emit-call-p)
 						;use the callee trashes set
-						(merge call_list (list (defq callee (cat (resolve-call insts (second inst)) ":_2"))))
+						(merge call_list (list (defq callee (cat (resolve-external-call insts (second inst)) ":_2"))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
 							(each (# (def-reg %0 :nil)) (. callee_trashes :tolist))))
 					((eql op 'emit-jmp-p)
 						;exit function, merge and kill trace
-						(merge call_list (list (defq callee (cat (resolve-call insts (second inst)) ":_2"))))
+						(merge call_list (list (defq callee (cat (resolve-external-call insts (second inst)) ":_2"))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
@@ -347,14 +348,14 @@
 							(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
 					((eql op 'emit-call-p)
 						;use the callee trashes set
-						(merge call_list (list (defq callee (resolve-call insts (second inst)))))
+						(merge call_list (list (defq callee (resolve-external-call insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
 							(each (# (def-reg %0 :nil)) (. callee_trashes :tolist))))
 					((eql op 'emit-jmp-p)
 						;exit function, merge and kill trace
-						(merge call_list (list (defq callee (resolve-call insts (second inst)))))
+						(merge call_list (list (defq callee (resolve-external-call insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
