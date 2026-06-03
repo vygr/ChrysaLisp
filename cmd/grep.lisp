@@ -14,6 +14,7 @@
         -c --coded: encoded pattern mode, default :nil.
         -m --md: md doc mode, default :nil.
         -j --jobs num: max jobs per batch, default 1.
+        -v --inverse: invert match, select non-matching lines, default :nil.
 
     pattern:
         ^  start of line
@@ -57,6 +58,7 @@
 (("-c" "--coded") ,(opt-flag 'opt_c))
 (("-m" "--md") ,(opt-flag 'opt_m))
 (("-j" "--jobs") ,(opt-num 'opt_j))
+(("-v" "--inverse") ,(opt-flag 'opt_v))
 ))
 
 ;grep a stream to stdout
@@ -70,8 +72,8 @@
 						(setq state :nil))
 					(if (starts-with "```" %0)
 						(setq state :t)
-						(if (. search :match? %0 meta) (print %0))))
-				(if (. search :match? %0 meta) (print %0))))
+						(if (if opt_v (not (. search :match? %0 meta)) (. search :match? %0 meta)) (print %0))))
+				(if (if opt_v (not (. search :match? %0 meta)) (. search :match? %0 meta)) (print %0))))
 			stream)))
 
 ;grep a file to stdout
@@ -85,9 +87,9 @@
 						(setq state :nil))
 					(if (starts-with "```" line)
 						(setq state :t)
-						(if (setq result (. search :match? line meta))
+						(if (setq result (if opt_v (not (. search :match? line meta)) (. search :match? line meta)))
 							(print file))))
-				(if (setq result (. search :match? line meta))
+				(if (setq result (if opt_v (not (. search :match? line meta)) (. search :match? line meta)))
 					(print file))))))
 
 (defun main ()
@@ -96,7 +98,7 @@
 			(defq stdio (create-stdio))
 			(defq pattern "" opt_f :nil opt_w :nil
 				opt_r :nil opt_c :nil opt_m :nil
-				opt_j 1 args (options stdio usage)))
+				opt_v :nil opt_j 1 args (options stdio usage)))
 		(when (and (eql pattern "") (> (length args) 1))
 			(defq pattern (second args) args (erase args 1 2)))
 		(if opt_c (setq pattern (hex-decode pattern)))
@@ -112,10 +114,9 @@
 						(each (const grep-file) jobs)
 						;do them all out there, by calling myself !
 						(each (lambda ((job result)) (prin result))
-							(pipe-farm (map (# (str (first args)
-									" -c -f -e " (hex-encode pattern)
+							(pipe-farm (map (# (str (first args) " -c -f -e " (hex-encode pattern)
 									(if opt_w " -w" "") (if opt_r " -r" "")
-									(if opt_m " -m" "") " -j " opt_j
+									(if opt_m " -m" "") (if opt_v " -v" "") " -j " opt_j
 									" " (slice (str %0) 1 -2)))
 								(partition jobs opt_j))))))
 				(:t (if (empty? (defq jobs (rest args)))

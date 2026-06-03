@@ -103,6 +103,8 @@ New documents for the `docs/ai_digest/source_database.md` and
 Added `-w` writeback mode support to the docs database scanners and the
 `trashes` command. Use carefully, with great power comes great responsibility !
 
+`cmd/grep.lisp` command now support `-v` inverse, option. Defaults to `:nil`.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

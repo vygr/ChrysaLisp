@@ -185,6 +185,7 @@ Usage: grep [options] [pattern] [path] ...
         -c --coded: encoded pattern mode, default :nil.
         -m --md: md doc mode, default :nil.
         -j --jobs num: max jobs per batch, default 1.
+        -v --inverse: invert match, select non-matching lines, default :nil.
 
     pattern:
         ^  start of line
