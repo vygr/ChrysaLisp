@@ -618,9 +618,9 @@ Usage: trashes [options] [function_name] ...
 		-v --verbosity num: how much info, default 0.
 		-l --lint: lint documented vs calculated trashes.
 
-	Output transitive register TRASHES for given VP functions.
-	If no paths are given on the command line, it will read
-	paths from stdin.
+	Calculate and trace active transitive register clobber state for
+    virtual methods and static functions. Analyses compiled instructions
+    directly via symbolic execution and traces live registers.
 ```
 ## unhuff
 ```code
