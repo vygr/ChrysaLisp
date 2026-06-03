@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;
 
 (import "./files.inc")
+(import "lib/debug/frames.inc")
 
 ;module
 (env-push)
@@ -117,13 +118,28 @@
 				(when (nempty? tokens)
 					(cond
 						((eql (defq op (first tokens)) "def-class")
-							(unless (defq class_name (sym (second tokens))
-										parent_name (sym (third tokens))
-										class_entry (. class_db :find class_name))
-								(setq class_entry (scatter (Emap)
-									:parent parent_name
-									:methods (Emap)))
-								(. class_db :insert class_name class_entry))
+							(defq class_name (sym (second tokens))
+								parent_name (sym (third tokens))
+								class_entry (. class_db :find class_name))
+							(if class_entry
+								(. class_entry :insert :parent parent_name)
+								(progn
+									(setq class_entry (scatter (Emap)
+										:parent parent_name
+										:subclasses (list)
+										:methods (Emap)))
+									(. class_db :insert class_name class_entry)))
+							(unless (eql parent_name :nil)
+								(defq parent_entry (. class_db :find parent_name))
+								(unless parent_entry
+									(setq parent_entry (scatter (Emap)
+										:parent :nil
+										:subclasses (list)
+										:methods (Emap)))
+									(. class_db :insert parent_name parent_entry))
+								(defq subclasses (. parent_entry :find :subclasses))
+								(unless (find class_name subclasses)
+									(push subclasses class_name)))
 							(setq active_class class_name))
 						((eql op "dec-method")
 							(when (and active_class (>= (length tokens) 3))
@@ -229,11 +245,31 @@
 										(setq has_trashes :t))))
 							(setq p_name (. p_class :find :parent)))))))))))
 
+(defun build-method-overrides (class_db)
+    (. class_db :each (lambda (class_name class_entry)
+        (.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
+            (defq mtype (. method_entry :find :type))
+            (when (or (eql mtype :override) (eql mtype :final))
+                (defq p_name (. class_entry :find :parent) found :nil)
+                (while (and (nql p_name :nil) (not found))
+                    (when (defq p_class (. class_db :find p_name))
+                        (when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
+                            (when (eql (. p_method :find :type) :virtual)
+                                (defq overrides (. p_method :find :overrides))
+                                (unless overrides
+                                    (setq overrides (list))
+                                    (. p_method :insert :overrides overrides))
+                                (unless (find class_name overrides)
+                                    (push overrides class_name))
+                                (setq found :t)))
+                        (setq p_name (. p_class :find :parent)))))))))))
+
 (defun build-and-save-databases (source_files)
 	(defq class_db (Emap) func_db (Fmap 101))
 	(unified-pass source_files class_db func_db)
 	(link-databases class_db func_db)
 	(inherit-signatures class_db)
+	(build-method-overrides class_db)
 	(when (defq stream (file-stream +class_db_file +file_open_write))
 		(tree-save stream class_db))
 	(when (defq stream (file-stream +func_db_file +file_open_write))

@@ -10,9 +10,9 @@
 		-v --verbosity num: how much info, default 0.
 		-l --lint: lint documented vs calculated trashes.
 
-	Output transitive register TRASHES for given VP functions.
-	If no paths are given on the command line, it will read
-	paths from stdin.")
+	Calculate and trace active transitive register clobber state for
+    virtual methods and static functions. Analyses compiled instructions
+    directly via symbolic execution and traces live registers.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-l" "--lint") ,(opt-flag 'opt_l))
 ))
@@ -167,21 +167,50 @@
         (split s ","))
     out)
 
+(defun get-descendants (class_db c)
+    (defq res (list c) stack (list c))
+    (while (defq curr (pop stack))
+        (when (defq entry (. class_db :find curr))
+            (each (lambda (sub)
+                (unless (find sub res)
+                    (push res sub)
+                    (push stack sub)))
+                (. entry :find :subclasses))))
+    res)
+
+(defun find-virtual-base (class_db c m)
+    (defq current c base_class :nil)
+    (while (and current (not base_class))
+        (when (defq c_entry (. class_db :find current))
+            (if (defq m_entry (.-> c_entry (:find :methods) (:find m)))
+                (if (eql (. m_entry :find :type) :virtual)
+                    (setq base_class current)
+                    (setq current (. c_entry :find :parent)))
+                (setq current (. c_entry :find :parent)))))
+    base_class)
+
 (defun lookup-trashes-union (c m)
-	;calculate the union of all this class and it's subclasses
-	;method trashes, memoized
+    ;calculate the union of all this class and its subclasses
+    ;method trashes, memoized based on the state of the *doc_db*
     (defq key (sym (cat c m)))
     (memoize key
         (progn
             (defq union_set (Lset) found_any :nil)
-            (. *class_db* :each (lambda (c_name c_entry)
-                (when (is-descendant? *class_db* c_name c)
-                    (when (defq func_name (resolve-method-function *class_db* c_name m))
-                        (when (defq f_entry (. *doc_db* :find func_name))
-                            (setq found_any :t) ; Mark as found
-                            (when (defq trashes_str (. f_entry :find :trashes))
-                                (each (lambda (r) (. union_set :insert r))
-                                    (expand-trashes-string trashes_str))))))))
+            (defq descendants (get-descendants *class_db* c))
+            (defq base_c (find-virtual-base *class_db* c m))
+            (when base_c
+                (defq base_entry (. *class_db* :find base_c))
+                (defq m_entry (.-> base_entry (:find :methods) (:find m)))
+                (defq overrides (. m_entry :find :overrides))
+                (each (lambda (over_c)
+                    (when (find over_c descendants)
+                        (when (defq func_name (resolve-method-function *class_db* over_c m))
+                            (when (defq f_entry (. *doc_db* :find func_name))
+                                (setq found_any :t)
+                                (when (defq trashes_str (. f_entry :find :trashes))
+                                    (each (lambda (r) (. union_set :insert r))
+                                        (expand-trashes-string trashes_str)))))))
+                    overrides))
             (if (not found_any)
                 (eval +all_extern_trashed_regs)
                 (. union_set :tolist)))
