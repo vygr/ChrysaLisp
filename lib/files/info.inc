@@ -180,15 +180,13 @@
 											(. f_entry :insert :inputs dec_inputs))
 										(when (and (eql (. f_entry :find :outputs) "none") (nql dec_outputs "none"))
 											(. f_entry :insert :outputs dec_outputs)))
-									(progn
-										(setq f_entry (scatter (Emap)
-											:implements (list)
-											:inputs dec_inputs
-											:outputs dec_outputs
-											:trashes "none"
-											:file "none"
-											:trashes_line 0))
-										(. func_db :insert dec_func_name f_entry)))
+									(. func_db :insert dec_func_name (setq f_entry (scatter (Emap)
+										:implements (list)
+										:inputs dec_inputs
+										:outputs dec_outputs
+										:trashes "none"
+										:file "none"
+										:trashes_line 0))))
 								(push (. f_entry :find :implements) (list active_class method_name))))
 						((eql op "def-method")
 							(defq class_name (sym (second tokens))
@@ -215,12 +213,9 @@
 				(if (and f_entry t_entry)
 					(progn
 						(transfer t_entry f_entry '(:file :trashes_line))
-						(undef func_db temp_key))
+						(. func_db :erase temp_key))
 					(if t_entry
-						(progn
-							(setq f_entry t_entry)
-							(. func_db :insert func_name f_entry)
-							(undef func_db temp_key))))
+						(.-> func_db (:insert func_name (setq f_entry t_entry)) (:erase temp_key))))
 				(transfer f_entry method_entry '(:inputs :outputs :trashes :file :trashes_line)))))))))
 
 (defun inherit-signatures (class_db)
@@ -234,9 +229,9 @@
 					(while (and (nql p_name :nil) (some (# (eql %0 "none")) cur_sigs))
 						(when (defq p_class (. class_db :find p_name))
 							(when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
-								(setq cur_sigs (map (lambda (c p) (if (and (eql c "none") (nql p "none")) p c))
-									cur_sigs (gather p_method :inputs :outputs :trashes)))
-								(scatter method_entry '(:inputs :outputs :trashes) cur_sigs))
+								(scatter method_entry '(:inputs :outputs :trashes)
+									(setq cur_sigs (map (lambda (c p) (if (and (eql c "none") (nql p "none")) p c))
+										cur_sigs (gather p_method :inputs :outputs :trashes)))))
 							(setq p_name (. p_class :find :parent))))))))))))
 
 (defun build-method-overrides (class_db)
@@ -249,9 +244,8 @@
 					(when (defq p_class (. class_db :find p_name))
 						(when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
 							(when (eql (. p_method :find :type) :virtual)
-								(unless (defq overrides (. p_method :find :overrides))
-									(. p_method :insert :overrides (setq overrides (list))))
-								(unless (find class_name overrides)
+								(unless (find class_name (defq overrides (or (. p_method :find :overrides)
+										(.-> p_method (:insert :overrides (list)) (:find :overrides)))))
 									(push overrides class_name))
 								(setq found :t)))
 						(setq p_name (. p_class :find :parent)))))))))))
