@@ -3,7 +3,6 @@
 ;;;;;;;;;;;;;;;;;
 
 (import "./files.inc")
-(import "lib/debug/frames.inc")
 
 ;module
 (env-push)

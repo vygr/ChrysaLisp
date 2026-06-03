@@ -97,6 +97,9 @@ methods that could be called.
 `trashes` command now uses the instrumented virtual calls in the VP code to
 track the union of all class/subclasses for virtual call sites.
 
+New documents for the `docs/ai_digest/source_database.md` and
+`docs/ai_digest/trashes_command.md` library and data flow analysis tool.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
