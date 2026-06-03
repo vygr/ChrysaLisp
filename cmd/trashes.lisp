@@ -186,7 +186,7 @@
 						(each (lambda (r) (. union_set :insert r))
 							(. trashes_set :tolist)))))
 				(get-descendants *class_db* c))
-			(if (not found_any)
+			(ifn found_any
 				(eval +all_extern_trashed_regs)
 				(. union_set :tolist)))
 		101))
@@ -427,7 +427,9 @@
 											(print "  Calculated: " calc_set)
 											(print "  File: \q" file "\q Line: " line_num)
 											(when (and opt_w file (str? file) (nql file "none") (nql line_num 0))
-												(. file_edits :update file (# (if %0 (push %0 (list line_num calc_set)) (list (list line_num calc_set))))))))))))
+												(. file_edits :update file
+													(# (if %0 (push %0 (list line_num calc_set))
+														(list (list line_num calc_set))))))))))))
 						functions)
 					(when (and opt_w (not (. file_edits :empty?)))
 						(. file_edits :each (lambda (file edits)
