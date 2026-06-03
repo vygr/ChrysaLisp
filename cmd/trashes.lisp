@@ -9,12 +9,15 @@
 		-h --help: this help info.
 		-v --verbosity num: how much info, default 0.
 		-l --lint: lint documented vs calculated trashes.
+		-w --write: write back calculated trashes to source
+			files on mismatch.
 
 	Calculate and trace active transitive register clobber state for
     virtual methods and static functions. Analyses compiled instructions
     directly via symbolic execution and traces live registers.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-l" "--lint") ,(opt-flag 'opt_l))
+(("-w" "--write") ,(opt-flag 'opt_w))
 ))
 
 (defun verbose (v &rest info)
@@ -394,22 +397,26 @@
 (defun main ()
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_v 0 opt_l :nil args (options stdio usage)))
+			(defq opt_v 0 opt_l :nil opt_w :nil args (options stdio usage)))
 		(defq functions (rest args))
 		(if (empty? functions)
 			(lines! (# (push functions %0)) (io-stream 'stdin)))
 		(when (nempty? functions)
-			(defq functions (map (# (if (starts-with "obj/vp/" %0) (slice %0 7 -1) %0)) functions)
-				*class_db* (files-classes-info) *doc_db* (files-function-info *class_db*)
+			(if opt_w (setq opt_l :t))
+			(setq functions (map (# (if (starts-with "obj/vp/" %0) (slice %0 7 -1) %0)) functions)
+				*class_db* (files-classes-info)
+				*doc_db* (files-function-info *class_db*)
 				db (propagate-trashes functions))
 			(if opt_l
 				(progn
-					(defq doc_db *doc_db*)
+					(defq doc_db *doc_db* file_edits (Lmap))
 					(each (lambda (function)
 						(when (defq entry (. db :find function))
 							(when (nql (first entry) :external)
 								(defq doc_entry (. doc_db :find function)
-									doc_set (if doc_entry (. doc_entry :find :trashes)))
+									doc_set (if doc_entry (. doc_entry :find :trashes))
+									file (if doc_entry (. doc_entry :find :file))
+									line_num (if doc_entry (. doc_entry :find :trashes_line)))
 								(cond
 									((not doc_set)
 										(print "WARNING: No documentation found for " function))
@@ -418,8 +425,25 @@
 										(unless (eql doc_set calc_set)
 											(print "WARNING: Mismatch in " function)
 											(print "  Documented: " doc_set)
-											(print "  Calculated: " calc_set)))))))
-						functions))
+											(print "  Calculated: " calc_set)
+											(when (and opt_w (nql file "none") (nql line_num 0))
+												(. file_edits :update file (# (if %0 (push %0 (list line_num calc_set)) (list (list line_num calc_set))))))))))))
+						functions)
+					(when (and opt_w (not (. file_edits :empty?)))
+						(import "lib/text/document.inc")
+						(. file_edits :each (lambda (file edits)
+							(verbose 1 "Writing back changes to " file)
+							(defq doc (Document))
+							(. doc :stream_load (file-stream file))
+							(sort edits (# (- (first %1) (first %0))))
+							(each (lambda ((line_num calc_set))
+								(defq orig_line (. doc :get_text_line line_num)
+									indent (slice orig_line 0 (bskip +char_class_space orig_line 0)))
+								(. doc :idelete 0 line_num (dec (length orig_line)) line_num)
+								(. doc :iinsert 0 line_num (cat indent ";" calc_set)))
+								edits)
+							(. doc :stream_save (file-stream file +file_open_write))
+							(. doc :destroy)))))
 				(progn
 					(each (lambda (function)
 						(when (defq entry (. db :find function))

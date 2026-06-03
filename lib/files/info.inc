@@ -63,22 +63,26 @@
 		(if (defq method_entry (.-> class_entry (:find :methods) (:find method)))
 			(. method_entry :find :function))))
 
-(defun flush-metadata (func_db func_name inputs outputs trashes)
+(defun flush-metadata (func_db func_name file inputs outputs trashes trashes_line)
 	(defq f_entry (. func_db :find func_name))
 	(unless f_entry
 		(setq f_entry (scatter (Emap)
 			:implements (list)
 			:inputs "none"
 			:outputs "none"
-			:trashes "none"))
+			:trashes "none"
+			:file "none"
+			:trashes_line 0))
 		(. func_db :insert func_name f_entry))
 	(. f_entry :insert :inputs (format-regs inputs))
 	(. f_entry :insert :outputs (format-regs outputs))
-	(. f_entry :insert :trashes trashes))
+	(. f_entry :insert :trashes trashes)
+	(. f_entry :insert :file file)
+	(. f_entry :insert :trashes_line trashes_line))
 
 (defun unified-pass (files class_db func_db)
 	(defq active_class :nil state :nil func_name :nil
-		inputs (list) outputs (list) trashes "none")
+		inputs (list) outputs (list) trashes "none" trashes_line 0)
 	(files-scan files (lambda (tokens file raw_line idx)
 		(defq is_comment (starts-with ";" (first tokens)))
 		(cond
@@ -105,14 +109,14 @@
 								(push outputs (sym (first (split content (const (char-class " =("))))))))
 						(:trashes
 							(when (or (starts-with ":" content) (eql (to-lower content) "none"))
-								(setq trashes content state :header))))))
+								(setq trashes content state :header trashes_line idx))))))
 			;non-commented line (code line or completely blank line)
 			(:t ;a non-commented line terminates the header comment scanning state
 				(when state
 					(when func_name
-						(flush-metadata func_db func_name inputs outputs trashes))
+						(flush-metadata func_db func_name file inputs outputs trashes trashes_line))
 					(setq state :nil func_name :nil
-						inputs (list) outputs (list) trashes "none"))
+						inputs (list) outputs (list) trashes "none" trashes_line 0))
 				;process code line under normal compilation rules
 				(when (nempty? tokens)
 					(cond
@@ -210,7 +214,9 @@
 			(when (defq f_entry (. func_db :find func_name))
 				(. method_entry :insert :inputs (. f_entry :find :inputs))
 				(. method_entry :insert :outputs (. f_entry :find :outputs))
-				(. method_entry :insert :trashes (. f_entry :find :trashes)))))))))
+				(. method_entry :insert :trashes (. f_entry :find :trashes))
+				(. method_entry :insert :file (. f_entry :find :file))
+				(. method_entry :insert :trashes_line (. f_entry :find :trashes_line)))))))))
 
 (defun inherit-signatures (class_db)
 	(. class_db :each (lambda (class_name class_entry)
