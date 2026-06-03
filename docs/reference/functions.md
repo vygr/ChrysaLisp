@@ -1256,6 +1256,14 @@ accepts standard "Normal diff" format
 (to-upper str) -> str
 ```
 
+### transfer
+
+```code
+(transfer src_map dst_map [key val] ...) -> dst_map
+
+transfer a list of [key val]
+```
+
 ### tree-buckets
 
 ```code

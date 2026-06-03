@@ -64,21 +64,15 @@
 			(. method_entry :find :function))))
 
 (defun flush-metadata (func_db func_name file inputs outputs trashes trashes_line)
-	(defq f_entry (. func_db :find func_name))
-	(unless f_entry
-		(setq f_entry (scatter (Emap)
-			:implements (list)
-			:inputs "none"
-			:outputs "none"
-			:trashes "none"
-			:file "none"
-			:trashes_line 0))
+	(unless (defq f_entry (. func_db :find func_name))
+		(setq f_entry (scatter (Emap) :implements (list)))
 		(. func_db :insert func_name f_entry))
-	(. f_entry :insert :inputs (format-regs inputs))
-	(. f_entry :insert :outputs (format-regs outputs))
-	(. f_entry :insert :trashes trashes)
-	(. f_entry :insert :file file)
-	(. f_entry :insert :trashes_line trashes_line))
+	(scatter f_entry 
+		:inputs (format-regs inputs)
+		:outputs (format-regs outputs)
+		:trashes trashes
+		:file file
+		:trashes_line trashes_line))
 
 (defun unified-pass (files class_db func_db)
 	(defq active_class :nil state :nil func_name :nil
@@ -191,7 +185,9 @@
 											:implements (list)
 											:inputs dec_inputs
 											:outputs dec_outputs
-											:trashes "none"))
+											:trashes "none"
+											:file "none"
+											:trashes_line 0))
 										(. func_db :insert dec_func_name f_entry)))
 								(push (. f_entry :find :implements) (list active_class method_name))))
 						((eql op "def-method")
@@ -218,70 +214,47 @@
 			(when (or f_entry t_entry)
 				(if (and f_entry t_entry)
 					(progn
-						(. f_entry :insert :file (. t_entry :find :file))
-						(. f_entry :insert :trashes_line (. t_entry :find :trashes_line))
+						(transfer t_entry f_entry '(:file :trashes_line))
 						(undef func_db temp_key))
 					(if t_entry
 						(progn
 							(setq f_entry t_entry)
 							(. func_db :insert func_name f_entry)
 							(undef func_db temp_key))))
-				(. method_entry :insert :inputs (. f_entry :find :inputs))
-				(. method_entry :insert :outputs (. f_entry :find :outputs))
-				(. method_entry :insert :trashes (. f_entry :find :trashes))
-				(. method_entry :insert :file (. f_entry :find :file))
-				(. method_entry :insert :trashes_line (. f_entry :find :trashes_line)))))))))
+				(transfer f_entry method_entry '(:inputs :outputs :trashes :file :trashes_line)))))))))
 
 (defun inherit-signatures (class_db)
 	(. class_db :each (lambda (class_name class_entry)
 		(defq parent_name (. class_entry :find :parent))
 		(unless (eql parent_name :nil)
-			(. (. class_entry :find :methods) :each (lambda (method_name method_entry)
-				(defq has_inputs (nql (. method_entry :find :inputs) "none")
-					has_outputs (nql (. method_entry :find :outputs) "none")
-					has_trashes (nql (. method_entry :find :trashes) "none"))
-				(when (or (not has_inputs) (not has_outputs) (not has_trashes))
-					;walk up the parent chain to resolve missing pieces independently
+			(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
+				(defq cur_sigs (gather method_entry :inputs :outputs :trashes))
+				(when (some (# (eql %0 "none")) cur_sigs)
 					(defq p_name parent_name)
-					(while (and (nql p_name :nil)
-								(or (not has_inputs) (not has_outputs) (not has_trashes)))
+					(while (and (nql p_name :nil) (some (# (eql %0 "none")) cur_sigs))
 						(when (defq p_class (. class_db :find p_name))
 							(when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
-								(unless has_inputs
-									(defq p_in (. p_method :find :inputs))
-									(when (nql p_in "none")
-										(. method_entry :insert :inputs p_in)
-										(setq has_inputs :t)))
-								(unless has_outputs
-									(defq p_out (. p_method :find :outputs))
-									(when (nql p_out "none")
-										(. method_entry :insert :outputs p_out)
-										(setq has_outputs :t)))
-								(unless has_trashes
-									(defq p_trash (. p_method :find :trashes))
-									(when (nql p_trash "none")
-										(. method_entry :insert :trashes p_trash)
-										(setq has_trashes :t))))
-							(setq p_name (. p_class :find :parent)))))))))))
+								(setq cur_sigs (map (lambda (c p) (if (and (eql c "none") (nql p "none")) p c))
+									cur_sigs (gather p_method :inputs :outputs :trashes)))
+								(scatter method_entry '(:inputs :outputs :trashes) cur_sigs))
+							(setq p_name (. p_class :find :parent))))))))))))
 
 (defun build-method-overrides (class_db)
-    (. class_db :each (lambda (class_name class_entry)
-        (.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
-            (defq mtype (. method_entry :find :type))
-            (when (or (eql mtype :override) (eql mtype :final))
-                (defq p_name (. class_entry :find :parent) found :nil)
-                (while (and (nql p_name :nil) (not found))
-                    (when (defq p_class (. class_db :find p_name))
-                        (when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
-                            (when (eql (. p_method :find :type) :virtual)
-                                (defq overrides (. p_method :find :overrides))
-                                (unless overrides
-                                    (setq overrides (list))
-                                    (. p_method :insert :overrides overrides))
-                                (unless (find class_name overrides)
-                                    (push overrides class_name))
-                                (setq found :t)))
-                        (setq p_name (. p_class :find :parent)))))))))))
+	(. class_db :each (lambda (class_name class_entry)
+		(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
+			(defq mtype (. method_entry :find :type))
+			(when (or (eql mtype :override) (eql mtype :final))
+				(defq p_name (. class_entry :find :parent) found :nil)
+				(while (and (nql p_name :nil) (not found))
+					(when (defq p_class (. class_db :find p_name))
+						(when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
+							(when (eql (. p_method :find :type) :virtual)
+								(unless (defq overrides (. p_method :find :overrides))
+									(. p_method :insert :overrides (setq overrides (list))))
+								(unless (find class_name overrides)
+									(push overrides class_name))
+								(setq found :t)))
+						(setq p_name (. p_class :find :parent)))))))))))
 
 (defun build-and-save-databases (source_files)
 	(defq class_db (Emap) func_db (Fmap 101))

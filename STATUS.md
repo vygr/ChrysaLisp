@@ -105,6 +105,9 @@ Added `-w` writeback mode support to the docs database scanners and the
 
 `cmd/grep.lisp` command now support `-v` inverse, option. Defaults to `:nil`.
 
+New `(transfer src_map dst_map [key val] ...) -> dst_map` function in
+collections.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

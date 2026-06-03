@@ -20,10 +20,25 @@
 (defun scatter (m &rest _)
 	; (scatter map|set [key]|[key val] ...) -> map|set
 	; scatter a list of [key]|[key val]
+	(bind '(&optional k v &ignore) _)
+	(cond
+		((rfind :Set (. m :type_of))
+			;((k ...)| k ...)
+			(reduce (lambda (m k) (. m :insert k)) (if (list? k) k _) m))
+		((and (list? k) (list? v))
+			;((k ...)(v ...))
+			(reduce! (lambda (m k v) (. m :insert k v)) _ m))
+		((and (list? k) (not v))
+			;((k v ...))
+			(reduce (lambda (m (k v)) (. m :insert k v)) (partition k 2) m))
+		;(k v ...)
+		((reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) m))))
+
+(defun transfer (sm dm &rest _)
+	; (transfer src_map dst_map [key val] ...) -> dst_map
+	; transfer a list of [key val]
 	(if (list? (first _)) (setq _ (first _)))
-	(if (rfind :Set (. m :type_of))
-		(reduce (lambda (m k) (. m :insert k)) _ m)
-		(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) m)))
+	(scatter dm _ (gather sm _)))
 
 (defun tsort (roots dep_fnc)
 	; (tsort roots dep_fnc) -> order
