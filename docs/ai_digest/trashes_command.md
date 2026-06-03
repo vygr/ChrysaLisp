@@ -112,10 +112,12 @@ sizes of all clobber sets stabilize (no further changes are detected).
 cmd/trashes.lisp ";converge remaining" ""
 ```
 
-## Verification & Linting
+## Verification, Linting, and Auto-Fixing
 
-The `trashes` command includes a linting mode (`-l` / `--lint`) that serves as a
-verification tool against the source code documentation.
+The `trashes` command provides verification and automatic correction features
+via the linting (`-l` / `--lint`) and write-back (`-w` / `--write`) options.
+
+### Linting Mode
 
 When run in linting mode, the tool:
 
@@ -129,6 +131,27 @@ When run in linting mode, the tool:
 
 4. Emits a warning for any mismatches, ensuring that assembly comments are
    verified against the actual compiled machine behavior.
+
+### Automatic Write-Back (-w / --write)
+
+The `-w` option extends the verification pipeline by automatically correcting
+outdated or incorrect documentation directly within the source code:
+
+* **Implied Linting:** Enabling the write-back option (`-w`) automatically
+  implies and activates the linting (`-l`) mode.
+
+* **In-Place Correction:** When a mismatch is detected, the tool uses the
+  documentation database to locate the exact file path and line number of the
+  incorrect `;trashes` comment.
+
+* **Indentation Preservation:** The tool loads the source file into a `Document`
+  buffer, measures the leading whitespace of the target line, removes the old
+  comment, and writes back the updated list of calculated registers under the
+  same indentation.
+
+* **Safe Descending Processing:** To prevent modifications from shifting lines
+  and invalidating downstream target coordinates, file updates are sorted and
+  executed in descending line-number order.
 
 ### Example Output (Linting Mode)
 
