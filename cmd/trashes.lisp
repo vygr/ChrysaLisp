@@ -166,32 +166,28 @@
 	found)
 
 (defun lookup-trashes-union (c m)
-	;calculate the union of all this class method trashes
-	;and its subclasses overrides, memoized based on the state of the active db
-	(defq key (sym (cat c m)))
-	(memoize key
-		(progn
-			(defq union_set (list) found_any :nil)
-			(when (and c (nql c (sym ":")) (nql c :nil))
-				(when (defq c_entry (. *class_db* :find c))
-					(when (defq m_entry (.-> c_entry (:find :methods) (:find m)))
-						(when (defq func_name (. m_entry :find :function))
-							(when (defq f_entry (. db :find func_name))
-								(setq found_any :t)
-								(each (lambda (r) (merge union_set (list r)))
-									(. (second f_entry) :tolist))))
-						(when (defq over_m (. m_entry :find :overrides))
-							(each (lambda (over_c)
-								(when (defq func_name (resolve-method-function *class_db* over_c m))
-									(when (defq f_entry (. db :find func_name))
-										(setq found_any :t)
-										(each (lambda (r) (merge union_set (list r)))
-											(. (second f_entry) :tolist)))))
-								over_m)))))
-			(ifn found_any
-				(eval +all_extern_trashed_regs)
-				union_set))
-		101))
+    ;calculate the union of all this class method trashes
+    ;and its subclasses overrides, based on the current state of the active db
+    (defq union_set (list) found_any :nil)
+    (when (and c (nql c (sym ":")) (nql c :nil))
+        (when (defq c_entry (. *class_db* :find c))
+            (when (defq m_entry (.-> c_entry (:find :methods) (:find m)))
+                (when (defq func_name (. m_entry :find :function))
+                    (when (defq f_entry (. db :find func_name))
+                        (setq found_any :t)
+                        (each (lambda (r) (merge union_set (list r)))
+                            (. (second f_entry) :tolist))))
+                (when (defq over_m (. m_entry :find :overrides))
+                    (each (lambda (over_c)
+                        (when (defq func_name (resolve-method-function *class_db* over_c m))
+                            (when (defq f_entry (. db :find func_name))
+                                (setq found_any :t)
+                                (each (lambda (r) (merge union_set (list r)))
+                                    (. (second f_entry) :tolist)))))
+                        over_m)))))
+    (ifn found_any
+        +all_extern_trashed_regs
+        union_set))
 
 (defun analyze-function (function db)
 	(cond
@@ -356,21 +352,34 @@
 		(list :resolved func_set call_list))))
 
 (defun propagate-trashes (functions)
-	(defq db (Fmap 101) order (tsort functions (const get-dependencies)))
-	;each caller now accurately steps through callee clobber states
-	(each (lambda (function)
-		(unless (. db :find function)
-			(verbose 1 "analyzing " function)
-			(bind '(type &optional func_set call_list) (analyze-function function db))
-			(cond
-				((eql type :external)
-					(. db :insert function (list :external (scatter (Lset) +no_regs))))
-				((eql type :resolved)
-					(verbose 2 "\tfunction " function "\n\t\tcalls " call_list
-						"\n\t\ttrashes " (format-trashes func_set))
-					(. db :insert function (list :resolved func_set call_list))))))
-		order)
-	db)
+    (defq db (Fmap 101) order (tsort functions (const get-dependencies)))
+    ;each caller now accurately steps through callee clobber states
+    (each (lambda (function)
+        (unless (. db :find function)
+            (verbose 1 "analyzing " function)
+            (bind '(type &optional func_set call_list) (analyze-function function db))
+            (cond
+                ((eql type :external)
+                    (. db :insert function (list :external (scatter (Lset) +no_regs))))
+                ((eql type :resolved)
+                    (verbose 2 "\tfunction " function "\n\t\tcalls " call_list
+                        "\n\t\ttrashes " (format-trashes func_set))
+                    (. db :insert function (list :resolved func_set call_list))))))
+        order)
+    ;converge remaining by re-running analysis until register clobbers stabilize
+    (defq changed :t)
+    (while changed
+        (setq changed :nil)
+        (each (lambda (function)
+            (when (defq entry (. db :find function))
+                (when (eql (first entry) :resolved)
+                    (defq old_size (. (second entry) :size))
+                    (bind '(type &optional func_set call_list) (analyze-function function db))
+                    (when (/= old_size (. func_set :size))
+                        (. db :insert function (list :resolved func_set call_list))
+                        (setq changed :t)))))
+            order))
+    db)
 
 (defun main ()
 	(when (and
