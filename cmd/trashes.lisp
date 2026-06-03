@@ -14,8 +14,8 @@
 			files on mismatch.
 
 	Calculate and trace active transitive register clobber state for
-    virtual methods and static functions. Analyses compiled instructions
-    directly via symbolic execution and traces live registers.")
+	virtual methods and static functions. Analyses compiled instructions
+	directly via symbolic execution and traces live registers.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-l" "--lint") ,(opt-flag 'opt_l))
 (("-w" "--write") ,(opt-flag 'opt_w))
@@ -107,15 +107,15 @@
 					(if (eql op 'emit-string) (second inst)))))))
 
 (defun resolve-method-function (class_db class_name method_name)
-    (defq current class_name func_name :nil)
-    (while (and current (not func_name))
-        (cond
-            ((defq c_entry (. class_db :find current))
-                (if (defq m_entry (.-> c_entry (:find :methods) (:find method_name)))
-                    (setq func_name (. m_entry :find :function))
-                    (setq current (. c_entry :find :parent))))
-            (:t (setq current :nil))))
-    func_name)
+	(defq current class_name func_name :nil)
+	(while (and current (not func_name))
+		(cond
+			((defq c_entry (. class_db :find current))
+				(if (defq m_entry (.-> c_entry (:find :methods) (:find method_name)))
+					(setq func_name (. m_entry :find :function))
+					(setq current (. c_entry :find :parent))))
+			(:t (setq current :nil))))
+	func_name)
 
 (defun get-descendants (class_db c)
 	(defq res (list c) stack (list c))
@@ -162,14 +162,14 @@
 		(. trace_set :insert %0)))
 
 (defun is-descendant? (class_db child parent)
-    (defq current child found :nil)
-    (while (and current (not found))
-        (cond
-            ((eql current parent) (setq found :t))
-            ((defq entry (. class_db :find current))
-                (setq current (. entry :find :parent)))
-            (:t (setq current :nil))))
-    found)
+	(defq current child found :nil)
+	(while (and current (not found))
+		(cond
+			((eql current parent) (setq found :t))
+			((defq entry (. class_db :find current))
+				(setq current (. entry :find :parent)))
+			(:t (setq current :nil))))
+	found)
 
 (defun lookup-trashes-union (c m)
 	;calculate the union of all this class and its subclasses

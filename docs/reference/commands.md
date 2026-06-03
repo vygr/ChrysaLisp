@@ -622,8 +622,8 @@ Usage: trashes [options] [function_name] ...
 			files on mismatch.
 
 	Calculate and trace active transitive register clobber state for
-    virtual methods and static functions. Analyses compiled instructions
-    directly via symbolic execution and traces live registers.
+	virtual methods and static functions. Analyses compiled instructions
+	directly via symbolic execution and traces live registers.
 ```
 ## unhuff
 ```code
