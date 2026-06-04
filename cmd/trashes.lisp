@@ -165,8 +165,8 @@
 (defun get-modified-regs (inst)
 	;only care about the instructions we don't handle in analyze-function !
 	(cond
-		((find (defq op (first inst)) '(emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i
-			emit-cpy-fd)) '())
+		((find (defq op (first inst)) '(emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s
+			emit-cpy-rd-i emit-cpy-fd)) '())
 		((find op '(emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr
 			emit-div-rrr-u)) (slice inst -3 -1))
 		((find op '(emit-min-cr emit-min-rr emit-max-cr emit-max-rr vp-abs-rr))
@@ -409,9 +409,9 @@
 										(defq calc_set (format-trashes (second entry)))
 										(unless (eql doc_set calc_set)
 											(print "WARNING: Mismatch in " function)
-											(print "  Documented: " doc_set)
-											(print "  Calculated: " calc_set)
-											(print "  File: \q" file "\q Line: " line_num)
+											(print "\tDocumented: " doc_set)
+											(print "\tCalculated: " calc_set)
+											(print "\tFile: \q" file "\q Line: " line_num)
 											(when (and opt_w file (str? file) (nql file "none") (nql line_num 0))
 												(. file_edits :update file
 													(# (if %0 (push %0 (list line_num calc_set))
