@@ -54,38 +54,28 @@ model:
   return (`emit-ret`) or an unconditional jump (`emit-jmp-p`), at which point
   its final clobber state is merged into the function's overall clobber set.
 
-## Unified Inner Call Tracing
+## In-Context Subroutine Evaluation (Local Calls)
 
-In compiled ChrysaLisp VP binary files, labels are renamed during the
-compilation pre-pass to an auto-incrementing integer prefix (e.g., `_0`, `_1`,
-`_2`).
+By design, the Virtual Processor (VP) assembler restricts the `emit-call`
+instruction to local targets within the same compiled function block. It is
+physically impossible to branch outside the local function using `emit-call`.
 
-The standard function header contains three sequential labels at the very
-beginning of the instruction stream:
+Because of this structural boundary, the symbolic tracer resolves local
+subroutines inline in-context. This is achieved by maintaining an abstract
+`call_stack` list of return addresses within each path's trace state:
 
-1. `fn_start` (compiled as `_0`)
+* **On `emit-call`:** The tracer retrieves the target label's PC, pushes the
+  current `*pc*` onto the path's `call_stack`, and jumps directly to the
+  subroutine.
 
-2. `fn_name_start` (compiled as `_1`)
+* **On `emit-ret`:** If the path's `call_stack` is not empty, the tracer pops
+  the return address and continues execution after the caller. If the
+  `call_stack` is empty, it is a real return from the main function, so the
+  tracer merges the clobber state and terminates the path.
 
-3. `fn_entry` (compiled as `_2`)
-
-This means the actual executable entry point of any compiled function always
-corresponds to the `_2` label.
-
-The dependency tracker and symbolic tracer utilize a unified inner call tracing
-format to handle both main entry points and local subroutines:
-
-* **Main Entry Points:** External static and virtual calls target the main entry
-  point by appending the `:_2` suffix to the function name (e.g.,
-  `class/func/print:_2`).
-
-* **Local Subroutines:** Internal subroutine calls (`emit-call`) within the same
-  file are represented using the `parent:label` format (e.g.,
-  `class/func/print:local_sub`).
-
-This unified representation allows `tsort` to build a single, comprehensive
-dependency graph containing both the main function entry points and their
-internal local subroutines.
+This in-context evaluation tracks register modifications and restorations within
+local subroutines, avoiding the need to treat internal subroutines as separate
+dependency nodes.
 
 ## Dependency Tracking & Topological Sorting
 
@@ -93,11 +83,15 @@ To resolve transitive clobbers (where function `A` calls `B`, thereby inheriting
 `B`'s clobbers), the tool must analyze functions in leaf-to-root order. This is
 achieved using a topological sort (`tsort`) powered by `get-dependencies`.
 
+Because local subroutines are fully resolved in-context during execution, they
+are excluded from the dependency graph. This eliminates the need to append `:_2`
+or other entry suffixes to functions, simplifying both the dependency tracking
+and propagation logic.
+
 ### 1. Static Call Resolution
 
 Static calls (`emit-call-p`, `emit-jmp-p`) are resolved directly to their target
-function names using the local label map and are appended with the `:_2` entry
-point suffix.
+function names (such as `"sys/mem/copy"`) using the local label map.
 
 ### 2. Bounded Virtual Call Resolution
 
@@ -112,20 +106,23 @@ perform bounded resolution:
 * It retrieves all implementing subclass overrides of `m` using
   `resolve-virtual-methods`.
 
-* These implementing functions are registered with their `:_2` entry points as
-  active dependencies of the caller, forcing them to be sequenced and analyzed
-  first.
+* These implementing functions are registered directly as active dependencies of
+  the caller, forcing them to be sequenced and analyzed first.
+
+#### Dependency Resolution Logic
+
+```file
+cmd/trashes.lisp "(defun get-dependencies" ""
+```
 
 ## Propagation & Convergence
 
 Once the dependency order is established by `tsort`, `propagate-trashes`
-processes each function and subroutine in the unified dependency list.
+processes each function in the dependency list.
 
 ### 1. Direct Propagation
 
-During the initial pass, when `analyze-function` encounters a call to a
-dependency that has already been analyzed, it retrieves its clobber set directly
-from `db` and applies those clobbers to the caller's active state.
+During the initial pass, when `analyze-function` encounters a call to a dependency that has already been analyzed, it retrieves its clobber set directly from `db` and applies those clobbers to the caller's active state.
 
 ### 2. Optimization: Memoized Instruction Caching
 
@@ -136,14 +133,20 @@ a memoized function `get-function-insts`:
 cmd/trashes.lisp "(defun get-function-insts" ""
 ```
 
-This guarantees that each compiled VP object is opened and parsed only once during the lifetime of the command execution, accelerating the analysis.
+This guarantees that each compiled VP object is opened and parsed only once
+during the lifetime of the command execution, accelerating the analysis.
 
-### 3. Optimization: Selective Re-Analysis
+### 3. Optimization: Selective Re-Analysis and Double-Buffering
 
-During the convergence loop, a function is only re-analyzed if at least one of its direct dependencies (its `call_list`) was updated in the previous pass. 
+During the convergence loop, a function is only re-analyzed if at least one of
+its direct dependencies (its `call_list`) was updated in the previous pass.
+
+To optimize memory usage, `changed_set` and `next_changed` are declared outside
+the loop, cleared in-place with `(. next_changed :empty)`, and swapped at the
+end of each pass.
 
 ```file
-cmd/trashes.lisp ";converge remaining by re-running" "(setq changed_set next_changed))"
+cmd/trashes.lisp ";converge remaining by re-running" "(defq t_set changed"
 ```
 
 ### 4. Optimization: Full-Clobber Short-Circuit
