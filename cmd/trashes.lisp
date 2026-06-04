@@ -79,23 +79,6 @@
 		:each (lambda (v rs) (push out (str v " -> " (format-trashes rs)))))
 	(if (empty? out) "none" (join out " | ")))
 
-(defun get-modified-regs (inst)
-	(cond
-		;exclude instructions that do not modify registers
-		((find (defq op (first inst)) '(emit-push emit-alloc emit-free
-			emit-ret emit-sync emit-brk emit-nop emit-label emit-tlabel
-			emit-align emit-string emit-byte emit-short emit-int emit-long
-			emit-cstr emit-call-p emit-call-i emit-call emit-call-r emit-call-abi
-			emit-jmp-r emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i
-			emit-cpy-fd)) '())
-		((eql op 'emit-pop) (rest inst))
-		((find op '(emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr
-			emit-div-rrr-u)) (slice inst -3 -1))
-		((find op '(emit-min-cr emit-min-rr emit-max-cr emit-max-rr vp-abs-rr))
-			(slice inst 2 3))
-		((reg? (last inst)) (slice inst -2 -1))
-		('())))
-
 (defun resolve-static-method (insts lbl)
 	;find function that implements this static method
 	(when (defq pc (get lbl (penv)))
@@ -178,6 +161,18 @@
 	(if (empty? union_set)
 		+all_extern_trashed_regs
 		union_set))
+
+(defun get-modified-regs (inst)
+	;only care about the instructions we don't handle in analyze-function !
+	(cond
+		((find (defq op (first inst)) '(emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i
+			emit-cpy-fd)) '())
+		((find op '(emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr
+			emit-div-rrr-u)) (slice inst -3 -1))
+		((find op '(emit-min-cr emit-min-rr emit-max-cr emit-max-rr vp-abs-rr))
+			(slice inst 2 3))
+		((reg? (last inst)) (slice inst -2 -1))
+		('())))
 
 (defun analyze-function (function db)
 	(cond
