@@ -53,17 +53,20 @@
 (defq +all_abi_trashed_regs
 	''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
 
-; (env 1) +all_regs set, with :nil for erased to keep slot lined up
-(defun eset () (env-copy (const (reduce (lambda (%0 %1) (def %0 %1 :nil) %0) +all_regs (env 1))) 1))
-(defun eset-union (this that) (each (lambda ((%0 %1)) (if %1 (def this %0 :t))) (tolist that)) this)
-(defun eset-diff (this that) (each (lambda ((%0 %1)) (if %1 (def this %0 :nil))) (tolist that)) this)
-(defun eset-insert (%0 %1) (def %0 %1 :t) %0)
-(defun eset-erase (%0 %1) (def %0 %1 :nil) %0)
-(defun eset-tolist (%0) (map (const first) (filter (const second) (tolist %0))))
-(defun eset-copy (%0) (env-copy %0 1))
-(defun eset-size (%0) (reduce (lambda (%0 (%1 %2)) (if %2 (inc %0) %0)) (tolist %0) 0))
-(defun eset-empty? (%0) (notany (const second) (tolist %0)))
-(defun eset-nempty? (%0) (some (const second) (tolist %0)))
+; (env 1) +all_regs set, with :nil for 'erased' to keep slots lined up
+(defq +reg_eset (reduce (lambda (%0 %1) (def %0 %1 :nil) %0) +all_regs (env 1)))
+(defmacro eset-copy (%0) `(env-copy ,%0 1))
+(defmacro eset () `(eset-copy +reg_eset))
+(defmacro eset-finsert (%0 %1) `(def ,%0 ,%1 :t))
+(defmacro eset-ferase (%0 %1) `(def ,%0 ,%1 :nil))
+(defmacro eset-insert (%0 %1) `(progn (eset-finsert ,%0 ,%1) ,%0))
+(defmacro eset-erase (%0 %1) `(progn (eset-ferase ,%0 ,%1) ,%0))
+(defmacro eset-union (%0 %1) `(reduce (lambda (%0 (%1 %2)) (if %2 (def %0 %1 :t)) %0) (tolist ,%1) ,%0))
+(defmacro eset-diff (%0 %1) `(reduce (lambda (%0 (%1 %2)) (if %2 (def %0 %1 :nil)) %0) (tolist ,%1) ,%0))
+(defmacro eset-tolist (%0) `(map (const first) (filter (const second) (tolist ,%0))))
+(defmacro eset-size (%0) `(reduce (lambda (%0 (%1 %2)) (if %2 (inc %0) %0)) (tolist ,%0) 0))
+(defmacro eset-empty? (%0) `(notany (const second) (tolist ,%0)))
+(defmacro eset-nempty? (%0) `(some (const second) (tolist ,%0)))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
@@ -159,8 +162,8 @@
 	; define register value and trashed state
 	(def reg_map %0 %1)
 	(if (eql %0 %1)
-		(eset-erase trace_set %0)
-		(eset-insert trace_set %0)))
+		(eset-ferase trace_set %0)
+		(eset-finsert trace_set %0)))
 
 (defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
