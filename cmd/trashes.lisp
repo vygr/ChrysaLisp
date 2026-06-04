@@ -1,5 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/text/document.inc")
+;(import "lib/debug/frames.inc")
 (import "lib/files/info.inc")
 
 (defq usage `(
@@ -75,7 +76,7 @@
 (defun format-values (reg_map)
 	(defq out (list))
 	(. (reduce (lambda (m (r v)) (. m :update v (# (ifn %0 (list r) (push %0 r)))) m)
-			(filter (lambda ((r v)) (nql r v)) (. reg_map :tolist)) (Lmap))
+			(filter (lambda ((r v)) (nql r v)) (tolist reg_map)) (Lmap))
 		:each (lambda (v rs) (push out (str v " -> " (format-trashes rs)))))
 	(if (empty? out) "none" (join out " | ")))
 
@@ -146,7 +147,7 @@
 
 (defun def-reg (%0 %1)
 	; define register value and trashed state
-	(. reg_map :insert %0 %1)
+	(def reg_map %0 %1)
 	(if (eql %0 %1)
 		(. trace_set :erase %0)
 		(. trace_set :insert %0)))
@@ -185,7 +186,8 @@
 		;determine starting PC for this subroutine/entry point (defaulting to _2)
 		(defq start_pc (ifn (defq start_pc (get '_2)) 0 start_pc)
 			call_list (list) func_set (Lset) trace -1 next_trace 0
-			reg_map (scatter (Lmap) (zip +all_regs +all_regs)) label_map (Lmap)
+			reg_map (reduce (lambda (m r) (def m r r) m) +all_regs (env 1))
+			label_map (Lmap)
 			trace_map (scatter (Lmap) 0 (list start_pc 0 (Lmap) reg_map (Lset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
@@ -209,16 +211,16 @@
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
 							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (. reg_map :copy) (. trace_set :copy) (cat call_stack)))))
+								(. stack_map :copy) (env-copy reg_map 1) (. trace_set :copy) (cat call_stack)))))
 
 					;register data flow
 					((find op '(emit-cpy-rr emit-cpy-ff))
 						;copy value and mark as trashed or restored
-						(def-reg (last inst) (. reg_map :find (second inst))))
+						(def-reg (last inst) (def? (second inst) reg_map)))
 					((eql op 'emit-swp-rr)
 						;swap values and mark as trashed or restored
 						(each (const def-reg)
-							(rest inst) (map (# (. reg_map :find %0)) (slice inst -1 1))))
+							(rest inst) (map (# (def? %0 reg_map)) (slice inst -1 1))))
 
 					;stack tracking
 					((eql op 'emit-alloc)
@@ -228,7 +230,7 @@
 					((eql op 'emit-push)
 						;push the values of all registers pushed
 						(each! (# (. stack_map :insert (-- *rsp* +long_size)
-								(. reg_map :find %0)))
+								(def? %0 reg_map)))
 							(list inst) 1))
 					((eql op 'emit-pop)
 						;pop the values of all registers popped
@@ -240,11 +242,11 @@
 					((and (find op '(emit-cpy-ri emit-cpy-fi)) (eql (third inst) :rsp))
 						;stack spill 64 bit
 						(bind '(& src & offset) inst)
-						(defq val (. reg_map :find src))
-						(. stack_map :insert (+ *rsp* offset) val))
-					((and (find op '(emit-cpy-ir emit-cpy-if)) (eql (second inst) :rsp))
-						;stack load 64 bit
-						(def-reg (last inst) (. stack_map :find (+ *rsp* (third inst)))))
+						(. stack_map :insert (+ *rsp* offset) (def? src reg_map)))
+					((and (find op '(emit-cpy-ri emit-cpy-fi)) (eql (third inst) :rsp))
+						;stack spill 64 bit
+						(bind '(& src & offset) inst)
+						(. stack_map :insert (+ *rsp* offset) (def? src reg_map)))
 					((and (find op '(emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i)) (eql (third inst) :rsp))
 						;quantize offset down to the nearest 8-byte
 						;boundary and invalidate the slot
