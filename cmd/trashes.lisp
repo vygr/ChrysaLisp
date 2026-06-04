@@ -32,13 +32,10 @@
 (defq +all_regs `'(~(last +int_regs) ~(last +float_regs))
 	+all_extern_trashed_regs `'(~(most (last +int_regs)) ~(last +float_regs))
 	+regs_index_map
-		(reduce (# (def %0 %1 (!)) %0) +int_regs							;0-15
-		(reduce (# (def %0 %1 (!)) %0) +float_regs (env 1)))				;0-15
-	+regs_set_map
-		(reduce (# (def %0 %1 (!)) %0) (cat +int_regs +float_regs) (env 1))) ;0-31
+		(reduce (# (def %0 %1 (!)) %0) +int_regs
+		(reduce (# (def %0 %1 (!)) %0) +float_regs (env 1))))
 
 (defun reg? (r) (if (eql :sym (pop (type-of r))) (def? r +regs_index_map)))
-(defun reg-idx (r) (if (eql :sym (pop (type-of r))) (def? r +regs_set_map)))
 
 (defun gather-all-abi-trashed ()
 	(defq union_set (list))
@@ -63,16 +60,13 @@
 		(slices indices)))
 
 (defun format-trashes (func_set)
-	(defq r_indices (list) f_indices (list) s_indices (list) i 0)
-	(while (/= func_set 0)
-		(when (odd? func_set)
-			(if (< i 16)
-				(if (= i 15)
-					(push s_indices ":rsp")
-					(push r_indices i))
-				(push f_indices (- i 16))))
-		(++ i)
-		(setq func_set (>> func_set 1)))
+	(defq r_indices (list) f_indices (list) s_indices (list))
+	(each (# (if (starts-with ":r" %0)
+			(if (= (defq %0 (reg? %0)) 15)
+				(push s_indices ":rsp")
+				(push r_indices %0))
+			(push f_indices (reg? %0))))
+		(if (list? func_set) func_set (. func_set :tolist)))
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
 		(format-group ":f" f_indices)
@@ -83,8 +77,7 @@
 	(defq out (list))
 	(. (reduce (lambda (m (r v)) (. m :update v (# (ifn %0 (list r) (push %0 r)))) m)
 			(filter (lambda ((r v)) (nql r v)) (tolist reg_map)) (Lmap))
-		:each (lambda (v rs) (push out (str v " -> " (format-trashes 
-			(reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) rs 0))))))
+		:each (lambda (v rs) (push out (str v " -> " (format-trashes rs)))))
 	(if (empty? out) "none" (join out " | ")))
 
 (defun resolve-static-method (insts lbl)
@@ -156,18 +149,18 @@
 	; define register value and trashed state
 	(def reg_map %0 %1)
 	(if (eql %0 %1)
-		(setq trace_set (logand trace_set (lognot (<< 1 (reg-idx %0)))))
-		(setq trace_set (logior trace_set (<< 1 (reg-idx %0))))))
+		(. trace_set :erase %0)
+		(. trace_set :insert %0)))
 
 (defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
 	;and its subclasses overrides, based on the current state of the active db
-	(defq union_set 0)
+	(defq union_set (list))
 	(each (# (if (defq f_entry (. db :find %0))
-				(setq union_set (logior union_set (second f_entry)))))
+				(merge union_set (. (second f_entry) :tolist))))
 		(resolve-virtual-methods c m))
-	(if (= union_set 0)
-		(const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_extern_trashed_regs 0))
+	(if (empty? union_set)
+		+all_extern_trashed_regs
 		union_set))
 
 (defun get-modified-regs (inst)
@@ -192,10 +185,10 @@
 				(def (penv) (last (second %0)) (!)))) insts)
 		;determine starting PC for this subroutine/entry point (defaulting to _2)
 		(defq start_pc (ifn (defq start_pc (get '_2)) 0 start_pc)
-			call_list (list) func_set 0 trace -1 next_trace 0
+			call_list (list) func_set (Lset) trace -1 next_trace 0
 			reg_map (reduce (lambda (m r) (def m r r) m) +all_regs (env 1))
 			label_map (Lmap)
-			trace_map (scatter (Lmap) 0 (list start_pc 0 (Lmap) reg_map 0 (list))))
+			trace_map (scatter (Lmap) 0 (list start_pc 0 (Lmap) reg_map (Lset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
 			(task-slice)
@@ -208,17 +201,17 @@
 					((find op '(emit-label emit-tlabel))
 						;update merged state at labels
 						(if (defq pc (get (last (second inst))) ls (. label_map :find pc))
-							(setq trace_set (logior trace_set ls)))
-						(. label_map :insert pc trace_set))
+							(. trace_set :union ls))
+						(. label_map :insert pc (. trace_set :copy)))
 					((find op '(emit-beq-cr emit-bne-cr emit-bge-cr
 								emit-ble-cr emit-blt-cr emit-bgt-cr
 								emit-beq-rr emit-bne-rr emit-bge-rr
 								emit-ble-rr emit-blt-rr emit-bgt-rr))
 						;if branch would carry new state then create new trace
 						(defq pc (get (last inst)) ls (. label_map :find pc))
-						(when (or (not ls) (/= 0 (logand trace_set (lognot ls))))
+						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
 							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (env-copy reg_map 1) trace_set (cat call_stack)))))
+								(. stack_map :copy) (env-copy reg_map 1) (. trace_set :copy) (cat call_stack)))))
 
 					;register data flow
 					((find op '(emit-cpy-rr emit-cpy-ff))
@@ -265,44 +258,36 @@
 						(ifn (setq *pc* (pop call_stack))
 							(progn
 								;return from main, merge clobbers and terminate path
-								(setq func_set (logior func_set trace_set))
+								(. func_set :union trace_set)
 								(setq *pc* (length insts)))))
 					((eql op 'emit-call)
-						;Local subroutine call: inline it using the path's call stack
+						;Local subroutine call, inline it using the path's call stack
 						(when (defq target_pc (get (second inst)))
 							(push call_stack *pc*)
 							(setq *pc* target_pc)))
 					((eql op 'emit-jmp)
 						;if jump would carry new state then jump, else kill trace
 						(defq pc (get (last inst)) ls (. label_map :find pc))
-						(if (or (not ls) (/= 0 (logand trace_set (lognot ls))))
+						(if (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
 							(setq *pc* pc)
 							(setq *pc* (length insts))))
 
 					;external static call and jump
 					((eql op 'emit-call-p)
 						;use the callee trashes set
-						(defq callee (resolve-static-method insts (second inst)))
-						(push call_list callee)
+						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
-							(setq trace_set (logior trace_set callee_trashes))
-							(defq tmp_set callee_trashes i 0)
-							(while (/= tmp_set 0)
-								(when (odd? tmp_set)
-									(def reg_map (elem-get +all_regs i) :nil))
-								(++ i)
-								(setq tmp_set (>> tmp_set 1)))))
+							(each (# (def-reg %0 :nil)) (. callee_trashes :tolist))))
 					((eql op 'emit-jmp-p)
 						;exit function, merge and kill trace
-						(defq callee (resolve-static-method insts (second inst)))
-						(push call_list callee)
+						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
-							(setq trace_set (logior trace_set callee_trashes)))
-						(setq func_set (logior func_set trace_set))
+							(each (# (def-reg %0 :nil)) (. callee_trashes :tolist)))
+						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
 
 					;external virtual call and jump
@@ -310,68 +295,43 @@
 						(if (bind '(& & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_extern_trashed_regs 0))
-								calls '(:indirect)))
+							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
-						(setq trace_set (logior trace_set call_set))
-						(defq tmp_set call_set i 0)
-						(while (/= tmp_set 0)
-							(when (odd? tmp_set)
-								(def reg_map (elem-get +all_regs i) :nil))
-							(++ i)
-							(setq tmp_set (>> tmp_set 1))))
+						(each (# (def-reg %0 :nil)) call_set))
 					((eql op 'emit-jmp-r)
 						;exit function, merge and kill trace
 						(if (bind '(& & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_extern_trashed_regs 0))
-								calls '(:indirect)))
+							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
-						(setq trace_set (logior trace_set call_set))
-						(setq func_set (logior func_set trace_set))
+						(each (# (def-reg %0 :nil)) call_set)
+						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
 					((eql op 'emit-call-i)
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_extern_trashed_regs 0))
-								calls '(:indirect)))
+							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
-						(setq trace_set (logior trace_set call_set))
-						(defq tmp_set call_set i 0)
-						(while (/= tmp_set 0)
-							(when (odd? tmp_set)
-								(def reg_map (elem-get +all_regs i) :nil))
-							(++ i)
-							(setq tmp_set (>> tmp_set 1))))
+						(each (# (def-reg %0 :nil)) call_set))
 					((eql op 'emit-jmp-i)
 						;exit function, merge and kill trace
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_extern_trashed_regs 0))
-								calls '(:indirect)))
+							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
-						(setq trace_set (logior trace_set call_set))
-						(setq func_set (logior func_set trace_set))
+						(each (# (def-reg %0 :nil)) call_set)
+						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
 
 					;external host os call
 					((eql op 'emit-call-abi)
 						;simulate the union of all platform clobbers
-						(push call_list :abicall)
-						(defq call_set (logior (const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_abi_trashed_regs 0))
-							(<< 1 (reg-idx :r0))
-							(<< 1 (reg-idx (second inst)))
-							(<< 1 (reg-idx (third inst)))))
-						(setq trace_set (logior trace_set call_set))
-						(defq tmp_set call_set i 0)
-						(while (/= tmp_set 0)
-							(when (odd? tmp_set)
-								(def reg_map (elem-get +all_regs i) :nil))
-							(++ i)
-							(setq tmp_set (>> tmp_set 1))))
+						(merge call_list '(:abicall))
+						(each (# (def-reg %0 :nil))
+							(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
 
 					;everything else
 					(:t ;each modified register is flagged as trashed and value :nil
@@ -408,11 +368,11 @@
 					(bind '(& func_set call_list) entry)
 					(when (or (. changed_set :find function)
 							(some (# (. changed_set :find %0)) call_list))
-						(defq old_size (bitcnt func_set))
+						(defq old_size (. func_set :size))
 						;bypasses symbolic tracing if the function already trashes all registers
 						(when (< old_size (const (length +all_regs)))
 							(bind '(type &optional new_set new_calls) (analyze-function function db))
-							(when (/= old_size (bitcnt new_set))
+							(when (/= old_size (. new_set :size))
 								(. db :insert function (list :function new_set new_calls))
 								(. next_changed :insert function)
 								(setq changed :t)))))))
