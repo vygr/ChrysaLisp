@@ -109,63 +109,57 @@
 
 (defun resolve-virtual-method (c m)
 	;find function that implements this virtual method
-	(when (nql c :nil)
-		(when (defq c_entry (. *class_db* :find c))
-			(when (defq m_entry (.-> c_entry (:find :methods) (:find m)))
-				(. m_entry :find :function)))))
+	(when (defq c_entry (. *class_db* :find c))
+		(when (defq m_entry (.-> c_entry (:find :methods) (:find m)))
+			(. m_entry :find :function))))
 
 (defun resolve-virtual-methods (c m)
 	;find function that implements this virtual method
 	;and all subclass overrides !
 	(defq deps (list))
-	(when (nql c :nil)
-		(when (defq c_entry (. *class_db* :find c))
-			(when (defq m_entry (.-> c_entry (:find :methods) (:find m)))
-				(when (defq func_name (. m_entry :find :function))
-					(push deps func_name)
-					(when (defq over_m (. m_entry :find :overrides))
-						(each (lambda (over_c)
-							(when (defq func_name (resolve-virtual-method over_c m))
-								(push deps func_name)))
-							over_m))))))
+	(when (defq c_entry (. *class_db* :find c))
+		(when (defq m_entry (.-> c_entry (:find :methods) (:find m)))
+			(when (defq function (. m_entry :find :function))
+				(push deps function)
+				(when (defq o_entry (. m_entry :find :overrides))
+					(each (lambda (over_c)
+						(when (defq function (resolve-virtual-method over_c m))
+							(push deps function)))
+						o_entry)))))
 	deps)
 
-(defun get-function-insts (parent)
-	; (get-function-insts parent) -> :nil | insts
-	(memoize parent (progn
-		(defq obj_path (cat +obj_dir parent))
+(defun get-function-insts (function)
+	; (get-function-insts function) -> :nil | insts
+	(memoize function (progn
+		(defq obj_path (cat +obj_dir function))
 		(if (> (age obj_path) 0)
 			(first (read (file-stream obj_path))))) 101))
 
 (defun get-dependencies (function)
 	;scan the compiled VP object
-	(defq deps (list) parent function label '_2)
-	;check if we are analyzing a virtual local subroutine
-	(when (defq i (find ":" function))
-		(setq parent (slice function 0 i)
-			label (sym (slice function (inc i) -1))))
-	(when (defq insts (get-function-insts parent))
+	(defq deps (list))
+	(when (and (nql function :indirect) (nql function :abicall)
+			(> (age (defq obj_path (cat +obj_dir function))) 0))
+		(unless (defq insts (get-function-insts function))
+			(setq insts (first (read (file-stream obj_path))))
+			(. *inst_cache* :insert obj_path insts))
 		;local labels so resolve-static-method can find them
 		(each (# (if (find (first %0) '(emit-label emit-tlabel))
 				(def (penv) (last (second %0)) (!)))) insts)
-		;determine starting PC for this subroutine/entry point
-		(defq start_pc (ifn (defq start_pc (get label)) 0 start_pc))
-		(each (lambda (inst)
+		(each! (lambda (inst)
 			(defq op (first inst) c :nil m :nil)
 			(cond
-				((eql op 'emit-call)
-					(merge deps (list (cat parent ":" (second inst)))))
 				((find op '(emit-call-p emit-jmp-p))
 					(when (defq target (resolve-static-method insts (second inst)))
-						(merge deps (list (cat target ":_2")))))
+						(merge deps (list target))))
 				((find op '(emit-call-i emit-jmp-i))
 					(bind '(& & & &optional c m) inst))
 				((find op '(emit-call-r emit-jmp-r))
 					(bind '(& & &optional c m) inst)))
 			(when (and c m)
-				(each (# (merge deps (list (cat %0 ":_2"))))
+				(each (# (merge deps (list %0)))
 					(resolve-virtual-methods c m))))
-			(slice insts start_pc -1))) deps)
+			(list insts) (get '_2))) deps)
 
 (defun def-reg (%0 %1)
 	; define register value and trashed state
@@ -178,7 +172,7 @@
 	;calculate the union of all this class method trashes
 	;and its subclasses overrides, based on the current state of the active db
 	(defq union_set (list))
-	(each (# (if (defq f_entry (. db :find (cat %0 ":_2")))
+	(each (# (if (defq f_entry (. db :find %0))
 				(merge union_set (. (second f_entry) :tolist))))
 		(resolve-virtual-methods c m))
 	(if (empty? union_set)
@@ -186,26 +180,22 @@
 		union_set))
 
 (defun analyze-function (function db)
-	(defq parent function label '_2)
-	(when (defq i (find ":" function))
-		(setq parent (slice function 0 i) label (sym (slice function (inc i) -1))))
 	(cond
-		((not (defq insts (get-function-insts parent)))
+		((not (defq insts (get-function-insts function)))
 			(list :external))
 		(;register tracing simulation ! (as near as we can anyways)
 		;local labels so we can resolve starting PC and jumps
 		(each (# (if (find (first %0) '(emit-label emit-tlabel))
 				(def (penv) (last (second %0)) (!)))) insts)
 		;determine starting PC for this subroutine/entry point (defaulting to _2)
-		(defq start_pc (ifn (defq start_pc (get label)) 0 start_pc)
+		(defq start_pc (ifn (defq start_pc (get '_2)) 0 start_pc)
 			call_list (list) func_set (Lset) trace -1 next_trace 0
-			reg_map (scatter (Lmap) (zip +all_regs +all_regs))
-			label_map (Lmap)
-			trace_map (scatter (Lmap) 0 (list start_pc 0 (Lmap) reg_map (Lset))))
+			reg_map (scatter (Lmap) (zip +all_regs +all_regs)) label_map (Lmap)
+			trace_map (scatter (Lmap) 0 (list start_pc 0 (Lmap) reg_map (Lset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
 			(task-slice)
-			(bind '(*pc* *rsp* stack_map reg_map trace_set) (. trace_map :find trace))
+			(bind '(*pc* *rsp* stack_map reg_map trace_set call_stack) (. trace_map :find trace))
 			(while (< *pc* (length insts))
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
@@ -224,7 +214,7 @@
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(when (or (not ls) (not (.-> trace_set :copy (:difference ls) :empty?)))
 							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (. reg_map :copy) (. trace_set :copy)))))
+								(. stack_map :copy) (. reg_map :copy) (. trace_set :copy) (cat call_stack)))))
 
 					;register data flow
 					((find op '(emit-cpy-rr emit-cpy-ff))
@@ -267,16 +257,17 @@
 
 					;internal call, jump and return
 					((eql op 'emit-ret)
-						;exit function, merge and kill trace
-						(. func_set :union trace_set)
-						(setq *pc* (length insts)))
+						;we are inside an inlined local subroutine, return to the caller
+						(ifn (setq *pc* (pop call_stack))
+							(progn
+								;return from main, merge clobbers and terminate path
+								(. func_set :union trace_set)
+								(setq *pc* (length insts)))))
 					((eql op 'emit-call)
-						;use the callee trashes set
-						(merge call_list (list (defq callee (cat parent ":" (last inst)))))
-						;known trashed registers from db during symbolic execution
-						(when (defq callee_entry (. db :find callee))
-							(defq callee_trashes (second callee_entry))
-							(each (# (def-reg %0 :nil)) (. callee_trashes :tolist))))
+						;Local subroutine call, inline it using the path's call stack
+						(when (defq target_pc (get (second inst)))
+							(push call_stack *pc*)
+							(setq *pc* target_pc)))
 					((eql op 'emit-jmp)
 						;if jump would carry new state then jump, else kill trace
 						(defq pc (get (last inst)) ls (. label_map :find pc))
@@ -287,16 +278,14 @@
 					;external static call and jump
 					((eql op 'emit-call-p)
 						;use the callee trashes set
-						(merge call_list (list (defq callee
-							(cat (resolve-static-method insts (second inst)) ":_2"))))
+						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
 							(each (# (def-reg %0 :nil)) (. callee_trashes :tolist))))
 					((eql op 'emit-jmp-p)
 						;exit function, merge and kill trace
-						(merge call_list (list (defq callee (cat
-							(resolve-static-method insts (second inst)) ":_2"))))
+						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
@@ -308,7 +297,7 @@
 					((eql op 'emit-call-r)
 						(if (bind '(& & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
-								calls (map (# (cat %0 ":_2")) (resolve-virtual-methods c m)))
+								calls (resolve-virtual-methods c m))
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set))
@@ -316,7 +305,7 @@
 						;exit function, merge and kill trace
 						(if (bind '(& & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
-								calls (map (# (cat %0 ":_2")) (resolve-virtual-methods c m)))
+								calls (resolve-virtual-methods c m))
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set)
@@ -325,7 +314,7 @@
 					((eql op 'emit-call-i)
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
-								calls (map (# (cat %0 ":_2")) (resolve-virtual-methods c m)))
+								calls (resolve-virtual-methods c m))
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set))
@@ -333,7 +322,7 @@
 						;exit function, merge and kill trace
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
-								calls (map (# (cat %0 ":_2")) (resolve-virtual-methods c m)))
+								calls (resolve-virtual-methods c m))
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set)
@@ -357,9 +346,7 @@
 		(list :function func_set call_list))))
 
 (defun propagate-trashes (functions)
-	;map functions to their implied inner _2 entry points
-	(defq mapped_functions (map (# (cat %0 ":_2")) functions)
-		db (Fmap 101) order (tsort mapped_functions (const get-dependencies)))
+	(defq db (Fmap 101) order (tsort functions (const get-dependencies)))
 	;each caller now accurately steps through callee clobber states
 	(each (lambda (function)
 		(unless (. db :find function)
@@ -374,10 +361,10 @@
 					(. db :insert function (list :function func_set call_list))))))
 		order)
 	;converge remaining by re-running analysis until register clobbers stabilize
-	(defq changed :t changed_set (scatter (Fset 101) order))
+	(defq changed :t changed_set (scatter (Fset 101) order) next_changed (Fset 101))
 	(while changed
-		(setq changed :nil)
-		(defq next_changed (Fset 101))
+		(defq changed :nil)
+		(. next_changed :empty)
 		(each (lambda (function)
 			(when (defq entry (. db :find function))
 				(when (eql (first entry) :function)
@@ -393,12 +380,7 @@
 								(. next_changed :insert function)
 								(setq changed :t)))))))
 			order)
-		(setq changed_set next_changed))
-	;copy results back from _2 entry points to original parent names
-	(each (lambda (orig mapped)
-		(when (defq entry (. db :find mapped))
-			(. db :insert orig entry)))
-		functions mapped_functions)
+		(defq t_set changed_set changed_set next_changed next_changed t_set))
 	db)
 
 (defun main ()
