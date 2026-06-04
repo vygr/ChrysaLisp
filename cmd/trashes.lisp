@@ -1,6 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/text/document.inc")
-(import "lib/debug/frames.inc")
+;(import "lib/debug/frames.inc")
 (import "lib/files/info.inc")
 
 (defq usage `(
@@ -54,16 +54,16 @@
 	''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
 
 ; (env 1) set
-(defun eset () (env 1))
-(defun eset-union (this that) (each (# (def this (first %0) :t)) (tolist that)) this)
-(defun eset-diff (this that) (each (# (undef this (first %0))) (tolist that)) this)
+(defun eset () (env-copy (const (reduce (lambda (e r) (def e r :nil) e) +all_regs (env 1))) 1))
+(defun eset-union (this that) (each (lambda ((key val)) (if val (def this key :t))) (tolist that)) this)
+(defun eset-diff (this that) (each (lambda ((key val)) (if val (def this key :nil))) (tolist that)) this)
 (defun eset-insert (this that) (def this that :t) this)
-(defun eset-erase (this that) (undef this that) this)
-(defun eset-tolist (this) (map (const first) (tolist this)))
+(defun eset-erase (this that) (def this that :nil) this)
+(defun eset-tolist (this) (map (const first) (filter (const second) (tolist this))))
 (defun eset-copy (this) (env-copy this 1))
-(defun eset-size (this) (length (tolist this)))
-(defun eset-empty? (this) (empty? (tolist this)))
-(defun eset-nempty? (this) (nempty? (tolist this)))
+(defun eset-size (this) (reduce (lambda (%0 (%1 %2)) (if %2 (inc %0) %0)) (tolist this) 0))
+(defun eset-empty? (this) (notany (const second) (tolist this)))
+(defun eset-nempty? (this) (some (const second) (tolist this)))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
@@ -159,8 +159,8 @@
 	; define register value and trashed state
 	(def reg_map %0 %1)
 	(if (eql %0 %1)
-		(eset-insert trace_set %0)
-		(eset-erase trace_set %0)))
+		(eset-erase trace_set %0)
+		(eset-insert trace_set %0)))
 
 (defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
@@ -196,7 +196,7 @@
 		;determine starting PC for this subroutine/entry point (defaulting to _2)
 		(defq start_pc (ifn (get '_2) 0) label_map (Lmap)
 			call_list (list) func_set (eset) trace -1 next_trace 0
-			reg_map (reduce (lambda (m r) (def m r r) m) +all_regs (env 1))
+			reg_map (env-copy (const (reduce (lambda (m r) (def m r r) m) +all_regs (env 1))) 1)
 			trace_map (scatter (Lmap) 0 (list start_pc 0 (Lmap) reg_map (eset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
