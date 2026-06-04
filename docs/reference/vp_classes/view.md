@@ -77,14 +77,14 @@ outputs
 trashes
 :r1-:r14, :f0-:f15
 callback api
-inputs
+in
 :r0 = view object (ptr)
 :r1 = user data pointer (ptr)
-outputs
+out
 :r0 = view object (ptr)
 :r1 = 0 if should not descend after down callback
 trashes
-:r1-:r14, :f0-:f15
+...
 ```
 
 ### :create -> gui/view/create
@@ -137,14 +137,14 @@ outputs
 trashes
 :r1-:r14, :f0-:f15
 callback api
-inputs
+in
 :r0 = view object (ptr)
 :r1 = user data pointer (ptr)
-outputs
+out
 :r0 = view object (ptr)
 :r1 = 0 if should not descend after down callback
 trashes
-:r1-:r14, :f0-:f15
+...
 ```
 
 ### :forward_tree_callback -> class/obj/null

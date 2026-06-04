@@ -166,6 +166,8 @@ trashes
 inputs
 :r0 = data buffer pointer (pubyte)
 :r1 = length (uint)
+outputs
+:r0 = data buffer pointer (pubyte)
 trashes
 :r0, :f0-:f15
 ```

@@ -32,11 +32,12 @@ trashes
 ### :init -> sys/load/init
 
 ```code
-inputs
-system argv
+inputs from OS
 host OS function table
 host GUI function table
 host audio function table
+outputs
+:r0 return code
 trashes
 :r0-:r3, :r13-:r14, :f0-:f15
 info
