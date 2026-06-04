@@ -32,10 +32,13 @@
 (defq +all_regs `'(~(last +int_regs) ~(last +float_regs))
 	+all_extern_trashed_regs `'(~(most (last +int_regs)) ~(last +float_regs))
 	+regs_index_map
-		(reduce (# (def %0 %1 (!)) %0) +int_regs
-		(reduce (# (def %0 %1 (!)) %0) +float_regs (env 1))))
+		(reduce (# (def %0 %1 (!)) %0) +int_regs							;0-15
+		(reduce (# (def %0 %1 (!)) %0) +float_regs (env 1)))				;0-15
+	+regs_set_map
+		(reduce (# (def %0 %1 (!)) %0) (cat +int_regs +float_regs) (env 1))) ;0-31
 
 (defun reg? (r) (if (eql :sym (pop (type-of r))) (def? r +regs_index_map)))
+(defun reg-idx (r) (if (eql :sym (pop (type-of r))) (def? r +regs_set_map)))
 
 (defun gather-all-abi-trashed ()
 	(defq union_set (list))
@@ -59,13 +62,6 @@
 			(str prefix s "-" prefix e)))
 		(slices indices)))
 
-(defun bit-count (n)
-	; (bit-count n) -> count of set bits
-	(defq c 0)
-	(while (/= n 0)
-		(++ c)
-		(setq n (logand n (dec n)))) c)
-
 (defun format-trashes (func_set)
 	(defq r_indices (list) f_indices (list) s_indices (list) i 0)
 	(while (/= func_set 0)
@@ -88,7 +84,7 @@
 	(. (reduce (lambda (m (r v)) (. m :update v (# (ifn %0 (list r) (push %0 r)))) m)
 			(filter (lambda ((r v)) (nql r v)) (tolist reg_map)) (Lmap))
 		:each (lambda (v rs) (push out (str v " -> " (format-trashes 
-			(reduce (lambda (m r) (logior m (<< 1 (reg? r)))) rs 0))))))
+			(reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) rs 0))))))
 	(if (empty? out) "none" (join out " | ")))
 
 (defun resolve-static-method (insts lbl)
@@ -160,8 +156,8 @@
 	; define register value and trashed state
 	(def reg_map %0 %1)
 	(if (eql %0 %1)
-		(setq trace_set (logand trace_set (lognot (<< 1 (reg? %0)))))
-		(setq trace_set (logior trace_set (<< 1 (reg? %0))))))
+		(setq trace_set (logand trace_set (lognot (<< 1 (reg-idx %0)))))
+		(setq trace_set (logior trace_set (<< 1 (reg-idx %0))))))
 
 (defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
@@ -171,7 +167,7 @@
 				(setq union_set (logior union_set (second f_entry)))))
 		(resolve-virtual-methods c m))
 	(if (= union_set 0)
-		(const (reduce (lambda (m r) (logior m (<< 1 (reg? r)))) +all_extern_trashed_regs 0))
+		(const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_extern_trashed_regs 0))
 		union_set))
 
 (defun get-modified-regs (inst)
@@ -314,7 +310,7 @@
 						(if (bind '(& & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg? r)))) +all_extern_trashed_regs 0))
+							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_extern_trashed_regs 0))
 								calls '(:indirect)))
 						(merge call_list calls)
 						(setq trace_set (logior trace_set call_set))
@@ -329,7 +325,7 @@
 						(if (bind '(& & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg? r)))) +all_extern_trashed_regs 0))
+							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_extern_trashed_regs 0))
 								calls '(:indirect)))
 						(merge call_list calls)
 						(setq trace_set (logior trace_set call_set))
@@ -339,7 +335,7 @@
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg? r)))) +all_extern_trashed_regs 0))
+							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_extern_trashed_regs 0))
 								calls '(:indirect)))
 						(merge call_list calls)
 						(setq trace_set (logior trace_set call_set))
@@ -354,7 +350,7 @@
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg? r)))) +all_extern_trashed_regs 0))
+							(defq call_set (const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_extern_trashed_regs 0))
 								calls '(:indirect)))
 						(merge call_list calls)
 						(setq trace_set (logior trace_set call_set))
@@ -365,10 +361,10 @@
 					((eql op 'emit-call-abi)
 						;simulate the union of all platform clobbers
 						(push call_list :abicall)
-						(defq call_set (logior (const (reduce (lambda (m r) (logior m (<< 1 (reg? r)))) +all_abi_trashed_regs 0))
-							(<< 1 (reg? :r0))
-							(<< 1 (reg? (second inst)))
-							(<< 1 (reg? (third inst)))))
+						(defq call_set (logior (const (reduce (lambda (m r) (logior m (<< 1 (reg-idx r)))) +all_abi_trashed_regs 0))
+							(<< 1 (reg-idx :r0))
+							(<< 1 (reg-idx (second inst)))
+							(<< 1 (reg-idx (third inst)))))
 						(setq trace_set (logior trace_set call_set))
 						(defq tmp_set call_set i 0)
 						(while (/= tmp_set 0)
@@ -412,11 +408,11 @@
 					(bind '(& func_set call_list) entry)
 					(when (or (. changed_set :find function)
 							(some (# (. changed_set :find %0)) call_list))
-						(defq old_size (bit-count func_set))
+						(defq old_size (bitcnt func_set))
 						;bypasses symbolic tracing if the function already trashes all registers
 						(when (< old_size (const (length +all_regs)))
 							(bind '(type &optional new_set new_calls) (analyze-function function db))
-							(when (/= old_size (bit-count new_set))
+							(when (/= old_size (bitcnt new_set))
 								(. db :insert function (list :function new_set new_calls))
 								(. next_changed :insert function)
 								(setq changed :t)))))))

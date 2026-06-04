@@ -108,6 +108,8 @@ Added `-w` writeback mode support to the docs database scanners and the
 New `(transfer src_map dst_map [key val] ...) -> dst_map` function in
 collections.
 
+New `(bitcnt n) -> num bits` added to `root.inc`.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

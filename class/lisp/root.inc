@@ -1008,6 +1008,13 @@
 	(while (> %0 0)
 		(setq n (inc n) %0 (<< %0 1))) n)
 
+(defun bitcnt (n)
+	; (bitcnt n) -> num bits
+	(defq c 0)
+	(while (/= n 0)
+		(++ c)
+		(setq n (logand n (dec n)))) c)
+
 ;;;;;;;;;;;;;;;;;;
 ; Fixed point math
 ;;;;;;;;;;;;;;;;;;
