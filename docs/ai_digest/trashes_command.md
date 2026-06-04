@@ -1,4 +1,4 @@
-# Trashes command
+# Trashes Command
 
 The `trashes` command is a static analysis tool designed to calculate the
 transitive register clobber state (the registers that are overwritten or
@@ -54,6 +54,39 @@ model:
   return (`emit-ret`) or an unconditional jump (`emit-jmp-p`), at which point
   its final clobber state is merged into the function's overall clobber set.
 
+## Unified Inner Call Tracing
+
+In compiled ChrysaLisp VP binary files, labels are renamed during the
+compilation pre-pass to an auto-incrementing integer prefix (e.g., `_0`, `_1`,
+`_2`).
+
+The standard function header contains three sequential labels at the very
+beginning of the instruction stream:
+
+1. `fn_start` (compiled as `_0`)
+
+2. `fn_name_start` (compiled as `_1`)
+
+3. `fn_entry` (compiled as `_2`)
+
+This means the actual executable entry point of any compiled function always
+corresponds to the `_2` label.
+
+The dependency tracker and symbolic tracer utilize a unified inner call tracing
+format to handle both main entry points and local subroutines:
+
+* **Main Entry Points:** External static and virtual calls target the main entry
+  point by appending the `:_2` suffix to the function name (e.g.,
+  `class/func/print:_2`).
+
+* **Local Subroutines:** Internal subroutine calls (`emit-call`) within the same
+  file are represented using the `parent:label` format (e.g.,
+  `class/func/print:local_sub`).
+
+This unified representation allows `tsort` to build a single, comprehensive
+dependency graph containing both the main function entry points and their
+internal local subroutines.
+
 ## Dependency Tracking & Topological Sorting
 
 To resolve transitive clobbers (where function `A` calls `B`, thereby inheriting
@@ -63,7 +96,8 @@ achieved using a topological sort (`tsort`) powered by `get-dependencies`.
 ### 1. Static Call Resolution
 
 Static calls (`emit-call-p`, `emit-jmp-p`) are resolved directly to their target
-function names using the local label map.
+function names using the local label map and are appended with the `:_2` entry
+point suffix.
 
 ### 2. Bounded Virtual Call Resolution
 
@@ -75,25 +109,17 @@ perform bounded resolution:
 * It extracts the static class bound `c` and method name `m` from the
   instruction.
 
-* It finds all descendants (subclasses) of `c` in the class hierarchy using
-  `get-descendants`.
+* It retrieves all implementing subclass overrides of `m` using
+  `resolve-virtual-methods`.
 
-* For each subclass, it resolves the specific implementing function using
-  `resolve-method-function`.
-
-* These implementing functions are registered as active dependencies of the
-  caller, forcing them to be sequenced and analyzed first.
-
-#### Dependency Resolution Logic
-
-```file
-cmd/trashes.lisp "(defun get-dependencies" ""
-```
+* These implementing functions are registered with their `:_2` entry points as
+  active dependencies of the caller, forcing them to be sequenced and analyzed
+  first.
 
 ## Propagation & Convergence
 
 Once the dependency order is established by `tsort`, `propagate-trashes`
-processes each function sequentially.
+processes each function and subroutine in the unified dependency list.
 
 ### 1. Direct Propagation
 
@@ -101,16 +127,31 @@ During the initial pass, when `analyze-function` encounters a call to a
 dependency that has already been analyzed, it retrieves its clobber set directly
 from `db` and applies those clobbers to the caller's active state.
 
-### 2. The Convergence Loop
+### 2. Optimization: Memoized Instruction Caching
 
-To handle cyclical call graphs or recursive structures, `propagate-trashes`
-executes an iterative convergence loop. The loop repeatedly runs over the
-analyzed functions, union'ing clobber states across all call sites until the
-sizes of all clobber sets stabilize (no further changes are detected).
+To avoid costly disk I/O and redundant file-parsing overhead, the tool utilizes
+a memoized function `get-function-insts`:
 
 ```file
-cmd/trashes.lisp ";converge remaining" ""
+cmd/trashes.lisp "(defun get-function-insts" ""
 ```
+
+This guarantees that each compiled VP object is opened and parsed only once during the lifetime of the command execution, accelerating the analysis.
+
+### 3. Optimization: Selective Re-Analysis
+
+During the convergence loop, a function is only re-analyzed if at least one of its direct dependencies (its `call_list`) was updated in the previous pass. 
+
+```file
+cmd/trashes.lisp ";converge remaining by re-running" "(setq changed_set next_changed))"
+```
+
+### 4. Optimization: Full-Clobber Short-Circuit
+
+If a function's clobber set reaches the maximum available registers (32
+registers, calculated via `(const (length +all_regs))`), its state cannot grow
+any larger. The convergence loop detects this and bypasses any further
+re-analysis of the function, providing an efficient short-circuit path.
 
 ## Verification, Linting, and Auto-Fixing
 
