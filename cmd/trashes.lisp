@@ -1,6 +1,5 @@
 (import "lib/options/options.inc")
 (import "lib/text/document.inc")
-(import "lib/debug/frames.inc")
 (import "lib/files/info.inc")
 
 (defq usage `(
