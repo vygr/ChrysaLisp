@@ -68,6 +68,13 @@
 (defmacro eset-empty? (%0) `(notany (const second) (tolist ,%0)))
 (defmacro eset-nempty? (%0) `(some (const second) (tolist ,%0)))
 
+(defun def-reg (%0 %1)
+	; define register value and trashed state
+	(def reg_map %0 %1)
+	(if (eql %0 %1)
+		(eset-ferase trace_set %0)
+		(eset-finsert trace_set %0)))
+
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
 			(str prefix s)
@@ -157,13 +164,6 @@
 				(each (# (merge deps (list %0)))
 					(resolve-virtual-methods c m))))
 			(list insts) (get '_2))) deps)
-
-(defun def-reg (%0 %1)
-	; define register value and trashed state
-	(def reg_map %0 %1)
-	(if (eql %0 %1)
-		(eset-ferase trace_set %0)
-		(eset-finsert trace_set %0)))
 
 (defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
