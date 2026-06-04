@@ -403,7 +403,7 @@
 	(assign `((,value +obj_vtable) (@ ,(f-path :list :vtable))) '(:r13 :r14))
 	(vpif '(:r13 = :r14))
 	(errorcase
-		(call :lisp :env_args_type `(,value (@ ,(f-path :num :vtable)) 1) '(tmp))
+		(call :lisp :env_args_type `(,value (@ ,(f-path :num :vtable)) 1) '(_ tmp))
 		(gotoif `(,tmp = 0) 'error2))
 		(def-vars
 			(ptr this stream)

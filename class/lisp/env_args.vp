@@ -31,7 +31,7 @@
 		(endif)
 		(assign '(:r6 :r7 -1) '(:r0 :r1 :r2))
 
-		(exit :lisp :env_args_sig '(:r2))
+		(exit :lisp :env_args_sig '(:r1 :r2))
 		(vp-ret)
 	(endswitch)
 	(assign '(:r6 :r7 0) '(:r0 :r1 :r2))
@@ -68,7 +68,7 @@
 		(endif)
 		(assign '(:r6 :r7 -1) '(:r0 :r1 :r2))
 
-		(exit :lisp :env_args_type '(:r2))
+		(exit :lisp :env_args_type '(:r1 :r2))
 		(vp-ret)
 	(endswitch)
 	(assign '(:r6 :r7 0) '(:r0 :r1 :r2))
@@ -110,7 +110,7 @@
 		(endif)
 		(assign '(:r6 :r7 -1) '(:r0 :r1 :r2))
 
-		(exit :lisp :env_args_match '(:r2))
+		(exit :lisp :env_args_match '(:r1 :r2))
 		(vp-ret)
 	(endswitch)
 	(assign '(:r6 :r7 0) '(:r0 :r1 :r2))

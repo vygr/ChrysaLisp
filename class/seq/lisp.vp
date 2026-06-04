@@ -185,9 +185,9 @@
 	(entry :seq :lisp_cat '(:r0 :r1))
 
 (errorcase
-	(call :lisp :env_args_type `(:r1 (@ ,(f-path :str :vtable)) 1) '(tmp))
+	(call :lisp :env_args_type `(:r1 (@ ,(f-path :str :vtable)) 1) '(_ tmp))
 	(vpif `(,tmp = 0))
-		(call :lisp :env_args_match `(:r1 (@ ,(f-path :seq :vtable)) 1) '(tmp))
+		(call :lisp :env_args_match `(:r1 (@ ,(f-path :seq :vtable)) 1) '(_ tmp))
 		(gotoif `(,tmp = 0) 'error)
 	(endif))
 

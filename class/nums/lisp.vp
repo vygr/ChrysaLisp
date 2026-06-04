@@ -22,7 +22,7 @@
 	(assign `((,args +array_length)) `(,argc))
 (errorcase
 	(gotoif `(,argc > 3) 'error)
-	(call :lisp :env_args_match `(,args (@ ,(f-path :nums :vtable)) 2) '(tmp))
+	(call :lisp :env_args_match `(,args (@ ,(f-path :nums :vtable)) 2) '(_ tmp))
 	(gotoif `(,tmp = 0) 'error))
 	(assign `((,args +array_begin)) `(,iter_begin))
 	(array-get-args iter_begin `(,nums1 ,nums2))
@@ -76,7 +76,7 @@
 	(assign `((,args +array_length)) `(,argc))
 (errorcase
 	(gotoif `(,argc > 2) 'error)
-	(call :lisp :env_args_match `(,args (@ ,(f-path :nums :vtable)) 1) '(tmp))
+	(call :lisp :env_args_match `(,args (@ ,(f-path :nums :vtable)) 1) '(_ tmp))
 	(gotoif `(,tmp = 0) 'error))
 	(assign `((,args +array_begin)) `(,iter_begin))
 	(array-get-args iter_begin `(,nums1))
