@@ -35,7 +35,7 @@
 	(dec-method :pii_write sys/pii/write :static (:r0 :r1 :r2) (:r0))
 	(dec-method :pii_write_char sys/pii/write_char :static (:r0 :r1) (:r0))
 	(dec-method :pii_write_str sys/pii/write_str :static (:r0 :r1) (:r0))
-	(dec-method :pii_write_num sys/pii/write_num :static (:r0 :r1 :r2))
+	(dec-method :pii_write_num sys/pii/write_num :static (:r0 :r1 :r2) (:r0))
 	(dec-method :pii_read sys/pii/read :static (:r0 :r1 :r2) (:r0))
 	(dec-method :pii_read_char sys/pii/read_char :static (:r0) (:r0))
 	(dec-method :pii_time sys/pii/time :static :nil (:r0))

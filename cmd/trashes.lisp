@@ -175,7 +175,7 @@
 			(:t (setq current :nil))))
 	found)
 
-(defun lookup-trashes-union (c m)
+(defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
 	;and its subclasses overrides, based on the current state of the active db
 	(defq union_set (list) found_any :nil)
@@ -210,8 +210,7 @@
 (defun analyze-function (function db)
 	(defq parent function label '_2)
 	(when (defq i (find ":" function))
-		(setq parent (slice function 0 i)
-			label (sym (slice function (inc i) -1))))
+		(setq parent (slice function 0 i) label (sym (slice function (inc i) -1))))
 	(cond
 		((= (age (defq obj_path (cat "obj/vp/" parent))) 0)
 			(list :external))
@@ -221,16 +220,15 @@
 		(each (# (if (find (first %0) '(emit-label emit-tlabel))
 				(def (penv) (last (second %0)) (!)))) insts)
 		;determine starting PC for this subroutine/entry point (defaulting to _2)
-		(defq start_pc (ifn (defq start_pc (get label)) 0 start_pc))
-		(defq call_list (list) func_set (Lset) trace -1 next_trace 0
+		(defq start_pc (ifn (defq start_pc (get label)) 0 start_pc)
+			call_list (list) func_set (Lset) trace -1 next_trace 0
 			reg_map (scatter (Lmap) (zip +all_regs +all_regs))
 			label_map (Lmap)
 			trace_map (scatter (Lmap) 0 (list start_pc 0 (Lmap) reg_map (Lset))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
 			(task-slice)
-			(bind '(*pc* *rsp* stack_map reg_map trace_set)
-				(. trace_map :find trace))
+			(bind '(*pc* *rsp* stack_map reg_map trace_set) (. trace_map :find trace))
 			(while (< *pc* (length insts))
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
@@ -292,13 +290,12 @@
 
 					;internal call, jump and return
 					((eql op 'emit-ret)
-						;exit function merge and kill trace
+						;exit function, merge and kill trace
 						(. func_set :union trace_set)
 						(setq *pc* (length insts)))
 					((eql op 'emit-call)
 						;use the callee trashes set
-						(merge call_list (list (defq callee
-							(cat (slice function 0 (rfind ":" function)) (last inst)))))
+						(merge call_list (list (defq callee (cat parent ":" (last inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
@@ -313,14 +310,16 @@
 					;external call and jump
 					((eql op 'emit-call-p)
 						;use the callee trashes set
-						(merge call_list (list (defq callee (cat (resolve-external-call insts (second inst)) ":_2"))))
+						(merge call_list (list (defq callee
+							(cat (resolve-external-call insts (second inst)) ":_2"))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
 							(each (# (def-reg %0 :nil)) (. callee_trashes :tolist))))
 					((eql op 'emit-jmp-p)
 						;exit function, merge and kill trace
-						(merge call_list (list (defq callee (cat (resolve-external-call insts (second inst)) ":_2"))))
+						(merge call_list (list (defq callee (cat
+							(resolve-external-call insts (second inst)) ":_2"))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(defq callee_trashes (second callee_entry))
@@ -329,13 +328,13 @@
 						(setq *pc* (length insts)))
 					((eql op 'emit-call-r)
 						(if (bind '(& & &optional c m) inst)
-							(defq call_set (lookup-trashes-union c m) key (sym (cat c m)))
+							(defq call_set (virtual-trashes-union c m) key (sym (cat c m)))
 							(defq call_set +all_extern_trashed_regs key :indirect))
 						(merge call_list (list key))
 						(each (# (. reg_map :insert %0 :nil) (. trace_set :insert %0)) call_set))
 					((eql op 'emit-jmp-r)
 						(if (bind '(& & &optional c m) inst)
-							(defq call_set (lookup-trashes-union c m) key (sym (cat c m)))
+							(defq call_set (virtual-trashes-union c m) key (sym (cat c m)))
 							(defq call_set +all_extern_trashed_regs key :indirect))
 						(merge call_list (list key))
 						(each (# (. reg_map :insert %0 :nil) (. trace_set :insert %0)) call_set)
@@ -375,8 +374,7 @@
 (defun propagate-trashes (functions)
 	;map functions to their implied inner _2 entry points
 	(defq mapped_functions (map (# (cat %0 ":_2")) functions)
-		db (Fmap 101)
-		order (tsort mapped_functions (const get-dependencies)))
+		db (Fmap 101) order (tsort mapped_functions (const get-dependencies)))
 	;each caller now accurately steps through callee clobber states
 	(each (lambda (function)
 		(unless (. db :find function)

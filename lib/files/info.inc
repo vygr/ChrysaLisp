@@ -63,20 +63,41 @@
 		(if (defq method_entry (.-> class_entry (:find :methods) (:find method)))
 			(. method_entry :find :function))))
 
-(defun flush-metadata (func_db func_name file inputs outputs trashes trashes_line)
+(defun find-dec-sig (class_db class_name method_name key)
+	(defq current class_name sig "none")
+	(while (and current (eql sig "none"))
+		(when (defq c_entry (. class_db :find current))
+			(when (defq m_entry (.-> c_entry (:find :methods) (:find method_name)))
+				(setq sig (. m_entry :find key)))
+			(setq current (. c_entry :find :parent))))
+	sig)
+
+(defun flush-metadata (class_db func_db func_name file inputs outputs trashes trashes_line seen_inputs seen_outputs)
 	(unless (defq f_entry (. func_db :find func_name))
 		(setq f_entry (scatter (Emap) :implements (list)))
 		(. func_db :insert func_name f_entry))
+	(defq formatted_inputs (format-regs inputs)
+		formatted_outputs (format-regs outputs))
+	(. class_db :each (lambda (class_name class_entry)
+		(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
+			(when (eql (. method_entry :find :function) func_name)
+				(when seen_inputs
+					(unless (eql formatted_inputs (find-dec-sig class_db class_name method_name :inputs))
+						(throw "Mismatched input comment !" (list class_name method_name))))
+				(when seen_outputs
+					(unless (eql formatted_outputs (find-dec-sig class_db class_name method_name :outputs))
+						(throw "Mismatched output comment !" (list class_name method_name))))))))))
 	(scatter f_entry 
-		:inputs (format-regs inputs)
-		:outputs (format-regs outputs)
+		:inputs formatted_inputs
+		:outputs formatted_outputs
 		:trashes trashes
 		:file file
 		:trashes_line trashes_line))
 
 (defun unified-pass (files class_db func_db)
 	(defq active_class :nil state :nil func_name :nil
-		inputs (list) outputs (list) trashes "none" trashes_line 0)
+		inputs (list) outputs (list) trashes "none" trashes_line 0
+		seen_inputs :nil seen_outputs :nil)
 	(files-scan files (lambda (tokens file raw_line idx)
 		(defq is_comment (starts-with ";" (first tokens)))
 		(cond
@@ -84,14 +105,13 @@
 			((and is_comment (not state)))
 			;header comment parsing
 			(is_comment
-				(when (nql "" (defq content (trim-start raw_line
-						(const (char-class (cat +char_class_space ";"))))))
+				(when (nempty? (defq content (trim-start raw_line (const (char-class (cat +char_class_space ";"))))))
 					;parse metadata
 					(cond
 						((starts-with "inputs" (to-lower content))
-							(setq state :inputs))
+							(setq state :inputs seen_inputs :t))
 						((starts-with "outputs" (to-lower content))
-							(setq state :outputs))
+							(setq state :outputs seen_outputs :t))
 						((starts-with "trashes" (to-lower content))
 							(setq state :trashes)))
 					(case state
@@ -108,9 +128,10 @@
 			(:t ;a non-commented line terminates the header comment scanning state
 				(when state
 					(when func_name
-						(flush-metadata func_db func_name file inputs outputs trashes trashes_line))
+						(flush-metadata class_db func_db func_name file inputs outputs trashes trashes_line seen_inputs seen_outputs))
 					(setq state :nil func_name :nil
-						inputs (list) outputs (list) trashes "none" trashes_line 0))
+						inputs (list) outputs (list) trashes "none" trashes_line 0
+						seen_inputs :nil seen_outputs :nil))
 				;process code line under normal compilation rules
 				(when (nempty? tokens)
 					(cond
@@ -269,13 +290,11 @@
 
 (defun database-stale? (cache_file source_files)
 	(defq cache_age (age cache_file))
-	(some (# (> (age %0) cache_age)) source_files)
-	;for testing !, return true always
-	;:t
-	)
+	(some (# (> (age %0) cache_age)) source_files))
 
-(defun files-classes-info ()
-	(if (database-stale? +class_db_file (defq source_files (files-all-vp-source)))
+(defun files-classes-info (&optional forced)
+	(defq source_files (files-all-vp-source))
+	(if (or forced (database-stale? +class_db_file source_files))
 		(build-and-save-databases source_files)
 		(tree-load (file-stream +class_db_file))))
 

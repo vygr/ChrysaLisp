@@ -270,14 +270,14 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 		;callback api
-		;inputs
+		;in
 		;:r0 = view object (ptr)
 		;:r1 = user data pointer (ptr)
-		;outputs
+		;out
 		;:r0 = view object (ptr)
 		;:r1 = 0 if should not descend after down callback
 		;trashes
-		;:r1-:r14, :f0-:f15
+		;...
 
 	(structure local 0
 		(ptr this data down up))
@@ -336,14 +336,14 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 		;callback api
-		;inputs
+		;in
 		;:r0 = view object (ptr)
 		;:r1 = user data pointer (ptr)
-		;outputs
+		;out
 		;:r0 = view object (ptr)
 		;:r1 = 0 if should not descend after down callback
 		;trashes
-		;:r1-:r14, :f0-:f15
+		;...
 
 	(structure local 0
 		(ptr this data down up))
