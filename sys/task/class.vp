@@ -457,9 +457,11 @@
 
 (errorcase (def-method :sys_task :dump)
 	;inputs
-	;:rsp = task stack pointer (ptr)
-	;trashes
 	;none
+	;outputs
+	;none
+	;trashes
+	;:f0-:f15
 
 	(vp-rdef (stack_top sptr node node_offset) '(:r3 :r4))
 
@@ -504,8 +506,12 @@
 (def-func-end))
 
 (validatecase (def-method :sys_task :stack)
+	;inputs
+	;none
+	;outputs
+	;none
 	;trashes
-	;:r0-:r3
+	;:f0-:f15
 
 	(vp-push :r0 :r1)
 	(fn-bind 'sys/statics/statics :r0)
