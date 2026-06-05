@@ -8,6 +8,7 @@
 (env-push)
 
 (defq *lib_root* (path-to-file)
+	+lib_file (first (repl-info))
 	+class_db_file (cat *lib_root* "class_db.tre")
 	+func_db_file (cat *lib_root* "func_db.tre")
 	+split_class (char-class " ()'\t\r\q{@}<>")
@@ -134,8 +135,10 @@
 						seen_inputs :nil seen_outputs :nil))
 				;process code line under normal compilation rules
 				(when (nempty? tokens)
+					(when (find (defq op (first tokens)) '("errorcase" "validatecase" "noterrorcase"))
+						(setq tokens (rest tokens) op (first tokens)))
 					(cond
-						((eql (defq op (first tokens)) "def-class")
+						((eql op "def-class")
 							(defq class_name (sym (second tokens))
 								parent_name (sym (third tokens))
 								class_entry (. class_db :find class_name))
@@ -293,7 +296,7 @@
 	(some (# (> (age %0) cache_age)) source_files))
 
 (defun files-classes-info (&optional forced)
-	(defq source_files (files-all-vp-source))
+	(defq source_files (push (files-all-vp-source) +lib_file))
 	(if (or forced (database-stale? +class_db_file source_files))
 		(build-and-save-databases source_files)
 		(tree-load (file-stream +class_db_file))))
