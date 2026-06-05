@@ -49,7 +49,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(addop :add)
 
@@ -67,7 +67,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(addop :sub)
 
@@ -85,7 +85,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(addop :mul)
 
@@ -103,7 +103,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(addop :min)
 
@@ -121,7 +121,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(addop :max)
 
@@ -151,7 +151,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(divop :div)
 
@@ -172,7 +172,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(divop :mod)
 
@@ -211,7 +211,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r13-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(andop :and -1)
 
@@ -229,7 +229,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r13-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(andop :or 0)
 
@@ -247,7 +247,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(andop :xor 0)
 
@@ -275,7 +275,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r2, :r13-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(shiftop :asr)
 
@@ -294,7 +294,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r2, :r13-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(shiftop :shl)
 
@@ -313,7 +313,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r2, :r13-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(shiftop :shr)
 
@@ -347,7 +347,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(compareop :eq)
 
@@ -365,7 +365,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(compareop :ge)
 
@@ -383,7 +383,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(compareop :gt)
 
@@ -401,7 +401,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(compareop :le)
 
@@ -419,7 +419,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(compareop :lt)
 
@@ -437,7 +437,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(compareop :ne)
 
@@ -465,7 +465,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(mathop :random)
 
@@ -484,7 +484,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(mathop :neg)
 
@@ -503,7 +503,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(mathop :sign)
 
@@ -522,7 +522,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(mathop :abs)
 
@@ -541,7 +541,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :num :lisp_sqrt '(:r0 :r1))
 
@@ -574,7 +574,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(entry :num :lisp_n2i '(:r0 :r1))
 
@@ -620,7 +620,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(entry :num :lisp_n2f '(:r0 :r1))
 
@@ -669,7 +669,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(entry :num :lisp_n2r '(:r0 :r1))
 

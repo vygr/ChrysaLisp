@@ -10,7 +10,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :fixeds :lisp_frac '(:r0 :r1))
 
@@ -38,7 +38,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :fixeds :lisp_floor '(:r0 :r1))
 
@@ -66,7 +66,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :fixeds :lisp_ceil '(:r0 :r1))
 

@@ -70,7 +70,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15, :rsp
+	;:r1-:r14, :f0-:f15
 
 	(structure pdata 0
 		(ptr this func params))
@@ -161,7 +161,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this args src iter_begin iter_end iter_start wild_card))
 
