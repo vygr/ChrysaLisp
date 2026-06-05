@@ -23,8 +23,9 @@
 ))
 
 (defun verbose (v &rest info)
-	(if (<= v opt_v) (apply (const print) info))
-	(stream-flush (io-stream 'stdout)))
+	(when (<= v opt_v)
+		(apply (const print) info))
+		(stream-flush (io-stream 'stdout)))
 
 (defq +no_regs ''() +obj_dir "obj/vp/"
 	+int_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
@@ -94,9 +95,9 @@
 
 (defun format-values (reg_map)
 	(defq out (list))
-	(. (reduce (lambda (m (r v)) (. m :update v
-				(# (ifn %0 (eset-insert (eset) r) (eset-insert %0 r)))) m)
-			(filter (lambda ((r v)) (nql r v)) (tolist reg_map)) (Lmap))
+	(. (reduce (lambda (m (r v))
+				(. m :update v (# (setd %0 (eset)) (eset-insert %0 r))) m)
+			(filter (lambda ((r v)) (nql r v)) (tolist reg_map)) (Emap))
 		:each (lambda (v rs) (push out (str v " -> " (format-trashes rs)))))
 	(if (empty? out) "none" (join out " | ")))
 
@@ -275,15 +276,13 @@
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
-							(defq callee_trashes (second callee_entry))
-							(each (# (def-reg %0 :nil)) (eset-tolist callee_trashes))))
+							(each (# (def-reg %0 :nil)) (eset-tolist (second callee_entry)))))
 					((eql op 'emit-jmp-p)
 						;exit function, merge and kill trace
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
-							(defq callee_trashes (second callee_entry))
-							(each (# (def-reg %0 :nil)) (eset-tolist callee_trashes)))
+							(each (# (def-reg %0 :nil)) (eset-tolist (second callee_entry))))
 						(eset-union func_set trace_set)
 						(setq *pc* (length insts)))
 
