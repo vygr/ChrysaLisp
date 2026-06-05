@@ -12,7 +12,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :host_gui :lisp_init '(:r0 :r1))
 
@@ -59,7 +59,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this old_stack))
@@ -70,10 +70,10 @@
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	;kernel callback for deinit ?
+	(assign '(:r0) '((:rsp local_this)))
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_gui_init)) '(:r2))
 	(vpif '(:r2 /= 0))
-		(assign '(:r0) '((:rsp local_this)))
 		(call :sys_task :callback '(:rsp ($ deinit_callback)))
 		(assign '((:rsp local_this)) '(:r0))
 		(assign '((:r0 +lisp_sym_nil)) '(:r1))
@@ -83,7 +83,7 @@
 	;pii exit ! for now
 	(call :host_os :pii_exit '(0))
 
-	(exit :host_gui :lisp_deinit '(:r0 :r1))
+	(exit :host_gui :lisp_deinit '((:rsp local_this) :r1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -133,7 +133,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :host_gui :lisp_update '(:r0 :r1))
 
@@ -164,7 +164,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(structure local 0
 		(ptr this event old_stack))
@@ -224,7 +224,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :host_gui :lisp_info '(:r0 :r1))
 
