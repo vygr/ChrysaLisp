@@ -134,9 +134,8 @@
 		(each (# (if (find (first %0) '(emit-label emit-tlabel))
 				(def (penv) (last (second %0)) (!)))) insts)
 		(each! (lambda (inst)
-				(defq op (first inst) c :nil m :nil)
 				(cond
-					((find op '(emit-call-p emit-jmp-p))
+					((find (defq c :nil m :nil op (first inst)) '(emit-call-p emit-jmp-p))
 						(when (defq target (resolve-static-method insts (second inst)))
 							(merge deps (list target))))
 					((find op '(emit-call-i emit-jmp-i))
