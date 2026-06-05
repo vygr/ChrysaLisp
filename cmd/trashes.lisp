@@ -70,8 +70,7 @@
 
 (defun def-reg (%0 %1)
 	; define register value and trashed state
-	(def reg_map %0 %1)
-	(if (eql %0 %1)
+	(if (eql %0 (def reg_map %0 %1))
 		(eset-ferase trace_set %0)
 		(eset-finsert trace_set %0)))
 
@@ -136,8 +135,7 @@
 		(each! (lambda (inst)
 				(cond
 					((find (defq c :nil m :nil op (first inst)) '(emit-call-p emit-jmp-p))
-						(when (defq target (resolve-static-method insts (second inst)))
-							(merge deps (list target))))
+						(merge deps (list (resolve-static-method insts (second inst)))))
 					((find op '(emit-call-i emit-jmp-i))
 						(bind '(& & & &optional c m) inst))
 					((find op '(emit-call-r emit-jmp-r))
@@ -150,11 +148,9 @@
 	;and its subclasses overrides, based on the current state of the active db
 	(defq union_set (list))
 	(each (# (if (defq f_entry (. db :find %0))
-				(merge union_set (eset-tolist (second f_entry)))))
+			(merge union_set (eset-tolist (second f_entry)))))
 		(resolve-virtual-methods c m))
-	(if (empty? union_set)
-		+all_extern_trashed_regs
-		union_set))
+	(if (nempty? union_set) union_set +all_extern_trashed_regs))
 
 (defun get-modified-regs (inst)
 	;only care about the instructions we don't handle in analyze-function !
