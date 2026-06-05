@@ -209,7 +209,7 @@
 		(defq mode (or (if validate 2) (if debug 1) (if release 0)))
 		(cond
 			(test (make-test))
-			(vp (remake-all-vp mode))
+			(vp (remake-all-vp 1))
 			(it (remake-all-platforms mode) (make-docs))
 			(apps (make-app-platforms mode))
 			((and boot all platforms) (remake-all-platforms))
