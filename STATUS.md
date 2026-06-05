@@ -110,6 +110,9 @@ collections.
 
 New `(bitcnt n) -> num bits` added to `root.inc`.
 
+VP `call` and `jump` macros now allow optional args for dispatch and object
+register. Defaults to `:r14` and `:r0`.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux

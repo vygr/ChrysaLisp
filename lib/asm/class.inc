@@ -141,11 +141,13 @@
 ; function helpers
 ;;;;;;;;;;;;;;;;;;
 
-(defun call (%0 %1 &optional %2 %3)
+(defun call (%0 %1 &optional %2 %3 %4 %5)
 	;%0 = class name
 	;%1 = member name
 	;%2 = in parameters
 	;%3 = out parameters
+	;%4 = obj reg
+	;%5 = dispatch reg
 	(cond
 		((sym? %1)
 			(cond
@@ -154,11 +156,11 @@
 					(assign %2 (third m))
 					(fn-call (first m)))
 				;v-call
-				(:t (if (find :r14 (defq _ (third m)))
-						(throw "Dispatch register conflicts with arg !" (list :r14 _)))
+				(:t (if (find (setd %4 :r0 %5 :r14) (defq _ (third m)))
+						(throw "Dispatch register conflicts with arg !" (list %5 _)))
 					(assign %2 _)
-					(vp-cpy-ir :r0 +obj_vtable :r14)
-					(vp-call-i :r14 (last m) %0 %1)))
+					(vp-cpy-ir %4 +obj_vtable %5)
+					(vp-call-i %5 (last m) %0 %1)))
 			(if %3 (assign (elem-get m 3) %3)))
 		(:t ;l-call
 			(cond
@@ -171,21 +173,23 @@
 				((str? %2) (assign (slice +vp_rregs_0_14 0 (length (split %2 ","))) %2))
 				((assign (slice +vp_rregs_0_14 0 (length %2)) %2))))))
 
-(defun jump (%0 %1 &optional %2)
+(defun jump (%0 %1 &optional %2 %3 %4)
 	;%0 = class name
 	;%1 = member name
 	;%2 = in parameters
+	;%3 = obj reg
+	;%4 = dispatch reg
 	(cond
 		((eql (second (defq m (method-lookup %0 %1))) :static)
 			(assign %2 (third m))
 			(scope-unwind)
 			(fn-jump (first m)))
-		(:t (if (find :r14 (defq _ (third m)))
-				(throw "Dispatch register conflicts with arg !" (list :r14 _)))
+		(:t (if (find (setd %3 :r0 %4 :r14) (defq _ (third m)))
+				(throw "Dispatch register conflicts with arg !" (list %4 _)))
 			(assign %2 _)
-			(vp-cpy-ir :r0 +obj_vtable :r14)
+			(vp-cpy-ir %3 +obj_vtable %4)
 			(scope-unwind)
-			(vp-jmp-i :r14 (last m) %0 %1))))
+			(vp-jmp-i %4 (last m) %0 %1))))
 
 (defmacro entry (&rest %0)
 	;either
