@@ -427,7 +427,9 @@
 		(pop-scope)
 	(else)
 	(errorcase
+		(assign `(,this) `(,iter_begin))
 		(call :obj :inst_of `(,value (@ ,(f-path :num :vtable))) '(_ tmp))
+		(assign `(,iter_begin) `(,this))
 		(gotoif `(,tmp = 0) 'error2))
 		(def-vars
 			(ptr this)

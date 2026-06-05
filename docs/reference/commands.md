@@ -359,7 +359,7 @@ Usage: lz4 [options] [file]
 ## make
 ```code
 Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
-    [release] [debug] [test]
+    [release] [debug] [vp] [test]
 
     options:
         -h --help: this help info.
@@ -368,6 +368,7 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
     boot:       create a boot image.
     platforms:  for all platforms not just the host.
     docs:       scan source files and create documentation.
+    vp:         the VP64 and obj/vp/ outputs.
     it:         all of the above !
     apps:       only the apps !
     release:    it/apps release mode.

@@ -14,7 +14,7 @@ input
 output
 :r0 = 0 else, function entry pointer (ptr)
 trashes
-:r0-:r7, :r13-:r14, :f0-:f15
+:r0-:r7, :f0-:f15
 ```
 
 ### :find -> sys/load/find
@@ -57,6 +57,6 @@ input
 output
 :r0 = 0 else, function entry pointer (ptr)
 trashes
-:r0-:r7, :r13-:r14, :f0-:f15
+:r0-:r7, :f0-:f15
 ```
 

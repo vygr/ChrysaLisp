@@ -117,7 +117,7 @@
 	(def-vars
 		(ptr this view rect))
 
-	(vp-rdef (view x y w h args this rect) (method-input :ctx :filled_box))
+	(vp-rdef (view x y w h this args rect) (method-input :ctx :filled_box))
 
 	(entry :ctx :lisp_filled_region `(,this ,args))
 

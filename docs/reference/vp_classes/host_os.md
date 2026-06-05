@@ -92,7 +92,7 @@ trashes
 inputs
 :r0 = code (long)
 trashes
-:r0, :r13-:r14, :f0-:f15
+:r0, :f0-:f15
 ```
 
 ### :pii_flush -> sys/pii/flush
