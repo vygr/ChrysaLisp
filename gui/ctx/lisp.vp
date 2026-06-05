@@ -13,7 +13,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r13-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(entry :ctx :lisp_set_color '(:r0 :r1))
 
@@ -46,7 +46,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r7-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(entry :ctx :lisp_box '(:r0 :r1))
 
@@ -79,7 +79,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r7-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(entry :ctx :lisp_filled_box '(:r0 :r1))
 
@@ -112,12 +112,13 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r7-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this view rect))
 
-	(vp-rdef (view x y w h this args rect) (method-input :ctx :filled_box))
+	(vp-rdef (view x y w h rect) (method-input :ctx :filled_box))
+	(vp-rdef (this args))
 
 	(entry :ctx :lisp_filled_region `(,this ,args))
 
@@ -139,7 +140,7 @@
 		(assign {view, rect} `(,view ,rect))
 	(loop-end)
 	(assign {this, view} `(,this ,args))
-	(class/obj/ref args view)
+	(class/obj/ref args x)
 
 	(exit :ctx :lisp_filled_region `(,this ,args))
 	(pop-scope)
@@ -160,7 +161,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r4, :r7-:r14, :f0-:f15
+	;:r1-:r14, :f0-:f15
 
 	(entry :ctx :lisp_blit '(:r0 :r1))
 
