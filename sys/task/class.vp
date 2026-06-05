@@ -514,7 +514,8 @@
 	(vpif '(:r1 /= 0) '(:r1 /= :r0))
 		(vp-add-cr (+ +tk_node_size tk_stack_margin) :r1)
 		(vpif '(:rsp < :r1))
-			(jump :sys_task :dump)
+			;this never returns, but keeps the tracer happy !
+			(call :sys_task :dump)
 		(endif)
 	(endif)
 	(vp-pop :r0 :r1)

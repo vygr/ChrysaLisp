@@ -196,7 +196,7 @@
 	;output
 	;:r0 = 0 else, function entry pointer (ptr)
 	;trashes
-	;:r0-:r7, :r13-:r14, :f0-:f15
+	;:r0-:r7, :f0-:f15
 
 	(entry :sys_load :bind '(:r6))
 
@@ -240,7 +240,7 @@
 	;output
 	;:r0 = 0 else, function entry pointer (ptr)
 	;trashes
-	;:r0-:r7, :r13-:r14, :f0-:f15
+	;:r0-:r7, :f0-:f15
 
 	(entry :sys_load :load '(:r6))
 
