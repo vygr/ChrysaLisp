@@ -254,7 +254,7 @@
 	(vp-push :r0)
 	(defq in (method-input :obj :type))
 	(array-bind-args :r1 in)
-	(call :obj :type in '(_ :r1))
+	(call :obj :type in '(_ :r1) :r1)
 	(vp-pop :r0)
 
 	(exit :obj :lisp_type '(:r0 :r1))
