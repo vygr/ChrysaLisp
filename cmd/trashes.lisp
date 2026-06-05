@@ -104,35 +104,20 @@
 
 (defun resolve-static-method (insts lbl)
 	;find function that implements this static method
-	(when (defq pc (get lbl (penv)))
-		(defq inst (elem-get insts (inc pc)) op (first inst))
-		(when (eql op 'emit-long)
-			(defq expr (second inst))
-			(when (and (list? expr) (= (length expr) 3) (eql (first expr) '-))
-				(when (defq pc (get (second expr) (penv)))
-					(defq inst (elem-get insts (inc pc)) op (first inst))
-					(if (eql op 'emit-string) (second inst)))))))
+	(bind '(& (& lbl &ignore)) (elem-get insts (inc (get lbl (penv)))))
+	(second (elem-get insts (inc (get lbl (penv))))))
 
 (defun resolve-virtual-method (c m)
 	;find function that implements this virtual method
-	(when (defq c_entry (. *class_db* :find c))
-		(when (defq m_entry (.-> c_entry (:find :methods) (:find m)))
-			(. m_entry :find :function))))
+	(.-> (. *class_db* :find c) (:find :methods) (:find m) (:find :function)))
 
 (defun resolve-virtual-methods (c m)
 	;find function that implements this virtual method
 	;and all subclass overrides !
-	(defq deps (list))
-	(when (defq c_entry (. *class_db* :find c))
-		(when (defq m_entry (.-> c_entry (:find :methods) (:find m)))
-			(when (defq function (. m_entry :find :function))
-				(push deps function)
-				(when (defq o_entry (. m_entry :find :overrides))
-					(each (lambda (over_c)
-						(when (defq function (resolve-virtual-method over_c m))
-							(push deps function)))
-						o_entry)))))
-	deps)
+	(map! (# (resolve-virtual-method %0 m))
+		(list (ifn (defq m_entry (.-> (. *class_db* :find c) (:find :methods) (:find m))
+			o_entry (. m_entry :find :overrides)) '()))
+		0 -1 (list (. m_entry :find :function))))
 
 (defun get-function-insts (function)
 	; (get-function-insts function) -> :nil | insts

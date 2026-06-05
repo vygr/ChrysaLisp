@@ -99,7 +99,7 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
 		(entry :my_class :my_method {this, list})
 
 		; Virtual call
-		(call :list :get_length {list} {_, count})
+		(call :array :get_length {list} {_, count})
 
 		(vpif {count > 0})
 			; 'assign' handles the math/move

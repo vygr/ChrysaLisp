@@ -117,6 +117,12 @@ launch logout app
 (bit-mask mask ...) -> val
 ```
 
+### bitcnt
+
+```code
+(bitcnt n) -> num bits
+```
+
 ### bracket-cursors
 
 ```code
