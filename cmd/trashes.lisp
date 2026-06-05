@@ -219,9 +219,9 @@
 						(setq *rsp* (-- *rsp* (second inst))))
 					((eql op 'emit-free)
 						(setq *rsp* (++ *rsp* (second inst)))
-						(each (lambda ((key val))
-							(if (< key *rsp*)
-								(. stack_map :erase key)))
+						(each (lambda ((%0 &ignore))
+							(if (< %0 *rsp*)
+								(. stack_map :erase %0)))
 							(. stack_map :tolist)))
 					((eql op 'emit-push)
 						;push the values of all registers pushed
