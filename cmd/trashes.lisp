@@ -232,6 +232,7 @@
 						;pop the values of all registers popped
 						;and flag if register is now restored
 						(each! (# (defq val (. stack_map :find *rsp*))
+								(. stack_map :erase *rsp*)
 								(++ *rsp* +long_size)
 								(def-reg %0 val))
 							(list inst) -1 1))
