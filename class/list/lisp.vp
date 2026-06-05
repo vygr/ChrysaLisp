@@ -98,7 +98,7 @@
 	(call :num :get_value {iter_begin[+ptr_size * 2]} {_, start})
 	(call :num :get_value {iter_begin[+ptr_size * 3]} {_, end})
 (errorcase
-	(d-call :list :get_length {list} {_, length})
+	(d-call :array :get_length {list} {_, length})
 	(gotoif {start < 0 || start >= end || end > length} 'error2))
 
 	(call :list :create :nil {params})

@@ -318,7 +318,7 @@
 	(vp-push :r0)
 	(call :nums :sum '(:r0) '(_ :r0))
 	(vp-pop :r1)
-	(v-call :nums :velement '(:r0) '(:r1) :r1 :r1)
+	(v-call :array :velement '(:r0) '(:r1) :r1 :r1)
 	(vp-pop :r0)
 
 	(exit :nums :lisp_sum '(:r0 :r1))
@@ -431,7 +431,7 @@
 	(vp-push :r0)
 	(call :nums :dot '(:r0 :r1) '(_ :r0))
 	(vp-pop :r1)
-	(v-call :nums :velement '(:r0) '(:r1) :r1 :r1)
+	(v-call :array :velement '(:r0) '(:r1) :r1 :r1)
 	(vp-pop :r0 :r2)
 
 	(exit :nums :lisp_dot '(:r0 :r1))

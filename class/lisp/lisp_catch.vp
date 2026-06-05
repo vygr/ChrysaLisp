@@ -49,7 +49,7 @@
 	(entry :lisp :lisp_catch {this, args})
 
 (errorcase
-	(d-call :list :get_length {args} {_, length})
+	(d-call :array :get_length {args} {_, length})
 	(gotoif {length /= 3} 'error1))
 
 	(call :list :get_begin {args} {_, iter_begin})

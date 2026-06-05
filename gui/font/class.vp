@@ -536,7 +536,7 @@
 	;must not use iters as kernel callbacks will deshedule us !
 	(assign {0, @sys/statics/statics.statics_font_intern} {index, flat_set})
 	(loop-start)
-		(call :list :get_length {flat_set} {_, length})
+		(call :array :get_length {flat_set} {_, length})
 		(breakif {index = length})
 		(call :list :get_elem {flat_set, index} {_, font})
 		(vpif {font->+font_chars})

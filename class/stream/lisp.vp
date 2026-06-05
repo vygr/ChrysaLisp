@@ -291,7 +291,7 @@
 	(push-scope)
 	(entry :stream :lisp_readchar {this, args})
 
-	(d-call :list :get_length {args} {_, length})
+	(d-call :array :get_length {args} {_, length})
 	(errorifnot {length = 1 || length = 2} 'error1)
 	(call :list :get_begin {args} {_, iter_begin})
 
