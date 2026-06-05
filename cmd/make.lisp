@@ -143,9 +143,9 @@
 						(include
 							(merge *imports* (list (path-to-absolute name file))))
 						(def-class
-							(push classes (list name (third line_split))))
+							(push classes (list (sym name) (third line_split))))
 						(dec-method
-							(push (last classes) (list name (sym (third line_split)))))
+							(push (last classes) (list (sym name) (sym (third line_split)))))
 						(def-method
 							(setq state :info)
 							(push docs (list))
@@ -153,7 +153,10 @@
 						((def-func defun)
 							(setq state :info)
 							(push docs (list))
-							(push functions (sym name)))
+							(defq func_name (if (eql name "path-to-absolute")
+									(sym (path-to-absolute (third line_split) file))
+									(sym name)))
+							(push functions func_name))
 						((call jump)
 							(and (eql (third line_split) ":repl_error")
 								(setq line (chop line))
