@@ -205,10 +205,15 @@
 	(ifn mode (defq *build_mode* 0))
 	(action files 'VP64 'vp64))
 
+(defun make-vp (action &optional mode files)
+	(setd files (all-vp-files))
+	(action files 'VP64 'vp64))
+
 (defun make-platforms (&optional mode) (make-them (const make) mode))
 (defun make-all-platforms (&optional mode) (make-them (const make-all) mode))
 (defun remake-platforms (&optional mode) (make-them (const remake) mode))
 (defun remake-all-platforms (&optional mode) (make-them (const remake-all) mode))
+(defun remake-all-vp (&optional mode) (make-vp (const remake-all) mode))
 (defun make-app-platforms (&optional mode) (make-them (const make-all) mode (all-app-files)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -238,6 +243,6 @@
 	'(all-vp-files all-class-files
 	make make-all make-platforms make-all-platforms
 	remake remake-all make-app-platforms
-	remake-platforms remake-all-platforms
+	remake-platforms remake-all-platforms remake-all-vp
 	compile-test make-test))
 (env-pop)

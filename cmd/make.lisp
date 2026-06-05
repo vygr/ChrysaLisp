@@ -6,7 +6,7 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
-    [release] [debug] [test]
+    [release] [debug] [vp] [test]
 
     options:
         -h --help: this help info.
@@ -15,6 +15,7 @@
     boot:       create a boot image.
     platforms:  for all platforms not just the host.
     docs:       scan source files and create documentation.
+    vp:         the VP64 and obj/vp/ outputs.
     it:         all of the above !
     apps:       only the apps !
     release:    it/apps release mode.
@@ -204,10 +205,11 @@
 			(defq args (options stdio usage)))
 		(each (# (def (penv) (sym %0) (find %0 args)))
 			'("all" "platforms" "boot" "docs" "it" "apps"
-				"release" "debug" "validate" "test" "ai"))
+				"release" "debug" "validate" "test" "ai" "vp"))
 		(defq mode (or (if validate 2) (if debug 1) (if release 0)))
 		(cond
 			(test (make-test))
+			(vp (remake-all-vp mode))
 			(it (remake-all-platforms mode) (make-docs))
 			(apps (make-app-platforms mode))
 			((and boot all platforms) (remake-all-platforms))
