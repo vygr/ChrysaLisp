@@ -240,10 +240,9 @@
 							(bind '(& src & offset) inst)
 							(. stack_map :insert (+ *rsp* offset) (def? src reg_map))))
 					((find op '(emit-cpy-ir emit-cpy-if))
-						;stack load 64 bit
-						(when (eql (second inst) :rsp)
-							(bind '(& & offset dst) inst)
-							(def-reg dst (. stack_map :find (+ *rsp* offset)))))
+						;stack load 64 bit ?
+						(bind '(& src offset dst) inst)
+						(def-reg dst (if (eql src :rsp) (. stack_map :find (+ *rsp* offset)))))
 					((find op '(emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i))
 						;quantize offset down to the nearest 8-byte
 						;boundary and invalidate the slot
