@@ -10,7 +10,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r5, :r8, :r14, :f0-:f15
 
 	(vp-rdef (this obj args offset type osize fsize sizes) '(:r6))
 
@@ -224,7 +224,7 @@
 	(vp-push :r0)
 	(defq in (method-input :obj :hash))
 	(array-bind-args :r1 in)
-	(call :obj :hash in '(_ :r0) :r1)
+	(call :obj :hash in '(_ :r0))
 	(call :num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 
@@ -344,9 +344,9 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8
+	;:r1-:r6, :r9-:r10
 
-	(vp-rdef (this args obj1 obj2) '(:r7 :r8))
+	(vp-rdef (this args obj1 obj2) '(:r9 :r10))
 
 	(entry :obj :lisp_eql `(,this ,args))
 
@@ -380,9 +380,9 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8
+	;:r1-:r6, :r9-:r10
 
-	(vp-rdef (this args obj1 obj2) '(:r7 :r8))
+	(vp-rdef (this args obj1 obj2) '(:r9 :r10))
 
 	(entry :obj :lisp_nql `(,this ,args))
 
