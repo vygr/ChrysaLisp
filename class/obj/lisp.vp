@@ -12,7 +12,7 @@
 	;trashes
 	;:r1-:r5, :r8, :r14, :f0-:f15
 
-	(vp-rdef (this obj args offset type osize fsize sizes) '(:r6))
+	(vp-rdef (this obj args offset type osize fsize sizes) '(:r8))
 
 	(entry :obj :lisp_get `(,this ,args))
 
