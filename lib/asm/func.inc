@@ -110,8 +110,12 @@
 	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out*) ")")))
 
 (defun abort (&optional s)
+	;no ret as that screws up the tracer !
+	;and we never come back anyways !
+	(abi-push-trashed :r1 :r13 :r14)
 	(call :host_os :pii_write_str (list 2 (ifn s "Abort !")))
-	(jump :host_os :pii_exit '(1)))
+	(call :host_os :pii_exit '(1))
+	(abi-pop-trashed :r1 :r13 :r14))
 
 (defun assert (b &optional d)
 	(when (> *build_mode* 0)

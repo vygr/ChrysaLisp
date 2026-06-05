@@ -463,6 +463,8 @@
 
 	(vp-rdef (stack_top sptr node node_offset) '(:r3 :r4))
 
+	;fake push to keep tracer happy
+	(vp-push :r0 :r1 :r2 :r3 :r4)
 	;print stack dump
 	(fn-bind 'sys/statics/statics stack_top)
 	(assign `((,stack_top statics_sys_task_current_tcb) (& :rsp ,(* +ptr_size 5))) `(,stack_top ,sptr))
@@ -494,7 +496,10 @@
 		(call :host_os :pii_write_num `(2 ,node 10))
 		(call :host_os :pii_write_str '(2 ")\n"))
 	(endif)
-	(jump :sys_task :stop)
+	(call :sys_task :stop)
+	;fake pop and return to keep tracer happy
+	(vp-pop :r0 :r1 :r2 :r3 :r4)
+	(vp-ret)
 
 (def-func-end))
 

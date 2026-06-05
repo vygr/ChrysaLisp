@@ -5,10 +5,12 @@
 	;inputs
 	;:r0 = code (long)
 	;trashes
-	;:r0, :r13-:r14, :f0-:f15
+	;:r0, :f0-:f15
 
 	(entry :host_os :pii_exit '(:r0))
+	(abi-push-trashed :r13 :r14)
 	(host-os-call :host_os :exit '(:r0))
+	(abi-pop-trashed :r13 :r14)
 	(vp-ret)
 
 (def-func-end)
