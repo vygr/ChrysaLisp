@@ -239,11 +239,11 @@
 						(when (eql (third inst) :rsp)
 							(bind '(& src & offset) inst)
 							(. stack_map :insert (+ *rsp* offset) (def? src reg_map))))
-					((find op '(emit-cpy-ri emit-cpy-fi))
-						;stack spill 64 bit
-						(when (eql (third inst) :rsp)
-							(bind '(& src & offset) inst)
-							(. stack_map :insert (+ *rsp* offset) (def? src reg_map))))
+					((find op '(emit-cpy-ir emit-cpy-if))
+						;stack load 64 bit
+						(when (eql (second inst) :rsp)
+							(bind '(& & offset dst) inst)
+							(def-reg dst (. stack_map :find (+ *rsp* offset)))))
 					((find op '(emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i))
 						;quantize offset down to the nearest 8-byte
 						;boundary and invalidate the slot
@@ -333,7 +333,7 @@
 					(:t ;each modified register is flagged as trashed and value :nil
 						(each (# (def-reg %0 :nil)) (get-modified-regs inst))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
-				(verbose 4 "\t\t\t" (format-values reg_map)))
+				(verbose 4 "\t\t\t" (format-values reg_map) "\n\t\t\t" (. stack_map :tolist)))
 			(. trace_map :erase trace)
 			(verbose 4 "\t\tmerged " (format-trashes func_set)))
 		(list :function func_set call_list))))
