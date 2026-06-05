@@ -23,7 +23,7 @@ inputs
 info
 loader is already initialized when we get here !
 trashes
-:r1-:r11, :r14, :f0-:f15
+:r0-:r14, :f0-:f15
 ```
 
 ### :ping -> sys/kernel/ping
@@ -31,6 +31,6 @@ trashes
 ```code
 started by kernel at boot
 trashes
-:r0-:r14, :f0-:f15, :rsp
+none
 ```
 

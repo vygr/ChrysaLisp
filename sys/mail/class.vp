@@ -203,7 +203,7 @@
 	;:r0 = mail address (ptr)
 	;:r1 = string data (pubyte)
 	;trashes
-	;:r0-:r2, :rsp
+	;:r0-:r2
 
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((:r0 statics_sys_task_current_tcb)) '(:r0))
@@ -312,7 +312,7 @@
 	;:r0 = mail address (ptr)
 	;:r1 = string data (pubyte)
 	;trashes
-	;:r0-:r2, :rsp
+	;:r0-:r2
 	;info
 	;in *build_mode* > 0
 	;a signal to a Lisp task can return 0 here !

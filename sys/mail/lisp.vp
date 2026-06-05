@@ -48,7 +48,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :rsp
+	;:r1-:r5
 
 	(vp-rdef (this args msg mbox))
 

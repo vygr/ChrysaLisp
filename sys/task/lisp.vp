@@ -41,7 +41,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f15, :rsp
+	;:r1-:r4, :f0-:f15
 
 	(entry :sys_task :lisp_sleep '(:r0 :r1))
 
@@ -73,7 +73,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r2-:r4, :f0-:f15, :rsp
+	;:r2-:r4, :f0-:f15
 
 	(def-vars
 		(ptr this args))
@@ -90,7 +90,7 @@
 		(call :sys_task :sleep '(0))
 	(endif)
 
-	(exit :sys_task :lisp_timeslice {this, args})
+	(assign {this, args} '(:r0 :r1))
 	(class/obj/ref :r1 :r2)
 	(pop-scope)
 	(return)

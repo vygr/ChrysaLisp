@@ -39,7 +39,7 @@ host audio function table
 outputs
 :r0 return code
 trashes
-:r0-:r3, :r13-:r14, :f0-:f15
+:r0-:r14, :f0-:f15
 info
 register inputs are dependant on the platform ABI
 they are extracted via (abi-arg 0)-(abi-arg 2).

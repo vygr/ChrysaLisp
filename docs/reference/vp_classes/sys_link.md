@@ -6,7 +6,7 @@
 
 ```code
 trashes
-:r0-:r14, :f0-:f15, :rsp
+none
 ```
 
 ### :link -> sys/link/link
@@ -19,6 +19,6 @@ started by kernel for each link
 
 ```code
 trashes
-:r0-:r14, :f0-:f15, :rsp
+none
 ```
 
