@@ -235,18 +235,21 @@
 								(++ *rsp* +long_size)
 								(def-reg %0 val))
 							(list inst) -1 1))
-					((and (find op '(emit-cpy-ri emit-cpy-fi)) (eql (third inst) :rsp))
+					((find op '(emit-cpy-ri emit-cpy-fi))
 						;stack spill 64 bit
-						(bind '(& src & offset) inst)
-						(. stack_map :insert (+ *rsp* offset) (def? src reg_map)))
-					((and (find op '(emit-cpy-ri emit-cpy-fi)) (eql (third inst) :rsp))
+						(when (eql (third inst) :rsp)
+							(bind '(& src & offset) inst)
+							(. stack_map :insert (+ *rsp* offset) (def? src reg_map))))
+					((find op '(emit-cpy-ri emit-cpy-fi))
 						;stack spill 64 bit
-						(bind '(& src & offset) inst)
-						(. stack_map :insert (+ *rsp* offset) (def? src reg_map)))
-					((and (find op '(emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i)) (eql (third inst) :rsp))
+						(when (eql (third inst) :rsp)
+							(bind '(& src & offset) inst)
+							(. stack_map :insert (+ *rsp* offset) (def? src reg_map))))
+					((find op '(emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i))
 						;quantize offset down to the nearest 8-byte
 						;boundary and invalidate the slot
-						(. stack_map :insert (+ *rsp* (logand (neg +long_size) (last inst))) :nil))
+						(when (eql (third inst) :rsp)
+							(. stack_map :insert (+ *rsp* (logand (neg +long_size) (last inst))) :nil)))
 
 					;internal call, jump and return
 					((eql op 'emit-ret)
