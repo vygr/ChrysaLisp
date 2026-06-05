@@ -81,17 +81,15 @@
 		(slices indices)))
 
 (defun format-trashes (func_set)
-	(defq r_indices (list) f_indices (list) s_indices (list))
+	(defq r_indices (list) f_indices (list))
 	(each (# (if (starts-with ":r" %0)
-			(if (= (defq %0 (reg? %0)) (const (reg? :rsp)))
-				(push s_indices ":rsp")
+			(if (/= (defq %0 (reg? %0)) (const (reg? :rsp)))
 				(push r_indices %0))
 			(push f_indices (reg? %0))))
 		(if (list? func_set) func_set (eset-tolist func_set)))
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
-		(format-group ":f" f_indices)
-		s_indices))
+		(format-group ":f" f_indices)))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 
 (defun format-values (reg_map)
