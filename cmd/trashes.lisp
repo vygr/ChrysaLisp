@@ -218,7 +218,11 @@
 					((eql op 'emit-alloc)
 						(setq *rsp* (-- *rsp* (second inst))))
 					((eql op 'emit-free)
-						(setq *rsp* (++ *rsp* (second inst))))
+						(setq *rsp* (++ *rsp* (second inst)))
+						(each (lambda ((key val))
+							(if (< key *rsp*)
+								(. stack_map :erase key)))
+							(. stack_map :tolist)))
 					((eql op 'emit-push)
 						;push the values of all registers pushed
 						(each! (# (. stack_map :insert (-- *rsp* +long_size)
