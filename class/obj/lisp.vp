@@ -110,7 +110,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this obj val)
@@ -245,7 +245,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r5, :f0-:f15
 
 	(entry :obj :lisp_type '(:r0 :r1))
 
@@ -344,7 +344,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r6, :r9-:r10
 
 	(vp-rdef (this args obj1 obj2) '(:r9 :r10))
 
@@ -355,7 +355,7 @@
 	(gotoif `(,obj1 /= 2) 'error))
 
 	(array-bind-args args `(,obj1 ,obj2))
-	(call :obj :eql `(,obj1 ,obj2) '(_ tmp))
+	(call :obj :eql `(,obj1 ,obj2) '(_ tmp) args)
 	(vpif `(,tmp /= 0))
 		(assign `((,this +lisp_sym_nil)) `(,args))
 	(else)
@@ -380,7 +380,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r6, :r9-:r10
 
 	(vp-rdef (this args obj1 obj2) '(:r9 :r10))
 
@@ -391,7 +391,7 @@
 	(gotoif `(,obj1 /= 2) 'error))
 
 	(array-bind-args args `(,obj1 ,obj2))
-	(call :obj :eql `(,obj1 ,obj2) '(_ tmp))
+	(call :obj :eql `(,obj1 ,obj2) '(_ tmp) args)
 	(vpif `(,tmp = 0))
 		(assign `((,this +lisp_sym_nil)) `(,args))
 	(else)
