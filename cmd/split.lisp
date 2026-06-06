@@ -6,7 +6,7 @@
 
     options:
         -h --help: this help info.
-        -s --sep separator: default ,.
+        -s --sep separator: default {\t ,}.
         -e --sel num: selected element, default :nil.
 
     Split the lines from stdin to stdout.
@@ -21,7 +21,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_s "," opt_e :nil args (options stdio usage)))
+			(defq opt_s "\t ," opt_e :nil args (options stdio usage)))
 		;split stdin
 		(lines! (#
 			(defq elms (split %0 (char-class opt_s)))

@@ -516,7 +516,7 @@ Usage: split [options]
 
     options:
         -h --help: this help info.
-        -s --sep separator: default ,.
+        -s --sep separator: default {	 ,}.
         -e --sel num: selected element, default :nil.
 
     Split the lines from stdin to stdout.
@@ -611,14 +611,14 @@ Usage: toflm [options] [path] ...
     If no paths given on command line
     then paths are read from stdin.
 ```
-## trashes
+## trace
 ```code
-Usage: trashes [options] [function_name] ...
+Usage: trace [options] [function_name] ...
 
 	options:
 		-h --help: this help info.
 		-v --verbosity num: how much info, default 0.
-		-l --lint: lint documented vs calculated trashes.
+		-l --lint: lint documented vs calculated trace.
 		-w --write: write back calculated trashes to source
 			files on mismatch.
 
