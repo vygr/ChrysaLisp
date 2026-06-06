@@ -97,8 +97,9 @@
 
 (defun resolve-static-method (insts lbl)
 	;find function that implements this static method
-	(bind '(& (& lbl &ignore)) (elem-get insts (inc (get lbl (penv)))))
-	(second (elem-get insts (inc (get lbl (penv))))))
+	(second (elem-get insts
+		(inc (get (second (second (elem-get insts
+			(inc (get lbl))))))))))
 
 (defun resolve-virtual-method (c m)
 	;find function that implements this virtual method
@@ -108,8 +109,8 @@
 	;find function that implements this virtual method
 	;and all subclass overrides !
 	(map! (# (resolve-virtual-method %0 m))
-		(list (ifn (defq m_entry (.-> (. *class_db* :find c) (:find :methods) (:find m))
-			o_entry (. m_entry :find :overrides)) '()))
+		(list (progn (defq m_entry (.-> (. *class_db* :find c) (:find :methods) (:find m)))
+			(ifn (. m_entry :find :overrides) '())))
 		0 -1 (list (. m_entry :find :function))))
 
 (defun get-function-insts (function)
@@ -172,11 +173,10 @@
 		;local labels so we can resolve starting PC and jumps
 		(each (# (if (find (first %0) '(emit-label emit-tlabel))
 				(def (penv) (last (second %0)) (!)))) insts)
-		;determine starting PC for this subroutine/entry point (defaulting to _2)
-		(defq start_pc (ifn (get '_2) 0) label_map (Lmap)
-			call_list (list) func_set (eset) trace -1 next_trace 0
+		;start main trace from label _2
+		(defq label_map (Lmap) call_list (list) func_set (eset) trace -1 next_trace 0
 			reg_map (env-copy (const (reduce (lambda (%0 %1) (def %0 %1 %1) %0) +all_regs (env 1))) 1)
-			trace_map (scatter (Lmap) 0 (list start_pc 0 (Lmap) reg_map (eset) (list))))
+			trace_map (scatter (Lmap) 0 (list (get '_2) 0 (Lmap) reg_map (eset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
 			(task-slice)
