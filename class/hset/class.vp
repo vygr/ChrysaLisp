@@ -142,7 +142,9 @@
 				(assign `(,iter) {iter})
 				(assign `((,this +hset_key_callback) (,iter 0)) `(,cmp_func ,key2))
 				(assign {key} `(,key1))
-				(vp-call-r cmp_func)
+				;give some indication of the trashes
+				;:sym :eql_str is the worst ATM
+				(vp-call-r cmp_func :sym :eql_str)
 				(gotoif `(,key2 = 0) 'cmp_hit)
 				(assign {iter, iter_end, this} `(,iter ,iter_end ,this))
 				(vp-add-cr +ptr_size iter)

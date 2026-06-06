@@ -163,7 +163,7 @@
 	;:r1 = 0, else found iterator (pptr)
 	;:r2 = bucket list (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r7
 
 	(def-vars
 		(ptr this key buckets)
@@ -206,7 +206,9 @@
 				(assign `((,this +hset_key_callback) (,iter_begin 0)) `(,cmp_func ,key2))
 				(assign {key} `(,key1))
 				(assign `(,iter_begin) {iter_begin})
-				(vp-call-r cmp_func)
+				;give some indication of the trashes
+				;:sym :eql_str is the worst ATM
+				(vp-call-r cmp_func :sym :eql_str)
 				(gotoif `(,key2 = 0) 'cmp_hit)
 				(assign {iter_begin, iter_end, this} `(,iter_begin ,iter_end ,this))
 				(vp-add-cr (* +ptr_size 2) iter_begin)
@@ -290,25 +292,22 @@
 	;:r1 = 0, else iterator (pptr)
 	;:r2 = bucket list (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9
 
-	(structure local 0
-		(ptr this key))
+	(vp-rdef (saved_this key this iter bucket) '(:r8 :r9))
 
-	(vp-alloc local_size)
-	(entry :hmap :search '(:r0 :r1))
+	(entry :hmap :search `(,this ,key))
 
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_key)))
+	(assign `(,this) `(,saved_this))
 	(loop-start)
-		(call :hmap :find '(:r0 :r1) '(:r0 :r1 :r2))
-		(breakif '(:r1 /= 0))
-		(assign '((:r0 +hmap_parent)) '(:r1))
-		(breakif '(:r1 = 0))
-		(assign '(:r1 (:rsp local_key)) '(:r0 :r1))
+		(call :hmap :find `(,this ,key) `(,this ,iter ,bucket))
+		(breakif `(,iter /= 0))
+		(assign `((,this +hmap_parent)) `(,iter))
+		(breakif `(,iter = 0))
+		(assign `(,iter) `(,this))
 	(loop-end)
 
-	(exit :hmap :search '((:rsp local_this) :r1 :r2))
-	(vp-free local_size)
+	(exit :hmap :search `(,saved_this ,iter ,bucket))
 	(vp-ret)
 
 (def-func-end)
