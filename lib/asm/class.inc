@@ -367,7 +367,7 @@
 	(defq m (method-lookup %0 %1) _ (third m))
 	(if (find (setd %3 :r14) _)
 		(throw "Dispatch register conflicts with arg !" (list %3 _)))
-	(assign %2 (cat _ (list %3)))
+	(assign %2 _)
 	(scope-unwind)
 	(vp-jmp-r %3 %0 %1))
 
@@ -452,7 +452,7 @@
 (export-symbols
 	'(gen-type gen-create gen-create1 gen-vtable def-class def-method
 	entry exit call jump s-call d-call s-jump
-	v-call v-jump d-jump r-call v-bind
+	v-call v-jump d-jump r-call r-jump v-bind
 	f-entry f-exit l-entry l-exit f-path f-bind
 	method-input method-output method-lookup signature))
 (env-pop)

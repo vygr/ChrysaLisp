@@ -20,7 +20,9 @@
 		;built in or compiled function
 		(assign '((:r2 +num_value)) '(:r2))
 		(vp-and-cr (neg +ptr_size) :r2)
-		(vp-jmp-r :r2)
+		;trace this as if FFI jump has same
+		;trashes profile as a :repl_eval call !
+		(r-jump :lisp :repl_eval '(:r0 :r1) :r2)
 	(endif)
 
 (errorcase

@@ -31,28 +31,29 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-rdef (iter_begin iter_end this args) '(:r10 :r11))
+	(vp-rdef (iter_begin iter_end dlist) '(:r10 :r11))
+	(vp-rdef (this args) '(:r12 :r1))
 
 	(entry :list :lisp_merge `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(array-bind-args args `(,this ,args))
+	(array-bind-args args `(,dlist ,args))
 	(class/array/get_both args iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
-		(call :list :set_cap `(,this (,args +array_length)) `(,this))
+		(call :list :set_cap `(,dlist (,args +array_length)) `(,dlist))
 		(loop-start)
-			(d-call :list :find `(,this (,iter_begin 0) 0) `(,this ,args tmp))
+			(d-call :list :find `(,dlist (,iter_begin 0) 0) `(,dlist ,args tmp))
 			(vp-add-cr +ptr_size iter_begin)
 			(vpif `(,tmp = -1))
 				(class/obj/ref args tmp)
-				(call :list :push_back `(,this ,args) `(,this _ _ _))
+				(call :list :push_back `(,dlist ,args) `(,dlist _ _ _))
 			(endif)
 		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
-	(call :obj :ref `(,this) `(,args))
+	(class/obj/ref dlist args)
 
-	(exit :list :lisp_merge `(,this ,args))
+	(exit :list :lisp_merge `(,this ,dlist))
 	(vp-ret)
 
 (errorcase
