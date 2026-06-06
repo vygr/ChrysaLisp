@@ -1,13 +1,13 @@
-# Trashes Command
+# Trace Command
 
-The `trashes` command is a static analysis tool designed to calculate the
+The `trace` command is a static analysis tool designed to calculate the
 transitive register clobber state (the registers that are overwritten or
 "trashed") for any given Virtual Processor (VP) function. Rather than relying
 solely on source-code annotations, the tool performs symbolic register-trace
 analysis directly on the compiled VP binary objects (located in `obj/vp/`).
 
 By tracking register data flow, stack frames, and method dispatch paths,
-`trashes` determines the precise footprint of register usage throughout the call
+`trace` determines the precise footprint of register usage throughout the call
 graph, ensuring compiler safety and allowing the assembler to optimize registers
 across function boundaries.
 
@@ -112,7 +112,7 @@ perform bounded resolution:
 #### Dependency Resolution Logic
 
 ```file
-cmd/trashes.lisp "(defun get-dependencies" ""
+cmd/trace.lisp "(defun get-dependencies" ""
 ```
 
 ## Propagation & Convergence
@@ -130,7 +130,7 @@ To avoid costly disk I/O and redundant file-parsing overhead, the tool utilizes
 a memoized function `get-function-insts`:
 
 ```file
-cmd/trashes.lisp "(defun get-function-insts" ""
+cmd/trace.lisp "(defun get-function-insts" ""
 ```
 
 This guarantees that each compiled VP object is opened and parsed only once
@@ -146,7 +146,7 @@ the loop, cleared in-place with `(. next_changed :empty)`, and swapped at the
 end of each pass.
 
 ```file
-cmd/trashes.lisp ";converge remaining by re-running" "(defq t_set changed"
+cmd/trace.lisp ";converge remaining by re-running" "(defq t_set changed"
 ```
 
 ### 4. Optimization: Full-Clobber Short-Circuit

@@ -67,14 +67,14 @@ Map collections classes.
 `(scatter)` and `(gather)` can now be given a list of args, as well as take
 `&rest` args.
 
-New `cmd/trashes.lisp` command for static analysis of the VP output code. Has
+New `cmd/trace.lisp` command for static analysis of the VP output code. Has
 the ability to lint against the `docs/reference/vp_classes/` documents.
 
 New `(tsort roots dep_fnc) -> order` topological sort function. Takes the roots
 and the callback function that given a node will return that nodes dependant
 nodes.
 
-Scanned the entire code base with the new `trashes` data flow analysis tool,
+Scanned the entire code base with the new `trace` data flow analysis tool,
 corrected various bugs found and updated all the source trashes documentation.
 
 Added `tab` expand processing to the GUI Terminal app.
@@ -83,10 +83,10 @@ Added `lib/files/info.inc` library. `(files-classes-info) -> classes_db` and
 `(files-function-info &optional classes_db) -> func_db` for source file scanning
 and caching !
 
-`trashes` command updated to use the new `lib/files/info.inc` library instead of
+`trace` command updated to use the new `lib/files/info.inc` library instead of
 doing its own documentation scanning.
 
-`cmd/vpgraph.lisp` command has been deleted, `cmd/trashes.lisp` does everything
+`cmd/vpgraph.lisp` command has been deleted, `cmd/trace.lisp` does everything
 and more than this old source based version.
 
 The instructions, `vp-call-r`, `vp-call-i`, `vp-jmp-r` and `vp-jmp-i`, now take
@@ -94,14 +94,14 @@ optional arguments for the `:class` and `:method` info. This info is used by the
 static trashes tools to calculate the union'd set of trashes registers for the
 methods that could be called.
 
-`trashes` command now uses the instrumented virtual calls in the VP code to
-track the union of all class/subclasses for virtual call sites.
+`trace` command now uses the instrumented virtual calls in the VP code to track
+the union of all class/subclasses for virtual call sites.
 
 New documents for the `docs/ai_digest/source_database.md` and
 `docs/ai_digest/trashes_command.md` library and data flow analysis tool.
 
 Added `-w` writeback mode support to the docs database scanners and the
-`trashes` command. Use carefully, with great power comes great responsibility !
+`trace` command. Use carefully, with great power comes great responsibility !
 
 `cmd/grep.lisp` command now support `-v` inverse, option. Defaults to `:nil`.
 

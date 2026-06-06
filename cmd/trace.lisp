@@ -5,12 +5,12 @@
 
 (defq usage `(
 	(("-h" "--help")
-	"Usage: trashes [options] [function_name] ...
+	"Usage: trace [options] [function_name] ...
 
 	options:
 		-h --help: this help info.
 		-v --verbosity num: how much info, default 0.
-		-l --lint: lint documented vs calculated trashes.
+		-l --lint: lint documented vs calculated trace.
 		-w --write: write back calculated trashes to source
 			files on mismatch.
 
