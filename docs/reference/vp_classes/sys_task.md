@@ -96,7 +96,7 @@ trashes
 inputs
 :r0 = time delay in usec (long)
 trashes
-:r0-:r4, :f0-:f15
+:r0-:r14, :f0-:f15
 info
 0 for yield
 ```

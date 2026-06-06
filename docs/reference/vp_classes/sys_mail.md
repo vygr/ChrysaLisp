@@ -145,7 +145,7 @@ inputs
 :r0 = link input buffer (ptr)
 :r1 = link input ring buffer (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r10, :f0-:f15
 ```
 
 ### :junk_mail -> sys/mail/junk_mail
@@ -164,7 +164,7 @@ outputs
 :r0 = mail address (ptr)
 :r1 = string data (pubyte)
 trashes
-:r0-:r2
+:r0-:r2, :f0-:f15
 ```
 
 ### :out -> sys/mail/out
@@ -209,7 +209,7 @@ outputs
 :r0 = mail address (ptr)
 :r1 = string data (pubyte)
 trashes
-:r0-:r2
+:r0-:r2, :f0-:f15
 info
 in *build_mode* > 0
 a signal to a Lisp task can return 0 here !
@@ -226,7 +226,7 @@ inputs
 outputs
 :r0 = 0 if none, else msg (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r7, :r9-:r13
 ```
 
 ### :select -> sys/mail/select
@@ -237,7 +237,7 @@ inputs
 outputs
 :r0 = mailbox index (uint)
 trashes
-:r0-:r8
+:r0-:r14, :f0-:f15
 ```
 
 ### :send -> sys/mail/send
@@ -250,7 +250,7 @@ trashes
 info
 only ever derefs a :str !
 trashes
-:r0-:r4
+:r0-:r4, :f0-:f15
 ```
 
 ### :service -> sys/mail/service

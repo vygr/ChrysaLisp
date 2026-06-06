@@ -203,7 +203,7 @@
 	;:r0 = mail address (ptr)
 	;:r1 = string data (pubyte)
 	;trashes
-	;:r0-:r2
+	;:r0-:r2, :f0-:f15
 
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((:r0 statics_sys_task_current_tcb)) '(:r0))
@@ -273,7 +273,13 @@
 
 	(vpif '(:r0 /= 0))
 		(vp-cpy-rr :r0 :r3)
-		(call :str :deref '((:r0 +msg_obj)))
+		;only ever :str payloads, so be nice to the tracer
+		;and don't call :obj :destroy !
+		(assign '((:r0 +msg_obj)) '(:r0))
+		(class/obj/ref :r0 :r1 -1)
+		(vpif '(:r1 = 0))
+			(call :sys_mem :free '(:r0))
+		(endif)
 		(fn-bind 'sys/statics/statics :r0)
 		(call :sys_heap :free '((& :r0 statics_sys_mail_msg_heap) :r3))
 	(endif)
@@ -312,7 +318,7 @@
 	;:r0 = mail address (ptr)
 	;:r1 = string data (pubyte)
 	;trashes
-	;:r0-:r2
+	;:r0-:r2, :f0-:f15
 	;info
 	;in *build_mode* > 0
 	;a signal to a Lisp task can return 0 here !
@@ -361,7 +367,7 @@
 	;info
 	;only ever derefs a :str !
 	;trashes
-	;:r0-:r4
+	;:r0-:r4, :f0-:f15
 
 	(entry :sys_mail :send '(:r4))
 
@@ -453,7 +459,7 @@
 	;outputs
 	;:r0 = mailbox index (uint)
 	;trashes
-	;:r0-:r8
+	;:r0-:r14, :f0-:f15
 
 	(vp-rdef (idx iter_begin iter_end iter ids tcb) '(:r0 :r4 :r5 :r6 :r7 :r8))
 
@@ -773,7 +779,7 @@
 	;outputs
 	;:r0 = 0 if none, else msg (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r7, :r9-:r13
 
 	(vp-rdef (next node key peer1 peer2 tuple via1 via2 iter_begin iter_end)
 		'(:r13 :r12 :r11 :r10 :r9 :r1))

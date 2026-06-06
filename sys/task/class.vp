@@ -121,7 +121,7 @@
 	(assign '(:r0 (:r0 +tk_node_stack)) '((:r2 statics_sys_task_current_tcb) :rsp))
 
 	;pop task state
-	(apply (const vp-trash) (filter (# (nql %0 :rsp)) +vp_fregs))
+	(apply (const vp-trash) +vp_regs)
 	(tk-load-state)
 	(vp-ret)
 
@@ -212,7 +212,7 @@
 	;inputs
 	;:r0 = time delay in usec (long)
 	;trashes
-	;:r0-:r4, :f0-:f15
+	;:r0-:r14, :f0-:f15
 	;info
 	;0 for yield
 
@@ -369,7 +369,7 @@
 	;outputs
 	;:r0 = current time (long)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r7, :f0-:f15
 	;info
 	;resume tasks ready to run.
 	;mail mailboxes on timeouts.
@@ -466,12 +466,12 @@
 	;outputs
 	;none
 	;trashes
-	;:f0-:f15
+	;none
 
 	(vp-rdef (stack_top sptr node node_offset) '(:r3 :r4))
 
 	;fake push to keep tracer happy
-	(vp-push :r0 :r1 :r2 :r3 :r4)
+	(apply vp-push +vp_regs)
 	;print stack dump
 	(fn-bind 'sys/statics/statics stack_top)
 	(assign `((,stack_top statics_sys_task_current_tcb) (& :rsp ,(* +ptr_size 5))) `(,stack_top ,sptr))
@@ -503,9 +503,9 @@
 		(call :host_os :pii_write_num `(2 ,node 10))
 		(call :host_os :pii_write_str '(2 ")\n"))
 	(endif)
+	;fake `call` pop and return to keep tracer happy
 	(call :sys_task :stop)
-	;fake pop and return to keep tracer happy
-	(vp-pop :r0 :r1 :r2 :r3 :r4)
+	(apply vp-pop +vp_regs)
 	(vp-ret)
 
 (def-func-end))
@@ -516,17 +516,16 @@
 	;outputs
 	;none
 	;trashes
-	;:f0-:f15
+	;:r0-:r1
 
-	(vp-push :r0 :r1)
+	(vp-pop :r0 :r1)
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((:r0 statics_sys_task_current_tcb) (:r0 statics_sys_task_kernel_tcb))
 		'(:r1 :r0))
 	(vpif '(:r1 /= 0) '(:r1 /= :r0))
 		(vp-add-cr (+ +tk_node_size tk_stack_margin) :r1)
 		(vpif '(:rsp < :r1))
-			;this never returns, but keeps the tracer happy !
-			(call :sys_task :dump)
+			(jump :sys_task :dump)
 		(endif)
 	(endif)
 	(vp-pop :r0 :r1)
