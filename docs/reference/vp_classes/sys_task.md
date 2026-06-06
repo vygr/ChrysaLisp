@@ -160,7 +160,7 @@ suspend current task, switch to next task
 outputs
 :r0 = current time (long)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r7, :f0-:f15
 info
 resume tasks ready to run.
 mail mailboxes on timeouts.
