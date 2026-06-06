@@ -318,12 +318,15 @@
 						(eset-union func_set trace_set)
 						(setq *pc* (length insts)))
 
-					;external host os call
+					;external host os call or emit-trash directive
 					((eql op 'emit-call-abi)
 						;simulate the union of all platform clobbers
 						(merge call_list '(:abicall))
 						(each (# (def-reg %0 :nil))
 							(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
+					((eql op 'emit-trash)
+						;simulate the trashing of listed regs
+						(each (# (def-reg %0 :nil)) (rest inst)))
 
 					;everything else
 					(:t ;each modified register is flagged as trashed and value :nil

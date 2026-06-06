@@ -101,8 +101,12 @@
 (def-func-end)
 
 (def-method :sys_task :restore)
+	;inputs
+	;none
+	;outputs
+	;none
 	;trashes
-	;:r0-:r3
+	;:r0-:r14, :f0-:f15
 	;info
 	;restore next ready task
 
@@ -117,6 +121,7 @@
 	(assign '(:r0 (:r0 +tk_node_stack)) '((:r2 statics_sys_task_current_tcb) :rsp))
 
 	;pop task state
+	(apply (const vp-trash) (filter (# (nql %0 :rsp)) +vp_fregs))
 	(tk-load-state)
 	(vp-ret)
 
@@ -147,7 +152,7 @@
 
 (def-method :sys_task :suspend)
 	;trashes
-	;:r0-:r3
+	;:r0-:r14, :f0-:f15
 	;info
 	;suspend current task, switch to next task
 
@@ -330,7 +335,7 @@
 
 (def-method :sys_task :stop)
 	;trashes
-	;:r0-:r4
+	;:r0-:r14, :f0-:f15
 	;info
 	;stop current task, switch to next task
 

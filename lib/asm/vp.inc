@@ -67,6 +67,7 @@
 
 (defun vp-push (&rest b) (emit `(emit-push ~b)))
 (defun vp-pop (&rest b) (emit `(emit-pop ~b)))
+(defun vp-trash (&rest b) (emit `(emit-trash ~b)))
 (defun vp-alloc (c) (emit (static-qqp (emit-alloc ,(eval c (penv))))))
 (defun vp-free (c) (emit (static-qqp (emit-free ,(eval c (penv))))))
 (defun vp-ret () (emit `(emit-ret)))

@@ -73,14 +73,11 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r2-:r4, :f0-:f15
+	;:r1-:r4, :f0-:f15
 
-	(def-vars
-		(ptr this args))
+	(entry :sys_task :lisp_timeslice '(:r0 :r1))
 
-	(push-scope)
-	(entry :sys_task :lisp_timeslice {this, args})
-
+	(vp-push :r0)
 	(call :host_os :pii_time :nil '(:r0))
 	(fn-bind 'sys/statics/statics :r2)
 	(assign '((:r2 statics_sys_task_then)) '(:r1))
@@ -89,11 +86,9 @@
 		(assign '(:r0) '((:r2 statics_sys_task_then)))
 		(call :sys_task :sleep '(0))
 	(endif)
-
-	(assign {this, args} '(:r0 :r1))
 	(class/obj/ref :r1 :r2)
-	(pop-scope)
-	(return)
+	(vp-pop :r0)
+	(vp-ret)
 
 (def-func-end)
 

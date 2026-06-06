@@ -11,6 +11,7 @@
 	(while (<= (++ pc) *pc*) (write-char stream fill)))
 
 (defun emit-nop ())
+(defun emit-trash (&ignore))
 (defun emit-prepass (emit_list) emit_list)
 (defun emit-label (label) (set (penv) label *pc*))
 (defun emit-tlabel (temp) (set (penv) temp *pc*))
