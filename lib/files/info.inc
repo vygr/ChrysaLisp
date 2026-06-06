@@ -274,9 +274,9 @@
 								(setq found :t)))
 						(setq p_name (. p_class :find :parent)))))))))))
 
-(defun build-and-save-databases (source_files)
+(defun build-and-save-databases (vp_files)
 	(defq class_db (Emap) func_db (Fmap 101))
-	(unified-pass source_files class_db func_db)
+	(unified-pass vp_files class_db func_db)
 	(link-databases class_db func_db)
 	(inherit-signatures class_db)
 	(build-method-overrides class_db)
@@ -291,14 +291,14 @@
 	(tsort (filter (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2))
 		(const files-depends)))
 
-(defun database-stale? (cache_file lib_file source_files)
+(defun database-stale? (cache_file lib_file vp_files)
 	(defq cache_age (min (age cache_file) (age lib_file)))
-	(some (# (> (age %0) cache_age)) source_files))
+	(some (# (> (age %0) cache_age)) vp_files))
 
 (defun files-classes-info (&optional forced)
-	(defq source_files (files-all-vp-source))
-	(if (or forced (database-stale? +class_db_file +lib_file source_files))
-		(build-and-save-databases source_files)
+	(defq vp_files (files-all-vp-source))
+	(if (or forced (database-stale? +class_db_file +lib_file vp_files))
+		(build-and-save-databases vp_files)
 		(tree-load (file-stream +class_db_file))))
 
 (defun files-function-info (&optional class_db)
