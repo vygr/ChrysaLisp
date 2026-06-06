@@ -12,7 +12,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = 0 if error, else value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (dst iter_begin nums1 nums2 this args func argc len1 len2)
 		'(:r0 :r1 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
@@ -68,7 +68,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = 0 if error, else value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (dst iter_begin nums1 this args func argc len1 len2)
 		'(:r0 :r1 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
@@ -113,7 +113,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :nums :lisp_add '(:r0 :r1))
 
@@ -141,7 +141,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :nums :lisp_sub '(:r0 :r1))
 
@@ -169,7 +169,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :nums :lisp_min '(:r0 :r1))
 
@@ -197,7 +197,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :nums :lisp_max '(:r0 :r1))
 
@@ -225,7 +225,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :nums :lisp_mul '(:r0 :r1))
 
@@ -253,7 +253,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :nums :lisp_div '(:r0 :r1))
 
@@ -281,7 +281,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :nums :lisp_mod '(:r0 :r1))
 
@@ -341,7 +341,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (dst iter_begin nums1 scale this args argc len1 len2)
 		'(:r0 :r1 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
@@ -386,7 +386,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :nums :lisp_abs '(:r0 :r1))
 
@@ -414,7 +414,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(entry :nums :lisp_dot '(:r0 :r1))
 

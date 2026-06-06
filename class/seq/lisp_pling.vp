@@ -10,13 +10,13 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r2, :r13-:r14, :f0-:f15
+	;:r1-:r3, :r14, :f0-:f15
 
-	(entry :seq :lisp_pling '(:r13 :r1))
+	(entry :seq :lisp_pling '(:r3 :r1))
 
 	(call :num :create '((:r0 +lisp_seq_idx)) '(:r1))
 
-	(exit :seq :lisp_pling '(:r13 :r1))
+	(exit :seq :lisp_pling '(:r3 :r1))
 	(vp-ret)
 
 (def-func-end)

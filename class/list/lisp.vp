@@ -29,7 +29,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (iter_begin iter_end dlist) '(:r10 :r11))
 	(vp-rdef (this args) '(:r12 :r1))

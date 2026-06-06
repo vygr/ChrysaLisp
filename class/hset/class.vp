@@ -242,27 +242,18 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(structure local 0
-		(ptr this)
-		(uint length))
-
 	(entry :hset :bucket '(:r0 :r1))
 
 	;search hash bucket
 	(assign '((:r0 +hset_num_buckets)) '(:r2))
 	(vpif '(:r2 /= 1))
-		;save inputs
-		(vp-alloc local_size)
-		(assign '(:r0 :r2) '((:rsp local_this) (:rsp local_length)))
-		(call :obj :hash '(:r1) '(_ :r0))
-		(assign '((:rsp local_length)) '(:r1))
+		(assign '(:r0 :r2) '(:r5 :r6))
+		(call :obj :hash '(:r1) '(_ :r0) :r2)
 		(vp-xor-rr :r2 :r2)
-		(vp-div-rrr-u :r1 :r2 :r0)
-		(assign '((:rsp local_this)) '(:r0))
-		(call :list :get_elem '((:r0 +hset_buckets) :r2) '(_ :r1))
+		(vp-div-rrr-u :r6 :r2 :r0)
+		(call :list :get_elem '((:r5 +hset_buckets) :r2) '(_ :r1))
 
-		(exit :hset :bucket '((:rsp local_this) :r1))
-		(vp-free local_size)
+		(exit :hset :bucket '(:r5 :r1))
 		(vp-ret)
 	(endif)
 

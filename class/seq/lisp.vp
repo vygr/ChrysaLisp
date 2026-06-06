@@ -117,7 +117,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this args src1 src2 idxs swp_xor si ei len idx_begin idx_end)
 		'(:r12 :r1 :r9 :r10 :r11))
