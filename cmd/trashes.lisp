@@ -227,10 +227,9 @@
 					((eql op 'emit-pop)
 						;pop the values of all registers popped
 						;and flag if register is now restored
-						(each! (# (defq val (. stack_map :find *rsp*))
+						(each! (# (def-reg %0 (. stack_map :find *rsp*))
 								(. stack_map :erase *rsp*)
-								(++ *rsp* +long_size)
-								(def-reg %0 val))
+								(++ *rsp* +long_size))
 							(list inst) -1 1))
 					((find op '(emit-cpy-ri emit-cpy-fi))
 						;stack spill 64 bit
@@ -243,9 +242,9 @@
 						(def-reg dst (if (eql src :rsp) (. stack_map :find (+ *rsp* offset)))))
 					((find op '(emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i))
 						;quantize offset down to the nearest 8-byte
-						;boundary and invalidate the slot
+						;boundary and erase the slot
 						(when (eql (third inst) :rsp)
-							(. stack_map :insert (+ *rsp* (logand (neg +long_size) (last inst))) :nil)))
+							(. stack_map :erase (+ *rsp* (logand (neg +long_size) (last inst))))))
 
 					;internal call, jump and return
 					((eql op 'emit-ret)
@@ -256,7 +255,7 @@
 								(eset-union func_set trace_set)
 								(setq *pc* (length insts)))))
 					((eql op 'emit-call)
-						;Local subroutine call, inline it using the path's call stack
+						;local subroutine call, inline it using the path's call stack
 						(when (defq target_pc (get (second inst)))
 							(push call_stack *pc*)
 							(setq *pc* target_pc)))
