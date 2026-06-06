@@ -8,7 +8,7 @@ VP source files (`.vp` and `.inc`) to output two serialized, fast-loading
 tree-structured files: `class_db.tre` and `func_db.tre`.
 
 This database serves as the semantic engine for static analysis tools like
-`trashes`. It enables programmatic vertical and horizontal traversal of the
+`trace`. It enables programmatic vertical and horizontal traversal of the
 codebase, ensuring that call-graph resolution remains precise and type-bounded.
 
 ## Database Architecture

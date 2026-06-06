@@ -122,7 +122,9 @@ processes each function in the dependency list.
 
 ### 1. Direct Propagation
 
-During the initial pass, when `analyze-function` encounters a call to a dependency that has already been analyzed, it retrieves its clobber set directly from `db` and applies those clobbers to the caller's active state.
+During the initial pass, when `analyze-function` encounters a call to a
+dependency that has already been analyzed, it retrieves its clobber set directly
+from `db` and applies those clobbers to the caller's active state.
 
 ### 2. Optimization: Memoized Instruction Caching
 
@@ -158,7 +160,7 @@ re-analysis of the function, providing an efficient short-circuit path.
 
 ## Verification, Linting, and Auto-Fixing
 
-The `trashes` command provides verification and automatic correction features
+The `trace` command provides verification and automatic correction features
 via the linting (`-l` / `--lint`) and write-back (`-w` / `--write`) options.
 
 ### Linting Mode
@@ -200,7 +202,7 @@ outdated or incorrect documentation directly within the source code:
 ### Example Output (Linting Mode)
 
 ```vdu
-Guest> trashes obj/vp/class/nums/lisp_add -l
+Guest> trace obj/vp/class/nums/lisp_add -l
 WARNING: Mismatch in class/nums/lisp_add
   Documented: :r1-:r5, :r7-:r14, :f0-:f15
   Calculated: :r0-:r14, :f0-:f15
