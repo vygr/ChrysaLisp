@@ -86,7 +86,7 @@ outputs
 :r1 = 0, else found iterator (pptr)
 :r2 = bucket list (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r7
 ```
 
 ### :get -> class/hmap/get
@@ -167,7 +167,7 @@ outputs
 :r1 = 0, else iterator (pptr)
 :r2 = bucket list (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r9
 ```
 
 ### :set -> class/hmap/set

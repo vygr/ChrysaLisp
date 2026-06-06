@@ -60,8 +60,12 @@ trashes
 ### :restore -> sys/task/restore
 
 ```code
+inputs
+none
+outputs
+none
 trashes
-:r0-:r3
+:r0-:r14, :f0-:f15
 info
 restore next ready task
 ```
@@ -134,7 +138,7 @@ trashes
 
 ```code
 trashes
-:r0-:r4
+:r0-:r14, :f0-:f15
 info
 stop current task, switch to next task
 ```
@@ -143,7 +147,7 @@ stop current task, switch to next task
 
 ```code
 trashes
-:r0-:r3
+:r0-:r14, :f0-:f15
 info
 suspend current task, switch to next task
 ```
