@@ -267,7 +267,7 @@ Deep dives into meta-commentary and design philosophy:
 63. **[Source Database](docs/ai_digest/source_database.md)** - VP source database.
 
 64. **[Trace Analysis](docs/ai_digest/trace_command.md)** - VP register dataflow
-    tracing..
+    tracing.
 
 ---
 
