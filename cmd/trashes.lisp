@@ -22,11 +22,6 @@
 (("-w" "--write") ,(opt-flag 'opt_w))
 ))
 
-(defun verbose (v &rest info)
-	(when (<= v opt_v)
-		(apply (const print) info))
-		(stream-flush (io-stream 'stdout)))
-
 (defq +no_regs ''() +obj_dir "obj/vp/"
 	+int_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
 	+float_regs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
@@ -163,6 +158,11 @@
 			(slice inst 2 3))
 		((reg? (last inst)) (slice inst -2 -1))
 		('())))
+
+(defmacro verbose (v &rest info)
+	(static-qq (when (<= ,v opt_v)
+		(apply (const print) (eval-list (copy ',info)))
+		(stream-flush (io-stream 'stdout)))))
 
 (defun analyze-function (function db)
 	(cond
