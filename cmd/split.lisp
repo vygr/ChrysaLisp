@@ -13,7 +13,7 @@
 
     Optionally select a specific element of
     the split.")
-(("-s" "--sep") ,(opt-num 'opt_s))
+(("-s" "--sep") ,(opt-str 'opt_s))
 (("-e" "--elem") ,(opt-num 'opt_e))
 ))
 

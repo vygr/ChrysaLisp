@@ -116,6 +116,8 @@ register. Defaults to `:r14` and `:r0`.
 Added a `make vp` option to the `make` command, for just rebuilding all the VP64
 and VP output files.
 
+Fix bug in `split` `-s` option. Should be parsing a string option.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
