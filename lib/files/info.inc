@@ -291,13 +291,13 @@
 	(tsort (filter (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2))
 		(const files-depends)))
 
-(defun database-stale? (cache_file source_files)
-	(defq cache_age (age cache_file))
+(defun database-stale? (cache_file lib_file source_files)
+	(defq cache_age (min (age cache_file) (age lib_file)))
 	(some (# (> (age %0) cache_age)) source_files))
 
 (defun files-classes-info (&optional forced)
-	(defq source_files (push (files-all-vp-source) +lib_file))
-	(if (or forced (database-stale? +class_db_file source_files))
+	(defq source_files (files-all-vp-source))
+	(if (or forced (database-stale? +class_db_file +lib_file source_files))
 		(build-and-save-databases source_files)
 		(tree-load (file-stream +class_db_file))))
 
