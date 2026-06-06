@@ -161,7 +161,7 @@
 
 (defmacro verbose (v &rest info)
 	(static-qq (when (<= ,v opt_v)
-		(apply (const print) (eval-list (copy ',info)))
+		(print ~info)
 		(stream-flush (io-stream 'stdout)))))
 
 (defun analyze-function (function db)
