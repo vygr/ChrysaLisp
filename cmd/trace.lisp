@@ -30,6 +30,24 @@
 		(reduce (# (def %0 %1 (!)) %0) +int_regs
 		(reduce (# (def %0 %1 (!)) %0) +float_regs (env 1))))
 
+;symbol-to-symbol dispatch env
+(defq +op_type_map (reduce (lambda (%0 (%1 %2)) (def %0 %1 %2) %0)
+	'((emit-label :label) (emit-tlabel :label)
+	(emit-beq-cr :branch) (emit-bne-cr :branch) (emit-bge-cr :branch)
+	(emit-ble-cr :branch) (emit-blt-cr :branch) (emit-bgt-cr :branch)
+	(emit-beq-rr :branch) (emit-bne-rr :branch) (emit-bge-rr :branch)
+	(emit-ble-rr :branch) (emit-blt-rr :branch) (emit-bgt-rr :branch)
+	(emit-beq-ff :branch) (emit-bne-ff :branch) (emit-blt-ff :branch)
+	(emit-bgt-ff :branch) (emit-ble-ff :branch) (emit-bge-ff :branch)
+	(emit-cpy-rr :copy) (emit-cpy-ff :copy) (emit-swp-rr :swap)
+	(emit-alloc :alloc) (emit-free :free) (emit-push :push) (emit-pop :pop)
+	(emit-cpy-ri :spill) (emit-cpy-fi :spill) (emit-cpy-ir :load) (emit-cpy-if :load)
+	(emit-cpy-ri-b :spill-b) (emit-cpy-ri-s :spill-b) (emit-cpy-ri-i :spill-b)
+	(emit-ret :ret) (emit-call :call) (emit-jmp :jmp)
+	(emit-call-p :call-p) (emit-jmp-p :jmp-p) (emit-call-r :call-r) (emit-jmp-r :jmp-r)
+	(emit-call-i :call-i) (emit-jmp-i :jmp-i) (emit-call-abi :call-abi)
+	(emit-trash :trash)) (env 1)))
+
 (defun reg? (r) (if (eql :sym (pop (type-of r))) (def? r +regs_index_map)))
 
 (defun gather-all-abi-trashed ()
@@ -180,19 +198,16 @@
 			(task-slice)
 			(bind '(*pc* *rsp* stack_map reg_map trace_set call_stack) (. trace_map :find trace))
 			(while (< *pc* (length insts))
-				(defq inst (elem-get insts *pc*) *pc* (inc *pc*) op (first inst))
+				(defq inst (elem-get insts *pc*) *pc* (inc *pc*))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
-				(cond
+				(case (get (first inst) +op_type_map)
 					;labels and branches
-					((find op '(emit-label emit-tlabel))
+					(:label
 						;update merged state at labels
 						(if (defq pc (get (last (second inst))) ls (. label_map :find pc))
 							(eset-union trace_set ls))
 						(. label_map :insert pc (eset-copy trace_set)))
-					((find op '(emit-beq-cr emit-bne-cr emit-bge-cr
-								emit-ble-cr emit-blt-cr emit-bgt-cr
-								emit-beq-rr emit-bne-rr emit-bge-rr
-								emit-ble-rr emit-blt-rr emit-bgt-rr))
+					(:branch
 						;if branch would carry new state then create new trace
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(when (or (not ls) (eset-nempty? (eset-diff (eset-copy trace_set) ls)))
@@ -200,64 +215,64 @@
 								(. stack_map :copy) (env-copy reg_map 1) (eset-copy trace_set) (cat call_stack)))))
 
 					;register data flow
-					((find op '(emit-cpy-rr emit-cpy-ff))
+					(:copy
 						;copy value and mark as trashed or restored
 						(def-reg (last inst) (def? (second inst) reg_map)))
-					((eql op 'emit-swp-rr)
+					(:swap
 						;swap values and mark as trashed or restored
 						(each (const def-reg)
 							(rest inst) (map! (# (def? %0 reg_map)) (list inst) -1 1)))
 
 					;stack tracking
-					((eql op 'emit-alloc)
+					(:alloc
 						(setq *rsp* (-- *rsp* (second inst))))
-					((eql op 'emit-free)
+					(:free
 						(setq *rsp* (++ *rsp* (second inst)))
 						(each (lambda ((%0 &ignore))
 							(if (< %0 *rsp*)
 								(. stack_map :erase %0)))
 							(. stack_map :tolist)))
-					((eql op 'emit-push)
+					(:push
 						;push the values of all registers pushed
 						(each! (# (. stack_map :insert (-- *rsp* +long_size)
 								(def? %0 reg_map)))
 							(list inst) 1))
-					((eql op 'emit-pop)
+					(:pop
 						;pop the values of all registers popped
 						;and flag if register is now restored
 						(each! (# (def-reg %0 (. stack_map :find *rsp*))
 								(. stack_map :erase *rsp*)
 								(++ *rsp* +long_size))
 							(list inst) -1 1))
-					((find op '(emit-cpy-ri emit-cpy-fi))
+					(:spill
 						;stack spill 64 bit
 						(when (eql (third inst) :rsp)
 							(bind '(& src & offset) inst)
 							(. stack_map :insert (+ *rsp* offset) (def? src reg_map))))
-					((find op '(emit-cpy-ir emit-cpy-if))
+					(:load
 						;stack load 64 bit ?
 						(bind '(& src offset dst) inst)
 						(def-reg dst (if (eql src :rsp) (. stack_map :find (+ *rsp* offset)))))
-					((find op '(emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i))
+					(:spill-b
 						;quantize offset down to the nearest 8-byte
 						;boundary and erase the slot
 						(when (eql (third inst) :rsp)
 							(. stack_map :erase (+ *rsp* (logand (neg +long_size) (last inst))))))
 
 					;internal call, jump and return
-					((eql op 'emit-ret)
+					(:ret
 						;we are inside an inlined local subroutine, return to the caller
 						(ifn (setq *pc* (pop call_stack))
 							(progn
 								;return from main, merge clobbers and terminate path
 								(eset-union func_set trace_set)
 								(setq *pc* +max_long))))
-					((eql op 'emit-call)
+					(:call
 						;local subroutine call, inline it using the path's call stack
 						(when (defq target_pc (get (second inst)))
 							(push call_stack *pc*)
 							(setq *pc* target_pc)))
-					((eql op 'emit-jmp)
+					(:jmp
 						;if jump would carry new state then jump, else kill trace
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(if (or (not ls) (eset-nempty? (eset-diff (eset-copy trace_set) ls)))
@@ -265,13 +280,13 @@
 							(setq *pc* +max_long)))
 
 					;external static call and jump
-					((eql op 'emit-call-p)
+					(:call-p
 						;use the callee trashes set
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(each (# (def-reg %0 :nil)) (eset-tolist (second callee_entry)))))
-					((eql op 'emit-jmp-p)
+					(:jmp-p
 						;exit function, merge and kill trace
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
@@ -281,14 +296,14 @@
 						(setq *pc* +max_long))
 
 					;external virtual call and jump
-					((eql op 'emit-call-r)
+					(:call-r
 						(if (bind '(& & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set))
-					((eql op 'emit-jmp-r)
+					(:jmp-r
 						;exit function, merge and kill trace
 						(if (bind '(& & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
@@ -298,14 +313,14 @@
 						(each (# (def-reg %0 :nil)) call_set)
 						(eset-union func_set trace_set)
 						(setq *pc* +max_long))
-					((eql op 'emit-call-i)
+					(:call-i
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set))
-					((eql op 'emit-jmp-i)
+					(:jmp-i
 						;exit function, merge and kill trace
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
@@ -317,17 +332,17 @@
 						(setq *pc* +max_long))
 
 					;external host os call or emit-trash directive
-					((eql op 'emit-call-abi)
+					(:call-abi
 						;simulate the union of all platform clobbers
 						(merge call_list '(:abicall))
 						(each (# (def-reg %0 :nil))
 							(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
-					((eql op 'emit-trash)
+					(:trash
 						;simulate the trashing of listed regs
 						(each! (# (def-reg %0 :nil)) (list inst) 1))
 
 					;everything else, each modified register is trashed
-					((each (# (def-reg %0 :nil)) (get-modified-regs inst))))
+					(:t (each (# (def-reg %0 :nil)) (get-modified-regs inst))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
 				(verbose 4 "\t\t\t" (format-values reg_map) "\n\t\t\t" (. stack_map :tolist)))
 			(. trace_map :erase trace)
