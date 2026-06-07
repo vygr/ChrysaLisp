@@ -73,5 +73,7 @@ inputs
 :r0 = mouse x
 :r1 = mouse y
 :r2 = update flags
+trashes
+:r0-:r14, :f0-:f15
 ```
 
