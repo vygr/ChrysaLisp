@@ -118,7 +118,7 @@
 		(defq obj_path (cat +obj_dir function))
 		(if (> (age obj_path) 0)
 			(first (read (file-stream obj_path))))) 101))
-	;inject local labels into callers env, so they can resolve labels
+	;inject local labels into callers env !
 	(each (# (if (find (first %0) '(emit-label emit-tlabel))
 		(def e (last (second %0)) (!)))) insts)
 	insts)
