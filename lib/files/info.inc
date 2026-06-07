@@ -292,8 +292,8 @@
 		(const files-depends)))
 
 (defun database-stale? (cache_file lib_file vp_files)
-	(defq cache_age (max (age cache_file) (age lib_file)))
-	(some (# (> (age %0) cache_age)) vp_files))
+	(defq cache_age (age cache_file))
+	(some (# (> (age %0) cache_age)) (cat vp_files (list lib_file))))
 
 (defun files-classes-info (&optional forced)
 	(defq vp_files (files-all-vp-source))
