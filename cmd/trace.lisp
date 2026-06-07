@@ -139,6 +139,9 @@
 	;inject local labels into callers env !
 	(each (# (if (find (first %0) '(emit-label emit-tlabel))
 		(def e (last (second %0)) (!)))) insts)
+	;inject start and end pc's into callers env !
+	(bind '(& & _s _e &ignore) (elem-get insts 3))
+	(def e '_s (get _s) '_e (get _e))
 	insts)
 
 (defun get-dependencies (function)
@@ -155,8 +158,8 @@
 					((find op '(emit-call-r emit-jmp-r))
 						(bind '(& & &optional c m) inst)))
 				(and c m (merge deps (resolve-virtual-methods c m))))
-			;scan from code start to link table start
-			(list insts) (get '_2) (get (elem-get (elem-get insts 3) 3)))) deps)
+			;scan from entry to link table start
+			(list insts) _s _e)) deps)
 
 (defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
@@ -189,15 +192,15 @@
 		((not (defq insts (get-function-insts function)))
 			(list :external))
 		(;register tracing simulation ! (as near as we can anyways)
-		;start main trace from label _2
+		;start main trace from pc _s
 		(defq label_map (Lmap) call_list (list) func_set (eset) trace -1 next_trace 0
 			reg_map (env-copy (const (reduce (lambda (%0 %1) (def %0 %1 %1) %0) +all_regs (env 1))) 1)
-			trace_map (scatter (Lmap) 0 (list (get '_2) 0 (Lmap) reg_map (eset) (list))))
+			trace_map (scatter (Lmap) 0 (list _s 0 (Lmap) reg_map (eset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
 			(task-slice)
 			(bind '(*pc* *rsp* stack_map reg_map trace_set call_stack) (. trace_map :find trace))
-			(while (< *pc* (length insts))
+			(while (< *pc* _e)
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
 				(case (get (first inst) +op_type_map)
