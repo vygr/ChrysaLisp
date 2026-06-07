@@ -122,6 +122,9 @@ New pseudocode VP ops, `(vp-trash reg_list)` and `(emit-trash reg_list)` to
 indicate to the tracer that these registers would be invalidated at this point
 in the code.
 
+All source, and resulting reference documentation, for the VP function trashes
+info, is now generated automatically from the `trace` command.
+
 ------
 
 Added cross-compilation support for Windows host executables on MacOS/Linux
