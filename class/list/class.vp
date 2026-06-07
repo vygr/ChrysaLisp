@@ -173,7 +173,7 @@
 	;:r1 = element object (ptr)
 	;:r2 = -1, else index (int)
 	;trashes
-	;:r2-:r9
+	;:r2-:r9, :r14
 
 	(vp-rdef (this iter_begin iter_end elm)
 		'(:r7 :r8 :r9))
@@ -222,7 +222,7 @@
 	;:r1 = element object (ptr)
 	;:r2 = 0, else index (int)
 	;trashes
-	;:r2-:r9
+	;:r2-:r9, :r14
 
 	(vp-rdef (this iter_begin iter_end elm)
 		'(:r7 :r8 :r9))
@@ -395,7 +395,7 @@
 	;:r0 = list of seq objects (ptr)
 	;:r1 = +max_long, or minimum length (uint)
 	;trashes
-	;:r1-:r5
+	;:r1-:r5, :r14
 
 	(vp-rdef (this min_len iter_begin iter_end) '(:r2 :r3 :r4 :r5))
 
@@ -424,7 +424,7 @@
 	;outputs
 	;:r0 = list object (ptr)
 	;trashes
-	;:r1-:r11
+	;:r1-:r6, :r8-:r11, :r14, :f0-:f15
 
 	(vp-rdef (this iter_begin iter_end index) '(:r8 :r9 :r10 :r11))
 
@@ -478,7 +478,7 @@
 	;outputs
 	;:r0 = new list object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r9, :r14, :f0-:f15
 
 	(entry :list :cat '(:r0 :r1))
 
@@ -497,7 +497,7 @@
 	;outputs
 	;:r0 = slice list object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r8, :r14, :f0-:f15
 
 	(entry :list :slice '(:r0 :r1 :r2))
 
@@ -516,7 +516,7 @@
 	;outputs
 	;:r0 = splice list object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r11, :r14, :f0-:f15
 
 	(entry :list :splice '(:r0 :r1 :r2))
 

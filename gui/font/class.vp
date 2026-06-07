@@ -423,7 +423,7 @@
 	;:r0 = font object (ptr)
 	;:r1 = 0, else texture object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15, :rsp
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this sym txt sym_canvas paths info)
@@ -484,7 +484,7 @@
 	;:r0 = font object (ptr)
 	;:r1 = list of ascii texture objects (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15, :rsp
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this sym txt chars)

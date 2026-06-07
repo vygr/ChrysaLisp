@@ -48,7 +48,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15, :rsp
+	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this buffer tmp))
 
@@ -82,7 +82,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15, :rsp
+	;:r1-:r9, :f0-:f15
 
 	(vp-rdef (this state ostate))
 
@@ -110,7 +110,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r2-:r14, :f0-:f15, :rsp
+	;:r2-:r3, :f0-:f15
 
 	(vp-rdef (this ack_num seq_num state))
 
@@ -150,7 +150,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15, :rsp
+	;:r1-:r9, :f0-:f15
 
 	(vp-rdef (this seqnum state ackid id0 id1 id2 msg data len))
 
@@ -205,7 +205,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15, :rsp
+	;:r1-:r9, :f0-:f15
 
 	(vp-rdef (this bufp bufe buffer))
 

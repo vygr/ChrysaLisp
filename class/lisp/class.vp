@@ -31,7 +31,7 @@
 	;:r0 = lisp object object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14, :f0-:f15, :rsp
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this vtable script stdin stdout stderr func)

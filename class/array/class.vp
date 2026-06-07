@@ -221,7 +221,7 @@
 	;:r0 = array object (ptr)
 	;:r1 = num object (ptr)
 	;trashes
-	;:r1-:r3
+	;:r1-:r3, :r14, :f0-:f15
 
 	(entry :array :ref_back '(:r0))
 
@@ -245,7 +245,7 @@
 	;:r0 = array object (ptr)
 	;:r1 = num object (ptr)
 	;trashes
-	;:r1-:r3
+	;:r1-:r3, :r14, :f0-:f15
 
 	(entry :array :ref_elem '(:r0 :r1))
 
@@ -634,7 +634,7 @@
 	;outputs
 	;:r0 = new array object (ptr)
 	;trashes
-	;:r0-:r9
+	;:r0-:r9, :r14, :f0-:f15
 
 	(vp-rdef (this seqs_begin di src si ei
 		len total seqs seqs_end))
@@ -684,7 +684,7 @@
 	;outputs
 	;:r0 = slice array object (ptr)
 	;trashes
-	;:r0-:r8
+	;:r0-:r8, :r14, :f0-:f15
 
 	(vp-rdef (src si ei this di total) '(:r6 :r7 :r8))
 
@@ -729,7 +729,7 @@
 	;outputs
 	;:r0 = new array object (ptr)
 	;trashes
-	;:r0-:r11
+	;:r0-:r11, :r14, :f0-:f15
 
 	(vp-rdef (this idx_begin di si ei swp_xor len total
 		src1 src2 idxs idx_end))

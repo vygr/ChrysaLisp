@@ -9,7 +9,7 @@
 	;inputs
 	;msg of lisp filename
 	;trashes
-	;:r0-:r14, :f0-:f15, :rsp
+	;:r0-:r14, :f0-:f15
 
 	(def-vars
 		(ptr script lisp args obj))

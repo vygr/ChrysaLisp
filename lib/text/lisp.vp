@@ -11,7 +11,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r9, :r13-:r14, :f0-:f15
 
 	(vp-rdef (this nums args iter len cx cy ax ay) '(:r13))
 
@@ -103,7 +103,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r11, :f0-:f15
+	;:r1-:r11, :r14, :f0-:f15
 
 	(vp-rdef (this args px py cx cy ax ay dcx dcy nx ny))
 
@@ -161,7 +161,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r10, :f0-:f15
+	;:r1-:r10, :r14, :f0-:f15
 
 	(vp-rdef (this args icx icy ecx ecy dy ax ay px py))
 

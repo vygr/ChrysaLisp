@@ -83,7 +83,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r4, :r14, :f0-:f15
 
 	(addop :mul)
 
@@ -96,7 +96,7 @@
 	;outputs
 	;:r0 = 0 if error, else result fixed object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r5, :r14, :f0-:f15
 
 	(entry :fixed :div '(:r0 :r1))
 
@@ -129,7 +129,7 @@
 	;outputs
 	;:r0 = 0 if error, else result fixed object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r2, :r4-:r6, :r14, :f0-:f15
 
 	(entry :fixed :mod '(:r0 :r1))
 

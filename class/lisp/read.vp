@@ -12,7 +12,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = next char (uint)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r8, :r14, :f0-:f15
 
 	(entry :lisp :read_char '(:r0 :r1 :r2))
 
