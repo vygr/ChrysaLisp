@@ -1,6 +1,5 @@
 (import "lib/options/options.inc")
 (import "lib/text/document.inc")
-;(import "lib/debug/frames.inc")
 (import "lib/files/info.inc")
 
 (defq usage `(
@@ -115,19 +114,20 @@
 
 (defun get-function-insts (function)
 	; (get-function-insts function) -> :nil | insts
-	(memoize function (progn
+	(defq e (penv) insts (memoize function (progn
 		(defq obj_path (cat +obj_dir function))
 		(if (> (age obj_path) 0)
 			(first (read (file-stream obj_path))))) 101))
+	;inject local labels into callers env, so they can resolve labels
+	(each (# (if (find (first %0) '(emit-label emit-tlabel))
+		(def e (last (second %0)) (!)))) insts)
+	insts)
 
 (defun get-dependencies (function)
 	;scan the compiled VP object
 	(defq deps (list))
 	(when (and (nql function :indirect) (nql function :abicall)
 			(defq insts (get-function-insts function)))
-		;local labels so resolve-static-method can find them
-		(each (# (if (find (first %0) '(emit-label emit-tlabel))
-				(def (penv) (last (second %0)) (!)))) insts)
 		(each! (lambda (inst)
 				(cond
 					((find (defq c :nil m :nil op (first inst)) '(emit-call-p emit-jmp-p))
@@ -137,7 +137,8 @@
 					((find op '(emit-call-r emit-jmp-r))
 						(bind '(& & &optional c m) inst)))
 				(and c m (merge deps (resolve-virtual-methods c m))))
-			(list insts) (get '_2))) deps)
+			;scan from code start to link table start
+			(list insts) (get '_2) (get (elem-get (elem-get insts 3) 3)))) deps)
 
 (defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
@@ -170,9 +171,6 @@
 		((not (defq insts (get-function-insts function)))
 			(list :external))
 		(;register tracing simulation ! (as near as we can anyways)
-		;local labels so we can resolve starting PC and jumps
-		(each (# (if (find (first %0) '(emit-label emit-tlabel))
-				(def (penv) (last (second %0)) (!)))) insts)
 		;start main trace from label _2
 		(defq label_map (Lmap) call_list (list) func_set (eset) trace -1 next_trace 0
 			reg_map (env-copy (const (reduce (lambda (%0 %1) (def %0 %1 %1) %0) +all_regs (env 1))) 1)
@@ -253,7 +251,7 @@
 							(progn
 								;return from main, merge clobbers and terminate path
 								(eset-union func_set trace_set)
-								(setq *pc* (length insts)))))
+								(setq *pc* +max_long))))
 					((eql op 'emit-call)
 						;local subroutine call, inline it using the path's call stack
 						(when (defq target_pc (get (second inst)))
@@ -264,7 +262,7 @@
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(if (or (not ls) (eset-nempty? (eset-diff (eset-copy trace_set) ls)))
 							(setq *pc* pc)
-							(setq *pc* (length insts))))
+							(setq *pc* +max_long)))
 
 					;external static call and jump
 					((eql op 'emit-call-p)
@@ -280,7 +278,7 @@
 						(when (defq callee_entry (. db :find callee))
 							(each (# (def-reg %0 :nil)) (eset-tolist (second callee_entry))))
 						(eset-union func_set trace_set)
-						(setq *pc* (length insts)))
+						(setq *pc* +max_long))
 
 					;external virtual call and jump
 					((eql op 'emit-call-r)
@@ -299,7 +297,7 @@
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set)
 						(eset-union func_set trace_set)
-						(setq *pc* (length insts)))
+						(setq *pc* +max_long))
 					((eql op 'emit-call-i)
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
@@ -316,7 +314,7 @@
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set)
 						(eset-union func_set trace_set)
-						(setq *pc* (length insts)))
+						(setq *pc* +max_long))
 
 					;external host os call or emit-trash directive
 					((eql op 'emit-call-abi)
@@ -326,11 +324,10 @@
 							(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
 					((eql op 'emit-trash)
 						;simulate the trashing of listed regs
-						(each (# (def-reg %0 :nil)) (rest inst)))
+						(each! (# (def-reg %0 :nil)) (list inst) 1))
 
-					;everything else
-					(:t ;each modified register is flagged as trashed and value :nil
-						(each (# (def-reg %0 :nil)) (get-modified-regs inst))))
+					;everything else, each modified register is trashed
+					((each (# (def-reg %0 :nil)) (get-modified-regs inst))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
 				(verbose 4 "\t\t\t" (format-values reg_map) "\n\t\t\t" (. stack_map :tolist)))
 			(. trace_map :erase trace)
