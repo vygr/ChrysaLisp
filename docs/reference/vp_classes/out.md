@@ -18,7 +18,7 @@ inputs
 outputs
 :r0 = out object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :flush -> class/out/flush
@@ -29,7 +29,7 @@ inputs
 outputs
 :r0 = out object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r9, :f0-:f15
 ```
 
 ### :init -> class/out/init
@@ -55,7 +55,7 @@ inputs
 outputs
 :r0 = out object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r9, :f0-:f15
 ```
 
 ### :vtable -> class/out/vtable
@@ -69,7 +69,7 @@ inputs
 outputs
 :r0 = out object (ptr)
 trashes
-:r2-:r14, :f0-:f15, :rsp
+:r2-:r3, :f0-:f15
 ```
 
 ### :write_next -> class/out/write_next
@@ -80,6 +80,6 @@ inputs
 outputs
 :r0 = out object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r9, :f0-:f15
 ```
 

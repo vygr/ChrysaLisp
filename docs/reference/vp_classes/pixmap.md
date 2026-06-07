@@ -110,7 +110,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r8, :r14, :f0-:f15
 ```
 
 ### :resize -> gui/pixmap/resize
@@ -192,7 +192,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :vtable -> gui/pixmap/vtable

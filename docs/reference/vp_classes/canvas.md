@@ -224,7 +224,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :vtable -> gui/canvas/vtable

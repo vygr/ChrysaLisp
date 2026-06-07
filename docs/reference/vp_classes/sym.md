@@ -67,7 +67,7 @@ inputs
 outputs
 :r0 = interned sym object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r7, :f0-:f15
 info
 input str IS NOT derefed
 ```

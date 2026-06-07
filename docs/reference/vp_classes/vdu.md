@@ -22,7 +22,7 @@ inputs
 outputs
 :r0 = vdu object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :draw -> gui/vdu/draw

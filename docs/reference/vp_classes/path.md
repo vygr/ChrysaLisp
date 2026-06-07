@@ -132,7 +132,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :stroke_joints -> gui/path/stroke_joints
@@ -166,7 +166,7 @@ outputs
 :r1 = output path1 object (ptr)
 :r2 = output path2 object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :stroke_polyline -> gui/path/stroke_polyline
@@ -182,7 +182,7 @@ outputs
 :r0 = path object (ptr)
 :r1 = output path object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :transform -> gui/path/transform

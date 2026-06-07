@@ -14,7 +14,7 @@ outputs
 :r0 = hset object (ptr)
 :r1 = bucket list object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r6
 ```
 
 ### :clear -> class/hset/clear
@@ -74,7 +74,7 @@ outputs
 :r1 = 0, else found iterator (pptr)
 :r2 = bucket list object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r6
 ```
 
 ### :flush -> class/hset/flush
@@ -114,7 +114,7 @@ outputs
 :r1 = element iterator (pptr)
 :r2 = bucket list object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r6, :f0-:f15
 ```
 
 ### :key_callback -> class/obj/null

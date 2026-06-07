@@ -49,7 +49,7 @@ inputs
 outputs
 :r0 = new array object (ptr)
 trashes
-:r0-:r9
+:r0-:r9, :r14, :f0-:f15
 ```
 
 ### :clear -> class/array/clear
@@ -399,7 +399,7 @@ outputs
 :r0 = array object (ptr)
 :r1 = num object (ptr)
 trashes
-:r1-:r3
+:r1-:r3, :r14, :f0-:f15
 ```
 
 ### :ref_elem -> class/array/ref_elem
@@ -412,7 +412,7 @@ outputs
 :r0 = array object (ptr)
 :r1 = num object (ptr)
 trashes
-:r1-:r3
+:r1-:r3, :r14, :f0-:f15
 ```
 
 ### :rfind -> class/array/rfind
@@ -478,7 +478,7 @@ inputs
 outputs
 :r0 = slice array object (ptr)
 trashes
-:r0-:r8
+:r0-:r8, :r14, :f0-:f15
 ```
 
 ### :sort -> class/array/sort
@@ -518,7 +518,7 @@ inputs
 outputs
 :r0 = new array object (ptr)
 trashes
-:r0-:r11
+:r0-:r11, :r14, :f0-:f15
 ```
 
 ### :vcreate -> class/array/create

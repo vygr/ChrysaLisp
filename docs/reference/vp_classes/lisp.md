@@ -168,7 +168,7 @@ outputs
 :r0 = lisp object object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :read -> class/lisp/read
@@ -197,7 +197,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = next char (uint)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r8, :r14, :f0-:f15
 ```
 
 ### :read_num -> class/lisp/read_num
@@ -299,7 +299,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = error object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r9, :r14, :f0-:f15
 ```
 
 ### :repl_eval -> class/lisp/repl_eval
@@ -376,7 +376,7 @@ lisp run loop task
 inputs
 msg of lisp filename
 trashes
-:r0-:r14, :f0-:f15, :rsp
+:r0-:r14, :f0-:f15
 ```
 
 ### :vtable -> class/lisp/vtable

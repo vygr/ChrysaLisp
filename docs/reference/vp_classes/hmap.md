@@ -99,7 +99,7 @@ outputs
 :r0 = hmap object (ptr)
 :r1 = 0 if not found, else value object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r9
 ```
 
 ### :init -> class/hmap/init

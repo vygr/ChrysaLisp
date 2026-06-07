@@ -39,7 +39,7 @@ inputs
 outputs
 :r0 = new list object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r9, :r14, :f0-:f15
 ```
 
 ### :clear -> class/list/clear
@@ -63,7 +63,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r11
+:r1-:r6, :r8-:r11, :r14, :f0-:f15
 ```
 
 ### :copy -> class/list/copy
@@ -129,7 +129,7 @@ outputs
 :r1 = element object (ptr)
 :r2 = -1, else index (int)
 trashes
-:r2-:r9
+:r2-:r9, :r14
 ```
 
 ### :min_length -> class/list/min_length
@@ -141,7 +141,7 @@ outputs
 :r0 = list of seq objects (ptr)
 :r1 = +max_long, or minimum length (uint)
 trashes
-:r1-:r5
+:r1-:r5, :r14
 ```
 
 ### :print -> class/list/print
@@ -204,7 +204,7 @@ outputs
 :r1 = element object (ptr)
 :r2 = 0, else index (int)
 trashes
-:r2-:r9
+:r2-:r9, :r14
 ```
 
 ### :set_elem -> class/list/set_elem
@@ -230,7 +230,7 @@ inputs
 outputs
 :r0 = slice list object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r8, :r14, :f0-:f15
 ```
 
 ### :splice -> class/list/splice
@@ -243,7 +243,7 @@ inputs
 outputs
 :r0 = splice list object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r11, :r14, :f0-:f15
 ```
 
 ### :vcreate -> class/list/create

@@ -97,7 +97,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :draw -> gui/view/draw
@@ -108,7 +108,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :find_id -> gui/view/find_id
@@ -159,7 +159,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = property value (long)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r9
 ```
 
 ### :get_prop -> gui/view/get_prop
@@ -172,7 +172,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 else, property object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r9
 ```
 
 ### :hide -> gui/view/hide
@@ -239,7 +239,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 else, property object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r9
 ```
 
 ### :set_flags -> gui/view/set_flags

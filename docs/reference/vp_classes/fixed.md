@@ -51,7 +51,7 @@ inputs
 outputs
 :r0 = 0 if error, else result fixed object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r5, :r14, :f0-:f15
 ```
 
 ### :floor -> class/fixed/floor
@@ -85,7 +85,7 @@ inputs
 outputs
 :r0 = 0 if error, else result fixed object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r2, :r4-:r6, :r14, :f0-:f15
 ```
 
 ### :mul -> class/fixed/mul
@@ -97,7 +97,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r4, :r14, :f0-:f15
 ```
 
 ### :print -> class/fixed/print

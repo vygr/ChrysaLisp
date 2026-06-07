@@ -28,7 +28,7 @@ inputs
 outputs
 :r0 = result real object (ptr)
 trashes
-:r1-:r14, :f0-:f1
+:r0-:r2, :r4, :r14, :f0-:f15
 ```
 
 ### :ceil -> class/real/ceil
@@ -64,7 +64,7 @@ inputs
 outputs
 :r0 = 0 if error, else result real object (ptr)
 trashes
-:r1-:r14, :f0-:f3
+:r0-:r5, :r14, :f0-:f15
 ```
 
 ### :floor -> class/real/floor
@@ -170,7 +170,7 @@ inputs
 outputs
 :r0 = 0 if error, else result real object (ptr)
 trashes
-:r1-:r14, :f0-:f3
+:r0-:r5, :r14, :f0-:f15
 ```
 
 ### :mul -> class/real/mul
@@ -182,7 +182,7 @@ inputs
 outputs
 :r0 = result real object (ptr)
 trashes
-:r1-:r14, :f0-:f1
+:r0-:r2, :r4, :r14, :f0-:f15
 ```
 
 ### :neg -> class/real/neg
@@ -284,7 +284,7 @@ inputs
 outputs
 :r0 = result real object (ptr)
 trashes
-:r1-:r14, :f0-:f1
+:r0-:r2, :r4, :r14, :f0-:f15
 ```
 
 ### :vcreate -> class/real/create

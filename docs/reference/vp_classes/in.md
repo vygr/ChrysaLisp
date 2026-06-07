@@ -45,7 +45,7 @@ inputs
 outputs
 :r0 = in object (ptr)
 trashes
-:r1-:r8
+:r1-:r8, :f0-:f15
 ```
 
 ### :read_next -> class/in/read_next
@@ -57,7 +57,7 @@ outputs
 :r0 = in object (ptr)
 :r1 = -1 for EOF, else more data
 trashes
-:r1-:r8
+:r1-:r8, :f0-:f15
 ```
 
 ### :vtable -> class/in/vtable

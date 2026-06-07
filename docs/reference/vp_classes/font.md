@@ -27,7 +27,7 @@ outputs
 :r0 = font object (ptr)
 :r1 = list of ascii texture objects (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :create -> gui/font/create
@@ -168,7 +168,7 @@ outputs
 :r0 = font object (ptr)
 :r1 = 0, else texture object (ptr)
 trashes
-:r1-:r14, :f0-:f15, :rsp
+:r1-:r14, :f0-:f15
 ```
 
 ### :vtable -> gui/font/vtable
