@@ -309,7 +309,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r14, :f0-:f15
 
 	(entry :nums :lisp_sum '(:r0 :r1))
 
@@ -414,7 +414,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r14, :f0-:f15
 
 	(entry :nums :lisp_dot '(:r0 :r1))
 

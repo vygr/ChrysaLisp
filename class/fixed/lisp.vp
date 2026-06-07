@@ -20,7 +20,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r13-:r14, :f0-:f15
 
 	(mathop :sin)
 
@@ -39,7 +39,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r13-:r14, :f0-:f15
 
 	(mathop :cos)
 
@@ -58,7 +58,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r13-:r14, :f0-:f15
 
 	(mathop :frac)
 
@@ -77,7 +77,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r13-:r14, :f0-:f15
 
 	(mathop :floor)
 
@@ -96,7 +96,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r13-:r14, :f0-:f15
 
 	(mathop :ceil)
 
@@ -115,7 +115,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r14, :f0-:f15
 
 	(entry :fixed :lisp_recip '(:r0 :r1))
 

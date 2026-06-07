@@ -12,7 +12,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r14, :f0-:f15
 
 	(entry :host_gui :lisp_init '(:r0 :r1))
 
@@ -224,7 +224,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r11, :r14, :f0-:f15
 
 	(entry :host_gui :lisp_info '(:r0 :r1))
 

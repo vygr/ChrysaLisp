@@ -29,7 +29,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r12, :r14, :f0-:f15
 
 	(vp-rdef (iter_begin iter_end dlist) '(:r10 :r11))
 	(vp-rdef (this args) '(:r12 :r1))
@@ -162,7 +162,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r14, :f0-:f15
 
 	(vp-rdef (this args src iter_begin iter_end iter_start wild_card))
 
