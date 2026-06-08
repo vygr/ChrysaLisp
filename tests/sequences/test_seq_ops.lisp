@@ -56,3 +56,9 @@
 (defq sw_arr (array 1 2 3))
 (swap sw_arr 0 2)
 (assert-list-eq "swap" '(3 2 1) (map identity sw_arr))
+
+; --- slices ---
+(assert-list-eq "slices empty" (list) (slices '()))
+(assert-list-eq "slices contiguous" (list (list 1 4)) (slices '(1 2 3)))
+(assert-list-eq "slices non-contiguous" (list (list 1 4) (list 5 7) (list 9 10)) (slices '(1 2 3 5 6 9)))
+(assert-list-eq "slices unsorted input" (list (list 1 4) (list 6 8)) (slices '(3 2 1 6 7)))

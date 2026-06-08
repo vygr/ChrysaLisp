@@ -74,3 +74,10 @@
 (assert-eq "n2i" 5 (n2i (n2r 5.7)))
 (defq rnd (random 100))
 (assert-true "random" (and (>= rnd 0) (< rnd 100)))
+
+; --- bitcnt (Hamming weight / Population count) ---
+(assert-eq "bitcnt 0" 0 (bitcnt 0))
+(assert-eq "bitcnt 7" 3 (bitcnt 7))
+(assert-eq "bitcnt 8" 1 (bitcnt 8))
+(assert-eq "bitcnt -1" 64 (bitcnt -1))
+(assert-eq "bitcnt 0xF0F0" 8 (bitcnt 0xF0F0))
