@@ -265,11 +265,10 @@
 					;internal call, jump and return
 					(:ret
 						;we are inside an inlined local subroutine, return to the caller
-						(ifn (setq *pc* (pop call_stack))
-							(progn
-								;return from main, merge clobbers and terminate path
-								(eset-union func_set trace_set)
-								(setq *pc* +max_long))))
+						(unless (setq *pc* (pop call_stack))
+							;return from main, merge clobbers and terminate path
+							(eset-union func_set trace_set)
+							(setq *pc* +max_long)))
 					(:call
 						;local subroutine call, inline it using the path's call stack
 						(when (defq target_pc (get (second inst)))
@@ -296,10 +295,9 @@
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(each (# (def-reg %0 :nil)) (eset-tolist (second callee_entry))))
-						(ifn (setq *pc* (pop call_stack))
-							(progn
-								(eset-union func_set trace_set)
-								(setq *pc* +max_long))))
+						(unless (setq *pc* (pop call_stack))
+							(eset-union func_set trace_set)
+							(setq *pc* +max_long)))
 
 					;external virtual call and jump
 					(:call-r
@@ -325,10 +323,9 @@
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set)
-						(ifn (setq *pc* (pop call_stack))
-							(progn
-								(eset-union func_set trace_set)
-								(setq *pc* +max_long))))
+						(unless (setq *pc* (pop call_stack))
+							(eset-union func_set trace_set)
+							(setq *pc* +max_long)))
 					(:jmp-i
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
@@ -338,10 +335,9 @@
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set)
-						(ifn (setq *pc* (pop call_stack))
-							(progn
-								(eset-union func_set trace_set)
-								(setq *pc* +max_long))))
+						(unless (setq *pc* (pop call_stack))
+							(eset-union func_set trace_set)
+							(setq *pc* +max_long)))
 
 					;external host os call or emit-trash directive
 					(:call-abi
