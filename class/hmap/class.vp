@@ -302,17 +302,19 @@
 	;trashes
 	;:r1-:r9
 
-	(vp-rdef (saved_this key this iter bucket) '(:r8 :r9))
+	(vp-rdef (this key) (method-input :hmap :search))
+	(vp-rdef (_ iter bucket) (method-output :hmap :search))
+	(vp-rdef (saved_this saved_key) '(:r8 :r9))
 
 	(entry :hmap :search `(,this ,key))
-	(assign `(,this) `(,saved_this))
+	(assign `(,this ,key) `(,saved_this ,saved_key))
 
 	(loop-start)
 		(call :hmap :find `(,this ,key) `(,this ,iter ,bucket))
 		(breakif `(,iter /= 0))
 		(assign `((,this +hmap_parent)) `(,iter))
 		(breakif `(,iter = 0))
-		(assign `(,iter) `(,this))
+		(assign `(,iter ,saved_key) `(,this ,key))
 	(loop-end)
 
 	(exit :hmap :search `(,saved_this ,iter ,bucket))
