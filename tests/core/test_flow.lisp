@@ -53,6 +53,16 @@
 	(++ i))
 (assert-eq "Until loop" 5 i)
 
+(defq sum_times 0)
+(times 5
+	(setq sum_times (+ sum_times (!))))
+(assert-eq "times macro index sum" 10 sum_times)
+
+(defq sum_for 0)
+(for 3 7
+	(setq sum_for (+ sum_for (!))))
+(assert-eq "for macro index sum" 18 sum_for)
+
 ; Progn
 (assert-eq "Progn last" 3 (progn 1 2 3))
 
