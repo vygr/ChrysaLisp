@@ -290,13 +290,16 @@
 						(when (defq callee_entry (. db :find callee))
 							(each (# (def-reg %0 :nil)) (eset-tolist (second callee_entry)))))
 					(:jmp-p
-						;exit function, merge and kill trace
+						;exit function, merge and kill trace or
+						;return to local caller if in subroutine
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(each (# (def-reg %0 :nil)) (eset-tolist (second callee_entry))))
-						(eset-union func_set trace_set)
-						(setq *pc* +max_long))
+						(ifn (setq *pc* (pop call_stack))
+							(progn
+								(eset-union func_set trace_set)
+								(setq *pc* +max_long))))
 
 					;external virtual call and jump
 					(:call-r
@@ -306,16 +309,6 @@
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set))
-					(:jmp-r
-						;exit function, merge and kill trace
-						(if (bind '(& & &optional c m) inst)
-							(defq call_set (virtual-trashes-union c m)
-								calls (resolve-virtual-methods c m))
-							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
-						(merge call_list calls)
-						(each (# (def-reg %0 :nil)) call_set)
-						(eset-union func_set trace_set)
-						(setq *pc* +max_long))
 					(:call-i
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
@@ -323,16 +316,32 @@
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set))
+					(:jmp-r
+						;exit function, merge and kill trace or
+						;return to local caller if in subroutine
+						(if (bind '(& & &optional c m) inst)
+							(defq call_set (virtual-trashes-union c m)
+								calls (resolve-virtual-methods c m))
+							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
+						(merge call_list calls)
+						(each (# (def-reg %0 :nil)) call_set)
+						(ifn (setq *pc* (pop call_stack))
+							(progn
+								(eset-union func_set trace_set)
+								(setq *pc* +max_long))))
 					(:jmp-i
-						;exit function, merge and kill trace
+						;exit function, merge and kill trace or
+						;return to local caller if in subroutine
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
 							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set)
-						(eset-union func_set trace_set)
-						(setq *pc* +max_long))
+						(ifn (setq *pc* (pop call_stack))
+							(progn
+								(eset-union func_set trace_set)
+								(setq *pc* +max_long))))
 
 					;external host os call or emit-trash directive
 					(:call-abi
