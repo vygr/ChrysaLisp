@@ -247,38 +247,46 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(structure local 0
-		(ptr this key value iter bucket))
+	(vp-rdef (this key) (method-input :hmap :insert))
+	(vp-rdef (_ iter bucket) (method-output :hmap :insert))
+	(vp-rdef (saved_key saved_value old_value tmp) '(:r8 :r9 :r10 :r11))
 
 	;save inputs
-	(vp-alloc local_size)
-	(entry :hmap :insert '(:r0 :r1 (:rsp local_value)))
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_key)))
+	(entry :hmap :insert `(,this ,key ,saved_value))
+	(assign `(,key) `(,saved_key))
 
 	;search hash bucket
-	(call :hmap :find '(:r0 :r1) '(_ :r1 :r2))
-	(assign '(:r2) '((:rsp local_bucket)))
-	(vpif '(:r1 = 0))
-		;new key, (key could be same as value !)
-		(assign '((:rsp local_key) (:rsp local_value)) '(:r1 :r2))
-		(class/obj/ref :r1 :r0)
-		(class/obj/ref :r2 :r0)
-		(call :list :push_back2 '((:rsp local_bucket) :r1 :r2) '(:r2 :r1 _ :r3 :r4))
-		;initial known slot
-		(vp-sub-cr (* +ptr_size 2) :r4)
-		(vp-sub-rr :r4 :r3)
-		(assign '(:r3 :r4) '((:r1 +str_hashslot) :r1))
-	(else)
-		;old key
-		(assign '((:rsp local_value) (:r1 +ptr_size) :r1) '(:r2 :r0 (:rsp local_iter)))
-		(assign '(:r2) '((:r1 +ptr_size)))
-		(class/obj/ref :r2 :r3)
-		(call :obj :deref '(:r0))
-		(assign '((:rsp local_iter) (:rsp local_bucket)) '(:r1 :r2))
+	(call :hmap :find `(,this ,key) `(,this ,iter ,bucket))
+	(vpif `(,iter /= 0))
+		;have old key
+		(assign `((,iter +ptr_size)) `(,old_value))
+		(vpif `(,old_value /= ,saved_value))
+			;have new value
+			(vp-push this iter bucket)
+
+			(assign `(,saved_value) `((,iter +ptr_size)))
+			(class/obj/ref saved_value tmp)
+			(call :obj :deref `(,old_value))
+
+			(vp-pop this iter bucket)
+		(endif)
+		(exit :hmap :insert `(,this ,iter ,bucket))
+		(vp-ret)
 	(endif)
 
-	(exit :hmap :insert '((:rsp local_this) :r1 :r2))
-	(vp-free local_size)
+	;new key, (key could be same as value !)
+	(vp-push this)
+
+	(class/obj/ref saved_key tmp)
+	(class/obj/ref saved_value tmp)
+	(call :list :push_back2 `(,bucket ,saved_key ,saved_value) `(,bucket ,iter _ iter_s iter_e))
+	;initial known slot
+	(vp-sub-cr (* +ptr_size 2) iter_e)
+	(vp-sub-rr iter_e iter_s)
+	(assign `(,iter_s ,iter_e) `((,iter +str_hashslot) ,iter))
+
+	(vp-pop this)
+	(exit :hmap :insert `(,this ,iter ,bucket))
 	(vp-ret)
 
 (def-func-end)
@@ -297,8 +305,8 @@
 	(vp-rdef (saved_this key this iter bucket) '(:r8 :r9))
 
 	(entry :hmap :search `(,this ,key))
-
 	(assign `(,this) `(,saved_this))
+
 	(loop-start)
 		(call :hmap :find `(,this ,key) `(,this ,iter ,bucket))
 		(breakif `(,iter /= 0))
@@ -323,24 +331,29 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(structure local 0
-		(ptr this value))
+	(vp-rdef (this key) (method-input :hmap :set))
+	(vp-rdef (_ iter) (method-output :hmap :set))
+	(vp-rdef (saved_value old_value tmp) '(:r10 :r11 :r12))
 
-	(vp-alloc local_size)
-	(entry :hmap :set '(:r0 :r1 (:rsp local_value)))
+	(entry :hmap :set `(,this ,key ,saved_value))
 
-	(call :hmap :search '(:r0 :r1) '(:r0 :r1 _))
-	(vpif '(:r1 /= 0))
-		(assign '(:r0) '((:rsp local_this)))
-		(assign '((:rsp local_value) (:r1 +ptr_size)) '(:r2 :r0))
-		(assign '(:r2) '((:r1 +ptr_size)))
-		(class/obj/ref :r2 :r3)
-		(call :obj :deref '(:r0))
-		(assign '((:rsp local_this) (:rsp local_value)) '(:r0 :r1))
+	(call :hmap :search `(,this ,key) `(,this ,iter _))
+	(vpif `(,iter /= 0))
+		;have old key
+		(assign `((,iter +ptr_size)) `(,old_value))
+		(breakif `(,old_value = ,saved_value))
+
+		;have new value
+		(vp-push this saved_value)
+
+		(assign `(,saved_value) `((,iter +ptr_size)))
+		(class/obj/ref saved_value tmp)
+		(call :obj :deref `(,old_value))
+
+		(vp-pop this iter)
 	(endif)
 
-	(exit :hmap :set '(:r0 :r1))
-	(vp-free local_size)
+	(exit :hmap :set `(,this ,iter))
 	(vp-ret)
 
 (def-func-end)
@@ -355,15 +368,20 @@
 	;trashes
 	;:r1-:r9
 
-	(entry :hmap :get '(:r0 :r1))
+	(vp-rdef (this key) (method-input :hmap :get))
+	(vp-rdef (_ iter) (method-output :hmap :get))
+	(vp-rdef (tmp) '(:r2))
 
-	(call :hmap :search '(:r0 :r1) '(:r0 :r1 _))
-	(vpif '(:r1 /= 0))
-		(assign '((:r1 +ptr_size)) '(:r1))
-		(class/obj/ref :r1 :r2)
+	(entry :hmap :get `(,this ,key))
+
+	(call :hmap :search `(,this ,key) `(,this ,iter _))
+	(vpif `(,iter /= 0))
+		;have old key
+		(assign `((,iter +ptr_size)) `(,iter))
+		(class/obj/ref iter tmp)
 	(endif)
 
-	(exit :hmap :get '(:r0 :r1))
+	(exit :hmap :get `(,this ,iter))
 	(vp-ret)
 
 (def-func-end)
