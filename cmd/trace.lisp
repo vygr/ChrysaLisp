@@ -203,7 +203,7 @@
 			(while (< *pc* _e)
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
-				(case (get (first inst) +op_type_map)
+				(case (def? (first inst) +op_type_map)
 					;labels and branches
 					(:label
 						;update merged state at labels
@@ -232,8 +232,7 @@
 					(:free
 						(setq *rsp* (++ *rsp* (second inst)))
 						(each (lambda ((%0 &ignore))
-							(if (< %0 *rsp*)
-								(. stack_map :erase %0)))
+								(if (< %0 *rsp*) (. stack_map :erase %0)))
 							(. stack_map :tolist)))
 					(:push
 						;push the values of all registers pushed
