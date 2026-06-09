@@ -6,16 +6,16 @@
 	(("-h" "--help")
 	"Usage: trace [options] [function_name] ...
 
-	options:
-		-h --help: this help info.
-		-v --verbosity num: how much info, default 0.
-		-l --lint: lint documented vs calculated trace.
-		-w --write: write back calculated trashes to source
-			files on mismatch.
+    options:
+        -h --help: this help info.
+        -v --verbosity num: how much info, default 0.
+        -l --lint: lint documented vs calculated trace.
+        -w --write: write back calculated trashes to source
+        files on mismatch.
 
-	Calculate and trace active transitive register clobber state for
-	virtual methods and static functions. Analyses compiled instructions
-	directly via symbolic execution and traces live registers.")
+    Calculate and trace active transitive register clobber state for
+    virtual methods and static functions. Analyses compiled instructions
+    directly via symbolic execution and traces live registers.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-l" "--lint") ,(opt-flag 'opt_l))
 (("-w" "--write") ,(opt-flag 'opt_w))
@@ -315,7 +315,7 @@
 					((emit-min-cr emit-min-rr emit-max-cr emit-max-rr vp-abs-rr)
 						;has label offset as last arg !
 						(def-reg (third inst) :nil))
-					(:t	;all remaining, check last for reg
+					(:t ;all remaining, check last for reg
 						(if (reg? (last inst)) (def-reg (last inst) :nil))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
 				(verbose 4 "\t\t\t" (format-values reg_map) "\n\t\t\t" (. stack_map :tolist)))
