@@ -27,10 +27,10 @@
 (defq +all_regs `'(~(last +int_regs) ~(last +float_regs))
 	+all_extern_trashed_regs `'(~(most (last +int_regs)) ~(last +float_regs))
 	+regs_index_map
-		(reduce (# (def %0 %1 (!)) %0) +int_regs
-		(reduce (# (def %0 %1 (!)) %0) +float_regs (env 1))))
+		(reduce (# (pinsert %0 %1 (!))) +int_regs
+		(reduce (# (pinsert %0 %1 (!))) +float_regs (plist))))
 
-(defun reg? (r) (if (eql :sym (pop (type-of r))) (def? r +regs_index_map)))
+(defun reg? (r) (if (eql :sym (pop (type-of r))) (pfind +regs_index_map r)))
 
 (defun gather-all-abi-trashed ()
 	(defq union_set (list))
