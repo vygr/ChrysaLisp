@@ -941,7 +941,10 @@
 					((push (first assoc) %0) (push (second assoc) body))))
 				keys) assoc)
 			body (list (list) (list))))
-	(if (every (const sym?) keys)
+	(if (some (# (find %0 keys (inc (!)))) keys)
+		(throw "Multiple matching case keys !" keys))
+	(if (and (or (eql val :nil) (not (find :nil vals)))
+			(every (const sym?) keys))
 		(progn
 			(defq e (reduce! (lambda (%0 %1 %2) (def %0 %1 %2) %0)
 						(list keys vals) (env 1)))

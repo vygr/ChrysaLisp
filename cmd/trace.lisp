@@ -308,7 +308,7 @@
 						(each! (# (def-reg %0 :nil)) (list inst) 1))
 					((emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i emit-cpy-fd)
 						;ignore as no reg writes
-						:nil)
+						:ignore)
 					((emit-land-rr emit-lnot-rr emit-div-rrr emit-div-rrr-u)
 						;two reg writes
 						(each (# (def-reg %0 :nil)) (slice inst -3 -1)))
