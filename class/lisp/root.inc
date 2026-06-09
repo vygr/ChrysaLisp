@@ -941,9 +941,16 @@
 					((push (first assoc) %0) (push (second assoc) body))))
 				keys) assoc)
 			body (list (list) (list))))
-	(if (every (const atom?) (push vals val))
-		(static-qq (elem-get ',vals (ifn (find ,key ',keys) -2)))
-		(static-qq (eval (elem-get ',vals (ifn (find ,key ',keys) -2))))))
+	(if (every (const sym?) keys)
+		(progn
+			(defq e (reduce! (lambda (%0 %1 %2) (def %0 %1 %2) %0)
+						(list keys vals) (env 1)))
+			(if (every (const atom?) vals)
+				(static-qq (ifn (def? ,key ,e) ,val))
+				(static-qq (eval (ifn (def? ,key ,e) ',val)))))
+		(if (every (const atom?) (push vals val))
+			(static-qq (elem-get ',vals (ifn (find ,key ',keys) -2)))
+			(static-qq (eval (elem-get ',vals (ifn (find ,key ',keys) -2)))))))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions

@@ -4,6 +4,14 @@
 
 ------
 
+`case` macro now builds an `(env 1)` map for the situation where all the keys
+are symbols ! Fallback is the linear `find` as before.
+
+`cmd/trace.lisp` now uses the new features of the `case` macro to elimenate
+several structures and functions.
+
+------
+
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
 is smoothed and displayed in the title bar as well as running values for mean,
 best and worst times. This is in effect a GUI version of the `make test`
