@@ -10,6 +10,9 @@ are symbols ! Fallback is the linear `find` as before.
 `cmd/trace.lisp` now uses the new features of the `case` macro to elimenate
 several structures and functions.
 
+Fixed a bug in the `:list :find` when the find start pos was the end of the
+list.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
