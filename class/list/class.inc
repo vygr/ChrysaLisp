@@ -8,7 +8,7 @@
 	(dec-method :min_length class/list/min_length :static (:r0) (:r0 :r1))
 	(dec-method :ref_all class/list/ref_all :static (:r0) (:r0))
 	(dec-method :collect class/list/collect :static (:r0 :r1 :r2) (:r0))
-	(dec-method :vcreate class/list/create :final)
+	(dec-method :vcreate class/list/create :override)
 	(dec-method :deinit class/list/deinit :final)
 	(dec-method :ref_elem class/list/ref_elem :final)
 	(dec-method :cat class/list/cat :final)

@@ -217,16 +217,16 @@
 
 	(errorif-lisp-args-len 'error :r1 /= 1)
 
-	(array-bind-args :r1 '(:r1))
-	(f-bind :list :vtable :r2)
-	(assign '((:r1 +obj_vtable)) '(:r3))
-	(vpif '(:r2 = :r3))
-		(vp-push :r0)
-		(call :list :copy '(:r1) '(_ :r1))
-		(vp-pop :r0)
+	(vp-push :r0)
+	(array-bind-args :r1 '(:r0))
+	(call :obj :inst_of `(:r0 (@ ,(f-path :list :vtable))) '(:r0 :r1))
+	(vpif '(:r1 /= 0))
+		(call :list :copy '(:r0) '(_ :r1))
 	(else)
+		(vp-cpy-rr :r0 :r1)
 		(class/obj/ref :r1 :r2)
 	(endif)
+	(vp-pop :r0)
 
 	(exit :list :lisp_copy '(:r0 :r1))
 	(vp-ret)

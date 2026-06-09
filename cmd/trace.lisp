@@ -64,7 +64,8 @@
 
 (defun def-reg (%0 %1)
 	; define register value and trashed state
-	(if (eql %0 (def reg_map %0 %1))
+	(pinsert reg_map %0 %1)
+	(if (eql %0 %1)
 		(eset-ferase trace_set %0)
 		(eset-finsert trace_set %0)))
 
@@ -90,7 +91,7 @@
 	(defq out (list))
 	(. (reduce (lambda (m (r v))
 				(. m :update v (# (setd %0 (eset)) (eset-insert %0 r))) m)
-			(filter (lambda ((r v)) (nql r v)) (tolist reg_map)) (Emap))
+			(filter (lambda ((r v)) (nql r v)) (partition reg_map 2)) (Emap))
 		:each (lambda (v rs) (push out (str v " -> " (format-trashes rs)))))
 	(if (empty? out) "none" (join out " | ")))
 
@@ -164,7 +165,7 @@
 		(;register tracing simulation ! (as near as we can anyways)
 		;start main trace from pc _s
 		(defq label_map (Lmap) call_list (list) func_set (eset) trace -1 next_trace 0
-			reg_map (env-copy (const (reduce (lambda (%0 %1) (def %0 %1 %1) %0) +all_regs (env 1))) 1)
+			reg_map (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
 			trace_map (scatter (Lmap) 0 (list _s 0 (Lmap) reg_map (eset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
@@ -186,14 +187,14 @@
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(when (or (not ls) (eset-nempty? (eset-diff (eset-copy trace_set) ls)))
 							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (env-copy reg_map 1) (eset-copy trace_set) (cat call_stack)))))
+								(. stack_map :copy) (copy reg_map) (eset-copy trace_set) (cat call_stack)))))
 					((emit-cpy-rr emit-cpy-ff)
 						;copy value and mark as trashed or restored
-						(def-reg (last inst) (def? (second inst) reg_map)))
+						(def-reg (last inst) (pfind reg_map (second inst))))
 					(emit-swp-rr
 						;swap values and mark as trashed or restored
 						(each (const def-reg)
-							(rest inst) (map! (# (def? %0 reg_map)) (list inst) -1 1)))
+							(rest inst) (map! (# (pfind reg_map %0)) (list inst) -1 1)))
 					(emit-alloc
 						(setq *rsp* (-- *rsp* (second inst))))
 					(emit-free
@@ -204,7 +205,7 @@
 					(emit-push
 						;push the values of all registers pushed
 						(each! (# (. stack_map :insert (-- *rsp* +long_size)
-								(def? %0 reg_map)))
+								(pfind reg_map %0)))
 							(list inst) 1))
 					(emit-pop
 						;pop the values of all registers popped
@@ -217,7 +218,7 @@
 						;stack spill 64 bit
 						(when (eql (third inst) :rsp)
 							(bind '(& src & offset) inst)
-							(. stack_map :insert (+ *rsp* offset) (def? src reg_map))))
+							(. stack_map :insert (+ *rsp* offset) (pfind reg_map src))))
 					((emit-cpy-ir emit-cpy-if)
 						;stack load 64 bit ?
 						(bind '(& src offset dst) inst)
