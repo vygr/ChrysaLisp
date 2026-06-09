@@ -1,0 +1,74 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+(include "././lisp/class.inc")
+
+(def-method :plist :lisp_pfind)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r11, :r14, :f0-:f15
+
+	(vp-rdef (this args))
+	(vp-rdef (lst key) (method-input :plist :pfind))
+	(vp-rdef (saved_this) '(:r11))
+
+	(entry :plist :lisp_pfind `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 2)
+
+	(vp-cpy-rr this saved_this)
+	(list-bind-args args `(,lst ,key) '(:plist :obj))
+	(call :plist :pfind `(,lst ,key) `(_ ,args))
+	(vpif `(,args = 0))
+		(assign `((,saved_this +lisp_sym_nil)) `(,args))
+	(else)
+		(assign `((,args +ptr_size)) `(,args))
+	(endif)
+	(class/obj/ref args lst)
+
+	(exit :plist :lisp_pfind `(,saved_this ,args))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error `(,this "(pfind plist key)" +error_msg_wrong_types ,args))
+	(signature '(:plist :obj)))
+
+(def-func-end)
+
+(def-method :plist :lisp_pinsert)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(vp-rdef (this args))
+	(vp-rdef (lst key val) (method-input :plist :pinsert))
+
+	(entry :plist :lisp_pinsert `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 3)
+
+	(vp-push this)
+	(list-bind-args args `(,lst ,key ,val) '(:plist :obj :obj))
+	(call :plist :pinsert `(,lst ,key ,val) `(,args _))
+	(class/obj/ref args val)
+	(vp-pop this)
+
+	(exit :plist :lisp_pinsert `(,this ,args))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error `(,this "(pinsert plist key val)" +error_msg_wrong_types ,args))
+	(signature '(:plist :obj :obj)))
+
+(def-func-end)

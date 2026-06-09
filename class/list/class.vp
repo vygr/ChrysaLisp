@@ -173,7 +173,7 @@
 	;:r1 = element object (ptr)
 	;:r2 = -1, else index (int)
 	;trashes
-	;:r2-:r9, :r14
+	;:r2-:r9
 
 	(vp-rdef (this iter_begin iter_end elm)
 		'(:r7 :r8 :r9))
@@ -194,7 +194,7 @@
 	(vp-add-rr :r2 iter_begin)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
-			(call :obj :eql `(,elm (,iter_begin 0)) `(,elm tmp))
+			(call :obj :eql `(,elm (,iter_begin 0)) `(,elm tmp) :r2)
 			(gotoif `(,tmp = 0) 'found)
 			(vp-add-cr +ptr_size iter_begin)
 		(loop-until `(,iter_begin = ,iter_end))
@@ -224,7 +224,7 @@
 	;:r1 = element object (ptr)
 	;:r2 = 0, else index (int)
 	;trashes
-	;:r2-:r9, :r14
+	;:r2-:r9
 
 	(vp-rdef (this iter_begin iter_end elm)
 		'(:r7 :r8 :r9))
@@ -244,7 +244,7 @@
 	(vp-shl-cr (log2 +long_size) :r2)
 	(vp-lea-d iter_end :r2 iter_begin)
 	(loop-start)
-		(call :obj :eql `(,elm (,iter_begin ,(neg +ptr_size))) `(,elm tmp))
+		(call :obj :eql `(,elm (,iter_begin ,(neg +ptr_size))) `(,elm tmp) :r2)
 		(breakif `(,tmp = 0))
 		(vp-sub-cr +ptr_size iter_begin)
 	(loop-until `(,iter_begin = ,iter_end))

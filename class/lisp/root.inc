@@ -230,6 +230,10 @@
 ; (lmatch? list list) -> :nil | :t
 (ffi "class/list/lisp_copy" copy)
 ; (copy form) -> 'form
+(ffi "class/plist/lisp_find" pfind)
+; (pfind list key) -> :nil | val
+(ffi "class/plist/lisp_insert" pinsert)
+; (pinsert list key val) -> list
 
 ;;;;;;;;;;;;;;;;;;;;
 ; String Operations
@@ -366,10 +370,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data Structure Constructors
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(ffi "class/array/lisp_array" array)
-; (array [num ...]) -> array
 (ffi "class/list/lisp_list" list)
 ; (list [elem ...]) -> list
+(ffi "class/array/lisp_array" array)
+; (array [num ...]) -> array
+(ffi "class/array/lisp_plist" plist)
+; (plist [key val] ...) -> plist
 (ffi "class/array/lisp_nums" nums)
 ; (nums [num ...]) -> nums
 (ffi "class/array/lisp_fixeds" fixeds)
@@ -946,11 +952,10 @@
 	(if (and (or (eql val :nil) (not (find :nil vals)))
 			(every (const sym?) keys))
 		(progn
-			(defq e (reduce! (lambda (%0 %1 %2) (def %0 %1 %2) %0)
-						(list keys vals) (env 1)))
+			(defq pl (reduce! (const pinsert) (list keys vals) (plist)))
 			(if (every (const atom?) vals)
-				(static-qq (ifn (def? ,key ,e) ,val))
-				(static-qq (eval (ifn (def? ,key ,e) ',val)))))
+				(static-qq (ifn (pfind ,pl ,key) ,val))
+				(static-qq (eval (ifn (pfind ,pl ,key) ',val)))))
 		(if (every (const atom?) (push vals val))
 			(static-qq (elem-get ',vals (ifn (find ,key ',keys) -2)))
 			(static-qq (eval (elem-get ',vals (ifn (find ,key ',keys) -2)))))))

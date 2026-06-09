@@ -129,7 +129,7 @@ outputs
 :r1 = element object (ptr)
 :r2 = -1, else index (int)
 trashes
-:r2-:r9, :r14
+:r2-:r9
 ```
 
 ### :min_length -> class/list/min_length
@@ -204,7 +204,7 @@ outputs
 :r1 = element object (ptr)
 :r2 = 0, else index (int)
 trashes
-:r2-:r9, :r14
+:r2-:r9
 ```
 
 ### :set_elem -> class/list/set_elem

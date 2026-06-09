@@ -25,6 +25,6 @@
 		(if (starts-with ":" %0) (rest %0) %0))) (* (length *static_syms*) +ptr_size))
 		(push *static_syms* (str %0)))
 	'(:vtable :num :fixed :real :nums :fixeds :reals :func :seq :str :sym :array
-	:list :path :hmap :font :text :ink_color :vdu_width :vdu_height :draw
+	:list :plist :path :hmap :font :text :ink_color :vdu_width :vdu_height :draw
 	:stream :sstream :fstream :mstream :netid :nodeid :in :out :stdio :lisp :error
 	:hset :dim main))
