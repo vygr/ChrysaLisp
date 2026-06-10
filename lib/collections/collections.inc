@@ -9,6 +9,7 @@
 (import "./xmap.inc")
 (import "./xset.inc")
 (import "./lmap.inc")
+(import "./pmap.inc")
 (import "./tree.inc")
 
 (defun gather (m &rest _)
