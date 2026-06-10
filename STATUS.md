@@ -16,7 +16,8 @@ list.
 New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)
 -> :nil | val)`, and `(pfindi plist key) -> :nil | idx)` functions.
 
-`Lmap` upgraded to use the new `plist` functions.
+`Lmap`, `Fmap`, `Lset`, `Fset`, `lib/asm/scopes.inc`, `emit-native-reg?`
+upgraded to use the new `plist` functions.
 
 ------
 

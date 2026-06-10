@@ -7,83 +7,73 @@
 ;module
 (env-push)
 
-(defmacro slot ()
-	(static-qq (defq _vl (get :buckets this)
-		_si (* (% (hash key) (get :num_buckets this)) 2)
-		_kl (elem-get _vl _si)
-		_vl (elem-get _vl (inc _si))
-		_si (find key _kl))))
-
 (defclass Fmap (&optional num_buckets) (Map)
 	; (Fmap [num_buckets]) -> fmap
 	(def this :num_buckets (setq num_buckets (ifn num_buckets 1))
-		:buckets (lists (* num_buckets 2)))
+		:buckets (map! (const plist) '() 0 num_buckets))
 
 	(defmethod :find (key)
 		; (. fmap :find key) -> :nil | val
-		(if (slot) (elem-get _vl _si)))
+		(pfind (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) key))
 
 	(defmethod :insert (key val)
 		; (. fmap :insert key val) -> fmap
-		(cond
-			((slot) (elem-set _vl _si val))
-			((push _kl key) (push _vl val)))
+		(pinsert (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) key val)
 		this)
 
 	(defmethod :update (key _fnc)
 		; (. fmap :update key lambda) -> val
-		(cond
-			((slot)
-				(until (setq _kl (elem-get _vl _si))
-					((const (ffi "sys/task/lisp_sleep")) 0))
-				(elem-set _vl _si :nil)
-				(elem-set _vl _si (setq _kl (_fnc _kl))))
-			((setq _si (length _kl))
-				(push _kl key) (push _vl :nil)
-				(elem-set _vl _si (setq _kl (_fnc :nil))))) _kl)
+		(defq _p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
+		(pinsert _p key (_fnc (pfind _p key))))
 
 	(defmethod :memoize (key _fnc)
 		; (. fmap :memoize key lambda) -> val
+		(defq _p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
 		(cond
-			((slot)
-				(until (setq _kl (elem-get _vl _si))
-					((const (ffi "sys/task/lisp_sleep")) 0)))
-			((setq _si (length _kl))
-				(push _kl key) (push _vl :nil)
-				(elem-set _vl _si (setq _kl (_fnc))))) _kl)
+			((pfind _p key))
+			(:t (pinsert _p key (defq _val (_fnc))) _val)))
 
 	(defmethod :erase (key)
 		; (. fmap :erase key) -> fmap
-		(when (slot)
-			(elem-set _kl _si (last _kl))
-			(elem-set _vl _si (last _vl))
-			(pop _kl) (pop _vl))
+		(defq _p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
+		(when (defq _si (pfindi _p key))
+			(elem-set _p _si (elem-get _p -3))
+			(elem-set _p (inc _si) (elem-get _p -2))
+			(pop _p) (pop _p))
 		this)
 
 	(defmethod :each (fnc)
 		; (. fmap :each lambda) -> fmap
 		(defq e (penv))
-		(each (lambda ((kl vl)) (each (lambda (k v) (callback fnc e k v)) kl vl))
-			(partition (get :buckets this) 2))
+		(each (lambda (bucket)
+			(each (lambda ((k v)) (callback fnc e k v)) (partition bucket 2)))
+			(get :buckets this))
 		this)
 
 	(defmethod :tolist ()
 		; (. fmap :tolist) -> list
 		(defq out (list))
-		(each (# (setq out (map! (const list) %0 0 -1 out)))
-			(partition (get :buckets this) 2))
+		(each (lambda (bucket)
+			(each (lambda (pair) (push out pair)) (partition bucket 2)))
+			(get :buckets this))
 		out)
 
 	(defmethod :copy ()
 		; (. fmap :copy) -> fmap
-		(defq that ((get 'Fmap) (get :num_buckets this)) that_buckets (get :buckets that))
-		(each (# (elem-set that_buckets (!) (cat %0))) (get :buckets this))
+		(defq that ((get 'Fmap) (get :num_buckets this))
+			that_buckets (get :buckets that))
+		(each (lambda (this_bucket that_bucket)
+			(each (lambda (x) (push that_bucket x)) this_bucket))
+			(get :buckets this) that_buckets)
 		that)
 
 	(defmethod :deep_copy ()
 		; (. fmap :deep_copy) -> fmap
-		(defq that ((get 'Fmap) (get :num_buckets this)) that_buckets (get :buckets that))
-		(each (# (elem-set that_buckets (!) (copy %0))) (get :buckets this))
+		(defq that ((get 'Fmap) (get :num_buckets this))
+			that_buckets (get :buckets that))
+		(each (lambda (this_bucket that_bucket)
+			(each (lambda ((k v)) (pinsert that_bucket (copy k) (copy v))) (partition this_bucket 2)))
+			(get :buckets this) that_buckets)
 		that)
 
 	(defmethod :empty ()
@@ -101,15 +91,12 @@
 
 	(defmethod :resize (num_buckets)
 		; (. fmap :resize num_buckets) -> fmap
-		(raise :buckets (new_buckets (lists (* num_buckets 2))))
+		(raise :buckets (new_buckets (map! (const plist) '() 0 num_buckets)))
 		(lower :num_buckets (:buckets new_buckets))
-		(raise :num_buckets (i -2))
-		(while (< (++ i 2) (length buckets))
-			(defq old_keys (elem-get buckets i) old_vals (elem-get buckets (inc i)))
-			(while (defq key (pop old_keys) val (pop old_vals))
-				(defq ni (* (% (hash key) num_buckets) 2))
-				(push (elem-get new_buckets ni) key)
-				(push (elem-get new_buckets (inc ni)) val)))
+		(raise :num_buckets)
+		(each (lambda (old_bucket)
+			(each (lambda ((k v)) (pinsert (elem-get new_buckets (% (hash k) num_buckets)) k v)) (partition old_bucket 2)))
+			buckets)
 		this)
 
 	(defmethod :empty? ()

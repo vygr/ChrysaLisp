@@ -9,69 +9,69 @@
 
 (defclass Lset () (Set)
 	; (Lset) -> lset
-	(def this :keys (list))
+	(def this :bucket (plist))
 
 	(defmethod :find (key)
 		; (. lset :find key) -> :nil | key
-		(raise :keys)
-		(if (defq _si (find key keys)) (elem-get keys _si)))
+		(if (defq _si (pfindi (get :bucket this) key))
+			(elem-get (get :bucket this) _si)))
 
 	(defmethod :insert (key)
 		; (. lset :insert key) -> lset
-		(merge (get :keys this) (list key))
+		(pinsert (get :bucket this) key :t)
 		this)
 
 	(defmethod :inserted (key)
 		; (. lset :inserted key) -> :nil | lset
-		(raise :keys)
+		(raise :bucket)
 		(cond
-			((find key keys) :nil)
-			((push keys key) this)))
+			((pfind bucket key) :nil)
+			((pinsert bucket key :t) this)))
 
 	(defmethod :intern (key)
 		; (. lset :intern key) -> key
-		(raise :keys)
-		(cond
-			((defq _si (find key keys)) (elem-get keys _si))
-			((push keys key) key)))
+		(raise :bucket)
+		(if (defq _si (pfindi bucket key))
+			(elem-get bucket _si)
+			(progn (pinsert bucket key :t) key)))
 
 	(defmethod :erase (key)
 		; (. lset :erase key) -> lset
-		(raise :keys)
-		(when (defq _si (find key keys))
-			(elem-set keys _si (last keys))
-			(pop keys))
+		(raise :bucket)
+		(when (defq _si (pfindi bucket key))
+			(elem-set bucket _si (elem-get bucket -3))
+			(elem-set bucket (inc _si) (elem-get bucket -2))
+			(pop bucket) (pop bucket))
 		this)
 
 	(defmethod :each (fnc)
 		; (. lset :each lambda) -> lset
 		(defq e (penv))
-		(each (lambda (k) (callback fnc e k)) (get :keys this))
+		(each (lambda ((k v)) (callback fnc e k)) (partition (get :bucket this) 2))
 		this)
 
 	(defmethod :tolist ()
 		; (. lset :tolist) -> list
-		(cat (get :keys this)))
+		(defq out (list))
+		(each (lambda ((k v)) (push out k)) (partition (get :bucket this) 2))
+		out)
 
 	(defmethod :copy ()
 		; (. lset :copy) -> lset
 		(defq that ((get 'Lset)))
-		(set that :keys (cat (get :keys this)))
+		(set that :bucket (copy (get :bucket this)))
 		that)
 
 	(defmethod :deep_copy ()
 		; (. lset :deep_copy) -> lset
-		(defq that ((get 'Lset)))
-		(set that :keys (copy (get :keys this)))
+		(defq that ((get 'Lset)) that_bucket (get :bucket that))
+		(each (lambda ((key val)) (pinsert that_bucket (copy key) (copy val))) (partition (get :bucket this) 2))
 		that)
 
 	(defmethod :union (that)
 		; (. lset :union set) -> lset
-		(raise :keys)
 		(unless (eql this that)
-			(if (defq that_keys (get :keys that))
-				(merge keys that_keys)
-				(. that :each (# (. this :insert %0)))))
+			(. that :each (# (. this :insert %0))))
 		this)
 
 	(defmethod :difference (that)
@@ -85,7 +85,9 @@
 	(defmethod :intersect (that)
 		; (. lset :intersect set) -> lset
 		(unless (eql this that)
-			(set this :keys (filter (# (. that :find %0)) (get :keys this))))
+			(defq new_bucket (plist))
+			(each (lambda ((k v)) (if (. that :find k) (pinsert new_bucket k v))) (partition (get :bucket this) 2))
+			(set this :bucket new_bucket))
 		this)
 
 	(defmethod :not_intersect (that)
@@ -99,14 +101,14 @@
 
 	(defmethod :empty ()
 		; (. lset :empty) -> lset
-		(clear (get :keys this))
+		(clear (get :bucket this))
 		this)
 
 	(defmethod :move ()
 		; (. lset :move) -> lset
-		(raise :keys (that ((get 'Lset)) that_keys (get :keys that)))
-		(lower (:keys that_keys))
-		(set that :keys keys)
+		(raise :bucket (that ((get 'Lset)) that_bucket (get :bucket that)))
+		(lower (:bucket that_bucket))
+		(set that :bucket bucket)
 		that)
 
 	(defmethod :resize (num_buckets)
@@ -115,11 +117,11 @@
 
 	(defmethod :empty? ()
 		; (. lset :empty?) -> :t | :nil
-		(= (length (get :keys this)) 0))
+		(= (length (get :bucket this)) 0))
 
 	(defmethod :size ()
 		; (. lset :size) -> size
-		(length (get :keys this)))
+		(/ (length (get :bucket this)) 2))
 	)
 
 ;module

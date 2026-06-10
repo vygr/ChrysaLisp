@@ -1,74 +1,83 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; fast hash set object
-;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;
+; fast set object
+;;;;;;;;;;;;;;;;;
 
 (import "./set.inc")
 
 ;module
 (env-push)
 
-(defmacro slot ()
-	(static-qq (defq _kl (get :buckets this)
-		_kl (elem-get _kl (% (hash key) (get :num_buckets this)))
-		_si (find key _kl))))
-
 (defclass Fset (&optional num_buckets) (Set)
 	; (Fset [num_buckets]) -> fset
 	(def this :num_buckets (setq num_buckets (ifn num_buckets 1))
-		:buckets (lists num_buckets))
+		:buckets (map! (const plist) '() 0 num_buckets))
 
 	(defmethod :find (key)
 		; (. fset :find key) -> :nil | key
-		(if (slot) (elem-get _kl _si)))
+		(defq _bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
+		(if (defq _si (pfindi _bucket key))
+			(elem-get _bucket _si)))
 
 	(defmethod :insert (key)
 		; (. fset :insert key) -> fset
-		(merge (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) (list key))
+		(pinsert (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) key :t)
 		this)
 
 	(defmethod :inserted (key)
 		; (. fset :inserted key) -> :nil | fset
+		(defq _bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
 		(cond
-			((slot) :nil)
-			((push _kl key) this)))
+			((pfind _bucket key) :nil)
+			((pinsert _bucket key :t) this)))
 
 	(defmethod :intern (key)
 		; (. fset :intern key) -> key
-		(cond
-			((slot) (elem-get _kl _si))
-			((push _kl key) key)))
+		(defq _bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
+		(if (defq _si (pfindi _bucket key))
+			(elem-get _bucket _si)
+			(progn (pinsert _bucket key :t) key)))
 
 	(defmethod :erase (key)
 		; (. fset :erase key) -> fset
-		(when (slot)
-			(elem-set _kl _si (last _kl))
-			(pop _kl))
+		(defq _bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
+		(when (defq _si (pfindi _bucket key))
+			(elem-set _bucket _si (elem-get _bucket -3))
+			(elem-set _bucket (inc _si) (elem-get _bucket -2))
+			(pop _bucket) (pop _bucket))
 		this)
 
 	(defmethod :each (fnc)
 		; (. fset :each lambda) -> fset
 		(defq e (penv))
-		(each (# (each (lambda (i) (callback fnc e i)) %0)) (get :buckets this))
+		(each (lambda (bucket)
+			(each (lambda ((k v)) (callback fnc e k)) (partition bucket 2)))
+			(get :buckets this))
 		this)
 
 	(defmethod :tolist ()
 		; (. fset :tolist) -> list
-		(apply (const cat) (get :buckets this)))
+		(defq out (list))
+		(each (lambda (bucket)
+			(each (lambda ((k v)) (push out k)) (partition bucket 2)))
+			(get :buckets this))
+		out)
 
 	(defmethod :copy ()
 		; (. fset :copy) -> fset
-		(defq that ((get 'Fset) (get :num_buckets this)))
+		(defq that ((get 'Fset) (get :num_buckets this))
+			that_buckets (get :buckets that))
 		(each (lambda (this_bucket that_bucket)
-			(each (lambda (key)
-				(push that_bucket key)) this_bucket)) (get :buckets this) (get :buckets that))
+			(each (lambda (x) (push that_bucket x)) this_bucket))
+			(get :buckets this) that_buckets)
 		that)
 
 	(defmethod :deep_copy ()
 		; (. fset :deep_copy) -> fset
-		(defq that ((get 'Fset) (get :num_buckets this)))
+		(defq that ((get 'Fset) (get :num_buckets this))
+			that_buckets (get :buckets that))
 		(each (lambda (this_bucket that_bucket)
-			(each (lambda (key)
-				(push that_bucket (copy key))) this_bucket)) (get :buckets this) (get :buckets that))
+			(each (lambda ((k v)) (pinsert that_bucket (copy k) (copy v))) (partition this_bucket 2)))
+			(get :buckets this) that_buckets)
 		that)
 
 	(defmethod :union (that)
@@ -88,8 +97,11 @@
 	(defmethod :intersect (that)
 		; (. fset :intersect set) -> fset
 		(unless (eql this that)
-			(each (# (elem-set _b (!) (filter (# (. that :find %0)) %0)))
-				(defq _b (get :buckets this))))
+			(defq new_buckets (map! (const plist) '() 0 (get :num_buckets this)))
+			(each (lambda (bucket new_bucket)
+				(each (lambda ((k v)) (if (. that :find k) (pinsert new_bucket k v))) (partition bucket 2)))
+				(get :buckets this) new_buckets)
+			(set this :buckets new_buckets))
 		this)
 
 	(defmethod :not_intersect (that)
@@ -116,12 +128,12 @@
 
 	(defmethod :resize (num_buckets)
 		; (. fset :resize num_buckets) -> fset
-		(raise :buckets (new_buckets (lists num_buckets)))
+		(raise :buckets (new_buckets (map! (const plist) '() 0 num_buckets)))
 		(lower :num_buckets (:buckets new_buckets))
 		(raise :num_buckets)
 		(each (lambda (old_bucket)
-			(while (defq key (pop old_bucket))
-				(push (elem-get new_buckets (% (hash key) num_buckets)) key))) buckets)
+			(each (lambda ((k v)) (pinsert (elem-get new_buckets (% (hash k) num_buckets)) k v)) (partition old_bucket 2)))
+			buckets)
 		this)
 
 	(defmethod :empty? ()
@@ -130,7 +142,7 @@
 
 	(defmethod :size ()
 		; (. fset :size) -> size
-		(reduce (# (+ %0 (length %1))) (get :buckets this) 0))
+		(/ (reduce (# (+ %0 (length %1))) (get :buckets this) 0) 2))
 	)
 
 ;module
