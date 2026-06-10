@@ -6,7 +6,11 @@
 
 ### (pfind list key) -> :nil | val
 
+### (pfindi list key) -> :nil | idx
+
 ### (pinsert list key val) -> list
+
+### (plist [key val] ...) -> plist
 
 ## VP methods
 

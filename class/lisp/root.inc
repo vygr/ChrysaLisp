@@ -232,6 +232,8 @@
 ; (copy form) -> 'form
 (ffi "class/plist/lisp_find" pfind)
 ; (pfind list key) -> :nil | val
+(ffi "class/plist/lisp_findi" pfindi)
+; (pfindi list key) -> :nil | idx
 (ffi "class/plist/lisp_insert" pinsert)
 ; (pinsert list key val) -> list
 
@@ -372,10 +374,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ffi "class/list/lisp_list" list)
 ; (list [elem ...]) -> list
+(ffi "class/plist/lisp_plist" plist)
+; (plist [key val] ...) -> plist
 (ffi "class/array/lisp_array" array)
 ; (array [num ...]) -> array
-(ffi "class/array/lisp_plist" plist)
-; (plist [key val] ...) -> plist
 (ffi "class/array/lisp_nums" nums)
 ; (nums [num ...]) -> nums
 (ffi "class/array/lisp_fixeds" fixeds)
@@ -577,6 +579,10 @@
 (defun list? (%0)
 	; (list? form) -> :t | :nil
 	(rfind :list (type-of %0)))
+
+(defun plist? (%0)
+	; (plist? form) -> :t | :nil
+	(rfind :plist (type-of %0)))
 
 (defun num? (%0)
 	; (num? form) -> :t | :nil

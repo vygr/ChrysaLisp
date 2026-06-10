@@ -16,8 +16,6 @@
 
 ### (path [fixed ...]) -> path
 
-### (plist [key val] ...) -> plist
-
 ### (pop array) -> elem | :nil
 
 ### (push array elem ...) -> array

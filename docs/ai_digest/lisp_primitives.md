@@ -570,6 +570,11 @@ specialized arrays. They store elements in alternating key-value pairs.
 
 	* `(pfind plist key) -> val | :nil`
 
+*   **`pfindi`**: Searches for a key in a property list. Returns the
+	associated index if found, or `:nil` if the key does not exist.
+
+	* `(pfindi plist key) -> idx | :nil`
+
 ## Predicates
 
 *   **`lambda?`**: Checks if a form is a lambda.

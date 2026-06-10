@@ -1,6 +1,7 @@
 (import "lib/options/options.inc")
 (import "lib/text/document.inc")
 (import "lib/files/info.inc")
+;(import "lib/debug/frames.inc")
 
 (defq usage `(
 	(("-h" "--help")
@@ -48,26 +49,24 @@
 (defq +all_abi_trashed_regs
 	''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
 
-; (env 1) +all_regs set, with :nil for 'erased' to keep slots lined up
-(defmacro eset-copy (%0) (static-qq (env-copy ,%0 1)))
-(defmacro eset-finsert (%0 %1) (static-qq (def ,%0 ,%1 :t)))
-(defmacro eset-ferase (%0 %1) (static-qq (def ,%0 ,%1 :nil)))
-(defmacro eset-insert (%0 %1) (static-qq (progn (eset-finsert ,%0 ,%1) ,%0)))
-(defmacro eset-erase (%0 %1) (static-qq (progn (eset-ferase ,%0 ,%1) ,%0)))
-(defmacro eset-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (eset-finsert %0 %1)) %0) (tolist ,%1) ,%0)))
-(defmacro eset-diff (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (eset-ferase %0 %1)) %0) (tolist ,%1) ,%0)))
-(defmacro eset-tolist (%0) (static-qq (map (const first) (filter (const second) (tolist ,%0)))))
-(defmacro eset-size (%0) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (inc %0) %0)) (tolist ,%0) 0)))
-(defmacro eset-empty? (%0) (static-qq (notany (const second) (tolist ,%0))))
-(defmacro eset-nempty? (%0) (static-qq (some (const second) (tolist ,%0))))
-(defmacro eset () (static-qq (eset-copy (const (reduce (lambda (%0 %1) (eset-erase %0 %1)) +all_regs (env 1))))))
+; (plist) +all_regs set, with :nil for 'erased' to keep slots lined up
+(defmacro rset-copy (%0) (static-qq (copy ,%0)))
+(defmacro rset-insert (%0 %1) (static-qq (pinsert ,%0 ,%1 :t)))
+(defmacro rset-erase (%0 %1) (static-qq (pinsert ,%0 ,%1 :nil)))
+(defmacro rset-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (rset-insert %0 %1) %0)) (partition ,%1 2) ,%0)))
+(defmacro rset-diff (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (rset-erase %0 %1) %0)) (partition ,%1 2) ,%0)))
+(defmacro rset-tolist (%0) (static-qq (map (const first) (filter (const second) (partition ,%0 2)))))
+(defmacro rset-size (%0) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (inc %0) %0)) (partition ,%0 2) 0)))
+(defmacro rset-empty? (%0) (static-qq (notany (const second) (partition ,%0 2))))
+(defmacro rset-nempty? (%0) (static-qq (some (const second) (partition ,%0 2))))
+(defmacro rset () (static-qq (rset-copy (const (reduce (lambda (%0 %1) (rset-erase %0 %1)) +all_regs (plist))))))
 
 (defun def-reg (%0 %1)
 	; define register value and trashed state
 	(pinsert reg_map %0 %1)
 	(if (eql %0 %1)
-		(eset-ferase trace_set %0)
-		(eset-finsert trace_set %0)))
+		(rset-erase trace_set %0)
+		(rset-insert trace_set %0)))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
@@ -81,7 +80,7 @@
 			(if (/= (defq %0 (reg? %0)) (const (reg? :rsp)))
 				(push r_indices %0))
 			(push f_indices (reg? %0))))
-		(if (list? func_set) func_set (eset-tolist func_set)))
+		(if (plist? func_set) (rset-tolist func_set) func_set))
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
 		(format-group ":f" f_indices)))
@@ -90,7 +89,7 @@
 (defun format-values (reg_map)
 	(defq out (list))
 	(. (reduce (lambda (m (r v))
-				(. m :update v (# (setd %0 (eset)) (eset-insert %0 r))) m)
+				(. m :update v (# (setd %0 (rset)) (rset-insert %0 r))) m)
 			(filter (lambda ((r v)) (nql r v)) (partition reg_map 2)) (Emap))
 		:each (lambda (v rs) (push out (str v " -> " (format-trashes rs)))))
 	(if (empty? out) "none" (join out " | ")))
@@ -149,7 +148,7 @@
 	;and its subclasses overrides, based on the current state of the active db
 	(defq union_set (list))
 	(each (# (if (defq f_entry (. db :find %0))
-			(merge union_set (eset-tolist (second f_entry)))))
+			(merge union_set (rset-tolist (second f_entry)))))
 		(resolve-virtual-methods c m))
 	(if (nempty? union_set) union_set +all_extern_trashed_regs))
 
@@ -164,9 +163,9 @@
 			(list :external))
 		(;register tracing simulation ! (as near as we can anyways)
 		;start main trace from pc _s
-		(defq label_map (Lmap) call_list (list) func_set (eset) trace -1 next_trace 0
+		(defq label_map (Lmap) call_list (list) func_set (rset) trace -1 next_trace 0
 			reg_map (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
-			trace_map (scatter (Lmap) 0 (list _s 0 (Lmap) reg_map (eset) (list))))
+			trace_map (scatter (Lmap) 0 (list _s 0 (Lmap) reg_map (rset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
 			(task-slice)
@@ -178,16 +177,16 @@
 					((emit-label emit-tlabel)
 						;update merged state at labels
 						(if (defq pc (get (last (second inst))) ls (. label_map :find pc))
-							(eset-union trace_set ls))
-						(. label_map :insert pc (eset-copy trace_set)))
+							(rset-union trace_set ls))
+						(. label_map :insert pc (rset-copy trace_set)))
 					((emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 					emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
 					emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)
 						;if branch would carry new state then create new trace
 						(defq pc (get (last inst)) ls (. label_map :find pc))
-						(when (or (not ls) (eset-nempty? (eset-diff (eset-copy trace_set) ls)))
+						(when (or (not ls) (rset-nempty? (rset-diff (rset-copy trace_set) ls)))
 							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (copy reg_map) (eset-copy trace_set) (cat call_stack)))))
+								(. stack_map :copy) (copy reg_map) (rset-copy trace_set) (cat call_stack)))))
 					((emit-cpy-rr emit-cpy-ff)
 						;copy value and mark as trashed or restored
 						(def-reg (last inst) (pfind reg_map (second inst))))
@@ -232,7 +231,7 @@
 						;we are inside an inlined local subroutine, return to the caller
 						(unless (setq *pc* (pop call_stack))
 							;return from main, merge clobbers and terminate path
-							(eset-union func_set trace_set)
+							(rset-union func_set trace_set)
 							(setq *pc* +max_long)))
 					(emit-call
 						;local subroutine call, inline it using the path's call stack
@@ -242,7 +241,7 @@
 					(emit-jmp
 						;if jump would carry new state then jump, else kill trace
 						(defq pc (get (last inst)) ls (. label_map :find pc))
-						(if (or (not ls) (eset-nempty? (eset-diff (eset-copy trace_set) ls)))
+						(if (or (not ls) (rset-nempty? (rset-diff (rset-copy trace_set) ls)))
 							(setq *pc* pc)
 							(setq *pc* +max_long)))
 					(emit-call-p
@@ -250,16 +249,16 @@
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
-							(each (# (def-reg %0 :nil)) (eset-tolist (second callee_entry)))))
+							(each (# (def-reg %0 :nil)) (rset-tolist (second callee_entry)))))
 					(emit-jmp-p
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
-							(each (# (def-reg %0 :nil)) (eset-tolist (second callee_entry))))
+							(each (# (def-reg %0 :nil)) (rset-tolist (second callee_entry))))
 						(unless (setq *pc* (pop call_stack))
-							(eset-union func_set trace_set)
+							(rset-union func_set trace_set)
 							(setq *pc* +max_long)))
 					(emit-call-r
 						(if (bind '(& & &optional c m) inst)
@@ -285,7 +284,7 @@
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set)
 						(unless (setq *pc* (pop call_stack))
-							(eset-union func_set trace_set)
+							(rset-union func_set trace_set)
 							(setq *pc* +max_long)))
 					(emit-jmp-i
 						;exit function, merge and kill trace or
@@ -297,7 +296,7 @@
 						(merge call_list calls)
 						(each (# (def-reg %0 :nil)) call_set)
 						(unless (setq *pc* (pop call_stack))
-							(eset-union func_set trace_set)
+							(rset-union func_set trace_set)
 							(setq *pc* +max_long)))
 					(emit-call-abi
 						;simulate the union of all platform clobbers
@@ -333,7 +332,7 @@
 			(bind '(type &optional func_set call_list) (analyze-function function db))
 			(cond
 				((eql type :external)
-					(. db :insert function (list :external (eset))))
+					(. db :insert function (list :external (rset))))
 				((eql type :function)
 					(verbose 2 "\tfunction " function "\n\t\tcalls " call_list
 						"\n\t\ttrashes " (format-trashes func_set))
@@ -350,11 +349,11 @@
 					(bind '(& func_set call_list) entry)
 					(when (or (. changed_set :find function)
 							(some (# (. changed_set :find %0)) call_list))
-						(defq old_size (eset-size func_set))
+						(defq old_size (rset-size func_set))
 						;bypasses symbolic tracing if the function already trashes all registers
 						(when (< old_size (const (length +all_regs)))
 							(bind '(type &optional new_set new_calls) (analyze-function function db))
-							(when (/= old_size (eset-size new_set))
+							(when (/= old_size (rset-size new_set))
 								(. db :insert function (list :function new_set new_calls))
 								(. next_changed :insert function)
 								(setq changed :t)))))))

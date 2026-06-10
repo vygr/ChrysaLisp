@@ -943,6 +943,12 @@ run pipe farm and collect output
 (pipe-split cmdline) -> ((mode cmd) ...)
 ```
 
+### plist?
+
+```code
+(plist? form) -> :t | :nil
+```
+
 ### pos?
 
 ```code
