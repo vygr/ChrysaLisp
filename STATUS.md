@@ -13,6 +13,11 @@ several structures and functions.
 Fixed a bug in the `:list :find` when the find start pos was the end of the
 list.
 
+New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)
+-> :nil | val)`, and `(pfindi plist key) -> :nil | idx)` functions.
+
+`Lmap` upgraded to use the new `plist` functions.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time

@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "gui/path/class.inc")
 (include "././reals/class.inc")
+(include "././plist/class.inc")
 (include "././num/class.inc")
 (include "././lisp/class.inc")
 
@@ -198,7 +199,7 @@
 	;trashes
 	;:r0-:r14, :f0-:f15
 
-	(vp-rdef (vt1 vt2 _ argc obj _
+	(vp-rdef (vt1 vt2 vt3 argc obj _
 		this args src_end dst src_begin src len old_len))
 
 	(entry :array :lisp_push `(,this ,args))
@@ -212,8 +213,11 @@
 	(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj v))
 	(gotoif `(,v = 0) 'error))
 
-	(assign `((@ ,(f-path :list :vtable)) (,obj +obj_vtable)) `(,vt1 ,vt2))
-	(vpif `(,vt1 = ,vt2))
+	(assign `((@ ,(f-path :list :vtable)) (@ ,(f-path :plist :vtable)) (,obj +obj_vtable))
+		`(,vt1 ,vt2 ,vt3))
+	(gotoif `(,vt1 = ,vt3) 'as_list)
+	(vpif `(,vt2 = ,vt3))
+	(vp-label 'as_list)
 		;list, so append refed objects
 		(d-call :list :append `(,obj ,args 1 ,argc) `(,obj))
 	(else)
@@ -360,8 +364,11 @@
 	(gotoif `(,i < 0) 'error2)
 	(gotoif `(,i >= :r14) 'error2))
 
-	(assign `((,a +obj_vtable) (@ ,(f-path :list :vtable))) '(:r12 :r13))
-	(vpif '(:r12 = :r13))
+	(assign `((,a +obj_vtable) (@ ,(f-path :list :vtable)) (@ ,(f-path :plist :vtable)))
+		'(:r12 :r13 :r14))
+	(gotoif '(:r12 = :r13) 'as_list)
+	(vpif '(:r12 = :r14))
+	(vp-label 'as_list)
 		(class/obj/ref v :r14)
 	(else)
 		(vp-simd vp-cpy-rr `(,a ,v ,i) '(:r12 :r13 :r14))

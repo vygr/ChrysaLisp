@@ -13,7 +13,7 @@
 (defun tree-collection? (type)
 	; (tree-collection? type) -> :nil | type
 	(some (# (if (eql %0 type) %0))
-		'(:list :array :path :Emap :Lmap :Fmap :Pmap :Lset :Fset)))
+		'(:list :plist :array :path :Emap :Lmap :Fmap :Lset :Fset)))
 
 (defun tree-encode (atom)
 	; (tree-encode atom) -> atom
@@ -52,21 +52,21 @@
 	; (tree-buckets collection type) -> num
 	(if (find type '(:list :array :path))
 		(length collection)
-		(if (find type '(:Lmap :Lset :Pmap)) 1
+		(if (find type '(:Lmap :Lset)) 1
 			(get :num_buckets collection))))
 
 (defun tree-node ((type &optional buckets))
 	; (tree-node ((type [buckets])) -> collection
 	(setd buckets 1)
 	(case type
-		(:Lmap (Lmap))
 		(:Lset (Lset))
+		(:Lmap (Lmap))
 		(:Emap (Emap buckets))
 		(:Fmap (Fmap buckets))
 		(:Fset (Fset buckets))
-		(:Pmap (Pmap))
 		(:array (cap buckets (array)))
 		(:path (cap buckets (path)))
+		(:plist (cap buckets (plist)))
 		(:t (cap buckets (list)))))
 
 (defun tree-save (stream root &optional key_filters)
@@ -78,7 +78,7 @@
 	(while (defq l (pop stack) c (pop stack))
 		(push l (list (defq type (tree-type c)) (tree-buckets c type)))
 		(case type
-			((:Emap :Lmap :Fmap :Pmap)
+			((:Emap :Lmap :Fmap)
 				(. c :each (lambda (k v)
 					(when (notany (# (eql k %0)) key_filters)
 						(if (tree-collection? (tree-type v))
@@ -103,7 +103,7 @@
 		(cond
 			((< i (length l))
 				(case type
-					((:Emap :Lmap :Fmap :Pmap)
+					((:Emap :Lmap :Fmap)
 						(bind '(k v) (elem-get l i))
 						(push stack l (inc i))
 						(setq k (tree-encode k))
@@ -147,7 +147,7 @@
 		stack (list (rest items) root))
 	(while (defq node (pop stack) items (pop stack))
 		(case (tree-type node)
-			((:Emap :Lmap :Fmap :Pmap)
+			((:Emap :Lmap :Fmap)
 				(each (lambda ((k v))
 					(if (list? v)
 						(push stack (rest v) (setq v (tree-node (first v))))

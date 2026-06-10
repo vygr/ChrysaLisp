@@ -9,87 +9,67 @@
 
 (defclass Lmap () (Map)
 	; (Lmap) -> lmap
-	(def this :keys (list) :vals (list))
+	(def this :bucket (plist))
 
 	(defmethod :find (key)
 		; (. lmap :find key) -> :nil | val
-		(if (defq _si (find key (get :keys this))) (elem-get (get :vals this) _si)))
+		(pfind (get :bucket this) key))
 
 	(defmethod :insert (key val)
 		; (. lmap :insert key val) -> lmap
-		(raise :keys :vals)
-		(cond
-			((defq _si (find key keys)) (elem-set vals _si val))
-			((push keys key) (push vals val)))
+		(pinsert (get :bucket this) key val)
 		this)
 
 	(defmethod :update (key _fnc)
 		; (. lmap :update key lambda) -> val
-		(raise :keys :vals)
-		(cond
-			((defq _si (find key keys))
-				(until (defq _v (elem-get vals _si))
-					((const (ffi "sys/task/lisp_sleep")) 0))
-				(elem-set vals _si :nil)
-				(elem-set vals _si (setq _v (_fnc _v))))
-			((setq _si (length keys))
-				(push keys key) (push vals :nil)
-				(elem-set vals _si (defq _v (_fnc :nil))))) _v)
+		(pinsert (defq _p (get :bucket this)) key (_fnc (pfind _p key))))
 
 	(defmethod :memoize (key _fnc)
 		; (. lmap :memoize key lambda) -> val
-		(raise :keys :vals)
 		(cond
-			((defq _si (find key keys))
-				(until (defq _v (elem-get vals _si))
-					((const (ffi "sys/task/lisp_sleep")) 0)))
-			((setq _si (length keys))
-				(push keys key) (push vals :nil)
-				(elem-set vals _si (defq _v (_fnc))))) _v)
+			((pfind (defq _p (get :bucket this)) key))
+			(:t (pinsert _p key (defq _p (_fnc))) _p)))
 
 	(defmethod :erase (key)
 		; (. lmap :erase key) -> lmap
-		(raise :keys :vals)
-		(when (defq _si (find key keys))
-			(elem-set keys _si (last keys))
-			(elem-set vals _si (last vals))
-			(pop keys) (pop vals))
+		(raise :bucket)
+		(when (defq _si (pfindi bucket key))
+			(elem-set bucket _si (elem-get bucket -3))
+			(elem-set bucket (inc _si) (elem-get bucket -2))
+			(pop bucket) (pop bucket))
 		this)
 
 	(defmethod :each (fnc)
 		; (. lmap :each lambda) -> lmap
 		(defq e (penv))
-		(each (lambda (k v) (callback fnc e k v))
-			(get :keys this) (get :vals this))
+		(each (lambda ((k v)) (callback fnc e k v)) (. this :tolist))
 		this)
 
 	(defmethod :tolist ()
 		; (. lmap :tolist) -> list
-		(map! (const list) (list (get :keys this) (get :vals this))))
+		(partition (get :bucket this) 2))
 
 	(defmethod :copy ()
 		; (. lmap :copy) -> lmap
 		(defq that ((get 'Lmap)))
-		(set that :keys (cat (get :keys this)) :vals (cat (get :vals this)))
+		(set that :bucket (copy (get :bucket this)))
 		that)
 
 	(defmethod :deep_copy ()
 		; (. lmap :deep_copy) -> lmap
-		(defq that ((get 'Lmap)))
-		(set that :keys (copy (get :keys this)) :vals (copy (get :vals this)))
+		(defq that ((get 'Lmap)) that_plist (get :bucket that))
+		(each (lambda ((key val)) (pinsert that_plist (copy key) (copy val))) (. this :tolist))
 		that)
 
 	(defmethod :empty ()
 		; (. lmap :empty) -> lmap
-		(clear (get :keys this) (get :vals this))
+		(set this :bucket (plist))
 		this)
 
 	(defmethod :move ()
 		; (. lmap :move) -> lmap
-		(raise :keys :vals (that ((get 'Lmap))
-			that_keys (get :keys that) that_vals (get :vals that)))
-		(lower (:keys that_keys :vals that_vals))
-		(set that :keys keys :vals vals)
+		(defq that (. this :copy))
+		(. this :empty)
 		that)
 
 	(defmethod :resize (num_buckets)
@@ -98,11 +78,11 @@
 
 	(defmethod :empty? ()
 		; (. lmap :empty?) -> :t | :nil
-		(= (length (get :keys this)) 0))
+		(= (length (get :bucket this)) 0))
 
 	(defmethod :size ()
 		; (. lmap :size) -> size
-		(length (get :keys this)))
+		(/ (length (get :bucket this)) 2))
 	)
 
 ;module
