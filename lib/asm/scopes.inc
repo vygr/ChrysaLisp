@@ -12,7 +12,7 @@
 (defcvar '*scopes_sp* 0 '*scopes* (list))
 
 (defmacro scope-new ()
-	(static-q (push *scopes* (list 0 (env 1)))))
+	(static-q (push *scopes* (list 0 (plist)))))
 
 (defun scope-offset (level)
 	(reduce! (# (+ %0 (first %1))) (list *scopes*) 0 (inc level) -2))
@@ -29,7 +29,7 @@
 	(pop *scopes*)
 	(if (nempty? (defq unused
 			(reduce (lambda (%0 (k v)) (if (last v) %0 (push %0 k)))
-				(tolist (last (defq scope (pop *scopes*)))) (list))))
+				(partition (last (defq scope (pop *scopes*))) 2) (list))))
 		(throw "Unused symbols !" unused))
 	(scope-new)
 	(setq *scopes_sp* 0)
@@ -56,14 +56,14 @@
 	(vp-ret))
 
 (defun scope-def (name type &rest attribs)
-	(if (def? (setq name (sym name)) (defq vars (last (defq scope (pop *scopes*)))))
+	(if (pfind (defq vars (last (defq scope (pop *scopes*)))) (setq name (sym name)))
 		(throw "Symbol redefined !" name))
-	(def vars name (cat (list (length *scopes*) type) attribs '(:nil)))
+	(pinsert vars name (cat (list (length *scopes*) type) attribs '(:nil)))
 	(push *scopes* scope))
 
 (defun scope-get (name)
 	(if (defq name (sym name) attrib
-			(some! (# (def? name (last %0))) (list *scopes*) :nil -2 0))
+			(some! (# (pfind (last %0) name)) (list *scopes*) :nil -2 0))
 		(elem-set attrib -2 :t)))
 
 (defmacro scope-used (&rest names)

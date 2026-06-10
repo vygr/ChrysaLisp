@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defcvar '*vtables* (env 1) '*supers* (env 1))
+(defcvar '*vtables* (plist) '*supers* (plist))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -14,7 +14,7 @@
 (defun method-lookup (%0 %1)
 	;%0 = class name
 	;%1 = member name
-	(or (get %1 (get %0 *vtables*))
+	(or (pfind (pfind *vtables* %0) %1)
 		(throw "No such method !" (list %0 %1))))
 
 (defun method-input (%0 %1 &optional %2)
@@ -39,7 +39,7 @@
 (defun s-path (%0 %1)
 	;%0 = class name
 	;%1 = slot method name
-	(first (method-lookup (get %0 *supers*) %1)))
+	(first (method-lookup (pfind *supers* %0) %1)))
 
 (defun f-entry (%0 %1 %2)
 	;%0 = class name
@@ -71,29 +71,29 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(def *vtables* :nil (progn (def (defq e (env 1)) :vslot 0) e))
+(pinsert *vtables* :nil (plist :vslot 0))
 
 (defun vtable-emit (class)
-	(if (eql (defq _ (get class *supers*)) :nil)
+	(if (eql (defq _ (pfind *supers* class)) :nil)
 		(vp-long 0) (fn-add-link (f-path _ :vtable)))
 	(each (lambda ((k v))
 			(and (nql :vslot k)
 				(find (second v) '(:virtual :final))
 				(fn-add-link (first v))))
-		(tolist (get class *vtables*))))
+		(partition (pfind *vtables* class) 2)))
 
 (defun override ()
 	(elem-set (setq m (cat m)) 0 mfunc)
 	(if regs_in (elem-set m 2 regs_in))
 	(if regs_out (elem-set m 3 regs_out))
-	(def vtable mname m))
+	(pinsert vtable mname m))
 
 (defmacro def-class (class super &rest lines)
-	(defq vtable (env-copy (get super *vtables*) 1))
+	(defq vtable (copy (pfind *vtables* super)))
 	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
-		(if (defq m (get mname vtable))
+		(if (defq m (pfind vtable mname))
 			;existing method
 			(case mtype
 				(:static
@@ -121,10 +121,10 @@
 			;new method
 			(case mtype
 				(:static
-					(def vtable mname (list mfunc mtype regs_in regs_out)))
+					(pinsert vtable mname (list mfunc mtype regs_in regs_out)))
 				((:virtual :final)
-					(def vtable :vslot (defq _ (num (+ (get :vslot vtable) +ptr_size)))
-						mname (list mfunc mtype regs_in regs_out _)))
+					(pinsert vtable :vslot (defq _ (num (+ (pfind vtable :vslot) +ptr_size))))
+					(pinsert vtable mname (list mfunc mtype regs_in regs_out _)))
 				(:override
 					(throw "Method does not exist !" mname))
 				(:t (throw "Must use static, virtual, final or override ! " mtype)))))
@@ -132,7 +132,7 @@
 			(ifn (starts-with "class/" (first (repl-info))) lines
 				(push lines `(dec-method :type ,(sym (cat "class/" (rest class) "/type"))
 					,(if (eql class ":obj") :virtual :override) (:r0) (:r0 :r1)))))
-	`(progn (def *vtables* ',class ',vtable) (def *supers* ',class ',super)))
+	`(progn (pinsert *vtables* ',class ',vtable) (pinsert *supers* ',class ',super)))
 
 (defmacro def-method (class member &optional alignment)
 	`(def-func (f-path ,class ,member) ,alignment))
@@ -245,9 +245,9 @@
 	;%1 = member name
 	;%2 = in parameters
 	;%3 = out parameters
-	(if (eql (second (defq m (method-lookup (get %0 *supers*) %1))) :static)
+	(if (eql (second (defq m (method-lookup (pfind *supers* %0) %1))) :static)
 		(unless (eql %1 :init)
-			(throw "Method is static !" (list (get %0 *supers*) %1))))
+			(throw "Method is static !" (list (pfind *supers* %0) %1))))
 	(assign %2 (third m))
 	(unless (eql (first m) 'class/obj/null)
 		(fn-call (first m))
@@ -257,9 +257,9 @@
 	;%0 = class name
 	;%1 = member name
 	;%2 = in parameters
-	(if (eql (second (defq m (method-lookup (get %0 *supers*) %1))) :static)
+	(if (eql (second (defq m (method-lookup (pfind *supers* %0) %1))) :static)
 		(unless (eql %1 :init)
-			(throw "Method is static !" (list (get %0 *supers*) %1))))
+			(throw "Method is static !" (list (pfind *supers* %0) %1))))
 	(assign %2 (third m))
 	(scope-unwind)
 	(if (eql (first m) 'class/obj/null)
@@ -270,9 +270,9 @@
 	;%0 = class name
 	;%1 = member name
 	;%2 = reg
-	(defq m (method-lookup (get %0 *supers*) %1))
+	(defq m (method-lookup (pfind *supers* %0) %1))
 	(if (eql (second m) :static)
-		(throw "Method is static !" (list (get %0 *supers*) %1)))
+		(throw "Method is static !" (list (pfind *supers* %0) %1)))
 	(fn-bind (first m) %2))
 
 (defun v-call (%0 %1 &optional %2 %3 %4 %5)
