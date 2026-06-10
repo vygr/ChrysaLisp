@@ -21,22 +21,22 @@
 		(pinsert (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) key val)
 		this)
 
-	(defmethod :update (key _fnc)
+	(defmethod :update (key fnc)
 		; (. fmap :update key lambda) -> val
-		(defq _p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this)))
-			_val (_fnc (pfind _p key)))
-		(pinsert _p key _val)
-		_val)
+		(defq p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this)))
+			val (callback fnc (penv) (pfind p key)))
+		(pinsert p key val)
+		val)
 
-	(defmethod :memoize (key _fnc)
+	(defmethod :memoize (key fnc)
 		; (. fmap :memoize key lambda) -> val
-		(defq _p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
-		(if (nql (defq _idx (pfindi _p key)) :nil)
-			(elem-get _p (inc _idx))
+		(defq p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
+		(if (nql (defq idx (pfindi p key)) :nil)
+			(elem-get p (inc idx))
 			(progn
-				(defq _val (_fnc))
-				(pinsert _p key _val)
-				_val)))
+				(defq val (callback fnc (penv)))
+				(pinsert p key val)
+				val)))
 
 	(defmethod :erase (key)
 		; (. fmap :erase key) -> fmap

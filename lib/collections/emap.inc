@@ -18,15 +18,16 @@
 		(def (get :buckets this) key val)
 		this)
 
-	(defmethod :update (key _fnc)
+	(defmethod :update (key fnc)
 		; (. emap :update key lambda) -> val
-		(def (defq _b (get :buckets this)) key (_fnc (def? key _b))))
+		(defq b (get :buckets this))
+		(def b key (callback fnc (penv) (def? key b))))
 
-	(defmethod :memoize (key _fnc)
+	(defmethod :memoize (key fnc)
 		; (. emap :memoize key lambda) -> val
 		(cond
-			((get key (defq _b (get :buckets this))))
-			((def _b key (_fnc)))))
+			((get key (defq b (get :buckets this))))
+			((def b key (callback fnc (penv))))))
 
 	(defmethod :erase (key)
 		; (. emap :erase key) -> emap

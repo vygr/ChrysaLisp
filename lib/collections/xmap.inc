@@ -31,19 +31,19 @@
 			((push _kl key) (push _vl val)))
 		this)
 
-	(defmethod :update (key _fnc)
+	(defmethod :update (key fnc)
 		; (. xmap :insert key lambda) -> val
 		(cond
 			((slot)
 				(until (setq _kl (elem-get _vl _si))
 					((const (ffi "sys/task/lisp_sleep")) 0))
 				(elem-set _vl _si :nil)
-				(elem-set _vl _si (setq _kl (_fnc _kl))))
+				(elem-set _vl _si (setq _kl (callback fnc (penv) _kl))))
 			((setq _si (length _kl))
 				(push _kl key) (push _vl :nil)
-				(elem-set _vl _si (setq _kl (_fnc :nil))))) _kl)
+				(elem-set _vl _si (setq _kl (callback fnc (penv) :nil))))) _kl)
 
-	(defmethod :memoize (key _fnc)
+	(defmethod :memoize (key fnc)
 		; (. fmap :memoize key lambda) -> val
 		(cond
 			((slot)
@@ -51,7 +51,7 @@
 					((const (ffi "sys/task/lisp_sleep")) 0)))
 			((setq _si (length _kl))
 				(push _kl key) (push _vl :nil)
-				(elem-set _vl _si (setq _kl (_fnc))))) _kl)
+				(elem-set _vl _si (setq _kl (callback fnc (penv)))))) _kl)
 
 	(defmethod :erase (key)
 		; (. xmap :erase key) -> xmap

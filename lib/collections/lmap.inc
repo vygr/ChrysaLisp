@@ -20,21 +20,21 @@
 		(pinsert (get :bucket this) key val)
 		this)
 
-	(defmethod :update (key _fnc)
+	(defmethod :update (key fnc)
 		; (. lmap :update key lambda) -> val
-		(defq _p (get :bucket this) _val (_fnc (pfind _p key)))
-		(pinsert _p key _val)
-		_val)
+		(defq p (get :bucket this) val (callback fnc (penv) (pfind p key)))
+		(pinsert p key val)
+		val)
 
-	(defmethod :memoize (key _fnc)
+	(defmethod :memoize (key fnc)
 		; (. lmap :memoize key lambda) -> val
-		(defq _p (get :bucket this))
-		(if (nql (defq _idx (pfindi _p key)) :nil)
-			(elem-get _p (inc _idx))
+		(defq p (get :bucket this))
+		(if (nql (defq idx (pfindi p key)) :nil)
+			(elem-get p (inc idx))
 			(progn
-				(defq _val (_fnc))
-				(pinsert _p key _val)
-				_val)))
+				(defq val (callback fnc (penv)))
+				(pinsert p key val)
+				val)))
 
 	(defmethod :erase (key)
 		; (. lmap :erase key) -> lmap
