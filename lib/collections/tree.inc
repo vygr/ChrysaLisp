@@ -50,7 +50,7 @@
 
 (defun tree-buckets (collection type)
 	; (tree-buckets collection type) -> num
-	(if (find type '(:list :array :path))
+	(if (find type '(:list :plist :array :path))
 		(length collection)
 		(if (find type '(:Lmap :Lset)) 1
 			(get :num_buckets collection))))

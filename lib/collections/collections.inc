@@ -3,12 +3,12 @@
 ;;;;;;;;;;;;;
 
 (import "./emap.inc")
-(import "./fmap.inc")
-(import "./fset.inc")
 (import "./lset.inc")
+(import "./fset.inc")
+(import "./lmap.inc")
+(import "./fmap.inc")
 (import "./xmap.inc")
 (import "./xset.inc")
-(import "./lmap.inc")
 (import "./tree.inc")
 
 (defun gather (m &rest _)
