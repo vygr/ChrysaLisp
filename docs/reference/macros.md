@@ -77,7 +77,7 @@ the original template args are renamed for safety !
 ### case
 
 ```code
-(case form [(key|(key ...) body)] ...)
+(case key [(key|(key ...) body)] ...)
 ```
 
 ### const
@@ -377,6 +377,12 @@ should provide the concreate handler
 
 ```code
 (or [tst] ...) -> :nil | tst
+```
+
+### pcase
+
+```code
+(pcase key symbols [(key|(key ...) body)] ...)
 ```
 
 ### raise

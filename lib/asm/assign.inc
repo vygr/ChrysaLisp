@@ -5,13 +5,17 @@
 ;module
 (env-push)
 
+(defq +pkey1 ''(:sym :list :num :str)
+	+pkeys2 ''(:$ :&d :&i :@ :c :d :db :di :ds :dub :dui :dus
+		:f :i :ib :ii :is :iub :iui :ius :k :r :s))
+
 (defmacro assign-type-sym (%0) (static-qqp (sym (str ,%0 "_t"))))
 
 (defun assign-type-t (%0)
 	(elem-get '(b ub s us i ui "") (ifn (find (first %0) "bBsSiI") -2)))
 
 (defun assign-src-type (o)
-	(case (pop (type-of o))
+	(pcase (pop (type-of o)) +pkey1
 		(:sym
 			(cond
 				((vp-rreg? o) :r)
@@ -40,7 +44,7 @@
 		(:str :s)))
 
 (defun assign-dst-type (o)
-	(case (pop (type-of o))
+	(pcase (pop (type-of o)) +pkey1
 		(:sym
 			(and (not (vp-reg? o)) (eql (first o) ":")
 				(throw ":reg equate !" o))
@@ -93,8 +97,8 @@
 	(when (> (length dst) 0)
 		(if (> (length dst) 1) (assign-topology-sort))
 		(each (lambda (x y)
-			(case (assign-src-type x)
-				(:r (case (assign-dst-type y)
+			(pcase (assign-src-type x) +pkeys2
+				(:r (pcase (assign-dst-type y) +pkeys2
 					(:r (vp-cpy-rr x y))
 					(:i (vp-cpy-ri x (first y) (second y)))
 					(:iui (vp-cpy-ri-i x (first y) (second y)))
@@ -113,7 +117,7 @@
 					(:dui (vp-cpy-rd-i x (first y) (second y)))
 					(:dus (vp-cpy-rd-s x (first y) (second y)))
 					(:t (throw "Invalid dst parameter !" (list x y)))))
-				(:i (case (assign-dst-type y)
+				(:i (pcase (assign-dst-type y) +pkeys2
 					(:r (vp-cpy-ir (first x) (second x) y))
 					(:f (vp-cpy-if (first x) (second x) y))))
 				(:c (vp-cpy-cr x y))
@@ -122,11 +126,11 @@
 				(:$ (vp-lea-p (second x) y))
 				(:&i (vp-lea-i (second x) (third x) y))
 				(:@ (fn-bind (second x) y))
-				(:d (case (assign-dst-type y)
+				(:d (pcase (assign-dst-type y) +pkeys2
 					(:r (vp-cpy-dr (first x) (second x) y))
 					(:f (vp-cpy-df (first x) (second x) y))))
 				(:ii (vp-cpy-ir-i (first x) (second x) y))
-				(:f (case (assign-dst-type y)
+				(:f (pcase (assign-dst-type y) +pkeys2
 					(:r (vp-cpy-fr x y))
 					(:d (vp-cpy-fd x (first y) (second y)))
 					(:f (vp-cpy-ff x y))

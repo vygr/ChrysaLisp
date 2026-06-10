@@ -19,6 +19,11 @@ New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)
 `Lmap`, `Fmap`, `Lset`, `Fset`, `lib/asm/scopes.inc`, `emit-native-reg?`
 upgraded to use the new `plist` functions.
 
+Added `pcase` base macro for `case` which allows accses to the initial symbols
+list used for the switch. With this you can preload/sort/pack a batch of symbols
+for many `pcase` uses to line up the `str_hashslot` fields ! Look at
+`(assign-asm-to-asm)` for a good example.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time

@@ -938,8 +938,8 @@
 ; Case
 ;;;;;;
 
-(defmacro case (key &rest body)
-	; (case form [(key|(key ...) body)] ...)
+(defmacro pcase (key pkeys &rest body)
+	; (pcase key symbols [(key|(key ...) body)] ...)
 	(defq val :nil)
 	(bind '(keys vals)
 		(reduce (lambda (assoc (keys &rest body))
@@ -957,13 +957,18 @@
 		(throw "Multiple matching case keys !" keys))
 	(if (or (eql val :nil) (not (find :nil vals)))
 		(progn
-			(defq pl (reduce! (const pinsert) (list keys vals) (plist)))
+			(defq pl (reduce! (const pinsert) (list keys vals)
+				(reduce (# (pinsert %0 %1 :nil)) pkeys (plist))))
 			(if (every (const atom?) vals)
 				(static-qq (ifn (pfind ,pl ,key) ,val))
 				(static-qq (eval (ifn (pfind ,pl ,key) ',val)))))
 		(if (every (const atom?) (push vals val))
 			(static-qq (elem-get ',vals (ifn (find ,key ',keys) -2)))
 			(static-qq (eval (elem-get ',vals (ifn (find ,key ',keys) -2)))))))
+
+(defmacro case (key &rest body)
+	; (case key [(key|(key ...) body)] ...)
+	`(pcase ,key '() ~body))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
