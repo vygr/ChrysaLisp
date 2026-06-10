@@ -25,6 +25,8 @@ inputs
 outputs
 :r0 = plist object (ptr)
 :r1 = 0 if not found, else iter (pptr)
+:r7 = iter_begin (pptr)
+:r8 = iter_end (pptr)
 trashes
 :r1-:r10
 ```
