@@ -37,7 +37,7 @@
 (assert-eq "Case list keys" "even" (case 2 ((1 3) "odd") ((2 4) "even") (:t "unknown")))
 (assert-eq "Case default" "many" (case 5 (1 "one") (:t "many")))
 (assert-eq "Case string" 2 (case "apple" ("orange" 1) ("apple" 2) (:t 0)))
-(assert-eq "Case symbol" 2 (case 'foo ('bar 1) ('foo 2) (:t 0)))
+(assert-eq "Case symbol" 2 (case 'foo (bar 1) (foo 2) (:t 0)))
 (assert-eq "Case mixed" "one-half" (case 1.5 (1.0 "one") (1.5 "one-half") (:t "none")))
 
 ; Loops

@@ -90,6 +90,7 @@
 	(else)
 		(assign `((,lst +array_begin)) `(,lst))
 		(vp-sub-rr lst args)
+		(vp-shr-cr (log2 +ptr_size) args)
 		(call :num :create `(,args) `(,args))
 	(endif)
 
