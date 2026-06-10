@@ -11,16 +11,17 @@
 		(assert-eq (cat ,name " find missing") :nil (. m :find 'b))
 
 		; update
-		(. m :update 'a (lambda (v) (+ v 10)))
-		(assert-eq (cat ,name " update existing") 11 (. m :find 'a))
-		(. m :update 'b (lambda (v) (if v v 20)))
-		(assert-eq (cat ,name " update missing") 20 (. m :find 'b))
+		(assert-eq (cat ,name " update existing return") 11 (. m :update 'a (lambda (v) (+ v 10))))
+		(assert-eq (cat ,name " update existing find") 11 (. m :find 'a))
+		(assert-eq (cat ,name " update missing return") 20 (. m :update 'b (lambda (v) (if v v 20))))
+		(assert-eq (cat ,name " update missing find") 20 (. m :find 'b))
 
 		; memoize
 		(defq call_count 0)
 		(defq slow_gen (lambda () (++ call_count) 100))
-		(assert-eq (cat ,name " memoize 1") 100 (. m :memoize 'c slow_gen))
-		(assert-eq (cat ,name " memoize 2") 100 (. m :memoize 'c slow_gen))
+		(assert-eq (cat ,name " memoize 1 return") 100 (. m :memoize 'c slow_gen))
+		(assert-eq (cat ,name " memoize 1 find") 100 (. m :find 'c))
+		(assert-eq (cat ,name " memoize 2 return") 100 (. m :memoize 'c slow_gen))
 		(assert-eq (cat ,name " memoize count") 1 call_count)
 
 		; each
@@ -76,3 +77,13 @@
 (defq cxm (Xmap 11 my-cmp my-hash))
 (. cxm :insert "Hello" 123)
 (assert-eq "custom Xmap find" 123 (. cxm :find "HELLO"))
+
+(report-header "Map: Lmap & Fmap nil memoization")
+(each (lambda (name constructor)
+		(defq m (constructor))
+		(defq nil_count 0)
+		(defq nil_gen (lambda () (++ nil_count) :nil))
+		(assert-eq (cat name " memoize nil return") :nil (. m :memoize 'd nil_gen))
+		(assert-eq (cat name " memoize nil 2nd return") :nil (. m :memoize 'd nil_gen))
+		(assert-eq (cat name " memoize nil count") 1 nil_count))
+	'("Lmap" "Fmap") (list (# (Lmap)) (# (Fmap 11))))
