@@ -31,7 +31,7 @@
 	(defmethod :memoize (key fnc)
 		; (. fmap :memoize key lambda) -> val
 		(defq p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
-		(if (nql (defq idx (pfindi p key)) :nil)
+		(if (defq idx (pfindi p key))
 			(elem-get p (inc idx))
 			(progn
 				(defq val (callback fnc (penv)))

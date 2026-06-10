@@ -29,7 +29,7 @@
 	(defmethod :memoize (key fnc)
 		; (. lmap :memoize key lambda) -> val
 		(defq p (get :bucket this))
-		(if (nql (defq idx (pfindi p key)) :nil)
+		(if (defq idx (pfindi p key))
 			(elem-get p (inc idx))
 			(progn
 				(defq val (callback fnc (penv)))
