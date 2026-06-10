@@ -12,10 +12,12 @@
 	;outputs
 	;:r0 = plist object (ptr)
 	;:r1 = 0 if not found, else iter (pptr)
+	;:r7 = iter_begin (pptr)
+	;:r8 = iter_end (pptr)
 	;trashes
 	;:r1-:r10
 
-	(vp-rdef (this iter_begin iter_end iter) '(:r7 :r8 :r9 :r10))
+	(vp-rdef (iter_begin iter_end iter this) '(:r7 :r8 :r9 :r10))
 	(vp-rdef (key1 key2) (method-input :obj :eql))
 
 	(entry :plist :pfind `(,this ,key1))
@@ -52,7 +54,7 @@
 		(endif)
 	(endif)
 
-	(exit :plist :pfind `(,this 0))
+	(exit :plist :pfind `(,this 0 ,iter_begin ,iter_end))
 	(vp-ret)
 
 (vp-label 'scan_hit)
@@ -60,7 +62,7 @@
 	(assign `(,iter_begin) `((,key1 +str_hashslot)))
 
 (vp-label 'slot_hit)
-	(exit :plist :pfind `(,this ,iter))
+	(exit :plist :pfind `(,this ,iter ,iter_begin ,iter_end))
 	(vp-ret)
 
 (def-func-end)
@@ -84,7 +86,7 @@
 	(entry :plist :pinsert `(,this ,key ,saved_value))
 	(assign `(,key) `(,saved_key))
 
-	(call :plist :pfind `(,this ,key) `(,this ,iter))
+	(call :plist :pfind `(,this ,key) `(,this ,iter _ _))
 	(vpif `(,iter /= 0))
 		;have old key
 		(assign `((,iter +ptr_size)) `(,old_value))
