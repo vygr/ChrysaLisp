@@ -54,17 +54,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;env with all emit-* instructions
-(defq +emit_funcs (reduce (lambda (e (k v)) (if (starts-with "emit-" k) (def e k v)) e)
-	(tolist (env)) (env 1)))
+(defq +emit_funcs (reduce (lambda (e (k v)) (if (starts-with "emit-" k) (pinsert e k v) e))
+	(tolist (env)) (plist)))
 
 ;env with jump/branch instructions flagged
-(defq +emit_jmps (reduce (lambda (e (k v)) (def e k (find k
+(defq +emit_jmps (reduce (lambda (e (k v)) (pinsert e k (find k
 		'(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr
 		emit-bge-rr emit-ble-rr emit-bge-cr emit-ble-cr emit-blt-cr
 		emit-blt-rr emit-bgt-rr emit-bgt-cr emit-min-cr emit-max-cr
 		emit-min-rr emit-max-rr emit-abs-rr emit-beq-ff emit-bne-ff
-		emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))) e)
-	(tolist +emit_funcs) (env 1)))
+		emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))))
+	(partition +emit_funcs 2) (plist)))
 
 ;validate that all instruction maps have identical symbols and slots
 (validatecase
@@ -88,10 +88,10 @@
 			(cond
 				((find (defq op (first inst)) '(emit-label emit-tlabel))
 					(def (penv) (last (last inst)) 0))
-				((def? op +emit_jmps)
+				((pfind +emit_jmps op)
 					(push inst (dec (length (push *offsets* 0))))))
 			;bind emit func
-			(elem-set inst 0 (def? op +emit_funcs)))
+			(elem-set inst 0 (pfind +emit_funcs op)))
 		(list emit_code) 1)
 	;multi pass of native emit functions
 	(eval emit_code)

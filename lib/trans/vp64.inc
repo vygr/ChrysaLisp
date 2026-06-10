@@ -10,10 +10,10 @@
 (defcvar 'stack_align 8 'stack_state '())
 
 (defq +emit_native_regs
-	(reduce (# (def %0 %1 (!)) %0) +vp_rregs
-	(reduce (# (def %0 %1 (!)) %0) +vp_fregs (env 1))))
+	(reduce (# (pinsert %0 %1 (!))) +vp_rregs
+	(reduce (# (pinsert %0 %1 (!))) +vp_fregs (plist))))
 
-(defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (def? r +emit_native_regs)))
+(defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (pfind +emit_native_regs r)))
 
 (defq opcode 0)
 (defmacro next-opcode (&optional i)
