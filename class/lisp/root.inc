@@ -955,8 +955,7 @@
 			body (list (list) (list))))
 	(if (some (# (find %0 keys (inc (!)))) keys)
 		(throw "Multiple matching case keys !" keys))
-	(if (and (or (eql val :nil) (not (find :nil vals)))
-			(every (const sym?) keys))
+	(if (or (eql val :nil) (not (find :nil vals)))
 		(progn
 			(defq pl (reduce! (const pinsert) (list keys vals) (plist)))
 			(if (every (const atom?) vals)
