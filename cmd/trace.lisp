@@ -56,7 +56,7 @@
 (defmacro rset-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (rset-insert %0 %1) %0)) (partition ,%1 2) ,%0)))
 (defmacro rset-diff (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (rset-erase %0 %1) %0)) (partition ,%1 2) ,%0)))
 (defmacro rset-tolist (%0) (static-qq (map (const first) (filter (const second) (partition ,%0 2)))))
-(defmacro rset-size (%0) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (inc %0) %0)) (partition ,%0 2) 0)))
+(defmacro rset-size (%0) (static-qq (reduce (lambda (%0 (& %1)) (if %1 (inc %0) %0)) (partition ,%0 2) 0)))
 (defmacro rset-empty? (%0) (static-qq (notany (const second) (partition ,%0 2))))
 (defmacro rset-nempty? (%0) (static-qq (some (const second) (partition ,%0 2))))
 (defmacro rset () (static-qq (rset-copy (const (reduce (lambda (%0 %1) (rset-erase %0 %1)) +all_regs (plist))))))
