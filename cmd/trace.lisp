@@ -63,7 +63,7 @@
 
 (defun def-reg (%0 %1)
 	; define register value and trashed state
-	(pinsert reg_map %0 %1)
+	(pinsert rmap %0 %1)
 	(if (eql %0 %1)
 		(rset-erase trace_set %0)
 		(rset-insert trace_set %0)))
@@ -86,11 +86,11 @@
 		(format-group ":f" f_indices)))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 
-(defun format-values (reg_map)
+(defun format-values (rmap)
 	(defq out (list))
 	(. (reduce (lambda (m (r v))
 				(. m :update v (# (setd %0 (rset)) (rset-insert %0 r))) m)
-			(filter (lambda ((r v)) (nql r v)) (partition reg_map 2)) (Emap))
+			(filter (lambda ((r v)) (nql r v)) (partition rmap 2)) (Emap))
 		:each (lambda (v rs) (push out (str v " -> " (format-trashes rs)))))
 	(if (empty? out) "none" (join out " | ")))
 
@@ -164,12 +164,12 @@
 		(;register tracing simulation ! (as near as we can anyways)
 		;start main trace from pc _s
 		(defq label_map (Lmap) call_list (list) func_set (rset) trace -1 next_trace 0
-			reg_map (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
-			trace_map (scatter (Lmap) 0 (list _s 0 (Lmap) reg_map (rset) (list))))
+			rmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
+			trace_map (scatter (Lmap) 0 (list _s 0 (Lmap) rmap (rset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
 			(task-slice)
-			(bind '(*pc* *rsp* stack_map reg_map trace_set call_stack) (. trace_map :find trace))
+			(bind '(*pc* *rsp* stack_map rmap trace_set call_stack) (. trace_map :find trace))
 			(while (< *pc* _e)
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
@@ -186,14 +186,14 @@
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(when (or (not ls) (rset-nempty? (rset-diff (rset-copy trace_set) ls)))
 							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (copy reg_map) (rset-copy trace_set) (cat call_stack)))))
+								(. stack_map :copy) (copy rmap) (rset-copy trace_set) (cat call_stack)))))
 					((emit-cpy-rr emit-cpy-ff)
 						;copy value and mark as trashed or restored
-						(def-reg (last inst) (pfind reg_map (second inst))))
+						(def-reg (last inst) (pfind rmap (second inst))))
 					(emit-swp-rr
 						;swap values and mark as trashed or restored
 						(each (const def-reg)
-							(rest inst) (map! (# (pfind reg_map %0)) (list inst) -1 1)))
+							(rest inst) (map! (# (pfind rmap %0)) (list inst) -1 1)))
 					(emit-alloc
 						(setq *rsp* (-- *rsp* (second inst))))
 					(emit-free
@@ -204,7 +204,7 @@
 					(emit-push
 						;push the values of all registers pushed
 						(each! (# (. stack_map :insert (-- *rsp* +long_size)
-								(pfind reg_map %0)))
+								(pfind rmap %0)))
 							(list inst) 1))
 					(emit-pop
 						;pop the values of all registers popped
@@ -217,7 +217,7 @@
 						;stack spill 64 bit
 						(when (eql (third inst) :rsp)
 							(bind '(& src & offset) inst)
-							(. stack_map :insert (+ *rsp* offset) (pfind reg_map src))))
+							(. stack_map :insert (+ *rsp* offset) (pfind rmap src))))
 					((emit-cpy-ir emit-cpy-if)
 						;stack load 64 bit ?
 						(bind '(& src offset dst) inst)
@@ -318,7 +318,7 @@
 					(:t ;all remaining, check last for reg
 						(if (reg? (last inst)) (def-reg (last inst) :nil))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
-				(verbose 4 "\t\t\t" (format-values reg_map) "\n\t\t\t" (. stack_map :tolist)))
+				(verbose 4 "\t\t\t" (format-values rmap) "\n\t\t\t" (. stack_map :tolist)))
 			(. trace_map :erase trace)
 			(verbose 4 "\t\tmerged " (format-trashes func_set)))
 		(list :function func_set call_list))))

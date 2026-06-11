@@ -22,7 +22,7 @@ or restored.
 
 The tracer tracks register and stack lifecycles through several mechanisms:
 
-* **State Mapping:** A register map (`reg_map`) tracks the symbolic origin of
+* **State Mapping:** A register map (`rmap`) tracks the symbolic origin of
   each register. When a register is initialized, it is mapped to itself.
 
 * **Copies:** Register-to-register copies (`emit-cpy-rr`, `emit-cpy-ff`)

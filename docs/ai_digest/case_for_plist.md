@@ -215,7 +215,7 @@ Lexical environments in ChrysaLisp are created as `:hmap` objects. While an `(en
 The `trace` command uses ChrysaLisp’s `:plist` to track register states during
 symbolic execution. This utility simulates program flow to calculate transitive
 register clobbering (register trashing) across function calls, relying on two
-core plist-backed structures: `rset` (register sets) and `reg_map` (register
+core plist-backed structures: `rset` (register sets) and `rmap` (register
 mappings).
 
 ### The `rset` (Register Set) Primitive
@@ -258,18 +258,18 @@ operations:
 			(if %2 (rset-insert %0 %1) %0)) (partition ,%1 2) ,%0)))
 	```
 
-### The `reg_map` (Register Value Map)
+### The `rmap` (Register Value Map)
 
 During symbolic simulation, the tracer must track the origin or value of each
 register to detect when a spilled register is restored. This is managed by
-`reg_map`, which maps each register symbol to its current symbolic state.
+`rmap`, which maps each register symbol to its current symbolic state.
 
 *   **Initialization**:
 
 	The map is initialized with each register mapping to itself:
 
 	```vdu
-	reg_map (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
+	rmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
 	```
 
 *   **State Tracking**:
@@ -280,17 +280,17 @@ register to detect when a spilled register is restored. This is managed by
 
 	```vdu
 	((emit-cpy-rr emit-cpy-ff)
-		(def-reg (last inst) (pfind reg_map (second inst))))
+		(def-reg (last inst) (pfind rmap (second inst))))
 	```
 
 ### Caching and Simulation Performance
 
-Because the keys of both `rset` and `reg_map` are globally interned register
+Because the keys of both `rset` and `rmap` are globally interned register
 symbols (e.g., `:r0`, `:r1`, `:f0`), this symbolic simulator achieves high
 execution speeds.
 
 During the iterations of the data-flow analysis, almost every lookup in `rset`
-and `reg_map` hits the `str_hashslot` cache. This minimizes the overhead of the
+and `rmap` hits the `str_hashslot` cache. This minimizes the overhead of the
 tracer, allowing it to calculate register-trashing behaviors across thousands of
 instructions in a fraction of a second.
 
