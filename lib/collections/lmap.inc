@@ -29,8 +29,8 @@
 	(defmethod :memoize (key fnc)
 		; (. lmap :memoize key lambda) -> val
 		(defq p (get :bucket this))
-		(if (defq idx (pfindi p key))
-			(elem-get p (inc idx))
+		(if (defq i (pfindi p key))
+			(elem-get p (inc i))
 			(progn
 				(defq val (callback fnc (penv)))
 				(pinsert p key val)
@@ -39,9 +39,9 @@
 	(defmethod :erase (key)
 		; (. lmap :erase key) -> lmap
 		(raise :bucket)
-		(when (defq _si (pfindi bucket key))
-			(elem-set bucket _si (elem-get bucket -3))
-			(elem-set bucket (inc _si) (elem-get bucket -2))
+		(when (defq i (pfindi bucket key))
+			(elem-set bucket i (elem-get bucket -3))
+			(elem-set bucket (inc i) (elem-get bucket -2))
 			(pop bucket) (pop bucket))
 		this)
 

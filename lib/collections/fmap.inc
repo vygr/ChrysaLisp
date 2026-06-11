@@ -31,8 +31,8 @@
 	(defmethod :memoize (key fnc)
 		; (. fmap :memoize key lambda) -> val
 		(defq p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
-		(if (defq idx (pfindi p key))
-			(elem-get p (inc idx))
+		(if (defq i (pfindi p key))
+			(elem-get p (inc i))
 			(progn
 				(defq val (callback fnc (penv)))
 				(pinsert p key val)
@@ -40,11 +40,11 @@
 
 	(defmethod :erase (key)
 		; (. fmap :erase key) -> fmap
-		(defq _p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
-		(when (defq _si (pfindi _p key))
-			(elem-set _p _si (elem-get _p -3))
-			(elem-set _p (inc _si) (elem-get _p -2))
-			(pop _p) (pop _p))
+		(defq p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
+		(when (defq i (pfindi p key))
+			(elem-set p i (elem-get p -3))
+			(elem-set p (inc i) (elem-get p -2))
+			(pop p) (pop p))
 		this)
 
 	(defmethod :each (fnc)

@@ -13,8 +13,8 @@
 
 	(defmethod :find (key)
 		; (. lset :find key) -> :nil | key
-		(if (defq _si (pfindi (get :bucket this) key))
-			(elem-get (get :bucket this) _si)))
+		(if (defq i (pfindi (get :bucket this) key))
+			(elem-get (get :bucket this) i)))
 
 	(defmethod :insert (key)
 		; (. lset :insert key) -> lset
@@ -31,16 +31,16 @@
 	(defmethod :intern (key)
 		; (. lset :intern key) -> key
 		(raise :bucket)
-		(if (defq _si (pfindi bucket key))
-			(elem-get bucket _si)
+		(if (defq i (pfindi bucket key))
+			(elem-get bucket i)
 			(progn (pinsert bucket key :t) key)))
 
 	(defmethod :erase (key)
 		; (. lset :erase key) -> lset
 		(raise :bucket)
-		(when (defq _si (pfindi bucket key))
-			(elem-set bucket _si (elem-get bucket -3))
-			(elem-set bucket (inc _si) (elem-get bucket -2))
+		(when (defq i (pfindi bucket key))
+			(elem-set bucket i (elem-get bucket -3))
+			(elem-set bucket (inc i) (elem-get bucket -2))
 			(pop bucket) (pop bucket))
 		this)
 
