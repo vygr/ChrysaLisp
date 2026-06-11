@@ -50,7 +50,7 @@
 	''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
 
 ; (plist) +all_regs set, with :nil for 'erased' to keep slots lined up
-(defmacro rset-copy (%0) (static-qq (copy ,%0)))
+(defmacro rset-copy (%0) (static-qq (cat ,%0)))
 (defmacro rset-insert (%0 %1) (static-qq (pinsert ,%0 ,%1 :t)))
 (defmacro rset-erase (%0 %1) (static-qq (pinsert ,%0 ,%1 :nil)))
 (defmacro rset-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (rset-insert %0 %1) %0)) (partition ,%1 2) ,%0)))
