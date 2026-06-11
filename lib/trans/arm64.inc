@@ -670,15 +670,15 @@
 		(merge (map (const first) (tolist (penv))) (map (const first) (tolist (env)))))
 	+arm64_fuse_map
 		(reduce (#
-			(def %0 %1 (when (defq i (find %1 '(emit-cpy-ir emit-cpy-ir-i emit-cpy-ir-ui
+			(pinsert %0 %1 (when (defq i (find %1 '(emit-cpy-ir emit-cpy-ir-i emit-cpy-ir-ui
 								emit-cpy-ri emit-cpy-ri-i emit-cpy-if emit-cpy-fi)))
 				(defq is_load (find %1 '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-if))
 					size (if (find %1 '(emit-cpy-ir-i emit-cpy-ri-i emit-cpy-ir-ui)) +int_size +long_size))
 				(list (elem-get '(emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui
 						emit-arm64-stp emit-arm64-stp-i emit-arm64-ldp-f emit-arm64-stp-f) i)
 					is_load size (* size 64)
-					(if is_load 1 2) (if is_load 2 3) (if is_load 3 1)))) %0) ; b_idx c_idx d_idx
-			emit_list (env 1)))
+					(if is_load 1 2) (if is_load 2 3) (if is_load 3 1))))) ; b_idx c_idx d_idx
+			emit_list (plist)))
 
 (defmacro arm64-fusable? (limit size is_load base c1 d1 c2 d2)
 	`(when (and (nql ,d1 ,d2) (nql ,d1 :rsp) (nql ,d2 :rsp)
@@ -691,7 +691,7 @@
 
 (redefun emit-prepass (emit_list)
 	(each! (lambda (%0)
-		(when (defq info (def? (first %0) +arm64_fuse_map))
+		(when (defq info (pfind +arm64_fuse_map (first %0)))
 			(when (eql (first %0) (first (defq %1 (elem-get emit_list (inc (!))))))
 				(bind '(fused_op is_load size limit b_idx c_idx d_idx) info)
 				(when (eql (defq base (elem-get %0 b_idx)) (elem-get %1 b_idx))
