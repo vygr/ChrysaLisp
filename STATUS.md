@@ -24,6 +24,8 @@ list used for the switch. With this you can preload/sort/pack a batch of symbols
 for many `pcase` uses to line up the `str_hashslot` fields ! Look at
 `(assign-asm-to-asm)` for a good example.
 
+New `docs/ai_digest/case_for_plist.md` document.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time

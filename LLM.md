@@ -269,6 +269,9 @@ Deep dives into meta-commentary and design philosophy:
 64. **[Trace Analysis](docs/ai_digest/trace_command.md)** - VP register dataflow
     tracing.
 
+65. **[Plist and Case](docs/ai_digest/case_for_plist.md)** - VP `:plist` class
+    and it's uses.
+
 ---
 
 ## Reading Paths
