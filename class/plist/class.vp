@@ -100,6 +100,7 @@
 
 			(vp-pop this iter)
 		(endif)
+
 		(exit :plist :pinsert  `(,this ,iter))
 		(vp-ret)
 	(endif)
@@ -108,12 +109,17 @@
 	(class/obj/ref saved_key tmp)
 	(class/obj/ref saved_value tmp)
 	(call :plist :push_back2 `(,this ,saved_key ,saved_value) `(,this ,iter _ iter_s iter_e))
-	;initial known slot
-	(vp-sub-cr (* +ptr_size 2) iter_e)
-	(vp-sub-rr iter_e iter_s)
-	(assign `(,iter_s ,iter_e) `((,iter +str_hashslot) ,iter))
 
-	(exit :plist :pinsert  `(,this ,iter))
+	;initial known slot ?
+	(f-bind :sym :vtable saved_key)
+	(assign `((,iter +obj_vtable)) `(,saved_value))
+	(vp-sub-cr (* +ptr_size 2) iter_e)
+	(vpif `(,saved_key = ,saved_value))
+		(vp-sub-rr iter_e iter_s)
+		(assign `(,iter_s) `((,iter +str_hashslot)))
+	(endif)
+
+	(exit :plist :pinsert  `(,this ,iter_e))
 	(vp-ret)
 
 (def-func-end)
