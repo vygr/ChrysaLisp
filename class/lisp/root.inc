@@ -642,7 +642,8 @@
 
 (defun atom? (%0)
 	; (atom? o) -> :t | :nil
-	(cond ((sym? %0) (eql (first %0) ":")) ((list? %0) :nil) (:t)))
+	(cond ((sym? %0) (eql (first %0) ":"))
+		((plist? %0) :t) ((list? %0) :nil) (:t)))
 
 (defun msafe? (%0)
 	; (msafe? o) -> :t | :nil
