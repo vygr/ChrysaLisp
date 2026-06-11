@@ -54,11 +54,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;env with all emit-* instructions
-(defq +emit_funcs (reduce (lambda (e (k v)) (if (starts-with "emit-" k) (pinsert e k v) e))
+(defq +emit_funcs (reduce (lambda (%0 (%1 %2))
+		(if (starts-with "emit-" %1) (pinsert %0 %1 %2) %0))
 	(tolist (env)) (plist)))
 
 ;env with jump/branch instructions flagged
-(defq +emit_jmps (reduce (lambda (e (k v)) (pinsert e k (find k
+(defq +emit_jmps (reduce (lambda (%0 (%1 &)) (pinsert %0 %1 (find %1
 		'(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr
 		emit-bge-rr emit-ble-rr emit-bge-cr emit-ble-cr emit-blt-cr
 		emit-blt-rr emit-bgt-rr emit-bgt-cr emit-min-cr emit-max-cr
@@ -68,8 +69,8 @@
 
 ;validate that all instruction maps have identical symbols and slots
 (validatecase
-	(defq emit_lists (map (# (map (const first) %0)) (map (const tolist)
-		(cat (list +emit_funcs +emit_jmps) emit_maps))))
+	(defq emit_lists (map (# (map (const first) %0))
+		(map (# (partition %0 2)) (cat (list +emit_funcs +emit_jmps) emit_maps))))
 	(unless (and (apply (const =) (map (const length) emit_lists))
 				(every (# (apply (const =) %0))
 					(map! (lambda (&rest %0) (map (const weak-ref) %0)) emit_lists)))
