@@ -215,12 +215,12 @@ Lexical environments in ChrysaLisp are created as `:hmap` objects. While an `(en
 The `trace` command uses ChrysaLisp’s `:plist` to track register states during
 symbolic execution. This utility simulates program flow to calculate transitive
 register clobbering (register trashing) across function calls, relying on two
-core plist-backed structures: `rset` (register sets) and `rmap` (register
+core plist-backed structures: `vpset` (register sets) and `vpmap` (register
 mappings).
 
-### The `rset` (Register Set) Primitive
+### The `vpset` (Register Set) Primitive
 
-In the tracer, an `rset` represents a set of hardware registers. It is modeled
+In the tracer, an `vpset` represents a set of hardware registers. It is modeled
 entirely as a `:plist` where register symbols map to `:t` (present/trashed) or
 `:nil` (absent/restored).
 
@@ -232,9 +232,9 @@ operations:
 	The set is created by copying a pre-populated master register list:
 
 	```vdu
-	(defmacro rset () 
-		(static-qq (rset-copy (const (reduce (lambda (%0 %1) 
-			(rset-erase %0 %1)) +all_regs (plist))))))
+	(defmacro vpset () 
+		(static-qq (vpset-copy (const (reduce (lambda (%0 %1) 
+			(vpset-erase %0 %1)) +all_regs (plist))))))
 	```
 
 *   **Set Insertion and Erasure**:
@@ -243,8 +243,8 @@ operations:
 	`pinsert` call:
 
 	```vdu
-	(defmacro rset-insert (%0 %1) (static-qq (pinsert ,%0 ,%1 :t)))
-	(defmacro rset-erase (%0 %1)  (static-qq (pinsert ,%0 ,%1 :nil)))
+	(defmacro vpset-insert (%0 %1) (static-qq (pinsert ,%0 ,%1 :t)))
+	(defmacro vpset-erase (%0 %1)  (static-qq (pinsert ,%0 ,%1 :nil)))
 	```
 
 *   **Set Union and Difference**:
@@ -253,23 +253,23 @@ operations:
 	interleaved key-value pairs of the plist:
 
 	```vdu
-	(defmacro rset-union (%0 %1) 
+	(defmacro vpset-union (%0 %1) 
 		(static-qq (reduce (lambda (%0 (%1 %2)) 
-			(if %2 (rset-insert %0 %1) %0)) (partition ,%1 2) ,%0)))
+			(if %2 (vpset-insert %0 %1) %0)) (partition ,%1 2) ,%0)))
 	```
 
-### The `rmap` (Register Value Map)
+### The `vpmap` (Register Value Map)
 
 During symbolic simulation, the tracer must track the origin or value of each
 register to detect when a spilled register is restored. This is managed by
-`rmap`, which maps each register symbol to its current symbolic state.
+`vpmap`, which maps each register symbol to its current symbolic state.
 
 *   **Initialization**:
 
 	The map is initialized with each register mapping to itself:
 
 	```vdu
-	rmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
+	vpmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
 	```
 
 *   **State Tracking**:
@@ -280,17 +280,17 @@ register to detect when a spilled register is restored. This is managed by
 
 	```vdu
 	((emit-cpy-rr emit-cpy-ff)
-		(def-reg (last inst) (pfind rmap (second inst))))
+		(def-reg (last inst) (pfind vpmap (second inst))))
 	```
 
 ### Caching and Simulation Performance
 
-Because the keys of both `rset` and `rmap` are globally interned register
+Because the keys of both `vpset` and `vpmap` are globally interned register
 symbols (e.g., `:r0`, `:r1`, `:f0`), this symbolic simulator achieves high
 execution speeds.
 
-During the iterations of the data-flow analysis, almost every lookup in `rset`
-and `rmap` hits the `str_hashslot` cache. This minimizes the overhead of the
+During the iterations of the data-flow analysis, almost every lookup in `vpset`
+and `vpmap` hits the `str_hashslot` cache. This minimizes the overhead of the
 tracer, allowing it to calculate register-trashing behaviors across thousands of
 instructions in a fraction of a second.
 

@@ -6,10 +6,10 @@ transitive register clobber state (the registers that are overwritten or
 solely on source-code annotations, the tool performs symbolic register-trace
 analysis directly on the compiled VP binary objects (located in `obj/vp/`).
 
-By tracking register data flow, stack frames, and method dispatch paths,
-`trace` determines the precise footprint of register usage throughout the call
-graph, ensuring compiler safety and allowing the assembler to optimize registers
-across function boundaries.
+By tracking register data flow, stack frames, and method dispatch paths, `trace`
+determines the precise footprint of register usage throughout the call graph,
+ensuring compiler safety and allowing the assembler to optimize registers across
+function boundaries.
 
 ## Symbolic Register-Trace Engine
 
@@ -22,8 +22,8 @@ or restored.
 
 The tracer tracks register and stack lifecycles through several mechanisms:
 
-* **State Mapping:** A register map (`rmap`) tracks the symbolic origin of
-  each register. When a register is initialized, it is mapped to itself.
+* **State Mapping:** A register map (`vpmap`) tracks the symbolic origin of each
+  register. When a register is initialized, it is mapped to itself.
 
 * **Copies:** Register-to-register copies (`emit-cpy-rr`, `emit-cpy-ff`)
   transfer the symbolic state from the source register to the destination
