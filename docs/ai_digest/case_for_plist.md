@@ -87,7 +87,7 @@ evaluates the returned block at runtime:
 ```
 
 ```file
-class/lisp/root.inc "(defmacro pcase" "`(pcase" 
+class/lisp/root.inc "(defmacro pcase" ";;;;" 
 ```
 
 ### Pre-population of Symbols via `pkeys`
