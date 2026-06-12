@@ -164,7 +164,7 @@
 		(;register tracing simulation ! (as near as we can anyways)
 		;start main trace from pc _s
 		(defq label_map (Lmap) call_list (list) func_set (vpset) trace -1 next_trace 0
-			vpmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
+			vpmap (cat (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
 			trace_map (scatter (Lmap) 0 (list _s 0 (Lmap) vpmap (vpset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
@@ -186,7 +186,7 @@
 						(defq pc (get (last inst)) ls (. label_map :find pc))
 						(when (or (not ls) (vpset-nempty? (vpset-diff (vpset-copy trace_set) ls)))
 							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (copy vpmap) (vpset-copy trace_set) (cat call_stack)))))
+								(. stack_map :copy) (cat vpmap) (vpset-copy trace_set) (cat call_stack)))))
 					((emit-cpy-rr emit-cpy-ff)
 						;copy value and mark as trashed or restored
 						(def-reg (last inst) (pfind vpmap (second inst))))
