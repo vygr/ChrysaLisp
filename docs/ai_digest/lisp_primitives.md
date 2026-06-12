@@ -565,6 +565,11 @@ specialized arrays. They store elements in alternating key-value pairs.
 
 	* `(pinsert plist key val) -> plist`
 
+*	**`perase`**: Deletes a key-value pair in a property list. Returns the
+  	property list.
+
+	* `(perase plist key) -> plist`
+
 *   **`pfind`**: Searches for a key in a property list. Returns the
 	associated value if found, or `:nil` if the key does not exist.
 

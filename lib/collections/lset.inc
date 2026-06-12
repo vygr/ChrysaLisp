@@ -37,11 +37,7 @@
 
 	(defmethod :erase (key)
 		; (. lset :erase key) -> lset
-		(raise :bucket)
-		(when (defq i (pfindi bucket key))
-			(elem-set bucket i (elem-get bucket -3))
-			(elem-set bucket (inc i) (elem-get bucket -2))
-			(pop bucket) (pop bucket))
+		(perase (get :bucket this) key)
 		this)
 
 	(defmethod :each (fnc)

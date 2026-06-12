@@ -231,11 +231,13 @@
 (ffi "class/list/lisp_copy" copy)
 ; (copy form) -> 'form
 (ffi "class/plist/lisp_find" pfind)
-; (pfind list key) -> :nil | val
+; (pfind plist key) -> :nil | val
 (ffi "class/plist/lisp_findi" pfindi)
-; (pfindi list key) -> :nil | idx
+; (pfindi plist key) -> :nil | idx
 (ffi "class/plist/lisp_insert" pinsert)
-; (pinsert list key val) -> list
+; (pinsert plist key val) -> plist
+(ffi "class/plist/lisp_erase" perase)
+; (perase plist key) -> plist
 
 ;;;;;;;;;;;;;;;;;;;;
 ; String Operations

@@ -4,11 +4,13 @@
 
 ## Lisp Bindings
 
-### (pfind list key) -> :nil | val
+### (perase plist key) -> plist
 
-### (pfindi list key) -> :nil | idx
+### (pfind plist key) -> :nil | val
 
-### (pinsert list key val) -> list
+### (pfindi plist key) -> :nil | idx
+
+### (pinsert plist key val) -> plist
 
 ### (plist [key val] ...) -> plist
 

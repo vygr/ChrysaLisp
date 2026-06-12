@@ -40,11 +40,7 @@
 
 	(defmethod :erase (key)
 		; (. fmap :erase key) -> fmap
-		(defq p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
-		(when (defq i (pfindi p key))
-			(elem-set p i (elem-get p -3))
-			(elem-set p (inc i) (elem-get p -2))
-			(pop p) (pop p))
+		(perase (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) key)
 		this)
 
 	(defmethod :each (fnc)

@@ -26,6 +26,8 @@ for many `pcase` uses to line up the `str_hashslot` fields ! Look at
 
 New `docs/ai_digest/case_for_plist.md` document.
 
+New `(perase plist key) -> list` function.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time

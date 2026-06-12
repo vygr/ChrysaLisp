@@ -14,9 +14,9 @@
 
 	(defmethod :find (key)
 		; (. fset :find key) -> :nil | key
-		(defq _bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
-		(if (defq i (pfindi _bucket key))
-			(elem-get _bucket i)))
+		(defq bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
+		(if (defq i (pfindi bucket key))
+			(elem-get bucket i)))
 
 	(defmethod :insert (key)
 		; (. fset :insert key) -> fset
@@ -25,25 +25,21 @@
 
 	(defmethod :inserted (key)
 		; (. fset :inserted key) -> :nil | fset
-		(defq _bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
+		(defq bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
 		(cond
-			((pfind _bucket key) :nil)
-			((pinsert _bucket key :t) this)))
+			((pfind bucket key) :nil)
+			((pinsert bucket key :t) this)))
 
 	(defmethod :intern (key)
 		; (. fset :intern key) -> key
-		(defq _bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
-		(if (defq i (pfindi _bucket key))
-			(elem-get _bucket i)
-			(progn (pinsert _bucket key :t) key)))
+		(defq bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
+		(if (defq i (pfindi bucket key))
+			(elem-get bucket i)
+			(progn (pinsert bucket key :t) key)))
 
 	(defmethod :erase (key)
 		; (. fset :erase key) -> fset
-		(defq _bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
-		(when (defq i (pfindi _bucket key))
-			(elem-set _bucket i (elem-get _bucket -3))
-			(elem-set _bucket (inc i) (elem-get _bucket -2))
-			(pop _bucket) (pop _bucket))
+		(perase (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) key)
 		this)
 
 	(defmethod :each (fnc)
