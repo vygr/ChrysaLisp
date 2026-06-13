@@ -141,7 +141,7 @@
 		(;register tracing simulation ! (as near as we can anyways)
 		;start main trace from pc _s
 		(defq label_map (Lmap) call_list (list) func_set (vpset) trace -1 next_trace 0
-			vpmap (cat (const (reduce (# (pinsert %0 %1 %1)) +vp_regs (plist))))
+			vpmap (cat (const (reduce (# (pinsert %0 %1 %1)) +vp_regs (vpset))))
 			trace_map (scatter (Lmap) 0 (list _s 0 (Lmap) vpmap (vpset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
