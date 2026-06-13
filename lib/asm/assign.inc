@@ -5,8 +5,8 @@
 ;module
 (env-push)
 
-(defq +pkey1 ''(:sym :list :num :str)
-	+pkeys2 ''(:$ :&d :&i :@ :c :d :db :di :ds :dub :dui :dus
+(defq +pkey1 '(:sym :list :num :str)
+	+pkeys2 '(:$ :&d :&i :@ :c :d :db :di :ds :dub :dui :dus
 		:f :i :ib :ii :is :iub :iui :ius :k :r :s))
 
 (defmacro assign-type-sym (%0) (static-qqp (sym (str ,%0 "_t"))))

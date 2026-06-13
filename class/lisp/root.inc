@@ -230,13 +230,13 @@
 ; (lmatch? list list) -> :nil | :t
 (ffi "class/list/lisp_copy" copy)
 ; (copy form) -> 'form
-(ffi "class/plist/lisp_find" pfind)
+(ffi "class/plist/lisp_pfind" pfind)
 ; (pfind plist key) -> :nil | val
-(ffi "class/plist/lisp_findi" pfindi)
+(ffi "class/plist/lisp_pfindi" pfindi)
 ; (pfindi plist key) -> :nil | idx
-(ffi "class/plist/lisp_insert" pinsert)
+(ffi "class/plist/lisp_pinsert" pinsert)
 ; (pinsert plist key val) -> plist
-(ffi "class/plist/lisp_erase" perase)
+(ffi "class/plist/lisp_perase" perase)
 ; (perase plist key) -> plist
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -961,7 +961,7 @@
 	(if (or (eql val :nil) (not (find :nil vals)))
 		(progn
 			(defq pl (reduce! (const pinsert) (list keys vals)
-				(reduce (# (pinsert %0 %1 :nil)) pkeys (plist))))
+				(reduce (# (pinsert %0 %1 :nil)) (eval pkeys) (plist))))
 			(if (every (const atom?) vals)
 				(static-qq (ifn (pfind ,pl ,key) ,val))
 				(static-qq (eval (ifn (pfind ,pl ,key) ',val)))))
