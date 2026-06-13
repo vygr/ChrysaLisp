@@ -45,9 +45,7 @@
 (defun def-reg (%0 %1)
 	; define register value and trashed state
 	(pinsert vpmap %0 %1)
-	(if (eql %0 %1)
-		(vpset-erase trace_set %0)
-		(vpset-insert trace_set %0)))
+	(pinsert trace_set %0 (nql %0 %1)))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
