@@ -4,8 +4,8 @@
 (defq +vp_regs `'(~(last +vp_rregs) ~(last +vp_fregs))
 	+vp_rregs_0_14 `'(~(most (last +vp_rregs)))
 	+vp_rregs_map (reduce (# (pinsert %0 %1 (num (!)))) +vp_rregs (plist))
-	+vp_fregs_map (reduce (# (pinsert %0 %1 (num (!)))) +vp_fregs (plist)))
-(defq +vp_regs_map (cat +vp_rregs_map +vp_fregs_map))
+	+vp_fregs_map (reduce (# (pinsert %0 %1 (num (!)))) +vp_fregs (plist))
+	+vp_regs_map (cat +vp_rregs_map +vp_fregs_map))
 
 ; query and index
 (defmacro vp-rreg? (%0) (static-qq (pfind +vp_rregs_map ,%0)))
