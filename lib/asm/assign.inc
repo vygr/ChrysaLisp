@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defq +pkey1 '(:sym :list :num :str)
+(defq +pkeys1 '(:sym :list :num :str)
 	+pkeys2 '(:$ :&d :&i :@ :c :d :db :di :ds :dub :dui :dus
 		:f :i :ib :ii :is :iub :iui :ius :k :r :s))
 
@@ -15,7 +15,7 @@
 	(elem-get '(b ub s us i ui "") (ifn (find (first %0) "bBsSiI") -2)))
 
 (defun assign-src-type (o)
-	(pcase (pop (type-of o)) +pkey1
+	(pcase (pop (type-of o)) +pkeys1
 		(:sym
 			(cond
 				((vp-rreg? o) :r)
@@ -44,7 +44,7 @@
 		(:str :s)))
 
 (defun assign-dst-type (o)
-	(pcase (pop (type-of o)) +pkey1
+	(pcase (pop (type-of o)) +pkeys1
 		(:sym
 			(and (not (vp-reg? o)) (eql (first o) ":")
 				(throw ":reg equate !" o))
