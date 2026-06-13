@@ -11,7 +11,7 @@
 
 (defq +emit_native_regs
 	(reduce (# (pinsert %0 %1 (num (!)))) +vp_rregs
-	(reduce (# (pinsert %0 %1 (num (!)))) +vp_fregs +vp_regs_map)))
+	(reduce (# (pinsert %0 %1 (num (!)))) +vp_fregs (cat +vp_regs_map))))
 
 (defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (pfind +emit_native_regs r)))
 

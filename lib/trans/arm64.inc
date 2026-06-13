@@ -22,7 +22,7 @@
 		:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7					;d8-d15 (Callee Saved)
 		:f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15			;d16-d23 (Volatile)
 		:f24 :f25 :f26 :f27 :f28 :f29 :f30 :f31)		;d24-d31 (Volatile)
-		+vp_regs_map)))
+		(cat +vp_regs_map))))
 
 (defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (pfind +emit_native_regs r)))
 

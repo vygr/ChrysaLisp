@@ -23,7 +23,7 @@
 		:f0 :f1 :f20 :f21 :f22 :f23 :f24 :f25 :f26 :f27 ;f8-f17 (fs0-fs1, fa0-fa7)
 		:f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11		;f18-f27 (fs2-fs11)
 		:f28 :f29 :f30 :f31)							;f28-f31 (ft8-ft11)
-		+vp_regs_map)))
+		(cat +vp_regs_map))))
 
 (defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (pfind +emit_native_regs r)))
 
