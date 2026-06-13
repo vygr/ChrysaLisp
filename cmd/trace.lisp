@@ -58,7 +58,7 @@
 	(each (# (if (nql %0 :rsp) (if (starts-with ":r" %0)
 			(push r_indices (vp-reg? %0))
 			(push f_indices (vp-reg? %0)))))
-		(if (plist? func_set) (vpset-tolist func_set) func_set))
+		(vpset-tolist func_set))
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
 		(format-group ":f" f_indices)))
