@@ -28,6 +28,8 @@ New `docs/ai_digest/case_for_plist.md` document.
 
 New `(perase plist key) -> list` function.
 
+New "lib/asm/regs.inc" file for VP register lists, maps and utilities.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time

@@ -2,13 +2,7 @@
 ; VP Registers
 ;;;;;;;;;;;;;;
 
-(defq +vp_rregs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
-	+vp_rregs_0_14 ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
-	+vp_fregs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
-(defq +vp_regs (list quote (cat +vp_rregs +vp_fregs)))
-(defmacro vp-rreg? (%0) (static-qq (find ,%0 +vp_rregs)))
-(defmacro vp-freg? (%0) (static-qq (find ,%0 +vp_fregs)))
-(defmacro vp-reg? (%0) (static-qq (find ,%0 +vp_regs)))
+(import "./regs.inc")
 
 (defmacro vp-rdef (%0 &optional l)
 	(setq l (apply (const cat) (map (lambda (x y)

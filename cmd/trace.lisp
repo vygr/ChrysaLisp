@@ -1,6 +1,7 @@
 (import "lib/options/options.inc")
 (import "lib/text/document.inc")
 (import "lib/files/info.inc")
+(import "lib/asm/regs.inc")
 ;(import "lib/debug/frames.inc")
 
 (defq usage `(
@@ -22,16 +23,8 @@
 (("-w" "--write") ,(opt-flag 'opt_w))
 ))
 
-(defq +no_regs ''() +obj_dir "obj/vp/"
-	+int_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
-	+float_regs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
-(defq +all_regs `'(~(last +int_regs) ~(last +float_regs))
-	+all_extern_trashed_regs `'(~(most (last +int_regs)) ~(last +float_regs))
-	+regs_index_map
-		(reduce (# (pinsert %0 %1 (!))) +int_regs
-		(reduce (# (pinsert %0 %1 (!))) +float_regs (plist))))
-
-(defun reg? (r) (if (eql :sym (pop (type-of r))) (pfind +regs_index_map r)))
+(defq +obj_dir "obj/vp/"
+	+all_extern_trashed_regs `'(~(most (last +vp_rregs)) ~(last +vp_fregs)))
 
 (defun gather-all-abi-trashed ()
 	(defq union_set (list))
@@ -43,23 +36,11 @@
 			(merge union_set (eval (abi-trashed)))
 			(env-pop))
 		'((AMD64 x86_64) (WIN64 x86_64) (ARM64 arm64) (RISCV64 riscv64) (VP64 vp64)))
-	(sort union_set (# (reg? %0) (reg? %1))))
+	(sort union_set (# (vp-reg? %0) (vp-reg? %1))))
 
 ;(defq +all_abi_trashed_regs '`,(gather-all-abi-trashed))
 (defq +all_abi_trashed_regs
 	''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
-
-; (plist) +all_regs vpset, with :nil for 'erased' to keep slots lined up
-(defmacro vpset-copy (%0) (static-qq (cat ,%0)))
-(defmacro vpset-insert (%0 %1) (static-qq (pinsert ,%0 ,%1 :t)))
-(defmacro vpset-erase (%0 %1) (static-qq (pinsert ,%0 ,%1 :nil)))
-(defmacro vpset-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (vpset-insert %0 %1) %0)) (partition ,%1 2) ,%0)))
-(defmacro vpset-diff (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (vpset-erase %0 %1) %0)) (partition ,%1 2) ,%0)))
-(defmacro vpset-tolist (%0) (static-qq (map (const first) (filter (const second) (partition ,%0 2)))))
-(defmacro vpset-size (%0) (static-qq (reduce (lambda (%0 (& %1)) (if %1 (inc %0) %0)) (partition ,%0 2) 0)))
-(defmacro vpset-empty? (%0) (static-qq (notany (const second) (partition ,%0 2))))
-(defmacro vpset-nempty? (%0) (static-qq (some (const second) (partition ,%0 2))))
-(defmacro vpset () (static-qq (vpset-copy (const (reduce (lambda (%0 %1) (vpset-erase %0 %1)) +all_regs (plist))))))
 
 (defun def-reg (%0 %1)
 	; define register value and trashed state
@@ -77,9 +58,9 @@
 (defun format-trashes (func_set)
 	(defq r_indices (list) f_indices (list))
 	(each (# (if (starts-with ":r" %0)
-			(if (/= (defq %0 (reg? %0)) (const (reg? :rsp)))
+			(if (/= (defq %0 (vp-reg? %0)) (const (vp-reg? :rsp)))
 				(push r_indices %0))
-			(push f_indices (reg? %0))))
+			(push f_indices (vp-reg? %0))))
 		(if (plist? func_set) (vpset-tolist func_set) func_set))
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
@@ -164,7 +145,7 @@
 		(;register tracing simulation ! (as near as we can anyways)
 		;start main trace from pc _s
 		(defq label_map (Lmap) call_list (list) func_set (vpset) trace -1 next_trace 0
-			vpmap (cat (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
+			vpmap (cat (const (reduce (# (pinsert %0 %1 %1)) +vp_regs (plist))))
 			trace_map (scatter (Lmap) 0 (list _s 0 (Lmap) vpmap (vpset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
@@ -316,7 +297,7 @@
 						;has label offset as last arg !
 						(def-reg (third inst) :nil))
 					(:t ;all remaining, check last for reg
-						(if (reg? (last inst)) (def-reg (last inst) :nil))))
+						(if (vp-reg? (last inst)) (def-reg (last inst) :nil))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
 				(verbose 4 "\t\t\t" (format-values vpmap) "\n\t\t\t" (. stack_map :tolist)))
 			(. trace_map :erase trace)
@@ -351,7 +332,7 @@
 							(some (# (. changed_set :find %0)) call_list))
 						(defq old_size (vpset-size func_set))
 						;bypasses symbolic tracing if the function already trashes all registers
-						(when (< old_size (const (length +all_regs)))
+						(when (< old_size (const (length +vp_regs)))
 							(bind '(type &optional new_set new_calls) (analyze-function function db))
 							(when (/= old_size (vpset-size new_set))
 								(. db :insert function (list :function new_set new_calls))
