@@ -24,7 +24,7 @@
 ))
 
 (defq +obj_dir "obj/vp/"
-	+all_extern_trashed_regs `'(~(most (last +vp_rregs)) ~(last +vp_fregs)))
+	+all_extern_trashed_set (reduce (# (pinsert %0 %1 (nql :rsp %1))) +vp_regs (cat +vp_regs_map)))
 
 (defun gather-all-abi-trashed ()
 	(defq union_set (list))
@@ -55,10 +55,9 @@
 
 (defun format-trashes (func_set)
 	(defq r_indices (list) f_indices (list))
-	(each (# (if (starts-with ":r" %0)
-			(if (/= (defq %0 (vp-reg? %0)) (const (vp-reg? :rsp)))
-				(push r_indices %0))
-			(push f_indices (vp-reg? %0))))
+	(each (# (if (nql %0 :rsp) (if (starts-with ":r" %0)
+			(push r_indices (vp-reg? %0))
+			(push f_indices (vp-reg? %0)))))
 		(if (plist? func_set) (vpset-tolist func_set) func_set))
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
@@ -125,11 +124,10 @@
 (defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
 	;and its subclasses overrides, based on the current state of the active db
-	(defq union_set (list))
-	(each (# (if (defq f_entry (. db :find %0))
-			(merge union_set (vpset-tolist (second f_entry)))))
+	(defq union_set (vpset))
+	(each (# (if (defq entry (. db :find %0)) (vpset-union union_set (second entry))))
 		(resolve-virtual-methods c m))
-	(if (nempty? union_set) union_set +all_extern_trashed_regs))
+	union_set)
 
 (defmacro verbose (v &rest info)
 	(static-qq (when (<= ,v opt_v)
@@ -228,14 +226,14 @@
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
-							(each (# (def-reg %0 :nil)) (vpset-tolist (second callee_entry)))))
+							(vpset-unidif trace_set vpmap (second callee_entry))))
 					(emit-jmp-p
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
-							(each (# (def-reg %0 :nil)) (vpset-tolist (second callee_entry))))
+							(vpset-unidif trace_set vpmap (second callee_entry)))
 						(unless (setq *pc* (pop call_stack))
 							(vpset-union func_set trace_set)
 							(setq *pc* +max_long)))
@@ -243,25 +241,25 @@
 						(if (bind '(& & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
+							(defq call_set +all_extern_trashed_set calls '(:indirect)))
 						(merge call_list calls)
-						(each (# (def-reg %0 :nil)) call_set))
+						(vpset-unidif trace_set vpmap call_set))
 					(emit-call-i
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
+							(defq call_set +all_extern_trashed_set calls '(:indirect)))
 						(merge call_list calls)
-						(each (# (def-reg %0 :nil)) call_set))
+						(vpset-unidif trace_set vpmap call_set))
 					(emit-jmp-r
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
 						(if (bind '(& & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
+							(defq call_set +all_extern_trashed_set calls '(:indirect)))
 						(merge call_list calls)
-						(each (# (def-reg %0 :nil)) call_set)
+						(vpset-unidif trace_set vpmap call_set)
 						(unless (setq *pc* (pop call_stack))
 							(vpset-union func_set trace_set)
 							(setq *pc* +max_long)))
@@ -271,9 +269,9 @@
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_set (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_set +all_extern_trashed_regs calls '(:indirect)))
+							(defq call_set +all_extern_trashed_set calls '(:indirect)))
 						(merge call_list calls)
-						(each (# (def-reg %0 :nil)) call_set)
+						(vpset-unidif trace_set vpmap call_set)
 						(unless (setq *pc* (pop call_stack))
 							(vpset-union func_set trace_set)
 							(setq *pc* +max_long)))

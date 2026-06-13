@@ -18,6 +18,7 @@
 (defmacro vpset-erase (%0 %1) (static-qq (pinsert ,%0 ,%1 :nil)))
 (defmacro vpset-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (vpset-insert %0 %1) %0)) (partition ,%1 2) ,%0)))
 (defmacro vpset-diff (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (vpset-erase %0 %1) %0)) (partition ,%1 2) ,%0)))
+(defmacro vpset-unidif (us ds %2) (static-qq (each (lambda ((%0 %1)) (when %1 (vpset-insert ,us %0) (vpset-erase ,ds %0))) (partition ,%2 2))))
 (defmacro vpset-tolist (%0) (static-qq (map (const first) (filter (const second) (partition ,%0 2)))))
 (defmacro vpset-size (%0) (static-qq (reduce (lambda (%0 (& %1)) (if %1 (inc %0) %0)) (partition ,%0 2) 0)))
 (defmacro vpset-empty? (%0) (static-qq (notany (const second) (partition ,%0 2))))
