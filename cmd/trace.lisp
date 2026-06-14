@@ -124,10 +124,9 @@
 (defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
 	;and its subclasses overrides, based on the current state of the active db
-	(defq union_set (vpset))
-	(each (# (if (defq entry (. db :find %0)) (vpset-union union_set (second entry))))
-		(resolve-virtual-methods c m))
-	union_set)
+	(reduce (# (if (defq entry (. db :find %1))
+			(vpset-union %0 (second entry)) %0))
+		(resolve-virtual-methods c m) (vpset)))
 
 (defmacro verbose (v &rest info)
 	(static-qq (when (<= ,v opt_v)
