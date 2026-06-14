@@ -26,3 +26,13 @@
 (assert-eq "pfind after update" 200 (pfind pl 'b))
 (assert-eq "pfindi after update" 2 (pfindi pl 'b))
 (assert-eq "plist length after update" 8 (length pl))
+
+; --- Erasing (perase - Existing Key) ---
+(perase pl 'b)
+(assert-eq "pfind after erase" :nil (pfind pl 'b))
+(assert-eq "pfindi after erase" :nil (pfindi pl 'b))
+(assert-eq "plist length after erase" 6 (length pl))
+
+; --- Erasing (perase - Missing Key) ---
+(perase pl 'z)
+(assert-eq "plist length after missing erase" 6 (length pl))
