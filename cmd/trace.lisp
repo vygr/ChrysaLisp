@@ -140,30 +140,30 @@
 			(list :external))
 		(;register tracing simulation ! (as near as we can anyways)
 		;start main trace from pc _s
-		(defq label_map (Lmap) call_list (list) func_set (vpset) trace -1 next_trace 0
+		(defq label_map (plist) call_list (list) func_set (vpset) trace -1 next_trace 0
 			vpmap (cat (const (reduce (# (pinsert %0 %1 %1)) +vp_regs (vpset))))
-			trace_map (scatter (Lmap) 0 (list _s 0 (Lmap) vpmap (vpset) (list))))
+			trace_map (pinsert (plist) 0 (list _s 0 (plist) vpmap (vpset) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (<= (++ trace) next_trace)
 			(task-slice)
-			(bind '(*pc* *rsp* stack_map vpmap trace_set call_stack) (. trace_map :find trace))
+			(bind '(*pc* *rsp* stack_map vpmap trace_set call_stack) (pfind trace_map trace))
 			(while (< *pc* _e)
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
 				(case (first inst)
 					((emit-label emit-tlabel)
 						;update merged state at labels
-						(if (defq pc (get (last (second inst))) ls (. label_map :find pc))
+						(if (defq pc (get (last (second inst))) ls (pfind label_map pc))
 							(vpset-union trace_set ls))
-						(. label_map :insert pc (vpset-copy trace_set)))
+						(pinsert label_map pc (vpset-copy trace_set)))
 					((emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 					emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
 					emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)
 						;if branch would carry new state then create new trace
-						(defq pc (get (last inst)) ls (. label_map :find pc))
+						(defq pc (get (last inst)) ls (pfind label_map pc))
 						(when (or (not ls) (vpset-nempty? (vpset-diff (vpset-copy trace_set) ls)))
-							(. trace_map :insert (++ next_trace) (list pc *rsp*
-								(. stack_map :copy) (cat vpmap) (vpset-copy trace_set) (cat call_stack)))))
+							(pinsert trace_map (++ next_trace) (list pc *rsp*
+								(cat stack_map) (cat vpmap) (vpset-copy trace_set) (cat call_stack)))))
 					((emit-cpy-rr emit-cpy-ff)
 						;copy value and mark as trashed or restored
 						(def-reg (last inst) (pfind vpmap (second inst))))
@@ -176,34 +176,34 @@
 					(emit-free
 						(setq *rsp* (++ *rsp* (second inst)))
 						(each (lambda ((%0 &ignore))
-								(if (< %0 *rsp*) (. stack_map :erase %0)))
-							(. stack_map :tolist)))
+								(if (< %0 *rsp*) (perase stack_map %0)))
+							(partition stack_map 2)))
 					(emit-push
 						;push the values of all registers pushed
-						(each! (# (. stack_map :insert (-- *rsp* +long_size)
+						(each! (# (pinsert stack_map (-- *rsp* +long_size)
 								(pfind vpmap %0)))
 							(list inst) 1))
 					(emit-pop
 						;pop the values of all registers popped
 						;and flag if register is now restored
-						(each! (# (def-reg %0 (. stack_map :find *rsp*))
-								(. stack_map :erase *rsp*)
+						(each! (# (def-reg %0 (pfind stack_map *rsp*))
+								(perase stack_map *rsp*)
 								(++ *rsp* +long_size))
 							(list inst) -1 1))
 					((emit-cpy-ri emit-cpy-fi)
 						;stack spill 64 bit
 						(when (eql (third inst) :rsp)
 							(bind '(& src & offset) inst)
-							(. stack_map :insert (+ *rsp* offset) (pfind vpmap src))))
+							(pinsert stack_map (+ *rsp* offset) (pfind vpmap src))))
 					((emit-cpy-ir emit-cpy-if)
 						;stack load 64 bit ?
 						(bind '(& src offset dst) inst)
-						(def-reg dst (if (eql src :rsp) (. stack_map :find (+ *rsp* offset)))))
+						(def-reg dst (if (eql src :rsp) (pfind stack_map (+ *rsp* offset)))))
 					((emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i)
 						;quantize offset down to the nearest 8-byte
 						;boundary and erase the slot
 						(when (eql (third inst) :rsp)
-							(. stack_map :erase (+ *rsp* (logand (neg +long_size) (last inst))))))
+							(perase stack_map (+ *rsp* (logand (neg +long_size) (last inst))))))
 					(emit-ret
 						;we are inside an inlined local subroutine, return to the caller
 						(unless (setq *pc* (pop call_stack))
@@ -217,7 +217,7 @@
 							(setq *pc* target_pc)))
 					(emit-jmp
 						;if jump would carry new state then jump, else kill trace
-						(defq pc (get (last inst)) ls (. label_map :find pc))
+						(defq pc (get (last inst)) ls (pfind label_map pc))
 						(if (or (not ls) (vpset-nempty? (vpset-diff (vpset-copy trace_set) ls)))
 							(setq *pc* pc)
 							(setq *pc* +max_long)))
@@ -295,8 +295,8 @@
 					(:t ;all remaining, check last for reg
 						(if (vp-reg? (last inst)) (def-reg (last inst) :nil))))
 				(verbose 3 "\t\t\t" (format-trashes trace_set))
-				(verbose 4 "\t\t\t" (format-values vpmap) "\n\t\t\t" (. stack_map :tolist)))
-			(. trace_map :erase trace)
+				(verbose 4 "\t\t\t" (format-values vpmap) "\n\t\t\t" (partition stack_map 2)))
+			(perase trace_map trace)
 			(verbose 4 "\t\tmerged " (format-trashes func_set)))
 		(list :function func_set call_list))))
 
