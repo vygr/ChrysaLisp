@@ -37,7 +37,7 @@ The tracer tracks register and stack lifecycles through several mechanisms:
 
 * **Register Modification:** Any instruction that modifies a register (without a
   valid restore path) invalidates its symbolic state and adds it to the active
-  `trace_set`.
+  `trace_map`.
 
 ## Control Flow and State Merging
 
