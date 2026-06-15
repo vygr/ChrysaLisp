@@ -187,9 +187,9 @@ its default self-mapped name: `k /= v` / `(nql %1 %2)`).
 
 ### 5. Sound External Function Initialization
 
-External native VM or primitive functions (such as `sys/mem/free`) do not have
-compiled VP instruction files on disk. As a result, they are evaluated as
-`:external` entries and act as terminal leaves in the dependency graph.
+External native VM or primitive functions do not have compiled VP instruction
+files on disk. As a result, they are evaluated as `:external` entries and act as
+terminal leaves in the dependency graph.
 
 Because `:external` entries are never re-analyzed in the convergence loop, they
 must be initialized in the database using the conservative clobber set
