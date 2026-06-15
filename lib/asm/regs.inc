@@ -12,15 +12,11 @@
 (defmacro vp-freg? (%0) (static-qq (pfind +vp_fregs_map ,%0)))
 (defmacro vp-reg? (%0) (static-qq (pfind +vp_regs_map ,%0)))
 
-; (plist) +vp_regs vpset, with :nil for 'erased' to keep slots lined up
+; (plist) +vp_regs vpset, to keep slots lined up
 (defmacro vpset-copy (%0) (static-qq (cat ,%0)))
-(defmacro vpset-insert (%0 %1) (static-qq (pinsert ,%0 ,%1 :t)))
-(defmacro vpset-erase (%0 %1) (static-qq (pinsert ,%0 ,%1 :nil)))
-(defmacro vpset-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (vpset-insert %0 %1) %0)) (partition ,%1 2) ,%0)))
-(defmacro vpset-diff (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if %2 (vpset-erase %0 %1) %0)) (partition ,%1 2) ,%0)))
-(defmacro vpset-unidif (us ds %2) (static-qq (each (lambda ((%0 %1)) (when %1 (vpset-insert ,us %0) (vpset-erase ,ds %0))) (partition ,%2 2))))
-(defmacro vpset-tolist (%0) (static-qq (map (const first) (filter (const second) (partition ,%0 2)))))
-(defmacro vpset-size (%0) (static-qq (reduce (lambda (%0 (& %1)) (if %1 (inc %0) %0)) (partition ,%0 2) 0)))
-(defmacro vpset-empty? (%0) (static-qq (notany (const second) (partition ,%0 2))))
-(defmacro vpset-nempty? (%0) (static-qq (some (const second) (partition ,%0 2))))
-(defmacro vpset () (static-qq (vpset-copy (const (reduce (lambda (%0 %1) (vpset-erase %0 %1)) +vp_regs (plist))))))
+(defmacro vpset-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql (pfind %0 %1) %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
+(defmacro vpset-diff (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
+(defmacro vpset-trashed (%0) (static-qq (map (const first) (filter (# (apply (const nql) %0)) (partition ,%0 2)))))
+(defmacro vpset-size (%0) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (inc %0) %0)) (partition ,%0 2) 0)))
+(defmacro vpset-changed? (%0 %1) (static-qq (some (lambda (%0 %1) (and (nql %1 :nil) (nql %0 %1))) ,%0 ,%1)))
+(defmacro vpset () (static-qq (vpset-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (plist))))))
