@@ -49,7 +49,7 @@ model:
 
 * **Label Merging:** When multiple execution paths converge at a label
   (`emit-label`), the tracer merges their respective clobber sets (union) using
-  `vpset-union`.
+  `vpmap-union`.
 
 * **Trace Termination:** Tracing along a path terminates when it reaches a
   return (`emit-ret`) or an unconditional jump (`emit-jmp-p`), at which point
@@ -57,12 +57,12 @@ model:
 
 * **Loop Stability and Back-Edges:** To prevent infinite tracing of loop
   back-edges where registers are restored or swapped inside the body, the tracer
-  uses the `vpset-changed?` macro. This macro only triggers a loop back-edge if
+  uses the `vpmap-changed?` macro. This macro only triggers a loop back-edge if
   the current state (`trace_map`) would further widen (degrade) the label's
   recorded state (`lm`) to `:nil`:
 
 	```
-	(defmacro vpset-changed? (%0 %1)
+	(defmacro vpmap-changed? (%0 %1)
 		(static-qq (some (lambda (v0 v1) (and (nql v1 :nil) (nql v0 v1))) ,%0 ,%1)))
 	```
 
@@ -167,14 +167,14 @@ cmd/trace.lisp ";converge remaining by re-running" "(defq t_set changed"
 
 If a function's clobber set reaches the maximum available registers (32
 registers), its state cannot grow any larger. The convergence loop detects this
-using `vpset-trash-cnt` and bypasses further re-analysis, providing an efficient
+using `vpmap-count` and bypasses further re-analysis, providing an efficient
 short-circuit path:
 
 ```vdu
 (when (< old_size (const (length +vp_regs))) ...)
 ```
 
-This bypass works correctly because `vpset-trash-cnt` counts the number of
+This bypass works correctly because `vpmap-count` counts the number of
 **clobbered/trashed** registers (where the register maps to any value other than
 its default self-mapped name: `k /= v` / `(nql %1 %2)`).
 
@@ -193,7 +193,7 @@ terminal leaves in the dependency graph.
 
 Because `:external` entries are never re-analyzed in the convergence loop, they
 must be initialized in the database using the conservative clobber set
-`+all_extern_trashed_map` rather than `(vpset)` (fully preserved):
+`+all_extern_trashed_map` rather than `(vpmap)` (fully preserved):
 
 ```vdu
 ((eql type :external)

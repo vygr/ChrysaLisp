@@ -215,13 +215,12 @@ identical.
 
 The `trace` command uses ChrysaLisp’s `:plist` to track register states during
 symbolic execution. This utility simulates program flow to calculate transitive
-register clobbering (register trashing) across function calls, relying on two
-core plist-backed structures: `vpset` (register sets) and `vpmap` (register
-mappings).
+register clobbering (register trashing) across function calls, relying on a core
+plist-backed structure: `vpmap` (register mappings).
 
-### The `vpset` (Register Set) Primitive
+### The `vpmap` (Register Set) Primitive
 
-In the tracer, a `vpset` represents a set of hardware registers. It is modeled
+In the tracer, a `vpmap` represents a set of hardware registers. It is modeled
 entirely as a `:plist` where register symbols map to themselves (e.g., `:r0 ->
 :r0`) for a preserved state, or `:nil` (e.g., `:r0 -> :nil`) for a clobbered
 state.
@@ -235,40 +234,40 @@ directly to fast list operations:
 	representing a fully preserved state:
 
 	```vdu
-	(defmacro vpset ()
-		(static-qq (vpset-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (plist))))))
+	(defmacro vpmap ()
+		(static-qq (vpmap-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (plist))))))
 	```
 
-* **Symmetric Merge (`vpset-union`)**:
+* **Symmetric Merge (`vpmap-union`)**:
 
 	To combine register states from independent merging execution paths (e.g., at
-	labels), `vpset-union` compares register states pairwise and conservatively
+	labels), `vpmap-union` compares register states pairwise and conservatively
 	marks any mismatched registers as clobbered (`:nil`):
 
 	```vdu
-	(defmacro vpset-union (%0 %1)
+	(defmacro vpmap-union (%0 %1)
 		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql (pfind %0 %1) %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
 	```
 
-* **Asymmetric Clobber Application (`vpset-diff`)**:
+* **Asymmetric Clobber Application (`vpmap-diff`)**:
 
 	To apply a known clobber set (a delta, such as a function call's clobbers) to
-	the active `trace_map`, `vpset-diff` marks any register as clobbered (`:nil`)
+	the active `trace_map`, `vpmap-diff` marks any register as clobbered (`:nil`)
 	if its state in the callee map is not in its default self-mapped state:
 
 	```vdu
-	(defmacro vpset-diff (%0 %1)
+	(defmacro vpmap-diff (%0 %1)
 		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
 	```
 
-* **Set Size (`vpset-trash-cnt`)**:
+* **Set Size (`vpmap-count`)**:
 
-	The `vpset-trash-cnt` macro calculates the total number of trashed/clobbered
+	The `vpmap-count` macro calculates the total number of trashed/clobbered
 	registers by counting how many elements diverge from their default self-mapped
 	state:
 
 	```vdu
-	(defmacro vpset-trash-cnt (%0)
+	(defmacro vpmap-count (%0)
 		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (inc %0) %0)) (partition ,%0 2) 0)))
 	```
 
@@ -283,14 +282,14 @@ directly to fast list operations:
 	If a function already clobbers all registers (`old_size = 32`), `(< 32 32)` is
 	false, and it is safely bypassed.
 
-* **Loop Stability (`vpset-changed?`)**:
+* **Loop Stability (`vpmap-changed?`)**:
 
 	To prevent infinite loops when tracing loop back-edges where registers are
-	restored or swapped in the body, `vpset-changed?` only triggers a loop
+	restored or swapped in the body, `vpmap-changed?` only triggers a loop
 	back-edge if the active state would further widen/degrade the label state:
 
 	```vdu
-	(defmacro vpset-changed? (%0 %1)
+	(defmacro vpmap-changed? (%0 %1)
 		(static-qq (some (lambda (v0 v1) (and (nql v1 :nil) (nql v0 v1))) ,%0 ,%1)))
 	```
 
@@ -321,11 +320,11 @@ register to detect when a spilled register is restored. This is managed by
 
 ### Caching and Simulation Performance
 
-Because the keys of both `vpset` and `vpmap` are globally interned register
+Because the keys of both `vpmap` and `vpmap` are globally interned register
 symbols (e.g., `:r0`, `:r1`, `:f0`), this symbolic simulator achieves high
 execution speeds.
 
-During the iterations of the data-flow analysis, almost every lookup in `vpset`
+During the iterations of the data-flow analysis, almost every lookup in `vpmap`
 and `vpmap` hits the `str_hashslot` cache. This minimizes the overhead of the
 tracer, allowing it to calculate register-trashing behaviors across thousands of
 instructions in a fraction of a second.
