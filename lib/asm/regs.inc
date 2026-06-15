@@ -15,8 +15,7 @@
 ; (plist) +vp_regs vpmap, all slots lined up
 (defmacro vpmap-copy (%0) (static-qq (cat ,%0)))
 (defmacro vpmap-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql (pfind %0 %1) %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
-(defmacro vpmap-diff (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
+(defmacro vpmap-diff (%0 %1) (static-qq (reduce (# (pinsert %0 %1 :nil)) ,%1 ,%0)))
 (defmacro vpmap-trashed (%0) (static-qq (map (const first) (filter (# (apply (const nql) %0)) (partition ,%0 2)))))
-(defmacro vpmap-count (%0) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (inc %0) %0)) (partition ,%0 2) 0)))
 (defmacro vpmap-changed? (%0 %1) (static-qq (some (lambda (%0 %1) (and (nql %1 :nil) (nql %0 %1))) ,%0 ,%1)))
 (defmacro vpmap () (static-qq (vpmap-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (plist))))))

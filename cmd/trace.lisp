@@ -23,7 +23,7 @@
 ))
 
 (defq +obj_dir "obj/vp/"
-	+all_extern_trashed_map (reduce (# (pinsert %0 %1 (nql :rsp %1))) +vp_regs (cat +vp_regs_map)))
+	+all_extern_trashed (static-q (filter (lambda (%0) (nql :rsp %0)) +vp_regs)))
 
 (defun gather-all-abi-trashed ()
 	(defq union_set (list))
@@ -52,7 +52,7 @@
 	(each (# (if (nql %0 :rsp) (if (starts-with ":r" %0)
 			(push r_indices (vp-reg? %0))
 			(push f_indices (vp-reg? %0)))))
-		(vpmap-trashed func_map))
+		(if (plist? func_map) (vpmap-trashed func_map) func_map))
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
 		(format-group ":f" f_indices)))
@@ -119,8 +119,8 @@
 	;calculate the union of all this class method trashes
 	;and its subclasses overrides, based on the current state of the active db
 	(reduce (# (if (defq entry (. db :find %1))
-			(vpmap-union %0 (second entry)) %0))
-		(resolve-virtual-methods c m) (vpmap)))
+			(merge %0 (second entry)) %0))
+		(resolve-virtual-methods c m) (list)))
 
 (defmacro verbose (v &rest info)
 	(static-qq (when (<= ,v opt_v)
@@ -244,7 +244,7 @@
 						(if (bind '(& & &optional c m) inst)
 							(defq call_map (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_map +all_extern_trashed_map calls '(:indirect)))
+							(defq call_map +all_extern_trashed calls '(:indirect)))
 						(verbose 5 "\t\t\t\ttrashes " (format-trashes call_map))
 						(merge call_list calls)
 						(vpmap-diff trace_map call_map))
@@ -252,7 +252,7 @@
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_map (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_map +all_extern_trashed_map calls '(:indirect)))
+							(defq call_map +all_extern_trashed calls '(:indirect)))
 						(verbose 5 "\t\t\t\ttrashes " (format-trashes call_map))
 						(merge call_list calls)
 						(vpmap-diff trace_map call_map))
@@ -262,7 +262,7 @@
 						(if (bind '(& & &optional c m) inst)
 							(defq call_map (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_map +all_extern_trashed_map calls '(:indirect)))
+							(defq call_map +all_extern_trashed calls '(:indirect)))
 						(verbose 5 "\t\t\t\ttrashes " (format-trashes call_map))
 						(merge call_list calls)
 						(vpmap-diff trace_map call_map)
@@ -275,7 +275,7 @@
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_map (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
-							(defq call_map +all_extern_trashed_map calls '(:indirect)))
+							(defq call_map +all_extern_trashed calls '(:indirect)))
 						(verbose 5 "\t\t\t\ttrashes " (format-trashes call_map))
 						(merge call_list calls)
 						(vpmap-diff trace_map call_map)
@@ -307,42 +307,43 @@
 		(list :function func_map call_list))))
 
 (defun propagate-trashes (functions)
-	(defq db (Fmap 101) order (tsort functions (const get-dependencies)))
-	;each caller now accurately steps through callee clobber states
-	(each (lambda (function)
-		(unless (. db :find function)
-			(verbose 1 "analyzing " function)
-			(bind '(type &optional func_map call_list) (analyze-function function db))
-			(cond
-				((eql type :external)
-					(. db :insert function (list :external (vpmap))))
-				((eql type :function)
-					(verbose 2 "\tfunction " function "\n\t\tcalls " call_list
-						"\n\t\ttrashes " (format-trashes func_map))
-					(. db :insert function (list :function func_map call_list))))))
-		order)
-	;converge remaining by re-running analysis until register clobbers stabilize
-	(defq changed :t changed_set (scatter (Fset 101) order) next_changed (Fset 101))
-	(while changed
-		(defq changed :nil)
-		(. next_changed :empty)
-		(each (lambda (function)
-			(when (defq entry (. db :find function))
-				(when (eql (first entry) :function)
-					(bind '(& func_map call_list) entry)
-					(when (or (. changed_set :find function)
-							(some (# (. changed_set :find %0)) call_list))
-						(defq old_size (vpmap-count func_map))
-						;bypasses symbolic tracing if the function already trashes all registers
-						(when (< old_size (const (length +vp_regs)))
-							(bind '(type &optional new_map new_calls) (analyze-function function db))
-							(when (/= old_size (vpmap-count new_map))
-								(. db :insert function (list :function new_map new_calls))
-								(. next_changed :insert function)
-								(setq changed :t)))))))
-			order)
-		(defq t_set changed_set changed_set next_changed next_changed t_set))
-	db)
+    (defq db (Fmap 101) order (tsort functions (const get-dependencies)))
+    ;each caller now accurately steps through callee clobber states
+    (each (lambda (function)
+        (unless (. db :find function)
+            (verbose 1 "analyzing " function)
+            (bind '(type &optional func_map call_list) (analyze-function function db))
+            (cond
+                ((eql type :external)
+                    (. db :insert function (list :external +all_extern_trashed)))
+                ((eql type :function)
+                    (verbose 2 "\tfunction " function "\n\t\tcalls " call_list
+                        "\n\t\ttrashes " (format-trashes func_map))
+                    (. db :insert function (list :function (vpmap-trashed func_map) call_list))))))
+        order)
+    ;converge remaining by re-running analysis until register clobbers stabilize
+    (defq changed :t changed_set (scatter (Fset 101) order) next_changed (Fset 101))
+    (while changed
+        (defq changed :nil)
+        (. next_changed :empty)
+        (each (lambda (function)
+            (when (defq entry (. db :find function))
+                (when (eql (first entry) :function)
+                    (bind '(& func_map call_list) entry)
+                    (when (or (. changed_set :find function)
+                            (some (# (. changed_set :find %0)) call_list))
+                        (defq old_size (length func_map))
+                        ;bypasses symbolic tracing if the function already trashes all registers
+                        (when (< old_size (const (length +vp_regs)))
+                            (bind '(type &optional new_map new_calls) (analyze-function function db))
+                            (defq new_trashed (vpmap-trashed new_map))
+                            (when (/= old_size (length new_trashed))
+                                (. db :insert function (list :function new_trashed new_calls))
+                                (. next_changed :insert function)
+                                (setq changed :t)))))))
+            order)
+        (defq t_set changed_set changed_set next_changed next_changed t_set))
+    db)
 
 (defun main ()
 	(when (and
