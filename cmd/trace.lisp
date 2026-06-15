@@ -128,7 +128,6 @@
 		(stream-flush (io-stream 'stdout)))))
 
 (defun analyze-function (function db)
-	(if (sym? function) (throw "analys: is not string !" function))
 	(cond
 		((not (defq insts (get-function-insts function)))
 			(list :external))
