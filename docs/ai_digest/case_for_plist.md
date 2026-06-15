@@ -57,9 +57,9 @@ follows a highly optimized execution path:
 
 ## 2. Compile-Time Optimization via `pcase` and `case`
 
-Traditional Lisps compile `case` macros into nested O(N) linear chains of
-`cond` or `if` statements. ChrysaLisp avoids this overhead by converting the
-branching table into a compile-time `:plist`.
+Traditional Lisps compile `case` macros into nested O(N) linear chains of `cond`
+or `if` statements. ChrysaLisp avoids this overhead by converting the branching
+table into a compile-time `:plist`.
 
 ### The Compilation and Dispatch of `pcase`
 
@@ -172,8 +172,9 @@ This design yields several advantages:
 
 ## 4. Comparison to `(env 1)` Lexical Environments
 
-Lexical environments in ChrysaLisp are created as `:hmap` objects. While an `(env
-1)` instance and a `:plist` are conceptually similar, they are not identical.
+Lexical environments in ChrysaLisp are created as `:hmap` objects. While an
+`(env 1)` instance and a `:plist` are conceptually similar, they are not
+identical.
 
 ### Similarities
 
@@ -203,7 +204,7 @@ Lexical environments in ChrysaLisp are created as `:hmap` objects. While an `(en
 	environment is sized with many buckets to reduce collisions). A `:plist` is
 	always a single sequential list.
 
-* **Mutability and Compilation**:
+*   **Mutability and Compilation**:
 
 	`:hmap` instances are typically populated dynamically at runtime as variables
 	are bound and shadowed. `:plist` instances are frequently constructed as static
@@ -220,42 +221,77 @@ mappings).
 
 ### The `vpset` (Register Set) Primitive
 
-In the tracer, an `vpset` represents a set of hardware registers. It is modeled
-entirely as a `:plist` where register symbols map to `:t` (present/trashed) or
-`:nil` (absent/restored).
+In the tracer, a `vpset` represents a set of hardware registers. It is modeled
+entirely as a `:plist` where register symbols map to themselves (e.g., `:r0 ->
+:r0`) for a preserved state, or `:nil` (e.g., `:r0 -> :nil`) for a clobbered
+state.
 
-By leveraging `:plist` primitives, set algebra is mapped directly to fast list
-operations:
+By leveraging `:plist` primitives, set algebra and clobbering states are mapped
+directly to fast list operations:
 
 * **Initialization**:
 
-	The set is created by copying a pre-populated master register list:
+	A new register set is initialized with each register mapped to itself,
+	representing a fully preserved state:
 
 	```vdu
-	(defmacro vpset () 
-		(static-qq (vpset-copy (const (reduce (lambda (%0 %1) 
-			(vpset-erase %0 %1)) +all_regs (plist))))))
+	(defmacro vpset ()
+		(static-qq (vpset-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (plist))))))
 	```
 
-*   **Set Insertion and Erasure**:
+* **Symmetric Merge (`vpset-union`)**:
 
-	Adding or removing a register from the tracked set compiles to a simple
-	`pinsert` call:
+	To combine register states from independent merging execution paths (e.g., at
+	labels), `vpset-union` compares register states pairwise and conservatively
+	marks any mismatched registers as clobbered (`:nil`):
 
 	```vdu
-	(defmacro vpset-insert (%0 %1) (static-qq (pinsert ,%0 ,%1 :t)))
-	(defmacro vpset-erase (%0 %1)  (static-qq (pinsert ,%0 ,%1 :nil)))
+	(defmacro vpset-union (%0 %1)
+		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql (pfind %0 %1) %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
 	```
 
-*   **Set Union and Difference**:
+* **Asymmetric Clobber Application (`vpset-diff`)**:
 
-	Combining or subtracting register sets uses a `reduce` pipeline over the
-	interleaved key-value pairs of the plist:
+	To apply a known clobber set (a delta, such as a function call's clobbers) to
+	the active `trace_map`, `vpset-diff` marks any register as clobbered (`:nil`)
+	if its state in the callee map is not in its default self-mapped state:
 
 	```vdu
-	(defmacro vpset-union (%0 %1) 
-		(static-qq (reduce (lambda (%0 (%1 %2)) 
-			(if %2 (vpset-insert %0 %1) %0)) (partition ,%1 2) ,%0)))
+	(defmacro vpset-diff (%0 %1)
+		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
+	```
+
+* **Set Size (`vpset-trash-cnt`)**:
+
+	The `vpset-trash-cnt` macro calculates the total number of trashed/clobbered
+	registers by counting how many elements diverge from their default self-mapped
+	state:
+
+	```vdu
+	(defmacro vpset-trash-cnt (%0)
+		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (inc %0) %0)) (partition ,%0 2) 0)))
+	```
+
+	This counts the clobbered registers from `0` (clobbers `none`) to `32`
+	(clobbers `all`). This directly aligns with the convergence loop's bypass
+	check:
+
+	```vdu
+	(when (< old_size (const (length +vp_regs))) ...)
+	```
+
+	If a function already clobbers all registers (`old_size = 32`), `(< 32 32)` is
+	false, and it is safely bypassed.
+
+* **Loop Stability (`vpset-changed?`)**:
+
+	To prevent infinite loops when tracing loop back-edges where registers are
+	restored or swapped in the body, `vpset-changed?` only triggers a loop
+	back-edge if the active state would further widen/degrade the label state:
+
+	```vdu
+	(defmacro vpset-changed? (%0 %1)
+		(static-qq (some (lambda (v0 v1) (and (nql v1 :nil) (nql v0 v1))) ,%0 ,%1)))
 	```
 
 ### The `vpmap` (Register Value Map)
@@ -264,7 +300,7 @@ During symbolic simulation, the tracer must track the origin or value of each
 register to detect when a spilled register is restored. This is managed by
 `vpmap`, which maps each register symbol to its current symbolic state.
 
-*   **Initialization**:
+* **Initialization**:
 
 	The map is initialized with each register mapping to itself:
 
@@ -272,7 +308,7 @@ register to detect when a spilled register is restored. This is managed by
 	vpmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
 	```
 
-*   **State Tracking**:
+* **State Tracking**:
 
 	As instructions are simulated (such as `emit-cpy-rr`), `pfind` resolves the
 	symbolic source, and `pinsert` updates the destination register's mapping in
