@@ -12,7 +12,7 @@
 (defmacro vp-freg? (%0) (static-qq (pfind +vp_fregs_map ,%0)))
 (defmacro vp-reg? (%0) (static-qq (pfind +vp_regs_map ,%0)))
 
-; (plist) +vp_regs vpmap, all slots lined up
+; (plist) +vp_regs vpmap, used in trace command, all slots lined up
 (defmacro vpmap-copy (%0) (static-qq (cat ,%0)))
 (defmacro vpmap-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql (pfind %0 %1) %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
 (defmacro vpmap-diff (%0 %1) (static-qq (reduce (# (pinsert %0 %1 :nil)) ,%1 ,%0)))
