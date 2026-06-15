@@ -328,11 +328,11 @@
 					(bind '(& func_map call_list) entry)
 					(when (or (. changed_set :find function)
 							(some (# (. changed_set :find %0)) call_list))
-						(defq old_size (vpset-size func_map))
+						(defq old_size (vpset-trash-cnt func_map))
 						;bypasses symbolic tracing if the function already trashes all registers
 						(when (< old_size (const (length +vp_regs)))
 							(bind '(type &optional new_map new_calls) (analyze-function function db))
-							(when (/= old_size (vpset-size new_map))
+							(when (/= old_size (vpset-trash-cnt new_map))
 								(. db :insert function (list :function new_map new_calls))
 								(. next_changed :insert function)
 								(setq changed :t)))))))

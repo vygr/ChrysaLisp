@@ -17,6 +17,6 @@
 (defmacro vpset-union (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql (pfind %0 %1) %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
 (defmacro vpset-diff (%0 %1) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
 (defmacro vpset-trashed (%0) (static-qq (map (const first) (filter (# (apply (const nql) %0)) (partition ,%0 2)))))
-(defmacro vpset-size (%0) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (inc %0) %0)) (partition ,%0 2) 0)))
+(defmacro vpset-trash-cnt (%0) (static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (inc %0) %0)) (partition ,%0 2) 0)))
 (defmacro vpset-changed? (%0 %1) (static-qq (some (lambda (%0 %1) (and (nql %1 :nil) (nql %0 %1))) ,%0 ,%1)))
 (defmacro vpset () (static-qq (vpset-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (plist))))))
