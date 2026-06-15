@@ -147,17 +147,21 @@
 				(case (first inst)
 					((emit-label emit-tlabel)
 						;update merged state at labels
-						(defq pc (get (last (second inst))) lm (pfind label_map pc))
+						(defq pc (get (last (second inst)))
+							key (str pc ":" (if (empty? call_stack) 0 (last call_stack)))
+							lm (pfind label_map key))
 						(cond
 							((or (not lm) (vpset-changed? trace_map lm))
 								(if lm (vpset-union trace_map lm))
-								(pinsert label_map pc (cat trace_map)))
+								(pinsert label_map key (cat trace_map)))
 							((setq *pc* +max_long))))
 					((emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 					emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
 					emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)
 						;if branch would carry new state then create new trace
-						(defq pc (get (last inst)) lm (pfind label_map pc))
+						(defq pc (get (last inst))
+							key (str pc ":" (if (empty? call_stack) 0 (last call_stack)))
+							lm (pfind label_map key))
 						(when (or (not lm) (vpset-changed? trace_map lm))
 							(push traces (list pc *rsp*
 								(cat trace_map) (cat stack_map) (cat call_stack)))))
@@ -214,7 +218,9 @@
 							(setq *pc* target_pc)))
 					(emit-jmp
 						;if jump would carry new state then jump, else kill trace
-						(defq pc (get (last inst)) lm (pfind label_map pc))
+						(defq pc (get (last inst))
+							key (str pc ":" (if (empty? call_stack) 0 (last call_stack)))
+							lm (pfind label_map key))
 						(if (or (not lm) (vpset-changed? trace_map lm))
 							(setq *pc* pc)
 							(setq *pc* +max_long)))
