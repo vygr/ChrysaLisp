@@ -193,11 +193,11 @@ terminal leaves in the dependency graph.
 
 Because `:external` entries are never re-analyzed in the convergence loop, they
 must be initialized in the database using the conservative clobber set
-`+all_extern_trashed_set` rather than `(vpset)` (fully preserved):
+`+all_extern_trashed_map` rather than `(vpset)` (fully preserved):
 
 ```vdu
 ((eql type :external)
-	(. db :insert function (list :external +all_extern_trashed_set)))
+	(. db :insert function (list :external +all_extern_trashed_map)))
 ```
 
 This ensures that any static call (`emit-call-p`) or static jump (`emit-jmp-p`)
