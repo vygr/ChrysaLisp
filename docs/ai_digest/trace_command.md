@@ -167,14 +167,14 @@ cmd/trace.lisp ";converge remaining by re-running" "(defq t_set changed"
 
 If a function's clobber set reaches the maximum available registers (32
 registers), its state cannot grow any larger. The convergence loop detects this
-using `vpset-size` and bypasses further re-analysis, providing an efficient
+using `vpset-trash-cnt` and bypasses further re-analysis, providing an efficient
 short-circuit path:
 
 ```vdu
 (when (< old_size (const (length +vp_regs))) ...)
 ```
 
-This bypass works correctly because `vpset-size` counts the number of
+This bypass works correctly because `vpset-trash-cnt` counts the number of
 **clobbered/trashed** registers (where the register maps to any value other than
 its default self-mapped name: `k /= v` / `(nql %1 %2)`).
 
