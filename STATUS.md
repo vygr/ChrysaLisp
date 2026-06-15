@@ -30,6 +30,10 @@ New `(perase plist key) -> list` function.
 
 New "lib/asm/regs.inc" file for VP register lists, maps and utilities.
 
+Rework of the `cmd/trace.lisp` command to use a unified state vector, and to
+process traces in LIFO order. This catches some edge cases and leads to a faster
+trace. Current full system trace on the M4 is 0.30s.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
