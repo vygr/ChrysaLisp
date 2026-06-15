@@ -48,11 +48,23 @@ model:
   the execution path, spawning a new trace state at the target label.
 
 * **Label Merging:** When multiple execution paths converge at a label
-  (`emit-label`), the tracer merges their respective clobber sets (union).
+  (`emit-label`), the tracer merges their respective clobber sets (union) using
+  `vpset-union`.
 
 * **Trace Termination:** Tracing along a path terminates when it reaches a
   return (`emit-ret`) or an unconditional jump (`emit-jmp-p`), at which point
   its final clobber state is merged into the function's overall clobber set.
+
+* **Loop Stability and Back-Edges:** To prevent infinite tracing of loop
+  back-edges where registers are restored or swapped inside the body, the tracer
+  uses the `vpset-changed?` macro. This macro only triggers a loop back-edge if
+  the current state (`trace_map`) would further widen (degrade) the label's
+  recorded state (`lm`) to `:nil`:
+
+	```
+	(defmacro vpset-changed? (%0 %1)
+		(static-qq (some (lambda (v0 v1) (and (nql v1 :nil) (nql v0 v1))) ,%0 ,%1)))
+	```
 
 ## In-Context Subroutine Evaluation (Local Calls)
 
@@ -154,14 +166,48 @@ cmd/trace.lisp ";converge remaining by re-running" "(defq t_set changed"
 ### 4. Optimization: Full-Clobber Short-Circuit
 
 If a function's clobber set reaches the maximum available registers (32
-registers, calculated via `(const (length +all_regs))`), its state cannot grow
-any larger. The convergence loop detects this and bypasses any further
-re-analysis of the function, providing an efficient short-circuit path.
+registers), its state cannot grow any larger. The convergence loop detects this
+using `vpset-size` and bypasses further re-analysis, providing an efficient
+short-circuit path:
+
+```vdu
+(when (< old_size (const (length +vp_regs))) ...)
+```
+
+This bypass works correctly because `vpset-size` counts the number of
+**clobbered/trashed** registers (where the register maps to any value other than
+its default self-mapped name: `k /= v` / `(nql %1 %2)`).
+
+* **Full Clobber (`old_size = 32`):** `(< 32 32)` evaluates to false, and the
+  function is successfully bypassed.
+
+* **Partial or No Clobber (`old_size < 32`):** `(< old_size 32)` evaluates to
+  true, and the function is correctly re-analyzed to propagate any new clobbers
+  from its dependencies.
+
+### 5. Sound External Function Initialization
+
+External native VM or primitive functions (such as `sys/mem/free`) do not have
+compiled VP instruction files on disk. As a result, they are evaluated as
+`:external` entries and act as terminal leaves in the dependency graph.
+
+Because `:external` entries are never re-analyzed in the convergence loop, they
+must be initialized in the database using the conservative clobber set
+`+all_extern_trashed_set` rather than `(vpset)` (fully preserved):
+
+```vdu
+((eql type :external)
+	(. db :insert function (list :external +all_extern_trashed_set)))
+```
+
+This ensures that any static call (`emit-call-p`) or static jump (`emit-jmp-p`)
+to an external or unanalyzed system function correctly and conservatively
+propagates the trashed register state up the dependency chain.
 
 ## Verification, Linting, and Auto-Fixing
 
-The `trace` command provides verification and automatic correction features
-via the linting (`-l` / `--lint`) and write-back (`-w` / `--write`) options.
+The `trace` command provides verification and automatic correction features via
+the linting (`-l` / `--lint`) and write-back (`-w` / `--write`) options.
 
 ### Linting Mode
 
