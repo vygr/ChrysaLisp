@@ -80,8 +80,8 @@
 	;find function that implements this virtual method
 	;and all subclass overrides !
 	(map! (# (resolve-virtual-method %0 m))
-		(list (progn (defq m_entry (.-> (. *class_db* :find c) (:find :methods) (:find m)))
-			(ifn (. m_entry :find :overrides) '())))
+		(list (. (defq m_entry (.-> (. *class_db* :find c)
+			(:find :methods) (:find m))) :find :overrides))
 		0 -1 (list (. m_entry :find :function))))
 
 (defun get-function-insts (function)
