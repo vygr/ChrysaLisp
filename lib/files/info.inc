@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;
 
 (import "./files.inc")
+(import "././asm/regs.inc")
 
 ;module
 (env-push)
@@ -11,15 +12,7 @@
 	+lib_file (first (repl-info))
 	+class_db_file (cat *lib_root* "class_db.tre")
 	+func_db_file (cat *lib_root* "func_db.tre")
-	+split_class (char-class " ()'\t\r\q{@}<>")
-	+int_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
-	+float_regs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
-
-(defq +regs_index_map
-	(reduce (# (def %0 %1 (!)) %0) +int_regs
-	(reduce (# (def %0 %1 (!)) %0) +float_regs (env 1))))
-
-(defun reg-idx (r) (get (sym r) +regs_index_map))
+	+split_class (char-class " ()'\t\r\q{@}<>"))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
@@ -48,10 +41,10 @@
 	(setq regs expanded_regs)
 	(each (lambda (r)
 		(if (starts-with ":r" r)
-			(if (and (defq idx (reg-idx r)) (= idx 15))
+			(if (and (defq idx (vp-reg? r)) (= idx 15))
 				(push s_indices ":rsp")
 				(if idx (push r_indices idx)))
-			(if (defq idx (reg-idx r)) (push f_indices idx))))
+			(if (defq idx (vp-reg? r)) (push f_indices idx))))
 		regs)
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
