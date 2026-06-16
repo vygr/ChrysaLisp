@@ -49,7 +49,7 @@ model:
 
 * **Label Merging:** When multiple execution paths converge at a label
   (`emit-label`), the tracer merges their respective clobber sets (union) using
-  `vpmap-union`.
+  `vpmap-merge`.
 
 * **Trace Termination:** Tracing along a path terminates when it reaches a
   return (`emit-ret`) or an unconditional jump (`emit-jmp-p`), at which point
@@ -176,7 +176,7 @@ further re-analysis, providing an efficient short-circuit path:
 ```
 
 This bypass works correctly because `old_size` measures the length of the simple
-list of trashed registers returned by `(vpmap-trashed new_map)`.
+list of trashed registers returned by `(vpmap-tolist new_map)`.
 
 * **Full Clobber (`old_size = 32`):** `(< 32 32)` evaluates to false, and the
   function is successfully bypassed.

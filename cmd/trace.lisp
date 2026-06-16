@@ -52,7 +52,7 @@
 	(each (# (if (nql %0 :rsp) (if (starts-with ":r" %0)
 			(push r_indices (vp-reg? %0))
 			(push f_indices (vp-reg? %0)))))
-		(if (plist? func_map) (vpmap-trashed func_map) func_map))
+		(if (plist? func_map) (vpmap-tolist func_map) func_map))
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
 		(format-group ":f" f_indices)))
@@ -150,7 +150,7 @@
 							lm (pfind label_map key))
 						(cond
 							((or (not lm) (vpmap-changed? trace_map lm))
-								(if lm (vpmap-union trace_map lm))
+								(if lm (vpmap-merge trace_map lm))
 								(pinsert label_map key (cat trace_map)))
 							((setq *pc* +max_long))))
 					((emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
@@ -207,7 +207,7 @@
 						;we are inside an inlined local subroutine, return to the caller
 						(unless (setq *pc* (pop call_stack))
 							;return from main, merge clobbers and terminate path
-							(vpmap-union func_map trace_map)
+							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
 					(emit-call
 						;local subroutine call, inline it using the path's call stack
@@ -228,7 +228,7 @@
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
-							(vpmap-diff trace_map (second callee_entry))))
+							(vpmap-clobber trace_map (second callee_entry))))
 					(emit-jmp-p
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
@@ -236,9 +236,9 @@
 						;known trashed registers from db during symbolic execution
 						(when (defq callee_entry (. db :find callee))
 							(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
-							(vpmap-diff trace_map (second callee_entry)))
+							(vpmap-clobber trace_map (second callee_entry)))
 						(unless (setq *pc* (pop call_stack))
-							(vpmap-union func_map trace_map)
+							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
 					(emit-call-r
 						(if (bind '(& & &optional c m) inst)
@@ -247,7 +247,7 @@
 							(defq call_map +all_extern_trashed calls '(:indirect)))
 						(verbose 5 "\t\t\t\ttrashes " (format-trashes call_map))
 						(merge call_list calls)
-						(vpmap-diff trace_map call_map))
+						(vpmap-clobber trace_map call_map))
 					(emit-call-i
 						(if (bind '(& & & &optional c m) inst)
 							(defq call_map (virtual-trashes-union c m)
@@ -255,7 +255,7 @@
 							(defq call_map +all_extern_trashed calls '(:indirect)))
 						(verbose 5 "\t\t\t\ttrashes " (format-trashes call_map))
 						(merge call_list calls)
-						(vpmap-diff trace_map call_map))
+						(vpmap-clobber trace_map call_map))
 					(emit-jmp-r
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
@@ -265,9 +265,9 @@
 							(defq call_map +all_extern_trashed calls '(:indirect)))
 						(verbose 5 "\t\t\t\ttrashes " (format-trashes call_map))
 						(merge call_list calls)
-						(vpmap-diff trace_map call_map)
+						(vpmap-clobber trace_map call_map)
 						(unless (setq *pc* (pop call_stack))
-							(vpmap-union func_map trace_map)
+							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
 					(emit-jmp-i
 						;exit function, merge and kill trace or
@@ -278,9 +278,9 @@
 							(defq call_map +all_extern_trashed calls '(:indirect)))
 						(verbose 5 "\t\t\t\ttrashes " (format-trashes call_map))
 						(merge call_list calls)
-						(vpmap-diff trace_map call_map)
+						(vpmap-clobber trace_map call_map)
 						(unless (setq *pc* (pop call_stack))
-							(vpmap-union func_map trace_map)
+							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
 					(emit-call-abi
 						;simulate the union of all platform clobbers
@@ -304,7 +304,7 @@
 				(verbose 3 "\t\t\t" (format-trashes trace_map))
 				(verbose 4 "\t\t\t" (format-values trace_map) "\n\t\t\t" (partition stack_map 2)))
 			(verbose 4 "\t\tmerged " (format-trashes func_map)))
-		(list :function func_map call_list))))
+		(list :function (vpmap-tolist func_map) call_list))))
 
 (defun propagate-trashes (functions)
     (defq db (Fmap 101) order (tsort functions (const get-dependencies)))
@@ -319,7 +319,7 @@
                 ((eql type :function)
                     (verbose 2 "\tfunction " function "\n\t\tcalls " call_list
                         "\n\t\ttrashes " (format-trashes func_map))
-                    (. db :insert function (list :function (vpmap-trashed func_map) call_list))))))
+                    (. db :insert function (list :function func_map call_list))))))
         order)
     ;converge remaining by re-running analysis until register clobbers stabilize
     (defq changed :t changed_set (scatter (Fset 101) order) next_changed (Fset 101))
@@ -336,7 +336,7 @@
                         ;bypasses symbolic tracing if the function already trashes all registers
                         (when (< old_size (const (length +vp_regs)))
                             (bind '(type &optional new_map new_calls) (analyze-function function db))
-                            (defq new_trashed (vpmap-trashed new_map))
+                            (defq new_trashed new_map)
                             (when (/= old_size (length new_trashed))
                                 (. db :insert function (list :function new_trashed new_calls))
                                 (. next_changed :insert function)

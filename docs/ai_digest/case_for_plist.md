@@ -238,25 +238,25 @@ directly to fast list operations:
 		(static-qq (vpmap-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (plist))))))
 	```
 
-* **Symmetric Merge (`vpmap-union`)**:
+* **Symmetric Merge (`vpmap-merge`)**:
 
 	To combine register states from independent merging execution paths (e.g., at
-	labels), `vpmap-union` compares register states pairwise and conservatively
+	labels), `vpmap-merge` compares register states pairwise and conservatively
 	marks any mismatched registers as clobbered (`:nil`):
 
 	```vdu
-	(defmacro vpmap-union (%0 %1)
+	(defmacro vpmap-merge (%0 %1)
 		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql (pfind %0 %1) %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
 	```
 
-* **Asymmetric Clobber Application (`vpmap-diff`)**:
+* **Asymmetric Clobber Application (`vpmap-clobber`)**:
 
 	To apply a known clobber set (a delta, such as a function call's clobbers) to
-	the active `trace_map`, `vpmap-diff` marks any register as clobbered (`:nil`)
+	the active `trace_map`, `vpmap-clobber` marks any register as clobbered (`:nil`)
 	if its state in the callee map is not in its default self-mapped state:
 
 	```vdu
-	(defmacro vpmap-diff (%0 %1)
+	(defmacro vpmap-clobber (%0 %1)
 		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
 	```
 
