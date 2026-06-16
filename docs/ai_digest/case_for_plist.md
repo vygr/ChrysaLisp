@@ -307,5 +307,5 @@ allowing it to calculate register-trashing behaviors across thousands of
 instructions in a fraction of a second.
 
 ```file
-cmd/trace.lisp "; (plist)" ""
+lib/asm/regs.inc "; (plist)" ""
 ```
