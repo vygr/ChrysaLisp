@@ -292,7 +292,7 @@
 										'(:function :inputs :outputs :trashes
 										:file :trashes_line :overrides)))
 								(unless (. method_entry :find :overrides)
-										(. method_entry :insert :overrides (list)))))))))))
+									(. method_entry :insert :overrides (list)))))))))))
 			(each propagate (. class_entry :find :subclasses))))
 	(. class_db :each (lambda (class_name class_entry)
 		(when (eql (. class_entry :find :parent) :nil)
