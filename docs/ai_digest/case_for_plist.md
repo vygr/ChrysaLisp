@@ -260,28 +260,6 @@ directly to fast list operations:
 		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
 	```
 
-* **Set Size (`vpmap-count`)**:
-
-	The `vpmap-count` macro calculates the total number of trashed/clobbered
-	registers by counting how many elements diverge from their default self-mapped
-	state:
-
-	```vdu
-	(defmacro vpmap-count (%0)
-		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (inc %0) %0)) (partition ,%0 2) 0)))
-	```
-
-	This counts the clobbered registers from `0` (clobbers `none`) to `32`
-	(clobbers `all`). This directly aligns with the convergence loop's bypass
-	check:
-
-	```vdu
-	(when (< old_size (const (length +vp_regs))) ...)
-	```
-
-	If a function already clobbers all registers (`old_size = 32`), `(< 32 32)` is
-	false, and it is safely bypassed.
-
 * **Loop Stability (`vpmap-changed?`)**:
 
 	To prevent infinite loops when tracing loop back-edges where registers are
@@ -320,13 +298,12 @@ register to detect when a spilled register is restored. This is managed by
 
 ### Caching and Simulation Performance
 
-Because the keys of both `vpmap` and `vpmap` are globally interned register
-symbols (e.g., `:r0`, `:r1`, `:f0`), this symbolic simulator achieves high
-execution speeds.
+Because the keys of `vpmap` are globally interned register symbols (e.g., `:r0`,
+`:r1`, `:f0`), this symbolic simulator achieves high execution speeds.
 
 During the iterations of the data-flow analysis, almost every lookup in `vpmap`
-and `vpmap` hits the `str_hashslot` cache. This minimizes the overhead of the
-tracer, allowing it to calculate register-trashing behaviors across thousands of
+hits the `str_hashslot` cache. This minimizes the overhead of the tracer,
+allowing it to calculate register-trashing behaviors across thousands of
 instructions in a fraction of a second.
 
 ```file
