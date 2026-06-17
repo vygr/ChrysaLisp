@@ -962,7 +962,7 @@
 		(progn
 			(defq pl (reduce! (const pinsert) (list keys vals)
 				(reduce (# (pinsert %0 %1 :nil)) (eval pkeys) (plist))))
-			(if (every (const atom?) vals)
+			(if (and (atom? val) (every (const atom?) vals))
 				(static-qq (ifn (pfind ,pl ,key) ,val))
 				(static-qq (eval (ifn (pfind ,pl ,key) ',val)))))
 		(if (every (const atom?) (push vals val))

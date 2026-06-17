@@ -4,7 +4,7 @@
 
 ------
 
-`case` macro now builds an `(env 1)` map for the situation where all the keys
+`case` macro now builds an `:plist` map for the situation where all the keys
 are symbols ! Fallback is the linear `find` as before.
 
 `cmd/trace.lisp` now uses the new features of the `case` macro to elimenate
