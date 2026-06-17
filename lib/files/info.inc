@@ -4,6 +4,7 @@
 
 (import "./files.inc")
 (import "././asm/regs.inc")
+(import "service/lock/app.inc")
 
 ;module
 (env-push)
@@ -313,14 +314,24 @@
 	(some (# (> (age %0) cache_age)) (cat vp_files (list lib_file))))
 
 (defun files-classes-info (&optional forced)
-	(defq vp_files (files-all-vp-source))
-	(if (or forced (database-stale? +class_db_file +lib_file vp_files))
-		(build-and-save-databases vp_files)
-		(tree-load (file-stream +class_db_file))))
+	; (files-classes-info [forced]) -> :nil | class_db
+	(defq res :nil)
+	(lock-claim-rpc +class_db_file)
+	(catch
+		(progn
+			(defq vp_files (files-all-vp-source))
+			(if (or forced (database-stale? +class_db_file +lib_file vp_files))
+				(build-and-save-databases vp_files))
+			(setq res (tree-load (file-stream +class_db_file))))
+		(progn
+			(lock-release-rpc +class_db_file) :t))
+	(lock-release-rpc +class_db_file)
+	res)
 
 (defun files-function-info (&optional class_db)
-	(setd class_db (files-classes-info))
-	(tree-load (file-stream +func_db_file)))
+	; (files-function-info [forced]) -> :nil | func_db
+	(if (setd class_db (files-classes-info))
+		(tree-load (file-stream +func_db_file))))
 
 ;module
 (export-symbols '(files-classes-info files-function-info files-all-vp-source))

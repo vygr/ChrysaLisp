@@ -133,6 +133,12 @@ we bracket the range by including one extra cursor before and after
 to ensure merges are handled correctly.
 ```
 
+### build-method-overrides
+
+```code
+initialize :overrides as an empty list for ALL existing method entries
+```
+
 ### build_tree_and_codebook
 
 ```code
@@ -345,6 +351,12 @@ create list of all dependencies, with implicit options
 (files-all-vp-source) -> ordered_files
 ```
 
+### files-classes-info
+
+```code
+(files-classes-info [forced]) -> :nil | class_db
+```
+
 ### files-depends
 
 ```code
@@ -359,6 +371,12 @@ create list of immediate dependencies
 (files-dirs paths) -> paths
 
 return all the dir paths
+```
+
+### files-function-info
+
+```code
+(files-function-info [forced]) -> :nil | func_db
 ```
 
 ### files-scan
