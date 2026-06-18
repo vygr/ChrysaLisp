@@ -37,6 +37,9 @@ trace. Current full system trace on the M4 is 0.30s.
 Docs app `vdu` sections now strip the common margin in the same manner to `file`
 sections.
 
+Fix to Regexp `:match?` and `:search` methods, to correctly handle empty string
+input.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time

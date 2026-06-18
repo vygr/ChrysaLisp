@@ -279,6 +279,9 @@
 		(defq out :nil)
 		(when meta
 			(cond
+				((eql text "")
+					(if (>= (second (search "" meta 0)) 0)
+						(setq out :t)))
 				((eql (first (defq i (first (second meta)))) (const bfind))
 					;class first !
 					(defq cls (third i) j 0)
@@ -308,6 +311,10 @@
 		(defq out (list))
 		(when meta
 			(cond
+				((eql text "")
+					(bind '(l j) (search "" meta 0))
+					(if (>= j 0)
+						(push out l)))
 				((eql (first (defq i (first (second meta)))) (const bfind))
 					;class first !
 					(defq cls (third i) j 0)

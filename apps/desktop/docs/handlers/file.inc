@@ -19,7 +19,7 @@
 			(cond
 				((eql end_exp "")
 					(while (and end_exp (defq line (read-line stream)))
-						(if (or (eql line "") (eql line "\r"))
+						(if (match? line "^\\s*$")
 							(setq end_exp :nil)
 							(write-line *mem_stream* (trim line "\r")))))
 				(end_exp

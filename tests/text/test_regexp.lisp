@@ -80,3 +80,11 @@
 (assert-match "tab \\t" "a\\tb" "a\tb")
 ; Fixed quote test: removed extra space in text
 (assert-match "quote \\q" "a\\qb" "a\qb")
+
+; --- Empty String & Zero-width Matches ---
+(report-header "Regexp: Empty String & Zero-width Matches")
+(assert-match "empty string with ^$" "^$" "")
+(assert-match "empty string with ^\\s*$" "^\\s*$" "")
+(assert-match "empty string with zero-or-more *" "^a*$" "")
+(assert-match "empty string with lazy zero-or-more *?" "^a*?$" "")
+(assert-no-match "empty string with one-or-more + fail" "^a+$" "")
