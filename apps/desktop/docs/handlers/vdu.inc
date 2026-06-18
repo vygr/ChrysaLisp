@@ -14,6 +14,14 @@
 					(:stream_load *mem_stream*) :trim
 					(:insert "\n") :bottom (:insert "\n"))
 
+				;calculate the minimum margin directly from the pre-expanded buffer lines
+				(defq margin +max_int lines (. buffer :get_buffer_lines))
+				(each (# (and (defq m (find "(" %0)) (setq margin (min m margin)))) lines)
+				;strip the common margin in-place
+				(when (and (/= margin 0) (/= margin +max_int))
+					(each (lambda (line)
+						(. buffer :idelete 0 (!) (min margin (length line)) (!))) lines))
+
 				;measure and configure the Vdu
 				(bind '(w h) (. buffer :get_size))
 				(def (defq vdu (Vdu))

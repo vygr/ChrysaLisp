@@ -34,6 +34,9 @@ Rework of the `cmd/trace.lisp` command to use a unified state vector, and to
 process traces in LIFO order. This catches some edge cases and leads to a faster
 trace. Current full system trace on the M4 is 0.30s.
 
+Docs app `vdu` sections now strip the common margin in the same manner to `file`
+sections.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
