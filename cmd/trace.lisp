@@ -23,23 +23,8 @@
 ))
 
 (defq +obj_dir "obj/vp/"
-	+all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs)))
-
-(defun gather-all-abi-trashed ()
-	(defq union_set (list))
-	(each (lambda ((*abi* *cpu*))
-			(env-push)
-			;evaluate the ABI case statement directly in this temporary scope
-			(import "sys/pii/abi.inc")
-			;collect the registers
-			(merge union_set (eval (abi-trashed)))
-			(env-pop))
-		'((AMD64 x86_64) (WIN64 x86_64) (ARM64 arm64) (RISCV64 riscv64) (VP64 vp64)))
-	(sort union_set (# (vp-reg? %0) (vp-reg? %1))))
-
-;(defq +all_abi_trashed_regs '`,(gather-all-abi-trashed))
-(defq +all_abi_trashed_regs
-	''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
+	+all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs))
+	+all_abi_trashed_regs (static-q +vp_fregs))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
