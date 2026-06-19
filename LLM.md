@@ -180,7 +180,7 @@ ChrysaLisp's sophisticated graphical interface:
 42. **[The Text Stack](docs/ai_digest/text_stack.md)** - A comprehensive
     analysis of the text stack.
 
-43. **[Edit Command](docs/ai_digest/edit_command_app.md)** - The ChrysaLisp
+43. **[Edit Command](docs/ai_digest/edit_command.md)** - The ChrysaLisp
     parallel programmable editor.
 
 44. **[Docs Architecture](docs/ai_digest/docs_rendering.md)** - Internal
