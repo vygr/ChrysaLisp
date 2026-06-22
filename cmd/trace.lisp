@@ -74,10 +74,9 @@
 
 (defun get-function-insts (function)
 	; (get-function-insts function) -> :nil | insts
-	(defq e (penv) insts (memoize function (progn
-		(defq obj_path (cat +obj_dir function))
-		(if (> (age obj_path) 0)
-			(first (read (file-stream obj_path))))) 101))
+	(defq e (penv) insts (memoize function
+		(if (> (age (defq obj_path (cat +obj_dir function))) 0)
+			(first (read (file-stream obj_path)))) 101))
 	;inject local labels into callers env !
 	(each (# (if (find (first %0) '(emit-label emit-tlabel))
 		(def e (last (second %0)) (!)))) insts)
@@ -190,7 +189,7 @@
 						;quantize offset down to the nearest 8-byte
 						;boundary and erase the slot
 						(when (eql (third inst) :rsp)
-							(perase stack_map (+ *rsp* (logand (neg +long_size) (last inst))))))
+							(perase stack_map (+ *rsp* (logand (const (neg +long_size)) (last inst))))))
 					(emit-ret
 						;we are inside an inlined local subroutine, return to the caller
 						(unless (setq *pc* (pop call_stack))
