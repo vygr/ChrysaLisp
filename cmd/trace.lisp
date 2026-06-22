@@ -24,7 +24,7 @@
 
 (defq +obj_dir "obj/vp/"
 	+all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs))
-	+all_abi_trashed_regs (static-q +vp_fregs))
+	+all_abi_trashed_regs (list quote +vp_fregs))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
@@ -44,11 +44,15 @@
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 
 (defun format-values (func_map)
-	(defq out (list))
-	(. (reduce (lambda (m (r v)) (. m :update v (# (if %0 (push %0 r) (list r)))) m)
-			(filter (lambda ((r v)) (nql r v)) (partition func_map 2)) (Emap))
-		:each (lambda (v rl) (push out (str v " -> " (format-trashes rl)))))
-	(if (empty? out) "none" (join out " | ")))
+	(if (empty? (defq out
+			(map (lambda ((%0 %1)) (str %0 " -> " (format-trashes %1)))
+				(partition (reduce (lambda (%0 (%1 %2))
+					(cond
+						((eql %1 %2) %0)
+						((defq i (pfindi %0 %2)) (push (elem-get %0 (inc i)) %1) %0)
+						((pinsert %0 %2 (list %1)))))
+					(partition func_map 2) (plist)) 2))))
+		"none" (join out " | ")))
 
 (defun resolve-static-method (insts lbl)
 	;find function that implements this static method
@@ -333,8 +337,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_v 0 opt_l :nil opt_w :nil args (options stdio usage)))
-		(defq functions (rest args))
-		(if (empty? functions)
+		(if (empty? (defq functions (rest args)))
 			(lines! (# (push functions %0)) (io-stream 'stdin)))
 		(when (nempty? functions)
 			(if opt_w (setq opt_l :t))
@@ -356,8 +359,7 @@
 								(cond
 									((not doc_set)
 										(print "WARNING: No documentation found for " function))
-									(:t
-										(defq calc_set (format-trashes (second entry)))
+									(:t (defq calc_set (format-trashes (second entry)))
 										(unless (eql doc_set calc_set)
 											(print "WARNING: Mismatch in " function)
 											(print "\tDocumented: " doc_set)
@@ -374,8 +376,7 @@
 							(cond
 								((not stream)
 									(print "ERROR: Cannot open source file: \q" file "\q"))
-								(:t
-									(verbose 1 "Writing back changes to " file)
+								(:t (verbose 1 "Writing back changes to " file)
 									(defq doc (Document))
 									(. doc :stream_load stream)
 									(sort edits (# (- (first %1) (first %0))))
