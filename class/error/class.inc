@@ -3,6 +3,7 @@
 
 (def-class :error :obj
 	(dec-method :vtable class/error/vtable)
+	(dec-method :type class/error/type :override)
 	(dec-method :create class/error/create :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6) (:r0))
 	(dec-method :init class/error/init :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))
 	(dec-method :get_msg class/error/get_msg :static (:r0) (:r0 :r1))

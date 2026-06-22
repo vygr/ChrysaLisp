@@ -3,6 +3,7 @@
 
 (def-class :str :seq
 	(dec-method :vtable class/str/vtable)
+	(dec-method :type class/str/type :override)
 	(dec-method :hash class/str/hash :override)
 	(dec-method :eql class/str/eql :override)
 	(dec-method :print class/str/print :override)

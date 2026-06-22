@@ -287,6 +287,8 @@ trashes
 :r0-:r2, :r4, :r14, :f0-:f15
 ```
 
+### :type -> class/real/type
+
 ### :vcreate -> class/real/create
 
 ### :vtable -> class/real/vtable

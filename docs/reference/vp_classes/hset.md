@@ -119,5 +119,7 @@ trashes
 
 ### :key_callback -> class/obj/null
 
+### :type -> class/hset/type
+
 ### :vtable -> class/hset/vtable
 

@@ -3,6 +3,7 @@
 
 (def-class :in :stream
 	(dec-method :vtable class/in/vtable)
+	(dec-method :type class/in/type :override)
 	(dec-method :create class/in/create :static (:r0) (:r0))
 	(dec-method :init class/in/init :static (:r0 :r1 :r2))
 	(dec-method :next_msg class/in/next_msg :static (:r0) (:r0))

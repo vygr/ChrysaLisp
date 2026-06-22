@@ -91,5 +91,7 @@ trashes
 :r0-:r11, :r14, :f0-:f15
 ```
 
+### :type -> class/sym/type
+
 ### :vtable -> class/sym/vtable
 

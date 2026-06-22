@@ -58,6 +58,8 @@ trashes
 :r1-:r9, :f0-:f15
 ```
 
+### :type -> class/out/type
+
 ### :vtable -> class/out/vtable
 
 ### :wait_acks -> class/out/wait_acks

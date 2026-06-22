@@ -3,6 +3,7 @@
 
 (def-class :stream :obj
 	(dec-method :vtable class/stream/vtable)
+	(dec-method :type class/stream/type :override)
 	(dec-method :deinit class/stream/deinit :override)
 	(dec-method :read_next class/stream/read_next :virtual (:r0) (:r0 :r1))
 	(dec-method :write_next class/stream/flush :virtual (:r0) (:r0))

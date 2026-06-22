@@ -34,5 +34,7 @@ trashes
 :r1-:r6, :r14, :f0-:f15
 ```
 
+### :type -> class/stdio/type
+
 ### :vtable -> class/stdio/vtable
 

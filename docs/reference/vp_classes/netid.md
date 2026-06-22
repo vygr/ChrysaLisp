@@ -30,5 +30,7 @@ trashes
 :r1-:r6, :f0-:f15
 ```
 
+### :type -> class/netid/type
+
 ### :vtable -> class/netid/vtable
 

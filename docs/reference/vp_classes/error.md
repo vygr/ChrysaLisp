@@ -61,5 +61,7 @@ trashes
 :r1-:r14, :f0-:f15
 ```
 
+### :type -> class/error/type
+
 ### :vtable -> class/error/vtable
 

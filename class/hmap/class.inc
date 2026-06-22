@@ -3,6 +3,7 @@
 
 (def-class :hmap :hset
 	(dec-method :vtable class/hmap/vtable)
+	(dec-method :type class/hmap/type :override)
 	(dec-method :deinit class/hmap/deinit :override)
 	(dec-method :create class/hmap/create)
 	(dec-method :init class/hmap/init)

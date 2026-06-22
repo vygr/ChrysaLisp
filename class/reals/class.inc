@@ -3,6 +3,7 @@
 
 (def-class :reals :fixeds
 	(dec-method :vtable class/reals/vtable)
+	(dec-method :type class/reals/type :override)
 	(dec-method :create class/reals/create)
 	(dec-method :vcreate class/reals/create :final)
 	(dec-method :velement class/real/create :final)

@@ -3,6 +3,7 @@
 
 (def-class :num :obj
 	(dec-method :vtable class/num/vtable)
+	(dec-method :type class/num/type :override)
 	(dec-method :hash class/num/hash :override)
 	(dec-method :eql class/num/eql :final)
 	(dec-method :print class/num/print :override)

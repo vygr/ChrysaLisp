@@ -128,10 +128,7 @@
 				(:override
 					(throw "Method does not exist !" mname))
 				(:t (throw "Must use static, virtual, final or override ! " mtype)))))
-			;auto dec :type method
-			(ifn (starts-with "class/" (first (repl-info))) lines
-				(push lines `(dec-method :type ,(sym (cat "class/" (rest class) "/type"))
-					,(if (eql class ":obj") :virtual :override) (:r0) (:r0 :r1)))))
+		lines)
 	`(progn (pinsert *vtables* ',class ',vtable) (pinsert *supers* ',class ',super)))
 
 (defmacro def-method (class member &optional alignment)

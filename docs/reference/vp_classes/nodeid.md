@@ -27,5 +27,7 @@ trashes
 :r1-:r2
 ```
 
+### :type -> class/nodeid/type
+
 ### :vtable -> class/nodeid/vtable
 

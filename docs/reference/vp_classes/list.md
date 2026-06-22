@@ -246,6 +246,8 @@ trashes
 :r0-:r11, :r14, :f0-:f15
 ```
 
+### :type -> class/list/type
+
 ### :vcreate -> class/list/create
 
 ### :vtable -> class/list/vtable

@@ -40,5 +40,7 @@ trashes
 :r1
 ```
 
+### :type -> class/dim/type
+
 ### :vtable -> class/dim/vtable
 

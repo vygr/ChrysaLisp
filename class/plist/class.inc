@@ -3,6 +3,7 @@
 
 (def-class :plist :list
 	(dec-method :vtable class/plist/vtable)
+	(dec-method :type class/plist/type :override)
 	(dec-method :create class/plist/create)
 	(dec-method :vcreate class/plist/create :final)
 	(dec-method :pfind class/plist/find :static (:r0 :r1) (:r0 :r1 :r7 :r8))

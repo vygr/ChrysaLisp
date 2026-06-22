@@ -397,6 +397,8 @@ trashes
 :r1-:r6
 ```
 
+### :type -> class/str/type
+
 ### :unescape -> class/str/unescape
 
 ```code

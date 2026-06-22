@@ -266,6 +266,8 @@ trashes
 :r1-:r2, :f0-:f1
 ```
 
+### :type -> class/reals/type
+
 ### :vcreate -> class/reals/create
 
 ### :velement -> class/real/create

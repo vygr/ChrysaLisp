@@ -362,6 +362,8 @@ trashes
 :r0-:r4, :r14, :f0-:f15
 ```
 
+### :type -> class/num/type
+
 ### :vcreate -> class/num/create
 
 ### :vtable -> class/num/vtable

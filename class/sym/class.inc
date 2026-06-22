@@ -3,6 +3,7 @@
 
 (def-class :sym :str
 	(dec-method :vtable class/sym/vtable)
+	(dec-method :type class/sym/type :override)
 	(dec-method :eql class/obj/eql :final)
 	(dec-method :print class/sym/print :final)
 	(dec-method :statics_init class/sym/statics_init)

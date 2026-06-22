@@ -3,6 +3,7 @@
 
 (def-class :array :seq
 	(dec-method :vtable class/array/vtable)
+	(dec-method :type class/array/type :override)
 	(dec-method :create class/array/create :static :nil (:r0))
 	(dec-method :init class/array/init)
 	(dec-method :deinit class/array/deinit :override)

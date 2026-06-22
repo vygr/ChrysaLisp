@@ -176,6 +176,8 @@ trashes
 :r1
 ```
 
+### :type -> class/stream/type
+
 ### :vtable -> class/stream/vtable
 
 ### :write -> class/stream/write

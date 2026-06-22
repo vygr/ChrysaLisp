@@ -5,6 +5,7 @@
 
 (def-class :lisp :obj
 	(dec-method :vtable class/lisp/vtable)
+	(dec-method :type class/lisp/type :override)
 	(dec-method :deinit class/lisp/deinit :final)
 	(dec-method :create class/lisp/create :static (:r0 :r1 :r2 :r3) (:r0))
 	(dec-method :init class/lisp/init :static (:r0 :r1 :r2 :r3 :r4 :r5))

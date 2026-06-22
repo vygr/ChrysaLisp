@@ -47,6 +47,8 @@ trashes
 :r1-:r14, :f0-:f15
 ```
 
+### :type -> class/plist/type
+
 ### :vcreate -> class/plist/create
 
 ### :vtable -> class/plist/vtable

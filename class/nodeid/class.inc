@@ -3,5 +3,6 @@
 
 (def-class :nodeid :str
 	(dec-method :vtable class/nodeid/vtable)
+	(dec-method :type class/nodeid/type :override)
 	(dec-method :create class/nodeid/create :static (:r0) (:r0))
 	(dec-method :hash class/nodeid/hash :final))
