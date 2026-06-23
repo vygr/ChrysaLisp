@@ -40,6 +40,8 @@ sections.
 Fix to Regexp `:match?` and `:search` methods, to correctly handle empty string
 input.
 
+Added `:plist` to the stats command types that get tracked.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
