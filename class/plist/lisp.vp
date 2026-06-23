@@ -15,6 +15,11 @@
 
 	(entry :plist :lisp_plist '(:r0 :r1))
 
+(errorcase
+	(assign '((:r1 +array_length)) '(:r2))
+	(vp-and-cr 1 :r2)
+	(gotoif '(:r2 /= 0) 'error))
+
 	;mutate list to plist
 	(f-bind :plist :vtable :r2)
 	(assign '(:r2) '((:r1 +obj_vtable)))
@@ -22,6 +27,10 @@
 
 	(exit :plist :lisp_plist '(:r0 :r1))
 	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r0 "(plist [key val])" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 
