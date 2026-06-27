@@ -4,6 +4,11 @@
 
 ------
 
+New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)
+-> :nil | val)`, and `(pfindi plist key) -> :nil | idx)` functions.
+
+New `(perase plist key) -> list` function.
+
 `case` macro now builds an `:plist` map for the situation where all the keys
 are symbols ! Fallback is the linear `find` as before.
 
@@ -12,9 +17,6 @@ several structures and functions.
 
 Fixed a bug in the `:list :find` when the find start pos was the end of the
 list.
-
-New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)
--> :nil | val)`, and `(pfindi plist key) -> :nil | idx)` functions.
 
 `Lmap`, `Fmap`, `Lset`, `Fset`, `lib/asm/scopes.inc`, `emit-native-reg?`
 upgraded to use the new `plist` functions.
@@ -25,8 +27,6 @@ for many `pcase` uses to line up the `str_hashslot` fields ! Look at
 `(assign-asm-to-asm)` for a good example.
 
 New `docs/ai_digest/case_for_plist.md` document.
-
-New `(perase plist key) -> list` function.
 
 New "lib/asm/regs.inc" file for VP register lists, maps and utilities.
 
