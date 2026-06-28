@@ -150,7 +150,7 @@
 						(when (or (not lm) (vpmap-changed? trace_map lm))
 							(push traces (list pc *rsp*
 								(cat trace_map) (cat stack_map) (cat call_stack)))))
-					((emit-cpy-rr emit-cpy-ff)
+					((emit-cpy-rr emit-cpy-ff emit-cpy-rf emit-cpy-fr)
 						;copy value and mark as trashed or restored
 						(pinsert trace_map (last inst) (pfind trace_map (second inst))))
 					(emit-swp-rr
@@ -182,7 +182,7 @@
 							(bind '(& src & offset) inst)
 							(pinsert stack_map (+ *rsp* offset) (pfind trace_map src))))
 					((emit-cpy-ir emit-cpy-if)
-						;stack load 64 bit ?
+						;stack load 64 bit
 						(bind '(& src offset dst) inst)
 						(pinsert trace_map dst (if (eql src :rsp) (pfind stack_map (+ *rsp* offset)))))
 					((emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i)
