@@ -108,11 +108,11 @@
 			(defq target (penv this))
 			(while (and target (not (defq fnc (.? target :mouse_wheel))))
 				(setq target (penv target)))
-			(if target (fnc target (setf (cat event) +ev_msg_wheel_y 0))))
+			(if target (fnc target :mouse_wheel (setf (cat event) +ev_msg_wheel_y 0))))
 		(unless vslider
 			(defq target (penv this))
 			(while (and target (not (defq fnc (.? target :mouse_wheel))))
 				(setq target (penv target)))
-			(if target (fnc target (setf (cat event) +ev_msg_wheel_x 0))))
+			(if target (fnc target :mouse_wheel (setf (cat event) +ev_msg_wheel_x 0))))
 		(. this :action event))
 	)

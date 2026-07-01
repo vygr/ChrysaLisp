@@ -173,7 +173,7 @@
 	(defq slc (cap (* gw gh 2) (list)) pz (elem-get z_points z))
 	(each (lambda (py) (defq y (!))
 		(each (lambda (px) (defq x (!))
-				(push slc (Vec3-r px py pz) (get_scalar_fnc iso x y z)))
+				(push slc (Vec3-r px py pz) (get_scalar_fnc iso :get_scalar x y z)))
 			x_points))
 		y_points)
 	slc)

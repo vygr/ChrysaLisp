@@ -8,12 +8,12 @@
 
 (defmacro .super (this method &rest _)
 	; (.super this :method [arg ...])
-	(static-qq ((def? ,method ,(eval *super_class*)) ,this ~_)))
+	(static-qq ((def? ,method ,(eval *super_class*)) ,this '& ~_)))
 
 (defmacro defmethod (n a &rest _)
 	; (defmethod name ([arg ...]) body)
 	; (. this :method [arg ...])
-	`(def *vtable* ,n (lambda (this ~a) ~_)))
+	`(def *vtable* ,n (lambda (this & ~a) ~_)))
 
 (defmacro defabstractmethod (n a &rest _)
 	; (defabstractmethod ([arg ...]) body)
@@ -21,7 +21,7 @@
 	; throw an error if invoked. Concrete
 	; classes deriving from a class with abstractions
 	; should provide the concreate handler
-	`(def *vtable* ,n (lambda (this ~a)
+	`(def *vtable* ,n (lambda (this & ~a)
 		(throw "Is abstract method !" ,n))))
 
 (defmacro deffimethod (n _)

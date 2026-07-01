@@ -4,39 +4,39 @@
 
 ## Lisp Bindings
 
-### (view-add-front parent child)
+### (view-add-front parent mth child)
 
-### (view-add-back parent child)
+### (view-add-back parent mth child)
 
-### (view-add-dirty view x y w h)
+### (view-add-dirty view mth x y w h)
 
-### (view-add-opaque view x y w h)
+### (view-add-opaque view mth x y w h)
 
-### (view-children view)
+### (view-children view mth)
 
-### (view-clr-opaque view)
+### (view-clr-opaque view mth)
 
 ### (create-view)
 
-### (view-find-id view id)
+### (view-find-id view mth id)
 
-### (view-flatten view)
+### (view-flatten view mth)
 
-### (view-hide view)
+### (view-hide view mth)
 
-### (view-hit-tree view x y)
+### (view-hit-tree view mth x y)
 
-### (view-set-flags view flags mask)
+### (view-set-flags view mth flags mask)
 
-### (view-sub view)
+### (view-sub view mth)
 
-### (view-sub-opaque view x y w h)
+### (view-sub-opaque view mth x y w h)
 
-### (view-to-back view)
+### (view-to-back view mth)
 
-### (view-to-front view)
+### (view-to-front view mth)
 
-### (view-trans-dirty view rx ry)
+### (view-trans-dirty view mth rx ry)
 
 ## VP methods
 

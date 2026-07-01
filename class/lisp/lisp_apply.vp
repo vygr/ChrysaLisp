@@ -36,58 +36,32 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(structure local 0
-		(ptr this args))
+	(vp-rdef (this args mth) '(:r8 :r9 :r10))
+	(vp-rdef (obj vt1 vt2))
 
-	(vp-alloc local_size)
-	(entry :lisp :lisp_mcall '(:r0 :r1))
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(entry :lisp :lisp_mcall `(,this ,args))
 
 	(errorif-lisp-args-len 'error :r1 < 2)
-
-	(array-bind-args :r1 '(:r0 :r13))
-
-(errorcase
-	(call :obj :inst_of `(:r0 (@ ,(f-path :hmap :vtable))) '(:r0 :r1))
-	(assign `((:r13 +obj_vtable) (@ ,(f-path :sym :vtable))) '(:r4 :r5))
-	(gotoif '(:r1 = 0) 'error)
-	(gotoif '(:r4 /= :r5) 'error))
-
-	(fn-bind 'sys/statics/statics :r1)
-	(assign `((:r1 ,(+ statics_static_syms static_sym_vtable))) '(:r1))
-	(call :hmap :find '(:r0 :r1) '(_ :r1 _))
-	(errorif '(:r1 = 0) 'error1)
-	(call :hmap :find '((:r1 +ptr_size) :r13) '(_ :r1 _))
-	(errorif '(:r1 = 0) 'error1)
-
-	(assign '((:r1 +ptr_size) (:rsp local_args)) '(:r2 :r1))
-	(assign '((:r1 +array_begin) (:r1 +array_length)) '(:r5 :r6))
-	(assign '((:r5 0) (:r5 +ptr_size)) '(:r3 :r4))
-	(assign '(:r4 :r3) '((:r5 0) (:r5 +ptr_size)))
-	(vp-add-cr +ptr_size :r5)
-	(vp-sub-cr 1 :r6)
-	(assign '(:r5 :r6) '((:r1 +array_begin) (:r1 +array_length)))
-
-	(call :lisp :repl_apply '((:rsp local_this) :r1 :r2) '(_ :r1))
-
-	(assign '((:rsp local_args))  '(:r4))
-	(assign '((:r4 +array_begin) (:r4 +array_length)) '(:r3 :r2))
-	(vp-sub-cr +ptr_size :r3)
-	(vp-add-cr 1 :r2)
-	(assign '(:r3 :r2) '((:r4 +array_begin) (:r4 +array_length)))
-
-	(exit :lisp :lisp_mcall '((:rsp local_this) :r1))
-	(vp-free local_size)
-	(vp-ret)
+	(array-bind-args :r1 `(,obj ,mth))
 
 (errorcase
-(vp-label 'error)
-	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
-	(vp-free local_size)
-	(jump :lisp :repl_error '(:r0 "(. env sym [...])" +error_msg_wrong_types :r3))
+	(call :obj :inst_of `(,obj (@ ,(f-path :hmap :vtable))) `(,obj tmp))
+	(gotoif `(,tmp = 0) 'error)
+	(assign `((,mth +obj_vtable) (@ ,(f-path :sym :vtable))) `(,vt1 ,vt2))
+	(gotoif `(,vt1 /= ,vt1) 'error))
+
+	(fn-bind 'sys/statics/statics vt1)
+	(call :hmap :find `(,obj (,vt1 ,(+ statics_static_syms static_sym_vtable))) '(_ tmp _))
+	(errorif `(,tmp = 0) 'error1)
+	(call :hmap :find `((,tmp +ptr_size) ,mth) '(_ tmp _))
+	(errorif `(,tmp = 0) 'error1)
+
+	(jump :lisp :repl_apply `(,this ,args (,tmp +ptr_size)))
+
+(errorcase
 (vp-label 'error1)
-	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
-	(vp-free local_size)
-	(jump :lisp :repl_error '(:r0 "(. env sym [...])" +error_msg_symbol_not_bound :r3)))
+	(jump :lisp :repl_error `(,this "(. env sym [...])" +error_msg_symbol_not_bound ,args))
+(vp-label 'error)
+	(jump :lisp :repl_error `(,this "(. env sym [...])" +error_msg_wrong_types ,args)))
 
 (def-func-end)

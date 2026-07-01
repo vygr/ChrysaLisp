@@ -2,15 +2,15 @@
 
 ## Lisp Bindings
 
-### (ctx-blit view tid col x y w h)
+### (ctx-blit view mth tid col x y w h)
 
-### (ctx-box view x y w h)
+### (ctx-box view mth x y w h)
 
-### (ctx-filled-box view x y w h)
+### (ctx-filled-box view mth x y w h)
 
-### (ctx-filled-region view region)
+### (ctx-filled-region view mth region)
 
-### (ctx-set-color view col)
+### (ctx-set-color view mth col)
 
 ## VP methods
 

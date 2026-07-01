@@ -17,11 +17,11 @@
 
 	(entry :ctx :lisp_set_color '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 2)
+	(errorif-lisp-args-sig 'error1 :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input :ctx :set_color))
-	(list-bind-args :r1 in '(:view :num))
+	(list-bind-args :r1 in '(:view & :num))
 	(vp-push (first in))
 	(call :ctx :set_color in)
 	(vp-pop :r1)
@@ -33,8 +33,8 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r0 "(ctx-set-color view col)" +error_msg_wrong_types :r1))
-	(signature '(:view :num)))
+	(jump :lisp :repl_error '(:r0 "(ctx-set-color view mth col)" +error_msg_wrong_types :r1))
+	(signature '(:view :sym :num)))
 
 (def-func-end)
 
@@ -50,11 +50,11 @@
 
 	(entry :ctx :lisp_box '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 5)
+	(errorif-lisp-args-sig 'error1 :r1 6)
 
 	(vp-push :r0)
 	(defq in (method-input :ctx :box))
-	(list-bind-args :r1 in '(:view :num :num :num :num))
+	(list-bind-args :r1 in '(:view & :num :num :num :num))
 	(vp-push (first in))
 	(call :ctx :box in)
 	(vp-pop :r1)
@@ -66,8 +66,8 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r0 "(ctx-box view x y w h)" +error_msg_wrong_types :r1))
-	(signature '(:view :num :num :num :num)))
+	(jump :lisp :repl_error '(:r0 "(ctx-box view mth x y w h)" +error_msg_wrong_types :r1))
+	(signature '(:view :sym :num :num :num :num)))
 
 (def-func-end)
 
@@ -83,11 +83,11 @@
 
 	(entry :ctx :lisp_filled_box '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 5)
+	(errorif-lisp-args-sig 'error1 :r1 6)
 
 	(vp-push :r0)
 	(defq in (method-input :ctx :filled_box))
-	(list-bind-args :r1 in '(:view :num :num :num :num))
+	(list-bind-args :r1 in '(:view & :num :num :num :num))
 	(vp-push (first in))
 	(call :ctx :filled_box in)
 	(vp-pop :r1)
@@ -99,8 +99,8 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r0 "(ctx-filled-box view x y w h)" +error_msg_wrong_types :r1))
-	(signature '(:view :num :num :num :num)))
+	(jump :lisp :repl_error '(:r0 "(ctx-filled-box view mth x y w h)" +error_msg_wrong_types :r1))
+	(signature '(:view :sym :num :num :num :num)))
 
 (def-func-end)
 
@@ -122,11 +122,11 @@
 
 	(entry :ctx :lisp_filled_region `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(errorif-lisp-args-sig 'error :r1 3)
 
 	(push-scope)
 	(assign `(,this) {this})
-	(list-bind-args :r1 `(,view ,rect) '(:view :num))
+	(list-bind-args :r1 `(,view ,rect) '(:view & :num))
 	(assign `(,view) {view})
 	(assign `((& ,view ,rect)) `(,rect))
 	(loop-flist rect 0 rect rect)
@@ -148,8 +148,8 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(ctx-filled-region view region)" +error_msg_wrong_types ,args))
-	(signature '(:view :num)))
+	(jump :lisp :repl_error `(,this "(ctx-filled-region view mth region)" +error_msg_wrong_types ,args))
+	(signature '(:view :sym :num)))
 
 (def-func-end)
 
@@ -165,11 +165,11 @@
 
 	(entry :ctx :lisp_blit '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 7)
+	(errorif-lisp-args-sig 'error1 :r1 8)
 
 	(vp-push :r0)
 	(defq in (method-input :ctx :blit))
-	(list-bind-args :r1 in '(:view :num :num :num :num :num :num))
+	(list-bind-args :r1 in '(:view & :num :num :num :num :num :num))
 	(vp-push (first in))
 	(call :ctx :blit in)
 	(vp-pop :r1)
@@ -181,7 +181,7 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r0 "(ctx-blit view tid col x y w h)" +error_msg_wrong_types :r1))
-	(signature '(:view :num :num :num :num :num :num)))
+	(jump :lisp :repl_error '(:r0 "(ctx-blit view mth tid col x y w h)" +error_msg_wrong_types :r1))
+	(signature '(:view :sym :num :num :num :num :num :num)))
 
 (def-func-end)

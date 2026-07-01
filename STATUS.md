@@ -41,6 +41,14 @@ input.
 
 Added `:plist` to the stats command types that get tracked.
 
+Added extra sanity checks to the `(list-bind-args)` function. Now supports both
+`&&` ignore source and destination and `&` skip source argument.
+
+`(.)` method call primitive now does not mutate the args list passed to it ! It
+now passes the exact same args list to the callee, and the `defclass` macro
+insert a `&` skip arg binding for the method symbol. This also means that a
+method implementation can now, if desired, reflect on its dispatch symbol.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
