@@ -8,8 +8,8 @@ New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)
 -> :nil | val)`, `(perase plist key) -> plist` and `(pfindi plist key) -> :nil
 | idx)` functions.
 
-`case` macro now builds an `:plist` map for the situation where all the keys
-are symbols ! Fallback is the linear `find` as before.
+`case` macro now builds a `:plist` map for the situations where it can !
+Fallback is the linear `find` as before.
 
 `cmd/trace.lisp` now uses the new features of the `case` macro to elimenate
 several structures and functions.
