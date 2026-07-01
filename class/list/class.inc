@@ -53,9 +53,9 @@
 	;'({:num :str :char & &&} ...)
 	;outputs
 	;load and cast register list from list
-	;&& ignore both in and out
-	;& skip in argument
-	;filter ignored args
+	;&& ignore out element
+	;& skip src argument
+	;filter skipped args
 	(setd dst src)
 	(bind '(types index)
 		(reduce! (# (unless (eql %1 '&)
