@@ -54,7 +54,7 @@
 	;outputs
 	;load and cast register list from list
 	;&& ignore both in and out
-	;& ignore in and skip argument
+	;& skip in argument
 	;filter ignored args
 	(setd dst src)
 	(bind '(types index)
@@ -74,7 +74,7 @@
 				(push (first %0) %1)
 				(push (second %0) %2)
 				(push (third %0) %3)
-				(push (elem-get %0 3) (- %4 index_offset))))
+				(push (last %0) (- %4 index_offset))))
 			%0) (list types src dst index) (lists 4)))
 	;load from args list
 	(defq i (last src))
