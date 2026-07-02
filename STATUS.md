@@ -52,6 +52,11 @@ method implementation can now, if desired, reflect on its dispatch symbol.
 Swap the order of the args to `:lisp :repl_error`, this avoids extra copies in
 most use cases. Saved about 1KB of boot_image.
 
+Fixed bug in `:host_os :pii_write_num`, was using incorrect quotant.
+
+Added `+zero_clobber_funcs` list to `cmd/trace.lisp` command to avoid special
+case code just to keep the tracer happy.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time

@@ -12,7 +12,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r5, :f0-:f15
 
 	(entry :view :lisp_create '(:r0 :r1))
 
@@ -74,7 +74,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7
 
 	(entry :view :lisp_sub '(:r0 :r1))
 
@@ -133,7 +133,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7
 
 	(entry :view :lisp_add '(:r0 :r1))
 
@@ -167,7 +167,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7
 
 	(entry :view :lisp_add_back '(:r0 :r1))
 
@@ -201,7 +201,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r11-:r14, :f0-:f15
+	;:r1-:r8, :r11-:r14
 
 	(entry :view :lisp_trans_dirty '(:r0 :r1))
 
@@ -233,7 +233,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7
 
 	(entry :view :lisp_clr_opaque '(:r0 :r1))
 
@@ -348,7 +348,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7
 
 	(entry :view :lisp_set_flags '(:r0 :r1))
 
@@ -420,7 +420,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r11-:r14, :f0-:f15
+	;:r1-:r7, :r11-:r13, :f0-:f15
 
 	(vp-rdef (this node next) '(:r13 :r12 :r11))
 
@@ -510,7 +510,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7
 
 	(entry :view :lisp_to_front '(:r0 :r1))
 

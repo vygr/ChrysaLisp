@@ -73,7 +73,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r10, :r14, :f0-:f15
+	;:r1-:r10, :f0-:f15
 
 	(vp-rdef (this args len value iter_begin iter_end width) '(:r8 :r9 :r10))
 
@@ -114,7 +114,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r13-:r14, :f0-:f15
+	;:r1-:r7, :r13-:r14, :f0-:f15
 
 	(entry :str :lisp_cmp '(:r0 :r1))
 
@@ -144,7 +144,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r7, :r10-:r13, :f0-:f15
 
 	(entry :str :lisp_save '(:r0 :r1))
 
@@ -180,7 +180,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r13-:r14, :f0-:f15
+	;:r1-:r7, :r13, :f0-:f15
 
 	(entry :str :lisp_load '(:r0 :r1))
 
@@ -264,7 +264,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7, :f0-:f15
 
 	(entry :str :lisp_create '(:r0 :r1))
 
@@ -293,7 +293,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r13, :f0-:f15
 
 	(vp-rdef (div out rem in len iter_begin iter_end iter_out tab_width cursor ch sp flag idx))
 
@@ -378,7 +378,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r13, :f0-:f15
 
 	(vp-rdef (this args sp tb ch dst end start tab_width src idx idx1 idx2 idx3))
 
@@ -478,7 +478,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7, :r14, :f0-:f15
 
 	(entry :str :lisp_to_num '(:r0 :r1))
 
@@ -514,7 +514,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7, :r14, :f0-:f15
 
 	(vp-rdef (this args))
 
@@ -773,7 +773,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7, :r9, :f0-:f15
 
 	(vp-rdef (this args) '(:r9))
 
@@ -801,7 +801,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7, :r9, :f0-:f15
 
 	(vp-rdef (this args) '(:r9))
 
@@ -833,7 +833,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r8
 
 	(vp-rdef (this args tmp) '(:r8 :r1))
 
@@ -867,7 +867,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r8
 
 	(vp-rdef (this args tmp) '(:r8 :r1))
 
@@ -901,7 +901,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r9, :f0-:f15
 
 	(vp-rdef (saved_this this args) '(:r9))
 

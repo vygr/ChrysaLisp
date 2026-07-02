@@ -10,7 +10,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r8, :r14, :f0-:f15
 
 	(vp-rdef (this obj args offset type osize fsize sizes) '(:r8))
 
@@ -215,7 +215,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r4, :r14, :f0-:f15
 
 	(entry :obj :lisp_hash '(:r0 :r1))
 
@@ -245,7 +245,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r5, :f0-:f15
 
 	(entry :obj :lisp_type '(:r0 :r1))
 
@@ -274,7 +274,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r3, :r14, :f0-:f15
 
 	(entry :obj :lisp_weak_ref '(:r0 :r1))
 
@@ -308,7 +308,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r3
 
 	(entry :obj :lisp_obj_ref '(:r0 :r1))
 
@@ -344,7 +344,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r10, :r14, :f0-:f15
+	;:r1-:r6, :r9-:r10, :r14
 
 	(vp-rdef (this args obj1 obj2) '(:r9 :r10))
 
@@ -380,7 +380,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r10, :r14, :f0-:f15
+	;:r1-:r6, :r9-:r10, :r14
 
 	(vp-rdef (this args obj1 obj2) '(:r9 :r10))
 

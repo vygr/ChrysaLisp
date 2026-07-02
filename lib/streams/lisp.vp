@@ -364,7 +364,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r8, :r14, :f0-:f15
 
 	(def-vars
 		(ptr this args stm)

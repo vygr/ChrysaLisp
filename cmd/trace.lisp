@@ -24,7 +24,8 @@
 
 (defq +obj_dir "obj/vp/"
 	+all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs))
-	+all_abi_trashed_regs (list quote +vp_fregs))
+	+all_abi_trashed_regs (list quote +vp_fregs)
+	+zero_clobber_funcs ''("class/lisp/repl_error" "sys/task/dump" "sys/task/stack"))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
@@ -105,7 +106,7 @@
 (defun virtual-trashes-union (c m)
 	;calculate the union of all this class method trashes
 	;and its subclasses overrides, based on the current state of the active db
-	(reduce (# (if (defq entry (. db :find %1))
+	(reduce (# (if (and (not (find %1 +zero_clobber_funcs)) (defq entry (. db :find %1)))
 			(merge %0 (second entry)) %0))
 		(resolve-virtual-methods c m) (list)))
 
@@ -213,7 +214,8 @@
 						;use the callee trashes set
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
-						(when (defq callee_entry (. db :find callee))
+						(when (and (not (find callee +zero_clobber_funcs))
+								(defq callee_entry (. db :find callee)))
 							(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
 							(vpmap-clobber trace_map (second callee_entry))))
 					(emit-jmp-p
@@ -221,7 +223,8 @@
 						;return to local caller if in subroutine
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
-						(when (defq callee_entry (. db :find callee))
+						(when (and (not (find callee +zero_clobber_funcs))
+								(defq callee_entry (. db :find callee)))
 							(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
 							(vpmap-clobber trace_map (second callee_entry)))
 						(unless (setq *pc* (pop call_stack))

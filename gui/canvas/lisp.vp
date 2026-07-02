@@ -13,7 +13,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7, :r14, :f0-:f15
 
 	(entry :canvas :lisp_create '(:r0 :r1))
 
@@ -43,7 +43,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7, :r14, :f0-:f15
 
 	(entry :canvas :lisp_create_pixmap '(:r0 :r1))
 
@@ -73,7 +73,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r7
 
 	(entry :canvas :lisp_fill '(:r0 :r1))
 
@@ -150,7 +150,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r8, :r14, :f0-:f15
 
 	(structure local 0
 		(ptr this canvas))
@@ -186,7 +186,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r8
 
 	(entry :canvas :lisp_plot '(:r0 :r1))
 
@@ -217,7 +217,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r10, :r14, :f0-:f15
+	;:r1-:r10
 
 	(entry :canvas :lisp_fbox '(:r0 :r1))
 
@@ -279,7 +279,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r13, :f0-:f15
 
 	(entry :canvas :lisp_resize '(:r0 :r1))
 
@@ -312,7 +312,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14
 
 	(entry :canvas :lisp_ftri '(:r0 :r1))
 
