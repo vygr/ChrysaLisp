@@ -21,7 +21,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(apply lambda seq)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(apply lambda seq)" +error_msg_wrong_types))
 	(signature '(:obj :seq)))
 
 (def-func-end)
@@ -48,7 +48,7 @@
 	(call :obj :inst_of `(,obj (@ ,(f-path :hmap :vtable))) `(,obj tmp))
 	(gotoif `(,tmp = 0) 'error)
 	(assign `((,mth +obj_vtable) (@ ,(f-path :sym :vtable))) `(,vt1 ,vt2))
-	(gotoif `(,vt1 /= ,vt1) 'error))
+	(gotoif `(,vt1 /= ,vt2) 'error))
 
 	(fn-bind 'sys/statics/statics vt1)
 	(call :hmap :find `(,obj (,vt1 ,(+ statics_static_syms static_sym_vtable))) '(_ tmp _))
@@ -60,8 +60,8 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error `(,this "(. env sym [...])" +error_msg_symbol_not_bound ,args))
+	(jump :lisp :repl_error `(,this ,args "(. env sym [...])" +error_msg_symbol_not_bound))
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(. env sym [...])" +error_msg_wrong_types ,args)))
+	(jump :lisp :repl_error `(,this ,args "(. env sym [...])" +error_msg_wrong_types)))
 
 (def-func-end)

@@ -25,7 +25,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(quant real tol)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(quant real tol)" +error_msg_wrong_types))
 	(signature '(:real :real)))
 
 (def-func-end)

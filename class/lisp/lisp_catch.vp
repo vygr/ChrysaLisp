@@ -16,14 +16,13 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(defq in (method-input :lisp :repl_error))
-	(vp-xor-rr (third in) (third in))
-	(list-bind-args :r1 in '(&& :str && :obj))
-	(jump :lisp :repl_error in)
+	(bind '(& payload desc &) (method-input :lisp :repl_error))
+	(list-bind-args :r1 `(,desc ,payload) '(:str :obj))
+	(jump :lisp :repl_error `(:r0 ,payload ,desc 0))
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(throw str form)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(throw str form)" +error_msg_wrong_types))
 	(signature '(:str :obj)))
 
 (def-func-end)
@@ -78,7 +77,7 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, "(catch form eform)", +error_msg_wrong_num_of_args, args}))
+	(jump :lisp :repl_error {this, args, "(catch form eform)", +error_msg_wrong_num_of_args}))
 
 	(pop-scope-syms)
 

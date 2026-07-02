@@ -201,7 +201,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(lz4-encode buf pos chunk hash_table)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(lz4-encode buf pos chunk hash_table)" +error_msg_wrong_types))
 	(signature '(:str :num :str :nums)))
 
 (def-func-end)
@@ -351,7 +351,7 @@
 (errorcase
 (vp-label 'error)
 	;error path didn't trash `this` or `args`, or create a scope
-	(jump :lisp :repl_error `(,this "(lz4-decode buf pos chunk)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(lz4-decode buf pos chunk)" +error_msg_wrong_types))
 	(signature '(:str :num :str)))
 
 (def-func-end)
@@ -404,7 +404,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(lz4-read buf pos stream in_len)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(lz4-read buf pos stream in_len)" +error_msg_wrong_types))
 	(signature '(:str :num :stream :num)))
 
 (def-func-end)
@@ -456,7 +456,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(lz4-write buf pos stream out_len)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(lz4-write buf pos stream out_len)" +error_msg_wrong_types))
 	(signature '(:str :num :stream :num)))
 
 (def-func-end)

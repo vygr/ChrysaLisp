@@ -180,7 +180,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(xml-parse stream)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(xml-parse stream)" +error_msg_wrong_types))
 	(signature '(:stream)))
 
 (def-func-end)

@@ -64,7 +64,7 @@
 
 (errorcase
 	(vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(audio-init)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(audio-init)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -117,7 +117,7 @@
 
 (errorcase
 	(vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(audio-deinit)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(audio-deinit)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -174,7 +174,7 @@
 
 (errorcase
 	(vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(audio-add path)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(audio-add path)" +error_msg_wrong_types))
 	(signature '(:str)))
 
 (def-func-end)
@@ -231,7 +231,7 @@
 
 (errorcase
 	(vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(audio-change handle state)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(audio-change handle state)" +error_msg_wrong_types))
 	(signature '(:num :num)))
 
 (def-func-end)
@@ -288,7 +288,7 @@
 
 (errorcase
 	(vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(audio-remove handle)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(audio-remove handle)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -345,7 +345,7 @@
 
 (errorcase
 	(vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(audio-play handle)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(audio-play handle)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)

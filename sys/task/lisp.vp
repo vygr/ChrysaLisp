@@ -28,7 +28,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(task-count bias)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(task-count bias)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -60,7 +60,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(task-sleep usec)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(task-sleep usec)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -119,7 +119,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(task-mbox)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(task-mbox)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -148,6 +148,6 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(task-flags)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(task-flags)" +error_msg_wrong_types)))
 
 (def-func-end)

@@ -49,7 +49,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(if tst form [else_form])" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(if tst form [else_form])" +error_msg_wrong_num_of_args)))
 
 	(pop-scope-syms)
 
@@ -103,7 +103,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(ifn tst form [else_form])" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(ifn tst form [else_form])" +error_msg_wrong_num_of_args)))
 
 	(pop-scope-syms)
 
@@ -157,7 +157,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(while tst [body])" +error_msg_wrong_num_of_args ,args)))
+	(jump :lisp :repl_error `(,this ,args "(while tst [body])" +error_msg_wrong_num_of_args)))
 
 (def-func-end)
 
@@ -209,7 +209,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(until tst [body])" +error_msg_wrong_num_of_args ,args)))
+	(jump :lisp :repl_error `(,this ,args "(until tst [body])" +error_msg_wrong_num_of_args)))
 
 (def-func-end)
 
@@ -267,9 +267,9 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, "(cond [(tst [body])] ...)", +error_msg_wrong_num_of_args, args})
+	(jump :lisp :repl_error {this, args, "(cond [(tst [body])] ...)", +error_msg_wrong_num_of_args})
 (vp-label 'error2)
-	(jump :lisp :repl_error {this, "(cond [(tst [body])] ...)", +error_msg_not_a_list, args}))
+	(jump :lisp :repl_error {this, args, "(cond [(tst [body])] ...)", +error_msg_not_a_list}))
 
 	(pop-scope-syms)
 
@@ -336,9 +336,9 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, "(condn [(tst [body])] ...)", +error_msg_wrong_num_of_args, args})
+	(jump :lisp :repl_error {this, args, "(condn [(tst [body])] ...)", +error_msg_wrong_num_of_args})
 (vp-label 'error2)
-	(jump :lisp :repl_error {this, "(condn [(tst [body])] ...)", +error_msg_not_a_list, args}))
+	(jump :lisp :repl_error {this, args, "(condn [(tst [body])] ...)", +error_msg_not_a_list}))
 
 	(pop-scope-syms)
 

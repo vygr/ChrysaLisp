@@ -27,7 +27,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(num num)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(num num)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -55,7 +55,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(+ num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(+ num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -73,7 +73,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(- num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(- num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -91,7 +91,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(* num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(* num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -109,7 +109,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(min num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(min num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -127,7 +127,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(max num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(max num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -160,7 +160,7 @@
 	(vp-cpy-rr :r12 :r0)
 	(vp-cpy-rr :r13 :r1)
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r0 "(/ num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(/ num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -181,7 +181,7 @@
 	(vp-cpy-rr :r12 :r0)
 	(vp-cpy-rr :r13 :r1)
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r0 "(% num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(% num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -217,7 +217,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(logand [num] ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(logand [num] ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -235,7 +235,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(logior [num] ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(logior [num] ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -253,7 +253,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(logxor [num] ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(logxor [num] ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -281,7 +281,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(>>> num cnt)" +error_msg_wrong_types :r7))
+	(jump :lisp :repl_error '(:r0 :r7 "(>>> num cnt)" +error_msg_wrong_types))
 	(signature '(:num :num)))
 
 (def-func-end)
@@ -300,7 +300,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(<< num cnt)" +error_msg_wrong_types :r7))
+	(jump :lisp :repl_error '(:r0 :r7 "(<< num cnt)" +error_msg_wrong_types))
 	(signature '(:num :num)))
 
 (def-func-end)
@@ -319,7 +319,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(>> num cnt)" +error_msg_wrong_types :r7))
+	(jump :lisp :repl_error '(:r0 :r7 "(>> num cnt)" +error_msg_wrong_types))
 	(signature '(:num :num)))
 
 (def-func-end)
@@ -353,7 +353,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(= num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(= num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -371,7 +371,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(>= num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(>= num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -389,7 +389,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(> num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(> num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -407,7 +407,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(<= num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(<= num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -425,7 +425,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(< num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(< num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -443,7 +443,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(/= num num ...)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(/= num num ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -471,7 +471,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(random num)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(random num)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -490,7 +490,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(neg num)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(neg num)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -509,7 +509,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(sign num)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(sign num)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -528,7 +528,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(abs num)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(abs num)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -561,7 +561,7 @@
 (vp-label 'error1)
 	(vp-cpy-rr :r13 :r0)
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(sqrt num)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(sqrt num)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -607,7 +607,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(n2i num)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(n2i num)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -656,7 +656,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(n2f num)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(n2f num)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)
@@ -705,7 +705,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(n2r num)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(n2r num)" +error_msg_wrong_types))
 	(signature '(:num)))
 
 (def-func-end)

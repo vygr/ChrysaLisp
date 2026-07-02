@@ -87,9 +87,9 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r0 "(eval form [env])" +error_msg_not_a_function :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(eval form [env])" +error_msg_not_a_function))
 (vp-label 'error2)
-	(jump :lisp :repl_error {this, "(eval form [env])", +error_msg_symbol_not_bound, form}))
+	(jump :lisp :repl_error {this, form, "(eval form [env])", +error_msg_symbol_not_bound}))
 
 	(pop-scope-syms)
 

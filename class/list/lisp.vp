@@ -58,7 +58,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(merge dlist slist)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(merge dlist slist)" +error_msg_wrong_types))
 	(signature '(:list :list)))
 
 (def-func-end)
@@ -116,9 +116,9 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, "(pivot lambda list start end)", +error_msg_wrong_types, args})
+	(jump :lisp :repl_error {this, args, "(pivot lambda list start end)", +error_msg_wrong_types})
 (vp-label 'error2)
-	(jump :lisp :repl_error {this, "(pivot lambda list start end)", +error_msg_not_valid_index, args})
+	(jump :lisp :repl_error {this, args, "(pivot lambda list start end)", +error_msg_not_valid_index})
 	(signature '(:obj :list :num :num)))
 
 	(pop-scope-syms)
@@ -198,7 +198,7 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error `(,this "(lmatch? list list)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(lmatch? list list)" +error_msg_wrong_types))
 	(signature '(:list :list)))
 
 (def-func-end)
@@ -233,6 +233,6 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(copy form)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(copy form)" +error_msg_wrong_num_of_args)))
 
 (def-func-end)

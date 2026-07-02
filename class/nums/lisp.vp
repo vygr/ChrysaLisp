@@ -129,7 +129,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(nums-add nums nums [nums])" +error_msg_wrong_types :r3)))
+	(jump :lisp :repl_error '(:r0 :r3 "(nums-add nums nums [nums])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -157,7 +157,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(nums-sub nums nums [nums])" +error_msg_wrong_types :r3)))
+	(jump :lisp :repl_error '(:r0 :r3 "(nums-sub nums nums [nums])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -185,7 +185,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(nums-min nums nums [nums])" +error_msg_wrong_types :r3)))
+	(jump :lisp :repl_error '(:r0 :r3 "(nums-min nums nums [nums])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -213,7 +213,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(nums-max nums nums [nums])" +error_msg_wrong_types :r3)))
+	(jump :lisp :repl_error '(:r0 :r3 "(nums-max nums nums [nums])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -241,7 +241,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(nums-mul nums nums [nums])" +error_msg_wrong_types :r3)))
+	(jump :lisp :repl_error '(:r0 :r3 "(nums-mul nums nums [nums])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -269,7 +269,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(nums-div nums nums [nums])" +error_msg_wrong_types :r3)))
+	(jump :lisp :repl_error '(:r0 :r3 "(nums-div nums nums [nums])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -297,7 +297,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(nums-mod nums nums [nums])" +error_msg_wrong_types :r3)))
+	(jump :lisp :repl_error '(:r0 :r3 "(nums-mod nums nums [nums])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -328,7 +328,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(nums-sum nums)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(nums-sum nums)" +error_msg_wrong_types))
 	(signature '(:nums)))
 
 (def-func-end)
@@ -373,7 +373,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r9 "(nums-scale nums scale [nums])" +error_msg_wrong_types :r10))
+	(jump :lisp :repl_error '(:r9 :r10 "(nums-scale nums scale [nums])" +error_msg_wrong_types))
 	(signature '(:nums :num :nums)))
 
 (def-func-end)
@@ -402,7 +402,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(nums-abs nums [nums])" +error_msg_wrong_types :r3)))
+	(jump :lisp :repl_error '(:r0 :r3 "(nums-abs nums [nums])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -443,6 +443,6 @@
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(nums-dot nums nums)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(nums-dot nums nums)" +error_msg_wrong_types)))
 
 (def-func-end)

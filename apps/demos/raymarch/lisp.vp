@@ -66,7 +66,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(scene reals)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(scene reals)" +error_msg_wrong_types))
 	(signature '(:reals)))
 
 (def-func-end)
@@ -139,7 +139,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(ray-march reals reals real real real real)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(ray-march reals reals real real real real)" +error_msg_wrong_types))
 	(signature '(:reals :reals :real :real :real :real)))
 
 (def-func-end)

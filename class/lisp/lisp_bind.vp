@@ -37,7 +37,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(env-push [env])" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(env-push [env])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -79,7 +79,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(env-pop [env])" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(env-pop [env])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -102,6 +102,6 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(bind (param ...) seq)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(bind (param ...) seq)" +error_msg_wrong_num_of_args)))
 
 (def-func-end)

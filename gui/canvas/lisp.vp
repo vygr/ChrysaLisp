@@ -30,7 +30,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(create-canvas width height scale)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(create-canvas width height scale)" +error_msg_wrong_types))
 	(signature '(:num :num :num)))
 
 (def-func-end)
@@ -60,7 +60,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(create-canvas-pixmap pixmap)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(create-canvas-pixmap pixmap)" +error_msg_wrong_types))
 	(signature '(:pixmap)))
 
 (def-func-end)
@@ -94,7 +94,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(canvas-fill canvas argb)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(canvas-fill canvas argb)" +error_msg_wrong_types))
 	(signature '(:canvas :num)))
 
 (def-func-end)
@@ -137,7 +137,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(canvas-swap canvas flags)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(canvas-swap canvas flags)" +error_msg_wrong_types))
 	(signature '(:canvas :num)))
 
 (def-func-end)
@@ -173,7 +173,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(canvas-next-frame canvas)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(canvas-next-frame canvas)" +error_msg_wrong_types))
 	(signature '(:canvas)))
 
 (def-func-end)
@@ -204,7 +204,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(canvas-plot canvas x y)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(canvas-plot canvas x y)" +error_msg_wrong_types))
 	(signature '(:canvas :num :num)))
 
 (def-func-end)
@@ -235,7 +235,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(canvas-fbox canvas x y w h)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(canvas-fbox canvas x y w h)" +error_msg_wrong_types))
 	(signature '(:canvas :num :num :num :num)))
 
 (def-func-end)
@@ -266,7 +266,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(canvas-fpoly canvas x y mode list)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(canvas-fpoly canvas x y mode list)" +error_msg_wrong_types))
 	(signature '(:canvas :fixed :fixed :num :list)))
 
 (def-func-end)
@@ -299,7 +299,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(canvas-resize canvas canvas)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(canvas-resize canvas canvas)" +error_msg_wrong_types))
 	(signature '(:canvas :canvas)))
 
 (def-func-end)
@@ -336,7 +336,7 @@
 (vp-label 'error1)
 	(vp-pop :r0)
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(canvas-ftri canvas path)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(canvas-ftri canvas path)" +error_msg_wrong_types))
 	(signature '(:canvas :path)))
 
 (def-func-end)
@@ -389,7 +389,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(canvas-tile canvas data x1 y1 x2 y2)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(canvas-tile canvas data x1 y1 x2 y2)" +error_msg_wrong_types))
 	(signature '(:canvas :str :num :num :num :num)))
 
 (def-func-end)

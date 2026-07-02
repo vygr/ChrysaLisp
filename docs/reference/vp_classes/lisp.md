@@ -292,9 +292,9 @@ trashes
 ```code
 inputs
 :r0 = lisp object (ptr)
-:r1 = description c string (pubyte)
-:r2 = 0, else error msg number (uint)
-:r3 = error payload object (ptr)
+:r1 = error payload object (ptr)
+:r2 = description c string (pubyte)
+:r3 = 0, else error msg number (uint)
 outputs
 :r0 = lisp object (ptr)
 :r1 = error object (ptr)

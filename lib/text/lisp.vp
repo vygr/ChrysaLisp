@@ -41,7 +41,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(csr-sort csr)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(csr-sort csr)" +error_msg_wrong_types))
 	(signature '(:nums)))
 
 (def-func-end)
@@ -90,7 +90,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(csr-cmp csr csr)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(csr-cmp csr csr)" +error_msg_wrong_types))
 	(signature '(:nums :nums)))
 
 (def-func-end)
@@ -148,7 +148,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(csr-map-delete px py cx cy ax ay)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(csr-map-delete px py cx cy ax ay)" +error_msg_wrong_types))
 	(signature '(:num :num :num :num :num :num)))
 
 (def-func-end)
@@ -201,7 +201,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(csr-map-insert px py icx icy ecx ecy dy ax ay)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(csr-map-insert px py icx icy ecx ecy dy ax ay)" +error_msg_wrong_types))
 	(signature '(:num :num :num :num :num :num :num :num :num)))
 
 (def-func-end)

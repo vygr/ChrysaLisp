@@ -36,7 +36,7 @@
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(dim nums array)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(dim nums array)" +error_msg_wrong_types))
 	(signature '(:nums :array)))
 
 (def-func-end)
@@ -93,9 +93,9 @@
 (errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
-	(jump :lisp :repl_error '(:r0 "(dim-get dim nums)" +error_msg_not_valid_index :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(dim-get dim nums)" +error_msg_not_valid_index))
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(dim-get dim nums)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(dim-get dim nums)" +error_msg_wrong_types))
 	(signature '(:dim :nums)))
 
 (def-func-end)
@@ -165,9 +165,9 @@
 (errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
-	(jump :lisp :repl_error '(:r0 "(dim-set dim nums elem)" +error_msg_not_valid_index :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(dim-set dim nums elem)" +error_msg_not_valid_index))
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(dim-set dim nums elem)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(dim-set dim nums elem)" +error_msg_wrong_types))
 	(signature '(:dim :nums :obj)))
 
 (def-func-end)

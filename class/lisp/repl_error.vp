@@ -5,9 +5,9 @@
 (def-method :lisp :repl_error)
 	;inputs
 	;:r0 = lisp object (ptr)
-	;:r1 = description c string (pubyte)
-	;:r2 = 0, else error msg number (uint)
-	;:r3 = error payload object (ptr)
+	;:r1 = error payload object (ptr)
+	;:r2 = description c string (pubyte)
+	;:r3 = 0, else error msg number (uint)
 	;outputs
 	;:r0 = lisp object (ptr)
 	;:r1 = error object (ptr)
@@ -15,12 +15,12 @@
 	;:r1-:r9, :r14, :f0-:f15
 
 	(def-vars
-		(ptr this desc payload)
+		(ptr this payload desc)
 		(pptr frame)
 		(uint msg))
 
 	(push-scope)
-	(entry :lisp :repl_error {this, desc, msg, payload})
+	(entry :lisp :repl_error {this, payload, desc, msg})
 
 	(call :hmap :search {this->+lisp_environment, this->+lisp_sym_stack_frame} {_, frame, _})
 	(vpif {frame})

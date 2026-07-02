@@ -27,7 +27,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(create-view)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 :r1 "(create-view)" +error_msg_wrong_num_of_args)))
 
 (def-func-end)
 
@@ -61,7 +61,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-find-id view mth id)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-find-id view mth id)" +error_msg_wrong_types))
 	(signature '(:view :sym :num)))
 
 (def-func-end)
@@ -90,7 +90,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-sub view mth)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-sub view mth)" +error_msg_wrong_types))
 	(signature '(:view :sym)))
 
 (def-func-end)
@@ -120,7 +120,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-hide view mth)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-hide view mth)" +error_msg_wrong_types))
 	(signature '(:view :sym)))
 
 (def-func-end)
@@ -154,7 +154,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-add-front parent mth child)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-add-front parent mth child)" +error_msg_wrong_types))
 	(signature '(:view :sym :view)))
 
 (def-func-end)
@@ -188,7 +188,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-add-back parent mth child)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-add-back parent mth child)" +error_msg_wrong_types))
 	(signature '(:view :sym :view)))
 
 (def-func-end)
@@ -220,7 +220,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-trans-dirty view mth rx ry)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-trans-dirty view mth rx ry)" +error_msg_wrong_types))
 	(signature '(:view :sym :num :num)))
 
 (def-func-end)
@@ -257,7 +257,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-clr-opaque view mth)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-clr-opaque view mth)" +error_msg_wrong_types))
 	(signature '(:view :sym)))
 
 (def-func-end)
@@ -296,7 +296,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-add-opaque view mth x y w h)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-add-opaque view mth x y w h)" +error_msg_wrong_types))
 	(signature '(:view :sym :num :num :num :num)))
 
 (def-func-end)
@@ -335,7 +335,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-sub-opaque view mth x y w h)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-sub-opaque view mth x y w h)" +error_msg_wrong_types))
 	(signature '(:view :sym :num :num :num :num)))
 
 (def-func-end)
@@ -366,7 +366,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-set-flags view mth flags mask)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-set-flags view mth flags mask)" +error_msg_wrong_types))
 	(signature '(:view :sym :num :num)))
 
 (def-func-end)
@@ -407,7 +407,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-add-dirty view mth x y w h)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-add-dirty view mth x y w h)" +error_msg_wrong_types))
 	(signature '(:view :sym :num :num :num :num)))
 
 (def-func-end)
@@ -448,7 +448,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-children view mth)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-children view mth)" +error_msg_wrong_types))
 	(signature '(:view :sym)))
 
 (def-func-end)
@@ -497,7 +497,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-flatten view mth)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-flatten view mth)" +error_msg_wrong_types))
 	(signature '(:view :sym)))
 
 (def-func-end)
@@ -528,7 +528,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-to-front view mth)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-to-front view mth)" +error_msg_wrong_types))
 	(signature '(:view :sym)))
 
 (def-func-end)
@@ -559,7 +559,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-to-back view mth)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-to-back view mth)" +error_msg_wrong_types))
 	(signature '(:view :sym)))
 
 (def-func-end)
@@ -599,7 +599,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(view-hit-tree view mth x y)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(view-hit-tree view mth x y)" +error_msg_wrong_types))
 	(signature '(:view :sym :num :num)))
 
 (def-func-end)

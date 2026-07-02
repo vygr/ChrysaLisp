@@ -43,7 +43,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(quant reals tol [out])" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(quant reals tol [out])" +error_msg_wrong_types))
 	(signature '(:reals :real :reals)))
 
 (def-func-end)
@@ -92,7 +92,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(mat4x4-mul ma mb [out])" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(mat4x4-mul ma mb [out])" +error_msg_wrong_types))
 	(signature '(:reals :reals :reals)))
 
 (def-func-end)
@@ -139,7 +139,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(mat4x4-inv ma [out])" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(mat4x4-inv ma [out])" +error_msg_wrong_types))
 	(signature '(:reals :reals)))
 
 (def-func-end)
@@ -189,7 +189,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(mat4x4-v4-mul ma v [out])" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(mat4x4-v4-mul ma v [out])" +error_msg_wrong_types))
 	(signature '(:reals :reals :reals)))
 
 (def-func-end)
@@ -239,7 +239,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(mat4x4-v3-mul ma v [out])" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this ,args "(mat4x4-v3-mul ma v [out])" +error_msg_wrong_types))
 	(signature '(:reals :reals :reals)))
 
 (def-func-end)

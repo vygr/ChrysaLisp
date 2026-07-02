@@ -175,11 +175,11 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, "(bind (param ...) seq)", +error_msg_not_a_list, vars})
+	(jump :lisp :repl_error {this, vars, "(bind (param ...) seq)", +error_msg_not_a_list})
 (vp-label 'error2)
-	(jump :lisp :repl_error {this, "(bind (param ...) seq)", +error_msg_not_a_sequence, vals})
+	(jump :lisp :repl_error {this, vals, "(bind (param ...) seq)", +error_msg_not_a_sequence})
 (vp-label 'error3)
-	(jump :lisp :repl_error {this, "(bind (param ...) seq)", +error_msg_not_a_symbol, symbol})
+	(jump :lisp :repl_error {this, symbol, "(bind (param ...) seq)", +error_msg_not_a_symbol})
 (vp-label 'error4)
 	(call :obj :deref {value})
 (vp-label 'error)
@@ -187,7 +187,7 @@
 	(call :obj :ref {vars})
 	(call :obj :ref {vals})
 	(call :list :push_back2 {value, vars, vals})
-	(jump :lisp :repl_error {this, "(bind (param ...) seq)", +error_msg_wrong_num_of_args, value}))
+	(jump :lisp :repl_error {this, value, "(bind (param ...) seq)", +error_msg_wrong_num_of_args}))
 
 	(pop-scope-syms)
 

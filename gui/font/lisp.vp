@@ -33,7 +33,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(create-font name pixels)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(create-font name pixels)" +error_msg_wrong_types))
 	(signature '(:str :num)))
 
 (def-func-end)
@@ -71,7 +71,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(font-glyph-paths font str)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(font-glyph-paths font str)" +error_msg_wrong_types))
 	(signature '(:font :str)))
 
 (def-func-end)
@@ -104,7 +104,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(font-info font)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(font-info font)" +error_msg_wrong_types))
 	(signature '(:font)))
 
 (def-func-end)
@@ -147,7 +147,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(font-glyph-bounds font str)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(font-glyph-bounds font str)" +error_msg_wrong_types))
 	(signature '(:font :str)))
 
 (def-func-end)
@@ -177,7 +177,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(font-glyph-ranges font)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(font-glyph-ranges font)" +error_msg_wrong_types))
 	(signature '(:font)))
 
 (def-func-end)
@@ -211,7 +211,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(font-sym-texture font sym)" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(font-sym-texture font sym)" +error_msg_wrong_types))
 	(signature '(:font :sym)))
 
 (def-func-end)

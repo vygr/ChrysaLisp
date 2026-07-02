@@ -34,7 +34,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(eval form [env])" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(eval form [env])" +error_msg_wrong_types))
 	(signature '(:obj :hmap)))
 
 (def-func-end)
@@ -77,7 +77,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 "(eval-list list [env])" +error_msg_wrong_types :r1))
+	(jump :lisp :repl_error '(:r0 :r1 "(eval-list list [env])" +error_msg_wrong_types))
 	(signature '(:list :hmap)))
 
 (def-func-end)

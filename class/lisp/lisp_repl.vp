@@ -67,11 +67,11 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, "(repl stream path)", +error_msg_wrong_num_of_args, args})
+	(jump :lisp :repl_error {this, args, "(repl stream path)", +error_msg_wrong_num_of_args})
 (vp-label 'error2)
-	(jump :lisp :repl_error {this, "(repl stream path)", +error_msg_not_a_stream, args})
+	(jump :lisp :repl_error {this, args, "(repl stream path)", +error_msg_not_a_stream})
 (vp-label 'error3)
-	(jump :lisp :repl_error {this, "(repl stream path)", +error_msg_not_a_string, args}))
+	(jump :lisp :repl_error {this, args, "(repl stream path)", +error_msg_not_a_string}))
 
 	(pop-scope-syms)
 

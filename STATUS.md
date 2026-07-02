@@ -49,6 +49,9 @@ now passes the exact same args list to the callee, and the `defclass` macro
 insert a `&` skip arg binding for the method symbol. This also means that a
 method implementation can now, if desired, reflect on its dispatch symbol.
 
+Swap the order of the args to `:lisp :repl_error`, this avoids extra copies in
+most use cases. Saved about 1KB of boot_image.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
