@@ -30,114 +30,185 @@
 		frac_dec (/ (* frac_part 10000) 16777216))
 	(cat sign (str int_part) "." (pad frac_dec 4 "0")))
 
-(defun read-uint16-be (stream)
-	(defq b0 (read-char stream)
-		b1 (read-char stream))
-	(if (or (= b0 -1) (= b1 -1))
-		-1
-		(+ (<< b0 8) b1)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Big-Endian Memory Getters (OTF)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun read-uint32-be (stream)
-	(defq b0 (read-char stream)
-		b1 (read-char stream)
-		b2 (read-char stream)
-		b3 (read-char stream))
-	(if (or (= b0 -1) (= b1 -1) (= b2 -1) (= b3 -1))
-		-1
-		(+ (<< b0 24) (<< b1 16) (<< b2 8) b3)))
+(defun get-uint16-be (buf idx)
+	(defq b0 (get-ubyte buf idx)
+		b1 (get-ubyte buf (inc idx)))
+	(+ (<< b0 8) b1))
 
-(defun read-otf-tables (stream)
-	(stream-seek stream 0 0)
-	(defq version (read-uint32-be stream)
-		num_tables (read-uint16-be stream)
-		tables (Lmap))
-	; Use absolute seek (0) to jump directly to offset 12, avoiding the relative-seek buffer bug
-	(stream-seek stream 12 0)
+(defun get-int16-be (buf idx)
+	(defq val (get-uint16-be buf idx))
+	(if (>= val 32768)
+		(- val 65536)
+		val))
+
+(defun get-uint32-be (buf idx)
+	(defq b0 (get-ubyte buf idx)
+		b1 (get-ubyte buf (+ idx 1))
+		b2 (get-ubyte buf (+ idx 2))
+		b3 (get-ubyte buf (+ idx 3)))
+	(+ (<< b0 24) (<< b1 16) (<< b2 8) b3))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Little-Endian Memory Getters (CTF)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun get-uint16-le (buf idx)
+	(defq b0 (get-ubyte buf idx)
+		b1 (get-ubyte buf (inc idx)))
+	(+ b0 (<< b1 8)))
+
+(defun get-uint32-le (buf idx)
+	(defq b0 (get-ubyte buf idx)
+		b1 (get-ubyte buf (+ idx 1))
+		b2 (get-ubyte buf (+ idx 2))
+		b3 (get-ubyte buf (+ idx 3)))
+	(+ b0 (<< b1 8) (<< b2 16) (<< b3 24)))
+
+(defun get-int32-le (buf idx)
+	(defq val (get-uint32-le buf idx))
+	(if (>= val 0x80000000)
+		(- val 0x100000000)
+		val))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; OpenType Parser
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun parse-otf-tables (buf)
+	(defq version (get-uint32-be buf 0)
+		num_tables (get-uint16-be buf 4)
+		tables (Lmap)
+		offset 12)
 	(times num_tables
-		(defq tag_chars (read-blk stream 4)
-			tag (str tag_chars)
-			checksum (read-uint32-be stream)
-			offset (read-uint32-be stream)
-			len (read-uint32-be stream))
-		(. tables :insert tag (list offset len)))
+		(defq tag (get-str buf offset 4)
+			checksum (get-uint32-be buf (+ offset 4))
+			tbl_offset (get-uint32-be buf (+ offset 8))
+			len (get-uint32-be buf (+ offset 12)))
+		(. tables :insert tag (list tbl_offset len))
+		(setq offset (+ offset 16)))
 	(scatter (Lmap) :version version :tables tables))
 
+(defun get-otf-head (buf tables)
+	(bind '(offset len) (. tables :find "head"))
+	(get-uint16-be buf (+ offset 18)))
+
+(defun get-otf-hhea (buf tables)
+	(bind '(offset len) (. tables :find "hhea"))
+	(defq ascender (get-int16-be buf (+ offset 4))
+		descender (get-int16-be buf (+ offset 6))
+		num_h_metrics (get-uint16-be buf (+ offset 34)))
+	(list ascender descender num_h_metrics))
+
+(defun get-otf-maxp (buf tables)
+	(bind '(offset len) (. tables :find "maxp"))
+	(get-uint16-be buf (+ offset 4)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; CTF Parser
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun load-ctf-buf (buf)
+	(defq ascent (get-uint32-le buf 0)
+		descent (get-uint32-le buf 4)
+		pages (list)
+		pages_info (list)
+		offset 8
+		running :t)
+	(defq font_db (scatter (Lmap)
+		:file :nil
+		:type "CTF"
+		:ascent ascent
+		:descent descent))
+	(while running
+		(defq pend (get-uint32-le buf offset))
+		(setq offset (+ offset 4))
+		(if (or (= pend 0) (= pend -1))
+			(setq running :nil)
+			(progn
+				(defq pstart (get-uint32-le buf offset)
+					count (inc (- pend pstart))
+					offsets (list))
+				(setq offset (+ offset 4))
+				(times count
+					(push offsets (get-uint32-le buf offset))
+					(setq offset (+ offset 4)))
+				(push pages_info (list pstart pend offsets)))))
+	(defq pages_i 0)
+	(while (< pages_i (length pages_info))
+		(bind '(start end offsets) (elem-get pages_info pages_i))
+		(defq glyphs (list)
+			page_db (scatter (Lmap)
+				:start start
+				:end end)
+			c start
+			offsets_i 0)
+		(while (< offsets_i (length offsets))
+			(defq glyph_offset (elem-get offsets offsets_i)
+				width (get-uint32-le buf glyph_offset)
+				len (get-uint32-le buf (+ glyph_offset 4))
+				min_x 0 max_x 0 min_y 0 max_y 0
+				commands (list)
+				g_offset (+ glyph_offset 8))
+			(if (> len 0)
+				(progn
+					(defq bytes_read 0 coords_x (list) coords_y (list))
+					(while (< bytes_read len)
+						(defq type (get-int32-le buf g_offset))
+						(setq g_offset (+ g_offset 4))
+						(cond
+							((or (= type 0) (= type 1))
+								(defq rx (get-int32-le buf g_offset)
+									ry (get-int32-le buf (+ g_offset 4)))
+								(setq g_offset (+ g_offset 8)
+									bytes_read (+ bytes_read 12))
+								(push coords_x rx)
+								(push coords_y ry)
+								(push commands (list type rx ry)))
+							((= type 2)
+								(defq rx (get-int32-le buf g_offset)
+									ry (get-int32-le buf (+ g_offset 4))
+									rx1 (get-int32-le buf (+ g_offset 8))
+									ry1 (get-int32-le buf (+ g_offset 12))
+									rx2 (get-int32-le buf (+ g_offset 16))
+									ry2 (get-int32-le buf (+ g_offset 20)))
+								(setq g_offset (+ g_offset 24)
+									bytes_read (+ bytes_read 28))
+								(push coords_x rx rx1 rx2)
+								(push coords_y ry ry1 ry2)
+								(push commands (list type rx ry rx1 ry1 rx2 ry2)))
+							(:t
+								(setq bytes_read len))))
+					(setq min_x (reduce min coords_x (first coords_x))
+						max_x (reduce max coords_x (first coords_x))
+						min_y (reduce min coords_y (first coords_y))
+						max_y (reduce max coords_y (first coords_y)))))
+			(push glyphs (scatter (Lmap)
+				:char_code c
+				:offset glyph_offset
+				:advance width
+				:min_x min_x
+				:max_x max_x
+				:min_y min_y
+				:max_y max_y
+				:commands commands))
+			(++ c)
+			(++ offsets_i))
+		(push pages (scatter page_db :glyphs glyphs))
+		(++ pages_i))
+	(scatter font_db :pages pages))
+
 (defun load-ctf (file)
-	(if (defq stream (file-stream file))
-		(progn
-			(defq ascent (read-uint stream)
-				descent (read-uint stream)
-				pages (list)
-				pages_info (list)
-				running :t)
-			(defq font_db (scatter (Lmap)
-				:file file
-				:type "CTF"
-				:ascent ascent
-				:descent descent))
-			(while running
-				(defq pend (read-uint stream))
-				(if (or (not pend) (= pend 0) (= pend -1))
-					(setq running :nil)
-					(progn
-						(defq pstart (read-uint stream)
-							count (inc (- pend pstart))
-							offsets (list))
-						(times count (push offsets (read-uint stream)))
-						(push pages_info (list pstart pend offsets)))))
-			(each (lambda ((start end offsets))
-				(defq glyphs (list)
-					page_db (scatter (Lmap)
-						:start start
-						:end end)
-					c start)
-				(each (lambda (offset)
-					(stream-seek stream offset 0)
-					(defq width (read-uint stream)
-						len (read-uint stream)
-						min_x 0 max_x 0 min_y 0 max_y 0
-						commands (list))
-					(if (> len 0)
-						(progn
-							(defq bytes_read 0 coords_x (list) coords_y (list))
-							(while (< bytes_read len)
-								(defq type (read-int stream))
-								(if (not (num? type))
-									(setq bytes_read len)
-									(cond
-										((or (= type 0) (= type 1))
-											(defq rx (read-int stream) ry (read-int stream))
-											(setq bytes_read (+ bytes_read 12))
-											(push coords_x rx)
-											(push coords_y ry)
-											(push commands (list type rx ry)))
-										((= type 2)
-											(defq rx (read-int stream) ry (read-int stream)
-												rx1 (read-int stream) ry1 (read-int stream)
-												rx2 (read-int stream) ry2 (read-int stream))
-											(setq bytes_read (+ bytes_read 28))
-											(push coords_x rx rx1 rx2)
-											(push coords_y ry ry1 ry2)
-											(push commands (list type rx ry rx1 ry1 rx2 ry2))))))
-							(setq min_x (reduce min coords_x (first coords_x))
-								max_x (reduce max coords_x (first coords_x))
-								min_y (reduce min coords_y (first coords_y))
-								max_y (reduce max coords_y (first coords_y)))))
-					(push glyphs (scatter (Lmap)
-						:char_code c
-						:offset offset
-						:advance width
-						:min_x min_x
-						:max_x max_x
-						:min_y min_y
-						:max_y max_y
-						:commands commands))
-					(++ c))
-					offsets)
-				(push pages (scatter page_db :glyphs glyphs)))
-				pages_info)
-			(scatter font_db :pages pages))
+	(if (defq buf (load file))
+		(scatter (load-ctf-buf buf) :file file)
 		:nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Writer and Printer
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun write-ctf (font_db file)
 	(if (and font_db (defq stream (file-stream file +file_open_write)))
@@ -249,8 +320,8 @@
 						min_y (. glyph_db :find :min_y)
 						max_x (. glyph_db :find :max_x)
 						max_y (. glyph_db :find :max_y)
-						commands (. glyph_db :find :commands)
-						g_width (- max_x min_x)
+						commands (. glyph_db :find :commands))
+					(defq g_width (- max_x min_x)
 						g_height (- max_y min_y)
 						char_str (if (<= 32 c 126) (cat "'" (char c) "'") "?"))
 					(print "\t\tGlyph " char_str " (" c "): Offset: " offset
@@ -278,17 +349,24 @@
 		(print)))
 
 (defun process-otf-ttf (file type)
-	(if (defq stream (file-stream file))
+	(if (defq buf (load file))
 		(progn
-			(defq otf_db (read-otf-tables stream)
+			(defq otf_db (parse-otf-tables buf)
 				version (. otf_db :find :version)
 				tables (. otf_db :find :tables))
 			(print "File: " file)
 			(print "\tType: " type " (OpenType/TrueType Font)")
 			(print "\tVersion: " (long-to-hex-str version))
-			(print "\tAvailable Tables:")
-			(. tables :each (lambda (tag (offset len))
-				(print "\t\tTable: " (pad tag 4) " Offset: " (pad offset 8) " Length: " (pad len 8))))
+			
+			; Read and print metrics
+			(defq units_per_em (get-otf-head buf tables))
+			(bind '(ascender descender num_h_metrics) (get-otf-hhea buf tables))
+			(defq num_glyphs (get-otf-maxp buf tables))
+			(print "\tUnitsPerEm: " units_per_em)
+			(print "\tAscender: " ascender " (" (format-fixed-24 (/ (* ascender 16777216) units_per_em)) ")")
+			(print "\tDescender: " descender " (" (format-fixed-24 (/ (* descender 16777216) units_per_em)) ")")
+			(print "\tNumGlyphs: " num_glyphs)
+			(print "\tNumberOfHMetrics: " num_h_metrics)
 			(print))
 		(print "Error: Cannot open font file " file)))
 
