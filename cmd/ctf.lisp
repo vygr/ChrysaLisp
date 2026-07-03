@@ -5,6 +5,8 @@
 ; functions to scan and read the info into the common font_db database.
 ; we can then output .ctf (via -c option) to upgrade old .ctf format files
 ; or convert existing .otf/.ttf files to .ctf format.
+; CTF files store the glyph data as MoveTo/LineTo/CurveTo commands, with the numeric format
+; scaled to fit 8.24 signed fixed point format.
 ;;;;;;;;;;;;;;;;;
 
 (import "lib/options/options.inc")
