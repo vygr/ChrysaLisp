@@ -8,12 +8,16 @@
         -h --help: this help info.
         -v --verbosity num: verbosity level, default 0.
         -c --ctf: convert/upgrade font file to latest .ctf spec.
+        -s --start num: start char code, default :nil.
+        -e --end num: end char code, default :nil.
 
     Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
     or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
     command line, file paths are read from stdin.")
 (("-c" "--ctf") ,(opt-flag 'opt_c))
 (("-v" "--verbosity") ,(opt-num 'opt_v))
+(("-s" "--start") ,(opt-num 'opt_s))
+(("-e" "--end") ,(opt-num 'opt_e))
 ))
 
 (defun format-fixed-24 (val)
@@ -376,67 +380,67 @@
 				(push pages_info (list pstart pend offsets)))))
 	(each (lambda ((start end offsets))
 		(defq glyphs (list)
-			page_db (scatter (Lmap)
-				:start start
-				:end end)
-			c start)
+			c start
+			pstart :nil
+			pend :nil)
 		(each (lambda (glyph_offset)
-			(defq width (get-uint buf glyph_offset)
-				len (get-uint buf (+ glyph_offset 4))
-				min_x 0 max_x 0 min_y 0 max_y 0
-				commands (list)
-				g_offset (+ glyph_offset 8))
-			(if (> len 0)
-				(progn
-					(defq end_g_offset (+ g_offset len)
-						coords_x (list) coords_y (list))
-					(while (< g_offset end_g_offset)
-						(defq type (get-int buf g_offset))
-						(++ g_offset)
-						(cond
-							((or (= type 0) (= type 1))
-								(defq rx (get-int buf g_offset)
-									ry (get-int buf (+ g_offset 4)))
-								(++ g_offset 8)
-								(push coords_x rx)
-								(push coords_y ry)
-								(push commands (list type rx ry)))
-							((= type 2)
-								(defq rx1 (get-int buf g_offset)
-									ry1 (get-int buf (+ g_offset 4))
-									rx2 (get-int buf (+ g_offset 8))
-									ry2 (get-int buf (+ g_offset 12))
-									rx (get-int buf (+ g_offset 16))
-									ry (get-int buf (+ g_offset 20)))
-								(++ g_offset 24)
-								(push coords_x rx1 rx2 rx)
-								(push coords_y ry1 ry2 ry)
-								(push commands (list type rx1 ry1 rx2 ry2 rx ry)))
-							((= type 3)
-								(defq rx1 (get-int buf g_offset)
-									ry1 (get-int buf (+ g_offset 4))
-									rx (get-int buf (+ g_offset 8))
-									ry (get-int buf (+ g_offset 12)))
-								(++ g_offset 16)
-								(push coords_x rx1 rx)
-								(push coords_y ry1 ry)
-								(push commands (list type rx1 ry1 rx ry)))))
-					(setq min_x (reduce min coords_x (first coords_x))
-						max_x (reduce max coords_x (first coords_x))
-						min_y (reduce min coords_y (first coords_y))
-						max_y (reduce max coords_y (first coords_y)))))
-			(push glyphs (scatter (Lmap)
-				:char_code c
-				:offset glyph_offset
-				:advance width
-				:min_x min_x
-				:max_x max_x
-				:min_y min_y
-				:max_y max_y
-				:commands commands))
+			(when (and (ifn opt_s :t (>= c opt_s))
+					   (ifn opt_e :t (<= c opt_e)))
+				(unless pstart (setq pstart c))
+				(setq pend c)
+				(defq width (get-uint buf glyph_offset)
+					len (get-uint buf (+ glyph_offset 4))
+					min_x 0 max_x 0 min_y 0 max_y 0
+					commands (list)
+					g_offset (+ glyph_offset 8))
+				(if (> len 0)
+					(progn
+						(defq end_g_offset (+ g_offset len)
+							coords_x (list) coords_y (list))
+						(while (< g_offset end_g_offset)
+							(defq type (get-int buf g_offset))
+							(++ g_offset)
+							(cond
+								((or (= type 0) (= type 1))
+									(defq rx (get-int buf g_offset)
+										ry (get-int buf (+ g_offset 4)))
+									(++ g_offset 8)
+									(push coords_x rx)
+									(push coords_y ry)
+									(push commands (list type rx ry)))
+								((= type 2)
+									(defq rx1 (get-int buf g_offset)
+										ry1 (get-int buf (+ g_offset 4))
+										rx2 (get-int buf (+ g_offset 8))
+										ry2 (get-int buf (+ g_offset 12))
+										rx (get-int buf (+ g_offset 16))
+										ry (get-int buf (+ g_offset 20)))
+									(++ g_offset 24)
+									(push coords_x rx1 rx2 rx)
+									(push coords_y ry1 ry2 ry)
+									(push commands (list type rx1 ry1 rx2 ry2 rx ry)))
+								((= type 3)
+									(defq rx1 (get-int buf g_offset)
+										ry1 (get-int buf (+ g_offset 4))
+										rx (get-int buf (+ g_offset 8))
+										ry (get-int buf (+ g_offset 12)))
+									(++ g_offset 16)
+									(push coords_x rx1 rx)
+									(push coords_y ry1 ry)
+									(push commands (list type rx1 ry1 rx ry)))))))
+				(push glyphs (scatter (Lmap)
+					:char_code c
+					:offset glyph_offset
+					:advance width
+					:min_x min_x
+					:max_x max_x
+					:min_y min_y
+					:max_y max_y
+					:commands commands)))
 			(++ c))
 			offsets)
-		(push pages (scatter page_db :glyphs glyphs)))
+		(when (nempty? glyphs)
+			(push pages (scatter (Lmap) :start pstart :end pend :glyphs glyphs))))
 		pages_info)
 	(scatter font_db :pages pages))
 
@@ -786,8 +790,12 @@
 									(defq end (min 0xf8ff end)
 										c (max 32 start)) ; Cap at minimum 32 to skip control chars
 									(while (<= c end)
-										(if (> (get-otf-glyph-index buf tables c) 0)
-											(push active_chars c))
+										(when (and (ifn opt_s :t (>= c opt_s))
+													(ifn opt_e :t (<= c opt_e)))
+											(if (or (and opt_s (= c opt_s))
+													(and opt_e (= c opt_e))
+													(> (get-otf-glyph-index buf tables c) 0))
+												(push active_chars c)))
 										(++ c)))
 								(setq seg_idx (inc seg_idx)))))))))
 	
@@ -1077,7 +1085,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_c :nil opt_v 0 args (options stdio usage)))
+			(defq opt_c :nil opt_v 0 opt_s :nil opt_e :nil args (options stdio usage)))
 		(defq files (rest args))
 		(if (empty? files)
 			(progn
