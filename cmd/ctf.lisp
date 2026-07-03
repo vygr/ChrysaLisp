@@ -348,7 +348,7 @@
 					; Add closing point
 					(push resolved_points (first resolved_points))
 					(defq p0 (first resolved_points)
-						p1x (* (first p0) scale_factor)
+						p1x (* (- (first p0) min_x) scale_factor)
 						p1y (* (second p0) neg_scale_factor))
 					(push commands (list 0 p1x p1y))
 					
@@ -359,7 +359,7 @@
 						(if (third p1)
 							; Next is on-curve -> LineTo
 							(progn
-								(push commands (list 1 (* (first p1) scale_factor) (* (second p1) neg_scale_factor)))
+								(push commands (list 1 (* (- (first p1) min_x) scale_factor) (* (second p1) neg_scale_factor)))
 								(setq p0 p1)
 								(++ ri))
 							; Next is off-curve (Control point for Quadratic spline)
@@ -371,11 +371,11 @@
 									(setq p2 (list (/ (+ (first p1) (first p2)) 2) (/ (+ (second p1) (second p2)) 2) :t))
 									(setq ri (inc ri)))
 								; Convert Quadratic (p0, p1, p2) to Cubic (p0, q1, q2, p2)
-								(defq p0x (* (first p0) scale_factor)
+								(defq p0x (* (- (first p0) min_x) scale_factor)
 									p0y (* (second p0) neg_scale_factor)
-									p1x (* (first p1) scale_factor)
+									p1x (* (- (first p1) min_x) scale_factor)
 									p1y (* (second p1) neg_scale_factor)
-									p2x (* (first p2) scale_factor)
+									p2x (* (- (first p2) min_x) scale_factor)
 									p2y (* (second p2) neg_scale_factor)
 									q1x (+ p0x (/ (* (- p1x p0x) 2) 3))
 									q1y (+ p0y (/ (* (- p1y p0y) 2) 3))
@@ -387,9 +387,10 @@
 								(setq p0 p2)))))
 				(setq start_idx (inc end_idx)
 					contour_idx (inc contour_idx)))
+			(defq temp_min_x min_x)
 			(defq temp_min_y min_y)
-			(setq min_x (* min_x scale_factor)
-				max_x (* max_x scale_factor)
+			(setq min_x 0
+				max_x (* (- max_x temp_min_x) scale_factor)
 				min_y (* max_y neg_scale_factor)
 				max_y (* temp_min_y neg_scale_factor))))
 	(scatter (Lmap)
@@ -643,7 +644,7 @@
 							(setd dxb (n2r 0))
 							(defq x1 (+ cx dxa) y1 (- cy dya)
 								x2 (+ x1 dxb) y2 (- y1 dyb)
-								x3 (+ x2 (if (= b 26) (n2r 0) dyc)) y3 (- y2 (if (= b 26) dyc (n2r 0))))
+								x3 (+ x2 (if (= b 26) (n2r 0) dyc)) y3 (+ y2 (if (= b 26) dyc (n2r 0))))
 							(push-curveto x1 y1 x2 y2 x3 y3)
 							(setq cx x3 cy y3)) curves)
 						(setq stack (clear stack)))
@@ -756,7 +757,18 @@
 			min_x (reduce min coords_x)
 			max_x (reduce max coords_x)
 			min_y (reduce min coords_y)
-			max_y (reduce max coords_y)))
+			max_y (reduce max coords_y))
+		(each (lambda (cmd)
+			(defq type (first cmd))
+			(cond
+				((= type 2)
+					(elem-set cmd 1 (- (second cmd) min_x))
+					(elem-set cmd 3 (- (elem-get cmd 3) min_x))
+					(elem-set cmd 5 (- (elem-get cmd 5) min_x)))
+				(:t
+					(elem-set cmd 1 (- (second cmd) min_x))))) commands)
+		(setq max_x (- max_x min_x)
+			min_x 0))
 	(scatter (Lmap)
 		:advance 0
 		:min_x min_x
