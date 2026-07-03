@@ -57,6 +57,11 @@ Fixed bug in `:host_os :pii_write_num`, was using incorrect quotant.
 Added `+zero_clobber_funcs` list to `cmd/trace.lisp` command to avoid special
 case code just to keep the tracer happy.
 
+New `cmd/ctf.lisp` command app for upgrading `.ctf`, or converting `.otf/.ttf`
+files to `.ctf` format. `-v` options for verbose levels of inspection, `-c` to
+convert to `.ctf` format with a `.new` extension. This replaces the old C++
+QtCTF project with ChrysaLisp native support.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time

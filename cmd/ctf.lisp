@@ -832,7 +832,7 @@
 								(defq end (get-uint16-be buf (+ end_count_offset (* seg_idx 2))))
 								(when (and (< start 0xf900) (<= start end))
 									(defq end (min 0xf8ff end)
-										c start)
+										c (max 32 start)) ; Cap at minimum 32 to skip control chars
 									(while (<= c end)
 										(if (> (get-otf-glyph-index buf tables c) 0)
 											(push active_chars c))
