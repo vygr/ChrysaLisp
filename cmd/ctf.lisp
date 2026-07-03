@@ -33,16 +33,16 @@
 (defun load-ctf (file)
 	(if (defq stream (file-stream file))
 		(progn
-			(defq font_db (Lmap)
-				ascent (read-uint stream)
+			(defq ascent (read-uint stream)
 				descent (read-uint stream)
 				pages (list)
 				pages_info (list)
 				running :t)
-			(. font_db :insert :file file)
-			(. font_db :insert :type "CTF")
-			(. font_db :insert :ascent ascent)
-			(. font_db :insert :descent descent)
+			(defq font_db (scatter (Lmap)
+				:file file
+				:type "CTF"
+				:ascent ascent
+				:descent descent))
 			(while running
 				(defq pend (read-uint stream))
 				(if (or (not pend) (= pend 0) (= pend -1))
@@ -54,19 +54,17 @@
 						(times count (push offsets (read-uint stream)))
 						(push pages_info (list pstart pend offsets)))))
 			(each (lambda ((start end offsets))
-				(defq page_db (Lmap) glyphs (list) c start)
-				(. page_db :insert :start start)
-				(. page_db :insert :end end)
+				(defq glyphs (list)
+					page_db (scatter (Lmap)
+						:start start
+						:end end)
+					c start)
 				(each (lambda (offset)
 					(stream-seek stream offset 0)
-					(defq glyph_db (Lmap)
-						width (read-uint stream)
+					(defq width (read-uint stream)
 						len (read-uint stream)
 						min_x 0 max_x 0 min_y 0 max_y 0
 						commands (list))
-					(. glyph_db :insert :char_code c)
-					(. glyph_db :insert :offset offset)
-					(. glyph_db :insert :advance width)
 					(if (> len 0)
 						(progn
 							(defq bytes_read 0 coords_x (list) coords_y (list))
@@ -93,19 +91,20 @@
 								max_x (reduce max coords_x (first coords_x))
 								min_y (reduce min coords_y (first coords_y))
 								max_y (reduce max coords_y (first coords_y)))))
-					(. glyph_db :insert :min_x min_x)
-					(. glyph_db :insert :max_x max_x)
-					(. glyph_db :insert :min_y min_y)
-					(. glyph_db :insert :max_y max_y)
-					(. glyph_db :insert :commands commands)
-					(push glyphs glyph_db)
+					(push glyphs (scatter (Lmap)
+						:char_code c
+						:offset offset
+						:advance width
+						:min_x min_x
+						:max_x max_x
+						:min_y min_y
+						:max_y max_y
+						:commands commands))
 					(++ c))
 					offsets)
-				(. page_db :insert :glyphs glyphs)
-				(push pages page_db))
+				(push pages (scatter page_db :glyphs glyphs)))
 				pages_info)
-			(. font_db :insert :pages pages)
-			font_db)
+			(scatter font_db :pages pages))
 		:nil))
 
 (defun print-font (font_db verbosity)
