@@ -677,7 +677,7 @@
 		(bind '(top_dict_addr top_dict_len) (get-cff-index-item buf top_dict_idx 0))
 		(setq charstrings_idx (+ cff_offset (get-cff-charstrings-offset buf top_dict_addr top_dict_len))))
 	
-	(defq pages (list))
+	(defq active_chars (list))
 	(bind '(tbl_offset tbl_len) (. tables :find "cmap"))
 	(if (and tbl_offset (> tbl_len 0))
 		(progn
@@ -707,34 +707,82 @@
 								(defq start (get-uint16-be buf (+ start_count_offset (* seg_idx 2))))
 								(defq end (get-uint16-be buf (+ end_count_offset (* seg_idx 2))))
 								(when (and (< start 0xffff) (<= start end))
-									(defq glyphs (list)
-										c start)
+									(defq c start)
 									(while (<= c end)
-										(defq g_index (get-otf-glyph-index buf tables c))
-										(if (> g_index 0)
-											(progn
-												(defq glyph_db :nil)
-												(if is_cff
-													(progn
-														(bind '(g_offset g_len) (get-cff-index-item buf charstrings_idx g_index))
-														(if (and (> g_offset 0) (> g_len 0))
-															(setq glyph_db (parse-cff-glyph buf g_offset g_len scale_factor))))
-													(progn
-														(bind '(g_offset g_len) (get-ttf-glyph-offset-and-len buf tables index_to_loc_format g_index))
-														(if (and (> g_offset 0) (> g_len 0))
-															(setq glyph_db (parse-ttf-glyph buf g_offset g_len scale_factor)))))
-												(unless glyph_db
-													(setq glyph_db (scatter (Lmap)
-														:min_x 0 :max_x 0 :min_y 0 :max_y 0
-														:commands (list))))
-												(defq advance (get-otf-advance buf tables num_h_metrics g_index))
-												(. glyph_db :insert :char_code c)
-												(. glyph_db :insert :advance (* advance scale_factor))
-												(push glyphs glyph_db))
-											(push glyphs (scatter (Lmap) :char_code c :offset 0 :advance 0 :min_x 0 :max_x 0 :min_y 0 :max_y 0 :commands (list))))
-										(++ c))
-									(push pages (scatter (Lmap) :start start :end end :glyphs glyphs)))
+										(if (> (get-otf-glyph-index buf tables c) 0)
+											(push active_chars c))
+										(++ c)))
 								(setq seg_idx (inc seg_idx)))))))))
+	
+	(defq build_page (lambda (pstart pend)
+		(defq glyphs (list) c pstart)
+		(while (<= c pend)
+			(defq g_index (get-otf-glyph-index buf tables c))
+			(if (> g_index 0)
+				(progn
+					(defq glyph_db :nil)
+					(if is_cff
+						(progn
+							(bind '(g_offset g_len) (get-cff-index-item buf charstrings_idx g_index))
+							(if (and (> g_offset 0) (> g_len 0))
+								(setq glyph_db (parse-cff-glyph buf g_offset g_len scale_factor))))
+						(progn
+							(bind '(g_offset g_len) (get-ttf-glyph-offset-and-len buf tables index_to_loc_format g_index))
+							(if (and (> g_offset 0) (> g_len 0))
+								(setq glyph_db (parse-ttf-glyph buf g_offset g_len scale_factor)))))
+					(unless glyph_db
+						(setq glyph_db (scatter (Lmap)
+							:min_x 0 :max_x 0 :min_y 0 :max_y 0
+							:commands (list))))
+					(defq advance (get-otf-advance buf tables num_h_metrics g_index))
+					(. glyph_db :insert :char_code c)
+					(. glyph_db :insert :advance (* advance scale_factor))
+					(push glyphs glyph_db))
+				(push glyphs (scatter (Lmap) :char_code c :offset 0 :advance 0 :min_x 0 :max_x 0 :min_y 0 :max_y 0 :commands (list))))
+			(++ c))
+		(scatter (Lmap) :start pstart :end pend :glyphs glyphs)))
+		
+	(defq pages (list))
+	(when (nempty? active_chars)
+		(defq pstart (first active_chars)
+			pend pstart
+			index 1)
+		(while (< index (length active_chars))
+			(defq c (elem-get active_chars index))
+			(cond
+				((> (- c pend) 32)
+					(push pages (build_page pstart pend))
+					(setq pstart c pend c))
+				(:t (setq pend c)))
+			(setq index (inc index)))
+		(push pages (build_page pstart pend)))
+		
+	; Pre-calculate compiled byte offsets for print-font and serialization consistency
+	(defq current_offset 8)
+	(each (lambda (page_db)
+		(defq start (. page_db :find :start)
+			end (. page_db :find :end)
+			count (inc (- end start)))
+		(setq current_offset (+ current_offset 8 (* count 4))))
+		pages)
+	(setq current_offset (+ current_offset 4))
+	
+	(each (lambda (page_db)
+		(defq glyphs (. page_db :find :glyphs))
+		(each (lambda (glyph_db)
+			(defq commands (. glyph_db :find :commands)
+				len 0)
+			(each (lambda (cmd)
+				(defq type (first cmd))
+				(if (= type 2)
+					(setq len (+ len 28))
+					(setq len (+ len 12))))
+				commands)
+			(. glyph_db :insert :offset current_offset)
+			(setq current_offset (+ current_offset 8 len)))
+			glyphs))
+		pages)
+		
 	(scatter (Lmap)
 		:file file
 		:type "CTF"
