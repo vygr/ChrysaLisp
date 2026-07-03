@@ -19,5 +19,8 @@
 (structure +font_line_element +font_path_element_size
 	(int x y))
 
-(structure +font_curve_element +font_line_element_size
-	(int x1 y1 x2 y2))
+(structure +font_quad_element +font_line_element_size
+	(int x1 y1))
+
+(structure +font_curve_element +font_quad_element_size
+	(int x2 y2))

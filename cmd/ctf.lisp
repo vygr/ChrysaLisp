@@ -1,14 +1,3 @@
-;;;;;;;;;;;;;;;;;
-; cmd/ctf.lisp
-; the idea here is to have a common internal font_db database in .tre style.
-; we load the entire font file into a buffer via (load) and use the (get-uint) etc
-; functions to scan and read the info into the common font_db database.
-; we can then output .ctf (via -c option) to upgrade old .ctf format files
-; or convert existing .otf/.ttf files to .ctf format.
-; CTF files store the glyph data as MoveTo/LineTo/CurveTo commands, with the numeric format
-; scaled to fit 8.24 signed fixed point format.
-;;;;;;;;;;;;;;;;;
-
 (import "lib/options/options.inc")
 
 (defq usage `(
@@ -368,20 +357,15 @@
 								(unless (third p2)
 									(setq p2 (list (/ (+ (first p1) (first p2)) 2) (/ (+ (second p1) (second p2)) 2) :t))
 									(setq ri (inc ri)))
-								; Convert Quadratic (p0, p1, p2) to Cubic (p0, q1, q2, p2)
 								(defq p0x (* (- (first p0) min_x) scale_factor)
 									p0y (* (second p0) neg_scale_factor)
 									p1x (* (- (first p1) min_x) scale_factor)
 									p1y (* (second p1) neg_scale_factor)
 									p2x (* (- (first p2) min_x) scale_factor)
-									p2y (* (second p2) neg_scale_factor)
-									q1x (+ p0x (/ (* (- p1x p0x) 2) 3))
-									q1y (+ p0y (/ (* (- p1y p0y) 2) 3))
-									q2x (+ p2x (/ (* (- p1x p2x) 2) 3))
-									q2y (+ p2y (/ (* (- p1y p2y) 2) 3)))
-								(if (and (= p0x q1x) (= p0y q1y) (= q2x p2x) (= q2y p2y))
+									p2y (* (second p2) neg_scale_factor))
+								(if (and (= p0x p1x) (= p0y p1y) (= p1x p2x) (= p1y p2y))
 									(push commands (list 1 p2x p2y))
-									(push commands (list 2 q1x q1y q2x q2y p2x p2y)))
+									(push commands (list 3 p1x p1y p2x p2y)))
 								(setq p0 p2)))))
 				(setq start_idx (inc end_idx)
 					contour_idx (inc contour_idx)))

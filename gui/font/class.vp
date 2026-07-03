@@ -367,6 +367,23 @@
 				(assign `(,x ,y) {x, y})
 
 				(switch)
+				(vpcase `(,c = 3))
+					;quadto
+					(call :path :pop_back2 {path})
+					(vp-rdef (pth pos_x pos_y x y x1 y1 eps data ox oy pixels)
+						(method-input :path :gen_quadratic))
+					(assign {data, path, pos_x, pos_y, x, y, ox, oy, this->+font_pixels}
+						`(,data ,pth ,pos_x ,pos_y ,x ,y ,ox ,oy ,pixels))
+					(assign `((,data +font_quad_element_x1) (,data +font_quad_element_y1)) `(,x1 ,y1))
+					(trans_xy x1 y1)
+					(call :path :gen_quadratic `(,pth ,pos_x ,pos_y ,x ,y ,x1 ,y1))
+
+					(assign {data, ox, oy, this->+font_pixels} `(,data ,ox ,oy ,pixels))
+					(assign `((,data +font_quad_element_x1) (,data +font_quad_element_y1)) `(,x1 ,y1))
+					(trans_xy x1 y1)
+					(vp-add-cr +font_quad_element_size data)
+					(assign `(,x1 ,y1 ,data) {pos_x, pos_y, data})
+					(break)
 				(vpcase `(,c = 2))
 					;curveto
 					(call :path :pop_back2 {path})
@@ -374,7 +391,7 @@
 						(method-input :path :gen_cubic))
 					(assign {data, path, pos_x, pos_y, x, y, ox, oy, this->+font_pixels}
 						`(,data ,pth ,pos_x ,pos_y ,x ,y ,ox ,oy ,pixels))
-					(assign `((,data +font_curve_element_x1) (,data +font_curve_element_y1)
+					(assign `((,data +font_quad_element_x1) (,data +font_quad_element_y1)
 						(,data +font_curve_element_x2) (,data +font_curve_element_y2)) `(,x1 ,y1 ,x2 ,y2))
 					(trans_xy x1 y1)
 					(trans_xy x2 y2)
