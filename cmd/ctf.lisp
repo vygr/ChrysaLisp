@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;
 ; cmd/ctf.lisp
 ; the idea here is to have a common internal font_db database in .tre style.
-; we load the entire font files into a buffer via (load) and use the (get-uint) etc
+; we load the entire font file into a buffer via (load) and use the (get-uint) etc
 ; functions to scan and read the info into the common font_db database.
 ; we can then output .ctf (via -c option) to upgrade old .ctf format files
 ; or convert existing .otf/.ttf files to .ctf format.
@@ -142,11 +142,10 @@
 															(if (/= found_g_idx 0)
 																(setq found_g_idx (logand (+ found_g_idx (get-int16-be buf (+ id_delta_offset (* seg_idx 2)))) 0xffff)))))))
 											(setq found_g_idx (or found_g_idx -1)))))
-									(setq seg_idx (inc seg_idx))))
+								(setq seg_idx (inc seg_idx)))
 							(if (= found_g_idx -1) 0 found_g_idx))
-						(0)))
-				0))
-		0)
+						(0)))))
+		0))
 
 (defun get-otf-advance (buf tables num_h_metrics g_index)
 	(bind '(offset len) (. tables :find "hmtx"))
@@ -757,9 +756,9 @@
 							(print "Error: Cannot open font file " file)))
 					((or (ends-with ".otf" file) (ends-with ".ttf" file))
 						(if (defq font_db (load-otf-ttf file))
-							(if (write-ctf font_db (cat (slice file 0 (rfind "." file)) ".ctf"))
-								(print "Compiled and wrote font: " (cat (slice file 0 (rfind "." file)) ".ctf"))
-								(print "Error: Failed to write " (cat (slice file 0 (rfind "." file)) ".ctf")))
+							(if (write-ctf font_db (cat (slice file 0 (dec (rfind "." file))) ".new"))
+								(print "Compiled and wrote font: " (cat (slice file 0 (dec (rfind "." file))) ".new"))
+								(print "Error: Failed to write " (cat (slice file 0 (dec (rfind "." file))) ".new")))
 							(print "Error: Cannot open font file " file)))
 					(:t (print "Error: Unsupported font file format " file))))
 				files)
