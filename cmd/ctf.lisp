@@ -640,6 +640,31 @@
 							(push-curveto x1 y1 x2 y2 x3 y3)
 							(setq cx x3 cy y3)) curves)
 						(setq stack (clear stack)))
+					((find b '(30 31))
+						(defq h (eql b 31) i 0 sp (length stack))
+						(while (< (+ i 3) sp)
+							(defq x1 (n2r 0) y1 (n2r 0) x2 (n2r 0) y2 (n2r 0) x3 (n2r 0) y3 (n2r 0)
+								extra (if (= (- sp i) 5) (elem-get stack (+ i 4)) (n2r 0)))
+							(if h
+								(progn
+									(setq x1 (+ cx (elem-get stack i))
+										y1 cy
+										x2 (+ x1 (elem-get stack (+ i 1)))
+										y2 (- y1 (elem-get stack (+ i 2)))
+										y3 (- y2 (elem-get stack (+ i 3)))
+										x3 (+ x2 extra)))
+								(progn
+									(setq x1 cx
+										y1 (- cy (elem-get stack i))
+										x2 (+ x1 (elem-get stack (+ i 1)))
+										y2 (- y1 (elem-get stack (+ i 2)))
+										x3 (+ x2 (elem-get stack (+ i 3)))
+										y3 (- y2 extra))))
+							(push-curveto x1 y1 x2 y2 x3 y3)
+							(setq cx x3 cy y3
+								h (not h)
+								i (+ i (if (= (- sp i) 5) 5 4))))
+						(setq stack (clear stack)))
 					((= b 14)
 						(setq idx end))
 					(:t (setq stack (clear stack)))))))
@@ -712,8 +737,9 @@
 							(times (dec seg_count)
 								(defq start (get-uint16-be buf (+ start_count_offset (* seg_idx 2))))
 								(defq end (get-uint16-be buf (+ end_count_offset (* seg_idx 2))))
-								(when (and (< start 0xffff) (<= start end))
-									(defq c start)
+								(when (and (< start 0xf900) (<= start end))
+									(defq end (min 0xf8ff end)
+										c start)
 									(while (<= c end)
 										(if (> (get-otf-glyph-index buf tables c) 0)
 											(push active_chars c))
