@@ -30,6 +30,38 @@
 		frac_dec (/ (* frac_part 10000) 16777216))
 	(cat sign (str int_part) "." (pad frac_dec 4 "0")))
 
+(defun read-uint16-be (stream)
+	(defq b0 (read-char stream)
+		b1 (read-char stream))
+	(if (or (= b0 -1) (= b1 -1))
+		-1
+		(+ (<< b0 8) b1)))
+
+(defun read-uint32-be (stream)
+	(defq b0 (read-char stream)
+		b1 (read-char stream)
+		b2 (read-char stream)
+		b3 (read-char stream))
+	(if (or (= b0 -1) (= b1 -1) (= b2 -1) (= b3 -1))
+		-1
+		(+ (<< b0 24) (<< b1 16) (<< b2 8) b3)))
+
+(defun read-otf-tables (stream)
+	(stream-seek stream 0 0)
+	(defq version (read-uint32-be stream)
+		num_tables (read-uint16-be stream)
+		tables (Lmap))
+	; Skip searchRange (2), entrySelector (2), rangeShift (2)
+	(stream-seek stream 6 1)
+	(times num_tables
+		(defq tag_chars (read-blk stream 4)
+			tag (str tag_chars)
+			checksum (read-uint32-be stream)
+			offset (read-uint32-be stream)
+			len (read-uint32-be stream))
+		(. tables :insert tag (list offset len)))
+	(scatter (Lmap) :version version :tables tables))
+
 (defun load-ctf (file)
 	(if (defq stream (file-stream file))
 		(progn
@@ -246,10 +278,19 @@
 		(print)))
 
 (defun process-otf-ttf (file type)
-	(print "File: " file)
-	(print "\tType: " type " (OpenType/TrueType Font)")
-	(print "\tNotice: Parser / converter not yet implemented.")
-	(print))
+	(if (defq stream (file-stream file))
+		(progn
+			(defq otf_db (read-otf-tables stream)
+				version (. otf_db :find :version)
+				tables (. otf_db :find :tables))
+			(print "File: " file)
+			(print "\tType: " type " (OpenType/TrueType Font)")
+			(print "\tVersion: " (long-to-hex-str version))
+			(print "\tAvailable Tables:")
+			(. tables :each (lambda (tag (offset len))
+				(print "\t\tTable: " (pad tag 4) " Offset: " (pad offset 8) " Length: " (pad len 8))))
+			(print))
+		(print "Error: Cannot open font file " file)))
 
 (defun process-file (file verbosity)
 	(cond
