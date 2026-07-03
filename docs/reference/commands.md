@@ -18,6 +18,19 @@ Usage: cp [options] path1 path2
 
     Copy file path1 to path2.
 ```
+## ctf
+```code
+Usage: ctf [options] [file] ...
+
+    options:
+        -h --help: this help info.
+        -v --verbosity num: verbosity level, default 0.
+        -c --ctf: convert/upgrade font file to latest .ctf spec (planned).
+
+    Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
+    or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
+    command line, file paths are read from stdin.
+```
 ## diff
 ```code
 Usage: diff [options] file_a [file_b]
