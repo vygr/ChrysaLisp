@@ -107,6 +107,89 @@
 			(scatter font_db :pages pages))
 		:nil))
 
+(defun write-ctf (font_db file)
+	(if (and font_db (defq stream (file-stream file +file_open_write)))
+		(progn
+			(defq ascent (. font_db :find :ascent)
+				descent (. font_db :find :descent)
+				pages (. font_db :find :pages))
+			; Write header
+			(write-char stream ascent +int_size)
+			(write-char stream descent +int_size)
+			
+			; Calculate glyph offsets
+			; Header is 8 bytes
+			(defq current_offset 8)
+			(each (lambda (page_db)
+				(defq start (. page_db :find :start)
+					end (. page_db :find :end)
+					count (inc (- end start)))
+				(setq current_offset (+ current_offset 8 (* count 4))))
+				pages)
+			; Add 4 bytes for the sentinel (0)
+			(setq current_offset (+ current_offset 4))
+			
+			; Write the page tables and populate the offsets
+			(each (lambda (page_db)
+				(defq start (. page_db :find :start)
+					end (. page_db :find :end)
+					glyphs (. page_db :find :glyphs))
+				(write-char stream end +int_size)
+				(write-char stream start +int_size)
+				(each (lambda (glyph_db)
+					(defq commands (. glyph_db :find :commands)
+						len 0)
+					(each (lambda (cmd)
+						(defq type (first cmd))
+						(if (= type 2)
+							(setq len (+ len 28))
+							(setq len (+ len 12))))
+						commands)
+					(. glyph_db :insert :offset current_offset)
+					(write-char stream current_offset +int_size)
+					(setq current_offset (+ current_offset 8 len)))
+					glyphs))
+				pages)
+			
+			; Write sentinel
+			(write-char stream 0 +int_size)
+			
+			; Write the glyph data
+			(each (lambda (page_db)
+				(defq glyphs (. page_db :find :glyphs))
+				(each (lambda (glyph_db)
+					(defq width (. glyph_db :find :advance)
+						commands (. glyph_db :find :commands)
+						len 0)
+					(each (lambda (cmd)
+						(defq type (first cmd))
+						(if (= type 2)
+							(setq len (+ len 28))
+							(setq len (+ len 12))))
+						commands)
+					(write-char stream width +int_size)
+					(write-char stream len +int_size)
+					(each (lambda (cmd)
+						(defq type (first cmd))
+						(write-char stream type +int_size)
+						(if (= type 2)
+							(progn
+								(write-char stream (second cmd) +int_size)
+								(write-char stream (third cmd) +int_size)
+								(write-char stream (elem-get cmd 3) +int_size)
+								(write-char stream (elem-get cmd 4) +int_size)
+								(write-char stream (elem-get cmd 5) +int_size)
+								(write-char stream (elem-get cmd 6) +int_size))
+							(progn
+								(write-char stream (second cmd) +int_size)
+								(write-char stream (third cmd) +int_size))))
+						commands))
+					glyphs))
+				pages)
+			(stream-flush stream)
+			:t)
+		:nil))
+
 (defun print-font (font_db verbosity)
 	(when font_db
 		(print "File: " (. font_db :find :file))
@@ -181,14 +264,24 @@
 			(print))))
 
 (defun main ()
+	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_c :nil opt_v 0 args (options stdio usage)))
 		(defq files (rest args))
-		(if opt_c
-			(progn
-				(print "Notice: Font conversion/upgrade (-c) is planned but not yet implemented.")
-				(print)))
 		(if (empty? files)
-			(lines! (# (process-file %0 opt_v)) (io-stream 'stdin))
+			(progn
+				(defq temp_list (list))
+				(lines! (# (push temp_list %0)) (io-stream 'stdin))
+				(setq files temp_list)))
+		(if opt_c
+			(each (lambda (file)
+				(if (ends-with ".ctf" file)
+					(if (defq font_db (load-ctf file))
+						(if (write-ctf font_db (cat file ".new"))
+							(print "Wrote binary identical font: " (cat file ".new"))
+							(print "Error: Failed to write " (cat file ".new")))
+						(print "Error: Cannot open font file " file))
+					(print "Error: -c option only supported for .ctf files currently")))
+				files)
 			(each (# (process-file %0 opt_v)) files))))
