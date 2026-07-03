@@ -51,8 +51,8 @@
 	(defq version (read-uint32-be stream)
 		num_tables (read-uint16-be stream)
 		tables (Lmap))
-	; Skip searchRange (2), entrySelector (2), rangeShift (2)
-	(stream-seek stream 6 1)
+	; Use absolute seek (0) to jump directly to offset 12, avoiding the relative-seek buffer bug
+	(stream-seek stream 12 0)
 	(times num_tables
 		(defq tag_chars (read-blk stream 4)
 			tag (str tag_chars)
