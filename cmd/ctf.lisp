@@ -60,6 +60,12 @@
 		b3 (get-ubyte buf (+ idx 3)))
 	(+ (<< b0 24) (<< b1 16) (<< b2 8) b3))
 
+(defun get-int32-be (buf idx)
+	(defq val (get-uint32-be buf idx))
+	(if (>= val 0x80000000)
+		(- val 0x100000000)
+		val))
+
 (defun get-otf-name (buf tables name_id)
 	(bind '(tbl_offset tbl_len) (. tables :find "name"))
 	(if (and tbl_offset (> tbl_len 0))
@@ -103,13 +109,13 @@
 			(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
 				subtable_offset :nil
 				record_offset (+ tbl_offset 4))
-			; Find Platform 3, Encoding 1 (Windows Unicode BMP) or Platform 0 (Unicode)
+			; Find Platform 3, Encoding 1 (Windows Unicode BMP), Encoding 10 (UCS-4), or Platform 0 (Unicode)
 			(times num_tables
 				(unless subtable_offset
 					(defq platform_id (get-uint16-be buf record_offset)
 						encoding_id (get-uint16-be buf (+ record_offset 2))
 						offset (get-uint32-be buf (+ record_offset 4)))
-					(if (or (and (= platform_id 3) (= encoding_id 1))
+					(if (or (and (= platform_id 3) (or (= encoding_id 1) (= encoding_id 10)))
 							(= platform_id 0))
 						(setq subtable_offset (+ tbl_offset offset)))
 					(setq record_offset (+ record_offset 8))))
@@ -532,7 +538,7 @@
 				(push stack (get-int16-be buf (inc idx)))
 				(setq idx (+ idx 3)))
 			((= b 29)
-				(push stack (get-uint32-be buf (inc idx)))
+				(push stack (get-int32-be buf (inc idx)))
 				(setq idx (+ idx 5)))
 			((= b 30)
 				(setq idx (inc idx))
@@ -543,7 +549,7 @@
 				(setq idx (+ idx 2) stack (clear stack)))
 			(:t
 				(if (= b 17)
-					(setq res (last stack) idx end)
+					(setq res (pop stack) idx end)
 					(setq stack (clear stack)))
 				(setq idx (inc idx)))))
 	res)
@@ -566,6 +572,11 @@
 			((= b 28)
 				(push stack (get-int16-be buf (inc idx)))
 				(setq idx (+ idx 3)))
+			((= b 255)
+				(push stack (/ (n2r (get-int32-be buf (inc idx))) 65536.0))
+				(setq idx (+ idx 5)))
+			((= b 12)
+				(setq idx (+ idx 2)))
 			(:t
 				(setq idx (inc idx))
 				(cond
@@ -607,7 +618,8 @@
 							(if (= b 26)
 								(setq first_curve (cat (list (first stack)) first_curve))
 								(setq first_curve (cat (slice first_curve 0 2) (list (first stack)) (slice first_curve 2 -1)))))
-						(setq curves (push (rest curves) first_curve -1))
+						(if (odd? (length stack))
+							(setq curves (cat (list first_curve) (rest curves))))
 						(each (lambda (c)
 							(if (= b 26)
 								(bind '(dxa dya dyb dyc &optional dxb) c)
@@ -899,7 +911,7 @@
 				(print "Error: Cannot open font file " file)))
 		((or (ends-with ".otf" file) (ends-with ".ttf" file))
 			(process-otf-ttf file (if (ends-with ".otf" file) "OTF" "TTF") verbosity)
-			(when (and (> verbosity 0) (not (eql (get-uint32-be (load file) 0) 0x4f54544f)))
+			(when (> verbosity 0)
 				(print-font (load-otf-ttf file) verbosity)))
 		(:t
 			(print "Error: Unsupported font file format " file)
