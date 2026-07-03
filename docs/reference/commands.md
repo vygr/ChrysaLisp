@@ -25,7 +25,7 @@ Usage: ctf [options] [file] ...
     options:
         -h --help: this help info.
         -v --verbosity num: verbosity level, default 0.
-        -c --ctf: convert/upgrade font file to latest .ctf spec (planned).
+        -c --ctf: convert/upgrade font file to latest .ctf spec.
 
     Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
     or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the

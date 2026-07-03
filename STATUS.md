@@ -62,6 +62,8 @@ files to `.ctf` format. `-v` options for verbose levels of inspection, `-c` to
 convert to `.ctf` format with a `.new` extension. This replaces the old C++
 QtCTF project with ChrysaLisp native support.
 
+Added support for QuadTo command in `.ctf` format fonts.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
