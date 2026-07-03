@@ -52,6 +52,42 @@
 		b3 (get-ubyte buf (+ idx 3)))
 	(+ (<< b0 24) (<< b1 16) (<< b2 8) b3))
 
+(defun get-otf-name (buf tables name_id)
+	(bind '(tbl_offset tbl_len) (. tables :find "name"))
+	(if (and tbl_offset (> tbl_len 0))
+		(progn
+			(defq count (get-uint16-be buf (+ tbl_offset 2))
+				string_offset (+ tbl_offset (get-uint16-be buf (+ tbl_offset 4)))
+				record_offset (+ tbl_offset 6)
+				found_str :nil)
+			(times count
+				(unless found_str
+					(defq platform_id (get-uint16-be buf record_offset)
+						encoding_id (get-uint16-be buf (+ record_offset 2))
+						language_id (get-uint16-be buf (+ record_offset 4))
+						curr_name_id (get-uint16-be buf (+ record_offset 6))
+						length (get-uint16-be buf (+ record_offset 8))
+						offset (get-uint16-be buf (+ record_offset 10)))
+					(if (= curr_name_id name_id)
+						(progn
+							(defq str_ptr (+ string_offset offset))
+							; Platforms 0 (Unicode) and 3 (Windows) use UTF-16BE
+							(if (or (= platform_id 0) (= platform_id 3))
+								(progn
+									; Decode UTF-16BE to ASCII simply by skipping the first byte of each pair (since ASCII fits in the lower byte)
+									(defq decoded (str-alloc (/ length 2))
+										di 0)
+									(times (/ length 2)
+										(set-byte decoded di (get-ubyte buf (+ str_ptr (* di 2) 1)))
+										(++ di))
+									(setq found_str decoded))
+								; Platform 1 (Mac) uses single-byte encodings (usually ASCII compatible)
+								(if (= platform_id 1)
+									(setq found_str (get-str buf str_ptr length))))))
+					(setq record_offset (+ record_offset 12))))
+			found_str)
+		:nil))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Little-Endian Memory Getters (CTF)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -348,7 +384,7 @@
 		(print "\tTotal Glyphs: " total_glyphs)
 		(print)))
 
-(defun process-otf-ttf (file type)
+(defun process-otf-ttf (file type verbosity)
 	(if (defq buf (load file))
 		(progn
 			(defq otf_db (parse-otf-tables buf)
@@ -358,6 +394,16 @@
 			(print "\tType: " type " (OpenType/TrueType Font)")
 			(print "\tVersion: " (long-to-hex-str version))
 			
+			; Read and print naming information
+			(defq family_name (get-otf-name buf tables 1)
+				subfamily_name (get-otf-name buf tables 2)
+				full_name (get-otf-name buf tables 4)
+				ps_name (get-otf-name buf tables 6))
+			(if family_name (print "\tFamily: " family_name))
+			(if subfamily_name (print "\tSubfamily: " subfamily_name))
+			(if full_name (print "\tFull Name: " full_name))
+			(if ps_name (print "\tPostScript Name: " ps_name))
+
 			; Read and print metrics
 			(defq units_per_em (get-otf-head buf tables))
 			(bind '(ascender descender num_h_metrics) (get-otf-hhea buf tables))
@@ -367,6 +413,12 @@
 			(print "\tDescender: " descender " (" (format-fixed-24 (/ (* descender 16777216) units_per_em)) ")")
 			(print "\tNumGlyphs: " num_glyphs)
 			(print "\tNumberOfHMetrics: " num_h_metrics)
+			
+			(when (> verbosity 0)
+				(print "\tTables:")
+				(. tables :each (lambda (tag info)
+					(bind '(offset len) info)
+					(print "\t\t" tag " (Offset: " offset ", Length: " len ")"))))
 			(print))
 		(print "Error: Cannot open font file " file)))
 
@@ -377,7 +429,7 @@
 				(print-font font_db verbosity)
 				(print "Error: Cannot open font file " file)))
 		((or (ends-with ".otf" file) (ends-with ".ttf" file))
-			(process-otf-ttf file (if (ends-with ".otf" file) "OTF" "TTF")))
+			(process-otf-ttf file (if (ends-with ".otf" file) "OTF" "TTF") verbosity))
 		(:t
 			(print "Error: Unsupported font file format " file)
 			(print))))
