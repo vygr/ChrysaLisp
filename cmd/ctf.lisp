@@ -83,6 +83,8 @@
 		(when (> tbl_len 0)
 			(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
 				subtable_offset :nil record_offset (+ tbl_offset 4))
+			; find platform 3, encoding 1 (windows unicode bmp)
+			; encoding 10 (ucs-4), or platform 0 (unicode)
 			(times num_tables
 				(unless subtable_offset
 					(defq platform_id (get-uint16-be buf record_offset)
@@ -122,7 +124,7 @@
 					(:t 0))))))
 
 (defun get-otf-advance (buf tables num_h_metrics g_index)
-	(or (when (defq tbl (. tables :find "hmtx"))
+	(ifn (when (defq tbl (. tables :find "hmtx"))
 			(bind '(offset len) tbl)
 			(when (> len 0)
 				(if (< g_index num_h_metrics)
@@ -131,7 +133,7 @@
 		0))
 
 (defun get-ttf-glyph-offset-and-len (buf tables index_to_loc_format g_index)
-	(or (when (and (defq tbl1 (. tables :find "loca")) (defq tbl2 (. tables :find "glyf")))
+	(ifn (when (and (defq tbl1 (. tables :find "loca")) (defq tbl2 (. tables :find "glyf")))
 			(bind '(loca_offset loca_len) tbl1)
 			(bind '(glyf_offset glyf_len) tbl2)
 			(if (= index_to_loc_format 0)
@@ -162,13 +164,13 @@
 	(scatter (Lmap) :version version :tables tables))
 
 (defun get-otf-head (buf tables)
-	(or (when (defq tbl (. tables :find "head"))
+	(ifn (when (defq tbl (. tables :find "head"))
 			(bind '(offset len) tbl)
 			(get-uint16-be buf (+ offset 18)))
 		0))
 
 (defun get-otf-hhea (buf tables)
-	(or (when (defq tbl (. tables :find "hhea"))
+	(ifn (when (defq tbl (. tables :find "hhea"))
 			(bind '(offset len) tbl)
 			(defq ascender (get-int16-be buf (+ offset 4))
 				descender (get-int16-be buf (+ offset 6))
@@ -177,7 +179,7 @@
 		(list 0 0 0)))
 
 (defun get-otf-maxp (buf tables)
-	(or (when (defq tbl (. tables :find "maxp"))
+	(ifn (when (defq tbl (. tables :find "maxp"))
 			(bind '(offset len) tbl)
 			(get-uint16-be buf (+ offset 4)))
 		0))
@@ -323,9 +325,9 @@
 
 (defun load-ctf-buf (buf)
 	(defq ascent (get-uint buf 0) descent (get-uint buf 4)
-		pages (list) pages_info (list) offset 8 running :t
-		font_db (scatter (Lmap) :file :nil :type "CTF"
-			:ascent ascent :descent descent))
+		pages (list) pages_info (list) offset 8 running :t)
+	(defq font_db (scatter (Lmap) :file :nil :type "CTF"
+		:ascent ascent :descent descent))
 	(while running
 		(defq pend (get-uint buf offset))
 		(++ offset 4)
