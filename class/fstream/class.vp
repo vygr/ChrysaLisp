@@ -193,6 +193,20 @@
 	(entry :fstream :seek '(:r0 (:rsp local_off) (:rsp local_pos)))
 	(assign '(:r0) '((:rsp local_this)))
 
+	; if whence is 1 (relative) and we are in read mode
+	; adjust offset by unread buffer size
+	(vpif '(:r2 = 1))
+		(assign '((:r0 +fstream_mode)) '(:r3))
+		(vpif '(:r3 = +file_open_read))
+			(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r3 :r4))
+			(vpif '(:r4 /= 0))
+				(vp-sub-rr :r3 :r4)
+				(vp-sub-rr :r4 :r1)
+				(assign '(:r1) '((:rsp local_off)))
+			(endif)
+		(endif)
+	(endif)
+
 	(call :fstream :flush '(:r0) '(:r0))
 	(call :host_os :pii_seek '((:r0 +fstream_handle) (:rsp local_off) (:rsp local_pos)) '(:r1))
 
