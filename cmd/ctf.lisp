@@ -3,7 +3,7 @@
 
 (defq usage `(
 (("-h" "--help")
-"Usage: ctf [options] [file] ...
+"Usage: ctf [options] [path] ...
 
     options:
         -h --help: this help info.
@@ -49,51 +49,46 @@
 		(- val 0x100000000) val))
 
 (defun get-otf-name (buf tables name_id)
-	(bind '(tbl_offset tbl_len) (. tables :find "name"))
-	(when (and tbl_offset (> tbl_len 0))
-		(defq count (get-uint16-be buf (+ tbl_offset 2))
-			string_offset (+ tbl_offset (get-uint16-be buf (+ tbl_offset 4)))
-			record_offset (+ tbl_offset 6) found_str :nil)
-		(times count
-			(unless found_str
-				(defq platform_id (get-uint16-be buf record_offset)
-					encoding_id (get-uint16-be buf (+ record_offset 2))
-					language_id (get-uint16-be buf (+ record_offset 4))
-					curr_name_id (get-uint16-be buf (+ record_offset 6))
-					length (get-uint16-be buf (+ record_offset 8))
-					offset (get-uint16-be buf (+ record_offset 10)))
-				(when (= curr_name_id name_id)
-					(defq str_ptr (+ string_offset offset))
-					; platforms 0 (unicode) and 3 (windows) use utf-16be
-					(if (or (= platform_id 0) (= platform_id 3))
-						(progn
-							; decode utf-16be to ascii simply by skipping the first byte
-							; of each pair (since ascii fits in the lower byte)
-							(defq decoded (str-alloc (/ length 2)) di 0)
-							(times (/ length 2)
-								(set-byte decoded di (get-ubyte buf (+ str_ptr (* di 2) 1)))
-								(++ di))
-							(setq found_str decoded))
-						; platform 1 (mac) uses single-byte encodings (usually ascii compatible)
-						(if (= platform_id 1)
-							(setq found_str (get-str buf str_ptr length)))))
-				(setq record_offset (+ record_offset 12))))
-		found_str))
+	(when (defq tbl (. tables :find "name"))
+		(bind '(tbl_offset tbl_len) tbl)
+		(when (> tbl_len 0)
+			(defq count (get-uint16-be buf (+ tbl_offset 2))
+				string_offset (+ tbl_offset (get-uint16-be buf (+ tbl_offset 4)))
+				record_offset (+ tbl_offset 6) found_str :nil)
+			(times count
+				(unless found_str
+					(defq platform_id (get-uint16-be buf record_offset)
+						encoding_id (get-uint16-be buf (+ record_offset 2))
+						language_id (get-uint16-be buf (+ record_offset 4))
+						curr_name_id (get-uint16-be buf (+ record_offset 6))
+						length (get-uint16-be buf (+ record_offset 8))
+						offset (get-uint16-be buf (+ record_offset 10)))
+					(when (= curr_name_id name_id)
+						(defq str_ptr (+ string_offset offset))
+						(cond
+							((or (= platform_id 0) (= platform_id 3))
+								(defq decoded (str-alloc (/ length 2)) di 0)
+								(times (/ length 2)
+									(set-byte decoded di (get-ubyte buf (+ str_ptr (* di 2) 1)))
+									(++ di))
+								(setq found_str decoded))
+							((= platform_id 1)
+								(setq found_str (get-str buf str_ptr length)))))
+					(setq record_offset (+ record_offset 12))))
+			found_str)))
 
 (defun get-otf-glyph-index (buf tables char_code)
-	(bind '(tbl_offset tbl_len) (. tables :find "cmap"))
-	(if (and tbl_offset (> tbl_len 0))
-		(progn
+	(when (defq tbl (. tables :find "cmap"))
+		(bind '(tbl_offset tbl_len) tbl)
+		(when (> tbl_len 0)
 			(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
 				subtable_offset :nil record_offset (+ tbl_offset 4))
-			; find platform 3, encoding 1 (windows unicode bmp)
-			; encoding 10 (ucs-4), or platform 0 (unicode)
 			(times num_tables
 				(unless subtable_offset
 					(defq platform_id (get-uint16-be buf record_offset)
 						encoding_id (get-uint16-be buf (+ record_offset 2))
 						offset (get-uint32-be buf (+ record_offset 4)))
-					(if (or (and (= platform_id 3) (or (= encoding_id 1) (= encoding_id 10)))
+					(when (or (and (= platform_id 3) (or (= encoding_id 1) (= encoding_id 10)))
 							(= platform_id 0))
 						(setq subtable_offset (+ tbl_offset offset)))
 					(setq record_offset (+ record_offset 8))))
@@ -110,39 +105,35 @@
 						(times seg_count
 							(unless (/= found_g_idx 0)
 								(defq end_code (get-uint16-be buf (+ end_count_offset (* seg_idx 2))))
-								(if (>= end_code char_code)
-									(progn
-										(defq start_code (get-uint16-be buf (+ start_count_offset (* seg_idx 2))))
-										(if (<= start_code char_code)
-											(progn
-												(defq id_range (get-uint16-be buf (+ id_range_offset (* seg_idx 2))))
-												(if (= id_range 0)
-													(setq found_g_idx (logand (+ char_code (get-int16-be buf (+ id_delta_offset (* seg_idx 2)))) 0xffff))
-													(progn
-														(defq glyph_addr (+ id_range_offset (* seg_idx 2) id_range (* (- char_code start_code) 2)))
-														(setq found_g_idx (get-uint16-be buf glyph_addr))
-														(if (/= found_g_idx 0)
-															(setq found_g_idx (logand (+ found_g_idx (get-int16-be buf (+ id_delta_offset (* seg_idx 2)))) 0xffff)))))))
-										(setq found_g_idx (or found_g_idx -1)))))
+								(when (>= end_code char_code)
+									(defq start_code (get-uint16-be buf (+ start_count_offset (* seg_idx 2))))
+									(when (<= start_code char_code)
+										(defq id_range (get-uint16-be buf (+ id_range_offset (* seg_idx 2))))
+										(cond
+											((= id_range 0)
+												(setq found_g_idx (logand (+ char_code (get-int16-be buf (+ id_delta_offset (* seg_idx 2)))) 0xffff)))
+											(:t (defq glyph_addr (+ id_range_offset (* seg_idx 2) id_range (* (- char_code start_code) 2)))
+												(setq found_g_idx (get-uint16-be buf glyph_addr))
+												(when (/= found_g_idx 0)
+													(setq found_g_idx (logand (+ found_g_idx (get-int16-be buf (+ id_delta_offset (* seg_idx 2)))) 0xffff))))))
+									(setq found_g_idx (or found_g_idx -1))))
 							(++ seg_idx))
 						(if (= found_g_idx -1) 0 found_g_idx))
-					(0))))
-		0))
+					(:t 0))))))
 
 (defun get-otf-advance (buf tables num_h_metrics g_index)
-	(bind '(offset len) (. tables :find "hmtx"))
-	(if (and offset (> len 0))
-		(progn
-			(if (< g_index num_h_metrics)
-				(get-uint16-be buf (+ offset (* g_index 4)))
-				(get-uint16-be buf (+ offset (* (dec num_h_metrics) 4)))))
+	(or (when (defq tbl (. tables :find "hmtx"))
+			(bind '(offset len) tbl)
+			(when (> len 0)
+				(if (< g_index num_h_metrics)
+					(get-uint16-be buf (+ offset (* g_index 4)))
+					(get-uint16-be buf (+ offset (* (dec num_h_metrics) 4))))))
 		0))
 
 (defun get-ttf-glyph-offset-and-len (buf tables index_to_loc_format g_index)
-	(bind '(loca_offset loca_len) (. tables :find "loca"))
-	(bind '(glyf_offset glyf_len) (. tables :find "glyf"))
-	(if (and loca_offset glyf_offset)
-		(progn
+	(or (when (and (defq tbl1 (. tables :find "loca")) (defq tbl2 (. tables :find "glyf")))
+			(bind '(loca_offset loca_len) tbl1)
+			(bind '(glyf_offset glyf_len) tbl2)
 			(if (= index_to_loc_format 0)
 				(defq offset (* (get-uint16-be buf (+ loca_offset (* g_index 2))) 2)
 					next_offset (* (get-uint16-be buf (+ loca_offset (* (inc g_index) 2))) 2))
@@ -171,19 +162,25 @@
 	(scatter (Lmap) :version version :tables tables))
 
 (defun get-otf-head (buf tables)
-	(bind '(offset len) (. tables :find "head"))
-	(get-uint16-be buf (+ offset 18)))
+	(or (when (defq tbl (. tables :find "head"))
+			(bind '(offset len) tbl)
+			(get-uint16-be buf (+ offset 18)))
+		0))
 
 (defun get-otf-hhea (buf tables)
-	(bind '(offset len) (. tables :find "hhea"))
-	(defq ascender (get-int16-be buf (+ offset 4))
-		descender (get-int16-be buf (+ offset 6))
-		num_h_metrics (get-uint16-be buf (+ offset 34)))
-	(list ascender descender num_h_metrics))
+	(or (when (defq tbl (. tables :find "hhea"))
+			(bind '(offset len) tbl)
+			(defq ascender (get-int16-be buf (+ offset 4))
+				descender (get-int16-be buf (+ offset 6))
+				num_h_metrics (get-uint16-be buf (+ offset 34)))
+			(list ascender descender num_h_metrics))
+		(list 0 0 0)))
 
 (defun get-otf-maxp (buf tables)
-	(bind '(offset len) (. tables :find "maxp"))
-	(get-uint16-be buf (+ offset 4)))
+	(or (when (defq tbl (. tables :find "maxp"))
+			(bind '(offset len) tbl)
+			(get-uint16-be buf (+ offset 4)))
+		0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; truetype outlines parser
@@ -196,129 +193,127 @@
 		max_x (get-int16-be buf (+ glyf_offset 6))
 		max_y (get-int16-be buf (+ glyf_offset 8))
 		neg_scale_factor (neg scale_factor) commands (list))
-	(if (> number_of_contours 0)
-		(progn
-			; read endptsofcontours
-			(defq end_pts (list) idx (+ glyf_offset 10))
-			(times number_of_contours
-				(push end_pts (get-uint16-be buf idx))
-				(++ idx 2))
-			(defq num_points (inc (last end_pts))
-				instr_len (get-uint16-be buf idx))
-			(setq idx (+ idx 2 instr_len))
-			; read flags
-			(defq flags (str-alloc num_points) fi 0)
-			(while (< fi num_points)
-				(defq f (get-ubyte buf idx))
+	(when (> number_of_contours 0)
+		; read endptsofcontours
+		(defq end_pts (list) idx (+ glyf_offset 10))
+		(times number_of_contours
+			(push end_pts (get-uint16-be buf idx))
+			(++ idx 2))
+		(defq num_points (inc (last end_pts))
+			instr_len (get-uint16-be buf idx))
+		(setq idx (+ idx 2 instr_len))
+		; read flags
+		(defq flags (str-alloc num_points) fi 0)
+		(while (< fi num_points)
+			(defq f (get-ubyte buf idx))
+			(++ idx)
+			(set-byte flags fi f)
+			(++ fi)
+			(when (/= (logand f 8) 0)
+				(defq repeat_count (get-ubyte buf idx))
 				(++ idx)
-				(set-byte flags fi f)
-				(++ fi)
-				(when (/= (logand f 8) 0)
-					(defq repeat_count (get-ubyte buf idx))
+				(times repeat_count
+					(set-byte flags fi f)
+					(++ fi))))
+		; read x coordinates
+		(defq coords_x (nums) curr_x 0 fi 0)
+		(times num_points
+			(defq f (get-ubyte flags fi))
+			(cond
+				((/= (logand f 2) 0)
+					(defq dx (get-ubyte buf idx))
 					(++ idx)
-					(times repeat_count
-						(set-byte flags fi f)
-						(++ fi))))
-			; read x coordinates
-			(defq coords_x (nums) curr_x 0 fi 0)
-			(times num_points
-				(defq f (get-ubyte flags fi))
-				(cond
-					((/= (logand f 2) 0)
-						(defq dx (get-ubyte buf idx))
-						(++ idx)
-						(if (= (logand f 16) 0) (setq dx (neg dx)))
-						(++ curr_x dx))
-					((= (logand f 16) 0)
-						(defq dx (get-int16-be buf idx))
-						(++ idx 2)
-						(++ curr_x dx)))
-				(push coords_x curr_x)
-				(++ fi))
-			; read y coordinates
-			(defq coords_y (nums) curr_y 0 fi 0)
-			(times num_points
-				(defq f (get-ubyte flags fi))
-				(cond
-					((/= (logand f 4) 0)
-						(defq dy (get-ubyte buf idx))
-						(++ idx)
-						(if (= (logand f 32) 0) (setq dy (neg dy)))
-						(++ curr_y dy))
-					((= (logand f 32) 0)
-						(defq dy (get-int16-be buf idx))
-						(++ idx 2)
-						(++ curr_y dy)))
-				(push coords_y curr_y)
-				(++ fi))
-			; convert ttf contours to ctf commands
-			(defq start_idx 0 contour_idx 0)
-			(times number_of_contours
-				(defq end_idx (elem-get end_pts contour_idx)
-					c_num_points (inc (- end_idx start_idx))
-					c_points (list) pi start_idx)
-				(times c_num_points
-					(push c_points (list (elem-get coords_x pi) (elem-get coords_y pi) (/= (logand (get-ubyte flags pi) 1) 0)))
-					(++ pi))
-				; resolve starting point
-				(defq resolved_points (list))
-				(if (third (first c_points))
-					(setq resolved_points c_points)
-					(progn
-						; rotate or adjust so we start with an on-curve point
-						(defq first_on_idx (some! (# (if (third %0) (!))) c_points))
-						(if first_on_idx
-							(setq resolved_points (cat (slice c_points first_on_idx -1) (slice c_points 0 first_on_idx)))
-							(progn
-								; all points are off-curve
-								(defq p0 (last c_points) pi 0)
-								(times c_num_points
-									(defq p1 (elem-get c_points pi)
-										mx (/ (+ (first p0) (first p1)) 2)
-										my (/ (+ (second p0) (second p1)) 2))
-									(push resolved_points (list mx my :t) p1)
-									(setq p0 p1)
-									(++ pi))))))
-				; now process the resolved points
-				(when (nempty? resolved_points)
-					; add closing point
-					(push resolved_points (first resolved_points))
-					(defq p0 (first resolved_points)
-						p1x (* (- (first p0) min_x) scale_factor)
-						p1y (* (second p0) neg_scale_factor))
-					(push commands (list 0 p1x p1y))
-					(defq r_len (length resolved_points) ri 1)
-					(while (< ri r_len)
-						(defq p1 (elem-get resolved_points ri))
-						(if (third p1)
-							; next is on-curve -> lineto
-							(progn
-								(push commands (list 1 (* (- (first p1) min_x) scale_factor) (* (second p1) neg_scale_factor)))
+					(if (= (logand f 16) 0) (setq dx (neg dx)))
+					(++ curr_x dx))
+				((= (logand f 16) 0)
+					(defq dx (get-int16-be buf idx))
+					(++ idx 2)
+					(++ curr_x dx)))
+			(push coords_x curr_x)
+			(++ fi))
+		; read y coordinates
+		(defq coords_y (nums) curr_y 0 fi 0)
+		(times num_points
+			(defq f (get-ubyte flags fi))
+			(cond
+				((/= (logand f 4) 0)
+					(defq dy (get-ubyte buf idx))
+					(++ idx)
+					(if (= (logand f 32) 0) (setq dy (neg dy)))
+					(++ curr_y dy))
+				((= (logand f 32) 0)
+					(defq dy (get-int16-be buf idx))
+					(++ idx 2)
+					(++ curr_y dy)))
+			(push coords_y curr_y)
+			(++ fi))
+		; convert ttf contours to ctf commands
+		(defq start_idx 0 contour_idx 0)
+		(times number_of_contours
+			(defq end_idx (elem-get end_pts contour_idx)
+				c_num_points (inc (- end_idx start_idx))
+				c_points (list) pi start_idx)
+			(times c_num_points
+				(push c_points (list (elem-get coords_x pi) (elem-get coords_y pi) (/= (logand (get-ubyte flags pi) 1) 0)))
+				(++ pi))
+			; resolve starting point
+			(defq resolved_points (list))
+			(if (third (first c_points))
+				(setq resolved_points c_points)
+				(progn
+					; rotate or adjust so we start with an on-curve point
+					(defq first_on_idx (some! (# (if (third %0) (!))) c_points))
+					(if first_on_idx
+						(setq resolved_points (cat (slice c_points first_on_idx -1) (slice c_points 0 first_on_idx)))
+						(progn
+							; all points are off-curve
+							(defq p0 (last c_points) pi 0)
+							(times c_num_points
+								(defq p1 (elem-get c_points pi)
+									mx (/ (+ (first p0) (first p1)) 2)
+									my (/ (+ (second p0) (second p1)) 2))
+								(push resolved_points (list mx my :t) p1)
 								(setq p0 p1)
+								(++ pi))))))
+			; now process the resolved points
+			(when (nempty? resolved_points)
+				; add closing point
+				(push resolved_points (first resolved_points))
+				(defq p0 (first resolved_points)
+					p1x (* (- (first p0) min_x) scale_factor)
+					p1y (* (second p0) neg_scale_factor))
+				(push commands (list 0 p1x p1y))
+				(defq r_len (length resolved_points) ri 1)
+				(while (< ri r_len)
+					(defq p1 (elem-get resolved_points ri))
+					(cond
+						((third p1)
+							; next is on-curve -> lineto
+							(push commands (list 1 (* (- (first p1) min_x) scale_factor) (* (second p1) neg_scale_factor)))
+							(setq p0 p1)
+							(++ ri))
+						(:t ; next is off-curve (control point for quadratic spline)
+							(defq p2 (elem-get resolved_points (inc ri)))
+							(if (third p2)
+								(++ ri 2))
+							(unless (third p2)
+								(setq p2 (list (/ (+ (first p1) (first p2)) 2) (/ (+ (second p1) (second p2)) 2) :t))
 								(++ ri))
-							; next is off-curve (control point for quadratic spline)
-							(progn
-								(defq p2 (elem-get resolved_points (inc ri)))
-								(if (third p2)
-									(++ ri 2))
-								(unless (third p2)
-									(setq p2 (list (/ (+ (first p1) (first p2)) 2) (/ (+ (second p1) (second p2)) 2) :t))
-									(++ ri))
-								(defq p0x (* (- (first p0) min_x) scale_factor)
-									p0y (* (second p0) neg_scale_factor)
-									p1x (* (- (first p1) min_x) scale_factor)
-									p1y (* (second p1) neg_scale_factor)
-									p2x (* (- (first p2) min_x) scale_factor)
-									p2y (* (second p2) neg_scale_factor))
-								(if (and (= p0x p1x) (= p0y p1y) (= p1x p2x) (= p1y p2y))
-									(push commands (list 1 p2x p2y))
-									(push commands (list 3 p1x p1y p2x p2y)))
-								(setq p0 p2)))))
-				(setq start_idx (inc end_idx) contour_idx (inc contour_idx)))
-			(defq temp_min_x min_x temp_min_y min_y)
-			(setq min_x 0 max_x (* (- max_x temp_min_x) scale_factor)
-				min_y (* max_y neg_scale_factor)
-				max_y (* temp_min_y neg_scale_factor))))
+							(defq p0x (* (- (first p0) min_x) scale_factor)
+								p0y (* (second p0) neg_scale_factor)
+								p1x (* (- (first p1) min_x) scale_factor)
+								p1y (* (second p1) neg_scale_factor)
+								p2x (* (- (first p2) min_x) scale_factor)
+								p2y (* (second p2) neg_scale_factor))
+							(if (and (= p0x p1x) (= p0y p1y) (= p1x p2x) (= p1y p2y))
+								(push commands (list 1 p2x p2y))
+								(push commands (list 3 p1x p1y p2x p2y)))
+							(setq p0 p2)))))
+			(setq start_idx (inc end_idx) contour_idx (inc contour_idx)))
+		(defq temp_min_x min_x temp_min_y min_y)
+		(setq min_x 0 max_x (* (- max_x temp_min_x) scale_factor)
+			min_y (* max_y neg_scale_factor)
+			max_y (* temp_min_y neg_scale_factor)))
 	(scatter (Lmap) :advance 0 :min_x min_x :max_x max_x
 		:min_y min_y :max_y max_y :commands commands))
 
@@ -328,16 +323,16 @@
 
 (defun load-ctf-buf (buf)
 	(defq ascent (get-uint buf 0) descent (get-uint buf 4)
-		pages (list) pages_info (list) offset 8 running :t)
-	(defq font_db (scatter (Lmap) :file :nil :type "CTF"
-		:ascent ascent :descent descent))
+		pages (list) pages_info (list) offset 8 running :t
+		font_db (scatter (Lmap) :file :nil :type "CTF"
+			:ascent ascent :descent descent))
 	(while running
 		(defq pend (get-uint buf offset))
 		(++ offset 4)
-		(if (or (= pend 0) (= pend -1))
-			(setq running :nil)
-			(progn
-				(defq pstart (get-uint buf offset)
+		(cond
+			((or (= pend 0) (= pend -1))
+				(setq running :nil))
+			(:t (defq pstart (get-uint buf offset)
 					count (inc (- pend pstart))
 					offsets (list))
 				(++ offset 4)
@@ -420,7 +415,7 @@
 	(scatter font_db :pages pages))
 
 (defun load-ctf (file)
-	(if (defq buf (load file))
+	(when (defq buf (load file))
 		(scatter (load-ctf-buf buf) :file file)))
 
 ;;;;;;;;;;;;;;;;;;
@@ -436,24 +431,24 @@
 
 (defun get-cff-index-end (buf idx)
 	(defq count (get-uint16-be buf idx))
-	(if (= count 0) (+ idx 2)
-		(progn
-			(defq off_size (get-ubyte buf (+ idx 2))
+	(cond
+		((= count 0) (+ idx 2))
+		(:t (defq off_size (get-ubyte buf (+ idx 2))
 				last_off_addr (+ idx 3 (* count off_size))
 				last_off (get-cff-offset buf last_off_addr off_size))
 			(+ last_off_addr off_size last_off -1))))
 
 (defun get-cff-index-item (buf idx i)
 	(defq count (get-uint16-be buf idx))
-	(if (and (> count 0) (< i count))
-		(progn
+	(cond
+		((and (> count 0) (< i count))
 			(defq off_size (get-ubyte buf (+ idx 2))
 				off_addr (+ idx 3 (* i off_size))
 				o1 (get-cff-offset buf off_addr off_size)
 				o2 (get-cff-offset buf (+ off_addr off_size) off_size)
 				data_start (+ idx 3 (* (inc count) off_size) -1))
 			(list (+ data_start o1) (- o2 o1)))
-		(list 0 0)))
+		((list 0 0))))
 
 (defun get-cff-charstrings-offset (buf dict_addr dict_len)
 	(defq idx dict_addr end (+ dict_addr dict_len) stack (list) res 0)
@@ -561,12 +556,11 @@
 					((find b '(26 27))
 						(defq curves (partition (if (odd? (length stack)) (rest stack) stack) 4)
 							first_curve (first curves))
-						(if (odd? (length stack))
-							(progn
-								(if (= b 26)
-									(setq first_curve (cat (list (first stack)) first_curve))
-									(setq first_curve (cat (slice first_curve 0 2) (list (first stack)) (slice first_curve 2 -1))))
-								(setq curves (cat (list first_curve) (rest curves)))))
+						(when (odd? (length stack))
+							(if (= b 26)
+								(setq first_curve (cat (list (first stack)) first_curve))
+								(setq first_curve (cat (slice first_curve 0 2) (list (first stack)) (slice first_curve 2 -1))))
+							(setq curves (cat (list first_curve) (rest curves))))
 						(each (lambda (c)
 							(if (= b 26)
 								(bind '(dxa dya dyb dyc &optional dxb) c)
@@ -583,16 +577,15 @@
 						(while (< (+ i 3) sp)
 							(defq x1 (n2r 0) y1 (n2r 0) x2 (n2r 0) y2 (n2r 0) x3 (n2r 0) y3 (n2r 0)
 								extra (if (= (- sp i) 5) (elem-get stack (+ i 4)) (n2r 0)))
-							(if h
-								(progn
+							(cond
+								(h
 									(setq x1 (+ cx (elem-get stack i))
 										y1 cy
 										x2 (+ x1 (elem-get stack (+ i 1)))
 										y2 (- y1 (elem-get stack (+ i 2)))
 										y3 (- y2 (elem-get stack (+ i 3)))
 										x3 (+ x2 extra)))
-								(progn
-									(setq x1 cx
+								(:t (setq x1 cx
 										y1 (- cy (elem-get stack i))
 										x2 (+ x1 (elem-get stack (+ i 1)))
 										y2 (- y1 (elem-get stack (+ i 2)))
@@ -701,17 +694,17 @@
 	(defq glyphs (list) c pstart)
 	(while (<= c pend)
 		(defq g_index (get-otf-glyph-index buf tables c))
-		(if (> g_index 0)
-			(progn
+		(cond
+			((> g_index 0)
 				(defq glyph_db :nil)
-				(if is_cff
-					(progn
-						(bind '(g_offset g_len) (get-cff-index-item buf charstrings_idx g_index))
-						(if (and (> g_offset 0) (> g_len 0))
-							(setq glyph_db (parse-cff-glyph buf g_offset g_len scale_factor))))
-					(progn
-						(bind '(g_offset g_len) (get-ttf-glyph-offset-and-len buf tables index_to_loc_format g_index))
-						(if (and (> g_offset 0) (> g_len 0))
+				(cond
+					(is_cff
+						(when (defq cff_item (get-cff-index-item buf charstrings_idx g_index))
+							(bind '(g_offset g_len) cff_item)
+							(when (and (> g_offset 0) (> g_len 0))
+								(setq glyph_db (parse-cff-glyph buf g_offset g_len scale_factor)))))
+					(:t (bind '(g_offset g_len) (get-ttf-glyph-offset-and-len buf tables index_to_loc_format g_index))
+						(when (and (> g_offset 0) (> g_len 0))
 							(setq glyph_db (parse-ttf-glyph buf g_offset g_len scale_factor)))))
 				(unless glyph_db
 					(setq glyph_db (scatter (Lmap)
@@ -719,15 +712,16 @@
 				(. glyph_db :insert :char_code c)
 				(. glyph_db :insert :advance (- (. glyph_db :find :max_x) (. glyph_db :find :min_x)))
 				(push glyphs glyph_db))
-			(push glyphs (scatter (Lmap) :char_code c :offset 0 :advance 0
-				:min_x 0 :max_x 0 :min_y 0 :max_y 0 :commands (list))))
+			(:t (push glyphs (scatter (Lmap) :char_code c :offset 0 :advance 0
+					:min_x 0 :max_x 0 :min_y 0 :max_y 0 :commands (list)))))
 		(++ c))
 	(scatter (Lmap) :start pstart :end pend :glyphs glyphs))
 
 (defun load-otf-ttf-buf (buf file)
 	(defq otf_db (parse-otf-tables buf)
 		version (. otf_db :find :version)
-		tables (. otf_db :find :tables))
+		tables (. otf_db :find :tables)
+		head_tbl (. tables :find "head"))
 	; read basic metrics
 	(defq units_per_em (get-otf-head buf tables))
 	(bind '(ascender descender num_h_metrics) (get-otf-hhea buf tables))
@@ -736,36 +730,37 @@
 		ascent (* ascender scale_factor)
 		descent (neg (* descender scale_factor))
 		is_cff (eql version 0x4f54544f)
-		index_to_loc_format (if is_cff 0 (get-uint16-be buf (+ (first (. tables :find "head")) 50))))
+		index_to_loc_format (if is_cff 0 (get-uint16-be buf (+ (if head_tbl (first head_tbl) 0) 50))))
 	; if cff, locate the charstrings index
 	(defq charstrings_idx :nil)
 	(when is_cff
-		(bind '(cff_offset cff_len) (. tables :find "CFF "))
-		(defq hdr_size (get-ubyte buf (+ cff_offset 2))
-			name_idx (+ cff_offset hdr_size)
-			top_dict_idx (get-cff-index-end buf name_idx))
-		(bind '(top_dict_addr top_dict_len) (get-cff-index-item buf top_dict_idx 0))
-		(setq charstrings_idx (+ cff_offset (get-cff-charstrings-offset buf top_dict_addr top_dict_len))))
+		(when (defq tbl (. tables :find "CFF "))
+			(bind '(cff_offset cff_len) tbl)
+			(defq hdr_size (get-ubyte buf (+ cff_offset 2))
+				name_idx (+ cff_offset hdr_size)
+				top_dict_idx (get-cff-index-end buf name_idx))
+			(bind '(top_dict_addr top_dict_len) (get-cff-index-item buf top_dict_idx 0))
+			(setq charstrings_idx (+ cff_offset (get-cff-charstrings-offset buf top_dict_addr top_dict_len)))))
 	(defq active_chars (list))
-	(bind '(tbl_offset tbl_len) (. tables :find "cmap"))
-	(when (and tbl_offset (> tbl_len 0))
-		(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
-			subtable_offset :nil record_offset (+ tbl_offset 4))
-		; find platform 3, encoding 1 (windows unicode bmp)
-		; encoding 10 (ucs-4), or platform 0 (unicode)
-		(times num_tables
-			(unless subtable_offset
-				(defq platform_id (get-uint16-be buf record_offset)
-					encoding_id (get-uint16-be buf (+ record_offset 2))
-					offset (get-uint32-be buf (+ record_offset 4)))
-				(if (or (and (= platform_id 3) (or (= encoding_id 1) (= encoding_id 10)))
-						(= platform_id 0))
-					(setq subtable_offset (+ tbl_offset offset)))
-				(++ record_offset 8)))
-		(when subtable_offset
-			(defq format (get-uint16-be buf subtable_offset))
-			(if (= format 4)
-				(progn
+	(when (defq tbl_info (. tables :find "cmap"))
+		(bind '(tbl_offset tbl_len) tbl_info)
+		(when (> tbl_len 0)
+			(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
+				subtable_offset :nil record_offset (+ tbl_offset 4))
+			; find platform 3, encoding 1 (windows unicode bmp)
+			; encoding 10 (ucs-4), or platform 0 (unicode)
+			(times num_tables
+				(unless subtable_offset
+					(defq platform_id (get-uint16-be buf record_offset)
+						encoding_id (get-uint16-be buf (+ record_offset 2))
+						offset (get-uint32-be buf (+ record_offset 4)))
+					(when (or (and (= platform_id 3) (or (= encoding_id 1) (= encoding_id 10)))
+							(= platform_id 0))
+						(setq subtable_offset (+ tbl_offset offset)))
+					(++ record_offset 8)))
+			(when subtable_offset
+				(defq format (get-uint16-be buf subtable_offset))
+				(when (= format 4)
 					(defq seg_count (/ (get-uint16-be buf (+ subtable_offset 6)) 2)
 						end_count_offset (+ subtable_offset 14) seg_idx 0
 						start_count_offset (+ end_count_offset (* seg_count 2) 2))
@@ -781,7 +776,8 @@
 									(when (> g_index 0)
 										(defq g_len 0)
 										(if is_cff
-											(bind '(& g_len) (get-cff-index-item buf charstrings_idx g_index))
+											(when (defq cff_item (get-cff-index-item buf charstrings_idx g_index))
+												(setq g_len (second cff_item)))
 											(bind '(& g_len) (get-ttf-glyph-offset-and-len buf tables index_to_loc_format g_index)))
 										(when (> g_len 0)
 											(push active_chars c))))
@@ -826,12 +822,12 @@
 		:ascent ascent :descent descent :pages pages))
 
 (defun load-otf-ttf (file)
-	(if (defq buf (load file))
+	(when (defq buf (load file))
 		(scatter (load-otf-ttf-buf buf file) :file file)))
 
-;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
 ; writer and printer
-;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
 
 (defun write-ctf (font_db file)
 	(when (and font_db (defq stream (file-stream file +file_open_write)))
@@ -966,8 +962,8 @@
 		(print)))
 
 (defun process-otf-ttf (file type verbosity)
-	(if (defq buf (load file))
-		(progn
+	(cond
+		((defq buf (load file))
 			(defq otf_db (parse-otf-tables buf)
 				version (. otf_db :find :version)
 				tables (. otf_db :find :tables))
@@ -998,7 +994,7 @@
 					(bind '(offset len) info)
 					(print "\t\t" tag " (Offset: " offset ", Length: " len ")"))))
 			(print))
-		(print "Error: Cannot open font file " file)))
+		(:t (print "Error: Cannot open font file " file))))
 
 (defun process-file (file verbosity)
 	(cond
