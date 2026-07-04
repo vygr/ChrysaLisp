@@ -823,6 +823,12 @@ convert to obj-set args
 (opt-num 'opt_var) -> args
 ```
 
+### opt-nums
+
+```code
+(opt-nums cnt 'opt_var) -> args
+```
+
 ### opt-str
 
 ```code

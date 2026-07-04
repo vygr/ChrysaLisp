@@ -26,8 +26,7 @@ Usage: ctf [options] [file] ...
         -h --help: this help info.
         -v --verbosity num: verbosity level, default 0.
         -c --ctf: convert/upgrade font file to latest .ctf spec.
-        -s --start num: start char code, default :nil.
-        -e --end num: end char code, default :nil.
+        -r --range num num: add start end char codes, default '().
 
     Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
     or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
