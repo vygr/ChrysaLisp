@@ -66,7 +66,7 @@ outputs
 :r0 = fstream object (ptr)
 :r1 = -1 for error, else file position
 trashes
-:r1-:r2, :r14, :f0-:f15
+:r1-:r3, :r14, :f0-:f15
 ```
 
 ### :type -> class/fstream/type
