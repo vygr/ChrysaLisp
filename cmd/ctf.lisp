@@ -797,29 +797,6 @@
 					(setq pstart c pend c)))
 			(++ index))
 		(push pages (build_page pstart pend)))
-	; pre-calculate compiled byte offsets for
-	; print-font and serialization consistency
-	(defq current_offset 8)
-	(each (lambda (page_db)
-			(defq start (. page_db :find :start) end (. page_db :find :end)
-				count (inc (- end start)))
-			(setq current_offset (+ current_offset 8 (* count 4))))
-		pages)
-	(++ current_offset 4)
-	(each (lambda (page_db)
-		(each (lambda (glyph_db)
-				(defq len 0)
-				(each (lambda (cmd)
-						(defq type (first cmd))
-						(cond
-							((= type 2) (++ len 28))
-							((= type 3) (++ len 20))
-							((++ len 12))))
-					(. glyph_db :find :commands))
-				(. glyph_db :insert :offset current_offset)
-				(setq current_offset (+ current_offset 8 len)))
-			(. page_db :find :glyphs)))
-		pages)
 	(scatter (Lmap) :file file :type "CTF"
 		:ascent ascent :descent descent :pages pages))
 
@@ -836,7 +813,7 @@
 		(defq ascent (. font_db :find :ascent)
 			descent (. font_db :find :descent)
 			pages (. font_db :find :pages))
-		(sort pages (# (- (. %1 :find :start) (. %0 :find :start))))
+		(sort pages (# (- (. %0 :find :start) (. %1 :find :start))))
 		; write header
 		(write-char stream ascent +int_size)
 		(write-char stream descent +int_size)
