@@ -20,7 +20,7 @@ Usage: cp [options] path1 path2
 ```
 ## ctf
 ```code
-Usage: ctf [options] [file] ...
+Usage: ctf [options] [path] ...
 
     options:
         -h --help: this help info.
