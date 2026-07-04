@@ -57,6 +57,7 @@
 	(import "tests/streams/test_io.lisp")
 	(import "tests/streams/test_lz4.lisp")
 	(import "tests/streams/test_eof.lisp")
+	(import "tests/streams/test_seek.lisp")
 
 	; System and Low-level
 	(import "tests/system/test_system.lisp")
