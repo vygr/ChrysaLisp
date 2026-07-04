@@ -182,7 +182,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = -1 for error, else file position
 	;trashes
-	;:r1-:r2, :r14, :f0-:f15
+	;:r1-:r3, :r14, :f0-:f15
 
 	(structure local 0
 		(ptr this)
@@ -198,10 +198,10 @@
 	(vpif '(:r2 = 1))
 		(assign '((:r0 +fstream_mode)) '(:r3))
 		(vpif '(:r3 = +file_open_read))
-			(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r3 :r4))
-			(vpif '(:r4 /= 0))
-				(vp-sub-rr :r3 :r4)
-				(vp-sub-rr :r4 :r1)
+			(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r3 :r2))
+			(vpif '(:r2 /= 0))
+				(vp-sub-rr :r3 :r2)
+				(vp-sub-rr :r2 :r1)
 				(assign '(:r1) '((:rsp local_off)))
 			(endif)
 		(endif)
