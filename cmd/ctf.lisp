@@ -389,10 +389,10 @@
 								(push coords_y ry1 ry)
 								(push commands (list type rx1 ry1 rx ry)))))
 					(when (nempty? coords_x)
-						(setq min_x (reduce min coords_x)
-							max_x (reduce max coords_x)
-							min_y (reduce min coords_y)
-							max_y (reduce max coords_y)))
+						(setq min_x (reduce (const min) coords_x)
+							max_x (reduce (const max) coords_x)
+							min_y (reduce (const min) coords_y)
+							max_y (reduce (const max) coords_y)))
 					(push active_glyphs (scatter (Lmap)
 						:char_code c :offset glyph_offset :advance width
 						:min_x min_x :max_x max_x :min_y min_y :max_y max_y
@@ -682,10 +682,9 @@
 					(:t (clear stack))))))
 	(defq min_x 0 max_x 0 min_y 0 max_y 0)
 	(when (nempty? commands)
-		(defq coords_x (map (const second) commands)
-			coords_y (map (const third) commands)
-			min_x (reduce min coords_x) max_x (reduce max coords_x)
-			min_y (reduce min coords_y) max_y (reduce max coords_y))
+		(defq coords_x (map (const second) commands) coords_y (map (const third) commands)
+			min_x (reduce (const min) coords_x) max_x (reduce (const max) coords_x)
+			min_y (reduce (const min) coords_y) max_y (reduce (const max) coords_y))
 		(each (lambda (cmd)
 			(defq type (first cmd))
 			(cond
