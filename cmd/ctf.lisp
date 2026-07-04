@@ -26,9 +26,9 @@
 		frac_dec (/ (* frac_part 10000) 16777216))
 	(cat sgn (str int_part) "." (pad frac_dec 4 "0")))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; big-endian memory getters (otf)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun get-uint16-be (buf idx)
 	(+ (<< (get-ubyte buf idx) 8) (get-ubyte buf (inc idx))))
@@ -52,8 +52,7 @@
 	(when (and tbl_offset (> tbl_len 0))
 		(defq count (get-uint16-be buf (+ tbl_offset 2))
 			string_offset (+ tbl_offset (get-uint16-be buf (+ tbl_offset 4)))
-			record_offset (+ tbl_offset 6)
-			found_str :nil)
+			record_offset (+ tbl_offset 6) found_str :nil)
 		(times count
 			(unless found_str
 				(defq platform_id (get-uint16-be buf record_offset)
@@ -85,8 +84,7 @@
 	(if (and tbl_offset (> tbl_len 0))
 		(progn
 			(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
-				subtable_offset :nil
-				record_offset (+ tbl_offset 4))
+				subtable_offset :nil record_offset (+ tbl_offset 4))
 			; find platform 3, encoding 1 (windows unicode bmp)
 			; encoding 10 (ucs-4), or platform 0 (unicode)
 			(times num_tables
@@ -98,37 +96,36 @@
 							(= platform_id 0))
 						(setq subtable_offset (+ tbl_offset offset)))
 					(setq record_offset (+ record_offset 8))))
-			(if subtable_offset
-				(progn
-					(defq format (get-uint16-be buf subtable_offset))
-					(cond
-						((= format 4)
-							(defq seg_count (/ (get-uint16-be buf (+ subtable_offset 6)) 2)
-								end_count_offset (+ subtable_offset 14)
-								start_count_offset (+ end_count_offset (* seg_count 2) 2)
-								id_delta_offset (+ start_count_offset (* seg_count 2))
-								id_range_offset (+ id_delta_offset (* seg_count 2))
-								seg_idx 0 found_g_idx 0)
-							(times seg_count
-								(unless (/= found_g_idx 0)
-									(defq end_code (get-uint16-be buf (+ end_count_offset (* seg_idx 2))))
-									(if (>= end_code char_code)
-										(progn
-											(defq start_code (get-uint16-be buf (+ start_count_offset (* seg_idx 2))))
-											(if (<= start_code char_code)
-												(progn
-													(defq id_range (get-uint16-be buf (+ id_range_offset (* seg_idx 2))))
-													(if (= id_range 0)
-														(setq found_g_idx (logand (+ char_code (get-int16-be buf (+ id_delta_offset (* seg_idx 2)))) 0xffff))
-														(progn
-															(defq glyph_addr (+ id_range_offset (* seg_idx 2) id_range (* (- char_code start_code) 2)))
-															(setq found_g_idx (get-uint16-be buf glyph_addr))
-															(if (/= found_g_idx 0)
-																(setq found_g_idx (logand (+ found_g_idx (get-int16-be buf (+ id_delta_offset (* seg_idx 2)))) 0xffff)))))))
-											(setq found_g_idx (or found_g_idx -1)))))
-								(++ seg_idx))
-							(if (= found_g_idx -1) 0 found_g_idx))
-						(0)))))
+			(when subtable_offset
+				(defq format (get-uint16-be buf subtable_offset))
+				(cond
+					((= format 4)
+						(defq seg_count (/ (get-uint16-be buf (+ subtable_offset 6)) 2)
+							end_count_offset (+ subtable_offset 14)
+							start_count_offset (+ end_count_offset (* seg_count 2) 2)
+							id_delta_offset (+ start_count_offset (* seg_count 2))
+							id_range_offset (+ id_delta_offset (* seg_count 2))
+							seg_idx 0 found_g_idx 0)
+						(times seg_count
+							(unless (/= found_g_idx 0)
+								(defq end_code (get-uint16-be buf (+ end_count_offset (* seg_idx 2))))
+								(if (>= end_code char_code)
+									(progn
+										(defq start_code (get-uint16-be buf (+ start_count_offset (* seg_idx 2))))
+										(if (<= start_code char_code)
+											(progn
+												(defq id_range (get-uint16-be buf (+ id_range_offset (* seg_idx 2))))
+												(if (= id_range 0)
+													(setq found_g_idx (logand (+ char_code (get-int16-be buf (+ id_delta_offset (* seg_idx 2)))) 0xffff))
+													(progn
+														(defq glyph_addr (+ id_range_offset (* seg_idx 2) id_range (* (- char_code start_code) 2)))
+														(setq found_g_idx (get-uint16-be buf glyph_addr))
+														(if (/= found_g_idx 0)
+															(setq found_g_idx (logand (+ found_g_idx (get-int16-be buf (+ id_delta_offset (* seg_idx 2)))) 0xffff)))))))
+										(setq found_g_idx (or found_g_idx -1)))))
+							(++ seg_idx))
+						(if (= found_g_idx -1) 0 found_g_idx))
+					(0))))
 		0))
 
 (defun get-otf-advance (buf tables num_h_metrics g_index)
@@ -401,10 +398,8 @@
 	(when (nempty? active_glyphs)
 		(sort active_glyphs (# (- (. %0 :find :char_code) (. %1 :find :char_code))))
 		(defq first_g (first active_glyphs)
-			pstart (. first_g :find :char_code)
-			pend pstart
-			page_glyphs (list first_g)
-			index 1)
+			pstart (. first_g :find :char_code) pend pstart
+			page_glyphs (list first_g) index 1)
 		(while (< index (length active_glyphs))
 			(defq glyph_db (elem-get active_glyphs index)
 				c (. glyph_db :find :char_code))
@@ -412,8 +407,7 @@
 				((= c (inc pend))
 					(setq pend c)
 					(push page_glyphs glyph_db))
-				(:t
-					(push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs))
+				(:t (push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs))
 					(setq pstart c pend c page_glyphs (list glyph_db))))
 			(++ index))
 		(push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs)))
@@ -715,12 +709,12 @@
 							(setq glyph_db (parse-ttf-glyph buf g_offset g_len scale_factor)))))
 				(unless glyph_db
 					(setq glyph_db (scatter (Lmap)
-						:min_x 0 :max_x 0 :min_y 0 :max_y 0
-						:commands (list))))
+						:min_x 0 :max_x 0 :min_y 0 :max_y 0 :commands (list))))
 				(. glyph_db :insert :char_code c)
 				(. glyph_db :insert :advance (- (. glyph_db :find :max_x) (. glyph_db :find :min_x)))
 				(push glyphs glyph_db))
-			(push glyphs (scatter (Lmap) :char_code c :offset 0 :advance 0 :min_x 0 :max_x 0 :min_y 0 :max_y 0 :commands (list))))
+			(push glyphs (scatter (Lmap) :char_code c :offset 0 :advance 0
+				:min_x 0 :max_x 0 :min_y 0 :max_y 0 :commands (list))))
 		(++ c))
 	(scatter (Lmap) :start pstart :end pend :glyphs glyphs))
 
@@ -750,10 +744,9 @@
 	(bind '(tbl_offset tbl_len) (. tables :find "cmap"))
 	(when (and tbl_offset (> tbl_len 0))
 		(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
-			subtable_offset :nil
-			record_offset (+ tbl_offset 4))
+			subtable_offset :nil record_offset (+ tbl_offset 4))
 		; find platform 3, encoding 1 (windows unicode bmp)
-		; , encoding 10 (ucs-4), or platform 0 (unicode)
+		; encoding 10 (ucs-4), or platform 0 (unicode)
 		(times num_tables
 			(unless subtable_offset
 				(defq platform_id (get-uint16-be buf record_offset)
@@ -762,7 +755,7 @@
 				(if (or (and (= platform_id 3) (or (= encoding_id 1) (= encoding_id 10)))
 						(= platform_id 0))
 					(setq subtable_offset (+ tbl_offset offset)))
-				(setq record_offset (+ record_offset 8))))
+				(++ record_offset 8)))
 		(when subtable_offset
 			(defq format (get-uint16-be buf subtable_offset))
 			(if (= format 4)
@@ -796,8 +789,7 @@
 			(cond
 				((= c (inc pend))
 					(setq pend c))
-				(:t
-					(push pages (build_page pstart pend))
+				(:t (push pages (build_page pstart pend))
 					(setq pstart c pend c)))
 			(++ index))
 		(push pages (build_page pstart pend)))
@@ -811,19 +803,18 @@
 		pages)
 	(++ current_offset 4)
 	(each (lambda (page_db)
-		(defq glyphs (. page_db :find :glyphs))
 		(each (lambda (glyph_db)
-				(defq commands (. glyph_db :find :commands) len 0)
+				(defq len 0)
 				(each (lambda (cmd)
-					(defq type (first cmd))
-					(cond
-						((= type 2) (++ len 28))
-						((= type 3) (++ len 20))
-						((++ len 12))))
-					commands)
+						(defq type (first cmd))
+						(cond
+							((= type 2) (++ len 28))
+							((= type 3) (++ len 20))
+							((++ len 12))))
+					(. glyph_db :find :commands))
 				(. glyph_db :insert :offset current_offset)
 				(setq current_offset (+ current_offset 8 len)))
-			glyphs))
+			(. page_db :find :glyphs)))
 		pages)
 	(scatter (Lmap) :file file :type "CTF"
 		:ascent ascent :descent descent :pages pages))
@@ -856,12 +847,30 @@
 		(++ current_offset 4)
 		; write the page tables and populate the offsets
 		(each (lambda (page_db)
-			(defq start (. page_db :find :start) end (. page_db :find :end)
-				glyphs (. page_db :find :glyphs))
-			(write-char stream end +int_size)
-			(write-char stream start +int_size)
+			(write-char stream (. page_db :find :end) +int_size)
+			(write-char stream (. page_db :find :start) +int_size)
 			(each (lambda (glyph_db)
-					(defq commands (. glyph_db :find :commands) len 0)
+					(defq len 0)
+					(each (lambda (cmd)
+							(defq type (first cmd))
+							(cond
+								((= type 2) (++ len 28))
+								((= type 3) (++ len 20))
+								((++ len 12))))
+						(. glyph_db :find :commands))
+					(. glyph_db :insert :offset current_offset)
+					(write-char stream current_offset +int_size)
+					(setq current_offset (+ current_offset 8 len)))
+				(. page_db :find :glyphs)))
+			pages)
+		; write sentinel
+		(write-char stream 0 +int_size)
+		; write the glyph data
+		(each (lambda (page_db)
+			(each (lambda (glyph_db)
+					(defq width (. glyph_db :find :advance)
+						commands (. glyph_db :find :commands)
+						len 0)
 					(each (lambda (cmd)
 							(defq type (first cmd))
 							(cond
@@ -869,49 +878,28 @@
 								((= type 3) (++ len 20))
 								((++ len 12))))
 						commands)
-					(. glyph_db :insert :offset current_offset)
-					(write-char stream current_offset +int_size)
-					(setq current_offset (+ current_offset 8 len)))
-				glyphs))
-			pages)
-		; write sentinel
-		(write-char stream 0 +int_size)
-		; write the glyph data
-		(each (lambda (page_db)
-			(defq glyphs (. page_db :find :glyphs))
-			(each (lambda (glyph_db)
-				(defq width (. glyph_db :find :advance)
-					commands (. glyph_db :find :commands)
-					len 0)
-				(each (lambda (cmd)
-					(defq type (first cmd))
-					(cond
-						((= type 2) (++ len 28))
-						((= type 3) (++ len 20))
-						((++ len 12))))
-					commands)
-				(write-char stream width +int_size)
-				(write-char stream len +int_size)
-				(each (lambda (cmd)
-					(defq type (first cmd))
-					(write-char stream type +int_size)
-					(cond
-						((= type 2)
-							(write-char stream (second cmd) +int_size)
-							(write-char stream (third cmd) +int_size)
-							(write-char stream (elem-get cmd 3) +int_size)
-							(write-char stream (elem-get cmd 4) +int_size)
-							(write-char stream (elem-get cmd 5) +int_size)
-							(write-char stream (elem-get cmd 6) +int_size))
-						((= type 3)
-							(write-char stream (second cmd) +int_size)
-							(write-char stream (third cmd) +int_size)
-							(write-char stream (elem-get cmd 3) +int_size)
-							(write-char stream (elem-get cmd 4) +int_size))
-						(:t (write-char stream (second cmd) +int_size)
-							(write-char stream (third cmd) +int_size))))
-					commands))
-				glyphs))
+					(write-char stream width +int_size)
+					(write-char stream len +int_size)
+					(each (lambda (cmd)
+							(defq type (first cmd))
+							(write-char stream type +int_size)
+							(cond
+								((= type 2)
+									(write-char stream (second cmd) +int_size)
+									(write-char stream (third cmd) +int_size)
+									(write-char stream (elem-get cmd 3) +int_size)
+									(write-char stream (elem-get cmd 4) +int_size)
+									(write-char stream (elem-get cmd 5) +int_size)
+									(write-char stream (elem-get cmd 6) +int_size))
+								((= type 3)
+									(write-char stream (second cmd) +int_size)
+									(write-char stream (third cmd) +int_size)
+									(write-char stream (elem-get cmd 3) +int_size)
+									(write-char stream (elem-get cmd 4) +int_size))
+								(:t (write-char stream (second cmd) +int_size)
+									(write-char stream (third cmd) +int_size))))
+						commands))
+				(. page_db :find :glyphs)))
 			pages)
 		(stream-flush stream)
 		:t))
@@ -1032,15 +1020,15 @@
 				(cond
 					((ends-with ".ctf" file)
 						(if (defq font_db (load-ctf file))
-							(if (write-ctf font_db (cat file ".new"))
-								(print "Wrote binary identical font: " (cat file ".new"))
-								(print "Error: Failed to write " (cat file ".new")))
+							(if (write-ctf font_db (cat file ".ctf"))
+								(print "Wrote binary identical font: " (cat file ".ctf"))
+								(print "Error: Failed to write " (cat file ".ctf")))
 							(print "Error: Cannot open font file " file)))
 					((or (ends-with ".otf" file) (ends-with ".ttf" file))
 						(if (defq font_db (load-otf-ttf file))
-							(if (write-ctf font_db (cat (slice file 0 (dec (rfind "." file))) ".new"))
-								(print "Compiled and wrote font: " (cat (slice file 0 (dec (rfind "." file))) ".new"))
-								(print "Error: Failed to write " (cat (slice file 0 (dec (rfind "." file))) ".new")))
+							(if (write-ctf font_db (cat (slice file 0 (dec (rfind "." file))) ".ctf"))
+								(print "Compiled and wrote font: " (cat (slice file 0 (dec (rfind "." file))) ".ctf"))
+								(print "Error: Failed to write " (cat (slice file 0 (dec (rfind "." file))) ".ctf")))
 							(print "Error: Cannot open font file " file)))
 					(:t (print "Error: Unsupported font file format " file))))
 				files)
