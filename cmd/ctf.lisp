@@ -329,20 +329,8 @@
 (defun load-ctf-buf (buf)
 	(defq ascent (get-uint buf 0) descent (get-uint buf 4)
 		pages (list) pages_info (list) offset 8 running :t)
-	; check for backwards-compatible kerning footer
-	(defq len (length buf) kern_map (Fmap 11))
-	(when (and (>= len 16) (= (get-uint buf (- len 4)) 0x4B45524E))
-		(defq kern_offset (get-uint buf (- len 8))
-			num_pairs (get-uint buf kern_offset)
-			k_idx (+ kern_offset 4))
-		(times num_pairs
-			(defq left (get-uint buf k_idx)
-				right (get-uint buf (+ k_idx 4))
-				val (get-int buf (+ k_idx 8)))
-			(. kern_map :insert (+ (<< left 32) right) val)
-			(setq k_idx (+ k_idx 12))))
 	(defq font_db (scatter (Lmap) :file :nil :type "CTF"
-		:ascent ascent :descent descent :kern_map kern_map))
+		:ascent ascent :descent descent))
 	(while running
 		(defq pend (get-uint buf offset))
 		(++ offset 4)
@@ -800,37 +788,6 @@
 											(push active_chars c))))
 								(++ c)))
 						(++ seg_idx))))))
-	; build glyph to character index map
-	(defq glyph_to_char (Fmap 101))
-	(each (# (. glyph_to_char :insert (get-otf-glyph-index buf tables %0) %0)) active_chars)
-	; parse TrueType/OpenType legacy 'kern' table (Format 0)
-	(defq kern_map (Fmap 11))
-	(when (defq kern_info (. tables :find "kern"))
-		(bind '(kern_offset kern_len) kern_info)
-		(when (and kern_offset (> kern_len 0))
-			(defq version (get-uint16-be buf kern_offset)
-				n_tables (get-uint16-be buf (+ kern_offset 2)))
-			; handle Apple (32-bit version) vs Microsoft (16-bit version) headers
-			(defq offset (if (= version 0) (+ kern_offset 4) (+ kern_offset 8))
-				ntables (if (= version 0) n_tables (get-uint32-be buf (+ kern_offset 4))))
-			(times ntables
-				(defq sub_version (get-uint16-be buf offset)
-					sub_len (get-uint16-be buf (+ offset 2))
-					coverage (get-uint16-be buf (+ offset 4)))
-				; check for horizontal format 0 kerning subtable
-				(when (= (logand coverage 0xff) 0)
-					(defq n_pairs (get-uint16-be buf (+ offset 6))
-						p_offset (+ offset 14))
-					(times n_pairs
-						(defq left_g (get-uint16-be buf p_offset)
-							right_g (get-uint16-be buf (+ p_offset 2))
-							val (get-int16-be buf (+ p_offset 4))
-							left_c (. glyph_to_char :find left_g)
-							right_c (. glyph_to_char :find right_g))
-						(when (and left_c right_c)
-							(. kern_map :insert (+ (<< left_c 32) right_c) (n2i (* val scale_factor))))
-						(setq p_offset (+ p_offset 6))))
-				(setq offset (+ offset sub_len)))))
 	(defq pages (list))
 	(when (nempty? active_chars)
 		(defq pstart (first active_chars) pend pstart index 1)
@@ -867,7 +824,7 @@
 			(. page_db :find :glyphs)))
 		pages)
 	(scatter (Lmap) :file file :type "CTF"
-		:ascent ascent :descent descent :pages pages :kern_map kern_map))
+		:ascent ascent :descent descent :pages pages))
 
 (defun load-otf-ttf (file)
 	(if (defq buf (load file))
@@ -951,18 +908,6 @@
 						commands))
 				(. page_db :find :glyphs)))
 			pages)
-		; kerning footer
-		(defq kern_map (. font_db :find :kern_map)
-			kern_list (if kern_map (. kern_map :tolist) (list)))
-		(when (nempty? kern_list)
-			(defq kern_table_offset (stream-seek stream 0 1))
-			(write-char stream (length kern_list) +int_size)
-			(each (lambda ((key val))
-				(write-char stream (>>> key 32) +int_size)
-				(write-char stream (logand key 0xffffffff) +int_size)
-				(write-char stream val +int_size)) kern_list)
-			(write-char stream kern_table_offset +int_size)
-			(write-char stream 0x4B45524E +int_size))
 		(stream-flush stream)
 		:t))
 
