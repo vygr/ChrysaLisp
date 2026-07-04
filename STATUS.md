@@ -64,6 +64,10 @@ QtCTF project with ChrysaLisp native support.
 
 Added support for QuadTo command in `.ctf` format fonts.
 
+New `(opt-nums cnt 'opt_var) -> args` options lambda, to grab several numeric
+args and push them into an option list. The `cmd/ctf.lisp` command is a good
+example of using this to collect char code ranges.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time

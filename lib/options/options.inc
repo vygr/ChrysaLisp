@@ -75,6 +75,12 @@
 	(static-qq (lambda (args arg)
 		(setq ,opt_var (first args)) (rest args))))
 
+(defun opt-nums (cnt opt_var)
+	; (opt-nums cnt 'opt_var) -> args
+	(static-qq (lambda (args arg)
+		(push ,opt_var (map (const str-as-num) (slice args 0 ,cnt)))
+		(slice args ,cnt -1))))
+
 ;module
-(export-symbols '(options opt-flag opt-str opt-num))
+(export-symbols '(options opt-flag opt-str opt-num opt-nums))
 (env-pop)
