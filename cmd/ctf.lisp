@@ -8,16 +8,14 @@
         -h --help: this help info.
         -v --verbosity num: verbosity level, default 0.
         -c --ctf: convert/upgrade font file to latest .ctf spec.
-        -s --start num: start char code, default :nil.
-        -e --end num: end char code, default :nil.
+        -r --range num num: add start end char codes, default '().
 
     Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
     or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
     command line, file paths are read from stdin.")
 (("-c" "--ctf") ,(opt-flag 'opt_c))
 (("-v" "--verbosity") ,(opt-num 'opt_v))
-(("-s" "--start") ,(opt-num 'opt_s))
-(("-e" "--end") ,(opt-num 'opt_e))
+(("-r" "--range") ,(opt-nums 2 'opt_r))
 ))
 
 (defun format-fixed-24 (val)
@@ -108,8 +106,7 @@
 								start_count_offset (+ end_count_offset (* seg_count 2) 2)
 								id_delta_offset (+ start_count_offset (* seg_count 2))
 								id_range_offset (+ id_delta_offset (* seg_count 2))
-								seg_idx 0
-								found_g_idx 0)
+								seg_idx 0 found_g_idx 0)
 							(times seg_count
 								(unless (/= found_g_idx 0)
 									(defq end_code (get-uint16-be buf (+ end_count_offset (* seg_idx 2))))
@@ -127,7 +124,7 @@
 															(if (/= found_g_idx 0)
 																(setq found_g_idx (logand (+ found_g_idx (get-int16-be buf (+ id_delta_offset (* seg_idx 2)))) 0xffff)))))))
 											(setq found_g_idx (or found_g_idx -1)))))
-								(setq seg_idx (inc seg_idx)))
+								(++ seg_idx))
 							(if (= found_g_idx -1) 0 found_g_idx))
 						(0)))))
 		0))
@@ -209,7 +206,7 @@
 			(defq num_points (inc (last end_pts))
 				instr_len (get-uint16-be buf idx))
 			(setq idx (+ idx 2 instr_len))
-			
+
 			; Read flags
 			(defq flags (str-alloc num_points) fi 0)
 			(while (< fi num_points)
@@ -223,7 +220,7 @@
 					(times repeat_count
 						(set-byte flags fi f)
 						(++ fi))))
-			
+
 			; Read X coordinates
 			(defq coords_x (nums) curr_x 0 fi 0)
 			(times num_points
@@ -240,7 +237,7 @@
 						(++ curr_x dx)))
 				(push coords_x curr_x)
 				(++ fi))
-			
+
 			; Read Y coordinates
 			(defq coords_y (nums) curr_y 0 fi 0)
 			(times num_points
@@ -257,7 +254,7 @@
 						(++ curr_y dy)))
 				(push coords_y curr_y)
 				(++ fi))
-			
+
 			; Convert TTF contours to CTF commands
 			(defq start_idx 0 contour_idx 0)
 			(times number_of_contours
@@ -267,7 +264,7 @@
 				(times c_num_points
 					(push c_points (list (elem-get coords_x pi) (elem-get coords_y pi) (/= (logand (get-ubyte flags pi) 1) 0)))
 					(++ pi))
-				
+
 				; Resolve starting point
 				(defq resolved_points (list))
 				(if (third (first c_points))
@@ -287,7 +284,7 @@
 									(push resolved_points (list mx my :t) p1)
 									(setq p0 p1)
 									(++ pi))))))
-				
+
 				; Now process the resolved points
 				(when (nempty? resolved_points)
 					; Add closing point
@@ -296,7 +293,7 @@
 						p1x (* (- (first p0) min_x) scale_factor)
 						p1y (* (second p0) neg_scale_factor))
 					(push commands (list 0 p1x p1y))
-					
+
 					(defq r_len (length resolved_points) ri 1)
 					(while (< ri r_len)
 						(defq p1 (elem-get resolved_points ri))
@@ -358,8 +355,7 @@
 	(each (lambda ((start end offsets))
 		(defq glyphs (list) c start pstart :nil pend :nil)
 		(each (lambda (glyph_offset)
-			(when (and (ifn opt_s :t (>= c opt_s))
-					   (ifn opt_e :t (<= c opt_e)))
+			(when (or (empty? opt_r) (some (lambda ((s e)) (<= s c e)) opt_r))
 				(unless pstart (setq pstart c))
 				(setq pend c)
 				(defq width (get-uint buf glyph_offset)
@@ -717,7 +713,7 @@
 			(push glyphs (scatter (Lmap) :char_code c :offset 0 :advance 0 :min_x 0 :max_x 0 :min_y 0 :max_y 0 :commands (list))))
 		(++ c))
 	(scatter (Lmap) :start pstart :end pend :glyphs glyphs))
-	
+
 (defun load-otf-ttf-buf (buf file)
 	(defq otf_db (parse-otf-tables buf)
 		version (. otf_db :find :version)
@@ -761,9 +757,8 @@
 			(if (= format 4)
 				(progn
 					(defq seg_count (/ (get-uint16-be buf (+ subtable_offset 6)) 2)
-						end_count_offset (+ subtable_offset 14)
-						start_count_offset (+ end_count_offset (* seg_count 2) 2)
-						seg_idx 0)
+						end_count_offset (+ subtable_offset 14) seg_idx 0
+						start_count_offset (+ end_count_offset (* seg_count 2) 2))
 					(times (dec seg_count)
 						(defq start (get-uint16-be buf (+ start_count_offset (* seg_idx 2))))
 						(defq end (get-uint16-be buf (+ end_count_offset (* seg_idx 2))))
@@ -771,15 +766,12 @@
 							(defq end (min 0xf8ff end)
 								c (max 32 start)) ; Cap at minimum 32 to skip control chars
 							(while (<= c end)
-								(when (and (ifn opt_s :t (>= c opt_s))
-											(ifn opt_e :t (<= c opt_e)))
-									(if (or (and opt_s (= c opt_s))
-											(and opt_e (= c opt_e))
-											(> (get-otf-glyph-index buf tables c) 0))
+								(when (or (empty? opt_r) (some (lambda ((s e)) (<= s c e)) opt_r))
+									(if (> (get-otf-glyph-index buf tables c) 0)
 										(push active_chars c)))
 								(++ c)))
-						(setq seg_idx (inc seg_idx)))))))
-		(defq pages (list))
+						(++ seg_idx))))))
+	(defq pages (list))
 	(when (nempty? active_chars)
 		(defq pstart (first active_chars) pend pstart index 1)
 		(while (< index (length active_chars))
@@ -833,7 +825,7 @@
 		; Write header
 		(write-char stream ascent +int_size)
 		(write-char stream descent +int_size)
-		
+
 		; Calculate glyph offsets (Header is 8 bytes)
 		(defq current_offset 8)
 		(each (lambda (page_db)
@@ -843,7 +835,7 @@
 			pages)
 		; Add 4 bytes for the sentinel (0)
 		(++ current_offset 4)
-		
+
 		; Write the page tables and populate the offsets
 		(each (lambda (page_db)
 			(defq start (. page_db :find :start) end (. page_db :find :end)
@@ -864,10 +856,10 @@
 					(setq current_offset (+ current_offset 8 len)))
 				glyphs))
 			pages)
-		
+
 		; Write sentinel
 		(write-char stream 0 +int_size)
-		
+
 		; Write the glyph data
 		(each (lambda (page_db)
 			(defq glyphs (. page_db :find :glyphs))
@@ -972,7 +964,7 @@
 			(print "File: " file)
 			(print "\tType: " type " (OpenType/TrueType Font)")
 			(print "\tVersion: " (long-to-hex-str version))
-			
+
 			; Read and print naming information
 			(defq family_name (get-otf-name buf tables 1)
 				subfamily_name (get-otf-name buf tables 2)
@@ -992,7 +984,7 @@
 			(print "\tDescender: " descender " (" (format-fixed-24 (/ (* descender 16777216) units_per_em)) ")")
 			(print "\tNumGlyphs: " num_glyphs)
 			(print "\tNumberOfHMetrics: " num_h_metrics)
-			
+
 			(when (> verbosity 0)
 				(print "\tTables:")
 				(. tables :each (lambda (tag info)
@@ -1018,7 +1010,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_c :nil opt_v 0 opt_s :nil opt_e :nil args (options stdio usage)))
+			(defq opt_c :nil opt_v 0 opt_r (list) args (options stdio usage)))
 		(defq files (rest args))
 		(if (empty? files)
 			(lines! (# (push files %0)) (io-stream 'stdin)))
