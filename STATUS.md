@@ -68,6 +68,9 @@ New `(opt-nums cnt 'opt_var) -> args` options lambda, to grab several numeric
 args and push them into an option list. The `cmd/ctf.lisp` command is a good
 example of using this to collect char code ranges.
 
+Bug fix to `file-stream` relative seek. Must adjust for the unread portion of
+the stream buffer.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
