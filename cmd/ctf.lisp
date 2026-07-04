@@ -845,10 +845,10 @@
 		(defq ascent (. font_db :find :ascent)
 			descent (. font_db :find :descent)
 			pages (. font_db :find :pages))
+		(sort pages (# (- (. %1 :find :start) (. %0 :find :start))))
 		; Write header
 		(write-char stream ascent +int_size)
 		(write-char stream descent +int_size)
-
 		; Calculate glyph offsets (Header is 8 bytes)
 		(defq current_offset 8)
 		(each (lambda (page_db)
@@ -858,7 +858,6 @@
 			pages)
 		; Add 4 bytes for the sentinel (0)
 		(++ current_offset 4)
-
 		; Write the page tables and populate the offsets
 		(each (lambda (page_db)
 			(defq start (. page_db :find :start) end (. page_db :find :end)
@@ -879,10 +878,8 @@
 					(setq current_offset (+ current_offset 8 len)))
 				glyphs))
 			pages)
-
 		; Write sentinel
 		(write-char stream 0 +int_size)
-
 		; Write the glyph data
 		(each (lambda (page_db)
 			(defq glyphs (. page_db :find :glyphs))
