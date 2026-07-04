@@ -141,8 +141,7 @@
 					next_offset (* (get-uint16-be buf (+ loca_offset (* (inc g_index) 2))) 2))
 				(defq ofset (get-uint32-be buf (+ loca_offset (* g_index 4)))
 					next_offset (get-uint32-be buf (+ loca_offset (* (inc g_index) 4)))))
-			(if (= ofset next_offset)
-				(list 0 0)
+			(if (/= ofset next_offset)
 				(list (+ glyf_offset ofset) (- next_offset ofset))))
 		(list 0 0)))
 
