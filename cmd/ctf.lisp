@@ -27,7 +27,7 @@
 	(cat sgn (str int_part) "." (pad frac_dec 4 "0")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Big-Endian Memory Getters (OTF)
+; big-endian memory getters (otf)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun get-uint16-be (buf idx)
@@ -64,16 +64,17 @@
 					offset (get-uint16-be buf (+ record_offset 10)))
 				(when (= curr_name_id name_id)
 					(defq str_ptr (+ string_offset offset))
-					; Platforms 0 (Unicode) and 3 (Windows) use UTF-16BE
+					; platforms 0 (unicode) and 3 (windows) use utf-16be
 					(if (or (= platform_id 0) (= platform_id 3))
 						(progn
-							; Decode UTF-16BE to ASCII simply by skipping the first byte of each pair (since ASCII fits in the lower byte)
+							; decode utf-16be to ascii simply by skipping the first byte
+							; of each pair (since ascii fits in the lower byte)
 							(defq decoded (str-alloc (/ length 2)) di 0)
 							(times (/ length 2)
 								(set-byte decoded di (get-ubyte buf (+ str_ptr (* di 2) 1)))
 								(++ di))
 							(setq found_str decoded))
-						; Platform 1 (Mac) uses single-byte encodings (usually ASCII compatible)
+						; platform 1 (mac) uses single-byte encodings (usually ascii compatible)
 						(if (= platform_id 1)
 							(setq found_str (get-str buf str_ptr length)))))
 				(setq record_offset (+ record_offset 12))))
@@ -86,7 +87,8 @@
 			(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
 				subtable_offset :nil
 				record_offset (+ tbl_offset 4))
-			; Find Platform 3, Encoding 1 (Windows Unicode BMP), Encoding 10 (UCS-4), or Platform 0 (Unicode)
+			; find platform 3, encoding 1 (windows unicode bmp)
+			; encoding 10 (ucs-4), or platform 0 (unicode)
 			(times num_tables
 				(unless subtable_offset
 					(defq platform_id (get-uint16-be buf record_offset)
@@ -153,9 +155,9 @@
 				(list (+ glyf_offset offset) (- next_offset offset))))
 		(list 0 0)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; OpenType Parser
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;
+; opentype parser
+;;;;;;;;;;;;;;;;;
 
 (defun parse-otf-tables (buf)
 	(defq version (get-uint32-be buf 0)
@@ -185,9 +187,9 @@
 	(bind '(offset len) (. tables :find "maxp"))
 	(get-uint16-be buf (+ offset 4)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; TrueType Outlines Parser
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; truetype outlines parser
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun parse-ttf-glyph (buf glyf_offset len scale_factor)
 	(defq number_of_contours (get-int16-be buf glyf_offset)
@@ -198,7 +200,7 @@
 		neg_scale_factor (neg scale_factor) commands (list))
 	(if (> number_of_contours 0)
 		(progn
-			; Read endPtsOfContours
+			; read endptsofcontours
 			(defq end_pts (list) idx (+ glyf_offset 10))
 			(times number_of_contours
 				(push end_pts (get-uint16-be buf idx))
@@ -206,8 +208,7 @@
 			(defq num_points (inc (last end_pts))
 				instr_len (get-uint16-be buf idx))
 			(setq idx (+ idx 2 instr_len))
-
-			; Read flags
+			; read flags
 			(defq flags (str-alloc num_points) fi 0)
 			(while (< fi num_points)
 				(defq f (get-ubyte buf idx))
@@ -220,8 +221,7 @@
 					(times repeat_count
 						(set-byte flags fi f)
 						(++ fi))))
-
-			; Read X coordinates
+			; read x coordinates
 			(defq coords_x (nums) curr_x 0 fi 0)
 			(times num_points
 				(defq f (get-ubyte flags fi))
@@ -237,8 +237,7 @@
 						(++ curr_x dx)))
 				(push coords_x curr_x)
 				(++ fi))
-
-			; Read Y coordinates
+			; read y coordinates
 			(defq coords_y (nums) curr_y 0 fi 0)
 			(times num_points
 				(defq f (get-ubyte flags fi))
@@ -254,8 +253,7 @@
 						(++ curr_y dy)))
 				(push coords_y curr_y)
 				(++ fi))
-
-			; Convert TTF contours to CTF commands
+			; convert ttf contours to ctf commands
 			(defq start_idx 0 contour_idx 0)
 			(times number_of_contours
 				(defq end_idx (elem-get end_pts contour_idx)
@@ -264,18 +262,17 @@
 				(times c_num_points
 					(push c_points (list (elem-get coords_x pi) (elem-get coords_y pi) (/= (logand (get-ubyte flags pi) 1) 0)))
 					(++ pi))
-
-				; Resolve starting point
+				; resolve starting point
 				(defq resolved_points (list))
 				(if (third (first c_points))
 					(setq resolved_points c_points)
 					(progn
-						; Rotate or adjust so we start with an on-curve point
+						; rotate or adjust so we start with an on-curve point
 						(defq first_on_idx (some! (# (if (third %0) (!))) c_points))
 						(if first_on_idx
 							(setq resolved_points (cat (slice c_points first_on_idx -1) (slice c_points 0 first_on_idx)))
 							(progn
-								; All points are off-curve
+								; all points are off-curve
 								(defq p0 (last c_points) pi 0)
 								(times c_num_points
 									(defq p1 (elem-get c_points pi)
@@ -284,26 +281,24 @@
 									(push resolved_points (list mx my :t) p1)
 									(setq p0 p1)
 									(++ pi))))))
-
-				; Now process the resolved points
+				; now process the resolved points
 				(when (nempty? resolved_points)
-					; Add closing point
+					; add closing point
 					(push resolved_points (first resolved_points))
 					(defq p0 (first resolved_points)
 						p1x (* (- (first p0) min_x) scale_factor)
 						p1y (* (second p0) neg_scale_factor))
 					(push commands (list 0 p1x p1y))
-
 					(defq r_len (length resolved_points) ri 1)
 					(while (< ri r_len)
 						(defq p1 (elem-get resolved_points ri))
 						(if (third p1)
-							; Next is on-curve -> LineTo
+							; next is on-curve -> lineto
 							(progn
 								(push commands (list 1 (* (- (first p1) min_x) scale_factor) (* (second p1) neg_scale_factor)))
 								(setq p0 p1)
 								(++ ri))
-							; Next is off-curve (Control point for Quadratic spline)
+							; next is off-curve (control point for quadratic spline)
 							(progn
 								(defq p2 (elem-get resolved_points (inc ri)))
 								(if (third p2)
@@ -329,108 +324,108 @@
 	(scatter (Lmap) :advance 0 :min_x min_x :max_x max_x
 		:min_y min_y :max_y max_y :commands commands))
 
-;;;;;;;;;;;;;;;;;;;;;;
-; CTF Parser
-;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;
+; ctf parser
+;;;;;;;;;;;;
 
 (defun load-ctf-buf (buf)
-    (defq ascent (get-uint buf 0) descent (get-uint buf 4)
-        pages (list) pages_info (list) offset 8 running :t)
-    (defq font_db (scatter (Lmap) :file :nil :type "CTF"
-        :ascent ascent :descent descent))
-    (while running
-        (defq pend (get-uint buf offset))
-        (++ offset 4)
-        (if (or (= pend 0) (= pend -1))
-            (setq running :nil)
-            (progn
-                (defq pstart (get-uint buf offset)
-                    count (inc (- pend pstart))
-                    offsets (list))
-                (++ offset 4)
-                (times count
-                    (push offsets (get-uint buf offset))
-                    (++ offset 4))
-                (push pages_info (list pstart pend offsets)))))
-    (defq active_glyphs (list))
-    (each (lambda ((start end offsets))
-        (defq c start)
-        (each (lambda (glyph_offset)
-            (when (or (empty? opt_r) (some (lambda ((s e)) (<= s c e)) opt_r))
-                (defq width (get-uint buf glyph_offset)
-                    len (get-uint buf (+ glyph_offset 4))
-                    min_x 0 max_x 0 min_y 0 max_y 0
-                    commands (list) g_offset (+ glyph_offset 8))
-                (when (> len 0)
-                    (defq end_g_offset (+ g_offset len)
-                        coords_x (list) coords_y (list))
-                    (while (< g_offset end_g_offset)
-                        (defq type (get-int buf g_offset))
-                        (++ g_offset)
-                        (cond
-                            ((or (= type 0) (= type 1))
-                                (defq rx (get-int buf g_offset)
-                                    ry (get-int buf (+ g_offset 4)))
-                                (++ g_offset 8)
-                                (push coords_x rx)
-                                (push coords_y ry)
-                                (push commands (list type rx ry)))
-                            ((= type 2)
-                                (defq rx1 (get-int buf g_offset)
-                                    ry1 (get-int buf (+ g_offset 4))
-                                    rx2 (get-int buf (+ g_offset 8))
-                                    ry2 (get-int buf (+ g_offset 12))
-                                    rx (get-int buf (+ g_offset 16))
-                                    ry (get-int buf (+ g_offset 20)))
-                                (++ g_offset 24)
-                                (push coords_x rx1 rx2 rx)
-                                (push coords_y ry1 ry2 ry)
-                                (push commands (list type rx1 ry1 rx2 ry2 rx ry)))
-                            ((= type 3)
-                                (defq rx1 (get-int buf g_offset)
-                                    ry1 (get-int buf (+ g_offset 4))
-                                    rx (get-int buf (+ g_offset 8))
-                                    ry (get-int buf (+ g_offset 12)))
-                                (++ g_offset 16)
-                                (push coords_x rx1 rx)
-                                (push coords_y ry1 ry)
-                                (push commands (list type rx1 ry1 rx ry)))))
-                    (push active_glyphs (scatter (Lmap)
-                        :char_code c :offset glyph_offset :advance width
-                        :min_x min_x :max_x max_x :min_y min_y :max_y max_y
-                        :commands commands))))
-            (++ c))
-            offsets))
-        pages_info)
-    (defq pages (list))
-    (when (nempty? active_glyphs)
-        (sort active_glyphs (# (- (. %0 :find :char_code) (. %1 :find :char_code))))
-        (defq first_g (first active_glyphs)
-            pstart (. first_g :find :char_code)
-            pend pstart
-            page_glyphs (list first_g)
-            index 1)
-        (while (< index (length active_glyphs))
-            (defq glyph_db (elem-get active_glyphs index)
-                c (. glyph_db :find :char_code))
-            (cond
-                ((= c (inc pend))
-                    (setq pend c)
-                    (push page_glyphs glyph_db))
-                (:t
-                    (push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs))
-                    (setq pstart c pend c page_glyphs (list glyph_db))))
-            (++ index))
-        (push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs)))
-    (scatter font_db :pages pages))
+	(defq ascent (get-uint buf 0) descent (get-uint buf 4)
+		pages (list) pages_info (list) offset 8 running :t)
+	(defq font_db (scatter (Lmap) :file :nil :type "CTF"
+		:ascent ascent :descent descent))
+	(while running
+		(defq pend (get-uint buf offset))
+		(++ offset 4)
+		(if (or (= pend 0) (= pend -1))
+			(setq running :nil)
+			(progn
+				(defq pstart (get-uint buf offset)
+					count (inc (- pend pstart))
+					offsets (list))
+				(++ offset 4)
+				(times count
+					(push offsets (get-uint buf offset))
+					(++ offset 4))
+				(push pages_info (list pstart pend offsets)))))
+	(defq active_glyphs (list))
+	(each (lambda ((start end offsets))
+		(defq c start)
+		(each (lambda (glyph_offset)
+			(when (or (empty? opt_r) (some (lambda ((s e)) (<= s c e)) opt_r))
+				(defq width (get-uint buf glyph_offset)
+					len (get-uint buf (+ glyph_offset 4))
+					min_x 0 max_x 0 min_y 0 max_y 0
+					commands (list) g_offset (+ glyph_offset 8))
+				(when (> len 0)
+					(defq end_g_offset (+ g_offset len)
+						coords_x (list) coords_y (list))
+					(while (< g_offset end_g_offset)
+						(defq type (get-int buf g_offset))
+						(++ g_offset)
+						(cond
+							((or (= type 0) (= type 1))
+								(defq rx (get-int buf g_offset)
+									ry (get-int buf (+ g_offset 4)))
+								(++ g_offset 8)
+								(push coords_x rx)
+								(push coords_y ry)
+								(push commands (list type rx ry)))
+							((= type 2)
+								(defq rx1 (get-int buf g_offset)
+									ry1 (get-int buf (+ g_offset 4))
+									rx2 (get-int buf (+ g_offset 8))
+									ry2 (get-int buf (+ g_offset 12))
+									rx (get-int buf (+ g_offset 16))
+									ry (get-int buf (+ g_offset 20)))
+								(++ g_offset 24)
+								(push coords_x rx1 rx2 rx)
+								(push coords_y ry1 ry2 ry)
+								(push commands (list type rx1 ry1 rx2 ry2 rx ry)))
+							((= type 3)
+								(defq rx1 (get-int buf g_offset)
+									ry1 (get-int buf (+ g_offset 4))
+									rx (get-int buf (+ g_offset 8))
+									ry (get-int buf (+ g_offset 12)))
+								(++ g_offset 16)
+								(push coords_x rx1 rx)
+								(push coords_y ry1 ry)
+								(push commands (list type rx1 ry1 rx ry)))))
+					(push active_glyphs (scatter (Lmap)
+						:char_code c :offset glyph_offset :advance width
+						:min_x min_x :max_x max_x :min_y min_y :max_y max_y
+						:commands commands))))
+			(++ c))
+			offsets))
+		pages_info)
+	(defq pages (list))
+	(when (nempty? active_glyphs)
+		(sort active_glyphs (# (- (. %0 :find :char_code) (. %1 :find :char_code))))
+		(defq first_g (first active_glyphs)
+			pstart (. first_g :find :char_code)
+			pend pstart
+			page_glyphs (list first_g)
+			index 1)
+		(while (< index (length active_glyphs))
+			(defq glyph_db (elem-get active_glyphs index)
+				c (. glyph_db :find :char_code))
+			(cond
+				((= c (inc pend))
+					(setq pend c)
+					(push page_glyphs glyph_db))
+				(:t
+					(push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs))
+					(setq pstart c pend c page_glyphs (list glyph_db))))
+			(++ index))
+		(push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs)))
+	(scatter font_db :pages pages))
 
 (defun load-ctf (file)
 	(if (defq buf (load file))
 		(scatter (load-ctf-buf buf) :file file)))
 
-;;;;;;;;;;;;;;;;;;;;;;
-; OTF/TTF Compiler
-;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
+; otf/ttf compiler
+;;;;;;;;;;;;;;;;;;
 
 (defun get-cff-offset (buf idx size)
 	(cond
@@ -487,8 +482,7 @@
 				(++ idx))
 			((= b 12)
 				(setq idx (+ idx 2) stack (clear stack)))
-			(:t
-				(if (= b 17)
+			(:t (if (= b 17)
 					(setq res (pop stack) idx end)
 					(clear stack))
 				(++ idx))))
@@ -734,7 +728,7 @@
 	(defq otf_db (parse-otf-tables buf)
 		version (. otf_db :find :version)
 		tables (. otf_db :find :tables))
-	; Read basic metrics
+	; read basic metrics
 	(defq units_per_em (get-otf-head buf tables))
 	(bind '(ascender descender num_h_metrics) (get-otf-hhea buf tables))
 	(defq num_glyphs (get-otf-maxp buf tables)
@@ -743,7 +737,7 @@
 		descent (neg (* descender scale_factor))
 		is_cff (eql version 0x4f54544f)
 		index_to_loc_format (if is_cff 0 (get-uint16-be buf (+ (first (. tables :find "head")) 50))))
-	; If CFF, locate the CharStrings index
+	; if cff, locate the charstrings index
 	(defq charstrings_idx :nil)
 	(when is_cff
 		(bind '(cff_offset cff_len) (. tables :find "CFF "))
@@ -753,60 +747,62 @@
 		(bind '(top_dict_addr top_dict_len) (get-cff-index-item buf top_dict_idx 0))
 		(setq charstrings_idx (+ cff_offset (get-cff-charstrings-offset buf top_dict_addr top_dict_len))))
 	(defq active_chars (list))
-    (bind '(tbl_offset tbl_len) (. tables :find "cmap"))
-    (when (and tbl_offset (> tbl_len 0))
-        (defq num_tables (get-uint16-be buf (+ tbl_offset 2))
-            subtable_offset :nil
-            record_offset (+ tbl_offset 4))
-        ; Find Platform 3, Encoding 1 (Windows Unicode BMP), Encoding 10 (UCS-4), or Platform 0 (Unicode)
-        (times num_tables
-            (unless subtable_offset
-                (defq platform_id (get-uint16-be buf record_offset)
-                    encoding_id (get-uint16-be buf (+ record_offset 2))
-                    offset (get-uint32-be buf (+ record_offset 4)))
-                (if (or (and (= platform_id 3) (or (= encoding_id 1) (= encoding_id 10)))
-                        (= platform_id 0))
-                    (setq subtable_offset (+ tbl_offset offset)))
-                (setq record_offset (+ record_offset 8))))
-        (when subtable_offset
-            (defq format (get-uint16-be buf subtable_offset))
-            (if (= format 4)
-                (progn
-                    (defq seg_count (/ (get-uint16-be buf (+ subtable_offset 6)) 2)
-                        end_count_offset (+ subtable_offset 14) seg_idx 0
-                        start_count_offset (+ end_count_offset (* seg_count 2) 2))
-                    (times (dec seg_count)
-                        (defq start (get-uint16-be buf (+ start_count_offset (* seg_idx 2))))
-                        (defq end (get-uint16-be buf (+ end_count_offset (* seg_idx 2))))
-                        (when (and (< start 0xf900) (<= start end))
-                            (defq end (min 0xf8ff end)
-                                c (max 32 start))
-                            (while (<= c end)
-                                (when (or (empty? opt_r) (some (lambda ((s e)) (<= s c e)) opt_r))
-                                    (defq g_index (get-otf-glyph-index buf tables c))
-                                    (when (> g_index 0)
-                                        (defq g_len 0)
-                                        (if is_cff
-                                            (bind '(& g_len) (get-cff-index-item buf charstrings_idx g_index))
-                                            (bind '(& g_len) (get-ttf-glyph-offset-and-len buf tables index_to_loc_format g_index)))
-                                        (when (> g_len 0)
-                                            (push active_chars c))))
-                                (++ c)))
-                        (++ seg_idx))))))
-    (defq pages (list))
-    (when (nempty? active_chars)
-        (defq pstart (first active_chars) pend pstart index 1)
-        (while (< index (length active_chars))
-            (defq c (elem-get active_chars index))
-            (cond
-                ((= c (inc pend))
-                    (setq pend c))
-                (:t
-                    (push pages (build_page pstart pend))
-                    (setq pstart c pend c)))
-            (++ index))
-        (push pages (build_page pstart pend)))
-	; Pre-calculate compiled byte offsets for print-font and serialization consistency
+	(bind '(tbl_offset tbl_len) (. tables :find "cmap"))
+	(when (and tbl_offset (> tbl_len 0))
+		(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
+			subtable_offset :nil
+			record_offset (+ tbl_offset 4))
+		; find platform 3, encoding 1 (windows unicode bmp)
+		; , encoding 10 (ucs-4), or platform 0 (unicode)
+		(times num_tables
+			(unless subtable_offset
+				(defq platform_id (get-uint16-be buf record_offset)
+					encoding_id (get-uint16-be buf (+ record_offset 2))
+					offset (get-uint32-be buf (+ record_offset 4)))
+				(if (or (and (= platform_id 3) (or (= encoding_id 1) (= encoding_id 10)))
+						(= platform_id 0))
+					(setq subtable_offset (+ tbl_offset offset)))
+				(setq record_offset (+ record_offset 8))))
+		(when subtable_offset
+			(defq format (get-uint16-be buf subtable_offset))
+			(if (= format 4)
+				(progn
+					(defq seg_count (/ (get-uint16-be buf (+ subtable_offset 6)) 2)
+						end_count_offset (+ subtable_offset 14) seg_idx 0
+						start_count_offset (+ end_count_offset (* seg_count 2) 2))
+					(times (dec seg_count)
+						(defq start (get-uint16-be buf (+ start_count_offset (* seg_idx 2))))
+						(defq end (get-uint16-be buf (+ end_count_offset (* seg_idx 2))))
+						(when (and (< start 0xf900) (<= start end))
+							(defq end (min 0xf8ff end)
+								c (max 32 start))
+							(while (<= c end)
+								(when (or (empty? opt_r) (some (lambda ((s e)) (<= s c e)) opt_r))
+									(defq g_index (get-otf-glyph-index buf tables c))
+									(when (> g_index 0)
+										(defq g_len 0)
+										(if is_cff
+											(bind '(& g_len) (get-cff-index-item buf charstrings_idx g_index))
+											(bind '(& g_len) (get-ttf-glyph-offset-and-len buf tables index_to_loc_format g_index)))
+										(when (> g_len 0)
+											(push active_chars c))))
+								(++ c)))
+						(++ seg_idx))))))
+	(defq pages (list))
+	(when (nempty? active_chars)
+		(defq pstart (first active_chars) pend pstart index 1)
+		(while (< index (length active_chars))
+			(defq c (elem-get active_chars index))
+			(cond
+				((= c (inc pend))
+					(setq pend c))
+				(:t
+					(push pages (build_page pstart pend))
+					(setq pstart c pend c)))
+			(++ index))
+		(push pages (build_page pstart pend)))
+	; pre-calculate compiled byte offsets for
+	; print-font and serialization consistency
 	(defq current_offset 8)
 	(each (lambda (page_db)
 			(defq start (. page_db :find :start) end (. page_db :find :end)
@@ -836,9 +832,9 @@
 	(if (defq buf (load file))
 		(scatter (load-otf-ttf-buf buf file) :file file)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Writer and Printer
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
+; writer and printer
+;;;;;;;;;;;;;;;;;;;;
 
 (defun write-ctf (font_db file)
 	(when (and font_db (defq stream (file-stream file +file_open_write)))
@@ -846,19 +842,19 @@
 			descent (. font_db :find :descent)
 			pages (. font_db :find :pages))
 		(sort pages (# (- (. %1 :find :start) (. %0 :find :start))))
-		; Write header
+		; write header
 		(write-char stream ascent +int_size)
 		(write-char stream descent +int_size)
-		; Calculate glyph offsets (Header is 8 bytes)
+		; calculate glyph offsets (header is 8 bytes)
 		(defq current_offset 8)
 		(each (lambda (page_db)
 				(defq start (. page_db :find :start) end (. page_db :find :end)
 					count (inc (- end start)))
 				(setq current_offset (+ current_offset 8 (* count 4))))
 			pages)
-		; Add 4 bytes for the sentinel (0)
+		; add 4 bytes for the sentinel (0)
 		(++ current_offset 4)
-		; Write the page tables and populate the offsets
+		; write the page tables and populate the offsets
 		(each (lambda (page_db)
 			(defq start (. page_db :find :start) end (. page_db :find :end)
 				glyphs (. page_db :find :glyphs))
@@ -878,9 +874,9 @@
 					(setq current_offset (+ current_offset 8 len)))
 				glyphs))
 			pages)
-		; Write sentinel
+		; write sentinel
 		(write-char stream 0 +int_size)
-		; Write the glyph data
+		; write the glyph data
 		(each (lambda (page_db)
 			(defq glyphs (. page_db :find :glyphs))
 			(each (lambda (glyph_db)
@@ -984,8 +980,7 @@
 			(print "File: " file)
 			(print "\tType: " type " (OpenType/TrueType Font)")
 			(print "\tVersion: " (long-to-hex-str version))
-
-			; Read and print naming information
+			; read and print naming information
 			(defq family_name (get-otf-name buf tables 1)
 				subfamily_name (get-otf-name buf tables 2)
 				full_name (get-otf-name buf tables 4)
@@ -994,8 +989,7 @@
 			(if subfamily_name (print "\tSubfamily: " subfamily_name))
 			(if full_name (print "\tFull Name: " full_name))
 			(if ps_name (print "\tPostScript Name: " ps_name))
-
-			; Read and print metrics
+			; read and print metrics
 			(defq units_per_em (get-otf-head buf tables))
 			(bind '(ascender descender num_h_metrics) (get-otf-hhea buf tables))
 			(defq num_glyphs (get-otf-maxp buf tables))
@@ -1004,7 +998,6 @@
 			(print "\tDescender: " descender " (" (format-fixed-24 (/ (* descender 16777216) units_per_em)) ")")
 			(print "\tNumGlyphs: " num_glyphs)
 			(print "\tNumberOfHMetrics: " num_h_metrics)
-
 			(when (> verbosity 0)
 				(print "\tTables:")
 				(. tables :each (lambda (tag info)
