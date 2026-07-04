@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "lib/debug/frames.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -540,7 +541,8 @@
 						(defq mask_bytes (/ (+ num_stems 7) 8))
 						(setq idx (+ idx mask_bytes) stack (clear stack)))
 					((find b '(4 21 22))
-						(if (odd? (length stack)) (setq stack (rest stack)))
+						(defq expected_args (if (= b 21) 2 1))
+						(if (> (length stack) expected_args) (setq stack (rest stack)))
 						(cond
 							((= b 4) (bind '(dy) stack) (-- cy dy))
 							((= b 22) (bind '(dx) stack) (++ cx dx))
