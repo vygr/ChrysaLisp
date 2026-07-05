@@ -5,13 +5,16 @@
 	(ptr data sym_map name chars))
 
 (structure +font_data 0
-	(int ascent descent))
+	(int ascent descent xkern))
 
 (structure +font_page 0
 	(uint end start))
 
 (structure +font_path 0
-	(uint width len))
+	(uint width len kern_len))
+
+(structure +font_kern 0
+	(int code xkern))
 
 (structure +font_path_element 0
 	(uint type))

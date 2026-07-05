@@ -282,11 +282,11 @@
 
 	(assign `((,this +font_data)) `(,iter_begin))
 	(vp-add-cr +str_data iter_begin)
-	(assign `((,iter_begin +font_data_ascent) (,iter_begin +font_data_descent)) `(,h ,gap))
-	(vp-add-rr gap h)
-	(vp-cpy-rr h gap)
-	(vp-shr-cr 4 gap)
-	(vp-cpy-rr gap w)
+	(assign `((,iter_begin +font_data_ascent)
+		(,iter_begin +font_data_descent)
+		(,iter_begin +font_data_xkern)) `(,h ,gap ,w))
+	(vp-add-rr gap h) ; h = ascent + descent
+	(vp-cpy-rr w gap) ; gap = xkern
 
 	(class/array/get_both info iter_begin iter_end)
 	(loop-while `(,iter_begin /= ,iter_end))
@@ -345,8 +345,8 @@
 	(entry :font :glyph_paths {this, info})
 
 	(assign {&this->+font_data->+str_data} {iter_begin})
-	(assign {iter_begin->+font_data_ascent + iter_begin->+font_data_descent} {height})
-	(assign {height >> 4} {gap})
+	(assign {iter_begin->+font_data_ascent + iter_begin->+font_data_descent,
+		iter_begin->+font_data_xkern} {height, gap})
 	(call :list :create :nil {paths})
 	(assign {gap, 0} {ox, oy})
 	(call :array :get_both {info} {_, iter_begin, iter_end})

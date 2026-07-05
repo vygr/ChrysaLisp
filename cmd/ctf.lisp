@@ -324,9 +324,18 @@
 
 (defun load-ctf-buf (buf)
 	(defq ascent (get-uint buf 0) descent (get-uint buf 4)
-		pages (list) pages_info (list) ofset 8 running :t)
+		pages (list) pages_info (list))
+	(cond
+		((< (get-uint buf 8) 0x01000000)
+			; Old format (no xkern in header, header is 8 bytes)
+			(defq xkern (>> (+ ascent descent) 4)
+				ofset 8 is_old :t))
+		(:t ; New format (has xkern in header, header is 12 bytes)
+			(defq xkern (get-uint buf 8)
+				ofset 12 is_old :nil)))
 	(defq font_db (scatter (Lmap) :file :nil :type "CTF"
-		:ascent ascent :descent descent))
+		:ascent ascent :descent descent :xkern xkern)
+		running :t)
 	(while running
 		(defq pend (get-uint buf ofset))
 		(++ ofset 4)
@@ -342,14 +351,20 @@
 					(++ ofset 4))
 				(push pages_info (list pstart pend offsets)))))
 	(defq active_glyphs (list))
-	(each (lambda ((start end offsets))
+	(each (lambda (page_db)
+		(bind '(start end offsets) page_db)
 		(defq c start)
 		(each (lambda (glyph_offset)
 			(when (or (empty? opt_r) (some (lambda ((s e)) (<= s c e)) opt_r))
 				(defq width (get-uint buf glyph_offset)
 					len (get-uint buf (+ glyph_offset 4))
 					min_x 0 max_x 0 min_y 0 max_y 0
-					commands (list) g_offset (+ glyph_offset 8))
+					commands (list)
+					g_offset (if is_old
+						(+ glyph_offset 8)
+						(progn
+							(defq kern_len (get-uint buf (+ glyph_offset 8)))
+							(+ glyph_offset 12 (* kern_len 8)))))
 				(when (> len 0)
 					(defq end_g_offset (+ g_offset len)
 						coords_x (list) coords_y (list))
@@ -730,6 +745,7 @@
 		scale_factor (/ 16777216 units_per_em)
 		ascent (* ascender scale_factor)
 		descent (neg (* descender scale_factor))
+		xkern (>> (+ ascent descent) 4)
 		is_cff (eql version 0x4f54544f)
 		index_to_loc_format (if is_cff 0 (get-uint16-be buf (+ (if head_tbl (first head_tbl) 0) 50))))
 	; if cff, locate the charstrings index
@@ -797,7 +813,7 @@
 			(++ index))
 		(push pages (build_page pstart pend)))
 	(scatter (Lmap) :file file :type "CTF"
-		:ascent ascent :descent descent :pages pages))
+		:ascent ascent :descent descent :xkern xkern :pages pages))
 
 (defun load-otf-ttf (file)
 	(when (defq buf (load file))
@@ -811,13 +827,15 @@
 	(when (and font_db (defq stream (file-stream file +file_open_write)))
 		(defq ascent (. font_db :find :ascent)
 			descent (. font_db :find :descent)
+			xkern (ifn (def? :xkern font_db) (>> (+ ascent descent) 4))
 			pages (. font_db :find :pages))
 		(sort pages (# (- (. %0 :find :start) (. %1 :find :start))))
-		; write header
+		; write header (12 bytes now)
 		(write-char stream ascent +int_size)
 		(write-char stream descent +int_size)
-		; calculate glyph offsets (header is 8 bytes)
-		(defq current_offset 8)
+		(write-char stream xkern +int_size)
+		; calculate glyph offsets (header is 12 bytes)
+		(defq current_offset 12)
 		(each (lambda (page_db)
 				(defq start (. page_db :find :start) end (. page_db :find :end)
 					count (inc (- end start)))
@@ -840,7 +858,7 @@
 						(. glyph_db :find :commands))
 					(. glyph_db :insert :offset current_offset)
 					(write-char stream current_offset +int_size)
-					(setq current_offset (+ current_offset 8 len)))
+					(setq current_offset (+ current_offset 12 len)))
 				(. page_db :find :glyphs)))
 			pages)
 		; write sentinel
@@ -860,6 +878,7 @@
 						commands)
 					(write-char stream width +int_size)
 					(write-char stream len +int_size)
+					(write-char stream 0 +int_size) ; kern_len = 0 for now
 					(each (lambda (cmd)
 							(defq type (first cmd))
 							(write-char stream type +int_size)
