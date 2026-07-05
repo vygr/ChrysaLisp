@@ -140,9 +140,9 @@
 		pages)
 	; Calculate the mathematically optimal default spacing (90th percentile of raw overlaps)
 	(sort raw_overlaps (const -))
-	(defq xkern (if (empty? raw_overlaps) 
-					0 
-					(elem-get raw_overlaps (n2i (* (n2f 0.90) (length raw_overlaps))))))
+	(defq xkern (if (empty? raw_overlaps)
+		0 (elem-get raw_overlaps (/ (* (length raw_overlaps) 90) 100))))
+	(. font_db :insert :xkern xkern)
 	(. font_db :insert :xkern xkern)
 	; 3. Second pass: calculate negative kerning pairs deviating from this positive baseline
 	(defq threshold (/ (+ ascent descent) +opt_threshold_divisor))
@@ -470,15 +470,15 @@
 ;;;;;;;;;;;;
 
 (defun load-ctf-buf (buf)
-	(defq ascent (get-uint buf 0) descent (get-uint buf 4)
+	(defq ascent (get-int buf 0) descent (get-int buf 4)
 		pages (list) pages_info (list))
 	(cond
-		((< (get-uint buf 8) 0x10000)
+		((< (get-int buf 8) 0x10000)
 			; Old format (no xkern in header, header is 8 bytes)
 			(defq xkern (>> (+ ascent descent) 4)
 				ofset 8 is_old :t))
 		(:t ; New format (has xkern in header, header is 12 bytes)
-			(defq xkern (get-uint buf 8)
+			(defq xkern (get-int buf 8)
 				ofset 12 is_old :nil)))
 	(defq font_db (scatter (Lmap) :file :nil :type "CTF"
 		:ascent ascent :descent descent :xkern xkern)
@@ -507,11 +507,14 @@
 					len (get-uint buf (+ glyph_offset 4))
 					min_x 0 max_x 0 min_y 0 max_y 0
 					commands (list)
-					g_offset (if is_old
-						(+ glyph_offset 8)
-						(progn
-							(defq kern_len (get-uint buf (+ glyph_offset 8)))
-							(+ glyph_offset 12 (* kern_len 8)))))
+					kerns (list)
+					g_offset (if is_old (+ glyph_offset 8) (+ glyph_offset 12)))
+				(unless is_old
+					(defq kern_len (get-uint buf (+ glyph_offset 8))
+						k_offset (+ glyph_offset 12 len))
+					(times kern_len
+						(push kerns (list (get-ushort buf k_offset) (<< (get-short buf (+ k_offset 2)) 10)))
+						(++ k_offset 4)))
 				(when (> len 0)
 					(defq end_g_offset (+ g_offset len)
 						coords_x (list) coords_y (list))
@@ -554,7 +557,7 @@
 					(push active_glyphs (scatter (Lmap)
 						:char_code c :offset glyph_offset :advance width
 						:min_x min_x :max_x max_x :min_y min_y :max_y max_y
-						:commands commands))))
+						:commands commands :kerns kerns))))
 			(++ c))
 			offsets))
 		pages_info)
