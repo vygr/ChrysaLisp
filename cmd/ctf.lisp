@@ -143,7 +143,6 @@
 	(defq xkern (if (empty? raw_overlaps)
 		0 (elem-get raw_overlaps (/ (* (length raw_overlaps) 90) 100))))
 	(. font_db :insert :xkern xkern)
-	(. font_db :insert :xkern xkern)
 	; 3. Second pass: calculate negative kerning pairs deviating from this positive baseline
 	(defq threshold (/ (+ ascent descent) +opt_threshold_divisor))
 	(each (lambda (page_db)
