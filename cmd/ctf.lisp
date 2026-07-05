@@ -20,14 +20,14 @@
 ))
 
 (defq
-	; Number of vertical slices used to scan the glyph envelopes (higher = more precise)
+	; Number of vertical slices used to scan glyph envelopes
 	+opt_num_slices 16
-	; Divisor for target optical gap from total height (e.g. 64 = 1.56% of font height)
+	; Divisor for target optical gap from total height (e.g. 64 = 1.56% of em-height)
 	+opt_target_gap_divisor 64
-	; Divisor for the threshold below which adjustments are ignored (e.g. 80 = 1.25% of font height)
-	; Lower divisor = larger threshold = fewer, more significant kerning pairs
+	; Divisor for the threshold below which adjustments are ignored (e.g. 80 = 1.25% of em-height)
+	; Adjustments smaller than this will be ignored, drastically reducing table size
 	+opt_threshold_divisor 80
-	; Divisor for the default xkern heuristic if not present (e.g. 5 = 6.25% of font height)
+	; Divisor for the default xkern fallback heuristic (e.g. 5 = 6.25% of em-height)
 	+opt_xkern_divisor 5
 )
 
@@ -138,10 +138,13 @@
 							(push raw_overlaps raw_overlap))))))
 			(. page_db :find :glyphs)))
 		pages)
-	; Calculate the mathematically optimal default spacing (xkern)
-	(defq xkern (if (empty? raw_overlaps) 0 (/ (apply (const +) raw_overlaps) (length raw_overlaps))))
+	; Calculate the mathematically optimal default spacing (90th percentile of raw overlaps)
+	(sort raw_overlaps (const -))
+	(defq xkern (if (empty? raw_overlaps) 
+					0 
+					(elem-get raw_overlaps (n2i (* (n2f 0.90) (length raw_overlaps))))))
 	(. font_db :insert :xkern xkern)
-	; 3. Second pass: calculate kerning pairs deviating from the optimal default
+	; 3. Second pass: calculate negative kerning pairs deviating from this positive baseline
 	(defq threshold (/ (+ ascent descent) +opt_threshold_divisor))
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
@@ -155,7 +158,7 @@
 					(when (defq profile_b (. profiles :find c2))
 						(when (defq raw_overlap (calculate-pair-kern profile_a profile_b width_a 0 target_gap))
 							(defq adj (- raw_overlap xkern))
-							(when (>= (abs adj) threshold)
+							(when (<= adj (neg threshold))
 								(push kerns_list (list c2 adj))))))
 				(when (nempty? kerns_list)
 					(. glyph_db :insert :kerns kerns_list))))
@@ -467,16 +470,16 @@
 ;;;;;;;;;;;;
 
 (defun load-ctf-buf (buf)
-    (defq ascent (get-uint buf 0) descent (get-uint buf 4)
-        pages (list) pages_info (list))
-    (cond
-        ((< (get-uint buf 8) 0x10000)
-            ; Old format (no xkern in header, header is 8 bytes)
-            (defq xkern (>> (+ ascent descent) 4)
-                ofset 8 is_old :t))
-        (:t ; New format (has xkern in header, header is 12 bytes)
-            (defq xkern (get-uint buf 8)
-                ofset 12 is_old :nil)))
+	(defq ascent (get-uint buf 0) descent (get-uint buf 4)
+		pages (list) pages_info (list))
+	(cond
+		((< (get-uint buf 8) 0x10000)
+			; Old format (no xkern in header, header is 8 bytes)
+			(defq xkern (>> (+ ascent descent) 4)
+				ofset 8 is_old :t))
+		(:t ; New format (has xkern in header, header is 12 bytes)
+			(defq xkern (get-uint buf 8)
+				ofset 12 is_old :nil)))
 	(defq font_db (scatter (Lmap) :file :nil :type "CTF"
 		:ascent ascent :descent descent :xkern xkern)
 		running :t)
