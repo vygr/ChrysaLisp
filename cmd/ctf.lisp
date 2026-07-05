@@ -19,6 +19,18 @@
 (("-r" "--range") ,(opt-nums 2 'opt_r))
 ))
 
+(defq
+	; Number of vertical slices used to scan the glyph envelopes (higher = more precise)
+	+opt_num_slices 16
+	; Divisor for target optical gap from total height (e.g. 64 = 1.56% of font height)
+	+opt_target_gap_divisor 64
+	; Divisor for the threshold below which adjustments are ignored (e.g. 80 = 1.25% of font height)
+	; Lower divisor = larger threshold = fewer, more significant kerning pairs
+	+opt_threshold_divisor 80
+	; Divisor for the default xkern heuristic if not present (e.g. 5 = 6.25% of font height)
+	+opt_xkern_divisor 5
+)
+
 (defun flatten-commands (commands)
 	(defq segments (list) p0 '(0 0))
 	(each (lambda (cmd)
@@ -62,10 +74,10 @@
 		commands)
 	segments)
 
-(defun compute-envelope (segments ascent descent num_slices)
-	(defq step (/ (- ascent descent) (dec num_slices))
+(defun compute-envelope (segments ascent descent)
+	(defq step (/ (- ascent descent) (dec +opt_num_slices))
 		envelope (list))
-	(for 0 num_slices
+	(for 0 +opt_num_slices
 		(defq y (+ descent (* (!) step))
 			xmin 1000000000 xmax -1000000000
 			has_intersection :nil)
@@ -94,7 +106,7 @@
 		profile_a profile_b)
 	(if has_valid
 		(- max_overlap (+ width_a default_kern))
-		0))
+		:nil))
 
 (defun generate-optical-kerning (font_db)
 	(defq ascent (. font_db :find :ascent)
@@ -107,12 +119,12 @@
 			(defq c (. glyph_db :find :char_code))
 			(when (<= 32 c 126)
 				(defq segments (flatten-commands (. glyph_db :find :commands))
-					profile (compute-envelope segments ascent descent 16))
+					profile (compute-envelope segments ascent descent))
 				(. profiles :insert c profile)))
 			(. page_db :find :glyphs)))
 		pages)
 	; 2. First pass: calculate raw overlaps to find the optimal default spacing
-	(defq raw_overlaps (list) target_gap (>> (+ ascent descent) 6))
+	(defq raw_overlaps (list) target_gap (/ (+ ascent descent) +opt_target_gap_divisor))
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
 			(defq c1 (. glyph_db :find :char_code))
@@ -130,7 +142,7 @@
 	(defq xkern (if (empty? raw_overlaps) 0 (/ (apply (const +) raw_overlaps) (length raw_overlaps))))
 	(. font_db :insert :xkern xkern)
 	; 3. Second pass: calculate kerning pairs deviating from the optimal default
-	(defq threshold (/ (+ ascent descent) 200)) ; about 0.005 (noise threshold)
+	(defq threshold (/ (+ ascent descent) +opt_threshold_divisor))
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
 			(defq c1 (. glyph_db :find :char_code))
@@ -959,7 +971,7 @@
 	(when (and font_db (defq stream (file-stream file +file_open_write)))
 		(defq ascent (. font_db :find :ascent)
 			descent (. font_db :find :descent)
-			xkern (ifn (def? :xkern font_db) (>> (+ ascent descent) 4))
+			xkern (ifn (def? :xkern font_db) (>> (+ ascent descent) +opt_xkern_divisor))
 			pages (. font_db :find :pages))
 		(sort pages (# (- (. %0 :find :start) (. %1 :find :start))))
 		; write header (12 bytes now)
