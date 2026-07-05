@@ -75,10 +75,10 @@
 	segments)
 
 (defun compute-envelope (segments ascent descent)
-	(defq step (/ (- ascent descent) (dec +opt_num_slices))
+	(defq step (/ (+ ascent descent) (dec +opt_num_slices))
 		envelope (list))
 	(for 0 +opt_num_slices
-		(defq y (+ descent (* (!) step))
+		(defq y (+ (neg ascent) (* (!) step))
 			xmin 1000000000 xmax -1000000000
 			has_intersection :nil)
 		(each (lambda ((x0 y0 x1 y1))
