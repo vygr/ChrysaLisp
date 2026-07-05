@@ -14,7 +14,7 @@
 	(uint width len kern_len))
 
 (structure +font_kern 0
-	(int code xkern))
+	(short code xkern))
 
 (structure +font_path_element 0
 	(uint type))
