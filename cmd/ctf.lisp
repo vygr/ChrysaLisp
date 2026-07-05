@@ -88,7 +88,7 @@
 		(bind '(y_a amin_x amax_x) slice_a)
 		(bind '(y_b bmin_x bmax_x) slice_b)
 		(when (and (= y_a y_b) (or (/= amax_x 0) (/= bmin_x 0)))
-			(defq required_dist (+ amax_x target_gap (- bmin_x)))
+			(defq required_dist (- (+ amax_x target_gap) bmin_x))
 			(setq max_overlap (max max_overlap required_dist)
 				has_valid :t)))
 		profile_a profile_b)
@@ -1052,7 +1052,8 @@
 						min_y (. glyph_db :find :min_y)
 						max_x (. glyph_db :find :max_x)
 						max_y (. glyph_db :find :max_y)
-						commands (. glyph_db :find :commands))
+						commands (. glyph_db :find :commands)
+						kerns (or (. glyph_db :find :kerns) '()))
 					(defq g_width (- max_x min_x) g_height (- max_y min_y)
 						char_str (if (<= 32 c 126) (cat "'" (char c) "'") "?"))
 					(print "\t\tGlyph " char_str " (" c "): Offset: " ofset
