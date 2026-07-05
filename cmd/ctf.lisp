@@ -23,9 +23,9 @@
 	; Number of vertical slices used to scan glyph envelopes
 	+opt_num_slices 16
 	; Divisor for target optical gap from total height (e.g. 64 = 1.56% of em-height)
-	+opt_target_gap_divisor 64
-	; Divisor for the threshold below which adjustments are ignored (e.g. 80 = 1.25% of em-height)
-	; Adjustments smaller than this will be ignored, drastically reducing table size
+	+opt_target_gap_divisor 16
+    ; Decrease this divisor to make the target optical gap (and default kern) wider.
+    ; e.g. 48 = ~2.08% of em-height, 32 = ~3.12% of em-height
 	+opt_threshold_divisor 80
 	; Divisor for the default xkern fallback heuristic (e.g. 5 = 6.25% of em-height)
 	+opt_xkern_divisor 5
@@ -977,7 +977,7 @@
 	(when (and font_db (defq stream (file-stream file +file_open_write)))
 		(defq ascent (. font_db :find :ascent)
 			descent (. font_db :find :descent)
-			xkern (ifn (def? :xkern font_db) (>> (+ ascent descent) +opt_xkern_divisor))
+			xkern (or (. font_db :find :xkern) (>> (+ ascent descent) +opt_xkern_divisor))
 			pages (. font_db :find :pages))
 		(sort pages (# (- (. %0 :find :start) (. %1 :find :start))))
 		; write header (12 bytes now)
