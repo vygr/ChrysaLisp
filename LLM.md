@@ -272,6 +272,9 @@ Deep dives into meta-commentary and design philosophy:
 65. **[Plist and Case](docs/ai_digest/case_for_plist.md)** - VP `:plist` class
     and it's uses.
 
+65. **[CTF Font format](docs/ai_digest/ctf_command.md)** - ChrysaLisp vector
+    font format and tooling.
+
 ---
 
 ## Reading Paths

@@ -74,6 +74,8 @@ the stream buffer.
 `cmd/ctf.lisp` command and VP `:font` methods updated to calculate optical based
 kerning tables, and render using the info calculated.
 
+New `ctf_command.md` document, detailing the CTF format and tooling.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
