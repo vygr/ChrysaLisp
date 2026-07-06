@@ -100,10 +100,17 @@
 		;needs an indent or bullet style
 		(defq text (Text))
 		(if (find "*" style)
-			(def text :text (cat indent indent (num-to-utf8 0xe979) " ") :font (get :font_bullet flow))
-			(def text :text (cat indent indent style)))
-		(. flow :add_child text)
-		(setq cnt (setq indent_width (first (. text :pref_size)))))
+			(progn
+				(defq indent_text (Text))
+				(def indent_text :text (cat indent indent) :font (get :font flow))
+				(. flow :add_child indent_text)
+				(def text :text (cat (num-to-utf8 0xe979) " ") :font (get :font_bullet flow))
+				(. flow :add_child text)
+				(setq cnt (setq indent_width (+ (first (. indent_text :pref_size)) (first (. text :pref_size))))))
+			(progn
+				(def text :text (cat indent indent style))
+				(. flow :add_child text)
+				(setq cnt (setq indent_width (first (. text :pref_size)))))))
 	(each (lambda (word)
 		(when (= (word-state word) -1)
 			(defq text (create-word word state))
