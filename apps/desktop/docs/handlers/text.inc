@@ -137,7 +137,7 @@
 					;body paragraph end
 					(when (nempty? lines)
 						(defq line (first lines) style ""
-							indent (slice line 0 (bskip +char_class_space line 0))
+							indent (slice line 0 (bskip +char_class_white_space line 0))
 							match (matches line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)"))
 						(when (nempty? match)
 							(bind '(((& cx2) (sx1 sx2) &ignore)) match)
