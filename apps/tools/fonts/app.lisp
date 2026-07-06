@@ -16,26 +16,30 @@
 
 (defun win-refresh (i)
 	(defq ctf (elem-get fonts (setq index i)) font (create-font ctf 42) grid_width 8 grid_height 0
-		ranges (reverse (font-glyph-ranges font)) symbol_grid (Grid))
+		ranges (reverse (font-glyph-ranges font)) symbol_grid (Grid)
+		drawn_rows (list))
 	(def *window_title* :text (cat "Fonts -> " (slice ctf (rfind "/" ctf) -5)))
 	(while (defq s (pop ranges) e (pop ranges))
 		(defq s (logand s (neg grid_width)) e (align e grid_width) n (/ (- e s) grid_width))
-		(setq grid_height (+ grid_height n))
-		(each (lambda (c)
-			(def (defq c (+ s (* c grid_width)) l (Label))
-				:border 0
-				:flow_flags (const (logior +flow_flag_right +flow_flag_align_vcenter))
-				:font (const *env_small_terminal_font*)
-				:text (num-to-hex-str c))
-			(. symbol_grid :add_child l)
-			(each (lambda (c)
-					(def (. (defq l (Button)) :connect +event_copy)
-						:border 1
-						:flow_flags +flow_flag_align_hcenter
-						:text (num-to-utf8 c)
-						:tip_text (num-to-hex-str c))
-					(. symbol_grid :add_child l))
-				(range c (+ c grid_width)))) (range 0 n)))
+		(each (lambda (row_idx)
+			(defq c (+ s (* row_idx grid_width)))
+			(unless (find c drawn_rows)
+				(push drawn_rows c)
+				(setq grid_height (inc grid_height))
+				(def (defq l (Label))
+					:border 0
+					:flow_flags (const (logior +flow_flag_right +flow_flag_align_vcenter))
+					:font (const *env_small_terminal_font*)
+					:text (num-to-hex-str c))
+				(. symbol_grid :add_child l)
+				(each (lambda (char_code)
+						(def (. (defq l (Button)) :connect +event_copy)
+							:border 1
+							:flow_flags +flow_flag_align_hcenter
+							:text (num-to-utf8 char_code)
+							:tip_text (num-to-hex-str char_code))
+						(. symbol_grid :add_child l))
+					(range c (+ c grid_width))))) (range 0 n)))
 	(def symbol_grid
 		:grid_width (inc grid_width)
 		:grid_height grid_height
