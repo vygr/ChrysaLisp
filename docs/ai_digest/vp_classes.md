@@ -5,7 +5,7 @@ defined in `class/`. Indentation indicates that a class inherits from the one
 above it.
 
 ```
-obj
+    obj
 	|
 	+-> error
 	|
