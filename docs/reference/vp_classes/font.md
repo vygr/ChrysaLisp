@@ -75,7 +75,7 @@ outputs
 :r1 = width (pixels)
 :r2 = height (pixels)
 trashes
-:r1-:r7
+:r1-:r13
 ```
 
 ### :glyph_data -> gui/font/glyph_data

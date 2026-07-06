@@ -71,6 +71,9 @@ example of using this to collect char code ranges.
 Bug fix to `file-stream` relative seek. Must adjust for the unread portion of
 the stream buffer.
 
+`cmd/ctf.lisp` command and VP `:font` methods updated to calculate optical based
+kerning tables, and render using the info calculated.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
