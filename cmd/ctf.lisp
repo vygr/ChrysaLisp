@@ -79,37 +79,37 @@
 	segments)
 
 (defun compute-envelope (segments ascent descent)
-    (defq gmin_x 1000000000 gmax_x -1000000000)
-    (each (lambda (cmd)
-        (bind '(x0 y0 x1 y1) cmd)
-        (setq gmin_x (min gmin_x x0 x1)
-            gmax_x (max gmax_x x0 x1))) segments)
-    (defq limit (/ (- gmax_x gmin_x) +opt_indent_limit_divisor)
-        step (/ (+ ascent descent) (dec +opt_num_slices)) envelope (list))
-    (for 0 +opt_num_slices
-        (defq y (+ (neg ascent) (* (!) step))
-            xmin 1000000000 xmax -1000000000
-            has_intersection :nil)
-        (each (lambda (cmd)
-            (bind '(x0 y0 x1 y1) cmd)
-            (when (or (<= y0 y y1) (<= y1 y y0))
-                (if (/= y0 y1)
-                    (progn
-                        (defq x (+ x0 (/ (* (- y y0) (- x1 x0)) (- y1 y0))))
-                        (setq xmin (min xmin x)
-                            xmax (max xmax x)))
-                    (progn
-                        (setq xmin (min xmin x0 x1)
-                            xmax (max xmax x0 x1))))
-                (setq has_intersection :t))) segments)
-        (if has_intersection
-            (progn
-                ; apply the indentation limits to prevent deep penetration into cavities
-                (setq xmin (min xmin (+ gmin_x limit))
-                    xmax (max xmax (- gmax_x limit)))
-                (push envelope (list y xmin xmax)))
-            (push envelope (list y :nil :nil))))
-    envelope)
+	(defq gmin_x 1000000000 gmax_x -1000000000)
+	(each (lambda (cmd)
+		(bind '(x0 y0 x1 y1) cmd)
+		(setq gmin_x (min gmin_x x0 x1)
+			gmax_x (max gmax_x x0 x1))) segments)
+	(defq limit (/ (- gmax_x gmin_x) +opt_indent_limit_divisor)
+		step (/ (+ ascent descent) (dec +opt_num_slices)) envelope (list))
+	(for 0 +opt_num_slices
+		(defq y (+ (neg ascent) (* (!) step))
+			xmin 1000000000 xmax -1000000000
+			has_intersection :nil)
+		(each (lambda (cmd)
+			(bind '(x0 y0 x1 y1) cmd)
+			(when (or (<= y0 y y1) (<= y1 y y0))
+				(if (/= y0 y1)
+					(progn
+						(defq x (+ x0 (/ (* (- y y0) (- x1 x0)) (- y1 y0))))
+						(setq xmin (min xmin x)
+							xmax (max xmax x)))
+					(progn
+						(setq xmin (min xmin x0 x1)
+							xmax (max xmax x0 x1))))
+				(setq has_intersection :t))) segments)
+		(if has_intersection
+			(progn
+				; apply the indentation limits to prevent deep penetration into cavities
+				(setq xmin (min xmin (+ gmin_x limit))
+					xmax (max xmax (- gmax_x limit)))
+				(push envelope (list y xmin xmax)))
+			(push envelope (list y :nil :nil))))
+	envelope)
 
 (defun calculate-pair-kern (profile_a profile_b width_a default_kern target_gap)
 	(defq max_overlap -1000000000 has_valid :nil)
