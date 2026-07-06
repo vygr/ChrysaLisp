@@ -1024,6 +1024,7 @@
                                 ((= type 3) (++ plen +font_quad_element_size))
                                 ((++ plen +font_line_element_size))))
                         commands)
+                    (write-char stream c +int_size)
                     (write-char stream width +int_size)
                     (write-char stream plen +int_size)
                     (write-char stream klen +int_size)
