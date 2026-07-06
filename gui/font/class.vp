@@ -355,7 +355,7 @@
 		(vpif {data})
 			(vp-rdef (data ox oy data_end width x y c pixels))
 			(assign {data, ox, oy} `(,data ,ox ,oy))
-			(assign `((,data +font_path_width) (,data +font_path_len)) `(,width ,data_end))
+			(assign `((,data +font_path_width) (,data +font_path_plen)) `(,width ,data_end))
 			(vp-add-cr +font_path_size data)
 			(vp-add-rr data data_end)
 			(assign `(,data ,data_end ,ox ,oy ,width) {data, data_end, pos_x, pos_y, width})

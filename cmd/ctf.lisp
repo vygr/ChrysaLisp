@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "gui/font/struct.inc")
 (import "lib/debug/frames.inc")
 
 (defq usage `(
@@ -20,14 +21,14 @@
 ))
 
 (defq
-	; Number of vertical slices used to scan glyph envelopes
+	; number of vertical slices used to scan glyph envelopes
 	+opt_num_slices 16
-	; Divisor for target optical gap from total height (e.g. 64 = 1.56% of em-height)
-	+opt_target_gap_divisor 16
-    ; Decrease this divisor to make the target optical gap (and default kern) wider.
+	; divisor for target optical gap from total height (e.g. 64 = 1.56% of em-height)
+    ; decrease this divisor to make the target optical gap (and default kern) wider.
     ; e.g. 48 = ~2.08% of em-height, 32 = ~3.12% of em-height
+	+opt_target_gap_divisor 16
 	+opt_threshold_divisor 80
-	; Divisor for the default xkern fallback heuristic (e.g. 5 = 6.25% of em-height)
+	; divisor for the default xkern fallback heuristic (e.g. 5 = 6.25% of em-height)
 	+opt_xkern_divisor 5
 )
 
@@ -75,8 +76,7 @@
 	segments)
 
 (defun compute-envelope (segments ascent descent)
-	(defq step (/ (+ ascent descent) (dec +opt_num_slices))
-		envelope (list))
+	(defq step (/ (+ ascent descent) (dec +opt_num_slices)) envelope (list))
 	(for 0 +opt_num_slices
 		(defq y (+ (neg ascent) (* (!) step))
 			xmin 1000000000 xmax -1000000000
@@ -509,9 +509,9 @@
 					kerns (list)
 					g_offset (if is_old (+ glyph_offset 8) (+ glyph_offset 12)))
 				(unless is_old
-					(defq kern_len (get-uint buf (+ glyph_offset 8))
+					(defq klen (get-uint buf (+ glyph_offset 8))
 						k_offset (+ glyph_offset 12 len))
-					(times kern_len
+					(times klen
 						(push kerns (list (get-ushort buf k_offset) (<< (get-short buf (+ k_offset 2)) 10)))
 						(++ k_offset 4)))
 				(when (> len 0)
@@ -979,37 +979,37 @@
 			xkern (or (. font_db :find :xkern) (>> (+ ascent descent) +opt_xkern_divisor))
 			pages (. font_db :find :pages))
 		(sort pages (# (- (. %0 :find :start) (. %1 :find :start))))
-		; write header (12 bytes now)
+		; write header +font_data_size
 		(write-char stream ascent +int_size)
 		(write-char stream descent +int_size)
 		(write-char stream xkern +int_size)
-		; calculate glyph offsets (header is 12 bytes)
-		(defq current_offset 12)
+		; calculate glyph offsets
+		(defq current_offset +font_data_size)
 		(each (lambda (page_db)
 				(defq start (. page_db :find :start) end (. page_db :find :end)
 					count (inc (- end start)))
 				(setq current_offset (+ current_offset 8 (* count 4))))
 			pages)
-		; add 4 bytes for the sentinel (0)
-		(++ current_offset 4)
+		; add bytes for the sentinel (0)
+		(++ current_offset +int_size)
 		; write the page tables and populate the offsets
 		(each (lambda (page_db)
 			(write-char stream (. page_db :find :end) +int_size)
 			(write-char stream (. page_db :find :start) +int_size)
 			(each (lambda (glyph_db)
-					(defq len 0
+					(defq plen 0
 						kerns (or (. glyph_db :find :kerns) '())
-						kern_len (length kerns))
+						klen (length kerns))
 					(each (lambda (cmd)
 							(defq type (first cmd))
 							(cond
-								((= type 2) (++ len 28))
-								((= type 3) (++ len 20))
-								((++ len 12))))
+								((= type 2) (++ plen +font_curve_element_size))
+								((= type 3) (++ plen +font_quad_element_size))
+								((++ plen +font_line_element_size))))
 						(. glyph_db :find :commands))
 					(. glyph_db :insert :offset current_offset)
 					(write-char stream current_offset +int_size)
-					(setq current_offset (+ current_offset 12 len (* kern_len 4))))
+					(setq current_offset (+ current_offset +font_path_size plen (* klen 4))))
 				(. page_db :find :glyphs)))
 			pages)
 		; write sentinel
@@ -1017,21 +1017,22 @@
 		; write the glyph data
 		(each (lambda (page_db)
 			(each (lambda (glyph_db)
-					(defq width (. glyph_db :find :advance)
+					(defq c (. glyph_db :find :char_code)
+						width (. glyph_db :find :advance)
 						commands (. glyph_db :find :commands)
 						kerns (or (. glyph_db :find :kerns) '())
-						kern_len (length kerns)
-						len 0)
+						klen (length kerns)
+						plen 0)
 					(each (lambda (cmd)
 							(defq type (first cmd))
 							(cond
-								((= type 2) (++ len 28))
-								((= type 3) (++ len 20))
-								((++ len 12))))
+								((= type 2) (++ plen 28))
+								((= type 3) (++ plen 20))
+								((++ plen 12))))
 						commands)
 					(write-char stream width +int_size)
-					(write-char stream len +int_size)
-					(write-char stream kern_len +int_size)
+					(write-char stream plen +int_size)
+					(write-char stream klen +int_size)
 					(each (lambda (cmd)
 							(defq type (first cmd))
 							(write-char stream type +int_size)
