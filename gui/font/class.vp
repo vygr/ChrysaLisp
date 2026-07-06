@@ -333,7 +333,7 @@
 	(vp-mul-rr gw h)
 	(vp-shr-cr 24 w)
 	(vp-shr-cr 24 h)
-	(vp-add-cr 1 w)
+	(vp-add-cr 2 w)
 
 	(exit :font :glyph_bounds `(,this ,w ,h))
 	(vp-ret)
@@ -476,7 +476,8 @@
 	(loop-end)
 	(assign {&this->+font_data->+str_data} {iter_begin})
 
-	(exit :font :glyph_paths {this, paths, (ox * this->+font_pixels >> 24) + 1, ((iter_begin->+font_data_ascent + iter_begin->+font_data_descent) * this->+font_pixels) >> 24})
+	(exit :font :glyph_paths {this, paths, (ox * this->+font_pixels >> 24) + 2,
+		((iter_begin->+font_data_ascent + iter_begin->+font_data_descent) * this->+font_pixels) >> 24})
 	(pop-scope)
 	(return)
 
