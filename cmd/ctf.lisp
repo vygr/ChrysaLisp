@@ -211,6 +211,10 @@
 	(if (>= (defq val (get-uint32-be buf idx)) 0x80000000)
 		(- val 0x100000000) val))
 
+;;;;;;;;;;;;;;;;;
+; opentype parser
+;;;;;;;;;;;;;;;;;
+
 (defun get-otf-name (buf tables name_id)
 	(when (defq tbl (. tables :find "name"))
 		(bind '(tbl_offset tbl_len) tbl)
@@ -307,10 +311,6 @@
 			(if (/= ofset next_offset)
 				(list (+ glyf_offset ofset) (- next_offset ofset))))
 		(list 0 0)))
-
-;;;;;;;;;;;;;;;;;
-; opentype parser
-;;;;;;;;;;;;;;;;;
 
 (defun parse-otf-tables (buf)
 	(defq version (get-uint32-be buf 0)
@@ -480,119 +480,6 @@
 			max_y (* temp_min_y neg_scale_factor)))
 	(scatter (Lmap) :advance 0 :min_x min_x :max_x max_x
 		:min_y min_y :max_y max_y :commands commands))
-
-;;;;;;;;;;;;
-; ctf parser
-;;;;;;;;;;;;
-
-(defun load-ctf-buf (buf)
-	(defq ascent (get-int buf +font_data_ascent)
-		descent (get-int buf +font_data_descent)
-		xkern (get-int buf +font_data_xkern)
-		pages (list) pages_info (list)
-		ofset +font_data_size)
-	(defq font_db (scatter (Lmap) :file :nil :type "CTF"
-		:ascent ascent :descent descent :xkern xkern)
-		running :t)
-	(while running
-		(defq pend (get-uint buf ofset))
-		(++ ofset +int_size)
-		(cond
-			((or (= pend 0) (= pend -1))
-				(setq running :nil))
-			(:t (defq pstart (get-uint buf ofset)
-					count (inc (- pend pstart))
-					offsets (list))
-				(++ ofset +int_size)
-				(times count
-					(push offsets (get-uint buf ofset))
-					(++ ofset +int_size))
-				(push pages_info (list pstart pend offsets)))))
-	(defq active_glyphs (list))
-	(each (lambda (page_db)
-		(bind '(start end offsets) page_db)
-		(defq c start)
-		(each (lambda (glyph_offset)
-			(when (or (empty? opt_r) (some (lambda ((s e)) (<= s c e)) opt_r))
-				(defq width (get-uint buf (+ glyph_offset +font_path_width))
-					len (get-uint buf (+ glyph_offset +font_path_plen))
-					klen (get-uint buf (+ glyph_offset +font_path_klen))
-					min_x 0 max_x 0 min_y 0 max_y 0
-					commands (list)
-					kerns (list)
-					g_offset (+ glyph_offset +font_path_size)
-					k_offset (+ glyph_offset +font_path_size len))
-				(times klen
-					(push kerns (list (get-ushort buf (+ k_offset +font_kern_code)) (<< (get-short buf (+ k_offset +font_kern_xkern)) 10)))
-					(++ k_offset +font_kern_size))
-				(when (> len 0)
-					(defq end_g_offset (+ g_offset len)
-						coords_x (list) coords_y (list))
-					(while (< g_offset end_g_offset)
-						(defq type (get-int buf g_offset))
-						(++ g_offset +font_path_element_size)
-						(cond
-							((or (= type 0) (= type 1))
-								(defq rx (get-int buf g_offset)
-									ry (get-int buf (+ g_offset +int_size)))
-								(++ g_offset (- +font_line_element_size +font_path_element_size))
-								(push coords_x rx)
-								(push coords_y ry)
-								(push commands (list type rx ry)))
-							((= type 2)
-								(defq rx1 (get-int buf g_offset)
-									ry1 (get-int buf (+ g_offset +int_size))
-									rx2 (get-int buf (+ g_offset (* +int_size 2)))
-									ry2 (get-int buf (+ g_offset (* +int_size 3)))
-									rx (get-int buf (+ g_offset (* +int_size 4)))
-									ry (get-int buf (+ g_offset (* +int_size 5))))
-								(++ g_offset (- +font_curve_element_size +font_path_element_size))
-								(push coords_x rx1 rx2 rx)
-								(push coords_y ry1 ry2 ry)
-								(push commands (list type rx1 ry1 rx2 ry2 rx ry)))
-							((= type 3)
-								(defq rx1 (get-int buf g_offset)
-									ry1 (get-int buf (+ g_offset +int_size))
-									rx (get-int buf (+ g_offset (* +int_size 2)))
-									ry (get-int buf (+ g_offset (* +int_size 3))))
-								(++ g_offset (- +font_quad_element_size +font_path_element_size))
-								(push coords_x rx1 rx)
-								(push coords_y ry1 ry)
-								(push commands (list type rx1 ry1 rx ry)))))
-					(when (nempty? coords_x)
-						(setq min_x (reduce (const min) coords_x)
-							max_x (reduce (const max) coords_x)
-							min_y (reduce (const min) coords_y)
-							max_y (reduce (const max) coords_y)))
-					(push active_glyphs (scatter (Lmap)
-						:char_code c :offset glyph_offset :advance width
-						:min_x min_x :max_x max_x :min_y min_y :max_y max_y
-						:commands commands :kerns kerns))))
-			(++ c))
-			offsets))
-		pages_info)
-	(defq pages (list))
-	(when (nempty? active_glyphs)
-		(sort active_glyphs (# (- (. %0 :find :char_code) (. %1 :find :char_code))))
-		(defq first_g (first active_glyphs)
-			pstart (. first_g :find :char_code) pend pstart
-			page_glyphs (list first_g) index 1)
-		(while (< index (length active_glyphs))
-			(defq glyph_db (elem-get active_glyphs index)
-				c (. glyph_db :find :char_code))
-			(cond
-				((= c (inc pend))
-					(setq pend c)
-					(push page_glyphs glyph_db))
-				(:t (push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs))
-					(setq pstart c pend c page_glyphs (list glyph_db))))
-			(++ index))
-		(push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs)))
-	(scatter font_db :pages pages))
-
-(defun load-ctf (file)
-	(when (defq buf (load file))
-		(scatter (load-ctf-buf buf) :file file)))
 
 ;;;;;;;;;;;;;;;;;;
 ; otf/ttf compiler
@@ -979,9 +866,122 @@
 	(when (defq buf (load file))
 		(scatter (load-otf-ttf-buf buf file) :file file)))
 
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;
+; ctf parser
+;;;;;;;;;;;;
+
+(defun load-ctf-buf (buf)
+	(defq ascent (get-int buf +font_data_ascent)
+		descent (get-int buf +font_data_descent)
+		xkern (get-int buf +font_data_xkern)
+		pages (list) pages_info (list)
+		ofset +font_data_size)
+	(defq font_db (scatter (Lmap) :file :nil :type "CTF"
+		:ascent ascent :descent descent :xkern xkern)
+		running :t)
+	(while running
+		(defq pend (get-uint buf ofset))
+		(++ ofset +int_size)
+		(cond
+			((or (= pend 0) (= pend -1))
+				(setq running :nil))
+			(:t (defq pstart (get-uint buf ofset)
+					count (inc (- pend pstart))
+					offsets (list))
+				(++ ofset +int_size)
+				(times count
+					(push offsets (get-uint buf ofset))
+					(++ ofset +int_size))
+				(push pages_info (list pstart pend offsets)))))
+	(defq active_glyphs (list))
+	(each (lambda (page_db)
+		(bind '(start end offsets) page_db)
+		(defq c start)
+		(each (lambda (glyph_offset)
+			(when (or (empty? opt_r) (some (lambda ((s e)) (<= s c e)) opt_r))
+				(defq width (get-uint buf (+ glyph_offset +font_path_width))
+					len (get-uint buf (+ glyph_offset +font_path_plen))
+					klen (get-uint buf (+ glyph_offset +font_path_klen))
+					min_x 0 max_x 0 min_y 0 max_y 0
+					commands (list)
+					kerns (list)
+					g_offset (+ glyph_offset +font_path_size)
+					k_offset (+ glyph_offset +font_path_size len))
+				(times klen
+					(push kerns (list (get-ushort buf (+ k_offset +font_kern_code)) (<< (get-short buf (+ k_offset +font_kern_xkern)) 10)))
+					(++ k_offset +font_kern_size))
+				(when (> len 0)
+					(defq end_g_offset (+ g_offset len)
+						coords_x (list) coords_y (list))
+					(while (< g_offset end_g_offset)
+						(defq type (get-int buf g_offset))
+						(++ g_offset +font_path_element_size)
+						(cond
+							((or (= type 0) (= type 1))
+								(defq rx (get-int buf g_offset)
+									ry (get-int buf (+ g_offset +int_size)))
+								(++ g_offset (- +font_line_element_size +font_path_element_size))
+								(push coords_x rx)
+								(push coords_y ry)
+								(push commands (list type rx ry)))
+							((= type 2)
+								(defq rx1 (get-int buf g_offset)
+									ry1 (get-int buf (+ g_offset +int_size))
+									rx2 (get-int buf (+ g_offset (* +int_size 2)))
+									ry2 (get-int buf (+ g_offset (* +int_size 3)))
+									rx (get-int buf (+ g_offset (* +int_size 4)))
+									ry (get-int buf (+ g_offset (* +int_size 5))))
+								(++ g_offset (- +font_curve_element_size +font_path_element_size))
+								(push coords_x rx1 rx2 rx)
+								(push coords_y ry1 ry2 ry)
+								(push commands (list type rx1 ry1 rx2 ry2 rx ry)))
+							((= type 3)
+								(defq rx1 (get-int buf g_offset)
+									ry1 (get-int buf (+ g_offset +int_size))
+									rx (get-int buf (+ g_offset (* +int_size 2)))
+									ry (get-int buf (+ g_offset (* +int_size 3))))
+								(++ g_offset (- +font_quad_element_size +font_path_element_size))
+								(push coords_x rx1 rx)
+								(push coords_y ry1 ry)
+								(push commands (list type rx1 ry1 rx ry)))))
+					(when (nempty? coords_x)
+						(setq min_x (reduce (const min) coords_x)
+							max_x (reduce (const max) coords_x)
+							min_y (reduce (const min) coords_y)
+							max_y (reduce (const max) coords_y)))
+					(push active_glyphs (scatter (Lmap)
+						:char_code c :offset glyph_offset :advance width
+						:min_x min_x :max_x max_x :min_y min_y :max_y max_y
+						:commands commands :kerns kerns))))
+			(++ c))
+			offsets))
+		pages_info)
+	(defq pages (list))
+	(when (nempty? active_glyphs)
+		(sort active_glyphs (# (- (. %0 :find :char_code) (. %1 :find :char_code))))
+		(defq first_g (first active_glyphs)
+			pstart (. first_g :find :char_code) pend pstart
+			page_glyphs (list first_g) index 1)
+		(while (< index (length active_glyphs))
+			(defq glyph_db (elem-get active_glyphs index)
+				c (. glyph_db :find :char_code))
+			(cond
+				((= c (inc pend))
+					(setq pend c)
+					(push page_glyphs glyph_db))
+				(:t (push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs))
+					(setq pstart c pend c page_glyphs (list glyph_db))))
+			(++ index))
+		(push pages (scatter (Lmap) :start pstart :end pend :glyphs page_glyphs)))
+	(scatter font_db :pages pages))
+
+(defun load-ctf (file)
+	(when (defq buf (load file))
+		(scatter (load-ctf-buf buf) :file file)))
+
+;;;;;;;;;;;;;;;;;;;;
 ; writer and printer
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
 
 (defun write-ctf (font_db file)
 	(when (and font_db (defq stream (file-stream file +file_open_write)))
