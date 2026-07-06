@@ -34,7 +34,7 @@
 				(splice line (cat " <" tag "> </" tag "> ") (push idxs x -1)))
 			(line)))
 		'(("~~[^~]+~~" "==[^=]+==" "\\*\\*\\*[^*]+\\*\\*\\*" "\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*")
-		"shxbi" (2 2 3 2 1)) line)))
+		"shxbi" (2 2 3 2 1)) line) +char_class_white_space))
 	;splice quoted sections back in
 	(cond
 		((nempty? quoted)
@@ -102,15 +102,13 @@
 		(if (find "*" style)
 			(progn
 				(defq indent_text (Text))
-				(def indent_text :text (cat indent indent) :font (get :font flow))
-				(. flow :add_child indent_text)
+				(def indent_text :text (cat indent indent))
 				(def text :text (cat (num-to-utf8 0xe979) " ") :font (get :font_bullet flow))
-				(. flow :add_child text)
-				(setq cnt (setq indent_width (+ (first (. indent_text :pref_size)) (first (. text :pref_size))))))
+				(.-> flow (:add_child indent_text) (:add_child text)))
 			(progn
 				(def text :text (cat indent indent style))
-				(. flow :add_child text)
-				(setq cnt (setq indent_width (first (. text :pref_size)))))))
+				(. flow :add_child text)))
+		(setq cnt (setq indent_width (first (. flow :pref_size)))))
 	(each (lambda (word)
 		(when (= (word-state word) -1)
 			(defq text (create-word word state))
