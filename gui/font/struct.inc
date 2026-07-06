@@ -12,7 +12,7 @@
 	(uint end start))
 
 (structure +font_path 0
-;	(uint code)
+	(uint code)
 	(int width)	;8.24 format
 	(uint plen klen))
 
