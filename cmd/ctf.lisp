@@ -1,6 +1,5 @@
 (import "lib/options/options.inc")
 (import "gui/font/struct.inc")
-(import "lib/debug/frames.inc")
 
 (defq usage `(
 (("-h" "--help")
