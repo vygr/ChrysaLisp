@@ -7,9 +7,9 @@
 
 (setq *stack_frame* (list))
 
-(defun stack-instrument (name form)
+(defun stack-instrument (n form)
 	(bind '(name line) (repl-info))
-	`((push *stack_frame* ,(str name "(" line ")"))
+	`((push *stack_frame* ,(str n " -> " name "(" line ")"))
 	(defq __r__ (progn ~form))
 	(pop *stack_frame*) __r__))
 
