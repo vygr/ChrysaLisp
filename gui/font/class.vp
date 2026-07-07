@@ -150,9 +150,9 @@
 	(vp-mul-rr :r4 :r1)
 	(vp-mul-rr :r4 :r2)
 	(assign '((& :r1 :r2)) '(:r3))
-	(vp-shr-cr 24 :r1)
-	(vp-shr-cr 24 :r2)
-	(vp-shr-cr 24 :r3)
+	(vp-shr-cr 13 :r1)
+	(vp-shr-cr 13 :r2)
+	(vp-shr-cr 13 :r3)
 
 	(exit :font :get_metrics '(:r0 :r1 :r2 :r3))
 	(vp-ret)
@@ -321,7 +321,6 @@
 					(break 'no_kern)
 				(vp-label 'kern_hit)
 					(assign `((,k_offset +font_kern_xkern)) `(,k_adj))
-					(vp-shl-cr 10 k_adj)
 					(vp-add-rr k_adj w)
 				(endif)
 			(endif)
@@ -335,8 +334,8 @@
 	(assign `((,this +font_pixels)) `(,gw))
 	(vp-mul-rr gw w)
 	(vp-mul-rr gw h)
-	(vp-shr-cr 24 w)
-	(vp-shr-cr 24 h)
+	(vp-shr-cr 13 w)
+	(vp-shr-cr 13 h)
 	(vp-add-cr 2 w)
 
 	(exit :font :glyph_bounds `(,this ,w ,h))
@@ -361,8 +360,8 @@
 		(vp-add-rr oy ry)
 		(vp-mul-rr pixels rx)
 		(vp-mul-rr pixels ry)
-		(vp-asr-cr 7 rx)
-		(vp-asr-cr 7 ry))
+		(vp-shl-cr 4 rx) 
+		(vp-shl-cr 4 ry))
 
 	(def-vars
 		(ptr this paths path info prev_info k_offset)
@@ -396,7 +395,7 @@
 					(loop-until {((klen - 1) => klen) = 0})
 					(break 'no_kern)
 				(vp-label 'kern_hit)
-					(assign {(k_offset->+font_kern_xkern << 10) + ox} {ox})
+					(assign {k_offset->+font_kern_xkern + ox} {ox}) ; Direct add, no shift needed!
 				(endif)
 			(endif)
 			(assign {data} {prev_info})
@@ -474,8 +473,8 @@
 	(loop-end)
 	(assign {&this->+font_data->+str_data} {iter_begin})
 
-	(exit :font :glyph_paths {this, paths, (ox * this->+font_pixels >> 24) + 2,
-		((iter_begin->+font_data_ascent + iter_begin->+font_data_descent) * this->+font_pixels) >> 24})
+	(exit :font :glyph_paths {this, paths, (ox * this->+font_pixels >> 13) + 2,
+		((iter_begin->+font_data_ascent + iter_begin->+font_data_descent) * this->+font_pixels) >> 13})
 	(pop-scope)
 	(return)
 
