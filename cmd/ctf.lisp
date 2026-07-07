@@ -1075,7 +1075,7 @@
 
 (defun print-font (font_db verbosity)
 	(when font_db
-		(if (> verbosity 2) (generate-optical-kerning font_db))
+		(if (> verbosity 0) (generate-optical-kerning font_db))
 		(print "File: " (. font_db :find :file))
 		(print "\tType: " (. font_db :find :type) " (ChrysaLisp Vector Font)")
 		(print "\tAscent: " (format-fixed-24 (. font_db :find :ascent)))
