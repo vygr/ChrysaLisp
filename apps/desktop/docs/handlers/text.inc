@@ -101,10 +101,11 @@
 		(defq text (Text))
 		(if (find "*" style)
 			(progn
-				(defq indent_text (Text))
+				(defq indent_text (Text) style_text (Text))
 				(def indent_text :text (cat indent indent))
 				(def text :text (cat (num-to-utf8 0xe979) " ") :font (get :font_bullet flow))
-				(.-> flow (:add_child indent_text) (:add_child text)))
+				(def style_text :text (slice style (bskip +char_class_white_space style -1) -1))
+				(.-> flow (:add_child indent_text) (:add_child text) (:add_child style_text)))
 			(progn
 				(def text :text (cat indent indent style))
 				(. flow :add_child text)))
