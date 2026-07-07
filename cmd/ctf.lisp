@@ -6,15 +6,15 @@
 (("-h" "--help")
 "Usage: ctf [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-v --verbosity num: verbosity level, default 0.
-		-c --ctf: convert/upgrade font file to latest .ctf spec.
-		-r --range num num: add start end char codes, default '().
+    options:
+        -h --help: this help info.
+        -v --verbosity num: verbosity level, default 0.
+        -c --ctf: convert/upgrade font file to latest .ctf spec.
+        -r --range num num: add start end char codes, default '().
 
-	Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
-	or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
-	command line, file paths are read from stdin.")
+    Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
+    or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
+    command line, file paths are read from stdin.")
 (("-c" "--ctf") ,(opt-flag 'opt_c))
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-r" "--range") ,(opt-nums 2 'opt_r))

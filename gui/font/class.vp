@@ -360,7 +360,7 @@
 		(vp-add-rr oy ry)
 		(vp-mul-rr pixels rx)
 		(vp-mul-rr pixels ry)
-		(vp-shl-cr 4 rx) 
+		(vp-shl-cr 4 rx)
 		(vp-shl-cr 4 ry))
 
 	(def-vars
