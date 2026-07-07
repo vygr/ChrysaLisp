@@ -76,6 +76,10 @@ kerning tables, and render using the info calculated.
 
 New `ctf_command.md` document, detailing the CTF format and tooling.
 
+Updated the `.ctf` font format to use a unified 3.13 fixed point format
+co-ordinate system, and reduced other fields to `ushort` and `short`. The halves
+the size of the `.ctf` files.
+
 ------
 
 New `benchmark` GUI app for a visual full build benchmark result. The mean time
