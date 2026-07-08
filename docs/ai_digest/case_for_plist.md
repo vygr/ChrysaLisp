@@ -24,13 +24,13 @@ follows a highly optimized execution path:
 
 * **VTable Verification**:
 
-	The engine checks if the search key's vtable is equal to the global `:sym`
-	vtable.
+	The engine checks if the search key's vtable is equal to the global `:sym` or
+	`:str` vtables.
 
 * **Direct Index Access**:
 
-	If the key is a symbol, the engine reads the symbol's cached `+str_hashslot`
-	value.
+	If the key is a symbol or string, the engine reads the symbol's cached
+	`+str_hashslot` value.
 
 * **Bounds Checking**:
 
@@ -47,7 +47,7 @@ follows a highly optimized execution path:
 	If there is a mismatch (caused by a collision or a lookup in a different
 	scope), the engine performs a linear scan of the `:plist`. Once found, it
 	updates the symbol's `+str_hashslot` with the new index. All subsequent lookups
-	of this symbol in the same context resolve at O(1) speed.
+	of this symbol or string in the same context resolve at O(1) speed.
 
 * **Polymorphic Fallback**:
 
