@@ -26,17 +26,18 @@
 	(vpif `(,iter_begin /= ,iter_end))
 		;key a symbol?
 		(f-bind :sym :vtable key2)
+		(switch)
 		(assign `((,key1 +obj_vtable)) `(,iter))
-		(vpif `(,key2 = ,iter))
-			;symbol with str_hashslot cache
-			(vp-cpy-rr iter_begin iter)
+		(nextcaseif `(,key2 /= ,iter))
+			;:sym with str_hashslot cache
 			(assign `((,key1 +str_hashslot)) `(,key2))
+			(vp-cpy-rr iter_begin iter)
 			(vp-sub-rr key2 iter)
 			(vpif `(,iter < ,iter_end))
 				(assign `((,iter 0)) `(,key2))
 				(gotoif `(,key1 = ,key2) 'slot_hit)
 			(endif)
-			;cache miss, so scan the bucket
+			;cache miss, so scan the bucket with address
 			(vp-cpy-rr iter_begin iter)
 			(loop-start)
 				(assign `((,iter 0)) `(,key2))
@@ -44,6 +45,19 @@
 				(vp-add-cr (* +ptr_size 2) iter)
 			(loop-until `(,iter >= ,iter_end))
 		(else)
+			;:sym inherits from :str !
+			(assign `((,key2 +obj_vtable)) `(,key2))
+			(nextcaseif `(,key2 /= ,iter))
+			;:str with str_hashslot cache
+			(assign `((,key1 +str_hashslot)) `(,key2))
+			(vp-cpy-rr iter_begin iter)
+			(vp-sub-rr key2 iter)
+			(vpif `(,iter < ,iter_end))
+				(call :obj :eql `(,key1 (,iter 0)) `(,key1 tmp) :r2)
+				(gotoif `(,tmp = 0) 'slot_hit)
+			(endif)
+			;cache miss, so scan the bucket with eql
+		(default)
 			;use the :eql virtual method
 			(vp-cpy-rr iter_begin iter)
 			(loop-start)
@@ -51,7 +65,7 @@
 				(gotoif `(,tmp = 0) 'slot_hit)
 				(vp-add-cr (* +ptr_size 2) iter)
 			(loop-until `(,iter >= ,iter_end))
-		(endif)
+		(endswitch)
 	(endif)
 
 	(exit :plist :pfind `(,this 0 ,iter_begin ,iter_end))
@@ -114,7 +128,10 @@
 	(f-bind :sym :vtable saved_key)
 	(assign `((,iter +obj_vtable)) `(,saved_value))
 	(vp-sub-cr (* +ptr_size 2) iter_e)
+	(gotoif `(,saved_key = ,saved_value) 'init_slot)
+	(assign `((,saved_key +obj_vtable)) `(,saved_key))
 	(vpif `(,saved_key = ,saved_value))
+	(vp-label 'init_slot)
 		(vp-sub-rr iter_e iter_s)
 		(assign `(,iter_s) `((,iter +str_hashslot)))
 	(endif)

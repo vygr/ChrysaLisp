@@ -4,6 +4,11 @@
 
 ------
 
+`:plist :find` and `:plist :insert` now use the `+str_hashslot` cache for bot
+`:sym` and `:str` keys.
+
+------
+
 New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)
 -> :nil | val)`, `(perase plist key) -> plist` and `(pfindi plist key) -> :nil
 | idx)` functions.
