@@ -7,6 +7,10 @@
 `:plist :find` and `:plist :insert` now use the `+str_hashslot` cache for bot
 `:sym` and `:str` keys.
 
+Do the `:font :flush` check along with the other caches in `:lisp :run`, do this
+check first before flushing the symbols, do not cross reference the font symbols
+and the global symbols !
+
 ------
 
 New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)

@@ -525,12 +525,8 @@
 		(call :sym :ref {sym})
 		(call :texture :ref {txt})
 		(call :list :push_back2 {bucket, sym, txt})
-
-		;flush cache ?
 		(assign {@sys/statics/statics} {statics})
-		(vpif {(statics->statics_font_count + 1 => statics->statics_font_count) >= font_max_word_cache})
-			(call :font :flush)
-		(endif)
+		(assign {statics->statics_font_count + 1} {statics->statics_font_count})
 	(else)
 		(call :obj :ref {iter[+ptr_size]} {txt})
 	(endif)
@@ -592,13 +588,14 @@
 	;:r0-:r14, :f0-:f15
 
 	(def-vars
-		(ptr font new_map flat_set tmp)
+		(ptr font new_map flat_set tmp statics)
 		(uint length index))
 
 	(push-scope)
 
 	;must not use iters as kernel callbacks will deshedule us !
-	(assign {0, @sys/statics/statics.statics_font_intern} {index, flat_set})
+	(assign {@sys/statics/statics} {statics})
+	(assign {0, statics->statics_font_intern} {index, flat_set})
 	(loop-start)
 		(call :array :get_length {flat_set} {_, length})
 		(breakif {index = length})
@@ -613,42 +610,14 @@
 		(endif)
 		(call :hmap :create {font->+font_sym_map->+hset_key_callback,
 			font->+font_sym_map->+hset_num_buckets} {new_map})
-		(call :hmap :each {font->+font_sym_map, $flush_callback, new_map})
-		;during deref +font_sym_map could be written to !
 		(assign {font->+font_sym_map} {tmp})
 		(assign {new_map} {font->+font_sym_map})
 		(call :hmap :deref {tmp})
 		(assign {index + 1} {index})
 	(loop-end)
+	(assign {0} {statics->statics_font_count})
 
 	(pop-scope)
 	(return)
-
-(vp-label 'flush_callback)
-	;inputs
-	;:r0 = predicate data (ptr)
-	;:r1 = element iterator (pptr)
-	;outputs
-	;:r1 = 0 if break, else not
-	;trashes
-	;:r1-:r14
-
-	(assign '((:r1 0) (:r1 +ptr_size)) '(:r1 :r2))
-	(assign '((:r2 +obj_count)) '(:r3))
-	(switch)
-	(vpcase '(:r3 /= 1))
-		(class/obj/ref :r1 :r3)
-		(class/obj/ref :r2 :r3)
-		(vp-push :r1 :r2)
-		(call :hmap :bucket '(:r0 :r1) '(_ :r0))
-		(vp-pop :r1 :r2)
-		(jump :list :push_back2 '(:r0 :r1 :r2))
-	(default)
-		(fn-bind 'sys/statics/statics :r0)
-		(assign '((:r0 statics_font_count)) '(:r2))
-		(vp-sub-cr 1 :r2)
-		(assign '(:r2) '((:r0 statics_font_count)))
-	(endif)
-	(vp-ret)
 
 (def-func-end)

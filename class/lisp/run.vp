@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "lib/consts/chars.inc")
 (include "gui/view/class.inc")
+(include "gui/font/class.inc")
 (include "./class.inc")
 (include "././sstream/class.inc")
 
@@ -47,9 +48,12 @@
 		(call :lisp :deref {lisp})
 	(endif)
 
-	;flush interned symbols, nums and mem blocks
-	(call :hset :flush {@sys/statics/statics.statics_sym_intern})
+	;flush interned symbols, nums, font cache and mem blocks
+	(vpif {@sys/statics/statics.statics_font_count >= font_max_word_cache})
+		(call :font :flush)
+	(endif)
 	(call :hset :flush {@sys/statics/statics.statics_num_intern})
+	(call :hset :flush {@sys/statics/statics.statics_sym_intern})
 	(call :sys_mem :collect)
 
 	(pop-scope)
