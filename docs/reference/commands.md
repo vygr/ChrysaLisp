@@ -27,6 +27,7 @@ Usage: ctf [options] [path] ...
         -v --verbosity num: verbosity level, default 0.
         -c --ctf: convert/upgrade font file to latest .ctf spec.
         -r --range num num: add start end char codes, default '().
+        -j --jobs num: max jobs per batch, default 1.
 
     Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
     or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
