@@ -21,10 +21,6 @@ string to be painted, but as a hierarchical UI tree.
   * Every single word in a standard markdown paragraph is instantiated as its
     own independent `Text` widget.
 
-  * Rather than storing thousands of redundant strings, the raw text for each
-    word is interned in a fast hash set (`*page_words*`). The `Text` widget
-    simply holds a pointer to this interned string.
-
   * Formatting is maintained via a state machine. As the parser encounters
     markup tags, it flips bits in a `state` integer (e.g., `+state_bold`,
     `+state_code`). When a word is instantiated, it checks this bitmask and

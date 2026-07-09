@@ -61,7 +61,7 @@
 (defun create-word (word state)
 	(. flow :add_child (defq text (Text)))
 	(push *search_widgets* text)
-	(def text :text (. *page_words* :intern (sym (cat word " "))))
+	(def text :text (sym (cat word " ")))
 	;font changes
 	(if (bits? state +state_italic) (def text :font (get :font_italic flow)))
 	(if (bits? state +state_bold) (def text :font (get :font_bold flow)))
