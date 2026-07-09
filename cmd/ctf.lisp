@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "lib/task/cmd.inc")
 (import "gui/font/struct.inc")
 
 (defq usage `(
@@ -10,6 +11,7 @@
         -v --verbosity num: verbosity level, default 0.
         -c --ctf: convert/upgrade font file to latest .ctf spec.
         -r --range num num: add start end char codes, default '().
+        -j --jobs num: max jobs per batch, default 1.
 
     Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
     or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
@@ -17,6 +19,7 @@
 (("-c" "--ctf") ,(opt-flag 'opt_c))
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-r" "--range") ,(opt-nums 2 'opt_r))
+(("-j" "--jobs") ,(opt-num 'opt_j))
 ))
 
 (defq
@@ -1194,34 +1197,48 @@
 		(:t (print "Error: Unsupported font file format " file)
 			(print))))
 
+(defun work (file)
+	(if opt_c
+		(progn
+			(defq new_file (cat (slice file 0 (dec (rfind "." file))) ".ctf"))
+			(cond
+				((ends-with ".ctf" file)
+					(if (defq font_db (load-ctf file))
+						(progn
+							(generate-optical-kerning font_db)
+							(if (write-ctf font_db new_file)
+								(print "Wrote font: " new_file)
+								(print "Error: Failed to write " new_file)))
+						(print "Error: Cannot open font file " file)))
+				((or (ends-with ".otf" file) (ends-with ".ttf" file))
+					(if (defq font_db (load-otf-ttf file))
+						(progn
+							(generate-optical-kerning font_db)
+							(if (write-ctf font_db new_file)
+								(print "Compiled and wrote font: " new_file)
+								(print "Error: Failed to write " new_file)))
+						(print "Error: Cannot open font file " file)))
+				(:t (print "Error: Unsupported font file format " file))))
+		(process-file file opt_v)))
+
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_c :nil opt_v 0 opt_r (list) args (options stdio usage)))
-		(defq files (rest args))
-		(if (empty? files)
-			(lines! (# (push files %0)) (io-stream 'stdin)))
-		(if opt_c
-			(each (lambda (file)
-				(defq new_file (cat (slice file 0 (dec (rfind "." file))) ".ctf"))
-				(cond
-					((ends-with ".ctf" file)
-						(if (defq font_db (load-ctf file))
-							(progn
-								(generate-optical-kerning font_db)
-								(if (write-ctf font_db new_file)
-									(print "Wrote font: " new_file)
-									(print "Error: Failed to write " new_file)))
-							(print "Error: Cannot open font file " file)))
-					((or (ends-with ".otf" file) (ends-with ".ttf" file))
-						(if (defq font_db (load-otf-ttf file))
-							(progn
-								(generate-optical-kerning font_db)
-								(if (write-ctf font_db new_file)
-									(print "Compiled and wrote font: " new_file)
-									(print "Error: Failed to write " new_file)))
-							(print "Error: Cannot open font file " file)))
-					(:t (print "Error: Unsupported font file format " file))))
-				files)
-			(each (# (process-file %0 opt_v)) files))))
+			(defq opt_c :nil opt_v 0 opt_r (list) opt_j 1 args (options stdio usage)))
+		(if (empty? (defq jobs (rest args)))
+			(progn
+				(setq jobs (list))
+				(lines! (# (push jobs %0)) (io-stream 'stdin))))
+		(if (<= (length jobs) opt_j)
+			(each (const work) jobs)
+			(progn
+				(defq range_args (if (empty? opt_r) "" (apply (const cat) (map (# (str " -r " (first %0) " " (second %0))) opt_r))))
+				(each (lambda ((job result)) (prin result))
+					(pipe-farm (map (# (str (first args)
+							" -j " opt_j
+							" -v " opt_v
+							(if opt_c " -c" "")
+							range_args
+							" " (slice (str %0) 1 -2)))
+						(partition jobs opt_j))))))))

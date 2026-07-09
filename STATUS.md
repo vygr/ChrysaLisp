@@ -13,6 +13,9 @@ and the global symbols !
 
 Fixed `Substr` class search of a `:sym` as the source text.
 
+`-j, --jobs` option added to `ctf` command, defaults to 1. Each font file is
+distributed to an individual node.
+
 ------
 
 New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)
