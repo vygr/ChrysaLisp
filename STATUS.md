@@ -11,6 +11,8 @@ Do the `:font :flush` check along with the other caches in `:lisp :run`, do this
 check first before flushing the symbols, do not cross reference the font symbols
 and the global symbols !
 
+Fixed `Substr` class search of a `:sym` as the source text.
+
 ------
 
 New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)
