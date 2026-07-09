@@ -1227,13 +1227,12 @@
 			(defq stdio (create-stdio))
 			(defq opt_c :nil opt_v 0 opt_r (list) opt_j 1 args (options stdio usage)))
 		(if (empty? (defq jobs (rest args)))
-			(progn
-				(setq jobs (list))
-				(lines! (# (push jobs %0)) (io-stream 'stdin))))
+			(lines! (# (push jobs %0)) (io-stream 'stdin)))
 		(if (<= (length jobs) opt_j)
 			(each (const work) jobs)
 			(progn
-				(defq range_args (if (empty? opt_r) "" (apply (const cat) (map (# (str " -r " (first %0) " " (second %0))) opt_r))))
+				(defq range_args (if (empty? opt_r) ""
+					(apply (const cat) (map (# (str " -r " (first %0) " " (second %0))) opt_r))))
 				(each (lambda ((job result)) (prin result))
 					(pipe-farm (map (# (str (first args)
 							" -j " opt_j
