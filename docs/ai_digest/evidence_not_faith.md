@@ -46,7 +46,7 @@ libraries for a single, native architecture.
     `make-test` function recompiles all `.vp` source files for the host
     architecture (ARM64) ten times and calculates the average.
 
-*   **Result:** **~0.074 seconds** (mean time per rebuild).
+*   **Result:** **~0.073 seconds** (mean time per rebuild).
 
 *   **Evidence:** This demonstrates the absolute speed of the ChrysaLisp
     compiler running natively. A complete OS rebuild in 74 milliseconds sets
@@ -64,7 +64,7 @@ different target architectures simultaneously.
     arm64/ARM64, riscv64/RISCV64, and vp64/VP64. The output is piped to the
     `cmd/time.lisp` application, which measures the total duration.
 
-*   **Result:** **0.419240 seconds**.
+*   **Result:** **0.36 seconds**.
 
 *   **Evidence:** This is the total time to compile the *entire operating
     system five times*, once for each target architecture. This showcases the
@@ -81,35 +81,35 @@ build a native version of itself while running on the portable C++ emulator.
     ChrysaLisp. Inside this emulated environment, it then invokes
     `make all boot` to build a **native ARM64** boot image from source.
 
-*   **Result (M4):** **2.268061 seconds**.
+*   **Result (M4):** **1.79 seconds**.
 
 *   **Result (Raspberry Pi 4):** **~10 seconds**.
 
-*   **Evidence:** The 2.2-second time on the M4 is not a native build; it's
-    the time for the portable software emulator to perform a full native
-    compile and link. The fact that a low-power Raspberry Pi 4 can perform
-    this same complex bootstrap in only ~10 seconds is the ultimate proof of
-    the architecture's efficiency. The performance scales predictably, even
-    when running on an entirely different class of hardware via emulation.
+* **Evidence:** The 1.79 second time on the M4 is not a native build; it's the
+  time for the portable software emulator to perform a full native compile and
+  link. The fact that a low-power Raspberry Pi 4 can perform this same complex
+  bootstrap in only ~10 seconds is the ultimate proof of the architecture's
+  efficiency. The performance scales predictably, even when running on an
+  entirely different class of hardware via emulation.
 
 ## The Result: Compact and Efficient Boot Images
 
 The "linkerless" build process results in remarkably small, self-contained
 `boot_image` files, validating the minimal footprint claim.
 
-*   `obj/x86_64/AMD64/sys/boot_image` **(173788 bytes)**
+*   `obj/x86_64/AMD64/sys/boot_image` **(194748 bytes)**
 
-*   `obj/x86_64/WIN64/sys/boot_image` **(174092 bytes)**
+*   `obj/x86_64/WIN64/sys/boot_image` **(195060 bytes)**
 
-*   `obj/arm64/ARM64/sys/boot_image` **(203620 bytes)**
+*   `obj/arm64/ARM64/sys/boot_image` **(218652 bytes)**
 
-*   `obj/riscv64/RISCV64/sys/boot_image` **(228676 bytes)**
+*   `obj/riscv64/RISCV64/sys/boot_image` **(248444 bytes)**
 
-*   `obj/vp64/VP64/sys/boot_image` **(131948 bytes)**
+*   `obj/vp64/VP64/sys/boot_image` **(142156 bytes)**
 
-These sizes, typically under 200 KB, are small enough to fit within the L1
-cache of a modern CPU core, drastically reducing memory latency and
-contributing to the system's overall responsiveness.
+These sizes, typically around 200 KB, are small enough to fit within the L1
+cache of a modern CPU core, drastically reducing memory latency and contributing
+to the system's overall responsiveness.
 
 ## The VP64 Target: A First-Class Citizen
 
