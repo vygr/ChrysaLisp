@@ -40,29 +40,20 @@
 	(str (n2f val)))
 
 (defun flatten-commands (commands)
-	(defq p (path) p0_x 0.0 p0_y 0.0)
-	(each (lambda (cmd)
-		(defq type (first cmd))
-		(cond
-			((= type 0) ; moveto
-				(setq p0_x (n2f (second cmd)) p0_y (n2f (third cmd)))
-				(push p p0_x p0_y))
-			((= type 1) ; lineto
-				(setq p0_x (n2f (second cmd)) p0_y (n2f (third cmd)))
-				(push p p0_x p0_y))
-			((= type 3) ; quadto
-				(defq x1 (n2f (second cmd)) y1 (n2f (third cmd))
-					x2 (n2f (elem-get cmd 3)) y2 (n2f (elem-get cmd 4)))
-				(path-gen-quadratic p0_x p0_y x1 y1 x2 y2 p)
-				(setq p0_x x2 p0_y y2))
-			((= type 2) ; curveto
-				(defq x1 (n2f (second cmd)) y1 (n2f (third cmd))
-					x2 (n2f (elem-get cmd 3)) y2 (n2f (elem-get cmd 4))
-					x3 (n2f (elem-get cmd 5)) y3 (n2f (elem-get cmd 6)))
-				(path-gen-cubic p0_x p0_y x1 y1 x2 y2 x3 y3 p)
-				(setq p0_x x3 p0_y y3))))
-		commands)
-	p)
+    (defq p (path) x 0.0 y 0.0)
+    (each (lambda (cmd)
+        (case (first cmd)
+            ((0 1)	; moveto, lineto
+                (push p (setq x (n2f (second cmd))) (setq y (n2f (third cmd)))))
+            (2	; curveto
+                (path-gen-cubic x y (n2f (second cmd)) (n2f (third cmd))
+                    (n2f (elem-get cmd 3)) (n2f (elem-get cmd 4))
+                    (setq x (n2f (elem-get cmd 5))) (setq y (n2f (elem-get cmd 6))) p))
+            (3	; quadto
+                (path-gen-quadratic x y (n2f (second cmd)) (n2f (third cmd))
+                    (setq x (n2f (elem-get cmd 3))) (setq y (n2f (elem-get cmd 4))) p))))
+        commands)
+    p)
 
 (defun compute-envelope (path ascent descent)
 	; path is a 16.16 path vector of flat coordinates
@@ -597,8 +588,7 @@
 							(defq x1 (n2r 0) y1 (n2r 0) x2 (n2r 0) y2 (n2r 0) x3 (n2r 0) y3 (n2r 0)
 								extra (if (= (- sp i) 5) (elem-get stack (+ i 4)) (n2r 0)))
 							(cond
-								(h
-									(setq x1 (+ cx (elem-get stack i))
+								(h	(setq x1 (+ cx (elem-get stack i))
 										y1 cy
 										x2 (+ x1 (elem-get stack (+ i 1)))
 										y2 (- y1 (elem-get stack (+ i 2)))
