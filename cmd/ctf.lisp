@@ -2,7 +2,7 @@
 (import "gui/path/lisp.inc")
 (import "lib/task/cmd.inc")
 (import "gui/font/struct.inc")
-(import "lib/debug/frames.inc")
+;(import "lib/debug/frames.inc")
 
 (defq usage `(
 (("-h" "--help")
