@@ -104,9 +104,7 @@
                 (setq max_overlap (max max_overlap required_dist)
                     has_valid :t)))
         profile_a profile_b)
-    (if has_valid
-        (- max_overlap (+ width_a default_kern))
-        :nil))
+    (if has_valid (- max_overlap (+ width_a default_kern))))
 
 (defun generate-optical-kerning (font_db)
 	(defq ascent_r (. font_db :find :ascent) descent_r (. font_db :find :descent)
