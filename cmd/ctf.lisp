@@ -87,11 +87,9 @@
 					(setq xmin (min xmin x) xmax (max xmax x)))
 				(setq p1 p2))
 			pts)
-		(if (< xmin 1000000.0)
-			(progn
-				(setq xmin (min xmin (+ gmin_x limit)) xmax (max xmax (- gmax_x limit)))
-				(push envelope (list y xmin xmax)))
-			(push envelope (list y :nil :nil))))
+		(push envelope (if (< xmin 1000000.0)
+			(list y (min xmin (+ gmin_x limit)) (max xmax (- gmax_x limit)))
+			(list y :nil :nil))))
 	envelope)
 
 (defun calculate-pair-kern (profile_a profile_b width_a default_kern target_gap)
