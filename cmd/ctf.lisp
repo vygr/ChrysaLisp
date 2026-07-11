@@ -1,21 +1,26 @@
+;;;;;;;;;;;;;;
+; cmd/ctf.lisp
+;;;;;;;;;;;;;;
 (import "lib/options/options.inc")
+(import "gui/path/lisp.inc")
 (import "lib/task/cmd.inc")
 (import "gui/font/struct.inc")
+(import "lib/debug/frames.inc")
 
 (defq usage `(
 (("-h" "--help")
 "Usage: ctf [options] [path] ...
 
-    options:
-        -h --help: this help info.
-        -v --verbosity num: verbosity level, default 0.
-        -c --ctf: convert/upgrade font file to latest .ctf spec.
-        -r --range num num: add start end char codes, default '().
-        -j --jobs num: max jobs per batch, default 1.
+	options:
+		-h --help: this help info.
+		-v --verbosity num: verbosity level, default 0.
+		-c --ctf: convert/upgrade font file to latest .ctf spec.
+		-r --range num num: add start end char codes, default '().
+		-j --jobs num: max jobs per batch, default 1.
 
-    Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
-    or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
-    command line, file paths are read from stdin.")
+	Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
+	or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
+	command line, file paths are read from stdin.")
 (("-c" "--ctf") ,(opt-flag 'opt_c))
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-r" "--range") ,(opt-nums 2 'opt_r))
@@ -25,175 +30,162 @@
 (defq
 	; number of vertical slices used to scan glyph envelopes
 	+opt_num_slices 64
-	; divisor for target optical gap from total height (e.g. 64 = 1.56% of em-height)
-	; decrease this divisor to make the target optical gap (and default kern) wider.
-	; e.g. 48 = ~2.08% of em-height, 32 = ~3.12% of em-height
-	+opt_target_gap_divisor 16
-	+opt_threshold_divisor 80
-	; divisor for the default xkern fallback heuristic (e.g. 5 = 6.25% of em-height)
-	+opt_xkern_divisor 5
+	; divisor for target optical gap from total height (e.g. 16.0 = 6.25% of em-height)
+	+opt_target_gap_divisor 16.0
+	+opt_threshold_divisor 80.0
+	; divisor for the default xkern fallback heuristic (e.g. 5.0 = 20% of em-height)
+	+opt_xkern_divisor 5.0
 	; divisor for the maximum allowed indentation into glyph side concavities
-	; (e.g., 4 means max indentation is 25% of the glyph's bounding width)
-	+opt_indent_limit_divisor 4
+	+opt_indent_limit_divisor 4.0
 )
 
+(defun format-real (val)
+	(str (n2f val)))
+
 (defun flatten-commands (commands)
-	(defq segments (list) p0 '(0 0))
+	(defq p (path) p0_x 0.0 p0_y 0.0)
 	(each (lambda (cmd)
 		(defq type (first cmd))
 		(cond
 			((= type 0) ; moveto
-				(setq p0 (slice cmd 1 3)))
+				(setq p0_x (n2f (second cmd))
+					  p0_y (n2f (third cmd)))
+				(push p p0_x p0_y))
 			((= type 1) ; lineto
-				(defq p1 (slice cmd 1 3))
-				(push segments (cat p0 p1))
-				(setq p0 p1))
+				(setq p0_x (n2f (second cmd))
+					  p0_y (n2f (third cmd)))
+				(push p p0_x p0_y))
 			((= type 3) ; quadto
-				(bind '(x1 y1 x2 y2) (slice cmd 1 -1))
-				(defq steps 8)
-				(for 1 steps
-					(defq t (* (!) 32) ; t scaled to [0, 256]
-						mt (- 256 t)
-						mt2 (>> (* mt mt) 8)
-						t2 (>> (* t t) 8)
-						mtt (>> (* 2 mt t) 8)
-						px (>>> (+ (* mt2 (first p0)) (* mtt x1) (* t2 x2)) 8)
-						py (>>> (+ (* mt2 (second p0)) (* mtt y1) (* t2 y2)) 8)
-						p_next (list px py))
-					(push segments (cat p0 p_next))
-					(setq p0 p_next)))
+				(defq x1 (n2f (second cmd))
+					  y1 (n2f (third cmd))
+					  x2 (n2f (elem-get cmd 3))
+					  y2 (n2f (elem-get cmd 4)))
+				(path-gen-quadratic p0_x p0_y x1 y1 x2 y2 p)
+				(setq p0_x x2 p0_y y2))
 			((= type 2) ; curveto
-				(bind '(x1 y1 x2 y2 x3 y3) (slice cmd 1 -1))
-				(defq steps 8)
-				(for 1 steps
-					(defq t (* (!) 32) ; t scaled to [0, 256]
-						mt (- 256 t)
-						mt3 (>> (* mt mt mt) 16)
-						t3 (>> (* t t t) 16)
-						mtt3 (>> (* 3 mt mt t) 16)
-						mtt3_2 (>> (* 3 mt t t) 16)
-						px (>>> (+ (* mt3 (first p0)) (* mtt3 x1) (* mtt3_2 x2) (* t3 x3)) 8)
-						py (>>> (+ (* mt3 (second p0)) (* mtt3 y1) (* mtt3_2 y2) (* t3 y3)) 8)
-						p_next (list px py))
-					(push segments (cat p0 p_next))
-					(setq p0 p_next)))))
+				(defq x1 (n2f (second cmd))
+					  y1 (n2f (third cmd))
+					  x2 (n2f (elem-get cmd 3))
+					  y2 (n2f (elem-get cmd 4))
+					  x3 (n2f (elem-get cmd 5))
+					  y3 (n2f (elem-get cmd 6)))
+				(path-gen-cubic p0_x p0_y x1 y1 x2 y2 x3 y3 p)
+				(setq p0_x x3 p0_y y3))))
 		commands)
-	segments)
+	p)
 
-(defun compute-envelope (segments ascent descent)
-	(defq gmin_x 1000000000 gmax_x -1000000000)
-	(each (lambda (cmd)
-		(bind '(x0 y0 x1 y1) cmd)
-		(setq gmin_x (min gmin_x x0 x1)
-			gmax_x (max gmax_x x0 x1))) segments)
-	(defq limit (/ (- gmax_x gmin_x) +opt_indent_limit_divisor)
-		step (/ (+ ascent descent) (dec +opt_num_slices)) envelope (list))
+(defun compute-envelope (path ascent descent)
+	; path is a 16.16 path vector of flat coordinates
+	(defq pts (partition path 2) p1 (last pts) segments (list))
+	(each (lambda (p2)
+		(push segments (cat p1 p2))
+		(setq p1 p2))
+		pts)
+	(defq gmin_x 1000000.0 gmax_x -1000000.0)
+	(each (lambda (pt)
+		(bind '(x y) pt)
+		(setq gmin_x (min gmin_x x)
+			  gmax_x (max gmax_x x)))
+		pts)
+	(defq limit (* (- gmax_x gmin_x) (const (/ 1.0 +opt_indent_limit_divisor)))
+		  step (/ (+ ascent descent) (n2f (dec +opt_num_slices)))
+		  envelope (list))
 	(for 0 +opt_num_slices
-		(defq y (+ (neg ascent) (* (!) step))
-			xmin 1000000000 xmax -1000000000
-			has_intersection :nil)
-		(each (lambda (cmd)
-			(bind '(x0 y0 x1 y1) cmd)
+		(defq y (+ (neg ascent) (* (n2f (!)) step))
+			  xmin 1000000.0 xmax -1000000.0
+			  has_intersection :nil)
+		(each (lambda (seg)
+			(bind '(x0 y0 x1 y1) seg)
 			(when (or (<= y0 y y1) (<= y1 y y0))
 				(if (/= y0 y1)
-					(progn
-						(defq x (+ x0 (/ (* (- y y0) (- x1 x0)) (- y1 y0))))
-						(setq xmin (min xmin x)
-							xmax (max xmax x)))
-					(progn
-						(setq xmin (min xmin x0 x1)
-							xmax (max xmax x0 x1))))
-				(setq has_intersection :t))) segments)
+					(defq x (+ x0 (/ (* (- y y0) (- x1 x0)) (- y1 y0))))
+					(defq x (min x0 x1)))
+				(setq xmin (min xmin x)
+					  xmax (max xmax x)
+					  has_intersection :t)))
+			segments)
 		(if has_intersection
 			(progn
-				; apply the indentation limits to prevent deep penetration into cavities
 				(setq xmin (min xmin (+ gmin_x limit))
-					xmax (max xmax (- gmax_x limit)))
+					  xmax (max xmax (- gmax_x limit)))
 				(push envelope (list y xmin xmax)))
 			(push envelope (list y :nil :nil))))
 	envelope)
 
 (defun calculate-pair-kern (profile_a profile_b width_a default_kern target_gap)
-	(defq max_overlap -1000000000 has_valid :nil)
+	(defq max_overlap -1000000.0 has_valid :nil)
 	(each (lambda (slice_a slice_b)
 		(bind '(y_a amin_x amax_x) slice_a)
 		(bind '(y_b bmin_x bmax_x) slice_b)
 		(when (and (= y_a y_b) amax_x bmin_x)
 			(defq required_dist (- (+ amax_x target_gap) bmin_x))
 			(setq max_overlap (max max_overlap required_dist)
-				has_valid :t)))
+				  has_valid :t)))
 		profile_a profile_b)
 	(if has_valid
 		(- max_overlap (+ width_a default_kern))
 		:nil))
 
 (defun generate-optical-kerning (font_db)
-	(defq ascent (. font_db :find :ascent)
-		descent (. font_db :find :descent)
-		pages (. font_db :find :pages)
-		profiles (Fmap 101))
+	(defq ascent_r (. font_db :find :ascent)
+		  descent_r (. font_db :find :descent)
+		  ascent (n2f ascent_r)
+		  descent (n2f descent_r)
+		  pages (. font_db :find :pages)
+		  profiles (Fmap 101))
 	; 1. Generate envelope profiles for all printable glyphs (32 to 126)
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
 			(task-slice)
 			(defq c (. glyph_db :find :char_code))
 			(when (<= 32 c 126)
-				(defq segments (flatten-commands (. glyph_db :find :commands))
-					profile (compute-envelope segments ascent descent))
+				(defq path (flatten-commands (. glyph_db :find :commands))
+					  profile (compute-envelope path ascent descent))
 				(. profiles :insert c profile)))
 			(. page_db :find :glyphs)))
 		pages)
-	; 2. First pass: calculate raw overlaps to find the optimal default spacing
-	(defq raw_overlaps (list) target_gap (/ (+ ascent descent) +opt_target_gap_divisor))
+	; 2. First pass: calculate raw overlaps to find optimal default spacing
+	(defq raw_overlaps (list) target_gap (* (+ ascent descent) (const (/ 1.0 +opt_target_gap_divisor))))
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
 			(task-slice)
 			(defq c1 (. glyph_db :find :char_code))
 			(when (<= 33 c1 126)
 				(defq profile_a (. profiles :find c1)
-					width_a (. glyph_db :find :advance))
+					  width_a (n2f (. glyph_db :find :advance)))
 				(for 33 127
 					(defq c2 (!))
 					(when (defq profile_b (. profiles :find c2))
-						(when (defq raw_overlap (calculate-pair-kern profile_a profile_b width_a 0 target_gap))
+						(when (defq raw_overlap (calculate-pair-kern profile_a profile_b width_a 0.0 target_gap))
 							(push raw_overlaps raw_overlap))))))
 			(. page_db :find :glyphs)))
 		pages)
-	; Calculate the mathematically optimal default spacing (90th percentile of raw overlaps)
+	; Calculate optimal default spacing
 	(sort raw_overlaps (const -))
 	(defq xkern (if (empty? raw_overlaps)
-		0 (elem-get raw_overlaps (/ (* (length raw_overlaps) 90) 100))))
-	(. font_db :insert :xkern xkern)
-	; 3. Second pass: calculate negative kerning pairs deviating from this positive baseline
-	(defq threshold (/ (+ ascent descent) +opt_threshold_divisor))
+		0.0 (elem-get raw_overlaps (/ (* (length raw_overlaps) 90) 100))))
+	(. font_db :insert :xkern (n2r xkern))
+	; 3. Second pass: calculate negative kerning pairs deviating from this baseline
+	(defq threshold (* (+ ascent descent) (const (/ 1.0 +opt_threshold_divisor))))
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
 			(task-slice)
 			(defq c1 (. glyph_db :find :char_code))
 			(when (<= 33 c1 126)
 				(defq profile_a (. profiles :find c1)
-					width_a (. glyph_db :find :advance)
-					kerns_list (list))
+					  width_a (n2f (. glyph_db :find :advance))
+					  text_list (list))
 				(for 33 127
 					(defq c2 (!))
 					(when (defq profile_b (. profiles :find c2))
-						(when (defq raw_overlap (calculate-pair-kern profile_a profile_b width_a 0 target_gap))
-							(defq adj (- raw_overlap xkern))
-							(when (<= adj (neg threshold))
-								(push kerns_list (list c2 adj))))))
-				(when (nempty? kerns_list)
-					(. glyph_db :insert :kerns kerns_list))))
-			(. page_db :find :glyphs)))
+						(when (defq raw_overlap (calculate-pair-kern profile_a profile_b width_a xkern target_gap))
+							(when (<= raw_overlap (neg threshold))
+								(push text_list (list c2 (n2r raw_overlap))))))))
+				(when (nempty? text_list)
+					(. glyph_db :insert :text_list text_list))))
+			(. page_db :find :glyphs))
 		pages)
 	font_db)
-
-(defun format-fixed-24 (val)
-	(defq sgn "" abs_val val)
-	(if (< val 0) (setq sgn "-" abs_val (neg val)))
-	(defq int_part (>> abs_val 24)
-		frac_part (logand abs_val 0xffffff)
-		frac_dec (/ (* frac_part 10000) 16777216))
-	(cat sgn (str int_part) "." (pad frac_dec 4 "0")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; big-endian memory getters (otf)
@@ -255,8 +247,6 @@
 		(when (> tbl_len 0)
 			(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
 				subtable_offset :nil record_offset (+ tbl_offset 4))
-			; find platform 3, encoding 1 (windows unicode bmp)
-			; encoding 10 (ucs-4), or platform 0 (unicode)
 			(times num_tables
 				(unless subtable_offset
 					(defq platform_id (get-uint16-be buf record_offset)
@@ -357,13 +347,12 @@
 
 (defun parse-ttf-glyph (buf glyf_offset len scale_factor)
 	(defq number_of_contours (get-int16-be buf glyf_offset)
-		min_x (get-int16-be buf (+ glyf_offset 2))
-		min_y (get-int16-be buf (+ glyf_offset 4))
-		max_x (get-int16-be buf (+ glyf_offset 6))
-		max_y (get-int16-be buf (+ glyf_offset 8))
+		min_x (n2r (get-int16-be buf (+ glyf_offset 2)))
+		min_y (n2r (get-int16-be buf (+ glyf_offset 4)))
+		max_x (n2r (get-int16-be buf (+ glyf_offset 6)))
+		max_y (n2r (get-int16-be buf (+ glyf_offset 8)))
 		neg_scale_factor (neg scale_factor) commands (list))
 	(when (> number_of_contours 0)
-		; read endptsofcontours
 		(defq end_pts (list) idx (+ glyf_offset 10))
 		(times number_of_contours
 			(push end_pts (get-uint16-be buf idx))
@@ -371,7 +360,6 @@
 		(defq num_points (inc (last end_pts))
 			instr_len (get-uint16-be buf idx))
 		(setq idx (+ idx 2 instr_len))
-		; read flags
 		(defq flags (str-alloc num_points) fi 0)
 		(while (< fi num_points)
 			(defq f (get-ubyte buf idx))
@@ -384,39 +372,36 @@
 				(times repeat_count
 					(set-byte flags fi f)
 					(++ fi))))
-		; read x coordinates
-		(defq coords_x (nums) curr_x 0 fi 0)
+		(defq coords_x (reals) curr_x (n2r 0) fi 0)
 		(times num_points
 			(defq f (get-ubyte flags fi))
 			(cond
 				((/= (logand f 2) 0)
-					(defq dx (get-ubyte buf idx))
+					(defq dx (n2r (get-ubyte buf idx)))
 					(++ idx)
 					(if (= (logand f 16) 0) (setq dx (neg dx)))
-					(++ curr_x dx))
+					(setq curr_x (+ curr_x dx)))
 				((= (logand f 16) 0)
-					(defq dx (get-int16-be buf idx))
+					(defq dx (n2r (get-int16-be buf idx)))
 					(++ idx 2)
-					(++ curr_x dx)))
+					(setq curr_x (+ curr_x dx))))
 			(push coords_x curr_x)
 			(++ fi))
-		; read y coordinates
-		(defq coords_y (nums) curr_y 0 fi 0)
+		(defq coords_y (reals) curr_y (n2r 0) fi 0)
 		(times num_points
 			(defq f (get-ubyte flags fi))
 			(cond
 				((/= (logand f 4) 0)
-					(defq dy (get-ubyte buf idx))
+					(defq dy (n2r (get-ubyte buf idx)))
 					(++ idx)
 					(if (= (logand f 32) 0) (setq dy (neg dy)))
-					(++ curr_y dy))
+					(setq curr_y (+ curr_y dy)))
 				((= (logand f 32) 0)
-					(defq dy (get-int16-be buf idx))
+					(defq dy (n2r (get-int16-be buf idx)))
 					(++ idx 2)
-					(++ curr_y dy)))
+					(setq curr_y (+ curr_y dy))))
 			(push coords_y curr_y)
 			(++ fi))
-		; convert ttf contours to ctf commands
 		(defq start_idx 0 contour_idx 0)
 		(times number_of_contours
 			(defq end_idx (elem-get end_pts contour_idx)
@@ -425,28 +410,23 @@
 			(times c_num_points
 				(push c_points (list (elem-get coords_x pi) (elem-get coords_y pi) (/= (logand (get-ubyte flags pi) 1) 0)))
 				(++ pi))
-			; resolve starting point
 			(defq resolved_points (list))
 			(if (third (first c_points))
 				(setq resolved_points c_points)
 				(progn
-					; rotate or adjust so we start with an on-curve point
 					(defq first_on_idx (some! (# (if (third %0) (!))) c_points))
 					(if first_on_idx
 						(setq resolved_points (cat (slice c_points first_on_idx -1) (slice c_points 0 first_on_idx)))
 						(progn
-							; all points are off-curve
 							(defq p0 (last c_points) pi 0)
 							(times c_num_points
 								(defq p1 (elem-get c_points pi)
-									mx (/ (+ (first p0) (first p1)) 2)
-									my (/ (+ (second p0) (second p1)) 2))
+									mx (* (+ (first p0) (first p1)) (n2r 0.5))
+									my (* (+ (second p0) (second p1)) (n2r 0.5)))
 								(push resolved_points (list mx my :t) p1)
 								(setq p0 p1)
 								(++ pi))))))
-			; now process the resolved points
 			(when (nempty? resolved_points)
-				; add closing point
 				(push resolved_points (first resolved_points))
 				(defq p0 (first resolved_points)
 					p1x (* (- (first p0) min_x) scale_factor)
@@ -457,16 +437,15 @@
 					(defq p1 (elem-get resolved_points ri))
 					(cond
 						((third p1)
-							; next is on-curve -> lineto
 							(push commands (list 1 (* (- (first p1) min_x) scale_factor) (* (second p1) neg_scale_factor)))
 							(setq p0 p1)
 							(++ ri))
-						(:t ; next is off-curve (control point for quadratic spline)
+						(:t
 							(defq p2 (elem-get resolved_points (inc ri)))
 							(if (third p2)
 								(++ ri 2))
 							(unless (third p2)
-								(setq p2 (list (/ (+ (first p1) (first p2)) 2) (/ (+ (second p1) (second p2)) 2) :t))
+								(setq p2 (list (* (+ (first p1) (first p2)) (n2r 0.5)) (* (+ (second p1) (second p2)) (n2r 0.5)) :t))
 								(++ ri))
 							(defq p0x (* (- (first p0) min_x) scale_factor)
 								p0y (* (second p0) neg_scale_factor)
@@ -480,10 +459,10 @@
 							(setq p0 p2)))))
 			(setq start_idx (inc end_idx) contour_idx (inc contour_idx)))
 		(defq temp_min_x min_x temp_min_y min_y)
-		(setq min_x 0 max_x (* (- max_x temp_min_x) scale_factor)
+		(setq min_x (n2r 0) max_x (* (- max_x temp_min_x) scale_factor)
 			min_y (* max_y neg_scale_factor)
 			max_y (* temp_min_y neg_scale_factor)))
-	(scatter (Lmap) :advance 0 :min_x min_x :max_x max_x
+	(scatter (Lmap) :advance (n2r 0) :min_x min_x :max_x max_x
 		:min_y min_y :max_y max_y :commands commands))
 
 ;;;;;;;;;;;;;;;;;;
@@ -553,10 +532,10 @@
 
 (defun push-curveto (x1 y1 x2 y2 x3 y3)
 	(if (and (= cx x1) (= cy y1) (= x2 x3) (= y2 y3))
-		(push commands (list 1 (n2i (* x3 r_scale)) (n2i (* y3 r_scale))))
-		(push commands (list 2 (n2i (* x1 r_scale)) (n2i (* y1 r_scale))
-			(n2i (* x2 r_scale)) (n2i (* y2 r_scale))
-			(n2i (* x3 r_scale)) (n2i (* y3 r_scale))))))
+		(push commands (list 1 (* x3 r_scale) (* y3 r_scale)))
+		(push commands (list 2 (* x1 r_scale) (* y1 r_scale)
+			(* x2 r_scale) (* y2 r_scale)
+			(* x3 r_scale) (* y3 r_scale)))))
 
 (defun parse-cff-glyph (buf g_offset len scale_factor)
 	(defq idx g_offset end (+ g_offset len)
@@ -598,19 +577,19 @@
 							((= b 4) (bind '(dy) stack) (-- cy dy))
 							((= b 22) (bind '(dx) stack) (++ cx dx))
 							((bind '(dx dy) stack) (++ cx dx) (-- cy dy)))
-						(push commands (list 0 (n2i (* cx r_scale)) (n2i (* cy r_scale))))
+						(push commands (list 0 (* cx r_scale) (* cy r_scale)))
 						(clear stack))
 					((= b 5)
 						(each (lambda ((dx dy))
 							(++ cx dx) (-- cy dy)
-							(push commands (list 1 (n2i (* cx r_scale)) (n2i (* cy r_scale)))))
+							(push commands (list 1 (* cx r_scale) (* cy r_scale))))
 							(partition stack 2))
 						(clear stack))
 					((find b '(6 7))
 						(defq horiz (= b 6))
 						(each (lambda (val)
 							(if horiz (++ cx val) (-- cy val))
-							(push commands (list 1 (n2i (* cx r_scale)) (n2i (* cy r_scale))))
+							(push commands (list 1 (* cx r_scale) (* cy r_scale)))
 							(setq horiz (not horiz))) stack)
 						(clear stack))
 					((= b 8)
@@ -669,7 +648,7 @@
 						(while (< i num_lines)
 							(++ cx (elem-get stack i))
 							(-- cy (elem-get stack (+ i 1)))
-							(push commands (list 1 (n2i (* cx r_scale)) (n2i (* cy r_scale))))
+							(push commands (list 1 (* cx r_scale) (* cy r_scale)))
 							(setq i (+ i 2)))
 						(defq x1 (+ cx (elem-get stack i))
 							y1 (- cy (elem-get stack (+ i 1)))
@@ -694,7 +673,7 @@
 								i (+ i 6)))
 						(defq dxa (elem-get stack i) dyb (elem-get stack (inc i)))
 						(++ cx dxa) (-- cy dyb)
-						(push commands (list 1 (n2i (* cx r_scale)) (n2i (* cy r_scale))))
+						(push commands (list 1 (* cx r_scale) (* cy r_scale)))
 						(clear stack))
 					((= b 26)
 						(defq i 0 sp (length stack))
@@ -741,7 +720,7 @@
 					((= b 14)
 						(setq idx end))
 					(:t (clear stack))))))
-	(defq min_x 0 max_x 0 min_y 0 max_y 0)
+	(defq min_x (n2r 0) max_x (n2r 0) min_y (n2r 0) max_y (n2r 0))
 	(when (nempty? commands)
 		(defq coords_x (map (const second) commands) coords_y (map (const third) commands)
 			min_x (reduce (const min) coords_x) max_x (reduce (const max) coords_x)
@@ -753,9 +732,12 @@
 					(elem-set cmd 1 (- (second cmd) min_x))
 					(elem-set cmd 3 (- (elem-get cmd 3) min_x))
 					(elem-set cmd 5 (- (elem-get cmd 5) min_x)))
+				((= type 3)
+					(elem-set cmd 1 (- (second cmd) min_x))
+					(elem-set cmd 3 (- (elem-get cmd 3) min_x)))
 				(:t (elem-set cmd 1 (- (second cmd) min_x))))) commands)
 		(setq max_x (- max_x min_x) min_x 0))
-	(scatter (Lmap) :advance 0 :min_x min_x :max_x max_x
+	(scatter (Lmap) :advance (n2r 0) :min_x min_x :max_x max_x
 		:min_y min_y :max_y max_y :commands commands))
 
 (defun build_page (pstart pend)
@@ -776,12 +758,12 @@
 							(setq glyph_db (parse-ttf-glyph buf g_offset g_len scale_factor)))))
 				(unless glyph_db
 					(setq glyph_db (scatter (Lmap)
-						:min_x 0 :max_x 0 :min_y 0 :max_y 0 :commands (list))))
+						:min_x (n2r 0) :max_x (n2r 0) :min_y (n2r 0) :max_y (n2r 0) :commands (list))))
 				(. glyph_db :insert :char_code c)
-				(. glyph_db :insert :advance (- (. glyph_db :find :max_x) (. glyph_db :find :min_x)))
+				(. glyph_db :insert :advance (* (n2r (get-otf-advance buf tables num_h_metrics g_index)) scale_factor))
 				(push glyphs glyph_db))
-			(:t (push glyphs (scatter (Lmap) :char_code c :offset 0 :advance 0
-					:min_x 0 :max_x 0 :min_y 0 :max_y 0 :commands (list)))))
+			(:t (push glyphs (scatter (Lmap) :char_code c :offset 0 :advance (n2r 0)
+					:min_x (n2r 0) :max_x (n2r 0) :min_y (n2r 0) :max_y (n2r 0) :commands (list)))))
 		(++ c))
 	(scatter (Lmap) :start pstart :end pend :glyphs glyphs))
 
@@ -791,13 +773,13 @@
 		tables (. otf_db :find :tables)
 		head_tbl (. tables :find "head"))
 	; read basic metrics
-	(defq units_per_em (get-otf-head buf tables))
+	(defq units_per_em (n2r (get-otf-head buf tables)))
 	(bind '(ascender descender num_h_metrics) (get-otf-hhea buf tables))
 	(defq num_glyphs (get-otf-maxp buf tables)
-		scale_factor (/ 16777216 units_per_em)
-		ascent (* ascender scale_factor)
-		descent (neg (* descender scale_factor))
-		xkern (>> (+ ascent descent) 4)
+		scale_factor (/ (n2r 1) units_per_em)
+		ascent (* (n2r ascender) scale_factor)
+		descent (neg (* (n2r descender) scale_factor))
+		xkern (* (+ ascent descent) (const (n2r 0.0625)))
 		is_cff (eql version 0x4f54544f)
 		index_to_loc_format (if is_cff 0 (get-uint16-be buf (+ (if head_tbl (first head_tbl) 0) 50))))
 	; if cff, locate the charstrings index
@@ -816,8 +798,6 @@
 		(when (> tbl_len 0)
 			(defq num_tables (get-uint16-be buf (+ tbl_offset 2))
 				subtable_offset :nil record_offset (+ tbl_offset 4))
-			; find platform 3, encoding 1 (windows unicode bmp)
-			; encoding 10 (ucs-4), or platform 0 (unicode)
 			(times num_tables
 				(unless subtable_offset
 					(defq platform_id (get-uint16-be buf record_offset)
@@ -876,13 +856,13 @@
 ;;;;;;;;;;;;
 
 (defun load-ctf-buf (buf)
-	(defq ascent (get-short buf +font_data_ascent)
-		descent (get-short buf +font_data_descent)
-		xkern (get-short buf +font_data_xkern)
+	(defq ascent (/ (n2r (get-short buf +font_data_ascent)) (n2r 8192))
+		descent (/ (n2r (get-short buf +font_data_descent)) (n2r 8192))
+		xkern (/ (n2r (get-short buf +font_data_xkern)) (n2r 8192))
 		pages (list) pages_info (list)
 		ofset +font_data_size)
 	(defq font_db (scatter (Lmap) :file :nil :type "CTF"
-		:ascent (<< ascent 11) :descent (<< descent 11) :xkern (<< xkern 11))
+		:ascent ascent :descent descent :xkern xkern)
 		running :t)
 	(while running
 		(defq p_end (get-ushort buf ofset))
@@ -904,16 +884,17 @@
 		(defq c start)
 		(each (lambda (glyph_offset)
 			(when (or (empty? opt_r) (some (lambda ((s e)) (<= s c e)) opt_r))
-				(defq width (get-short buf (+ glyph_offset +font_path_width))
+				(defq width (/ (n2r (get-short buf (+ glyph_offset +font_path_width))) (n2r 8192))
 					len (get-uint buf (+ glyph_offset +font_path_plen))
 					klen (get-uint buf (+ glyph_offset +font_path_klen))
-					min_x 0 max_x 0 min_y 0 max_y 0
+					min_x 0.0 max_x 0.0 min_y 0.0 max_y 0.0
 					commands (list)
 					kerns (list)
 					g_offset (+ glyph_offset +font_path_size)
 					k_offset (+ glyph_offset +font_path_size len))
 				(times klen
-					(push kerns (list (get-ushort buf (+ k_offset +font_kern_code)) (<< (get-short buf (+ k_offset +font_kern_xkern)) 11)))
+					(push kerns (list (get-ushort buf (+ k_offset +font_kern_code))
+						(/ (n2r (get-short buf (+ k_offset +font_kern_xkern))) (n2r 8192))))
 					(++ k_offset +font_kern_size))
 				(when (> len 0)
 					(defq end_g_offset (+ g_offset len)
@@ -923,28 +904,28 @@
 						(++ g_offset +font_path_element_size)
 						(cond
 							((or (= type 0) (= type 1))
-								(defq rx (<< (get-short buf g_offset) 11)
-									ry (<< (get-short buf (+ g_offset +short_size)) 11))
+								(defq rx (/ (n2r (get-short buf g_offset)) (n2r 8192))
+									ry (/ (n2r (get-short buf (+ g_offset +short_size))) (n2r 8192)))
 								(++ g_offset (- +font_line_element_size +font_path_element_size))
 								(push coords_x rx)
 								(push coords_y ry)
 								(push commands (list type rx ry)))
 							((= type 2)
-								(defq rx1 (<< (get-short buf g_offset) 11)
-									ry1 (<< (get-short buf (+ g_offset +short_size)) 11)
-									rx2 (<< (get-short buf (+ g_offset (* +short_size 2))) 11)
-									ry2 (<< (get-short buf (+ g_offset (* +short_size 3))) 11)
-									rx (<< (get-short buf (+ g_offset (* +short_size 4))) 11)
-									ry (<< (get-short buf (+ g_offset (* +short_size 5))) 11))
+								(defq rx1 (/ (n2r (get-short buf g_offset)) (n2r 8192))
+									ry1 (/ (n2r (get-short buf (+ g_offset +short_size))) (n2r 8192))
+									rx2 (/ (n2r (get-short buf (+ g_offset (* +short_size 2)))) (n2r 8192))
+									ry2 (/ (n2r (get-short buf (+ g_offset (* +short_size 3)))) (n2r 8192))
+									rx (/ (n2r (get-short buf (+ g_offset (* +short_size 4)))) (n2r 8192))
+									ry (/ (n2r (get-short buf (+ g_offset (* +short_size 5)))) (n2r 8192)))
 								(++ g_offset (- +font_curve_element_size +font_path_element_size))
 								(push coords_x rx1 rx2 rx)
 								(push coords_y ry1 ry2 ry)
 								(push commands (list type rx1 ry1 rx2 ry2 rx ry)))
 							((= type 3)
-								(defq rx1 (<< (get-short buf g_offset) 11)
-									ry1 (<< (get-short buf (+ g_offset +short_size)) 11)
-									rx (<< (get-short buf (+ g_offset (* +short_size 2))) 11)
-									ry (<< (get-short buf (+ g_offset (* +short_size 3))) 11))
+								(defq rx1 (/ (n2r (get-short buf g_offset)) (n2r 8192))
+									ry1 (/ (n2r (get-short buf (+ g_offset +short_size))) (n2r 8192))
+									rx (/ (n2r (get-short buf (+ g_offset (* +short_size 2)))) (n2r 8192))
+									ry (/ (n2r (get-short buf (+ g_offset (* +short_size 3)))) (n2r 8192)))
 								(++ g_offset (- +font_quad_element_size +font_path_element_size))
 								(push coords_x rx1 rx)
 								(push coords_y ry1 ry)
@@ -955,7 +936,7 @@
 							min_y (reduce (const min) coords_y)
 							max_y (reduce (const max) coords_y)))
 					(push active_glyphs (scatter (Lmap)
-						:char_code c :offset glyph_offset :advance (<< width 11)
+						:char_code c :offset glyph_offset :advance width
 						:min_x min_x :max_x max_x :min_y min_y :max_y max_y
 						:commands commands :kerns kerns))))
 			(++ c))
@@ -992,13 +973,13 @@
 	(when (and font_db (defq stream (file-stream file +file_open_write)))
 		(defq ascent (. font_db :find :ascent)
 			descent (. font_db :find :descent)
-			xkern (or (. font_db :find :xkern) (>> (+ ascent descent) +opt_xkern_divisor))
+			xkern (or (. font_db :find :xkern) (neg descent))
 			pages (. font_db :find :pages))
 		(sort pages (# (- (. %0 :find :start) (. %1 :find :start))))
 		; write header (3.13 format shorts + dynamic padding to align to +font_data_size boundary)
-		(write-char stream (>>> ascent 11) +short_size)
-		(write-char stream (>>> descent 11) +short_size)
-		(write-char stream (>>> xkern 11) +short_size)
+		(write-char stream (n2i (* ascent (n2r 8192))) +short_size)
+		(write-char stream (n2i (* descent (n2r 8192))) +short_size)
+		(write-char stream (n2i (* xkern (n2r 8192))) +short_size)
 		(times (- +font_data_size 6)
 			(write-char stream 0 +byte_size))
 		; calculate glyph offsets with natural 4-byte alignment padding
@@ -1050,7 +1031,7 @@
 								((++ plen +font_line_element_size))))
 						commands)
 					(write-char stream c +short_size)
-					(write-char stream (>>> width 11) +short_size)
+					(write-char stream (n2i (* width (n2r 8192))) +short_size)
 					(write-char stream plen +int_size)
 					(write-char stream klen +int_size)
 					(each (lambda (cmd)
@@ -1058,23 +1039,23 @@
 							(write-char stream type +short_size)
 							(cond
 								((= type 2)
-									(write-char stream (>>> (second cmd) 11) +short_size)
-									(write-char stream (>>> (third cmd) 11) +short_size)
-									(write-char stream (>>> (elem-get cmd 3) 11) +short_size)
-									(write-char stream (>>> (elem-get cmd 4) 11) +short_size)
-									(write-char stream (>>> (elem-get cmd 5) 11) +short_size)
-									(write-char stream (>>> (elem-get cmd 6) 11) +short_size))
+									(write-char stream (n2i (* (second cmd) (n2r 8192))) +short_size)
+									(write-char stream (n2i (* (third cmd) (n2r 8192))) +short_size)
+									(write-char stream (n2i (* (elem-get cmd 3) (n2r 8192))) +short_size)
+									(write-char stream (n2i (* (elem-get cmd 4) (n2r 8192))) +short_size)
+									(write-char stream (n2i (* (elem-get cmd 5) (n2r 8192))) +short_size)
+									(write-char stream (n2i (* (elem-get cmd 6) (n2r 8192))) +short_size))
 								((= type 3)
-									(write-char stream (>>> (second cmd) 11) +short_size)
-									(write-char stream (>>> (third cmd) 11) +short_size)
-									(write-char stream (>>> (elem-get cmd 3) 11) +short_size)
-									(write-char stream (>>> (elem-get cmd 4) 11) +short_size))
-								(:t (write-char stream (>>> (second cmd) 11) +short_size)
-									(write-char stream (>>> (third cmd) 11) +short_size))))
+									(write-char stream (n2i (* (second cmd) (n2r 8192))) +short_size)
+									(write-char stream (n2i (* (third cmd) (n2r 8192))) +short_size)
+									(write-char stream (n2i (* (elem-get cmd 3) (n2r 8192))) +short_size)
+									(write-char stream (n2i (* (elem-get cmd 4) (n2r 8192))) +short_size))
+								(:t (write-char stream (n2i (* (second cmd) (n2r 8192))) +short_size)
+									(write-char stream (n2i (* (third cmd) (n2r 8192))) +short_size))))
 							commands)
 					(each (lambda ((c2 adj))
 							(write-char stream c2 +short_size)
-							(write-char stream (>>> adj 11) +short_size))
+							(write-char stream (n2i (* adj (n2r 8192))) +short_size))
 						kerns)
 					; pad this glyph to ensure the next glyph begins on a 4-byte boundary
 					(defq written_size (+ +font_path_size plen (* klen +font_kern_size))
@@ -1091,9 +1072,9 @@
 		(if (> verbosity 0) (generate-optical-kerning font_db))
 		(print "File: " (. font_db :find :file))
 		(print "\tType: " (. font_db :find :type) " (ChrysaLisp Vector Font)")
-		(print "\tAscent: " (format-fixed-24 (. font_db :find :ascent)))
-		(print "\tDescent: " (format-fixed-24 (. font_db :find :descent)))
-		(print "\tDefault Kern: " (format-fixed-24 (. font_db :find :xkern)))
+		(print "\tAscent: " (format-real (. font_db :find :ascent)))
+		(print "\tDescent: " (format-real (. font_db :find :descent)))
+		(print "\tDefault Kern: " (format-real (. font_db :find :xkern)))
 		(defq pages (. font_db :find :pages) total_glyphs 0)
 		(each (lambda (page_db)
 				(defq glyphs (. page_db :find :glyphs))
@@ -1118,14 +1099,14 @@
 					(defq g_width (- max_x min_x) g_height (- max_y min_y)
 						char_str (if (<= 32 c 126) (cat "'" (char c) "'") "?"))
 					(print "\t\tGlyph " char_str " (" c "): Offset: " ofset
-						"\n\t\t\tAdvance: " (format-fixed-24 width)
-						"\n\t\t\tBounds: [" (format-fixed-24 min_x) ", " (format-fixed-24 min_y) "]"
-						" to [" (format-fixed-24 max_x) ", " (format-fixed-24 max_y) "]"
-						"\n\t\t\tSize: " (format-fixed-24 g_width) " x " (format-fixed-24 g_height))
+						"\n\t\t\tAdvance: " (format-real width)
+						"\n\t\t\tBounds: [" (format-real min_x) ", " (format-real min_y) "]"
+						" to [" (format-real max_x) ", " (format-real max_y) "]"
+						"\n\t\t\tSize: " (format-real g_width) " x " (format-real g_height))
 					(when (and (> verbosity 0) (nempty? kerns))
 						(print "\t\t\tKerning Pairs:")
 						(each (lambda ((c2 adj))
-							(print "\t\t\t\t" (if (<= 32 c2 126) (cat "'" (char c2) "'") (str c2)) " : " (format-fixed-24 adj)))
+							(print "\t\t\t\t" (if (<= 32 c2 126) (cat "'" (char c2) "'") (str c2)) " : " (format-real adj)))
 							(sort (cat kerns) (# (- (first %0) (first %1))))))
 					(when (and (> verbosity 1) (nempty? commands))
 						(print "\t\t\tCommands:")
@@ -1133,16 +1114,16 @@
 							(defq type (first cmd))
 							(cond
 								((= type 0)
-									(print "\t\t\t\tMoveto: [" (format-fixed-24 (second cmd)) ", " (format-fixed-24 (third cmd)) "]"))
+									(print "\t\t\t\tMoveto: [" (format-real (second cmd)) ", " (format-real (third cmd)) "]"))
 								((= type 1)
-									(print "\t\t\t\tLineto: [" (format-fixed-24 (second cmd)) ", " (format-fixed-24 (third cmd)) "]"))
+									(print "\t\t\t\tLineto: [" (format-real (second cmd)) ", " (format-real (third cmd)) "]"))
 								((= type 2)
-									(print "\t\t\t\tCurveto: [" (format-fixed-24 (second cmd)) ", " (format-fixed-24 (third cmd)) "]"
-										" (Control: [" (format-fixed-24 (elem-get cmd 3)) ", " (format-fixed-24 (elem-get cmd 4)) "],"
-										" [" (format-fixed-24 (elem-get cmd 5)) ", " (format-fixed-24 (elem-get cmd 6)) "])"))
+									(print "\t\t\t\tCurveto: [" (format-real (second cmd)) ", " (format-real (third cmd)) "]"
+										" (Control: [" (format-real (elem-get cmd 3)) ", " (format-real (elem-get cmd 4)) "],"
+										" [" (format-real (elem-get cmd 5)) ", " (format-real (elem-get cmd 6)) "])"))
 								((= type 3)
-									(print "\t\t\t\tQuadto: [" (format-fixed-24 (second cmd)) ", " (format-fixed-24 (third cmd)) "]"
-										" (Control: [" (format-fixed-24 (elem-get cmd 3)) ", " (format-fixed-24 (elem-get cmd 4)) "])"))))
+									(print "\t\t\t\tQuadto: [" (format-real (second cmd)) ", " (format-real (third cmd)) "]"
+										" (Control: [" (format-real (elem-get cmd 3)) ", " (format-real (elem-get cmd 4)) "])"))))
 							commands)))
 					glyphs)))
 			pages)
@@ -1168,12 +1149,15 @@
 			(if full_name (print "\tFull Name: " full_name))
 			(if ps_name (print "\tPostScript Name: " ps_name))
 			; read and print metrics
-			(defq units_per_em (get-otf-head buf tables))
+			(defq units_per_em (n2r (get-otf-head buf tables)))
 			(bind '(ascender descender num_h_metrics) (get-otf-hhea buf tables))
-			(defq num_glyphs (get-otf-maxp buf tables))
-			(print "\tUnitsPerEm: " units_per_em)
-			(print "\tAscender: " ascender " (" (format-fixed-24 (/ (* ascender 16777216) units_per_em)) ")")
-			(print "\tDescender: " descender " (" (format-fixed-24 (/ (* descender 16777216) units_per_em)) ")")
+			(defq num_glyphs (get-otf-maxp buf tables)
+				scale_factor (/ (n2r 1) units_per_em)
+				ascent (* (n2r ascender) scale_factor)
+				descent (neg (* (n2r descender) scale_factor)))
+			(print "\tUnitsPerEm: " (format-real units_per_em))
+			(print "\tAscender: " ascender " (" (format-real ascent) ")")
+			(print "\tDescender: " descender " (" (format-real descent) ")")
 			(print "\tNumGlyphs: " num_glyphs)
 			(print "\tNumberOfHMetrics: " num_h_metrics)
 			(when (> verbosity 0)
