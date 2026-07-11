@@ -62,7 +62,7 @@
 	(each (lambda ((x y))
 			(setq gmin_x (min gmin_x x) gmax_x (max gmax_x x)))
 		pts)
-	(defq limit (* (- gmax_x gmin_x) (const (/ 1.0 +opt_indent_limit_divisor)))
+	(defq limit (* (- gmax_x gmin_x) (const (recip +opt_indent_limit_divisor)))
 		step (/ (+ ascent descent) (const (n2f (dec +opt_num_slices))))
 		envelope (list))
 	; scan slices and perform rolling intersection checks
@@ -108,7 +108,7 @@
 			(. page_db :find :glyphs)))
 		pages)
 	; 2. First pass: calculate raw overlaps to find optimal default spacing
-	(defq raw_overlaps (list) target_gap (* (+ ascent descent) (const (/ 1.0 +opt_target_gap_divisor))))
+	(defq raw_overlaps (list) target_gap (* (+ ascent descent) (const (recip +opt_target_gap_divisor))))
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
 				(task-slice)
@@ -129,7 +129,7 @@
 		(elem-get raw_overlaps (/ (* (length raw_overlaps) 90) 100))))
 	(. font_db :insert :xkern (n2r xkern))
 	; 3. Second pass: calculate negative kerning pairs deviating from this baseline
-	(defq threshold (* (+ ascent descent) (const (/ 1.0 +opt_threshold_divisor))))
+	(defq threshold (* (+ ascent descent) (const (recip +opt_threshold_divisor))))
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
 				(task-slice)
