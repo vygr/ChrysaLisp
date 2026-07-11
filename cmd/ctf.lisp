@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;
-; cmd/ctf.lisp
-;;;;;;;;;;;;;;
 (import "lib/options/options.inc")
 (import "gui/path/lisp.inc")
 (import "lib/task/cmd.inc")
@@ -11,16 +8,16 @@
 (("-h" "--help")
 "Usage: ctf [options] [path] ...
 
-	options:
-		-h --help: this help info.
-		-v --verbosity num: verbosity level, default 0.
-		-c --ctf: convert/upgrade font file to latest .ctf spec.
-		-r --range num num: add start end char codes, default '().
-		-j --jobs num: max jobs per batch, default 1.
+    options:
+        -h --help: this help info.
+        -v --verbosity num: verbosity level, default 0.
+        -c --ctf: convert/upgrade font file to latest .ctf spec.
+        -r --range num num: add start end char codes, default '().
+        -j --jobs num: max jobs per batch, default 1.
 
-	Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
-	or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
-	command line, file paths are read from stdin.")
+    Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
+    or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
+    command line, file paths are read from stdin.")
 (("-c" "--ctf") ,(opt-flag 'opt_c))
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-r" "--range") ,(opt-nums 2 'opt_r))
@@ -48,27 +45,20 @@
 		(defq type (first cmd))
 		(cond
 			((= type 0) ; moveto
-				(setq p0_x (n2f (second cmd))
-					  p0_y (n2f (third cmd)))
+				(setq p0_x (n2f (second cmd)) p0_y (n2f (third cmd)))
 				(push p p0_x p0_y))
 			((= type 1) ; lineto
-				(setq p0_x (n2f (second cmd))
-					  p0_y (n2f (third cmd)))
+				(setq p0_x (n2f (second cmd)) p0_y (n2f (third cmd)))
 				(push p p0_x p0_y))
 			((= type 3) ; quadto
-				(defq x1 (n2f (second cmd))
-					  y1 (n2f (third cmd))
-					  x2 (n2f (elem-get cmd 3))
-					  y2 (n2f (elem-get cmd 4)))
+				(defq x1 (n2f (second cmd)) y1 (n2f (third cmd))
+					x2 (n2f (elem-get cmd 3)) y2 (n2f (elem-get cmd 4)))
 				(path-gen-quadratic p0_x p0_y x1 y1 x2 y2 p)
 				(setq p0_x x2 p0_y y2))
 			((= type 2) ; curveto
-				(defq x1 (n2f (second cmd))
-					  y1 (n2f (third cmd))
-					  x2 (n2f (elem-get cmd 3))
-					  y2 (n2f (elem-get cmd 4))
-					  x3 (n2f (elem-get cmd 5))
-					  y3 (n2f (elem-get cmd 6)))
+				(defq x1 (n2f (second cmd)) y1 (n2f (third cmd))
+					x2 (n2f (elem-get cmd 3)) y2 (n2f (elem-get cmd 4))
+					x3 (n2f (elem-get cmd 5)) y3 (n2f (elem-get cmd 6)))
 				(path-gen-cubic p0_x p0_y x1 y1 x2 y2 x3 y3 p)
 				(setq p0_x x3 p0_y y3))))
 		commands)
@@ -78,22 +68,22 @@
 	; path is a 16.16 path vector of flat coordinates
 	(defq pts (partition path 2) p1 (last pts) segments (list))
 	(each (lambda (p2)
-		(push segments (cat p1 p2))
-		(setq p1 p2))
+			(push segments (cat p1 p2))
+			(setq p1 p2))
 		pts)
 	(defq gmin_x 1000000.0 gmax_x -1000000.0)
 	(each (lambda (pt)
-		(bind '(x y) pt)
-		(setq gmin_x (min gmin_x x)
-			  gmax_x (max gmax_x x)))
+			(bind '(x y) pt)
+			(setq gmin_x (min gmin_x x)
+				gmax_x (max gmax_x x)))
 		pts)
 	(defq limit (* (- gmax_x gmin_x) (const (/ 1.0 +opt_indent_limit_divisor)))
-		  step (/ (+ ascent descent) (n2f (dec +opt_num_slices)))
-		  envelope (list))
+		step (/ (+ ascent descent) (n2f (dec +opt_num_slices)))
+		envelope (list))
 	(for 0 +opt_num_slices
 		(defq y (+ (neg ascent) (* (n2f (!)) step))
-			  xmin 1000000.0 xmax -1000000.0
-			  has_intersection :nil)
+			xmin 1000000.0 xmax -1000000.0
+			has_intersection :nil)
 		(each (lambda (seg)
 			(bind '(x0 y0 x1 y1) seg)
 			(when (or (<= y0 y y1) (<= y1 y y0))
@@ -101,13 +91,13 @@
 					(defq x (+ x0 (/ (* (- y y0) (- x1 x0)) (- y1 y0))))
 					(defq x (min x0 x1)))
 				(setq xmin (min xmin x)
-					  xmax (max xmax x)
-					  has_intersection :t)))
+					xmax (max xmax x)
+					has_intersection :t)))
 			segments)
 		(if has_intersection
 			(progn
 				(setq xmin (min xmin (+ gmin_x limit))
-					  xmax (max xmax (- gmax_x limit)))
+					xmax (max xmax (- gmax_x limit)))
 				(push envelope (list y xmin xmax)))
 			(push envelope (list y :nil :nil))))
 	envelope)
@@ -115,74 +105,71 @@
 (defun calculate-pair-kern (profile_a profile_b width_a default_kern target_gap)
 	(defq max_overlap -1000000.0 has_valid :nil)
 	(each (lambda (slice_a slice_b)
-		(bind '(y_a amin_x amax_x) slice_a)
-		(bind '(y_b bmin_x bmax_x) slice_b)
-		(when (and (= y_a y_b) amax_x bmin_x)
-			(defq required_dist (- (+ amax_x target_gap) bmin_x))
-			(setq max_overlap (max max_overlap required_dist)
-				  has_valid :t)))
+			(bind '(y_a amin_x amax_x) slice_a)
+			(bind '(y_b bmin_x bmax_x) slice_b)
+			(when (and (= y_a y_b) amax_x bmin_x)
+				(defq required_dist (- (+ amax_x target_gap) bmin_x))
+				(setq max_overlap (max max_overlap required_dist)
+					has_valid :t)))
 		profile_a profile_b)
 	(if has_valid
 		(- max_overlap (+ width_a default_kern))
 		:nil))
 
 (defun generate-optical-kerning (font_db)
-	(defq ascent_r (. font_db :find :ascent)
-		  descent_r (. font_db :find :descent)
-		  ascent (n2f ascent_r)
-		  descent (n2f descent_r)
-		  pages (. font_db :find :pages)
-		  profiles (Fmap 101))
+	(defq ascent_r (. font_db :find :ascent) descent_r (. font_db :find :descent)
+		ascent (n2f ascent_r) descent (n2f descent_r)
+		pages (. font_db :find :pages) profiles (Fmap 101))
 	; 1. Generate envelope profiles for all printable glyphs (32 to 126)
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
-			(task-slice)
-			(defq c (. glyph_db :find :char_code))
-			(when (<= 32 c 126)
-				(defq path (flatten-commands (. glyph_db :find :commands))
-					  profile (compute-envelope path ascent descent))
-				(. profiles :insert c profile)))
+				(task-slice)
+				(defq c (. glyph_db :find :char_code))
+				(when (<= 32 c 126)
+					(defq path (flatten-commands (. glyph_db :find :commands))
+						profile (compute-envelope path ascent descent))
+					(. profiles :insert c profile)))
 			(. page_db :find :glyphs)))
 		pages)
 	; 2. First pass: calculate raw overlaps to find optimal default spacing
 	(defq raw_overlaps (list) target_gap (* (+ ascent descent) (const (/ 1.0 +opt_target_gap_divisor))))
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
-			(task-slice)
-			(defq c1 (. glyph_db :find :char_code))
-			(when (<= 33 c1 126)
-				(defq profile_a (. profiles :find c1)
-					  width_a (n2f (. glyph_db :find :advance)))
-				(for 33 127
-					(defq c2 (!))
-					(when (defq profile_b (. profiles :find c2))
-						(when (defq raw_overlap (calculate-pair-kern profile_a profile_b width_a 0.0 target_gap))
-							(push raw_overlaps raw_overlap))))))
+				(task-slice)
+				(defq c1 (. glyph_db :find :char_code))
+				(when (<= 33 c1 126)
+					(defq profile_a (. profiles :find c1)
+						width_a (n2f (. glyph_db :find :advance)))
+					(for 33 127
+						(defq c2 (!))
+						(when (defq profile_b (. profiles :find c2))
+							(when (defq raw_overlap (calculate-pair-kern profile_a profile_b width_a 0.0 target_gap))
+								(push raw_overlaps raw_overlap))))))
 			(. page_db :find :glyphs)))
 		pages)
 	; Calculate optimal default spacing
 	(sort raw_overlaps (const -))
-	(defq xkern (if (empty? raw_overlaps)
-		0.0 (elem-get raw_overlaps (/ (* (length raw_overlaps) 90) 100))))
+	(defq xkern (if (empty? raw_overlaps) 0.0
+		(elem-get raw_overlaps (/ (* (length raw_overlaps) 90) 100))))
 	(. font_db :insert :xkern (n2r xkern))
 	; 3. Second pass: calculate negative kerning pairs deviating from this baseline
 	(defq threshold (* (+ ascent descent) (const (/ 1.0 +opt_threshold_divisor))))
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
-			(task-slice)
-			(defq c1 (. glyph_db :find :char_code))
-			(when (<= 33 c1 126)
-				(defq profile_a (. profiles :find c1)
-					  width_a (n2f (. glyph_db :find :advance))
-					  text_list (list))
-				(for 33 127
-					(defq c2 (!))
-					(when (defq profile_b (. profiles :find c2))
-						(when (defq raw_overlap (calculate-pair-kern profile_a profile_b width_a xkern target_gap))
-							(when (<= raw_overlap (neg threshold))
-								(push text_list (list c2 (n2r raw_overlap)))))))
-				(when (nempty? text_list)
-					(. glyph_db :insert :text_list text_list))))
+				(task-slice)
+				(defq c1 (. glyph_db :find :char_code))
+				(when (<= 33 c1 126)
+					(defq profile_a (. profiles :find c1)
+						width_a (n2f (. glyph_db :find :advance))
+						text_list (list))
+					(for 33 127
+						(defq c2 (!))
+						(when (defq profile_b (. profiles :find c2))
+							(when (defq raw_overlap (calculate-pair-kern profile_a profile_b width_a xkern target_gap))
+								(when (<= raw_overlap (neg threshold))
+									(push text_list (list c2 (n2r raw_overlap)))))))
+					(when (nempty? text_list)
+						(. glyph_db :insert :kerns text_list))))
 			(. page_db :find :glyphs)))
 		pages)
 	font_db)
@@ -642,7 +629,7 @@
 							(setq cx x3 cy y3
 								h (not h)
 								i (+ i (if (= (- sp i) 5) 5 4))))
-						(clear stack))
+							(clear stack))
 					((= b 24)
 						(defq len (length stack) num_lines (- len 6) i 0)
 						(while (< i num_lines)
@@ -736,7 +723,7 @@
 					(elem-set cmd 1 (- (second cmd) min_x))
 					(elem-set cmd 3 (- (elem-get cmd 3) min_x)))
 				(:t (elem-set cmd 1 (- (second cmd) min_x))))) commands)
-		(setq max_x (- max_x min_x) min_x 0))
+		(setq max_x (- max_x min_x) min_x (n2r 0)))
 	(scatter (Lmap) :advance (n2r 0) :min_x min_x :max_x max_x
 		:min_y min_y :max_y max_y :commands commands))
 
@@ -1059,7 +1046,7 @@
 						kerns)
 					; pad this glyph to ensure the next glyph begins on a 4-byte boundary
 					(defq written_size (+ +font_path_size plen (* klen +font_kern_size))
-						  aligned_size (align written_size +int_size))
+						aligned_size (align written_size +int_size))
 					(times (- aligned_size written_size)
 						(write-char stream 0 +byte_size)))
 				(. page_db :find :glyphs)))
