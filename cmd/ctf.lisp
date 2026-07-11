@@ -40,20 +40,18 @@
 	(str (n2f val)))
 
 (defun flatten-commands (commands)
-    (defq p (path) x 0.0 y 0.0)
-    (each (lambda (cmd)
-        (case (first cmd)
-            ((0 1)	; moveto, lineto
-                (push p (setq x (n2f (second cmd))) (setq y (n2f (third cmd)))))
-            (2	; curveto
-                (path-gen-cubic x y (n2f (second cmd)) (n2f (third cmd))
-                    (n2f (elem-get cmd 3)) (n2f (elem-get cmd 4))
-                    (setq x (n2f (elem-get cmd 5))) (setq y (n2f (elem-get cmd 6))) p))
-            (3	; quadto
-                (path-gen-quadratic x y (n2f (second cmd)) (n2f (third cmd))
-                    (setq x (n2f (elem-get cmd 3))) (setq y (n2f (elem-get cmd 4))) p))))
-        commands)
-    p)
+	(defq x 0.0 y 0.0)
+	(reduce (lambda (p (type x1 y1 &optional x2 y2 x3 y3))
+		(case type
+			((0 1)	; moveto, lineto
+				(push p (setq x (n2f x1)) (setq y (n2f y1))))
+			(2	; curveto
+				(path-gen-cubic x y (n2f x1) (n2f y1) (n2f x2) (n2f y2)
+					(setq x (n2f x3)) (setq y (n2f y3)) p))
+			(3	; quadto
+				(path-gen-quadratic x y (n2f x1) (n2f y1)
+					(setq x (n2f x2)) (setq y (n2f y2)) p))))
+		commands (path)))
 
 (defun compute-envelope (path ascent descent)
 	; path is a 16.16 path vector of flat coordinates
