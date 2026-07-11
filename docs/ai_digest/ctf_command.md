@@ -18,37 +18,37 @@ precision scale:
 * **3.13 Fixed-Point**: Signed 16-bit integers (`short`) representing values
   scaled by 2^13 (8,192).
 
-    This scale is used for overall font metrics, advance widths, bounding
-    coordinates, path geometry, and negative kerning pair adjustments.
+	This scale is used for overall font metrics, advance widths, bounding
+	coordinates, path geometry, and negative kerning pair adjustments.
 
-    By utilizing 16-bit signed shorts, the file size and in-memory footprint of
-    outlines are reduced.
+	By utilizing 16-bit signed shorts, the file size and in-memory footprint of
+	outlines are reduced.
 
-    Modern CPU architectures (ARM64, x86_64, and RISC-V) support signed 16-bit
-    register loads with hardware-level sign extension (e.g., `LDRSH`, `MOVSX`,
-    or `LH` instructions) with zero latency penalty compared to 32-bit loads.
+	Modern CPU architectures (ARM64, x86_64, and RISC-V) support signed 16-bit
+	register loads with hardware-level sign extension (e.g., `LDRSH`, `MOVSX`, or
+	`LH` instructions) with zero latency penalty compared to 32-bit loads.
 
 * **Range and Headroom**: With 3 bits allocated to the integer part, the 3.13
   format supports a coordinate range from -4.0 to +3.999 Em.
 
-    Since the standard Em-height of a font is normalized to exactly 1.0 (2^13
-    units), this range provides ample headroom for extreme typographic glyph
-    extents and diacritics.
+	Since the standard Em-height of a font is normalized to exactly 1.0 (2^13
+	units), this range provides ample headroom for extreme typographic glyph
+	extents and diacritics.
 
 * **Baseline Alignment**: In this coordinate space, the glyph baseline sits
   exactly on the horizontal y = 0.0 axis.
 
-    Because ChrysaLisp’s 2D canvas and screen coordinate systems increase
-    downwards, the Y-axis is inverted during conversion:
+	Because ChrysaLisp’s 2D canvas and screen coordinate systems increase
+	downwards, the Y-axis is inverted during conversion:
 
-    * Outline points above the baseline (ascent) have negative Y coordinates,
-      extending up to -ascent.
+	* Outline points above the baseline (ascent) have negative Y coordinates,
+	  extending up to -ascent.
 
-    * Outline points below the baseline (descenders) have positive Y
-      coordinates, extending down to +descent.
+	* Outline points below the baseline (descenders) have positive Y coordinates,
+	  extending down to +descent.
 
-    * The X-axis is normalized per glyph so that the left-most boundary (min_x)
-      starts at x = 0.0.
+	* The X-axis is normalized per glyph so that the left-most boundary (min_x)
+	  starts at x = 0.0.
 
 ### B. File Structure
 
@@ -80,10 +80,10 @@ continuous block of character codes.
 * **offsets** (count * 4 bytes, uints): Absolute byte offsets from the start of
   the file to each glyph's data block.
 
-    The number of offsets is calculated as `count = end - start + 1`.
+	The number of offsets is calculated as `count = end - start + 1`.
 
-    Each offset is written as a 32-bit unsigned `uint` to maintain 4-byte
-    alignment.
+	Each offset is written as a 32-bit unsigned `uint` to maintain 4-byte
+	alignment.
 
 The page directory index is terminated by a **sentinel** consisting of a single
 32-bit unsigned `0` value.
@@ -95,7 +95,10 @@ Each offset in the page directory points to a glyph record structured as follows
 
 * **char_code** (2 bytes, ushort): The character code of the glyph.
 
-* **advance** (2 bytes, short): The horizontal advance width (3.13 format).
+* **advance** (2 bytes, short): The visual advance width (3.13 format) of the
+  ink bounding box, calculated as `(- max_x min_x)`. This represents the exact
+  horizontal envelope, as default and pair-wise optical kerning dictate the
+  typographical spacing.
 
 * **plen** (4 bytes, uint): Length in bytes of the path elements block.
 
@@ -120,55 +123,55 @@ The drawing commands in the path elements block consist of a 16-bit unsigned
 * **Type 0 (Moveto)**: Moves the cursor to the target coordinate without
   drawing.
 
-    * `type` (2 bytes, ushort) = `0`
+	* `type` (2 bytes, ushort) = `0`
 
-    * `x` (2 bytes, short): Target X coordinate (3.13)
+	* `x` (2 bytes, short): Target X coordinate (3.13)
 
-    * `y` (2 bytes, short): Target Y coordinate (3.13)
+	* `y` (2 bytes, short): Target Y coordinate (3.13)
 
-    * Total size: 6 bytes
+	* Total size: 6 bytes
 
 * **Type 1 (Lineto)**: Draws a straight line to the target coordinate.
 
-    * `type` (2 bytes, ushort) = `1`
+	* `type` (2 bytes, ushort) = `1`
 
-    * `x` (2 bytes, short): Target X coordinate (3.13)
+	* `x` (2 bytes, short): Target X coordinate (3.13)
 
-    * `y` (2 bytes, short): Target Y coordinate (3.13)
+	* `y` (2 bytes, short): Target Y coordinate (3.13)
 
-    * Total size: 6 bytes
+	* Total size: 6 bytes
 
 * **Type 3 (Quadto)**: Draws a quadratic Bezier spline.
 
-    * `type` (2 bytes, ushort) = `3`
+	* `type` (2 bytes, ushort) = `3`
 
-    * `x1` (2 bytes, short): Control point X (3.13)
+	* `x1` (2 bytes, short): Control point X (3.13)
 
-    * `y1` (2 bytes, short): Control point Y (3.13)
+	* `y1` (2 bytes, short): Control point Y (3.13)
 
-    * `x` (2 bytes, short): Destination X (3.13)
+	* `x` (2 bytes, short): Destination X (3.13)
 
-    * `y` (2 bytes, short): Destination Y (3.13)
+	* `y` (2 bytes, short): Destination Y (3.13)
 
-    * Total size: 10 bytes
+	* Total size: 10 bytes
 
 * **Type 2 (Curveto)**: Draws a cubic Bezier spline.
 
-    * `type` (2 bytes, ushort) = `2`
+	* `type` (2 bytes, ushort) = `2`
 
-    * `x1` (2 bytes, short): First control point X (3.13)
+	* `x1` (2 bytes, short): First control point X (3.13)
 
-    * `y1` (2 bytes, short): First control point Y (3.13)
+	* `y1` (2 bytes, short): First control point Y (3.13)
 
-    * `x2` (2 bytes, short): Second control point X (3.13)
+	* `x2` (2 bytes, short): Second control point X (3.13)
 
-    * `y2` (2 bytes, short): Second control point Y (3.13)
+	* `y2` (2 bytes, short): Second control point Y (3.13)
 
-    * `x` (2 bytes, short): Destination X (3.13)
+	* `x` (2 bytes, short): Destination X (3.13)
 
-    * `y` (2 bytes, short): Destination Y (3.13)
+	* `y` (2 bytes, short): Destination Y (3.13)
 
-    * Total size: 14 bytes
+	* Total size: 14 bytes
 
 ## 3. Kerning Pair Structure
 
@@ -204,29 +207,29 @@ line-by-line from `stdin`, making it fully pipe-compatible.
 * `-v`, `--verbosity <num>`: Sets the diagnostic output detail level (default is
   `0`):
 
-    * `0`: Displays global font parameters (ascent, descent, default kern, page
-      index ranges, and total glyph count).
+	* `0`: Displays global font parameters (ascent, descent, default kern, page
+	  index ranges, and total glyph count) formatted as decimal reals.
 
-    * `1`: Extends output to include individual glyph parameters (advance
-      widths, local coordinate bounds, dimensions, and active kerning pairs).
+	* `1`: Extends output to include individual glyph parameters (advance widths,
+	  local coordinate bounds, dimensions, and active kerning pairs associated with
+	  the `:kerns` property).
 
-    * `2`: Prints complete command-level geometric draw loops (Moveto, Lineto,
-      Quadto, Curveto) alongside exact 3.13 coordinate values.
+	* `2`: Prints complete command-level geometric draw loops (Moveto, Lineto,
+	  Quadto, Curveto) alongside exact coordinate values.
 
-    * `3`: Generates and prints temporary optical kerning results during
-      compilation.
+	* `3`: Generates and prints temporary optical kerning results during
+	  compilation.
 
 * `-c`, `--ctf`: Triggers compilation or upgrade mode:
 
-    * **From .otf / .ttf**: Reads TrueType or OpenType outlines, parses
-      quadratic/cubic Bezier commands, translates coordinates, automatically
-      calculates optical kerning pairs, and outputs a compiled `.ctf` binary
-      file in 3.13 format.
+	* **From .otf / .ttf**: Reads TrueType or OpenType outlines, parses
+	  quadratic/cubic Bezier commands, translates coordinates, automatically
+	  calculates optical kerning pairs, and outputs a compiled `.ctf` binary file
+	  in 3.13 format.
 
-    * **From .ctf**: Loads the existing vector font (using the old 8.24 or new
-      3.13 reader), discards old records, recalculates optical kerning using the
-      latest compiler rules, and saves an updated `.ctf` binary in the new 3.13
-      format.
+	* **From .ctf**: Loads the existing vector font (using the new 3.13 reader),
+	  discards old records, recalculates optical kerning using the latest compiler
+	  rules, and saves an updated `.ctf` binary in the 3.13 format.
 
 * `-r`, `--range <start> <end>`: Restricts compilation or diagnostic processing
   to a specific range of Unicode character codes (e.g., `-r 32 126` for standard
@@ -242,9 +245,14 @@ significant optimization algorithms:
 
 To construct accurate envelopes, TrueType quadratic splines (Type 3) and
 OpenType CFF cubic splines (Type 2) are flattened into discrete line segments at
-compile-time using 8-step Bezier interpolation. This step translates control
-points to flat vertices using signed-preserving arithmetic shifts (`>>>`) to
-maintain coordinate accuracy.
+compile-time using ChrysaLisp's native `16.16` (`fixed`) path primitives
+(`path-gen-quadratic` and `path-gen-cubic`).
+
+Instead of rigid fixed-step interpolation, these primitives employ an adaptive
+subdivision algorithm. The algorithm recursively splits the splines into
+sub-curves, performing flatness tests until the deviation of each sub-segment
+falls below a strict tolerance (`eps`), ensuring optimal geometric fidelity with
+the minimum necessary number of vertices.
 
 ### B. Optical Auto-Kerning
 
@@ -253,15 +261,18 @@ based on character boundaries:
 
 * **First Pass**: Scans the left and right contours of every glyph at 64
   vertical slices. It calculates the raw overlap of all glyph pairings relative
-  to a target spacing gap (1/16th of em-height). The 90th percentile of these
-  overlaps is chosen as the font's default global spacing (`xkern`).
+  to a target spacing gap (1/16th of em-height, calculated with the fixed
+  constant `+opt_target_gap_divisor` set to `16.0`). The 90th percentile of
+  these overlaps is chosen as the font's default global spacing (`xkern`).
 
 * **Second Pass**: Identifies pairs whose specific contours permit closer
   spacing than the global `xkern` baseline (e.g., "AV", "Te", "C-"). It assigns
   negative kerning pairs for these deviations, provided they exceed the minimum
-  visual threshold (1/80th of em-height).
+  visual threshold (1/80th of em-height, defined by the fixed constant
+  `+opt_threshold_divisor` set to `80.0`). The matched pairs are then written
+  into the `:kerns` property.
 
 * **Cavity Protection**: During contour generation, a maximum boundary limit
-  constant (`+opt_indent_limit_divisor`) is enforced. This prevents narrow
-  characters like hyphens from penetrating too deeply into open glyph cavities,
-  maintaining proper legibility in sequences like "RISC-V".
+  constant (`+opt_indent_limit_divisor` set to `4.0`) is enforced. This prevents
+  narrow characters like hyphens from penetrating too deeply into open glyph
+  cavities, maintaining proper legibility in sequences like "RISC-V".
