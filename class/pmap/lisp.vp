@@ -34,6 +34,49 @@
 
 (def-func-end)
 
+(def-method :pmap :lisp_pfind)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r11
+
+	(vp-rdef (this args))
+	(vp-rdef (lst key) (method-input :pmap :pfind))
+	(vp-rdef (tmp saved_this) '(:r10 :r11))
+
+	(entry :pmap :lisp_pfind `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 2)
+
+	(vp-cpy-rr this saved_this)
+	(list-bind-args args `(,lst ,key) '(:pset :obj))
+	(call :pset :pfind `(,lst ,key) `(,lst ,args vt1 vt2) tmp)
+	(vpif `(,args = 0))
+		(assign `((,saved_this +lisp_sym_nil)) `(,args))
+	(else)
+		(assign `((@ ,(f-path :pset :vtable)) (,lst +obj_vtable)) `(,vt1 ,vt2))
+		(vpif `(,vt1 = ,vt2))
+			(assign `((,args 0)) `(,args))
+		(else)
+			(assign `((,args +ptr_size)) `(,args))
+		(endif)
+	(endif)
+	(class/obj/ref args lst)
+
+	(exit :pmap :lisp_pfind `(,saved_this ,args))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error `(,this ,args "(pfind props key)" +error_msg_wrong_types))
+	(signature '(:pset :obj)))
+
+(def-func-end)
+
 (def-method :pmap :lisp_pinsert)
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -46,14 +89,27 @@
 
 	(vp-rdef (this args))
 	(vp-rdef (lst key val) (method-input :pmap :pinsert))
+	(vp-rdef (_ sig argc _) (method-input :lisp :env_args_sig))
 
 	(entry :pmap :lisp_pinsert `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+(errorcase
+	(assign `((,args +array_length)) `(,argc))
+	(assign `(($ sig1)) `(,sig))
+	(vpif `(,argc /= 2))
+		(assign `(($ sig2) 3) `(,sig ,argc))
+	(endif)
+	(call :lisp :env_args_sig `(,args ,sig ,argc ,argc) '(_ tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push this)
-	(list-bind-args args `(,lst ,key ,val) '(:pmap :obj :obj))
-	(call :pmap :pinsert `(,lst ,key ,val) `(,args _))
+	(assign `((,args +array_length)) `(,argc))
+	(vpif `(,argc = 2))
+		(list-bind-args args `(,lst ,key) '(:pset :obj))
+	(else)
+		(list-bind-args args `(,lst ,key ,val) '(:pmap :obj :obj))
+	(endif)
+	(call :pset :pinsert `(,lst ,key) `(,args _))
 	(class/obj/ref args val)
 	(vp-pop this)
 
@@ -63,7 +119,8 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(pinsert props key [val])" +error_msg_wrong_types))
-	(signature '(:pmap :obj :obj)))
+	(signature '(:pset :obj) 'sig1)
+	(signature '(:pmap :obj :obj) 'sig2))
 
 (def-func-end)
 
@@ -77,7 +134,7 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(vp-rdef (this args tmp))
+	(vp-rdef (this args))
 	(vp-rdef (lst key) (method-input :pmap :pfind))
 
 	(entry :pmap :lisp_perase `(,this ,args))
@@ -85,10 +142,15 @@
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(vp-push this)
-	(list-bind-args args `(,lst ,key) '(:pmap :obj))
-	(call :pmap :pfind `(,lst ,key) `(,lst ,args _ _))
+	(list-bind-args args `(,lst ,key) '(:pset :obj))
+	(call :pset :pfind `(,lst ,key) `(,lst ,args vt1 vt2))
 	(vpif `(,args /= 0))
-		(call :pmap :erase2 `(,lst ,args) `(,lst _))
+		(assign `((@ ,(f-path :pset :vtable)) (,lst +obj_vtable)) `(,vt1 ,vt2))
+		(vpif `(,vt1 = ,vt2))
+			(call :pset :erase `(,lst ,args) `(,lst _))
+		(else)
+			(call :pmap :erase2 `(,lst ,args) `(,lst _))
+		(endif)
 	(endif)
 	(vp-cpy-rr lst args)
 	(class/obj/ref args lst)
@@ -100,6 +162,6 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(perase props key)" +error_msg_wrong_types))
-	(signature '(:pmap :obj)))
+	(signature '(:pset :obj)))
 
 (def-func-end)

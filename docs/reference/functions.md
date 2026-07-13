@@ -991,6 +991,12 @@ run pipe farm and collect output
 (profile-report name [reset])
 ```
 
+### pset?
+
+```code
+(pset? form) -> :t | :nil
+```
+
 ### quasi-quote?
 
 ```code

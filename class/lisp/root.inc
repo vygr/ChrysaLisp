@@ -230,10 +230,10 @@
 ; (lmatch? list list) -> :nil | :t
 (ffi "class/list/lisp_copy" copy)
 ; (copy form) -> 'form
-(ffi "class/pset/lisp_pfind" pfind)
-; (pfind props key) -> :nil | val
 (ffi "class/pset/lisp_pfindi" pfindi)
 ; (pfindi props key) -> :nil | idx
+(ffi "class/pmap/lisp_pfind" pfind)
+; (pfind props key) -> :nil | val
 (ffi "class/pmap/lisp_pinsert" pinsert)
 ; (pinsert props key [val]) -> props
 (ffi "class/pmap/lisp_perase" perase)
@@ -583,6 +583,10 @@
 (defun list? (%0)
 	; (list? form) -> :t | :nil
 	(rfind :list (type-of %0)))
+
+(defun pset? (%0)
+	; (pset? form) -> :t | :nil
+	(rfind :pset (type-of %0)))
 
 (defun pmap? (%0)
 	; (pmap? form) -> :t | :nil

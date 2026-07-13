@@ -4,8 +4,6 @@
 
 ## Lisp Bindings
 
-### (pfind props key) -> :nil | val
-
 ### (pfindi props key) -> :nil | idx
 
 ### (pset [key] ...) -> pset

@@ -9,5 +9,6 @@
 	(dec-method :pfind class/pmap/find :final (:r0 :r1) (:r0 :r1 :r7 :r8))
 	(dec-method :pinsert class/pmap/insert :final (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :lisp_pmap class/pmap/lisp_pmap :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_pfind class/pmap/lisp_pfind :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_pinsert class/pmap/lisp_pinsert :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_perase class/pmap/lisp_perase :static (:r0 :r1) (:r0 :r1)))

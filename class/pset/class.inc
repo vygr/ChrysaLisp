@@ -9,5 +9,4 @@
 	(dec-method :pfind class/pset/find :virtual (:r0 :r1) (:r0 :r1 :r7 :r8))
 	(dec-method :pinsert class/pset/insert :virtual (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_pset class/pset/lisp_pset :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_pfind class/pset/lisp_pfind :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_pfindi class/pset/lisp_pfindi :static (:r0 :r1) (:r0 :r1)))

@@ -386,9 +386,9 @@
 ; generic class construction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun signature (%0)
+(defun signature (%0 &optional label)
 	(vp-align +short_size)
-(vp-label 'sig)
+(vp-label (ifn label 'sig))
 	(each (lambda (%0)
 		(vp-short `(- ,(label-sym (link-sym (fn-find-link (f-path %0 :vtable)))) *pc*))) %0))
 

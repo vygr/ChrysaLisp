@@ -6,6 +6,8 @@
 
 ### (perase props key) -> props
 
+### (pfind props key) -> :nil | val
+
 ### (pinsert props key [val]) -> props
 
 ### (pmap [key val] ...) -> pmap
