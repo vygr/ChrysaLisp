@@ -550,35 +550,44 @@ structures.
 
 	* `(lists n) -> ((list0) ... (listn-1))`
 
-## Property List (pmap) Functions
+## Property Sets/Maps (pset, pmap) Functions
 
-Property lists (pmaps) are lightweight, efficient key-value stores backed by
-specialized arrays. They store elements in alternating key-value pairs.
+Property sets and maps are lightweight, efficient key and key-value stores
+backed by specialized arrays.
 
-*   **`pmap`**: Creates a new property list. If arguments are provided, they
-	are used as initial key-value pairs.
+   **`pset`**: Creates a new property set. If arguments are provided, they
+	are used as the initial keys.
+
+	* `(pset [key ...]) -> pset`
+
+   **`pmap`**: Creates a new property map. If arguments are provided, they
+	are used as initial, alternating key-value pairs.
 
 	* `(pmap [key val ...]) -> pmap`
 
-*   **`pinsert`**: Inserts or updates a key-value pair in a property list.
-	Returns the property list.
+   **`pinsert`**: Inserts or updates a key in a property set, or a
+	key-value pair in a property map. Returns the modified collection.
+
+	* `(pinsert pset key) -> pset`
 
 	* `(pinsert pmap key val) -> pmap`
 
-*	**`perase`**: Deletes a key-value pair in a property list. Returns the
-  	property list.
+   **`perase`**: Deletes a key from a property set, or a key-value pair
+	from a property map. Returns the modified collection.
 
-	* `(perase pmap key) -> pmap`
+	* `(perase props key) -> props`
 
-*   **`pfind`**: Searches for a key in a property list. Returns the
-	associated value if found, or `:nil` if the key does not exist.
+   **`pfind`**: Searches for a key. Returns the key itself for a property
+	set, the associated value for a property map, or `:nil` if the key
+	does not exist.
 
-	* `(pfind pmap key) -> val | :nil`
+	* `(pfind props key) -> val | key | :nil`
 
-*   **`pfindi`**: Searches for a key in a property list. Returns the
-	associated index if found, or `:nil` if the key does not exist.
+   **`pfindi`**: Searches for a key. Returns the 0-based element index for
+	a property set, the flat `:list` style index of the key for a property
+	map, or `:nil` if the key does not exist.
 
-	* `(pfindi pmap key) -> idx | :nil`
+	* `(pfindi props key) -> idx | :nil`
 
 ## Predicates
 
