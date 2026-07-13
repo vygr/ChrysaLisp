@@ -77,6 +77,7 @@
 	(vp-sub-rr iter iter_begin)
 	(vp-asr-cr (log2 +ptr_size) iter_begin)
 	(assign `(,iter_begin) `((,key1 +str_hashslot)))
+	(assign `((,this +array_begin)) `(,iter_begin))
 
 (vp-label 'slot_hit)
 	(exit :pset :pfind `(,this ,iter ,iter_begin ,iter_end))
