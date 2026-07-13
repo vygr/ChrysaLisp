@@ -20,6 +20,12 @@ Rename `:plist` class to `:pmap`. Added `:pset` class.
 
 `+str_hashslot` is now a negative entry index, rather than a byte offset.
 
+Updated `Lset`, `Fset` and `Tree` collections to support `:pset`.
+
+Updated unit tests with `:pset` tests.
+
+Updated documentation for collections and new `:pset` class.
+
 ------
 
 New `:pmap` VP class ! `(pinsert pmap key val) -> pmap)`, `(pfind pmap key)
