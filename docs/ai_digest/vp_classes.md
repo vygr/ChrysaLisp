@@ -31,7 +31,9 @@ above it.
 	|	|	|
 	|	|	+-> list
 	|	|	|	|
-	|	|	|	+-> pmap
+	|	|	|	+-> pset
+	|	|	|		|
+	|	|	|		+-> pmap
 	|	|	|
 	|	|	+-> nums
 	|	|		 |
@@ -179,9 +181,26 @@ above it.
 	* It inherits `:push_back`, `:pop_back`, etc., but because it stores object
 	  pointers, these methods effectively manage lists of heterogeneous objects.
 
-**`:pmap`** (Property List)
+**`:pset`** (Property Set)
 
 * **Inherits From:** `:list`
+
+* **Purpose:** A specialized list designed for managing alternating keys. It
+  provides optimized search and insertion operations specifically tailored to
+  property set semantics.
+
+* **Key Methods:**
+
+	* `:pfind`: A specialized lookup mechanism that traverses offsets, stepping by
+	  one pointer at a time while utilizing the symbol `str_hashslot` cache.
+
+	* `:pinsert`: Inserts a key, either updating an existing entry
+	  at its offset or appending the key end of the list
+	  simultaneously.
+	  
+**`:pmap`** (Property List)
+
+* **Inherits From:** `:pset`
 
 * **Purpose:** A specialized list designed for managing alternating Key-Value
   pairs. It provides optimized search and insertion operations specifically
@@ -195,7 +214,9 @@ above it.
 
 	* `:pinsert`: Associates a key with a value, either updating an existing entry
 	  at its offset or appending both key and value to the end of the list
-	  simultaneously.**`:str`** (String)
+	  simultaneously.
+	  
+**`:str`** (String)
 
 * **Inherits From:** `:seq`
 

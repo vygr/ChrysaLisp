@@ -199,7 +199,7 @@
 	;trashes
 	;:r0-:r13, :f0-:f15
 
-	(vp-rdef (vt1 vt2 vt3 argc obj _
+	(vp-rdef (vt1 vt2 _ argc obj _
 		this args src_end dst src_begin src len old_len))
 
 	(entry :array :lisp_push `(,this ,args))
@@ -213,10 +213,13 @@
 	(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj v))
 	(gotoif `(,v = 0) 'error))
 
-	(assign `((@ ,(f-path :list :vtable)) (@ ,(f-path :pmap :vtable)) (,obj +obj_vtable))
-		`(,vt1 ,vt2 ,vt3))
-	(gotoif `(,vt1 = ,vt3) 'as_list)
-	(vpif `(,vt2 = ,vt3))
+	;:pmap, :pset and :list store objs
+	(assign `((@ ,(f-path :pmap :vtable)) (,obj +obj_vtable)) `(,vt1 ,vt2))
+	(gotoif `(,vt1 = ,vt2) 'as_list)
+	(assign `((,vt1 +obj_vtable)) `(,vt1))
+	(gotoif `(,vt1 = ,vt2) 'as_list)
+	(assign `((,vt1 +obj_vtable)) `(,vt1))
+	(vpif `(,vt1 = ,vt2))
 	(vp-label 'as_list)
 		;list, so append refed objects
 		(d-call :list :append `(,obj ,args 1 ,argc) `(,obj))
@@ -364,10 +367,13 @@
 	(gotoif `(,i < 0) 'error2)
 	(gotoif `(,i >= :r14) 'error2))
 
-	(assign `((,a +obj_vtable) (@ ,(f-path :list :vtable)) (@ ,(f-path :pmap :vtable)))
-		'(:r12 :r13 :r14))
+	;:pmap, :pset and :list store objs
+	(assign `((,a +obj_vtable) (@ ,(f-path :pmap :vtable))) '(:r12 :r13))
 	(gotoif '(:r12 = :r13) 'as_list)
-	(vpif '(:r12 = :r14))
+	(assign '((:r13 +obj_vtable)) '(:r13))
+	(gotoif '(:r12 = :r13) 'as_list)
+	(assign '((:r13 +obj_vtable)) '(:r13))
+	(vpif '(:r12 = :r13))
 	(vp-label 'as_list)
 		(class/obj/ref v :r14)
 	(else)

@@ -1,15 +1,13 @@
-(include "././list/class.inc")
+(include "././pset/class.inc")
 (include "./struct.inc")
 
-(def-class :pmap :list
+(def-class :pmap :pset
 	(dec-method :vtable class/pmap/vtable)
 	(dec-method :type class/pmap/type :override)
 	(dec-method :create class/pmap/create)
 	(dec-method :vcreate class/pmap/create :final)
-	(dec-method :pfind class/pmap/find :static (:r0 :r1) (:r0 :r1 :r7 :r8))
-	(dec-method :pinsert class/pmap/insert :static (:r0 :r1 :r2) (:r0 :r1))
+	(dec-method :pfind class/pmap/find :final (:r0 :r1) (:r0 :r1 :r7 :r8))
+	(dec-method :pinsert class/pmap/insert :final (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :lisp_pmap class/pmap/lisp_pmap :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_pfind class/pmap/lisp_pfind :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_pfindi class/pmap/lisp_pfindi :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_pinsert class/pmap/lisp_pinsert :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_perase class/pmap/lisp_perase :static (:r0 :r1) (:r0 :r1)))

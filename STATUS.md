@@ -16,7 +16,7 @@ Fixed `Substr` class search of a `:sym` as the source text.
 `-j, --jobs` option added to `ctf` command, defaults to 1. Each font file is
 distributed to an individual node.
 
-Rename `:plist` class to `:pmap`.
+Rename `:plist` class to `:pmap`. Added `:pset` class.
 
 `+str_hashslot` is now a negative entry index, rather than a byte offset.
 

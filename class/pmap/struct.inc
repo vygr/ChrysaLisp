@@ -1,3 +1,3 @@
-(import "././list/struct.inc")
+(import "././pset/struct.inc")
 
-(structure +pmap +list_size)
+(structure +pmap +pset_size)

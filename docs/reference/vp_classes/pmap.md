@@ -1,16 +1,12 @@
 # :pmap
 
-## :list
+## :pset
 
 ## Lisp Bindings
 
-### (perase pmap key) -> pmap
+### (perase props key) -> props
 
-### (pfind pmap key) -> :nil | val
-
-### (pfindi pmap key) -> :nil | idx
-
-### (pinsert pmap key val) -> pmap
+### (pinsert props key [val]) -> props
 
 ### (pmap [key val] ...) -> pmap
 

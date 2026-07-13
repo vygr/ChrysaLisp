@@ -230,14 +230,14 @@
 ; (lmatch? list list) -> :nil | :t
 (ffi "class/list/lisp_copy" copy)
 ; (copy form) -> 'form
-(ffi "class/pmap/lisp_pfind" pfind)
-; (pfind pmap key) -> :nil | val
-(ffi "class/pmap/lisp_pfindi" pfindi)
-; (pfindi pmap key) -> :nil | idx
+(ffi "class/pset/lisp_pfind" pfind)
+; (pfind props key) -> :nil | val
+(ffi "class/pset/lisp_pfindi" pfindi)
+; (pfindi props key) -> :nil | idx
 (ffi "class/pmap/lisp_pinsert" pinsert)
-; (pinsert pmap key val) -> pmap
+; (pinsert props key [val]) -> props
 (ffi "class/pmap/lisp_perase" perase)
-; (perase pmap key) -> pmap
+; (perase props key) -> props
 
 ;;;;;;;;;;;;;;;;;;;;
 ; String Operations
@@ -376,6 +376,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ffi "class/list/lisp_list" list)
 ; (list [elem ...]) -> list
+(ffi "class/pset/lisp_pset" pset)
+; (pset [key] ...) -> pset
 (ffi "class/pmap/lisp_pmap" pmap)
 ; (pmap [key val] ...) -> pmap
 (ffi "class/array/lisp_array" array)
