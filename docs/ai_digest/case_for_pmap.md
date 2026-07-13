@@ -2,25 +2,30 @@
 
 ChrysaLisp's architecture is a network of cooperating ideas, built from
 first-principles engineering. At the center of its performance characteristics
-is the property list (`:pmap`).
+are property sets and maps (`:pset` and `:pmap`).
 
-This document describes how ChrysaLisp uses the `:pmap` to power compile-time
-optimizations (such as the `pcase` macro), how the collection library is
-constructed upon it, and how it compares to the lexical environment (`:hmap`)
-system.
+This document describes how ChrysaLisp uses `:pset` and `:pmap` to power
+compile-time optimizations (such as the `pcase` macro), how the collection
+library is constructed upon them, and how they compare to the lexical
+environment (`:hmap`) system.
 
-## 1. The `:pmap` Primitive and `str_hashslot` Caching
+## 1. The `:pset` and `:pmap` Primitives and `str_hashslot` Caching
 
-The `:pmap` (property list) is a flat, contiguous vector of interleaved
-key-value pairs. It inherits directly from `:list` and `:array`.
+Property sets (`:pset`) and maps (`:pmap`) are lightweight, flat, contiguous
+vectors. They inherit directly from `:list` and `:array`.
 
-The core performance of `:pmap` is achieved through the `+str_hashslot` caching
-mechanism on globally interned symbols (`symbol` objects).
+* **`:pset`** is a flat list of unique keys.
+
+* **`:pmap`** is a flat list of alternating, interleaved key-value pairs.
+
+The core performance of these collections is achieved through the
+`+str_hashslot` caching mechanism on globally interned symbols (`symbol`
+objects).
 
 ### The Lookup Process in `pfind`
 
-When the virtual processor executes `:pmap :pfind` to search for a key, it
-follows a highly optimized execution path:
+When the virtual processor executes `:pfind` to search for a key, it follows a
+highly optimized, shared execution path:
 
 * **VTable Verification**:
 
@@ -34,26 +39,27 @@ follows a highly optimized execution path:
 
 * **Bounds Checking**:
 
-	The engine offsets the base pointer of the `:pmap` by the cached slot value
+	The engine offsets the base pointer of the collection by the cached slot value
 	and verifies that this address is within the boundaries of the active list.
 
 * **Cache Hit**:
 
 	If the key stored at the calculated offset matches the search key, the engine
-	immediately returns the value pointer. This results in an O(1) search.
+	immediately returns the value pointer (or key pointer for a set). This results
+	in an O(1) search.
 
 * **Cache Miss and Self-Repair**:
 
 	If there is a mismatch (caused by a collision or a lookup in a different
-	scope), the engine performs a linear scan of the `:pmap`. Once found, it
+	scope), the engine performs a linear scan of the collection. Once found, it
 	updates the symbol's `+str_hashslot` with the new index. All subsequent lookups
 	of this symbol or string in the same context resolve at O(1) speed.
 
 * **Polymorphic Fallback**:
 
 	If the key is not a symbol, the engine falls back to calling the virtual `:eql`
-	method. This allows the `:pmap` to compare numbers, strings, and other objects
-	as keys.
+	method. This allows both `:pset` and `:pmap` to compare numbers, strings, and
+	other objects as keys.
 
 ## 2. Compile-Time Optimization via `pcase` and `case`
 
@@ -87,7 +93,7 @@ evaluates the returned block at runtime:
 ```
 
 ```file
-class/lisp/root.inc "(defmacro pcase" ";;;;" 
+class/lisp/root.inc "defmacro pcase" ";;;;"
 ```
 
 ### Pre-population of Symbols via `pkeys`
@@ -122,33 +128,35 @@ This pre-population mechanism provides several engineering advantages:
 	lookup cache hot and preserves O(1) execution speeds.
 
 ```file
-lib/asm/assign.inc "assign-asm-to-asm" "" 
+lib/asm/assign.inc "assign-asm-to-asm" ""
 ```
 
-## 3. The Collections Hierarchy Built on `:pmap`
+## 3. The Collections Hierarchy Built on `:pset` and `:pmap`
 
-The collections library is built recursively on top of the `:pmap` primitive.
-Rather than defining complex, specialized data structures for each collection
-type, ChrysaLisp wraps or arrays `:pmap` buckets.
+The collections library is built recursively on top of the `:pset` and `:pmap`
+primitives. Rather than defining complex, specialized data structures for each
+collection type, ChrysaLisp wraps flat native sequences or arrays them into
+buckets.
+
+* **`Lset` (Linear Set)**:
+
+	A direct wrapper around a single native `:pset` instance. It uses `pfind`,
+	`pinsert`, and `perase` to manage unique keys directly on the flat array.
+
+* **`Fset` (Fast Set)**:
+
+	An array of native `:pset` buckets. A hash of the key is computed to select the
+	bucket, and the highly optimized `pfind` is called on that bucket.
 
 * **`Lmap` (Linear Map)**:
 
-	A direct wrapper around a single `:pmap` instance. It uses `pfind` and
-	`pinsert` to manage keys and values.
+	A direct wrapper around a single, flat `:pmap` instance. It uses `pfind`,
+	`pinsert`, and `perase` to manage keys and values.
 
 * **`Fmap` (Fast Map)**:
 
 	An array of `:pmap` buckets. A hash of the key is computed to select the
 	bucket, and `pfind` is called on that bucket.
-
-* **`Lset` (Linear Set)**:
-
-	A `:pmap` where member elements are stored as keys mapping to `:t`.
-
-* **`Fset` (Fast Set)**:
-
-	An array of `:pmap` buckets where member elements are stored as keys mapping
-	to `:t`.
 
 ### Architectural Benefits
 
@@ -156,19 +164,27 @@ This design yields several advantages:
 
 * **Contiguous Memory Layout**:
 
-	Because `:pmap` is backed by a flat, contiguous vector, the collections have
-	high cache locality. There is no pointer overhead for node wrappers, which
-	minimizes L1/L2 cache misses.
+	Because both `:pset` and `:pmap` are backed by flat, contiguous vectors, the
+	collections have high cache locality. There is no pointer overhead for node
+	wrappers, which minimizes L1/L2 cache misses.
 
 * **Shared Optimization**:
 
-	Any collection built on top of `:pmap` automatically benefits from the O(1)
-	`str_hashslot` optimization for symbol lookups.
+	Any collection built on top of `:pset` or `:pmap` automatically benefits from
+	the O(1) `str_hashslot` optimization for symbol lookups.
+
+* **Flat Element Indices**:
+
+	Because `:pset` and `:pmap` store elements flatly, `pfindi` returns the exact
+	`:list`-style index of the key in the underlying vector (e.g. `0`, `2`, `4` ...
+	for a map, and `0`, `1`, `2` ... for a set). This allows instant O(1) access to
+	adjacent values via `(inc idx)`.
 
 * **Minimal Code Footprint**:
 
 	The entire collections library is exceptionally small and maintainable, as the
-	core logic of insertion, deletion, and search is centralized within `:pmap`.
+	core logic of insertion, deletion, and search is centralized within the
+	low-level VM engine.
 
 ## 4. Comparison to `(env 1)` Lexical Environments
 
@@ -194,9 +210,8 @@ identical.
 * **Traversable Hierarchy**:
 
 	An `:hmap` contains a `+hmap_parent` pointer linking it to its parent scope,
-	which allows the lookup engine to traverse up the lexical scope tree. A
-	`:pmap` is a flat, self-contained sequence with no hierarchy or parent
-	pointers.
+	which allows the lookup engine to traverse up the lexical scope tree. A `:pmap`
+	is a flat, self-contained sequence with no hierarchy or parent pointers.
 
 * **Bucket Distribution**:
 
@@ -204,7 +219,7 @@ identical.
 	environment is sized with many buckets to reduce collisions). A `:pmap` is
 	always a single sequential list.
 
-*   **Mutability and Compilation**:
+* **Mutability and Compilation**:
 
 	`:hmap` instances are typically populated dynamically at runtime as variables
 	are bound and shadowed. `:pmap` instances are frequently constructed as static
@@ -233,10 +248,10 @@ directly to fast list operations:
 	A new register set is initialized with each register mapped to itself,
 	representing a fully preserved state:
 
-	```vdu
-	(defmacro vpmap ()
-		(static-qq (vpmap-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (pmap))))))
-	```
+```lisp
+(defmacro vpmap ()
+	(static-qq (vpmap-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (pmap))))))
+```
 
 * **Symmetric Merge (`vpmap-merge`)**:
 
@@ -244,21 +259,22 @@ directly to fast list operations:
 	labels), `vpmap-merge` compares register states pairwise and conservatively
 	marks any mismatched registers as clobbered (`:nil`):
 
-	```vdu
-	(defmacro vpmap-merge (%0 %1)
-		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql (pfind %0 %1) %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
-	```
+```lisp
+(defmacro vpmap-merge (%0 %1)
+	(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql (pfind %0 %1) %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
+```
 
 * **Asymmetric Clobber Application (`vpmap-clobber`)**:
 
 	To apply a known clobber set (a delta, such as a function call's clobbers) to
-	the active `trace_map`, `vpmap-clobber` marks any register as clobbered (`:nil`)
-	if its state in the callee map is not in its default self-mapped state:
+	the active `trace_map`, `vpmap-clobber` marks any register as clobbered
+	(`:nil`) if its state in the callee map is not in its default self-mapped
+	state:
 
-	```vdu
-	(defmacro vpmap-clobber (%0 %1)
-		(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
-	```
+```lisp
+(defmacro vpmap-clobber (%0 %1)
+	(static-qq (reduce (lambda (%0 (%1 %2)) (if (nql %1 %2) (pinsert %0 %1 :nil) %0)) (partition ,%1 2) ,%0)))
+```
 
 * **Loop Stability (`vpmap-changed?`)**:
 
@@ -266,10 +282,10 @@ directly to fast list operations:
 	restored or swapped in the body, `vpmap-changed?` only triggers a loop
 	back-edge if the active state would further widen/degrade the label state:
 
-	```vdu
-	(defmacro vpmap-changed? (%0 %1)
-		(static-qq (some (lambda (v0 v1) (and (nql v1 :nil) (nql v0 v1))) ,%0 ,%1)))
-	```
+```lisp
+(defmacro vpmap-changed? (%0 %1)
+	(static-qq (some (lambda (v0 v1) (and (nql v1 :nil) (nql v0 v1))) ,%0 ,%1)))
+```
 
 ### The `vpmap` (Register Value Map)
 
@@ -281,9 +297,9 @@ register to detect when a spilled register is restored. This is managed by
 
 	The map is initialized with each register mapping to itself:
 
-	```vdu
-	vpmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (pmap))))
-	```
+```vdu
+vpmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (pmap))))
+```
 
 * **State Tracking**:
 
@@ -291,10 +307,10 @@ register to detect when a spilled register is restored. This is managed by
 	symbolic source, and `pinsert` updates the destination register's mapping in
 	the pmap:
 
-	```vdu
-	((emit-cpy-rr emit-cpy-ff)
-		(def-reg (last inst) (pfind vpmap (second inst))))
-	```
+```vdu
+((emit-cpy-rr emit-cpy-ff)
+	(def-reg (last inst) (pfind vpmap (second inst))))
+```
 
 ### Caching and Simulation Performance
 
