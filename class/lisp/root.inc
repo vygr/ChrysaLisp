@@ -230,14 +230,14 @@
 ; (lmatch? list list) -> :nil | :t
 (ffi "class/list/lisp_copy" copy)
 ; (copy form) -> 'form
-(ffi "class/plist/lisp_pfind" pfind)
-; (pfind plist key) -> :nil | val
-(ffi "class/plist/lisp_pfindi" pfindi)
-; (pfindi plist key) -> :nil | idx
-(ffi "class/plist/lisp_pinsert" pinsert)
-; (pinsert plist key val) -> plist
-(ffi "class/plist/lisp_perase" perase)
-; (perase plist key) -> plist
+(ffi "class/pmap/lisp_pfind" pfind)
+; (pfind pmap key) -> :nil | val
+(ffi "class/pmap/lisp_pfindi" pfindi)
+; (pfindi pmap key) -> :nil | idx
+(ffi "class/pmap/lisp_pinsert" pinsert)
+; (pinsert pmap key val) -> pmap
+(ffi "class/pmap/lisp_perase" perase)
+; (perase pmap key) -> pmap
 
 ;;;;;;;;;;;;;;;;;;;;
 ; String Operations
@@ -376,8 +376,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ffi "class/list/lisp_list" list)
 ; (list [elem ...]) -> list
-(ffi "class/plist/lisp_plist" plist)
-; (plist [key val] ...) -> plist
+(ffi "class/pmap/lisp_pmap" pmap)
+; (pmap [key val] ...) -> pmap
 (ffi "class/array/lisp_array" array)
 ; (array [num ...]) -> array
 (ffi "class/array/lisp_nums" nums)
@@ -582,9 +582,9 @@
 	; (list? form) -> :t | :nil
 	(rfind :list (type-of %0)))
 
-(defun plist? (%0)
-	; (plist? form) -> :t | :nil
-	(rfind :plist (type-of %0)))
+(defun pmap? (%0)
+	; (pmap? form) -> :t | :nil
+	(rfind :pmap (type-of %0)))
 
 (defun num? (%0)
 	; (num? form) -> :t | :nil
@@ -645,7 +645,7 @@
 (defun atom? (%0)
 	; (atom? o) -> :t | :nil
 	(cond ((sym? %0) (eql (first %0) ":"))
-		((plist? %0) :t) ((list? %0) :nil) (:t)))
+		((pmap? %0) :t) ((list? %0) :nil) (:t)))
 
 (defun msafe? (%0)
 	; (msafe? o) -> :t | :nil
@@ -961,7 +961,7 @@
 	(if (or (eql val :nil) (not (find :nil vals)))
 		(progn
 			(defq pl (reduce! (const pinsert) (list keys vals)
-				(reduce (# (pinsert %0 %1 :nil)) (eval pkeys) (plist))))
+				(reduce (# (pinsert %0 %1 :nil)) (eval pkeys) (pmap))))
 			(if (and (atom? val) (every (const atom?) vals))
 				(static-qq (ifn (pfind ,pl ,key) ,val))
 				(static-qq (eval (ifn (pfind ,pl ,key) ',val)))))

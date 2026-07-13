@@ -10,7 +10,7 @@
 (defclass Fset (&optional num_buckets) (Set)
 	; (Fset [num_buckets]) -> fset
 	(def this :num_buckets (setq num_buckets (ifn num_buckets 1))
-		:buckets (map! (const plist) '() 0 num_buckets))
+		:buckets (map! (const pmap) '() 0 num_buckets))
 
 	(defmethod :find (key)
 		; (. fset :find key) -> :nil | key
@@ -93,7 +93,7 @@
 	(defmethod :intersect (that)
 		; (. fset :intersect set) -> fset
 		(unless (eql this that)
-			(defq new_buckets (map! (const plist) '() 0 (get :num_buckets this)))
+			(defq new_buckets (map! (const pmap) '() 0 (get :num_buckets this)))
 			(each (lambda (bucket new_bucket)
 				(each (lambda ((k v)) (if (. that :find k) (pinsert new_bucket k v))) (partition bucket 2)))
 				(get :buckets this) new_buckets)
@@ -124,7 +124,7 @@
 
 	(defmethod :resize (num_buckets)
 		; (. fset :resize num_buckets) -> fset
-		(raise :buckets (new_buckets (map! (const plist) '() 0 num_buckets)))
+		(raise :buckets (new_buckets (map! (const pmap) '() 0 num_buckets)))
 		(lower :num_buckets (:buckets new_buckets))
 		(raise :num_buckets)
 		(each (lambda (old_bucket)

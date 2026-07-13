@@ -9,7 +9,7 @@
 
 (defclass Lmap () (Map)
 	; (Lmap) -> lmap
-	(def this :bucket (plist))
+	(def this :bucket (pmap))
 
 	(defmethod :find (key)
 		; (. lmap :find key) -> :nil | val
@@ -59,13 +59,13 @@
 
 	(defmethod :deep_copy ()
 		; (. lmap :deep_copy) -> lmap
-		(defq that ((get 'Lmap)) that_plist (get :bucket that))
-		(each (lambda ((key val)) (pinsert that_plist (copy key) (copy val))) (. this :tolist))
+		(defq that ((get 'Lmap)) that_pmap (get :bucket that))
+		(each (lambda ((key val)) (pinsert that_pmap (copy key) (copy val))) (. this :tolist))
 		that)
 
 	(defmethod :empty ()
 		; (. lmap :empty) -> lmap
-		(set this :bucket (plist))
+		(set this :bucket (pmap))
 		this)
 
 	(defmethod :move ()

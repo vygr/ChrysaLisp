@@ -13,7 +13,7 @@
 (defun tree-collection? (type)
 	; (tree-collection? type) -> :nil | type
 	(some (# (if (eql %0 type) %0))
-		'(:list :plist :array :path :Emap :Lmap :Fmap :Lset :Fset)))
+		'(:list :pmap :array :path :Emap :Lmap :Fmap :Lset :Fset)))
 
 (defun tree-encode (atom)
 	; (tree-encode atom) -> atom
@@ -50,7 +50,7 @@
 
 (defun tree-buckets (collection type)
 	; (tree-buckets collection type) -> num
-	(if (find type '(:list :plist :array :path))
+	(if (find type '(:list :pmap :array :path))
 		(length collection)
 		(if (find type '(:Lmap :Lset)) 1
 			(get :num_buckets collection))))
@@ -66,7 +66,7 @@
 		(:Fset (Fset buckets))
 		(:array (cap buckets (array)))
 		(:path (cap buckets (path)))
-		(:plist (cap buckets (plist)))
+		(:pmap (cap buckets (pmap)))
 		(:t (cap buckets (list)))))
 
 (defun tree-save (stream root &optional key_filters)

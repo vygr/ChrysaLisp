@@ -9,7 +9,7 @@
 
 (defclass Lset () (Set)
 	; (Lset) -> lset
-	(def this :bucket (plist))
+	(def this :bucket (pmap))
 
 	(defmethod :find (key)
 		; (. lset :find key) -> :nil | key
@@ -81,7 +81,7 @@
 	(defmethod :intersect (that)
 		; (. lset :intersect set) -> lset
 		(unless (eql this that)
-			(defq new_bucket (plist))
+			(defq new_bucket (pmap))
 			(each (lambda ((k v)) (if (. that :find k) (pinsert new_bucket k v))) (partition (get :bucket this) 2))
 			(set this :bucket new_bucket))
 		this)

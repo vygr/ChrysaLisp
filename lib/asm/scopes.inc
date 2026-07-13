@@ -12,7 +12,7 @@
 (defcvar '*scopes_sp* 0 '*scopes* (list))
 
 (defmacro scope-new ()
-	(static-q (push *scopes* (list 0 (plist)))))
+	(static-q (push *scopes* (list 0 (pmap)))))
 
 (defun scope-offset (level)
 	(reduce! (# (+ %0 (first %1))) (list *scopes*) 0 (inc level) -2))

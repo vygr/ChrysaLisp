@@ -10,7 +10,7 @@
 (defclass Fmap (&optional num_buckets) (Map)
 	; (Fmap [num_buckets]) -> fmap
 	(def this :num_buckets (setq num_buckets (ifn num_buckets 1))
-		:buckets (map! (const plist) '() 0 num_buckets))
+		:buckets (map! (const pmap) '() 0 num_buckets))
 
 	(defmethod :find (key)
 		; (. fmap :find key) -> :nil | val
@@ -92,7 +92,7 @@
 
 	(defmethod :resize (num_buckets)
 		; (. fmap :resize num_buckets) -> fmap
-		(raise :buckets (new_buckets (map! (const plist) '() 0 num_buckets)))
+		(raise :buckets (new_buckets (map! (const pmap) '() 0 num_buckets)))
 		(lower :num_buckets (:buckets new_buckets))
 		(raise :num_buckets)
 		(each (lambda (old_bucket)

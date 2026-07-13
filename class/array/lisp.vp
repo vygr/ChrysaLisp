@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "gui/path/class.inc")
 (include "././reals/class.inc")
-(include "././plist/class.inc")
+(include "././pmap/class.inc")
 (include "././num/class.inc")
 (include "././lisp/class.inc")
 
@@ -213,7 +213,7 @@
 	(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj v))
 	(gotoif `(,v = 0) 'error))
 
-	(assign `((@ ,(f-path :list :vtable)) (@ ,(f-path :plist :vtable)) (,obj +obj_vtable))
+	(assign `((@ ,(f-path :list :vtable)) (@ ,(f-path :pmap :vtable)) (,obj +obj_vtable))
 		`(,vt1 ,vt2 ,vt3))
 	(gotoif `(,vt1 = ,vt3) 'as_list)
 	(vpif `(,vt2 = ,vt3))
@@ -364,7 +364,7 @@
 	(gotoif `(,i < 0) 'error2)
 	(gotoif `(,i >= :r14) 'error2))
 
-	(assign `((,a +obj_vtable) (@ ,(f-path :list :vtable)) (@ ,(f-path :plist :vtable)))
+	(assign `((,a +obj_vtable) (@ ,(f-path :list :vtable)) (@ ,(f-path :pmap :vtable)))
 		'(:r12 :r13 :r14))
 	(gotoif '(:r12 = :r13) 'as_list)
 	(vpif '(:r12 = :r14))

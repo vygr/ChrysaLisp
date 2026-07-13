@@ -187,6 +187,7 @@
 			(assign {key} `(,key))
 			(vp-cpy-rr iter_begin iter)
 			(assign `((,key +str_hashslot)) `(,slot))
+			(vp-shl-cr (log2 (* +ptr_size 2)) slot)
 			(vp-sub-rr slot iter)
 			(vpif `(,iter < ,iter_end))
 				(assign `((,iter 0)) `(,slot))
@@ -228,6 +229,7 @@
 
 (vp-label 'scan_hit)
 	(vp-sub-rr iter iter_begin)
+	(vp-asr-cr (log2 (* +ptr_size 2)) iter_begin)
 	(assign `(,iter_begin) `((,key +str_hashslot)))
 	(exit :hmap :find `(,this ,iter ,buckets))
 	(pop-scope)
@@ -283,6 +285,7 @@
 	;initial known slot
 	(vp-sub-cr (* +ptr_size 2) iter_e)
 	(vp-sub-rr iter_e iter_s)
+	(vp-asr-cr (log2 (* +ptr_size 2)) iter_s)
 	(assign `(,iter_s ,iter_e) `((,iter +str_hashslot) ,iter))
 
 	(vp-pop this)

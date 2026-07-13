@@ -967,10 +967,10 @@ run pipe farm and collect output
 (pipe-split cmdline) -> ((mode cmd) ...)
 ```
 
-### plist?
+### pmap?
 
 ```code
-(plist? form) -> :t | :nil
+(pmap? form) -> :t | :nil
 ```
 
 ### pos?

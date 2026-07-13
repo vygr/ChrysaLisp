@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defcvar '*vtables* (plist) '*supers* (plist))
+(defcvar '*vtables* (pmap) '*supers* (pmap))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -71,7 +71,7 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(pinsert *vtables* :nil (plist :vslot 0))
+(pinsert *vtables* :nil (pmap :vslot 0))
 
 (defun vtable-emit (class)
 	(if (eql (defq _ (pfind *supers* class)) :nil)

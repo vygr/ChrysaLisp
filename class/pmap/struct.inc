@@ -1,3 +1,3 @@
 (import "././list/struct.inc")
 
-(structure +plist +list_size)
+(structure +pmap +list_size)

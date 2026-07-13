@@ -31,7 +31,7 @@ above it.
 	|	|	|
 	|	|	+-> list
 	|	|	|	|
-	|	|	|	+-> plist
+	|	|	|	+-> pmap
 	|	|	|
 	|	|	+-> nums
 	|	|		 |
@@ -179,7 +179,7 @@ above it.
 	* It inherits `:push_back`, `:pop_back`, etc., but because it stores object
 	  pointers, these methods effectively manage lists of heterogeneous objects.
 
-**`:plist`** (Property List)
+**`:pmap`** (Property List)
 
 * **Inherits From:** `:list`
 

@@ -56,7 +56,7 @@
 ;env with all emit-* instructions
 (defq +emit_funcs (reduce (lambda (%0 (%1 %2))
 		(if (starts-with "emit-" %1) (pinsert %0 %1 %2) %0))
-	(tolist (env)) (plist)))
+	(tolist (env)) (pmap)))
 
 ;env with jump/branch instructions flagged
 (defq +emit_jmps (reduce (lambda (%0 (%1 &)) (pinsert %0 %1 (find %1
@@ -65,7 +65,7 @@
 		emit-blt-rr emit-bgt-rr emit-bgt-cr emit-min-cr emit-max-cr
 		emit-min-rr emit-max-rr emit-abs-rr emit-beq-ff emit-bne-ff
 		emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))))
-	(partition +emit_funcs 2) (plist)))
+	(partition +emit_funcs 2) (pmap)))
 
 ;validate that all instruction maps have identical symbols and slots
 (validatecase

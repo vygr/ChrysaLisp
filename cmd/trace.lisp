@@ -38,7 +38,7 @@
 	(each (# (if (nql %0 :rsp) (if (starts-with ":r" %0)
 			(push r_indices (vp-reg? %0))
 			(push f_indices (vp-reg? %0)))))
-		(if (plist? func_map) (vpmap-tolist func_map) func_map))
+		(if (pmap? func_map) (vpmap-tolist func_map) func_map))
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
 		(format-group ":f" f_indices)))
@@ -52,7 +52,7 @@
 						((eql %1 %2) %0)
 						((defq i (pfindi %0 %2)) (push (elem-get %0 (inc i)) %1) %0)
 						((pinsert %0 %2 (list %1)))))
-					(partition func_map 2) (plist)) 2))))
+					(partition func_map 2) (pmap)) 2))))
 		"none" (join out " | ")))
 
 (defun resolve-static-method (insts lbl)
@@ -121,8 +121,8 @@
 			(list :external))
 		(;register tracing simulation ! (as near as we can anyways)
 		;start main trace from pc _s
-		(defq label_map (plist) call_list (list) func_map (vpmap) trace -1
-			traces (list (list _s 0 (vpmap) (plist) (list))))
+		(defq label_map (pmap) call_list (list) func_map (vpmap) trace -1
+			traces (list (list _s 0 (vpmap) (pmap) (list))))
 		(verbose 3 "\ttracing " function)
 		(while (defq trace (inc trace) trace_map (pop traces))
 			(task-slice)

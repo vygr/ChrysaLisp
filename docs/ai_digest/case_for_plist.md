@@ -2,24 +2,24 @@
 
 ChrysaLisp's architecture is a network of cooperating ideas, built from
 first-principles engineering. At the center of its performance characteristics
-is the property list (`:plist`).
+is the property list (`:pmap`).
 
-This document describes how ChrysaLisp uses the `:plist` to power compile-time
+This document describes how ChrysaLisp uses the `:pmap` to power compile-time
 optimizations (such as the `pcase` macro), how the collection library is
 constructed upon it, and how it compares to the lexical environment (`:hmap`)
 system.
 
-## 1. The `:plist` Primitive and `str_hashslot` Caching
+## 1. The `:pmap` Primitive and `str_hashslot` Caching
 
-The `:plist` (property list) is a flat, contiguous vector of interleaved
+The `:pmap` (property list) is a flat, contiguous vector of interleaved
 key-value pairs. It inherits directly from `:list` and `:array`.
 
-The core performance of `:plist` is achieved through the `+str_hashslot` caching
+The core performance of `:pmap` is achieved through the `+str_hashslot` caching
 mechanism on globally interned symbols (`symbol` objects).
 
 ### The Lookup Process in `pfind`
 
-When the virtual processor executes `:plist :pfind` to search for a key, it
+When the virtual processor executes `:pmap :pfind` to search for a key, it
 follows a highly optimized execution path:
 
 * **VTable Verification**:
@@ -34,7 +34,7 @@ follows a highly optimized execution path:
 
 * **Bounds Checking**:
 
-	The engine offsets the base pointer of the `:plist` by the cached slot value
+	The engine offsets the base pointer of the `:pmap` by the cached slot value
 	and verifies that this address is within the boundaries of the active list.
 
 * **Cache Hit**:
@@ -45,28 +45,28 @@ follows a highly optimized execution path:
 * **Cache Miss and Self-Repair**:
 
 	If there is a mismatch (caused by a collision or a lookup in a different
-	scope), the engine performs a linear scan of the `:plist`. Once found, it
+	scope), the engine performs a linear scan of the `:pmap`. Once found, it
 	updates the symbol's `+str_hashslot` with the new index. All subsequent lookups
 	of this symbol or string in the same context resolve at O(1) speed.
 
 * **Polymorphic Fallback**:
 
 	If the key is not a symbol, the engine falls back to calling the virtual `:eql`
-	method. This allows the `:plist` to compare numbers, strings, and other objects
+	method. This allows the `:pmap` to compare numbers, strings, and other objects
 	as keys.
 
 ## 2. Compile-Time Optimization via `pcase` and `case`
 
 Traditional Lisps compile `case` macros into nested O(N) linear chains of `cond`
 or `if` statements. ChrysaLisp avoids this overhead by converting the branching
-table into a compile-time `:plist`.
+table into a compile-time `:pmap`.
 
 ### The Compilation and Dispatch of `pcase`
 
-When the compiler parses a `pcase` block, it constructs a literal `:plist`
+When the compiler parses a `pcase` block, it constructs a literal `:pmap`
 containing the mapped branches and keys.
 
-At runtime, the program executes a single `:plist` lookup:
+At runtime, the program executes a single `:pmap` lookup:
 
 ```vdu
 (pfind ,pl ,key)
@@ -105,7 +105,7 @@ This pre-population mechanism provides several engineering advantages:
 
 * **Memory Pre-allocation**:
 
-	The backing array of the generated `:plist` is pre-sized to hold all potential
+	The backing array of the generated `:pmap` is pre-sized to hold all potential
 	matching keys, eliminating dynamic allocation overhead during macro expansion.
 
 * **Stable Index Layout**:
@@ -125,29 +125,29 @@ This pre-population mechanism provides several engineering advantages:
 lib/asm/assign.inc "assign-asm-to-asm" "" 
 ```
 
-## 3. The Collections Hierarchy Built on `:plist`
+## 3. The Collections Hierarchy Built on `:pmap`
 
-The collections library is built recursively on top of the `:plist` primitive.
+The collections library is built recursively on top of the `:pmap` primitive.
 Rather than defining complex, specialized data structures for each collection
-type, ChrysaLisp wraps or arrays `:plist` buckets.
+type, ChrysaLisp wraps or arrays `:pmap` buckets.
 
 * **`Lmap` (Linear Map)**:
 
-	A direct wrapper around a single `:plist` instance. It uses `pfind` and
+	A direct wrapper around a single `:pmap` instance. It uses `pfind` and
 	`pinsert` to manage keys and values.
 
 * **`Fmap` (Fast Map)**:
 
-	An array of `:plist` buckets. A hash of the key is computed to select the
+	An array of `:pmap` buckets. A hash of the key is computed to select the
 	bucket, and `pfind` is called on that bucket.
 
 * **`Lset` (Linear Set)**:
 
-	A `:plist` where member elements are stored as keys mapping to `:t`.
+	A `:pmap` where member elements are stored as keys mapping to `:t`.
 
 * **`Fset` (Fast Set)**:
 
-	An array of `:plist` buckets where member elements are stored as keys mapping
+	An array of `:pmap` buckets where member elements are stored as keys mapping
 	to `:t`.
 
 ### Architectural Benefits
@@ -156,24 +156,24 @@ This design yields several advantages:
 
 * **Contiguous Memory Layout**:
 
-	Because `:plist` is backed by a flat, contiguous vector, the collections have
+	Because `:pmap` is backed by a flat, contiguous vector, the collections have
 	high cache locality. There is no pointer overhead for node wrappers, which
 	minimizes L1/L2 cache misses.
 
 * **Shared Optimization**:
 
-	Any collection built on top of `:plist` automatically benefits from the O(1)
+	Any collection built on top of `:pmap` automatically benefits from the O(1)
 	`str_hashslot` optimization for symbol lookups.
 
 * **Minimal Code Footprint**:
 
 	The entire collections library is exceptionally small and maintainable, as the
-	core logic of insertion, deletion, and search is centralized within `:plist`.
+	core logic of insertion, deletion, and search is centralized within `:pmap`.
 
 ## 4. Comparison to `(env 1)` Lexical Environments
 
 Lexical environments in ChrysaLisp are created as `:hmap` objects. While an
-`(env 1)` instance and a `:plist` are conceptually similar, they are not
+`(env 1)` instance and a `:pmap` are conceptually similar, they are not
 identical.
 
 ### Similarities
@@ -187,7 +187,7 @@ identical.
 
 	When a local environment is created via `(env 1)`, the system instantiates a
 	single-bucket `:hmap`. This eliminates the modulo math of bucket selection,
-	making the lookup path functionally identical to a flat `:plist` scan.
+	making the lookup path functionally identical to a flat `:pmap` scan.
 
 ### Differences
 
@@ -195,37 +195,37 @@ identical.
 
 	An `:hmap` contains a `+hmap_parent` pointer linking it to its parent scope,
 	which allows the lookup engine to traverse up the lexical scope tree. A
-	`:plist` is a flat, self-contained sequence with no hierarchy or parent
+	`:pmap` is a flat, self-contained sequence with no hierarchy or parent
 	pointers.
 
 * **Bucket Distribution**:
 
 	An `:hmap` can be configured with multiple buckets (e.g., the *compile_env*
-	environment is sized with many buckets to reduce collisions). A `:plist` is
+	environment is sized with many buckets to reduce collisions). A `:pmap` is
 	always a single sequential list.
 
 *   **Mutability and Compilation**:
 
 	`:hmap` instances are typically populated dynamically at runtime as variables
-	are bound and shadowed. `:plist` instances are frequently constructed as static
+	are bound and shadowed. `:pmap` instances are frequently constructed as static
 	literals during compilation (such as the jump tables generated by `pcase`) and
 	remain immutable throughout execution.
 
-## 5. Use of `:plist` in Symbolic Register Tracing (`trace` command)
+## 5. Use of `:pmap` in Symbolic Register Tracing (`trace` command)
 
-The `trace` command uses ChrysaLisp’s `:plist` to track register states during
+The `trace` command uses ChrysaLisp’s `:pmap` to track register states during
 symbolic execution. This utility simulates program flow to calculate transitive
 register clobbering (register trashing) across function calls, relying on a core
-plist-backed structure: `vpmap` (register mappings).
+pmap-backed structure: `vpmap` (register mappings).
 
 ### The `vpmap` (Register Set) Primitive
 
 In the tracer, a `vpmap` represents a set of hardware registers. It is modeled
-entirely as a `:plist` where register symbols map to themselves (e.g., `:r0 ->
+entirely as a `:pmap` where register symbols map to themselves (e.g., `:r0 ->
 :r0`) for a preserved state, or `:nil` (e.g., `:r0 -> :nil`) for a clobbered
 state.
 
-By leveraging `:plist` primitives, set algebra and clobbering states are mapped
+By leveraging `:pmap` primitives, set algebra and clobbering states are mapped
 directly to fast list operations:
 
 * **Initialization**:
@@ -235,7 +235,7 @@ directly to fast list operations:
 
 	```vdu
 	(defmacro vpmap ()
-		(static-qq (vpmap-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (plist))))))
+		(static-qq (vpmap-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (pmap))))))
 	```
 
 * **Symmetric Merge (`vpmap-merge`)**:
@@ -282,14 +282,14 @@ register to detect when a spilled register is restored. This is managed by
 	The map is initialized with each register mapping to itself:
 
 	```vdu
-	vpmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (plist))))
+	vpmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (pmap))))
 	```
 
 * **State Tracking**:
 
 	As instructions are simulated (such as `emit-cpy-rr`), `pfind` resolves the
 	symbolic source, and `pinsert` updates the destination register's mapping in
-	the plist:
+	the pmap:
 
 	```vdu
 	((emit-cpy-rr emit-cpy-ff)
@@ -307,5 +307,5 @@ allowing it to calculate register-trashing behaviors across thousands of
 instructions in a fraction of a second.
 
 ```file
-lib/asm/regs.inc "; (plist)" ""
+lib/asm/regs.inc "; (pmap)" ""
 ```

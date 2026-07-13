@@ -550,35 +550,35 @@ structures.
 
 	* `(lists n) -> ((list0) ... (listn-1))`
 
-## Property List (plist) Functions
+## Property List (pmap) Functions
 
-Property lists (plists) are lightweight, efficient key-value stores backed by
+Property lists (pmaps) are lightweight, efficient key-value stores backed by
 specialized arrays. They store elements in alternating key-value pairs.
 
-*   **`plist`**: Creates a new property list. If arguments are provided, they
+*   **`pmap`**: Creates a new property list. If arguments are provided, they
 	are used as initial key-value pairs.
 
-	* `(plist [key val ...]) -> plist`
+	* `(pmap [key val ...]) -> pmap`
 
 *   **`pinsert`**: Inserts or updates a key-value pair in a property list.
 	Returns the property list.
 
-	* `(pinsert plist key val) -> plist`
+	* `(pinsert pmap key val) -> pmap`
 
 *	**`perase`**: Deletes a key-value pair in a property list. Returns the
   	property list.
 
-	* `(perase plist key) -> plist`
+	* `(perase pmap key) -> pmap`
 
 *   **`pfind`**: Searches for a key in a property list. Returns the
 	associated value if found, or `:nil` if the key does not exist.
 
-	* `(pfind plist key) -> val | :nil`
+	* `(pfind pmap key) -> val | :nil`
 
 *   **`pfindi`**: Searches for a key in a property list. Returns the
 	associated index if found, or `:nil` if the key does not exist.
 
-	* `(pfindi plist key) -> idx | :nil`
+	* `(pfindi pmap key) -> idx | :nil`
 
 ## Predicates
 

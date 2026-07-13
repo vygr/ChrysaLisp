@@ -3,7 +3,7 @@
 (include "././num/class.inc")
 (include "././lisp/class.inc")
 
-(def-method :plist :lisp_plist)
+(def-method :pmap :lisp_pmap)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -13,28 +13,28 @@
 	;trashes
 	;:r2-:r3
 
-	(entry :plist :lisp_plist '(:r0 :r1))
+	(entry :pmap :lisp_pmap '(:r0 :r1))
 
 (errorcase
 	(assign '((:r1 +array_length)) '(:r2))
 	(vp-and-cr 1 :r2)
 	(gotoif '(:r2 /= 0) 'error))
 
-	;mutate list to plist
-	(f-bind :plist :vtable :r2)
+	;mutate list to pmap
+	(f-bind :pmap :vtable :r2)
 	(assign '(:r2) '((:r1 +obj_vtable)))
 	(class/obj/ref :r1 :r2)
 
-	(exit :plist :lisp_plist '(:r0 :r1))
+	(exit :pmap :lisp_pmap '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(plist [key val])" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r0 :r1 "(pmap [key val])" +error_msg_wrong_num_of_args)))
 
 (def-func-end)
 
-(def-method :plist :lisp_pfind)
+(def-method :pmap :lisp_pfind)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -45,16 +45,16 @@
 	;:r1-:r11
 
 	(vp-rdef (this args))
-	(vp-rdef (lst key) (method-input :plist :pfind))
+	(vp-rdef (lst key) (method-input :pmap :pfind))
 	(vp-rdef (saved_this) '(:r11))
 
-	(entry :plist :lisp_pfind `(,this ,args))
+	(entry :pmap :lisp_pfind `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(vp-cpy-rr this saved_this)
-	(list-bind-args args `(,lst ,key) '(:plist :obj))
-	(call :plist :pfind `(,lst ,key) `(_ ,args _ _))
+	(list-bind-args args `(,lst ,key) '(:pmap :obj))
+	(call :pmap :pfind `(,lst ,key) `(_ ,args _ _))
 	(vpif `(,args = 0))
 		(assign `((,saved_this +lisp_sym_nil)) `(,args))
 	(else)
@@ -62,17 +62,17 @@
 	(endif)
 	(class/obj/ref args lst)
 
-	(exit :plist :lisp_pfind `(,saved_this ,args))
+	(exit :pmap :lisp_pfind `(,saved_this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this ,args "(pfind plist key)" +error_msg_wrong_types))
-	(signature '(:plist :obj)))
+	(jump :lisp :repl_error `(,this ,args "(pfind pmap key)" +error_msg_wrong_types))
+	(signature '(:pmap :obj)))
 
 (def-func-end)
 
-(def-method :plist :lisp_pfindi)
+(def-method :pmap :lisp_pfindi)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -83,16 +83,16 @@
 	;:r1-:r11, :r14, :f0-:f15
 
 	(vp-rdef (this args))
-	(vp-rdef (lst key) (method-input :plist :pfind))
+	(vp-rdef (lst key) (method-input :pmap :pfind))
 	(vp-rdef (saved_this) '(:r11))
 
-	(entry :plist :lisp_pfindi `(,this ,args))
+	(entry :pmap :lisp_pfindi `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(vp-cpy-rr this saved_this)
-	(list-bind-args args `(,lst ,key) '(:plist :obj))
-	(call :plist :pfind `(,lst ,key) `(,lst ,args iter_s _))
+	(list-bind-args args `(,lst ,key) '(:pmap :obj))
+	(call :pmap :pfind `(,lst ,key) `(,lst ,args iter_s _))
 	(vpif `(,args = 0))
 		(assign `((,saved_this +lisp_sym_nil)) `(,args))
 		(class/obj/ref args lst)
@@ -102,17 +102,17 @@
 		(call :num :create `(,args) `(,args))
 	(endif)
 
-	(exit :plist :lisp_pfindi `(,saved_this ,args))
+	(exit :pmap :lisp_pfindi `(,saved_this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this ,args "(pfindi plist key)" +error_msg_wrong_types))
-	(signature '(:plist :obj)))
+	(jump :lisp :repl_error `(,this ,args "(pfindi pmap key)" +error_msg_wrong_types))
+	(signature '(:pmap :obj)))
 
 (def-func-end)
 
-(def-method :plist :lisp_pinsert)
+(def-method :pmap :lisp_pinsert)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -123,29 +123,29 @@
 	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this args))
-	(vp-rdef (lst key val) (method-input :plist :pinsert))
+	(vp-rdef (lst key val) (method-input :pmap :pinsert))
 
-	(entry :plist :lisp_pinsert `(,this ,args))
+	(entry :pmap :lisp_pinsert `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push this)
-	(list-bind-args args `(,lst ,key ,val) '(:plist :obj :obj))
-	(call :plist :pinsert `(,lst ,key ,val) `(,args _))
+	(list-bind-args args `(,lst ,key ,val) '(:pmap :obj :obj))
+	(call :pmap :pinsert `(,lst ,key ,val) `(,args _))
 	(class/obj/ref args val)
 	(vp-pop this)
 
-	(exit :plist :lisp_pinsert `(,this ,args))
+	(exit :pmap :lisp_pinsert `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this ,args "(pinsert plist key val)" +error_msg_wrong_types))
-	(signature '(:plist :obj :obj)))
+	(jump :lisp :repl_error `(,this ,args "(pinsert pmap key val)" +error_msg_wrong_types))
+	(signature '(:pmap :obj :obj)))
 
 (def-func-end)
 
-(def-method :plist :lisp_perase)
+(def-method :pmap :lisp_perase)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -156,28 +156,28 @@
 	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this args tmp))
-	(vp-rdef (lst key) (method-input :plist :pfind))
+	(vp-rdef (lst key) (method-input :pmap :pfind))
 
-	(entry :plist :lisp_perase `(,this ,args))
+	(entry :pmap :lisp_perase `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(vp-push this)
-	(list-bind-args args `(,lst ,key) '(:plist :obj))
-	(call :plist :pfind `(,lst ,key) `(,lst ,args _ _))
+	(list-bind-args args `(,lst ,key) '(:pmap :obj))
+	(call :pmap :pfind `(,lst ,key) `(,lst ,args _ _))
 	(vpif `(,args /= 0))
-		(call :plist :erase2 `(,lst ,args) `(,lst _))
+		(call :pmap :erase2 `(,lst ,args) `(,lst _))
 	(endif)
 	(vp-cpy-rr lst args)
 	(class/obj/ref args lst)
 	(vp-pop this)
 
-	(exit :plist :lisp_perase `(,this ,args))
+	(exit :pmap :lisp_perase `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this ,args "(perase plist key)" +error_msg_wrong_types))
-	(signature '(:plist :obj)))
+	(jump :lisp :repl_error `(,this ,args "(perase pmap key)" +error_msg_wrong_types))
+	(signature '(:pmap :obj)))
 
 (def-func-end)

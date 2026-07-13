@@ -269,7 +269,7 @@ Deep dives into meta-commentary and design philosophy:
 64. **[Trace Analysis](docs/ai_digest/trace_command.md)** - VP register dataflow
     tracing.
 
-65. **[Plist and Case](docs/ai_digest/case_for_plist.md)** - VP `:plist` class
+65. **[Pmap and Case](docs/ai_digest/case_for_pmap.md)** - VP `:pmap` class
     and it's uses.
 
 65. **[CTF Font format](docs/ai_digest/ctf_command.md)** - ChrysaLisp vector

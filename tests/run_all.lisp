@@ -23,7 +23,7 @@
 
 	; Collections
 	(import "tests/collections/test_list.lisp")
-	(import "tests/collections/test_plists.lisp")
+	(import "tests/collections/test_pmaps.lisp")
 	(import "tests/collections/test_sets.lisp")
 	(import "tests/collections/test_maps.lisp")
 	(import "tests/collections/test_tree.lisp")

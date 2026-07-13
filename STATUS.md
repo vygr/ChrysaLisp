@@ -4,7 +4,7 @@
 
 ------
 
-`:plist :find` and `:plist :insert` now use the `+str_hashslot` cache for bot
+`:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for bot
 `:sym` and `:str` keys.
 
 Do the `:font :flush` check along with the other caches in `:lisp :run`, do this
@@ -16,13 +16,17 @@ Fixed `Substr` class search of a `:sym` as the source text.
 `-j, --jobs` option added to `ctf` command, defaults to 1. Each font file is
 distributed to an individual node.
 
+Rename `:plist` class to `:pmap`.
+
+`+str_hashslot` is now a negative entry index, rather than a byte offset.
+
 ------
 
-New `:plist` VP class ! `(pinsert plist key val) -> plist)`, `(pfind plist key)
--> :nil | val)`, `(perase plist key) -> plist` and `(pfindi plist key) -> :nil
+New `:pmap` VP class ! `(pinsert pmap key val) -> pmap)`, `(pfind pmap key)
+-> :nil | val)`, `(perase pmap key) -> pmap` and `(pfindi pmap key) -> :nil
 | idx)` functions.
 
-`case` macro now builds a `:plist` map for the situations where it can !
+`case` macro now builds a `:pmap` map for the situations where it can !
 Fallback is the linear `find` as before.
 
 `cmd/trace.lisp` now uses the new features of the `case` macro to elimenate
@@ -32,14 +36,14 @@ Fixed a bug in the `:list :find` when the find start pos was the end of the
 list.
 
 `Lmap`, `Fmap`, `Lset`, `Fset`, `lib/asm/scopes.inc`, `emit-native-reg?`
-upgraded to use the new `plist` functions.
+upgraded to use the new `pmap` functions.
 
 Added `pcase` base macro for `case` which allows accses to the initial symbols
 list used for the switch. With this you can preload/sort/pack a batch of symbols
 for many `pcase` uses to line up the `str_hashslot` fields ! Look at
 `(assign-asm-to-asm)` for a good example.
 
-New `docs/ai_digest/case_for_plist.md` document.
+New `docs/ai_digest/case_for_pmap.md` document.
 
 New "lib/asm/regs.inc" file for VP register lists, maps and utilities.
 
@@ -53,7 +57,7 @@ sections.
 Fix to Regexp `:match?` and `:search` methods, to correctly handle empty string
 input.
 
-Added `:plist` to the stats command types that get tracked.
+Added `:pmap` to the stats command types that get tracked.
 
 Added extra sanity checks to the `(list-bind-args)` function. Now supports both
 `&&` ignore source and destination and `&` skip source argument.

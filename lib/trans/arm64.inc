@@ -678,7 +678,7 @@
 						emit-arm64-stp emit-arm64-stp-i emit-arm64-ldp-f emit-arm64-stp-f) i)
 					is_load size (* size 64)
 					(if is_load 1 2) (if is_load 2 3) (if is_load 3 1))))) ; b_idx c_idx d_idx
-			emit_list (plist)))
+			emit_list (pmap)))
 
 (defmacro arm64-fusable? (limit size is_load base c1 d1 c2 d2)
 	`(when (and (nql ,d1 ,d2) (nql ,d1 :rsp) (nql ,d2 :rsp)
