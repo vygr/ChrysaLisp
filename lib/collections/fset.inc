@@ -10,17 +10,15 @@
 (defclass Fset (&optional num_buckets) (Set)
 	; (Fset [num_buckets]) -> fset
 	(def this :num_buckets (setq num_buckets (ifn num_buckets 1))
-		:buckets (map! (const pmap) '() 0 num_buckets))
+		:buckets (map! (const pset) '() 0 num_buckets))
 
 	(defmethod :find (key)
 		; (. fset :find key) -> :nil | key
-		(defq bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
-		(if (defq i (pfindi bucket key))
-			(elem-get bucket i)))
+		(pfind (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) key))
 
 	(defmethod :insert (key)
 		; (. fset :insert key) -> fset
-		(pinsert (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) key :t)
+		(pinsert (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))) key)
 		this)
 
 	(defmethod :inserted (key)
@@ -28,14 +26,13 @@
 		(defq bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
 		(cond
 			((pfind bucket key) :nil)
-			((pinsert bucket key :t) this)))
+			((pinsert bucket key) this)))
 
 	(defmethod :intern (key)
 		; (. fset :intern key) -> key
 		(defq bucket (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
-		(if (defq i (pfindi bucket key))
-			(elem-get bucket i)
-			(progn (pinsert bucket key :t) key)))
+		(or (pfind bucket key)
+			(progn (pinsert bucket key) key)))
 
 	(defmethod :erase (key)
 		; (. fset :erase key) -> fset
@@ -46,7 +43,7 @@
 		; (. fset :each lambda) -> fset
 		(defq e (penv))
 		(each (lambda (bucket)
-			(each (lambda ((k v)) (callback fnc e k)) (partition bucket 2)))
+			(each (lambda (k) (callback fnc e k)) bucket))
 			(get :buckets this))
 		this)
 
@@ -54,7 +51,7 @@
 		; (. fset :tolist) -> list
 		(defq out (list))
 		(each (lambda (bucket)
-			(each (lambda ((k v)) (push out k)) (partition bucket 2)))
+			(each (lambda (k) (push out k)) bucket))
 			(get :buckets this))
 		out)
 
@@ -72,7 +69,7 @@
 		(defq that ((get 'Fset) (get :num_buckets this))
 			that_buckets (get :buckets that))
 		(each (lambda (this_bucket that_bucket)
-			(each (lambda ((k v)) (pinsert that_bucket (copy k) (copy v))) (partition this_bucket 2)))
+			(each (lambda (k) (pinsert that_bucket (copy k))) this_bucket))
 			(get :buckets this) that_buckets)
 		that)
 
@@ -93,9 +90,9 @@
 	(defmethod :intersect (that)
 		; (. fset :intersect set) -> fset
 		(unless (eql this that)
-			(defq new_buckets (map! (const pmap) '() 0 (get :num_buckets this)))
+			(defq new_buckets (map! (const pset) '() 0 (get :num_buckets this)))
 			(each (lambda (bucket new_bucket)
-				(each (lambda ((k v)) (if (. that :find k) (pinsert new_bucket k v))) (partition bucket 2)))
+				(each (lambda (k) (if (. that :find k) (pinsert new_bucket k))) bucket))
 				(get :buckets this) new_buckets)
 			(set this :buckets new_buckets))
 		this)
@@ -124,11 +121,11 @@
 
 	(defmethod :resize (num_buckets)
 		; (. fset :resize num_buckets) -> fset
-		(raise :buckets (new_buckets (map! (const pmap) '() 0 num_buckets)))
+		(raise :buckets (new_buckets (map! (const pset) '() 0 num_buckets)))
 		(lower :num_buckets (:buckets new_buckets))
 		(raise :num_buckets)
 		(each (lambda (old_bucket)
-			(each (lambda ((k v)) (pinsert (elem-get new_buckets (% (hash k) num_buckets)) k v)) (partition old_bucket 2)))
+			(each (lambda (k) (pinsert (elem-get new_buckets (% (hash k) num_buckets)) k)) old_bucket))
 			buckets)
 		this)
 
@@ -138,7 +135,7 @@
 
 	(defmethod :size ()
 		; (. fset :size) -> size
-		(/ (reduce (# (+ %0 (length %1))) (get :buckets this) 0) 2))
+		(reduce (# (+ %0 (length %1))) (get :buckets this) 0))
 	)
 
 ;module

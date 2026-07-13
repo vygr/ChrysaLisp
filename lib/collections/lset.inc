@@ -9,16 +9,15 @@
 
 (defclass Lset () (Set)
 	; (Lset) -> lset
-	(def this :bucket (pmap))
+	(def this :bucket (pset))
 
 	(defmethod :find (key)
 		; (. lset :find key) -> :nil | key
-		(if (defq i (pfindi (get :bucket this) key))
-			(elem-get (get :bucket this) i)))
+		(pfind (get :bucket this) key))
 
 	(defmethod :insert (key)
 		; (. lset :insert key) -> lset
-		(pinsert (get :bucket this) key :t)
+		(pinsert (get :bucket this) key)
 		this)
 
 	(defmethod :inserted (key)
@@ -26,14 +25,13 @@
 		(raise :bucket)
 		(cond
 			((pfind bucket key) :nil)
-			((pinsert bucket key :t) this)))
+			((pinsert bucket key) this)))
 
 	(defmethod :intern (key)
 		; (. lset :intern key) -> key
 		(raise :bucket)
-		(if (defq i (pfindi bucket key))
-			(elem-get bucket i)
-			(progn (pinsert bucket key :t) key)))
+		(or (pfind bucket key)
+			(progn (pinsert bucket key) key)))
 
 	(defmethod :erase (key)
 		; (. lset :erase key) -> lset
@@ -43,14 +41,12 @@
 	(defmethod :each (fnc)
 		; (. lset :each lambda) -> lset
 		(defq e (penv))
-		(each (lambda ((k v)) (callback fnc e k)) (partition (get :bucket this) 2))
+		(each (lambda (k) (callback fnc e k)) (get :bucket this))
 		this)
 
 	(defmethod :tolist ()
 		; (. lset :tolist) -> list
-		(defq out (list))
-		(each (lambda ((k v)) (push out k)) (partition (get :bucket this) 2))
-		out)
+		(merge (list) (get :bucket this)))
 
 	(defmethod :copy ()
 		; (. lset :copy) -> lset
@@ -61,7 +57,7 @@
 	(defmethod :deep_copy ()
 		; (. lset :deep_copy) -> lset
 		(defq that ((get 'Lset)) that_bucket (get :bucket that))
-		(each (lambda ((key val)) (pinsert that_bucket (copy key) (copy val))) (partition (get :bucket this) 2))
+		(each (lambda (key) (pinsert that_bucket (copy key))) (get :bucket this))
 		that)
 
 	(defmethod :union (that)
@@ -81,8 +77,8 @@
 	(defmethod :intersect (that)
 		; (. lset :intersect set) -> lset
 		(unless (eql this that)
-			(defq new_bucket (pmap))
-			(each (lambda ((k v)) (if (. that :find k) (pinsert new_bucket k v))) (partition (get :bucket this) 2))
+			(defq new_bucket (pset))
+			(each (lambda (k) (if (. that :find k) (pinsert new_bucket k))) (get :bucket this))
 			(set this :bucket new_bucket))
 		this)
 
@@ -117,7 +113,7 @@
 
 	(defmethod :size ()
 		; (. lset :size) -> size
-		(/ (length (get :bucket this)) 2))
+		(length (get :bucket this)))
 	)
 
 ;module
