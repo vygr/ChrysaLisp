@@ -88,25 +88,26 @@
 
 	(vp-rdef (this args))
 	(vp-rdef (lst key val) (method-input :pmap :pinsert))
-	(vp-rdef (_ sig argc _) (method-input :lisp :env_args_sig))
+	(vp-rdef (argc saved_args vt1 vt2) '(:r8 :r9 :r10 :r11))
 
 	(entry :pmap :lisp_pinsert `(,this ,args))
 
-(errorcase
-	(assign `((,args +array_length)) `(,argc))
-	(assign `(($ sig1)) `(,sig))
-	(vpif `(,argc /= 2))
-		(assign `(($ sig2) 3) `(,sig ,argc))
-	(endif)
-	(call :lisp :env_args_sig `(,args ,sig ,argc ,argc) '(_ tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig 'error :r1 2 3)
 
 	(vp-push this)
 	(assign `((,args +array_length)) `(,argc))
+(errorcase
+	(assign `(,args) `(,saved_args)))
 	(vpif `(,argc = 2))
 		(list-bind-args args `(,lst ,key) '(:pset :obj))
+	(errorcase
+		(assign `((@ ,(f-path :pset :vtable)) (,lst +obj_vtable)) `(,vt1 ,vt2))
+		(gotoif `(,vt1 /= ,vt2) 'error1))
 	(else)
 		(list-bind-args args `(,lst ,key ,val) '(:pmap :obj :obj))
+	(errorcase
+		(assign `((@ ,(f-path :pmap :vtable)) (,lst +obj_vtable)) `(,vt1 ,vt2))
+		(gotoif `(,vt1 /= ,vt2) 'error1))
 	(endif)
 	(call :pset :pinsert `(,lst ,key) `(,args _))
 	(class/obj/ref args val)
@@ -116,10 +117,12 @@
 	(vp-ret)
 
 (errorcase
+(vp-label 'error1)
+	(vp-pop this)
+	(assign `(,saved_args) `(,args))
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(pinsert props key [val])" +error_msg_wrong_types))
-	(signature '(:pset :obj) 'sig1)
-	(signature '(:pmap :obj :obj) 'sig2))
+	(signature '(:pset :obj :obj)))
 
 (def-func-end)
 
