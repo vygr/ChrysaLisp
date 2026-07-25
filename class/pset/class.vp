@@ -122,9 +122,10 @@
 	(assign `((,saved_key +obj_vtable)) `(,saved_key))
 	(vpif `(,saved_key = ,tmp))
 	(vp-label 'init_slot)
-		(vp-sub-rr iter_s iter_e)
-		(vp-shr-cr (log2 +ptr_size) iter_e)
-		(assign `(,iter_e) `((,iter +str_hashslot)))
+		(vp-sub-rr iter_e iter_s)
+		(vp-mul-cr -1 iter_s)
+		(vp-shr-cr (log2 +ptr_size) iter_s)
+		(assign `(,iter_s) `((,iter +str_hashslot)))
 	(endif)
 
 	(exit :pset :pinsert  `(,this ,iter_e))
