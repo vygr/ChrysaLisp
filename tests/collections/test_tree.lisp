@@ -55,3 +55,33 @@
 (defq loaded_p (tree-load ms3))
 ; path is like a fixeds/nums array. equal? handles seq comparison.
 (assert-true "Tree Load: Path" (equal? p loaded_p))
+
+; 8. Test direct pset tree roundtrip
+(defq tree_ps (pset "alpha" "beta" "gamma"))
+(defq ms4 (memory-stream))
+(tree-save ms4 tree_ps)
+(stream-seek ms4 0 0)
+(defq loaded_ps (tree-load ms4))
+(assert-eq "Tree Load: pset item 1" "alpha" (pfind loaded_ps "alpha"))
+(assert-eq "Tree Load: pset item 2" "beta" (pfind loaded_ps "beta"))
+
+; 9. Test direct pmap tree roundtrip
+(defq tree_pm (pmap "k1" "v1" "k2" "v2"))
+(defq ms5 (memory-stream))
+(tree-save ms5 tree_pm)
+(stream-seek ms5 0 0)
+(defq loaded_pm (tree-load ms5))
+(assert-eq "Tree Load: pmap val 1" "v1" (pfind loaded_pm "k1"))
+(assert-eq "Tree Load: pmap val 2" "v2" (pfind loaded_pm "k2"))
+
+; 10. Test Lmap tree roundtrip
+(import "lib/collections/lmap.inc")
+(defq lm (Lmap))
+(. lm :insert 'x 100)
+(. lm :insert 'y 200)
+(defq ms6 (memory-stream))
+(tree-save ms6 lm)
+(stream-seek ms6 0 0)
+(defq loaded_lm (tree-load ms6))
+(assert-eq "Tree Load: Lmap x" 100 (. loaded_lm :find 'x))
+(assert-eq "Tree Load: Lmap y" 200 (. loaded_lm :find 'y))
