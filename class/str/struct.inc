@@ -1,7 +1,6 @@
 (import "././seq/struct.inc")
 
 (structure +str +seq_size
-	(int hashslot)
-	(uint hashcode length)
+	(uint hashslot hashcode length)
 	(align)
 	(offset data))

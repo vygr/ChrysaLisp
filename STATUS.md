@@ -26,6 +26,8 @@ Updated unit tests with `:pset` tests.
 
 Updated documentation for collections and new `:pset` class.
 
+Switched `+str_hashslot` field to being a positive slot index.
+
 ------
 
 New `:pmap` VP class ! `(pinsert pmap key val) -> pmap)`, `(pfind pmap key)
