@@ -58,9 +58,15 @@
 				(call :obj :eql `(,key1 (,iter 0)) `(,key1 tmp) :r2)
 				(gotoif `(,tmp = 0) 'slot_hit)
 			(endif)
-			;cache miss, so scan the bucket with eql
-		(default)
-			;use the :eql virtual method
+			;cache miss, so scan the bucket with :eql virtual method
+			(vp-cpy-rr iter_begin iter)
+			(loop-start)
+				(call :obj :eql `(,key1 (,iter 0)) `(,key1 tmp) :r2)
+				(gotoif `(,tmp = 0) 'scan_hit)
+				(vp-add-cr +ptr_size iter)
+			(loop-until `(,iter = ,iter_end))
+		(else)
+			;scan the bucket with :eql virtual method
 			(vp-cpy-rr iter_begin iter)
 			(loop-start)
 				(call :obj :eql `(,key1 (,iter 0)) `(,key1 tmp) :r2)
