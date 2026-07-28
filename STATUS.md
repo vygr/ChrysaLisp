@@ -28,6 +28,8 @@ Updated documentation for collections and new `:pset` class.
 
 Switched `+str_hashslot` field to being a positive slot index.
 
+Correct `(atom? obj)` function to handle new `:pset` and `:pmap` classes.
+
 ------
 
 New `:pmap` VP class ! `(pinsert pmap key val) -> pmap)`, `(pfind pmap key)
