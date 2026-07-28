@@ -651,7 +651,7 @@
 (defun atom? (%0)
 	; (atom? o) -> :t | :nil
 	(cond
-		((eql (defq %1 (last (type-of %0))) :list) :nil)
+		((eql (defq %1 (pop (type-of %0))) :list) :nil)
 		((eql %1 :sym) (eql (first %0) ":"))
 		(:t)))
 
