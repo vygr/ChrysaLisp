@@ -61,3 +61,49 @@
 
 (defq pl_str_idx (pmap "x" 10 "y" 20 "z" 30))
 (assert-eq "pfindi pmap string key" 2 (pfindi pl_str_idx "y"))
+
+; --- Hashslot Caching and Self-Repair ---
+(report-header "pmap: Hashslot Caching and Self-Repair")
+
+(defun pmap-get-hashslot (obj)
+	(obj-get obj 12 +type_uint))
+
+(defq pm_s0 (gensym) pm_s1 (gensym) pm_s2 (gensym))
+
+; 1. pinsert proactive hashslot assignment for pmap (slot is entry index: 0, 1, 2...)
+(defq pm_test (pmap))
+(pinsert pm_test pm_s0 100)
+(assert-eq "pmap pinsert sets entry hashslot 0" 0 (pmap-get-hashslot pm_s0))
+(pinsert pm_test pm_s1 200)
+(assert-eq "pmap pinsert sets entry hashslot 1" 1 (pmap-get-hashslot pm_s1))
+(pinsert pm_test pm_s2 300)
+(assert-eq "pmap pinsert sets entry hashslot 2" 2 (pmap-get-hashslot pm_s2))
+
+; 2. perase swaps last entry into erased slot, leaving swapped entry key with stale hashslot
+(perase pm_test pm_s0) ; erases entry 0, swaps entry 2 (pm_s2, 300) into entry 0
+(assert-eq "pmap perase leaves swapped item with stale hashslot" 2 (pmap-get-hashslot pm_s2))
+
+; 3. pfind detects stale slot, scans, and repairs hashslot to new entry index 0
+(assert-eq "pfind finds value for swapped key in pmap" 300 (pfind pm_test pm_s2))
+(assert-eq "pfind repaired hashslot for swapped item in pmap" 0 (pmap-get-hashslot pm_s2))
+
+; 4. Manual corruption of hashslot is self-repaired on pfind
+(obj-set pm_s1 12 +type_uint 888)
+(assert-eq "pmap hashslot manually corrupted" 888 (pmap-get-hashslot pm_s1))
+(assert-eq "pfind finds item despite corrupted hashslot in pmap" 200 (pfind pm_test pm_s1))
+(assert-eq "pfind repaired corrupted hashslot in pmap" 1 (pmap-get-hashslot pm_s1))
+
+; 5. String key hashslot caching and repair in pmap
+(defq pm_str0 "m_key0" pm_str1 "m_key1" pm_str2 "m_key2")
+(defq pm_map_str (pmap))
+(pinsert pm_map_str pm_str0 "v0")
+(pinsert pm_map_str pm_str1 "v1")
+(pinsert pm_map_str pm_str2 "v2")
+(assert-eq "pmap string key initial hashslot 0" 0 (pmap-get-hashslot pm_str0))
+(assert-eq "pmap string key initial hashslot 1" 1 (pmap-get-hashslot pm_str1))
+(assert-eq "pmap string key initial hashslot 2" 2 (pmap-get-hashslot pm_str2))
+
+(perase pm_map_str pm_str0) ; erases entry 0, swaps pm_str2 to entry 0
+(assert-eq "pmap string key swapped item has stale hashslot" 2 (pmap-get-hashslot pm_str2))
+(assert-eq "pfind finds swapped string key in pmap" "v2" (pfind pm_map_str pm_str2))
+(assert-eq "pfind repaired string key hashslot in pmap" 0 (pmap-get-hashslot pm_str2))

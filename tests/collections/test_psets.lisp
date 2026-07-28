@@ -57,3 +57,49 @@
 
 (defq ps_str_idx (pset "x" "y" "z"))
 (assert-eq "pfindi pset string key" 1 (pfindi ps_str_idx "y"))
+
+; --- Hashslot Caching and Self-Repair ---
+(report-header "pset: Hashslot Caching and Self-Repair")
+
+(defun pset-get-hashslot (obj)
+	(obj-get obj 12 +type_uint))
+
+(defq hs_s0 (gensym) hs_s1 (gensym) hs_s2 (gensym))
+
+; 1. pinsert proactive hashslot assignment
+(defq hs_ps (pset))
+(pinsert hs_ps hs_s0)
+(assert-eq "pset pinsert sets hashslot index 0" 0 (pset-get-hashslot hs_s0))
+(pinsert hs_ps hs_s1)
+(assert-eq "pset pinsert sets hashslot index 1" 1 (pset-get-hashslot hs_s1))
+(pinsert hs_ps hs_s2)
+(assert-eq "pset pinsert sets hashslot index 2" 2 (pset-get-hashslot hs_s2))
+
+; 2. perase swaps last element to erased slot, leaving swapped element with stale hashslot
+(perase hs_ps hs_s0) ; erases index 0, swaps hs_s2 (from index 2) into index 0
+(assert-eq "pset perase leaves swapped item with stale hashslot" 2 (pset-get-hashslot hs_s2))
+
+; 3. pfind detects stale slot, scans, and repairs hashslot
+(assert-eq "pfind finds swapped item" hs_s2 (pfind hs_ps hs_s2))
+(assert-eq "pfind repaired hashslot for swapped item" 0 (pset-get-hashslot hs_s2))
+
+; 4. Manual corruption of hashslot is self-repaired on pfindi
+(obj-set hs_s1 12 +type_uint 999)
+(assert-eq "hashslot manually corrupted" 999 (pset-get-hashslot hs_s1))
+(assert-eq "pfindi finds item despite corrupted hashslot" 1 (pfindi hs_ps hs_s1))
+(assert-eq "pfindi repaired corrupted hashslot" 1 (pset-get-hashslot hs_s1))
+
+; 5. String key hashslot caching and repair
+(defq hs_str0 "s_key0" hs_str1 "s_key1" hs_str2 "s_key2")
+(defq hs_ps_str (pset))
+(pinsert hs_ps_str hs_str0)
+(pinsert hs_ps_str hs_str1)
+(pinsert hs_ps_str hs_str2)
+(assert-eq "pset string key initial hashslot 0" 0 (pset-get-hashslot hs_str0))
+(assert-eq "pset string key initial hashslot 1" 1 (pset-get-hashslot hs_str1))
+(assert-eq "pset string key initial hashslot 2" 2 (pset-get-hashslot hs_str2))
+
+(perase hs_ps_str hs_str0) ; erases index 0, swaps hs_str2 to index 0
+(assert-eq "pset string key swapped item has stale hashslot" 2 (pset-get-hashslot hs_str2))
+(assert-eq "pfind finds swapped string key" hs_str2 (pfind hs_ps_str hs_str2))
+(assert-eq "pfind repaired string key hashslot" 0 (pset-get-hashslot hs_str2))
