@@ -2,6 +2,7 @@
 (include "./class.inc")
 (include "././nums/class.inc")
 (include "././num/class.inc")
+(include "././pmap/class.inc")
 (include "././lisp/class.inc")
 
 (def-method :dim :lisp_dim)
@@ -143,9 +144,15 @@
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indices_len) 'error1))
 
-	(assign `((,elems +obj_vtable) (@ ,(f-path :list :vtable))) '(:r12 :r13))
+	;:pmap, :pset and :list store objs
+	(assign `((,elems +obj_vtable) (@ ,(f-path :pmap :vtable))) '(:r12 :r13))
 	(assign `(,obj) '((:rsp 0)))
+	(gotoif '(:r12 = :r13) 'as_list)
+	(assign '((:r13 +obj_vtable)) '(:r13))
+	(gotoif '(:r12 = :r13) 'as_list)
+	(assign '((:r13 +obj_vtable)) '(:r13))
 	(vpif '(:r12 = :r13))
+	(vp-label 'as_list)
 		(class/obj/ref obj :r14)
 	(else)
 		(vp-simd vp-cpy-rr `(,elems ,obj ,index) '(:r12 :r13 :r14))

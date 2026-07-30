@@ -23,7 +23,7 @@
 		;scan root for all objects, with cycle protection
 		(defq node_set (Fset 501) node_ref (list) stack (list *root_env*)
 			list_map (Fmap 31) num_map (Fmap 31) str_map (Fmap 31)
-			pmap_map (Fmap 31))
+			pmap_map (Fmap 31) pset_map (Fmap 31))
 		(while (defq node (pop stack))
 			(when (. node_set :inserted (weak-ref node))
 				(push node_ref node)
@@ -35,6 +35,7 @@
 		;gather stats
 		(each (lambda (obj) (cond
 				((pmap? obj) (. pmap_map :update (length obj) (const count-up)))
+				((pset? obj) (. pset_map :update (length obj) (const count-up)))
 				((list? obj) (. list_map :update (length obj) (const count-up)))
 				((str? obj) (. str_map :update (length obj) (const count-up)))
 				((num? obj) (. num_map :update obj (const count-up)))))
@@ -54,6 +55,17 @@
 		(clear stack)
 		(. pmap_map :each (# (push stack (list %0 (first %1) (second %1)))))
 		(print "Root environment :pmap stats")
+		(print)
+		(each (lambda ((%0 %1 %2)) (print
+				"len: " (pad %0 4)
+				" cnt: " (pad %1 5)
+				" ref: " (pad %2 5)))
+			(sort stack (# (- (first %0) (first %1)))))
+		(print)
+		;display :pset results
+		(clear stack)
+		(. pset_map :each (# (push stack (list %0 (first %1) (second %1)))))
+		(print "Root environment :pset stats")
 		(print)
 		(each (lambda ((%0 %1 %2)) (print
 				"len: " (pad %0 4)

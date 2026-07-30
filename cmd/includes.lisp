@@ -35,7 +35,7 @@
 		(":sstream" "+sstream_") (":mstream" "+mstream_") (":in" "+in_")
 		(":netid" "+netid_") (":nodeid" "+nodeid_") (":stdio" "+stdio_")
 		(":error" "+error_") (":func" "+func_")
-		(":sys_task" "+tk_")
+		(":sys_task" "+tk_") (":pset" "+pset_") (":pmap" "+pmap_")
 		(":host_os" "+stat_" "+file_open_" "+mmap_")
 		(":host_audio" "+audio_") (":host_clipboard" "+clip_")
 		(":view" "+view_") (":path" "+path_") (":canvas" "+canvas_")
