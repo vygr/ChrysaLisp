@@ -30,6 +30,9 @@ Switched `+str_hashslot` field to being a positive slot index.
 
 Correct `(atom? obj)` function to handle new `:pset` and `:pmap` classes.
 
+Added `:pset` and `:pmap` support to `:list :copy`, `cmd/includes` and `:dim
+:get`.
+
 ------
 
 New `:pmap` VP class ! `(pinsert pmap key val) -> pmap)`, `(pfind pmap key)
