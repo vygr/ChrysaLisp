@@ -307,8 +307,7 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(vp-rdef (this that))
-	(vp-rdef (stack iter iter_begin iter_end cnt) '(:r10 :r11 :r12 :r13 :r14))
+	(vp-rdef (stack iter_begin iter_end cnt this that) '(:r10 :r11 :r12 :r13))
 
 	(entry :list :copy `(,this))
 
@@ -317,14 +316,14 @@
 	(class/obj/ref this that)
 
 	(call :array :create :nil `(,stack))
-	(assign '((& :rsp 0)) `(,iter))
+	(vp-cpy-rr :rsp iter_begin)
 	(loop-start)
 		;replace list/pset/pmap with copy, deref can't cause destroy !
-		(vp-cpy-ir iter 0 this)
+		(vp-cpy-ir iter_begin 0 this)
 		(d-call :list :slice `(,this 0 (,this +array_length)) `(,this))
-		(vp-cpy-ir iter 0 that)
+		(vp-cpy-ir iter_begin 0 that)
+		(vp-cpy-ri this iter_begin 0)
 		(class/obj/ref that cnt -1)
-		(vp-cpy-ri this iter 0)
 
 		;push this list/pset/pmap branches
 		(class/array/get_both this iter_begin iter_end)
@@ -339,7 +338,7 @@
 		;pop back stack
 		(assign `((,stack +array_length)) `(,cnt))
 		(breakif `(,cnt = 0))
-		(call :array :pop_back `(,stack) `(_ ,iter))
+		(call :array :pop_back `(,stack) `(_ ,iter_begin))
 	(loop-end)
 	(call :array :deref `(,stack))
 	(vp-pop this that)
