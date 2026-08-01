@@ -25,6 +25,7 @@
 	(dec-method :declare sys/mail/declare :static (:r0 :r1 :r2) (:r0))
 	(dec-method :forget sys/mail/forget :static (:r0))
 	(dec-method :enquire sys/mail/enquire :static (:r0) (:r0))
+	(dec-method :key_node sys/mail/key_node :static (:r0 :r1) (:r1))
 	(dec-method :devices sys/mail/devices :static () (:r0))
 	(dec-method :junk_mail sys/mail/junk_mail :static (:r3))
 	(dec-method :in sys/mail/in :static (:r0 :r1))

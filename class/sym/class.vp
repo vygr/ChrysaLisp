@@ -21,7 +21,7 @@
 	(entry :sym :statics_init {})
 
 	;init symbol set
-	(call :hset :create `((@ ,(f-path :sym :eql_str)) num_sym_buckets) '(:r0))
+	(call :hset :create `(num_sym_buckets) '(:r0))
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '(:r1) {statics})
 	(assign '(:r0) '((:r1 statics_sym_intern)))
@@ -63,7 +63,7 @@
 
 	(vp-push :r0)
 	(fn-bind 'sys/statics/statics :r2)
-	(call :hset :find '((:r2 statics_sym_intern) :r0) '(_ :r1 :r2))
+	(call :hset :cfind `((:r2 statics_sym_intern) :r0 (@ ,(f-path :sym :eql_str))) '(_ :r1 :r2))
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
 		(vp-cpy-rr :r2 :r7)

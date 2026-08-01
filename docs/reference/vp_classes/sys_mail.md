@@ -157,6 +157,18 @@ trashes
 :r0-:r2, :r4
 ```
 
+### :key_node -> sys/mail/key_node
+
+```code
+inputs
+:r0 = node1 object (ptr)
+:r1 = node2 object (ptr)
+outputs
+:r1 = 0 if same
+trashes
+:r0-:r3
+```
+
 ### :mymail -> sys/mail/mymail
 
 ```code
@@ -226,7 +238,7 @@ inputs
 outputs
 :r0 = 0 if none, else msg (ptr)
 trashes
-:r0-:r7, :r9-:r13
+:r0-:r6, :r9-:r13
 ```
 
 ### :select -> sys/mail/select

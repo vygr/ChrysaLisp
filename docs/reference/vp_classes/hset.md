@@ -17,6 +17,36 @@ trashes
 :r1-:r6
 ```
 
+### :cfind -> class/hset/cfind
+
+```code
+inputs
+:r0 = hset object (ptr)
+:r1 = key object (ptr)
+:r2 = key callback (ptr)
+outputs
+:r0 = hset object (ptr)
+:r1 = 0, else found iterator (pptr)
+:r2 = bucket list object (ptr)
+trashes
+:r1-:r6
+```
+
+### :cinsert -> class/hset/cinsert
+
+```code
+inputs
+:r0 = hset object (ptr)
+:r1 = key object (ptr)
+:r2 = key callback (ptr)
+outputs
+:r0 = hset object (ptr)
+:r1 = element iterator (pptr)
+:r2 = bucket list object (ptr)
+trashes
+:r1-:r6, :f0-:f15
+```
+
 ### :clear -> class/hset/clear
 
 ```code
@@ -63,20 +93,6 @@ trashes
 
 ### :each_callback -> class/obj/null
 
-### :find -> class/hset/find
-
-```code
-inputs
-:r0 = hset object (ptr)
-:r1 = key object (ptr)
-outputs
-:r0 = hset object (ptr)
-:r1 = 0, else found iterator (pptr)
-:r2 = bucket list object (ptr)
-trashes
-:r1-:r6
-```
-
 ### :flush -> class/hset/flush
 
 ```code
@@ -94,27 +110,12 @@ trashes
 inputs
 :r0 = hset object (ptr)
 :r1 = vtable (pptr)
-:r2 = 0, else key compare callback (ptr)
-:r3 = num buckets (uint)
+:r2 = num buckets (uint)
 outputs
 :r0 = hset object (ptr)
 :r1 = 0 if error, else ok
 trashes
 :r1-:r5, :f0-:f15
-```
-
-### :insert -> class/hset/insert
-
-```code
-inputs
-:r0 = hset object (ptr)
-:r1 = key object (ptr)
-outputs
-:r0 = hset object (ptr)
-:r1 = element iterator (pptr)
-:r2 = bucket list object (ptr)
-trashes
-:r1-:r6, :f0-:f15
 ```
 
 ### :key_callback -> class/obj/null

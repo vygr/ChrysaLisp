@@ -26,7 +26,7 @@
 		(f-bind :hmap :vtable :r4)
 		(gotoif '(:r4 /= :r3) 'error))
 		(vp-push :r0)
-		(call :hmap :create '((:r13 +hset_key_callback) 1) '(:r0))
+		(call :hmap :create '(1) '(:r0))
 		(call :hmap :set_parent '(:r0 :r13) '(:r1))
 		(class/obj/ref :r13 :r2)
 		(vp-pop :r0)

@@ -40,28 +40,10 @@
 
 	;services, links and routing
 	(call :array :create :nil '((:r7 statics_sys_mail_links_array)))
-	(call :hmap :create '(($ key_node) 1) '((:r7 statics_sys_mail_node_map)))
+	(call :hmap :create '(1) '((:r7 statics_sys_mail_node_map)))
 
 	;init header heap
 	(jump :sys_heap :init '((& :r7 statics_sys_mail_msg_heap) +msg_size 64))
-
-(vp-label 'key_node)
-	;inputs
-	;:r0 = node1 object (ptr)
-	;:r1 = node2 object (ptr)
-	;outputs
-	;:r1 = 0 if same
-	;trashes
-	;:r0-:r3
-
-	(entry '(:r0 :r1))
-
-	(assign `((:r0 ,(+ +str_data +node_id_node1)) (:r0 ,(+ +str_data +node_id_node2))
-		(:r1 ,(+ +str_data +node_id_node1)) (:r1 ,(+ +str_data +node_id_node2))) '(:r0 :r1 :r2 :r3))
-	(vp-sub-rr :r2 :r0)
-	(vp-sub-rr :r3 :r1)
-	(vp-or-rr :r0 :r1)
-	(vp-ret)
 
 (def-func-end)
 
@@ -562,10 +544,10 @@
 
 	;insert into service map
 	(call :nodeid :create {&id->+str_data.+net_id_node_id} {key})
-	(call :hmap :find {@sys/statics/statics.statics_sys_mail_node_map, key} {_, tuple, bucket})
+	(call :hmap :cfind {@sys/statics/statics.statics_sys_mail_node_map, key, @sys/mail/key_node} {_, tuple, bucket})
 	(vpifnot {tuple})
 		(call :array :create :nil {tuple})
-		(call :hset :create `((@ ,(f-path :sym :eql_str)) 1) {set})
+		(call :hset :create `(1) {set})
 		(call :array :push_back2 {tuple, set, 0})
 		(call :array :push_back2 {tuple, -1, -1})
 		(call :list :push_back2 {bucket, key, tuple})
@@ -577,7 +559,7 @@
 	(call :array :set_elem {tuple, time, 1})
 	(call :array :get_first {tuple} {_, set})
 	(call :sys_mail :service {name, id, info} {name})
-	(call :hset :insert {set, name})
+	(call :hset :cinsert {set, name, @class/sym/eql_str})
 	(call :sys_mail :ping)
 
 	(exit :sys_mail :declare {name})
@@ -662,7 +644,7 @@
 	(vp-swp-rr :r0 :r1)
 	(assign '((:r0 +ptr_size) 0) '(:r2 :r0))
 	(class/array/get_elem :r2 :r0 :r0 :r2)
-	(call :hset :find '(:r0 :r1) '(:r0 :r1 :r2))
+	(call :hset :cfind `(:r0 :r1 (@ ,(f-path :sym :eql_str))) '(:r0 :r1 :r2))
 	(vpif '(:r1 /= 0))
 		(jump :list :erase '(:r2 :r1))
 	(endif)
@@ -688,7 +670,7 @@
 
 	(call :nodeid :create {@sys/statics/statics.statics_sys_task_kernel_node_id} {key})
 	(assign {@sys/statics/statics} {statics})
-	(call :hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
+	(call :hmap :cfind {statics->statics_sys_mail_node_map, key, @sys/mail/key_node} {_, tuple, bucket})
 	(vpif {tuple})
 		(assign {tuple[+ptr_size], +char_lf} {tuple, cat.cat_lf})
 		(call :str :create_from_buffer {&cat.cat_lf, 1} {cat.cat_lf})
@@ -779,7 +761,7 @@
 	;outputs
 	;:r0 = 0 if none, else msg (ptr)
 	;trashes
-	;:r0-:r7, :r9-:r13
+	;:r0-:r6, :r9-:r13
 
 	(vp-rdef (next node key peer1 peer2 tuple via1 via2 iter_begin iter_end)
 		'(:r13 :r12 :r11 :r10 :r9 :r1))
@@ -794,7 +776,7 @@
 		(endif)
 		(save-node-id key +str_data via1 via2)
 		(fn-bind 'sys/statics/statics tuple)
-		(call :hmap :find `((,tuple statics_sys_mail_node_map) ,key) `(_ ,tuple _))
+		(call :hmap :cfind `((,tuple statics_sys_mail_node_map) ,key (@ sys/mail/key_node)) `(_ ,tuple _))
 		(continueif `(,tuple = 0))
 		(call :array :get_both `((,tuple +ptr_size)) `(_ ,iter_begin ,iter_end))
 		(vp-add-cr (* 4 +long_size) iter_begin)
@@ -813,6 +795,26 @@
 	(endif)
 
 	(exit :sys_mail :ready `(,next))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_mail :key_node)
+	;inputs
+	;:r0 = node1 object (ptr)
+	;:r1 = node2 object (ptr)
+	;outputs
+	;:r1 = 0 if same
+	;trashes
+	;:r0-:r3
+
+	(entry '(:r0 :r1))
+
+	(assign `((:r0 ,(+ +str_data +node_id_node1)) (:r0 ,(+ +str_data +node_id_node2))
+		(:r1 ,(+ +str_data +node_id_node1)) (:r1 ,(+ +str_data +node_id_node2))) '(:r0 :r1 :r2 :r3))
+	(vp-sub-rr :r2 :r0)
+	(vp-sub-rr :r3 :r1)
+	(vp-or-rr :r0 :r1)
 	(vp-ret)
 
 (def-func-end)

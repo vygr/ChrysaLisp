@@ -10,8 +10,7 @@
 	;inputs
 	;:r0 = hset object (ptr)
 	;:r1 = vtable (pptr)
-	;:r2 = 0, else key compare callback (ptr)
-	;:r3 = num buckets (uint)
+	;:r2 = num buckets (uint)
 	;outputs
 	;:r0 = hset object (ptr)
 	;:r1 = 0 if error, else ok
@@ -23,8 +22,8 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry :hset :init '(:r0 :r1 :r2 :r3))
-	(assign '(:r0 :r2 :r3) '((:rsp local_this) (:r0 +hset_key_callback) (:r0 +hset_num_buckets)))
+	(entry :hset :init '(:r0 :r1 :r2))
+	(assign '(:r0 :r2) '((:rsp local_this) (:r0 +hset_num_buckets)))
 
 	;init parent
 	(s-call :hset :init '(:r0 :r1) '(:r0 :r1))
@@ -100,10 +99,11 @@
 
 (def-func-end)
 
-(def-method :hset :find)
+(def-method :hset :cfind)
 	;inputs
 	;:r0 = hset object (ptr)
 	;:r1 = key object (ptr)
+	;:r2 = key callback (ptr)
 	;outputs
 	;:r0 = hset object (ptr)
 	;:r1 = 0, else found iterator (pptr)
@@ -112,7 +112,7 @@
 	;:r1-:r6
 
 	(def-vars
-		(ptr this key buckets)
+		(ptr this key buckets cmp_func)
 		(pptr iter iter_end))
 
 	(vp-rdef (this iter buckets iter_end key cmp_func))
@@ -120,48 +120,71 @@
 
 	;save inputs
 	(push-scope)
-	(entry :hset :find `(,this ,iter))
+	(entry :hset :cfind `(,this ,iter ,cmp_func))
 
 	;search hash bucket
-	(assign `(,iter) {key})
+	(assign `(,iter ,cmp_func) {key, cmp_func})
 	(call :hset :bucket `(,this ,iter) `(,this ,buckets))
 	(class/array/get_both buckets iter iter_end)
 	(vpif `(,iter /= ,iter_end))
-		(assign `((,this +hset_key_callback)) `(,cmp_func))
-		(vpif `(,cmp_func = 0))
-			;scan the bucket
-			(loop-start)
-				(assign `((,iter 0)) `(,cmp_func))
-				(gotoif `(,key = ,cmp_func) 'scan_hit)
-				(vp-add-cr +ptr_size iter)
-			(loop-until `(,iter = ,iter_end))
-		(else)
-			;use the compare func
-			(assign `(,this ,buckets ,iter_end) {this, buckets, iter_end})
-			(loop-start)
-				(assign `(,iter) {iter})
-				(assign `((,this +hset_key_callback) (,iter 0)) `(,cmp_func ,key2))
-				(assign {key} `(,key1))
-				;give some indication of the trashes
-				;:sym :eql_str is the worst ATM
-				(vp-call-r cmp_func :sym :eql_str)
-				(gotoif `(,key2 = 0) 'cmp_hit)
-				(assign {iter, iter_end, this} `(,iter ,iter_end ,this))
-				(vp-add-cr +ptr_size iter)
-			(loop-until `(,iter = ,iter_end))
-			(assign {buckets} `(,buckets))
-		(endif)
+		(assign `(,this ,buckets ,iter_end) {this, buckets, iter_end})
+		(loop-start)
+			(assign `(,iter) {iter})
+			(assign {cmp_func, key} `(,cmp_func ,key1))
+			(assign `((,iter 0)) `(,key2))
+			;give some indication of the trashes
+			;:sym :eql_str is the worst ATM
+			(vp-call-r cmp_func :sym :eql_str)
+			(gotoif `(,key2 = 0) 'cmp_hit)
+			(assign {iter, iter_end, this} `(,iter ,iter_end ,this))
+			(vp-add-cr +ptr_size iter)
+		(loop-until `(,iter = ,iter_end))
+		(assign {buckets} `(,buckets))
 	(endif)
 	(vp-xor-rr iter iter)
-
-(vp-label 'scan_hit)
-	(exit :hset :find `(,this ,iter ,buckets))
+	(exit :hset :cfind `(,this ,iter ,buckets))
 	(return)
 
 (vp-label 'cmp_hit)
-	(exit :hset :find {this, iter, buckets})
+	(exit :hset :cfind {this, iter, buckets})
 	(pop-scope)
 	(return)
+
+(def-func-end)
+
+(def-method :hset :cinsert)
+	;inputs
+	;:r0 = hset object (ptr)
+	;:r1 = key object (ptr)
+	;:r2 = key callback (ptr)
+	;outputs
+	;:r0 = hset object (ptr)
+	;:r1 = element iterator (pptr)
+	;:r2 = bucket list object (ptr)
+	;trashes
+	;:r1-:r6, :f0-:f15
+
+	(structure local 0
+		(ptr this key))
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry :hset :cinsert '(:r0 :r1 :r2))
+	(assign '(:r1) '((:rsp local_key)))
+
+	;search hash bucket
+	(call :hset :cfind '(:r0 :r1 :r2) '(:r0 :r1 :r2))
+	(vpif '(:r1 = 0))
+		;new key
+		(assign '((:rsp local_key) :r0 :r2) '(:r1 (:rsp local_this) :r0))
+		(class/obj/ref :r1 :r2)
+		(call :list :push_back '(:r0 :r1) '(:r0 _ _ :r3))
+		(assign '((& :r3 (neg +ptr_size)) :r0 (:rsp local_this)) '(:r1 :r2 :r0))
+	(endif)
+
+	(exit :hset :cinsert '(:r0 :r1 :r2))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
 
@@ -260,41 +283,6 @@
 	(endif)
 
 	(exit :hset :bucket '(:r0 (:r0 +hset_buckets)))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method :hset :insert)
-	;inputs
-	;:r0 = hset object (ptr)
-	;:r1 = key object (ptr)
-	;outputs
-	;:r0 = hset object (ptr)
-	;:r1 = element iterator (pptr)
-	;:r2 = bucket list object (ptr)
-	;trashes
-	;:r1-:r6, :f0-:f15
-
-	(structure local 0
-		(ptr this key))
-
-	;save inputs
-	(vp-alloc local_size)
-	(entry :hset :insert '(:r0 :r1))
-	(assign '(:r1) '((:rsp local_key)))
-
-	;search hash bucket
-	(call :hset :find '(:r0 :r1) '(:r0 :r1 :r2))
-	(vpif '(:r1 = 0))
-		;new key
-		(assign '((:rsp local_key) :r0 :r2) '(:r1 (:rsp local_this) :r0))
-		(class/obj/ref :r1 :r2)
-		(call :list :push_back '(:r0 :r1) '(:r0 _ _ :r3))
-		(assign '((& :r3 (neg +ptr_size)) :r0 (:rsp local_this)) '(:r1 :r2 :r0))
-	(endif)
-
-	(exit :hset :insert '(:r0 :r1 :r2))
-	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

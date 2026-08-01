@@ -15,7 +15,7 @@
 
 	(vp-push :r0)
 	(assign '((:r0 +lisp_environment)) '(:r0))
-	(call :hmap :create '((:r0 +hset_key_callback) 1) '(:r0))
+	(call :hmap :create '(1) '(:r0))
 	(assign '((:rsp 0)) '(:r1))
 	(call :hmap :set_parent '(:r0 (:r1 +lisp_environment)) '(:r1))
 	(vp-pop :r0)

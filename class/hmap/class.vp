@@ -10,19 +10,18 @@
 	;inputs
 	;:r0 = hmap object (ptr)
 	;:r1 = vtable (pptr)
-	;:r2 = 0, else key compare callback (ptr)
-	;:r3 = num buckets (uint)
+	;:r2 = num buckets (uint)
 	;outputs
 	;:r0 = hmap object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r5, :f0-:f15
 
-	(entry :hmap :init '(:r0 :r1 :r2 :r3))
+	(entry :hmap :init '(:r0 :r1 :r2))
 
 	(vp-xor-rr :r4 :r4)
 	(assign '(:r4) '((:r0 +hmap_parent)))
-	(s-jump :hmap :init '(:r0 :r1 :r2 :r3))
+	(s-jump :hmap :init '(:r0 :r1 :r2))
 
 (def-func-end)
 
@@ -84,7 +83,7 @@
 	(entry :hmap :copy '(:r0 :r1))
 	(assign '(:r0) '((:rsp local_this)))
 
-	(call :hmap :create '((:r0 +hset_key_callback) :r1) '((:rsp local_obj)))
+	(call :hmap :create '(:r1) '((:rsp local_obj)))
 	(assign '((:rsp local_this)) '(:r0))
 	(assign '((:r0 +hmap_parent)) '(:r0))
 	(call :hmap :ref_if '(:r0) '(:r0))
@@ -165,67 +164,38 @@
 	;trashes
 	;:r1-:r7
 
-	(def-vars
-		(ptr this key buckets)
-		(pptr iter_begin iter_end))
-
-	(vp-rdef (this iter buckets iter_end iter_begin key slot cmp_func))
-	(vp-rdef (key1 key2))
+	(vp-rdef (key this iter buckets iter_end iter_begin slot) '(:r7))
 
 	;save inputs
-	(push-scope)
 	(entry :hmap :find `(,this ,iter))
 
 	;search hash bucket
-	(assign `(,iter) {key})
+	(assign `(,iter) `(,key))
 	(call :hmap :bucket `(,this ,iter) `(,this ,buckets))
 	(class/array/get_both buckets iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
-		(assign `((,this +hset_key_callback)) `(,cmp_func))
-		(vpif `(,cmp_func = 0))
-			;use the key address, and last known slot
-			(assign {key} `(,key))
-			(vp-cpy-rr iter_begin iter)
-			(assign `((,key +str_hashslot)) `(,slot))
-			(vp-shl-cr (log2 (* +ptr_size 2)) slot)
-			(vp-add-rr slot iter)
-			(vpif `(,iter < ,iter_end))
-				(assign `((,iter 0)) `(,slot))
-				(gotoif `(,key = ,slot) 'slot_hit)
-			(endif)
-			;cache miss, so scan the bucket
-			(vp-cpy-rr iter_begin iter)
-			(loop-start)
-				(assign `((,iter 0)) `(,slot))
-				(gotoif `(,key = ,slot) 'scan_hit)
-				(vp-add-cr (* +ptr_size 2) iter)
-			(loop-until `(,iter = ,iter_end))
-		(else)
-			;use the compare func
-			(assign `(,this ,buckets ,iter_end) {this, buckets, iter_end})
-			(loop-start)
-				(assign `((,this +hset_key_callback) (,iter_begin 0)) `(,cmp_func ,key2))
-				(assign {key} `(,key1))
-				(assign `(,iter_begin) {iter_begin})
-				;give some indication of the trashes
-				;:sym :eql_str is the worst ATM
-				(vp-call-r cmp_func :sym :eql_str)
-				(gotoif `(,key2 = 0) 'cmp_hit)
-				(assign {iter_begin, iter_end, this} `(,iter_begin ,iter_end ,this))
-				(vp-add-cr (* +ptr_size 2) iter_begin)
-			(loop-until `(,iter_begin = ,iter_end))
-			(assign {buckets} `(,buckets))
+		;use the key address, and last known slot
+		(vp-cpy-rr iter_begin iter)
+		(assign `((,key +str_hashslot)) `(,slot))
+		(vp-shl-cr (log2 (* +ptr_size 2)) slot)
+		(vp-add-rr slot iter)
+		(vpif `(,iter < ,iter_end))
+			(assign `((,iter 0)) `(,slot))
+			(gotoif `(,key = ,slot) 'slot_hit)
 		(endif)
+		;cache miss, so scan the bucket
+		(vp-cpy-rr iter_begin iter)
+		(loop-start)
+			(assign `((,iter 0)) `(,slot))
+			(gotoif `(,key = ,slot) 'scan_hit)
+			(vp-add-cr (* +ptr_size 2) iter)
+		(loop-until `(,iter = ,iter_end))
 	(endif)
 	(vp-xor-rr iter iter)
 
 (vp-label 'slot_hit)
 	(exit :hmap :find `(,this ,iter ,buckets))
-	(return)
-
-(vp-label 'cmp_hit)
-	(exit :hmap :find {this, iter_begin, buckets})
-	(return)
+	(vp-ret)
 
 (vp-label 'scan_hit)
 	(vp-cpy-rr iter slot)
@@ -233,8 +203,7 @@
 	(vp-shr-cr (log2 (* +ptr_size 2)) slot)
 	(assign `(,slot) `((,key +str_hashslot)))
 	(exit :hmap :find `(,this ,iter ,buckets))
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
 
@@ -294,6 +263,59 @@
 	(vp-pop this)
 	(exit :hmap :insert `(,this ,iter_e ,bucket))
 	(vp-ret)
+
+(def-func-end)
+
+(def-method :hmap :cfind)
+	;inputs
+	;:r0 = hmap object (ptr)
+	;:r1 = key str object (ptr)
+	;:r2 = key callback (ptr)
+	;outputs
+	;:r0 = hmap object (ptr)
+	;:r1 = 0, else found iterator (pptr)
+	;:r2 = bucket list (ptr)
+	;trashes
+	;:r1-:r6
+
+	(def-vars
+		(ptr this key buckets cmp_func)
+		(pptr iter_begin iter_end))
+
+	(vp-rdef (this iter buckets iter_end iter_begin cmp_func))
+	(vp-rdef (key1 key2))
+
+	;save inputs
+	(push-scope)
+	(entry :hmap :cfind `(,this ,iter ,buckets))
+
+	;search hash bucket
+	(assign `(,iter ,buckets) {key, cmp_func})
+	(call :hmap :bucket `(,this ,iter) `(,this ,buckets))
+	(class/array/get_both buckets iter_begin iter_end)
+	(vpif `(,iter_begin /= ,iter_end))
+		(assign `(,this ,buckets ,iter_end) {this, buckets, iter_end})
+		(loop-start)
+			(assign `((,iter_begin 0)) `(,key2))
+			(assign {key, cmp_func} `(,key1 ,cmp_func))
+			(assign `(,iter_begin) {iter_begin})
+			;give some indication of the trashes
+			;:sym :eql_str is the worst ATM
+			(vp-call-r cmp_func :sym :eql_str)
+			(gotoif `(,key2 = 0) 'cmp_hit)
+			(assign {iter_begin, iter_end, this} `(,iter_begin ,iter_end ,this))
+			(vp-add-cr (* +ptr_size 2) iter_begin)
+		(loop-until `(,iter_begin = ,iter_end))
+		(assign {buckets} `(,buckets))
+	(endif)
+	(vp-xor-rr iter iter)
+	(exit :hmap :cfind `(,this ,iter ,buckets))
+	(return)
+
+(vp-label 'cmp_hit)
+	(exit :hmap :cfind {this, iter_begin, buckets})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

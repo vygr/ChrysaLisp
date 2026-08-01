@@ -18,7 +18,7 @@
 	;:r1-:r5, :f0-:f15
 
 	;init parent
-	(s-call :view :init '(:r0 :r1 0 1) '(:r0 :r1))
+	(s-call :view :init '(:r0 :r1 1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
 		(vp-push :r0)

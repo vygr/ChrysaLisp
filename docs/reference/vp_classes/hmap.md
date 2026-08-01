@@ -30,6 +30,21 @@
 
 ## VP methods
 
+### :cfind -> class/hmap/cfind
+
+```code
+inputs
+:r0 = hmap object (ptr)
+:r1 = key str object (ptr)
+:r2 = key callback (ptr)
+outputs
+:r0 = hmap object (ptr)
+:r1 = 0, else found iterator (pptr)
+:r2 = bucket list (ptr)
+trashes
+:r1-:r6
+```
+
 ### :copy -> class/hmap/copy
 
 ```code
@@ -108,8 +123,7 @@ trashes
 inputs
 :r0 = hmap object (ptr)
 :r1 = vtable (pptr)
-:r2 = 0, else key compare callback (ptr)
-:r3 = num buckets (uint)
+:r2 = num buckets (uint)
 outputs
 :r0 = hmap object (ptr)
 :r1 = 0 if error, else ok

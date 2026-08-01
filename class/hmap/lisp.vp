@@ -322,7 +322,7 @@
 		(list-cast-args '(:r2) '(:num))
 		(errorif '(:r2 < 1) 'error)
 		(vp-push :r0)
-		(call :hmap :create '(0 :r2) '(:r1))
+		(call :hmap :create '(:r2) '(:r1))
 		(vp-pop :r0)
 	(else)
 		(assign '((:r0 +lisp_environment)) '(:r1))
