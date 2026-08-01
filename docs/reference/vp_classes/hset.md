@@ -107,8 +107,6 @@ trashes
 :r1-:r5, :f0-:f15
 ```
 
-### :key_callback -> class/obj/null
-
 ### :type -> class/hset/type
 
 ### :vtable -> class/hset/vtable
