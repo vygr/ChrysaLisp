@@ -157,18 +157,6 @@ trashes
 :r0-:r2, :r4
 ```
 
-### :key_node -> sys/mail/key_node
-
-```code
-inputs
-:r0 = node1 object (ptr)
-:r1 = node2 object (ptr)
-outputs
-:r1 = 0 if same
-trashes
-:r0-:r3
-```
-
 ### :mymail -> sys/mail/mymail
 
 ```code

@@ -15,6 +15,19 @@ trashes
 :r0-:r5, :f0-:f15
 ```
 
+### :eql -> class/nodeid/eql
+
+```code
+inputs
+:r0 = node1 object (ptr)
+:r1 = node2 object (ptr)
+outputs
+:r0 = node1 object (ptr)
+:r1 = 0 if same, else not
+trashes
+:r1-:r4
+```
+
 ### :hash -> class/nodeid/hash
 
 ```code
