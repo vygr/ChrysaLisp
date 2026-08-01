@@ -47,17 +47,6 @@ trashes
 :r1-:r6, :f0-:f15
 ```
 
-### :clear -> class/hset/clear
-
-```code
-inputs
-:r0 = hset object (ptr)
-outputs
-:r0 = hset object (ptr)
-trashes
-:r1-:r14, :f0-:f15
-```
-
 ### :create -> class/hset/create
 
 ### :deinit -> class/hset/deinit
