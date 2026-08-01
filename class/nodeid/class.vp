@@ -63,13 +63,16 @@
 	;trashes
 	;:r1-:r4
 
-	(entry '(:r0 :r1))
+	(entry :nodeid :eql '(:r0 :r1))
 
 	(assign `((:r0 ,(+ +nodeid_id +node_id_node1)) (:r0 ,(+ +nodeid_id +node_id_node2))
 		(:r1 ,(+ +nodeid_id +node_id_node1)) (:r1 ,(+ +nodeid_id +node_id_node2))) '(:r4 :r1 :r2 :r3))
 	(vp-sub-rr :r2 :r4)
 	(vp-sub-rr :r3 :r1)
 	(vp-or-rr :r4 :r1)
+	(vp-ret)
+
+	(exit :nodeid :eql '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
