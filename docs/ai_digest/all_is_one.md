@@ -66,7 +66,7 @@ adding its own methods.
 
 *   A call like `(. my_button :draw)` does not walk an inheritance chain.
 
-*   It performs a single O(1) `:hmap :find` directly on the `*class_Button*`
+*   It performs a single O(1) `:hmap :pfind` directly on the `*class_Button*`
 	vtable.
 
 This is a profound choice. The "shape" of inheritance is the same-a tree of

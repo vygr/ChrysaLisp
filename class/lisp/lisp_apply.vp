@@ -51,9 +51,9 @@
 	(gotoif `(,vt1 /= ,vt2) 'error))
 
 	(fn-bind 'sys/statics/statics vt1)
-	(call :hmap :find `(,obj (,vt1 ,(+ statics_static_syms static_sym_vtable))) '(_ tmp _))
+	(call :hmap :pfind `(,obj (,vt1 ,(+ statics_static_syms static_sym_vtable))) '(_ tmp _))
 	(errorif `(,tmp = 0) 'error1)
-	(call :hmap :find `((,tmp +ptr_size) ,mth) '(_ tmp _))
+	(call :hmap :pfind `((,tmp +ptr_size) ,mth) '(_ tmp _))
 	(errorif `(,tmp = 0) 'error1)
 
 	(jump :lisp :repl_apply `(,this ,args (,tmp +ptr_size)))

@@ -477,13 +477,13 @@ above it.
 
 * **Key Methods:**
 
-	* `:hmap :find`: The hyper-optimized O(1) lookup mechanism that uses the
+	* `:hmap :pfind`: The hyper-optimized O(1) lookup mechanism that uses the
 	  `str_hashslot` cache on symbols.
 
 	* `:hmap :search`: Traverses the `:parent` chain to find a binding in an outer
 	  scope.
 
-	* `:hmap :insert` / `:set`: Adds or updates a key-value pair.
+	* `:hmap :pinsert` / `:set`: Adds or updates a key-value pair.
 
 **`:stdio`**
 

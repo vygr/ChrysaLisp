@@ -54,7 +54,7 @@
 
 	(defset :lisp_def
 		'(progn
-			(call :hmap :insert '(:r0 :r1 :r2) '(:r0 _ _))))
+			(call :hmap :pinsert '(:r0 :r1 :r2) '(:r0 _ _))))
 
 (errorcase
 (vp-label 'error1)
@@ -165,7 +165,7 @@
 
 	(defsetq :lisp_defq
 		'(progn
-			(call :hmap :insert '(:r0 :r1 :r2))))
+			(call :hmap :pinsert '(:r0 :r1 :r2))))
 
 (errorcase
 (vp-label 'error1)
@@ -280,7 +280,7 @@
 	(else)
 		(array-bind-args :r1 '(:r1 :r0))
 	(endif)
-	(call :hmap :find '(:r0 :r1) '(_ :r1 _))
+	(call :hmap :pfind '(:r0 :r1) '(_ :r1 _))
 	(vp-pop :r0)
 	(vpif '(:r1 /= 0))
 		(assign '((:r1 +ptr_size)) '(:r1))
@@ -400,7 +400,7 @@
 		(assign '((:r1 +obj_vtable)) '(:r3))
 		(f-bind :sym :vtable :r4)
 		(gotoif '(:r3 /= :r4) 'error3))
-		(call :hmap :find '((:rsp local_env) :r1) '(:r0 :r1 :r2))
+		(call :hmap :pfind '((:rsp local_env) :r1) '(:r0 :r1 :r2))
 		(vpif '(:r1 /= 0))
 			(call :list :erase2 '(:r2 :r1))
 		(endif)

@@ -407,11 +407,11 @@
 
 	(fn-bind 'sys/statics/statics :r1)
 	(assign `((:r1 ,(+ statics_static_syms static_sym_vtable))) '(:r1))
-	(call :view :find '((:rsp local_this) :r1) '(_ :r2 _))
+	(call :view :pfind '((:rsp local_this) :r1) '(_ :r2 _))
 	(vpif '(:r2 /= 0))
 		(fn-bind 'sys/statics/statics :r1)
 		(assign `((:r1 ,(+ statics_static_syms static_sym_draw))) '(:r1))
-		(call :view :find '((:r2 +ptr_size) :r1) '(_ :r1 _))
+		(call :view :pfind '((:r2 +ptr_size) :r1) '(_ :r1 _))
 		(vpif '(:r1 /= 0))
 			;jump to VP draw method ?
 			(assign '((:r1 +ptr_size)) '(:r1))

@@ -38,7 +38,7 @@
 	(endif)
 	(call :func :create {value | fptr} {value})
 	(vpif {args->+array_length >= 3})
-		(call :hmap :insert {this->+lisp_environment, iter_begin[+ptr_size * 2], value})
+		(call :hmap :pinsert {this->+lisp_environment, iter_begin[+ptr_size * 2], value})
 	(endif)
 
 (vp-label 'exit)

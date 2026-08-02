@@ -153,7 +153,7 @@
 
 (def-func-end)
 
-(def-method :hmap :find)
+(def-method :hmap :pfind)
 	;inputs
 	;:r0 = hmap object (ptr)
 	;:r1 = key str object (ptr)
@@ -167,7 +167,7 @@
 	(vp-rdef (key this iter buckets iter_end iter_begin slot) '(:r7))
 
 	;save inputs
-	(entry :hmap :find `(,this ,iter))
+	(entry :hmap :pfind `(,this ,iter))
 
 	;search hash bucket
 	(assign `(,iter) `(,key))
@@ -194,7 +194,7 @@
 	(vp-xor-rr iter iter)
 
 (vp-label 'slot_hit)
-	(exit :hmap :find `(,this ,iter ,buckets))
+	(exit :hmap :pfind `(,this ,iter ,buckets))
 	(vp-ret)
 
 (vp-label 'scan_hit)
@@ -202,12 +202,12 @@
 	(vp-sub-rr iter_begin slot)
 	(vp-shr-cr (log2 (* +ptr_size 2)) slot)
 	(assign `(,slot) `((,key +str_hashslot)))
-	(exit :hmap :find `(,this ,iter ,buckets))
+	(exit :hmap :pfind `(,this ,iter ,buckets))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :hmap :insert)
+(def-method :hmap :pinsert)
 	;inputs
 	;:r0 = hmap object (ptr)
 	;:r1 = key str object (ptr)
@@ -219,16 +219,16 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(vp-rdef (this key) (method-input :hmap :insert))
-	(vp-rdef (_ iter bucket) (method-output :hmap :insert))
+	(vp-rdef (this key) (method-input :hmap :pinsert))
+	(vp-rdef (_ iter bucket) (method-output :hmap :pinsert))
 	(vp-rdef (saved_key saved_value old_value tmp) '(:r8 :r9 :r10 :r11))
 
 	;save inputs
-	(entry :hmap :insert `(,this ,key ,saved_value))
+	(entry :hmap :pinsert `(,this ,key ,saved_value))
 	(assign `(,key) `(,saved_key))
 
 	;search hash bucket
-	(call :hmap :find `(,this ,key) `(,this ,iter ,bucket))
+	(call :hmap :pfind `(,this ,key) `(,this ,iter ,bucket))
 	(vpif `(,iter /= 0))
 		;have old key
 		(assign `((,iter +ptr_size)) `(,old_value))
@@ -242,7 +242,7 @@
 
 			(vp-pop this iter bucket)
 		(endif)
-		(exit :hmap :insert `(,this ,iter ,bucket))
+		(exit :hmap :pinsert `(,this ,iter ,bucket))
 		(vp-ret)
 	(endif)
 
@@ -261,7 +261,7 @@
 	(assign `(,iter_s) `((,iter +str_hashslot)))
 
 	(vp-pop this)
-	(exit :hmap :insert `(,this ,iter_e ,bucket))
+	(exit :hmap :pinsert `(,this ,iter_e ,bucket))
 	(vp-ret)
 
 (def-func-end)
@@ -338,7 +338,7 @@
 	(assign `(,this ,key) `(,saved_this ,saved_key))
 
 	(loop-start)
-		(call :hmap :find `(,this ,key) `(,this ,iter ,bucket))
+		(call :hmap :pfind `(,this ,key) `(,this ,iter ,bucket))
 		(breakif `(,iter /= 0))
 		(assign `((,this +hmap_parent)) `(,iter))
 		(breakif `(,iter = 0))
@@ -442,7 +442,7 @@
 	(assign '(:r0) '((:rsp local_this)))
 
 	;for all buckets
-	(assign '((:r0 +hset_num_buckets) (:r0 +hset_buckets)) '(:r1 :r2))
+	(assign '((:r0 +array_num_buckets) :r0) '(:r1 :r2))
 	(vpif '(:r1 = 1))
 		(class/array/get_both :r2 :r1 :r0)
 		(assign '(:r2) '((:rsp local_bucket)))
@@ -493,22 +493,24 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(structure local 0
+	(def-vars
 		(ptr this that))
 
-	(vp-alloc local_size)
+	(push-scope)
 	(entry :hmap :resize '(:r0 :r1))
 
 	(call :hmap :copy '(:r0 :r1) '(:r0 :r1))
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_that)))
-	(assign '((:r1 +hset_num_buckets) (:r1 +hset_buckets) (:r0 +hset_buckets)) '(:r2 :r3 :r4))
-	(assign '(:r2 :r3) '((:r0 +hset_num_buckets) (:r0 +hset_buckets)))
-	(class/obj/ref :r3 :r0)
-	(call :list :deref '(:r4))
-	(call :hmap :deref '((:rsp local_that)))
+	(assign '(:r0 :r1) {this, that})
+	(call :hmap :clear '(:r0) '(:r0))
+	(assign {that} '(:r1))
+	(call :hmap :append '(:r0 :r1 0 (:r1 +array_length)) '(:r0))
+	(assign {that} '(:r1))
+	(assign '((:r1 +array_num_buckets)) '(:r2))
+	(assign '(:r2) '((:r0 +array_num_buckets)))
+	(call :hmap :deref '(:r1))
 
-	(exit :hmap :resize '((:rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
+	(exit :hmap :resize {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)

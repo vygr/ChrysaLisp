@@ -500,7 +500,7 @@
 	(entry :font :sym_texture {this, sym})
 
 	;look up string in sym map
-	(call :hmap :find {this->+font_sym_map, sym} {_, iter, bucket})
+	(call :hmap :pfind {this->+font_sym_map, sym} {_, iter, bucket})
 	(vpifnot {iter})
 		;create sym canvas
 		(call :font :glyph_info {this, sym} {_, info})
@@ -608,7 +608,7 @@
 				(call :list :deref {tmp})
 			(endif)
 		(endif)
-		(call :hmap :create {font->+font_sym_map->+hset_num_buckets} {new_map})
+		(call :hmap :create {font->+font_sym_map->+array_num_buckets} {new_map})
 		(assign {font->+font_sym_map} {tmp})
 		(assign {new_map} {font->+font_sym_map})
 		(call :hmap :deref {tmp})

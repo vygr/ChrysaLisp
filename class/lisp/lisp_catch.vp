@@ -59,7 +59,7 @@
 		(call :obj :ref {value})
 		(call :list :push_back {str_args, value})
 		(call :str :lisp_str {this, str_args} {_, str_value})
-		(call :hmap :insert {this->+lisp_environment, this->+lisp_sym_underscore, str_value})
+		(call :hmap :pinsert {this->+lisp_environment, this->+lisp_sym_underscore, str_value})
 		(call :obj :deref {str_args})
 		(call :obj :deref {str_value})
 		(call :lisp :repl_eval {this, iter_begin[+ptr_size * 2]} {_, args})

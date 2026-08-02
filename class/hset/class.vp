@@ -17,54 +17,35 @@
 	;trashes
 	;:r1-:r5, :f0-:f15
 
-	(structure local 0
+	(def-vars
 		(ptr this))
 
 	;save inputs
-	(vp-alloc local_size)
+	(push-scope)
 	(entry :hset :init '(:r0 :r1 :r2))
-	(assign '(:r0 :r2) '((:rsp local_this) (:r0 +hset_num_buckets)))
+	(assign '(:r0) {this})
+	(assign '(:r2) '((:r0 +array_num_buckets)))
 
 	;init parent
 	(s-call :hset :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
-		(call :list :create :nil '(:r0))
-		(assign '((:rsp local_this)) '(:r1))
-		(assign '(:r0) '((:r1 +hset_buckets)))
-		(assign '((:r1 +hset_num_buckets)) '(:r1))
+		(assign '((:r0 +array_num_buckets)) '(:r1))
 		(vpif '(:r1 /= 1))
 			(assign '(:r1) '((:r0 +array_length)))
-			(call :list :set_cap '(:r0 :r1))
+			(call :hset :set_cap '(:r0 :r1) '(:r0))
 			(class/array/get_both :r0 :r3 :r4)
 			(loop-start)
 				(call :list :create :nil '((:r3 0)))
 				(vp-add-cr +ptr_size :r3)
 			(loop-until '(:r3 = :r4))
+			(assign {this} '(:r0))
 		(endif)
-		(assign '((:rsp local_this)) '(:r0))
 	(endif)
 
 	(exit :hset :init '(:r0 :r1))
-	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
-(def-method :hset :deinit)
-	;inputs
-	;:r0 = hset object (ptr)
-	;outputs
-	;:r0 = hset object (ptr)
-	;trashes
-	;:r1-:r14, :f0-:f15
-
-	(entry :hset :deinit '(:r0))
-
-	(vp-push :r0)
-	(call :list :deref '((:r0 +hset_buckets)))
-	(vp-pop :r0)
-	(s-jump :hset :deinit '(:r0))
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -184,7 +165,7 @@
 	(assign '(:r0) '((:rsp local_this)))
 
 	;for all buckets
-	(assign '((:r0 +hset_num_buckets) (:r0 +hset_buckets)) '(:r1 :r2))
+	(assign '((:r0 +array_num_buckets) :r0) '(:r1 :r2))
 	(vpif '(:r1 = 1))
 		(class/array/get_both :r2 :r1 :r0)
 		(assign '(:r2) '((:rsp local_bucket)))
@@ -239,19 +220,19 @@
 	(entry :hset :bucket '(:r0 :r1))
 
 	;search hash bucket
-	(assign '((:r0 +hset_num_buckets)) '(:r2))
+	(assign '((:r0 +array_num_buckets)) '(:r2))
 	(vpif '(:r2 /= 1))
 		(assign '(:r0 :r2) '(:r5 :r6))
 		(call :obj :hash '(:r1) '(_ :r0) :r2)
 		(vp-xor-rr :r2 :r2)
 		(vp-div-rrr-u :r6 :r2 :r0)
-		(call :list :get_elem '((:r5 +hset_buckets) :r2) '(_ :r1))
+		(call :list :get_elem '(:r5 :r2) '(:r0 :r1))
 
-		(exit :hset :bucket '(:r5 :r1))
+		(exit :hset :bucket '(:r0 :r1))
 		(vp-ret)
 	(endif)
 
-	(exit :hset :bucket '(:r0 (:r0 +hset_buckets)))
+	(exit :hset :bucket '(:r0 :r0))
 	(vp-ret)
 
 (def-func-end)

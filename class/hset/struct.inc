@@ -1,5 +1,3 @@
-(import "././obj/struct.inc")
+(import "././list/struct.inc")
 
-(structure +hset +obj_size
-	(uint num_buckets)
-	(ptr buckets))
+(structure +hset +list_size)

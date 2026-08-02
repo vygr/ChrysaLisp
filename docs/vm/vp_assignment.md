@@ -219,7 +219,7 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 	(assign {@sys/statics/statics} {statics})
 	(call :sym :intern_cstr {name} {name})
 	(call :num :create {id} {id})
-	(call :hmap :insert {statics->statics_sys_mail_service_map, name, id})
+	(call :hmap :pinsert {statics->statics_sys_mail_service_map, name, id})
 	(call :sym :deref {name})
 	(call :num :deref {id})
 
@@ -252,11 +252,11 @@ functions final instructions. Be sure to `(setq *build_inst* :nil)` and `(setq
 *build_emit* :nil)` after the section of code or function to turn emit printing
 off.
 
-This is the output from wrapping the `:hmap :insert` line in the example above:
+This is the output from wrapping the `:hmap :pinsert` line in the example above:
 
 ```vdu
 (let ((*build_inst* :t))
-	(call :hmap :insert {statics->statics_sys_mail_service_map, name, id})
+	(call :hmap :pinsert {statics->statics_sys_mail_service_map, name, id})
 )
 ```
 

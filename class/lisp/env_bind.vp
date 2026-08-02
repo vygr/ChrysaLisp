@@ -155,7 +155,7 @@
 			(assign {index_vars} (list index_vars))
 			(vp-add-cr 1 index_vars)
 			(assign (list index_vars index_vals value) {index_vars, index_vals, value})
-			(call :hmap :insert {this->+lisp_environment, symbol, value})
+			(call :hmap :pinsert {this->+lisp_environment, symbol, value})
 		(else)
 			;destructureing ?
 			(errorif (cat {symbol->+obj_vtable /= @} (f-path :list :vtable)) 'error1)

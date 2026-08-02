@@ -81,13 +81,13 @@ draw logic via `(. my_button :draw)`.
 
 1.  The Lisp `.` macro first needs to find the correct function. It starts by
     looking up the object's class definition: `(. my_button :vtable)`. This is
-    a direct `:hmap :find` on `my_button`.
+    a direct `:hmap :pfind` on `my_button`.
 
 2.  This lookup immediately returns the value of the `:vtable` key, which is
     the `*class_Button*` hmap.
 
 3.  The macro then performs a second lookup: `(. *class_Button* :draw)`. This
-    is a direct `:hmap :find` on the `*class_Button*` vtable for the `:draw`
+    is a direct `:hmap :pfind` on the `*class_Button*` vtable for the `:draw`
     method.
 
 4.  Because the `*class_Button*` vtable was created at compile-time by
@@ -95,7 +95,7 @@ draw logic via `(. my_button :draw)`.
     its behaviors. The correct `:draw` function is found instantly.
 
 This is **not a traversal**. It is a two-step, direct lookup into the
-Inheritance tree. Thanks to the `str_hashslot` cache, both `:hmap :find`
+Inheritance tree. Thanks to the `str_hashslot` cache, both `:hmap :pfind`
 operations are O(1).
 
 ## Conclusion: The Unifying Result

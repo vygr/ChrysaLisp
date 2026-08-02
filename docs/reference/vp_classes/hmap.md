@@ -90,20 +90,6 @@ trashes
 :r1-:r14, :f0-:f15
 ```
 
-### :find -> class/hmap/find
-
-```code
-inputs
-:r0 = hmap object (ptr)
-:r1 = key str object (ptr)
-outputs
-:r0 = hmap object (ptr)
-:r1 = 0, else found iterator (pptr)
-:r2 = bucket list (ptr)
-trashes
-:r1-:r7
-```
-
 ### :get -> class/hmap/get
 
 ```code
@@ -131,7 +117,33 @@ trashes
 :r1-:r5, :f0-:f15
 ```
 
-### :insert -> class/hmap/insert
+### :list -> class/hmap/list
+
+```code
+inputs
+:r0 = hmap object (ptr)
+outputs
+:r0 = hmap object (ptr)
+:r1 = list object (ptr)
+trashes
+:r1-:r14, :f0-:f15
+```
+
+### :pfind -> class/hmap/pfind
+
+```code
+inputs
+:r0 = hmap object (ptr)
+:r1 = key str object (ptr)
+outputs
+:r0 = hmap object (ptr)
+:r1 = 0, else found iterator (pptr)
+:r2 = bucket list (ptr)
+trashes
+:r1-:r7
+```
+
+### :pinsert -> class/hmap/pinsert
 
 ```code
 inputs
@@ -142,18 +154,6 @@ outputs
 :r0 = hmap object (ptr)
 :r1 = iterator (pptr)
 :r2 = bucket list (ptr)
-trashes
-:r1-:r14, :f0-:f15
-```
-
-### :list -> class/hmap/list
-
-```code
-inputs
-:r0 = hmap object (ptr)
-outputs
-:r0 = hmap object (ptr)
-:r1 = list object (ptr)
 trashes
 :r1-:r14, :f0-:f15
 ```

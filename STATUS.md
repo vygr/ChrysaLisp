@@ -482,7 +482,7 @@ New `(str-to-real str) -> real` function that handles scientific notation like
 New `Mesh-obj` class for loading `.obj` files. Mesh demo now loads a test
 teapot.obj.
 
-Micro optimization work on `:hmap :find` and `:hset :find` VP methods.
+Micro optimization work on `:hmap :pfind` and `:hset :find` VP methods.
 
 Added more unit tests and reoganized the `tests/` folder into better more
 granular files and folders.
