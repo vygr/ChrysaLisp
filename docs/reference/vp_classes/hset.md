@@ -93,7 +93,7 @@ outputs
 :r0 = hset object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r6, :f0-:f15
 ```
 
 ### :type -> class/hset/type

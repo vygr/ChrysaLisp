@@ -226,7 +226,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r6, :f0-:f15
 ```
 
 ### :ref_prop -> gui/view/ref_prop
