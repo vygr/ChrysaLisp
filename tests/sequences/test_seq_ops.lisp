@@ -47,10 +47,30 @@
 ; lmatch? matches a list against a pattern list
 (assert-true "lmatch? exact" (lmatch? '(1 2 3 4 3) s_seq))
 
+; --- copy (Array & List) ---
+; Non-list/pmap/pset types (like Array) are referenced (same pointer)
 (defq arr_orig (array 1 2 3))
 (defq arr_copy (copy arr_orig))
-; In this environment, copy seems to return an eql object (same pointer?)
-(assert-true "array copy equal" (equal? arr_orig arr_copy))
+(assert-true "array copy is same reference" (eql (weak-ref arr_orig) (weak-ref arr_copy)))
+
+; Lists, pmaps, and psets are deep-copied; other types (arrays) are referenced
+(defq inner_list (list 1 2))
+(defq inner_pmap (pmap 'a 10))
+(defq inner_pset (pset 'x 'y))
+(defq inner_arr (array 100 200))
+(defq list_orig (list inner_list inner_pmap inner_pset inner_arr))
+(defq list_copy (copy list_orig))
+
+(assert-true "list copy equal" (equal? list_orig list_copy))
+(assert-true "list copy independent instance" (not (eql (weak-ref list_orig) (weak-ref list_copy))))
+(assert-true "nested list in copy is deep-copied" (not (eql (weak-ref inner_list) (weak-ref (first list_copy)))))
+(assert-true "nested pmap in copy is deep-copied" (not (eql (weak-ref inner_pmap) (weak-ref (second list_copy)))))
+(assert-true "nested pset in copy is deep-copied" (not (eql (weak-ref inner_pset) (weak-ref (third list_copy)))))
+(assert-true "nested array in copy is referenced" (eql (weak-ref inner_arr) (weak-ref (elem-get list_copy 3))))
+
+(push (first list_copy) 3)
+(assert-eq "nested list orig length unchanged" 2 (length inner_list))
+(assert-eq "nested list copy length updated" 3 (length (first list_copy)))
 
 ; --- swap ---
 (defq sw_arr (array 1 2 3))
