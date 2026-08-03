@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "lib/consts/chars.inc")
-(include "./class.inc")
 (include "././stream/class.inc")
+(include "././pmap/class.inc")
 
 (gen-create :list)
 (gen-vtable :list)
@@ -307,7 +307,8 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(vp-rdef (stack iter_begin iter_end cnt this that) '(:r10 :r11 :r12 :r13))
+	(vp-rdef (vt1 vt2 stack iter_begin iter_end cnt this that)
+		'(:r8 :r9 :r10 :r11 :r12 :r13))
 
 	(entry :list :copy `(,this))
 
@@ -328,8 +329,14 @@
 		;push this list/pset/pmap branches
 		(class/array/get_both this iter_begin iter_end)
 		(loop-while `(,iter_begin /= ,iter_end))
-			(call :obj :inst_of `((,iter_begin 0) (@ ,(f-path :list :vtable))) '(_ tmp))
-			(vpif `(,tmp /= 0))
+			(assign `((,iter_begin 0) (@ ,(f-path :pmap :vtable))) `(,vt1 ,vt2))
+			(assign `((,vt1 +obj_vtable)) `(,vt1))
+			(gotoif `(,vt1 = ,vt2) 'scan_it)
+			(assign `((,vt2 +obj_vtable)) `(,vt2))
+			(gotoif `(,vt1 = ,vt2) 'scan_it)
+			(assign `((,vt2 +obj_vtable)) `(,vt2))
+			(vpif `(,vt1 = ,vt2))
+			(vp-label 'scan_it)
 				(call :array :push_back `(,stack ,iter_begin))
 			(endif)
 			(vp-add-cr +ptr_size iter_begin)
