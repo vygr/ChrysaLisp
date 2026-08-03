@@ -1,15 +1,8 @@
-(report-header "Strings: types, ops, slice, splice, hex")
+(report-header "Strings: ops, slice, splice, hex")
 
 (import "lib/text/charclass.inc")
 
 (defq s "Hello World")
-
-; Type Predicates
-(assert-true "str?"  (str? s))
-(assert-true "num?"  (num? 123))
-(assert-true "list?" (list? (list 1 2)))
-(assert-true "sym?"  (sym? 'abc))
-(assert-eq   "Type-of" :num (last (type-of 42)))
 
 (assert-eq "sym" 'hello (sym "hello"))
 (assert-true "gensym" (sym? (gensym)))

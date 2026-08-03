@@ -65,7 +65,7 @@
 (assert-list-eq "read sstream" '(a b c) (first r_res))
 
 (defq ri (repl-info))
-(assert-true "repl-info" (and (list? ri) (>= (length ri) 2)))
+(assert-true "repl-info" (and (list?? ri) (>= (length ri) 2)))
 
 ; --- Core Environment Utils ---
 ((lambda () (defq local_sym 555)

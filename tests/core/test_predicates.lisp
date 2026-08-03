@@ -13,6 +13,7 @@
 (assert-true "str? true"   (str? "Hello"))
 (assert-true "sym? true"   (sym? 'abc))
 (assert-true "list? true"  (list? (list 1 2)))
+(assert-true "list?? true"  (list?? (list 1 2)))
 (assert-true "array? true" (array? (array 1 2)))
 (assert-true "env? true"   (env? (env)))
 
