@@ -3,9 +3,8 @@
 ;:hmap inherits from :list, BUT we want to massage the layout
 ;of the underlying :array/:list structure...
 
-(structure +hmap +seq_size
-	(uint length capacity num_buckets)
-	(plong begin parent)
+(structure +hmap +array_base_size
+	(plong parent)
 	;use all remaining cells for short array storage
 	;scale up to next block size so we get more [key value] pairs
 	(struct elems (some! (lambda (%0)
