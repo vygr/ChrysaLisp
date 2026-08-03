@@ -59,17 +59,13 @@
 	(defmethod :copy ()
 		; (. xset :copy) -> xset
 		(defq that ((get 'Xset) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
-		(each (lambda (this_bucket that_bucket)
-			(each (lambda (key)
-				(push that_bucket key)) this_bucket)) (get :buckets this) (get :buckets that))
+		(def that :buckets (map (const cat) (get :buckets this)))
 		that)
 
 	(defmethod :deep_copy ()
 		; (. xset :deep_copy) -> xset
 		(defq that ((get 'Xset) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
-		(each (lambda (this_bucket that_bucket)
-			(each (lambda (key)
-				(push that_bucket (copy key))) this_bucket)) (get :buckets this) (get :buckets that))
+		(def that :buckets (map (const copy) (get :buckets this)))
 		that)
 
 	(defmethod :union (that)

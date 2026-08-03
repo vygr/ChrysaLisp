@@ -51,7 +51,7 @@
 	(defmethod :copy ()
 		; (. lset :copy) -> lset
 		(defq that ((get 'Lset)))
-		(set that :bucket (copy (get :bucket this)))
+		(set that :bucket (cat (get :bucket this)))
 		that)
 
 	(defmethod :deep_copy ()

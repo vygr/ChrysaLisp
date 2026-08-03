@@ -54,7 +54,7 @@
 	(defmethod :copy ()
 		; (. lmap :copy) -> lmap
 		(defq that ((get 'Lmap)))
-		(set that :bucket (copy (get :bucket this)))
+		(set that :bucket (cat (get :bucket this)))
 		that)
 
 	(defmethod :deep_copy ()
