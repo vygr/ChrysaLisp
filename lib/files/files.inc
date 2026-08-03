@@ -58,7 +58,7 @@
 	;new files returned by the handler are merged into the work list.
 	(setd comment ";")
 	(defq callback_e (penv))
-	(unless (list? files) (setq files (list files)))
+	(unless (list?? files) (setq files (list files)))
 	(each-mergeable (lambda (file)
 		(if (defq stream (file-stream file))
 			(lines! (lambda (line) (task-slice)

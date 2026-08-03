@@ -615,6 +615,10 @@ backed by specialized arrays.
 
 	* `(list? form) -> :t | :nil`
 
+*   **`list??`**: Checks if a form is exact type list.
+
+	* `(list?? form) -> :t | :nil`
+
 *   **`num?`**: Checks if a form is a number.
 
 	* `(num? form) -> :t | :nil`

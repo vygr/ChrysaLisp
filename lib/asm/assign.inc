@@ -78,11 +78,11 @@
 (defun assign-topology-sort ()
 	(defq s src d dst i 0 c 1000 l (dec (length d)))
 	(while (and (< i l) (/= c 0))
-		(if (setq j (if (list? (defq j (elem-get d i))) :nil
+		(if (setq j (if (list?? (defq j (elem-get d i))) :nil
 				(some! (lambda (s d)
 					(cond
-						((and (list? s) (find j s)) (!))
-						((and (list? d) (find j d)) (!))
+						((and (list?? s) (find j s)) (!))
+						((and (list?? d) (find j d)) (!))
 						((eql j s) (!)))) (list s d) :nil -1 (inc i))))
 			(setq s (rotate s i j (inc j)) d (rotate d i j (inc j)) c (dec c))
 			(++ i)))
@@ -151,7 +151,7 @@
 				(:t (throw "Invalid src parameter !" (list %0 %1))))) src dst)))
 
 (defun print-inst (%0)
-	(and (list? %0) (not (lambda? (first %0))) (print (ascii-char 9) %0)))
+	(and (list?? %0) (not (lambda? (first %0))) (print (ascii-char 9) %0)))
 
 (defun assign-asm-to-script (src dst %2)
 	(unless (= (length src) (length (setq dst (map (const trim) (split dst ",")))))

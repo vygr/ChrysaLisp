@@ -49,7 +49,7 @@
 (defun get-by-val (n v in)
 	(let ((out :nil))
 		(cond
-			((list? (defq element (elem-get (first in) n)))
+			((list?? (defq element (elem-get (first in) n)))
 				(each (lambda (e) (if (elem-find v (elem-get e +tz_locations)) (setq out e))) in))
 			((num? element) (each (lambda (e) (if (=  (elem-get e n) v) (setq out e))) in))
 			(:t (each (lambda (e) (if (eql (elem-get e n) v) (setq out e))) in)))

@@ -112,7 +112,7 @@
 (defmacro getf-> (obj &rest fields)
 	; (getf-> obj field|(field offset) ...) -> (val ...)
 	(bind '(offsets types)
-		(map! (const list) (map (# (if (list? %0)
+		(map! (const list) (map (# (if (list?? %0)
 			(apply (const obj-args) %0) (obj-args %0))) fields)))
 	(static-qq (map! (# (obj-get ,obj %0 %1)) '(,offsets ,types))))
 

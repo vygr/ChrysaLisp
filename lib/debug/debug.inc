@@ -66,10 +66,10 @@
 
 (defun debug-form? (form)
 	(cond
-		((not (list? form))
+		((not (list?? form))
 			;not a list so not interested
 			:nil)
-		((list? (defq func (first form)))
+		((list?? (defq func (first form)))
 			;a list so just step in
 			0)
 		((not (sym? func))

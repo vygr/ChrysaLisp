@@ -54,7 +54,7 @@
 	(def (penv) '*class* n '*super_class* super)
 	(each (lambda (form)
 		(cond
-			((and (list? form) (ends-with "method" (first form)))
+			((and (list?? form) (ends-with "method" (first form)))
 				(push methods form))
 			(:t (push inits form)))) _)
 	(if s
@@ -80,20 +80,20 @@
 (defmacro .-> (res &rest frm)
 	; (.-> this form ...)
 	(reduce (lambda (res frm)
-		(if (list? frm)
+		(if (list?? frm)
 			(insert frm 0 (list (const .) res))
 			(list (const .) res frm))) frm res))
 
 (defmacro raise (&rest fields)
 	; (raise field | (sym val) ...) -> (defq sym (get field this) ...)
-	(reduce (# (if (list? %1)
+	(reduce (# (if (list?? %1)
 			(cat %0 %1)
 			(push %0 (sym (rest %1)) (static-qq (get ,%%1 this)))))
 		fields (list (const defq))))
 
 (defmacro lower (&rest fields)
 	; (lower field | (field sym) ...) -> (set this field sym ...)
-	(reduce (# (if (list? %1)
+	(reduce (# (if (list?? %1)
 			(cat %0 %1)
 			(push %0 %1 (sym (rest %1)))))
 		fields (list (const def) 'this)))

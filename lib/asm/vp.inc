@@ -39,7 +39,7 @@
 	(defq stack (rest out))
 	(while (defq lst (pop stack))
 		(each! (#
-			(if (list? %0)
+			(if (list?? %0)
 				(push stack %0)
 				(and (sym? %0) (defq %0 (def? %0 labels)) (elem-set lst (!) %0))))
 			(list lst) 1))

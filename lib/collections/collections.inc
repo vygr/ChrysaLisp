@@ -14,7 +14,7 @@
 (defun gather (m &rest _)
 	; (gather map|set [key] ...) -> (val|key|:nil ...)
 	; gather a list of [key|val|:nil]
-	(if (list? (first _)) (setq _ (first _)))
+	(if (list?? (first _)) (setq _ (first _)))
 	(map (# (. m :find %0)) _))
 
 (defun scatter (m &rest _)
@@ -24,11 +24,11 @@
 	(cond
 		((rfind :Set (. m :type_of))
 			;((k ...)| k ...)
-			(reduce (lambda (m k) (. m :insert k)) (if (list? k) k _) m))
-		((and (list? k) (list? v))
+			(reduce (lambda (m k) (. m :insert k)) (if (list?? k) k _) m))
+		((and (list?? k) (list?? v))
 			;((k ...)(v ...))
 			(reduce! (lambda (m k v) (. m :insert k v)) _ m))
-		((and (list? k) (not v))
+		((and (list?? k) (not v))
 			;((k v ...))
 			(reduce (lambda (m (k v)) (. m :insert k v)) (partition k 2) m))
 		;(k v ...)
@@ -37,7 +37,7 @@
 (defun transfer (sm dm &rest _)
 	; (transfer src_map dst_map [key val] ...) -> dst_map
 	; transfer a list of [key val]
-	(if (list? (first _)) (setq _ (first _)))
+	(if (list?? (first _)) (setq _ (first _)))
 	(scatter dm _ (gather sm _)))
 
 (defun tsort (roots dep_fnc)

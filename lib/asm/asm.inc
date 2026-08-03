@@ -46,7 +46,7 @@
 
 (defun compile (files &optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(unless (list? files) (setq files (list files)))
+	(unless (list?? files) (setq files (list files)))
 	(when (nempty? files)
 		(shuffle files)
 		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 2)

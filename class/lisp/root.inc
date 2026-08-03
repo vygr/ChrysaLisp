@@ -584,6 +584,10 @@
 	; (list? form) -> :t | :nil
 	(rfind :list (type-of %0)))
 
+(defun list?? (%0)
+	; (list?? form) -> :t | :nil
+	(eql :list (pop (type-of %0))))
+
 (defun pset? (%0)
 	; (pset? form) -> :t | :nil
 	(rfind :pset (type-of %0)))
@@ -638,11 +642,11 @@
 
 (defun lambda-func? (%0)
 	; (lambda-func? form) -> :t | :nil
-	(if (list? %0) (lambda? (first %0))))
+	(if (list?? %0) (lambda? (first %0))))
 
 (defun macro-func? (%0)
 	; (macro-func? form) -> :t | :nil
-	(if (list? %0) (macro? (first %0))))
+	(if (list?? %0) (macro? (first %0))))
 
 (defun nil? (%0)
 	; (nil? o) -> :t | :nil
@@ -754,7 +758,7 @@
 	(defq args (list) stack (list body))
 	(while (defq lst (pop stack))
 		(each! (lambda (%0)
-			(if (list? %0)
+			(if (list?? %0)
 				(unless (find (first %0) '(# quote quasi-quote static-q static-qq static-qqp))
 					(push stack %0))
 				(when (and (sym? %0) (setq %0 (find %0 '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))))
@@ -819,14 +823,14 @@
 	; (reduce lambda seq [init]) -> form
 	(cond
 		(i (static-qq (reduce! ,f (list ,s) ,i)))
-		((list? s) (static-qq (reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (first ,i) 1)))
+		((list?? s) (static-qq (reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (first ,i) 1)))
 		((static-qq (reduce! ,f (list ,s) (first ,s) 1)))))
 
 (defmacro rreduce (f s &optional i)
 	; (rreduce lambda seq [init]) -> form
 	(cond
 		(i (static-qq (reduce! ,f (list ,s) ,i -1 0)))
-		((list? s) (static-qq (reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i) -2 0)))
+		((list?? s) (static-qq (reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i) -2 0)))
 		((static-qq (reduce! ,f (list ,s) (last ,s) -2 0)))))
 
 (defmacro filter (f s)
@@ -942,7 +946,7 @@
 	(defq out (list) stack (list lst 0))
 	(while (defq idx (pop stack) lst (pop stack))
 		(some! (# (cond
-			((list? %0) (push stack lst (inc (!)) %0 0) :nil)
+			((list?? %0) (push stack lst (inc (!)) %0 0) :nil)
 			((push out %0)))) (list lst) :t idx)) out)
 
 ;;;;;;
@@ -954,7 +958,7 @@
 	(defq val :nil)
 	(bind '(keys vals)
 		(reduce (lambda (assoc (keys &rest body))
-			(unless (list? keys) (setq keys (list keys)))
+			(unless (list?? keys) (setq keys (list keys)))
 			(setq body (pop (macrobind
 				(if (= (length body) 1) body
 					(list (cat '(progn) body))))))

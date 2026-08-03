@@ -109,7 +109,7 @@
 						(push stack l (inc i))
 						(setq k (tree-encode k))
 						(cond
-							((list? v)
+							((list?? v)
 								;indent
 								(++ wc)
 								(push stack v 1)
@@ -119,7 +119,7 @@
 					((:array :path)
 						(defq k (elem-get l i))
 						(cond
-							((list? k)
+							((list?? k)
 								;indent
 								(push stack l (inc i))
 								(++ wc)
@@ -131,7 +131,7 @@
 					(:t (defq k (elem-get l i))
 						(push stack l (inc i))
 						(cond
-							((list? k)
+							((list?? k)
 								;indent
 								(++ wc)
 								(push stack k 1)
@@ -150,18 +150,18 @@
 		(case (tree-type node)
 			((:Emap :Lmap :Fmap)
 				(each (lambda ((k v))
-					(if (list? v)
+					(if (list?? v)
 						(push stack (rest v) (setq v (tree-node (first v))))
 						(setq v (tree-decode v)))
 					(. node :insert (tree-decode k) v)) (partition items 2)))
 			((:Fset :Lset)
 				(each (lambda (k)
-					(if (list? k)
+					(if (list?? k)
 						(push stack (rest k) (setq k (tree-node (first k))))
 						(setq k (tree-decode k)))
 					(. node :insert k)) items))
 			(:t (each (lambda (k)
-					(if (list? k)
+					(if (list?? k)
 						(push stack (rest k) (setq k (tree-node (first k))))
 						(setq k (tree-decode k)))
 					(push node k)) items))))

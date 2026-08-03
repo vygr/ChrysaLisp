@@ -469,7 +469,7 @@ process a list of any depth without ever growing the machine stack.
 	(while (defq idx (pop stack) lst (pop stack))
 		(some! (lambda (%0)
 			(cond
-				((list? %0)
+				((list?? %0)
 					; Found a sub-list. Don't recurse. Instead, push the
 					; parent list and the next index back onto our work stack
 					; to be processed later. Then, push the new sub-list.

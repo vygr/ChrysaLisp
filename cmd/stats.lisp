@@ -29,14 +29,14 @@
 				(push node_ref node)
 				(if (env? node)
 					(setq node (map (const second) (tolist node))))
-				(if (list? node)
+				(if (list?? node)
 					(each (# (if %0 (push stack %0))) node))))
 		(setq node_set :nil)
 		;gather stats
 		(each (lambda (obj) (cond
 				((pmap? obj) (. pmap_map :update (length obj) (const count-up)))
 				((pset? obj) (. pset_map :update (length obj) (const count-up)))
-				((list? obj) (. list_map :update (length obj) (const count-up)))
+				((list?? obj) (. list_map :update (length obj) (const count-up)))
 				((str? obj) (. str_map :update (length obj) (const count-up)))
 				((num? obj) (. num_map :update obj (const count-up)))))
 			node_ref)
