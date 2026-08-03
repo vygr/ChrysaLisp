@@ -1,6 +1,5 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
-(include "././list/class.inc")
 
 (gen-create :hset)
 (gen-vtable :hset)

@@ -2,6 +2,7 @@
 (include "lib/consts/chars.inc")
 (include "class/nodeid/class.inc")
 (include "class/lisp/class.inc")
+(include "class/hset/class.inc")
 (include "class/hmap/class.inc")
 (include "./class.inc")
 (include "././str/class.inc")

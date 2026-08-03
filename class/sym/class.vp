@@ -1,7 +1,6 @@
 (include "lib/asm/func.inc")
 (include "sys/str/class.inc")
 (include "././stream/class.inc")
-(include "././list/class.inc")
 (include "././hset/class.inc")
 
 (gen-vtable :sym)

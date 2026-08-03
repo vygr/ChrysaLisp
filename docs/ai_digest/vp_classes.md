@@ -11,10 +11,6 @@ above it.
 	|
 	+-> dim
 	|
-	+-> hset
-	|	|
-	|	+-> hmap
-	|
 	+-> lisp
 	|
 	+-> num
@@ -30,6 +26,10 @@ above it.
 	|	+-> array
 	|	|	|
 	|	|	+-> list
+	|	|	|	|
+	|	|	|	+-> hset
+	|	|	|	|
+	|	|	|	+-> hmap
 	|	|	|	|
 	|	|	|	+-> pset
 	|	|	|		|
@@ -468,12 +468,11 @@ above it.
 
 **`:hset`** / **`:hmap`** (Hash Set / Hash Map)
 
-* **Inherits From:** `:obj` / `:hset`
+* **Inherits From:** `:list`
 
-* **Purpose:** The fundamental associative data structures. `:hset` provides the
-  core hashing and bucketing logic. `:hmap` extends `:hset` to store key-value
-  pairs and adds a `:parent` pointer to model lexical scope, making it the
-  central component of the Lisp environment.
+* **Purpose:** The fundamental associative data structures. Provides the core
+  hashing and bucketing logic. `:hmap` adds a `:parent` pointer to model lexical
+  scope, making it the central component of the Lisp environment.
 
 * **Key Methods:**
 

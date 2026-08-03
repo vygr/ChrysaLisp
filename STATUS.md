@@ -33,6 +33,11 @@ Correct `(atom? obj)` function to handle new `:pset` and `:pmap` classes.
 Added `:pset` and `:pmap` support to `:list :copy`, `cmd/includes` and `:dim
 :get`.
 
+`:hmap` and `:hset` classes now inherit from `:list` and take advantage of this
+to avoid extra memory allocation for buket management. As `:hmap` is used as the
+basis for Lisp level lexical scoping, this saves multiple alloc/free calls for
+each lambda invocation !
+
 ------
 
 New `:pmap` VP class ! `(pinsert pmap key val) -> pmap)`, `(pfind pmap key)

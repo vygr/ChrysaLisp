@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "lib/consts/chars.inc")
 (include "class/nodeid/class.inc")
-(include "class/list/class.inc")
+(include "class/hset/class.inc")
 (include "class/hmap/class.inc")
 (include "././link/class.inc")
 (include "././kernel/class.inc")

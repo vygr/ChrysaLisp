@@ -4,6 +4,7 @@
 (include "gui/font/class.inc")
 (include "./class.inc")
 (include "././sstream/class.inc")
+(include "././hset/class.inc")
 
 (def-func 'class/lisp/run)
 	;lisp run loop task

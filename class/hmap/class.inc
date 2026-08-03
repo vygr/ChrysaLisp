@@ -1,16 +1,17 @@
-(include "././hset/class.inc")
+(include "././list/class.inc")
 (include "./struct.inc")
 
-(def-class :hmap :hset
+(def-class :hmap :list
 	(dec-method :vtable class/hmap/vtable)
 	(dec-method :type class/hmap/type :override)
 	(dec-method :deinit class/hmap/deinit :override)
 	(dec-method :create class/hmap/create :static (:r0) (:r0))
 	(dec-method :init class/hmap/init :static (:r0 :r1 :r2))
+	(dec-method :bucket class/hset/bucket :static (:r0 :r1) (:r0 :r1))
 	(dec-method :cfind class/hmap/cfind :static (:r0 :r1 :r2) (:r0 :r1 :r2))
 	(dec-method :pfind class/hmap/pfind :static (:r0 :r1) (:r0 :r1 :r2))
 	(dec-method :pinsert class/hmap/pinsert :static (:r0 :r1 :r2) (:r0 :r1 :r2))
-	(dec-method :each class/hmap/each)
+	(dec-method :each class/hmap/each :static (:r0 :r1 :r2) (:r0))
 	(dec-method :copy class/hmap/copy :static (:r0 :r1) (:r0 :r1))
 	(dec-method :resize class/hmap/resize :static (:r0 :r1) (:r0))
 	(dec-method :list class/hmap/list :static (:r0) (:r0 :r1))
@@ -18,6 +19,7 @@
 	(dec-method :set class/hmap/set :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :get class/hmap/get :static (:r0 :r1) (:r0 :r1))
 	(dec-method :set_parent class/hmap/set_parent :static (:r0 :r1) (:r0))
+	(dec-method :each_callback class/obj/null :static (:r0 :r1 :r2))
 	(dec-method :lisp_env class/hmap/lisp_env :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_def class/hmap/lisp_def :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_defq class/hmap/lisp_defq :static (:r0 :r1) (:r0 :r1))

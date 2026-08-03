@@ -1,6 +1,6 @@
 # :hmap
 
-## :hset
+## :list
 
 ## Lisp Bindings
 
@@ -29,6 +29,19 @@
 ### (undef env sym [sym] ...) -> env
 
 ## VP methods
+
+### :bucket -> class/hset/bucket
+
+```code
+inputs
+:r0 = hset object (ptr)
+:r1 = key object (ptr)
+outputs
+:r0 = hset object (ptr)
+:r1 = bucket list object (ptr)
+trashes
+:r1-:r6
+```
 
 ### :cfind -> class/hmap/cfind
 
@@ -89,6 +102,8 @@ inputs
 trashes
 :r1-:r14, :f0-:f15
 ```
+
+### :each_callback -> class/obj/null
 
 ### :get -> class/hmap/get
 
