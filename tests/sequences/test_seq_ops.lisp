@@ -53,7 +53,7 @@
 (defq arr_copy (copy arr_orig))
 (assert-true "array copy is same reference" (eql (weak-ref arr_orig) (weak-ref arr_copy)))
 
-; Lists, pmaps, and psets are deep-copied; other types (arrays) are referenced
+; Lists are deep-copied for nested :list types, but reference :pmap, :pset, :array and other types
 (defq inner_list (list 1 2))
 (defq inner_pmap (pmap 'a 10))
 (defq inner_pset (pset 'x 'y))
@@ -64,8 +64,8 @@
 (assert-true "list copy equal" (equal? list_orig list_copy))
 (assert-true "list copy independent instance" (not (eql (weak-ref list_orig) (weak-ref list_copy))))
 (assert-true "nested list in copy is deep-copied" (not (eql (weak-ref inner_list) (weak-ref (first list_copy)))))
-(assert-true "nested pmap in copy is deep-copied" (not (eql (weak-ref inner_pmap) (weak-ref (second list_copy)))))
-(assert-true "nested pset in copy is deep-copied" (not (eql (weak-ref inner_pset) (weak-ref (third list_copy)))))
+(assert-true "nested pmap in copy is referenced" (eql (weak-ref inner_pmap) (weak-ref (second list_copy))))
+(assert-true "nested pset in copy is referenced" (eql (weak-ref inner_pset) (weak-ref (third list_copy))))
 (assert-true "nested array in copy is referenced" (eql (weak-ref inner_arr) (weak-ref (elem-get list_copy 3))))
 
 (push (first list_copy) 3)

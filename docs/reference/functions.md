@@ -609,6 +609,12 @@ very basic attenuation, diffuse and specular
 (list? form) -> :t | :nil
 ```
 
+### list??
+
+```code
+(list?? form) -> :t | :nil
+```
+
 ### load-stream
 
 ```code

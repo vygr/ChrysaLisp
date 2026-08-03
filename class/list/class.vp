@@ -307,8 +307,8 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(vp-rdef (vt1 vt2 stack iter_begin iter_end cnt this that)
-		'(:r8 :r9 :r10 :r11 :r12 :r13))
+	(vp-rdef (vtable stack iter_begin iter_end cnt this that)
+		'(:r9 :r10 :r11 :r12 :r13))
 
 	(entry :list :copy `(,this))
 
@@ -318,25 +318,21 @@
 
 	(call :array :create :nil `(,stack))
 	(vp-cpy-rr :rsp iter_begin)
+	(f-bind :list :vtable vtable)
 	(loop-start)
-		;replace list/pset/pmap with copy, deref can't cause destroy !
+		;replace list with copy, deref can't cause destroy !
 		(vp-cpy-ir iter_begin 0 this)
 		(d-call :list :slice `(,this 0 (,this +array_length)) `(,this))
 		(vp-cpy-ir iter_begin 0 that)
 		(vp-cpy-ri this iter_begin 0)
 		(class/obj/ref that cnt -1)
 
-		;push this list/pset/pmap branches
+		;push this list branches
 		(class/array/get_both this iter_begin iter_end)
 		(loop-while `(,iter_begin /= ,iter_end))
-			(assign `((,iter_begin 0) (@ ,(f-path :pmap :vtable))) `(,vt1 ,vt2))
-			(assign `((,vt1 +obj_vtable)) `(,vt1))
-			(gotoif `(,vt1 = ,vt2) 'scan_it)
-			(assign `((,vt2 +obj_vtable)) `(,vt2))
-			(gotoif `(,vt1 = ,vt2) 'scan_it)
-			(assign `((,vt2 +obj_vtable)) `(,vt2))
-			(vpif `(,vt1 = ,vt2))
-			(vp-label 'scan_it)
+			(assign `((,iter_begin 0)) `(,cnt))
+			(assign `((,cnt +obj_vtable)) `(,cnt))
+			(vpif `(,cnt = ,vtable))
 				(call :array :push_back `(,stack ,iter_begin))
 			(endif)
 			(vp-add-cr +ptr_size iter_begin)

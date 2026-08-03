@@ -18,8 +18,6 @@ distributed to an individual node.
 
 Rename `:plist` class to `:pmap`. Added `:pset` class.
 
-`+str_hashslot` is now a negative entry index, rather than a byte offset.
-
 Updated `Lset`, `Fset` and `Tree` collections to support `:pset`.
 
 Updated unit tests with `:pset` tests.
@@ -30,8 +28,7 @@ Switched `+str_hashslot` field to being a positive slot index.
 
 Correct `(atom? obj)` function to handle new `:pset` and `:pmap` classes.
 
-Added `:pset` and `:pmap` support to `:list :copy`, `cmd/includes` and `:dim
-:get`.
+Added `:pset` and `:pmap` support to, `cmd/includes` and `:dim :get`.
 
 `:hmap` and `:hset` classes now inherit from `:list` and take advantage of this
 to avoid extra memory allocation for bucket management. As `:hmap` is used as
