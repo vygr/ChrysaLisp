@@ -324,8 +324,8 @@
 			(assign {key, cmp_func} `(,key1 ,cmp_func))
 			(assign `(,iter_begin) {iter_begin})
 			;give some indication of the trashes
-			;:sym :eql_str is the worst ATM
-			(vp-call-r cmp_func :sym :eql_str)
+			;:nodeid :eql is the worst ATM
+			(vp-call-r cmp_func :nodeid :eql)
 			(gotoif `(,key2 = 0) 'cmp_hit)
 			(assign {iter_begin, iter_end, this} `(,iter_begin ,iter_end ,this))
 			(vp-add-cr (* +ptr_size 2) iter_begin)

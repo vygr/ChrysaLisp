@@ -776,7 +776,7 @@
 		(endif)
 		(save-node-id key +str_data via1 via2)
 		(fn-bind 'sys/statics/statics tuple)
-		(call :hmap :cfind `((,tuple statics_sys_mail_node_map) ,key (@ class/nodeid/eql)) `(_ ,tuple _))
+		(call :hmap :cfind `((,tuple statics_sys_mail_node_map) ,key (@ ,(f-path :nodeid :eql))) `(_ ,tuple _))
 		(continueif `(,tuple = 0))
 		(call :array :get_both `((,tuple +ptr_size)) `(_ ,iter_begin ,iter_end))
 		(vp-add-cr (* 4 +long_size) iter_begin)
