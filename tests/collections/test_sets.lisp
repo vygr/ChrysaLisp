@@ -94,18 +94,28 @@
 		(. s :each (lambda (i) (push items i)))
 		(assert-eq (cat ,name " each count") 3 (length items))
 
-		; copy / isolation
+		; copy (shallow copy verification)
+		(defq shallow_list (list 1 2))
+		(defq shallow_arr (array 10 20))
+		(. s :insert shallow_list)
+		(. s :insert shallow_arr)
 		(defq s2 (. s :copy))
+		(assert-true (cat ,name " copy shallow list ref") (eql (weak-ref shallow_list) (weak-ref (. s2 :find shallow_list))))
+		(assert-true (cat ,name " copy shallow arr ref") (eql (weak-ref shallow_arr) (weak-ref (. s2 :find shallow_arr))))
 		(. s2 :insert "D")
 		(assert-eq (cat ,name " copy isolation") :nil (. s :find "D"))
 
-		; deep_copy
+		; deep_copy verification
 		(defq complex_item (list 1 2))
+		(defq arr_item (array 3 4))
 		(. s :insert complex_item)
+		(. s :insert arr_item)
 		(defq s_dc (. s :deep_copy))
 		(defq found_item (. s_dc :find complex_item))
-		(assert-true (cat ,name " deep_copy equal") (equal? complex_item found_item))
-		(assert-true (cat ,name " deep_copy not eql") (not (eql (weak-ref complex_item) (weak-ref found_item))))
+		(defq found_arr (. s_dc :find arr_item))
+		(assert-true (cat ,name " deep_copy equal list") (equal? complex_item found_item))
+		(assert-true (cat ,name " deep_copy list is independent") (not (eql (weak-ref complex_item) (weak-ref found_item))))
+		(assert-true (cat ,name " deep_copy array is referenced") (eql (weak-ref arr_item) (weak-ref found_arr)))
 
 		; set ops
 		(defq sa (,constructor) sb (,constructor))

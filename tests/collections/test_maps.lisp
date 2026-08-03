@@ -29,19 +29,29 @@
 		(. m :each (lambda (k v) (push keys k) (push vals v)))
 		(assert-eq (cat ,name " each count") 3 (length keys))
 
-		; copy
+		; copy (shallow copy verification)
+		(defq shallow_list (list 1 2))
+		(defq shallow_arr (array 10 20))
+		(. m :insert 's_list shallow_list)
+		(. m :insert 's_arr shallow_arr)
 		(defq m2 (. m :copy))
 		(assert-eq (cat ,name " copy find") 11 (. m2 :find 'a))
 		(. m2 :insert 'a 99)
 		(assert-eq (cat ,name " copy isolation") 11 (. m :find 'a))
+		(assert-true (cat ,name " copy shallow list ref") (eql (weak-ref shallow_list) (weak-ref (. m2 :find 's_list))))
+		(assert-true (cat ,name " copy shallow arr ref") (eql (weak-ref shallow_arr) (weak-ref (. m2 :find 's_arr))))
 
-		; deep_copy
+		; deep_copy verification
 		(defq complex_val (list 1 2))
+		(defq arr_val (array 3 4))
 		(. m :insert 'd complex_val)
+		(. m :insert 'e arr_val)
 		(defq m3 (. m :deep_copy))
 		(defq found_val (. m3 :find 'd))
-		(assert-true (cat ,name " deep_copy equal") (equal? complex_val found_val))
-		(assert-true (cat ,name " deep_copy not eql") (not (eql (weak-ref complex_val) (weak-ref found_val))))
+		(defq found_arr (. m3 :find 'e))
+		(assert-true (cat ,name " deep_copy equal list") (equal? complex_val found_val))
+		(assert-true (cat ,name " deep_copy list is independent") (not (eql (weak-ref complex_val) (weak-ref found_val))))
+		(assert-true (cat ,name " deep_copy array is referenced") (eql (weak-ref arr_val) (weak-ref found_arr)))
 
 		; empty? / empty
 		(assert-true (cat ,name " not empty?") (not (. m :empty?)))
