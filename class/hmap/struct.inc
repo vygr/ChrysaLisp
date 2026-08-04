@@ -3,7 +3,7 @@
 ;:hmap inherits from :list, BUT we want to massage the layout
 ;of the underlying :array/:list structure...
 
-(structure +hmap +array_base_size
+(structure +hmap +array_elems
 	(plong parent)
 	;use all remaining cells for short array storage
 	;scale up to next block size so we get more [key value] pairs

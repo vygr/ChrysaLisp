@@ -23,12 +23,10 @@
 	(s-call :hmap :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself, massage the :array element layout
-		(vp-xor-rr :r2 :r2)
-		(assign '(:r2) '((:r0 +hmap_parent)))
-		(assign `(,(>> (- +hmap_size +hmap_elems) (log2 +long_size))) '(:r2))
-		(assign '(:r2) '((:r0 +array_capacity)))
-		(vp-lea-i :r0 +hmap_elems :r2)
-		(assign '(:r2) '((:r0 +array_begin)))
+		(assign `(,(>> (- +hmap_size +hmap_elems) (log2 +long_size)) (& :r0 +hmap_elems) 0)
+			'(:r1 :r2 :r3))
+		(save-fields :r0 '(+array_capacity +array_begin +hmap_parent)
+			'(:r1 :r2 :r3))
 		;now the buckets
 		(assign '((:r0 +array_num_buckets)) '(:r1))
 		(vpif '(:r1 /= 1))
