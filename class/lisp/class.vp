@@ -92,7 +92,7 @@
 			;boot env is my parent env
 			(call :obj :ref {@sys/statics/statics.statics_lisp_root_env} {this->+lisp_environment})
 		(vp-label 'local_env)
-			(call :hmap :create {31} {func})
+			(call :hmap :create {19} {func})
 			(call :hmap :set_parent {func, this->+lisp_environment} {this->+lisp_environment})
 			;local defines and symbols
 			(call 'create_env_info {this})
