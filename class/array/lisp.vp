@@ -199,7 +199,7 @@
 	;trashes
 	;:r0-:r13, :f0-:f15
 
-	(vp-rdef (vt1 vt2 _ argc obj _
+	(vp-rdef (vt1 _ _ argc obj _
 		this args src_end dst src_begin src len old_len))
 
 	(entry :array :lisp_push `(,this ,args))
@@ -213,14 +213,9 @@
 	(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj v))
 	(gotoif `(,v = 0) 'error))
 
-	;:pmap, :pset and :list store objs
-	(assign `((@ ,(f-path :pmap :vtable)) (,obj +obj_vtable)) `(,vt1 ,vt2))
-	(gotoif `(,vt1 = ,vt2) 'as_list)
-	(assign `((,vt1 +obj_vtable)) `(,vt1))
-	(gotoif `(,vt1 = ,vt2) 'as_list)
-	(assign `((,vt1 +obj_vtable)) `(,vt1))
-	(vpif `(,vt1 = ,vt2))
-	(vp-label 'as_list)
+	;:list and its subclasses (:pset, :pmap, :hset, :hmap) store object references
+	(call :obj :inst_of `(,obj (@ ,(f-path :list :vtable))) '(_ v))
+	(vpif `(,v /= 0))
 		;list, so append refed objects
 		(d-call :list :append `(,obj ,args 1 ,argc) `(,obj))
 	(else)
@@ -353,50 +348,44 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(entry :array :lisp_set '(:r0 :r1))
+	(vp-rdef (a v i len this args) '(:r3 :r4 :r5 :r6))
+
+	(entry :array :lisp_set `(,this ,args))
 
 	(errorif-lisp-args-sig 'error1 :r1 3)
 
-	(vp-push :r0 :r1)
-	(bind '(a v i) (method-input :array :set_elem))
-	(list-bind-args :r1 `(,a ,i ,v) '(:array :num :obj))
-	(assign `((,a +array_length) ,v) '(:r14 (:rsp 0)))
-	(seq-elem-index i :r14)
+	(vp-push this args)
+	(list-bind-args args `(,a ,i ,v) '(:array :num :obj))
+	(assign `((,a +array_length)) `(,len))
+	(seq-elem-index i len)
 
 (errorcase
 	(gotoif `(,i < 0) 'error2)
-	(gotoif `(,i >= :r14) 'error2))
+	(gotoif `(,i >= ,len) 'error2))
 
-	;:pmap, :pset and :list store objs
-	(assign `((,a +obj_vtable) (@ ,(f-path :pmap :vtable))) '(:r12 :r13))
-	(gotoif '(:r12 = :r13) 'as_list)
-	(assign '((:r13 +obj_vtable)) '(:r13))
-	(gotoif '(:r12 = :r13) 'as_list)
-	(assign '((:r13 +obj_vtable)) '(:r13))
-	(vpif '(:r12 = :r13))
-	(vp-label 'as_list)
-		(class/obj/ref v :r14)
+	;:list and its subclasses (:pset, :pmap, :hset, :hmap) store object references
+	(call :obj :inst_of `(,a (@ ,(f-path :list :vtable))) '(_ tmp))
+	(vpif `(,tmp /= 0))
+		(class/obj/ref v tmp)
 	(else)
-		(vp-simd vp-cpy-rr `(,a ,v ,i) '(:r12 :r13 :r14))
 		(call :obj :inst_of `(,v (@ ,(f-path :num :vtable))) '(_ tmp))
 		(vpif `(,tmp /= 0))
-			(assign '((:r13 +num_value)) '(:r13))
+			(assign `((,v +num_value)) `(,v))
 		(endif)
-		(vp-simd vp-cpy-rr '(:r12 :r13 :r14) `(,a ,v ,i))
 	(endif)
-	(call :array :set_elem `(,a ,v ,i) '(:r1))
-	(class/obj/ref :r1 :r2)
-	(vp-pop :r0 :r2)
+	(call :array :set_elem `(,a ,v ,i) `(,args))
+	(class/obj/ref args len)
+	(vp-pop this len)
 
-	(exit :array :lisp_set '(:r0 :r1))
+	(exit :array :lisp_set `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r0 :r1 "(elem-set array idx elem)" +error_msg_wrong_types))
+	(jump :lisp :repl_error `(,this ,args "(elem-set array idx elem)" +error_msg_wrong_types))
 (vp-label 'error2)
-	(vp-pop :r0 :r1)
-	(jump :lisp :repl_error '(:r0 :r1 "(elem-set array idx elem)" +error_msg_not_valid_index))
+	(vp-pop this args)
+	(jump :lisp :repl_error `(,this ,args "(elem-set array idx elem)" +error_msg_not_valid_index))
 	(signature '(:array :num :obj)))
 
 (def-func-end)
