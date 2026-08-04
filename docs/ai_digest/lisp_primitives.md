@@ -1145,10 +1145,10 @@ lexical scopes.
 
 *   **`dim`**: Creates a multi-dimensional array.
 
-	* `(dim nums array) -> dim`
+	* `(dim nums nums) -> dim`
 
 *   **`dim-get` / `dim-set`**: Access or modify elements in a
-	multi-dimensional array.
+	multi-dimensional numeric array.
 
 	* `(dim-get dim nums) -> elem`
 

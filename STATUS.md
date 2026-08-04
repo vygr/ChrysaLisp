@@ -35,6 +35,8 @@ to avoid extra memory allocation for bucket management. As `:hmap` is used as
 the basis for Lisp level lexical scoping, this saves multiple alloc/free calls
 for each lambda invocation !
 
+`:dim` class now restricted to only `:nums` arrays as backing storage.
+
 ------
 
 New `:pmap` VP class ! `(pinsert pmap key val) -> pmap)`, `(pfind pmap key)

@@ -37,8 +37,8 @@
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(dim nums array)" +error_msg_wrong_types))
-	(signature '(:nums :array)))
+	(jump :lisp :repl_error '(:r0 :r1 "(dim nums nums)" +error_msg_wrong_types))
+	(signature '(:nums :nums)))
 
 (def-func-end)
 
@@ -144,25 +144,7 @@
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indices_len) 'error1))
 
-	;:pmap, :pset and :list store objs
-	(assign `((,elems +obj_vtable) (@ ,(f-path :pmap :vtable))) '(:r12 :r13))
-	(assign `(,obj) '((:rsp 0)))
-	(gotoif '(:r12 = :r13) 'as_list)
-	(assign '((:r13 +obj_vtable)) '(:r13))
-	(gotoif '(:r12 = :r13) 'as_list)
-	(assign '((:r13 +obj_vtable)) '(:r13))
-	(vpif '(:r12 = :r13))
-	(vp-label 'as_list)
-		(class/obj/ref obj :r14)
-	(else)
-		(vp-simd vp-cpy-rr `(,elems ,obj ,index) '(:r12 :r13 :r14))
-		(call :obj :inst_of `(,obj (@ ,(f-path :num :vtable))) '(_ tmp))
-		(vpif `(,tmp /= 0))
-			(assign '((:r13 +num_value)) '(:r13))
-		(endif)
-		(vp-simd vp-cpy-rr '(:r12 :r13 :r14) `(,elems ,obj ,index))
-	(endif)
-	(call :array :set_elem `(,elems ,obj ,index) '(:r1))
+	(call :array :set_elem `(,elems (,obj +num_value) ,index) '(:r1))
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0 :r2)
 
@@ -175,6 +157,6 @@
 	(jump :lisp :repl_error '(:r0 :r1 "(dim-set dim nums elem)" +error_msg_not_valid_index))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(dim-set dim nums elem)" +error_msg_wrong_types))
-	(signature '(:dim :nums :obj)))
+	(signature '(:dim :nums :num)))
 
 (def-func-end)

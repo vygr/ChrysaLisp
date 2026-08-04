@@ -270,10 +270,11 @@ of all the elements that pass the filter test function.
 ## Arrays
 
 Arrays are sequences that also allow for writing to elements with the
-`(elem-set array index val)` function. They can be wrapped by the `(dim (nums x
-y z ...) array)` function to allow dimensioned access to the underling array
-with `(dim-set array (nums x y z ...) val)` and `(dim-get array (nums x y z
-...))`.
+`(elem-set array index val)` function.
+
+Nums arrays can be wrapped by the `(dim (nums x y z ...) array)` function to
+allow dimensioned access to the underling array with `(dim-set dim (nums x y z
+...) val)` and `(dim-get dim (nums x y z ...))`.
 
 They can be acted on as a stack by use of `(push array val ...)` and `(pop
 array)`. These functions act on the array 'in place', existing references to
@@ -310,23 +311,16 @@ a
 a
 ```
 
-Writing and reading of single elements using `(dim-get)` and `(dim-set)`.
+Writing and reading of single nums elements using `(dim-get)` and `(dim-set)`.
 
 ```lisp
-(defq d (dim (nums 2 2) (defq a (list 0 1 2 3))))
+(defq d (dim (nums 2 2) (defq a (nums 0 1 2 3))))
 (dim-get d (nums 0 1))
 ```
 
 ```lisp
-(defq d (dim (nums 2 2) (defq a (list 0 1 2 3))))
-(dim-set d (nums 0 1) "z")
-a
-```
-
-```lisp
-(defq d (dim (nums 2 2) (defq a (list 0 1 2 3))))
-(dim-set d (nums 1 1) "x")
-a
+(defq d (dim (nums 2 2) (defq a (fixeds 0.0 1.0 2.1 3.7))))
+(dim-set d (nums 0 1) 99.0)
 ```
 
 Pushing and popping elements.
