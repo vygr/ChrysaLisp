@@ -4,7 +4,7 @@
 
 ------
 
-`:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for bot
+`:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
 `:sym` and `:str` keys.
 
 Do the `:font :flush` check along with the other caches in `:lisp :run`, do this
