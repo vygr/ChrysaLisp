@@ -146,9 +146,9 @@ high-level Lisp compositions:
 ```vdu
 ; Querying the native VP memory structure
 (type-of (Button))
--> (:hset :hmap)
+-> (:seq :array :list :hmap)
 
 ; Querying the full unified type hierarchy
 (. (Button) :type_of)
--> (:hset :hmap :View :Label :Button)
+-> (:seq :array :list :hmap :View :Label :Button)
 ```
