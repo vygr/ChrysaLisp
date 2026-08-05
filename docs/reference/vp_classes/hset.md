@@ -29,7 +29,7 @@ outputs
 :r1 = 0, else found iterator (pptr)
 :r2 = bucket list object (ptr)
 trashes
-:r1-:r6
+:r1-:r12
 ```
 
 ### :cinsert -> class/hset/cinsert
@@ -44,7 +44,7 @@ outputs
 :r1 = element iterator (pptr)
 :r2 = bucket list object (ptr)
 trashes
-:r1-:r6, :f0-:f15
+:r1-:r12, :f0-:f15
 ```
 
 ### :create -> class/hset/create

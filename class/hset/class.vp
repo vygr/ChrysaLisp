@@ -52,46 +52,32 @@
 	;:r1 = 0, else found iterator (pptr)
 	;:r2 = bucket list object (ptr)
 	;trashes
-	;:r1-:r6
+	;:r1-:r12
 
-	(def-vars
-		(ptr this key buckets cmp_func)
-		(pptr iter iter_end))
-
-	(vp-rdef (this iter buckets iter_end key cmp_func))
 	(vp-rdef (key1 key2))
+	(vp-rdef (this key buckets iter_begin iter_end cmp_func)
+		'(:r7 :r8 :r9 :r10 :r11 :r12))
 
 	;save inputs
-	(push-scope)
-	(entry :hset :cfind `(,this ,iter ,cmp_func))
+	(entry :hset :cfind `(,this ,key ,cmp_func))
 
 	;search hash bucket
-	(assign `(,iter ,cmp_func) {key, cmp_func})
-	(call :hset :bucket `(,this ,iter) `(,this ,buckets))
-	(class/array/get_both buckets iter iter_end)
-	(vpif `(,iter /= ,iter_end))
-		(assign `(,this ,buckets ,iter_end) {this, buckets, iter_end})
+	(call :hset :bucket `(,this ,key) `(_ ,buckets))
+	(class/array/get_both buckets iter_begin iter_end)
+	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
-			(assign `(,iter) {iter})
-			(assign {cmp_func, key} `(,cmp_func ,key1))
-			(assign `((,iter 0)) `(,key2))
+			(assign `((,iter_begin 0) ,key) `(,key2 ,key1))
 			;give some indication of the trashes
 			;:sym :eql_str is the worst ATM
 			(vp-call-r cmp_func :sym :eql_str)
 			(gotoif `(,key2 = 0) 'cmp_hit)
-			(assign {iter, iter_end, this} `(,iter ,iter_end ,this))
-			(vp-add-cr +ptr_size iter)
-		(loop-until `(,iter = ,iter_end))
-		(assign {buckets} `(,buckets))
+			(vp-add-cr +ptr_size iter_begin)
+		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
-	(vp-xor-rr iter iter)
-	(exit :hset :cfind `(,this ,iter ,buckets))
-	(return)
-
+	(vp-xor-rr iter_begin iter_begin)
 (vp-label 'cmp_hit)
-	(exit :hset :cfind {this, iter, buckets})
-	(pop-scope)
-	(return)
+	(exit :hset :cfind `(,this ,iter_begin ,buckets))
+	(vp-ret)
 
 (def-func-end)
 
@@ -105,7 +91,7 @@
 	;:r1 = element iterator (pptr)
 	;:r2 = bucket list object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r12, :f0-:f15
 
 	(structure local 0
 		(ptr this key))
