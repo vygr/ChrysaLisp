@@ -37,6 +37,8 @@ for each lambda invocation !
 
 `:dim` class now restricted to only `:nums` arrays as backing storage.
 
+Corrected a double release bug in the lock service.
+
 ------
 
 New `:pmap` VP class ! `(pinsert pmap key val) -> pmap)`, `(pfind pmap key)
