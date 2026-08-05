@@ -181,6 +181,7 @@
 	(loop-until '(:r4 = :rsp))
 	(pop-scope)
 	(abi-pop-trashed :r1 :r2 :r3 :r4)
+	(exit :host_os :pii_write_num '(:r0))
 	(vp-ret)
 
 (def-func-end)

@@ -167,6 +167,7 @@
 		(hp-freecell :r1 :r0 :r2)
 	(endif)
 
+	(exit :sys_mem :free '())
 	(vp-ret)
 
 (def-func-end)

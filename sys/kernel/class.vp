@@ -494,6 +494,7 @@
 	;trashes
 	;:r0-:r1
 
+	(entry :sys_kernel :id '())
 	(fn-bind 'sys/statics/statics :r1)
 	(exit :sys_kernel :id
 		`((:r1 ,(+ statics_sys_task_kernel_node_id +node_id_node1))

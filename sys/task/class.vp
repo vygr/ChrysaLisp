@@ -88,6 +88,8 @@
 	;trashes
 	;:r0-:r2
 
+	(entry :sys_task :mailbox '())
+
 	(fn-bind 'sys/statics/statics :r0)
 	(assign `((:r0 ,(+ statics_sys_task_kernel_node_id +node_id_node1))
 			(:r0 ,(+ statics_sys_task_kernel_node_id +node_id_node2))
@@ -376,6 +378,8 @@
 
 	(vp-rdef (next time node1 node data) '(:r5 :r6 :r7))
 
+	(entry :sys_task :timer '())
+
 	(call :host_os :pii_time :nil `(,time))
 	(fn-bind 'sys/statics/statics node)
 	(loop-list-forward node statics_sys_task_timer_list node next)
@@ -430,6 +434,8 @@
 	;:r0-:r9
 
 	(vp-rdef (max_stack tasks tasks_end node next stack stack_top kernel_tcb canary statics))
+
+	(entry :sys_task :stacks '())
 
 	(vp-xor-rr max_stack max_stack)
 	(fn-bind 'sys/statics/statics statics)
