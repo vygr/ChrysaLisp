@@ -55,7 +55,7 @@
 	;:r1-:r12
 
 	(vp-rdef (key1 key2))
-	(vp-rdef (this key buckets iter_begin iter_end cmp_func)
+	(vp-rdef (this key cmp_func buckets iter_begin iter_end)
 		'(:r7 :r8 :r9 :r10 :r11 :r12))
 
 	;save inputs
