@@ -6,7 +6,7 @@
 	(dec-method :type class/hset/type :override)
 	(dec-method :create class/hset/create :static (:r0) (:r0))
 	(dec-method :init class/hset/init :static (:r0 :r1 :r2))
-	(dec-method :bucket class/hset/bucket :static (:r0 :r1) (:r0 :r1))
+	(dec-method :bucket class/hset/bucket :static (:r0 :r1) (:r0 :r2))
 	(dec-method :cfind class/hset/cfind :static (:r0 :r1 :r2) (:r0 :r1 :r2))
 	(dec-method :cinsert class/hset/cinsert :static (:r0 :r1 :r2) (:r0 :r1 :r2))
 	(dec-method :each class/hset/each :static (:r0 :r1 :r2) (:r0))

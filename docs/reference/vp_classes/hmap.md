@@ -30,19 +30,6 @@
 
 ## VP methods
 
-### :bucket -> class/hset/bucket
-
-```code
-inputs
-:r0 = hset object (ptr)
-:r1 = key object (ptr)
-outputs
-:r0 = hset object (ptr)
-:r1 = bucket list object (ptr)
-trashes
-:r1-:r6
-```
-
 ### :cfind -> class/hmap/cfind
 
 ```code

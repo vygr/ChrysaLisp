@@ -7,7 +7,6 @@
 	(dec-method :deinit class/hmap/deinit :override)
 	(dec-method :create class/hmap/create :static (:r0) (:r0))
 	(dec-method :init class/hmap/init :static (:r0 :r1 :r2))
-	(dec-method :bucket class/hset/bucket :static (:r0 :r1) (:r0 :r1))
 	(dec-method :cfind class/hmap/cfind :static (:r0 :r1 :r2) (:r0 :r1 :r2))
 	(dec-method :pfind class/hmap/pfind :static (:r0 :r1) (:r0 :r1 :r2))
 	(dec-method :pinsert class/hmap/pinsert :static (:r0 :r1 :r2) (:r0 :r1 :r2))

@@ -1,5 +1,6 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
+(include "././hset/class.inc")
 
 (gen-create :hmap)
 (gen-vtable :hmap)
@@ -128,7 +129,7 @@
 	(class/obj/ref :r1 :r3)
 	(class/obj/ref :r2 :r3)
 	(vp-push :r1 :r2)
-	(call :hmap :bucket '(:r0 :r1) '(_ :r0))
+	(call :hset :bucket '(:r0 :r1) '(_ :r0))
 	(vp-pop :r1 :r2)
 	(jump :list :push_back2 '(:r0 :r1 :r2))
 
@@ -193,7 +194,7 @@
 
 	;search hash bucket
 	(assign `(,iter) `(,key))
-	(call :hmap :bucket `(,this ,iter) `(,this ,buckets))
+	(call :hset :bucket `(,this ,iter) `(,this ,buckets))
 	(class/array/get_both buckets iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		;use the key address, and last known slot
@@ -313,7 +314,7 @@
 
 	;search hash bucket
 	(assign `(,iter ,buckets) {key, cmp_func})
-	(call :hmap :bucket `(,this ,iter) `(,this ,buckets))
+	(call :hset :bucket `(,this ,iter) `(,this ,buckets))
 	(class/array/get_both buckets iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(assign `(,this ,buckets ,iter_end) {this, buckets, iter_end})
