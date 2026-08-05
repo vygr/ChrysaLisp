@@ -226,7 +226,7 @@ inputs
 outputs
 :r0 = 0 if none, else msg (ptr)
 trashes
-:r0-:r6, :r9-:r13
+:r0-:r13
 ```
 
 ### :select -> sys/mail/select

@@ -761,10 +761,10 @@
 	;outputs
 	;:r0 = 0 if none, else msg (ptr)
 	;trashes
-	;:r0-:r6, :r9-:r13
+	;:r0-:r13
 
-	(vp-rdef (next node key peer1 peer2 tuple via1 via2 iter_begin iter_end)
-		'(:r13 :r12 :r11 :r10 :r9 :r1))
+	(vp-rdef (tuple iter_begin iter_end via1 via2))
+	(vp-rdef (peer1 peer2 next node key) '(:r9 :r10 :r11 :r12 :r13))
 
 	(entry :sys_mail :ready `(,peer1 ,peer2 ,key))
 
@@ -776,9 +776,11 @@
 		(endif)
 		(save-node-id key +str_data via1 via2)
 		(fn-bind 'sys/statics/statics tuple)
-		(call :hmap :cfind `((,tuple statics_sys_mail_node_map) ,key (@ ,(f-path :nodeid :eql))) `(_ ,tuple _))
-		(continueif `(,tuple = 0))
-		(call :array :get_both `((,tuple +ptr_size)) `(_ ,iter_begin ,iter_end))
+		(vp-push peer1 peer2)
+		(call :hmap :cfind `((,tuple statics_sys_mail_node_map) ,key (@ ,(f-path :nodeid :eql))) `(_ ,iter_begin _))
+		(vp-pop peer1 peer2)
+		(continueif `(,iter_begin = 0))
+		(call :array :get_both `((,iter_begin +ptr_size)) `(_ ,iter_begin ,iter_end))
 		(vp-add-cr (* 4 +long_size) iter_begin)
 		(continueif `(,iter_begin = ,iter_end))
 		(loop-start)

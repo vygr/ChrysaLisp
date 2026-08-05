@@ -292,53 +292,39 @@
 (def-method :hmap :cfind)
 	;inputs
 	;:r0 = hmap object (ptr)
-	;:r1 = key str object (ptr)
+	;:r1 = key object (ptr)
 	;:r2 = key callback (ptr)
 	;outputs
 	;:r0 = hmap object (ptr)
 	;:r1 = 0, else found iterator (pptr)
-	;:r2 = bucket list (ptr)
+	;:r2 = bucket list object (ptr)
 	;trashes
-	;:r1-:r6
+	;:r1-:r10
 
-	(def-vars
-		(ptr this key buckets cmp_func)
-		(pptr iter_begin iter_end))
-
-	(vp-rdef (this iter buckets iter_end iter_begin cmp_func))
 	(vp-rdef (key1 key2))
+	(vp-rdef (this key cmp_func buckets iter_begin iter_end)
+		'(:r7 :r8 :r9 :r5 :r6 :r10))
 
 	;save inputs
-	(push-scope)
-	(entry :hmap :cfind `(,this ,iter ,buckets))
+	(entry :hmap :cfind `(,this ,key ,cmp_func))
 
 	;search hash bucket
-	(assign `(,iter ,buckets) {key, cmp_func})
-	(call :hset :bucket `(,this ,iter) `(,this ,buckets))
+	(call :hset :bucket `(,this ,key) `(_ ,buckets))
 	(class/array/get_both buckets iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
-		(assign `(,this ,buckets ,iter_end) {this, buckets, iter_end})
 		(loop-start)
-			(assign `((,iter_begin 0)) `(,key2))
-			(assign {key, cmp_func} `(,key1 ,cmp_func))
-			(assign `(,iter_begin) {iter_begin})
+			(assign `((,iter_begin 0) ,key) `(,key2 ,key1))
 			;give some indication of the trashes
 			;:nodeid :eql is the worst ATM
 			(vp-call-r cmp_func :nodeid :eql)
 			(gotoif `(,key2 = 0) 'cmp_hit)
-			(assign {iter_begin, iter_end, this} `(,iter_begin ,iter_end ,this))
 			(vp-add-cr (* +ptr_size 2) iter_begin)
 		(loop-until `(,iter_begin = ,iter_end))
-		(assign {buckets} `(,buckets))
 	(endif)
-	(vp-xor-rr iter iter)
-	(exit :hmap :cfind `(,this ,iter ,buckets))
-	(return)
-
+	(vp-xor-rr iter_begin iter_begin)
 (vp-label 'cmp_hit)
-	(exit :hmap :cfind {this, iter_begin, buckets})
-	(pop-scope)
-	(return)
+	(exit :hmap :cfind `(,this ,iter_begin ,buckets))
+	(vp-ret)
 
 (def-func-end)
 

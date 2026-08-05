@@ -35,14 +35,14 @@
 ```code
 inputs
 :r0 = hmap object (ptr)
-:r1 = key str object (ptr)
+:r1 = key object (ptr)
 :r2 = key callback (ptr)
 outputs
 :r0 = hmap object (ptr)
 :r1 = 0, else found iterator (pptr)
-:r2 = bucket list (ptr)
+:r2 = bucket list object (ptr)
 trashes
-:r1-:r6
+:r1-:r10
 ```
 
 ### :copy -> class/hmap/copy
