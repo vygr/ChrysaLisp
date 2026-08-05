@@ -16,11 +16,12 @@
 					(if (= (length lock_que) 1) (mail-send reply_id "")))
 				(+lock_type_release
 					;release lock on this key
-					(defq lock_que (slice (. lock_map :find key) 1 -1))
-					(if (empty? lock_que)
-						(. lock_map :erase key)
-						(progn
-							(. lock_map :insert key lock_que)
-							(mail-send (first lock_que) "")))
+					(when (defq lock_que (. lock_map :find key))
+						(setq lock_que (slice lock_que 1 -1))
+						(if (empty? lock_que)
+							(. lock_map :erase key)
+							(progn
+								(. lock_map :insert key lock_que)
+								(mail-send (first lock_que) ""))))
 					(mail-send reply_id "")))))
 	(mail-forget lock_service))

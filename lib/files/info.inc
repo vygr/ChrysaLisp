@@ -323,8 +323,7 @@
 			(if (or forced (database-stale? +class_db_file +lib_file vp_files))
 				(build-and-save-databases vp_files))
 			(setq res (tree-load (file-stream +class_db_file))))
-		(progn
-			(lock-release-rpc +class_db_file) :t))
+		:nil)
 	(lock-release-rpc +class_db_file)
 	res)
 
