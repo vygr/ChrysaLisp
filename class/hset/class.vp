@@ -204,8 +204,8 @@
 	(vp-xor-rr :r2 :r2)
 	(vp-div-rrr-u :r6 :r2 :r0)
 	(vp-shl-cr (log2 +long_size) :r2)
-	(assign `((:r5 +array_begin)) '(:r1))
-	(assign `((:r1 :r2)) '(:r2))
+	(assign '((:r5 +array_begin)) '(:r1))
+	(assign '((:r1 :r2)) '(:r2))
 	(exit :hset :bucket '(:r5 :r2))
 	(vp-ret)
 
