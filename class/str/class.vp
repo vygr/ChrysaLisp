@@ -453,6 +453,8 @@
 
 	(vp-rdef (this elm idx begin tmp end))
 
+	(entry :str :find `(,this ,elm ,idx))
+
 	(switch 'exit)
 	(assign `((,this +str_length)) `(,end))
 	(vpcase `(,idx /= ,end))
@@ -485,6 +487,8 @@
 
 	(vp-rdef (this elm idx begin tmp))
 
+	(entry :str :rfind `(,this ,elm ,idx))
+
 	(vpif `(,idx /= 0) 'exit)
 		(assign `((& ,this ,(dec +str_data))) `(,begin))
 		(loop-start)
@@ -494,7 +498,7 @@
 		(loop-until `(,idx = 0))
 	(endif)
 
-	(exit :str :find `(,this ,elm ,idx))
+	(exit :str :rfind `(,this ,elm ,idx))
 	(vp-ret)
 
 (def-func-end)

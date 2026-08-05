@@ -20,9 +20,9 @@
 	(def-vars
 		(ptr this stream tmp))
 
+	(push-scope)
 	(entry :real :print '(:r0 :r1))
 
-	(push-scope)
 	(assign '(:r0 :r1) {this, stream})
 	(call :stream :write_cstr '(:r1 "0x"))
 	(call :str :create_from_long {this->+num_value, -16} {tmp})

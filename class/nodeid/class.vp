@@ -70,7 +70,6 @@
 	(vp-sub-rr :r2 :r4)
 	(vp-sub-rr :r3 :r1)
 	(vp-or-rr :r4 :r1)
-	(vp-ret)
 
 	(exit :nodeid :eql '(:r0 :r1))
 	(vp-ret)
