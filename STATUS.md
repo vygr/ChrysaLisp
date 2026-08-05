@@ -28,16 +28,17 @@ Switched `+str_hashslot` field to being a positive slot index.
 
 Correct `(atom? obj)` function to handle new `:pset` and `:pmap` classes.
 
-Added `:pset` and `:pmap` support to, `cmd/includes` and `:dim :get`.
-
-`:hmap` and `:hset` classes now inherit from `:list` and take advantage of this
-to avoid extra memory allocation for bucket management. As `:hmap` is used as
-the basis for Lisp level lexical scoping, this saves multiple alloc/free calls
-for each lambda invocation !
+Added `:pset` and `:pmap` support to, `cmd/includes`.
 
 `:dim` class now restricted to only `:nums` arrays as backing storage.
 
 Corrected a double release bug in the lock service.
+
+`:hmap` and `:hset` classes now inherit from `:list` and take advantage of this
+to avoid extra memory allocation for bucket management. As `:hmap` is used as
+the basis for Lisp level lexical scoping, this saves multiple alloc/free calls
+for each lambda invocation ! On the M4 seeing full build times drop from 0.074s
+to 0.068s, which is a good result for this change.
 
 ------
 
