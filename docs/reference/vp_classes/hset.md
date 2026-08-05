@@ -44,7 +44,7 @@ outputs
 :r1 = element iterator (pptr)
 :r2 = bucket list object (ptr)
 trashes
-:r1-:r12, :f0-:f15
+:r1-:r13, :f0-:f15
 ```
 
 ### :create -> class/hset/create

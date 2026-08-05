@@ -91,28 +91,23 @@
 	;:r1 = element iterator (pptr)
 	;:r2 = bucket list object (ptr)
 	;trashes
-	;:r1-:r12, :f0-:f15
-
-	(structure local 0
-		(ptr this key))
+	;:r1-:r13, :f0-:f15
 
 	;save inputs
-	(vp-alloc local_size)
 	(entry :hset :cinsert '(:r0 :r1 :r2))
-	(assign '(:r1) '((:rsp local_key)))
 
 	;search hash bucket
+	(assign '(:r1) '(:r13))
 	(call :hset :cfind '(:r0 :r1 :r2) '(:r0 :r1 :r2))
 	(vpif '(:r1 = 0))
 		;new key
-		(assign '((:rsp local_key) :r0 :r2) '(:r1 (:rsp local_this) :r0))
+		(assign '(:r13 :r0 :r2) '(:r1 :r13 :r0))
 		(class/obj/ref :r1 :r2)
-		(call :list :push_back '(:r0 :r1) '(:r0 _ _ :r3))
-		(assign '((& :r3 (neg +ptr_size)) :r0 (:rsp local_this)) '(:r1 :r2 :r0))
+		(call :list :push_back '(:r0 :r1) '(:r2 _ _ :r3))
+		(assign '((& :r3 (neg +ptr_size)) :r13) '(:r1 :r0))
 	(endif)
 
 	(exit :hset :cinsert '(:r0 :r1 :r2))
-	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
