@@ -19,7 +19,8 @@ precision scale:
   scaled by 2^13 (8,192).
 
 	This scale is used for overall font metrics, advance widths, bounding
-	coordinates, path geometry, and negative kerning pair adjustments.
+	coordinates, path geometry, and bi-directional (positive or negative) kerning
+	pair adjustments.
 
 	By utilizing 16-bit signed shorts, the file size and in-memory footprint of
 	outlines are reduced.
@@ -64,7 +65,7 @@ followed by 2 bytes of zero-padding to align the structure to a 4-byte boundary
 
 * **descent** (2 bytes, short): Maximum glyph depth below the baseline.
 
-* **xkern** (2 bytes, short): Default baseline spacing (default kerning value).
+* **xkern** (2 bytes, short): Default baseline spacing (median kerning value).
 
 * **padding** (2 bytes, short): Zero-fill bytes for 4-byte natural alignment.
 
@@ -179,7 +180,8 @@ Each kerning pair is stored as a 4-byte record:
 
 * **code** (2 bytes, ushort): Character code of the trailing glyph.
 
-* **xkern** (2 bytes, short): Kerning adjustment value in 3.13 format.
+* **xkern** (2 bytes, short): Signed kerning adjustment value in 3.13 format
+  (can be positive or negative).
 
 Because both coordinates and kerning pairs are stored in the same 3.13 format,
 the runtime layout engine does not need to perform any scaling on the kerning
@@ -227,9 +229,9 @@ line-by-line from `stdin`, making it fully pipe-compatible.
 	  calculates optical kerning pairs, and outputs a compiled `.ctf` binary file
 	  in 3.13 format.
 
-	* **From .ctf**: Loads the existing vector font (using the new 3.13 reader),
+	* **From .ctf**: Loads the existing vector font (using the 3.13 reader),
 	  discards old records, recalculates optical kerning using the latest compiler
-	  rules, and saves an updated `.ctf` binary in the 3.13 format.
+	  rules, and saves an updated `.ctf` binary in 3.13 format.
 
 * `-r`, `--range <start> <end>`: Restricts compilation or diagnostic processing
   to a specific range of Unicode character codes (e.g., `-r 32 126` for standard
@@ -262,15 +264,18 @@ based on character boundaries:
 * **First Pass**: Scans the left and right contours of every glyph at 64
   vertical slices. It calculates the raw overlap of all glyph pairings relative
   to a target spacing gap (1/16th of em-height, calculated with the fixed
-  constant `+opt_target_gap_divisor` set to `16.0`). The 90th percentile of
-  these overlaps is chosen as the font's default global spacing (`xkern`).
+  constant `+opt_target_gap_divisor` set to `16.0`). The 50th percentile
+  (median) of these overlaps is chosen as the font's default global spacing
+  (`xkern`), matching the modal spacing requirement of standard character
+  combinations.
 
-* **Second Pass**: Identifies pairs whose specific contours permit closer
-  spacing than the global `xkern` baseline (e.g., "AV", "Te", "C-"). It assigns
-  negative kerning pairs for these deviations, provided they exceed the minimum
-  visual threshold (1/80th of em-height, defined by the fixed constant
-  `+opt_threshold_divisor` set to `80.0`). The matched pairs are then written
-  into the `:kerns` property.
+* **Second Pass**: Identifies character pairs whose specific geometry deviates
+  significantly from the `xkern` baseline—either pulling glyphs closer together
+  (e.g., "AV", "WA", "To") or pushing them further apart (e.g., "'s", ")(",
+  "P."). It assigns bi-directional kerning pair adjustments for these deviations
+  whenever `(abs raw_overlap)` exceeds the minimum visual threshold (1/80th of
+  em-height, defined by the fixed constant `+opt_threshold_divisor` set to
+  `80.0`). The matched pairs are then written into the `:kerns` property.
 
 * **Cavity Protection**: During contour generation, a maximum boundary limit
   constant (`+opt_indent_limit_divisor` set to `4.0`) is enforced. This prevents
