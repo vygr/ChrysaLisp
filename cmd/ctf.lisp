@@ -126,9 +126,9 @@
 	; Calculate optimal default spacing
 	(sort raw_overlaps (const -))
 	(defq xkern (if (empty? raw_overlaps) 0.0
-		(elem-get raw_overlaps (/ (* (length raw_overlaps) 90) 100))))
+		(elem-get raw_overlaps (/ (length raw_overlaps) 2))))
 	(. font_db :insert :xkern (n2r xkern))
-	; 3. Second pass: calculate negative kerning pairs deviating from this baseline
+	; 3. Second pass: calculate bi-directional kerning pairs deviating from this baseline
 	(defq threshold (* (+ ascent descent) (const (recip +opt_threshold_divisor))))
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
@@ -142,7 +142,7 @@
 						(defq c2 (!))
 						(when (defq profile_b (. profiles :find c2))
 							(when (defq raw_overlap (calculate-pair-kern profile_a profile_b width_a xkern target_gap))
-								(when (<= raw_overlap (neg threshold))
+								(when (>= (abs raw_overlap) threshold)
 									(push text_list (list c2 (n2r raw_overlap)))))))
 					(when (nempty? text_list)
 						(. glyph_db :insert :kerns text_list))))

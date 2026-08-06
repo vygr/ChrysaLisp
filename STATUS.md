@@ -4,6 +4,12 @@
 
 ------
 
+Allow both positive and negative kerning pair adjustments. Use the median
+separation as the default kerning. This only requires a change to the `ctf`
+command, and saves approx 7% on `.ctf` file sizes.
+
+------
+
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
 `:sym` and `:str` keys.
 
