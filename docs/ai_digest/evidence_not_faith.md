@@ -46,10 +46,10 @@ libraries for a single, native architecture.
     `make-test` function recompiles all `.vp` source files for the host
     architecture (ARM64) ten times and calculates the average.
 
-*   **Result:** **~0.073 seconds** (mean time per rebuild).
+*   **Result:** **~0.069 seconds** (mean time per rebuild).
 
 *   **Evidence:** This demonstrates the absolute speed of the ChrysaLisp
-    compiler running natively. A complete OS rebuild in 74 milliseconds sets
+    compiler running natively. A complete OS rebuild in 69 milliseconds sets
     the baseline for all other benchmarks.
 
 ### Test 2: Multi-Platform Compilation Speed (The Throughput)
