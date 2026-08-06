@@ -2,7 +2,7 @@
 
 The ChrysaLisp compilation and translation pipeline is engineered for extreme
 speed, capable of rebuilding the entire OS and libraries for 5 different
-platforms in 0.38 seconds (or a single platform like ARM64 in 0.074 seconds).
+platforms in 0.37 seconds (or a single platform like ARM64 in 0.069 seconds).
 
 Achieving this speed requires stripping away all hidden O(N) bottlenecks. A
 prime example of this is how the translator manages its instruction lookups
