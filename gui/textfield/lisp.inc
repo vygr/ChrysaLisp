@@ -42,10 +42,10 @@
 				(bind '(sw1 &) (font-glyph-bounds font (slice text 0 (max anchor cursor))))
 				(.-> this
 					(:ctx_set_color (get :hint_color this))
-					(:ctx_filled_box (+ sw offset) (>>> (- h th) 1) (- sw1 sw) th)))
+					(:ctx_filled_box (- (+ sw offset) 2) (>>> (- h th) 1) (- sw1 sw -2) th)))
 			(.-> this
 				(:ctx_set_color (get :ink_color this))
-				(:ctx_filled_box (+ tw offset) (>>> (- h th) 1) 2 th)))
+				(:ctx_filled_box (- (+ tw offset) 2) (>>> (- h th) 1) 2 th)))
 		this)
 
 	(defmethod :layout ()

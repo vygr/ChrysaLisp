@@ -4,9 +4,15 @@
 
 ------
 
-Allow both positive and negative kerning pair adjustments. Use the median
-separation as the default kerning. This only requires a change to the `ctf`
-command, and saves approx 7% on `.ctf` file sizes.
+Allow both positive and negative kerning pair adjustments. Use a full triplet
+adjustment check instead of the simple cavity threshold test. Plus calculate the
+best deadzone default kerning position on a per font basis. This has improved
+the aparence of italic text and and saves up to 12% on `.ctf` file sizes. This
+only requires a change to the `ctf` command, no changes to the VP rendering
+code.
+
+Adjusted the Textfield widget cursor positioning to better fit this new super
+optical kerning !
 
 ------
 
