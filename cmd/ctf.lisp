@@ -27,14 +27,10 @@
 
 (defq
 	; number of vertical slices used to scan glyph envelopes
-	+opt_num_slices 64
+	+opt_num_slices 128
 	; divisor for target optical gap from total height (e.g. 16.0 = 6.25% of em-height)
 	+opt_target_gap_divisor 16.0
 	+opt_threshold_divisor 80.0
-	; divisor for the default xkern fallback heuristic (e.g. 5.0 = 20% of em-height)
-	+opt_xkern_divisor 5.0
-	; divisor for the maximum allowed indentation into glyph side concavities
-	+opt_indent_limit_divisor 4.0
 	+real_8192 (n2r 8192)
 )
 
@@ -57,15 +53,9 @@
 
 (defun compute-envelope (path ascent descent)
 	; path is a 16.16 path vector of flat coordinates
-	(defq pts (partition path 2) gmin_x 1000000.0 gmax_x -1000000.0)
-	; find global horizontal boundaries
-	(each (lambda ((x y))
-			(setq gmin_x (min gmin_x x) gmax_x (max gmax_x x)))
-		pts)
-	(defq limit (* (- gmax_x gmin_x) (const (recip +opt_indent_limit_divisor)))
+	(defq pts (partition path 2)
 		step (/ (+ ascent descent) (const (n2f (dec +opt_num_slices))))
 		envelope (list))
-	; scan slices and perform rolling intersection checks
 	(for 0 +opt_num_slices
 		(defq y (+ (neg ascent) (* (n2f (!)) step))
 			xmin 1000000.0 xmax -1000000.0 p1 (last pts))
@@ -79,7 +69,7 @@
 				(setq p1 p2))
 			pts)
 		(push envelope (if (< xmin 1000000.0)
-			(list y (min xmin (+ gmin_x limit)) (max xmax (- gmax_x limit)))
+			(list y xmin xmax)
 			(list y :nil :nil))))
 	envelope)
 
@@ -123,10 +113,10 @@
 								(push raw_overlaps raw_overlap))))))
 			(. page_db :find :glyphs)))
 		pages)
-	; Calculate optimal default spacing
+	; Calculate optimal default spacing (70th percentile)
 	(sort raw_overlaps (const -))
 	(defq xkern (if (empty? raw_overlaps) 0.0
-		(elem-get raw_overlaps (/ (length raw_overlaps) 2))))
+		(elem-get raw_overlaps (/ (* (length raw_overlaps) 70) 100))))
 	(. font_db :insert :xkern (n2r xkern))
 	; 3. Second pass: calculate bi-directional kerning pairs deviating from this baseline
 	(defq threshold (* (+ ascent descent) (const (recip +opt_threshold_divisor))))
