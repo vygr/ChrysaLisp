@@ -82,6 +82,17 @@
 		profile_a profile_b)
 	(if (> max_overlap -1000000.0) (- max_overlap (+ width_a default_kern))))
 
+(defun find-optimal-xkern (raw_overlaps threshold)
+	; Find the xkern baseline that maximizes deadband hits, minimizing file size
+	(defq best_x 0.0 max_count -1)
+	(for 30 71
+		(defq candidate (elem-get raw_overlaps (/ (* (length raw_overlaps) (!)) 100))
+			count (reduce (# (if (< (abs (- %1 candidate)) threshold) (inc %0) %0))
+				raw_overlaps 0))
+		(when (> count max_count)
+			(setq max_count count best_x candidate)))
+	best_x)
+
 (defun generate-optical-kerning (font_db)
 	(defq ascent_r (. font_db :find :ascent) descent_r (. font_db :find :descent)
 		ascent (n2f ascent_r) descent (n2f descent_r)
@@ -97,7 +108,7 @@
 					(. profiles :insert c profile)))
 			(. page_db :find :glyphs)))
 		pages)
-	; 2. First pass: calculate raw pair distances and find default spacing (xkern)
+	; 2. First pass: calculate raw pair distances
 	(defq raw_overlaps (list)
 		target_gap (* (+ ascent descent) (const (recip +opt_target_gap_divisor)))
 		pair_dists (Fmap 1001))
@@ -117,11 +128,6 @@
 								(push raw_overlaps raw_overlap))))))
 			(. page_db :find :glyphs)))
 		pages)
-	; Calculate optimal default spacing (70th percentile)
-	(sort raw_overlaps (const -))
-	(defq xkern (if (empty? raw_overlaps) 0.0
-		(elem-get raw_overlaps (/ (* (length raw_overlaps) 70) 100))))
-	(. font_db :insert :xkern (n2r xkern))
 	; 3. Triplet clearance pass: prevent glyphs A and C from colliding over glyph B
 	(for 33 127
 		(defq c1 (!))
@@ -140,8 +146,12 @@
 								(setq d12 (+ d12 delta))
 								(. pair_dists :insert (+ (<< c1 8) c2) d12)
 								(. pair_dists :insert (+ (<< c2 8) c3) (+ d23 delta)))))))))
-	; 4. Final pass: output kerning pair adjustments deviating from xkern
-	(defq threshold (* (+ ascent descent) (const (recip +opt_threshold_divisor))))
+	; 4. Select the optimal default spacing baseline (xkern)
+	(sort raw_overlaps (const -))
+	(defq threshold (* (+ ascent descent) (const (recip +opt_threshold_divisor)))
+		xkern (if (empty? raw_overlaps) 0.0 (find-optimal-xkern raw_overlaps threshold)))
+	(. font_db :insert :xkern (n2r xkern))
+	; 5. Final pass: output kerning pair adjustments deviating from xkern
 	(each (lambda (page_db)
 		(each (lambda (glyph_db)
 				(task-slice)
