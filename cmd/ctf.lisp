@@ -28,8 +28,8 @@
 (defq
 	; number of vertical slices used to scan glyph envelopes
 	+opt_num_slices 128
-	; divisor for target optical gap from total height (e.g. 16.0 = 6.25% of em-height)
-	+opt_target_gap_divisor 16.0
+	; divisor for target optical gap from total height
+	+opt_target_gap_divisor 12.0
 	+opt_threshold_divisor 80.0
 	+real_8192 (n2r 8192)
 )
