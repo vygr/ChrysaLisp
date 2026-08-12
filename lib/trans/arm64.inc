@@ -24,7 +24,7 @@
 		:f24 :f25 :f26 :f27 :f28 :f29 :f30 :f31)		;d24-d31 (Volatile)
 		(cat +vp_regs_map))))
 
-(defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (pfind +emit_native_regs r)))
+(defmacro emit-native-reg? (r) (static-qq (pfind +emit_native_regs ,r)))
 
 ;VP stack is NOT the ARM64 stack !
 ;due to not wanting to suffer the 16 byte alignment restriction on calls etc.

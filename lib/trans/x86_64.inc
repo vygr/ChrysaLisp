@@ -16,7 +16,7 @@
 		'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
 		(cat +vp_regs_map))))
 
-(defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (pfind +emit_native_regs r)))
+(defmacro emit-native-reg? (r) (static-qq (pfind +emit_native_regs ,r)))
 
 (defun x64-rr (o s d)
 	(emitm-byte (+ 0x48 (<< (>> s 3) 2) (>> d 3)) o (+ 0xc0 (<< (logand 7 s) 3) (logand 7 d))))

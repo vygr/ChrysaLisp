@@ -13,7 +13,7 @@
 	(reduce (# (pinsert %0 %1 (num (!)))) +vp_rregs
 	(reduce (# (pinsert %0 %1 (num (!)))) +vp_fregs (cat +vp_regs_map))))
 
-(defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (pfind +emit_native_regs r)))
+(defmacro emit-native-reg? (r) (static-qq (pfind +emit_native_regs ,r)))
 
 (defq opcode 0)
 (defmacro next-opcode (&optional i)

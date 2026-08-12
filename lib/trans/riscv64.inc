@@ -25,7 +25,7 @@
 		:f28 :f29 :f30 :f31)							;f28-f31 (ft8-ft11)
 		(cat +vp_regs_map))))
 
-(defun emit-native-reg? (r) (if (eql :sym (pop (type-of r))) (pfind +emit_native_regs r)))
+(defmacro emit-native-reg? (r) (static-qq (pfind +emit_native_regs ,r)))
 
 (defq +riscv64_rlnk (emit-native-reg? :r30)
 	+riscv64_rzero (emit-native-reg? :r29)
