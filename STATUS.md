@@ -11,8 +11,12 @@ the aparence of italic text and and saves up to 12% on `.ctf` file sizes. This
 only requires a change to the `ctf` command, no changes to the VP rendering
 code.
 
-Adjusted the Textfield widget cursor positioning to better fit this new super
+Adjusted the Textfield widget cursor positioning to better fit this new
 optical kerning !
+
+`emit-native-reg?` is now a macro that just expands to a `(pfind
++emit_native_regs r)` with no requirement to type check the argument for being a
+symbol.
 
 ------
 
