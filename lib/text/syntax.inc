@@ -27,7 +27,7 @@
 (defclass Syntax () :nil
 	; (Syntax) -> syntax
 	;default colours and state
-	(def this :keywords (defq keywords (env 101)) :state :text
+	(def this :keywords (defq keywords (pmap)) :state :text
 		:ink_keyword1 (num (<< (pixmap-from-argb32 +argb_magenta 15) 32))
 		:ink_keyword2 (num (<< (pixmap-from-argb32 +argb_red 15) 32))
 		:ink_keyword3 (num (<< (pixmap-from-argb32 +argb_green 15) 32))
@@ -41,12 +41,13 @@
 		:ink_text (num (<< (pixmap-from-argb32 +argb_white 15) 32)))
 	;defaults from boot environment
 	(each (lambda ((k v))
-		(cond
-			((lambda-func? v) (def keywords k (get :ink_keyword2 this)))
-			((macro-func? v) (def keywords k (get :ink_keyword3 this)))
-			((func? v) (def keywords k (get :ink_keyword1 this)))))
+		(pinsert keywords k
+			(cond
+				((lambda-func? v) (get :ink_keyword2 this))
+				((macro-func? v) (get :ink_keyword3 this))
+				((func? v) (get :ink_keyword1 this)))))
 		(tolist *root_env*))
-	(each (# (def keywords %0 (get :ink_keyword4 this)))
+	(each (# (pinsert keywords %0 (get :ink_keyword4 this)))
 		'(:t :nil &rest &optional &most &ignore
 		byte ubyte short ushort int uint long real ptr union struct
 		pbyte pubyte pshort pushort pint puint plong preal pptr
@@ -113,7 +114,7 @@
 			(case type
 				(:symbol
 					(cond
-						((defq ink (get (sym token) (get :keywords this)))
+						((defq ink (pfind (get :keywords this) (sym token)))
 							;present in keyword map
 							(push state ink))
 						((eql (first token) "+")
