@@ -50,7 +50,7 @@
 			(defq match (unique (map (# (cat prefix (slice %0 (length prefix) -1)))
 				(reduce (const merge)
 					(map (# (. this :find_matches %0))
-						(list prefix (to-lower prefix) (to-upper prefix)))))))
+						(merge (list prefix) (list (to-lower prefix) (to-upper prefix))))))))
 			(if context
 				(progn
 					;create a frequency map of the context words
