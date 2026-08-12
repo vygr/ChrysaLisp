@@ -271,8 +271,8 @@
 	(. *edit_flow* :add_back *edit*)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	;load up the base Syntax keywords, root.inc and dictionaries for matching
-	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
-		(partition (get :keywords *syntax* ) 2))
+	(each (lambda ((key &ignore)) (. dictionary :insert_word (str key)))
+		(partition (. *syntax* :get_keywords) 2))
 	(each (# (lines! populate-dictionary (file-stream %0)))
 		(cat +dictionaries '("class/lisp/root.inc")))
 	(. *file_selector* :populate "." +file_types 2)

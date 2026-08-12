@@ -53,6 +53,7 @@
 		pbyte pubyte pshort pushort pint puint plong preal pptr
 		nodeid netid offset enum bit))
 
+	(defgetmethod :keywords)
 	(defgetmethod :state)
 	(defsetmethod :state)
 
