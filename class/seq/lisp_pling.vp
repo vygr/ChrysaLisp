@@ -118,7 +118,7 @@
 (vp-label 'error2)
 	(call :obj :deref {value})
 	(jump :lisp :repl_error {this, seqs, "(each! lambda seqs [start end])", +error_msg_not_valid_index})
-	(signature '(:obj :list :num :num)))
+	(signature '(:obj :LIST :NUM :NUM)))
 
 	(pop-scope-syms)
 
@@ -231,7 +231,7 @@
 (vp-label 'error2)
 	(call :obj :deref {value})
 	(jump :lisp :repl_error {this, seqs, "(some! lambda seqs [mode start end])", +error_msg_not_valid_index})
-	(signature '(:obj :list :obj :num :num)))
+	(signature '(:obj :LIST :obj :NUM :NUM)))
 
 	(pop-scope-syms)
 
@@ -353,7 +353,7 @@
 	(call :obj :deref {out})
 	(exit :seq :lisp_map {this, value})
 	(return)
-	(signature '(:obj :list :num :num :list)))
+	(signature '(:obj :LIST :NUM :NUM :list)))
 
 	(pop-scope-syms)
 
@@ -459,7 +459,7 @@
 (vp-label 'error2)
 	(call :obj :deref {value})
 	(jump :lisp :repl_error {this, seqs, "(reduce! lambda seqs init [start end])", +error_msg_not_valid_index})
-	(signature '(:obj :list :obj :num :num)))
+	(signature '(:obj :LIST :obj :NUM :NUM)))
 
 	(pop-scope-syms)
 
@@ -588,7 +588,7 @@
 	(call :obj :deref {out})
 	(exit :seq :lisp_filter {this, value})
 	(return)
-	(signature '(:obj :seq :num :num :list)))
+	(signature '(:obj :seq :NUM :NUM :list)))
 
 	(pop-scope-syms)
 

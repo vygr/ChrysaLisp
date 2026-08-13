@@ -117,7 +117,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(mail-poll mboxs)" +error_msg_wrong_types))
-	(signature '(:list)))
+	(signature '(:LIST)))
 
 (def-func-end)
 
@@ -150,7 +150,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(mail-select mboxs)" +error_msg_wrong_types))
-	(signature '(:list)))
+	(signature '(:LIST)))
 
 (def-func-end)
 

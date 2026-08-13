@@ -254,7 +254,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(get sym [env])" +error_msg_wrong_types))
-	(signature '(:sym :hmap)))
+	(signature '(:SYM :hmap)))
 
 (def-func-end)
 
@@ -295,7 +295,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(def? sym [env])" +error_msg_wrong_types))
-	(signature '(:sym :hmap)))
+	(signature '(:SYM :hmap)))
 
 (def-func-end)
 
@@ -502,7 +502,7 @@
 	(vp-pop this args)
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(env-resize num [env])" +error_msg_wrong_types))
-	(signature '(:num :hmap)))
+	(signature '(:NUM :hmap)))
 
 (def-func-end)
 
@@ -535,6 +535,6 @@
 	(vp-pop this args)
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(env-copy env num)" +error_msg_wrong_types))
-	(signature '(:hmap :num)))
+	(signature '(:hmap :NUM)))
 
 (def-func-end)

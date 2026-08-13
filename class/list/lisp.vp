@@ -119,7 +119,7 @@
 	(jump :lisp :repl_error {this, args, "(pivot lambda list start end)", +error_msg_wrong_types})
 (vp-label 'error2)
 	(jump :lisp :repl_error {this, args, "(pivot lambda list start end)", +error_msg_not_valid_index})
-	(signature '(:obj :list :num :num)))
+	(signature '(:obj :LIST :NUM :NUM)))
 
 	(pop-scope-syms)
 
