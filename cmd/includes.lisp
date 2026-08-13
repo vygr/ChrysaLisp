@@ -73,7 +73,7 @@
 				(merge requires (list "sys/statics/class.inc"))
 				(merge classes (list (second input))))
 			(("signature")
-				(merge classes (rest input))))
+				(merge classes (map! (const to-lower) (list input) 1))))
 		(each (lambda (token)
 			(cond
 				((eql "f-path" token) (merge classes (list (elem-get input (inc (!))))))
