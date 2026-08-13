@@ -25,6 +25,9 @@ for the second arg.
 
 Updated `:dim` class binding to require exact `:nums` type for the dimension arg.
 
+`:lisp :env_args_sig` recoded to do it's own subclass check, faster with no
+stack usage.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
