@@ -60,6 +60,6 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(depth x0 y0)" +error_msg_wrong_types))
-	(signature '(:real :real)))
+	(signature '(:REAL :REAL)))
 
 (def-func-end)

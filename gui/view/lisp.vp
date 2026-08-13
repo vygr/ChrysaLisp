@@ -62,7 +62,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(view-find-id view mth id)" +error_msg_wrong_types))
-	(signature '(:view :sym :num)))
+	(signature '(:view :sym :NUM)))
 
 (def-func-end)
 
@@ -221,7 +221,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(view-trans-dirty view mth rx ry)" +error_msg_wrong_types))
-	(signature '(:view :sym :num :num)))
+	(signature '(:view :sym :NUM :NUM)))
 
 (def-func-end)
 
@@ -297,7 +297,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(view-add-opaque view mth x y w h)" +error_msg_wrong_types))
-	(signature '(:view :sym :num :num :num :num)))
+	(signature '(:view :sym :NUM :NUM :NUM :NUM)))
 
 (def-func-end)
 
@@ -336,7 +336,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(view-sub-opaque view mth x y w h)" +error_msg_wrong_types))
-	(signature '(:view :sym :num :num :num :num)))
+	(signature '(:view :sym :NUM :NUM :NUM :NUM)))
 
 (def-func-end)
 
@@ -367,7 +367,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(view-set-flags view mth flags mask)" +error_msg_wrong_types))
-	(signature '(:view :sym :num :num)))
+	(signature '(:view :sym :NUM :NUM)))
 
 (def-func-end)
 
@@ -408,7 +408,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(view-add-dirty view mth x y w h)" +error_msg_wrong_types))
-	(signature '(:view :sym :num :num :num :num)))
+	(signature '(:view :sym :NUM :NUM :NUM :NUM)))
 
 (def-func-end)
 
@@ -600,6 +600,6 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(view-hit-tree view mth x y)" +error_msg_wrong_types))
-	(signature '(:view :sym :num :num)))
+	(signature '(:view :sym :NUM :NUM)))
 
 (def-func-end)

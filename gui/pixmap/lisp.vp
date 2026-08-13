@@ -30,7 +30,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(pixmap-as-argb pixmap)" +error_msg_wrong_types))
-	(signature '(:pixmap)))
+	(signature '(:PIXMAP)))
 
 (def-func-end)
 
@@ -61,7 +61,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(pixmap-to-argb32 pixel type)" +error_msg_wrong_types))
-	(signature '(:num :num)))
+	(signature '(:NUM :NUM)))
 
 (def-func-end)
 
@@ -92,7 +92,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(pixmap-from-argb32 pixel type)" +error_msg_wrong_types))
-	(signature '(:num :num)))
+	(signature '(:NUM :NUM)))
 
 (def-func-end)
 
@@ -196,7 +196,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(pixmap-write pixmap stream type)" +error_msg_wrong_types))
-	(signature '(:pixmap :stream :num)))
+	(signature '(:PIXMAP :stream :NUM)))
 
 (def-func-end)
 
@@ -300,6 +300,6 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(pixmap-read pixmap stream type)" +error_msg_wrong_types))
-	(signature '(:pixmap :stream :num)))
+	(signature '(:PIXMAP :stream :NUM)))
 
 (def-func-end)

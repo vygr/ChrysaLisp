@@ -56,6 +56,6 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(in-next-msg in_stream)" +error_msg_wrong_types))
-	(signature '(:in)))
+	(signature '(:IN)))
 
 (def-func-end)

@@ -98,7 +98,7 @@
 (vp-label 'type_sizes)
 	(vp-byte +ptr_size +ptr_size +byte_size +byte_size +short_size +short_size
 		+int_size +int_size +long_size +long_size +long_size)
-	(signature '(:obj :num :num)))
+	(signature '(:obj :NUM :NUM)))
 
 (def-func-end)
 
@@ -203,7 +203,7 @@
 (vp-label 'type_sizes)
 	(vp-byte +ptr_size +ptr_size +byte_size +byte_size +short_size +short_size
 		+int_size +int_size +long_size +long_size +long_size)
-	(signature '(:obj :num :num :obj)))
+	(signature '(:obj :NUM :NUM :obj)))
 
 (def-func-end)
 

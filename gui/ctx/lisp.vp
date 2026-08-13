@@ -34,7 +34,7 @@
 (errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error '(:r0 :r1 "(ctx-set-color view mth col)" +error_msg_wrong_types))
-	(signature '(:view :sym :num)))
+	(signature '(:view :sym :NUM)))
 
 (def-func-end)
 
@@ -67,7 +67,7 @@
 (errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error '(:r0 :r1 "(ctx-box view mth x y w h)" +error_msg_wrong_types))
-	(signature '(:view :sym :num :num :num :num)))
+	(signature '(:view :sym :NUM :NUM :NUM :NUM)))
 
 (def-func-end)
 
@@ -100,7 +100,7 @@
 (errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error '(:r0 :r1 "(ctx-filled-box view mth x y w h)" +error_msg_wrong_types))
-	(signature '(:view :sym :num :num :num :num)))
+	(signature '(:view :sym :NUM :NUM :NUM :NUM)))
 
 (def-func-end)
 
@@ -149,7 +149,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(ctx-filled-region view mth region)" +error_msg_wrong_types))
-	(signature '(:view :sym :num)))
+	(signature '(:view :sym :NUM)))
 
 (def-func-end)
 
@@ -182,6 +182,6 @@
 (errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error '(:r0 :r1 "(ctx-blit view mth tid col x y w h)" +error_msg_wrong_types))
-	(signature '(:view :sym :num :num :num :num :num :num)))
+	(signature '(:view :sym :NUM :NUM :NUM :NUM :NUM :NUM)))
 
 (def-func-end)

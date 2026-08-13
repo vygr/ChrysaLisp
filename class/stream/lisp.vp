@@ -84,7 +84,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(file-stream path [mode])" +error_msg_wrong_types))
-	(signature '(:str :num)))
+	(signature '(:str :NUM)))
 
 (def-func-end)
 
@@ -267,7 +267,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(stream-seek stream offset whence)" +error_msg_wrong_types))
-	(signature '(:stream :num :num)))
+	(signature '(:stream :NUM :NUM)))
 
 (def-func-end)
 
@@ -454,7 +454,7 @@
 	(vp-cpy-cr +error_msg_wrong_types err)
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(write-char stream list|num [width])" ,err))
-	(signature '(:stream :obj :num)))
+	(signature '(:stream :obj :NUM)))
 
 (def-func-end)
 
@@ -500,7 +500,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(read-blk stream bytes)" +error_msg_wrong_types))
-	(signature '(:stream :num)))
+	(signature '(:stream :NUM)))
 
 (def-func-end)
 
@@ -659,7 +659,7 @@
 	(assign {this, args} '(:r0 :r1))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(read-bits stream parray num_bits" +error_msg_wrong_types))
-	(signature '(:stream :array :num)))
+	(signature '(:stream :ARRAY :NUM)))
 
 	(pop-scope-syms)
 
@@ -709,7 +709,7 @@
 	(assign {this, args} '(:r0 :r1))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(write-bits stream parray data num_bits)" +error_msg_wrong_types))
-	(signature '(:stream :array :num :num)))
+	(signature '(:stream :ARRAY :NUM :NUM)))
 
 	(pop-scope-syms)
 
@@ -776,7 +776,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error {this, args, "(fill-bits stream parray data num_bits cnt)", +error_msg_wrong_types})
-	(signature '(:stream :array :num :num :num)))
+	(signature '(:stream :ARRAY :NUM :NUM :NUM)))
 
 	(pop-scope-syms)
 
@@ -852,7 +852,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error {this, args, "(copy-bits wstream rstream parray parray num_bits cnt)", +error_msg_wrong_types})
-	(signature '(:stream :stream :array :array :num :num)))
+	(signature '(:stream :stream :ARRAY :ARRAY :NUM :NUM)))
 
 	(pop-scope-syms)
 
@@ -944,7 +944,7 @@
 	(jump :lisp :repl_error {this, args, "(lines! lambda stream [start end])", +error_msg_wrong_types})
 (vp-label 'error2)
 	(jump :lisp :repl_error {this, args, "(lines! lambda stream [start end])", +error_msg_not_valid_index})
-	(signature '(:obj :stream :num :num)))
+	(signature '(:obj :stream :NUM :NUM)))
 
 	(pop-scope-syms)
 

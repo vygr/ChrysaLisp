@@ -149,7 +149,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(csr-map-delete px py cx cy ax ay)" +error_msg_wrong_types))
-	(signature '(:num :num :num :num :num :num)))
+	(signature '(:NUM :NUM :NUM :NUM :NUM :NUM)))
 
 (def-func-end)
 
@@ -202,6 +202,6 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(csr-map-insert px py icx icy ecx ecy dy ax ay)" +error_msg_wrong_types))
-	(signature '(:num :num :num :num :num :num :num :num :num)))
+	(signature '(:NUM :NUM :NUM :NUM :NUM :NUM :NUM :NUM :NUM)))
 
 (def-func-end)

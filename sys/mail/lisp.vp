@@ -367,7 +367,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(mail-timeout mbox ns id)" +error_msg_wrong_types))
-	(signature '(:str :num :num)))
+	(signature '(:str :NUM :NUM)))
 
 (def-func-end)
 

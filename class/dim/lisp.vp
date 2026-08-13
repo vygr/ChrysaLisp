@@ -96,7 +96,7 @@
 	(jump :lisp :repl_error '(:r0 :r1 "(dim-get dim nums)" +error_msg_not_valid_index))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(dim-get dim nums)" +error_msg_wrong_types))
-	(signature '(:dim :NUMS)))
+	(signature '(:DIM :NUMS)))
 
 (def-func-end)
 
@@ -156,6 +156,6 @@
 	(jump :lisp :repl_error '(:r0 :r1 "(dim-set dim nums elem)" +error_msg_not_valid_index))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(dim-set dim nums elem)" +error_msg_wrong_types))
-	(signature '(:dim :NUMS :num)))
+	(signature '(:DIM :NUMS :num)))
 
 (def-func-end)

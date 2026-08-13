@@ -61,7 +61,7 @@
 (errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,this ,args "(code str [width idx])" +error_msg_wrong_types))
-	(signature '(:str :num :num)))
+	(signature '(:str :NUM :NUM)))
 
 (def-func-end)
 
@@ -281,7 +281,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(str-alloc size)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:NUM)))
 
 (def-func-end)
 
@@ -366,7 +366,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(expand str tab_width idx)" +error_msg_wrong_types))
-	(signature '(:str :num :num)))
+	(signature '(:str :NUM :NUM)))
 
 (def-func-end)
 
@@ -466,7 +466,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this :r1 "(compress str tab_width idx)" +error_msg_wrong_types))
-	(signature '(:str :num :num)))
+	(signature '(:str :NUM :NUM)))
 
 (def-func-end)
 
@@ -573,7 +573,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(bskip cls str idx)" +error_msg_wrong_types))
-	(signature '(:str :str :num)))
+	(signature '(:str :str :NUM)))
 
 (def-func-end)
 
@@ -607,7 +607,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(bskipn cls str idx)" +error_msg_wrong_types))
-	(signature '(:str :str :num)))
+	(signature '(:str :str :NUM)))
 
 (def-func-end)
 
@@ -651,7 +651,7 @@
 (vp-label 'error)
 	(vp-pop this)
 	(jump :lisp :repl_error `(,this ,args "(rbskip cls str idx)" +error_msg_wrong_types))
-	(signature '(:str :str :num)))
+	(signature '(:str :str :NUM)))
 
 (def-func-end)
 
@@ -695,7 +695,7 @@
 (vp-label 'error)
 	(vp-pop this)
 	(jump :lisp :repl_error `(,this ,args "(rbskipn cls str idx)" +error_msg_wrong_types))
-	(signature '(:str :str :num)))
+	(signature '(:str :str :NUM)))
 
 (def-func-end)
 

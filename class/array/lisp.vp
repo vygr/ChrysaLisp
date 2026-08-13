@@ -385,6 +385,6 @@
 (vp-label 'error2)
 	(vp-pop this args)
 	(jump :lisp :repl_error `(,this ,args "(elem-set array idx elem)" +error_msg_not_valid_index))
-	(signature '(:array :num :obj)))
+	(signature '(:array :NUM :obj)))
 
 (def-func-end)

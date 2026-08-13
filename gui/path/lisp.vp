@@ -37,7 +37,7 @@
 	(vp-pop :r0 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(path-transform m3x2 src dst)" +error_msg_wrong_types))
-	(signature '(:fixeds :path :path)))
+	(signature '(:FIXEDS :PATH :PATH)))
 
 (def-func-end)
 
@@ -68,7 +68,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(path-simplify tol src dst)" +error_msg_wrong_types))
-	(signature '(:fixed :path :path)))
+	(signature '(:FIXED :PATH :PATH)))
 
 (def-func-end)
 
@@ -99,7 +99,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(path-filter tol src dst)" +error_msg_wrong_types))
-	(signature '(:fixed :path :path)))
+	(signature '(:FIXED :PATH :PATH)))
 
 (def-func-end)
 
@@ -131,7 +131,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(path-gen-quadratic p1x p1y p2x p2y p3x p3y dst)" +error_msg_wrong_types))
-	(signature '(:fixed :fixed :fixed :fixed :fixed :fixed :path)))
+	(signature '(:FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :PATH)))
 
 (def-func-end)
 
@@ -163,7 +163,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y dst)" +error_msg_wrong_types))
-	(signature '(:fixed :fixed :fixed :fixed :fixed :fixed :fixed :fixed :path)))
+	(signature '(:FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :PATH)))
 
 (def-func-end)
 
@@ -195,7 +195,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(path-gen-arc cx cy start end radius dst)" +error_msg_wrong_types))
-	(signature '(:fixed :fixed :fixed :fixed :fixed :path)))
+	(signature '(:FIXED :FIXED :FIXED :FIXED :FIXED :PATH)))
 
 (def-func-end)
 
@@ -225,7 +225,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(path-stroke-polyline path radius join cap1 cap2)" +error_msg_wrong_types))
-	(signature '(:path :fixed :num :num :num)))
+	(signature '(:PATH :FIXED :NUM :NUM :NUM)))
 
 (def-func-end)
 
@@ -257,7 +257,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(path-stroke-polygon path radius join)" +error_msg_wrong_types))
-	(signature '(:path :fixed :num)))
+	(signature '(:PATH :FIXED :NUM)))
 
 (def-func-end)
 

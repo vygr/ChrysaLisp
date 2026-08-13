@@ -29,7 +29,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(task-count bias)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:NUM)))
 
 (def-func-end)
 
@@ -61,7 +61,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(task-sleep usec)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:NUM)))
 
 (def-func-end)
 

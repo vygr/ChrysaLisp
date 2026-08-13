@@ -31,7 +31,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(create-canvas width height scale)" +error_msg_wrong_types))
-	(signature '(:num :num :num)))
+	(signature '(:NUM :NUM :NUM)))
 
 (def-func-end)
 
@@ -61,7 +61,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(create-canvas-pixmap pixmap)" +error_msg_wrong_types))
-	(signature '(:pixmap)))
+	(signature '(:PIXMAP)))
 
 (def-func-end)
 
@@ -95,7 +95,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(canvas-fill canvas argb)" +error_msg_wrong_types))
-	(signature '(:canvas :num)))
+	(signature '(:CANVAS :NUM)))
 
 (def-func-end)
 
@@ -138,7 +138,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(canvas-swap canvas flags)" +error_msg_wrong_types))
-	(signature '(:canvas :num)))
+	(signature '(:CANVAS :NUM)))
 
 (def-func-end)
 
@@ -174,7 +174,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(canvas-next-frame canvas)" +error_msg_wrong_types))
-	(signature '(:canvas)))
+	(signature '(:CANVAS)))
 
 (def-func-end)
 
@@ -205,7 +205,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(canvas-plot canvas x y)" +error_msg_wrong_types))
-	(signature '(:canvas :num :num)))
+	(signature '(:CANVAS :NUM :NUM)))
 
 (def-func-end)
 
@@ -236,7 +236,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(canvas-fbox canvas x y w h)" +error_msg_wrong_types))
-	(signature '(:canvas :num :num :num :num)))
+	(signature '(:CANVAS :NUM :NUM :NUM :NUM)))
 
 (def-func-end)
 
@@ -267,7 +267,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(canvas-fpoly canvas x y mode list)" +error_msg_wrong_types))
-	(signature '(:canvas :FIXED :FIXED :NUM :LIST)))
+	(signature '(:CANVAS :FIXED :FIXED :NUM :LIST)))
 
 (def-func-end)
 
@@ -300,7 +300,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(canvas-resize canvas canvas)" +error_msg_wrong_types))
-	(signature '(:canvas :canvas)))
+	(signature '(:CANVAS :CANVAS)))
 
 (def-func-end)
 
@@ -337,7 +337,7 @@
 	(vp-pop :r0)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(canvas-ftri canvas path)" +error_msg_wrong_types))
-	(signature '(:canvas :path)))
+	(signature '(:CANVAS :PATH)))
 
 (def-func-end)
 
@@ -390,6 +390,6 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(canvas-tile canvas data x1 y1 x2 y2)" +error_msg_wrong_types))
-	(signature '(:canvas :str :num :num :num :num)))
+	(signature '(:CANVAS :str :NUM :NUM :NUM :NUM)))
 
 (def-func-end)

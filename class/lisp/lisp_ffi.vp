@@ -50,7 +50,7 @@
 	(call :obj :deref {value})
 (vp-label 'error)
 	(jump :lisp :repl_error {this, args, "(ffi path [sym flags])", +error_msg_wrong_types})
-	(signature '(:obj :obj :sym :num)))
+	(signature '(:obj :obj :SYM :NUM)))
 
 	(pop-scope-syms)
 

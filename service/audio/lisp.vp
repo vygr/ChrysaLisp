@@ -232,7 +232,7 @@
 (errorcase
 	(vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(audio-change handle state)" +error_msg_wrong_types))
-	(signature '(:num :num)))
+	(signature '(:NUM :NUM)))
 
 (def-func-end)
 
@@ -289,7 +289,7 @@
 (errorcase
 	(vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(audio-remove handle)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:NUM)))
 
 (def-func-end)
 
@@ -346,6 +346,6 @@
 (errorcase
 	(vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(audio-play handle)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:NUM)))
 
 (def-func-end)

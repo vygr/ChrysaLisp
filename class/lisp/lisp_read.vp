@@ -44,6 +44,6 @@
 (errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,this ,args "(read stream [last_char])" +error_msg_wrong_types))
-	(signature '(:stream :num)))
+	(signature '(:stream :NUM)))
 
 (def-func-end)

@@ -66,7 +66,7 @@
 	(jump :lisp :repl_error '(:r0 :r1 "(elem-get seq idx)" +error_msg_wrong_types))
 (vp-label 'error2)
 	(jump :lisp :repl_error '(:r12 :r13 "(elem-get seq idx)" +error_msg_not_valid_index))
-	(signature '(:seq :num)))
+	(signature '(:seq :NUM)))
 
 (def-func-end)
 
@@ -105,7 +105,7 @@
 	(jump :lisp :repl_error `(,this ,args "(slice seq start end)" +error_msg_wrong_types))
 (vp-label 'error2)
 	(jump :lisp :repl_error `(,this ,args "(slice seq start end)" +error_msg_not_valid_index))
-	(signature '(:seq :num :num)))
+	(signature '(:seq :NUM :NUM)))
 
 (def-func-end)
 
@@ -164,7 +164,7 @@
 	(jump :lisp :repl_error `(,this ,args "(splice seq1 seq2 idxs)" +error_msg_wrong_types))
 (vp-label 'error2)
 	(jump :lisp :repl_error `(,this ,args "(splice seq1 seq2 idxs)" +error_msg_not_valid_index))
-	(signature '(:seq :seq :nums)))
+	(signature '(:seq :seq :NUMS)))
 
 (def-func-end)
 
@@ -273,7 +273,7 @@
 	(vp-cpy-rr args :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(find elem seq [idx])" +error_msg_wrong_types))
-	(signature '(:obj :seq :num)))
+	(signature '(:obj :seq :NUM)))
 
 (def-func-end)
 
@@ -350,7 +350,7 @@
 	(vp-cpy-rr args :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(rfind elem seq [idx])" +error_msg_wrong_types))
-	(signature '(:obj :seq :num)))
+	(signature '(:obj :seq :NUM)))
 
 (def-func-end)
 
@@ -609,6 +609,6 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(partition seq [cnt])" +error_msg_wrong_types))
-	(signature '(:seq :num)))
+	(signature '(:seq :NUM)))
 
 (def-func-end)
