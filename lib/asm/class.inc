@@ -389,8 +389,10 @@
 (defun signature (%0)
 	(vp-align +short_size)
 (vp-label 'sig)
-	(each (lambda (%0)
-		(vp-short `(- ,(label-sym (link-sym (fn-find-link (f-path %0 :vtable)))) *pc*))) %0))
+	(each (lambda (s)
+		(defq cls (sym (to-lower s))
+			target (label-sym (link-sym (fn-find-link (f-path cls :vtable)))))
+		(vp-short (if (nql s cls) `(- *pc* ,target) `(- ,target *pc*)))) %0))
 
 (defun gen-vtable (%0)
 	;%0 = class name

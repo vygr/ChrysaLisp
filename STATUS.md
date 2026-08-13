@@ -18,6 +18,13 @@ optical kerning !
 +emit_native_regs r)` with no requirement to type check the argument for being a
 symbol.
 
+`:lisp :env_args_sig` can now take uppercase class types and will encode them
+for exact vtable match rather than any subtype match. eg. `(signature '(:NUMS
+:nums))` will require the exact `:nums` class for the first arg and any subclass
+for the second arg.
+
+Updated `:dim` class binding to require exact `:nums` type for the dimension arg.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

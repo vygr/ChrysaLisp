@@ -14,6 +14,8 @@ default colours and state
 assign colours
 ```
 
+### :get_keywords
+
 ### :get_state
 
 ### :line_compress

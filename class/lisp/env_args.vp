@@ -4,7 +4,7 @@
 (def-method :lisp :env_args_sig)
 	;inputs
 	;:r1 = args list object (ptr)
-	;:r3 = signature pointer (pushort)
+	;:r3 = signature pointer (pshort)
 	;:r4 = min number of args (int)
 	;:r5 = max number of args (int)
 	;outputs
@@ -22,9 +22,20 @@
 		(class/array/get_both :r1 :r4 :r5)
 		(vpif '(:r4 /= :r5))
 			(loop-start)
-				(vp-cpy-ir-us :r3 0 :r1)
-				(call :obj :inst_of '((:r4 0) (:r3 :r1)) '(_ :r1))
-				(breakif '(:r1 = 0) 'fail)
+				(vp-cpy-ir-s :r3 0 :r2)
+				(assign '((:r4 0)) '(:r0))
+				(vpif '(:r2 >= 0))
+					;any subclass
+					(call :obj :inst_of '(:r0 (:r3 :r2)) '(_ :r1))
+					(breakif '(:r1 = 0) 'fail)
+				(else)
+					;exact class
+					(assign '((:r0 +obj_vtable)) '(:r0))
+					(vp-cpy-rr :r3 :r1)
+					(vp-sub-rr :r2 :r1)
+					(assign '((:r1 0)) '(:r1))
+					(breakif '(:r0 /= :r1) 'fail)
+				(endif)
 				(vp-add-cr +ptr_size :r4)
 				(vp-add-cr +short_size :r3)
 			(loop-until '(:r4 = :r5))

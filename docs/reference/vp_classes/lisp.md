@@ -92,7 +92,7 @@ trashes
 ```code
 inputs
 :r1 = args list object (ptr)
-:r3 = signature pointer (pushort)
+:r3 = signature pointer (pshort)
 :r4 = min number of args (int)
 :r5 = max number of args (int)
 outputs
