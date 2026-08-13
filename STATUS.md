@@ -25,8 +25,8 @@ for the second arg.
 
 Updated `:dim` class binding to require exact `:nums` type for the dimension arg.
 
-`:lisp :env_args_sig` recoded to do it's own subclass check, faster with no
-stack usage.
+`:lisp :env_args_xxx` methods recoded to do there own subclass check, faster
+with no stack usage.
 
 ------
 

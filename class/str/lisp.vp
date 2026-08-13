@@ -73,9 +73,9 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r10, :f0-:f15
+	;:r1-:r9, :f0-:f15
 
-	(vp-rdef (this args len value iter_begin iter_end width) '(:r8 :r9 :r10))
+	(vp-rdef (this args len value iter_begin iter_end width) '(:r7 :r8 :r9))
 
 	(entry :str :lisp_char (list this args))
 

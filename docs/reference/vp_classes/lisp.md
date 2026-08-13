@@ -78,13 +78,13 @@ trashes
 ```code
 inputs
 :r1 = args list object (ptr)
-:r3 = vtable pointer (ptr)
-:r4 = min number of args (int)
+:r2 = vtable pointer (ptr)
+:r3 = min number of args (int)
 outputs
 :r1 = args list object (ptr)
 :r2 = 0 if error, else ok
 trashes
-:r2, :r4-:r7
+:r2-:r6
 ```
 
 ### :env_args_sig -> class/lisp/env_args_sig
@@ -107,13 +107,13 @@ trashes
 ```code
 inputs
 :r1 = args list object (ptr)
-:r3 = vtable pointer (ptr)
-:r4 = min number of args (int)
+:r2 = vtable pointer (ptr)
+:r3 = min number of args (int)
 outputs
 :r1 = args list object (ptr)
 :r2 = 0 if error, else ok
 trashes
-:r2, :r4-:r7
+:r2-:r6
 ```
 
 ### :env_bind -> class/lisp/env_bind

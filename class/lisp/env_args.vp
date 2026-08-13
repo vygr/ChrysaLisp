@@ -59,36 +59,42 @@
 (def-method :lisp :env_args_type)
 	;inputs
 	;:r1 = args list object (ptr)
-	;:r3 = vtable pointer (ptr)
-	;:r4 = min number of args (int)
+	;:r2 = vtable pointer (ptr)
+	;:r3 = min number of args (int)
 	;outputs
 	;:r1 = args list object (ptr)
 	;:r2 = 0 if error, else ok
 	;trashes
-	;:r2, :r4-:r7
+	;:r2-:r6
 
-	(entry :lisp :env_args_type '(:r1 :r3 :r4))
+	(vp-rdef (_ args vt2 iter_begin iter_end vt1 len))
 
-	(assign '(:r0 :r1 (:r1 +array_length)) '(:r6 :r7 :r2))
+	(entry :lisp :env_args_type `(,args ,vt2 ,iter_begin))
+
+	(assign `((,args +array_length)) `(,len))
 	(switch 'fail)
 		;must be in range and of this type
-		(breakif '(:r2 < :r4) 'fail)
-		(class/array/get_both :r1 :r4 :r5)
-		(vpif '(:r4 /= :r5))
+		(breakif `(,len < ,iter_begin) 'fail)
+		(vpif `(,len /= 0))
+			(assign `((,args +array_begin)) `(,iter_begin))
+			(vp-shl-cr (log2 +ptr_size) len)
+			(assign `((& ,iter_begin ,len)) `(,iter_end))
 			(loop-start)
-				(call :obj :inst_of '((:r4 0) :r3) '(_ :r1))
-				(breakif '(:r1 = 0) 'fail)
-				(vp-add-cr +ptr_size :r4)
-			(loop-until '(:r4 = :r5))
+				;any subclass
+				(assign `((,iter_begin 0)) `(,vt1))
+				(loop-start)
+					(assign `((,vt1 +obj_vtable)) `(,vt1))
+					(breakif `(,vt1 = 0) 'fail)
+				(loop-until `(,vt1 = ,vt2))
+				(vp-add-cr +ptr_size iter_begin)
+			(loop-until `(,iter_begin = ,iter_end))
 		(endif)
-		(assign '(:r6 :r7 -1) '(:r0 :r1 :r2))
 
-		(exit :lisp :env_args_type '(:r1 :r2))
+		(exit :lisp :env_args_type `(,args -1))
 		(vp-ret)
 	(endswitch)
-	(assign '(:r6 :r7 0) '(:r0 :r1 :r2))
 
-	(exit :lisp :env_args_type '(:r1 :r2))
+	(exit :lisp :env_args_type `(,args 0))
 	(vp-ret)
 
 (def-func-end)
@@ -96,41 +102,50 @@
 (def-method :lisp :env_args_match)
 	;inputs
 	;:r1 = args list object (ptr)
-	;:r3 = vtable pointer (ptr)
-	;:r4 = min number of args (int)
+	;:r2 = vtable pointer (ptr)
+	;:r3 = min number of args (int)
 	;outputs
 	;:r1 = args list object (ptr)
 	;:r2 = 0 if error, else ok
 	;trashes
-	;:r2, :r4-:r7
+	;:r2-:r6
 
-	(entry :lisp :env_args_match '(:r1 :r3 :r4))
+	(vp-rdef (_ args vt2 iter_begin iter_end vt1 len))
 
-	(assign '(:r0 :r1 (:r1 +array_length)) '(:r6 :r7 :r2))
+	(entry :lisp :env_args_match `(,args ,vt2 ,iter_begin))
+
+	(assign `((,args +array_length)) `(,len))
 	(switch 'fail)
 		;must be in range and of this type and all identical
-		(breakif '(:r2 < :r4) 'fail)
-		(vpif '(:r2 /= 0))
-			(class/array/get_both :r1 :r4 :r5)
-			(call :obj :inst_of '((:r4 0) :r3) '(_ :r1))
-			(breakif '(:r1 = 0) 'fail)
-			(vp-add-cr +ptr_size :r4)
-			(breakif '(:r4 = :r5))
+		(breakif `(,len < ,iter_begin) 'fail)
+		(vpif `(,len /= 0))
+			(assign `((,args +array_begin)) `(,iter_begin))
+			(vp-shl-cr (log2 +ptr_size) len)
+			(assign `((& ,iter_begin ,len)) `(,iter_end))
+			;any subclass
+			(assign `((,iter_begin 0)) `(,vt1))
 			(loop-start)
-				(assign '((:r4 0)) '(:r0))
-				(assign '((:r0 +obj_vtable)) '(:r0))
-				(breakif '(:r1 /= :r0) 'fail)
-				(vp-add-cr +ptr_size :r4)
-			(loop-until '(:r4 = :r5))
+				(assign `((,vt1 +obj_vtable)) `(,vt1))
+				(breakif `(,vt1 = 0) 'fail)
+			(loop-until `(,vt1 = ,vt2))
+			;then all exact type
+			(vp-add-cr +ptr_size iter_begin)
+			(breakif `(,iter_begin = ,iter_end))
+			(assign `((,iter_begin ,(neg +ptr_size))) `(,vt2))
+			(assign `((,vt2 +obj_vtable)) `(,vt2))
+			(loop-start)
+				(assign `((,iter_begin 0)) `(,vt1))
+				(assign `((,vt1 +obj_vtable)) `(,vt1))
+				(breakif `(,vt1 /= ,vt2) 'fail)
+				(vp-add-cr +ptr_size iter_begin)
+			(loop-until `(,iter_begin = ,iter_end))
 		(endif)
-		(assign '(:r6 :r7 -1) '(:r0 :r1 :r2))
 
-		(exit :lisp :env_args_match '(:r1 :r2))
+		(exit :lisp :env_args_match `(,args -1))
 		(vp-ret)
 	(endswitch)
-	(assign '(:r6 :r7 0) '(:r0 :r1 :r2))
 
-	(exit :lisp :env_args_match '(:r1 :r2))
+	(exit :lisp :env_args_match `(,args 0))
 	(vp-ret)
 
 (def-func-end)
