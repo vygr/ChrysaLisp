@@ -84,7 +84,7 @@
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indices_len) 'error1))
 
-	(call :array :ref_elem `(,elems ,index) '(_ :r1))
+	(call :nums :ref_elem `(,elems ,index) '(_ :r1))
 	(vp-pop :r0 :r2)
 
 	(exit :dim :lisp_get '(:r0 :r1))
@@ -143,7 +143,7 @@
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indices_len) 'error1))
 
-	(call :array :set_elem `(,elems (,obj +num_value) ,index) '(:r1))
+	(call :nums :set_elem `(,elems (,obj +num_value) ,index) '(:r1))
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0 :r2)
 

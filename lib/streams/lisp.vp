@@ -202,7 +202,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(lz4-encode buf pos chunk hash_table)" +error_msg_wrong_types))
-	(signature '(:str :num :str :nums)))
+	(signature '(:str :NUM :str :NUMS)))
 
 (def-func-end)
 

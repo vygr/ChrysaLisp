@@ -199,7 +199,7 @@
 (errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,this ,args "(lmatch? list list)" +error_msg_wrong_types))
-	(signature '(:list :list)))
+	(signature '(:LIST :LIST)))
 
 (def-func-end)
 

@@ -282,7 +282,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r7 "(>>> num cnt)" +error_msg_wrong_types))
-	(signature '(:num :num)))
+	(signature '(:num :NUM)))
 
 (def-func-end)
 
@@ -301,7 +301,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r7 "(<< num cnt)" +error_msg_wrong_types))
-	(signature '(:num :num)))
+	(signature '(:num :NUM)))
 
 (def-func-end)
 
@@ -320,7 +320,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r7 "(>> num cnt)" +error_msg_wrong_types))
-	(signature '(:num :num)))
+	(signature '(:num :NUM)))
 
 (def-func-end)
 

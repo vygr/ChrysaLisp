@@ -42,7 +42,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(csr-sort csr)" +error_msg_wrong_types))
-	(signature '(:nums)))
+	(signature '(:NUMS)))
 
 (def-func-end)
 
@@ -91,7 +91,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(csr-cmp csr csr)" +error_msg_wrong_types))
-	(signature '(:nums :nums)))
+	(signature '(:NUMS :NUMS)))
 
 (def-func-end)
 
