@@ -11,35 +11,34 @@
 	;:r1 = args list object (ptr)
 	;:r2 = 0 if error, else ok
 	;trashes
-	;:r2-:r7
+	;:r2-:r6
 
-	(vp-rdef (_ args sig iter_begin iter_end len vt1 vt2))
+	(vp-rdef (_ args sig iter_begin iter_end vt1 vt2))
 
 	(entry :lisp :env_args_sig `(,args ,sig ,iter_begin ,iter_end))
 
-	(assign `((,args +array_length)) `(,len))
+	(assign `((,args +array_length)) `(,vt2))
 	(switch 'fail)
 		;must be in range and match signature
-		(breakif `(,len < ,iter_begin) `(,len > ,iter_end) 'fail)
-		(vpif `(,len /= 0))
+		(breakif `(,vt2 < ,iter_begin) `(,vt2 > ,iter_end) 'fail)
+		(vpif `(,vt2 /= 0))
 			(assign `((,args +array_begin)) `(,iter_begin))
-			(vp-shl-cr (log2 +ptr_size) len)
-			(assign `((& ,iter_begin ,len)) `(,iter_end))
+			(vp-shl-cr (log2 +ptr_size) vt2)
+			(assign `((& ,iter_begin ,vt2)) `(,iter_end))
 			(loop-start)
-				(vp-cpy-ir-s sig 0 len)
+				(vp-cpy-ir-s sig 0 vt2)
 				(assign `((,iter_begin 0)) `(,vt1))
-				(vpif `(,len >= 0))
+				(vpif `(,vt2 >= 0))
 					;any subclass
-					(assign `((,sig ,len)) `(,vt2))
+					(assign `((,sig ,vt2)) `(,vt2))
 					(loop-start)
 						(assign `((,vt1 +obj_vtable)) `(,vt1))
 						(breakif `(,vt1 = 0) 'fail)
 					(loop-until `(,vt1 = ,vt2))
 				(else)
 					;exact class
-					(vp-cpy-rr sig vt2)
-					(vp-sub-rr len vt2)
-					(assign `((,vt1 +obj_vtable) (,vt2 0)) `(,vt1 ,vt2))
+					(vp-mul-cr -1 vt2)
+					(assign `((,vt1 +obj_vtable) (,sig ,vt2)) `(,vt1 ,vt2))
 					(breakif `(,vt1 /= ,vt2) 'fail)
 				(endif)
 				(vp-add-cr +ptr_size iter_begin)

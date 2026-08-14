@@ -84,7 +84,7 @@ outputs
 :r1 = args list object (ptr)
 :r2 = 0 if error, else ok
 trashes
-:r2-:r6
+:r2-:r5
 ```
 
 ### :env_args_sig -> class/lisp/env_args_sig
@@ -99,7 +99,7 @@ outputs
 :r1 = args list object (ptr)
 :r2 = 0 if error, else ok
 trashes
-:r2-:r7
+:r2-:r6
 ```
 
 ### :env_args_type -> class/lisp/env_args_type
@@ -113,7 +113,7 @@ outputs
 :r1 = args list object (ptr)
 :r2 = 0 if error, else ok
 trashes
-:r2-:r6
+:r2-:r5
 ```
 
 ### :env_bind -> class/lisp/env_bind

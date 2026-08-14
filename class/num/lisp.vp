@@ -275,7 +275,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :f0-:f15
 
 	(shiftop :asr)
 
@@ -294,7 +294,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :f0-:f15
 
 	(shiftop :shl)
 
@@ -313,7 +313,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :f0-:f15
 
 	(shiftop :shr)
 
@@ -465,7 +465,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :f0-:f15
 
 	(mathop :random)
 
@@ -484,7 +484,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :f0-:f15
 
 	(mathop :neg)
 
@@ -503,7 +503,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :f0-:f15
 
 	(mathop :sign)
 
@@ -522,7 +522,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :f0-:f15
 
 	(mathop :abs)
 
@@ -541,7 +541,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :f0-:f15
 
 	(entry :num :lisp_sqrt '(:r0 :r1))
 
@@ -574,7 +574,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r14, :f0-:f15
+	;:r1-:r6, :r14, :f0-:f15
 
 	(entry :num :lisp_n2i '(:r0 :r1))
 
@@ -620,7 +620,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r14, :f0-:f15
+	;:r1-:r6, :r14, :f0-:f15
 
 	(entry :num :lisp_n2f '(:r0 :r1))
 
@@ -669,7 +669,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r14, :f0-:f15
+	;:r1-:r6, :r14, :f0-:f15
 
 	(entry :num :lisp_n2r '(:r0 :r1))
 

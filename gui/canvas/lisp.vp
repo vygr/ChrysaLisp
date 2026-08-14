@@ -43,7 +43,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r14, :f0-:f15
+	;:r1-:r6, :r14, :f0-:f15
 
 	(entry :canvas :lisp_create_pixmap '(:r0 :r1))
 
@@ -73,7 +73,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7
+	;:r1-:r6
 
 	(entry :canvas :lisp_fill '(:r0 :r1))
 

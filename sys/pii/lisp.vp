@@ -138,7 +138,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r13, :f0-:f15
+	;:r1-:r6, :r13, :f0-:f15
 
 	(entry :host_os :lisp_fstat '(:r0 :r1))
 
@@ -178,7 +178,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r14, :f0-:f15
+	;:r1-:r6, :r14, :f0-:f15
 
 	(entry :host_os :lisp_remove '(:r0 :r1))
 

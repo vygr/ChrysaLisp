@@ -14,26 +14,26 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8
+	;:r0-:r7
 
 	(entry :stream :lisp_iostream '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-cpy-rr :r0 :r8)
+	(vp-cpy-rr :r0 :r7)
 	(list-bind-args :r1 '(:r5) '(:str))
 	(switch 'exit)
 		(switch)
 		(call :sys_str :compare '(:r5 "stdin") '(:r0))
-		(assign '((:r8 +lisp_stdin)) '(:r1))
+		(assign '((:r7 +lisp_stdin)) '(:r1))
 		(breakif '(:r0 = 0))
 		(call :sys_str :compare '(:r5 "stdout") '(:r0))
-		(assign '((:r8 +lisp_stdout)) '(:r1))
+		(assign '((:r7 +lisp_stdout)) '(:r1))
 		(breakif '(:r0 = 0))
 		(call :sys_str :compare '(:r5 "stderr") '(:r0))
-		(assign '((:r8 +lisp_stderr)) '(:r1))
+		(assign '((:r7 +lisp_stderr)) '(:r1))
 		(breakif '(:r0 = 0))
-		(assign '((:r8 +lisp_sym_nil)) '(:r1))
+		(assign '((:r7 +lisp_sym_nil)) '(:r1))
 		(endswitch)
 		(class/obj/ref :r1 :r2)
 	(endswitch)
@@ -96,7 +96,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r14, :f0-:f15
+	;:r1-:r6, :r14, :f0-:f15
 
 	(entry :stream :lisp_sstream '(:r0 :r1))
 
@@ -154,7 +154,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r14, :f0-:f15
+	;:r1-:r6, :r14, :f0-:f15
 
 	(entry :stream :lisp_avail '(:r0 :r1))
 
@@ -185,7 +185,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :f0-:f15
+	;:r1-:r6, :f0-:f15
 
 	(entry :stream :lisp_readavail '(:r0 :r1))
 

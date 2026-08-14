@@ -162,7 +162,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7
+	;:r1-:r6
 
 	(vp-rdef (this args src iter_begin iter_end iter_start wild_card))
 
