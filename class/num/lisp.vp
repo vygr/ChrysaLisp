@@ -49,7 +49,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :f0-:f15
 
 	(addop :add)
 
@@ -67,7 +67,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :f0-:f15
 
 	(addop :sub)
 
@@ -85,7 +85,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :f0-:f15
 
 	(addop :mul)
 
@@ -151,7 +151,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r12-:r14, :f0-:f15
+	;:r1-:r5, :r12-:r14, :f0-:f15
 
 	(divop :div)
 
@@ -211,7 +211,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :f0-:f15
 
 	(andop :and -1)
 
@@ -229,7 +229,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :f0-:f15
 
 	(andop :or 0)
 
@@ -247,7 +247,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :f0-:f15
 
 	(andop :xor 0)
 
@@ -347,7 +347,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6
+	;:r1-:r5
 
 	(compareop :eq)
 
@@ -365,7 +365,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f1
+	;:r1-:r5, :f0-:f1
 
 	(compareop :ge)
 
@@ -383,7 +383,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f1
+	;:r1-:r5, :f0-:f1
 
 	(compareop :gt)
 
@@ -401,7 +401,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f1
+	;:r1-:r5, :f0-:f1
 
 	(compareop :le)
 
@@ -419,7 +419,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f1
+	;:r1-:r5, :f0-:f1
 
 	(compareop :lt)
 
