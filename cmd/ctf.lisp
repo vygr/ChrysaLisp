@@ -51,6 +51,39 @@
 					(setq x (n2f x2)) (setq y (n2f y2)) p))))
 		commands (path)))
 
+(defun smooth-envelope (envelope step)
+	; Apply 2D conical dilation to prevent 1D slice cavity/overhang collapse
+	; slope = 0.5 (dy_decay = 0.5 * step per slice)
+	(defq dy_decay (* step 0.5) cur_max -1000000.0 cur_min 1000000.0)
+	; Top to bottom pass
+	(each! (lambda ((y xmin xmax))
+		(if xmax
+			(setq cur_max (max xmax (- cur_max dy_decay)))
+			(setq cur_max (- cur_max dy_decay)))
+		(if xmin
+			(setq cur_min (min xmin (+ cur_min dy_decay)))
+			(setq cur_min (+ cur_min dy_decay)))
+		(if (> cur_max -500000.0)
+			(elem-set (elem-get envelope (!)) 2 (max (or xmax cur_max) cur_max)))
+		(if (< cur_min 500000.0)
+			(elem-set (elem-get envelope (!)) 1 (min (or xmin cur_min) cur_min))))
+		(list envelope))
+	; Bottom to top pass
+	(setq cur_max -1000000.0 cur_min 1000000.0)
+	(each! (lambda ((y xmin xmax))
+		(if xmax
+			(setq cur_max (max xmax (- cur_max dy_decay)))
+			(setq cur_max (- cur_max dy_decay)))
+		(if xmin
+			(setq cur_min (min xmin (+ cur_min dy_decay)))
+			(setq cur_min (+ cur_min dy_decay)))
+		(if (> cur_max -500000.0)
+			(elem-set (elem-get envelope (!)) 2 (max (or xmax cur_max) cur_max)))
+		(if (< cur_min 500000.0)
+			(elem-set (elem-get envelope (!)) 1 (min (or xmin cur_min) cur_min))))
+		(list envelope) -1 0)
+	envelope)
+
 (defun compute-envelope (path ascent descent)
 	; path is a 16.16 path vector of flat coordinates
 	(defq pts (partition path 2)
@@ -71,7 +104,7 @@
 		(push envelope (if (< xmin 1000000.0)
 			(list y xmin xmax)
 			(list y :nil :nil))))
-	envelope)
+	(smooth-envelope envelope step))
 
 (defun calculate-pair-kern (profile_a profile_b width_a default_kern target_gap)
 	(defq max_overlap -1000000.0)

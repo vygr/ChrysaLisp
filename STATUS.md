@@ -30,6 +30,10 @@ appropriate in other classes.
 `:lisp :env_args_xxx` methods recoded to do there own subclass check, faster
 with no stack usage.
 
+Apply 2D conical dilation to the glyph outlines before envelope distance
+calculations. Helps situations like "Fa" "<<<" ">>>" etc. Without breaking
+italic fonts.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
