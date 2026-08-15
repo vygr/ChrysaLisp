@@ -23,7 +23,9 @@ for exact vtable match rather than any subtype match. eg. `(signature '(:NUMS
 :nums))` will require the exact `:nums` class for the first arg and any subclass
 for the second arg.
 
-Updated `:dim` class binding to require exact `:nums` type for the dimension arg.
+Updated `:dim` class binding to require exact `:nums` type for the dimension
+arg. Done a source sweep to use the exact type match signature option where
+appropriate in other classes.
 
 `:lisp :env_args_xxx` methods recoded to do there own subclass check, faster
 with no stack usage.
