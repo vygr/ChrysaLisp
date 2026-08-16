@@ -66,17 +66,18 @@
 	; apply 2D conical dilation to prevent 1D slice cavity/overhang collapse
 	; slope = 0.5 (dy_decay = 0.5 * step per slice)
 	(defq dy_decay (* step 0.5) cur_max -1000000.0 cur_min 1000000.0)
-	(reverse (rmap (const smooth-slice) (progn
+	(rmap (const smooth-slice) (progn
 		(setq envelope (map (const smooth-slice) envelope)
 			cur_max -1000000.0 cur_min 1000000.0)
-		envelope))))
+		envelope)))
 
 (defun compute-envelope (path ascent descent)
 	; path is a 16.16 path vector of flat coordinates
 	(defq pts (partition path 2)
 		step (/ (+ ascent descent) (const (n2f (dec +opt_num_slices))))
 		envelope (list))
-	(for 0 +opt_num_slices
+	; generate slices bottom-to-top so rmap in smooth-envelope outputs top-to-bottom
+	(for +opt_num_slices 0
 		(defq y (+ (neg ascent) (* (n2f (!)) step))
 			xmin 1000000.0 xmax -1000000.0 p1 (last pts))
 		(each (lambda (p2)
