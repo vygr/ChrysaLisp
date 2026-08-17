@@ -34,6 +34,8 @@ Apply 2D conical dilation to the glyph outlines before envelope distance
 calculations. Helps situations like "Fa" "<<<" ">>>" etc. Without breaking
 italic fonts.
 
+Added column layout support to the Docs app.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
