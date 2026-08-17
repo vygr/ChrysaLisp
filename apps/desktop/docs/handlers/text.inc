@@ -5,8 +5,9 @@
 	(bit code bold italic bold_italic highlight strike))
 
 (defun parse-quotes (line)
-	(defq quoted (list))
-	(when (nempty? (defq idxs (nums) x 0 match (matches line "\q[^\q]+\q|`[^`]+`")))
+	(defq quoted (list) match (matches line "\q[^\q]+\q|`[^`]+`"))
+	(when (nempty? match)
+		(defq idxs (nums) x 0)
 		(each (lambda (((x1 x2)))
 			(push quoted (split (cond
 				((eql (elem-get line x1) "`")
@@ -33,10 +34,11 @@
 					(push idxs x x1 0 5 (+ x1 c) (- x2 c) 4 -1)
 					(setq x x2)) match)
 				;one allocation, atomic scatter copy!
-				(splice line (cat " <" tag "> </" tag "> ") (push idxs x -1)))
+				(splice line tag (push idxs x -1)))
 			(line)))
 		'(("~~[^~]+~~" "==[^=]+==" "\\*\\*\\*[^*]+\\*\\*\\*" "\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*")
-		"shxbi" (2 2 3 2 1)) line) +char_class_white_space))
+		(" <s> </s> " " <h> </h> " " <x> </x> " " <b> </b> " " <i> </i> ")
+		(2 2 3 2 1)) line) +char_class_white_space))
 	;splice quoted sections back in
 	(cond
 		((nempty? quoted)
@@ -68,9 +70,10 @@
 	(push *search_widgets* text)
 	(def text :text (sym (cat word " ")))
 	;font changes
-	(if (bits? state +state_italic) (def text :font (get :font_italic flow)))
-	(if (bits? state +state_bold) (def text :font (get :font_bold flow)))
-	(if (bits? state +state_bold_italic) (def text :font (get :font_bold_italic flow)))
+	(cond
+		((bits? state +state_bold_italic) (def text :font (get :font_bold_italic flow)))
+		((bits? state +state_bold) (def text :font (get :font_bold flow)))
+		((bits? state +state_italic) (def text :font (get :font_italic flow))))
 	;color overrides
 	(if (bits? state +state_code) (def text :ink_color +argb_blue :font (get :font_term flow)))
 	(if (bits? state +state_strike) (def text :ink_color +argb_grey8))
@@ -184,37 +187,43 @@
 		(blank-line)
 		:t))
 
+(defun flush-lines (page lines)
+	(when (nempty? lines)
+		(cond
+			((and (some (# (find "|" %0)) lines)
+				(bind '(qtext quoted) (parse-quotes (join lines "\n")))
+				(render-table page (split qtext "\n") quoted)))
+			(:t (defq first_line (first lines) style ""
+					indent (slice first_line 0 (bskip +char_class_white_space first_line 0))
+					match (matches first_line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)"))
+				(when (nempty? match)
+					(bind '(((& cx2) (sx1 sx2) &ignore)) match)
+					(setq style (slice first_line sx1 sx2)
+						first_line (slice first_line cx2 -1)))
+				(defq full_text (join (elem-set (copy lines) 0 first_line) " "))
+				(when (nempty? (defq words (parse-line full_text)))
+					(paragraph words indent style))))
+		(clear lines)))
+
 (defun handler (state page line)
 	; (handler state page line) -> state
 	(defq lines '())
 	(cond
 		((match? line "^\\s*```")
+			(flush-lines page lines)
 			;section start
 			(if (eql (setq state (sym (cat ":" (slice line (rfind "`" line) -1)))) :) :code state))
 		(:t ;body text
 			(cond
 				((eql line "")
-					;body paragraph or table end
-					(when (nempty? lines)
-						(bind '(qtext quoted) (parse-quotes (join lines "\n")))
-						(cond
-							((render-table page (defq qlines (split qtext "\n")) quoted))
-							(:t (defq first_line (first qlines) style ""
-									indent (slice first_line 0 (bskip +char_class_white_space first_line 0))
-									match (matches first_line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)"))
-								(when (nempty? match)
-									(bind '(((& cx2) (sx1 sx2) &ignore)) match)
-									(setq style (slice first_line sx1 sx2)
-										first_line (slice first_line cx2 -1)))
-								(defq full_qtext (join (elem-set qlines 0 first_line) " "))
-								(when (nempty? (defq words (parse-styles (list full_qtext quoted))))
-									(paragraph words indent style))))
-						(clear lines)))
+					(flush-lines page lines))
 				((starts-with line "---")
+					(flush-lines page lines)
 					(under-line 1)
 					(blank-line))
 				((defq indent (some (# (if (starts-with %0 line) (!)))
 						'("# " "## " "### " "#### ")))
+					(flush-lines page lines)
 					(setq line (slice line (+ indent 2) -1))
 					(paragraph (parse-line line) "" "" (- 4 (* indent 2)) (- 34 (* indent 4))))
 				((push lines line)))
