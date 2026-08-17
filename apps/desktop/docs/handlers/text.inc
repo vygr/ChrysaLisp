@@ -143,12 +143,6 @@
 (defun split-cells (line)
 	(filter (const nempty?) (map (const trim) (split line "|"))))
 
-(defun table-lines? (qlines)
-	(defq rows (map (const split-cells) qlines))
-	(or (some (const table-separator?) rows)
-		(and (> (length qlines) 1)
-			(every (# (> (length %0) 1)) rows))))
-
 (defun render-row (page cells q_stack num_cols cell_width is_header)
 	(def (defq row_grid (Grid))
 		:grid_width num_cols :flow_flags +flow_down_fill)
@@ -176,7 +170,8 @@
 			(:t (push data_rows cells)
 				(setq num_cols (max num_cols (length cells))))))
 		(list raw_rows))
-	(when (> num_cols 1)
+	(when (and (> num_cols 1)
+			(or has_sep (and (> (length raw_rows) 1) (every (# (> (length %0) 1)) raw_rows))))
 		(defq page_width (get :min_width page)
 			cell_width (/ page_width num_cols)
 			q_stack (list (reverse quoted)))
@@ -186,7 +181,8 @@
 		(each (lambda (row)
 			(render-row page row q_stack num_cols cell_width :nil))
 			data_rows)
-		(blank-line)))
+		(blank-line)
+		:t))
 
 (defun handler (state page line)
 	; (handler state page line) -> state
@@ -201,10 +197,8 @@
 					;body paragraph or table end
 					(when (nempty? lines)
 						(bind '(qtext quoted) (parse-quotes (join lines "\n")))
-						(defq qlines (split qtext "\n"))
 						(cond
-							((table-lines? qlines)
-								(render-table page qlines quoted))
+							((render-table page (defq qlines (split qtext "\n")) quoted))
 							(:t (defq first_line (first qlines) style ""
 									indent (slice first_line 0 (bskip +char_class_white_space first_line 0))
 									match (matches first_line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)"))
