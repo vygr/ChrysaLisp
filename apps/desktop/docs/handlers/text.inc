@@ -72,15 +72,6 @@
 	(if (bits? state +state_highlight) (def text :color +argb_yellow :ink_color +argb_black))
 	text)
 
-(defun blank-line ()
-	(def (defq text (Text)) :text "")
-	(. page :add_child text))
-
-(defun under-line (size)
-	(when (and size (> size 0))
-		(def (defq backdrop (Backdrop)) :color +argb_black :min_height (max 1 (page-scale size)))
-		(. page :add_child backdrop)))
-
 (defun line-flow (container &optional size)
 	(def (defq flow (Flow)) :flow_flags +flow_right)
 	(. container :add_child flow)
@@ -93,10 +84,20 @@
 			:font_term (create-font +term_font (page-scale size))))
 	flow)
 
+(defun blank-line ()
+	(def (defq text (Text)) :text "")
+	(. page :add_child text))
+
+(defun under-line (size)
+	(when (and size (> size 0))
+		(def (defq backdrop (Backdrop)) :color +argb_black :min_height (max 1 (page-scale size)))
+		(. page :add_child backdrop)))
+
 (defun format-words (container words indent style max_width &optional underline font_size is_header)
 	(defq cnt 0 state 0 indent_width :nil flow (line-flow container font_size))
 	(if is_header (setq state (logior state +state_bold)))
 	(unless (and (eql indent "") (eql style ""))
+		;needs an indent or bullet style
 		(defq text (Text))
 		(if (find "*" style)
 			(progn
@@ -121,23 +122,23 @@
 					(setq w (+ w indent_width)))
 				(. flow :add_child text)
 				(setq cnt w)))) words)
-	(under-line underline))
+	(if underline (under-line underline)))
 
 (defun paragraph (words indent style &optional underline font_size)
 	(format-words page words indent style (get :min_width page) underline font_size)
 	(blank-line))
 
-(defun split-table-row (line)
-	(defq parts (map (const trim) (split line "|")))
-	(if (and (nempty? parts) (eql (first parts) "")) (setq parts (rest parts)))
-	(if (and (nempty? parts) (eql (last parts) "")) (setq parts (most parts)))
-	parts)
+(defun separator-cell? (cell)
+	(defq trimmed (trim cell " :"))
+	(and (nempty? trimmed) (every (# (eql %0 "-")) trimmed)))
 
 (defun table-separator? (cells)
-	(and (nempty? cells)
-		(every (# (match? %0 "^:?-+:?$")) cells)))
+	(and (nempty? cells) (every (const separator-cell?) cells)))
 
-(defun render-table (lines)
+(defun split-table-row (line)
+	(map (const trim) (split line "|")))
+
+(defun render-table (page lines)
 	(defq raw_rows (map (const split-table-row) lines)
 		has_sep :nil num_cols 0 rows (list) headers (list))
 	(each! (lambda (cells)
@@ -150,47 +151,63 @@
 				(setq num_cols (max num_cols (length cells))))))
 		(list raw_rows))
 	(when (> num_cols 1)
-		(def (defq grid (Grid))
-			:grid_width num_cols
-			:grid_height 0
-			:flow_flags +flow_down_fill
-			:font (get :font page)
-			:font_bold (get :font_bold page)
-			:font_italic (get :font_italic page)
-			:font_bold_italic (get :font_bold_italic page)
-			:font_term (get :font_term page)
-			:font_bullet (get :font_bullet page))
 		(defq page_width (get :min_width page)
 			cell_width (/ page_width num_cols))
-		(when has_sep
+		(when (and has_sep (nempty? headers))
+			(def (defq header_grid (Grid))
+				:grid_width num_cols
+				:grid_height 0
+				:flow_flags +flow_down_fill
+				:font (get :font page)
+				:font_bold (get :font_bold page)
+				:font_italic (get :font_italic page)
+				:font_bold_italic (get :font_bold_italic page)
+				:font_term (get :font_term page)
+				:font_bullet (get :font_bullet page))
+			(. page :add_child header_grid)
+			(defq h_cells (cat headers))
+			(while (< (length h_cells) num_cols) (push h_cells ""))
 			(each (lambda (cell_text)
 				(def (defq cell_flow (Flow))
 					:flow_flags +flow_down_fill
-					:font (get :font grid)
-					:font_bold (get :font_bold grid)
-					:font_italic (get :font_italic grid)
-					:font_bold_italic (get :font_bold_italic grid)
-					:font_term (get :font_term grid)
-					:font_bullet (get :font_bullet grid))
+					:font (get :font page)
+					:font_bold (get :font_bold page)
+					:font_italic (get :font_italic page)
+					:font_bold_italic (get :font_bold_italic page)
+					:font_term (get :font_term page)
+					:font_bullet (get :font_bullet page))
 				(format-words cell_flow (parse-line cell_text) "" "" cell_width :nil :nil :t)
-				(. grid :add_child cell_flow))
-				(cat headers (map (const identity) (range (length headers) num_cols)))))
-		(each (lambda (row_cells)
-			(each (lambda (cell_text)
-				(def (defq cell_flow (Flow))
-					:flow_flags +flow_down_fill
-					:font (get :font grid)
-					:font_bold (get :font_bold grid)
-					:font_italic (get :font_italic grid)
-					:font_bold_italic (get :font_bold_italic grid)
-					:font_term (get :font_term grid)
-					:font_bullet (get :font_bullet grid))
-				(format-words cell_flow (parse-line (if cell_text cell_text "")) "" "" cell_width)
-				(. grid :add_child cell_flow))
-				(cat row_cells (map (const identity) (range (length row_cells) num_cols)))))
-			rows)
-		(. page :add_child grid)
-		(if has_sep (under-line 1))
+				(. header_grid :add_child cell_flow))
+				h_cells)
+			(under-line 1))
+		(when (nempty? rows)
+			(def (defq body_grid (Grid))
+				:grid_width num_cols
+				:grid_height 0
+				:flow_flags +flow_down_fill
+				:font (get :font page)
+				:font_bold (get :font_bold page)
+				:font_italic (get :font_italic page)
+				:font_bold_italic (get :font_bold_italic page)
+				:font_term (get :font_term page)
+				:font_bullet (get :font_bullet page))
+			(. page :add_child body_grid)
+			(each (lambda (row_cells)
+				(defq r_cells (cat row_cells))
+				(while (< (length r_cells) num_cols) (push r_cells ""))
+				(each (lambda (cell_text)
+					(def (defq cell_flow (Flow))
+						:flow_flags +flow_down_fill
+						:font (get :font page)
+						:font_bold (get :font_bold page)
+						:font_italic (get :font_italic page)
+						:font_bold_italic (get :font_bold_italic page)
+						:font_term (get :font_term page)
+						:font_bullet (get :font_bullet page))
+					(format-words cell_flow (parse-line cell_text) "" "" cell_width)
+					(. body_grid :add_child cell_flow))
+					r_cells))
+				rows))
 		(blank-line)))
 
 (defun handler (state page line)
@@ -207,7 +224,7 @@
 					(when (nempty? lines)
 						(cond
 							((some (# (find "|" %0)) lines)
-								(render-table lines))
+								(render-table page lines))
 							(:t
 								(defq line (first lines) style ""
 									indent (slice line 0 (bskip +char_class_white_space line 0))
