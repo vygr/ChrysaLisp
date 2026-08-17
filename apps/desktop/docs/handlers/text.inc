@@ -40,10 +40,7 @@
 	;splice quoted sections back in
 	(cond
 		((nempty? quoted)
-			(defq q_idx 0)
-			(each (# (when (eql %0 "<q>")
-					(elem-set words (!) (elem-get quoted q_idx))
-					(++ q_idx))) words)
+			(reach (# (if (eql %0 "<q>") (elem-set words (!) (pop quoted)))) words)
 			(flatten words))
 		(words)))
 
@@ -155,8 +152,7 @@
 	(defq q_idx 0)
 	(for 0 num_cols
 		(defq cell_text (if (< (!) (length cells)) (elem-get cells (!)) "")
-			cell_flow (Flow)
-			cell_q_cnt (length (substr cell_text "<q>"))
+			cell_flow (Flow) cell_q_cnt (length (substr cell_text "<q>"))
 			cell_quoted (slice quoted q_idx (+ q_idx cell_q_cnt)))
 		(setq q_idx (+ q_idx cell_q_cnt))
 		(def cell_flow :flow_flags +flow_down)
@@ -214,8 +210,7 @@
 						(cond
 							((table-lines? lines)
 								(render-table page lines))
-							(:t
-								(defq line (first lines) style ""
+							(:t (defq line (first lines) style ""
 									indent (slice line 0 (bskip +char_class_white_space line 0))
 									match (matches line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)"))
 								(when (nempty? match)
