@@ -6,8 +6,7 @@
 
 (defun parse-quotes (line)
 	(defq quoted (list))
-	(when (nempty? (defq idxs (nums) x 0
-			match (matches line "\q[^\q]+\q|`[^`]+`")))
+	(when (nempty? (defq idxs (nums) x 0 match (matches line "\q[^\q]+\q|`[^`]+`")))
 		(each (lambda (((x1 x2)))
 			(push quoted (split (cond
 				((eql (elem-get line x1) "`")
@@ -22,8 +21,7 @@
 
 (defun parse-styles ((line quoted))
 	;the formatter Ladder
-	(defq idxs (nums)
-		words (split (reduce! (lambda (line pattern tag c)
+	(defq idxs (nums) words (split (reduce! (lambda (line pattern tag c)
 		(cond
 			((nempty? (defq match (matches line pattern)))
 				(defq idxs (clear idxs) x 0)
@@ -154,21 +152,17 @@
 	(defq q_idx 0)
 	(for 0 num_cols
 		(defq cell_text (if (< (!) (length cells)) (elem-get cells (!)) "")
-			cell_flow (Flow)
-			cell_q_cnt (length (substr cell_text "<q>"))
+			cell_flow (Flow) cell_q_cnt (length (substr cell_text "<q>"))
 			cell_quoted (slice quoted q_idx (+ q_idx cell_q_cnt)))
 		(setq q_idx (+ q_idx cell_q_cnt))
-		(def cell_flow :flow_flags +flow_down_fill)
+		(def cell_flow :flow_flags +flow_down)
 		(. grid :add_child cell_flow)
 		(format-words cell_flow (parse-styles (list cell_text cell_quoted)) "" "" cell_width :nil :nil is_header)))
 
 (defun render-grid (page rows num_cols cell_width is_header)
-	(def (defq grid (Grid))
-		:grid_width num_cols :flow_flags +flow_down_fill)
+	(def (defq grid (Grid)) :grid_width num_cols :flow_flags +flow_down_fill)
 	(. page :add_child grid)
-	(each (lambda (row)
-		(render-row grid row num_cols cell_width is_header))
-		rows)
+	(each (lambda (row) (render-row grid row num_cols cell_width is_header)) rows)
 	grid)
 
 (defun render-table (page lines)
@@ -193,6 +187,12 @@
 			(render-grid page rows num_cols cell_width :nil))
 		(blank-line)))
 
+(defun table-lines? (lines)
+	(defq rows (map (const split-table-row) lines))
+	(or (some (# (table-separator? (first %0))) rows)
+		(and (> (length lines) 1)
+			(every (# (> (length (first %0)) 1)) rows))))
+
 (defun handler (state page line)
 	; (handler state page line) -> state
 	(defq lines '())
@@ -206,7 +206,7 @@
 					;body paragraph or table end
 					(when (nempty? lines)
 						(cond
-							((some (lambda (l) (table-separator? (first (split-table-row l)))) lines)
+							((table-lines? lines)
 								(render-table page lines))
 							(:t
 								(defq line (first lines) style ""
