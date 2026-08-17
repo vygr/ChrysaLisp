@@ -4,9 +4,9 @@
 (bits +state 0
 	(bit code bold italic bold_italic highlight strike))
 
-(defun parse-line (line)
-	;pre-process code blocks and quotes
-	(when (nempty? (defq quoted (list) idxs (nums) x 0
+(defun parse-quotes (line)
+	(defq quoted (list))
+	(when (nempty? (defq idxs (nums) x 0
 			match (matches line "\q[^\q]+\q|`[^`]+`")))
 		(each (lambda (((x1 x2)))
 			(push quoted (split (cond
@@ -18,8 +18,12 @@
 			(setq x x2)) match)
 		;one allocation, atomic scatter copy!
 		(setq line (splice line " <c> <q> </c> " (push idxs x -1))))
+	(list line quoted))
+
+(defun parse-styles ((line quoted))
 	;the formatter Ladder
-	(defq words (split (reduce! (lambda (line pattern tag c)
+	(defq idxs (nums)
+		words (split (reduce! (lambda (line pattern tag c)
 		(cond
 			((nempty? (defq match (matches line pattern)))
 				(defq idxs (clear idxs) x 0)
@@ -38,9 +42,15 @@
 	;splice quoted sections back in
 	(cond
 		((nempty? quoted)
-			(reach (# (if (eql %0 "<q>") (elem-set words (!) (pop quoted)))) words)
+			(defq q_idx 0)
+			(each (# (when (eql %0 "<q>")
+					(elem-set words (!) (elem-get quoted q_idx))
+					(++ q_idx))) words)
 			(flatten words))
 		(words)))
+
+(defun parse-line (line)
+	(parse-styles (parse-quotes line)))
 
 (defun word-state (word)
 	(case word
@@ -136,15 +146,21 @@
 	(and (nempty? cells) (every (const separator-cell?) cells)))
 
 (defun split-table-row (line)
-	(map (const trim) (split line "|")))
+	(bind '(qline quoted) (parse-quotes line))
+	(defq cells (filter (const nempty?) (map (const trim) (split qline "|"))))
+	(list cells quoted))
 
-(defun render-row (grid row num_cols cell_width is_header)
+(defun render-row (grid (cells quoted) num_cols cell_width is_header)
+	(defq q_idx 0)
 	(for 0 num_cols
-		(defq cell_text (if (< (!) (length row)) (elem-get row (!)) "")
-			cell_flow (Flow))
+		(defq cell_text (if (< (!) (length cells)) (elem-get cells (!)) "")
+			cell_flow (Flow)
+			cell_q_cnt (length (substr cell_text "<q>"))
+			cell_quoted (slice quoted q_idx (+ q_idx cell_q_cnt)))
+		(setq q_idx (+ q_idx cell_q_cnt))
 		(def cell_flow :flow_flags +flow_down_fill)
 		(. grid :add_child cell_flow)
-		(format-words cell_flow (parse-line cell_text) "" "" cell_width :nil :nil is_header)))
+		(format-words cell_flow (parse-styles (list cell_text cell_quoted)) "" "" cell_width :nil :nil is_header)))
 
 (defun render-grid (page rows num_cols cell_width is_header)
 	(def (defq grid (Grid))
@@ -156,15 +172,15 @@
 	grid)
 
 (defun render-table (page lines)
-	(defq raw_rows (filter (const nempty?) (map (const split-table-row) lines))
+	(defq raw_rows (filter (# (nempty? (first %0))) (map (const split-table-row) lines))
 		has_sep :nil num_cols 0 rows (list) headers (list))
-	(each! (lambda (cells)
+	(each! (lambda ((cells quoted))
 		(cond
 			((table-separator? cells)
 				(setq has_sep :t)
 				(when (nempty? rows)
 					(setq headers (pop rows))))
-			(:t (push rows cells)
+			(:t (push rows (list cells quoted))
 				(setq num_cols (max num_cols (length cells))))))
 		(list raw_rows))
 	(when (> num_cols 1)
@@ -190,7 +206,7 @@
 					;body paragraph or table end
 					(when (nempty? lines)
 						(cond
-							((some (# (find "|" %0)) lines)
+							((some (lambda (l) (table-separator? (first (split-table-row l)))) lines)
 								(render-table page lines))
 							(:t
 								(defq line (first lines) style ""

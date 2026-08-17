@@ -16,6 +16,9 @@ directly by the `text` handler.
 Standard body paragraph text (18pt) demonstrating proportional font rendering,
 natural line breaks, and automatic word wrapping across the view width.
 
+Test that embedded pipe symbols in quotes work correctly "this is an embedded |
+symbol" section of quoted text.
+
 ---
 
 ### Inline Styles and Character Formatting
@@ -85,6 +88,35 @@ This section tests every supported inline character formatting rule:
 | Entry 1 | `:r0` | `ptr` | Base pointer reference |
 | Entry 2 | `:r1` | `long` | |
 | Entry 3 | `:r2` | | |
+
+---
+
+### Quoted Formatting Invariance in Prose and Lists
+
+This section verifies that formatting syntax within double quotes is treated
+strictly as literal text and is not acted on by the style parser:
+
+* Literal quote containing asterisks: "This text has **no bold**, *no italic*,
+  and ***no bold-italic*** formatting."
+
+* Literal quote containing highlights and strikes: "This text has ==no
+  highlight== and ~~no strikethrough~~."
+
+* Literal quote containing code markers: "This text has `no backtick code`."
+
+* Literal quote containing pipe delimiters: "First | Second | Third column
+  markers that must remain verbatim."
+
+---
+
+### Quoted Styles and Embedded Pipes in Table Columns
+
+| Target Style | Quoted Input (No Action) | Expected Interpretation |
+| --- | --- | --- |
+| Bold & Italic | "**literal bold** and *literal italic*" | Literal asterisks rendered inside quotes |
+| Highlight & Strike | "==literal highlight== and ~~literal strike~~" | Literal equals and tildes inside quotes |
+| Triple Asterisks | "***literal bold-italic***" | Literal three asterisks |
+| Embedded Column Pipes | "Left Cell | Right Cell | Extra |" | Kept intact within single column cell |
 
 ---
 
