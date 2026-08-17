@@ -72,18 +72,6 @@
 	(if (bits? state +state_highlight) (def text :color +argb_yellow :ink_color +argb_black))
 	text)
 
-(defun line-flow (&optional size)
-	(def (defq flow (Flow)) :flow_flags +flow_right)
-	(. page :add_child flow)
-	(when size
-		(def flow :font (create-font +doc_font (page-scale size))
-			:font_bold (create-font +doc_font_bold (page-scale size))
-			:font_italic (create-font +doc_font_italic (page-scale size))
-			:font_bold_italic (create-font +doc_font_bold_italic (page-scale size))
-			:font_bullet (create-font +bullet_font (page-scale size))
-			:font_term (create-font +term_font (page-scale size))))
-	flow)
-
 (defun blank-line ()
 	(def (defq text (Text)) :text "")
 	(. page :add_child text))
@@ -93,11 +81,22 @@
 		(def (defq backdrop (Backdrop)) :color +argb_black :min_height (max 1 (page-scale size)))
 		(. page :add_child backdrop)))
 
-(defun paragraph (words indent style &optional underline font_size)
-	(defq cnt 0 state 0 page_width (get :min_width page)
-		indent_width :nil flow (line-flow font_size))
+(defun line-flow (container &optional size)
+	(def (defq flow (Flow)) :flow_flags +flow_right)
+	(. container :add_child flow)
+	(when size
+		(def flow :font (create-font +doc_font (page-scale size))
+			:font_bold (create-font +doc_font_bold (page-scale size))
+			:font_italic (create-font +doc_font_italic (page-scale size))
+			:font_bold_italic (create-font +doc_font_bold_italic (page-scale size))
+			:font_bullet (create-font +bullet_font (page-scale size))
+			:font_term (create-font +term_font (page-scale size))))
+	flow)
+
+(defun format-words (container words indent style max_width &optional underline font_size is_header)
+	(defq cnt 0 state 0 indent_width :nil flow (line-flow container font_size))
+	(if is_header (setq state (logior state +state_bold)))
 	(unless (and (eql indent "") (eql style ""))
-		;needs an indent or bullet style
 		(defq text (Text))
 		(if (find "*" style)
 			(progn
@@ -114,16 +113,85 @@
 		(when (= (word-state word) -1)
 			(defq text (create-word word state))
 			(bind '(w &) (. text :pref_size))
-			(when (> (++ cnt w) page_width)
-				(setq flow (line-flow font_size))
+			(when (> (++ cnt w) max_width)
+				(setq flow (line-flow container font_size))
 				(when indent_width
 					(def (defq indent_tab (Backdrop)) :min_width indent_width)
 					(. flow :add_child indent_tab)
 					(setq w (+ w indent_width)))
 				(. flow :add_child text)
 				(setq cnt w)))) words)
-	(under-line underline)
+	(under-line underline))
+
+(defun paragraph (words indent style &optional underline font_size)
+	(format-words page words indent style (get :min_width page) underline font_size)
 	(blank-line))
+
+(defun split-table-row (line)
+	(defq parts (map (const trim) (split line "|")))
+	(if (and (nempty? parts) (eql (first parts) "")) (setq parts (rest parts)))
+	(if (and (nempty? parts) (eql (last parts) "")) (setq parts (most parts)))
+	parts)
+
+(defun table-separator? (cells)
+	(and (nempty? cells)
+		(every (# (match? %0 "^:?-+:?$")) cells)))
+
+(defun render-table (lines)
+	(defq raw_rows (map (const split-table-row) lines)
+		has_sep :nil num_cols 0 rows (list) headers (list))
+	(each! (lambda (cells)
+		(cond
+			((table-separator? cells)
+				(setq has_sep :t)
+				(when (nempty? rows)
+					(setq headers (pop rows))))
+			(:t (push rows cells)
+				(setq num_cols (max num_cols (length cells))))))
+		(list raw_rows))
+	(when (> num_cols 1)
+		(def (defq grid (Grid))
+			:grid_width num_cols
+			:grid_height 0
+			:flow_flags +flow_down_fill
+			:font (get :font page)
+			:font_bold (get :font_bold page)
+			:font_italic (get :font_italic page)
+			:font_bold_italic (get :font_bold_italic page)
+			:font_term (get :font_term page)
+			:font_bullet (get :font_bullet page))
+		(defq page_width (get :min_width page)
+			cell_width (/ page_width num_cols))
+		(when has_sep
+			(each (lambda (cell_text)
+				(def (defq cell_flow (Flow))
+					:flow_flags +flow_down_fill
+					:font (get :font grid)
+					:font_bold (get :font_bold grid)
+					:font_italic (get :font_italic grid)
+					:font_bold_italic (get :font_bold_italic grid)
+					:font_term (get :font_term grid)
+					:font_bullet (get :font_bullet grid))
+				(format-words cell_flow (parse-line cell_text) "" "" cell_width :nil :nil :t)
+				(. grid :add_child cell_flow))
+				(cat headers (map (const identity) (range (length headers) num_cols)))))
+		(each (lambda (row_cells)
+			(each (lambda (cell_text)
+				(def (defq cell_flow (Flow))
+					:flow_flags +flow_down_fill
+					:font (get :font grid)
+					:font_bold (get :font_bold grid)
+					:font_italic (get :font_italic grid)
+					:font_bold_italic (get :font_bold_italic grid)
+					:font_term (get :font_term grid)
+					:font_bullet (get :font_bullet grid))
+				(format-words cell_flow (parse-line (if cell_text cell_text "")) "" "" cell_width)
+				(. grid :add_child cell_flow))
+				(cat row_cells (map (const identity) (range (length row_cells) num_cols)))))
+			rows)
+		(. page :add_child grid)
+		(if has_sep (under-line 1))
+		(blank-line)))
 
 (defun handler (state page line)
 	; (handler state page line) -> state
@@ -135,17 +203,21 @@
 		(:t ;body text
 			(cond
 				((eql line "")
-					;body paragraph end
+					;body paragraph or table end
 					(when (nempty? lines)
-						(defq line (first lines) style ""
-							indent (slice line 0 (bskip +char_class_white_space line 0))
-							match (matches line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)"))
-						(when (nempty? match)
-							(bind '(((& cx2) (sx1 sx2) &ignore)) match)
-							(setq style (slice line sx1 sx2) line (slice line cx2 -1)))
-						(setq line (join (elem-set lines 0 line) " "))
-						(when (nempty? (defq words (parse-line line)))
-							(paragraph words indent style))
+						(cond
+							((some (# (find "|" %0)) lines)
+								(render-table lines))
+							(:t
+								(defq line (first lines) style ""
+									indent (slice line 0 (bskip +char_class_white_space line 0))
+									match (matches line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)"))
+								(when (nempty? match)
+									(bind '(((& cx2) (sx1 sx2) &ignore)) match)
+									(setq style (slice line sx1 sx2) line (slice line cx2 -1)))
+								(setq line (join (elem-set lines 0 line) " "))
+								(when (nempty? (defq words (parse-line line)))
+									(paragraph words indent style))))
 						(clear lines)))
 				((starts-with line "---")
 					(under-line 1)
