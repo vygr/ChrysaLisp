@@ -181,13 +181,12 @@
 
 (defun flush-lines (page lines)
 	(when (nempty? lines)
-		(defq first_line (first lines) style ""
-			indent (slice first_line 0 (bskip +char_class_white_space first_line 0))
-			match (matches first_line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)"))
-		(when (nempty? match)
+		(when (nempty? (defq first_line (first lines) style ""
+				indent (slice first_line 0 (bskip +char_class_white_space first_line 0))
+				match (matches first_line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)")))
 			(bind '(((& cx2) (sx1 sx2) &ignore)) match)
-			(elem-set lines 0 (setq style (slice first_line sx1 sx2)
-				first_line (slice first_line cx2 -1))))
+			(setq style (slice first_line sx1 sx2))
+			(elem-set lines 0 (slice first_line cx2 -1)))
 		(bind '(tagged_text quoted) (parse-text (join lines "\n")))
 		(cond
 			((try-render-table page tagged_text quoted))
