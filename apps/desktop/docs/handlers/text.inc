@@ -186,8 +186,8 @@
 			match (matches first_line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)"))
 		(when (nempty? match)
 			(bind '(((& cx2) (sx1 sx2) &ignore)) match)
-			(setq style (slice first_line sx1 sx2) first_line (slice first_line cx2 -1)))
-		(elem-set lines 0 first_line)
+			(elem-set lines 0 (setq style (slice first_line sx1 sx2)
+				first_line (slice first_line cx2 -1))))
 		(bind '(tagged_text quoted) (parse-text (join lines "\n")))
 		(cond
 			((try-render-table page tagged_text quoted))
