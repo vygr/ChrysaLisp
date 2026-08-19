@@ -35,7 +35,7 @@ calculations. Helps situations like "Fa" "<<<" ">>>" etc. Without breaking
 italic fonts.
 
 Added column layout support to the Docs app. New `docs/test.md` document with
-all the supported formatting and layouts tested.
+all the supported formatting and layouts tested. Added column alignment support.
 
 ------
 
