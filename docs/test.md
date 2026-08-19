@@ -164,3 +164,24 @@ strictly as literal text and is not acted on by the style parser:
 Alpha Channel | Premultiplied 32-bit ARGB representation
 Color Palette | Indexed 16-color lookup table with transparency
 Vector Font | Cubic and quadratic Bezier curves
+
+---
+
+### Column Alignment Syntax (Left, Center, Right)
+
+| Left Aligned (`:---`) | Center Aligned (`:---:`) | Right Aligned (`---:`) |
+| :--- | :---: | ---: |
+| Alpha text | Centered item | 100.00 |
+| Left multi-word content that wraps | Center wrapped line test | 2,500.50 |
+| `:r0` register | `sys/task/class.vp` | 0x8000 |
+| Plain string | **Bold center** | ~~Strikethrough~~ |
+
+---
+
+### Mixed Alignments with 4 Columns
+
+| Key (`:---`) | Type (`:---:`) | Value (`---:`) | Description (`---`) |
+| :--- | :---: | ---: | --- |
+| `+view_flag_solid` | `bit` | `1` | Solid opaque hit test |
+| `+view_flag_dirty` | `bit` | `4` | Marked for compositor refresh |
+| `+view_w` | `int` | `1024` | Preferred widget width |

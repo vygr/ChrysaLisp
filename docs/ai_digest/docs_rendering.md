@@ -70,7 +70,7 @@ string to be painted, but as a hierarchical UI tree.
       primitive executes a hardware-accelerated scatter-copy, instantly
       stitching preserved text and markup tags together in a single operation.
 
-* **Zero-Overhead Grid Table Generation and Reverse Stack Traversal**
+* **Zero-Overhead Grid Table Generation and Column Alignment**
 
 	* Table parsing is gated by a fast substring test: `(find "|" tagged_text)`. If
 	  no pipe delimiter exists, the text block immediately bypasses table checks
@@ -78,7 +78,9 @@ string to be painted, but as a hierarchical UI tree.
 
 	* When pipe markers are present, lines and cells are split in a single pass.
 	  Rows are categorized into headers and data rows, separator lines
-	  (`|---|---|`) are detected, and column counts are computed.
+	  (`|---|---|`) are detected, and column alignment rules (`:---`, `:---:`,
+	  `---:`) are parsed into alignment flow flags (`+flow_down`,
+	  `+flow_flag_align_hcenter`, `+flow_flag_align_hright`).
 
 	* Tables are rendered into an enclosing `Flow` widget populated in
 	  bottom-to-top order via `reach` and `:add_front`. Each row is constructed as
@@ -216,8 +218,8 @@ The text rendering engine dynamically translates inline markdown into visual
 state bitmasks, allowing multiple properties to be applied to individual word
 widgets on the fly. Here is a summary of supported formatting styles:
 
-* **Headers:** Level 1 through 4 headers (`# `, `## `, `### `, `#### `) with
-  scaled typography and dynamic underlines.
+* **Headers:** Level 1 through 6 headers (`# `, `## `, `### `, `#### `, `#####
+  `, `###### `) with scaled typography and dynamic underlines.
 
 * **Emphasis:** **Bold** (`**bold**`), *Italic* (`*italic*`), and
   ***Bold-Italic*** (`***bold-italic***`).
@@ -231,7 +233,8 @@ widgets on the fly. Here is a summary of supported formatting styles:
 * **Lists:** Numbered lists (`1. `) and bullet lists (`* `, `- `) with automatic
   hanging indents and custom bullet glyphs (`0xe979`).
 
-* **Tables:** Markdown grid tables with alignment formatting, cell word
-  wrapping, header underlines, and embedded inline code/styles.
+* **Tables:** Markdown grid tables with column alignment syntax (`:---`,
+  `:---:`, `---:`), multi-word cell wrapping, header underlines, and embedded
+  inline code/styles.
 
 * **Dividers:** Horizontal thematic break rules (`---`).
