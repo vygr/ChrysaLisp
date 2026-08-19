@@ -70,29 +70,34 @@ string to be painted, but as a hierarchical UI tree.
       primitive executes a hardware-accelerated scatter-copy, instantly
       stitching preserved text and markup tags together in a single operation.
 
-* **Zero-Overhead Grid Table Generation**
+* **Zero-Overhead Grid Table Generation and Reverse Stack Traversal**
 
-    * Table parsing is gated by a fast substring test: `(find "|" tagged_text)`.
-      If no pipe delimiter exists, the text block immediately bypasses table
-      checks and proceeds directly to paragraph rendering.
+	* Table parsing is gated by a fast substring test: `(find "|" tagged_text)`. If
+	  no pipe delimiter exists, the text block immediately bypasses table checks
+	  and proceeds directly to paragraph rendering.
 
-    * When pipe markers are present, lines and cells are split in a single pass.
-      Rows are categorized into headers and data rows, separator lines
-      (`|---|---|`) are detected, and column counts are computed.
+	* When pipe markers are present, lines and cells are split in a single pass.
+	  Rows are categorized into headers and data rows, separator lines
+	  (`|---|---|`) are detected, and column counts are computed.
 
-    * Tables are rendered as `Grid` widgets containing vertical `Flow` column
-      cells. Quoted code tokens within table cells are restored in sequential
-      reading order via `restore-quotes`, which tokenizes cell text and flattens
-      quote payload words directly into the layout pipeline.
+	* Tables are rendered into an enclosing `Flow` widget populated in
+	  bottom-to-top order via `reach` and `:add_front`. Each row is constructed as
+	  a `Grid` with columns populated right-to-left `(for num_cols 0)` via
+	  `:add_front`. Immediate containment attachment preserves the `:parent` chain
+	  for O(1) font property inheritance (`:font_bold`, `:font_term`).
 
-* **In-Place Quote Restoration for Flow Paragraphs**
+	* Because the rows and columns are evaluated in reverse, `restore-quotes` is
+	  reused directly for table cells, popping quotes from the back of the original
+	  `quoted` list in place with zero allocation overhead or list reversals.
 
-    * For standard paragraphs and headers, `restore-quotes` walks the word token
-      stream in reverse using `reach`, popping replacement words directly from
-      the back of the `quoted` list in place.
+* **Unified In-Place Quote Restoration**
 
-    * This eliminates the need to allocate and reverse separate quote stacks for
-      non-table text blocks.
+	* Both standard paragraphs and grid tables share the exact same in-place quote
+	  restoration mechanism.
+
+	* By executing traversal in reverse order of quote discovery, `restore-quotes`
+	  pops replacement words directly from the back of the unmodified `quoted`
+	  list, eliminating all intermediate quote-stack allocations.
 
 * **Flow-Based Word Wrapping**
 
