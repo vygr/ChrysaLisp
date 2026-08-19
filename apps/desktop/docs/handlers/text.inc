@@ -212,7 +212,7 @@
 					(under-line 1)
 					(blank-line))
 				((defq indent (some (# (if (starts-with %0 line) (!)))
-						'("# " "## " "### " "#### ")))
+						'("# " "## " "### " "#### " "##### " "###### ")))
 					(flush-lines page lines)
 					(setq line (slice line (+ indent 2) -1))
 					(paragraph (parse-line line) "" "" (- 4 (* indent 2)) (- 34 (* indent 4))))

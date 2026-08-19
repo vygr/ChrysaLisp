@@ -13,6 +13,10 @@ directly by the `text` handler.
 
 #### Heading Level 4 (22pt)
 
+##### Heading Level 5 (18pt)
+
+###### Heading Level 6 (14pt)
+
 Standard body paragraph text (18pt) demonstrating proportional font rendering,
 natural line breaks, and automatic word wrapping across the view width.
 
@@ -33,7 +37,16 @@ This section tests every supported inline character formatting rule:
 
 * Inline code blocks such as `(defq a 10 b 20)` and `(mail-send mbox msg)`.
 
+* Alternate curly-brace literal syntax `{literal text string}` parsed as a code
+  span.
+
 * Quoted literals like "double-quoted string text" within normal prose.
+
+* Punctuation immediately adjacent to formatted spans: `(first list)`,
+  `*root_env*`, **bolded!**, and *italicized?*.
+
+* Multiple formatted spans within a single line: **Alpha**, *Beta*, `Gamma`,
+  ==Delta==, and ~~Epsilon~~.
 
 ---
 
@@ -56,9 +69,13 @@ This section tests every supported inline character formatting rule:
 
 3. Third sequential numbered step demonstrating multi-item alignment.
 
+10. Multi-digit numbered item verifying correct prefix alignment.
+
 1.1. Nested outline numbering test item.
 
 1.2. Secondary nested outline numbering item.
+
+1.2.1. Deeply nested triple-level outline numbering item.
 
 ---
 
@@ -88,6 +105,28 @@ This section tests every supported inline character formatting rule:
 | Entry 1 | `:r0` | `ptr` | Base pointer reference |
 | Entry 2 | `:r1` | `long` | |
 | Entry 3 | `:r2` | | |
+
+---
+
+### High Column Count Table (5 Columns)
+
+| Reg | Type | Width | Offset | Usage |
+| --- | --- | --- | --- | --- |
+| `:r0` | `ptr` | 8 bytes | `+0` | `this` object context |
+| `:r1` | `ptr` | 8 bytes | `+8` | `args` argument list |
+| `:r2` | `long` | 8 bytes | `+16` | General integer / scratch |
+| `:r3` | `long` | 8 bytes | `+24` | Counter / accumulator |
+| `:r4` | `uint` | 4 bytes | `+32` | Flags bitmask |
+
+---
+
+### Multiple Code Tokens in Table Cells
+
+| Primitive | Arguments | Returns | Example |
+| --- | --- | --- | --- |
+| `pinsert` | `props` `key` `val` | `props` | `(pinsert p :font font)` |
+| `pfind` | `props` `key` | `val` | `(pfind p :color)` |
+| `perase` | `props` `key` | `props` | `(perase p :state)` |
 
 ---
 
