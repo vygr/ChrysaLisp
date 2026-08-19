@@ -82,24 +82,24 @@ string to be painted, but as a hierarchical UI tree.
 	  `---:`) are parsed into alignment flow flags (`+flow_down`,
 	  `+flow_flag_align_hcenter`, `+flow_flag_align_hright`).
 
-	* Tables are rendered into an enclosing `Flow` widget populated in
-	  bottom-to-top order via `reach` and `:add_front`. Each row is constructed as
-	  a `Grid` with columns populated right-to-left `(for num_cols 0)` via
-	  `:add_front`. Immediate containment attachment preserves the `:parent` chain
+	* Tables are rendered in natural forward reading order. Each row is
+	  instantiated as a `Grid` widget containing vertical `Flow` column cells
+	  attached directly to `page`, immediately establishing the `:parent` hierarchy
 	  for O(1) font property inheritance (`:font_bold`, `:font_term`).
 
-	* Because the rows and columns are evaluated in reverse, `restore-quotes` is
-	  reused directly for table cells, popping quotes from the back of the original
-	  `quoted` list in place with zero allocation overhead or list reversals.
+	* Quoted code tokens within table cells are restored sequentially from a
+	  temporary `q_stack` (populated via `(reverse quoted)`), naturally preserving
+	  word order and ensuring search widgets are registered in forward document
+	  reading order.
 
-* **Unified In-Place Quote Restoration**
+* **In-Place Quote Restoration for Flow Paragraphs**
 
-	* Both standard paragraphs and grid tables share the exact same in-place quote
-	  restoration mechanism.
+	* For standard paragraphs and headers, `restore-quotes` walks the word token
+	  stream in reverse using `reach`, popping replacement words directly from the
+	  back of the `quoted` list in place.
 
-	* By executing traversal in reverse order of quote discovery, `restore-quotes`
-	  pops replacement words directly from the back of the unmodified `quoted`
-	  list, eliminating all intermediate quote-stack allocations.
+	* This eliminates the need to allocate and reverse separate quote stacks for
+	  non-table text blocks.
 
 * **Flow-Based Word Wrapping**
 
