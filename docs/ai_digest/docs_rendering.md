@@ -1,31 +1,47 @@
 # ChrysaLisp Docs Application Architecture
 
-The `apps/desktop/docs` application in ChrysaLisp is a markdown document viewer
-that rejects the traditional monolithic "Rich Text" widget approach. Instead of
-rendering a single massive text buffer, it leverages ChrysaLisp's graphical
-composition system, dynamic module loading, and functional primitives to build
-documents out of independent UI components.
+The `apps/desktop/docs` application in ChrysaLisp is a modular markdown document
+viewer that rejects the traditional monolithic "Rich Text" buffer approach.
+Instead of treating text as a monolithic string canvas, it leverages
+ChrysaLisp's graphical composition tree, dynamic module loading, and functional
+primitives to build documents out of independent, interactive UI components.
+
+Historically, the Docs application implemented its own bespoke markdown parser
+and layout logic directly within its text handlers. In the modern architecture,
+this functionality is fully encapsulated in the reusable `Md` GUI widget
+(`gui/md/lisp.inc`). The Docs application delegates all text section rendering
+to `Md` instances, dynamically composing them alongside code editors, live
+canvases, and interactive application widgets.
 
 This document details the internal architecture of the application, focusing on
-its text layout engine, its dynamic code-block delegation system, and its
-multi-tiered search capabilities.
+the `Md` widget layout engine, the dynamic section handler delegation system,
+and the multi-tiered distributed search architecture.
 
-## Text Rendering and Flow Layout
+## The `Md` Component and Text Rendering Engine
 
-The text rendering engine (primarily located in
-`apps/desktop/docs/handlers/text.inc`) treats a markdown document not as a
-string to be painted, but as a hierarchical UI tree.
+All standard markdown text processing, typography scaling, table formatting, and
+word-wrapping layout are implemented in the `Md` class (`gui/md/lisp.inc`),
+which inherits from `Flow`.
+
+* **Encapsulated Markdown Widget (`Md`)**
+
+    * The `Md` component takes a sequence of markdown text lines and renders
+      them into an internal hierarchy of container flows and individual words.
+
+    * When rendered via `(. md :render)`, the widget builds an internal list of
+      all instantiated word widgets (`:search_widgets`), exposing them via the
+      getter method `(. md :get_search_widgets)` for external search indexing.
 
 * **The Word-as-Widget Philosophy**
 
-    * Every single word in a standard markdown paragraph is instantiated as its
-      own independent `Text` widget.
+    * Every single word in a paragraph or table cell is instantiated as an
+      independent `Text` widget.
 
-    * Formatting is maintained via a state machine. As the parser encounters
-      markup tags, it flips bits in a `state` integer (e.g., `+state_bold`,
-      `+state_code`). When a word is instantiated, it checks this bitmask and
-      dynamically pulls the correct font or color property from its parent
-      container via ChrysaLisp's O(1) property inheritance (`:hmap :search`).
+    * Formatting is maintained via a compact bitmask state (`+state_bold`,
+      `+state_italic`, `+state_code`, `+state_highlight`, `+state_strike`).
+      Plain words inherit fonts and colors dynamically from the parent `Flow`
+      container via ChrysaLisp's O(1) containment hierarchy (`:parent`
+      traversal), while styled words explicitly link to specialized fonts.
 
 * **Prefix Isolation and Collision Avoidance**
 
@@ -72,34 +88,34 @@ string to be painted, but as a hierarchical UI tree.
 
 * **Zero-Overhead Grid Table Generation and Column Alignment**
 
-	* Table parsing is gated by a fast substring test: `(find "|" tagged_text)`. If
-	  no pipe delimiter exists, the text block immediately bypasses table checks
-	  and proceeds directly to paragraph rendering.
+    * Table parsing is gated by a fast substring test: `(find "|" tagged_text)`.
+      If no pipe delimiter exists, the text block immediately bypasses table
+      checks and proceeds directly to paragraph rendering.
 
-	* When pipe markers are present, lines and cells are split in a single pass.
-	  Rows are categorized into headers and data rows, separator lines
-	  (`|---|---|`) are detected, and column alignment rules (`:---`, `:---:`,
-	  `---:`) are parsed into alignment flow flags (`+flow_down`,
-	  `+flow_flag_align_hcenter`, `+flow_flag_align_hright`).
+    * When pipe markers are present, lines and cells are split in a single pass.
+      Rows are categorized into headers and data rows, separator lines
+      (`|---|---|`) are detected, and column alignment rules (`:---`, `:---:`,
+      `---:`) are parsed into alignment flow flags (`+flow_down`,
+      `+flow_flag_align_hcenter`, `+flow_flag_align_hright`).
 
-	* Tables are rendered in natural forward reading order. Each row is
-	  instantiated as a `Grid` widget containing vertical `Flow` column cells
-	  attached directly to `page`, immediately establishing the `:parent` hierarchy
-	  for O(1) font property inheritance (`:font_bold`, `:font_term`).
+    * Tables are rendered in natural forward reading order. Each row is
+      instantiated as a `Grid` widget containing vertical `Flow` column cells
+      attached directly to the container, establishing the `:parent` hierarchy
+      for O(1) font property inheritance.
 
-	* Quoted code tokens within table cells are restored sequentially from a
-	  temporary `q_stack` (populated via `(reverse quoted)`), naturally preserving
-	  word order and ensuring search widgets are registered in forward document
-	  reading order.
+    * Quoted code tokens within table cells are restored sequentially from a
+      temporary `q_stack` (populated via `(reverse quoted)`), naturally
+      preserving word order and ensuring search widgets are registered in
+      forward document reading order.
 
 * **In-Place Quote Restoration for Flow Paragraphs**
 
-	* For standard paragraphs and headers, `restore-quotes` walks the word token
-	  stream in reverse using `reach`, popping replacement words directly from the
-	  back of the `quoted` list in place.
+    * For standard paragraphs and headers, `restore-quotes` walks the word token
+      stream in reverse using `reach`, popping replacement words directly from
+      the back of the `quoted` list in place.
 
-	* This eliminates the need to allocate and reverse separate quote stacks for
-	  non-table text blocks.
+    * This eliminates the need to allocate and reverse separate quote stacks for
+      non-table text blocks.
 
 * **Flow-Based Word Wrapping**
 
@@ -120,14 +136,14 @@ string to be painted, but as a hierarchical UI tree.
 
 ## Dynamic Section Handlers
 
-The document parser does not hardcode the logic for every possible markdown
-block. Instead, it utilizes a powerful Delegation Pattern driven by Markdown's
-fenced code blocks ("```tag").
+The document parser in `apps/desktop/docs/app.lisp` does not hardcode the logic
+for every possible markdown block. Instead, it utilizes a Delegation Pattern
+driven by Markdown's fenced code blocks ("```tag").
 
 * **Lazy Module Loading**
 
     * When the parser encounters a fenced block, it reads the tag (e.g.,
-      "```lisp", "```image").
+      "```vdu", "```image").
 
     * It passes this tag to the `handler-func` router. The router checks an
       environment map (`handlers`) for an existing function.
@@ -136,6 +152,16 @@ fenced code blocks ("```tag").
       (`handlers/tag.inc`), reads the file from disk, and compiles/evaluates it
       live into the running application using `repl`. The new handler is cached
       and immediately used to process the block's text.
+
+* **Text Handler and `Md` Integration (`handlers/text.inc`)**
+
+    * Prose text outside of fenced blocks is gathered line by line in
+      `handlers/text.inc`.
+
+    * When a transition occurs (such as encountering a fenced block or reaching
+      the end of the document), `flush-md` instantiates an `(Md (cat lines))`
+      widget, configures its zoom, page width, and font properties, renders it,
+      and attaches it as a child to the main `page` flow.
 
 * **Built-in Handlers**
 
@@ -170,6 +196,22 @@ fenced code blocks ("```tag").
 The application features a dual-tiered search system that covers both the
 currently open document and the entire file system.
 
+* **Aggregate Search Widget Collection**
+
+    * Because text sections are rendered across multiple `Md` instances
+      separated by code blocks or images, the Docs application gathers all
+      searchable tokens across the whole document upon load.
+
+    * In `populate-page`, the application filters the page's children for `Md?`
+      instances and concatenates their individual `:search_widgets` lists into a
+      single, unified `*search_widgets*` list using `reduce`:
+
+      ```vdu
+      (setq *search_widgets*
+          (reduce (# (cat %0 (. %1 :get_search_widgets)))
+              (filter (const Md?) (. page :children)) (list)))
+      ```
+
 * **Polymorphic Search Engines**
 
     * Searching utilizes two distinct classes: `Substr` (for simple text
@@ -185,18 +227,24 @@ currently open document and the entire file system.
       repeating a search is an O(1) cache lookup rather than a recompilation of
       the regex state machine.
 
-* **Local Widget Highlighting**
+* **Identity-Based Widget Highlighting and Navigation**
 
-    * Because the document is built from individual `Text` widgets, local search
-      does not require complex string index tracking to highlight text.
+    * Because all `Text` widgets representing the same plain text word have
+      identical `hmap` contents, standard `find` (which calls `:obj :eql`)
+      matches the content of the first occurrence in the list.
 
-    * When a document is loaded, every word widget is pushed into a flat
-      `*search_widgets*` array.
+    * Navigation in `search.inc` therefore locates the active widget using its
+      unique integer view ID via `(. %0 :get_id)`:
 
-    * When the user searches, the app filters this array using the search
-      engine. It simply changes the background color property (`:color
-      *env_highlight_col*`) of the matching `Text` widgets and commands the
-      parent `Scroll` view to ensure that specific widget is visible on screen.
+      ```vdu
+      (defq idx (some (# (if (= (. %0 :get_id) (. *last_widget* :get_id)) (!))) found))
+      ```
+
+    * This guarantees accurate forward and backward cycling across duplicate
+      words throughout all `Md` sections in the document.
+
+    * The active match is highlighted by setting `:color *env_highlight_col*`
+      and scrolled into view via `(. *page_scroll* :visible *last_widget*)`.
 
 * **Global Distributed Search**
 
@@ -214,9 +262,9 @@ currently open document and the entire file system.
 
 ## Supported Text Styles
 
-The text rendering engine dynamically translates inline markdown into visual
-state bitmasks, allowing multiple properties to be applied to individual word
-widgets on the fly. Here is a summary of supported formatting styles:
+The `Md` widget dynamically translates inline markdown into visual state
+bitmasks, allowing multiple properties to be applied to individual word widgets
+on the fly:
 
 * **Headers:** Level 1 through 6 headers (`# `, `## `, `### `, `#### `, `#####
   `, `###### `) with scaled typography and dynamic underlines.
