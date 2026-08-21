@@ -40,6 +40,9 @@ all the supported formatting and layouts tested. Added column alignment support.
 Move MD text rendering to a `gui/md/lisp.inc` widget. Docs app `text` handler
 now gathers the text lines and embed an `Md` widget into the document.
 
+Updated other text zoomable apps to use the new `:zoom` propertiy on the main
+window widget.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

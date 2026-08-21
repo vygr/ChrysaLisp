@@ -8,7 +8,7 @@
 (defclass Window () (View)
 	; (Window) -> window
 	(def this :child :nil :last_buttons 0 :is_window :t
-		:drag_mode 0 :drag_offx 0 :drag_offy 0)
+		:drag_mode 0 :drag_offx 0 :drag_offy 0 :zoom 1.0)
 
 	(defmethod :draw ()
 		; (. window :draw) -> window

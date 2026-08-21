@@ -129,7 +129,7 @@
 	(. *file_selector* :select_node file))
 
 (defun page-scale (s)
-	(n2i (* (n2f s) *page_scale*)))
+	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
 
 (defun update-meta-data ()
 	(defq buffer (. *edit* :get_buffer))
@@ -153,7 +153,7 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size)
-		*running* :t *edit* (Viewer-edit) *page_scale* 1.0 *regexp* :nil
+		*running* :t *edit* (Viewer-edit) *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list +refresh_mode_visible)
 		*meta_map* (scatter (Fmap) :files (Fmap)) *current_file* :nil
 		*cursor_stack* (list))

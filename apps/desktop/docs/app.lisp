@@ -101,7 +101,6 @@
 		*regexp* :nil *whole_words* :nil
 		*last_key* "" *last_files* (list)
 		*last_widget* :nil *search_widgets* (list) *mem_stream* :nil)
-	(def *window* :zoom 1.0)
 	(.-> *file_selector* (:populate "docs" '(".md")) :pref_size)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(def *page_scroll* :min_height 800)

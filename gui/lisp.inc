@@ -105,7 +105,8 @@
 		:hint_color *env_hint_col*
 		:no_hint_color *env_no_hint_col*
 		:border *env_window_border*
-		:shadow *env_window_shadow*)
+		:shadow *env_window_shadow*
+		:zoom 1.0)
 	(static-qqp (ui-root ,n (Window) ,p
 		(ui-flow _ (:flow_flags +flow_down_fill) ~x))))
 

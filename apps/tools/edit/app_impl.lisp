@@ -196,7 +196,7 @@
 		(def (. (elem-get matches match_index) :dirty) :color +argb_red)))
 
 (defun page-scale (s)
-	(n2i (* (n2f s) *page_scale*)))
+	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
 
 (defun update-meta-data ()
 	(defq buffer (. *edit* :get_buffer))
@@ -255,7 +255,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size)
 		edit_service (mail-declare (elem-get select +select_remote) "Edit" "Edit Service 1.0")
-		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
+		*running* :t *edit* (Editor-edit) *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list +refresh_mode_visible)
 		*macro_record* :nil *macro_actions* (list) *cursor_stack* (list)
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1

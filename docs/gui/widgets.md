@@ -165,7 +165,8 @@ gui/lisp.inc "macro ui-window" ""
 	:hint_color *env_hint_col*
 	:no_hint_color *env_no_hint_col*
 	:border *env_window_border*
-	:shadow *env_window_shadow*)
+	:shadow *env_window_shadow*
+	:zoom 1.0)
 	(ui-button _
 		(:text "Main Area"
 		:border 0)))
@@ -189,7 +190,7 @@ set these in their own private `env.inc` file. See the `usr/` folder.
 
 #### Properties
 
-`:color :border :shadow :child :min_width :min_height :tip_mbox`
+`:color :border :shadow :child :min_width :min_height :tip_mbox :zoom`
 
 ### (ui-grid name [props] [body]) -> grid
 

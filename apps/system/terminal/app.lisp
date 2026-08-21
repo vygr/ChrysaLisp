@@ -85,7 +85,7 @@
 	(window-resize))
 
 (defun page-scale (s)
-	(n2i (* (n2f s) *page_scale*)))
+	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
@@ -96,7 +96,7 @@
 (defun main ()
 	(defq *select* (task-mboxes +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* :t *pipe* :nil
-		*page_scale* 1.0 *edit* (Terminal-edit) *key* :nil
+		*edit* (Terminal-edit) *key* :nil
 		*meta_map* :nil *history_idx* (state-load) *needs_refresh* :nil)
 	(. *edit* :set_select_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
