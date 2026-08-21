@@ -310,9 +310,9 @@
 
 	(defmethod :populate_stream (stream)
 		; (. md :populate_stream stream) -> md
-		(defq lines (list))
-		(lines! (# (push lines (trim-end %0 "\r"))) stream)
-		(def this :text_lines lines)
+		(defq text_lines (list))
+		(lower :text_lines)
+		(lines! (# (push text_lines (trim-end %0 "\r"))) stream)
 		(. this :render))
 	)
 
