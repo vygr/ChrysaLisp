@@ -15,8 +15,8 @@
 	+doc_font_bold (cat (first (split (first (font-info *env_window_font*)) "-")) "-Bold.ctf")
 	+doc_font_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-Italic.ctf")
 	+doc_font_bold_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-BoldItalic.ctf")
-	+term_font (first (font-info *env_terminal_font*))
-	+bullet_font (first (font-info *env_symbol_font*)))
+	+terminal_font (first (font-info *env_terminal_font*))
+	+symbol_font (first (font-info *env_symbol_font*)))
 
 (defun page-scale (s)
 	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
@@ -48,7 +48,7 @@
 	(when file
 		;min width of an 80 column terminal !
 		(def (defq vdu (Vdu))
-			:font (create-font +term_font (page-scale 16))
+			:font (create-font +terminal_font (page-scale 16))
 			:vdu_width 80 :vdu_height 1)
 		(ui-root page_flow (Flow) (:flow_flags +flow_right_fill
 				:font (create-font +doc_font (page-scale 18))
@@ -58,9 +58,9 @@
 				:font_bold (create-font +doc_font_bold (page-scale 18))
 				:font_italic (create-font +doc_font_italic (page-scale 18))
 				:font_bold_italic (create-font +doc_font_bold_italic (page-scale 18))
-				:font_term (create-font +term_font (page-scale 18))
-				:font_bullet (create-font +bullet_font (page-scale 24))
-				:font_term_small (get :font vdu)
+				:font_terminal (create-font +terminal_font (page-scale 18))
+				:font_symbol (create-font +symbol_font (page-scale 24))
+				:font_terminal_small (get :font vdu)
 				:min_width (first (. vdu :pref_size))))
 			(ui-label _ (:min_width +margin_width)))
 		(defq state :text)
@@ -98,8 +98,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) handlers (Emap) syntax (Syntax)
 		scroll_pos (Fmap) *running* :t *current_file* "docs/ai_digest/summary.md"
-		*regexp* :nil *whole_words* :nil
-		*last_key* "" *last_files* (list)
+		*regexp* :nil *whole_words* :nil *last_key* "" *last_files* (list)
 		*last_widget* :nil *search_widgets* (list) *mem_stream* :nil)
 	(.-> *file_selector* (:populate "docs" '(".md")) :pref_size)
 	(def *window* :tip_mbox (elem-get select +select_tip))

@@ -14,8 +14,8 @@
 					:font_bold +doc_font_bold
 					:font_italic +doc_font_italic
 					:font_bold_italic +doc_font_bold_italic
-					:font_term +term_font
-					:font_bullet +bullet_font)
+					:font_terminal +terminal_font
+					:font_symbol +symbol_font)
 				(. page :add_child md)
 				(. md :populate_lines lines)
 				(clear lines))

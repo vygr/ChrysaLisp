@@ -20,8 +20,8 @@
 	+md_doc_font_bold "fonts/OpenSans-Bold.ctf"
 	+md_doc_font_italic "fonts/OpenSans-Italic.ctf"
 	+md_doc_font_bold_italic "fonts/OpenSans-BoldItalic.ctf"
-	+md_term_font "fonts/Hack-Regular.ctf"
-	+md_bullet_font "fonts/Symbol.ctf")
+	+md_terminal_font "fonts/Hack-Regular.ctf"
+	+md_symbol_font "fonts/Symbol.ctf")
 
 (defun md-font-name (f)
 	(cond
@@ -88,7 +88,7 @@
 		((bits? state +state_bold_italic) (def text :font (get :font_bold_italic flow)))
 		((bits? state +state_bold) (def text :font (get :font_bold flow)))
 		((bits? state +state_italic) (def text :font (get :font_italic flow))))
-	(if (bits? state +state_code) (def text :ink_color +argb_blue :font (get :font_term flow)))
+	(if (bits? state +state_code) (def text :ink_color +argb_blue :font (get :font_terminal flow)))
 	(if (bits? state +state_strike) (def text :ink_color +argb_grey8))
 	(if (bits? state +state_highlight) (def text :color +argb_yellow :ink_color +argb_black))
 	text)
@@ -100,14 +100,14 @@
 	(def (defq flow (Flow)) :flow_flags +flow_right)
 	(. container :add_child flow)
 	(when size
-		(raise :zoom :font_doc :font_bold :font_italic :font_bold_italic :font_bullet :font_term)
+		(raise :zoom :font_doc :font_bold :font_italic :font_bold_italic :font_symbol :font_terminal)
 		(def flow
 			:font (create-font (md-font-name font_doc) (md-scale size zoom))
 			:font_bold (create-font (md-font-name font_bold) (md-scale size zoom))
 			:font_italic (create-font (md-font-name font_italic) (md-scale size zoom))
 			:font_bold_italic (create-font (md-font-name font_bold_italic) (md-scale size zoom))
-			:font_bullet (create-font (md-font-name font_bullet) (md-scale size zoom))
-			:font_term (create-font (md-font-name font_term) (md-scale size zoom))))
+			:font_symbol (create-font (md-font-name font_symbol) (md-scale size zoom))
+			:font_terminal (create-font (md-font-name font_terminal) (md-scale size zoom))))
 	flow)
 
 (defun blank-line (this)
@@ -129,7 +129,7 @@
 			(progn
 				(defq indent_text (Text) style_text (Text))
 				(def indent_text :text (cat indent indent))
-				(def text :text (cat (num-to-utf8 0xe979) " ") :font (get :font_bullet flow))
+				(def text :text (cat (num-to-utf8 0xe979) " ") :font (get :font_symbol flow))
 				(def style_text :text (slice style (bskip +char_class_white_space style -1) -1))
 				(.-> flow (:add_child indent_text) (:add_child text) (:add_child style_text)))
 			(progn
@@ -251,8 +251,8 @@
 		:font_bold +md_doc_font_bold
 		:font_italic +md_doc_font_italic
 		:font_bold_italic +md_doc_font_bold_italic
-		:font_term +md_term_font
-		:font_bullet +md_bullet_font)
+		:font_terminal +md_terminal_font
+		:font_symbol +md_symbol_font)
 
 	(defgetmethod :text_lines)
 	(defsetmethod :text_lines)
@@ -266,7 +266,7 @@
 		; (. md :render) -> md
 		(each (# (. %0 :sub)) (. this :children))
 		(raise :zoom :base_font_size :font_doc :font_bold :font_italic
-			:font_bold_italic :font_term :font_bullet :page_width :text_lines
+			:font_bold_italic :font_terminal :font_symbol :page_width :text_lines
 			(search_widgets (list)
 			base_size (md-scale base_font_size zoom)
 			bullet_size (md-scale (/ (* base_font_size 4) 3) zoom)))
@@ -277,8 +277,8 @@
 			:font_bold (create-font (md-font-name font_bold) base_size)
 			:font_italic (create-font (md-font-name font_italic) base_size)
 			:font_bold_italic (create-font (md-font-name font_bold_italic) base_size)
-			:font_term (create-font (md-font-name font_term) base_size)
-			:font_bullet (create-font (md-font-name font_bullet) bullet_size))
+			:font_terminal (create-font (md-font-name font_terminal) base_size)
+			:font_symbol (create-font (md-font-name font_symbol) bullet_size))
 		(defq lines (list))
 		(each (lambda (line)
 			(task-slice)

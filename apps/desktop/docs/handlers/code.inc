@@ -16,7 +16,7 @@
 				;measure and configure the Vdu
 				(bind '(w h) (. buffer :get_size))
 				(def (defq vdu (Vdu))
-					:font (get :font_term_small page)
+					:font (get :font_terminal_small page)
 					:vdu_width w
 					:vdu_height h
 					:color 0

@@ -197,7 +197,7 @@ Each section handler module (e.g., `apps/desktop/docs/handlers/text.inc`,
 	  ``code` ``.
 
 	* Creates `Text` widgets for each segment, applying appropriate fonts (e.g.,
-	  `font_italic`, `font_bold`, `font_term` obtained from the `page` widget's
+	  `font_italic`, `font_bold`, `font_terminal` obtained from the `page` widget's
 	  properties).
 
 	* Adds these `Text` widgets to a new `Flow` widget representing the current
@@ -225,7 +225,7 @@ Each section handler module (e.g., `apps/desktop/docs/handlers/text.inc`,
 
 		* Creates a `Vdu` widget.
 
-		* Sets its font (e.g., `font_term_small` from `page` properties).
+		* Sets its font (e.g., `font_terminal_small` from `page` properties).
 
 		* Calculates `vdu_width` and `vdu_height` based on the accumulated
 		  lines.
