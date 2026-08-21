@@ -31,6 +31,7 @@
 (import "./files/lisp.inc")
 (import "./hchart/lisp.inc")
 (import "./mask/lisp.inc")
+(import "./md/lisp.inc")
 
 ;ui tree helper macros
 (defun ui-merge-props (p)
@@ -212,6 +213,12 @@
 (defmacro ui-backdrop (n &optional p &rest x)
 	; (ui-backdrop name [props] [body]) -> backdrop
 	(static-qqp (ui-element ,n (Backdrop) ,p ~x)))
+
+(defmacro ui-md (n &optional lines p &rest x)
+	; (ui-md name [text_lines] [props] [body]) -> md
+	(ui-props p
+		:flow_flags +flow_down_fill)
+	(static-qqp (ui-element ,n (Md ,lines) ,p ~x)))
 
 (defmacro ui-progress (n &optional p)
 	; (ui-progress name [props]) -> progress

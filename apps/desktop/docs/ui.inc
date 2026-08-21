@@ -28,10 +28,16 @@
 
 (redefun action-scale-up ()
 	;scale font up
-	(setq *page_scale* (min 1.5 (+ (defq old_size *page_scale*) 0.125)))
-	(if (/= old_size *page_scale*) (populate-page *current_file*)))
+	(defq old_size (get :zoom *window*)
+		new_size (min 1.5 (+ old_size 0.125)))
+	(when (/= old_size new_size)
+		(def *window* :zoom new_size)
+		(populate-page *current_file*)))
 
 (redefun action-scale-down ()
 	;scale font down
-	(setq *page_scale* (max 0.75 (- (defq old_size *page_scale*) 0.125)))
-	(if (/= old_size *page_scale*) (populate-page *current_file*)))
+	(defq old_size (get :zoom *window*)
+		new_size (max 0.75 (- old_size 0.125)))
+	(when (/= old_size new_size)
+		(def *window* :zoom new_size)
+		(populate-page *current_file*)))

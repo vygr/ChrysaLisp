@@ -37,6 +37,9 @@ italic fonts.
 Added column layout support to the Docs app. New `docs/test.md` document with
 all the supported formatting and layouts tested. Added column alignment support.
 
+Move MD text rendering to a `gui/md/lisp.inc` widget. Docs app `text` handler
+now gathers the text lines and embed an `Md` widget into the document.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

@@ -19,7 +19,7 @@
 	+bullet_font (first (font-info *env_symbol_font*)))
 
 (defun page-scale (s)
-	(n2i (* (n2f s) *page_scale*)))
+	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
 
 ;lisp handler environment and embedded enum override !
 (redefmacro enums (name base &rest lines)
@@ -44,7 +44,6 @@
 	handler)
 
 (defun populate-page (file)
-	(clear *search_widgets*)
 	(setq *last_widget* :nil)
 	(when file
 		;min width of an 80 column terminal !
@@ -71,7 +70,7 @@
 							state page (trim-end line "\r")))
 					(progn (prin _) (print) (setq state :text) :t)))
 			(file-stream file))
-		(catch ((handler-func state) state page "")
+		(catch ((handler-func state) state page "```")
 			(progn (prin _) (print) (setq state :text) :t))
 		(bind '(w h) (. page_flow :pref_size))
 		(. page_flow :change 0 0 w h)
@@ -96,9 +95,10 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) handlers (Emap) syntax (Syntax)
 		scroll_pos (Fmap) *running* :t *current_file* "docs/ai_digest/summary.md"
-		*page_scale* 1.0 *regexp* :nil *whole_words* :nil
+		*regexp* :nil *whole_words* :nil
 		*last_key* "" *last_files* (list)
-		*last_widget* :nil *search_widgets* (list) *mem_stream* :nil)
+		*last_widget* :nil *mem_stream* :nil)
+	(def *window* :zoom 1.0)
 	(.-> *file_selector* (:populate "docs" '(".md")) :pref_size)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(def *page_scroll* :min_height 800)

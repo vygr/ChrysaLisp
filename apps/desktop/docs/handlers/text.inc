@@ -1,210 +1,19 @@
 ;module
 (env-push)
 
-(bits +state 0
-	(bit code bold italic bold_italic highlight strike))
-
-(defun parse-text (line)
-	(defq idxs (nums) quoted (list) match (matches line "\q[^\q]+\q|`[^`]+`"))
-	(when (nempty? match)
-		(defq x 0)
-		(each (lambda (((x1 x2)))
-			(push quoted (split (cond
-				((eql (elem-get line x1) "`")
-					(push idxs x x1 0 -1) (slice line (inc x1) (dec x2)))
-				(:t (push idxs x x1 4 9) (slice line x1 x2)))))
-			(setq x x2)) match)
-		(setq line (splice line " <c> <q> </c> " (push idxs x -1))))
-	(setq line (reduce! (lambda (line pattern tag c)
-		(cond
-			((nempty? (defq match (matches line pattern)))
-				(defq idxs (clear idxs) x 0)
-				(each (lambda (((x1 x2)))
-					(push idxs x x1 0 5 (+ x1 c) (- x2 c) 4 -1)
-					(setq x x2)) match)
-				(splice line tag (push idxs x -1)))
-			(line)))
-		'(("~~[^~]+~~" "==[^=]+==" "\\*\\*\\*[^*]+\\*\\*\\*" "\\*\\*[^*]+\\*\\*" "\\*[^*]+\\*")
-		(" <s> </s> " " <h> </h> " " <x> </x> " " <b> </b> " " <i> </i> ")
-		(2 2 3 2 1)) line))
-	(list line quoted))
-
-(defun restore-quotes (words quoted)
-	(when (nempty? quoted)
-		(reach (# (if (eql %0 "<q>") (elem-set words (!) (pop quoted)))) words)
-		(setq words (flatten words)))
-	words)
-
-(defun parse-line (line)
-	(bind '(tagged_text quoted) (parse-text line))
-	(restore-quotes (split tagged_text +char_class_white_space) quoted))
-
-(defun word-state (word)
-	(case word
-		("<c>" (setq state (logior state +state_code)))
-		("</c>" (setq state (logand state (lognot +state_code))))
-		("<b>" (setq state (logior state +state_bold)))
-		("</b>" (setq state (logand state (lognot +state_bold))))
-		("<i>" (setq state (logior state +state_italic)))
-		("</i>" (setq state (logand state (lognot +state_italic))))
-		("<x>" (setq state (logior state +state_bold_italic)))
-		("</x>" (setq state (logand state (lognot +state_bold_italic))))
-		("<h>" (setq state (logior state +state_highlight)))
-		("</h>" (setq state (logand state (lognot +state_highlight))))
-		("<s>" (setq state (logior state +state_strike)))
-		("</s>" (setq state (logand state (lognot +state_strike))))
-		(:t -1)))
-
-(defun create-word (word state)
-	(. flow :add_child (defq text (Text)))
-	(push *search_widgets* text)
-	(def text :text (sym (cat word " ")))
-	;font changes
-	(cond
-		((bits? state +state_bold_italic) (def text :font (get :font_bold_italic flow)))
-		((bits? state +state_bold) (def text :font (get :font_bold flow)))
-		((bits? state +state_italic) (def text :font (get :font_italic flow))))
-	;color overrides
-	(if (bits? state +state_code) (def text :ink_color +argb_blue :font (get :font_term flow)))
-	(if (bits? state +state_strike) (def text :ink_color +argb_grey8))
-	(if (bits? state +state_highlight) (def text :color +argb_yellow :ink_color +argb_black))
-	text)
-
-(defun line-flow (container &optional size)
-	(def (defq flow (Flow)) :flow_flags +flow_right)
-	(. container :add_child flow)
-	(when size
-		(def flow :font (create-font +doc_font (page-scale size))
-			:font_bold (create-font +doc_font_bold (page-scale size))
-			:font_italic (create-font +doc_font_italic (page-scale size))
-			:font_bold_italic (create-font +doc_font_bold_italic (page-scale size))
-			:font_bullet (create-font +bullet_font (page-scale size))
-			:font_term (create-font +term_font (page-scale size))))
-	flow)
-
-(defun blank-line ()
-	(def (defq text (Text)) :text "")
-	(. page :add_child text))
-
-(defun under-line (size)
-	(when (and size (> size 0))
-		(def (defq backdrop (Backdrop)) :color +argb_black :min_height (max 1 (page-scale size)))
-		(. page :add_child backdrop)))
-
-(defun format-words (container words indent style max_width &optional underline font_size is_header)
-	(defq cnt 0 state 0 indent_width :nil flow (line-flow container font_size))
-	(if is_header (setq state (logior state +state_bold)))
-	(unless (and (eql indent "") (eql style ""))
-		;needs an indent or bullet style
-		(defq text (Text))
-		(if (find "*" style)
-			(progn
-				(defq indent_text (Text) style_text (Text))
-				(def indent_text :text (cat indent indent))
-				(def text :text (cat (num-to-utf8 0xe979) " ") :font (get :font_bullet flow))
-				(def style_text :text (slice style (bskip +char_class_white_space style -1) -1))
-				(.-> flow (:add_child indent_text) (:add_child text) (:add_child style_text)))
-			(progn
-				(def text :text (cat indent indent style))
-				(. flow :add_child text)))
-		(setq cnt (setq indent_width (first (. flow :pref_size)))))
-	(each (lambda (word)
-		(when (= (word-state word) -1)
-			(defq text (create-word word state))
-			(bind '(w &) (. text :pref_size))
-			(when (> (++ cnt w) max_width)
-				(setq flow (line-flow container font_size))
-				(when indent_width
-					(def (defq indent_tab (Backdrop)) :min_width indent_width)
-					(. flow :add_child indent_tab)
-					(setq w (+ w indent_width)))
-				(. flow :add_child text)
-				(setq cnt w)))) words)
-	(if underline (under-line underline)))
-
-(defun paragraph (words indent style &optional underline font_size)
-	(format-words page words indent style (get :min_width page) underline font_size)
-	(blank-line))
-
-(defun separator-cell? (cell)
-	(defq trimmed (trim cell " :"))
-	(and (nempty? trimmed) (every (# (eql %0 "-")) trimmed)))
-
-(defun table-separator? (cells)
-	(and (nempty? cells) (every (const separator-cell?) cells)))
-
-(defun split-cells (line)
-	(filter (const nempty?) (map (const trim) (split line "|"))))
-
-(defun parse-align (cell)
-	(defq c (trim cell))
-	(cond
-		((and (starts-with ":" c) (ends-with ":" c))
-			(bit-mask +flow_flag_down +flow_flag_align_hcenter))
-		((ends-with ":" c)
-			(bit-mask +flow_flag_down +flow_flag_align_hright))
-		(:t +flow_down)))
-
-(defun render-row (page cells q_stack num_cols cell_width alignments is_header)
-	(def (defq row_grid (Grid))
-		:grid_width num_cols :flow_flags +flow_down_fill)
-	(. page :add_child row_grid)
-	(for 0 num_cols
-		(defq cell_text (if (< (!) (length cells)) (elem-get cells (!)) "")
-			flags (if (< (!) (length alignments)) (elem-get alignments (!)) +flow_down)
-			cell_flow (Flow)
-			words (split cell_text +char_class_white_space))
-		(when (nempty? q_stack)
-			(each (# (if (eql %0 "<q>") (elem-set words (!) (pop q_stack)))) words)
-			(setq words (flatten words)))
-		(def cell_flow :flow_flags flags)
-		(. row_grid :add_child cell_flow)
-		(format-words cell_flow words "" "" cell_width :nil :nil is_header))
-	row_grid)
-
-(defun try-render-table (page tagged_text quoted)
-	(when (find "|" tagged_text)
-		(defq qlines (split tagged_text "\n")
-			raw_rows (filter (const nempty?) (map (const split-cells) qlines))
-			has_sep :nil num_cols 0 data_rows (list) headers (list) alignments (list))
-		(each! (lambda (cells)
-			(cond
-				((table-separator? cells)
-					(setq has_sep :t
-						alignments (map (const parse-align) cells))
-					(when (nempty? data_rows)
-						(setq headers (pop data_rows))))
-				(:t (push data_rows cells)
-					(setq num_cols (max num_cols (length cells))))))
-			(list raw_rows))
-		(when (and (> num_cols 1)
-				(or has_sep (and (> (length raw_rows) 1) (every (# (> (length %0) 1)) raw_rows))))
-			(defq page_width (get :min_width page)
-				cell_width (/ page_width num_cols)
-				q_stack (if (nempty? quoted) (reverse quoted)))
-			(when (and has_sep (nempty? headers))
-				(render-row page headers q_stack num_cols cell_width alignments :t)
-				(under-line 1))
-			(each (lambda (row)
-				(render-row page row q_stack num_cols cell_width alignments :nil))
-				data_rows)
-			(blank-line)
-			:t)))
-
-(defun flush-lines (page lines)
+(defun flush-md (page lines)
 	(when (nempty? lines)
-		(when (nempty? (defq first_line (first lines) style ""
-				indent (slice first_line 0 (bskip +char_class_white_space first_line 0))
-				match (matches first_line "^\\s*((\\p\\.)+\\s+|[*-]\\s+)")))
-			(bind '(((& cx2) (sx1 sx2) &ignore)) match)
-			(setq style (slice first_line sx1 sx2))
-			(elem-set lines 0 (slice first_line cx2 -1)))
-		(bind '(tagged_text quoted) (parse-text (join lines "\n")))
-		(cond
-			((try-render-table page tagged_text quoted))
-			(:t (defq words (restore-quotes (split tagged_text +char_class_white_space) quoted))
-				(when (nempty? words)
-					(paragraph words indent style))))
+		(def (defq md (Md (cat lines)))
+			:zoom (get :zoom *window*)
+			:page_width (get :min_width page)
+			:font_doc +doc_font
+			:font_bold +doc_font_bold
+			:font_italic +doc_font_italic
+			:font_bold_italic +doc_font_bold_italic
+			:font_term +term_font
+			:font_bullet +bullet_font)
+		(. md :render)
+		(. page :add_child md)
 		(clear lines)))
 
 (defun handler (state page line)
@@ -212,23 +21,10 @@
 	(defq lines '())
 	(cond
 		((match? line "^\\s*```")
-			(flush-lines page lines)
+			(flush-md page lines)
 			;section start
 			(if (eql (setq state (sym (cat ":" (slice line (rfind "`" line) -1)))) :) :code state))
-		(:t ;body text
-			(cond
-				((eql line "")
-					(flush-lines page lines))
-				((starts-with line "---")
-					(flush-lines page lines)
-					(under-line 1)
-					(blank-line))
-				((defq indent (some (# (if (starts-with %0 line) (!)))
-						'("# " "## " "### " "#### " "##### " "###### ")))
-					(flush-lines page lines)
-					(setq line (slice line (+ indent 2) -1))
-					(paragraph (parse-line line) "" "" (- 4 (* indent 2)) (- 34 (* indent 4))))
-				((push lines line)))
+		(:t (push lines line)
 			state)))
 
 ;module
