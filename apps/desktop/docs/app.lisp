@@ -72,6 +72,9 @@
 			(file-stream file))
 		(catch ((handler-func state) state page "```")
 			(progn (prin _) (print) (setq state :text) :t))
+		(setq *search_widgets*
+			(reduce (# (cat %0 (. %1 :get_search_widgets)))
+				(filter (const Md?) (. page :children)) (list)))
 		(bind '(w h) (. page_flow :pref_size))
 		(. page_flow :change 0 0 w h)
 		(def *page_scroll* :min_width w)
@@ -97,7 +100,7 @@
 		scroll_pos (Fmap) *running* :t *current_file* "docs/ai_digest/summary.md"
 		*regexp* :nil *whole_words* :nil
 		*last_key* "" *last_files* (list)
-		*last_widget* :nil *mem_stream* :nil)
+		*last_widget* :nil *search_widgets* (list) *mem_stream* :nil)
 	(def *window* :zoom 1.0)
 	(.-> *file_selector* (:populate "docs" '(".md")) :pref_size)
 	(def *window* :tip_mbox (elem-get select +select_tip))

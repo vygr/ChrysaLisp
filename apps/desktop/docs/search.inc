@@ -2,14 +2,6 @@
 ; search actions
 ;;;;;;;;;;;;;;;;
 
-(defun doc-search-widgets ()
-	(defq page_flow (first (. *page_scroll* :children)))
-	(if page_flow
-		(defq page (second (. page_flow :children))
-			(reduce (lambda (acc w) (if (Md? w) (cat acc (. w :get_search_widgets)) acc))
-				(. page :children) (list)))
-		(list)))
-
 (defun search-key (&rest _) (str _))
 
 (defun find-global (pattern whole_words regexp)
@@ -44,7 +36,7 @@
 	(refresh-matches)
 	(bind '(search meta pattern) (query (. *find_text* :get_text) *whole_words* *regexp*))
 	(when (and meta (nql pattern ""))
-		(defq found (filter (# (. search :match? (get :text %0) meta)) (doc-search-widgets)))
+		(defq found (filter (# (. search :match? (get :text %0) meta)) *search_widgets*))
 		(when (nempty? found)
 			(if *last_widget* (def (. *last_widget* :dirty) :color 0))
 			(if (defq idx (find *last_widget* found))
@@ -58,7 +50,7 @@
 	(refresh-matches)
 	(bind '(search meta pattern) (query (. *find_text* :get_text) *whole_words* *regexp*))
 	(when (and meta (nql pattern ""))
-		(defq found (filter (# (. search :match? (get :text %0) meta)) (doc-search-widgets)))
+		(defq found (filter (# (. search :match? (get :text %0) meta)) *search_widgets*))
 		(when (nempty? found)
 			(if *last_widget* (def (. *last_widget* :dirty) :color 0))
 			(if (defq idx (find *last_widget* found))
