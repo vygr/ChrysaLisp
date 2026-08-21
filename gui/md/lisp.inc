@@ -2,7 +2,6 @@
 ; md widget
 ;;;;;;;;;;;
 
-(import "lib/consts/chars.inc")
 (import "lib/consts/colors.inc")
 (import "././flow/lisp.inc")
 (import "././grid/lisp.inc")
