@@ -241,10 +241,9 @@
 
 (defclass Md (&optional text_lines) (Flow)
 	; (Md [text_lines]) -> md
-	(setd text_lines (list))
 	(def this
 		:flow_flags +flow_down_fill
-		:text_lines text_lines
+		:text_lines (ifn text_lines (list))
 		:zoom 1.0
 		:page_width 640
 		:base_font_size 18
@@ -299,6 +298,22 @@
 				((push lines line)))) text_lines)
 		(flush-lines this this lines search_widgets)
 		this)
+
+	(defmethod :populate_lines (lines)
+		; (. md :populate_lines lines) -> md
+		(def this :text_lines (cat lines))
+		(. this :render))
+
+	(defmethod :populate_buffer (buffer)
+		; (. md :populate_buffer buffer) -> md
+		(. this :populate_lines (. buffer :get_buffer_lines)))
+
+	(defmethod :populate_stream (stream)
+		; (. md :populate_stream stream) -> md
+		(defq lines (list))
+		(lines! (# (push lines (trim-end %0 "\r"))) stream)
+		(def this :text_lines lines)
+		(. this :render))
 	)
 
 ;module

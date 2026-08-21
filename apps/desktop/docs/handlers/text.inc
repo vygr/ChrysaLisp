@@ -3,7 +3,7 @@
 
 (defun flush-md (page lines)
 	(when (nempty? lines)
-		(def (defq md (Md (cat lines)))
+		(def (defq md (Md))
 			:zoom (get :zoom *window*)
 			:page_width (get :min_width page)
 			:font_doc +doc_font
@@ -12,7 +12,7 @@
 			:font_bold_italic +doc_font_bold_italic
 			:font_term +term_font
 			:font_bullet +bullet_font)
-		(. md :render)
+		(. md :populate_lines lines)
 		(. page :add_child md)
 		(clear lines)))
 

@@ -657,6 +657,12 @@ print the time for the body
 (ui-label name [props] [body]) -> label
 ```
 
+### ui-md
+
+```code
+(ui-md name [text_lines] [props] [body]) -> md
+```
+
 ### ui-progress
 
 ```code
