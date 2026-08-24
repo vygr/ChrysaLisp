@@ -97,14 +97,14 @@
 	(n2i (* (n2f s) (n2f zoom))))
 
 (defun line-flow (this container &optional size)
-	(raise :zoom :base_font_size :font_doc)
-	(defq line_h (second (font-glyph-bounds (create-font (md-font-name font_doc) (md-scale (ifn size base_font_size) zoom)) "")))
-	(def (defq flow (Flow)) :flow_flags +flow_right :min_height line_h)
+	(raise :zoom :font_doc (font (get :font this)))
+	(if size (setq font (create-font (md-font-name font_doc) (md-scale size zoom))))
+	(def (defq flow (Flow)) :flow_flags +flow_right :min_height (second (font-glyph-bounds font "")))
 	(. container :add_child flow)
 	(when size
 		(raise :font_bold :font_italic :font_bold_italic :font_symbol :font_terminal)
 		(def flow
-			:font (create-font (md-font-name font_doc) (md-scale size zoom))
+			:font font
 			:font_bold (create-font (md-font-name font_bold) (md-scale size zoom))
 			:font_italic (create-font (md-font-name font_italic) (md-scale size zoom))
 			:font_bold_italic (create-font (md-font-name font_bold_italic) (md-scale size zoom))
