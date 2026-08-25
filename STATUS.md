@@ -43,6 +43,9 @@ now gathers the text lines and embed an `Md` widget into the document.
 Updated other text zoomable apps to use the new `:zoom` propertiy on the main
 window widget.
 
+Fix bug in `:reals :sum` where it was using an `(vp-xor-rr :f1 :f1)` which is
+not a legal instruction.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

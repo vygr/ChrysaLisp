@@ -343,17 +343,17 @@
 	;:r0 = reals object (ptr)
 	;:r1 = sum (real)
 	;trashes
-	;:r1-:r2, :f0-:f1
+	;:r1-:r3, :f0-:f1
 
-	(vp-rdef (this src1 src_end))
+	(vp-rdef (this src1 src_end tmp))
 	(vp-fdef (sum e0))
 
 	(entry :reals :sum `(,this))
 
 	(vec-reduce (list this) (list e0) (list src1) src_end
 		(# (vp-add-ff %0 sum))
-		(# (vp-xor-rr e0 e0)
-			(vp-cvt-rf e0 sum)))
+		(# (vp-cpy-cr 0 tmp)
+			(vp-cvt-rf tmp sum)))
 
 	(exit :reals :sum `(,this ,sum))
 	(vp-ret)
