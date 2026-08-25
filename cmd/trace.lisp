@@ -11,8 +11,9 @@
         -h --help: this help info.
         -v --verbosity num: how much info, default 0.
         -l --lint: lint documented vs calculated trace.
+        -i --integrity: check register and instruction integrity.
         -w --write: write back calculated trashes to source
-        files on mismatch.
+            files on mismatch.
 
     Calculate and trace active transitive register clobber state for
     virtual methods and static functions. Analyses compiled instructions
@@ -20,6 +21,7 @@
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-l" "--lint") ,(opt-flag 'opt_l))
 (("-w" "--write") ,(opt-flag 'opt_w))
+(("-i" "--integrity") ,(opt-flag 'opt_i))
 ))
 
 (defq +obj_dir "obj/vp/"
@@ -73,17 +75,121 @@
 			(:find :methods) (:find m))) :find :overrides))
 		0 -1 (list (. m_entry :find :function))))
 
+(defq +inst_specs (scatter (Fmap 31)
+	; integer rr
+	'emit-cpy-rr '(:r :r) 'emit-add-rr '(:r :r) 'emit-sub-rr '(:r :r) 'emit-mul-rr '(:r :r)
+	'emit-and-rr '(:r :r) 'emit-or-rr '(:r :r) 'emit-xor-rr '(:r :r) 'emit-shl-rr '(:r :r)
+	'emit-shr-rr '(:r :r) 'emit-asr-rr '(:r :r) 'emit-lnot-rr '(:r :r) 'emit-land-rr '(:r :r)
+	'emit-swp-rr '(:r :r) 'emit-ext-rr '(:r :r) 'emit-seq-rr '(:r :r) 'emit-sne-rr '(:r :r)
+	'emit-slt-rr '(:r :r) 'emit-sgt-rr '(:r :r) 'emit-sle-rr '(:r :r) 'emit-sge-rr '(:r :r)
+	; integer cr
+	'emit-cpy-cr '(:c :r) 'emit-add-cr '(:c :r) 'emit-sub-cr '(:c :r) 'emit-mul-cr '(:c :r)
+	'emit-and-cr '(:c :r) 'emit-or-cr '(:c :r) 'emit-xor-cr '(:c :r) 'emit-shl-cr '(:c :r)
+	'emit-shr-cr '(:c :r) 'emit-asr-cr '(:c :r) 'emit-seq-cr '(:c :r) 'emit-sne-cr '(:c :r)
+	'emit-slt-cr '(:c :r) 'emit-sgt-cr '(:c :r) 'emit-sle-cr '(:c :r) 'emit-sge-cr '(:c :r)
+	; integer min/max/abs
+	'emit-min-rr '(:r :r :label) 'emit-max-rr '(:r :r :label) 'emit-abs-rr '(:r :r :label)
+	'emit-min-cr '(:c :r :label) 'emit-max-cr '(:c :r :label)
+	; integer division (rrr)
+	'emit-div-rrr '(:r :r :r) 'emit-div-rrr-u '(:r :r :r)
+	; integer branches
+	'emit-beq-cr '(:c :r :label) 'emit-bne-cr '(:c :r :label) 'emit-blt-cr '(:c :r :label) 'emit-bgt-cr '(:c :r :label)
+	'emit-ble-cr '(:c :r :label) 'emit-bge-cr '(:c :r :label) 'emit-beq-rr '(:r :r :label) 'emit-bne-rr '(:r :r :label)
+	'emit-blt-rr '(:r :r :label) 'emit-bgt-rr '(:r :r :label) 'emit-ble-rr '(:r :r :label) 'emit-bge-rr '(:r :r :label)
+	; integer memory
+	'emit-cpy-ir '(:r :c :r) 'emit-cpy-ir-b '(:r :c :r) 'emit-cpy-ir-s '(:r :c :r) 'emit-cpy-ir-i '(:r :c :r)
+	'emit-cpy-ir-ub '(:r :c :r) 'emit-cpy-ir-us '(:r :c :r) 'emit-cpy-ir-ui '(:r :c :r) 'emit-lea-i '(:r :c :r)
+	'emit-cpy-ri '(:r :r :c) 'emit-cpy-ri-b '(:r :r :c) 'emit-cpy-ri-s '(:r :r :c) 'emit-cpy-ri-i '(:r :r :c)
+	'emit-cpy-dr '(:r :r :r) 'emit-cpy-dr-b '(:r :r :r) 'emit-cpy-dr-s '(:r :r :r) 'emit-cpy-dr-i '(:r :r :r)
+	'emit-cpy-dr-ub '(:r :r :r) 'emit-cpy-dr-us '(:r :r :r) 'emit-cpy-dr-ui '(:r :r :r) 'emit-lea-d '(:r :r :r)
+	'emit-cpy-rd '(:r :r :r) 'emit-cpy-rd-b '(:r :r :r) 'emit-cpy-rd-s '(:r :r :r) 'emit-cpy-rd-i '(:r :r :r)
+	; float alu
+	'emit-cpy-ff '(:f :f) 'emit-add-ff '(:f :f) 'emit-sub-ff '(:f :f) 'emit-mul-ff '(:f :f)
+	'emit-div-ff '(:f :f) 'emit-min-ff '(:f :f) 'emit-max-ff '(:f :f) 'emit-sqrt-ff '(:f :f)
+	'emit-abs-ff '(:f :f) 'emit-neg-ff '(:f :f)
+	; float branches
+	'emit-beq-ff '(:f :f :label) 'emit-bne-ff '(:f :f :label) 'emit-blt-ff '(:f :f :label)
+	'emit-bgt-ff '(:f :f :label) 'emit-ble-ff '(:f :f :label) 'emit-bge-ff '(:f :f :label)
+	; conversions & mixed
+	'emit-cpy-rf '(:r :f) 'emit-cpy-fr '(:f :r) 'emit-cvt-rf '(:r :f) 'emit-cvt-fr '(:f :r)
+	; float memory
+	'emit-cpy-if '(:r :c :f) 'emit-cpy-fi '(:f :r :c) 'emit-cpy-df '(:r :r :f) 'emit-cpy-fd '(:f :r :r)
+	; control / call / jump
+	'emit-call '(:label) 'emit-call-p '(:label) 'emit-jmp '(:label) 'emit-jmp-p '(:label)
+	'emit-call-r '(:r &rest :any) 'emit-jmp-r '(:r &rest :any) 'emit-call-i '(:r :c &rest :any) 'emit-jmp-i '(:r :c &rest :any)
+	'emit-call-abi '(:r :r :c :c &rest :any) 'emit-cpy-pr '(:label :r) 'emit-lea-p '(:label :r)
+	; stack / helpers
+	'emit-push '(&rest :reg) 'emit-pop '(&rest :reg) 'emit-trash '(&rest :reg) 'emit-alloc '(:c)
+	'emit-free '(:c) 'emit-ret '() 'emit-sync '(&optional :c) 'emit-brk '(&optional :c)
+	'emit-stack-init '(:r :r :r) 'emit-label '(:label) 'emit-tlabel '(:label) 'emit-align '(:c &optional :c)
+	'emit-string '(:str) 'emit-byte '(&rest :c) 'emit-short '(&rest :c) 'emit-int '(&rest :c)
+	'emit-long '(&rest :c) 'emit-nop '() 'emit-vp-nop '()
+))
+
+(defun check-op-type (expected actual)
+	(case expected
+		(:r (if (vp-rreg? actual) :t :nil))
+		(:f (if (vp-freg? actual) :t :nil))
+		(:reg (if (vp-reg? actual) :t :nil))
+		(:c (if (not (vp-reg? actual)) :t :nil))
+		(:label (if (not (vp-reg? actual)) :t :nil))
+		(:str (if (str? actual) :t :nil))
+		(:any :t)
+		(:t :nil)))
+
+(defun check-inst-integrity (function pc inst)
+	(when (and (list?? inst) (nempty? inst))
+		(defq op (first inst) args (rest inst))
+		(ifn (defq spec (. +inst_specs :find op))
+			(print "INTEGRITY WARNING: " function " at pc " pc ": unknown instruction " inst)
+			(progn
+				(defq s_idx 0 a_idx 0 is_rest :nil is_opt :nil err :nil)
+				(while (and (< a_idx (length args)) (not err))
+					(defq expected (if (< s_idx (length spec)) (elem-get spec s_idx) :nil)
+						actual (elem-get args a_idx))
+					(cond
+						((eql expected '&rest)
+							(setq is_rest (elem-get spec (inc s_idx))))
+						((eql expected '&optional)
+							(setq is_opt :t
+								expected (elem-get spec (inc s_idx))
+								s_idx (inc s_idx))))
+					(defq exp_type (if is_rest is_rest expected))
+					(cond
+						((not exp_type)
+							(setq err (str "too many arguments, unexpected " actual)))
+						((not (check-op-type exp_type actual))
+							(setq err (str "argument " a_idx " (" actual ") does not match expected type " exp_type)))
+						(:t (ifn is_rest (++ s_idx))
+							(++ a_idx))))
+				(unless err
+					(while (and (< s_idx (length spec))
+								(nql (elem-get spec s_idx) '&optional)
+								(nql (elem-get spec s_idx) '&rest))
+						(setq err (str "missing required argument of type " (elem-get spec s_idx)))
+						(++ s_idx)))
+				(when err
+					(print "INTEGRITY ERROR: " function " at pc " pc ": " inst)
+					(print "\t" err))))))
+
+(defun check-insts-integrity (function insts)
+	(each! (# (check-inst-integrity function (!) %0)) (list insts)))
+
 (defun get-function-insts (function)
 	; (get-function-insts function) -> :nil | insts
 	(defq e (penv) insts (memoize function
-		(if (> (age (defq obj_path (cat +obj_dir function))) 0)
-			(first (read (file-stream obj_path)))) 101))
-	;inject local labels into callers env !
-	(each (# (if (find (first %0) '(emit-label emit-tlabel))
-		(def e (last (second %0)) (!)))) insts)
-	;inject start and end pc's into callers env !
-	(bind '(& & _s _e &ignore) (elem-get insts 3))
-	(def e '_s (get _s) '_e (get _e))
+		(when (> (age (defq obj_path (cat +obj_dir function))) 0)
+			(defq loaded_insts (first (read (file-stream obj_path))))
+			(if (and opt_i loaded_insts)
+				(check-insts-integrity function loaded_insts))
+			loaded_insts) 101))
+	(when insts
+		;inject local labels into callers env !
+		(each (# (if (find (first %0) '(emit-label emit-tlabel))
+			(def e (last (second %0)) (!)))) insts)
+		;inject start and end pc's into callers env !
+		(bind '(& & _s _e &ignore) (elem-get insts 3))
+		(def e '_s (get _s) '_e (get _e)))
 	insts)
 
 (defun get-dependencies (function)
@@ -338,7 +444,7 @@
 (defun main ()
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_v 0 opt_l :nil opt_w :nil args (options stdio usage)))
+			(defq opt_v 0 opt_l :nil opt_w :nil opt_i :nil args (options stdio usage)))
 		(if (empty? (defq functions (rest args)))
 			(lines! (# (push functions %0)) (io-stream 'stdin)))
 		(when (nempty? functions)

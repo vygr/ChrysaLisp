@@ -46,6 +46,10 @@ window widget.
 Fix bug in `:reals :sum` where it was using an `(vp-xor-rr :f1 :f1)` which is
 not a legal instruction.
 
+Added `-i, --integrity` option to the `cmd/trace.lisp` command. This option
+performs a full instruction field type check on loading the VP emit code from
+disc.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
