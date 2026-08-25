@@ -634,8 +634,9 @@ Usage: trace [options] [function_name] ...
         -h --help: this help info.
         -v --verbosity num: how much info, default 0.
         -l --lint: lint documented vs calculated trace.
+        -i --integrity: check register and instruction integrity.
         -w --write: write back calculated trashes to source
-        files on mismatch.
+            files on mismatch.
 
     Calculate and trace active transitive register clobber state for
     virtual methods and static functions. Analyses compiled instructions

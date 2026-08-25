@@ -263,7 +263,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = sum (real)
 trashes
-:r1-:r2, :f0-:f1
+:r1-:r3, :f0-:f1
 ```
 
 ### :type -> class/reals/type

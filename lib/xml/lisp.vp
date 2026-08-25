@@ -22,8 +22,7 @@
 	(offset syms_start)
 		(ptr sym_text sym_open sym_close sym_assign sym_string sym_symbol)
 	(offset syms_end)
-		(pubyte not_symbol_chars)
-		(ptr open_chars close_chars sstoken)
+		(ptr not_symbol_chars open_chars close_chars sstoken)
 	(offset res_end)
 		(ptr stream resources this args))
 
@@ -70,8 +69,7 @@
 	(call :sstream :create '(:r0) {sstoken})
 	(call :list :create :nil {states})
 	(call :list :create :nil {tokens})
-	(call :str :create_from_buffer {"=<> ", 4} {not_symbol_chars})
-	(assign {+char_double_quote} {not_symbol_chars[+str_data + 3]})
+	(call :str :create_from_buffer '("\q=<>" 4) {not_symbol_chars})
 	(call :str :create_from_buffer {"</!-?", 5} {open_chars})
 	(call :str :create_from_buffer {">/-?", 4} {close_chars})
 

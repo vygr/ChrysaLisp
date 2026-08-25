@@ -50,6 +50,9 @@ Added `-i, --integrity` option to the `cmd/trace.lisp` command. This option
 performs a full instruction field type check on loading the VP emit code from
 disc.
 
+Add "\q" to the `(escape)` functions list of escape chars. Use this in the VP
+`emit-string` when outputting the VP `progn` files.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
