@@ -128,14 +128,12 @@
 
 (defun check-op-type (expected actual)
 	(case expected
-		(:r (if (vp-rreg? actual) :t :nil))
-		(:f (if (vp-freg? actual) :t :nil))
-		(:reg (if (vp-reg? actual) :t :nil))
-		(:c (if (not (vp-reg? actual)) :t :nil))
-		(:label (if (not (vp-reg? actual)) :t :nil))
-		(:str (if (str? actual) :t :nil))
-		(:any :t)
-		(:t :nil)))
+		(:r (vp-rreg? actual))
+		(:f (vp-freg? actual))
+		(:reg (vp-reg? actual))
+		((:c :label) (not (vp-reg? actual)))
+		(:str (str? actual))
+		(:any :t)))
 
 (defun check-inst-integrity (function pc inst)
 	(when (and (list?? inst) (nempty? inst))
