@@ -1,5 +1,6 @@
 .vs/
 .vscode/
+.agents/
 /obj/
 deps/
 /x64/
