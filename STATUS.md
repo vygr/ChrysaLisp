@@ -53,7 +53,9 @@ disc.
 Add "\q" to the `(escape)` functions list of escape chars. Use this in the VP
 `emit-string` when outputting the VP `progn` files.
 
-New native VP version of `(escape)` added to `:str` class.
+New native VP version of `(escape)` added as `:str :escape` method.
+
+New doc `docs/ai_digest/keeping_it_hot.md`.
 
 ------
 
