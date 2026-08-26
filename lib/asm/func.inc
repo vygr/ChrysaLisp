@@ -54,11 +54,6 @@
 	(if (get p) (throw "can't jump to inline function !" p)
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 
-(defun inst-to-str (inst)
-	(if (eql (first inst) 'emit-string)
-		(cat "(emit-string \q" (escape (second inst)) "\q)")
-		(str inst)))
-
 (defun def-func (*func_name* &optional *func_align* *func_stack*)
 	(defq *func_align* (ifn *func_align* stack_align)
 		*strings* (clear '()) *paths* (clear '()) *consts* (clear '())
@@ -107,7 +102,7 @@
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
 	(defq *emit_code* (emit-vp-code *emit_list*))
 	(when (or *build_emit* (eql *cpu* 'vp64))
-		(defq *out* (cat "(" (join (map (const inst-to-str) *emit_code*) "\n") ")"))
+		(defq *out* (cat "(" (join (map (const str) *emit_code*) "\n") ")"))
 		(if (eql *cpu* 'vp64) (save *out* (cat "obj/vp/" (str *func_name*))))
 		(if *build_emit* (print *out*)))
 	(defq *out* (emit-translate *emit_code*))
