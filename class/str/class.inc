@@ -31,7 +31,7 @@
 	(dec-method :bfind class/str/bfind :static (:r0 :r1) (:r0 :r1 :r2))
 	(dec-method :bskip class/str/bskip :static (:r0 :r1 :r2) (:r0 :r1 :r2))
 	(dec-method :bskipn class/str/bskipn :static (:r0 :r1 :r2) (:r0 :r1 :r2))
-	(dec-method :unescape class/str/unescape :static (:r0) (:r0))
+	(dec-method :unescape class/str/unescape :static (:r0 :r1) (:r0 :r1))
 	(dec-method :escape class/str/escape :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_str class/str/lisp_str :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_to_num class/str/lisp_tonum :static (:r0 :r1) (:r0 :r1))

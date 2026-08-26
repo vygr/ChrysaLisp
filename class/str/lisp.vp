@@ -911,9 +911,9 @@
 	(assign `(,this) `(,saved_this))
 	(list-bind-args args `(,this) '(:obj))
 	(call :str :create_from_buffer `((& ,this +str_data) (,this +str_length)) `(,this))
-	(call :str :unescape `(,this) `(,this))
+	(call :str :unescape `(,this ,this) `(_ ,args))
 
-	(exit :str :lisp_unescape `(,saved_this ,this))
+	(exit :str :lisp_unescape `(,saved_this ,args))
 	(vp-ret)
 
 (errorcase
@@ -933,7 +933,7 @@
 	;trashes
 	;:r1-:r9, :f0-:f15
 
-	(vp-rdef (saved_this src dst len this args) '(:r9 :r6 :r7 :r8))
+	(vp-rdef (saved_this src this args len) '(:r9 :r8))
 
 	(entry :str :lisp_escape `(,this ,args))
 
@@ -942,10 +942,10 @@
 	(list-bind-args args `(,src) '(:obj))
 	(assign `((,src +str_length)) `(,len))
 	(vp-add-rr len len)
-	(call :str :create_from_buffer `(0 ,len) `(,dst))
-	(call :str :escape `(,src ,dst) `(_ ,dst))
+	(call :str :create_from_buffer `(0 ,len) `(,args))
+	(call :str :escape `(,src ,args) `(_ ,args))
 
-	(exit :str :lisp_escape `(,saved_this ,dst))
+	(exit :str :lisp_escape `(,saved_this ,args))
 	(vp-ret)
 
 (errorcase

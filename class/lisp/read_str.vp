@@ -50,7 +50,7 @@
 		(assign `(,value) {value})
 		(call :sstream :destroy `(,str_stream))
 	(endswitch)
-	(call :str :unescape {value} {value})
+	(call :str :unescape {value, value} {_, value})
 	(call :stream :read_char {stream} {_, char})
 
 	(exit :lisp :read_str {this, value, char})

@@ -418,11 +418,13 @@ trashes
 
 ```code
 inputs
-:r0 = str object (ptr)
+:r0 = src str object (ptr)
+:r1 = dst str object (ptr), can be same (ptr)
 outputs
-:r0 = str object (ptr)
+:r0 = src str object (ptr)
+:r1 = dst str object (ptr)
 trashes
-:r1-:r8
+:r2-:r8
 ```
 
 ### :vtable -> class/str/vtable
