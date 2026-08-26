@@ -57,6 +57,37 @@
 (defq rt_sample "Line 1\t\qquoted\q\r\nLine 2\v\fEnd\\Path")
 (assert-eq "escape-unescape roundtrip" rt_sample (unescape (escape rt_sample)))
 
+; --- escape-regexp Tests ---
+(assert-eq "escape-regexp empty" "" (escape-regexp ""))
+(assert-eq "escape-regexp plain text" "Hello World 123" (escape-regexp "Hello World 123"))
+(assert-eq "escape-regexp caret" "\\^" (escape-regexp "^"))
+(assert-eq "escape-regexp dollar" "\\$" (escape-regexp "$"))
+(assert-eq "escape-regexp exclam" "\\!" (escape-regexp "!"))
+(assert-eq "escape-regexp dot" "\\." (escape-regexp "."))
+(assert-eq "escape-regexp star" "\\*" (escape-regexp "*"))
+(assert-eq "escape-regexp plus" "\\+" (escape-regexp "+"))
+(assert-eq "escape-regexp question" "\\?" (escape-regexp "?"))
+(assert-eq "escape-regexp pipe" "\\|" (escape-regexp "|"))
+(assert-eq "escape-regexp left bracket" "\\[" (escape-regexp "["))
+(assert-eq "escape-regexp right bracket" "\\]" (escape-regexp "]"))
+(assert-eq "escape-regexp left paren" "\\(" (escape-regexp "("))
+(assert-eq "escape-regexp right paren" "\\)" (escape-regexp ")"))
+(assert-eq "escape-regexp backslash" "\\\\" (escape-regexp "\\"))
+(assert-eq "escape-regexp all metachars"
+	"\\^\\$\\!\\.\\*\\+\\?\\|\\[\\]\\(\\)\\\\"
+	(escape-regexp "^$!.*+?|[]()\\"))
+(assert-eq "escape-regexp arithmetic" "1 \\+ 1 = 2" (escape-regexp "1 + 1 = 2"))
+(assert-eq "escape-regexp filename" "file\\.tar\\.gz" (escape-regexp "file.tar.gz"))
+(assert-eq "escape-regexp pattern string" "\\(a\\|b\\)\\*\\?" (escape-regexp "(a|b)*?"))
+(assert-eq "escape-regexp windows path" "C:\\\\path\\\\file" (escape-regexp "C:\\path\\file"))
+
+; Functional match? verification using escaped regexp patterns
+(assert-true "escape-regexp match literal plus" (match? "1 + 1 = 2" (escape-regexp "1 + 1 = 2")))
+(assert-true "escape-regexp no match wildcard" (not (match? "1x2" (escape-regexp "1.2"))))
+(assert-true "escape-regexp match literal dot" (match? "1.2" (escape-regexp "1.2")))
+(assert-true "escape-regexp match literal brackets" (match? "[a-z]" (escape-regexp "[a-z]")))
+(assert-true "escape-regexp no match char class range" (not (match? "m" (escape-regexp "[a-z]"))))
+
 ; --- bskip family tests ---
 
 ; bskip: skip characters IN class
