@@ -275,6 +275,9 @@ Deep dives into meta-commentary and design philosophy:
 65. **[CTF Font format](docs/ai_digest/ctf_command.md)** - ChrysaLisp vector
     font format and tooling.
 
+66. **[Keeping It Hot](docs/ai_digest/keeping_it_hot.md)** - ChrysaLisp Lisp
+    function call breakdown.
+
 ---
 
 ## Reading Paths
