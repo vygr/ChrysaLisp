@@ -1,653 +1,1054 @@
-# Library and System primitives
+# Library and System Primitives
 
-This document covers the FFI primitives available in the ChrysaLisp class
-library and system `lisp.inc` files, excluding the core primitives already
-detailed from `root.inc`.
+This document covers the system interfaces, class libraries, and support
+modules provided across the ChrysaLisp OS.
 
 ## System Kernel and Task Management
 
-These functions provide low-level access to the ChrysaLisp kernel and task
-scheduler, allowing for introspection and control over the system's execution.
+Low-level primitives for task concurrency, cooperative multitasking, and system
+introspection.
 
-*   **`kernel-stats`**: Retrieves statistics from the kernel.
+*	**`kernel-stats`**: Retrieves runtime telemetry from the local kernel.
 
-	* `(kernel-stats) -> (task_count mem_used mem_avail max_stack)`
+	*	`(kernel-stats) -> (task_count mem_used mem_avail max_stack)`
 
-*   **`load-path`**: Returns the base path for loading object files, specific to
-	the current CPU and ABI.
+*	**`load-path`**: Returns the relative directory path where compiled object
+	files are loaded for the current architecture.
 
-	* `(load-path) -> str`
+	*	`(load-path) -> str`
 
-*   **`os` / `cpu` / `abi`**: Returns the operating system, CPU architecture, and ABI.
+*	**`os` / `cpu` / `abi`**: Returns the target host OS, CPU architecture, and
+	ABI symbols.
 
-	* `(os) -> sym`
+	*	`(os) -> sym`
 
-	* `(cpu) -> sym`
+	*	`(cpu) -> sym`
 
-	* `(abi) -> sym`
+	*	`(abi) -> sym`
 
-*   **`task-flags`**: Returns the flags of the current task.
+*	**`task-flags`**: Retrieves the status and signal flags of the current task.
 
-	* `(task-flags) -> flags`
+	*	`(task-flags) -> flags`
 
-*   **`task-mbox`**: Returns the `netid` of the current task's mailbox.
+*	**`task-mbox`**: Returns the primary mailbox `netid` allocated for the
+	current task.
 
-	* `(task-mbox) -> netid`
+	*	`(task-mbox) -> netid`
 
-*   **`task-count`**: Gets or adjusts the kernel's count of running tasks.
+*	**`task-count`**: Adjusts or queries the task load bias on the current node.
 
-	* `(task-count bias) -> num`: The `bias` argument is added to the current
-	  count.
+	*	`(task-count bias) -> num`
 
-*   **`task-sleep`**: Pauses the current task for a specified duration in
-	microseconds.
+*	**`task-sleep`**: Cooperatively suspends the task for a duration in
+	microseconds (`0` yields the CPU).
 
-	* `(task-sleep usec) -> :t`
+	*	`(task-sleep usec) -> :t`
 
-*   **`task-slice`**: Yields the CPU, allowing the scheduler to run other tasks.
+*	**`task-slice`**: Cooperatively yields execution if the current task
+	timeslice has expired.
 
-	* `(task-slice) -> :t`
+	*	`(task-slice) -> :t`
 
-*   **`task-mboxes`**: Returns a list of mailboxes for a task.
+*	**`task-mboxes`**: Allocates an array containing the task's primary mailbox
+	and `size - 1` new disposable mailboxes.
 
-	* `(task-mboxes size) -> ((task-mbox) [temp_mbox] ...)`
+	*	`(task-mboxes size) -> ((task-mbox) [temp_mbox] ...)`
 
-*   **`task-nodeid`**: Returns the node ID for a given mailbox or the current task.
+*	**`task-nodeid`**: Extracts the 16-byte `node_id` component from a mailbox
+	or the current task.
 
-	* `(task-nodeid [mbox]) -> nodeid`
+	*	`(task-nodeid [mbox]) -> nodeid`
 
-*   **`task-timeout`**: Converts seconds to nanoseconds for use in timeouts.
+*	**`task-timeout`**: Scales a duration in seconds into architecture-scaled
+	nanoseconds for timeouts.
 
-	* `(task-timeout s) -> ns`
+	*	`(task-timeout s) -> ns`
 
-*   **`pii-time`**: Returns the current system time in nanoseconds.
+*	**`open-task`**: Dispatches a raw task spawn request across the cluster.
 
-	* `(pii-time) -> ns`
+	*	`(open-task task node mode key_num reply)`
+
+*	**`open-child`**: Spawns a child task on the local node.
+
+	*	`(open-child task mode) -> net_id`
+
+*	**`open-remote`**: Spawns a task on a specific remote node.
+
+	*	`(open-remote task node mode) -> net_id`
+
+*	**`open-pipe`**: Spawns a series of tasks connected in an execution
+	pipeline.
+
+	*	`(open-pipe tasks [modes]) -> ([net_id | 0] ...)`
 
 ## Distributed Messaging (Mail System)
 
-This is the core family of functions for inter-process communication, forming
-the foundation of ChrysaLisp's message-passing architecture.
+Location-transparent inter-process communication built on ephemeral, disposable
+`netid` addresses.
 
-*   **`mail-mbox`**: Allocates a new, unique mailbox for the current task.
+*	**`mail-mbox`**: Allocates a locally unique, disposable mailbox `netid`.
 
-	* `(mail-mbox) -> netid`
+	*	`(mail-mbox) -> netid`
 
-*   **`mail-declare`**: Registers a service with the network, associating a name
-	and info string with a specific mailbox.
+*	**`mail-declare`**: Advertises a named service endpoint across the cluster.
 
-	* `(mail-declare mbox name info) -> service_key`
+	*	`(mail-declare mbox name info) -> service_key`
 
-*   **`mail-nodes`**: Returns a list of all known node IDs on the network.
+*	**`mail-nodes`**: Returns all active node IDs discovered on the network.
 
-	* `(mail-nodes) -> (node_id ...)`
+	*	`(mail-nodes) -> (node_id ...)`
 
-*   **`mail-enquire`**: Searches the network for services matching a given
+*	**`mail-enquire`**: Queries the cluster for service entries matching a name
 	prefix.
 
-	* `(mail-enquire prefix) -> (service_entry ...)`
+	*	`(mail-enquire prefix) -> (service_entry ...)`
 
-*   **`mail-forget`**: Unregisters a service from the network.
+*	**`mail-forget`**: Withdraws a service advertisement from the network.
 
-	* `(mail-forget service_key)`
+	*	`(mail-forget service_key)`
 
-*   **`mail-poll`**: Checks a list of mailboxes and returns the index of the
-	first one with a waiting message, without blocking.
+*	**`mail-poll`**: Non-blocking inspection of mailboxes for pending messages.
 
-	* `(mail-poll mboxs) -> :nil | index`
+	*	`(mail-poll mboxs) -> :nil | index`
 
-*   **`mail-validate`**: Checks if a given mailbox `netid` is currently valid
-	and allocated.
+*	**`mail-validate`**: Checks whether a mailbox ID is currently valid.
 
-	* `(mail-validate mbox) -> :t | :nil`
+	*	`(mail-validate mbox) -> :t | :nil`
 
-*   **`mail-read`**: Blocks until a message is received in the specified mailbox
-	and returns it.
+*	**`mail-read`**: Blocks until a message is received in the specified
+	mailbox.
 
-	* `(mail-read mbox) -> msg`
+	*	`(mail-read mbox) -> msg`
 
-*   **`mail-select`**: Blocks until a message is available in any of the
-	mailboxes in a list and returns the index of that mailbox.
+*	**`mail-select`**: Blocks on a list of mailboxes, returning the index of the
+	first ready mailbox.
 
-	* `(mail-select mboxs) -> index`
+	*	`(mail-select mboxs) -> index`
 
-*   **`mail-send`**: Sends a message to a destination `netid`.
+*	**`mail-send`**: Dispatches a message to a destination `netid`.
 
-	* `(mail-send mbox obj)`
+	*	`(mail-send mbox obj)`
 
-*   **`mail-timeout`**: Sets or clears a timeout for a mailbox. If the timeout
-	is reached, a message is sent to that mailbox.
+*	**`mail-timeout`**: Schedules a timeout signal message sent to a mailbox.
+	Passing `0` cancels the timeout.
 
-	* `(mail-timeout mbox ns id) -> mbox`: Setting `ns` to 0 cancels the timeout.
+	*	`(mail-timeout mbox ns id) -> mbox`
 
 ## Platform Implementation Interface (PII)
 
-These functions interact directly with the underlying host operating
-system.
+Direct primitives bridging ChrysaLisp to host operating system drivers.
 
-*   **`pii-dirlist`**: Lists the contents of a directory.
+*	**`pii-dirlist`**: Reads the contents of a directory on the host file
+	system.
 
-	* `(pii-dirlist path) -> info`
+	*	`(pii-dirlist path) -> info`
 
-*   **`pii-fstat`**: Retrieves file status information (modification time,
-	size).
+*	**`pii-fstat`**: Retrieves file status metadata from the host file system.
 
-	* `(pii-fstat path) -> info`
+	*	`(pii-fstat path) -> (mtime fsize mode) | :nil`
 
-*   **`pii-read-char` / `pii-write-char`**: Read or write a single character
-	from/to a file descriptor.
+*	**`pii-read-char` / `pii-write-char`**: Unbuffered character I/O on host
+	file descriptors.
 
-	* `(pii-read-char fd) -> char`
+	*	`(pii-read-char fd) -> char`
 
-	* `(pii-write-char fd char) -> char`
+	*	`(pii-write-char fd char) -> char`
 
-*   **`pii-remove`**: Deletes a file.
+*	**`pii-remove`**: Deletes a file on the host file system.
 
-	* `(pii-remove path)`
+	*	`(pii-remove path) -> num`
+
+*	**`pii-time`**: Reads the host high-resolution monotonic timer in
+	nanoseconds.
+
+	*	`(pii-time) -> ns`
 
 ## File and Directory Utilities
 
-These functions provide higher-level utilities for working with files,
-directories, and dependencies.
+Filesystem traversal, dependency analysis, and path resolution.
 
-*   **`files-all`**: Returns a list of all source files from a root directory
-	downwards (recursive).
+*	**`files-all`**: Recursively discovers all files matching extensions from a
+	root directory.
 
-	* `(files-all [root exts cut_start cut_end]) -> paths`
+	*	`(files-all [root exts cut_start cut_end]) -> paths`
 
-*   **`files-dirs`**: Returns all unique directory paths from a list of file
-	paths.
+*	**`files-dirs`**: Extracts unique directory paths from a list of file paths.
 
-	* `(files-dirs paths) -> paths`
+	*	`(files-dirs paths) -> paths`
 
-*   **`files-depends`**: Creates a list of immediate dependencies (includes
-	and imports) for a given file.
+*	**`files-depends`**: Parses a source file to extract its immediate `include`
+	and `import` dependencies.
 
-	* `(files-depends path [end]) -> paths`
+	*	`(files-depends path [end]) -> paths`
 
-*   **`files-all-depends`**: Creates a list of all dependencies for a set of
-	files, optionally including implicit ones.
+*	**`files-all-depends`**: Resolves the transitive closure of all dependencies
+	for a set of files.
 
-	* `(files-all-depends paths [imps end]) -> paths`
+	*	`(files-all-depends paths [imps end]) -> paths`
 
-*   **`files-scan`**: Iterates through files, processing lines with a handler
-	function.
+*	**`files-scan`**: Scans files line-by-line with a user-defined processing
+	callback.
 
-	* `(files-scan files handler [split_class comment]) -> files`
+	*	`(files-scan files handler [split_class comment]) -> files`
 
-*   **`url-ext`**: Helper for URL or path extension autocompletion.
+*	**`files-classes-info`**: Builds or loads the cached class database
+	(`class_db.tre`).
 
-	* `(url-ext url cx [ctx]) -> str`
+	*	`(files-classes-info [forced]) -> :nil | class_db`
+
+*	**`files-function-info`**: Builds or loads the cached function database
+	(`func_db.tre`).
+
+	*	`(files-function-info [class_db]) -> :nil | func_db`
+
+*	**`files-all-vp-source`**: Returns all VP source files topologically sorted
+	by dependency.
+
+	*	`(files-all-vp-source) -> ordered_files`
+
+*	**`url-ext`**: Path autocompletion helper for command prompts.
+
+	*	`(url-ext url cx [ctx]) -> str`
 
 ## GUI System Management
 
-These functions manage the main GUI window and event loop.
+Host window event handling, compositor interaction, and RPC management.
 
-*   **`gui-info`**: Returns information about the main GUI screen.
+*	**`gui-info`**: Queries the mouse coordinates and dimensions of the display.
 
-	* `(gui-info) -> (mouse_x mouse_y screen_width screen_height)`
+	*	`(gui-info) -> (mouse_x mouse_y screen_width screen_height)`
 
-*   **`gui-init`**: Initializes the GUI system with a root view object.
+*	**`gui-init`**: Initializes the GUI compositor with a root view object.
 
-	* `(gui-init screen) -> screen`
+	*	`(gui-init screen) -> screen`
 
-*   **`gui-deinit`**: Shuts down the GUI system.
+*	**`gui-deinit`**: Shuts down the GUI subsystem.
 
-	* `(gui-deinit) -> :nil`
+	*	`(gui-deinit) -> :nil`
 
-*   **`gui-update`**: Triggers a redraw and composite of the GUI.
+*	**`gui-update`**: Prompts the compositor to execute layout, damage clipping,
+	and rendering.
 
-	* `(gui-update mouse_x mouse_y flags) -> :nil`
+	*	`(gui-update mouse_x mouse_y flags) -> :nil`
 
-*   **`gui-event`**: Polls for and returns the next GUI event from the host OS.
+*	**`gui-event`**: Polls the host OS event queue for pending mouse, keyboard,
+	or window events.
 
-	* `(gui-event) -> :nil | event_string`
+	*	`(gui-event) -> :nil | event_string`
 
-*   **`gui-rpc`**: Performs a GUI remote procedure call.
+*	**`gui-rpc`**: Sends an RPC message to the GUI compositor task.
 
-	* `(gui-rpc (view cmd)) -> :nil | view`
+	*	`(gui-rpc (view cmd)) -> :nil | view`
 
-*   **`gui-add-back-rpc` / `gui-add-front-rpc`**: Adds a view to the back or front of the GUI.
+*	**`gui-add-front-rpc` / `gui-add-back-rpc`**: Adds a view to the front or
+	back of the compositor hierarchy.
 
-	* `(gui-add-back-rpc view) -> view`
+	*	`(gui-add-front-rpc view) -> view`
 
-*   **`gui-sub-rpc`**: Remove a view from the GUI.
+	*	`(gui-add-back-rpc view) -> view`
 
-	* `(gui-sub-rpc view) -> view`
+*	**`gui-sub-rpc`**: Removes a view from the compositor hierarchy.
 
-*   **`gui-logout-rpc` / `gui-quit-rpc`**: Logs out or quits the GUI system.
+	*	`(gui-sub-rpc view) -> view`
 
-	* `(gui-logout-rpc) -> :nil`
+*	**`gui-logout-rpc` / `gui-quit-rpc`**: Terminates the desktop session.
 
-## Font and Glyph Functions
+	*	`(gui-logout-rpc) -> :nil`
 
-These functions handle loading, inspecting, and rendering text using `.ctf`
-(ChrysaLisp Typeface) files.
+	*	`(gui-quit-rpc) -> :nil`
 
-*   **`create-font`**: Loads a font file at a specific pixel size.
+*	**`view-locate`**: Calculates coordinates to center or dock a view.
 
-	* `(create-font name pixels) -> font`
+	*	`(view-locate w h [p]) -> (x y w h)`
 
-*   **`font-info`**: Returns the name and size of a font object.
+*	**`view-fit`**: Clamps coordinates to fit within the visible display bounds.
 
-	* `(font-info font) -> (name pixels)`
+	*	`(view-fit x y w h) -> (x y w h)`
 
-*   **`font-glyph-paths`**: Generates vector `path` objects for the glyphs in a
-	string.
+## Font, Typeface, and Glyph Operations
 
-	* `(font-glyph-paths font str) -> (path ...)`
+Loading, rendering, and rasterizing `.ctf` (ChrysaLisp Typeface) vector fonts.
 
-*   **`font-glyph-ranges`**: Returns the Unicode ranges supported by the font.
+*	**`create-font`**: Loads a `.ctf` font at a specified pixel size.
 
-	* `(font-glyph-ranges font) -> ((start end) ...)`
+	*	`(create-font name pixels) -> font`
 
-*   **`font-glyph-bounds`**: Calculates the bounding box for a rendered string.
+*	**`font-info`**: Returns the font typeface name and pixel height.
 
-	* `(font-glyph-bounds font str) -> (width height)`
+	*	`(font-info font) -> (name pixels)`
 
-*   **`font-sym-texture`**: Creates and caches a texture for a given symbol
-	(word).
+*	**`font-glyph-paths`**: Generates 2D vector path outlines for a string of
+	glyphs.
 
-	* `(font-sym-texture font sym) -> texture`
+	*	`(font-glyph-paths font str) -> (path ...)`
 
-## Canvas and Graphics Manipulation
+*	**`font-glyph-ranges`**: Returns the Unicode code point ranges supported by
+	the font.
 
-These functions provide control over raster graphics and image formats.
+	*	`(font-glyph-ranges font) -> ((start end) ...)`
 
-*   **`pixmap-to-argb32` / `pixmap-from-argb32`**: Converts between pixel formats.
+*	**`font-glyph-bounds`**: Calculates the pixel dimensions required to render
+	a string.
 
-	* `(pixmap-to-argb32 pixel type) -> argb_num`
+	*	`(font-glyph-bounds font str) -> (width height)`
 
-	* `(pixmap-from-argb32 pixel type) -> num`
+*	**`font-sym-texture`**: Renders and caches an anti-aliased GPU texture for a
+	given symbol.
 
-*   **`canvas-info`**: Returns information about a canvas or image file.
+	*	`(font-sym-texture font sym) -> texture`
 
-	* `(canvas-info file) -> (width height type) | (-1 -1 -1)`
+## Canvas, Pixmaps, and Raster Graphics
 
-*   **`canvas-load` / `canvas-save`**: Loads or saves a canvas from/to a file.
+Raster image loading, format conversion, and 2D canvas drawing operations.
 
-	* `(canvas-load file flags [swap_mode]) -> :nil | canvas`
+*	**`pixmap-as-argb`**: Converts a pixmap's pixels from premultiplied alpha to
+	standard ARGB.
 
-	* `(canvas-save canvas file type) -> :nil | canvas`
+	*	`(pixmap-as-argb pixmap) -> pixmap`
 
-*   **`canvas-brighter` / `canvas-darker`**: Adjusts color brightness.
+*	**`pixmap-to-argb32` / `pixmap-from-argb32`**: Pixel format conversion.
 
-	* `(canvas-brighter col) -> col`
+	*	`(pixmap-to-argb32 pixel type) -> argb32`
 
-	* `(canvas-darker col) -> col`
+	*	`(pixmap-from-argb32 pixel type) -> pixel`
 
-*   **`canvas-flush`**: Flushes any shared pixmaps from the cache.
+*	**`pixmap-read` / `pixmap-write`**: Stream I/O for raw pixmap pixel data.
 
-	* `(canvas-flush)`
+	*	`(pixmap-read pixmap stream type) -> :nil | pixmap`
 
-*   **`circle`**: Generates a circular path.
+	*	`(pixmap-write pixmap stream type) -> pixmap`
 
-	* `(circle r) -> path`
+*	**`canvas-info`**: Inspects image headers without loading the full bitmap.
 
-*   **`lighting` / `lighting-at3`**: Applies basic attenuation and diffuse/specular lighting.
+	*	`(canvas-info file) -> (width height type) | (-1 -1 -1)`
 
-	* `(lighting col at)`
+*	**`canvas-load` / `canvas-save`**: Loads or saves an image canvas.
 
-	* `(lighting-at3 col at sp)`
+	*	`(canvas-load file flags [swap_mode]) -> :nil | canvas`
 
-*   **`render-object-tris`**: Projects 3D vertices (triangles) to the screen.
+	*	`(canvas-save canvas file type &rest optionals) -> :nil | canvas`
 
-*   **`texture-metrics`**: Returns information about a texture.
+*	**`canvas-brighter` / `canvas-darker`**: Computes highlighted and shaded
+	color variants.
 
-	* `(texture-metrics texture) -> (handle width height)`
+	*	`(canvas-brighter col) -> col`
 
-*   **`CPM-info` / `CPM-load` / `CPM-save`**: Handles CPM image format.
+	*	`(canvas-darker col) -> col`
 
-*   **`CWB-info` / `CWB-load`**: Handles CWB image format.
+*	**`canvas-flush`**: Purges unused shared pixmaps from the cache.
 
-*   **`TGA-info` / `TGA-load`**: Handles TGA image format.
+	*	`(canvas-flush)`
 
-*   **`SVG-info` / `SVG-load`**: Handles SVG format.
+*	**`texture-metrics`**: Returns the dimensions and handle of a GPU texture.
 
-## Path and Vector Graphics
+	*	`(texture-metrics texture) -> (handle width height)`
 
-These functions are used to create and manipulate `:path` objects for vector drawing.
+*	**`CPM-info` / `CPM-load` / `CPM-save`**: ChrysaLisp Pixmap format handler.
 
-*   **`path-gen-arc` / `path-gen-cubic` / `path-gen-quadratic` / `path-gen-ellipse` / `path-gen-rect`**: Generates various path shapes.
+*	**`CWB-info` / `CWB-load`**: ChrysaLisp Vector Canvas format handler.
 
-	* `(path-gen-arc cx cy start_angle end_angle radius dst) -> dst`
+*	**`TGA-info` / `TGA-load`**: Truevision TGA image loader.
 
-*   **`path-gen-paths`**: Tokenizes an SVG path data string into open/closed paths.
+*	**`SVG-info` / `SVG-load`**: Scalable Vector Graphics loader.
 
-	* `(path-gen-paths svg_d) -> ((:nil|:t path) ...)`
+## UI Declarative Tree Builders
 
-*   **`path-filter` / `path-simplify` / `path-smooth`**: Processes and simplifies paths.
+Macros for assembling declarative widget hierarchies.
 
-	* `(path-filter tol src dst) -> dst`
+*	**`ui-root` / `ui-element`**: Base macros for defining component trees.
 
-*   **`path-stroke-polygon` / `path-stroke-polyline` / `path-stroke-polygons` / `path-stroke-polylines`**: Converts outlines into renderable shapes.
+	*	`(ui-root name constructor [props] [body ...]) -> view`
 
-	* `(path-stroke-polyline path radius join cap1 cap2) -> path`
+	*	`(ui-element name constructor [props] [body ...]) -> view`
 
-*   **`path-transform`**: Applies a transformation matrix to a path.
+*	**`ui-window`**: Window container with shadow and drag borders.
 
-	* `(path-transform m3x2 src dst) -> dst`
+	*	`(ui-window name [props] [body ...]) -> window`
 
-*   **`path-svg`**: Tokenizes an SVG path data string.
+*	**`ui-flow` / `ui-grid` / `ui-stack`**: Layout containers.
 
-	* `(path-svg d) -> commands`
+	*	`(ui-flow name [props] [body ...]) -> flow`
 
-*   **`vector-bounds-2d` / `vector-bounds-3d` / `vector-bounds-sphere`**: Calculates bounding volumes.
+	*	`(ui-grid name [props] [body ...]) -> grid`
 
-	* `(vector-bounds-3d verts [stride]) -> (min_v3 max_v3)`
+	*	`(ui-stack name tabs [props] [body ...]) -> stack`
 
-*   **`vector-point-in-polygon`**: Checks if a point is within a polygon.
+*	**`ui-button` / `ui-buttons` / `ui-title-bar`**: Button controls.
 
-	* `(vector-point-in-polygon p paths winding_mode) -> :t | :nil`
+	*	`(ui-button name [props] [body ...]) -> button`
 
-## Vectorized Numeric Operations
+	*	`(ui-buttons symbols event [props])`
 
-These functions perform operations on entire vectors of numbers (`:nums`, `:reals`, `:fixeds`).
+	*	`(ui-title-bar name title symbols event [props]) -> flow`
 
-*   **`nums-abs` / `fixeds-frac` / `fixeds-floor` / `fixeds-ceil`**: Element-wise operations.
+*	**`ui-text` / `ui-label` / `ui-title` / `ui-md`**: Text rendering widgets.
 
-	* `(nums-abs nums [out_nums]) -> nums`
+	*	`(ui-text name [props]) -> text`
 
-	* `(fixeds-frac fixeds [out_fixeds]) -> fixeds`
+	*	`(ui-label name [props] [body ...]) -> label`
 
-	* `(fixeds-floor fixeds [out_fixeds]) -> fixeds`
+	*	`(ui-title name [props]) -> title`
 
-	* `(fixeds-ceil fixeds [out_fixeds]) -> fixeds`
+	*	`(ui-md name [text_lines] [props] [body ...]) -> md`
 
-*   **`nums-scale`**: Scales a vector by a scalar.
+*	**`ui-textfield` / `ui-slider` / `ui-scroll` / `ui-spinner`**: Interactive controls.
 
-	* `(nums-scale nums scale [out_nums]) -> nums`
+	*	`(ui-textfield name [props]) -> textfield`
 
-*   **`nums-add` / `nums-sub` / `nums-mul` / `nums-div` / `nums-mod` / `nums-min` / `nums-max`**: Element-wise arithmetic/comparison.
+	*	`(ui-slider name [props]) -> slider`
 
-	* `(nums-add nums1 nums2 [out_nums]) -> nums`
+	*	`(ui-scroll name flags [props] [body ...]) -> scroll`
 
-	* `(nums-min nums1 nums2 [out_nums]) -> nums`
+	*	`(ui-spinner name [props]) -> spinner`
 
-	* `(nums-max nums1 nums2 [out_nums]) -> nums`
+*	**`ui-radio-bar` / `ui-toggle-bar` / `ui-tool-bar`**: Bar containers.
 
-*   **`nums-sum`**: Returns the sum of all elements.
+	*	`(ui-radio-bar name symbols [props]) -> radiobar`
 
-	* `(nums-sum nums) -> num`
+	*	`(ui-toggle-bar name symbols [props]) -> radiobar`
 
-*   **`nums-dot`**: Calculates the dot product.
+	*	`(ui-tool-bar name [props] [body ...]) -> flow`
 
-	* `(nums-dot nums1 nums2) -> num`
+*	**`ui-canvas` / `ui-vdu` / `ui-backdrop` / `ui-stroke` / `ui-progress`**: Specialized display widgets.
 
-*   **`reals-quant` / `quant`**: Quantizes a real vector or single real value.
+	*	`(ui-canvas name width height scale [props]) -> canvas`
 
-	* `(reals-quant reals tol [reals]) -> reals`
+	*	`(ui-vdu name [props]) -> vdu`
 
-	* `(quant real tol) -> real`
+	*	`(ui-backdrop name [props] [body ...]) -> backdrop`
 
-*   **`mat4x4-mul` / `mat4x4-inv` / `mat4x4-vec4-mul` / `mat4x4-vec3-mul`**: Matrix operations.
+	*	`(ui-stroke name [props]) -> stroke`
 
-	* `(mat4x4-mul reals reals [reals]) -> reals`
+	*	`(ui-progress name [props]) -> progress`
 
-	* `(mat4x4-inv reals [reals]) -> reals`
+*	**`ui-files`**: Hierarchical filesystem tree browser widget.
 
-	* `(mat4x4-vec4-mul reals reals [reals]) -> reals`
+	*	`(ui-files name title event [props]) -> files`
 
-	* `(mat4x4-vec3-mul reals reals [reals]) -> reals`
+*	**`ui-tool-tips`**: Attaches tooltip strings to children of a container.
 
-*   **`mat3x2-mul-f`**: Multiplies two 3x2 fixed-point matrices.
+	*	`(ui-tool-tips view tips)`
 
-*   **`Mat4x4-unity` / `Mat4x4-rotx` / `Mat4x4-roty` / `Mat4x4-rotz`**: Matrix constructors.
+## Vector Paths and 2D Geometry
 
-	* `(Mat4x4-unity) -> reals`
+2D vector shape generation, stroke tessellation, and intersection testing.
 
-*   **`Mat4x4-translate` / `Mat4x4-scale` / `Mat4x4-frustum`**: Matrix transformations.
+*	**`path-gen-arc`**: Generates arc path coordinates.
 
-	* `(Mat4x4-translate x y z) -> reals`
+	*	`(path-gen-arc cx cy start end radius dst) -> dst`
 
-*   **`vector-length` / `vector-dist` / `vector-norm`**: Vector properties.
+*	**`path-gen-cubic` / `path-gen-quadratic`**: Generates Bézier curves.
 
-	* `(vector-length p) -> real`
+	*	`(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y dst) -> dst`
 
-	* `(vector-dist p1 p2) -> real`
+	*	`(path-gen-quadratic p1x p1y p2x p2y p3x p3y dst) -> dst`
 
-*   **`vector-cross-3d`**: Vector cross product.
+*	**`path-gen-rect` / `path-gen-ellipse`**: Generates geometric primitives.
 
-	* `(vector-cross-3d v1 v2) -> list`
+	*	`(path-gen-rect x y x1 y1 rx ry dst) -> dst`
 
-*   **`opt-vector`**: Optimizes a vector.
+	*	`(path-gen-ellipse cx cy rx ry dst) -> dst`
 
-## Math and Optimization
+*	**`path-gen-paths`**: Parses an SVG path data string into open/closed paths.
 
-*   **`Mesh` / `Mesh-sphere` / `Mesh-torus` / `Mesh-iso` / `Mesh-obj`**: Classes for 3D mesh generation and manipulation.
+	*	`(path-gen-paths svg_d) -> ((:nil|:t path) ...)`
 
-*   **`iso-surface`**: Generates triangles from an isosurface grid.
+*	**`path-filter` / `path-simplify` / `path-smooth`**: Geometric path optimization.
 
-	* `(iso-surface grid isolevel) -> tris`
+	*	`(path-filter tol src dst) -> dst`
 
-*   **`vertex-interp`**: Interpolates between two vertices based on an isolevel.
+	*	`(path-simplify tol src dst) -> dst`
 
-*   **`opt-mesh`**: Optimizes a 3D mesh (removes duplicate vertices).
+	*	`(path-smooth src) -> dst`
 
-*   **`gen-norms`**: Generates normals for a mesh.
+*	**`path-stroke-polygon` / `path-stroke-polyline`**: Generates expanded
+	polygon strokes from paths.
 
-## XML and SVG Parsing
+	*	`(path-stroke-polygon path radius join) -> paths`
 
-*   **`XML-parse`**: A low-level XML tokenizer with callbacks.
+	*	`(path-stroke-polyline path radius join cap1 cap2) -> path`
 
-	* `(XML-parse stream fnc_in fnc_out fnc_text)`
+*	**`path-stroke-polygons` / `path-stroke-polylines`**: Batch stroke operations.
 
-*   **`SVG-load`**: Renders an SVG stream to a canvas.
+	*	`(path-stroke-polygons dst radius join src) -> dst`
 
-	* `(SVG-load stream [scale]) -> :nil | canvas`
+	*	`(path-stroke-polylines dst radius join cap1 cap2 src) -> dst`
 
-*   **`SVG-info`**: Returns information about an SVG stream.
+*	**`path-transform`**: Multiplies path vertices by a 3x2 transformation
+	matrix.
 
-	* `(SVG-info stream) -> (width height type) | (-1 -1 -1)`
+	*	`(path-transform m3x2 src dst) -> dst`
 
-## Text and Regular Expressions
+*	**`path-svg`**: Tokenizes SVG path commands and coordinate tokens.
 
-*   **`Buffer`**: A class for managing a text buffer.
+	*	`(path-svg d) -> commands`
 
-	* `(Buffer &optional mode syntax) -> buffer`
+*	**`vector-bounds-2d` / `vector-bounds-3d` / `vector-bounds-sphere`**: Bounding
+	volume calculations.
 
-*   **`escape` / `unescape` / `escape-regexp`**: Character escaping.
+	*	`(vector-bounds-2d paths) -> (min_v2 max_v2)`
 
-	* `(escape str) -> str`
+	*	`(vector-bounds-3d verts [stride]) -> (min_v3 max_v3)`
 
-*   **`char-class`**: Creates a sorted, interned character class string.
+	*	`(vector-bounds-sphere verts [stride]) -> (center_v3 radius)`
 
-	* `(char-class key) -> str`
+*	**`vector-point-in-polygon`**: Tests if a 2D point is enclosed by a polygon.
 
-*   **`Dictionary`**: A class for managing a dictionary of words.
+	*	`(vector-point-in-polygon p paths winding_mode) -> :t | :nil`
 
-*   **`Regexp`**: A class for regular expression searching.
+*	**`vector-perp-2d` / `vector-det` / `vector-cross-3d`**: Vector products.
 
-*   **`Search`**: Base class for search algorithms.
+	*	`(vector-perp-2d (x y)) -> list`
 
-*   **`found?` / `match?` / `matches`**: Search and match functions.
+	*	`(vector-det (x1 y1) (x2 y2)) -> num`
 
-	* `(match? text regexp) -> :t | :nil`
+	*	`(vector-cross-3d (x1 y1 z1) (x2 y2 z2)) -> list`
 
-*   **`substr`**: Finds all occurrences of a substring.
+*	**`vector-intersect-2d` / `vector-intersect-lines-2d`**: 2D line
+	intersection solvers.
 
-	* `(substr text substr) -> matches`
+	*	`(vector-intersect-2d l1_p1 av l2_p1 bv) -> (ix iy)`
 
-*   **`query`**: Creates a search query.
+	*	`(vector-intersect-lines-2d l1_p1 l1_p2 l2_p1 l2_p2) -> (ix iy)`
 
-	* `(query pattern whole_words regexp) -> (engine meta pattern)`
+*	**`vector-collide-lines-2d` / `vector-collide-thick-lines-2d`**: Collision
+	detection tests.
 
-*   **`replace-compile`**: Compiles a replacement string.
+	*	`(vector-collide-lines-2d l1_p1 l1_p2 l2_p1 l2_p2) -> :t | :nil`
 
-	* `(replace-compile rep_str) -> compiled_rep`
+	*	`(vector-collide-thick-lines-2d l1_p1 l1_p2 l2_p1 l2_p2 r) -> :t | :nil`
 
-*   **`replace-matches` / `replace-regex` / `replace-str`**: Replaces matches in text.
+*	**`vector-length` / `vector-dist` / `vector-sdist`**: Distance and norm
+	calculators.
 
-	* `(replace-regex text pattern compiled|rep_str) -> text`
+	*	`(vector-length p) -> real`
 
-*   **`replace-edits` / `replace-regex-edits` / `replace-str-edits`**: Generates edit operations for a buffer.
+	*	`(vector-dist p1 p2) -> real`
 
-*   **`Syntax`**: A class for syntax highlighting.
+	*	`(vector-sdist p1 p2) -> real`
 
-*   **`reflow`**: Reflows words into lines of a given width.
+*	**`vector-dist-to-line` / `vector-sdist-to-line`**: Point-to-line segment
+	distance calculations.
 
-	* `(reflow words line_width [indent tab_width]) -> lines`
+	*	`(vector-dist-to-line p p1 p2) -> real`
 
-## Tasks and Parallelism
+	*	`(vector-sdist-to-line p p1 p2) -> real`
 
-*   **`pipe-farm`**: Runs a farm of jobs via pipes and collects results.
+## 3D Mathematics, Meshes, and Isosurfaces
 
-	* `(pipe-farm jobs [retry_timeout]) -> ((job result) ...)`
+3D matrices, camera frustums, marching-cubes isosurfaces, and scene graphs.
 
-*   **`Farm` / `Global` / `Local`**: Classes for managing task pools.
+*	**`Mat3x2-f` / `Mat3x2-rotz-f` / `Mat3x2-skewx-f` / `Mat3x2-skewy-f`**: 3x2
+	transformation matrix constructors.
 
-*   **`Pipe` / `pipe-run` / `pipe-split`**: Pipeline creation and execution.
+*	**`mat3x2-mul-f`**: Multiplies two 3x2 fixed-point matrices.
 
-	* `(pipe-run cmdline [outfun])`
+	*	`(mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f`
 
-	* `(pipe-split cmdline) -> ((mode cmd) ...)`
+*	**`Mat4x4-unity` / `Mat4x4-rotx` / `Mat4x4-roty` / `Mat4x4-rotz`**: 4x4
+	rotation constructors.
 
-*   **`open-child` / `open-pipe` / `open-remote` / `open-task`**: Low-level task creation and communication.
+	*	`(Mat4x4-unity) -> reals`
 
-	* `(open-child task mode) -> net_id`
+	*	`(Mat4x4-rotx a) -> reals`
 
-	* `(open-pipe tasks [modes]) -> ([net_id | 0] ...)`
+	*	`(Mat4x4-roty a) -> reals`
 
-	* `(open-remote task node mode) -> net_id`
+	*	`(Mat4x4-rotz a) -> reals`
 
-	* `(open-task task node mode key_num reply)`
+*	**`Mat4x4-translate` / `Mat4x4-scale` / `Mat4x4-frustum`**: 4x4 transformation
+	and perspective frustum constructors.
 
-*   **`start` / `stop` / `restart`**: Controls child tasks.
+	*	`(Mat4x4-translate x y z) -> reals`
 
-## Streams and Compression
+	*	`(Mat4x4-scale x y z) -> reals`
 
-*	**`stream-diff` / `stream-patch`**: Diffs or patches streams in standard format.
+	*	`(Mat4x4-frustum left right top bottom near far) -> reals`
 
-*	**`huffman-compress` / `huffman-decompress`**: Huffman coding.
+*	**`Mesh` / `Mesh-sphere` / `Mesh-torus` / `Mesh-iso` / `Mesh-obj` / `Mesh-data`**:
+	3D triangle mesh representations.
 
-*	**`huffman-build-freq-map` / `huffman-write-codebook` / `huffman-read-codebook`**: Huffman model management.
+*	**`Scene` / `Scene-node` / `Scene-object`**: Hierarchical 3D scene graph.
 
-*	**`huffman-compress-static` / `huffman-decompress-static`**: Static Huffman coding.
+*	**`iso-surface`**: Calculates marching-cubes triangle facets from an 8-corner
+	voxel grid cell.
 
-*	**`rle-compress` / `rle-decompress`**: Run-length encoding.
+	*	`(iso-surface grid isolevel) -> tris`
 
-*	**`lz4-compress` / `lz4-decompress`**: LZ4 frame compression and decompression.
+*	**`vertex-interp`**: Interpolates coordinates along a grid edge.
 
-*	**`lz4-encode` / `lz4-decode`**: Low-level LZ4 block encoding and decoding.
+	*	`(vertex-interp isolevel p1 p2 valp1 valp2) -> p`
 
-*	**`lz4-read` / `lz4-write`**: Low-level block read and write helper
-	functions for LZ4 streams.
+*	**`opt-mesh` / `opt-vector`**: Welds duplicate vertices in a 3D mesh.
 
-	* `(lz4-read buf pos stream in_len) -> new_pos`
+	*	`(opt-mesh verts norms tris) -> (new_verts new_norms new_tris)`
 
-	* `(lz4-write buf pos stream out_len) -> new_pos`
+	*	`(opt-vector vector part) -> (new_vector new_indices)`
 
-## Command-Line Options
+*	**`gen-norms`**: Generates face normals across triangle vertices.
 
-*   **`options`**: Parses command-line options from a stdio object.
+	*	`(gen-norms verts tris) -> (norms new_tris)`
 
-	* `(options stdio optlist) -> :nil | args`
+*	**`Iso` / `Iso-sphere` / `Iso-cube` / `Iso-tetra` / `Iso-capsule`**: Volumetric
+	implicit field definitions.
 
-*   **`opt-flag` / `opt-num` / `opt-str`**: Option handlers.
+## XML and Markup Parsing
 
-*   **`options-find` / `options-print` / `options-split`**: Utilities for option parsing.
+*	**`XML-parse`**: Tokenizes an XML/SVG stream and invokes callback handlers
+	for tags, attributes, and body text.
 
-## Date and Time
+	*	`(XML-parse stream fnc_in fnc_out fnc_text)`
+
+## Text Buffers, Highlighting, and Regex Search
+
+Multi-cursor text engine, syntax coloring, pattern queries, and regex substitution.
+
+*	**`Buffer` / `Document`**: Multi-cursor document buffer models.
+
+*	**`Syntax`**: Tokenizes source text and maps tokens to syntax highlight
+	styles.
+
+*	**`Dictionary`**: Prefix-indexed dictionary with auto-complete support.
+
+*	**`Search` / `Substr` / `Kmplps` / `Regexp`**: Text search engines.
+
+*	**`found?` / `match?` / `matches` / `substr`**: Pattern searching.
+
+	*	`(found? text substr) -> :t | :nil`
+
+	*	`(match? text regexp) -> :t | :nil`
+
+	*	`(matches text regexp) -> matches`
+
+	*	`(substr text substr) -> matches`
+
+*	**`query`**: Compiles a search query engine and metadata.
+
+	*	`(query pattern whole_words regexp) -> (engine meta pattern)`
+
+*	**`replace-compile`**: Compiles a substitution string supporting `$1`
+	capture group references.
+
+	*	`(replace-compile rep_str) -> compiled`
+
+*	**`replace-matches` / `replace-regex` / `replace-str`**: Executes text
+	replacement.
+
+	*	`(replace-matches text match_lst compiled) -> text`
+
+	*	`(replace-regex text pattern compiled) -> text`
+
+	*	`(replace-str text pattern compiled) -> text`
+
+*	**`replace-edits` / `replace-regex-edits` / `replace-str-edits`**: Generates
+	`(start end rep_str)` edit operations for document buffers.
+
+	*	`(replace-edits text match_lst compiled) -> edits`
+
+*	**`escape-regexp`**: Escapes regex metacharacters in a literal string.
+
+	*	`(escape-regexp str) -> str`
+
+*	**`char-class`**: Builds and interns a sorted binary-searchable character
+	class.
+
+	*	`(char-class key) -> str`
+
+*	**`csr-sort` / `csr-floor` / `csr-sort-top` / `csr-sort-bot` / `csr-cmp` / `csr-within`**:
+	Multi-cursor geometric helpers.
+
+*	**`csr-map-delete` / `csr-map-insert`**: Maps cursor positions across text
+	mutations.
+
+*	**`reflow`**: Reflows words across wrapped lines.
+
+	*	`(reflow words line_width [indent tab_width]) -> lines`
+
+## Task Pools, Pipelines, and Distributed Computing
+
+Load balancing, parallel task execution, and child process pipelines.
+
+*	**`Pipe`**: Spawns and manages an inter-task pipeline.
+
+*	**`pipe-run`**: Executes a command pipeline and streams standard output to a
+	callback.
+
+	*	`(pipe-run cmdline [outfun])`
+
+*	**`pipe-split`**: Parses a command line string into pipeline stages.
+
+	*	`(pipe-split cmdline) -> ((mode cmd) ...)`
+
+*	**`pipe-farm`**: Distributes job execution across a cluster of child
+	workers.
+
+	*	`(pipe-farm jobs [retry_timeout]) -> ((job result) ...)`
+
+*	**`Farm` / `Global` / `Local`**: Distributed worker pool managers.
+
+## Streams, Compression, and Archival Formats
+
+Diffing, patch application, and compression codecs.
+
+*	**`stream-diff`**: Generates a standard diff between two input streams.
+
+	*	`(stream-diff a b c)`
+
+*	**`stream-patch`**: Applies a diff to an input stream, writing the patched
+	result.
+
+	*	`(stream-patch a b c)`
+
+*	**`huffman-compress` / `huffman-decompress`**: Adaptive Huffman coding.
+
+	*	`(huffman-compress in_stream out_stream token_bits)`
+
+	*	`(huffman-decompress in_stream out_stream token_bits)`
+
+*	**`huffman-build-freq-map` / `huffman-write-codebook` / `huffman-read-codebook`**:
+	Static Huffman model creation.
+
+*	**`huffman-compress-static` / `huffman-decompress-static`**: Static Huffman
+	coding.
+
+*	**`rle-compress` / `rle-decompress`**: Run-Length Encoding codec.
+
+	*	`(rle-compress in_stream out_stream [token_bits run_bits])`
+
+	*	`(rle-decompress in_stream out_stream [token_bits run_bits max_tokens])`
+
+*	**`lz4-compress` / `lz4-decompress`**: LZ4 Framed stream compression and
+	decompression.
+
+	*	`(lz4-compress in_stream out_stream [window_size])`
+
+	*	`(lz4-decompress in_stream out_stream [window_size])`
+
+*	**`lz4-encode` / `lz4-decode`**: High-performance LZ4 block encoder and
+	decoder.
+
+	*	`(lz4-encode ring_buf pos chunk hash_table) -> (comp pos)`
+
+	*	`(lz4-decode ring_buf pos comp_chunk) -> pos`
+
+*	**`lz4-read` / `lz4-write`**: Stream ring buffer I/O for LZ4 blocks.
+
+	*	`(lz4-read buf pos stream in_len) -> pos`
+
+	*	`(lz4-write buf pos stream out_len) -> pos`
+
+## Command-Line Options Parser
+
+*	**`options`**: Parses CLI argument flags from a `stdio` object.
+
+	*	`(options stdio optlist) -> :nil | args`
+
+*	**`opt-flag` / `opt-num` / `opt-str` / `opt-nums`**: Declarative option
+	flag handlers.
+
+	*	`(opt-flag 'opt_var)`
+
+	*	`(opt-num 'opt_var)`
+
+	*	`(opt-str 'opt_var)`
+
+	*	`(opt-nums count 'opt_var)`
+
+*	**`options-find` / `options-print` / `options-split`**: Option parser
+	helpers.
+
+## Date, Time, and Timezones
+
+Calendar math, date formatting, and timezone lookups.
 
 *	**`date`**: Returns current date and time components.
 
-	* `(date &optional seconds) -> (second minute hour date month year week)`
+	*	`(date [seconds]) -> (second minute hour date month year week)`
 
-*	**`encode-date` / `decode-date`**: Converts between date components and strings.
+*	**`encode-date` / `decode-date`**: Date string serialization and parsing.
 
-*	**`timezone-init` / `timezone-lookup`**: Timezone management.
+	*	`(encode-date [td]) -> str`
 
-*	**`float-time`**: Returns the current time in seconds, minutes, and
-	hours as fixed-point numbers.
+	*	`(decode-date dts) -> (second minute hour date month year week)`
 
-	* `(float-time) -> (seconds minutes hours)`
+*	**`timezone-init` / `timezone-lookup`**: Timezone configuration.
 
-*	**`leapyear?`**: Checks if a given year is a leap year.
+	*	`(timezone-init tz_loc)`
 
-	* `(leapyear? y) -> :t | :nil`
+	*	`(timezone-lookup prop val) -> tz_entry`
 
-## Collections
+*	**`float-time`**: Returns the current time as fixed-point fractions.
 
-*	**`Emap` / `Fmap` / `Fset` / `Lmap` / `Lset` / `Map` / `Set` / `Xmap` / `Xset`**: Various collection classes (hash maps, sets, etc.).
+	*	`(float-time) -> (seconds minutes hours)`
 
-*	**`tree-load` / `tree-save`**: Loads/saves collection trees.
+*	**`leapyear?`**: Leap year predicate.
 
-*	**`gather` / `scatter` / `transfer`**: Move values to/from maps.
+	*	`(leapyear? year) -> :t | :nil`
 
-*	**`memoize`**: Memoizes function results.
+*	**`days-in-month` / `days-in-year`**: Calendar interval calculations.
 
-*	**`tsort`**: Performs an iterative topological sort on a list of roots
-	using a dependency function.
+	*	`(days-in-month month year) -> days`
 
-	* `(tsort roots dep_fnc) -> order`
+	*	`(days-in-year year) -> days`
 
-*	**`tree-buckets` / `tree-collection?` / `tree-decode` / `tree-encode` / `tree-node` / `tree-type`**: Helper functions for the tree structure.
+*	**`day-of-the-week` / `month-of-the-year`**: Date component name lookups.
 
-## Structures, Enums, and Bitfields
+	*	`(day-of-the-week d) -> str`
 
-*   **`structure` / `enums` / `bits`**: Defines data structures, enumerations, and bitfields.
+	*	`(month-of-the-year m) -> str`
 
-	* `(structure name base [(byte field ...)] ...)`
+## Collections Framework
 
-*   **`getf` / `getf->` / `setf` / `setf->`**: Accesses or modifies structure fields.
+Object-oriented container hierarchy implementing maps, sets, and trees.
 
-	* `(getf obj field [offset]) -> value`
+*	**`Map` / `Set`**: Abstract base classes for associative collections.
 
-*   **`bits?`**: Checks if bits are set.
+*	**`Emap`**: Environment-backed (`:hmap`) map.
 
-## Debugging
+	*	`(Emap [num_buckets]) -> emap`
 
-*   **`debug-on` / `debug-off` / `debug-brk`**: Control the debugger and breakpoints.
+*	**`Fmap` / `Fset`**: Fast hash map and set using bucketed `:pmap`/`:pset`
+	storage.
 
-	* `(debug-on)`
+	*	`(Fmap [num_buckets]) -> fmap`
 
-	* `(debug-off)`
+	*	`(Fset [num_buckets]) -> fset`
 
-	* `(debug-brk break-id &optional condition)`
+*	**`Lmap` / `Lset`**: Linear property map and set backed by flat arrays.
 
-*   **`debug-log` / `debug-info` / `debug-warn` / `debug-err` / `debug-perf`**: Send messages to the debug service.
+	*	`(Lmap) -> lmap`
 
-	* `(debug-log msg)`
+	*	`(Lset) -> lset`
 
-*   **`profile-on` / `profile-off` / `profile-report`**: Control the profiler.
+*	**`Xmap` / `Xset`**: Hash map and set with custom equality and hashing
+	functions.
 
-	* `(profile-on)`
+	*	`(Xmap [num_buckets cmp_fnc hash_fnc]) -> xmap`
 
-	* `(profile-off)`
+	*	`(Xset [num_buckets cmp_fnc hash_fnc]) -> xset`
 
-	* `(profile-report name [reset])`
+*	**`gather`**: Extracts values from a collection for a list of keys.
 
-## Compiler and Assembler
+	*	`(gather map|set [key] ...) -> (val|key|:nil ...)`
 
-*	**`within-compile-env`**: Executes a function within a fresh compilation
+*	**`scatter`**: Bulk-inserts keys or key-value pairs into a collection.
+
+	*	`(scatter map|set [key]|[key val] ...) -> map|set`
+
+*	**`transfer`**: Transfers key-value pairs from a source to a destination map.
+
+	*	`(transfer src_map dst_map [key val] ...) -> dst_map`
+
+*	**`memoize`**: Evaluates and caches expressions in an `Fmap` or `Lmap`.
+
+	*	`(memoize key form [num_buckets]) -> (eval form)`
+
+*	**`tsort`**: Iterative topological sort using an explicit DFS work-stack.
+
+	*	`(tsort roots dep_fnc) -> order`
+
+*	**`tree-load` / `tree-save`**: Serializes and deserializes arbitrary
+	collection trees to/from `.tre` format.
+
+	*	`(tree-load stream) -> tree`
+
+	*	`(tree-save stream tree [key_filters]) -> tree`
+
+*	**`tree-type` / `tree-collection?` / `tree-decode` / `tree-encode` / `tree-node` / `tree-buckets`**:
+	Tree serialization helpers.
+
+## Binary Structures, Bitfields, and Enumerations
+
+*	**`structure`**: Declares binary struct field offsets and types.
+
+	*	`(structure name base [(type field ...)] ...)`
+
+*	**`getf` / `setf`**: Accesses or mutates structure fields by offset metadata.
+
+	*	`(getf obj field [offset]) -> value`
+
+	*	`(setf obj field value [offset]) -> obj`
+
+*	**`getf->` / `setf->`**: Batch struct field readers and writers.
+
+	*	`(getf-> obj field|(field offset) ...) -> (val ...)`
+
+	*	`(setf-> obj (field val [offset]) ...) -> obj`
+
+*	**`enums`**: Declares sequential enumeration constants.
+
+	*	`(enums name base [(enum field ...)] ...)`
+
+*	**`bits`**: Declares bitmask constants.
+
+	*	`(bits name base [(bit field ...)] ...)`
+
+*	**`bits?`**: Checks if any specified bits are set in a bitmask.
+
+	*	`(bits? val mask ...) -> :t | :nil`
+
+*	**`bit-mask`**: Combines multiple bit masks into a single integer.
+
+	*	`(bit-mask mask ...) -> val`
+
+## Debugging and Profiling
+
+Instrumentation hooks and profiling tools.
+
+*	**`debug-brk`**: Conditional breakpoint that halts execution and signals the
+	debug service.
+
+	*	`(debug-brk break_id [condition])`
+
+*	**`profile-report`**: Formats and transmits accumulated execution profiles
+	to the profiling service.
+
+	*	`(profile-report name [reset])`
+
+*	**`*stack_frame*`**: Global call-stack list populated when running under
+	`lib/debug/frames.inc`.
+
+## Compiler, Assembler, and Build System
+
+Virtual Processor compilation pipeline, code generation, and make engine.
+
+*	**`within-compile-env`**: Executes code inside an isolated build
 	environment.
 
-*	**`include`**: Imports a module into the compilation environment.
+	*	`(within-compile-env lambda)`
 
-*	**`jit`**: Just-In-Time compilation helper that compiles a source file to
-	architecture-specific object paths if dependencies are stale, protected
-	by a network lock.
+*	**`include`**: Imports a module into the active compilation environment.
 
-	* `(jit prefix file products) -> :nil`
+	*	`(include file)`
 
-*   **`func-load` / `func-refs`**: Loads function objects and lists their references.
+*	**`jit`**: Triggers JIT compilation of VP sources protected by a global
+	compilation lock.
 
-*   **`vp-rdef` / `emit` / `emit-vp-code`**: VP assembler primitives.
+	*	`(jit prefix file products)`
 
-*   **`cscript` / `reset-reg-stack` / `def-reg-map`**: C-Script compiler.
+*	**`func-load` / `func-refs` / `func-obj-path`**: Object binary inspection.
 
-*   **`def-func` / `def-func-end` / `abort` / `assert`**: Function definition and safety.
+	*	`(func-load name) -> (body links refs)`
 
-*   **`def-class` / `def-method` / `entry` / `exit` / `call` / `jump` / `v-call` / `gen-vtable`**: Low-level class/method definition for the assembler.
+	*	`(func-refs fobj) -> ([sym] ...)`
 
-*   **`make` / `compile` / `make-all` / `remake` / `make-platforms`**: Build system commands.
+	*	`(func-obj-path sym) -> sym`
 
-*   **`boot-image` / `func-obj-path`**: Tools for creating system boot images.
+*	**`boot-image`**: Links compiled object files into a single boot image
+	binary (`obj/<cpu>/<abi>/sys/boot_image`).
 
-	* `(boot-image [funcs abi cpu])`
+	*	`(boot-image [funcs abi cpu])`
 
-## Audio Service
+*	**`make` / `compile` / `make-all` / `remake` / `remake-all` / `make-boot-all`**:
+	Build system commands.
 
-*   **`audio-add-rpc` / `audio-play-rpc` / `audio-change-rpc` / `audio-remove-rpc`**: RPC interface to the audio service.
+	*	`(make [files abi cpu])`
 
-	* `(audio-add-rpc file_path) -> handle`
+	*	`(compile files [abi cpu])`
+
+	*	`(make-all [files abi cpu])`
+
+	*	`(remake [files abi cpu])`
+
+	*	`(remake-all [files abi cpu])`
+
+	*	`(make-boot-all [abi cpu])`
+
+*	**`make-platforms` / `make-all-platforms` / `remake-platforms` / `remake-all-platforms` / `remake-all-vp` / `make-app-platforms`**:
+	Cross-platform build triggers.
+
+	*	`(make-platforms [mode])`
+
+	*	`(make-all-platforms [mode])`
+
+	*	`(remake-platforms [mode])`
+
+	*	`(remake-all-platforms [mode])`
+
+	*	`(remake-all-vp [mode])`
+
+	*	`(make-app-platforms [mode])`
+
+*	**`make-test` / `compile-test`**: Benchmarking tools for build times.
+
+	*	`(make-test [iterations abi cpu])`
+
+	*	`(compile-test [abi cpu])`
+
+*	**`def-func` / `def-func-end`**: Declares a native VP function boundary.
+
+	*	`(def-func name [align stack])`
+
+	*	`(def-func-end)`
+
+*	**`def-class` / `def-method`**: Declares class vtables and methods for the
+	assembler.
+
+	*	`(def-class class super &rest lines)`
+
+	*	`(def-method class member [align])`
+
+*	**`gen-vtable` / `gen-create` / `gen-type`**: Auto-generates standard VP
+	class methods.
+
+	*	`(gen-vtable class)`
+
+	*	`(gen-create class [name])`
+
+	*	`(gen-type class)`
+
+*	**`entry` / `exit`**: Defines function register entry and exit contracts.
+
+	*	`(entry class method in_regs)`
+
+	*	`(exit class method out_regs)`
+
+*	**`call` / `jump` / `s-call` / `s-jump` / `d-call` / `d-jump` / `r-call` / `r-jump` / `v-call` / `v-jump`**:
+	Method calling conventions.
+
+*	**`f-path` / `s-path` / `f-bind` / `s-bind` / `v-bind` / `d-bind`**: Symbol
+	resolution and binding macros.
+
+*	**`method-input` / `method-output` / `method-lookup`**: Compile-time
+	signature introspection.
+
+*	**`push-scope` / `pop-scope` / `pop-scope-syms` / `scope-unwind` / `return`**:
+	CScript stack frame and scope management.
+
+*	**`def-vars`**: Declares typed local variables in CScript scopes.
+
+	*	`(def-vars [(type var ...)] ...)`
+
+*	**`assign` / `cscript`**: Assigns registers and compiles CScript expressions.
+
+	*	`(assign [src] [dst] [compiler_regs])`
+
+	*	`(cscript string)`
+
+*	**`vp-rdef` / `vp-fdef`**: Defines local VP integer and floating-point
+	register aliases.
+
+	*	`(vp-rdef (alias ...) [regs])`
+
+	*	`(vp-fdef (alias ...) [regs])`
+
+*	**`emit` / `emit-vp-code` / `emit-translate`**: VP machine instruction
+	assembly and translation.
+
+*	**`abort` / `assert`**: Compilation assertions and emergency task aborts.
+
+	*	`(abort [msg])`
+
+	*	`(assert condition [msg])`
+
+## Clipboard Service
+
+RPC interface for sharing text with the host and desktop clipboards.
+
+*	**`clip-put-rpc`**: Copies text to the system clipboard service.
+
+	*	`(clip-put-rpc str)`
+
+*	**`clip-get-rpc`**: Reads text from the system clipboard service.
+
+	*	`(clip-get-rpc) -> str`
