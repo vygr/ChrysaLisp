@@ -287,12 +287,6 @@ returns :t if csr2 is enclosed within (or equal to) csr1
 (env? form) -> :t | :nil
 ```
 
-### escape
-
-```code
-(escape str) -> str
-```
-
 ### escape-regexp
 
 ```code

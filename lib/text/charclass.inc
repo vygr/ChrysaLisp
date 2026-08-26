@@ -2,14 +2,6 @@
 ; character classes
 ;;;;;;;;;;;;;;;;;;;
 
-(defun escape (string)
-	; (escape str) -> str
-	(if (eql string "") string
-		(apply (const cat) (reduce
-			(# (if (defq i (find %1 "\q\t\n\v\f\r\\"))
-				(push %0 "\\" (elem-get "qtnvfr\\" i))
-				(push %0 %1))) string (list)))))
-
 (defun escape-regexp (string)
 	; (escape-regexp str) -> str
 	(if (eql string "") string

@@ -26,6 +26,8 @@
 
 ### (ends-with str str) -> :nil | :t
 
+### (escape str) -> str
+
 ### (expand str tab_width idx) -> str
 
 ### (load path) -> str
@@ -209,6 +211,19 @@ outputs
 :r1 = 0 if same, else not
 trashes
 :r1-:r6
+```
+
+### :escape -> class/str/escape
+
+```code
+inputs
+:r0 = src str object (ptr)
+:r1 = dst str object (ptr)
+outputs
+:r0 = src str object (ptr)
+:r1 = dst str object (ptr)
+trashes
+:r2-:r8
 ```
 
 ### :find -> class/str/find

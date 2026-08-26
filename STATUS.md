@@ -53,6 +53,8 @@ disc.
 Add "\q" to the `(escape)` functions list of escape chars. Use this in the VP
 `emit-string` when outputting the VP `progn` files.
 
+New native VP version of `(escape)` added to `:str` class.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
