@@ -57,6 +57,9 @@ New native VP version of `(escape)` added as `:str :escape` method.
 
 New doc `docs/ai_digest/keeping_it_hot.md`.
 
+`:str :print` method now write an escaped, with `:str :escape` version of the
+string to the output stream !
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

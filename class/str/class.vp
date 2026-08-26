@@ -512,21 +512,22 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(structure local 0
-		(ptr this stream))
+	(def-vars
+		(ptr this stream escaped))
 
-	(vp-alloc local_size)
-	(entry :str :print '(:r0 :r1))
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_stream)))
+	(push-scope)
+	(entry :str :print {this, stream})
 
-	(call :stream :write_char '(:r1 +char_double_quote) '(:r0))
-	(assign '((:rsp local_this)) '(:r1))
-	(call :stream :write '(:r0 (& :r1 +str_data) (:r1 +str_length)) '(:r0))
-	(call :stream :write_char '(:r0 +char_double_quote))
+	(call :stream :write_char {stream, +char_double_quote})
+	(call :str :create_from_buffer {0, this->+str_length * 2} {escaped})
+	(call :str :escape {this, escaped})
+	(call :stream :write {stream, &escaped->+str_data, escaped->+str_length})
+	(call :str :destroy {escaped})
+	(call :stream :write_char {stream, +char_double_quote})
 
-	(exit :str :print '((:rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
+	(exit :str :print {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
