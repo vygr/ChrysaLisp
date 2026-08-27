@@ -15,6 +15,8 @@
         -m --md: md doc mode, default :nil.
         -j --jobs num: max jobs per batch, default 1.
         -v --inverse: invert match, select non-matching lines, default :nil.
+        -i --ignore-case: case-insensitive mode, default :nil.
+        -n --line-number: prefix line numbers, default :nil.
 
     pattern:
         ^  start of line
@@ -59,21 +61,27 @@
 (("-m" "--md") ,(opt-flag 'opt_m))
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-v" "--inverse") ,(opt-flag 'opt_v))
+(("-i" "--ignore-case") ,(opt-flag 'opt_i))
+(("-n" "--line-number") ,(opt-flag 'opt_n))
 ))
 
 ;grep a stream to stdout
 (defun grep-stream (stream)
 	(when stream
 		(defq state :nil)
-		(lines! (# (task-slice)
+		(lines! (lambda (line)
+			(task-slice)
+			(defq tline (if opt_i (to-lower line) line))
 			(if opt_m
 				(if state
-					(if (starts-with "```" %0)
+					(if (starts-with "```" line)
 						(setq state :nil))
-					(if (starts-with "```" %0)
+					(if (starts-with "```" line)
 						(setq state :t)
-						(if (if opt_v (not (. search :match? %0 meta)) (. search :match? %0 meta)) (print %0))))
-				(if (if opt_v (not (. search :match? %0 meta)) (. search :match? %0 meta)) (print %0))))
+						(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
+							(print (if opt_n (cat (inc (!)) ":") "") line))))
+				(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
+					(print (if opt_n (cat (inc (!)) ":") "") line))))
 			stream)))
 
 ;grep a file to stdout
@@ -81,15 +89,16 @@
 	(when (defq state :nil result :nil stream (file-stream file))
 		(while (and (not result) (defq line (read-line stream)))
 			(task-slice)
+			(defq tline (if opt_i (to-lower line) line))
 			(if opt_m
 				(if state
 					(if (starts-with "```" line)
 						(setq state :nil))
 					(if (starts-with "```" line)
 						(setq state :t)
-						(if (setq result (if opt_v (not (. search :match? line meta)) (. search :match? line meta)))
+						(if (setq result (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta)))
 							(print file))))
-				(if (setq result (if opt_v (not (. search :match? line meta)) (. search :match? line meta)))
+				(if (setq result (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta)))
 					(print file))))))
 
 (defun main ()
@@ -98,10 +107,12 @@
 			(defq stdio (create-stdio))
 			(defq pattern "" opt_f :nil opt_w :nil
 				opt_x :nil opt_c :nil opt_m :nil
-				opt_v :nil opt_j 1 args (options stdio usage)))
+				opt_v :nil opt_i :nil opt_n :nil
+				opt_j 1 args (options stdio usage)))
 		(when (and (eql pattern "") (> (length args) 1))
 			(defq pattern (second args) args (erase args 1 2)))
 		(if opt_c (setq pattern (hex-decode pattern)))
+		(if opt_i (setq pattern (to-lower pattern)))
 		(when (bind '(search meta &ignore) (query pattern opt_w opt_x))
 			(cond
 				(opt_f
@@ -116,7 +127,9 @@
 						(each (lambda ((job result)) (prin result))
 							(pipe-farm (map (# (str (first args) " -c -f -e " (hex-encode pattern)
 									(if opt_w " -w" "") (if opt_x " -x" "")
-									(if opt_m " -m" "") (if opt_v " -v" "") " -j " opt_j
+									(if opt_m " -m" "") (if opt_v " -v" "")
+									(if opt_i " -i" "") (if opt_n " -n" "")
+									" -j " opt_j
 									" " (slice (str %0) 1 -2)))
 								(partition jobs opt_j))))))
 				(:t (if (empty? (defq jobs (rest args)))
