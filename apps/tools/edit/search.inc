@@ -109,7 +109,7 @@
 		(action-save-all)
 		;find files match but not dictionaries !
 		(defq cmd (cat "grep -c -f "
-				(if whole_words "-w " "") (if regexp "-r " "")
+				(if whole_words "-w " "") (if regexp "-x " "")
 				(hex-encode pattern) " ")
 			results (apply (const cat) (sort (map (const second)
 				(pipe-farm (map (# (cat cmd %0))

@@ -7,7 +7,7 @@
 (defun find-global (pattern whole_words regexp)
 	;find file matches
 	(defq cmd (cat "grep -c -f -m "
-			(if whole_words "-w " "") (if regexp "-r " "")
+			(if whole_words "-w " "") (if regexp "-x " "")
 			(hex-encode pattern) " ")
 		results (sort (map (# (trim-end %0 "\n"))
 			(filter nempty? (map (const second)

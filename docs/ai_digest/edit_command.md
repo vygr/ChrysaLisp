@@ -168,8 +168,8 @@ Create or modify selections. ChrysaLisp uses a multi-cursor editing model.
 Search operations populate a "found" buffer. You must explicitly convert
 matches to cursors to edit them.
 
-* `(edit-find pattern [:w :r])`: Find occurrences of `pattern`. Use `:w`
-  for Whole words and `:r` for Regex mode.
+* `(edit-find pattern [:w :x])`: Find occurrences of `pattern`. Use `:w`
+  for Whole words and `:x` for Regex mode.
 
 * `(edit-find-next)` / `(edit-find-prev)`: Select the next or previous match.
 

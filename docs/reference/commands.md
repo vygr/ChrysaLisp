@@ -106,7 +106,7 @@ Usage: edit [options] [path] ...
 
     Available Commands:
 
-    Search:     (edit-find pattern [:w :r]) -> :nil | buffer_found
+    Search:     (edit-find pattern [:w :x]) -> :nil | buffer_found
                 (edit-find-next) -> :nil | buffer
                 (edit-find-prev) -> :nil | buffer
                 (edit-find-add-next) -> :nil | buffer
@@ -196,7 +196,7 @@ Usage: grep [options] [pattern] [path] ...
         -e --exp pattern: regular expression.
         -f --file: file mode, default :nil.
         -w --words: whole words mode, default :nil.
-        -r --regexp: regexp mode, default :nil.
+        -x --regexp: regexp mode, default :nil.
         -c --coded: encoded pattern mode, default :nil.
         -m --md: md doc mode, default :nil.
         -j --jobs num: max jobs per batch, default 1.

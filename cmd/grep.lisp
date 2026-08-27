@@ -10,7 +10,7 @@
         -e --exp pattern: regular expression.
         -f --file: file mode, default :nil.
         -w --words: whole words mode, default :nil.
-        -r --regexp: regexp mode, default :nil.
+        -x --regexp: regexp mode, default :nil.
         -c --coded: encoded pattern mode, default :nil.
         -m --md: md doc mode, default :nil.
         -j --jobs num: max jobs per batch, default 1.
@@ -54,7 +54,7 @@
 (("-e" "--exp") ,(opt-str 'pattern))
 (("-f" "--file") ,(opt-flag 'opt_f))
 (("-w" "--words") ,(opt-flag 'opt_w))
-(("-r" "--regexp") ,(opt-flag 'opt_r))
+(("-x" "--regexp") ,(opt-flag 'opt_x))
 (("-c" "--coded") ,(opt-flag 'opt_c))
 (("-m" "--md") ,(opt-flag 'opt_m))
 (("-j" "--jobs") ,(opt-num 'opt_j))
@@ -97,12 +97,12 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq pattern "" opt_f :nil opt_w :nil
-				opt_r :nil opt_c :nil opt_m :nil
+				opt_x :nil opt_c :nil opt_m :nil
 				opt_v :nil opt_j 1 args (options stdio usage)))
 		(when (and (eql pattern "") (> (length args) 1))
 			(defq pattern (second args) args (erase args 1 2)))
 		(if opt_c (setq pattern (hex-decode pattern)))
-		(when (bind '(search meta &ignore) (query pattern opt_w opt_r))
+		(when (bind '(search meta &ignore) (query pattern opt_w opt_x))
 			(cond
 				(opt_f
 					;from args ?
@@ -115,7 +115,7 @@
 						;do them all out there, by calling myself !
 						(each (lambda ((job result)) (prin result))
 							(pipe-farm (map (# (str (first args) " -c -f -e " (hex-encode pattern)
-									(if opt_w " -w" "") (if opt_r " -r" "")
+									(if opt_w " -w" "") (if opt_x " -x" "")
 									(if opt_m " -m" "") (if opt_v " -v" "") " -j " opt_j
 									" " (slice (str %0) 1 -2)))
 								(partition jobs opt_j))))))

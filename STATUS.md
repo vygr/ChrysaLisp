@@ -60,6 +60,8 @@ New doc `docs/ai_digest/keeping_it_hot.md`.
 `:str :print` method now write an escaped, with `:str :escape` version of the
 string to the output stream !
 
+Switched to `-x` and `:x` throughout for selecting regexp mode for consistency.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
