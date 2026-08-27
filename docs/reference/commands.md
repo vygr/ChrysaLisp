@@ -201,6 +201,8 @@ Usage: grep [options] [pattern] [path] ...
         -m --md: md doc mode, default :nil.
         -j --jobs num: max jobs per batch, default 1.
         -v --inverse: invert match, select non-matching lines, default :nil.
+        -i --ignore-case: case-insensitive mode, default :nil.
+        -n --line-number: prefix line numbers, default :nil.
 
     pattern:
         ^  start of line

@@ -79,9 +79,9 @@
 					(if (starts-with "```" line)
 						(setq state :t)
 						(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
-							(print (if opt_n (cat (inc (!)) ":") "") line))))
+							(print (if opt_n (str (inc (!)) ":") "") line))))
 				(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
-					(print (if opt_n (cat (inc (!)) ":") "") line))))
+					(print (if opt_n (str (inc (!)) ":") "") line))))
 			stream)))
 
 ;grep a file to stdout
