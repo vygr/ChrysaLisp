@@ -54,7 +54,9 @@
 	(dec-method :lisp_unescape class/str/lisp_unescape :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_escape class/str/lisp_escape :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_startw class/str/lisp_startw :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_endw class/str/lisp_endw :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_endw class/str/lisp_endw :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_upper class/str/lisp_upper :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_lower class/str/lisp_lower :static (:r0 :r1) (:r0 :r1)))
 
 (defcvar 'str_gap (some! (lambda (%0)
 	(if (< +str_data %0) (- %0 +str_data 1))) (list +mem_heap_cell_sizes)))

@@ -32,6 +32,8 @@
 
 ### (load path) -> str
 
+### (to-lower str) -> str
+
 ### (rbskip cls str idx) -> idx
 
 ### (rbskipn cls str idx) -> idx
@@ -47,6 +49,8 @@
 ### (str-to-num str) -> num
 
 ### (unescape str) -> str
+
+### (to-upper str) -> str
 
 ## VP methods
 

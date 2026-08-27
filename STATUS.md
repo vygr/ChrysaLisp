@@ -71,6 +71,9 @@ Added `"-i, --ignore-case"` to `edit`, `grep` and `sed` commands.
 
 Added `-i` support to all the GUI apps find toolbars.
 
+Lower `to-upper` and `to-lower` to VP code. As we are now using them for case
+insensitive searching !
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

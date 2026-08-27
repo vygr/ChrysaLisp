@@ -954,3 +954,97 @@
 	(signature '(:str)))
 
 (def-func-end)
+
+(def-method :str :lisp_upper)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r8, :f0-:f15
+
+	(vp-rdef (this args src len src_data dst_data dst_end ch)
+		'(:r8 :r1 :r6 :r7 :r2 :r3 :r4 :r5))
+
+	(entry :str :lisp_upper `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 1)
+	(list-bind-args args `(,src) '(:obj))
+	(assign `((,src +str_length)) `(,len))
+	(vpif `(,len = 0))
+		(class/obj/ref src args)
+		(vp-cpy-rr src args)
+	(else)
+		(call :str :create_from_buffer `(0 ,len) `(,args))
+		(assign `((& ,src +str_data) (& ,args +str_data)) `(,src_data ,dst_data))
+		(vp-lea-d dst_data len dst_end)
+		(loop-start)
+			(vp-cpy-ir-ub src_data 0 ch)
+			(vp-simd vp-add-cr `(,+byte_size) `(,src_data ,dst_data))
+			(vpif `(,ch >= ,(ascii-code "a")))
+				(vpif `(,ch <= ,(ascii-code "z")))
+					(vp-sub-cr (- (ascii-code "a") (ascii-code "A")) ch)
+				(endif)
+			(endif)
+			(vp-cpy-ri-b ch dst_data (neg +byte_size))
+		(loop-until `(,dst_data = ,dst_end))
+	(endif)
+
+	(exit :str :lisp_upper `(,this ,args))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error `(,this ,args "(to-upper str)" +error_msg_wrong_types))
+	(signature '(:str)))
+
+(def-func-end)
+
+(def-method :str :lisp_lower)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r8, :f0-:f15
+
+	(vp-rdef (this args src len src_data dst_data dst_end ch)
+		'(:r8 :r1 :r6 :r7 :r2 :r3 :r4 :r5))
+
+	(entry :str :lisp_lower `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 1)
+	(list-bind-args args `(,src) '(:obj))
+	(assign `((,src +str_length)) `(,len))
+	(vpif `(,len = 0))
+		(class/obj/ref src args)
+		(vp-cpy-rr src args)
+	(else)
+		(call :str :create_from_buffer `(0 ,len) `(,args))
+		(assign `((& ,src +str_data) (& ,args +str_data)) `(,src_data ,dst_data))
+		(vp-lea-d dst_data len dst_end)
+		(loop-start)
+			(vp-cpy-ir-ub src_data 0 ch)
+			(vp-simd vp-add-cr `(,+byte_size) `(,src_data ,dst_data))
+			(vpif `(,ch >= ,(ascii-code "A")))
+				(vpif `(,ch <= ,(ascii-code "Z")))
+					(vp-add-cr (- (ascii-code "a") (ascii-code "A")) ch)
+				(endif)
+			(endif)
+			(vp-cpy-ri-b ch dst_data (neg +byte_size))
+		(loop-until `(,dst_data = ,dst_end))
+	(endif)
+
+	(exit :str :lisp_lower `(,this ,args))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error `(,this ,args "(to-lower str)" +error_msg_wrong_types))
+	(signature '(:str)))
+
+(def-func-end)

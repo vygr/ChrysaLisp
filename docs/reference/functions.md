@@ -1286,18 +1286,6 @@ accepts standard "Normal diff" format
 (time-in-seconds time) -> str
 ```
 
-### to-lower
-
-```code
-(to-lower str) -> str
-```
-
-### to-upper
-
-```code
-(to-upper str) -> str
-```
-
 ### transfer
 
 ```code

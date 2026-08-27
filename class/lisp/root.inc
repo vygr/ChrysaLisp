@@ -286,6 +286,10 @@
 ; (unescape str) -> str
 (ffi "class/str/lisp_escape" escape)
 ; (escape str) -> str
+(ffi "class/str/lisp_upper" to-upper)
+; (to-upper str) -> str
+(ffi "class/str/lisp_lower" to-lower)
+; (to-lower str) -> str
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Symbol and Environment Operations
@@ -1118,16 +1122,6 @@
 	; (ascii-lower num) -> num
 	(if (<= (ascii-code "A") %0 (ascii-code "Z"))
 		(+ %0 (const (num (- (ascii-code "a") (ascii-code "A"))))) %0))
-
-(defun to-upper (%0)
-	; (to-upper str) -> str
-	(if (eql %0 "") ""
-		(apply (const cat) (map (# (char (ascii-upper (code %0)))) %0))))
-
-(defun to-lower (%0)
-	; (to-lower str) -> str
-	(if (eql %0 "") ""
-		(apply (const cat) (map (# (char (ascii-lower (code %0)))) %0))))
 
 (defun align (num div)
 	; (align num div) -> num
