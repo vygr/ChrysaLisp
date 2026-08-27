@@ -14,6 +14,11 @@
 	(update-find-toolbar)
 	(refresh-display))
 
+(redefun action-ignore-case ()
+	(setq *ignore_case* (not *ignore_case*))
+	(update-find-toolbar)
+	(refresh-display))
+
 (redefun action-regexp ()
 	(setq *regexp* (not *regexp*))
 	(update-find-toolbar)

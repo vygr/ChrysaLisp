@@ -106,7 +106,7 @@ Usage: edit [options] [path] ...
 
     Available Commands:
 
-    Search:     (edit-find pattern [:w :x]) -> :nil | buffer_found
+    Search:     (edit-find pattern [:w :x :i]) -> :nil | buffer_found
                 (edit-find-next) -> :nil | buffer
                 (edit-find-prev) -> :nil | buffer
                 (edit-find-add-next) -> :nil | buffer
@@ -492,6 +492,7 @@ Usage: sed [options] [path] ...
         -g --global: replace all occurrences.
         -w --words: whole words.
         -x --regexp: treat pattern as regular expression.
+        -i --ignore-case: case-insensitive matching.
 
     Stream editor. Reads from stdin if no files specified.
     Writes to stdout.

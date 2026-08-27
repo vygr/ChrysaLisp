@@ -105,7 +105,7 @@ clips coordinates to valid buffer positions
 ### :find
 
 ```code
-(. buffer :find pattern wmode rmode) -> :nil | buffer_found
+(. buffer :find pattern wmode xmode imode) -> :nil | buffer_found
 ```
 
 ### :find_add_next

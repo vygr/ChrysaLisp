@@ -80,7 +80,7 @@
 	(defproxymethod :clip_cursor (cx cy &optional ax ay sx) :buffer :t)
 	(defproxymethod :get_cursors_sorted () :buffer :t)
 	(defproxymethod :get_cursors_extent () :buffer :t)
-	(defproxymethod :find (pattern wmode rmode) :buffer :t)
+	(defproxymethod :find (pattern wmode xmode imode) :buffer :t)
 	(defproxymethod :get_buffer_found () :buffer :t)
 	(defproxymethod :next_found_cursor (csr) :buffer :t)
 	(defproxymethod :prev_found_cursor (csr) :buffer :t)

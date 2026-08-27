@@ -67,6 +67,8 @@ now done by `(read)`.
 
 Added `"-i, --ignore-case"` and `"-n, --line-number"` to `grep` command.
 
+Added `-i` support to all the GUI apps find toolbars.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

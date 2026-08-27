@@ -1006,7 +1006,7 @@ run pipe farm and collect output
 ### query
 
 ```code
-(query pattern whole_words regexp) -> (engine meta pattern)
+(query pattern whole_words regexp ignore_case) -> (engine meta pattern)
 ```
 
 ### quote?

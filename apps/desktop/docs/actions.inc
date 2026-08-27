@@ -15,6 +15,7 @@
 	+event_max action-maximise
 	+event_whole_words action-whole-words
 	+event_regexp action-regexp
+	+event_ignore_case action-ignore-case
 	+event_next action-next-doc
 	+event_prev action-prev-doc
 	+event_find_down action-find-down

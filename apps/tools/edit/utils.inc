@@ -45,9 +45,9 @@
 	(defq focus (. *edit* :get_focus)
 		state (nql focus +invalid_focus))
 	(toolbar-states *find_toolbar*
-		(if (= (length (. *find_toolbar* :children)) 6)
-			(list :nil state *whole_words* *regexp* :nil :nil)
-			(list state *whole_words* *regexp* :nil :nil))))
+		(if (= (length (. *find_toolbar* :children)) 7)
+			(list :nil state *whole_words* *regexp* *ignore_case* :nil :nil)
+			(list state *whole_words* *regexp* *ignore_case* :nil :nil))))
 
 (defun find-count ()
 	(defq buffer (. *edit* :get_buffer)

@@ -27,11 +27,12 @@
 	; (matches text regexp) -> matches
 	(. +regexp :search _t _p))
 
-(defun query (_p _w _r)
-	; (query pattern whole_words regexp) -> (engine meta pattern)
-	(if (and (nql _p "") _w (not _r))
+(defun query (_p _w _x _i)
+	; (query pattern whole_words regexp ignore_case) -> (engine meta pattern)
+	(if _i (setq _p (to-lower _p)))
+	(if (and (nql _p "") _w (not _x))
 		(setq _p (escape-regexp _p)))
-	(defq _e (if (or _w _r) +regexp +substr)
+	(defq _e (if (or _w _x) +regexp +substr)
 		_p (if _w (cat "!" _p "!") _p))
 	(list _e (. _e :compile _p) _p))
 

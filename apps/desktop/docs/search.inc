@@ -4,10 +4,10 @@
 
 (defun search-key (&rest _) (str _))
 
-(defun find-global (pattern whole_words regexp)
+(defun find-global (pattern whole_words regexp ignore_case)
 	;find file matches
 	(defq cmd (cat "grep -c -f -m "
-			(if whole_words "-w " "") (if regexp "-x " "")
+			(if whole_words "-w " "") (if regexp "-x " "") (if ignore_case "-i " "")
 			(hex-encode pattern) " ")
 		results (sort (map (# (trim-end %0 "\n"))
 			(filter nempty? (map (const second)
@@ -24,52 +24,57 @@
 
 (defun refresh-matches ()
 	(defq search_key (search-key
-		(defq pattern (. *find_text* :get_text)) *whole_words* *regexp*))
+		(defq pattern (. *find_text* :get_text)) *whole_words* *regexp* *ignore_case*))
 	(unless (eql search_key *last_key*)
 		(clear-matches *last_files*)
 		(setq *last_files* '() *last_key* search_key)
 		(unless (eql pattern "")
 			(show-matches (setq *last_files*
-				(find-global pattern *whole_words* *regexp*))))))
+				(find-global pattern *whole_words* *regexp* *ignore_case*))))))
 
 (defun action-find-down ()
-    (refresh-matches)
-    (bind '(search meta pattern) (query (. *find_text* :get_text) *whole_words* *regexp*))
-    (when (and meta (nql pattern ""))
-        (defq found (filter (# (. search :match? (get :text %0) meta)) *search_widgets*))
-        (when (nempty? found)
-            (if *last_widget* (def (. *last_widget* :dirty) :color 0))
-            (if (and *last_widget*
-                    (defq idx (some (# (if (= (. %0 :get_id) (. *last_widget* :get_id)) (!))) found)))
-                (setq *last_widget* (elem-get
-                    found (% (inc idx) (length found))))
-                (setq *last_widget* (first found)))
-            (def (. *last_widget* :dirty) :color *env_highlight_col*)
-            (. *page_scroll* :visible *last_widget*))))
+	(refresh-matches)
+	(bind '(search meta pattern) (query (. *find_text* :get_text) *whole_words* *regexp* *ignore_case*))
+	(when (and meta (nql pattern ""))
+		(defq found (filter (# (. search :match? (if *ignore_case* (to-lower (get :text %0)) (get :text %0)) meta)) *search_widgets*))
+		(when (nempty? found)
+			(if *last_widget* (def (. *last_widget* :dirty) :color 0))
+			(if (and *last_widget*
+					(defq idx (some (# (if (= (. %0 :get_id) (. *last_widget* :get_id)) (!))) found)))
+				(setq *last_widget* (elem-get
+					found (% (inc idx) (length found))))
+				(setq *last_widget* (first found)))
+			(def (. *last_widget* :dirty) :color *env_highlight_col*)
+			(. *page_scroll* :visible *last_widget*))))
 
 (defun action-find-up ()
-    (refresh-matches)
-    (bind '(search meta pattern) (query (. *find_text* :get_text) *whole_words* *regexp*))
-    (when (and meta (nql pattern ""))
-        (defq found (filter (# (. search :match? (get :text %0) meta)) *search_widgets*))
-        (when (nempty? found)
-            (if *last_widget* (def (. *last_widget* :dirty) :color 0))
-            (if (and *last_widget*
-                    (defq idx (some (# (if (= (. %0 :get_id) (. *last_widget* :get_id)) (!))) found)))
-                (setq *last_widget* (elem-get
-                    found (% (+ idx (length found) -1) (length found))))
-                (setq *last_widget* (first found)))
-            (def (. *last_widget* :dirty) :color *env_highlight_col*)
-            (. *page_scroll* :visible *last_widget*))))
+	(refresh-matches)
+	(bind '(search meta pattern) (query (. *find_text* :get_text) *whole_words* *regexp* *ignore_case*))
+	(when (and meta (nql pattern ""))
+		(defq found (filter (# (. search :match? (if *ignore_case* (to-lower (get :text %0)) (get :text %0)) meta)) *search_widgets*))
+		(when (nempty? found)
+			(if *last_widget* (def (. *last_widget* :dirty) :color 0))
+			(if (and *last_widget*
+					(defq idx (some (# (if (= (. %0 :get_id) (. *last_widget* :get_id)) (!))) found)))
+				(setq *last_widget* (elem-get
+					found (% (+ idx (length found) -1) (length found))))
+				(setq *last_widget* (first found)))
+			(def (. *last_widget* :dirty) :color *env_highlight_col*)
+			(. *page_scroll* :visible *last_widget*))))
 
 (defun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
-	(toolbar-states *find_toolbar* (list *whole_words* *regexp* :nil :nil))
+	(toolbar-states *find_toolbar* (list *whole_words* *regexp* *ignore_case* :nil :nil))
 	(refresh-matches))
 
 (defun action-regexp ()
 	(setq *regexp* (not *regexp*))
-	(toolbar-states *find_toolbar* (list *whole_words* *regexp* :nil :nil))
+	(toolbar-states *find_toolbar* (list *whole_words* *regexp* *ignore_case* :nil :nil))
+	(refresh-matches))
+
+(defun action-ignore-case ()
+	(setq *ignore_case* (not *ignore_case*))
+	(toolbar-states *find_toolbar* (list *whole_words* *regexp* *ignore_case* :nil :nil))
 	(refresh-matches))
 
 (defun action-next-doc ()

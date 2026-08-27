@@ -50,6 +50,7 @@
 	+event_global action-find-global
 	+event_whole_words action-whole-words
 	+event_regexp action-regexp
+	+event_ignore_case action-ignore-case
 	+event_region action-region
 	+event_replace action-replace
 	+event_replace_all action-replace-all

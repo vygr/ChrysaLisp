@@ -12,6 +12,11 @@
 	(update-find-toolbar)
 	(refresh-display))
 
+(defun action-ignore-case ()
+	(setq *ignore_case* (not *ignore_case*))
+	(update-find-toolbar)
+	(refresh-display))
+
 (defun action-region ()
 	(if (nql (. *edit* :get_focus) +invalid_focus)
 		(. *edit* :set_focus +invalid_focus)
@@ -29,19 +34,19 @@
 	; (find-prev-cursor) -> :nil | buffer
 	(. *edit* :find_prev))
 
-(defun find-next (fnc whole_words regexp pattern)
+(defun find-next (fnc whole_words regexp ignore_case pattern)
 	;return :nil if nothing found !
 	(when (nql pattern "")
-		(when (. *edit* :find pattern whole_words regexp)
+		(when (. *edit* :find pattern whole_words regexp ignore_case)
 			(when (fnc) (refresh) :t))))
 
-(defun action-find-down (whole_words regexp pattern)
-	(. *edit* :find pattern whole_words regexp)
-	(find-next (const find-next-cursor) whole_words regexp pattern))
+(defun action-find-down (whole_words regexp ignore_case pattern)
+	(. *edit* :find pattern whole_words regexp ignore_case)
+	(find-next (const find-next-cursor) whole_words regexp ignore_case pattern))
 
-(defun action-find-up (whole_words regexp pattern)
-	(. *edit* :find pattern whole_words regexp)
-	(find-next (const find-prev-cursor) whole_words regexp pattern))
+(defun action-find-up (whole_words regexp ignore_case pattern)
+	(. *edit* :find pattern whole_words regexp ignore_case)
+	(find-next (const find-prev-cursor) whole_words regexp ignore_case pattern))
 
 (defun action-add-next ()
 	(when (. *edit* :find_add_next)
@@ -51,13 +56,13 @@
 	(when (defq text (. *edit* :get_primary_text))
 		(if *regexp* (setq text (escape-regexp text)))
 		(.-> *find_text* (:set_text text) :layout :dirty)
-		(. *edit* :find text *whole_words* *regexp*)
+		(. *edit* :find text *whole_words* *regexp* *ignore_case*)
 		(refresh)))
 
-(defun action-replace (whole_words regexp pattern rep_text)
+(defun action-replace (whole_words regexp ignore_case pattern rep_text)
 	(unless (eql pattern "")
 		(defq lines (.-> *edit* :get_buffer :get_buffer_lines)
-			found (. *edit* :find pattern whole_words regexp)
+			found (. *edit* :find pattern whole_words regexp ignore_case)
 			rep_meta (replace-compile rep_text))
 		(bind '(sx sy sx1 sy1) (csr-sort (. *edit* :get_cursor)))
 		(when (and found (= sy sy1) (< sy (length found)))
@@ -71,13 +76,13 @@
 						(:set_cursor (first edit) sy (second edit))
 						(:insert (third edit))))
 				(refresh)))
-		(action-find-down whole_words regexp pattern)))
+		(action-find-down whole_words regexp ignore_case pattern)))
 
-(defun action-replace-all (whole_words regexp pattern rep_text &optional noclip)
+(defun action-replace-all (whole_words regexp ignore_case pattern rep_text &optional noclip)
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			lines (. buffer :get_buffer_lines)
-			found (. *edit* :find pattern whole_words regexp)
+			found (. *edit* :find pattern whole_words regexp ignore_case)
 			rep_meta (replace-compile rep_text))
 		(when found
 			(undoable buffer
@@ -98,18 +103,18 @@
 					(list found) sy sy1)))
 		(refresh)))
 
-(defun action-replace-global (whole_words regexp pattern rep_text)
+(defun action-replace-global (whole_words regexp ignore_case pattern rep_text)
 	(unless (eql pattern "")
 		(for-all-buffers
-			(action-replace-all whole_words regexp pattern rep_text :t))))
+			(action-replace-all whole_words regexp ignore_case pattern rep_text :t))))
 
-(defun action-find-global (whole_words regexp pattern)
+(defun action-find-global (whole_words regexp ignore_case pattern)
 	(unless (eql pattern "")
 		;flush buffers to filesystem
 		(action-save-all)
 		;find files match but not dictionaries !
 		(defq cmd (cat "grep -c -f "
-				(if whole_words "-w " "") (if regexp "-x " "")
+				(if whole_words "-w " "") (if regexp "-x " "") (if ignore_case "-i " "")
 				(hex-encode pattern) " ")
 			results (apply (const cat) (sort (map (const second)
 				(pipe-farm (map (# (cat cmd %0))
@@ -122,7 +127,7 @@
 		(refresh)))
 
 (defun collect (&optional noclip)
-	(defq found (. *edit* :find pattern whole_words regexp))
+	(defq found (. *edit* :find pattern whole_words regexp ignore_case))
 	(when found
 		(defq lines (.-> *edit* :get_buffer :get_buffer_lines) sy 0 sy1 (length found))
 		(unless noclip
@@ -133,7 +138,7 @@
 					(push results (slice line x x1))) found)))
 			(list lines found) sy sy1)))
 
-(defun action-collect (whole_words regexp pattern)
+(defun action-collect (whole_words regexp ignore_case pattern)
 	(unless (eql pattern "")
 		(defq results (list))
 		(collect)
@@ -145,7 +150,7 @@
 			(.-> *edit* :bottom (:paste results))
 			(refresh))))
 
-(defun action-collect-global (whole_words regexp pattern)
+(defun action-collect-global (whole_words regexp ignore_case pattern)
 	(unless (eql pattern "")
 		(defq results (list))
 		(for-all-buffers (collect :t))

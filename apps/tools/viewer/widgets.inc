@@ -3,7 +3,7 @@
 	(enum layout xscroll yscroll)
 	(enum file_folder_action file_leaf_action)
 	(enum copy paragraph block bracket_left bracket_right)
-	(enum region whole_words regexp find_down find_up))
+	(enum region whole_words regexp ignore_case find_down find_up))
 
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 100
 	+vdu_max_height 46 +vdu_line_width 5 +status_min_size 48)
@@ -14,7 +14,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe9ca 0xe90d 0xe955 0xe93c 0xe93d) +event_copy))
 		(ui-tool-bar *find_toolbar* (:color (const *env_toolbar2_col*))
-			(ui-buttons (0xe962 0xe9cd 0xe9a8 0xe914 0xe91b) +event_region))
+			(ui-buttons (0xe962 0xe9cd 0xe9a8 0xe9b1 0xe914 0xe91b) +event_region))
 		(. (ui-textfield *find_text* (:color +argb_white
 				:hint_text "find" :clear_text "")) :connect +event_find_down))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -44,4 +44,4 @@
 	'("copy" "select paragraph" "select form" "start form" "end form"))
 
 (ui-tool-tips *find_toolbar*
-	'("select region" "whole words" "regexp" "find down" "find up"))
+	'("select region" "whole words" "regexp" "ignore case" "find down" "find up"))

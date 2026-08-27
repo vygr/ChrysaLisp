@@ -112,8 +112,7 @@
 		(when (and (eql pattern "") (> (length args) 1))
 			(defq pattern (second args) args (erase args 1 2)))
 		(if opt_c (setq pattern (hex-decode pattern)))
-		(if opt_i (setq pattern (to-lower pattern)))
-		(when (bind '(search meta &ignore) (query pattern opt_w opt_x))
+		(when (bind '(search meta &ignore) (query pattern opt_w opt_x opt_i))
 			(cond
 				(opt_f
 					;from args ?

@@ -37,7 +37,7 @@
 (defun edit-get-filename () *file*)
 (defun edit-insert (txt) (. *edit* :insert txt))
 (defun edit-paste (txt) (. *edit* :paste txt))
-(defun edit-find (pattern &rest flags) (. *edit* :find pattern (find :w flags) (find :r flags)))
+(defun edit-find (pattern &rest flags) (. *edit* :find pattern (find :w flags) (find :x flags) (find :i flags)))
 (defun edit-find-next () (. *edit* :find_next))
 (defun edit-find-prev () (. *edit* :find_prev))
 (defun edit-find-add-next () (. *edit* :find_add_next))
@@ -59,10 +59,10 @@
 
 ; fancy replace
 (defun edit-replace (pattern)
-	(bind '(regexp wmode rmode) (. *edit* :get_last_find))
+	(bind '(regexp wmode xmode imode) (. *edit* :get_last_find))
 	(unless (eql regexp "")
 		(defq csr_text (split (. *edit* :copy) "\f") pattern (replace-compile pattern))
-		(when (bind '(engine meta &ignore) (query regexp wmode rmode))
+		(when (bind '(engine meta &ignore) (query regexp wmode xmode imode))
 			(defq csr_match (map (# (. engine :search %0 meta)) csr_text)
 				new_text (map (# (replace-matches %0 %1 pattern)) csr_text csr_match))
 			(unless (empty? new_text)

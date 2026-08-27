@@ -34,7 +34,7 @@
 			(+ start_line (get :vdu_height *edit*)))))
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
-	(. buffer :find (. *find_text* :get_text) *whole_words* *regexp*)
+	(. buffer :find (. *find_text* :get_text) *whole_words* *regexp* *ignore_case*)
 	(. *edit* :underlay)
 	(. *vdu_lines* :load lines 0 0 -1 -1)
 	(. buffer :vdu_load (. *edit* :get_vdu_text) sx sy)
@@ -146,13 +146,13 @@
 (defun dispatch-action (&rest action)
 	(defq func (first action))
 	(if (find func *find_actions*)
-		(push action *whole_words* *regexp* (. *find_text* :get_text)))
+		(push action *whole_words* *regexp* *ignore_case* (. *find_text* :get_text)))
 	(catch (eval action)
 		(progn (prin _) (print) (setq *refresh_mode* (list 0)) :t)))
 
 (defun main ()
 	(defq select (task-mboxes +select_size)
-		*running* :t *edit* (Viewer-edit) *regexp* :nil
+		*running* :t *edit* (Viewer-edit) *regexp* :nil *ignore_case* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list +refresh_mode_visible)
 		*meta_map* (scatter (Fmap) :files (Fmap)) *current_file* :nil
 		*cursor_stack* (list))

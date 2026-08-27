@@ -19,6 +19,7 @@
 	+event_find_up action-find-up
 	+event_whole_words action-whole-words
 	+event_regexp action-regexp
+	+event_ignore_case action-ignore-case
 	+event_region action-region
 	+event_close action-close
 	+event_min action-minimise

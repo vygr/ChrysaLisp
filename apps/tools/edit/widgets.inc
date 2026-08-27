@@ -11,7 +11,7 @@
 		invert comment)
 	(enum prev next scratch close_buffer close_all
 		save save_all load_selected load_all_depends new)
-	(enum global region whole_words regexp find_down find_up)
+	(enum global region whole_words regexp ignore_case find_down find_up)
 	(enum collect collect_global replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_global macro_record)
 	(enum debug_launch debug_toggle debug_remove
@@ -45,7 +45,7 @@
 		(ui-grid _ (:grid_height 1)
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar *find_toolbar* (:color (get :color *macro_toolbar*))
-					(ui-buttons (0xe9a1 0xe962 0xe9cd 0xe9a8 0xe914 0xe91b) +event_global))
+					(ui-buttons (0xe9a1 0xe962 0xe9cd 0xe9a8 0xe9b1 0xe914 0xe91b) +event_global))
 				(. (ui-textfield *find_text* (:color +argb_white
 						:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
@@ -91,7 +91,7 @@
 
 (ui-tool-tips *find_toolbar*
 	'("global search" "select region" "whole words"
-	"regexp" "find down" "find up"))
+	"regexp" "ignore case" "find down" "find up"))
 
 (ui-tool-tips *macro_toolbar*
 	'("playback" "playback eof" "playback global" "record"))

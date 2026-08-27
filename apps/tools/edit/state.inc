@@ -16,6 +16,7 @@
 			:replace (. *replace_text* :get_text)
 			:whole_words *whole_words*
 			:regexp *regexp*
+			:ignore_case *ignore_case*
 			:macros (reduce (# (. %0 :insert %1 (macro-encode %1))) +range_0_10 (Lmap)))
 		(tree-save stream *meta_map* '(":nil" :buffer :nil))))
 
@@ -27,15 +28,16 @@
 		(catch (setq *meta_map* (tree-load stream))
 			(progn (setq *meta_map* default) :t))
 		(bind '(x y width height version file
-				find_txt replace_txt files macros wwords regx)
+				find_txt replace_txt files macros wwords regx icase)
 			(gather *meta_map* :x :y :width :height :version
-				:file :find :replace :files :macros :whole_words :regexp))
+				:file :find :replace :files :macros :whole_words :regexp :ignore_case))
 		(if (and x y) (setq *x* x *y* y))
 		(if (and width height) (setq *width* width *height* height))
 		(if find_txt (. *find_text* :set_text find_txt))
 		(if replace_txt (. *replace_text* :set_text replace_txt))
 		(if wwords (setq *whole_words* wwords))
 		(if regx (setq *regexp* regx))
+		(if icase (setq *ignore_case* icase))
 		(if macros (. macros :each (lambda (k v) (macro-decode k v))))
 		(cond
 			(files

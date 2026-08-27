@@ -41,7 +41,7 @@
 			(+ start_line (get :vdu_height *edit*)))))
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
-	(. buffer :find (. *find_text* :get_text) *whole_words* *regexp*)
+	(. buffer :find (. *find_text* :get_text) *whole_words* *regexp* *ignore_case*)
 	(. *edit* :underlay)
 	(. *vdu_lines* :load lines 0 0 -1 -1)
 	(. buffer :vdu_load (. *edit* :get_vdu_text) sx sy)
@@ -217,13 +217,9 @@
 
 (defun dispatch-action (&rest action)
 	(defq func (first action)
-		;collect all active buffer keys (open files and the ":nil" scratchpad)
-		;take a snapshot of the transaction markers before the action
 		old_markers (map (# (list %0 (get_marker %0))) (push (cat *open_files*) ":nil")))
-	;record macro if enabled and action is recordable
 	(and *macro_record* (find func *recorded_actions*)
 		(macro-record action))
-	;execute the action
 	(if (eql func action-insert)
 		(progn
 			(catch (eval action)
@@ -233,21 +229,18 @@
 		(progn
 			(clear-matches)
 			(if (find func *find_actions*)
-				(push action *whole_words* *regexp* (. *find_text* :get_text)))
+				(push action *whole_words* *regexp* *ignore_case* (. *find_text* :get_text)))
 			(if (find func *replace_actions*)
 				(push action (. *replace_text* :get_text)))
 			(catch (eval action)
 				(progn (prin _) (print)
 					(setq *refresh_mode* (list +refresh_mode_visible)) :t))))
-	;identify all buffers whose transaction marker increased
 	(defq modified_files (list))
 	(each (lambda ((f old_mark))
 			(defq new_mark (get_marker f))
 			(when (> new_mark old_mark)
-				;map ":nil" back to the symbol :nil
 				(push modified_files (list (if (eql f ":nil") :nil f) old_mark new_mark))))
 		old_markers)
-	;if any buffers changed, push them as a single grouped transaction
 	(when (nempty? modified_files)
 		(push *global_undo_stack* modified_files)
 		(clear *global_redo_stack*)))
@@ -255,7 +248,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size)
 		edit_service (mail-declare (elem-get select +select_remote) "Edit" "Edit Service 1.0")
-		*running* :t *edit* (Editor-edit) *regexp* :nil
+		*running* :t *edit* (Editor-edit) *regexp* :nil *ignore_case* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list +refresh_mode_visible)
 		*macro_record* :nil *macro_actions* (list) *cursor_stack* (list)
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1

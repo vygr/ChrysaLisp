@@ -98,7 +98,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) handlers (Emap) syntax (Syntax)
 		scroll_pos (Fmap) *running* :t *current_file* "docs/ai_digest/summary.md"
-		*regexp* :nil *whole_words* :nil *last_key* "" *last_files* (list)
+		*regexp* :nil *whole_words* :nil *ignore_case* :nil *last_key* "" *last_files* (list)
 		*last_widget* :nil *search_widgets* (list) *mem_stream* :nil)
 	(.-> *file_selector* (:populate "docs" '(".md")) :pref_size)
 	(def *window* :tip_mbox (elem-get select +select_tip))
