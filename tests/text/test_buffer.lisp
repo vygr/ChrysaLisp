@@ -153,7 +153,7 @@
 ; --- Pattern Search & Found Cursors ---
 (defq b (Buffer))
 (. b :insert "Hello World\nHello Lisp")
-(defq found (. b :find "Hello" :nil :nil))
+(defq found (. b :find "Hello" :nil :nil :nil))
 (assert-eq "Find results length" 3 (length found)) ; 2 matches + terminal newline empty list
 (assert-eq "Find match line 0" 1 (length (first found)))
 (assert-eq "Find match line 1" 1 (length (second found)))
@@ -168,6 +168,115 @@
 
 (. b :add_found_cursors found) ; Should merge since they are identical
 (assert-eq "Add found cursors (merge)" 2 (length (. b :get_cursors)))
+
+; --- Pattern Search & Found Cursors ---
+(defq b (Buffer))
+(. b :insert "Hello World\nHello Lisp")
+(defq found (. b :find "Hello" :nil :nil :nil))
+(assert-eq "Find results length" 3 (length found)) ; 2 matches + terminal newline empty list
+(assert-eq "Find match line 0" 1 (length (first found)))
+(assert-eq "Find match line 1" 1 (length (second found)))
+
+(. b :set_found_cursors found)
+(assert-eq "Found cursors count" 2 (length (. b :get_cursors)))
+; Matches are "Hello" at (0,0) to (5,0) and (0,1) to (5,1)
+; Cursors are stored as (ax ay cx cy sx), :set_found_cursors sets them as (x y x1 y 0)
+; where x1 is start, x is end.
+(assert-eq "Found cursor 1" (nums 5 0 0 0 0) (first (. b :get_cursors_sorted)))
+(assert-eq "Found cursor 2" (nums 5 1 0 1 0) (second (. b :get_cursors_sorted)))
+
+(. b :add_found_cursors found) ; Should merge since they are identical
+(assert-eq "Add found cursors (merge)" 2 (length (. b :get_cursors)))
+
+; --- Pattern Search Modes (wmode, xmode, imode) ---
+(report-header "Buffer Find Modes: Case, Regex, Whole-Word")
+
+; 1. Case-Insensitive Search (imode = :t)
+(defq b_mode (Buffer))
+(. b_mode :insert "Apple pie\nAPPLE tart\napple cider")
+(defq f_case_sens (. b_mode :find "apple" :nil :nil :nil))
+(assert-eq "Case-sensitive line 0 miss" 0 (length (elem-get f_case_sens 0)))
+(assert-eq "Case-sensitive line 1 miss" 0 (length (elem-get f_case_sens 1)))
+(assert-eq "Case-sensitive line 2 match" 1 (length (elem-get f_case_sens 2)))
+
+(defq f_case_insens (. b_mode :find "apple" :nil :nil :t))
+(assert-eq "Case-insensitive line 0 match" 1 (length (elem-get f_case_insens 0)))
+(assert-eq "Case-insensitive line 1 match" 1 (length (elem-get f_case_insens 1)))
+(assert-eq "Case-insensitive line 2 match" 1 (length (elem-get f_case_insens 2)))
+
+; 2. Whole Word Search (wmode = :t)
+(defq b_word (Buffer))
+(. b_word :insert "cat concatenate cat. (cat) category")
+(defq f_sub (. b_word :find "cat" :nil :nil :nil))
+(assert-eq "Substring find matches all 5 occurrences" 5 (length (first f_sub)))
+
+(defq f_word (. b_word :find "cat" :t :nil :nil))
+; Matches: standalone "cat", "cat." (boundary at dot), and "(cat)" (boundary at parens)
+; Excludes: "concatenate" and "category"
+(assert-eq "Whole-word find matches 3 boundary occurrences" 3 (length (first f_word)))
+(assert-list-eq "Whole-word match 1 bounds" '((0 3)) (elem-get (first f_word) 0))
+(assert-list-eq "Whole-word match 2 bounds" '((16 19)) (elem-get (first f_word) 1))
+(assert-list-eq "Whole-word match 3 bounds" '((22 25)) (elem-get (first f_word) 2))
+
+; 3. Whole Word with Metacharacter Escaping (wmode = :t, xmode = :nil)
+(defq b_esc (Buffer))
+(. b_esc :insert "foo.bar fooXbar foo.bar/baz")
+(defq f_esc (. b_esc :find "foo.bar" :t :nil :nil))
+; Literal dot is escaped so it does not match "fooXbar"
+(assert-eq "Whole-word with dot match count" 2 (length (first f_esc)))
+(assert-list-eq "Whole-word literal dot match 1" '((0 7)) (elem-get (first f_esc) 0))
+(assert-list-eq "Whole-word literal dot match 2" '((16 23)) (elem-get (first f_esc) 1))
+
+; 4. Regular Expression Search (xmode = :t)
+(defq b_rx (Buffer))
+(. b_rx :insert "item_01: $100\nitem_02: $250\nsummary: none")
+(defq f_rx (. b_rx :find "\\$(\\d+)" :nil :t :nil))
+(assert-eq "Regex find line 0 match count" 1 (length (elem-get f_rx 0)))
+(assert-eq "Regex find line 1 match count" 1 (length (elem-get f_rx 1)))
+(assert-eq "Regex find line 2 miss" 0 (length (elem-get f_rx 2)))
+; Verify full match bounds and capture group bounds: ((full_s full_e) (cap_s cap_e))
+(assert-list-eq "Regex line 0 match with capture group" '((9 13) (10 13)) (first (elem-get f_rx 0)))
+(assert-list-eq "Regex line 1 match with capture group" '((9 13) (10 13)) (first (elem-get f_rx 1)))
+
+; 5. Whole Word + Case-Insensitive (wmode = :t, imode = :t)
+(defq b_wi (Buffer))
+(. b_wi :insert "The FOX jumps over the superfox and Fox.")
+(defq f_wi (. b_wi :find "fox" :t :nil :t))
+(assert-eq "Whole-word + ignore-case match count" 2 (length (first f_wi)))
+(assert-list-eq "Whole-word + ignore-case match 1 (FOX)" '((4 7)) (elem-get (first f_wi) 0))
+(assert-list-eq "Whole-word + ignore-case match 2 (Fox)" '((36 39)) (elem-get (first f_wi) 1))
+
+; 6. Regex + Case-Insensitive (xmode = :t, imode = :t)
+(defq b_xi (Buffer))
+(. b_xi :insert "Status: ACTIVE\nstatus: pending\nSTATUS: Active")
+(defq f_xi (. b_xi :find "status: a[a-z]+" :nil :t :t))
+(assert-eq "Regex + ignore-case line 0 match" 1 (length (elem-get f_xi 0)))
+(assert-eq "Regex + ignore-case line 1 miss" 0 (length (elem-get f_xi 1)))
+(assert-eq "Regex + ignore-case line 2 match" 1 (length (elem-get f_xi 2)))
+
+; 7. Regex + Whole-Word + Case-Insensitive (wmode = :t, xmode = :t, imode = :t)
+(defq b_wxi (Buffer))
+(. b_wxi :insert "run running RUN runner")
+(defq f_wxi (. b_wxi :find "r[a-z]+" :t :t :t))
+; !r[a-z]+! matches full words: "run", "running", "RUN", "runner"
+(assert-eq "Regex + whole-word + ignore-case match count" 4 (length (first f_wxi)))
+
+; 8. Cache Invalidation across mode changes on same Buffer instance
+(defq b_cache (Buffer))
+(. b_cache :insert "Test test TEST")
+(defq f_c1 (. b_cache :find "test" :nil :nil :nil))
+(assert-eq "Initial case-sensitive cache count" 1 (length (first f_c1)))
+; Switching flags clears and recalculates cache
+(defq f_c2 (. b_cache :find "test" :nil :nil :t))
+(assert-eq "Switched to ignore-case cache count" 3 (length (first f_c2)))
+(assert-list-eq "Last find state preserved" '("test" :nil :nil :t) (. b_cache :get_last_find))
+
+; 9. Edge Cases: Empty pattern and no-match return :nil
+(defq b_edge (Buffer))
+(. b_edge :insert "Sample content")
+(assert-eq "Empty pattern find returns nil" :nil (. b_edge :find "" :nil :nil :nil))
+(assert-eq "Non-matching find returns nil" :nil (. b_edge :find "missing_term" :nil :nil :nil))
+(assert-eq "Non-matching regex returns nil" :nil (. b_edge :find "\\d+" :nil :t :nil))
 
 ; --- Selection Info & Extent ---
 (defq b (Buffer))
@@ -279,7 +388,7 @@
 ; --- Search Navigation ---
 (defq b (Buffer))
 (. b :insert "ABC ABC ABC")
-(. b :find "ABC" :nil :nil)
+(. b :find "ABC" :nil :nil :nil)
 
 ; find_next
 (. b :set_cursor 0 0)
@@ -312,7 +421,7 @@
 ; --- Search & Mutation ---
 (defq b (Document))
 (. b :insert "a b a c a")
-(. b :find "a" :nil :nil)
+(. b :find "a" :nil :nil :nil)
 
 ; Select all "a"s
 (. b :set_cursor 0 0)
