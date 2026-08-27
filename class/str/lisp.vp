@@ -963,10 +963,9 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r7, :f0-:f15
 
-	(vp-rdef (this args src len src_data dst_data dst_end ch)
-		'(:r8 :r1 :r6 :r7 :r2 :r3 :r4 :r5))
+	(vp-rdef (this ch args src_data dst_data dst_end len src) '(:r7))
 
 	(entry :str :lisp_upper `(,this ,args))
 
@@ -1010,10 +1009,9 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r7, :f0-:f15
 
-	(vp-rdef (this args src len src_data dst_data dst_end ch)
-		'(:r8 :r1 :r6 :r7 :r2 :r3 :r4 :r5))
+	(vp-rdef (this ch args src_data dst_data dst_end len src) '(:r7))
 
 	(entry :str :lisp_lower `(,this ,args))
 
