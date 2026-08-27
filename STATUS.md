@@ -62,6 +62,9 @@ string to the output stream !
 
 Switched to `-x` and `:x` throughout for selecting regexp mode for consistency.
 
+Added `+char_class_regexp`, and removed legacy call to `(unescape)` as this is
+now done by `(read)`.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

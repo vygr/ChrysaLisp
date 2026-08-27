@@ -2,17 +2,10 @@
 ; character classes
 ;;;;;;;;;;;;;;;;;;;
 
-(defun escape-regexp (string)
-	; (escape-regexp str) -> str
-	(if (eql string "") string
-		(apply (const cat) (reduce
-			(# (if (find %1 "^$!.*+?|[]()\\")
-				(push %0 {\})) (push %0 %1)) string (list)))))
-
 (defun char-class (k)
 	; (char-class key) -> str
 	;create char class
-	;these are sorted interend unescaped char strings
+	;these are sorted interned char strings
 	;can be searched with (bfind)
 	(memoize k (. (const (Fset 5)) :intern (apply (const cat)
 		(usort (apply (const cat)
@@ -20,7 +13,7 @@
 					(map (const char)
 						(range (code (first %0)) (inc (code (last %0)))))
 					(map (const identity) %0)))
-				(partition (unescape k) 3)))))) 7))
+				(partition k 3)))))) 7))
 
 ;some standard char classes
 
@@ -37,4 +30,12 @@
 	+char_class_hex (char-class "A-Fa-f0-9")
 	+char_class_printable (char-class " -~")
 	+char_class_not_whole_word (char-class " .,;'`()[]/\r\f\v\n\t\q{}")
-	+char_class_lf (char-class "\n"))
+	+char_class_lf (char-class "\n")
+	+char_class_regexp (char-class "^$!.*+?|[]()\\"))
+
+(defun escape-regexp (string)
+	; (escape-regexp str) -> str
+	(if (eql string "") string
+		(apply (const cat) (reduce
+			(# (if (bfind %1 +char_class_regexp)
+				(push %0 {\})) (push %0 %1)) string (list)))))
