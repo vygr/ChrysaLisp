@@ -65,7 +65,9 @@ Switched to `-x` and `:x` throughout for selecting regexp mode for consistency.
 Added `+char_class_regexp`, and removed legacy call to `(unescape)` as this is
 now done by `(read)`.
 
-Added `"-i, --ignore-case"` and `"-n, --line-number"` to `grep` command.
+Added `"-n, --line-number"` to `grep` command.
+
+Added `"-i, --ignore-case"` to `edit`, `grep` and `sed` commands.
 
 Added `-i` support to all the GUI apps find toolbars.
 
