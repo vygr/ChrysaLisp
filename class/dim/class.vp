@@ -18,14 +18,20 @@
 	;trashes
 	;:r1
 
+	(vp-rdef (this vtable dims elems))
+
+	(entry :dim :init `(,this ,vtable ,dims ,elems))
+
 	;init parent
-	(s-call :dim :init '(:r0 :r1) '(:r0 :r1))
-	(vpif '(:r1 /= 0))
+	(s-call :dim :init `(,this ,vtable) `(,this ,vtable))
+	(vpif `(,vtable /= 0))
 		;init self
-		(class/obj/ref :r2 :r1)
-		(class/obj/ref :r3 :r1)
-		(assign '(:r2 :r3) '((:r0 +dim_dims) (:r0 +dim_elems)))
+		(class/obj/ref dims vtable)
+		(class/obj/ref elems vtable)
+		(assign `(,dims ,elems) `((,this +dim_dims) (,this +dim_elems)))
 	(endif)
+
+	(exit :dim :init `(,this ,vtable))
 	(vp-ret)
 
 (def-func-end)
@@ -38,13 +44,15 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(entry :dim :deinit '(:r0))
+	(vp-rdef (this))
 
-	(vp-push :r0)
-	(call :obj :deref '((:r0 +dim_dims)))
-	(assign '((:rsp 0)) '(:r0))
-	(call :obj :deref '((:r0 +dim_elems)))
-	(vp-pop :r0)
-	(s-jump :dim :deinit '(:r0))
+	(entry :dim :deinit `(,this))
+
+	(vp-push this)
+	(call :obj :deref `((,this +dim_dims)))
+	(assign '((:rsp 0)) `(,this))
+	(call :obj :deref `((,this +dim_elems)))
+	(vp-pop this)
+	(s-jump :dim :deinit `(,this))
 
 (def-func-end)

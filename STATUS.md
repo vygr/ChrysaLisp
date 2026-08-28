@@ -74,6 +74,8 @@ Added `-i` support to all the GUI apps find toolbars.
 Lower `to-upper` and `to-lower` to VP code. As we are now using them for case
 insensitive searching !
 
+Converted some old raw VP register methods to `vp-rdef` style.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

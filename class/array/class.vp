@@ -16,19 +16,21 @@
 	;trashes
 	;:r1-:r3
 
-	(entry :array :deinit '(:r0))
+	(vp-rdef (this begin end saved_this))
+
+	(entry :array :deinit `(,this))
 
 	;free any dynamic array
-	(assign '((:r0 +array_begin)) '(:r1))
-	(gotoif '(:r1 < :r0) 'external)
-	(assign '((& :r0 +array_size)) '(:r2))
-	(vpif '(:r1 >= :r2))
+	(assign `((,this +array_begin)) `(,begin))
+	(gotoif `(,begin < ,this) 'external)
+	(assign `((& ,this +array_size)) `(,end))
+	(vpif `(,begin >= ,end))
 	(vp-label 'external)
-		(vp-cpy-rr :r0 :r3)
-		(call :sys_mem :free '(:r1))
-		(vp-cpy-rr :r3 :r0)
+		(vp-cpy-rr this saved_this)
+		(call :sys_mem :free `(,begin))
+		(vp-cpy-rr saved_this this)
 	(endif)
-	(s-jump :array :deinit '(:r0))
+	(s-jump :array :deinit `(,this))
 
 (def-func-end)
 
@@ -461,31 +463,33 @@
 	;trashes
 	;:r1-:r9, :f0-:f15
 
-	;save inputs
-	(entry :array :append '(:r0 :r1 :r2 :r3))
+	(vp-rdef (saved_that saved_si saved_ei di this that si ei)
+		'(:r6 :r7 :r8 :r9))
 
-	(vpif '(:r2 /= :r3))
+	(entry :array :append `(,this ,that ,si ,ei))
+
+	(vpif `(,si /= ,ei))
 		;save inputs
-		(assign '(:r1 :r2 :r3) '(:r6 :r7 :r8))
+		(assign `(,that ,si ,ei) `(,saved_that ,saved_si ,saved_ei))
 
 		;extend array
-		(assign '((:r0 +array_length)) '(:r9))
-		(vp-sub-rr :r2 :r3)
-		(assign '((& :r3 :r9)) '(:r1))
-		(assign '(:r1) '((:r0 +array_length)))
-		(call :array :set_cap '(:r0 :r1) '(:r0))
+		(assign `((,this +array_length)) `(,di))
+		(vp-sub-rr si ei)
+		(assign `((& ,ei ,di)) `(,that))
+		(assign `(,that) `((,this +array_length)))
+		(call :array :set_cap `(,this ,that) `(,this))
 
 		;append elements
-		(class/array/get_iters :r6 :r7 :r8 :r1)
-		(class/array/get_iter :r0 :r9 :r1)
+		(class/array/get_iters saved_that saved_si saved_ei that)
+		(class/array/get_iter this di that)
 		(loop-start)
-			(assign '((:r7 0)) '(:r1))
-			(vp-simd vp-add-cr `(,+ptr_size) '(:r9 :r7))
-			(assign '(:r1) `((:r9 ,(neg +ptr_size))))
-		(loop-until '(:r7 = :r8))
+			(vp-cpy-ir saved_si 0 that)
+			(vp-simd vp-add-cr `(,+long_size) `(,saved_si ,di))
+			(vp-cpy-ri that di (neg +long_size))
+		(loop-until `(,saved_si = ,saved_ei))
 	(endif)
 
-	(exit :array :append '(:r0))
+	(exit :array :append `(,this))
 	(vp-ret)
 
 (def-func-end)
@@ -543,20 +547,22 @@
 	;trashes
 	;:r2-:r3
 
-	(entry :array :erase '(:r0 :r1))
+	(vp-rdef (this iter len begin))
+
+	(entry :array :erase `(,this ,iter))
 
 	;swap last entry for erased entry
-	(assign '((:r0 +array_length) (:r0 +array_begin)) '(:r2 :r3))
-	(vp-sub-cr 1 :r2)
-	(assign '(:r2) '((:r0 +array_length)))
-	(vp-shl-cr (log2 +long_size) :r2)
-	(vp-add-rr :r3 :r2)
-	(vpif '(:r2 /= :r1))
-		(assign '((:r2 0)) '(:r2))
-		(assign '(:r2) '((:r1 0)))
+	(assign `((,this +array_length) (,this +array_begin)) `(,len ,begin))
+	(vp-sub-cr 1 len)
+	(assign `(,len) `((,this +array_length)))
+	(vp-shl-cr (log2 +long_size) len)
+	(vp-add-rr len begin)
+	(vpif `(,begin /= ,iter))
+		(assign `((,begin 0)) `(,len))
+		(assign `(,len) `((,iter 0)))
 	(endif)
 
-	(exit :array :erase '(:r0 :r1))
+	(exit :array :erase `(,this ,iter))
 	(vp-ret)
 
 (def-func-end)
@@ -571,20 +577,22 @@
 	;trashes
 	;:r2-:r3
 
-	(entry :array :erase2 '(:r0 :r1))
+	(vp-rdef (this iter len begin))
+
+	(entry :array :erase2 `(,this ,iter))
 
 	;swap last entry for erased entry
-	(assign '((:r0 +array_length) (:r0 +array_begin)) '(:r2 :r3))
-	(vp-sub-cr 2 :r2)
-	(assign '(:r2) '((:r0 +array_length)))
-	(vp-shl-cr (log2 +long_size) :r2)
-	(vp-add-rr :r3 :r2)
-	(vpif '(:r2 /= :r1))
-		(assign '((:r2 0) (:r2 +long_size)) '(:r3 :r2))
-		(assign '(:r3 :r2) '((:r1 0) (:r1 +long_size)))
+	(assign `((,this +array_length) (,this +array_begin)) `(,len ,begin))
+	(vp-sub-cr 2 len)
+	(assign `(,len) `((,this +array_length)))
+	(vp-shl-cr (log2 +long_size) len)
+	(vp-add-rr len begin)
+	(vpif `(,begin /= ,iter))
+		(assign `((,begin 0) (,begin +long_size)) `(,begin ,len))
+		(assign `(,begin ,len) `((,iter 0) (,iter +long_size)))
 	(endif)
 
-	(exit :array :erase2 '(:r0 :r1))
+	(exit :array :erase2 `(,this ,iter))
 	(vp-ret)
 
 (def-func-end)

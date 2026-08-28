@@ -109,16 +109,18 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(entry :list :set_elem '(:r0 :r1 :r2))
+	(vp-rdef (this elm idx begin))
 
-	(assign '((:r0 +array_begin)) '(:r3))
-	(vp-shl-cr (log2 +ptr_size) :r2)
-	(vp-push :r0)
-	(assign '((:r2 :r3) :r1) '(:r0 (:r2 :r3)))
-	(call :obj :deref '(:r0))
-	(vp-pop :r0)
+	(entry :list :set_elem `(,this ,elm ,idx))
 
-	(exit :list :set_elem '(:r0))
+	(assign `((,this +array_begin)) `(,begin))
+	(vp-shl-cr (log2 +ptr_size) idx)
+	(vp-push this)
+	(assign `((,begin ,idx) ,elm) `(,this (,begin ,idx)))
+	(call :obj :deref `(,this))
+	(vp-pop this)
+
+	(exit :list :set_elem `(,this))
 	(vp-ret)
 
 (def-func-end)
@@ -134,31 +136,34 @@
 	;trashes
 	;:r1-:r9, :f0-:f15
 
-	(entry :list :append '(:r0 :r1 :r2 :r3))
+	(vp-rdef (saved_that saved_si saved_ei di this that si ei)
+		'(:r6 :r7 :r8 :r9))
 
-	(vpif '(:r2 /= :r3))
+	(entry :list :append `(,this ,that ,si ,ei))
+
+	(vpif `(,si /= ,ei))
 		;save inputs
-		(assign '(:r1 :r2 :r3) '(:r6 :r7 :r8))
+		(assign `(,that ,si ,ei) `(,saved_that ,saved_si ,saved_ei))
 
 		;extend list
-		(assign '((:r0 +array_length)) '(:r9))
-		(vp-sub-rr :r2 :r3)
-		(assign '((& :r3 :r9)) '(:r1))
-		(assign '(:r1) '((:r0 +array_length)))
-		(call :list :set_cap '(:r0 :r1) '(:r0))
+		(assign `((,this +array_length)) `(,di))
+		(vp-sub-rr si ei)
+		(assign `((& ,ei ,di)) `(,that))
+		(assign `(,that) `((,this +array_length)))
+		(call :list :set_cap `(,this ,that) `(,this))
 
 		;append and ref elements
-		(class/array/get_iters :r6 :r7 :r8 :r1)
-		(class/array/get_iter :r0 :r9 :r1)
+		(class/array/get_iters saved_that saved_si saved_ei that)
+		(class/array/get_iter this di that)
 		(loop-start)
-			(assign '((:r7 0)) '(:r1))
-			(vp-simd vp-add-cr `(,+ptr_size) '(:r9 :r7))
-			(assign '(:r1) `((:r9 ,(neg +ptr_size))))
-			(class/obj/ref :r1 :r2)
-		(loop-until '(:r7 = :r8))
+			(assign `((,saved_si 0)) `(,that))
+			(vp-simd vp-add-cr `(,+ptr_size) `(,saved_si ,di))
+			(assign `(,that) `((,di ,(neg +ptr_size))))
+			(class/obj/ref that si)
+		(loop-until `(,saved_si = ,saved_ei))
 	(endif)
 
-	(exit :list :append '(:r0))
+	(exit :list :append `(,this))
 	(vp-ret)
 
 (def-func-end)
