@@ -17,33 +17,34 @@
 	;trashes
 	;:r1-:r5, :f0-:f15
 
-	;save inputs
-	(entry :hmap :init '(:r0 :r1 (:r0 +array_num_buckets)))
+	(vp-rdef (this vtable num_buckets iter_begin iter_end saved_this))
+
+	(entry :hmap :init `(,this ,vtable (,this +array_num_buckets)))
 
 	;init parent
-	(s-call :hmap :init '(:r0 :r1) '(:r0 :r1))
-	(vpif '(:r1 /= 0))
+	(s-call :hmap :init `(,this ,vtable) `(,this ,vtable))
+	(vpif `(,vtable /= 0))
 		;init myself, massage the :array element layout
-		(assign `(,(>> (- +hmap_size +hmap_elems) (log2 +long_size)) (& :r0 +hmap_elems) 0)
-			'(:r1 :r2 :r3))
-		(save-fields :r0 '(+array_capacity +array_begin +hmap_parent)
-			'(:r1 :r2 :r3))
+		(assign `(,(>> (- +hmap_size +hmap_elems) (log2 +long_size)) (& ,this +hmap_elems) 0)
+			`(,vtable ,num_buckets ,iter_begin))
+		(save-fields this '(+array_capacity +array_begin +hmap_parent)
+			`(,vtable ,num_buckets ,iter_begin))
 		;now the buckets
-		(assign '((:r0 +array_num_buckets)) '(:r1))
-		(vpif '(:r1 /= 1))
-			(assign '(:r1) '((:r0 +array_length)))
-			(call :hmap :set_cap '(:r0 :r1) '(:r0))
-			(class/array/get_both :r0 :r3 :r4)
-			(vp-cpy-rr :r0 :r5)
+		(assign `((,this +array_num_buckets)) `(,vtable))
+		(vpif `(,vtable /= 1))
+			(assign `(,vtable) `((,this +array_length)))
+			(call :hmap :set_cap `(,this ,vtable) `(,this))
+			(class/array/get_both this iter_begin iter_end)
+			(vp-cpy-rr this saved_this)
 			(loop-start)
-				(call :list :create :nil '((:r3 0)))
-				(vp-add-cr +ptr_size :r3)
-			(loop-until '(:r3 = :r4))
-			(vp-cpy-rr :r5 :r0)
+				(call :list :create :nil `((,iter_begin 0)))
+				(vp-add-cr +ptr_size iter_begin)
+			(loop-until `(,iter_begin = ,iter_end))
+			(vp-cpy-rr saved_this this)
 		(endif)
 	(endif)
 
-	(exit :hmap :init '(:r0 :r1))
+	(exit :hmap :init `(,this ,vtable))
 	(vp-ret)
 
 (def-func-end)
@@ -56,12 +57,14 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(entry :hmap :deinit '(:r0))
+	(vp-rdef (this))
 
-	(vp-push :r0)
-	(call :hmap :deref_if '((:r0 +hmap_parent)))
-	(vp-pop :r0)
-	(s-jump :hmap :deinit '(:r0))
+	(entry :hmap :deinit `(,this))
+
+	(vp-push this)
+	(call :hmap :deref_if `((,this +hmap_parent)))
+	(vp-pop this)
+	(s-jump :hmap :deinit `(,this))
 
 (def-func-end)
 
@@ -74,15 +77,17 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(entry :hmap :set_parent '(:r0 :r1))
+	(vp-rdef (this parent old_parent))
 
-	(vp-push :r0)
-	(assign '((:r0 +hmap_parent)) '(:r2))
-	(assign '(:r1) '((:r0 +hmap_parent)))
-	(call :hmap :deref_if '(:r2))
-	(vp-pop :r0)
+	(entry :hmap :set_parent `(,this ,parent))
 
-	(exit :hmap :set_parent '(:r0))
+	(vp-push this)
+	(assign `((,this +hmap_parent)) `(,old_parent))
+	(assign `(,parent) `((,this +hmap_parent)))
+	(call :hmap :deref_if `(,old_parent))
+	(vp-pop this)
+
+	(exit :hmap :set_parent `(,this))
 	(vp-ret)
 
 (def-func-end)
@@ -101,19 +106,21 @@
 		;obj must be first
 		(ptr obj this))
 
+	(vp-rdef (this num_buckets))
+
 	;save inputs
 	(vp-alloc local_size)
-	(entry :hmap :copy '(:r0 :r1))
-	(assign '(:r0) '((:rsp local_this)))
+	(entry :hmap :copy `(,this ,num_buckets))
+	(assign `(,this) '((:rsp local_this)))
 
-	(call :hmap :create '(:r1) '((:rsp local_obj)))
-	(assign '((:rsp local_this)) '(:r0))
-	(assign '((:r0 +hmap_parent)) '(:r0))
-	(call :hmap :ref_if '(:r0) '(:r0))
-	(call :hmap :set_parent '((:rsp local_obj) :r0) '(:r0))
-	(call :hmap :each '((:rsp local_this) ($ callback) :r0) '(:r0))
+	(call :hmap :create `(,num_buckets) '((:rsp local_obj)))
+	(assign '((:rsp local_this)) `(,this))
+	(assign `((,this +hmap_parent)) `(,this))
+	(call :hmap :ref_if `(,this) `(,this))
+	(call :hmap :set_parent `((:rsp local_obj) ,this) `(,this))
+	(call :hmap :each `((:rsp local_this) ($ callback) ,this) `(,this))
 
-	(exit :hmap :copy '(:r0 (:rsp local_obj)))
+	(exit :hmap :copy `(,this (:rsp local_obj)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -123,15 +130,17 @@
 	;:r1 = element iterator (ptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(entry :hmap :each_callback '(:r0 :r1 :r2))
+	(vp-rdef (obj key val tmp))
 
-	(assign '((:r1 0) (:r1 +ptr_size)) '(:r1 :r2))
-	(class/obj/ref :r1 :r3)
-	(class/obj/ref :r2 :r3)
-	(vp-push :r1 :r2)
-	(call :hset :bucket '(:r0 :r1) '(_ :r0))
-	(vp-pop :r1 :r2)
-	(jump :list :push_back2 '(:r0 :r1 :r2))
+	(entry :hmap :each_callback `(,obj ,key ,val))
+
+	(assign `((,key 0) (,key +ptr_size)) `(,key ,val))
+	(class/obj/ref key tmp)
+	(class/obj/ref val tmp)
+	(vp-push key val)
+	(call :hset :bucket `(,obj ,key) `(_ ,obj))
+	(vp-pop key val)
+	(jump :list :push_back2 `(,obj ,key ,val))
 
 (def-func-end)
 
@@ -147,15 +156,18 @@
 	(structure local 0
 		(ptr obj this))
 
+	(vp-rdef (this))
+
 	;save inputs
 	(vp-alloc local_size)
-	(entry :hmap :list '((:rsp local_this)))
+	(entry :hmap :list `(,this))
+	(assign `(,this) '((:rsp local_this)))
 
-	(call :list :create :nil '(:r0))
-	(assign '(:r0) '((:rsp local_obj)))
-	(call :hmap :each '((:rsp local_this) ($ callback) :r0) '(:r0))
+	(call :list :create :nil `(,this))
+	(assign `(,this) '((:rsp local_obj)))
+	(call :hmap :each `((:rsp local_this) ($ callback) ,this) `(,this))
 
-	(exit :hmap :list '(:r0 (:rsp local_obj)))
+	(exit :hmap :list `(,this (:rsp local_obj)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -165,14 +177,16 @@
 	;:r1 = element iterator (ptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(entry :hmap :each_callback '(:r0 :r1 :r2))
+	(vp-rdef (out_list key val pair_list iter bucket) '(:r6 :r7 :r8))
 
-	(assign '(:r0 (:r1 0) (:r1 +ptr_size)) '(:r6 :r7 :r8))
-	(call :list :create :nil '(:r0))
-	(class/obj/ref :r7 :r1)
-	(class/obj/ref :r8 :r1)
-	(call :list :push_back2 '(:r0 :r7 :r8) '(:r1 _ _ _ _))
-	(jump :list :push_back '(:r6 :r1))
+	(entry :hmap :each_callback `(,pair_list ,iter ,bucket))
+
+	(assign `(,pair_list (,iter 0) (,iter +ptr_size)) `(,out_list ,key ,val))
+	(call :list :create :nil `(,pair_list))
+	(class/obj/ref key iter)
+	(class/obj/ref val iter)
+	(call :list :push_back2 `(,pair_list ,key ,val) `(,iter _ _ _ _))
+	(jump :list :push_back `(,out_list ,iter))
 
 (def-func-end)
 
@@ -445,46 +459,50 @@
 		(ptr this predicate predicate_data bucket)
 		(pptr iter_begin iter_end iter_begin1 iter_end1))
 
+	(vp-rdef (this predicate predicate_data scratch old_end))
+
 	;save inputs
 	(vp-alloc local_size)
-	(entry :hmap :each '(:r0 (:rsp local_predicate) (:rsp local_predicate_data)))
-	(assign '(:r0) '((:rsp local_this)))
+	(entry :hmap :each `(,this (:rsp local_predicate) (:rsp local_predicate_data)))
+	(assign `(,this) '((:rsp local_this)))
 
 	;for all buckets
-	(assign '((:r0 +array_num_buckets) :r0) '(:r1 :r2))
-	(vpif '(:r1 = 1))
-		(class/array/get_both :r2 :r1 :r0)
-		(assign '(:r2) '((:rsp local_bucket)))
+	(assign `((,this +array_num_buckets) ,this) `(,predicate ,predicate_data))
+	(vpif `(,predicate = 1))
+		(class/array/get_both predicate_data predicate this)
+		(assign `(,predicate_data) '((:rsp local_bucket)))
 	(vp-label 'erased)
-		(assign '(:r0) '((:rsp local_iter_end)))
-		(loop-while '(:r1 < :r0))
-			(assign '((:rsp local_predicate_data) :r1) '(:r0 (:rsp local_iter_begin)))
+		(assign `(,this) '((:rsp local_iter_end)))
+		(loop-while `(,predicate < ,this))
+			(assign `((:rsp local_predicate_data) ,predicate) `(,this (:rsp local_iter_begin)))
 			(vp-call-i :rsp local_predicate)
-			(assign '((:rsp local_bucket) (:rsp local_iter_begin) (:rsp local_iter_end)) '(:r2 :r1 :r4))
-			(class/array/get_end :r2 :r0 :r3)
-			(gotoif '(:r0 /= :r4) 'erased)
-			(vp-add-cr (* +ptr_size 2) :r1)
+			(assign `((:rsp local_bucket) (:rsp local_iter_begin) (:rsp local_iter_end))
+				`(,predicate_data ,predicate ,old_end))
+			(class/array/get_end predicate_data this scratch)
+			(gotoif `(,this /= ,old_end) 'erased)
+			(vp-add-cr (* +ptr_size 2) predicate)
 		(loop-end)
 	(else)
-		(class/array/get_both :r2 :r1 :r0)
-		(assign '(:r0) '((:rsp local_iter_end1)))
+		(class/array/get_both predicate_data predicate this)
+		(assign `(,this) '((:rsp local_iter_end1)))
 		(loop-start)
-			(assign '((:r1 0) :r1) '(:r2 (:rsp local_iter_begin1)))
-			(class/array/get_both :r2 :r1 :r0)
-			(assign '(:r2) '((:rsp local_bucket)))
+			(assign `((,predicate 0) ,predicate) `(,predicate_data (:rsp local_iter_begin1)))
+			(class/array/get_both predicate_data predicate this)
+			(assign `(,predicate_data) '((:rsp local_bucket)))
 		(vp-label 'erased1)
-			(assign '(:r0) '((:rsp local_iter_end)))
-			(loop-while '(:r1 < :r0))
-				(assign '((:rsp local_predicate_data) :r1) '(:r0 (:rsp local_iter_begin)))
+			(assign `(,this) '((:rsp local_iter_end)))
+			(loop-while `(,predicate < ,this))
+				(assign `((:rsp local_predicate_data) ,predicate) `(,this (:rsp local_iter_begin)))
 				(vp-call-i :rsp local_predicate)
-				(assign '((:rsp local_bucket) (:rsp local_iter_begin) (:rsp local_iter_end)) '(:r2 :r1 :r4))
-				(class/array/get_end :r2 :r0 :r3)
-				(gotoif '(:r0 /= :r4) 'erased1)
-				(vp-add-cr (* +ptr_size 2) :r1)
+				(assign `((:rsp local_bucket) (:rsp local_iter_begin) (:rsp local_iter_end))
+					`(,predicate_data ,predicate ,old_end))
+				(class/array/get_end predicate_data this scratch)
+				(gotoif `(,this /= ,old_end) 'erased1)
+				(vp-add-cr (* +ptr_size 2) predicate)
 			(loop-end)
-			(assign '((:rsp local_iter_begin1) (:rsp local_iter_end1)) '(:r1 :r2))
-			(vp-add-cr +ptr_size :r1)
-		(loop-until '(:r1 = :r2))
+			(assign `((:rsp local_iter_begin1) (:rsp local_iter_end1)) `(,predicate ,predicate_data))
+			(vp-add-cr +ptr_size predicate)
+		(loop-until `(,predicate = ,predicate_data))
 	(endif)
 
 	(exit :hmap :each '((:rsp local_this)))
@@ -502,24 +520,28 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(def-vars
+	(structure local 0
 		(ptr this that))
 
-	(push-scope)
-	(entry :hmap :resize '(:r0 :r1))
+	(vp-rdef (this that len))
 
-	(call :hmap :copy '(:r0 :r1) '(:r0 :r1))
-	(assign '(:r0 :r1) {this, that})
-	(call :hmap :clear '(:r0) '(:r0))
-	(assign {that} '(:r1))
-	(call :hmap :append '(:r0 :r1 0 (:r1 +array_length)) '(:r0))
-	(assign {that} '(:r1))
-	(assign '((:r1 +array_num_buckets)) '(:r2))
-	(assign '(:r2) '((:r0 +array_num_buckets)))
-	(call :hmap :deref '(:r1))
+	;save inputs
+	(vp-alloc local_size)
+	(entry :hmap :resize `(,this ,that))
 
-	(exit :hmap :resize {this})
-	(pop-scope)
-	(return)
+	(call :hmap :copy `(,this ,that) `(,this ,that))
+	(assign `(,this ,that) '((:rsp local_this) (:rsp local_that)))
+	(call :hmap :clear `(,this) `(,this))
+	(assign '((:rsp local_that)) `(,that))
+	(call :hmap :append `(,this ,that 0 (,that +array_length)) `(,this))
+	(assign '((:rsp local_that)) `(,that))
+	(assign `((,that +array_num_buckets)) `(,len))
+	(assign `(,len) `((,this +array_num_buckets)))
+	(call :hmap :deref `(,that))
+	(assign '((:rsp local_this)) `(,this))
+
+	(exit :hmap :resize `(,this))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)

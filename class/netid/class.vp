@@ -17,21 +17,23 @@
 	;trashes
 	;:r1-:r6, :f0-:f15
 
-	(entry :netid :init '(:r0 :r1))
+	(vp-rdef (saved_this this vtable) '(:r6))
+
+	(entry :netid :init `(,this ,vtable))
 
 	;init parent
-	(s-call :netid :init `(:r0 :r1 0 ,+net_id_size) '(:r0 :r1))
-	(vpif '(:r1 /= 0))
+	(s-call :netid :init `(,this ,vtable 0 ,+net_id_size) `(,this ,vtable))
+	(vpif `(,vtable /= 0))
 		;init myself
-		(vp-cpy-rr :r0 :r6)
-		(call :sys_mail :alloc_mbox :nil `((:r6 ,(+ +netid_id +net_id_mbox_id)) _))
+		(vp-cpy-rr this saved_this)
+		(call :sys_mail :alloc_mbox :nil `((,saved_this ,(+ +netid_id +net_id_mbox_id)) _))
 		(call :sys_kernel :id :nil
-			`((:r6 ,(+ +netid_id +net_id_node_id +node_id_node1))
-			(:r6 ,(+ +netid_id +net_id_node_id +node_id_node2))))
-		(vp-cpy-rr :r6 :r0)
+			`((,saved_this ,(+ +netid_id +net_id_node_id +node_id_node1))
+			(,saved_this ,(+ +netid_id +net_id_node_id +node_id_node2))))
+		(vp-cpy-rr saved_this this)
 	(endif)
 
-	(exit :netid :init '(:r0 :r1))
+	(exit :netid :init `(,this ,vtable))
 	(vp-ret)
 
 (def-func-end)

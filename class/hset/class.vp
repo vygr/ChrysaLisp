@@ -16,28 +16,29 @@
 	;trashes
 	;:r1-:r5, :f0-:f15
 
-	;save inputs
-	(entry :hset :init '(:r0 :r1 (:r0 +array_num_buckets)))
+	(vp-rdef (this vtable num_buckets iter_begin iter_end saved_this))
+
+	(entry :hset :init `(,this ,vtable (,this +array_num_buckets)))
 
 	;init parent
-	(s-call :hset :init '(:r0 :r1) '(:r0 :r1))
-	(vpif '(:r1 /= 0))
+	(s-call :hset :init `(,this ,vtable) `(,this ,vtable))
+	(vpif `(,vtable /= 0))
 		;init myself
-		(assign '((:r0 +array_num_buckets)) '(:r1))
-		(vpif '(:r1 /= 1))
-			(assign '(:r1) '((:r0 +array_length)))
-			(call :hset :set_cap '(:r0 :r1) '(:r0))
-			(class/array/get_both :r0 :r3 :r4)
-			(vp-cpy-rr :r0 :r5)
+		(assign `((,this +array_num_buckets)) `(,vtable))
+		(vpif `(,vtable /= 1))
+			(assign `(,vtable) `((,this +array_length)))
+			(call :hset :set_cap `(,this ,vtable) `(,this))
+			(class/array/get_both this iter_begin iter_end)
+			(vp-cpy-rr this saved_this)
 			(loop-start)
-				(call :list :create :nil '((:r3 0)))
-				(vp-add-cr +ptr_size :r3)
-			(loop-until '(:r3 = :r4))
-			(vp-cpy-rr :r5 :r0)
+				(call :list :create :nil `((,iter_begin 0)))
+				(vp-add-cr +ptr_size iter_begin)
+			(loop-until `(,iter_begin = ,iter_end))
+			(vp-cpy-rr saved_this this)
 		(endif)
 	(endif)
 
-	(exit :hset :init '(:r0 :r1))
+	(exit :hset :init `(,this ,vtable))
 	(vp-ret)
 
 (def-func-end)
@@ -133,46 +134,50 @@
 		(ptr this predicate predicate_data bucket)
 		(pptr iter_begin iter_end iter_begin1 iter_end1))
 
+	(vp-rdef (this predicate predicate_data scratch old_end))
+
 	;save inputs
 	(vp-alloc local_size)
-	(entry :hset :each '(:r0 (:rsp local_predicate) (:rsp local_predicate_data)))
-	(assign '(:r0) '((:rsp local_this)))
+	(entry :hset :each `(,this (:rsp local_predicate) (:rsp local_predicate_data)))
+	(assign `(,this) '((:rsp local_this)))
 
 	;for all buckets
-	(assign '((:r0 +array_num_buckets) :r0) '(:r1 :r2))
-	(vpif '(:r1 = 1))
-		(class/array/get_both :r2 :r1 :r0)
-		(assign '(:r2) '((:rsp local_bucket)))
+	(assign `((,this +array_num_buckets) ,this) `(,predicate ,predicate_data))
+	(vpif `(,predicate = 1))
+		(class/array/get_both predicate_data predicate this)
+		(assign `(,predicate_data) '((:rsp local_bucket)))
 	(vp-label 'erased)
-		(assign '(:r0) '((:rsp local_iter_end)))
-		(loop-while '(:r1 < :r0))
-			(assign '((:rsp local_predicate_data) :r1) '(:r0 (:rsp local_iter_begin)))
+		(assign `(,this) '((:rsp local_iter_end)))
+		(loop-while `(,predicate < ,this))
+			(assign `((:rsp local_predicate_data) ,predicate) `(,this (:rsp local_iter_begin)))
 			(vp-call-i :rsp local_predicate)
-			(assign '((:rsp local_bucket) (:rsp local_iter_begin) (:rsp local_iter_end)) '(:r2 :r1 :r4))
-			(class/array/get_end :r2 :r0 :r3)
-			(gotoif '(:r0 /= :r4) 'erased)
-			(vp-add-cr +ptr_size :r1)
+			(assign `((:rsp local_bucket) (:rsp local_iter_begin) (:rsp local_iter_end))
+				`(,predicate_data ,predicate ,old_end))
+			(class/array/get_end predicate_data this scratch)
+			(gotoif `(,this /= ,old_end) 'erased)
+			(vp-add-cr +ptr_size predicate)
 		(loop-end)
 	(else)
-		(class/array/get_both :r2 :r1 :r0)
-		(assign '(:r0) '((:rsp local_iter_end1)))
+		(class/array/get_both predicate_data predicate this)
+		(assign `(,this) '((:rsp local_iter_end1)))
 		(loop-start)
-			(assign '((:r1 0) :r1) '(:r2 (:rsp local_iter_begin1)))
-			(class/array/get_both :r2 :r1 :r0)
-			(assign '(:r2) '((:rsp local_bucket)))
+			(assign `((,predicate 0) ,predicate) `(,predicate_data (:rsp local_iter_begin1)))
+			(class/array/get_both predicate_data predicate this)
+			(assign `(,predicate_data) '((:rsp local_bucket)))
 		(vp-label 'erased1)
-			(assign '(:r0) '((:rsp local_iter_end)))
-			(loop-while '(:r1 < :r0))
-				(assign '((:rsp local_predicate_data) :r1) '(:r0 (:rsp local_iter_begin)))
+			(assign `(,this) '((:rsp local_iter_end)))
+			(loop-while `(,predicate < ,this))
+				(assign `((:rsp local_predicate_data) ,predicate) `(,this (:rsp local_iter_begin)))
 				(vp-call-i :rsp local_predicate)
-				(assign '((:rsp local_bucket) (:rsp local_iter_begin) (:rsp local_iter_end)) '(:r2 :r1 :r4))
-				(class/array/get_end :r2 :r0 :r3)
-				(gotoif '(:r0 /= :r4) 'erased1)
-				(vp-add-cr +ptr_size :r1)
+				(assign `((:rsp local_bucket) (:rsp local_iter_begin) (:rsp local_iter_end))
+					`(,predicate_data ,predicate ,old_end))
+				(class/array/get_end predicate_data this scratch)
+				(gotoif `(,this /= ,old_end) 'erased1)
+				(vp-add-cr +ptr_size predicate)
 			(loop-end)
-			(assign '((:rsp local_iter_begin1) (:rsp local_iter_end1)) '(:r1 :r2))
-			(vp-add-cr +ptr_size :r1)
-		(loop-until '(:r1 = :r2))
+			(assign `((:rsp local_iter_begin1) (:rsp local_iter_end1)) `(,predicate ,predicate_data))
+			(vp-add-cr +ptr_size predicate)
+		(loop-until `(,predicate = ,predicate_data))
 	(endif)
 
 	(exit :hset :each '((:rsp local_this)))
@@ -191,22 +196,25 @@
 	;trashes
 	;:r1-:r6
 
-	(entry :hset :bucket '(:r0 :r1))
+	(vp-rdef (saved_this num_buckets this key bucket) '(:r5 :r6))
+
+	(entry :hset :bucket `(,this ,key))
 
 	;search hash bucket
-	(assign '((:r0 +array_num_buckets)) '(:r6))
-	(vpif '(:r6 = 1))
-		(exit :hset :bucket '(:r0 :r0))
+	(assign `((,this +array_num_buckets)) `(,num_buckets))
+	(vpif `(,num_buckets = 1))
+		(exit :hset :bucket `(,this ,this))
 		(vp-ret)
 	(endif)
-	(assign '(:r0) '(:r5))
-	(call :obj :hash '(:r1) '(_ :r0) :r2)
-	(vp-xor-rr :r2 :r2)
-	(vp-div-rrr-u :r6 :r2 :r0)
-	(vp-shl-cr (log2 +long_size) :r2)
-	(assign '((:r5 +array_begin)) '(:r1))
-	(assign '((:r1 :r2)) '(:r2))
-	(exit :hset :bucket '(:r5 :r2))
+	(assign `(,this) `(,saved_this))
+	(call :obj :hash `(,key) `(_ ,this) bucket)
+	(vp-xor-rr bucket bucket)
+	(vp-div-rrr-u num_buckets bucket this)
+	(vp-shl-cr (log2 +long_size) bucket)
+	(assign `((,saved_this +array_begin)) `(,key))
+	(assign `((,key ,bucket)) `(,bucket))
+
+	(exit :hset :bucket `(,saved_this ,bucket))
 	(vp-ret)
 
 (def-func-end)
@@ -219,7 +227,10 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(jump :hset :each '(:r0 ($ flush_callback) 0))
+	(vp-rdef (this))
+
+	(entry :hset :flush `(,this))
+	(jump :hset :each `(,this ($ flush_callback) 0))
 
 (vp-label 'flush_callback)
 	;inputs
@@ -227,12 +238,14 @@
 	;:r1 = element iterator (pptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(entry :hset :each_callback '(:r0 :r1 :r2))
+	(vp-rdef (data iter bucket))
 
-	(assign '((:r1 0)) '(:r0))
-	(assign '((:r0 +obj_count)) '(:r0))
-	(vpif '(:r0 = 1))
-		(jump :list :erase '(:r2 :r1))
+	(entry :hset :each_callback `(,data ,iter ,bucket))
+
+	(assign `((,iter 0)) `(,data))
+	(assign `((,data +obj_count)) `(,data))
+	(vpif `(,data = 1))
+		(jump :list :erase `(,bucket ,iter))
 	(endif)
 	(vp-ret)
 

@@ -13,22 +13,23 @@
 	;trashes
 	;:r0-:r5, :f0-:f15
 
-	;save size of data
-	(entry :nodeid :create '(:r5))
+	(vp-rdef (saved_buf this ok) '(:r5))
+
+	(entry :nodeid :create `(,saved_buf))
 
 	;create new str object
-	(call :sys_mem :alloc `(,+nodeid_size) '(:r0 _))
-	(vpif '(:r0 /= 0))
+	(call :sys_mem :alloc `(,+nodeid_size) `(,this _))
+	(vpif `(,this /= 0))
 		;init the object
-		(call :nodeid :init `(:r0 (@ ,(f-path :nodeid :vtable)) :r5 +node_id_size) '(:r0 :r1))
-		(vpif '(:r1 = 0))
+		(call :nodeid :init `(,this (@ ,(f-path :nodeid :vtable)) ,saved_buf +node_id_size) `(,this ,ok))
+		(vpif `(,ok = 0))
 			;error with init
-			(call :sys_mem :free '(:r0))
-			(vp-xor-rr :r0 :r0)
+			(call :sys_mem :free `(,this))
+			(vp-xor-rr this this)
 		(endif)
 	(endif)
 
-	(exit :nodeid :create '(:r0))
+	(exit :nodeid :create `(,this))
 	(vp-ret)
 
 (def-func-end)
@@ -42,13 +43,15 @@
 	;trashes
 	;:r1-:r2
 
-	(entry :nodeid :hash '(:r0))
+	(vp-rdef (this hcode tmp))
 
-	(vp-cpy-ir :r0 (+ +nodeid_id +node_id_node1) :r1)
-	(vp-cpy-ir :r0 (+ +nodeid_id +node_id_node2) :r2)
-	(vp-xor-rr :r2 :r1)
+	(entry :nodeid :hash `(,this))
 
-	(exit :nodeid :hash '(:r0 :r1))
+	(assign `((,this ,(+ +nodeid_id +node_id_node1)) (,this ,(+ +nodeid_id +node_id_node2)))
+		`(,hcode ,tmp))
+	(vp-xor-rr tmp hcode)
+
+	(exit :nodeid :hash `(,this ,hcode))
 	(vp-ret)
 
 (def-func-end)
@@ -63,15 +66,18 @@
 	;trashes
 	;:r1-:r4
 
-	(entry :nodeid :eql '(:r0 :r1))
+	(vp-rdef (this that n2_a n2_b n1_a))
 
-	(assign `((:r0 ,(+ +nodeid_id +node_id_node1)) (:r0 ,(+ +nodeid_id +node_id_node2))
-		(:r1 ,(+ +nodeid_id +node_id_node1)) (:r1 ,(+ +nodeid_id +node_id_node2))) '(:r4 :r1 :r2 :r3))
-	(vp-sub-rr :r2 :r4)
-	(vp-sub-rr :r3 :r1)
-	(vp-or-rr :r4 :r1)
+	(entry :nodeid :eql `(,this ,that))
 
-	(exit :nodeid :eql '(:r0 :r1))
+	(assign `((,this ,(+ +nodeid_id +node_id_node1)) (,this ,(+ +nodeid_id +node_id_node2))
+		(,that ,(+ +nodeid_id +node_id_node1)) (,that ,(+ +nodeid_id +node_id_node2)))
+		`(,n1_a ,that ,n2_a ,n2_b))
+	(vp-sub-rr n2_a n1_a)
+	(vp-sub-rr n2_b that)
+	(vp-or-rr n1_a that)
+
+	(exit :nodeid :eql `(,this ,that))
 	(vp-ret)
 
 (def-func-end)
