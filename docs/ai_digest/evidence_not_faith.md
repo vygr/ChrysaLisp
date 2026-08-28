@@ -112,12 +112,12 @@ down all compiler environments.
   rebuild cycles, reporting live statistical metrics inside ChrysaLisp's native
   GUI benchmark window.
 
-* **Mean Time:** **66,705 µs (0.0667 seconds)**.
+* **Mean Time:** **66,705 us (0.0667 seconds)**.
 
-* **Best Time:** **~60,000–61,000 µs (~0.060 seconds)** (observed at the far
+* **Best Time:** **~60,000–61,000 us (~0.060 seconds)** (observed at the far
   left bound of the distribution, well below the 65.3ms grid mark).
 
-* **Worst Time:** **73,988 µs (0.0739 seconds)**.
+* **Worst Time:** **73,988 us (0.0739 seconds)**.
 
 * **Jitter / Spread:** **~8.6 ms total variance**.
 
