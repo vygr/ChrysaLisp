@@ -21,16 +21,16 @@ cold, and hermetic lifecycle across a shared-nothing cluster:
 
 ```
 [Zero State: No Compiler/Build Tools in RAM]
-       │
+       |
        V (Phase 1: Genesis in microseconds)
 [Synthesize 20 Independent Toolchains from Source]
-       │
+       |
        V (Phase 2: Parallel MIMD Compilation & Linking)
 [Assemble OS, Route Packets, Arbitrate Locks Across 20 Nodes]
-       │
+       |
        V (Phase 3: Total Teardown & Reclamation)
 [Destroy Toolchains, Dereference ASTs, Reclaim All Heap Memory]
-       │
+       |
        V
 [Return to Zero State: Clean RAM]
 ```
