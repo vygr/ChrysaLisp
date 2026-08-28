@@ -57,9 +57,7 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(vp-rdef (this))
-
-	(entry :hmap :deinit `(,this))
+	(entry :hmap :deinit '(this))
 
 	(vp-push this)
 	(call :hmap :deref_if `((,this +hmap_parent)))
@@ -106,11 +104,9 @@
 		;obj must be first
 		(ptr obj this))
 
-	(vp-rdef (this num_buckets))
-
 	;save inputs
 	(vp-alloc local_size)
-	(entry :hmap :copy `(,this ,num_buckets))
+	(entry :hmap :copy '(this num_buckets))
 	(assign `(,this) '((:rsp local_this)))
 
 	(call :hmap :create `(,num_buckets) '((:rsp local_obj)))
@@ -156,11 +152,9 @@
 	(structure local 0
 		(ptr obj this))
 
-	(vp-rdef (this))
-
 	;save inputs
 	(vp-alloc local_size)
-	(entry :hmap :list `(,this))
+	(entry :hmap :list '(this))
 	(assign `(,this) '((:rsp local_this)))
 
 	(call :list :create :nil `(,this))

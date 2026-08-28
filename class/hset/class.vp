@@ -94,21 +94,24 @@
 	;trashes
 	;:r1-:r13, :f0-:f15
 
+	(vp-rdef (this key cmp_func) (method-input :hset :cinsert))
+	(vp-rdef (_ iter bucket) (method-output :hset :cinsert))
+	(vp-rdef (saved_key saved_this) '(:r13 :r13))
+
 	;save inputs
-	(entry :hset :cinsert '(:r0 :r1 :r2))
+	(entry :hset :cinsert `(,this ,key ,cmp_func))
 
 	;search hash bucket
-	(assign '(:r1) '(:r13))
-	(call :hset :cfind '(:r0 :r1 :r2) '(:r0 :r1 :r2))
-	(vpif '(:r1 = 0))
-		;new key
-		(assign '(:r13 :r0 :r2) '(:r1 :r13 :r0))
-		(class/obj/ref :r1 :r2)
-		(call :list :push_back '(:r0 :r1) '(:r2 _ _ :r3))
-		(assign '((& :r3 (neg +ptr_size)) :r13) '(:r1 :r0))
+	(assign `(,key) `(,saved_key))
+	(call :hset :cfind `(,this ,key ,cmp_func) `(,this ,iter ,bucket))
+	(vpif `(,iter = 0))
+		(assign `(,saved_key ,this ,bucket) `(,key ,saved_this ,this))
+		(class/obj/ref key bucket)
+		(call :list :push_back `(,this ,key) `(,bucket _ _ iter_e))
+		(assign `((& ,iter_e (neg +ptr_size)) ,saved_this) `(,iter ,this))
 	(endif)
 
-	(exit :hset :cinsert '(:r0 :r1 :r2))
+	(exit :hset :cinsert `(,this ,iter ,bucket))
 	(vp-ret)
 
 (def-func-end)
