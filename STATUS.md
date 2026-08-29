@@ -79,6 +79,8 @@ Converted some old raw VP register methods to `vp-rdef` style.
 New `x86_64` translator, with much cleaner code. The old version was the first
 ever written without an instruction manual, so was all reverse engineared !
 
+New LoongArch64 `la64.inc` translator.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
