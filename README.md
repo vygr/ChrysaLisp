@@ -38,7 +38,7 @@ Featured videos include:
 
 * **Self-Hosting**: Includes its own assembler, Lisp interpreter, and build tools (`make`).
 
-* **Virtual Processor (VP)**: A 64-bit RISC-like target ensuring portability across x64, ARM64, and RISC-V64, with a VP64 emulator for unsupported platforms or bootstrapping.
+* **Virtual Processor (VP)**: A 64-bit RISC-like target ensuring portability across x64, ARM64, and RISC-V64, LA64, with a VP64 emulator for unsupported platforms or bootstrapping.
 
 * **Parallel & Distributed**: Designed for MIMD architectures, supporting various network topologies simulated via shared memory links or bridged across physical machines using ChrysaLib.
 
@@ -62,7 +62,7 @@ ChrysaLisp currently runs as a hosted environment on:
 
 * Windows (64-bit x64)
 
-* Linux (x64, arm64, riscv64)
+* Linux (x64, arm64, riscv64, la64)
 
     * Special support for Raspberry Pi (3/4, 64-bit OS) in framebuffer mode.
 
