@@ -1,3 +1,6 @@
+;;;;;;;;;;;;;;;;;;;;;;
+; lib/trans/x86_64.inc
+;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;
 ; x64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
@@ -17,6 +20,10 @@
 		(cat +vp_regs_map))))
 
 (defmacro emit-native-reg? (r) (static-qq (pfind +emit_native_regs ,r)))
+
+(defmacro x64-within (c n)
+	(defq limit (<< 1 (dec n)))
+	`(<= ,(neg limit) ,c ,(dec limit)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Core Encoding Macros
@@ -53,11 +60,11 @@
 		((and (eql disp 0) (/= base 5) (/= base 13))
 			(emitm-byte (+ (<< rl 3) bl))
 			(if (or (= base 4) (= base 12)) (emitm-byte 0x24)))
-		((<= -0x80 disp 0x7f)
+		((x64-within disp 8)
 			(emitm-byte (+ 0x40 (<< rl 3) bl))
 			(if (or (= base 4) (= base 12)) (emitm-byte 0x24))
 			(emitm-byte disp))
-		((<= -0x80000000 disp 0x7fffffff)
+		((x64-within disp 32)
 			(emitm-byte (+ 0x80 (<< rl 3) bl))
 			(if (or (= base 4) (= base 12)) (emitm-byte 0x24))
 			(emitm-int disp))
@@ -87,7 +94,7 @@
 (defun x64-pr (o l d)
 	(defq dl (logand 7 d) dh (>> d 3) l (- l *pc* 7))
 	(cond
-		((<= -0x80000000 l 0x7fffffff)
+		((x64-within l 32)
 			(emitm-byte (+ 0x48 (<< dh 2)) o (+ 0x05 (<< dl 3)))
 			(emitm-int l))
 		(:t (throw "x64-pr constant out of range !" l))))
@@ -96,9 +103,9 @@
 	(defq rl (logand 7 r) rh (>> r 3))
 	(emitm-byte (+ 0x48 rh))
 	(cond
-		((<= -0x80 c 0x7f)
+		((x64-within c 8)
 			(emitm-byte 0x83 (+ digit rl) c))
-		((<= -0x80000000 c 0x7fffffff)
+		((x64-within c 32)
 			(if (= r 0)
 				(emitm-byte rax_op)
 				(emitm-byte 0x81 (+ digit rl)))
@@ -163,7 +170,7 @@
 					(if (>= r 8) (emitm-byte 0x41))
 					(emitm-byte (+ 0xb8 rl))
 					(emitm-int c))
-				((<= -0x80000000 c -1)
+				((x64-within c 32)
 					(emitm-byte (+ 0x48 rh) 0xc7 (+ 0xc0 rl))
 					(emitm-int c))
 				(:t (emitm-byte (+ 0x48 rh) (+ 0xb8 rl))
@@ -312,9 +319,9 @@
 			(cond
 				((= -1 c)
 					(emitm-byte (+ 0x48 rh) 0xf7 (+ 0xd8 rl)))
-				((<= -0x80 c 0x7f)
+				((x64-within c 8)
 					(emitm-byte (+ 0x48 (<< rh 2) rh) 0x6b (+ 0xc0 rl (<< rl 3)) c))
-				((<= -0x80000000 c 0x7fffffff)
+				((x64-within c 32)
 					(emitm-byte (+ 0x48 (<< rh 2) rh) 0x69 (+ 0xc0 rl (<< rl 3)))
 					(emitm-int c))
 				(:t (throw "emit-mul-cr constant out of range !" c))))))
@@ -361,9 +368,9 @@
 	(defq m (elem-get *offsets* d) l (- l *pc*))
 	(and (> *pass* 0) (> (abs l) (abs m)) (elem-set *offsets* d (setq m l)))
 	(cond
-		((<= -0x80 (- m 2) 0x7f)
+		((x64-within (- m 2) 8)
 			(emitm-byte o (- l 2)))
-		((<= -0x80000000 (- m 6) 0x7fffffff)
+		((x64-within (- m 6) 32)
 			(emitm-byte 0x0f (+ 0x10 o))
 			(emitm-int (- l 6)))
 		(:t (throw "x64-branch constant out of range !" l))))
@@ -445,7 +452,7 @@
 
 (defun emit-call (l)
 	(cond
-		((<= -0x80000000 (defq c (- l *pc* 5)) 0x7fffffff)
+		((x64-within (defq c (- l *pc* 5)) 32)
 			(emitm-byte 0xe8)
 			(emitm-int c))
 		(:t (throw "emit-call constant out of range !" c))))
@@ -454,9 +461,9 @@
 	(defq m (elem-get *offsets* d) c (- l *pc*))
 	(and (> *pass* 0) (> (abs c) (abs m)) (elem-set *offsets* d (setq m c)))
 	(cond
-		((<= -0x80 (- m 2) 0x7f)
+		((x64-within (- m 2) 8)
 			(emitm-byte 0xeb (- c 2)))
-		((<= -0x80000000 (- m 5) 0x7fffffff)
+		((x64-within (- m 5) 32)
 			(emitm-byte 0xe9)
 			(emitm-int (- c 5)))
 		(:t (throw "emit-jmp constant out of range !" c))))
