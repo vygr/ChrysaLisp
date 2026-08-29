@@ -16,6 +16,11 @@
 
 (defmacro emit-native-reg? (r) (static-qq (pfind +emit_native_regs ,r)))
 
+(defq +x64_rax (emit-native-reg? :r0)
+	+x64_rcx (emit-native-reg? :r1)
+	+x64_rdx (emit-native-reg? :r2)
+	+x64_rsp (emit-native-reg? :rsp))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Core Encoding Macros
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -103,7 +108,7 @@
 		((x64-within c 8)
 			(emitm-byte 0x83 (x64-modrm 3 digit r) c))
 		((x64-within c 32)
-			(if (= r 0)
+			(if (= r +x64_rax)
 				(emitm-byte (+ (<< digit 3) 5))
 				(emitm-byte 0x81 (x64-modrm 3 digit r)))
 			(emitm-int c))
@@ -191,8 +196,8 @@
 (defun x64-cmp-rr (s d) (x64-r-r 0x39 s d))
 (defun x64-cmp-cr (c r) (if (= c 0) (x64-r-r 0x85 r r) (x64-alu-cr 7 c r)))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
-(defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) +x64_rsp))
+(defun emit-free (c) (emit-add-cr (align c stack_align) +x64_rsp))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Group 2: Memory Load & Store
@@ -235,26 +240,26 @@
 
 (defun emit-swp-rr (s d)
 	(unless (eql s d)
-		(if (eql s 0) (setq s d d 0))
+		(if (eql s +x64_rax) (setq s d d +x64_rax))
 		(defq sl (logand 7 s) sh (>> s 3) dl (logand 7 d) dh (>> d 3))
-		(if (= d 0)
+		(if (= d +x64_rax)
 			(emitm-byte (x64-rex 1 0 0 sh) (+ 0x90 sl))
 			(emitm-byte (x64-rex 1 sh 0 dh) 0x87 (x64-modrm 3 s d)))))
 
 (defun x64-shift-rr (digit s d)
 	(cond
-		((eql s 1)
+		((eql s +x64_rcx)
 			(emitm-byte (x64-rex 1 0 0 (>> d 3)) 0xd3 (x64-modrm 3 digit d)))
-		((eql d 1)
+		((eql d +x64_rcx)
 			(emit-swp-rr s d)
 			(emitm-byte (x64-rex 1 0 0 (>> s 3)) 0xd3 (x64-modrm 3 digit s))
 			(emit-swp-rr s d))
-		(:t (emit-push d s (const (emit-native-reg? :r0)) (const (emit-native-reg? :r1)))
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) 24 (const (emit-native-reg? :r0)))
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) 16 (const (emit-native-reg? :r1)))
+		(:t (emit-push d s +x64_rax +x64_rcx)
+			(emit-cpy-ir +x64_rsp 24 +x64_rax)
+			(emit-cpy-ir +x64_rsp 16 +x64_rcx)
 			(emitm-byte (x64-rex 1 0 0 0) 0xd3 (x64-modrm 3 digit 0))
-			(emit-cpy-ri (const (emit-native-reg? :r0)) (const (emit-native-reg? :rsp)) 24)
-			(emit-pop d s (const (emit-native-reg? :r0)) (const (emit-native-reg? :r1))))))
+			(emit-cpy-ri +x64_rax +x64_rsp 24)
+			(emit-pop d s +x64_rax +x64_rcx))))
 
 (defun emit-shl-cr (c r) (x64-shift-cr 4 c r))
 (defun emit-shr-cr (c r) (x64-shift-cr 5 c r))
@@ -287,7 +292,7 @@
 
 (defun emit-ext-rr (s d)
 	(cond
-		((and (eql s 0) (eql d 2))
+		((and (eql s +x64_rax) (eql d +x64_rdx))
 			(emitm-byte 0x48 0x99))
 		((eql s d)
 			(emit-asr-cr 63 d))
@@ -316,33 +321,33 @@
 
 (defun emit-div-rrr (s d1 d2)
 	(cond
-		((and (eql d1 2) (eql d2 0))
+		((and (eql d1 +x64_rdx) (eql d2 +x64_rax))
 			(emitm-byte (x64-rex 1 0 0 (>> s 3)) 0xf7 (x64-modrm 3 7 s)))
-		((and (eql d1 0) (eql d2 2) (nql s 0) (nql s 2))
+		((and (eql d1 +x64_rax) (eql d2 +x64_rdx) (nql s +x64_rax) (nql s +x64_rdx))
 			(emitm-byte (x64-rex 1 0 0 0) 0x92 (x64-rex 1 0 0 (>> s 3)) 0xf7 (x64-modrm 3 7 s) (x64-rex 1 0 0 0) 0x92))
-		(:t (emit-push d2 d1 s (const (emit-native-reg? :r2)) (const (emit-native-reg? :r1)) (const (emit-native-reg? :r0)))
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) 24 (const (emit-native-reg? :r1)))
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) 32 (const (emit-native-reg? :r2)))
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) 40 (const (emit-native-reg? :r0)))
+		(:t (emit-push d2 d1 s +x64_rdx +x64_rcx +x64_rax)
+			(emit-cpy-ir +x64_rsp 24 +x64_rcx)
+			(emit-cpy-ir +x64_rsp 32 +x64_rdx)
+			(emit-cpy-ir +x64_rsp 40 +x64_rax)
 			(emitm-byte (x64-rex 1 0 0 0) 0xf7 (x64-modrm 3 7 1))
-			(emit-cpy-ri (const (emit-native-reg? :r2)) (const (emit-native-reg? :rsp)) 32)
-			(emit-cpy-ri (const (emit-native-reg? :r0)) (const (emit-native-reg? :rsp)) 40)
-			(emit-pop d2 d1 s (const (emit-native-reg? :r2)) (const (emit-native-reg? :r1)) (const (emit-native-reg? :r0))))))
+			(emit-cpy-ri +x64_rdx +x64_rsp 32)
+			(emit-cpy-ri +x64_rax +x64_rsp 40)
+			(emit-pop d2 d1 s +x64_rdx +x64_rcx +x64_rax))))
 
 (defun emit-div-rrr-u (s d1 d2)
 	(cond
-		((and (eql d1 2) (eql d2 0))
+		((and (eql d1 +x64_rdx) (eql d2 +x64_rax))
 			(emitm-byte (x64-rex 1 0 0 (>> s 3)) 0xf7 (x64-modrm 3 6 s)))
-		((and (eql d1 0) (eql d2 2) (nql s 0) (nql s 2))
+		((and (eql d1 +x64_rax) (eql d2 +x64_rdx) (nql s +x64_rax) (nql s +x64_rdx))
 			(emitm-byte (x64-rex 1 0 0 0) 0x92 (x64-rex 1 0 0 (>> s 3)) 0xf7 (x64-modrm 3 6 s) (x64-rex 1 0 0 0) 0x92))
-		(:t (emit-push d2 d1 s (const (emit-native-reg? :r2)) (const (emit-native-reg? :r1)) (const (emit-native-reg? :r0)))
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) 24 (const (emit-native-reg? :r1)))
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) 32 (const (emit-native-reg? :r2)))
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) 40 (const (emit-native-reg? :r0)))
+		(:t (emit-push d2 d1 s +x64_rdx +x64_rcx +x64_rax)
+			(emit-cpy-ir +x64_rsp 24 +x64_rcx)
+			(emit-cpy-ir +x64_rsp 32 +x64_rdx)
+			(emit-cpy-ir +x64_rsp 40 +x64_rax)
 			(emitm-byte (x64-rex 1 0 0 0) 0xf7 (x64-modrm 3 6 1))
-			(emit-cpy-ri (const (emit-native-reg? :r2)) (const (emit-native-reg? :rsp)) 32)
-			(emit-cpy-ri (const (emit-native-reg? :r0)) (const (emit-native-reg? :rsp)) 40)
-			(emit-pop d2 d1 s (const (emit-native-reg? :r2)) (const (emit-native-reg? :r1)) (const (emit-native-reg? :r0))))))
+			(emit-cpy-ri +x64_rdx +x64_rsp 32)
+			(emit-cpy-ri +x64_rax +x64_rsp 40)
+			(emit-pop d2 d1 s +x64_rdx +x64_rcx +x64_rax))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Group 5: Branches & Control
@@ -462,11 +467,11 @@
 	(x64-shift-xmm d 2 1))
 
 (defun emit-neg-ff (s d)
-	(emit-push 0)
-	(emit-cpy-fr s 0)
-	(emitm-byte (x64-rex 1 0 0 0) 0x0f 0xba (x64-modrm 3 7 0) 63)
-	(emit-cpy-rf 0 d)
-	(emit-pop 0))
+	(emit-push +x64_rax)
+	(emit-cpy-fr s +x64_rax)
+	(emitm-byte (x64-rex 1 0 0 0) 0x0f 0xba (x64-modrm 3 7 +x64_rax) 63)
+	(emit-cpy-rf +x64_rax d)
+	(emit-pop +x64_rax))
 
 (defun x64-cmp-ff (s d) (x64-xmm-rr 0x66 0x2e s d))
 (defun emit-beq-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x74 l m))
@@ -504,13 +509,13 @@
 		((= *func_align* 16)
 			(apply (const emit-push) x)
 			(emit-call-i b c)
-			(emit-add-cr (* +ptr_size (length x)) (const (emit-native-reg? :rsp))))
+			(emit-add-cr (* +ptr_size (length x)) +x64_rsp))
 		(:t (setq x (cat (list r r) x))
-			(emit-cpy-rr (const (emit-native-reg? :rsp)) r)
-			(emit-and-cr -16 (const (emit-native-reg? :rsp)))
+			(emit-cpy-rr +x64_rsp r)
+			(emit-and-cr -16 +x64_rsp)
 			(apply (const emit-push) x)
 			(emit-call-i b c)
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (- (length x) 2)) (const (emit-native-reg? :rsp)))))))
+			(emit-cpy-ir +x64_rsp (* +ptr_size (- (length x) 2)) +x64_rsp)))))
 (WIN64
 (defun emit-call-abi (r b c n &rest x)
 	(cond
@@ -518,18 +523,18 @@
 			(if (odd? (length x))
 				(setq x (cat (list r) x)))
 			(apply (const emit-push) x)
-			(emit-sub-cr 32 (const (emit-native-reg? :rsp)))
+			(emit-sub-cr 32 +x64_rsp)
 			(emit-call-i b c)
-			(emit-add-cr (* +ptr_size (+ (length x) 4)) (const (emit-native-reg? :rsp))))
-		(:t (emit-cpy-rr (const (emit-native-reg? :rsp)) r)
-			(emit-and-cr -16 (const (emit-native-reg? :rsp)))
+			(emit-add-cr (* +ptr_size (+ (length x) 4)) +x64_rsp))
+		(:t (emit-cpy-rr +x64_rsp r)
+			(emit-and-cr -16 +x64_rsp)
 			(if (odd? (length x))
 				(defq y (cat (list r) x))
 				(defq y (cat (list r r) x)))
 			(apply (const emit-push) y)
-			(emit-sub-cr 32 (const (emit-native-reg? :rsp)))
+			(emit-sub-cr 32 +x64_rsp)
 			(emit-call-i b c)
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (+ (length x) 4)) (const (emit-native-reg? :rsp)))))))
+			(emit-cpy-ir +x64_rsp (* +ptr_size (+ (length x) 4)) +x64_rsp)))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
 ;module, that exports everything !
