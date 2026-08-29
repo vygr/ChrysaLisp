@@ -41,7 +41,7 @@
 		(emitm-byte 0xeb 4)
 		(emit-or-cr -1 ,d)))
 
-(defun x64-mem-ir (w pfx o reg base disp)
+(defun x64-mem-ir (w o reg base disp &optional pfx)
 	(defq rh (>> reg 3) bh (>> base 3))
 	(if pfx (emitm-byte pfx))
 	(cond
@@ -70,7 +70,7 @@
 			(emitm-int disp))
 		(:t (throw "x64-mem-ir constant out of range !" disp))))
 
-(defun x64-mem-dr (w pfx o reg base index)
+(defun x64-mem-dr (w o reg base index &optional pfx)
 	(defq rh (>> reg 3) bh (>> base 3) ih (>> index 3))
 	(if pfx (emitm-byte pfx))
 	(cond
@@ -198,33 +198,33 @@
 ; Group 2: Memory Load & Store
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun emit-cpy-ir (s c d) (x64-mem-ir 1 :nil 0x8b d s c))
-(defun emit-cpy-ir-b (s c d) (x64-mem-ir 1 :nil '(0x0f 0xbe) d s c))
-(defun emit-cpy-ir-s (s c d) (x64-mem-ir 1 :nil '(0x0f 0xbf) d s c))
-(defun emit-cpy-ir-i (s c d) (x64-mem-ir 1 :nil 0x63 d s c))
-(defun emit-cpy-ir-ub (s c d) (x64-mem-ir 1 :nil '(0x0f 0xb6) d s c))
-(defun emit-cpy-ir-us (s c d) (x64-mem-ir 1 :nil '(0x0f 0xb7) d s c))
-(defun emit-cpy-ir-ui (s c d) (x64-mem-ir 0 :nil 0x8b d s c))
-(defun emit-lea-i (s c d) (unless (and (eql c 0) (eql s d)) (x64-mem-ir 1 :nil 0x8d d s c)))
+(defun emit-cpy-ir (s c d) (x64-mem-ir 1 0x8b d s c))
+(defun emit-cpy-ir-b (s c d) (x64-mem-ir 1 '(0x0f 0xbe) d s c))
+(defun emit-cpy-ir-s (s c d) (x64-mem-ir 1 '(0x0f 0xbf) d s c))
+(defun emit-cpy-ir-i (s c d) (x64-mem-ir 1 0x63 d s c))
+(defun emit-cpy-ir-ub (s c d) (x64-mem-ir 1 '(0x0f 0xb6) d s c))
+(defun emit-cpy-ir-us (s c d) (x64-mem-ir 1 '(0x0f 0xb7) d s c))
+(defun emit-cpy-ir-ui (s c d) (x64-mem-ir 0 0x8b d s c))
+(defun emit-lea-i (s c d) (unless (and (eql c 0) (eql s d)) (x64-mem-ir 1 0x8d d s c)))
 
-(defun emit-cpy-ri (s d c) (x64-mem-ir 1 :nil 0x89 s d c))
-(defun emit-cpy-ri-b (s d c) (x64-mem-ir :b :nil 0x88 s d c))
-(defun emit-cpy-ri-s (s d c) (x64-mem-ir 0 0x66 0x89 s d c))
-(defun emit-cpy-ri-i (s d c) (x64-mem-ir 0 :nil 0x89 s d c))
+(defun emit-cpy-ri (s d c) (x64-mem-ir 1 0x89 s d c))
+(defun emit-cpy-ri-b (s d c) (x64-mem-ir :b 0x88 s d c))
+(defun emit-cpy-ri-s (s d c) (x64-mem-ir 0 0x89 s d c 0x66))
+(defun emit-cpy-ri-i (s d c) (x64-mem-ir 0 0x89 s d c))
 
-(defun emit-cpy-dr (s1 s2 d) (x64-mem-dr 1 :nil 0x8b d s1 s2))
-(defun emit-cpy-dr-b (s1 s2 d) (x64-mem-dr 1 :nil '(0x0f 0xbe) d s1 s2))
-(defun emit-cpy-dr-s (s1 s2 d) (x64-mem-dr 1 :nil '(0x0f 0xbf) d s1 s2))
-(defun emit-cpy-dr-i (s1 s2 d) (x64-mem-dr 1 :nil 0x63 d s1 s2))
-(defun emit-cpy-dr-ub (s1 s2 d) (x64-mem-dr 1 :nil '(0x0f 0xb6) d s1 s2))
-(defun emit-cpy-dr-us (s1 s2 d) (x64-mem-dr 1 :nil '(0x0f 0xb7) d s1 s2))
-(defun emit-cpy-dr-ui (s1 s2 d) (x64-mem-dr 0 :nil 0x8b d s1 s2))
-(defun emit-lea-d (s1 s2 d) (x64-mem-dr 1 :nil 0x8d d s1 s2))
+(defun emit-cpy-dr (s1 s2 d) (x64-mem-dr 1 0x8b d s1 s2))
+(defun emit-cpy-dr-b (s1 s2 d) (x64-mem-dr 1 '(0x0f 0xbe) d s1 s2))
+(defun emit-cpy-dr-s (s1 s2 d) (x64-mem-dr 1 '(0x0f 0xbf) d s1 s2))
+(defun emit-cpy-dr-i (s1 s2 d) (x64-mem-dr 1 0x63 d s1 s2))
+(defun emit-cpy-dr-ub (s1 s2 d) (x64-mem-dr 1 '(0x0f 0xb6) d s1 s2))
+(defun emit-cpy-dr-us (s1 s2 d) (x64-mem-dr 1 '(0x0f 0xb7) d s1 s2))
+(defun emit-cpy-dr-ui (s1 s2 d) (x64-mem-dr 0 0x8b d s1 s2))
+(defun emit-lea-d (s1 s2 d) (x64-mem-dr 1 0x8d d s1 s2))
 
-(defun emit-cpy-rd (s d1 d2) (x64-mem-dr 1 :nil 0x89 s d1 d2))
-(defun emit-cpy-rd-b (s d1 d2) (x64-mem-dr :b :nil 0x88 s d1 d2))
-(defun emit-cpy-rd-s (s d1 d2) (x64-mem-dr 0 0x66 0x89 s d1 d2))
-(defun emit-cpy-rd-i (s d1 d2) (x64-mem-dr 0 :nil 0x89 s d1 d2))
+(defun emit-cpy-rd (s d1 d2) (x64-mem-dr 1 0x89 s d1 d2))
+(defun emit-cpy-rd-b (s d1 d2) (x64-mem-dr :b 0x88 s d1 d2))
+(defun emit-cpy-rd-s (s d1 d2) (x64-mem-dr 0 0x89 s d1 d2 0x66))
+(defun emit-cpy-rd-i (s d1 d2) (x64-mem-dr 0 0x89 s d1 d2))
 
 (defun emit-cpy-pr (l d) (x64-pr 0x8b l d))
 (defun emit-lea-p (l d) (x64-pr 0x8d l d))
@@ -429,8 +429,8 @@
 
 (defun emit-call-r (r &ignore) (if (>= r 8) (emitm-byte (x64-rex 0 0 0 1))) (emitm-byte 0xff (x64-modrm 3 2 r)))
 (defun emit-jmp-r (r &ignore) (if (>= r 8) (emitm-byte (x64-rex 0 0 0 1))) (emitm-byte 0xff (x64-modrm 3 4 r)))
-(defun emit-call-i (b c &ignore) (x64-mem-ir 0 :nil 0xff 2 b c))
-(defun emit-jmp-i (b c &ignore) (x64-mem-ir 0 :nil 0xff 4 b c))
+(defun emit-call-i (b c &ignore) (x64-mem-ir 0 0xff 2 b c))
+(defun emit-jmp-i (b c &ignore) (x64-mem-ir 0 0xff 4 b c))
 (defun emit-call-p (l) (emitm-byte 0xff (x64-modrm 0 2 5)) (emitm-int (- l *pc* 4)))
 (defun emit-jmp-p (l) (emitm-byte 0xff (x64-modrm 0 4 5)) (emitm-int (- l *pc* 4)))
 
@@ -476,13 +476,13 @@
 (defun emit-ble-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x76 l m))
 (defun emit-bge-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x73 l m))
 
-(defun emit-cpy-if (s c d) (x64-mem-ir 1 0xf2 '(0x0f 0x10) d s c))
-(defun emit-cpy-fi (s d c) (x64-mem-ir 1 0xf2 '(0x0f 0x11) s d c))
+(defun emit-cpy-if (s c d) (x64-mem-ir 1 '(0x0f 0x10) d s c 0xf2))
+(defun emit-cpy-fi (s d c) (x64-mem-ir 1 '(0x0f 0x11) s d c 0xf2))
 
 (defun x64-sse-mem-dr (o reg s1 s2)
 	(if (or (= s2 4) (= s2 12))
 		(defq tmp s1 s1 s2 s2 tmp))
-	(x64-mem-dr 0 0xf2 o reg s1 s2))
+	(x64-mem-dr 0 o reg s1 s2 0xf2))
 
 (defun emit-cpy-df (s1 s2 d) (x64-sse-mem-dr '(0x0f 0x10) d s1 s2))
 (defun emit-cpy-fd (s d1 d2) (x64-sse-mem-dr '(0x0f 0x11) s d1 d2))
