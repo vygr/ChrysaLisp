@@ -31,8 +31,8 @@
 	+la64_rtmp1 (emit-native-reg? :r17)				;$r12 (t0)
 	+la64_rtmp2 (emit-native-reg? :r18)				;$r13 (t1)
 	+la64_rtmp3 (emit-native-reg? :r19)				;$r14 (t2)
-	+la64_rtmp4 (emit-native-reg? :r20)				;$r15 (t3)
-	+la64_rtmp5 (emit-native-reg? :r21))			;$r16 (t4)
+	+la64_rtmp4 (emit-native-reg? :r15)				;$r30 (s7 - callee-saved)
+	+la64_rtmp5 (emit-native-reg? :r16))			;$r31 (s8 - callee-saved)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Core Encoding Macros
@@ -81,9 +81,9 @@
 ; Group 1: Shifts (RR & CR)
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(defun emit-shl-rr (s d) (la64-3r 0x00148000 d d s)) ; sll.d
-(defun emit-shr-rr (s d) (la64-3r 0x00150000 d d s)) ; srl.d
-(defun emit-asr-rr (s d) (la64-3r 0x00158000 d d s)) ; sra.d
+(defun emit-shl-rr (s d) (la64-3r 0x00188000 d d s)) ; sll.d
+(defun emit-shr-rr (s d) (la64-3r 0x00190000 d d s)) ; srl.d
+(defun emit-asr-rr (s d) (la64-3r 0x00198000 d d s)) ; sra.d
 
 (defun emit-shl-cr (c r) (la64-3r 0x00410000 r r (logand c 0x3f))) ; slli.d
 (defun emit-shr-cr (c r) (la64-3r 0x00450000 r r (logand c 0x3f))) ; srli.d
@@ -96,19 +96,19 @@
 (defun emit-cpy-rr (s d) (unless (eql s d) (la64-2ri12 0x02c00000 d s 0))) ; addi.d d, s, 0
 (defun emit-add-rr (s d) (la64-3r 0x00108000 d d s))                     ; add.d d, d, s
 (defun emit-sub-rr (s d) (la64-3r 0x00118000 d d s))                     ; sub.d d, d, s
-(defun emit-mul-rr (s d) (la64-3r 0x001c0000 d d s))                     ; mul.d d, d, s
-(defun emit-and-rr (s d) (unless (eql s d) (la64-3r 0x00120000 d d s)))  ; and d, d, s
-(defun emit-or-rr  (s d) (unless (eql s d) (la64-3r 0x00128000 d d s)))  ; or d, d, s
-(defun emit-xor-rr (s d) (la64-3r 0x00130000 d d s))                     ; xor d, d, s
+(defun emit-mul-rr (s d) (la64-3r 0x001d8000 d d s))                     ; mul.d d, d, s
+(defun emit-and-rr (s d) (unless (eql s d) (la64-3r 0x00148000 d d s)))  ; and d, d, s
+(defun emit-or-rr  (s d) (unless (eql s d) (la64-3r 0x00150000 d d s)))  ; or d, d, s
+(defun emit-xor-rr (s d) (la64-3r 0x00158000 d d s))                     ; xor d, d, s
 
 (defun emit-div-rrr (s d1 d2)
-	(la64-3r 0x00208000 +la64_rtmp1 d2 s) ; mod.d tmp, d2, s (remainder)
-	(la64-3r 0x00200000 d1 d2 s)          ; div.d d1, d2, s  (quotient)
+	(la64-3r 0x00228000 +la64_rtmp1 d2 s) ; mod.d tmp, d2, s (remainder)
+	(la64-3r 0x00220000 d1 d2 s)          ; div.d d1, d2, s  (quotient)
 	(emit-cpy-rr +la64_rtmp1 d2))
 
 (defun emit-div-rrr-u (s d1 d2)
-	(la64-3r 0x00218000 +la64_rtmp1 d2 s) ; mod.du tmp, d2, s (remainder)
-	(la64-3r 0x00210000 d1 d2 s)          ; div.du d1, d2, s  (quotient)
+	(la64-3r 0x00238000 +la64_rtmp1 d2 s) ; mod.du tmp, d2, s (remainder)
+	(la64-3r 0x00230000 d1 d2 s)          ; div.du d1, d2, s  (quotient)
 	(emit-cpy-rr +la64_rtmp1 d2))
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -245,15 +245,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun emit-lnot-rr (r d)
-	(la64-2ri12 0x02000000 d +la64_rzero 1) ; sltiu d, zero, 1
-	(la64-2ri12 0x02400000 d r 1))          ; sltui d, r, 1
+	(la64-2ri12 0x02400000 d r 1)) ; sltui d, r, 1
 
 (defun emit-land-rr (s d)
-	(la64-2ri12 0x02400000 +la64_rtmp1 s 1)
-	(la64-3r 0x00130000 +la64_rtmp1 +la64_rtmp1 +la64_rzero) ; test nonzero
-	(la64-2ri12 0x02400000 d d 1)
-	(la64-3r 0x00130000 d d +la64_rzero)
-	(la64-3r 0x00120000 d d +la64_rtmp1))
+	(la64-3r 0x00128000 +la64_rtmp1 +la64_rzero s) ; sltu tmp, zero, s
+	(la64-3r 0x00128000 d +la64_rzero d)          ; sltu d, zero, d
+	(la64-3r 0x00148000 d d +la64_rtmp1))         ; and d, d, tmp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Group 7: Comparisons & Sxx Checks
@@ -264,14 +261,14 @@
 	(la64-2ri12 0x02400000 d d 1)) ; sltui d, d, 1
 (defun emit-sne-rr (s d)
 	(emit-sub-rr s d)
-	(la64-3r 0x00104000 d +la64_rzero d)) ; sltu d, zero, d
-(defun emit-slt-rr (s d) (la64-3r 0x00100000 d d s)) ; slt d, d, s
-(defun emit-sgt-rr (s d) (la64-3r 0x00100000 d s d)) ; slt d, s, d
+	(la64-3r 0x00128000 d +la64_rzero d)) ; sltu d, zero, d
+(defun emit-slt-rr (s d) (la64-3r 0x00120000 d d s)) ; slt d, d, s
+(defun emit-sgt-rr (s d) (la64-3r 0x00120000 d s d)) ; slt d, s, d
 (defun emit-sle-rr (s d)
-	(la64-3r 0x00100000 +la64_rtmp1 s d)
+	(la64-3r 0x00120000 +la64_rtmp1 s d)
 	(la64-2ri12 0x03c00000 d +la64_rtmp1 1)) ; xori d, tmp, 1
 (defun emit-sge-rr (s d)
-	(la64-3r 0x00100000 +la64_rtmp1 d s)
+	(la64-3r 0x00120000 +la64_rtmp1 d s)
 	(la64-2ri12 0x03c00000 d +la64_rtmp1 1)) ; xori d, tmp, 1
 
 (defun emit-seq-cr (c d)
@@ -280,7 +277,7 @@
 		(:t (emit-cpy-cr c +la64_rtmp3) (emit-seq-rr +la64_rtmp3 d))))
 (defun emit-sne-cr (c d)
 	(cond
-		((= c 0) (la64-3r 0x00104000 d +la64_rzero d))
+		((= c 0) (la64-3r 0x00128000 d +la64_rzero d))
 		(:t (emit-cpy-cr c +la64_rtmp3) (emit-sne-rr +la64_rtmp3 d))))
 (defun emit-slt-cr (c d)
 	(cond
@@ -407,7 +404,7 @@
 	(cond
 		((la64-within c 32)
 			(defq l12 (logand c 0xfff) u20 (>>> (logand c 0xfffff000) 12))
-			(la64-1ri20 0x18000000 d u20) ; pcaddu12i
+			(la64-1ri20 0x1c000000 d u20) ; pcaddu12i
 			(if (/= l12 0) (la64-2ri12 0x02c00000 d d l12))) ; addi.d
 		(:t (throw "emit-lea-p constant out of range !" c))))
 
@@ -457,31 +454,31 @@
 ; Group 12: Floating Point (LA64)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun emit-cpy-ff (s d) (unless (eql s d) (la64-3r 0x01149000 d s 0))) ; fmov.d
-(defun emit-cpy-rf (s d) (la64-3r 0x0114b400 d s 0))                     ; movgr2fr.d
-(defun emit-cpy-fr (s d) (la64-3r 0x0114bc00 d s 0))                     ; movfr2gr.d
+(defun emit-cpy-ff (s d) (unless (eql s d) (la64-3r 0x01149800 d s 0))) ; fmov.d
+(defun emit-cpy-rf (s d) (la64-3r 0x0114a800 d s 0))                     ; movgr2fr.d
+(defun emit-cpy-fr (s d) (la64-3r 0x0114b800 d s 0))                     ; movfr2gr.d
 
 (defun emit-cvt-rf (s d)
 	(emit-cpy-rf s d)
-	(la64-3r 0x011d3000 d d 0)) ; ffint.d.l
+	(la64-3r 0x011d3800 d d 0)) ; ffint.d.l
 
 (defun emit-cvt-fr (s d)
-	(la64-3r 0x011ab000 +la64_rtmp1 s 0) ; ftintrz.l.d
+	(la64-3r 0x011aa800 +la64_rtmp1 s 0) ; ftintrz.l.d
 	(emit-cpy-fr +la64_rtmp1 d))
 
-(defun emit-add-ff (s d) (la64-3r 0x01018000 d d s)) ; fadd.d
-(defun emit-sub-ff (s d) (la64-3r 0x01038000 d d s)) ; fsub.d
-(defun emit-mul-ff (s d) (la64-3r 0x01058000 d d s)) ; fmul.d
-(defun emit-div-ff (s d) (la64-3r 0x01078000 d d s)) ; fdiv.d
-(defun emit-max-ff (s d) (la64-3r 0x01098000 d d s)) ; fmax.d
-(defun emit-min-ff (s d) (la64-3r 0x010b8000 d d s)) ; fmin.d
-(defun emit-sqrt-ff (s d) (la64-3r 0x01147000 d s 0)) ; fsqrt.d
-(defun emit-abs-ff (s d) (la64-3r 0x01143000 d s 0))  ; fabs.d
-(defun emit-neg-ff (s d) (la64-3r 0x01145000 d s 0))  ; fneg.d
+(defun emit-add-ff (s d) (la64-3r 0x01010000 d d s)) ; fadd.d
+(defun emit-sub-ff (s d) (la64-3r 0x01030000 d d s)) ; fsub.d
+(defun emit-mul-ff (s d) (la64-3r 0x01050000 d d s)) ; fmul.d
+(defun emit-div-ff (s d) (la64-3r 0x01070000 d d s)) ; fdiv.d
+(defun emit-max-ff (s d) (la64-3r 0x01090000 d d s)) ; fmax.d
+(defun emit-min-ff (s d) (la64-3r 0x010b0000 d d s)) ; fmin.d
+(defun emit-sqrt-ff (s d) (la64-3r 0x01144800 d s 0)) ; fsqrt.d
+(defun emit-abs-ff (s d) (la64-3r 0x01140800 d s 0))  ; fabs.d
+(defun emit-neg-ff (s d) (la64-3r 0x01141800 d s 0))  ; fneg.d
 
 (defmacro la64-fp-cmp (cond s d)
-	; Compare s and d to $fcc0
-	`(emitm-int (+ 0x0c100000 (<< ,cond 15) (<< ,s 10) (<< ,d 5))))
+	; Compare s and d to $fcc0 (fcmp.cond.d $fcc0, d, s)
+	`(emitm-int (+ 0x0c200000 (<< ,cond 15) (<< ,s 10) (<< ,d 5))))
 
 (defun emit-beq-ff (s d l m)
 	(la64-fp-cmp 0x04 s d) ; fcmp.ceq.d $fcc0, d, s
@@ -494,41 +491,41 @@
 	(emitm-int (+ 0x48000000 (<< (logand (>> c 2) 0xffff) 10) (logand (>> c 18) 0x1f)))) ; bceqz $fcc0
 
 (defun emit-blt-ff (s d l m)
-	(la64-fp-cmp 0x08 s d) ; fcmp.clt.d $fcc0, d, s (d < s)
+	(la64-fp-cmp 0x02 s d) ; fcmp.clt.d $fcc0, d, s (d < s)
 	(defq c (- l *pc*))
 	(emitm-int (+ 0x48000100 (<< (logand (>> c 2) 0xffff) 10) (logand (>> c 18) 0x1f))))
 
 (defun emit-bgt-ff (s d l m)
-	(la64-fp-cmp 0x08 d s) ; fcmp.clt.d $fcc0, s, d (s < d -> d > s)
+	(la64-fp-cmp 0x02 d s) ; fcmp.clt.d $fcc0, s, d (s < d -> d > s)
 	(defq c (- l *pc*))
 	(emitm-int (+ 0x48000100 (<< (logand (>> c 2) 0xffff) 10) (logand (>> c 18) 0x1f))))
 
 (defun emit-ble-ff (s d l m)
-	(la64-fp-cmp 0x0c s d) ; fcmp.cle.d $fcc0, d, s (d <= s)
+	(la64-fp-cmp 0x06 s d) ; fcmp.cle.d $fcc0, d, s (d <= s)
 	(defq c (- l *pc*))
 	(emitm-int (+ 0x48000100 (<< (logand (>> c 2) 0xffff) 10) (logand (>> c 18) 0x1f))))
 
 (defun emit-bge-ff (s d l m)
-	(la64-fp-cmp 0x0c d s) ; fcmp.cle.d $fcc0, s, d (s <= d -> d >= s)
+	(la64-fp-cmp 0x06 d s) ; fcmp.cle.d $fcc0, s, d (s <= d -> d >= s)
 	(defq c (- l *pc*))
 	(emitm-int (+ 0x48000100 (<< (logand (>> c 2) 0xffff) 10) (logand (>> c 18) 0x1f))))
 
 (defun emit-cpy-if (s c d)
 	(cond
 		((la64-within c 12)
-			(la64-2ri12 0x2bc00000 d s c)) ; fld.d
+			(la64-2ri12 0x2b800000 d s c)) ; fld.d
 		(:t (emit-cpy-cr c +la64_rtmp1)
-			(la64-3r 0x38300000 d s +la64_rtmp1)))) ; fldx.d
+			(la64-3r 0x38340000 d s +la64_rtmp1)))) ; fldx.d
 
 (defun emit-cpy-fi (s d c)
 	(cond
 		((la64-within c 12)
-			(la64-2ri12 0x2fc00000 s d c)) ; fst.d
+			(la64-2ri12 0x2bc00000 s d c)) ; fst.d
 		(:t (emit-cpy-cr c +la64_rtmp1)
-			(la64-3r 0x38380000 s d +la64_rtmp1)))) ; fstx.d
+			(la64-3r 0x383c0000 s d +la64_rtmp1)))) ; fstx.d
 
-(defun emit-cpy-df (s1 s2 d) (la64-3r 0x38300000 d s1 s2)) ; fldx.d
-(defun emit-cpy-fd (s d1 d2) (la64-3r 0x38380000 s d1 d2)) ; fstx.d
+(defun emit-cpy-df (s1 s2 d) (la64-3r 0x38340000 d s1 s2)) ; fldx.d
+(defun emit-cpy-fd (s d1 d2) (la64-3r 0x383c0000 s d1 d2)) ; fstx.d
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Group 13: Stack & ABI Linkage
