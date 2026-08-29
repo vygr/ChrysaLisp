@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; lib/trans/x86_64.inc
-;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;
 ; x64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
@@ -28,12 +25,6 @@
 (defmacro x64-within (c n)
 	(defq limit (<< 1 (dec n)))
 	`(<= ,(neg limit) ,c ,(dec limit)))
-
-(defmacro x64-mask (width lsb)
-	(<< (dec (<< 1 width)) lsb))
-
-(defmacro x64-bf (n width lsb pos)
-	`(<< (logand (>> ,n ,lsb) ,(dec (<< 1 width))) ,pos))
 
 (defmacro x64-rex (w r x b)
 	`(+ 0x40 (<< ,w 3) (<< ,r 2) (<< ,x 1) ,b))
@@ -67,8 +58,7 @@
 		(emit-or-cr -1 ,d)))
 
 (defun x64-mem-ir (w pfx o reg base disp)
-	(defq rl (logand 7 reg) rh (>> reg 3)
-		bl (logand 7 base) bh (>> base 3))
+	(defq rh (>> reg 3) bh (>> base 3))
 	(if pfx (emitm-byte pfx))
 	(cond
 		((eql w 1)
@@ -97,9 +87,7 @@
 		(:t (throw "x64-mem-ir constant out of range !" disp))))
 
 (defun x64-mem-dr (w pfx o reg base index)
-	(defq rl (logand 7 reg) rh (>> reg 3)
-		bl (logand 7 base) bh (>> base 3)
-		il (logand 7 index) ih (>> index 3))
+	(defq rh (>> reg 3) bh (>> base 3) ih (>> index 3))
 	(if pfx (emitm-byte pfx))
 	(cond
 		((eql w 1)
@@ -125,14 +113,14 @@
 			(emitm-int l))
 		(:t (throw "x64-pr constant out of range !" l))))
 
-(defun x64-alu-cr (digit rax_op c r)
+(defun x64-alu-cr (digit c r)
 	(emitm-byte (x64-rex 1 0 0 (>> r 3)))
 	(cond
 		((x64-within c 8)
 			(emitm-byte 0x83 (x64-modrm 3 digit r) c))
 		((x64-within c 32)
 			(if (= r 0)
-				(emitm-byte rax_op)
+				(emitm-byte (+ (<< digit 3) 5))
 				(emitm-byte 0x81 (x64-modrm 3 digit r)))
 			(emitm-int c))
 		(:t (throw "x64-alu-cr constant out of range !" c))))
@@ -180,7 +168,7 @@
 
 (defun emit-or-cr (c r)
 	(unless (= c 0)
-		(x64-alu-cr 1 0x0d c r)))
+		(x64-alu-cr 1 c r)))
 
 (defun emit-cpy-cr (c r)
 	(if (= c 0)
@@ -204,26 +192,26 @@
 	(unless (= c 0)
 		(if (= c 1)
 			(emitm-byte (x64-rex 1 0 0 (>> r 3)) 0xff (x64-modrm 3 0 r))
-			(x64-alu-cr 0 0x05 c r))))
+			(x64-alu-cr 0 c r))))
 
 (defun emit-sub-cr (c r)
 	(unless (= c 0)
 		(if (= c 1)
 			(emitm-byte (x64-rex 1 0 0 (>> r 3)) 0xff (x64-modrm 3 1 r))
-			(x64-alu-cr 5 0x2d c r))))
+			(x64-alu-cr 5 c r))))
 
 (defun emit-and-cr (c r)
 	(unless (= c -1)
 		(if (= c 0)
 			(emit-xor-rr r r)
-			(x64-alu-cr 4 0x25 c r))))
+			(x64-alu-cr 4 c r))))
 
 (defun emit-xor-cr (c r)
 	(unless (= c 0)
-		(x64-alu-cr 6 0x35 c r)))
+		(x64-alu-cr 6 c r)))
 
 (defun x64-cmp-rr (s d) (x64-r-r 0x39 s d))
-(defun x64-cmp-cr (c r) (if (= c 0) (x64-r-r 0x85 r r) (x64-alu-cr 7 0x3d c r)))
+(defun x64-cmp-cr (c r) (if (= c 0) (x64-r-r 0x85 r r) (x64-alu-cr 7 c r)))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
