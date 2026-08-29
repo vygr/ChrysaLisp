@@ -21,6 +21,12 @@
 			(defmacro abi-trashed () ''(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))
 			(defun abi-args (&optional _ o) (setd _ 8 o 0) (slice '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8) o (+ o _))))
 		(:t (throw (cat "Unknown CPU for ABI " *abi* " !") *cpu*))))
+(LA64
+	(case *cpu*
+		(la64
+			(defmacro abi-trashed () ''(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))
+			(defun abi-args (&optional _ o) (setd _ 8 o 0) (slice '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8) o (+ o _))))
+		(:t (throw (cat "Unknown CPU for ABI " *abi* " !") *cpu*))))
 (WIN64
 	(case *cpu*
 		(x86_64

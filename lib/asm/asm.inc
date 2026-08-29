@@ -195,8 +195,8 @@
 ; cross platform make
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defq +supported_abi ''(AMD64 WIN64 ARM64 RISCV64)
-	+supported_cpu ''(x86_64 x86_64 arm64 riscv64))
+(defq +supported_abi ''(AMD64 WIN64 ARM64 RISCV64 LA64)
+	+supported_cpu ''(x86_64 x86_64 arm64 riscv64 la64))
 
 (defun make-them (action &optional mode files)
 	(setd files (all-vp-files))
