@@ -12,9 +12,7 @@
 (defq +emit_native_regs
 	(reduce (# (pinsert %0 %1 (num (!))))
 		'(:r0 :r1 :r2 :r3 :rsp :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
-	(reduce (# (pinsert %0 %1 (num (!))))
-		'(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
-		(cat +vp_regs_map))))
+	(reduce (# (pinsert %0 %1 (num (!)))) +vp_fregs (cat +vp_regs_map))))
 
 (defmacro emit-native-reg? (r) (static-qq (pfind +emit_native_regs ,r)))
 
@@ -26,29 +24,15 @@
 	(defq limit (<< 1 (dec n)))
 	`(<= ,(neg limit) ,c ,(dec limit)))
 
-(defmacro x64-rex (w r x b)
-	`(+ 0x40 (<< ,w 3) (<< ,r 2) (<< ,x 1) ,b))
+(defmacro x64-rex (w r x b) `(+ 0x40 (<< ,w 3) (<< ,r 2) (<< ,x 1) ,b))
+(defmacro x64-modrm (mod reg rm) `(+ (<< ,mod 6) (<< (logand 7 ,reg) 3) (logand 7 ,rm)))
+(defmacro x64-sib (scale index base) `(+ (<< ,scale 6) (<< (logand 7 ,index) 3) (logand 7 ,base)))
 
-(defmacro x64-modrm (mod reg rm)
-	`(+ (<< ,mod 6) (<< (logand 7 ,reg) 3) (logand 7 ,rm)))
-
-(defmacro x64-sib (scale index base)
-	`(+ (<< ,scale 6) (<< (logand 7 ,index) 3) (logand 7 ,base)))
-
-(defmacro x64-r-r (o s d)
-	`(emitm-byte (x64-rex 1 (>> ,s 3) 0 (>> ,d 3)) ,o (x64-modrm 3 ,s ,d)))
-
-(defmacro x64-0f-r-r (o s d)
-	`(emitm-byte (x64-rex 1 (>> ,d 3) 0 (>> ,s 3)) 0x0f ,o (x64-modrm 3 ,d ,s)))
-
-(defmacro x64-xmm-rr (p o s d)
-	`(emitm-byte ,p (x64-rex 0 (>> ,d 3) 0 (>> ,s 3)) 0x0f ,o (x64-modrm 3 ,d ,s)))
-
-(defmacro x64-sse-ff (o s d)
-	`(x64-xmm-rr 0xf2 ,o ,s ,d))
-
-(defmacro x64-gpr-xmm-rr (p o s d)
-	`(emitm-byte ,p (x64-rex 1 (>> ,d 3) 0 (>> ,s 3)) 0x0f ,o (x64-modrm 3 ,d ,s)))
+(defmacro x64-r-r (o s d) `(emitm-byte (x64-rex 1 (>> ,s 3) 0 (>> ,d 3)) ,o (x64-modrm 3 ,s ,d)))
+(defmacro x64-0f-r-r (o s d) `(emitm-byte (x64-rex 1 (>> ,d 3) 0 (>> ,s 3)) 0x0f ,o (x64-modrm 3 ,d ,s)))
+(defmacro x64-xmm-rr (p o s d) `(emitm-byte ,p (x64-rex 0 (>> ,d 3) 0 (>> ,s 3)) 0x0f ,o (x64-modrm 3 ,d ,s)))
+(defmacro x64-sse-ff (o s d) `(x64-xmm-rr 0xf2 ,o ,s ,d))
+(defmacro x64-gpr-xmm-rr (p o s d) `(emitm-byte ,p (x64-rex 1 (>> ,d 3) 0 (>> ,s 3)) 0x0f ,o (x64-modrm 3 ,d ,s)))
 
 (defmacro x64-s-cond (cc d)
 	`(progn
@@ -165,10 +149,8 @@
 (defun emit-and-rr (s d) (unless (eql s d) (x64-r-r 0x21 s d)))
 (defun emit-or-rr (s d) (unless (eql s d) (x64-r-r 0x09 s d)))
 (defun emit-xor-rr (s d) (x64-r-r 0x31 s d))
-
-(defun emit-or-cr (c r)
-	(unless (= c 0)
-		(x64-alu-cr 1 c r)))
+(defun emit-or-cr (c r) (unless (= c 0) (x64-alu-cr 1 c r)))
+(defun emit-xor-cr (c r) (unless (= c 0) (x64-alu-cr 6 c r)))
 
 (defun emit-cpy-cr (c r)
 	(if (= c 0)
@@ -205,10 +187,6 @@
 		(if (= c 0)
 			(emit-xor-rr r r)
 			(x64-alu-cr 4 c r))))
-
-(defun emit-xor-cr (c r)
-	(unless (= c 0)
-		(x64-alu-cr 6 c r)))
 
 (defun x64-cmp-rr (s d) (x64-r-r 0x39 s d))
 (defun x64-cmp-cr (c r) (if (= c 0) (x64-r-r 0x85 r r) (x64-alu-cr 7 c r)))
@@ -417,23 +395,10 @@
 ; Group 7: Min, Max, Abs, CMOV
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun emit-min-cr (c d l m)
-	(emit-ble-cr c d l m)
-	(emit-cpy-cr c d))
-
-(defun emit-max-cr (c d l m)
-	(emit-bge-cr c d l m)
-	(emit-cpy-cr c d))
-
-(defun emit-min-rr (s d l m)
-	(unless (eql s d)
-		(x64-cmp-rr s d)
-		(x64-0f-r-r 0x4f s d)))
-
-(defun emit-max-rr (s d l m)
-	(unless (eql s d)
-		(x64-cmp-rr s d)
-		(x64-0f-r-r 0x4c s d)))
+(defun emit-min-cr (c d l m) (emit-ble-cr c d l m) (emit-cpy-cr c d))
+(defun emit-max-cr (c d l m) (emit-bge-cr c d l m) (emit-cpy-cr c d))
+(defun emit-min-rr (s d l m) (unless (eql s d) (x64-cmp-rr s d) (x64-0f-r-r 0x4f s d)))
+(defun emit-max-rr (s d l m) (unless (eql s d) (x64-cmp-rr s d) (x64-0f-r-r 0x4c s d)))
 
 (defun emit-abs-rr (s d l m)
 	(unless (eql s d) (emit-cpy-rr s d))
@@ -462,24 +427,12 @@
 			(emitm-int (- c 5)))
 		(:t (throw "emit-jmp constant out of range !" c))))
 
-(defun emit-call-r (r &ignore)
-	(if (>= r 8) (emitm-byte (x64-rex 0 0 0 1)))
-	(emitm-byte 0xff (x64-modrm 3 2 r)))
-
-(defun emit-jmp-r (r &ignore)
-	(if (>= r 8) (emitm-byte (x64-rex 0 0 0 1)))
-	(emitm-byte 0xff (x64-modrm 3 4 r)))
-
+(defun emit-call-r (r &ignore) (if (>= r 8) (emitm-byte (x64-rex 0 0 0 1))) (emitm-byte 0xff (x64-modrm 3 2 r)))
+(defun emit-jmp-r (r &ignore) (if (>= r 8) (emitm-byte (x64-rex 0 0 0 1))) (emitm-byte 0xff (x64-modrm 3 4 r)))
 (defun emit-call-i (b c &ignore) (x64-mem-ir 0 :nil 0xff 2 b c))
 (defun emit-jmp-i (b c &ignore) (x64-mem-ir 0 :nil 0xff 4 b c))
-
-(defun emit-call-p (l)
-	(emitm-byte 0xff (x64-modrm 0 2 5))
-	(emitm-int (- l *pc* 4)))
-
-(defun emit-jmp-p (l)
-	(emitm-byte 0xff (x64-modrm 0 4 5))
-	(emitm-int (- l *pc* 4)))
+(defun emit-call-p (l) (emitm-byte 0xff (x64-modrm 0 2 5)) (emitm-int (- l *pc* 4)))
+(defun emit-jmp-p (l) (emitm-byte 0xff (x64-modrm 0 4 5)) (emitm-int (- l *pc* 4)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Group 9: Floating Point (SSE)
@@ -495,7 +448,6 @@
 (defun emit-cpy-fr (s d) (x64-gpr-xmm-rr 0x66 0x7e d s))
 (defun emit-cvt-rf (s d) (x64-gpr-xmm-rr 0xf2 0x2a s d))
 (defun emit-cvt-fr (s d) (x64-gpr-xmm-rr 0xf2 0x2c s d))
-
 (defun emit-add-ff (s d) (x64-sse-ff 0x58 s d))
 (defun emit-sub-ff (s d) (x64-sse-ff 0x5c s d))
 (defun emit-mul-ff (s d) (x64-sse-ff 0x59 s d))
