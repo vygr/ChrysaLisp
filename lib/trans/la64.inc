@@ -356,11 +356,11 @@
 (defun emit-push (&rest b)
 	(when (/= 0 (defq l (length b)))
 		(emit-sub-cr (align (* +ptr_size l) stack_align) +la64_rsp)
-		(each (# (emit-cpy-ri %0 +la64_rsp (* +ptr_size (!)))) (reverse b))))
+		(reach (lambda (r) (emit-cpy-ri r +la64_rsp (* (- l 1 (!)) +ptr_size))) b)))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (defq l (length b)))
-		(each (# (emit-cpy-ir +la64_rsp (* +ptr_size (!)) %0)) (reverse b))
+		(reach (lambda (r) (emit-cpy-ir +la64_rsp (* (- l 1 (!)) +ptr_size) r)) b)
 		(emit-add-cr (align (* +ptr_size l) stack_align) +la64_rsp)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
