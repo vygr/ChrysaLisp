@@ -22,9 +22,22 @@
 		''(emit-cpy-ir emit-cpy-ir-i emit-cpy-ir-b emit-cpy-ir-s)
 	+opt_read_ops_unsigned
 		''(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub emit-cpy-ir-us)
+	+opt_branch_ops
+		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr))
+
+(defq
+	+opt_read_ops_map
+		(reduce (# (pinsert %0 %1 (find %1 +opt_read_ops)))
+			+vp_emit_ops (pmap))
+	+opt_write_ops_signed_map
+		(reduce (# (pinsert %0 %1 (find %1 +opt_write_ops_signed)))
+			+vp_emit_ops (pmap))
+	+opt_branch_ops_map
+		(reduce (# (pinsert %0 %1 (find %1 +opt_branch_ops)))
+			+vp_emit_ops (pmap))
 	+opt_read_kill_ops
 		(reduce (# (pinsert %0 %1
-			(if (find %1 '(emit-label emit-tlabel emit-call-p emit-free emit-alloc
+			(if (find %1 '(emit-label emit-call-p emit-free emit-alloc
 					emit-call-i emit-call-abi emit-call emit-call-r)) :t)))
 			+vp_emit_ops (pmap))
 	+opt_write_kill_ops
@@ -34,13 +47,10 @@
 					emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-i emit-beq-ff emit-bne-ff
 					emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)) :t)))
 			+vp_emit_ops (pmap))
-	+opt_branch_ops
-		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr)
 	+opt_out_idx_map
 		(reduce (# (pinsert %0 %1
 			(cond
-				((find %1 '(emit-pop emit-swp-rr emit-div-rrr emit-div-rrr-u)) :multi)
-				((find %1 '(emit-lnot-rr emit-land-rr)) 1)
+				((find %1 '(emit-pop emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr emit-div-rrr-u)) :multi)
 				((find %1 '(emit-min-cr emit-max-cr emit-min-rr emit-max-rr emit-abs-rr)) 2)
 				((find %1 '(emit-cpy-cr emit-add-cr emit-sub-cr emit-mul-cr emit-and-cr emit-or-cr emit-xor-cr
 						emit-cpy-rr emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr emit-or-rr emit-xor-rr
@@ -154,15 +164,22 @@
 (defun opt-emit-list (emit_list emit_start emit_end)
 	(each! (lambda (inst)
 		(cond
-			((defq c (find (defq op (first inst)) +opt_read_ops)) (opt-read-after-read-write)
-				(if (find (first inst) +opt_read_ops) (opt-read-after-cpy)))
-			((defq c (find op +opt_write_ops_signed)) (opt-write-after-write))
-			((defq c (find op +opt_branch_ops)) (opt-redundant-branch))
-			((eql op 'emit-cpy-rr) (opt-redundant-cpy))
-			((eql op 'emit-ret) (opt-tail-call))))
+			((defq c (pfind +opt_read_ops_map (defq op (first inst))))
+				(opt-read-after-read-write)
+				(if (pfind +opt_read_ops_map (first inst))
+					(opt-read-after-cpy)))
+			((defq c (pfind +opt_write_ops_signed_map op))
+				(opt-write-after-write))
+			((defq c (pfind +opt_branch_ops_map op))
+				(opt-redundant-branch))
+			((eql op 'emit-cpy-rr)
+				(opt-redundant-cpy))
+			((eql op 'emit-ret)
+				(opt-tail-call))))
 		(list emit_list) emit_start emit_end)
 	(each! (lambda (inst)
-			(if (defq c (find (first inst) +opt_read_ops)) (opt-read-after-read-write)))
+			(if (defq c (pfind +opt_read_ops_map (first inst)))
+				(opt-read-after-read-write)))
 		(list emit_list) emit_start emit_end))
 
 ;module
