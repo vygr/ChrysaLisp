@@ -338,8 +338,18 @@
 			(emit-cpy-ir +arm64_vp_rsp (* +ptr_size (* (!) 2)) (first %0)))))
 		(partition (reverse b) 2)))
 
-(defun emit-beq-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0x0 l))
-(defun emit-bne-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0x1 l))
+(defun emit-beq-cr (c d l m)
+	(cond
+		((and (= c 0) (<= -0x100000 (defq offs (- l *pc*)) 0xffffc))
+			(emitm-int (+ 0xb4000000 (<< (logand offs 0x1ffffc) 3) d)))
+		(:t (arm64-cmp-cr c d) (arm64-branch 0x0 l))))
+
+(defun emit-bne-cr (c d l m)
+	(cond
+		((and (= c 0) (<= -0x100000 (defq offs (- l *pc*)) 0xffffc))
+			(emitm-int (+ 0xb5000000 (<< (logand offs 0x1ffffc) 3) d)))
+		(:t (arm64-cmp-cr c d) (arm64-branch 0x1 l))))
+
 (defun emit-bge-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0xa l))
 (defun emit-blt-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0xb l))
 (defun emit-bgt-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0xc l))
@@ -516,9 +526,9 @@
 				(emit-cpy-rr +arm64_rtmp +arm64_rlnk)))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; ARM64 Specific LDP / STP Emission
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ARM64 Specific Emissions
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmacro arm64-ldpstp (opc imm7 r2 rn r1) `(emitm-int (+ ,opc (<< (logand ,imm7 0x7f) 15) (<< ,r2 10) (<< ,rn 5) ,r1)))
 
@@ -530,6 +540,70 @@
 (defun emit-arm64-stp (s1 s2 d c) (arm64-ldpstp 0xA9000000 (>>> c (const (log2 +long_size))) s2 d s1))
 (defun emit-arm64-stp-i (s1 s2 d c) (arm64-ldpstp 0x29000000 (>>> c (const (log2 +int_size))) s2 d s1))
 (defun emit-arm64-stp-f (s1 s2 d c) (arm64-ldpstp 0x6D000000 (>>> c (const (log2 +long_size))) s2 d s1))
+
+;3-Address ALU / Shift Emitters
+(defun emit-arm64-add-rrr (s1 s2 d) (arm64-rrr 0x8b000000 s2 s1 d))
+(defun emit-arm64-sub-rrr (s1 s2 d) (arm64-rrr 0xcb000000 s2 s1 d))
+(defun emit-arm64-and-rrr (s1 s2 d) (arm64-rrr 0x8a000000 s2 s1 d))
+(defun emit-arm64-or-rrr (s1 s2 d)  (arm64-rrr 0xaa000000 s2 s1 d))
+(defun emit-arm64-xor-rrr (s1 s2 d) (arm64-rrr 0xca000000 s2 s1 d))
+
+(defun emit-arm64-shl-crr (c s d)
+	(cond
+		((= c 0) (emit-cpy-rr s d))
+		((arm64-bf 0xd3400000 (logand (- 64 c) 63) (- 63 c) s d))))
+
+(defun emit-arm64-shr-crr (c s d)
+	(cond
+		((= c 0) (emit-cpy-rr s d))
+		((arm64-bf 0xd3400000 c 63 s d))))
+
+(defun emit-arm64-asr-crr (c s d)
+	(cond
+		((= c 0) (emit-cpy-rr s d))
+		((arm64-bf 0x93400000 c 63 s d))))
+
+(defun emit-arm64-add-crr (c s d)
+	(cond
+		((= c 0) (emit-cpy-rr s d))
+		((<= 0 c 0xfff)
+			(emitm-int (+ 0x91000000 (<< c 10) (<< s 5) d)))
+		((<= -0xfff c 0)
+			(emitm-int (+ 0xd1000000 (<< (neg c) 10) (<< s 5) d)))
+		(:t (emit-cpy-cr c +arm64_rtmp)
+			(arm64-rrr 0x8b000000 +arm64_rtmp s d))))
+
+(defun emit-arm64-and-crr (c s d)
+	(cond
+		((= c -1) (emit-cpy-rr s d))
+		((= c 0) (emit-xor-rr d d))
+		((defq i (arm64-limm c))
+			(if (/= i -1)
+				(emitm-int (+ 0x92000000 (<< i 10) (<< s 5) d))
+				(progn
+					(arm64-mov-cr c +arm64_rtmp)
+					(arm64-rrr 0x8a000000 +arm64_rtmp s d))))))
+
+(defun emit-arm64-or-crr (c s d)
+	(cond
+		((= c 0) (emit-cpy-rr s d))
+		((= c -1) (emit-cpy-cr -1 d))
+		((defq i (arm64-limm c))
+			(if (/= i -1)
+				(emitm-int (+ 0xb2000000 (<< i 10) (<< s 5) d))
+				(progn
+					(arm64-mov-cr c +arm64_rtmp)
+					(arm64-rrr 0xaa000000 +arm64_rtmp s d))))))
+
+(defun emit-arm64-xor-crr (c s d)
+	(cond
+		((= c 0) (emit-cpy-rr s d))
+		((defq i (arm64-limm c))
+			(if (/= i -1)
+				(emitm-int (+ 0xd2000000 (<< i 10) (<< s 5) d))
+				(progn
+					(arm64-mov-cr c +arm64_rtmp)
+					(arm64-rrr 0xca000000 +arm64_rtmp s d))))))
 
 (defq emit_list (filter (# (starts-with "emit-" %0))
 		(merge (map (const first) (tolist (penv))) (map (const first) (tolist (env)))))
@@ -543,6 +617,24 @@
 						emit-arm64-stp emit-arm64-stp-i emit-arm64-ldp-f emit-arm64-stp-f) i)
 					is_load size (* size 64)
 					(if is_load 1 2) (if is_load 2 3) (if is_load 3 1)))))
+			emit_list (pmap))
+	+arm64_cpy_fuse_map
+		(reduce (#
+			(pinsert %0 %1
+				(cond
+					((defq i (find %1 '(emit-add-rr emit-sub-rr emit-and-rr emit-or-rr emit-xor-rr)))
+						(list :rr (elem-get '(emit-arm64-add-rrr emit-arm64-sub-rrr emit-arm64-and-rrr
+								emit-arm64-or-rrr emit-arm64-xor-rrr) i)))
+					((defq i (find %1 '(emit-shl-cr emit-shr-cr emit-asr-cr)))
+						(list :cr (elem-get '(emit-arm64-shl-crr emit-arm64-shr-crr emit-arm64-asr-crr) i)))
+					((eql %1 'emit-add-cr)
+						(list :add_cr 'emit-arm64-add-crr 1))
+					((eql %1 'emit-sub-cr)
+						(list :add_cr 'emit-arm64-add-crr -1))
+					((eql %1 'emit-mul-cr)
+						(list :mul_cr 'emit-arm64-sub-rrr))
+					((defq i (find %1 '(emit-and-cr emit-or-cr emit-xor-cr)))
+						(list :limm (elem-get '(emit-arm64-and-crr emit-arm64-or-crr emit-arm64-xor-crr) i))))))
 			emit_list (pmap)))
 
 (defmacro arm64-fusable? (limit size is_load base c1 d1 c2 d2)
@@ -556,17 +648,42 @@
 
 (redefun emit-prepass (emit_list)
 	(each! (lambda (%0)
-		(when (defq info (pfind +arm64_fuse_map (first %0)))
-			(when (eql (first %0) (first (defq %1 (elem-get emit_list (inc (!))))))
-				(bind '(fused_op is_load size limit b_idx c_idx d_idx) info)
-				(when (eql (defq base (elem-get %0 b_idx)) (elem-get %1 b_idx))
-					(when (defq d1 (elem-get %0 d_idx) c2 (elem-get %1 c_idx) d2 (elem-get %1 d_idx)
-							res (arm64-fusable? limit size is_load base (elem-get %0 c_idx) d1 c2 d2))
-						(bind '(c2 d1 d2) res)
-						(elem-set emit_list (!) (if is_load
-							(list fused_op base c2 d1 d2)
-							(list fused_op d1 d2 base c2)))
-						(elem-set emit_list (inc (!)) '(emit-nop)))))))
+		(defq op0 (first %0) %1 (elem-get emit_list (inc (!))))
+		(cond
+			((defq info (pfind +arm64_fuse_map op0))
+				(when (eql op0 (first %1))
+					(bind '(fused_op is_load size limit b_idx c_idx d_idx) info)
+					(when (eql (defq base (elem-get %0 b_idx)) (elem-get %1 b_idx))
+						(when (defq d1 (elem-get %0 d_idx) c2 (elem-get %1 c_idx) d2 (elem-get %1 d_idx)
+								res (arm64-fusable? limit size is_load base (elem-get %0 c_idx) d1 c2 d2))
+							(bind '(c2 d1 d2) res)
+							(elem-set emit_list (!) (if is_load
+								(list fused_op base c2 d1 d2)
+								(list fused_op d1 d2 base c2)))
+							(elem-set emit_list (inc (!)) '(emit-nop))))))
+			((and (eql op0 'emit-cpy-rr) (defq s (second %0) d (third %0)) (nql s d) (nql s :rsp) (nql d :rsp))
+				(when (defq cpy_info (pfind +arm64_cpy_fuse_map (first %1)))
+					(when (eql (third %1) d)
+						(case (first cpy_info)
+							(:rr
+								(when (nql (defq x (second %1)) :rsp)
+									(elem-set emit_list (!) (list (second cpy_info) s (if (eql x d) s x) d))
+									(elem-set emit_list (inc (!)) '(emit-nop))))
+							(:cr
+								(elem-set emit_list (!) (list (second cpy_info) (second %1) s d))
+								(elem-set emit_list (inc (!)) '(emit-nop)))
+							(:add_cr
+								(when (<= -0xfff (defq c (second %1)) 0xfff)
+									(elem-set emit_list (!) (list (second cpy_info) (* c (third cpy_info)) s d))
+									(elem-set emit_list (inc (!)) '(emit-nop))))
+							(:mul_cr
+								(when (eql (second %1) -1)
+									(elem-set emit_list (!) (list (second cpy_info) 31 s d))
+									(elem-set emit_list (inc (!)) '(emit-nop))))
+							(:limm
+								(when (or (= (defq c (second %1)) 0) (= c -1) (/= (arm64-limm c) -1))
+									(elem-set emit_list (!) (list (second cpy_info) c s d))
+									(elem-set emit_list (inc (!)) '(emit-nop))))))))))
 		(list emit_list) 1 -3)
 	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
 
@@ -574,6 +691,6 @@
 (export-symbols emit_list)
 ;plus any private instruction maps if validating
 (validatecase
-	(defq emit_maps (list +arm64_fuse_map))
+	(defq emit_maps (list +arm64_fuse_map +arm64_cpy_fuse_map))
 	(export-symbols '(emit_maps)))
 (env-pop)
