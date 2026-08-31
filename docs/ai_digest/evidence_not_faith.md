@@ -175,15 +175,15 @@ while running entirely inside the portable C++ software emulator.
 ChrysaLisp's "linkerless" direct-offset architecture produces self-contained,
 minimal `boot_image` binaries:
 
-*   `obj/x86_64/AMD64/sys/boot_image`: **194,748 bytes (~190 KB)**
+*   `obj/x86_64/AMD64/sys/boot_image`: **197,228 bytes**
 
-*   `obj/x86_64/WIN64/sys/boot_image`: **195,060 bytes (~190 KB)**
+*   `obj/x86_64/WIN64/sys/boot_image`: **197,540 bytes**
 
-*   `obj/arm64/ARM64/sys/boot_image`: **218,652 bytes (~213 KB)**
+*   `obj/arm64/ARM64/sys/boot_image`: **215,484 bytes**
 
-*   `obj/riscv64/RISCV64/sys/boot_image`: **248,444 bytes (~242 KB)**
+*   `obj/riscv64/RISCV64/sys/boot_image`: **251,220 bytes**
 
-*   `obj/vp64/VP64/sys/boot_image`: **142,156 bytes (~138 KB)**
+*   `obj/vp64/VP64/sys/boot_image`: **144,044 bytes**
 
 Because these complete system images are around ~200 KB, they fit entirely
 inside the L1 instruction/data caches of modern CPU cores. The CPU rarely stalls
