@@ -305,10 +305,8 @@
 (defun emit-max-rr (s d l m) (unless (eql s d) (emitm-int (+ 0xeb000000 (<< s 16) (<< d 5) 31)) (arm64-csel 0xb s d d)))
 
 (defun emit-abs-rr (s d l m)
-	(emit-cpy-rr s d)
-	(emitm-int (+ 0xcb000000 (<< s 16) (const (<< 31 5)) +arm64_rtmp))
-	(emitm-int (+ 0xeb000000 (const (<< 31 16)) (<< d 5) 31))
-	(arm64-csel 0xb +arm64_rtmp d d))
+	(emitm-int (+ 0xf100001f (<< s 5)))
+	(emitm-int (+ 0xda80a400 (<< s 16) (<< s 5) d)))
 
 (defun emit-push (&rest b)
 	(each (# (if (= (length %0) 2)
