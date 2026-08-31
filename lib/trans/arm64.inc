@@ -650,45 +650,45 @@
 	(each! (lambda (%0)
 		(defq op0 (first %0) %1 (elem-get emit_list (inc (!))))
 		(cond
-			((defq info (pfind +arm64_fuse_map op0))
-				(when (and (eql op0 (first %1))
-						(eql (defq base (elem-get %0
-								(bind '(fused_op is_load size limit d_idx c_idx b_idx) info)))
-							(elem-get %1 b_idx))
-						(defq d1 (elem-get %0 d_idx) d2 (elem-get %1 d_idx)
-							c1 (elem-get %0 c_idx) c2 (elem-get %1 c_idx)
-							res (arm64-fusable? limit size is_load base c1 d1 c2 d2)))
-					(bind '(c2 d1 d2) res)
-					(elem-set emit_list (!) (if is_load
-						(list fused_op base c2 d1 d2)
-						(list fused_op d1 d2 base c2)))
-					(elem-set emit_list (inc (!)) '(emit-nop))))
-			((eql op0 'emit-cpy-rr)
-				(when (and (defq cpy_info (pfind +arm64_cpy_fuse_map (first %1)))
-						(eql (third %1) (defq d (third %0)))
-						(nql d :rsp)
-						(nql (defq s (second %0)) d)
-						(nql s :rsp))
-					(case (first cpy_info)
-						(:rr
-							(when (nql (defq x (second %1)) :rsp)
-								(elem-set emit_list (!) (list (second cpy_info) s (if (eql x d) s x) d))
-								(elem-set emit_list (inc (!)) '(emit-nop))))
-						(:cr
-							(elem-set emit_list (!) (list (second cpy_info) (second %1) s d))
-							(elem-set emit_list (inc (!)) '(emit-nop)))
-						(:add_cr
-							(when (<= -0xfff (defq c (second %1)) 0xfff)
-								(elem-set emit_list (!) (list (second cpy_info) (* c (third cpy_info)) s d))
-								(elem-set emit_list (inc (!)) '(emit-nop))))
-						(:mul_cr
-							(when (eql (second %1) -1)
-								(elem-set emit_list (!) (list (second cpy_info) 31 s d))
-								(elem-set emit_list (inc (!)) '(emit-nop))))
-						(:limm
-							(when (or (= (defq c (second %1)) 0) (= c -1) (/= (arm64-limm c) -1))
-								(elem-set emit_list (!) (list (second cpy_info) c s d))
-								(elem-set emit_list (inc (!)) '(emit-nop)))))))))
+			((and (defq info (pfind +arm64_fuse_map op0))
+					(eql op0 (first %1))
+					(eql (defq base (elem-get %0
+							(bind '(fused_op is_load size limit d_idx c_idx b_idx) info)))
+						(elem-get %1 b_idx))
+					(defq d1 (elem-get %0 d_idx) d2 (elem-get %1 d_idx)
+						c1 (elem-get %0 c_idx) c2 (elem-get %1 c_idx)
+						res (arm64-fusable? limit size is_load base c1 d1 c2 d2)))
+				(bind '(c2 d1 d2) res)
+				(elem-set emit_list (!) (if is_load
+					(list fused_op base c2 d1 d2)
+					(list fused_op d1 d2 base c2)))
+				(elem-set emit_list (inc (!)) '(emit-nop)))
+			((and (eql op0 'emit-cpy-rr)
+					(defq cpy_info (pfind +arm64_cpy_fuse_map (first %1)))
+					(eql (third %1) (defq d (third %0)))
+					(nql d :rsp)
+					(nql (defq s (second %0)) d)
+					(nql s :rsp))
+				(case (first cpy_info)
+					(:rr
+						(when (nql (defq x (second %1)) :rsp)
+							(elem-set emit_list (!) (list (second cpy_info) s (if (eql x d) s x) d))
+							(elem-set emit_list (inc (!)) '(emit-nop))))
+					(:cr
+						(elem-set emit_list (!) (list (second cpy_info) (second %1) s d))
+						(elem-set emit_list (inc (!)) '(emit-nop)))
+					(:add_cr
+						(when (<= -0xfff (defq c (second %1)) 0xfff)
+							(elem-set emit_list (!) (list (second cpy_info) (* c (third cpy_info)) s d))
+							(elem-set emit_list (inc (!)) '(emit-nop))))
+					(:mul_cr
+						(when (eql (second %1) -1)
+							(elem-set emit_list (!) (list (second cpy_info) 31 s d))
+							(elem-set emit_list (inc (!)) '(emit-nop))))
+					(:limm
+						(when (or (= (defq c (second %1)) 0) (= c -1) (/= (arm64-limm c) -1))
+							(elem-set emit_list (!) (list (second cpy_info) c s d))
+							(elem-set emit_list (inc (!)) '(emit-nop))))))))
 		(list emit_list) 1 -3)
 	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
 
