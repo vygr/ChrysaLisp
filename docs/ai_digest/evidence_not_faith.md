@@ -12,7 +12,7 @@ claims, derived directly from the system's own build and diagnostic tools.
 ## The Anatomy of a 66ms Build: What Actually Happens
 
 When a benchmark reports an entire operating system rebuild in **0.0667 seconds
-(66.7 ms)** on an Apple Silicon M4 processor, booted with 20 VP nodes, it is
+(66.7 ms)** on an Apple Silicon M4 processor booted with 20 VP nodes, it is
 natural to assume it is merely compiling a few differential modules using a
 pre-warmed, monolithic compiler cached in memory.
 
@@ -23,10 +23,10 @@ cold, and hermetic lifecycle across a shared-nothing cluster:
 [Zero State: No Compiler/Build Tools in RAM]
        |
        V (Phase 1: Genesis in microseconds)
-[Synthesize 20 Independent Toolchains from Source]
+[Synthesize ~40 Independent Toolchains Across 20 Nodes]
        |
        V (Phase 2: Parallel MIMD Compilation & Linking)
-[Assemble OS, Route Packets, Arbitrate Locks Across 20 Nodes]
+[Assemble OS, Route Packets, Arbitrate Locks Across Herd]
        |
        V (Phase 3: Total Teardown & Reclamation)
 [Destroy Toolchains, Dereference ASTs, Reclaim All Heap Memory]
@@ -35,43 +35,51 @@ cold, and hermetic lifecycle across a shared-nothing cluster:
 [Return to Zero State: Clean RAM]
 ```
 
-### 1. Phase 1: Synthesizing the Toolchain on ALL 20 Nodes from Scratch
+### 1. Phase 1: Synthesizing ~40 Independent Toolchains Across 20 Nodes
 
 Before the build command executes, **no assembler, compiler, or code generator
 exists in memory on any node**. Because ChrysaLisp uses a strictly isolated,
-shared-nothing memory model across its nodes:
+task-centric memory model across its nodes:
 
-* **20 Independent Syntheses:** The toolchain cannot be shared via global
-  pointers; **all 20 isolated VP nodes independently synthesize the entire
-  assembler and compiler from source text in parallel** inside their own private
-  address spaces.
+* **~40 Task-Isolated Syntheses:** The make pipeline (`lib/asm/asm.inc`) uses
+  `lib/task/local.inc` to spawn a dynamic herd of worker tasks
+  (`lib/asm/asm.lisp`) across the 20 VP nodes—typically scaling to approximately
+  40 worker tasks (~2 per node).
+
+* **Task-Local `within-compile-env` Environments:** While worker tasks share the
+  root environment of their host node, the compilation environment is scoped per
+  task. Each of the ~40 worker tasks enters its own `(within-compile-env ...)`
+  block, independently synthesizing its own private compiler environment from
+  scratch in parallel.
 
 * **Zero-State Bootstrapping:** In the first fraction of a millisecond, each
-  node's local Lisp engine evaluates `lib/asm/`, macro generators (`def-class`,
-  `def-method`, `assign`), register tables, and CScript transpilers.
+  worker task evaluates `lib/asm/`, macro generators (`def-class`, `def-method`,
+  `assign`), register allocation tables, and CScript transpilers.
 
-* **RAM-Native Toolchains:** Within microseconds, 20 complete, fully functional
-  native assembly engines are live in RAM across the cluster.
+* **RAM-Native Toolchains:** Within microseconds, approximately 40 complete,
+  fully functional native assembly engines are live in RAM across the 20-node
+  cluster.
 
-### 2. Phase 2: Distributed Parallel Execution Across 20 VP Nodes
+### 2. Phase 2: Distributed Parallel Execution Across ~40 Worker Tasks
 
-Once the 20 nodes have independently synthesized their toolchains, the build
-workload is dynamically distributed across the network:
+Once the ~40 worker tasks across the 20 nodes have independently synthesized
+their toolchains, the build workload is dynamically distributed:
 
 * **20 Host OS Processes:** The host kernel (macOS) actively schedules and
   context-switches 20 separate host processes across its performance and
-  efficiency cores.
+  efficiency cores, hosting the cooperative task scheduler within each VP node.
+
+* **Dynamic Herd Dispatch:** The master build coordinator dispatches jobs to the
+  worker task herd using mailbox messages, dynamically load-balancing work units
+  as worker tasks finish chunks and report back.
 
 * **Inter-Node Shared Memory Links (`sys_link`):** Dual-channel circular ring
   buffers (`lk_shmem`) coordinate communication, negotiate channel ownership,
   and synchronize status words (`lk_chan_status_frag`, `ping`, `skip`).
 
-* **Decentralized Load Balancing (`+kn_call_child`):** Compilation jobs flow
-  "downhill" across the network like water, seeking nodes with lower task counts
-  before executing.
-
-* **Distributed Lock Arbitration:** Nodes arbitrate compilation targets in real
-  time via IPC transactions with `service/lock/`.
+* **Decentralized Load Balancing (`+kn_call_child`):** Child task creation
+  requests flow "downhill" across the network like water, seeking nodes with
+  lower task counts to spawn new workers.
 
 * **Zero GC Pauses & Deterministic Timing:** Memory allocations hit
   pre-allocated fixed-size heap cell buckets with immediate reference counting,
@@ -82,18 +90,18 @@ workload is dynamically distributed across the network:
 
 ### 3. Phase 3: Total Teardown and Memory Reclamation
 
-As soon as a batch of files completes and the assembler task exits:
+As soon as all compilation jobs finish and each worker task exits:
 
-* **Complete Toolchain Destruction:** The entire compiler environment
-  (`within-compile-env`) is popped, destroying all local symbols, macro tables,
-  and code-generation environments.
+* **Complete Toolchain Destruction:** Each worker task exits its
+  `(within-compile-env ...)` block and terminates, destroying all local symbols,
+  macro tables, CScript variable scopes, and code-generation environments.
 
 * **Immediate Heap Reclamation:** All ASTs, intermediate strings, and parser
   structures are dereferenced, and memory cells are returned to the allocator
   via `:sys_mem :collect`.
 
-* **No Lingering State:** The toolchain **does not remain cached in memory**
-  between cycles. The next run begins again from absolute zero.
+* **No Lingering State:** The ~40 toolchain instances **do not remain cached in
+  memory** between build cycles. The next run begins again from absolute zero.
 
 ## The Benchmarks: Multi-Platform Build Analysis
 
