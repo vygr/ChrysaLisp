@@ -5,6 +5,9 @@
 ;module
 (env-push)
 
+;pre-seed all standard VP opcodes in the module environment
+(each (# (def (env) %0 :nil)) +vp_emit_ops)
+
 (defun emit-align (size &optional fill)
 	(defq pc *pc* fill (ifn fill 0) stream *stream*)
 	(setq *pc* (align pc size))
@@ -53,12 +56,12 @@
 ; gather all the emit funcs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;env with all emit-* instructions
+;map with all emit-* instructions
 (defq +emit_funcs (reduce (lambda (%0 (%1 %2))
 		(if (starts-with "emit-" %1) (pinsert %0 %1 %2) %0))
 	(tolist (env)) (pmap)))
 
-;env with jump/branch instructions flagged
+;emap with jump/branch instructions flagged
 (defq +emit_jmps (reduce (lambda (%0 (%1 &)) (pinsert %0 %1 (find %1
 		'(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr
 		emit-bge-rr emit-ble-rr emit-bge-cr emit-ble-cr emit-blt-cr

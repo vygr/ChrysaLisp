@@ -23,12 +23,17 @@
 	+opt_read_ops_unsigned
 		''(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub emit-cpy-ir-us)
 	+opt_read_kill_ops
-		''(emit-label emit-call-p emit-free emit-alloc emit-call-i emit-call-abi emit-call emit-call-r)
+		(reduce (# (pinsert %0 %1
+			(if (find %1 '(emit-label emit-tlabel emit-call-p emit-free emit-alloc
+					emit-call-i emit-call-abi emit-call emit-call-r)) :t)))
+			+vp_emit_ops (pmap))
 	+opt_write_kill_ops
-		''(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr emit-bge-rr
-			emit-ble-rr emit-jmp-p emit-bge-cr emit-ble-cr emit-blt-cr emit-blt-rr
-			emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-i emit-beq-ff emit-bne-ff
-			emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)
+		(reduce (# (pinsert %0 %1
+			(if (find %1 '(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr emit-bge-rr
+					emit-ble-rr emit-jmp-p emit-bge-cr emit-ble-cr emit-blt-cr emit-blt-rr
+					emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-i emit-beq-ff emit-bne-ff
+					emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)) :t)))
+			+vp_emit_ops (pmap))
 	+opt_branch_ops
 		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr)
 	+opt_second_out_ops
@@ -59,7 +64,7 @@
 		((and (eql rop (first inst)) (eql b (second inst)) (nql b (last inst)) (= i (third inst)))
 			(setq c 3) (!))
 		((trashes-reg? b inst) -1)
-		((find (first inst) +opt_read_kill_ops) -1)))
+		((pfind +opt_read_kill_ops (first inst)) -1)))
 
 (defun find-past-w (_ rop1 rop2 wop b i)
 	(find-past
@@ -67,27 +72,27 @@
 		((and (or (eql rop1 (first inst)) (eql rop2 (first inst)))
 			(eql b (second inst)) (nql b (last inst)) (= i (third inst))) -1)
 		((trashes-reg? b inst) -1)
-		((find (first inst) +opt_read_kill_ops) -1)
-		((find (first inst) +opt_write_kill_ops) -1)))
+		((pfind +opt_read_kill_ops (first inst)) -1)
+		((pfind +opt_write_kill_ops (first inst)) -1)))
 
 (defun find-past-rr (_ rs rd)
 	(find-past
 		((lmatch? inst `(emit-cpy-rr ,rs ,rd)) (!))
 		((trashes-reg? rs inst) -1)
 		((trashes-reg? rd inst) -1)
-		((find (first inst) +opt_read_kill_ops) -1)))
+		((pfind +opt_read_kill_ops (first inst)) -1)))
 
 (defun find-past-r (_ rd)
 	(find-past
 		((lmatch? inst `(emit-cpy-rr _ ,rd)) (!))
 		((uses? rd inst) -1)
-		((find (first inst) +opt_read_kill_ops) -1)))
+		((pfind +opt_read_kill_ops (first inst)) -1)))
 
 (defun find-past-cr (_ rd)
 	(find-past
 		((lmatch? inst `(emit-cpy-cr _ ,rd)) (!))
 		((trashes-reg? rd inst) -1)
-		((find (first inst) +opt_read_kill_ops) -1)))
+		((pfind +opt_read_kill_ops (first inst)) -1)))
 
 (defun opt-read-after-read-write ()
 	(when (and (num? (third inst))
