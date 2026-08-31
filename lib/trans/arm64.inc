@@ -634,7 +634,19 @@
 					((eql %1 'emit-mul-cr)
 						(list :mul_cr 'emit-arm64-sub-rrr))
 					((defq i (find %1 '(emit-and-cr emit-or-cr emit-xor-cr)))
-						(list :limm (elem-get '(emit-arm64-and-crr emit-arm64-or-crr emit-arm64-xor-crr) i))))))
+						(list :limm (elem-get '(emit-arm64-and-crr emit-arm64-or-crr emit-arm64-xor-crr) i)))
+					(:t :nil))))
+			emit_list (pmap))
+	+arm64_barrier_map
+		(reduce (#
+			(pinsert %0 %1
+				(when (find %1 '(emit-label emit-tlabel emit-alloc emit-free emit-push emit-pop
+						emit-call emit-call-r emit-call-i emit-call-p emit-call-abi
+						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync emit-brk
+						emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
+						emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
+						emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))
+					:t)))
 			emit_list (pmap)))
 
 (defmacro arm64-fusable? (limit size is_load base c1 d1 c2 d2)
@@ -645,6 +657,23 @@
 				(list ,c1 ,d1 ,d2))
 			((and (= ,c1 (+ ,c2 ,size)) (= (% ,c2 ,size) 0) (<= (- 0 ,limit) ,c2 (- ,limit ,size)))
 				(list ,c2 ,d2 ,d1)))))
+
+(defun arm64-find-cpy (emit_list idx d x)
+	(defq p_idx idx min_idx (max 1 (- idx 5)) res :nil)
+	(while (and (>= (-- p_idx) min_idx) (not res))
+		(defq prev (elem-get emit_list p_idx) pop (first prev))
+		(cond
+			((eql pop 'emit-nop))
+			((and (eql pop 'emit-cpy-rr) (eql (third prev) d))
+				(defq s (second prev))
+				(if (and (nql s d) (nql s :rsp))
+					(setq res (list p_idx s))
+					(setq p_idx 0)))
+			((or (pfind +arm64_barrier_map pop)
+					(find d prev 1)
+					(and x (find x prev 1)))
+				(setq p_idx 0))))
+	res)
 
 (redefun emit-prepass (emit_list)
 	(each! (lambda (%0)
@@ -663,32 +692,39 @@
 					(list fused_op base c2 d1 d2)
 					(list fused_op d1 d2 base c2)))
 				(elem-set emit_list (inc (!)) '(emit-nop)))
-			((and (eql op0 'emit-cpy-rr)
-					(defq cpy_info (pfind +arm64_cpy_fuse_map (first %1)))
-					(eql (third %1) (defq d (third %0)))
-					(nql d :rsp)
-					(nql (defq s (second %0)) d)
-					(nql s :rsp))
+			((and (defq cpy_info (pfind +arm64_cpy_fuse_map op0))
+					(defq d (third %0))
+					(nql d :rsp))
 				(case (first cpy_info)
 					(:rr
-						(when (nql (defq x (second %1)) :rsp)
-							(elem-set emit_list (!) (list (second cpy_info) s (if (eql x d) s x) d))
-							(elem-set emit_list (inc (!)) '(emit-nop))))
+						(when (and (nql (defq x (second %0)) :rsp)
+								(defq match (arm64-find-cpy emit_list (!) d (if (eql x d) :nil x))))
+							(bind '(p_idx s) match)
+							(elem-set emit_list p_idx (list (second cpy_info) s (if (eql x d) s x) d))
+							(elem-set emit_list (!) '(emit-nop))))
 					(:cr
-						(elem-set emit_list (!) (list (second cpy_info) (second %1) s d))
-						(elem-set emit_list (inc (!)) '(emit-nop)))
+						(when (defq match (arm64-find-cpy emit_list (!) d :nil))
+							(bind '(p_idx s) match)
+							(elem-set emit_list p_idx (list (second cpy_info) (second %0) s d))
+							(elem-set emit_list (!) '(emit-nop))))
 					(:add_cr
-						(when (<= -0xfff (defq c (second %1)) 0xfff)
-							(elem-set emit_list (!) (list (second cpy_info) (* c (third cpy_info)) s d))
-							(elem-set emit_list (inc (!)) '(emit-nop))))
+						(when (and (<= -0xfff (defq c (second %0)) 0xfff)
+								(defq match (arm64-find-cpy emit_list (!) d :nil)))
+							(bind '(p_idx s) match)
+							(elem-set emit_list p_idx (list (second cpy_info) (* c (third cpy_info)) s d))
+							(elem-set emit_list (!) '(emit-nop))))
 					(:mul_cr
-						(when (eql (second %1) -1)
-							(elem-set emit_list (!) (list (second cpy_info) 31 s d))
-							(elem-set emit_list (inc (!)) '(emit-nop))))
+						(when (and (eql (second %0) -1)
+								(defq match (arm64-find-cpy emit_list (!) d :nil)))
+							(bind '(p_idx s) match)
+							(elem-set emit_list p_idx (list (second cpy_info) 31 s d))
+							(elem-set emit_list (!) '(emit-nop))))
 					(:limm
-						(when (or (= (defq c (second %1)) 0) (= c -1) (/= (arm64-limm c) -1))
-							(elem-set emit_list (!) (list (second cpy_info) c s d))
-							(elem-set emit_list (inc (!)) '(emit-nop))))))))
+						(when (and (or (= (defq c (second %0)) 0) (= c -1) (/= (arm64-limm c) -1))
+								(defq match (arm64-find-cpy emit_list (!) d :nil)))
+							(bind '(p_idx s) match)
+							(elem-set emit_list p_idx (list (second cpy_info) c s d))
+							(elem-set emit_list (!) '(emit-nop))))))))
 		(list emit_list) 1 -3)
 	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
 
@@ -696,6 +732,6 @@
 (export-symbols emit_list)
 ;plus any private instruction maps if validating
 (validatecase
-	(defq emit_maps (list +arm64_fuse_map +arm64_cpy_fuse_map))
+	(defq emit_maps (list +arm64_fuse_map +arm64_cpy_fuse_map +arm64_barrier_map))
 	(export-symbols '(emit_maps)))
 (env-pop)
