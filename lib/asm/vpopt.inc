@@ -36,22 +36,33 @@
 			+vp_emit_ops (pmap))
 	+opt_branch_ops
 		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr)
-	+opt_second_out_ops
-		''(emit-swp-rr emit-land-rr emit-lnot-rr)
-	+opt_third_out_ops
-		''(emit-div-rrr emit-div-rrr-u emit-min-cr emit-max-cr emit-min-rr emit-max-rr emit-abs-rr)
-	+opt_multi_out_ops
-		''(emit-pop))
+	+opt_out_idx_map
+		(reduce (# (pinsert %0 %1
+			(cond
+				((find %1 '(emit-pop emit-swp-rr emit-div-rrr emit-div-rrr-u)) :multi)
+				((find %1 '(emit-lnot-rr emit-land-rr)) 1)
+				((find %1 '(emit-min-cr emit-max-cr emit-min-rr emit-max-rr emit-abs-rr)) 2)
+				((find %1 '(emit-cpy-cr emit-add-cr emit-sub-cr emit-mul-cr emit-and-cr emit-or-cr emit-xor-cr
+						emit-cpy-rr emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr emit-or-rr emit-xor-rr
+						emit-shl-cr emit-shr-cr emit-asr-cr emit-shl-rr emit-shr-rr emit-asr-rr emit-ext-rr
+						emit-seq-cr emit-sne-cr emit-slt-cr emit-sle-cr emit-sgt-cr emit-sge-cr
+						emit-seq-rr emit-sne-rr emit-slt-rr emit-sle-rr emit-sgt-rr emit-sge-rr
+						emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-lea-i
+						emit-cpy-dr emit-cpy-dr-b emit-cpy-dr-s emit-cpy-dr-i emit-cpy-dr-ub emit-cpy-dr-us emit-cpy-dr-ui emit-lea-d
+						emit-cpy-pr emit-lea-p
+						emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff
+						emit-sqrt-ff emit-abs-ff emit-neg-ff emit-cpy-ff
+						emit-cvt-rf emit-cvt-fr emit-cpy-rf emit-cpy-fr
+						emit-cpy-if emit-cpy-df)) -2))))
+			+vp_emit_ops (pmap)))
 
 (defmacro uses? (r inst)
 	(static-qq (find ,r ,inst 1)))
 
 (defmacro trashes-reg? (r inst)
 	(static-qqp (cond
-		((eql ,r (last ,inst)))
-		((find (first ,inst) ,'+opt_second_out_ops) (eql ,r (second ,inst)))
-		((find (first ,inst) ,'+opt_third_out_ops) (eql ,r (third ,inst)))
-		((find (first ,inst) ,'+opt_multi_out_ops) (uses? ,r ,inst)))))
+		((eql (defq idx (pfind +opt_out_idx_map (first ,inst))) :multi) (uses? ,r ,inst))
+		(idx (eql ,r (elem-get ,inst idx))))))
 
 (defmacro find-past (&rest body)
 	(static-qq (and (defq _ (some! (,'lambda (inst) (cond ~body))
