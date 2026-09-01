@@ -729,7 +729,7 @@
                                 (bind '(p_idx s) match)
                                 (elem-set emit_list p_idx (list (second cpy_info) c s d))
                                 (elem-set emit_list (!) '(emit-nop)))))))))
-		(list emit_list) 1 -3)
+		(list emit_list) 9 -3)
 	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
 
 ;module, that exports all emit-* !
