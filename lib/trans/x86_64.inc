@@ -184,15 +184,21 @@
 
 (defun emit-add-cr (c r)
 	(unless (= c 0)
-		(if (= c 1)
-			(emitm-byte (x64-rex 1 0 0 (>> r 3)) 0xff (x64-modrm 3 0 r))
-			(x64-alu-cr 0 c r))))
+		(cond
+			((= c 1)
+				(emitm-byte (x64-rex 1 0 0 (>> r 3)) 0xff (x64-modrm 3 0 r)))
+			((= c -1)
+				(emitm-byte (x64-rex 1 0 0 (>> r 3)) 0xff (x64-modrm 3 1 r)))
+			(:t (x64-alu-cr 0 c r)))))
 
 (defun emit-sub-cr (c r)
 	(unless (= c 0)
-		(if (= c 1)
-			(emitm-byte (x64-rex 1 0 0 (>> r 3)) 0xff (x64-modrm 3 1 r))
-			(x64-alu-cr 5 c r))))
+		(cond
+			((= c 1)
+				(emitm-byte (x64-rex 1 0 0 (>> r 3)) 0xff (x64-modrm 3 1 r)))
+			((= c -1)
+				(emitm-byte (x64-rex 1 0 0 (>> r 3)) 0xff (x64-modrm 3 0 r)))
+			(:t (x64-alu-cr 5 c r)))))
 
 (defun emit-and-cr (c r)
 	(unless (= c -1)
