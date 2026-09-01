@@ -673,7 +673,7 @@
 						(find d %0 1)
 						(and x (find x %0 1)))
 					:fail)))
-			(list emit_list) :nil idx (max 9 (- idx 5))))
+			(list emit_list) :nil idx (max 9 (- idx 6))))
 	(if (and res (nql res :fail)) res))
 
 (redefun emit-prepass (emit_list)
