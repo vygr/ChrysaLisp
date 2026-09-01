@@ -42,10 +42,11 @@
 
 (defmacro x64-s-cond (cc d)
 	`(progn
-		(emitm-byte ,cc 5)
-		(emit-xor-rr ,d ,d)
-		(emitm-byte 0xeb 4)
-		(emit-or-cr -1 ,d)))
+		(if (>= ,d 4) (emitm-byte (x64-rex 0 0 0 (>> ,d 3))))
+		(emitm-byte 0x0f (+ 0x20 ,cc) (x64-modrm 3 0 ,d))
+		(if (>= ,d 4) (emitm-byte (x64-rex 0 (>> ,d 3) 0 (>> ,d 3))))
+		(emitm-byte 0x0f 0xb6 (x64-modrm 3 ,d ,d))
+		(emitm-byte (x64-rex 1 0 0 (>> ,d 3)) 0xf7 (x64-modrm 3 3 ,d))))
 
 (defun x64-mem-ir (w o reg base disp &optional pfx)
 	(defq rh (>> reg 3) bh (>> base 3))
@@ -154,9 +155,14 @@
 (defun emit-sub-rr (s d) (x64-r-r 0x29 s d))
 (defun emit-and-rr (s d) (unless (eql s d) (x64-r-r 0x21 s d)))
 (defun emit-or-rr (s d) (unless (eql s d) (x64-r-r 0x09 s d)))
-(defun emit-xor-rr (s d) (x64-r-r 0x31 s d))
 (defun emit-or-cr (c r) (unless (= c 0) (x64-alu-cr 1 c r)))
 (defun emit-xor-cr (c r) (unless (= c 0) (x64-alu-cr 6 c r)))
+(defun emit-xor-rr (s d)
+	(if (eql s d)
+		(progn
+			(if (>= d 8) (emitm-byte 0x45))
+			(emitm-byte 0x31 (x64-modrm 3 d d)))
+		(x64-r-r 0x31 s d)))
 
 (defun emit-cpy-cr (c r)
 	(if (= c 0)
