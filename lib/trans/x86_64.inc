@@ -554,6 +554,8 @@
 ; x86_64 Specific Emitters
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun emit-x64-alu-ir (o d b c) (x64-mem-ir 8 o d b c))
+
 (defq emit_list (filter (# (starts-with "emit-" %0))
 		(merge (map (const first) (tolist (penv))) (map (const first) (tolist (env)))))
 	+x64_cpy_fuse_map
@@ -567,8 +569,18 @@
 					((eql %1 'emit-sub-cr)
 						(list :add_cr 'emit-lea-i -1))
 					((eql %1 'emit-shl-cr)
-						(list :shl_cr 'emit-lea-d))
-					(:t :nil))))
+						(list :shl_cr 'emit-lea-d)))))
+			emit_list (pmap))
+	+x64_mem_alu_map
+		(reduce (#
+			(pinsert %0 %1
+				(cond
+					((eql %1 'emit-add-rr) 0x03)
+					((eql %1 'emit-sub-rr) 0x2b)
+					((eql %1 'emit-and-rr) 0x23)
+					((eql %1 'emit-or-rr)  0x0b)
+					((eql %1 'emit-xor-rr) 0x33)
+					((eql %1 'emit-mul-rr) '(0x0f 0xaf)))))
 			emit_list (pmap))
 	+x64_barrier_map
 		(reduce (#
@@ -600,10 +612,54 @@
 			(list emit_list) :nil idx (max 9 (- idx +x64_lookback_window))))
 	(if (and res (nql res :fail)) res))
 
+(defun x64-find-load (emit_list idx s d)
+	(defq res (some! (#
+			(defq op (first %0))
+			(cond
+				((eql op 'emit-nop) :nil)
+				((and (eql op 'emit-cpy-ir) (eql (last %0) s))
+					(bind '(& base disp &ignore) %0)
+					(if (and (nql base d) (nql s d) (x64-within disp 32))
+						(list (!) base disp)
+						:fail))
+				((or (pfind +x64_barrier_map op)
+						(find s %0 1)
+						(find d %0 1)
+						(starts-with "emit-cpy-r" (str op)))
+					:fail)))
+			(list emit_list) :nil idx (max 9 (- idx +x64_lookback_window))))
+	(if (and res (nql res :fail)) res))
+
+(defun x64-reg-dead? (emit_list idx s)
+	(eql (some! (#
+			(defq op (first %0))
+			(cond
+				((eql op 'emit-nop) :nil)
+				((find s %0 1)
+					(if (and (find op '(emit-cpy-cr emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s
+							emit-cpy-ir-i emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui
+							emit-lea-i emit-lea-p emit-cpy-pr emit-xor-rr))
+							(eql (last %0) s)
+							(nql (second %0) s))
+						:dead
+						:live))
+				((pfind +x64_barrier_map op) :live)))
+			(list emit_list) :nil (inc idx) (min (length emit_list) (+ idx 16)))
+		:dead))
+
 (redefun emit-prepass (emit_list)
 	(each! (lambda (%0)
 		(defq op0 (first %0))
 		(cond
+			((and (defq alu_op (pfind +x64_mem_alu_map op0))
+					(defq s (second %0) d (third %0))
+					(nql s :rsp)
+					(nql d :rsp)
+					(defq load_match (x64-find-load emit_list (!) s d))
+					(x64-reg-dead? emit_list (!) s))
+				(bind '(p_idx base disp) load_match)
+				(elem-set emit_list p_idx '(emit-nop))
+				(elem-set emit_list (!) (list 'emit-x64-alu-ir alu_op d base disp)))
 			((and (defq cpy_info (pfind +x64_cpy_fuse_map op0))
 					(defq d (third %0))
 					(nql d :rsp))
@@ -615,19 +671,19 @@
 								(bind '(p_idx s) match)
 								(elem-set emit_list p_idx (list (second cpy_info) s (if (eql x d) s x) d))
 								(elem-set emit_list (!) '(emit-nop)))))
-					(:shl_cr
-						(and (eql (second %0) 1)
-							(defq match (x64-find-cpy emit_list (!) d))
-							(progn
-								(bind '(p_idx s) match)
-								(elem-set emit_list p_idx (list (second cpy_info) s s d))
-								(elem-set emit_list (!) '(emit-nop)))))
 					(:add_cr
 						(and (x64-within (defq c (second %0)) 32)
 							(defq match (x64-find-cpy emit_list (!) d))
 							(progn
 								(bind '(p_idx s) match)
 								(elem-set emit_list p_idx (list (second cpy_info) s (* c (third cpy_info)) d))
+								(elem-set emit_list (!) '(emit-nop)))))
+					(:shl_cr
+						(and (eql (second %0) 1)
+							(defq match (x64-find-cpy emit_list (!) d))
+							(progn
+								(bind '(p_idx s) match)
+								(elem-set emit_list p_idx (list (second cpy_info) s s d))
 								(elem-set emit_list (!) '(emit-nop)))))))))
 		(list emit_list) 9 -1)
 	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
@@ -636,6 +692,6 @@
 (export-symbols emit_list)
 ;plus any private instruction maps if validating
 (validatecase
-	(defq emit_maps (list +x64_cpy_fuse_map +x64_barrier_map))
+	(defq emit_maps (list +x64_cpy_fuse_map +x64_mem_alu_map +x64_barrier_map))
 	(export-symbols '(emit_maps)))
 (env-pop)
