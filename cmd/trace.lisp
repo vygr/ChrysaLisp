@@ -2,6 +2,7 @@
 (import "lib/text/document.inc")
 (import "lib/files/info.inc")
 (import "lib/asm/regs.inc")
+(import "lib/asm/ops.inc")
 
 (defq usage `(
 	(("-h" "--help")
@@ -234,7 +235,7 @@
 			(while (< *pc* _e)
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
-				(case (first inst)
+				(pcase (first inst) +vp_emit_ops
 					((emit-label emit-tlabel)
 						;update merged state at labels
 						(defq pc (get (last (second inst)))
