@@ -161,7 +161,7 @@ while running entirely inside the portable C++ software emulator.
 * **Action:** Launches the **emulated VP64** environment and invokes `make all
   boot` to construct a fully native **ARM64** boot image from source.
 
-* **Result (Apple M4):** **1.79 seconds**.
+* **Result (Apple M4):** **1.68 seconds**.
 
 * **Result (Raspberry Pi 4):** **~10.0 seconds**.
 
