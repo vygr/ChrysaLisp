@@ -19,7 +19,8 @@
 (defq +x64_rax (emit-native-reg? :r0)
 	+x64_rcx (emit-native-reg? :r1)
 	+x64_rdx (emit-native-reg? :r2)
-	+x64_rsp (emit-native-reg? :rsp))
+	+x64_rsp (emit-native-reg? :rsp)
+	+x64_lookback_window 6)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Core Encoding Macros
@@ -537,10 +538,92 @@
 			(emit-cpy-ir +x64_rsp (* +ptr_size (+ (length x) 4)) +x64_rsp)))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
-;module, that exports everything !
-(export-symbols (map (const first) (tolist (env))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; x86_64 Specific Emitters
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defq emit_list (filter (# (starts-with "emit-" %0))
+		(merge (map (const first) (tolist (penv))) (map (const first) (tolist (env)))))
+	+x64_cpy_fuse_map
+		(reduce (#
+			(pinsert %0 %1
+				(cond
+					((eql %1 'emit-add-rr)
+						(list :rr 'emit-lea-d))
+					((eql %1 'emit-add-cr)
+						(list :add_cr 'emit-lea-i 1))
+					((eql %1 'emit-sub-cr)
+						(list :add_cr 'emit-lea-i -1))
+					((eql %1 'emit-shl-cr)
+						(list :shl_cr 'emit-lea-d))
+					(:t :nil))))
+			emit_list (pmap))
+	+x64_barrier_map
+		(reduce (#
+			(pinsert %0 %1
+				(when (find %1 '(emit-label emit-tlabel emit-alloc emit-free emit-push emit-pop
+						emit-call emit-call-r emit-call-i emit-call-p emit-call-abi
+						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync emit-brk
+						emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
+						emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
+						emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))
+					:t)))
+			emit_list (pmap)))
+
+(defun x64-find-cpy (emit_list idx d &optional x)
+	(if (eql x d) (setq x :nil))
+	(defq res (some! (#
+			(defq op (first %0))
+			(cond
+				((eql op 'emit-nop) :nil)
+				((and (eql op 'emit-cpy-rr) (eql (third %0) d))
+					(defq s (second %0))
+					(if (and (nql s d) (nql s :rsp))
+						(list (!) s)
+						:fail))
+				((or (pfind +x64_barrier_map op)
+						(find d %0 1)
+						(and x (find x %0 1)))
+					:fail)))
+			(list emit_list) :nil idx (max 9 (- idx +x64_lookback_window))))
+	(if (and res (nql res :fail)) res))
+
+(redefun emit-prepass (emit_list)
+	(each! (lambda (%0)
+		(defq op0 (first %0))
+		(cond
+			((and (defq cpy_info (pfind +x64_cpy_fuse_map op0))
+					(defq d (third %0))
+					(nql d :rsp))
+				(case (first cpy_info)
+					(:rr
+						(and (nql (defq x (second %0)) :rsp)
+							(defq match (x64-find-cpy emit_list (!) d x))
+							(progn
+								(bind '(p_idx s) match)
+								(elem-set emit_list p_idx (list (second cpy_info) s (if (eql x d) s x) d))
+								(elem-set emit_list (!) '(emit-nop)))))
+					(:shl_cr
+						(and (eql (second %0) 1)
+							(defq match (x64-find-cpy emit_list (!) d))
+							(progn
+								(bind '(p_idx s) match)
+								(elem-set emit_list p_idx (list (second cpy_info) s s d))
+								(elem-set emit_list (!) '(emit-nop)))))
+					(:add_cr
+						(and (x64-within (defq c (second %0)) 32)
+							(defq match (x64-find-cpy emit_list (!) d))
+							(progn
+								(bind '(p_idx s) match)
+								(elem-set emit_list p_idx (list (second cpy_info) s (* c (third cpy_info)) d))
+								(elem-set emit_list (!) '(emit-nop)))))))))
+		(list emit_list) 9 -1)
+	(filter! (# (nql (first %0) 'emit-nop)) emit_list))
+
+;module, that exports all emit-* !
+(export-symbols emit_list)
 ;plus any private instruction maps if validating
 (validatecase
-	(defq emit_maps (list))
+	(defq emit_maps (list +x64_cpy_fuse_map +x64_barrier_map))
 	(export-symbols '(emit_maps)))
 (env-pop)

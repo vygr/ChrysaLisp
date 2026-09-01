@@ -635,8 +635,7 @@
 					((eql %1 'emit-mul-cr)
 						(list :mul_cr 'emit-arm64-sub-rrr))
 					((defq i (find %1 '(emit-and-cr emit-or-cr emit-xor-cr)))
-						(list :limm (elem-get '(emit-arm64-and-crr emit-arm64-or-crr emit-arm64-xor-crr) i)))
-					(:t :nil))))
+						(list :limm (elem-get '(emit-arm64-and-crr emit-arm64-or-crr emit-arm64-xor-crr) i))))))
 			emit_list (pmap))
 	+arm64_barrier_map
 		(reduce (#
