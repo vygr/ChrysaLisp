@@ -134,22 +134,26 @@ down all compiler environments.
   de-optimization penalties. At ~66.7ms, the system can execute this complete
   birth-to-death compilation cycle **15 times per second**.
 
-### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
+### Test 2: Multi-Platform Cross-Compilation & Boot Generation (Throughput)
 
-This test measures the time to simultaneously compile all system sources for
-five different target architectures from scratch.
+This test measures the time to simultaneously compile all system sources from
+scratch, translate them for six different target architectures, and generate
+complete, self-contained `boot_image` binaries for each platform.
 
-* **Command:** `make all platforms | time`
+* **Command:** `make all platform boot | time`
 
-* **Action:** Invokes `make-all-platforms`, cross-compiling the operating system
-  for `x86_64/AMD64`, `x86_64/WIN64`, `arm64/ARM64`, `riscv64/RISCV64`, and
+* **Action:** Invokes full clean compilation, optimization, native translation,
+  and final linkerless boot image serialization for `x86_64/AMD64`,
+  `x86_64/WIN64`, `arm64/ARM64`, `riscv64/RISCV64`, `la64/LA64`, and
   `vp64/VP64`.
 
-* **Result:** **0.36 seconds**.
+* **Result:** **0.11 seconds**.
 
-* **Evidence:** The entire operating system is compiled from source five times
-  over (once for each architecture) in roughly a third of a second,
-  demonstrating the massive throughput of the lightweight JIT assembler.
+* **Evidence:** The entire operating system is compiled from source, translated,
+  and packaged into bootable binaries six times over (once for each
+  architecture) in roughly a tenth of a second (~18ms per platform),
+  demonstrating the massive throughput of the lightweight assembler and
+  linkerless boot architecture.
 
 ### Test 3: The Bootstrap Install (The Portability Test)
 
