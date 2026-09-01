@@ -85,6 +85,9 @@ Further optimizations to the `arm64` translator, more 2 -> 3 address peehole
 tests and extended preepass checks for instruction fusing opportunities. Saved
 around 6KB of boot image.
 
+Optimizations to the generic `vpopts` optimizer pass. Use of padded `pmap`
+instruction lists and combined several barrier lists into single pfind calls.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
