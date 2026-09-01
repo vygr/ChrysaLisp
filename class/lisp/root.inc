@@ -978,8 +978,10 @@
 		(throw "Multiple matching case keys !" keys))
 	(if (or (eql val :nil) (not (find :nil vals)))
 		(progn
-			(defq pl (reduce! (const pinsert) (list keys vals)
-				(reduce (# (pinsert %0 %1 :nil)) (eval pkeys) (pmap))))
+			(defq pkl (eval pkeys)
+				pkl (if (and (list?? pkl) (quote? (first pkl))) (second pkl) pkl)
+				pl (reduce! (const pinsert) (list keys vals)
+					(reduce (# (pinsert %0 %1 :nil)) pkl (pmap))))
 			(if (and (atom? val) (every (const atom?) vals))
 				(static-qq (ifn (pfind ,pl ,key) ,val))
 				(static-qq (eval (ifn (pfind ,pl ,key) ',val)))))
