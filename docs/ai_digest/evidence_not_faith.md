@@ -173,11 +173,13 @@ while running entirely inside the portable C++ software emulator.
 ## Compact Boot Images: L1 Cache Residence
 
 ChrysaLisp's "linkerless" direct-offset architecture produces self-contained,
-minimal `boot_image` binaries:
+minimal `boot_image` binaries across all supported architectures:
 
-* `obj/x86_64/AMD64/sys/boot_image`: **197,228 bytes**
+* `obj/vp64/VP64/sys/boot_image`: **144,036 bytes**
 
-* `obj/x86_64/WIN64/sys/boot_image`: **197,540 bytes**
+* `obj/x86_64/AMD64/sys/boot_image`: **196,396 bytes**
+
+* `obj/x86_64/WIN64/sys/boot_image`: **196,724 bytes**
 
 * `obj/arm64/ARM64/sys/boot_image`: **215,156 bytes**
 
@@ -185,12 +187,10 @@ minimal `boot_image` binaries:
 
 * `obj/la64/LA64/sys/boot_image`: **252,132 bytes**
 
-* `obj/vp64/VP64/sys/boot_image`: **144,036 bytes**
-
 Because these complete system images are around ~200 KB, they fit entirely
-inside the L1 instruction and data caches of modern CPU cores. The CPU rarely
-stalls on main memory access during core execution, resulting in near-zero
-memory bus latency.
+inside the L1/L2 instruction and data caches of modern CPU cores. The CPU rarely
+stalls on main memory access during core execution, resulting in near-zero memory
+bus latency.
 
 ## The VP64 Target: A Blueprint for Silicon
 

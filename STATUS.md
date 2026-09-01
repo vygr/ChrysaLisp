@@ -88,6 +88,9 @@ around 6KB of boot image.
 Optimizations to the generic `vpopts` optimizer pass. Use of padded `pmap`
 instruction lists and combined several barrier lists into single pfind calls.
 
+Added `emit-prepass` to `x64` translator and some additional instruction fusing
+opportunities.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
