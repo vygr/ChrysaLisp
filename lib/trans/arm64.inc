@@ -31,7 +31,8 @@
 (defq +arm64_rlnk (emit-native-reg? :r30)
 	+arm64_rtmp (emit-native-reg? :r29)
 	+arm64_vp_rsp (emit-native-reg? :rsp)
-	+arm64_rsp (emit-native-reg? :r31))
+	+arm64_rsp (emit-native-reg? :r31)
+	+arm64_lookback_window 6)
 
 (defmacro arm64-rrr (o m n d) `(emitm-int (+ ,o (<< ,m 16) (<< ,n 5) ,d)))
 (defmacro arm64-ux (x s d) `(emitm-int (+ 0xd3400000 (<< ,x 10) (<< ,s 5) ,d)))
@@ -673,7 +674,7 @@
 						(find d %0 1)
 						(and x (find x %0 1)))
 					:fail)))
-			(list emit_list) :nil idx (max 9 (- idx 6))))
+			(list emit_list) :nil idx (max 9 (- idx +arm64_lookback_window))))
 	(if (and res (nql res :fail)) res))
 
 (redefun emit-prepass (emit_list)
