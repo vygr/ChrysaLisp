@@ -220,8 +220,8 @@
 (defun emit-cpy-ir-b (s c d) (x64-mem-ir 8 '(0x0f 0xbe) d s c))
 (defun emit-cpy-ir-s (s c d) (x64-mem-ir 8 '(0x0f 0xbf) d s c))
 (defun emit-cpy-ir-i (s c d) (x64-mem-ir 8 0x63 d s c))
-(defun emit-cpy-ir-ub (s c d) (x64-mem-ir 8 '(0x0f 0xb6) d s c))
-(defun emit-cpy-ir-us (s c d) (x64-mem-ir 8 '(0x0f 0xb7) d s c))
+(defun emit-cpy-ir-ub (s c d) (x64-mem-ir 4 '(0x0f 0xb6) d s c))
+(defun emit-cpy-ir-us (s c d) (x64-mem-ir 4 '(0x0f 0xb7) d s c))
 (defun emit-cpy-ir-ui (s c d) (x64-mem-ir 4 0x8b d s c))
 (defun emit-lea-i (s c d) (unless (and (eql c 0) (eql s d)) (x64-mem-ir 8 0x8d d s c)))
 
@@ -234,8 +234,8 @@
 (defun emit-cpy-dr-b (s1 s2 d) (x64-mem-dr 8 '(0x0f 0xbe) d s1 s2))
 (defun emit-cpy-dr-s (s1 s2 d) (x64-mem-dr 8 '(0x0f 0xbf) d s1 s2))
 (defun emit-cpy-dr-i (s1 s2 d) (x64-mem-dr 8 0x63 d s1 s2))
-(defun emit-cpy-dr-ub (s1 s2 d) (x64-mem-dr 8 '(0x0f 0xb6) d s1 s2))
-(defun emit-cpy-dr-us (s1 s2 d) (x64-mem-dr 8 '(0x0f 0xb7) d s1 s2))
+(defun emit-cpy-dr-ub (s1 s2 d) (x64-mem-dr 4 '(0x0f 0xb6) d s1 s2))
+(defun emit-cpy-dr-us (s1 s2 d) (x64-mem-dr 4 '(0x0f 0xb7) d s1 s2))
 (defun emit-cpy-dr-ui (s1 s2 d) (x64-mem-dr 4 0x8b d s1 s2))
 (defun emit-lea-d (s1 s2 d) (x64-mem-dr 8 0x8d d s1 s2))
 
