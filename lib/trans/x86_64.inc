@@ -601,7 +601,7 @@
 					((eql %1 'emit-and-rr) 0x23)
 					((eql %1 'emit-or-rr)  0x0b)
 					((eql %1 'emit-xor-rr) 0x33)
-					((eql %1 'emit-mul-rr) '(0x0f 0xaf)))))
+					((eql %1 'emit-mul-rr) ''(0x0f 0xaf)))))
 			emit_list (pmap))
 	+x64_barrier_map
 		(reduce (#
