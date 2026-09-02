@@ -53,12 +53,12 @@
 		(reduce (# (pinsert %0 %1
 			(cond
 				((find %1 '(emit-pop emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr emit-div-rrr-u)) :multi)
-				((find %1 '(emit-min-cr emit-max-cr emit-min-rr emit-max-rr emit-abs-rr)) 2)
 				((find %1 '(emit-cpy-cr emit-add-cr emit-sub-cr emit-mul-cr emit-and-cr emit-or-cr emit-xor-cr
 						emit-cpy-rr emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr emit-or-rr emit-xor-rr
 						emit-shl-cr emit-shr-cr emit-asr-cr emit-shl-rr emit-shr-rr emit-asr-rr emit-ext-rr
 						emit-seq-cr emit-sne-cr emit-slt-cr emit-sle-cr emit-sgt-cr emit-sge-cr
 						emit-seq-rr emit-sne-rr emit-slt-rr emit-sle-rr emit-sgt-rr emit-sge-rr
+						emit-min-cr emit-max-cr emit-min-rr emit-max-rr emit-abs-rr
 						emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-lea-i
 						emit-cpy-dr emit-cpy-dr-b emit-cpy-dr-s emit-cpy-dr-i emit-cpy-dr-ub emit-cpy-dr-us emit-cpy-dr-ui emit-lea-d
 						emit-cpy-pr emit-lea-p

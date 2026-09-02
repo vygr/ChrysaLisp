@@ -80,11 +80,11 @@
 (defun emit-div-rrr-u (s d2 d1) (emitm-short (+ (next-opcode) (<< d1 8) (<< d2 12)) s))
 
 ; Group 5: Min/Max/Abs
-(defun emit-min-cr (c d l m) (vp64-cr (next-opcode 4) c d))
-(defun emit-max-cr (c d l m) (vp64-cr (next-opcode 4) c d))
-(defun emit-min-rr (s d l m) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
-(defun emit-max-rr (s d l m) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
-(defun emit-abs-rr (s d l m) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-min-cr (c d) (vp64-cr (next-opcode 4) c d))
+(defun emit-max-cr (c d) (vp64-cr (next-opcode 4) c d))
+(defun emit-min-rr (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
+(defun emit-max-rr (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
+(defun emit-abs-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
 
 ; Group 6: Set-on-Comparison (CR)
 (defun vp64-scr (o c d)

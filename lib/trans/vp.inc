@@ -17,7 +17,6 @@
 (defun emit-trash (&ignore))
 (defun emit-prepass (emit_list) emit_list)
 (defun emit-label (label) (set (penv) label *pc*))
-(defun emit-tlabel (temp) (set (penv) temp *pc*))
 (defun emit-string (string) (++ *pc* (write-blk *stream* string)))
 (defun emit-byte (&rest data) (++ *pc* (write-char *stream* data)))
 (defun emit-short (&rest data) (++ *pc* (write-char *stream* data +short_size)))
@@ -65,8 +64,7 @@
 (defq +emit_jmps (reduce (lambda (%0 (%1 &)) (pinsert %0 %1 (find %1
 		'(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr
 		emit-bge-rr emit-ble-rr emit-bge-cr emit-ble-cr emit-blt-cr
-		emit-blt-rr emit-bgt-rr emit-bgt-cr emit-min-cr emit-max-cr
-		emit-min-rr emit-max-rr emit-abs-rr emit-beq-ff emit-bne-ff
+		emit-blt-rr emit-bgt-rr emit-bgt-cr emit-beq-ff emit-bne-ff
 		emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))))
 	(partition +emit_funcs 2) (pmap)))
 
@@ -90,7 +88,7 @@
 				(list inst) 1)
 			;create label and branch initial values
 			(cond
-				((find (defq op (first inst)) '(emit-label emit-tlabel))
+				((eql (defq op (first inst)) 'emit-label)
 					(def (penv) (last (last inst)) 0))
 				((pfind +emit_jmps op)
 					(push inst (dec (length (push *offsets* 0))))))

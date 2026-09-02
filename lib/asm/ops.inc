@@ -19,7 +19,7 @@
 	emit-lea-d emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i emit-cpy-pr
 	emit-lea-p emit-call-abi emit-ret emit-sync emit-brk emit-alloc emit-free
 	emit-push emit-pop emit-stack-init emit-align emit-nop emit-trash emit-label
-	emit-tlabel emit-string emit-byte emit-short emit-int emit-long emit-add-ff
+	emit-string emit-byte emit-short emit-int emit-long emit-add-ff
 	emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff emit-sqrt-ff
 	emit-abs-ff emit-neg-ff emit-cpy-ff emit-cvt-rf emit-cvt-fr emit-cpy-rf
 	emit-cpy-fr emit-cpy-if emit-cpy-fi emit-cpy-df emit-cpy-fd

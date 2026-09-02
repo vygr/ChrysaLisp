@@ -425,30 +425,28 @@
 ; Group 11: Min, Max, Abs, CMOV
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun emit-min-cr (c d l m)
-	(emit-cpy-cr c +la64_rtmp1)
-	(emit-ble-rr +la64_rtmp1 d l m)
-	(emit-cpy-rr +la64_rtmp1 d))
-
-(defun emit-max-cr (c d l m)
-	(emit-cpy-cr c +la64_rtmp1)
-	(emit-bge-rr +la64_rtmp1 d l m)
-	(emit-cpy-rr +la64_rtmp1 d))
-
-(defun emit-min-rr (s d l m)
+(defun emit-min-rr (s d)
 	(unless (eql s d)
-		(emit-ble-rr s d l m)
+		(la64-b16 0x64000000 s d 8)
 		(emit-cpy-rr s d)))
 
-(defun emit-max-rr (s d l m)
+(defun emit-max-rr (s d)
 	(unless (eql s d)
-		(emit-bge-rr s d l m)
+		(la64-b16 0x64000000 d s 8)
 		(emit-cpy-rr s d)))
 
-(defun emit-abs-rr (s d l m)
+(defun emit-abs-rr (s d)
 	(unless (eql s d) (emit-cpy-rr s d))
-	(emit-bge-rr +la64_rzero d l m)
+	(la64-b16 0x64000000 d +la64_rzero 8)
 	(emit-mul-cr -1 d))
+
+(defun emit-min-cr (c d)
+	(emit-cpy-cr c +la64_rtmp1)
+	(emit-min-rr +la64_rtmp1 d))
+
+(defun emit-max-cr (c d)
+	(emit-cpy-cr c +la64_rtmp1)
+	(emit-max-rr +la64_rtmp1 d))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Group 12: Floating Point (LA64)

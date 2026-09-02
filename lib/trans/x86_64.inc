@@ -413,14 +413,35 @@
 ; Group 7: Min, Max, Abs, CMOV
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun emit-min-cr (c d l m) (emit-ble-cr c d l m) (emit-cpy-cr c d))
-(defun emit-max-cr (c d l m) (emit-bge-cr c d l m) (emit-cpy-cr c d))
-(defun emit-min-rr (s d l m) (unless (eql s d) (x64-cmp-rr s d) (x64-0f-r-r 0x4f s d)))
-(defun emit-max-rr (s d l m) (unless (eql s d) (x64-cmp-rr s d) (x64-0f-r-r 0x4c s d)))
+(defun emit-min-cr (c d)
+	(x64-cmp-cr c d)
+	(defq len (cond
+		((= c 0) (if (>= d 8) 3 2))
+		((= c -1) 4)
+		((<= 0 c 0xffffffff) (if (>= d 8) 6 5))
+		((x64-within c 32) 7)
+		(:t 10)))
+	(emitm-byte 0x7e len)
+	(emit-cpy-cr c d))
 
-(defun emit-abs-rr (s d l m)
+(defun emit-max-cr (c d)
+	(x64-cmp-cr c d)
+	(defq len (cond
+		((= c 0) (if (>= d 8) 3 2))
+		((= c -1) 4)
+		((<= 0 c 0xffffffff) (if (>= d 8) 6 5))
+		((x64-within c 32) 7)
+		(:t 10)))
+	(emitm-byte 0x7d len)
+	(emit-cpy-cr c d))
+
+(defun emit-min-rr (s d) (unless (eql s d) (x64-cmp-rr s d) (x64-0f-r-r 0x4f s d)))
+(defun emit-max-rr (s d) (unless (eql s d) (x64-cmp-rr s d) (x64-0f-r-r 0x4c s d)))
+
+(defun emit-abs-rr (s d)
 	(unless (eql s d) (emit-cpy-rr s d))
-	(emit-bge-cr 0 d l m)
+	(x64-cmp-cr 0 d)
+	(emitm-byte 0x79 3)
 	(emit-mul-cr -1 d))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -585,7 +606,7 @@
 	+x64_barrier_map
 		(reduce (#
 			(pinsert %0 %1
-				(when (find %1 '(emit-label emit-tlabel emit-alloc emit-free emit-push emit-pop
+				(when (find %1 '(emit-label emit-alloc emit-free emit-push emit-pop
 						emit-call emit-call-r emit-call-i emit-call-p emit-call-abi
 						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync emit-brk
 						emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr

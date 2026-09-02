@@ -91,6 +91,8 @@ instruction lists and combined several barrier lists into single pfind calls.
 Added `emit-prepass` to `x64` translator and some additional instruction fusing
 opportunities.
 
+Eliminate the `emit-tlabel` VP sudo instruction.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

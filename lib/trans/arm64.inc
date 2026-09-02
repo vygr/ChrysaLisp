@@ -292,20 +292,20 @@
 (defun arm64-csel (c s1 s2 d) (emitm-int (+ 0x9a800000 (<< s2 16) (<< c 12) (<< s1 5) d)))
 (defmacro arm64-csetm (c d) `(emitm-int (+ 0xda9f03e0 (<< (logxor ,c 1) 12) ,d)))
 
-(defun emit-min-cr (c d l m)
+(defun emit-min-cr (c d)
 	(emit-cpy-cr c +arm64_rtmp)
 	(emitm-int (+ 0xeb000000 (<< +arm64_rtmp 16) (<< d 5) 31))
 	(arm64-csel 0xc +arm64_rtmp d d))
 
-(defun emit-max-cr (c d l m)
+(defun emit-max-cr (c d)
 	(emit-cpy-cr c +arm64_rtmp)
 	(emitm-int (+ 0xeb000000 (<< +arm64_rtmp 16) (<< d 5) 31))
 	(arm64-csel 0xb +arm64_rtmp d d))
 
-(defun emit-min-rr (s d l m) (unless (eql s d) (emitm-int (+ 0xeb000000 (<< s 16) (<< d 5) 31)) (arm64-csel 0xc s d d)))
-(defun emit-max-rr (s d l m) (unless (eql s d) (emitm-int (+ 0xeb000000 (<< s 16) (<< d 5) 31)) (arm64-csel 0xb s d d)))
+(defun emit-min-rr (s d) (unless (eql s d) (emitm-int (+ 0xeb000000 (<< s 16) (<< d 5) 31)) (arm64-csel 0xc s d d)))
+(defun emit-max-rr (s d) (unless (eql s d) (emitm-int (+ 0xeb000000 (<< s 16) (<< d 5) 31)) (arm64-csel 0xb s d d)))
 
-(defun emit-abs-rr (s d l m)
+(defun emit-abs-rr (s d)
 	(emitm-int (+ 0xf100001f (<< s 5)))
 	(emitm-int (+ 0xda80a400 (<< s 16) (<< s 5) d)))
 
@@ -640,7 +640,7 @@
 	+arm64_barrier_map
 		(reduce (#
 			(pinsert %0 %1
-				(when (find %1 '(emit-label emit-tlabel emit-alloc emit-free emit-push emit-pop
+				(when (find %1 '(emit-label emit-alloc emit-free emit-push emit-pop
 						emit-call emit-call-r emit-call-i emit-call-p emit-call-abi
 						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync emit-brk
 						emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr

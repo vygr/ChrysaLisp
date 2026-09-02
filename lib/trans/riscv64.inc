@@ -418,30 +418,28 @@
 	(emit-cpy-pr l +riscv64_rtmp1)
 	(emit-jmp-r +riscv64_rtmp1))
 
-(defun emit-min-cr (c d l m)
-	(emit-cpy-cr c +riscv64_rtmp1)
-	(emit-ble-rr +riscv64_rtmp1 d l m)
-	(emit-cpy-rr +riscv64_rtmp1 d))
-
-(defun emit-max-cr (c d l m)
-	(emit-cpy-cr c +riscv64_rtmp1)
-	(emit-bge-rr +riscv64_rtmp1 d l m)
-	(emit-cpy-rr +riscv64_rtmp1 d))
-
-(defun emit-min-rr (s d l m)
+(defun emit-min-rr (s d)
 	(unless (eql s d)
-		(emit-ble-rr s d l m)
+		(riscv64-b 0x63 s d 0x5 8)
 		(emit-cpy-rr s d)))
 
-(defun emit-max-rr (s d l m)
+(defun emit-max-rr (s d)
 	(unless (eql s d)
-		(emit-bge-rr s d l m)
+		(riscv64-b 0x63 d s 0x5 8)
 		(emit-cpy-rr s d)))
 
-(defun emit-abs-rr (s d l m)
+(defun emit-abs-rr (s d)
 	(unless (eql s d) (emit-cpy-rr s d))
-	(emit-bge-rr +riscv64_rzero d l m)
+	(riscv64-b 0x63 d +riscv64_rzero 0x5 8)
 	(emit-mul-cr -1 d))
+
+(defun emit-min-cr (c d)
+	(emit-cpy-cr c +riscv64_rtmp1)
+	(emit-min-rr +riscv64_rtmp1 d))
+
+(defun emit-max-cr (c d)
+	(emit-cpy-cr c +riscv64_rtmp1)
+	(emit-max-rr +riscv64_rtmp1 d))
 
 (defmacro riscv64-fp-r (o s d)
 	; 3-operand math op: d = d op s
