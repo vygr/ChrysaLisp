@@ -28,6 +28,16 @@
 
 #define MAX_NET_HANDLES 256
 
+static struct addrinfo hints;
+static char port_str[16];
+static struct sockaddr_in net_addr;
+static struct sockaddr_in client_addr;
+#ifdef _WIN64
+static WSAPOLLFD pfd;
+#else
+static struct pollfd pfd;
+#endif
+
 enum SockState {
 	SOCK_STATE_FREE = 0,
 	SOCK_STATE_CONNECTING,
@@ -73,6 +83,8 @@ static uint32_t alloc_slot(socket_t fd, int state) {
 }
 
 int64_t host_net_init() {
+	printf("[host_net_init] entering...\n");
+	fflush(stdout);
 #ifdef _WIN64
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) return -1;
@@ -83,6 +95,8 @@ int64_t host_net_init() {
 		slots[i].fd = SOCK_INVALID;
 		slots[i].state = SOCK_STATE_FREE;
 	}
+	printf("[host_net_init] done.\n");
+	fflush(stdout);
 	return 0;
 }
 
@@ -101,15 +115,20 @@ int64_t host_net_deinit() {
 }
 
 uint32_t host_net_connect(const char *host, uint32_t port) {
-	char port_str[16];
+	printf("[host_net_connect] host=%s, port=%u\n", host, port);
+	fflush(stdout);
 	snprintf(port_str, sizeof(port_str), "%u", port);
+	struct addrinfo *res = nullptr;
 
-	struct addrinfo hints, *res = nullptr;
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 
+	printf("[host_net_connect] calling getaddrinfo...\n");
+	fflush(stdout);
 	if (getaddrinfo(host, port_str, &hints, &res) != 0 || !res) return 0;
+	printf("[host_net_connect] getaddrinfo ok.\n");
+	fflush(stdout);
 
 	socket_t fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (fd == SOCK_INVALID) {
@@ -135,7 +154,10 @@ uint32_t host_net_connect(const char *host, uint32_t port) {
 #endif
 
 	int state = (ret == 0) ? SOCK_STATE_CONNECTED : SOCK_STATE_CONNECTING;
-	return alloc_slot(fd, state);
+	uint32_t h = alloc_slot(fd, state);
+	printf("[host_net_connect] handle=%u\n", h);
+	fflush(stdout);
+	return h;
 }
 
 uint32_t host_net_listen(uint32_t port) {
@@ -238,13 +260,33 @@ int64_t host_net_poll(uint32_t handle) {
 
 	short events = POLLIN | POLLOUT;
 #ifdef _WIN64
-	WSAPOLLFD pfd = { slots[handle].fd, (SHORT)events, 0 };
+	pfd.fd = slots[handle].fd;
+	pfd.events = (SHORT)events;
+	pfd.revents = 0;
 	int ret = WSAPoll(&pfd, 1, 0);
 #else
-	struct pollfd pfd = { slots[handle].fd, events, 0 };
+	pfd.fd = slots[handle].fd;
+	pfd.events = events;
+	pfd.revents = 0;
 	int ret = poll(&pfd, 1, 0);
 #endif
 	if (ret <= 0) return 0;
+
+	// Check for socket-level errors via getsockopt
+	int so_err = 0;
+#ifdef _WIN64
+	int err_len = sizeof(so_err);
+	getsockopt(slots[handle].fd, SOL_SOCKET, SO_ERROR, (char *)&so_err, &err_len);
+#else
+	socklen_t err_len = sizeof(so_err);
+	getsockopt(slots[handle].fd, SOL_SOCKET, SO_ERROR, &so_err, &err_len);
+#endif
+
+	if (so_err != 0) {
+		printf("[host_net_poll] handle=%u error: %s (%d)\n", handle, strerror(so_err), so_err);
+		fflush(stdout);
+		return 4;
+	}
 
 	int64_t flags = 0;
 	if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) flags |= 4;
