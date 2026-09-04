@@ -472,6 +472,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 	regs[1] = (int64_t)host_os_funcs;
 	regs[2] = (int64_t)host_gui_funcs;
 	regs[3] = (int64_t)host_audio_funcs;
+	regs[4] = (int64_t)host_net_funcs;
 	regs[15] = (int64_t)stack;
 
 	for(;;)

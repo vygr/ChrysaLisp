@@ -20,7 +20,7 @@ CFLAGS := -O3 -nostdlib -fno-exceptions -MMD -D_WIN64 -ffunction-sections -fdata
 CPPFLAGS := -std=c++14
 
 # Linker flags: Static toolchain libs, dynamic SDL, strip symbols, and GC sections
-MINGW_LDFLAGS := -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -Wl,-Bdynamic -s -Wl,--gc-sections -flto
+MINGW_LDFLAGS := -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -Wl,-Bdynamic -s -Wl,--gc-sections -flto -lws2_32
 LDFLAGS := $(MINGW_LDFLAGS)
 
 include Makefile

@@ -21,7 +21,7 @@ SRC_DIRS := $(shell find $(SRC_DIR) -type d | grep -v "/obj")
 OBJ_DIRS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_GUI)/%,$(SRC_DIRS))
 OBJ_DIRS += $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_TUI)/%,$(SRC_DIRS))
 
-SRC_FILES_CORE := src/host/main.cpp src/host/vp64.cpp src/host/pii_linux.cpp src/host/pii_windows.cpp src/host/pii_darwin.cpp
+SRC_FILES_CORE := src/host/main.cpp src/host/vp64.cpp src/host/net.cpp src/host/pii_linux.cpp src/host/pii_windows.cpp src/host/pii_darwin.cpp
 SRC_FILES_DRIVERS := src/host/audio_sdl.cpp src/host/gui_sdl.cpp src/host/gui_raw.cpp src/host/gui_fb.c
 
 OBJ_FILES_CORE_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_CORE))
