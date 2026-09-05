@@ -6,7 +6,7 @@
 
 (defq +sleep_min 1000 +sleep_max 20000)
 
-(defun session-close (sessions handle session)
+(defun session-close (sessions handle)
 	(net-close handle)
 	(. sessions :erase handle))
 
@@ -123,14 +123,14 @@
 										(defq chunk (net-recv handle 4096))
 										(cond
 											((eql chunk :nil)
-												(session-close sessions handle session)
+												(session-close sessions handle)
 												(setq active :t))
 											((nql chunk "")
 												(write-blk (get :server_out session) chunk)
 												(stream-flush (get :server_out session))
 												(setq active :t))))
 									((and (/= (logand p 4) 0) (= (logand p 1) 0))
-										(session-close sessions handle session)
+										(session-close sessions handle)
 										(setq active :t)))
 								; Check Client -> TCP
 								(when (. sessions :find handle)
@@ -138,7 +138,7 @@
 									(cond
 										((or (= in_state +stream_mail_state_aborted)
 											 (= in_state +stream_mail_state_stopped))
-											(session-close sessions handle session)
+											(session-close sessions handle)
 											(setq active :t))
 										((mail-poll (list (in-mbox (get :server_in session))))
 											(in-next-msg (get :server_in session))
