@@ -12,7 +12,7 @@
 
 (defun main ()
 	(net-init)
-	(defq service (mail-declare (task-mbox) "*Net" "Socket Service 0.1")
+	(defq service (mail-declare (task-mbox) "*Net" "Net Service 0.1")
 		select (list (task-mbox) (mail-mbox)) sessions (Fmap 31)
 		sleep_time +sleep_min running :t)
 	(mail-timeout (elem-get select +select_timer) sleep_time 0)
