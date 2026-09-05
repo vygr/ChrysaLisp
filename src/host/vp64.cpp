@@ -453,9 +453,7 @@ struct u128 { uint64_t lo; uint64_t hi; };
 	VP_OP_RR(cpy, rf) \
 	VP_OP_RR(cpy, fr)
 
-int vp64(uint8_t* data, int64_t *stack, int64_t* argv,
-	int64_t* host_os_funcs, int64_t* host_gui_funcs,
-	int64_t* host_audio_funcs, int64_t* host_net_funcs)
+int vp64(uint8_t *data, int64_t *stack, int64_t *argv, void **host_calls)
 {
 	int64_t regs[16];
 	double fregs[16];
@@ -471,10 +469,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv,
 	pc = (int16_t*)((uint8_t*)data + pHeader->entry);
 
 	regs[0] = (int64_t)argv;
-	regs[1] = (int64_t)host_os_funcs;
-	regs[2] = (int64_t)host_gui_funcs;
-	regs[3] = (int64_t)host_audio_funcs;
-	regs[4] = (int64_t)host_net_funcs;
+	regs[1] = (int64_t)host_calls;
 	regs[15] = (int64_t)stack;
 
 	for(;;)

@@ -32,7 +32,7 @@ trashes
 ### :init -> sys/load/init
 
 ```code
-inputs from OS
+inputs from OS, in a table ! Not via separate (abi-args)
 host OS function table
 host GUI function table
 host audio function table

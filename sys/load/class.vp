@@ -4,7 +4,7 @@
 (include "././str/class.inc")
 
 (def-method :sys_load :init)
-	;inputs from OS
+	;inputs from OS, in a table ! Not via separate (abi-args)
 	;host OS function table
 	;host GUI function table
 	;host audio function table
@@ -34,7 +34,9 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry :sys_load :init '((:rsp local_argv) (:rsp local_os) (:rsp local_gui) (:rsp local_audio) (:rsp local_net)))
+	(entry :sys_load :init '((:rsp local_argv) :r3))
+	(assign '((:r3 0) (:r3 8) (:r3 16) (:r3 24)) '(:r0 :r1 :r2 :r3))
+	(assign '(:r0 :r1 :r2 :r3) '((:rsp local_os) (:rsp local_gui) (:rsp local_audio) (:rsp local_net)))
 
 	;get boot block info
 	(assign '(($ fn_start) ($ fn_end)) '(:r0 :r1))
