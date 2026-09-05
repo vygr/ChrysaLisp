@@ -1,7 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;
-; service/net/app.inc
-;;;;;;;;;;;;;;;;;;;;;
-
 ; RPC command types
 (enums +net_rpc_type 0
 	(enum connect listen accept))
