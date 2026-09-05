@@ -3,37 +3,30 @@
 
 (defq usage `(
 (("-h" "--help")
-"Usage: nettest [options] [path] ...
+"Usage: nettest [options] [host] [port]
 
     options:
         -h --help: this help info.
 
-    Simple net service tests.")
+    Simple net service test. Default host: example.com, port: 80.")
 ))
 
 (defun main ()
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_f :nil args (options stdio usage)))
-		(print "Calling (net-open-rpc example.com 80) via *Net service...")
-		(stream-flush (io-stream 'stdout))
-		(if (defq conn (net-open-rpc "example.com" 80))
+		(defq host (if (> (length args) 1) (second args) "example.com")
+			port (if (> (length args) 2) (str-to-num (third args)) 80))
+		(print "Calling (net-open-rpc " host " " port ") via *Net service...")
+		(if (defq conn (net-open-rpc host port))
 			(progn
-        		(bind '(in out) conn)
+				(bind '(in out) conn)
 				(print "Connection established! Sending HTTP request...")
-				(stream-flush (io-stream 'stdout))
-				(write-line out "GET / HTTP/1.1")
-				(write-line out "Host: example.com")
-				(write-line out "Connection: close")
-				(write-line out "")
+				(write-line out (cat "GET / HTTP/1.1\r\nHost: "
+					host "\r\nConnection: close\r\n\r\n"))
 				(stream-flush out)
-				(print "Reading response lines via In stream:\n")
-				(stream-flush (io-stream 'stdout))
-				(lines! (lambda (line)
-					(print line)
-					(stream-flush (io-stream 'stdout))) in)
-				(print "\nFinished reading response.")
-				(stream-flush (io-stream 'stdout)))
+				(print "Reading response lines via In stream:")
+				(lines! (const print) in)
+				(print "\nFinished reading response."))
 			(progn
-				(print "Failed to connect!")
-				(stream-flush (io-stream 'stdout))))))
+				(print "Failed to connect!")))))
