@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; service/net/net.inc
-;;;;;;;;;;;;;;;;;;;;;;
 ;low-level PII network bindings
 (ffi "service/net/lisp_init" net-init)
 ; (net-init) -> num

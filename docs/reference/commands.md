@@ -402,6 +402,15 @@ Usage: mv [options] path1 path2
 
     Move file path1 to path2.
 ```
+## nettest
+```code
+Usage: nettest [options] [path] ...
+
+    options:
+        -h --help: this help info.
+
+    Simple net service tests.
+```
 ## nodes
 ```code
 Usage: nodes [options]

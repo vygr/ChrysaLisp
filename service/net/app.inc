@@ -46,7 +46,7 @@
 
 (defun net-service ()
 	; (net-service) -> netid | :nil
-	(when (defq s (mail-enquire "*Socket,"))
+	(when (defq s (mail-enquire "*Net,"))
 		(hex-decode (second (split (first s) ",")))))
 
 (defun net-open (host port)

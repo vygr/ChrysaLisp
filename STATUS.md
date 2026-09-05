@@ -93,6 +93,10 @@ opportunities.
 
 Eliminate the `emit-tlabel` VP sudo instruction.
 
+New `service/net` `*Net` service ! TCP/IP sockets service. Simple test cmd app
+`nettest` to cover a round trip read test. More layers to come, but this gets
+the host API working.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

@@ -1,5 +1,2 @@
-;;;;;;;;;;;;;;;;;;;;;
-; service/net/app.lisp
-;;;;;;;;;;;;;;;;;;;;;
-(if (empty? (mail-enquire "*Socket,"))
+(if (empty? (mail-enquire "*Net,"))
 	(import "./app_impl.lisp"))

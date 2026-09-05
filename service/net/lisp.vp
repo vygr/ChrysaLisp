@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;
-; service/net/lisp.vp
-;;;;;;;;;;;;;;;;;;;;;
 (include "lib/asm/func.inc")
 (include "class/num/class.inc")
 (include "class/str/class.inc")

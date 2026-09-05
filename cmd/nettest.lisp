@@ -15,7 +15,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_f :nil args (options stdio usage)))
-		(print "Calling (net-open example.com 80) via *Socket service...")
+		(print "Calling (net-open example.com 80) via *Net service...")
 		(stream-flush (io-stream 'stdout))
 		(bind '(in out) (net-open "example.com" 80))
 		(if (and in out)

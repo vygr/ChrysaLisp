@@ -1,11 +1,8 @@
-;;;;;;;;;;;;;;;;;;;;;;;
-; service/net/class.inc
-;;;;;;;;;;;;;;;;;;;;;;;
-(include "lib/asm/class.inc")
-
 ;;;;;;;;;;;;;;;;;;;;
 ; host net PII class
 ;;;;;;;;;;;;;;;;;;;;
+
+(include "lib/asm/class.inc")
 
 (def-class :host_net :nil
 	(dec-method :init :nil :virtual (abi-args 0) (:r0))

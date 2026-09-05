@@ -83,8 +83,6 @@ static uint32_t alloc_slot(socket_t fd, int state) {
 }
 
 int64_t host_net_init() {
-	printf("[host_net_init] entering...\n");
-	fflush(stdout);
 #ifdef _WIN64
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) return -1;
@@ -95,8 +93,6 @@ int64_t host_net_init() {
 		slots[i].fd = SOCK_INVALID;
 		slots[i].state = SOCK_STATE_FREE;
 	}
-	printf("[host_net_init] done.\n");
-	fflush(stdout);
 	return 0;
 }
 
@@ -115,8 +111,6 @@ int64_t host_net_deinit() {
 }
 
 uint32_t host_net_connect(const char *host, uint32_t port) {
-	printf("[host_net_connect] host=%s, port=%u\n", host, port);
-	fflush(stdout);
 	snprintf(port_str, sizeof(port_str), "%u", port);
 	struct addrinfo *res = nullptr;
 
@@ -124,11 +118,7 @@ uint32_t host_net_connect(const char *host, uint32_t port) {
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 
-	printf("[host_net_connect] calling getaddrinfo...\n");
-	fflush(stdout);
 	if (getaddrinfo(host, port_str, &hints, &res) != 0 || !res) return 0;
-	printf("[host_net_connect] getaddrinfo ok.\n");
-	fflush(stdout);
 
 	socket_t fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (fd == SOCK_INVALID) {
@@ -155,8 +145,6 @@ uint32_t host_net_connect(const char *host, uint32_t port) {
 
 	int state = (ret == 0) ? SOCK_STATE_CONNECTED : SOCK_STATE_CONNECTING;
 	uint32_t h = alloc_slot(fd, state);
-	printf("[host_net_connect] handle=%u\n", h);
-	fflush(stdout);
 	return h;
 }
 
@@ -283,8 +271,6 @@ int64_t host_net_poll(uint32_t handle) {
 #endif
 
 	if (so_err != 0) {
-		printf("[host_net_poll] handle=%u error: %s (%d)\n", handle, strerror(so_err), so_err);
-		fflush(stdout);
 		return 4;
 	}
 
