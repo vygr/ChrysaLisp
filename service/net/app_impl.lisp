@@ -42,7 +42,7 @@
 						(+net_rpc_type_listen
 							(defq port (getf msg +net_rpc_listen_port)
 								accept_mbox (getf msg +net_rpc_listen_accept_mbox)
-								handle (net-listen port))
+								handle (net-listen-rpc port))
 							(if (> handle 0)
 								(progn
 									(defq s (env 1))
@@ -102,7 +102,7 @@
 							(:listener
 								(defq p (net-poll handle))
 								(when (/= (logand p 1) 0)
-									(defq client_handle (net-accept handle))
+									(defq client_handle (net-accept-rpc handle))
 									(when (> client_handle 0)
 										(defq offer (env 1))
 										(def offer :handle client_handle :type :offer :timestamp now)

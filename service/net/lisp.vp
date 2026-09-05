@@ -128,7 +128,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-listen port)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r0 :r1 "(net-listen-rpc port)" +error_msg_wrong_types))
 	(signature '(:NUM)))
 
 (def-func-end)
@@ -157,7 +157,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-accept handle)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r0 :r1 "(net-accept-rpc handle)" +error_msg_wrong_types))
 	(signature '(:NUM)))
 
 (def-func-end)

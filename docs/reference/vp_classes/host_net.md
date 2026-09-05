@@ -2,7 +2,7 @@
 
 ## Lisp Bindings
 
-### (net-accept handle)
+### (net-accept-rpc handle)
 
 ### (net-close handle)
 
@@ -12,7 +12,7 @@
 
 ### (net-init)
 
-### (net-listen port)
+### (net-listen-rpc port)
 
 ### (net-poll handle)
 

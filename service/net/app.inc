@@ -35,8 +35,7 @@
 
 ; Incoming connection offer sent to accept_mbox
 (structure +net_msg_offer 0
-	(uint type)
-	(uint conn_handle))
+	(uint type conn_handle))
 
 (defq +net_type_offer 1)
 
@@ -49,8 +48,8 @@
 	(when (defq s (mail-enquire "*Net,"))
 		(hex-decode (second (split (first s) ",")))))
 
-(defun net-open (host port)
-	; (net-open host port) -> (list client_in client_out) | :nil
+(defun net-open-rpc (host port)
+	; (net-open-rpc host port) -> (list client_in client_out) | :nil
 	(defq svc (net-service) result :nil)
 	(when svc
 		(defq client_in (in-stream)
@@ -68,8 +67,8 @@
 			(setq result (list client_in client_out))))
 	result)
 
-(defun net-listen (port accept_mbox)
-	; (net-listen port accept_mbox) -> listener_handle | :nil
+(defun net-listen-rpc (port accept_mbox)
+	; (net-listen-rpc port accept_mbox) -> listener_handle | :nil
 	(defq svc (net-service) handle :nil)
 	(when svc
 		(defq reply_mbox (mail-mbox)
@@ -84,11 +83,10 @@
 			(setq handle (getf reply +net_rpc_reply_handle))))
 	handle)
 
-(defun net-accept (offer_msg)
-	; (net-accept offer_msg) -> (list client_in client_out) | :nil
-	(defq svc (net-service)
-		conn_handle (getf offer_msg +net_msg_offer_conn_handle)
-		result :nil)
+(defun net-accept-rpc (offer_msg)
+	; (net-accept-rpc offer_msg) -> (list client_in client_out) | :nil
+	(defq svc (net-service) result :nil
+		conn_handle (getf offer_msg +net_msg_offer_conn_handle))
 	(when (and svc (> conn_handle 0))
 		(defq client_in (in-stream)
 			reply_mbox (mail-mbox)
