@@ -96,8 +96,7 @@
 										(mail-send (get :reply_id session) (setf-> (str-alloc +net_rpc_reply_size)
 											(+net_rpc_reply_handle 0)
 											(+net_rpc_reply_status -1)))
-										(net-close handle)
-										(. sessions :erase handle)
+										(session-close sessions handle)
 										(setq active :t))))
 							(:listener
 								(defq p (net-poll handle))
@@ -113,8 +112,7 @@
 										(setq active :t))))
 							(:offer
 								(when (> (- now (get :timestamp session)) 5000000)
-									(net-close handle)
-									(. sessions :erase handle)))
+									(session-close sessions handle)))
 							(:stream
 								(defq p (net-poll handle))
 								; Check TCP -> Client
