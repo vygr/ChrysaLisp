@@ -404,12 +404,12 @@ Usage: mv [options] path1 path2
 ```
 ## nettest
 ```code
-Usage: nettest [options] [path] ...
+Usage: nettest [options] [host] [port]
 
     options:
         -h --help: this help info.
 
-    Simple net service tests.
+    Simple net service test. Default host: example.com, port: 80.
 ```
 ## nodes
 ```code
