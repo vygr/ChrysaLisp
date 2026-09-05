@@ -31,8 +31,8 @@
 								handle (net-connect host port))
 							(if (> handle 0)
 								(progn
-									(defq s (env 1))
-									(def s :handle handle :type :connecting
+									(def (defq s (env 1))
+										:handle handle :type :connecting
 										:client_in_mbox client_in_mbox :reply_id reply_id
 										:timestamp (pii-time))
 									(. sessions :insert handle s))
@@ -45,8 +45,8 @@
 								handle (net-listen port))
 							(if (> handle 0)
 								(progn
-									(defq s (env 1))
-									(def s :handle handle :type :listener
+									(def (defq s (env 1))
+										:handle handle :type :listener
 										:accept_mbox accept_mbox :port port)
 									(. sessions :insert handle s)
 									(mail-send reply_id (setf-> (str-alloc +net_rpc_reply_size)
@@ -103,8 +103,8 @@
 								(when (/= (logand p 1) 0)
 									(defq client_handle (net-accept handle))
 									(when (> client_handle 0)
-										(defq offer (env 1))
-										(def offer :handle client_handle :type :offer :timestamp now)
+										(def (defq offer (env 1))
+											:handle client_handle :type :offer :timestamp now)
 										(. sessions :insert client_handle offer)
 										(mail-send (get :accept_mbox session) (setf-> (str-alloc +net_msg_offer_size)
 											(+net_msg_offer_type +net_type_offer)
