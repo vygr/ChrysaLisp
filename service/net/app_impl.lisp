@@ -144,7 +144,6 @@
 											(in-next-msg (get :server_in session))
 											(defq data (read-avail (get :server_in session)))
 											(when (nql data "")
-												(log-msg "[service] client -> TCP send data=" (length data) " bytes")
 												(net-send handle data)
 												(setq active :t)))))))))
 					(if active
