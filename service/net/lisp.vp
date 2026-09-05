@@ -13,15 +13,30 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
+	(structure local 0
+		(ptr this)
+		(long c_result))
+
 	(entry :host_net :lisp_init '(:r0 :r1))
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+
+	;WSAStartup / SIGPIPE on host stack
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_result)) '(:r1))
+
+	(exit :host_net :lisp_init '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
 	(host-net-call :host_net :init '() '(:r0))
-	(call :num :create '(:r0) '(:r1))
-	(vp-pop :r0)
-
-	(exit :host_net :lisp_init '(:r0 :r1))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_result)))
 	(vp-ret)
 
 (errorcase
@@ -40,15 +55,30 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
+	(structure local 0
+		(ptr this)
+		(long c_result))
+
 	(entry :host_net :lisp_deinit '(:r0 :r1))
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+
+	;WSACleanup / close all fds on host stack
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_result)) '(:r1))
+
+	(exit :host_net :lisp_deinit '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
 	(host-net-call :host_net :deinit '() '(:r0))
-	(call :num :create '(:r0) '(:r1))
-	(vp-pop :r0)
-
-	(exit :host_net :lisp_deinit '(:r0 :r1))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_result)))
 	(vp-ret)
 
 (errorcase
@@ -80,7 +110,7 @@
 	(list-bind-args :r1 '(:r0 :r1) '(:str :num))
 	(assign '(:r0 :r1) '((:rsp local_host) (:rsp local_port)))
 
-	;switch to kernel 8MB host stack for DNS / connect
+	;getaddrinfo + connect on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	(call :num :create '((:rsp local_c_handle)) '(:r1))
 
@@ -113,21 +143,37 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
+	(structure local 0
+		(ptr this)
+		(long port c_handle))
+
 	(entry :host_net :lisp_listen '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-push :r0)
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
 	(list-bind-args :r1 '(:r0) '(:num))
-	(host-net-call :host_net :listen '(:r0) '(:r0))
-	(call :num :create '(:r0) '(:r1))
-	(vp-pop :r0)
+	(assign '(:r0) '((:rsp local_port)))
 
-	(exit :host_net :lisp_listen '(:r0 :r1))
+	;socket / bind / listen on host stack
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_handle)) '(:r1))
+
+	(exit :host_net :lisp_listen '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(host-net-call :host_net :listen '((:r0 local_port)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_handle)))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-listen-rpc port)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r0 :r1 "(net-listen port)" +error_msg_wrong_types))
 	(signature '(:NUM)))
 
 (def-func-end)
@@ -142,21 +188,37 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
+	(structure local 0
+		(ptr this)
+		(long handle c_handle))
+
 	(entry :host_net :lisp_accept '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-push :r0)
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
 	(list-bind-args :r1 '(:r0) '(:num))
-	(host-net-call :host_net :accept '(:r0) '(:r0))
-	(call :num :create '(:r0) '(:r1))
-	(vp-pop :r0)
+	(assign '(:r0) '((:rsp local_handle)))
 
-	(exit :host_net :lisp_accept '(:r0 :r1))
+	;accept on host stack
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_handle)) '(:r1))
+
+	(exit :host_net :lisp_accept '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(host-net-call :host_net :accept '((:r0 local_handle)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_handle)))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-accept-rpc handle)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r0 :r1 "(net-accept handle)" +error_msg_wrong_types))
 	(signature '(:NUM)))
 
 (def-func-end)
@@ -171,6 +233,8 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
+	;send() is a thin syscall; keep it on the task stack so the
+	;service hot path does not bounce through the kernel mailbox.
 	(entry :host_net :lisp_send '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 2)
 
@@ -201,33 +265,49 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(def-vars
+	(structure local 0
 		(ptr this buf ret)
 		(long handle max_len ret_bytes))
 
 	(entry :host_net :lisp_recv '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(push-scope)
-	(assign '(:r0) {this})
-
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
 	(list-bind-args :r1 '(:r0 :r1) '(:num :num))
-	(assign '(:r0 :r1) {handle, max_len})
+	(assign '(:r0 :r1) '((:rsp local_handle) (:rsp local_max_len)))
 
-	(call :str :create_from_buffer {0, max_len} {buf})
-	(host-net-call :host_net :recv {handle, &buf->+str_data, max_len} {ret_bytes})
+	(call :str :create_from_buffer '(0 (:rsp local_max_len)) '(:r0))
+	(assign '(:r0) '((:rsp local_buf)))
 
-	(vpif {ret_bytes >= 0})
-		(assign {ret_bytes} {buf->+str_length})
-		(assign {buf} {ret})
+	;recv into the pre-allocated str on the host stack
+	(call :sys_task :callback '(:rsp ($ callback)))
+
+	(assign '((:rsp local_ret_bytes)) '(:r0))
+	(vpif '(:r0 >= 0))
+		(assign '((:rsp local_buf)) '(:r1))
+		(assign '(:r0) '((:r1 +str_length)))
+		(assign '(:r1) '((:rsp local_ret)))
 	(else)
-		(call :str :destroy {buf})
-		(call :obj :ref {this->+lisp_sym_nil} {ret})
+		(call :str :destroy '((:rsp local_buf)))
+		(assign '((:rsp local_this)) '(:r0))
+		(call :obj :ref '((:r0 +lisp_sym_nil)) '(:r0))
+		(assign '(:r0) '((:rsp local_ret)))
 	(endif)
 
-	(exit :host_net :lisp_recv {this, ret})
-	(pop-scope)
-	(return)
+	(exit :host_net :lisp_recv '((:rsp local_this) (:rsp local_ret)))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(assign '((:r0 local_buf)) '(:r1))
+	(host-net-call :host_net :recv
+		'((:r0 local_handle) (& :r1 +str_data) (:r0 local_max_len)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_ret_bytes)))
+	(vp-ret)
 
 (errorcase
 (vp-label 'error)
@@ -275,6 +355,8 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
+	;poll() is timeout-0 and runs on the service timer. Do not
+	;route it through :callback or every tick pays a kernel RPC.
 	(entry :host_net :lisp_poll '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 1)
 
