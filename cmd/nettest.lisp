@@ -17,9 +17,9 @@
 			(defq opt_f :nil args (options stdio usage)))
 		(print "Calling (net-open-rpc example.com 80) via *Net service...")
 		(stream-flush (io-stream 'stdout))
-		(bind '(in out) (net-open-rpc "example.com" 80))
-		(if (and in out)
+		(if (defq conn (net-open-rpc "example.com" 80))
 			(progn
+        		(bind '(in out) conn)
 				(print "Connection established! Sending HTTP request...")
 				(stream-flush (io-stream 'stdout))
 				(write-line out "GET / HTTP/1.1")

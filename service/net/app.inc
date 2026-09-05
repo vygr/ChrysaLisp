@@ -45,11 +45,10 @@
 		(hex-decode (second (split (first s) ",")))))
 
 (defun net-open-rpc (host port)
-	; (net-open-rpc host port) -> (list client_in client_out) | :nil
+	; (net-open-rpc host port) -> (client_in client_out) | :nil
 	(defq svc (net-service) result :nil)
 	(when svc
-		(defq client_in (in-stream)
-			reply_mbox (mail-mbox)
+		(defq client_in (in-stream) reply_mbox (mail-mbox)
 			req (setf-> (cat (str-alloc +net_rpc_connect_size) host)
 				(+net_rpc_type +net_rpc_type_connect)
 				(+net_rpc_reply_id reply_mbox)
@@ -80,12 +79,11 @@
 	handle)
 
 (defun net-accept-rpc (offer_msg)
-	; (net-accept-rpc offer_msg) -> (list client_in client_out) | :nil
+	; (net-accept-rpc offer_msg) -> (client_in client_out) | :nil
 	(defq svc (net-service) result :nil
 		conn_handle (getf offer_msg +net_msg_offer_conn_handle))
 	(when (and svc (> conn_handle 0))
-		(defq client_in (in-stream)
-			reply_mbox (mail-mbox)
+		(defq client_in (in-stream) reply_mbox (mail-mbox)
 			req (setf-> (str-alloc +net_rpc_accept_size)
 				(+net_rpc_type +net_rpc_type_accept)
 				(+net_rpc_reply_id reply_mbox)
