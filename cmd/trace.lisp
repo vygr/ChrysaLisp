@@ -89,8 +89,8 @@
 	'emit-shr-cr '(:c :r) 'emit-asr-cr '(:c :r) 'emit-seq-cr '(:c :r) 'emit-sne-cr '(:c :r)
 	'emit-slt-cr '(:c :r) 'emit-sgt-cr '(:c :r) 'emit-sle-cr '(:c :r) 'emit-sge-cr '(:c :r)
 	; integer min/max/abs
-	'emit-min-rr '(:r :r :label) 'emit-max-rr '(:r :r :label) 'emit-abs-rr '(:r :r :label)
-	'emit-min-cr '(:c :r :label) 'emit-max-cr '(:c :r :label)
+	'emit-min-rr '(:r :r) 'emit-max-rr '(:r :r) 'emit-abs-rr '(:r :r)
+	'emit-min-cr '(:c :r) 'emit-max-cr '(:c :r)
 	; integer division (rrr)
 	'emit-div-rrr '(:r :r :r) 'emit-div-rrr-u '(:r :r :r)
 	; integer branches
