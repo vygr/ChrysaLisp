@@ -231,7 +231,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :f0-:f15
 
 	;send() is a thin syscall; keep it on the task stack so the
 	;service hot path does not bounce through the kernel mailbox.
@@ -324,7 +324,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :f0-:f15
 
 	(entry :host_net :lisp_close '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 1)
@@ -353,7 +353,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :f0-:f15
 
 	;poll() is timeout-0 and runs on the service timer. Do not
 	;route it through :callback or every tick pays a kernel RPC.
