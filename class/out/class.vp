@@ -179,11 +179,14 @@
 			(,data ,(+ +stream_msg_ack_id +net_id_node_id +node_id_node2))))
 		(call :sys_mail :send `(,msg))
 
-		;wait for acks ?
+		;wait for acks only while actively streaming
 		(vp-pop this)
-		(assign `((,this +out_seqnum)) `(,seqnum))
-		(vp-shr-cr out_ack_shift seqnum)
-		(call :out :wait_acks `(,this ,seqnum) `(,this))
+		(assign `((,this +out_state)) `(,state))
+		(vpif `(,state = +stream_mail_state_started))
+			(assign `((,this +out_seqnum)) `(,seqnum))
+			(vp-shr-cr out_ack_shift seqnum)
+			(call :out :wait_acks `(,this ,seqnum) `(,this))
+		(endif)
 
 		;next seq num
 		(assign `((,this +out_seqnum)) `(,seqnum))
