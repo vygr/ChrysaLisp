@@ -35,6 +35,9 @@ OBJ_FILES := $(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI) $(OBJ_FILES_CORE_TUI
 CFLAGS ?= -O3 -nostdlib -fno-exceptions -MMD
 CPPFLAGS ?= -std=c++14
 LDFLAGS ?=
+ifneq ($(OS),Windows)
+	LDFLAGS += -pthread
+endif
 HGUI := $(shell echo $(GUI) | tr '[:upper:]' '[:lower:]')
 
 HOST_GUI := 0
