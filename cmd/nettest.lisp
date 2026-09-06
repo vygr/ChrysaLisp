@@ -1,6 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/net/url.inc")
-(import "service/net/app.inc")
+(import "lib/net/http.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -10,13 +10,13 @@
         -h --help: this help info.
         -t --test: run url codec test suite.
 
-    Simple net service test.
+    Simple HTTP / Net service test.
     Examples:
         nettest http://example.com/
-        nettest example.com 80
         nettest http://httpbin.org/get?msg=hello+world
         nettest -t")
-(("-t" "--test") ,(opt-flag 'opt_t))
+(("-t" "--test")
+	,(opt-flag 'opt_t))
 ))
 
 (defun test-check (label cond)
@@ -26,7 +26,6 @@
 
 (defun run-url-tests ()
 	(print "Running lib/net/url.inc test suite:")
-	; 1. Encode / Decode
 	(test-check "url-encode special chars"
 		(eql (url-encode "hello world / test") "hello%20world%20%2F%20test"))
 	(test-check "url-decode special chars"
@@ -37,7 +36,6 @@
 		(eql (url-decode "a+b+c" :t) "a b c"))
 	(test-check "url-decode lowercase hex"
 		(eql (url-decode "hello%2fworld") "hello/world"))
-	; 2. Query Parse / Format
 	(defq q (url-query-parse "foo=bar&num=42&space=hello+world"))
 	(test-check "url-query-parse fields"
 		(and (eql (pfind q :foo) "bar")
@@ -45,7 +43,6 @@
 			(eql (pfind q :space) "hello world")))
 	(test-check "url-query-format roundtrip"
 		(eql (url-query-format q) "foo=bar&num=42&space=hello+world"))
-	; 3. URL Parse / Format
 	(defq u1 (url-parse "http://example.com/index.html"))
 	(test-check "url-parse full http url"
 		(and (eql (pfind u1 :scheme) "http")
@@ -82,30 +79,17 @@
 			(:t
 				(defq target (if (> (length args) 1) (second args) "http://example.com/")
 					u (url-parse target))
-				; Allow positional port override if provided on CLI
 				(if (> (length args) 2)
 					(pinsert u :port (str-to-num (third args))))
-				(defq host (pfind u :host)
-					port (pfind u :port)
-					path_query (url-path-query u))
-				(print "Parsed URL components:")
-				(print "  scheme:     " (pfind u :scheme))
-				(print "  host:       " host)
-				(print "  port:       " port)
-				(print "  path_query: " path_query)
-				(print "Calling (net-open-rpc " host " " port ") via *Net service...")
-				(if (defq conn (net-open-rpc host port))
+				(print "Connecting to: " (url-format u))
+				(if (defq resp (http-get u))
 					(progn
-						(bind '(in out) conn)
-						(print "Connection established! Sending HTTP request:")
-						(defq req (cat "GET " path_query " HTTP/1.1\r\nHost: "
-							host "\r\nConnection: close\r\n\r\n"))
-						(print req)
-						(write-line out req)
-						(stream-flush out)
-						(print "Reading response lines via In stream:")
-						(lines! (const print) in)
-						(print "\nFinished reading response.")
-						(net-close-rpc conn))
-					(progn
-						(print "Failed to connect!")))))))
+						(print "Status:  " (pfind resp :status) " " (pfind resp :reason))
+						(print "Proto:   " (pfind resp :proto))
+						(print "Headers:")
+						(each (lambda ((k v))
+							(print "  " k ": " v))
+							(partition (pfind resp :headers) 2))
+						(print "\nBody (" (length (pfind resp :body)) " bytes):")
+						(print (pfind resp :body)))
+					(print "HTTP request failed!"))))))
