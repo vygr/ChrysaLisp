@@ -26,10 +26,13 @@
 (enums +select 0
 	(enum main timer))
 
-(defq +sleep_min 1000 +sleep_max 20000)
+(defq +sleep_min 1000 +sleep_max 20000 +stream_timeout 60000000)
 
 (defun session-close (sessions handle)
 	(net-close handle)
+	(when (defq session (. sessions :find handle))
+		(when (eql (get :type session) :stream)
+			(in-set-state (get :server_in session) +stream_mail_state_aborted)))
 	(. sessions :erase handle))
 
 (defun main ()
@@ -145,6 +148,7 @@
 												(session-close sessions handle)
 												(setq active :t))
 											((nql chunk "")
+												(def session :timestamp now)
 												(write-blk (get :server_out session) chunk)
 												(stream-flush (get :server_out session))
 												(setq active :t))))
@@ -156,13 +160,15 @@
 									(defq in_state (in-get-state (get :server_in session)))
 									(cond
 										((or (= in_state +stream_mail_state_aborted)
-											 (= in_state +stream_mail_state_stopped))
+											 (= in_state +stream_mail_state_stopped)
+											 (> (- now (get :timestamp session)) +stream_timeout))
 											(session-close sessions handle)
 											(setq active :t))
 										((mail-poll (list (in-mbox (get :server_in session))))
 											(in-next-msg (get :server_in session))
 											(defq data (read-avail (get :server_in session)))
 											(when (nql data "")
+												(def session :timestamp now)
 												(net-send handle data)
 												(setq active :t)))))))))
 					(if active
