@@ -1,5 +1,27 @@
 (import "./app.inc")
-(import "./net.inc")
+
+;low-level PII network bindings
+(ffi "service/net/lisp_init" net-init)
+; (net-init) -> num
+(ffi "service/net/lisp_deinit" net-deinit)
+; (net-deinit) -> num
+(ffi "service/net/lisp_connect" net-connect)
+; (net-connect host port) -> handle
+(ffi "service/net/lisp_listen" net-listen)
+; (net-listen port) -> handle
+(ffi "service/net/lisp_accept" net-accept)
+; (net-accept handle) -> handle
+(ffi "service/net/lisp_send" net-send)
+; (net-send handle str) -> bytes_sent
+(ffi "service/net/lisp_recv" net-recv)
+; (net-recv handle max_len) -> str | :nil
+(ffi "service/net/lisp_close" net-close)
+; (net-close handle) -> num
+(ffi "service/net/lisp_poll" net-poll)
+; (net-poll handle) -> flags
+
+(bits +net_poll 0
+	(bit in out error))
 
 (enums +select 0
 	(enum main timer))
@@ -80,19 +102,18 @@
 							(:connecting
 								(defq p (net-poll handle))
 								(cond
-									((/= (logand p 2) 0)
+									((bits? p +net_poll_out)
 										(def session :type :stream
 											:server_in (in-stream)
 											:server_out (out-stream (get :client_in_mbox session))
 											:state :connected)
-										(undef session :client_in_mbox)
 										(mail-send (get :reply_id session) (setf-> (str-alloc +net_rpc_reply_size)
 											(+net_rpc_reply_server_in_mbox (in-mbox (get :server_in session)))
 											(+net_rpc_reply_handle handle)
 											(+net_rpc_reply_status 0)))
-										(undef session :reply_id)
+										(undef session :client_in_mbox :reply_id)
 										(setq active :t))
-									((or (/= (logand p 4) 0) (> (- now (get :timestamp session)) 10000000))
+									((or (bits? p +net_poll_error) (> (- now (get :timestamp session)) 10000000))
 										(mail-send (get :reply_id session) (setf-> (str-alloc +net_rpc_reply_size)
 											(+net_rpc_reply_handle 0)
 											(+net_rpc_reply_status -1)))
@@ -100,7 +121,7 @@
 										(setq active :t))))
 							(:listener
 								(defq p (net-poll handle))
-								(when (/= (logand p 1) 0)
+								(when (bits? p +net_poll_in)
 									(defq client_handle (net-accept handle))
 									(when (> client_handle 0)
 										(def (defq offer (env 1))
@@ -117,7 +138,7 @@
 								(defq p (net-poll handle))
 								; Check TCP -> Client
 								(cond
-									((/= (logand p 1) 0)
+									((bits? p +net_poll_in)
 										(defq chunk (net-recv handle 4096))
 										(cond
 											((eql chunk :nil)
@@ -127,7 +148,7 @@
 												(write-blk (get :server_out session) chunk)
 												(stream-flush (get :server_out session))
 												(setq active :t))))
-									((and (/= (logand p 4) 0) (= (logand p 1) 0))
+									((and (bits? p +net_poll_error) (not (bits? p +net_poll_in)))
 										(session-close sessions handle)
 										(setq active :t)))
 								; Check Client -> TCP
