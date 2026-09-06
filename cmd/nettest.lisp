@@ -27,6 +27,7 @@
 				(stream-flush out)
 				(print "Reading response lines via In stream:")
 				(lines! (const print) in)
-				(print "\nFinished reading response."))
+				(print "\nFinished reading response.")
+				(net-close-rpc conn))
 			(progn
 				(print "Failed to connect!")))))

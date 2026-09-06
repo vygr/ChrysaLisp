@@ -100,3 +100,7 @@
 				(setq result (list client_in client_out)))
 			(in-set-state client_in +stream_mail_state_aborted)))
 	result)
+
+(defun net-close-rpc (conn)
+	; (net-close-rpc (client_in client_out))
+	(in-set-state (first conn) +stream_mail_state_aborted))
