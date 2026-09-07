@@ -29,9 +29,9 @@
 	headers)
 
 (defun http-read-body (in &optional headers dest_stream)
-	; (http-read-body in [headers dest_stream]) -> body_str | dest_stream
+	; (http-read-body in [headers dest_stream]) -> stream
 	(setd headers (pmap))
-	(defq out (ifn dest_stream (string-stream (cat "")))
+	(defq out (ifn dest_stream (memory-stream))
 		te (or (pfind headers :transfer-encoding) "")
 		cl (pfind headers :content-length))
 	(cond
@@ -79,7 +79,24 @@
 			(while (defq blk (read-blk in +http_buf_size))
 				(write-blk out blk))))
 	(stream-flush out)
-	(if dest_stream dest_stream (str out)))
+	(if dest_stream
+		dest_stream
+		(progn
+			(stream-seek out 0 0)
+			out)))
+
+(defun http-body-str (resp)
+	; (http-body-str resp) -> str
+	(defq body (pfind resp :body))
+	(cond
+		((not body) "")
+		((str? body) body)
+		((and (/= (stream-seek body 0 0) -1) (defq parts (list)))
+			(while (defq blk (read-blk body +http_buf_size))
+				(push parts blk))
+			(stream-seek body 0 0)
+			(apply (const cat) parts))
+		(:t "")))
 
 (defun http-request (method url &optional headers body dest_stream)
 	; (http-request method url [headers body dest_stream]) -> pmap | :nil
@@ -101,13 +118,13 @@
 				"User-Agent: ChrysaLisp/1.0"
 				"Connection: close"
 				"Accept: */*"))
-			; 2. Append User Headers directly (preserving wire names)
+			; 2. Append User Headers
 			(each (lambda ((k v))
 				(defq k_str (str k)
 					k_name (if (starts-with ":" k_str) (rest k_str) k_str))
 				(push req_lines (cat k_name ": " v)))
 				(partition headers 2))
-			; 3. Append Content-Length if body is present (converting num to str)
+			; 3. Append Content-Length if body is present
 			(when (and (str? body) (> (length body) 0))
 				(unless (pfind headers :content-length)
 					(push req_lines (cat "Content-Length: " (str (length body))))))
@@ -150,5 +167,5 @@
 
 ;module
 (export-symbols '(http-request http-get http-post http-head
-	http-read-headers http-read-body))
+	http-read-headers http-read-body http-body-str))
 (env-pop)
