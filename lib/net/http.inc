@@ -6,6 +6,7 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (import "lib/net/url.inc")
+(import "lib/text/searching.inc")
 (import "service/net/app.inc")
 
 ;module
@@ -13,9 +14,6 @@
 
 (defq +crlf "\r\n"
 	+http_buf_size 4096)
-
-(defun http-write-crlf (stream line)
-	(write-blk stream (cat line +crlf)))
 
 (defun http-read-headers (in)
 	; (http-read-headers in) -> pmap
@@ -30,14 +28,15 @@
 			(pinsert headers k_sym v_str)))
 	headers)
 
-(defun http-read-body (in headers &optional dest_stream)
-	; (http-read-body in headers [dest_stream]) -> body_str | dest_stream
+(defun http-read-body (in &optional headers dest_stream)
+	; (http-read-body in [headers dest_stream]) -> body_str | dest_stream
+	(setd headers (pmap))
 	(defq out (ifn dest_stream (string-stream (cat "")))
 		te (or (pfind headers :transfer-encoding) "")
-		cl (or (pfind headers :content-length) :nil))
+		cl (pfind headers :content-length))
 	(cond
 		; 1. Chunked Transfer Encoding
-		((find "chunked" te)
+		((found? te "chunked")
 			(defq running :t)
 			(while running
 				(defq chunk_line (read-line in))
@@ -84,6 +83,7 @@
 
 (defun http-request (method url &optional headers body dest_stream)
 	; (http-request method url [headers body dest_stream]) -> pmap | :nil
+	(setd headers (pmap))
 	(defq u (if (str? url) (url-parse url) url)
 		host (pfind u :host)
 		port (pfind u :port)
@@ -92,33 +92,31 @@
 	(when (and host (> (length host) 0))
 		(when (defq conn (net-open-rpc host port))
 			(bind '(in out) conn)
-			; 1. Request Line
-			(http-write-crlf out (cat (to-upper method) " " path_query " HTTP/1.1"))
-			; 2. Host Header
-			(if (and (/= port 80) (/= port 443))
-				(http-write-crlf out (cat "Host: " host ":" port))
-				(http-write-crlf out (cat "Host: " host)))
-			(http-write-crlf out "User-Agent: ChrysaLisp/1.0")
-			(http-write-crlf out "Connection: close")
-			(http-write-crlf out "Accept: */*")
-			; 3. User Headers
-			(when headers
-				(each (lambda ((k v))
-					(defq k_str (str k)
-						k_name (if (starts-with ":" k_str) (rest k_str) k_str))
-					(http-write-crlf out (cat k_name ": " v)))
-					(partition headers 2)))
-			; 4. Body Length & Dispatch
-			(cond
-				((and (str? body) (> (length body) 0))
-					(unless (pfind headers :content-length)
-						(http-write-crlf out (cat "Content-Length: " (length body))))
-					(http-write-crlf out "")
-					(write-blk out body))
-				(:t
-					(http-write-crlf out "")))
+			; 1. Assemble Request Headers
+			(defq req_lines (list
+				(cat (to-upper method) " " path_query " HTTP/1.1")
+				(if (and (/= port 80) (/= port 443))
+					(cat "Host: " host ":" port)
+					(cat "Host: " host))
+				"User-Agent: ChrysaLisp/1.0"
+				"Connection: close"
+				"Accept: */*"))
+			; 2. Append User Headers directly (preserving wire names)
+			(each (lambda ((k v))
+				(defq k_str (str k)
+					k_name (if (starts-with ":" k_str) (rest k_str) k_str))
+				(push req_lines (cat k_name ": " v)))
+				(partition headers 2))
+			; 3. Append Content-Length if body is present (converting num to str)
+			(when (and (str? body) (> (length body) 0))
+				(unless (pfind headers :content-length)
+					(push req_lines (cat "Content-Length: " (str (length body))))))
+			; 4. Send entire header block in one contiguous buffer
+			(write-blk out (cat (join req_lines +crlf) +crlf +crlf))
+			(when (and (str? body) (> (length body) 0))
+				(write-blk out body))
 			(stream-flush out)
-			; 5. Read Status Line (skipping optional leading empty lines)
+			; 5. Read Status Line
 			(defq status_line (read-line in))
 			(while (and status_line (eql (trim-end status_line "\r") ""))
 				(setq status_line (read-line in)))

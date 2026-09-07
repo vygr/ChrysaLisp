@@ -73,6 +73,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_t :nil args (options stdio usage)))
+		(defq stdout (io-stream 'stdout))
 		(cond
 			(opt_t
 				(run-url-tests))
@@ -82,14 +83,22 @@
 				(if (> (length args) 2)
 					(pinsert u :port (str-to-num (third args))))
 				(print "Connecting to: " (url-format u))
+				(stream-flush stdout)
 				(if (defq resp (http-get u))
 					(progn
 						(print "Status:  " (pfind resp :status) " " (pfind resp :reason))
+						(stream-flush stdout)
 						(print "Proto:   " (pfind resp :proto))
+						(stream-flush stdout)
 						(print "Headers:")
+						(stream-flush stdout)
 						(each (lambda ((k v))
 							(print "  " k ": " v))
 							(partition (pfind resp :headers) 2))
 						(print "\nBody (" (length (pfind resp :body)) " bytes):")
-						(print (pfind resp :body)))
-					(print "HTTP request failed!"))))))
+						(stream-flush stdout)
+						(print (pfind resp :body))
+						(stream-flush stdout))
+					(progn
+						(print "HTTP request failed!")
+						(stream-flush stdout)))))))
