@@ -97,6 +97,9 @@ New `service/net` `*Net` service ! TCP/IP sockets service. Simple test cmd app
 `nettest` to cover a round trip read test. More layers to come, but this gets
 the host API working.
 
+Start of network libs `lib/net/url.inc`, `lib/net/http.inc`. `nettest` command
+updated to use these and the url testing move to the unit test suite.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
