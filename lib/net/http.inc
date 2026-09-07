@@ -13,7 +13,55 @@
 (env-push)
 
 (defq +crlf "\r\n"
-	+http_buf_size 4096)
+	+http_buf_size 4096
+	; Private connection pool: host:port -> list of idle (in out) connections
+	*http_pool* (Fmap 31))
+
+(defun http-pool-checkout (host port)
+	; (http-pool-checkout host port) -> (in out) | :nil
+	(defq key (cat host ":" (str port))
+		pool (const *http_pool*)
+		conns (. pool :find key)
+		live_conn :nil)
+	(while (and conns (nempty? conns) (not live_conn))
+		(defq conn (pop conns)
+			in (first conn))
+		; Check if connection is still alive (started and no unread errors/EOF)
+		(cond
+			((and (= (in-get-state in) +stream_mail_state_started)
+					(mail-validate (in-mbox in))
+					(not (mail-poll (list (in-mbox in)))))
+				(setq live_conn conn))
+			(:t
+				; Dead/timed-out socket, discard cleanly
+				(net-close-rpc conn))))
+	(or live_conn (net-open-rpc host port)))
+
+(defun http-pool-checkin (host port conn headers)
+	; (http-pool-checkin host port conn headers)
+	(defq key (cat host ":" (str port))
+		pool (const *http_pool*)
+		conn_hdr (to-lower (or (pfind headers :connection) "")))
+	(cond
+		((and conn
+				(not (found? conn_hdr "close"))
+				(= (in-get-state (first conn)) +stream_mail_state_started)
+				(or (pfind headers :content-length)
+					(found? (or (pfind headers :transfer-encoding) "") "chunked")))
+			; Connection is reusable and framed properly; return to pool
+			(. pool :update key (# (if %0 (push %0 conn) (list conn)))))
+		(conn
+			; Connection: close or unframed body; close socket
+			(net-close-rpc conn))))
+
+(defun http-pool-clear ()
+	; (http-pool-clear) -> :nil
+	; Close and flush all idle pooled sockets
+	(defq pool (const *http_pool*))
+	(. pool :each (lambda (k conns)
+		(each (const net-close-rpc) conns)))
+	(. pool :empty)
+	:nil)
 
 (defun http-read-headers (in)
 	; (http-read-headers in) -> pmap
@@ -107,33 +155,35 @@
 		path_query (url-path-query u)
 		res :nil)
 	(when (and host (> (length host) 0))
-		(when (defq conn (net-open-rpc host port))
+		(when (defq conn (http-pool-checkout host port))
 			(bind '(in out) conn)
 			; 1. Assemble Request Headers
 			(defq req_lines (list
 				(cat (to-upper method) " " path_query " HTTP/1.1")
 				(if (and (/= port 80) (/= port 443))
-					(cat "Host: " host ":" port)
+					(str "Host: " host ":" port)
 					(cat "Host: " host))
 				"User-Agent: ChrysaLisp/1.0"
-				"Connection: close"
 				"Accept: */*"))
-			; 2. Append User Headers
+			; 2. User Connection Header (defaults to keep-alive)
+			(unless (pfind headers :connection)
+				(push req_lines "Connection: keep-alive"))
+			; 3. Append User Headers
 			(each (lambda ((k v))
 				(defq k_str (str k)
 					k_name (if (starts-with ":" k_str) (rest k_str) k_str))
 				(push req_lines (cat k_name ": " v)))
 				(partition headers 2))
-			; 3. Append Content-Length if body is present
+			; 4. Append Content-Length if body is present (str conversion!)
 			(when (and (str? body) (> (length body) 0))
 				(unless (pfind headers :content-length)
 					(push req_lines (cat "Content-Length: " (str (length body))))))
-			; 4. Send entire header block in one contiguous buffer
+			; 5. Send header block in single buffer
 			(write-blk out (cat (join req_lines +crlf) +crlf +crlf))
 			(when (and (str? body) (> (length body) 0))
 				(write-blk out body))
 			(stream-flush out)
-			; 5. Read Status Line
+			; 6. Read Status Line
 			(defq status_line (read-line in))
 			(while (and status_line (eql (trim-end status_line "\r") ""))
 				(setq status_line (read-line in)))
@@ -150,7 +200,9 @@
 					:proto proto
 					:headers resp_headers
 					:body resp_body)))
-			(net-close-rpc conn)))
+			; 7. Check back into pool or close socket
+			(http-pool-checkin host port conn
+				(if res (pfind res :headers) (pmap :connection "close")))))
 	res)
 
 (defun http-get (url &optional headers dest_stream)
@@ -167,5 +219,5 @@
 
 ;module
 (export-symbols '(http-request http-get http-post http-head
-	http-read-headers http-read-body http-body-str))
+	http-read-headers http-read-body http-body-str http-pool-clear))
 (env-pop)
