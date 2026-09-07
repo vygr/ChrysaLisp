@@ -48,8 +48,7 @@
 					((and query_flag (eql (elem-get s j) " "))
 						(push idxs 0 1)
 						(setq i (inc j)))
-					(:t
-						(defq o (inc (* (code s 1 j) 3)))
+					(:t (defq o (inc (* (code s 1 j) 3)))
 						(push idxs o (+ o 3))
 						(setq i (inc j)))))
 			(splice s +url_rep_table idxs))))

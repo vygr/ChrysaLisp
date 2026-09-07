@@ -2,7 +2,7 @@
 ; HTTP/1.1 Client
 ;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/url.inc")
+(import "./url.inc")
 (import "service/net/app.inc")
 
 ;module

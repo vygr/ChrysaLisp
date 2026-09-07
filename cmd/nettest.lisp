@@ -1,5 +1,4 @@
 (import "lib/options/options.inc")
-(import "lib/net/url.inc")
 (import "lib/net/http.inc")
 
 (defq usage `(
