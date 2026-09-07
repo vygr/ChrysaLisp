@@ -464,6 +464,68 @@ gather a list of [key|val|:nil]
 (handler state page line) -> state
 ```
 
+### http-body-str
+
+```code
+(http-body-str resp) -> str
+```
+
+### http-get
+
+```code
+(http-get url [headers dest_stream]) -> pmap | :nil
+```
+
+### http-head
+
+```code
+(http-head url [headers]) -> pmap | :nil
+```
+
+### http-pool-checkin
+
+```code
+(http-pool-checkin host port conn headers)
+```
+
+### http-pool-checkout
+
+```code
+(http-pool-checkout host port) -> (in out) | :nil
+```
+
+### http-pool-clear
+
+```code
+(http-pool-clear) -> :nil
+
+Close and flush all idle pooled sockets
+```
+
+### http-post
+
+```code
+(http-post url body [headers dest_stream]) -> pmap | :nil
+```
+
+### http-read-body
+
+```code
+(http-read-body in [headers dest_stream]) -> stream
+```
+
+### http-read-headers
+
+```code
+(http-read-headers in) -> pmap
+```
+
+### http-request
+
+```code
+(http-request method url [headers body dest_stream]) -> pmap | :nil
+```
+
 ### huffman-build-freq-map
 
 ```code
@@ -1396,6 +1458,54 @@ iterative topological sort using a heap-allocated DFS stack
 
 ```code
 (unzip seq cnt) -> seqs
+```
+
+### url-decode
+
+```code
+(url-decode str [query_flag]) -> str
+```
+
+### url-encode
+
+```code
+(url-encode str [query_flag]) -> str
+```
+
+### url-format
+
+```code
+(url-format u) -> str
+```
+
+### url-parse
+
+```code
+(url-parse url_str) -> pmap
+```
+
+### url-path-query
+
+```code
+(url-path-query u) -> str
+```
+
+### url-query-format
+
+```code
+(url-query-format q) -> str
+```
+
+### url-query-parse
+
+```code
+(url-query-parse query_str) -> pmap
+```
+
+### url-scheme-port
+
+```code
+(url-scheme-port scheme) -> num
 ```
 
 ### usort

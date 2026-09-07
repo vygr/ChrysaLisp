@@ -404,12 +404,15 @@ Usage: mv [options] path1 path2
 ```
 ## nettest
 ```code
-Usage: nettest [options] [host] [port]
+Usage: nettest [options] [url|host] [port]
 
     options:
         -h --help: this help info.
 
-    Simple net service test. Default host: example.com, port: 80.
+    Simple HTTP / Net service test.
+    Examples:
+        nettest http://example.com/
+        nettest http://httpbin.org/get?msg=hello+world
 ```
 ## nodes
 ```code
