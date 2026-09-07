@@ -5,6 +5,7 @@
 ; Network URL Codec
 ;;;;;;;;;;;;;;;;;;;
 
+(import "lib/text/charclass.inc")
 (import "lib/text/searching.inc")
 
 ;module
@@ -14,6 +15,20 @@
 	+cls_pct (char-class "%")
 	+cls_pct_plus (char-class "%+")
 	+cls_hex (char-class "0-9A-Fa-f"))
+
+; Precomputed 769-byte table: "+" at 0, followed by all 256 "%XX" tokens
+(defq +url_rep_table
+	(cat "+" (apply (const cat)
+		(map (# (cat "%" (hex-encode (char %0)))) (range 0 256)))))
+
+; Precomputed 256-byte table containing all single byte values (0 to 255)
+(defq +all_chars
+	(apply (const cat)
+		(map (const char) (range 0 256))))
+
+(defun hex-val (c)
+	(defq c (- c 48))
+	(logand (if (> c 9) (- c 7) c) 0xf))
 
 (defun url-scheme-port (scheme)
 	; (url-scheme-port scheme) -> num
@@ -30,46 +45,64 @@
 (defun url-encode (s &optional query_flag)
 	; (url-encode str [query_flag]) -> str
 	(setd s "")
-	(defq out (list) l (length s) i 0)
-	(while (< i l)
-		(defq j (bskip +url_unreserved s i))
-		(when (> j i)
-			(push out (slice s i j)))
-		(cond
-			((>= j l)
-				(setq i l))
-			((and query_flag (eql (elem-get s j) " "))
-				(push out "+")
-				(setq i (inc j)))
-			(:t
-				(push out (cat "%" (hex-encode (elem-get s j))))
-				(setq i (inc j)))))
-	(apply (const cat) out))
+	(cond
+		; Fast-path: rbskip returns 0 if all chars are unreserved
+		((= (rbskip +url_unreserved s -1) 0) s)
+		(:t
+			(defq idxs (nums) l (length s) i 0)
+			(while (< i l)
+				(defq j (bskip +url_unreserved s i))
+				; 1. Span from s (src1): unreserved characters
+				(push idxs i j)
+				; 2. Span from +url_rep_table (src2): "+" or "%XX"
+				(cond
+					((>= j l)
+						(push idxs 0 0)
+						(setq i l))
+					((and query_flag (eql (elem-get s j) " "))
+						(push idxs 0 1)
+						(setq i (inc j)))
+					(:t
+						(defq o (inc (* (code s 1 j) 3)))
+						(push idxs o (+ o 3))
+						(setq i (inc j)))))
+			(splice s +url_rep_table idxs))))
 
 (defun url-decode (s &optional query_flag)
 	; (url-decode str [query_flag]) -> str
 	(setd s "")
-	(defq out (list) l (length s) i 0
-		cls (if query_flag +cls_pct_plus +cls_pct))
-	(while (< i l)
-		(defq j (bskipn cls s i))
-		(when (> j i)
-			(push out (slice s i j)))
-		(cond
-			((>= j l)
-				(setq i l))
-			((and query_flag (eql (elem-get s j) "+"))
-				(push out " ")
-				(setq i (inc j)))
-			((and (<= (+ j 3) l)
-					(bfind (elem-get s (inc j)) +cls_hex)
-					(bfind (elem-get s (+ j 2)) +cls_hex))
-				(push out (hex-decode (slice s (inc j) (+ j 3))))
-				(setq i (+ j 3)))
-			(:t
-				(push out (elem-get s j))
-				(setq i (inc j)))))
-	(apply (const cat) out))
+	(defq cls (if query_flag +cls_pct_plus +cls_pct))
+	(cond
+		; Fast-path: rbskipn returns 0 if no encoded chars are present
+		((= (rbskipn cls s -1) 0) s)
+		(:t
+			(defq idxs (nums) l (length s) i 0)
+			(while (< i l)
+				(defq j (bskipn cls s i))
+				; 1. Span from s (src1): unescaped characters
+				(push idxs i j)
+				; 2. Span from +all_chars (src2): decoded byte
+				(cond
+					((>= j l)
+						(push idxs 0 0)
+						(setq i l))
+					((and query_flag (eql (elem-get s j) "+"))
+						; Space (ASCII 32) at index 32..33 of +all_chars
+						(push idxs 32 33)
+						(setq i (inc j)))
+					((and (<= (+ j 3) l)
+							(bfind (elem-get s (inc j)) +cls_hex)
+							(bfind (elem-get s (+ j 2)) +cls_hex))
+						; Compute byte directly from memory without slicing strings
+						(defq b (+ (<< (hex-val (code s 1 (inc j))) 4)
+								   (hex-val (code s 1 (+ j 2)))))
+						(push idxs b (inc b))
+						(setq i (+ j 3)))
+					(:t
+						(defq c (code s 1 j))
+						(push idxs c (inc c))
+						(setq i (inc j)))))
+			(splice s +all_chars idxs))))
 
 (defun url-query-parse (q_str)
 	; (url-query-parse query_str) -> pmap
@@ -79,13 +112,10 @@
 			(setq q_str (slice q_str 1 -1)))
 		(each (lambda (pair)
 			(when (nql pair "")
-				(defq eq_idx (find "=" pair))
-				(if eq_idx
-					(defq k_str (url-decode (slice pair 0 eq_idx) :t)
-						val (url-decode (slice pair (inc eq_idx) -1) :t))
-					(defq k_str (url-decode pair :t)
-						val ""))
-				(defq k_sym (sym (if (starts-with ":" k_str) k_str (cat ":" k_str))))
+				(defq eq_idx (find "=" pair)
+					k_str (url-decode (if eq_idx (slice pair 0 eq_idx) pair) :t)
+					val (if eq_idx (url-decode (slice pair (inc eq_idx) -1) :t) "")
+					k_sym (sym (if (starts-with ":" k_str) k_str (cat ":" k_str))))
 				(pinsert res k_sym val)))
 			(split q_str "&")))
 	res)
@@ -94,11 +124,11 @@
 	; (url-query-format q) -> str
 	(defq pairs (list)
 		items (cond
-			((empty? q) '())
+			((empty? q) (list))
 			((list?? (first q)) q)
 			((list? q) (partition q 2))
 			((def? :tolist q) (. q :tolist))
-			('())))
+			((list))))
 	(each (lambda ((k v))
 		(defq k_str (str k)
 			k_clean (if (starts-with ":" k_str) (rest k_str) k_str))
@@ -118,7 +148,7 @@
 	(when (defq q_idx (find "?" s))
 		(setq query (slice s (inc q_idx) -1)
 			s (slice s 0 q_idx)))
-	; 3. Scheme (scheme://...) via multi-byte substr search
+	; 3. Scheme (scheme://...)
 	(cond
 		((defq m (first (substr s "://")))
 			(bind '(start end) (first m))
@@ -132,24 +162,23 @@
 			(setq path s))
 		((nql s "")
 			(defq slash_idx (find "/" s) authority "")
-			(if slash_idx
-				(setq authority (slice s 0 slash_idx)
-					path (slice s slash_idx -1))
-				(setq authority s
-					path "/"))
-			; rfind returns 1-based index (offset + 1)
+			(cond
+				(slash_idx
+					(setq authority (slice s 0 slash_idx)
+						path (slice s slash_idx -1)))
+				(:t
+					(setq authority s
+						path "/")))
 			(when (defq at_pos (rfind "@" authority))
 				(setq user (url-decode (slice authority 0 (dec at_pos)))
 					authority (slice authority at_pos -1)))
 			(cond
 				((starts-with "[" authority)
-					(if (defq rbr_idx (find "]" authority))
-						(progn
-							(setq host (slice authority 1 rbr_idx))
-							(if (defq col_pos (rfind ":" authority))
-								(when (> (dec col_pos) rbr_idx)
-									(setq port (str-to-num (slice authority col_pos -1))))))
-						(setq host authority)))
+					(when (defq rbr_idx (find "]" authority))
+						(setq host (slice authority 1 rbr_idx))
+						(when (defq col_pos (rfind ":" authority))
+							(when (> (dec col_pos) rbr_idx)
+								(setq port (str-to-num (slice authority col_pos -1)))))))
 				((defq col_pos (rfind ":" authority))
 					(setq host (slice authority 0 (dec col_pos))
 						port (str-to-num (slice authority col_pos -1))))
