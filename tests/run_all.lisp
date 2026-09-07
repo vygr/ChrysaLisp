@@ -65,6 +65,9 @@
 	(import "tests/system/test_fs_paths.lisp")
 	(import "tests/system/test_mail.lisp")
 
+	; Network
+	(import "tests/net/test_url.lisp")
+
 	(print-summary)
 
 	; Return true if 0 failures

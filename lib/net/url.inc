@@ -40,7 +40,7 @@
 		("gemini" 1965)
 		("gopher" 70)
 		("ftp" 21)
-		(80)))
+		(:t 80)))
 
 (defun url-encode (s &optional query_flag)
 	; (url-encode str [query_flag]) -> str

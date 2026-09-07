@@ -1,14 +1,15 @@
 (report-header "Regexp: Lazy Quantifiers")
 
 (defmacro assert-match-range (name pattern text start end)
+	(defq res (gensym) first_match (gensym) m_range (gensym))
 	`(progn
-		(defq res (matches ,text ,pattern))
-		(defq first_match (first res))
-		(if first_match
+		(defq ,res (matches ,text ,pattern))
+		(defq ,first_match (first ,res))
+		(if ,first_match
 			(progn
-				(defq range (first first_match))
-				(assert-eq (cat "Regexp Match Range (start): " ,name) ,start (first range))
-				(assert-eq (cat "Regexp Match Range (end): " ,name) ,end (second range)))
+				(defq ,m_range (first ,first_match))
+				(assert-eq (cat "Regexp Match Range (start): " ,name) ,start (first ,m_range))
+				(assert-eq (cat "Regexp Match Range (end): " ,name) ,end (second ,m_range)))
 			(assert-true (cat "Regexp Match Failed: " ,name) :nil))))
 
 ; --- Lazy zero or one ?? ---
