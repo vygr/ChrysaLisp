@@ -7,14 +7,13 @@
 
 (defq +url_unreserved (char-class "A-Za-z0-9_.~-")
 	+cls_pct (char-class "%")
-	+cls_pct_plus (char-class "%+")
-	+cls_hex (char-class "0-9A-Fa-f"))
+	+cls_pct_plus (char-class "%+"))
 
-; Precomputed 769-byte table: "+" at 0, followed by all 256 "%XX" tokens
+;precomputed 769-byte table: "+" at 0, followed by all 256 "%XX" tokens
 (defq +url_rep_table (cat "+" (apply (const cat)
     (map (# (cat "%" (hex-encode (char %0)))) (range 0 256)))))
 
-; Precomputed 256-byte table containing all single byte values (0 to 255)
+;precomputed 256-byte table containing all single byte values (0 to 255)
 (defq +all_chars (apply (const cat) (map (const char) (range 0 256))))
 
 (defun url-scheme-port (scheme)
@@ -31,9 +30,8 @@
 
 (defun url-encode (s &optional query_flag)
 	; (url-encode str [query_flag]) -> str
-	(setd s "")
 	(cond
-		; Fast-path: rbskip returns 0 if all chars are unreserved
+		;fast-path: rbskip returns 0 if all chars are unreserved
 		((= (rbskip +url_unreserved s -1) 0) s)
 		(:t (defq idxs (nums) l (length s) i 0)
 			(while (< i l)
@@ -43,7 +41,6 @@
 				; 2. Span from +url_rep_table (src2): "+" or "%XX"
 				(cond
 					((>= j l)
-						(push idxs 0 0)
 						(setq i l))
 					((and query_flag (eql (elem-get s j) " "))
 						(push idxs 0 1)
@@ -55,29 +52,26 @@
 
 (defun url-decode (s &optional query_flag)
 	; (url-decode str [query_flag]) -> str
-	(setd s "")
-	(defq cls (if query_flag +cls_pct_plus +cls_pct))
 	(cond
-		; Fast-path: rbskipn returns 0 if no encoded chars are present
-		((= (rbskipn cls s -1) 0) s)
+		;fast-path: rbskipn returns 0 if no encoded chars are present
+		((= (rbskipn (defq cls (if query_flag +cls_pct_plus +cls_pct)) s -1) 0) s)
 		(:t (defq idxs (nums) l (length s) i 0)
 			(while (< i l)
 				(defq j (bskipn cls s i))
-				; 1. Span from s (src1): unescaped characters
+				;span from s (src1): unescaped characters
 				(push idxs i j)
-				; 2. Span from +all_chars (src2): decoded byte
+				;span from +all_chars (src2): decoded byte
 				(cond
 					((>= j l)
-						(push idxs 0 0)
 						(setq i l))
 					((and query_flag (eql (elem-get s j) "+"))
-						; Space (ASCII 32) at index 32..33 of +all_chars
+						;space (ASCII 32) at index 32..33 of +all_chars
 						(push idxs 32 33)
 						(setq i (inc j)))
 					((and (<= (+ j 3) l)
-							(bfind (elem-get s (inc j)) +cls_hex)
-							(bfind (elem-get s (+ j 2)) +cls_hex))
-						; Use native hex-decode directly on the 2-character hex slice
+							(bfind (elem-get s (inc j)) +char_class_hex)
+							(bfind (elem-get s (+ j 2)) +char_class_hex))
+						;use native hex-decode directly on the 2-character hex slice
 						(defq b (code (hex-decode (slice s (inc j) (+ j 3))) 1))
 						(push idxs b (inc b))
 						(setq i (+ j 3)))
@@ -90,8 +84,7 @@
 	; (url-query-parse query_str) -> pmap
 	(defq res (pmap))
 	(when (and q_str (nql q_str ""))
-		(if (starts-with "?" q_str)
-			(setq q_str (slice q_str 1 -1)))
+		(if (starts-with "?" q_str) (setq q_str (slice q_str 1 -1)))
 		(each (lambda (pair)
 			(when (nql pair "")
 				(defq eq_idx (find "=" pair)
@@ -120,17 +113,17 @@
 
 (defun url-parse (url_str)
 	; (url-parse url_str) -> pmap
-	(defq scheme "" user "" host "" port 0 upath "" query "" fragment ""
+	(defq scheme "" user "" host "" port 0 upath "" uquery "" fragment ""
 		s (ifn url_str ""))
-	; 1. Fragment (#...)
+	;fragment (#...)
 	(when (defq frag_idx (find "#" s))
 		(setq fragment (slice s (inc frag_idx) -1)
 			s (slice s 0 frag_idx)))
-	; 2. Query (?...)
+	;query (?...)
 	(when (defq q_idx (find "?" s))
-		(setq query (slice s (inc q_idx) -1)
+		(setq uquery (slice s (inc q_idx) -1)
 			s (slice s 0 q_idx)))
-	; 3. Scheme (scheme://...)
+	;scheme (scheme://...)
 	(cond
 		((defq m (first (substr s "://")))
 			(bind '(start end) (first m))
@@ -138,7 +131,7 @@
 				s (slice s end -1)))
 		((starts-with "//" s)
 			(setq s (slice s 2 -1))))
-	; 4. Authority (user@host:port) vs path
+	;authority (user@host:port) vs path
 	(cond
 		((starts-with "/" s)
 			(setq upath s))
@@ -164,7 +157,7 @@
 						port (str-to-num (slice authority col_pos -1))))
 				(:t (setq host authority))))
 		(:t (setq upath "/")))
-	; 5. Normalization
+	;normalization
 	(if (= port 0)
 		(setq port (if (nql scheme "") (url-scheme-port scheme) 80)))
 	(if (and (eql upath "") (nql host ""))
@@ -175,17 +168,17 @@
 		:host host
 		:port port
 		:path upath
-		:query query
-		:params (url-query-parse query)
+		:query uquery
+		:params (url-query-parse uquery)
 		:fragment fragment))
 
 (defun url-path-query (u)
 	; (url-path-query u) -> str
 	(defq upath (or (pfind u :path) "/")
-		query (or (pfind u :query) ""))
+        uquery (or (pfind u :query) ""))
 	(if (eql upath "") (setq upath "/"))
 	(cond
-		((nql query "") (cat upath "?" query))
+		((nql uquery "") (cat upath "?" uquery))
 		((and (defq p (pfind u :params)) (nempty? p))
 			(cat upath "?" (url-query-format p)))
 		(upath)))
