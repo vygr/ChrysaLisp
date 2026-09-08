@@ -35,33 +35,28 @@
 (defun cpm-stage-lz4 (downstream_mbox stream)
 	(str `(progn
 		(import "lib/streams/lz4.inc")
-		(defq out (out-stream (hex-decode ,(hex-encode downstream_mbox))))
-		(defq in (obj-ref ,(weak-ref stream)))
-		(lz4-decompress in out))))
+		(lz4-decompress (obj-ref ,(weak-ref stream))
+			(out-stream (hex-decode ,(hex-encode downstream_mbox)))))))
 
-(defun cpm-stage-rle (downstream_mbox upstream_stream_or_mbox num_bits max_tokens handshake_mbox)
+(defun cpm-stage-rle (downstream_mbox upstream_stream_or_mbox num_bits max_tokens &optional handshake_mbox)
 	(if handshake_mbox
 		(str `(progn
 			(import "lib/streams/rle.inc")
-			(defq out (out-stream (hex-decode ,(hex-encode downstream_mbox))))
-			(defq in (in-stream))
-			(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox in))
-			(rle-decompress in out ,num_bits 8 ,max_tokens)))
+			(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
+			(rle-decompress in (out-stream (hex-decode ,(hex-encode downstream_mbox))) ,num_bits 8 ,max_tokens)))
 		(str `(progn
 			(import "lib/streams/rle.inc")
-			(defq out (out-stream (hex-decode ,(hex-encode downstream_mbox))))
-			(defq in (obj-ref ,(weak-ref upstream_stream_or_mbox)))
-			(rle-decompress in out ,num_bits 8 ,max_tokens)))))
+			(rle-decompress (obj-ref ,(weak-ref upstream_stream_or_mbox))
+				(out-stream (hex-decode ,(hex-encode downstream_mbox)))
+				,num_bits 8 ,max_tokens)))))
 
 (defun cpm-stage-pixmap (pixmap type handshake_mbox done_mbox)
 	(str `(progn
 		(import "gui/pixmap/lisp.inc")
-		(defq in (in-stream))
+		(defq in (in-stream) pixmap (obj-ref ,(weak-ref pixmap)))
 		(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox in))
-		(defq pixmap (obj-ref ,(weak-ref pixmap)))
-		(defq ok (pixmap-read pixmap in ,type))
 		(mail-send (hex-decode ,(hex-encode done_mbox))
-			(if ok (str (weak-ref pixmap)) "")))))
+			(if (pixmap-read pixmap in ,type) (str (weak-ref pixmap)) "")))))
 
 (defun CPM-load (stream)
 	; (CPM-load stream) -> :nil | canvas
@@ -96,7 +91,7 @@
 							(defq downstream_mbox (mail-read handshake_mbox))
 							; 2. Launch RLE (Stage 2) if present
 							(when rle
-								(open-child (cpm-stage-rle downstream_mbox (if lz4 :nil stream) num_bits (* w h) (if lz4 handshake_mbox :nil)) +kn_call_open)
+								(open-child (cpm-stage-rle downstream_mbox (if lz4 :nil stream) num_bits (* w h) (if lz4 handshake_mbox)) +kn_call_open)
 								(if lz4 (setq downstream_mbox (mail-read handshake_mbox))))
 							; 3. Launch LZ4 (Stage 1) if present
 							(when lz4
