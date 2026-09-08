@@ -1155,6 +1155,49 @@
 			(* result (const (n2r 10)))))))
 	(if (eql (first %0) "-") (neg result) result))
 
+(defun real-to-str (r &optional precision)
+	; (real-to-str real [precision]) -> str
+	(ifn (real? r) (setq r (n2r r)))
+	(cond
+		((= r (const (n2r 0))) "0.0")
+		((< r (const (n2r 0)))
+			(cat "-" (real-to-str (neg r) precision)))
+		(:t
+			(setd precision 8)
+			(setq precision (min 14 (max 1 precision)))
+			(defq exp 0 is_exp :nil)
+			(when (or (>= r (const (n2r 1000000000000)))
+					  (< r (const (/ (n2r 1) (n2r 10000)))))
+				(setq is_exp :t)
+				(cond
+					((>= r (const (n2r 10)))
+						(while (>= r (const (n2r 10)))
+							(setq r (/ r (const (n2r 10))))
+							(++ exp)))
+					((< r (const (n2r 1)))
+						(while (< r (const (n2r 1)))
+							(setq r (* r (const (n2r 10))))
+							(-- exp)))))
+			(defq int_part (n2i r)
+				frac (- r (n2r int_part))
+				max_scaled (pow 10 precision)
+				pow10 (n2r max_scaled)
+				scaled (n2i (+ (* frac pow10) (const (n2r 0.5)))))
+			(when (>= scaled max_scaled)
+				(++ int_part)
+				(setq scaled 0)
+				(when (and is_exp (>= int_part 10))
+					(setq int_part 1)
+					(++ exp)))
+			(defq frac_str (pad (str scaled) precision "0")
+				frac_clean (trim-end frac_str "0"))
+			(if (eql frac_clean "") (setq frac_clean "0"))
+			(if is_exp
+				(cat (str int_part) "." frac_clean "e"
+					(if (< exp 0) "-" "+")
+					(pad (str (abs exp)) 2 "0"))
+				(cat (str int_part) "." frac_clean)))))
+
 (defun str-as-num (%0)
 	; (str-as-num str) -> num
 	;return as type num even for fixed point

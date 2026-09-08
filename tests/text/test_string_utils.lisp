@@ -65,6 +65,29 @@
 (assert-eq "str-to-real 1e2" (n2r 100) (str-to-real "1e2"))
 (assert-true "str-to-real 1e-2" (real? (str-to-real "1e-02")))
 (assert-true "str-to-real 9.97231e-09" (real? (str-to-real "9.97231e-09")))
+(assert-eq "str-to-real upper E" (n2r 150) (str-to-real "1.5E2"))
+(assert-eq "str-to-real exp plus" (n2r 12300) (str-to-real "1.23e+04"))
+(assert-eq "str-to-real mantissa plus" (str-to-real "42.5") (str-to-real "+42.5"))
+(assert-eq "str-to-real neg sci" (str-to-real "-0.0015") (str-to-real "-1.5e-3"))
+
+; --- real-to-str Tests ---
+(assert-eq "real-to-str zero" "0.0" (real-to-str (n2r 0)))
+(assert-eq "real-to-str int" "42.0" (real-to-str (n2r 42)))
+(assert-eq "real-to-str neg int" "-45.0" (real-to-str (n2r -45)))
+(assert-eq "real-to-str simple dec" "0.5" (real-to-str (str-to-real "0.5")))
+(assert-eq "real-to-str dec" "123.456" (real-to-str (str-to-real "123.456")))
+(assert-eq "real-to-str neg dec" "-123.456" (real-to-str (str-to-real "-123.456")))
+(assert-eq "real-to-str small sci" "9.97231e-09" (real-to-str (str-to-real "9.97231e-09")))
+(assert-eq "real-to-str large sci" "1.5e+14" (real-to-str (str-to-real "1.5e+14")))
+(assert-eq "real-to-str neg sci" "-1.5e-06" (real-to-str (str-to-real "-1.5e-06")))
+(assert-eq "real-to-str precision" "1.2346" (real-to-str (str-to-real "1.23456789") 4))
+(assert-eq "real-to-str non-real arg" "100.0" (real-to-str 100))
+
+; --- Bidirectional Roundtrip Tests ---
+(assert-eq "roundtrip decimal" (str-to-real "123.456") (str-to-real (real-to-str (str-to-real "123.456"))))
+(assert-eq "roundtrip small sci" (str-to-real "9.97231e-09") (str-to-real (real-to-str (str-to-real "9.97231e-09"))))
+(assert-eq "roundtrip large sci" (str-to-real "1.5e+14") (str-to-real (real-to-str (str-to-real "1.5e+14"))))
+(assert-eq "roundtrip neg" (str-to-real "-42.5") (str-to-real (real-to-str (str-to-real "-42.5"))))
 
 (defq cs "ABC\x00DEF")
 (assert-eq "get-cstr" "ABC" (get-cstr cs 0))
