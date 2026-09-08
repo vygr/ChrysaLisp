@@ -70,23 +70,27 @@ in-memory buffers:
 ### The Three Fundamental Flaws
 
 1. **Massive Memory Footprint & Allocator Churn:**
+
    For an 800x600 32-bit image (~1.92 MB uncompressed), Stage 1 allocates a full
    intermediate `(memory-stream)` buffer, and Stage 2 allocates *another* 1.92 MB
    `memory-stream` buffer. The system temporarily consumes 3x to 4x the image's
    memory size. In film playback (`.FLM`) running at 30-60 FPS, constantly
    allocating, expanding, and freeing multi-megabyte buffers causes severe heap
-   fragmentation and triggers frequent garbage collection pauses.
+   fragmentation and allocator churn.
 
-2. **Serialized Latency & CPU Starvation:**
-   Stage 2 cannot process a single byte until Stage 1 has decompressed 100% of the
-   frame. Stage 3 cannot draw a single pixel until Stage 2 has fully completed.
-   If each stage takes 5 milliseconds, the user waits 15 milliseconds. On modern
-   multi-core systems, remaining CPU cores sit completely idle while a single core
-   plows through each stage in isolation.
+2. **Poor Cache Locality & Memory Bottlenecks:**
 
-3. **Poor Cache Locality:**
-   By the time Stage 2 reads the bytes written at the start of Stage 1, those
-   bytes have long been evicted from CPU L1/L2 caches.
+   Writing full frames back and forth to intermediate memory buffers constantly
+   evicts data from CPU L1/L2 caches. By the time Stage 2 reads the bytes written
+   at the start of Stage 1, those bytes must be refetched from main RAM. This loss
+   of data locality throttles throughput and degrades speed.
+
+3. **Monolithic Inflexibility:**
+
+   The synchronous model requires monolithic caller-side buffering logic. If a
+   format supports optional compression layers (such as raw, RLE only, LZ4 only,
+   or combined), the caller ends up with nested buffering logic and manual stream
+   rewinds rather than clean, composable stages.
 
 ## 2. The Core Primitive: Spawning Raw Lisp Source as a Task
 
@@ -111,12 +115,8 @@ The kernel primitive `(open-child script [flags])` inspects the `script` paramet
 Because ChrysaLisp S-expressions evaluate cleanly, we can generate child task
 definitions dynamically using quasiquote (`` ` ``) and unquote (`,`):
 
-```vdu
-(defun cpm-load-stage-lz4 (downstream_mbox stream)
-	(str `(progn
-		(import "lib/streams/lz4.inc")
-		(lz4-decompress (obj-ref ,(weak-ref stream))
-			(out-stream (hex-decode ,(hex-encode downstream_mbox)))))))
+```file
+lib/image/cpm.inc "(defun cpm-load-stage-lz4" ""
 ```
 
 Notice what happens here:
@@ -183,10 +183,10 @@ mailbox handles as hex-encoded string tokens ensures robust serialization:
 (mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox in))
 ```
 
-## 4. The Solution: An Inline Asynchronous Streaming Pipeline
+## 4. The Solution: An Inline Streaming Pipeline
 
-Instead of allocating intermediate `(memory-stream)` buffers, we model decompression
-as an **asynchronous pipeline of concurrent streaming workers**:
+Instead of allocating intermediate `(memory-stream)` buffers, we model processing
+as a **streaming pipeline of compositional stages**:
 
 ```code
 [File / Network Stream]
@@ -211,11 +211,12 @@ Data flows between stages through ChrysaLisp **IPC streams**:
 * `(out-stream mbox)` creates a streaming output sink that writes chunks into
   the recipient's mailbox.
 
-* As soon as an upstream stage writes a chunk of bytes, the downstream stage
-  wakes up, consumes it, and forwards its output to the next stage.
+* Data flows in small, bounded chunks directly from stage to stage. Data locality
+  is preserved because chunks stay hot in CPU cache, drastically speeding up
+  execution.
 
 * **No stage ever buffers more than a few kilobytes at a time.** Intermediate
-  full-frame buffers are completely eliminated!
+  full-frame buffers are completely eliminated, achieving extreme memory frugality.
 
 ## 5. Back-to-Front Wiring & The Handshake Protocol
 
@@ -244,7 +245,7 @@ Step 4: Launch Producer (Stage 1: LZ4)
         Stage 1 connects its (out-stream) to downstream_mbox (Stage 2).
         Stage 1 reads directly from the source stream.
 
-Step 5: Pipeline Executes Concurrently!
+Step 5: Data Streams Through the Pipeline
         Stage 1 decompresses LZ4 chunks -> Stage 2.
         Stage 2 decompresses RLE tokens -> Stage 3.
         Stage 3 writes pixels directly into Pixmap memory.
@@ -254,13 +255,13 @@ Step 6: Completion
         Parent reads done_mbox and returns the completed Canvas.
 ```
 
-## 5. Concrete Implementation: `CPM-load` and `CPM-save`
+## 6. Concrete Implementation: `CPM-load` and `CPM-save`
 
 The complete asynchronous streaming architecture in `lib/image/cpm.inc` implements
 both decoding (`CPM-load`) and encoding (`CPM-save`) with matching stage names,
 bidirectional streaming, and zero full-frame intermediate buffers.
 
-### 5.1 Decoding Pipeline (`CPM-load`)
+### 6.1 Decoding Pipeline (`CPM-load`)
 
 When reading a CPM image or FLM video frame:
 
@@ -270,200 +271,118 @@ When reading a CPM image or FLM video frame:
 
 #### Stage 1: LZ4 Worker
 
-```vdu
-(defun cpm-load-stage-lz4 (downstream_mbox stream)
-	(str `(progn
-		(import "lib/streams/lz4.inc")
-		(lz4-decompress (obj-ref ,(weak-ref stream))
-			(out-stream (hex-decode ,(hex-encode downstream_mbox)))))))
+```file
+lib/image/cpm.inc "(defun cpm-load-stage-lz4" ""
 ```
 
 #### Stage 2: RLE Worker
 
-```vdu
-(defun cpm-load-stage-rle (downstream_mbox upstream_stream_or_mbox num_bits max_tokens &optional handshake_mbox)
-	(if handshake_mbox
-		; Chained stage: reads from an upstream IPC in-stream
-		(str `(progn
-			(import "lib/streams/rle.inc")
-			(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
-			(rle-decompress in (out-stream (hex-decode ,(hex-encode downstream_mbox))) ,num_bits 8 ,max_tokens)))
-		; Root stage: reads directly from the source stream
-		(str `(progn
-			(import "lib/streams/rle.inc")
-			(rle-decompress (obj-ref ,(weak-ref upstream_stream_or_mbox))
-				(out-stream (hex-decode ,(hex-encode downstream_mbox)))
-				,num_bits 8 ,max_tokens)))))
+```file
+lib/image/cpm.inc "(defun cpm-load-stage-rle" ""
 ```
 
 #### Stage 3: Pixmap Consumer
 
-```vdu
-(defun cpm-load-stage-pixmap (pixmap type handshake_mbox done_mbox)
-	(str `(progn
-		(import "gui/pixmap/lisp.inc")
-		(mail-send (hex-decode ,(hex-encode handshake_mbox))
-			(in-mbox (defq pixmap (obj-ref ,(weak-ref pixmap)) in (in-stream))))
-		(mail-send (hex-decode ,(hex-encode done_mbox))
-			(if (pixmap-read pixmap in ,type) (str (weak-ref pixmap)) "")))))
+```file
+lib/image/cpm.inc "(defun cpm-load-stage-pixmap" ""
 ```
 
 #### Pipeline Orchestration (`CPM-load`)
 
-```vdu
-(cond
-	; Fast path: raw uncompressed CPM (neither LZ4 nor RLE)
-	((not (or lz4 rle))
-		(ifn (pixmap-read pixmap stream type)
-			(setq canvas :nil)))
-
-	; Async pipeline path:
-	(:t
-		(defq handshake_mbox (mail-mbox) done_mbox (mail-mbox))
-
-		; 1. Launch Consumer (Stage 3: Pixmap)
-		(open-child (cpm-load-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_open)
-		(defq downstream_mbox (mail-read handshake_mbox))
-
-		; 2. Launch RLE (Stage 2) if present
-		(when rle
-			(open-child (cpm-load-stage-rle downstream_mbox (if lz4 :nil stream) num_bits (* w h) (if lz4 handshake_mbox)) +kn_call_open)
-			(if lz4 (setq downstream_mbox (mail-read handshake_mbox))))
-
-		; 3. Launch LZ4 (Stage 1) if present
-		(when lz4
-			(open-child (cpm-load-stage-lz4 downstream_mbox stream) +kn_call_open))
-
-		; 4. Wait for consumer completion
-		(defq res (mail-read done_mbox))
-		(ifn (and res (eql res (str (weak-ref pixmap))))
-			(setq canvas :nil))))
+```file
+lib/image/cpm.inc "(defun CPM-load" ""
 ```
 
-### 5.2 Encoding Pipeline (`CPM-save`)
+### 6.2 Encoding Pipeline (`CPM-save`)
 
 Saving a CPM image performs the inverse multi-stage compression:
 
 ```code
-[Stage 1: Pixmap Producer] -> [Stage 2: RLE Filter] -> [Stage 3: LZ4 Consumer] -> [Destination Stream]
+[Stage 1: Pixmap Producer]
+-> [Stage 2: RLE Filter]
+-> [Stage 3: LZ4 Consumer]
+-> [Destination Stream]
 ```
 
 #### Stage 1: Pixmap Producer
 
-```vdu
-(defun cpm-save-stage-pixmap (pixmap downstream_mbox type)
-	(str `(progn
-		(import "gui/pixmap/lisp.inc")
-		(pixmap-write (pixmap-as-argb (obj-ref ,(weak-ref pixmap)))
-			(out-stream (hex-decode ,(hex-encode downstream_mbox)))
-			,type))))
+```file
+lib/image/cpm.inc "(defun cpm-save-stage-pixmap" ""
 ```
 
 #### Stage 2: RLE Filter
 
-```vdu
-(defun cpm-save-stage-rle (downstream_stream_or_mbox num_bits handshake_mbox &optional done_mbox)
-	(if done_mbox
-		(str `(progn
-			(import "lib/streams/rle.inc")
-			(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
-			(rle-compress in (obj-ref ,(weak-ref downstream_stream_or_mbox)) ,num_bits 8)
-			(mail-send (hex-decode ,(hex-encode done_mbox)) :t)))
-		(str `(progn
-			(import "lib/streams/rle.inc")
-			(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
-			(rle-compress in (out-stream (hex-decode ,(hex-encode downstream_stream_or_mbox))) ,num_bits 8)))))
+```file
+lib/image/cpm.inc "(defun cpm-save-stage-rle" ""
 ```
 
 #### Stage 3: LZ4 Consumer
 
-```vdu
-(defun cpm-save-stage-lz4 (stream handshake_mbox done_mbox)
-	(str `(progn
-		(import "lib/streams/lz4.inc")
-		(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
-		(lz4-compress in (obj-ref ,(weak-ref stream)))
-		(mail-send (hex-decode ,(hex-encode done_mbox)) :t))))
+```file
+lib/image/cpm.inc "(defun cpm-save-stage-lz4" ""
 ```
 
 #### Pipeline Orchestration (`CPM-save`)
 
-```vdu
-(cond
-	; Fast path: raw uncompressed CPM (neither LZ4 nor RLE)
-	((not (or lz4 rle))
-		(pixmap-write (pixmap-as-argb pixmap) stream type))
-
-	; Async pipeline path:
-	(:t
-		(defq handshake_mbox (mail-mbox) done_mbox (mail-mbox) downstream_mbox :nil)
-
-		; 1. Launch LZ4 (Stage 3: Consumer) if present
-		(when lz4
-			(open-child (cpm-save-stage-lz4 stream handshake_mbox done_mbox) +kn_call_open)
-			(setq downstream_mbox (mail-read handshake_mbox)))
-
-		; 2. Launch RLE (Stage 2) if present
-		(when rle
-			(open-child (cpm-save-stage-rle (if lz4 downstream_mbox stream) num_bits handshake_mbox (if lz4 :nil done_mbox)) +kn_call_open)
-			(setq downstream_mbox (mail-read handshake_mbox)))
-
-		; 3. Launch Pixmap (Stage 1: Producer)
-		(open-child (cpm-save-stage-pixmap pixmap downstream_mbox type) +kn_call_open)
-
-		; 4. Wait for consumer completion
-		(mail-read done_mbox)))
+```file
+lib/image/cpm.inc "(defun CPM-save" ""
 ```
 
-### 5.3 On-Demand Codec Import
+### 6.3 On-Demand Codec Import
 
 Because each pipeline stage dynamically imports only what it needs (`lib/streams/lz4.inc`,
 `lib/streams/rle.inc`, `gui/pixmap/lisp.inc`) inside its own spawned child task, the
 top-level module `lib/image/cpm.inc` requires zero unconditional compression library imports.
 Loading `cpm.inc` introduces zero compression memory footprint until a compressed image
 is actually loaded or saved.
-```
 
-## 6. Comparison & Real-World Impact
+## 7. Comparison & Real-World Impact
 
-| Dimension | Legacy Synchronous Buffers | Async Local Pipeline |
+| Dimension | Legacy Synchronous Buffers | Streaming Local Pipeline |
 | :--- | :--- | :--- |
 | **Intermediate Memory** | **200% to 400%** of uncompressed frame size | **~0%** (bounded flyweight IPC stream chunks) |
-| **Heap Allocations** | Multiple multi-MB `memory-stream` buffers per frame | Zero frame buffers; transient task mail packets only |
-| **Execution Latency** | Sum of all stages (strictly serialized) | Pipelined (overlapped across stages) |
-| **CPU Core Utilization** | 1 core active; all other cores idle | Concurrent execution across available local cores |
-| **GC Impact** | Heavy GC pressure during 30-60 FPS video playback | Negligible heap churn; rock-solid memory stability |
-| **Code Modularity** | Monolithic decompression loops in caller | Decoupled, reusable stage generators |
+| **Data Locality** | Repeated full-frame RAM roundtrips evict CPU caches | Small stream chunks stay hot in fast L1/L2 cache |
+| **Heap Allocations** | Multiple multi-MB `memory-stream` buffers per frame | Zero frame buffers; transient stream packets only |
+| **Speed & Throughput** | Memory bandwidth and allocator churn throttle speed | Much faster execution due to cache locality and zero churn |
+| **Code Modularity** | Monolithic loops and intermediate buffer rewinds | Clean, reusable, compositional stage generators |
 
 ### Verification in ChrysaLisp
 
 This architecture was validated directly inside the ChrysaLisp GUI environment:
 
 * **Film Player (`apps/media/film/app.lisp`):** Plays high-framerate `.FLM`
-  animations smoothly without dropped frames or stutter caused by GC collection.
+  animations smoothly without dropped frames or latency spikes caused by memory
+  churn.
 
 * **Image Viewer (`apps/media/image/app.lisp`):** Loads large compressed `.CPM`
-  images instantaneously, seamlessly handling 12-bit, 15-bit, 16-bit, and 32-bit
-  pixel conversions directly into canvas memory.
+  images with minimal memory footprint, seamlessly handling 12-bit, 15-bit, 16-bit,
+  and 32-bit pixel conversions directly into canvas memory.
 
-## 7. Summary & Architectural Takeaways
+## 8. Summary & Architectural Takeaways
 
-The Async Local Pipeline demonstrates why ChrysaLisp's unified architecture is
-so uniquely capable:
+The Streaming Local Pipeline demonstrates key principles of efficient data processing
+in ChrysaLisp:
 
-1. **Inline Tasks are Flyweight:** Because tasks are lightweight and the Lisp
+1. **Memory Frugality Drives Speed:** Reducing the memory footprint has a massive
+   impact on execution speed. By eliminating multi-megabyte intermediate buffers,
+   data stays in CPU caches and the memory allocator does zero unnecessary work.
+
+2. **Compositional Stages:** Independent stage functions can be composed cleanly
+   into any pipeline topology (such as decoding with `CPM-load` or encoding with
+   `CPM-save`), enabling flexible format support without rewriting compression logic.
+
+3. **Inline Tasks are Flyweight:** Because tasks are lightweight and the Lisp
    reader can evaluate strings directly, there is virtually zero penalty to
    spawning micro-tasks on the fly for ephemeral operations.
 
-2. **`+kn_call_open` Enables Shared-Memory Concurrency:** Node pinning removes the
-   boundary between distributed message passing and local multi-threaded
-   programming, giving developers the safety of message passing with the raw
-   throughput of shared memory.
+4. **`+kn_call_open` Enables Shared Address Space Access:** Node pinning keeps child
+   tasks on the exact same node, allowing direct object referencing (`weak-ref` and
+   `obj-ref`) while maintaining clean stream-based communication.
 
-3. **Back-to-Front Handshaking Solves Streaming Topologies:** Dynamic mailboxes
-   allow consumers and producers to rendezvous and wire streaming channels
-   dynamically with zero static configuration.
+5. **Back-to-Front Handshaking:** Dynamic mailboxes allow consumers and producers
+   to rendezvous and wire streaming channels dynamically with zero static
+   configuration.
 
 Whenever you face a multi-stage data transformation -- whether it is video decoding,
-audio DSP synthesis, cryptographic hashing, or packet parsing -- consider replacing
-intermediate buffers with an **Async Local Pipeline**.
+image compression, audio DSP, cryptographic hashing, or packet parsing -- consider
+replacing intermediate buffers with a **Streaming Local Pipeline**.
