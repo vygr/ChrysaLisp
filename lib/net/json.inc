@@ -24,7 +24,6 @@
 	(if (nil? ch) (throw "JSON parse error: unterminated string" :nil))
 	(unescape (str ss)))
 
-
 (defun json-read-number (stream first_c)
 	; (json-read-number stream first_c) -> (val next_c)
 	(defq ns (string-stream (cat "")) curr first_c)

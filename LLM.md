@@ -272,11 +272,15 @@ Deep dives into meta-commentary and design philosophy:
 65. **[Pmap and Case](docs/ai_digest/case_for_pmap.md)** - VP `:pmap` class
     and it's uses.
 
-65. **[CTF Font format](docs/ai_digest/ctf_command.md)** - ChrysaLisp vector
+66. **[CTF Font format](docs/ai_digest/ctf_command.md)** - ChrysaLisp vector
     font format and tooling.
 
-66. **[Keeping It Hot](docs/ai_digest/keeping_it_hot.md)** - ChrysaLisp Lisp
+67. **[Keeping It Hot](docs/ai_digest/keeping_it_hot.md)** - ChrysaLisp Lisp
     function call breakdown.
+
+68. **[Network Stack](docs/ai_digest/net_stack.md)** - The ChrysaLisp network
+    stack: URL parsing and vectorized encoding, streaming JSON parser and
+    serializer, connection-pooled HTTP/1.1 client, and the `nettest` utility.
 
 ---
 
@@ -286,13 +290,13 @@ Depending on your goals, you might follow different reading paths:
 
 ### For Understanding the System
 
-Follow the order above from 0–61 for a complete understanding.
+Follow the order above from 0–68 for a complete understanding.
 
 ### For Application Development
 
 Focus on the language, standard libraries, and GUI framework.
 
-Read: 1, 4, 14, 47, 18, 19, 16, 17, 24, 29, 31, 32, 37, 38, 39, 44, 58, 45, 55, 53
+Read: 1, 4, 14, 47, 18, 19, 16, 17, 24, 29, 31, 32, 37, 38, 39, 44, 58, 45, 55, 53, 68
 
 ### For System Programming
 
