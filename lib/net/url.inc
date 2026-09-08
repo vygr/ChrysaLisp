@@ -91,13 +91,13 @@
 (defun url-query-format (q)
 	; (url-query-format q) -> str
 	(defq items (cond
-			((empty? q) (list))
-			((pmap? q) (partition q 2))
-			((and (env? q) (def? :vtable q) (.? q :tolist)) (. q :tolist))
-			((env? q) (tolist q))
-			((list?? (first q)) q)
-			((list?? q) (partition q 2))
-			(:t (list))))
+		((empty? q) (list))
+		((pmap? q) (partition q 2))
+		((and (env? q) (def? :vtable q) (.? q :tolist)) (. q :tolist))
+		((env? q) (tolist q))
+		((list?? (first q)) q)
+		((list?? q) (partition q 2))
+		((list))))
 	(if (empty? items) ""
 		(progn
 			(defq pairs (list))
