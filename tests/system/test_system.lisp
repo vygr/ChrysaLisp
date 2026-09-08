@@ -1,3 +1,6 @@
+(unless (def? 'report-header)
+	(import "tests/utils.inc"))
+
 (report-header "System & Tasking Smoke Tests")
 
 ; --- System Functions ---
@@ -34,3 +37,22 @@
 		(freq-update 'test_key)
 		(assert-true "freq-update" :t))
 	(print "[SKIP] freq-update not defined"))
+
+; --- Inline task execution ---
+(defq reply_mbox (mail-mbox))
+
+(defq child_code (cat
+	"(defun main ()"
+	"  (mail-send (hex-decode \q" (hex-encode reply_mbox) "\q) \qhello\q))"))
+(defq child_id (open-child child_code +kn_call_open))
+(assert-true "open-child inline started" (/= 0 (get-long child_id 0)))
+(defq res (mail-read reply_mbox))
+(assert-eq "open-child inline message reply" "hello" res)
+
+(defq child_code2 (cat
+	"(mail-send (hex-decode \q" (hex-encode reply_mbox) "\q) \qworld\q)"))
+(defq child_id2 (open-child child_code2 +kn_call_child))
+(assert-true "open-child inline top-level started" (/= 0 (get-long child_id2 0)))
+(defq res2 (mail-read reply_mbox))
+(assert-eq "open-child inline top-level message reply" "world" res2)
+

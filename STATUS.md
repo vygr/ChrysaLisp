@@ -113,6 +113,12 @@ Optimized `:str :unescape` by refactoring `read-hex-nibble` from an inlined
 macro to a local subroutine `(call 'read_hex_nibble)`. Updated `(call)` in
 `lib/asm/class.inc` to support parameterless local subroutine calls.
 
+Added support for launching Lisp tasks directly from inline source code strings
+(starting with `(`) across the cluster, removing the need for intermediate
+disk files. In the kernel, `opt_run` routes inline code strings directly to
+`class/lisp/run`, and `import` in `class/lisp/class.vp` wraps the source string
+in an `sstream` fed directly to the REPL.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

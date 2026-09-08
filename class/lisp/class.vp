@@ -4,6 +4,7 @@
 (include "././hmap/class.inc")
 (include "././func/class.inc")
 (include "././fstream/class.inc")
+(include "././sstream/class.inc")
 
 (gen-create :lisp)
 (gen-vtable :lisp)
@@ -112,16 +113,35 @@
 
 (vp-label 'import)
 	(def-vars
-		(ptr this obj stream args))
+		(ptr this stream args func)
+		(pubyte obj)
+		(uint is_inline))
 
 	(push-scope)
 	(entry {this, obj})
 
-	;import a file
-	(call :fstream :create {obj, +file_open_read} {stream})
+	;import a file or inline string
+	(assign {0} {is_inline})
+	(vpif {obj[0] = +char_lrb})
+		(assign {1} {is_inline})
+		(call :str :create_from_cstr {obj} {stream})
+		(vpif {stream})
+			(call :sstream :create {stream} {func})
+			(vpifnot {func})
+				(call :obj :deref {stream})
+			(endif)
+			(assign {func} {stream})
+		(endif)
+	(else)
+		(call :fstream :create {obj, +file_open_read} {stream})
+	(endif)
 	(vpif {stream})
 		(call :list :create :nil {args})
-		(call :str :create_from_cstr {obj} {obj})
+		(vpif {is_inline})
+			(call :str :create_from_cstr {"(inline)"} {obj})
+		(else)
+			(call :str :create_from_cstr {obj} {obj})
+		(endif)
 		(call :list :push_back2 {args, stream, obj})
 		(call :lisp :lisp_repl {this, args} {_, obj})
 		(vpif {obj->+obj_vtable = this->+lisp_error})

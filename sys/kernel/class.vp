@@ -407,42 +407,51 @@
 	;:r0-:r14
 
 	(def-vars
-		(ptr arg func msg)
+		(pubyte arg)
+		(ptr func msg)
 		(netid id)
-		(uint length))
+		(uint length is_lisp))
 
 	(push-scope)
 	(entry {arg})
 
-	;is this a lisp file
+	;is this a lisp task or raw task
 	(assign {0 => id.+net_id_mbox_id => id.+net_id_node_id.+node_id_node1} {id.+net_id_node_id.+node_id_node2})
-	(call :sys_str :length {arg} {_, length})
-	(vpif {length >= 5})
-		(call :sys_str :compare {arg + length - 5, ".lisp"} {length})
+	(assign {0} {is_lisp})
+	(vpif {arg[0] = +char_lrb})
+		(assign {1} {is_lisp})
+	(else)
+		(call :sys_str :length {arg} {_, length})
+		(vpif {length >= 5})
+			(call :sys_str :compare {arg + length - 5, ".lisp"} {length})
+			(vpifnot {length})
+				(assign {1} {is_lisp})
+			(endif)
+		(endif)
 	(endif)
-	(vpifnot {length})
-		;yup it's a .lisp file, check it exists
-		(call :host_os :pii_stat {arg, @sys/statics/statics.statics_sys_load_stat_buffer} {func})
-		(breakif {func})
+
+	(vpif {is_lisp})
 		;start lisp run task and send args
 		(call :sys_load :bind `(,(str (f-path :lisp :run))) '(:r0))
-		(breakif '(:r0 = 0))
-		(call :sys_task :start '(:r0)
-			{_, _, id.+net_id_mbox_id, id.+net_id_node_id.+node_id_node1, id.+net_id_node_id.+node_id_node2})
-		(call :str :create_from_cstr {arg} {arg})
-		(call :sys_mail :alloc_obj {arg, &arg->+str_data, arg->+str_length} {msg})
-		(assign {msg, id.+net_id_mbox_id, id.+net_id_node_id.+node_id_node1, id.+net_id_node_id.+node_id_node2}
-			'(:r0 :r2 :r3 :r4))
-		(save-net-id :r0 +msg_dest)
-		(call :sys_mail :send '(:r0))
-		(call :str :deref {arg})
+		(vpif '(:r0 /= 0))
+			(call :sys_task :start '(:r0)
+				{_, _, id.+net_id_mbox_id, id.+net_id_node_id.+node_id_node1, id.+net_id_node_id.+node_id_node2})
+			(call :str :create_from_cstr {arg} {arg})
+			(call :sys_mail :alloc_obj {arg, &arg->+str_data, arg->+str_length} {msg})
+			(assign {msg, id.+net_id_mbox_id, id.+net_id_node_id.+node_id_node1, id.+net_id_node_id.+node_id_node2}
+				'(:r0 :r2 :r3 :r4))
+			(save-net-id :r0 +msg_dest)
+			(call :sys_mail :send '(:r0))
+			(call :str :deref {arg})
+		(endif)
 	(else)
 		;open as raw task and return mailbox ID
 		(call :sys_load :bind {arg} {func})
-		(breakifnot {func})
-		;start this function as task
-		(call :sys_task :start {func}
-			{_, _, id.+net_id_mbox_id, id.+net_id_node_id.+node_id_node1, id.+net_id_node_id.+node_id_node2})
+		(vpif {func})
+			;start this function as task
+			(call :sys_task :start {func}
+				{_, _, id.+net_id_mbox_id, id.+net_id_node_id.+node_id_node1, id.+net_id_node_id.+node_id_node2})
+		(endif)
 	(endif)
 
 	(exit {id.+net_id_mbox_id, id.+net_id_node_id.+node_id_node1, id.+net_id_node_id.+node_id_node2})
