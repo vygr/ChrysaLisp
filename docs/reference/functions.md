@@ -491,7 +491,7 @@ gather a list of [key|val|:nil]
 ### http-pool-checkout
 
 ```code
-(http-pool-checkout host port) -> (in out) | :nil
+(http-pool-checkout host port) -> ((in out) is_pooled) | :nil
 ```
 
 ### http-pool-clear
@@ -617,6 +617,66 @@ tells us which vertices are inside the surface
 
 ```code
 (join seqs seq [mode]) -> seq
+```
+
+### json-container?
+
+```code
+(json-container? obj) -> :t | :nil
+```
+
+### json-escape-str
+
+```code
+(json-escape-str str) -> str
+```
+
+### json-get-items
+
+```code
+(json-get-items obj) -> list
+```
+
+### json-parse
+
+```code
+(json-parse str_or_stream) -> val
+```
+
+### json-read-number
+
+```code
+(json-read-number stream first_c) -> (val next_c)
+```
+
+### json-read-string
+
+```code
+(json-read-string stream) -> str
+```
+
+### json-serialize-scalar
+
+```code
+(json-serialize-scalar obj) -> str
+```
+
+### json-skip-ws
+
+```code
+(json-skip-ws stream [lookahead]) -> str | :nil
+```
+
+### json-stringify
+
+```code
+(json-stringify obj) -> str
+```
+
+### json-to-tre
+
+```code
+(json-to-tre str_or_stream) -> pmap | list | scalar
 ```
 
 ### lambda-func?
@@ -1083,6 +1143,12 @@ run pipe farm and collect output
 (range start end [step]) -> list
 ```
 
+### real-to-str
+
+```code
+(real-to-str real [precision]) -> str
+```
+
 ### real?
 
 ```code
@@ -1354,6 +1420,12 @@ accepts standard "Normal diff" format
 (transfer src_map dst_map [key val] ...) -> dst_map
 
 transfer a list of [key val]
+```
+
+### tre-to-json
+
+```code
+(tre-to-json obj) -> str
 ```
 
 ### tree-buckets

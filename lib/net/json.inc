@@ -38,22 +38,21 @@
 
 (defun json-read-number (stream first_c)
 	; (json-read-number stream first_c) -> (val next_c)
-	(defq ns (string-stream (cat ""))
-		curr first_c)
+	(defq ns (string-stream (cat "")) curr first_c)
 	(write-blk ns curr)
 	(setq curr (read-blk stream 1))
 	(while (and curr (find curr "0123456789+-eE."))
 		(write-blk ns curr)
 		(setq curr (read-blk stream 1)))
 	(defq num_str (str ns))
-	(when (or (eql num_str "-") (eql num_str "+"))
+	(if (or (eql num_str "-") (eql num_str "+"))
 		(throw "JSON parse error: invalid number" num_str))
 	(defq num_val (cond
 		((or (find "e" num_str) (find "E" num_str))
 			(str-to-real num_str))
 		((find "." num_str)
 			(str-to-num num_str))
-		(:t (str-to-num num_str))))
+		((str-to-num num_str))))
 	(list num_val curr))
 
 (defmacro json-push-val (v)
@@ -62,8 +61,7 @@
 			(if has_root
 				(throw "JSON parse error: multiple root elements" ,v))
 			(setq root_val ,v has_root :t))
-		(:t
-			(defq top_frame (last stack))
+		(:t (defq top_frame (last stack))
 			(case (first top_frame)
 				(:array
 					(unless (or (eql (third top_frame) :expect_val_or_end)
@@ -81,12 +79,8 @@
 (defun json-parse (input)
 	; (json-parse str_or_stream) -> val
 	(defq stream (if (str? input) (string-stream input) input)
-		c (json-skip-ws stream)
-		stack (list)
-		root_val :nil
-		has_root :nil)
-	(if (nil? c)
-		:nil
+		c (json-skip-ws stream) stack (list) root_val :nil has_root :nil)
+	(if (nil? c) :nil
 		(progn
 			(while (and c (or (not has_root) (nempty? stack)))
 				(case c
@@ -100,7 +94,6 @@
 							(throw "JSON parse error: unexpected {" :nil))
 						(push stack (list :object (pmap) :expect_key_or_end :nil))
 						(setq c (json-skip-ws stream)))
-
 					("["
 						(unless (or (empty? stack)
 									(and (eql (first (defq top_frame (last stack))) :array)
@@ -111,7 +104,6 @@
 							(throw "JSON parse error: unexpected [" :nil))
 						(push stack (list :array (list) :expect_val_or_end))
 						(setq c (json-skip-ws stream)))
-
 					("}"
 						(if (empty? stack)
 							(throw "JSON parse error: unexpected } at top level" :nil))
@@ -124,7 +116,6 @@
 						(defq popped (pop stack))
 						(setq c (json-skip-ws stream))
 						(json-push-val (second popped)))
-
 					("]"
 						(if (empty? stack)
 							(throw "JSON parse error: unexpected ] at top level" :nil))
@@ -137,7 +128,6 @@
 						(defq popped (pop stack))
 						(setq c (json-skip-ws stream))
 						(json-push-val (second popped)))
-
 					(":"
 						(if (empty? stack)
 							(throw "JSON parse error: unexpected : at top level" :nil))
@@ -147,7 +137,6 @@
 							(throw "JSON parse error: unexpected :" :nil))
 						(elem-set top_frame 2 :expect_val)
 						(setq c (json-skip-ws stream)))
-
 					(","
 						(if (empty? stack)
 							(throw "JSON parse error: unexpected , at top level" :nil))
@@ -163,7 +152,6 @@
 								(elem-set top_frame 2 :expect_key))
 							(:t (throw "JSON parse error: unexpected ," :nil)))
 						(setq c (json-skip-ws stream)))
-
 					("\q"
 						(cond
 							((and (nempty? stack)
@@ -174,36 +162,29 @@
 								(elem-set top_frame 2 :expect_colon)
 								(elem-set top_frame 3 (sym (if (starts-with ":" k) k (cat ":" k))))
 								(setq c (json-skip-ws stream)))
-							(:t
-								(defq str_val (json-read-string stream))
+							(:t (defq str_val (json-read-string stream))
 								(setq c (json-skip-ws stream))
 								(json-push-val str_val))))
-
 					(("0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "-" "+")
 						(bind '(num_val next_c) (json-read-number stream c))
 						(setq c (json-skip-ws stream next_c))
 						(json-push-val num_val))
-
 					("t"
 						(unless (eql (read-blk stream 3) "rue")
 							(throw "JSON parse error: expected true" :nil))
 						(setq c (json-skip-ws stream))
 						(json-push-val :t))
-
 					("f"
 						(unless (eql (read-blk stream 4) "alse")
 							(throw "JSON parse error: expected false" :nil))
 						(setq c (json-skip-ws stream))
 						(json-push-val :nil))
-
 					("n"
 						(unless (eql (read-blk stream 3) "ull")
 							(throw "JSON parse error: expected null" :nil))
 						(setq c (json-skip-ws stream))
 						(json-push-val :nil))
-
-					(:t
-						(throw "JSON parse error: unexpected character" c))))
+					(:t (throw "JSON parse error: unexpected character" c))))
 			(when (nempty? stack)
 				(throw "JSON parse error: unclosed container at EOF" :nil))
 			(unless has_root
@@ -213,32 +194,29 @@
 (defun json-escape-str (s)
 	; (json-escape-str str) -> str
 	(if (eql s "") "\q\q"
-		(progn
-			(defq esc (escape s))
-			(ifn (find "q" esc) (cat "\q" esc "\q")
-				(progn
-					(defq idxs (nums 0 0 0 1) start 0 len (length esc) idx (find "\\" esc 0))
-					(while idx
-						(cond
-							((and (< (inc idx) len) (eql (elem-get esc (inc idx)) "q"))
-								(push idxs start idx 1 3)
-								(setq start (+ idx 2) idx (find "\\" esc start)))
-							((and (< (inc idx) len) (eql (elem-get esc (inc idx)) "\\"))
-								(setq idx (find "\\" esc (+ idx 2))))
-							(:t (setq idx (find "\\" esc (+ idx 2))))))
-					(push idxs start -1 0 1)
-					(splice esc "\q\\\q" idxs))))))
+		(unless (find "q" (defq esc (escape s))) (cat "\q" esc "\q")
+			(defq idxs (nums 0 0 0 1) start 0 len (length esc) idx (find "\\" esc 0))
+			(while idx
+				(cond
+					((and (< (inc idx) len) (eql (elem-get esc (inc idx)) "q"))
+						(push idxs start idx 1 3)
+						(setq start (+ idx 2) idx (find "\\" esc start)))
+					((and (< (inc idx) len) (eql (elem-get esc (inc idx)) "\\"))
+						(setq idx (find "\\" esc (+ idx 2))))
+					(:t (setq idx (find "\\" esc (+ idx 2))))))
+			(push idxs start -1 0 1)
+			(splice esc "\q\\\q" idxs))))
 
 (defun json-serialize-scalar (obj)
 	; (json-serialize-scalar obj) -> str
 	(cond
-		((nil? obj) "null")
+		((eql obj :nil) "null")
 		((eql obj :t) "true")
 		((real? obj) (str (real-to-str obj)))
 		((fixed? obj) (str obj))
 		((num? obj) (str obj))
 		((str? obj) (json-escape-str obj))
-		(:t (str obj))))
+		((str obj))))
 
 (defun json-container? (obj)
 	; (json-container? obj) -> :t | :nil
@@ -249,15 +227,14 @@
 	(cond
 		((pmap? obj) (partition obj 2))
 		((array? obj) (map identity obj))
-		(:t obj)))
+		(obj)))
 
 (defun json-stringify (obj)
 	; (json-stringify obj) -> str
 	(cond
 		((not (json-container? obj))
 			(json-serialize-scalar obj))
-		(:t
-			(defq stack (list (list obj (if (pmap? obj) :pmap :list) (json-get-items obj) 0 (list) :nil))
+		(:t (defq stack (list (list obj (if (pmap? obj) :pmap :list) (json-get-items obj) 0 (list) :nil))
 				root_res "")
 			(while (nempty? stack)
 				(bind '(node type items idx parts prefix) (last stack))
@@ -274,21 +251,18 @@
 								(if (json-container? v)
 									(push stack (list v (if (pmap? v) :pmap :list) (json-get-items v) 0 (list) k_json))
 									(push parts (cat k_json ":" (json-serialize-scalar v)))))
-							(:t
-								(defq v curr)
+							(:t (defq v curr)
 								(if (json-container? v)
 									(push stack (list v (if (pmap? v) :pmap :list) (json-get-items v) 0 (list) :nil))
 									(push parts (json-serialize-scalar v))))))
-					(:t
-						(pop stack)
+					(:t (pop stack)
 						(defq assembled (cond
 							((eql type :pmap) (cat "{" (join parts ",") "}"))
 							(:t (cat "[" (join parts ",") "]"))))
 						(cond
 							((empty? stack)
 								(setq root_res assembled))
-							(:t
-								(bind '(& parent_type & & parent_parts &ignore) (last stack))
+							(:t (bind '(& parent_type & & parent_parts &ignore) (last stack))
 								(if (eql parent_type :pmap)
 									(push parent_parts (cat prefix ":" assembled))
 									(push parent_parts assembled)))))))
