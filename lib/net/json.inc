@@ -221,33 +221,29 @@
 
 (defun json-escape-str (s)
 	; (json-escape-str str) -> str
-	(if (eql s "")
-		"\q\q"
+	(if (eql s "") "\q\q"
 		(progn
-			(defq ss (string-stream (str-alloc (+ (length s) 16)))
-				i 0 len (length s))
-			(while (< i len)
-				(defq c (code s 1 i))
-				(cond
-					((= c 34) (write-blk ss "\\\q"))
-					((= c 92) (write-blk ss "\\\\"))
-					((= c 10) (write-blk ss "\\n"))
-					((= c 13) (write-blk ss "\\r"))
-					((= c 9)  (write-blk ss "\\t"))
-					((= c 8)  (write-char ss 8))
-					((= c 12) (write-char ss 12))
-					((< c 32)
-						(write-blk ss (cat "\\u00" (hex-encode (char c)))))
-					(:t (write-char ss c)))
-				(++ i))
-			(cat "\q" (str ss) "\q"))))
+			(defq esc (escape s))
+			(ifn (find "q" esc) (cat "\q" esc "\q")
+				(progn
+					(defq idxs (nums 0 0 0 1) start 0 len (length esc) idx (find "\\" esc 0))
+					(while idx
+						(cond
+							((and (< (inc idx) len) (eql (elem-get esc (inc idx)) "q"))
+								(push idxs start idx 1 3)
+								(setq start (+ idx 2) idx (find "\\" esc start)))
+							((and (< (inc idx) len) (eql (elem-get esc (inc idx)) "\\"))
+								(setq idx (find "\\" esc (+ idx 2))))
+							(:t (setq idx (find "\\" esc (+ idx 2))))))
+					(push idxs start -1 0 1)
+					(splice esc "\q\\\q" idxs))))))
 
 (defun json-serialize-scalar (obj)
 	; (json-serialize-scalar obj) -> str
 	(cond
 		((nil? obj) "null")
 		((eql obj :t) "true")
-		((real? obj) (str (n2f obj)))
+		((real? obj) (str (real-to-str obj)))
 		((fixed? obj) (str obj))
 		((num? obj) (str obj))
 		((str? obj) (json-escape-str obj))
