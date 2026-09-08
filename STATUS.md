@@ -119,6 +119,15 @@ disk files. In the kernel, `opt_run` routes inline code strings directly to
 `class/lisp/run`, and `import` in `class/lisp/class.vp` wraps the source string
 in an `sstream` fed directly to the REPL.
 
+Refactored `CPM-load` in `lib/image/cpm.inc` to use an asynchronous local task
+pipeline (`+kn_call_open`) for image and `.FLM` film decompression, replacing
+sequential intermediate `(memory-stream)` buffers with a zero-full-frame-buffering
+streaming pipeline wired back-to-front via IPC stream mailboxes.
+
+New `docs/ai_digest/async_pipelines.md` document covering inline raw Lisp tasks,
+node pinning, shared-memory concurrency, and the `CPM-load` async pipeline, and
+added link in `LLM.md`.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

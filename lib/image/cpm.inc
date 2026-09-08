@@ -32,6 +32,37 @@
 					(setq out (getf-> header +cpm_width +cpm_height +cpm_type))))))
 	out)
 
+(defun cpm-stage-lz4 (downstream_mbox stream)
+	(str `(progn
+		(import "lib/streams/lz4.inc")
+		(defq out (out-stream (hex-decode ,(hex-encode downstream_mbox))))
+		(defq in (obj-ref ,(weak-ref stream)))
+		(lz4-decompress in out))))
+
+(defun cpm-stage-rle (downstream_mbox upstream_stream_or_mbox num_bits max_tokens handshake_mbox)
+	(if handshake_mbox
+		(str `(progn
+			(import "lib/streams/rle.inc")
+			(defq out (out-stream (hex-decode ,(hex-encode downstream_mbox))))
+			(defq in (in-stream))
+			(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox in))
+			(rle-decompress in out ,num_bits 8 ,max_tokens)))
+		(str `(progn
+			(import "lib/streams/rle.inc")
+			(defq out (out-stream (hex-decode ,(hex-encode downstream_mbox))))
+			(defq in (obj-ref ,(weak-ref upstream_stream_or_mbox)))
+			(rle-decompress in out ,num_bits 8 ,max_tokens)))))
+
+(defun cpm-stage-pixmap (pixmap type handshake_mbox done_mbox)
+	(str `(progn
+		(import "gui/pixmap/lisp.inc")
+		(defq in (in-stream))
+		(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox in))
+		(defq pixmap (obj-ref ,(weak-ref pixmap)))
+		(defq ok (pixmap-read pixmap in ,type))
+		(mail-send (hex-decode ,(hex-encode done_mbox))
+			(if ok (str (weak-ref pixmap)) "")))))
+
 (defun CPM-load (stream)
 	; (CPM-load stream) -> :nil | canvas
 	(defq canvas :nil)
@@ -52,24 +83,28 @@
 					(if (or (= type 12) (= type 15)) (setq num_bits 16))
 					; save stream type for any film players !
 					(setf-> pixmap (+pixmap_stream_type type 0) (+pixmap_type 32 0))
-					(defq source_stream stream)
-					; LZ4 Layer
-					(when lz4
-						(defq lz4_stream (memory-stream))
-						(lz4-decompress source_stream lz4_stream)
-						(stream-seek lz4_stream 0 0)
-						(setq source_stream lz4_stream))
-					; RLE Layer
-					(when rle
-						(defq rle_stream (memory-stream))
-						; decompress exactly one frame straight into our memory stream
-						; max_tokens cap ensures .flm files are respected!
-						(rle-decompress source_stream rle_stream num_bits 8 (* w h))
-						(stream-seek rle_stream 0 0)
-						(setq source_stream rle_stream))
-					; loop and copy direct to the pixmap's pixel buffer
-					(ifn (pixmap-read pixmap source_stream type)
-						(setq canvas :nil))))))
+					(cond
+						; Fast path: raw uncompressed CPM (neither LZ4 nor RLE)
+						((not (or lz4 rle))
+							(ifn (pixmap-read pixmap stream type)
+								(setq canvas :nil)))
+						; Async pipeline path:
+						(:t
+							(defq handshake_mbox (mail-mbox) done_mbox (mail-mbox))
+							; 1. Launch Consumer (Stage 3: Pixmap)
+							(open-child (cpm-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_open)
+							(defq downstream_mbox (mail-read handshake_mbox))
+							; 2. Launch RLE (Stage 2) if present
+							(when rle
+								(open-child (cpm-stage-rle downstream_mbox (if lz4 :nil stream) num_bits (* w h) (if lz4 handshake_mbox :nil)) +kn_call_open)
+								(if lz4 (setq downstream_mbox (mail-read handshake_mbox))))
+							; 3. Launch LZ4 (Stage 1) if present
+							(when lz4
+								(open-child (cpm-stage-lz4 downstream_mbox stream) +kn_call_open))
+							; 4. Wait for consumer completion
+							(defq res (mail-read done_mbox))
+							(ifn (and res (eql res (str (weak-ref pixmap))))
+								(setq canvas :nil))))))))
 	canvas)
 
 (defun CPM-save (canvas stream type &optional rle lz4 ident)
