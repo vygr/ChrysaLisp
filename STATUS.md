@@ -106,6 +106,9 @@ New `real-to-str` function in `root.inc`.
 Added `\b` escape support to the `:str :escape` and `:str :unescape` methods,
 and fixed the JSON parser to correctly handle `\b` escapes in strings.
 
+New `docs/ai_digest/net_stack.md` document covering the `lib/net/` libraries
+and the `nettest` command, and added link in `LLM.md`.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
