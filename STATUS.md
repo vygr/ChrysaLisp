@@ -98,8 +98,8 @@ New `service/net` `*Net` service ! TCP/IP sockets service. Simple test cmd app
 the host API working.
 
 Start of network libs `lib/net/url.inc`, `lib/net/http.inc`, `lib/net/json.inc`.
-`nettest` command updated to use these and the url testing move to the unit test
-suite.
+`nettest` command updated to use these and the url testing moved to the unit
+test suite.
 
 New `real-to-str` function in `root.inc`.
 
