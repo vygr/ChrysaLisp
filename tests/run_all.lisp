@@ -67,6 +67,7 @@
 
 	; Network
 	(import "tests/net/test_url.lisp")
+	(import "tests/net/test_json.lisp")
 
 	(print-summary)
 

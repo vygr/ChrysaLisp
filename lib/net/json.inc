@@ -5,137 +5,253 @@
 ; JSON Data Interchange
 ;;;;;;;;;;;;;;;;;;;
 
-(import "lib/text/charclass.inc")
-(import "lib/text/searching.inc")
-
 ;module
 (env-push)
 
-(defun json-skip-ws (stream)
-	; (json-skip-ws stream) -> char_code | -1
-	(defq c (read-char stream))
-	(while (and (/= c -1) (bfind (char c) +char_class_white_space))
-		(setq c (read-char stream)))
-	c)
+(defun json-skip-ws (stream &optional lookahead)
+	; (json-skip-ws stream [lookahead]) -> str | :nil
+	(defq curr (if lookahead lookahead (read-blk stream 1)))
+	(while (and curr (find curr " \t\r\n"))
+		(setq curr (read-blk stream 1)))
+	curr)
 
-(defun json-parse-string-content (stream)
-	; (json-parse-string-content stream) -> str
-	(defq value (str-alloc str_gap)
-		ss (string-stream value)
-		char (read-char stream))
-	(while (and (/= char -1) (/= char (ascii-code "\q")))
-		(if (= char (ascii-code "\\"))
-			(progn
-				(setq char (read-char stream))
-				(case char
-					((ascii-code "n") (write-char ss (ascii-code "\\")) (write-char ss (ascii-code "n")))
-					((ascii-code "t") (write-char ss (ascii-code "\\")) (write-char ss (ascii-code "t")))
-					((ascii-code "r") (write-char ss (ascii-code "\\")) (write-char ss (ascii-code "r")))
-					((ascii-code "\"") (write-char ss (ascii-code "\\")) (write-char ss (ascii-code "q")))
-					((ascii-code "\\") (write-char ss (ascii-code "\\")) (write-char ss (ascii-code "\\")))
-					(:t (write-char ss (ascii-code "\\")) (write-char ss char))))
-			(write-char ss char))
-		(setq char (read-char stream)))
-	(stream-seek ss 0 0)
-	(defq parts (list))
-	(while (defq blk (read-blk ss 4096))
-		(push parts blk))
-	(unescape (apply (const cat) parts)))
+(defun json-read-string (stream)
+	; (json-read-string stream) -> str
+	(defq ss (string-stream (cat ""))
+		ch (read-blk stream 1))
+	(while (and ch (nql ch "\q"))
+		(cond
+			((eql ch "\\")
+				(defq esc (read-blk stream 1))
+				(case esc
+					("n" (write-blk ss "\n"))
+					("t" (write-blk ss "\t"))
+					("r" (write-blk ss "\r"))
+					("b" (write-char ss 8))
+					("f" (write-char ss 12))
+					("\q" (write-blk ss "\q"))
+					("\\" (write-blk ss "\\"))
+					("/" (write-blk ss "/"))
+					("u"
+						(defq hex_str (read-blk stream 4))
+						(if (and hex_str (= (length hex_str) 4))
+							(write-blk ss (num-to-utf8 (str-to-num (cat "0x" hex_str))))
+							(throw "JSON parse error: invalid unicode escape" hex_str)))
+					(:t (if esc (write-blk ss esc)))))
+			(:t
+				(write-blk ss ch)))
+		(setq ch (read-blk stream 1)))
+	(if (nil? ch)
+		(throw "JSON parse error: unterminated string" :nil))
+	(str ss))
 
-(defun json-parse-string (stream)
-	; (json-parse-string stream) -> str
-	(json-parse-string-content stream))
+(defun json-read-number (stream first_c)
+	; (json-read-number stream first_c) -> (val next_c)
+	(defq ns (string-stream (cat ""))
+		curr first_c)
+	(write-blk ns curr)
+	(setq curr (read-blk stream 1))
+	(while (and curr (find curr "0123456789+-eE."))
+		(write-blk ns curr)
+		(setq curr (read-blk stream 1)))
+	(defq num_str (str ns))
+	(when (or (eql num_str "-") (eql num_str "+"))
+		(throw "JSON parse error: invalid number" num_str))
+	(defq num_val (cond
+		((or (find "e" num_str) (find "E" num_str))
+			(str-to-real num_str))
+		((find "." num_str)
+			(str-to-num num_str))
+		(:t (str-to-num num_str))))
+	(list num_val curr))
 
-(defun json-parse-number (stream first_c)
-	; (json-parse-number stream first_c) -> num | real
-	(defq ms (memory-stream)
-		c first_c)
-	(write-char ms c)
-	(setq c (read-char stream))
-	(while (and (/= c -1) (bfind (char c) "0123456789+-eE."))
-		(write-char ms c)
-		(setq c (read-char stream)))
-	(stream-seek stream -1 1)
-	(stream-seek ms 0 0)
-	(defq num_str (read-blk ms 64))
-	(if (or (find "." num_str) (find "e" num_str) (find "E" num_str))
-		(str-to-real num_str)
-		(str-to-num num_str)))
-
-(defun json-parse-val (stream first_c)
-	; (json-parse-val stream first_c) -> val
-	(cond
-		((= first_c (ascii-code "{"))
-			(json-parse-object stream))
-		((= first_c (ascii-code "["))
-			(json-parse-array stream))
-		((= first_c (ascii-code "\q"))
-			(json-parse-string stream))
-		((or (<= (ascii-code "0") first_c (ascii-code "9")) (= first_c (ascii-code "-")))
-			(json-parse-number stream first_c))
-		((= first_c (ascii-code "t"))
-			(read-blk stream 3)
-			:t)
-		((= first_c (ascii-code "f"))
-			(read-blk stream 4)
-			:nil)
-		((= first_c (ascii-code "n"))
-			(read-blk stream 3)
-			:nil)
-		(:t (throw "JSON parse error: unexpected char" (ascii-char first_c)))))
-
-(defun json-parse-object (stream)
-	; (json-parse-object stream) -> pmap
-	(defq res (pmap)
-		c (json-skip-ws stream))
-	(when (/= c (ascii-code "}"))
-		(while :t
-			(if (/= c (ascii-code "\q"))
-				(throw "JSON parse error: expected string key" c))
-			(defq k (json-parse-string-content stream)
-				k_sym (sym (if (starts-with ":" k) k (cat ":" k))))
-			(if (/= (json-skip-ws stream) (ascii-code ":"))
-				(throw "JSON parse error: expected colon" c))
-			(defq v (json-parse-val stream (json-skip-ws stream)))
-			(pinsert res k_sym v)
-			(setq c (json-skip-ws stream))
-			(cond
-				((= c (ascii-code "}")) (break))
-				((= c (ascii-code ",")) (setq c (json-skip-ws stream)))
-				(:t (throw "JSON parse error: expected comma or }" c)))))
-	res)
-
-(defun json-parse-array (stream)
-	; (json-parse-array stream) -> list
-	(defq res (list)
-		c (json-skip-ws stream))
-	(when (/= c (ascii-code "]"))
-		(while :t
-			(defq v (json-parse-val stream c))
-			(push res v)
-			(setq c (json-skip-ws stream))
-			(cond
-				((= c (ascii-code "]")) (break))
-				((= c (ascii-code ",")) (setq c (json-skip-ws stream)))
-				(:t (throw "JSON parse error: expected comma or ]" c)))))
-	res)
+(defmacro json-push-val (v)
+	`(cond
+		((empty? stack)
+			(if has_root
+				(throw "JSON parse error: multiple root elements" ,v))
+			(setq root_val ,v has_root :t))
+		(:t
+			(defq top_frame (last stack))
+			(case (first top_frame)
+				(:array
+					(unless (or (eql (third top_frame) :expect_val_or_end)
+								(eql (third top_frame) :expect_val))
+						(throw "JSON parse error: unexpected value in array" ,v))
+					(push (second top_frame) ,v)
+					(elem-set top_frame 2 :expect_comma_or_end))
+				(:object
+					(unless (eql (third top_frame) :expect_val)
+						(throw "JSON parse error: unexpected value in object" ,v))
+					(pinsert (second top_frame) (elem-get top_frame 3) ,v)
+					(elem-set top_frame 2 :expect_comma_or_end)
+					(elem-set top_frame 3 :nil))))))
 
 (defun json-parse (input)
 	; (json-parse str_or_stream) -> val
 	(defq stream (if (str? input) (string-stream input) input)
-		c (json-skip-ws stream))
-	(if (= c -1) :nil (json-parse-val stream c)))
+		c (json-skip-ws stream)
+		stack (list)
+		root_val :nil
+		has_root :nil)
+	(if (nil? c)
+		:nil
+		(progn
+			(while (and c (or (not has_root) (nempty? stack)))
+				(case c
+					("{"
+						(unless (or (empty? stack)
+									(and (eql (first (defq top_frame (last stack))) :array)
+										 (or (eql (third top_frame) :expect_val_or_end)
+											 (eql (third top_frame) :expect_val)))
+									(and (eql (first top_frame) :object)
+										 (eql (third top_frame) :expect_val)))
+							(throw "JSON parse error: unexpected {" :nil))
+						(push stack (list :object (pmap) :expect_key_or_end :nil))
+						(setq c (json-skip-ws stream)))
+
+					("["
+						(unless (or (empty? stack)
+									(and (eql (first (defq top_frame (last stack))) :array)
+										 (or (eql (third top_frame) :expect_val_or_end)
+											 (eql (third top_frame) :expect_val)))
+									(and (eql (first top_frame) :object)
+										 (eql (third top_frame) :expect_val)))
+							(throw "JSON parse error: unexpected [" :nil))
+						(push stack (list :array (list) :expect_val_or_end))
+						(setq c (json-skip-ws stream)))
+
+					("}"
+						(if (empty? stack)
+							(throw "JSON parse error: unexpected } at top level" :nil))
+						(defq top_frame (last stack))
+						(unless (eql (first top_frame) :object)
+							(throw "JSON parse error: mismatched brackets, expected ]" :nil))
+						(unless (or (eql (third top_frame) :expect_key_or_end)
+									(eql (third top_frame) :expect_comma_or_end))
+							(throw "JSON parse error: unexpected } in object" :nil))
+						(defq popped (pop stack))
+						(setq c (json-skip-ws stream))
+						(json-push-val (second popped)))
+
+					("]"
+						(if (empty? stack)
+							(throw "JSON parse error: unexpected ] at top level" :nil))
+						(defq top_frame (last stack))
+						(unless (eql (first top_frame) :array)
+							(throw "JSON parse error: mismatched brackets, expected }" :nil))
+						(unless (or (eql (third top_frame) :expect_val_or_end)
+									(eql (third top_frame) :expect_comma_or_end))
+							(throw "JSON parse error: unexpected ] in array" :nil))
+						(defq popped (pop stack))
+						(setq c (json-skip-ws stream))
+						(json-push-val (second popped)))
+
+					(":"
+						(if (empty? stack)
+							(throw "JSON parse error: unexpected : at top level" :nil))
+						(defq top_frame (last stack))
+						(unless (and (eql (first top_frame) :object)
+									 (eql (third top_frame) :expect_colon))
+							(throw "JSON parse error: unexpected :" :nil))
+						(elem-set top_frame 2 :expect_val)
+						(setq c (json-skip-ws stream)))
+
+					(","
+						(if (empty? stack)
+							(throw "JSON parse error: unexpected , at top level" :nil))
+						(defq top_frame (last stack))
+						(cond
+							((eql (first top_frame) :array)
+								(unless (eql (third top_frame) :expect_comma_or_end)
+									(throw "JSON parse error: unexpected , in array" :nil))
+								(elem-set top_frame 2 :expect_val))
+							((eql (first top_frame) :object)
+								(unless (eql (third top_frame) :expect_comma_or_end)
+									(throw "JSON parse error: unexpected , in object" :nil))
+								(elem-set top_frame 2 :expect_key))
+							(:t (throw "JSON parse error: unexpected ," :nil)))
+						(setq c (json-skip-ws stream)))
+
+					("\q"
+						(cond
+							((and (nempty? stack)
+									(eql (first (defq top_frame (last stack))) :object)
+									(or (eql (third top_frame) :expect_key_or_end)
+										(eql (third top_frame) :expect_key)))
+								(defq k (json-read-string stream))
+								(elem-set top_frame 2 :expect_colon)
+								(elem-set top_frame 3 (sym (if (starts-with ":" k) k (cat ":" k))))
+								(setq c (json-skip-ws stream)))
+							(:t
+								(defq str_val (json-read-string stream))
+								(setq c (json-skip-ws stream))
+								(json-push-val str_val))))
+
+					(("0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "-" "+")
+						(bind '(num_val next_c) (json-read-number stream c))
+						(setq c (json-skip-ws stream next_c))
+						(json-push-val num_val))
+
+					("t"
+						(unless (eql (read-blk stream 3) "rue")
+							(throw "JSON parse error: expected true" :nil))
+						(setq c (json-skip-ws stream))
+						(json-push-val :t))
+
+					("f"
+						(unless (eql (read-blk stream 4) "alse")
+							(throw "JSON parse error: expected false" :nil))
+						(setq c (json-skip-ws stream))
+						(json-push-val :nil))
+
+					("n"
+						(unless (eql (read-blk stream 3) "ull")
+							(throw "JSON parse error: expected null" :nil))
+						(setq c (json-skip-ws stream))
+						(json-push-val :nil))
+
+					(:t
+						(throw "JSON parse error: unexpected character" c))))
+			(when (nempty? stack)
+				(throw "JSON parse error: unclosed container at EOF" :nil))
+			(unless has_root
+				(throw "JSON parse error: no value found" :nil))
+			root_val)))
+
+(defun json-escape-str (s)
+	; (json-escape-str str) -> str
+	(if (eql s "")
+		"\q\q"
+		(progn
+			(defq ss (string-stream (str-alloc (+ (length s) 16)))
+				i 0 len (length s))
+			(while (< i len)
+				(defq c (code s 1 i))
+				(cond
+					((= c 34) (write-blk ss "\\\q"))
+					((= c 92) (write-blk ss "\\\\"))
+					((= c 10) (write-blk ss "\\n"))
+					((= c 13) (write-blk ss "\\r"))
+					((= c 9)  (write-blk ss "\\t"))
+					((= c 8)  (write-char ss 8))
+					((= c 12) (write-char ss 12))
+					((< c 32)
+						(write-blk ss (cat "\\u00" (hex-encode (char c)))))
+					(:t (write-char ss c)))
+				(++ i))
+			(cat "\q" (str ss) "\q"))))
 
 (defun json-serialize-scalar (obj)
 	; (json-serialize-scalar obj) -> str
 	(cond
-		((eql obj :nil) "null")
+		((nil? obj) "null")
 		((eql obj :t) "true")
 		((real? obj) (str (n2f obj)))
 		((fixed? obj) (str obj))
 		((num? obj) (str obj))
-		((str? obj) (cat "\q" (join (split (escape obj) "\q") "\"") "\q"))
-		((str obj))))
+		((str? obj) (json-escape-str obj))
+		(:t (str obj))))
 
 (defun json-container? (obj)
 	; (json-container? obj) -> :t | :nil
@@ -146,7 +262,7 @@
 	(cond
 		((pmap? obj) (partition obj 2))
 		((array? obj) (map identity obj))
-		(obj)))
+		(:t obj)))
 
 (defun json-stringify (obj)
 	; (json-stringify obj) -> str
@@ -157,23 +273,17 @@
 			(defq stack (list (list obj (if (pmap? obj) :pmap :list) (json-get-items obj) 0 (list) :nil))
 				root_res "")
 			(while (nempty? stack)
-				(defq frame (last stack)
-					node (first frame)
-					type (second frame)
-					items (third frame)
-					idx (fourth frame)
-					parts (fifth frame)
-					prefix (sixth frame))
+				(bind '(node type items idx parts prefix) (last stack))
 				(cond
 					((< idx (length items))
-						(elem-set frame 3 (inc idx))
+						(elem-set (last stack) 3 (inc idx))
 						(defq curr (elem-get items idx))
 						(cond
 							((eql type :pmap)
 								(bind '(k v) curr)
 								(defq k_str (str k)
 									k_clean (if (starts-with ":" k_str) (rest k_str) k_str)
-									k_json (cat "\q" (join (split (escape k_clean) "\q") "\"") "\q"))
+									k_json (json-escape-str k_clean))
 								(if (json-container? v)
 									(push stack (list v (if (pmap? v) :pmap :list) (json-get-items v) 0 (list) k_json))
 									(push parts (cat k_json ":" (json-serialize-scalar v)))))
@@ -187,15 +297,13 @@
 						(defq assembled (cond
 							((eql type :pmap) (cat "{" (join parts ",") "}"))
 							(:t (cat "[" (join parts ",") "]"))))
-						(if (empty? stack)
-							(setq root_res assembled)
-							(defq parent_frame (last stack)
-								parent_parts (fifth parent_frame)
-								parent_type (second parent_frame))
-							(cond
-								((eql parent_type :pmap)
-									(push parent_parts (cat prefix ":" assembled)))
-								(:t
+						(cond
+							((empty? stack)
+								(setq root_res assembled))
+							(:t
+								(bind '(& parent_type & & parent_parts &ignore) (last stack))
+								(if (eql parent_type :pmap)
+									(push parent_parts (cat prefix ":" assembled))
 									(push parent_parts assembled)))))))
 			root_res)))
 
