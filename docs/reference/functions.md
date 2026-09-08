@@ -631,6 +631,12 @@ tells us which vertices are inside the surface
 (json-escape-str str) -> str
 ```
 
+### json-from-tre
+
+```code
+(json-from-tre obj) -> str
+```
+
 ### json-get-items
 
 ```code
@@ -1420,12 +1426,6 @@ accepts standard "Normal diff" format
 (transfer src_map dst_map [key val] ...) -> dst_map
 
 transfer a list of [key val]
-```
-
-### tre-to-json
-
-```code
-(tre-to-json obj) -> str
 ```
 
 ### tree-buckets

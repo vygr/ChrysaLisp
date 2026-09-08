@@ -45,11 +45,11 @@
 (defq stream_res (json-parse ms))
 (assert-eq "json-parse from stream" 99 (pfind stream_res :stream))
 
-; --- 7. .tre Interoperability (json-to-tre / tre-to-json) ---
+; --- 7. .tre Interoperability (json-to-tre / json-from-tre) ---
 (defq tre_data (json-to-tre "{\qconfig\q: [\qa\q, \qb\q]}"))
 (assert-true "json-to-tre produces pmap" (pmap? tre_data))
 (assert-list-eq "json-to-tre array" '("a" "b") (pfind tre_data :config))
 
-(defq back_to_json (tre-to-json tre_data))
+(defq back_to_json (json-from-tre tre_data))
 (defq tre_roundtrip (json-to-tre back_to_json))
-(assert-list-eq "tre-to-json roundtrip" '("a" "b") (pfind tre_roundtrip :config))
+(assert-list-eq "json-from-tre roundtrip" '("a" "b") (pfind tre_roundtrip :config))

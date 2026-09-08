@@ -272,10 +272,10 @@
 	; (json-to-tre str_or_stream) -> pmap | list | scalar
 	(json-parse input))
 
-(defun tre-to-json (obj)
-	; (tre-to-json obj) -> str
+(defun json-from-tre (obj)
+	; (json-from-tre obj) -> str
 	(json-stringify obj))
 
 ;module
-(export-symbols '(json-parse json-stringify json-to-tre tre-to-json))
+(export-symbols '(json-parse json-stringify json-to-tre json-from-tre))
 (env-pop)
