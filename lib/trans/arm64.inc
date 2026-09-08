@@ -44,7 +44,8 @@
 (defmacro arm64-fpr-rr (o s d) `(emitm-int (+ ,o (<< ,s 5) ,d)))
 (defmacro arm64-shift-rr (e o s d) `(arm64-rrr ,o ,s ,d ,d))
 (defmacro arm64-shift-cr (e o c x y r) `(cond ((= ,c 0)) ((arm64-bf ,o ,x ,y ,r ,r))))
-(defmacro arm64-ir (w o s c d) `(arm64-ri ,w ,o ,d ,s ,c))
+
+(defun emit-xor-rr (s d) (arm64-rrr 0xca000000 s d d))
 
 (defmacro arm64-ri (w o s d c)
 	`(cond
@@ -53,6 +54,8 @@
 		((<= 0 ,c (<< 0xfff ,w))
 			(emitm-int (+ 0x1000000 ,o (<< ,c (- 10 ,w)) (<< ,d 5) ,s)))
 		(:t (throw "arm64-ri/ir constant out of range !" ,c))))
+
+(defmacro arm64-ir (w o s c d) `(arm64-ri ,w ,o ,d ,s ,c))
 
 (defmacro arm64-iru (w o s c d)
 	`(progn
@@ -141,7 +144,6 @@
 		((find +arm64_rsp (list s d)) (emitm-int (+ 0x91000000 (<< s 5) d)))
 		((emitm-int (+ 0xaa0003e0 (<< s 16) d)))))
 
-(defun emit-xor-rr (s d) (arm64-rrr 0xca000000 s d d))
 (defun emit-and-rr (s d) (unless (eql s d) (arm64-rrr 0x8a000000 s d d)))
 (defun emit-or-rr (s d) (unless (eql s d) (arm64-rrr 0xaa000000 s d d)))
 (defun emit-add-rr (s d) (arm64-rrr 0x8b206000 s d d))

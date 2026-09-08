@@ -1130,6 +1130,24 @@
 	(if (= (% num div) 0) num
 		(+ (* (/ num div) div) div)))
 
+(defun pad (v c &optional f)
+	; (pad form width [str]) -> str
+	(defq f (ifn f " ") v (str v) l (length v) c (- (max c l) l))
+	(while (> c (length f)) (setq f (cat f f)))
+	(cat (slice f 0 c) v))
+
+(defun trim-start (s &optional cls)
+	; (trim-start str [cls]) -> str
+	(slice s (bskip (ifn cls " ") s 0) -1))
+
+(defun trim-end (s &optional cls)
+	; (trim-end str [cls]) -> str
+	(slice s 0 (rbskip (ifn cls " ") s -1)))
+
+(defun trim (s &optional cls)
+	; (trim str [cls]) -> str
+	(slice s (bskip (setd cls " ") s 0) (rbskip cls s -1)))
+
 (defun str-to-real (%0)
 	; (str-to-real str) -> real
 	; handles scientific notation like 1.5e-3 or 9.97231e-09
@@ -1231,24 +1249,6 @@
 (defun long-to-hex-str (%0)
 	; (long-to-hex-str num) -> str
 	(hex-encode (apply (const cat) (reverse (partition (char %0 +long_size))))))
-
-(defun trim-start (s &optional cls)
-	; (trim-start str [cls]) -> str
-	(slice s (bskip (ifn cls " ") s 0) -1))
-
-(defun trim-end (s &optional cls)
-	; (trim-end str [cls]) -> str
-	(slice s 0 (rbskip (ifn cls " ") s -1)))
-
-(defun trim (s &optional cls)
-	; (trim str [cls]) -> str
-	(slice s (bskip (setd cls " ") s 0) (rbskip cls s -1)))
-
-(defun pad (v c &optional f)
-	; (pad form width [str]) -> str
-	(defq f (ifn f " ") v (str v) l (length v) c (- (max c l) l))
-	(while (> c (length f)) (setq f (cat f f)))
-	(cat (slice f 0 c) v))
 
 (defun type-to-size (%0)
 	; (type-to-size sym) -> num
