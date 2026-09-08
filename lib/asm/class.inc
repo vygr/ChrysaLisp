@@ -138,14 +138,14 @@
 ; function helpers
 ;;;;;;;;;;;;;;;;;;
 
-(defun call (%0 %1 &optional %2 %3 %4)
+(defun call (%0 &optional %1 %2 %3 %4)
 	;%0 = class name
 	;%1 = member name
 	;%2 = in parameters
 	;%3 = out parameters
 	;%4 = dispatch reg
 	(cond
-		((sym? %1)
+		((and %1 (sym? %1) (nql %1 :nil))
 			(cond
 				;f-call
 				((eql (second (defq m (method-lookup %0 %1))) :static)

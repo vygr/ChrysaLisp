@@ -109,6 +109,10 @@ and fixed the JSON parser to correctly handle `\b` escapes in strings.
 New `docs/ai_digest/net_stack.md` document covering the `lib/net/` libraries
 and the `nettest` command, and added link in `LLM.md`.
 
+Optimized `:str :unescape` by refactoring `read-hex-nibble` from an inlined
+macro to a local subroutine `(call 'read_hex_nibble)`. Updated `(call)` in
+`lib/asm/class.inc` to support parameterless local subroutine calls.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both
