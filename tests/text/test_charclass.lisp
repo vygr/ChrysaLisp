@@ -17,10 +17,12 @@
 (assert-eq "escape form feed" "a\\fb" (escape "a\fb"))
 (assert-eq "escape vertical tab" "a\\vb" (escape "a\vb"))
 (assert-eq "escape double quote" "a\\qb" (escape "a\qb"))
+(assert-eq "escape backspace" "a\\bb" (escape (cat "a" (char 8) "b")))
+(assert-eq "escape literal backspace" "a\\bb" (escape "a\bb"))
 (assert-eq "escape backslash" "a\\\\b" (escape "a\\b"))
-(assert-eq "escape all control chars" "\\r\\f\\v\\n\\t\\q\\\\" (escape "\r\f\v\n\t\q\\"))
-(assert-eq "escape consecutive" "\\n\\n\\t\\t" (escape "\n\n\t\t"))
-(assert-eq "escape interleaved" "a\\rb\\fc\\vd\\ne\\tf\\qg\\\\h" (escape "a\rb\fc\vd\ne\tf\qg\\h"))
+(assert-eq "escape all control chars" "\\r\\f\\v\\n\\t\\q\\b\\\\" (escape "\r\f\v\n\t\q\b\\"))
+(assert-eq "escape consecutive" "\\n\\n\\t\\t\\b\\b" (escape "\n\n\t\t\b\b"))
+(assert-eq "escape interleaved" "a\\rb\\fc\\vd\\ne\\tf\\qg\\bh\\\\i" (escape "a\rb\fc\vd\ne\tf\qg\bh\\i"))
 (assert-eq "escape-regexp" "Hello\\." (escape-regexp "Hello."))
 
 ; --- Unescaping: All standard character types ---
@@ -32,10 +34,13 @@
 (assert-eq "unescape form feed" "a\fb" (unescape "a\\fb"))
 (assert-eq "unescape vertical tab" "a\vb" (unescape "a\\vb"))
 (assert-eq "unescape double quote" "a\qb" (unescape "a\\qb"))
+(assert-eq "unescape backspace" (cat "a" (char 8) "b") (unescape "a\\bb"))
+(assert-eq "unescape literal backspace" "a\bb" (unescape "a\\bb"))
+(assert-eq "roundtrip backspace" (char 8) (unescape (escape (char 8))))
 (assert-eq "unescape backslash" "a\\b" (unescape "a\\\\b"))
-(assert-eq "unescape all control chars" "\r\f\v\n\t\q\\" (unescape "\\r\\f\\v\\n\\t\\q\\\\"))
-(assert-eq "unescape consecutive" "\n\n\t\t" (unescape "\\n\\n\\t\\t"))
-(assert-eq "unescape interleaved" "a\rb\fc\vd\ne\tf\qg\\h" (unescape "a\\rb\\fc\\vd\\ne\\tf\\qg\\\\h"))
+(assert-eq "unescape all control chars" "\r\f\v\n\t\q\b\\" (unescape "\\r\\f\\v\\n\\t\\q\\b\\\\"))
+(assert-eq "unescape consecutive" "\n\n\t\t\b\b" (unescape "\\n\\n\\t\\t\\b\\b"))
+(assert-eq "unescape interleaved" "a\rb\fc\vd\ne\tf\qg\bh\\i" (unescape "a\\rb\\fc\\vd\\ne\\tf\\qg\\bh\\\\i"))
 
 ; --- Unescaping: Hex escapes (\xNN) ---
 (assert-eq "unescape hex space" " " (unescape "\\x20"))

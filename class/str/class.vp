@@ -1217,10 +1217,10 @@
 	(vp-ret)
 
 (vp-label 'esc_chars)
-	(vp-cstr "rfvntq\\")
+	(vp-cstr "rfvntqb\\")
 (vp-label 'esc_codes)
 	(vp-byte +char_cr +char_ff +char_vt +char_lf
-		+char_tab +char_double_quote +char_backslash)
+		+char_tab +char_double_quote +char_backspace +char_backslash)
 
 (def-func-end)
 
@@ -1273,8 +1273,8 @@
 
 (vp-label 'esc_codes)
 	(vp-byte +char_cr +char_ff +char_vt +char_lf
-		+char_tab +char_double_quote +char_backslash 0)
+		+char_tab +char_double_quote +char_backspace +char_backslash 0)
 (vp-label 'esc_chars)
-	(vp-string "rfvntq\\")
+	(vp-string "rfvntqb\\")
 
 (def-func-end)

@@ -103,6 +103,9 @@ test suite.
 
 New `real-to-str` function in `root.inc`.
 
+Added `\b` escape support to the `:str :escape` and `:str :unescape` methods,
+and fixed the JSON parser to correctly handle `\b` escapes in strings.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

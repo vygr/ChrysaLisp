@@ -9,6 +9,13 @@
 (assert-eq "json-parse integer" 42 (json-parse "42"))
 (assert-eq "json-parse negative int" -10 (json-parse "-10"))
 (assert-eq "json-parse string" "hello world" (json-parse "\qhello world\q"))
+(assert-eq "json-parse string with escapes" "line1\nline2\ttab\r\f\b\/\\" (json-parse "\qline1\\nline2\\ttab\\r\\f\\b\\\/\\\\\q"))
+(assert-eq "json-parse string with quote" "hello \qworld\q" (json-parse "\qhello \\\qworld\\\q\q"))
+(assert-eq "json-parse string with unicode" "A" (json-parse "\q\\u0041\q"))
+(assert-eq "json-parse string with unicode cjk" (num-to-utf8 0x4e16) (json-parse "\q\\u4e16\q"))
+(assert-eq "json-parse string with surrogate pair emoji" (num-to-utf8 0x1f600) (json-parse "\q\\uD83D\\uDE00\q"))
+
+
 
 ; --- 2. Parsing Arrays ---
 (defq arr_res (json-parse "[1, 2, 3]"))
