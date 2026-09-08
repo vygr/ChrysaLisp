@@ -1,7 +1,4 @@
 ;;;;;;;;;;;;;;;;;;;
-; lib/net/json.inc
-;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;
 ; JSON Data Interchange
 ;;;;;;;;;;;;;;;;;;;
 
@@ -17,13 +14,11 @@
 
 (defun json-read-string (stream)
 	; (json-read-string stream) -> str
-	(defq ss (string-stream (cat ""))
-		ch (read-blk stream 1))
-	(while (and ch (nql ch "\q"))
+	(defq ss (string-stream (cat "")))
+	(while (and (defq ch (read-blk stream 1)) (nql ch "\q"))
 		(cond
 			((eql ch "\\")
-				(defq esc (read-blk stream 1))
-				(case esc
+				(case (defq esc (read-blk stream 1))
 					("n" (write-blk ss "\n"))
 					("t" (write-blk ss "\t"))
 					("r" (write-blk ss "\r"))
@@ -32,17 +27,13 @@
 					("\q" (write-blk ss "\q"))
 					("\\" (write-blk ss "\\"))
 					("/" (write-blk ss "/"))
-					("u"
-						(defq hex_str (read-blk stream 4))
+					("u" (defq hex_str (read-blk stream 4))
 						(if (and hex_str (= (length hex_str) 4))
 							(write-blk ss (num-to-utf8 (str-to-num (cat "0x" hex_str))))
 							(throw "JSON parse error: invalid unicode escape" hex_str)))
 					(:t (if esc (write-blk ss esc)))))
-			(:t
-				(write-blk ss ch)))
-		(setq ch (read-blk stream 1)))
-	(if (nil? ch)
-		(throw "JSON parse error: unterminated string" :nil))
+			(:t (write-blk ss ch))))
+	(if (nil? ch) (throw "JSON parse error: unterminated string" :nil))
 	(str ss))
 
 (defun json-read-number (stream first_c)
