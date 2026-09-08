@@ -3,8 +3,6 @@
 ;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
-(import "././streams/rle.inc")
-(import "././streams/lz4.inc")
 
 ;module
 (env-push)
@@ -32,13 +30,13 @@
 					(setq out (getf-> header +cpm_width +cpm_height +cpm_type))))))
 	out)
 
-(defun cpm-stage-lz4 (downstream_mbox stream)
+(defun cpm-load-stage-lz4 (downstream_mbox stream)
 	(str `(progn
 		(import "lib/streams/lz4.inc")
 		(lz4-decompress (obj-ref ,(weak-ref stream))
 			(out-stream (hex-decode ,(hex-encode downstream_mbox)))))))
 
-(defun cpm-stage-rle (downstream_mbox upstream_stream_or_mbox num_bits max_tokens &optional handshake_mbox)
+(defun cpm-load-stage-rle (downstream_mbox upstream_stream_or_mbox num_bits max_tokens &optional handshake_mbox)
 	(if handshake_mbox
 		(str `(progn
 			(import "lib/streams/rle.inc")
@@ -50,7 +48,7 @@
 				(out-stream (hex-decode ,(hex-encode downstream_mbox)))
 				,num_bits 8 ,max_tokens)))))
 
-(defun cpm-stage-pixmap (pixmap type handshake_mbox done_mbox)
+(defun cpm-load-stage-pixmap (pixmap type handshake_mbox done_mbox)
 	(str `(progn
 		(import "gui/pixmap/lisp.inc")
 		(mail-send (hex-decode ,(hex-encode handshake_mbox))
@@ -87,20 +85,46 @@
 						(:t
 							(defq handshake_mbox (mail-mbox) done_mbox (mail-mbox))
 							; 1. Launch Consumer (Stage 3: Pixmap)
-							(open-child (cpm-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_open)
+							(open-child (cpm-load-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_open)
 							(defq downstream_mbox (mail-read handshake_mbox))
 							; 2. Launch RLE (Stage 2) if present
 							(when rle
-								(open-child (cpm-stage-rle downstream_mbox (if lz4 :nil stream) num_bits (* w h) (if lz4 handshake_mbox)) +kn_call_open)
+								(open-child (cpm-load-stage-rle downstream_mbox (if lz4 :nil stream) num_bits (* w h) (if lz4 handshake_mbox)) +kn_call_open)
 								(if lz4 (setq downstream_mbox (mail-read handshake_mbox))))
 							; 3. Launch LZ4 (Stage 1) if present
 							(when lz4
-								(open-child (cpm-stage-lz4 downstream_mbox stream) +kn_call_open))
+								(open-child (cpm-load-stage-lz4 downstream_mbox stream) +kn_call_open))
 							; 4. Wait for consumer completion
 							(defq res (mail-read done_mbox))
 							(ifn (and res (eql res (str (weak-ref pixmap))))
 								(setq canvas :nil))))))))
 	canvas)
+
+(defun cpm-save-stage-pixmap (pixmap downstream_mbox type)
+	(str `(progn
+		(import "gui/pixmap/lisp.inc")
+		(pixmap-write (pixmap-as-argb (obj-ref ,(weak-ref pixmap)))
+			(out-stream (hex-decode ,(hex-encode downstream_mbox)))
+			,type))))
+
+(defun cpm-save-stage-rle (downstream_stream_or_mbox num_bits handshake_mbox &optional done_mbox)
+	(if done_mbox
+		(str `(progn
+			(import "lib/streams/rle.inc")
+			(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
+			(rle-compress in (obj-ref ,(weak-ref downstream_stream_or_mbox)) ,num_bits 8)
+			(mail-send (hex-decode ,(hex-encode done_mbox)) :t)))
+		(str `(progn
+			(import "lib/streams/rle.inc")
+			(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
+			(rle-compress in (out-stream (hex-decode ,(hex-encode downstream_stream_or_mbox))) ,num_bits 8)))))
+
+(defun cpm-save-stage-lz4 (stream handshake_mbox done_mbox)
+	(str `(progn
+		(import "lib/streams/lz4.inc")
+		(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
+		(lz4-compress in (obj-ref ,(weak-ref stream)))
+		(mail-send (hex-decode ,(hex-encode done_mbox)) :t))))
 
 (defun CPM-save (canvas stream type &optional rle lz4 ident)
 	; (CPM-save canvas stream type [rle lz4 ident]) -> canvas
@@ -118,21 +142,25 @@
 		(+cpm_height (getf pixmap +pixmap_height 0))
 		(+cpm_reserved_1 0)))
 	;data
-	(defq pixel_stream (memory-stream))
-	(pixmap-write (pixmap-as-argb pixmap) pixel_stream type)
-	(stream-seek pixel_stream 0 0)
-	(defq source_stream pixel_stream)
-	; RLE Layer
-	(when rle
-		(defq rle_stream (memory-stream))
-		(rle-compress source_stream rle_stream num_bits 8)
-		(stream-seek rle_stream 0 0)
-		(setq source_stream rle_stream))
-	; LZ4 Layer
-	(if lz4
-		(lz4-compress source_stream stream)
-		(while (defq c (read-blk source_stream 1024))
-			(write-blk stream c)))
+	(cond
+		; Fast path: raw uncompressed CPM (neither LZ4 nor RLE)
+		((not (or lz4 rle))
+			(pixmap-write (pixmap-as-argb pixmap) stream type))
+		; Async pipeline path:
+		(:t
+			(defq handshake_mbox (mail-mbox) done_mbox (mail-mbox) downstream_mbox :nil)
+			; 1. Launch LZ4 (Stage 3: Consumer) if present
+			(when lz4
+				(open-child (cpm-save-stage-lz4 stream handshake_mbox done_mbox) +kn_call_open)
+				(setq downstream_mbox (mail-read handshake_mbox)))
+			; 2. Launch RLE (Stage 2) if present
+			(when rle
+				(open-child (cpm-save-stage-rle (if lz4 downstream_mbox stream) num_bits handshake_mbox (if lz4 :nil done_mbox)) +kn_call_open)
+				(setq downstream_mbox (mail-read handshake_mbox)))
+			; 3. Launch Pixmap (Stage 1: Producer)
+			(open-child (cpm-save-stage-pixmap pixmap downstream_mbox type) +kn_call_open)
+			; 4. Wait for consumer completion
+			(mail-read done_mbox)))
 	canvas)
 
 ;module

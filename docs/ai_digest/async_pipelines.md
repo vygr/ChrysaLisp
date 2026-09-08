@@ -112,7 +112,7 @@ Because ChrysaLisp S-expressions evaluate cleanly, we can generate child task
 definitions dynamically using quasiquote (`` ` ``) and unquote (`,`):
 
 ```vdu
-(defun cpm-stage-lz4 (downstream_mbox stream)
+(defun cpm-load-stage-lz4 (downstream_mbox stream)
 	(str `(progn
 		(import "lib/streams/lz4.inc")
 		(lz4-decompress (obj-ref ,(weak-ref stream))
@@ -146,7 +146,7 @@ emergent load balancer, which might slip the task to a neighboring core or node.
 To ensure tasks share the same physical address space, we use **`+kn_call_open`**:
 
 ```vdu
-(open-child (cpm-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_open)
+(open-child (cpm-load-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_open)
 ```
 
 `+kn_call_open` strictly pins the child task to the **exact same hardware node
@@ -254,14 +254,24 @@ Step 6: Completion
         Parent reads done_mbox and returns the completed Canvas.
 ```
 
-### The Concrete Implementation (`lib/image/cpm.inc`)
+## 5. Concrete Implementation: `CPM-load` and `CPM-save`
 
-Here is the complete, working implementation:
+The complete asynchronous streaming architecture in `lib/image/cpm.inc` implements
+both decoding (`CPM-load`) and encoding (`CPM-save`) with matching stage names,
+bidirectional streaming, and zero full-frame intermediate buffers.
+
+### 5.1 Decoding Pipeline (`CPM-load`)
+
+When reading a CPM image or FLM video frame:
+
+```code
+[Source Stream] -> [Stage 1: LZ4] -> [Stage 2: RLE] -> [Stage 3: Pixmap Consumer]
+```
 
 #### Stage 1: LZ4 Worker
 
 ```vdu
-(defun cpm-stage-lz4 (downstream_mbox stream)
+(defun cpm-load-stage-lz4 (downstream_mbox stream)
 	(str `(progn
 		(import "lib/streams/lz4.inc")
 		(lz4-decompress (obj-ref ,(weak-ref stream))
@@ -271,7 +281,7 @@ Here is the complete, working implementation:
 #### Stage 2: RLE Worker
 
 ```vdu
-(defun cpm-stage-rle (downstream_mbox upstream_stream_or_mbox num_bits max_tokens &optional handshake_mbox)
+(defun cpm-load-stage-rle (downstream_mbox upstream_stream_or_mbox num_bits max_tokens &optional handshake_mbox)
 	(if handshake_mbox
 		; Chained stage: reads from an upstream IPC in-stream
 		(str `(progn
@@ -289,7 +299,7 @@ Here is the complete, working implementation:
 #### Stage 3: Pixmap Consumer
 
 ```vdu
-(defun cpm-stage-pixmap (pixmap type handshake_mbox done_mbox)
+(defun cpm-load-stage-pixmap (pixmap type handshake_mbox done_mbox)
 	(str `(progn
 		(import "gui/pixmap/lisp.inc")
 		(mail-send (hex-decode ,(hex-encode handshake_mbox))
@@ -312,22 +322,106 @@ Here is the complete, working implementation:
 		(defq handshake_mbox (mail-mbox) done_mbox (mail-mbox))
 
 		; 1. Launch Consumer (Stage 3: Pixmap)
-		(open-child (cpm-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_open)
+		(open-child (cpm-load-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_open)
 		(defq downstream_mbox (mail-read handshake_mbox))
 
 		; 2. Launch RLE (Stage 2) if present
 		(when rle
-			(open-child (cpm-stage-rle downstream_mbox (if lz4 :nil stream) num_bits (* w h) (if lz4 handshake_mbox)) +kn_call_open)
+			(open-child (cpm-load-stage-rle downstream_mbox (if lz4 :nil stream) num_bits (* w h) (if lz4 handshake_mbox)) +kn_call_open)
 			(if lz4 (setq downstream_mbox (mail-read handshake_mbox))))
 
 		; 3. Launch LZ4 (Stage 1) if present
 		(when lz4
-			(open-child (cpm-stage-lz4 downstream_mbox stream) +kn_call_open))
+			(open-child (cpm-load-stage-lz4 downstream_mbox stream) +kn_call_open))
 
 		; 4. Wait for consumer completion
 		(defq res (mail-read done_mbox))
 		(ifn (and res (eql res (str (weak-ref pixmap))))
 			(setq canvas :nil))))
+```
+
+### 5.2 Encoding Pipeline (`CPM-save`)
+
+Saving a CPM image performs the inverse multi-stage compression:
+
+```code
+[Stage 1: Pixmap Producer] -> [Stage 2: RLE Filter] -> [Stage 3: LZ4 Consumer] -> [Destination Stream]
+```
+
+#### Stage 1: Pixmap Producer
+
+```vdu
+(defun cpm-save-stage-pixmap (pixmap downstream_mbox type)
+	(str `(progn
+		(import "gui/pixmap/lisp.inc")
+		(pixmap-write (pixmap-as-argb (obj-ref ,(weak-ref pixmap)))
+			(out-stream (hex-decode ,(hex-encode downstream_mbox)))
+			,type))))
+```
+
+#### Stage 2: RLE Filter
+
+```vdu
+(defun cpm-save-stage-rle (downstream_stream_or_mbox num_bits handshake_mbox &optional done_mbox)
+	(if done_mbox
+		(str `(progn
+			(import "lib/streams/rle.inc")
+			(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
+			(rle-compress in (obj-ref ,(weak-ref downstream_stream_or_mbox)) ,num_bits 8)
+			(mail-send (hex-decode ,(hex-encode done_mbox)) :t)))
+		(str `(progn
+			(import "lib/streams/rle.inc")
+			(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
+			(rle-compress in (out-stream (hex-decode ,(hex-encode downstream_stream_or_mbox))) ,num_bits 8)))))
+```
+
+#### Stage 3: LZ4 Consumer
+
+```vdu
+(defun cpm-save-stage-lz4 (stream handshake_mbox done_mbox)
+	(str `(progn
+		(import "lib/streams/lz4.inc")
+		(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
+		(lz4-compress in (obj-ref ,(weak-ref stream)))
+		(mail-send (hex-decode ,(hex-encode done_mbox)) :t))))
+```
+
+#### Pipeline Orchestration (`CPM-save`)
+
+```vdu
+(cond
+	; Fast path: raw uncompressed CPM (neither LZ4 nor RLE)
+	((not (or lz4 rle))
+		(pixmap-write (pixmap-as-argb pixmap) stream type))
+
+	; Async pipeline path:
+	(:t
+		(defq handshake_mbox (mail-mbox) done_mbox (mail-mbox) downstream_mbox :nil)
+
+		; 1. Launch LZ4 (Stage 3: Consumer) if present
+		(when lz4
+			(open-child (cpm-save-stage-lz4 stream handshake_mbox done_mbox) +kn_call_open)
+			(setq downstream_mbox (mail-read handshake_mbox)))
+
+		; 2. Launch RLE (Stage 2) if present
+		(when rle
+			(open-child (cpm-save-stage-rle (if lz4 downstream_mbox stream) num_bits handshake_mbox (if lz4 :nil done_mbox)) +kn_call_open)
+			(setq downstream_mbox (mail-read handshake_mbox)))
+
+		; 3. Launch Pixmap (Stage 1: Producer)
+		(open-child (cpm-save-stage-pixmap pixmap downstream_mbox type) +kn_call_open)
+
+		; 4. Wait for consumer completion
+		(mail-read done_mbox)))
+```
+
+### 5.3 On-Demand Codec Import
+
+Because each pipeline stage dynamically imports only what it needs (`lib/streams/lz4.inc`,
+`lib/streams/rle.inc`, `gui/pixmap/lisp.inc`) inside its own spawned child task, the
+top-level module `lib/image/cpm.inc` requires zero unconditional compression library imports.
+Loading `cpm.inc` introduces zero compression memory footprint until a compressed image
+is actually loaded or saved.
 ```
 
 ## 6. Comparison & Real-World Impact
