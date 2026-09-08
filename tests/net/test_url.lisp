@@ -41,6 +41,30 @@
 	"foo=bar&num=42&space=hello+world"
 	(url-query-format q))
 
+; --- url-query-format container variety tests ---
+(import "lib/collections/fmap.inc")
+(import "lib/collections/lmap.inc")
+
+(defq q_pairs '((:a "1") (:b "2")))
+(assert-eq "url-query-format pairs list" "a=1&b=2" (url-query-format q_pairs))
+
+(defq q_flat '(:a "1" :b "2"))
+(assert-eq "url-query-format flat list" "a=1&b=2" (url-query-format q_flat))
+
+(defq q_fmap (Fmap 5))
+(. q_fmap :insert :x "10")
+(. q_fmap :insert :y "20")
+(assert-true "url-query-format Fmap"
+	(find (url-query-format q_fmap) '("x=10&y=20" "y=20&x=10")))
+
+(defq q_lmap (Lmap))
+(. q_lmap :insert :foo "bar")
+(assert-eq "url-query-format Lmap" "foo=bar" (url-query-format q_lmap))
+
+(defq q_env (env 5))
+(def q_env :alpha "one")
+(assert-eq "url-query-format env" "alpha=one" (url-query-format q_env))
+
 (defq q2 (url-query-parse "?a=1&b=2"))
 (assert-eq "url-query-parse leading question mark a" "1" (pfind q2 :a))
 (assert-eq "url-query-parse leading question mark b" "2" (pfind q2 :b))

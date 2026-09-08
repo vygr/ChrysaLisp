@@ -90,19 +90,23 @@
 
 (defun url-query-format (q)
 	; (url-query-format q) -> str
-	(defq pairs (list)
-		items (cond
+	(defq items (cond
 			((empty? q) (list))
+			((pmap? q) (partition q 2))
+			((and (env? q) (def? :vtable q) (.? q :tolist)) (. q :tolist))
+			((env? q) (tolist q))
 			((list?? (first q)) q)
-			((list? q) (partition q 2))
-			((def? :tolist q) (. q :tolist))
-			((list))))
-	(each (lambda ((k v))
-		(defq k_str (str k)
-			k_clean (if (starts-with ":" k_str) (rest k_str) k_str))
-		(push pairs (cat (url-encode k_clean :t) "=" (url-encode (str v) :t))))
-		items)
-	(join pairs "&"))
+			((list?? q) (partition q 2))
+			(:t (list))))
+	(if (empty? items) ""
+		(progn
+			(defq pairs (list))
+			(each (lambda ((k v))
+				(defq k_str (str k)
+					k_clean (if (starts-with ":" k_str) (rest k_str) k_str))
+				(push pairs (cat (url-encode k_clean :t) "=" (url-encode (str v) :t))))
+				items)
+			(join pairs "&"))))
 
 (defun url-parse (url_str)
 	; (url-parse url_str) -> pmap
