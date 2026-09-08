@@ -497,7 +497,7 @@ gather a list of [key|val|:nil]
 ### http-pool-clear
 
 ```code
-(http-pool-clear) -> :nil
+(http-pool-clear)
 
 Close and flush all idle pooled sockets
 ```

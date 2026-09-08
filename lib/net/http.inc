@@ -8,27 +8,20 @@
 ;module
 (env-push)
 
-(defq +crlf "\r\n"
-	+http_buf_size 4096
+(defq +crlf "\r\n" +http_buf_size 4096
 	; Private connection pool: host:port -> list of idle (in out) connections
 	+http_pool (Fmap 31))
 
 (defun http-pool-checkout (host port)
 	; (http-pool-checkout host port) -> ((in out) is_pooled) | :nil
-	(defq key (cat host ":" (str port))
-		conns (. +http_pool :find key)
-		live_conn :nil)
+	(defq key (cat host ":" (str port)) conns (. +http_pool :find key) live_conn :nil)
 	(while (and conns (nempty? conns) (not live_conn))
-		(defq conn (pop conns)
-			in (first conn))
+		(defq conn (pop conns) in (first conn))
 		; An idle connection's mailbox must be empty and valid. If mail-poll
 		; returns 0, the remote server has sent FIN/RST or unexpected data.
-		(cond
-			((and (mail-validate (in-mbox in))
-					(not (mail-poll (list (in-mbox in)))))
-				(setq live_conn conn))
-			(:t
-				(net-close-rpc conn))))
+		(if (and (mail-validate (in-mbox in)) (not (mail-poll (list (in-mbox in)))))
+			(setq live_conn conn)
+			(net-close-rpc conn)))
 	(if live_conn
 		(list live_conn :t)
 		(if (defq new_conn (net-open-rpc host port))
@@ -36,8 +29,7 @@
 
 (defun http-pool-checkin (host port conn headers)
 	; (http-pool-checkin host port conn headers)
-	(defq key (cat host ":" (str port))
-		conn_hdr (to-lower (or (pfind headers :connection) "")))
+	(defq key (cat host ":" (str port)) conn_hdr (to-lower (or (pfind headers :connection) "")))
 	(cond
 		((and conn
 				(not (found? conn_hdr "close"))
@@ -51,11 +43,10 @@
 			(net-close-rpc conn))))
 
 (defun http-pool-clear ()
-	; (http-pool-clear) -> :nil
+	; (http-pool-clear)
 	; Close and flush all idle pooled sockets
 	(. +http_pool :each (lambda (k conns) (each (const net-close-rpc) conns)))
-	(. +http_pool :empty)
-	:nil)
+	(. +http_pool :empty))
 
 (defun http-read-headers (in)
 	; (http-read-headers in) -> pmap
@@ -92,11 +83,9 @@
 							((= chunk_size 0)
 								; Read trailers until empty line
 								(while (and (defq trailer (read-line in))
-											(nql (trim-end trailer "\r") ""))
-									:nil)
+											(nql (trim-end trailer "\r") "")))
 								(setq running :nil))
-							(:t
-								(defq rem chunk_size)
+							(:t (defq rem chunk_size)
 								(while (> rem 0)
 									(defq blk (read-blk in (min rem +http_buf_size)))
 									(ifn blk
@@ -117,15 +106,12 @@
 						(write-blk out blk)
 						(setq rem (- rem (length blk)))))))
 		; 3. Connection: close (read until stream EOF)
-		(:t
-			(while (defq blk (read-blk in +http_buf_size))
+		(:t (while (defq blk (read-blk in +http_buf_size))
 				(write-blk out blk))))
 	(stream-flush out)
 	(if dest_stream
 		dest_stream
-		(progn
-			(stream-seek out 0 0)
-			out)))
+		(progn (stream-seek out 0 0) out)))
 
 (defun http-body-str (resp)
 	; (http-body-str resp) -> str
@@ -138,17 +124,14 @@
 				(push parts blk))
 			(stream-seek body 0 0)
 			(apply (const cat) parts))
-		(:t "")))
+		("")))
 
 (defun http-request (method url &optional headers body dest_stream)
 	; (http-request method url [headers body dest_stream]) -> pmap | :nil
 	(setd headers (pmap))
 	(defq u (if (str? url) (url-parse url) url)
-		host (pfind u :host)
-		port (pfind u :port)
-		path_query (url-path-query u)
-		res :nil
-		attempts 0)
+		host (pfind u :host) port (pfind u :port)
+		path_query (url-path-query u) res :nil attempts 0)
 	(while (and (not res) (< attempts 2))
 		(++ attempts)
 		(when (and host (> (length host) 0))
@@ -194,18 +177,14 @@
 							resp_headers (http-read-headers in)
 							resp_body (http-read-body in resp_headers dest_stream))
 						(setq res (pmap
-							:status status
-							:reason reason
-							:proto proto
-							:headers resp_headers
-							:body resp_body))
+							:status status :reason reason :proto proto
+							:headers resp_headers :body resp_body))
 						(http-pool-checkin host port conn
 							(pfind res :headers)))
 					; If pooled connection dropped on first read, close and retry once
 					(from_pool
 						(net-close-rpc conn))
-					(:t
-						(net-close-rpc conn)
+					(:t (net-close-rpc conn)
 						(setq attempts 2))))))
 	res)
 
