@@ -11,32 +11,32 @@
 (defq +crlf "\r\n"
 	+http_buf_size 4096
 	; Private connection pool: host:port -> list of idle (in out) connections
-	*http_pool* (Fmap 31))
+	+http_pool (Fmap 31))
 
 (defun http-pool-checkout (host port)
-	; (http-pool-checkout host port) -> (in out) | :nil
+	; (http-pool-checkout host port) -> ((in out) is_pooled) | :nil
 	(defq key (cat host ":" (str port))
-		pool (const *http_pool*)
-		conns (. pool :find key)
+		conns (. +http_pool :find key)
 		live_conn :nil)
 	(while (and conns (nempty? conns) (not live_conn))
 		(defq conn (pop conns)
 			in (first conn))
-		; Check if connection is still alive (started and no unread errors/EOF)
+		; An idle connection's mailbox must be empty and valid. If mail-poll
+		; returns 0, the remote server has sent FIN/RST or unexpected data.
 		(cond
-			((and (= (in-get-state in) +stream_mail_state_started)
-					(mail-validate (in-mbox in))
+			((and (mail-validate (in-mbox in))
 					(not (mail-poll (list (in-mbox in)))))
 				(setq live_conn conn))
 			(:t
-				; Dead/timed-out socket, discard cleanly
 				(net-close-rpc conn))))
-	(or live_conn (net-open-rpc host port)))
+	(if live_conn
+		(list live_conn :t)
+		(if (defq new_conn (net-open-rpc host port))
+			(list new_conn :nil))))
 
 (defun http-pool-checkin (host port conn headers)
 	; (http-pool-checkin host port conn headers)
 	(defq key (cat host ":" (str port))
-		pool (const *http_pool*)
 		conn_hdr (to-lower (or (pfind headers :connection) "")))
 	(cond
 		((and conn
@@ -45,18 +45,16 @@
 				(or (pfind headers :content-length)
 					(found? (or (pfind headers :transfer-encoding) "") "chunked")))
 			; Connection is reusable and framed properly; return to pool
-			(. pool :update key (# (if %0 (push %0 conn) (list conn)))))
+			(. +http_pool :update key (# (if %0 (push %0 conn) (list conn)))))
 		(conn
-			; Connection: close or unframed body; close socket
+			; Connection: close or unverified framing; close socket
 			(net-close-rpc conn))))
 
 (defun http-pool-clear ()
 	; (http-pool-clear) -> :nil
 	; Close and flush all idle pooled sockets
-	(defq pool (const *http_pool*))
-	(. pool :each (lambda (k conns)
-		(each (const net-close-rpc) conns)))
-	(. pool :empty)
+	(. +http_pool :each (lambda (k conns) (each (const net-close-rpc) conns)))
+	(. +http_pool :empty)
 	:nil)
 
 (defun http-read-headers (in)
@@ -149,56 +147,66 @@
 		host (pfind u :host)
 		port (pfind u :port)
 		path_query (url-path-query u)
-		res :nil)
-	(when (and host (> (length host) 0))
-		(when (defq conn (http-pool-checkout host port))
-			(bind '(in out) conn)
-			; 1. Assemble Request Headers
-			(defq req_lines (list
-				(cat (to-upper method) " " path_query " HTTP/1.1")
-				(if (and (/= port 80) (/= port 443))
-					(str "Host: " host ":" port)
-					(cat "Host: " host))
-				"User-Agent: ChrysaLisp/1.0"
-				"Accept: */*"))
-			; 2. User Connection Header (defaults to keep-alive)
-			(unless (pfind headers :connection)
-				(push req_lines "Connection: keep-alive"))
-			; 3. Append User Headers
-			(each (lambda ((k v))
-				(defq k_str (str k)
-					k_name (if (starts-with ":" k_str) (rest k_str) k_str))
-				(push req_lines (cat k_name ": " v)))
-				(partition headers 2))
-			; 4. Append Content-Length if body is present (str conversion!)
-			(when (and (str? body) (> (length body) 0))
-				(unless (pfind headers :content-length)
-					(push req_lines (cat "Content-Length: " (str (length body))))))
-			; 5. Send header block in single buffer
-			(write-blk out (cat (join req_lines +crlf) +crlf +crlf))
-			(when (and (str? body) (> (length body) 0))
-				(write-blk out body))
-			(stream-flush out)
-			; 6. Read Status Line
-			(defq status_line (read-line in))
-			(while (and status_line (eql (trim-end status_line "\r") ""))
-				(setq status_line (read-line in)))
-			(when status_line
-				(defq parts (split (trim-end status_line "\r") " ")
-					proto (first parts)
-					status (if (> (length parts) 1) (str-to-num (second parts)) 0)
-					reason (if (> (length parts) 2) (join (slice parts 2 -1) " ") "")
-					resp_headers (http-read-headers in)
-					resp_body (http-read-body in resp_headers dest_stream))
-				(setq res (pmap
-					:status status
-					:reason reason
-					:proto proto
-					:headers resp_headers
-					:body resp_body)))
-			; 7. Check back into pool or close socket
-			(http-pool-checkin host port conn
-				(if res (pfind res :headers) (pmap :connection "close")))))
+		res :nil
+		attempts 0)
+	(while (and (not res) (< attempts 2))
+		(++ attempts)
+		(when (and host (> (length host) 0))
+			(when (defq pooled (http-pool-checkout host port))
+				(bind '(conn from_pool) pooled)
+				(bind '(in out) conn)
+				; 1. Assemble Request Headers
+				(defq req_lines (list
+					(cat (to-upper method) " " path_query " HTTP/1.1")
+					(if (and (/= port 80) (/= port 443))
+						(str "Host: " host ":" port)
+						(cat "Host: " host))
+					"User-Agent: ChrysaLisp/1.0"
+					"Accept: */*"))
+				; 2. User Connection Header (defaults to keep-alive)
+				(unless (pfind headers :connection)
+					(push req_lines "Connection: keep-alive"))
+				; 3. Append User Headers
+				(each (lambda ((k v))
+					(defq k_str (str k)
+						k_name (if (starts-with ":" k_str) (rest k_str) k_str))
+					(push req_lines (cat k_name ": " v)))
+					(partition headers 2))
+				; 4. Append Content-Length if body is present
+				(when (and (str? body) (> (length body) 0))
+					(unless (pfind headers :content-length)
+						(push req_lines (cat "Content-Length: " (str (length body))))))
+				; 5. Send header block and body
+				(write-blk out (cat (join req_lines +crlf) +crlf +crlf))
+				(when (and (str? body) (> (length body) 0))
+					(write-blk out body))
+				(stream-flush out)
+				; 6. Read Status Line
+				(defq status_line (read-line in))
+				(while (and status_line (eql (trim-end status_line "\r") ""))
+					(setq status_line (read-line in)))
+				(cond
+					(status_line
+						(defq parts (split (trim-end status_line "\r") " ")
+							proto (first parts)
+							status (if (> (length parts) 1) (str-to-num (second parts)) 0)
+							reason (if (> (length parts) 2) (join (slice parts 2 -1) " ") "")
+							resp_headers (http-read-headers in)
+							resp_body (http-read-body in resp_headers dest_stream))
+						(setq res (pmap
+							:status status
+							:reason reason
+							:proto proto
+							:headers resp_headers
+							:body resp_body))
+						(http-pool-checkin host port conn
+							(pfind res :headers)))
+					; If pooled connection dropped on first read, close and retry once
+					(from_pool
+						(net-close-rpc conn))
+					(:t
+						(net-close-rpc conn)
+						(setq attempts 2))))))
 	res)
 
 (defun http-get (url &optional headers dest_stream)
