@@ -1,6 +1,6 @@
-;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
 ; JSON Data Interchange
-;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
 
 ;module
 (env-push)
@@ -212,7 +212,7 @@
 	(cond
 		((eql obj :nil) "null")
 		((eql obj :t) "true")
-		((real? obj) (str (real-to-str obj)))
+		((real? obj) (real-to-str obj))
 		((fixed? obj) (str obj))
 		((num? obj) (str obj))
 		((str? obj) (json-escape-str obj))
