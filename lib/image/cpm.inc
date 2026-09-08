@@ -53,8 +53,8 @@
 (defun cpm-stage-pixmap (pixmap type handshake_mbox done_mbox)
 	(str `(progn
 		(import "gui/pixmap/lisp.inc")
-		(defq in (in-stream) pixmap (obj-ref ,(weak-ref pixmap)))
-		(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox in))
+		(mail-send (hex-decode ,(hex-encode handshake_mbox))
+			(in-mbox (defq pixmap (obj-ref ,(weak-ref pixmap)) in (in-stream))))
 		(mail-send (hex-decode ,(hex-encode done_mbox))
 			(if (pixmap-read pixmap in ,type) (str (weak-ref pixmap)) "")))))
 
