@@ -51,6 +51,8 @@
 	+char_B (ascii-code "B")
 	+char_o (ascii-code "o")
 	+char_O (ascii-code "O")
+	+char_u (ascii-code "u")
+	+char_U (ascii-code "U")
 	+char_x (ascii-code "x")
 	+char_X (ascii-code "X")
 	+char_z (ascii-code "z")
