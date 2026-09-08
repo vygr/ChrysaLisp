@@ -17,6 +17,7 @@
 (defun cat-file (file)
 	(when (defq stream (file-stream file))
 		(when opt_f
+			(print)
 			(print (defq banner (pad "" (+ (length file) 2) ";;;;;;;;")))
 			(print "; " file)
 			(print banner))
