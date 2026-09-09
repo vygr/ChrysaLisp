@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "service/net/app.inc")
 
 (defun opt-listen (opt_var)
 	(static-qq (lambda (args arg)
@@ -36,7 +37,7 @@
 	(if (or (find ":" target) (find "." target))
 		(progn
 			(when verbose (print "Starting network link: " target))
-			(mail-send (open-child "service/net/link" +kn_call_open) target))
+			(net-link-rpc target))
 		(progn
 			(when verbose (print "Starting SHMEM link: " target))
 			(mail-send (open-child "sys/link/link" +kn_call_child) target))))

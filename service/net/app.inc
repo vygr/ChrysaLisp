@@ -1,11 +1,15 @@
 ; RPC command types
 (enums +net_rpc_type 0
-	(enum connect listen accept))
+	(enum connect listen accept link))
 
 ; Common RPC request header
 (structure +net_rpc 0
 	(netid reply_id)
 	(uint type))
+
+; Link request: starts service/net/link with target string
+(structure +net_rpc_link +net_rpc_size
+	(offset target))
 
 ; Connect request: connects to host:port
 (structure +net_rpc_connect +net_rpc_size
@@ -41,7 +45,7 @@
 
 (defun net-service ()
 	; (net-service) -> netid | :nil
-	(when (defq s (mail-enquire "*Net,"))
+	(when (nempty? (defq s (mail-enquire "*Net,")))
 		(hex-decode (second (split (first s) ",")))))
 
 (defun net-open-rpc (host port)
@@ -104,3 +108,23 @@
 (defun net-close-rpc (conn)
 	; (net-close-rpc (client_in client_out))
 	(in-set-state (first conn) +stream_mail_state_aborted))
+
+(defun net-link-rpc (target)
+	; (net-link-rpc target) -> status | :nil
+	(defq svc (net-service))
+	(unless svc
+		;start net service on node 0
+		(open-remote "service/net/app.lisp" (first (lisp-nodes)) +kn_call_open)
+		(task-sleep 50000)
+		(setq svc (net-service)))
+	(if svc
+		(progn
+			(defq reply_mbox (mail-mbox)
+				req (setf-> (cat (str-alloc +net_rpc_link_size) target)
+					(+net_rpc_type +net_rpc_type_link)
+					(+net_rpc_reply_id reply_mbox)))
+			(mail-send svc req)
+			(defq reply (mail-read reply_mbox))
+			(getf reply +net_rpc_reply_status))
+		(mail-send (open-child "service/net/link" +kn_call_open) target)))
+
