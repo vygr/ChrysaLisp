@@ -6,19 +6,21 @@
 
 ```code
 trashes
-none
+:r0-:r14, :f0-:f15
 ```
 
 ### :link -> sys/link/link
 
 ```code
 started by kernel for each link
+trashes
+:r0-:r14, :f0-:f15
 ```
 
 ### :out -> sys/link/out
 
 ```code
 trashes
-none
+:r0-:r14, :f0-:f15
 ```
 

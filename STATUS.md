@@ -4,6 +4,15 @@
 
 ------
 
+Shared memory links (`sys/link`) now automatically time out and close down if
+transmission is blocked indefinitely (`lk_timeout`). When `(:sys_link :out)`
+cannot obtain buffer space for the timeout duration, it marks the link node
+terminated, triggering coordinated shutdown of `(:sys_link :in)` and the parent
+`(:sys_link :link)` task. The link node is removed from the kernel link table
+(`statics_sys_mail_links_array`), shared memory is unmapped and closed, and the
+task count bias is restored, halting CPU polling and freeing OS resources when
+peers disconnect or hang.
+
 `pinsert` and `perase` now support variadic arguments, mirroring `def` and
 `undef`. `(pinsert pset key ...)` and `(pinsert pmap [key val] ...)` allow
 inserting multiple elements or key/value pairs in a single call. Likewise,

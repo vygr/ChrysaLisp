@@ -6,10 +6,12 @@
 
 (def-method :sys_link :link)
 	;started by kernel for each link
+	;trashes
+	;:r0-:r14, :f0-:f15
 
 	(def-vars
 		(struct lk_node lk_node_size)
-		(ptr statics params msg data mem)
+		(ptr statics params msg data mem iter_begin iter_end)
 		(pubyte pdata)
 		(long handle is_owner)
 		(nodeid node_id))
@@ -71,8 +73,21 @@
 
 	;wait till link dies or told to quit...
 	(loop-start)
-		(call :sys_task :sleep '(1000000))
-		;exit if signaled by kernel...
+		(call :sys_task :sleep '(100000))
+		(breakif {lk_node.lk_node_task_count = -1})
+	(loop-end)
+
+	;wait for in link to exit before unmapping
+	(call :sys_task :sleep '(10000))
+
+	;remove link node from link array
+	(call :array :get_both {statics->statics_sys_mail_links_array} {_, iter_begin, iter_end})
+	(loop-while {iter_begin /= iter_end})
+		(vpif {*iter_begin = &lk_node})
+			(call :array :erase {statics->statics_sys_mail_links_array, iter_begin})
+			(break)
+		(endif)
+		(assign {iter_begin + +ptr_size} {iter_begin})
 	(loop-end)
 
 	;unmap object
@@ -93,7 +108,7 @@
 
 (def-method :sys_link :in)
 	;trashes
-	;none
+	;:r0-:r14, :f0-:f15
 
 	(def-vars
 		(ptr lk_node msg data rx head)
@@ -198,7 +213,8 @@
 		(vp-min-cr lk_sleep_max sleep_time)
 		(assign `(,sleep_time) {sleep_time})
 
-		;exit if signaled by kernel...
+		;exit if link closed
+		(breakif {lk_node->lk_node_task_count = -1})
 	(loop-end)
 
 	(pop-scope)
@@ -208,12 +224,12 @@
 
 (def-method :sys_link :out)
 	;trashes
-	;none
+	;:r0-:r14, :f0-:f15
 
 	(def-vars
 		(ptr statics lk_node key msg data tx head tail)
 		(nodeid node_id)
-		(long is_owner)
+		(long is_owner then now)
 		(int free)
 		(uint last_count sleep_time))
 
@@ -239,6 +255,7 @@
 	(else)
 		(assign {tx + lk_shmem_chan_2} {tx})
 	(endif)
+	(call :host_os :pii_time :nil {then})
 	(assign {tx, tx, lk_sleep_min, 0} {head, tail, sleep_time, last_count})
 
 	;write messages through the shared buffer
@@ -271,6 +288,9 @@
 				;must write another lk_chan_status_ready to halt the :in !
 				(breakif {free < (lk_node_size + lk_buf_size)} 'sleep)
 
+				;reset timeout
+				(call :host_os :pii_time :nil {then})
+
 				;write my task count and cpu id
 				(assign {statics->statics_sys_task_task_count} {last_count})
 				(assign {node_id.+node_id_node1,
@@ -288,6 +308,9 @@
 			;wait for at least one max fragment, plus buf header as we
 			;must write another lk_chan_status_ready to halt the :in !
 			(breakif {free < (lk_buf_size + lk_frag_size + lk_data_size + lk_buf_size)})
+
+			;reset timeout
+			(call :host_os :pii_time :nil {then})
 
 			;see if any mail for this link
 			(vp-rdef (node1 node2 key lk_node) (method-input :sys_mail :ready))
@@ -347,8 +370,16 @@
 		(vp-min-cr lk_sleep_max sleep_time)
 		(assign `(,sleep_time) {sleep_time})
 
-		;exit if signaled by kernel...
+		;exit if blocked longer than timeout
+		(call :host_os :pii_time :nil {now})
+		(breakif {now - then > lk_timeout})
 	(loop-end)
+
+	;mark link closed
+	(assign {-1, 0, 0}
+		{lk_node->lk_node_task_count,
+		lk_node->lk_node_peer_node_id.+node_id_node1,
+		lk_node->lk_node_peer_node_id.+node_id_node2})
 
 	(call :nodeid :destroy {key})
 
