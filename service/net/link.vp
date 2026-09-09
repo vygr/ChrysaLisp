@@ -36,7 +36,7 @@
 	(loop-end)
 
 	(exit :host_net :send_all {0})
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)
@@ -85,7 +85,7 @@
 	(loop-end)
 
 	(exit :host_net :recv_all {0})
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)
@@ -259,7 +259,7 @@
 
 	;restore task count
 	(call :sys_task :count '(3))
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)
@@ -273,7 +273,7 @@
 		(struct frag_pkt +net_frag_pkt_size)
 		(ptr statics lk_node key msg data)
 		(nodeid node_id peer_node_id)
-		(long conn_handle status len))
+		(long conn_handle status len then now))
 
 	(push-scope)
 
@@ -310,6 +310,7 @@
 		(goto 'out_exit)
 	(endif)
 	(debug-str {"out: initial ping sent"})
+	(call :host_os :pii_time :nil {then})
 
 	;outbound loop
 	(loop-start)
@@ -380,12 +381,16 @@
 			;check if link closed
 			(breakif {lk_node->lk_node_task_count = -1})
 
-			;send heartbeat ping
-			(debug-str {"out: sending heartbeat"})
-			(call :host_net :send_all {conn_handle, &ping_pkt, +net_ping_pkt_size} {status})
-			(vpif {status < 0})
-				(debug-str {"out: heartbeat failed"})
-				(break)
+			;send heartbeat ping only if 5s has elapsed
+			(call :host_os :pii_time :nil {now})
+			(vpif {now - then >= 5000000})
+				(assign {now} {then})
+				(debug-str {"out: sending heartbeat"})
+				(call :host_net :send_all {conn_handle, &ping_pkt, +net_ping_pkt_size} {status})
+				(vpif {status < 0})
+					(debug-str {"out: heartbeat failed"})
+					(break)
+				(endif)
 			(endif)
 		(endif)
 	(loop-end)
@@ -399,7 +404,7 @@
 		 lk_node->lk_node_peer_node_id.+node_id_node2})
 
 	(call :nodeid :destroy {key})
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)
@@ -595,7 +600,7 @@
 		 lk_node->lk_node_peer_node_id.+node_id_node1,
 		 lk_node->lk_node_peer_node_id.+node_id_node2})
 
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)
