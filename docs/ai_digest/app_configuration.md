@@ -203,26 +203,26 @@ This improved `config-load` function preserves user settings across updates.
 
 ```vdu
 (defun config-load ()
-  (defq old-config nil)
-  (if (defq stream (file-stream *config_file*))
-      (setq old-config (tree-load stream)))
+	(defq old_config :nil)
+	(if (defq stream (file-stream *config_file*))
+		(setq old_config (tree-load stream)))
 
-  ; Check if a migration is needed (no file, or older version).
-  (if (or (not old-config) (< (. old-config :find :version 0) *config_version*))
-      (progn
-        ; 1. Start with the new, complete default configuration.
-        (setq *config* (config-default))
+	; Check if a migration is needed (no file, or older version).
+	(if (or (not old_config) (< (. old_config :find :version 0) *config_version*))
+		(progn
+			; 1. Start with the new, complete default configuration.
+			(setq *config* (config-default))
 
-        ; 2. If an old config exists, copy its values into the new one.
-        (when old-config
-          (. old-config :each (lambda (key val)
-                               ; Do not carry over the old version number.
-                               (unless (eql key :version)
-                                 (. *config* :insert key val)))))
-        ; 3. Ensure the config version is now up-to-date.
-        (. *config* :insert :version *config_version*))
-      ; 4. If versions match, just use the loaded config.
-      (setq *config* old-config)))
+			; 2. If an old config exists, copy its values into the new one.
+			(when old_config
+				(. old_config :each (lambda (key val)
+					; Do not carry over the old version number.
+					(unless (eql key :version)
+						(. *config* :insert key val)))))
+			; 3. Ensure the config version is now up-to-date.
+			(. *config* :insert :version *config_version*))
+		; 4. If versions match, just use the loaded config.
+		(setq *config* old_config)))
 ```
 
 **Advantages of the Migration Method:**

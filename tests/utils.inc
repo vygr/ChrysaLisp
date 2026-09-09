@@ -1,9 +1,9 @@
 ; Global test counters
 (defq *test_passes* 0 *test_failures* 0)
 
-(defun report-header (section-name)
+(defun report-header (section_name)
 	(print)
-	(print "=== Testing: " section-name " ==="))
+	(print "=== Testing: " section_name " ==="))
 
 (defmacro assert-eq (name expected form)
 	; (assert-eq "name" expected actual_expression)

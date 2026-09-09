@@ -133,7 +133,7 @@ processed.
 
 * **Invocation:** Once the handler function is obtained (either from the cache
   or by dynamic loading), it is called with the current `state`, the `page`
-  widget (where content should be added), and the `current-line` from the
+  widget (where content should be added), and the `current_line` from the
   document.
 
 ```vdu
@@ -164,26 +164,26 @@ Each section handler module (e.g., `apps/desktop/docs/handlers/text.inc`,
 `apps/desktop/docs/handlers/image.inc`) must define and export a function named
 `handler`.
 
-* **Signature:** `(handler current-state page-widget current-line) -> new-state`
+* **Signature:** `(handler current_state page_widget current_line) -> new_state`
 
 * **Responsibilities:**
 
-	* `page-widget`: The parent UI widget (typically a `Flow` layout named
+	* `page_widget`: The parent UI widget (typically a `Flow` layout named
 	  `page` in `populate-page`) to which the handler should add its rendered
 	  content.
 
-	* `current-line`: The current line of text from the document being
+	* `current_line`: The current line of text from the document being
 	  processed.
 
-	* The handler parses `current-line`.
+	* The handler parses `current_line`.
 
-	* If `current-line` is the closing tag for its section (e.g., "```"), it
+	* If `current_line` is the closing tag for its section (e.g., "```"), it
 	  should finalize any UI elements it has been constructing, add them to
-	  `page-widget`, and return the new state, which is typically `:text`.
+	  `page_widget`, and return the new state, which is typically `:text`.
 
-	* If `current-line` is content for its section type, it processes it (e.g.,
+	* If `current_line` is content for its section type, it processes it (e.g.,
 	  accumulates text, loads an image) and updates its UI elements. It then
-	  returns the `current-state` to indicate it's still handling this section
+	  returns the `current_state` to indicate it's still handling this section
 	  type.
 
 	* Handlers are responsible for creating and managing their own UI widgets
@@ -245,11 +245,11 @@ Each section handler module (e.g., `apps/desktop/docs/handlers/text.inc`,
 	* It parses `line` to extract a Lisp file path, a widget symbol name, and
 	  optional dimensions.
 
-	* It uses `(import-from file (list widget-symbol))` to load only the
+	* It uses `(import-from file (list widget_symbol))` to load only the
 	  specified widget's definition from the Lisp file into the current
 	  environment.
 
-	* It then `(eval widget-symbol)` to create an instance of the widget.
+	* It then `(eval widget_symbol)` to create an instance of the widget.
 
 	* It sets `:tip_mbox` and `:owner` properties on the embedded widget to
 	  integrate it with the Docs app's event system (allowing tooltips and

@@ -363,8 +363,8 @@ Usage: nettest [options] [url|host] [port]
 (import "lib/net/http.inc")
 (import "lib/net/json.inc")
 
-(defun fetch-user (user-id)
-	(defq url (cat "http://api.example.com/users/" (str user-id)))
+(defun fetch-user (user_id)
+	(defq url (cat "http://api.example.com/users/" (str user_id)))
 	(when (defq resp (http-get url (pmap :accept "application/json")))
 		(when (= (pfind resp :status) 200)
 			(json-parse (http-body-str resp)))))
@@ -373,8 +373,8 @@ Usage: nettest [options] [url|host] [port]
 ### 6.2. Posting JSON Data
 
 ```vdu
-(defun update-status (status-msg)
-	(defq payload (json-stringify (pmap :status status-msg :active :t)))
+(defun update-status (status_msg)
+	(defq payload (json-stringify (pmap :status status_msg :active :t)))
 	(http-post "http://api.example.com/status" payload
 		(pmap :content-type "application/json")))
 ```
@@ -382,8 +382,8 @@ Usage: nettest [options] [url|host] [port]
 ### 6.3. Streaming a Large File to Disk
 
 ```vdu
-(defun download-file (url local-path)
-	(when (defq out (file-stream local-path +file_open_write))
+(defun download-file (url local_path)
+	(when (defq out (file-stream local_path +file_open_write))
 		(defq resp (http-get url (pmap) out))
 		(stream-close out)
 		(= (pfind resp :status) 200)))

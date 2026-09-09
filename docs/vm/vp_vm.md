@@ -170,7 +170,7 @@ the `:pixmap :resize_2` functions.
 (vp-call-r rd)
 (vp-call-i rb i)
 (vp-call-p label)
-(vp-call-abi rt rb i arg-list)
+(vp-call-abi rt rb i arg_list)
 
 (vp-jmp label)
 (vp-jmp-r rd)
