@@ -94,7 +94,6 @@
 
 	(def-vars
 		(struct lk_node lk_node_size)
-		(netid child_dest)
 		(ptr statics params msg data iter_begin iter_end)
 		(pubyte pdata p)
 		(long listen_handle conn_handle ch retries is_server port))
@@ -132,7 +131,7 @@
 		(endif)
 	(else)
 		;connect mode: scan for ':'
-		(loop-start)
+		(loop-start 'scan_loop)
 			(breakif {*p = 0})
 			(vpif {*p = 58}) ; ':'
 				(assign {0} {*p}) ; null-terminate host string
@@ -145,7 +144,7 @@
 						(assign {p + 1} {p})
 					(loop-end)
 				(endif)
-				(break)
+				(break 'scan_loop)
 			(endif)
 			(assign {p + 1} {p})
 		(loop-end)
@@ -183,9 +182,7 @@
 		(loop-start)
 			(host-net-call :host_net :poll {conn_handle} {ch})
 			;bit 1 (POLLOUT) = connected
-			(vpif {ch & 2})
-				(break)
-			(endif)
+			(breakif {ch & 2})
 			;bit 2 (POLLERR) = error
 			(vpif {ch & 4})
 				(host-net-call :host_net :close {conn_handle})
@@ -203,14 +200,8 @@
 
 	;start out link and send params
 	(call :sys_mail :alloc '(16) {msg, data})
-	(call :sys_task :start (list (cat {@} (f-path :host_net :out)))
-		{_, _,
-		 child_dest.+net_id_mbox_id,
-		 child_dest.+net_id_node_id.+node_id_node1,
-		 child_dest.+net_id_node_id.+node_id_node2})
-	(assign {child_dest.+net_id_mbox_id,
-	         child_dest.+net_id_node_id.+node_id_node1,
-	         child_dest.+net_id_node_id.+node_id_node2}
+	(call :sys_task :start (cat {@} (f-path :host_net :out)) '(_ _ :r2 :r3 :r4))
+	(assign '(:r2 :r3 :r4)
 		{msg->+msg_dest.+net_id_mbox_id,
 		 msg->+msg_dest.+net_id_node_id.+node_id_node1,
 		 msg->+msg_dest.+net_id_node_id.+node_id_node2})
@@ -220,14 +211,8 @@
 
 	;start in link and send params
 	(call :sys_mail :alloc '(16) {msg, data})
-	(call :sys_task :start (list (cat {@} (f-path :host_net :in)))
-		{_, _,
-		 child_dest.+net_id_mbox_id,
-		 child_dest.+net_id_node_id.+node_id_node1,
-		 child_dest.+net_id_node_id.+node_id_node2})
-	(assign {child_dest.+net_id_mbox_id,
-	         child_dest.+net_id_node_id.+node_id_node1,
-	         child_dest.+net_id_node_id.+node_id_node2}
+	(call :sys_task :start (cat {@} (f-path :host_net :in)) '(_ _ :r2 :r3 :r4))
+	(assign '(:r2 :r3 :r4)
 		{msg->+msg_dest.+net_id_mbox_id,
 		 msg->+msg_dest.+net_id_node_id.+node_id_node1,
 		 msg->+msg_dest.+net_id_node_id.+node_id_node2})
