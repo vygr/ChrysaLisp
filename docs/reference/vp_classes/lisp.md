@@ -36,9 +36,9 @@
 
 ### (prebind form) -> form
 
-### (prin [form] ...) -> form
+### (prin [form] ...) -> :nil
 
-### (print [form] ...) -> form
+### (print [form] ...) -> :nil
 
 ### (progn [body]) -> 'form
 

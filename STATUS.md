@@ -131,6 +131,15 @@ New `docs/ai_digest/async_pipelines.md` document covering inline raw Lisp tasks,
 node pinning, shared-memory concurrency, and the `CPM-load` and `CPM-save` async
 pipelines, and added link in `LLM.md`.
 
+`(lines!)` now supports early breakout if the callback function returns a truthy
+(non-nil) value. Iteration halts immediately and `(lines!)` returns that value,
+or `:nil` if iteration completes to the end of the stream or bounded range.
+
+`(print)` and `(prin)` now always return `:nil` instead of the last printed argument.
+This allows passing `print` directly as a first-class function to iterators like
+`(lines! print stream)` without triggering an early breakout, and eliminates the need
+for wrapper closures returning `:nil`.
+
 ------
 
 `:pmap :find` and `:pmap :insert` now use the `+str_hashslot` cache for both

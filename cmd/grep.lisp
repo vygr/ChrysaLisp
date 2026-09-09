@@ -81,8 +81,7 @@
 						(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
 							(print (if opt_n (str (inc (!)) ":") "") line))))
 				(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
-					(print (if opt_n (str (inc (!)) ":") "") line)))
-			:nil)
+					(print (if opt_n (str (inc (!)) ":") "") line))))
 			stream)))
 
 ;grep a file to stdout

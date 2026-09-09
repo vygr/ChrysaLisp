@@ -1132,9 +1132,9 @@ Stream interfaces for files, memory buffers, pipes, and standard I/O.
 
 *	**`prin` / `print`**: Standard output printing with or without newlines.
 
-	*	`(prin [form] ...) -> form`
+	*	`(prin [form] ...) -> :nil`
 
-	*	`(print [form] ...) -> form`
+	*	`(print [form] ...) -> :nil`
 
 ## Object and Class System
 

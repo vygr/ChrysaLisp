@@ -87,3 +87,13 @@
 (assert-true "file-stream" (not (nil? fs_test)))
 (assert-eq "file-stream read" "Hello" (read-blk fs_test 5))
 (pii-remove test_file_io)
+
+; --- Print and Prin Return Values ---
+(assert-eq "print no args" :nil (print))
+(assert-eq "print with args" :nil (print "  [print test output]"))
+(assert-eq "prin no args" :nil (prin))
+(assert-eq "prin with args" :nil (prin "  [prin test output]\n"))
+
+; --- lines! with print directly ---
+(stream-seek ms_lines 0 0)
+(assert-eq "lines! print directly" :nil (lines! print ms_lines 0 2))

@@ -47,9 +47,9 @@
 (ffi "class/lisp/lisp_repl_info" repl-info 1)
 ; (repl-info) -> (name line)
 (ffi "class/lisp/lisp_prin" prin)
-; (prin [form] ...) -> form
+; (prin [form] ...) -> :nil
 (ffi "class/lisp/lisp_print" print)
-; (print [form] ...) -> form
+; (print [form] ...) -> :nil
 (ffi "class/lisp/lisp_prebind" prebind)
 ; (prebind form) -> form
 (ffi "class/lisp/lisp_mcall" .)

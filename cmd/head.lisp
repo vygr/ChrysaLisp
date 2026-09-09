@@ -19,8 +19,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_c 10 args (options stdio usage)))
-		(defq lines (list))
-		(lines! (# (print %0) :nil)
+		(lines! print
 			(if (<= (length args) 1)
 				(io-stream 'stdin)
 				(file-stream (second args))) 0 opt_c)))
