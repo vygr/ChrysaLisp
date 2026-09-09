@@ -1,0 +1,12 @@
+;run with ./run_tui.sh -f -s tests/build/test_trace.lisp
+(import "lib/task/pipe.inc")
+(while (< (length (lisp-nodes)) 8) (task-sleep 100000))
+(defq out (memory-stream))
+(pipe-run "make vp" (# (write-blk out %0)))
+(stream-seek out 0 0)
+(lines! (# (print %0) (stream-flush (io-stream 'stdout)) (task-sleep 10) :nil) out)
+(setq out (memory-stream))
+(pipe-run "files obj/vp/ | grep -v apps/ | grep -v /create | grep -v /type | trace -i -l" (# (write-blk out %0)))
+(stream-seek out 0 0)
+(lines! (# (print %0) (stream-flush (io-stream 'stdout)) (task-sleep 10) :nil) out)
+((ffi "service/gui/lisp_deinit"))
