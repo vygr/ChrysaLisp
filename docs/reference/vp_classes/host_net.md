@@ -30,13 +30,58 @@
 
 ### :deinit -> :nil
 
+### :in -> service/net/in
+
+```code
+trashes
+:r0-:r14, :f0-:f15
+```
+
 ### :init -> :nil
 
+### :link -> service/net/link
+
+```code
+started by kernel for each network link
+trashes
+:r0-:r14, :f0-:f15
+```
+
 ### :listen -> :nil
+
+### :out -> service/net/out
+
+```code
+trashes
+:r0-:r14, :f0-:f15
+```
 
 ### :poll -> :nil
 
 ### :recv -> :nil
 
+### :recv_all -> service/net/recv_all
+
+```code
+inputs
+:r0 = handle
+:r1 = buffer ptr
+:r2 = remaining bytes
+:r3 = lk_node ptr
+outputs
+:r0 = 0 if ok, -1 if error
+```
+
 ### :send -> :nil
+
+### :send_all -> service/net/send_all
+
+```code
+inputs
+:r0 = handle
+:r1 = buffer ptr
+:r2 = remaining bytes
+outputs
+:r0 = 0 if ok, -1 if error
+```
 

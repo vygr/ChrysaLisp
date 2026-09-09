@@ -333,21 +333,25 @@ Usage: includes [options] [path] ...
 ```
 ## link
 ```code
-Usage: link [options] CLB-L1 CLB-L2 000-000 ...
+Usage: link [options] [name | host[:port] ...]
 
     options:
         -h --help: this help info.
+        -l --listen [port]: listen for incoming TCP network link (default: 3333).
+        -v --verbose: verbose output.
 
-    Start SHMEM link driver/s.
+    Start SHMEM or TCP network link driver/s.
 
-    `CLB-L1 CLB-L2`, are the names of the ChrysaLib `-shm` links.
-    If you're bridging Lisp subnets over CLB.
+    Network links:
+        link -l 3333          ; Listen on port 3333 for incoming network link
+        link 192.168.1.100    ; Connect to peer on default port 3333
+        link 127.0.0.1:3333   ; Connect to peer on specified port
 
-    Internal Lisp subnet links are of the form `001-002`, or if
-    connecting local Lisp subnets the recommended form is
-    `000-000` for subnet bridge 1, `001-001` for subnet bridge 2 etc.
+    SHMEM links:
+        `CLB-L1 CLB-L2`, are the names of the ChrysaLib `-shm` links.
+        Internal Lisp subnet links are of the form `000-000`, `001-002`, etc.
 
-    If no links names given on command line
+    If no links names given on command line and -l not passed,
     then names are read from stdin.
 ```
 ## lisp
