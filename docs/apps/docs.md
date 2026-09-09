@@ -59,8 +59,15 @@ content.
 
 * **UI Definition:** `apps/desktop/docs/widgets.inc`
 
-* **Section Handler Modules:** Located in `apps/desktop/docs/handlers/`, e.g.,
-  `text.inc`, `image.inc`, `code.inc`, `vdu.inc`, `widget.inc`.
+* **Actions and Event Routing:** `apps/desktop/docs/actions.inc` and `apps/desktop/docs/ui.inc`
+
+* **Distributed Search Engine:** `apps/desktop/docs/search.inc`
+
+* **Markdown Layout Engine:** `gui/md/lisp.inc` (the `Md` widget)
+
+* **Section Handler Modules:** Located in `apps/desktop/docs/handlers/`:
+	`text.inc`, `code.inc`, `vdu.inc`, `file.inc`, `widget.inc`, `lisp.inc`,
+	`lispq.inc`, `info.inc`, `image.inc`.
 
 ### 4. Dynamic Section Handling
 
@@ -71,7 +78,7 @@ application logic.
 #### 4.1. Markup Convention
 
 Documentation files use a simple markup convention to define special sections. A
-section of a specific `<type>` is typically denoted by:
+section of a specific `<type>` is denoted by a fenced block:
 
 ```
 ;   ```<type>
@@ -87,58 +94,56 @@ For example:
 ;   ```
 ```
 
-Or:
+Or an embedded live widget:
 
 ```
 ;   ```widget
-;   apps/my_app/widgets.inc *my_widget_instance* 200 150
+;   apps/desktop/docs/widgets.inc *window* 512 512
 ;   ```
 ```
 
-The default state if no tag is active is considered `:text`.
+The default state when no fenced tag is active is `:text`.
 
 #### 4.2. Handler Discovery and Dynamic Loading
 
 The core mechanism for dynamic section handling resides in the `populate-page`
 function within `apps/desktop/docs/app.lisp`. This function processes the
 selected document line by line, maintaining a `state` variable (a symbol like
-`:text`, `:image`, `:code`, etc.) that indicates the current section type being
-processed.
+`:text`, `:image`, `:code`, `:vdu`, `:file`, etc.) that indicates the current section
+type being processed.
 
 * **`handlers` Emap:** An `Emap` instance, named `handlers`, is used as a cache
-  for loaded section handler functions. It maps the state symbol (e.g.,
-  `:image`) to the actual Lisp handler function.
+	for loaded section handler functions. It maps the state symbol (e.g.,
+	`:image`) to the actual Lisp handler function.
 
 * **`handler-func` Helper:** A local helper function, `handler-func`, is
-  responsible for retrieving or loading the appropriate handler:
+	responsible for retrieving or dynamically loading the appropriate handler:
 
 	1. It first checks if a handler for the current `state` already exists in
-	   the `handlers` `Emap`.
+		 the `handlers` `Emap`.
 
 	2. If not found, it dynamically constructs a module path: `(cat
-	   "apps/desktop/docs/handlers/" (rest state) ".inc")`. For example, if
-	   `state` is `:image`, the path becomes
-	   `"apps/desktop/docs/handlers/image.inc"`.
+		 (const (cat *app_root* "handlers/")) (rest state) ".inc")`. For example, if
+		 `state` is `:image`, the path becomes
+		 `"apps/desktop/docs/handlers/image.inc"`.
 
-	3. It then uses `(repl (file-stream module) module)` to load and evaluate
-	   this module. The `repl` function, in this context, effectively imports
-	   the module's definitions into a dedicated environment, `*handler_env*`,
-	   which is a child of the Docs application's main environment.
+	3. It then uses `(repl (file-stream module) module)` to evaluate the
+		 module. The module evaluates within an `(env-push) ... (env-pop)` block and
+		 exports its handler via `(export-symbols '(handler))`, binding `handler` in
+		 the caller's scope.
 
-	4. The loaded module is expected to define and export a function named
-	   `handler`.
-
-	5. This exported `handler` function is then retrieved from `*handler_env*`
-	   and stored in the `handlers` `Emap`, keyed by the `state` symbol.
+	4. This exported `handler` function is stored in the `handlers` `Emap`,
+		 keyed by the `state` symbol.
 
 * **Invocation:** Once the handler function is obtained (either from the cache
-  or by dynamic loading), it is called with the current `state`, the `page`
-  widget (where content should be added), and the `current_line` from the
-  document.
+	or by dynamic loading), it is called with the current `state`, the `page`
+	widget (the `Flow` container where content is added), and the `current_line` from
+	the document.
 
 ```vdu
-; Snippet from apps/desktop/docs/app.lisp (illustrative)
+; Snippet from apps/desktop/docs/app.lisp
 (defq handlers (Emap)) ; Emap to cache handlers
+
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
 		(defq module (cat (const (cat *app_root* "handlers/")) (rest state) ".inc"))
@@ -150,179 +155,223 @@ processed.
 	; ...
 	(defq state :text)
 	(lines! (lambda (line)
-			; ... logic to update 'state' based on "```<type>" tags ...
-			(catch (setq state ((handler-func state) state page line))
-				(progn (prin _) (print) (setq state :text) :t)))
+			(task-slice)
+			(catch (setq state ((handler-func state)
+						state page (trim-end line "\r")))
+				(progn (prin _) (print) (setq state :text) :t))
+			:nil)
 		(file-stream file))
+	(catch ((handler-func state) state page "```")
+		(progn (prin _) (print) (setq state :text) :t))
 	; ...
 )
 ```
 
 #### 4.3. Handler Interface and Contract
 
-Each section handler module (e.g., `apps/desktop/docs/handlers/text.inc`,
-`apps/desktop/docs/handlers/image.inc`) must define and export a function named
-`handler`.
+Each section handler module in `apps/desktop/docs/handlers/` must define and export
+a function named `handler`.
 
 * **Signature:** `(handler current_state page_widget current_line) -> new_state`
 
 * **Responsibilities:**
 
-	* `page_widget`: The parent UI widget (typically a `Flow` layout named
-	  `page` in `populate-page`) to which the handler should add its rendered
-	  content.
+	* `page_widget`: The parent UI widget (a `Flow` layout named `page` within
+		`page_flow` in `populate-page`) to which the handler adds its rendered
+		content.
 
 	* `current_line`: The current line of text from the document being
-	  processed.
+		processed.
 
-	* The handler parses `current_line`.
+	* **Tag boundaries (`^\\s*``` `):**
+		* For `:text`, encountering a fence tag flushes any accumulated prose lines
+			into an `Md` widget, extracts the new section type (e.g., `:vdu`, `:file`,
+			or defaulting to `:code` if no tag is specified), and returns that new state.
+		* For active block handlers (e.g. `:vdu`, `:code`, `:file`, `:widget`), the
+			closing fence tag finalizes any accumulated stream content or pending
+			widgets, adds them to `page`, resets working buffers, and returns `:text`.
 
-	* If `current_line` is the closing tag for its section (e.g., "```"), it
-	  should finalize any UI elements it has been constructing, add them to
-	  `page_widget`, and return the new state, which is typically `:text`.
+	* **Section content:**
+		* The handler processes or streams the incoming line (for example, into
+			`*mem_stream*` or a local list) and returns `current_state` to remain active.
 
-	* If `current_line` is content for its section type, it processes it (e.g.,
-	  accumulates text, loads an image) and updates its UI elements. It then
-	  returns the `current_state` to indicate it's still handling this section
-	  type.
+#### 4.4. Section Handlers Reference
 
-	* Handlers are responsible for creating and managing their own UI widgets
-	  (e.g., `Text`, `Vdu`, `Canvas`, or even custom application widgets).
-
-#### 4.4. Example Handlers
+The Docs application provides nine dedicated section handlers:
 
 * **`apps/desktop/docs/handlers/text.inc` (Handler for `:text` state):**
 
-	* Parses the `line` for inline styling like `*italic*`, `**bold**`, or
-	  ``code` ``.
+	* Handles standard markdown prose between fenced blocks.
 
-	* Creates `Text` widgets for each segment, applying appropriate fonts (e.g.,
-	  `font_italic`, `font_bold`, `font_terminal` obtained from the `page` widget's
-	  properties).
+	* Accumulates text lines until a block fence tag or EOF is reached.
 
-	* Adds these `Text` widgets to a new `Flow` widget representing the current
-	  line, which is then added to the main `page` widget.
+	* Instantiates an `(Md)` widget (`gui/md/lisp.inc`) configured with current
+		window zoom, target page width, and document typography fonts (`+doc_font`,
+		`+doc_font_bold`, `+doc_font_italic`, `+doc_font_bold_italic`, `+terminal_font`,
+		`+symbol_font`).
 
-	* Collects created `Text` widgets into `*search_widgets*` for find
-	  functionality.
+	* Invokes `(. md :populate_lines lines)`, which encapsulates markdown parsing
+		(prefix stripping, single-pass quote masking, `reduce!` style ladders,
+		atomic `splice` formatting, and grid tables) and creates an internal visual tree
+		of `Text` word widgets.
 
-* **`apps/desktop/docs/handlers/image.inc` (Handler for `:image` state):**
+	* Adds the populated `Md` widget to `page`.
 
-	* If `line` is not "```", it interprets `line` as an image file path.
+* **`apps/desktop/docs/handlers/code.inc` (Handler for `:code` state):**
 
-	* Loads the image using `(canvas-load line +load_flag_shared)`.
+	* Used for plain/unformatted code blocks (bare ```` ``` ```` without a language identifier).
 
-	* Adds the resulting `canvas` widget to the `page` widget.
+	* Streams incoming lines into `*mem_stream*`, expanding tab stops (4 spaces).
 
-	* Returns `:text` when "```" is encountered.
+	* Upon encountering the closing tag, loads `*mem_stream*` into an unformatted
+		`Document` (`(Document 0 :nil)`), trims whitespace, binds buffer dimensions
+		to a `Vdu` terminal widget (`:font_terminal_small`, `:ink_color +argb_blue`,
+		`:color 0`), and adds the `Vdu` and a trailing spacer `Text` to `page`.
 
-* **`apps/desktop/docs/handlers/vdu.inc` (Handler for `:vdu` state, also used by `:code`):**
+	* Resets `*mem_stream*` to `:nil`.
 
-	* If `line` is not "```", it accumulates the line (after processing tabs)
-	  into a local `lines` list.
+* **`apps/desktop/docs/handlers/vdu.inc` (Handler for `:vdu` state):**
 
-	* When "```" is encountered:
+	* Used for syntax-highlighted code blocks (e.g. ```` ```vdu ````).
 
-		* Creates a `Vdu` widget.
+	* Streams incoming lines into `*mem_stream*`.
 
-		* Sets its font (e.g., `font_terminal_small` from `page` properties).
+	* Upon encountering the closing tag, loads `*mem_stream*` into a syntax-highlighted
+		`Document` (`(Document +buffer_flag_syntax syntax)`), trims whitespace, and
+		inserts framing newlines.
 
-		* Calculates `vdu_width` and `vdu_height` based on the accumulated
-		  lines.
+	* Calculates the minimum left indentation margin across all lines and deletes it
+		in-place via `(. buffer :idelete ...)` so indented code blocks display flush.
 
-		* Loads the lines into the `Vdu` widget using `(. vdu :load lines ...)`.
+	* Binds the buffer to a `Vdu` widget (`:ink_color +argb_black`, `:color 0`)
+		embedded in a `Backdrop` (`+argb_grey1`). If the content width exceeds the terminal
+		viewport (`rw > tw`), wraps it inside a horizontal `Scroll` container before
+		adding to `page`.
 
-		* Adds the `Vdu` widget to a `Backdrop` (for background color) and then
-		  to the `page`.
+	* Resets `*mem_stream*` to `:nil`.
 
-	* Returns `:text`.
+* **`apps/desktop/docs/handlers/file.inc` (Handler for `:file` state):**
+
+	* Embeds source code snippets directly from repository files without manually
+		copy-pasting code into markdown files.
+
+	* Parses `line` as `(file &optional start_exp end_exp)`.
+
+	* Opens the target file via `(file-stream file)` and scans lines until matching
+		`start_exp`, streaming lines into `*mem_stream*` until `end_exp` (or empty line / EOF).
+
+	* Formats the extracted snippet with full syntax highlighting, automated margin
+		stripping, and a `Backdrop`/`Scroll`-wrapped `Vdu` widget identical to `:vdu`.
 
 * **`apps/desktop/docs/handlers/widget.inc` (Handler for `:widget` state):**
 
-	* This is a particularly powerful handler demonstrating ChrysaLisp's dynamic
-	  capabilities.
+	* Enables embedding live, interactive ChrysaLisp UI components directly inside
+		documentation pages.
 
-	* It parses `line` to extract a Lisp file path, a widget symbol name, and
-	  optional dimensions.
+	* Parses `line` as `(file &optional widget mw mh)`.
 
-	* It uses `(import-from file (list widget_symbol))` to load only the
-	  specified widget's definition from the Lisp file into the current
-	  environment.
+	* Uses `(import-from (str file) (list widget))` to load only the requested
+		widget definition, and `(eval widget)` to instantiate it.
 
-	* It then `(eval widget_symbol)` to create an instance of the widget.
+	* Connects `:tip_mbox` to `+select_tip`, applies optional `:min_width` and
+		`:min_height`, and sets `:owner` to `+select_embedded` on the Docs app's
+		event multiplexer so embedded user interactions do not trigger host window actions.
 
-	* It sets `:tip_mbox` and `:owner` properties on the embedded widget to
-	  integrate it with the Docs app's event system (allowing tooltips and
-	  routing events to the special `+select_embedded` mailbox if the widget
-	  needs to communicate).
+	* Adds the live widget to `page` inside a right-aligned `Flow`.
 
-	* The live widget instance is added to the `page`.
+* **`apps/desktop/docs/handlers/lisp.inc` (Handler for `:lisp` state):**
 
-	* Returns `:text` when "```" is encountered.
+	* A composite handler for interactive executable code tutorials.
 
-### 5. Event Loop and UI Updates
+	* Upon encountering the closing tag, redirects the accumulated code lines
+		to `:vdu` (to display the syntax-highlighted source code) **and** to `:lispq`
+		(to evaluate the code and embed the resulting view or output).
 
-* The main event loop in `apps/desktop/docs/app.lisp` handles standard UI events
-  (navigation, search, window management).
+* **`apps/desktop/docs/handlers/lispq.inc` (Handler for `:lispq` state):**
 
-* When a document is selected (`action-file-leaf-action`), `populate-page` is
-  called.
+	* Evaluates live Lisp expressions within `*handler_env*` without displaying the
+		source code text.
 
-* `populate-page` creates a new `page_flow` widget. Section handlers add their
-  content to this `page_flow`.
+	* Evaluates the joined lines via `(repl ss "Lisp handler")` within `*handler_env*`.
 
-* After `populate-page` completes, the `page_flow` is added as a child to
-  `*page_scroll*`.
+	* If the evaluated `*result*` is a `View`, binds its `:tip_mbox` and `:owner`
+		(`+select_embedded`) and embeds the live interactive component into `page`.
 
-* The layout of the main document flow (`*doc_flow*`) is then updated using
-  `(.-> *doc_flow* :layout :dirty_all)`, which triggers redrawing of the new
-  content.
+	* If the result is a data value, outputs the result via a `:vdu` block.
 
-* The `*search_widgets*` list, populated by the `:text` handler, is used by
-  search actions (`action-find-down`, `action-find-up` in
-  `apps/desktop/docs/search.inc`) to iterate over displayable text elements and
-  highlight matches.
+* **`apps/desktop/docs/handlers/info.inc` (Handler for `:info` state):**
 
-### 6. Strengths and Observations
+	* Provides automated system introspection for reference documentation.
 
-* **High Extensibility:** New content types can be supported by simply creating
-  a new section handler module (e.g., `apps/desktop/docs/newtype.inc`) and using
-  the "```newtype" tag in documentation. The core Docs application logic does
-  not need to be changed.
+	* Accepts commands `"root-funcs"`, `"root-macros"`, or `"root-lambdas"`.
 
-* **Decoupling:** The Docs app is decoupled from the specifics of how each
-  content type is rendered.
+	* Filters and sorts matching symbols from `*root_env*`, reflows them into
+		80-column paragraphs, and prints them in a `:vdu` block.
 
-* **Lisp-centric Design:** The system heavily leverages Lisp's dynamic features,
-  including `repl`/`(import)` for code loading and the environment system for
-  managing handlers.
+* **`apps/desktop/docs/handlers/image.inc` (Handler for `:image` state):**
 
-* **Powerful Embedding:** The `:widget` handler demonstrates the ability to
-  embed fully functional, live ChrysaLisp UI components directly within
-  documentation, which is a testament to the GUI's flexibility.
+	* Loads bitmap graphics from disk using `(canvas-load line +load_flag_shared)`.
 
-* **Performance:** Handler modules are loaded dynamically only once per type per
-  session and then cached in the `handlers` `Emap`. Subsequent encounters of the
-  same section type use the cached handler function directly.
+	* Adds the resulting `Canvas` widget directly to `page`, appending a trailing
+		spacer `Text` widget on completion.
 
-* **Handler State:** Each handler is a function. If a handler needs to maintain
-  state across multiple lines of its section (e.g., the `:vdu` handler
-  accumulating lines), it must do so using local variables within its lexical
-  scope that persist across calls *if the handler itself is a closure that
-  captures this state*. In the current `apps/desktop/docs/handlers/*.inc`
-  implementations, handlers like `:vdu` use `(push lines ...)` where `lines` is
-  a local variable within the `handler` function defined in the module; this
-  `lines` variable is reinitialized on each call to `handler-func` when it
-  fetches/re-imports the handler, so state across lines for a single section
-  block is managed by the `populate-page` loop passing the current `state` to
-  the handler, and the handler deciding if it's done or needs more lines for
-  that same `state`.
+### 5. Event Loop and UI Architecture
+
+* **Coordinated Event Multiplexing (`task-mboxes`):**
+	The main loop in `apps/desktop/docs/app.lisp` listens on three coordinated mailboxes:
+	* `+select_main`: Handles window events (resize, minimize, maximize, close), navigation
+		toolbar buttons, and file tree selections.
+	* `+select_tip`: Dispatches tooltip timers when hovering over views or controls.
+	* `+select_embedded`: Dedicated event routing for embedded interactive widgets,
+		ensuring embedded UI clicks and actions are processed internally without leaking into
+		the Docs window controls.
+
+* **Page Layout and Scroll Restoration:**
+	When a document is selected (`action-file-leaf-action`), `populate-page` constructs
+	a `page_flow` containing document margins and the central `page` flow. After section
+	handlers populate `page`, `page_flow` is measured, attached to `*page_scroll*`, and
+	the file's previous vertical scroll position is restored from the `scroll_pos` `Fmap`.
+
+* **Two-Tiered Distributed Search (`search.inc`):**
+	* **Global Cluster Document Search:** Entering text in `*find_text*` invokes
+		`find-global`, which runs a parallel `pipe-farm` of `cmd/grep.lisp` tasks across all
+		`.md` files in `docs/`. Matching documents are highlighted in the `*file_selector*`
+		tree in real-time.
+	* **In-Page Word Search:** `find-update` searches through `*search_widgets*`
+		(the list of `Text` word widgets gathered via `(. md :get_search_widgets)`
+		from all `Md` components on the page). It evaluates matches using `query`
+		(supporting whole words, regex, and case sensitivity), highlights matching
+		words with `*env_highlight_col*`, and smoothly scrolls the match into view.
+
+### 6. Architectural Strengths
+
+* **Component-Based Document Composition:** Rather than treating a document as a
+	monolithic rich-text buffer, documents are visual trees composed of `Md` markdown
+	blocks, syntax-highlighted `Vdu` terminals, `Canvas` images, and active GUI `Widget` instances.
+
+* **Extensible Micro-Handler Architecture:** New content formats require only a
+	new `.inc` file in `apps/desktop/docs/handlers/` exporting `handler`. The core
+	application remains decoupled and unchanged.
+
+* **Decoupled Markdown Engine (`Md`):** By encapsulating markdown parsing and layout
+	in the reusable `Md` class (`gui/md/lisp.inc`), the Docs app remains lean (around
+	130 lines in `app.lisp`) while leveraging ChrysaLisp's hardware-accelerated
+	vectorized string operations (`splice`, `reduce!`).
+
+* **Isolated Execution Environment (`*handler_env*`):** A dedicated evaluation
+	environment with an overridden `enums` macro allows live code blocks (`:lisp`, `:lispq`,
+	`:widget`) to instantiate interactive widgets with isolated event IDs, preventing
+	embedded components from interfering with host application navigation.
+
+* **Distributed Compute Integration:** Search queries exploit ChrysaLisp's multi-core
+	actor architecture via `pipe-farm`, searching the entire documentation library in
+	parallel.
 
 ## Conclusion
 
-The ChrysaLisp Docs application effectively utilizes a dynamic, module-based
-section handling system. This architecture makes the application highly
-extensible and showcases several of ChrysaLisp's core strengths, including its
-powerful Lisp environment, dynamic code loading, and flexible GUI system. The
-ability to embed live widgets directly into documentation is a particularly
-notable feature.
+The ChrysaLisp Docs application demonstrates a modern, component-driven approach
+to document viewing. By combining dynamic micro-handler loading with the hardware-accelerated
+`Md` markdown engine, stream-based buffer formatting, and cluster-wide `pipe-farm` search,
+it provides an extensible, performant viewer capable of displaying everything from rich
+prose to live, interactive applications.
+
