@@ -208,3 +208,13 @@ This binary comparison is also vital for verifying that the emulated VP64 build
 A clean diff (zero differences) proves deterministic compilation and guarantees
 that the VP64 emulator environment produces identical machine code and data
 structures to the native host.
+
+---
+
+## Multi-Instance & Network Link Testing
+
+To test network links (`service/net/link`) or multi-instance server/client setups on a single machine, see the `chrysalisp-net-testing` skill.
+Key pattern:
+- Launch the server in the background without `-b`: `./run_tui.sh -n 1 -s path/to/server.lisp > server.log 2>&1 &`
+- Launch client sessions with `-b 10`: `./run_tui.sh -b 10 -n 1 -s path/to/client.lisp` (which skips `./stop.sh`, keeping the background server alive).
+
