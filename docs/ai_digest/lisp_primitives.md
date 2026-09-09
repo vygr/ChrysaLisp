@@ -494,13 +494,13 @@ Flat array-backed property maps and sets optimized for symbol keys.
 
 	*	`(pmap [key val ...]) -> pmap`
 
-*	**`pinsert`**: Inserts a key or key-value pair into a property collection.
+*	**`pinsert`**: Inserts keys or key-value pairs into a property collection.
 
-	*	`(pinsert props key [val]) -> props`
+	*	`(pinsert props key [val] ...) -> props`
 
-*	**`perase`**: Erases a key from a property collection.
+*	**`perase`**: Erases one or more keys from a property collection.
 
-	*	`(perase props key) -> props`
+	*	`(perase props key [key] ...) -> props`
 
 *	**`pfind`**: Looks up a key, returning the value (for maps) or key (for sets).
 

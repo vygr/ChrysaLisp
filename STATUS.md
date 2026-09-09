@@ -4,6 +4,12 @@
 
 ------
 
+`pinsert` and `perase` now support variadic arguments, mirroring `def` and
+`undef`. `(pinsert pset key ...)` and `(pinsert pmap [key val] ...)` allow
+inserting multiple elements or key/value pairs in a single call. Likewise,
+`(perase props key [key] ...)` can erase multiple keys from either a `pset` or
+`pmap`.
+
 Allow both positive and negative kerning pair adjustments. Use a full triplet
 adjustment check instead of the simple cavity threshold test. Plus calculate the
 best deadzone default kerning position on a per font basis. This has improved

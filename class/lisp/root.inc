@@ -235,9 +235,9 @@
 (ffi "class/pmap/lisp_pfind" pfind)
 ; (pfind props key) -> :nil | val
 (ffi "class/pmap/lisp_pinsert" pinsert)
-; (pinsert props key [val]) -> props
+; (pinsert props key [val] ...) -> props
 (ffi "class/pmap/lisp_perase" perase)
-; (perase props key) -> props
+; (perase props key [key] ...) -> props
 
 ;;;;;;;;;;;;;;;;;;;;
 ; String Operations

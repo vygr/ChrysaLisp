@@ -4,11 +4,11 @@
 
 ## Lisp Bindings
 
-### (perase props key) -> props
+### (perase props key [key] ...) -> props
 
 ### (pfind props key) -> :nil | val
 
-### (pinsert props key [val]) -> props
+### (pinsert props key [val] ...) -> props
 
 ### (pmap [key val] ...) -> pmap
 

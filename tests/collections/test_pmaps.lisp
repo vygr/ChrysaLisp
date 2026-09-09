@@ -39,6 +39,20 @@
 (pinsert pl_ins "str_key" 600)
 (assert-eq "pfind pinsert overwrite string key" 600 (pfind pl_ins "str_key"))
 
+; Variadic pinsert (multi-pair)
+(defq pl_multi (pmap 'x 10))
+(assert-eq "pinsert multi return" pl_multi (pinsert pl_multi 'y 20 'z 30 'w 40))
+(assert-eq "pfind y" 20 (pfind pl_multi 'y))
+(assert-eq "pfind z" 30 (pfind pl_multi 'z))
+(assert-eq "pfind w" 40 (pfind pl_multi 'w))
+(assert-eq "length multi" 8 (length pl_multi))
+
+; Overwrite with variadic pinsert
+(pinsert pl_multi 'x 100 'y 200)
+(assert-eq "pfind x updated" 100 (pfind pl_multi 'x))
+(assert-eq "pfind y updated" 200 (pfind pl_multi 'y))
+(assert-eq "length unchanged on overwrite" 8 (length pl_multi))
+
 ; --- Function: perase ---
 (defq pl_del (pmap 'k1 100 'k2 200 'k3 300))
 ; Erase middle
@@ -47,10 +61,25 @@
 (assert-eq "pfind remaining k1" 100 (pfind pl_del 'k1))
 (assert-eq "pfind remaining k3" 300 (pfind pl_del 'k3))
 
+; Variadic perase (multi-key)
+(assert-eq "perase multi return" pl_multi (perase pl_multi 'y 'w))
+(assert-eq "pfind y erased" :nil (pfind pl_multi 'y))
+(assert-eq "pfind w erased" :nil (pfind pl_multi 'w))
+(assert-eq "pfind x remaining" 100 (pfind pl_multi 'x))
+(assert-eq "pfind z remaining" 30 (pfind pl_multi 'z))
+(assert-eq "length after 2 erasures" 4 (length pl_multi))
+
+; Variadic perase with missing keys
+(perase pl_multi 'missing1 'x 'missing2)
+(assert-eq "pfind x erased" :nil (pfind pl_multi 'x))
+(assert-eq "pfind z remaining" 30 (pfind pl_multi 'z))
+(assert-eq "length after mixed erase" 2 (length pl_multi))
+
 ; Erase on empty / missing
 (defq pl_empty (pmap))
 (assert-eq "pfind pmap empty" :nil (pfind pl_empty 'a))
 (assert-eq "perase pmap empty" pl_empty (perase pl_empty 'a))
+
 
 ; --- Function: pfindi ---
 (defq pl_idx (pmap 'a 1 'b 2 'c 3))

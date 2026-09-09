@@ -35,6 +35,18 @@
 (pinsert ps_ins "new_str")
 (assert-eq "pfind pset inserted string" "new_str" (pfind ps_ins "new_str"))
 
+; Variadic pinsert (multi-key)
+(defq ps_multi (pset 'x))
+(assert-eq "pinsert pset multi return" ps_multi (pinsert ps_multi 'y 'z 'w))
+(assert-eq "pfind pset y" 'y (pfind ps_multi 'y))
+(assert-eq "pfind pset z" 'z (pfind ps_multi 'z))
+(assert-eq "pfind pset w" 'w (pfind ps_multi 'w))
+(assert-eq "pset multi length" 4 (length ps_multi))
+
+; Duplicate keys insertion
+(pinsert ps_multi 'y 'z)
+(assert-eq "pset length unchanged on duplicate" 4 (length ps_multi))
+
 ; --- Function: perase ---
 (defq ps_del (pset 'first 'middle 'last))
 ; Erase middle
@@ -42,6 +54,20 @@
 (assert-eq "pfind pset after erase middle" :nil (pfind ps_del 'middle))
 (assert-eq "pfind pset remaining first" 'first (pfind ps_del 'first))
 (assert-eq "pfind pset remaining last" 'last (pfind ps_del 'last))
+
+; Variadic perase (multi-key)
+(assert-eq "perase pset multi return" ps_multi (perase ps_multi 'y 'w))
+(assert-eq "pfind pset y erased" :nil (pfind ps_multi 'y))
+(assert-eq "pfind pset w erased" :nil (pfind ps_multi 'w))
+(assert-eq "pfind pset x remaining" 'x (pfind ps_multi 'x))
+(assert-eq "pfind pset z remaining" 'z (pfind ps_multi 'z))
+(assert-eq "pset length after multi erase" 2 (length ps_multi))
+
+; Variadic perase with missing keys
+(perase ps_multi 'missing1 'x 'missing2)
+(assert-eq "pfind pset x erased" :nil (pfind ps_multi 'x))
+(assert-eq "pfind pset z remaining" 'z (pfind ps_multi 'z))
+(assert-eq "pset length after mixed erase" 1 (length ps_multi))
 
 ; Erase on empty / missing
 (defq ps_empty (pset))
