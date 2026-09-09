@@ -1052,3 +1052,114 @@ RPC interface for sharing text with the host and desktop clipboards.
 *	**`clip-get-rpc`**: Reads text from the system clipboard service.
 
 	*	`(clip-get-rpc) -> str`
+
+## Network Stack and Protocols
+
+TCP socket daemon interface (`service/net/app.inc`), URI codec (`lib/net/url.inc`),
+JSON interchange (`lib/net/json.inc`), and connection-pooled HTTP/1.1 client
+(`lib/net/http.inc`).
+
+*	**`net-service`**: Discovers the active network service daemon mailbox.
+
+	*	`(net-service) -> netid | :nil`
+
+*	**`net-open-rpc`**: Establishes a client TCP connection, returning connected
+	in/out stream pair.
+
+	*	`(net-open-rpc host port) -> (client_in client_out) | :nil`
+
+*	**`net-listen-rpc`**: Binds a listening port and forwards incoming connection
+	offers to an accept mailbox.
+
+	*	`(net-listen-rpc port accept_mbox) -> listener_handle | :nil`
+
+*	**`net-accept-rpc`**: Accepts an incoming connection offer, returning connected
+	in/out stream pair.
+
+	*	`(net-accept-rpc offer_msg) -> (client_in client_out) | :nil`
+
+*	**`net-close-rpc`**: Closes a TCP connection pair by aborting the client stream.
+
+	*	`(net-close-rpc (client_in client_out))`
+
+*	**`url-parse`**: Parses an RFC 3986 URL into a property map.
+
+	*	`(url-parse url_str) -> pmap`
+
+*	**`url-format`**: Formats a URL property map into a canonical URL string.
+
+	*	`(url-format u) -> str`
+
+*	**`url-path-query`**: Combines normalized path and query parameters into a
+	request URI path string.
+
+	*	`(url-path-query u) -> str`
+
+*	**`url-scheme-port`**: Resolves the default well-known port for standard URI
+	schemes.
+
+	*	`(url-scheme-port scheme) -> num`
+
+*	**`url-encode`**: Vectorized percent-encoding with fast-path scanning.
+
+	*	`(url-encode str [query_flag]) -> str`
+
+*	**`url-decode`**: Vectorized percent-decoding for URI components.
+
+	*	`(url-decode str [query_flag]) -> str`
+
+*	**`url-query-parse`**: Parses a query string into a `pmap` of keyword symbols
+	to decoded values.
+
+	*	`(url-query-parse query_str) -> pmap`
+
+*	**`url-query-format`**: Formats key-value pairs into a query string.
+
+	*	`(url-query-format q) -> str`
+
+*	**`json-parse`**: Stack-based, non-recursive streaming JSON parser.
+
+	*	`(json-parse str_or_stream) -> pmap | list | scalar`
+
+*	**`json-stringify`**: Stack-based, non-recursive JSON serializer.
+
+	*	`(json-stringify obj) -> str`
+
+*	**`json-to-tre` / `json-from-tre`**: Symmetric conversion aliases for
+	tree-processing pipelines.
+
+	*	`(json-to-tre str_or_stream) -> pmap | list | scalar`
+
+	*	`(json-from-tre obj) -> str`
+
+*	**`http-request`**: Dispatches an HTTP/1.1 request with keep-alive connection
+	pooling and framing detection.
+
+	*	`(http-request method url [headers body dest_stream]) -> pmap | :nil`
+
+*	**`http-get` / `http-post` / `http-head`**: Standard HTTP request methods.
+
+	*	`(http-get url [headers dest_stream]) -> pmap | :nil`
+
+	*	`(http-post url body [headers dest_stream]) -> pmap | :nil`
+
+	*	`(http-head url [headers]) -> pmap | :nil`
+
+*	**`http-body-str`**: Reads an entire response body stream into a string and
+	rewinds the stream to the beginning.
+
+	*	`(http-body-str resp) -> str`
+
+*	**`http-read-headers`**: Parses HTTP header fields into a lowercase keyword `pmap`.
+
+	*	`(http-read-headers in_stream) -> pmap`
+
+*	**`http-read-body`**: Decodes chunked, length-delimited, or EOF-framed payload
+	into a destination stream.
+
+	*	`(http-read-body in_stream headers [dest_stream]) -> stream`
+
+*	**`http-pool-clear`**: Closes and flushes all idle TCP sockets in the HTTP
+	connection pool.
+
+	*	`(http-pool-clear)`
