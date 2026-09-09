@@ -401,7 +401,7 @@ the editor receives cross-task RPC requests. The `edit-jump-rpc` mechanism in `r
 allows external processes (such as the ChrysaLisp Debugger or compiler error handlers)
 to transmit jump requests:
 
-```lisp
+```code
 (edit-jump-rpc brk_id file_name line_num)
 ```
 
