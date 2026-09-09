@@ -44,7 +44,7 @@
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
-			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		(if (<= (length jobs) opt_j)
 			;do the work when batch size ok !
 			(each (const work) jobs)

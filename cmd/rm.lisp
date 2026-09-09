@@ -18,6 +18,6 @@
 			(defq args (options stdio usage)))
 		(if (<= (length args) 1)
 			;rm from stdin
-			(lines! pii-remove (io-stream 'stdin))
+			(lines! (# (pii-remove %0) :nil) (io-stream 'stdin))
 			;rm from args
 			(each pii-remove (rest args)))))

@@ -42,7 +42,8 @@
 			(and (eql "(" (first line))
 				(or (starts-with "(include \q" line) (starts-with "(import \q" line))
 				(push files (path-to-absolute
-					(slice line (defq i (inc (find "\q" line))) (find "\q" line i)) file))))
+					(slice line (defq i (inc (find "\q" line))) (find "\q" line i)) file)))
+			:nil)
 			stream 0 (ifn end +max_long))) files)
 
 (defun files-all-depends (files &optional imps end)
@@ -69,7 +70,8 @@
 					(defq input (if split_class (split linet split_class) linet))
 					;call user handler
 					;merge any new dependencies returned by handler into files list
-					(merge files (ifn (callback handler callback_e input file line (!)) '()))))
+					(merge files (ifn (callback handler callback_e input file line (!)) '())))
+				:nil)
 				stream))) files))
 
 ;module

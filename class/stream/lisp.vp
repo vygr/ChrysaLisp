@@ -873,7 +873,7 @@
 		(long start end)
 		(uint old_idx))
 
-	(vp-rdef (this args func stream idx old_idx start end value vt1 vt2))
+	(vp-rdef (this args func stream idx old_idx start end value vt1))
 
 	(push-scope)
 	(entry :stream :lisp_each `(,this ,args))
@@ -918,9 +918,9 @@
 			(call :lisp :repl_apply {this, call_args, func} {_, value})
 			(call :obj :deref {call_args})
 
-		(errorcase
-			(assign {value->+obj_vtable, this->+lisp_error} `(,vt1 ,vt2))
-			(gotoif `(,vt1 = ,vt2) 'error))
+			(assign {this, value} `(,this ,value))
+			(assign `((,this +lisp_sym_nil)) `(,vt1))
+			(gotoif `(,vt1 /= ,value) 'exit)
 
 			(call :obj :deref {value})
 		(endif)
@@ -931,7 +931,7 @@
 	(loop-end)
 	(call :obj :ref {this->+lisp_sym_nil} {value})
 
-(vp-label 'error)
+(vp-label 'exit)
 	(assign {this, value} `(,this ,args))
 	(assign {old_idx} `(,old_idx))
 	(assign `(,old_idx) `((,this +lisp_seq_idx)))

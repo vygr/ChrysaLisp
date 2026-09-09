@@ -55,7 +55,8 @@
 					(defun
 						(push function_list (list name (setq state :function info (list)))))
 					(defmacro
-						(push macro_list (list name (setq state :macro info (list)))))))))
+						(push macro_list (list name (setq state :macro info (list))))))))
+		:nil)
 		(file-stream file)))
 
 ;merge child work
@@ -74,7 +75,7 @@
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
-			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		(if (<= (length jobs) opt_j)
 			;do the work when batch size ok !
 			(each (const work) jobs)

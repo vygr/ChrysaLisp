@@ -8,5 +8,5 @@
 (defq out (memory-stream))
 (pipe-run "make all boot | time -s" (# (write-blk out %0)))
 (stream-seek out 0 0)
-(lines! (# (print %0) (stream-flush (io-stream 'stdout)) (task-sleep 10)) out)
+(lines! (# (print %0) (stream-flush (io-stream 'stdout)) (task-sleep 10) :nil) out)
 ((ffi "service/gui/lisp_deinit"))

@@ -173,7 +173,8 @@
 						((call jump)
 							(and (eql (third line_split) ":repl_error")
 								(setq line (chop line))
-								(push ffi_list (list (last functions) (list line))))))))
+								(push ffi_list (list (last functions) (list line)))))))
+				:nil)
 			(file-stream file))) *imports*)))
 
 	;create VP classes docs

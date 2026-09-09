@@ -83,7 +83,8 @@
 	(each (lambda (word)
 			(if (>= (length word) +min_word_size)
 				(. dictionary :insert_word word)))
-		(split line +char_class_not_whole_word)))
+		(split line +char_class_not_whole_word))
+	:nil)
 
 (defun populate-buffer (file cx cy ax ay sx sy)
 	;create new file buffer ?

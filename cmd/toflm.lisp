@@ -28,7 +28,7 @@
 			(defq opt_f 32 opt_n "film" args (options stdio usage)))
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
-			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		(unless (ends-with ".flm" opt_n)
 			(setq opt_n (cat opt_n ".flm")))
 		(when (nempty? jobs)

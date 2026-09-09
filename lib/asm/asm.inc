@@ -133,7 +133,8 @@
 				("def-func"
 					(if (eql (second s) "path-to-absolute")
 						(push p (sym (path-to-absolute (third s) file)))
-						(push p (sym (second s))))))))
+						(push p (sym (second s)))))))
+		:nil)
 		(if (= (age %0) 0)
 			(throw "No such file !" %0)
 			(file-stream (defq file %0))))

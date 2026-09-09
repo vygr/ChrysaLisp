@@ -29,7 +29,8 @@
 		(print (cond
 			((empty? (defq match (. engine :search sline find_meta))) line)
 			(:t (unless global (setq match (slice match 0 1)))
-				(replace-matches line match rep_meta)))))
+				(replace-matches line match rep_meta))))
+		:nil)
 		stream))
 
 (defun main ()

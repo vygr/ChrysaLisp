@@ -369,7 +369,7 @@ Iterative sequence processors utilizing small, non-recursive stack allocations.
 
 *	**`lines!`**: Line-by-line iterator over an input stream.
 
-	*	`(lines! lambda stream [start end]) -> :nil`
+	*	`(lines! lambda stream [start end]) -> :nil | val`
 
 *	**`!`**: Anaphoric variable representing the current iteration index in
 	`...!` forms.

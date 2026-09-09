@@ -113,7 +113,7 @@
 			(defq opt_j 1 opt_c :nil opt_s :nil opt_q :nil args (options stdio usage)))
 		; file list (args or stdin)
 		(if (empty? (defq jobs (rest args)))
-			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		; prepare the script stream, opt_s can use prior opt_c option
 		; maybe as config details etc !
 		(defq script_stream (memory-stream))

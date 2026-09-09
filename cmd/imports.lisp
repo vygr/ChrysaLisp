@@ -43,7 +43,8 @@
 					(print "- " line)
 					(print "+ " new_line)
 					(setq line new_line))))
-		(if opt_w (write-line out_stream line)))
+		(if opt_w (write-line out_stream line))
+		:nil)
 		(file-stream file))
 	;overwrite the file if we actually performed any optimizations
 	(when (and changed opt_w)
@@ -60,7 +61,7 @@
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
-			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		;filter to only the requested script extensions
 		(setq jobs (filter (lambda (f) (some (# (ends-with %0 f)) '(".vp" ".inc" ".lisp"))) jobs))
 		(if (<= (length jobs) opt_j)

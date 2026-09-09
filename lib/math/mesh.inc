@@ -259,7 +259,8 @@
 						(each (lambda (i2)
 							(setq i2 (dec (if (< i2 0) (+ num_v i2 1) i2)))
 							(push tris i0 i1 i2 0)
-							(setq i1 i2)) (slice f 2 -1))))))) stream)
+							(setq i1 i2)) (slice f 2 -1))))))
+		:nil) stream)
 	(bind '((cx cy cz) scale) (vector-bounds-sphere verts +vec4_size))
 	(defq scale (if (> scale +real_0) (recip scale) +real_1)
 		matrix (reals

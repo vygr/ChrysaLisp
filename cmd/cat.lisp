@@ -23,7 +23,8 @@
 			(print banner))
 		(while (defq c (read-blk stream 1024))
 			(write-blk (io-stream 'stdout) c))
-		(stream-flush (io-stream 'stdout))))
+		(stream-flush (io-stream 'stdout))
+		:nil))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

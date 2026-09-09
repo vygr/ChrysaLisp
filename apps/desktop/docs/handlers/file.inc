@@ -11,10 +11,8 @@
 			;skip to start and write directly to a memory-stream
 			(defq stream (file-stream file))
 			(setq *mem_stream* (memory-stream))
-			(while (and start_exp (defq line (read-line stream)))
-				(when (found? line start_exp)
-					(write-line *mem_stream* (trim line "\r"))
-					(setq start_exp :nil)))
+			(when (and start_exp (defq line (lines! (# (if (found? %0 start_exp) (trim %0 "\r"))) stream)))
+				(write-line *mem_stream* line))
 			;skip to end
 			(cond
 				((eql end_exp "")

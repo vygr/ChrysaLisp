@@ -27,4 +27,5 @@
 			(defq elms (split %0 (char-class opt_s)))
 			(if (and opt_e (> (length elms) opt_e))
 				(setq elms (list (elem-get elms opt_e))))
-			(each (const print) elms)) (io-stream 'stdin))))
+			(each (const print) elms)
+			:nil) (io-stream 'stdin))))

@@ -39,7 +39,7 @@
 			(defq opt_f 32 opt_r :nil opt_l :nil args (options stdio usage)))
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
-			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		(if (<= (length jobs) 1)
 			;have to do the work when just 1 file !
 			(if (nempty? jobs) (work (pop jobs)))

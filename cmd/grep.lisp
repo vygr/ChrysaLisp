@@ -81,7 +81,8 @@
 						(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
 							(print (if opt_n (str (inc (!)) ":") "") line))))
 				(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
-					(print (if opt_n (str (inc (!)) ":") "") line))))
+					(print (if opt_n (str (inc (!)) ":") "") line)))
+			:nil)
 			stream)))
 
 ;grep a file to stdout
@@ -118,7 +119,7 @@
 					;from args ?
 					(if (empty? (defq jobs (rest args)))
 						;no, so from stdin
-						(lines! (# (push jobs %0)) (io-stream 'stdin)))
+						(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 					(if (<= (length jobs) opt_j)
 						;do the work when batch size ok !
 						(each (const grep-file) jobs)

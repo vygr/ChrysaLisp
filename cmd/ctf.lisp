@@ -1219,7 +1219,7 @@
 			(defq stdio (create-stdio))
 			(defq opt_c :nil opt_v 0 opt_r (list) opt_j 1 args (options stdio usage)))
 		(if (empty? (defq jobs (rest args)))
-			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		(if (<= (length jobs) opt_j)
 			(each (const work) jobs)
 			(progn

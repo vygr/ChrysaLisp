@@ -313,7 +313,7 @@
 		; (. md :populate_stream stream) -> md
 		(defq text_lines (list))
 		(lower :text_lines)
-		(lines! (# (push text_lines (trim-end %0 "\r"))) stream)
+		(lines! (# (push text_lines (trim-end %0 "\r")) :nil) stream)
 		(. this :render))
 	)
 

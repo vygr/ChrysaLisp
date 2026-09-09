@@ -21,6 +21,7 @@
 			(defq opt_c 10 args (options stdio usage)))
 		(defq lines (list))
 		(lines! (# (push lines %0)
-			(if (> (length lines) opt_c) (setq lines (slice lines (- -1 opt_c) -1))))
+			(if (> (length lines) opt_c) (setq lines (slice lines (- -1 opt_c) -1)))
+			:nil)
 				(if (<= (length args) 1) (io-stream 'stdin) (file-stream (second args))))
 		(each (const print) lines)))

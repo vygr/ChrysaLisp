@@ -375,7 +375,7 @@
 (ffi "class/stdio/lisp_create" create-stdio)
 ; (create-stdio) -> stdio
 (ffi "class/stream/lisp_each" lines!)
-; (lines! lambda stream [start end]) -> :nil
+; (lines! lambda stream [start end]) -> :nil | val
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data Structure Constructors

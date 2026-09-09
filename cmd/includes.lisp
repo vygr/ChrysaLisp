@@ -116,12 +116,13 @@
 			(lines! (lambda (line)
 					(defq input (split line +split_class))
 					(unless (starts-with "include" (first input))
-						(write-line no_includes line)))
+						(write-line no_includes line))
+					:nil)
 				(file-stream file))
 			(defq stream (file-stream file +file_open_write))
 			(each (# (write-line stream (cat "(include \q" %0 "\q)"))) requires)
 			(stream-seek no_includes 0 0)
-			(lines! (# (write-line stream %0)) no_includes))))
+			(lines! (# (write-line stream %0) :nil) no_includes))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
@@ -139,7 +140,8 @@
 				(each (lambda (file)
 						(lines! (# (defq input (split %0 +split_class))
 								(when (eql (first input) "def-class")
-									(. defs_map :insert (second input) file)))
+									(. defs_map :insert (second input) file))
+								:nil)
 							(file-stream file)))
 					(files-all "." '("class.inc") 2))
 				(setq opt_d (list))
@@ -148,7 +150,7 @@
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
-			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		;only .vp files
 		(setq jobs (filter (# (ends-with ".vp" %0)) jobs))
 		(if (<= (length jobs) opt_j)

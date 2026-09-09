@@ -1045,7 +1045,8 @@
 							line)
 						+char_class_lf)
 					max_width (max max_width (length line)))
-				(push-line line))
+				(push-line line)
+				:nil)
 			stream)
 		(last-line)
 		(lower :buffer_lines :buffer_syntax :buffer_states

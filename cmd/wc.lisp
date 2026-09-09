@@ -36,7 +36,8 @@
 			(if (empty? words_on_line)
 				(setq in_paragraph_flag :nil)
 				(if (not in_paragraph_flag)
-					(setq paragraph_count (inc paragraph_count) in_paragraph_flag :t))))
+					(setq paragraph_count (inc paragraph_count) in_paragraph_flag :t)))
+			:nil)
 			stream)
 		;construct output string
 		(defq output_parts (list file))
@@ -57,7 +58,7 @@
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
-			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		(if (<= (length jobs) 1)
 			;have to do the work when just 1 file !
 			(if (nempty? jobs) (work (pop jobs)))

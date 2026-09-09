@@ -445,7 +445,7 @@
 			(defq stdio (create-stdio))
 			(defq opt_v 0 opt_l :nil opt_w :nil opt_i :nil args (options stdio usage)))
 		(if (empty? (defq functions (rest args)))
-			(lines! (# (push functions %0)) (io-stream 'stdin)))
+			(lines! (# (push functions %0) :nil) (io-stream 'stdin)))
 		(when (nempty? functions)
 			(if opt_w (setq opt_l :t))
 			(defq functions (map (# (if (starts-with +obj_dir %0)

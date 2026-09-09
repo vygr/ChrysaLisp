@@ -21,7 +21,8 @@
 		(when (starts-with "emit-" type)
 			(if (defq i (some (# (if (eql (first %0) type) (!))) inst_list))
 				(elem-set (setq i (elem-get inst_list i)) 1 (inc (second i)))
-				(push inst_list (list type 1)))))
+				(push inst_list (list type 1))))
+		:nil)
 		(file-stream file)))
 
 (defun main ()
@@ -33,7 +34,7 @@
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
-			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		;gather instruction stats
 		(each (const work) (usort jobs))
 		;display results

@@ -33,8 +33,8 @@
 	; (stream-diff a b c)
 	;difference between streams a and b, write to stream c
 	;outputs in standard "Normal diff" format
-	(defq al (list) la (lines! (# (push al %0)) a) la (length al)
-		bl (list) lb (lines! (# (push bl %0)) b) lb (length bl))
+	(defq al (list) la (lines! (# (push al %0) :nil) a) la (length al)
+		bl (list) lb (lines! (# (push bl %0) :nil) b) lb (length bl))
 	(cond
 		((and (= la 0) (= lb 0)))
 		((= la 0) (each (#

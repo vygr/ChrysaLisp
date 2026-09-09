@@ -34,5 +34,5 @@
 					(partition (pfind resp :headers) 2))
 				(defq body (pfind resp :body))
 				(print "\nBody (" (stream-avail body) " bytes):")
-				(lines! (const print) body))
+				(lines! (# (print %0) :nil) body))
 			(print "HTTP request failed!"))))
