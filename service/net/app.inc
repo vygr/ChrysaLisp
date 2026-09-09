@@ -115,8 +115,9 @@
 	(unless svc
 		;start net service on node 0
 		(open-remote "service/net/app.lisp" (first (lisp-nodes)) +kn_call_open)
-		(task-sleep 50000)
-		(setq svc (net-service)))
+		(defq retries 50)
+		(while (and (not (setq svc (net-service))) (> (-- retries) 0))
+			(task-sleep 10000)))
 	(if svc
 		(progn
 			(defq reply_mbox (mail-mbox)
