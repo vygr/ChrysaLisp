@@ -22,7 +22,12 @@
 	(dec-method :lisp_send service/net/lisp_send :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_recv service/net/lisp_recv :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_close service/net/lisp_close :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_poll service/net/lisp_poll :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_poll service/net/lisp_poll :static (:r0 :r1) (:r0 :r1))
+	(dec-method :link service/net/link)
+	(dec-method :in service/net/in)
+	(dec-method :out service/net/out)
+	(dec-method :send_all service/net/send_all :static (:r0 :r1 :r2) (:r0))
+	(dec-method :recv_all service/net/recv_all :static (:r0 :r1 :r2 :r3) (:r0)))
 
 (defun host-net-call (%0 %1 &optional %2 %3 %4 %5)
 	;%0 = class name (:host_net)
@@ -35,3 +40,25 @@
 	(fn-bind 'sys/statics/statics %4)
 	(vp-cpy-ir %4 statics_sys_load_host_net_funcs %4)
 	(abi-call-table %0 %1 %4 %2 %3 %5))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; network link wire format
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(enums +net_wire_type 0
+	(enum none ping frag))
+
+(structure +net_wire_hdr 0
+	(uint length type))
+
+(structure +net_ping_pkt 0
+	(uint wire_length wire_type)
+	(nodeid peer_node_id)
+	(uint task_count)
+	(align))
+
+(structure +net_frag_pkt 0
+	(uint wire_length wire_type)
+	(netid dest src)
+	(uint length offset total)
+	(align))
