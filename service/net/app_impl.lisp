@@ -132,7 +132,7 @@
 										(. sessions :insert client_handle offer)
 										(mail-send (get :accept_mbox session) (setf-> (str-alloc +net_msg_offer_size)
 											(+net_msg_offer_type +net_type_offer)
-											(+net_msg_offer_handle client_handle)))
+											(+net_msg_offer_conn_handle client_handle)))
 										(setq active :t))))
 							(:offer
 								(when (> (- now (get :timestamp session)) 5000000)
