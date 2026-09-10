@@ -1,9 +1,8 @@
 (include "lib/asm/func.inc")
-(include "class/nodeid/class.inc")
-(include "class/array/class.inc")
 (include "sys/link/class.inc")
 (include "sys/kernel/class.inc")
-(include "sys/mail/class.inc")
+(include "class/nodeid/class.inc")
+(include "class/array/class.inc")
 (include "./class.inc")
 
 (def-method :host_net :send_all)
