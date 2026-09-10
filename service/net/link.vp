@@ -48,21 +48,28 @@
 	;:r3 = lk_node ptr
 	;outputs
 	;:r0 = 0 if ok, -1 if error
+	;trashes
+	;:r0-:r14, :f0-:f15
+
+	(structure cb_recv 0
+		(ptr buf)
+		(long handle remaining recvd))
 
 	(def-vars
-		(ptr buf lk_node)
-		(long handle remaining recvd sleep_time))
+		(struct cb cb_recv_size)
+		(ptr lk_node)
+		(long sleep_time))
 
 	(push-scope)
-	(entry :host_net :recv_all {handle, buf, remaining, lk_node})
+	(entry :host_net :recv_all {cb.cb_recv_handle, cb.cb_recv_buf, cb.cb_recv_remaining, lk_node})
 
 	(assign {100} {sleep_time})
-	(loop-while {remaining > 0})
-		(host-net-call :host_net :recv {handle, buf, remaining} {recvd})
-		(vpif {recvd < 0})
+	(loop-while {cb.cb_recv_remaining > 0})
+		(call :sys_task :callback {&cb, $recv_callback})
+		(vpif {cb.cb_recv_recvd < 0})
 			(exit :host_net :recv_all {-1})
 			(return)
-		(elseif {recvd = 0})
+		(elseif {cb.cb_recv_recvd = 0})
 			;check if link was closed while sleeping
 			(vpif {lk_node->lk_node_task_count = -1})
 				(exit :host_net :recv_all {-1})
@@ -77,13 +84,24 @@
 		(else)
 			;got data, reset sleep time
 			(assign {100} {sleep_time})
-			(assign {buf + recvd, remaining - recvd} {buf, remaining})
+			(assign {cb.cb_recv_buf + cb.cb_recv_recvd, cb.cb_recv_remaining - cb.cb_recv_recvd}
+				{cb.cb_recv_buf, cb.cb_recv_remaining})
 		(endif)
 	(loop-end)
 
 	(exit :host_net :recv_all {0})
 	(pop-scope)
 	(return)
+
+(vp-label 'recv_callback)
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(vp-cpy-rr :r0 :r3)
+	(host-net-call :host_net :recv
+		'((:r3 cb_recv_handle) (:r3 cb_recv_buf) (:r3 cb_recv_remaining)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 cb_recv_recvd)))
+	(vp-ret)
 
 (def-func-end)
 
@@ -92,8 +110,13 @@
 	;trashes
 	;:r0-:r14, :f0-:f15
 
+	(structure cb_link 0
+		(pubyte host)
+		(long port handle))
+
 	(def-vars
 		(struct lk_node lk_node_size)
+		(struct cb cb_link_size)
 		(ptr statics params msg data iter_begin iter_end)
 		(pubyte pdata p)
 		(long listen_handle conn_handle ch retries is_server port))
@@ -152,12 +175,16 @@
 
 	(vpif {is_server})
 		;listen on port
-		(host-net-call :host_net :listen {port} {listen_handle})
+		(assign {port} {cb.cb_link_port})
+		(call :sys_task :callback {&cb, $listen_callback})
+		(assign {cb.cb_link_handle} {listen_handle})
 		(gotoif {listen_handle <= 0} 'link_exit)
 
 		;accept incoming connection
 		(loop-start)
-			(host-net-call :host_net :accept {listen_handle} {conn_handle})
+			(assign {listen_handle} {cb.cb_link_handle})
+			(call :sys_task :callback {&cb, $accept_callback})
+			(assign {cb.cb_link_handle} {conn_handle})
 			(breakif {conn_handle > 0})
 			(call :sys_task :sleep '(10000)) ; 10ms
 			(breakif {lk_node.lk_node_task_count = -1})
@@ -168,7 +195,9 @@
 		(gotoif {conn_handle <= 0} 'link_exit)
 	(else)
 		;connect to host:port
-		(host-net-call :host_net :connect {pdata, port} {conn_handle})
+		(assign {pdata, port} {cb.cb_link_host, cb.cb_link_port})
+		(call :sys_task :callback {&cb, $connect_callback})
+		(assign {cb.cb_link_handle} {conn_handle})
 		(gotoif {conn_handle <= 0} 'link_exit)
 
 		;wait for connect to complete
@@ -238,6 +267,33 @@
 	(call :sys_task :count '(3))
 	(pop-scope)
 	(return)
+
+(vp-label 'listen_callback)
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(vp-cpy-rr :r0 :r3)
+	(host-net-call :host_net :listen '((:r3 cb_link_port)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 cb_link_handle)))
+	(vp-ret)
+
+(vp-label 'accept_callback)
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(vp-cpy-rr :r0 :r3)
+	(host-net-call :host_net :accept '((:r3 cb_link_handle)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 cb_link_handle)))
+	(vp-ret)
+
+(vp-label 'connect_callback)
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(vp-cpy-rr :r0 :r3)
+	(host-net-call :host_net :connect '((:r3 cb_link_host) (:r3 cb_link_port)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 cb_link_handle)))
+	(vp-ret)
 
 (def-func-end)
 
