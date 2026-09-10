@@ -25,11 +25,8 @@
 	(gotoif '(:r2 <= 0) 'send_done)
 	(assign '(:r0 :r1 :r2) {handle, buf, remaining})
 
-	(vp-rdef (handle buf remaining) (method-input :host_net :send))
-
 (vp-label 'send_loop)
-	(assign {handle, buf, remaining} `(,handle ,buf ,remaining))
-	(host-net-call :host_net :send `(,handle ,buf ,remaining) '(:r0))
+	(host-net-call :host_net :send {handle, buf, remaining} '(:r0))
 	(vpif '(:r0 < 0))
 		(assign '(-1) '(:r0))
 		(goto 'send_exit)
@@ -100,8 +97,7 @@
 		(gotoif '(:r2 = -1) 'recv_error)
 
 		;no data waiting, sleep with exponential backoff up to 2ms
-		(assign {sleep_time} '(:r0))
-		(call :sys_task :sleep '(:r0))
+		(call :sys_task :sleep {sleep_time})
 		(assign {sleep_time} '(:r0))
 		(vp-shl-cr 1 :r0)
 		(vp-min-cr 2000 :r0)
@@ -114,10 +110,11 @@
 	(assign '(:r1) {sleep_time})
 
 	;update buf and remaining with bytes received (:r0 = recvd)
-	(assign {cb.cb_recv_buf, cb.cb_recv_remaining} '(:r1 :r2))
+	(assign {&cb} '(:r3))
+	(assign '((:r3 cb_recv_buf) (:r3 cb_recv_remaining)) '(:r1 :r2))
 	(vp-add-rr :r0 :r1)
 	(vp-sub-rr :r0 :r2)
-	(assign '(:r1 :r2) {cb.cb_recv_buf, cb.cb_recv_remaining})
+	(assign '(:r1 :r2) '((:r3 cb_recv_buf) (:r3 cb_recv_remaining)))
 	(goto 'recv_loop)
 
 (vp-label 'recv_done)
@@ -135,9 +132,8 @@
 (vp-label 'recv_callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(vp-cpy-rr :r0 :r3)
 	(host-net-call :host_net :recv
-		'((:r3 cb_recv_handle) (:r3 cb_recv_buf) (:r3 cb_recv_remaining)) '(:r0))
+		'((:r0 cb_recv_handle) (:r0 cb_recv_buf) (:r0 cb_recv_remaining)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 cb_recv_recvd)))
 	(vp-ret)
@@ -163,8 +159,7 @@
 	(push-scope)
 
 	;read params msg from kernel
-	(call :sys_mail :mymail :nil '(:r0 :r1))
-	(assign '(:r0 :r1) {params, pdata})
+	(call :sys_mail :mymail :nil {params, pdata})
 
 	;default port = 3333, is_server = 0
 	(vp-simd vp-cpy-cr '(3333 0) '(:r2 :r3))
@@ -240,8 +235,7 @@
 		(vpif '(:r0 > 0))
 			;spawn connection worker task
 			(assign '(:r0) {conn_handle})
-			(call :sys_mail :alloc '(16) '(:r0 :r1))
-			(assign '(:r0 :r1) {msg, data})
+			(call :sys_mail :alloc '(16) {msg, data})
 			(call :sys_task :start (cat {@} (f-path :host_net :conn)) '(_ _ :r2 :r3 :r4))
 			(assign {msg, data, conn_handle} '(:r0 :r1 :r5))
 			(save-net-id :r0 +msg_dest)
@@ -292,8 +286,7 @@
 
 	(vp-label 'poll_connected)
 		;spawn connection worker task
-		(call :sys_mail :alloc '(16) '(:r0 :r1))
-		(assign '(:r0 :r1) {msg, data})
+		(call :sys_mail :alloc '(16) {msg, data})
 		(call :sys_task :start (cat {@} (f-path :host_net :conn)) '(_ _ :r2 :r3 :r4))
 		(assign {msg, data, conn_handle} '(:r0 :r1 :r5))
 		(save-net-id :r0 +msg_dest)
@@ -310,8 +303,7 @@
 (vp-label 'listen_callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(vp-cpy-rr :r0 :r3)
-	(host-net-call :host_net :listen '((:r3 cb_link_port)) '(:r0))
+	(host-net-call :host_net :listen '((:r0 cb_link_port)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 cb_link_handle)))
 	(vp-ret)
@@ -319,8 +311,7 @@
 (vp-label 'accept_callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(vp-cpy-rr :r0 :r3)
-	(host-net-call :host_net :accept '((:r3 cb_link_handle)) '(:r0))
+	(host-net-call :host_net :accept '((:r0 cb_link_handle)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 cb_link_handle)))
 	(vp-ret)
@@ -328,8 +319,7 @@
 (vp-label 'connect_callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(vp-cpy-rr :r0 :r3)
-	(host-net-call :host_net :connect '((:r3 cb_link_host) (:r3 cb_link_port)) '(:r0))
+	(host-net-call :host_net :connect '((:r0 cb_link_host) (:r0 cb_link_port)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 cb_link_handle)))
 	(vp-ret)
@@ -348,6 +338,7 @@
 
 	(vp-rdef (tmp))
 	(vp-rdef (_ iter_begin iter_end) (method-output :array :get_both))
+	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
 
 	(push-scope)
 
@@ -368,16 +359,15 @@
 	(call :array :push_back '(:r0 :r1))
 
 	;read params msg
-	(call :sys_mail :mymail :nil '(:r0 :r1))
-	(assign '((:r1 0)) '(:r2))
+	(call :sys_mail :mymail :nil `(,params_msg ,params_data))
+	(assign `((,params_data 0)) '(:r2))
 	(assign '(:r2) {conn_handle})
-	(call :sys_mail :free '(:r0))
+	(call :sys_mail :free `(,params_msg))
 
 	(gotoif '(:r2 <= 0) 'conn_exit)
 
 	;start out link and send params
-	(call :sys_mail :alloc '(16) '(:r0 :r1))
-	(assign '(:r0 :r1) {msg, data})
+	(call :sys_mail :alloc '(16) {msg, data})
 	(call :sys_task :start (cat {@} (f-path :host_net :out)) '(_ _ :r2 :r3 :r4))
 	(assign {msg, data, &lk_node, conn_handle} '(:r0 :r1 :r5 :r6))
 	(save-net-id :r0 +msg_dest)
@@ -385,8 +375,7 @@
 	(call :sys_mail :send '(:r0))
 
 	;start in link and send params
-	(call :sys_mail :alloc '(16) '(:r0 :r1))
-	(assign '(:r0 :r1) {msg, data})
+	(call :sys_mail :alloc '(16) {msg, data})
 	(call :sys_task :start (cat {@} (f-path :host_net :in)) '(_ _ :r2 :r3 :r4))
 	(assign {msg, data, &lk_node, conn_handle} '(:r0 :r1 :r5 :r6))
 	(save-net-id :r0 +msg_dest)
@@ -445,16 +434,17 @@
 	(vp-rdef (send_status) (method-output :host_net :send_all))
 	(vp-rdef (peer1 peer2 ready_key) (method-input :sys_mail :ready))
 	(vp-rdef (ready_msg) (method-output :sys_mail :ready))
+	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
 
 	(push-scope)
 
 	(call :nodeid :create '(0) {key})
 
 	;read params msg
-	(call :sys_mail :mymail :nil '(:r0 :r1))
-	(assign '((:r1 0) (:r1 +ptr_size)) '(:r2 :r3))
+	(call :sys_mail :mymail :nil `(,params_msg ,params_data))
+	(assign `((,params_data 0) (,params_data +ptr_size)) '(:r2 :r3))
 	(assign '(:r2 :r3) {lk_node, conn_handle})
-	(call :sys_mail :free '(:r0))
+	(call :sys_mail :free `(,params_msg))
 
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_out_link_priority))
@@ -588,14 +578,15 @@
 
 	(vp-rdef (recv_handle recv_buf recv_rem recv_node) (method-input :host_net :recv_all))
 	(vp-rdef (recv_status) (method-output :host_net :recv_all))
+	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
 
 	(push-scope)
 
 	;read params msg
-	(call :sys_mail :mymail :nil '(:r0 :r1))
-	(assign '((:r1 0) (:r1 +ptr_size)) '(:r2 :r3))
+	(call :sys_mail :mymail :nil `(,params_msg ,params_data))
+	(assign `((,params_data 0) (,params_data +ptr_size)) '(:r2 :r3))
 	(assign '(:r2 :r3) {lk_node, conn_handle})
-	(call :sys_mail :free '(:r0))
+	(call :sys_mail :free `(,params_msg))
 
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_in_link_priority))
