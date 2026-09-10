@@ -452,6 +452,26 @@ link server.local
 
 Both machines will immediately discover each other's nodes and merge into a single extended network. Running `nodes` in either terminal will show all nodes across both systems.
 
+### Best Practices & Tips
+
+* **Connections are fully bidirectional**:
+
+    Once Machine A connects to Machine B (`link B`), Machine B already has full bidirectional communication with Machine A.
+
+    You only need one connection between any pair of machines. While connecting in both directions (`A -> B` and `B -> A`) works, it creates redundant parallel sockets. The cleanest setup is for one machine to initiate the connection.
+
+* **Same port across different physical machines**:
+
+    Because each physical machine has its own IP address, every machine on your LAN can listen on the standard default port: `link -l 3333`.
+
+    Any machine can then reach any other peer with `link 192.168.1.xxx` or `link hostname.local`. (If running multiple instances on the same physical machine with `-b`, distinct ports must be used).
+
+* **Firewall & Code Signing**:
+
+    Any machine acting as a server must allow incoming TCP traffic on port 3333.
+
+    On Intel macOS, always ensure host binaries are ad-hoc signed (`codesign -f -s - obj/.../main_tui`) so macOS firewall rules apply cleanly without silent blocking.
+
 ## What's Next?
 
 You now have a running ChrysaLisp environment! Here are some suggestions for 
