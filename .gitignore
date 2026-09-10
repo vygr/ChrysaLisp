@@ -22,4 +22,5 @@ main.vcxproj.user
 *.img
 *.dmg
 *.json
+*.log
 typos.toml
