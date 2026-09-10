@@ -155,65 +155,70 @@
 		(long listen_handle conn_handle port is_server retries))
 
 	(vp-rdef (cb func tmp) (method-input :sys_task :callback))
+	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
+	(vp-rdef (parse_port parse_server parse_ch) '(:r2 :r3 :r4))
+	(vp-rdef (parse_scan) '(:r0))
+	(vp-rdef (poll_res) (method-output :host_net :poll))
 
 	(push-scope)
 
 	;read params msg from kernel
-	(call :sys_mail :mymail :nil {params, pdata})
+	(call :sys_mail :mymail :nil `(,params_msg ,params_data))
+	(assign `(,params_msg ,params_data) {params, pdata})
 
 	;default port = 3333, is_server = 0
-	(vp-simd vp-cpy-cr '(3333 0) '(:r2 :r3))
+	(vp-simd vp-cpy-cr '(3333 0) `(,parse_port ,parse_server))
 
 	;check first char
-	(vp-cpy-ir-ub :r1 0 :r4)
-	(vpif '(:r4 = 58)) ; ':' -> listen mode
-		(vp-cpy-cr 1 :r3) ; is_server = 1
-		(vp-add-cr 1 :r1) ; p++
-		(vp-cpy-ir-ub :r1 0 :r4)
-		(vpif '(:r4 >= 48) '(:r4 <= 57))
-			(vp-cpy-cr 0 :r2) ; port = 0
+	(vp-cpy-ir-ub params_data 0 parse_ch)
+	(vpif `(,parse_ch = 58)) ; ':' -> listen mode
+		(vp-cpy-cr 1 parse_server) ; is_server = 1
+		(vp-add-cr 1 params_data) ; p++
+		(vp-cpy-ir-ub params_data 0 parse_ch)
+		(vpif `(,parse_ch >= 48) `(,parse_ch <= 57))
+			(vp-cpy-cr 0 parse_port) ; port = 0
 		(vp-label 'parse_server_port)
-			(vp-sub-cr 48 :r4)
-			(vp-mul-cr 10 :r2)
-			(vp-add-rr :r4 :r2)
-			(vp-add-cr 1 :r1)
-			(vp-cpy-ir-ub :r1 0 :r4)
-			(gotoif '(:r4 < 48) 'parse_done)
-			(gotoif '(:r4 <= 57) 'parse_server_port)
+			(vp-sub-cr 48 parse_ch)
+			(vp-mul-cr 10 parse_port)
+			(vp-add-rr parse_ch parse_port)
+			(vp-add-cr 1 params_data)
+			(vp-cpy-ir-ub params_data 0 parse_ch)
+			(gotoif `(,parse_ch < 48) 'parse_done)
+			(gotoif `(,parse_ch <= 57) 'parse_server_port)
 		(endif)
 		(goto 'parse_done)
 	(endif)
 
 	;connect mode: scan for ':'
-	(vp-cpy-rr :r1 :r0) ; scan pointer in :r0
+	(vp-cpy-rr params_data parse_scan) ; scan pointer
 (vp-label 'scan_loop)
-	(vp-cpy-ir-ub :r0 0 :r4)
-	(gotoif '(:r4 = 0) 'parse_done)
-	(vpif '(:r4 = 58)) ; ':'
-		(vp-cpy-cr 0 :r4)
-		(vp-cpy-ri-b :r4 :r0 0) ; null-terminate host string at ':'
-		(vp-add-cr 1 :r0)
-		(vp-cpy-ir-ub :r0 0 :r4)
-		(vpif '(:r4 >= 48) '(:r4 <= 57))
-			(vp-cpy-cr 0 :r2) ; port = 0
+	(vp-cpy-ir-ub parse_scan 0 parse_ch)
+	(gotoif `(,parse_ch = 0) 'parse_done)
+	(vpif `(,parse_ch = 58)) ; ':'
+		(vp-cpy-cr 0 parse_ch)
+		(vp-cpy-ri-b parse_ch parse_scan 0) ; null-terminate host string at ':'
+		(vp-add-cr 1 parse_scan)
+		(vp-cpy-ir-ub parse_scan 0 parse_ch)
+		(vpif `(,parse_ch >= 48) `(,parse_ch <= 57))
+			(vp-cpy-cr 0 parse_port) ; port = 0
 		(vp-label 'parse_client_port)
-			(vp-sub-cr 48 :r4)
-			(vp-mul-cr 10 :r2)
-			(vp-add-rr :r4 :r2)
-			(vp-add-cr 1 :r0)
-			(vp-cpy-ir-ub :r0 0 :r4)
-			(gotoif '(:r4 < 48) 'parse_done)
-			(gotoif '(:r4 <= 57) 'parse_client_port)
+			(vp-sub-cr 48 parse_ch)
+			(vp-mul-cr 10 parse_port)
+			(vp-add-rr parse_ch parse_port)
+			(vp-add-cr 1 parse_scan)
+			(vp-cpy-ir-ub parse_scan 0 parse_ch)
+			(gotoif `(,parse_ch < 48) 'parse_done)
+			(gotoif `(,parse_ch <= 57) 'parse_client_port)
 		(endif)
 		(goto 'parse_done)
 	(endif)
-	(vp-add-cr 1 :r0)
+	(vp-add-cr 1 parse_scan)
 	(goto 'scan_loop)
 
 (vp-label 'parse_done)
-	(assign '(:r2 :r3) {port, is_server})
+	(assign `(,parse_port ,parse_server) {port, is_server})
 
-	(vpif '(:r3 /= 0))
+	(vpif {is_server /= 0})
 		;server mode
 		;decrement task count for listener
 		(call :sys_task :count '(-1))
@@ -222,19 +227,18 @@
 		(assign {&cb, port} `(,cb ,func))
 		(assign `(,func) `((,cb cb_link_port)))
 		(call :sys_task :callback `(,cb ($ listen_callback)))
-		(assign {cb.cb_link_handle} '(:r0))
-		(assign '(:r0) {listen_handle})
-		(gotoif '(:r0 <= 0) 'link_server_exit)
+		(assign {cb.cb_link_handle} {listen_handle})
+		(gotoif {listen_handle <= 0} 'link_server_exit)
 
 		;persistent accept loop
 	(vp-label 'accept_loop)
 		(assign {&cb, listen_handle} `(,cb ,func))
 		(assign `(,func) `((,cb cb_link_handle)))
 		(call :sys_task :callback `(,cb ($ accept_callback)))
-		(assign {cb.cb_link_handle} '(:r0))
-		(vpif '(:r0 > 0))
+		(assign {cb.cb_link_handle} {conn_handle})
+		(vpif {conn_handle > 0})
 			;spawn connection worker task
-			(assign '(:r0) {conn_handle})
+			(assign {conn_handle} '(:r0))
 			(call :sys_mail :alloc '(16) {msg, data})
 			(call :sys_task :start (cat {@} (f-path :host_net :conn)) '(_ _ :r2 :r3 :r4))
 			(assign {msg, data, conn_handle} '(:r0 :r1 :r5))
@@ -255,22 +259,21 @@
 		(assign {&cb, pdata, port} `(,cb ,func ,tmp))
 		(assign `(,func ,tmp) `((,cb cb_link_host) (,cb cb_link_port)))
 		(call :sys_task :callback `(,cb ($ connect_callback)))
-		(assign {cb.cb_link_handle} '(:r0))
-		(assign '(:r0) {conn_handle})
-		(gotoif '(:r0 <= 0) 'link_exit)
+		(assign {cb.cb_link_handle} {conn_handle})
+		(gotoif {conn_handle <= 0} 'link_exit)
 
 		;wait for connect to complete
 		(assign '(0) {retries})
 	(vp-label 'poll_loop)
-		(host-net-call :host_net :poll {conn_handle} '(:r0))
+		(host-net-call :host_net :poll {conn_handle} `(,poll_res))
 		;bit 1 (POLLOUT) = connected
-		(vp-cpy-rr :r0 :r1)
-		(vp-and-cr 2 :r1)
-		(gotoif '(:r1 /= 0) 'poll_connected)
+		(vp-cpy-rr poll_res tmp)
+		(vp-and-cr 2 tmp)
+		(gotoif `(,tmp /= 0) 'poll_connected)
 		;bit 2 (POLLERR) = error
-		(vp-cpy-rr :r0 :r1)
-		(vp-and-cr 4 :r1)
-		(vpif '(:r1 /= 0))
+		(vp-cpy-rr poll_res tmp)
+		(vp-and-cr 4 tmp)
+		(vpif `(,tmp /= 0))
 			(host-net-call :host_net :close {conn_handle})
 			(goto 'link_exit)
 		(endif)
@@ -460,8 +463,7 @@
 	(assign '(:r0) '((:r4 +net_ping_pkt_task_count)))
 
 	;send initial ping
-	(assign {conn_handle, &ping_pkt} `(,send_handle ,send_buf))
-	(call :host_net :send_all `(,send_handle ,send_buf +net_ping_pkt_size) `(,send_status))
+	(call :host_net :send_all {conn_handle, &ping_pkt, +net_ping_pkt_size} `(,send_status))
 	(gotoif `(,send_status < 0) 'out_exit)
 	(call :host_os :pii_time :nil '(:r0))
 	(assign '(:r0) {then})
@@ -504,9 +506,7 @@
 		          (:r4 +net_frag_pkt_total)))
 
 		;send frag header (72 bytes)
-		(assign {conn_handle} `(,send_handle))
-		(vp-cpy-rr :r4 send_buf)
-		(call :host_net :send_all `(,send_handle ,send_buf +net_frag_pkt_size) `(,send_status))
+		(call :host_net :send_all {conn_handle, &frag_pkt, +net_frag_pkt_size} `(,send_status))
 		(vpif `(,send_status < 0))
 			(call :sys_mail :free {msg})
 			(goto 'out_exit)
@@ -543,8 +543,7 @@
 	(vp-sub-rr :r1 :r2)
 	(vpif '(:r2 >= 5000000))
 		(assign '(:r0) {then})
-		(assign {conn_handle, &ping_pkt} `(,send_handle ,send_buf))
-		(call :host_net :send_all `(,send_handle ,send_buf +net_ping_pkt_size) `(,send_status))
+		(call :host_net :send_all {conn_handle, &ping_pkt, +net_ping_pkt_size} `(,send_status))
 		(gotoif `(,send_status < 0) 'out_exit)
 	(endif)
 	(goto 'out_loop)
@@ -592,14 +591,12 @@
 	(call :sys_task :set_priority '(tk_in_link_priority))
 
 	;get local node id
-	(call :sys_kernel :id :nil '(:r0 :r1))
-	(assign '(:r0 :r1) {node_id.+node_id_node1, node_id.+node_id_node2})
+	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
 
 	;inbound packet loop
 (vp-label 'in_loop)
 	;read 8-byte wire header
-	(assign {conn_handle, &wire_hdr, lk_node} `(,recv_handle ,recv_buf ,recv_node))
-	(call :host_net :recv_all `(,recv_handle ,recv_buf +net_wire_hdr_size ,recv_node) `(,recv_status))
+	(call :host_net :recv_all {conn_handle, &wire_hdr, +net_wire_hdr_size, lk_node} `(,recv_status))
 	(gotoif `(,recv_status < 0) 'in_exit)
 
 	(assign {&wire_hdr} '(:r4))
@@ -611,8 +608,7 @@
 
 (vp-label 'in_ping)
 	;read 24-byte ping payload
-	(assign {conn_handle, &ping_payload, lk_node} `(,recv_handle ,recv_buf ,recv_node))
-	(call :host_net :recv_all `(,recv_handle ,recv_buf lk_node_size ,recv_node) `(,recv_status))
+	(call :host_net :recv_all {conn_handle, &ping_payload, lk_node_size, lk_node} `(,recv_status))
 	(gotoif `(,recv_status < 0) 'in_exit)
 
 	;update peer node id on lk_node
@@ -630,8 +626,7 @@
 
 (vp-label 'in_frag)
 	;read 64-byte frag payload header
-	(assign {conn_handle, &frag_payload, lk_node} `(,recv_handle ,recv_buf ,recv_node))
-	(call :host_net :recv_all `(,recv_handle ,recv_buf lk_frag_size ,recv_node) `(,recv_status))
+	(call :host_net :recv_all {conn_handle, &frag_payload, lk_frag_size, lk_node} `(,recv_status))
 	(gotoif `(,recv_status < 0) 'in_exit)
 
 	;check if parcel for local node
