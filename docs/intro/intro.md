@@ -415,52 +415,34 @@ Common topology scripts (found in the root ChrysaLisp directory):
 The first node (node 0 by default if `-b` is not used) will typically start the 
 GUI or TUI.
 
-## Extending with ChrysaLib (Optional)
+## Distributed Networking Across Physical Machines
 
-ChrysaLib is a C++17 library that implements the ChrysaLisp VP message protocol
-and allows for communication with ChrysaLisp VP nodes. This enables more
-advanced scenarios:
+ChrysaLisp has built-in, native TCP network linking (`service/net`) that enables you to link multiple physical machines (macOS, Linux, Windows, Raspberry Pi) into a single unified MIMD cluster over standard IP networks, Wi-Fi, or direct Ethernet/Thunderbolt connections:
 
-* **Bridging Lisp Subnets**: You can connect ChrysaLisp networks running on 
-  different machines using ChrysaLib's `hub_node` acting as a bridge. This can 
-  be over USB, Thunderbolt (treated as fast IP), or standard IP networks.
+* **Heterogeneous Clusters**: Connect machines running different CPU architectures (e.g. Apple Silicon ARM64 and Intel x86_64, or Linux RISC-V), pooling their compute cores.
+* **Persistent Compute Servers**: Run a machine in headless or background mode as a dedicated compute node; connect or disconnect client/development machines at will.
+* **Transparent Message Routing**: Once linked, ChrysaLisp tasks communicate transparently across all nodes using the same message-passing primitives (`mail-send`, `open-remote`, etc.).
 
-* **Heterogeneous Networks**: Create a larger, distributed ChrysaLisp network 
-  spanning multiple physical machines, potentially with different architectures 
-  if ChrysaLisp supports them.
+### How to Link Machines:
 
-* **C/C++ Services**: Develop services in C++ that can run as part of the 
-  ChrysaLisp VP network, interacting with Lisp tasks via message passing.
+1. **On Machine A (Server / Compute Node)**:
+   Start ChrysaLisp and listen on port 3333:
+   ```code
+   # In ChrysaLisp terminal / TUI:
+   link -l 3333
+   ```
+   The server listener remains running persistently, ready to accept multiple or reconnecting clients.
 
-To use ChrysaLib:
+2. **On Machine B (Client / Dev Machine)**:
+   Start ChrysaLisp and connect to Machine A:
+   ```code
+   # By IP address:
+   link 192.168.1.100
+   # Or by DNS / Bonjour hostname:
+   link server.local
+   ```
 
-1. Clone and build the ChrysaLib project from its GitHub repository (details will 
-   be in its own `README.md`).
-
-2. The `link` command within the ChrysaLisp Terminal application is used to 
-   establish connections to ChrysaLib hubs. For example, to connect two machines 
-   (Machine A and Machine B at IP 192.168.1.100):
-
-    On Machine A (acting as a local hub):
-
-```code
-../../ChrysaLib/hub_node -shm 192.168.1.100 &  # Or your path to hub_node
-./run.sh                                      # Or run_tui.sh
-# In ChrysaLisp terminal:
-link CLB-L1
-```
-
-    On Machine B (connecting to Machine A's hub):
-
-```code
-../../ChrysaLib/hub_node -shm &                # Or your path to hub_node
-./run.sh                                      # Or run_tui.sh
-# In ChrysaLisp terminal:
-link CLB-L1
-```
-
-    The `CLB-L1` is a symbolic name for the shared memory link. Both ChrysaLisp 
-    instances will then see each other's nodes and services.
+Both machines will immediately discover each other's nodes and merge into a single extended network. Running `nodes` in either terminal will show all nodes across both systems.
 
 ## What's Next?
 

@@ -40,7 +40,7 @@ Featured videos include:
 
 * **Virtual Processor (VP)**: A 64-bit RISC-like target ensuring portability across x64, ARM64, and RISC-V64, LA64, with a VP64 emulator for unsupported platforms or bootstrapping.
 
-* **Parallel & Distributed**: Designed for MIMD architectures, supporting various network topologies simulated via shared memory links or bridged across physical machines using ChrysaLib.
+* **Parallel & Distributed**: Designed for MIMD architectures, supporting various network topologies simulated via shared memory links or linked directly across physical machines over native TCP networks.
 
 * **Dynamic Binding & Loading**: Functions are loaded and linked on demand, promoting efficient memory use and shared code among tasks.
 
@@ -193,11 +193,25 @@ You can combine options, for example: `make all platforms boot`.
 
 ## Advanced Features & Networking
 
-ChrysaLisp's architecture supports sophisticated distributed computing paradigms. You can simulate various network topologies (ring, mesh, cube, star, tree) using the provided `run_*.sh` scripts.
+ChrysaLisp's architecture supports sophisticated distributed computing paradigms. You can simulate various network topologies (ring, mesh, cube, star, tree) on a single machine using the provided `run_*.sh` scripts.
 
-Furthermore, the [ChrysaLib project](https://github.com/vygr/ChrysaLib) allows you to bridge ChrysaLisp networks across multiple physical machines (macOS, Linux, Windows, Raspberry Pi) using IP or direct USB "copy" cables. This enables the creation of heterogeneous local or wide area ChrysaLisp networks and the development of C/C++ services that can interoperate with Lisp tasks on the VP network.
+Furthermore, ChrysaLisp features built-in, native TCP network linking (`service/net`) that allows you to link ChrysaLisp clusters directly across multiple physical machines (macOS, Linux, Windows, Raspberry Pi) over local LAN or wide area networks, without needing any external bridge daemons or shared memory hops.
 
-For detailed instructions on these advanced topics, please refer to the comprehensive `docs/intro.md` guide.
+To link machines together:
+1. On the server machine, start a persistent listener:
+```code
+link -l 3333
+```
+2. On any client machine, connect to the server by IP address or DNS/mDNS hostname:
+```code
+link 192.168.1.185
+# or using Bonjour / DNS:
+link server.local
+```
+
+Both instances automatically discover each other's nodes, merge their routing tables, and distribute tasks and applications seamlessly across the combined compute cluster.
+
+For detailed instructions on these advanced topics, please refer to the comprehensive `docs/intro/intro.md` guide.
 
 ## Clean and Snapshot
 

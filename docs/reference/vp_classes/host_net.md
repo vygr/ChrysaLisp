@@ -26,6 +26,14 @@
 
 ### :close -> :nil
 
+### :conn -> service/net/conn
+
+```code
+started for each network connection
+trashes
+:r0-:r14, :f0-:f15
+```
+
 ### :connect -> :nil
 
 ### :deinit -> :nil
@@ -70,6 +78,8 @@ inputs
 :r3 = lk_node ptr
 outputs
 :r0 = 0 if ok, -1 if error
+trashes
+:r0-:r14, :f0-:f15
 ```
 
 ### :send -> :nil
