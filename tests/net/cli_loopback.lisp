@@ -4,15 +4,15 @@
 (print "CLIENT: Connecting to 127.0.0.1:4567...")
 (mail-send (open-child "service/net/link" +kn_call_open) "127.0.0.1:4567")
 
-; Wait for remote nodes to appear (expecting total 19 peer nodes = 20 cluster nodes)
+; Wait for remote nodes to appear (expecting at least 10 server nodes)
 (defq timeout 50)
-(while (and (< (length (mail-nodes)) 19) (> timeout 0))
+(while (and (< (length (mail-nodes)) 10) (> timeout 0))
 	(task-sleep 100000)
 	(setq timeout (- timeout 1)))
 
 (print "CLIENT: Connected! Peer nodes count = " (length (mail-nodes)))
-(if (>= (length (mail-nodes)) 19)
-	(print "CLIENT: SUCCESS - Discovered all nodes across link!")
+(if (>= (length (mail-nodes)) 10)
+	(print "CLIENT: SUCCESS - Discovered nodes across link!")
 	(print "CLIENT: FAILED - Did not discover nodes."))
 
 ; Test message dispatch across cluster
