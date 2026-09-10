@@ -252,7 +252,6 @@
 		(host-net-call :host_net :close {listen_handle})
 	(vp-label 'link_server_exit)
 		(call :sys_task :count '(1))
-		(goto 'link_exit)
 	(else)
 		;client mode: connect to host:port
 		(assign {&cb, pdata, port} `(,cb ,func ,tmp))
@@ -262,7 +261,7 @@
 		(gotoif {conn_handle <= 0} 'link_exit)
 
 		;wait for connect to complete
-		(assign '(0) {retries})
+		(assign {0} {retries})
 	(vp-label 'poll_loop)
 		(host-net-call :host_net :poll {conn_handle} `(,poll_res))
 		;bit 1 (POLLOUT) = connected
