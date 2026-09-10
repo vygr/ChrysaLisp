@@ -420,27 +420,35 @@ GUI or TUI.
 ChrysaLisp has built-in, native TCP network linking (`service/net`) that enables you to link multiple physical machines (macOS, Linux, Windows, Raspberry Pi) into a single unified MIMD cluster over standard IP networks, Wi-Fi, or direct Ethernet/Thunderbolt connections:
 
 * **Heterogeneous Clusters**: Connect machines running different CPU architectures (e.g. Apple Silicon ARM64 and Intel x86_64, or Linux RISC-V), pooling their compute cores.
+
 * **Persistent Compute Servers**: Run a machine in headless or background mode as a dedicated compute node; connect or disconnect client/development machines at will.
+
 * **Transparent Message Routing**: Once linked, ChrysaLisp tasks communicate transparently across all nodes using the same message-passing primitives (`mail-send`, `open-remote`, etc.).
 
 ### How to Link Machines:
 
 1. **On Machine A (Server / Compute Node)**:
-   Start ChrysaLisp and listen on port 3333:
-   ```code
-   # In ChrysaLisp terminal / TUI:
-   link -l 3333
-   ```
-   The server listener remains running persistently, ready to accept multiple or reconnecting clients.
+
+    Start ChrysaLisp and listen on port 3333:
+
+```code
+# In ChrysaLisp terminal / TUI:
+link -l 3333
+```
+
+    The server listener remains running persistently, ready to accept multiple or reconnecting clients.
 
 2. **On Machine B (Client / Dev Machine)**:
-   Start ChrysaLisp and connect to Machine A:
-   ```code
-   # By IP address:
-   link 192.168.1.100
-   # Or by DNS / Bonjour hostname:
-   link server.local
-   ```
+
+    Start ChrysaLisp and connect to Machine A:
+
+```code
+# By IP address:
+link 192.168.1.100
+
+# Or by DNS / Bonjour hostname:
+link server.local
+```
 
 Both machines will immediately discover each other's nodes and merge into a single extended network. Running `nodes` in either terminal will show all nodes across both systems.
 

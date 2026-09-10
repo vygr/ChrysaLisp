@@ -198,13 +198,18 @@ ChrysaLisp's architecture supports sophisticated distributed computing paradigms
 Furthermore, ChrysaLisp features built-in, native TCP network linking (`service/net`) that allows you to link ChrysaLisp clusters directly across multiple physical machines (macOS, Linux, Windows, Raspberry Pi) over local LAN or wide area networks, without needing any external bridge daemons or shared memory hops.
 
 To link machines together:
+
 1. On the server machine, start a persistent listener:
+
 ```code
 link -l 3333
 ```
+
 2. On any client machine, connect to the server by IP address or DNS/mDNS hostname:
+
 ```code
 link 192.168.1.185
+
 # or using Bonjour / DNS:
 link server.local
 ```
