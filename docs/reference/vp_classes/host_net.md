@@ -93,5 +93,7 @@ inputs
 :r2 = remaining bytes
 outputs
 :r0 = 0 if ok, -1 if error
+trashes
+:r0-:r14, :f0-:f15
 ```
 
