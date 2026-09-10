@@ -4,6 +4,17 @@
 
 ------
 
+Native TCP network linking (`service/net`) links ChrysaLisp instances directly
+across physical machines over IP or DNS/mDNS hostnames. The server listener
+(`link -l [port]`) is persistent and decoupled from per-connection worker tasks
+(`:host_net :conn`), remaining listening indefinitely to accept reconnects and
+multiple peers concurrently. Network I/O callbacks run on the host thread stack
+via `sys_task :callback`.
+
+Legacy ChrysaLib / `hub_node` shared-memory bridging has been removed from
+`cmd/link.lisp` and documentation, fully replaced by the self-hosted network
+linking service.
+
 Shared memory links (`sys/link`) now automatically time out and close down if
 transmission is blocked indefinitely (`lk_timeout`). When `(:sys_link :out)`
 cannot obtain buffer space for the timeout duration, it marks the link node
