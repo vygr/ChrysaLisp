@@ -24,7 +24,6 @@
 	(loop-while {remaining > 0})
 		(host-net-call :host_net :send {handle, buf, remaining} {sent})
 		(vpif {sent < 0})
-			(debug-str {"send_all: error"})
 			(exit :host_net :send_all {-1})
 			(return)
 		(elseif {sent = 0})
@@ -61,13 +60,11 @@
 	(loop-while {remaining > 0})
 		(host-net-call :host_net :recv {handle, buf, remaining} {recvd})
 		(vpif {recvd < 0})
-			(debug-str {"recv_all: error"})
 			(exit :host_net :recv_all {-1})
 			(return)
 		(elseif {recvd = 0})
 			;check if link was closed while sleeping
 			(vpif {lk_node->lk_node_task_count = -1})
-				(debug-str {"recv_all: link closed"})
 				(exit :host_net :recv_all {-1})
 				(return)
 			(endif)
@@ -154,13 +151,9 @@
 	(endif)
 
 	(vpif {is_server})
-		(debug-str {"link: server listening"})
 		;listen on port
 		(host-net-call :host_net :listen {port} {listen_handle})
-		(vpif {listen_handle <= 0})
-			(debug-str {"link: listen failed"})
-			(goto 'link_exit)
-		(endif)
+		(gotoif {listen_handle <= 0} 'link_exit)
 
 		;accept incoming connection
 		(loop-start)
@@ -172,19 +165,11 @@
 
 		;close listening socket
 		(host-net-call :host_net :close {listen_handle})
-		(vpif {conn_handle <= 0})
-			(debug-str {"link: accept failed"})
-			(goto 'link_exit)
-		(endif)
-		(debug-str {"link: accepted"})
+		(gotoif {conn_handle <= 0} 'link_exit)
 	(else)
-		(debug-str {"link: client connecting"})
 		;connect to host:port
 		(host-net-call :host_net :connect {pdata, port} {conn_handle})
-		(vpif {conn_handle <= 0})
-			(debug-str {"link: connect failed"})
-			(goto 'link_exit)
-		(endif)
+		(gotoif {conn_handle <= 0} 'link_exit)
 
 		;wait for connect to complete
 		(assign {0} {retries})
@@ -194,23 +179,19 @@
 			(breakif {ch & 2})
 			;bit 2 (POLLERR) = error
 			(vpif {ch & 4})
-				(debug-str {"link: poll error"})
 				(host-net-call :host_net :close {conn_handle})
 				(goto 'link_exit)
 			(endif)
 			(call :sys_task :sleep '(10000)) ; 10ms
 			(assign {retries + 1} {retries})
 			(vpif {retries > 500}) ; 5s timeout
-				(debug-str {"link: connect timeout"})
 				(host-net-call :host_net :close {conn_handle})
 				(goto 'link_exit)
 			(endif)
 			(breakif {lk_node.lk_node_task_count = -1})
 		(loop-end)
-		(debug-str {"link: connected"})
 	(endif)
 
-	(debug-str {"link: starting out"})
 	;start out link and send params
 	(call :sys_mail :alloc '(16) {msg, data})
 	(call :sys_task :start (cat {@} (f-path :host_net :out)) '(_ _ :r2 :r3 :r4))
@@ -219,7 +200,6 @@
 	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
 	(call :sys_mail :send '(:r0))
 
-	(debug-str {"link: starting in"})
 	;start in link and send params
 	(call :sys_mail :alloc '(16) {msg, data})
 	(call :sys_task :start (cat {@} (f-path :host_net :in)) '(_ _ :r2 :r3 :r4))
@@ -228,14 +208,12 @@
 	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
 	(call :sys_mail :send '(:r0))
 
-	(debug-str {"link: running"})
 	;wait till link dies or told to quit...
 	(loop-start)
 		(call :sys_task :sleep '(100000))
 		(breakif {lk_node.lk_node_task_count = -1})
 	(loop-end)
 
-	(debug-str {"link: dying"})
 	;wait for in & out link to exit before closing socket
 	(call :sys_task :sleep '(20000))
 
@@ -243,7 +221,6 @@
 	(host-net-call :host_net :close {conn_handle})
 
 (vp-label 'link_exit)
-	(debug-str {"link: exit"})
 	;remove link node from link array
 	(call :array :get_both {statics->statics_sys_mail_links_array} {_, iter_begin, iter_end})
 	(loop-while {iter_begin /= iter_end})
@@ -277,7 +254,6 @@
 
 	(push-scope)
 
-	(debug-str {"out: start"})
 	(assign {@sys/statics/statics} {statics})
 	(call :nodeid :create '(0) {key})
 
@@ -286,7 +262,6 @@
 	(assign {ptr(data + 0)} {lk_node})
 	(assign {ptr(data + +ptr_size)} {conn_handle})
 	(call :sys_mail :free {msg})
-	(debug-str {"out: params read"})
 
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_out_link_priority))
@@ -303,23 +278,16 @@
 		 ping_pkt.+net_ping_pkt_task_count})
 
 	;send initial ping
-	(debug-str {"out: sending initial ping"})
 	(call :host_net :send_all {conn_handle, &ping_pkt, +net_ping_pkt_size} {status})
-	(vpif {status < 0})
-		(debug-str {"out: initial ping failed"})
-		(goto 'out_exit)
-	(endif)
-	(debug-str {"out: initial ping sent"})
+	(gotoif {status < 0} 'out_exit)
 	(call :host_os :pii_time :nil {then})
 
 	;outbound loop
 	(loop-start)
-		(debug-str {"out: loop top"})
 		;load peer node id
 		(assign {lk_node} '(:r3))
 		(load-node-id :r3 lk_node_peer_node_id :r0 :r1)
 		(assign '(:r0 :r1) {peer_node_id.+node_id_node1, peer_node_id.+node_id_node2})
-		(debug-str {"out: peer id loaded"})
 
 		;if peer is known, check for ready mail
 		(assign {0} {msg})
@@ -329,7 +297,6 @@
 		(endif)
 
 		(vpif {msg /= 0})
-			(debug-str {"out: sending frag"})
 			;we have mail to transmit!
 			(assign {msg->+msg_length} {len})
 			(assign {len + lk_frag_size, +net_wire_type_frag}
@@ -354,7 +321,6 @@
 			;send frag header (72 bytes)
 			(call :host_net :send_all {conn_handle, &frag_pkt, +net_frag_pkt_size} {status})
 			(vpif {status < 0})
-				(debug-str {"out: send frag hdr failed"})
 				(call :sys_mail :free {msg})
 				(goto 'out_exit)
 			(endif)
@@ -363,20 +329,15 @@
 			(vpif {len > 0})
 				(call :host_net :send_all {conn_handle, msg->+msg_data, len} {status})
 				(vpif {status < 0})
-					(debug-str {"out: send frag data failed"})
 					(call :sys_mail :free {msg})
 					(goto 'out_exit)
 				(endif)
 			(endif)
-
-			(debug-str {"out: frag sent"})
 			;free msg
 			(call :sys_mail :free {msg})
 		(else)
-			(debug-str {"out: no mail sleeping"})
 			;no mail to send, sleep up to 5s or until woken by wake_links
 			(call :sys_task :sleep '(5000000))
-			(debug-str {"out: woke up"})
 
 			;check if link closed
 			(breakif {lk_node->lk_node_task_count = -1})
@@ -385,18 +346,13 @@
 			(call :host_os :pii_time :nil {now})
 			(vpif {now - then >= 5000000})
 				(assign {now} {then})
-				(debug-str {"out: sending heartbeat"})
 				(call :host_net :send_all {conn_handle, &ping_pkt, +net_ping_pkt_size} {status})
-				(vpif {status < 0})
-					(debug-str {"out: heartbeat failed"})
-					(break)
-				(endif)
+				(breakif {status < 0})
 			(endif)
 		(endif)
 	(loop-end)
 
 (vp-label 'out_exit)
-	(debug-str {"out: exit"})
 	;mark link closed
 	(assign {-1, 0, 0}
 		{lk_node->lk_node_task_count,
@@ -423,13 +379,11 @@
 
 	(push-scope)
 
-	(debug-str {"in: start"})
 	;read params msg
 	(call :sys_mail :mymail :nil {msg, data})
 	(assign {ptr(data + 0)} {lk_node})
 	(assign {ptr(data + +ptr_size)} {conn_handle})
 	(call :sys_mail :free {msg})
-	(debug-str {"in: params read"})
 
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_in_link_priority))
@@ -441,19 +395,12 @@
 	(loop-start)
 		;read 8-byte wire header
 		(call :host_net :recv_all {conn_handle, &wire_hdr, +net_wire_hdr_size, lk_node} {status})
-		(vpif {status < 0})
-			(debug-str {"in: recv wire_hdr failed"})
-			(goto 'in_exit)
-		(endif)
+		(gotoif {status < 0}'in_exit)
 
 		(vpif {wire_hdr.+net_wire_hdr_type = +net_wire_type_ping})
-			(debug-str {"in: recv ping"})
 			;read 24-byte ping payload
 			(call :host_net :recv_all {conn_handle, &ping_payload, lk_node_size, lk_node} {status})
-			(vpif {status < 0})
-				(debug-str {"in: recv ping payload failed"})
-				(goto 'in_exit)
-			(endif)
+			(gotoif {status < 0}'in_exit)
 
 			;update peer node id on lk_node
 			(assign {&ping_payload, lk_node} '(:r2 :r3))
@@ -465,16 +412,11 @@
 
 			;wake outbound link in case mail was waiting for this peer
 			(call :sys_task :wake_links)
-			(debug-str {"in: ping processed"})
 
 		(elseif {wire_hdr.+net_wire_hdr_type = +net_wire_type_frag})
-			(debug-str {"in: recv frag"})
 			;read 64-byte frag payload header
 			(call :host_net :recv_all {conn_handle, &frag_payload, lk_frag_size, lk_node} {status})
-			(vpif {status < 0})
-				(debug-str {"in: recv frag payload failed"})
-				(goto 'in_exit)
-			(endif)
+			(gotoif {status < 0}'in_exit)
 
 			;check if parcel for local node
 			(vpif {frag_payload.lk_frag_total
@@ -533,15 +475,11 @@
 				(assign {msg->+msg_total - len} {msg->+msg_total})
 				(vpif {len > 0})
 					(call :host_net :recv_all {conn_handle, msg->+msg_data + off, len, lk_node} {status})
-					(vpif {status < 0})
-						(debug-str {"in: recv parcel payload failed"})
-						(goto 'in_exit)
-					(endif)
+					(gotoif {status < 0}'in_exit)
 				(endif)
 
 				;if parcel complete, remove and send
 				(vpifnot {msg->+msg_total})
-					(debug-str {"in: parcel complete -> send"})
 					(assign {msg} {node})
 					;remove node from list
 					(assign {node->+ln_node_succ, node->+ln_node_pred} {succ, pred})
@@ -572,19 +510,16 @@
 				(vpif {len > 0})
 					(call :host_net :recv_all {conn_handle, data, len, lk_node} {status})
 					(vpif {status < 0})
-						(debug-str {"in: recv single data failed"})
 						(call :sys_mail :free {msg})
 						(goto 'in_exit)
 					(endif)
 				(endif)
 
-				(debug-str {"in: single frag -> send"})
 				;send onwards
 				(call :sys_mail :send {msg})
 			(endif)
 		(else)
 			;unknown wire type, connection error
-			(debug-str {"in: unknown wire type"})
 			(goto 'in_exit)
 		(endif)
 
@@ -593,7 +528,6 @@
 	(loop-end)
 
 (vp-label 'in_exit)
-	(debug-str {"in: exit"})
 	;mark link closed
 	(assign {-1, 0, 0}
 		{lk_node->lk_node_task_count,
