@@ -115,25 +115,12 @@
 		(long port handle))
 
 	(def-vars
-		(struct lk_node lk_node_size)
 		(struct cb cb_link_size)
-		(ptr statics params msg data iter_begin iter_end)
+		(ptr params msg data)
 		(pubyte pdata p)
 		(long listen_handle conn_handle ch retries is_server port))
 
 	(push-scope)
-
-	;decrement task count
-	;don't count links in load balancing
-	(call :sys_task :count '(-3))
-
-	;init and add link node to link array
-	(assign {@sys/statics/statics} {statics})
-	(assign {0, 0, 0x7fffffff}
-		{lk_node.lk_node_peer_node_id.+node_id_node1,
-		 lk_node.lk_node_peer_node_id.+node_id_node2,
-		 lk_node.lk_node_task_count})
-	(call :array :push_back {statics->statics_sys_mail_links_array, &lk_node})
 
 	;read params msg from kernel
 	(call :sys_mail :mymail :nil {params, pdata})
@@ -174,25 +161,36 @@
 	(endif)
 
 	(vpif {is_server})
+		;decrement task count for listener
+		(call :sys_task :count '(-1))
+
 		;listen on port
 		(assign {port} {cb.cb_link_port})
 		(call :sys_task :callback {&cb, $listen_callback})
 		(assign {cb.cb_link_handle} {listen_handle})
-		(gotoif {listen_handle <= 0} 'link_exit)
+		(gotoif {listen_handle <= 0} 'link_server_exit)
 
-		;accept incoming connection
+		;persistent accept loop
 		(loop-start)
 			(assign {listen_handle} {cb.cb_link_handle})
 			(call :sys_task :callback {&cb, $accept_callback})
 			(assign {cb.cb_link_handle} {conn_handle})
-			(breakif {conn_handle > 0})
+			(vpif {conn_handle > 0})
+				;spawn connection worker task
+				(call :sys_mail :alloc '(16) {msg, data})
+				(call :sys_task :start (cat {@} (f-path :host_net :conn)) '(_ _ :r2 :r3 :r4))
+				(assign {msg, data, conn_handle} '(:r0 :r1 :r5))
+				(save-net-id :r0 +msg_dest)
+				(assign '(:r5) '((:r1 0)))
+				(call :sys_mail :send '(:r0))
+			(endif)
 			(call :sys_task :sleep '(10000)) ; 10ms
-			(breakif {lk_node.lk_node_task_count = -1})
 		(loop-end)
 
 		;close listening socket
 		(host-net-call :host_net :close {listen_handle})
-		(gotoif {conn_handle <= 0} 'link_exit)
+(vp-label 'link_server_exit)
+		(call :sys_task :count '(1))
 	(else)
 		;connect to host:port
 		(assign {pdata, port} {cb.cb_link_host, cb.cb_link_port})
@@ -217,54 +215,20 @@
 				(host-net-call :host_net :close {conn_handle})
 				(goto 'link_exit)
 			(endif)
-			(breakif {lk_node.lk_node_task_count = -1})
 		(loop-end)
+
+		;spawn connection worker task
+		(call :sys_mail :alloc '(16) {msg, data})
+		(call :sys_task :start (cat {@} (f-path :host_net :conn)) '(_ _ :r2 :r3 :r4))
+		(assign {msg, data, conn_handle} '(:r0 :r1 :r5))
+		(save-net-id :r0 +msg_dest)
+		(assign '(:r5) '((:r1 0)))
+		(call :sys_mail :send '(:r0))
 	(endif)
 
-	;start out link and send params
-	(call :sys_mail :alloc '(16) {msg, data})
-	(call :sys_task :start (cat {@} (f-path :host_net :out)) '(_ _ :r2 :r3 :r4))
-	(assign {msg, data, &lk_node, conn_handle} '(:r0 :r1 :r5 :r6))
-	(save-net-id :r0 +msg_dest)
-	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
-	(call :sys_mail :send '(:r0))
-
-	;start in link and send params
-	(call :sys_mail :alloc '(16) {msg, data})
-	(call :sys_task :start (cat {@} (f-path :host_net :in)) '(_ _ :r2 :r3 :r4))
-	(assign {msg, data, &lk_node, conn_handle} '(:r0 :r1 :r5 :r6))
-	(save-net-id :r0 +msg_dest)
-	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
-	(call :sys_mail :send '(:r0))
-
-	;wait till link dies or told to quit...
-	(loop-start)
-		(call :sys_task :sleep '(100000))
-		(breakif {lk_node.lk_node_task_count = -1})
-	(loop-end)
-
-	;wait for in & out link to exit before closing socket
-	(call :sys_task :sleep '(20000))
-
-	;close socket
-	(host-net-call :host_net :close {conn_handle})
-
 (vp-label 'link_exit)
-	;remove link node from link array
-	(call :array :get_both {statics->statics_sys_mail_links_array} {_, iter_begin, iter_end})
-	(loop-while {iter_begin /= iter_end})
-		(vpif {*iter_begin = &lk_node})
-			(call :array :erase {statics->statics_sys_mail_links_array, iter_begin})
-			(break)
-		(endif)
-		(assign {iter_begin + +ptr_size} {iter_begin})
-	(loop-end)
-
 	;free params msg
 	(call :sys_mail :free {params})
-
-	;restore task count
-	(call :sys_task :count '(3))
 	(pop-scope)
 	(return)
 
@@ -294,6 +258,83 @@
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 cb_link_handle)))
 	(vp-ret)
+
+(def-func-end)
+
+(def-method :host_net :conn)
+	;started for each network connection
+	;trashes
+	;:r0-:r14, :f0-:f15
+
+	(def-vars
+		(struct lk_node lk_node_size)
+		(ptr statics msg data iter_begin iter_end)
+		(long conn_handle))
+
+	(push-scope)
+
+	;decrement task count
+	;don't count links in load balancing
+	(call :sys_task :count '(-3))
+
+	;init and add link node to link array
+	(assign {@sys/statics/statics} {statics})
+	(assign {0, 0, 0x7fffffff}
+		{lk_node.lk_node_peer_node_id.+node_id_node1,
+		 lk_node.lk_node_peer_node_id.+node_id_node2,
+		 lk_node.lk_node_task_count})
+	(call :array :push_back {statics->statics_sys_mail_links_array, &lk_node})
+
+	;read params msg
+	(call :sys_mail :mymail :nil {msg, data})
+	(assign {ptr(data + 0)} {conn_handle})
+	(call :sys_mail :free {msg})
+
+	(gotoif {conn_handle <= 0} 'conn_exit)
+
+	;start out link and send params
+	(call :sys_mail :alloc '(16) {msg, data})
+	(call :sys_task :start (cat {@} (f-path :host_net :out)) '(_ _ :r2 :r3 :r4))
+	(assign {msg, data, &lk_node, conn_handle} '(:r0 :r1 :r5 :r6))
+	(save-net-id :r0 +msg_dest)
+	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
+	(call :sys_mail :send '(:r0))
+
+	;start in link and send params
+	(call :sys_mail :alloc '(16) {msg, data})
+	(call :sys_task :start (cat {@} (f-path :host_net :in)) '(_ _ :r2 :r3 :r4))
+	(assign {msg, data, &lk_node, conn_handle} '(:r0 :r1 :r5 :r6))
+	(save-net-id :r0 +msg_dest)
+	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
+	(call :sys_mail :send '(:r0))
+
+	;wait till link dies
+	(loop-start)
+		(call :sys_task :sleep '(100000))
+		(breakif {lk_node.lk_node_task_count = -1})
+	(loop-end)
+
+	;wait for in & out link to exit before closing socket
+	(call :sys_task :sleep '(20000))
+
+	;close socket
+	(host-net-call :host_net :close {conn_handle})
+
+(vp-label 'conn_exit)
+	;remove link node from link array
+	(call :array :get_both {statics->statics_sys_mail_links_array} {_, iter_begin, iter_end})
+	(loop-while {iter_begin /= iter_end})
+		(vpif {*iter_begin = &lk_node})
+			(call :array :erase {statics->statics_sys_mail_links_array, iter_begin})
+			(break)
+		(endif)
+		(assign {iter_begin + +ptr_size} {iter_begin})
+	(loop-end)
+
+	;restore task count
+	(call :sys_task :count '(3))
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

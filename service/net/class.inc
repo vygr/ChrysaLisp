@@ -24,6 +24,7 @@
 	(dec-method :lisp_close service/net/lisp_close :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_poll service/net/lisp_poll :static (:r0 :r1) (:r0 :r1))
 	(dec-method :link service/net/link)
+	(dec-method :conn service/net/conn)
 	(dec-method :in service/net/in)
 	(dec-method :out service/net/out)
 	(dec-method :send_all service/net/send_all :static (:r0 :r1 :r2) (:r0))
