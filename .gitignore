@@ -10,7 +10,6 @@ cache/
 os
 cpu
 abi
-chrysalisp
 main.sln
 main.vcxproj
 main.vcxproj.filters
