@@ -589,12 +589,6 @@ Type inspection and structural verification predicates.
 
 	*	`(msafe? o) -> :t | :nil`
 
-*	**`lisp-node?` / `cpp-node?`**: Distinguishes Lisp node identities.
-
-	*	`(lisp-node? node) -> :t | :nil`
-
-	*	`(cpp-node? node) -> :t | :nil`
-
 *	**`neg?` / `pos?` / `odd?` / `even?`**: Numerical properties.
 
 	*	`(neg? num) -> :t | :nil`

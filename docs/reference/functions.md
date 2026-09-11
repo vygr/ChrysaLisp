@@ -210,12 +210,6 @@ can be searched with (bfind)
 cached circle generation, quantised to 1/4 pixel
 ```
 
-### cpp-node?
-
-```code
-(cpp_node? node) -> :t | :nil
-```
-
 ### cpu
 
 ```code
@@ -711,12 +705,6 @@ very basic attenuation and diffuse
 (lighting-at3 col at sp)
 
 very basic attenuation, diffuse and specular
-```
-
-### lisp-node?
-
-```code
-(lisp_node? node) -> :t | :nil
 ```
 
 ### lisp-nodes

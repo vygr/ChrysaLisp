@@ -60,12 +60,6 @@
 (assert-true "msafe? symbol" (msafe? 'abc))
 (assert-true "msafe? atom"   (msafe? 123))
 
-; node predicates
-; mail-nodes might be empty in this test environment
-(defq nodes (mail-nodes))
-(if (nempty? nodes)
-	(assert-true "lisp-node? check" (or (lisp-node? (first nodes)) (cpp-node? (first nodes)))))
-
 ; eql vs = vs nql
 (assert-true "eql strings" (eql "abc" "abc"))
 (assert-true "eql nums"	(eql 123 123))

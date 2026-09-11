@@ -4,6 +4,11 @@
 
 ------
 
+`(lisp-node?)` and `(cpp-node?)` functions removed now we have self hosted
+system to system bridging.
+
+------
+
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly
 across physical machines over IP or DNS/mDNS hostnames. The server listener
 (`link -l [port]`) is persistent and decoupled from per-connection worker tasks

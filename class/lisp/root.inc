@@ -677,14 +677,6 @@
 	; (nempty? form) -> :t | :nil
 	(if (seq? %0) (> (length %0) 0)))
 
-(defun lisp-node? (%0)
-	; (lisp_node? node) -> :t | :nil
-	(= (logand (code (first %0)) 1) 1))
-
-(defun cpp-node? (%0)
-	; (cpp_node? node) -> :t | :nil
-	(= (logand (code (first %0)) 1) 0))
-
 ;;;;;;;;;;;;;;
 ; Control flow
 ;;;;;;;;;;;;;;
@@ -1261,7 +1253,7 @@
 
 (defun lisp-nodes ()
 	; (lisp-nodes) -> nodes
-	(merge (map (const cat) (filter (const lisp-node?) (mail-nodes)))
+	(merge (map (const cat) (mail-nodes))
 		(list (slice (task-mbox) +mailbox_id_size -1))))
 
 (defun max-length (%0)
