@@ -85,9 +85,9 @@
 	;fire up the login app and clipboard service etc
 	(open-child "service/clipboard/app.lisp" +kn_call_open)
 	(open-child "service/lock/app.lisp" +kn_call_open)
-	(open-child "service/net/app.lisp" +kn_call_open)
 	(open-child "service/audio/app.lisp" +kn_call_open)
 	(open-child "apps/system/login/app.lisp" +kn_call_open)
+	(open-child "service/net/app.lisp" +kn_call_child)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))
