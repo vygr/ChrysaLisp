@@ -92,7 +92,7 @@
 	(vpif '(:r0 = 0))
 		;check if link was closed while sleeping
 		(assign {lk_node} '(:r1))
-		(assign '((:r1 lk_node_task_count)) '(:r2))
+		(assign '((:r1 lk_node_task_count i)) '(:r2))
 		(gotoif '(:r2 = -1) 'recv_error)
 
 		;no data waiting, sleep with exponential backoff up to 2ms
@@ -386,8 +386,12 @@
 	;wait till link dies
 (vp-label 'conn_wait_loop)
 	(call :sys_task :sleep '(100000))
-	(assign {lk_node.lk_node_task_count} `(,tmp))
+	(assign {&lk_node} '(:r0))
+	(assign '((:r0 lk_node_task_count i)) `(,tmp))
 	(gotoif `(,tmp /= -1) 'conn_wait_loop)
+
+	;wake outbound link if asleep so it exits before socket closes
+	(call :sys_task :wake_links)
 
 	;wait for in & out link to exit before closing socket
 	(call :sys_task :sleep '(20000))
@@ -531,7 +535,7 @@
 
 	;check if link closed
 	(assign {lk_node} '(:r1))
-	(assign '((:r1 lk_node_task_count)) '(:r2))
+	(assign '((:r1 lk_node_task_count i)) '(:r2))
 	(gotoif '(:r2 = -1) 'out_exit)
 
 	;send heartbeat ping only if 5s has elapsed
@@ -752,7 +756,7 @@
 (vp-label 'in_check_exit)
 	;check if link closed
 	(assign {lk_node} '(:r1))
-	(assign '((:r1 lk_node_task_count)) '(:r0))
+	(assign '((:r1 lk_node_task_count i)) '(:r0))
 	(gotoif '(:r0 = -1) 'in_exit)
 	(goto 'in_loop)
 
@@ -764,7 +768,7 @@
 		'((:r2 lk_node_task_count)
 		  (:r2 (+ lk_node_peer_node_id +node_id_node1))
 		  (:r2 (+ lk_node_peer_node_id +node_id_node2))))
-
+	(call :sys_task :wake_links)
 	(pop-scope)
 	(return)
 
