@@ -499,20 +499,29 @@
 	;:r0-:r14, :f0-:f15
 
 	(def-vars
-		(ptr name id info cat tmp1 tmp2))
+		(ptr name id info cat tmp1 tmp2 sys_str sys_hex))
 
 	(push-scope)
 	(entry :sys_mail :service {name, id, info})
 
-	;create service entry
+	;create service entry: name,id,sys_id,info
 	(call :obj :ref {name})
 	(call :obj :ref {info})
 	(call :list :create :nil {cat})
 	(call :list :push_back {cat, name})
 	(call :str :create_from_buffer '("," 1) {tmp1})
 	(call :list :push_back {cat, tmp1})
+	;1: hex-encoded net_id
 	(call :str :encode {id} {tmp2})
 	(call :list :push_back {cat, tmp2})
+	(call :str :ref {tmp1})
+	(call :list :push_back {cat, tmp1})
+	;2: hex-encoded system_id
+	(call :nodeid :create {@sys/statics/statics.statics_sys_task_kernel_system_id} {sys_str})
+	(call :str :encode {sys_str} {sys_hex})
+	(call :nodeid :destroy {sys_str})
+	(call :list :push_back {cat, sys_hex})
+	;3: info
 	(call :str :ref {tmp1})
 	(call :list :push_back2 {cat, tmp1, info})
 	(call :str :cat {name, cat} {name})
@@ -656,15 +665,16 @@
 	;trashes
 	;:r0-:r14, :f0-:f15
 	;info
-	;ping services out to network
+	;ping services out to network (cluster * and system @)
 
 	(structure cat 0
-		(ptr entries lf))
+		(ptr entries_global entries_sys lf))
 
 	(def-vars
 		(ptr key bucket set msg data services statics)
 		(pptr tuple)
-		(struct cat cat_size))
+		(struct cat cat_size)
+		(uint func_type))
 
 	(push-scope)
 
@@ -674,29 +684,49 @@
 	(vpif {tuple})
 		(assign {tuple[+ptr_size], +char_lf} {tuple, cat.cat_lf})
 		(call :str :create_from_buffer {&cat.cat_lf, 1} {cat.cat_lf})
-		(call :list :create :nil {cat.cat_entries})
+		(call :list :create :nil {cat.cat_entries_global})
+		(call :list :create :nil {cat.cat_entries_sys})
 		(call :array :get_elem {tuple, 0} {_, set})
 		(call :hset :each {set, $callback, &cat})
-		(call :str :cat {cat.cat_lf, cat.cat_entries} {services})
+
+		;1. Send cluster ping (*)
+		(assign {+kn_call_ping} {func_type})
+		(call :str :cat {cat.cat_lf, cat.cat_entries_global} {services})
 		(call :sys_mail :alloc {+kn_msg_ping_services + services->+str_length} {msg, data})
-		(assign {msg, data, key, statics} '(:r0 :r1 :r5 :r7))
+		(assign {msg, data, key, statics, func_type} '(:r0 :r1 :r5 :r7 :r6))
 		(vp-call 'ping_header)
 		(call :sys_mem :copy {&services->+str_data, &data->+kn_msg_ping_services, services->+str_length})
-		(call :list :destroy {cat.cat_entries})
+		(call :sys_mail :send {msg})
 		(call :str :destroy {services})
+
+		;2. Send system ping (@) if any system-local services exist
+		(vpif {cat.cat_entries_sys->+array_length})
+			(assign {+kn_call_ping_sys} {func_type})
+			(call :str :cat {cat.cat_lf, cat.cat_entries_sys} {services})
+			(call :sys_mail :alloc {+kn_msg_ping_services + services->+str_length} {msg, data})
+			(assign {msg, data, key, statics, func_type} '(:r0 :r1 :r5 :r7 :r6))
+			(vp-call 'ping_header)
+			(call :sys_mem :copy {&services->+str_data, &data->+kn_msg_ping_services, services->+str_length})
+			(call :sys_mail :send {msg})
+			(call :str :destroy {services})
+		(endif)
+
+		(call :list :destroy {cat.cat_entries_global})
+		(call :list :destroy {cat.cat_entries_sys})
 		(call :str :destroy {cat.cat_lf})
 	(else)
+		(assign {+kn_call_ping} {func_type})
 		(call :sys_mail :alloc {+kn_msg_ping_services} {msg, data})
-		(assign {msg, data, key, statics} '(:r0 :r1 :r5 :r7))
+		(assign {msg, data, key, statics, func_type} '(:r0 :r1 :r5 :r7 :r6))
 		(vp-call 'ping_header)
+		(call :sys_mail :send {msg})
 	(endif)
-	(call :sys_mail :send {msg})
 	(jump :nodeid :destroy {key})
 
 (vp-label 'ping_header)
 	(assign '((:r7 statics_sys_mail_session) 0) '(:r8 :r2))
 	(vp-add-cr 1 :r8)
-	(assign `(,+kn_call_ping :r8) '(:r6 (:r7 statics_sys_mail_session)))
+	(assign '(:r8) '((:r7 statics_sys_mail_session)))
 	(assign '(:r6 :r8 :r2) `((:r1 ,+kn_msg_ping_func) (:r1 ,+kn_msg_ping_session) (:r1 ,+kn_msg_ping_hops)))
 	(load-node-id :r5 +str_data)
 	(save-net-id :r0 +msg_dest)
@@ -719,7 +749,11 @@
 	(vpif `(:r3 = +char_multiply))
 		(class/obj/ref :r1 :r3)
 		(class/obj/ref :r2 :r3)
-		(jump :list :push_back2 '((:r0 cat_entries) :r1 :r2))
+		(jump :list :push_back2 '((:r0 cat_entries_global) :r1 :r2))
+	(elseif `(:r3 = +char_at))
+		(class/obj/ref :r1 :r3)
+		(class/obj/ref :r2 :r3)
+		(jump :list :push_back2 '((:r0 cat_entries_sys) :r1 :r2))
 	(endif)
 	(vp-ret)
 

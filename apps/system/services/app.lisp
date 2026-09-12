@@ -6,13 +6,16 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Services" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-scroll info_scroll +scroll_flag_vertical :nil
+	(ui-scroll info_scroll +scroll_flag_vertical (:font *env_terminal_font*)
 		(ui-flow right_flow (:flow_flags +flow_right_fill)
 			(ui-flow service_flow (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Service" :color +argb_white
 					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow mbox_flow (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Mailbox" :color +argb_white
+					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
+			(ui-flow system_flow (:flow_flags +flow_down_fill)
+				(ui-label _ (:text "System" :color +argb_white
 					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow info_flow (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Info" :color +argb_white
@@ -33,16 +36,19 @@
 		;service directory has changed
 		(each (# (. %0 :sub)) service_labels)
 		(each (# (. %0 :sub)) mbox_labels)
+		(each (# (. %0 :sub)) system_labels)
 		(each (# (. %0 :sub)) info_labels)
-		(clear service_labels mbox_labels info_labels)
+		(clear service_labels mbox_labels system_labels info_labels)
 		(setq services new_services)
 		(each (#
-			(defq info (split %0 ","))
-			(def (defq _ (Label)) :border -1 :text (first info))
+			(bind '(i0 i1 i2 i3) (split %0 ","))
+			(def (defq _ (Label)) :border -1 :text i0)
 			(. service_flow :add_child _) (push service_labels _)
-			(def (defq _ (Label)) :border -1 :text (second info))
+			(def (defq _ (Label)) :border -1 :text i1)
 			(. mbox_flow :add_child _) (push mbox_labels _)
-			(def (defq _ (Label)) :border -1 :text (if (> (length info) 2) (third info) "No Info"))
+			(def (defq _ (Label)) :border -1 :text i2)
+			(. system_flow :add_child _) (push system_labels _)
+			(def (defq _ (Label)) :border -1 :text i3)
 			(. info_flow :add_child _) (push info_labels _)) new_services)
 		(bind '(w h) (. right_flow :pref_size))
 		(. right_flow :change 0 0 w h)
@@ -51,7 +57,8 @@
 
 (defun main ()
 	(defq id :t select (task-mboxes 1) services (list)
-		service_labels (list) mbox_labels (list) info_labels (list))
+		service_labels (list) mbox_labels (list)
+		system_labels (list) info_labels (list))
 	(populate)
 	;add window
 	(bind '(w h) (. right_flow :get_size))

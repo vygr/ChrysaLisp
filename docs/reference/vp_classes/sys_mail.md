@@ -186,7 +186,7 @@ never breaks out
 trashes
 :r0-:r14, :f0-:f15
 info
-ping services out to network
+ping services out to network (cluster * and system @)
 ```
 
 ### :poll -> sys/mail/poll

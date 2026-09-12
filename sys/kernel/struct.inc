@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (enums +kn_call 0
-	(enum exit callback ping open child signal))
+	(enum exit callback ping open child signal ping_sys))
 
 ;;;;;;;;;;;;;;;;;;
 ; kernel mail data

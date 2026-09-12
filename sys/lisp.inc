@@ -61,3 +61,23 @@
 		(when (some (# (> file_age (age (cat obj_prefix %0)))) products)
 			(catch (within-compile-env (# (include file))) :nil))
 		(lock-release-rpc obj_prefix)))
+
+(defun service-name (entry)
+	; (service-name entry) -> str
+	(first (split entry ",")))
+
+(defun service-netid (entry)
+	; (service-netid entry) -> netid
+	(hex-decode (second (split entry ","))))
+
+(defun service-sysid (entry)
+	; (service-sysid entry) -> str
+	(third (split entry ",")))
+
+(defun service-info (entry)
+	; (service-info entry) -> str
+	(elem-get (split entry ",") 3))
+
+(defun service-local? (entry)
+	; (service-local? entry) -> :t | :nil
+	(eql (service-sysid entry) (hex-encode (system-id))))

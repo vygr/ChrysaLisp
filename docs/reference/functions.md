@@ -1260,6 +1260,36 @@ scatter a list of [key]|[key val]
 (seq? form) -> :t | :nil
 ```
 
+### service-info
+
+```code
+(service-info entry) -> str
+```
+
+### service-local?
+
+```code
+(service-local? entry) -> :t | :nil
+```
+
+### service-name
+
+```code
+(service-name entry) -> str
+```
+
+### service-netid
+
+```code
+(service-netid entry) -> netid
+```
+
+### service-sysid
+
+```code
+(service-sysid entry) -> str
+```
+
 ### setoffset
 
 ```code

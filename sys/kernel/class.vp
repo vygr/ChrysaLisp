@@ -136,6 +136,9 @@
 				(call :sys_mail :send {msg})
 				(break)
 			(vpcase '(:r0 = +kn_call_ping))
+				(goto 'handle_ping)
+			(vpcase '(:r0 = +kn_call_ping_sys))
+			(vp-label 'handle_ping)
 				;new services/routing ping
 				(def-vars
 					(ptr session set)
@@ -310,6 +313,17 @@
 
 	(entry `(,statics ,msg ,data ,knode1 ,knode2))
 
+	;save system ID and ping type to stack across alloc_obj calls
+	(assign `((,statics (+ statics_sys_task_kernel_system_id +node_id_node1))
+			(,statics (+ statics_sys_task_kernel_system_id +node_id_node2))
+			(,data +kn_msg_ping_func))
+		'(:r0 :r1 :r2))
+	(vp-cpy-cr 0 :r3)
+	(vpif '(:r2 = +kn_call_ping_sys))
+		(vp-cpy-cr 1 :r3)
+	(endif)
+	(vp-push :r0 :r1 :r3)
+
 	;inc hops
 	(assign `((,data ,+kn_msg_ping_hops)) '(:r0))
 	(vp-add-cr 1 :r0)
@@ -325,6 +339,20 @@
 	(loop-while `(,iter /= ,iter_end) 'next_link)
 		(assign `((,iter 0)) `(,link_node))
 		(vp-add-cr +ptr_size iter)
+
+		;if system ping, skip links leading to a different physical machine
+		(assign '((:rsp 0)) '(:r0))
+		(vpif '(:r0 /= 0))
+			(assign '((:rsp +ptr_size) (:rsp (* 2 +ptr_size))) '(:r0 :r1))
+			(assign `((,link_node (+ lk_node_peer_system_id +node_id_node1))
+					(,link_node (+ lk_node_peer_system_id +node_id_node2)))
+				'(:r2 :r3))
+			(vp-sub-rr :r2 :r0)
+			(vp-sub-rr :r3 :r1)
+			(vp-or-rr :r1 :r0)
+			(continueif '(:r0 /= 0) 'next_link)
+		(endif)
+
 		;this links peer
 		(load-node-id link_node lk_node_peer_node_id knode1 knode2)
 		;not there yet ?
@@ -355,6 +383,7 @@
 		(save-net-id :r0 +msg_dest :r1 knode1 knode2)
 		(call :sys_mail :send '(:r0))
 	(loop-end)
+	(vp-free (* 3 +ptr_size))
 	(vp-ret)
 
 (vp-label 'opts)
