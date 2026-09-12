@@ -12,10 +12,10 @@
 				(ui-label _ (:text "Service" :color +argb_white
 					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow mbox_flow (:flow_flags +flow_down_fill)
-				(ui-label _ (:text "Mailbox" :color +argb_white
+				(ui-label _ (:text "NetID" :color +argb_white
 					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow system_flow (:flow_flags +flow_down_fill)
-				(ui-label _ (:text "System" :color +argb_white
+				(ui-label _ (:text "SysID" :color +argb_white
 					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow info_flow (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Info" :color +argb_white
