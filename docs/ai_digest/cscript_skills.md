@@ -52,11 +52,11 @@ symbols to associate with them. The function automatically merges the default
 register set `'(:r0 :r1 :r2 ... :r14)` onto whatever list you provide.
 
 If you omit the second parameter, you receive the full VP register set starting
-from `:r0`. A common trick is to use `_` to skip specific registers in the
+from `:r0`. A common trick is to use `&` to skip specific registers in the
 default set:
 
 ```vdu
-(vp-rdef (_ _ this that _ a b c))
+(vp-rdef (& & this that & a b c))
 ; this --> :r2
 ; that --> :r3
 ; a --> :r5

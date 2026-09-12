@@ -95,7 +95,7 @@
 	;:r1-:r13, :f0-:f15
 
 	(vp-rdef (this key cmp_func) (method-input :hset :cinsert))
-	(vp-rdef (_ iter bucket) (method-output :hset :cinsert))
+	(vp-rdef (& iter bucket) (method-output :hset :cinsert))
 	(vp-rdef (saved_key saved_this) '(:r13 :r13))
 
 	;save inputs

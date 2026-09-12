@@ -338,7 +338,7 @@
 		(long conn_handle))
 
 	(vp-rdef (tmp))
-	(vp-rdef (_ iter_begin iter_end) (method-output :array :get_both))
+	(vp-rdef (lst iter_begin iter_end) (method-output :array :get_both))
 	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
 
 	(push-scope)
@@ -403,7 +403,7 @@
 	;remove link node from link array
 	(assign '((@ sys/statics/statics)) '(:r7))
 	(assign '((:r7 statics_sys_mail_links_array)) '(:r0))
-	(call :array :get_both '(:r0) `(,_ ,iter_begin ,iter_end))
+	(call :array :get_both '(:r0) `(,lst ,iter_begin ,iter_end))
 	(assign {&lk_node} '(:r3))
 (vp-label 'find_link_loop)
 	(gotoif `(,iter_begin = ,iter_end) 'conn_done)

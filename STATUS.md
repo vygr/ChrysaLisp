@@ -7,6 +7,9 @@
 `(lisp-node?)` and `(cpp-node?)` functions removed now we have self hosted
 system to system bridging.
 
+`vp-rdef` and `vp-fdef` macros now simply exapand to a `(bind '(... &ignore)
+...)` statement. So now uses the standard bind operators to skip args etc.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly

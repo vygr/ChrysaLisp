@@ -251,7 +251,7 @@
 	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this key) (method-input :hmap :pinsert))
-	(vp-rdef (_ iter bucket) (method-output :hmap :pinsert))
+	(vp-rdef (& iter bucket) (method-output :hmap :pinsert))
 	(vp-rdef (saved_key saved_value old_value tmp) '(:r8 :r9 :r10 :r11))
 
 	;save inputs
@@ -348,7 +348,7 @@
 	;:r1-:r9
 
 	(vp-rdef (this key) (method-input :hmap :search))
-	(vp-rdef (_ iter bucket) (method-output :hmap :search))
+	(vp-rdef (& iter bucket) (method-output :hmap :search))
 	(vp-rdef (saved_this saved_key) '(:r8 :r9))
 
 	(entry :hmap :search `(,this ,key))
@@ -379,7 +379,7 @@
 	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this key) (method-input :hmap :set))
-	(vp-rdef (_ iter) (method-output :hmap :set))
+	(vp-rdef (& iter) (method-output :hmap :set))
 	(vp-rdef (saved_value old_value tmp) '(:r10 :r11 :r12))
 
 	(entry :hmap :set `(,this ,key ,saved_value))
@@ -416,7 +416,7 @@
 	;:r1-:r9
 
 	(vp-rdef (this key) (method-input :hmap :get))
-	(vp-rdef (_ iter) (method-output :hmap :get))
+	(vp-rdef (& iter) (method-output :hmap :get))
 	(vp-rdef (tmp) '(:r2))
 
 	(entry :hmap :get `(,this ,key))

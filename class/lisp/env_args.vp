@@ -13,7 +13,7 @@
 	;trashes
 	;:r2-:r6
 
-	(vp-rdef (_ args sig iter_begin iter_end vt1 vt2))
+	(vp-rdef (& args sig iter_begin iter_end vt1 vt2))
 
 	(entry :lisp :env_args_sig `(,args ,sig ,iter_begin ,iter_end))
 
@@ -66,7 +66,7 @@
 	;trashes
 	;:r2-:r5
 
-	(vp-rdef (_ args vt2 iter_begin iter_end vt1))
+	(vp-rdef (& args vt2 iter_begin iter_end vt1))
 
 	(entry :lisp :env_args_type `(,args ,vt2 ,iter_begin))
 
@@ -109,7 +109,7 @@
 	;trashes
 	;:r2-:r5
 
-	(vp-rdef (_ args vt2 iter_begin iter_end vt1))
+	(vp-rdef (& args vt2 iter_begin iter_end vt1))
 
 	(entry :lisp :env_args_match `(,args ,vt2 ,iter_begin))
 

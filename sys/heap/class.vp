@@ -129,7 +129,7 @@
 	;trashes
 	;:r1-:r8, :f0-:f15
 
-	(vp-rdef (_ _ _ this blk cel next tail total))
+	(vp-rdef (& & & this blk cel next tail total))
 
 	(entry :sys_heap :collect `(,this))
 

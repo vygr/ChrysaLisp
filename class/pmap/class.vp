@@ -103,7 +103,7 @@
 	;:r1-:r14, :f0-:f15
 
 	(vp-rdef (this key) (method-input :pmap :pinsert))
-	(vp-rdef (_ iter) (method-output :pmap :pinsert))
+	(vp-rdef (& iter) (method-output :pmap :pinsert))
 	(vp-rdef (saved_key saved_value old_value tmp) '(:r11 :r12 :r13 :r14))
 
 	;save inputs

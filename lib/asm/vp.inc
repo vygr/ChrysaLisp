@@ -5,15 +5,13 @@
 (import "./regs.inc")
 (import "./ops.inc")
 
-(defmacro vp-rdef (%0 &optional l)
-	(setq l (apply (const cat) (map (lambda (x y)
-		(list (list quote x) y)) %0 (if l (merge (cat (eval l)) +vp_rregs_0_14) +vp_rregs_0_14))))
-	(static-qq (progn (deffvar ~l))))
+(defmacro vp-rdef (%0 &optional %1)
+	(setq %1 (if %1 (merge (cat (eval %1)) +vp_rregs_0_14) +vp_rregs_0_14))
+	(static-qq (bind ',(push %0 '&ignore) ',%1)))
 
-(defmacro vp-fdef (%0 &optional l)
-	(setq l (apply (const cat) (map (lambda (x y)
-		(list (list quote x) y)) %0 (if l (merge (cat (eval l)) +vp_fregs) +vp_fregs))))
-	(static-qq (progn (deffvar ~l))))
+(defmacro vp-fdef (%0 &optional %1)
+	(setq %1 (if %1 (merge (cat (eval %1)) +vp_fregs) +vp_fregs))
+	(static-qq (bind ',(push %0 '&ignore) ',%1)))
 
 ;;;;;;;;;;;;;
 ; Emit Buffer
