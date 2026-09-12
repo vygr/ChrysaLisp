@@ -25,8 +25,11 @@
 	;init and add link node to link array
 	(assign {@sys/statics/statics} {statics})
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
-	(assign {0 => lk_node.lk_node_task_count => lk_node.lk_node_peer_node_id.+node_id_node1}
-		{lk_node.lk_node_peer_node_id.+node_id_node2})
+	(assign {0 => lk_node.lk_node_task_count
+			=> lk_node.lk_node_peer_node_id.+node_id_node1
+			=> lk_node.lk_node_peer_node_id.+node_id_node2
+			=> lk_node.lk_node_peer_system_id.+node_id_node1}
+		{lk_node.lk_node_peer_system_id.+node_id_node2})
 	(call :array :push_back {statics->statics_sys_mail_links_array, &lk_node})
 
 	;read params msg from kernel
@@ -147,12 +150,16 @@
 			(gotoif {status = lk_chan_status_skip} 'skip)
 
 			(vpif {status = lk_chan_status_ping})
-				;read neighbor task count and peer id
+				;read neighbor task count, peer node id, and peer system id
 				(assign {head->lk_buf_size.lk_node_peer_node_id.+node_id_node1,
 						head->lk_buf_size.lk_node_peer_node_id.+node_id_node2,
+						head->lk_buf_size.lk_node_peer_system_id.+node_id_node1,
+						head->lk_buf_size.lk_node_peer_system_id.+node_id_node2,
 						head->lk_buf_size.lk_node_task_count}
 					{lk_node->lk_node_peer_node_id.+node_id_node1,
 					lk_node->lk_node_peer_node_id.+node_id_node2,
+					lk_node->lk_node_peer_system_id.+node_id_node1,
+					lk_node->lk_node_peer_system_id.+node_id_node2,
 					lk_node->lk_node_task_count})
 				;clear status
 			(vp-label 'skip)
@@ -228,7 +235,7 @@
 
 	(def-vars
 		(ptr statics lk_node key msg data tx head tail)
-		(nodeid node_id)
+		(nodeid node_id system_id)
 		(long is_owner then now)
 		(int free)
 		(uint last_count sleep_time))
@@ -250,6 +257,7 @@
 
 	;assign tx channel deterministically based on leadership
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
+	(call :sys_kernel :system_id :nil {system_id.+node_id_node1, system_id.+node_id_node2})
 	(vpif {is_owner})
 		(assign {tx + lk_shmem_chan_1} {tx})
 	(else)
@@ -291,13 +299,17 @@
 				;reset timeout
 				(call :host_os :pii_time :nil {then})
 
-				;write my task count and cpu id
+				;write my task count, node id, and system id
 				(assign {statics->statics_sys_task_task_count} {last_count})
 				(assign {node_id.+node_id_node1,
 						node_id.+node_id_node2,
+						system_id.+node_id_node1,
+						system_id.+node_id_node2,
 						last_count}
 					{head->lk_buf_size.lk_node_peer_node_id.+node_id_node1,
 					head->lk_buf_size.lk_node_peer_node_id.+node_id_node2,
+					head->lk_buf_size.lk_node_peer_system_id.+node_id_node1,
+					head->lk_buf_size.lk_node_peer_system_id.+node_id_node2,
 					head->lk_buf_size.lk_node_task_count})
 
 				;write buf ping, wrap head and trigger :in

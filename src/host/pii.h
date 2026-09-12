@@ -78,6 +78,7 @@ struct alignas(8) lk_buf
 struct alignas(8) lk_node
 {
 	node_id m_peer_node_id;
+	node_id m_peer_system_id;
 	uint32_t m_task_count;
 };
 

@@ -31,6 +31,7 @@
 ;peer info
 (structure lk_node 0
 	(nodeid peer_node_id)
+	(nodeid peer_system_id)
 	(uint task_count)
 	(align))
 

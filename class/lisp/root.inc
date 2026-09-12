@@ -472,6 +472,8 @@
 ; (mail-declare mbox name info) -> key
 (ffi "sys/mail/lisp_devices" mail-nodes)
 ; (mail-nodes) -> nodeids
+(ffi "sys/mail/lisp_links" mail-links)
+; (mail-links) -> ((peer_node_id peer_system_id task_count same_system?) ...)
 (ffi "sys/mail/lisp_enquire" mail-enquire)
 ; (mail-enquire prefix) -> netids
 (ffi "sys/mail/lisp_forget" mail-forget)

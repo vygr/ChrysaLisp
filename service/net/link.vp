@@ -350,9 +350,11 @@
 	;init and add link node to link array
 	(assign {&lk_node} '(:r4))
 	(vp-simd vp-cpy-cr '(0 0x7fffffff) '(:r0 :r1))
-	(assign '(:r0 :r0 :r1)
+	(assign '(:r0 :r0 :r0 :r0 :r1)
 		'((:r4 (+ lk_node_peer_node_id +node_id_node1))
 		  (:r4 (+ lk_node_peer_node_id +node_id_node2))
+		  (:r4 (+ lk_node_peer_system_id +node_id_node1))
+		  (:r4 (+ lk_node_peer_system_id +node_id_node2))
 		  (:r4 lk_node_task_count)))
 	(assign '((@ sys/statics/statics)) '(:r7))
 	(assign '((:r7 statics_sys_mail_links_array)) '(:r0))
@@ -454,13 +456,16 @@
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_out_link_priority))
 
-	;prepare ping packet
+	;prepare ping packet with node_id and system_id
 	(assign {&ping_pkt} '(:r4))
 	(vp-simd vp-cpy-cr '(lk_node_size +net_wire_type_ping) '(:r0 :r1))
 	(assign '(:r0 :r1) '((:r4 +net_ping_pkt_wire_length) (:r4 +net_ping_pkt_wire_type)))
 	(call :sys_kernel :id :nil '(:r0 :r1))
 	(assign {&ping_pkt} '(:r4))
 	(save-node-id :r4 +net_ping_pkt_peer_node_id :r0 :r1)
+	(call :sys_kernel :system_id :nil '(:r0 :r1))
+	(assign {&ping_pkt} '(:r4))
+	(save-node-id :r4 +net_ping_pkt_peer_system_id :r0 :r1)
 	(vp-cpy-cr 0x7fffffff :r0)
 	(assign '(:r0) '((:r4 +net_ping_pkt_task_count)))
 
@@ -554,10 +559,12 @@
 	;mark link closed
 	(assign {lk_node} '(:r2))
 	(vp-simd vp-cpy-cr '(-1 0) '(:r0 :r1))
-	(assign '(:r0 :r1 :r1)
+	(assign '(:r0 :r1 :r1 :r1 :r1)
 		'((:r2 lk_node_task_count)
 		  (:r2 (+ lk_node_peer_node_id +node_id_node1))
-		  (:r2 (+ lk_node_peer_node_id +node_id_node2))))
+		  (:r2 (+ lk_node_peer_node_id +node_id_node2))
+		  (:r2 (+ lk_node_peer_system_id +node_id_node1))
+		  (:r2 (+ lk_node_peer_system_id +node_id_node2))))
 
 	(call :nodeid :destroy {key})
 	(pop-scope)
@@ -609,14 +616,16 @@
 	(goto 'in_exit)
 
 (vp-label 'in_ping)
-	;read 24-byte ping payload
+	;read 40-byte ping payload (lk_node_size)
 	(call :host_net :recv_all {conn_handle, &ping_payload, lk_node_size, lk_node} `(,recv_status))
 	(gotoif `(,recv_status < 0) 'in_exit)
 
-	;update peer node id on lk_node
+	;update peer node id and peer system id on lk_node
 	(assign {&ping_payload, lk_node} '(:r2 :r3))
 	(load-node-id :r2 lk_node_peer_node_id :r0 :r1)
 	(save-node-id :r3 lk_node_peer_node_id :r0 :r1)
+	(load-node-id :r2 lk_node_peer_system_id :r0 :r1)
+	(save-node-id :r3 lk_node_peer_system_id :r0 :r1)
 
 	;always lock task count at 0x7fffffff!
 	(vp-cpy-cr 0x7fffffff :r0)
@@ -764,10 +773,12 @@
 	;mark link closed
 	(assign {lk_node} '(:r2))
 	(vp-simd vp-cpy-cr '(-1 0) '(:r0 :r1))
-	(assign '(:r0 :r1 :r1)
+	(assign '(:r0 :r1 :r1 :r1 :r1)
 		'((:r2 lk_node_task_count)
 		  (:r2 (+ lk_node_peer_node_id +node_id_node1))
-		  (:r2 (+ lk_node_peer_node_id +node_id_node2))))
+		  (:r2 (+ lk_node_peer_node_id +node_id_node2))
+		  (:r2 (+ lk_node_peer_system_id +node_id_node1))
+		  (:r2 (+ lk_node_peer_system_id +node_id_node2))))
 	(call :sys_task :wake_links)
 	(pop-scope)
 	(return)

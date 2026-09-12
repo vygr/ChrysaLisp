@@ -102,7 +102,7 @@
 				(call :sys_mail :send '(:r3))
 				(break)
 			(vpcase '(:r0 = +kn_call_child))
-				;find best cpu to run task
+				;find best cpu to run task on the same physical system
 				(call :array :clear {best_nodes})
 				(assign {statics->statics_sys_task_task_count} {best_cnt})
 				(call :array :get_both {statics->statics_sys_mail_links_array}
@@ -110,6 +110,11 @@
 				(loop-while {iter_begin /= iter_end})
 					(assign {*iter_begin} {link})
 					(assign {iter_begin + +ptr_size} {iter_begin})
+
+					;skip links that belong to a different physical machine
+					(continueif {(link->lk_node_peer_system_id.+node_id_node1 ^ statics->statics_sys_task_kernel_system_id.+node_id_node1)
+								| (link->lk_node_peer_system_id.+node_id_node2 ^ statics->statics_sys_task_kernel_system_id.+node_id_node2)})
+
 					(assign {link->lk_node_task_count} {link_cnt})
 					(continueifnot {link_cnt})
 					(continueif {link_cnt > best_cnt})

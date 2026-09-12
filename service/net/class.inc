@@ -55,6 +55,7 @@
 (structure +net_ping_pkt 0
 	(uint wire_length wire_type)
 	(nodeid peer_node_id)
+	(nodeid peer_system_id)
 	(uint task_count)
 	(align))
 
