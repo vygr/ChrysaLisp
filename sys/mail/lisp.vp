@@ -408,7 +408,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = list of links (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r5, :r14, :f0-:f15
 
 	(def-vars
 		(ptr this args result_list entry_list lk_node p_node p_sys)

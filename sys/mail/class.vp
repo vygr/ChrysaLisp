@@ -815,7 +815,7 @@
 		(vp-pop peer1 peer2)
 		(continueif `(,iter_begin = 0))
 		(call :array :get_both `((,iter_begin +ptr_size)) `(_ ,iter_begin ,iter_end))
-		(vp-add-cr (* 4 +long_size) iter_begin)
+		(vp-add-cr (* 5 +long_size) iter_begin)
 		(continueif `(,iter_begin = ,iter_end))
 		(loop-start)
 			(load-node-id iter_begin 0 via1 via2)

@@ -141,15 +141,18 @@
 			(vp-label 'handle_ping)
 				;new services/routing ping
 				(def-vars
-					(ptr session set)
+					(ptr session_cluster session_sys set)
 					(long hops)
+					(uint ping_func)
 					(union
 						(ptr bucket new_key)
 						(ptr services entries)))
 				(push-scope)
 
+				(assign {data->+kn_msg_func} {ping_func})
+
 				;timestamp
-				(call :host_os :pii_time :nil '{time})
+				(call :host_os :pii_time :nil {time})
 
 				;find/create the routing tuple for the origin
 				(assign {data, key} '(:r0 :r1))
@@ -158,64 +161,97 @@
 				(vpifnot {tuple})
 					(call :nodeid :create {&data->+kn_msg_ping_origin} {new_key})
 					(call :array :create :nil {tuple})
-					;service set, time, session, hops, then any vias...
+					;tuple: set[0], time[1], session_cluster[2], session_sys[3], hops[4], vias[5+]
 					(call :hset :create {1} {set})
 					(call :array :push_back2 {tuple, set, 0})
 					(call :array :push_back2 {tuple, -1, -1})
+					(call :array :push_back {tuple, -1})
 					(call :list :push_back2 {bucket, new_key, tuple})
 				(else)
 					(assign {(pptr tuple)[+ptr_size]} {tuple})
 				(endif)
 
-				;update routing entries for the origin ?
+				;load current sessions and hops
 				(call :array :get_begin {tuple} '(_ :r1))
-				(assign `((:r1 ,(* +long_size 2)) (:r1 ,(* +long_size 3))) '(:r1 :r2))
-				(assign '(:r1 :r2) {session, hops})
-				(switch)
-				(breakif {data->+kn_msg_ping_session < session})
-				(vpcase {data->+kn_msg_ping_session > session})
-					;new routing session, clear vias, update session and hops
-					(call :array :set_length {tuple, 1})
-					(call :array :push_back {tuple, time})
-					(call :array :push_back2 {tuple, data->+kn_msg_ping_session, data->+kn_msg_ping_hops})
-					(goto 'flood_via)
-				(vpcase {data->+kn_msg_ping_hops < hops})
-					;better route, clear vias, update hops
-					(call :array :set_length {tuple, 3})
-					(call :array :push_back {tuple, data->+kn_msg_ping_hops})
-				(vp-label 'flood_via)
-					(call :array :push_back2 {tuple,
-						data->+kn_msg_ping_via.+node_id_node1,
-						data->+kn_msg_ping_via.+node_id_node2})
-					(call 'flood_fill {statics , msg, data, node_id.+node_id_node1, node_id.+node_id_node2})
-					(break)
-				(vpcase {data->+kn_msg_ping_hops = hops})
-					;equal route, push via, but no need to flood onwards !
-					(call :array :push_back2 {tuple,
-						data->+kn_msg_ping_via.+node_id_node1,
-						data->+kn_msg_ping_via.+node_id_node2})
-				(endswitch)
+				(assign `((:r1 ,(* +long_size 2)) (:r1 ,(* +long_size 3)) (:r1 ,(* +long_size 4))) '(:r1 :r2 :r3))
+				(assign '(:r1 :r2 :r3) {session_cluster, session_sys, hops})
 
-				;don't update services if I am origin !
-				(switch)
-				(breakif {data->+kn_msg_ping_session <= session})
-				(breakifnot {(node_id.+node_id_node1 - data->+kn_msg_ping_origin.+node_id_node1)
-							| (node_id.+node_id_node2 - data->+kn_msg_ping_origin.+node_id_node2)})
-				(default)
+				(vpif {ping_func = +kn_call_ping_sys})
+					;--- System Ping: Update @ services, flood only to same-system peers ---
+					(switch 'exit_ping_sys)
+					(breakif {data->+kn_msg_ping_session <= session_sys} 'exit_ping_sys)
+
+					;update session_sys (index 3) and time (index 1)
+					(call :array :set_elem {tuple, data->+kn_msg_ping_session, 3})
+					(call :array :set_elem {tuple, time, 1})
+
+					;flood onwards within the physical system
+					(call 'flood_fill {statics, msg, data, node_id.+node_id_node1, node_id.+node_id_node2})
+
+					;skip service updates if I am the origin
+					(breakifnot {(node_id.+node_id_node1 - data->+kn_msg_ping_origin.+node_id_node1)
+								| (node_id.+node_id_node2 - data->+kn_msg_ping_origin.+node_id_node2)} 'exit_ping_sys)
+
+					;update @ services: purge existing @ entries, then insert new
 					(call :str :create_from_buffer {&data->+kn_msg_ping_services, msg->+msg_length - +kn_msg_ping_services} {services})
 					(call :str :split {services, +char_lf} {_, entries})
 					(call :str :destroy {services})
 					(call :list :get_both {entries} {_, iter_begin, iter_end})
 					(call :array :get_first {tuple} {_, set})
-					(call :hset :deref {set})
-					(call :hset :create {1} {set})
-					(call :array :set_elem {tuple, set, 0})
+					(call :hset :each {set, $erase_prefix, +char_at})
 					(loop-while {iter_begin /= iter_end})
 						(call :hset :cinsert {set, *iter_begin, @class/sym/eql_str})
 						(assign {iter_begin + +ptr_size} {iter_begin})
 					(loop-end)
 					(call :list :destroy {entries})
-				(endswitch)
+					(endswitch)
+				(else)
+					;--- Cluster Ping: Manage cluster routing and * services ---
+					(switch 'exit_ping_cluster)
+					(breakif {data->+kn_msg_ping_session < session_cluster} 'exit_ping_cluster)
+					(vpcase {data->+kn_msg_ping_session > session_cluster})
+						;new cluster session: truncate back to 4 elements (preserves set, time, session_cluster, session_sys)
+						(call :array :set_length {tuple, 4})
+						(call :array :set_elem {tuple, time, 1})
+						(call :array :set_elem {tuple, data->+kn_msg_ping_session, 2})
+						(call :array :push_back {tuple, data->+kn_msg_ping_hops})
+						(goto 'flood_via)
+					(vpcase {data->+kn_msg_ping_hops < hops})
+						;better route: truncate back to 4 elements, push new hops
+						(call :array :set_length {tuple, 4})
+						(call :array :push_back {tuple, data->+kn_msg_ping_hops})
+					(vp-label 'flood_via)
+						(call :array :push_back2 {tuple,
+							data->+kn_msg_ping_via.+node_id_node1,
+							data->+kn_msg_ping_via.+node_id_node2})
+						(call 'flood_fill {statics, msg, data, node_id.+node_id_node1, node_id.+node_id_node2})
+						(break)
+					(vpcase {data->+kn_msg_ping_hops = hops})
+						;equal route: append via
+						(call :array :push_back2 {tuple,
+							data->+kn_msg_ping_via.+node_id_node1,
+							data->+kn_msg_ping_via.+node_id_node2})
+					(endswitch)
+
+					;update * services: purge existing * entries, then insert new
+					(switch)
+					(breakif {data->+kn_msg_ping_session <= session_cluster})
+					(breakifnot {(node_id.+node_id_node1 - data->+kn_msg_ping_origin.+node_id_node1)
+								| (node_id.+node_id_node2 - data->+kn_msg_ping_origin.+node_id_node2)})
+					(default)
+						(call :str :create_from_buffer {&data->+kn_msg_ping_services, msg->+msg_length - +kn_msg_ping_services} {services})
+						(call :str :split {services, +char_lf} {_, entries})
+						(call :str :destroy {services})
+						(call :list :get_both {entries} {_, iter_begin, iter_end})
+						(call :array :get_first {tuple} {_, set})
+						(call :hset :each {set, $erase_prefix, +char_multiply})
+						(loop-while {iter_begin /= iter_end})
+							(call :hset :cinsert {set, *iter_begin, @class/sym/eql_str})
+							(assign {iter_begin + +ptr_size} {iter_begin})
+						(loop-end)
+						(call :list :destroy {entries})
+					(endswitch)
+				(endif)
 
 				(pop-scope)
 				(call :sys_mail :free {msg})
@@ -382,6 +418,21 @@
 	(loop-end)
 	(pop-scope)
 	(return)
+
+(vp-label 'erase_prefix)
+	;inputs
+	;:r0 = prefix char (uint)
+	;:r1 = element iterator (pptr)
+	;:r2 = bucket list pointer (ptr)
+
+	(entry :hset :each_callback '(:r0 :r1 :r2))
+
+	(assign '((:r1 0)) '(:r3))
+	(vp-cpy-ir-ub :r3 +str_data :r3)
+	(vpif '(:r3 = :r0))
+		(jump :list :erase '(:r2 :r1))
+	(endif)
+	(vp-ret)
 
 (vp-label 'opts)
 	;inputs
