@@ -12,6 +12,10 @@ system to system bridging.
 
 New `(system-id) -> nodeid` kernel function to retrieve host system identifier.
 
+Services update. We now have "*" Global, crosses network bridges, "@" System
+wide, ie on a single machine/laptop/filesystem, and "" no prefix which is local
+to that specific VP node.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly
