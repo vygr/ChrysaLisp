@@ -13,5 +13,5 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq prefix (if (> (length args) 1) (second args) "*"))
+		(defq prefix (if (> (length args) 1) (second args) ""))
 		(each (const print) (mail-enquire prefix))))
