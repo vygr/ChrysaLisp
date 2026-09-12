@@ -9,7 +9,7 @@
 (defq +LF "\n")
 
 (defun profile-service ()
-	(when (/= 0 (length (defq services (mail-enquire "*Profile"))))
+	(when (/= 0 (length (defq services (mail-enquire "@Profile"))))
 		(hex-decode (second (split (pop services) ",")))))
 
 (defun profile-ipc (service s)

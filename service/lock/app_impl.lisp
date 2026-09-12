@@ -1,7 +1,7 @@
 (import "./app.inc")
 
 (defun main ()
-	(defq lock_service (mail-declare (task-mbox) "*Lock" "Lock Service 0.1")
+	(defq lock_service (mail-declare (task-mbox) "@Lock" "Lock Service 0.1")
 		lock_map (Lmap))
 	(while :t
 		(let* ((msg (mail-read (task-mbox)))

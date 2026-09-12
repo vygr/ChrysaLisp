@@ -7,7 +7,7 @@
 ; (clip-get) -> :nil | str
 
 (defun main ()
-	(defq clip_service (mail-declare (task-mbox) "Clipboard" "Clipboard Service 0.2")
+	(defq clip_service (mail-declare (task-mbox) "@Clipboard" "Clipboard Service 0.2")
 		clipboard "")
 	(while :t
 		(let* ((msg (mail-read (task-mbox))) (reply_id (getf msg +clip_rpc_reply_id)))

@@ -219,7 +219,7 @@ Procedure Calls (RPC):
        +--------------------------------->| Remote Server
 ```
 
-* `(net-service)` discovers the active service mailbox using `(mail-enquire "*Net,")`.
+* `(net-service)` discovers the active service mailbox using `(mail-enquire "@Net,")`.
 
 * `(net-open-rpc host port)` establishes a TCP connection, returning a pair of
   connected streams: `(client_in client_out)`.

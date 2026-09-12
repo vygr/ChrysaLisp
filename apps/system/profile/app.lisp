@@ -1,3 +1,3 @@
-;single instance only check
-(if (= (length (mail-enquire "*Profile")) 0)
+;single system instance only
+(if (= (length (mail-enquire "@Profile")) 0)
 	(import "./app_impl.lisp"))

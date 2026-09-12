@@ -12,7 +12,7 @@
 
 (defun lock-claim-rpc (key)
 	; (lock-claim-rpc key)
-	(when (nempty? (defq service (mail-enquire "*Lock,")))
+	(when (nempty? (defq service (mail-enquire "@Lock,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (setf-> (cat (str-alloc +lock_claim_size) key)
@@ -22,7 +22,7 @@
 
 (defun lock-release-rpc (key)
 	; (lock-release-rpc key)
-	(when (nempty? (defq service (mail-enquire "*Lock,")))
+	(when (nempty? (defq service (mail-enquire "@Lock,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (setf-> (cat (str-alloc +lock_release_size) key)

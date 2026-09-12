@@ -68,7 +68,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) syntax (Syntax)
 		buf_keys (list) buf_list (list) selected_index :nil *running* :t
-		entry (mail-declare (elem-get select +select_service) "*Profile" "Profile Service 0.1"))
+		entry (mail-declare (elem-get select +select_service) "@Profile" "Profile Service 0.1"))
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(config-load)
 	(bind '(x y) (gather *config* :x :y))

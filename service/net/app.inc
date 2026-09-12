@@ -45,7 +45,7 @@
 
 (defun net-service ()
 	; (net-service) -> netid | :nil
-	(when (nempty? (defq s (mail-enquire "*Net,")))
+	(when (nempty? (defq s (mail-enquire "@Net,")))
 		(hex-decode (second (split (first s) ",")))))
 
 (defun net-open-rpc (host port)

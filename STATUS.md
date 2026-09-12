@@ -129,7 +129,7 @@ opportunities.
 
 Eliminate the `emit-tlabel` VP sudo instruction.
 
-New `service/net` `*Net` service ! TCP/IP sockets service. Simple test cmd app
+New `service/net` `@Net` service ! TCP/IP sockets service. Simple test cmd app
 `nettest` to cover a round trip read test. More layers to come, but this gets
 the host API working.
 

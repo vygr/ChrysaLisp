@@ -12,7 +12,7 @@
 
 (defun clip-put-rpc (string)
 	; (clip-put-rpc string)
-	(when (nempty? (defq service (mail-enquire "Clipboard,")))
+	(when (nempty? (defq service (mail-enquire "@Clipboard,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (setf-> (cat (str-alloc +clip_put_size) string)
@@ -23,7 +23,7 @@
 (defun clip-get-rpc ()
 	; (clip-get-rpc) -> string
 	(defq string "")
-	(when (nempty? (defq service (mail-enquire "Clipboard,")))
+	(when (nempty? (defq service (mail-enquire "@Clipboard,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (setf-> (str-alloc +clip_get_size)

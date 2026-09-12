@@ -1,3 +1,3 @@
-;single instance per system only
-(if (empty? (mail-enquire "*Lock,"))
+;single system instance only
+(if (empty? (mail-enquire "@Lock,"))
 	(import "./app_impl.lisp"))
