@@ -746,11 +746,11 @@
 
 	(assign '((:r1 0) (:r0 cat_lf)) '(:r1 :r2))
 	(vp-cpy-ir-ub :r1 +str_data :r3)
-	(vpif `(:r3 = +char_multiply))
+	(vpif '(:r3 = +char_multiply))
 		(class/obj/ref :r1 :r3)
 		(class/obj/ref :r2 :r3)
 		(jump :list :push_back2 '((:r0 cat_entries_global) :r1 :r2))
-	(elseif `(:r3 = +char_at))
+	(elseif '(:r3 = +char_at))
 		(class/obj/ref :r1 :r3)
 		(class/obj/ref :r2 :r3)
 		(jump :list :push_back2 '((:r0 cat_entries_sys) :r1 :r2))

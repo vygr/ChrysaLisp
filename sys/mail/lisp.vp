@@ -413,7 +413,7 @@
 	(def-vars
 		(ptr this args result_list entry_list lk_node p_node p_sys)
 		(pptr iter_begin iter_end)
-		(long same_sys is_zero))
+		(long same_sys))
 
 	(push-scope)
 	(entry :sys_mail :lisp_links {this, args})
@@ -428,9 +428,8 @@
 		(assign {iter_begin + +ptr_size} {iter_begin})
 
 		;skip uninitialized links where peer node_id is zero
-		(assign {lk_node->lk_node_peer_node_id.+node_id_node1
-				| lk_node->lk_node_peer_node_id.+node_id_node2} {is_zero})
-		(continueifnot {is_zero})
+		(continueifnot {lk_node->lk_node_peer_node_id.+node_id_node1
+						| lk_node->lk_node_peer_node_id.+node_id_node2})
 
 		(call :nodeid :create {&lk_node->lk_node_peer_node_id} {p_node})
 		(call :nodeid :create {&lk_node->lk_node_peer_system_id} {p_sys})
@@ -443,7 +442,7 @@
 
 		(call :list :create :nil {entry_list})
 		(call :list :push_back2 {entry_list, p_node, p_sys})
-		(call :num :create {long(lk_node->lk_node_task_count)} {p_node})
+		(call :num :create {lk_node->lk_node_task_count} {p_node})
 		(call :list :push_back {entry_list, p_node})
 		(vpif {same_sys = 0})
 			(call :obj :ref {this->+lisp_sym_t} {p_sys})
