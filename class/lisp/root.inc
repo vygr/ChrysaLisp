@@ -442,6 +442,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Kernel & System
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ffi "sys/kernel/lisp_sysid" system-id)
+; (system-id) -> nodeid
 (ffi "sys/kernel/lisp_stats" kernel-stats)
 ; (kernel-stats) -> (task_count mem_used mem_avail max_stack)
 (ffi "sys/load/lisp_path" load-path)

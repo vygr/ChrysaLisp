@@ -425,3 +425,21 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :host_os :pii_sysid)
+	;inputs
+	;:r0 = data buffer pointer (pubyte)
+	;:r1 = length (uint)
+	;outputs
+	;:r0 = error code (long)
+	;trashes
+	;:r0, :f0-:f15
+
+	(entry :host_os :pii_sysid '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-os-call :host_os :sysid '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit :host_os :pii_sysid '(:r0))
+	(vp-ret)
+
+(def-func-end)

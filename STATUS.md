@@ -10,6 +10,8 @@ system to system bridging.
 `vp-rdef` and `vp-fdef` macros now simply exapand to a `(bind '(... &ignore)
 ...)` statement. So now uses the standard bind operators to skip args etc.
 
+New `(system-id) -> nodeid` kernel function to retrieve host system identifier.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly

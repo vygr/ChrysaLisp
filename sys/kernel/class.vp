@@ -61,6 +61,8 @@
 	;set random node ID
 	(call :host_os :pii_rand {&statics->statics_sys_task_kernel_node_id, +node_id_size})
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
+	;obtain persistent system ID from host OS
+	(call :host_os :pii_sysid {&statics->statics_sys_task_kernel_system_id, +node_id_size})
 
 	;process command options
 	(call 'opts {argv})
@@ -612,6 +614,21 @@
 	(loop-end)
 
 	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_kernel :system_id)
+	;outputs
+	;:r0-:r1 = system id (node_id)
+	;trashes
+	;:r0-:r1
+
+	(entry :sys_kernel :system_id '())
+	(fn-bind 'sys/statics/statics :r1)
+	(exit :sys_kernel :system_id
+		`((:r1 ,(+ statics_sys_task_kernel_system_id +node_id_node1))
+		(:r1 ,(+ statics_sys_task_kernel_system_id +node_id_node2))))
 	(vp-ret)
 
 (def-func-end)

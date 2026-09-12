@@ -444,6 +444,45 @@ uint64_t pii_unlink(const char *path)
 	return unlink(path);
 }
 
+int64_t pii_sysid(char *buf, size_t len)
+{
+	if (!buf || len < 16) return -1;
+
+	// 1. Try Linux /etc/machine-id
+	int fd = open("/etc/machine-id", O_RDONLY);
+	if (fd >= 0) {
+		char hex[33];
+		ssize_t n = read(fd, hex, 32);
+		close(fd);
+		if (n == 32) {
+			for (size_t i = 0; i < 16; ++i) {
+				unsigned int byte_val;
+				if (sscanf(&hex[i * 2], "%02x", &byte_val) == 1) {
+					buf[i] = (char)byte_val;
+				}
+			}
+			return 0;
+		}
+	}
+
+	// 2. Fallback: persistent local file .system_id
+	fd = open(".system_id", O_RDONLY);
+	if (fd >= 0) {
+		ssize_t n = read(fd, buf, 16);
+		close(fd);
+		if (n == 16) return 0;
+	}
+
+	// 3. Fallback: generate and persist random 16-byte ID
+	pii_random(buf, 16);
+	fd = open(".system_id", O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+	if (fd >= 0) {
+		write(fd, buf, 16);
+		close(fd);
+	}
+	return 0;
+}
+
 void (*host_os_funcs[]) = {
 	(void*)exit,
 	(void*)pii_stat,
@@ -464,6 +503,7 @@ void (*host_os_funcs[]) = {
 	(void*)pii_seek,
 	(void*)pii_random,
 	(void*)pii_sleep,
+	(void*)pii_sysid,
 };
 
 #endif

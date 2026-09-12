@@ -1,5 +1,6 @@
 (include "lib/asm/func.inc")
-(include "class/array/class.inc")
+(include "class/nodeid/class.inc")
+(include "class/lisp/class.inc")
 (include "./class.inc")
 
 (def-method :sys_kernel :lisp_stats)
@@ -27,5 +28,33 @@
 
 	(exit :sys_kernel :lisp_stats '(:r0 :r1))
 	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_kernel :lisp_sysid)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = nodeid object (ptr)
+	;trashes
+	;:r1-:r5, :f0-:f15
+
+	(entry :sys_kernel :lisp_sysid '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 0)
+
+	(vp-push :r0)
+	(fn-bind 'sys/statics/statics :r0)
+	(call :nodeid :create `((& :r0 statics_sys_task_kernel_system_id)) '(:r1))
+	(vp-pop :r0)
+
+	(exit :sys_kernel :lisp_sysid '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r0 :r1 "(system-id)" +error_msg_wrong_num_of_args)))
 
 (def-func-end)

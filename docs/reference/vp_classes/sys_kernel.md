@@ -4,6 +4,8 @@
 
 ### (kernel-stats) -> (task_count mem_used mem_avail max_stack)
 
+### (system-id) -> nodeid
+
 ## VP methods
 
 ### :id -> sys/kernel/id
@@ -32,5 +34,14 @@ trashes
 started by kernel at boot
 trashes
 none
+```
+
+### :system_id -> sys/kernel/system_id
+
+```code
+outputs
+:r0-:r1 = system id (node_id)
+trashes
+:r0-:r1
 ```
 

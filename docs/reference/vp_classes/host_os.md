@@ -232,6 +232,18 @@ trashes
 :r0, :f0-:f15
 ```
 
+### :pii_sysid -> sys/pii/sysid
+
+```code
+inputs
+:r0 = data buffer pointer (pubyte)
+:r1 = length (uint)
+outputs
+:r0 = error code (long)
+trashes
+:r0, :f0-:f15
+```
+
 ### :pii_time -> sys/pii/time
 
 ```code
@@ -313,6 +325,8 @@ trashes
 ### :sleep -> :nil
 
 ### :stat -> :nil
+
+### :sysid -> :nil
 
 ### :unlink -> :nil
 
