@@ -10,8 +10,6 @@
 
 ### (mail-forget key)
 
-### (mail-links) -> ((peer_node_id peer_system_id task_count same_system?) ...)
-
 ### (mail-mbox) -> netid
 
 ### (mail-poll mboxs) -> :nil | idx

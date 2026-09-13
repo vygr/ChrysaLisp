@@ -15,7 +15,7 @@
 
 (defun main ()
 	; Declare the audio service
-	(defq audio_service (mail-declare (task-mbox) "Audio" "Audio Service 0.1")
+	(defq audio_service (mail-declare (task-mbox) "@Audio" "Audio Service 0.1")
 		file_map (Fmap 11) handle_map (Fmap 11) refs_map (Fmap))
 	((ffi "service/audio/lisp_init"))
 	; Main loop

@@ -40,7 +40,7 @@ guarantees that you can never interact with a "Ghost of Now Past."
 
 ## The Mirage of Solidity
 
-When an application calls `(mail-enquire "Audio,")`, the Kernel returns a
+When an application calls `(mail-enquire "@Audio,")`, the Kernel returns a
 list of IDs. To the application code, this looks like a solid object. It
 looks like a list of available servers.
 
@@ -50,7 +50,7 @@ That list is constructed from the Kernel's routing table, which is built from
 `ping` messages (seen in `sys/kernel/class.vp`). These pings propagate
 hop-by-hop, like ripples in a pond.
 
-* The "Audio" service you see might belong to a node 5 hops away.
+* The "@Audio" service you see might belong to a node 5 hops away.
 
 * That node might have had its power cable pulled 50 milliseconds ago.
 

@@ -1,3 +1,3 @@
-;single instance per node only
-(if (empty? (mail-enquire "Audio,"))
+;single system instance only
+(if (empty? (mail-enquire "@Audio,"))
 	(import "./app_impl.lisp"))

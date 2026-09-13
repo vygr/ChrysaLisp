@@ -31,7 +31,7 @@
 (defun audio-add-rpc (file_path)
 	; (audio-add-rpc file_path) -> handle
 	(defq handle :nil)
-	(when (nempty? (defq service (mail-enquire "Audio,")))
+	(when (nempty? (defq service (mail-enquire "@Audio,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (setf-> (cat (str-alloc +audio_add_size) file_path)
@@ -42,7 +42,7 @@
 
 (defun audio-play-rpc (handle)
 	; (audio-play-rpc handle)
-	(when (nempty? (defq service (mail-enquire "Audio,")))
+	(when (nempty? (defq service (mail-enquire "@Audio,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (setf-> (str-alloc +audio_play_size)
@@ -53,7 +53,7 @@
 
 (defun audio-change-rpc (handle state)
 	; (audio-change-rpc handle state)
-	(when (nempty? (defq service (mail-enquire "Audio,")))
+	(when (nempty? (defq service (mail-enquire "@Audio,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (setf-> (str-alloc +audio_change_size)
@@ -65,7 +65,7 @@
 
 (defun audio-remove-rpc (handle)
 	; (audio-remove-rpc handle)
-	(when (nempty? (defq service (mail-enquire "Audio,")))
+	(when (nempty? (defq service (mail-enquire "@Audio,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (setf-> (str-alloc +audio_remove_size)
