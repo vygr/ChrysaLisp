@@ -61,6 +61,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun load-fields (base fields tmps)
+	(if (/= (length fields) (length tmps))
+		(throw "Mismatched load fields !" (list fields tmps)))
 	(defq src (list) dst (list))
 	(each (# (push src (list base (first %0))) (push dst (second %0)))
 		(sort (partition (zip fields tmps (map (const eval) fields)) 3)
@@ -68,6 +70,8 @@
 	(assign src dst))
 
 (defun save-fields (base fields tmps)
+	(if (/= (length fields) (length tmps))
+		(throw "Mismatched save fields !" (list fields tmps)))
 	(defq src (list) dst (list))
 	(each (# (push src (second %0)) (push dst (list base (first %0))))
 		(sort (partition (zip fields tmps (map (const eval) fields)) 3)
@@ -75,5 +79,6 @@
 	(assign src dst))
 
 (defun assign-fields (src src_fields dst dst_fields tmps)
+	(if (find dst tmps) (throw "Overloaded destination reg !" tmps))
 	(load-fields src src_fields tmps)
 	(save-fields dst dst_fields tmps))
