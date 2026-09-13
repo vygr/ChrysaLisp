@@ -151,16 +151,18 @@
 
 			(vpif {status = lk_chan_status_ping})
 				;read neighbor task count, peer node id, and peer system id
-				(assign {head->lk_buf_size.lk_node_peer_node_id.+node_id_node1,
-						head->lk_buf_size.lk_node_peer_node_id.+node_id_node2,
-						head->lk_buf_size.lk_node_peer_system_id.+node_id_node1,
-						head->lk_buf_size.lk_node_peer_system_id.+node_id_node2,
-						head->lk_buf_size.lk_node_task_count}
-					{lk_node->lk_node_peer_node_id.+node_id_node1,
-					lk_node->lk_node_peer_node_id.+node_id_node2,
-					lk_node->lk_node_peer_system_id.+node_id_node1,
-					lk_node->lk_node_peer_system_id.+node_id_node2,
-					lk_node->lk_node_task_count})
+				(vp-rdef (src dst t0 t1 t2 t3 t4))
+				(assign {&head->lk_buf_size, lk_node} `(,src ,dst))
+				(assign-fields
+					src
+						`(,(+ lk_node_peer_node_id +node_id_node1) ,(+ lk_node_peer_node_id +node_id_node2)
+						,(+ lk_node_peer_system_id +node_id_node1) ,(+ lk_node_peer_system_id +node_id_node2)
+						lk_node_task_count)
+					dst
+						`(,(+ lk_node_peer_node_id +node_id_node1) ,(+ lk_node_peer_node_id +node_id_node2)
+						,(+ lk_node_peer_system_id +node_id_node1) ,(+ lk_node_peer_system_id +node_id_node2)
+						lk_node_task_count)
+					`(,t0 ,t1 ,t2 ,t3 ,t4))
 				;clear status
 			(vp-label 'skip)
 				(assign {lk_chan_status_ready} {head->lk_buf_status})
@@ -300,17 +302,18 @@
 				(call :host_os :pii_time :nil {then})
 
 				;write my task count, node id, and system id
-				(assign {statics->statics_sys_task_task_count} {last_count})
-				(assign {node_id.+node_id_node1,
-						node_id.+node_id_node2,
-						system_id.+node_id_node1,
-						system_id.+node_id_node2,
-						last_count}
-					{head->lk_buf_size.lk_node_peer_node_id.+node_id_node1,
-					head->lk_buf_size.lk_node_peer_node_id.+node_id_node2,
-					head->lk_buf_size.lk_node_peer_system_id.+node_id_node1,
-					head->lk_buf_size.lk_node_peer_system_id.+node_id_node2,
-					head->lk_buf_size.lk_node_task_count})
+				(vp-rdef (dst cnt t0 t1 t2 t3))
+				(assign {&head->lk_buf_size, statics->statics_sys_task_task_count,
+						node_id.+node_id_node1, node_id.+node_id_node2,
+						system_id.+node_id_node1, system_id.+node_id_node2}
+					`(,dst ,cnt ,t0 ,t1 ,t2 ,t3))
+				(save-fields
+					dst
+						`(lk_node_task_count
+						,(+ lk_node_peer_node_id +node_id_node1) ,(+ lk_node_peer_node_id +node_id_node2)
+						,(+ lk_node_peer_system_id +node_id_node1) ,(+ lk_node_peer_system_id +node_id_node2))
+					`(,cnt ,t0 ,t1 ,t2 ,t3))
+				(assign `(,cnt) {last_count})
 
 				;write buf ping, wrap head and trigger :in
 				(call 'write_buf {head, tx, lk_chan_status_ping, lk_buf_size + lk_node_size} {head})
