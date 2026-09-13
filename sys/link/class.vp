@@ -408,77 +408,84 @@
 	;inputs
 	;:r0 = frag pointer (ptr)
 	;trashes
-	;:r0-:r10, :f0-:f15
+	;:r0-:r14, :f0-:f15
 
-	(def-vars
-		(ptr frag msg data)
-		(nodeid node_id)
-		(uint len off))
+	;persistent state across calls
+	(vp-rdef (frag msg len parcels total off) '(:r6 :r7 :r8 :r9 :r10 :r11))
 
-	(vp-rdef (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_frag total))
+	;introspected calling convention registers (zero-copy matching)
+	(vp-rdef (knode1 knode2) (method-output :sys_kernel :id))
+	(vp-rdef (node data) (method-output :sys_mail :alloc))
+	(vp-rdef (& dst_ptr) (method-input :sys_mem :copy))
 
-	(push-scope)
-	(entry :sys_link :in_frag {frag})
+	;temporaries and loop state
+	(vp-rdef (dest_node1 dest_node2) '(:r2 :r3))
+	(vp-rdef (src1 src2 src3) '(:r1 :r2 :r3))
+	(vp-rdef (t1 t2 t3) '(:r2 :r3 :r4))
+	(vp-rdef (next tmp) '(:r5 :r0))
+	(vp-rdef (psrc1 psrc2 psrc3) '(:r12 :r13 :r14))
 
-	;get local node id
-	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
+	(entry :sys_link :in_frag `(,frag))
 
-	;is this msg part of a parcel for this node
-	(vpif {frag->lk_frag_total
-		&& frag->lk_frag_dest.+net_id_node_id.+node_id_node1 = node_id.+node_id_node1
-		&& frag->lk_frag_dest.+net_id_node_id.+node_id_node2 = node_id.+node_id_node2})
+	;get local node id (returns directly into :r0 and :r1)
+	(call :sys_kernel :id :nil `(,knode1 ,knode2))
 
+	;check if fragment is part of a parcel for this node
+	(assign `((,frag lk_frag_total)) `(,total))
+	(load-node-id frag (+ lk_frag_dest +net_id_node_id) dest_node1 dest_node2)
+	(vpif `(,total /= 0) `(,dest_node1 = ,knode1) `(,dest_node2 = ,knode2))
 		;look up parcel in parcel list
-		(assign {@sys/statics/statics.statics_sys_mail_parcel_list, frag} `(,parcels ,rx_frag))
-		(load-net-id rx_frag lk_frag_src src1 src2 src3)
+		(fn-bind 'sys/statics/statics parcels)
+		(vp-add-cr statics_sys_mail_parcel_list parcels)
+		(load-net-id frag lk_frag_src src1 src2 src3)
 		(loop-list-forward parcels 0 node next)
 			(load-net-id node +msg_src psrc1 psrc2 psrc3)
 		(loop-until `(,src1 = ,psrc1) `(,src2 = ,psrc2) `(,src3 = ,psrc3))
 		(vpif `(,next = 0))
-			;new parcel: allocate msg for total size
-			(assign `((,rx_frag lk_frag_total)) `(,total))
+			;new parcel: allocate msg for total size (received directly in node)
+			(assign `((,frag lk_frag_total)) `(,total))
 			(call :sys_mail :alloc `(,total) `(,node _))
-			(assign `(,total) `((,node +msg_total)))
-			(assign-net-id rx_frag lk_frag_dest node +msg_dest src1 src2 src3)
-			(assign-net-id rx_frag lk_frag_src node +msg_src src1 src2 src3)
-			(lh-add-at-tail parcels node next)
+			(vp-cpy-rr node msg)
+			(assign `(,total) `((,msg +msg_total)))
+			(assign-net-id frag lk_frag_dest msg +msg_dest t1 t2 t3)
+			(assign-net-id frag lk_frag_src msg +msg_src t1 t2 t3)
+			(lh-add-at-tail parcels msg next)
+		(else)
+			(vp-cpy-rr node msg)
 		(endif)
-		(assign `(,node) {msg})
 
 		;timestamp last change
-		(call :host_os :pii_time :nil {msg->+msg_timestamp})
+		(call :host_os :pii_time :nil `((,msg +msg_timestamp)))
 
 		;copy fragment data directly from link buffer into parcel
-		(assign {frag->lk_frag_length, frag->lk_frag_offset} {len, off})
-		(assign {msg->+msg_offset + len} {msg->+msg_offset})
-		(assign {msg->+msg_total - len} {msg->+msg_total})
-		(call :sys_mem :copy {&frag->lk_frag_size, msg->+msg_data + off, len})
+		(load-fields frag '(lk_frag_length lk_frag_offset) `(,len ,off))
+		(load-fields msg '(+msg_offset +msg_total +msg_data) `(,tmp ,total ,dst_ptr))
+		(vp-add-rr len tmp)
+		(vp-sub-rr len total)
+		(save-fields msg '(+msg_offset +msg_total) `(,tmp ,total))
+		(call :sys_mem :copy `((& ,frag lk_frag_size) (& ,dst_ptr ,off) ,len))
 
 		;if parcel complete, remove and post
-		(vpifnot {msg->+msg_total})
-			(assign {msg} `(,node))
+		(vpif `(,total = 0))
+			(vp-cpy-rr msg node)
 			(ln-remove-node node next)
-			(call :sys_mail :send {msg})
+			(call :sys_mail :send `(,msg))
 		(endif)
 	(else)
 		;single packet or routed onward
-		(assign {frag->lk_frag_length} {len})
-		(call :sys_mail :alloc {len} {msg, data})
-		(vp-rdef (msg_reg rx_frag len off tot))
-		(assign {msg, frag} `(,msg_reg ,rx_frag))
-		(assign-fields
-			rx_frag '(lk_frag_length lk_frag_offset lk_frag_total)
-			msg_reg '(+msg_length +msg_offset +msg_total)
-			`(,len ,off ,tot))
-		(assign-net-id rx_frag lk_frag_dest msg_reg +msg_dest)
-		(assign-net-id rx_frag lk_frag_src msg_reg +msg_src)
+		(assign `((,frag lk_frag_length)) `(,len))
+		(call :sys_mail :alloc `(,len) `(,node ,data))
+		(vp-cpy-rr node msg)
+		(assign-fields frag '(lk_frag_length lk_frag_offset lk_frag_total)
+			msg '(+msg_length +msg_offset +msg_total) `(,t1 ,t2 ,t3))
+		(assign-net-id frag lk_frag_dest msg +msg_dest t1 t2 t3)
+		(assign-net-id frag lk_frag_src msg +msg_src t1 t2 t3)
 
-		;copy payload directly from link buffer into message
-		(call :sys_mem :copy {&frag->lk_frag_size, data, len})
-		(call :sys_mail :send {msg})
+		(call :sys_mem :copy `((& ,frag lk_frag_size) ,data ,len))
+		(call :sys_mail :send `(,msg))
 	(endif)
 
-	(pop-scope)
-	(return)
+	(exit :sys_link :in_frag '())
+	(vp-ret)
 
 (def-func-end)

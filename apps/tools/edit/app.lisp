@@ -1,3 +1,3 @@
-;single instance per node only
-(if (= 0 (length (mail-enquire "Edit,")))
+;single system instance only
+(if (= 0 (length (mail-enquire "@Edit,")))
 	(import "./app_impl.lisp"))

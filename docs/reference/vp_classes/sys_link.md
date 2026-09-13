@@ -15,7 +15,7 @@ trashes
 inputs
 :r0 = frag pointer (ptr)
 trashes
-:r0-:r10, :f0-:f15
+:r0-:r14, :f0-:f15
 ```
 
 ### :link -> sys/link/link

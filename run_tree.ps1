@@ -7,6 +7,7 @@ main 64 64 @args
 if ($showhelp -eq $TRUE) {
     Write-Output "[-n cnt] number of nodes"
     Write-Output "[-b base] base offset"
+    Write-Output "[-g cnt] number of guis"
     Write-Output "[-s script_name] script mode"
     Write-Output "[-e] emulator mode"
     Write-Output "[-f] foreground mode"

@@ -7,7 +7,7 @@
 `(lisp-node?)` and `(cpp-node?)` functions removed now we have self hosted
 system to system bridging.
 
-`vp-rdef` and `vp-fdef` macros now simply exapand to a `(bind '(... &ignore)
+`vp-rdef` and `vp-fdef` macros now simply expand to a `(bind '(... &ignore)
 ...)` statement. So now uses the standard bind operators to skip args etc.
 
 New `(system-id) -> nodeid` kernel function to retrieve host system identifier.
@@ -17,6 +17,9 @@ wide, ie on a single machine/laptop/filesystem, and "" no prefix which is local
 to that specific VP node.
 
 New `:sys_link :in_frag` function for common link fragment processing.
+
+New `-g` launch scripts option for number of GUI sessions to run. Defaults to 1.
+On multi node local nets this lets you run multi screen sessions.
 
 ------
 

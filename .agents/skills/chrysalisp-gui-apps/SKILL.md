@@ -247,7 +247,7 @@ Key points:
 *	**Single instance per node.** Guard the import in `app.lisp` (see
 	`apps/tools/edit/app.lisp`):
 
-	(if (= 0 (length (mail-enquire "Edit,")))
+	(if (= 0 (length (mail-enquire "@Edit,")))
 		(import "./app_impl.lisp"))
 
 *	**Services and RPC.** Declare a service in `main` with

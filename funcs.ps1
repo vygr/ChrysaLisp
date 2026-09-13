@@ -41,8 +41,8 @@ function boot_cpu_gui {
     $boot = if ($global:emu -eq '-e') { "obj/vp64/VP64/sys/boot_image" } else { "obj/$HCPU/$HABI/sys/boot_image" }
     $argstring = "$boot " + $link.Trim()
     if ($global:emu -ne '') { $argstring += " $global:emu" }
-    if ($cpu -lt 1) {
-        if ($front -eq $FALSE) {
+    if ($cpu -lt $global:ngui) {
+        if ($front -eq $FALSE -or $cpu -ge 1) {
             Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run service/gui/app.lisp"
         } else {
             $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run service/gui/app.lisp" -PassThru -Wait
@@ -83,6 +83,7 @@ function main {
     $global:ncpu = [int]$args[0]
     $maxn = [int]$args[1]
     $global:bcpu = 0
+    $global:ngui = 1
     $global:emu = ""
     $global:front = $FALSE
     $global:script = "apps/tui/tui.lisp"
@@ -95,6 +96,7 @@ function main {
             "-s" { $global:script = $args[++$i] }
             "-e" { $global:emu = "-e" }
             "-f" { $global:front = $TRUE }
+            "-g" { $global:ngui = [int]$args[++$i] }
             "-n" { $global:ncpu = [int]$args[++$i] }
             "-b" { $global:bcpu = [int]$args[++$i] }
             "-h" { $global:showhelp = $TRUE }

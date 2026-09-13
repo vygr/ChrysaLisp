@@ -50,9 +50,9 @@ function wrap
 
 function boot_cpu_gui
 {
-	if [ $1 -lt 1 ]
+	if [ $1 -lt $num_gui ]
 	then
-		if [ "$front" == "" ]
+		if [ "$front" == "" ] || [ $1 -ge 1 ]
 		then
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run service/gui/app.lisp &
 		else
@@ -97,6 +97,7 @@ function main
 	max_cpu=$2
 	shift 2
 	base_cpu=0
+	num_gui=1
 	emu=""
 	front=""
 	script="apps/tui/tui.lisp"
@@ -118,6 +119,10 @@ function main
 			front=$1;
 			shift
 			;;
+		-g)
+			num_gui=$2
+			shift 2
+			;;
 		-n)
 			num_cpu=$2
 			shift 2
@@ -128,6 +133,7 @@ function main
 			;;
 		*)	echo "[-n cnt] number of nodes"
 			echo "[-b base] base offset"
+			echo "[-g cnt] number of guis"
 			echo "[-s script_name] script mode"
 			echo "[-e] emulator mode"
 			echo "[-f] foreground mode"

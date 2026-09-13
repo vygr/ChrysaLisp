@@ -71,7 +71,7 @@ The ChrysaLisp Editor utilizes several key architectural elements of the OS:
 	playback or replace-all) to be reverted cleanly across multiple files with
 	closed-buffer pruning.
 
-*	**RPC-Driven Inter-Process Communication:** Registers an "Edit" service using
+*	**RPC-Driven Inter-Process Communication:** Registers an "@Edit" service using
 	`mail-declare` to handle remote requests like `+edit_rpc_type_jump`, enabling
 	external tools (such as the Debugger) to trigger file opening and cursor
 	jump-to-line operations.
@@ -396,7 +396,7 @@ Keyboard events are categorized into three distinct maps to handle modifiers cle
 
 ### 6. Remote Procedure Calls (RPC)
 
-By registering with the local name server as the `"Edit"` service via `mail-declare`,
+By registering with the local name server as the `"@Edit"` service via `mail-declare`,
 the editor receives cross-task RPC requests. The `edit-jump-rpc` mechanism in `rpc.inc`
 allows external processes (such as the ChrysaLisp Debugger or compiler error handlers)
 to transmit jump requests:

@@ -12,7 +12,7 @@
 
 (defun edit-jump-rpc (brk_id file_name line_num)
 	; (edit-jump-rpc string)
-	(when (nempty? (defq service (mail-enquire "Edit,")))
+	(when (nempty? (defq service (mail-enquire "@Edit,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service
