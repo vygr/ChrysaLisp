@@ -9,15 +9,6 @@ trashes
 :r0-:r14, :f0-:f15
 ```
 
-### :in_frag -> sys/link/in_frag
-
-```code
-inputs
-:r0 = frag pointer (ptr)
-trashes
-:r0-:r14, :f0-:f15
-```
-
 ### :link -> sys/link/link
 
 ```code
