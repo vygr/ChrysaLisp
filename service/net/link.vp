@@ -349,8 +349,8 @@
 
 	;init and add link node to link array
 	(assign {&lk_node} '(:r4))
-	(vp-simd vp-cpy-cr '(0 0x7fffffff) '(:r0 :r1))
-	(assign '(:r0 :r0 :r0 :r0 :r1)
+	(vp-xor-rr :r0 :r0)
+	(assign '(:r0 :r0 :r0 :r0 :r0)
 		'((:r4 (+ lk_node_peer_node_id +node_id_node1))
 		  (:r4 (+ lk_node_peer_node_id +node_id_node2))
 		  (:r4 (+ lk_node_peer_system_id +node_id_node1))
@@ -466,7 +466,8 @@
 	(call :sys_kernel :system_id :nil '(:r0 :r1))
 	(assign {&ping_pkt} '(:r4))
 	(save-node-id :r4 +net_ping_pkt_peer_system_id :r0 :r1)
-	(vp-cpy-cr 0x7fffffff :r0)
+	(assign '((@ sys/statics/statics)) '(:r1))
+	(assign '((:r1 statics_sys_task_task_count)) '(:r0))
 	(assign '(:r0) '((:r4 +net_ping_pkt_task_count)))
 
 	;send initial ping
@@ -550,6 +551,10 @@
 	(vp-sub-rr :r1 :r2)
 	(vpif '(:r2 >= 5000000))
 		(assign '(:r0) {then})
+		(assign '((@ sys/statics/statics)) '(:r1))
+		(assign {&ping_pkt} '(:r4))
+		(assign '((:r1 statics_sys_task_task_count)) '(:r0))
+		(assign '(:r0) '((:r4 +net_ping_pkt_task_count)))
 		(call :host_net :send_all {conn_handle, &ping_pkt, +net_ping_pkt_size} `(,send_status))
 		(gotoif `(,send_status < 0) 'out_exit)
 	(endif)
@@ -627,8 +632,8 @@
 	(load-node-id :r2 lk_node_peer_system_id :r0 :r1)
 	(save-node-id :r3 lk_node_peer_system_id :r0 :r1)
 
-	;always lock task count at 0x7fffffff!
-	(vp-cpy-cr 0x7fffffff :r0)
+	;record peer task count
+	(assign '((:r2 lk_node_task_count)) '(:r0))
 	(assign '(:r0) '((:r3 lk_node_task_count)))
 
 	;wake outbound link in case mail was waiting for this peer
