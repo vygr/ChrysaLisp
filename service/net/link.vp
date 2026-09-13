@@ -584,8 +584,7 @@
 	(def-vars
 		(struct wire_hdr +net_wire_hdr_size)
 		(struct ping_payload lk_node_size)
-		(struct frag_payload lk_frag_size)
-		(ptr lk_node msg data)
+		(ptr lk_node rx_buf)
 		(nodeid node_id)
 		(long conn_handle))
 
@@ -606,6 +605,9 @@
 
 	;get local node id
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
+
+	;allocate contiguous receive buffer for incoming network fragments
+	(call :sys_mem :alloc {lk_frag_size + lk_data_size} {rx_buf, _})
 
 	;inbound packet loop
 (vp-label 'in_loop)
@@ -641,131 +643,13 @@
 	(goto 'in_check_exit)
 
 (vp-label 'in_frag)
-	;read 64-byte frag payload header
-	(call :host_net :recv_all {conn_handle, &frag_payload, lk_frag_size, lk_node} `(,recv_status))
+	;read entire fragment (header + payload) directly into rx_buf
+	(call :host_net :recv_all {conn_handle, rx_buf, wire_hdr.+net_wire_hdr_length, lk_node} `(,recv_status))
 	(gotoif `(,recv_status < 0) 'in_exit)
 
-	;check if parcel for local node
-	(assign {&frag_payload} '(:r4))
-	(assign '((:r4 lk_frag_total)) '(:r0))
-	(gotoif '(:r0 = 0) 'in_single_packet)
-
-	(assign {node_id.+node_id_node1, node_id.+node_id_node2} '(:r1 :r2))
-	(assign '((:r4 (+ lk_frag_dest +net_id_node_id +node_id_node1))
-	          (:r4 (+ lk_frag_dest +net_id_node_id +node_id_node2))) '(:r5 :r6))
-	(gotoif '(:r1 /= :r5) 'in_single_packet)
-	(gotoif '(:r2 /= :r6) 'in_single_packet)
-
-	;search parcel list for matching src net-id
-	(assign '((:r4 (+ lk_frag_src +net_id_mbox_id))
-	          (:r4 (+ lk_frag_src +net_id_node_id +node_id_node1))
-	          (:r4 (+ lk_frag_src +net_id_node_id +node_id_node2))) '(:r7 :r8 :r9))
-
-	;parcels list head in :r10
-	(assign '((@ sys/statics/statics)) '(:r10))
-	(vp-add-cr statics_sys_mail_parcel_list :r10)
-
-	;iterate list: first node is parcels->+lh_list_head
-	(assign '((:r10 +lh_list_head)) '(:r5))
-(vp-label 'parcel_search_loop)
-	(assign '((:r5 +ln_node_succ)) '(:r6))
-	(gotoif '(:r6 = 0) 'parcel_not_found)
-	(assign '((:r5 (+ +msg_src +net_id_mbox_id))
-	          (:r5 (+ +msg_src +net_id_node_id +node_id_node1))
-	          (:r5 (+ +msg_src +net_id_node_id +node_id_node2))) '(:r0 :r1 :r2))
-	(vpif '(:r0 = :r7) '(:r1 = :r8) '(:r2 = :r9))
-		(goto 'parcel_found)
-	(endif)
-	(vp-cpy-rr :r6 :r5)
-	(goto 'parcel_search_loop)
-
-(vp-label 'parcel_not_found)
-	;new parcel: allocate msg for total size
-	(assign {&frag_payload} '(:r4))
-	(assign '((:r4 lk_frag_total)) '(:r0))
-	(call :sys_mail :alloc '(:r0) '(:r5 _))
-	(assign {&frag_payload} '(:r4))
-	(assign '((:r4 lk_frag_total)) '(:r0))
-	(assign '(:r0) '((:r5 +msg_total)))
-
-	;copy dest and src net-ids to new msg
-	(assign-net-id :r4 lk_frag_dest :r5 +msg_dest :r0 :r1 :r2)
-	(assign-net-id :r4 lk_frag_src :r5 +msg_src :r0 :r1 :r2)
-
-	;add node at tail of parcels list
-	(assign '((@ sys/statics/statics)) '(:r10))
-	(vp-add-cr statics_sys_mail_parcel_list :r10)
-	(lh-add-at-tail :r10 :r5 :r6)
-
-(vp-label 'parcel_found)
-	;msg is in :r5!
-	(assign '(:r5) {msg})
-
-	;timestamp last change
-	(call :host_os :pii_time :nil '(:r0))
-	(assign {msg} '(:r5))
-	(assign '(:r0) '((:r5 +msg_timestamp)))
-
-	;read payload data directly into parcel msg buffer
-	(assign {&frag_payload} '(:r4))
-	(assign '((:r4 lk_frag_length) (:r4 lk_frag_offset)) '(:r1 :r2))
-
-	(assign '((:r5 +msg_offset)) '(:r0))
-	(vp-add-rr :r1 :r0)
-	(assign '(:r0) '((:r5 +msg_offset)))
-
-	(assign '((:r5 +msg_total)) '(:r0))
-	(vp-sub-rr :r1 :r0)
-	(assign '(:r0) '((:r5 +msg_total)))
-
-	(vpif '(:r1 > 0))
-		(assign '((:r5 +msg_data)) '(:r7))
-		(vp-add-rr :r2 :r7)
-		(assign {conn_handle, lk_node} `(,recv_handle ,recv_node))
-		(vp-cpy-rr :r1 recv_rem)
-		(vp-cpy-rr :r7 recv_buf)
-		(call :host_net :recv_all `(,recv_handle ,recv_buf ,recv_rem ,recv_node) `(,recv_status))
-		(gotoif `(,recv_status < 0) 'in_exit)
-	(endif)
-
-	;if parcel complete, remove and send
-	(assign {msg} '(:r5))
-	(assign '((:r5 +msg_total)) '(:r0))
-	(vpif '(:r0 = 0))
-		(vp-cpy-rr :r5 :r0)
-		(ln-remove-node :r0 :r1)
-		(call :sys_mail :send {msg})
-	(endif)
+	;process parcel reassembly and dispatch
+	(call :sys_link :in_frag {rx_buf})
 	(goto 'in_check_exit)
-
-(vp-label 'in_single_packet)
-	;single packet or routed onward
-	(assign {&frag_payload} '(:r4))
-	(assign '((:r4 lk_frag_length)) '(:r0))
-	(call :sys_mail :alloc '(:r0) '(:r5 :r6))
-	(assign '(:r5 :r6) {msg, data})
-
-	(assign {&frag_payload} '(:r4))
-	(assign '((:r4 lk_frag_length) (:r4 lk_frag_offset) (:r4 lk_frag_total)) '(:r0 :r1 :r2))
-	(assign '(:r0 :r1 :r2) '((:r5 +msg_length) (:r5 +msg_offset) (:r5 +msg_total)))
-
-	(assign-net-id :r4 lk_frag_dest :r5 +msg_dest :r0 :r1 :r2)
-	(assign-net-id :r4 lk_frag_src :r5 +msg_src :r0 :r1 :r2)
-
-	;read payload data directly into msg buffer!
-	(assign '((:r5 +msg_length)) `(,recv_rem))
-	(vpif `(,recv_rem > 0))
-		(assign {conn_handle, lk_node} `(,recv_handle ,recv_node))
-		(assign '((:r5 +msg_data)) `(,recv_buf))
-		(call :host_net :recv_all `(,recv_handle ,recv_buf ,recv_rem ,recv_node) `(,recv_status))
-		(vpif `(,recv_status < 0))
-			(call :sys_mail :free {msg})
-			(goto 'in_exit)
-		(endif)
-	(endif)
-
-	;send onwards
-	(call :sys_mail :send {msg})
 
 (vp-label 'in_check_exit)
 	;check if link closed
@@ -785,6 +669,10 @@
 		  (:r2 (+ lk_node_peer_system_id +node_id_node1))
 		  (:r2 (+ lk_node_peer_system_id +node_id_node2))))
 	(call :sys_task :wake_links)
+
+	;free fragment receive buffer
+	(call :sys_mem :free {rx_buf})
+
 	(pop-scope)
 	(return)
 

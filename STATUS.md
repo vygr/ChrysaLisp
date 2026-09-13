@@ -16,6 +16,8 @@ Services update. We now have "*" Global, crosses network bridges, "@" System
 wide, ie on a single machine/laptop/filesystem, and "" no prefix which is local
 to that specific VP node.
 
+New `:sys_link :in_frag` function for common link fragment processing.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly

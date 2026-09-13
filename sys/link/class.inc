@@ -6,7 +6,8 @@
 (def-class :sys_link :nil
 	(dec-method :link sys/link/link)
 	(dec-method :in sys/link/in)
-	(dec-method :out sys/link/out))
+	(dec-method :out sys/link/out)
+	(dec-method :in_frag sys/link/in_frag :static (:r0)))
 
 ;;;;;;;;;;;;;;;;;
 ; link structures
