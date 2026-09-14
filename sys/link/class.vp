@@ -175,7 +175,7 @@
 					&& head->lk_buf_size.lk_frag_dest.+net_id_node_id.+node_id_node1 = node_id.+node_id_node1
 					&& head->lk_buf_size.lk_frag_dest.+net_id_node_id.+node_id_node2 = node_id.+node_id_node2})
 					;copy direct from link buffer to parcel !
-					(call :sys_mail :in {head, rx})
+					(call :sys_mail :in {&head->lk_buf_size, head, rx, lk_chan_size})
 				(else)
 					;allocate msg, copy over data
 					(call :sys_mail :alloc {head->lk_buf_size.lk_frag_length} {msg, data})

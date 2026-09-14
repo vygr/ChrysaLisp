@@ -142,8 +142,10 @@ trashes
 
 ```code
 inputs
-:r0 = link input buffer (ptr)
-:r1 = link input ring buffer (ptr)
+:r0 = link input fragment (ptr)
+:r1 = link input buffer status, 0 if none (ptr)
+:r2 = link input ring buffer (ptr)
+:r3 = link input ring buffer extent (uint)
 trashes
 :r0-:r10, :f0-:f15
 ```
