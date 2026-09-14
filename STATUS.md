@@ -22,7 +22,11 @@ New `-g` launch scripts option for number of GUI sessions to run. Defaults to 1.
 On multi node local nets this lets you run multi screen sessions.
 
 Introduce the `*build_verb*` setting to control the amount of printed output
-from the build system. Defaults to 0, ie. minimal.
+from the build system. Defaults to 0, ie. minimal. `make -v 1` to list as
+before.
+
+Upgrade the CPM async pipeline with a more orthogonal approach. Much simpler but
+same benefits.
 
 ------
 
