@@ -1,9 +1,7 @@
 (include "lib/asm/func.inc")
 (include "class/num/class.inc")
-(include "class/nodeid/class.inc")
 (include "class/netid/class.inc")
 (include "class/lisp/class.inc")
-(include "././link/class.inc")
 
 (def-method :sys_mail :lisp_validate)
 	;inputs
