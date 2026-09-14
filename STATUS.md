@@ -28,6 +28,8 @@ before.
 Upgrade the CPM async pipeline with a more orthogonal approach. Much simpler but
 same benefits.
 
+`:host_net :in` method now shares the `:sys_mail :in` parcel handling method.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly
