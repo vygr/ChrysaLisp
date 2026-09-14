@@ -21,6 +21,9 @@ New `:sys_link :in_frag` function for common link fragment processing.
 New `-g` launch scripts option for number of GUI sessions to run. Defaults to 1.
 On multi node local nets this lets you run multi screen sessions.
 
+Introduce the `*build_verb*` setting to control the amount of printed output
+from the build system. Defaults to 0, ie. minimal.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly

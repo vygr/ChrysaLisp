@@ -1473,7 +1473,7 @@
 ;build_mode 0, release, strip all error checking
 ;build_mode 1, normal, with error checking
 ;build_mode 2, validate, with extra runtime validation checking
-(defq *build_mode* 1 *build_emit* :nil *build_inst* :nil)
+(defq *build_mode* 1 *build_emit* :nil *build_inst* :nil *build_verb* 0)
 
 (defun os ()
 	; (os) -> sym

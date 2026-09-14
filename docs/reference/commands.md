@@ -381,6 +381,7 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
 
     options:
         -h --help: this help info.
+        -v --verbosity num: how much info, default 0.
 
     all:        include all .vp files.
     boot:       create a boot image.

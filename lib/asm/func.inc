@@ -107,7 +107,8 @@
 		(if *build_emit* (print *out*)))
 	(defq *out* (emit-translate *emit_code*))
 	(save *out* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))
-	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out*) ")")))
+	(if (> *build_verb* 0)
+		(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out*) ")"))))
 
 (defun abort (&optional s)
 	;no ret as that screws up the tracer !

@@ -10,6 +10,7 @@
 
     options:
         -h --help: this help info.
+        -v --verbosity num: how much info, default 0.
 
     all:        include all .vp files.
     boot:       create a boot image.
@@ -22,6 +23,7 @@
     debug:      it/apps debug mode.
     validate:   it/apps validate mode.
     test:       test make timings.")
+(("-v" "--verbosity") ,(opt-num 'opt_v))
 ))
 
 (defq +LF "\n" +ai_excluded_files
@@ -83,7 +85,7 @@
 					(write-line stream (cat "### " name +LF))
 					(information stream info))
 				(sort methods (# (cmp (first %0) (first %1)))))
-			(print "-> " document))
+			(if (> *build_verb* 0) (print "-> " document)))
 		(sort (. docs_map :find :classes) (# (cmp (first %0) (first %1)))))
 
 	;create key bindings docs
@@ -101,7 +103,7 @@
 				(write-line stream (cat "```" +LF))))
 		(sort (. docs_map :find :keys) (# (if (/= 0 (defq _ (cmp (first %0) (first %1))))
 			_ (cmp (second %0) (second %1))))))
-	(print "-> " document)
+	(if (> *build_verb* 0) (print "-> " document))
 
 	;create functions docs
 	(defq document "docs/reference/functions.md"
@@ -112,7 +114,7 @@
 				(write-line stream (cat "### " name +LF))
 				(information stream info)))
 		(sort (. docs_map :find :functions) (# (cmp (first %0) (first %1)))))
-	(print "-> " document)
+	(if (> *build_verb* 0) (print "-> " document))
 
 	;create macros docs
 	(defq document "docs/reference/macros.md"
@@ -123,7 +125,7 @@
 				(write-line stream (cat "### " name +LF))
 				(information stream info)))
 		(sort (. docs_map :find :macros) (# (cmp (first %0) (first %1)))))
-	(print "-> " document)
+	(if (> *build_verb* 0) (print "-> " document))
 
 	;create commands docs
 	(defq document "docs/reference/commands.md"
@@ -135,7 +137,7 @@
 			(write-line stream "```"))
 		(sort (pipe-farm (map (# (cat %0 " -h")) (files-all "cmd" '(".lisp") 4 -6)))
 			(# (cmp (first %0) (first %1)))))
-	(print "-> " document)
+	(if (> *build_verb* 0) (print "-> " document))
 
 	;scan for VP classes info
 	(defq *abi* (abi) *cpu* (cpu) *imports* (all-vp-files) classes (list)
@@ -202,7 +204,8 @@
 					(write-line stream "```code")
 					(each (# (write-line stream %0)) info)
 					(write-line stream (const (str "```" +LF))))) mthds))
-		(print (cat "-> docs/reference/vp_classes/" (rest cls) ".md"))) classes))
+		(if (> *build_verb* 0) (print (cat "-> docs/reference/vp_classes/" (rest cls) ".md")))) classes)
+	(print "Done"))
 
 (defun make-ai ()
 	(defq folders (Lmap) cmds (list))
@@ -219,11 +222,12 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq args (options stdio usage)))
+			(defq opt_v 0 args (options stdio usage)))
 		(each (# (def (penv) (sym %0) (find %0 args)))
 			'("all" "platforms" "boot" "docs" "it" "apps"
 				"release" "debug" "validate" "test" "ai" "vp"))
-		(defq mode (or (if validate 2) (if debug 1) (if release 0)))
+		(defq mode (or (if validate 2) (if debug 1) (if release 0))
+			*build_verb* opt_v)
 		(cond
 			(test (make-test))
 			(vp (remake-all-vp 1))

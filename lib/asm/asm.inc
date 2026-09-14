@@ -51,7 +51,7 @@
 		(shuffle files)
 		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 2)
 			select (list (mail-mbox) (mail-mbox) (mail-mbox))
-			jobs (map (# (str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst*))) files)
+			jobs (map (# (str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*))) files)
 			max_workers (length files)
 			init_workers (/ (* max_workers 10) 100)
 			new_workers (/ (* init_workers 10) 100)
