@@ -82,7 +82,7 @@
 
 (defun create (key val nodes)
 	(open-task (const (cat *app_root* "child.lisp")) (elem-get nodes (random (length nodes)))
-		+kn_call_child key (elem-get select +select_task)))
+		+kn_call_run key (elem-get select +select_task)))
 
 (defun destroy (key val)
 	(when (defq child (get :child val)) (mail-send child ""))

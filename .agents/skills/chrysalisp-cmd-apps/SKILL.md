@@ -32,11 +32,11 @@ the `Pipe` class from `lib/task/pipe.inc`:
 	the cluster (see `LLM.md` and `docs/ai_digest/task_pipelines.md`):
 
 	*	`|` (distribution): launches the next task with
-		`+kn_call_child`, triggering emergent load balancing. The search
+		`+kn_call_run`, triggering emergent load balancing. The search
 		starts at the previous task's node, so stages land near their
 		data source.
 
-	*	`!` (pinning): launches the next task with `+kn_call_open`,
+	*	`!` (pinning): launches the next task with `+kn_call_pin`,
 		pinned to the exact same node as the previous task. Use it for
 		communication-intensive stages that should share local memory.
 

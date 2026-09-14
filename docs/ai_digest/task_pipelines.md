@@ -25,7 +25,7 @@ The standard pipe operator `|` is designed to maximize parallel distribution and
 CPU utilization.
 
 When the pipeline encounters a `|`, it requests the kernel to launch the
-following task using the `+kn_call_child` mode.
+following task using the `+kn_call_run` mode.
 
 This triggers ChrysaLisp's emergent load-balancing protocol:
 
@@ -50,7 +50,7 @@ The `!` operator is designed for communication-intensive pipeline segments where
 network latency or bandwidth constraints would bottleneck performance.
 
 When the pipeline encounters a `!`, it requests the kernel to launch the
-following task using the `+kn_call_open` mode.
+following task using the `+kn_call_pin` mode.
 
 This forces the kernel to bypass load balancing entirely.
 

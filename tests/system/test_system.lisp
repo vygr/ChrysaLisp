@@ -44,14 +44,14 @@
 (defq child_code (cat
 	"(defun main ()"
 	"  (mail-send (hex-decode \q" (hex-encode reply_mbox) "\q) \qhello\q))"))
-(defq child_id (open-child child_code +kn_call_open))
+(defq child_id (open-child child_code +kn_call_pin))
 (assert-true "open-child inline started" (/= 0 (get-long child_id 0)))
 (defq res (mail-read reply_mbox))
 (assert-eq "open-child inline message reply" "hello" res)
 
 (defq child_code2 (cat
 	"(mail-send (hex-decode \q" (hex-encode reply_mbox) "\q) \qworld\q)"))
-(defq child_id2 (open-child child_code2 +kn_call_child))
+(defq child_id2 (open-child child_code2 +kn_call_run))
 (assert-true "open-child inline top-level started" (/= 0 (get-long child_id2 0)))
 (defq res2 (mail-read reply_mbox))
 (assert-eq "open-child inline top-level message reply" "world" res2)

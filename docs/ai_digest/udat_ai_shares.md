@@ -61,7 +61,7 @@ emergent, self-organizing behavior.
     applications to be written without knowledge of the underlying network
     topology.
 
-*   **Emergent Task Placement:** The implementation of the `+kn_call_child`
+*   **Emergent Task Placement:** The implementation of the `+kn_call_run`
     flag in `sys/kernel/class.vp` is the literal embodiment of this
     philosophy. The kernel's protocol of checking neighbor `task_count` and
     forwarding the *entire task creation request* "downhill" until it settles

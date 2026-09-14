@@ -177,11 +177,11 @@
 (defun main ()
 	;sign on msg
 	(mail-declare tmbox "Terminal" "Terminal Services 0.2")
-	(open-child "service/lock/app.lisp" +kn_call_open)
-	(open-child "service/net/app.lisp" +kn_call_child)
+	(open-child "service/lock/app.lisp" +kn_call_pin)
+	(open-child "service/net/app.lisp" +kn_call_run)
 	(print "ChrysaLisp Terminal" +LF *env_terminal_prompt*)
 	;create child and send args
-	(mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_open) (task-mbox))
+	(mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_pin) (task-mbox))
 	(defq cmd :nil buffer "" cursor 0 esc_state 0 last_input 0
 		*meta_map* :nil *history_idx* (state-load))
 	(bind '(*history*) (gather *meta_map* :history))

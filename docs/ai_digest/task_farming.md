@@ -160,7 +160,7 @@ pattern:
     ; bias to go out to the edge nodes
     (defq nodes (slice nodes (/ (length nodes) 2) -1))
     (open-task "path/to/child.lisp" (elem-get nodes (random (length nodes)))
-        +kn_call_child key (elem-get select +select_task)))
+        +kn_call_run key (elem-get select +select_task)))
 ```
 
 By slicing the node list in half and taking the upper bound (`-1`), the
@@ -172,7 +172,7 @@ application biases workloads (like compilation or rendering) to the outer
 You don't always need to perfectly calculate where a task should go.
 ChrysaLisp's Kernel supports emergent load balancing.
 
-When you use `+kn_call_child` in your `create` function (via `open-task` or
+When you use `+kn_call_run` in your `create` function (via `open-task` or
 `open-child`), you are opting into the kernel's fluid distribution.
 
 1. You target a node (e.g., a random node from the provided list).
@@ -205,7 +205,7 @@ like this:
     ; 1. Pick a node (randomly, or biased)
     (defq target_node (elem-get nodes (random (length nodes))))
     ; 2. Ask the kernel to launch the child task
-    (open-task "my_child_app.lisp" target_node +kn_call_child key (elem-get select +select_task)))
+    (open-task "my_child_app.lisp" target_node +kn_call_run key (elem-get select +select_task)))
 
 (defun destroy (key val)
     ; 1. If we have a tracked child, send it a termination message (empty string)

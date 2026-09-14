@@ -81,7 +81,7 @@
 	; (create key val nodes)
 	;function called when entry is created
 	(open-task (const (cat *app_root* "child.lisp")) (elem-get nodes (random (length nodes)))
-		+kn_call_child key (elem-get select +select_task)))
+		+kn_call_run key (elem-get select +select_task)))
 
 (defun destroy (key val)
 	; (destroy key val)

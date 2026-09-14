@@ -14,7 +14,7 @@ multi-pass decompression models create severe memory bloat and latency spikes.
 
 This document details a powerful ChrysaLisp pattern: **Async Local Pipelines**.
 By combining the ability to execute **raw Lisp-level source directly as an
-inline task** with **local node pinning (`+kn_call_open`)** and **back-to-front
+inline task** with **local node pinning (`+kn_call_pin`)** and **back-to-front
 stream handshaking**, developers can construct multi-stage producer-consumer
 pipelines with **zero full-frame intermediate buffers**.
 
@@ -138,18 +138,18 @@ We need zero-copy shared memory access.
 
 Two architectural mechanisms make this safe and fast:
 
-### 1. Node Pinning (`+kn_call_open`)
+### 1. Node Pinning (`+kn_call_pin`)
 
-The standard task spawn flag `+kn_call_child` delegates placement to the kernel's
+The standard task spawn flag `+kn_call_run` delegates placement to the kernel's
 emergent load balancer, which might slip the task to a neighboring core or node.
 
-To ensure tasks share the same physical address space, we use **`+kn_call_open`**:
+To ensure tasks share the same physical address space, we use **`+kn_call_pin`**:
 
 ```vdu
-(open-child (cpm-load-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_open)
+(open-child (cpm-load-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_pin)
 ```
 
-`+kn_call_open` strictly pins the child task to the **exact same hardware node
+`+kn_call_pin` strictly pins the child task to the **exact same hardware node
 and memory context** as the parent. Pointers into heaps and memory streams remain
 100% valid across both tasks without any cross-node proxying.
 
@@ -375,7 +375,7 @@ in ChrysaLisp:
    reader can evaluate strings directly, there is virtually zero penalty to
    spawning micro-tasks on the fly for ephemeral operations.
 
-4. **`+kn_call_open` Enables Shared Address Space Access:** Node pinning keeps child
+4. **`+kn_call_pin` Enables Shared Address Space Access:** Node pinning keeps child
    tasks on the exact same node, allowing direct object referencing (`weak-ref` and
    `obj-ref`) while maintaining clean stream-based communication.
 

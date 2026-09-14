@@ -168,7 +168,7 @@ disk files. In the kernel, `opt_run` routes inline code strings directly to
 in an `sstream` fed directly to the REPL.
 
 Refactored `CPM-load` and `CPM-save` in `lib/image/cpm.inc` to use asynchronous
-local task pipelines (`+kn_call_open`) with symmetrical `cpm-load-stage-xxx` and
+local task pipelines (`+kn_call_pin`) with symmetrical `cpm-load-stage-xxx` and
 `cpm-save-stage-xxx` pipeline stages for image and `.FLM` film compression and
 decompression, replacing sequential intermediate `(memory-stream)` buffers with
 zero-buffering streaming pipelines wired back-to-front via IPC stream mailboxes.

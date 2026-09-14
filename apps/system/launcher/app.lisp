@@ -118,7 +118,7 @@
 				(setq running :nil))
 			((= id +event_launch)
 				(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
-				(open-child (app-path (. name_to_path_map :find (get :text button))) +kn_call_open)
+				(open-child (app-path (. name_to_path_map :find (get :text button))) +kn_call_pin)
 				(setq running :nil))
 			((= id +event_toggle)
 				(defq toggle (. *window* :find_id (getf msg +ev_msg_action_source_id))

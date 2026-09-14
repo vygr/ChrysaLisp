@@ -67,7 +67,7 @@ When finished with testing, terminate all background instances:
 ### Server Script (`scratch/run_srv.lisp`)
 ```lisp
 (print "=== SERVER LISTENING ON :4444 ===")
-(mail-send (open-child "service/net/link" +kn_call_open) ":4444")
+(mail-send (open-child "service/net/link" +kn_call_pin) ":4444")
 (while :t
 	(task-sleep 1000000))
 ```
@@ -75,7 +75,7 @@ When finished with testing, terminate all background instances:
 ### Client Script (`scratch/run_cli.lisp`)
 ```lisp
 (print "=== CLIENT CONNECTING TO 127.0.0.1:4444 ===")
-(mail-send (open-child "service/net/link" +kn_call_open) "127.0.0.1:4444")
+(mail-send (open-child "service/net/link" +kn_call_pin) "127.0.0.1:4444")
 (task-sleep 3000000)
 (print "=== CLIENT SESSION FINISHED ===")
 ((ffi "service/gui/lisp_deinit"))

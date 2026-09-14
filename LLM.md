@@ -284,7 +284,7 @@ Deep dives into meta-commentary and design philosophy:
 
 69. **[Async Local Pipelines](docs/ai_digest/async_pipelines.md)** - Spawning
     raw Lisp source directly as inline tasks, local node pinning
-    (`+kn_call_open`), shared-memory concurrency, and zero-buffering streaming
+    (`+kn_call_pin`), shared-memory concurrency, and zero-buffering streaming
     pipelines (case study: `CPM-load`).
 
 ---

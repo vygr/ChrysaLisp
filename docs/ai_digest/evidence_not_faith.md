@@ -77,7 +77,7 @@ their toolchains, the build workload is dynamically distributed:
   buffers (`lk_shmem`) coordinate communication, negotiate channel ownership,
   and synchronize status words (`lk_chan_status_frag`, `ping`, `skip`).
 
-* **Decentralized Load Balancing (`+kn_call_child`):** Child task creation
+* **Decentralized Load Balancing (`+kn_call_run`):** Child task creation
   requests flow "downhill" across the network like water, seeking nodes with
   lower task counts to spawn new workers.
 

@@ -176,7 +176,7 @@ features.
     worms (network partitions) emerge, each growing a new head and tail. When
     the link is restored, they seamlessly fuse. This is a protocol in motion.
 
-*   **The Load Balancing Protocol:** The `+kn_call_child` mechanism is not a
+*   **The Load Balancing Protocol:** The `+kn_call_run` mechanism is not a
     complex algorithm. It's a simple, local rule repeated at each hop,
     causing the task request to flow "downhill" across the network like
     water. The sophisticated global load balancing is the emergent result of

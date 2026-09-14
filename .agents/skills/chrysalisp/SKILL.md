@@ -91,7 +91,7 @@ The system is engineered for fluid adaptability and distributed scalability:
 		workloads (e.g. random or round-robin placement).
 
 	*	**Kernel-Assisted Emergent Placement:** When spawning a task with
-		`+kn_call_child`, the kernel initiates a decentralized load-
+		`+kn_call_run`, the kernel initiates a decentralized load-
 		balancing search. It compares its local `task_count` against
 		immediate network neighbors. If a neighbor is less loaded, the
 		entire spawn request flows "downhill" to that node without

@@ -33,7 +33,7 @@
 	;bias to go out to the edge nodes
 	(defq nodes (slice nodes (/ (length nodes) 2) -1))
 	(open-task "lib/asm/asm.lisp" (elem-get nodes (random (length nodes)))
-		+kn_call_child key (elem-get select +select_launch)))
+		+kn_call_run key (elem-get select +select_launch)))
 
 (defun destroy (key val)
 	; (destroy key val)

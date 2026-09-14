@@ -2,7 +2,7 @@
 (print "CLIENT: Initial peer nodes count = " (length (mail-nodes)))
 
 (print "CLIENT: Connecting to 127.0.0.1:4567...")
-(mail-send (open-child "service/net/link" +kn_call_open) "127.0.0.1:4567")
+(mail-send (open-child "service/net/link" +kn_call_pin) "127.0.0.1:4567")
 
 ; Wait for remote nodes to appear (expecting at least 10 server nodes)
 (defq timeout 50)
@@ -19,7 +19,7 @@
 (defq reply_mbox (mail-mbox))
 (defq child_code (cat
 	"(mail-send (hex-decode \q" (hex-encode reply_mbox) "\q) \qPING_PONG_OK\q)"))
-(open-child child_code +kn_call_child)
+(open-child child_code +kn_call_run)
 (defq res (mail-read reply_mbox))
 (print "CLIENT: Remote task response = " res)
 (if (eql res "PING_PONG_OK")

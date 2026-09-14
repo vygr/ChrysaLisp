@@ -22,7 +22,7 @@
 (defun create (key val nodes)
 	(defq nodes (slice nodes (/ (length nodes) 2) -1))
 	(open-task "lib/task/cmd.lisp" (elem-get nodes (random (length nodes)))
-		+kn_call_child key (elem-get select +select_task)))
+		+kn_call_run key (elem-get select +select_task)))
 
 (defun destroy (key val)
 	(when (defq child (get :child val)) (mail-send child ""))

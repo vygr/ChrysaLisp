@@ -91,7 +91,7 @@
 			;which kernel call number
 			(assign {data->+kn_msg_func} '(:r0))
 			(switch)
-			(vpcase '(:r0 = +kn_call_open))
+			(vpcase '(:r0 = +kn_call_pin))
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
 				(call 'opt_run {&data->+kn_msg_open_pathname} '(:r0 :r1 :r2))
@@ -101,7 +101,7 @@
 				(assign '(:r5) '((:r3 +msg_length)))
 				(call :sys_mail :send '(:r3))
 				(break)
-			(vpcase '(:r0 = +kn_call_child))
+			(vpcase '(:r0 = +kn_call_run))
 				;find best cpu to run task on the same physical system
 				(call :array :clear {best_nodes})
 				(assign {statics->statics_sys_task_task_count} {best_cnt})
@@ -135,10 +135,7 @@
 						msg->+msg_dest.+net_id_node_id.+node_id_node2})
 				(call :sys_mail :send {msg})
 				(break)
-			(vpcase '(:r0 = +kn_call_ping_sys))
-				(goto 'handle_ping)
-			(vpcase '(:r0 = +kn_call_ping))
-			(vp-label 'handle_ping)
+			(vpcase '(:r0 >= +kn_call_ping))
 				;new services/routing ping
 				(def-vars
 					(ptr session_cluster session_sys set)

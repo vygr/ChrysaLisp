@@ -114,7 +114,7 @@
 	(defq svc (net-service))
 	(unless svc
 		;start net service on node 0
-		(open-remote "service/net/app.lisp" (first (lisp-nodes)) +kn_call_open)
+		(open-remote "service/net/app.lisp" (first (lisp-nodes)) +kn_call_pin)
 		(defq retries 50)
 		(while (and (not (setq svc (net-service))) (> (-- retries) 0))
 			(task-sleep 10000)))
@@ -127,5 +127,5 @@
 			(mail-send svc req)
 			(defq reply (mail-read reply_mbox))
 			(getf reply +net_rpc_reply_status))
-		(mail-send (open-child "service/net/link" +kn_call_open) target)))
+		(mail-send (open-child "service/net/link" +kn_call_pin) target)))
 

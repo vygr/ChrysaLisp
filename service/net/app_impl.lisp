@@ -99,7 +99,7 @@
 									(+net_rpc_reply_status -1)))))
 						(+net_rpc_type_link
 							(defq target (slice msg +net_rpc_link_target -1)
-								child (open-child "service/net/link" +kn_call_open))
+								child (open-child "service/net/link" +kn_call_pin))
 							(if (/= (get-long child 0) 0)
 								(progn
 									(mail-send child target)

@@ -12,7 +12,7 @@
 
 ; 2. Connect link to machine 185
 (print "\nConnecting link to 192.168.1.185:3333...")
-(mail-send (open-child "service/net/link" +kn_call_open) "192.168.1.185:3333")
+(mail-send (open-child "service/net/link" +kn_call_pin) "192.168.1.185:3333")
 
 ; 3. Wait until we see local_count + 10 total nodes (up to 30 seconds)
 (print "Waiting for " expected_total " total nodes (" local_count " local + 10 remote)...")
@@ -58,7 +58,7 @@
 				(str mem_used) "\n"
 				(str mem_avail) "\n"
 				(str max_stack))))))
-	(open-remote task_code remote_node +kn_call_child)
+	(open-remote task_code remote_node +kn_call_run)
 	(setq dispatched (+ dispatched 1)))
 	remote_nodes)
 

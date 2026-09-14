@@ -171,7 +171,7 @@ inter-process messaging patterns:
 * **Leveraging External Services**: Instead of maintaining a complex, custom
   file dialog within the whiteboard, the application requests the system's file
   browser (`apps/system/files/child.lisp`) as an independent child task via
-  `(open-child ...)` with the `+kn_call_open` flag.
+  `(open-child ...)` with the `+kn_call_pin` flag.
 
 * **Asynchronous Message Exchange**: The Whiteboard passes a temporary mailbox
   (`*picker_mbox*`) to the file browser. The main loop listens on this port.

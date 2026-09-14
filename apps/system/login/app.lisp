@@ -46,7 +46,7 @@
 				((/= (age (cat "usr/" (defq user (get-username)) "/env.inc")) 0)
 					;login user
 					(save user "usr/current")
-					(open-child "apps/system/wallpaper/app.lisp" +kn_call_open)
+					(open-child "apps/system/wallpaper/app.lisp" +kn_call_pin)
 					:nil)
 				(:t :t)))
 		((= id +event_create)
@@ -58,7 +58,7 @@
 					(save (load "usr/Guest/env.inc") (cat home "env.inc"))
 					;login new user
 					(save user "usr/current")
-					(open-child "apps/system/wallpaper/app.lisp" +kn_call_open)
+					(open-child "apps/system/wallpaper/app.lisp" +kn_call_pin)
 					:nil)
 				(:t :t)))
 		((. *window* :event msg))))

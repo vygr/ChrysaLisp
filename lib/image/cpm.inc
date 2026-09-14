@@ -85,15 +85,15 @@
 						(:t
 							(defq handshake_mbox (mail-mbox) done_mbox (mail-mbox))
 							; 1. Launch Consumer (Stage 3: Pixmap)
-							(open-child (cpm-load-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_open)
+							(open-child (cpm-load-stage-pixmap pixmap type handshake_mbox done_mbox) +kn_call_pin)
 							(defq downstream_mbox (mail-read handshake_mbox))
 							; 2. Launch RLE (Stage 2) if present
 							(when rle
-								(open-child (cpm-load-stage-rle downstream_mbox (if lz4 :nil stream) num_bits (* w h) (if lz4 handshake_mbox)) +kn_call_open)
+								(open-child (cpm-load-stage-rle downstream_mbox (if lz4 :nil stream) num_bits (* w h) (if lz4 handshake_mbox)) +kn_call_pin)
 								(if lz4 (setq downstream_mbox (mail-read handshake_mbox))))
 							; 3. Launch LZ4 (Stage 1) if present
 							(when lz4
-								(open-child (cpm-load-stage-lz4 downstream_mbox stream) +kn_call_open))
+								(open-child (cpm-load-stage-lz4 downstream_mbox stream) +kn_call_pin))
 							; 4. Wait for consumer completion
 							(defq res (mail-read done_mbox))
 							(ifn (and res (eql res (str (weak-ref pixmap))))
@@ -151,14 +151,14 @@
 			(defq handshake_mbox (mail-mbox) done_mbox (mail-mbox) downstream_mbox :nil)
 			; 1. Launch LZ4 (Stage 3: Consumer) if present
 			(when lz4
-				(open-child (cpm-save-stage-lz4 stream handshake_mbox done_mbox) +kn_call_open)
+				(open-child (cpm-save-stage-lz4 stream handshake_mbox done_mbox) +kn_call_pin)
 				(setq downstream_mbox (mail-read handshake_mbox)))
 			; 2. Launch RLE (Stage 2) if present
 			(when rle
-				(open-child (cpm-save-stage-rle (if lz4 downstream_mbox stream) num_bits handshake_mbox (if lz4 :nil done_mbox)) +kn_call_open)
+				(open-child (cpm-save-stage-rle (if lz4 downstream_mbox stream) num_bits handshake_mbox (if lz4 :nil done_mbox)) +kn_call_pin)
 				(setq downstream_mbox (mail-read handshake_mbox)))
 			; 3. Launch Pixmap (Stage 1: Producer)
-			(open-child (cpm-save-stage-pixmap pixmap downstream_mbox type) +kn_call_open)
+			(open-child (cpm-save-stage-pixmap pixmap downstream_mbox type) +kn_call_pin)
 			; 4. Wait for consumer completion
 			(mail-read done_mbox)))
 	canvas)

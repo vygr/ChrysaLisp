@@ -245,7 +245,7 @@ Load balancing ("Be like water") is inherently tied to the link protocol:
 1. **Local Assessment:** Link drivers share their `task_count` via `ping` buffer
    statuses continuously.
 
-2. **Downhill Flow:** When a task is spawned with `+kn_call_child`, the kernel
+2. **Downhill Flow:** When a task is spawned with `+kn_call_run`, the kernel
    (`sys/kernel/class.vp`) checks the `task_count` of all connected peers.
 
 3. **Delegation:** If peer nodes have a lower `task_count`, the kernel aborts
