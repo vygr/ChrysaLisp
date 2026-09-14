@@ -30,6 +30,9 @@ same benefits.
 
 `:host_net :in` method now shares the `:sys_mail :in` parcel handling method.
 
+Added clean teardown of the GUI from `Logout` app `quit` RPC. Clean up
+everything and leave the VP node pristine like it was never there.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly

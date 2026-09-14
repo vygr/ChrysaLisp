@@ -72,18 +72,17 @@
 	;kernel callback for deinit ?
 	(assign '(:r0) '((:rsp local_this)))
 	(fn-bind 'sys/statics/statics :r1)
-	(assign '((:r1 statics_gui_init)) '(:r2))
+	(assign '((:r1 statics_gui_init) (:r1 statics_gui_screen)) '(:r2 :r3))
+	(vp-or-rr :r3 :r2)
 	(vpif '(:r2 /= 0))
 		(call :sys_task :callback '(:rsp ($ deinit_callback)))
-		(assign '((:rsp local_this)) '(:r0))
-		(assign '((:r0 +lisp_sym_nil)) '(:r1))
-		(class/obj/ref :r1 :r2)
 	(endif)
 
-	;pii exit ! for now
-	(call :host_os :pii_exit '(0))
+	(assign '((:rsp local_this)) '(:r0))
+	(assign '((:r0 +lisp_sym_nil)) '(:r1))
+	(class/obj/ref :r1 :r2)
 
-	(exit :host_gui :lisp_deinit '((:rsp local_this) :r1))
+	(exit :host_gui :lisp_deinit '(:r0 :r1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -105,16 +104,43 @@
 		(call :view :deref '(:r0))
 	(endif)
 
-	;destroy any gui
+	;free any temps list
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_gui_temps)) '(:r0))
+	(vpif '(:r0 /= 0))
+		(vp-xor-rr :r2 :r2)
+		(assign '(:r2) '((:r1 statics_gui_temps)))
+		(call :list :deref '(:r0))
+	(endif)
+
+	;destroy any gui and clear init flag
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_gui_init)) '(:r0))
 	(vpif '(:r0 /= 0))
+		(vp-xor-rr :r2 :r2)
+		(assign '(:r2) '((:r1 statics_gui_init)))
 		(host-gui-call :host_gui :deinit)
 	(endif)
 
 	;deinit region heap
 	(fn-bind 'sys/statics/statics :r0)
 	(call :sys_heap :deinit '((& :r0 statics_gui_rect_heap)))
+
+	;reset remaining gui statics
+	(fn-bind 'sys/statics/statics :r1)
+	(vp-xor-rr :r0 :r0)
+	(assign '(:r0 :r0 :r0 :r0 :r0)
+		'((:r1 statics_gui_dirty_flag)
+		  (:r1 statics_gui_old_region_index)
+		  (:r1 statics_gui_flags)
+		  (:r1 statics_gui_mouse_x)
+		  (:r1 statics_gui_mouse_y)))
+
+	;clear lisp tls on kernel tcb
+	(assign '((:r1 statics_sys_task_kernel_tcb)) '(:r1))
+	(vpif '(:r1 /= 0))
+		(assign '(:r0) '((:r1 +tk_node_lisp)))
+	(endif)
 
 	(assign '((:rsp local2_old_stack)) '(:rsp))
 	(vp-ret)

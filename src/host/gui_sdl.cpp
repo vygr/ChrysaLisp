@@ -3,12 +3,35 @@
 
 #include <SDL.h>
 
-SDL_Window *window;
-SDL_Renderer *renderer;
-SDL_Texture *backbuffer;
+#if defined(__APPLE__)
+#include <objc/message.h>
+#include <objc/runtime.h>
+
+static void set_macos_activation_policy(intptr_t policy)
+{
+	Class nsapp_class = (Class)objc_getClass("NSApplication");
+	if (nsapp_class)
+	{
+		SEL shared_app_sel = sel_registerName("sharedApplication");
+		id app = ((id (*)(Class, SEL))objc_msgSend)(nsapp_class, shared_app_sel);
+		if (app)
+		{
+			SEL set_policy_sel = sel_registerName("setActivationPolicy:");
+			((BOOL (*)(id, SEL, intptr_t))objc_msgSend)(app, set_policy_sel, policy);
+		}
+	}
+}
+#endif
+
+SDL_Window *window = nullptr;
+SDL_Renderer *renderer = nullptr;
+SDL_Texture *backbuffer = nullptr;
 
 void host_gui_init(SDL_Rect *rect, uint64_t flags)
 {
+#if defined(__APPLE__)
+	set_macos_activation_policy(0); // NSApplicationActivationPolicyRegular
+#endif
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	window = SDL_CreateWindow("ChrysaLisp GUI Window",
@@ -28,8 +51,32 @@ void host_gui_init(SDL_Rect *rect, uint64_t flags)
 void host_gui_deinit()
 {
 	SDL_ShowCursor(SDL_ENABLE);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+	if (backbuffer)
+	{
+		SDL_DestroyTexture(backbuffer);
+		backbuffer = nullptr;
+	}
+	if (renderer)
+	{
+		SDL_DestroyRenderer(renderer);
+		renderer = nullptr;
+	}
+	if (window)
+	{
+		SDL_DestroyWindow(window);
+		window = nullptr;
+	}
+
+	// Drain pending events so Cocoa finishes processing the window destruction
+	SDL_Event ev;
+	while (SDL_PollEvent(&ev)) {}
+	SDL_PumpEvents();
+
+	SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+
+#if defined(__APPLE__)
+	set_macos_activation_policy(2); // NSApplicationActivationPolicyProhibited
+#endif
 }
 
 uint64_t host_gui_poll_event(void *handle)

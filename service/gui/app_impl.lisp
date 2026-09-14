@@ -53,7 +53,7 @@
 	;send quit action to all GUI apps
 	;action 0 is reserved for close !
 	(each (lambda (child)
-		(when (defq mbox (. child :find_owner))
+		(when (and (nql child *mouse*) (defq mbox (. child :find_owner)))
 			(defq source_id (. child :get_id))
 			(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
 				(+ev_msg_type +ev_type_action)
@@ -142,4 +142,7 @@
 					;quit if no apps
 					(and *quitting* (<= (length children) 1) (setq *running* :nil))))))
 	(mail-forget service)
+	(mail-timeout (elem-get select +select_timer) 0 0)
+	(each (# (. %0 :sub)) (. *screen* :children))
+	(setq *mouse* :nil *screen* :nil)
 	(gui-deinit))
