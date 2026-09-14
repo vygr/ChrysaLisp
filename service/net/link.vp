@@ -562,14 +562,15 @@
 
 (vp-label 'out_exit)
 	;mark link closed
-	(assign {lk_node} '(:r2))
-	(vp-simd vp-cpy-cr '(-1 0) '(:r0 :r1))
-	(assign '(:r0 :r1 :r1 :r1 :r1)
-		'((:r2 lk_node_task_count)
-		  (:r2 (+ lk_node_peer_node_id +node_id_node1))
-		  (:r2 (+ lk_node_peer_node_id +node_id_node2))
-		  (:r2 (+ lk_node_peer_system_id +node_id_node1))
-		  (:r2 (+ lk_node_peer_system_id +node_id_node2))))
+	(vp-rdef (node cnt zero))
+	(assign {lk_node, -1, 0} `(,node ,cnt ,zero))
+	(save-fields node
+			`(lk_node_task_count
+			,(+ lk_node_peer_node_id +node_id_node1)
+			,(+ lk_node_peer_node_id +node_id_node2)
+			,(+ lk_node_peer_system_id +node_id_node1)
+			,(+ lk_node_peer_system_id +node_id_node2))
+		`(,cnt ,zero ,zero ,zero ,zero))
 
 	(call :nodeid :destroy {key})
 	(pop-scope)
@@ -664,17 +665,28 @@
 	(else)
 		;single packet or routed onward
 		(call :sys_mail :alloc {frag_len} {msg, data})
-		(vp-rdef (msg rx_frag len off tot))
+		;copy frag data
+		(vp-rdef (msg rx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
 		(assign {msg, frag_buf} `(,msg ,rx_frag))
 		(assign-fields
-			rx_frag '(lk_frag_length lk_frag_offset lk_frag_total)
-			msg '(+msg_length +msg_offset +msg_total)
-			`(,len ,off ,tot))
-		(assign-net-id rx_frag lk_frag_dest msg +msg_dest)
-		(assign-net-id rx_frag lk_frag_src msg +msg_src)
-		(vpif {frag_len > 0})
-			(call :sys_mem :copy {&frag_buf->lk_frag_size, data, frag_len})
-		(endif)
+			rx_frag
+				`(lk_frag_length lk_frag_offset lk_frag_total
+				,(+ lk_frag_dest +net_id_mbox_id)
+				,(+ lk_frag_dest +net_id_node_id +node_id_node1)
+				,(+ lk_frag_dest +net_id_node_id +node_id_node2)
+				,(+ lk_frag_src +net_id_mbox_id)
+				,(+ lk_frag_src +net_id_node_id +node_id_node1)
+				,(+ lk_frag_src +net_id_node_id +node_id_node2))
+			msg
+				`(+msg_length +msg_offset +msg_total
+				,(+ +msg_dest +net_id_mbox_id)
+				,(+ +msg_dest +net_id_node_id +node_id_node1)
+				,(+ +msg_dest +net_id_node_id +node_id_node2)
+				,(+ +msg_src +net_id_mbox_id)
+				,(+ +msg_src +net_id_node_id +node_id_node1)
+				,(+ +msg_src +net_id_node_id +node_id_node2))
+			`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
+		(call :sys_mem :copy {&frag_buf->lk_frag_size, data, frag_len})
 		(call :sys_mail :send {msg})
 	(endif)
 	(goto 'in_check_exit)
@@ -691,14 +703,16 @@
 	(call :sys_mem :free {frag_buf})
 
 	;mark link closed
-	(assign {lk_node} '(:r2))
-	(vp-simd vp-cpy-cr '(-1 0) '(:r0 :r1))
-	(assign '(:r0 :r1 :r1 :r1 :r1)
-		'((:r2 lk_node_task_count)
-		  (:r2 (+ lk_node_peer_node_id +node_id_node1))
-		  (:r2 (+ lk_node_peer_node_id +node_id_node2))
-		  (:r2 (+ lk_node_peer_system_id +node_id_node1))
-		  (:r2 (+ lk_node_peer_system_id +node_id_node2))))
+	(vp-rdef (node cnt zero))
+	(assign {lk_node, -1, 0} `(,node ,cnt ,zero))
+	(save-fields node
+			`(lk_node_task_count
+			,(+ lk_node_peer_node_id +node_id_node1)
+			,(+ lk_node_peer_node_id +node_id_node2)
+			,(+ lk_node_peer_system_id +node_id_node1)
+			,(+ lk_node_peer_system_id +node_id_node2))
+		`(,cnt ,zero ,zero ,zero ,zero))
+
 	(call :sys_task :wake_links)
 	(pop-scope)
 	(return)

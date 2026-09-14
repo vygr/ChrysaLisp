@@ -177,16 +177,28 @@
 					;copy direct from link buffer to parcel !
 					(call :sys_mail :in {&head->lk_buf_size, head, rx, lk_chan_size})
 				(else)
-					;allocate msg, copy over data
+					;allocate msg, copy frag data
 					(call :sys_mail :alloc {head->lk_buf_size.lk_frag_length} {msg, data})
-					(vp-rdef (msg rx_frag len off tot))
+					(vp-rdef (msg rx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
 					(assign {msg, &head->lk_buf_size} `(,msg ,rx_frag))
 					(assign-fields
-						rx_frag '(lk_frag_length lk_frag_offset lk_frag_total)
-						msg '(+msg_length +msg_offset +msg_total)
-						`(,len ,off ,tot))
-					(assign-net-id rx_frag lk_frag_dest msg +msg_dest)
-					(assign-net-id rx_frag lk_frag_src msg +msg_src)
+						rx_frag
+							`(lk_frag_length lk_frag_offset lk_frag_total
+							,(+ lk_frag_dest +net_id_mbox_id)
+							,(+ lk_frag_dest +net_id_node_id +node_id_node1)
+							,(+ lk_frag_dest +net_id_node_id +node_id_node2)
+							,(+ lk_frag_src +net_id_mbox_id)
+							,(+ lk_frag_src +net_id_node_id +node_id_node1)
+							,(+ lk_frag_src +net_id_node_id +node_id_node2))
+						msg
+							`(+msg_length +msg_offset +msg_total
+							,(+ +msg_dest +net_id_mbox_id)
+							,(+ +msg_dest +net_id_node_id +node_id_node1)
+							,(+ +msg_dest +net_id_node_id +node_id_node2)
+							,(+ +msg_src +net_id_mbox_id)
+							,(+ +msg_src +net_id_node_id +node_id_node1)
+							,(+ +msg_src +net_id_node_id +node_id_node2))
+						`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
 					(call :sys_mem :copy_from_ring {&head->lk_buf_size.lk_frag_size,
 						data, head->lk_buf_size.lk_frag_length, lk_chan_size, rx})
 
@@ -341,18 +353,30 @@
 			;reset to min poling
 			(assign {lk_sleep_min} {sleep_time})
 
-			;copy message data
-			(vp-rdef (tx_frag msg len off tot))
-			(assign {&head->lk_buf_size, msg} `(,tx_frag ,msg))
+			;copy frag data
+			(vp-rdef (msg tx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
+			(assign {msg, &head->lk_buf_size} `(,msg ,tx_frag))
 			(assign-fields
-				msg '(+msg_length +msg_offset +msg_total)
-				tx_frag '(lk_frag_length lk_frag_offset lk_frag_total)
-				`(,len ,off ,tot))
-			(assign-net-id msg +msg_dest tx_frag lk_frag_dest)
-			(assign-net-id msg +msg_src tx_frag lk_frag_src)
+				msg
+					`(+msg_length +msg_offset +msg_total
+					,(+ +msg_dest +net_id_mbox_id)
+					,(+ +msg_dest +net_id_node_id +node_id_node1)
+					,(+ +msg_dest +net_id_node_id +node_id_node2)
+					,(+ +msg_src +net_id_mbox_id)
+					,(+ +msg_src +net_id_node_id +node_id_node1)
+					,(+ +msg_src +net_id_node_id +node_id_node2))
+				tx_frag
+					`(lk_frag_length lk_frag_offset lk_frag_total
+					,(+ lk_frag_dest +net_id_mbox_id)
+					,(+ lk_frag_dest +net_id_node_id +node_id_node1)
+					,(+ lk_frag_dest +net_id_node_id +node_id_node2)
+					,(+ lk_frag_src +net_id_mbox_id)
+					,(+ lk_frag_src +net_id_node_id +node_id_node1)
+					,(+ lk_frag_src +net_id_node_id +node_id_node2))
+				`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
 			(call :sys_mem :copy_to_ring {msg->+msg_data,
-				&head->lk_buf_size.lk_frag_size,
-				msg->+msg_length, lk_chan_size, tx})
+					&head->lk_buf_size.lk_frag_size,
+					msg->+msg_length, lk_chan_size, tx})
 
 			;write buf frag, wrap head and trigger :in
 			(call 'write_buf {head, tx, lk_chan_status_frag,
@@ -391,10 +415,13 @@
 	(loop-end)
 
 	;mark link closed
-	(assign {-1, 0, 0}
-		{lk_node->lk_node_task_count,
-		lk_node->lk_node_peer_node_id.+node_id_node1,
-		lk_node->lk_node_peer_node_id.+node_id_node2})
+	(vp-rdef (node cnt zero))
+	(assign {lk_node, -1, 0} `(,node ,cnt ,zero))
+	(save-fields node
+			`(lk_node_task_count
+			,(+ lk_node_peer_node_id +node_id_node1)
+			,(+ lk_node_peer_node_id +node_id_node2))
+		`(,cnt ,zero ,zero))
 
 	(call :nodeid :destroy {key})
 
