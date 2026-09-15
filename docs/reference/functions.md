@@ -202,12 +202,26 @@ these are sorted interned char strings
 can be searched with (bfind)
 ```
 
+### check-date
+
+```code
+(check-date td) -> :t | :nil
+```
+
 ### circle
 
 ```code
 (circle r) -> path
 
 cached circle generation, quantised to 1/4 pixel
+```
+
+### civil-from-days
+
+```code
+(civil-from-days days) -> (year month day)
+
+O(1) arithmetic calendar conversion (month 0..11, day 1..31)
 ```
 
 ### cpu
@@ -263,6 +277,42 @@ sort cursor so (cx cy) <= (ax ay)
 returns :t if csr2 is enclosed within (or equal to) csr1
 ```
 
+### date
+
+```code
+(date [secs]) -> (sec min hour day month year dotw)
+```
+
+### day-of-the-week
+
+```code
+(day-of-the-week dotw) -> str
+```
+
+### days-from-civil
+
+```code
+(days-from-civil year month day) -> days
+```
+
+### days-in-month
+
+```code
+(days-in-month month year) -> days (28..31)
+```
+
+### days-in-year
+
+```code
+(days-in-year year) -> 365 | 366
+```
+
+### decode-date
+
+```code
+(decode-date str) -> td
+```
+
 ### each-mergeable
 
 ```code
@@ -273,6 +323,12 @@ returns :t if csr2 is enclosed within (or equal to) csr1
 
 ```code
 (empty? form) -> :t | :nil
+```
+
+### encode-date
+
+```code
+(encode-date [td]) -> str
 ```
 
 ### env?
@@ -392,6 +448,12 @@ new files returned by the handler are merged into the work list.
 
 ```code
 (flatten list) -> list
+```
+
+### float-time
+
+```code
+(float-time [smooth]) -> (sec min hour)
 ```
 
 ### flush-bits
@@ -691,6 +753,12 @@ tells us which vertices are inside the surface
 (lambda? form) -> :t | :nil
 ```
 
+### leapyear?
+
+```code
+(leapyear? year) -> :t | :nil
+```
+
 ### lighting
 
 ```code
@@ -807,6 +875,12 @@ very basic attenuation, diffuse and specular
 
 ```code
 (min-length list) -> min
+```
+
+### month-of-the-year
+
+```code
+(month-of-the-year month) -> str
 ```
 
 ### msafe?
@@ -1402,10 +1476,34 @@ accepts standard "Normal diff" format
 (texture-metrics texture) -> (handle width height)
 ```
 
+### time-from-date
+
+```code
+(time-from-date td) -> secs
+```
+
 ### time-in-seconds
 
 ```code
 (time-in-seconds time) -> str
+```
+
+### timezone-init
+
+```code
+(timezone-init tz_loc) -> tz
+```
+
+### timezone-lookup
+
+```code
+(timezone-lookup query [field]) -> tz | :nil
+```
+
+### timezone-offset-seconds
+
+```code
+(timezone-offset-seconds tz) -> seconds
 ```
 
 ### transfer
