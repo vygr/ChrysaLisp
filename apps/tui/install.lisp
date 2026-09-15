@@ -5,7 +5,7 @@
 (print "Please wait...")
 (print)
 (while (< (length (lisp-nodes)) 10) (task-sleep 100000))
-(pipe-run "make all boot | time -s"
+(pipe-run "make -v 1 all boot | time -s"
 	(lambda (%0) (prin %0) (stream-flush (io-stream "stdout"))))
 (print)
 (print "Install complete.")
