@@ -165,9 +165,9 @@ Network identity is based on the tuple `(mailbox_id, node_id)`:
 ChrysaLisp's interpreter is self-hosted (`class/lisp/`, root environment in
 `class/lisp/root.inc`) and built for maximum throughput:
 
-*	**Vector-Based Architecture:** The system entirely dispenses with cons
-	cells, `car`, and `cdr`. All Lisp sequences are vectors operated on via
-	indexed primitives (`(!)` forms).
+*	**Vector-Based Primitives:** Sequences are flat vectors rather than
+	linked lists; all traversal and manipulation map to indexed vector
+	primitives (`elem-get`, `slice`, `splice`).
 
 *	**No-Layer FFI:** Direct zero-overhead calling between Lisp forms and
 	underlying Virtual Processor (VP) machine instructions.
@@ -226,6 +226,35 @@ ChrysaLisp's interpreter is self-hosted (`class/lisp/`, root environment in
 	prioritize input validation to prevent invalid states from ever
 	occurring, rather than catching errors after the fact.
 
+*	**Conditionals & Branching (`if`, `ifn`, `when`, `unless`):**
+
+	*	*Implicit Progn on Else Clauses:* Both `(if tst then else ...)` and
+		`(ifn tst then else ...)` treat the `then` branch as a single form,
+		but support an arbitrary number of expressions in their `else`
+		clause as an implicit `progn` evaluated via `:lisp :repl_progn`.
+
+	*	*Test-Result Passthrough:* When no `else` clause is provided:
+
+		*	`(if tst then)` returns `:nil` when `tst` evaluates to falsy.
+
+		*	`(ifn tst then)` returns `tst` (the non-nil test result) when `tst`
+			evaluates to truthy.
+
+	*	*Macro Architecture of `when` and `unless`:*
+
+		*	Single-form `(when tst form)` expands directly to `(if tst form)`
+			for zero-overhead evaluation.
+
+		*	Multi-form `when` expands to `(ifn tst :nil body ...)`, routing the
+			body through the else-clause implicit `progn`.
+
+		*	`(unless tst body ...)` expands to `(if tst :nil body ...)` for both
+			single- and multi-form bodies.
+
+		*	Both `when` and `unless` strictly guarantee returning `:nil`
+			whenever the body is not executed, completely avoiding the
+			fallback overhead of intermediate `cond` or `condn` structures.
+
 *	**Lists as LIFO Stacks:**
 
 	*	`(push list elem)` appends to the end of `list`.
@@ -254,18 +283,13 @@ ChrysaLisp's interpreter is self-hosted (`class/lisp/`, root environment in
 
 *	**Variable Binding and Shadowing:**
 
-	*	**Variable Naming (Snake_case Only):** Variables, arguments, and
-		parameters must ALWAYS use snake_case with underscores (`_`), never
-		hyphens (`-`). Hyphenated/kebab-case symbols are strictly reserved
-		for callable forms (functions and macros).
-
 	*	Do not nest `let` or `let*`. Use `defq` to declare and bind multiple
-		variables simultaneously in the current scope:
+		variables simultaneously in scope:
 
 		(defq a 1 b 2 c (list))
 
 	*	Never use built-in function names as variables (e.g. `path`, `str`).
-		Functions and variables share the same symbol environment.
+		Variables, functions, and macros share a single symbol environment.
 
 	*	Use `bind` for destructuring sequences and return tuples:
 
@@ -403,17 +427,10 @@ Every method must follow standard boundary and scoping conventions:
 
 (def-func-end)
 
-### The `assign` Macro
+### The `assign` Macro & CScript Memory Rules
 
 `(assign ...)` evaluates expressions, moves data, and loads/stores memory
-simultaneously:
-
-(assign '((:r0 +str_length)) '(:r1))
-
-### CScript Integration & Memory Rules
-
-CScript provides high-level typed variables and pointer expressions within
-`{...}` blocks:
+simultaneously (e.g. `(assign '((:r0 +str_length)) '(:r1))`):
 
 *	**Typed Declarations:** Define stack variables with `(def-vars ...)`.
 	Supported types include `ptr`, `pubyte`, `long`, `uint`, etc.
@@ -426,10 +443,10 @@ CScript provides high-level typed variables and pointer expressions within
 
 	*	**NEVER call `(pop-scope)` before `(return)` or `(jump)`**. Both
 		macros automatically emit scope unwinding instructions. Calling
-		`pop-scope` manually creates a double-free of the stack frame.
+		`pop-scope` manually causes a stack frame double-free.
 
 	*	Place `(pop-scope-syms)` at the end of the `def-func` block (after
-		the `errorcase` and `signature` sections) to cleanly purge compiler
+		`errorcase` and `signature` sections) to cleanly purge compiler
 		tracking.
 
 *	**CScript Stack Packing & Unions:**
@@ -521,8 +538,6 @@ pure VP assembler:
 	(vp-rdef (cp_src cp_dst cp_len) (method-input :sys_mem :copy_to_ring))
 
 	Assign loop state into these argument aliases immediately before the call.
-	If the call trashes registers used for loop progression, keep counters in
-	registers outside the call's `;trashes` set, or advance them before the call.
 
 *	Preserve live state across calls via explicit `(vp-push reg)` /
 	`(vp-pop reg)` or by saving to CScript stack slots.
