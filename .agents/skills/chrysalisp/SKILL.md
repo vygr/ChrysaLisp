@@ -741,6 +741,37 @@ GUI rendering executes in two deterministic passes:
 
 	*	**Properties and Keywords:** Colon prefix (`:foo_bar`).
 
+## Building & Binary Verification
+
+When modifying VP assembler source files (`.vp` or `sys/*.vp`), the system boot
+image and cross-platform binaries must be rebuilt:
+
+*	**Native Boot Image Rebuild:**
+	`./run_tui.sh -f -s tests/build/test_build.lisp`
+	Recompiles all host `.vp` files and generates the native boot image.
+
+*	**Full Multi-Platform Release Rebuild:**
+	`./run_tui.sh -f -s tests/build/test_it.lisp`
+	Recompiles all platforms (`AMD64`, `WIN64`, `ARM64`, `RISCV64`, `LA64`,
+	`VP64`) in canonical release mode and generates system documentation.
+
+*	**Binary-to-Binary Verification & Diff Testing:**
+	The reference directory `../ChrysaLisp_copy/obj/` is used to verify exactly
+	what binaries changed across builds and to confirm that the VP64 emulator
+	(`-e`) produces bit-for-bit identical output to the native host:
+
+	1.	Build all platforms natively with `make it`:
+		`./run_tui.sh -f -s tests/build/test_it.lisp`
+
+	2.	Sync `obj/` to `../ChrysaLisp_copy/obj/`:
+		`rsync -av --delete obj/ ../ChrysaLisp_copy/obj/`
+
+	3.	Rebuild under the VP64 emulator:
+		`./run_tui.sh -e -f -s tests/build/test_it.lisp`
+
+	4.	Verify bit-for-bit identity using host `diff`:
+		`diff -r obj/ ../ChrysaLisp_copy/obj/`
+
 ## Output Directives (Mandatory)
 
 *	Do not emit entire unmodified source files. Provide focused diffs or

@@ -185,15 +185,15 @@ Per `CONTRIBUTIONS.md`, changes must be verified before submission:
 
 Once a known good build is working, ensure all platforms are compiled in the
 canonical release mode produced by `make it` (matching `snapshot.zip`, not the
-debug mode produced by `make vp`), then snapshot `obj/` to
-`../ChrysaLisp_copy/`:
+debug mode produced by `make vp`), then sync `obj/` to
+`../ChrysaLisp_copy/obj/`:
 
-	cp -r obj ../ChrysaLisp_copy/
+	rsync -av --delete obj/ ../ChrysaLisp_copy/obj/
 
-Later, after making source changes and rebuilding with `make it`, use recursive
-binary comparison to inspect exactly which object binaries changed:
+Later, after making source changes and rebuilding with `make it`, use host
+recursive binary comparison to inspect exactly which object binaries changed:
 
-	diff -rq obj ../ChrysaLisp_copy/obj
+	diff -r obj/ ../ChrysaLisp_copy/obj/
 
 This avoids spurious diffs from debug builds and provides an exact,
 authoritative picture of legitimate binary modifications across platforms.
@@ -203,18 +203,20 @@ authoritative picture of legitimate binary modifications across platforms.
 This binary comparison is also vital for verifying that the emulated VP64 build
 (`-e`) produces bit-for-bit identical binaries to the native build:
 
-1.	Build all platforms natively with `make it` (`tests/build/test_it.lisp`).
+1.	Build all platforms natively with `make it`:
+	`./run_tui.sh -f -s tests/build/test_it.lisp`.
 
-2.	Snapshot `obj/` to `../ChrysaLisp_copy/`: `cp -r obj ../ChrysaLisp_copy/`.
+2.	Sync `obj/` to `../ChrysaLisp_copy/obj/`:
+	`rsync -av --delete obj/ ../ChrysaLisp_copy/obj/`.
 
 3.	Rebuild all platforms under the VP64 emulator:
 	`./run_tui.sh -e -f -s tests/build/test_it.lisp`.
 
-4.	Run `diff -rq obj ../ChrysaLisp_copy/obj`.
+4.	Run host binary diff: `diff -r obj/ ../ChrysaLisp_copy/obj/`.
 
-A clean diff (zero differences) proves deterministic compilation and guarantees
-that the VP64 emulator environment produces identical machine code and data
-structures to the native host.
+A clean diff (zero output / exit code 0) proves deterministic compilation and
+guarantees that the VP64 emulator environment produces identical machine code
+and data structures to the native host.
 
 ---
 
