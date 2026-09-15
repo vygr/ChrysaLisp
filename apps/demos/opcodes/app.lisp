@@ -9,7 +9,7 @@
 (enums +event 0
 	(enum close))
 
-(defq canvas_width 800 canvas_height 700 canvas_scale 1
+(defq canvas_width 600 canvas_height 600 canvas_scale 1
 	f_width (n2f canvas_width) f_height (n2f canvas_height) f_scale (n2f canvas_scale)
 	rate (/ 1000000 30) global_tick 0.0
 	font (create-font "fonts/Hack-Regular.ctf" 34))
@@ -97,22 +97,28 @@
 		om (- (* (n2f (random 200)) 0.00015) 0.015)
 		phase (* (n2f (random 628)) 0.01)
 		s (ifn scale (+ 0.95 (* (n2f (random 25)) 0.01))))
+	(bind '(name core_paths outline_paths glow_paths col_outline col_core col_glow hw hh) model)
+	(defq ca (abs (cos ang)) sa (abs (sin ang))
+		ext_x (* s (+ (* hw ca) (* hh sa)))
+		ext_y (* s (+ (* hw sa) (* hh ca)))
+		clamped_x (max ext_x (min x (- f_width ext_x)))
+		clamped_y (max ext_y (min y (- f_height ext_y))))
 	(list model
-		(Vec2-f x y)
+		(Vec2-f clamped_x clamped_y)
 		(Vec2-f vx vy)
 		ang om s phase 1.0 1.0))
 
-; Spawn an active flock of bouncers covering diverse opcode families
+; Spawn an active flock of bouncers covering diverse opcode families proportionally
 (defq *bouncers* (list
-	(create-bouncer 'emit-call    160.0 160.0  2.1  1.7 1.05)   ; Violet (Control)
-	(create-bouncer 'emit-add-rr  560.0 180.0 -2.3  1.8 0.95)   ; Lime (Arithmetic)
-	(create-bouncer 'emit-cpy-rr  380.0 320.0  1.7 -2.0 1.10)   ; Amber (Data)
-	(create-bouncer 'emit-sqrt-ff 220.0 480.0 -1.9  2.2 1.00)   ; Cyan (Float)
-	(create-bouncer 'emit-shl-rr  620.0 520.0 -2.0 -1.6 0.90)   ; Yellow (Bitwise)
-	(create-bouncer 'emit-push    420.0 150.0  2.3 -1.5 1.00)   ; Orange (Stack)
-	(create-bouncer 'emit-slt-rr  260.0 300.0 -1.6 -2.1 0.95)   ; Hot Pink (Compare)
-	(create-bouncer 'emit-alloc   520.0 380.0  1.9  1.9 0.90)   ; Orange (Memory)
-	(create-bouncer 'emit-div-rrr 180.0 580.0  2.2 -1.7 1.05))) ; Lime (Arithmetic)
+	(create-bouncer 'emit-call    (* f_width 0.25) (* f_height 0.25)  2.1  1.7 1.05)   ; Violet (Control)
+	(create-bouncer 'emit-add-rr  (* f_width 0.72) (* f_height 0.28) -2.3  1.8 0.95)   ; Lime (Arithmetic)
+	(create-bouncer 'emit-cpy-rr  (* f_width 0.50) (* f_height 0.50)  1.7 -2.0 1.10)   ; Amber (Data)
+	(create-bouncer 'emit-sqrt-ff (* f_width 0.28) (* f_height 0.70) -1.9  2.2 1.00)   ; Cyan (Float)
+	(create-bouncer 'emit-shl-rr  (* f_width 0.75) (* f_height 0.75) -2.0 -1.6 0.90)   ; Yellow (Bitwise)
+	(create-bouncer 'emit-push    (* f_width 0.55) (* f_height 0.22)  2.3 -1.5 1.00)   ; Orange (Stack)
+	(create-bouncer 'emit-slt-rr  (* f_width 0.35) (* f_height 0.45) -1.6 -2.1 0.95)   ; Hot Pink (Compare)
+	(create-bouncer 'emit-alloc   (* f_width 0.70) (* f_height 0.55)  1.9  1.9 0.90)   ; Orange (Memory)
+	(create-bouncer 'emit-div-rrr (* f_width 0.22) (* f_height 0.82)  2.2 -1.7 1.05))) ; Lime (Arithmetic)
 
 (ui-window *window* ()
 	(ui-title-bar _ "Kinetic VP Opcodes" (0xea19) +event_close)
@@ -148,6 +154,7 @@
 		; Left wall
 		(when (and (< x ext_x) (< vx 0.0))
 			(setq vx (abs vx)
+				x ext_x
 				sq_x 0.75 sq_y 1.25)
 			(when (= 0 (random 2))
 				(elem-set b 0 (elem-get *opcode_models* (random (length *opcode_models*))))))
@@ -155,6 +162,7 @@
 		; Right wall
 		(when (and (> x (- f_width ext_x)) (> vx 0.0))
 			(setq vx (neg (abs vx))
+				x (- f_width ext_x)
 				sq_x 0.75 sq_y 1.25)
 			(when (= 0 (random 2))
 				(elem-set b 0 (elem-get *opcode_models* (random (length *opcode_models*))))))
@@ -162,6 +170,7 @@
 		; Top wall
 		(when (and (< y ext_y) (< vy 0.0))
 			(setq vy (abs vy)
+				y ext_y
 				sq_x 1.25 sq_y 0.75)
 			(when (= 0 (random 2))
 				(elem-set b 0 (elem-get *opcode_models* (random (length *opcode_models*))))))
@@ -169,11 +178,14 @@
 		; Bottom wall
 		(when (and (> y (- f_height ext_y)) (> vy 0.0))
 			(setq vy (neg (abs vy))
+				y (- f_height ext_y)
 				sq_x 1.25 sq_y 0.75)
 			(when (= 0 (random 2))
 				(elem-set b 0 (elem-get *opcode_models* (random (length *opcode_models*))))))
 
 		; Write back updated values
+		(elem-set pos +vec2_x x)
+		(elem-set pos +vec2_y y)
 		(elem-set vel +vec2_x vx)
 		(elem-set vel +vec2_y vy)
 		(elem-set b 3 angle)
