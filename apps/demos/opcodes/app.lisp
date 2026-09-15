@@ -182,13 +182,13 @@
 		(elem-set b 8 sq_y)) *bouncers*))
 
 (defun draw-backdrop ()
-	; Clean deep space black/slate canvas
-	(. *canvas* :fill 0xff0b0e14))
+	; Clean deep space black canvas for vibrant neon contrast
+	(. *canvas* :fill 0xff0a0e14))
 
 (defun redraw ()
 	(draw-backdrop)
 
-	; Draw each bouncing opcode with depth shadow, neon outline, and illuminated core
+	; Draw each bouncing opcode with vibrant neon outline and illuminated core
 	(each (lambda (b)
 		(bind '(model pos vel angle omega scale phase sq_x sq_y) b)
 		(bind '(name core_paths outline_paths glow_paths col_outline col_core col_glow hw hh) model)
@@ -204,24 +204,18 @@
 			mc (* final_sy sa)
 			md (* final_sy ca))
 
-		; 1. Ambient Drop Shadow (offset proportional to scale)
-		(defq sh_off (* scale 8.0)
-			sh_matrix (fixeds ma mb (+ x sh_off) mc md (+ y sh_off)))
-		(fpoly 0x48000000 +winding_odd_even
-			(map (# (path-transform sh_matrix %0 (cat %0))) glow_paths))
-
 		; Main transformation matrix centered at (x, y)
 		(defq tx_matrix (fixeds ma mb x mc md y))
 
-		; 2. Outer Translucent Neon Glow
+		; 1. Outer Translucent Neon Glow
 		(fpoly col_glow +winding_odd_even
 			(map (# (path-transform tx_matrix %0 (cat %0))) glow_paths))
 
-		; 3. Crisp Neon Outline Hull
+		; 2. Crisp Neon Outline Hull
 		(fpoly col_outline +winding_odd_even
 			(map (# (path-transform tx_matrix %0 (cat %0))) outline_paths))
 
-		; 4. High-Contrast Luminescent Core
+		; 3. High-Contrast Luminescent Core
 		(fpoly col_core +winding_odd_even
 			(map (# (path-transform tx_matrix %0 (cat %0))) core_paths)))
 		*bouncers*)
