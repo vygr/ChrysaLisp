@@ -77,7 +77,7 @@
 					(create-font "fonts/OpenSans-Regular.ctf" font_size)
 					(create-font "fonts/Hack-Regular.ctf" font_size)))
 		(when font
-			(defq num_r (* scale 0.28))
+			(defq num_r (* scale 0.30))
 			(each (lambda (n)
 				(defq a (/ (* (n2f n) +fp_2pi) 12.0)
 					text (str n)
