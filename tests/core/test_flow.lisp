@@ -66,10 +66,26 @@
 ; Progn
 (assert-eq "Progn last" 3 (progn 1 2 3))
 
+; --- if: Multi-form Else & Passthrough ---
+(defq if_m 0)
+(assert-eq "if multi-form else" 12 (if :nil "then" (setq if_m 1) (++ if_m) (+ if_m 10)))
+(assert-eq "if multi-form else side effect check" 2 if_m)
+(assert-eq "if multi-form else skipped on true" "then" (if :t "then" (setq if_m 999)))
+(assert-eq "if multi-form else skipped check" 2 if_m)
+(assert-eq "if no else passthrough" :nil (if :nil "then"))
+
+; --- ifn: Single-form, Multi-form Else & Passthrough ---
 (assert-eq "ifn true"  "no"  (ifn :t "yes" "no"))
 (assert-eq "ifn false" "yes" (ifn :nil "yes" "no"))
 (assert-eq "ifn passthrough" 123 (ifn 123 45)) ; test form is true, so it passes it through!
 (assert-eq "ifn default" 45 (ifn :nil 45))       ; test form is false, evaluates the default
+
+(defq ifn_m 0)
+(assert-eq "ifn multi-form else" 12 (ifn :t "then" (setq ifn_m 1) (++ ifn_m) (+ ifn_m 10)))
+(assert-eq "ifn multi-form else side effect check" 2 ifn_m)
+(assert-eq "ifn multi-form else skipped on false" "then" (ifn :nil "then" (setq ifn_m 999)))
+(assert-eq "ifn multi-form else skipped check" 2 ifn_m)
+(assert-eq "ifn truthy multi-form else overrides passthrough" 30 (ifn 123 "then" 10 20 30))
 
 (defq condn_res (condn
 	((= 1 1) "A")
@@ -84,7 +100,62 @@
 (assert-true "AND logic" (and :t :t))
 (assert-eq   "AND short" :nil (and :nil (throw "Should not eval" :nil)))
 (assert-true "OR logic"  (or :nil :t))
-(assert-true  "when"   (when :t :t))
-(assert-true  "unless" (unless :nil :t))
 (assert-eq	"or short 2" 5 (or :nil 5))
 (assert-eq	"and short 2" 10 (and :t 10))
+
+; --- when: 1-form and Multi-form ---
+(assert-eq "when 1-form true" "exec" (when :t "exec"))
+(assert-eq "when 1-form false returns nil" :nil (when :nil "exec"))
+
+(defq when_m 0)
+(assert-eq "when multi-form true" 3 (when :t (++ when_m) (++ when_m) (++ when_m)))
+(assert-eq "when multi-form val" 3 when_m)
+(assert-eq "when multi-form false returns nil" :nil (when :nil (++ when_m)))
+(assert-eq "when multi-form false skipped check" 3 when_m)
+
+; --- unless: 1-form and Multi-form ---
+(assert-eq "unless 1-form false" "exec" (unless :nil "exec"))
+(assert-eq "unless 1-form true returns nil" :nil (unless :t "exec"))
+(assert-eq "unless 1-form truthy returns nil" :nil (unless 123 "exec"))
+
+(defq unless_m 0)
+(assert-eq "unless multi-form false" 3 (unless :nil (++ unless_m) (++ unless_m) (++ unless_m)))
+(assert-eq "unless multi-form val" 3 unless_m)
+(assert-eq "unless multi-form true returns nil" :nil (unless :t (++ unless_m)))
+(assert-eq "unless multi-form truthy returns nil" :nil (unless "truthy" (++ unless_m)))
+(assert-eq "unless multi-form true skipped check" 3 unless_m)
+
+; --- Proof: when and unless always return :nil when body does not execute ---
+(report-header "when / unless: guaranteed :nil on non-execution")
+
+; when with false condition (single- and multi-form)
+(assert-eq "when false literal 1-form" :nil (when :nil 100))
+(assert-eq "when false literal multi-form" :nil (when :nil 10 20 30))
+(assert-eq "when false expr 1-form" :nil (when (= 1 2) "executed"))
+(assert-eq "when false expr multi-form" :nil (when (find 9 '(1 2 3)) "a" "b" "c"))
+(assert-true "when false returns nil?" (nil? (when :nil "never")))
+
+; unless with true and diverse truthy conditions (single- and multi-form)
+; Proves that truthy test results (numbers, strings, symbols, lists) never leak
+(assert-eq "unless :t 1-form" :nil (unless :t 100))
+(assert-eq "unless :t multi-form" :nil (unless :t 10 20 30))
+
+(assert-eq "unless number 42 1-form" :nil (unless 42 "executed"))
+(assert-eq "unless number 42 multi-form" :nil (unless 42 1 2 3))
+(assert-eq "unless number 0 1-form" :nil (unless 0 "executed"))
+(assert-eq "unless number 0 multi-form" :nil (unless 0 1 2 3))
+
+(assert-eq "unless string 1-form" :nil (unless "truthy string" "executed"))
+(assert-eq "unless string multi-form" :nil (unless "truthy string" 1 2 3))
+
+(assert-eq "unless symbol 1-form" :nil (unless 'some_sym "executed"))
+(assert-eq "unless symbol multi-form" :nil (unless 'some_sym 1 2 3))
+
+(assert-eq "unless list 1-form" :nil (unless '(1 2 3) "executed"))
+(assert-eq "unless list multi-form" :nil (unless '(1 2 3) 1 2 3))
+
+(assert-eq "unless dynamic expr 1-form" :nil (unless (+ 10 20) "executed"))
+(assert-eq "unless dynamic expr multi-form" :nil (unless (cat "foo" "bar") 1 2 3))
+
+(assert-true "unless truthy returns nil?" (nil? (unless 123 "never")))
+(assert-true "unless :t returns nil?" (nil? (unless :t "never" "ever")))

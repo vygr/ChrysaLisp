@@ -21,9 +21,9 @@
 (ffi "class/lisp/lisp_condn" condn 1)
 ; (condn [(tst body)] ...) -> 'form
 (ffi "class/lisp/lisp_if" if 1)
-; (if tst form [else_form]) -> 'form
+; (if tst form [else_form ...]) -> 'form
 (ffi "class/lisp/lisp_ifn" ifn 1)
-; (ifn tst form [else_form]) -> 'form
+; (ifn tst form [else_form ...]) -> 'form
 (ffi "class/lisp/lisp_while" while 1)
 ; (while tst [body]) -> :nil
 (ffi "class/lisp/lisp_until" until 1)
@@ -706,16 +706,14 @@
 	(static-qq (if ,%0 :nil :t)))
 
 (defmacro when (%0 &rest %1)
-	; (when tst body)
+	; (when tst body) -> :nil | 'form
 	(if (= (length %1) 1)
 		(static-qq (if ,%0 ~%1))
-		(static-qq (cond (,%0 ~%1)))))
+		(static-qq (ifn ,%0 :nil ~%1))))
 
 (defmacro unless (%0 &rest %1)
-	; (unless tst body)
-	(if (= (length %1) 1)
-		(static-qq (ifn ,%0 ~%1))
-		(static-qq (condn (,%0 ~%1)))))
+	; (unless tst body ...) -> :nil | 'form
+	(static-qq (if ,%0 :nil ~%1)))
 
 (defmacro or (&rest %0)
 	; (or [tst] ...) -> :nil | tst

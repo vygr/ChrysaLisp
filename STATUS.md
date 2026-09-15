@@ -35,6 +35,11 @@ everything and leave the VP node pristine like it was never there.
 
 Added `(pii-exit)` function to shutdown the VP node.
 
+Implicit `progn` for else on `(if tst form [else_form ...]) -> 'form` and `(ifn
+tst form [else_form ...]) -> 'form`. `(when tst ...)` and `(unless tst ...)`
+macros updated to use this and now both return `:nil` if the body did not
+execute.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly

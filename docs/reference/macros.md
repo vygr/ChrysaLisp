@@ -774,13 +774,13 @@ print the time for the body
 ### unless
 
 ```code
-(unless tst body)
+(unless tst body ...) -> :nil | 'form
 ```
 
 ### when
 
 ```code
-(when tst body)
+(when tst body) -> :nil | 'form
 ```
 
 ### write-byte

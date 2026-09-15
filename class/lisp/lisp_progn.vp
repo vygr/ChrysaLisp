@@ -19,11 +19,9 @@
 	(entry :lisp :lisp_if '(:r0 :r1))
 
 	(assign '((:r1 +array_length)) '(:r2))
-(errorcase
-	(gotoif '(:r2 < 3) 'error)
-	(gotoif '(:r2 > 4) 'error))
-
+	(errorif '(:r2 < 3) 'error)
 	(assign '((:r1 +array_begin)) '(:r1))
+
 	(push-scope)
 	(assign '(:r0 :r1 :r2) {this, begin, len})
 
@@ -36,20 +34,19 @@
 		(call :obj :deref '(:r1))
 		(jump :lisp :repl_eval {this, begin[+ptr_size * 2]})
 	(endif)
-	(assign {len} '(:r2))
-	(vpif '(:r2 = 4))
-		(class/obj/ref :r1 :r2 -1)
-		(assign {begin[+ptr_size * 3]} '(:r1))
-		(jump :lisp :repl_eval '(:r0 :r1))
-	(endif)
 
+	(assign {this, begin, len} '(:r0 :r2 :r3))
+	(vp-shl-cr (log2 +ptr_size) :r3)
+	(vp-add-rr :r2 :r3)
+	(vp-add-cr (* 3 +ptr_size) :r2)
+	(jump :lisp :repl_progn '(:r0 :r1 :r2 :r3))
+
+(errorcase
 (vp-label 'error1)
 	(exit :lisp :lisp_if '(:r0 :r1))
 	(return)
-
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(if tst form [else_form])" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r0 :r1 "(if tst form [else_form ...])" +error_msg_wrong_num_of_args)))
 
 	(pop-scope-syms)
 
@@ -73,11 +70,9 @@
 	(entry :lisp :lisp_ifn '(:r0 :r1))
 
 	(assign '((:r1 +array_length)) '(:r2))
-(errorcase
-	(gotoif '(:r2 < 3) 'error)
-	(gotoif '(:r2 > 4) 'error))
-
+	(errorif '(:r2 < 3) 'error)
 	(assign '((:r1 +array_begin)) '(:r1))
+
 	(push-scope)
 	(assign '(:r0 :r1 :r2) {this, begin, len})
 
@@ -85,25 +80,18 @@
 	(assign '((:r0 +lisp_sym_nil)) '(:r2))
 	(vpif '(:r1 = :r2))
 		(class/obj/ref :r1 :r2 -1)
-		(assign {begin[+ptr_size * 2]} '(:r1))
-		(jump :lisp :repl_eval '(:r0 :r1))
-	(endif)
-	(assign {len} '(:r2))
-	(vpif '(:r2 = 4))
-	(errorcase
-		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
-		(gotoif '(:r2 = :r3) 'error1))
-		(call :obj :deref '(:r1))
-		(jump :lisp :repl_eval {this, begin[+ptr_size * 3]})
+		(jump :lisp :repl_eval {this, begin[+ptr_size * 2]})
 	(endif)
 
-(vp-label 'error1)
-	(exit :lisp :lisp_ifn '(:r0 :r1))
-	(return)
+	(assign {this, begin, len} '(:r0 :r2 :r3))
+	(vp-shl-cr (log2 +ptr_size) :r3)
+	(vp-add-rr :r2 :r3)
+	(vp-add-cr (* 3 +ptr_size) :r2)
+	(jump :lisp :repl_progn '(:r0 :r1 :r2 :r3))
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(ifn tst form [else_form])" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r0 :r1 "(ifn tst form [else_form ...])" +error_msg_wrong_num_of_args)))
 
 	(pop-scope-syms)
 

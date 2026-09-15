@@ -158,9 +158,9 @@ Conditionals, iterative loops, and branch constructs.
 
 *	**`if` / `ifn`**: Evaluates a test condition and branches accordingly.
 
-	*	`(if tst form [else_form]) -> 'form`
+	*	`(if tst form [else_form ...]) -> 'form`
 
-	*	`(ifn tst form [else_form]) -> 'form`
+	*	`(ifn tst form [else_form ...]) -> 'form`
 
 *	**`cond` / `condn`**: Multi-way conditional branching.
 
@@ -171,9 +171,9 @@ Conditionals, iterative loops, and branch constructs.
 *	**`when` / `unless`**: Single-branch conditionals executing bodies on
 	truthy or falsy tests.
 
-	*	`(when tst body ...)`
+	*	`(when tst body ...) -> :nil | 'form`
 
-	*	`(unless tst body ...)`
+	*	`(unless tst body ...) -> :nil | 'form`
 
 *	**`while` / `until`**: Loop constructs checking conditions before each
 	iteration.

@@ -26,9 +26,9 @@
 
 ### (identity [form]) -> :nil | form
 
-### (if tst form [else_form]) -> 'form
+### (if tst form [else_form ...]) -> 'form
 
-### (ifn tst form [else_form]) -> 'form
+### (ifn tst form [else_form ...]) -> 'form
 
 ### (macroexpand form) -> 'form
 
