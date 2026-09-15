@@ -38,6 +38,9 @@ LDFLAGS ?=
 ifneq ($(OS),Windows)
 	LDFLAGS += -pthread
 endif
+ifeq ($(OS),Darwin)
+	LDFLAGS += -framework Cocoa -lobjc
+endif
 HGUI := $(shell echo $(GUI) | tr '[:upper:]' '[:lower:]')
 
 HOST_GUI := 0

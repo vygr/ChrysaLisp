@@ -31,6 +31,21 @@ uint32_t scr_stride = 0;
 SDL_Window *window;
 SDL_Renderer *renderer;
 
+#ifdef __APPLE__
+#include <objc/message.h>
+#include <objc/runtime.h>
+
+static void set_macos_activation_policy(int policy = 0)
+{
+	id app = ((id (*)(id, SEL))objc_msgSend)((id)objc_getClass("NSApplication"), sel_registerName("sharedApplication"));
+	((void (*)(id, SEL, long))objc_msgSend)(app, sel_registerName("setActivationPolicy:"), policy);
+	if (policy == 0)
+	{
+		((void (*)(id, SEL, bool))objc_msgSend)(app, sel_registerName("activateIgnoringOtherApps:"), true);
+	}
+}
+#endif
+
 ////////////////////////////////
 // screen setup/access functions
 ////////////////////////////////
@@ -55,6 +70,9 @@ void host_gui_init(SDL_Rect *rect, uint64_t flags)
 	//this code is just so we can see the output !
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+#ifdef __APPLE__
+	set_macos_activation_policy();
+#endif
 	window = SDL_CreateWindow("ChrysaLisp GUI Window",
 				SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
@@ -81,6 +99,9 @@ void host_gui_deinit()
 	SDL_ShowCursor(SDL_ENABLE);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+#ifdef __APPLE__
+	set_macos_activation_policy(2);
+#endif
 }
 
 void host_gui_begin_composite()
