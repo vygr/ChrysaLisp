@@ -79,7 +79,7 @@
 			(vec-store 1 {c1})
 
 			(switch)
-			(vpcase {(c < 0.01) && (c > -0.01) || (c1 < -0.7)})
+			(vpcase {(c < 0.01) && (c > -0.01) || (c1 < -0.9)})
 				;accuracy limit
 				(goto 'do_bevel)
 			(vpcase {c <= 0 || join_style = +join_miter})
