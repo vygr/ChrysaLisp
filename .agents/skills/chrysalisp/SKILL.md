@@ -471,6 +471,75 @@ simultaneously (e.g. `(assign '((:r0 +str_length)) '(:r1))`):
 		the left (e.g. `(assign {val, p + 1} {p[0], p})` is invalid). Split
 		such updates into sequential `assign` statements.
 
+### Field Helpers & Sorted Memory Transfers (`load-fields`, `save-fields`, `assign-fields`)
+
+Defined in `class/obj/class.inc`, `load-fields`, `save-fields`, and
+`assign-fields` are essential helpers for loading, storing, and copying
+structured fields between memory objects and VP registers:
+
+*	**`load-fields`:** `(load-fields base fields tmps)`
+
+*	**`save-fields`:** `(save-fields base fields tmps)`
+
+*	**`assign-fields`:** `(assign-fields src src_fields dst dst_fields tmps)`
+
+#### Why Sorted Memory Transfers Are Critical
+
+*	**Compile-Time Offset Sorting:** Both `load-fields` and `save-fields`
+	evaluate the supplied field expressions at expansion time via
+	`(map (const eval) fields)` and sort the transfers by ascending memory
+	offset using `(sort ... (# (- (last %0) (last %1))))`.
+
+*	**Cache Locality & Streaming Prefetch:** By accessing memory strictly in
+	ascending address order, transfers exhibit optimal spatial locality and
+	cooperate with CPU hardware streaming prefetchers.
+
+*	**Arm64 LDP/STP Instruction Fusion:** ChrysaLisp's ARM64 backend
+	translator features a peephole optimization pass (`emit-prepass` in
+	`lib/trans/arm64.inc`). When consecutive VP memory instructions share the
+	same base register and access contiguous aligned offsets (e.g. `c` and
+	`c + 8`), the translator fuses two separate 64-bit loads into an ARM64
+	`ldp` (Load Pair) or two stores into `stp` (Store Pair). Out-of-order or
+	interleaved memory accesses prevent the translator's lookback window
+	from fusing them. Sorting guarantees that contiguous struct fields end up
+	adjacent in `emit_list`, maximizing `ldp`/`stp` pairing to halve memory
+	instruction count.
+
+*	**Layout Independence Across Heterogeneous Structs:** When transferring
+	data between different structures (e.g. from a network link fragment to an
+	IPC message), `assign-fields` sorts the loads by the source structure's
+	layout, and then sorts the stores by the destination structure's layout.
+	Both operations independently achieve maximal memory ordering and `ldp`/
+	`stp` pairing.
+
+#### Practical Usage Pattern
+
+	;copy frag data
+	(vp-rdef (msg rx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
+	(assign {msg, frag_buf} `(,msg ,rx_frag))
+	(assign-fields
+		rx_frag
+			`(lk_frag_length lk_frag_offset lk_frag_total
+			,(+ lk_frag_dest +net_id_mbox_id)
+			,(+ lk_frag_dest +net_id_node_id +node_id_node1)
+			,(+ lk_frag_dest +net_id_node_id +node_id_node2)
+			,(+ lk_frag_src +net_id_mbox_id)
+			,(+ lk_frag_src +net_id_node_id +node_id_node1)
+			,(+ lk_frag_src +net_id_node_id +node_id_node2))
+		msg
+			`(+msg_length +msg_offset +msg_total
+			,(+ +msg_dest +net_id_mbox_id)
+			,(+ +msg_dest +net_id_node_id +node_id_node1)
+			,(+ +msg_dest +net_id_node_id +node_id_node2)
+			,(+ +msg_src +net_id_mbox_id)
+			,(+ +msg_src +net_id_node_id +node_id_node1)
+			,(+ +msg_src +net_id_node_id +node_id_node2))
+		`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
+
+*Note:* `assign-fields` enforces `(if (find dst tmps) (throw ...))` at
+compile time to prevent accidental destination register clobbering by
+intermediate temporaries.
+
 ### Raw VP Loop Optimization (Bypassing CScript in Hot Paths)
 
 When CScript's value stack overhead is unacceptable in inner loops, drop to
