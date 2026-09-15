@@ -471,6 +471,13 @@ simultaneously (e.g. `(assign '((:r0 +str_length)) '(:r1))`):
 		the left (e.g. `(assign {val, p + 1} {p[0], p})` is invalid). Split
 		such updates into sequential `assign` statements.
 
+	*	**No Memory-to-Memory or Constant-to-Memory:** In VP assembler,
+		`(assign ...)` does not support memory-to-memory transfers
+		(e.g. `(assign `((,r0 off1)) `((,r1 off2)))`) or constant-to-memory
+		transfers (e.g. `(assign '(10) `((,r1 off)))`). All memory reads and
+		writes must route through an intermediate register (e.g. load memory
+		to register, then store register to memory).
+
 ### Field Helpers & Sorted Memory Transfers (`load-fields`, `save-fields`, `assign-fields`)
 
 Defined in `class/obj/class.inc`, `load-fields`, `save-fields`, and
@@ -511,6 +518,14 @@ structured fields between memory objects and VP registers:
 	layout, and then sorts the stores by the destination structure's layout.
 	Both operations independently achieve maximal memory ordering and `ldp`/
 	`stp` pairing.
+
+*	**Multi-Field vs Single-Field Transfers:** Field helpers are designed
+	specifically for multi-field transfers where sorting offsets and
+	achieving hardware instruction pairing (such as ARM64 `ldp`/`stp`)
+	provides significant performance advantages. For single-field loads or
+	stores, field helpers add unnecessary overhead; use direct
+	`(assign `(,reg) `((,base offset)))` or `(assign `((,base offset)) `(,reg))`
+	instead.
 
 #### Practical Usage Pattern
 

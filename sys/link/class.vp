@@ -25,11 +25,15 @@
 	;init and add link node to link array
 	(assign {@sys/statics/statics} {statics})
 	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
-	(assign {0 => lk_node.lk_node_task_count
-			=> lk_node.lk_node_peer_node_id.+node_id_node1
-			=> lk_node.lk_node_peer_node_id.+node_id_node2
-			=> lk_node.lk_node_peer_system_id.+node_id_node1}
-		{lk_node.lk_node_peer_system_id.+node_id_node2})
+	(vp-rdef (node zero))
+	(assign {&lk_node, 0} `(,node ,zero))
+	(save-fields node
+			`(lk_node_task_count
+			,(+ lk_node_peer_node_id +node_id_node1)
+			,(+ lk_node_peer_node_id +node_id_node2)
+			,(+ lk_node_peer_system_id +node_id_node1)
+			,(+ lk_node_peer_system_id +node_id_node2))
+		`(,zero ,zero ,zero ,zero ,zero))
 	(call :array :push_back {statics->statics_sys_mail_links_array, &lk_node})
 
 	;read params msg from kernel
@@ -343,9 +347,7 @@
 			(vp-rdef (node1 node2 key lk_node) (method-input :sys_mail :ready))
 			(vp-rdef (msg) (method-output :sys_mail :ready))
 			(assign {lk_node, key} `(,lk_node ,key))
-			(assign `((,lk_node (+ lk_node_peer_node_id +node_id_node1))
-					(,lk_node (+ lk_node_peer_node_id +node_id_node2)))
-				`(,node1 ,node2))
+			(load-node-id lk_node lk_node_peer_node_id node1 node2)
 			(call :sys_mail :ready `(,node1 ,node2 ,key) `(,msg))
 			(breakif `(,msg = 0))
 			(assign `(,msg) {msg})
@@ -420,8 +422,10 @@
 	(save-fields node
 			`(lk_node_task_count
 			,(+ lk_node_peer_node_id +node_id_node1)
-			,(+ lk_node_peer_node_id +node_id_node2))
-		`(,cnt ,zero ,zero))
+			,(+ lk_node_peer_node_id +node_id_node2)
+			,(+ lk_node_peer_system_id +node_id_node1)
+			,(+ lk_node_peer_system_id +node_id_node2))
+		`(,cnt ,zero ,zero ,zero ,zero))
 
 	(call :nodeid :destroy {key})
 
