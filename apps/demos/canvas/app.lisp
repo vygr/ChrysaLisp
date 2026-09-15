@@ -110,22 +110,35 @@
 	(ui-title-bar _ "Canvas Showcase" (0xea19) +event_close)
 	(ui-canvas *canvas* canvas_width canvas_height canvas_scale))
 
-(defun transform-copy (angle %1 &optional tx ty)
-	(defq sa (sin angle) ca (cos angle)
+(defun harmonic-pos (dir_angle freq amp &optional phase)
+	(defq p (ifn phase 0.0)
+		r (* amp (sin (+ (* angle freq) p))))
+	(list
+		(+ (* f_width f_scale 0.5) (* r (cos dir_angle)))
+		(+ (* f_height f_scale 0.5) (* r (sin dir_angle)))))
+
+(defun harmonic-scale (freq amp &optional phase)
+	(defq p (ifn phase 0.0))
+	(* f_scale (+ 1.0 (* amp (sin (+ (* angle freq) p))))))
+
+(defun transform-copy (angle %1 &optional tx ty scale)
+	(defq scale (ifn scale f_scale)
+		sa (sin angle) ca (cos angle)
 		tx (ifn tx (* f_width f_scale 0.5))
 		ty (ifn ty (* f_height f_scale 0.5)))
 	(map (lambda (%0)
 		(path-transform (fixeds
-			(* f_scale ca) (* f_scale (* sa -1.0)) tx
-			(* f_scale sa) (* f_scale ca) ty)
+			(* scale ca) (* scale (* sa -1.0)) tx
+			(* scale sa) (* scale ca) ty)
 			%0 (cat %0))) %1))
 
-(defun transform-shadow (angle %1 &optional dx dy)
-	(defq dx (ifn dx (* f_scale 6.0))
-		dy (ifn dy (* f_scale 6.0)))
-	(transform-copy angle %1
-		(+ (* f_width f_scale 0.5) dx)
-		(+ (* f_height f_scale 0.5) dy)))
+(defun transform-shadow (angle %1 &optional tx ty scale dx dy)
+	(defq scale (ifn scale f_scale)
+		dx (ifn dx (* scale 6.0))
+		dy (ifn dy (* scale 6.0))
+		tx (+ (ifn tx (* f_width f_scale 0.5)) dx)
+		ty (+ (ifn ty (* f_height f_scale 0.5)) dy))
+	(transform-copy angle %1 tx ty scale))
 
 (defun fpoly (col mode %2)
 	(.-> *canvas* (:set_color col) (:fpoly 0.0 0.0 mode %2)))
@@ -133,54 +146,89 @@
 (defun redraw ()
 	(. *canvas* :fill 0)
 
-	; --- 1. Background: Self-intersecting 5-point star (+winding_odd_even hollow center) ---
-	(fpoly 0xa0d01828 +winding_odd_even (transform-copy (* angle 1.8) star_poly))
+	; --- 1. Background: Self-intersecting 5-point star (harmonic breathing pulse) ---
+	(defq star_scale (harmonic-scale 3.2 0.22))
+	(fpoly 0xa0d01828 +winding_odd_even (transform-copy (* angle 1.8) star_poly :nil :nil star_scale))
 
-	; --- 2. Acute Zigzag (+join_miter, +cap_square, +cap_butt) ---
-	(fpoly 0x40000000 +winding_none_zero (transform-shadow (* angle -1.0) zigzag_miter))
-	(fpoly 0xc00091ff +winding_none_zero (transform-copy (* angle -1.0) zigzag_miter))
+	; --- 2. Acute Zigzag (diagonal harmonic slide + breathing zoom) ---
+	(defq zig_ang (* angle -1.0)
+		zig_s (harmonic-scale 2.0 0.22 0.8))
+	(bind '(zg_x zg_y) (harmonic-pos (* angle 0.6) 2.5 (* f_width 0.15) 0.8))
+	(fpoly 0x40000000 +winding_none_zero (transform-shadow zig_ang zigzag_miter zg_x zg_y zig_s))
+	(fpoly 0xc00091ff +winding_none_zero (transform-copy zig_ang zigzag_miter zg_x zg_y zig_s))
 
-	; --- 3. Quadratic Bézier Ribbon (+join_round, +cap_round) ---
-	(fpoly 0x35000000 +winding_none_zero (transform-shadow (* angle -0.7) quad_ribbon))
-	(fpoly 0xb000e5ff +winding_none_zero (transform-copy (* angle -0.7) quad_ribbon))
+	; --- 3. Quadratic Bézier Ribbon (swooping wave + harmonic scale) ---
+	(defq quad_ang (* angle -0.7)
+		quad_s (harmonic-scale 1.8 0.20 1.4))
+	(bind '(qd_x qd_y) (harmonic-pos (* angle -0.5) 1.8 (* f_width 0.14) 2.1))
+	(fpoly 0x35000000 +winding_none_zero (transform-shadow quad_ang quad_ribbon qd_x qd_y quad_s))
+	(fpoly 0xb000e5ff +winding_none_zero (transform-copy quad_ang quad_ribbon qd_x qd_y quad_s))
 
-	; --- 4. Circular Donut Ring (+join_miter outline + interior core) ---
-	(fpoly 0x35000000 +winding_none_zero (transform-shadow (* angle 1.2) ring_outline))
-	(fpoly 0xe0ff007f +winding_none_zero (transform-copy (* angle 1.2) ring_outline))
-	(fpoly 0x50000000 +winding_none_zero (transform-copy (* angle 1.2) ring_core))
+	; --- 4. Circular Donut Ring (harmonic orbit pulse + zoom) ---
+	(defq ring_ang (* angle 1.2)
+		ring_s (harmonic-scale 2.4 0.22 2.0))
+	(bind '(rng_x rng_y) (harmonic-pos (* angle 1.0) 3.2 (* f_width 0.12) 1.5))
+	(fpoly 0x35000000 +winding_none_zero (transform-shadow ring_ang ring_outline rng_x rng_y ring_s))
+	(fpoly 0xe0ff007f +winding_none_zero (transform-copy ring_ang ring_outline rng_x rng_y ring_s))
+	(fpoly 0x50000000 +winding_none_zero (transform-copy ring_ang ring_core rng_x rng_y ring_s))
 
-	; --- 5. Dual Arc Horns (+join_bevel, +cap_square, +cap_tri) ---
-	(fpoly 0x35000000 +winding_none_zero (transform-shadow angle horns_outline))
-	(fpoly 0xd00022ee +winding_none_zero (transform-copy angle horns_outline))
-	(fpoly 0x90ffffff +winding_none_zero (transform-copy angle horns_core))
+	; --- 5. Dual Arc Horns (perpendicular oscillation + zoom) ---
+	(defq horns_ang angle
+		horns_s (harmonic-scale 1.9 0.24 0.5))
+	(bind '(hrn_x hrn_y) (harmonic-pos (+ angle +fp_hpi) 2.2 (* f_width 0.15) 0.4))
+	(fpoly 0x35000000 +winding_none_zero (transform-shadow horns_ang horns_outline hrn_x hrn_y horns_s))
+	(fpoly 0xd00022ee +winding_none_zero (transform-copy horns_ang horns_outline hrn_x hrn_y horns_s))
+	(fpoly 0x90ffffff +winding_none_zero (transform-copy horns_ang horns_core hrn_x hrn_y horns_s))
 
-	; --- 6. Emerald Spear Arrow (+cap_butt, +cap_tri) ---
-	(fpoly 0x40000000 +winding_none_zero (transform-shadow (* angle 1.4) arrow2_outline))
-	(fpoly 0xe000e676 +winding_none_zero (transform-copy (* angle 1.4) arrow2_outline))
-	(fpoly 0x80003322 +winding_none_zero (transform-copy (* angle 1.4) arrow2_core))
+	; --- 6. Emerald Spear Arrow (in/out thrust along direction + zoom) ---
+	(defq arrow2_ang (* angle 1.4)
+		arrow2_s (harmonic-scale 2.5 0.22 1.6))
+	(bind '(a2_x a2_y) (harmonic-pos arrow2_ang 2.8 (* f_width 0.18) 1.2))
+	(fpoly 0x40000000 +winding_none_zero (transform-shadow arrow2_ang arrow2_outline a2_x a2_y arrow2_s))
+	(fpoly 0xe000e676 +winding_none_zero (transform-copy arrow2_ang arrow2_outline a2_x a2_y arrow2_s))
+	(fpoly 0x80003322 +winding_none_zero (transform-copy arrow2_ang arrow2_core a2_x a2_y arrow2_s))
 
-	; --- 7. Featured Golden Bézier Arrow (+cap_round, +cap_arrow) ---
-	(fpoly 0x50000000 +winding_none_zero (transform-shadow (* angle -1.6) arrow1_outline))
-	(fpoly +argb_yellow +winding_none_zero (transform-copy (* angle -1.6) arrow1_outline))
-	(fpoly 0xa018202c +winding_none_zero (transform-copy (* angle -1.6) arrow1_core))
+	; --- 7. Featured Golden Bézier Arrow (gliding trajectory + zoom) ---
+	(defq arrow1_ang (* angle -1.6)
+		arrow1_s (harmonic-scale 2.1 0.22 2.7))
+	(bind '(a1_x a1_y) (harmonic-pos arrow1_ang 2.4 (* f_width 0.16) 2.8))
+	(fpoly 0x50000000 +winding_none_zero (transform-shadow arrow1_ang arrow1_outline a1_x a1_y arrow1_s))
+	(fpoly +argb_yellow +winding_none_zero (transform-copy arrow1_ang arrow1_outline a1_x a1_y arrow1_s))
+	(fpoly 0xa018202c +winding_none_zero (transform-copy arrow1_ang arrow1_core a1_x a1_y arrow1_s))
 
-	; --- 8. Rounded Rectangle Badge (path-gen-rect, +join_round) ---
-	(fpoly 0x40000000 +winding_none_zero (transform-shadow (* angle 0.6) badge_outline))
-	(fpoly +argb_orange +winding_none_zero (transform-copy (* angle 0.6) badge_outline))
-	(fpoly 0x85201040 +winding_none_zero (transform-copy (* angle 0.6) badge_core))
+	; --- 8. Rounded Rectangle Badge (floating off-center + gentle breathing) ---
+	(defq badge_ang (* angle 0.6)
+		badge_s (harmonic-scale 1.5 0.18 0.9))
+	(bind '(bdg_x bdg_y) (harmonic-pos (+ badge_ang 1.2) 1.5 (* f_width 0.16) 0.0))
+	(fpoly 0x40000000 +winding_none_zero (transform-shadow badge_ang badge_outline bdg_x bdg_y badge_s))
+	(fpoly +argb_orange +winding_none_zero (transform-copy badge_ang badge_outline bdg_x bdg_y badge_s))
+	(fpoly 0x85201040 +winding_none_zero (transform-copy badge_ang badge_core bdg_x bdg_y badge_s))
 
-	; --- 9. Orbiting Vector Typography (font-glyph-paths) ---
-	(fpoly 0x50000000 +winding_none_zero (transform-shadow (/ angle 2.0) fp1))
-	(fpoly 0xff000000 +winding_none_zero (transform-copy (/ angle 2.0) fp1))
+	; --- 9. Orbiting Vector Typography (breathing radial expansion + subtle scale) ---
+	(defq cx (* f_width f_scale 0.5)
+		cy (* f_height f_scale 0.5)
+		txt_r (* f_width 0.12 (sin (* angle 3.0)))
+		txt_s (harmonic-scale 2.6 0.15 0.3)
+		a1 (/ angle 2.0)
+		a2 (+ a1 +fp_pi)
+		a3 (+ a1 +fp_hpi)
+		a4 (- a1 +fp_hpi))
 
-	(fpoly 0x50000000 +winding_none_zero (transform-shadow (+ (/ angle 2.0) +fp_pi) fp2))
-	(fpoly 0xff000000 +winding_none_zero (transform-copy (+ (/ angle 2.0) +fp_pi) fp2))
+	(defq t1_x (+ cx (* txt_r (cos a1))) t1_y (+ cy (* txt_r (sin a1))))
+	(fpoly 0x50000000 +winding_none_zero (transform-shadow a1 fp1 t1_x t1_y txt_s))
+	(fpoly 0xff000000 +winding_none_zero (transform-copy a1 fp1 t1_x t1_y txt_s))
 
-	(fpoly 0x50000000 +winding_none_zero (transform-shadow (+ (/ angle 2.0) +fp_hpi) fp3))
-	(fpoly 0xffffffff +winding_none_zero (transform-copy (+ (/ angle 2.0) +fp_hpi) fp3))
+	(defq t2_x (+ cx (* txt_r (cos a2))) t2_y (+ cy (* txt_r (sin a2))))
+	(fpoly 0x50000000 +winding_none_zero (transform-shadow a2 fp2 t2_x t2_y txt_s))
+	(fpoly 0xff000000 +winding_none_zero (transform-copy a2 fp2 t2_x t2_y txt_s))
 
-	(fpoly 0x50000000 +winding_none_zero (transform-shadow (+ (/ angle 2.0) (* -1.0 +fp_hpi)) fp4))
-	(fpoly 0xffffffff +winding_none_zero (transform-copy (+ (/ angle 2.0) (* -1.0 +fp_hpi)) fp4))
+	(defq t3_x (+ cx (* txt_r (cos a3))) t3_y (+ cy (* txt_r (sin a3))))
+	(fpoly 0x50000000 +winding_none_zero (transform-shadow a3 fp3 t3_x t3_y txt_s))
+	(fpoly 0xffffffff +winding_none_zero (transform-copy a3 fp3 t3_x t3_y txt_s))
+
+	(defq t4_x (+ cx (* txt_r (cos a4))) t4_y (+ cy (* txt_r (sin a4))))
+	(fpoly 0x50000000 +winding_none_zero (transform-shadow a4 fp4 t4_x t4_y txt_s))
+	(fpoly 0xffffffff +winding_none_zero (transform-copy a4 fp4 t4_x t4_y txt_s))
 
 	(. *canvas* :swap +pixmap_mode_normal))
 
@@ -200,6 +248,6 @@
 			((= idx +select_timer)
 				(mail-timeout (elem-get select +select_timer) rate 0)
 				(redraw)
-				(++ angle 0.0025))
+				(++ angle 0.005))
 			(:t (. *window* :event msg))))
 	(gui-sub-rpc *window*))
