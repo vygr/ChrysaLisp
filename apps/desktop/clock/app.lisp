@@ -1,15 +1,16 @@
-(import "usr/env.inc")
-(import "gui/lisp.inc")
-(import "lib/math/vector.inc")
-(import "lib/date/date.inc")
-
-(setd *env_clock_analog* :t
+(defq *env_clock_analog* :t
 	*env_clock_digital* :t
 	*env_clock_seconds* :t
 	*env_clock_twelve_hour* :nil
 	*env_clock_pad_hour* :t
 	*env_clock_dotw* :t
+	*env_clock_numerals* :t
 	*env_clock_timezone* "UTC")
+
+(import "usr/env.inc")
+(import "gui/lisp.inc")
+(import "lib/math/vector.inc")
+(import "lib/date/date.inc")
 
 (if (and (not *env_clock_analog*) (not *env_clock_digital*))
 	(setq *env_clock_analog* :t))
@@ -20,11 +21,10 @@
 (enums +select 0
 	(enum main timer))
 
-(defq clock_size 256
+(defq clock_size 300
 	clock_scale 1
 	clock_dial (list)
-	clock_face (list)
-	+rate (/ 1000000 1))
+	clock_face (list))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Clock" (0xea19) +event_close)
@@ -56,41 +56,72 @@
 
 (defun create-clockface (scale)
 	(clear clock_dial clock_face)
-	(push clock_dial (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 +fp_2pi (* scale 0.44) (path)))
-	(path-stroke-polygons clock_face (* scale 0.02) +join_miter (list (first clock_dial)))
-	(path-stroke-polylines clock_face (* scale 0.006) +join_miter +cap_butt +cap_butt
-		(map (lambda (a) (transform (path 0.0 -0.39 0.0 -0.42) (/ (* (n2f a) +fp_2pi) 60.0) scale)) (range 0 60)))
-	(path-stroke-polylines clock_face (* scale 0.014) +join_miter +cap_butt +cap_butt
-		(map (lambda (a) (transform (path 0.0 -0.36 0.0 -0.42) (/ (* (n2f a) +fp_2pi) 12.0) scale)) (range 0 12)))
-	(path-stroke-polylines clock_face (* scale 0.024) +join_miter +cap_butt +cap_butt
-		(map (lambda (a) (transform (path 0.0 -0.33 0.0 -0.42) (/ (* (n2f a) +fp_2pi) 4.0) scale)) (range 0 4))))
+	(defq cx (* scale 0.5) cy (* scale 0.5))
+	; Dial face disc
+	(push clock_dial (path-gen-arc cx cy 0.0 +fp_2pi (* scale 0.445) (path)))
+	; Outer rim
+	(path-stroke-polygons clock_face (* scale 0.018) +join_miter (list (first clock_dial)))
+	; 60 minute/second sub-ticks (0..59)
+	(path-stroke-polylines clock_face (* scale 0.005) +join_miter +cap_butt +cap_butt
+		(map (lambda (a) (transform (path 0.0 -0.405 0.0 -0.425) (/ (* (n2f a) +fp_2pi) 60.0) scale)) (range 0 60)))
+	; 12 hour ticks (0..11)
+	(path-stroke-polylines clock_face (* scale 0.012) +join_miter +cap_butt +cap_butt
+		(map (lambda (a) (transform (path 0.0 -0.385 0.0 -0.425) (/ (* (n2f a) +fp_2pi) 12.0) scale)) (range 0 12)))
+	; 4 major cardinal ticks (12, 3, 6, 9)
+	(path-stroke-polylines clock_face (* scale 0.018) +join_miter +cap_butt +cap_butt
+		(map (lambda (a) (transform (path 0.0 -0.370 0.0 -0.425) (/ (* (n2f a) +fp_2pi) 4.0) scale)) (range 0 4)))
+	; 12 dial numeral glyph paths (1..12)
+	(when *env_clock_numerals*
+		(defq font_size (max 10 (n2i (* scale 0.062)))
+			font (or (create-font "fonts/OpenSans-Bold.ctf" font_size)
+					(create-font "fonts/OpenSans-Regular.ctf" font_size)
+					(create-font "fonts/Hack-Regular.ctf" font_size)))
+		(when font
+			(defq num_r (* scale 0.28))
+			(each (lambda (n)
+				(defq a (/ (* (n2f n) +fp_2pi) 12.0)
+					text (str n)
+					nx (+ cx (* num_r (sin a)))
+					ny (- cy (* num_r (cos a))))
+				(bind '(w h) (font-glyph-bounds font text))
+				(defq tx (+ nx (* (n2f w) -1.0))
+					ty (+ ny (* (n2f h) 0.5))
+					mat (fixeds 1.0 0.0 tx 0.0 1.0 ty))
+				(each (lambda (p)
+					(push clock_face (path-transform mat p p)))
+					(font-glyph-paths font text)))
+				(range 1 13)))))
 
 (defun view-analog-time (canvas (s m h) scale)
+	; Dial disc and face markings
 	(.-> canvas
 		(:fill 0)
 		(:set_color +argb_white)
 		(:fpoly 0.0 0.0 +winding_none_zero clock_dial)
 		(:set_color +argb_black)
 		(:fpoly 0.0 0.0 +winding_none_zero clock_face))
-	(defq hr_path (transform (path 0.0 0.03 0.0 -0.23) (/ (* h +fp_2pi) 12.0) scale)
-		mn_path (transform (path 0.0 0.04 0.0 -0.33) (/ (* m +fp_2pi) 60.0) scale)
+	; Hour and minute hands
+	(defq hr_path (transform (path 0.0 0.025 0.0 -0.19) (/ (* h +fp_2pi) 12.0) scale)
+		mn_path (transform (path 0.0 0.035 0.0 -0.33) (/ (* m +fp_2pi) 60.0) scale)
 		hands (cat
-			(path-stroke-polylines (list) (* scale 0.024) +join_miter +cap_round +cap_tri (list hr_path))
-			(path-stroke-polylines (list) (* scale 0.016) +join_miter +cap_round +cap_tri (list mn_path))))
+			(path-stroke-polylines (list) (* scale 0.022) +join_miter +cap_round +cap_tri (list hr_path))
+			(path-stroke-polylines (list) (* scale 0.015) +join_miter +cap_round +cap_tri (list mn_path))))
 	(.-> canvas
 		(:set_color 0x50000000)
 		(:fpoly (* scale 0.008) (* scale 0.008) +winding_none_zero hands)
 		(:set_color +argb_green6)
 		(:fpoly 0.0 0.0 +winding_none_zero hands))
+	; Second hand
 	(when *env_clock_seconds*
-		(defq sec_path (transform (path 0.0 0.05 0.0 -0.38) (/ (* (% s 60.0) +fp_2pi) 60.0) scale)
-			sec_hand (path-stroke-polylines (list) (* scale 0.008) +join_miter +cap_round +cap_round (list sec_path)))
+		(defq sec_path (transform (path 0.0 0.05 0.0 -0.39) (/ (* (% s 60.0) +fp_2pi) 60.0) scale)
+			sec_hand (path-stroke-polylines (list) (* scale 0.007) +join_miter +cap_round +cap_round (list sec_path)))
 		(.-> canvas
 			(:set_color 0x50000000)
 			(:fpoly (* scale 0.008) (* scale 0.008) +winding_none_zero sec_hand)
 			(:set_color +argb_red)
 			(:fpoly 0.0 0.0 +winding_none_zero sec_hand)))
-	(defq hub (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 +fp_2pi (* scale 0.025) (path)))
+	; Center hub / cap
+	(defq hub (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 +fp_2pi (* scale 0.022) (path)))
 	(.-> canvas
 		(:set_color +argb_black)
 		(:fpoly 0.0 0.0 +winding_none_zero (list hub))))
