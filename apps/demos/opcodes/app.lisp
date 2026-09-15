@@ -11,7 +11,7 @@
 
 (defq canvas_width 800 canvas_height 700 canvas_scale 1
 	f_width (n2f canvas_width) f_height (n2f canvas_height) f_scale (n2f canvas_scale)
-	rate (/ 1000000 60) global_tick 0.0
+	rate (/ 1000000 30) global_tick 0.0
 	font (create-font "fonts/Hack-Regular.ctf" 34))
 
 ; Assign chromatic color palettes based on opcode category
