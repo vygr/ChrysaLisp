@@ -317,6 +317,14 @@ ChrysaLisp's interpreter is self-hosted (`class/lisp/`, root environment in
 
 	(each (# (print "Item " (!) ": " %0)) my_list)
 
+*	**Short Anaphoric Lambdas `(# ...)` vs `(lambda ...)`:**
+	Always use `(# ...)` when using positional arguments (`%0`, `%1`, etc.):
+
+	(map (# (path-transform m %0 (cat %0))) paths)
+
+	NEVER write `(lambda (%0) ...)`. The `lambda` form is strictly reserved for
+	explicitly named parameter lists: `(lambda (item) ...)`.
+
 *	**Compile-Time Constants:** Force compile-time arithmetic or lookups
 	using `(const ...)`:
 
@@ -740,6 +748,14 @@ GUI rendering executes in two deterministic passes:
 	*	**Globals:** Asterisk-wrapped (`*foo_bar*`).
 
 	*	**Properties and Keywords:** Colon prefix (`:foo_bar`).
+
+*	**Prebinder Quoted Lists (`''(...)` vs `'(...)`):**
+	When defining top-level constant or variable data lists with `(defq ...)`,
+	always use double quotes: `(defq +my_list ''(...))` if you expect the
+	prebinder to embed it as a literal list. A single quote
+	`(defq +my_list '(...))` has its quote consumed during prebinding, causing
+	the list to be evaluated as a function call at load time (e.g. producing a
+	`not_a_function` error).
 
 ## Building & Binary Verification
 
