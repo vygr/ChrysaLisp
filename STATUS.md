@@ -42,7 +42,8 @@ execute.
 
 Review and update to the `lib/date/date.inc` library and the GUI `Clock` app.
 
-Updated `Canvas` demo, showcasing a few more features.
+Updated `Canvas` demo, showcasing a few more features. Added new `Opcode`
+canvas demo.
 
 ------
 
