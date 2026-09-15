@@ -58,10 +58,12 @@
 	(clear clock_dial clock_face)
 	(push clock_dial (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 +fp_2pi (* scale 0.44) (path)))
 	(path-stroke-polygons clock_face (* scale 0.02) +join_miter (list (first clock_dial)))
-	(path-stroke-polylines clock_face (* scale 0.025) +join_miter +cap_butt +cap_butt
-		(map (lambda (a) (transform (path 0.0 -0.34 0.0 -0.42) (/ (* (n2f a) +fp_2pi) 4.0) scale)) (range 0 4)))
-	(path-stroke-polylines clock_face (* scale 0.012) +join_miter +cap_butt +cap_butt
-		(map (lambda (a) (transform (path 0.0 -0.37 0.0 -0.42) (/ (* (n2f a) +fp_2pi) 12.0) scale)) (range 0 12))))
+	(path-stroke-polylines clock_face (* scale 0.006) +join_miter +cap_butt +cap_butt
+		(map (lambda (a) (transform (path 0.0 -0.39 0.0 -0.42) (/ (* (n2f a) +fp_2pi) 60.0) scale)) (range 0 60)))
+	(path-stroke-polylines clock_face (* scale 0.014) +join_miter +cap_butt +cap_butt
+		(map (lambda (a) (transform (path 0.0 -0.36 0.0 -0.42) (/ (* (n2f a) +fp_2pi) 12.0) scale)) (range 0 12)))
+	(path-stroke-polylines clock_face (* scale 0.024) +join_miter +cap_butt +cap_butt
+		(map (lambda (a) (transform (path 0.0 -0.33 0.0 -0.42) (/ (* (n2f a) +fp_2pi) 4.0) scale)) (range 0 4))))
 
 (defun view-analog-time (canvas (s m h) scale)
 	(.-> canvas
@@ -93,6 +95,10 @@
 		(:set_color +argb_black)
 		(:fpoly 0.0 0.0 +winding_none_zero (list hub))))
 
+(defun next-sec-delay ()
+	; Microseconds remaining until the top of the next second
+	(- 1000000 (% (pii-time) 1000000)))
+
 (defun main ()
 	(timezone-init *env_clock_timezone*)
 	(defq select (task-mboxes +select_size) *running* :t)
@@ -105,7 +111,7 @@
 		(set *display* :text (view-digital-time (date))))
 	(bind '(w h) (. *window* :pref_size))
 	(gui-add-front-rpc (. *window* :change 0 0 w h))
-	(mail-timeout (elem-get select +select_timer) +rate 0)
+	(mail-timeout (elem-get select +select_timer) (next-sec-delay) 0)
 	(while *running*
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -114,7 +120,7 @@
 					(setq *running* :nil)
 					(. *window* :event msg)))
 			((= idx +select_timer)
-				(mail-timeout (elem-get select +select_timer) +rate 0)
+				(mail-timeout (elem-get select +select_timer) (next-sec-delay) 0)
 				(when clock
 					(view-analog-time clock (float-time) (* (n2f clock_size) (n2f clock_scale)))
 					(. clock :swap +pixmap_mode_normal))

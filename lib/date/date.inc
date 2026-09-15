@@ -47,20 +47,20 @@
 	; (timezone-lookup query [field]) -> tz | :nil
 	(defq field (if (find arg1 '(:location :abbreviation :offset :title)) arg1
 			(if (find arg2 '(:location :abbreviation :offset :title)) arg2 :nil))
-		query (if (eql field arg1) arg2 arg1))
+		q (if (eql field arg1) arg2 arg1))
 	(cond
 		((eql field :location)
-			(some (# (if (find query (elem-get %0 +tz_locations)) %0)) timezones))
+			(some (# (if (find q (elem-get %0 +tz_locations)) %0)) timezones))
 		((eql field :abbreviation)
-			(some (# (if (eql query (elem-get %0 +tz_abbreviation)) %0)) timezones))
+			(some (# (if (eql q (elem-get %0 +tz_abbreviation)) %0)) timezones))
 		((eql field :offset)
-			(some (# (if (eql query (elem-get %0 +tz_offset)) %0)) timezones))
+			(some (# (if (eql q (elem-get %0 +tz_offset)) %0)) timezones))
 		((eql field :title)
-			(some (# (if (eql query (elem-get %0 +tz_title)) %0)) timezones))
+			(some (# (if (eql q (elem-get %0 +tz_title)) %0)) timezones))
 		(:t
-			(or (some (# (if (find query (elem-get %0 +tz_locations)) %0)) timezones)
-				(some (# (if (eql query (elem-get %0 +tz_abbreviation)) %0)) timezones)
-				(some (# (if (eql query (elem-get %0 +tz_title)) %0)) timezones)))))
+			(or (some (# (if (find q (elem-get %0 +tz_locations)) %0)) timezones)
+				(some (# (if (eql q (elem-get %0 +tz_abbreviation)) %0)) timezones)
+				(some (# (if (eql q (elem-get %0 +tz_title)) %0)) timezones)))))
 
 (defun timezone-init (tz_loc)
 	; (timezone-init tz_loc) -> tz
@@ -113,14 +113,16 @@
 	(bind '(year month day) (civil-from-days days))
 	(list sec min hour day month year dotw))
 
-(defun float-time (&optional usecs)
-	; (float-time [usecs]) -> (sec min hour)
-	(defq now (ifn usecs (pii-time))
+(defun float-time (&optional smooth)
+	; (float-time [smooth]) -> (sec min hour)
+	(defq now (pii-time)
 		offset_sec (timezone-offset-seconds *local_timezone*)
 		sec_day (% (+ (/ now 1000000) offset_sec) 86400)
 		sec_day (if (< sec_day 0) (+ sec_day 86400) sec_day)
-		frac_sec (/ (n2f (% now 1000000)) 1000000.0)
-		s (+ (n2f (% sec_day 60)) frac_sec)
+		sec_int (n2f (% sec_day 60))
+		s (if smooth
+			(+ sec_int (/ (n2f (% now 1000000)) 1000000.0))
+			sec_int)
 		m (+ (n2f (% (/ sec_day 60) 60)) (/ s 60.0))
 		h (+ (n2f (% (/ sec_day 3600) 12)) (/ m 60.0)))
 	(list s m h))
