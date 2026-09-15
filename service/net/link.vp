@@ -493,25 +493,33 @@
 	(vpif `(,ready_msg /= 0))
 		;we have mail to transmit
 		(assign `(,ready_msg) {msg})
-		(vp-cpy-rr ready_msg :r5) ;:r5 = msg
-		(assign {&frag_pkt} '(:r4)) ;:r4 = frag_pkt
+		(vp-rdef (msg frag_pkt t0 t1 t2 t3 t4 t5 t6 t7 t8))
+		(assign {msg, &frag_pkt} `(,msg ,frag_pkt))
+		(assign-fields
+			msg
+				`(+msg_length +msg_offset +msg_total
+				,(+ +msg_dest +net_id_mbox_id)
+				,(+ +msg_dest +net_id_node_id +node_id_node1)
+				,(+ +msg_dest +net_id_node_id +node_id_node2)
+				,(+ +msg_src +net_id_mbox_id)
+				,(+ +msg_src +net_id_node_id +node_id_node1)
+				,(+ +msg_src +net_id_node_id +node_id_node2))
+			frag_pkt
+				`(+net_frag_pkt_length +net_frag_pkt_offset +net_frag_pkt_total
+				,(+ +net_frag_pkt_dest +net_id_mbox_id)
+				,(+ +net_frag_pkt_dest +net_id_node_id +node_id_node1)
+				,(+ +net_frag_pkt_dest +net_id_node_id +node_id_node2)
+				,(+ +net_frag_pkt_src +net_id_mbox_id)
+				,(+ +net_frag_pkt_src +net_id_node_id +node_id_node1)
+				,(+ +net_frag_pkt_src +net_id_node_id +node_id_node2))
+			`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
 
 		;wire header: wire_length = len + lk_frag_size, wire_type = +net_wire_type_frag
-		(assign '((:r5 +msg_length)) '(:r0))
-		(vp-add-cr lk_frag_size :r0)
-		(vp-cpy-cr +net_wire_type_frag :r1)
-		(assign '(:r0 :r1) '((:r4 +net_frag_pkt_wire_length) (:r4 +net_frag_pkt_wire_type)))
-
-		;dest and src net-ids
-		(assign-net-id :r5 +msg_dest :r4 +net_frag_pkt_dest :r0 :r1 :r2)
-		(assign-net-id :r5 +msg_src :r4 +net_frag_pkt_src :r0 :r1 :r2)
-
-		;length, offset, total
-		(assign '((:r5 +msg_length) (:r5 +msg_offset) (:r5 +msg_total)) '(:r0 :r1 :r2))
-		(assign '(:r0 :r1 :r2)
-		        '((:r4 +net_frag_pkt_length)
-		          (:r4 +net_frag_pkt_offset)
-		          (:r4 +net_frag_pkt_total)))
+		(vp-add-cr lk_frag_size t0)
+		(vp-cpy-cr +net_wire_type_frag t1)
+		(save-fields frag_pkt
+			'(+net_frag_pkt_wire_length +net_frag_pkt_wire_type)
+			`(,t0 ,t1))
 
 		;send frag header (72 bytes)
 		(call :host_net :send_all {conn_handle, &frag_pkt, +net_frag_pkt_size} `(,send_status))

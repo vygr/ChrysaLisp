@@ -87,7 +87,9 @@ instead of failing (see `tests/system/test_system.lisp`).
 	self-contained: they import what they need, do their work, and shut
 	down the node at the end.
 
-Keep any test scripts and associated files in the `tests/` folder.
+Keep any test scripts and associated files in the `tests/` folder. Never place
+temporary test scripts, scratch directories, or test output in the project root;
+use `tests/scratch/` and always clean it up after being done with it.
 
 ## Writing Suite Modules
 
@@ -114,7 +116,12 @@ Assert macros (all take a short human-readable name first):
 
 Conventions:
 
-*	**Temp files:** Use `tmp_*.txt` names, and clean up with
+*	**No Root Scratch Folders:** Never create or use a `scratch/` directory in
+	the project root. Any scratch scripts, test logs, or temporary directories
+	must be placed in `tests/scratch/` (or directly within `tests/`), and
+	must always be cleaned up and removed after testing is completed.
+
+*	**Temp files:** Use `tmp_*.txt` names inside `tests/`, and clean up with
 	`(pii-remove file)`. Null out the stream variable first —
 	`(defq fs :nil)` — to release the OS file descriptor before removal.
 

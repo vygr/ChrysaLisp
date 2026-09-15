@@ -18,15 +18,33 @@ The ChrysaLisp shell launcher (`funcs.sh`, used by `run_tui.sh` and `run_mesh.sh
 - **Independent Instances with `-b`**: If `base_cpu` is non-zero (e.g. `-b 10`), `funcs.sh` does **NOT** call `./stop.sh` on startup. The new instance runs independently with CPU node offsets shifted by `base_cpu`.
 - **Exit Cleanup with `-f`**: If foreground mode `-f` is passed, `boot_cpu_tui` will call `./stop.sh` when the process exits with code 0. Omitting `-f` ensures the process does not shut down other instances upon exit.
 
----
+## 2. Automated Loopback Test Runner (`tests/net/test_loopback.sh`)
 
-## 2. Server & Client Testing Workflow
-
-### Step 1: Start Server in Background (Without `-b`)
-Launch the server without `-b` in the background with `&`, redirecting output to a dedicated log file:
+ChrysaLisp provides an automated loopback test script that manages the full test lifecycle:
 
 ```bash
-./run_tui.sh -n 1 -s scratch/run_srv.lisp > scratch/server.log 2>&1 &
+./tests/net/test_loopback.sh
+```
+
+This script:
+1. Cleans up stale processes with `./stop.sh`.
+2. Starts the server (`tests/net/srv_loopback.lisp`) on port `:4567` in the background.
+3. Polls until port 4567 is active via `lsof`.
+4. Runs the client (`tests/net/cli_loopback.lisp`) with `-b 10`.
+5. Verifies full remote node discovery across the link.
+6. Dispatches code to **every** discovered remote node via `open-remote` and validates responses.
+7. Automatically cleans up all background processes on exit via a bash trap.
+
+---
+
+## 3. Manual Server & Client Testing Workflow
+
+### Step 1: Start Server in Background (Without `-b`)
+Launch the server without `-b` in the background with `&`, redirecting output to a dedicated log file inside `tests/scratch/`:
+
+```bash
+mkdir -p tests/scratch
+./run_tui.sh -n 1 -s tests/scratch/run_srv.lisp > tests/scratch/server.log 2>&1 &
 ```
 
 - Because `-b` is omitted (`base_cpu=0`), it runs `./stop.sh` once at startup, cleaning up any stale processes.
@@ -34,14 +52,14 @@ Launch the server without `-b` in the background with `&`, redirecting output to
 
 Check that the server is listening:
 ```bash
-head -n 10 scratch/server.log
+head -n 10 tests/scratch/server.log
 ```
 
 ### Step 2: Run Client with `-b 10`
 Launch the client instance using `-b 10`:
 
 ```bash
-./run_tui.sh -b 10 -n 1 -s scratch/run_cli.lisp
+./run_tui.sh -b 10 -n 1 -s tests/scratch/run_cli.lisp
 ```
 
 - Because `base_cpu` is `10`, the client does **NOT** run `./stop.sh`.
@@ -51,20 +69,21 @@ Launch the client instance using `-b 10`:
 ### Step 3: Inspect Both Sides
 
 - **Client side**: Streams directly to your terminal standard output.
-- **Server side**: Inspect live with `tail -f scratch/server.log` or read `scratch/server.log` after the test.
+- **Server side**: Inspect live with `tail -f tests/scratch/server.log` or read `tests/scratch/server.log` after the test.
 
 ### Step 4: Cleanup
-When finished with testing, terminate all background instances:
+When finished with testing, terminate all background instances and remove the scratch directory:
 
 ```bash
 ./stop.sh
+rm -rf tests/scratch
 ```
 
 ---
 
 ## 3. Reference Test Scripts
 
-### Server Script (`scratch/run_srv.lisp`)
+### Server Script (`tests/scratch/run_srv.lisp`)
 ```lisp
 (print "=== SERVER LISTENING ON :4444 ===")
 (mail-send (open-child "service/net/link" +kn_call_pin) ":4444")
@@ -72,7 +91,7 @@ When finished with testing, terminate all background instances:
 	(task-sleep 1000000))
 ```
 
-### Client Script (`scratch/run_cli.lisp`)
+### Client Script (`tests/scratch/run_cli.lisp`)
 ```lisp
 (print "=== CLIENT CONNECTING TO 127.0.0.1:4444 ===")
 (mail-send (open-child "service/net/link" +kn_call_pin) "127.0.0.1:4444")
