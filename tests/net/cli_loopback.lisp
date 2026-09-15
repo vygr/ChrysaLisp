@@ -26,4 +26,4 @@
 	(print "=== LOOPBACK TEST RESULT: SUCCESS ===")
 	(print "=== LOOPBACK TEST RESULT: FAILED ==="))
 
-((ffi "service/gui/lisp_deinit"))
+(pii-exit)

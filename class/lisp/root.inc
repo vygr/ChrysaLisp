@@ -438,6 +438,8 @@
 ; (pii-remove path)
 (ffi "sys/pii/lisp_time" pii-time)
 ; (pii-time) -> ns
+(ffi "sys/pii/lisp_exit" pii-exit)
+; (pii-exit)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Kernel & System

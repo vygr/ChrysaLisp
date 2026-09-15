@@ -33,6 +33,8 @@ same benefits.
 Added clean teardown of the GUI from `Logout` app `quit` RPC. Clean up
 everything and leave the VP node pristine like it was never there.
 
+Added `(pii-exit)` function to shutdown the VP node.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly

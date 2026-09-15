@@ -39,7 +39,7 @@
 
 (when (= (length remote_nodes) 0)
 	(print "\n=== RESULT: FAILED - no remote nodes discovered from 185 ===")
-	((ffi "service/gui/lisp_deinit")))
+	(pii-exit))
 
 ; 5. Dispatch a task to EVERY remote node.
 ; Each task returns: node-id hex, task_count, mem_used, mem_avail, max_stack
@@ -117,4 +117,4 @@
 	(print "\n=== RESULT: SUCCESS - " local_count " local + 10 remote nodes all working ===")
 	(print "\n=== RESULT: FAILED ==="))
 
-((ffi "service/gui/lisp_deinit"))
+(pii-exit)

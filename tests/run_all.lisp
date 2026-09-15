@@ -84,4 +84,4 @@
 			:t))
 	(print)
 	;shutdown of the VP node if not from Terminal
-	((ffi "service/gui/lisp_deinit")))
+	(pii-exit))

@@ -4,6 +4,8 @@
 
 ### (pii-dirlist path) -> info
 
+### (pii-exit)
+
 ### (pii-fstat path) -> info
 
 ### (pii-read-char fd) -> char

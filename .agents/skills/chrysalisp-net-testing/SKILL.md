@@ -78,7 +78,7 @@ When finished with testing, terminate all background instances:
 (mail-send (open-child "service/net/link" +kn_call_pin) "127.0.0.1:4444")
 (task-sleep 3000000)
 (print "=== CLIENT SESSION FINISHED ===")
-((ffi "service/gui/lisp_deinit"))
+(pii-exit)
 ```
 
 ---

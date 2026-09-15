@@ -20,4 +20,4 @@
 (print "GUI with './run.bat'")
 (print "stop the network with './stop.bat'")
 (print)
-((ffi "service/gui/lisp_deinit"))
+(pii-exit)

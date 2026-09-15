@@ -379,7 +379,7 @@ builds and testing.
 		:t))
 
 ;clean shutdown of the VP node
-((ffi "service/gui/lisp_deinit"))
+(pii-exit)
 ```
 
 ---

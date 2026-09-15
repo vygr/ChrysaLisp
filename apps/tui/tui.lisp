@@ -107,7 +107,7 @@
 								(print +CR +LF *env_terminal_prompt*))
 							(progn ; Exit shell
 								(print +CR +LF "Exiting..." +CR +LF)
-								((ffi "service/gui/lisp_deinit"))))
+								(pii-exit)))
 						(progn ; Delete char at cursor
 							(when (< cursor (length buffer))
 								(setq buffer (erase buffer cursor (inc cursor)))

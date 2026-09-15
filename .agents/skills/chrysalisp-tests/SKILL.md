@@ -69,7 +69,7 @@ instead of failing (see `tests/system/test_system.lisp`).
 	defines `(run-suite)` which imports every test module organized by
 	category, then calls `(print-summary)`. An outer safety block wraps
 	the run in a `catch` and shuts down the VP node with
-	`(ffi "service/gui/lisp_deinit")`; it is skipped when launched from
+	`(pii-exit)`; it is skipped when launched from
 	the Terminal app, where `options` is already defined.
 
 *	`tests/utils.inc` — the shared harness: global counters
@@ -151,7 +151,7 @@ robust error reporting, and end with the host shutdown call:
 			:t))
 
 	;clean shutdown of the VP node
-	((ffi "service/gui/lisp_deinit"))
+	(pii-exit)
 
 To run a `cmd/` app from a raw script, wrap it in
 `(pipe-run command_line)` from the `(import "lib/task/pipe.inc")`

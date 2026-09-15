@@ -53,7 +53,8 @@
 	(dec-method :lisp_age sys/pii/lisp_age :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_dirlist sys/pii/lisp_dirlist :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_fstat sys/pii/lisp_fstat :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_remove sys/pii/lisp_remove :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_remove sys/pii/lisp_remove :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_exit sys/pii/lisp_exit :static (:r0 :r1) (:r0 :r1)))
 
 (defun abi-call-table (%0 %1 %2 &optional %3 %4 %5)
 	;%0 = class name
