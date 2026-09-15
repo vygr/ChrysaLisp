@@ -116,7 +116,7 @@
 				(vp-rdef (txt c))
 				(assign {c} `(,c))
 				(vp-and-cr 0x7fffffff c)
-				(vpif `(,c /= +char_lf))
+				(vpif `(,c /= +char_lf) `(,c /= +char_space))
 					(gotoif `(,c < +char_space) 'cntl_char)
 					(vpif `(,c > 0x7e))
 					(vp-label 'cntl_char)
