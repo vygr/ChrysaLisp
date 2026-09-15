@@ -40,6 +40,8 @@ tst form [else_form ...]) -> 'form`. `(when tst ...)` and `(unless tst ...)`
 macros updated to use this and now both return `:nil` if the body did not
 execute.
 
+Review and update to the `lib/date/date.inc` library and the GUI `Clock` app.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly
