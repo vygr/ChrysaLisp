@@ -42,6 +42,8 @@ execute.
 
 Review and update to the `lib/date/date.inc` library and the GUI `Clock` app.
 
+Updated `Canvas` demo, showcasing a few more features.
+
 ------
 
 Native TCP network linking (`service/net`) links ChrysaLisp instances directly
