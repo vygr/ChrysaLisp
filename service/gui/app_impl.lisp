@@ -82,15 +82,8 @@
 	(. *mouse* :set_flags +view_flag_at_front (const (+ +view_flag_solid +view_flag_at_front)))
 	(. *screen* :add_front *mouse*)
 	(mouse-type *screen* 0 0)
-	;fire up the login app and clipboard service etc
-	;small random delay, just to avoid clashes with other GUI starting up...
-	;need a better sync up really, but...
+	;fire up the login app
 	(open-child "apps/system/login/app.lisp" +kn_call_pin)
-	(task-sleep (random 1000000))
-	(open-child "service/lock/app.lisp" +kn_call_run)
-	(open-child "service/audio/app.lisp" +kn_call_run)
-	(open-child "service/net/app.lisp" +kn_call_run)
-	(open-child "service/clipboard/app.lisp" +kn_call_pin)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))

@@ -28,6 +28,13 @@
 (defun get-username ()
 	(if (eql (defq user (get :clear_text username)) "") "Guest" user))
 
+(defun start-services ()
+	(open-child "apps/system/wallpaper/app.lisp" +kn_call_pin)
+	(open-child "service/clipboard/app.lisp" +kn_call_pin)
+	(open-child "service/lock/app.lisp" +kn_call_run)
+	(open-child "service/audio/app.lisp" +kn_call_run)
+	(open-child "service/net/app.lisp" +kn_call_run))
+
 (defun main ()
 	;add centered
 	(gui-add-front-rpc *window*)
@@ -46,7 +53,7 @@
 				((/= (age (cat "usr/" (defq user (get-username)) "/env.inc")) 0)
 					;login user
 					(save user "usr/current")
-					(open-child "apps/system/wallpaper/app.lisp" +kn_call_pin)
+					(start-services)
 					:nil)
 				(:t :t)))
 		((= id +event_create)
@@ -58,7 +65,7 @@
 					(save (load "usr/Guest/env.inc") (cat home "env.inc"))
 					;login new user
 					(save user "usr/current")
-					(open-child "apps/system/wallpaper/app.lisp" +kn_call_pin)
+					(start-services)
 					:nil)
 				(:t :t)))
 		((. *window* :event msg))))
