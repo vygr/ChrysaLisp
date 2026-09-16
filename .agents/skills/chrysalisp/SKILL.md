@@ -764,11 +764,17 @@ sessions, developers and LLMs have direct access to the standard ChrysaLisp
 *	`make all boot` — recompile all host `.vp` files and regenerate the native
 	boot image (`obj/<arch>/<OS>/sys/boot_image`).
 
-*	`make it` — canonical full release rebuild of all target platforms (`AMD64`,
-	`WIN64`, `ARM64`, `RISCV64`, `LA64`, `VP64`) and documentation generation.
+*	`make it` — canonical full multi-platform rebuild of all target platforms:
+	native targets (`AMD64`, `WIN64`, `ARM64`, `RISCV64`, `LA64`) are built in
+	debug mode (`*build_mode* = 1`), while `VP64` is specifically built in release
+	mode (`*build_mode* = 0`). Also regenerates reference documentation under
+	`docs/reference/`.
 
 *	`make vp` — compile the debug VP64 emulator image (`*build_mode* = 1`) used
-	with `trace` (`cmd/trace.lisp`) for register clobber analysis.
+	with `trace` (`cmd/trace.lisp`) for register clobber analysis. (Must never
+	go into `snapshot.zip`, which is executed by `make install` to cross-compile
+	the native host and needs the full speed of a release build; always restore
+	the release image with `make it`).
 
 *	`make docs` — scan source files and regenerate all Markdown reference
 	documentation under `docs/reference/`.
@@ -782,7 +788,7 @@ From the host shell or automated tool invocations, pipe commands directly to
 
 	`echo "make all boot | time -s" | ./run_tui.sh -f`
 
-*	**Full Multi-Platform Release Rebuild:**
+*	**Full Multi-Platform Rebuild (`make it`):**
 
 	`echo "make it | time -s" | ./run_tui.sh -f`
 

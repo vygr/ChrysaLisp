@@ -105,15 +105,16 @@ identically for builds as they do for tests:
 	Recompiles all host `.vp` files and regenerates the platform native boot
 	image (`obj/<arch>/<OS>/sys/boot_image`).
 
-*	**Canonical Multi-Platform Release Rebuild (`make it`):**
+*	**Canonical Multi-Platform Rebuild (`make it`):**
 
 	```sh
 	echo "make it | time -s" | ./run_tui.sh -f
 	```
 
-	Recompiles all supported target platforms (`AMD64`, `WIN64`, `ARM64`,
-	`RISCV64`, `LA64`, `VP64`) in release mode (`*build_mode* = 0`) and
-	regenerates Markdown documentation in `docs/reference/`.
+	Recompiles all supported target platforms: native platforms (`AMD64`,
+	`WIN64`, `ARM64`, `RISCV64`, `LA64`) are built in debug mode (`*build_mode* =
+	1`), while `VP64` is specifically built in release mode (`*build_mode* = 0`).
+	Also regenerates Markdown documentation in `docs/reference/`.
 
 *	**Debug VP64 Build for Register Analysis:**
 
@@ -127,6 +128,12 @@ identically for builds as they do for tests:
 	```sh
 	echo "files obj/vp/ | grep -v apps/ | grep -v /create | grep -v /type | trace -i -l" | ./run_tui.sh -f
 	```
+
+	*Important:* The debug VP64 boot image produced by `make vp` must NEVER be
+	packaged into `snapshot.zip`. The VP64 image in `snapshot.zip` is executed
+	by the installer (`make install`) to cross-compile the host boot image, so it
+	requires the full speed of a release build. Always run `make it` afterwards
+	to restore the canonical release VP64 boot image (`*build_mode* = 0`).
 
 *	**App Rebuild:**
 
@@ -240,75 +247,148 @@ block for robust error reporting, and end with the host shutdown call:
 To run a `cmd/` app from a raw script, wrap it in `(pipe-run command_line)` from
 the `(import "lib/task/pipe.inc")` library.
 
-## Verification Requirements
+## Pre-Public Release Tag Verification (Mandatory)
 
-Per `CONTRIBUTIONS.md`, changes must be verified before submission:
+Per `CONTRIBUTIONS.md`, all of the following verification checks must be run and
+pass before tagging a public release or submitting significant contributions.
+All checks should be performed using standard TUI pipeline commands:
 
-*	The full suite passes with `RESULT: SUCCESS` and zero failures:
+1.	**Clean Includes:**
+	Ensure all `.vp` files have clean, optimal include blocks:
 
 	```sh
-	echo "tests" | ./run.sh -f
+	echo "files | includes" | ./run_tui.sh -f
 	```
 
-*	All existing functionality, particularly GUI desktop and demo applications,
-	continues to run correctly after your changes.
+	Must output nothing (zero mismatches).
 
-*	Changes to the C++ Platform Implementation Interface (PII) or other
-	platform-specific code must be tested on all supported platforms. On macOS,
-	`Makefile.mingw` cross-compiles to verify Windows host changes.
+2.	**Clean Imports:**
+	Ensure all `.vp`, `.inc`, and `.lisp` files use optimal relative paths:
 
-*	Build reproducibility: `make it` is the gold standard for build integrity,
-	and repeated builds must produce bit-for-bit identical files in `obj/`,
-	including in emulated VP64 mode (`-e`).
+	```sh
+	echo "files | imports" | ./run_tui.sh -f
+	```
 
-## Binary-to-Binary Diff Verification
+	Must output nothing (zero non-optimal paths).
 
-Once a known good build is working, ensure all platforms are compiled in the
-canonical release mode produced by `make it` (matching `snapshot.zip`, not the
-debug mode produced by `make vp`), then sync `obj/` to `../ChrysaLisp_copy/obj/`:
+3.	**Forward References Check:**
+	Ensure no forward references to functions or macros exist:
 
+	```sh
+	echo "files | forward" | ./run_tui.sh -f
+	```
+
+	Must output nothing (zero forward references).
+
+4.	**Register Clobber & Lint Analysis (`trace`):**
+	Build the debug VP64 emulator image and verify register clobber integrity:
+
+	```sh
+	echo "make vp" | ./run_tui.sh -f
+	echo "files obj/vp/ | grep -v apps/ | grep -v /create | grep -v /type | trace -i -l" | ./run_tui.sh -f
+	```
+
+	Must output nothing (zero mismatches between documented and calculated
+	transitive register trashes).
+
+5.	**Full Canonical Multi-Platform Rebuild (`make it`):**
+	Recompile all platforms (native platforms in debug mode, VP64 in release
+	mode `*build_mode* = 0`) and regenerate reference documentation:
+
+	```sh
+	echo "make it | time -s" | ./run_tui.sh -f
+	```
+
+	*Important:* `make snapshot` must only be done after `make it` (never after
+	`make vp`), so `snapshot.zip` contains the release VP64 boot image.
+
+6.	**Emulator (-e) Deterministic Binary Diff Verification:**
+	Verify that the emulated VP64 build produces bit-for-bit identical binaries
+	to the native host build across all target platforms:
+
+	```sh
 	rsync -av --delete obj/ ../ChrysaLisp_copy/obj/
-
-Later, after making source changes and rebuilding with `make it`, use host
-recursive binary comparison to inspect exactly which object binaries changed:
-
-	diff -r obj/ ../ChrysaLisp_copy/obj/
-
-This avoids spurious diffs from debug builds and provides an exact,
-authoritative picture of legitimate binary modifications across platforms.
-
-### Emulator (-e) Consistency Check
-
-This binary comparison is also vital for verifying that the emulated VP64 build
-(`-e`) produces bit-for-bit identical binaries to the native build:
-
-1.	Build all platforms natively with `make it`:
-
-	```sh
-	echo "make it" | ./run_tui.sh -f
-	```
-
-2.	Sync `obj/` to `../ChrysaLisp_copy/obj/`:
-
-	```sh
-	rsync -av --delete obj/ ../ChrysaLisp_copy/obj/
-	```
-
-3.	Rebuild all platforms under the VP64 emulator:
-
-	```sh
-	echo "make it" | ./run_tui.sh -e -f
-	```
-
-4.	Run host binary diff:
-
-	```sh
+	echo "make it | time -s" | ./run_tui.sh -e -f
 	diff -r obj/ ../ChrysaLisp_copy/obj/
 	```
 
-A clean diff (zero output / exit code 0) proves deterministic compilation and
-guarantees that the VP64 emulator environment produces identical machine code
-and data structures to the native host.
+	Must produce zero diff output (exit code 0).
+
+7.	**Full Functional Test Suite (Both Native and Emulator Modes):**
+	Run the complete test suite in both environments:
+
+	*	Native host (under live GUI or TUI):
+
+		```sh
+		echo "tests" | ./run.sh -f
+		```
+
+		Must report `Passed: 1544, Failed: 0, RESULT: SUCCESS`.
+
+	*	VP64 emulator:
+
+		```sh
+		echo "tests" | ./run_tui.sh -e -f
+		```
+
+		Must report `Passed: 1544, Failed: 0, RESULT: SUCCESS`.
+
+8.	**Multi-Instance Network Link Loopback Test:**
+	Verify distributed node discovery, connection, remote task dispatch, and
+	result aggregation:
+
+	```sh
+	./tests/net/test_loopback.sh
+	```
+
+	Must complete with `=== LOOPBACK TEST RESULT: SUCCESS ===`.
+
+9.	**Host C++ Cross-Platform Compilation Check:**
+	If C++ PII or driver code was modified, verify compilation across platforms.
+	On macOS, use `Makefile.mingw` to verify Windows host builds:
+
+	```sh
+	make -f Makefile.mingw
+	```
+
+	Must compile Windows `main_gui.exe` and `main_tui.exe` with zero errors.
+
+10.	**Generate Release Snapshot (`make snapshot`):**
+	Only after ALL preceding pre-release tag tests have completed and are
+	verified 100% clean, generate the host distribution snapshot:
+
+	```sh
+	make snapshot
+	```
+
+	*Vital Requirement:* It MUST be the canonical release version of the VP64
+	boot image produced by `make it` (`*build_mode* = 0`) that goes into
+	`snapshot.zip`, **NEVER** the debug version produced by `make vp`
+	(`*build_mode* = 1`). The reason is that `obj/vp64/VP64/sys/boot_image` in
+	`snapshot.zip` is executed by the installation script (`make install` ->
+	`./run_tui.sh -i -e -f`) to cross-compile the platform-native boot image and
+	classes for the host. Having the release build in `snapshot.zip` ensures the
+	installation process runs at maximum release speed without debug checking
+	overhead. Because `make vp` was run in Step 4 for trace linting, `make it`
+	in Step 5 restored the release image (`obj/vp64/VP64/sys/boot_image`,
+	~150 KB). Always confirm the VP64 image is the release build before running
+	`make snapshot`. `snapshot.zip` is the official distribution artifact for
+	new releases and the master branch.
+
+11.	**Verify Clean Host Installation (`make install`):**
+	After `snapshot.zip` is generated, verify that a clean host `make install`
+	succeeds and that the test suite passes on the freshly installed system:
+
+	```sh
+	make install
+	echo "tests" | ./run_tui.sh -f
+	```
+
+	This verifies the full end-to-end user onboarding flow: cleaning the host
+	objects, unzipping `snapshot.zip`, compiling host C++ executables, running
+	the installer under VP64 emulation to cross-compile the host native boot
+	image at release speed, and confirming that the installed environment
+	passes all functional tests (`RESULT: SUCCESS`).
 
 ---
 

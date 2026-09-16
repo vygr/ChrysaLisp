@@ -193,7 +193,7 @@ trashes
 inputs
 :r0 = fd (long)
 outputs
-:r0 = char (long)
+:r0 = char (long), 0 if no char, -1 if EOF
 trashes
 :r0, :f0-:f15
 ```
