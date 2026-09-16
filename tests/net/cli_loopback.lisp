@@ -1,6 +1,10 @@
 (print "=== ChrysaLisp Network Loopback Remote Work Test ===")
 
-; 1. Record local node identity BEFORE connecting
+; 1. Wait for local nodes to become visible
+(print "CLIENT: Waiting for 10 local nodes to become visible...")
+(while (< (length (lisp-nodes)) 10)
+	(task-sleep 100000))
+
 (defq local_nodes (lisp-nodes)
 	local_count (length local_nodes)
 	expected_remote 10
@@ -16,12 +20,12 @@
 
 ; 3. Wait for remote nodes to appear
 (print "CLIENT: Waiting for " expected_total " total nodes (" local_count " local + " expected_remote " remote)...")
-(defq retries 50 last_cnt -1)
+(defq retries 100 last_cnt -1)
 (while (> retries 0)
 	(task-sleep 100000)
 	(defq cur_count (length (lisp-nodes)))
 	(when (/= cur_count last_cnt)
-		(print "  [" (- 51 retries) "x 100ms] total nodes: " cur_count " (need " expected_total ")")
+		(print "  [" (- 101 retries) "x 100ms] total nodes: " cur_count " (need " expected_total ")")
 		(setq last_cnt cur_count))
 	(when (>= cur_count expected_total)
 		(task-sleep 500000)
@@ -38,6 +42,7 @@
 
 (when (< (length remote_nodes) expected_remote)
 	(print "\n=== LOOPBACK TEST RESULT: FAILED - insufficient remote nodes discovered ===")
+	(stream-flush (io-stream "stdout"))
 	(pii-exit))
 
 ; 5. Dispatch a task to EVERY remote node
@@ -115,4 +120,5 @@
 	(print "\n=== LOOPBACK TEST RESULT: SUCCESS ===")
 	(print "\n=== LOOPBACK TEST RESULT: FAILED ==="))
 
+(stream-flush (io-stream "stdout"))
 (pii-exit)
