@@ -20,6 +20,12 @@
 
 ### (net-send handle str)
 
+### (net-udp-bind port)
+
+### (net-udp-recv handle max_len)
+
+### (net-udp-send handle host port str)
+
 ## VP methods
 
 ### :accept -> :nil
@@ -96,4 +102,10 @@ outputs
 trashes
 :r0-:r14, :f0-:f15
 ```
+
+### :udp_bind -> :nil
+
+### :udp_recv -> :nil
+
+### :udp_send -> :nil
 
