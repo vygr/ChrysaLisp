@@ -449,10 +449,6 @@ simultaneously (e.g. `(assign '((:r0 +str_length)) '(:r1))`):
 
 	*	Open scope with `(push-scope)` at function start.
 
-	*	**NEVER call `(pop-scope)` before `(return)` or `(jump)`**. Both
-		macros automatically emit scope unwinding instructions. Calling
-		`pop-scope` manually causes a stack frame double-free.
-
 	*	Place `(pop-scope-syms)` at the end of the `def-func` block (after
 		`errorcase` and `signature` sections) to cleanly purge compiler
 		tracking.
