@@ -1,14 +1,20 @@
 (print "=== ChrysaLisp Remote Work Test (Machine 185) ===")
 
-; 1. Record local node identity BEFORE connecting anything
+; 1. Wait for all 10 local nodes to finish booting and become visible
+(print "Waiting for 10 local nodes to become visible...")
+(while (< (length (lisp-nodes)) 10)
+	(task-sleep 100000))
+
 (defq local_node (task-nodeid)
 	local_nodes (lisp-nodes)
 	local_count (length local_nodes)
-	expected_total (+ local_count 10))
+	expected_remote 10
+	expected_total (+ local_count expected_remote))
 
 (print "Local node ID         : " (hex-encode local_node))
-(print "Local nodes (-n " local_count ")  : " local_count)
-(print "Expected total nodes  : " local_count " + 10 = " expected_total)
+(print "Local nodes           : " local_count)
+(print "Expected remote nodes : " expected_remote)
+(print "Expected total nodes  : " local_count " + " expected_remote " = " expected_total)
 
 ; 2. Connect link to machine 185
 (print "\nConnecting link to 192.168.1.185:3333...")
@@ -31,14 +37,15 @@
 
 ; 4. Tally remote nodes
 (defq all_nodes (lisp-nodes)
-	remote_nodes (filter (# (not (eql %0 local_node))) all_nodes))
+	remote_nodes (filter (# (not (find %0 local_nodes))) all_nodes))
 
 (print "\nFinal state:")
 (print "  Total nodes    : " (length all_nodes) " (expected " expected_total ")")
-(print "  Remote nodes   : " (length remote_nodes) " (expected 10)")
+(print "  Remote nodes   : " (length remote_nodes) " (expected " expected_remote ")")
 
 (when (= (length remote_nodes) 0)
 	(print "\n=== RESULT: FAILED - no remote nodes discovered from 185 ===")
+	(stream-flush (io-stream "stdout"))
 	(pii-exit))
 
 ; 5. Dispatch a task to EVERY remote node.
@@ -80,7 +87,7 @@
 			(push work_results msg)
 			(bind '(node_hex task_count mem_used mem_avail max_stack)
 				(split msg "\n"))
-			(defq is_local (eql node_hex (hex-encode local_node)))
+			(defq is_local (find (hex-decode node_hex) local_nodes))
 			(print "  Result [" (inc received) "/" dispatched "]:"
 				" node=" node_hex
 				" tasks=" task_count
@@ -98,9 +105,9 @@
 
 ; 7. Final report
 (print "\n=== Remote Work Test Summary ===")
-(print "Local nodes (-n)   : " local_count)
+(print "Local nodes        : " local_count)
 (print "Total discovered   : " (length all_nodes) " / " expected_total " expected")
-(print "Remote nodes       : " (length remote_nodes) " / 10 expected")
+(print "Remote nodes       : " (length remote_nodes) " / " expected_remote " expected")
 (print "Dispatched         : " dispatched)
 (print "Received           : " (length work_results))
 (print "All remote         : " all_remote)
@@ -108,13 +115,14 @@
 
 (defq pass (and
 	(>= (length all_nodes) expected_total)
-	(>= (length remote_nodes) 10)
+	(>= (length remote_nodes) expected_remote)
 	(= (length work_results) dispatched)
 	all_remote
 	(not timed_out)))
 
 (if pass
-	(print "\n=== RESULT: SUCCESS - " local_count " local + 10 remote nodes all working ===")
+	(print "\n=== RESULT: SUCCESS - " local_count " local + " expected_remote " remote nodes all working ===")
 	(print "\n=== RESULT: FAILED ==="))
 
+(stream-flush (io-stream "stdout"))
 (pii-exit)
