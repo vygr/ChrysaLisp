@@ -1,10 +1,5 @@
 (import "service/net/app.inc")
 
-(defun rpad (v c &optional f)
-	(defq f (ifn f " ") v (str v) l (length v) c (- (max c l) l))
-	(while (> c (length f)) (setq f (cat f f)))
-	(cat v (slice f 0 c)))
-
 (print "=== ChrysaLisp Cluster Node Diagnostic Query ===")
 
 ; 1. Wait for local nodes to finish booting (wait until count stops increasing)

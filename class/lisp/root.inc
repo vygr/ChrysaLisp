@@ -1130,6 +1130,12 @@
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice f 0 c) v))
 
+(defun rpad (v c &optional f)
+	; (rpad form width [str]) -> str
+	(defq f (ifn f " ") v (str v) l (length v) c (- (max c l) l))
+	(while (> c (length f)) (setq f (cat f f)))
+	(cat v (slice f 0 c)))
+
 (defun trim-start (s &optional cls)
 	; (trim-start str [cls]) -> str
 	(slice s (bskip (ifn cls " ") s 0) -1))
