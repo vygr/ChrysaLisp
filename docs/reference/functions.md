@@ -1314,6 +1314,12 @@ restart a child
 (rle-decompress in_stream out_stream [token_bits run_bits max_tokens])
 ```
 
+### rpad
+
+```code
+(rpad form width [str]) -> str
+```
+
 ### scatter
 
 ```code
