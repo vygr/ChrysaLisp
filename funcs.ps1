@@ -41,11 +41,25 @@ function boot_cpu_gui {
     $boot = if ($global:emu -eq '-e') { "obj/vp64/VP64/sys/boot_image" } else { "obj/$HCPU/$HABI/sys/boot_image" }
     $argstring = "$boot " + $link.Trim()
     if ($global:emu -ne '') { $argstring += " $global:emu" }
-    if ($cpu -lt $global:ngui) {
+    if ($global:ngui -eq 0) {
+        if ($cpu -lt 1) {
+            if ($front -eq $FALSE) {
+                Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $global:script"
+            } else {
+                $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $global:script" -PassThru -Wait
+                if ($process.ExitCode -eq 0) {
+                    . "$NHROOT\stop.ps1"
+                    Clear-Host
+                }
+            }
+        } else {
+            Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList $argstring
+        }
+    } elseif ($cpu -lt $global:ngui) {
         if ($front -eq $FALSE -or $cpu -ge 1) {
             Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run service/gui/app.lisp"
         } else {
-            $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run service/gui/app.lisp" -PassThru -Wait
+            $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run apps/tui/tui_gui.lisp" -PassThru -Wait
             if ($process.ExitCode -eq 0) {
                 . "$NHROOT\stop.ps1"
                 Clear-Host

@@ -755,17 +755,36 @@ GUI rendering executes in two deterministic passes:
 
 ## Building & Binary Verification
 
-When modifying VP assembler source files (`.vp` or `sys/*.vp`), the system boot
-image and cross-platform binaries must be rebuilt:
+With the full TUI environment accessible via piped stdin or interactive
+sessions, developers and LLMs have direct access to the standard ChrysaLisp
+`make` command (`cmd/make.lisp`) and all its options:
+
+*	`make` — incremental compile of modified host `.vp` files.
+
+*	`make all boot` — recompile all host `.vp` files and regenerate the native
+	boot image (`obj/<arch>/<OS>/sys/boot_image`).
+
+*	`make it` — canonical full release rebuild of all target platforms (`AMD64`,
+	`WIN64`, `ARM64`, `RISCV64`, `LA64`, `VP64`) and documentation generation.
+
+*	`make vp` — compile the debug VP64 emulator image (`*build_mode* = 1`) used
+	with `trace` (`cmd/trace.lisp`) for register clobber analysis.
+
+*	`make docs` — scan source files and regenerate all Markdown reference
+	documentation under `docs/reference/`.
+
+*	`make apps` — recompile GUI and desktop applications.
+
+From the host shell or automated tool invocations, pipe commands directly to
+`./run_tui.sh -f` or `./run.sh -f`:
 
 *	**Native Boot Image Rebuild:**
-	`./run_tui.sh -f -s tests/build/test_build.lisp`
-	Recompiles all host `.vp` files and generates the native boot image.
+
+	`echo "make all boot | time -s" | ./run_tui.sh -f`
 
 *	**Full Multi-Platform Release Rebuild:**
-	`./run_tui.sh -f -s tests/build/test_it.lisp`
-	Recompiles all platforms (`AMD64`, `WIN64`, `ARM64`, `RISCV64`, `LA64`,
-	`VP64`) in canonical release mode and generates system documentation.
+
+	`echo "make it | time -s" | ./run_tui.sh -f`
 
 *	**Binary-to-Binary Verification & Diff Testing:**
 	The reference directory `../ChrysaLisp_copy/obj/` is used to verify exactly
@@ -773,15 +792,19 @@ image and cross-platform binaries must be rebuilt:
 	(`-e`) produces bit-for-bit identical output to the native host:
 
 	1.	Build all platforms natively with `make it`:
-		`./run_tui.sh -f -s tests/build/test_it.lisp`
+
+		`echo "make it" | ./run_tui.sh -f`
 
 	2.	Sync `obj/` to `../ChrysaLisp_copy/obj/`:
+
 		`rsync -av --delete obj/ ../ChrysaLisp_copy/obj/`
 
 	3.	Rebuild under the VP64 emulator:
-		`./run_tui.sh -e -f -s tests/build/test_it.lisp`
+
+		`echo "make it" | ./run_tui.sh -e -f`
 
 	4.	Verify bit-for-bit identity using host `diff`:
+
 		`diff -r obj/ ../ChrysaLisp_copy/obj/`
 
 ## Output Directives (Mandatory)

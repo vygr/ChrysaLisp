@@ -375,7 +375,7 @@
 	;inputs
 	;:r0 = fd (long)
 	;outputs
-	;:r0 = char (long)
+	;:r0 = char (long), 0 if no char, -1 if EOF
 	;trashes
 	;:r0, :f0-:f15
 
@@ -383,8 +383,17 @@
 	(abi-push-trashed :r1 :r2 :r13 :r14)
 	(vp-xor-rr :r1 :r1)
 	(vp-push :r1)
-	(host-os-call :host_os :read '(:r0 :rsp 1))
-	(vp-pop :r0)
+	(host-os-call :host_os :read '(:r0 :rsp 1) '(:r0))
+	(vpif '(:r0 = 1))
+		(vp-pop :r0)
+	(else)
+		(vp-free +ptr_size)
+		(vpif '(:r0 = 0))
+			(vp-cpy-cr -1 :r0)
+		(else)
+			(vp-xor-rr :r0 :r0)
+		(endif)
+	(endif)
 	(abi-pop-trashed :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_read_char '(:r0))
 	(vp-ret)

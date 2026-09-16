@@ -113,5 +113,5 @@ rm -rf tests/scratch
 - **ChrysaLisp VP / Lisp / System image changes** (`service/net/link.vp`, `class/*`, `sys/*`):
   Never run host `make` to compile ChrysaLisp code. Rebuild the system boot image from within ChrysaLisp using:
   ```bash
-  ./run_tui.sh -f -s tests/build/test_build.lisp
+  echo "make all boot" | ./run_tui.sh -f
   ```

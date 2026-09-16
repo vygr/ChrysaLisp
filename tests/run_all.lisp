@@ -1,8 +1,12 @@
-; Run with: ./run_tui.sh -n 1 -f -s tests/run_all.lisp
+; Run from TUI with: tests
+; Or host shell: echo "tests" | ./run.sh -f
+;             or: echo "tests" | ./run_tui.sh -f
+; (Legacy raw script mode: ./run_tui.sh -n 1 -f -s tests/run_all.lisp)
 
 (import "./utils.inc")
 
 (defun run-suite ()
+	(setq *test_passes* 0 *test_failures* 0)
 	(print "Starting ChrysaLisp Functional Test Suite...")
 
 	; Import separate test modules organized by category

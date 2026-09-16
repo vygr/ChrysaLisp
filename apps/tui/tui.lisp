@@ -57,9 +57,9 @@
 (defun redraw-line ()
 	;CR, Prompt, Buffer, Clear-To-End
 	(print +CR *env_terminal_prompt* buffer +CSI "K")
-	;Move cursor to visual position: CR, Prompt, Right-N
-	(print +CR *env_terminal_prompt*)
-	(if (> cursor 0) (print +CSI (str cursor) "C")))
+	;Position cursor if not at end of buffer
+	(if (< cursor (length buffer))
+		(print +CSI (str (- (length buffer) cursor)) "D")))
 
 (defun terminal-input (c)
 	(if (and (= c 10) (= last_input 13))
@@ -72,6 +72,7 @@
 				((= c 27) ; ESC
 					(setq esc_state 1))
 				((or (= c 10) (= c 13)) ; Enter
+					(redraw-line)
 					(print +CR +LF) ; Newline
 					(cond
 						(cmd ; Feed active pipe
@@ -97,29 +98,26 @@
 					(when (> cursor 0)
 						(setq buffer (erase buffer (dec cursor) cursor))
 						(-- cursor)
-						(redraw-line)))
+						(unless (mail-poll *select*) (redraw-line))))
 				((= c 4) ; Ctrl-D (EOF/Delete)
 					(if (= (length buffer) 0)
 						(if cmd
-							(progn ; EOF to pipe
-								(. cmd :close)
-								(setq cmd :nil buffer "")
-								(print +CR +LF *env_terminal_prompt*))
+							(setq *eof* :t)
 							(progn ; Exit shell
 								(print +CR +LF "Exiting..." +CR +LF)
 								(pii-exit)))
 						(progn ; Delete char at cursor
 							(when (< cursor (length buffer))
 								(setq buffer (erase buffer cursor (inc cursor)))
-								(redraw-line)))))
+								(unless (mail-poll *select*) (redraw-line))))))
 				((= c 9) ;Tab
 					(defq auto (url-ext buffer cursor))
 					(setq buffer (insert buffer cursor auto) cursor (+ cursor (length auto)))
-					(redraw-line))
+					(unless (mail-poll *select*) (redraw-line)))
 				((<= 32 c 126) ; Printable
 					(setq buffer (insert buffer cursor (char c)))
 					(++ cursor)
-					(redraw-line))))
+					(unless (mail-poll *select*) (redraw-line)))))
 		(1 ; Expecting [
 			(if (= c 91)
 				(setq esc_state 2)
@@ -131,7 +129,7 @@
 						(-- *history_idx*)
 						(setq buffer (elem-get *history* *history_idx*)
 							  cursor (length buffer))
-						(redraw-line))
+						(unless (mail-poll *select*) (redraw-line)))
 					(setq esc_state 0))
 				((= c 66) ; Down Arrow
 					(cond
@@ -140,20 +138,20 @@
 							(setq buffer (elem-get *history* *history_idx*)))
 						(:t (setq buffer "" *history_idx* (length *history*))))
 					(setq cursor (length buffer))
-					(redraw-line)
+					(unless (mail-poll *select*) (redraw-line))
 					(setq esc_state 0))
 				((= c 67) ; Right Arrow
 					(if (< cursor (length buffer)) (++ cursor))
-					(redraw-line)
+					(unless (mail-poll *select*) (redraw-line))
 					(setq esc_state 0))
 				((= c 68) ; Left Arrow
 					(if (> cursor 0) (-- cursor))
-					(redraw-line)
+					(unless (mail-poll *select*) (redraw-line))
 					(setq esc_state 0))
 				((= c 72) ; Home (Standard)
-					(setq cursor 0) (redraw-line) (setq esc_state 0))
+					(setq cursor 0) (unless (mail-poll *select*) (redraw-line)) (setq esc_state 0))
 				((= c 70) ; End (Standard)
-					(setq cursor (length buffer)) (redraw-line) (setq esc_state 0))
+					(setq cursor (length buffer)) (unless (mail-poll *select*) (redraw-line)) (setq esc_state 0))
 				((= c 49) ; Home/End/Del? (1~)
 					(setq esc_state 3)) ; Wait for ~
 				((= c 51) ; Del (3~)
@@ -162,16 +160,16 @@
 					(setq esc_state 5)) ; Wait for ~
 				(:t (setq esc_state 0))))
 		(3 ; Home (1~)
-			(when (= c 126) (setq cursor 0) (redraw-line))
+			(when (= c 126) (setq cursor 0) (unless (mail-poll *select*) (redraw-line)))
 			(setq esc_state 0))
 		(4 ; Del (3~)
 			(when (= c 126)
 				(when (< cursor (length buffer))
 					(setq buffer (erase buffer cursor (inc cursor)))
-					(redraw-line)))
+					(unless (mail-poll *select*) (redraw-line))))
 			(setq esc_state 0))
 		(5 ; End (4~)
-			(when (= c 126) (setq cursor (length buffer)) (redraw-line))
+			(when (= c 126) (setq cursor (length buffer)) (unless (mail-poll *select*) (redraw-line)))
 			(setq esc_state 0)))))
 
 (defun main ()
@@ -183,7 +181,8 @@
 	;create child and send args
 	(mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_pin) (task-mbox))
 	(defq cmd :nil buffer "" cursor 0 esc_state 0 last_input 0
-		*meta_map* :nil *history_idx* (state-load))
+		*meta_map* :nil *history_idx* (state-load) *eof* :nil
+		*select* (list (task-mbox)))
 	(bind '(*history*) (gather *meta_map* :history))
 	(while :t
 		(defq data :t)
@@ -196,6 +195,8 @@
 				;pipe is closed
 				(. cmd :close)
 				(setq cmd :nil)
-				(print +CR +LF *env_terminal_prompt*))
+				(if *eof*
+					(pii-exit)
+					(print +CR +LF *env_terminal_prompt*)))
 			(:t ;string from pipe
 				(print data)))))

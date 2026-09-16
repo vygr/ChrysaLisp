@@ -50,19 +50,37 @@ function wrap
 
 function boot_cpu_gui
 {
-	if [ $1 -lt $num_gui ]
+	if [ $num_gui -eq 0 ]
+	then
+		if [ $1 -lt 1 ]
+		then
+			if [ "$front" == "" ]
+			then
+				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script &
+			else
+				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
+				if [ $? -eq 0 ]
+				then
+					{
+						./stop.sh
+					} &> /dev/null
+				fi
+			fi
+		else
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu &
+		fi
+	elif [ $1 -lt $num_gui ]
 	then
 		if [ "$front" == "" ] || [ $1 -ge 1 ]
 		then
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run service/gui/app.lisp &
 		else
-			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run service/gui/app.lisp
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run apps/tui/tui_gui.lisp
 			if [ $? -eq 0 ]
 			then
 				{
 					./stop.sh
 				} &> /dev/null
-				clear
 			fi
 		fi
 	else
