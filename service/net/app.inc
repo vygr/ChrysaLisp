@@ -1,6 +1,6 @@
 ; RPC command types
 (enums +net_rpc_type 0
-	(enum connect listen accept link))
+	(enum connect listen accept link beacon discover))
 
 ; Common RPC request header
 (structure +net_rpc 0
@@ -26,6 +26,13 @@
 (structure +net_rpc_accept +net_rpc_size
 	(netid client_in_mbox)
 	(uint conn_handle))
+
+; Beacon request: tells @Net to advertise TCP port via UDP broadcast
+(structure +net_rpc_beacon +net_rpc_size
+	(uint port))
+
+; Discover request: tells @Net to listen for beacons on UDP 3334 and auto-link
+(structure +net_rpc_discover +net_rpc_size)
 
 ; Reply header to connect or accept
 (structure +net_rpc_reply 0
@@ -109,8 +116,8 @@
 	; (net-close-rpc (client_in client_out))
 	(in-set-state (first conn) +stream_mail_state_aborted))
 
-(defun net-link-rpc (target)
-	; (net-link-rpc target) -> status | :nil
+(defun ensure-net-service ()
+	; (ensure-net-service) -> netid | :nil
 	(defq svc (net-service))
 	(unless svc
 		;start net service on node 0
@@ -118,6 +125,11 @@
 		(defq retries 50)
 		(while (and (not (setq svc (net-service))) (> (-- retries) 0))
 			(task-sleep 10000)))
+	svc)
+
+(defun net-link-rpc (target)
+	; (net-link-rpc target) -> status | :nil
+	(defq svc (ensure-net-service))
 	(if svc
 		(progn
 			(defq reply_mbox (mail-mbox)
@@ -128,4 +140,30 @@
 			(defq reply (mail-read reply_mbox))
 			(getf reply +net_rpc_reply_status))
 		(mail-send (open-child "service/net/link" +kn_call_pin) target)))
+
+(defun net-beacon-rpc (port)
+	; (net-beacon-rpc port) -> status | :nil
+	(defq svc (ensure-net-service))
+	(when svc
+		(defq reply_mbox (mail-mbox)
+			req (setf-> (str-alloc +net_rpc_beacon_size)
+				(+net_rpc_type +net_rpc_type_beacon)
+				(+net_rpc_reply_id reply_mbox)
+				(+net_rpc_beacon_port port)))
+		(mail-send svc req)
+		(defq reply (mail-read reply_mbox))
+		(getf reply +net_rpc_reply_status)))
+
+(defun net-discover-rpc ()
+	; (net-discover-rpc) -> status | :nil
+	(defq svc (ensure-net-service))
+	(when svc
+		(defq reply_mbox (mail-mbox)
+			req (setf-> (str-alloc +net_rpc_discover_size)
+				(+net_rpc_type +net_rpc_type_discover)
+				(+net_rpc_reply_id reply_mbox)))
+		(mail-send svc req)
+		(defq reply (mail-read reply_mbox))
+		(getf reply +net_rpc_reply_status)))
+
 

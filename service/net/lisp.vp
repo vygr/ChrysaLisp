@@ -375,3 +375,173 @@
 	(signature '(:NUM)))
 
 (def-func-end)
+
+(def-method :host_net :lisp_udp_bind)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(structure local 0
+		(ptr this)
+		(long port c_handle))
+
+	(entry :host_net :lisp_udp_bind '(:r0 :r1))
+	(errorif-lisp-args-sig 'error :r1 1)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(list-bind-args :r1 '(:r0) '(:num))
+	(assign '(:r0) '((:rsp local_port)))
+
+	;udp socket / bind on host stack
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_handle)) '(:r1))
+
+	(exit :host_net :lisp_udp_bind '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(host-net-call :host_net :udp_bind '((:r0 local_port)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_handle)))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r0 :r1 "(net-udp-bind port)" +error_msg_wrong_types))
+	(signature '(:NUM)))
+
+(def-func-end)
+
+(def-method :host_net :lisp_udp_send)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(structure local 0
+		(ptr this)
+		(pubyte host buf)
+		(long handle port len ret_bytes))
+
+	(entry :host_net :lisp_udp_send '(:r0 :r1))
+	(errorif-lisp-args-sig 'error :r1 4)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:num :str :num :obj))
+	(assign '((:r3 +str_length) (& :r3 +str_data)) '(:r4 :r3))
+	(assign '(:r0 :r1 :r2 :r3 :r4)
+		'((:rsp local_handle) (:rsp local_host) (:rsp local_port) (:rsp local_buf) (:rsp local_len)))
+
+	;sendto on host stack
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_ret_bytes)) '(:r1))
+
+	(exit :host_net :lisp_udp_send '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(assign '((:r0 local_host) (:r0 local_port) (:r0 local_buf) (:r0 local_len) (:r0 local_handle))
+		'(:r1 :r2 :r3 :r4 :r0))
+	(host-net-call :host_net :udp_send '(:r0 :r1 :r2 :r3 :r4) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_ret_bytes)))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r0 :r1 "(net-udp-send handle host port str)" +error_msg_wrong_types))
+	(signature '(:NUM :str :NUM :str)))
+
+(def-func-end)
+
+(def-method :host_net :lisp_udp_recv)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(structure local 0
+		(ptr this buf ip_str port_num ret)
+		(long handle max_len port ret_bytes)
+		(struct ip_buf 64))
+
+	(entry :host_net :lisp_udp_recv '(:r0 :r1))
+	(errorif-lisp-args-sig 'error :r1 2)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(list-bind-args :r1 '(:r0 :r1) '(:num :num))
+	(assign '(:r0 :r1) '((:rsp local_handle) (:rsp local_max_len)))
+
+	(call :str :create_from_buffer '(0 (:rsp local_max_len)) '(:r0))
+	(assign '(:r0) '((:rsp local_buf)))
+
+	;recvfrom on host stack
+	(call :sys_task :callback '(:rsp ($ callback)))
+
+	(assign '((:rsp local_ret_bytes)) '(:r0))
+	(vpif '(:r0 > 0))
+		(assign '((:rsp local_buf)) '(:r1))
+		(assign '(:r0) '((:r1 +str_length)))
+
+		(call :str :create_from_cstr '((& :rsp local_ip_buf)) '(:r0))
+		(assign '(:r0) '((:rsp local_ip_str)))
+
+		(call :num :create '((:rsp local_port)) '(:r0))
+		(assign '(:r0) '((:rsp local_port_num)))
+
+		(call :list :create :nil '(:r0))
+		(assign '(:r0) '((:rsp local_ret)))
+
+		(call :list :push_back '((:rsp local_ret) (:rsp local_buf)))
+		(call :list :push_back '((:rsp local_ret) (:rsp local_ip_str)))
+		(call :list :push_back '((:rsp local_ret) (:rsp local_port_num)))
+	(else)
+		(call :str :destroy '((:rsp local_buf)))
+		(assign '((:rsp local_this)) '(:r0))
+		(call :obj :ref '((:r0 +lisp_sym_nil)) '(:r0))
+		(assign '(:r0) '((:rsp local_ret)))
+	(endif)
+
+	(exit :host_net :lisp_udp_recv '((:rsp local_this) (:rsp local_ret)))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(assign '((:r0 local_buf) (:r0 local_max_len) (& :r0 local_ip_buf) (& :r0 local_port) (:r0 local_handle))
+		'(:r1 :r2 :r3 :r4 :r5))
+	(assign '((& :r1 +str_data) :r5) '(:r1 :r0))
+	(host-net-call :host_net :udp_recv '(:r0 :r1 :r2 :r3 :r4) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_ret_bytes)))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r0 :r1 "(net-udp-recv handle max_len)" +error_msg_wrong_types))
+	(signature '(:NUM :NUM)))
+
+(def-func-end)

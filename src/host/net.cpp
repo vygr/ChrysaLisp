@@ -36,6 +36,7 @@ enum SockState {
 	SOCK_STATE_CONNECTING,
 	SOCK_STATE_CONNECTED,
 	SOCK_STATE_LISTENING,
+	SOCK_STATE_UDP,
 	SOCK_STATE_FAILED
 };
 
@@ -67,7 +68,11 @@ static void close_fd(socket_t fd) {
 #endif
 }
 
+int64_t host_net_init();
+static int net_initialized = 0;
+
 static uint32_t alloc_slot(socket_t fd, int state) {
+	if (!net_initialized) host_net_init();
 	for (uint32_t i = 1; i < MAX_NET_HANDLES; ++i) {
 		if (slots[i].state == SOCK_STATE_FREE) {
 			slots[i].fd = fd;
@@ -177,21 +182,25 @@ static void start_resolve_thread(uint32_t handle) {
 #endif
 
 int64_t host_net_init() {
+	if (!net_initialized) {
 #ifdef _WIN64
-	WSADATA wsaData;
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) return -1;
+		WSADATA wsaData;
+		if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) return -1;
 #else
-	signal(SIGPIPE, SIG_IGN);
+		signal(SIGPIPE, SIG_IGN);
 #endif
-	for (int i = 0; i < MAX_NET_HANDLES; ++i) {
-		slots[i].fd = SOCK_INVALID;
-		slots[i].state = SOCK_STATE_FREE;
-		slots[i].cancelled = 0;
+		for (int i = 0; i < MAX_NET_HANDLES; ++i) {
+			slots[i].fd = SOCK_INVALID;
+			slots[i].state = SOCK_STATE_FREE;
+			slots[i].cancelled = 0;
+		}
+		net_initialized = 1;
 	}
 	return 0;
 }
 
 int64_t host_net_deinit() {
+	if (!net_initialized) return 0;
 	for (int i = 1; i < MAX_NET_HANDLES; ++i) {
 		if (slots[i].state != SOCK_STATE_FREE) {
 			if (slots[i].state == SOCK_STATE_RESOLVING) {
@@ -206,6 +215,7 @@ int64_t host_net_deinit() {
 #ifdef _WIN64
 	WSACleanup();
 #endif
+	net_initialized = 0;
 	return 0;
 }
 
@@ -373,6 +383,97 @@ int64_t host_net_poll(uint32_t handle) {
 	return flags;
 }
 
+uint32_t host_net_udp_bind(uint32_t port) {
+	socket_t fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (fd == SOCK_INVALID) return 0;
+
+	set_nonblocking(fd);
+
+	int opt = 1;
+#ifdef _WIN64
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt));
+	setsockopt(fd, SOL_SOCKET, SO_BROADCAST, (const char *)&opt, sizeof(opt));
+#else
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	#ifdef SO_REUSEPORT
+	setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+	#endif
+	setsockopt(fd, SOL_SOCKET, SO_BROADCAST, &opt, sizeof(opt));
+#endif
+
+	struct sockaddr_in addr;
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons((uint16_t)port);
+	addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+	if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == SOCK_ERR) {
+		close_fd(fd);
+		return 0;
+	}
+
+	return alloc_slot(fd, SOCK_STATE_UDP);
+}
+
+int64_t host_net_udp_send(uint32_t handle, const char *host, uint32_t port, const void *buf, size_t len) {
+	if (handle == 0 || handle >= MAX_NET_HANDLES || slots[handle].state != SOCK_STATE_UDP) {
+		return -1;
+	}
+
+	struct sockaddr_in dest;
+	memset(&dest, 0, sizeof(dest));
+	dest.sin_family = AF_INET;
+	dest.sin_port = htons((uint16_t)port);
+	if (inet_pton(AF_INET, host, &dest.sin_addr) <= 0) {
+		return -1;
+	}
+
+	int ret = sendto(slots[handle].fd, (const char *)buf, (int)len, 0,
+		(struct sockaddr *)&dest, sizeof(dest));
+	if (ret >= 0) return ret;
+
+#ifdef _WIN64
+	if (WSAGetLastError() == WSAEWOULDBLOCK) return 0;
+#else
+	if (errno == EAGAIN || errno == EWOULDBLOCK) return 0;
+#endif
+	return -1;
+}
+
+int64_t host_net_udp_recv(uint32_t handle, void *buf, size_t max_len, char *out_ip, uint64_t *out_port) {
+	if (handle == 0 || handle >= MAX_NET_HANDLES || slots[handle].state != SOCK_STATE_UDP) {
+		return -1;
+	}
+
+	struct sockaddr_in src;
+#ifdef _WIN64
+	int addr_len = sizeof(src);
+#else
+	socklen_t addr_len = sizeof(src);
+#endif
+	memset(&src, 0, sizeof(src));
+
+	int ret = recvfrom(slots[handle].fd, (char *)buf, (int)max_len, 0,
+		(struct sockaddr *)&src, &addr_len);
+	if (ret > 0) {
+		if (out_ip) {
+			inet_ntop(AF_INET, &src.sin_addr, out_ip, 64);
+		}
+		if (out_port) {
+			*out_port = ntohs(src.sin_port);
+		}
+		return ret;
+	}
+	if (ret == 0) return 0;
+
+#ifdef _WIN64
+	if (WSAGetLastError() == WSAEWOULDBLOCK) return 0;
+#else
+	if (errno == EAGAIN || errno == EWOULDBLOCK) return 0;
+#endif
+	return -1;
+}
+
 void (*host_net_funcs[]) = {
 	(void*)host_net_init,
 	(void*)host_net_deinit,
@@ -382,5 +483,8 @@ void (*host_net_funcs[]) = {
 	(void*)host_net_send,
 	(void*)host_net_recv,
 	(void*)host_net_close,
-	(void*)host_net_poll
+	(void*)host_net_poll,
+	(void*)host_net_udp_bind,
+	(void*)host_net_udp_send,
+	(void*)host_net_udp_recv
 };

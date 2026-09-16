@@ -4,6 +4,22 @@
 
 ------
 
+New `link -a` (`--auto`) mode for zero-configuration network link discovery.
+Servers started with `link -l [port] -a` broadcast periodic UDP beacons on port
+3334 to announce their TCP port. Clients started with `link -a` listen for
+beacons and automatically discover, connect, and join LAN peers to the cluster.
+Servers without `-a` remain in manual mode and do not broadcast.
+
+Host network layer updated with non-blocking UDP socket bindings
+(`host_net_udp_bind`, `host_net_udp_send`, `host_net_udp_recv`) supporting
+broadcast and port reuse, with corresponding `:host_net` VP methods. All host
+network callbacks are encapsulated within the `@Net` service task on Node 0,
+accessed by clients via `(net-beacon-rpc)` and `(net-discover-rpc)`.
+
+Foreground GUI mode (`./run.sh -f`) now attaches a live TUI terminal on Node 0
+under the hood of the GUI compositor, with native EOF stream handling in PII
+and TUI layers for automated command piping (e.g. `echo "tests" | ./run.sh -f`).
+
 `(lisp-node?)` and `(cpp-node?)` functions removed now we have self hosted
 system to system bridging.
 
