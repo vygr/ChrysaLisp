@@ -37,18 +37,10 @@
 		(setq stable (inc stable))
 		(setq stable 0 last_cnt cnt)))
 
-(defq all_nodes (lisp-nodes)
-	reply_mbox (mail-mbox)
-	launch_mbox (mail-mbox)
-	timeout_mbox (mail-mbox)
+(defq all_nodes (lisp-nodes) reply_mbox (mail-mbox) launch_mbox (mail-mbox) timeout_mbox (mail-mbox)
+	expected (length all_nodes) received 0 bad_nodes (list) local_count 0 remote_count 0
 	select (list reply_mbox timeout_mbox launch_mbox)
-	expected (length all_nodes)
-	received 0
-	bad_nodes (list)
-	local_count 0
-	remote_count 0
-	systems (Fmap)
-	services_map (Fmap))
+	systems (Fmap) services_map (Fmap))
 
 (print "\nProbing kernel statistics & machine architecture on all " expected " nodes...")
 
@@ -56,22 +48,12 @@
 (each (# (defq n %0)
 	(defq task_code (str `(progn
 		(bind '(task_count mem_used mem_avail max_stack) (kernel-stats))
-		(defq sys_id (system-id)
-			host_cpu (cpu)
-			host_os (os)
-			host_abi (abi)
-			svcs (mail-enquire ""))
+		(defq sys_id (system-id) svcs (mail-enquire "")
+			host_cpu (cpu) host_os (os) host_abi (abi))
 		(mail-send (hex-decode ,(hex-encode reply_mbox))
-			(str (list (hex-encode (task-nodeid))
-				(hex-encode sys_id)
-				task_count
-				mem_used
-				mem_avail
-				max_stack
-				host_cpu
-				host_abi
-				host_os
-				svcs))))))
+			(str (list (hex-encode (task-nodeid)) (hex-encode sys_id)
+				task_count mem_used mem_avail max_stack
+				host_cpu host_abi host_os svcs))))))
 	(open-task task_code n +kn_call_pin 0 launch_mbox))
 	all_nodes)
 
@@ -135,8 +117,7 @@
 		((= idx 2)
 			; Launch acknowledgment (drain launch_mbox)
 			(mail-read launch_mbox))
-		(:t
-			; Timeout
+		(:t ; Timeout
 			(print "  TIMEOUT waiting for responses after " received " of " expected)
 			(stream-flush (io-stream "stdout"))
 			(setq received expected))))
