@@ -107,7 +107,7 @@
 )
 
 (ui-window *window* ()
-	(ui-title-bar _ "Canvas Showcase" (0xea19) +event_close)
+	(ui-title-bar _ "Canvas" (0xea19) +event_close)
 	(ui-canvas *canvas* canvas_width canvas_height canvas_scale))
 
 (defun harmonic-pos (dir_angle freq amp &optional phase)

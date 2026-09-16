@@ -121,7 +121,7 @@
 	(create-bouncer 'emit-div-rrr (* f_width 0.22) (* f_height 0.82)  2.2 -1.7 1.05))) ; Lime (Arithmetic)
 
 (ui-window *window* ()
-	(ui-title-bar _ "Kinetic VP Opcodes" (0xea19) +event_close)
+	(ui-title-bar _ "Opcodes" (0xea19) +event_close)
 	(ui-canvas *canvas* canvas_width canvas_height canvas_scale))
 
 (defun fpoly (col mode %2)
@@ -193,12 +193,8 @@
 		(elem-set b 7 sq_x)
 		(elem-set b 8 sq_y)) *bouncers*))
 
-(defun draw-backdrop ()
-	; Clean deep space black canvas for vibrant neon contrast
-	(. *canvas* :fill 0xff0a0e14))
-
 (defun redraw ()
-	(draw-backdrop)
+	(. *canvas* :fill 0xff0a0e14)
 
 	; Draw each bouncing opcode with vibrant neon outline and illuminated core
 	(each (lambda (b)
@@ -236,7 +232,10 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
-	(.-> *canvas* (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
+	(.-> *canvas*
+		(:fill 0xff0a0e14)
+		(:set_canvas_flags +canvas_flag_antialias)
+		(:set_flags +view_flag_opaque +view_flag_opaque))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) rate 0)
