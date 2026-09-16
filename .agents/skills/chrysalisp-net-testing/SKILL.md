@@ -115,3 +115,23 @@ rm -rf tests/scratch
   ```bash
   echo "make all boot" | ./run_tui.sh -f
   ```
+
+---
+
+## 5. LAN Auto-Discovery & Cluster Diagnostics
+
+### Auto-Discovery (`link -a`)
+- `link -l [port] -a`: Start a server listener and advertise availability over UDP port 3334.
+- `link -a`: Auto-discover LAN peers and connect automatically.
+
+### Multi-Machine Cluster Diagnostic Tool (`tests/net/query_all.lisp`)
+To query, inspect, and verify all local and remote nodes across a multi-machine ChrysaLisp cluster:
+```bash
+./run_tui.sh -f -s tests/net/query_all.lisp
+```
+- Auto-discovers physical LAN peers via UDP broadcast.
+- Dynamically waits until cluster node count stabilizes (no hardcoded node numbers).
+- Dispatches asynchronous non-blocking probe tasks across all nodes concurrently with `+kn_call_pin`.
+- Inspects machine architecture (`cpu`, `os`, `abi`), `task_count`, memory usage, and stack depth directly on each remote host.
+- Reports a clean cluster topology summary grouped by machine system ID and architecture.
+
