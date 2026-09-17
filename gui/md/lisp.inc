@@ -146,7 +146,7 @@
 				(when (> (++ cnt w) max_width)
 					(setq flow (line-flow this container font_size))
 					(when indent_width
-						(def (defq indent_tab (Backdrop)) :min_width indent_width)
+						(def (defq indent_tab (Backdrop)) :min_width indent_width :color 0)
 						(. flow :add_child indent_tab)
 						(setq w (+ w indent_width)))
 					(. flow :add_child text)
