@@ -12,6 +12,25 @@ the HTTP/1.1 client (`lib/net/http.inc`) and streaming JSON parser (`lib/net/jso
 Features non-blocking background fetching, procedural 2D vector weather icons,
 metric tiles, 3-day forecast cards, and quick city pickers.
 
+New `Crypto` desktop GUI application (`apps/desktop/crypto/app.lisp`) providing a live
+market ticker with real-time pricing from Coinranking (`http://api.coinranking.com/v2/coins`).
+Features procedural 24-hour vector sparkline trend curves, asset selection grid,
+24h range calculations, and persistent user configuration in `crypto.tre`.
+
+New `World Sun Clock` desktop GUI application (`apps/desktop/sunclock/app.lisp`) showcasing
+spherical solar astronomy and procedural vector world cartography. Features real-time
+subsolar point positioning, day/night solar terminator shading on equirectangular projection,
+sunrise/sunset and daylight duration predictions for major world cities, interactive time travel
+scrubbing (`-1h`, `+1h`, `-1d`, `+1d`, `Now`), animated daylight sweep mode, and user
+configuration persistence in `sunclock.tre`.
+
+New `News` desktop GUI application (`apps/desktop/news/app.lisp`) providing a live Hacker News
+reader and feed ticker. Features category filtering (Top, Newest, Show HN, Ask HN, Jobs),
+master-detail story feed navigation, rich formatted article summaries and threaded discussion
+viewing powered by ChrysaLisp's native `Md` widget (`gui/md/lisp.inc`), non-blocking background
+fetching via `node-hnapi.herokuapp.com`, periodic auto-refresh, and configuration persistence
+in `news.tre`.
+
 Updated all `*-rpc` service client functions across the system to use
 `mail-read-timeout` to prevent indefinite blocking on unresponsive services.
 

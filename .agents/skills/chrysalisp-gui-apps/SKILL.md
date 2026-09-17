@@ -267,7 +267,16 @@ Key points:
 *	**Overloading.** Import another app's `ui.inc` and `redefun` the
 	actions you need to change (see `apps/desktop/docs/ui.inc`).
 
+*	**Scroll Panes and Subtrees:** Children of `(Scroll)` widgets are marked with `+view_flag_subtree`. ChrysaLisp's view layout and flattening system does **not** recurse into subtrees. Therefore, content inside a scroll pane must be sized directly:
+	```lisp
+	(bind '(w h) (. child :pref_size))
+	(. child :change_dirty 0 0 w h :t)
+	(.-> scroll :layout :dirty_all)
+	```
+	Without explicitly calling `:change` or `:change_dirty` with `:t` directly on the scroll child, the subtree will remain `(0 0)` in size and will not render.
+
 *	**Timer-driven animation.** Re-arm `(mail-timeout ...)` on each
 	timer tick, use `+rate (/ 1000000 fps)` for the period, mark
 	changed regions with `:add_dirty` and widgets with `:dirty` (see
 	`apps/demos/boing/app.lisp`).
+

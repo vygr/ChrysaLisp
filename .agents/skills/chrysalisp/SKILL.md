@@ -330,6 +330,12 @@ ChrysaLisp's interpreter is self-hosted (`class/lisp/`, root environment in
 
 	(* x (const (/ 180.0 +fp_pi)))
 
+*	**Top-Level `defun` Definitions (Prebinder Rule):**
+	**NEVER** nest `defun` inside another `defun`, `progn`, `catch`, or other expressions!
+	The ChrysaLisp prebinder scans top-level forms to discover functions, prebind symbols, assign frames, and optimize call sites.
+	If a `defun` is placed inside `(progn ...)`, `(catch ...)`, or another function, the prebinder cannot see it, causing `symbol_not_bound`, `wrong_num_of_args`, or compilation failure.
+	Always define all functions with `defun` at the top level of your file.
+
 *	**GUI Application Event Loop Pattern:**
 
 	(defun main ()

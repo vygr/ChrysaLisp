@@ -11,7 +11,7 @@
 	(enum main tip))
 
 ; Configuration state
-(defq *config* :nil *config_version* 12
+(defq *config* :nil *config_version* 15
 	*config_file* (cat *env_home* "launcher.tre"))
 
 ; Default configuration if `launcher.tre`
@@ -26,7 +26,7 @@
 				:apps '("terminal" "services" "debug" "profile" "netmon"
 					"netspeed" "files" "logout"))
 			'Desktop (scatter (Emap) :collapsed :nil
-				:apps '("docs" "todo" "calculator" "chat" "clock" "eyes" "weather"))
+				:apps '("docs" "todo" "calculator" "chat" "clock" "eyes" "weather" "crypto" "sunclock" "news"))
 			'Tools (scatter (Emap) :collapsed :nil
 				:apps '("edit" "viewer" "hexview" "fonts" "benchmark"))
 			'Media (scatter (Emap) :collapsed :nil
