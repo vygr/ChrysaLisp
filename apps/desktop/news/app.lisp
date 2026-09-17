@@ -21,28 +21,13 @@
 	+font_bold (create-font "fonts/OpenSans-Bold.ctf" 13)
 	+font_small (create-font "fonts/OpenSans-Regular.ctf" 11)
 	+font_mono (create-font "fonts/Hack-Regular.ctf" 11)
-	*config* :nil
-	*config_version* 1
-	*config_file* (cat *env_home* "news.tre")
-	*selected_category* "top"
-	*selected_id* 0
-	*current_stories* (list)
-	*selected_story* :nil
-	*comments_cache* (Fmap 31)
-	*post_content_cache* (Fmap 31)
-	*btn_top* :nil
-	*btn_new* :nil
-	*btn_show* :nil
-	*btn_ask* :nil
-	*btn_jobs* :nil
-	*btn_refresh* :nil
-	*status_label* :nil
-	*story_scroll* :nil
-	*story_container* :nil
-	*detail_scroll* :nil
-	*detail_container* :nil
-	*story_count_label* :nil
-	*item_info_label* :nil)
+	*config* :nil *config_version* 1 *config_file* (cat *env_home* "news.tre")
+	*selected_category* "top" *selected_id* 0 *current_stories* (list)
+	*selected_story* :nil *comments_cache* (Fmap 31) *post_content_cache* (Fmap 31)
+	*btn_top* :nil *btn_new* :nil *btn_show* :nil *btn_ask* :nil *btn_jobs* :nil
+	*btn_refresh* :nil *status_label* :nil *story_scroll* :nil
+	*story_container* :nil *detail_scroll* :nil *detail_container* :nil
+	*story_count_label* :nil *item_info_label* :nil)
 
 (defun config-default ()
 	(scatter (Emap)
@@ -423,4 +408,3 @@
 					((. *window* :event *msg*))))))
 	(config-save)
 	(gui-sub-rpc *window*))
-
