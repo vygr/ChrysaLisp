@@ -128,27 +128,6 @@
 	(. *detail_container* :change_dirty 0 0 (max w page_w) h :t)
 	(.-> *detail_scroll* :layout :dirty_all))
 
-(defun render-empty-detail ()
-	(each (# (. %0 :sub)) (. *detail_container* :children))
-	(bind '(sw &) (. *detail_scroll* :get_size))
-	(bind '(vsw &) (if (get :vslider *detail_scroll*) (. (get :vslider *detail_scroll*) :get_constraint) '(16 0)))
-	(defq page_w (max 420 (- sw vsw 16)) md (Md)
-		lines (list
-			"# Hacker News Live Feed" ""
-			"Welcome to the ChrysaLisp **Hacker News Reader**!" ""
-			"---" ""
-			"### Features"
-			"* Live stories across **Top**, **Newest**, **Show HN**, **Ask HN**, and **Jobs**."
-			"* Click any story on the left to read article information and discussion threads."
-			"* Formatted text powered by ChrysaLisp's native `(Md)` widget." ""
-			"Select a story on the left to begin reading."))
-	(def md :page_width page_w :zoom 1.0 :base_font_size 14)
-	(. *detail_container* :add_child md)
-	(. md :populate_lines lines)
-	(bind '(w h) (. *detail_container* :pref_size))
-	(. *detail_container* :change_dirty 0 0 (max w page_w) h :t)
-	(.-> *detail_scroll* :layout :dirty_all))
-
 (defun trigger-fetch-item (item_id worker_mbox)
 	(def (. *status_label* :dirty) :text (cat "Loading #" (str item_id) "..."))
 	(. *status_label* :layout)
@@ -310,7 +289,6 @@
 	(gui-add-front-rpc (.-> *window* (:change x y w h :t) :dirty_all))
 	(. *cat_bar* :set_selected (category-to-idx *selected_category*))
 	(render-loading-stories)
-	(render-empty-detail)
 	(trigger-fetch-feed *selected_category* (elem-get select +select_worker))
 	(mail-timeout (elem-get select +select_timer) refresh_interval 0)
 	(while *running*
@@ -350,18 +328,16 @@
 					((= id +event_min)
 						(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 						(. *window* :change_dirty x y w h)
-						(if *selected_story*
-							(render-detail-pane *selected_story* (. *post_content_cache* :find *selected_id*) (. *comments_cache* :find *selected_id*))
-							(render-empty-detail)))
+						(when *selected_story*
+							(render-detail-pane *selected_story* (. *post_content_cache* :find *selected_id*) (. *comments_cache* :find *selected_id*))))
 					((= id +event_max)
 						(bind '(x y) (. *window* :get_pos))
 						(bind '(mx my mw mh) (gui-info))
 						(defq target_w (min 1200 (- mw 40)) target_h (min 800 (- mh 40)))
 						(bind '(x y w h) (view-fit x y target_w target_h))
 						(. *window* :change_dirty x y w h)
-						(if *selected_story*
-							(render-detail-pane *selected_story* (. *post_content_cache* :find *selected_id*) (. *comments_cache* :find *selected_id*))
-							(render-empty-detail)))
+						(when *selected_story*
+							(render-detail-pane *selected_story* (. *post_content_cache* :find *selected_id*) (. *comments_cache* :find *selected_id*))))
 					((= id +event_refresh)
 						(trigger-fetch-feed *selected_category* (elem-get select +select_worker)))
 					((= id +event_category)
