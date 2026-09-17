@@ -452,6 +452,24 @@ link server.local
 
 Both machines will immediately discover each other's nodes and merge into a single extended network. Running `nodes` in either terminal will show all nodes across both systems.
 
+#### Zero-Configuration LAN Auto-Discovery (`-a`)
+
+Alternatively, you can link machines across your local network without specifying IP addresses or hostnames using auto-discovery mode:
+
+1. **On the Server**:
+    Start listening and broadcast periodic UDP discovery beacons on port 3334:
+
+```code
+link -l 3333 -a
+```
+
+2. **On the Client**:
+    Listen for discovery beacons and connect automatically:
+
+```code
+link -a
+```
+
 ### Best Practices & Tips
 
 * **Connections are fully bidirectional**:

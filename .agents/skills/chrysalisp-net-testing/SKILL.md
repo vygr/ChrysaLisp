@@ -124,10 +124,10 @@ rm -rf tests/scratch
 - `link -l [port] -a`: Start a server listener and advertise availability over UDP port 3334.
 - `link -a`: Auto-discover LAN peers and connect automatically.
 
-### Multi-Machine Cluster Diagnostic Tool (`tests/net/query_all.lisp`)
+### Multi-Machine Cluster Diagnostic Tool (`tests/net/test_cluster.lisp`)
 To query, inspect, and verify all local and remote nodes across a multi-machine ChrysaLisp cluster:
 ```bash
-./run_tui.sh -f -s tests/net/query_all.lisp
+./run_tui.sh -f -s tests/net/test_cluster.lisp
 ```
 - Auto-discovers physical LAN peers via UDP broadcast.
 - Dynamically waits until cluster node count stabilizes (no hardcoded node numbers).

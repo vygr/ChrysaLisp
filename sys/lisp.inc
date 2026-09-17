@@ -51,6 +51,25 @@
 	; (task-timeout s) -> ns
 	(if (starts-with "obj/vp64" (load-path)) (* time 10000000) (* time 1000000)))
 
+(defun mail-read-timeout (mbox &optional timeout)
+	; (mail-read-timeout mbox [timeout_us]) -> msg | :nil
+	(when (= (mail-select (list mbox (mail-timeout (mail-mbox) (ifn timeout (task-timeout 1)) 0))) 0)
+		(mail-read mbox)))
+
+(defq mail-timeout-read mail-read-timeout)
+
+(defun net-quiet (&optional delay count last_cnt)
+	; (net-quiet [delay_us] [stable_count] [last_cnt]) -> (node_id ...)
+	(setd delay 100000 count 8 last_cnt 0)
+	(defq stable 0)
+	(while (< stable count)
+		(task-sleep delay)
+		(defq cnt (length (lisp-nodes)))
+		(if (and (> cnt 0) (= cnt last_cnt))
+			(setq stable (inc stable))
+			(setq stable 0 last_cnt cnt)))
+	(lisp-nodes))
+
 ;jit helper
 (defun jit (prefix file products)
 	(bind '(& *cpu* *abi*) (map (const sym) (split (load-path) "/")))

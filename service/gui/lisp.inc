@@ -70,8 +70,8 @@
 			(+gui_rpc_reply_id mbox)
 			(+gui_rpc_owner_id (task-mbox))
 			(+gui_rpc_weak_view (weak-ref (ifn view 0)))))
-		(mail-read mbox)
-		view))
+		(when (mail-read-timeout mbox)
+			view)))
 
 (defmacro gui-quit-rpc () `(gui-rpc :nil +gui_rpc_type_quit))
 ; (gui-quit-rpc) -> :nil

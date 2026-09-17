@@ -18,7 +18,7 @@
 		(mail-send service (setf-> (cat (str-alloc +clip_put_size) string)
 			(+clip_rpc_reply_id mbox)
 			(+clip_rpc_type +clip_type_put)))
-		(mail-read mbox)))
+		(mail-read-timeout mbox)))
 
 (defun clip-get-rpc ()
 	; (clip-get-rpc) -> string
@@ -29,5 +29,5 @@
 		(mail-send service (setf-> (str-alloc +clip_get_size)
 			(+clip_rpc_reply_id mbox)
 			(+clip_rpc_type +clip_type_get)))
-		(setq string (mail-read mbox)))
+		(setq string (or (mail-read-timeout mbox) "")))
 	string)

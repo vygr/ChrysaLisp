@@ -875,9 +875,11 @@ High-performance vector operations executed across packed numeric vectors.
 
 	*	`(trim-end str [cls]) -> str`
 
-*	**`pad`**: Pads a string to a specified width.
+*	**`pad`** / **`rpad`**: Left-pads (for right-alignment) or right-pads (for left-alignment) a string or value to a specified width.
 
 	*	`(pad form width [str]) -> str`
+
+	*	`(rpad form width [str]) -> str`
 
 *	**`get-ubyte` / `get-ushort` / `get-uint` / `get-long` / `get-real` / `get-byte` / `get-short` / `get-int`**:
 	Typed memory getters from strings or objects.
@@ -1394,6 +1396,10 @@ Direct host operating system primitives provided by the host engine.
 
 	*	`(pii-time) -> ns`
 
+*	**`pii-exit`**: Terminates the Virtual Processor node cleanly.
+
+	*	`(pii-exit)`
+
 ## System, Environment, and Utility Functions
 
 File path management, environment introspection, and timing helpers.
@@ -1447,6 +1453,10 @@ File path management, environment introspection, and timing helpers.
 	*	`(cpu) -> sym`
 
 	*	`(abi) -> sym`
+
+*	**`system-id`**: Returns the host machine unique system identifier node ID.
+
+	*	`(system-id) -> nodeid`
 
 *	**`within-compile-env`**: Runs a compiler pass inside an isolated build
 	environment.

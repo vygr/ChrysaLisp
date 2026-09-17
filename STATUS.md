@@ -4,6 +4,28 @@
 
 ------
 
+Updated all `*-rpc` service client functions across the system to use
+`mail-read-timeout` to prevent indefinite blocking on unresponsive services.
+
+New `(mail-read-timeout mbox [timeout_us]) -> msg | :nil` function in
+`sys/lisp.inc` to read from a reply mailbox with a default 1s architecture-scaled
+timeout (`mail-timeout-read` alias).
+
+Wrapped all standalone network test and server scripts in `catch` blocks for
+clean exception handling and graceful termination.
+
+Removed obsolete machine-specific cluster test scripts.
+
+New `(net-quiet [delay_us] [stable_count] [last_cnt]) -> (node_id ...)` function
+in `sys/lisp.inc` to wait until the network node count stabilizes (default: 8
+consecutive checks of 100ms without node changes), returning the active list of
+nodes.
+
+New `cluster` command (`cmd/cluster.lisp`) to inspect cluster health, host
+architectures (`cpu`/`os`/`abi`), memory, and registered services across all
+known nodes in the network. Supports `-v` (`--verbose`) for per-node progress
+and `-t` (`--timeout <ms>`) for custom probe timeouts.
+
 New `link -a` (`--auto`) mode for zero-configuration network link discovery.
 Servers started with `link -l [port] -a` broadcast periodic UDP beacons on port
 3334 to announce their TCP port. Clients started with `link -a` listen for

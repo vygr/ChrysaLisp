@@ -841,6 +841,12 @@ very basic attenuation, diffuse and specular
 (macro? form) -> :t | :nil
 ```
 
+### mail-read-timeout
+
+```code
+(mail-read-timeout mbox [timeout_us]) -> msg | :nil
+```
+
 ### mat3x2-mul-f
 
 ```code
@@ -899,6 +905,12 @@ very basic attenuation, diffuse and specular
 
 ```code
 (nempty? form) -> :t | :nil
+```
+
+### net-quiet
+
+```code
+(net-quiet [delay_us] [stable_count] [last_cnt]) -> (node_id ...)
 ```
 
 ### nil?

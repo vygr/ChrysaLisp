@@ -81,6 +81,11 @@ introspection.
 
 	*	`(open-pipe tasks [modes]) -> ([net_id | 0] ...)`
 
+*	**`net-quiet`**: Waits until the active cluster node count stabilizes across
+	successive polls, returning the list of active node IDs.
+
+	*	`(net-quiet [delay_us] [stable_count] [last_cnt]) -> (node_id ...)`
+
 ## Distributed Messaging (Mail System)
 
 Location-transparent inter-process communication built on ephemeral, disposable
@@ -134,6 +139,14 @@ Location-transparent inter-process communication built on ephemeral, disposable
 
 	*	`(mail-timeout mbox ns id) -> mbox`
 
+*	**`mail-read-timeout`** / **`mail-timeout-read`**: Reads a reply message from
+	a mailbox with an architecture-scaled timeout (defaults to 1s), returning
+	`:nil` if expired or the message received.
+
+	*	`(mail-read-timeout mbox [timeout_us]) -> msg | :nil`
+
+	*	`(mail-timeout-read mbox [timeout_us]) -> msg | :nil`
+
 ## Platform Implementation Interface (PII)
 
 Direct primitives bridging ChrysaLisp to host operating system drivers.
@@ -162,6 +175,10 @@ Direct primitives bridging ChrysaLisp to host operating system drivers.
 	nanoseconds.
 
 	*	`(pii-time) -> ns`
+
+*	**`pii-exit`**: Terminates the Virtual Processor node cleanly.
+
+	*	`(pii-exit)`
 
 ## File and Directory Utilities
 
@@ -1053,6 +1070,38 @@ RPC interface for sharing text with the host and desktop clipboards.
 
 	*	`(clip-get-rpc) -> str`
 
+## Lock Service
+
+Cluster-wide distributed mutex lock service (`service/lock/app.inc`).
+
+*	**`lock-claim-rpc`**: Acquires a cluster-wide named lock.
+
+	*	`(lock-claim-rpc key [timeout_us])`
+
+*	**`lock-release-rpc`**: Releases a cluster-wide named lock.
+
+	*	`(lock-release-rpc key [timeout_us])`
+
+## Audio Service
+
+Audio playback daemon interface (`service/audio/app.inc`).
+
+*	**`audio-add-rpc`**: Registers an audio sample file, returning a handle.
+
+	*	`(audio-add-rpc file_path) -> handle`
+
+*	**`audio-play-rpc`**: Starts audio sample playback.
+
+	*	`(audio-play-rpc handle)`
+
+*	**`audio-change-rpc`**: Modifies playback state of an audio sample.
+
+	*	`(audio-change-rpc handle state)`
+
+*	**`audio-remove-rpc`**: Unloads and releases an audio sample handle.
+
+	*	`(audio-remove-rpc handle)`
+
 ## Network Stack and Protocols
 
 TCP socket daemon interface (`service/net/app.inc`), URI codec (`lib/net/url.inc`),
@@ -1081,6 +1130,21 @@ JSON interchange (`lib/net/json.inc`), and connection-pooled HTTP/1.1 client
 *	**`net-close-rpc`**: Closes a TCP connection pair by aborting the client stream.
 
 	*	`(net-close-rpc (client_in client_out))`
+
+*	**`net-link-rpc`**: Initiates a network link connection to a target host and
+	port via the `@Net` daemon, falling back to a direct link child task.
+
+	*	`(net-link-rpc target) -> status | :nil`
+
+*	**`net-beacon-rpc`**: Starts or stops broadcasting UDP auto-discovery beacons
+	on port 3334 advertising the server's TCP link port.
+
+	*	`(net-beacon-rpc port) -> status | :nil`
+
+*	**`net-discover-rpc`**: Enables UDP auto-discovery listening, joining any
+	discovered cluster peers automatically.
+
+	*	`(net-discover-rpc) -> status | :nil`
 
 *	**`url-parse`**: Parses an RFC 3986 URL into a property map.
 

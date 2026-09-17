@@ -9,6 +9,17 @@ Usage: cat [options] [path] ...
     If no paths given on command line
     then paths are read from stdin.
 ```
+## cluster
+```code
+Usage: cluster [options]
+
+    options:
+        -h --help: this help info.
+        -t --timeout ms: response timeout in milliseconds (default: 5000).
+        -v --verbose: display per-node probe progress details.
+
+    Probe kernel statistics and services across all known cluster nodes.
+```
 ## cp
 ```code
 Usage: cp [options] path1 path2

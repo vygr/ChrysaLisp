@@ -66,8 +66,8 @@
 				(+net_rpc_connect_client_in_mbox (in-mbox client_in))
 				(+net_rpc_connect_port port)))
 		(mail-send svc req)
-		(defq reply (mail-read reply_mbox))
-		(if (= (getf reply +net_rpc_reply_status) 0)
+		(defq reply (mail-read-timeout reply_mbox))
+		(if (and reply (= (getf reply +net_rpc_reply_status) 0))
 			(progn
 				(defq server_in_mbox (getf reply +net_rpc_reply_server_in_mbox)
 					client_out (out-stream server_in_mbox))
@@ -86,8 +86,8 @@
 				(+net_rpc_listen_accept_mbox accept_mbox)
 				(+net_rpc_listen_port port)))
 		(mail-send svc req)
-		(defq reply (mail-read reply_mbox))
-		(if (= (getf reply +net_rpc_reply_status) 0)
+		(defq reply (mail-read-timeout reply_mbox))
+		(if (and reply (= (getf reply +net_rpc_reply_status) 0))
 			(setq handle (getf reply +net_rpc_reply_handle))))
 	handle)
 
@@ -103,8 +103,8 @@
 				(+net_rpc_accept_client_in_mbox (in-mbox client_in))
 				(+net_rpc_accept_conn_handle conn_handle)))
 		(mail-send svc req)
-		(defq reply (mail-read reply_mbox))
-		(if (= (getf reply +net_rpc_reply_status) 0)
+		(defq reply (mail-read-timeout reply_mbox))
+		(if (and reply (= (getf reply +net_rpc_reply_status) 0))
 			(progn
 				(defq server_in_mbox (getf reply +net_rpc_reply_server_in_mbox)
 					client_out (out-stream server_in_mbox))
@@ -137,8 +137,8 @@
 					(+net_rpc_type +net_rpc_type_link)
 					(+net_rpc_reply_id reply_mbox)))
 			(mail-send svc req)
-			(defq reply (mail-read reply_mbox))
-			(getf reply +net_rpc_reply_status))
+			(defq reply (mail-read-timeout reply_mbox))
+			(if reply (getf reply +net_rpc_reply_status) :nil))
 		(mail-send (open-child "service/net/link" +kn_call_pin) target)))
 
 (defun net-beacon-rpc (port)
@@ -151,8 +151,8 @@
 				(+net_rpc_reply_id reply_mbox)
 				(+net_rpc_beacon_port port)))
 		(mail-send svc req)
-		(defq reply (mail-read reply_mbox))
-		(getf reply +net_rpc_reply_status)))
+		(defq reply (mail-read-timeout reply_mbox))
+		(if reply (getf reply +net_rpc_reply_status) :nil)))
 
 (defun net-discover-rpc ()
 	; (net-discover-rpc) -> status | :nil
@@ -163,7 +163,7 @@
 				(+net_rpc_type +net_rpc_type_discover)
 				(+net_rpc_reply_id reply_mbox)))
 		(mail-send svc req)
-		(defq reply (mail-read reply_mbox))
-		(getf reply +net_rpc_reply_status)))
+		(defq reply (mail-read-timeout reply_mbox))
+		(if reply (getf reply +net_rpc_reply_status) :nil)))
 
 

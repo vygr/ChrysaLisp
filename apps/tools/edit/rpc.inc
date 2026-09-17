@@ -19,4 +19,4 @@
 			(setf-> (cat (str-alloc +edit_rpc_jump_size) brk_id "|" file_name "|" line_num)
 				(+edit_rpc_reply_id mbox)
 				(+edit_rpc_type +edit_rpc_type_jump)))
-		(mail-read mbox)))
+		(mail-read-timeout mbox)))

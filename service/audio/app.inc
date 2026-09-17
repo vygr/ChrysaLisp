@@ -37,7 +37,8 @@
 		(mail-send service (setf-> (cat (str-alloc +audio_add_size) file_path)
 			(+audio_rpc_reply_id mbox)
 			(+audio_rpc_type +audio_type_add)))
-		(setq handle (getf (mail-read mbox) +audio_ret_retval)))
+		(when (defq reply (mail-read-timeout mbox))
+			(setq handle (getf reply +audio_ret_retval))))
 	handle)
 
 (defun audio-play-rpc (handle)
@@ -49,7 +50,7 @@
 			(+audio_rpc_reply_id mbox)
 			(+audio_rpc_type +audio_type_play)
 			(+audio_play_handle handle)))
-		(mail-read mbox)))
+		(mail-read-timeout mbox)))
 
 (defun audio-change-rpc (handle state)
 	; (audio-change-rpc handle state)
@@ -61,7 +62,7 @@
 			(+audio_rpc_type +audio_type_change)
 			(+audio_change_handle handle)
 			(+audio_change_state state)))
-		(mail-read mbox)))
+		(mail-read-timeout mbox)))
 
 (defun audio-remove-rpc (handle)
 	; (audio-remove-rpc handle)
@@ -72,4 +73,4 @@
 			(+audio_rpc_reply_id mbox)
 			(+audio_rpc_type +audio_type_remove)
 			(+audio_remove_handle handle)))
-		(mail-read mbox)))
+		(mail-read-timeout mbox)))

@@ -214,6 +214,20 @@ link 192.168.1.185
 link server.local
 ```
 
+Alternatively, use zero-configuration LAN auto-discovery (`-a`):
+
+1. On the server machine, listen and broadcast discovery beacons:
+
+```code
+link -l 3333 -a
+```
+
+2. On any client machine, automatically discover and connect to LAN peers:
+
+```code
+link -a
+```
+
 Both instances automatically discover each other's nodes, merge their routing tables, and distribute tasks and applications seamlessly across the combined compute cluster.
 
 For detailed instructions on these advanced topics, please refer to the comprehensive `docs/intro/intro.md` guide.
