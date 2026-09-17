@@ -200,6 +200,34 @@ ChrysaLisp's interpreter is self-hosted (`class/lisp/`, root environment in
 *	**Tab Style:** Always use leading 4-space tab characters for indentation
 	in source code and documentation, with spaces afterwards if needed.
 
+*	**Sensible `defq` and `setq` Line Wrapping:**
+	Do not place only one variable setting per line when defining multiple
+	variables with `(defq ...)` or mutating with `(setq ...)`. Putting one
+	variable-value pair per line is excessive and inflates line count.
+	Pack related variable-value pairs onto lines up to a reasonable column width
+	(~80-100 characters) and flow across lines cleanly:
+
+	; Good: Flowed, logically grouped variable settings
+	(defq +font_title (create-font "fonts/OpenSans-Bold.ctf" 14) +font_btn (create-font "fonts/OpenSans-Regular.ctf" 13)
+		+font_bold (create-font "fonts/OpenSans-Bold.ctf" 13) +font_small (create-font "fonts/OpenSans-Regular.ctf" 11)
+		*config* :nil *config_version* 1 *config_file* (cat *env_home* "news.tre")
+		*selected_category* "top" *selected_id* 0 *current_stories* (list))
+
+	; Avoid: 1 variable pair per line bloating vertical space
+	(defq
+		+font_title (create-font "fonts/OpenSans-Bold.ctf" 14)
+		+font_btn (create-font "fonts/OpenSans-Regular.ctf" 13)
+		*config* :nil
+		*config_version* 1
+		*selected_category* "top")
+
+	Combine local variable bindings within functions rather than writing multiple
+	consecutive `(defq ...)` calls:
+
+	; Good: Combined and flowed
+	(defq idx (!) is_selected (= id sel_id) card_flow (Flow) title_btn (Button)
+		meta_flow (Flow) score_lbl (Label) meta_lbl (Label))
+
 *	**Type-Dependent Equality with `eql`:**
 
 	*	`eql` performs deep content comparison on scalar numbers, strings,
