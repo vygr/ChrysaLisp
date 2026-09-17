@@ -333,15 +333,31 @@ All checks should be performed using standard TUI pipeline commands:
 
 		Must report `Passed: 1544, Failed: 0, RESULT: SUCCESS`.
 
-8.	**Multi-Instance Network Link Loopback Test:**
-	Verify distributed node discovery, connection, remote task dispatch, and
-	result aggregation:
+8.	**Multi-Instance Network Link & Cluster Tests (Both Native and -e Modes):**
+	Verify distributed node discovery, connection, remote task dispatch, auto-discovery,
+	and cluster diagnostics under both native execution and VP64 emulation (`-e`):
 
-	```sh
-	./tests/net/test_loopback.sh
-	```
+	*	**TCP Loopback Test:**
+		```sh
+		./tests/net/test_loopback.sh
+		```
+		Must complete with `=== LOOPBACK TEST RESULT: SUCCESS ===`.
 
-	Must complete with `=== LOOPBACK TEST RESULT: SUCCESS ===`.
+	*	**Auto-Discovery Test:**
+		```sh
+		./tests/net/test_disco.sh
+		```
+		Must complete with `=== AUTO-DISCOVERY TEST RESULT: SUCCESS ===`.
+
+	*	**Cluster Diagnostic Test (Native & Emulator):**
+		```sh
+		# Native host:
+		./run_tui.sh -f -s tests/net/test_cluster.lisp
+
+		# VP64 emulator (-e):
+		./run_tui.sh -e -f -s tests/net/test_cluster.lisp
+		```
+		Must probe all nodes across all cluster machines with 0 bad task counts and report `=== CLUSTER QUERY: SUCCESS ===`.
 
 9.	**Host C++ Cross-Platform Compilation Check:**
 	If C++ PII or driver code was modified, verify compilation across platforms.

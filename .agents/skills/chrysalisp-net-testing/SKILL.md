@@ -104,17 +104,17 @@ rm -rf tests/scratch
 
 ## 4. Rebuilding ChrysaLisp vs Host C++
 
-- **Host C++ changes** (`src/host/main.cpp`, `src/host/net.cpp`, etc.):
-  Rebuild the host binaries with host `make`:
-  ```bash
-  make
-  ```
+*	**Host C++ changes** (`src/host/main.cpp`, `src/host/net.cpp`, etc.):
+	Rebuild the host binaries with host `make`:
+	```bash
+	make
+	```
 
-- **ChrysaLisp VP / Lisp / System image changes** (`service/net/link.vp`, `class/*`, `sys/*`):
-  Never run host `make` to compile ChrysaLisp code. Rebuild the system boot image from within ChrysaLisp using:
-  ```bash
-  echo "make all boot" | ./run_tui.sh -f
-  ```
+*	**ChrysaLisp VP / Lisp / System image changes** (`service/net/link.vp`, `class/*`, `sys/*`):
+	Never run host `make` to compile ChrysaLisp code. Rebuild the system boot image from within ChrysaLisp using:
+	```bash
+	echo "make all boot" | ./run_tui.sh -f
+	```
 
 ---
 
@@ -125,9 +125,13 @@ rm -rf tests/scratch
 - `link -a`: Auto-discover LAN peers and connect automatically.
 
 ### Multi-Machine Cluster Diagnostic Tool (`tests/net/test_cluster.lisp`)
-To query, inspect, and verify all local and remote nodes across a multi-machine ChrysaLisp cluster:
+To query, inspect, and verify all local and remote nodes across a multi-machine ChrysaLisp cluster (always test under **both** native and VP64 emulator modes):
 ```bash
+# Native host:
 ./run_tui.sh -f -s tests/net/test_cluster.lisp
+
+# VP64 emulator (-e):
+./run_tui.sh -e -f -s tests/net/test_cluster.lisp
 ```
 - Auto-discovers physical LAN peers via UDP broadcast.
 - Dynamically waits until cluster node count stabilizes (no hardcoded node numbers).
