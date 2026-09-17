@@ -4,6 +4,14 @@
 
 ------
 
+New `curl` command (`cmd/curl.lisp`) to fetch and display content from HTTP
+URLs, supporting `-h`, `-i`, `-I`, `-s`, `-X`, `-H`, and `-d`.
+
+New `Weather` desktop GUI application (`apps/desktop/weather/app.lisp`) showcasing
+the HTTP/1.1 client (`lib/net/http.inc`) and streaming JSON parser (`lib/net/json.inc`).
+Features non-blocking background fetching, procedural 2D vector weather icons,
+metric tiles, 3-day forecast cards, and quick city pickers.
+
 Updated all `*-rpc` service client functions across the system to use
 `mail-read-timeout` to prevent indefinite blocking on unresponsive services.
 

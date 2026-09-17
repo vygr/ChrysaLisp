@@ -44,6 +44,21 @@ Usage: ctf [options] [path] ...
     or OpenType/TrueType (.otf/.ttf) files. If no files are specified on the
     command line, file paths are read from stdin.
 ```
+## curl
+```code
+Usage: curl [options] <url>
+
+    options:
+        -h --help: this help info.
+        -i --include: include protocol response headers in output.
+        -I --head: fetch headers only (HTTP HEAD).
+        -s --silent: silent mode (suppress error/diagnostic messages).
+        -X --request cmd: specify request command to use (GET, POST, HEAD).
+        -H --header line: custom header to pass to server.
+        -d --data str: HTTP POST data.
+
+    Fetch and display content from an HTTP URL.
+```
 ## diff
 ```code
 Usage: diff [options] file_a [file_b]

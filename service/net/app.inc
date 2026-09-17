@@ -55,9 +55,20 @@
 	(when (nempty? (defq s (mail-enquire "@Net,")))
 		(hex-decode (second (split (first s) ",")))))
 
+(defun ensure-net-service ()
+	; (ensure-net-service) -> netid | :nil
+	(defq svc (net-service))
+	(unless svc
+		;start net service on node 0
+		(open-remote "service/net/app.lisp" (first (lisp-nodes)) +kn_call_pin)
+		(defq retries 50)
+		(while (and (not (setq svc (net-service))) (> (-- retries) 0))
+			(task-sleep 10000)))
+	svc)
+
 (defun net-open-rpc (host port)
 	; (net-open-rpc host port) -> (client_in client_out) | :nil
-	(defq svc (net-service) result :nil)
+	(defq svc (ensure-net-service) result :nil)
 	(when svc
 		(defq client_in (in-stream) reply_mbox (mail-mbox)
 			req (setf-> (cat (str-alloc +net_rpc_connect_size) host)
@@ -77,7 +88,7 @@
 
 (defun net-listen-rpc (port accept_mbox)
 	; (net-listen-rpc port accept_mbox) -> listener_handle | :nil
-	(defq svc (net-service) handle :nil)
+	(defq svc (ensure-net-service) handle :nil)
 	(when svc
 		(defq reply_mbox (mail-mbox)
 			req (setf-> (str-alloc +net_rpc_listen_size)
@@ -115,17 +126,6 @@
 (defun net-close-rpc (conn)
 	; (net-close-rpc (client_in client_out))
 	(in-set-state (first conn) +stream_mail_state_aborted))
-
-(defun ensure-net-service ()
-	; (ensure-net-service) -> netid | :nil
-	(defq svc (net-service))
-	(unless svc
-		;start net service on node 0
-		(open-remote "service/net/app.lisp" (first (lisp-nodes)) +kn_call_pin)
-		(defq retries 50)
-		(while (and (not (setq svc (net-service))) (> (-- retries) 0))
-			(task-sleep 10000)))
-	svc)
 
 (defun net-link-rpc (target)
 	; (net-link-rpc target) -> status | :nil
