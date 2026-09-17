@@ -210,14 +210,14 @@
 	(ui-title-bar _ "World Sun Clock" (0xea19) +event_close)
 	; Controls Bar: Simulation & Time Travel
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-label *utc_time_label* (:text "UTC: 00:00:00" :font +font_small :flow_flags +flow_flag_align_vcenter))
 		(ui-flow _ (:flow_flags +flow_right)
 			(. (ui-button *btn_prev_d* (:text "-1d" :font +font_btn)) :connect +event_btn_prev_d)
 			(. (ui-button *btn_prev_h* (:text "-1h" :font +font_btn)) :connect +event_btn_prev_h)
 			(. (ui-button *btn_now* (:text "Now" :font +font_btn)) :connect +event_btn_now)
 			(. (ui-button *btn_next_h* (:text "+1h" :font +font_btn)) :connect +event_btn_next_h)
 			(. (ui-button *btn_next_d* (:text "+1d" :font +font_btn)) :connect +event_btn_next_d)
-			(. (ui-button *btn_play* (:text "Play" :font +font_btn)) :connect +event_btn_play)))
+			(. (ui-button *btn_play* (:text "Play" :font +font_btn)) :connect +event_btn_play))
+		(ui-label *utc_time_label* (:text "UTC: 00:00:00" :font +font_small :flow_flags +flow_flag_align_vcenter)))
 	; Hero Card: Selected City Details
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-label *hero_city* (:text "London, UK" :font +font_title))
