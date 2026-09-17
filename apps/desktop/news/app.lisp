@@ -347,22 +347,22 @@
 		(. (ui-button *btn_refresh* (:text "Refresh" :font +font_btn)) :connect +event_refresh)
 		(ui-label *status_label* (:text "Connecting..." :font +font_small :border 0 :ink_color +argb_grey8 :min_width 140))
 		(ui-label _ (:min_width 6 :border 0)))
-	; Split Pane Body: Story List (Left) + Detail/Md Viewer (Right)
-	(ui-flow main_split (:flow_flags +flow_right_fill)
-		(ui-scroll *story_scroll* +scroll_flag_vertical
-			(:min_width 340 :min_height 460)
-			(ui-flow *story_container* (:flow_flags +flow_down_fill)))
-		(ui-scroll *detail_scroll* +scroll_flag_both
-			(:min_width 500 :min_height 460)
-			(ui-flow *detail_container* (:flow_flags +flow_down_fill))))
-	; Footer Status Bar
-	(ui-flow status_bar (:flow_flags +flow_right_fill :border 1)
-		(ui-label _ (:min_width 4 :border 0))
-		(ui-label *story_count_label* (:text "0 stories" :font +font_small :border 0 :min_width 80))
-		(ui-label _ (:flow_flags +flow_right_fill :border 0))
-		(ui-label *item_info_label* (:text "Select a story" :font +font_small :border 0 :ink_color +argb_grey8 :min_width 160))
-		(ui-label _ (:min_width 6 :border 0))))
-
+	(ui-flow _ (:flow_flags +flow_up_fill)
+		; Footer Status Bar
+		(ui-flow status_bar (:flow_flags +flow_right_fill :border 1)
+			(ui-label _ (:min_width 4 :border 0))
+			(ui-label *story_count_label* (:text "0 stories" :font +font_small :border 0 :min_width 80))
+			(ui-label _ (:flow_flags +flow_right_fill :border 0))
+			(ui-label *item_info_label* (:text "Select a story" :font +font_small :border 0 :ink_color +argb_grey8 :min_width 160))
+			(ui-label _ (:min_width 6 :border 0)))
+		; Split Pane Body: Story List (Left) + Detail/Md Viewer (Right)
+		(ui-flow main_split (:flow_flags +flow_right_fill)
+			(ui-scroll *story_scroll* +scroll_flag_vertical
+				(:min_width 340 :min_height 460)
+				(ui-flow *story_container* (:flow_flags +flow_down_fill)))
+			(ui-scroll *detail_scroll* +scroll_flag_both
+				(:min_width 500 :min_height 460)
+				(ui-flow *detail_container* (:flow_flags +flow_down_fill))))))
 
 (defun main ()
 	(config-load)
