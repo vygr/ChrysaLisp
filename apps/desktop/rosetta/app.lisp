@@ -1,0 +1,293 @@
+(case :nil
+	(0 (import "lib/debug/frames.inc"))
+	(1 (import "lib/debug/profile.inc")))
+
+(import "usr/env.inc")
+(import "gui/lisp.inc")
+(import "lib/consts/colors.inc")
+(import "lib/text/syntax.inc")
+(import "lib/text/document.inc")
+(import "apps/desktop/rosetta/catalog.inc")
+
+(enums +select 0
+	(enum main tip))
+
+(enums +event 0
+	(enum close max min)
+	(enum category search random)
+	(enum algo_0))
+
+(defq +font_title (create-font "fonts/OpenSans-Bold.ctf" 14) +font_btn (create-font "fonts/OpenSans-Regular.ctf" 13)
+	+font_bold (create-font "fonts/OpenSans-Bold.ctf" 13) +font_small (create-font "fonts/OpenSans-Regular.ctf" 11)
+	+font_code (create-font (first (font-info *env_terminal_font*)) 13)
+	+color_accent 0xff00897b *config* :nil *config_version* 1
+	*config_file* (cat *env_home* "rosetta.tre") *selected_id* :quicksort
+	*selected_cat* "All" *search_query* "" *filtered_algos* (list)
+	*selected_entry* :nil *cat_bar* :nil *search_input* :nil *btn_random* :nil
+	*status_label* :nil *info_label* :nil *left_scroll* :nil
+	*left_container* :nil *right_scroll* :nil *right_container* :nil
+	*syntax* :nil)
+
+(defun category-to-idx (c)
+	(case c
+		("All" 0) ("Sorting" 1) ("Structures" 2)
+		("Compression" 3) ("Math" 4) ("Systems" 5) (:t 0)))
+
+(defun idx-to-category (idx)
+	(case idx
+		(0 "All") (1 "Sorting") (2 "Structures")
+		(3 "Compression") (4 "Math") (5 "Systems") (:t "All")))
+
+(defun config-default ()
+	(scatter (Emap)
+		:version *config_version*
+		:selected_id :quicksort
+		:selected_cat "All"
+		:search_query ""))
+
+(defun config-load ()
+	(defq old_config :nil)
+	(if (defq stream (file-stream *config_file*))
+		(setq old_config (tree-load stream)))
+	(if (or (not old_config) (/= (. old_config :find :version) *config_version*))
+		(setq *config* (config-default))
+		(setq *config* old_config))
+	(setq *selected_id* (. *config* :find :selected_id))
+	(if (not (sym? *selected_id*)) (setq *selected_id* :quicksort))
+	(setq *selected_cat* (. *config* :find :selected_cat))
+	(if (not (str? *selected_cat*)) (setq *selected_cat* "All"))
+	(setq *search_query* (. *config* :find :search_query))
+	(if (not (str? *search_query*)) (setq *search_query* "")))
+
+(defun config-save ()
+	(if (not *config*)
+		(setq *config* (Emap)))
+	(scatter *config*
+		:version *config_version*
+		:selected_id *selected_id*
+		:selected_cat *selected_cat*
+		:search_query *search_query*)
+	(when (defq stream (file-stream *config_file* +file_open_write))
+		(tree-save stream *config*)))
+
+(defun create-code-vdu (code page_w)
+	(unless *syntax*
+		(setq *syntax* (Syntax)))
+	(defq ss (string-stream (join code "\n"))
+		buffer (Document +buffer_flag_syntax *syntax*))
+	(.-> buffer (:stream_load ss) :trim
+		(:insert "\n") :bottom (:insert "\n"))
+	(defq margin +max_int lines (. buffer :get_buffer_lines))
+	(each (# (and (defq m (find "(" %0)) (setq margin (min m margin)))) lines)
+	(when (and (/= margin 0) (/= margin +max_int))
+		(each (lambda (line)
+			(. buffer :idelete 0 (!) (min margin (length line)) (!))) lines))
+	(bind '(w h) (. buffer :get_size))
+	(def (defq vdu (Vdu))
+		:font +font_code
+		:vdu_width 80
+		:vdu_height h
+		:color 0
+		:ink_color +argb_black)
+	(bind '(tw th) (. vdu :pref_size))
+	(def vdu :vdu_width (max w 40))
+	(bind '(rw rh) (. vdu :pref_size))
+	(.-> vdu (:change 10 0 rw rh))
+	(.-> buffer (:set_cursor 0 100000)
+		(:vdu_load vdu 0 0 :text))
+	(defq pad_w (+ rw 20))
+	(def (defq backdrop (Backdrop))
+		:color +argb_grey1
+		:min_width (max pad_w page_w)
+		:min_height rh)
+	(. backdrop :add_child vdu)
+	(if (> pad_w page_w)
+		(progn
+			(def (defq scroll (Scroll +scroll_flag_horizontal))
+				:min_width page_w
+				:min_height rh)
+			(. scroll :add_child (. backdrop :change 0 0 pad_w rh))
+			scroll)
+		backdrop))
+
+(defun render-detail-pane (entry)
+	(each (# (. %0 :sub)) (. *right_container* :children))
+	(bind '(sw &) (. *right_scroll* :get_size))
+	(bind '(vsw &) (if (get :vslider *right_scroll*) (. (get :vslider *right_scroll*) :get_constraint) '(16 0)))
+	(defq page_w (max 480 (- sw vsw 16)))
+	(if (not entry)
+		(progn
+			(defq md (Md))
+			(def md :page_width page_w :zoom 1.0 :base_font_size 14)
+			(. *right_container* :add_child md)
+			(. md :populate_lines '("# Select an algorithm" "" "*No algorithm selected.*")))
+		(progn
+			(defq md_top (Md))
+			(def md_top :page_width page_w :zoom 1.0 :base_font_size 14)
+			(. *right_container* :add_child md_top)
+			(. md_top :populate_lines (catalog-overview-markdown entry))
+			(defq code_vdu (create-code-vdu (elem-get entry 7) page_w))
+			(. *right_container* :add_child code_vdu)
+			(when (defq idm (catalog-idioms-markdown entry))
+				(defq lbl_space (Label))
+				(def lbl_space :min_height 8 :border 0)
+				(. *right_container* :add_child lbl_space)
+				(defq md_bot (Md))
+				(def md_bot :page_width page_w :zoom 1.0 :base_font_size 14)
+				(. *right_container* :add_child md_bot)
+				(. md_bot :populate_lines idm))
+			(defq lbl_pad (Label))
+			(def lbl_pad :min_height 16 :border 0)
+			(. *right_container* :add_child lbl_pad)))
+	(bind '(w h) (. *right_container* :pref_size))
+	(. *right_container* :change_dirty 0 0 (max w page_w) h :t)
+	(. *right_container* :layout)
+	(.-> *right_scroll* :layout :dirty_all))
+
+(defun render-sidebar ()
+	(each (# (. %0 :sub)) (. *left_container* :children))
+	(setq *filtered_algos* (catalog-filter *selected_cat* *search_query*))
+	(if (empty? *filtered_algos*)
+		(progn
+			(defq empty_lbl (Label))
+			(def empty_lbl :text "No matching algorithms" :font +font_small :border 8 :ink_color +argb_grey8)
+			(. *left_container* :add_child empty_lbl))
+		(each (lambda (entry)
+			(defq id (first entry) title (second entry)
+				category (third entry) complexity (elem-get entry 3)
+				idx (!) is_cur (eql id *selected_id*)
+				card (Flow) btn (Button) meta_lbl (Label))
+			(def card :flow_flags +flow_down_fill :border 1)
+			(def btn :text title :font +font_btn :border (if is_cur 1 0))
+			(when is_cur
+				(def card :color (canvas-brighter (get :color *window*)))
+				(def btn :color +color_accent :ink_color +argb_white))
+			(. btn :connect (+ +event_algo_0 idx))
+			(def meta_lbl :text (cat " " category " | " (first (split complexity "|")))
+				:font +font_small :border 0 :ink_color (if is_cur +color_accent +argb_grey8))
+			(.-> card (:add_child btn) (:add_child meta_lbl))
+			(. *left_container* :add_child card))
+			*filtered_algos*))
+	(def (. *status_label* :dirty) :text (cat (str (length *filtered_algos*)) " algorithms"))
+	(. *status_label* :layout)
+	(bind '(& h) (. *left_container* :pref_size))
+	(bind '(sw &) (. *left_scroll* :get_size))
+	(bind '(vsw &) (if (get :vslider *left_scroll*) (. (get :vslider *left_scroll*) :get_constraint) '(16 0)))
+	(defq cw (max 220 (- sw vsw)))
+	(. *left_container* :change_dirty 0 0 cw h :t)
+	(.-> *left_scroll* :layout :dirty_all))
+
+(defun select-algorithm (id)
+	(setq *selected_id* id
+		*selected_entry* (catalog-find id))
+	(config-save)
+	(when *selected_entry*
+		(defq title (second *selected_entry*)
+			category (third *selected_entry*)
+			complexity (elem-get *selected_entry* 3))
+		(def (. *info_label* :dirty) :text (cat title " (" category ") - " complexity))
+		(. *info_label* :layout))
+	(render-sidebar)
+	(render-detail-pane *selected_entry*))
+
+(defun select-category (cat_name)
+	(setq *selected_cat* cat_name)
+	(config-save)
+	(when *cat_bar*
+		(. *cat_bar* :set_selected (category-to-idx cat_name)))
+	(render-sidebar)
+	(if (and *filtered_algos* (nempty? *filtered_algos*))
+		(unless (some (# (eql (first %0) *selected_id*)) *filtered_algos*)
+			(select-algorithm (first (first *filtered_algos*))))))
+
+(defun search-updated (query_str)
+	(setq *search_query* (trim (or query_str "")))
+	(config-save)
+	(render-sidebar)
+	(if (and *filtered_algos* (nempty? *filtered_algos*))
+		(unless (some (# (eql (first %0) *selected_id*)) *filtered_algos*)
+			(select-algorithm (first (first *filtered_algos*))))))
+
+(defun pick-random-algorithm ()
+	(defq all_entries (catalog-all))
+	(when (nempty? all_entries)
+		(defq idx (random (length all_entries))
+			target (elem-get all_entries idx))
+		(setq *selected_cat* "All" *search_query* "")
+		(when *cat_bar* (. *cat_bar* :set_selected 0))
+		(when *search_input* (.-> *search_input* (:set_text "") :layout :dirty))
+		(select-algorithm (first target))))
+
+(ui-window *window* (:color +argb_grey15)
+	(ui-title-bar _ "Rosetta - Algorithm & Computer Science Explorer" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-flow header_bar (:flow_flags +flow_right_fill :border 1)
+		(ui-label _ (:text " ROSE " :color +color_accent :ink_color +argb_white :font +font_title :border 1))
+		(. (ui-radio-bar *cat_bar* ("All" "Sorting" "Structures" "Compression" "Math" "Systems")
+				(:font +font_btn))
+			:connect +event_category)
+		(. (ui-textfield *search_input* (:color +argb_white :clear_text *search_query* :hint_text "Search algorithm..." :font +font_btn :min_width 160))
+			:connect +event_search)
+		(. (ui-button *btn_random* (:text "Random" :font +font_btn)) :connect +event_random)
+		(ui-label _ (:min_width 6 :border 0))
+		(ui-label *status_label* (:text "16 algorithms" :font +font_small :border 0 :ink_color +argb_grey8)))
+	(ui-flow _ (:flow_flags +flow_up_fill)
+		(ui-flow status_bar (:flow_flags +flow_right_fill :border 1)
+			(ui-label _ (:min_width 8 :border 0))
+			(ui-label *info_label* (:text "Ready" :font +font_small :border 0 :min_width 320)))
+		(ui-flow main_split (:flow_flags +flow_right_fill)
+			(ui-scroll *left_scroll* +scroll_flag_vertical (:min_width 240 :min_height 480)
+				(ui-flow *left_container* (:flow_flags +flow_down_fill :color +argb_grey15)))
+			(ui-scroll *right_scroll* +scroll_flag_vertical (:min_width 540 :min_height 480)
+				(ui-flow *right_container* (:flow_flags +flow_down_fill :color +argb_grey15))))))
+
+(defun main ()
+	(config-load)
+	(unless *syntax*
+		(setq *syntax* (Syntax)))
+	(defq select (task-mboxes +select_size) *running* :t)
+	(def *window* :tip_mbox (elem-get select +select_tip))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front-rpc (.-> *window* (:change x y w h :t) :dirty_all))
+	(when *cat_bar*
+		(. *cat_bar* :set_selected (category-to-idx *selected_cat*)))
+	(when *search_input*
+		(. *search_input* :set_text *search_query*))
+	(select-algorithm *selected_id*)
+	(while *running*
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
+		(case idx
+			(+select_tip
+				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+					(. view :show_tip)))
+			(+select_main
+				(defq id (getf *msg* +ev_msg_target_id))
+				(cond
+					((= id +event_close)
+						(setq *running* :nil))
+					((= id +event_min)
+						(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+						(. *window* :change_dirty x y w h)
+						(render-detail-pane *selected_entry*))
+					((= id +event_max)
+						(bind '(x y) (. *window* :get_pos))
+						(bind '(mx my mw mh) (gui-info))
+						(defq target_w (min 1280 (- mw 40)) target_h (min 860 (- mh 40)))
+						(bind '(x y w h) (view-fit x y target_w target_h))
+						(. *window* :change_dirty x y w h)
+						(render-detail-pane *selected_entry*))
+					((= id +event_category)
+						(defq c_idx (. *cat_bar* :get_selected))
+						(when c_idx
+							(select-category (idx-to-category c_idx))))
+					((= id +event_search)
+						(defq q (trim (. *search_input* :get_text)))
+						(search-updated q))
+					((= id +event_random)
+						(pick-random-algorithm))
+					((and (>= id +event_algo_0) (< id (+ +event_algo_0 50)))
+						(defq a_idx (- id +event_algo_0))
+						(when (and (>= a_idx 0) (< a_idx (length *filtered_algos*)))
+							(select-algorithm (first (elem-get *filtered_algos* a_idx)))))
+					((. *window* :event *msg*))))))
+	(config-save)
+	(gui-sub-rpc *window*))
