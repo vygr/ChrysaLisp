@@ -237,14 +237,13 @@
 			score_lbl (Label)
 			meta_lbl (Label))
 		(def card_flow :flow_flags +flow_down_fill :border 1)
-		(if is_selected
-			(def card_flow :color (canvas-brighter (get :color *window*))))
 		(def title_btn
 			:text (cat (str (inc idx)) ". " (truncate-title title 38))
 			:font +font_btn
 			:border (if is_selected 1 0))
-		(if is_selected
-			(def title_btn :color 0x33ff6600))
+		(when is_selected
+			(def card_flow :color (canvas-brighter (get :color *window*)))
+			(def title_btn :color 0xffff6600))
 		(. title_btn :connect (+ +event_story_0 idx))
 		(def meta_flow :flow_flags +flow_right_fill)
 		(def score_lbl
@@ -343,10 +342,8 @@
 		(. (ui-button *btn_show* (:text "Show HN" :font +font_btn)) :connect +event_tab_show)
 		(. (ui-button *btn_ask* (:text "Ask HN" :font +font_btn)) :connect +event_tab_ask)
 		(. (ui-button *btn_jobs* (:text "Jobs" :font +font_btn)) :connect +event_tab_jobs)
-		(ui-label _ (:flow_flags +flow_right_fill :border 0))
 		(. (ui-button *btn_refresh* (:text "Refresh" :font +font_btn)) :connect +event_refresh)
-		(ui-label *status_label* (:text "Connecting..." :font +font_small :border 0 :ink_color +argb_grey8 :min_width 140))
-		(ui-label _ (:min_width 6 :border 0)))
+		(ui-label *status_label* (:text "Connecting..." :font +font_small :border 0 :ink_color +argb_grey8)))
 	; makes the main_split use up all the remaining space !
 	(ui-flow _ (:flow_flags +flow_up_fill)
 		; Footer Status Bar
