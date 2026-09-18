@@ -34,9 +34,15 @@
 	*env_highlight_col* 0xfffffdaf
 	*env_window_border* 1 *env_window_shadow* 5 *env_label_border* 0 *env_button_border* 1
 	*env_textfield_border* -1 *env_title_border* 1 *env_title_buttons_border* 1
-	*env_window_font* (create-font "fonts/OpenSans-Regular.ctf" 18)
+	*env_display_font* (create-font "fonts/OpenSans-Bold.ctf" 32)
 	*env_title_font* (create-font "fonts/OpenSans-Bold.ctf" 20)
+	*env_sub_title_font* (create-font "fonts/OpenSans-Bold.ctf" 16)
+	*env_window_font* (create-font "fonts/OpenSans-Regular.ctf" 18)
 	*env_body_font* (create-font "fonts/OpenSans-Regular.ctf" 14)
+	*env_bold_font* (create-font "fonts/OpenSans-Bold.ctf" 14)
+	*env_button_font* (create-font "fonts/OpenSans-Regular.ctf" 18)
+	*env_small_font* (create-font "fonts/OpenSans-Regular.ctf" 12)
+	*env_tiny_font* (create-font "fonts/OpenSans-Regular.ctf" 10)
 	*env_title_buttons_font* (create-font "fonts/Entypo.ctf" 22)
 	*env_symbol_font* (create-font "fonts/Entypo.ctf" 28)
 	*env_medium_symbol_font* (create-font "fonts/Entypo.ctf" 22)

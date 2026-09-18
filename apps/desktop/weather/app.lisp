@@ -16,28 +16,14 @@
 	(enum city_0 city_1 city_2 city_3 city_4 city_5))
 
 (enums +select 0
-	(enum main tip timer worker))
+	(enum main tip timer worker trash))
 
-(defq
-	*config* :nil
-	*config_version* 1
+(defq *config* :nil *config_version* 1
 	*config_file* (cat *env_home* "weather.tre")
-	*city* "London"
-	*unit_c* :t
-	*quick_cities* (list "London" "New York" "Tokyo" "Paris" "SF" "Sydney")
-	*btn_city_0* :nil
-	*btn_city_1* :nil
-	*btn_city_2* :nil
-	*btn_city_3* :nil
-	*btn_city_4* :nil
-	*btn_city_5* :nil
-	*weather_data* :nil
-	*canvas_size* 120
-	+font_big_temp (create-font "fonts/OpenSans-Bold.ctf" 32)
-	+font_sub (create-font "fonts/OpenSans-Bold.ctf" 15)
-	+font_btn (create-font "fonts/OpenSans-Regular.ctf" 14)
-	+font_small (create-font "fonts/OpenSans-Regular.ctf" 13)
-	+font_tiny (create-font "fonts/OpenSans-Regular.ctf" 11))
+	*city* "London" *unit_c* :t *weather_data* :nil *canvas_size* 120
+	*quick_cities* '("London" "Tokyo" "New York" "Paris" "Sydney" "Cairo")
+	*btn_city_0* :nil *btn_city_1* :nil *btn_city_2* :nil
+	*btn_city_3* :nil *btn_city_4* :nil *btn_city_5* :nil)
 
 (defun config-default ()
 	(scatter (Emap)
@@ -54,22 +40,11 @@
 		(setq *config* (config-default))
 		(setq *config* old_config))
 	(setq *city* (. *config* :find :city)
-		*quick_cities* (. *config* :find :quick_cities))
-	(if (not (str? *city*))
-		(setq *city* "London"))
-	(defq raw_unit (. *config* :find :unit_c))
-	(setq *unit_c* (cond
-		((or (eql raw_unit :nil) (eql raw_unit "F") (eql raw_unit 'F) (eql raw_unit :f) (eql raw_unit :F)) :nil)
-		(:t :t)))
-	(if (not (list?? *quick_cities*))
-		(setq *quick_cities* (list "London" "New York" "Tokyo" "Paris" "SF" "Sydney")))
-	(setq *quick_cities* (map (lambda (c) (if (str? c) c (str c))) *quick_cities*))
-	(while (< (length *quick_cities*) 6)
-		(push *quick_cities* "London")))
+		*unit_c* (. *config* :find :unit_c)
+		*quick_cities* (. *config* :find :quick_cities)))
 
 (defun config-save ()
-	(if (not *config*)
-		(setq *config* (Emap)))
+	(ifn *config* (setq *config* (Emap)))
 	(scatter *config*
 		:version *config_version*
 		:city *city*
@@ -78,56 +53,52 @@
 	(when (defq stream (file-stream *config_file* +file_open_write))
 		(tree-save stream *config*)))
 
-(config-load)
-
 (defun draw-sun (canvas cx cy r)
 	(defq disc (path-gen-arc cx cy 0.0 +fp_2pi r (path)))
 	(.-> canvas
 		(:set_color 0xffffcc00)
-		(:fpoly 0.0 0.0 +winding_none_zero (list disc)))
-	(defq ray_paths (list))
-	(each (lambda (i)
-		(defq a (/ (* (n2f i) +fp_2pi) 8.0)
-			r1 (+ r 5.0) r2 (+ r 13.0)
-			x1 (+ cx (* r1 (cos a))) y1 (+ cy (* r1 (sin a)))
-			x2 (+ cx (* r2 (cos a))) y2 (+ cy (* r2 (sin a))))
-		(push ray_paths (path-stroke-polyline (path x1 y1 x2 y2) 1.5 +join_miter +cap_round +cap_round)))
-		(range 0 8))
-	(. canvas :fpoly 0.0 0.0 +winding_none_zero ray_paths))
+		(:fpoly 0.0 0.0 +winding_none_zero (list disc))
+		(:fpoly 0.0 0.0 +winding_none_zero
+			(map (#
+				(defq a (/ (* (n2f %0) +fp_2pi) 8.0)
+					r1 (+ r 5.0) r2 (+ r 13.0)
+					x1 (+ cx (* r1 (cos a))) y1 (+ cy (* r1 (sin a)))
+					x2 (+ cx (* r2 (cos a))) y2 (+ cy (* r2 (sin a))))
+				(path-stroke-polyline (path x1 y1 x2 y2) 1.5 +join_miter +cap_round +cap_round))
+				(range 0 8)))))
 
 (defun draw-cloud (canvas cx cy scale col)
-	(defq base (path-gen-ellipse cx (+ cy (* scale 8.0)) (* scale 28.0) (* scale 14.0) (path))
-		puff1 (path-gen-ellipse (- cx (* scale 10.0)) (- cy (* scale 2.0)) (* scale 16.0) (* scale 15.0) (path))
-		puff2 (path-gen-ellipse (+ cx (* scale 8.0)) (+ cy (* scale 2.0)) (* scale 14.0) (* scale 13.0) (path)))
+	(defq base (path-gen-ellipse cx (+ cy (* scale 8.0))
+			(* scale 28.0) (* scale 14.0) (path))
+		puff1 (path-gen-ellipse (- cx (* scale 10.0)) (- cy (* scale 2.0))
+			(* scale 16.0) (* scale 15.0) (path))
+		puff2 (path-gen-ellipse (+ cx (* scale 8.0)) (+ cy (* scale 2.0))
+			(* scale 14.0) (* scale 13.0) (path)))
 	(.-> canvas
 		(:set_color col)
 		(:fpoly 0.0 0.0 +winding_none_zero (list base puff1 puff2))))
 
 (defun draw-rain (canvas cx cy)
 	(draw-cloud canvas cx (- cy 8.0) 1.0 0xff90a0b0)
-	(defq rain_drops (list)
-		drops '((-16.0 16.0) (-6.0 18.0) (4.0 16.0) (14.0 18.0)))
-	(each (lambda ((dx dy))
-		(defq x1 (+ cx dx) y1 (+ cy dy)
-			x2 (- x1 3.0) y2 (+ y1 11.0))
-		(push rain_drops (path-stroke-polyline (path x1 y1 x2 y2) 1.5 +join_miter +cap_round +cap_round)))
-		drops)
 	(.-> canvas
 		(:set_color 0xff50b0ff)
-		(:fpoly 0.0 0.0 +winding_none_zero rain_drops)))
+		(:fpoly 0.0 0.0 +winding_none_zero
+			(reduce (lambda (p (dx dy))
+				(push p (path-stroke-polyline (path (+ cx dx) (+ cy dy) (- (+ cx dx) 3.0) (+ (+ cy dy) 11.0))
+					1.5 +join_miter +cap_round +cap_round)))
+				'((-16.0 16.0) (-6.0 18.0) (4.0 16.0) (14.0 18.0)) (list)))))
 
 (defun draw-snow (canvas cx cy)
 	(draw-cloud canvas cx (- cy 8.0) 1.0 0xffd0dbe5)
-	(defq snow_flakes (list)
-		flakes '((-14.0 18.0) (-2.0 20.0) (10.0 18.0)))
-	(each (lambda ((dx dy))
-		(defq fx (+ cx dx) fy (+ cy dy))
-		(push snow_flakes (path-stroke-polyline (path (- fx 3.0) fy (+ fx 3.0) fy) 1.2 +join_miter +cap_round +cap_round))
-		(push snow_flakes (path-stroke-polyline (path fx (- fy 3.0) fx (+ fy 3.0)) 1.2 +join_miter +cap_round +cap_round)))
-		flakes)
 	(.-> canvas
 		(:set_color +argb_white)
-		(:fpoly 0.0 0.0 +winding_none_zero snow_flakes)))
+		(:fpoly 0.0 0.0 +winding_none_zero
+			(reduce (lambda (p (dx dy))
+				(defq fx (+ cx dx) fy (+ cy dy))
+				(push p
+					(path-stroke-polyline (path (- fx 3.0) fy (+ fx 3.0) fy) 1.2 +join_miter +cap_round +cap_round)
+					(path-stroke-polyline (path fx (- fy 3.0) fx (+ fy 3.0)) 1.2 +join_miter +cap_round +cap_round)))
+				'((-14.0 18.0) (-2.0 20.0) (10.0 18.0)) (list)))))
 
 (defun draw-thunder (canvas cx cy)
 	(draw-cloud canvas cx (- cy 10.0) 1.0 0xff505860)
@@ -172,12 +143,12 @@
 (ui-window *window* ()
 	(ui-title-bar _ "Weather" (0xea19) +event_close)
 	; Row 1: Search & Controls
-	(ui-flow _ (:flow_flags +flow_right_fill)
-		(. (ui-textfield *search_input* (:color +argb_white :clear_text *city* :hint_text "Search city..." :font +font_small)) :connect +event_refresh)
-		(. (ui-button *btn_refresh* (:text "Fetch" :font +font_small)) :connect +event_refresh)
-		(. (ui-button *btn_unit* (:text (if *unit_c* "F" "C") :font +font_small)) :connect +event_unit_toggle))
+	(ui-flow _ (:flow_flags +flow_right_fill :font *env_button_font*)
+		(. (ui-button *btn_refresh* (:text "Fetch")) :connect +event_refresh)
+		(. (ui-button *btn_unit* (:text (if *unit_c* "F" "C"))) :connect +event_unit_toggle)
+		(. (ui-textfield *search_input* (:color +argb_grey15 :clear_text *city* :hint_text "Search city...")) :connect +event_refresh))
 	; Row 2: Quick City Buttons (2 rows of 3 columns)
-	(ui-grid _ (:grid_width 3 :font +font_btn)
+	(ui-grid _ (:grid_width 3 :font *env_small_font* :color *env_toolbar2_col*)
 		(. (ui-button *btn_city_0* (:text (elem-get *quick_cities* 0))) :connect +event_city_0)
 		(. (ui-button *btn_city_1* (:text (elem-get *quick_cities* 1))) :connect +event_city_1)
 		(. (ui-button *btn_city_2* (:text (elem-get *quick_cities* 2))) :connect +event_city_2)
@@ -187,37 +158,37 @@
 	; Row 3: Main Weather Hero
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-canvas *icon_canvas* *canvas_size* *canvas_size* 1)
-		(ui-label *temp_label* (:text "00 C" :font +font_big_temp
+		(ui-label *temp_label* (:text "00 C" :font *env_display_font*
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
-		(ui-label *condition_label* (:text "Patchy rain nearby" :font +font_sub
+		(ui-label *condition_label* (:text "Patchy rain nearby" :font *env_sub_title_font*
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
-		(ui-label *feels_label* (:text "Feels like 00 C" :font +font_small
+		(ui-label *feels_label* (:text "Feels like 00 C" :font *env_small_font*
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
-		(ui-label *location_label* (:text "Brompton, United Kingdom" :font +font_small
+		(ui-label *location_label* (:text "Brompton, United Kingdom" :font *env_small_font*
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter))))
 	; Row 4: Metrics 2x2 Grid
-	(ui-grid _ (:grid_width 2 :font +font_small)
+	(ui-grid _ (:grid_width 2 :font *env_small_font*)
 		(ui-label *humidity_label* (:text "Humidity: 100%"))
 		(ui-label *wind_label* (:text "Wind: 100 km/h WSW"))
 		(ui-label *pressure_label* (:text "Pressure: 1013 hPa"))
 		(ui-label *vis_label* (:text "Visibility: 10 km")))
 	; Row 5: 3-Day Forecast
-	(ui-title _ (:text "3-Day Forecast" :color *env_title_col* :font +font_sub))
+	(ui-title _ (:text "3-Day Forecast" :color *env_title_col* :font *env_sub_title_font*))
 	(ui-grid _ (:grid_width 3)
 		(ui-flow _ (:flow_flags +flow_down_fill)
-			(ui-label *fc_d1_date* (:text "00-00" :font +font_sub :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d1_desc* (:text "Patchy rain nearby" :font +font_tiny :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d1_temp* (:text "00 / 00 C" :font +font_small :flow_flags +flow_flag_align_hcenter)))
+			(ui-label *fc_d1_date* (:text "00-00" :font *env_sub_title_font* :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d1_desc* (:text "Patchy rain nearby" :font *env_tiny_font* :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d1_temp* (:text "00 / 00 C" :font *env_small_font* :flow_flags +flow_flag_align_hcenter)))
 		(ui-flow _ (:flow_flags +flow_down_fill)
-			(ui-label *fc_d2_date* (:text "00-00" :font +font_sub :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d2_desc* (:text "Patchy rain nearby" :font +font_tiny :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d2_temp* (:text "00 / 00 C" :font +font_small :flow_flags +flow_flag_align_hcenter)))
+			(ui-label *fc_d2_date* (:text "00-00" :font *env_sub_title_font* :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d2_desc* (:text "Patchy rain nearby" :font *env_tiny_font* :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d2_temp* (:text "00 / 00 C" :font *env_small_font* :flow_flags +flow_flag_align_hcenter)))
 		(ui-flow _ (:flow_flags +flow_down_fill)
-			(ui-label *fc_d3_date* (:text "00-00" :font +font_sub :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d3_desc* (:text "Patchy rain nearby" :font +font_tiny :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d3_temp* (:text "00 / 00 C" :font +font_small :flow_flags +flow_flag_align_hcenter))))
+			(ui-label *fc_d3_date* (:text "00-00" :font *env_sub_title_font* :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d3_desc* (:text "Patchy rain nearby" :font *env_tiny_font* :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d3_temp* (:text "00 / 00 C" :font *env_small_font* :flow_flags +flow_flag_align_hcenter))))
 	; Row 6: Status footer
-	(ui-label *status_label* (:text "Ready" :font *env_small_terminal_font* :flow_flags +flow_flag_align_hcenter)))
+	(ui-label *status_label* (:text "Ready" :font *env_small_font* :flow_flags +flow_flag_align_hcenter)))
 
 (defun update-ui-labels ()
 	(when *weather_data*
@@ -237,9 +208,7 @@
 		(def *vis_label* :text (cat "Visibility: " vis_km " km"))
 		; Forecast cards
 		(when (>= (length forecast) 3)
-			(defq d1 (elem-get forecast 0)
-				d2 (elem-get forecast 1)
-				d3 (elem-get forecast 2))
+			(bind '(d1 d2 d3 &ignore) forecast)
 			(bind '(dt1 mx1 mn1 mxf1 mnf1 desc1 &) d1)
 			(bind '(dt2 mx2 mn2 mxf2 mnf2 desc2 &) d2)
 			(bind '(dt3 mx3 mn3 mxf3 mnf3 desc3 &) d3)
@@ -259,7 +228,7 @@
 		(bind '(x y w h) (view-fit x y w h))
 		(. *window* :change_dirty x y w h :t)))
 
-(defun trigger-fetch (worker_mbox city)
+(defun trigger-fetch (worker_mbox trash_mbox city)
 	(def *status_label* :text (cat "Fetching weather for " city "..."))
 	(.-> *status_label* :layout :dirty)
 	(defq task_code (str `(progn
@@ -271,13 +240,11 @@
 		(defq result :nil)
 		(catch
 			(progn
-				(defq url (cat "http://wttr.in/" (url-encode ,city :t) "?format=j1")
-					resp (http-get url))
-				(when resp
+				(defq api_url (cat "http://wttr.in/" (url-encode ,city :t) "?format=j1"))
+				(when (defq resp (http-get api_url))
 					(defq body (http-body-str resp))
 					(when (and body (starts-with "{" (trim body)))
-						(defq json (json-parse body))
-						(when json
+						(when (defq json (json-parse body))
 							(defq cur (first (pfind json :current_condition))
 								area (first (pfind json :nearest_area))
 								area_name (trim (or (pfind (first (pfind area :areaName)) :value) ,city))
@@ -293,26 +260,23 @@
 								wind_dir (trim (or (pfind cur :winddir16Point) ""))
 								pressure (or (pfind cur :pressure) "1013")
 								vis_km (or (pfind cur :visibility) "10")
-								days (pfind json :weather)
-								forecast_list (list))
-							(each (lambda (day)
-								(defq d_date (or (pfind day :date) "")
-									max_c (or (pfind day :maxtempC) "0")
-									min_c (or (pfind day :mintempC) "0")
-									max_f (or (pfind day :maxtempF) "32")
-									min_f (or (pfind day :mintempF) "32")
-									mid_hour (elem-get (pfind day :hourly) 4)
-									day_desc (trim (if mid_hour (or (pfind (first (pfind mid_hour :weatherDesc)) :value) "") ""))
-									day_code (if mid_hour (str-to-num (or (pfind mid_hour :weatherCode) "113")) 113))
-								(push forecast_list (list d_date max_c min_c max_f min_f day_desc day_code)))
-								days)
+								forecast_list (map (lambda (day)
+									(defq mid_hour (elem-get (pfind day :hourly) 4))
+									(list (or (pfind day :date) "")
+										(or (pfind day :maxtempC) "0")
+										(or (pfind day :mintempC) "0")
+										(or (pfind day :maxtempF) "32")
+										(or (pfind day :mintempF) "32")
+										(trim (if mid_hour (or (pfind (first (pfind mid_hour :weatherDesc)) :value) "") ""))
+										(if mid_hour (str-to-num (or (pfind mid_hour :weatherCode) "113")) 113)))
+									(pfind json :weather)))
 							(setq result (list area_name country desc code
 								temp_c temp_f feels_c feels_f
 								humidity wind_kmph wind_dir pressure vis_km
 								forecast_list))))))
 			(progn (setq result :nil) :t))
 		(mail-send (hex-decode ,(hex-encode worker_mbox)) (str result)))))
-	(open-child task_code +kn_call_run))
+	(open-task task_code (slice (task-mbox) +long_size -1) +kn_call_run 0 trash_mbox))
 
 (defun main ()
 	(config-load)
@@ -321,14 +285,16 @@
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *search_input* :set_text *city*)
 	(def *btn_unit* :text (if *unit_c* "F" "C"))
-	(defq city_btns (list *btn_city_0* *btn_city_1* *btn_city_2* *btn_city_3* *btn_city_4* *btn_city_5*))
+	(defq city_btns (list
+		*btn_city_0* *btn_city_1* *btn_city_2*
+		*btn_city_3* *btn_city_4* *btn_city_5*))
 	(each (lambda (i)
 		(def (elem-get city_btns i) :text (elem-get *quick_cities* i)))
 		(range 0 6))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (.-> *window* (:change x y w h :t) :dirty_all))
 	(render-weather-icon *icon_canvas* 116)
-	(trigger-fetch (elem-get select +select_worker) *city*)
+	(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash) *city*)
 	(mail-timeout (elem-get select +select_timer) refresh_interval 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -339,13 +305,12 @@
 					(progn
 						(setq *weather_data* parsed_data)
 						(update-ui-labels))
-					(progn
-						(def *status_label* :text (cat "Location not found: " *city*))
-						(.-> *status_label* :layout :dirty))))
+					(def *status_label* :text (cat "Location not found: " *city*))
+					(.-> *status_label* :layout :dirty)))
 			(+select_timer
 				; Re-arm 15m timer and trigger refresh
 				(mail-timeout (elem-get select +select_timer) refresh_interval 0)
-				(trigger-fetch (elem-get select +select_worker) *city*))
+				(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash) *city*))
 			(+select_tip
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
@@ -356,7 +321,7 @@
 						(setq *running* :nil))
 					((= id +event_refresh)
 						(setq *city* (trim (. *search_input* :get_text)))
-						(trigger-fetch (elem-get select +select_worker) *city*)
+						(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash) *city*)
 						(config-save))
 					((= id +event_unit_toggle)
 						(setq *unit_c* (not *unit_c*))
@@ -364,13 +329,13 @@
 						(.-> *btn_unit* :layout :dirty)
 						(update-ui-labels)
 						(config-save))
-					((and (>= id +event_city_0) (<= id +event_city_5))
+					((<= +event_city_0 id (const (inc +event_city_5)))
 						(defq city_idx (- id +event_city_0)
 							chosen_city (elem-get *quick_cities* city_idx))
 						(when (and chosen_city (> (length chosen_city) 0))
 							(setq *city* chosen_city)
 							(.-> *search_input* (:set_text *city*) :layout :dirty)
-							(trigger-fetch (elem-get select +select_worker) *city*)
+							(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash) *city*)
 							(config-save)))
 					((. *window* :event *msg*))))))
 	(config-save)
