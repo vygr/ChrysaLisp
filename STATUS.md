@@ -4,6 +4,11 @@
 
 ------
 
+Added `ui-tool-tips` hover hints to the six desktop apps that had the tip
+mailbox wired but no tip strings: `crypto`, `weather`, `news`, `lexicon`,
+`rosetta`, and `sunclock`. Anonymous control flows were named (`*ctrl_bar*`,
+`*time_bar*`) where needed so `ui-tool-tips` could reference them.
+
 All GUI app `config-save` and `config-load` functions now wrap file access with
 `lock-claim-rpc` / `lock-release-rpc` (key = config file path) via
 `service/lock/app.inc`, serialising concurrent `.tre` config reads and writes
