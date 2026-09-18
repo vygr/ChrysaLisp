@@ -148,7 +148,7 @@
 (ui-window *window* ()
 	(ui-title-bar _ "Weather" (0xea19) +event_close)
 	; Row 1: Search & Controls
-	(ui-flow _ (:flow_flags +flow_right_fill :font *env_button_font*)
+	(ui-flow *ctrl_bar* (:flow_flags +flow_right_fill :font *env_button_font*)
 		(. (ui-button *btn_refresh* (:text "Fetch")) :connect +event_refresh)
 		(. (ui-button *btn_unit* (:text (if *unit_c* "F" "C"))) :connect +event_unit_toggle)
 		(. (ui-textfield *search_input* (:color +argb_grey15 :clear_text *city* :hint_text "Search city...")) :connect +event_refresh))
@@ -288,6 +288,7 @@
 	(defq select (task-mboxes +select_size) *running* :t
 		refresh_interval (* 15 60 1000000)) ; 15 minutes
 	(def *window* :tip_mbox (elem-get select +select_tip))
+	(ui-tool-tips *ctrl_bar* '("fetch weather data" "switch °C/°F" ""))
 	(. *search_input* :set_text *city*)
 	(def *btn_unit* :text (if *unit_c* "F" "C"))
 	(defq city_btns (list

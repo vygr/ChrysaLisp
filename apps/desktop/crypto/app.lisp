@@ -141,7 +141,7 @@
 (ui-window *window* ()
 	(ui-title-bar _ "Crypto Ticker" (0xea19) +event_close)
 	; Controls Bar: Status & Refresh
-	(ui-flow _ (:flow_flags +flow_right_fill)
+	(ui-flow *ctrl_bar* (:flow_flags +flow_right_fill)
 		(. (ui-button *btn_refresh* (:text "Refresh")) :connect +event_refresh)
 		(ui-label *status_label* (:text "Connecting..." :flow_flags +flow_flag_align_vcenter :color +argb_grey15)))
 	; Hero Card: Coin Header
@@ -243,6 +243,7 @@
 	(defq select (task-mboxes +select_size) *running* :t
 		refresh_interval (* 60 1000000)) ; 60 seconds
 	(def *window* :tip_mbox (elem-get select +select_tip))
+	(ui-tool-tips *ctrl_bar* '("refresh market data" ""))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (.-> *window* (:change x y w h :t) :dirty_all))
 	(render-sparkline *chart_canvas* :nil "0")

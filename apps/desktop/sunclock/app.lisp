@@ -204,7 +204,7 @@
 	(ui-title-bar _ "World Sun Clock" (0xea19) +event_close)
 	; Controls Bar: Simulation & Time Travel
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_button_font*)
-		(ui-flow _ (:flow_flags +flow_right)
+		(ui-flow *time_bar* (:flow_flags +flow_right)
 			(. (ui-button *btn_prev_d* (:text "-1d")) :connect +event_btn_prev_d)
 			(. (ui-button *btn_prev_h* (:text "-1h")) :connect +event_btn_prev_h)
 			(. (ui-button *btn_now* (:text "Now")) :connect +event_btn_now)
@@ -325,6 +325,7 @@
 	(defq select (task-mboxes +select_size) *running* :t
 		tick_interval 1000000) ; 1 second normal tick
 	(def *window* :tip_mbox (elem-get select +select_tip))
+	(ui-tool-tips *time_bar* '("step back 1 day" "step back 1 hour" "jump to now" "step forward 1 hour" "step forward 1 day" "animate daylight"))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (.-> *window* (:change x y w h :t) :dirty_all))
 	(update-ui)

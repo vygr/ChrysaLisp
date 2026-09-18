@@ -285,6 +285,7 @@
 	(defq select (task-mboxes +select_size) *running* :t
 		refresh_interval (* 300 1000000)) ; 5 minutes
 	(def *window* :tip_mbox (elem-get select +select_tip))
+	(ui-tool-tips header_bar '("" "" "refresh stories" ""))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (.-> *window* (:change x y w h :t) :dirty_all))
 	(. *cat_bar* :set_selected (category-to-idx *selected_category*))
