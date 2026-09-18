@@ -91,7 +91,7 @@
 									(push history (trim buffer))
 									(scatter *meta_map* :history history)
 									(setq *history_idx* (length history) *history* history)
-									(state-save)))))
+									(config-save)))))
 					(if (not cmd) (print *env_terminal_prompt*))
 					(setq buffer "" cursor 0))
 				((or (= c 127) (= c 8)) ; Ctrl-H, Backspace (often 127 on TUI)
@@ -181,7 +181,7 @@
 	;create child and send args
 	(mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_pin) (task-mbox))
 	(defq cmd :nil buffer "" cursor 0 esc_state 0 last_input 0
-		*meta_map* :nil *history_idx* (state-load) *eof* :nil
+		*meta_map* :nil *history_idx* (config-load) *eof* :nil
 		*select* (list (task-mbox)))
 	(bind '(*history*) (gather *meta_map* :history))
 	(while :t

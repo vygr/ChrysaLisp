@@ -97,7 +97,7 @@
 	(defq *select* (task-mboxes +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* :t *pipe* :nil
 		*edit* (Terminal-edit) *key* :nil
-		*meta_map* :nil *history_idx* (state-load) *needs_refresh* :nil)
+		*meta_map* :nil *history_idx* (config-load) *needs_refresh* :nil)
 	(. *edit* :set_select_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :font *env_terminal_font*)
@@ -129,5 +129,5 @@
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
 	(if *pipe* (. *pipe* :close))
-	(state-save)
+	(config-save)
 	(gui-sub-rpc *window*))

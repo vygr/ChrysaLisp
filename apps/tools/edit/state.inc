@@ -2,7 +2,7 @@
 ; state load/save
 ;;;;;;;;;;;;;;;;;
 
-(defun state-save ()
+(defun config-save ()
 	;save editor state
 	(bind '(x y width height) (. *window* :get_bounds))
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
@@ -20,7 +20,7 @@
 			:macros (reduce (# (. %0 :insert %1 (macro-encode %1))) +range_0_10 (Lmap)))
 		(tree-save stream *meta_map* '(":nil" :buffer :nil))))
 
-(defun state-load ()
+(defun config-load ()
 	;load editor state
 	(defq default (scatter (Emap) :files (Fmap 101)))
 	(setq *meta_map* default *open_files* (list))

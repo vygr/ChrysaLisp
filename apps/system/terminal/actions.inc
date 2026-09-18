@@ -65,7 +65,7 @@
 ;module
 (export-symbols
 	'(*event_map* *key_map* *key_map_shift* *key_map_control*
-	action-insert state-load state-save))
+	action-insert config-load config-save))
 (export-classes
 	'(Viewer-edit Terminal-edit))
 (env-pop)

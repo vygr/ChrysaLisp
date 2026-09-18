@@ -10,11 +10,11 @@
 
 (defun action-save ()
 	(save-file *current_file*)
-	(state-save))
+	(config-save))
 
 (defun action-save-all ()
 	(each (# (save-file %0)) *open_files*)
-	(state-save))
+	(config-save))
 
 (defun action-new ()
 	(when (nql (defq file (trim (get :clear_text *name_text*))) "")

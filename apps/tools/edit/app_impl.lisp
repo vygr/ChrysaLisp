@@ -254,7 +254,7 @@
 		*macro_record* :nil *macro_actions* (list) *cursor_stack* (list)
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
 		*meta_map* :nil *open_files* :nil
-		*x* 0 *y* 0 *width* 1024 *height* 512 *current_file* (state-load))
+		*x* 0 *y* 0 *width* 1024 *height* 512 *current_file* (config-load))
 	(.-> *edit* (:set_buffer (Document))
 		(:set_ink_color +argb_white)
 		(:set_select_color +argb_grey6)
