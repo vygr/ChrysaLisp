@@ -81,17 +81,12 @@
 	(bind '(ipx ipy) (vector-add (Vec2-f cx eye_cy) off))
 	; Highlight offset in the direction opposite to gaze
 	(bind '(nx ny) (if (> dist 0.0) (vector-norm vec) (Vec2-f -0.707 -0.707)))
-	(defq hx (+ ipx (* (- 0.0 nx) (* hr 1.33)))
-		hy (+ ipy (* (- 0.0 ny) (* hr 1.33))))
+	(defq hx (+ ipx (* (- 0.0 nx) (* hr 1.33))) hy (+ ipy (* (- 0.0 ny) (* hr 1.33))))
 	(.-> *canvas*
-		(:set_color +argb_white)
-		(:fpoly cx eye_cy +winding_odd_even (circle eye_r))
-		(:set_color iris_color)
-		(:fpoly ipx ipy +winding_odd_even (circle iris_r))
-		(:set_color +argb_black)
-		(:fpoly ipx ipy +winding_odd_even (circle pupil_r))
-		(:set_color +argb_white)
-		(:fpoly hx hy +winding_odd_even (circle hr))))
+		(:set_color +argb_white) (:fpoly cx eye_cy +winding_odd_even (circle eye_r))
+		(:set_color iris_color) (:fpoly ipx ipy +winding_odd_even (circle iris_r))
+		(:set_color +argb_black) (:fpoly ipx ipy +winding_odd_even (circle pupil_r))
+		(:set_color +argb_white) (:fpoly hx hy +winding_odd_even (circle hr))))
 
 (defun redraw (mx my)
 	(bind '(w h) (map (const n2f) (. *canvas* :pref_size)))
@@ -102,12 +97,8 @@
 	(defq rel_mx (- (n2f mx) canvas_x)
 		rel_my (- (n2f my) canvas_y))
 	; Shared eye geometry
-	(defq eye_r (* h 0.48)
-		iris_r (* eye_r iris_scale)
-		pupil_r (* iris_r pupil_scale)
-		hr (* pupil_r 0.3)
-		max_d (- eye_r iris_r)
-		eye_cy (* h 0.5))
+	(defq eye_r (* h 0.48) iris_r (* eye_r iris_scale) pupil_r (* iris_r pupil_scale)
+		hr (* pupil_r 0.3) max_d (- eye_r iris_r) eye_cy (* h 0.5))
 	(draw-eye (* w 0.25) rel_mx rel_my eye_cy eye_r iris_r pupil_r hr max_d)
 	(draw-eye (* w 0.75) rel_mx rel_my eye_cy eye_r iris_r pupil_r hr max_d)
 	(. *canvas* :swap +pixmap_mode_normal))
@@ -117,15 +108,12 @@
 ;;;;;;;;;;;
 
 (defun main ()
-	(defq select (task-mboxes +select_size)
-		last_mx -1 last_my -1
-		poll_rate (/ 1000000 30)
-		*running* :t)
+	(defq select (task-mboxes +select_size) last_mx -1 last_my -1
+		poll_rate (/ 1000000 30) *running* :t)
 	(config-load)
 	; Apply initial dimensions and settings from config
 	(bind '(x y w h iris_color iris_scale pupil_scale)
-		(gather *config* :x :y :width :height :iris_color
-			:iris_scale :pupil_scale))
+		(gather *config* :x :y :width :height :iris_color :iris_scale :pupil_scale))
 	; Position and display the window
 	(. *window* :set_pos x y)
 	(resize-window w h)
