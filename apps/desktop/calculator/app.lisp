@@ -1,5 +1,6 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/consts/chars.inc")
 (import "lib/consts/scodes.inc")
 
@@ -82,15 +83,18 @@
 		:current_number "0"))
 
 (defun config-load ()
+	(lock-claim-rpc *config_file*)
 	(if (defq stream (file-stream *config_file*))
 		(setq *config* (tree-load stream)))
 	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
 		(setq *config* (config-default)))
 	(bind '(*base* *memory* *operands* *operators* *current_number*)
 		(gather *config* :base :memory :operands :operators :current_number))
-	(setq *error_state* :nil *new_entry* :t))
+	(setq *error_state* :nil *new_entry* :t)
+	(lock-release-rpc *config_file*))
 
 (defun config-save ()
+	(lock-claim-rpc *config_file*)
 	(scatter *config*
 		:base *base*
 		:memory *memory*
@@ -98,7 +102,8 @@
 		:operators *operators*
 		:current_number *current_number*)
 	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*)))
+		(tree-save stream *config*))
+	(lock-release-rpc *config_file*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; UI Construction

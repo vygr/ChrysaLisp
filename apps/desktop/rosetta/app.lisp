@@ -4,6 +4,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/consts/colors.inc")
 (import "lib/text/syntax.inc")
 (import "lib/text/document.inc")
@@ -43,6 +44,7 @@
 		:search_query ""))
 
 (defun config-load ()
+	(lock-claim-rpc *config_file*)
 	(defq old_config :nil)
 	(if (defq stream (file-stream *config_file*))
 		(setq old_config (tree-load stream)))
@@ -51,9 +53,11 @@
 		(setq *config* old_config))
 	(setq *selected_id* (. *config* :find :selected_id)
 		*selected_cat* (. *config* :find :selected_cat)
-		*search_query* (. *config* :find :search_query)))
+		*search_query* (. *config* :find :search_query))
+	(lock-release-rpc *config_file*))
 
 (defun config-save ()
+	(lock-claim-rpc *config_file*)
 	(ifn *config* (setq *config* (Emap)))
 	(scatter *config*
 		:version *config_version*
@@ -61,7 +65,8 @@
 		:selected_cat *selected_cat*
 		:search_query *search_query*)
 	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*)))
+		(tree-save stream *config*))
+	(lock-release-rpc *config_file*))
 
 (defun create-code-vdu (code page_w)
 	(unless *syntax*

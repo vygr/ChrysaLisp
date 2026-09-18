@@ -2,10 +2,13 @@
 ; state load/save
 ;;;;;;;;;;;;;;;;;
 
+(import "service/lock/app.inc")
 (defun config-save ()
 	;save editor state
+	(defq key (const (cat *env_home* +state_filename)))
+	(lock-claim-rpc key)
 	(bind '(x y width height) (. *window* :get_bounds))
-	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
+	(when (defq stream (file-stream key +file_open_write))
 		(scatter *meta_map*
 			:version 1
 			:x x
@@ -18,13 +21,16 @@
 			:regexp *regexp*
 			:ignore_case *ignore_case*
 			:macros (reduce (# (. %0 :insert %1 (macro-encode %1))) +range_0_10 (Lmap)))
-		(tree-save stream *meta_map* '(":nil" :buffer :nil))))
+		(tree-save stream *meta_map* '(":nil" :buffer :nil)))
+	(lock-release-rpc key))
 
 (defun config-load ()
 	;load editor state
-	(defq default (scatter (Emap) :files (Fmap 101)))
+	(defq key (const (cat *env_home* +state_filename))
+		default (scatter (Emap) :files (Fmap 101)))
 	(setq *meta_map* default *open_files* (list))
-	(when (defq stream (file-stream (cat *env_home* +state_filename)))
+	(lock-claim-rpc key)
+	(defq result (when (defq stream (file-stream key))
 		(catch (setq *meta_map* (tree-load stream))
 			(progn (setq *meta_map* default) :t))
 		(bind '(x y width height version file
@@ -56,3 +62,5 @@
 			((setq *meta_map* default)))
 		(update-find-toolbar)
 		(if (find file *open_files*) file)))
+	(lock-release-rpc key)
+	result)

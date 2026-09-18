@@ -4,6 +4,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/consts/colors.inc")
 (import "lib/text/searching.inc")
 
@@ -29,6 +30,7 @@
 		:selected_id 0))
 
 (defun config-load ()
+	(lock-claim-rpc *config_file*)
 	(defq old_config :nil)
 	(if (defq stream (file-stream *config_file*))
 		(setq old_config (tree-load stream)))
@@ -36,16 +38,19 @@
 		(setq *config* (config-default))
 		(setq *config* old_config))
 	(setq *selected_category* (. *config* :find :selected_category)
-		*selected_id* (. *config* :find :selected_id)))
+		*selected_id* (. *config* :find :selected_id))
+	(lock-release-rpc *config_file*))
 
 (defun config-save ()
+	(lock-claim-rpc *config_file*)
 	(ifn *config* (setq *config* (Emap)))
 	(scatter *config*
 		:version *config_version*
 		:selected_category *selected_category*
 		:selected_id *selected_id*)
 	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*)))
+		(tree-save stream *config*))
+	(lock-release-rpc *config_file*))
 
 (defun clean-hn-text (text)
 	(ifn (str? text) ""

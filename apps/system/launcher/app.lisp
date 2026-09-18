@@ -1,5 +1,6 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/files/files.inc")
 
 ; Events
@@ -39,14 +40,18 @@
 				:apps '("molecule" "pcb" "mandelbrot" "mesh")))))
 
 (defun config-load ()
+	(lock-claim-rpc *config_file*)
 	(if (defq stream (file-stream *config_file*))
 		(setq *config* (tree-load stream)))
 	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
-		(setq *config* (config-default))))
+		(setq *config* (config-default)))
+	(lock-release-rpc *config_file*))
 
 (defun config-save ()
+	(lock-claim-rpc *config_file*)
 	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*)))
+		(tree-save stream *config*))
+	(lock-release-rpc *config_file*))
 
 (defun scan-apps ()
 	(defq exclude_list (. *config* :find :exclude) categories (. *config* :find :categories)

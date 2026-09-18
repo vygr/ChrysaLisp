@@ -4,6 +4,16 @@
 
 ------
 
+All GUI app `config-save` and `config-load` functions now wrap file access with
+`lock-claim-rpc` / `lock-release-rpc` (key = config file path) via
+`service/lock/app.inc`, serialising concurrent `.tre` config reads and writes
+across all 19 apps. State files that build their path at load-time use a
+`(const (cat *env_home* +state_filename))` compile-time key to avoid per-call
+allocation.
+
+------
+
+
 New `curl` command (`cmd/curl.lisp`) to fetch and display content from HTTP
 URLs, supporting `-h`, `-i`, `-I`, `-s`, `-X`, `-H`, and `-d`.
 

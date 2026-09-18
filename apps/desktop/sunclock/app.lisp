@@ -6,6 +6,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/math/vector.inc")
 (import "lib/date/date.inc")
 (import "./astronomy.inc")
@@ -36,15 +37,19 @@
 
 (defun config-load ()
 	(defq path (cat *env_home* "sunclock.tre"))
+	(lock-claim-rpc path)
 	(when (defq stream (file-stream path))
 		(when (defq conf (tree-load stream))
 			(when (and (defq cid (. conf :find :selected_city)) (num? cid) (<= 0 cid 5))
-				(setq *selected_city_id* cid)))))
+				(setq *selected_city_id* cid))))
+	(lock-release-rpc path))
 
 (defun config-save ()
 	(defq path (cat *env_home* "sunclock.tre"))
+	(lock-claim-rpc path)
 	(when (defq stream (file-stream path +file_open_write))
-		(tree-save stream (scatter (Emap) :selected_city *selected_city_id*))))
+		(tree-save stream (scatter (Emap) :selected_city *selected_city_id*)))
+	(lock-release-rpc path))
 
 (defun format-hours (h)
 	(defq norm_h (% (+ (% h 24.0) 24.0) 24.0)

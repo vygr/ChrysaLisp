@@ -4,6 +4,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/consts/colors.inc")
 
 (enums +event 0
@@ -42,6 +43,7 @@
 		:history (list)))
 
 (defun config-load ()
+	(lock-claim-rpc *config_file*)
 	(defq old_config :nil)
 	(if (defq stream (file-stream *config_file*))
 		(setq old_config (tree-load stream)))
@@ -50,9 +52,11 @@
 		(setq *config* old_config))
 	(def chat_user :clear_text (. *config* :find :username))
 	(setq *max_display* (. *config* :find :max_display)
-		*history* (. *config* :find :history)))
+		*history* (. *config* :find :history))
+	(lock-release-rpc *config_file*))
 
 (defun config-save ()
+	(lock-claim-rpc *config_file*)
 	(ifn *config* (setq *config* (Emap)))
 	(when (> (length *history*) *max_history*)
 		(setq *history* (slice *history* (- (length *history*) *max_history*) -1)))
@@ -62,7 +66,8 @@
 		:max_display *max_display*
 		:history *history*)
 	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*)))
+		(tree-save stream *config*))
+	(lock-release-rpc *config_file*))
 
 (defun parse-chat-msg (raw_msg)
 	(defq sender "System" body (trim (or raw_msg "") "\t\n\r "))

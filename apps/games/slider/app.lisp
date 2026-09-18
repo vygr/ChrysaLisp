@@ -1,5 +1,6 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 
 (enums +event 0
 	(enum close)
@@ -36,16 +37,20 @@
 	(ui-tool-tips *toolbar* '("scramble" "solve")))
 
 (defun config-load ()
+	(lock-claim-rpc *config_file*)
 	(defq loaded_board :nil)
 	(if (defq stream (file-stream *config_file*))
 		(setq loaded_board (tree-load stream)))
 	(if (and loaded_board (= (length loaded_board) *tile_count*))
 		(setq *board* loaded_board)
-		(setq *board* (cat *solved_board*))))
+		(setq *board* (cat *solved_board*)))
+	(lock-release-rpc *config_file*))
 
 (defun config-save ()
+	(lock-claim-rpc *config_file*)
 	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *board*)))
+		(tree-save stream *board*))
+	(lock-release-rpc *config_file*))
 
 (defun get-char-for-val (v)
 	(if (= v *blank_value*) "" (char (+ 65 v))))

@@ -1,5 +1,6 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 
 (enums +event 0
 	(enum close)
@@ -86,6 +87,7 @@
 	(update-view))
 
 (defun config-load ()
+	(lock-claim-rpc *config_file*)
 	(if (and (defq data (if (defq stream (file-stream *config_file*)) (tree-load stream)))
 			 (= (length (. data :find :values)) *tile_count*))
 		(progn
@@ -110,14 +112,17 @@
 				((> (length picks) 1)
 					; Was saved during a mismatch/lock state. Reset these specific tiles to hidden.
 					(each (# (elem-set *states* %0 0)) picks))))
-		(scramble)))
+		(scramble))
+	(lock-release-rpc *config_file*))
 
 (defun config-save ()
+	(lock-claim-rpc *config_file*)
 	(when (defq stream (file-stream *config_file* +file_open_write))
 		(tree-save stream (scatter (Emap)
 			:values *values*
 			:states *states*
-			:score *score*))))
+			:score *score*)))
+	(lock-release-rpc *config_file*))
 
 (defun try-click (index)
 	(when (and (not *locked*)

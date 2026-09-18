@@ -2,13 +2,16 @@
 ; state load/save
 ;;;;;;;;;;;;;;;;;
 
+(import "service/lock/app.inc")
 (defun config-save ()
 	;save terminal state, merges in
-	(defq default (scatter (Emap) :history (list)) meta_map default)
-	(when (defq stream (file-stream (cat *env_home* +state_filename)))
+	(defq key (const (cat *env_home* +state_filename))
+		default (scatter (Emap) :history (list)) meta_map default)
+	(lock-claim-rpc key)
+	(when (defq stream (file-stream key))
 		(catch (setq meta_map (tree-load stream))
 			(progn (setq meta_map default) :t)))
-	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
+	(when (defq stream (file-stream key +file_open_write))
 		(bind '(old) (gather meta_map :history))
 		(bind '(current) (gather *meta_map* :history))
 		(each (# (if (defq i (find %0 old))
@@ -16,14 +19,18 @@
 			(setq old (erase old i (inc i))))
 			(push old %0)) current)
 		(scatter meta_map :history old)
-		(tree-save stream meta_map)))
+		(tree-save stream meta_map))
+	(lock-release-rpc key))
 
 (defun config-load ()
 	;load terminal state
-	(defq default (scatter (Emap) :history (list)))
+	(defq key (const (cat *env_home* +state_filename))
+		default (scatter (Emap) :history (list)))
 	(setq *meta_map* default)
-	(when (defq stream (file-stream (cat *env_home* +state_filename)))
+	(lock-claim-rpc key)
+	(when (defq stream (file-stream key))
 		(catch (setq *meta_map* (tree-load stream))
 			(progn (setq *meta_map* default) :t)))
 	(bind '(history) (gather *meta_map* :history))
+	(lock-release-rpc key)
 	(length history))

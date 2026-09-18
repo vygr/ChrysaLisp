@@ -4,6 +4,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/consts/colors.inc")
 (import "lib/net/url.inc")
 
@@ -42,6 +43,7 @@
 		:history '("lisp" "computer" "algorithm")))
 
 (defun config-load ()
+	(lock-claim-rpc *config_file*)
 	(defq old_config :nil)
 	(if (defq stream (file-stream *config_file*))
 		(setq old_config (tree-load stream)))
@@ -49,16 +51,19 @@
 		(setq *config* (config-default))
 		(setq *config* old_config))
 	(setq *current_word* (. *config* :find :last_word)
-		*history* (. *config* :find :history)))
+		*history* (. *config* :find :history))
+	(lock-release-rpc *config_file*))
 
 (defun config-save ()
+	(lock-claim-rpc *config_file*)
 	(ifn *config* (setq *config* (Emap)))
 	(scatter *config*
 		:version *config_version*
 		:last_word *current_word*
 		:history *history*)
 	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*)))
+		(tree-save stream *config*))
+	(lock-release-rpc *config_file*))
 
 (defun pos-label (tag)
 	(case tag

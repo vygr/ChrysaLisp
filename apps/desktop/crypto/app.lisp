@@ -6,6 +6,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "service/net/app.inc")
 (import "lib/net/http.inc")
 (import "lib/net/json.inc")
@@ -30,21 +31,25 @@
 		:selected_symbol "BTC"))
 
 (defun config-load ()
+	(lock-claim-rpc *config_file*)
 	(defq old_config :nil)
 	(if (defq stream (file-stream *config_file*))
 		(setq old_config (tree-load stream)))
 	(if (or (not old_config) (/= (. old_config :find :version) *config_version*))
 		(setq *config* (config-default))
 		(setq *config* old_config))
-	(setq *selected_symbol* (. *config* :find :selected_symbol)))
+	(setq *selected_symbol* (. *config* :find :selected_symbol))
+	(lock-release-rpc *config_file*))
 
 (defun config-save ()
+	(lock-claim-rpc *config_file*)
 	(ifn *config* (setq *config* (Emap)))
 	(scatter *config*
 		:version *config_version*
 		:selected_symbol *selected_symbol*)
 	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*)))
+		(tree-save stream *config*))
+	(lock-release-rpc *config_file*))
 
 (defun format-price (price_str)
 	(ifn (str? price_str) "$0.00"

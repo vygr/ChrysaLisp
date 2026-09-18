@@ -6,6 +6,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "service/net/app.inc")
 (import "lib/net/http.inc")
 (import "lib/net/json.inc")
@@ -33,6 +34,7 @@
 		:quick_cities (list "London" "New York" "Tokyo" "Paris" "SF" "Sydney")))
 
 (defun config-load ()
+	(lock-claim-rpc *config_file*)
 	(defq old_config :nil)
 	(if (defq stream (file-stream *config_file*))
 		(setq old_config (tree-load stream)))
@@ -41,9 +43,11 @@
 		(setq *config* old_config))
 	(setq *city* (. *config* :find :city)
 		*unit_c* (. *config* :find :unit_c)
-		*quick_cities* (. *config* :find :quick_cities)))
+		*quick_cities* (. *config* :find :quick_cities))
+	(lock-release-rpc *config_file*))
 
 (defun config-save ()
+	(lock-claim-rpc *config_file*)
 	(ifn *config* (setq *config* (Emap)))
 	(scatter *config*
 		:version *config_version*
@@ -51,7 +55,8 @@
 		:unit_c (if *unit_c* :t :nil)
 		:quick_cities *quick_cities*)
 	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*)))
+		(tree-save stream *config*))
+	(lock-release-rpc *config_file*))
 
 (defun draw-sun (canvas cx cy r)
 	(defq disc (path-gen-arc cx cy 0.0 +fp_2pi r (path)))
