@@ -31,6 +31,7 @@
 	*config* :nil
 	*chats* (Fmap)
 	*presence* (Fmap)
+	*unread* (Fmap)
 	*channel_index* (list)
 	*current_sys_id* :nil
 	*current_name* :nil
@@ -38,6 +39,19 @@
 	*chat_entry* :nil
 	select :nil
 	*my_sys_id_hex* (hex-encode (system-id)))
+
+(defun channel-key (sys_id_hex cname)
+	(cat (if sys_id_hex sys_id_hex "global") ":" cname))
+
+(defun get-unread (sys_id_hex cname)
+	(or (. *unread* :find (channel-key sys_id_hex cname)) 0))
+
+(defun clear-unread (sys_id_hex cname)
+	(. *unread* :insert (channel-key sys_id_hex cname) 0))
+
+(defun inc-unread (sys_id_hex cname)
+	(defq k (channel-key sys_id_hex cname))
+	(. *unread* :update k (# (if %0 (inc %0) 1))))
 
 ;;;; ── widget tree ────────────────────────────────────────────────────────────
 
@@ -263,13 +277,18 @@
 				(:t (is-online? sys_id_hex cname)))
 			dot_ch (if online "+" "-")
 			short_id (if sys_id_hex (slice sys_id_hex 0 (min 8 (length sys_id_hex))) "all")
+			unread (if is_selected 0 (get-unread sys_id_hex cname))
+			badge (if (> unread 0) (cat " (" (str unread) ")") "")
 			lbl_txt (if (eql cname "global")
-				(cat dot_ch " global")
-				(cat dot_ch " " cname "@" short_id))
+				(cat dot_ch " global" badge)
+				(cat dot_ch " " cname "@" short_id badge))
 			row_flow (Flow) row_btn (Button))
 		(def row_flow :flow_flags +flow_right)
 		(def row_btn :text lbl_txt :font *env_button_font*
-			:color (if is_selected +argb_red +argb_green)
+			:color (cond
+				(is_selected +argb_red)
+				((> unread 0) +argb_yellow)
+				(:t +argb_green))
 			:ink_color (if online +argb_black +argb_grey8))
 		(. row_btn :connect (+ +event_channel_select_0 idx))
 		(defq del_btn (Button))
@@ -289,12 +308,14 @@
 	(when (< -1 idx (length *channel_index*))
 		(bind '(sys_id_hex cname) (elem-get *channel_index* idx))
 		(setq *current_sys_id* sys_id_hex *current_name* cname)
+		(clear-unread sys_id_hex cname)
 		(render-channel-list)
 		(render-chat-history)))
 
 (defun delete-channel (idx)
 	(when (< -1 idx (length *channel_index*))
 		(bind '(sys_id_hex cname) (elem-get *channel_index* idx))
+		(. *unread* :erase (channel-key sys_id_hex cname))
 		(cond
 			((or (not sys_id_hex) (eql cname "global"))
 				; clear global chat history, preserve the channel
@@ -337,34 +358,38 @@
 			; private direct message: store only in that peer's bucket
 			(ensure-chat-bucket sys_id_hex sender)
 			(push-chat-msg sys_id_hex sender full_msg)
-			; append live only if currently looking at this peer's conversation
-			(when (and (eql sys_id_hex *current_sys_id*) (eql sender *current_name*))
-				(defq page_w (chat-scroll-page-w))
-				(while (>= (length (. *chat_flow* :children)) +max_display)
-					(. (first (. *chat_flow* :children)) :sub))
-				(defq md (create-chat-md sender body page_w))
-				(. *chat_flow* :add_child md)
-				(bind '(w h) (. *chat_flow* :pref_size))
-				(. *chat_flow* :change_dirty 0 0 (max w page_w) h :t)
-				(. *chat_flow* :layout)
-				(.-> *chat_scroll* :layout :dirty_all)
-				(. *chat_scroll* :visible md)))
+			; append live if viewing this peer; otherwise increment unread
+			(if (and (eql sys_id_hex *current_sys_id*) (eql sender *current_name*))
+				(progn
+					(defq page_w (chat-scroll-page-w))
+					(while (>= (length (. *chat_flow* :children)) +max_display)
+						(. (first (. *chat_flow* :children)) :sub))
+					(defq md (create-chat-md sender body page_w))
+					(. *chat_flow* :add_child md)
+					(bind '(w h) (. *chat_flow* :pref_size))
+					(. *chat_flow* :change_dirty 0 0 (max w page_w) h :t)
+					(. *chat_flow* :layout)
+					(.-> *chat_scroll* :layout :dirty_all)
+					(. *chat_scroll* :visible md))
+				(inc-unread sys_id_hex sender)))
 		(:t
 			; global broadcast: store only in global bucket
 			(ensure-chat-bucket :nil "global")
 			(push-chat-msg :nil "global" full_msg)
-			; append live only if currently looking at global
-			(when (or (not *current_name*) (eql *current_name* "global"))
-				(defq page_w (chat-scroll-page-w))
-				(while (>= (length (. *chat_flow* :children)) +max_display)
-					(. (first (. *chat_flow* :children)) :sub))
-				(defq md (create-chat-md sender body page_w))
-				(. *chat_flow* :add_child md)
-				(bind '(w h) (. *chat_flow* :pref_size))
-				(. *chat_flow* :change_dirty 0 0 (max w page_w) h :t)
-				(. *chat_flow* :layout)
-				(.-> *chat_scroll* :layout :dirty_all)
-				(. *chat_scroll* :visible md))))
+			; append live if viewing global; otherwise increment unread
+			(if (or (not *current_name*) (eql *current_name* "global"))
+				(progn
+					(defq page_w (chat-scroll-page-w))
+					(while (>= (length (. *chat_flow* :children)) +max_display)
+						(. (first (. *chat_flow* :children)) :sub))
+					(defq md (create-chat-md sender body page_w))
+					(. *chat_flow* :add_child md)
+					(bind '(w h) (. *chat_flow* :pref_size))
+					(. *chat_flow* :change_dirty 0 0 (max w page_w) h :t)
+					(. *chat_flow* :layout)
+					(.-> *chat_scroll* :layout :dirty_all)
+					(. *chat_scroll* :visible md))
+				(inc-unread :nil "global"))))
 	(config-save)
 	(render-channel-list))
 
