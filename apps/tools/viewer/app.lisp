@@ -5,6 +5,7 @@
 (import "service/clipboard/app.inc")
 
 ;our UI widgets and events
+(defq +state_filename "viewer.tre")
 (import "./widgets.inc")
 (import "./state.inc")
 

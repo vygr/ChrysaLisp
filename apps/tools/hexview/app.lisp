@@ -5,7 +5,9 @@
 (import "service/clipboard/app.inc")
 
 ;our UI widgets and events
+(defq +state_filename "hexview.tre")
 (import "././viewer/widgets.inc")
+(import "././viewer/state.inc")
 
 (enums +select 0
 	(enum main tip))
@@ -156,13 +158,16 @@
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list +refresh_mode_visible)
 		*meta_map* (scatter (Fmap) :files (Fmap)) *current_file* :nil
 		*cursor_stack* (list))
+	(config-load)
 	(.-> *edit* (:set_buffer (Document))
 		(:set_ink_color +argb_white)
 		(:set_select_color +argb_grey6)
 		(:set_found_color +argb_grey4)
 		(:set_region_color +argb_grey3))
 	(def *edit* :min_width 0 :min_height 0
-		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
+		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
+		:font (create-font +edit_font (page-scale +edit_size)))
+	(set *vdu_lines* :font (get :font *edit*))
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *edit_flow* :add_back *edit*)
 	(. *file_selector* :populate "." :nil 2)
@@ -185,4 +190,5 @@
 			((. *window* :event *msg*)))
 		;update meta data
 		(update-meta-data))
+	(config-save)
 	(gui-sub-rpc *window*))
