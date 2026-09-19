@@ -67,23 +67,13 @@
 		title
 		(cat (slice title 0 (- max_len 3)) "...")))
 
-(defun category-to-idx (cat)
-	(case cat
-		("top" 0)
-		("newest" 1)
-		("show" 2)
-		("ask" 3)
-		("jobs" 4)
-		(:t 0)))
+(defun category-to-idx (c)
+	(case c
+		("top" 0) ("newest" 1) ("show" 2) ("ask" 3) ("jobs" 4) (:t 0)))
 
 (defun idx-to-category (idx)
 	(case idx
-		(0 "top")
-		(1 "newest")
-		(2 "show")
-		(3 "ask")
-		(4 "jobs")
-		(:t "top")))
+		(0 "top") (1 "newest") (2 "show") (3 "ask") (4 "jobs") (:t "top")))
 
 (defun format-story-markdown (story post_content comments)
 	(bind '(id title points user time_ago comments_count url domain) story)
