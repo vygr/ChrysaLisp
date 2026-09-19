@@ -16,6 +16,9 @@ across all 19 apps. State files that build their path at load-time use a
 `(const (cat *env_home* +state_filename))` compile-time key to avoid per-call
 allocation.
 
+All zoomable apps now save zoom and font size to config files. Viewer and
+HexView now also save search and replace parameters.
+
 ------
 
 
