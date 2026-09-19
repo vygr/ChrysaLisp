@@ -198,7 +198,7 @@
 			(vp-add-rr end data)
 		(loop-end)
 		;glyph not found - retry with '_' fill char, unless already tried
-		(breakif `(,c = ,(code " ")) `(,c = ,(code "_")))
+		(breakif `(,c <= ,(code " ")) `(,c = ,(code "_")))
 		(vp-cpy-cr (code "_") c)
 		(assign `((,this +font_data)) `(,data))
 		(vp-add-cr (+ +str_data +font_data_size) data)
