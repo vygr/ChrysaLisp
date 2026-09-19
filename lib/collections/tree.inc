@@ -5,6 +5,11 @@
 ;module
 (env-push)
 
+(defq +char_class_ascii (const (cat " !" {""}
+	"#$%&'()*+,-./0123456789:;<=>?@"
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
+	"abcdefghijklmnopqrstuvwxyz{|}~")))
+
 (defun tree-type (collection)
 	; (tree-type collection) -> type
 	(if (eql (defq type (last (type-of collection))) :hmap)
@@ -21,20 +26,9 @@
 		((sym? atom) atom)
 		((num? atom) atom)
 		((str? atom)
-			;always escape the string
-			(defq atom (escape atom)
-				has_quote (/= (rbskipn {""} atom -1) 0)
-				has_curly (/= (rbskipn "{}" atom -1) 0)
-				has_bin (/= (rbskip (const (cat " !" {""}
-					"#$%&'()*+,-./0123456789:;<=>?@"
-					"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
-					"abcdefghijklmnopqrstuvwxyz{|}~"))
-					atom -1) 0))
-			(cond
-				((or has_bin (and has_quote has_curly))
-					(cat "\q" (hex-encode atom) "\q"))
-				(has_quote (cat "{[" atom "]}"))
-				((cat {"[} atom {]"}))))
+			(if (/= (rbskip +char_class_ascii (defq esc (escape atom)) -1) 0)
+				(cat "\q" (hex-encode atom) "\q")
+				(cat {"[} esc {]"})))
 		((throw "Invalid tree encode !" atom))))
 
 (defun tree-decode (atom)
