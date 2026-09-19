@@ -18,7 +18,8 @@
 			;old entry so pull to front
 			(setq old (erase old i (inc i))))
 			(push old %0)) current)
-		(scatter meta_map :history old :zoom (get :zoom *window*))
+		(scatter meta_map :history old
+			:zoom (if (get '*window*) (get :zoom *window*) 1.0))
 		(tree-save stream meta_map))
 	(lock-release-rpc key))
 
@@ -33,5 +34,6 @@
 			(progn (setq *meta_map* default) :t)))
 	(bind '(history zoom) (gather *meta_map* :history :zoom))
 	(lock-release-rpc key)
-	(if zoom (def *window* :zoom zoom))
+	(when (and zoom (get '*window*))
+		(def *window* :zoom zoom))
 	(length history))
