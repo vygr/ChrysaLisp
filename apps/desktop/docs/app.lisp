@@ -3,6 +3,7 @@
 (import "gui/lisp.inc")
 (import "lib/task/cmd.inc")
 (import "lib/text/document.inc")
+(import "service/lock/app.inc")
 
 ;our UI widgets and events
 (import "./widgets.inc")
@@ -18,8 +19,32 @@
 	+terminal_font (first (font-info *env_terminal_font*))
 	+symbol_font (first (font-info *env_symbol_font*)))
 
+(defq *config_version* 1 *config_file* (cat *env_home* "docs.tre"))
+
 (defun page-scale (s)
 	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
+
+(defun config-default ()
+	(scatter (Emap) :version *config_version* :zoom 1.0))
+
+(defun config-load ()
+	(defq old_config :nil)
+	(lock-claim-rpc *config_file*)
+	(when (defq stream (file-stream *config_file*))
+		(setq old_config (tree-load stream)))
+	(lock-release-rpc *config_file*)
+	(if (or (not old_config) (/= (. old_config :find :version) *config_version*))
+		(setq *config* (config-default))
+		(setq *config* old_config))
+	(def *window* :zoom (. *config* :find :zoom)))
+
+(defun config-save ()
+	(lock-claim-rpc *config_file*)
+	(when (defq stream (file-stream *config_file* +file_open_write))
+		(tree-save stream (scatter (Emap)
+			:version *config_version*
+			:zoom (get :zoom *window*)) :nil))
+	(lock-release-rpc *config_file*))
 
 ;lisp handler environment and embedded enum override !
 (redefmacro enums (name base &rest lines)
@@ -98,11 +123,12 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) handlers (Emap) syntax (Syntax)
-		scroll_pos (Fmap) *running* :t *current_file* "docs/ai_digest/summary.md"
+		scroll_pos (Fmap) *running* :t *config* :nil *current_file* "docs/ai_digest/summary.md"
 		*regexp* :nil *whole_words* :nil *ignore_case* :nil *last_key* "" *last_files* (list)
 		*last_widget* :nil *search_widgets* (list) *mem_stream* :nil)
 	(.-> *file_selector* (:populate "docs" '(".md")) :pref_size)
 	(def *window* :tip_mbox (elem-get select +select_tip))
+	(config-load)
 	(def *page_scroll* :min_height 800)
 	(populate-page *current_file*)
 	(. *file_selector* :select_node *current_file*)
@@ -128,4 +154,5 @@
 				;save scroll position
 				(. scroll_pos :insert *current_file* (get :value (get :vslider *page_scroll*))))))
 	(undef (penv) '*handler_env*)
+	(config-save)
 	(gui-sub-rpc *window*))

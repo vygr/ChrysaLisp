@@ -4,6 +4,7 @@
 (import "./app.inc")
 (import "./reader.inc")
 (import "./viewer.inc")
+(import "service/lock/app.inc")
 
 (enums +event 0
 	(enum close)
@@ -23,7 +24,8 @@
 (defq *pcbs* (all-pcbs (cat *app_root* "data/"))
 	*index* (some (# (if (eql (cat *app_root* "data/test1.pcb") %0) (!))) *pcbs*)
 	canvas_scale 1 *mode* 0 *show* -1
-	+max_zoom 15.0 +min_zoom 5.0 *zoom* (/ (+ +min_zoom +max_zoom) 2.0)
+	+max_zoom 15.0 +min_zoom 5.0
+	+state_filename "pcb.tre" *config_version* 1
 	*running* :t pcb :nil pcb_data :nil child :nil +tag_min_size 104)
 
 (ui-window *window* ()
@@ -55,7 +57,7 @@
 
 (defun win-load (%0)
 	(setq pcb_data (load (defq file (elem-get *pcbs* (setq *index* %0)))) pcb (pcb-read pcb_data))
-	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* *zoom* canvas_scale)) :pref_size))
+	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(def *window_title* :text (cat "Pcb -> " (slice file (rfind "/" file) -1)))
 	(. pcb_scroll :add_child (. canvas :swap +pixmap_mode_normal))
@@ -65,7 +67,7 @@
 	(. *window* :change_dirty x y w h))
 
 (defun win-zoom ()
-	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* *zoom* canvas_scale)) :pref_size))
+	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(. pcb_scroll :add_child (. canvas :swap +pixmap_mode_normal))
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -73,7 +75,7 @@
 	(. *window* :change_dirty x y w h))
 
 (defun win-show ()
-	(.-> pcb_scroll (:add_child (. (pcb-canvas pcb *mode* *show* *zoom* canvas_scale) :swap +pixmap_mode_normal)) :layout))
+	(.-> pcb_scroll (:add_child (. (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale) :swap +pixmap_mode_normal)) :layout))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))
@@ -104,12 +106,35 @@
 ;import actions and bindings
 (import "./actions.inc")
 
+(defun config-save ()
+	(defq key (const (cat *env_home* +state_filename)))
+	(lock-claim-rpc key)
+	(when (defq stream (file-stream key +file_open_write))
+		(tree-save stream (scatter (Emap)
+			:version *config_version*
+			:zoom (get :zoom *window*))))
+	(lock-release-rpc key))
+
+(defun config-load ()
+	(defq key (const (cat *env_home* +state_filename)) old_config :nil)
+	(lock-claim-rpc key)
+	(when (defq stream (file-stream key))
+		(catch (setq old_config (tree-load stream))
+			(progn (setq old_config :nil) :t)))
+	(lock-release-rpc key)
+	(def *window* :zoom
+		(if (and old_config (= (. old_config :find :version) *config_version*))
+			(if (defq zoom (. old_config :find :zoom)) zoom
+				(/ (+ +min_zoom +max_zoom) 2.0))
+			(/ (+ +min_zoom +max_zoom) 2.0))))
+
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
 	(defq select (task-mboxes +select_size))
 	(tooltips)
+	(config-load)
 	(. *layer_toolbar* :set_selected 0)
 	(. *mode_toolbar* :set_selected 0)
 	(bind '(x y w h) (apply view-locate (. (win-load *index*) :get_size)))
@@ -133,4 +158,5 @@
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
 	(stop-route)
+	(config-save)
 	(gui-sub-rpc *window*))

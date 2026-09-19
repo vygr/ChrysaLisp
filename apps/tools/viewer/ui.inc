@@ -1,8 +1,30 @@
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; user interface actions
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././edit/ui.inc")
+
+(redefun action-scale-up ()
+	;scale font up
+	(defq old_size (get :zoom *window*)
+		new_size (min 1.5 (+ old_size 0.125)))
+	(when (/= old_size new_size)
+		(def *window* :zoom new_size)
+		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
+		(set *vdu_lines* :font (get :font *edit*))
+		(.-> *scale_flow* :constrain :dirty_all)
+		(window-resize)))
+
+(redefun action-scale-down ()
+	;scale font down
+	(defq old_size (get :zoom *window*)
+		new_size (max 0.75 (- old_size 0.125)))
+	(when (/= old_size new_size)
+		(def *window* :zoom new_size)
+		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
+		(set *vdu_lines* :font (get :font *edit*))
+		(.-> *scale_flow* :constrain :dirty_all)
+		(window-resize)))
 
 (redefun action-file-leaf-action ()
 	;load the file selected

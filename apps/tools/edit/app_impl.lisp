@@ -261,7 +261,9 @@
 		(:set_found_color +argb_grey4)
 		(:set_region_color +argb_grey3))
 	(def *edit* :min_width 0 :min_height 0
-		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
+		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
+		:font (create-font +edit_font (page-scale +edit_size)))
+	(set *vdu_lines* :font (get :font *edit*))
 	(. *edit_flow* :add_back *edit*)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	;load up the base Syntax keywords, root.inc and dictionaries for matching

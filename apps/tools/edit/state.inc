@@ -11,10 +11,8 @@
 	(when (defq stream (file-stream key +file_open_write))
 		(scatter *meta_map*
 			:version 1
-			:x x
-			:y y
-			:width width
-			:height height
+			:x x :y y :width width :height height
+			:zoom (get :zoom *window*)
 			:find (. *find_text* :get_text)
 			:replace (. *replace_text* :get_text)
 			:whole_words *whole_words*
@@ -34,11 +32,12 @@
 		(catch (setq *meta_map* (tree-load stream))
 			(progn (setq *meta_map* default) :t))
 		(bind '(x y width height version file
-				find_txt replace_txt files macros wwords regx icase)
+				find_txt replace_txt files macros wwords regx icase zoom)
 			(gather *meta_map* :x :y :width :height :version
-				:file :find :replace :files :macros :whole_words :regexp :ignore_case))
+				:file :find :replace :files :macros :whole_words :regexp :ignore_case :zoom))
 		(if (and x y) (setq *x* x *y* y))
 		(if (and width height) (setq *width* width *height* height))
+		(if zoom (def *window* :zoom zoom))
 		(if find_txt (. *find_text* :set_text find_txt))
 		(if replace_txt (. *replace_text* :set_text replace_txt))
 		(if wwords (setq *whole_words* wwords))

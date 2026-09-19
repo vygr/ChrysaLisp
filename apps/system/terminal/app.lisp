@@ -100,7 +100,8 @@
 		*meta_map* :nil *history_idx* (config-load) *needs_refresh* :nil)
 	(. *edit* :set_select_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
-		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :font *env_terminal_font*)
+		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
+		:font (create-font +edit_font (page-scale +edit_size)))
 	(. *edit_flow* :add_back *edit*)
 	(def *window* :tip_mbox (elem-get *select* +select_tip))
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))

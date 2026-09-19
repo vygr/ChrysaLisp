@@ -17,12 +17,18 @@
 	(stop-route))
 
 (defun action-scale-up ()
-	(setq *zoom* (max (min (+ *zoom* 1.0) +max_zoom) +min_zoom))
-	(win-zoom))
+	(defq old_zoom (get :zoom *window*)
+		new_zoom (max (min (+ old_zoom 1.0) +max_zoom) +min_zoom))
+	(when (/= old_zoom new_zoom)
+		(def *window* :zoom new_zoom)
+		(win-zoom)))
 
 (defun action-scale-down ()
-	(setq *zoom* (max (min (- *zoom* 1.0) +max_zoom) +min_zoom))
-	(win-zoom))
+	(defq old_zoom (get :zoom *window*)
+		new_zoom (max (min (- old_zoom 1.0) +max_zoom) +min_zoom))
+	(when (/= old_zoom new_zoom)
+		(def *window* :zoom new_zoom)
+		(win-zoom)))
 
 (defun action-show-all ()
 	(setq *show* -1)
