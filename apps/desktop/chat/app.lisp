@@ -16,10 +16,8 @@
 	(enum close max min)
 	(enum connect disconnect send))
 
-(defq +event_channel_select_0 100
-	+event_channel_select_last (+ 100 +max_channels -1)
-	+event_channel_delete_0 300
-	+event_channel_delete_last (+ 300 +max_channels -1))
+(defq +event_channel_select_0 100 +event_channel_select_last (+ 100 +max_channels -1)
+	+event_channel_delete_0 300 +event_channel_delete_last (+ 300 +max_channels -1))
 
 (enums +select 0
 	(enum main tip heartbeat chat))
