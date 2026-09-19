@@ -19,6 +19,9 @@ allocation.
 All zoomable apps now save zoom and font size to config files. Viewer and
 HexView now also save search and replace parameters.
 
+Render an "_" if glyph not found in font, just so there is a visual clue of a
+missing char.
+
 ------
 
 
