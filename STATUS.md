@@ -31,8 +31,10 @@ descendant conflict detection via `:sub_count` run in O(depth) time.
 `lock-claim-rpc` and `lock-release-rpc` now explicitly return `:t` on success
 and `:nil` on timeout or failure.
 
-------
+`code` handler in Docs app updated to auto embed into a horizontal scroll if
+required.
 
+------
 
 New `curl` command (`cmd/curl.lisp`) to fetch and display content from HTTP
 URLs, supporting `-h`, `-i`, `-I`, `-s`, `-X`, `-H`, and `-d`.
