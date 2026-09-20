@@ -22,13 +22,11 @@ HexView now also save search and replace parameters.
 Render an "_" if glyph not found in font, just so there is a visual clue of a
 missing char.
 
-Implemented bidirectional hierarchy conflict detection using `/` path segment
-delineation. Locking an ancestor blocks all descendants; locking a descendant
-prevents ancestor lock acquisition.
-
-Replaced flat dictionary scanning with an in-memory prefix trie composed of
-`pmap` nodes. Ancestor checks and descendant conflict detection via `:sub_count`
-run in $O(\text{depth})$ time.
+Lock server. Implemented bidirectional hierarchy conflict detection using `/`
+path segment delineation. Locking an ancestor blocks all descendants; locking a
+descendant prevents ancestor lock acquisition. Replaced flat dictionary scanning
+with an in-memory prefix trie composed of `pmap` nodes. Ancestor checks and
+descendant conflict detection via `:sub_count` run in O(depth) time.
 
 `lock-claim-rpc` and `lock-release-rpc` now explicitly return `:t` on success
 and `:nil` on timeout or failure.
