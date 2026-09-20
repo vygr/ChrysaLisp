@@ -199,6 +199,22 @@ Usage: files [options] [prefix] [postfix]
 
         prefix default 
 ```
+## fmt
+```code
+Usage: fmt [options] [path] ...
+
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 8.
+        -w --write: overwrite files in-place, default :nil.
+        -c --check: check if files need formatting without writing.
+
+    Auto-formats ChrysaLisp source code according to tab indentation
+    and sensible pair-packing rules for defq, setq, def, and set.
+
+    Restricts targets to unique .lisp, .inc, and .vp files. If no paths
+    are specified on the command line, paths are read from stdin.
+```
 ## forward
 ```code
 Usage: forward [options] [path] ...
