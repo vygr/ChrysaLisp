@@ -30,10 +30,6 @@ Replaced flat dictionary scanning with an in-memory prefix trie composed of
 `pmap` nodes. Ancestor checks and descendant conflict detection via `:sub_count`
 run in $O(\text{depth})$ time.
 
-Key release matching no longer checks the requester's `reply_id`. Prevents
-deadlocks caused by applications using fresh, disposable mailboxes across
-distinct claim and release RPCs.
-
 `lock-claim-rpc` and `lock-release-rpc` now explicitly return `:t` on success
 and `:nil` on timeout or failure.
 
