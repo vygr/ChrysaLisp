@@ -13,8 +13,8 @@
         -w --write: overwrite files in-place, default :nil.
         -c --check: check if files need formatting without writing.
 
-    Auto-formats ChrysaLisp source code according to tab indentation
-    and sensible pair-packing rules for defq, setq, def, and set.
+    Auto-formats ChrysaLisp source code according to tab indentation,
+    declarative form templates, and pair-packing rules.
 
     Restricts targets to unique .lisp, .inc, and .vp files. If no paths
     are specified on the command line, paths are read from stdin.")
@@ -24,6 +24,114 @@
 ))
 
 (defq +file_types ''(".lisp" ".inc" ".vp") +max_line_len 90 +tab_width 4)
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; Form Template Rules
+;;;;;;;;;;;;;;;;;;;;;;;
+
+(defq +templates (scatter (Fmap 64)
+	;; Definitions & Bindings
+	"defq" '(:pairs)
+	"setq" '(:pairs)
+	"def" '(:head :pairs)
+	"set" '(:head :pairs)
+	"defun" '(:head :head :body)
+	"redefun" '(:head :head :body)
+	"defmacro" '(:head :head :body)
+	"redefmacro" '(:head :head :body)
+	"defmethod" '(:head :head :body)
+	"defabstractmethod" '(:head :head :body)
+	"deffimethod" '(:head :head :body)
+	"defgetmethod" '(:head :body)
+	"defsetmethod" '(:head :body)
+	"defproxymethod" '(:head :head :head :body)
+	"defclass" '(:head :head :head :body)
+	"def-class" '(:head :head :body)
+	"def-method" '(:head :head :body)
+	"def-func" '(:head :body)
+	"lambda" '(:head :body)
+	"macro" '(:head :body)
+	"let" '(:head :body)
+	"let*" '(:head :body)
+
+	;; Conditionals & Branching
+	"cond" '(:clauses)
+	"condn" '(:clauses)
+	"case" '(:head :clauses)
+	"pcase" '(:head :head :clauses)
+	"switch" '(:head :clauses)
+	"if" '(:head :head :body)
+	"ifn" '(:head :head :body)
+	"when" '(:head :body)
+	"unless" '(:head :body)
+
+	;; Loops & Iteration
+	"while" '(:head :body)
+	"until" '(:head :body)
+	"for" '(:head :head :body)
+	"times" '(:head :body)
+	"each" '(:head :body)
+	"each!" '(:head :body)
+	"reach" '(:head :body)
+	"map" '(:head :body)
+	"map!" '(:head :body)
+	"rmap" '(:head :body)
+	"filter" '(:head :body)
+	"filter!" '(:head :body)
+	"reduce" '(:head :body)
+	"reduce!" '(:head :body)
+	"rreduce" '(:head :body)
+	"some" '(:head :body)
+	"some!" '(:head :body)
+	"rsome" '(:head :body)
+	"every" '(:head :body)
+	"notany" '(:head :body)
+	"notevery" '(:head :body)
+	"lines!" '(:head :head :body)
+
+	;; Logic, Blocks, Exception Handling
+	"and" '(:body)
+	"or" '(:body)
+	"progn" '(:body)
+	"catch" '(:head :body)
+	"throw" '(:head :body)
+	"structure" '(:head :head :body)
+	"enums" '(:head :head :body)
+	"bits" '(:head :head :body)
+	"time-it" '(:head :body)
+	"undoable" '(:head :body)
+	"within-compile-env" '(:head :body)))
+
+(defun register-template (name tmpl)
+	; (register-template "my-form" '(:head :body))
+	(. +templates :insert (str name) tmpl))
+
+(defun template-role (tmpl arg_count)
+	(cond
+		((empty? tmpl) :body)
+		((<= arg_count 1) (first tmpl))
+		((defq idx (dec arg_count))
+			(if (< idx (length tmpl))
+				(elem-get tmpl idx)
+				(last tmpl)))))
+
+(defun parent-role (form_stack)
+	(if (empty? form_stack)
+		:body
+		(bind '(p_tmpl & p_argc &ignore) (last form_stack))
+		(template-role p_tmpl p_argc)))
+
+(defun lookup-form-template (tokens idx parent_role)
+	(cond
+		((eql parent_role :clauses)
+			'(:head :body))
+		(:t
+			(defq next_i (skip-ws-nl tokens idx))
+			(if (and (< next_i (length tokens))
+					(eql (first (defq tok (elem-get tokens next_i))) :atom))
+				(or (. +templates :find (second tok))
+					'(:body))
+				'(:body)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Fast Syntax Tokenizer
@@ -157,17 +265,6 @@
 	(bind '(pair_end val_len) (measure-form tokens val_start))
 	(list pair_end (+ var_len 1 val_len)))
 
-(defun form-kind (tokens idx)
-	(defq next_i (skip-ws-nl tokens idx))
-	(if (and (< next_i (length tokens))
-			(eql (first (defq tok (elem-get tokens next_i))) :atom))
-		(case (second tok)
-			(("defq" "setq") :defq)
-			(("def" "set") :def)
-			(("and" "or") :and)
-			(:t :normal))
-		:normal))
-
 (defun inc-arg-count (form_stack)
 	(when (nempty? form_stack)
 		(defq frame (last form_stack))
@@ -181,14 +278,14 @@
 		(- (length s) (inc pos))
 		(length s)))
 
+(defun current-target-indent (form_stack)
+	(if (nempty? form_stack)
+		(elem-get (last form_stack) 3)
+		0))
+
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Code Formatter
 ;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun current-target-indent (form_stack)
-	(if (nempty? form_stack)
-		(last (last form_stack))
-		0))
 
 (defun format-lisp (source)
 	(defq tokens (tokenize-lisp source) len (length tokens)
@@ -242,7 +339,7 @@
 				(inc-arg-count form_stack)
 				(++ idx))
 			(:t
-				; Flush deferred newlines and apply line-relative indentation
+				; Flush deferred newlines and apply stack-directed indentation
 				(when pending_nl
 					(times consec_nl (write-blk out "\n"))
 					(defq ind (current-target-indent form_stack))
@@ -266,10 +363,14 @@
 							(write-blk out " ")
 							(++ current_col))
 						(write-blk out "(")
-						(defq kind (form-kind tokens (inc idx))
-							extra_indent (if (eql kind :and) 1 0)
-							child_ind (+ cur_line_indent 1 extra_indent))
-						(push form_stack (list kind cur_line_indent 0 child_ind))
+						(defq p_role (parent-role form_stack)
+							is_clause (eql p_role :clauses)
+							tmpl (lookup-form-template tokens (inc idx) p_role)
+							f_base (if at_line_start
+								cur_line_indent
+								(current-target-indent form_stack))
+							child_ind (+ f_base 1))
+						(push form_stack (list tmpl f_base 0 child_ind is_clause))
 						(setq at_line_start :nil after_lparen :t after_quote :nil
 							current_col (+ current_col 1))
 						(++ idx))
@@ -282,14 +383,13 @@
 							current_col (+ current_col (length val)))
 						(++ idx))
 					(:t
-						; Handle pair wrapping for defq, setq, def, and set
+						; Symbolic template pair-wrapping (defq, setq, def, set, etc.)
 						(when (and (nempty? form_stack) (not at_line_start))
-							(bind '(kind base_indent arg_count &ignore) (last form_stack))
-							(defq is_pair_start (cond
-								((and (eql kind :defq) (>= arg_count 3) (odd? arg_count)) :t)
-								((and (eql kind :def) (>= arg_count 2) (even? arg_count)) :t)
-								(:nil)))
-							(when is_pair_start
+							(bind '(tmpl base_indent arg_count &ignore) (last form_stack))
+							(defq pair_pos (find :pairs tmpl))
+							(when (and pair_pos
+									(> arg_count (inc pair_pos))
+									(= (% (- arg_count (inc pair_pos)) 2) 0))
 								(bind '(& pair_len) (measure-pair tokens idx))
 								(when (> (+ current_col 1 pair_len) +max_line_len)
 									(write-blk out "\n")
