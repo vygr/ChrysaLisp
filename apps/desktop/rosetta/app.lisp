@@ -8,7 +8,7 @@
 (import "lib/consts/colors.inc")
 (import "lib/text/syntax.inc")
 (import "lib/text/document.inc")
-(import "apps/desktop/rosetta/catalog.inc")
+(import "./catalog.inc")
 
 (enums +select 0
 	(enum main tip))
