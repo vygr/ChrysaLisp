@@ -342,6 +342,7 @@
 					(setq *sim_offset_sec* (+ *sim_offset_sec* 3600))) ; Advance 1 hour per tick
 				(update-ui)
 				(defq next_interval (if *animating* 150000 tick_interval))
+				(mail-timeout (elem-get select +select_timer) 0 0)
 				(mail-timeout (elem-get select +select_timer) next_interval 0))
 			(+select_tip
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
@@ -369,6 +370,7 @@
 					((= id +event_btn_play)
 						(setq *animating* (not *animating*))
 						(update-ui)
+						(mail-timeout (elem-get select +select_timer) 0 0)
 						(mail-timeout (elem-get select +select_timer) (if *animating* 150000 tick_interval) 0))
 					((<= +event_btn_city_0 id (const (inc +event_btn_city_5)))
 						(setq *selected_city_id* (- id +event_btn_city_0))
