@@ -18,8 +18,8 @@
 
 (defq
 	*config* :nil
-	*config_version* 1
-	*config_file* (cat *env_home* "calculator.tre")
+	+config_version 2
+	+config_file (cat *env_home* "calculator.tre")
 
 	; App State
 	*operands* (list)
@@ -75,35 +75,30 @@
 
 (defun config-default ()
 	(scatter (Emap)
-		:version *config_version*
-		:base 10
-		:memory 0
-		:operands (list)
-		:operators (list)
-		:current_number "0"))
+		:version +config_version :base 10 :memory 0
+		:operands (list) :operators (list) :current_number "0"))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(if (defq stream (file-stream *config_file*))
-		(setq *config* (tree-load stream)))
-	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
+	(lock-claim-rpc +config_file)
+	(if (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream) stream :nil)
+		(setq *config* :nil))
+	(lock-release-rpc +config_file)
+	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
-	(bind '(*base* *memory* *operands* *operators* *current_number*)
+	(bind '(base memory operands operators current_number)
 		(gather *config* :base :memory :operands :operators :current_number))
-	(setq *error_state* :nil *new_entry* :t)
-	(lock-release-rpc *config_file*))
+	(setq *base* base *memory* memory *operands* operands *operators* operators
+		*current_number* current_number *error_state* :nil *new_entry* :t))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
 	(scatter *config*
-		:base *base*
-		:memory *memory*
-		:operands *operands*
-		:operators *operators*
-		:current_number *current_number*)
-	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*))
-	(lock-release-rpc *config_file*))
+		:base *base* :memory *memory* :operands *operands*
+		:operators *operators* :current_number *current_number*)
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; UI Construction
