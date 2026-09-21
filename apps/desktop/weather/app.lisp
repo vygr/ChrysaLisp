@@ -51,10 +51,10 @@
 	(lock-release-rpc +config_file))
 
 (defun draw-sun (canvas cx cy r)
-	(defq disc (path-gen-arc cx cy 0.0 +fp_2pi r (path)))
 	(.-> canvas
 		(:set_color 0xffffcc00)
-		(:fpoly 0.0 0.0 +winding_none_zero (list disc))
+		(:fpoly 0.0 0.0 +winding_none_zero
+			(list (path-gen-arc cx cy 0.0 +fp_2pi r (path))))
 		(:fpoly 0.0 0.0 +winding_none_zero
 			(map (#
 				(defq a (/ (* (n2f %0) +fp_2pi) 8.0)
@@ -65,15 +65,12 @@
 				(range 0 8)))))
 
 (defun draw-cloud (canvas cx cy scale col)
-	(defq base (path-gen-ellipse cx (+ cy (* scale 8.0))
-			(* scale 28.0) (* scale 14.0) (path))
-		puff1 (path-gen-ellipse (- cx (* scale 10.0)) (- cy (* scale 2.0))
-			(* scale 16.0) (* scale 15.0) (path))
-		puff2 (path-gen-ellipse (+ cx (* scale 8.0)) (+ cy (* scale 2.0))
-			(* scale 14.0) (* scale 13.0) (path)))
 	(.-> canvas
 		(:set_color col)
-		(:fpoly 0.0 0.0 +winding_none_zero (list base puff1 puff2))))
+		(:fpoly 0.0 0.0 +winding_none_zero
+			(list (path-gen-ellipse cx (+ cy (* scale 8.0)) (* scale 28.0) (* scale 14.0) (path))
+				(path-gen-ellipse (- cx (* scale 10.0)) (- cy (* scale 2.0)) (* scale 16.0) (* scale 15.0) (path))
+				(path-gen-ellipse (+ cx (* scale 8.0)) (+ cy (* scale 2.0)) (* scale 14.0) (* scale 13.0) (path))))))
 
 (defun draw-rain (canvas cx cy)
 	(draw-cloud canvas cx (- cy 8.0) 1.0 0xff90a0b0)
@@ -99,16 +96,13 @@
 
 (defun draw-thunder (canvas cx cy)
 	(draw-cloud canvas cx (- cy 10.0) 1.0 0xff505860)
-	(defq bolt (path
-		cx (+ cy 6.0)
-		(- cx 8.0) (+ cy 20.0)
-		(+ cx 2.0) (+ cy 20.0)
-		(- cx 4.0) (+ cy 36.0)
-		(+ cx 8.0) (+ cy 18.0)
-		cx (+ cy 18.0)))
 	(.-> canvas
 		(:set_color 0xffffdd00)
-		(:fpoly 0.0 0.0 +winding_none_zero (list bolt))))
+		(:fpoly 0.0 0.0 +winding_none_zero
+			(list (path
+				cx (+ cy 6.0) (- cx 8.0) (+ cy 20.0)
+				(+ cx 2.0) (+ cy 20.0) (- cx 4.0) (+ cy 36.0)
+				(+ cx 8.0) (+ cy 18.0) cx (+ cy 18.0))))))
 
 (defun render-weather-icon (canvas code)
 	(.-> canvas (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
