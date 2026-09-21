@@ -209,8 +209,8 @@ Usage: fmt [options] [path] ...
         -w --write: overwrite files in-place, default :nil.
         -c --check: check if files need formatting without writing.
 
-    Auto-formats ChrysaLisp source code according to tab indentation
-    and sensible pair-packing rules for defq, setq, def, and set.
+    Auto-formats ChrysaLisp source code according to tab indentation,
+    declarative form templates, and pair-packing rules.
 
     Restricts targets to unique .lisp, .inc, and .vp files. If no paths
     are specified on the command line, paths are read from stdin.
