@@ -102,10 +102,6 @@
 	"undoable" '(:head :body)
 	"within-compile-env" '(:head :body)))
 
-(defun register-template (name tmpl)
-	; (register-template "my-form" '(:head :body))
-	(. +templates :insert (str name) tmpl))
-
 (defun template-role (tmpl arg_count)
 	(cond
 		((empty? tmpl) :body)
