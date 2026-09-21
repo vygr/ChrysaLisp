@@ -236,7 +236,7 @@
 							(setq result coin_list)))))
 			(progn (setq result :nil) :t))
 		(mail-send (hex-decode ,(hex-encode worker_mbox)) (str result)))))
-	(open-task task_code (slice (task-mbox) +long_size -1) +kn_call_run 0 trash_mbox))
+	(open-task task_code (task-nodeid) +kn_call_run 0 trash_mbox))
 
 (defun main ()
 	(config-load)

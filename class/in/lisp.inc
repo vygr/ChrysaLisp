@@ -5,7 +5,7 @@
 (defun in-mbox (in)
 	; (in-mbox in) -> mbox
 	(cat (char (getf in +in_mbox_id 0) +long_size)
-		(slice (task-mbox) +long_size -1)))
+		(task-nodeid)))
 
 (defun in-get-state (in)
 	; (in-get-state in) -> num

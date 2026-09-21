@@ -25,7 +25,7 @@
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(bind '(vops_regs vops_memory vops_reals) (vops))
 				(mail-send msg (setf-> (str-alloc +reply_size)
-					(+reply_node (slice (task-mbox) +long_size -1))
+					(+reply_node (task-nodeid))
 					(+reply_vops_regs vops_regs)
 					(+reply_vops_memory vops_memory)
 					(+reply_vops_reals vops_reals)))))))

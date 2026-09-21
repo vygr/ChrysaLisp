@@ -143,7 +143,7 @@
 								(setq result (list :item ,item_id post_content comment_list))))))
 				(progn (setq result :nil) :t))
 			(mail-send (hex-decode ,(hex-encode worker_mbox)) (str result)))))
-	(open-task task_code (slice (task-mbox) +long_size -1) +kn_call_run 0 trash_mbox))
+	(open-task task_code (task-nodeid) +kn_call_run 0 trash_mbox))
 
 (defun render-loading-stories ()
 	(each (# (. %0 :sub)) (. *story_container* :children))
@@ -238,7 +238,7 @@
 								(setq result (list :feed ,category story_list))))))
 				(progn (setq result :nil) :t))
 			(mail-send (hex-decode ,(hex-encode worker_mbox)) (str result)))))
-	(open-task task_code (slice (task-mbox) +long_size -1) +kn_call_run 0 trash_mbox))
+	(open-task task_code (task-nodeid) +kn_call_run 0 trash_mbox))
 
 (defun select-category (cat_name worker_mbox trash_mbox)
 	(setq *selected_category* cat_name)

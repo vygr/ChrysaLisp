@@ -355,7 +355,7 @@ Key points:
 	   ```
 	2. Spawn the child asynchronously using `open-task` with the trash mailbox:
 	   ```lisp
-	   (open-task task_code (slice (task-mbox) +long_size -1) +kn_call_run 0 (elem-get select +select_trash))
+	   (open-task task_code (task-nodeid) +kn_call_run 0 (elem-get select +select_trash))
 	   ```
 	   This sends the launch request to the kernel and returns **immediately** without waiting.
 	3. In the event loop `case`, because the message is already read by `(mail-read (elem-get select (defq idx (mail-select select))))`, you don't even need a clause for `+select_trash` if all other mailboxes are explicitly handled! It simply matches nothing and is automatically discarded:

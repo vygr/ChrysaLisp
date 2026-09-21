@@ -6,6 +6,11 @@
 (import "./pii/struct.inc")
 (import "service/lock/app.inc")
 
+(defun task-nodeid (&optional mbox)
+	; (task-nodeid [mbox]) -> nodeid
+	(setd mbox (task-mbox))
+	(slice mbox +mailbox_id_size -1))
+
 (defun task-mboxes (size)
 	; (task-mboxes size) -> ((task-mbox) [temp_mbox] ...)
 	(defq select (list (task-mbox)))
@@ -21,7 +26,7 @@
 (defun open-child (task mode)
 	; (open-child task mode) -> net_id
 	(defq mbox (mail-mbox))
-	(open-task task (slice (task-mbox) +long_size -1) mode 0 mbox)
+	(open-task task (task-nodeid) mode 0 mbox)
 	(getf (mail-read mbox) +kn_msg_reply_id))
 
 (defun open-remote (task node mode)
@@ -41,11 +46,6 @@
 		(push ids tail)
 		(if (= 0 (get-long tail 0)) (setq tail (task-mbox))))
 	ids)
-
-(defun task-nodeid (&optional mbox)
-	; (task-nodeid [mbox]) -> nodeid
-	(setd mbox (task-mbox))
-	(slice mbox +mailbox_id_size -1))
 
 (defun task-timeout (time)
 	; (task-timeout s) -> ns

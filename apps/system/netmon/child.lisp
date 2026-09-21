@@ -17,7 +17,7 @@
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(bind '(task_count mem_used mem_avail max_stack) (kernel-stats))
 				(mail-send msg (setf-> (str-alloc +reply_size)
-					(+reply_node (slice (task-mbox) +long_size -1))
+					(+reply_node (task-nodeid))
 					(+reply_task_count task_count)
 					(+reply_mem_alloc (- mem_used mem_avail))
 					(+reply_mem_used mem_used)

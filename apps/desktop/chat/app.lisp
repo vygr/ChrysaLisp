@@ -1,4 +1,4 @@
-(case 0
+(case :nil
 	(0 (import "lib/debug/frames.inc"))
 	(1 (import "lib/debug/profile.inc")))
 
@@ -403,6 +403,25 @@
 		(ensure-chat-bucket sys_id_hex cname)
 		(render-channel-list)))
 
+;;;; ── broadcast ───────────────────────────────────────────────────────────────
+
+(defun broadcast (text &optional is_dm target_cname target_sys_id)
+	(defq snap (enquire-snapshot)
+		my_mbox_hex (if *connected* (hex-encode (elem-get select +select_chat)) ""))
+	(if is_dm
+		; direct message: send only to the matched peer, never self
+		(each (lambda (triple)
+			(bind '(cname mbox_hex sys_id_hex) triple)
+			(when (and (eql cname target_cname)
+					(eql sys_id_hex target_sys_id)
+					(nql mbox_hex my_mbox_hex))
+				(mail-send (hex-decode mbox_hex) text))) snap)
+		; global broadcast: send to all nodes except self
+		(each (lambda (triple)
+			(bind '(& mbox_hex &ignore) triple)
+			(unless (eql mbox_hex my_mbox_hex)
+				(mail-send (hex-decode mbox_hex) text))) snap)))
+
 ;;;; ── connect / disconnect ────────────────────────────────────────────────────
 
 (defun connect-chat ()
@@ -465,25 +484,6 @@
 		(setq *chat_entry* :nil *connected* :nil)
 		(config-save)
 		(render-channel-list)))
-
-;;;; ── broadcast ───────────────────────────────────────────────────────────────
-
-(defun broadcast (text &optional is_dm target_cname target_sys_id)
-	(defq snap (enquire-snapshot)
-		my_mbox_hex (if *connected* (hex-encode (elem-get select +select_chat)) ""))
-	(if is_dm
-		; direct message: send only to the matched peer, never self
-		(each (lambda (triple)
-			(bind '(cname mbox_hex sys_id_hex) triple)
-			(when (and (eql cname target_cname)
-					(eql sys_id_hex target_sys_id)
-					(nql mbox_hex my_mbox_hex))
-				(mail-send (hex-decode mbox_hex) text))) snap)
-		; global broadcast: send to all nodes except self
-		(each (lambda (triple)
-			(bind '(& mbox_hex &ignore) triple)
-			(unless (eql mbox_hex my_mbox_hex)
-				(mail-send (hex-decode mbox_hex) text))) snap)))
 
 ;;;; ── tooltips ────────────────────────────────────────────────────────────────
 

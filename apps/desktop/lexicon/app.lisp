@@ -210,7 +210,7 @@
 					(setq result (list :lookup ,word phonetic defs syns ants)))
 				(progn (setq result :nil) :t))
 			(mail-send (hex-decode ,(hex-encode worker_mbox)) (str result)))))
-	(open-task task_code (slice (task-mbox) +long_size -1) +kn_call_run 0 trash_mbox))
+	(open-task task_code (task-nodeid) +kn_call_run 0 trash_mbox))
 
 (defun select-word (word worker_mbox trash_mbox)
 	(setq word (to-lower (trim word)))

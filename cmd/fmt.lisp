@@ -117,6 +117,12 @@
 		(bind '(p_tmpl & p_argc &ignore) (last form_stack))
 		(template-role p_tmpl p_argc)))
 
+(defun skip-ws-nl (tokens idx)
+	(defq len (length tokens) i idx)
+	(while (and (< i len) (find (first (elem-get tokens i)) '(:ws :nl)))
+		(++ i))
+	i)
+
 (defun lookup-form-template (tokens idx parent_role)
 	(cond
 		((eql parent_role :clauses)
@@ -227,12 +233,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Token Measurement
 ;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun skip-ws-nl (tokens idx)
-	(defq len (length tokens) i idx)
-	(while (and (< i len) (find (first (elem-get tokens i)) '(:ws :nl)))
-		(++ i))
-	i)
 
 (defun measure-form (tokens idx)
 	(defq len (length tokens) i (skip-ws-nl tokens idx))
