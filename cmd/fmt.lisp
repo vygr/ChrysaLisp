@@ -40,7 +40,7 @@
 			prev_state (. syntax :get_state))
 		(cond
 			((and (eql prev_state :text)
-				(starts-with "(defq usage" (trim-start raw_line)))
+					(starts-with "(defq usage" (trim-start raw_line)))
 				(defq u_lines (list) depth 0 in_str :nil done :nil)
 				(while (and (< line_idx num_lines) (not done))
 					(defq u_line (elem-get lines line_idx)
@@ -95,7 +95,7 @@
 										((or (eql ch " ") (eql ch "\t"))
 											(defq ws_start ti)
 											(while (and (< ti tlen)
-												(or (eql (defq c (elem-get val ti)) " ") (eql c "\t")))
+													(or (eql (defq c (elem-get val ti)) " ") (eql c "\t")))
 												(++ ti))
 											(push tokens (list :ws (slice val ws_start ti))))
 										((eql ch "(")
@@ -110,7 +110,7 @@
 										(:t
 											(defq atom_start ti)
 											(while (and (< ti tlen)
-												(not (find (elem-get val ti) " \t()'`~,")))
+													(not (find (elem-get val ti) " \t()'`~,")))
 												(++ ti))
 											(push tokens (list :atom (slice val atom_start ti)))))))))
 						toks states))
@@ -160,10 +160,11 @@
 (defun form-kind (tokens idx)
 	(defq next_i (skip-ws-nl tokens idx))
 	(if (and (< next_i (length tokens))
-		(eql (first (defq tok (elem-get tokens next_i))) :atom))
+			(eql (first (defq tok (elem-get tokens next_i))) :atom))
 		(case (second tok)
 			(("defq" "setq") :defq)
 			(("def" "set") :def)
+			(("and" "or") :and)
 			(:t :normal))
 		:normal))
 
@@ -266,7 +267,8 @@
 							(++ current_col))
 						(write-blk out "(")
 						(defq kind (form-kind tokens (inc idx))
-							child_ind (+ cur_line_indent 1))
+							extra_indent (if (eql kind :and) 1 0)
+							child_ind (+ cur_line_indent 1 extra_indent))
 						(push form_stack (list kind cur_line_indent 0 child_ind))
 						(setq at_line_start :nil after_lparen :t after_quote :nil
 							current_col (+ current_col 1))
@@ -329,8 +331,8 @@
 
 (defun main ()
 	(when (and
-		(defq stdio (create-stdio))
-		(defq opt_j 8 opt_w :nil opt_c :nil args (options stdio usage)))
+			(defq stdio (create-stdio))
+			(defq opt_j 8 opt_w :nil opt_c :nil args (options stdio usage)))
 		(defq files (rest args))
 		(if (empty? files)
 			(lines! (# (push files %0) :nil) (io-stream 'stdin)))
