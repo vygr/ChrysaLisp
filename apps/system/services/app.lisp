@@ -1,6 +1,9 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 
+(enums +select 0
+	(enum main timer))
+
 (enums +event 0
 	(enum close max min))
 
@@ -55,7 +58,8 @@
 		(resize 256)))
 
 (defun main ()
-	(defq id :t select (task-mboxes 1) *services* (list) *service_labels* (list)
+	(defq id :t select (task-mboxes +select_size)
+		*services* (list) *service_labels* (list)
 		*mbox_labels* (list) *system_labels* (list) *info_labels* (list))
 	(populate)
 	;add window
@@ -64,21 +68,24 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	;app event loop
+	(mail-timeout (elem-get select +select_timer) (/ 1000000 1) 0)
 	(while id
-		;next event
-		(while (defq idx (mail-poll select))
-			(cond
-				((= (setq id (getf (defq msg (mail-read (elem-get select idx))) +ev_msg_target_id)) +event_close)
-					;close button
-					(setq id :nil))
-				((= id +event_min)
-					;min button
-					(resize 256))
-				((= id +event_max)
-					;max button
-					(resize 640))
-				((. *window* :event msg))))
-		(task-sleep 100000)
-		(populate))
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
+		(case idx
+			(+select_main
+				(cond
+					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
+						;close button
+						(setq id :nil))
+					((= id +event_min)
+						;min button
+						(resize 256))
+					((= id +event_max)
+						;max button
+						(resize 640))
+					((. *window* :event msg))))
+			(+select_timer
+				(populate)
+				(mail-timeout (elem-get select +select_timer) (/ 1000000 1) 0))))
 	;close window
 	(gui-sub-rpc *window*))
