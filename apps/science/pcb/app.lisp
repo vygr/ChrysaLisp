@@ -24,8 +24,8 @@
 (defq *pcbs* (all-pcbs (cat *app_root* "data/"))
 	*index* (some (# (if (eql (cat *app_root* "data/test1.pcb") %0) (!))) *pcbs*)
 	canvas_scale 1 *mode* 0 *show* -1
-	+max_zoom 15.0 +min_zoom 5.0
-	+state_filename "pcb.tre" *config_version* 1
+	+max_zoom 15.0 +min_zoom 5.0 *config* :nil +config_version 1
+	+config_file (cat *env_home* "pcb.tre")
 	*running* :t pcb :nil pcb_data :nil child :nil +tag_min_size 104)
 
 (ui-window *window* ()
@@ -106,27 +106,22 @@
 ;import actions and bindings
 (import "./actions.inc")
 
-(defun config-save ()
-	(defq key (const (cat *env_home* +state_filename)))
-	(lock-claim-rpc key)
-	(when (defq stream (file-stream key +file_open_write))
-		(tree-save stream (scatter (Emap)
-			:version *config_version*
-			:zoom (get :zoom *window*))))
-	(lock-release-rpc key))
+(defun config-default ()
+	(scatter (Emap) :version +config_version :zoom 1.0))
 
 (defun config-load ()
-	(defq key (const (cat *env_home* +state_filename)) old_config :nil)
-	(lock-claim-rpc key)
-	(when (defq stream (file-stream key))
-		(catch (setq old_config (tree-load stream))
-			(progn (setq old_config :nil) :t)))
-	(lock-release-rpc key)
-	(def *window* :zoom
-		(if (and old_config (= (. old_config :find :version) *config_version*))
-			(if (defq zoom (. old_config :find :zoom)) zoom
-				(/ (+ +min_zoom +max_zoom) 2.0))
-			(/ (+ +min_zoom +max_zoom) 2.0))))
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream)) (setq stream :nil))
+	(lock-release-rpc +config_file)
+	(def *window* :zoom (. *config* :find :zoom)))
+
+(defun config-save ()
+	(scatter *config* :zoom (get :zoom *window*))
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (prin _) (print) :t)))

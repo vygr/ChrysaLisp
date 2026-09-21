@@ -19,8 +19,8 @@
 	(enum close btn_now btn_prev_h btn_next_h btn_prev_d btn_next_d btn_play
 		btn_city_0 btn_city_1 btn_city_2 btn_city_3 btn_city_4 btn_city_5))
 
-(defq *canvas_width* 480 *canvas_height* 240
-	*sim_offset_sec* 0 *animating* :nil *selected_city_id* 0)
+(defq *canvas_width* 480 *canvas_height* 240 +config_file (cat *env_home* "sunclock.tre")
+	*sim_offset_sec* 0 *animating* :nil *selected_city_id* 0 *config* :nil +config_version 1)
 
 ; Cities directory: (name country lat lon utc_offset_hours)
 (defq *cities* (list
@@ -35,21 +35,25 @@
 	(list "Sao Paulo" "Brazil" -23.5 -46.6 -3.0)
 	(list "Honolulu" "USA" 21.3 -157.8 -10.0)))
 
+(defun config-default ()
+	(scatter (Emap) :version +config_version :selected_city 0))
+
 (defun config-load ()
-	(defq path (cat *env_home* "sunclock.tre"))
-	(lock-claim-rpc path)
-	(when (defq stream (file-stream path))
-		(when (defq conf (tree-load stream))
-			(when (and (defq cid (. conf :find :selected_city)) (num? cid) (<= 0 cid 5))
-				(setq *selected_city_id* cid))))
-	(lock-release-rpc path))
+	(lock-claim-rpc +config_file)
+	(if (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream) stream :nil)
+		(setq *config* :nil))
+	(lock-release-rpc +config_file)
+	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+		(setq *config* (config-default)))
+	(setq *selected_city_id* (. *config* :find :selected_city)))
 
 (defun config-save ()
-	(defq path (cat *env_home* "sunclock.tre"))
-	(lock-claim-rpc path)
-	(when (defq stream (file-stream path +file_open_write))
-		(tree-save stream (scatter (Emap) :selected_city *selected_city_id*)))
-	(lock-release-rpc path))
+	(scatter *config* :selected_city *selected_city_id*)
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 (defun format-hours (h)
 	(defq norm_h (% (+ (% h 24.0) 24.0) 24.0)

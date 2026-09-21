@@ -11,7 +11,7 @@
 	(enum main tip timer))
 
 ; Configuration and State
-(defq *config_file* (cat *env_home* "pairs.tre")
+(defq +config_file (cat *env_home* "pairs.tre")
 	  *grid_w* 10
 	  *grid_h* 5
 	  *tile_count* (* *grid_w* *grid_h*)
@@ -87,8 +87,8 @@
 	(update-view))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(if (and (defq data (if (defq stream (file-stream *config_file*)) (tree-load stream)))
+	(lock-claim-rpc +config_file)
+	(if (and (defq data (if (defq stream (file-stream +config_file)) (tree-load stream)))
 			 (= (length (. data :find :values)) *tile_count*))
 		(progn
 			(setq *values* (. data :find :values)
@@ -113,16 +113,16 @@
 					; Was saved during a mismatch/lock state. Reset these specific tiles to hidden.
 					(each (# (elem-set *states* %0 0)) picks))))
 		(scramble))
-	(lock-release-rpc *config_file*))
+	(lock-release-rpc +config_file))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
-	(when (defq stream (file-stream *config_file* +file_open_write))
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
 		(tree-save stream (scatter (Emap)
 			:values *values*
 			:states *states*
 			:score *score*)))
-	(lock-release-rpc *config_file*))
+	(lock-release-rpc +config_file))
 
 (defun try-click (index)
 	(when (and (not *locked*)

@@ -18,8 +18,8 @@
 	(enum category search random))
 
 (defq +event_algo_0 100 +max_algos 16
-	+color_accent 0xffe91e63 *config* :nil *config_version* 1
-	*config_file* (cat *env_home* "rosetta.tre") *selected_id* :quicksort
+	+color_accent 0xffe91e63 *config* :nil +config_version 1
+	+config_file (cat *env_home* "rosetta.tre") *selected_id* :quicksort
 	*selected_cat* "All" *search_query* "" *filtered_algos* (list)
 	*selected_entry* :nil *cat_bar* :nil *search_input* :nil *btn_random* :nil
 	*status_label* :nil *info_label* :nil *left_scroll* :nil
@@ -37,36 +37,29 @@
 		(3 "Compression") (4 "Math") (5 "Systems") (:t "All")))
 
 (defun config-default ()
+	(print :default)(print)
 	(scatter (Emap)
-		:version *config_version*
-		:selected_id :quicksort
-		:selected_cat "All"
-		:search_query ""))
+		:version +config_version :selected_id :quicksort
+		:selected_cat "All" :search_query ""))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(defq old_config :nil)
-	(if (defq stream (file-stream *config_file*))
-		(setq old_config (tree-load stream)))
-	(if (or (not old_config) (/= (. old_config :find :version) *config_version*))
-		(setq *config* (config-default))
-		(setq *config* old_config))
+	(lock-claim-rpc +config_file)
+	(if (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream) stream :nil)
+		(setq *config* :nil))
+	(lock-release-rpc +config_file)
+	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+		(setq *config* (config-default)))
 	(setq *selected_id* (. *config* :find :selected_id)
 		*selected_cat* (. *config* :find :selected_cat)
-		*search_query* (. *config* :find :search_query))
-	(lock-release-rpc *config_file*))
+		*search_query* (. *config* :find :search_query)))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
-	(ifn *config* (setq *config* (Emap)))
-	(scatter *config*
-		:version *config_version*
-		:selected_id *selected_id*
-		:selected_cat *selected_cat*
-		:search_query *search_query*)
-	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*))
-	(lock-release-rpc *config_file*))
+	(scatter *config* :selected_id *selected_id* :selected_cat *selected_cat* :search_query *search_query*)
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 (defun create-code-vdu (code page_w)
 	(unless *syntax*
@@ -165,9 +158,7 @@
 	(.-> *left_scroll* :layout :dirty_all))
 
 (defun select-algorithm (id)
-	(setq *selected_id* id
-		*selected_entry* (catalog-find id))
-	(config-save)
+	(setq *selected_id* id *selected_entry* (catalog-find id))
 	(when *selected_entry*
 		(defq title (second *selected_entry*)
 			category (third *selected_entry*)
@@ -179,7 +170,6 @@
 
 (defun select-category (cat_name)
 	(setq *selected_cat* cat_name)
-	(config-save)
 	(when *cat_bar*
 		(. *cat_bar* :set_selected (category-to-idx cat_name)))
 	(render-sidebar)
@@ -189,7 +179,6 @@
 
 (defun search-updated (query_str)
 	(setq *search_query* (trim (or query_str "")))
-	(config-save)
 	(render-sidebar)
 	(if (and *filtered_algos* (nempty? *filtered_algos*))
 		(unless (some (# (eql (first %0) *selected_id*)) *filtered_algos*)
@@ -233,12 +222,10 @@
 	(defq select (task-mboxes +select_size) *running* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips header_bar '("" "" "" "random algorithm" "" ""))
+	(. *cat_bar* :set_selected (category-to-idx *selected_cat*))
+	(. *search_input* :set_text *search_query*)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (.-> *window* (:change x y w h :t) :dirty_all))
-	(when *cat_bar*
-		(. *cat_bar* :set_selected (category-to-idx *selected_cat*)))
-	(when *search_input*
-		(. *search_input* :set_text *search_query*))
 	(select-algorithm *selected_id*)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))

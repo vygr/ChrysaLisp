@@ -25,17 +25,10 @@
 ; *chats*    — (Fmap) sys_id_hex -> (Fmap) name -> (list raw_msg_strings)
 ; *presence* — (Fmap) "<sys_id_hex>,<name>" -> last_beat_us
 ; *channel_index* — ordered list of (sys_id_hex name) pairs for event mapping
-(defq *config_file* (cat *env_home* "chat.tre")
-	*config* :nil
-	*chats* (Fmap)
-	*presence* (Fmap)
-	*unread* (Fmap)
-	*channel_index* (list)
-	*current_sys_id* :nil
-	*current_name* :nil
-	*connected* :nil
-	*chat_entry* :nil
-	select :nil
+(defq +config_file (cat *env_home* "chat.tre") *config* :nil *chats* (Fmap)
+	*presence* (Fmap) *unread* (Fmap) *channel_index* (list)
+	*current_sys_id* :nil *current_name* :nil
+	*connected* :nil *chat_entry* :nil select :nil
 	*my_sys_id_hex* (hex-encode (system-id)))
 
 (defun channel-key (sys_id_hex cname)
@@ -80,40 +73,31 @@
 
 (defun config-default ()
 	(scatter (Emap)
-		:version +config_version
-		:name (or *env_user* "guest")
-		:max_display +max_display
-		:chats (Fmap)))
+		:version +config_version :name (or *env_user* "guest")
+		:max_display +max_display :chats (Fmap)))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(defq old_config :nil)
-	(if (defq stream (file-stream *config_file*))
-		(setq old_config (tree-load stream)))
-	(if (or (not old_config) (/= (. old_config :find :version) +config_version))
-		(setq *config* (config-default))
-		(setq *config* old_config))
-	(def *chat_name* :clear_text (or (. *config* :find :name) (or *env_user* "guest")))
-	(setq *chats* (or (. *config* :find :chats) (Fmap)))
-	(lock-release-rpc *config_file*))
+	(lock-claim-rpc +config_file)
+	(if (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream) stream :nil)
+		(setq *config* :nil))
+	(lock-release-rpc +config_file)
+	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+		(setq *config* (config-default)))
+	(def *chat_name* :clear_text (. *config* :find :name))
+	(setq *chats* (. *config* :find :chats)))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
-	(ifn *config* (setq *config* (Emap)))
-	; trim each channel history to +max_history
 	(. *chats* :each (lambda (sys_id_hex name_map)
 		(. name_map :each (lambda (cname msgs)
 			(when (> (length msgs) +max_history)
 				(. name_map :insert cname
 					(slice msgs (- (length msgs) +max_history) -1)))))))
-	(scatter *config*
-		:version +config_version
-		:name (get :clear_text *chat_name*)
-		:max_display +max_display
-		:chats *chats*)
-	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*))
-	(lock-release-rpc *config_file*))
+	(scatter *config* :name (get :clear_text *chat_name*) :chats *chats*)
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 ;;;; ── chat data helpers ───────────────────────────────────────────────────────
 

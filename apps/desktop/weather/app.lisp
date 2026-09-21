@@ -19,8 +19,8 @@
 (enums +select 0
 	(enum main tip timer worker trash))
 
-(defq *config* :nil *config_version* 1
-	*config_file* (cat *env_home* "weather.tre")
+(defq *config* :nil +config_version 1
+	+config_file (cat *env_home* "weather.tre")
 	*city* "London" *unit_c* :t *weather_data* :nil *canvas_size* 120
 	*quick_cities* '("London" "Tokyo" "New York" "Paris" "Sydney" "Cairo")
 	*btn_city_0* :nil *btn_city_1* :nil *btn_city_2* :nil
@@ -28,35 +28,27 @@
 
 (defun config-default ()
 	(scatter (Emap)
-		:version *config_version*
-		:city "London"
-		:unit_c :t
+		:version +config_version :city "London" :unit_c :t
 		:quick_cities (list "London" "New York" "Tokyo" "Paris" "SF" "Sydney")))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(defq old_config :nil)
-	(if (defq stream (file-stream *config_file*))
-		(setq old_config (tree-load stream)))
-	(if (or (not old_config) (/= (. old_config :find :version) *config_version*))
-		(setq *config* (config-default))
-		(setq *config* old_config))
+	(lock-claim-rpc +config_file)
+	(if (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream) stream :nil)
+		(setq *config* :nil))
+	(lock-release-rpc +config_file)
+	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+		(setq *config* (config-default)))
 	(setq *city* (. *config* :find :city)
 		*unit_c* (. *config* :find :unit_c)
-		*quick_cities* (. *config* :find :quick_cities))
-	(lock-release-rpc *config_file*))
+		*quick_cities* (. *config* :find :quick_cities)))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
-	(ifn *config* (setq *config* (Emap)))
-	(scatter *config*
-		:version *config_version*
-		:city *city*
-		:unit_c (if *unit_c* :t :nil)
-		:quick_cities *quick_cities*)
-	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*))
-	(lock-release-rpc *config_file*))
+	(scatter *config* :city *city* :unit_c (if *unit_c* :t :nil) :quick_cities *quick_cities*)
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 (defun draw-sun (canvas cx cy r)
 	(defq disc (path-gen-arc cx cy 0.0 +fp_2pi r (path)))

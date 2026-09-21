@@ -16,41 +16,33 @@
 	(enum refresh category))
 
 (defq +event_story_0 100 +max_stories 50
-	*config* :nil *config_version* 1
-	*config_file* (cat *env_home* "news.tre") *selected_category* "top" *selected_id* 0
+	*config* :nil +config_version 1
+	+config_file (cat *env_home* "news.tre") *selected_category* "top" *selected_id* 0
 	*current_stories* (list) *selected_story* :nil *comments_cache* (Fmap 31)
 	*post_content_cache* (Fmap 31) *cat_bar* :nil *btn_refresh* :nil *status_label* :nil
 	*story_scroll* :nil *story_container* :nil *detail_scroll* :nil *detail_container* :nil
 	*story_count_label* :nil *item_info_label* :nil)
 
 (defun config-default ()
-	(scatter (Emap)
-		:version *config_version*
-		:selected_category "top"
-		:selected_id 0))
+	(scatter (Emap) :version +config_version :selected_category "top" :selected_id 0))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(defq old_config :nil)
-	(if (defq stream (file-stream *config_file*))
-		(setq old_config (tree-load stream)))
-	(if (or (not old_config) (/= (. old_config :find :version) *config_version*))
-		(setq *config* (config-default))
-		(setq *config* old_config))
+	(lock-claim-rpc +config_file)
+	(if (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream) stream :nil)
+		(setq *config* :nil))
+	(lock-release-rpc +config_file)
+	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+		(setq *config* (config-default)))
 	(setq *selected_category* (. *config* :find :selected_category)
-		*selected_id* (. *config* :find :selected_id))
-	(lock-release-rpc *config_file*))
+		*selected_id* (. *config* :find :selected_id)))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
-	(ifn *config* (setq *config* (Emap)))
-	(scatter *config*
-		:version *config_version*
-		:selected_category *selected_category*
-		:selected_id *selected_id*)
-	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*))
-	(lock-release-rpc *config_file*))
+	(scatter *config* :selected_category *selected_category* :selected_id *selected_id*)
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 (defun clean-hn-text (text)
 	(ifn (str? text) ""

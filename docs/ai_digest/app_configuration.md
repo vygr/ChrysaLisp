@@ -190,7 +190,7 @@ forward.
 ```vdu
 (defun config-load ()
 	(if (defq stream (file-stream *config_file*))
-		(setq *config* (tree-load stream)))
+		(setq *config* (tree-load stream) stream :nil))
 	; If the file is missing, invalid, OR the version is wrong,
 	; discard everything and start from scratch.
 	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
@@ -205,14 +205,12 @@ This improved `config-load` function preserves user settings across updates.
 (defun config-load ()
 	(defq old_config :nil)
 	(if (defq stream (file-stream *config_file*))
-		(setq old_config (tree-load stream)))
-
+		(setq old_config (tree-load stream) stream :nil))
 	; Check if a migration is needed (no file, or older version).
 	(if (or (not old_config) (< (. old_config :find :version 0) *config_version*))
 		(progn
 			; 1. Start with the new, complete default configuration.
 			(setq *config* (config-default))
-
 			; 2. If an old config exists, copy its values into the new one.
 			(when old_config
 				(. old_config :each (lambda (key val)

@@ -17,8 +17,8 @@
 
 (defq +event_hist_0 100 +event_syn_0 200 +event_ant_0 300
 	+max_history_items 20 +max_syns 20 +max_ants 20
-	+color_accent 0xff4361ee *config* :nil *config_version* 1
-	*config_file* (cat *env_home* "lexicon.tre") *current_word* "lisp"
+	+color_accent 0xff4361ee *config* :nil +config_version 1
+	+config_file (cat *env_home* "lexicon.tre") *current_word* "lisp"
 	*history* '("lisp" "computer" "algorithm") *current_phonetic* "" *current_defs* (list)
 	*current_syns* (list) *current_ants* (list) *word_cache* (Fmap 63)
 	*search_input* :nil *btn_lookup* :nil *btn_random* :nil
@@ -38,32 +38,26 @@
 
 (defun config-default ()
 	(scatter (Emap)
-		:version *config_version*
-		:last_word "lisp"
+		:version +config_version :last_word "lisp"
 		:history '("lisp" "computer" "algorithm")))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(defq old_config :nil)
-	(if (defq stream (file-stream *config_file*))
-		(setq old_config (tree-load stream)))
-	(if (or (not old_config) (/= (. old_config :find :version) *config_version*))
-		(setq *config* (config-default))
-		(setq *config* old_config))
+	(lock-claim-rpc +config_file)
+	(if (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream) stream :nil)
+		(setq *config* :nil))
+	(lock-release-rpc +config_file)
+	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+		(setq *config* (config-default)))
 	(setq *current_word* (. *config* :find :last_word)
-		*history* (. *config* :find :history))
-	(lock-release-rpc *config_file*))
+		*history* (. *config* :find :history)))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
-	(ifn *config* (setq *config* (Emap)))
-	(scatter *config*
-		:version *config_version*
-		:last_word *current_word*
-		:history *history*)
-	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*))
-	(lock-release-rpc *config_file*))
+	(scatter *config* :last_word *current_word* :history *history*)
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 (defun pos-label (tag)
 	(case tag

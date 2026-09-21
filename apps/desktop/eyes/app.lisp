@@ -8,33 +8,32 @@
 ;;;;;;;;;;;;;;;
 
 (defq +min_width 256 +min_height 128 +max_width 512 +max_height 256
-	*canvas* :nil *config* :nil *config_version* 2
-	*config_file* (cat *env_home* "eyes.tre"))
+	*canvas* :nil *config* :nil +config_version 2
+	+config_file (cat *env_home* "eyes.tre"))
 
 (defun config-default ()
 	(scatter (Emap)
-		:version *config_version*
-		:x 0 :y 0 :width +min_width :height +min_height
+		:version +config_version :x 0 :y 0 :width +min_width :height +min_height
 		:iris_color +argb_green :iris_scale 0.7 :pupil_scale 0.4))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(if (defq stream (file-stream *config_file*))
-		(setq *config* (tree-load stream)))
-	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
-		(setq *config* (config-default)))
-	(lock-release-rpc *config_file*))
+	(lock-claim-rpc +config_file)
+	(if (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream) stream :nil))
+	(lock-release-rpc +config_file)
+	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+		(setq *config* (config-default))))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
 	(bind '(x y) (. *window* :get_pos))
 	(bind '(w h) (. *canvas* :get_size))
 	(scatter *config*
 		:x x :y y :width w :height h
 		:iris_color iris_color :iris_scale iris_scale :pupil_scale pupil_scale)
-	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*))
-	(lock-release-rpc *config_file*))
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 ;;;;;;;;;;;;;;
 ; UI and State

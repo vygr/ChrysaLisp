@@ -18,38 +18,32 @@
 (enums +select 0
 	(enum main tip timer worker trash))
 
-(defq *config* :nil *config_version* 1
-	*config_file* (cat *env_home* "crypto.tre")
+(defq *config* :nil +config_version 1
+	+config_file (cat *env_home* "crypto.tre")
 	*selected_symbol* "BTC" *coins_data* (list)
 	*canvas_width* 360 *canvas_height* 110
 	*btn_coin_0* :nil *btn_coin_1* :nil *btn_coin_2* :nil
 	*btn_coin_3* :nil *btn_coin_4* :nil *btn_coin_5* :nil)
 
 (defun config-default ()
-	(scatter (Emap)
-		:version *config_version*
-		:selected_symbol "BTC"))
+	(scatter (Emap) :version +config_version :selected_symbol "BTC"))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(defq old_config :nil)
-	(if (defq stream (file-stream *config_file*))
-		(setq old_config (tree-load stream)))
-	(if (or (not old_config) (/= (. old_config :find :version) *config_version*))
-		(setq *config* (config-default))
-		(setq *config* old_config))
-	(setq *selected_symbol* (. *config* :find :selected_symbol))
-	(lock-release-rpc *config_file*))
+	(lock-claim-rpc +config_file)
+	(if (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream) stream :nil)
+		(setq *config* :nil))
+	(lock-release-rpc +config_file)
+	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+		(setq *config* (config-default)))
+	(setq *selected_symbol* (. *config* :find :selected_symbol)))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
-	(ifn *config* (setq *config* (Emap)))
-	(scatter *config*
-		:version *config_version*
-		:selected_symbol *selected_symbol*)
-	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*))
-	(lock-release-rpc *config_file*))
+	(scatter *config* :selected_symbol *selected_symbol*)
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 (defun format-price (price_str)
 	(ifn (str? price_str) "$0.00"

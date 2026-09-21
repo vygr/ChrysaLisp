@@ -266,7 +266,7 @@ Key points:
 		(defun config-load ()
 			(defq old_config :nil)
 			(if (defq stream (file-stream *config_file*))
-				(setq old_config (tree-load stream)))
+				(setq old_config (tree-load stream) stream :nil))
 			(if (or (not old_config) (/= (. old_config :find :version) *config_version*))
 				(setq *config* (config-default))
 				(setq *config* old_config))

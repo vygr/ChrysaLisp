@@ -19,7 +19,7 @@
 	  +state_peg 1)
 
 ; Configuration and State
-(defq *config_file* (cat *env_home* "solitaire.tre")
+(defq +config_file (cat *env_home* "solitaire.tre")
 	  *board* (list)
 	  *selected* :nil	  ; Index of selected peg
 	  *undo_stack* (list)
@@ -113,25 +113,25 @@
 	(update-view))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(if (and (defq data (if (defq stream (file-stream *config_file*)) (tree-load stream)))
+	(lock-claim-rpc +config_file)
+	(if (and (defq data (if (defq stream (file-stream +config_file)) (tree-load stream)))
 			 (= (length (. data :find :board)) +tile_count))
 		(setq *board* (. data :find :board)
 			  *undo_stack* (ifn (defq u (. data :find :undo)) (list) u)
 			  *selected* (. data :find :selected))
 		(init-game))
-	(lock-release-rpc *config_file*)
+	(lock-release-rpc +config_file)
 	(update-gamestate)
 	(update-view))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
-	(when (defq stream (file-stream *config_file* +file_open_write))
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
 		(tree-save stream (scatter (Emap)
 			:board *board*
 			:selected *selected*
 			:undo *undo_stack*)))
-	(lock-release-rpc *config_file*))
+	(lock-release-rpc +config_file))
 
 (defun try-move (to_idx)
 	(defq from_idx *selected*)

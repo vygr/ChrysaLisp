@@ -12,15 +12,13 @@
 	(enum main tip))
 
 ; Configuration state
-(defq *config* :nil *config_version* 17
-	*config_file* (cat *env_home* "launcher.tre"))
+(defq *config* :nil +config_version 18 +config_file (cat *env_home* "launcher.tre"))
 
 ; Default configuration if `launcher.tre`
 ; is missing, or version mismatch
 (defun config-default ()
 	(scatter (Emap)
-		:version *config_version*
-		:columns 2
+		:version +config_version :columns 2
 		:exclude '("launcher" "login" "wallpaper" "tui")
 		:categories (scatter (Emap)
 			'System (scatter (Emap) :collapsed :nil
@@ -40,18 +38,18 @@
 				:apps '("molecule" "pcb" "mandelbrot" "mesh")))))
 
 (defun config-load ()
-	(lock-claim-rpc *config_file*)
-	(if (defq stream (file-stream *config_file*))
-		(setq *config* (tree-load stream)))
-	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
-		(setq *config* (config-default)))
-	(lock-release-rpc *config_file*))
+	(lock-claim-rpc +config_file)
+	(if (defq stream (file-stream +config_file))
+		(setq *config* (tree-load stream) stream :nil))
+	(lock-release-rpc +config_file)
+	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+		(setq *config* (config-default))))
 
 (defun config-save ()
-	(lock-claim-rpc *config_file*)
-	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*))
-	(lock-release-rpc *config_file*))
+	(lock-claim-rpc +config_file)
+	(when (defq stream (file-stream +config_file +file_open_write))
+		(tree-save stream *config*) (setq stream :nil))
+	(lock-release-rpc +config_file))
 
 (defun scan-apps ()
 	(defq exclude_list (. *config* :find :exclude) categories (. *config* :find :categories)
