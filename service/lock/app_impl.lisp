@@ -76,17 +76,18 @@
 					(defq key (slice msg +lock_rpc_size -1) key_path (split key "/"))
 					(case type
 						(+lock_type_claim
-								(push lock_pending
-									(pmap :key key :path key_path :mode mode :reply reply_id
-										:node (task-nodeid reply_id) :time (pii-time) :timeout timeout))
-								(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time))))
+							(push lock_pending
+								(pmap :key key :path key_path :mode mode :reply reply_id
+									:node (task-nodeid reply_id) :time (pii-time) :timeout timeout))
+							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time))))
 						(+lock_type_release
 							; 1. check writes
 							(ifn (defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_writes))
 								; 2. check reads
 								(when (defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_reads))
 									(defq rec (elem-get lock_reads idx) cnt (dec (pfind rec :mode)))
-									(ifn (<= cnt 0) (pinsert rec :mode cnt)
+									(ifn (<= cnt 0)
+										(pinsert rec :mode cnt)
 										(elem-set lock_reads idx (last lock_reads))
 										(pop lock_reads)))
 								(elem-set lock_writes idx (last lock_writes))

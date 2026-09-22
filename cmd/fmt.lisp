@@ -43,10 +43,6 @@
 	"redefmacro" '(:head :head :body)
 	"defmethod" '(:head :head :body)
 	"defabstractmethod" '(:head :head :body)
-	"deffimethod" '(:head :head :body)
-	"defgetmethod" '(:head :body)
-	"defsetmethod" '(:head :body)
-	"defproxymethod" '(:head :head :head :body)
 	"defclass" '(:head :head :head :body)
 	"def-class" '(:head :head :body)
 	"def-method" '(:head :head :body)
@@ -55,6 +51,17 @@
 	"macro" '(:head :body)
 	"let" '(:head :body)
 	"let*" '(:head :body)
+	"structure" '(:head :head :body)
+	"enums" '(:head :head :body)
+	"bits" '(:head :head :body)
+	"def-vars" '(:body)
+
+	;; single-line declarations
+	"deffimethod" '(:flow)
+	"defgetmethod" '(:flow)
+	"defsetmethod" '(:flow)
+	"defproxymethod" '(:flow)
+	"dec-method" '(:flow)
 	"#" '(:flow)
 
 	;; conditionals & branching
@@ -63,16 +70,18 @@
 	"case" '(:head :clauses)
 	"pcase" '(:head :head :clauses)
 	"switch" '(:head :clauses)
-	"if" '(:head :body)
-	"ifn" '(:head :body)
-	"when" '(:head :body)
-	"unless" '(:head :body)
+	"if" '(:choice (:flow) (:head :body))
+	"ifn" '(:choice (:flow) (:head :body))
+	"when" '(:choice (:flow) (:head :body))
+	"unless" '(:choice (:flow) (:head :body))
 
 	;; loops & iteration
 	"while" '(:head :body)
 	"until" '(:head :body)
 	"for" '(:head :head :body)
 	"times" '(:head :body)
+
+	;; higher-order sequence functions
 	"each" '(:flow)
 	"each!" '(:flow)
 	"reach" '(:flow)
@@ -93,14 +102,14 @@
 	"lines!" '(:flow)
 
 	;; logic, blocks, exception handling
-	"and" '(:flow)
-	"or" '(:flow)
-	"progn" '(:body)
-	"catch" '(:head :body)
+	"and" '(:choice (:flow) (:head :clauses))
+	"or" '(:choice (:flow) (:head :clauses))
 	"throw" '(:flow)
-	"structure" '(:head :head :body)
-	"enums" '(:head :head :body)
-	"bits" '(:head :head :body)
+	"catch" '(:flow)
+	"progn" '(:body)
+	"errorcase" '(:body)
+	"validatecase" '(:body)
+	"noterrorcase" '(:body)
 	"time-it" '(:head :body)
 	"undoable" '(:head :body)
 	"within-compile-env" '(:head :body)))
@@ -126,34 +135,50 @@
 		(++ i))
 	i)
 
-(defun skip-ws (tokens idx)
-	; skip whitespace tokens only
-	(defq len (length tokens) i idx)
-	(while (and (< i len) (eql (first (elem-get tokens i)) :ws))
+(defun form-short? (tokens lparen_idx)
+	; check if a form is structurally short, shallow, and single-line
+	(defq len (length tokens) i (inc lparen_idx)
+		depth 1 count 0 sub_lists 0 is_short :t)
+	(while (and (< i len) (> depth 0) is_short)
+		(defq tok (elem-get tokens i) tok_type (first tok))
+		(cond
+			((eql tok_type :ws))
+			((or (eql tok_type :nl) (eql tok_type :comment) (eql tok_type :raw))
+				(setq is_short :nil))
+			((eql tok_type :lparen)
+				(++ depth)
+				(++ sub_lists)
+				(if (or (> depth 3) (> sub_lists 4))
+					(setq is_short :nil))
+				(++ count))
+			((eql tok_type :rparen)
+				(-- depth))
+			(:t
+				(++ count)
+				(if (> count 20)
+					(setq is_short :nil))))
 		(++ i))
-	i)
+	(and is_short (= depth 0)))
 
-(defun form-opens-at-eol? (tokens lparen_idx)
-	; check if an opening paren is at the end of a line
-	(defq len (length tokens)
-		op_i (skip-ws tokens (inc lparen_idx)))
-	(if (>= op_i len)
-		:t
-		(defq next_i (skip-ws tokens (inc op_i)))
-		(if (>= next_i len)
-			:t
-			(eql (first (elem-get tokens next_i)) :nl))))
+(defun resolve-template (tmpl tokens lparen_idx)
+	; resolve template choices based on form shortness
+	(if (and (list?? tmpl) (eql (first tmpl) :choice))
+		(if (form-short? tokens lparen_idx)
+			(second tmpl)
+			(third tmpl))
+		tmpl))
 
-(defun lookup-form-template (tokens idx parent_role)
+(defun lookup-form-template (tokens lparen_idx parent_role)
 	(cond
 		((eql parent_role :clauses)
 			'(:head :flow))
 		(:t
-			(defq next_i (skip-ws-nl tokens idx))
+			(defq next_i (skip-ws-nl tokens (inc lparen_idx)))
 			(if (and (< next_i (length tokens))
 				(eql (first (defq tok (elem-get tokens next_i))) :atom))
-				(or (. +templates :find (second tok))
-					'(:flow))
+				(resolve-template
+					(or (. +templates :find (second tok)) '(:flow))
+					tokens lparen_idx)
 				'(:flow)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -387,11 +412,11 @@
 						(write-blk out "(")
 						(defq p_role (parent-role form_stack)
 							is_clause (eql p_role :clauses)
-							tmpl (lookup-form-template tokens (inc idx) p_role)
-							eol_open (form-opens-at-eol? tokens idx)
+							tmpl (lookup-form-template tokens idx p_role)
 							f_base (cond
 								(at_line_start cur_line_indent)
-								(eol_open (current-target-indent form_stack))
+								((or is_clause (and (eql p_role :head) (find :clauses tmpl)))
+									(current-target-indent form_stack))
 								(:t cur_line_indent))
 							child_ind (+ f_base 1))
 						(push form_stack (list tmpl f_base 0 child_ind is_clause))
