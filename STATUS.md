@@ -44,6 +44,10 @@ locks, and revokes orphaned active locks after a 60-second lease TTL.
 
 New `docs/ai_digest/lock_service.md` document.
 
+New `fmt` command for formatting ChrysaLisp source ! This is a work in progress,
+and the rules will be added to as they become more certain. For now it should
+NOT break your program even if it might arrange things oddly !
+
 ------
 
 New `curl` command (`cmd/curl.lisp`) to fetch and display content from HTTP
