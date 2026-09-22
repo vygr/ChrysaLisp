@@ -48,6 +48,9 @@ New `fmt` command for formatting ChrysaLisp source ! This is a work in progress,
 and the rules will be added to as they become more certain. For now it should
 NOT break your program even if it might arrange things oddly !
 
+Fixed `(exit :stream :lisp_iostream '(:r7 :r1))`, and `(entry :mstream :itop
+`(,this ,pos))` entry/exit bugs.
+
 ------
 
 New `curl` command (`cmd/curl.lisp`) to fetch and display content from HTTP

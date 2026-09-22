@@ -14,7 +14,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r0-:r7
+	;:r1-:r7
 
 	(entry :stream :lisp_iostream '(:r0 :r1))
 
