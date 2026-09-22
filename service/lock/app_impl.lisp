@@ -71,12 +71,9 @@
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))
 			(case idx
 				(+select_main
-					(defq reply_id (getf msg +lock_rpc_reply_id)
-						type (getf msg +lock_rpc_type)
-						mode (getf msg +lock_rpc_mode)
-						timeout (getf msg +lock_rpc_timeout)
-						key (slice msg +lock_rpc_size -1)
-						key_path (split key "/"))
+					(bind '(reply_id type mode timeout) (getf-> msg
+						+lock_rpc_reply_id +lock_rpc_type +lock_rpc_mode +lock_rpc_timeout))
+					(defq key (slice msg +lock_rpc_size -1) key_path (split key "/"))
 					(case type
 						(+lock_type_claim
 								(push lock_pending
