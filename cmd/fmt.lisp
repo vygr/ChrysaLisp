@@ -135,6 +135,22 @@
 		(++ i))
 	i)
 
+(defun skip-ws (tokens idx)
+	; skip whitespace tokens only
+	(defq len (length tokens) i idx)
+	(while (and (< i len) (eql (first (elem-get tokens i)) :ws))
+		(++ i))
+	i)
+
+(defun form-opens-at-eol? (tokens lparen_idx)
+	; check if an opening paren is at the end of a line
+	(defq len (length tokens)
+		op_i (skip-ws tokens (inc lparen_idx)))
+	(if (>= op_i len) :t
+		(defq next_i (skip-ws tokens (inc op_i)))
+		(if (>= next_i len) :t
+			(eql (first (elem-get tokens next_i)) :nl))))
+
 (defun form-short? (tokens lparen_idx)
 	; check if a form is structurally short, shallow, and single-line
 	(defq len (length tokens) i (inc lparen_idx)
@@ -155,14 +171,14 @@
 				(-- depth))
 			(:t
 				(++ count)
-				(if (> count 20)
+				(if (> count 24)
 					(setq is_short :nil))))
 		(++ i))
 	(and is_short (= depth 0)))
 
 (defun resolve-template (tmpl tokens lparen_idx)
 	; resolve template choices based on form shortness
-	(if (and (list?? tmpl) (eql (first tmpl) :choice))
+	(if (and (list? tmpl) (eql (first tmpl) :choice))
 		(if (form-short? tokens lparen_idx)
 			(second tmpl)
 			(third tmpl))
