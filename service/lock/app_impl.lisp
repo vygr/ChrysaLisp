@@ -50,36 +50,33 @@
 						(push blocked req)
 						(push new_pending req)))
 				(:t ; +lock_mode_read
-					(ifn (or (conflict? key_path writes)
-							(conflict? key_path blocked))
+					(ifn (or (conflict? key_path writes) (conflict? key_path blocked))
 						(progn
 							(if (defq rec (some (# (if (eql (pfind %0 :key) key) %0)) reads))
 								(pinsert rec :mode (inc (pfind rec :mode)) :time now)
 								(push reads (pmap :key key :path key_path :mode 1 :time now)))
 							(mail-send (pfind req :reply) ""))
 						(push blocked req)
-						(push new_pending req))))))
-		pending)
+						(push new_pending req)))))) pending)
 	new_pending)
 
 (defun main ()
-	(defq select (task-mboxes +select_size)
-		lock_service (mail-declare (task-mbox) "@Lock" "Lock Service 0.4")
-		lock_writes (list) lock_reads (list) lock_pending (list))
+	(defq select (task-mboxes +select_size) lock_service (mail-declare (task-mbox) "@Lock" "Lock Service 0.4") lock_writes (list) lock_reads (list)
+		lock_pending (list))
 	(mail-timeout (elem-get select +select_timer) +check_rate 0)
 	(while :t
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))
 			(case idx
 				(+select_main
-					(bind '(reply_id type mode timeout) (getf-> msg
-						+lock_rpc_reply_id +lock_rpc_type +lock_rpc_mode +lock_rpc_timeout))
+					(bind '(reply_id type mode timeout) (getf-> msg +lock_rpc_reply_id +lock_rpc_type +lock_rpc_mode +lock_rpc_timeout))
 					(defq key (slice msg +lock_rpc_size -1) key_path (split key "/"))
 					(case type
 						(+lock_type_claim
-							(push lock_pending
-								(pmap :key key :path key_path :mode mode :reply reply_id
-									:node (task-nodeid reply_id) :time (pii-time) :timeout timeout))
-							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time))))
+							(defq caller_node (task-nodeid reply_id))
+							(push lock_pending (pmap :key key :path key_path :mode mode :reply reply_id
+								:node caller_node :time (pii-time) :timeout timeout))
+							; merge caller node to bypass eventual consistency lag
+							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (merge (lisp-nodes) (list caller_node)) (pii-time))))
 						(+lock_type_release
 							; 1. check writes
 							(ifn (defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_writes))
