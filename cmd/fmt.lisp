@@ -47,7 +47,8 @@
 (("-c" "--check") ,(opt-flag 'opt_c))
 ))
 
-(defq +file_types ''(".lisp" ".inc" ".vp") +tab_width 4 +default_short_len 72)
+(defq +file_types ''(".lisp" ".inc" ".vp") +tab_width 4
+	+default_short_len 72)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; form template rules
@@ -55,91 +56,128 @@
 
 (defq +templates (scatter (Fmap 256)
 	; definitions & bindings: (:pairs max_pairs_per_line max_col)
-	"defq" '((:pairs 4 70)) "setq" '((:pairs 4 70)) "setd" '((:pairs 4 70))
-	"def" '(:head (:pairs 3 70)) "set" '(:head (:pairs 3 70)) "scatter" '(:head (:pairs 3 70))
-	"pmap" '((:pairs 4 70)) "defun" '(:head :head :body) "redefun" '(:head :head :body)
-	"defmacro" '(:head :head :body) "redefmacro" '(:head :head :body) "defmethod" '(:head :head :body)
-	"defabstractmethod" '(:head :head :body) "defclass" '(:head :head :head :body)
+	"defq" '((:pairs 4 70)) "setq" '((:pairs 4 70))
+	"setd" '((:pairs 4 70)) "def" '(:head (:pairs 3 70))
+	"set" '(:head (:pairs 3 70)) "scatter" '(:head (:pairs 3 70))
+	"pmap" '((:pairs 4 70)) "defun" '(:head :head :body)
+	"redefun" '(:head :head :body) "defmacro" '(:head :head :body)
+	"redefmacro" '(:head :head :body) "defmethod" '(:head :head :body)
+	"defabstractmethod" '(:head :head :body)
+	"defclass" '(:head :head :head :body)
 	"def-class" '(:head :head :body) "def-method" '(:head :head :body)
-	"def-func" '(:head :body) "lambda" '(:choice 75 (:flow) (:head :body))
-	"macro" '(:choice 75 (:flow) (:head :body)) "let" '(:head :body) "let*" '(:head :body)
-	"structure" '(:head :head :body) "enums" '(:head :head :body) "bits" '(:head :head :body)
+	"def-func" '(:head :body)
+	"lambda" '(:choice 75 (:flow) (:head :body))
+	"macro" '(:choice 75 (:flow) (:head :body)) "let" '(:head :body)
+	"let*" '(:head :body) "structure" '(:head :head :body)
+	"enums" '(:head :head :body) "bits" '(:head :head :body)
 	"def-vars" '(:body)
 
 	; single-line declarations & evaluators
-	"deffimethod" '(:flow) "defgetmethod" '(:flow) "defsetmethod" '(:flow)
-	"defproxymethod" '(:flow) "dec-method" '(:flow) "#" '(:flow)
-	"ffi" '(:flow) "bind" '(:flow) "const" '(:flow)
-	"exec" '(:flow) "macrobind" '(:flow) "static-q" '(:flow)
-	"static-qq" '(:flow) "static-qqp" '(:flow) "callback" '(:flow)
-	"export" '(:flow) "export-symbols" '(:flow) "export-classes" '(:flow)
+	"deffimethod" '(:flow) "defgetmethod" '(:flow)
+	"defsetmethod" '(:flow) "defproxymethod" '(:flow)
+	"dec-method" '(:flow) "#" '(:flow) "ffi" '(:flow)
+	"bind" '(:flow) "const" '(:flow) "exec" '(:flow)
+	"macrobind" '(:flow) "static-q" '(:flow) "static-qq" '(:flow)
+	"static-qqp" '(:flow) "callback" '(:flow) "export" '(:flow)
+	"export-symbols" '(:flow) "export-classes" '(:flow)
 	"debug-brk" '(:flow) "profile-report" '(:flow) "inc" '(:flow)
 	"dec" '(:flow) "++" '(:flow) "--" '(:flow)
 	"not" '(:flow)
 
 	; collections & data helpers (lib/collections, lib/class/struct)
 	"gather" '(:flow) "transfer" '(:flow) "tsort" '(:flow)
-	"memoize" '(:choice 75 (:flow) (:head :body)) "getf" '(:flow) "setf" '(:flow)
-	"getf->" '(:flow) "setf->" '(:choice 75 (:flow) (:head :body)) "bits?" '(:flow)
+	"memoize" '(:choice 75 (:flow) (:head :body)) "getf" '(:flow)
+	"setf" '(:flow) "getf->" '(:flow)
+	"setf->" '(:choice 75 (:flow) (:head :body)) "bits?" '(:flow)
 	"bit-mask" '(:flow) "load-fields" '(:flow) "save-fields" '(:flow)
 	"assign-fields" '(:choice 75 (:flow) (:head :body))
 
 	; conditionals & branching: (:clauses max_per_line max_body_actions max_len)
-	"cond" '((:clauses 1 1 70)) "condn" '((:clauses 1 1 70)) "case" '(:head (:clauses 1 1 70))
-	"pcase" '(:head :head (:clauses 1 1 70)) "switch" '(:block_open :head (:clauses 1 1 70))
-	"if" '(:choice 75 (:flow) (:head :body)) "ifn" '(:choice 75 (:flow) (:head :body))
-	"when" '(:choice 75 (:flow) (:head :body)) "unless" '(:choice 75 (:flow) (:head :body))
+	"cond" '((:clauses 1 1 70)) "condn" '((:clauses 1 1 70))
+	"case" '(:head (:clauses 1 1 70))
+	"pcase" '(:head :head (:clauses 1 1 70))
+	"switch" '(:block_open :head (:clauses 1 1 70))
+	"if" '(:choice 75 (:flow) (:head :body))
+	"ifn" '(:choice 75 (:flow) (:head :body))
+	"when" '(:choice 75 (:flow) (:head :body))
+	"unless" '(:choice 75 (:flow) (:head :body))
 
 	; loops & iteration
-	"while" '(:head :body) "until" '(:head :body) "for" '(:head :head :body)
-	"times" '(:head :body)
+	"while" '(:head :body) "until" '(:head :body)
+	"for" '(:head :head :body) "times" '(:head :body)
 
 	; higher-order sequence & collection functions
-	"each" '(:choice 75 (:flow) (:head :body :flow)) "each!" '(:choice 75 (:flow) (:head :body :flow))
-	"each-mergeable" '(:choice 75 (:flow) (:head :body :flow)) "reach" '(:choice 75 (:flow) (:head :body :flow))
-	"map" '(:choice 75 (:flow) (:head :body :flow)) "map!" '(:choice 75 (:flow) (:head :body :flow))
-	"rmap" '(:choice 75 (:flow) (:head :body :flow)) "filter" '(:choice 75 (:flow) (:head :body :flow))
-	"filter!" '(:choice 75 (:flow) (:head :body :flow)) "reduce" '(:choice 75 (:flow) (:head :body :flow))
-	"reduce!" '(:choice 75 (:flow) (:head :body :flow)) "rreduce" '(:choice 75 (:flow) (:head :body :flow))
-	"some" '(:choice 75 (:flow) (:head :body :flow)) "some!" '(:choice 75 (:flow) (:head :body :flow))
-	"rsome" '(:choice 75 (:flow) (:head :body :flow)) "every" '(:choice 75 (:flow) (:head :body :flow))
-	"notany" '(:choice 75 (:flow) (:head :body :flow)) "notevery" '(:choice 75 (:flow) (:head :body :flow))
+	"each" '(:choice 75 (:flow) (:head :body :flow))
+	"each!" '(:choice 75 (:flow) (:head :body :flow))
+	"each-mergeable" '(:choice 75 (:flow) (:head :body :flow))
+	"reach" '(:choice 75 (:flow) (:head :body :flow))
+	"map" '(:choice 75 (:flow) (:head :body :flow))
+	"map!" '(:choice 75 (:flow) (:head :body :flow))
+	"rmap" '(:choice 75 (:flow) (:head :body :flow))
+	"filter" '(:choice 75 (:flow) (:head :body :flow))
+	"filter!" '(:choice 75 (:flow) (:head :body :flow))
+	"reduce" '(:choice 75 (:flow) (:head :body :flow))
+	"reduce!" '(:choice 75 (:flow) (:head :body :flow))
+	"rreduce" '(:choice 75 (:flow) (:head :body :flow))
+	"some" '(:choice 75 (:flow) (:head :body :flow))
+	"some!" '(:choice 75 (:flow) (:head :body :flow))
+	"rsome" '(:choice 75 (:flow) (:head :body :flow))
+	"every" '(:choice 75 (:flow) (:head :body :flow))
+	"notany" '(:choice 75 (:flow) (:head :body :flow))
+	"notevery" '(:choice 75 (:flow) (:head :body :flow))
 	"lines!" '(:choice 75 (:flow) (:head :body :flow)) "sort" '(:flow)
 	"usort" '(:flow) "shuffle" '(:flow)
 
 	; logic, blocks, exception handling
-	"and" '(:choice 75 (:flow) (:head :body)) "or" '(:choice 75 (:flow) (:head :body))
-	"throw" '(:flow) "catch" '(:flow) "progn" '(:body)
-	"errorcase" '(:body) "validatecase" '(:body) "noterrorcase" '(:body)
-	"time-it" '(:head :body) "undoable" '(:head :body) "within-compile-env" '(:head :body)
+	"and" '(:choice 75 (:flow) (:head :body))
+	"or" '(:choice 75 (:flow) (:head :body)) "throw" '(:flow)
+	"catch" '(:flow) "progn" '(:body) "errorcase" '(:body)
+	"validatecase" '(:body) "noterrorcase" '(:body)
+	"time-it" '(:head :body) "undoable" '(:head :body)
+	"within-compile-env" '(:head :body)
 
 	; fluent method chaining & view properties
-	".->" '(:choice 75 (:flow) (:head :body)) ".?" '(:flow) ".super" '(:flow)
-	"raise" '(:flow) "lower" '(:flow) "ui-props" '(:head (:pairs 3))
+	".->" '(:choice 75 (:flow) (:head :body)) ".?" '(:flow)
+	".super" '(:flow) "raise" '(:flow) "lower" '(:flow)
+	"ui-props" '(:head (:pairs 3))
 
 	; ui builder containers and elements
-	"ui-root" '(:head :head :head :body) "ui-window" '(:choice 75 (:flow) (:head :head :body))
-	"ui-flow" '(:choice 75 (:flow) (:head :head :body)) "ui-grid" '(:choice 75 (:flow) (:head :head :body))
-	"ui-stack" '(:head :head :head :body) "ui-backdrop" '(:choice 75 (:flow) (:head :head :body))
-	"ui-view" '(:choice 75 (:flow) (:head :head :body)) "ui-md" '(:choice 75 (:flow) (:head :head :body))
-	"ui-button" '(:choice 75 (:flow) (:head :head :body)) "ui-label" '(:choice 75 (:flow) (:head :head :body))
+	"ui-root" '(:head :head :head :body)
+	"ui-window" '(:choice 75 (:flow) (:head :head :body))
+	"ui-flow" '(:choice 75 (:flow) (:head :head :body))
+	"ui-grid" '(:choice 75 (:flow) (:head :head :body))
+	"ui-stack" '(:head :head :head :body)
+	"ui-backdrop" '(:choice 75 (:flow) (:head :head :body))
+	"ui-view" '(:choice 75 (:flow) (:head :head :body))
+	"ui-md" '(:choice 75 (:flow) (:head :head :body))
+	"ui-button" '(:choice 75 (:flow) (:head :head :body))
+	"ui-label" '(:choice 75 (:flow) (:head :head :body))
 
 	; vp structured coding (lib/asm/code.inc)
-	"vpif" '(:block_open :choice 75 (:flow) (:head :body)) "vpifnot" '(:block_open :choice 75 (:flow) (:head :body))
-	"elseif" '(:block_mid :choice 75 (:flow) (:head :body)) "elseifnot" '(:block_mid :choice 75 (:flow) (:head :body))
-	"else" '(:block_mid :flow) "endif" '(:block_close :flow) "loop-start" '(:block_open :head :body)
-	"loop-while" '(:block_open :head :body) "loop-whilenot" '(:block_open :head :body)
-	"loop-until" '(:block_close :flow) "loop-untilnot" '(:block_close :flow)
-	"loop-end" '(:block_close :flow) "switch" '(:block_open :head (:clauses 1 1 70))
-	"vpcase" '(:block_mid :choice 75 (:flow) (:head :body)) "vpcasenot" '(:block_mid :choice 75 (:flow) (:head :body))
-	"default" '(:block_mid :flow) "endswitch" '(:block_close :flow) "goto" '(:flow)
-	"gotoif" '(:flow) "gotoifnot" '(:flow) "break" '(:flow)
-	"breakif" '(:flow) "breakifnot" '(:flow) "continue" '(:flow)
-	"continueif" '(:flow) "continueifnot" '(:flow) "nextcaseif" '(:flow)
-	"nextcaseifnot" '(:flow) "repeatif" '(:flow) "repeatifnot" '(:flow)
-	"exitif" '(:flow) "exitifnot" '(:flow) "errorif" '(:flow)
-	"errorifnot" '(:flow) "errorif-lisp-args-sig" '(:flow) "errorif-lisp-args-len" '(:flow)
-	"errorif-lisp-args-match" '(:flow) "errorif-lisp-args-type" '(:flow)
+	"vpif" '(:block_open :choice 75 (:flow) (:head :body))
+	"vpifnot" '(:block_open :choice 75 (:flow) (:head :body))
+	"elseif" '(:block_mid :choice 75 (:flow) (:head :body))
+	"elseifnot" '(:block_mid :choice 75 (:flow) (:head :body))
+	"else" '(:block_mid :flow) "endif" '(:block_close :flow)
+	"loop-start" '(:block_open :head :body)
+	"loop-while" '(:block_open :head :body)
+	"loop-whilenot" '(:block_open :head :body)
+	"loop-until" '(:block_close :flow)
+	"loop-untilnot" '(:block_close :flow)
+	"loop-end" '(:block_close :flow)
+	"switch" '(:block_open :head (:clauses 1 1 70))
+	"vpcase" '(:block_mid :choice 75 (:flow) (:head :body))
+	"vpcasenot" '(:block_mid :choice 75 (:flow) (:head :body))
+	"default" '(:block_mid :flow) "endswitch" '(:block_close :flow)
+	"goto" '(:flow) "gotoif" '(:flow) "gotoifnot" '(:flow)
+	"break" '(:flow) "breakif" '(:flow) "breakifnot" '(:flow)
+	"continue" '(:flow) "continueif" '(:flow) "continueifnot" '(:flow)
+	"nextcaseif" '(:flow) "nextcaseifnot" '(:flow) "repeatif" '(:flow)
+	"repeatifnot" '(:flow) "exitif" '(:flow) "exitifnot" '(:flow)
+	"errorif" '(:flow) "errorifnot" '(:flow)
+	"errorif-lisp-args-sig" '(:flow) "errorif-lisp-args-len" '(:flow)
+	"errorif-lisp-args-match" '(:flow)
+	"errorif-lisp-args-type" '(:flow)
 	"assert" '(:choice 75 (:flow) (:head :body))
 
 	; vp register, invocation & memory primitives (lib/asm)
@@ -154,7 +192,8 @@
 	"fn-string" '(:flow) "return" '(:flow)
 
 	; vp linked list traversal loops
-	"loop-flist" '(:head :head :head :head :body) "loop-list-forward" '(:head :head :head :head :body)
+	"loop-flist" '(:head :head :head :head :body)
+	"loop-list-forward" '(:head :head :head :head :body)
 	"loop-list-backward" '(:head :head :head :head :body)))
 
 (defq +major_definitions ''("defun" "redefun" "defmacro" "redefmacro" "defclass" "def-class"
@@ -280,6 +319,34 @@
 		(++ i))
 	(and fits (= depth 0)))
 
+(defun upcoming-pair-fits? (tokens key_idx rem_len)
+	; check if upcoming key-value pair fits within rem_len
+	(cond
+		((<= rem_len 0) :nil)
+		((defq key_tok (elem-get tokens key_idx)
+			key_len (length (second key_tok)))
+			(if (>= key_len rem_len)
+				:nil
+				(progn
+					(defq val_i (skip-ws-nl tokens (inc key_idx)))
+					(if (>= val_i (length tokens))
+						:t
+						(defq val_tok (elem-get tokens val_i)
+							val_type (first val_tok)
+							avail (- rem_len (+ key_len 1)))
+						(cond
+							((<= avail 0) :nil)
+							((eql val_type :lparen) (form-fits-inline? tokens val_i avail))
+							((eql val_type :quote)
+								(defq q_elem_i (skip-ws-nl tokens (inc val_i)))
+								(if (>= q_elem_i (length tokens))
+									:t
+									(defq q_tok (elem-get tokens q_elem_i))
+									(if (eql (first q_tok) :lparen)
+										(form-fits-inline? tokens q_elem_i (dec avail))
+										(<= (length (second q_tok)) (dec avail)))))
+							(:t (<= (length (second val_tok)) avail)))))))))
+
 (defun clause-actions-short? (tokens lparen_idx max_len)
 	; check if the action expression in a clause is itself short
 	(defq next_i (skip-ws-nl tokens (inc lparen_idx)))
@@ -300,14 +367,16 @@
 	; (:choice [max_len] short_tmpl multiline_tmpl)
 	(if (and (list? tmpl) (eql (first tmpl) :choice))
 		(progn
-			(defq has_custom_len (num? (second tmpl)) max_len (if has_custom_len (second tmpl) +default_short_len)
+			(defq has_custom_len (num? (second tmpl))
+				max_len (if has_custom_len (second tmpl) +default_short_len)
 				short_tmpl (if has_custom_len (third tmpl) (second tmpl))
 				multi_tmpl (if has_custom_len (elem-get tmpl 3) (third tmpl)))
 			(if (form-fits-inline? tokens lparen_idx max_len) short_tmpl multi_tmpl))
 		tmpl))
 
 (defun resolve-clause-template (tokens lparen_idx clause_role)
-	(defq max_body (clause-max-body-elems clause_role) max_len (clause-max-len clause_role)
+	(defq max_body (clause-max-body-elems clause_role)
+		max_len (clause-max-len clause_role)
 		elems (clause-elem-count tokens lparen_idx))
 	(cond
 		; single-line clause only if actions <= max_body, and entire clause fits within max_len
@@ -319,8 +388,10 @@
 		(:t '(:body))))
 
 (defun lookup-form-template (tokens lparen_idx parent_raw_role after_quote)
-	(defq next_i (skip-ws-nl tokens (inc lparen_idx)) tok (if (< next_i (length tokens)) (elem-get tokens next_i))
-		tok_atom (if (and tok (eql (first tok) :atom)) (second tok)) known_tmpl (if (and tok_atom (not after_quote)) (. +templates :find tok_atom)))
+	(defq next_i (skip-ws-nl tokens (inc lparen_idx))
+		tok (if (< next_i (length tokens)) (elem-get tokens next_i))
+		tok_atom (if (and tok (eql (first tok) :atom)) (second tok))
+		known_tmpl (if (and tok_atom (not after_quote)) (. +templates :find tok_atom)))
 	(cond
 		; 1. quoted data list wraps items every 5 elements
 		(after_quote '((:data 5)))
@@ -342,7 +413,8 @@
 		; do not inject extra blank lines between consecutive comment lines
 		(prev_was_comment :nil)
 		(:t
-			(defq next_tok (elem-get tokens next_i) t_type (first next_tok))
+			(defq next_tok (elem-get tokens next_i)
+				t_type (first next_tok))
 			(cond
 				((eql t_type :comment)
 					; comment banners starting with multiple semicolons
@@ -354,12 +426,13 @@
 						(find (second (elem-get tokens op_i)) +major_definitions)))
 				(:nil)))))
 
-(defun check-template-break (form_stack at_line_start pending_nl after_quote current_col)
+(defun check-template-break (form_stack at_line_start pending_nl after_quote current_col tokens idx)
 	; check if current template requires a newline before this argument
 	(when (and (nempty? form_stack) (not after_quote))
 		(bind '(tmpl & arg_count &ignore) (last form_stack))
 		(when (> arg_count 0)
-			(defq raw_role (template-role tmpl arg_count) role (role-type raw_role))
+			(defq raw_role (template-role tmpl arg_count)
+				role (role-type raw_role))
 			(cond
 				((eql role :body) (unless (or at_line_start pending_nl) :t))
 				((eql role :clauses)
@@ -369,17 +442,20 @@
 						(not pending_nl)
 						(= max_per_line 1)))
 				((eql role :pairs)
-					(defq is_def (eql (first tmpl) :head) pair_arg (if is_def (dec arg_count) arg_count)
-						is_key (odd? pair_arg) line_pairs (elem-get (last form_stack) 5)
-						val_multiline (elem-get (last form_stack) 8) max_pairs (if (and (list? raw_role) (> (length raw_role) 1)) (second raw_role) 4)
+					(defq is_def (eql (first tmpl) :head)
+						pair_arg (if is_def (dec arg_count) arg_count)
+						is_key (odd? pair_arg)
+						line_pairs (elem-get (last form_stack) 5)
+						val_multiline (elem-get (last form_stack) 8)
+						max_pairs (if (and (list? raw_role) (> (length raw_role) 1)) (second raw_role) 4)
 						max_col (if (and (list? raw_role) (> (length raw_role) 2)) (third raw_role) 70))
 					(and is_key
 						(> pair_arg 1)
 						(not at_line_start)
 						(not pending_nl)
 						(or (>= line_pairs max_pairs)
-							(and (> line_pairs 0) (>= current_col max_col))
-							val_multiline)))
+							val_multiline
+							(not (upcoming-pair-fits? tokens idx (- max_col current_col))))))
 				((eql role :data)
 					(defq max_items (if (and (list? raw_role) (> (length raw_role) 1)) (second raw_role) 5))
 					(and (> arg_count 1)
@@ -401,14 +477,15 @@
 		(push lines raw))
 	(defq num_lines (length lines))
 	(while (< line_idx num_lines)
-		(defq raw_line (trim-end (elem-get lines line_idx) "\r") prev_state (. syntax :get_state))
+		(defq raw_line (trim-end (elem-get lines line_idx) "\r")
+			prev_state (. syntax :get_state))
 		(cond
 			((and (eql prev_state :text)
 				(starts-with "(defq usage" (trim-start raw_line)))
 				(defq u_lines (list) depth 0 in_str :nil done :nil)
 				(while (and (< line_idx num_lines) (not done))
-					(defq u_line (elem-get lines line_idx) u_len (length u_line)
-						ui 0)
+					(defq u_line (elem-get lines line_idx)
+						u_len (length u_line) ui 0)
 					(push u_lines u_line)
 					(while (< ui u_len)
 						(defq uc (elem-get u_line ui))
@@ -481,11 +558,13 @@
 
 (defun inc-arg-count (form_stack)
 	(when (nempty? form_stack)
-		(defq frame (last form_stack) tmpl (first frame) arg_c (inc (third frame)))
+		(defq frame (last form_stack) tmpl (first frame)
+			arg_c (inc (third frame)))
 		(elem-set frame 2 arg_c)
 		; increment pair count when a value in :pairs completes
 		(when (eql (role-type (template-role tmpl arg_c)) :pairs)
-			(defq is_def (eql (first tmpl) :head) pair_arg (if is_def (dec arg_c) arg_c))
+			(defq is_def (eql (first tmpl) :head)
+				pair_arg (if is_def (dec arg_c) arg_c))
 			(when (even? pair_arg)
 				(elem-set frame 5 (inc (elem-get frame 5)))
 				(elem-set frame 8 :nil)))))
@@ -505,14 +584,17 @@
 
 (defun format-lisp (stream_or_src)
 	(defq stream (if (str? stream_or_src) (string-stream stream_or_src) stream_or_src)
-		tokens (tokenize-lisp stream) len (length tokens) out (string-stream (str-alloc len))
-		cur_line_indent 0 current_col 0 at_line_start :t after_lparen :nil
-		after_quote :nil pending_nl :nil consec_nl 0 just_saw_comment :nil
-		prev_was_comment :nil top_block_indent 0 form_stack (list) idx 0
-		tok :nil tok_type :nil val "")
+		tokens (tokenize-lisp stream) len (length tokens)
+		out (string-stream (str-alloc len)) cur_line_indent 0
+		current_col 0 at_line_start :t after_lparen :nil
+		after_quote :nil pending_nl :nil consec_nl 0
+		just_saw_comment :nil prev_was_comment :nil top_block_indent 0
+		form_stack (list) idx 0 tok :nil tok_type :nil
+		val "")
 
 	(while (< idx len)
-		(setq tok (elem-get tokens idx) tok_type (first tok) val (second tok))
+		(setq tok (elem-get tokens idx) tok_type (first tok)
+			val (second tok))
 		(cond
 			((eql tok_type :ws) (++ idx))
 			((eql tok_type :nl)
@@ -533,8 +615,9 @@
 				(when pending_nl (times (if (>= consec_nl 2) 2 1)
 									(write-blk out "\n")))
 				(write-blk out val)
-				(setq at_line_start :t pending_nl :nil just_saw_comment :nil
-					prev_was_comment :nil consec_nl 0 current_col 0 after_lparen :nil
+				(setq at_line_start :t pending_nl :nil
+					just_saw_comment :nil prev_was_comment :nil
+					consec_nl 0 current_col 0 after_lparen :nil
 					after_quote :nil)
 				(++ idx))
 			((eql tok_type :comment)
@@ -548,13 +631,14 @@
 						(defq cur_blk_ind (if (nempty? form_stack) (elem-get (last form_stack) 7) top_block_indent)
 							ind (+ (current-target-indent form_stack) cur_blk_ind))
 						(write-blk out (make-indent ind))
-						(setq cur_line_indent ind current_col (* ind +tab_width)))
+						(setq cur_line_indent ind
+							current_col (* ind +tab_width)))
 					(write-blk out " "))
 				(write-blk out val)
 				; comments always terminate the line; subsequent code must be on a new line
-				(setq at_line_start :nil pending_nl :t consec_nl 1 just_saw_comment :t
-					prev_was_comment :t current_col 0 after_lparen :nil
-					after_quote :nil)
+				(setq at_line_start :nil pending_nl :t consec_nl 1
+					just_saw_comment :t prev_was_comment :t
+					current_col 0 after_lparen :nil after_quote :nil)
 				(++ idx))
 			((eql tok_type :rparen)
 				(defq closed_frame (if (nempty? form_stack) (pop form_stack) :nil))
@@ -563,12 +647,13 @@
 						(write-blk out "\n"))
 					(defq r_ind (if closed_frame (second closed_frame) (current-target-indent form_stack)))
 					(write-blk out (make-indent r_ind))
-					(setq at_line_start :t cur_line_indent r_ind current_col (* r_ind +tab_width)))
+					(setq at_line_start :t cur_line_indent r_ind
+						current_col (* r_ind +tab_width)))
 				(setq pending_nl :nil consec_nl 0 just_saw_comment :nil
 					prev_was_comment :nil)
 				(write-blk out ")")
-				(setq at_line_start :nil after_lparen :nil after_quote :nil
-					current_col (+ current_col 1))
+				(setq at_line_start :nil after_lparen :nil
+					after_quote :nil current_col (+ current_col 1))
 				(when closed_frame
 					(defq btag (elem-get closed_frame 6))
 					(cond
@@ -587,8 +672,9 @@
 				(++ idx))
 			(:t
 				; check if current template requires a newline before this argument
-				(when (check-template-break form_stack at_line_start pending_nl after_quote current_col)
-					(setq pending_nl :t consec_nl (if (>= consec_nl 2) 2 1)))
+				(when (check-template-break form_stack at_line_start pending_nl after_quote current_col tokens idx)
+					(setq pending_nl :t
+						consec_nl (if (>= consec_nl 2) 2 1)))
 
 				; flush deferred newlines and apply stack-directed indentation
 				(when pending_nl
@@ -607,8 +693,9 @@
 					(times nl_count
 						(write-blk out "\n"))
 					(write-blk out (make-indent ind))
-					(setq at_line_start :t pending_nl :nil just_saw_comment :nil
-						prev_was_comment :nil cur_line_indent ind consec_nl 0
+					(setq at_line_start :t pending_nl :nil
+						just_saw_comment :nil prev_was_comment :nil
+						cur_line_indent ind consec_nl 0
 						current_col (* ind +tab_width))
 					(each (lambda (f) (elem-set f 5 0) (elem-set f 8 :t)) form_stack))
 
@@ -618,8 +705,9 @@
 							(write-blk out " ")
 							(++ current_col))
 						(write-blk out val)
-						(setq at_line_start :nil after_lparen :nil after_quote :nil
-							consec_nl 0 current_col (if (find "\n" val) (last-line-len val) (+ current_col (length val))))
+						(setq at_line_start :nil after_lparen :nil
+							after_quote :nil consec_nl 0
+							current_col (if (find "\n" val) (last-line-len val) (+ current_col (length val))))
 						(inc-arg-count form_stack)
 						(++ idx))
 					((eql tok_type :lparen)
@@ -628,7 +716,8 @@
 							(++ current_col))
 						(defq start_col current_col)
 						(write-blk out "(")
-						(defq p_role (parent-role form_stack) is_clause (role-clauses? p_role)
+						(defq p_role (parent-role form_stack)
+							is_clause (role-clauses? p_role)
 							tmpl (lookup-form-template tokens idx p_role after_quote)
 							next_op_i (next-significant-idx tokens (inc idx))
 							next_op (if next_op_i (elem-get tokens next_op_i))
@@ -638,38 +727,42 @@
 								((and raw_tmpl (find :block_open raw_tmpl)) :open)
 								((and raw_tmpl (find :block_close raw_tmpl)) :close)
 								((and raw_tmpl (find :block_mid raw_tmpl)) :mid))
-							is_head (eql (role-type p_role) :head) parent_has_body (and (nempty? form_stack)
-																					(find :body (clean-template (first (last form_stack)))))
-							start_tab (/ start_col +tab_width) child_ind (cond
+							is_head (eql (role-type p_role) :head)
+							parent_has_body (and (nempty? form_stack)
+												(find :body (clean-template (first (last form_stack)))))
+							child_ind (cond
 								(at_line_start (inc cur_line_indent))
 								((and is_head parent_has_body)
-									(max (inc (current-target-indent form_stack)) (inc start_tab)))
+									(+ (current-target-indent form_stack) 1))
 								((find (role-type (first tmpl)) '(:pairs :data))
 									(inc cur_line_indent))
 								((find :body (clean-template tmpl))
-									(max (inc cur_line_indent) (inc start_tab)))
+									(max (inc cur_line_indent) (inc (/ start_col +tab_width))))
 								(:t (inc cur_line_indent)))
 							f_base (dec child_ind))
 						; stack frame: (tmpl f_base arg_count child_ind is_clause pairs_on_line block_tag block_indent val_multiline)
 						(push form_stack (list tmpl f_base 0 child_ind is_clause 0 block_tag 0 :nil))
-						(setq at_line_start :nil after_lparen :t after_quote :nil
-							consec_nl 0 current_col (+ current_col 1))
+						(setq at_line_start :nil after_lparen :t
+							after_quote :nil consec_nl 0
+							current_col (+ current_col 1))
 						(++ idx))
 					((eql tok_type :quote)
 						(unless (or at_line_start after_lparen after_quote)
 							(write-blk out " ")
 							(++ current_col))
 						(write-blk out val)
-						(setq at_line_start :nil after_lparen :nil after_quote :t
-							consec_nl 0 current_col (+ current_col (length val)))
+						(setq at_line_start :nil after_lparen :nil
+							after_quote :t consec_nl 0
+							current_col (+ current_col (length val)))
 						(++ idx))
 					(:t
 						(unless (or at_line_start after_lparen after_quote)
 							(write-blk out " ")
 							(++ current_col))
 						(write-blk out val)
-						(setq at_line_start :nil after_lparen :nil after_quote :nil
-							consec_nl 0 current_col (+ current_col (length val)))
+						(setq at_line_start :nil after_lparen :nil
+							after_quote :nil consec_nl 0
+							current_col (+ current_col (length val)))
 						(inc-arg-count form_stack)
 						(++ idx))))))
 	(when pending_nl (write-blk out "\n"))
@@ -702,7 +795,8 @@
 
 (defun main ()
 	(when (and (defq stdio (create-stdio))
-			(defq opt_j 8 opt_w :nil opt_c :nil args (options stdio usage)))
+			(defq opt_j 8 opt_w :nil opt_c :nil
+				args (options stdio usage)))
 		(defq files (rest args))
 		(if (empty? files) (lines! (# (push files %0) :nil) (io-stream 'stdin)))
 		(setq files (usort (filter (lambda (file) (some (# (ends-with %0 file)) +file_types)) files)))
