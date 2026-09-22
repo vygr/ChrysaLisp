@@ -467,7 +467,8 @@
 						(setq cur_line_indent ind current_col (* ind +tab_width)))
 					(write-blk out " "))
 				(write-blk out val)
-				; comments always terminate the line; subsequent code must be on a new line
+				; comments always terminate the line
+				; subsequent code must be on a new line
 				(setq at_line_start :nil pending_nl :t consec_nl 1 just_saw_comment :t
 					prev_was_comment :t current_col 0 after_lparen :nil after_quote :nil)
 				(++ idx))
@@ -486,7 +487,8 @@
 				(write-blk out ")")
 				(setq at_line_start :nil after_lparen :nil after_quote :nil current_col (+ current_col 1))
 				(if (empty? form_stack)
-					; top-level form closed; next form starts on a new line
+					; top-level form closed
+					; next form starts on a new line
 					(setq pending_nl :t consec_nl 0)
 					(inc-arg-count form_stack))
 				(++ idx))
