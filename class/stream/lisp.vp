@@ -38,7 +38,7 @@
 		(class/obj/ref :r1 :r2)
 	(endswitch)
 
-	(exit :stream :lisp_iostream '(:r8 :r1))
+	(exit :stream :lisp_iostream '(:r7 :r1))
 	(vp-ret)
 
 (errorcase
