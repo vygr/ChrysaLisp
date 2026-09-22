@@ -12,8 +12,7 @@
 	(defq changed :nil i 0)
 	; 1. purge writes if node died or lease expired
 	(while (< i (length writes))
-		(defq rec (elem-get writes i)
-			node (task-nodeid (pfind rec :reply)))
+		(defq rec (elem-get writes i) node (pfind rec :node))
 		(ifn (or (not (find node nodes))
 				(> (- now (pfind rec :time)) +lock_default_lease))
 			(++ i)
@@ -34,7 +33,7 @@
 (defun merge-locks (writes reads pending nodes now)
 	(defq blocked (list) new_pending (list))
 	(each (lambda (req)
-		(defq node (task-nodeid (pfind req :reply)))
+		(defq node (pfind req :node))
 		; drop request if caller node died or caller already timed out
 		(unless (or (not (find node nodes))
 				(> (- now (pfind req :time)) (pfind req :timeout)))
@@ -80,10 +79,10 @@
 						key_path (split key "/"))
 					(case type
 						(+lock_type_claim
-							(push lock_pending
-								(pmap :key key :path key_path :mode mode :reply reply_id
-									:time (pii-time) :timeout timeout))
-							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time))))
+								(push lock_pending
+									(pmap :key key :path key_path :mode mode :reply reply_id
+										:node (task-nodeid reply_id) :time (pii-time) :timeout timeout))
+								(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time))))
 						(+lock_type_release
 							; 1. check writes
 							(ifn (defq idx (some! (# (if (eql (pfind %0 :key) key) (!))) (list lock_writes)))
