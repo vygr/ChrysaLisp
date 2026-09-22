@@ -131,14 +131,16 @@
 
 (defun skip-ws-nl (tokens idx)
 	(defq len (length tokens) i idx)
-	(while (and (< i len) (find (first (elem-get tokens i)) '(:ws :nl)))
+	(while (and (< i len)
+			(find (first (elem-get tokens i)) '(:ws :nl)))
 		(++ i))
 	i)
 
 (defun skip-ws (tokens idx)
 	; skip whitespace tokens only
 	(defq len (length tokens) i idx)
-	(while (and (< i len) (eql (first (elem-get tokens i)) :ws))
+	(while (and (< i len)
+			(eql (first (elem-get tokens i)) :ws))
 		(++ i))
 	i)
 
@@ -146,9 +148,11 @@
 	; check if an opening paren is at the end of a line
 	(defq len (length tokens)
 		op_i (skip-ws tokens (inc lparen_idx)))
-	(if (>= op_i len) :t
+	(if (>= op_i len)
+		:t
 		(defq next_i (skip-ws tokens (inc op_i)))
-		(if (>= next_i len) :t
+		(if (>= next_i len)
+			:t
 			(eql (first (elem-get tokens next_i)) :nl))))
 
 (defun form-short? (tokens lparen_idx)
@@ -191,7 +195,7 @@
 		(:t
 			(defq next_i (skip-ws-nl tokens (inc lparen_idx)))
 			(if (and (< next_i (length tokens))
-				(eql (first (defq tok (elem-get tokens next_i))) :atom))
+					(eql (first (defq tok (elem-get tokens next_i))) :atom))
 				(resolve-template
 					(or (. +templates :find (second tok)) '(:flow))
 					tokens lparen_idx)
@@ -226,7 +230,7 @@
 			prev_state (. syntax :get_state))
 		(cond
 			((and (eql prev_state :text)
-				(starts-with "(defq usage" (trim-start raw_line)))
+					(starts-with "(defq usage" (trim-start raw_line)))
 				(defq u_lines (list) depth 0 in_str :nil done :nil)
 				(while (and (< line_idx num_lines) (not done))
 					(defq u_line (elem-get lines line_idx)
@@ -262,7 +266,9 @@
 								(defq kind (if (eql tok_state :string1)
 									:string
 									:cscript))
-								(if (and (eql tok_state prev_state) (nempty? tokens) (eql (first (last tokens)) kind))
+								(if (and (eql tok_state prev_state)
+										(nempty? tokens)
+										(eql (first (last tokens)) kind))
 									(elem-set (last tokens) 1 (cat (second (last tokens)) "\n" val))
 									(push tokens (list kind val))))
 							((eql tok_state :comment)
@@ -284,7 +290,7 @@
 										((or (eql ch " ") (eql ch "\t"))
 											(defq ws_start ti)
 											(while (and (< ti tlen)
-												(or (eql (defq c (elem-get val ti)) " ") (eql c "\t")))
+													(or (eql (defq c (elem-get val ti)) " ") (eql c "\t")))
 												(++ ti))
 											(push tokens (list :ws (slice val ws_start ti))))
 										((eql ch "(")
@@ -299,7 +305,7 @@
 										(:t
 											(defq atom_start ti)
 											(while (and (< ti tlen)
-												(not (find (elem-get val ti) " \t()'`~,")))
+													(not (find (elem-get val ti) " \t()'`~,")))
 												(++ ti))
 											(push tokens (list :atom (slice val atom_start ti)))))))))
 						toks states))
