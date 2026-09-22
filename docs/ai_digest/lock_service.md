@@ -106,7 +106,7 @@ The service maintains three internal lists in `main`:
 
 *   `lock_reads`: Currently granted shared read lock records. Multiple readers
     on the exact same key are compacted into a single record where `:mode`
-    stores the active reader count, keeping conflict scans $O(\text{unique paths})$.
+    stores the active reader count, keeping conflict scans O(unique paths).
 
 *   `lock_pending`: Unfulfilled claim requests waiting in FIFO order.
 
@@ -172,7 +172,7 @@ never be released.
 If a task crashes, leaks, or hangs on a surviving node without releasing its
 lock, `purge-expired` checks whether `(- now (pfind rec :time))` has exceeded
 `+lock_default_lease` (60 seconds by default). Expired locks are revoked using
-$O(1)$ swap-and-pop removal, and `merge-locks` immediately grants waiting
+O(1) swap-and-pop removal, and `merge-locks` immediately grants waiting
 waiters.
 
 ## Service Implementation
