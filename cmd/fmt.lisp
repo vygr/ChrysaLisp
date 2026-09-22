@@ -53,6 +53,7 @@
 	"macro" '(:head :body)
 	"let" '(:head :body)
 	"let*" '(:head :body)
+	"#" '(:body)
 
 	;; Conditionals & Branching
 	"cond" '(:clauses)
