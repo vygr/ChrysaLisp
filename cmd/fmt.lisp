@@ -494,8 +494,7 @@
 		stream_or_src) tokens (tokenize-lisp stream) len (length tokens) out (string-stream (str-alloc len)) cur_line_indent 0
 		current_col 0 at_line_start :t after_lparen :nil after_quote :nil
 		pending_nl :nil consec_nl 0 just_saw_comment :nil prev_was_comment :nil
-		block_indent 0 form_stack (list) idx 0 tok :nil
-		tok_type :nil val "")
+		top_block_indent 0 form_stack (list) idx 0 tok :nil tok_type :nil val "")
 
 	(while (< idx len)
 		(setq tok (elem-get tokens idx) tok_type (first tok) val (second tok))
@@ -543,28 +542,36 @@
 					prev_was_comment :t current_col 0 after_lparen :nil after_quote :nil)
 				(++ idx))
 			((eql tok_type :rparen)
-				(defq closed_frame (if (nempty? form_stack) (pop form_stack) :nil))
-				(when (and pending_nl
-						(eql (first (elem-get tokens (dec idx))) :comment))
+				(defq closed_frame (if (nempty? form_stack)
+					(pop form_stack)
+					:nil))
+				(when (and pending_nl (eql (first (elem-get tokens (dec idx))) :comment))
 					(times (if (>= consec_nl 2) 2 1)
 						(write-blk out "\n"))
 					(defq r_ind (if closed_frame
 						(second closed_frame)
 						(current-target-indent form_stack)))
 					(write-blk out (make-indent r_ind))
-					(setq at_line_start :t cur_line_indent r_ind current_col (* r_ind +tab_width)))
+					(setq at_line_start :t cur_line_indent r_ind
+						current_col (* r_ind +tab_width)))
 				(setq pending_nl :nil consec_nl 0 just_saw_comment :nil prev_was_comment :nil)
 				(write-blk out ")")
-				(setq at_line_start :nil after_lparen :nil after_quote :nil current_col (+ current_col 1))
+				(setq at_line_start :nil after_lparen :nil after_quote :nil
+					current_col (+ current_col 1))
 				(when closed_frame
 					(defq btag (elem-get closed_frame 6))
 					(cond
-						((eql btag :open) (++ block_indent))
+						((eql btag :open)
+							(if (nempty? form_stack)
+								(elem-set (last form_stack) 7 (inc (elem-get (last form_stack) 7)))
+								(++ top_block_indent)))
 						((eql btag :close)
-							(setq block_indent (max 0 (dec block_indent))))))
+							(if (nempty? form_stack)
+								(elem-set (last form_stack) 7 (max 0 (dec (elem-get (last form_stack) 7))))
+								(setq top_block_indent (max 0 (dec top_block_indent)))))))
 				(if (empty? form_stack)
-					; top-level form closed; next form starts on a new line
-					(setq pending_nl :t consec_nl 0 block_indent 0)
+					; top-level form closed; reset state for next form
+					(setq pending_nl :t consec_nl 0 top_block_indent 0)
 					(inc-arg-count form_stack))
 				(++ idx))
 			(:t
@@ -574,22 +581,27 @@
 
 				; flush deferred newlines and apply stack-directed indentation
 				(when pending_nl
-					(defq next_op_i (if (eql tok_type :lparen)
-						(next-significant-idx tokens (inc idx))) next_op (if next_op_i (elem-get tokens next_op_i)) next_op_str (if (and next_op (eql (first next_op) :atom))
-							(second next_op)) next_raw_tmpl (if next_op_str (. +templates :find next_op_str)) is_unindent (and next_raw_tmpl
-								(or (find :block_close next_raw_tmpl)
-									(find :block_mid next_raw_tmpl))) effective_block_indent (if is_unindent (max 0 (dec block_indent)) block_indent) ind (+ (current-target-indent form_stack) effective_block_indent) nl_count (if (empty? form_stack)
-										(if (wants-section-break? tokens idx consec_nl prev_was_comment)
-											2
-											1)
-										(if (>= consec_nl 2) 2 1)))
+					(defq next_op_i (if (eql tok_type :lparen) (next-significant-idx tokens (inc idx)))
+						next_op (if next_op_i (elem-get tokens next_op_i))
+						next_op_str (if (and next_op (eql (first next_op) :atom)) (second next_op))
+						next_raw_tmpl (if next_op_str (. +templates :find next_op_str))
+						is_unindent (and next_raw_tmpl (or (find :block_close next_raw_tmpl)
+							(find :block_mid next_raw_tmpl)))
+						cur_blk_ind (if (nempty? form_stack)
+							(elem-get (last form_stack) 7)
+							top_block_indent)
+						effective_block_indent (if is_unindent (max 0 (dec cur_blk_ind)) cur_blk_ind)
+						ind (+ (current-target-indent form_stack) effective_block_indent)
+						nl_count (if (empty? form_stack)
+							(if (wants-section-break? tokens idx consec_nl prev_was_comment) 2 1)
+							(if (>= consec_nl 2) 2 1)))
 					(times nl_count
 						(write-blk out "\n"))
 					(write-blk out (make-indent ind))
 					(setq at_line_start :t pending_nl :nil just_saw_comment :nil prev_was_comment :nil
-						cur_line_indent ind consec_nl 0 current_col (* ind +tab_width))
-					(each (lambda (f)
-						(elem-set f 5 0)) form_stack))
+						cur_line_indent ind
+						consec_nl 0 current_col (* ind +tab_width))
+					(each (lambda (f) (elem-set f 5 0)) form_stack))
 
 				(cond
 					((find tok_type '(:cscript :string))
@@ -620,8 +632,8 @@
 											((or is_clause (and is_head parent_has_body))
 												(current-target-indent form_stack))
 											(:t cur_line_indent)) child_ind (+ f_base 1))
-						; stack frame: (tmpl f_base arg_count child_ind is_clause pairs_on_line block_tag)
-						(push form_stack (list tmpl f_base 0 child_ind is_clause 0 block_tag))
+						; stack frame: (tmpl f_base arg_count child_ind is_clause pairs_on_line block_tag block_indent)
+						(push form_stack (list tmpl f_base 0 child_ind is_clause 0 block_tag 0))
 						(setq at_line_start :nil after_lparen :t after_quote :nil consec_nl 0
 							current_col (+ current_col 1))
 						(++ idx))
