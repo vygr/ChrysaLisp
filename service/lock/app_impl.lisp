@@ -82,11 +82,10 @@
 								(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time))))
 						(+lock_type_release
 							; 1. check writes
-							(ifn (defq idx (some! (# (if (eql (pfind %0 :key) key) (!))) (list lock_writes)))
+							(ifn (defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_writes))
 								; 2. check reads
-								(when (defq idx (some! (# (if (eql (pfind %0 :key) key) (!))) (list lock_reads)))
-									(defq rec (elem-get lock_reads idx)
-										cnt (dec (pfind rec :mode)))
+								(when (defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_reads))
+									(defq rec (elem-get lock_reads idx) cnt (dec (pfind rec :mode)))
 									(ifn (<= cnt 0) (pinsert rec :mode cnt)
 										(elem-set lock_reads idx (last lock_reads))
 										(pop lock_reads)))
@@ -96,8 +95,7 @@
 							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time))))))
 				(+select_timer
 					(mail-timeout (elem-get select +select_timer) +check_rate 0)
-					(defq nodes (lisp-nodes) now (pii-time)
-						purged (purge-expired lock_writes lock_reads nodes now))
+					(defq nodes (lisp-nodes) now (pii-time) purged (purge-expired lock_writes lock_reads nodes now))
 					(when (or purged (nempty? lock_pending))
 						(setq lock_pending (merge-locks lock_writes lock_reads lock_pending nodes now)))))))
 	(mail-forget lock_service))
