@@ -287,6 +287,8 @@ Deep dives into meta-commentary and design philosophy:
     (`+kn_call_pin`), shared-memory concurrency, and zero-buffering streaming
     pipelines (case study: `CPM-load`).
 
+70. **[Lock Service](docs/ai_digest/lock_service.md)** - Lock service features.
+
 ---
 
 ## Reading Paths

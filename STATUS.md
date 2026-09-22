@@ -34,6 +34,16 @@ and `:nil` on timeout or failure.
 `code` handler in Docs app updated to auto embed into a horizontal scroll if
 required.
 
+Lock Service 0.4 replaces the trie architecture with flat sequence primitives,
+introducing shared-read (+lock_mode_read) and exclusive-write (+lock_mode_write,
+default) hierarchical path locking via (every (const eql) path1 path2). The
+release features reader compaction on identical keys, starvation-free path-wise
+strict FIFO queue draining, and autonomous fault tolerance that reclaims
+dead-node locks via (lisp-nodes), prunes abandoned requests to prevent ghost
+locks, and revokes orphaned active locks after a 60-second lease TTL.
+
+New `docs/ai_digest/lock_service.md` document.
+
 ------
 
 New `curl` command (`cmd/curl.lisp`) to fetch and display content from HTTP

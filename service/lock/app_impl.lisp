@@ -1,81 +1,107 @@
 (import "./app.inc")
 
-(defun path-segments (key)
-	(filter (# (nql %0 "")) (split key "/")))
+(enums +select 0
+	(enum main timer))
 
-(defun make-node ()
-	(pmap :holders (list) :sub_count 0))
+(defq +check_rate 1000000 +lock_default_lease (task-timeout 60))
 
-(defun trie-conflict? (root segs)
-	(defq curr root conflict :nil
-		broken (some (#
-			(when (nempty? (pfind curr :holders)) (setq conflict :t))
-			(unless (setq curr (pfind curr %0)) :t)) segs))
-	(cond
-		(conflict :t)
-		((not broken)
-			(or (nempty? (pfind curr :holders))
-				(> (pfind curr :sub_count) 0)))))
+(defun conflict? (key_path locks)
+	(some (# (every (const eql) key_path (pfind %0 :path))) locks))
 
-(defun trie-lock! (root segs reply_id)
-	(defq nodes (reduce (# (push %0 (ifn (pfind (last %0) %1)
-			(progn
-				(defq child (make-node))
-				(pinsert (last %0) %1 child)
-				child))))
-		segs (list root)))
-	(push (pfind (last nodes) :holders) reply_id)
-	; increment sub_count on all ancestors (excluding target node)
-	(pop nodes)
-	(each (# (pinsert %0 :sub_count (inc (pfind %0 :sub_count)))) nodes))
+(defun purge-expired (writes reads nodes now)
+	(defq changed :nil i 0)
+	; 1. purge writes if node died or lease expired
+	(while (< i (length writes))
+		(defq rec (elem-get writes i)
+			node (task-nodeid (pfind rec :reply)))
+		(ifn (or (not (find node nodes))
+				(> (- now (pfind rec :time)) +lock_default_lease))
+			(++ i)
+			(elem-set writes i (last writes))
+			(pop writes)
+			(setq changed :t)))
+	; 2. purge reads if lease expired
+	(setq i 0)
+	(while (< i (length reads))
+		(defq rec (elem-get reads i))
+		(ifn (> (- now (pfind rec :time)) +lock_default_lease)
+			(++ i)
+			(elem-set reads i (last reads))
+			(pop reads)
+			(setq changed :t)))
+	changed)
 
-(defun trie-unlock! (root segs)
-	(defq nodes (reduce (#
-			(ifn (defq next (pfind (last %0) %1)) %0
-				(push %0 next))) segs (list root))
-		curr (last nodes) holders (pfind curr :holders))
-	(when (nempty? holders)
-		(pop holders)
-		; decrement sub_count on ancestors
-		(pop nodes)
-		(each (# (pinsert %0 :sub_count (dec (pfind %0 :sub_count)))) nodes)))
+(defun merge-locks (writes reads pending nodes now)
+	(defq old_pending pending blocked (list) new_pending (list))
+	(each (lambda (req)
+		(defq node (task-nodeid (pfind req :reply)))
+		; drop request if caller node died or caller already timed out
+		(unless (or (not (find node nodes))
+				(> (- now (pfind req :time)) (pfind req :timeout)))
+			(defq key (pfind req :key) key_path (pfind req :path) mode (pfind req :mode))
+			(cond
+				((= mode +lock_mode_write)
+					(ifn (or (conflict? key_path writes)
+							(conflict? key_path reads)
+							(conflict? key_path blocked))
+						(progn
+							(pinsert req :time now)
+							(push writes req)
+							(mail-send (pfind req :reply) ""))
+						(push blocked req)
+						(push new_pending req)))
+				(:t ; +lock_mode_read
+					(ifn (or (conflict? key_path writes)
+							(conflict? key_path blocked))
+						(progn
+							(if (defq rec (some (# (if (eql (pfind %0 :key) key) %0)) reads))
+								(pinsert rec :mode (inc (pfind rec :mode)) :time now)
+								(push reads (pmap :key key :path key_path :mode 1 :time now)))
+							(mail-send (pfind req :reply) ""))
+						(push blocked req)
+						(push new_pending req))))))
+		old_pending)
+	new_pending)
 
 (defun main ()
-	(defq lock_service (mail-declare (task-mbox) "@Lock" "Lock Service 0.3")
-		root (make-node) active_locks (list) pending_que (list))
+	(defq select (task-mboxes +select_size)
+		lock_service (mail-declare (task-mbox) "@Lock" "Lock Service 0.4")
+		lock_writes (list) lock_reads (list) lock_pending (list))
+	(mail-timeout (elem-get select +select_timer) +check_rate 0)
 	(while :t
-		(let* ((msg (mail-read (task-mbox)))
-				(reply_id (getf msg +lock_rpc_reply_id))
-				(key (slice msg +lock_rpc_size -1))
-				(segs (path-segments key)))
-			(case (getf msg +lock_rpc_type)
-				(+lock_type_claim
-					(if (trie-conflict? root segs)
-						(push pending_que key segs reply_id)
-						(trie-lock! root segs reply_id)
-						(push active_locks key segs reply_id)
-						(mail-send reply_id "")))
-				(+lock_type_release
-					; find and remove from active_locks matching by key
-					(defq i 0 len (length active_locks))
-					(while (< i len)
-						(ifn (eql (elem-get active_locks i) key)
-							(setq i (+ i 3))
-							(trie-unlock! root (elem-get active_locks (+ i 1)))
-							(setq active_locks (erase active_locks i (+ i 3)) i len)))
-					(mail-send reply_id "")
-					; drain pending requests that are now conflict-free
-					(when (nempty? pending_que)
-						(defq old_pending pending_que pending_que (list)
-							j 0 plen (length old_pending))
-						(while (< j plen)
-							(defq pk (elem-get old_pending j)
-								psegs (elem-get old_pending (+ j 1))
-								pr (elem-get old_pending (+ j 2)))
-							(if (trie-conflict? root psegs)
-								(push pending_que pk psegs pr)
-								(trie-lock! root psegs pr)
-								(push active_locks pk psegs pr)
-								(mail-send pr ""))
-							(setq j (+ j 3))))))))
+		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))
+			(case idx
+				(+select_main
+					(defq reply_id (getf msg +lock_rpc_reply_id)
+						type (getf msg +lock_rpc_type)
+						mode (getf msg +lock_rpc_mode)
+						timeout (getf msg +lock_rpc_timeout)
+						key (slice msg +lock_rpc_size -1)
+						key_path (split key "/"))
+					(case type
+						(+lock_type_claim
+							(push lock_pending
+								(pmap :key key :path key_path :mode mode :reply reply_id
+									:time (pii-time) :timeout timeout))
+							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time))))
+						(+lock_type_release
+							; 1. check writes
+							(ifn (defq idx (some! (# (if (eql (pfind %0 :key) key) (!))) (list lock_writes)))
+								; 2. check reads
+								(when (defq idx (some! (# (if (eql (pfind %0 :key) key) (!))) (list lock_reads)))
+									(defq rec (elem-get lock_reads idx)
+										cnt (dec (pfind rec :mode)))
+									(ifn (<= cnt 0) (pinsert rec :mode cnt)
+										(elem-set lock_reads idx (last lock_reads))
+										(pop lock_reads)))
+								(elem-set lock_writes idx (last lock_writes))
+								(pop lock_writes))
+							(mail-send reply_id "")
+							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time))))))
+				(+select_timer
+					(mail-timeout (elem-get select +select_timer) +check_rate 0)
+					(defq nodes (lisp-nodes) now (pii-time)
+						purged (purge-expired lock_writes lock_reads nodes now))
+					(when (or purged (nempty? lock_pending))
+						(setq lock_pending (merge-locks lock_writes lock_reads lock_pending nodes now)))))))
 	(mail-forget lock_service))
