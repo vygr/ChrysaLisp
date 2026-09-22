@@ -55,7 +55,7 @@
 	"macro" '(:head :body)
 	"let" '(:head :body)
 	"let*" '(:head :body)
-	"#" '(:body)
+	"#" '(:flow)
 
 	;; conditionals & branching
 	"cond" '(:clauses)
@@ -73,31 +73,31 @@
 	"until" '(:head :body)
 	"for" '(:head :head :body)
 	"times" '(:head :body)
-	"each" '(:head :body)
-	"each!" '(:head :body)
-	"reach" '(:head :body)
-	"map" '(:head :body)
-	"map!" '(:head :body)
-	"rmap" '(:head :body)
-	"filter" '(:head :body)
-	"filter!" '(:head :body)
-	"reduce" '(:head :body)
-	"reduce!" '(:head :body)
-	"rreduce" '(:head :body)
-	"some" '(:head :body)
-	"some!" '(:head :body)
-	"rsome" '(:head :body)
-	"every" '(:head :body)
-	"notany" '(:head :body)
-	"notevery" '(:head :body)
-	"lines!" '(:head :head :body)
+	"each" '(:flow)
+	"each!" '(:flow)
+	"reach" '(:flow)
+	"map" '(:flow)
+	"map!" '(:flow)
+	"rmap" '(:flow)
+	"filter" '(:flow)
+	"filter!" '(:flow)
+	"reduce" '(:flow)
+	"reduce!" '(:flow)
+	"rreduce" '(:flow)
+	"some" '(:flow)
+	"some!" '(:flow)
+	"rsome" '(:flow)
+	"every" '(:flow)
+	"notany" '(:flow)
+	"notevery" '(:flow)
+	"lines!" '(:flow)
 
 	;; logic, blocks, exception handling
-	"and" '(:body)
-	"or" '(:body)
+	"and" '(:flow)
+	"or" '(:flow)
 	"progn" '(:body)
 	"catch" '(:head :body)
-	"throw" '(:head :body)
+	"throw" '(:flow)
 	"structure" '(:head :head :body)
 	"enums" '(:head :head :body)
 	"bits" '(:head :head :body)
@@ -137,26 +137,38 @@
 	; check if an opening paren is at the end of a line
 	(defq len (length tokens)
 		op_i (skip-ws tokens (inc lparen_idx)))
-	(if (>= op_i len) :t
+	(if (>= op_i len)
+		:t
 		(defq next_i (skip-ws tokens (inc op_i)))
-		(if (>= next_i len) :t
+		(if (>= next_i len)
+			:t
 			(eql (first (elem-get tokens next_i)) :nl))))
 
 (defun lookup-form-template (tokens idx parent_role)
 	(cond
 		((eql parent_role :clauses)
-			'(:head :body))
+			'(:head :flow))
 		(:t
 			(defq next_i (skip-ws-nl tokens idx))
 			(if (and (< next_i (length tokens))
 				(eql (first (defq tok (elem-get tokens next_i))) :atom))
 				(or (. +templates :find (second tok))
-					'(:body))
-				'(:body)))))
+					'(:flow))
+				'(:flow)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; fast syntax tokenizer
 ;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun check-template-break (form_stack at_line_start pending_nl after_quote)
+	; check if current template requires a newline before this argument
+	(when (and (nempty? form_stack) (not after_quote))
+		(bind '(tmpl & arg_count &ignore) (last form_stack))
+		(when (> arg_count 0)
+			(defq role (template-role tmpl arg_count))
+			(when (or (eql role :body) (eql role :clauses))
+				(unless (or at_line_start pending_nl)
+					:t)))))
 
 (defun tokenize-lisp (stream)
 	(defq ends_nl :t)
@@ -194,7 +206,8 @@
 								(++ depth))
 							((eql uc ")")
 								(-- depth)
-								(if (= depth 0) (setq done :t))))
+								(if (= depth 0)
+									(setq done :t))))
 						(++ ui))
 					(++ line_idx))
 				(push tokens (list :raw (cat (join u_lines "\n") "\n"))))
@@ -205,7 +218,9 @@
 					(each (lambda (val tok_state)
 						(cond
 							((find tok_state '(:string1 :string2))
-								(defq kind (if (eql tok_state :string1) :string :cscript))
+								(defq kind (if (eql tok_state :string1)
+									:string
+									:cscript))
 								(if (and (eql tok_state prev_state) (nempty? tokens) (eql (first (last tokens)) kind))
 									(elem-set (last tokens) 1 (cat (second (last tokens)) "\n" val))
 									(push tokens (list kind val))))
@@ -277,7 +292,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun format-lisp (stream_or_src)
-	(defq stream (if (str? stream_or_src) (string-stream stream_or_src) stream_or_src)
+	(defq stream (if (str? stream_or_src)
+		(string-stream stream_or_src)
+		stream_or_src)
 		tokens (tokenize-lisp stream) len (length tokens)
 		out (string-stream (str-alloc len))
 		cur_line_indent 0 current_col 0
@@ -292,11 +309,13 @@
 				(++ idx))
 			((eql tok_type :nl)
 				(setq pending_nl :t)
-				(if (< consec_nl 3) (++ consec_nl))
+				(if (< consec_nl 3)
+					(++ consec_nl))
 				(++ idx))
 			((eql tok_type :raw)
 				(when pending_nl
-					(times consec_nl (write-blk out "\n")))
+					(times consec_nl
+						(write-blk out "\n")))
 				(write-blk out val)
 				(setq at_line_start :t pending_nl :nil
 					consec_nl 0 current_col 0 after_lparen :nil after_quote :nil)
@@ -305,7 +324,8 @@
 				(if (or at_line_start pending_nl)
 					(progn
 						(when pending_nl
-							(times consec_nl (write-blk out "\n")))
+							(times consec_nl
+								(write-blk out "\n")))
 						(defq ind (current-target-indent form_stack))
 						(write-blk out (make-indent ind))
 						(setq cur_line_indent ind current_col (* ind +tab_width)))
@@ -315,10 +335,15 @@
 					consec_nl 0 current_col 0 after_lparen :nil after_quote :nil)
 				(++ idx))
 			((eql tok_type :rparen)
-				(defq closed_frame (if (nempty? form_stack) (pop form_stack) :nil))
+				(defq closed_frame (if (nempty? form_stack)
+					(pop form_stack)
+					:nil))
 				(when pending_nl
-					(times consec_nl (write-blk out "\n"))
-					(defq r_ind (if closed_frame (second closed_frame) (current-target-indent form_stack)))
+					(times consec_nl
+						(write-blk out "\n"))
+					(defq r_ind (if closed_frame
+						(second closed_frame)
+						(current-target-indent form_stack)))
 					(write-blk out (make-indent r_ind))
 					(setq at_line_start :t cur_line_indent r_ind
 						current_col (* r_ind +tab_width)))
@@ -329,9 +354,14 @@
 				(inc-arg-count form_stack)
 				(++ idx))
 			(:t
+				; check if current template requires a newline before this argument
+				(when (check-template-break form_stack at_line_start pending_nl after_quote)
+					(setq pending_nl :t consec_nl 1))
+
 				; flush deferred newlines and apply stack-directed indentation
 				(when pending_nl
-					(times consec_nl (write-blk out "\n"))
+					(times consec_nl
+						(write-blk out "\n"))
 					(defq ind (current-target-indent form_stack))
 					(write-blk out (make-indent ind))
 					(setq at_line_start :t pending_nl :nil
@@ -345,7 +375,9 @@
 							(++ current_col))
 						(write-blk out val)
 						(setq at_line_start :nil after_lparen :nil after_quote :nil
-							current_col (if (find "\n" val) (last-line-len val) (+ current_col (length val))))
+							current_col (if (find "\n" val)
+								(last-line-len val)
+								(+ current_col (length val))))
 						(inc-arg-count form_stack)
 						(++ idx))
 					((eql tok_type :lparen)
@@ -384,7 +416,8 @@
 						(inc-arg-count form_stack)
 						(++ idx))))))
 	(when pending_nl
-		(times consec_nl (write-blk out "\n")))
+		(times consec_nl
+			(write-blk out "\n")))
 	(str out))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -434,10 +467,15 @@
 			(some (# (ends-with %0 file)) +file_types)) files)))
 		(if (<= (length files) opt_j)
 			(each (# (work %0 opt_w opt_c)) files)
-			(each (lambda ((job result)) (prin result))
+			(each (lambda ((job result))
+				(prin result))
 				(pipe-farm (map (# (str (first args)
 					" -j " opt_j
-					(if opt_w " -w" "")
-					(if opt_c " -c" "")
+					(if opt_w
+						" -w"
+						"")
+					(if opt_c
+						" -c"
+						"")
 					" " (slice (str %0) 1 -2)))
 					(partition files opt_j)))))))
