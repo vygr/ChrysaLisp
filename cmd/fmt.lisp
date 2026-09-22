@@ -32,7 +32,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq +templates (scatter (Fmap 64)
-	;; definitions & bindings
+	; definitions & bindings
 	"defq" '(:pairs)
 	"setq" '(:pairs)
 	"def" '(:head :pairs)
@@ -56,7 +56,7 @@
 	"bits" '(:head :head :body)
 	"def-vars" '(:body)
 
-	;; single-line declarations
+	; single-line declarations
 	"deffimethod" '(:flow)
 	"defgetmethod" '(:flow)
 	"defsetmethod" '(:flow)
@@ -64,7 +64,7 @@
 	"dec-method" '(:flow)
 	"#" '(:flow)
 
-	;; conditionals & branching
+	; conditionals & branching
 	"cond" '(:clauses)
 	"condn" '(:clauses)
 	"case" '(:head :clauses)
@@ -75,13 +75,13 @@
 	"when" '(:choice (:flow) (:head :body))
 	"unless" '(:choice (:flow) (:head :body))
 
-	;; loops & iteration
+	; loops & iteration
 	"while" '(:head :body)
 	"until" '(:head :body)
 	"for" '(:head :head :body)
 	"times" '(:head :body)
 
-	;; higher-order sequence functions
+	; higher-order sequence functions
 	"each" '(:flow)
 	"each!" '(:flow)
 	"reach" '(:flow)
@@ -101,7 +101,7 @@
 	"notevery" '(:flow)
 	"lines!" '(:flow)
 
-	;; logic, blocks, exception handling
+	; logic, blocks, exception handling
 	"and" '(:choice (:flow) (:head :clauses))
 	"or" '(:choice (:flow) (:head :clauses))
 	"throw" '(:flow)
@@ -113,6 +113,10 @@
 	"time-it" '(:head :body)
 	"undoable" '(:head :body)
 	"within-compile-env" '(:head :body)))
+
+(defq +major_definitions ''(
+	"defun" "redefun" "defmacro" "redefmacro" "defclass"
+	"def-class" "def-method" "def-func" "structure" "enums" "bits"))
 
 (defun template-role (tmpl arg_count)
 	(cond
@@ -144,38 +148,41 @@
 		(++ i))
 	i)
 
-(defun form-opens-at-eol? (tokens lparen_idx)
-	; check if an opening paren is at the end of a line
-	(defq len (length tokens)
-		op_i (skip-ws tokens (inc lparen_idx)))
-	(if (>= op_i len)
-		:t
-		(defq next_i (skip-ws tokens (inc op_i)))
-		(if (>= next_i len)
-			:t
-			(eql (first (elem-get tokens next_i)) :nl))))
+(defun next-significant-idx (tokens idx)
+	(defq len (length tokens) i idx res :nil)
+	(while (and (< i len) (not res))
+		(if (find (first (elem-get tokens i)) '(:ws :nl))
+			(++ i)
+			(setq res i)))
+	res)
 
 (defun form-short? (tokens lparen_idx)
-	; check if a form is structurally short, shallow, and single-line
+	; check if a form is structurally short, shallow, and fits on a single line
 	(defq len (length tokens) i (inc lparen_idx)
-		depth 1 count 0 sub_lists 0 is_short :t)
+		depth 1 count 0 sub_lists 0 est_len 2 is_short :t)
 	(while (and (< i len) (> depth 0) is_short)
 		(defq tok (elem-get tokens i) tok_type (first tok))
 		(cond
-			((eql tok_type :ws))
-			((or (eql tok_type :nl) (eql tok_type :comment) (eql tok_type :raw))
+			((or (eql tok_type :ws) (eql tok_type :nl)))
+			((or (eql tok_type :comment) (eql tok_type :raw))
 				(setq is_short :nil))
 			((eql tok_type :lparen)
 				(++ depth)
 				(++ sub_lists)
-				(if (or (> depth 3) (> sub_lists 4))
+				(++ est_len)
+				(if (or (> depth 3) (> sub_lists 3))
 					(setq is_short :nil))
 				(++ count))
 			((eql tok_type :rparen)
-				(-- depth))
+				(-- depth)
+				(++ est_len))
 			(:t
+				(defq val (second tok))
+				(if (and (find tok_type '(:string :cscript)) (find "\n" val))
+					(setq is_short :nil))
 				(++ count)
-				(if (> count 24)
+				(setq est_len (+ est_len (length val) 1))
+				(if (or (> count 12) (> est_len 65))
 					(setq is_short :nil))))
 		(++ i))
 	(and is_short (= depth 0)))
@@ -191,7 +198,7 @@
 (defun lookup-form-template (tokens lparen_idx parent_role)
 	(cond
 		((eql parent_role :clauses)
-			'(:head :flow))
+			(resolve-template '(:choice (:head :flow) (:head :body)) tokens lparen_idx))
 		(:t
 			(defq next_i (skip-ws-nl tokens (inc lparen_idx)))
 			(if (and (< next_i (length tokens))
@@ -201,19 +208,45 @@
 					tokens lparen_idx)
 				'(:flow)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;
-; fast syntax tokenizer
-;;;;;;;;;;;;;;;;;;;;;;;
+(defun wants-section-break? (tokens idx consec_nl)
+	; determine if a top-level form or comment warrants a blank line
+	(defq next_i (next-significant-idx tokens idx))
+	(cond
+		((not next_i) :nil)
+		((>= consec_nl 2) :t)
+		(:t
+			(defq next_tok (elem-get tokens next_i)
+				t_type (first next_tok))
+			(cond
+				((eql t_type :comment)
+					; comment banners starting with multiple semicolons
+					(starts-with ";;" (second next_tok)))
+				((eql t_type :lparen)
+					(defq op_i (next-significant-idx tokens (inc next_i)))
+					(and op_i
+						(eql (first (elem-get tokens op_i)) :atom)
+						(find (second (elem-get tokens op_i)) +major_definitions)))
+				(:nil)))))
 
-(defun check-template-break (form_stack at_line_start pending_nl after_quote)
+(defun check-template-break (form_stack at_line_start pending_nl after_quote current_col)
 	; check if current template requires a newline before this argument
 	(when (and (nempty? form_stack) (not after_quote))
 		(bind '(tmpl & arg_count &ignore) (last form_stack))
 		(when (> arg_count 0)
 			(defq role (template-role tmpl arg_count))
-			(when (or (eql role :body) (eql role :clauses))
-				(unless (or at_line_start pending_nl)
-					:t)))))
+			(cond
+				((or (eql role :body) (eql role :clauses))
+					(unless (or at_line_start pending_nl) :t))
+				((eql role :pairs)
+					(defq is_def (eql (first tmpl) :head)
+						pair_arg (if is_def (dec arg_count) arg_count)
+						is_key (odd? pair_arg))
+					(and is_key (> pair_arg 1) (> current_col 75)
+						(not at_line_start) (not pending_nl)))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; fast syntax tokenizer
+;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun tokenize-lisp (stream)
 	(defq ends_nl :t)
@@ -263,9 +296,7 @@
 					(each (lambda (val tok_state)
 						(cond
 							((find tok_state '(:string1 :string2))
-								(defq kind (if (eql tok_state :string1)
-									:string
-									:cscript))
+								(defq kind (if (eql tok_state :string1) :string :cscript))
 								(if (and (eql tok_state prev_state)
 										(nempty? tokens)
 										(eql (first (last tokens)) kind))
@@ -339,14 +370,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun format-lisp (stream_or_src)
-	(defq stream (if (str? stream_or_src)
-		(string-stream stream_or_src)
-		stream_or_src)
+	(defq stream (if (str? stream_or_src) (string-stream stream_or_src) stream_or_src)
 		tokens (tokenize-lisp stream) len (length tokens)
 		out (string-stream (str-alloc len))
 		cur_line_indent 0 current_col 0
 		at_line_start :t after_lparen :nil after_quote :nil
-		pending_nl :nil consec_nl 0
+		pending_nl :nil consec_nl 0 just_saw_comment :nil
 		form_stack (list) idx 0 tok :nil tok_type :nil val "")
 
 	(while (< idx len)
@@ -355,38 +384,52 @@
 			((eql tok_type :ws)
 				(++ idx))
 			((eql tok_type :nl)
-				(setq pending_nl :t)
-				(if (< consec_nl 3)
-					(++ consec_nl))
+				(if just_saw_comment
+					; consume newline immediately closing comment without inflating consec_nl
+					(setq just_saw_comment :nil)
+					(if (< consec_nl 2)
+						(++ consec_nl)))
+				(cond
+					((empty? form_stack)
+						(setq pending_nl :t))
+					((defq next_sig_i (next-significant-idx tokens (inc idx)))
+						(when (find (first (elem-get tokens next_sig_i)) '(:comment :raw))
+							(setq pending_nl :t)))
+					(:t
+						; inside forms, ignore user newlines
+						:nil))
 				(++ idx))
 			((eql tok_type :raw)
 				(when pending_nl
-					(times consec_nl
+					(times (if (>= consec_nl 2) 2 1)
 						(write-blk out "\n")))
 				(write-blk out val)
-				(setq at_line_start :t pending_nl :nil
+				(setq at_line_start :t pending_nl :nil just_saw_comment :nil
 					consec_nl 0 current_col 0 after_lparen :nil after_quote :nil)
 				(++ idx))
 			((eql tok_type :comment)
 				(if (or at_line_start pending_nl)
 					(progn
 						(when pending_nl
-							(times consec_nl
+							(times (if (empty? form_stack)
+								(if (wants-section-break? tokens idx consec_nl) 2 1)
+								(if (>= consec_nl 2) 2 1))
 								(write-blk out "\n")))
 						(defq ind (current-target-indent form_stack))
 						(write-blk out (make-indent ind))
 						(setq cur_line_indent ind current_col (* ind +tab_width)))
 					(write-blk out " "))
 				(write-blk out val)
-				(setq at_line_start :nil pending_nl :nil
-					consec_nl 0 current_col 0 after_lparen :nil after_quote :nil)
+				; comments always terminate the line; subsequent code must be on a new line
+				(setq at_line_start :nil pending_nl :t consec_nl 1 just_saw_comment :t
+					current_col 0 after_lparen :nil after_quote :nil)
 				(++ idx))
 			((eql tok_type :rparen)
 				(defq closed_frame (if (nempty? form_stack)
 					(pop form_stack)
 					:nil))
-				(when pending_nl
-					(times consec_nl
+				(when (and pending_nl (eql (first (elem-get tokens (dec idx))) :comment))
+					(times (if (>= consec_nl 2) 2 1)
 						(write-blk out "\n"))
 					(defq r_ind (if closed_frame
 						(second closed_frame)
@@ -394,24 +437,30 @@
 					(write-blk out (make-indent r_ind))
 					(setq at_line_start :t cur_line_indent r_ind
 						current_col (* r_ind +tab_width)))
+				(setq pending_nl :nil consec_nl 0 just_saw_comment :nil)
 				(write-blk out ")")
 				(setq at_line_start :nil after_lparen :nil after_quote :nil
-					pending_nl :nil consec_nl 0
 					current_col (+ current_col 1))
-				(inc-arg-count form_stack)
+				(if (empty? form_stack)
+					; top-level form closed; next form starts on a new line (0 consec_nl until next :nl)
+					(setq pending_nl :t consec_nl 0)
+					(inc-arg-count form_stack))
 				(++ idx))
 			(:t
 				; check if current template requires a newline before this argument
-				(when (check-template-break form_stack at_line_start pending_nl after_quote)
-					(setq pending_nl :t consec_nl 1))
+				(when (check-template-break form_stack at_line_start pending_nl after_quote current_col)
+					(setq pending_nl :t consec_nl (if (>= consec_nl 2) 2 1)))
 
 				; flush deferred newlines and apply stack-directed indentation
 				(when pending_nl
-					(times consec_nl
+					(defq nl_count (if (empty? form_stack)
+						(if (wants-section-break? tokens idx consec_nl) 2 1)
+						(if (>= consec_nl 2) 2 1)))
+					(times nl_count
 						(write-blk out "\n"))
 					(defq ind (current-target-indent form_stack))
 					(write-blk out (make-indent ind))
-					(setq at_line_start :t pending_nl :nil
+					(setq at_line_start :t pending_nl :nil just_saw_comment :nil
 						cur_line_indent ind
 						consec_nl 0 current_col (* ind +tab_width)))
 
@@ -463,8 +512,7 @@
 						(inc-arg-count form_stack)
 						(++ idx))))))
 	(when pending_nl
-		(times consec_nl
-			(write-blk out "\n")))
+		(write-blk out "\n"))
 	(str out))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -518,11 +566,7 @@
 				(prin result))
 				(pipe-farm (map (# (str (first args)
 					" -j " opt_j
-					(if opt_w
-						" -w"
-						"")
-					(if opt_c
-						" -c"
-						"")
+					(if opt_w " -w" "")
+					(if opt_c " -c" "")
 					" " (slice (str %0) 1 -2)))
 					(partition files opt_j)))))))
