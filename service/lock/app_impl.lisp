@@ -32,7 +32,7 @@
 	changed)
 
 (defun merge-locks (writes reads pending nodes now)
-	(defq old_pending pending blocked (list) new_pending (list))
+	(defq blocked (list) new_pending (list))
 	(each (lambda (req)
 		(defq node (task-nodeid (pfind req :reply)))
 		; drop request if caller node died or caller already timed out
@@ -60,7 +60,7 @@
 							(mail-send (pfind req :reply) ""))
 						(push blocked req)
 						(push new_pending req))))))
-		old_pending)
+		pending)
 	new_pending)
 
 (defun main ()
