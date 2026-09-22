@@ -259,7 +259,7 @@
 	(vp-rdef (this pos bufp bufe chunk index total
 		iter_begin iter_end chunk_len))
 
-	(entry :mstream :itop `(,this ,bufp))
+	(entry :mstream :itop `(,this ,pos))
 
 	(assign `((,this +mstream_chunks)) `(,iter_begin))
 	(assign '(0 0 0 0 0) `(,bufp ,bufe ,chunk ,index ,total))
