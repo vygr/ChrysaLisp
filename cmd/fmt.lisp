@@ -2,6 +2,8 @@
 (import "lib/task/cmd.inc")
 (import "lib/files/files.inc")
 (import "lib/text/syntax.inc")
+(import "service/lock/app.inc")
+(import "lib/streams/diff.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -23,14 +25,14 @@
 (("-c" "--check") ,(opt-flag 'opt_c))
 ))
 
-(defq +file_types ''(".lisp" ".inc" ".vp") +max_line_len 90 +tab_width 4)
+(defq +file_types ''(".lisp" ".inc" ".vp") +tab_width 4)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
-; Form Template Rules
+; form template rules
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq +templates (scatter (Fmap 64)
-	;; Definitions & Bindings
+	;; definitions & bindings
 	"defq" '(:pairs)
 	"setq" '(:pairs)
 	"def" '(:head :pairs)
@@ -55,18 +57,18 @@
 	"let*" '(:head :body)
 	"#" '(:body)
 
-	;; Conditionals & Branching
+	;; conditionals & branching
 	"cond" '(:clauses)
 	"condn" '(:clauses)
 	"case" '(:head :clauses)
 	"pcase" '(:head :head :clauses)
 	"switch" '(:head :clauses)
-	"if" '(:head :head :body)
-	"ifn" '(:head :head :body)
+	"if" '(:head :body)
+	"ifn" '(:head :body)
 	"when" '(:head :body)
 	"unless" '(:head :body)
 
-	;; Loops & Iteration
+	;; loops & iteration
 	"while" '(:head :body)
 	"until" '(:head :body)
 	"for" '(:head :head :body)
@@ -90,7 +92,7 @@
 	"notevery" '(:head :body)
 	"lines!" '(:head :head :body)
 
-	;; Logic, Blocks, Exception Handling
+	;; logic, blocks, exception handling
 	"and" '(:body)
 	"or" '(:body)
 	"progn" '(:body)
@@ -124,6 +126,22 @@
 		(++ i))
 	i)
 
+(defun skip-ws (tokens idx)
+	; skip whitespace tokens only
+	(defq len (length tokens) i idx)
+	(while (and (< i len) (eql (first (elem-get tokens i)) :ws))
+		(++ i))
+	i)
+
+(defun form-opens-at-eol? (tokens lparen_idx)
+	; check if an opening paren is at the end of a line
+	(defq len (length tokens)
+		op_i (skip-ws tokens (inc lparen_idx)))
+	(if (>= op_i len) :t
+		(defq next_i (skip-ws tokens (inc op_i)))
+		(if (>= next_i len) :t
+			(eql (first (elem-get tokens next_i)) :nl))))
+
 (defun lookup-form-template (tokens idx parent_role)
 	(cond
 		((eql parent_role :clauses)
@@ -131,17 +149,21 @@
 		(:t
 			(defq next_i (skip-ws-nl tokens idx))
 			(if (and (< next_i (length tokens))
-					(eql (first (defq tok (elem-get tokens next_i))) :atom))
+				(eql (first (defq tok (elem-get tokens next_i))) :atom))
 				(or (. +templates :find (second tok))
 					'(:body))
 				'(:body)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
-; Fast Syntax Tokenizer
+; fast syntax tokenizer
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun tokenize-lisp (source)
-	(defq tokens (list) stream (string-stream source) lines (list)
+(defun tokenize-lisp (stream)
+	(defq ends_nl :t)
+	(when (/= (stream-seek stream -1 2) -1)
+		(setq ends_nl (= (read-char stream) +char_lf))
+		(stream-seek stream 0 0))
+	(defq tokens (list) lines (list)
 		syntax (Syntax) line_idx 0)
 	(while (defq raw (read-line stream))
 		(push lines raw))
@@ -151,7 +173,7 @@
 			prev_state (. syntax :get_state))
 		(cond
 			((and (eql prev_state :text)
-					(starts-with "(defq usage" (trim-start raw_line)))
+				(starts-with "(defq usage" (trim-start raw_line)))
 				(defq u_lines (list) depth 0 in_str :nil done :nil)
 				(while (and (< line_idx num_lines) (not done))
 					(defq u_line (elem-get lines line_idx)
@@ -206,7 +228,7 @@
 										((or (eql ch " ") (eql ch "\t"))
 											(defq ws_start ti)
 											(while (and (< ti tlen)
-													(or (eql (defq c (elem-get val ti)) " ") (eql c "\t")))
+												(or (eql (defq c (elem-get val ti)) " ") (eql c "\t")))
 												(++ ti))
 											(push tokens (list :ws (slice val ws_start ti))))
 										((eql ch "(")
@@ -221,46 +243,16 @@
 										(:t
 											(defq atom_start ti)
 											(while (and (< ti tlen)
-													(not (find (elem-get val ti) " \t()'`~,")))
+												(not (find (elem-get val ti) " \t()'`~,")))
 												(++ ti))
 											(push tokens (list :atom (slice val atom_start ti)))))))))
 						toks states))
-				(when (< (inc line_idx) num_lines)
+				; preserve line endings and trailing newline if present in source
+				(when (or (< (inc line_idx) num_lines) ends_nl)
 					(unless (find (. syntax :get_state) '(:string1 :string2))
 						(push tokens (list :nl "\n"))))
 				(++ line_idx))))
 	tokens)
-
-;;;;;;;;;;;;;;;;;;;;;;;
-; Token Measurement
-;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun measure-form (tokens idx)
-	(defq len (length tokens) i (skip-ws-nl tokens idx))
-	(if (>= i len)
-		(list len 0)
-		(defq tok (elem-get tokens i) tok_type (first tok))
-		(cond
-			((eql tok_type :quote)
-				(bind '(next_i next_len) (measure-form tokens (inc i)))
-				(list next_i (inc next_len)))
-			((eql tok_type :lparen)
-				(defq depth 1 cur_i (inc i) total_len 1)
-				(while (and (< cur_i len) (> depth 0))
-					(defq t_type (first (elem-get tokens cur_i))
-						t_val (second (elem-get tokens cur_i)))
-					(cond
-						((eql t_type :lparen) (++ depth))
-						((eql t_type :rparen) (-- depth)))
-					(setq total_len (+ total_len (length t_val)))
-					(++ cur_i))
-				(list cur_i total_len))
-			(:t (list (inc i) (length (second tok)))))))
-
-(defun measure-pair (tokens idx)
-	(bind '(val_start var_len) (measure-form tokens idx))
-	(bind '(pair_end val_len) (measure-form tokens val_start))
-	(list pair_end (+ var_len 1 val_len)))
 
 (defun inc-arg-count (form_stack)
 	(when (nempty? form_stack)
@@ -281,11 +273,12 @@
 		0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
-; Code Formatter
+; code formatter
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun format-lisp (source)
-	(defq tokens (tokenize-lisp source) len (length tokens)
+(defun format-lisp (stream_or_src)
+	(defq stream (if (str? stream_or_src) (string-stream stream_or_src) stream_or_src)
+		tokens (tokenize-lisp stream) len (length tokens)
 		out (string-stream (str-alloc len))
 		cur_line_indent 0 current_col 0
 		at_line_start :t after_lparen :nil after_quote :nil
@@ -336,7 +329,7 @@
 				(inc-arg-count form_stack)
 				(++ idx))
 			(:t
-				; Flush deferred newlines and apply stack-directed indentation
+				; flush deferred newlines and apply stack-directed indentation
 				(when pending_nl
 					(times consec_nl (write-blk out "\n"))
 					(defq ind (current-target-indent form_stack))
@@ -363,9 +356,11 @@
 						(defq p_role (parent-role form_stack)
 							is_clause (eql p_role :clauses)
 							tmpl (lookup-form-template tokens (inc idx) p_role)
-							f_base (if at_line_start
-								cur_line_indent
-								(current-target-indent form_stack))
+							eol_open (form-opens-at-eol? tokens idx)
+							f_base (cond
+								(at_line_start cur_line_indent)
+								(eol_open (current-target-indent form_stack))
+								(:t cur_line_indent))
 							child_ind (+ f_base 1))
 						(push form_stack (list tmpl f_base 0 child_ind is_clause))
 						(setq at_line_start :nil after_lparen :t after_quote :nil
@@ -380,22 +375,6 @@
 							current_col (+ current_col (length val)))
 						(++ idx))
 					(:t
-						; Symbolic template pair-wrapping (defq, setq, def, set, etc.)
-						(when (and (nempty? form_stack) (not at_line_start))
-							(bind '(tmpl base_indent arg_count &ignore) (last form_stack))
-							(defq pair_pos (find :pairs tmpl))
-							(when (and pair_pos
-									(> arg_count (inc pair_pos))
-									(= (% (- arg_count (inc pair_pos)) 2) 0))
-								(bind '(& pair_len) (measure-pair tokens idx))
-								(when (> (+ current_col 1 pair_len) +max_line_len)
-									(write-blk out "\n")
-									(defq p_ind (+ base_indent 1))
-									(write-blk out (make-indent p_ind))
-									(setq at_line_start :t
-										cur_line_indent p_ind
-										current_col (* p_ind +tab_width)))))
-
 						(unless (or at_line_start after_lparen after_quote)
 							(write-blk out " ")
 							(++ current_col))
@@ -409,19 +388,37 @@
 	(str out))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
-; File Worker
+; file worker
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun work (file opt_w opt_c)
-	(when (defq raw (load file))
-		(defq formatted (format-lisp raw))
+	; read stream under read lock
+	(defq in :nil formatted :nil)
+	(lock-claim-rpc file +lock_mode_read)
+	(catch
+		(when (setq in (file-stream file))
+			(setq formatted (format-lisp in)))
+		:nil)
+	(lock-release-rpc file)
+	(when formatted
+		; check differences using stream-diff
+		(defq diff_out (string-stream (cat "")))
+		(stream-diff (file-stream file) (string-stream formatted) diff_out)
+		(defq differs (nempty? (str diff_out)))
 		(cond
 			(opt_w
-				(when (nql raw formatted)
-					(save formatted file)
+				; only acquire write lock if file actually changed
+				(when differs
+					(lock-claim-rpc file +lock_mode_write)
+					(catch
+						(when (defq out (file-stream file +file_open_write))
+							(write-blk out formatted)
+							(stream-flush out))
+						:nil)
+					(lock-release-rpc file)
 					(print "Formatted: " file)))
 			(opt_c
-				(when (nql raw formatted)
+				(when differs
 					(print "Needs formatting: " file)))
 			(:t
 				(prin formatted)))))
