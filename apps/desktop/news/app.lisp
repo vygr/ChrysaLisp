@@ -16,7 +16,7 @@
 	(enum refresh category))
 
 (defq +event_story_0 100 +max_stories 50
-	*config* :nil +config_version 1
+	*config* :nil +config_version 2
 	+config_file (cat *env_home* "news.tre") *selected_category* "top" *selected_id* 0
 	*current_stories* (list) *selected_story* :nil *comments_cache* (Fmap 31)
 	*post_content_cache* (Fmap 31) *cat_bar* :nil *btn_refresh* :nil *status_label* :nil
@@ -24,7 +24,7 @@
 	*story_count_label* :nil *item_info_label* :nil)
 
 (defun config-default ()
-	(scatter (Emap) :version +config_version :selected_category "top" :selected_id 0))
+	(scatter (Emap) :version +config_version :selected_category "top"))
 
 (defun config-load ()
 	(lock-claim-rpc +config_file)
@@ -34,11 +34,10 @@
 	(lock-release-rpc +config_file)
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
-	(setq *selected_category* (. *config* :find :selected_category)
-		*selected_id* (. *config* :find :selected_id)))
+	(setq *selected_category* (. *config* :find :selected_category)))
 
 (defun config-save ()
-	(scatter *config* :selected_category *selected_category* :selected_id *selected_id*)
+	(scatter *config* :selected_category *selected_category*)
 	(lock-claim-rpc +config_file)
 	(when (defq stream (file-stream +config_file +file_open_write))
 		(tree-save stream *config*) (setq stream :nil))
