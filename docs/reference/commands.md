@@ -214,6 +214,27 @@ Usage: fmt [options] [path] ...
 
     Restricts targets to unique .lisp, .inc, and .vp files. If no paths
     are specified on the command line, paths are read from stdin.
+
+    Template roles and numeric options:
+        :head
+            header parameter; stays on the same line as the opening operator.
+        :body
+            body statement; breaks to a new line indented by 1 tab.
+        :flow
+            flows elements horizontally on the same line separated by spaces.
+        (:pairs [max_pairs_per_line])
+            packs key-value pairs up to max_pairs_per_line per line (default 4).
+            never breaks between a key and its value.
+        (:clauses [max_per_line] [max_body_actions])
+            controls clause structure and layout (default: 1 1).
+            max_per_line: maximum number of clauses allowed on a single line.
+            max_body_actions: maximum body expressions allowed for single-line flow.
+            clauses with more body expressions break each action onto its own line.
+        (:data [max_items_per_line])
+            formats quoted data lists, packing max_items_per_line per line (default 5).
+        (:choice short_tmpl multiline_tmpl)
+            dynamically uses short_tmpl if the form is compact and fits on one line,
+            otherwise falls back to multiline_tmpl.
 ```
 ## forward
 ```code
