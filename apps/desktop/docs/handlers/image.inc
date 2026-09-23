@@ -11,9 +11,8 @@
 			(. page :add_child text)
 			:text)
 		(:t (defq canvas :nil)
-			(when (lock-claim-rpc line +lock_mode_read)
-				(setq canvas (canvas-load line +load_flag_shared))
-				(lock-release-rpc line))
+			(with-read-lock line
+				(setq canvas (canvas-load line +load_flag_shared)))
 			(when canvas (. page :add_child canvas))
 			state)))
 

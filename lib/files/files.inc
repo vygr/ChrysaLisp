@@ -66,7 +66,7 @@
 	(defq callback_e (penv))
 	(unless (list?? files) (setq files (list files)))
 	(each-mergeable (lambda (file)
-		(when (lock-claim-rpc file +lock_mode_read)
+		(with-read-lock file
 			(when (defq stream (file-stream file))
 				(lines! (lambda (line) (task-slice)
 					;skip empty lines and comments
@@ -79,8 +79,7 @@
 						(merge files (ifn (callback handler callback_e input file line (!)) '())))
 					:nil)
 					stream)
-				(setq stream :nil))
-			(lock-release-rpc file))) files))
+				(setq stream :nil)))) files))
 
 ;module
 (export-symbols '(files-all files-dirs files-all-depends files-depends files-scan))

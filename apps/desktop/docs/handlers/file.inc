@@ -12,7 +12,7 @@
 				(first (read (string-stream (cat "(" line ")")))))
 			;skip to start and write directly to a memory-stream
 			(setq *mem_stream* (memory-stream))
-			(when (lock-claim-rpc file_path +lock_mode_read)
+			(with-read-lock file_path
 				(when (defq stream (file-stream file_path))
 					(when (and start_exp (defq line (lines! (# (if (found? %0 start_exp) (trim %0 "\r"))) stream)))
 						(write-line *mem_stream* line))
@@ -30,8 +30,7 @@
 									(write-line *mem_stream* (trim line "\r")))))
 						(:t (while (defq line (read-line stream))
 								(write-line *mem_stream* (trim line "\r")))))
-					(setq stream :nil))
-				(lock-release-rpc file_path))
+					(setq stream :nil)))
 			(stream-seek *mem_stream* 0 0)
 
 			;load the memory-stream into a plain-text Document

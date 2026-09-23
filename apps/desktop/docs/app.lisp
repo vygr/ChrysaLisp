@@ -26,21 +26,21 @@
 	(scatter (Emap) :version +config_version :zoom 1.0))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
-	(if (defq stream (file-stream +config_file))
-		(setq *config* (tree-load stream) stream :nil)
-		(setq *config* :nil))
-	(lock-release-rpc +config_file)
+	(with-read-lock +config_file
+		(if (defq stream (file-stream +config_file))
+			(setq *config* (tree-load stream) stream :nil)
+			(setq *config* :nil)))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(def *window* :zoom (. *config* :find :zoom)))
 
 (defun config-save ()
-	(lock-claim-rpc +config_file)
-	(scatter *config* :zoom (get :zoom *window*))
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream *config*) (setq stream :nil))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(scatter *config* :zoom (get :zoom *window*))
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream *config*)
+			(stream-flush stream)
+			(setq stream :nil))))
 
 ;lisp handler environment and embedded enum override !
 (redefmacro enums (name base &rest lines)
@@ -85,7 +85,7 @@
 				:min_width (first (. vdu :pref_size))))
 			(ui-label _ (:min_width +margin_width)))
 		(defq state :text)
-		(when (lock-claim-rpc file +lock_mode_read)
+		(with-read-lock file
 			(when (defq stream (file-stream file))
 				(lines! (lambda (line)
 						(task-slice)
@@ -94,8 +94,7 @@
 							(progn (prin _) (print) (setq state :text) :t))
 						:nil)
 					stream)
-				(setq stream :nil))
-			(lock-release-rpc file))
+				(setq stream :nil)))
 		(catch ((handler-func state) state page "```")
 			(progn (prin _) (print) (setq state :text) :t))
 		(setq *search_widgets*

@@ -94,7 +94,7 @@
 		inputs (list) outputs (list) trashes "none" trashes_line 0
 		seen_inputs :nil seen_outputs :nil)
 	(each (lambda (file)
-		(when (lock-claim-rpc file +lock_mode_read)
+		(with-read-lock file
 			(files-scan file (lambda (tokens file raw_line idx)
 				(defq is_comment (starts-with ";" (first tokens)))
 				(cond
@@ -226,8 +226,7 @@
 					(flush-metadata class_db func_db func_name file inputs outputs trashes trashes_line seen_inputs seen_outputs))
 				(setq state :nil func_name :nil
 					inputs (list) outputs (list) trashes "none" trashes_line 0
-					seen_inputs :nil seen_outputs :nil))
-			(lock-release-rpc file))) files))
+					seen_inputs :nil seen_outputs :nil)))) files))
 
 
 (defun link-databases (class_db func_db)
@@ -312,12 +311,11 @@
 		(tree-save stream class_db)
 		(stream-flush stream)
 		(setq stream :nil))
-	(when (lock-claim-rpc +func_db_file +lock_mode_write)
+	(with-write-lock +func_db_file
 		(when (defq stream (file-stream +func_db_file +file_open_write))
 			(tree-save stream func_db)
 			(stream-flush stream)
-			(setq stream :nil))
-		(lock-release-rpc +func_db_file))
+			(setq stream :nil)))
 	class_db)
 
 (defun files-all-vp-source ()
@@ -331,27 +329,25 @@
 
 (defun files-classes-info (&optional forced)
 	; (files-classes-info [forced]) -> :nil | class_db
-	(defq res :nil)
-	(lock-claim-rpc +class_db_file)
-	(catch
-		(progn
-			(defq vp_files (files-all-vp-source))
-			(if (or forced (database-stale? +class_db_file +lib_file vp_files))
-				(build-and-save-databases vp_files))
-			(when (defq stream (file-stream +class_db_file))
-				(setq res (tree-load stream) stream :nil)))
-		:nil)
-	(lock-release-rpc +class_db_file)
-	res)
+	(with-write-lock +class_db_file
+		(defq res :nil)
+		(catch
+			(progn
+				(defq vp_files (files-all-vp-source))
+				(if (or forced (database-stale? +class_db_file +lib_file vp_files))
+					(build-and-save-databases vp_files))
+				(when (defq stream (file-stream +class_db_file))
+					(setq res (tree-load stream) stream :nil)))
+			:nil)
+		res))
 
 (defun files-function-info (&optional class_db)
 	; (files-function-info [forced]) -> :nil | func_db
 	(if (setd class_db (files-classes-info))
-		(when (lock-claim-rpc +func_db_file +lock_mode_read)
+		(with-read-lock +func_db_file
 			(defq res :nil)
 			(when (defq stream (file-stream +func_db_file))
 				(setq res (tree-load stream) stream :nil))
-			(lock-release-rpc +func_db_file)
 			res)))
 
 ;module
