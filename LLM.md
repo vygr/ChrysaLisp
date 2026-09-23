@@ -287,7 +287,10 @@ Deep dives into meta-commentary and design philosophy:
     (`+kn_call_pin`), shared-memory concurrency, and zero-buffering streaming
     pipelines (case study: `CPM-load`).
 
-70. **[Lock Service](docs/ai_digest/lock_service.md)** - Lock service features.
+70. **[Lock Service](docs/ai_digest/lock_service.md)** - Distributed hierarchical
+    path locking (`@Lock`), shared-read/exclusive-write semantics, FIFO
+    queueing, scoped RAII macros (`with-lock`, `with-read-lock`,
+    `with-write-lock`), and bounded audit history logging.
 
 ---
 
@@ -297,7 +300,7 @@ Depending on your goals, you might follow different reading paths:
 
 ### For Understanding the System
 
-Follow the order above from 0–69 for a complete understanding.
+Follow the order above from 0–70 for a complete understanding.
 
 ### For Application Development
 
