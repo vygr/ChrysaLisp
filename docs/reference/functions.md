@@ -520,6 +520,18 @@ gather a list of [key|val|:nil]
 (handler state page line) -> state
 ```
 
+### hex-decode-stream
+
+```code
+(hex-decode-stream in_stream out_stream [chunk_size flags])
+```
+
+### hex-encode-stream
+
+```code
+(hex-encode-stream in_stream out_stream [chunk_size flags])
+```
+
 ### http-body-str
 
 ```code

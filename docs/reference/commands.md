@@ -90,7 +90,9 @@ Usage: dump [options] [path] ...
 
     options:
         -h --help: this help info.
-        -c --chunk num: chunk size, default 8.
+        -w -k --width --chunk num: chunk width, default 8.
+        -o --offset: toggle byte offset column, default :t.
+        -c --chars: toggle chars column, default :t.
 
     If no paths given on command line
     then will dump stdin.
@@ -428,6 +430,15 @@ Usage: lisp [options] [path] ...
 
     If no paths given on command line
     then will REPL from stdin.
+```
+## locks
+```code
+Usage: locks [options]
+
+    options:
+        -h --help: this help info.
+
+    Print the recent lock service history.
 ```
 ## lz4
 ```code

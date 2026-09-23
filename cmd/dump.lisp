@@ -1,4 +1,10 @@
 (import "lib/options/options.inc")
+(import "lib/streams/hex.inc")
+(import "service/lock/app.inc")
+
+(defun opt-toggle (opt_var)
+	(static-qq (lambda (args arg)
+		(setq ,opt_var (not ,opt_var)) args)))
 
 (defq usage `(
 (("-h" "--help")
@@ -6,32 +12,41 @@
 
     options:
         -h --help: this help info.
-        -c --chunk num: chunk size, default 8.
+        -w -k --width --chunk num: chunk width, default 8.
+        -o --offset: toggle byte offset column, default :t.
+        -c --chars: toggle chars column, default :t.
 
     If no paths given on command line
     then will dump stdin.")
-(("-c" "--chunk") ,(opt-num 'opt_c))
+(("-w" "-k" "--width" "--chunk") ,(opt-num 'opt_w))
+(("-o" "--offset") ,(opt-toggle 'opt_o))
+(("-c" "--chars") ,(opt-toggle 'opt_c))
 ))
 
 ;dump a stream to stdout
-(defun dump-file (stream)
+(defun dump-file (stream width flags)
 	(when stream
-		(defq adr 0)
-		(while (defq blk (read-blk stream opt_c))
-			(print (int-to-hex-str adr) " "
-				(join (partition (hex-encode blk) 2) " " 2)
-				(pad "" (* 3 (- opt_c (length blk))) "            ")
-				(apply (const cat)
-					(map (# (if (bfind %0 +char_class_printable) %0 ".")) blk)))
-			(setq adr (+ adr opt_c)))))
+		(hex-encode-stream stream (io-stream 'stdout) width flags)))
+
+;dump a file with read lock
+(defun dump-path (file_path width flags)
+	(when (lock-claim-rpc file_path +lock_mode_read)
+		(when (defq stream (file-stream file_path))
+			(dump-file stream width flags)
+			(setq stream :nil))
+		(lock-release-rpc file_path)))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_c 8 args (options stdio usage)))
+			(defq opt_w 8 opt_o :t opt_c :t
+				args (options stdio usage)))
+		(defq flags (+ (if opt_o +hex_stream_flag_offset 0)
+			(if opt_c +hex_stream_flag_chars 0)))
 		(if (<= (length args) 1)
 			;dump from stdin
-			(dump-file (io-stream 'stdin))
+			(dump-file (io-stream 'stdin) opt_w flags)
 			;dump from args as files
-			(each (# (dump-file (file-stream %0))) (rest args)))))
+			(each (# (dump-path %0 opt_w flags)) (rest args)))))
+

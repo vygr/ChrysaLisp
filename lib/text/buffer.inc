@@ -273,6 +273,13 @@
 		(each (# (reduce (const push) (sort %0 fcmp) lst) (clear %0))
 			buffer_buckets) lst)))
 
+(defun hex-load-stage (lib fn downstream_mbox src &rest args)
+	(defq in_src (if (str? src)
+		`(progn (mail-send (hex-decode ,(hex-encode src)) (in-mbox (defq in (in-stream)))) in)
+		`(obj-ref ,(weak-ref src))))
+	(str `(progn (import ,lib)
+		(,fn ,in_src (out-stream (hex-decode ,(hex-encode downstream_mbox))) ~args))))
+
 ;;;;;;;
 ; class
 ;;;;;;;
@@ -1073,24 +1080,21 @@
 		; (. buffer :stream_load_hex stream [width]) -> buffer
 		(raise :syntax_engine :tab_width (buffer_lines (list) buffer_syntax (list)
 			buffer_states (list) buffer_found (list) buffer_brackets (list)
-			buffer_buckets (list) max_width 0 width (ifn width 8)
-			adr 0))
+			buffer_buckets (list) max_width 0 width (ifn width 8)))
 		;clear them all now !
 		(lower :buffer_lines :buffer_syntax :buffer_states
 			:buffer_found :buffer_brackets :buffer_buckets)
 		(clear (get :undo_stack this) (get :redo_stack this))
-		(while (defq blk (read-blk stream width))
-			(task-slice)
-			(defq line (cat
-					(int-to-hex-str adr) " "
-					(join (partition (hex-encode blk) 2) " " 2)
-					(pad "" (* 3 (- width (length blk))) "        ")
-					(apply (const cat)
-						(map (# (if (bfind %0 +char_class_printable) %0 ".")) blk))
-					+char_class_lf)
-				max_width (max max_width (length line))
-				adr (+ adr width))
-			(push-line line))
+		(when stream
+			(defq in (in-stream))
+			(open-child (hex-load-stage "lib/streams/hex.inc" 'hex-encode-stream (in-mbox in) stream width) +kn_call_pin)
+			(lines! (lambda (line)
+					(task-slice)
+					(setq line (cat line +char_class_lf)
+						max_width (max max_width (length line)))
+					(push-line line)
+					:nil)
+				in))
 		(last-line)
 		(lower :buffer_lines :buffer_syntax :buffer_states
 			:buffer_found :buffer_brackets :buffer_buckets
