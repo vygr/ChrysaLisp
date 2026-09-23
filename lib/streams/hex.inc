@@ -47,12 +47,7 @@
 				(write-blk out_stream (hex-decode (apply (const cat) tokens))))))
 	(stream-flush out_stream))
 
-(defq hex-compress hex-encode-stream
-	hex-decompress hex-decode-stream)
-
 ;module
 (export-symbols '(+hex_stream_flag_offset +hex_stream_flag_chars
-	+hex_flag_offset +hex_flag_chars
-	hex-encode-stream hex-decode-stream
-	hex-compress hex-decompress))
+	+hex_flag_offset +hex_flag_chars hex-encode-stream hex-decode-stream))
 (env-pop)
