@@ -4,6 +4,27 @@ OS=`cat os`
 CPU=`cat cpu`
 ABI=`cat abi`
 
+#save terminal state and ensure it is restored on exit or crash
+if [ -t 0 ]
+then
+	saved_stty=$(stty -g 2>/dev/null)
+fi
+
+function restore_tty
+{
+	if [ -t 0 ]
+	then
+		if [ -n "$saved_stty" ]
+		then
+			stty "$saved_stty" 2>/dev/null || stty sane 2>/dev/null
+		else
+			stty sane 2>/dev/null
+		fi
+	fi
+}
+
+trap restore_tty EXIT INT TERM HUP
+
 function zero_pad
 {
 	if [ $1 -lt 100 ]
@@ -59,12 +80,12 @@ function boot_cpu_gui
 				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script &
 			else
 				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
-				if [ $? -eq 0 ]
-				then
-					{
-						./stop.sh
-					} &> /dev/null
-				fi
+				status=$?
+				restore_tty
+				{
+					./stop.sh
+				} &> /dev/null
+				return $status
 			fi
 		else
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu &
@@ -76,12 +97,12 @@ function boot_cpu_gui
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run service/gui/app.lisp &
 		else
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run apps/tui/tui_gui.lisp
-			if [ $? -eq 0 ]
-			then
-				{
-					./stop.sh
-				} &> /dev/null
-			fi
+			status=$?
+			restore_tty
+			{
+				./stop.sh
+			} &> /dev/null
+			return $status
 		fi
 	else
 		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu &
@@ -95,14 +116,17 @@ function boot_cpu_tui
 		if [ "$front" == "" ]
 		then
 			./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
+			status=$?
+			restore_tty
+			return $status
 		else
 			./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
-			if [ $? -eq 0 ]
-			then
-				{
-					./stop.sh
-				} &> /dev/null
-			fi
+			status=$?
+			restore_tty
+			{
+				./stop.sh
+			} &> /dev/null
+			return $status
 		fi
 	else
 		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu &
