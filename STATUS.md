@@ -4,6 +4,12 @@
 
 ------
 
+New `with-lock`, `with-read-lock`, and `with-write-lock` scoped lock macros in
+`service/lock/app.inc`. Migrated CLI file commands, libraries, and all 19 GUI
+application `.tre` config load/save routines to use the new macros, ensuring
+locks are reliably released and file streams are flushed and cleared before
+unlocking.
+
 Updated `ensure-lock-service` and `ensure-net-service` RPC helpers to wait for
 services without launching them with `open-remote`.
 
@@ -35,7 +41,7 @@ mailbox wired but no tip strings: `crypto`, `weather`, `news`, `lexicon`,
 `*time_bar*`) where needed so `ui-tool-tips` could reference them.
 
 All GUI app `config-save` and `config-load` functions now wrap file access with
-`lock-claim-rpc` / `lock-release-rpc` (key = config file path) via
+`with-read-lock` / `with-write-lock` (key = config file path) via
 `service/lock/app.inc`, serialising concurrent `.tre` config reads and writes
 across all 19 apps. State files that build their path at load-time use a
 `(const (cat *env_home* +state_filename))` compile-time key to avoid per-call
@@ -46,12 +52,6 @@ HexView now also save search and replace parameters.
 
 Render an "_" if glyph not found in font, just so there is a visual clue of a
 missing char.
-
-Lock server. Implemented bidirectional hierarchy conflict detection using `/`
-path segment delineation. Locking an ancestor blocks all descendants; locking a
-descendant prevents ancestor lock acquisition. Replaced flat dictionary scanning
-with an in-memory prefix trie composed of `pmap` nodes. Ancestor checks and
-descendant conflict detection via `:sub_count` run in O(depth) time.
 
 `lock-claim-rpc` and `lock-release-rpc` now explicitly return `:t` on success
 and `:nil` on timeout or failure.
