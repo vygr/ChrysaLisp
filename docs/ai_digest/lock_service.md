@@ -160,28 +160,75 @@ The macros leverage ChrysaLisp's hygienic macro facilities:
 *	`gensym` generates unique temporary symbols (`k`, `r`) to prevent symbol
 	capture or double evaluation of the key expression.
 
-*	`static-qq` generates compile-time quasi-quoted templates without runtime
-	quasiquote interpreter overhead.
+*	`static-qqp` generates compile-time quasi-quoted templates with prebinding,
+	eliminating runtime quasiquote interpreter overhead without prematurely
+	evaluating nested macro expansions during definition time. This guarantees
+	that every macro expansion receives fresh `gensym` bindings, supporting
+	safe, arbitrary nesting of locks (e.g. multi-file synchronization in `diff`
+	and `patch`).
 
 *	The acquired lock is held strictly for the duration of `body`, released
 	immediately upon normal completion via `lock-release-rpc`, and the final
 	evaluated expression in `body` is returned.
 
-### Real-World Case Study: Docs App File Handler
+### Stream Lifetime Patterns and Lock Discipline
 
-The ChrysaLisp documentation viewer (`apps/desktop/docs/handlers/file.inc`) is a
-prime real-world example of `with-read-lock`. When rendering embedded `file`
-code blocks in Markdown documents, it acquires a shared read lock on the target
-file, streams the matching lines into a memory buffer, closes the stream, and
-guarantees lock release before rendering the syntax-highlighted widget:
+ChrysaLisp enforces a strict invariant: **file descriptors must be closed
+before releasing synchronization locks**. Two idiom patterns are used across the
+codebase depending on stream consumption:
 
-```file
-"apps/desktop/docs/handlers/file.inc" "(with-read-lock file_path" "(setq stream :nil)))"
+1.	**Multi-Step / Iterative Processing (Explicit Binding):**
+	When a file is processed across multiple loops or conditions, the stream is
+	explicitly bound and cleared to `:nil` before exiting the lock block:
+
+	```file
+	"apps/desktop/docs/handlers/file.inc" "(with-read-lock file_path" "(setq stream :nil)))"
+	```
+
+	The ChrysaLisp documentation viewer (`apps/desktop/docs/handlers/file.inc`)
+	illustrates this pattern when rendering embedded `file` blocks. It acquires a
+	shared read lock, streams matching lines into a memory buffer, closes the stream
+	via `(setq stream :nil)`, and releases the lock before widget rendering.
+
+2.	**Single-Operation Anonymous Streams (Automatic Cleanup):**
+	When a stream is consumed directly by a single operation (e.g. `:stream_load`,
+	`:stream_load_hex`, `lines!`, or `repl`), creating an intermediate stream
+	binding is unneeded. The stream object can be passed anonymously:
+
+	```vdu
+	;; Buffer loading in Viewer, Edit, and Hexviewer
+	(with-read-lock file
+		(. buffer :stream_load (file-stream file)))
+
+	;; Docs REPL execution
+	(with-read-lock module
+		(repl (file-stream module) module))
+
+	;; Line-by-line scanning
+	(with-read-lock file
+		(lines! (lambda (line) ...) (file-stream file)))
+	```
+
+	The temporary stream is dereferenced and closed automatically upon function
+	return before the enclosing `with-read-lock` exits and invokes
+	`lock-release-rpc`. This guarantees the host file descriptor is closed before
+	the lock is relinquished without boilerplate.
+
+### Multi-File Synchronization (Nested Locking)
+
+When commands like `diff` and `patch` operate on multiple files simultaneously,
+`with-read-lock` forms are nested:
+
+```vdu
+(with-read-lock file_a
+	(with-read-lock file_b
+		(stream-diff (file-stream file_a) (file-stream file_b) (io-stream 'stdout))))
 ```
 
-Notice how `(setq stream :nil)` is executed inside the `with-read-lock` body
-before releasing the lock, adhering to the ChrysaLisp invariant that file
-descriptors are closed before releasing file synchronization.
+Because `with-lock` uses `static-qqp`, each nesting level receives distinct
+`gensym` bindings, ensuring that inner lock releases do not clobber outer
+lock state and both files are released deterministically in reverse acquisition
+order.
 
 ## Hierarchical Conflict Detection
 
@@ -319,9 +366,10 @@ circular buffer:
 	terminal.
 
 *	**Automated Verification:** System unit tests (`tests/system/test_lock.lisp`)
-	inspect `(lock-history-rpc)` to verify that file-modifying tools (`save`,
-	`cat`, `ctf`, `files-depends`) acquire and release the correct lock modes
-	and paths.
+	inspect `(lock-history-rpc)` to verify that single-file commands (`save`,
+	`cat`, `ctf`, `files-depends`), multi-file nested locking commands (`diff`,
+	`patch`), and cleanup operations (`rm`) acquire and release the correct lock
+	modes and paths.
 
 ## Service Implementation
 
