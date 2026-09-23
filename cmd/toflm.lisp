@@ -103,7 +103,7 @@
 										(defq temp p_stream)
 										(setq p_stream c_stream c_stream temp)))
 								(prin file " -> " opt_n)
-								(print))) jobs)
+								(print)))) jobs)
 					(stream-flush out_stream)
 					(setq out_stream :nil))))))
 

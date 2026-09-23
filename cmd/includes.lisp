@@ -130,7 +130,7 @@
 					(stream-seek no_includes 0 0)
 					(lines! (# (write-line stream %0) :nil) no_includes)
 					(stream-flush stream)
-					(setq stream :nil)))))
+					(setq stream :nil))))))
 
 
 (defun main ()
