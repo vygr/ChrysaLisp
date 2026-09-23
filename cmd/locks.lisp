@@ -16,5 +16,6 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
+		(task-sleep 50000)
 		(when (defq hist (lock-history-rpc))
 			(each (const print) hist))))
