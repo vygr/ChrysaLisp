@@ -220,6 +220,9 @@ Usage: fmt [options] [path] ...
     Template roles and numeric options:
         :head
             header parameter; stays on the same line as the opening operator.
+        (:short_head [max_len])
+            conditional header; stays on the same line if it fits within
+            max_len (default 70), otherwise breaks to a new line as :body.
         :body
             body statement; breaks to a new line indented by 1 tab.
         :flow
@@ -234,10 +237,12 @@ Usage: fmt [options] [path] ...
             max_body_actions: maximum body expressions allowed for single-line flow.
             max_len: character length threshold for inline clause flow.
             clauses with more body expressions break each action onto its own line.
-        (:data [max_items_per_line])
-            formats quoted data lists, packing max_items_per_line per line (default 5).
-        (:choice [max_len] short_tmpl multiline_tmpl)
-            dynamically uses short_tmpl if the form fits within max_len (default 72),
+        (:data [max_items_per_line] [max_col])
+            formats quoted data lists, packing max_items_per_line per line (default 5)
+            and wrapping when line length reaches max_col (default 70).
+        (:choice [max_len] [max_body_actions] short_tmpl multiline_tmpl)
+            dynamically uses short_tmpl if the form fits within max_len (default 72)
+            and body expressions <= max_body_actions (if specified),
             otherwise falls back to multiline_tmpl.
 ```
 ## forward
