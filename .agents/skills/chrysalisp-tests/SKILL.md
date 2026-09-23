@@ -247,6 +247,87 @@ block for robust error reporting, and end with the host shutdown call:
 To run a `cmd/` app from a raw script, wrap it in `(pipe-run command_line)` from
 the `(import "lib/task/pipe.inc")` library.
 
+## Lock Service & Lock History Inspection
+
+ChrysaLisp includes a distributed lock service (`@Lock`, defined in
+`service/lock/app.inc` and implemented in `service/lock/app_impl.lisp`).
+The lock service maintains a circular history buffer of the last 128
+lock and unlock actions (`+lock_max_history 128`), recording each operation
+in `"key (action mode)"` format (e.g. `"tmp.txt (lock write)"` or
+`"src.vp (unlock read)"`).
+
+### Inspecting via TUI `locks` Command
+
+In any interactive TUI or Terminal session, inspect recent lock activity with:
+
+	locks
+
+From the host shell:
+
+```sh
+echo "locks" | ./run_tui.sh -f
+```
+
+Options:
+*	`locks -h` / `locks --help`: display command usage.
+
+### Inspecting via RPC in Tests and Code
+
+To query lock history programmatically:
+
+```lisp
+(import "service/lock/app.inc")
+
+; Retrieve history as a list of strings
+(defq history (lock-history-rpc))
+(each (const print) history)
+```
+
+### Verifying Lock Behavior in Unit Tests
+
+`tests/system/test_lock.lisp` verifies lock acquisition, lock modes, and lock
+releases across CLI commands and libraries:
+
+1.	**Command Verification Pattern:**
+	Execute the command via `pipe-run` and verify that the expected lock and
+	unlock events are recorded in `(lock-history-rpc)`:
+
+	```lisp
+	(pipe-run "echo data | save tmp_test.txt" (lambda (_) :nil))
+	(pipe-run "cat tmp_test.txt" (lambda (_) :nil))
+	(pipe-run "rm tmp_test.txt" (lambda (_) :nil))
+
+	(defq hist (lock-history-rpc))
+	(assert-true "save write lock"
+		(nempty? (some (# (if (eql %0 "tmp_test.txt (lock write)") %0)) hist)))
+	(assert-true "save write unlock"
+		(nempty? (some (# (if (eql %0 "tmp_test.txt (unlock write)") %0)) hist)))
+	(assert-true "cat read lock"
+		(nempty? (some (# (if (eql %0 "tmp_test.txt (lock read)") %0)) hist)))
+	(assert-true "cat read unlock"
+		(nempty? (some (# (if (eql %0 "tmp_test.txt (unlock read)") %0)) hist)))
+	```
+
+2.	**Library Verification Pattern:**
+	Call scanning or dependency functions (e.g. `files-depends`, `files-scan`)
+	and check history for read lock claims and releases:
+
+	```lisp
+	(files-depends "tmp_test.lisp")
+	(defq hist (lock-history-rpc))
+	(assert-true "files-depends read lock"
+		(nempty? (some (# (if (eql %0 "tmp_test.lisp (lock read)") %0)) hist)))
+	(assert-true "files-depends read unlock"
+		(nempty? (some (# (if (eql %0 "tmp_test.lisp (unlock read)") %0)) hist)))
+	```
+
+3.	**Stream Lifetime & Unlock Invariant:**
+	Before releasing any lock (`lock-release-rpc`), always ensure that any open
+	file stream is flushed (if writable via `stream-flush`) and cleared to
+	`:nil` (e.g. `(setq stream :nil)` or `(setq res (tree-load stream) stream :nil)`).
+	Setting the stream to `:nil` invokes its destructor and closes host OS file
+	descriptors before the lock is relinquished.
+
 ## Pre-Public Release Tag Verification (Mandatory)
 
 Per `CONTRIBUTIONS.md`, all of the following verification checks must be run and

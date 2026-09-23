@@ -4,6 +4,31 @@
 
 ------
 
+Updated `ensure-lock-service` and `ensure-net-service` RPC helpers to wait for
+services without launching them with `open-remote`.
+
+Lock service (@Lock): added `+lock_max_history 128` setting, tracking the last
+128 lock and unlock actions in `"key (action type)"` format (e.g. `"file (lock write)"`).
+Added `(lock-history-rpc [timeout])` and new `locks` CLI command (`cmd/locks.lisp`)
+to inspect the recent lock history.
+
+New `lib/streams/hex.inc` stream library for bidirectional hex stream encoding
+and decoding (`hex-encode-stream`, `hex-decode-stream`), supporting optional byte
+offset and character columns (`+hex_stream_flag_offset`, `+hex_stream_flag_chars`).
+Updated `cmd/dump.lisp` to use `lib/streams/hex.inc` with `-o` and `-c` toggles.
+
+Updated `lib/text/buffer.inc` `:stream_load_hex` to stream data asynchronously
+via an async child pipeline and `lib/streams/hex.inc`.
+
+Added read/write file locking across CLI commands (`cat`, `save`, `cp`, `mv`,
+`rm`, `dump`, `edit`, `forward`, `grep`, `rle`, `unrle`, `lz4`, `unlz4`,
+`tocpm`, `toflm`, `hbook`, `huff`, `unhuff`, `imports`, `includes`, `diff`,
+`patch`, `sed`, `trace`, `head`, `tail`, and `ctf`), libraries (`lib/files/files.inc`,
+`lib/files/info.inc`), and `docs` app, properly clearing and closing streams before releasing locks.
+
+Added `tests/streams/test_hex.lisp` and `tests/system/test_lock.lisp` unit test
+suites, verifying lock acquisition, release, and history logging.
+
 Added `ui-tool-tips` hover hints to the six desktop apps that had the tip
 mailbox wired but no tip strings: `crypto`, `weather`, `news`, `lexicon`,
 `rosetta`, and `sunclock`. Anonymous control flows were named (`*ctrl_bar*`,

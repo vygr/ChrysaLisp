@@ -9,6 +9,9 @@
 	(setq *test_passes* 0 *test_failures* 0)
 	(print "Starting ChrysaLisp Functional Test Suite...")
 
+	; Launch background services needed for tests
+	(open-child "service/lock/app.lisp" +kn_call_run)
+
 	; Import separate test modules organized by category
 
 	; Core Language
@@ -63,11 +66,13 @@
 	(import "tests/streams/test_lz4.lisp")
 	(import "tests/streams/test_eof.lisp")
 	(import "tests/streams/test_seek.lisp")
+	(import "tests/streams/test_hex.lisp")
 
 	; System and Low-level
 	(import "tests/system/test_system.lisp")
 	(import "tests/system/test_fs_paths.lisp")
 	(import "tests/system/test_mail.lisp")
+	(import "tests/system/test_lock.lisp")
 
 	; Network
 	(import "tests/net/test_url.lisp")
