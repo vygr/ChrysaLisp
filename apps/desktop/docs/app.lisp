@@ -60,7 +60,8 @@
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
 		(defq module (cat (const (cat *app_root* "handlers/")) (rest state) ".inc"))
-		(repl (file-stream module) module)
+		(with-read-lock module
+			(repl (file-stream module) module))
 		(. handlers :insert state handler))
 	handler)
 
@@ -86,15 +87,13 @@
 			(ui-label _ (:min_width +margin_width)))
 		(defq state :text)
 		(with-read-lock file
-			(when (defq stream (file-stream file))
-				(lines! (lambda (line)
-						(task-slice)
-						(catch (setq state ((handler-func state)
-									state page (trim-end line "\r")))
-							(progn (prin _) (print) (setq state :text) :t))
-						:nil)
-					stream)
-				(setq stream :nil)))
+			(lines! (lambda (line)
+					(task-slice)
+					(catch (setq state ((handler-func state)
+								state page (trim-end line "\r")))
+						(progn (prin _) (print) (setq state :text) :t))
+					:nil)
+				(file-stream file)))
 		(catch ((handler-func state) state page "```")
 			(progn (prin _) (print) (setq state :text) :t))
 		(setq *search_widgets*

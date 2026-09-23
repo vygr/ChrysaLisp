@@ -30,14 +30,6 @@
 (profile-report "test")
 (assert-true "profile-report" :t)
 
-; --- freq-update / freq-print ---
-; These are currently commented out in root.inc, but let's check if they exist
-(if (def? 'freq-update)
-	(progn
-		(freq-update 'test_key)
-		(assert-true "freq-update" :t))
-	(print "[SKIP] freq-update not defined"))
-
 ; --- Inline task execution ---
 (defq reply_mbox (mail-mbox))
 

@@ -100,9 +100,7 @@
 		(. meta :insert :buffer (setq buffer (Document flags *syntax*)))
 		(when file
 			(with-read-lock file
-				(when (defq in_stream (file-stream file))
-					(. buffer :stream_load in_stream)
-					(setq in_stream :nil)))
+				(. buffer :stream_load (file-stream file)))
 			(each populate-dictionary (. buffer :get_buffer_lines)))))
 
 (defun populate-vdu (file)
@@ -274,9 +272,7 @@
 	(each (lambda ((key &ignore)) (. dictionary :insert_word (str key)))
 		(partition (. *syntax* :get_keywords) 2))
 	(each (# (with-read-lock %0
-			(when (defq in_stream (file-stream %0))
-				(lines! populate-dictionary in_stream)
-				(setq in_stream :nil))))
+			(lines! populate-dictionary (file-stream %0))))
 		(cat +dictionaries '("class/lisp/root.inc")))
 	(. *file_selector* :populate "." +file_types 2)
 	(populate-file-trees)

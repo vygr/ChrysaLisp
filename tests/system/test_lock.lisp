@@ -95,6 +95,10 @@
 	(nempty? (some (# (if (eql %0 "tmp_da.txt (lock read)") %0)) hist5)))
 (assert-true "lock-history contains huff read lock"
 	(nempty? (some (# (if (eql %0 "tmp_da.txt (lock read)") %0)) hist5)))
+(assert-true "lock-history contains rm da write lock"
+	(nempty? (some (# (if (eql %0 "tmp_da.txt (lock write)") %0)) hist5)))
+(assert-true "tmp_da.txt removed" (not (file-stream "tmp_da.txt")))
+(assert-true "tmp_db.txt removed" (not (file-stream "tmp_db.txt")))
 
 ; --- Test trace command locking ---
 (pipe-run "trace sys/task/dump" (lambda (_) :nil))
