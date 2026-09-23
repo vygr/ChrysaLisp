@@ -3,6 +3,7 @@
 (import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
 (import "service/clipboard/app.inc")
+(import "service/lock/app.inc")
 
 ;our UI widgets and events
 (defq +state_filename "hexview.tre")
@@ -83,7 +84,11 @@
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)))))
 	;create new buffer
 	(. file_meta :insert :buffer (setq buffer (Document 0 *syntax*)))
-	(when file (. buffer :stream_load_hex (file-stream file) 16)))
+	(when file
+		(with-read-lock file
+			(when (defq in_stream (file-stream file))
+				(. buffer :stream_load_hex in_stream 16)
+				(setq in_stream :nil)))))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file

@@ -6,7 +6,11 @@
 	(when (and file (defq meta (.-> *meta_map* (:find :files) (:find file))))
 		(bind '(buffer) (gather meta :buffer))
 		(when (.-> buffer :trim :get_modified)
-			(. buffer :stream_save (file-stream file +file_open_write)))))
+			(with-write-lock file
+				(when (defq out_stream (file-stream file +file_open_write))
+					(. buffer :stream_save out_stream)
+					(stream-flush out_stream)
+					(setq out_stream :nil))))))
 
 (defun action-save ()
 	(save-file *current_file*)
@@ -19,7 +23,8 @@
 (defun action-new ()
 	(when (nql (defq file (trim (get :clear_text *name_text*))) "")
 		;file does not exist ?
-		(if (= (age file) 0) (save "" file))
+		(if (= (age file) 0)
+			(with-write-lock file (save "" file)))
 		(def *name_text* :cursor 0 :anchor 0 :clear_text "")
 		(.-> *name_text* :layout :dirty_all)
 		(open-file file)))

@@ -5,6 +5,7 @@
 (import "lib/text/dictionary.inc")
 (import "lib/task/cmd.inc")
 (import "service/clipboard/app.inc")
+(import "service/lock/app.inc")
 
 ;our UI widgets and events
 (import "./widgets.inc")
@@ -98,7 +99,10 @@
 	(unless (defq buffer (. meta :find :buffer))
 		(. meta :insert :buffer (setq buffer (Document flags *syntax*)))
 		(when file
-			(. buffer :stream_load (file-stream file))
+			(with-read-lock file
+				(when (defq in_stream (file-stream file))
+					(. buffer :stream_load in_stream)
+					(setq in_stream :nil)))
 			(each populate-dictionary (. buffer :get_buffer_lines)))))
 
 (defun populate-vdu (file)
@@ -269,7 +273,10 @@
 	;load up the base Syntax keywords, root.inc and dictionaries for matching
 	(each (lambda ((key &ignore)) (. dictionary :insert_word (str key)))
 		(partition (. *syntax* :get_keywords) 2))
-	(each (# (lines! populate-dictionary (file-stream %0)))
+	(each (# (with-read-lock %0
+			(when (defq in_stream (file-stream %0))
+				(lines! populate-dictionary in_stream)
+				(setq in_stream :nil))))
 		(cat +dictionaries '("class/lisp/root.inc")))
 	(. *file_selector* :populate "." +file_types 2)
 	(populate-file-trees)

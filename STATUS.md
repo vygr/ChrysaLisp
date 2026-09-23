@@ -4,6 +4,10 @@
 
 ------
 
+Added distributed lock server integration (`service/lock/app.inc`) across Viewer,
+Hexviewer, and Edit applications for document file loading, saving, and scanning,
+using `with-read-lock` and `with-write-lock` with clean stream flushing and closure.
+
 Fixed parenthesis mismatch in `cmd/includes.lisp` and `cmd/toflm.lisp` where
 unclosed functions caused worker nodes to segfault during `make docs`.
 

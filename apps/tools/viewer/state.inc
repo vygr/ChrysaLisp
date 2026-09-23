@@ -2,8 +2,6 @@
 ; state load/save
 ;;;;;;;;;;;;;;;;;
 
-(import "service/lock/app.inc")
-
 (defq +config_version 1 +config_file (cat *env_home* +state_filename))
 
 (defun config-save ()

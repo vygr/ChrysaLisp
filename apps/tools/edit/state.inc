@@ -2,7 +2,6 @@
 ; state load/save
 ;;;;;;;;;;;;;;;;;
 
-(import "service/lock/app.inc")
 (defun config-save ()
 	;save editor state
 	(defq key (const (cat *env_home* +state_filename)))
