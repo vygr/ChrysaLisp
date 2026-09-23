@@ -1,3 +1,5 @@
+(import "service/lock/app.inc")
+
 ;module
 (env-push)
 
@@ -6,27 +8,30 @@
 	(cond
 		((match? line "^\\s*```")
 			:text)
-		(:t (bind '(file &optional start_exp end_exp)
+		(:t (bind '(file_path &optional start_exp end_exp)
 				(first (read (string-stream (cat "(" line ")")))))
 			;skip to start and write directly to a memory-stream
-			(defq stream (file-stream file))
 			(setq *mem_stream* (memory-stream))
-			(when (and start_exp (defq line (lines! (# (if (found? %0 start_exp) (trim %0 "\r"))) stream)))
-				(write-line *mem_stream* line))
-			;skip to end
-			(cond
-				((eql end_exp "")
-					(while (and end_exp (defq line (read-line stream)))
-						(if (match? line "^\\s*$")
-							(setq end_exp :nil)
-							(write-line *mem_stream* (trim line "\r")))))
-				(end_exp
-					(while (and end_exp (defq line (read-line stream)))
-						(if (found? line end_exp)
-							(setq end_exp :nil)
-							(write-line *mem_stream* (trim line "\r")))))
-				(:t (while (defq line (read-line stream))
-						(write-line *mem_stream* (trim line "\r")))))
+			(when (lock-claim-rpc file_path +lock_mode_read)
+				(when (defq stream (file-stream file_path))
+					(when (and start_exp (defq line (lines! (# (if (found? %0 start_exp) (trim %0 "\r"))) stream)))
+						(write-line *mem_stream* line))
+					;skip to end
+					(cond
+						((eql end_exp "")
+							(while (and end_exp (defq line (read-line stream)))
+								(if (match? line "^\\s*$")
+									(setq end_exp :nil)
+									(write-line *mem_stream* (trim line "\r")))))
+						(end_exp
+							(while (and end_exp (defq line (read-line stream)))
+								(if (found? line end_exp)
+									(setq end_exp :nil)
+									(write-line *mem_stream* (trim line "\r")))))
+						(:t (while (defq line (read-line stream))
+								(write-line *mem_stream* (trim line "\r")))))
+					(setq stream :nil))
+				(lock-release-rpc file_path))
 			(stream-seek *mem_stream* 0 0)
 
 			;load the memory-stream into a plain-text Document

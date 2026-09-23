@@ -2,6 +2,8 @@
 ; directory utils
 ;;;;;;;;;;;;;;;;;
 
+(import "service/lock/app.inc")
+
 ;module
 (env-push)
 
@@ -37,14 +39,17 @@
 (defun files-depends (file &optional end)
 	; (files-depends path [end]) -> paths
 	;create list of immediate dependencies
-	(if (defq files (list) stream (file-stream file))
+	(defq files (list))
+	(when (defq stream (file-stream file))
 		(lines! (lambda (line)
 			(and (eql "(" (first line))
 				(or (starts-with "(include \q" line) (starts-with "(import \q" line))
 				(push files (path-to-absolute
 					(slice line (defq i (inc (find "\q" line))) (find "\q" line i)) file)))
 			:nil)
-			stream 0 (ifn end +max_long))) files)
+			stream 0 (ifn end +max_long))
+		(setq stream :nil))
+	files)
 
 (defun files-all-depends (files &optional imps end)
 	; (files-all-depends paths [imps end]) -> paths
@@ -61,18 +66,21 @@
 	(defq callback_e (penv))
 	(unless (list?? files) (setq files (list files)))
 	(each-mergeable (lambda (file)
-		(if (defq stream (file-stream file))
-			(lines! (lambda (line) (task-slice)
-				;skip empty lines and comments
-				(unless (or (eql (defq linet (trim line)) +char_class_space)
-							(and comment (starts-with comment linet)))
-					;prepare input (tokens or trimmed line)
-					(defq input (if split_class (split linet split_class) linet))
-					;call user handler
-					;merge any new dependencies returned by handler into files list
-					(merge files (ifn (callback handler callback_e input file line (!)) '())))
-				:nil)
-				stream))) files))
+		(when (lock-claim-rpc file +lock_mode_read)
+			(when (defq stream (file-stream file))
+				(lines! (lambda (line) (task-slice)
+					;skip empty lines and comments
+					(unless (or (eql (defq linet (trim line)) +char_class_space)
+								(and comment (starts-with comment linet)))
+						;prepare input (tokens or trimmed line)
+						(defq input (if split_class (split linet split_class) linet))
+						;call user handler
+						;merge any new dependencies returned by handler into files list
+						(merge files (ifn (callback handler callback_e input file line (!)) '())))
+					:nil)
+					stream)
+				(setq stream :nil))
+			(lock-release-rpc file))) files))
 
 ;module
 (export-symbols '(files-all files-dirs files-all-depends files-depends files-scan))
