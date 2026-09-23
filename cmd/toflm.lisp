@@ -34,14 +34,14 @@
 		(unless (ends-with ".flm" opt_n)
 			(setq opt_n (cat opt_n ".flm")))
 		(when (nempty? jobs)
-			(when (lock-claim-rpc opt_n +lock_mode_write)
+			(with-write-lock opt_n
 				(when (defq out_stream (file-stream opt_n +file_open_write))
 					(defq num_bits (if (or (= opt_f 12) (= opt_f 15)) 16 opt_f)
 						p_stream (memory-stream) c_stream (memory-stream)
 						total_pixels 0 first_frame :t)
 					(each (lambda (file)
 						(task-slice)
-						(when (lock-claim-rpc file +lock_mode_read)
+						(with-read-lock file
 							(when (defq canvas (canvas-load file +load_flag_noswap))
 								(defq pixmap (getf canvas +canvas_pixmap 0))
 								(if first_frame
@@ -103,9 +103,7 @@
 										(defq temp p_stream)
 										(setq p_stream c_stream c_stream temp)))
 								(prin file " -> " opt_n)
-								(print))
-							(lock-release-rpc file))) jobs)
+								(print))) jobs)
 					(stream-flush out_stream)
-					(setq out_stream :nil))
-				(lock-release-rpc opt_n)))))
+					(setq out_stream :nil))))))
 

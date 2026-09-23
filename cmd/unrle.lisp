@@ -27,12 +27,11 @@
 		(defq file_path (if (> (length args) 1) (second args))
 			out_stream (io-stream 'stdout))
 		(if file_path
-			(when (lock-claim-rpc file_path +lock_mode_read)
+			(with-read-lock file_path
 				(when (defq in_stream (file-stream file_path))
 					(rle-decompress in_stream out_stream opt_t opt_r)
 					(stream-flush out_stream)
-					(setq in_stream :nil))
-				(lock-release-rpc file_path))
+					(setq in_stream :nil)))
 			(when (defq in_stream (io-stream 'stdin))
 				(rle-decompress in_stream out_stream opt_t opt_r)
 				(stream-flush out_stream)))))

@@ -26,17 +26,15 @@
 (defun work (file)
 	(when (and file (defq i (rfind "." file)))
 		(defq out_file (cat (slice file 0 i) "cpm"))
-		(when (lock-claim-rpc file +lock_mode_read)
-			(when (lock-claim-rpc out_file +lock_mode_write)
+		(with-read-lock file
+			(with-write-lock out_file
 				(when (defq canvas (canvas-load file +load_flag_noswap))
 					(when (defq out_stream (file-stream out_file +file_open_write))
 						(CPM-save canvas out_stream opt_f opt_r opt_l)
 						(stream-flush out_stream)
 						(setq out_stream :nil))
 					(prin file " -> " out_file)
-					(print))
-				(lock-release-rpc out_file))
-			(lock-release-rpc file))))
+					(print))))))
 
 
 (defun main ()

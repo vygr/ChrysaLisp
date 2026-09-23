@@ -28,12 +28,11 @@
 
 ;do the work on a file
 (defun work (file)
-	(when (lock-claim-rpc file +lock_mode_read)
+	(with-read-lock file
 		(when (defq stream (file-stream file))
 			(defq freqs (huffman-build-freq-map stream opt_t))
 			(. freqs :each (lambda (k v) (. freq_map :update k (# (if %0 (+ %0 v) v)))))
-			(setq stream :nil))
-		(lock-release-rpc file)))
+			(setq stream :nil))))
 
 ;merge child work
 (defun merge-work ((job result))
@@ -62,12 +61,11 @@
 					(partition jobs opt_j)))))
 		;write codebook if requested
 		(when opt_c
-			(when (lock-claim-rpc opt_c +lock_mode_write)
+			(with-write-lock opt_c
 				(when (defq cstream (file-stream opt_c +file_open_write))
 					(huffman-write-codebook cstream opt_t freq_map)
 					(stream-flush cstream)
-					(setq cstream :nil))
-				(lock-release-rpc opt_c)))
+					(setq cstream :nil))))
 		;output results
 		(tree-save (io-stream 'stdout) freq_map)))
 

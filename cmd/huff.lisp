@@ -27,21 +27,19 @@
 			(defq stdio (create-stdio))
 			(defq opt_c :nil opt_t 8 args (options stdio usage)))
 		(when opt_c
-			(when (lock-claim-rpc opt_c +lock_mode_read)
+			(with-read-lock opt_c
 				(when (defq cstream (file-stream opt_c))
-					(setq opt_c (huffman-read-codebook cstream) cstream :nil))
-				(lock-release-rpc opt_c)))
+					(setq opt_c (huffman-read-codebook cstream) cstream :nil))))
 		(defq file_path (if (> (length args) 1) (second args))
 			out_stream (io-stream 'stdout))
 		(if file_path
-			(when (lock-claim-rpc file_path +lock_mode_read)
+			(with-read-lock file_path
 				(when (defq in_stream (file-stream file_path))
 					(if opt_c
 						(huffman-compress-static in_stream out_stream opt_c)
 						(huffman-compress in_stream out_stream opt_t))
 					(stream-flush out_stream)
-					(setq in_stream :nil))
-				(lock-release-rpc file_path))
+					(setq in_stream :nil)))
 			(when (defq in_stream (io-stream 'stdin))
 				(if opt_c
 					(huffman-compress-static in_stream out_stream opt_c)

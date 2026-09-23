@@ -1196,27 +1196,24 @@
 		(progn
 			(defq new_file (cat (slice file 0 (dec (rfind "." file))) ".ctf")
 				font_db :nil)
-			(when (lock-claim-rpc file +lock_mode_read)
+			(with-read-lock file
 				(cond
 					((ends-with ".ctf" file)
 						(setq font_db (load-ctf file)))
 					((or (ends-with ".otf" file) (ends-with ".ttf" file))
-						(setq font_db (load-otf-ttf file))))
-				(lock-release-rpc file))
+						(setq font_db (load-otf-ttf file)))))
 			(if font_db
 				(progn
 					(generate-optical-kerning font_db)
-					(when (lock-claim-rpc new_file +lock_mode_write)
+					(with-write-lock new_file
 						(if (write-ctf font_db new_file)
 							(print (if (ends-with ".ctf" file) "Wrote font: " "Compiled and wrote font: ") new_file)
-							(print "Error: Failed to write " new_file))
-						(lock-release-rpc new_file)))
+							(print "Error: Failed to write " new_file))))
 				(if (or (ends-with ".ctf" file) (ends-with ".otf" file) (ends-with ".ttf" file))
 					(print "Error: Cannot open font file " file)
 					(print "Error: Unsupported font file format " file))))
-		(when (lock-claim-rpc file +lock_mode_read)
-			(process-file file opt_v)
-			(lock-release-rpc file))))
+		(with-read-lock file
+			(process-file file opt_v))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
