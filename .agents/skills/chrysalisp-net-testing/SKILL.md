@@ -6,136 +6,110 @@ description: Use when running, debugging, or testing network links, server/clien
 
 # ChrysaLisp Multi-Instance & Network Link Testing Skill
 
-This skill explains how to run and debug two separate ChrysaLisp VM instances on a single machine (e.g. a server and a client) to test system-to-system TCP links (`service/net/link`), inter-node messaging, and distributed services without needing a physical second machine.
+This skill documents the available ChrysaLisp network tests in `tests/net/`, how they operate, and how to run them across single-machine and multi-machine environments.
 
 ---
 
-## 1. The `-b` (Base CPU Offset) Mechanism
+## 1. Network Test Inventory in `tests/net/`
 
-The ChrysaLisp shell launcher (`funcs.sh`, used by `run_tui.sh` and `run_mesh.sh`) manages process lifecycles and node CPU IDs:
+The `tests/net/` directory contains three categories of network tests:
 
-- **Startup Cleanup**: If `base_cpu -eq 0` (the default when `-b` is omitted), `funcs.sh` runs `./stop.sh` on startup, which terminates all running `main_tui` / `main_gui` processes.
-- **Independent Instances with `-b`**: If `base_cpu` is non-zero (e.g. `-b 10`), `funcs.sh` does **NOT** call `./stop.sh` on startup. The new instance runs independently with CPU node offsets shifted by `base_cpu`.
-- **Exit Cleanup with `-f`**: If foreground mode `-f` is passed, `boot_cpu_tui` will call `./stop.sh` when the process exits with code 0. Omitting `-f` ensures the process does not shut down other instances upon exit.
+| Category | File(s) | Execution Mode | Scope |
+| :--- | :--- | :--- | :--- |
+| **Unit Test Suite** | `test_url.lisp`, `test_json.lisp` | Standard test suite (`tests`) | In-process URL & JSON parsing |
+| **Loopback Link** | `test_loopback.sh` (`srv_loopback.lisp`, `cli_loopback.lisp`) | `./tests/net/test_loopback.sh` | Single-machine multi-instance TCP link |
+| **Cluster Diagnostic** | `test_cluster.lisp` | `./run_tui.sh -f -s tests/net/test_cluster.lisp` | Physical LAN multi-machine cluster probe |
 
-## 2. Automated Loopback Test Runner (`tests/net/test_loopback.sh`)
+---
 
-ChrysaLisp provides an automated loopback test script that manages the full test lifecycle:
+## 2. In-Process Unit Tests (`test_url.lisp`, `test_json.lisp`)
+
+These modules are integrated into the canonical ChrysaLisp test suite in `tests/run_all.lisp`:
+
+*	`test_url.lisp`: Tests URL encoding, decoding, path splitting, hex-escaping, and query parameter extraction.
+*	`test_json.lisp`: Tests JSON tokenization, nested objects, arrays, numbers, and string escaping.
+
+### Running via Test Harness
+
+From the host shell (always pipe through `grep` to save tokens):
+```bash
+echo "tests" | ./run_tui.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
+```
+
+Inside an interactive TUI or Terminal session:
+```lisp
+tests
+```
+
+---
+
+## 3. Automated Single-Machine Loopback Test (`test_loopback.sh`)
+
+Validates TCP point-to-point network links (`service/net/link`), inter-node routing, and remote task dispatch (`open-remote`) on a single machine without requiring LAN peers or network access.
+
+### How It Works
+
+*	**Driver**: `tests/net/test_loopback.sh` orchestrates two independent ChrysaLisp VM instances on the local machine:
+	1. Runs `./stop.sh` to ensure a clean slate.
+	2. Launches the server instance (`tests/net/srv_loopback.lisp`) on CPU base 0, listening on port `:4567`.
+	3. Polls with `lsof` until port 4567 is active.
+	4. Launches the client instance (`tests/net/cli_loopback.lisp`) with CPU offset `-b 10`.
+	5. The client connects to `127.0.0.1:4567`, discovers all 10 remote server nodes (20 nodes total), and dispatches `(kernel-stats)` tasks to every remote node via `open-remote`.
+	6. Collects and validates all responses with rolling timeout and verifies all results originated from remote nodes.
+	7. Traps exit to terminate background processes via `./stop.sh`.
+
+### How to Run
 
 ```bash
 ./tests/net/test_loopback.sh
 ```
 
-This script:
-1. Cleans up stale processes with `./stop.sh`.
-2. Starts the server (`tests/net/srv_loopback.lisp`) on port `:4567` in the background.
-3. Polls until port 4567 is active via `lsof`.
-4. Runs the client (`tests/net/cli_loopback.lisp`) with `-b 10`.
-5. Verifies full remote node discovery across the link.
-6. Dispatches code to **every** discovered remote node via `open-remote` and validates responses.
-7. Automatically cleans up all background processes on exit via a bash trap.
-
----
-
-## 3. Manual Server & Client Testing Workflow
-
-### Step 1: Start Server in Background (Without `-b`)
-Launch the server without `-b` in the background with `&`, redirecting output to a dedicated log file inside `tests/scratch/`:
-
-```bash
-mkdir -p tests/scratch
-./run_tui.sh -n 1 -s tests/scratch/run_srv.lisp > tests/scratch/server.log 2>&1 &
+A successful run terminates with:
 ```
-
-- Because `-b` is omitted (`base_cpu=0`), it runs `./stop.sh` once at startup, cleaning up any stale processes.
-- The server starts fresh, binds its listening port (e.g. `4444` or `3333`), and remains running in the background.
-
-Check that the server is listening:
-```bash
-head -n 10 tests/scratch/server.log
-```
-
-### Step 2: Run Client with `-b 10`
-Launch the client instance using `-b 10`:
-
-```bash
-./run_tui.sh -b 10 -n 1 -s tests/scratch/run_cli.lisp
-```
-
-- Because `base_cpu` is `10`, the client does **NOT** run `./stop.sh`.
-- The background server remains completely undisturbed.
-- You can re-run client sessions repeatedly against the same running server instance.
-
-### Step 3: Inspect Both Sides
-
-- **Client side**: Streams directly to your terminal standard output.
-- **Server side**: Inspect live with `tail -f tests/scratch/server.log` or read `tests/scratch/server.log` after the test.
-
-### Step 4: Cleanup
-When finished with testing, terminate all background instances and remove the scratch directory:
-
-```bash
-./stop.sh
-rm -rf tests/scratch
+=== LOOPBACK TEST RESULT: SUCCESS ===
 ```
 
 ---
 
-## 3. Reference Test Scripts
+## 4. Multi-Machine Cluster Diagnostic Tool (`test_cluster.lisp`)
 
-### Server Script (`tests/scratch/run_srv.lisp`)
-```lisp
-(print "=== SERVER LISTENING ON :4444 ===")
-(mail-send (open-child "service/net/link" +kn_call_pin) ":4444")
-(while :t
-	(task-sleep 1000000))
-```
+Inspects and verifies a live multi-machine ChrysaLisp cluster across local and remote physical machines over the local network (LAN).
 
-### Client Script (`tests/scratch/run_cli.lisp`)
-```lisp
-(print "=== CLIENT CONNECTING TO 127.0.0.1:4444 ===")
-(mail-send (open-child "service/net/link" +kn_call_pin) "127.0.0.1:4444")
-(task-sleep 3000000)
-(print "=== CLIENT SESSION FINISHED ===")
-(pii-exit)
-```
+### How It Works
 
----
+`tests/net/test_cluster.lisp`:
+1. **Starts `@Net` Service**: Checks `(mail-enquire "@Net,")` and automatically launches `(open-child "service/net/app.lisp" +kn_call_run)` if not already active.
+2. **Dynamically Stabilizes Local Nodes**: Calls `(net-quiet 500000 6)` to wait until all local CPU node background processes finish booting and settle (no hardcoded node counts).
+3. **Starts LAN Auto-Discovery**: Executes `(pipe-run "link -a" prin)` to listen for UDP broadcast beacons from network peers on port 3334.
+4. **Waits for Peers & Stabilizes**: Dynamically waits for peer nodes to appear (`(> (length (lisp-nodes)) (length local_nodes))`) and stabilizes cluster topology with `(net-quiet 500000 8)` (4 seconds of network silence).
+5. **Probes Entire Cluster**: Dispatches `cluster -v` to launch non-blocking asynchronous probes concurrently via `+kn_call_pin` across all nodes on all machines.
+6. **Reports Topology Summary**: Reports CPU/OS/ABI architecture per machine, task counts, memory usage, stack depth, and discovered services (`@Net`, `@Lock`, `Terminal`), validating zero bad task counts.
 
-## 4. Rebuilding ChrysaLisp vs Host C++
+### How to Run
 
-*	**Host C++ changes** (`src/host/main.cpp`, `src/host/net.cpp`, etc.):
-	Rebuild the host binaries with host `make`:
+Test under **both** native host and VP64 emulator modes:
+
+*	**Native Host Execution:**
 	```bash
-	make
+	./run_tui.sh -f -s tests/net/test_cluster.lisp
 	```
 
-*	**ChrysaLisp VP / Lisp / System image changes** (`service/net/link.vp`, `class/*`, `sys/*`):
-	Never run host `make` to compile ChrysaLisp code. Rebuild the system boot image from within ChrysaLisp using:
+*	**VP64 Emulator Mode (`-e`):**
 	```bash
-	echo "make all boot" | ./run_tui.sh -f
+	./run_tui.sh -e -f -s tests/net/test_cluster.lisp
 	```
+
+A successful run terminates with:
+```
+=== CLUSTER QUERY: SUCCESS ===
+```
 
 ---
 
-## 5. LAN Auto-Discovery & Cluster Diagnostics
+## 5. The `-b` (Base CPU Offset) Mechanism
 
-### Auto-Discovery (`link -a`)
-- `link -l [port] -a`: Start a server listener and advertise availability over UDP port 3334.
-- `link -a`: Auto-discover LAN peers and connect automatically.
+When debugging or writing custom network scripts across multiple instances on one machine:
 
-### Multi-Machine Cluster Diagnostic Tool (`tests/net/test_cluster.lisp`)
-To query, inspect, and verify all local and remote nodes across a multi-machine ChrysaLisp cluster (always test under **both** native and VP64 emulator modes):
-```bash
-# Native host:
-./run_tui.sh -f -s tests/net/test_cluster.lisp
-
-# VP64 emulator (-e):
-./run_tui.sh -e -f -s tests/net/test_cluster.lisp
-```
-- Auto-discovers physical LAN peers via UDP broadcast.
-- Dynamically waits until cluster node count stabilizes (no hardcoded node numbers).
-- Dispatches asynchronous non-blocking probe tasks across all nodes concurrently with `+kn_call_pin`.
-- Inspects machine architecture (`cpu`, `os`, `abi`), `task_count`, memory usage, and stack depth directly on each remote host.
-- Reports a clean cluster topology summary grouped by machine system ID and architecture.
-
+*	**Instance 0 (Server)**: Launch without `-b` (default `base_cpu=0`). It executes `./stop.sh` on startup to clean up stale processes and binds ports on base nodes (0..9).
+*	**Instance 1 (Client)**: Launch with `-b 10`. The non-zero base offset instructs `funcs.sh` **not** to run `./stop.sh`, allowing the client to run alongside the background server on node IDs 10..19.
+*	**Exit Behavior**: Omitting `-f` ensures the process does not terminate other instances when it exits.

@@ -18,49 +18,50 @@ operating system environment, with all standard libraries, background nodes,
 and system services initialized.
 
 From the host shell or automated tool invocations, feed the `tests` command to
-Node 0 via piped stdin:
+Node 0 via piped stdin.
 
-*	**Full System Mode (with GUI services):**
+**CRITICAL TOKEN-SAVING RULE:** When running tests from CLI / scripts / agents, **ALWAYS** pipe the output through `grep` to suppress the ~1,600 passing lines and save context tokens:
 
-	```sh
-	echo "tests" | ./run.sh -f
-	```
-
-	Launches Node 0 in the foreground with the `"Gui"` service active and a live
-	TUI shell running "under the hood" of the GUI window.
-
-*	**Headless TUI Mode:**
+*	**Failure check / quick filter (grep `[FAIL]`):**
 
 	```sh
-	echo "tests" | ./run_tui.sh -f
+	echo "tests" | ./run_tui.sh -f 2>&1 | grep "\[FAIL\]"
 	```
 
-	Launches pure TUI on Node 0 with background VP nodes, without opening a GUI
-	window. (Alternatively: `echo "tests" | ./run.sh -g 0 -f`).
+	Outputs nothing if all tests pass; prints any failure lines if a test fails.
 
-*	**Interactive TUI Session:**
-
-	Inside any running TUI or Terminal session, simply run:
-
-	```lisp
-	tests
-	```
-
-*	**Filtering Output for Quick Diagnosis:**
-
-	To focus directly on failures, skips, or summary statistics:
+*	**Headless TUI Mode with Summary (Preferred for AI / CLI):**
 
 	```sh
-	echo "tests" | ./run.sh -f 2>&1 \
-		| grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
+	echo "tests" | ./run_tui.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
 	```
+
+	Launches pure TUI on Node 0 with background VP nodes without opening a GUI
+	window, outputting only failures, skips, and the final pass/fail summary.
 
 *	**Emulated VP64 Mode (`-e`):**
 
 	When verifying VM or VP-level changes across architectures:
 
 	```sh
-	echo "tests" | ./run_tui.sh -e -f
+	echo "tests" | ./run_tui.sh -e -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
+	```
+
+*	**Full System Mode (with GUI services):**
+
+	```sh
+	echo "tests" | ./run.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
+	```
+
+	Launches Node 0 in the foreground with the `"Gui"` service active and a live
+	TUI shell running "under the hood" of the GUI window.
+
+*	**Interactive TUI Session:**
+
+	Inside any interactive TUI or Terminal session:
+
+	```lisp
+	tests
 	```
 
 *	**Legacy Raw Script Fallback:**
@@ -409,23 +410,23 @@ All checks should be performed using standard TUI pipeline commands:
 	Must produce zero diff output (exit code 0).
 
 7.	**Full Functional Test Suite (Both Native and Emulator Modes):**
-	Run the complete test suite in both environments:
+	Run the complete test suite in both environments (always pipe through `grep` to save tokens):
 
 	*	Native host (under live GUI or TUI):
 
 		```sh
-		echo "tests" | ./run.sh -f
+		echo "tests" | ./run.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
 		```
 
-		Must report `Passed: 1544, Failed: 0, RESULT: SUCCESS`.
+		Must report `Passed: 1592, Failed: 0, RESULT: SUCCESS`.
 
 	*	VP64 emulator:
 
 		```sh
-		echo "tests" | ./run_tui.sh -e -f
+		echo "tests" | ./run_tui.sh -e -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
 		```
 
-		Must report `Passed: 1544, Failed: 0, RESULT: SUCCESS`.
+		Must report `Passed: 1592, Failed: 0, RESULT: SUCCESS`.
 
 8.	**Multi-Instance Network Link & Cluster Tests (Both Native and -e Modes):**
 	Verify distributed node discovery, connection, remote task dispatch, auto-discovery,
@@ -437,12 +438,6 @@ All checks should be performed using standard TUI pipeline commands:
 		```
 		Must complete with `=== LOOPBACK TEST RESULT: SUCCESS ===`.
 
-	*	**Auto-Discovery Test:**
-		```sh
-		./tests/net/test_disco.sh
-		```
-		Must complete with `=== AUTO-DISCOVERY TEST RESULT: SUCCESS ===`.
-
 	*	**Cluster Diagnostic Test (Native & Emulator):**
 		```sh
 		# Native host:
@@ -451,7 +446,9 @@ All checks should be performed using standard TUI pipeline commands:
 		# VP64 emulator (-e):
 		./run_tui.sh -e -f -s tests/net/test_cluster.lisp
 		```
-		Must probe all nodes across all cluster machines with 0 bad task counts and report `=== CLUSTER QUERY: SUCCESS ===`.
+		Discovers physical LAN peers via UDP broadcast (`link -a`), dynamically
+		stabilizes topology, probes all nodes across all cluster machines with 0 bad
+		task counts, and reports `=== CLUSTER QUERY: SUCCESS ===`.
 
 9.	**Host C++ Cross-Platform Compilation Check:**
 	If C++ PII or driver code was modified, verify compilation across platforms.
@@ -491,7 +488,7 @@ All checks should be performed using standard TUI pipeline commands:
 
 	```sh
 	make install
-	echo "tests" | ./run_tui.sh -f
+	echo "tests" | ./run_tui.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
 	```
 
 	This verifies the full end-to-end user onboarding flow: cleaning the host
