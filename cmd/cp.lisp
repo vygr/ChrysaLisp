@@ -18,13 +18,11 @@
 			(defq args (options stdio usage))
 			(= (length args) 3))
 		(bind '(src_path dst_path) (rest args))
-		(when (lock-claim-rpc src_path +lock_mode_read)
-			(when (lock-claim-rpc dst_path +lock_mode_write)
+		(with-read-lock src_path
+			(with-write-lock dst_path
 				(when (and (defq src (file-stream src_path))
 						(defq dst (file-stream dst_path +file_open_write)))
 					(while (defq c (read-blk src 1024)) (write-blk dst c))
 					(stream-flush dst))
-				(setq src :nil dst :nil)
-				(lock-release-rpc dst_path))
-			(lock-release-rpc src_path))))
+				(setq src :nil dst :nil)))))
 

@@ -14,9 +14,8 @@
 
 ;rm a file with write lock
 (defun rm-file (file_path)
-	(when (lock-claim-rpc file_path +lock_mode_write)
-		(pii-remove file_path)
-		(lock-release-rpc file_path))
+	(with-write-lock file_path
+		(pii-remove file_path))
 	:nil)
 
 (defun main ()

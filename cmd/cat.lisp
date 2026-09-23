@@ -16,7 +16,7 @@
 
 ;cat a file to stdout
 (defun cat-file (file)
-	(when (lock-claim-rpc file +lock_mode_read)
+	(with-read-lock file
 		(when (defq stream (file-stream file))
 			(when opt_f
 				(print)
@@ -26,8 +26,7 @@
 			(while (defq c (read-blk stream 1024))
 				(write-blk (io-stream 'stdout) c))
 			(stream-flush (io-stream 'stdout))
-			(setq stream :nil))
-		(lock-release-rpc file))
+			(setq stream :nil)))
 	:nil)
 
 (defun main ()
