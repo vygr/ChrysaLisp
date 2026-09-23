@@ -88,7 +88,7 @@
 
 ;grep a file to stdout
 (defun grep-file (file)
-	(when (lock-claim-rpc file +lock_mode_read)
+	(with-read-lock file
 		(when (defq state :nil result :nil stream (file-stream file))
 			(while (and (not result) (defq line (read-line stream)))
 				(task-slice)
@@ -103,15 +103,13 @@
 								(print file))))
 					(if (setq result (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta)))
 						(print file))))
-			(setq stream :nil))
-		(lock-release-rpc file)))
+			(setq stream :nil))))
 
 (defun grep-path (file)
-	(when (lock-claim-rpc file +lock_mode_read)
+	(with-read-lock file
 		(when (defq stream (file-stream file))
 			(grep-stream stream)
-			(setq stream :nil))
-		(lock-release-rpc file)))
+			(setq stream :nil))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

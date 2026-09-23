@@ -59,7 +59,7 @@
 ;do the work on a file
 (defun work (file)
 	(defq includes (list) classes (list) requires (list +implicit_file))
-	(when (lock-claim-rpc file +lock_mode_read)
+	(with-read-lock file
 		(files-scan file (lambda (input file line idx)
 			(case (first input)
 				(("include")
@@ -83,12 +83,11 @@
 					((eql "vec-set" token) (merge classes '(":sys_math")))
 					((some (lambda (item)
 						(if (some! (# (starts-with %0 token)) (list item) :nil 1)
-							(progn (merge classes (list (first item))) :t))) +class_prefixes))
+									(progn (merge classes (list (first item))) :t))) +class_prefixes))
 					((some (lambda (item)
 						(if (some! (# (starts-with %0 token)) (list item) :nil 1)
-							(progn (merge requires (list (first item))) :t))) +require_prefixes))))
-				input) :nil) +split_class)
-		(lock-release-rpc file))
+									(progn (merge requires (list (first item))) :t))) +require_prefixes))))
+				input) :nil) +split_class)))
 	;convert to the files we need, keep any apps/ include files !
 	(merge requires (map (const find-file) classes))
 	(defq includes (map (# (path-to-absolute %0 file)) includes)
@@ -117,7 +116,7 @@
 					(reverse (sort (map (# (path-to-relative %0 file))
 						(filter (# (nql %0 +implicit_file)) requires)))))
 				no_includes (memory-stream))
-			(when (lock-claim-rpc file +lock_mode_write)
+			(with-write-lock file
 				(when (defq in_s (file-stream file))
 					(lines! (lambda (line)
 							(defq input (split line +split_class))
@@ -131,8 +130,7 @@
 					(stream-seek no_includes 0 0)
 					(lines! (# (write-line stream %0) :nil) no_includes)
 					(stream-flush stream)
-					(setq stream :nil))
-				(lock-release-rpc file)))))
+					(setq stream :nil)))))
 
 
 (defun main ()
@@ -149,15 +147,14 @@
 					(split opt_d "[]")))
 			(:t ;must build a defs map
 				(each (lambda (file)
-						(when (lock-claim-rpc file +lock_mode_read)
+						(with-read-lock file
 							(when (defq in_s (file-stream file))
 								(lines! (# (defq input (split %0 +split_class))
 										(when (eql (first input) "def-class")
 											(. defs_map :insert (second input) file))
 										:nil)
 									in_s)
-								(setq in_s :nil))
-							(lock-release-rpc file)))
+								(setq in_s :nil))))
 					(files-all "." '("class.inc") 2))
 
 				(setq opt_d (list))

@@ -449,7 +449,7 @@
 		(if (empty? (defq functions (rest args)))
 			(lines! (# (push functions %0) :nil) (io-stream 'stdin)))
 		(when (nempty? functions)
-			(when (lock-claim-rpc +obj_dir +lock_mode_read)
+			(with-read-lock +obj_dir
 				(if opt_w (setq opt_l :t))
 				(defq functions (map (# (if (starts-with +obj_dir %0)
 						(slice %0 (const (length +obj_dir)) -1) %0)) functions)
@@ -482,7 +482,7 @@
 							functions)
 						(when (and opt_w (not (. file_edits :empty?)))
 							(. file_edits :each (lambda (file edits)
-								(when (lock-claim-rpc file +lock_mode_write)
+								(with-write-lock file
 									(when (defq in_s (file-stream file))
 										(verbose 1 "Writing back changes to " file)
 										(defq doc (Document))
@@ -498,12 +498,10 @@
 										(when (defq out_s (file-stream file +file_open_write))
 											(. doc :stream_save out_s)
 											(stream-flush out_s)
-											(setq out_s :nil)))
-									(lock-release-rpc file))))))
+											(setq out_s :nil))))))))
 					(progn
 						(each (lambda (function)
 							(when (defq entry (. db :find function))
 								(print function " -> " (format-trashes (second entry)))))
-							functions)))
-				(lock-release-rpc +obj_dir)))))
+							functions)))))))
 

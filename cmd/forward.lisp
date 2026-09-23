@@ -21,7 +21,7 @@
 
 ;do the work on a file
 (defun work (file)
-	(when (lock-claim-rpc file +lock_mode_read)
+	(with-read-lock file
 		(defq defs_map (Fmap 11) uses_map (Fmap 101))
 		(files-scan file (lambda (input file line idx)
 			(defq defs (matches input "^\\(def(un|macro)\\s+([^ \r\f\v\n\t()]+)")
@@ -33,7 +33,6 @@
 				(each (# (bind '(& (x x1)) %0)
 					(. uses_map :update (slice input x x1)
 						(# (if %0 (push %0 idx) (list idx))))) uses)) :nil))
-		(lock-release-rpc file)
 		(. uses_map :each (lambda (k v)
 			(when (defq n (. defs_map :find k))
 				(each (# (if (< %0 n) (print file " (" (inc %0)	 ") " k))) v))))))

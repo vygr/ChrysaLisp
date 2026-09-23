@@ -26,7 +26,7 @@
 
 ;do the work on a file
 (defun work (file)
-	(when (lock-claim-rpc file +lock_mode_read)
+	(with-read-lock file
 		(defq changed :nil out_stream (if opt_w (memory-stream)))
 		(when (defq in_stream (file-stream file))
 			(lines! (lambda (line)
@@ -49,18 +49,16 @@
 				(if opt_w (write-line out_stream line))
 				:nil)
 				in_stream)
-			(setq in_stream :nil))
-		(lock-release-rpc file))
+			(setq in_stream :nil)))
 	;overwrite the file if we actually performed any optimizations
 	(when (and changed opt_w)
-		(when (lock-claim-rpc file +lock_mode_write)
+		(with-write-lock file
 			(stream-seek out_stream 0 0)
 			(when (defq dest (file-stream file +file_open_write))
 				(while (defq c (read-blk out_stream 1024))
 					(write-blk dest c))
 				(stream-flush dest)
-				(setq dest :nil))
-			(lock-release-rpc file))))
+				(setq dest :nil)))))
 
 
 (defun main ()

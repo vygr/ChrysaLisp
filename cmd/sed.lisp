@@ -34,11 +34,10 @@
 		stream))
 
 (defun process-file (file_path engine find_meta rep_meta global opt_i)
-	(when (lock-claim-rpc file_path +lock_mode_read)
+	(with-read-lock file_path
 		(when (defq stream (file-stream file_path))
 			(process stream engine find_meta rep_meta global opt_i)
-			(setq stream :nil))
-		(lock-release-rpc file_path)))
+			(setq stream :nil))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
