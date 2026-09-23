@@ -4,6 +4,15 @@
 
 ------
 
+Fixed parenthesis mismatch in `cmd/includes.lisp` and `cmd/toflm.lisp` where
+unclosed functions caused worker nodes to segfault during `make docs`.
+
+Updated bash launch scripts (`funcs.sh`, `stop.sh`) to automatically preserve
+and restore terminal state (`restore_tty`) on script exit, interruption, or
+segfault (`EXIT INT TERM HUP`), preventing the TTY from being left in raw mode.
+Foreground runs (`-f`) also ensure `stop.sh` cleans up background worker nodes
+on abnormal exits, and `stop.sh` restores terminal settings to sane mode.
+
 New `with-lock`, `with-read-lock`, and `with-write-lock` scoped lock macros in
 `service/lock/app.inc`. Migrated CLI file commands, libraries, and all 19 GUI
 application `.tre` config load/save routines to use the new macros, ensuring
