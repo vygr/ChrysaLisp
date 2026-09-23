@@ -648,6 +648,14 @@ ChrysaLisp's interpreter is self-hosted (`class/lisp/`, root environment in
 				(:t (. *window* :event msg))))
 		(gui-sub-rpc *window*))
 
+*	**NEVER Run GUI Code from TUI or Test Environment:**
+	GUI classes (`View`, `Window`, `Vdu`, `Flow`, `Button`, `Label`, `Md`, etc.)
+	and desktop apps (`apps/desktop/`, etc.) require full system mode with the
+	GUI subsystem, compositor, and window manager (`./run.sh -f`). They are NOT
+	present in the headless test environment or the TUI boot image
+	(`./run_tui.sh`); attempting to reference or instantiate GUI classes from
+	test scripts or TUI causes immediate `symbol_not_bound` errors.
+
 *	**Short-Circuiting, Embedded Binding, and Branching (`and` / `or`):**
 
 	*	`and` expands to `condn` (testing for `:nil`), and `or` expands to

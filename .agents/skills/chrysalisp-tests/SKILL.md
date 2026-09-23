@@ -201,6 +201,15 @@ Assert macros (all take a short human-readable name first):
 
 Conventions:
 
+*	**NEVER Run GUI Code from Tests or TUI:** Never attempt to instantiate or
+	execute GUI code (such as `View`, `Window`, `Vdu`, `Flow`, `Button`, `Label`,
+	`Md`, or GUI applications in `apps/`) from test suite modules, standalone
+	test scripts, or the TUI boot image (`./run_tui.sh`). The headless test
+	environment and TUI boot image do NOT initialize the GUI subsystem,
+	window manager, or compositor. Attempting to reference or instantiate GUI
+	classes in these environments immediately triggers `symbol_not_bound` errors
+	(e.g. `Obj: View`). Test non-GUI logic, algorithms, and CLI commands only.
+
 *	**No Root Scratch Folders:** Never create or use a `scratch/` directory in
 	the project root. Any scratch scripts, test logs, or temporary directories
 	must be placed in `tests/scratch/` (or directly within `tests/`), and must
@@ -246,6 +255,10 @@ block for robust error reporting, and end with the host shutdown call:
 
 To run a `cmd/` app from a raw script, wrap it in `(pipe-run command_line)` from
 the `(import "lib/task/pipe.inc")` library.
+
+**Strictly Non-GUI:** Standalone test scripts execute in a headless environment
+under the TUI boot image. They must never import GUI modules (`apps/desktop/`,
+`gui.inc`, etc.) or attempt to construct UI components (`View`, `Vdu`, etc.).
 
 ## Lock Service & Lock History Inspection
 
