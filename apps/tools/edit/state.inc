@@ -6,31 +6,33 @@
 (defun config-save ()
 	;save editor state
 	(defq key (const (cat *env_home* +state_filename)))
-	(lock-claim-rpc key)
-	(bind '(x y width height) (. *window* :get_bounds))
-	(when (defq stream (file-stream key +file_open_write))
-		(scatter *meta_map*
-			:version 1
-			:x x :y y :width width :height height
-			:zoom (get :zoom *window*)
-			:find (. *find_text* :get_text)
-			:replace (. *replace_text* :get_text)
-			:whole_words *whole_words*
-			:regexp *regexp*
-			:ignore_case *ignore_case*
-			:macros (reduce (# (. %0 :insert %1 (macro-encode %1))) +range_0_10 (Lmap)))
-		(tree-save stream *meta_map* '(":nil" :buffer :nil)))
-	(lock-release-rpc key))
+	(with-write-lock key
+		(bind '(x y width height) (. *window* :get_bounds))
+		(when (defq stream (file-stream key +file_open_write))
+			(scatter *meta_map*
+				:version 1
+				:x x :y y :width width :height height
+				:zoom (get :zoom *window*)
+				:find (. *find_text* :get_text)
+				:replace (. *replace_text* :get_text)
+				:whole_words *whole_words*
+				:regexp *regexp*
+				:ignore_case *ignore_case*
+				:macros (reduce (# (. %0 :insert %1 (macro-encode %1))) +range_0_10 (Lmap)))
+			(tree-save stream *meta_map* '(":nil" :buffer :nil))
+			(stream-flush stream)
+			(setq stream :nil))))
 
 (defun config-load ()
 	;load editor state
 	(defq key (const (cat *env_home* +state_filename))
 		default (scatter (Emap) :files (Fmap 101)))
 	(setq *meta_map* default *open_files* (list))
-	(lock-claim-rpc key)
-	(defq result (when (defq stream (file-stream key))
-		(catch (setq *meta_map* (tree-load stream))
-			(progn (setq *meta_map* default) :t))
+	(with-read-lock key
+		(when (defq stream (file-stream key))
+			(catch (setq *meta_map* (tree-load stream))
+				(progn (setq *meta_map* default) :t))
+			(setq stream :nil))
 		(bind '(x y width height version file
 				find_txt replace_txt files macros wwords regx icase zoom)
 			(gather *meta_map* :x :y :width :height :version
@@ -61,5 +63,3 @@
 			((setq *meta_map* default)))
 		(update-find-toolbar)
 		(if (find file *open_files*) file)))
-	(lock-release-rpc key)
-	result)

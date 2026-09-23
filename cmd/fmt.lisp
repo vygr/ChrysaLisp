@@ -777,20 +777,19 @@
 (defun work (file opt_w opt_c)
 	; read stream under read lock
 	(defq in :nil formatted :nil)
-	(lock-claim-rpc file +lock_mode_read)
-	(catch (when (setq in (file-stream file)) (setq formatted (format-lisp in))) :nil)
-	(lock-release-rpc file)
+	(with-read-lock file
+		(catch (when (setq in (file-stream file)) (setq formatted (format-lisp in))) :nil))
 	(when formatted
 		(defq orig (load file) differs (nql orig formatted))
 		(cond
 			(opt_w
 				; only acquire write lock if file actually changed
 				(when differs
-					(lock-claim-rpc file +lock_mode_write)
-					(catch (when (defq out (file-stream file +file_open_write))
-							(write-blk out formatted)
-							(stream-flush out)) :nil)
-					(lock-release-rpc file)
+					(with-write-lock file
+						(catch (when (defq out (file-stream file +file_open_write))
+								(write-blk out formatted)
+								(stream-flush out)
+								(setq out :nil)) :nil))
 					(print "Formatted: " file)))
 			(opt_c (when differs (print "Needs formatting: " file)))
 			(:t (prin formatted)))))
