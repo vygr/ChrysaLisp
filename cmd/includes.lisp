@@ -87,7 +87,7 @@
 					((some (lambda (item)
 						(if (some! (# (starts-with %0 token)) (list item) :nil 1)
 									(progn (merge requires (list (first item))) :t))) +require_prefixes))))
-				input) :nil) +split_class)))
+				input) :nil) +split_class))
 	;convert to the files we need, keep any apps/ include files !
 	(merge requires (map (const find-file) classes))
 	(defq includes (map (# (path-to-absolute %0 file)) includes)
