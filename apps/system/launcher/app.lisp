@@ -38,18 +38,19 @@
 				:apps '("molecule" "pcb" "mandelbrot" "mesh")))))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
-	(if (defq stream (file-stream +config_file))
-		(setq *config* (tree-load stream) stream :nil))
-	(lock-release-rpc +config_file)
+	(with-read-lock +config_file
+		(if (defq stream (file-stream +config_file))
+			(setq *config* (tree-load stream) stream :nil)
+			(setq *config* :nil)))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default))))
 
 (defun config-save ()
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream *config*) (setq stream :nil))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream *config*)
+			(stream-flush stream)
+			(setq stream :nil))))
 
 (defun scan-apps ()
 	(defq exclude_list (. *config* :find :exclude) categories (. *config* :find :categories)

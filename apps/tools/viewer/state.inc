@@ -8,21 +8,20 @@
 
 (defun config-save ()
 	;save state
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream (scatter (Emap)
-			:version +config_version :zoom (get :zoom *window*) :find (. *find_text* :get_text)
-			:whole_words *whole_words* :regexp *regexp* :ignore_case *ignore_case*))
-		(setq stream :nil))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream (scatter (Emap)
+				:version +config_version :zoom (get :zoom *window*) :find (. *find_text* :get_text)
+				:whole_words *whole_words* :regexp *regexp* :ignore_case *ignore_case*))
+			(stream-flush stream)
+			(setq stream :nil))))
 
 (defun config-load ()
 	;load state
-	(lock-claim-rpc +config_file)
-	(if (defq stream (file-stream +config_file))
-		(defq config (tree-load stream) stream :nil)
-		(defq config :nil))
-	(lock-release-rpc +config_file)
+	(defq config (with-read-lock +config_file
+		(when (defq stream (file-stream +config_file))
+			(defq cfg (tree-load stream) stream :nil)
+			cfg)))
 	(when (and config (= (. config :find :version) +config_version))
 		(bind '(zoom find_txt wwords regx icase)
 			(gather config :zoom :find :whole_words :regexp :ignore_case))

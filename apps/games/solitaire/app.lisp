@@ -113,25 +113,28 @@
 	(update-view))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
-	(if (and (defq data (if (defq stream (file-stream +config_file)) (tree-load stream)))
-			 (= (length (. data :find :board)) +tile_count))
-		(setq *board* (. data :find :board)
-			  *undo_stack* (ifn (defq u (. data :find :undo)) (list) u)
-			  *selected* (. data :find :selected))
+	(defq loaded :nil)
+	(with-read-lock +config_file
+		(when (and (defq data (if (defq stream (file-stream +config_file)) (prog1 (tree-load stream) (setq stream :nil))))
+				   (= (length (. data :find :board)) +tile_count))
+			(setq *board* (. data :find :board)
+				  *undo_stack* (ifn (defq u (. data :find :undo)) (list) u)
+				  *selected* (. data :find :selected)
+				  loaded :t)))
+	(if (not loaded)
 		(init-game))
-	(lock-release-rpc +config_file)
 	(update-gamestate)
 	(update-view))
 
 (defun config-save ()
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream (scatter (Emap)
-			:board *board*
-			:selected *selected*
-			:undo *undo_stack*)))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream (scatter (Emap)
+				:board *board*
+				:selected *selected*
+				:undo *undo_stack*))
+			(stream-flush stream)
+			(setq stream :nil))))
 
 (defun try-move (to_idx)
 	(defq from_idx *selected*)

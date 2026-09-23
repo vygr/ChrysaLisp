@@ -12,10 +12,9 @@
 		:redo_stack (list) :human_color +white :color +white :version +config_version)))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
-	(if (defq stream (file-stream +config_file))
-		(setq *config* (tree-load stream) stream :nil))
-	(lock-release-rpc +config_file)
+	(with-read-lock +config_file
+		(if (defq stream (file-stream +config_file))
+			(setq *config* (tree-load stream) stream :nil)))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(setq history (. *config* :find :history)
@@ -26,7 +25,8 @@
 
 (defun config-save ()
 	(scatter *config* :history history :redo_stack redo_stack :color color :human_color human_color)
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream *config*) (setq stream :nil))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream *config*)
+			(stream-flush stream)
+			(setq stream :nil))))

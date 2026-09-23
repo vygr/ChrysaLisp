@@ -10,12 +10,11 @@
 	(scatter (Emap) :version +config_version :spacing 26 :todo (list) :done (list) :deleted (list)))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
-	(if (defq stream (file-stream +config_file))
-		(setq *config* (tree-load stream) stream :nil))
+	(with-read-lock +config_file
+		(if (defq stream (file-stream +config_file))
+			(setq *config* (tree-load stream) stream :nil)))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
-		(setq *config* (config-default)))
-	(lock-release-rpc +config_file))
+		(setq *config* (config-default))))
 
 (defun config-update ()
 	(bind '(todo_items done_items deleted_items)
@@ -25,7 +24,8 @@
 
 (defun config-save ()
 	(config-update)
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream *config*) (setq stream :nil))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream *config*)
+			(stream-flush stream)
+			(setq stream :nil))))

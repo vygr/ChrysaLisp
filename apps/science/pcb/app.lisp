@@ -110,18 +110,18 @@
 	(scatter (Emap) :version +config_version :zoom 1.0))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file))
-		(setq *config* (tree-load stream)) (setq stream :nil))
-	(lock-release-rpc +config_file)
+	(with-read-lock +config_file
+		(when (defq stream (file-stream +config_file))
+			(setq *config* (tree-load stream)) (setq stream :nil)))
 	(def *window* :zoom (. *config* :find :zoom)))
 
 (defun config-save ()
 	(scatter *config* :zoom (get :zoom *window*))
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream *config*) (setq stream :nil))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream *config*)
+			(stream-flush stream)
+			(setq stream :nil))))
 
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (prin _) (print) :t)))

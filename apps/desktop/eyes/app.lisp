@@ -17,10 +17,9 @@
 		:iris_color +argb_green :iris_scale 0.7 :pupil_scale 0.4))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
-	(if (defq stream (file-stream +config_file))
-		(setq *config* (tree-load stream) stream :nil))
-	(lock-release-rpc +config_file)
+	(with-read-lock +config_file
+		(if (defq stream (file-stream +config_file))
+			(setq *config* (tree-load stream) stream :nil)))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default))))
 
@@ -30,10 +29,11 @@
 	(scatter *config*
 		:x x :y y :width w :height h
 		:iris_color iris_color :iris_scale iris_scale :pupil_scale pupil_scale)
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream *config*) (setq stream :nil))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream *config*)
+			(stream-flush stream)
+			(setq stream :nil))))
 
 ;;;;;;;;;;;;;;
 ; UI and State

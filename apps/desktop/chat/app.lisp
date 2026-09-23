@@ -77,11 +77,10 @@
 		:max_display +max_display :chats (Fmap)))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
-	(if (defq stream (file-stream +config_file))
-		(setq *config* (tree-load stream) stream :nil)
-		(setq *config* :nil))
-	(lock-release-rpc +config_file)
+	(with-read-lock +config_file
+		(if (defq stream (file-stream +config_file))
+			(setq *config* (tree-load stream) stream :nil)
+			(setq *config* :nil)))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(def *chat_name* :clear_text (. *config* :find :name))
@@ -94,10 +93,11 @@
 				(. name_map :insert cname
 					(slice msgs (- (length msgs) +max_history) -1)))))))
 	(scatter *config* :name (get :clear_text *chat_name*) :chats *chats*)
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream *config*) (setq stream :nil))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream *config*)
+			(stream-flush stream)
+			(setq stream :nil))))
 
 ;;;; ── chat data helpers ───────────────────────────────────────────────────────
 

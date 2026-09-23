@@ -37,20 +37,21 @@
 	(ui-tool-tips *toolbar* '("scramble" "solve")))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
 	(defq loaded_board :nil)
-	(if (defq stream (file-stream +config_file))
-		(setq loaded_board (tree-load stream)))
+	(with-read-lock +config_file
+		(when (defq stream (file-stream +config_file))
+			(setq loaded_board (tree-load stream))
+			(setq stream :nil)))
 	(if (and loaded_board (= (length loaded_board) *tile_count*))
 		(setq *board* loaded_board)
-		(setq *board* (cat *solved_board*)))
-	(lock-release-rpc +config_file))
+		(setq *board* (cat *solved_board*))))
 
 (defun config-save ()
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream *board*))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream *board*)
+			(stream-flush stream)
+			(setq stream :nil))))
 
 (defun get-char-for-val (v)
 	(if (= v *blank_value*) "" (char (+ 65 v))))

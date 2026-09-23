@@ -87,10 +87,10 @@
 	(update-view))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
-	(if (and (defq data (if (defq stream (file-stream +config_file)) (tree-load stream)))
-			 (= (length (. data :find :values)) *tile_count*))
-		(progn
+	(defq loaded :nil)
+	(with-read-lock +config_file
+		(when (and (defq data (if (defq stream (file-stream +config_file)) (prog1 (tree-load stream) (setq stream :nil))))
+				   (= (length (. data :find :values)) *tile_count*))
 			(setq *values* (. data :find :values)
 				  *states* (. data :find :states)
 				  *score* (. data :find :score)
@@ -111,18 +111,20 @@
 					(setq *first_pick* (first picks)))
 				((> (length picks) 1)
 					; Was saved during a mismatch/lock state. Reset these specific tiles to hidden.
-					(each (# (elem-set *states* %0 0)) picks))))
-		(scramble))
-	(lock-release-rpc +config_file))
+					(each (# (elem-set *states* %0 0)) picks)))
+			(setq loaded :t)))
+	(if (not loaded)
+		(scramble)))
 
 (defun config-save ()
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream (scatter (Emap)
-			:values *values*
-			:states *states*
-			:score *score*)))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream (scatter (Emap)
+				:values *values*
+				:states *states*
+				:score *score*))
+			(stream-flush stream)
+			(setq stream :nil))))
 
 (defun try-click (index)
 	(when (and (not *locked*)

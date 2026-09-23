@@ -43,11 +43,10 @@
 		:selected_cat "All" :search_query ""))
 
 (defun config-load ()
-	(lock-claim-rpc +config_file)
-	(if (defq stream (file-stream +config_file))
-		(setq *config* (tree-load stream) stream :nil)
-		(setq *config* :nil))
-	(lock-release-rpc +config_file)
+	(with-read-lock +config_file
+		(if (defq stream (file-stream +config_file))
+			(setq *config* (tree-load stream) stream :nil)
+			(setq *config* :nil)))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(setq *selected_id* (. *config* :find :selected_id)
@@ -56,10 +55,11 @@
 
 (defun config-save ()
 	(scatter *config* :selected_id *selected_id* :selected_cat *selected_cat* :search_query *search_query*)
-	(lock-claim-rpc +config_file)
-	(when (defq stream (file-stream +config_file +file_open_write))
-		(tree-save stream *config*) (setq stream :nil))
-	(lock-release-rpc +config_file))
+	(with-write-lock +config_file
+		(when (defq stream (file-stream +config_file +file_open_write))
+			(tree-save stream *config*)
+			(stream-flush stream)
+			(setq stream :nil))))
 
 (defun create-code-vdu (code page_w)
 	(unless *syntax*
