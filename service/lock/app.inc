@@ -1,7 +1,9 @@
 ;lock RPC calls
 
+(defq +lock_max_history 128)
+
 (enums +lock_type 0
-	(enum claim release))
+	(enum claim release history))
 
 (enums +lock_mode 0
 	(enum write read))
@@ -13,6 +15,7 @@
 
 (structure +lock_claim +lock_rpc_size)
 (structure +lock_release +lock_rpc_size)
+(structure +lock_history +lock_rpc_size)
 
 (defun lock-service ()
 	; (lock-service) -> netid | :nil
@@ -21,26 +24,22 @@
 
 (defun ensure-lock-service ()
 	; (ensure-lock-service) -> netid | :nil
-	(defq svc (lock-service))
-	(unless svc
-		;start lock service on node 0
-		(open-remote "service/lock/app.lisp" (first (lisp-nodes)) +kn_call_pin)
-		(defq retries 50)
-		(while (and (not (setq svc (lock-service))) (> (-- retries) 0))
-			(task-sleep 10000)))
+	(defq svc (lock-service) retries 50)
+	(while (and (not svc) (> (-- retries) 0))
+		(task-sleep 10000)
+		(setq svc (lock-service)))
 	svc)
 
 (defun lock-claim-rpc (key &optional mode timeout)
 	; (lock-claim-rpc key [mode timeout_us]) -> :t | :nil
-	(setd mode +lock_mode_write timeout (task-timeout 10))
 	(defq svc (ensure-lock-service) mbox (mail-mbox))
 	(if (and svc
 			(mail-send svc (setf-> (cat (str-alloc +lock_claim_size) key)
 				(+lock_rpc_reply_id mbox)
 				(+lock_rpc_type +lock_type_claim)
-				(+lock_rpc_mode mode)
-				(+lock_rpc_timeout timeout)))
-			(mail-read-timeout mbox timeout))
+				(+lock_rpc_mode (ifn mode +lock_mode_write))
+				(+lock_rpc_timeout (ifn timeout (task-timeout 10)))))
+			(mail-read-timeout mbox (ifn timeout (task-timeout 10))))
 		:t :nil))
 
 (defun lock-release-rpc (key &optional timeout)
@@ -52,3 +51,14 @@
 				(+lock_rpc_type +lock_type_release)))
 			(mail-read-timeout mbox (ifn timeout (task-timeout 5))))
 		:t :nil))
+
+(defun lock-history-rpc (&optional timeout)
+	; (lock-history-rpc [timeout_us]) -> list | :nil
+	(defq svc (ensure-lock-service) mbox (mail-mbox))
+	(if (and svc
+			(mail-send svc (setf-> (str-alloc +lock_history_size)
+				(+lock_rpc_reply_id mbox)
+				(+lock_rpc_type +lock_type_history)))
+			(defq reply (mail-read-timeout mbox (ifn timeout (task-timeout 5)))))
+		(if (empty? reply) (list) (split reply "\n"))
+		:nil))

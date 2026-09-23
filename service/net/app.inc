@@ -57,13 +57,10 @@
 
 (defun ensure-net-service ()
 	; (ensure-net-service) -> netid | :nil
-	(defq svc (net-service))
-	(unless svc
-		;start net service on node 0
-		(open-remote "service/net/app.lisp" (first (lisp-nodes)) +kn_call_pin)
-		(defq retries 50)
-		(while (and (not (setq svc (net-service))) (> (-- retries) 0))
-			(task-sleep 10000)))
+	(defq svc (net-service) retries 50)
+	(while (and (not svc) (> (-- retries) 0))
+		(task-sleep 10000)
+		(setq svc (net-service)))
 	svc)
 
 (defun net-open-rpc (host port)
