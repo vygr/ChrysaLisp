@@ -1,6 +1,7 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 (import "lib/streams/huffman.inc")
+(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -27,8 +28,12 @@
 
 ;do the work on a file
 (defun work (file)
-	(defq freqs (huffman-build-freq-map (file-stream file) opt_t))
-	(. freqs :each (lambda (k v) (. freq_map :update k (# (if %0 (+ %0 v) v))))))
+	(when (lock-claim-rpc file +lock_mode_read)
+		(when (defq stream (file-stream file))
+			(defq freqs (huffman-build-freq-map stream opt_t))
+			(. freqs :each (lambda (k v) (. freq_map :update k (# (if %0 (+ %0 v) v)))))
+			(setq stream :nil))
+		(lock-release-rpc file)))
 
 ;merge child work
 (defun merge-work ((job result))
@@ -56,7 +61,13 @@
 						" " (slice (str %0) 1 -2)))
 					(partition jobs opt_j)))))
 		;write codebook if requested
-		(if opt_c (huffman-write-codebook
-			(file-stream opt_c +file_open_write) opt_t freq_map))
+		(when opt_c
+			(when (lock-claim-rpc opt_c +lock_mode_write)
+				(when (defq cstream (file-stream opt_c +file_open_write))
+					(huffman-write-codebook cstream opt_t freq_map)
+					(stream-flush cstream)
+					(setq cstream :nil))
+				(lock-release-rpc opt_c)))
 		;output results
 		(tree-save (io-stream 'stdout) freq_map)))
+

@@ -1,5 +1,7 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
+(import "service/lock/app.inc")
+
 
 (defq usage `(
 (("-h" "--help")
@@ -86,20 +88,30 @@
 
 ;grep a file to stdout
 (defun grep-file (file)
-	(when (defq state :nil result :nil stream (file-stream file))
-		(while (and (not result) (defq line (read-line stream)))
-			(task-slice)
-			(defq tline (if opt_i (to-lower line) line))
-			(if opt_m
-				(if state
-					(if (starts-with "```" line)
-						(setq state :nil))
-					(if (starts-with "```" line)
-						(setq state :t)
-						(if (setq result (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta)))
-							(print file))))
-				(if (setq result (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta)))
-					(print file))))))
+	(when (lock-claim-rpc file +lock_mode_read)
+		(when (defq state :nil result :nil stream (file-stream file))
+			(while (and (not result) (defq line (read-line stream)))
+				(task-slice)
+				(defq tline (if opt_i (to-lower line) line))
+				(if opt_m
+					(if state
+						(if (starts-with "```" line)
+							(setq state :nil))
+						(if (starts-with "```" line)
+							(setq state :t)
+							(if (setq result (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta)))
+								(print file))))
+					(if (setq result (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta)))
+						(print file))))
+			(setq stream :nil))
+		(lock-release-rpc file)))
+
+(defun grep-path (file)
+	(when (lock-claim-rpc file +lock_mode_read)
+		(when (defq stream (file-stream file))
+			(grep-stream stream)
+			(setq stream :nil))
+		(lock-release-rpc file)))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
@@ -135,4 +147,4 @@
 						;grep stream from stdin
 						(grep-stream (io-stream 'stdin))
 						;grep stream from args
-						(each (# (grep-stream (file-stream %0))) jobs)))))))
+						(each grep-path jobs)))))))

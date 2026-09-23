@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -19,7 +20,15 @@
 			(defq stdio (create-stdio))
 			(defq opt_s :nil args (options stdio usage)))
 		(defq stdin (io-stream 'stdin) stdout (io-stream 'stdout)
-			files (map (# (file-stream %0 +file_open_write)) (rest args)))
+			paths (rest args)
+			locks (filter (# (lock-claim-rpc %0 +lock_mode_write)) paths)
+			files (filter (# %0) (map (# (file-stream %0 +file_open_write)) locks)))
 		(while (defq c (read-blk stdin 1024))
 			(if opt_s (write-blk stdout c))
-			(each (# (write-blk %0 c)) files))))
+			(each (# (write-blk %0 c)) files))
+		(each stream-flush files)
+		(if opt_s (stream-flush stdout))
+		(setq files :nil)
+		(each lock-release-rpc locks)))
+
+

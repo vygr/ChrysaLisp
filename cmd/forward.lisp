@@ -1,6 +1,7 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 (import "lib/files/files.inc")
+(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -20,20 +21,23 @@
 
 ;do the work on a file
 (defun work (file)
-	(defq defs_map (Fmap 11) uses_map (Fmap 101))
-	(files-scan file (lambda (input file line idx)
-		(defq defs (matches input "^\\(def(un|macro)\\s+([^ \r\f\v\n\t()]+)")
-			uses (matches input "\\(\\s*(\\D[^ \r\f\v\n\t()]*)"))
-		(when (nempty? defs)
-			(bind '((& & (x x1)) &ignore) defs)
-			(. defs_map :insert (slice input x x1) idx))
-		(when (nempty? uses)
-			(each (# (bind '(& (x x1)) %0)
-				(. uses_map :update (slice input x x1)
-					(# (if %0 (push %0 idx) (list idx))))) uses)) :nil))
-	(. uses_map :each (lambda (k v)
-		(when (defq n (. defs_map :find k))
-			(each (# (if (< %0 n) (print file " (" (inc %0)	 ") " k))) v)))))
+	(when (lock-claim-rpc file +lock_mode_read)
+		(defq defs_map (Fmap 11) uses_map (Fmap 101))
+		(files-scan file (lambda (input file line idx)
+			(defq defs (matches input "^\\(def(un|macro)\\s+([^ \r\f\v\n\t()]+)")
+				uses (matches input "\\(\\s*(\\D[^ \r\f\v\n\t()]*)"))
+			(when (nempty? defs)
+				(bind '((& & (x x1)) &ignore) defs)
+				(. defs_map :insert (slice input x x1) idx))
+			(when (nempty? uses)
+				(each (# (bind '(& (x x1)) %0)
+					(. uses_map :update (slice input x x1)
+						(# (if %0 (push %0 idx) (list idx))))) uses)) :nil))
+		(lock-release-rpc file)
+		(. uses_map :each (lambda (k v)
+			(when (defq n (. defs_map :find k))
+				(each (# (if (< %0 n) (print file " (" (inc %0)	 ") " k))) v))))))
+
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

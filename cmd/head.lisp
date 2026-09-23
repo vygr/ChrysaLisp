@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -19,7 +20,10 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_c 10 args (options stdio usage)))
-		(lines! print
-			(if (<= (length args) 1)
-				(io-stream 'stdin)
-				(file-stream (second args))) 0 opt_c)))
+		(if (<= (length args) 1)
+			(lines! print (io-stream 'stdin) 0 opt_c)
+			(when (lock-claim-rpc (defq file_path (second args)) +lock_mode_read)
+				(when (defq stream (file-stream file_path))
+					(lines! print stream 0 opt_c)
+					(setq stream :nil))
+				(lock-release-rpc file_path)))))

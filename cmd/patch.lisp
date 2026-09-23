@@ -1,5 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/streams/diff.inc")
+(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -22,9 +23,21 @@
 			(defq stdio (create-stdio))
 			(defq opt_s :nil args (options stdio usage))
 			(<= 2 (length args) 3))
-		(bind '(a &optional b) (map file-stream (rest args)))
-		(setd b (io-stream 'stdin))
-		(when (and a b)
-			(if opt_s
-				(stream-patch b a (io-stream 'stdout))
-				(stream-patch a b (io-stream 'stdout))))))
+		(bind '(file_a &optional file_b) (rest args))
+		(when (lock-claim-rpc file_a +lock_mode_read)
+			(if file_b
+				(when (lock-claim-rpc file_b +lock_mode_read)
+					(when (and (defq a (file-stream file_a)) (defq b (file-stream file_b)))
+						(if opt_s
+							(stream-patch b a (io-stream 'stdout))
+							(stream-patch a b (io-stream 'stdout))))
+					(setq a :nil b :nil)
+					(lock-release-rpc file_b))
+				(progn
+					(when (and (defq a (file-stream file_a)) (defq b (io-stream 'stdin)))
+						(if opt_s
+							(stream-patch b a (io-stream 'stdout))
+							(stream-patch a b (io-stream 'stdout))))
+					(setq a :nil)))
+			(lock-release-rpc file_a))))
+

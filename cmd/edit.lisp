@@ -1,6 +1,8 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 (import "lib/text/edit.inc")
+(import "service/lock/app.inc")
+
 
 (defq usage `(
 (("-h" "--help")
@@ -99,10 +101,18 @@
 				'(".md" ".txt")) +buffer_flag_syntax 0)))
 		(catch
 			(progn
-				(. *edit* :stream_load (file-stream *file*))
+				(when (lock-claim-rpc *file* +lock_mode_read)
+					(when (defq in_stream (file-stream *file*))
+						(. *edit* :stream_load in_stream)
+						(setq in_stream :nil))
+					(lock-release-rpc *file*))
 				(*fnc*)
-				(if (. *edit* :get_modified)
-					(. *edit* :stream_save (file-stream *file* +file_open_write)))
+				(when (. *edit* :get_modified)
+					(when (lock-claim-rpc *file* +lock_mode_write)
+						(when (defq out_stream (file-stream *file* +file_open_write))
+							(. *edit* :stream_save out_stream)
+							(setq out_stream :nil))
+						(lock-release-rpc *file*)))
 				(unless opt_q (print "Edited: " *file*)))
 			(unless opt_q (print "Error editing " *file* ": " _)))))
 
@@ -118,7 +128,11 @@
 		; maybe as config details etc !
 		(defq script_stream (memory-stream))
 		(if opt_c (write-blk script_stream opt_c))
-		(if opt_s (write-blk script_stream (load opt_s)))
+		(when opt_s
+			(when (lock-claim-rpc opt_s +lock_mode_read)
+				(write-blk script_stream (load opt_s))
+				(lock-release-rpc opt_s)))
+
 		(when (and (>= (stream-seek script_stream 0 0) 0) (nempty? jobs))
 			(if (<= (length jobs) opt_j)
 				(progn

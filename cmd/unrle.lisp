@@ -1,5 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/streams/rle.inc")
+(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -23,13 +24,16 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_t 8 opt_r 8 args (options stdio usage)))
+		(defq file_path (if (> (length args) 1) (second args))
+			out_stream (io-stream 'stdout))
+		(if file_path
+			(when (lock-claim-rpc file_path +lock_mode_read)
+				(when (defq in_stream (file-stream file_path))
+					(rle-decompress in_stream out_stream opt_t opt_r)
+					(stream-flush out_stream)
+					(setq in_stream :nil))
+				(lock-release-rpc file_path))
+			(when (defq in_stream (io-stream 'stdin))
+				(rle-decompress in_stream out_stream opt_t opt_r)
+				(stream-flush out_stream)))))
 
-		(defq in_stream (if (> (length args) 1)
-						   (file-stream (second args))
-						   (io-stream 'stdin))
-			  out_stream (io-stream 'stdout))
-
-		; Perform decompression
-		(when in_stream
-			(rle-decompress in_stream out_stream opt_t opt_r)
-			(stream-flush out_stream))))

@@ -3,6 +3,7 @@
 (import "lib/math/vector.inc")
 (import "lib/task/cmd.inc")
 (import "gui/font/struct.inc")
+(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -1070,6 +1071,7 @@
 				(. page_db :find :glyphs)))
 			pages)
 		(stream-flush stream)
+		(setq stream :nil)
 		:t))
 
 (defun print-font (font_db verbosity)
@@ -1192,26 +1194,29 @@
 (defun work (file)
 	(if opt_c
 		(progn
-			(defq new_file (cat (slice file 0 (dec (rfind "." file))) ".ctf"))
-			(cond
-				((ends-with ".ctf" file)
-					(if (defq font_db (load-ctf file))
-						(progn
-							(generate-optical-kerning font_db)
-							(if (write-ctf font_db new_file)
-								(print "Wrote font: " new_file)
-								(print "Error: Failed to write " new_file)))
-						(print "Error: Cannot open font file " file)))
-				((or (ends-with ".otf" file) (ends-with ".ttf" file))
-					(if (defq font_db (load-otf-ttf file))
-						(progn
-							(generate-optical-kerning font_db)
-							(if (write-ctf font_db new_file)
-								(print "Compiled and wrote font: " new_file)
-								(print "Error: Failed to write " new_file)))
-						(print "Error: Cannot open font file " file)))
-				(:t (print "Error: Unsupported font file format " file))))
-		(process-file file opt_v)))
+			(defq new_file (cat (slice file 0 (dec (rfind "." file))) ".ctf")
+				font_db :nil)
+			(when (lock-claim-rpc file +lock_mode_read)
+				(cond
+					((ends-with ".ctf" file)
+						(setq font_db (load-ctf file)))
+					((or (ends-with ".otf" file) (ends-with ".ttf" file))
+						(setq font_db (load-otf-ttf file))))
+				(lock-release-rpc file))
+			(if font_db
+				(progn
+					(generate-optical-kerning font_db)
+					(when (lock-claim-rpc new_file +lock_mode_write)
+						(if (write-ctf font_db new_file)
+							(print (if (ends-with ".ctf" file) "Wrote font: " "Compiled and wrote font: ") new_file)
+							(print "Error: Failed to write " new_file))
+						(lock-release-rpc new_file)))
+				(if (or (ends-with ".ctf" file) (ends-with ".otf" file) (ends-with ".ttf" file))
+					(print "Error: Cannot open font file " file)
+					(print "Error: Unsupported font file format " file))))
+		(when (lock-claim-rpc file +lock_mode_read)
+			(process-file file opt_v)
+			(lock-release-rpc file))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

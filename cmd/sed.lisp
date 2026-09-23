@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -32,6 +33,13 @@
 				(replace-matches line match rep_meta)))))
 		stream))
 
+(defun process-file (file_path engine find_meta rep_meta global opt_i)
+	(when (lock-claim-rpc file_path +lock_mode_read)
+		(when (defq stream (file-stream file_path))
+			(process stream engine find_meta rep_meta global opt_i)
+			(setq stream :nil))
+		(lock-release-rpc file_path)))
+
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
@@ -43,4 +51,4 @@
 			(defq rep_meta (replace-compile opt_r))
 			(if (empty? (defq files (rest args)))
 				(process (io-stream 'stdin) engine find_meta rep_meta opt_g opt_i)
-				(each (# (process (file-stream %0) engine find_meta rep_meta opt_g opt_i)) files)))))
+				(each (# (process-file %0 engine find_meta rep_meta opt_g opt_i)) files)))))
