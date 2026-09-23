@@ -146,7 +146,24 @@
 	(nempty? (some (# (if (eql %0 "tmp_font.ctf (unlock write)") %0)) hist11)))
 (pipe-run "rm tmp_font.ctf" (lambda (_) :nil))
 
+; --- Test with-lock macros ---
+(defq res_write (with-write-lock "tmp_macro_write.txt"
+	(save "macro_data" "tmp_macro_write.txt")
+	42))
+(assert-eq "with-write-lock returns body result" 42 res_write)
 
+(defq res_read (with-read-lock "tmp_macro_write.txt"
+	(load "tmp_macro_write.txt")))
+(assert-eq "with-read-lock returns body result" "macro_data" res_read)
 
+(pipe-run "rm tmp_macro_write.txt" (lambda (_) :nil))
 
-
+(defq hist12 (lock-history-rpc))
+(assert-true "lock-history contains macro write lock"
+	(nempty? (some (# (if (eql %0 "tmp_macro_write.txt (lock write)") %0)) hist12)))
+(assert-true "lock-history contains macro write unlock"
+	(nempty? (some (# (if (eql %0 "tmp_macro_write.txt (unlock write)") %0)) hist12)))
+(assert-true "lock-history contains macro read lock"
+	(nempty? (some (# (if (eql %0 "tmp_macro_write.txt (lock read)") %0)) hist12)))
+(assert-true "lock-history contains macro read unlock"
+	(nempty? (some (# (if (eql %0 "tmp_macro_write.txt (unlock read)") %0)) hist12)))
