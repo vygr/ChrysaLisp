@@ -57,6 +57,8 @@
 	;:r8 = y (pixels)
 	;:r9 = width (pixels)
 	;:r10 = height (pixels)
+	;:r11 = sx (pixels)
+	;:r12 = sy (pixels)
 	;trashes
 	;:r0-:r4, :r7-:r14, :f0-:f15
 
@@ -67,18 +69,19 @@
 		(long texture)
 		(ptr this dirty_rect old_stack))
 
+	(vp-ret-if '(:r1 = 0))
+
 	(vp-cpy-rr :rsp :r3)
 	(vp-alloc local_size)
 	(vp-and-cr -16 :rsp)
 	(assign '(:r3) '((:rsp local_old_stack)))
 
 	;save draw rectangle info
-	(assign '((:r0 +view_ctx_x) (:r0 +view_ctx_y) :r0 :r1) '(:r11 :r12 (:rsp local_this) (:rsp local_texture)))
-	(vp-simd vp-add-rr '(:r11 :r12) '(:r7 :r8))
+	(assign '((:r0 +view_ctx_x) (:r0 +view_ctx_y) :r0 :r1) '(:r13 :r14 (:rsp local_this) (:rsp local_texture)))
+	(vp-simd vp-add-rr '(:r13 :r14) '(:r7 :r8))
 	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
 		(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
-	(vp-xor-rr :r7 :r7)
-	(assign '(:r7 :r7 :r9 :r10) '((:rsp (+ local_srect host_gui_rect_x) i) (:rsp (+ local_srect host_gui_rect_y) i)
+	(assign '(:r11 :r12 :r9 :r10) '((:rsp (+ local_srect host_gui_rect_x) i) (:rsp (+ local_srect host_gui_rect_y) i)
 		(:rsp (+ local_srect host_gui_rect_w) i) (:rsp (+ local_srect host_gui_rect_h) i)))
 
 	;set the color mod

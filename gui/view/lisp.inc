@@ -190,7 +190,7 @@
 		; (. view :ctx_filled_region region) -> view
 
 	(deffimethod :ctx_blit "gui/ctx/lisp_blit")
-		; (. view :ctx_blit tid col x y width height) -> view
+		; (. view :ctx_blit tid col x y width height [sx sy]) -> view
 
 	(defmethod :ctx_panel (col flags depth x y width height)
 		; (. view :ctx_panel col flags depth x y width height) -> view

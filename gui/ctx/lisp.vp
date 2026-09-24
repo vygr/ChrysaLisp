@@ -165,13 +165,21 @@
 
 	(entry :ctx :lisp_blit '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 8)
+	(errorif-lisp-args-sig 'error1 :r1 8 10)
+
+	(assign '((:r1 +array_length)) '(:r2))
+	(errorif '(:r2 = 9) 'error1)
 
 	(vp-push :r0)
-	(defq in (method-input :ctx :blit))
-	(list-bind-args :r1 in '(:view & :num :num :num :num :num :num))
-	(vp-push (first in))
-	(call :ctx :blit in)
+	(vpif '(:r2 = 8))
+		(list-bind-args :r1 '(:r0 :r1 :r2 :r7 :r8 :r9 :r10) '(:view & :num :num :num :num :num :num))
+		(vp-xor-rr :r11 :r11)
+		(vp-xor-rr :r12 :r12)
+	(else)
+		(list-bind-args :r1 '(:r0 :r1 :r2 :r7 :r8 :r9 :r10 :r11 :r12) '(:view & :num :num :num :num :num :num :num :num))
+	(endif)
+	(vp-push :r0)
+	(call :ctx :blit (method-input :ctx :blit))
 	(vp-pop :r1)
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
@@ -181,7 +189,7 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r0 :r1 "(ctx-blit view mth tid col x y w h)" +error_msg_wrong_types))
-	(signature '(:view :sym :NUM :NUM :NUM :NUM :NUM :NUM)))
+	(jump :lisp :repl_error '(:r0 :r1 "(ctx-blit view mth tid col x y w h [sx sy])" +error_msg_wrong_types))
+	(signature '(:view :sym :NUM :NUM :NUM :NUM :NUM :NUM :NUM :NUM)))
 
 (def-func-end)

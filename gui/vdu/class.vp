@@ -128,7 +128,7 @@
 					(call :texture :get_metrics `(,txt) {_, handle, w ,h})
 					(vpif {handle})
 						;blit the char texture
-						(call :ctx :blit {this, handle, ink, x * this->+vdu_char_width + ((this->+vdu_char_width - w) >>> 1), by * this->+vdu_char_height, w, h})
+						(call :ctx :blit {this, handle, ink, x * this->+vdu_char_width + ((this->+vdu_char_width - w) >>> 1), by * this->+vdu_char_height, w, h, 0, 0})
 					(endif)
 				(endif)
 				(assign {x + 1} {x})

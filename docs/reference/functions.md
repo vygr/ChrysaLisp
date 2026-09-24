@@ -69,6 +69,18 @@ parse the commands and attributes calling back to the user functions
 (abi) -> sym
 ```
 
+### action-maximise
+
+```code
+2x zoom: 640x480 viewport
+```
+
+### action-minimise
+
+```code
+1x zoom: 320x240 viewport
+```
+
 ### action-quit
 
 ```code

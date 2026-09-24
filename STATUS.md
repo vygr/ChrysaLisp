@@ -4,6 +4,8 @@
 
 ------
 
+`(ctx_blit)` can now take optional sx, sy arguments. If not provided, it will use the default 0,0.
+
 Made `tree-load` and `tree-save` nil-safe, simplifying config file reads and writes across apps.
 
 Added `opt-toggle` to `lib/options/options.inc` for boolean options enabled by default.

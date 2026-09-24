@@ -2,7 +2,7 @@
 
 ## Lisp Bindings
 
-### (ctx-blit view mth tid col x y w h)
+### (ctx-blit view mth tid col x y w h [sx sy])
 
 ### (ctx-box view mth x y w h)
 
@@ -25,6 +25,8 @@ inputs
 :r8 = y (pixels)
 :r9 = width (pixels)
 :r10 = height (pixels)
+:r11 = sx (pixels)
+:r12 = sy (pixels)
 trashes
 :r0-:r4, :r7-:r14, :f0-:f15
 ```
