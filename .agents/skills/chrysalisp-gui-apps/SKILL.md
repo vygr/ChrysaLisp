@@ -392,3 +392,16 @@ Key points:
 	changed regions with `:add_dirty` and widgets with `:dirty` (see
 	`apps/demos/boing/app.lisp`).
 
+## GUI App Debugging & Validation Disciplines
+
+*	**GUI App Debug Prints (`(print "xyz")(print)`):**
+	Because GUI apps cannot be launched directly in headless automated test / agent environments, pair with the user for execution. Use top-level trace checkpoints:
+	```lisp
+	(print "CHECKPOINT 1: before import")(print)
+	```
+	Note the trailing `(print)` to flush the output stream. The user runs the GUI app interactively to observe which checkpoint is reached before a crash or freeze. Clean up all debug prints before final commit.
+
+*	**Mandatory Elementary Bracket Match Counting:**
+	ALWAYS perform strict parenthesis / bracket counting on any modified forms or definitions before testing or declaring an edit complete. Lisp compilers and readers will report cryptic errors or fail silently during child task execution / file loading if an extra or missing paren alters function boundaries or swallows subsequent expressions.
+
+

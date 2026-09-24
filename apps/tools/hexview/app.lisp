@@ -86,7 +86,7 @@
 	(. file_meta :insert :buffer (setq buffer (Document 0 *syntax*)))
 	(when file
 		(with-read-lock file
-			(. buffer :stream_load_hex (file-stream file) 16)))
+			(. buffer :stream_load_hex (file-stream file) 16))))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
