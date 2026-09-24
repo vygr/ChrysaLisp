@@ -65,6 +65,11 @@
 	(static-qq (lambda (args arg)
 		(setq ,opt_var :t) args)))
 
+(defun opt-toggle (opt_var)
+	; (opt-toggle 'opt_var) -> args
+	(static-qq (lambda (args arg)
+		(setq ,opt_var (not ,opt_var)) args)))
+
 (defun opt-num (opt_var)
 	; (opt-num 'opt_var) -> args
 	(static-qq (lambda (args arg)
@@ -82,5 +87,5 @@
 		(slice args ,cnt -1))))
 
 ;module
-(export-symbols '(options opt-flag opt-str opt-num opt-nums))
+(export-symbols '(options opt-flag opt-toggle opt-str opt-num opt-nums))
 (env-pop)

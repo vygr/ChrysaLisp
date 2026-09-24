@@ -1049,6 +1049,12 @@ convert to obj-set args
 (opt-str 'opt_var) -> args
 ```
 
+### opt-toggle
+
+```code
+(opt-toggle 'opt_var) -> args
+```
+
 ### opt-vector
 
 ```code

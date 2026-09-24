@@ -4,6 +4,9 @@
 
 ------
 
+Added `opt-toggle` to `lib/options/options.inc` for boolean options enabled by default.
+Simplified `cmd/dump.lisp` options to `-w` / `--width`.
+
 Added distributed lock server integration (`service/lock/app.inc`) across Viewer,
 Hexviewer, and Edit applications for document file loading, saving, and scanning,
 using `with-read-lock` and `with-write-lock` with clean stream flushing and closure.
