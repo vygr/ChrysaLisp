@@ -1577,7 +1577,7 @@ transfer a list of [key val]
 ### tree-load
 
 ```code
-(tree-load stream) -> tree
+(tree-load stream) -> tree | :nil
 ```
 
 ### tree-node
@@ -1589,7 +1589,7 @@ transfer a list of [key val]
 ### tree-save
 
 ```code
-(tree-save stream tree [key_filters]) -> tree
+(tree-save stream tree [key_filters]) -> tree | :nil
 ```
 
 ### tree-type

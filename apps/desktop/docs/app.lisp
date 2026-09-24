@@ -26,10 +26,8 @@
 	(scatter (Emap) :version +config_version :zoom 1.0))
 
 (defun config-load ()
-	(with-read-lock +config_file
-		(if (defq stream (file-stream +config_file))
-			(setq *config* (tree-load stream) stream :nil)
-			(setq *config* :nil)))
+	(setq *config* (with-read-lock +config_file
+		(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(def *window* :zoom (. *config* :find :zoom)))

@@ -77,10 +77,8 @@
 		:max_display +max_display :chats (Fmap)))
 
 (defun config-load ()
-	(with-read-lock +config_file
-		(if (defq stream (file-stream +config_file))
-			(setq *config* (tree-load stream) stream :nil)
-			(setq *config* :nil)))
+	(setq *config* (with-read-lock +config_file
+		(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(def *chat_name* :clear_text (. *config* :find :name))

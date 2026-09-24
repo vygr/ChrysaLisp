@@ -37,11 +37,8 @@
 	(ui-tool-tips *toolbar* '("scramble" "solve")))
 
 (defun config-load ()
-	(defq loaded_board :nil)
-	(with-read-lock +config_file
-		(when (defq stream (file-stream +config_file))
-			(setq loaded_board (tree-load stream))
-			(setq stream :nil)))
+	(defq loaded_board (with-read-lock +config_file
+		(tree-load (file-stream +config_file))))
 	(if (and loaded_board (= (length loaded_board) *tile_count*))
 		(setq *board* loaded_board)
 		(setq *board* (cat *solved_board*))))

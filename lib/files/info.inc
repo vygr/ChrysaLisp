@@ -307,15 +307,9 @@
 	(link-databases class_db func_db)
 	(inherit-signatures class_db)
 	(build-method-overrides class_db)
-	(when (defq stream (file-stream +class_db_file +file_open_write))
-		(tree-save stream class_db)
-		(stream-flush stream)
-		(setq stream :nil))
+	(tree-save (file-stream +class_db_file +file_open_write) class_db)
 	(with-write-lock +func_db_file
-		(when (defq stream (file-stream +func_db_file +file_open_write))
-			(tree-save stream func_db)
-			(stream-flush stream)
-			(setq stream :nil)))
+		(tree-save (file-stream +func_db_file +file_open_write) func_db))
 	class_db)
 
 (defun files-all-vp-source ()
@@ -330,25 +324,19 @@
 (defun files-classes-info (&optional forced)
 	; (files-classes-info [forced]) -> :nil | class_db
 	(with-write-lock +class_db_file
-		(defq res :nil)
 		(catch
 			(progn
 				(defq vp_files (files-all-vp-source))
 				(if (or forced (database-stale? +class_db_file +lib_file vp_files))
 					(build-and-save-databases vp_files))
-				(when (defq stream (file-stream +class_db_file))
-					(setq res (tree-load stream) stream :nil)))
-			:nil)
-		res))
+				(tree-load (file-stream +class_db_file)))
+			:nil)))
 
 (defun files-function-info (&optional class_db)
 	; (files-function-info [forced]) -> :nil | func_db
 	(if (setd class_db (files-classes-info))
 		(with-read-lock +func_db_file
-			(defq res :nil)
-			(when (defq stream (file-stream +func_db_file))
-				(setq res (tree-load stream) stream :nil))
-			res)))
+			(tree-load (file-stream +func_db_file)))))
 
 ;module
 (export-symbols '(files-classes-info files-function-info files-all-vp-source))

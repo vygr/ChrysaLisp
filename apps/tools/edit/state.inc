@@ -25,10 +25,9 @@
 		default (scatter (Emap) :files (Fmap 101)))
 	(setq *meta_map* default *open_files* (list))
 	(with-read-lock key
-		(when (defq stream (file-stream key))
-			(catch (setq *meta_map* (tree-load stream))
-				(progn (setq *meta_map* default) :t))
-			(setq stream :nil))
+		(catch (when (defq data (tree-load (file-stream key)))
+			(setq *meta_map* data))
+			(setq *meta_map* default))
 		(bind '(x y width height version file
 				find_txt replace_txt files macros wwords regx icase zoom)
 			(gather *meta_map* :x :y :width :height :version

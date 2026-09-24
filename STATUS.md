@@ -4,6 +4,8 @@
 
 ------
 
+Made `tree-load` and `tree-save` nil-safe, simplifying config file reads and writes across apps.
+
 Added `opt-toggle` to `lib/options/options.inc` for boolean options enabled by default.
 Simplified `cmd/dump.lisp` options to `-w` / `--width`.
 
