@@ -2,6 +2,9 @@
 ; Onslaught Window & UI Layers Hierarchy
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "./sky.inc")
+(import "./map.inc")
+
 (enums +event 0
 	(enum close max min))
 
@@ -21,8 +24,9 @@
 	(ui-title-bar *title* "Onslaught" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow *playfield* (:flow_flags +flow_stack_fill :min_width +game_width :min_height +game_height)
 		(ui-backdrop *layer_panel* (:color 0))
-		(ui-backdrop *layer_fx* (:color 0))
-		(ui-backdrop *layer_sprites* (:color 0))
-		(ui-backdrop *layer_land* (:color 0))
-		(ui-backdrop *layer_sky* (:color 0))
+		(ui-backdrop *layer_world* (:color 0)
+			(ui-backdrop *layer_fx* (:color 0))
+			(ui-backdrop *layer_sprites* (:color 0))
+			(ui-map *layer_land*)
+			(ui-sky *layer_sky* (:color 0)))
 		(ui-backdrop *layer_backdrop* (:color +argb_black :style :grid :ink_color +argb_white))))

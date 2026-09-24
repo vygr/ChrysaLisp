@@ -22,8 +22,19 @@
 (defclass Sprite (canvas width height) (View)
 	; (Sprite canvas width height) -> sprite
 	(def this
-		:canvas canvas :frame 0 :components (list) :death :nil)
+		:color 0
+		:canvas canvas
+		:frame 0
+		:spr_w width
+		:spr_h height
+		:maxv :nil
+		:components (list)
+		:death :nil)
 	(. this :set_size width height)
+
+	(defmethod :layout ()
+		; Sprites are transparent views
+		this)
 
 	(defmethod :constraint ()
 		; (. sprite :constraint) -> (width height)
@@ -69,19 +80,20 @@
 
 	(defmethod :draw ()
 		; (. sprite :draw) -> sprite
-		(when (/= (get :frame this) -1)
+		(defq f (get :frame this))
+		(when (/= f -1)
 			(when (defq c (get :canvas this))
 				(when (defq texture (if (View? c) (getf c +canvas_texture 0) c))
 					(bind '(tid tw th) (texture-metrics texture))
-					(bind '(w h) (. this :get_size))
-					(defq maxv (max 1 (/ th h))
-						f (get :frame this)
+					(defq
+						w (get :spr_w this)
+						h (get :spr_h this)
+						maxv (or (get :maxv this) (def this :maxv (max 1 (/ th h))))
 						col_idx (/ f maxv)
 						row_idx (% f maxv)
 						sx (* col_idx w)
 						sy (* row_idx h))
-					; Blit with negative frame offset; View extent automatically clips
-					(. this :ctx_blit tid (or (def? :color this) +argb_white) (neg sx) (neg sy) tw th))))
+					(. this :ctx_blit tid +argb_white 0 0 w h sx sy))))
 		this)
 	)
 
@@ -143,15 +155,11 @@
 
 (defclass ManSprite () (Sprite (get-cached-canvas "image/fanatic_l.cpm") 32 32)
 	; Player / fanatic man (32x32)
-	(.-> this
-		(:add_component (const comp-at))
-		(:add_component (const comp-bounds-bounce))
-		(:add_component (const comp-mv))
-		(:set_frame +frm_walk))
-	(set this
-		:at_speed 3
-		:at_table (list +frm_walk (+ +frm_walk 1) (+ +frm_walk 2) (+ +frm_walk 3)
-					(+ +frm_walk 4) (+ +frm_walk 5) (+ +frm_walk 6) (+ +frm_walk 7))))
+	(def this
+		:xv 0
+		:yv 0
+		:dir 1)
+	(. this :set_frame +frm_walk))
 
 (defclass HorseSprite () (Sprite (get-cached-canvas "image/frm_64x64_l.cpm") 64 64)
 	; Friendly cavalry horse (64x64)

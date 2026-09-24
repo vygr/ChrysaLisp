@@ -138,6 +138,15 @@
 	(setq *title_letter_idx* 0
 		*title_delay* 0
 		*title_state* :letters)
+	(clear-layer *layer_sprites*)
+	(clear-layer *layer_fx*)
+	(defq
+		world_w (* +map_width +tile_width)
+		world_h (* +map_height +tile_height))
+	(. *layer_sprites* :set_size world_w world_h)
+	(. *layer_fx* :set_size world_w world_h)
+	(. *layer_land* :set_size world_w world_h)
+	(. *layer_sky* :set_size world_w world_h)
 	(init-title-audio)
 	(spawn-title-letter 0))
 

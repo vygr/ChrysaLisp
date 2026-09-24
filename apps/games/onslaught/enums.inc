@@ -14,6 +14,7 @@
 	+tile_width 16
 	+tile_height 16
 	+panel_height 72
+	+panel_y (- +screen_height +panel_height)       ; 168
 	+game_width +screen_width
 	+game_height +screen_height
 	+window_width +screen_width
