@@ -90,7 +90,7 @@ Usage: dump [options] [path] ...
 
     options:
         -h --help: this help info.
-        -w -k --width --chunk num: chunk width, default 8.
+        -w --width num: chunk width, default 8.
         -o --offset: toggle byte offset column, default :t.
         -c --chars: toggle chars column, default :t.
 
