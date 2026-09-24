@@ -87,7 +87,7 @@ override the default 'this' env with a View component
 ### :ctx_blit
 
 ```code
-(. view :ctx_blit tid col x y width height) -> view
+(. view :ctx_blit tid col x y width height [sx sy]) -> view
 ```
 
 ### :ctx_box
