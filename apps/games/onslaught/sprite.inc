@@ -109,13 +109,15 @@
 	(. this :set_frame +frm_blooddrip)
 	(. this :add_component comp-blood-drip)
 
-	(defmethod :set_drip (start_y max_y drip_speed on_drip &optional on_finish drips_left)
-		; (. drip :set_drip start_y max_y drip_speed on_drip [on_finish] [drips_left]) -> drip
+	(defmethod :set_drip (start_y max_y on_drip &optional on_finish drips_left)
+		; (. drip :set_drip start_y max_y on_drip [on_finish] [drips_left]) -> drip
 		(setd drips_left 1)
 		(def this
 			:drip_start_y start_y
 			:drip_max_y max_y
-			:drip_speed drip_speed
+			:drip_yvel 0
+			:drip_yacc 1
+			:drip_max_yvel 10
 			:on_drip on_drip
 			:on_finish on_finish
 			:drips_left drips_left

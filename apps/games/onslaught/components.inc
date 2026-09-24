@@ -65,10 +65,13 @@
 (defun comp-blood-drip (this action &rest args)
 	(case action
 		(:init
-			(def this :drip_speed 2 :drip_start_y 116 :drip_max_y 168 :on_drip :nil :on_finish :nil :drips_left 1 :drip_done :nil)
+			(def this :drip_yvel 0 :drip_yacc 1 :drip_max_yvel 10 :drip_start_y 84 :drip_max_y 168 :on_drip :nil :on_finish :nil :drips_left 1 :drip_done :nil)
 			(each (lambda ((k v))
 				(case k
-					(:drip_speed (def this :drip_speed v))
+					(:drip_yvel (def this :drip_yvel v))
+					(:drip_yacc (def this :drip_yacc v))
+					(:drip_max_yvel (def this :drip_max_yvel v))
+					(:drip_speed (def this :drip_max_yvel v))
 					(:drip_start_y (def this :drip_start_y v))
 					(:drip_max_y (def this :drip_max_y v))
 					(:drips_left (def this :drips_left v))
@@ -79,7 +82,9 @@
 			(bind '(dt) args)
 			(unless (get :drip_done this)
 				(bind '(x y w h) (. this :get_bounds))
-				(defq new_y (+ y (get :drip_speed this)))
+				(defq yvel (min (get :drip_max_yvel this) (+ (get :drip_yvel this) (get :drip_yacc this))))
+				(def this :drip_yvel yvel)
+				(defq new_y (+ y yvel))
 				(if (>= new_y (get :drip_max_y this))
 					(progn
 						(when (defq cb (get :on_drip this)) (catch (cb this) (cb)))
@@ -90,7 +95,9 @@
 								(def this :drip_done :t)
 								(. this :move_to x (get :drip_max_y this))
 								(when (defq fcb (get :on_finish this)) (catch (fcb this) (fcb))))
-							(. this :move_to x (get :drip_start_y this))))
+							(progn
+								(def this :drip_yvel 0)
+								(. this :move_to x (get :drip_start_y this)))))
 					(. this :move_to x new_y))))))
 
 (defun comp-motion (this action &rest args)

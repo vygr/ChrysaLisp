@@ -80,7 +80,7 @@
 	; Added with :add_back to *layer_fx* so it sits between the sword (behind in *layer_sprites*)
 	; and the letters (in front at the head of *layer_fx*)
 	(defq sp (TitleBloodDrip x y))
-	(. sp :set_drip y 168 2
+	(. sp :set_drip y 168
 		(lambda (&ignore) (play-title-sfx *snd_drip*))
 		(const on-title-drip-done))
 	(. *layer_fx* :add_back sp)
