@@ -19,12 +19,11 @@
 ; Base Sprite Class
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass Sprite (canvas width height &optional x y) (View)
-	; (Sprite canvas width height [x y]) -> sprite
-	(setd x 0 y 0)
+(defclass Sprite (canvas width height) (View)
+	; (Sprite canvas width height) -> sprite
 	(def this
 		:canvas canvas :frame 0 :components (list) :death :nil)
-	(. this :set_bounds x y width height)
+	(. this :set_size width height)
 
 	(defmethod :constraint ()
 		; (. sprite :constraint) -> (width height)
@@ -38,9 +37,6 @@
 			(when (defq death (get :death this))
 				(def this :death :nil)
 				(death this))
-			(bind '(x y w h) (. this :get_bounds))
-			(when (defq parent (penv this))
-				(. parent :add_dirty x y w h))
 			(. this :sub))
 		this)
 
@@ -48,33 +44,24 @@
 		; (. sprite :set_frame f) -> sprite
 		(when (/= f (get :frame this))
 			(def this :frame f)
-			(if (= f -1)
-				(. this :kill)
-				(. this :dirty)))
+			(when (= f -1)
+				(. this :kill)))
 		this)
 
-	(defmethod :move_to (new_x new_y)
-		; (. sprite :move_to new_x new_y) -> sprite
-		(bind '(ox oy w h) (. this :get_bounds))
-		(when (defq parent (penv this))
-			(. parent :add_dirty ox oy w h))
-		(. this :set_bounds new_x new_y w h)
-		(. this :dirty)
+	(defmethod :add_component (comp)
+		; (. sprite :add_component comp) -> sprite
+		(comp this :init)
+		(push (get :components this) comp)
 		this)
 
-	(defmethod :add_component (comp_fn)
-		; (. sprite :add_component comp_fn) -> sprite
-		(push (get :components this) comp_fn)
-		this)
-
-	(defmethod :update (dt)
-		; (. sprite :update dt) -> sprite
+	(defmethod :update (&optional dt)
+		; (. sprite :update [dt]) -> sprite
 		(if (= (get :frame this) -1)
 			(. this :kill)
 			(progn
 				(each (lambda (comp)
 					(unless (= (get :frame this) -1)
-						(comp this dt)))
+						(comp this :update)))
 					(get :components this))
 				(when (= (get :frame this) -1)
 					(. this :kill))))
@@ -102,214 +89,198 @@
 ; Title Sequence Sprite Subtypes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass TitleLetter (idx &optional x y) (Sprite (get-cached-canvas "image/frm_32c32.cpm") 32 32 x y)
-	; (TitleLetter idx [x y]) -> sprite
-	(setd x 0 y 0)
+(defclass TitleLetter (idx) (Sprite (get-cached-canvas "image/frm_32c32.cpm") 32 32)
+	; (TitleLetter idx) -> sprite
+	; In C++: sp_letter uses ML (speed 16) and CP (cp_letter)
 	(def this :letter_idx idx)
-	(. this :set_frame (+ +frm_letters idx))
-	(. this :add_component comp-ml)
+	(.-> this
+		(:add_component (const comp-ml))
+		(:add_component (const comp-code))
+		(:set_frame (+ +frm_letters idx)))
+	(set this :ml_speed 16))
 
-	(defmethod :fly_to (tx ty speed done_code &optional step_code)
-		; (. letter :fly_to tx ty speed done_code [step_code]) -> letter
-		(def this :target_x tx :target_y ty :ml_speed speed :ml_done_code done_code :ml_step_code step_code)
-		this)
-	)
+(defclass TitleSword () (Sprite (get-cached-canvas "image/frm_16x64.cpm") 16 64)
+	; (TitleSword) -> sprite
+	; In C++: sp_sword uses ML (speed 14) and CP (cp_sword)
+	(.-> this
+		(:add_component (const comp-ml))
+		(:add_component (const comp-code))
+		(:set_frame +frm_sword))
+	(set this :ml_speed 14))
 
-(defclass TitleSword (&optional x y) (Sprite (get-cached-canvas "image/frm_16x64.cpm") 16 64 x y)
-	; (TitleSword [x y]) -> sprite
-	(setd x 152 y -64)
-	(. this :set_frame +frm_sword)
-	(. this :add_component comp-ml)
+(defclass TitleBloodDrip () (Sprite (get-cached-canvas "image/frm_16x16.cpm") 16 16)
+	; (TitleBloodDrip) -> sprite
+	; In C++: sp_drip uses MV (ay=1, max_vy=10), cp_offscreen (max_y=168), and dt_drip death hook
+	(.-> this
+		(:add_component (const comp-mv))
+		(:add_component (const comp-offscreen))
+		(:set_frame +frm_blooddrip))
+	(set this
+		:ay 1 :max_vy 10
+		:offscreen_max_y 168))
 
-	(defmethod :drop_to (target_y drop_speed done_code)
-		; (. sword :drop_to target_y drop_speed done_code) -> sword
-		(bind '(cx cy) (. this :get_pos))
-		(def this :target_x cx :target_y target_y :ml_speed drop_speed :ml_done_code done_code)
-		this)
-	)
-
-(defclass TitleBloodDrip (&optional x y) (Sprite (get-cached-canvas "image/frm_16x16.cpm") 16 16 x y)
-	; (TitleBloodDrip [x y]) -> sprite
-	; In C++: sp_drip uses MV (ay=1, max_vy=10), cp_offscreen, and dt_drip death hook
-	(setd x 152 y 84)
-	(. this :set_frame +frm_blooddrip)
-	(. this :add_component comp-mv)
-	(. this :add_component comp-offscreen)
-
-	(defmethod :set_drip (start_y max_y death_hook)
-		; (. drip :set_drip start_y max_y death_hook) -> drip
-		(bind '(cx cy) (. this :get_pos))
-		(. this :move_to cx start_y)
-		(def this
-			:vx 0 :vy 0 :ax 0 :ay 1 :max_vy 10
-			:offscreen_max_y max_y
-			:death death_hook)
-		this)
-	)
-
-(defclass ExplosionSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_32c32.cpm") 32 32 x y)
+(defclass ExplosionSprite () (Sprite (get-cached-canvas "image/frm_32c32.cpm") 32 32)
 	; Big explosion FX (32x32) using standard Animation Table (AT)
-	(setd x 0 y 0)
-	(def this
+	(.-> this
+		(:add_component (const comp-at))
+		(:set_frame +frm_bigexp))
+	(set this
 		:at_speed 2
-		:at_table (list +frm_bigexp (+ +frm_bigexp 1) (+ +frm_bigexp 2) (+ +frm_bigexp 3) (+ +frm_bigexp 4) -1))
-	(. this :set_frame +frm_bigexp)
-	(. this :add_component comp-at))
+		:at_table (list +frm_bigexp (+ +frm_bigexp 1) (+ +frm_bigexp 2) (+ +frm_bigexp 3) (+ +frm_bigexp 4) -1)))
 
-(defclass FizzSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_16x16.cpm") 16 16 x y)
+(defclass FizzSprite () (Sprite (get-cached-canvas "image/frm_16x16.cpm") 16 16)
 	; Fizz spark FX (16x16) using standard Animation Table (AT)
-	(setd x 0 y 0)
-	(def this
+	(.-> this
+		(:add_component (const comp-at))
+		(:set_frame +frm_fizz))
+	(set this
 		:at_speed 2
-		:at_table (list +frm_fizz (+ +frm_fizz 1) (+ +frm_fizz 2) (+ +frm_fizz 1) +frm_fizz -1))
-	(. this :set_frame +frm_fizz)
-	(. this :add_component comp-at))
+		:at_table (list +frm_fizz (+ +frm_fizz 1) (+ +frm_fizz 2) (+ +frm_fizz 1) +frm_fizz -1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Game Entity Sprite Subtypes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass ManSprite (&optional x y) (Sprite (get-cached-canvas "image/fanatic_l.cpm") 32 32 x y)
+(defclass ManSprite () (Sprite (get-cached-canvas "image/fanatic_l.cpm") 32 32)
 	; Player / fanatic man (32x32)
-	(setd x 0 y 0)
-	(def this
+	(.-> this
+		(:add_component (const comp-at))
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_walk))
+	(set this
 		:at_speed 3
 		:at_table (list +frm_walk (+ +frm_walk 1) (+ +frm_walk 2) (+ +frm_walk 3)
-					(+ +frm_walk 4) (+ +frm_walk 5) (+ +frm_walk 6) (+ +frm_walk 7)))
-	(. this :set_frame +frm_walk)
-	(. this :add_component comp-at)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+					(+ +frm_walk 4) (+ +frm_walk 5) (+ +frm_walk 6) (+ +frm_walk 7))))
 
-(defclass HorseSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_64x64_l.cpm") 64 64 x y)
+(defclass HorseSprite () (Sprite (get-cached-canvas "image/frm_64x64_l.cpm") 64 64)
 	; Friendly cavalry horse (64x64)
-	(setd x 0 y 0)
-	(def this
+	(.-> this
+		(:add_component (const comp-at))
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_horse))
+	(set this
 		:at_speed 4
 		:at_table (list +frm_horse (+ +frm_horse 1) (+ +frm_horse 2)
-					(+ +frm_horse 3) (+ +frm_horse 4) (+ +frm_horse 5)))
-	(. this :set_frame +frm_horse)
-	(. this :add_component comp-at)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+					(+ +frm_horse 3) (+ +frm_horse 4) (+ +frm_horse 5))))
 
-(defclass SkeletonHorseSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_64x64_l.cpm") 64 64 x y)
+(defclass SkeletonHorseSprite () (Sprite (get-cached-canvas "image/frm_64x64_l.cpm") 64 64)
 	; Undead skeleton horse (64x64)
-	(setd x 0 y 0)
-	(def this
+	(.-> this
+		(:add_component (const comp-at))
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_skeleton_horse))
+	(set this
 		:at_speed 4
 		:at_table (list +frm_skeleton_horse (+ +frm_skeleton_horse 1) (+ +frm_skeleton_horse 2)
-					(+ +frm_skeleton_horse 3) (+ +frm_skeleton_horse 4) (+ +frm_skeleton_horse 5)))
-	(. this :set_frame +frm_skeleton_horse)
-	(. this :add_component comp-at)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+					(+ +frm_skeleton_horse 3) (+ +frm_skeleton_horse 4) (+ +frm_skeleton_horse 5))))
 
-(defclass SpearmanSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_32x32_l.cpm") 32 32 x y)
+(defclass SpearmanSprite () (Sprite (get-cached-canvas "image/frm_32x32_l.cpm") 32 32)
 	; Spearman infantry (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_spearman)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_spearman)))
 
-(defclass WizardSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_32x32_l.cpm") 32 32 x y)
+(defclass WizardSprite () (Sprite (get-cached-canvas "image/frm_32x32_l.cpm") 32 32)
 	; Wizard caster (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_wizard)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_wizard)))
 
-(defclass FootmanSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_32x32_l.cpm") 32 32 x y)
+(defclass FootmanSprite () (Sprite (get-cached-canvas "image/frm_32x32_l.cpm") 32 32)
 	; Footman soldier (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_footman)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_footman)))
 
-(defclass KnightSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_32x32_l.cpm") 32 32 x y)
+(defclass KnightSprite () (Sprite (get-cached-canvas "image/frm_32x32_l.cpm") 32 32)
 	; Armored knight (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_knight)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_knight)))
 
-(defclass BoarRiderSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_64x32_l.cpm") 64 32 x y)
+(defclass BoarRiderSprite () (Sprite (get-cached-canvas "image/frm_64x32_l.cpm") 64 32)
 	; Boar rider (64x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_boarrider)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_boarrider)))
 
-(defclass CarpetSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_64x32_l.cpm") 64 32 x y)
+(defclass CarpetSprite () (Sprite (get-cached-canvas "image/frm_64x32_l.cpm") 64 32)
 	; Flying magic carpet (64x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_carpet)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_carpet)))
 
-(defclass TowerSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_64x64.cpm") 64 64 x y)
+(defclass TowerSprite () (Sprite (get-cached-canvas "image/frm_64x64.cpm") 64 64)
 	; Defense tower building (64x64)
-	(setd x 0 y 0)
 	(. this :set_frame +frm_tower))
 
-(defclass BalistaSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_32c32_l.cpm") 32 32 x y)
+(defclass BalistaSprite () (Sprite (get-cached-canvas "image/frm_32c32_l.cpm") 32 32)
 	; Siege balista (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_balista)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_balista)))
 
-(defclass CannonSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_32c32_l.cpm") 32 32 x y)
+(defclass CannonSprite () (Sprite (get-cached-canvas "image/frm_32c32_l.cpm") 32 32)
 	; Siege cannon (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_cannon)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_cannon)))
 
-(defclass OilSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_32c32_l.cpm") 32 32 x y)
+(defclass OilSprite () (Sprite (get-cached-canvas "image/frm_32c32_l.cpm") 32 32)
 	; Boiling oil cauldron (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_oil)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_oil)))
 
-(defclass BeserkSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_32c32_l.cpm") 32 32 x y)
+(defclass BeserkSprite () (Sprite (get-cached-canvas "image/frm_32c32_l.cpm") 32 32)
 	; Berserker warrior (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_beserk)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_beserk)))
 
-(defclass MonkSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_32c32_l.cpm") 32 32 x y)
+(defclass MonkSprite () (Sprite (get-cached-canvas "image/frm_32c32_l.cpm") 32 32)
 	; Holy monk (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_monk)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_monk)))
 
-(defclass SkeletonSprite (&optional x y) (Sprite (get-cached-canvas "image/fanatic_l.cpm") 32 32 x y)
+(defclass SkeletonSprite () (Sprite (get-cached-canvas "image/fanatic_l.cpm") 32 32)
 	; Undead skeleton warrior (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_skeleton)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_skeleton)))
 
-(defclass SkeletonMonkSprite (&optional x y) (Sprite (get-cached-canvas "image/fanatic_l.cpm") 32 32 x y)
+(defclass SkeletonMonkSprite () (Sprite (get-cached-canvas "image/fanatic_l.cpm") 32 32)
 	; Undead skeleton monk (32x32)
-	(setd x 0 y 0)
-	(. this :set_frame +frm_skeleton_monk)
-	(. this :add_component comp-bounds-bounce)
-	(. this :add_component comp-mv))
+	(.-> this
+		(:add_component (const comp-bounds-bounce))
+		(:add_component (const comp-mv))
+		(:set_frame +frm_skeleton_monk)))
 
-(defclass MissileSprite (frame &optional x y vx vy) (Sprite (get-cached-canvas "image/frm_16x16_l.cpm") 16 16 x y)
+(defclass MissileSprite (frame &optional vx vy) (Sprite (get-cached-canvas "image/frm_16x16_l.cpm") 16 16)
 	; Projectile/missile (16x16)
-	(setd x 0 y 0 vx 0 vy 0)
-	(def this :vx vx :vy vy)
-	(. this :set_frame frame)
-	(. this :add_component comp-mv)
-	(. this :add_component comp-offscreen))
+	(setd vx 0 vy 0)
+	(.-> this
+		(:add_component (const comp-mv))
+		(:add_component (const comp-offscreen))
+		(:set_frame frame))
+	(set this :vx vx :vy vy))
 
-(defclass ItemSprite (frame &optional x y) (Sprite (get-cached-canvas "image/frm_16x16.cpm") 16 16 x y)
+(defclass ItemSprite (frame) (Sprite (get-cached-canvas "image/frm_16x16.cpm") 16 16)
 	; Collectible item / pickup (16x16)
-	(setd x 0 y 0)
 	(. this :set_frame frame))
