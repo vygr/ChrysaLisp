@@ -75,14 +75,15 @@
 (defun on-title-drip-done (&ignore)
 	(setq *title_state* :done))
 
+(defun on-title-drip-death (sp)
+	(play-title-sfx *snd_drip*)
+	(on-title-drip-done))
+
 (defun spawn-title-drip (x y)
 	; Drips from center of letter 'A' where sword impacts (y=84) down to top of status panel (y=168)
-	; Added with :add_back to *layer_fx* so it sits between the sword (behind in *layer_sprites*)
-	; and the letters (in front at the head of *layer_fx*)
+	; In C++: sp_drip uses MV (ay=1, max_vy=10), cp_offscreen, and dt_drip death hook
 	(defq sp (TitleBloodDrip x y))
-	(. sp :set_drip y 168
-		(lambda (&ignore) (play-title-sfx *snd_drip*))
-		(const on-title-drip-done))
+	(. sp :set_drip y 168 (const on-title-drip-death))
 	(. *layer_fx* :add_back sp)
 	(. sp :dirty)
 	sp)

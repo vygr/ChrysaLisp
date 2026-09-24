@@ -1,184 +1,135 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Core Reusable 2D Components for Sprite Entity System
+; Onslaught Standard Component Suite
+; Small bag of standard reusable components operating on Sprite properties
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun comp-fly-to (this action &rest args)
-	(case action
-		(:init
-			(def this :target_x 0 :target_y 0 :speed 16 :on_arrive :nil :on_step :nil :arrived :nil)
-			(each (lambda ((k v))
-				(case k
-					(:target_x (def this :target_x v))
-					(:target_y (def this :target_y v))
-					(:speed (def this :speed v))
-					(:on_step (def this :on_step v))
-					(:on_arrive (def this :on_arrive v))))
-				(partition args 2)))
-		(:update
-			(bind '(dt) args)
-			(unless (get :arrived this)
-				(bind '(x y w h) (. this :get_bounds))
-				(defq tx (get :target_x this) ty (get :target_y this)
-					dx (- tx x) dy (- ty y)
-					dist (max 1 (sqrt (+ (* dx dx) (* dy dy))))
-					step (get :speed this))
-				(if (<= dist (max 4 step))
-					(progn
-						(def this :arrived :t)
-						(. this :move_to tx ty)
-						(when (defq cb (get :on_arrive this))
-							(def this :on_arrive :nil)
-							(cb this)))
-					(progn
-						(defq new_x (+ x (/ (* dx step) dist))
-							new_y (+ y (/ (* dy step) dist)))
-						(. this :move_to new_x new_y)
-						(when (defq scb (get :on_step this))
-							(scb this))))))))
+; 1. comp-mv (Movement Vectors: x/y velocity and acceleration)
+; Corresponds to C++ class MV (sprite_mv_code)
+; Reads/writes sprite properties: :vx :vy :ax :ay :max_vx :max_vy
+(defun comp-mv (this dt)
+	(bind '(x y w h) (. this :get_bounds))
+	(defq
+		ax (or (get :ax this) 0)
+		ay (or (get :ay this) 0)
+		max_vx (or (get :max_vx this) 100)
+		max_vy (or (get :max_vy this) 100)
+		vx (max (neg max_vx) (min max_vx (+ (or (get :vx this) 0) ax)))
+		vy (max (neg max_vy) (min max_vy (+ (or (get :vy this) 0) ay))))
+	(def this :vx vx :vy vy)
+	(. this :move_to (+ x vx) (+ y vy)))
 
-(defun comp-drop (this action &rest args)
-	(case action
-		(:init
-			(def this :target_y 88 :drop_speed 10 :on_arrive :nil :arrived :nil)
-			(each (lambda ((k v))
-				(case k
-					(:target_y (def this :target_y v))
-					(:drop_speed (def this :drop_speed v))
-					(:on_arrive (def this :on_arrive v))))
-				(partition args 2)))
-		(:update
-			(bind '(dt) args)
-			(unless (get :arrived this)
-				(bind '(x y w h) (. this :get_bounds))
-				(defq ty (get :target_y this)
-					step (get :drop_speed this)
-					new_y (+ y step))
-				(if (>= new_y ty)
-					(progn
-						(def this :arrived :t)
-						(. this :move_to x ty)
-						(when (defq cb (get :on_arrive this))
-							(def this :on_arrive :nil)
-							(cb this)))
-					(. this :move_to x new_y))))))
+; 2. comp-ml (Movement Line: straight line interpolation / fly-to)
+; Corresponds to C++ class ML (sprite_ml_code)
+; Reads sprite properties: :target_x :target_y :ml_speed :ml_step_code :ml_done_code
+(defun comp-ml (this dt)
+	(defq speed (or (get :ml_speed this) 0))
+	(when (> speed 0)
+		(bind '(x y w h) (. this :get_bounds))
+		(defq
+			tx (or (get :target_x this) x)
+			ty (or (get :target_y this) y)
+			dx (- tx x)
+			dy (- ty y)
+			dist (max 1 (sqrt (+ (* dx dx) (* dy dy)))))
+		(if (<= dist (max 4 speed))
+			(progn
+				(def this :ml_speed 0)
+				(. this :move_to tx ty)
+				(when (defq done (get :ml_done_code this))
+					(done this)))
+			(progn
+				(defq
+					nx (+ x (/ (* dx speed) dist))
+					ny (+ y (/ (* dy speed) dist)))
+				(. this :move_to nx ny)
+				(when (defq step (get :ml_step_code this))
+					(step this))))))
 
-(defun comp-blood-drip (this action &rest args)
-	(case action
-		(:init
-			(def this :drip_yvel 0 :drip_yacc 1 :drip_max_yvel 10 :drip_start_y 84 :drip_max_y 168 :on_drip :nil :on_finish :nil :drips_left 1 :drip_done :nil)
-			(each (lambda ((k v))
-				(case k
-					(:drip_yvel (def this :drip_yvel v))
-					(:drip_yacc (def this :drip_yacc v))
-					(:drip_max_yvel (def this :drip_max_yvel v))
-					(:drip_speed (def this :drip_max_yvel v))
-					(:drip_start_y (def this :drip_start_y v))
-					(:drip_max_y (def this :drip_max_y v))
-					(:drips_left (def this :drips_left v))
-					(:on_drip (def this :on_drip v))
-					(:on_finish (def this :on_finish v))))
-				(partition args 2)))
-		(:update
-			(bind '(dt) args)
-			(unless (get :drip_done this)
-				(bind '(x y w h) (. this :get_bounds))
-				(defq yvel (min (get :drip_max_yvel this) (+ (get :drip_yvel this) (get :drip_yacc this))))
-				(def this :drip_yvel yvel)
-				(defq new_y (+ y yvel))
-				(if (>= new_y (get :drip_max_y this))
-					(progn
-						(when (defq cb (get :on_drip this)) (catch (cb this) (cb)))
-						(defq left (dec (get :drips_left this)))
-						(def this :drips_left left)
-						(if (<= left 0)
-							(progn
-								(def this :drip_done :t)
-								(. this :move_to x (get :drip_max_y this))
-								(when (defq fcb (get :on_finish this)) (catch (fcb this) (fcb))))
-							(progn
-								(def this :drip_yvel 0)
-								(. this :move_to x (get :drip_start_y this)))))
-					(. this :move_to x new_y))))))
+; 3. comp-at (Animation Table: frame sequence playback)
+; Corresponds to C++ class AT (sprite_at_code)
+; Reads sprite properties: :at_table :at_speed :at_count :at_index
+; Reaching a frame of -1 signals sprite death and triggers removal
+(defun comp-at (this dt)
+	(when (defq table (get :at_table this))
+		(defq speed (or (get :at_speed this) 1))
+		(when (> speed 0)
+			(defq count (inc (or (get :at_count this) 0)))
+			(if (>= count speed)
+				(progn
+					(def this :at_count 0)
+					(defq idx (or (get :at_index this) 0)
+						f (elem-get table idx))
+					(if (= f -1)
+						(. this :kill)
+						(progn
+							(. this :set_frame f)
+							(defq next_idx (inc idx))
+							(if (>= next_idx (length table))
+								(setq next_idx 0))
+							(def this :at_index next_idx))))
+				(def this :at_count count)))))
 
-(defun comp-motion (this action &rest args)
-	(case action
-		(:init
-			(def this :vx 0 :vy 0)
-			(each (lambda ((k v))
-				(case k
-					(:vx (def this :vx v))
-					(:vy (def this :vy v))))
-				(partition args 2)))
-		(:update
-			(bind '(dt) args)
-			(bind '(x y w h) (. this :get_bounds))
-			(defq vx (get :vx this) vy (get :vy this))
-			(when (or (/= vx 0) (/= vy 0))
-				(. this :move_to (+ x vx) (+ y vy))))))
+; 4. comp-mt (Movement Table: table of (dx dy) waypoint offsets)
+; Corresponds to C++ class MT (sprite_mt_code)
+; Reads sprite properties: :mt_table :mt_speed :mt_count :mt_index
+(defun comp-mt (this dt)
+	(when (defq table (get :mt_table this))
+		(defq speed (or (get :mt_speed this) 1))
+		(when (> speed 0)
+			(defq count (inc (or (get :mt_count this) 0)))
+			(if (>= count speed)
+				(progn
+					(def this :mt_count 0)
+					(defq idx (or (get :mt_index this) 0))
+					(bind '(dx dy) (elem-get table idx))
+					(bind '(x y w h) (. this :get_bounds))
+					(. this :move_to (+ x dx) (+ y dy))
+					(defq next_idx (inc idx))
+					(if (>= next_idx (length table))
+						(setq next_idx 0))
+					(def this :mt_index next_idx))
+				(def this :mt_count count)))))
 
-(defun comp-bounds-bounce (this action &rest args)
-	(case action
-		(:init
-			(def this :bounds_min_x 0 :bounds_max_x 320 :bounds_min_y 0 :bounds_max_y 240)
-			(each (lambda ((k v))
-				(case k
-					(:bounds_min_x (def this :bounds_min_x v))
-					(:bounds_max_x (def this :bounds_max_x v))
-					(:bounds_min_y (def this :bounds_min_y v))
-					(:bounds_max_y (def this :bounds_max_y v))))
-				(partition args 2)))
-		(:update
-			(bind '(dt) args)
-			(bind '(x y w h) (. this :get_bounds))
-			(defq vx (get :vx this) vy (get :vy this)
-				min_x (get :bounds_min_x this) max_x (- (get :bounds_max_x this) w)
-				min_y (get :bounds_min_y this) max_y (- (get :bounds_max_y this) h))
-			(when (< x min_x)
-				(. this :set_bounds min_x y w h)
-				(def this :vx (abs vx)))
-			(when (> x max_x)
-				(. this :set_bounds max_x y w h)
-				(def this :vx (neg (abs vx))))
-			(when (< y min_y)
-				(. this :set_bounds x min_y w h)
-				(def this :vy (abs vy)))
-			(when (> y max_y)
-				(. this :set_bounds x max_y w h)
-				(def this :vy (neg (abs vy)))))))
+; 5. comp-offscreen (kills sprite when leaving playfield or custom bounds)
+; Corresponds to C++ cp_offscreen
+; Reads sprite properties: :offscreen_min_x :offscreen_min_y :offscreen_max_x :offscreen_max_y
+(defun comp-offscreen (this dt)
+	(bind '(x y w h) (. this :get_bounds))
+	(defq
+		min_x (or (get :offscreen_min_x this) -64)
+		min_y (or (get :offscreen_min_y this) -64)
+		max_x (or (get :offscreen_max_x this) 384)
+		max_y (or (get :offscreen_max_y this) 240))
+	(when (or (< x min_x) (< y min_y) (>= y max_y) (>= x max_x))
+		(. this :kill)))
 
-(defun comp-anim (this action &rest args)
-	(case action
-		(:init
-			(def this :anim_timer 0 :anim_speed 3 :anim_start 0 :anim_count 1 :loop :t :on_finish :nil)
-			(each (lambda ((k v))
-				(case k
-					(:anim_timer (def this :anim_timer v))
-					(:anim_speed (def this :anim_speed v))
-					(:anim_start (def this :anim_start v))
-					(:anim_count (def this :anim_count v))
-					(:loop (def this :loop v))
-					(:on_finish (def this :on_finish v))))
-				(partition args 2)))
-		(:update
-			(bind '(dt) args)
-			(defq count (get :anim_count this))
-			(when (> count 1)
-				(defq timer (inc (get :anim_timer this))
-					speed (get :anim_speed this))
-				(if (>= timer speed)
-					(progn
-						(def this :anim_timer 0)
-						(defq cur (- (get :frame this) (or (get :anim_start this) 0))
-							next_cur (inc cur))
-						(if (>= next_cur count)
-							(if (get :loop this)
-								(. this :set_frame (or (get :anim_start this) 0))
-								(progn
-									(when (defq cb (get :on_finish this))
-										(catch (cb this) (cb)))
-									(bind '(x y w h) (. this :get_bounds))
-									(when (defq parent (penv this))
-										(. parent :add_dirty x y w h))
-									(. this :sub)))
-							(. this :set_frame (+ (or (get :anim_start this) 0) next_cur))))
-					(def this :anim_timer timer))))))
+; 6. comp-bounds-bounce (bounces within playfield bounds)
+; Reads sprite properties: :bounds_min_x :bounds_max_x :bounds_min_y :bounds_max_y
+(defun comp-bounds-bounce (this dt)
+	(bind '(x y w h) (. this :get_bounds))
+	(defq
+		vx (or (get :vx this) 0)
+		vy (or (get :vy this) 0)
+		min_x (or (get :bounds_min_x this) 0)
+		max_x (- (or (get :bounds_max_x this) 320) w)
+		min_y (or (get :bounds_min_y this) 0)
+		max_y (- (or (get :bounds_max_y this) 240) h))
+	(when (< x min_x)
+		(. this :set_bounds min_x y w h)
+		(def this :vx (abs vx)))
+	(when (> x max_x)
+		(. this :set_bounds max_x y w h)
+		(def this :vx (neg (abs vx))))
+	(when (< y min_y)
+		(. this :set_bounds x min_y w h)
+		(def this :vy (abs vy)))
+	(when (> y max_y)
+		(. this :set_bounds x max_y w h)
+		(def this :vy (neg (abs vy)))))
+
+; 7. comp-code (per-tick custom code callback hook)
+; Corresponds to C++ CP_CODE
+; Reads sprite property: :cp_code
+(defun comp-code (this dt)
+	(when (defq code (get :cp_code this))
+		(code this dt)))
