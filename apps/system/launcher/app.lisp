@@ -47,10 +47,7 @@
 
 (defun config-save ()
 	(with-write-lock +config_file
-		(when (defq stream (file-stream +config_file +file_open_write))
-			(tree-save stream *config*)
-			(stream-flush stream)
-			(setq stream :nil))))
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
 (defun scan-apps ()
 	(defq exclude_list (. *config* :find :exclude) categories (. *config* :find :categories)

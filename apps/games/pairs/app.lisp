@@ -118,13 +118,10 @@
 
 (defun config-save ()
 	(with-write-lock +config_file
-		(when (defq stream (file-stream +config_file +file_open_write))
-			(tree-save stream (scatter (Emap)
-				:values *values*
-				:states *states*
-				:score *score*))
-			(stream-flush stream)
-			(setq stream :nil))))
+		(tree-save (file-stream +config_file +file_open_write) (scatter (Emap)
+			:values *values*
+			:states *states*
+			:score *score*))))
 
 (defun try-click (index)
 	(when (and (not *locked*)

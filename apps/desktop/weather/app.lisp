@@ -45,10 +45,7 @@
 (defun config-save ()
 	(scatter *config* :city *city* :unit_c (if *unit_c* :t :nil) :quick_cities *quick_cities*)
 	(with-write-lock +config_file
-		(when (defq stream (file-stream +config_file +file_open_write))
-			(tree-save stream *config*)
-			(stream-flush stream)
-			(setq stream :nil))))
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
 (defun draw-sun (canvas cx cy r)
 	(.-> canvas

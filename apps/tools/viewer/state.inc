@@ -7,12 +7,9 @@
 (defun config-save ()
 	;save state
 	(with-write-lock +config_file
-		(when (defq stream (file-stream +config_file +file_open_write))
-			(tree-save stream (scatter (Emap)
-				:version +config_version :zoom (get :zoom *window*) :find (. *find_text* :get_text)
-				:whole_words *whole_words* :regexp *regexp* :ignore_case *ignore_case*))
-			(stream-flush stream)
-			(setq stream :nil))))
+		(tree-save (file-stream +config_file +file_open_write) (scatter (Emap)
+			:version +config_version :zoom (get :zoom *window*) :find (. *find_text* :get_text)
+			:whole_words *whole_words* :regexp *regexp* :ignore_case *ignore_case*))))
 
 (defun config-load ()
 	;load state

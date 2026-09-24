@@ -48,10 +48,7 @@
 
 (defun config-save ()
 	(with-write-lock +config_file
-		(when (defq stream (file-stream +config_file +file_open_write))
-			(tree-save stream *board*)
-			(stream-flush stream)
-			(setq stream :nil))))
+		(tree-save (file-stream +config_file +file_open_write) *board*)))
 
 (defun get-char-for-val (v)
 	(if (= v *blank_value*) "" (char (+ 65 v))))

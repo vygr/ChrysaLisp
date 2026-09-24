@@ -56,10 +56,7 @@
 (defun config-save ()
 	(scatter *config* :selected_id *selected_id* :selected_cat *selected_cat* :search_query *search_query*)
 	(with-write-lock +config_file
-		(when (defq stream (file-stream +config_file +file_open_write))
-			(tree-save stream *config*)
-			(stream-flush stream)
-			(setq stream :nil))))
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
 (defun create-code-vdu (code page_w)
 	(unless *syntax*

@@ -50,10 +50,7 @@
 (defun config-save ()
 	(scatter *config* :selected_city *selected_city_id*)
 	(with-write-lock +config_file
-		(when (defq stream (file-stream +config_file +file_open_write))
-			(tree-save stream *config*)
-			(stream-flush stream)
-			(setq stream :nil))))
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
 (defun format-hours (h)
 	(defq norm_h (% (+ (% h 24.0) 24.0) 24.0)

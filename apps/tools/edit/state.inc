@@ -7,20 +7,17 @@
 	(defq key (const (cat *env_home* +state_filename)))
 	(with-write-lock key
 		(bind '(x y width height) (. *window* :get_bounds))
-		(when (defq stream (file-stream key +file_open_write))
-			(scatter *meta_map*
-				:version 1
-				:x x :y y :width width :height height
-				:zoom (get :zoom *window*)
-				:find (. *find_text* :get_text)
-				:replace (. *replace_text* :get_text)
-				:whole_words *whole_words*
-				:regexp *regexp*
-				:ignore_case *ignore_case*
-				:macros (reduce (# (. %0 :insert %1 (macro-encode %1))) +range_0_10 (Lmap)))
-			(tree-save stream *meta_map* '(":nil" :buffer :nil))
-			(stream-flush stream)
-			(setq stream :nil))))
+		(scatter *meta_map*
+			:version 1
+			:x x :y y :width width :height height
+			:zoom (get :zoom *window*)
+			:find (. *find_text* :get_text)
+			:replace (. *replace_text* :get_text)
+			:whole_words *whole_words*
+			:regexp *regexp*
+			:ignore_case *ignore_case*
+			:macros (reduce (# (. %0 :insert %1 (macro-encode %1))) +range_0_10 (Lmap)))
+		(tree-save (file-stream key +file_open_write) *meta_map* '(":nil" :buffer :nil))))
 
 (defun config-load ()
 	;load editor state

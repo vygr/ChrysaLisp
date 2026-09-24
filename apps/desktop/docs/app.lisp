@@ -37,10 +37,7 @@
 (defun config-save ()
 	(with-write-lock +config_file
 		(scatter *config* :zoom (get :zoom *window*))
-		(when (defq stream (file-stream +config_file +file_open_write))
-			(tree-save stream *config*)
-			(stream-flush stream)
-			(setq stream :nil))))
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
 ;lisp handler environment and embedded enum override !
 (redefmacro enums (name base &rest lines)

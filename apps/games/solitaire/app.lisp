@@ -128,13 +128,10 @@
 
 (defun config-save ()
 	(with-write-lock +config_file
-		(when (defq stream (file-stream +config_file +file_open_write))
-			(tree-save stream (scatter (Emap)
-				:board *board*
-				:selected *selected*
-				:undo *undo_stack*))
-			(stream-flush stream)
-			(setq stream :nil))))
+		(tree-save (file-stream +config_file +file_open_write) (scatter (Emap)
+			:board *board*
+			:selected *selected*
+			:undo *undo_stack*))))
 
 (defun try-move (to_idx)
 	(defq from_idx *selected*)
