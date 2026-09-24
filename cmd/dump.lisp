@@ -2,23 +2,19 @@
 (import "lib/streams/hex.inc")
 (import "service/lock/app.inc")
 
-(defun opt-toggle (opt_var)
-	(static-qq (lambda (args arg)
-		(setq ,opt_var (not ,opt_var)) args)))
-
 (defq usage `(
 (("-h" "--help")
 "Usage: dump [options] [path] ...
 
     options:
         -h --help: this help info.
-        -w -k --width --chunk num: chunk width, default 8.
+        -w --width num: chunk width, default 8.
         -o --offset: toggle byte offset column, default :t.
         -c --chars: toggle chars column, default :t.
 
     If no paths given on command line
     then will dump stdin.")
-(("-w" "-k" "--width" "--chunk") ,(opt-num 'opt_w))
+(("-w" "--width") ,(opt-num 'opt_w))
 (("-o" "--offset") ,(opt-toggle 'opt_o))
 (("-c" "--chars") ,(opt-toggle 'opt_c))
 ))
