@@ -85,9 +85,9 @@
 	(. this :set_frame (+ +frm_letters idx))
 	(. this :add_component comp-fly-to)
 
-	(defmethod :fly_to (tx ty speed on_arrive)
-		; (. letter :fly_to tx ty speed on_arrive) -> letter
-		(def this :target_x tx :target_y ty :speed speed :on_arrive on_arrive :arrived :nil)
+	(defmethod :fly_to (tx ty speed on_arrive &optional on_step)
+		; (. letter :fly_to tx ty speed on_arrive [on_step]) -> letter
+		(def this :target_x tx :target_y ty :speed speed :on_arrive on_arrive :on_step on_step :arrived :nil)
 		this)
 	)
 
@@ -105,7 +105,7 @@
 
 (defclass TitleBloodDrip (&optional x y) (Sprite (get-cached-canvas "image/frm_16x16.cpm") 16 16 x y)
 	; (TitleBloodDrip [x y]) -> sprite
-	(setd x 152 y 116)
+	(setd x 152 y 84)
 	(. this :set_frame +frm_blooddrip)
 	(. this :add_component comp-blood-drip)
 
@@ -258,4 +258,10 @@
 	; Big explosion FX (32x32)
 	(setd x 0 y 0)
 	(. this :set_frame +frm_bigexp)
-	(. this :add_component comp-anim :anim_start +frm_bigexp :anim_count 5 :anim_speed 2))
+	(. this :add_component comp-anim :anim_start +frm_bigexp :anim_count 5 :anim_speed 2 :loop :nil))
+
+(defclass FizzSprite (&optional x y) (Sprite (get-cached-canvas "image/frm_16x16.cpm") 16 16 x y)
+	; Fizz spark FX (16x16)
+	(setd x 0 y 0)
+	(. this :set_frame +frm_fizz)
+	(. this :add_component comp-anim :anim_start +frm_fizz :anim_count 3 :anim_speed 2 :loop :nil))

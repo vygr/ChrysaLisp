@@ -22,6 +22,9 @@
 (defq
 	*running* :t)
 
+(defun dispatch-action (&rest action)
+	(catch (eval action) (progn (prin _) (print) :t)))
+
 (defun main ()
 	(defq select (task-mboxes +select_size))
 	(setq *running* :t)
@@ -30,8 +33,7 @@
 	(when (defq panel (canvas-load (cat *app_root* "image/panel.cpm") +load_flag_shared))
 		(def panel :offset_x 0 :offset_y 0)
 		(. panel :set_bounds 0 168 320 72)
-		(. *layer_backdrop* :add_back panel)
-		(. panel :dirty))
+		(. *layer_panel* :add_front panel))
 
 	; Position and show window on desktop with all children already attached
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))

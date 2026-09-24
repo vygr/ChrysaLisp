@@ -20,6 +20,7 @@
 (ui-window *window* (:min_width +game_width :min_height +game_height :border 0 :shadow 2)
 	(ui-title-bar *title* "Onslaught" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow *playfield* (:flow_flags +flow_stack_fill :min_width +game_width :min_height +game_height)
+		(ui-backdrop *layer_panel* (:color 0))
 		(ui-backdrop *layer_fx* (:color 0))
 		(ui-backdrop *layer_sprites* (:color 0))
 		(ui-backdrop *layer_land* (:color 0))
