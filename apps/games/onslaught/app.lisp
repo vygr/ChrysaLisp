@@ -7,22 +7,23 @@
 
 (defq *app_root* (path-to-file))
 
-(import "usr/env.inc")
-(import "lib/debug/frames.inc")
-(import "gui/lisp.inc")
-
 (enums +select 0
 	(enum main timer))
 
-(defq *running* :t *game_state* :title
-	+zoom_1x 1 +zoom_2x 2 +zoom_3x 3 +zoom_min 1 +zoom_max 3
+(defq *running* :t *game_state* :title +zoom_1x 1 +zoom_2x 2 +zoom_3x 3 +zoom_min 1 +zoom_max 3
 	*zoom* +zoom_2x *old_zoom* *zoom*)
 
-; engine core includes
+(import "service/audio/app.inc")
+(import "usr/env.inc")
+(import "gui/lisp.inc")
+(import "./map.inc")
+(import "./sky.inc")
+(import "./widgets.inc")
+(import "./components.inc")
+(import "./utils.inc")
+(import "./assets.inc")
 (import "./enums.inc")
 (import "./sprite.inc")
-(import "./components.inc")
-(import "./widgets.inc")
 (import "./actions.inc")
 (import "./title.inc")
 (import "./field.inc")

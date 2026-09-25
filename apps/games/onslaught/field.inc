@@ -1,16 +1,7 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/onslaught/field.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught field battle sequence
 ; handles field map loop, QAOP controls, player man physics & camera tracking
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(import "./enums.inc")
-(import "./sprite.inc")
-(import "./widgets.inc")
-(import "./map.inc")
-(import "./sky.inc")
 
 (defq
 	*player_man* :nil
@@ -18,20 +9,6 @@
 	*cam_x* 0
 	*cam_y* 0
 	*current_map_idx* 1)
-
-(defun update-camera (man_x man_y)
-	; center camera on player man
-	(defq
-		win_w (* *zoom* +window_width)
-		win_h (* *zoom* +window_height)
-		cam_x (- man_x (* *zoom* 144))
-		cam_y (- (+ man_y (* *zoom* 16)) (* *zoom* 84))
-		max_cam_x (- (* +map_width (* +tile_width *zoom*)) win_w)
-		max_cam_y (- (* +map_height (* +tile_height *zoom*)) win_h))
-	(setq *cam_x* (max 0 (min max_cam_x cam_x))
-		  *cam_y* (max 0 (min max_cam_y cam_y)))
-	; scroll all world layers by negative camera offset
-	(set-world-layers-pos (neg *cam_x*) (neg *cam_y*)))
 
 (defun step-walk-cycle (man start_frame end_frame)
 	(defq

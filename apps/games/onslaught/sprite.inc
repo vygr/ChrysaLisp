@@ -1,14 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/onslaught/sprite.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught sprite class & standard component assembly
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(import "gui/lisp.inc")
-(import "./enums.inc")
-(import "./assets.inc")
-(import "./components.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; base sprite class
@@ -16,17 +8,8 @@
 
 (defclass Sprite (canvas_l canvas_r width height tag) (View)
 	; (Sprite canvas_l canvas_r width height) -> sprite
-	(def this
-		:color 0
-		:canvas_l canvas_l
-		:canvas_r canvas_r
-		:canvas_tag tag
-		:base_w width
-		:base_h height
-		:frame 0
-		:dir -1
-		:components (list)
-		:death :nil)
+	(def this :color 0 :canvas_l canvas_l :canvas_r canvas_r :canvas_tag tag :base_w width :base_h height
+		:frame 0 :dir -1 :components (list) :death :nil)
 	(. this :set_size (* *zoom* width) (* *zoom* height))
 
 	(defgetmethod :canvas_l)
@@ -120,11 +103,10 @@
 	; (TitleBloodDrip) -> sprite
 	(.-> this
 		(:add_component (const mv-update) (const mv-init))
-		(:add_component (const offscreen-update) (const offscreen-init))
+		(:add_component (const offscreen-update))
 		(:set_frame +frm_16x16_blooddrip))
 	(set this
-		:mv_ay *zoom* :mv_max_vy (* *zoom* 10)
-		:offscreen_max_y (* *zoom* 168)))
+		:mv_ay *zoom* :mv_max_vy (* *zoom* 10)))
 
 (defclass ExplosionSprite () (Sprite *img_frm_32c32* :nil 32 32 :32c32)
 	; big explosion fx (32x32)
@@ -278,7 +260,7 @@
 	(setd vx 0 vy 0)
 	(.-> this
 		(:add_component (const mv-update) (const mv-init))
-		(:add_component (const offscreen-update) (const offscreen-init))
+		(:add_component (const offscreen-update))
 		(:set_frame frame))
 	(set this :mv_vx (* *zoom* vx) :mv_vy (* *zoom* vy) :dir (if (>= vx 0) 1 -1)))
 

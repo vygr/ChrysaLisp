@@ -1,20 +1,7 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/onslaught/title.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught title sequence
 ; flying-in letters, dropping sword, dripping blood
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(import "service/audio/app.inc")
-(import "./enums.inc")
-(import "./components.inc")
-(import "./sprite.inc")
-(import "./widgets.inc")
-(import "./assets.inc")
-
-(unless (def? '*app_root*)
-	(defq *app_root* (path-to-file)))
 
 (defq
 	*title_letter_idx* 0
@@ -23,15 +10,7 @@
 
 ; destinations in base coordinates
 (defq +title_letter_destinations
-	''((0 68)
-	  (36 68)
-	  (72 68)
-	  (108 68)
-	  (144 68)
-	  (180 68)
-	  (216 68)
-	  (252 68)
-	  (288 68)))
+	''((0 68) (36 68) (72 68) (108 68) (144 68) (180 68) (216 68) (252 68) (288 68)))
 
 (defun get-xy-outer (w h)
 	; pick a random start point just outside the playable area
@@ -44,11 +23,7 @@
 		(2 (list (neg w) (- (random (+ win_h (* 2 h))) h)))
 		(3 (list win_w (- (random (+ win_h (* 2 h))) h)))))
 
-(defq +bomb_offsets
-	''((-32 -16)
-	  (-16 -32)
-	  (0 -16)
-	  (-16 0)))
+(defq +bomb_offsets ''((-32 -16) (-16 -32) (0 -16) (-16 0)))
 
 (defun spawn-bomb-fx (x y)
 	; spawn 4 explosion sprites in a diamond around the letter center
@@ -95,7 +70,7 @@
 	(defq sp (TitleSword))
 	(. sp :add_component (const cp-sword))
 	(init-ml sp (* *zoom* 152) (* *zoom* -64) (* *zoom* 152) (* *zoom* 52) (* *zoom* 14))
-	(. *layer_sprites* :add_back sp)
+	(. *layer_fx* :add_back sp)
 	sp)
 
 (defun cp-letter (this)
@@ -128,9 +103,7 @@
 	sp)
 
 (defun title-sequence-start (&optional layer)
-	(setq *title_letter_idx* 0
-		*title_delay* 0
-		*title_state* :letters)
+	(setq *title_letter_idx* 0 *title_delay* 0 *title_state* :letters)
 	(reset-layers-title)
 	(spawn-title-letter 0))
 

@@ -1,19 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/onslaught/assets.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught graphical assets manager
 ; preloads, resizes, and caches all image canvases in global variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(import "gui/lisp.inc")
-(import "./enums.inc")
-
-(unless (def? '*app_root*)
-	(defq *app_root* (path-to-file)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; global asset variables for all image canvases
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq

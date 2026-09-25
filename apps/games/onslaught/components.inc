@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/onslaught/components.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught standard component suite
 ; small bag of standard reusable components operating on sprite properties
@@ -151,19 +148,11 @@
 				(set this :mt_count count))))
 	this)
 
-; 5. Offscreen (kills sprite when leaving playfield or custom bounds)
-(defun offscreen-init (this)
-	(def this
-		:offscreen_min_x (* *zoom* -64) :offscreen_max_x (* *zoom* (+ +game_width 64))
-		:offscreen_min_y (* *zoom* -64) :offscreen_max_y (* *zoom* (+ +game_height 64)))
-	this)
-
+; 5. Offscreen (kills sprite when off screen)
 (defun offscreen-update (this)
-	(bind '(x y w h) (. this :get_bounds))
-	(when (or (< x (get :offscreen_min_x this))
-			  (< y (get :offscreen_min_y this))
-			  (>= y (get :offscreen_max_y this))
-			  (>= x (get :offscreen_max_x this)))
+	(bind '(rx ry w h) (. *world_scroll* :get_relative this))
+	(bind '(ww wh) (. *world_scroll* :get_size))
+	(when (or (< (+ rx w) 0) (< (+ ry h) 0) (>= (+ rx w) ww) (>= (+ ry h) wh))
 		(. this :kill))
 	this)
 

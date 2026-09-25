@@ -1,7 +1,3 @@
-; Onslaught enums, bits, and game constants
-
-(import "lib/class/struct.inc")
-
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Screen and dimensions
 ;;;;;;;;;;;;;;;;;;;;;;;

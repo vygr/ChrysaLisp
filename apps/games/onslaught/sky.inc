@@ -1,12 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/onslaught/sky.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught sky vertical gradient view
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(import "gui/view/lisp.inc")
-(import "./enums.inc")
 
 (defq +sky_palette
 	''(0xff7fbf7f   ; green pastel
