@@ -1,14 +1,8 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/onslaught/app.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught 2d game engine framework
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq *app_root* (path-to-file))
-
-(enums +select 0
-	(enum main timer))
 
 (defq *running* :t *game_state* :title +zoom_1x 1 +zoom_2x 2 +zoom_3x 3 +zoom_min 1 +zoom_max 3
 	*zoom* +zoom_2x *old_zoom* *zoom* +frame_rate 20)
@@ -75,6 +69,9 @@
 	(bind '(w h) (. *window* :pref_size))
 	(bind '(x y w h) (view-fit x y w h))
 	(.-> *window* (:change_dirty x y w h :t)))
+
+(enums +select 0
+	(enum main timer))
 
 (defun main ()
 	(defq select (task-mboxes +select_size))
