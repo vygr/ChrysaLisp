@@ -290,3 +290,67 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :pixmap :flip_x)
+	;inputs
+	;:r0 = pixmap object (ptr)
+	;:r1 = source pixmap object (ptr)
+	;outputs
+	;:r0 = pixmap object (ptr)
+	;trashes
+	;:r1-:r11
+
+	(vp-rdef (this src w_bytes h ddata sdata dstride sstride dst_ptr src_ptr val dend)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11))
+
+	(entry :pixmap :flip_x `(,this ,src))
+
+	;copy pixmap type
+	(assign `((,src +pixmap_type)) `(,val))
+	(assign `(,val) `((,this +pixmap_type)))
+
+	;get dimensions and strides
+	(assign `((,this +pixmap_width) (,this +pixmap_height) (,this +pixmap_stride))
+		`(,w_bytes ,h ,dstride))
+	(assign `((,src +pixmap_width) (,src +pixmap_height) (,src +pixmap_stride))
+		`(,val ,dend ,sstride))
+
+	;clip width and height to min of both
+	(vp-min-rr val w_bytes)
+	(vp-min-rr dend h)
+
+	(gotoif `(,w_bytes <= 0) 'done)
+	(gotoif `(,h <= 0) 'done)
+
+	(assign `((& ,this +pixmap_data) (& ,src +pixmap_data)) `(,ddata ,sdata))
+
+	;sdata points to the rightmost pixel of row 0 in src: sdata + (src_width - 1) * 4
+	(assign `((,src +pixmap_width)) `(,val))
+	(vp-sub-cr 1 val)
+	(vp-shl-cr (log2 +int_size) val)
+	(vp-add-rr val sdata)
+
+	(vp-shl-cr (log2 +int_size) w_bytes)
+
+	(loop-start 'y_loop)
+		(vp-cpy-rr ddata dst_ptr)
+		(vp-cpy-rr sdata src_ptr)
+		(vp-lea-d ddata w_bytes dend)
+
+		(loop-start 'x_loop)
+			(vp-cpy-ir-ui src_ptr 0 val)
+			(vp-sub-cr +int_size src_ptr)
+			(vp-cpy-ri-i val dst_ptr 0)
+			(vp-add-cr +int_size dst_ptr)
+		(loop-until `(,dst_ptr = ,dend))
+
+		(vp-add-rr dstride ddata)
+		(vp-add-rr sstride sdata)
+		(vp-sub-cr 1 h)
+	(loop-until `(,h = 0))
+
+(vp-label 'done)
+	(exit :pixmap :flip_x `(,this))
+	(vp-ret)
+
+(def-func-end)

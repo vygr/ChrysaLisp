@@ -48,6 +48,10 @@
 		; (. canvas :resize canvas) -> canvas
 		((const (ffi "gui/canvas/lisp_resize")) this that))
 
+	(defmethod :flip_x (that)
+		; (. canvas :flip_x canvas) -> canvas
+		((const (ffi "gui/canvas/lisp_flip_x")) this that))
+
 	(defmethod :fill (argb)
 		; (. canvas :fill argb) -> canvas
 		((const (ffi "gui/canvas/lisp_fill")) this argb))

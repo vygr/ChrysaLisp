@@ -10,6 +10,7 @@
 	(dec-method :resize gui/pixmap/resize :static (:r0 :r1) (:r0))
 	(dec-method :resize_2 gui/pixmap/resize_2 :static (:r0 :r1) (:r0))
 	(dec-method :resize_3 gui/pixmap/resize_3 :static (:r0 :r1) (:r0))
+	(dec-method :flip_x gui/pixmap/flip_x :static (:r0 :r1) (:r0))
 	(dec-method :fill gui/pixmap/fill :static (:r0 :r1) (:r0))
 	(dec-method :to_premul gui/pixmap/to_premul :static (:r1) (:r1))
 	(dec-method :to_argb gui/pixmap/to_argb :static (:r1) (:r1))

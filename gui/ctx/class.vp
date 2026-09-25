@@ -69,33 +69,33 @@
 		(long texture)
 		(ptr this dirty_rect old_stack))
 
-	(vp-ret-if '(:r1 = 0))
+	(vpif '(:r1 /= 0))
+		(vp-cpy-rr :rsp :r3)
+		(vp-alloc local_size)
+		(vp-and-cr -16 :rsp)
+		(assign '(:r3) '((:rsp local_old_stack)))
 
-	(vp-cpy-rr :rsp :r3)
-	(vp-alloc local_size)
-	(vp-and-cr -16 :rsp)
-	(assign '(:r3) '((:rsp local_old_stack)))
+		;save draw rectangle info
+		(assign '((:r0 +view_ctx_x) (:r0 +view_ctx_y) :r0 :r1) '(:r13 :r14 (:rsp local_this) (:rsp local_texture)))
+		(vp-simd vp-add-rr '(:r13 :r14) '(:r7 :r8))
+		(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
+			(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
+		(assign '(:r11 :r12 :r9 :r10) '((:rsp (+ local_srect host_gui_rect_x) i) (:rsp (+ local_srect host_gui_rect_y) i)
+			(:rsp (+ local_srect host_gui_rect_w) i) (:rsp (+ local_srect host_gui_rect_h) i)))
 
-	;save draw rectangle info
-	(assign '((:r0 +view_ctx_x) (:r0 +view_ctx_y) :r0 :r1) '(:r13 :r14 (:rsp local_this) (:rsp local_texture)))
-	(vp-simd vp-add-rr '(:r13 :r14) '(:r7 :r8))
-	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
-		(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
-	(assign '(:r11 :r12 :r9 :r10) '((:rsp (+ local_srect host_gui_rect_x) i) (:rsp (+ local_srect host_gui_rect_y) i)
-		(:rsp (+ local_srect host_gui_rect_w) i) (:rsp (+ local_srect host_gui_rect_h) i)))
+		;set the color mod
+		(vp-simd vp-cpy-rr '(:r2) '(:r3 :r4))
+		(vp-simd vp-shr-cr '(16 8) '(:r3 :r2))
+		(vp-simd vp-and-cr '(0xff) '(:r3 :r2 :r4))
+		(host-gui-call :host_gui :set_texture_color '((:rsp local_texture) :r3 :r2 :r4))
 
-	;set the color mod
-	(vp-simd vp-cpy-rr '(:r2) '(:r3 :r4))
-	(vp-simd vp-shr-cr '(16 8) '(:r3 :r2))
-	(vp-simd vp-and-cr '(0xff) '(:r3 :r2 :r4))
-	(host-gui-call :host_gui :set_texture_color '((:rsp local_texture) :r3 :r2 :r4))
+		(for-each-visible-rect
+			'(progn
+				;blit the texture
+				(host-gui-call :host_gui :blit '((:rsp local_texture) (& :rsp local_srect) (& :rsp local_drect)))))
 
-	(for-each-visible-rect
-		'(progn
-			;blit the texture
-			(host-gui-call :host_gui :blit '((:rsp local_texture) (& :rsp local_srect) (& :rsp local_drect)))))
-
-	(vp-cpy-ir :rsp local_old_stack :rsp)
+		(vp-cpy-ir :rsp local_old_stack :rsp)
+	(endif)
 	(vp-ret)
 
 (def-func-end)

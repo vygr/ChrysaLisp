@@ -28,4 +28,5 @@
 	(dec-method :lisp_fpoly gui/canvas/lisp_fpoly :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_ftri gui/canvas/lisp_ftri :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_resize gui/canvas/lisp_resize :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_flip_x gui/canvas/lisp_flip_x :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_tile gui/canvas/lisp_tile :static (:r0 :r1) (:r0 :r1)))
