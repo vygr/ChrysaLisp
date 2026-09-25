@@ -2,10 +2,6 @@
 ; onslaught field terrain map renderer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "gui/view/lisp.inc")
-(import "gui/canvas/lisp.inc")
-(import "./enums.inc")
-
 (defclass FieldMap () (View)
 	; (FieldMap) -> map view
 	(def this

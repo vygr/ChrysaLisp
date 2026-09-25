@@ -5,18 +5,18 @@
 (defq *app_root* (path-to-file))
 
 (defq *running* :t *game_state* :title +zoom_1x 1 +zoom_2x 2 +zoom_3x 3 +zoom_min 1 +zoom_max 3
-	*zoom* +zoom_2x *old_zoom* *zoom* +frame_rate 20)
+	*zoom* +zoom_2x *old_zoom* *zoom* +frame_rate 20 *running* :t *game_state* :title)
 
 (import "service/audio/app.inc")
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "./enums.inc")
 (import "./map.inc")
 (import "./sky.inc")
 (import "./widgets.inc")
 (import "./components.inc")
 (import "./utils.inc")
 (import "./assets.inc")
-(import "./enums.inc")
 (import "./sprite.inc")
 (import "./actions.inc")
 (import "./title.inc")
@@ -75,8 +75,6 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size))
-	(setq *running* :t *game_state* :title)
-
 	(load-wav-assets)
 	(window-resize)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -130,6 +128,6 @@
 							(field-sequence-start)))
 					(:field
 						(field-sequence-update))))))
-
 	; unregister window and exit cleanly
+	(unload-wav-assets)
 	(gui-sub-rpc *window*))

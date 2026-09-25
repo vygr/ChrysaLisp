@@ -73,6 +73,21 @@
 	(. *layer_fx* :add_back sp)
 	sp)
 
+(defun title-sequence-start (&optional layer)
+	(setq *title_letter_idx* 0 *title_delay* 0 *title_state* :letters)
+	(reset-layers-title)
+	(spawn-title-letter 0))
+
+(defun title-sequence-update ()
+	(update-sprite-layers)
+	(when (eql *title_state* :delay)
+		(setq *title_delay* (- *title_delay* 1))
+		(when (<= *title_delay* 0)
+			(setq *title_state* :sword)
+			(spawn-title-sword)))
+	(. *layer_sky* :dirty)
+	(. *world_layers* :dirty_all))
+
 (defun cp-letter (this)
 	; callback while letter flies and when it arrives
 	(when (/= (or (get :ml_speed this) 0) 0)
@@ -101,18 +116,3 @@
 	(init-ml sp sx sy tx ty (* *zoom* 16))
 	(. *layer_fx* :add_front sp)
 	sp)
-
-(defun title-sequence-start (&optional layer)
-	(setq *title_letter_idx* 0 *title_delay* 0 *title_state* :letters)
-	(reset-layers-title)
-	(spawn-title-letter 0))
-
-(defun title-sequence-update ()
-	(update-sprite-layers)
-	(when (eql *title_state* :delay)
-		(setq *title_delay* (- *title_delay* 1))
-		(when (<= *title_delay* 0)
-			(setq *title_state* :sword)
-			(spawn-title-sword)))
-	(. *layer_sky* :dirty)
-	(. *world_layers* :dirty_all))

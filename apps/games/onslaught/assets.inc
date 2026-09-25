@@ -76,6 +76,30 @@
 	*sfx_horse* :nil *sfx_out* :nil *sfx_roar* :nil *sfx_spell* :nil
 	*sfx_throw* :nil *sfx_twang1* :nil *sfx_twang2* :nil)
 
+(defun unload-wav-assets ()
+	; (uload-wav-assets)
+	; unloads and caches all WAV assets
+	(if *sfx_boar* (audio-remove-rpc *sfx_boar*))
+	(if *sfx_clash1* (audio-remove-rpc *sfx_clash1*))
+	(if *sfx_clash2* (audio-remove-rpc *sfx_clash2*))
+	(if *sfx_death1* (audio-remove-rpc *sfx_death1*))
+	(if *sfx_death2* (audio-remove-rpc *sfx_death2*))
+	(if *sfx_drip* (audio-remove-rpc *sfx_drip*))
+	(if *sfx_explode* (audio-remove-rpc *sfx_explode*))
+	(if *sfx_hooves* (audio-remove-rpc *sfx_hooves*))
+	(if *sfx_horse* (audio-remove-rpc *sfx_horse*))
+	(if *sfx_out* (audio-remove-rpc *sfx_out*))
+	(if *sfx_roar* (audio-remove-rpc *sfx_roar*))
+	(if *sfx_spell* (audio-remove-rpc *sfx_spell*))
+	(if *sfx_throw* (audio-remove-rpc *sfx_throw*))
+	(if *sfx_twang1* (audio-remove-rpc *sfx_twang1*))
+	(if *sfx_twang2* (audio-remove-rpc *sfx_twang2*))
+	(setq *sfx_boar* :nil *sfx_clash1* :nil *sfx_clash2* :nil
+		*sfx_death1* :nil *sfx_death2* :nil *sfx_drip* :nil
+		*sfx_explode* :nil *sfx_hooves* :nil *sfx_horse* :nil
+		*sfx_out* :nil *sfx_roar* :nil *sfx_spell* :nil
+		*sfx_throw* :nil *sfx_twang1* :nil *sfx_twang2* :nil))
+
 (defun load-wav-assets ()
 	; (load-wav-assets)
 	; loads and caches all WAV assets
