@@ -43,8 +43,7 @@
 	; field battle: clear sprites, size to full map world, pastel sky, load terrain map
 	(setd map_idx 1)
 	(clear-sprite-layers)
-	(defq
-		world_w (* *zoom* (* +map_width +tile_width))
+	(defq world_w (* *zoom* (* +map_width +tile_width))
 		world_h (* *zoom* (* +map_height +tile_height)))
 	(set-world-layers-size world_w world_h)
 	(. *layer_sky* :set_random_sky)
