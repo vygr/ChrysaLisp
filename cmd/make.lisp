@@ -29,8 +29,10 @@
 (defq +LF "\n" +ai_excluded_files
 	''(ai/ deps/ docs/ fonts/ usr/ obj/ apps/demos/boing/ apps/demos/bubbles/
 	apps/demos/canvas/ apps/demos/freeball/ apps/desktop/calculator/
-	apps/desktop/chat/ apps/desktop/clock/ apps/desktop/eyes/ apps/games/
-	apps/media/films/ apps/media/images/ apps/science/molecule/ apps/system/files/
+	apps/desktop/chat/ apps/desktop/clock/ apps/desktop/eyes/
+	apps/games/chess/actions.inc apps/games/chess/ apps/games/minefield/
+	apps/games/pairs/ apps/games/slider/ apps/games/solitaire/ apps/media/films/
+	apps/media/images/ apps/science/molecule/ apps/system/files/
 	apps/system/netspeed/ apps/system/services/ apps/system/wallpaper/
 	apps/tools/benchmark/ apps/tools/fonts/ cmd/cat.lisp cmd/cp.lisp cmd/diff.lisp
 	cmd/dump.lisp cmd/echo.lisp cmd/files.lisp cmd/gui.lisp cmd/hbook.lisp
