@@ -96,11 +96,13 @@
 					(defq
 						w (get :spr_w this)
 						h (get :spr_h this)
-						maxv (or (get :maxv this) (def this :maxv (max 1 (/ th h))))
-						col_idx (/ f maxv)
-						row_idx (% f maxv)
-						sx (* col_idx w)
-						sy (* row_idx h))
+						raw_y (* f h)
+						sy (% raw_y th)
+						col (/ raw_y th)
+						sx (* col w)
+						dir (or (get :dir this) 1))
+					(when (and (>= dir 0) (get :canvas_r this))
+						(setq sx (- tw (+ sx w))))
 					(. this :ctx_blit tid +argb_white 0 0 w h sx sy))))
 		this)
 	)
@@ -157,12 +159,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass ManSprite () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
-	; player / fanatic man (32x32)
-	(def this
-		:xv 0
-		:yv 0
-		:dir 1)
-	(. this :set_frame +frm_walk))
+	; (ManSprite) -> sprite
+	(def this :xv 0 :yv 0 :dir 1 :walk_tick 0)
+	(.-> this
+		(:set_frame +frm_stance)))
 
 (defclass HorseSprite () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr)
 	; friendly cavalry horse (64x64)

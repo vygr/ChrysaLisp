@@ -14,7 +14,9 @@
 (enums +select 0
 	(enum main timer))
 
-(defq *running* :t *game_state* :title +zoom_1x 1 +zoom_2x 2 *zoom* +zoom_2x *old_zoom* *zoom*)
+(defq *running* :t *game_state* :title
+	+zoom_1x 1 +zoom_2x 2 +zoom_3x 3 +zoom_min 1 +zoom_max 3
+	*zoom* +zoom_2x *old_zoom* *zoom*)
 
 ; engine core includes
 (import "./enums.inc")
@@ -38,8 +40,14 @@
 		pan_h (* *zoom* +panel_height))
 	(set *world_scroll* :min_width win_w :min_height win_h)
 	(set *panel_layers* :min_width win_w :min_height pan_h)
+	(. *world_scroll* :set_bounds 0 0 win_w win_h)
 	(. *world_layers* :set_bounds 0 0 win_w win_h)
 	(. *layer_panel_detail* :add_front *img_panel*)
+	(defq block_canvas (cond
+			((= (get :map_idx *layer_land*) 2) *img_blocks2*)
+			((= (get :map_idx *layer_land*) 3) *img_blocks3*)
+			(:t *img_blocks1*)))
+	(. *layer_land* :set_blocks_canvas block_canvas *zoom*)
 	(when (/= *zoom* *old_zoom*)
 		(rescale-active-sprites *old_zoom* *zoom*)
 		(case *game_state*

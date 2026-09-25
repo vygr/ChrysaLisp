@@ -22,8 +22,7 @@
 	+max_strength 2048
 	+max_power (/ +max_strength 2)                  ; 1024
 	+frame_rate 30
-	+rate (/ 1000000 +frame_rate)
-	+dt (/ 1.0 30.0))
+	+rate (/ 1000000 +frame_rate))
 
 ;;;;;;;;;;;;;
 ; Game states

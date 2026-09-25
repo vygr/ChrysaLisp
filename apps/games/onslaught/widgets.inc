@@ -14,7 +14,7 @@
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar *title* "Onslaught" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-scroll *world_scroll* 0 (:min_width (* *zoom* +game_width) :min_height (* *zoom* (- +game_height +panel_height)))
+	(ui-view *world_scroll* (:min_width (* *zoom* +game_width) :min_height (* *zoom* (- +game_height +panel_height)))
 		(ui-view *world_layers* (:color 0)
 			(ui-view *layer_fx*)
 			(ui-view *layer_missiles*)
@@ -38,6 +38,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; layer management helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun set-world-layers-size (w h)
+	; size *world_layers* container and all its child layers
+	(. *world_layers* :set_size w h)
+	(each (# (. %0 :set_size w h)) +world_layers))
 
 (defun set-canvas-pos (c x &optional y)
 	; set position of canvas or view
@@ -87,7 +92,8 @@
 	(. *layer_sky* :set_random_sky)
 	(. *layer_land* :load_field_map map_idx)
 	(. *layer_sky* :dirty)
-	(. *layer_land* :dirty))
+	(. *layer_land* :dirty)
+	(. *world_layers* :dirty_all))
 
 (defun update-sprite-canvas (sp)
 	(when (def? :canvas_tag sp)
