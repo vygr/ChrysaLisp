@@ -159,7 +159,7 @@
 ; 6. Bounds-Bounce (bounces within playfield bounds)
 (defun bounds-bounce-init (this)
 	(def this
-		:bounds_min_x 0 :bounds_max_x (* *zoom* +game_width)
+		:bounds_min_x 0 :bounds_max_x (* *zoom* +screen_width)
 		:bounds_min_y 0 :bounds_max_y (* *zoom* +panel_y))
 	this)
 

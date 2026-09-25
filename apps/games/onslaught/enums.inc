@@ -3,22 +3,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq
-	+screen_width 320
-	+screen_height 240
-	+map_width 128
-	+map_height 16
-	+tile_width 16
-	+tile_height 16
-	+panel_height 72
-	+panel_y (- +screen_height +panel_height)       ; 168
-	+game_width +screen_width
-	+game_height +screen_height
-	+window_width +screen_width
-	+window_height (- +screen_height +panel_height) ; 168
-	+max_strength 2048
-	+max_power (/ +max_strength 2)                  ; 1024
-	+frame_rate 30
-	+rate (/ 1000000 +frame_rate))
+	+screen_width 320 +screen_height 240
+	+map_width 128 +map_height 16
+	+tile_width 16 +tile_height 16
+	+panel_height 72 +panel_y (- +screen_height +panel_height)
+	+window_width +screen_width +window_height (- +screen_height +panel_height)
+	+max_strength 2048 +max_power (/ +max_strength 2))
 
 ;;;;;;;;;;;;;
 ; Game states
@@ -209,7 +199,7 @@
 ; Item frame mapping
 ;;;;;;;;;;;;;;;;;;;;;
 
-(pmap
+(defq +item_map (pmap
 	+item_gold +frm_16x16_gold
 	+item_mase +frm_16x16_shield
 	+item_big_bow (+ +frm_16x16_shield 1)
@@ -223,4 +213,4 @@
 	+item_green_spell (+ +frm_16x16_spells 2)
 	+item_white_spell (+ +frm_16x16_spells 3)
 	+item_red_spell (+ +frm_16x16_spells 4)
-	+item_blue_spell (+ +frm_16x16_spells 5))
+	+item_blue_spell (+ +frm_16x16_spells 5)))

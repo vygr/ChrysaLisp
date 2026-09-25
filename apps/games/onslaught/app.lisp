@@ -11,7 +11,7 @@
 	(enum main timer))
 
 (defq *running* :t *game_state* :title +zoom_1x 1 +zoom_2x 2 +zoom_3x 3 +zoom_min 1 +zoom_max 3
-	*zoom* +zoom_2x *old_zoom* *zoom*)
+	*zoom* +zoom_2x *old_zoom* *zoom* +frame_rate 20)
 
 (import "service/audio/app.inc")
 (import "usr/env.inc")
@@ -36,8 +36,8 @@
 	(load-cpm-assets *zoom*)
 	(clear-layer *layer_panel_detail*)
 	(defq
-		win_w (* *zoom* +game_width)
-		win_h (* *zoom* (- +game_height +panel_height))
+		win_w (* *zoom* +screen_width)
+		win_h (* *zoom* (- +screen_height +panel_height))
 		pan_h (* *zoom* +panel_height))
 	(set *world_scroll* :min_width win_w :min_height win_h)
 	(set *panel_layers* :min_width win_w :min_height pan_h)
@@ -89,7 +89,7 @@
 	(title-sequence-start)
 
 	; start 30 fps game loop timer
-	(mail-timeout (elem-get select +select_timer) +rate 0)
+	(mail-timeout (elem-get select +select_timer) (const (/ 1000000 +frame_rate)) 0)
 	; main event loop
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -124,7 +124,7 @@
 					((. *window* :event *msg*))))
 			(+select_timer
 				; re-arm 30 fps timer
-				(mail-timeout (elem-get select +select_timer) +rate 0)
+				(mail-timeout (elem-get select +select_timer) (const (/ 1000000 +frame_rate)) 0)
 				(case *game_state*
 					(:title
 						(title-sequence-update)

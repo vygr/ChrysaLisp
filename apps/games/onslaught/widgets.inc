@@ -7,7 +7,7 @@
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar *title* "Onslaught" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-view *world_scroll* (:min_width (* *zoom* +game_width) :min_height (* *zoom* (- +game_height +panel_height)))
+	(ui-view *world_scroll* (:min_width (* *zoom* +screen_width) :min_height (* *zoom* (- +screen_height +panel_height)))
 		(ui-view *world_layers* (:color 0)
 			(ui-view *layer_fx*)
 			(ui-view *layer_missiles*)
@@ -18,7 +18,7 @@
 			(ui-view *layer_bans*)
 			(ui-map *layer_land*)
 			(ui-sky *layer_sky*)))
-	(ui-flow *panel_layers* (:flow_flags +flow_stack_fill :min_width (* *zoom* +game_width) :min_height (* *zoom* +panel_height))
+	(ui-flow *panel_layers* (:flow_flags +flow_stack_fill :min_width (* *zoom* +screen_width) :min_height (* *zoom* +panel_height))
 		(ui-view *layer_panel_detail*)
 		(ui-view *layer_panel_items*)
 		(ui-view *layer_left_axe*)
