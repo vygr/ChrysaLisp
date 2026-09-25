@@ -7,7 +7,7 @@
 
 (defclass Window () (View)
 	; (Window) -> window
-	(def this :child :nil :last_buttons 0 :is_window :t
+	(def this :child :nil :last_buttons 0 :is_window :t :resizable :t
 		:drag_mode 0 :drag_offx 0 :drag_offy 0 :zoom 1.0)
 
 	(defmethod :draw ()
@@ -55,17 +55,19 @@
 
 	(defmethod :drag_mode (rx ry)
 		; (. window :drag_mode rx ry) -> (drag_mode drag_offx drag_offy)
-		(bind '(w h) (. this :get_size))
-		(raise :border :shadow (drag_mode 0 drag_offx 0 drag_offy 0))
-		(if (< rx (+ border shadow))
-			(setq drag_mode (+ drag_mode 1) drag_offx rx))
-		(if (< ry (+ border shadow))
-			(setq drag_mode (+ drag_mode 2) drag_offy ry))
-		(if (>= rx (- w border shadow))
-			(setq drag_mode (+ drag_mode 4) drag_offx (- rx w)))
-		(if (>= ry (- h border shadow))
-			(setq drag_mode (+ drag_mode 8) drag_offy (- ry h)))
-		(list drag_mode drag_offx drag_offy))
+		(ifn (get :resizable this)
+			'(0 0 0)
+			(bind '(w h) (. this :get_size))
+			(raise :border :shadow (drag_mode 0 drag_offx 0 drag_offy 0))
+			(if (< rx (+ border shadow))
+				(setq drag_mode (+ drag_mode 1) drag_offx rx))
+			(if (< ry (+ border shadow))
+				(setq drag_mode (+ drag_mode 2) drag_offy ry))
+			(if (>= rx (- w border shadow))
+				(setq drag_mode (+ drag_mode 4) drag_offx (- rx w)))
+			(if (>= ry (- h border shadow))
+				(setq drag_mode (+ drag_mode 8) drag_offy (- ry h)))
+			(list drag_mode drag_offx drag_offy)))
 
 	(defmethod :mouse_down (event)
 		; (. window :mouse_down event) -> window
@@ -76,20 +78,21 @@
 
 	(defmethod :mouse_move (event)
 		; (. window :mouse_move event) -> window
-		(raise :drag_mode :drag_offx :drag_offy
-			(ax (getf event +ev_msg_mouse_x) ay (getf event +ev_msg_mouse_y)))
-		(bind '(x y x1 y1) (. this :get_bounds))
-		(bind '(w h) (. this :pref_size))
-		(setq x1 (+ x x1) y1 (+ y y1))
-		(if (bits? drag_mode 1)
-			(setq x (min (- ax drag_offx) (- x1 w))))
-		(if (bits? drag_mode 2)
-			(setq y (min (- ay drag_offy) (- y1 h))))
-		(if (bits? drag_mode 4)
-			(setq x1 (max (- ax drag_offx) (+ x w))))
-		(if (bits? drag_mode 8)
-			(setq y1 (max (- ay drag_offy) (+ y h))))
-		(.-> this (:change_dirty x y (- x1 x) (- y1 y)) :emit))
+		(when (/= (get :drag_mode this) 0)
+			(raise :drag_mode :drag_offx :drag_offy
+				(ax (getf event +ev_msg_mouse_x) ay (getf event +ev_msg_mouse_y)))
+			(bind '(x y x1 y1) (. this :get_bounds))
+			(bind '(w h) (. this :pref_size))
+			(setq x1 (+ x x1) y1 (+ y y1))
+			(if (bits? drag_mode 1)
+				(setq x (min (- ax drag_offx) (- x1 w))))
+			(if (bits? drag_mode 2)
+				(setq y (min (- ay drag_offy) (- y1 h))))
+			(if (bits? drag_mode 4)
+				(setq x1 (max (- ax drag_offx) (+ x w))))
+			(if (bits? drag_mode 8)
+				(setq y1 (max (- ay drag_offy) (+ y h))))
+			(.-> this (:change_dirty x y (- x1 x) (- y1 y)) :emit)))
 
 	(defmethod :event (event)
 		; (. window :event event) -> window

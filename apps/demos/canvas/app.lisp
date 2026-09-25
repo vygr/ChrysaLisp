@@ -106,7 +106,7 @@
 				(* f_width 0.10) (* f_height -0.45))))
 )
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Canvas" (0xea19) +event_close)
 	(ui-canvas *canvas* canvas_width canvas_height canvas_scale))
 

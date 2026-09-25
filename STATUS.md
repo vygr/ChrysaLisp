@@ -4,6 +4,8 @@
 
 ------
 
+Added Window property `:resizable`, defaults to `:t`.
+
 `(ctx_blit)` can now take optional sx, sy arguments. If not provided, it will use the default 0,0.
 
 Made `tree-load` and `tree-save` nil-safe, simplifying config file reads and writes across apps.

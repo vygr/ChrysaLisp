@@ -120,7 +120,7 @@
 	(create-bouncer 'emit-alloc   (* f_width 0.70) (* f_height 0.55)  1.9  1.9 0.90)   ; Orange (Memory)
 	(create-bouncer 'emit-div-rrr (* f_width 0.22) (* f_height 0.82)  2.2 -1.7 1.05))) ; Lime (Arithmetic)
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Opcodes" (0xea19) +event_close)
 	(ui-canvas *canvas* canvas_width canvas_height canvas_scale))
 

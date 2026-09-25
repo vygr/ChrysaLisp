@@ -127,7 +127,7 @@
 						(:fpoly 0.0 0.0 +winding_none_zero (list dot_ring)))
 					(. canvas :swap 0))))
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Crypto Ticker" (0xea19) +event_close)
 	; Controls Bar: Status & Refresh
 	(ui-flow *ctrl_bar* (:flow_flags +flow_right_fill)
