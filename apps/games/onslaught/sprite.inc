@@ -116,14 +116,14 @@
 	(def this :letter_idx idx)
 	(.-> this
 		(:add_component (const ml-update) (const ml-init))
-		(:set_frame (+ +frm_letters idx)))
+		(:set_frame (+ +frm_32c32_letter_o idx)))
 	(set this :ml_speed (* *zoom* 16)))
 
 (defclass TitleSword () (Sprite *img_frm_16x64* :nil 16 64 :16x64)
 	; (TitleSword) -> sprite
 	(.-> this
 		(:add_component (const ml-update) (const ml-init))
-		(:set_frame +frm_sword))
+		(:set_frame +frm_16x64_sword))
 	(set this :ml_speed (* *zoom* 14)))
 
 (defclass TitleBloodDrip () (Sprite *img_frm_16x16* :nil 16 16 :16x16)
@@ -131,7 +131,7 @@
 	(.-> this
 		(:add_component (const mv-update) (const mv-init))
 		(:add_component (const offscreen-update) (const offscreen-init))
-		(:set_frame +frm_blooddrip))
+		(:set_frame +frm_16x16_blooddrip))
 	(set this
 		:mv_ay *zoom* :mv_max_vy (* *zoom* 10)
 		:offscreen_max_y (* *zoom* 168)))
@@ -140,19 +140,19 @@
 	; big explosion fx (32x32)
 	(.-> this
 		(:add_component (const at-update) (const at-init))
-		(:set_frame +frm_bigexp))
+		(:set_frame +frm_32c32_bigexp))
 	(set this
 		:at_speed 2
-		:at_table (list +frm_bigexp (+ +frm_bigexp 1) (+ +frm_bigexp 2) (+ +frm_bigexp 3) (+ +frm_bigexp 4) -1)))
+		:at_table (list +frm_32c32_bigexp (+ +frm_32c32_bigexp 1) (+ +frm_32c32_bigexp 2) (+ +frm_32c32_bigexp 3) (+ +frm_32c32_bigexp 4) -1)))
 
 (defclass FizzSprite () (Sprite *img_frm_16x16* :nil 16 16 :16x16)
 	; fizz spark fx (16x16)
 	(.-> this
 		(:add_component (const at-update) (const at-init))
-		(:set_frame +frm_fizz))
+		(:set_frame +frm_16x16_fizz))
 	(set this
 		:at_speed 2
-		:at_table (list +frm_fizz (+ +frm_fizz 1) (+ +frm_fizz 2) (+ +frm_fizz 1) +frm_fizz -1)))
+		:at_table (list +frm_16x16_fizz (+ +frm_16x16_fizz 1) (+ +frm_16x16_fizz 2) (+ +frm_16x16_fizz 1) +frm_16x16_fizz -1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; game entity sprite subtypes
@@ -162,7 +162,7 @@
 	; (ManSprite) -> sprite
 	(def this :xv 0 :yv 0 :dir 1 :walk_tick 0)
 	(.-> this
-		(:set_frame +frm_stance)))
+		(:set_frame +frm_fanatic_l_stance)))
 
 (defclass HorseSprite () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr)
 	; friendly cavalry horse (64x64)
@@ -170,11 +170,11 @@
 		(:add_component (const at-update) (const at-init))
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_horse))
+		(:set_frame +frm_64x64_l_horse))
 	(set this
 		:at_speed 4
-		:at_table (list +frm_horse (+ +frm_horse 1) (+ +frm_horse 2)
-					(+ +frm_horse 3) (+ +frm_horse 4) (+ +frm_horse 5))))
+		:at_table (list +frm_64x64_l_horse (+ +frm_64x64_l_horse 1) (+ +frm_64x64_l_horse 2)
+					(+ +frm_64x64_l_horse 3) (+ +frm_64x64_l_horse 4) (+ +frm_64x64_l_horse 5))))
 
 (defclass SkeletonHorseSprite () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr)
 	; undead skeleton horse (64x64)
@@ -182,106 +182,106 @@
 		(:add_component (const at-update) (const at-init))
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_skeleton_horse))
+		(:set_frame +frm_64x64_l_skeleton_horse))
 	(set this
 		:at_speed 4
-		:at_table (list +frm_skeleton_horse (+ +frm_skeleton_horse 1) (+ +frm_skeleton_horse 2)
-					(+ +frm_skeleton_horse 3) (+ +frm_skeleton_horse 4) (+ +frm_skeleton_horse 5))))
+		:at_table (list +frm_64x64_l_skeleton_horse (+ +frm_64x64_l_skeleton_horse 1) (+ +frm_64x64_l_skeleton_horse 2)
+					(+ +frm_64x64_l_skeleton_horse 3) (+ +frm_64x64_l_skeleton_horse 4) (+ +frm_64x64_l_skeleton_horse 5))))
 
 (defclass SpearmanSprite () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr)
 	; spearman infantry (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_spearman)))
+		(:set_frame +frm_32x32_l_spearman)))
 
 (defclass WizardSprite () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr)
 	; wizard caster (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_wizard)))
+		(:set_frame +frm_32x32_l_wizard)))
 
 (defclass FootmanSprite () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr)
 	; footman soldier (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_footman)))
+		(:set_frame +frm_32x32_l_footman)))
 
 (defclass KnightSprite () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr)
 	; armored knight (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_knight)))
+		(:set_frame +frm_32x32_l_knight)))
 
 (defclass BoarRiderSprite () (Sprite *img_frm_64x32_l* *img_frm_64x32_r* 64 32 :64x32_lr)
 	; boar rider (64x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_boarrider)))
+		(:set_frame +frm_64x32_l_boarrider)))
 
 (defclass CarpetSprite () (Sprite *img_frm_64x32_l* *img_frm_64x32_r* 64 32 :64x32_lr)
 	; flying magic carpet (64x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_carpet)))
+		(:set_frame +frm_64x32_l_carpet)))
 
 (defclass TowerSprite () (Sprite *img_frm_64x64* :nil 64 64 :64x64)
 	; defense tower building (64x64)
-	(. this :set_frame +frm_tower))
+	(. this :set_frame +frm_64x64_tower))
 
 (defclass BalistaSprite () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr)
 	; siege balista (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_balista)))
+		(:set_frame +frm_32x32_l_balista)))
 
 (defclass CannonSprite () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr)
 	; siege cannon (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_cannon)))
+		(:set_frame +frm_32x32_l_cannon)))
 
 (defclass OilSprite () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr)
 	; boiling oil cauldron (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_oil)))
+		(:set_frame +frm_32x32_l_oil)))
 
 (defclass BeserkSprite () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr)
 	; berserker warrior (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_beserk)))
+		(:set_frame +frm_32x32_l_beserk)))
 
 (defclass MonkSprite () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr)
 	; holy monk (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_monk)))
+		(:set_frame +frm_32x32_l_monk)))
 
 (defclass SkeletonSprite () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
 	; undead skeleton warrior (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_skeleton)))
+		(:set_frame +frm_fanatic_l_skeleton)))
 
 (defclass SkeletonMonkSprite () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
 	; undead skeleton monk (32x32)
 	(.-> this
 		(:add_component (const bounds-bounce-update) (const bounds-bounce-init))
 		(:add_component (const mv-update) (const mv-init))
-		(:set_frame +frm_skeleton_monk)))
+		(:set_frame +frm_fanatic_skeleton_monk)))
 
 (defclass MissileSprite (frame &optional vx vy) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
 	; (MissileSprite frame [vx vy]) -> sprite

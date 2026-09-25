@@ -71,7 +71,7 @@
 			 (bits? flags2 +fmap_climb +fmap_stand))
 		(progn
 			; falling in air
-			(. man :set_frame +frm_fall)
+			(. man :set_frame +frm_fanatic_l_fall)
 			(setq yv (min (* *zoom* 10) (+ yv *zoom*))
 				  x (+ x xv)
 				  y (+ y yv))
@@ -81,8 +81,8 @@
 		; on surface (floor or ladder)
 		(when (/= yv 0)
 			(if (= yv (* *zoom* 10))
-				(. man :set_frame +frm_duck)
-				(. man :set_frame +frm_stance))
+				(. man :set_frame +frm_fanatic_l_duck)
+				(. man :set_frame +frm_fanatic_l_stance))
 			(setq y (- (* (/ y1 tile_h) tile_h) h)
 				  yv 0 xv 0)
 			(def man :yv 0 :xv 0))
@@ -103,7 +103,7 @@
 					(setq y (- y walk_spd)
 						  x ladder_x
 						  xv 0 yv 0)
-					(. man :set_frame (+ +frm_climb (logand (/ y walk_spd) 3)))
+					(. man :set_frame (+ +frm_fanatic_l_climb (logand (/ y walk_spd) 3)))
 					(def man :xv 0 :yv 0 :walk_tick 0)))
 
 			; climbing down or ducking
@@ -122,11 +122,11 @@
 						(setq y (+ y walk_spd)
 							  x ladder_x
 							  xv 0 yv 0)
-						(. man :set_frame (+ +frm_climb (logand (/ y walk_spd) 3)))
+						(. man :set_frame (+ +frm_fanatic_l_climb (logand (/ y walk_spd) 3)))
 						(def man :xv 0 :yv 0 :walk_tick 0))
 					; duck on ground when cannot climb down
 					(setq xv 0 yv 0)
-					(. man :set_frame +frm_duck)
+					(. man :set_frame +frm_fanatic_l_duck)
 					(def man :xv 0 :yv 0 :walk_tick 0)))
 
 			; walking left
@@ -135,7 +135,7 @@
 					  x (+ x xv)
 					  y (* (/ y tile_h) tile_h))
 				(def man :dir -1 :xv xv)
-				(step-walk-cycle man +frm_walk (dec +frm_jump)))
+				(step-walk-cycle man +frm_fanatic_l_walk (dec +frm_fanatic_l_jump)))
 
 			; walking right
 			((bits? *game_controls* +fkey_right)
@@ -143,14 +143,14 @@
 					  x (+ x xv)
 					  y (* (/ y tile_h) tile_h))
 				(def man :dir 1 :xv xv)
-				(step-walk-cycle man +frm_walk (dec +frm_jump)))
+				(step-walk-cycle man +frm_fanatic_l_walk (dec +frm_fanatic_l_jump)))
 
 			; no movement
 			(:t
 				(setq xv 0)
 				(def man :xv 0 :walk_tick 0)
 				(when (or (bits? flags1 +fmap_stand) (bits? flags2 +fmap_stand))
-					(. man :set_frame +frm_stance)))))
+					(. man :set_frame +frm_fanatic_l_stance)))))
 
 	; save new position clamped to map bounds
 	(defq max_x (- (* +map_width tile_w) w))

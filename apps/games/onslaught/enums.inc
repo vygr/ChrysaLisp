@@ -56,9 +56,6 @@
 ; Sprite flags
 ;;;;;;;;;;;;;;;
 
-(enums +bfsp 0
-	(enum collide action))
-
 (bits +fsp 0
 	(bit collide action))
 
@@ -66,22 +63,14 @@
 ; Sprite types and bit masks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(enums +bftp 0
-	(enum horse spearman wizard footman knight balista cannon oil boarrider carpet
-		  tower monk beserk skeleton_monk skeleton_horse skeleton enemy_fire
-		  item man man_banner enemy_banner))
-
 (bits +ftp 0
 	(bit horse spearman wizard footman knight balista cannon oil boarrider carpet
-		 tower monk beserk skeleton_monk skeleton_horse skeleton enemy_fire
-		 item man man_banner enemy_banner))
+		tower monk beserk skeleton_monk skeleton_horse skeleton enemy_fire
+		item man man_banner enemy_banner))
 
 ;;;;;;;;;;;;;;;;;;
 ; Map tile flags
 ;;;;;;;;;;;;;;;;;;
-
-(enums +bfmap 0
-	(enum masked stand climb))
 
 (bits +fmap 0
 	(bit masked stand climb))
@@ -90,18 +79,12 @@
 ; Control key bits
 ;;;;;;;;;;;;;;;;;;;;;
 
-(enums +bfkey 0
-	(enum up down left right keya keyb keyc keyd))
-
 (bits +fkey 0
 	(bit up down left right keya keyb keyc keyd))
 
 ;;;;;;;;;;;;;
 ; Game flags
 ;;;;;;;;;;;;;
-
-(enums +bfflag 0
-	(enum use select enemy mine title iselect))
 
 (bits +fflag 0
 	(bit use select enemy mine title iselect))
@@ -112,7 +95,7 @@
 
 (enums +item 0
 	(enum gold mase big_bow small_bow naptha helper super_mase super_helper
-		  yellow_spell black_spell green_spell white_spell red_spell blue_spell talisman))
+		yellow_spell black_spell green_spell white_spell red_spell blue_spell talisman))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Sprite frames by image strip
@@ -121,281 +104,127 @@
 ; frm_64x64_l (horse, skeleton horse)
 (enums +frm_64x64_l 0
 	(enum horse horse1 horse2 horse3 horse4 horse5
-		  skeleton_horse skel_horse1 skel_horse2 skel_horse3 skel_horse4 skel_horse5))
-
-(defq
-	+frm_horse +frm_64x64_l_horse
-	+frm_skeleton_horse +frm_64x64_l_skeleton_horse)
+		skeleton_horse skeleton_horse1 skeleton_horse2 skeleton_horse3 skeleton_horse4 skeleton_horse5))
 
 ; frm_64x64 (tower)
-(enums +frm_64x64 0
+(enums +frm64x64 0
 	(enum tower))
 
-(defq
-	+frm_tower +frm_64x64_tower)
-
 ; frm_64x32_l (boarrider, carpet)
-(enums +frm_64x32_l 0
-	(enum boarrider boar1 boar2 boar3 boar4 boar5
-		  carpet carpet1 carpet2 carpet3 carpet4 carpet5))
-
-(defq
-	+frm_boarrider +frm_64x32_l_boarrider
-	+frm_carpet +frm_64x32_l_carpet)
+(enums +frm64x32_l 0
+	(enum boarrider boarrider1 boarrider2 boarrider3 boarrider4 boarrider5
+		carpet carpet1 carpet2 carpet3 carpet4 carpet5))
 
 ; fanatic_l (player man 32x32 and skeletons)
-(enums +frm_fanatic 0
-	(enum walk w1 w2 w3 w4 w5 w6 w7
-		  jump
-		  fall
-		  climb cl1 cl2 cl3
-		  masehit mh1 mh2
-		  handbow hb1 hb2
-		  crossbow cb1 cb2 cb3
-		  naptha na1 na2
-		  stance st1
-		  duck
-		  lmasehit lmh1 lmh2
-		  skeleton sk1 sk2 sk3 sk4 sk5 sk6 sk7 sk8 sk9 sk10 sk11 sk12 sk13 sk14
-		  skeleton_monk))
-
-(defq
-	+frm_walk +frm_fanatic_walk
-	+frm_jump +frm_fanatic_jump
-	+frm_fall +frm_fanatic_fall
-	+frm_climb +frm_fanatic_climb
-	+frm_masehit +frm_fanatic_masehit
-	+frm_handbow +frm_fanatic_handbow
-	+frm_crossbow +frm_fanatic_crossbow
-	+frm_naptha +frm_fanatic_naptha
-	+frm_stance +frm_fanatic_stance
-	+frm_duck +frm_fanatic_duck
-	+frm_lmasehit +frm_fanatic_lmasehit
-	+frm_skeleton +frm_fanatic_skeleton
-	+frm_skeleton_monk +frm_fanatic_skeleton_monk)
+(enums +frm_fanatic_l 0
+	(enum walk walk1 walk2 walk3 walk4 walk5 walk6 walk7
+		jump fall climb climb1 climb2 climb3
+		masehit masehit1 masehit2
+		handbow handbow1 handbow2
+		crossbow crossbow1 crossbow2 crossbow3
+		naptha naptha1 naptha2
+		stance stance1 duck
+		lmasehit lmasehit1 lmasehit2
+		skeleton skeleton1 skeleton2 skeleton3 skeleton4 skeleton5 skeleton6 skeleton7
+		skeleton8 skeleton9 skeleton10 skeleton11 skeleton12 skeleton13 skeleton14
+		skeleton_monk))
 
 ; frm_32x32_l (spearman, wizard, footman, knight)
 (enums +frm_32x32_l 0
-	(enum spearman sm1 sm2 sm3 sm4 sm5 sm6 sm7 sm8 sm9 sm10 sm11
-		  wizard wiz1 wiz2 wiz3 wiz4 wiz5 wiz6 wiz7 wiz8 wiz9 wiz10 wiz11
-		  footman fm1 fm2 fm3 fm4 fm5 fm6 fm7 fm8 fm9 fm10 fm11 fm12 fm13 fm14 fm15 fm16
-		  knight kn1 kn2 kn3 kn4 kn5 kn6 kn7 kn8 kn9 kn10 kn11 kn12 kn13 kn14 kn15 kn16))
-
-(defq
-	+frm_spearman +frm_32x32_l_spearman
-	+frm_wizard +frm_32x32_l_wizard
-	+frm_footman +frm_32x32_l_footman
-	+frm_knight +frm_32x32_l_knight)
+	(enum spearman spearman1 spearman2 spearman3 spearman4 spearman5 spearman6 spearman7 spearman8 spearman9 spearman10 spearman11
+		wizard wizard1 wizard2 wizard3 wizard4 wizard5 wizard6 wizard7 wizard8 wizard9 wizard10 wizard11
+		footman footman1 footman2 footman3 footman4 footman5 footman6 footman7 footman8 footman9 footman10 footman11 footman12 footman13 footman14 footman15 footman16
+		knight knight1 knight2 knight3 knight4 knight5 knight6 knight7 knight8 knight9 knight10 knight11 knight12 knight13 knight14 knight15 knight16))
 
 ; frm_32c32_l (balista, cannon, oil, beserk, monk)
 (enums +frm_32c32_l 0
-	(enum balista bal1 bal2 bal3
-		  cannon can1 can2 can3
-		  oil oil1 oil2 oil3
-		  beserk ber1 ber2 ber3 ber4 ber5
-		  monk monk1 monk2 monk3 monk4 monk5))
-
-(defq
-	+frm_balista +frm_32c32_l_balista
-	+frm_cannon +frm_32c32_l_cannon
-	+frm_oil +frm_32c32_l_oil
-	+frm_beserk +frm_32c32_l_beserk
-	+frm_monk +frm_32c32_l_monk)
+	(enum balista balista1 balista2 balista3
+		cannon cannon1 cannon2 cannon3
+		oil oil1 oil2 oil3
+		beserk beserk1 beserk2 beserk3 beserk4 beserk5
+		monk monk1 monk2 monk3 monk4 monk5))
 
 ; frm_32c32 (big explosion, elemental, faces, title letters, mr smith, flag, power, strength)
 (enums +frm_32c32 0
 	(enum bigexp bigexp1 bigexp2 bigexp3 bigexp4
-		  elemental elemental1 elemental2 elemental3
-		  face0 face1 face2 face3 face4 face5 face6 face7
-		  letter_o letter_n letter_s letter_l letter_a letter_u letter_g letter_h letter_t
-		  smith0 smith1 smith2
-		  flag
-		  power
-		  strength))
-
-(defq
-	+frm_bigexp +frm_32c32_bigexp
-	+frm_elemental +frm_32c32_elemental
-	+frm_faces +frm_32c32_face0
-	+frm_letters +frm_32c32_letter_o
-	+frm_smith +frm_32c32_smith0
-	+frm_flag +frm_32c32_flag
-	+frm_power +frm_32c32_power
-	+frm_strength +frm_32c32_strength)
+		elemental elemental1 elemental2 elemental3
+		face face1 face2 face3 face4 face5 face6 face7
+		letter_o letter_n letter_s letter_l letter_a letter_u letter_g letter_h letter_t
+		smith smith1 smith2
+		flag power strength))
 
 ; frm_32x16_l (barrow, spear)
 (enums +frm_32x16_l 0
 	(enum barrow spear))
 
-(defq
-	+frm_barrow +frm_32x16_l_barrow
-	+frm_spear +frm_32x16_l_spear)
-
 ; frm_16x32 (oilshot)
 (enums +frm_16x32 0
 	(enum oilshot))
-
-(defq
-	+frm_oilshot +frm_16x32_oilshot)
 
 ; frm_16x64 (sword)
 (enums +frm_16x64 0
 	(enum sword))
 
-(defq
-	+frm_sword +frm_16x64_sword)
-
 ; frm_16x16_l (arrow, mase, lmase, hbow, cbow, napth, footadd, knightadd, bkaddon, flame, blood, skeladd)
 (enums +frm_16x16_l 0
 	(enum arrow
-		  mase mase1 mase2
-		  lmase lmase1 lmase2
-		  hbow hbow1 hbow2
-		  cbow cbow1 cbow2 cbow3
-		  napth napth1
-		  footadd fa1 fa2 fa3 fa4
-		  knightadd ka1 ka2 ka3 ka4 ka5
-		  bkaddon bka1 bka2 bka3 bka4 bka5
-		  flame flame1
-		  blood bl1 bl2 bl3
-		  skeladd))
-
-(defq
-	+frm_arrow +frm_16x16_l_arrow
-	+frm_mase +frm_16x16_l_mase
-	+frm_lmase +frm_16x16_l_lmase
-	+frm_hbow +frm_16x16_l_hbow
-	+frm_cbow +frm_16x16_l_cbow
-	+frm_napth +frm_16x16_l_napth
-	+frm_footadd +frm_16x16_l_footadd
-	+frm_knightadd +frm_16x16_l_knightadd
-	+frm_bkaddon +frm_16x16_l_bkaddon
-	+frm_flame +frm_16x16_l_flame
-	+frm_blood +frm_16x16_l_blood
-	+frm_skeladd +frm_16x16_l_skeladd)
+		mase mase1 mase2
+		lmase lmase1 lmase2
+		hbow hbow1 hbow2
+		cbow cbow1 cbow2 cbow3
+		napth napth1
+		footadd footadd1 footadd2 footadd3 footadd4
+		knightadd knightadd1 knightadd2 knightadd3 knightadd4 knightadd5
+		bkaddon bkaddon1 bkaddon2 bkaddon3 bkaddon4 bkaddon5
+		flame flame1
+		blood blood1 blood2 blood3
+		skeladd))
 
 ; frm_16x16 (pole, banners, cball, mine, wizshot, nbomb, demon, fires, sight, gold, shield/weapons, spells, diamond, segments, tends, manbits, blooddrip, fizz, manmind, pshot, mshot, bones)
 (enums +frm_16x16 0
 	(enum pole
-		  banners ban1 ban2 ban3 ban4 ban5 ban6 ban7 ban8 ban9 ban10 ban11 ban12 ban13 ban14 ban15
-		  cball
-		  mine mine1
-		  wizshot ws1 ws2 ws3
-		  nbomb nb1 nb2 nb3
-		  demon dem1 dem2 dem3
-		  fires fire1
-		  sight
-		  gold
-		  shield sh1 sh2 sh3 sh4 sh5 sh6
-		  spells sp1 sp2 sp3 sp4 sp5
-		  diamond dm1 dm2 dm3 dm4 dm5 dm6 dm7 dm8 dm9
-		  segments seg1
-		  tends tend1 tend2 tend3
-		  manbits mb1 mb2 mb3 mb4
-		  blooddrip
-		  fizz fiz1 fiz2
-		  manmind mm1 mm2 mm3
-		  pshot ps1
-		  mshot ms1
-		  bones))
-
-(defq
-	+frm_pole +frm_16x16_pole
-	+frm_banners +frm_16x16_banners
-	+frm_cball +frm_16x16_cball
-	+frm_mine +frm_16x16_mine
-	+frm_wizshot +frm_16x16_wizshot
-	+frm_nbomb +frm_16x16_nbomb
-	+frm_demon +frm_16x16_demon
-	+frm_fires +frm_16x16_fires
-	+frm_sight +frm_16x16_sight
-	+frm_gold +frm_16x16_gold
-	+frm_shield +frm_16x16_shield
-	+frm_spells +frm_16x16_spells
-	+frm_diamond +frm_16x16_diamond
-	+frm_segments +frm_16x16_segments
-	+frm_tends +frm_16x16_tends
-	+frm_manbits +frm_16x16_manbits
-	+frm_blooddrip +frm_16x16_blooddrip
-	+frm_fizz +frm_16x16_fizz
-	+frm_manmind +frm_16x16_manmind
-	+frm_pshot +frm_16x16_pshot
-	+frm_mshot +frm_16x16_mshot
-	+frm_bones +frm_16x16_bones)
+		banners banners1 banners2 banners3 banners4 banners5 banners6 banners7 banners8 banners9 banners10 banners11 banners12 banners13 banners14 banners15
+		cball
+		mine mine1
+		wizshot wizshot1 wizshot2 wizshot3
+		nbomb nbomb1 nbomb2 nbomb3
+		demon demon1 demon2 demon3
+		fires fires1
+		sight
+		gold
+		shield shield1 shield2 shield3 shield4 shield5 shield6
+		spells spells1 spells2 spells3 spells4 spells5
+		diamond diamond1 diamond2 diamond3 diamond4 diamond5 diamond6 diamond7 diamond8 diamond9
+		segments segments1
+		tends tends1 tends2 tends3
+		manbits manbits1 manbits2 manbits3 manbits4
+		blooddrip
+		fizz fizz1 fizz2
+		manmind manmind1 manmind2 manmind3
+		pshot pshot1
+		mshot mshot1
+		bones))
 
 ; campain 8x8
 (enums +frm_campain 0
 	(enum oracle twater tswamp tforest tmountain water swamp forest mountain plague crusade rebellion enemy player))
 
-(defq
-	+frm_oracle +frm_campain_oracle
-	+frm_twater +frm_campain_twater
-	+frm_tswamp +frm_campain_tswamp
-	+frm_tforest +frm_campain_tforest
-	+frm_tmountain +frm_campain_tmountain
-	+frm_water +frm_campain_water
-	+frm_swamp +frm_campain_swamp
-	+frm_forest +frm_campain_forest
-	+frm_mountain +frm_campain_mountain
-	+frm_plague +frm_campain_plague
-	+frm_crusade +frm_campain_crusade
-	+frm_rebellion +frm_campain_rebellion
-	+frm_enemy +frm_campain_enemy
-	+frm_player +frm_campain_player)
-
 ;;;;;;;;;;;;;;;;;;;;;
 ; Item frame mapping
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+item_frm_gold +frm_gold
-	+item_frm_mase +frm_shield
-	+item_frm_big_bow (+ +frm_shield 1)
-	+item_frm_small_bow (+ +frm_shield 2)
-	+item_frm_naptha (+ +frm_shield 3)
-	+item_frm_helper (+ +frm_shield 4)
-	+item_frm_super_mase (+ +frm_shield 5)
-	+item_frm_super_helper (+ +frm_shield 6)
-	+item_frm_yellow_spell +frm_spells
-	+item_frm_black_spell (+ +frm_spells 1)
-	+item_frm_green_spell (+ +frm_spells 2)
-	+item_frm_white_spell (+ +frm_spells 3)
-	+item_frm_red_spell (+ +frm_spells 4)
-	+item_frm_blue_spell (+ +frm_spells 5))
-
-;;;;;;;;;
-; Colors
-;;;;;;;;;
-
-(defq
-	+rgb_black 0x000000
-	+rgb_white 0xffffff
-	+rgb_red 0xff0000
-	+rgb_green 0x00ff00
-	+rgb_blue 0x0000ff
-	+rgb_yellow 0xffff00
-	+rgb_magenta 0xff00ff
-	+rgb_cyan 0x00ffff
-	+rgb_dwhite 0x7f7f7f
-	+rgb_dred 0x7f0000
-	+rgb_dgreen 0x007f00
-	+rgb_dblue 0x00007f
-	+rgb_dyellow 0x7f7f00
-	+rgb_dmagenta 0x7f007f
-	+rgb_dcyan 0x007f7f
-	+rgb_pwhite 0xffffff
-	+rgb_pred 0xff8080
-	+rgb_pgreen 0x80ff80
-	+rgb_pblue 0x8080ff
-	+rgb_pyellow 0xffff80
-	+rgb_pmagenta 0xff80ff
-	+rgb_pcyan 0x80ffff
-	+rgb_grey1 0x222222
-	+rgb_grey2 0x444444
-	+rgb_grey3 0x666666
-	+rgb_grey4 0x888888
-	+rgb_grey5 0xaaaaaa
-	+rgb_grey6 0xcccccc
-	+button_size 50
-	+button_col 0xffffffff
-	+button_col_down 0xff3f3fff)
+(pmap
+	+item_gold +frm_16x16_gold
+	+item_mase +frm_16x16_shield
+	+item_big_bow (+ +frm_16x16_shield 1)
+	+item_small_bow (+ +frm_16x16_shield 2)
+	+item_naptha (+ +frm_16x16_shield 3)
+	+item_helper (+ +frm_16x16_shield 4)
+	+item_super_mase (+ +frm_16x16_shield 5)
+	+item_super_helper (+ +frm_16x16_shield 6)
+	+item_yellow_spell +frm_16x16_spells
+	+item_black_spell (+ +frm_16x16_spells 1)
+	+item_green_spell (+ +frm_16x16_spells 2)
+	+item_white_spell (+ +frm_16x16_spells 3)
+	+item_red_spell (+ +frm_16x16_spells 4)
+	+item_blue_spell (+ +frm_16x16_spells 5))
