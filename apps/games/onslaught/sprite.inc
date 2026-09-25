@@ -14,8 +14,8 @@
 ; base sprite class
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass Sprite (canvas_l canvas_r width height &optional tag) (View)
-	; (Sprite canvas_l canvas_r width height [tag]) -> sprite
+(defclass Sprite (canvas_l canvas_r width height tag) (View)
+	; (Sprite canvas_l canvas_r width height) -> sprite
 	(def this
 		:color 0
 		:canvas_l canvas_l
@@ -23,14 +23,11 @@
 		:canvas_tag tag
 		:base_w width
 		:base_h height
-		:spr_w (* *zoom* width)
-		:spr_h (* *zoom* height)
 		:frame 0
 		:dir -1
-		:maxv :nil
 		:components (list)
 		:death :nil)
-	(. this :set_size (get :spr_w this) (get :spr_h this))
+	(. this :set_size (* *zoom* width) (* *zoom* height))
 
 	(defgetmethod :canvas_l)
 	(defgetmethod :canvas_r)
@@ -42,12 +39,6 @@
 		; (. sprite :get_canvas) -> canvas
 		(raise :canvas_l :canvas_r)
 		(if (and canvas_r (>= (or (get :dir this) -1) 0)) canvas_r canvas_l))
-
-	(defmethod :layout ()
-		this)
-
-	(defmethod :constraint ()
-		(. this :get_size))
 
 	(defmethod :kill ()
 		; (. sprite :kill) -> sprite
@@ -93,9 +84,8 @@
 			(when (defq c (. this :get_canvas))
 				(when (defq texture (if (View? c) (getf c +canvas_texture 0) c))
 					(bind '(tid tw th) (texture-metrics texture))
+					(bind '(w h) (. this :get_size))
 					(defq
-						w (get :spr_w this)
-						h (get :spr_h this)
 						raw_y (* f h)
 						sy (% raw_y th)
 						col (/ raw_y th)

@@ -11,6 +11,7 @@
 (import "./components.inc")
 (import "./sprite.inc")
 (import "./widgets.inc")
+(import "./assets.inc")
 
 (unless (def? '*app_root*)
 	(defq *app_root* (path-to-file)))
@@ -18,19 +19,7 @@
 (defq
 	*title_letter_idx* 0
 	*title_delay* 0
-	*title_state* :letters ; :letters, :delay, :sword, :drip, :done
-	*snd_explode* :nil
-	*snd_clash* :nil
-	*snd_drip* :nil)
-
-(defun init-title-audio ()
-	(catch (setq *snd_explode* (audio-add-rpc (cat *app_root* "sfx/explode.wav"))) :nil)
-	(catch (setq *snd_clash* (audio-add-rpc (cat *app_root* "sfx/clash1.wav"))) :nil)
-	(catch (setq *snd_drip* (audio-add-rpc (cat *app_root* "sfx/drip.wav"))) :nil))
-
-(defun play-title-sfx (handle)
-	(when handle
-		(catch (audio-play-rpc handle) :nil)))
+	*title_state* :letters)
 
 ; destinations in base coordinates
 (defq +title_letter_destinations
@@ -80,7 +69,7 @@
 
 (defun dt-drip (this)
 	; death hook for drip
-	(play-title-sfx *snd_drip*)
+	(audio-play-rpc *sfx_drip*)
 	(on-title-drip-done))
 
 (defun spawn-title-drip (x y)
@@ -97,7 +86,7 @@
 			(bind '(sx sy) (. this :get_pos))
 			(defq fx_x (+ sx (* *zoom* 8)) fx_y (+ sy (* *zoom* 32)))
 			(spawn-fizz-fx fx_x fx_y)
-			(play-title-sfx *snd_clash*)
+			(audio-play-rpc *sfx_clash2*)
 			(setq *title_state* :drip)
 			(spawn-title-drip sx fx_y))))
 
@@ -118,7 +107,7 @@
 				(spawn-fizz-fx (+ lx (* *zoom* 16)) (+ ly (* *zoom* 16))))
 			(progn
 				(set this :ml_speed 0)
-				(play-title-sfx *snd_explode*)
+				(audio-play-rpc *sfx_explode*)
 				(bind '(lx ly) (. this :get_pos))
 				(spawn-bomb-fx lx ly)
 				(setq *title_letter_idx* (+ *title_letter_idx* 1))
@@ -143,7 +132,6 @@
 		*title_delay* 0
 		*title_state* :letters)
 	(reset-layers-title)
-	(init-title-audio)
 	(spawn-title-letter 0))
 
 (defun title-sequence-update ()

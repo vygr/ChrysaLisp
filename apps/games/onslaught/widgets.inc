@@ -134,7 +134,6 @@
 					base_h (get :base_h sp)
 					new_w (* base_w new_z)
 					new_h (* base_h new_z))
-				(set sp :spr_w new_w :spr_h new_h :maxv :nil)
 				(. sp :set_bounds new_x new_y new_w new_h)
 
 				(update-sprite-canvas sp)

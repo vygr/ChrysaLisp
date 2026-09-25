@@ -32,7 +32,7 @@
 
 (defun window-resize ()
 	; load assets
-	(load-assets *zoom*)
+	(load-cpm-assets *zoom*)
 	(clear-layer *layer_panel_detail*)
 	(defq
 		win_w (* *zoom* +game_width)
@@ -79,6 +79,7 @@
 	(defq select (task-mboxes +select_size))
 	(setq *running* :t *game_state* :title)
 
+	(load-wav-assets)
 	(window-resize)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
