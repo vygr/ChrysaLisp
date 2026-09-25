@@ -1,5 +1,8 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; apps/games/onslaught/app.lisp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Onslaught 2D Game Engine Framework
+; onslaught 2d game engine framework
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq *app_root* (path-to-file))
@@ -11,7 +14,9 @@
 (enums +select 0
 	(enum main timer))
 
-; Engine core includes
+(defq *running* :t *game_state* :title +zoom_1x 1 +zoom_2x 2 *zoom* +zoom_2x *old_zoom* *zoom*)
+
+; engine core includes
 (import "./enums.inc")
 (import "./sprite.inc")
 (import "./components.inc")
@@ -20,38 +25,67 @@
 (import "./title.inc")
 (import "./field.inc")
 
-(defq
-	*running* :t
-	*game_state* :title)
-
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (prin _) (print) :t)))
+
+(defun window-resize ()
+	; load assets
+	(load-assets *zoom*)
+	(clear-layer *layer_panel_detail*)
+	(defq
+		win_w (* *zoom* +game_width)
+		win_h (* *zoom* (- +game_height +panel_height))
+		pan_h (* *zoom* +panel_height))
+	(set *world_scroll* :min_width win_w :min_height win_h)
+	(set *panel_layers* :min_width win_w :min_height pan_h)
+	(. *world_layers* :set_bounds 0 0 win_w win_h)
+	(. *layer_panel_detail* :add_front *img_panel*)
+	(when (/= *zoom* *old_zoom*)
+		(rescale-active-sprites *old_zoom* *zoom*)
+		(case *game_state*
+			(:title
+				(set-world-layers-size (* *zoom* +window_width) (* *zoom* +window_height))
+				(set-world-layers-pos 0 0)
+				(. *layer_sky* :dirty))
+			(:field
+				(defq
+					world_w (* *zoom* (* +map_width +tile_width))
+					world_h (* *zoom* (* +map_height +tile_height)))
+				(set-world-layers-size world_w world_h)
+				(if *player_man*
+					(progn
+						(bind '(mx my) (. *player_man* :get_pos))
+						(update-camera mx my))
+					(setq *cam_x* (/ (* *cam_x* *zoom*) *old_zoom*)
+						  *cam_y* (/ (* *cam_y* *zoom*) *old_zoom*))
+					(set-world-layers-pos (neg *cam_x*) (neg *cam_y*)))
+				(. *layer_sky* :dirty)
+				(. *layer_land* :dirty)))
+		(setq *old_zoom* *zoom*))
+	(bind '(x y) (. *window* :get_pos))
+	(bind '(w h) (. *window* :pref_size))
+	(bind '(x y w h) (view-fit x y w h))
+	(.-> *window* (:change_dirty x y w h :t)))
 
 (defun main ()
 	(defq select (task-mboxes +select_size))
 	(setq *running* :t *game_state* :title)
 
-	; Load panel canvas directly and position at bottom (0 168 320 72)
-	(when (defq panel (canvas-load (cat *app_root* "image/panel.cpm") +load_flag_shared))
-		(def panel :offset_x 0 :offset_y 0)
-		(. panel :set_bounds 0 168 320 72)
-		(. *layer_panel* :add_front panel))
-
-	; Position and show window on desktop with all children already attached
+	(window-resize)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (.-> *window* (:change x y w h :t) :dirty_all))
+	(gui-add-front-rpc (. *window* :change x y w h))
 
-	; Start the intro title sequence (flying letters, sword, blood)
-	(title-sequence-start *playfield*)
+	; start the intro title sequence (flying letters, sword, blood)
+	(title-sequence-start)
 
-	; Start 30 FPS game loop timer
+	; start 30 fps game loop timer
 	(mail-timeout (elem-get select +select_timer) +rate 0)
-	; Main event loop
+	; main event loop
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(case idx
 			(+select_main
-				; Dispatch UI events (close, min, max, clicks, keys)
+				; dispatch ui events (close, min, max, clicks, keys)
 				(cond
 					((and (or (= (getf *msg* +ev_msg_type) +ev_type_key_down)
 							  (= (getf *msg* +ev_msg_type) +ev_type_key_up))
@@ -79,16 +113,16 @@
 					((. *window* :dispatch *msg*))
 					((. *window* :event *msg*))))
 			(+select_timer
-				; Re-arm 30 FPS timer
+				; re-arm 30 fps timer
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(case *game_state*
 					(:title
-						(title-sequence-update *playfield* +dt)
+						(title-sequence-update)
 						(when (eql *title_state* :done)
 							(setq *game_state* :field)
-							(field-sequence-start *playfield* 1)))
+							(field-sequence-start)))
 					(:field
-						(field-sequence-update *playfield* +dt))))))
+						(field-sequence-update))))))
 
-	; Unregister window and exit cleanly
+	; unregister window and exit cleanly
 	(gui-sub-rpc *window*))

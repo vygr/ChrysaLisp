@@ -1,6 +1,9 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; apps/games/onslaught/title.inc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Onslaught Title Sequence
-; Flying-in letters, dropping sword, dripping blood
+; onslaught title sequence
+; flying-in letters, dropping sword, dripping blood
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "service/audio/app.inc")
@@ -29,8 +32,7 @@
 	(when handle
 		(catch (audio-play-rpc handle) :nil)))
 
-; Vertically centered in the 168-pixel play area (0 to 168):
-; (168 - 32) / 2 = 68 pixels from top, exactly 68 pixels above panel!
+; destinations in base coordinates
 (defq +title_letter_destinations
 	''((0 68)
 	  (36 68)
@@ -43,12 +45,15 @@
 	  (288 68)))
 
 (defun get-xy-outer (w h)
-	; Pick a random start point just outside the playable area (WINDOW_WIDTH x WINDOW_HEIGHT)
+	; pick a random start point just outside the playable area
+	(defq
+		win_w (* *zoom* +window_width)
+		win_h (* *zoom* +window_height))
 	(case (random 4)
-		(0 (list (- (random (+ +window_width (* 2 w))) w) (neg h)))
-		(1 (list (- (random (+ +window_width (* 2 w))) w) +window_height))
-		(2 (list (neg w) (- (random (+ +window_height (* 2 h))) h)))
-		(3 (list +window_width (- (random (+ +window_height (* 2 h))) h)))))
+		(0 (list (- (random (+ win_w (* 2 w))) w) (neg h)))
+		(1 (list (- (random (+ win_w (* 2 w))) w) win_h))
+		(2 (list (neg w) (- (random (+ win_h (* 2 h))) h)))
+		(3 (list win_w (- (random (+ win_h (* 2 h))) h)))))
 
 (defq +bomb_offsets
 	''((-32 -16)
@@ -57,16 +62,16 @@
 	  (-16 0)))
 
 (defun spawn-bomb-fx (x y)
-	; Spawn 4 explosion sprites in a diamond around the letter center (from C++ dt_bomb_fx)
-	(defq cx (+ x 16) cy (+ y 16))
+	; spawn 4 explosion sprites in a diamond around the letter center
+	(defq cx (+ x (* *zoom* 16)) cy (+ y (* *zoom* 16)))
 	(each (lambda ((ox oy))
-		(defq exp (. (ExplosionSprite) :set_pos (+ cx ox) (+ cy oy)))
+		(defq exp (. (ExplosionSprite) :set_pos (+ cx (* *zoom* ox)) (+ cy (* *zoom* oy))))
 		(. *layer_fx* :add_front exp))
 		+bomb_offsets))
 
 (defun spawn-fizz-fx (x y)
-	; Spawn fizz spark FX centered at (x, y) (from C++ dt_fizz_fx)
-	(defq fizz (. (FizzSprite) :set_pos (- x 8) (- y 8)))
+	; spawn fizz spark fx centered at (x, y)
+	(defq fizz (. (FizzSprite) :set_pos (- x (* *zoom* 8)) (- y (* *zoom* 8))))
 	(. *layer_fx* :add_front fizz)
 	fizz)
 
@@ -74,45 +79,43 @@
 	(setq *title_state* :done))
 
 (defun dt-drip (this)
-	; Corresponds to C++ dt_drip (onslaught.cpp:10178)
+	; death hook for drip
 	(play-title-sfx *snd_drip*)
 	(on-title-drip-done))
 
 (defun spawn-title-drip (x y)
-	; In C++: sp_drip uses MV (ay=1, max_vy=10), cp_offscreen, and dt_drip death hook
-	; When it hits status panel (y=168), cp_offscreen kills it, triggering dt-drip
 	(defq sp (. (TitleBloodDrip) :set_pos x y))
 	(set sp :death (const dt-drip))
 	(. *layer_fx* :add_back sp)
 	sp)
 
 (defun cp-sword (this)
-	; Corresponds to C++ cp_sword (onslaught.cpp:9431)
+	; callback when sword reaches target
 	(when (/= (or (get :ml_speed this) 0) 0)
 		(when (< (or (get :ml_count this) 0) 0)
 			(set this :ml_speed 0)
 			(bind '(sx sy) (. this :get_pos))
-			(defq fx_x (+ sx 8) fx_y (+ sy 32))
+			(defq fx_x (+ sx (* *zoom* 8)) fx_y (+ sy (* *zoom* 32)))
 			(spawn-fizz-fx fx_x fx_y)
 			(play-title-sfx *snd_clash*)
 			(setq *title_state* :drip)
 			(spawn-title-drip sx fx_y))))
 
 (defun spawn-title-sword ()
-	; Drops through center of 'A' (x=144..176) to y=52 (hilt at 52, tip at 116) behind the letters
+	; drops through center of 'A' (x=144..176) to y=52
 	(defq sp (TitleSword))
-	(set sp :cp_code (const cp-sword))
-	(ml-init sp 152 -64 152 52 14)
+	(. sp :add_component (const cp-sword))
+	(init-ml sp (* *zoom* 152) (* *zoom* -64) (* *zoom* 152) (* *zoom* 52) (* *zoom* 14))
 	(. *layer_sprites* :add_back sp)
 	sp)
 
 (defun cp-letter (this)
-	; Corresponds to C++ cp_letter (onslaught.cpp:9413)
+	; callback while letter flies and when it arrives
 	(when (/= (or (get :ml_speed this) 0) 0)
 		(if (>= (or (get :ml_count this) -1) 0)
 			(progn
 				(bind '(lx ly) (. this :get_pos))
-				(spawn-fizz-fx (+ lx 16) (+ ly 16)))
+				(spawn-fizz-fx (+ lx (* *zoom* 16)) (+ ly (* *zoom* 16))))
 			(progn
 				(set this :ml_speed 0)
 				(play-title-sfx *snd_explode*)
@@ -127,10 +130,11 @@
 
 (defun spawn-title-letter (idx)
 	(bind '(tx ty) (elem-get +title_letter_destinations idx))
-	(bind '(sx sy) (get-xy-outer 32 32))
+	(setq tx (* *zoom* tx) ty (* *zoom* ty))
+	(bind '(sx sy) (get-xy-outer (* *zoom* 32) (* *zoom* 32)))
 	(defq sp (TitleLetter idx))
-	(set sp :cp_code (const cp-letter))
-	(ml-init sp sx sy tx ty 16)
+	(. sp :add_component (const cp-letter))
+	(init-ml sp sx sy tx ty (* *zoom* 16))
 	(. *layer_fx* :add_front sp)
 	sp)
 
@@ -138,24 +142,16 @@
 	(setq *title_letter_idx* 0
 		*title_delay* 0
 		*title_state* :letters)
-	(clear-layer *layer_sprites*)
-	(clear-layer *layer_fx*)
-	(defq
-		world_w (* +map_width +tile_width)
-		world_h (* +map_height +tile_height))
-	(. *layer_sprites* :set_size world_w world_h)
-	(. *layer_fx* :set_size world_w world_h)
-	(. *layer_land* :set_size world_w world_h)
-	(. *layer_sky* :set_size world_w world_h)
+	(reset-layers-title)
 	(init-title-audio)
 	(spawn-title-letter 0))
 
-(defun title-sequence-update (layer dt)
-	(each (# (when (Sprite? %0) (. %0 :update dt))) (cat (. *layer_sprites* :children)))
-	(each (# (when (Sprite? %0) (. %0 :update dt))) (cat (. *layer_fx* :children)))
+(defun title-sequence-update ()
+	(update-sprite-layers)
 	(when (eql *title_state* :delay)
 		(setq *title_delay* (- *title_delay* 1))
 		(when (<= *title_delay* 0)
 			(setq *title_state* :sword)
 			(spawn-title-sword)))
-	(. layer :dirty_all))
+	(. *layer_sky* :dirty)
+	(. *world_layers* :dirty_all))

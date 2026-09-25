@@ -1,5 +1,8 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; apps/games/onslaught/sky.inc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Onslaught Sky Vertical Gradient View
+; onslaught sky vertical gradient view
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/view/lisp.inc")
@@ -11,7 +14,7 @@
 	  0xff7fbfbf   ; cyan pastel
 	  0xffbf7fbf   ; magenta pastel
 	  0xffbfbf7f   ; yellow pastel
-	  0xffbf7f7f)) ; red pastel
+	  0xffbfbf7f)) ; red pastel
 
 (defclass Sky () (View)
 	; (Sky) -> sky view
@@ -21,7 +24,7 @@
 		:color_bottom 0
 		:scroll_y 0
 		:step 2)
-	(. this :set_size (* +map_width +tile_width) (* +map_height +tile_height))
+	(. this :set_size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
 
 	(defmethod :layout ()
 		; (. sky :layout) -> sky
@@ -34,16 +37,16 @@
 	(defmethod :set_cols (c1 c2)
 		; (. sky :set_cols c1 c2) -> sky
 		(def this :color c1 :color_top c1 :color_bottom c2)
-		(. this :layout)
+		(. this :dirty)
 		this)
 
 	(defmethod :set_random_sky ()
-		; Pick one of the 6 field pastel colors to white gradient
+		; pick one of the 6 field pastel colors to white gradient
 		(defq top (elem-get +sky_palette (random 6)))
 		(. this :set_cols top +argb_white))
 
 	(defmethod :set_black ()
-		(. this :set_cols 0 0))
+		(. this :set_cols +argb_black +argb_black))
 
 	(defmethod :set_scroll_y (sy)
 		(def this :scroll_y sy)
@@ -60,8 +63,8 @@
 				(:ctx_filled_box 0 0 w h))
 			(progn
 				(defq
-					step (get :step this)
-					grad_h (* +map_height +tile_height)
+					step (* *zoom* (get :step this))
+					grad_h (* *zoom* (* +map_height +tile_height))
 					r1 (logand (>> c1 16) 0xff)
 					g1 (logand (>> c1 8) 0xff)
 					b1 (logand c1 0xff)
