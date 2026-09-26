@@ -129,7 +129,7 @@
 	(set-world-layers-pos 0 0)
 	(set-world-layers-size (* *zoom* +screen_width) (* *zoom* +screen_height))
 	(. *layer_land* :clear)
-	(. *layer_sky* :set_black))
+	(. *layer_sky* :set_black_sky))
 
 (defun title-sequence-start (&optional layer)
 	(setq *title_letter_idx* 0 *title_delay* 0 *title_state* :letters)

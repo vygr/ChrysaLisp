@@ -5,7 +5,7 @@
 (defq *app_root* (path-to-file))
 
 (defq *running* :t *game_state* :title +zoom_min 1 +zoom_max 3 *zoom* 2
-	*old_zoom* *zoom* +frame_rate 20 *running* :t *game_state* :title)
+	*old_zoom* 0 +frame_rate 20 *running* :t *game_state* :title)
 
 (import "lib/debug/frames.inc")
 (import "service/audio/app.inc")
@@ -33,32 +33,27 @@
 
 (defun window-resize ()
 	; load assets
-	(load-cpm-assets *zoom*)
-	(clear-layer *layer_panel_detail*)
-	(defq win_w (* *zoom* +screen_width)
-		win_h (* *zoom* (- +screen_height +panel_height))
-		pan_h (* *zoom* +panel_height))
-	(set *world_scroll* :min_width win_w :min_height win_h)
-	(set *panel_layers* :min_width win_w :min_height pan_h)
-	(. *world_scroll* :set_bounds 0 0 win_w win_h)
-	(. *world_layers* :set_bounds 0 0 win_w win_h)
-	(. *layer_panel_detail* :add_front *img_panel*)
-	(. *layer_land* :reset_field_map)
 	(when (/= *zoom* *old_zoom*)
+		(load-cpm-assets (setq *old_zoom* *zoom*))
+		(clear-layer *layer_panel_detail*)
+		(defq win_w (* *zoom* +screen_width)
+			win_h (* *zoom* (- +screen_height +panel_height))
+			pan_h (* *zoom* +panel_height))
+		(set *world_scroll* :min_width win_w :min_height win_h)
+		(set *panel_layers* :min_width win_w :min_height pan_h)
+		(. *world_scroll* :set_bounds 0 0 win_w win_h)
+		(. *world_layers* :set_bounds 0 0 win_w win_h)
+		(. *layer_panel_detail* :add_front *img_panel*)
+		(. *layer_land* :reset_field_map)
+		(set-world-layers-pos 0 0)
+		(set-world-layers-size (* *zoom* +window_width) (* *zoom* +window_height))
+		(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
 		(rescale-active-sprites)
-		(case *game_state*
-			(:title
-				(set-world-layers-size (* *zoom* +window_width) (* *zoom* +window_height))
-				(set-world-layers-pos 0 0))
-			(:field
-				(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
-				(when *player_man*
-					(update-camera *player_man*))))
-		(setq *old_zoom* *zoom*))
-	(bind '(x y) (. *window* :get_pos))
-	(bind '(w h) (. *window* :pref_size))
-	(bind '(x y w h) (view-fit x y w h))
-	(.-> *window* (:change_dirty x y w h :t)))
+		(if *player_man* (update-camera *player_man*))
+		(bind '(x y) (. *window* :get_pos))
+		(bind '(w h) (. *window* :pref_size))
+		(bind '(x y w h) (view-fit x y w h))
+		(.-> *window* (:change_dirty x y w h :t))))
 
 (enums +select 0
 	(enum main timer trash))

@@ -12,30 +12,21 @@
 
 (defclass Sky () (View)
 	; (Sky) -> sky view
-	(def this
-		:color +argb_black
-		:color_top +argb_black
-		:color_bottom +argb_black
-		:scroll_y 0
-		:step 2)
+	(def this :color +argb_black :color_top +argb_black :color_bottom +argb_black :step 2)
 	(. this :set_size (* +map_width +tile_width) (* +map_height +tile_height))
 
 	(defmethod :set_cols (c1 c2)
 		; (. sky :set_cols c1 c2) -> sky
-		(def this :color c1 :color_top c1 :color_bottom c2)
+		(def this :color_top c1 :color_bottom c2)
 		this)
 
 	(defmethod :set_random_sky ()
 		; pick one of the 6 field pastel colors to white gradient
-		(defq top (elem-get +sky_palette (random (length +sky_palette))))
+		(defq top (elem-get +sky_palette (random (const (length +sky_palette)))))
 		(. this :set_cols top +argb_white))
 
-	(defmethod :set_black ()
+	(defmethod :set_black_sky ()
 		(. this :set_cols +argb_black +argb_black))
-
-	(defmethod :set_scroll_y (sy)
-		(def this :scroll_y sy)
-		this)
 
 	(defmethod :draw ()
 		; (. sky :draw) -> sky
