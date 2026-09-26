@@ -215,6 +215,6 @@
 (defun offscreen-update (this)
 	(bind '(x y w h) (. *world_scroll* :get_relative this))
 	(bind '(ww wh) (. *world_scroll* :get_size))
-	(when (or (< x 0) (< y 0) (>= (+ x w) ww) (>= (+ y h) wh))
+	(when (or (< x (neg w)) (< y (neg h)) (>= x ww) (>= y wh))
 		(. this :kill))
 	this)

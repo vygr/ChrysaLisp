@@ -4,38 +4,38 @@
 
 (defq *title_letter_idx* 0 *title_delay* 0 *title_state* :letters)
 
-(defun spawn-title-letter (idx)
-	(bind '(tx ty) (elem-get '((0 68) (36 68) (72 68) (108 68) (144 68) (180 68) (216 68) (252 68) (288 68)) idx))
-	(bind '(sx sy) (get-xy-outer 32 32))
-	(defq sp (TitleLetter idx))
-	(init-ml sp sx sy tx ty 16)
-	(. *layer_fx* :add_front sp)
-	sp)
-
-(defun spawn-bomb-fx (x y)
-	; spawn 4 explosion sprites in a diamond around the letter center
-	(defq cx (+ x 16) cy (+ y 16))
-	(each (lambda ((ox oy))
-		(defq exp (. (ExplosionSprite) :sp_set_pos (+ cx ox) (+ cy oy)))
-		(. *layer_fx* :add_front exp))
-		'((-32 -16) (-16 -32) (0 -16) (-16 0))))
-
 (defun spawn-fizz-fx (x y)
 	; spawn fizz spark fx centered at (x, y)
 	(defq fizz (. (FizzSprite) :sp_set_pos (- x 8) (- y 8)))
 	(. *layer_fx* :add_front fizz)
 	fizz)
 
+(defun spawn-bomb-fx (x y)
+	; spawn 4 explosion sprites in a diamond around the letter center
+	(defq cx (+ x 16) cy (+ y 16))
+	(each (lambda ((ox oy))
+		(defq exp (. (ExplosionSprite) :sp_set_pos (+ cx ox) (+ cy oy)))
+		(. *layer_missiles* :add_front exp))
+		'((-32 -16) (-16 -32) (0 -16) (-16 0))))
+
+(defun spawn-title-letter (idx)
+	(bind '(tx ty) (elem-get '((0 68) (36 68) (72 68) (108 68) (144 68) (180 68) (216 68) (252 68) (288 68)) idx))
+	(bind '(sx sy) (get-xy-outer 32 32))
+	(defq sp (TitleLetter idx))
+	(init-ml sp sx sy tx ty 16)
+	(. *layer_bodies* :add_front sp)
+	sp)
+
 (defun spawn-title-drip (x y)
 	(defq sp (. (TitleBloodDrip) :sp_set_pos x y))
-	(. *layer_fx* :add_back sp)
+	(. *layer_player* :add_front sp)
 	sp)
 
 (defun spawn-title-sword ()
 	; drops through center of 'A' (x=144..176) to y=52
 	(defq sp (TitleSword))
-	(init-ml sp 152 -64 152 52 14)
-	(. *layer_fx* :add_back sp)
+	(. *layer_enemies* :add_front sp)
+	(. sp :sp_set_pos 152 -64)
 	sp)
 
 (defun dt-drip (this)
@@ -45,15 +45,15 @@
 
 (defun cp-sword (this)
 	; callback when sword reaches target
-	(when (/= (or (get :ml_speed this) 0) 0)
-		(when (< (or (get :ml_count this) 0) 0)
-			(set this :ml_speed 0)
-			(bind '(sx sy) (. this :sp_get_pos))
-			(defq fx_x (+ sx 8) fx_y (+ sy 32))
-			(spawn-fizz-fx fx_x fx_y)
-			(audio-play-rpc *sfx_clash2*)
-			(setq *title_state* :drip)
-			(spawn-title-drip sx fx_y))))
+	(when (and (>= (get :sp_y this) 52) (/= (get :mv_ay this) 0))
+		(set this :mv_ay 0 :mv_vy 0)
+		(bind '(sx &) (. this :sp_get_pos))
+		(. this :sp_set_pos sx 52)
+		(defq fx_x (+ sx 8) fx_y (+ 52 32))
+		(spawn-fizz-fx fx_x fx_y)
+		(audio-play-rpc *sfx_clash2*)
+		(setq *title_state* :drip)
+		(spawn-title-drip sx fx_y)))
 
 (defun cp-letter (this)
 	; callback while letter flies and when it arrives
@@ -90,10 +90,10 @@
 (defclass TitleSword () (Sprite *img_frm_16x64* :nil 16 64 :16x64)
 	; (TitleSword) -> sprite
 	(.-> this
-		(:add_component (const ml-update) (const ml-init))
+		(:add_component (const mv-update) (const mv-init))
 		(:add_component (const cp-sword))
 		(:set_frame +frm_16x64_sword))
-	(set this :ml_speed 14))
+	(set this :mv_ay 2))
 
 (defclass TitleBloodDrip () (Sprite *img_frm_16x16* :nil 16 16 :16x16 (const dt-drip))
 	; (TitleBloodDrip) -> sprite
@@ -101,8 +101,7 @@
 		(:add_component (const mv-update) (const mv-init))
 		(:add_component (const offscreen-update))
 		(:set_frame +frm_16x16_blooddrip))
-	(set this
-		:mv_ay *zoom* :mv_max_vy 10))
+	(set this :mv_ay 1 :mv_max_vy 10))
 
 (defclass ExplosionSprite () (Sprite *img_frm_32c32* :nil 32 32 :32c32)
 	; big explosion fx (32x32)
