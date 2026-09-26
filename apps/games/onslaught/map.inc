@@ -4,19 +4,19 @@
 
 (defclass FieldMap () (View)
 	; (FieldMap) -> map view
-	(def this :color 0 :map_idx 1 :blocks_canvas :nil :map_data :nil :flags_data :nil)
+	(def this :color 0 :map_idx 1 :map_blocks :nil :map_data :nil :map_flags :nil)
 	(. this :set_size (const (* +map_width +tile_width)) (const (* +map_height +tile_height)))
 
 	(defmethod :clear ()
 		; (. map :clear) -> map
-		(def this :map_data :nil :flags_data :nil :blocks_canvas :nil)
+		(def this :map_data :nil :map_flags :nil :map_blocks :nil)
 		this)
 
 	(defmethod :reset_field_map ()
 		; (. map :reset_field_map) -> map
 		(raise :map_idx)
 		(if map_idx
-			(lower (:blocks_canvas (cond
+			(lower (:map_blocks (cond
 					((= map_idx 2) *img_blocks2*)
 					((= map_idx 3) *img_blocks3*)
 					(*img_blocks1*)))))
@@ -27,14 +27,14 @@
 		(setd map_idx (or (get :map_idx this) 1))
 		(defq app_root (or (get '*app_root*) "")
 			map_data (load (cat app_root "data/fieldmap" (str map_idx) ".dat"))
-			flags_data (load (cat app_root "data/mapflags1.dat")))
-		(lower :map_idx :map_data :flags_data)
+			map_flags (load (cat app_root "data/mapflags1.dat")))
+		(lower :map_idx :map_data :map_flags)
 		(. this :reset_field_map))
 
 	(defmethod :get_tile_flags (x y)
 		; (. map :get_tile_flags x y) -> flags
 		(if (and (< -1 x (const (* +map_width +tile_width))) (< -1 y (const (* +map_height +tile_height))))
-			(if (and (defq md (get :map_data this)) (defq fd (get :flags_data this)))
+			(if (and (defq md (get :map_data this)) (defq fd (get :map_flags this)))
 				(code fd 1 (code md 1 (+ (/ x +tile_width) (* (/ y +tile_height) +map_width))))
 				+fmap_stand)
 			+fmap_stand))
@@ -42,7 +42,7 @@
 	(defmethod :draw ()
 		; (. map :draw) -> map
 		(when (and (defq md (get :map_data this))
-				(defq c (get :blocks_canvas this))
+				(defq c (get :map_blocks this))
 				(defq texture (getf c +canvas_texture 0)))
 			(bind '(tid tw th) (texture-metrics texture))
 			(bind '(vx vy) (. this :get_pos))

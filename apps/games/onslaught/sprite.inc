@@ -37,13 +37,13 @@
 		; (. sprite :sp_get_bounds) -> (x y w h)
 		(list (get :sp_x this) (get :sp_y this) (get :sp_w this) (get :sp_h this)))
 
-	(defmethod :get_canvas ()
-		; (. sprite :get_canvas) -> canvas
+	(defmethod :sp_get_canvas ()
+		; (. sprite :sp_get_canvas) -> canvas
 		(raise :sp_canvas_l :sp_canvas_r)
 		(if (and sp_canvas_r (>= (or (get :sp_dir this) -1) 0)) sp_canvas_r sp_canvas_l))
 
-	(defmethod :kill ()
-		; (. sprite :kill) -> sprite
+	(defmethod :sp_kill ()
+		; (. sprite :sp_kill) -> sprite
 		(unless (= (get :sp_frame this) -1)
 			(def this :sp_frame -1)
 			(when (defq death (get :sp_death this))
@@ -52,37 +52,37 @@
 			(. this :sub))
 		this)
 
-	(defmethod :set_frame (f)
-		; (. sprite :set_frame f) -> sprite
+	(defmethod :sp_set_frame (f)
+		; (. sprite :sp_set_frame f) -> sprite
 		(when (/= f (get :sp_frame this))
 			(def this :sp_frame f)
 			(when (= f -1)
-				(. this :kill)))
+				(. this :sp_kill)))
 		this)
 
-	(defmethod :add_component (update &optional init)
-		; (. sprite :add_component update [init]) -> sprite
+	(defmethod :sp_add_component (update &optional init)
+		; (. sprite :sp_add_component update [init]) -> sprite
 		(when init (init this))
 		(push (get :sp_components this) update)
 		this)
 
-	(defmethod :update ()
-		; (. sprite :update) -> sprite
+	(defmethod :sp_update ()
+		; (. sprite :sp_update) -> sprite
 		(if (= (get :sp_frame this) -1)
-			(. this :kill)
+			(. this :sp_kill)
 			(progn
 				(each (lambda (fn)
 					(unless (= (get :sp_frame this) -1)
 						(fn this)))
 					(get :sp_components this))
 				(when (= (get :sp_frame this) -1)
-					(. this :kill))))
+					(. this :sp_kill))))
 		this)
 
 	(defmethod :draw ()
 		; (. sprite :draw) -> sprite
 		(when (/= (defq f (get :sp_frame this)) -1)
-			(when (defq c (. this :get_canvas))
+			(when (defq c (. this :sp_get_canvas))
 				(when (defq texture (getf c +canvas_texture 0))
 					(bind '(tid tw th) (texture-metrics texture))
 					(bind '(w h) (. this :get_size))
@@ -200,9 +200,9 @@
 					(set this :at_count 0)
 					(defq idx (get :at_index this) f (elem-get table idx))
 					(if (= f -1)
-						(. this :kill)
+						(. this :sp_kill)
 						(progn
-							(. this :set_frame f)
+							(. this :sp_set_frame f)
 							(defq next_idx (inc idx))
 							(if (>= next_idx (length table))
 								(setq next_idx 0))
@@ -216,5 +216,5 @@
 	(bind '(x y w h) (. *world_scroll* :get_relative this))
 	(bind '(ww wh) (. *world_scroll* :get_size))
 	(when (or (< x (neg w)) (< y (neg h)) (>= x ww) (>= y wh))
-		(. this :kill))
+		(. this :sp_kill))
 	this)

@@ -57,7 +57,7 @@
 
 (defun update-sprite-layers ()
 	; tick all active sprites across all 7 sprite layers
-	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :update))) (cat (. %0 :children))))
+	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (cat (. %0 :children))))
 		+sprite_layers))
 
 (defun get-xy-outer (w h)

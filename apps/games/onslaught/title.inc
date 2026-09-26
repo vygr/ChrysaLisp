@@ -82,32 +82,32 @@
 	; (TitleLetter idx) -> sprite
 	(def this :letter_idx idx)
 	(.-> this
-		(:add_component (const ml-update) (const ml-init))
-		(:add_component (const cp-letter))
-		(:set_frame (+ +frm_32c32_letter_o idx)))
+		(:sp_add_component (const ml-update) (const ml-init))
+		(:sp_add_component (const cp-letter))
+		(:sp_set_frame (+ +frm_32c32_letter_o idx)))
 	(set this :ml_speed 16))
 
 (defclass TitleSword () (Sprite *img_frm_16x64* :nil 16 64 :16x64)
 	; (TitleSword) -> sprite
 	(.-> this
-		(:add_component (const mv-update) (const mv-init))
-		(:add_component (const cp-sword))
-		(:set_frame +frm_16x64_sword))
+		(:sp_add_component (const mv-update) (const mv-init))
+		(:sp_add_component (const cp-sword))
+		(:sp_set_frame +frm_16x64_sword))
 	(set this :mv_ay 2))
 
 (defclass TitleBloodDrip () (Sprite *img_frm_16x16* :nil 16 16 :16x16 (const dt-drip))
 	; (TitleBloodDrip) -> sprite
 	(.-> this
-		(:add_component (const mv-update) (const mv-init))
-		(:add_component (const offscreen-update))
-		(:set_frame +frm_16x16_blooddrip))
+		(:sp_add_component (const mv-update) (const mv-init))
+		(:sp_add_component (const offscreen-update))
+		(:sp_set_frame +frm_16x16_blooddrip))
 	(set this :mv_ay 1 :mv_max_vy 10))
 
 (defclass ExplosionSprite () (Sprite *img_frm_32c32* :nil 32 32 :32c32)
 	; big explosion fx (32x32)
 	(.-> this
-		(:add_component (const at-update) (const at-init))
-		(:set_frame +frm_32c32_bigexp))
+		(:sp_add_component (const at-update) (const at-init))
+		(:sp_set_frame +frm_32c32_bigexp))
 	(set this
 		:at_speed 2
 		:at_table (list +frm_32c32_bigexp (+ +frm_32c32_bigexp 1) (+ +frm_32c32_bigexp 2) (+ +frm_32c32_bigexp 3) (+ +frm_32c32_bigexp 4) -1)))
@@ -115,8 +115,8 @@
 (defclass FizzSprite () (Sprite *img_frm_16x16* :nil 16 16 :16x16)
 	; fizz spark fx (16x16)
 	(.-> this
-		(:add_component (const at-update) (const at-init))
-		(:set_frame +frm_16x16_fizz))
+		(:sp_add_component (const at-update) (const at-init))
+		(:sp_set_frame +frm_16x16_fizz))
 	(set this
 		:at_speed 2
 		:at_table (list +frm_16x16_fizz (+ +frm_16x16_fizz 1) (+ +frm_16x16_fizz 2) (+ +frm_16x16_fizz 1) +frm_16x16_fizz -1)))
@@ -129,7 +129,7 @@
 	(set-world-layers-pos 0 0)
 	(set-world-layers-size (* *zoom* +screen_width) (* *zoom* +screen_height))
 	(. *layer_land* :clear)
-	(. *layer_sky* :set_black_sky))
+	(. *layer_sky* :sky_black))
 
 (defun title-sequence-start (&optional layer)
 	(setq *title_letter_idx* 0 *title_delay* 0 *title_state* :letters)

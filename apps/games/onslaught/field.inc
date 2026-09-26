@@ -11,7 +11,7 @@
 	(clear-sprite-layers)
 	(set-world-layers-pos 0 0)
 	(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
-	(. *layer_sky* :set_random_sky)
+	(. *layer_sky* :sky_random)
 	(. *layer_land* :load_field_map (ifn map_idx 1)))
 
 (defun field-sequence-start (&optional layer map_idx)

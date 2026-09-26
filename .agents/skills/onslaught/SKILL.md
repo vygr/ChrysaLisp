@@ -5,7 +5,8 @@
 *	**Target Application:** `apps/games/onslaught/`
 
 *	**Primary Files:** `sprite.inc`, `fanatic.inc`, `enemy.inc`, `title.inc`,
-	`field.inc`, `widgets.inc`, `map.inc`, `sky.inc`, `utils.inc`
+	`field.inc`, `widgets.inc`, `map.inc`, `sky.inc`, `utils.inc`, `assets.inc`,
+	`enums.inc`, `app_impl.lisp`
 
 *	**Architectural Heritage:** Directly based on the original 1989 Commodore
 	Amiga / Atari ST game *Onslaught* by Chris Hinsley. The architectural
@@ -50,7 +51,7 @@ core scene-graph node `View`:
 
 ```lisp
 (defclass Sprite (canvas_l canvas_r width height tag &optional death) (View)
-	; (Sprite canvas_l canvas_r width height [death]) -> sprite
+	; (Sprite canvas_l canvas_r width height tag [death]) -> sprite
 	(def this :color 0
 		:sp_x 0 :sp_y 0 :sp_w 0 :sp_h 0
 		:sp_canvas_l canvas_l :sp_canvas_r canvas_r :sp_canvas_tag tag
@@ -66,6 +67,10 @@ Key state properties:
 	Facing direction (`:sp_dir`, `-1` for left, `1` for right) determines
 	which canvas is sampled during `:draw`.
 
+*	`:sp_canvas_tag`: Metadata symbol (`:fanatic`, `:32c32`, `:16x16_lr`,
+	etc.) used by `update-sprite-canvas` to re-bind canvas pointers
+	whenever display zoom changes.
+
 *	`:sp_frame`: Current atlas frame index. Setting this to `-1` kills the
 	sprite.
 
@@ -79,32 +84,52 @@ A component is simply a function that accepts `this` as its argument. It may
 optionally supply an initializer:
 
 ```lisp
-(defmethod :add_component (update &optional init)
-	; (. sprite :add_component update [init]) -> sprite
+(defmethod :sp_add_component (update &optional init)
+	; (. sprite :sp_add_component update [init]) -> sprite
 	(when init (init this))
 	(push (get :sp_components this) update)
 	this)
 ```
 
-During each frame tick, the layer manager invokes `(. sprite :update)`, which
-iterates through `:sp_components`. If any component sets `:sp_frame` to `-1`,
-the entity immediately terminates execution of remaining components and
-triggers `:kill`:
+During each frame tick, `update-sprite-layers` invokes `(. sprite :sp_update)`
+across all live sprites in all layers. The method iterates through
+`:sp_components`. If any component sets `:sp_frame` to `-1`, the entity
+immediately terminates execution of remaining components and triggers
+`:sp_kill`:
 
 ```lisp
-(defmethod :update ()
-	; (. sprite :update) -> sprite
+(defmethod :sp_update ()
+	; (. sprite :sp_update) -> sprite
 	(if (= (get :sp_frame this) -1)
-		(. this :kill)
+		(. this :sp_kill)
 		(progn
 			(each (lambda (fn)
 				(unless (= (get :sp_frame this) -1)
 					(fn this)))
 				(get :sp_components this))
 			(when (= (get :sp_frame this) -1)
-				(. this :kill))))
+				(. this :sp_kill))))
 	this)
 ```
+
+### 2.3 Destruction and Death Hook Contract
+
+Setting `:sp_frame` to `-1` or calling `(. sprite :sp_kill)` unlinks the sprite
+from the layer and triggers the death callback:
+
+```lisp
+(defmethod :sp_kill ()
+	; (. sprite :sp_kill) -> sprite
+	(unless (= (get :sp_frame this) -1)
+		(def this :sp_frame -1)
+		(when (defq death (get :sp_death this))
+			(def this :sp_death :nil)
+			(death this))
+		(. this :sub))
+	this)
+```
+
+Notice that `:sp_death` is cleared before invocation to prevent re-entrant loops.
 
 ---
 
@@ -127,7 +152,7 @@ Applies continuous velocity, acceleration, and terminal velocity clamping:
 
 	```lisp
 	(.-> this
-		(:add_component (const mv-update) (const mv-init)))
+		(:sp_add_component (const mv-update) (const mv-init)))
 	(set this :mv_ay 1 :mv_max_vy 10) ; gravity
 	```
 
@@ -163,15 +188,15 @@ Drives multi-frame sprite atlas animations:
 *	**Update:** `(at-update this)` steps through atlas indices.
 
 *	**Auto-Kill Contract:** Placing `-1` as the final entry in `:at_table`
-	causes the sprite to automatically invoke `(. this :kill)` upon animation
-	completion.
+	causes the sprite to automatically invoke `(. this :sp_kill)` upon
+	animation completion.
 
 *	**Usage Pattern (Transient Particle):**
 
 	```lisp
 	(.-> this
-		(:add_component (const at-update) (const at-init))
-		(:set_frame +frm_32c32_bigexp))
+		(:sp_add_component (const at-update) (const at-init))
+		(:sp_set_frame +frm_32c32_bigexp))
 	(set this
 		:at_speed 2
 		:at_table (list +frm_32c32_bigexp
@@ -184,7 +209,7 @@ Drives multi-frame sprite atlas animations:
 
 Monitors entity visibility relative to `*world_scroll*`. As soon as the sprite's
 bounding box moves completely out of the viewport window, it invokes
-`(. this :kill)`. Use this on bullets, arrows, and blood drops.
+`(. this :sp_kill)`. Use this on bullets, arrows, and blood drops.
 
 ---
 
@@ -196,8 +221,8 @@ sequences are constructed by chaining entities together via death callbacks
 
 ### 4.1 Case Study: The Intro Title Sequence (`title.inc`)
 
-The famous title sequence requires zero central orchestrator code. Each stage
-spawns the next when it dies or reaches its target:
+The title sequence requires zero central orchestrator code. Each stage spawns
+the next when it dies or reaches its target:
 
 1.	**Letter Flight:** Each letter `TitleLetter` uses `ml-update` to fly toward
 	its designated header slot.
@@ -207,7 +232,7 @@ spawns the next when it dies or reaches its target:
 	`at-table`), and launches the next letter.
 
 3.	**Sword Plunge:** After letter 9 arrives, a 16-tick pause initiates
-	`TitleSword`, which drops through the "A" glyph via `ml-update`.
+	`TitleSword`, which drops through the "A" glyph via `mv-update`.
 
 4.	**Blood Drip:** When the sword hits `y=52`, its callback triggers
 	`*sfx_clash2*`, spawns sparks (`FizzSprite`), and creates a falling blood
@@ -225,7 +250,8 @@ spawns the next when it dies or reaches its target:
 
 When the blood droplet falls off the screen, `offscreen-update` kills it,
 triggering `dt-drip`, which plays the drip sound and sets `*title_state*` to
-`:done`. The main game loop detects this and launches the field battle:
+`:done`. The main game loop in `app_impl.lisp` detects this and launches the
+field battle:
 
 ```lisp
 (case *game_state*
@@ -267,15 +293,19 @@ coordinates from display coordinates:
 		; (. sprite :sp_set_size w h) -> sprite
 		(def this :sp_w w :sp_h h)
 		(. this :set_size (* *zoom* w) (* *zoom* h)))
+
+	(defmethod :sp_set_bounds (x y w h)
+		; (. sprite :sp_set_bounds x y w h) -> sprite
+		(def this :sp_x x :sp_y y :sp_w w :sp_h h)
+		(. this :set_bounds (* *zoom* x) (* *zoom* y) (* *zoom* w) (* *zoom* h)))
 	```
 
 *	**Asset Rescaling:** When the user toggles zoom level (`window-resize` in
 	`app_impl.lisp`), the engine calls `(load-cpm-assets *zoom*)` to reload and
 	scale canvases using `(Canvas:resize)` and regenerates flipped right-facing
-	sheets with `(Canvas:flip_x)`. Active sprites simply update their internal
-	canvas references via `(rescale-active-sprites)`. **Entity positions,
-	velocities, bounding boxes, and collision math remain completely
-	untouched.**
+	sheets with `(Canvas:flip_x)`. Active sprites update their internal canvas
+	references via `(rescale-active-sprites)`. **Entity positions, velocities,
+	bounding boxes, and collision math remain completely untouched.**
 
 ---
 
@@ -294,7 +324,7 @@ tiles are indexed in O(1) time using the ChrysaLisp `code` primitive:
 	; (. map :get_tile_flags x y) -> flags
 	(if (and (< -1 x (const (* +map_width +tile_width)))
 			(< -1 y (const (* +map_height +tile_height))))
-		(if (and (defq md (get :map_data this)) (defq fd (get :flags_data this)))
+		(if (and (defq md (get :map_data this)) (defq fd (get :map_flags this)))
 			(code fd 1 (code md 1 (+ (/ x +tile_width) (* (/ y +tile_height) +map_width))))
 			+fmap_stand)
 		+fmap_stand))
@@ -320,6 +350,7 @@ offsets `x + 8` and `x + 23` for a 32x32 entity).
 
 	```lisp
 	(setq y (- (* (/ y1 tile_h) tile_h) h) yv 0 xv 0)
+	(def this :man_yv 0 :man_xv 0)
 	```
 
 *	When climbing ladders (`+fkey_up` / `+fkey_down`), detecting `+fmap_climb`
@@ -363,26 +394,31 @@ When extending or maintaining this engine, follow these strict disciplines:
 	`:sp_set_pos`, `:sp_get_pos`, and `:sp_set_bounds`—these methods handle
 	scaling internally.
 
-2.	**Implement Behavior via Components, Not Monolithic Updates:**
+2.	**Use `:sp_*` Methods on `Sprite`:**
+	Sprite lifecycle and geometry methods are prefixed with `:sp_`
+	(`:sp_set_pos`, `:sp_set_frame`, `:sp_add_component`, `:sp_update`,
+	`:sp_kill`). Do not call `:update` or `:kill` directly on sprites.
+
+3.	**Implement Behavior via Components, Not Monolithic Updates:**
 	When adding a new monster, weapon, or effect, compose it from `mv-*`,
 	`at-*`, `mt-*`, or write a focused component closure. Attach it with
-	`(. this :add_component (const my-comp-update) (const my-comp-init))`.
+	`(. this :sp_add_component (const my-comp-update) (const my-comp-init))`.
 
-3.	**Kill Entities via Frame `-1`:**
-	To remove a sprite, set its frame to `-1` or ensure its animation table
-	terminates with `-1`. Let the engine trigger death hooks and unlink the
-	view.
+4.	**Kill Entities via Frame `-1`:**
+	To remove a sprite, set its frame to `-1` with `(:sp_set_frame -1)` or
+	ensure its animation table terminates with `-1`. Let the engine trigger
+	death hooks and unlink the view.
 
-4.	**Use Death Callbacks for Sequencing:**
+5.	**Use Death Callbacks for Sequencing:**
 	Chain cinematics and multi-stage behaviors using the `:sp_death` closure
 	argument rather than tracking frame timers in global state variables.
 
-5.	**Use Binary `code` Access for Level Data:**
+6.	**Use Binary `code` Access for Level Data:**
 	Always read tile maps and collision flags via single-byte string indexing
 	`(code data 1 offset)`. Never allocate nested lists or maps for terrain
 	lookups.
 
-6.	**Adhere to ChrysaLisp Style Guidelines:**
+7.	**Adhere to ChrysaLisp Style Guidelines:**
 
 	*	Indent with 4-space tab characters.
 

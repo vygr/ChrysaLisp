@@ -12,34 +12,34 @@
 
 (defclass Sky () (View)
 	; (Sky) -> sky view
-	(def this :color +argb_black :color_top +argb_black :color_bottom +argb_black :step 2)
+	(def this :color +argb_black :sky_top +argb_black :sky_bottom +argb_black :sky_step 2)
 	(. this :set_size (* +map_width +tile_width) (* +map_height +tile_height))
 
-	(defmethod :set_cols (c1 c2)
-		; (. sky :set_cols c1 c2) -> sky
-		(def this :color_top c1 :color_bottom c2)
+	(defmethod :sky_set_cols (c1 c2)
+		; (. sky :sky_set_cols c1 c2) -> sky
+		(def this :sky_top c1 :sky_bottom c2)
 		this)
 
-	(defmethod :set_random_sky ()
+	(defmethod :sky_random ()
 		; pick one of the 6 field pastel colors to white gradient
 		(defq top (elem-get +sky_palette (random (const (length +sky_palette)))))
-		(. this :set_cols top +argb_white))
+		(. this :sky_set_cols top +argb_white))
 
-	(defmethod :set_black_sky ()
-		(. this :set_cols +argb_black +argb_black))
+	(defmethod :sky_black ()
+		(. this :sky_set_cols +argb_black +argb_black))
 
 	(defmethod :draw ()
 		; (. sky :draw) -> sky
 		(bind '(w h) (. this :get_size))
 		(when (and (> w 0) (> h 0))
-			(defq c1 (or (get :color_top this) +argb_black)
-				c2 (or (get :color_bottom this) +argb_white))
+			(defq c1 (or (get :sky_top this) +argb_black)
+				c2 (or (get :sky_bottom this) +argb_white))
 			(if (= c1 c2)
 				(.-> this
 					(:ctx_set_color c1)
 					(:ctx_filled_box 0 0 w h))
 				(defq
-					step (max 1 (or (get :step this) 2))
+					step (max 1 (or (get :sky_step this) 2))
 					r1 (logand (>> c1 16) 0xff)
 					g1 (logand (>> c1 8) 0xff)
 					b1 (logand c1 0xff)

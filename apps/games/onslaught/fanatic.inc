@@ -9,7 +9,7 @@
 		cycle_len (+ (- end_frame start_frame) 1)
 		frame_idx (+ start_frame (% tick cycle_len)))
 	(def this :man_walk_tick tick)
-	(. this :set_frame frame_idx))
+	(. this :sp_set_frame frame_idx))
 
 (defun player-man-update (this)
 	; physics & qaop controls for player man (fanatic 32x32)
@@ -24,15 +24,15 @@
 			 (bits? flags2 +fmap_climb +fmap_stand))
 		(progn
 			; falling in air
-			(. this :set_frame +frm_fanatic_l_fall)
+			(. this :sp_set_frame +frm_fanatic_l_fall)
 			(setq yv (min 10 (inc yv)) x (+ x xv) y (+ y yv))
 			(if (= yv 10) (setq xv 0))
 			(def this :man_xv xv :man_yv yv))
 		; on surface (floor or ladder)
 		(when (/= yv 0)
 			(if (= yv 10)
-				(. this :set_frame +frm_fanatic_l_duck)
-				(. this :set_frame +frm_fanatic_l_stance))
+				(. this :sp_set_frame +frm_fanatic_l_duck)
+				(. this :sp_set_frame +frm_fanatic_l_stance))
 			(setq y (- (* (/ y1 tile_h) tile_h) h) yv 0 xv 0)
 			(def this :man_yv 0 :man_xv 0))
 		(cond
@@ -49,7 +49,7 @@
 										tx1)
 						  ladder_x (* ladder_tx tile_w))
 					(setq y (- y walk_spd) x ladder_x xv 0 yv 0)
-					(. this :set_frame (+ +frm_fanatic_l_climb (logand (/ y walk_spd) 3)))
+					(. this :sp_set_frame (+ +frm_fanatic_l_climb (logand (/ y walk_spd) 3)))
 					(def this :man_xv 0 :man_yv 0 :man_walk_tick 0)))
 
 			; climbing down or ducking
@@ -66,11 +66,11 @@
 											tx1)
 							  ladder_x (* ladder_tx tile_w))
 						(setq y (+ y walk_spd) x ladder_x xv 0 yv 0)
-						(. this :set_frame (+ +frm_fanatic_l_climb (logand (/ y walk_spd) 3)))
+						(. this :sp_set_frame (+ +frm_fanatic_l_climb (logand (/ y walk_spd) 3)))
 						(def this :man_xv 0 :man_yv 0 :man_walk_tick 0))
 					; duck on ground when cannot climb down
 					(setq xv 0 yv 0)
-					(. this :set_frame +frm_fanatic_l_duck)
+					(. this :sp_set_frame +frm_fanatic_l_duck)
 					(def this :man_xv 0 :man_yv 0 :man_walk_tick 0)))
 
 			; walking left
@@ -90,7 +90,7 @@
 				(setq xv 0)
 				(def this :man_xv 0 :man_walk_tick 0)
 				(when (or (bits? flags1 +fmap_stand) (bits? flags2 +fmap_stand))
-					(. this :set_frame +frm_fanatic_l_stance)))))
+					(. this :sp_set_frame +frm_fanatic_l_stance)))))
 
 	; save new position clamped to map bounds
 	(defq max_x (- (* +map_width tile_w) w))
@@ -100,5 +100,5 @@
 (defclass Fanatic () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
 	; (Fanatic) -> sprite
 	(def this :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
-	(. this :add_component (const player-man-update))
-	(.-> this (:set_frame +frm_fanatic_l_stance)))
+	(. this :sp_add_component (const player-man-update))
+	(.-> this (:sp_set_frame +frm_fanatic_l_stance)))
