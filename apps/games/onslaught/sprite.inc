@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;
 ; base sprite class
-;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;
 
 (defclass Sprite (canvas_l canvas_r width height tag &optional death) (View)
 	; (Sprite canvas_l canvas_r width height [death]) -> sprite
