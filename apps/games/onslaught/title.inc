@@ -6,7 +6,7 @@
 
 (defun spawn-fizz-fx (x y)
 	; spawn fizz spark fx centered at (x, y)
-	(defq fizz (. (FizzSprite) :sp_set_pos (- x 8) (- y 8)))
+	(defq fizz (. (Fizz) :sp_set_pos (- x 8) (- y 8)))
 	(. *layer_fx* :add_front fizz)
 	fizz)
 
@@ -14,7 +14,7 @@
 	; spawn 4 explosion sprites in a diamond around the letter center
 	(defq cx (+ x 16) cy (+ y 16))
 	(each (lambda ((ox oy))
-		(defq exp (. (ExplosionSprite) :sp_set_pos (+ cx ox) (+ cy oy)))
+		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
 		(. *layer_missiles* :add_front exp))
 		'((-32 -16) (-16 -32) (0 -16) (-16 0))))
 
@@ -103,7 +103,7 @@
 		(:sp_set_frame +frm_16x16_blooddrip))
 	(set this :mv_ay 1 :mv_max_vy 10))
 
-(defclass ExplosionSprite () (Sprite *img_frm_32c32* :nil 32 32 :32c32)
+(defclass Explosion () (Sprite *img_frm_32c32* :nil 32 32 :32c32)
 	; big explosion fx (32x32)
 	(.-> this
 		(:sp_add_component (const at-update) (const at-init))
@@ -112,7 +112,7 @@
 		:at_speed 2
 		:at_table (list +frm_32c32_bigexp (+ +frm_32c32_bigexp 1) (+ +frm_32c32_bigexp 2) (+ +frm_32c32_bigexp 3) (+ +frm_32c32_bigexp 4) -1)))
 
-(defclass FizzSprite () (Sprite *img_frm_16x16* :nil 16 16 :16x16)
+(defclass Fizz () (Sprite *img_frm_16x16* :nil 16 16 :16x16)
 	; fizz spark fx (16x16)
 	(.-> this
 		(:sp_add_component (const at-update) (const at-init))

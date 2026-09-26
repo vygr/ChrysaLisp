@@ -228,14 +228,14 @@ the next when it dies or reaches its target:
 	its designated header slot.
 
 2.	**Letter Arrival:** Its arrival callback `cp-letter` triggers an explosion
-	sound, spawns a transient `ExplosionSprite` cluster (which self-kills via
+	sound, spawns a transient `Explosion` cluster (which self-kills via
 	`at-table`), and launches the next letter.
 
 3.	**Sword Plunge:** After letter 9 arrives, a 16-tick pause initiates
 	`TitleSword`, which drops through the "A" glyph via `mv-update`.
 
 4.	**Blood Drip:** When the sword hits `y=52`, its callback triggers
-	`*sfx_clash2*`, spawns sparks (`FizzSprite`), and creates a falling blood
+	`*sfx_clash2*`, spawns sparks (`Fizz`), and creates a falling blood
 	droplet (`TitleBloodDrip`).
 
 5.	**Autonomous State Transition:** The blood drop uses `mv-update` with
