@@ -12,18 +12,24 @@
 		(def this :map_data :nil :flags_data :nil :blocks_canvas :nil)
 		this)
 
+	(defmethod :reset_field_map ()
+		; (. map :reset_field_map) -> map
+		(raise :map_idx)
+		(if map_idx
+			(lower (:blocks_canvas (cond
+					((= map_idx 2) *img_blocks2*)
+					((= map_idx 3) *img_blocks3*)
+					(*img_blocks1*)))))
+		this)
+
 	(defmethod :load_field_map (&optional map_idx)
 		; (. map :load_field_map [map_idx]) -> map
 		(setd map_idx (or (get :map_idx this) 1))
-		(defq blocks_canvas (cond
-				((= map_idx 2) *img_blocks2*)
-				((= map_idx 3) *img_blocks3*)
-				(:t *img_blocks1*))
-			app_root (or (get '*app_root*) "")
+		(defq app_root (or (get '*app_root*) "")
 			map_data (load (cat app_root "data/fieldmap" (str map_idx) ".dat"))
 			flags_data (load (cat app_root "data/mapflags1.dat")))
-		(lower :map_idx :map_data :flags_data :blocks_canvas)
-		this)
+		(lower :map_idx :map_data :flags_data)
+		(. this :reset_field_map))
 
 	(defmethod :get_tile_flags (x y)
 		; (. map :get_tile_flags x y) -> flags

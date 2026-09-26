@@ -39,7 +39,7 @@
 	(. *world_scroll* :set_bounds 0 0 win_w win_h)
 	(. *world_layers* :set_bounds 0 0 win_w win_h)
 	(. *layer_panel_detail* :add_front *img_panel*)
-	(. *layer_land* :load_field_map)
+	(. *layer_land* :reset_field_map)
 	(when (/= *zoom* *old_zoom*)
 		(rescale-active-sprites)
 		(case *game_state*
