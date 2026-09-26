@@ -8,19 +8,23 @@
 	*old_zoom* *zoom* +frame_rate 20 *running* :t *game_state* :title)
 
 (import "lib/debug/frames.inc")
-
 (import "service/audio/app.inc")
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+
 (import "./enums.inc")
+(import "./assets.inc")
+
 (import "./map.inc")
 (import "./sky.inc")
 (import "./widgets.inc")
-(import "./components.inc")
-(import "./utils.inc")
-(import "./assets.inc")
-(import "./sprite.inc")
 (import "./actions.inc")
+
+(import "./utils.inc")
+(import "./sprite.inc")
+(import "./fanatic.inc")
+(import "./enemy.inc")
+
 (import "./title.inc")
 (import "./field.inc")
 
@@ -49,8 +53,7 @@
 			(:field
 				(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
 				(when *player_man*
-					(bind '(mx my) (. *player_man* :sp_get_pos))
-					(update-camera mx my))))
+					(update-camera *player_man*))))
 		(setq *old_zoom* *zoom*))
 	(bind '(x y) (. *window* :get_pos))
 	(bind '(w h) (. *window* :pref_size))

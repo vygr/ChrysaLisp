@@ -2,10 +2,8 @@
 ; Screen and dimensions
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+screen_width 320 +screen_height 240
-	+map_width 128 +map_height 16
-	+tile_width 16 +tile_height 16
+(defq +screen_width 320 +screen_height 240
+	+map_width 128 +map_height 16 +tile_width 16 +tile_height 16
 	+panel_height 72 +panel_y (- +screen_height +panel_height)
 	+window_width +screen_width +window_height (- +screen_height +panel_height)
 	+max_strength 2048 +max_power (/ +max_strength 2))
@@ -74,14 +72,6 @@
 
 (bits +fflag 0
 	(bit use select enemy mine title iselect))
-
-;;;;;;;;;;;;;
-; Item types
-;;;;;;;;;;;;;
-
-(enums +item 0
-	(enum gold mase big_bow small_bow naptha helper super_mase super_helper
-		yellow_spell black_spell green_spell white_spell red_spell blue_spell talisman))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Sprite frames by image strip
@@ -194,6 +184,14 @@
 ; campain 8x8
 (enums +frm_campain 0
 	(enum oracle twater tswamp tforest tmountain water swamp forest mountain plague crusade rebellion enemy player))
+
+;;;;;;;;;;;;;
+; Item types
+;;;;;;;;;;;;;
+
+(enums +item 0
+	(enum gold mase big_bow small_bow naptha helper super_mase super_helper
+		yellow_spell black_spell green_spell white_spell red_spell blue_spell talisman))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Item frame mapping

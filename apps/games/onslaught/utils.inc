@@ -1,16 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; layer management helpers
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun set-canvas-pos (c x &optional y)
-	; set position of canvas or view
-	(ifn y (setq y x x c c *img_panel*))
-	(. c :set_pos x y))
-
-(defun set-canvas-size (c w &optional h)
-	; size a canvas or view
-	(ifn h (setq h w w c c *img_panel*))
-	(. c :set_size w h))
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun clear-layer (layer)
 	; remove all child views from layer
@@ -27,22 +17,6 @@
 (defun set-world-layers-size (w h)
 	; size all children of *world_layers*
 	(each (# (. %0 :set_size w h)) +world_layers))
-
-(defun reset-layers-title ()
-	; title sequence: clear sprites, size to screen at (0, 0), black sky
-	(clear-sprite-layers)
-	(set-world-layers-pos 0 0)
-	(set-world-layers-size (* *zoom* +screen_width) (* *zoom* +screen_height))
-	(. *layer_land* :clear)
-	(. *layer_sky* :set_black))
-
-(defun reset-layers-field (&optional map_idx)
-	; field battle: clear sprites, size to full map world, pastel sky, load terrain map
-	(clear-sprite-layers)
-	(set-world-layers-pos 0 0)
-	(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
-	(. *layer_sky* :set_random_sky)
-	(. *layer_land* :load_field_map (ifn map_idx 1)))
 
 (defun update-sprite-canvas (sp)
 	(when (def? :sp_canvas_tag sp)
@@ -85,3 +59,23 @@
 	; tick all active sprites across all 7 sprite layers
 	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :update))) (cat (. %0 :children))))
 		+sprite_layers))
+
+(defun get-xy-outer (w h)
+	; pick a random start point just outside the playable area
+	(case (random 4)
+		(0 (list (- (random (+ +window_width (* 2 w))) w) (neg h)))
+		(1 (list (- (random (+ +window_width (* 2 w))) w) +window_height))
+		(2 (list (neg w) (- (random (+ +window_height (* 2 h))) h)))
+		(3 (list +window_width (- (random (+ +window_height (* 2 h))) h)))))
+
+(defun update-camera (sprite)
+	; center camera on sprite
+	(bind '(x y w h) (. sprite :sp_get_bounds))
+	(defq cam_x (- (+ x (/ w 2)) (const (/ +window_width 2)))
+		cam_y (- (+ y (/ h 2)) (const (/ +window_height 2)))
+		max_cam_x (- (* +map_width +tile_width) +window_width)
+		max_cam_y (- (* +map_height +tile_height) +window_height))
+	; scroll all world layers by negative camera offset
+	(set-world-layers-pos
+		(* *zoom* (neg (max 0 (min max_cam_x cam_x))))
+		(* *zoom* (neg (max 0 (min max_cam_y cam_y))))))

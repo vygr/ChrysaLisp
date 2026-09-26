@@ -18,6 +18,12 @@
 	*img_frm_64x32_l* :nil *img_frm_64x32_r* :nil
 	*img_frm_64x64_l* :nil *img_frm_64x64_r* :nil)
 
+(defq
+	*sfx_boar* :nil *sfx_clash1* :nil *sfx_clash2* :nil *sfx_death1* :nil
+	*sfx_death2* :nil *sfx_drip* :nil *sfx_explode* :nil *sfx_hooves* :nil
+	*sfx_horse* :nil *sfx_out* :nil *sfx_roar* :nil *sfx_spell* :nil
+	*sfx_throw* :nil *sfx_twang1* :nil *sfx_twang2* :nil)
+
 (defun flip-canvas (c)
 	; (flip-canvas canvas) -> canvas
 	; creates a horizontally flipped right-facing copy of a left-facing canvas
@@ -63,12 +69,6 @@
 		*img_frm_32x16_r* (flip-canvas *img_frm_32x16_l*)
 		*img_frm_32x32_r* (flip-canvas *img_frm_32x32_l*)
 		*img_frm_64x64_r* (flip-canvas *img_frm_64x64_l*)))
-
-(defq
-	*sfx_boar* :nil *sfx_clash1* :nil *sfx_clash2* :nil *sfx_death1* :nil
-	*sfx_death2* :nil *sfx_drip* :nil *sfx_explode* :nil *sfx_hooves* :nil
-	*sfx_horse* :nil *sfx_out* :nil *sfx_roar* :nil *sfx_spell* :nil
-	*sfx_throw* :nil *sfx_twang1* :nil *sfx_twang2* :nil)
 
 (defun unload-wav-assets ()
 	; (uload-wav-assets)
