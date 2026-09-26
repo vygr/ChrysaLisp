@@ -52,15 +52,19 @@
 
 	(fn-bind 'sys/statics/statics vt1)
 	(call :hmap :pfind `(,obj (,vt1 ,(+ statics_static_syms static_sym_vtable))) '(_ tmp _))
-	(errorif `(,tmp = 0) 'error1)
+	(errorif `(,tmp = 0) 'error2)
 	(call :hmap :pfind `((,tmp +ptr_size) ,mth) '(_ tmp _))
 	(errorif `(,tmp = 0) 'error1)
 
 	(jump :lisp :repl_apply `(,this ,args (,tmp +ptr_size)))
 
 (errorcase
-(vp-label 'error1)
+(vp-label 'error2)
+	(fn-bind 'sys/statics/statics args)
+	(assign `((,args ,(+ statics_static_syms static_sym_vtable))) `(,args))
 	(jump :lisp :repl_error `(,this ,args "(. env sym [...])" +error_msg_symbol_not_bound))
+(vp-label 'error1)
+	(jump :lisp :repl_error `(,this ,mth "(. env sym [...])" +error_msg_symbol_not_bound))
 (vp-label 'error)
 	(jump :lisp :repl_error `(,this ,args "(. env sym [...])" +error_msg_wrong_types)))
 
