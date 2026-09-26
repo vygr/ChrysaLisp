@@ -23,7 +23,6 @@
 	(defmethod :set_cols (c1 c2)
 		; (. sky :set_cols c1 c2) -> sky
 		(def this :color c1 :color_top c1 :color_bottom c2)
-		(. this :dirty)
 		this)
 
 	(defmethod :set_random_sky ()

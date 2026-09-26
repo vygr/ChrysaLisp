@@ -4,8 +4,10 @@
 
 (defq *app_root* (path-to-file))
 
-(defq *running* :t *game_state* :title +zoom_1x 1 +zoom_2x 2 +zoom_3x 3 +zoom_min 1 +zoom_max 3
-	*zoom* +zoom_2x *old_zoom* *zoom* +frame_rate 20 *running* :t *game_state* :title)
+(defq *running* :t *game_state* :title +zoom_min 1 +zoom_max 3 *zoom* 2
+	*old_zoom* *zoom* +frame_rate 20 *running* :t *game_state* :title)
+
+(import "lib/debug/frames.inc")
 
 (import "service/audio/app.inc")
 (import "usr/env.inc")
@@ -29,8 +31,7 @@
 	; load assets
 	(load-cpm-assets *zoom*)
 	(clear-layer *layer_panel_detail*)
-	(defq
-		win_w (* *zoom* +screen_width)
+	(defq win_w (* *zoom* +screen_width)
 		win_h (* *zoom* (- +screen_height +panel_height))
 		pan_h (* *zoom* +panel_height))
 	(set *world_scroll* :min_width win_w :min_height win_h)
@@ -38,32 +39,18 @@
 	(. *world_scroll* :set_bounds 0 0 win_w win_h)
 	(. *world_layers* :set_bounds 0 0 win_w win_h)
 	(. *layer_panel_detail* :add_front *img_panel*)
-	(defq block_canvas (cond
-			((= (get :map_idx *layer_land*) 2) *img_blocks2*)
-			((= (get :map_idx *layer_land*) 3) *img_blocks3*)
-			(:t *img_blocks1*)))
-	(. *layer_land* :set_blocks_canvas block_canvas *zoom*)
+	(. *layer_land* :load_field_map)
 	(when (/= *zoom* *old_zoom*)
-		(rescale-active-sprites *old_zoom* *zoom*)
+		(rescale-active-sprites)
 		(case *game_state*
 			(:title
 				(set-world-layers-size (* *zoom* +window_width) (* *zoom* +window_height))
-				(set-world-layers-pos 0 0)
-				(. *layer_sky* :dirty))
+				(set-world-layers-pos 0 0))
 			(:field
-				(defq
-					world_w (* *zoom* (* +map_width +tile_width))
-					world_h (* *zoom* (* +map_height +tile_height)))
-				(set-world-layers-size world_w world_h)
-				(if *player_man*
-					(progn
-						(bind '(mx my) (. *player_man* :get_pos))
-						(update-camera mx my))
-					(setq *cam_x* (/ (* *cam_x* *zoom*) *old_zoom*)
-						  *cam_y* (/ (* *cam_y* *zoom*) *old_zoom*))
-					(set-world-layers-pos (neg *cam_x*) (neg *cam_y*)))
-				(. *layer_sky* :dirty)
-				(. *layer_land* :dirty)))
+				(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
+				(when *player_man*
+					(bind '(mx my) (. *player_man* :sp_get_pos))
+					(update-camera mx my))))
 		(setq *old_zoom* *zoom*))
 	(bind '(x y) (. *window* :get_pos))
 	(bind '(w h) (. *window* :pref_size))
@@ -76,6 +63,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size)
 		game_service (mail-declare (elem-get select +select_trash) "@Onslaught" "Onslaught Game 1.0"))
+	(def *window* :zoom *zoom*)
 	(load-wav-assets)
 	(window-resize)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -128,7 +116,9 @@
 							(setq *game_state* :field)
 							(field-sequence-start)))
 					(:field
-						(field-sequence-update))))))
+						(field-sequence-update)))
+				(. *world_scroll* :dirty_all)
+				(. *panel_layers* :dirty_all))))
 	; unregister window and exit cleanly
 	(mail-forget game_service)
 	(unload-wav-assets)

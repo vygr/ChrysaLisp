@@ -4,14 +4,12 @@
 
 (defun set-canvas-pos (c x &optional y)
 	; set position of canvas or view
-	(ifn y
-		(setq y x x c c *img_panel*))
+	(ifn y (setq y x x c c *img_panel*))
 	(. c :set_pos x y))
 
 (defun set-canvas-size (c w &optional h)
 	; size a canvas or view
-	(ifn h
-		(setq h w w c c *img_panel*))
+	(ifn h (setq h w w c c *img_panel*))
 	(. c :set_size w h))
 
 (defun clear-layer (layer)
@@ -33,97 +31,53 @@
 (defun reset-layers-title ()
 	; title sequence: clear sprites, size to screen at (0, 0), black sky
 	(clear-sprite-layers)
-	(. *layer_land* :clear)
-	(. *layer_sky* :set_black)
 	(set-world-layers-pos 0 0)
 	(set-world-layers-size (* *zoom* +screen_width) (* *zoom* +screen_height))
-	(. *layer_sky* :dirty))
+	(. *layer_land* :clear)
+	(. *layer_sky* :set_black))
 
 (defun reset-layers-field (&optional map_idx)
 	; field battle: clear sprites, size to full map world, pastel sky, load terrain map
-	(setd map_idx 1)
 	(clear-sprite-layers)
-	(defq world_w (* *zoom* (* +map_width +tile_width))
-		world_h (* *zoom* (* +map_height +tile_height)))
-	(set-world-layers-size world_w world_h)
+	(set-world-layers-pos 0 0)
+	(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
 	(. *layer_sky* :set_random_sky)
-	(. *layer_land* :load_field_map map_idx)
-	(. *layer_sky* :dirty)
-	(. *layer_land* :dirty)
-	(. *world_layers* :dirty_all))
+	(. *layer_land* :load_field_map (ifn map_idx 1)))
 
 (defun update-sprite-canvas (sp)
-	(when (def? :canvas_tag sp)
-		(case (get :canvas_tag sp)
+	(when (def? :sp_canvas_tag sp)
+		(case (get :sp_canvas_tag sp)
 			(:fanatic
-				(set sp :canvas_l *img_fanatic_l* :canvas_r *img_fanatic_r*))
+				(set sp :sp_canvas_l *img_fanatic_l* :sp_canvas_r *img_fanatic_r*))
 			(:32c32
-				(set sp :canvas_l *img_frm_32c32*))
+				(set sp :sp_canvas_l *img_frm_32c32*))
 			(:16x16
-				(set sp :canvas_l *img_frm_16x16*))
+				(set sp :sp_canvas_l *img_frm_16x16*))
 			(:16x16_lr
-				(set sp :canvas_l *img_frm_16x16_l* :canvas_r *img_frm_16x16_r*))
+				(set sp :sp_canvas_l *img_frm_16x16_l* :sp_canvas_r *img_frm_16x16_r*))
 			(:16x64
-				(set sp :canvas_l *img_frm_16x64*))
+				(set sp :sp_canvas_l *img_frm_16x64*))
 			(:32x32_lr
-				(set sp :canvas_l *img_frm_32x32_l* :canvas_r *img_frm_32x32_r*))
+				(set sp :sp_canvas_l *img_frm_32x32_l* :sp_canvas_r *img_frm_32x32_r*))
 			(:32c32_lr
-				(set sp :canvas_l *img_frm_32c32_l* :canvas_r *img_frm_32c32_r*))
+				(set sp :sp_canvas_l *img_frm_32c32_l* :sp_canvas_r *img_frm_32c32_r*))
 			(:32x16_lr
-				(set sp :canvas_l *img_frm_32x16_l* :canvas_r *img_frm_32x16_r*))
+				(set sp :sp_canvas_l *img_frm_32x16_l* :sp_canvas_r *img_frm_32x16_r*))
 			(:64x32_lr
-				(set sp :canvas_l *img_frm_64x32_l* :canvas_r *img_frm_64x32_r*))
+				(set sp :sp_canvas_l *img_frm_64x32_l* :sp_canvas_r *img_frm_64x32_r*))
 			(:64x64_lr
-				(set sp :canvas_l *img_frm_64x64_l* :canvas_r *img_frm_64x64_r*))
+				(set sp :sp_canvas_l *img_frm_64x64_l* :sp_canvas_r *img_frm_64x64_r*))
 			(:64x64
-				(set sp :canvas_l *img_frm_64x64*)))))
+				(set sp :sp_canvas_l *img_frm_64x64*)))))
 
-(defun rescale-active-sprites (old_z new_z)
-	; rescale positions, dimensions, canvases, and motion components of all live sprites
+(defun rescale-active-sprites ()
+	; rescale positions, dimensions and canvases of all live sprites
 	(each (lambda (layer)
 		(each (lambda (sp)
 			(when (Sprite? sp)
-				(bind '(x y) (. sp :get_pos))
-				(defq
-					new_x (/ (* x new_z) old_z)
-					new_y (/ (* y new_z) old_z)
-					base_w (get :base_w sp)
-					base_h (get :base_h sp)
-					new_w (* base_w new_z)
-					new_h (* base_h new_z))
-				(. sp :set_bounds new_x new_y new_w new_h)
-
-				(update-sprite-canvas sp)
-
-				(when (def? :mv_vx sp)
-					(set sp
-						:mv_vx (/ (* (get :mv_vx sp) new_z) old_z)
-						:mv_vy (/ (* (get :mv_vy sp) new_z) old_z)
-						:mv_ax (/ (* (get :mv_ax sp) new_z) old_z)
-						:mv_ay (/ (* (get :mv_ay sp) new_z) old_z)
-						:mv_max_vx (/ (* (get :mv_max_vx sp) new_z) old_z)
-						:mv_max_vy (/ (* (get :mv_max_vy sp) new_z) old_z)))
-
-				(when (def? :ml_speed sp)
-					(defq speed (get :ml_speed sp))
-					(when (/= speed 0)
-						(defq
-							tx (/ (* (get :ml_target_x sp) new_z) old_z)
-							ty (/ (* (get :ml_target_y sp) new_z) old_z)
-							new_spd (/ (* speed new_z) old_z))
-						(init-ml sp new_x new_y tx ty new_spd)))
-
-				(when (def? :bounds_max_x sp)
-					(set sp
-						:bounds_min_x (/ (* (get :bounds_min_x sp) new_z) old_z)
-						:bounds_max_x (/ (* (get :bounds_max_x sp) new_z) old_z)
-						:bounds_min_y (/ (* (get :bounds_min_y sp) new_z) old_z)
-						:bounds_max_y (/ (* (get :bounds_max_y sp) new_z) old_z)))
-
-				(when (def? :xv sp)
-					(set sp
-						:xv (/ (* (get :xv sp) new_z) old_z)
-						:yv (/ (* (get :yv sp) new_z) old_z)))))
+				(bind '(x y w h) (. sp :sp_get_bounds))
+				(. sp :sp_set_bounds x y w h)
+				(update-sprite-canvas sp)))
 			(cat (. layer :children))))
 		+sprite_layers))
 
