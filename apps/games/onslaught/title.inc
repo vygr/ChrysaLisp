@@ -2,8 +2,6 @@
 ; onslaught title state
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq *title_letter_idx* 0 *title_delay* 0 *title_state* :letters)
-
 (defun spawn-fizz-fx (x y)
 	; spawn fizz spark fx centered at (x, y)
 	(defq fizz (. (Fizz) :sp_set_pos (- x 8) (- y 8)))
@@ -41,7 +39,7 @@
 (defun dt-drip (this)
 	; death hook for drip
 	(audio-play-rpc *sfx_drip*)
-	(setq *title_state* :done))
+	(setq *game_state* +game_state_battle))
 
 (defun cp-sword (this)
 	; callback when sword reaches target
@@ -50,9 +48,8 @@
 		(bind '(sx &) (. this :sp_get_pos))
 		(. this :sp_set_pos sx 52)
 		(defq fx_x (+ sx 8) fx_y (+ 52 32))
-		(spawn-fizz-fx fx_x fx_y)
 		(audio-play-rpc *sfx_clash2*)
-		(setq *title_state* :drip)
+		(spawn-fizz-fx fx_x fx_y)
 		(spawn-title-drip sx fx_y)))
 
 (defun cp-letter (this)
@@ -70,11 +67,9 @@
 				(setq *title_letter_idx* (+ *title_letter_idx* 1))
 				(if (< *title_letter_idx* 9)
 					(spawn-title-letter *title_letter_idx*)
-					(progn
-						(setq *title_state* :delay)
-						(setq *title_delay* 16)))))))
+					(spawn-title-sword))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; title sequence sprite subtypes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -123,23 +118,16 @@
 
 ;state control
 
-(defun title-reset-layers ()
-	; title sequence: clear sprites, size to screen at (0, 0), black sky
+(defq *title_letter_idx* 0)
+
+(defun title-state-init (&optional layer)
+	(setq *title_letter_idx* 0)
 	(clear-sprite-layers)
 	(set-world-layers-pos 0 0)
 	(set-world-layers-size (* *zoom* +screen_width) (* *zoom* +screen_height))
 	(. *layer_land* :clear)
-	(. *layer_sky* :sky_black))
+	(. *layer_sky* :sky_black)
+	(spawn-title-letter *title_letter_idx*))
 
-(defun title-sequence-start (&optional layer)
-	(setq *title_letter_idx* 0 *title_delay* 0 *title_state* :letters)
-	(title-reset-layers)
-	(spawn-title-letter 0))
-
-(defun title-sequence-update ()
-	(update-sprite-layers)
-	(when (eql *title_state* :delay)
-		(setq *title_delay* (- *title_delay* 1))
-		(when (<= *title_delay* 0)
-			(setq *title_state* :sword)
-			(spawn-title-sword))))
+(defun title-state-update ()
+	(update-sprite-layers))

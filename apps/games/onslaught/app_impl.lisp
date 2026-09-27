@@ -2,17 +2,15 @@
 ; onslaught 2d game engine framework
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq *app_root* (path-to-file))
+(import "./enums.inc")
 
-(defq *running* :t *game_state* :title +zoom_min 1 +zoom_max 3 *zoom* 2
-	*old_zoom* 0 +frame_rate 20 *running* :t *game_state* :title)
+(defq *app_root* (path-to-file) *game_state* +game_state_title +zoom_min 1 +zoom_max 3 *zoom* 2
+	*old_zoom* 0 +frame_rate 20 *running* :t *old_game_state* -1)
 
 (import "lib/debug/frames.inc")
 (import "service/audio/app.inc")
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-
-(import "./enums.inc")
 (import "./assets.inc")
 
 (import "./map.inc")
@@ -26,7 +24,7 @@
 (import "./enemy.inc")
 
 (import "./title.inc")
-(import "./field.inc")
+(import "./battle.inc")
 
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (prin _) (print) :t)))
@@ -67,9 +65,6 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 
-	; start the intro title sequence (flying letters, sword, blood)
-	(title-sequence-start)
-
 	; start 30 fps game loop timer
 	(mail-timeout (elem-get select +select_timer) (const (/ 1000000 +frame_rate)) 0)
 	; main event loop
@@ -107,14 +102,67 @@
 			(+select_timer
 				; re-arm 30 fps timer
 				(mail-timeout (elem-get select +select_timer) (const (/ 1000000 +frame_rate)) 0)
-				(case *game_state*
-					(:title
-						(title-sequence-update)
-						(when (eql *title_state* :done)
-							(setq *game_state* :field)
-							(field-sequence-start)))
-					(:field
-						(field-sequence-update)))
+				(when (/= *game_state* *old_game_state*)
+					(setq *old_game_state* *game_state*)
+					(case *game_state*
+						(+game_state_title
+							(title-state-init))
+						(+game_state_menu
+							(menu-state-init))
+						(+game_state_map
+							(map-state-init))
+						(+game_state_scores
+							(scores-state-init))
+						(+game_state_hiscore
+							(hiscore-state-init))
+						(+game_state_battle
+							(battle-state-init))
+						(+game_state_battle_won
+							(battle-won-state-init))
+						(+game_state_battle_lost
+							(battle-lost-state-init))
+						(+game_state_mind
+							(mind-state-init))
+						(+game_state_mind_won
+							(mind-won-state-init))
+						(+game_state_mind_lost
+							(mind-lost-state-init))
+						(+game_state_credits
+							(credits-state-init))
+						(+game_state_oracle
+							(oracle-state-init))
+						(+game_state_demo
+							(demo-state-init))))
+				(when (= *game_state* *old_game_state*)
+					(case *game_state*
+						(+game_state_title
+							(title-state-update))
+						(+game_state_menu
+							(menu-state-update))
+						(+game_state_map
+							(map-state-update))
+						(+game_state_scores
+							(scores-state-update))
+						(+game_state_hiscore
+							(hiscore-state-update))
+						(+game_state_battle
+							(battle-state-update))
+						(+game_state_battle_won
+							(battle-won-state-update))
+						(+game_state_battle_lost
+							(battle-lost-state-update))
+						(+game_state_mind
+							(mind-state-update))
+						(+game_state_mind_won
+							(mind-won-state-update))
+						(+game_state_mind_lost
+							(mind-lost-state-update))
+						(+game_state_credits
+							(credits-state-update))
+						(+game_state_oracle
+							(oracle-state-update))
+						(+game_state_demo
+							(demo-state-update))))
 				(. *world_scroll* :dirty_all)
 				(. *panel_layers* :dirty_all))))
 	; unregister window and exit cleanly
