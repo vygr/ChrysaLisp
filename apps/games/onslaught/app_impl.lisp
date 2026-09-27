@@ -1,11 +1,11 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught 2d game engine framework
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./enums.inc")
 
 (defq *app_root* (path-to-file) *game_state* +game_state_title +zoom_min 1 +zoom_max 3 *zoom* 2
-	*old_zoom* 0 +frame_rate 20 *running* :t *old_game_state* -1)
+	*old_zoom* 0 +frame_rate 20 *running* :t *old_game_state* -1 +rate (/ 1000000 +frame_rate))
 
 (import "lib/debug/frames.inc")
 (import "service/audio/app.inc")
@@ -44,7 +44,6 @@
 		(. *layer_panel_detail* :add_front *img_panel*)
 		(. *layer_land* :reset_field_map)
 		(set-world-layers-pos 0 0)
-		(set-world-layers-size (* *zoom* +window_width) (* *zoom* +window_height))
 		(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
 		(rescale-active-sprites)
 		(if *player_man* (update-camera *player_man*))
@@ -65,8 +64,8 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 
-	; start 30 fps game loop timer
-	(mail-timeout (elem-get select +select_timer) (const (/ 1000000 +frame_rate)) 0)
+	; start game loop timer
+	(mail-timeout (elem-get select +select_timer) +rate 0)
 	; main event loop
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -101,7 +100,7 @@
 					((. *window* :event *msg*))))
 			(+select_timer
 				; re-arm 30 fps timer
-				(mail-timeout (elem-get select +select_timer) (const (/ 1000000 +frame_rate)) 0)
+				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(when (/= *game_state* *old_game_state*)
 					(setq *old_game_state* *game_state*)
 					(case *game_state*

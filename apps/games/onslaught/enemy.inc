@@ -8,8 +8,7 @@
 		(:sp_add_component (const at-update) (const at-init))
 		(:sp_add_component (const mv-update) (const mv-init))
 		(:sp_set_frame +frm_64x64_l_horse))
-	(set this
-		:at_speed 4
+	(set this :at_speed 4
 		:at_table (list +frm_64x64_l_horse (+ +frm_64x64_l_horse 1) (+ +frm_64x64_l_horse 2)
 					(+ +frm_64x64_l_horse 3) (+ +frm_64x64_l_horse 4) (+ +frm_64x64_l_horse 5))))
 
@@ -19,8 +18,7 @@
 		(:sp_add_component (const at-update) (const at-init))
 		(:sp_add_component (const mv-update) (const mv-init))
 		(:sp_set_frame +frm_64x64_l_skeleton_horse))
-	(set this
-		:at_speed 4
+	(set this :at_speed 4
 		:at_table (list +frm_64x64_l_skeleton_horse (+ +frm_64x64_l_skeleton_horse 1) (+ +frm_64x64_l_skeleton_horse 2)
 					(+ +frm_64x64_l_skeleton_horse 3) (+ +frm_64x64_l_skeleton_horse 4) (+ +frm_64x64_l_skeleton_horse 5))))
 

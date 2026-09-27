@@ -21,8 +21,8 @@
 	(ui-flow *panel_layers* (:flow_flags +flow_stack_fill :min_width (* *zoom* +screen_width) :min_height (* *zoom* +panel_height))
 		(ui-view *layer_panel_detail*)
 		(ui-view *layer_panel_items*)
-		(ui-view *layer_left_axe*)
-		(ui-view *layer_right_axe*)))
+		(ui-view *layer_status_levels*)
+		(ui-view *layer_left_axes*)))
 
 (defq +sprite_layers `'(,*layer_fx* ,*layer_missiles* ,*layer_bodies* ,*layer_player* ,*layer_enemies*
 		,*layer_items* ,*layer_bans*)
