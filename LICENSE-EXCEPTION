@@ -1,0 +1,47 @@
+"CLASSPATH" EXCEPTION TO THE GPL
+
+ChrysaLisp is licensed under the GNU General Public License version 2
+(see LICENSE) with the "Classpath" exception below. The SPDX expression
+for this combination is:
+
+    GPL-2.0-only WITH Classpath-exception-2.0
+
+The exception text below is reproduced word for word from the "Classpath"
+exception that has applied since 1998 to GNU Classpath, since 2006 to
+OpenJDK, and to OpenJFX. It is the same exception under which every Java
+application links against the JDK class library. It has not been altered.
+
+The mechanism, a GPL'd runtime whose copyright holders grant additional
+permission for independent code to link against it, is the same one used
+outside the Java world by the GCC Runtime Library Exception (libgcc,
+libstdc++, and the other GCC runtime libraries that every C and C++
+program built with GCC links against) and by the eCos real-time operating
+system, an embedded OS distributed under GPLv2 with a linking exception
+and shipped inside commercial firmware for two decades.
+
+In the text below, "this library" means ChrysaLisp: the kernel, the
+virtual processor runtime, the Lisp runtime and compiler, and the class
+libraries distributed in this repository.
+
+For the avoidance of doubt, an application written in ChrysaLisp Lisp
+or VP that is loaded and run by ChrysaLisp, and that is not itself a
+modified copy of ChrysaLisp, is an "independent module" for the
+purposes of this exception, whether it is delivered in the boot image,
+on the file system, or over the network.
+
+    Linking this library statically or dynamically with other modules is
+    making a combined work based on this library.  Thus, the terms and
+    conditions of the GNU General Public License cover the whole
+    combination.
+
+    As a special exception, the copyright holders of this library give
+    you permission to link this library with independent modules to
+    produce an executable, regardless of the license terms of these
+    independent modules, and to copy and distribute the resulting
+    executable under terms of your choice, provided that you also meet,
+    for each linked independent module, the terms and conditions of the
+    license of that module.  An independent module is a module which is
+    not derived from or based on this library.  If you modify this
+    library, you may extend this exception to your version of the
+    library, but you are not obligated to do so.  If you do not wish to
+    do so, delete this exception statement from your version.
