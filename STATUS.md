@@ -4,6 +4,8 @@
 
 ------
 
+Catch load time errors as well as running 'main' in `:lisp :run`.
+
 Added Window property `:resizable`, defaults to `:t`.
 
 `(ctx_blit)` can now take optional sx, sy arguments. If not provided, it will use the default 0,0.
