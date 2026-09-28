@@ -94,7 +94,7 @@
 						fh (or (get :sp_frame_h this) 16)
 						scaled_fh (* zoom fh)
 						raw_y (* f scaled_fh) col (/ raw_y th)
-						sy (+ (% raw_y th) (- scaled_fh h))
+						sy (% raw_y th)
 						sx (* col (* zoom fw))
 						dir (or (get :sp_dir this) 1))
 					(when (and (>= dir 0) (get :sp_canvas_r this))
