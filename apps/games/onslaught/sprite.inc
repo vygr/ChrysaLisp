@@ -292,5 +292,6 @@
 	(bind '(x y w h) (. *world_scroll* :get_relative this))
 	(bind '(ww wh) (. *world_scroll* :get_size))
 	(when (or (< x (neg w)) (< y (neg h)) (>= x ww) (>= y wh))
+		(def this :sp_death :nil)
 		(. this :sp_kill))
 	this)

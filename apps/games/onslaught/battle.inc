@@ -105,8 +105,6 @@
 		lvl_offset (* *game_level* 6)
 		unit_idx (+ (random 6) lvl_offset)
 		type (elem-get army_tbl unit_idx))
-	(print "spawn unit type =" type)
-	(print)
 	(bind '(w h) (elem-get +enemy_sizes type))
 	(when (defq pt (get-spawn-surface 1 w h))
 		(bind '(px py) pt)
@@ -129,10 +127,7 @@
 (defun spawn-enemy-left ()
 	; spawn an overrun enemy from the stack on the left side moving right
 	(if (<= *enemy_stack_index* 0) (spawn-enemy-right)
-		(defq type (last *enemy_stack*)
-			pt :nil)
-		(print "spawn left unit type =" type)
-		(print)
+		(defq type (last *enemy_stack*) pt :nil)
 		(bind '(w h) (elem-get +enemy_sizes type))
 		(ifn (setq pt (get-spawn-surface -1 w h)) (spawn-enemy-right)
 			(bind '(px py) pt)
@@ -208,9 +203,7 @@
 		  *mine_count* 0
 		  *mine_max* (+ (random 3) 1)
 		  *enemy_max* (+ (random 4) 2)
-		  *enemy_army* 8)
-	(print "army type =" *enemy_army* (elem-get +army_names *enemy_army*))
-	(print)
+		  *enemy_army* (random (length +army_tables)))
 	(update-camera *player_man*))
 
 (defun battle-state-update ()

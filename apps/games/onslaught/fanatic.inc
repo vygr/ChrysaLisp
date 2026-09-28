@@ -188,7 +188,7 @@
 			(logior +ftp_tower +ftp_horse +ftp_boarrider +ftp_carpet +ftp_skeleton_horse)
 			*man_collision_table*))
 		(:sp_add_component (CL *layer_enemies*
-			(logior +ftp_knight +ftp_skeleton +ftp_monk)
+			(logior +ftp_knight +ftp_skeleton +ftp_monk +ftp_skeleton_monk)
 			*man_collision_table*))
 		(:sp_add_component (CL *layer_enemies* +ftp_footman *man_collision_table*))
 		(:sp_add_component (CL *layer_bans* -1 *man_collision_table*))

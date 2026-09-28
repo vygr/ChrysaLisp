@@ -96,6 +96,11 @@
 		(:sp_add_component at_comp)
 		(:sp_set_frame (first at_table))))
 
+(defclass EnemyAddon (enemy mt_table at_speed at_table &optional hitpnt) (Addon enemy mt_table at_speed at_table)
+	; (EnemyAddon enemy mt_table at_speed at_table [hitpnt]) -> enemy weapon addon with player collision
+	(def this :sp_hitpnt (or hitpnt 8))
+	(. this :sp_add_component (CL *layer_player* +ftp_man *man_collision_table*)))
+
 ; test trigger to cycle player actions
 
 (defq *test_addon_idx* 0

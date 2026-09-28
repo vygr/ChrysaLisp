@@ -54,10 +54,18 @@
 			; jumped over mine safely
 			:nil)
 		(:t
-			(defq hit_pnt (or (get :sp_hitpnt hit) 10))
+			(defq hit_pnt (or (get :sp_hitpnt hit) 10)
+				death_hook (get :sp_death hit)
+				dir (or (get :sp_dir hit) 1))
 			(setq *man_strength* (max 0 (- *man_strength* hit_pnt)))
-			(audio-play-rpc *sfx_explode*)
 			(. hit :sp_kill)
+			(unless death_hook
+				; projectile had no death explosion: silent directional blood spray
+				(bind '(mx my mw mh) (. this :sp_get_bounds))
+				(defq bx (- (+ mx (/ mw 2)) 8)
+					by (- (+ my (/ mh 2)) 8)
+					spray (Blood bx by dir))
+				(. *layer_fx* :add_front spray))
 			(if (<= *man_strength* 0)
 				(. this :sp_kill)))))
 
@@ -75,22 +83,31 @@
 		(setq *man_power* (min +max_power (* *man_power* 2)))))
 
 (defun cl-enemy-addon-hits-man (this hit)
-	; enemy weapon addon hitting player man
-	(defq hit_pnt (or (get :sp_hitpnt hit) 10))
-	(setq *man_strength* (max 0 (- *man_strength* hit_pnt)))
-	(audio-play-rpc *sfx_clash1*)
-	(if (<= *man_strength* 0)
-		(. this :sp_kill)))
+	; enemy weapon addon hitting player man: play clash, spawn sparks, deduct strength
+	(unless (get :has_hit this)
+		(def this :has_hit :t)
+		(defq hit_pnt (or (get :sp_hitpnt this) 8))
+		(setq *man_strength* (max 0 (- *man_strength* hit_pnt)))
+		(audio-play-rpc (if (= (random 2) 0) *sfx_clash1* *sfx_clash2*))
+		(spawn-fizz-fx (get :sp_x this) (get :sp_y this))
+		(if (<= *man_strength* 0)
+			(. hit :sp_kill))))
 
 (defun cl-man-missile-hits (this hit)
 	; player missile / arrow hitting target
+	(when (>= (or (get :sp_hitpnt this) 0) 500)
+		(when (eql (get :sp_death hit) (const dt-kill-enemy))
+			(def hit :sp_death (const dt-kill-zap))))
 	(audio-play-rpc *sfx_clash2*)
 	(. hit :sp_kill)
 	(. this :sp_kill))
 
 (defun cl-man-addon-hits (this hit)
 	; player weapon mase hitting target
-	(audio-play-rpc *sfx_clash1*)
+	(when (>= (or (get :sp_hitpnt this) 0) 500)
+		(when (eql (get :sp_death hit) (const dt-kill-enemy))
+			(def hit :sp_death (const dt-kill-zap))))
+	(audio-play-rpc (if (= (random 2) 0) *sfx_clash1* *sfx_clash2*))
 	(. hit :sp_kill))
 
 ; collision dispatch tables indexed by (log2 type)
