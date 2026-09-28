@@ -5,7 +5,7 @@
 ; onslaught battle state
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq *current_map_idx* 1)
+(defq *current_map_idx* 1 *game_level* +game_level_field *battle_state_count* 0)
 
 ; collision handlers for player man
 
@@ -45,5 +45,44 @@
 	(setq *player_man* man))
 
 (defun battle-state-update ()
-	(update-camera *player_man*)
-	(update-sprite-layers))
+	; check for player death
+	(if (or (not *player_man*) (get :sp_dead *player_man*))
+		(goto-title +game_state_hiscore)
+		(update-camera *player_man*)
+		(update-sprite-layers)))
+
+(defun battle-won-state-init ()
+	(setq *battle_state_count* 0))
+
+(defun battle-won-state-update ()
+	; delay for 96 frames before level interlude
+	(++ *battle_state_count*)
+	(when (>= *battle_state_count* 96)
+		(defq next_state (case *game_level*
+			(+game_level_field
+				(setq *game_level* +game_level_seige)
+				+game_state_battle)
+			(+game_level_seige
+				+game_state_mind)
+			(:t
+				(setq *game_level* +game_level_field)
+				+game_state_battle)))
+		(goto-title next_state)))
+
+(defun battle-lost-state-init ()
+	(setq *battle_state_count* 0))
+
+(defun battle-lost-state-update ()
+	; delay for 96 frames before retreat interlude
+	(++ *battle_state_count*)
+	(when (>= *battle_state_count* 96)
+		(defq next_state (case *game_level*
+			(+game_level_field
+				(setq *game_level* +game_level_defend)
+				+game_state_battle)
+			(+game_level_seige
+				(setq *game_level* +game_level_field)
+				+game_state_battle)
+			(:t
+				+game_state_mind)))
+		(goto-title next_state)))

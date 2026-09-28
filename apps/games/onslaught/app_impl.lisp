@@ -4,8 +4,9 @@
 
 (import "./enums.inc")
 
-(defq *app_root* (path-to-file) *game_state* +game_state_title +zoom_min 1 +zoom_max 3 *zoom* 2
-	*old_zoom* 0 +frame_rate 20 *running* :t *old_game_state* -1 +rate (/ 1000000 +frame_rate))
+(defq *app_root* (path-to-file) *game_state* +game_state_title *game_state_next* +game_state_battle
+	+zoom_min 1 +zoom_max 3 *zoom* 2 *old_zoom* 0 +frame_rate 20 *running* :t
+	*old_game_state* -1 +rate (/ 1000000 +frame_rate))
 
 (import "lib/debug/frames.inc")
 (import "service/audio/app.inc")
@@ -27,6 +28,31 @@
 
 (import "./title.inc")
 (import "./battle.inc")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; unported state placeholders
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun menu-state-init ())
+(defun menu-state-update ())
+(defun map-state-init ())
+(defun map-state-update ())
+(defun scores-state-init ())
+(defun scores-state-update ())
+(defun hiscore-state-init ())
+(defun hiscore-state-update ())
+(defun mind-state-init ())
+(defun mind-state-update ())
+(defun mind-won-state-init ())
+(defun mind-won-state-update ())
+(defun mind-lost-state-init ())
+(defun mind-lost-state-update ())
+(defun credits-state-init ())
+(defun credits-state-update ())
+(defun oracle-state-init ())
+(defun oracle-state-update ())
+(defun demo-state-init ())
+(defun demo-state-update ())
 
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (prin _) (print) :t)))
@@ -107,7 +133,7 @@
 					(setq *old_game_state* *game_state*)
 					(case *game_state*
 						(+game_state_title
-							(title-state-init))
+							(title-state-init *game_state_next*))
 						(+game_state_menu
 							(menu-state-init))
 						(+game_state_map

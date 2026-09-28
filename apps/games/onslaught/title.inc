@@ -39,7 +39,7 @@
 (defun dt-drip (this)
 	; death hook for drip
 	(audio-play-rpc *sfx_drip*)
-	(setq *game_state* +game_state_battle))
+	(setq *game_state* (or *game_state_next* +game_state_battle)))
 
 (defun cp-sword (this that)
 	; this = sprite, that = component instance
@@ -113,8 +113,14 @@
 
 (defq *title_letter_idx* 0)
 
-(defun title-state-init (&optional layer)
-	(setq *title_letter_idx* 0)
+(defun goto-title (&optional next_state)
+	; transition to title sequence with next target state
+	(setq *game_state_next* (or next_state +game_state_battle)
+		  *game_state* +game_state_title))
+
+(defun title-state-init (&optional next_state)
+	(if next_state (setq *game_state_next* next_state))
+	(setq *title_letter_idx* 0 *player_man* :nil)
 	(clear-sprite-layers)
 	(set-world-layers-pos 0 0)
 	(set-world-layers-size (* *zoom* +screen_width) (* *zoom* +screen_height))
@@ -123,8 +129,8 @@
 	(spawn-title-letter *title_letter_idx*))
 
 (defun title-state-update ()
-	; check fire button to skip title sequence directly to battle
+	; check fire button to skip title sequence directly to next state
 	(if (bits? *game_controls* +fkey_keya)
 		(setq *test_addon_pressed* :t
-			  *game_state* +game_state_battle)
+			  *game_state* (or *game_state_next* +game_state_battle))
 		(update-sprite-layers)))
