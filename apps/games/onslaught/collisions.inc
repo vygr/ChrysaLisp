@@ -89,7 +89,8 @@
 		(defq hit_pnt (or (get :sp_hitpnt this) 8))
 		(setq *man_strength* (max 0 (- *man_strength* hit_pnt)))
 		(audio-play-rpc (if (= (random 2) 0) *sfx_clash1* *sfx_clash2*))
-		(spawn-fizz-fx (get :sp_x this) (get :sp_y this))
+		(bind '(ax ay aw ah) (. this :sp_get_bounds))
+		(spawn-fizz-fx (+ ax (/ aw 2)) (+ ay (/ ah 2)))
 		(if (<= *man_strength* 0)
 			(. hit :sp_kill))))
 

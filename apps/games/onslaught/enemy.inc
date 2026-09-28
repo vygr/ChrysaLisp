@@ -14,7 +14,9 @@
 	+blat_offsets
 	''((-32 -32) (0 -32) (0 0) (-32 0)
 	   (-40 -16) (8 -16) (-16 -40) (-16 8)
-	   (-24 -16) (-8 -16) (-16 -24) (-16 -8)))
+	   (-24 -16) (-8 -16) (-16 -24) (-16 -8))
+	+bone_vectors
+	''((1 -8) (-1 -8) (2 -6) (-2 -6)))
 
 (defun cp-enemy-fall (this that)
 	; check map surface below front foot and apply gravity when walking off ledge
@@ -410,6 +412,52 @@
 		(. *layer_fx* :add_front fx))
 	(audio-play-rpc *sfx_spell*))
 
+(defun dt-kill-bones (this)
+	; skeleton death: decrement count and scatter bouncing bone fragments from torso
+	(-- *enemy_count*)
+	(bind '(x y) (. this :sp_get_pos))
+	(defq bx (+ x 8)
+		by (+ y 12))
+	(each (lambda ((vx vy))
+		(defq bone (. (Bone bx by vx vy) :sp_set_pos bx by))
+		(. *layer_fx* :add_front bone))
+		+bone_vectors)
+	(audio-play-death))
+
+(defun dt-kill-skeleton-horse (this)
+	; skeleton horse death: rider skeleton dismounts, horse bursts with bones from ribcage
+	(bind '(x y w h) (. this :sp_get_bounds))
+	(defq dir (or (get :sp_dir this) 1)
+		skel (Skeleton)
+		mv (elem-get (get :sp_components skel) +en_comp_mv))
+	(def skel :sp_dir dir)
+	(when mv (set mv :vx (* (get :max_vx mv) dir)))
+	(. skel :sp_set_pos (+ x 16) y)
+	(. *layer_enemies* :add_front skel)
+	(defq bx (+ x 24)
+		by (+ y 28))
+	(each (lambda ((vx vy))
+		(defq bone (. (Bone bx by vx vy) :sp_set_pos bx by))
+		(. *layer_fx* :add_front bone))
+		+bone_vectors)
+	(audio-play-rpc *sfx_spell*))
+
+(defun cp-bone (this that)
+	; bone lifespan countdown and bounce against floor
+	(defq life (- (or (get :life this) 20) 1))
+	(if (<= life 0)
+		(. this :sp_kill)
+		(def this :life life)
+		(bind '(x y w h) (. this :sp_get_bounds))
+		(when (defq mv (elem-get (get :sp_components this) 0))
+			(defq vy (get :vy mv))
+			(when (> vy 0)
+				(defq ground_y (logand (+ y h vy) (neg +tile_height)))
+				(when (bits? (. *layer_land* :get_tile_flags (+ x 8) ground_y) +fmap_stand)
+					(. this :sp_set_pos x (- ground_y h))
+					(set mv :vy (neg vy))
+					(spawn-fizz-fx (+ x 8) (+ y 8)))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;
 ; enemy sprite classes
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -605,8 +653,20 @@
 		(:sp_add_component (CP (const cp-enemy-offscreen)))
 		(:sp_set_frame +frm_fanatic_l_skeleton_monk)))
 
+(defclass Bone (x y vx vy) (Sprite *img_frm_16x16* :nil 16 16 :16x16)
+	; (Bone x y vx vy) -> bouncing skeletal bone fragment
+	(def this :life 20)
+	(.-> this
+		(:sp_add_component (MV vx vy 0 1 10 10))
+		(:sp_add_component (AT 1 (list +frm_16x16_bones (+ +frm_16x16_bones 1) (+ +frm_16x16_bones 2))))
+		(:sp_add_component (CP (const cp-bone)))
+		(:sp_add_component (CP (const offscreen-update)))
+		(:sp_set_pos x y)
+		(:sp_set_frame +frm_16x16_bones)))
+
 (defclass SkeletonHorse () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr (const dt-kill-skeleton-horse))
-	(def this :sp_type +ftp_skeleton_horse :bftp_type 14 :fall_frame 10 :dead_frame 11)
+	; (SkeletonHorse) -> undead skeleton horse enemy sprite
+	(def this :sp_type +ftp_skeleton_horse :bftp_type 14 :fall_frame 10)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 8 8))
 		(:sp_add_component (AT 2 '(6 7 8 9)))
@@ -614,7 +674,8 @@
 		(:sp_add_component (CP (const cp-enemy-offscreen)))
 		(:sp_set_frame +frm_64x64_l_skeleton_horse)))
 
-(defclass Skeleton () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
+(defclass Skeleton () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic (const dt-kill-bones))
+	; (Skeleton) -> skeleton foot soldier enemy sprite
 	(def this :sp_type +ftp_skeleton :bftp_type 15
 		:fall_frame (+ +frm_fanatic_l_skeleton 11)
 		:duck_frame (+ +frm_fanatic_l_skeleton 12))
