@@ -68,6 +68,7 @@
 		*img_frm_32c32_r* (flip-canvas *img_frm_32c32_l*)
 		*img_frm_32x16_r* (flip-canvas *img_frm_32x16_l*)
 		*img_frm_32x32_r* (flip-canvas *img_frm_32x32_l*)
+		*img_frm_64x32_r* (flip-canvas *img_frm_64x32_l*)
 		*img_frm_64x64_r* (flip-canvas *img_frm_64x64_l*)))
 
 (defun unload-wav-assets ()

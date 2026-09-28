@@ -46,12 +46,20 @@
 
 (defun cl-man-hits (this hit)
 	; general hit by missile / enemy fire / mine
-	(defq hit_pnt (or (get :sp_hitpnt hit) 10))
-	(setq *man_strength* (max 0 (- *man_strength* hit_pnt)))
-	(audio-play-rpc *sfx_explode*)
-	(. hit :sp_kill)
-	(if (<= *man_strength* 0)
-		(. this :sp_kill)))
+	(defq hit_frame (or (get :sp_frame hit) 0))
+	(cond
+		((and (or (= hit_frame +frm_16x16_mine) (= hit_frame (+ +frm_16x16_mine 1)))
+			  (/= (+ (get :sp_y this) (get :sp_h this))
+				  (+ (get :sp_y hit) (get :sp_h hit))))
+			; jumped over mine safely
+			:nil)
+		(:t
+			(defq hit_pnt (or (get :sp_hitpnt hit) 10))
+			(setq *man_strength* (max 0 (- *man_strength* hit_pnt)))
+			(audio-play-rpc *sfx_explode*)
+			(. hit :sp_kill)
+			(if (<= *man_strength* 0)
+				(. this :sp_kill)))))
 
 (defun cl-man-hits-banner (this hit)
 	; touching player banner recovers power to at least half

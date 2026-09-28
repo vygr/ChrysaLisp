@@ -5,7 +5,7 @@
 ; onslaught battle state
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq +max_enemy_stack 16 *enemy_max* 6
+(defq +max_enemy_stack 16 *enemy_max* 6 *mine_count* 0 *mine_max* 3
 	*current_map_idx* 1 *game_level* +game_level_field *battle_state_count* 0
 	*enemy_army* 0 *enemy_count* 0 *enemy_spawn_delay* 1
 	*enemy_stack* (list) *enemy_stack_index* 0
@@ -51,26 +51,53 @@
 ; enemy spawn routines
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(defun get-spawn-xy (w h dir)
-	; search downwards for a solid standable map platform
-	(defq x (if (= dir 1) (+ *camera_x* +window_width -1) (- *camera_x* w -1))
-		x (max 0 (min (- (* +map_width +tile_width) w) x))
-		x1 (+ x w -1)
-		rand_y (* (random (const (- (/ +window_height +tile_height) 1))) +tile_height)
-		y (logand (+ *camera_y* rand_y) (neg +tile_height))
-		cam_bottom (+ *camera_y* +window_height)
+(defun get-spawn-surface (side w &optional h)
+	; find solid ground surface point (x y) wide enough for w at visible screen edge on map
+	(bind '(lx ly lw lh) (. *world_scroll* :get_relative *layer_land*))
+	(bind '(ww wh) (. *world_scroll* :get_size))
+	(defq cam_x (/ (neg lx) *zoom*)
+		cam_y (/ (neg ly) *zoom*)
+		cam_w (/ ww *zoom*)
+		cam_h (/ wh *zoom*)
+		map_w (/ lw *zoom*)
+		map_h (/ lh *zoom*)
+		probe_x (if (= side 1)
+			(max 0 (min (- map_w 1) (+ cam_x cam_w -1)))
+			(max 0 (min (- map_w 1) cam_x)))
+		trail_x (if (= side 1)
+			(+ probe_x w -1)
+			(- (+ probe_x 1) w))
+		rand_y (* (random (max 1 (- (/ cam_h +tile_height) 1))) +tile_height)
+		start_y (+ (- cam_y (% cam_y +tile_height)) rand_y)
+		cam_bottom (+ cam_y cam_h)
+		sprite_h (or h 32)
+		y start_y
 		found_y :nil)
-	(while (and (not found_y) (< y (const (* +map_height +tile_height))))
-		(defq f1 (. *layer_land* :get_tile_flags x y)
-			f2 (. *layer_land* :get_tile_flags x1 y))
-		(when (and (bits? f1 +fmap_stand) (bits? f2 +fmap_stand)
-				   (not (bits? f1 +fmap_climb)) (not (bits? f2 +fmap_climb)))
-			(defq sy (- y h))
-			(if (<= *camera_y* sy (- cam_bottom 16))
-				(setq found_y sy)
-				(setq y (+ (const (* +map_height +tile_height)) 1))))
+	(while (and (not found_y) (< y cam_bottom) (< y map_h))
+		(defq f_lead (. *layer_land* :get_tile_flags probe_x y)
+			f_trail (if (or (< trail_x 0) (>= trail_x map_w))
+				+fmap_stand
+				(. *layer_land* :get_tile_flags trail_x y)))
+		(when (and (bits? f_lead +fmap_stand) (bits? f_trail +fmap_stand)
+				   (not (bits? f_lead +fmap_climb)) (not (bits? f_trail +fmap_climb)))
+			(defq f_above (. *layer_land* :get_tile_flags probe_x (- y 1))
+				f_above_t (if (or (< trail_x 0) (>= trail_x map_w))
+					0
+					(. *layer_land* :get_tile_flags trail_x (- y 1))))
+			(unless (or (bits? f_above +fmap_stand) (bits? f_above_t +fmap_stand)
+					   (< (- y sprite_h) cam_y))
+				(setq found_y y)))
 		(setq y (+ y +tile_height)))
-	(if found_y (list x found_y) :nil))
+	(if found_y (list probe_x found_y) :nil))
+
+(defun place-enemy-sprite (sp surface_x surface_y)
+	; place sprite so its bottom leading edge matches (surface_x, surface_y) with 1 pixel showing
+	(bind '(w h) (. sp :sp_get_size))
+	(defq dir (or (get :sp_dir sp) 1)
+		x (if (= dir 1) (- (+ surface_x 1) w) surface_x)
+		y (- surface_y h))
+	(. sp :sp_set_pos x y)
+	(list x y w h))
 
 (defun spawn-enemy-right ()
 	; spawn an enemy on the right side of the screen moving left
@@ -78,43 +105,53 @@
 		lvl_offset (* *game_level* 6)
 		unit_idx (+ (random 6) lvl_offset)
 		type (elem-get army_tbl unit_idx))
+	(print "spawn unit type =" type)
+	(print)
 	(bind '(w h) (elem-get +enemy_sizes type))
-	(when (defq pos (get-spawn-xy w h 1))
-		(bind '(x y) pos)
-		(defq mask (if (is-stationary-type type)
-					   (logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk)
-					   -1))
-		(unless (or (and (is-stationary-type type) (>= x (const (- (* +map_width +tile_width) 32))))
-					(sprite-collide *layer_enemies* x y w h mask))
+	(when (defq pt (get-spawn-surface 1 w h))
+		(bind '(px py) pt)
+		(defq dir -1
+			x px
+			y (- py h)
+			stationary (is-stationary-type type))
+		(unless (or (and stationary (>= x (const (- (* +map_width +tile_width) 32))))
+					(and stationary (sprite-collide *layer_enemies* x y w h
+						(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))))
 			(defq sp (create-enemy-type type)
 				mv (elem-get (get :sp_components sp) +en_comp_mv))
-			(def sp :sp_dir -1)
+			(def sp :sp_dir dir)
 			(when mv
 				(set mv :vx (neg (get :max_vx mv))))
-			(. sp :sp_set_pos x y)
+			(place-enemy-sprite sp px py)
 			(. *layer_enemies* :add_front sp)
 			(++ *enemy_count*))))
 
 (defun spawn-enemy-left ()
 	; spawn an overrun enemy from the stack on the left side moving right
-	(when (> *enemy_stack_index* 0)
-		(defq type (last *enemy_stack*))
+	(if (<= *enemy_stack_index* 0) (spawn-enemy-right)
+		(defq type (last *enemy_stack*)
+			pt :nil)
+		(print "spawn left unit type =" type)
+		(print)
 		(bind '(w h) (elem-get +enemy_sizes type))
-		(ifn (defq pos (get-spawn-xy w h -1)) (spawn-enemy-right)
-			(bind '(x y) pos)
-			(defq mask (if (is-stationary-type type)
-						   (logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk)
-						   -1))
-			(if (sprite-collide *layer_enemies* x y w h mask)
+		(ifn (setq pt (get-spawn-surface -1 w h)) (spawn-enemy-right)
+			(bind '(px py) pt)
+			(defq dir 1
+				x (- (+ px 1) w)
+				y (- py h)
+				stationary (is-stationary-type type))
+			(if (or (and stationary (<= x 0))
+					(and stationary (sprite-collide *layer_enemies* x y w h
+						(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))))
 				(spawn-enemy-right)
 				(pop *enemy_stack*)
 				(-- *enemy_stack_index*)
 				(defq sp (create-enemy-type type)
 					mv (elem-get (get :sp_components sp) +en_comp_mv))
-				(def sp :sp_dir 1)
+				(def sp :sp_dir dir)
 				(when mv
 					(set mv :vx (get :max_vx mv)))
-				(. sp :sp_set_pos x y)
+				(place-enemy-sprite sp px py)
 				(. *layer_enemies* :add_front sp)
 				(++ *enemy_count*)))))
 
@@ -134,6 +171,22 @@
 							(spawn-enemy-left)
 							(spawn-enemy-right))))))))
 
+(defun init-mines ()
+	; spawn ground mines ahead of player in *layer_bans* with 1 pixel showing
+	(when (and (/= *game_level* +game_level_defend)
+			   (< *mine_count* *mine_max*)
+			   *player_man*)
+		(defq dir (or (get :sp_dir *player_man*) 1))
+		(when (defq pt (get-spawn-surface dir 16 8))
+			(bind '(px py) pt)
+			(defq x (if (= dir 1) px (- (+ px 1) 16))
+				y (- py 8))
+			(unless (sprite-collide *layer_bans* (- x 28) y 72 8 +ftp_enemy_fire)
+				(defq mine (Mine))
+				(. mine :sp_set_pos x y)
+				(. *layer_bans* :add_front mine)
+				(++ *mine_count*)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;
 ; battle state hooks
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -152,8 +205,12 @@
 		  *enemy_stack_index* 0
 		  *enemy_count* 0
 		  *enemy_spawn_delay* 1
+		  *mine_count* 0
+		  *mine_max* (+ (random 3) 1)
 		  *enemy_max* (+ (random 4) 2)
-		  *enemy_army* (random (length +army_tables)))
+		  *enemy_army* 8)
+	(print "army type =" *enemy_army* (elem-get +army_names *enemy_army*))
+	(print)
 	(update-camera *player_man*))
 
 (defun battle-state-update ()
@@ -164,6 +221,7 @@
 		((>= *enemy_stack_index* +max_enemy_stack)
 			(setq *game_state* +game_state_battle_lost))
 		(:t
+			(init-mines)
 			(init-enemies)
 			(update-camera *player_man*)
 			(update-sprite-layers))))

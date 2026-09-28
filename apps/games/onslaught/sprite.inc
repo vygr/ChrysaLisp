@@ -53,7 +53,8 @@
 			(when (defq death (get :sp_death this))
 				(def this :sp_death :nil)
 				(death this))
-			(. this :sub))
+			(when (get :parent this)
+				(. this :sub)))
 		this)
 
 	(defmethod :sp_set_frame (f)
