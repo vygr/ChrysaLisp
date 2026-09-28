@@ -332,19 +332,6 @@
 	(spawn-flying-body this)
 	(audio-play-rpc *sfx_horse*))
 
-(defun dt-kill-skeleton-horse (this)
-	; skeleton horse death: rider skeleton dismounts, skeleton horse body flies away
-	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1)
-		skel (Skeleton)
-		mv (elem-get (get :sp_components skel) +en_comp_mv))
-	(def skel :sp_dir dir)
-	(when mv (set mv :vx (* (get :max_vx mv) dir)))
-	(. skel :sp_set_pos (+ x 16) y)
-	(. *layer_enemies* :add_front skel)
-	(spawn-flying-body this)
-	(audio-play-rpc *sfx_horse*))
-
 (defun dt-kill-boarrider (this)
 	; boarrider death: spearman dismounts, boar body flies away
 	(bind '(x y) (. this :sp_get_pos))
