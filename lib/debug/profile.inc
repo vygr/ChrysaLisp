@@ -49,7 +49,9 @@
 	__r__))
 
 (redefmacro defun (n a &rest _)
-	(static-qq (defq ,n (,'lambda ,a ~(profile-instrument n _)))))
+	(if (get n (penv))
+		(throw "Function override !, use redefun ?" n)
+		(static-qq (defq ,n (,'lambda ,a ~(profile-instrument n _))))))
 
 (redefmacro defmethod (n a &rest _)
 	(static-qq (def *vtable* ,n (,'lambda (this & ~a)

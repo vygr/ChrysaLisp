@@ -29,8 +29,12 @@
 
 	;create lisp class
 	(call :lisp :create {script, obj, obj, obj} {lisp})
-	(call :obj :deref {obj})
-	(vpif {lisp})
+	(vpifnot {lisp})
+		;script failed to load - flush error output from sstream
+		(call :stream :flush {obj})
+		(call :obj :deref {obj})
+	(else)
+		(call :obj :deref {obj})
 		;do we have a main ?
 		(call :view :get_prop {lisp->+lisp_environment, static_sym_main} {_, obj})
 		(vpif {obj})

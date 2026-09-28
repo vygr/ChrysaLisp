@@ -504,8 +504,9 @@
 
 (defmacro defun (n a &rest _)
 	; (defun name ([arg ...]) body)
-	(if (get n (penv)) (throw "Function override !, use redefun ?" n))
-	`(defq ,n (lambda ,a ~_)))
+	(if (get n (penv))
+		(throw "Function override !, use redefun ?" n)
+		`(defq ,n (lambda ,a ~_))))
 
 (defmacro redefun (n a &rest _)
 	; (redefun name ([arg ...]) body)
