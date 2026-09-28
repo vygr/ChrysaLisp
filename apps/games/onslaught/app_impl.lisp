@@ -4,8 +4,8 @@
 
 (import "./enums.inc")
 
-(defq *app_root* (path-to-file) *game_state* +game_state_title +zoom_min 1 +zoom_max 3 *zoom* 2
-	*old_zoom* 0 +frame_rate 20 *running* :t *old_game_state* -1 +rate (/ 1000000 +frame_rate))
+(defq *app_root* (path-to-file) *game_state* +game_state_battle +zoom_min 1 +zoom_max 3 *zoom* 2
+	*old_zoom* 0 +frame_rate 20 *running* :t *old_game_state* -1 +rate (/ 10000000 +frame_rate))
 
 (import "lib/debug/frames.inc")
 (import "service/audio/app.inc")
@@ -21,6 +21,7 @@
 (import "./utils.inc")
 (import "./collisions.inc")
 (import "./sprite.inc")
+(import "./addons.inc")
 (import "./fanatic.inc")
 (import "./enemy.inc")
 

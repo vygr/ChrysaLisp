@@ -5,7 +5,8 @@
 (defclass Sprite (canvas_l canvas_r width height tag &optional death) (View)
 	; (Sprite canvas_l canvas_r width height [death]) -> sprite
 	(def this :color 0
-		:sp_x 0 :sp_y 0 :sp_w 0 :sp_h 0
+		:sp_x 0 :sp_y 0 :sp_w width :sp_h height
+		:sp_frame_w width :sp_frame_h height
 		:sp_canvas_l canvas_l :sp_canvas_r canvas_r :sp_canvas_tag tag
 		:sp_frame 0 :sp_dir -1 :sp_components (list)
 		:sp_death (ifn death :nil) :sp_type 0)
@@ -88,8 +89,13 @@
 				(when (defq texture (getf c +canvas_texture 0))
 					(bind '(tid tw th) (texture-metrics texture))
 					(bind '(w h) (. this :get_size))
-					(defq raw_y (* f h) col (/ raw_y th)
-						sy (% raw_y th) sx (* col w)
+					(defq zoom (or (get :zoom this) 1)
+						fw (or (get :sp_frame_w this) 16)
+						fh (or (get :sp_frame_h this) 16)
+						scaled_fh (* zoom fh)
+						raw_y (* f scaled_fh) col (/ raw_y th)
+						sy (+ (% raw_y th) (- scaled_fh h))
+						sx (* col (* zoom fw))
 						dir (or (get :sp_dir this) 1))
 					(when (and (>= dir 0) (get :sp_canvas_r this))
 						(setq sx (- tw (+ sx w))))
@@ -200,18 +206,24 @@
 		(when (> (defq speed (get :speed that)) 0)
 			(when (>= (defq count (inc (get :count that))) speed)
 				(defq count 0 idx (get :index that) f (elem-get table idx))
-				(if (= f -1)
-					(. this :sp_kill)
-					(progn
+				(cond
+					((= f -1)
+						(. this :sp_kill))
+					((and (ifn (get :loop that) :t) (= (inc idx) (length table)))
+						; non-looping animation reached end
+						(. this :sp_set_frame f)
+						(set that :speed 0 :table :nil :count 0 :index 0))
+					(:t
 						(. this :sp_set_frame f)
 						(set that :index (if (= (inc idx) (length table)) 0 (inc idx))))))
 			(set that :count count)))
 	that)
 
-(defun AT (speed table)
-	; (AT speed table) -> component
+(defun AT (speed table &optional loop)
+	; (AT speed table [loop]) -> component
 	(def (defq that (env 1)) :update (const at-update)
-		:speed (or speed 1) :table table :count 0 :index 0)
+		:speed (or speed 1) :table table :count 0 :index 0
+		:loop (ifn (nil? loop) loop :t))
 	that)
 
 ; procedural component wrapper
