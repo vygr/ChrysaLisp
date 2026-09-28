@@ -6,7 +6,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq *player_man* :nil *game_controls* 0
-	+man_comp_at 0)
+	+man_comp_at 0
+	; 11-step jump trajectory: 2 crouch wind-up frames, 8 rising frames, 1 apex frame
+	+jump_offsets
+	''((29 0) (29 0) (8 7) (8 6) (8 5) (8 4) (8 3) (8 3) (8 2) (8 1) (1 1)))
 
 (defun step-walk-cycle (this start_frame end_frame)
 	(defq tick (+ (or (get :man_walk_tick this) 0) 1)
@@ -29,8 +32,18 @@
 (defun player-man-update (this that)
 	; this = sprite, that = component instance
 	(defq man_at (elem-get (get :sp_components this) +man_comp_at))
+	(bind '(x y) (. this :sp_get_pos))
+	(defq xv (or (get :man_xv this) 0)
+		yv (or (get :man_yv this) 0)
+		man_jump (get :man_jump this)
+		h (get :sp_h this)
+		w (get :sp_w this)
+		tile_h +tile_height
+		tile_w +tile_width
+		max_x (- (* +map_width tile_w) w))
+
 	(cond
-		; handle active weapon action animation completion
+		; active weapon attack action animation
 		((get :action_playing this)
 			(ifn (get :table man_at)
 				(progn
@@ -40,6 +53,21 @@
 						(. this :sp_set_frame +frm_fanatic_l_duck)))
 				this))
 
+		; active jump trajectory (committed arc)
+		(man_jump
+			(bind '(jf jv) (elem-get +jump_offsets man_jump))
+			(. this :sp_set_frame jf)
+			(when (/= jv 0)
+				(setq x (+ x xv)
+					  y (- y jv)))
+			(setq man_jump (inc man_jump))
+			(if (= man_jump (length +jump_offsets))
+				(def this :man_jump :nil)
+				(def this :man_jump man_jump))
+			(setq x (max 0 (min max_x x)))
+			(. this :sp_set_pos x y)
+			this)
+
 		; test cycle through all 5 weapon actions on fire button
 		((and (bits? *game_controls* +fkey_keya) (not *test_addon_pressed*))
 			(setq *test_addon_pressed* :t)
@@ -47,15 +75,14 @@
 			(setq *test_addon_idx* (% (+ *test_addon_idx* 1) 5))
 			this)
 
+		; normal movement, climbing, and falling physics
 		(:t
 			(unless (bits? *game_controls* +fkey_keya)
 				(setq *test_addon_pressed* :nil))
 
-			(bind '(x y) (. this :sp_get_pos))
-			(defq xv (or (get :man_xv this) 0) yv (or (get :man_yv this) 0)
-				h (get :sp_h this) w (get :sp_w this) walk_spd 4
-				tile_h +tile_height tile_w +tile_width y1 (+ h yv y)
-				x_probe1 (+ x 8) x_probe2 (+ x 23)
+			(defq y1 (+ h yv y)
+				x_probe1 (+ x 8)
+				x_probe2 (+ x 23)
 				flags1 (. *layer_land* :get_tile_flags x_probe1 y1)
 				flags2 (. *layer_land* :get_tile_flags x_probe2 y1))
 
@@ -64,63 +91,72 @@
 				(progn
 					; falling in air
 					(. this :sp_set_frame +frm_fanatic_l_fall)
-					(setq yv (min 10 (inc yv)) x (+ x xv) y (+ y yv))
+					(setq yv (min 10 (inc yv))
+						  x (+ x xv)
+						  y (+ y yv))
 					(if (= yv 10) (setq xv 0))
 					(def this :man_xv xv :man_yv yv))
+
 				; on surface (floor or ladder)
 				(when (/= yv 0)
 					(if (= yv 10)
 						(. this :sp_set_frame +frm_fanatic_l_duck)
 						(. this :sp_set_frame +frm_fanatic_l_stance))
-					(setq y (- (* (/ y1 tile_h) tile_h) h) yv 0 xv 0)
+					(setq y (- (* (/ y1 tile_h) tile_h) h)
+						  yv 0
+						  xv 0)
 					(def this :man_yv 0 :man_xv 0))
+
 				(cond
-					; climbing up
+					; up control: climb up ladder or initiate jump
 					((bits? *game_controls* +fkey_up)
 						(defq climb_y (+ y h -1)
-							f1 (. *layer_land* :get_tile_flags x_probe1 climb_y)
-							f2 (. *layer_land* :get_tile_flags x_probe2 climb_y))
-						(when (and (bits? f1 +fmap_climb) (bits? f2 +fmap_climb))
-							(defq tx1 (/ x_probe1 tile_w) tx2 (/ x_probe2 tile_w)
-								  ladder_tx (if (and (= tx1 tx2)
-													 (bits? (. *layer_land* :get_tile_flags (- (* tx1 tile_w) 1) climb_y) +fmap_climb))
-												(dec tx1)
-												tx1)
-								  ladder_x (* ladder_tx tile_w))
-							(setq y (- y walk_spd) x ladder_x xv 0 yv 0)
-							(. this :sp_set_frame (+ +frm_fanatic_l_climb (logand (/ y walk_spd) 3)))
-							(def this :man_xv 0 :man_yv 0 :man_walk_tick 0)))
-
-					; climbing down or ducking
-					((bits? *game_controls* +fkey_down)
-						(defq climb_y (+ y h)
-							f1 (. *layer_land* :get_tile_flags x_probe1 climb_y)
-							f2 (. *layer_land* :get_tile_flags x_probe2 climb_y))
+							f1 (. *layer_land* :get_tile_flags (+ x 4) climb_y)
+							f2 (. *layer_land* :get_tile_flags (+ x 27) climb_y))
 						(if (and (bits? f1 +fmap_climb) (bits? f2 +fmap_climb))
 							(progn
-								(defq tx1 (/ x_probe1 tile_w) tx2 (/ x_probe2 tile_w)
-									  ladder_tx (if (and (= tx1 tx2)
-														 (bits? (. *layer_land* :get_tile_flags (- (* tx1 tile_w) 1) climb_y) +fmap_climb))
-													(dec tx1)
-													tx1)
-									  ladder_x (* ladder_tx tile_w))
-								(setq y (+ y walk_spd) x ladder_x xv 0 yv 0)
-								(. this :sp_set_frame (+ +frm_fanatic_l_climb (logand (/ y walk_spd) 3)))
+								; climb ladder
+								(setq y (- y 4)
+									  x (logand (+ x 4) (neg tile_w))
+									  xv 0
+									  yv 0)
+								(. this :sp_set_frame (+ +frm_fanatic_l_climb (logand (>> y 2) 3)))
 								(def this :man_xv 0 :man_yv 0 :man_walk_tick 0))
-							; duck on ground when cannot climb down
-							(setq xv 0 yv 0)
-							(. this :sp_set_frame +frm_fanatic_l_duck)
-							(def this :man_xv 0 :man_yv 0 :man_walk_tick 0)))
+							(progn
+								; initiate jump
+								(def this :man_jump 1 :man_yv 0)
+								(bind '(jf jv) (first +jump_offsets))
+								(. this :sp_set_frame jf))))
+
+					; down control: climb down ladder or duck
+					((bits? *game_controls* +fkey_down)
+						(defq climb_y (+ y h)
+							f1 (. *layer_land* :get_tile_flags (+ x 4) climb_y)
+							f2 (. *layer_land* :get_tile_flags (+ x 27) climb_y))
+						(if (and (bits? f1 +fmap_climb) (bits? f2 +fmap_climb))
+							(progn
+								; climb down ladder
+								(setq y (+ y 4)
+									  x (logand (+ x 4) (neg tile_w))
+									  xv 0
+									  yv 0)
+								(. this :sp_set_frame (+ +frm_fanatic_l_climb (logand (>> y 2) 3)))
+								(def this :man_xv 0 :man_yv 0 :man_walk_tick 0))
+							(progn
+								; duck on ground
+								(setq xv 0 yv 0)
+								(. this :sp_set_frame +frm_fanatic_l_duck)
+								(def this :man_xv 0 :man_yv 0 :man_walk_tick 0))))
 
 					; walking left
 					((bits? *game_controls* +fkey_left)
-						(setq xv (neg walk_spd) x (+ x xv) y (* (/ y tile_h) tile_h))
+						(setq xv -4 x (+ x xv) y (* (/ y tile_h) tile_h))
 						(def this :sp_dir -1 :man_xv xv)
 						(step-walk-cycle this +frm_fanatic_l_walk (dec +frm_fanatic_l_jump)))
 
 					; walking right
 					((bits? *game_controls* +fkey_right)
-						(setq xv walk_spd x (+ x xv) y (* (/ y tile_h) tile_h))
+						(setq xv 4 x (+ x xv) y (* (/ y tile_h) tile_h))
 						(def this :sp_dir 1 :man_xv xv)
 						(step-walk-cycle this +frm_fanatic_l_walk (dec +frm_fanatic_l_jump)))
 
@@ -131,8 +167,6 @@
 						(when (or (bits? flags1 +fmap_stand) (bits? flags2 +fmap_stand))
 							(. this :sp_set_frame +frm_fanatic_l_stance)))))
 
-			; save new position clamped to map bounds
-			(defq max_x (- (* +map_width tile_w) w))
 			(setq x (max 0 (min max_x x)))
 			(. this :sp_set_pos x y)
 			this)))
@@ -140,15 +174,15 @@
 (defclass Fanatic () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
 	; (Fanatic) -> sprite
 	(def this :sp_type +ftp_man :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0
-		:action_playing :nil)
+		:man_jump :nil :action_playing :nil)
 	(.-> this
 		; at (index 0 / +man_comp_at): player weapon body animations
 		(:sp_add_component (AT 0 :nil :nil))
-		; player input, movement, jumping, and falling physics (index 1)
+		; cp (index 1): player input, movement, jumping, and falling physics
 		(:sp_add_component (CP (const player-man-update)))
-		; ducking height and y bounds adjustment component (index 2)
+		; cp (index 2): ducking height and y bounds adjustment component
 		(:sp_add_component (CP (const cp-manduck)))
-		; collision checks in sequence (indices 3..7)
+		; cl1..cl5 (indices 3..7): collision checks
 		(:sp_add_component (CL *layer_missiles* -1 *man_collision_table*))
 		(:sp_add_component (CL *layer_enemies*
 			(logior +ftp_tower +ftp_horse +ftp_boarrider +ftp_carpet +ftp_skeleton_horse)

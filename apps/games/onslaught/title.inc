@@ -123,4 +123,8 @@
 	(spawn-title-letter *title_letter_idx*))
 
 (defun title-state-update ()
-	(update-sprite-layers))
+	; check fire button to skip title sequence directly to battle
+	(if (bits? *game_controls* +fkey_keya)
+		(setq *test_addon_pressed* :t
+			  *game_state* +game_state_battle)
+		(update-sprite-layers)))
