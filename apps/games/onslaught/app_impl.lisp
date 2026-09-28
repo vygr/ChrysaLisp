@@ -19,6 +19,7 @@
 (import "./actions.inc")
 
 (import "./utils.inc")
+(import "./collisions.inc")
 (import "./sprite.inc")
 (import "./fanatic.inc")
 (import "./enemy.inc")

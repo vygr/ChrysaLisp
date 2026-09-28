@@ -1,8 +1,37 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; apps/games/onslaught/battle.inc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught battle state
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq *current_map_idx* 1)
+
+; collision handlers for player man
+
+(defun cl-man-hits-enemy (this hit)
+	; man colliding with general enemy
+	(defq frame (get :sp_frame this))
+	(when (and (>= frame +frm_fanatic_l_climb) (<= frame (+ +frm_fanatic_l_climb 3)))
+		(audio-play-rpc *sfx_clash1*)
+		(. this :sp_kill)))
+
+(defun cl-man-hits-missile (this hit)
+	; missile colliding with man
+	(audio-play-rpc *sfx_explode*)
+	(. hit :sp_kill)
+	(. this :sp_kill))
+
+(defun cl-man-hits-banner (this hit)
+	; banner capture or touch
+	(audio-play-rpc *sfx_spell*))
+
+; collision dispatch tables
+
+(defq
+	*man_missile_collision_table* (list (const cl-man-hits-missile))
+	*man_enemy_collision_table* (list (const cl-man-hits-enemy))
+	*man_banner_collision_table* (list (const cl-man-hits-banner)))
 
 (defun battle-state-init ()
 	(clear-sprite-layers)
@@ -18,27 +47,3 @@
 (defun battle-state-update ()
 	(update-camera *player_man*)
 	(update-sprite-layers))
-
-;other states - not done yet
-;these should go in their own files
-(defun menu-state-init ())
-(defun battle-lost-state-init ())
-(defun mind-state-init ())
-(defun mind-won-state-init ())
-(defun mind-lost-state-init ())
-(defun credits-state-init ())
-(defun oracle-state-init ())
-(defun demo-state-init ())
-;update functions
-(defun menu-state-update ())
-(defun map-state-update ())
-(defun scores-state-update ())
-(defun hiscore-state-update ())
-(defun battle-won-state-update ())
-(defun battle-lost-state-update ())
-(defun mind-state-update ())
-(defun mind-won-state-update ())
-(defun mind-lost-state-update ())
-(defun credits-state-update ())
-(defun oracle-state-update ())
-(defun demo-state-update ())

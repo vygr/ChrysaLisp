@@ -20,7 +20,7 @@
 	(bind '(tx ty) (elem-get '((0 68) (36 68) (72 68) (108 68) (144 68) (180 68) (216 68) (252 68) (288 68)) idx))
 	(bind '(sx sy) (get-xy-outer 32 32))
 	(defq sp (TitleLetter idx))
-	(init-ml sp sx sy tx ty 16)
+	(init-ml sp (get :ml_comp sp) sx sy tx ty 16)
 	(. *layer_bodies* :add_front sp)
 	sp)
 
@@ -41,26 +41,27 @@
 	(audio-play-rpc *sfx_drip*)
 	(setq *game_state* +game_state_battle))
 
-(defun cp-sword (this)
-	; callback when sword reaches target
-	(when (and (>= (get :sp_y this) 52) (/= (get :mv_ay this) 0))
-		(set this :mv_ay 0 :mv_vy 0)
-		(bind '(sx &) (. this :sp_get_pos))
-		(. this :sp_set_pos sx 52)
-		(defq fx_x (+ sx 8) fx_y (+ 52 32))
-		(audio-play-rpc *sfx_clash2*)
-		(spawn-fizz-fx fx_x fx_y)
-		(spawn-title-drip sx fx_y)))
+(defun cp-sword (this that)
+	; this = sprite, that = component instance
+	(when (defq mv (get :mv_comp this))
+		(when (and (>= (get :sp_y this) 52) (/= (get :ay mv) 0))
+			(set mv :ay 0 :vy 0)
+			(bind '(sx &) (. this :sp_get_pos))
+			(. this :sp_set_pos sx 52)
+			(defq fx_x (+ sx 8) fx_y (+ 52 32))
+			(audio-play-rpc *sfx_clash2*)
+			(spawn-fizz-fx fx_x fx_y)
+			(spawn-title-drip sx fx_y))))
 
-(defun cp-letter (this)
-	; callback while letter flies and when it arrives
-	(when (/= (or (get :ml_speed this) 0) 0)
-		(if (>= (or (get :ml_count this) -1) 0)
-			(progn
-				(bind '(lx ly) (. this :sp_get_pos))
-				(spawn-fizz-fx (+ lx 16) (+ ly 16)))
-			(progn
-				(set this :ml_speed 0)
+(defun cp-letter (this that)
+	; this = sprite, that = component instance
+	(when (defq ml (get :ml_comp this))
+		(when (/= (or (get :speed ml) 0) 0)
+			(if (>= (or (get :count ml) -1) 0)
+				(progn
+					(bind '(lx ly) (. this :sp_get_pos))
+					(spawn-fizz-fx (+ lx 16) (+ ly 16)))
+				(set ml :speed 0)
 				(audio-play-rpc *sfx_explode*)
 				(bind '(lx ly) (. this :sp_get_pos))
 				(spawn-bomb-fx lx ly)
@@ -69,54 +70,46 @@
 					(spawn-title-letter *title_letter_idx*)
 					(spawn-title-sword))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; title sequence sprite subtypes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass TitleLetter (idx) (Sprite *img_frm_32c32* :nil 32 32 :32c32)
 	; (TitleLetter idx) -> sprite
-	(def this :letter_idx idx)
+	(def this :letter_idx idx :ml_comp (ML 16))
 	(.-> this
-		(:sp_add_component (const ml-update) (const ml-init))
-		(:sp_add_component (const cp-letter))
-		(:sp_set_frame (+ +frm_32c32_letter_o idx)))
-	(set this :ml_speed 16))
+		(:sp_add_component (get :ml_comp this))
+		(:sp_add_component (CP (const cp-letter)))
+		(:sp_set_frame (+ +frm_32c32_letter_o idx))))
 
 (defclass TitleSword () (Sprite *img_frm_16x64* :nil 16 64 :16x64)
 	; (TitleSword) -> sprite
+	(def this :mv_comp (MV 0 0 0 2))
 	(.-> this
-		(:sp_add_component (const mv-update) (const mv-init))
-		(:sp_add_component (const cp-sword))
-		(:sp_set_frame +frm_16x64_sword))
-	(set this :mv_ay 2))
+		(:sp_add_component (get :mv_comp this))
+		(:sp_add_component (CP (const cp-sword)))
+		(:sp_set_frame +frm_16x64_sword)))
 
 (defclass TitleBloodDrip () (Sprite *img_frm_16x16* :nil 16 16 :16x16 (const dt-drip))
 	; (TitleBloodDrip) -> sprite
 	(.-> this
-		(:sp_add_component (const mv-update) (const mv-init))
-		(:sp_add_component (const offscreen-update))
-		(:sp_set_frame +frm_16x16_blooddrip))
-	(set this :mv_ay 1 :mv_max_vy 10))
+		(:sp_add_component (MV 0 0 0 1 100 10))
+		(:sp_add_component (CP (const offscreen-update)))
+		(:sp_set_frame +frm_16x16_blooddrip)))
 
 (defclass Explosion () (Sprite *img_frm_32c32* :nil 32 32 :32c32)
 	; big explosion fx (32x32)
 	(.-> this
-		(:sp_add_component (const at-update) (const at-init))
-		(:sp_set_frame +frm_32c32_bigexp))
-	(set this
-		:at_speed 2
-		:at_table (list +frm_32c32_bigexp (+ +frm_32c32_bigexp 1) (+ +frm_32c32_bigexp 2) (+ +frm_32c32_bigexp 3) (+ +frm_32c32_bigexp 4) -1)))
+		(:sp_add_component (AT 2 (list +frm_32c32_bigexp (+ +frm_32c32_bigexp 1) (+ +frm_32c32_bigexp 2) (+ +frm_32c32_bigexp 3) (+ +frm_32c32_bigexp 4) -1)))
+		(:sp_set_frame +frm_32c32_bigexp)))
 
 (defclass Fizz () (Sprite *img_frm_16x16* :nil 16 16 :16x16)
 	; fizz spark fx (16x16)
 	(.-> this
-		(:sp_add_component (const at-update) (const at-init))
-		(:sp_set_frame +frm_16x16_fizz))
-	(set this
-		:at_speed 2
-		:at_table (list +frm_16x16_fizz (+ +frm_16x16_fizz 1) (+ +frm_16x16_fizz 2) (+ +frm_16x16_fizz 1) +frm_16x16_fizz -1)))
+		(:sp_add_component (AT 2 (list +frm_16x16_fizz (+ +frm_16x16_fizz 1) (+ +frm_16x16_fizz 2) (+ +frm_16x16_fizz 1) +frm_16x16_fizz -1)))
+		(:sp_set_frame +frm_16x16_fizz)))
 
-;state control
+; state control
 
 (defq *title_letter_idx* 0)
 

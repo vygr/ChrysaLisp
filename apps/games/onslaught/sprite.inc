@@ -7,7 +7,8 @@
 	(def this :color 0
 		:sp_x 0 :sp_y 0 :sp_w 0 :sp_h 0
 		:sp_canvas_l canvas_l :sp_canvas_r canvas_r :sp_canvas_tag tag
-		:sp_frame 0 :sp_dir -1 :sp_components (list) :sp_death (ifn death :nil))
+		:sp_frame 0 :sp_dir -1 :sp_components (list)
+		:sp_death (ifn death :nil) :sp_type 0)
 	(.-> this (:sp_set_pos 0 0) (:sp_set_size width height))
 
 	(defmethod :sp_set_pos (x y)
@@ -44,8 +45,8 @@
 
 	(defmethod :sp_kill ()
 		; (. sprite :sp_kill) -> sprite
-		(unless (= (get :sp_frame this) -1)
-			(def this :sp_frame -1)
+		(unless (get :sp_dead this)
+			(def this :sp_dead :t :sp_frame -1)
 			(when (defq death (get :sp_death this))
 				(def this :sp_death :nil)
 				(death this))
@@ -54,28 +55,29 @@
 
 	(defmethod :sp_set_frame (f)
 		; (. sprite :sp_set_frame f) -> sprite
-		(when (/= f (get :sp_frame this))
-			(def this :sp_frame f)
-			(when (= f -1)
-				(. this :sp_kill)))
+		(if (= f -1)
+			(. this :sp_kill)
+			(when (/= f (get :sp_frame this))
+				(def this :sp_frame f)))
 		this)
 
-	(defmethod :sp_add_component (update &optional init)
-		; (. sprite :sp_add_component update [init]) -> sprite
-		(when init (init this))
-		(push (get :sp_components this) update)
+	(defmethod :sp_add_component (comp)
+		; (. sprite :sp_add_component comp) -> sprite
+		(push (get :sp_components this) comp)
 		this)
 
 	(defmethod :sp_update ()
 		; (. sprite :sp_update) -> sprite
-		(if (= (get :sp_frame this) -1)
+		(if (or (= (get :sp_frame this) -1) (get :sp_dead this))
 			(. this :sp_kill)
 			(progn
-				(each (lambda (fn)
-					(unless (= (get :sp_frame this) -1)
-						(fn this)))
+				(each (lambda (comp)
+					(unless (or (= (get :sp_frame this) -1) (get :sp_dead this))
+						(if (env? comp)
+							((get :update comp) this comp)
+							(comp this :nil))))
 					(get :sp_components this))
-				(when (= (get :sp_frame this) -1)
+				(when (or (= (get :sp_frame this) -1) (get :sp_dead this))
 					(. this :sp_kill))))
 		this)
 
@@ -101,53 +103,59 @@
 
 ; movement by vectors
 
-(defun mv-init (this)
-	(def this :mv_vx 0 :mv_vy 0 :mv_ax 0 :mv_ay 0 :mv_max_vx 100 :mv_max_vy 100)
-	this)
-
-(defun mv-update (this)
+(defun mv-update (this that)
+	; this = sprite, that = component instance
 	(bind '(x y) (. this :sp_get_pos))
-	(defq ax (get :mv_ax this) ay (get :mv_ay this)
-		max_vx (get :mv_max_vx this) max_vy (get :mv_max_vy this)
-		vx (max (neg max_vx) (min max_vx (+ (get :mv_vx this) ax)))
-		vy (max (neg max_vy) (min max_vy (+ (get :mv_vy this) ay))))
-	(set this :mv_vx vx :mv_vy vy)
+	(defq ax (get :ax that) ay (get :ay that)
+		max_vx (get :max_vx that) max_vy (get :max_vy that)
+		vx (max (neg max_vx) (min max_vx (+ (get :vx that) ax)))
+		vy (max (neg max_vy) (min max_vy (+ (get :vy that) ay))))
+	(set that :vx vx :vy vy)
 	(. this :sp_set_pos (+ x vx) (+ y vy))
-	this)
+	that)
+
+(defun MV (&optional vx vy ax ay max_vx max_vy)
+	; (MV [vx vy ax ay max_vx max_vy]) -> component
+	(def (defq that (env 1)) :update (const mv-update)
+		:vx (or vx 0) :vy (or vy 0)
+		:ax (or ax 0) :ay (or ay 0)
+		:max_vx (or max_vx 100) :max_vy (or max_vy 100))
+	that)
 
 ; movement by vector table
 
-(defun mt-init (this)
-	(def this :mt_table :nil :mt_speed 1 :mt_count 0 :mt_index 0)
-	this)
-
-(defun mt-update (this)
-	(when (defq table (get :mt_table this))
-		(when (> (defq speed (get :mt_speed this)) 0)
-			(when (>= (defq count (inc (get :mt_count this))) speed)
-				(defq count 0 idx (get :mt_index this))
+(defun mt-update (this that)
+	; this = sprite, that = component instance
+	(when (defq table (get :table that))
+		(when (> (defq speed (get :speed that)) 0)
+			(when (>= (defq count (inc (get :count that))) speed)
+				(defq count 0 idx (get :index that))
 				(bind '(dx dy) (elem-get table idx))
-				(bind '(x y) (. this :sp_get_pos))
-				(. this :sp_set_pos (+ x dx) (+ y dy))
-				(set this :mt_index (if (= idx (length table)) 0 (inc idx))))
-			(set this :mt_count count)))
-	this)
+				(if (defq trk (get :track that))
+					(bind '(tx ty) (. trk :sp_get_pos))
+					(bind '(tx ty) (. this :sp_get_pos)))
+				(. this :sp_set_pos (+ tx dx) (+ ty dy))
+				(set that :index (if (= (inc idx) (length table)) 0 (inc idx))))
+			(set that :count count)))
+	that)
+
+(defun MT (speed table &optional track)
+	; (MT speed table [track]) -> component
+	(def (defq that (env 1)) :update (const mt-update)
+		:speed (or speed 1) :table table :count 0 :index 0
+		:track (ifn track :nil track))
+	that)
 
 ; movement by linear interpolation
 
-(defun ml-init (this)
-	(def this :ml_target_x 0 :ml_target_y 0 :ml_speed 0 :ml_count -1
-		:ml_dx 0 :ml_dy 0 :ml_d1x 0 :ml_d2x 0
-		:ml_d1y 0 :ml_d2y 0 :ml_slope 0)
-	this)
-
-(defun ml-update (this)
-	(defq speed (get :ml_speed this))
+(defun ml-update (this that)
+	; this = sprite, that = component instance
+	(defq speed (get :speed that))
 	(when (> speed 0)
-		(defq slope (get :ml_slope this) count (get :ml_count this)
-			dx (get :ml_dx this) dy (get :ml_dy this)
-			d1x (get :ml_d1x this) d2x (get :ml_d2x this)
-			d1y (get :ml_d1y this) d2y (get :ml_d2y this))
+		(defq slope (get :slope that) count (get :count that)
+			dx (get :dx that) dy (get :dy that)
+			d1x (get :d1x that) d2x (get :d2x that)
+			d1y (get :d1y that) d2y (get :d2y that))
 		(bind '(x y) (. this :sp_get_pos))
 		(while (and (> speed 0) (> count 0))
 			(-- count)
@@ -157,14 +165,14 @@
 				(setq x (+ x d2x) y (+ y d2y)))
 			(-- speed))
 		(when (<= count 0)
-			(setq count -1 x (get :ml_target_x this) y (get :ml_target_y this)))
-		(set this :ml_slope slope :ml_count count)
+			(setq count -1 x (get :target_x that) y (get :target_y that)))
+		(set that :slope slope :count count)
 		(. this :sp_set_pos x y))
-	this)
+	that)
 
-(defun init-ml (this x y x1 y1 &optional speed)
-	; (init-ml sprite x y x1 y1 [speed]) -> sprite
-	(when speed (set this :ml_speed speed))
+(defun init-ml (this that x y x1 y1 &optional speed)
+	; (init-ml sprite ml x y x1 y1 [speed]) -> ml
+	(when speed (set that :speed speed))
 	(. this :sp_set_pos x y)
 	(defq dx (- x1 x) dy (- y1 y)
 		d1x (cond ((< dx 0) -1) ((> dx 0) 1) (:t 0)) d2x d1x
@@ -172,31 +180,97 @@
 		abs_dx (abs dx) abs_dy (abs dy) tmpi 0)
 	(when (< abs_dx abs_dy)
 		(setq d2y d1y d2x 0 tmpi abs_dx abs_dx abs_dy abs_dy tmpi))
-	(set this :ml_target_x x1 :ml_target_y y1
-		:ml_dx abs_dx :ml_dy abs_dy :ml_d1x d1x :ml_d2x d2x :ml_d1y d1y :ml_d2y d2y
-		:ml_count abs_dx :ml_slope (>> abs_dx 1))
-	this)
+	(set that :target_x x1 :target_y y1
+		:dx abs_dx :dy abs_dy :d1x d1x :d2x d2x :d1y d1y :d2y d2y
+		:count abs_dx :slope (>> abs_dx 1))
+	that)
+
+(defun ML (&optional speed)
+	; (ML [speed]) -> component
+	(def (defq that (env 1)) :update (const ml-update)
+		:speed (or speed 0) :count -1 :target_x 0 :target_y 0
+		:slope 0 :dx 0 :dy 0 :d1x 0 :d2x 0 :d1y 0 :d2y 0)
+	that)
 
 ; animation by table
 
-(defun at-init (this)
-	(def this :at_table :nil :at_speed 1 :at_count 0 :at_index 0)
-	this)
-
-(defun at-update (this)
-	(when (defq table (get :at_table this))
-		(when (> (defq speed (get :at_speed this)) 0)
-			(when (>= (defq count (inc (get :at_count this))) speed)
-				(defq count 0 idx (get :at_index this) f (elem-get table idx))
+(defun at-update (this that)
+	; this = sprite, that = component instance
+	(when (defq table (get :table that))
+		(when (> (defq speed (get :speed that)) 0)
+			(when (>= (defq count (inc (get :count that))) speed)
+				(defq count 0 idx (get :index that) f (elem-get table idx))
 				(if (= f -1)
 					(. this :sp_kill)
-					(set this :sp_frame f :at_index (if (= idx (length table)) 0 (inc idx)))))
-			(set this :at_count count)))
-	this)
+					(progn
+						(. this :sp_set_frame f)
+						(set that :index (if (= (inc idx) (length table)) 0 (inc idx))))))
+			(set that :count count)))
+	that)
+
+(defun AT (speed table)
+	; (AT speed table) -> component
+	(def (defq that (env 1)) :update (const at-update)
+		:speed (or speed 1) :table table :count 0 :index 0)
+	that)
+
+; procedural component wrapper
+
+(defun cp-update (this that)
+	; this = sprite, that = component instance
+	(when (defq proc (get :proc that))
+		(proc this that))
+	that)
+
+(defun CP (proc)
+	; (CP proc) -> component
+	(def (defq that (env 1)) :update (const cp-update) :proc proc)
+	that)
+
+; collision detection
+
+(defun sprite-collide (layer x y w h type)
+	; (sprite-collide layer x y w h type) -> sprite | :nil
+	(defq xw (+ x w) yh (+ y h))
+	(some (lambda (sp)
+		(when (and (Sprite? sp)
+				   (/= (get :sp_frame sp) -1)
+				   (ifn (get :sp_dead sp) :t)
+				   (or (= type -1) (/= 0 (logand (or (get :sp_type sp) 0) type))))
+			(bind '(tx ty tw th) (. sp :sp_get_bounds))
+			(if (and (< x (+ tx tw)) (< tx xw)
+					 (< y (+ ty th)) (< ty yh))
+				sp)))
+		(cat (. layer :children))))
+
+(defun cl-update (this that)
+	; this = sprite, that = component instance
+	(when (and (defq lyr (get :layer that))
+			   (/= (get :sp_frame this) -1)
+			   (ifn (get :sp_dead this) :t))
+		(bind '(x y w h) (. this :sp_get_bounds))
+		(when (defq hit (sprite-collide lyr x y w h (get :type that)))
+			(defq tbl (get :table that))
+			(cond
+				((list? tbl)
+					(when (defq idx (log2 (or (get :sp_type hit) 0)))
+						(when (< -1 idx (length tbl))
+							(when (defq handler (elem-get tbl idx))
+								(handler this hit)))))
+				(tbl
+					(tbl this hit)))))
+	that)
+
+(defun CL (layer type table)
+	; (CL layer type table) -> component
+	(def (defq that (env 1)) :update (const cl-update)
+		:layer layer :type (ifn type -1 type) :table table)
+	that)
 
 ; offscreen killing
 
-(defun offscreen-update (this)
+(defun offscreen-update (this &optional that)
+	; this = sprite, that = component instance
 	(bind '(x y w h) (. *world_scroll* :get_relative this))
 	(bind '(ww wh) (. *world_scroll* :get_size))
 	(when (or (< x (neg w)) (< y (neg h)) (>= x ww) (>= y wh))

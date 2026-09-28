@@ -1,3 +1,6 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; apps/games/onslaught/fanatic.inc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; fanatic entity sprites
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11,8 +14,8 @@
 	(def this :man_walk_tick tick)
 	(. this :sp_set_frame frame_idx))
 
-(defun player-man-update (this)
-	; physics & qaop controls for player man (fanatic 32x32)
+(defun player-man-update (this that)
+	; this = sprite, that = component instance
 	(bind '(x y) (. this :sp_get_pos))
 	(defq xv (or (get :man_xv this) 0) yv (or (get :man_yv this) 0)
 		h 32 w 32 walk_spd 4 tile_h +tile_height tile_w +tile_width y1 (+ h yv y)
@@ -99,6 +102,23 @@
 
 (defclass Fanatic () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
 	; (Fanatic) -> sprite
-	(def this :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
-	(. this :sp_add_component (const player-man-update))
-	(.-> this (:sp_set_frame +frm_fanatic_l_stance)))
+	(def this :sp_type +ftp_man :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
+	(.-> this
+		; movement, input, jumping, and falling physics
+		(:sp_add_component (CP (const player-man-update)))
+		; cl1: check missiles and projectile fire
+		(:sp_add_component (CL *layer_missiles* -1 *man_collision_table*))
+		; cl2: check heavy and dragging enemies
+		(:sp_add_component (CL *layer_enemies*
+			(logior +ftp_tower +ftp_horse +ftp_boarrider +ftp_carpet +ftp_skeleton_horse)
+			*man_collision_table*))
+		; cl3: check knights, skeletons, and monks
+		(:sp_add_component (CL *layer_enemies*
+			(logior +ftp_knight +ftp_skeleton +ftp_monk)
+			*man_collision_table*))
+		; cl4: check footmen
+		(:sp_add_component (CL *layer_enemies* +ftp_footman *man_collision_table*))
+		; cl5: check banners
+		(:sp_add_component (CL *layer_bans* -1 *man_collision_table*))
+		; initial stance frame
+		(:sp_set_frame +frm_fanatic_l_stance)))

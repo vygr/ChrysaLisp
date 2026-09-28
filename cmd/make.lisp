@@ -26,22 +26,23 @@
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 ))
 
-(defq +LF "\n" +ai_excluded_files
-	''(ai/ deps/ docs/ fonts/ usr/ obj/ apps/demos/boing/ apps/demos/bubbles/
-	apps/demos/canvas/ apps/demos/freeball/ apps/desktop/calculator/
-	apps/desktop/chat/ apps/desktop/clock/ apps/desktop/eyes/
-	apps/games/chess/actions.inc apps/games/chess/ apps/games/minefield/
-	apps/games/pairs/ apps/games/slider/ apps/games/solitaire/ apps/media/films/
-	apps/media/images/ apps/science/molecule/ apps/system/files/
-	apps/system/netspeed/ apps/system/services/ apps/system/wallpaper/
-	apps/tools/benchmark/ apps/tools/fonts/ cmd/cat.lisp cmd/cp.lisp cmd/diff.lisp
-	cmd/dump.lisp cmd/echo.lisp cmd/files.lisp cmd/gui.lisp cmd/hbook.lisp
-	cmd/head.lisp cmd/huff.lisp cmd/link.lisp cmd/lz4.lisp cmd/mv.lisp
-	cmd/nodes.lisp cmd/null.lisp cmd/patch.lisp cmd/repeat.lisp cmd/rle.lisp
-	cmd/rm.lisp cmd/save.lisp cmd/sdir.lisp cmd/shuffle.lisp cmd/slice.lisp
-	cmd/sort.lisp cmd/split.lisp cmd/stats.lisp cmd/tail.lisp cmd/time.lisp
-	cmd/tocpm.lisp cmd/toflm.lisp cmd/unhuff.lisp cmd/unique.lisp cmd/unlz4.lisp
-	cmd/unrle.lisp cmd/vpstats.lisp cmd/wc.lisp))
+(defq +LF "\n"
+	+ai_excluded_files
+		''(ai/ deps/ docs/ fonts/ usr/ obj/ apps/demos/boing/ apps/demos/bubbles/
+		apps/demos/canvas/ apps/demos/freeball/ apps/desktop/calculator/
+		apps/desktop/chat/ apps/desktop/clock/ apps/desktop/eyes/ app/games/
+		apps/media/films/ apps/media/images/ apps/science/molecule/ apps/system/files/
+		apps/system/netspeed/ apps/system/services/ apps/system/wallpaper/
+		apps/tools/benchmark/ apps/tools/fonts/ cmd/cat.lisp cmd/cp.lisp cmd/diff.lisp
+		cmd/dump.lisp cmd/echo.lisp cmd/files.lisp cmd/gui.lisp cmd/hbook.lisp
+		cmd/head.lisp cmd/huff.lisp cmd/link.lisp cmd/lz4.lisp cmd/mv.lisp
+		cmd/nodes.lisp cmd/null.lisp cmd/patch.lisp cmd/repeat.lisp cmd/rle.lisp
+		cmd/rm.lisp cmd/save.lisp cmd/sdir.lisp cmd/shuffle.lisp cmd/slice.lisp
+		cmd/sort.lisp cmd/split.lisp cmd/stats.lisp cmd/tail.lisp cmd/time.lisp
+		cmd/tocpm.lisp cmd/toflm.lisp cmd/unhuff.lisp cmd/unique.lisp cmd/unlz4.lisp
+		cmd/unrle.lisp cmd/vpstats.lisp cmd/wc.lisp)
+	+ai_excluded_files_onslaught
+		''(apps/games/onslaught/sfx/ apps/games/onslaught/image/ apps/games/onslaught/data/))
 
 (defun information (stream info)
 	(when (nempty? info)
@@ -217,6 +218,14 @@
 			(. folders :update folder (# (if %0 (push %0 file) (list file)))))
 		(filter (lambda (file) (notany (# (starts-with %0 file)) +ai_excluded_files))
 			(files-all "." '("Makefile" "Makefile.mingw" ".vp" ".inc" ".lisp" ".c" ".cpp" ".h" ".sh" ".ps1" ".bat") 2)))
+	(. folders :each (# (push cmds (cat "cat -f " (join %1 " ") " | save ai/" %0 ".txt"))))
+	(pipe-farm cmds)
+	(defq folders (Lmap) cmds (list))
+	(each (lambda (file)
+			(defq folder "onslaught")
+			(. folders :update folder (# (if %0 (push %0 file) (list file)))))
+		(filter (lambda (file) (notany (# (starts-with %0 file)) +ai_excluded_files_onslaught))
+			(files-all "apps/games/onslaught" '(".vp" ".inc" ".lisp" ".cpp"))))
 	(. folders :each (# (push cmds (cat "cat -f " (join %1 " ") " | save ai/" %0 ".txt"))))
 	(pipe-farm cmds))
 
