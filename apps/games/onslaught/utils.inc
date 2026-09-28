@@ -68,6 +68,8 @@
 		(2 (list (neg w) (- (random (+ +window_height (* 2 h))) h)))
 		(3 (list +window_width (- (random (+ +window_height (* 2 h))) h)))))
 
+(defq *camera_x* 0 *camera_y* 0)
+
 (defun update-camera (sprite)
 	; center camera on sprite using feet baseline anchor (+ y h -16)
 	(bind '(x y w h) (. sprite :sp_get_bounds))
@@ -75,7 +77,9 @@
 		cam_y (- (+ y h -16) (const (/ +window_height 2)))
 		max_cam_x (- (* +map_width +tile_width) +window_width)
 		max_cam_y (- (* +map_height +tile_height) +window_height))
+	(setq *camera_x* (max 0 (min max_cam_x cam_x))
+		  *camera_y* (max 0 (min max_cam_y cam_y)))
 	; scroll all world layers by negative camera offset
 	(set-world-layers-pos
-		(* *zoom* (neg (max 0 (min max_cam_x cam_x))))
-		(* *zoom* (neg (max 0 (min max_cam_y cam_y))))))
+		(* *zoom* (neg *camera_x*))
+		(* *zoom* (neg *camera_y*))))

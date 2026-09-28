@@ -41,8 +41,10 @@
 
 	(defmethod :sp_get_canvas ()
 		; (. sprite :sp_get_canvas) -> canvas
-		(raise :sp_canvas_l :sp_canvas_r)
-		(if (and sp_canvas_r (>= (or (get :sp_dir this) -1) 0)) sp_canvas_r sp_canvas_l))
+		(defq dir (or (get :sp_dir this) -1)
+			cr (get :sp_canvas_r this)
+			cl (get :sp_canvas_l this))
+		(if (and cr (>= dir 0)) cr cl))
 
 	(defmethod :sp_kill ()
 		; (. sprite :sp_kill) -> sprite
@@ -93,12 +95,14 @@
 						fw (or (get :sp_frame_w this) 16)
 						fh (or (get :sp_frame_h this) 16)
 						scaled_fh (* zoom fh)
-						raw_y (* f scaled_fh) col (/ raw_y th)
+						scaled_fw (* zoom fw)
+						raw_y (* f scaled_fh)
+						col (/ raw_y th)
 						sy (% raw_y th)
-						sx (* col (* zoom fw))
-						dir (or (get :sp_dir this) 1))
+						sx (* col scaled_fw)
+						dir (or (get :sp_dir this) -1))
 					(when (and (>= dir 0) (get :sp_canvas_r this))
-						(setq sx (- tw (+ sx w))))
+						(setq sx (- tw (+ sx scaled_fw))))
 					(. this :ctx_blit tid +argb_white 0 0 w h sx sy))))
 		this)
 	)
@@ -209,7 +213,7 @@
 				(cond
 					((= f -1)
 						(. this :sp_kill))
-					((and (ifn (get :loop that) :t) (= (inc idx) (length table)))
+					((and (not (get :loop that)) (= (inc idx) (length table)))
 						; non-looping animation reached end
 						(. this :sp_set_frame f)
 						(set that :speed 0 :table :nil :count 0 :index 0))
@@ -219,11 +223,12 @@
 			(set that :count count)))
 	that)
 
-(defun AT (speed table &optional loop)
+(defun AT (speed table &rest opt)
 	; (AT speed table [loop]) -> component
+	(defq loop (if (empty? opt) :t (first opt)))
 	(def (defq that (env 1)) :update (const at-update)
 		:speed (or speed 1) :table table :count 0 :index 0
-		:loop (ifn (nil? loop) loop :t))
+		:loop (if loop :t :nil))
 	that)
 
 ; procedural component wrapper
@@ -247,7 +252,7 @@
 	(some (lambda (sp)
 		(when (and (Sprite? sp)
 				   (/= (get :sp_frame sp) -1)
-				   (ifn (get :sp_dead sp) :t)
+				   (not (get :sp_dead sp))
 				   (or (= type -1) (/= 0 (logand (or (get :sp_type sp) 0) type))))
 			(bind '(tx ty tw th) (. sp :sp_get_bounds))
 			(if (and (< x (+ tx tw)) (< tx xw)
@@ -259,7 +264,7 @@
 	; this = sprite, that = component instance
 	(when (and (defq lyr (get :layer that))
 			   (/= (get :sp_frame this) -1)
-			   (ifn (get :sp_dead this) :t))
+			   (not (get :sp_dead this)))
 		(bind '(x y w h) (. this :sp_get_bounds))
 		(when (defq hit (sprite-collide lyr x y w h (get :type that)))
 			(defq tbl (get :table that))

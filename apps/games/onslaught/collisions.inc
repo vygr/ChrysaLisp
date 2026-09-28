@@ -11,16 +11,15 @@
 ; collision handlers for player and weapons
 
 (defun cl-man-hits-enemy (this hit)
-	; player man colliding with enemy infantry / knight
-	(defq frame (get :sp_frame this))
+	; player man colliding with enemy infantry / knight / skeleton
+	(defq frame (get :sp_frame this)
+		mv (elem-get (get :sp_components hit) +en_comp_mv))
 	(when (or (<= +frm_fanatic_l_climb frame (+ +frm_fanatic_l_climb 3))
-			  (= (+ (get :sp_y this) (get :sp_h this))
-				 (+ (get :sp_y hit) (get :sp_h hit))))
-		(def hit :fsp_collide :t)
-		(each (lambda (comp)
-			(when (and (env? comp) (def? :vx comp))
-				(set comp :vx 0)))
-			(get :sp_components hit))))
+			  (<= (abs (- (+ (get :sp_y this) (get :sp_h this))
+						  (+ (get :sp_y hit) (get :sp_h hit)))) 4))
+		(when (and mv (= (get :ay mv) 0))
+			(def hit :fsp_collide :t)
+			(set mv :vx 0))))
 
 (defun cl-man-hits-dragging-enemy (this hit)
 	; player man hit by heavy dragging enemy (horse, tower, carpet, etc.)
