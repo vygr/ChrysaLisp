@@ -8,9 +8,18 @@
 		:sp_x 0 :sp_y 0 :sp_w width :sp_h height
 		:sp_frame_w width :sp_frame_h height
 		:sp_canvas_l canvas_l :sp_canvas_r canvas_r :sp_canvas_tag tag
-		:sp_frame 0 :sp_dir -1 :sp_components (list)
+		:sp_frame 0 :sp_dir -1 :sp_oy 0 :sp_components (list)
 		:sp_death (ifn death :nil) :sp_type 0)
 	(.-> this (:sp_set_pos 0 0) (:sp_set_size width height))
+
+	(defmethod :sp_set_oy (oy)
+		; (. sprite :sp_set_oy oy) -> sprite
+		(def this :sp_oy oy)
+		this)
+
+	(defmethod :sp_get_oy ()
+		; (. sprite :sp_get_oy) -> oy
+		(get :sp_oy this))
 
 	(defmethod :sp_set_pos (x y)
 		; (. sprite :sp_set_pos x y) -> sprite
@@ -92,19 +101,20 @@
 				(when (defq texture (getf c +canvas_texture 0))
 					(bind '(tid tw th) (texture-metrics texture))
 					(bind '(w h) (. this :get_size))
-					(defq zoom (or (get :zoom this) 1)
-						fw (or (get :sp_frame_w this) 16)
-						fh (or (get :sp_frame_h this) 16)
-						scaled_fh (* zoom fh)
-						scaled_fw (* zoom fw)
-						raw_y (* f scaled_fh)
-						col (/ raw_y th)
-						sy (% raw_y th)
-						sx (* col scaled_fw)
-						dir (or (get :sp_dir this) -1))
-					(when (and (>= dir 0) (get :sp_canvas_r this))
-						(setq sx (- tw (+ sx scaled_fw))))
-					(. this :ctx_blit tid +argb_white 0 0 w h sx sy))))
+					(when (and (> w 0) (> h 0))
+						(defq zoom (or (get :zoom this) 1)
+							fw (or (get :sp_frame_w this) 16)
+							fh (or (get :sp_frame_h this) 16)
+							scaled_fh (* zoom fh)
+							scaled_fw (* zoom fw)
+							raw_y (+ (* f scaled_fh) (* zoom (or (get :sp_oy this) 0)))
+							col (/ raw_y th)
+							sy (% raw_y th)
+							sx (* col scaled_fw)
+							dir (or (get :sp_dir this) -1))
+						(when (and (>= dir 0) (get :sp_canvas_r this))
+							(setq sx (- tw (+ sx scaled_fw))))
+						(. this :ctx_blit tid +argb_white 0 0 w h sx sy)))))
 		this)
 	)
 
@@ -259,7 +269,7 @@
 			(if (and (< x (+ tx tw)) (< tx xw)
 					 (< y (+ ty th)) (< ty yh))
 				sp)))
-		(cat (. layer :children))))
+		(. layer :children)))
 
 (defun cl-update (this that)
 	; this = sprite, that = component instance
@@ -287,11 +297,19 @@
 
 ; offscreen killing
 
-(defun offscreen-update (this &optional that)
-	; this = sprite, that = component instance
+(defun offscreen-nodeath-update (this &optional that)
+	; offscreen update that clears death hook before killing sprite
 	(bind '(x y w h) (. *world_scroll* :get_relative this))
 	(bind '(ww wh) (. *world_scroll* :get_size))
 	(when (or (< x (neg w)) (< y (neg h)) (>= x ww) (>= y wh))
 		(def this :sp_death :nil)
+		(. this :sp_kill))
+	this)
+
+(defun offscreen-update (this &optional that)
+	; offscreen update that preserves death hook on kill
+	(bind '(x y w h) (. *world_scroll* :get_relative this))
+	(bind '(ww wh) (. *world_scroll* :get_size))
+	(when (or (< x (neg w)) (< y (neg h)) (>= x ww) (>= y wh))
 		(. this :sp_kill))
 	this)

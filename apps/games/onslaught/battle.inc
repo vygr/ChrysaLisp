@@ -216,8 +216,7 @@
 		(:t
 			(init-mines)
 			(init-enemies)
-			(update-camera *player_man*)
-			(update-sprite-layers))))
+			(update-camera *player_man*))))
 
 (defun battle-won-state-init ()
 	(setq *battle_state_count* 0))

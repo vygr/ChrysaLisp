@@ -18,13 +18,18 @@
 			(ui-view *layer_bans*)
 			(ui-map *layer_land*)
 			(ui-sky *layer_sky*)))
-	(ui-flow *panel_layers* (:flow_flags +flow_stack_fill :min_width (* *zoom* +screen_width) :min_height (* *zoom* +panel_height))
-		(ui-view *layer_panel_detail*)
+	(ui-view *panel_layers* (:color 0 :min_width (* *zoom* +screen_width) :min_height (* *zoom* +panel_height))
+		(ui-view *layer_panel_axes*)
+		(ui-view *layer_panel_status* (:color 0)
+			(ui-element *panel_flag_l* (Sprite *img_frm_32c32* :nil 32 32 :32c32) (:sp_frame +frm_32c32_flag))
+			(ui-element *panel_flag_r* (Sprite *img_frm_32c32* :nil 32 32 :32c32) (:sp_frame +frm_32c32_flag))
+			(ui-element *panel_power* (Sprite *img_frm_32c32* :nil 32 32 :32c32) (:sp_frame +frm_32c32_power))
+			(ui-element *panel_strength* (Sprite *img_frm_32c32* :nil 32 32 :32c32) (:sp_frame +frm_32c32_strength)))
 		(ui-view *layer_panel_items*)
-		(ui-view *layer_status_levels*)
-		(ui-view *layer_left_axes*)))
+		(ui-view *layer_panel_detail*)))
 
 (defq +sprite_layers `'(,*layer_fx* ,*layer_missiles* ,*layer_bodies* ,*layer_player* ,*layer_enemies*
 		,*layer_items* ,*layer_bans*)
 	+world_layers `'(,*layer_fx* ,*layer_missiles* ,*layer_bodies* ,*layer_player* ,*layer_enemies*
-		,*layer_items* ,*layer_bans* ,*layer_land* ,*layer_sky*))
+		,*layer_items* ,*layer_bans* ,*layer_land* ,*layer_sky*)
+	+panel_layers `'(,*layer_panel_detail* ,*layer_panel_items* ,*layer_panel_status* ,*layer_panel_axes*))

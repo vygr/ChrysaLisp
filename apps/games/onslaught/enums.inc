@@ -4,9 +4,16 @@
 
 (defq +screen_width 320 +screen_height 240
 	+map_width 128 +map_height 16 +tile_width 16 +tile_height 16
-	+panel_height 72 +panel_y (- +screen_height +panel_height)
+	+panel_width +screen_width +panel_height 72 +panel_y (- +screen_height +panel_height)
 	+window_width +screen_width +window_height (- +screen_height +panel_height)
-	+max_strength 2048 +max_power (/ +max_strength 2) +en_comp_mv 0 +en_comp_at 1)
+	+max_strength 2048 +max_power (/ +max_strength 2) +en_comp_mv 0 +en_comp_at 1
+	+panel_axes_x 0 +panel_axes_y (- +panel_height 64) +panel_axes_w +panel_width +panel_axes_h 64
+	+panel_status_x (- 32 3) +panel_status_y (- +panel_height 64)
+	+panel_status_w (- (+ 256 6 32) (- 32 3)) +panel_status_h 64
+	+panel_items_x (- (/ +screen_width 2) (* 16 4)) +panel_items_y (- +panel_height 64)
+	+panel_items_w (* 16 8) +panel_items_h 16 +status_flag_l_x 0 +status_flag_r_x (- (+ 256 6) (- 32 3)) +status_flag_y 0
+	+status_power_x (- (- 160 32) (- 32 3)) +status_strength_x (- 160 (- 32 3))
+	+status_level_y (- 40 (- +panel_height 64)))
 
 ;;;;;;;;;;;;;
 ; Game states

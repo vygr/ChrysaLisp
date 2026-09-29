@@ -505,7 +505,7 @@
 	(def this :sp_type +ftp_enemy_fire :sp_dir dir :sp_hitpnt 8)
 	(.-> this
 		(:sp_add_component (MV (* 16 dir) 0 0 0 16 0))
-		(:sp_add_component (CP (const offscreen-update)))
+		(:sp_add_component (CP (const offscreen-nodeath-update)))
 		(:sp_set_pos x y)
 		(:sp_set_frame +frm_32x16_l_barrow)))
 
@@ -542,12 +542,40 @@
 		(:sp_set_pos x y)
 		(:sp_set_frame 35)))
 
+(defclass OilDrop (x y) (Sprite *img_frm_16x32* :nil 16 32 :16x32 (const dt-exp-fx))
+	; (OilDrop x y) -> falling boiling oil projectile with explosion on death
+	(def this :sp_type +ftp_enemy_fire :sp_hitpnt 48)
+	(.-> this
+		(:sp_add_component (MV 0 0 0 1 0 10))
+		(:sp_add_component (CP (const offscreen-nodeath-update)))
+		(:sp_set_pos x y)
+		(:sp_set_frame +frm_16x32_oilshot)))
+
+(defclass Spear (x y dir) (Sprite *img_frm_32x16_l* *img_frm_32x16_r* 32 16 :32x16_lr)
+	; (Spear x y dir) -> thrown spear missile sprite
+	(def this :sp_type +ftp_enemy_fire :sp_dir dir :sp_hitpnt 4)
+	(.-> this
+		(:sp_add_component (MV (* 12 dir) 0 0 0 12 0))
+		(:sp_add_component (CP (const offscreen-nodeath-update)))
+		(:sp_set_pos x y)
+		(:sp_set_frame +frm_32x16_l_spear)))
+
+(defclass WizardShot (x y dir frame) (Sprite *img_frm_16x16* :nil 16 16 :16x16 (const dt-fizz-fx))
+	; (WizardShot x y dir frame) -> wizard magic projectile with fizz sparks on death
+	(def this :sp_type +ftp_enemy_fire :sp_dir dir :sp_hitpnt 16)
+	(.-> this
+		(:sp_add_component (MV (* 8 dir) 0 0 0 8 0))
+		(:sp_add_component (AT 1 (list frame (+ frame 1))))
+		(:sp_add_component (CP (const offscreen-nodeath-update)))
+		(:sp_set_pos x y)
+		(:sp_set_frame frame)))
+
 (defclass CannonBall (x y dir) (Sprite *img_frm_16x16* :nil 16 16 :16x16 (const dt-exp-fx))
 	; (CannonBall x y dir) -> cannonball missile sprite with explosion on death
 	(def this :sp_type +ftp_enemy_fire :sp_dir dir :sp_hitpnt 24)
 	(.-> this
 		(:sp_add_component (MV (* 12 dir) 0 0 0 12 0))
-		(:sp_add_component (CP (const offscreen-update)))
+		(:sp_add_component (CP (const offscreen-nodeath-update)))
 		(:sp_set_pos x y)
 		(:sp_set_frame +frm_16x16_cball)))
 

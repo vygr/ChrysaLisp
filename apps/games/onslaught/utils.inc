@@ -53,12 +53,25 @@
 				(. sp :sp_set_bounds x y w h)
 				(update-sprite-canvas sp)))
 			(cat (. layer :children))))
-		+sprite_layers))
+		(cat +sprite_layers +panel_layers)))
 
 (defun update-sprite-layers ()
-	; tick all active sprites across all 7 sprite layers
+	; tick all active sprites across world layers
 	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (cat (. %0 :children))))
 		+sprite_layers))
+
+(defun update-panel-layers ()
+	; tick all active sprites across panel layers
+	(update-panel-status)
+	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (cat (. %0 :children))))
+		+panel_layers))
+
+(defun update-frame ()
+	; common screen and layer updates across all game states
+	(update-sprite-layers)
+	(update-panel-layers)
+	(. *world_scroll* :dirty_all)
+	(. *panel_layers* :dirty_all))
 
 (defun get-xy-outer (w h)
 	; pick a random start point just outside the playable area
@@ -81,3 +94,27 @@
 	(set-world-layers-pos
 		(* *zoom* (neg cx))
 		(* *zoom* (neg cy))))
+
+(defun update-panel-status ()
+	; update enemy stack flags and power/strength level indicators directly
+	(defq stack_val (max 0 (min 32 (* (or *enemy_stack_index* 0) 2)))
+		flag_y (+ +status_flag_y (- 32 stack_val))
+		flag_oy (- 32 stack_val)
+		power_val (max 0 (min 32 (/ (* (max 0 (min +max_power (or *man_power* 0))) 32) +max_power)))
+		power_y (+ +status_level_y (- 32 power_val))
+		power_oy (- 32 power_val)
+		strength_val (max 0 (min 32 (/ (* (max 0 (min +max_strength (or *man_strength* 0))) 32) +max_strength)))
+		strength_y (+ +status_level_y (- 32 strength_val))
+		strength_oy (- 32 strength_val))
+	(.-> *panel_flag_l*
+		(:sp_set_bounds +status_flag_l_x flag_y 32 stack_val)
+		(:sp_set_oy flag_oy))
+	(.-> *panel_flag_r*
+		(:sp_set_bounds +status_flag_r_x flag_y 32 stack_val)
+		(:sp_set_oy flag_oy))
+	(.-> *panel_power*
+		(:sp_set_bounds +status_power_x power_y 32 power_val)
+		(:sp_set_oy power_oy))
+	(.-> *panel_strength*
+		(:sp_set_bounds +status_strength_x strength_y 32 strength_val)
+		(:sp_set_oy strength_oy)))

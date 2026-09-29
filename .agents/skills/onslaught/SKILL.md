@@ -411,7 +411,7 @@ Executes collision checks at a specific point in the component pipeline:
 			(if (and (< x (+ tx tw)) (< tx xw)
 					 (< y (+ ty th)) (< ty yh))
 				sp)))
-		(cat (. layer :children))))
+		(. layer :children)))
 
 (defun cl-update (this that)
 	(when (and (defq lyr (get :layer that))

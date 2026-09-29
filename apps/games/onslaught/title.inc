@@ -130,7 +130,6 @@
 
 (defun title-state-update ()
 	; check fire button to skip title sequence directly to next state
-	(if (bits? *game_controls* +fkey_keya)
+	(when (bits? *game_controls* +fkey_keya)
 		(setq *test_addon_pressed* :t
-			  *game_state* (or *game_state_next* +game_state_battle))
-		(update-sprite-layers)))
+			  *game_state* (or *game_state_next* +game_state_battle))))
