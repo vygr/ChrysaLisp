@@ -111,6 +111,32 @@
 	(audio-play-rpc (if (= (random 2) 0) *sfx_clash1* *sfx_clash2*))
 	(. hit :sp_kill))
 
+(defun collect-item (item)
+	; collect item into inventory, updating usage or filling first free slot
+	(defq frame (or (get :sp_frame item) 0)
+		uses (or (get :sp_hitpnt item) 1)
+		slot -1
+		empty_slot -1
+		idx 7)
+	(while (>= idx 0)
+		(defq cur (elem-get *item_inventory* idx))
+		(cond
+			((= cur frame) (setq slot idx))
+			((= cur 0) (setq empty_slot idx)))
+		(-- idx))
+	(if (/= slot -1)
+		(elem-set *item_usage* slot (+ (elem-get *item_usage* slot) uses))
+		(when (/= empty_slot -1)
+			(elem-set *item_inventory* empty_slot frame)
+			(elem-set *item_usage* empty_slot uses)))
+	(audio-play-rpc *sfx_clash2*)
+	(. item :sp_kill)
+	(update-panel-items))
+
+(defun cl-man-hits-item (this hit)
+	; player collecting an item on touch
+	(collect-item hit))
+
 ; collision dispatch tables indexed by (log2 type)
 
 (defq *man_collision_table*
@@ -132,7 +158,7 @@
 		(const cl-man-hits-dragging-enemy)	; 14: skeleton_horse
 		(const cl-man-hits-enemy)			; 15: skeleton
 		(const cl-man-hits)					; 16: enemy_fire
-		:nil								; 17: item
+		(const cl-man-hits-item)			; 17: item
 		(const cl-enemy-addon-hits-man)		; 18: man
 		(const cl-man-hits-banner)			; 19: man_banner
 		(const cl-man-hits-enemy-banner))	; 20: enemy_banner

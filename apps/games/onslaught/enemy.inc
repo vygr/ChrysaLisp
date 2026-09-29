@@ -16,7 +16,13 @@
 	   (-40 -16) (8 -16) (-16 -40) (-16 8)
 	   (-24 -16) (-8 -16) (-16 -24) (-16 -8))
 	+bone_vectors
-	''((1 -8) (-1 -8) (2 -6) (-2 -6)))
+	''((1 -8) (-1 -8) (2 -6) (-2 -6))
+	+drop_table
+	`'(,+frm_16x16_shield ,(+ +frm_16x16_shield 1) ,(+ +frm_16x16_shield 2)
+		,(+ +frm_16x16_shield 3) ,(+ +frm_16x16_shield 4) ,(+ +frm_16x16_shield 5)
+		,(+ +frm_16x16_shield 6) ,+frm_16x16_spells ,(+ +frm_16x16_spells 1)
+		,(+ +frm_16x16_spells 2) ,(+ +frm_16x16_spells 3) ,(+ +frm_16x16_spells 4)
+		,(+ +frm_16x16_spells 4) ,(+ +frm_16x16_spells 5) ,(+ +frm_16x16_spells 5)))
 
 (defun cp-enemy-fall (this that)
 	; check map surface below front foot and apply gravity when walking off ledge
@@ -288,11 +294,12 @@
 	(audio-play-rpc *sfx_explode*))
 
 (defun dt-monk-explode (this)
-	; monk detonation: cluster explosion, 80x80 blast area, decrement enemy count
+	; monk detonation: cluster explosion, blast area, drop item
 	(-- *enemy_count*)
 	(bind '(mx my) (. this :sp_get_pos))
 	(dt-blat-fx this)
-	(blast-area (- mx 24) (- my 24) 80 80))
+	(blast-area (- mx 24) (- my 24) 80 80)
+	(drop-item this))
 
 (defun spawn-flying-body (enemy)
 	; spawn a dead body flying backwards and upwards with gravity
@@ -314,8 +321,9 @@
 	(audio-play-rpc (if (= (random 2) 0) *sfx_death1* *sfx_death2*)))
 
 (defun dt-kill-enemy (this)
-	; general enemy death: decrement count and spawn flying corpse with random death grunt
+	; general enemy death: drop item, spawn flying corpse, random death grunt
 	(-- *enemy_count*)
+	(drop-item this)
 	(spawn-flying-body this)
 	(audio-play-death))
 
@@ -360,6 +368,11 @@
 		'((0 0 -1) (32 0 1) (0 32 -1) (32 32 1)))
 	(dt-blat-fx this))
 
+(defun dt-fizz-fx (this)
+	; spawn fizz spark fx on item death
+	(bind '(x y w h) (. this :sp_get_bounds))
+	(spawn-fizz-fx (+ x (/ w 2)) (+ y (/ h 2))))
+
 (defun dt-kill-balista (this)
 	; balista, cannon, and oil death: crew emerges as footman, machine body flies away
 	(bind '(x y) (. this :sp_get_pos))
@@ -389,8 +402,9 @@
 	(dt-exp-fx this))
 
 (defun dt-kill-zap (this)
-	; zap disintegration death: scatter 8 fizz sparks across sprite extent and play spell sound
+	; zap disintegration death: drop item and scatter 8 sparks
 	(-- *enemy_count*)
+	(drop-item this)
 	(bind '(x y w h) (. this :sp_get_bounds))
 	(defq rw (max 1 (- w 16))
 		rh (max 1 (- h 16)))
@@ -400,8 +414,9 @@
 	(audio-play-rpc *sfx_spell*))
 
 (defun dt-kill-bones (this)
-	; skeleton death: decrement count and scatter bouncing bone fragments from torso
+	; skeleton death: drop item and scatter bouncing bone fragments
 	(-- *enemy_count*)
+	(drop-item this)
 	(bind '(x y) (. this :sp_get_pos))
 	(defq bx (+ x 8)
 		by (+ y 12))
@@ -444,6 +459,75 @@
 					(. this :sp_set_pos x (- ground_y h))
 					(set mv :vy (neg vy))
 					(spawn-fizz-fx (+ x 8) (+ y 8)))))))
+
+(defun item-info (frame)
+	; return (uses timeout) matching cpp definitions
+	(cond
+		((= frame +frm_16x16_gold) '(1 64))
+		((= frame +frm_16x16_shield) '(48 96))
+		((= frame (+ +frm_16x16_shield 1)) '(8 64))
+		((= frame (+ +frm_16x16_shield 2)) '(16 64))
+		((= frame (+ +frm_16x16_shield 3)) '(6 48))
+		((= frame (+ +frm_16x16_shield 4)) '(4 48))
+		((= frame (+ +frm_16x16_shield 5)) '(8 16))
+		((= frame (+ +frm_16x16_shield 6)) '(3 8))
+		((= frame +frm_16x16_spells) '(1 16))
+		((= frame (+ +frm_16x16_spells 1)) '(1 8))
+		((= frame (+ +frm_16x16_spells 2)) '(1 16))
+		((= frame (+ +frm_16x16_spells 3)) '(1 32))
+		((= frame (+ +frm_16x16_spells 4)) '(1 32))
+		((= frame (+ +frm_16x16_spells 5)) '(1 32))
+		('(1 32))))
+
+(defun cp-item (this that)
+	; item physics: fall until hitting ground, then start timeout countdown
+	(defq mv (elem-get (get :sp_components this) 0))
+	(if (/= (get :ay mv) 0)
+		(progn
+			(bind '(x y w h) (. this :sp_get_bounds))
+			(defq vy (get :vy mv))
+			(when (> vy 0)
+				(defq ground_y (logand (+ y h vy) (neg +tile_height))
+					flags (. *layer_land* :get_tile_flags (+ x 8) ground_y))
+				(when (and (bits? flags +fmap_stand) (not (bits? flags +fmap_climb)))
+					(. this :sp_set_pos x (- ground_y h))
+					(set mv :vy 0 :ay 0)
+					(spawn-fizz-fx (+ x 8) (+ y 8)))))
+		(defq timeout (dec (or (get :item_timeout this) 64)))
+		(if (<= timeout 0)
+			(. this :sp_kill)
+			(def this :item_timeout timeout)))
+	this)
+
+(defun drop-item (enemy)
+	; drop item upon enemy death
+	(bind '(ex ey) (. enemy :sp_get_pos))
+	(when (<= 0 ex (- (* +map_width +tile_width) 32))
+		(defq cnt (dec (or *item_drop_cnt* 0))
+			frame :nil
+			drop_x 0
+			drop_y 0
+			vy -9)
+		(cond
+			((<= cnt 0)
+				; drop gold bag from top of visible screen
+				(setq cnt (+ (random 12) 12)
+					frame +frm_16x16_gold)
+				(bind '(lx ly &ignore) (. *world_scroll* :get_relative *layer_land*))
+				(bind '(ww &ignore) (. *world_scroll* :get_size))
+				(setq drop_x (+ (/ (neg lx) *zoom*) (random (max 1 (- (/ ww *zoom*) 16))))
+					drop_y (/ (neg ly) *zoom*)
+					vy 0))
+			(:t
+				(setq frame (elem-get +drop_table (random (length +drop_table)))
+					drop_x (+ ex 8)
+					drop_y (+ ey 8))))
+		(setq *item_drop_cnt* cnt)
+		(bind '(uses timeout) (item-info frame))
+		(defq item (Item frame uses timeout vy))
+		(. item :sp_set_pos drop_x drop_y)
+		(. *layer_items* :add_front item)
+		item))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; enemy sprite classes
@@ -722,9 +806,14 @@
 		(:sp_add_component (CP (const cp-mine)))
 		(:sp_set_frame +frm_16x16_mine)))
 
-(defclass Item (frame) (Sprite *img_frm_16x16* :nil 16 16 :16x16)
-	(def this :sp_type +ftp_item)
-	(. this :sp_set_frame frame))
+(defclass Item (frame uses timeout &optional vy) (Sprite *img_frm_16x16* :nil 16 16 :16x16 (const dt-fizz-fx))
+	; (Item frame uses timeout [vy]) -> collectible item on map
+	(def this :sp_type +ftp_item :sp_hitpnt uses :item_timeout timeout)
+	(.-> this
+		(:sp_add_component (MV 0 (or vy -9) 0 1 0 10))
+		(:sp_add_component (CP (const cp-item)))
+		(:sp_add_component (CP (const offscreen-nodeath-update)))
+		(:sp_set_frame frame)))
 
 (defun create-enemy-type (type)
 	; factory function mapping 0..15 to enemy class

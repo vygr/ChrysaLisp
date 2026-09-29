@@ -2,6 +2,61 @@
 ; layer management helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defq
+	*item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)
+	*item_usage* (list 48 0 0 0 0 0 0 0)
+	*item_selected* 0
+	*item_select_pressed* :nil
+	*item_drop_cnt* 0
+	*panel_item_sprites* (list)
+	*panel_sight_sprite* :nil)
+
+(defun init-panel-items ()
+	; create 8 slot sprites and 1 selector sight sprite in *layer_panel_items*
+	(clear-layer *layer_panel_items*)
+	(setq *panel_item_sprites* (list))
+	(for 0 8
+		(defq sp (. (Sprite *img_frm_16x16* :nil 16 16 :16x16) :sp_set_frame -1))
+		(. sp :sp_set_pos (* (!) 16) 0)
+		(. *layer_panel_items* :add_front sp)
+		(push *panel_item_sprites* sp))
+	(defq sight (. (Sprite *img_frm_16x16* :nil 16 16 :16x16) :sp_set_frame +frm_16x16_sight))
+	(. sight :sp_set_pos (* *item_selected* 16) 0)
+	(. *layer_panel_items* :add_front sight)
+	(setq *panel_sight_sprite* sight)
+	(update-panel-items))
+
+(defun update-panel-items ()
+	; sync inventory item frames and selector reticle to panel sprites
+	(when (= (length *panel_item_sprites*) 8)
+		(each (lambda (sp)
+			(defq item (elem-get *item_inventory* (!)))
+			(if (> item 0)
+				(progn
+					(. sp :sp_set_frame item)
+					(def sp :sp_canvas_l *img_frm_16x16* :zoom *zoom*))
+				(. sp :sp_set_frame -1)))
+			*panel_item_sprites*)
+		(when *panel_sight_sprite*
+			(def *panel_sight_sprite* :sp_canvas_l *img_frm_16x16* :zoom *zoom*)
+			(. *panel_sight_sprite* :sp_set_pos (* *item_selected* 16) 0))))
+
+(defun item-select ()
+	; cycle selected inventory slot left or right
+	(cond
+		((bits? *game_controls* +fkey_keyc)
+			(unless *item_select_pressed*
+				(setq *item_select_pressed* :t
+					*item_selected* (% (+ *item_selected* 7) 8))
+				(update-panel-items)))
+		((bits? *game_controls* +fkey_keyd)
+			(unless *item_select_pressed*
+				(setq *item_select_pressed* :t
+					*item_selected* (% (+ *item_selected* 1) 8))
+				(update-panel-items)))
+		(:t
+			(setq *item_select_pressed* :nil))))
+
 (defun clear-layer (layer)
 	; remove all child views from layer
 	(each (# (. %0 :sub)) (cat (. layer :children))))
@@ -62,6 +117,7 @@
 
 (defun update-panel-layers ()
 	; tick all active sprites across panel layers
+	(item-select)
 	(update-panel-status)
 	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (cat (. %0 :children))))
 		+panel_layers))

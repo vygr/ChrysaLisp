@@ -68,11 +68,35 @@
 			(. this :sp_set_pos x y)
 			this)
 
-		; test cycle through all 5 weapon actions on fire button
+		; use currently selected inventory weapon on fire button
 		((and (bits? *game_controls* +fkey_keya) (not *test_addon_pressed*))
 			(setq *test_addon_pressed* :t)
-			(trigger-player-addon this *test_addon_idx*)
-			(setq *test_addon_idx* (% (+ *test_addon_idx* 1) 5))
+			(defq item (elem-get *item_inventory* *item_selected*)
+				duck (>= (get :sp_frame this) +frm_fanatic_l_duck))
+			(when (> item 0)
+				(defq uses (dec (elem-get *item_usage* *item_selected*)))
+				(if (<= uses 0)
+					(progn
+						(elem-set *item_inventory* *item_selected* 0)
+						(elem-set *item_usage* *item_selected* 0))
+					(elem-set *item_usage* *item_selected* uses))
+				(update-panel-items)
+				(cond
+					((= item +frm_16x16_gold)
+						(setq *man_score* (+ (or *man_score* 0) 500))
+						(audio-play-rpc *sfx_spell*))
+					((= item +frm_16x16_shield)
+						(trigger-player-addon this (if duck 1 0)))
+					((= item (+ +frm_16x16_shield 1))
+						(trigger-player-addon this 2))
+					((= item (+ +frm_16x16_shield 2))
+						(trigger-player-addon this 3))
+					((= item (+ +frm_16x16_shield 3))
+						(trigger-player-addon this 4))
+					((= item (+ +frm_16x16_shield 5))
+						(trigger-player-addon this (if duck 1 0)))
+					(:t
+						(trigger-player-addon this (if duck 1 0)))))
 			this)
 
 		; normal movement, climbing, and falling physics
@@ -182,7 +206,8 @@
 		(:sp_add_component (CP (const player-man-update)))
 		; cp (index 2): ducking height and y bounds adjustment component
 		(:sp_add_component (CP (const cp-manduck)))
-		; cl1..cl5 (indices 3..7): collision checks
+		; cl1..cl6 (indices 3..8): collision checks
+		(:sp_add_component (CL *layer_items* +ftp_item *man_collision_table*))
 		(:sp_add_component (CL *layer_missiles* -1 *man_collision_table*))
 		(:sp_add_component (CL *layer_enemies*
 			(logior +ftp_tower +ftp_horse +ftp_boarrider +ftp_carpet +ftp_skeleton_horse)
