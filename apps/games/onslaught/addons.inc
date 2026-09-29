@@ -1,11 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/onslaught/addons.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; weapon and item addon sprites, movement tables & animations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; movement tables for addon sprites relative to player (dx dy)
 
 (defq
 	+mt_upper_mase_l
@@ -49,7 +44,10 @@
 	+mt_beserk_lower_mase_r
 	''((-16 -8) (-16 -8) (-16 -8) (8 0) (8 0) (8 0) (32 0) (32 0) (32 0)))
 
-; addon animation tables (terminate with -1 to trigger :sp_kill)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; addon animation tables
+; (terminate with -1 to trigger :sp_kill)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq
 	+at_upper_mase
@@ -63,7 +61,9 @@
 	+at_naptha
 	''(14 14 15 -1))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; player man body animations during weapon use
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq
 	+at_man_upper_mase
@@ -81,7 +81,9 @@
 	; (item uses) pairs matching cpp: 40% yellow spell (43), 40% green spell (45), 20% super helper (42)
 	''((43 1) (43 1) (45 1) (45 1) (42 3)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; reusable 16x16 directional addon sprite class
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass Addon (man mt_table at_speed at_table) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
 	; (Addon man mt_table at_speed at_table) -> addon sprite
@@ -147,9 +149,9 @@
 	(audio-play-rpc *sfx_explode*)
 	(blast-area (- x 24) (- y 24) 64 64))
 
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
 ; player projectiles
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
 
 (defclass SmallArrow (x y dir) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
 	; (SmallArrow x y dir) -> player light arrow projectile
@@ -421,64 +423,3 @@
 	; blue spell restores 20% power
 	(setq *man_power* (min +max_power (+ (or *man_power* 0) (/ +max_power 5))))
 	(audio-play-rpc *sfx_spell*))
-
-; test trigger to cycle player actions
-
-(defq *test_addon_idx* 0
-	*test_addon_pressed* :nil)
-
-(defun trigger-player-addon (man action_idx)
-	; trigger weapon animation on man and spawn matching tracking addon
-	(defq dir (or (get :sp_dir man) 1)
-		man_at (elem-get (get :sp_components man) +man_comp_at))
-	(cond
-		((= action_idx 0)
-			; upper mase
-			(audio-play-rpc *sfx_throw*)
-			(def man :action_playing :t)
-			(. man :sp_set_frame (first +at_man_upper_mase))
-			(cp-manduck man :nil)
-			(set man_at :speed 2 :table +at_man_upper_mase :count 0 :index 1 :loop :nil)
-			(defq mt (if (= dir 1) +mt_upper_mase_r +mt_upper_mase_l)
-				addon (Addon man mt 2 +at_upper_mase))
-			(. *layer_player* :add_back addon))
-		((= action_idx 1)
-			; lower mase
-			(audio-play-rpc *sfx_throw*)
-			(def man :action_playing :t)
-			(. man :sp_set_frame (first +at_man_lower_mase))
-			(cp-manduck man :nil)
-			(set man_at :speed 2 :table +at_man_lower_mase :count 0 :index 1 :loop :nil)
-			(defq mt (if (= dir 1) +mt_lower_mase_r +mt_lower_mase_l)
-				addon (Addon man mt 2 +at_lower_mase))
-			(. *layer_player* :add_back addon))
-		((= action_idx 2)
-			; big crossbow
-			(audio-play-rpc *sfx_twang1*)
-			(def man :action_playing :t)
-			(. man :sp_set_frame (first +at_man_big_crossbow))
-			(cp-manduck man :nil)
-			(set man_at :speed 2 :table +at_man_big_crossbow :count 0 :index 1 :loop :nil)
-			(defq mt (if (= dir 1) +mt_big_crossbow_r +mt_big_crossbow_l)
-				addon (Addon man mt 2 +at_big_crossbow))
-			(. *layer_player* :add_back addon))
-		((= action_idx 3)
-			; small crossbow
-			(audio-play-rpc *sfx_twang2*)
-			(def man :action_playing :t)
-			(. man :sp_set_frame (first +at_man_small_crossbow))
-			(cp-manduck man :nil)
-			(set man_at :speed 1 :table +at_man_small_crossbow :count 0 :index 1 :loop :nil)
-			(defq mt (if (= dir 1) +mt_small_crossbow_r +mt_small_crossbow_l)
-				addon (Addon man mt 1 +at_small_crossbow))
-			(. *layer_player* :add_back addon))
-		((= action_idx 4)
-			; naptha pot
-			(audio-play-rpc *sfx_throw*)
-			(def man :action_playing :t)
-			(. man :sp_set_frame (first +at_man_naptha))
-			(cp-manduck man :nil)
-			(set man_at :speed 3 :table +at_man_naptha :count 0 :index 1 :loop :nil)
-			(defq mt (if (= dir 1) +mt_naptha_r +mt_naptha_l)
-				addon (Addon man mt 3 +at_naptha))
-			(. *layer_player* :add_back addon))))

@@ -111,7 +111,7 @@
 
 ; state control
 
-(defq *title_letter_idx* 0)
+(defq *title_letter_idx* 0 *test_addon_idx* 0 *test_addon_pressed* :nil)
 
 (defun goto-title (&optional next_state)
 	; transition to title sequence with next target state

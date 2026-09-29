@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/onslaught/battle.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught battle state
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -182,9 +179,9 @@
 				(. *layer_bans* :add_front mine)
 				(++ *mine_count*)))))
 
-;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
 ; battle state hooks
-;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
 
 (defun battle-state-init ()
 	(clear-sprite-layers)
@@ -203,7 +200,8 @@
 		  *mine_count* 0
 		  *mine_max* (+ (random 3) 1)
 		  *enemy_max* (+ (random 4) 2)
-		  *enemy_army* (random (length +army_tables)))
+;		  *enemy_army* (random (length +army_tables)))
+		  *enemy_army* 13)
 	(update-camera *player_man*))
 
 (defun battle-state-update ()

@@ -114,21 +114,6 @@
 				(when (= *game_mode* +mode_auto)
 					(item-auto-select))))))
 
-(defun update-panel-layers ()
-	; tick all active sprites across panel layers
-	(check-empty-mase)
-	(item-select)
-	(update-panel-status)
-	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (cat (. %0 :children))))
-		+panel_layers))
-
-(defun update-frame ()
-	; common screen and layer updates across all game states
-	(update-sprite-layers)
-	(update-panel-layers)
-	(. *world_scroll* :dirty_all)
-	(. *panel_layers* :dirty_all))
-
 (defun get-xy-outer (w h)
 	; pick a random start point just outside the playable area
 	(case (random 4)
@@ -176,3 +161,18 @@
 	(.-> *panel_strength*
 		(:sp_set_bounds +status_strength_x strength_y 32 strength_val)
 		(:sp_set_oy strength_oy)))
+
+(defun update-panel-layers ()
+	; tick all active sprites across panel layers
+	(check-empty-mase)
+	(item-select)
+	(update-panel-status)
+	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (cat (. %0 :children))))
+		+panel_layers))
+
+(defun update-frame ()
+	; common screen and layer updates across all game states
+	(update-sprite-layers)
+	(update-panel-layers)
+	(. *world_scroll* :dirty_all)
+	(. *panel_layers* :dirty_all))

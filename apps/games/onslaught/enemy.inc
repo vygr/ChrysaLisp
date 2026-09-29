@@ -1,9 +1,10 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/games/onslaught/enemy.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; enemy classes, movement components, and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; constants and movement tables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq
 	+mt_carpet
@@ -23,6 +24,261 @@
 		,(+ +frm_16x16_shield 6) ,+frm_16x16_spells ,(+ +frm_16x16_spells 1)
 		,(+ +frm_16x16_spells 2) ,(+ +frm_16x16_spells 3) ,(+ +frm_16x16_spells 4)
 		,(+ +frm_16x16_spells 4) ,(+ +frm_16x16_spells 5) ,(+ +frm_16x16_spells 5)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; utilities & spawn helpers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun audio-play-death ()
+	; randomly play death1 or death2 grunt sfx
+	(audio-play-rpc (if (= (random 2) 0) *sfx_death1* *sfx_death2*)))
+
+(defun blast-area (x y w h)
+	; damage/destroy enemies, enemy missiles, and mines in blast box
+	(while (defq hit (sprite-collide *layer_enemies* x y w h -1))
+		(. hit :sp_kill))
+	(while (defq hit (sprite-collide *layer_missiles* x y w h -1))
+		(. hit :sp_kill))
+	(while (defq hit (sprite-collide *layer_bans* x y w h +ftp_enemy_fire))
+		(. hit :sp_kill)))
+
+(defun item-info (frame)
+	; return (uses timeout) matching cpp definitions
+	(cond
+		((= frame +frm_16x16_gold) '(1 64))
+		((= frame +frm_16x16_shield) '(48 96))
+		((= frame (+ +frm_16x16_shield 1)) '(8 64))
+		((= frame (+ +frm_16x16_shield 2)) '(16 64))
+		((= frame (+ +frm_16x16_shield 3)) '(6 48))
+		((= frame (+ +frm_16x16_shield 4)) '(4 48))
+		((= frame (+ +frm_16x16_shield 5)) '(8 16))
+		((= frame (+ +frm_16x16_shield 6)) '(3 8))
+		((= frame +frm_16x16_spells) '(1 16))
+		((= frame (+ +frm_16x16_spells 1)) '(1 8))
+		((= frame (+ +frm_16x16_spells 2)) '(1 16))
+		((= frame (+ +frm_16x16_spells 3)) '(1 32))
+		((= frame (+ +frm_16x16_spells 4)) '(1 32))
+		((= frame (+ +frm_16x16_spells 5)) '(1 32))
+		('(1 32))))
+
+(defun spawn-flying-body (enemy)
+	; spawn a dead body flying backwards and upwards with gravity
+	(when (defq dead_f (get :dead_frame enemy))
+		(bind '(x y w h) (. enemy :sp_get_bounds))
+		(defq dir (or (get :sp_dir enemy) 1)
+			bh (if (= h 16) 32 h)
+			by (if (= h 16) (- y 16) y)
+			cl (get :sp_canvas_l enemy)
+			cr (get :sp_canvas_r enemy)
+			tag (get :sp_canvas_tag enemy)
+			body (Body cl cr w bh tag dead_f dir (neg (* dir 4)) -6))
+		(. body :sp_set_pos x by)
+		(. *layer_bodies* :add_front body)
+		body))
+
+(defun drop-item (enemy)
+	; drop item upon enemy death
+	(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
+	(when (<= 0 ex (- (* +map_width +tile_width) 32))
+		(defq cnt (dec (or *item_drop_cnt* 0))
+			frame :nil
+			drop_x (+ ex (/ ew 2) -8)
+			drop_y (+ ey eh -24)
+			vy -9)
+		(cond
+			((<= cnt 0)
+				; drop gold bag from top of visible screen
+				(setq cnt (+ (random 12) 12)
+					frame +frm_16x16_gold)
+				(bind '(lx ly &ignore) (. *world_scroll* :get_relative *layer_land*))
+				(bind '(ww &ignore) (. *world_scroll* :get_size))
+				(setq drop_x (+ (/ (neg lx) *zoom*) (random (max 1 (- (/ ww *zoom*) 16))))
+					drop_y (/ (neg ly) *zoom*)
+					vy 0))
+			(:t
+				(setq frame (elem-get +drop_table (random (length +drop_table))))))
+		(setq *item_drop_cnt* cnt)
+		(bind '(uses timeout) (item-info frame))
+		(defq item (Item frame uses timeout vy))
+		(. item :sp_set_pos drop_x drop_y)
+		(. *layer_items* :add_front item)
+		item))
+
+;;;;;;;;;;;;;;;;
+; death handlers
+;;;;;;;;;;;;;;;;
+
+(defun dt-exp-fx (this)
+	; death explosion fx centered on sprite
+	(bind '(mx my mw mh) (. this :sp_get_bounds))
+	(defq exp (. (Explosion) :sp_set_pos (- (+ mx (/ mw 2)) 16) (- (+ my (/ mh 2)) 16)))
+	(. *layer_fx* :add_front exp)
+	(audio-play-rpc *sfx_explode*))
+
+(defun dt-fizz-fx (this)
+	; spawn fizz spark fx on item death
+	(bind '(x y w h) (. this :sp_get_bounds))
+	(spawn-fizz-fx (+ x (/ w 2)) (+ y (/ h 2))))
+
+(defun dt-blat-fx (this)
+	; spawn 12-explosion cluster centered on sprite and play explosion sfx
+	(bind '(mx my mw mh) (. this :sp_get_bounds))
+	(defq cx (+ mx (/ mw 2))
+		cy (+ my (/ mh 2)))
+	(each (lambda ((ox oy))
+		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
+		(. *layer_fx* :add_front exp))
+		+blat_offsets)
+	(audio-play-rpc *sfx_explode*))
+
+(defun dt-mine-explode (this)
+	; mine detonation: cluster explosion, blast area, decrement count
+	(-- *mine_count*)
+	(bind '(mx my mw mh) (. this :sp_get_bounds))
+	(defq cx (+ mx (/ mw 2))
+		cy (+ my (/ mh 2)))
+	(each (lambda ((ox oy))
+		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
+		(. *layer_fx* :add_front exp))
+		+blat_offsets)
+	(audio-play-rpc *sfx_explode*)
+	(blast-area (- mx 32) (- my 36) 80 80))
+
+(defun dt-monk-explode (this)
+	; monk detonation: cluster explosion, blast area, drop item
+	(-- *enemy_count*)
+	(bind '(mx my) (. this :sp_get_pos))
+	(dt-blat-fx this)
+	(blast-area (- mx 24) (- my 24) 80 80)
+	(drop-item this))
+
+(defun dt-kill-enemy (this)
+	; general enemy death: drop item, spawn flying corpse, random death grunt
+	(-- *enemy_count*)
+	(drop-item this)
+	(spawn-flying-body this)
+	(audio-play-death))
+
+(defun dt-kill-horse (this)
+	; horse death: rider knight dismounts on ground level, horse body flies away
+	(bind '(x y) (. this :sp_get_pos))
+	(defq dir (or (get :sp_dir this) 1)
+		knight (Knight)
+		mv (elem-get (get :sp_components knight) +en_comp_mv)
+		ky (logand (+ y 32) (neg +tile_height)))
+	(def knight :sp_dir dir)
+	(when mv (set mv :vx (* (get :max_vx mv) dir)))
+	(. knight :sp_set_pos (+ x 16) ky)
+	(. *layer_enemies* :add_front knight)
+	(spawn-flying-body this)
+	(audio-play-rpc *sfx_horse*))
+
+(defun dt-kill-boarrider (this)
+	; boarrider death: spearman dismounts on ground level, boar body flies away
+	(bind '(x y) (. this :sp_get_pos))
+	(defq dir (or (get :sp_dir this) 1)
+		spearman (Spearman)
+		mv (elem-get (get :sp_components spearman) +en_comp_mv)
+		sy (logand y (neg +tile_height)))
+	(def spearman :sp_dir dir)
+	(when mv (set mv :vx (* (get :max_vx mv) dir)))
+	(. spearman :sp_set_pos (+ x 16) sy)
+	(. *layer_enemies* :add_front spearman)
+	(spawn-flying-body this)
+	(audio-play-rpc *sfx_boar*))
+
+(defun dt-kill-tower (this)
+	; tower death: 4 spearmen emerge from the 4 corners, blat explosion
+	(-- *enemy_count*)
+	(bind '(x y) (. this :sp_get_pos))
+	(each (lambda ((ox oy sdir))
+		(defq sp (Spearman)
+			mv (elem-get (get :sp_components sp) +en_comp_mv))
+		(def sp :sp_dir sdir)
+		(when mv (set mv :vx (* (get :max_vx mv) sdir)))
+		(. sp :sp_set_pos (+ x ox) (+ y oy))
+		(. *layer_enemies* :add_front sp)
+		(++ *enemy_count*))
+		'((0 0 -1) (32 0 1) (0 32 -1) (32 32 1)))
+	(dt-blat-fx this))
+
+(defun dt-kill-balista (this)
+	; balista, cannon, and oil death: crew emerges as footman on ground level
+	(bind '(x y) (. this :sp_get_pos))
+	(defq dir (or (get :sp_dir this) 1)
+		footman (Footman)
+		mv (elem-get (get :sp_components footman) +en_comp_mv)
+		fy (logand y (neg +tile_height)))
+	(def footman :sp_dir dir)
+	(when mv (set mv :vx (* (get :max_vx mv) dir)))
+	(. footman :sp_set_pos x fy)
+	(. *layer_enemies* :add_front footman)
+	(spawn-flying-body this)
+	(audio-play-rpc *sfx_clash2*))
+
+(defun dt-kill-carpet (this)
+	; flying carpet death: two wizards dismount and fall to ground with gravity
+	(-- *enemy_count*)
+	(bind '(x y) (. this :sp_get_pos))
+	(defq dir (or (get :sp_dir this) 1)
+		wy (logand y (neg +tile_height)))
+	(each (lambda (ox)
+		(defq wiz (Wizard)
+			mv (elem-get (get :sp_components wiz) +en_comp_mv))
+		(def wiz :sp_dir dir)
+		(when mv (set mv :vx (* (get :max_vx mv) dir) :ay 1))
+		(. wiz :sp_set_pos (+ x ox) wy)
+		(. *layer_enemies* :add_front wiz)
+		(++ *enemy_count*))
+		'(0 32))
+	(dt-exp-fx this))
+
+(defun dt-kill-zap (this)
+	; zap disintegration death: drop item and scatter 8 sparks
+	(-- *enemy_count*)
+	(drop-item this)
+	(bind '(x y w h) (. this :sp_get_bounds))
+	(defq rw (max 1 (- w 16))
+		rh (max 1 (- h 16)))
+	(times 8
+		(defq fx (. (Fizz) :sp_set_pos (+ x (random rw)) (+ y (random rh))))
+		(. *layer_fx* :add_front fx))
+	(audio-play-rpc *sfx_spell*))
+
+(defun dt-kill-bones (this)
+	; skeleton death: drop item and scatter bouncing bone fragments
+	(-- *enemy_count*)
+	(drop-item this)
+	(bind '(x y) (. this :sp_get_pos))
+	(defq bx (+ x 8)
+		by (+ y 12))
+	(each (lambda ((vx vy))
+		(defq bone (. (Bone bx by vx vy) :sp_set_pos bx by))
+		(. *layer_fx* :add_front bone))
+		+bone_vectors)
+	(audio-play-death))
+
+(defun dt-kill-skeleton-horse (this)
+	; skeleton horse death: rider skeleton dismounts on ground level, horse bursts with bones
+	(bind '(x y w h) (. this :sp_get_bounds))
+	(defq dir (or (get :sp_dir this) 1)
+		skel (Skeleton)
+		mv (elem-get (get :sp_components skel) +en_comp_mv)
+		sy (logand (+ y 32) (neg +tile_height)))
+	(def skel :sp_dir dir)
+	(when mv (set mv :vx (* (get :max_vx mv) dir)))
+	(. skel :sp_set_pos (+ x 16) sy)
+	(. *layer_enemies* :add_front skel)
+	(defq bx (+ x 24) by (+ y 28))
+	(each (lambda ((vx vy))
+		(defq bone (. (Bone bx by vx vy) :sp_set_pos bx by))
+		(. *layer_fx* :add_front bone))
+		+bone_vectors)
+	(audio-play-rpc *sfx_spell*))
+
+;;;;;;;;;;;;;;;;;;;;
+; component handlers
+;;;;;;;;;;;;;;;;;;;;
 
 (defun cp-enemy-fall (this that)
 	; check map surface below front foot and apply gravity when walking off ledge
@@ -249,28 +505,6 @@
 			(. *layer_missiles* :add_front arrow)
 			(audio-play-rpc *sfx_twang1*))))
 
-(defun blast-area (x y w h)
-	; damage/destroy enemies, enemy missiles, and mines in blast box
-	(while (defq hit (sprite-collide *layer_enemies* x y w h -1))
-		(. hit :sp_kill))
-	(while (defq hit (sprite-collide *layer_missiles* x y w h -1))
-		(. hit :sp_kill))
-	(while (defq hit (sprite-collide *layer_bans* x y w h +ftp_enemy_fire))
-		(. hit :sp_kill)))
-
-(defun dt-mine-explode (this)
-	; mine detonation: cluster explosion, blast area, decrement count
-	(-- *mine_count*)
-	(bind '(mx my mw mh) (. this :sp_get_bounds))
-	(defq cx (+ mx (/ mw 2))
-		cy (+ my (/ mh 2)))
-	(each (lambda ((ox oy))
-		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
-		(. *layer_fx* :add_front exp))
-		+blat_offsets)
-	(audio-play-rpc *sfx_explode*)
-	(blast-area (- mx 32) (- my 36) 80 80))
-
 (defun cp-mine (this that)
 	; offscreen mine cleanup without death explosion
 	(bind '(rx ry rw rh) (. *world_scroll* :get_relative this))
@@ -279,180 +513,6 @@
 		(-- *mine_count*)
 		(def this :sp_death :nil)
 		(. this :sp_kill)))
-
-(defun dt-exp-fx (this)
-	; death explosion fx centered on sprite
-	(bind '(mx my mw mh) (. this :sp_get_bounds))
-	(defq exp (. (Explosion) :sp_set_pos (- (+ mx (/ mw 2)) 16) (- (+ my (/ mh 2)) 16)))
-	(. *layer_fx* :add_front exp)
-	(audio-play-rpc *sfx_explode*))
-
-(defun dt-blat-fx (this)
-	; spawn 12-explosion cluster centered on sprite and play explosion sfx
-	(bind '(mx my mw mh) (. this :sp_get_bounds))
-	(defq cx (+ mx (/ mw 2))
-		cy (+ my (/ mh 2)))
-	(each (lambda ((ox oy))
-		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
-		(. *layer_fx* :add_front exp))
-		+blat_offsets)
-	(audio-play-rpc *sfx_explode*))
-
-(defun dt-monk-explode (this)
-	; monk detonation: cluster explosion, blast area, drop item
-	(-- *enemy_count*)
-	(bind '(mx my) (. this :sp_get_pos))
-	(dt-blat-fx this)
-	(blast-area (- mx 24) (- my 24) 80 80)
-	(drop-item this))
-
-(defun spawn-flying-body (enemy)
-	; spawn a dead body flying backwards and upwards with gravity
-	(when (defq dead_f (get :dead_frame enemy))
-		(bind '(x y w h) (. enemy :sp_get_bounds))
-		(defq dir (or (get :sp_dir enemy) 1)
-			bh (if (= h 16) 32 h)
-			by (if (= h 16) (- y 16) y)
-			cl (get :sp_canvas_l enemy)
-			cr (get :sp_canvas_r enemy)
-			tag (get :sp_canvas_tag enemy)
-			body (Body cl cr w bh tag dead_f dir (neg (* dir 4)) -6))
-		(. body :sp_set_pos x by)
-		(. *layer_bodies* :add_front body)
-		body))
-
-(defun audio-play-death ()
-	; randomly play death1 or death2 grunt sfx
-	(audio-play-rpc (if (= (random 2) 0) *sfx_death1* *sfx_death2*)))
-
-(defun dt-kill-enemy (this)
-	; general enemy death: drop item, spawn flying corpse, random death grunt
-	(-- *enemy_count*)
-	(drop-item this)
-	(spawn-flying-body this)
-	(audio-play-death))
-
-(defun dt-kill-horse (this)
-	; horse death: rider knight dismounts on ground level, horse body flies away
-	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1)
-		knight (Knight)
-		mv (elem-get (get :sp_components knight) +en_comp_mv)
-		ky (logand (+ y 32) (neg +tile_height)))
-	(def knight :sp_dir dir)
-	(when mv (set mv :vx (* (get :max_vx mv) dir)))
-	(. knight :sp_set_pos (+ x 16) ky)
-	(. *layer_enemies* :add_front knight)
-	(spawn-flying-body this)
-	(audio-play-rpc *sfx_horse*))
-
-(defun dt-kill-boarrider (this)
-	; boarrider death: spearman dismounts on ground level, boar body flies away
-	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1)
-		spearman (Spearman)
-		mv (elem-get (get :sp_components spearman) +en_comp_mv)
-		sy (logand y (neg +tile_height)))
-	(def spearman :sp_dir dir)
-	(when mv (set mv :vx (* (get :max_vx mv) dir)))
-	(. spearman :sp_set_pos (+ x 16) sy)
-	(. *layer_enemies* :add_front spearman)
-	(spawn-flying-body this)
-	(audio-play-rpc *sfx_boar*))
-
-(defun dt-kill-tower (this)
-	; tower death: 4 spearmen emerge from the 4 corners, blat explosion
-	(-- *enemy_count*)
-	(bind '(x y) (. this :sp_get_pos))
-	(each (lambda ((ox oy sdir))
-		(defq sp (Spearman)
-			mv (elem-get (get :sp_components sp) +en_comp_mv))
-		(def sp :sp_dir sdir)
-		(when mv (set mv :vx (* (get :max_vx mv) sdir)))
-		(. sp :sp_set_pos (+ x ox) (+ y oy))
-		(. *layer_enemies* :add_front sp)
-		(++ *enemy_count*))
-		'((0 0 -1) (32 0 1) (0 32 -1) (32 32 1)))
-	(dt-blat-fx this))
-
-(defun dt-fizz-fx (this)
-	; spawn fizz spark fx on item death
-	(bind '(x y w h) (. this :sp_get_bounds))
-	(spawn-fizz-fx (+ x (/ w 2)) (+ y (/ h 2))))
-
-(defun dt-kill-balista (this)
-	; balista, cannon, and oil death: crew emerges as footman on ground level
-	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1)
-		footman (Footman)
-		mv (elem-get (get :sp_components footman) +en_comp_mv)
-		fy (logand y (neg +tile_height)))
-	(def footman :sp_dir dir)
-	(when mv (set mv :vx (* (get :max_vx mv) dir)))
-	(. footman :sp_set_pos x fy)
-	(. *layer_enemies* :add_front footman)
-	(spawn-flying-body this)
-	(audio-play-rpc *sfx_clash2*))
-
-(defun dt-kill-carpet (this)
-	; flying carpet death: two wizards dismount and fall to ground with gravity
-	(-- *enemy_count*)
-	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1)
-		wy (logand y (neg +tile_height)))
-	(each (lambda (ox)
-		(defq wiz (Wizard)
-			mv (elem-get (get :sp_components wiz) +en_comp_mv))
-		(def wiz :sp_dir dir)
-		(when mv (set mv :vx (* (get :max_vx mv) dir) :ay 1))
-		(. wiz :sp_set_pos (+ x ox) wy)
-		(. *layer_enemies* :add_front wiz)
-		(++ *enemy_count*))
-		'(0 32))
-	(dt-exp-fx this))
-
-(defun dt-kill-zap (this)
-	; zap disintegration death: drop item and scatter 8 sparks
-	(-- *enemy_count*)
-	(drop-item this)
-	(bind '(x y w h) (. this :sp_get_bounds))
-	(defq rw (max 1 (- w 16))
-		rh (max 1 (- h 16)))
-	(times 8
-		(defq fx (. (Fizz) :sp_set_pos (+ x (random rw)) (+ y (random rh))))
-		(. *layer_fx* :add_front fx))
-	(audio-play-rpc *sfx_spell*))
-
-(defun dt-kill-bones (this)
-	; skeleton death: drop item and scatter bouncing bone fragments
-	(-- *enemy_count*)
-	(drop-item this)
-	(bind '(x y) (. this :sp_get_pos))
-	(defq bx (+ x 8)
-		by (+ y 12))
-	(each (lambda ((vx vy))
-		(defq bone (. (Bone bx by vx vy) :sp_set_pos bx by))
-		(. *layer_fx* :add_front bone))
-		+bone_vectors)
-	(audio-play-death))
-
-(defun dt-kill-skeleton-horse (this)
-	; skeleton horse death: rider skeleton dismounts on ground level, horse bursts with bones
-	(bind '(x y w h) (. this :sp_get_bounds))
-	(defq dir (or (get :sp_dir this) 1)
-		skel (Skeleton)
-		mv (elem-get (get :sp_components skel) +en_comp_mv)
-		sy (logand (+ y 32) (neg +tile_height)))
-	(def skel :sp_dir dir)
-	(when mv (set mv :vx (* (get :max_vx mv) dir)))
-	(. skel :sp_set_pos (+ x 16) sy)
-	(. *layer_enemies* :add_front skel)
-	(defq bx (+ x 24) by (+ y 28))
-	(each (lambda ((vx vy))
-		(defq bone (. (Bone bx by vx vy) :sp_set_pos bx by))
-		(. *layer_fx* :add_front bone))
-		+bone_vectors)
-	(audio-play-rpc *sfx_spell*))
 
 (defun cp-bone (this that)
 	; bone lifespan countdown and bounce against floor
@@ -469,25 +529,6 @@
 					(. this :sp_set_pos x (- ground_y h))
 					(set mv :vy (neg vy))
 					(spawn-fizz-fx (+ x 8) (+ y 8)))))))
-
-(defun item-info (frame)
-	; return (uses timeout) matching cpp definitions
-	(cond
-		((= frame +frm_16x16_gold) '(1 64))
-		((= frame +frm_16x16_shield) '(48 96))
-		((= frame (+ +frm_16x16_shield 1)) '(8 64))
-		((= frame (+ +frm_16x16_shield 2)) '(16 64))
-		((= frame (+ +frm_16x16_shield 3)) '(6 48))
-		((= frame (+ +frm_16x16_shield 4)) '(4 48))
-		((= frame (+ +frm_16x16_shield 5)) '(8 16))
-		((= frame (+ +frm_16x16_shield 6)) '(3 8))
-		((= frame +frm_16x16_spells) '(1 16))
-		((= frame (+ +frm_16x16_spells 1)) '(1 8))
-		((= frame (+ +frm_16x16_spells 2)) '(1 16))
-		((= frame (+ +frm_16x16_spells 3)) '(1 32))
-		((= frame (+ +frm_16x16_spells 4)) '(1 32))
-		((= frame (+ +frm_16x16_spells 5)) '(1 32))
-		('(1 32))))
 
 (defun cp-item (this that)
 	; item physics: fall until hitting ground, then start timeout countdown
@@ -511,37 +552,9 @@
 			(def this :item_timeout timeout)))
 	this)
 
-(defun drop-item (enemy)
-	; drop item upon enemy death
-	(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
-	(when (<= 0 ex (- (* +map_width +tile_width) 32))
-		(defq cnt (dec (or *item_drop_cnt* 0))
-			frame :nil
-			drop_x (+ ex (/ ew 2) -8)
-			drop_y (+ ey eh -24)
-			vy -9)
-		(cond
-			((<= cnt 0)
-				; drop gold bag from top of visible screen
-				(setq cnt (+ (random 12) 12)
-					frame +frm_16x16_gold)
-				(bind '(lx ly &ignore) (. *world_scroll* :get_relative *layer_land*))
-				(bind '(ww &ignore) (. *world_scroll* :get_size))
-				(setq drop_x (+ (/ (neg lx) *zoom*) (random (max 1 (- (/ ww *zoom*) 16))))
-					drop_y (/ (neg ly) *zoom*)
-					vy 0))
-			(:t
-				(setq frame (elem-get +drop_table (random (length +drop_table))))))
-		(setq *item_drop_cnt* cnt)
-		(bind '(uses timeout) (item-info frame))
-		(defq item (Item frame uses timeout vy))
-		(. item :sp_set_pos drop_x drop_y)
-		(. *layer_items* :add_front item)
-		item))
-
-;;;;;;;;;;;;;;;;;;;;;;
-; enemy sprite classes
-;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; enemy and missile sprite classes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass Horse () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr (const dt-kill-horse))
 	(def this :sp_type +ftp_horse :bftp_type 0 :sp_hitpnt 6 :fall_frame 4 :dead_frame 5)
@@ -824,6 +837,10 @@
 		(:sp_add_component (CP (const cp-item)))
 		(:sp_add_component (CP (const offscreen-nodeath-update)))
 		(:sp_set_frame frame)))
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; enemy factory routine
+;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun create-enemy-type (type)
 	; factory function mapping 0..15 to enemy class

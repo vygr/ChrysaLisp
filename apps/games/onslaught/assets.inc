@@ -1,7 +1,8 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; onslaught graphical assets manager
-; preloads, resizes, and caches all image canvases in global variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; preloads, resizes, and caches all
+; image canvases in global variables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq
 	; non-directional image canvases
@@ -16,9 +17,7 @@
 	*img_frm_32x16_l* :nil *img_frm_32x16_r* :nil
 	*img_frm_32x32_l* :nil *img_frm_32x32_r* :nil
 	*img_frm_64x32_l* :nil *img_frm_64x32_r* :nil
-	*img_frm_64x64_l* :nil *img_frm_64x64_r* :nil)
-
-(defq
+	*img_frm_64x64_l* :nil *img_frm_64x64_r* :nil
 	*sfx_boar* :nil *sfx_clash1* :nil *sfx_clash2* :nil *sfx_death1* :nil
 	*sfx_death2* :nil *sfx_drip* :nil *sfx_explode* :nil *sfx_hooves* :nil
 	*sfx_horse* :nil *sfx_out* :nil *sfx_roar* :nil *sfx_spell* :nil
