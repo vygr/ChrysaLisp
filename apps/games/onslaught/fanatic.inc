@@ -33,33 +33,21 @@
 	; this = sprite, that = component instance
 	(defq man_at (elem-get (get :sp_components this) +man_comp_at))
 	(bind '(x y) (. this :sp_get_pos))
-	(defq xv (or (get :man_xv this) 0)
-		yv (or (get :man_yv this) 0)
-		man_jump (get :man_jump this)
-		h (get :sp_h this)
-		w (get :sp_w this)
-		tile_h +tile_height
-		tile_w +tile_width
+	(defq xv (or (get :man_xv this) 0) yv (or (get :man_yv this) 0)
+		man_jump (get :man_jump this) h (get :sp_h this) w (get :sp_w this)
+		tile_h +tile_height tile_w +tile_width
 		max_x (- (* +map_width tile_w) w))
 
-	(cond
-		; active weapon attack action animation
-		((get :action_playing this)
-			(ifn (get :table man_at)
-				(progn
-					(def this :action_playing :nil)
-					(if (< (get :sp_frame this) +frm_fanatic_l_duck)
-						(. this :sp_set_frame +frm_fanatic_l_stance)
-						(. this :sp_set_frame +frm_fanatic_l_duck)))
-				this))
+	(unless (bits? *game_controls* +fkey_keya)
+		(setq *test_addon_pressed* :nil))
 
-		; active jump trajectory (committed arc)
+	(cond
+		; active jump trajectory (committed arc, no item use)
 		(man_jump
 			(bind '(jf jv) (elem-get +jump_offsets man_jump))
 			(. this :sp_set_frame jf)
 			(when (/= jv 0)
-				(setq x (+ x xv)
-					  y (- y jv)))
+				(setq x (+ x xv) y (- y jv)))
 			(setq man_jump (inc man_jump))
 			(if (= man_jump (length +jump_offsets))
 				(def this :man_jump :nil)
@@ -68,56 +56,22 @@
 			(. this :sp_set_pos x y)
 			this)
 
-		; use currently selected inventory weapon on fire button
-		((and (bits? *game_controls* +fkey_keya) (not *test_addon_pressed*))
-			(setq *test_addon_pressed* :t)
-			(defq item (elem-get *item_inventory* *item_selected*)
-				duck (>= (get :sp_frame this) +frm_fanatic_l_duck))
-			(when (> item 0)
-				(defq uses (dec (elem-get *item_usage* *item_selected*)))
-				(if (<= uses 0)
-					(progn
-						(elem-set *item_inventory* *item_selected* 0)
-						(elem-set *item_usage* *item_selected* 0))
-					(elem-set *item_usage* *item_selected* uses))
-				(update-panel-items)
-				(cond
-					((= item +frm_16x16_gold)
-						(setq *man_score* (+ (or *man_score* 0) 500))
-						(audio-play-rpc *sfx_spell*))
-					((= item +frm_16x16_shield)
-						(trigger-player-addon this (if duck 1 0)))
-					((= item (+ +frm_16x16_shield 1))
-						(trigger-player-addon this 2))
-					((= item (+ +frm_16x16_shield 2))
-						(trigger-player-addon this 3))
-					((= item (+ +frm_16x16_shield 3))
-						(trigger-player-addon this 4))
-					((= item (+ +frm_16x16_shield 5))
-						(trigger-player-addon this (if duck 1 0)))
-					(:t
-						(trigger-player-addon this (if duck 1 0)))))
-			this)
-
-		; normal movement, climbing, and falling physics
+		; normal ground & air movement
 		(:t
-			(unless (bits? *game_controls* +fkey_keya)
-				(setq *test_addon_pressed* :nil))
-
 			(defq y1 (+ h yv y)
-				x_probe1 (+ x 8)
-				x_probe2 (+ x 23)
+				x_probe1 (+ x 8) x_probe2 (+ x 23)
 				flags1 (. *layer_land* :get_tile_flags x_probe1 y1)
 				flags2 (. *layer_land* :get_tile_flags x_probe2 y1))
 
 			(ifn (or (bits? flags1 +fmap_climb +fmap_stand)
 					 (bits? flags2 +fmap_climb +fmap_stand))
 				(progn
-					; falling in air
+					; falling in air: cancel any active attack animation
+					(when (get :action_playing this)
+						(def this :action_playing :nil)
+						(set man_at :table :nil :speed 0))
 					(. this :sp_set_frame +frm_fanatic_l_fall)
-					(setq yv (min 10 (inc yv))
-						  x (+ x xv)
-						  y (+ y yv))
+					(setq yv (min 10 (inc yv)) x (+ x xv) y (+ y yv))
 					(if (= yv 10) (setq xv 0))
 					(def this :man_xv xv :man_yv yv))
 
@@ -126,13 +80,21 @@
 					(if (= yv 10)
 						(. this :sp_set_frame +frm_fanatic_l_duck)
 						(. this :sp_set_frame +frm_fanatic_l_stance))
-					(setq y (- (* (/ y1 tile_h) tile_h) h)
-						  yv 0
-						  xv 0)
+					(setq y (- (* (/ y1 tile_h) tile_h) h) yv 0 xv 0)
 					(def this :man_yv 0 :man_xv 0))
 
 				(cond
-					; up control: climb up ladder or initiate jump
+					; active weapon attack action animation
+					((get :action_playing this)
+						(ifn (get :table man_at)
+							(progn
+								(def this :action_playing :nil)
+								(if (< (get :sp_frame this) +frm_fanatic_l_duck)
+									(. this :sp_set_frame +frm_fanatic_l_stance)
+									(. this :sp_set_frame +frm_fanatic_l_duck)))
+							this))
+
+					; up control: climb ladder or initiate jump
 					((bits? *game_controls* +fkey_up)
 						(defq climb_y (+ y h -1)
 							f1 (. *layer_land* :get_tile_flags (+ x 4) climb_y)
@@ -140,10 +102,7 @@
 						(if (and (bits? f1 +fmap_climb) (bits? f2 +fmap_climb))
 							(progn
 								; climb ladder
-								(setq y (- y 4)
-									  x (logand (+ x 4) (neg tile_w))
-									  xv 0
-									  yv 0)
+								(setq y (- y 4) x (logand (+ x 4) (neg tile_w)) xv 0 yv 0)
 								(. this :sp_set_frame (+ +frm_fanatic_l_climb (logand (>> y 2) 3)))
 								(def this :man_xv 0 :man_yv 0 :man_walk_tick 0))
 							(progn
@@ -151,6 +110,105 @@
 								(def this :man_jump 1 :man_yv 0)
 								(bind '(jf jv) (first +jump_offsets))
 								(. this :sp_set_frame jf))))
+
+					; use currently selected item on fire button (only when grounded on surface)
+					((and (bits? *game_controls* +fkey_keya) (not *test_addon_pressed*))
+						(setq *test_addon_pressed* :t)
+						(when (= h 16)
+							; if ducking and using a standing weapon/item, stand up before action
+							(defq item (elem-get *item_inventory* *item_selected*))
+							(unless (or (= item +frm_16x16_shield) (= item (+ +frm_16x16_shield 5)))
+								(setq y (- y 16) h 32)
+								(. this :sp_set_bounds x y 32 32)))
+						(defq item (elem-get *item_inventory* *item_selected*))
+						(cond
+							((= item +frm_16x16_shield)
+								(defq uses (dec (elem-get *item_usage* *item_selected*)))
+								(if (<= uses 0)
+									(progn
+										(elem-set *item_inventory* *item_selected* 0)
+										(elem-set *item_usage* *item_selected* 0))
+									(elem-set *item_usage* *item_selected* uses))
+								(use-mase this))
+							((= item (+ +frm_16x16_shield 5))
+								(defq uses (dec (elem-get *item_usage* *item_selected*)))
+								(if (<= uses 0)
+									(progn
+										(elem-set *item_inventory* *item_selected* 0)
+										(elem-set *item_usage* *item_selected* 0))
+									(elem-set *item_usage* *item_selected* uses))
+								(use-super-mase this))
+							((= item (+ +frm_16x16_shield 1))
+								(defq uses (dec (elem-get *item_usage* *item_selected*)))
+								(if (<= uses 0)
+									(progn
+										(elem-set *item_inventory* *item_selected* 0)
+										(elem-set *item_usage* *item_selected* 0))
+									(elem-set *item_usage* *item_selected* uses))
+								(use-big-crossbow this))
+							((= item (+ +frm_16x16_shield 2))
+								(defq uses (dec (elem-get *item_usage* *item_selected*)))
+								(if (<= uses 0)
+									(progn
+										(elem-set *item_inventory* *item_selected* 0)
+										(elem-set *item_usage* *item_selected* 0))
+									(elem-set *item_usage* *item_selected* uses))
+								(use-small-crossbow this))
+							((= item (+ +frm_16x16_shield 3))
+								(defq uses (dec (elem-get *item_usage* *item_selected*)))
+								(if (<= uses 0)
+									(progn
+										(elem-set *item_inventory* *item_selected* 0)
+										(elem-set *item_usage* *item_selected* 0))
+									(elem-set *item_usage* *item_selected* uses))
+								(use-naptha this))
+							((= item (+ +frm_16x16_shield 4))
+								(defq uses (dec (elem-get *item_usage* *item_selected*)))
+								(if (<= uses 0)
+									(progn
+										(elem-set *item_inventory* *item_selected* 0)
+										(elem-set *item_usage* *item_selected* 0))
+									(elem-set *item_usage* *item_selected* uses))
+								(use-helper this))
+							((= item (+ +frm_16x16_shield 6))
+								(defq uses (dec (elem-get *item_usage* *item_selected*)))
+								(if (<= uses 0)
+									(progn
+										(elem-set *item_inventory* *item_selected* 0)
+										(elem-set *item_usage* *item_selected* 0))
+									(elem-set *item_usage* *item_selected* uses))
+								(use-super-helper this))
+							((= item +frm_16x16_gold)
+								(elem-set *item_inventory* *item_selected* 0)
+								(elem-set *item_usage* *item_selected* 0)
+								(setq *man_score* (+ *man_score* 500))
+								(audio-play-rpc *sfx_spell*))
+							((= item +frm_16x16_spells)
+								(elem-set *item_inventory* *item_selected* 0)
+								(elem-set *item_usage* *item_selected* 0)
+								(use-yellow-spell this))
+							((= item (+ +frm_16x16_spells 1))
+								(elem-set *item_inventory* *item_selected* 0)
+								(elem-set *item_usage* *item_selected* 0)
+								(use-black-spell this))
+							((= item (+ +frm_16x16_spells 2))
+								(elem-set *item_inventory* *item_selected* 0)
+								(elem-set *item_usage* *item_selected* 0)
+								(use-green-spell this))
+							((= item (+ +frm_16x16_spells 3))
+								(elem-set *item_inventory* *item_selected* 0)
+								(elem-set *item_usage* *item_selected* 0)
+								(use-white-spell this))
+							((= item (+ +frm_16x16_spells 4))
+								(elem-set *item_inventory* *item_selected* 0)
+								(elem-set *item_usage* *item_selected* 0)
+								(use-red-spell this))
+							((= item (+ +frm_16x16_spells 5))
+								(elem-set *item_inventory* *item_selected* 0)
+								(elem-set *item_usage* *item_selected* 0)
+								(use-blue-spell this))
+							(:t
+								(audio-play-rpc *sfx_out*))))
 
 					; down control: climb down ladder or duck
 					((bits? *game_controls* +fkey_down)
@@ -160,10 +218,7 @@
 						(if (and (bits? f1 +fmap_climb) (bits? f2 +fmap_climb))
 							(progn
 								; climb down ladder
-								(setq y (+ y 4)
-									  x (logand (+ x 4) (neg tile_w))
-									  xv 0
-									  yv 0)
+								(setq y (+ y 4) x (logand (+ x 4) (neg tile_w)) xv 0 yv 0)
 								(. this :sp_set_frame (+ +frm_fanatic_l_climb (logand (>> y 2) 3)))
 								(def this :man_xv 0 :man_yv 0 :man_walk_tick 0))
 							(progn

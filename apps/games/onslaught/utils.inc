@@ -11,49 +11,23 @@
 	*panel_item_sprites* (list)
 	*panel_sight_sprite* :nil)
 
-(defun init-panel-items ()
-	; create 8 slot sprites and 1 selector sight sprite in *layer_panel_items*
-	(clear-layer *layer_panel_items*)
-	(setq *panel_item_sprites* (list))
-	(for 0 8
-		(defq sp (. (Sprite *img_frm_16x16* :nil 16 16 :16x16) :sp_set_frame -1))
-		(. sp :sp_set_pos (* (!) 16) 0)
-		(. *layer_panel_items* :add_front sp)
-		(push *panel_item_sprites* sp))
-	(defq sight (. (Sprite *img_frm_16x16* :nil 16 16 :16x16) :sp_set_frame +frm_16x16_sight))
-	(. sight :sp_set_pos (* *item_selected* 16) 0)
-	(. *layer_panel_items* :add_front sight)
-	(setq *panel_sight_sprite* sight)
-	(update-panel-items))
-
-(defun update-panel-items ()
-	; sync inventory item frames and selector reticle to panel sprites
-	(when (= (length *panel_item_sprites*) 8)
-		(each (lambda (sp)
-			(defq item (elem-get *item_inventory* (!)))
-			(if (> item 0)
-				(progn
-					(. sp :sp_set_frame item)
-					(def sp :sp_canvas_l *img_frm_16x16* :zoom *zoom*))
-				(. sp :sp_set_frame -1)))
-			*panel_item_sprites*)
-		(when *panel_sight_sprite*
-			(def *panel_sight_sprite* :sp_canvas_l *img_frm_16x16* :zoom *zoom*)
-			(. *panel_sight_sprite* :sp_set_pos (* *item_selected* 16) 0))))
-
 (defun item-select ()
 	; cycle selected inventory slot left or right
+	; supports dedicated keys (+fkey_keyc / +fkey_keyd) or holding down + left/right
+	(defq holding_down (bits? *game_controls* +fkey_down)
+		sel_left (or (bits? *game_controls* +fkey_keyc)
+					 (and holding_down (bits? *game_controls* +fkey_left)))
+		sel_right (or (bits? *game_controls* +fkey_keyd)
+					  (and holding_down (bits? *game_controls* +fkey_right))))
 	(cond
-		((bits? *game_controls* +fkey_keyc)
+		(sel_left
 			(unless *item_select_pressed*
 				(setq *item_select_pressed* :t
-					*item_selected* (% (+ *item_selected* 7) 8))
-				(update-panel-items)))
-		((bits? *game_controls* +fkey_keyd)
+					*item_selected* (% (+ *item_selected* 7) 8))))
+		(sel_right
 			(unless *item_select_pressed*
 				(setq *item_select_pressed* :t
-					*item_selected* (% (+ *item_selected* 1) 8))
-				(update-panel-items)))
+					*item_selected* (% (+ *item_selected* 1) 8))))
 		(:t
 			(setq *item_select_pressed* :nil))))
 
@@ -162,6 +136,8 @@
 		strength_val (max 0 (min 32 (/ (* (max 0 (min +max_strength (or *man_strength* 0))) 32) +max_strength)))
 		strength_y (+ +status_level_y (- 32 strength_val))
 		strength_oy (- 32 strength_val))
+	(def *layer_panel_items* :canvas *img_frm_16x16* :zoom *zoom*
+		:items *item_inventory* :selected *item_selected*)
 	(.-> *panel_flag_l*
 		(:sp_set_bounds +status_flag_l_x flag_y 32 stack_val)
 		(:sp_set_oy flag_oy))

@@ -257,11 +257,12 @@
 
 ; collision detection
 
-(defun sprite-collide (layer x y w h type)
-	; (sprite-collide layer x y w h type) -> sprite | :nil
+(defun sprite-collide (layer x y w h type &optional ignore)
+	; (sprite-collide layer x y w h type [ignore]) -> sprite | :nil
 	(defq xw (+ x w) yh (+ y h))
 	(some (lambda (sp)
 		(when (and (Sprite? sp)
+				   (not (eql sp ignore))
 				   (/= (get :sp_frame sp) -1)
 				   (not (get :sp_dead sp))
 				   (or (= type -1) (/= 0 (logand (or (get :sp_type sp) 0) type))))
@@ -277,16 +278,16 @@
 			   (/= (get :sp_frame this) -1)
 			   (not (get :sp_dead this)))
 		(bind '(x y w h) (. this :sp_get_bounds))
-		(when (defq hit (sprite-collide lyr x y w h (get :type that)))
+		(when (defq hit (sprite-collide lyr x y w h (get :type that) this))
 			(defq tbl (get :table that))
 			(cond
-				((list? tbl)
+				((or (func? tbl) (lambda-func? tbl))
+					(tbl this hit))
+				((list?? tbl)
 					(when (defq idx (log2 (or (get :sp_type hit) 0)))
 						(when (< -1 idx (length tbl))
 							(when (defq handler (elem-get tbl idx))
-								(handler this hit)))))
-				(tbl
-					(tbl this hit)))))
+								(handler this hit))))))))
 	that)
 
 (defun CL (layer type table)

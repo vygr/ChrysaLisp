@@ -5,8 +5,7 @@
 ; onslaught collision handlers & tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq *man_power* +max_power
-	*man_strength* +max_strength)
+(defq *man_power* +max_power *man_strength* +max_strength *man_score* 0)
 
 ; collision handlers for player and weapons
 
@@ -95,21 +94,51 @@
 			(. hit :sp_kill))))
 
 (defun cl-man-missile-hits (this hit)
-	; player missile / arrow hitting target
-	(when (>= (or (get :sp_hitpnt this) 0) 500)
-		(when (eql (get :sp_death hit) (const dt-kill-enemy))
-			(def hit :sp_death (const dt-kill-zap))))
+	; player missile / arrow hitting target enemy or missile
 	(audio-play-rpc *sfx_clash2*)
-	(. hit :sp_kill)
+	(defq hit_type (or (get :sp_type hit) 0)
+		non_flesh (logior +ftp_enemy_fire +ftp_cannon +ftp_oil +ftp_balista
+						  +ftp_tower +ftp_carpet +ftp_skeleton_monk
+						  +ftp_skeleton_horse +ftp_skeleton))
+	(bind '(mx my mw mh) (. this :sp_get_bounds))
+	(if (/= (logand hit_type non_flesh) 0)
+		(spawn-fizz-fx (+ mx (/ mw 2)) (+ my (/ mh 2)))
+		(defq dir (or (get :sp_dir this) (neg (or (get :sp_dir hit) 1)))
+			spray (Blood (- (+ mx (/ mw 2)) 8) (- (+ my (/ mh 2)) 8) dir))
+		(. *layer_fx* :add_front spray))
+	(defq dmg (or (get :sp_hitpnt this) 1)
+		hp (- (or (get :sp_hitpnt hit) 1) dmg))
+	(if (<= hp 0)
+		(progn
+			(when (>= dmg 500)
+				(when (eql (get :sp_death hit) dt-kill-enemy)
+					(def hit :sp_death dt-kill-zap)))
+			(. hit :sp_kill))
+		(def hit :sp_hitpnt hp))
 	(. this :sp_kill))
 
 (defun cl-man-addon-hits (this hit)
-	; player weapon mase hitting target
-	(when (>= (or (get :sp_hitpnt this) 0) 500)
-		(when (eql (get :sp_death hit) (const dt-kill-enemy))
-			(def hit :sp_death (const dt-kill-zap))))
+	; player weapon mase hitting target enemy or missile
 	(audio-play-rpc (if (= (random 2) 0) *sfx_clash1* *sfx_clash2*))
-	(. hit :sp_kill))
+	(defq hit_type (or (get :sp_type hit) 0)
+		non_flesh (logior +ftp_enemy_fire +ftp_cannon +ftp_oil +ftp_balista
+						  +ftp_tower +ftp_carpet +ftp_skeleton_monk
+						  +ftp_skeleton_horse +ftp_skeleton))
+	(bind '(mx my mw mh) (. this :sp_get_bounds))
+	(if (/= (logand hit_type non_flesh) 0)
+		(spawn-fizz-fx (+ mx (/ mw 2)) (+ my (/ mh 2)))
+		(defq dir (or (get :sp_dir this) (neg (or (get :sp_dir hit) 1)))
+			spray (Blood (- (+ mx (/ mw 2)) 8) (- (+ my (/ mh 2)) 8) dir))
+		(. *layer_fx* :add_front spray))
+	(defq dmg (or (get :sp_hitpnt this) 1)
+		hp (- (or (get :sp_hitpnt hit) 1) dmg))
+	(if (<= hp 0)
+		(progn
+			(when (>= dmg 500)
+				(when (eql (get :sp_death hit) dt-kill-enemy)
+					(def hit :sp_death dt-kill-zap)))
+			(. hit :sp_kill))
+		(def hit :sp_hitpnt hp)))
 
 (defun collect-item (item)
 	; collect item into inventory, updating usage or filling first free slot
@@ -130,8 +159,7 @@
 			(elem-set *item_inventory* empty_slot frame)
 			(elem-set *item_usage* empty_slot uses)))
 	(audio-play-rpc *sfx_clash2*)
-	(. item :sp_kill)
-	(update-panel-items))
+	(. item :sp_kill))
 
 (defun cl-man-hits-item (this hit)
 	; player collecting an item on touch

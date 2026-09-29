@@ -67,25 +67,24 @@
 			pan_h (* *zoom* +panel_height))
 		(set *world_scroll* :min_width win_w :min_height win_h)
 		(set *panel_layers* :min_width win_w :min_height pan_h)
-		(. *world_scroll* :set_bounds 0 0 win_w win_h)
-		(. *world_layers* :set_bounds 0 0 win_w win_h)
-		(. *layer_panel_detail* :set_bounds 0 0 win_w pan_h)
+		(. *world_scroll* :change 0 0 win_w win_h :t)
+		(. *world_layers* :change 0 0 win_w win_h :t)
+		(. *layer_panel_detail* :change 0 0 win_w pan_h :t)
 		(. *layer_panel_detail* :add_front *img_panel*)
-		(. *layer_panel_items* :set_bounds
+		(. *layer_panel_items* :change
 			(* *zoom* +panel_items_x) (* *zoom* +panel_items_y)
-			(* *zoom* +panel_items_w) (* *zoom* +panel_items_h))
-		(. *layer_panel_status* :set_bounds
+			(* *zoom* +panel_items_w) (* *zoom* +panel_items_h) :t)
+		(. *layer_panel_status* :change
 			(* *zoom* +panel_status_x) (* *zoom* +panel_status_y)
-			(* *zoom* +panel_status_w) (* *zoom* +panel_status_h))
-		(. *layer_panel_axes* :set_bounds
+			(* *zoom* +panel_status_w) (* *zoom* +panel_status_h) :t)
+		(. *layer_panel_axes* :change
 			(* *zoom* +panel_axes_x) (* *zoom* +panel_axes_y)
-			(* *zoom* +panel_axes_w) (* *zoom* +panel_axes_h))
+			(* *zoom* +panel_axes_w) (* *zoom* +panel_axes_h) :t)
 		(def *panel_flag_l* :sp_canvas_l *img_frm_32c32* :zoom *zoom*)
 		(def *panel_flag_r* :sp_canvas_l *img_frm_32c32* :zoom *zoom*)
 		(def *panel_power* :sp_canvas_l *img_frm_32c32* :zoom *zoom*)
 		(def *panel_strength* :sp_canvas_l *img_frm_32c32* :zoom *zoom*)
 		(. *layer_land* :reset_field_map)
-		(init-panel-items)
 		(set-world-layers-pos 0 0)
 		(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
 		(rescale-active-sprites)
@@ -140,8 +139,7 @@
 							((or (= key (ascii-code "]")) (= key (ascii-code "x")) (= key (ascii-code "X")))
 								(setq kmask +fkey_keyd))
 							((and (<= (ascii-code "1") key (ascii-code "8")) (= type +ev_type_key_down))
-								(setq *item_selected* (- key (ascii-code "1")))
-								(update-panel-items)))
+								(setq *item_selected* (- key (ascii-code "1")))))
 						(when kmask
 							(if (= type +ev_type_key_down)
 								(setq *game_controls* (logior *game_controls* kmask))
@@ -213,9 +211,7 @@
 							(oracle-state-update))
 						(+game_state_demo
 							(demo-state-update))))
-				(update-frame)
-				(. *world_scroll* :dirty_all)
-				(. *panel_layers* :dirty_all))))
+				(update-frame))))
 	; unregister window and exit cleanly
 	(mail-forget game_service)
 	(unload-wav-assets)
