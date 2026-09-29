@@ -5,11 +5,25 @@
 (defq
 	*item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)
 	*item_usage* (list 48 0 0 0 0 0 0 0)
-	*item_selected* 0
-	*item_select_pressed* :nil
-	*item_drop_cnt* 0
-	*panel_item_sprites* (list)
-	*panel_sight_sprite* :nil)
+	*item_selected* 0 *game_mode* +mode_auto
+	*item_select_pressed* :nil *item_drop_cnt* 0
+	*panel_item_sprites* (list) *panel_sight_sprite* :nil
+	+select_table
+	; item priority table matching cpp selecttable (indexed by item - +frm_16x16_gold)
+	''(19 9 11 9 12 16 14 17 15 10 18 13 20 20 8 8 8 8 8 8 8 8 8 8))
+
+(defun item-auto-select ()
+	; select best item from inventory based on priority table
+	(defq best_idx *item_selected* max_pri 0)
+	(each (lambda (item_frame)
+		(when (> item_frame 0)
+			(defq pri (elem-get +select_table (- item_frame +frm_16x16_gold)))
+			(when (> pri max_pri)
+				(setq max_pri pri best_idx (!)))))
+		*item_inventory*)
+	(when (> max_pri 0)
+		(setq *item_selected* best_idx))
+	*item_selected*)
 
 (defun item-select ()
 	; cycle selected inventory slot left or right

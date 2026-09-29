@@ -485,14 +485,16 @@
 	(if (/= (get :ay mv) 0)
 		(progn
 			(bind '(x y w h) (. this :sp_get_bounds))
-			(defq vy (get :vy mv))
-			(when (> vy 0)
-				(defq ground_y (logand (+ y h vy) (neg +tile_height))
-					flags (. *layer_land* :get_tile_flags (+ x 8) ground_y))
+			(defq vy (get :vy mv)
+				grid_y (logand (+ y h) (neg +tile_height))
+				prev_y (or (get :item_prev_y this) -1))
+			(def this :item_prev_y grid_y)
+			(when (and (> vy 0) (nql grid_y prev_y))
+				(defq flags (. *layer_land* :get_tile_flags (+ x (/ w 2)) grid_y))
 				(when (and (bits? flags +fmap_stand) (not (bits? flags +fmap_climb)))
-					(. this :sp_set_pos x (- ground_y h))
+					(. this :sp_set_pos x (- grid_y h))
 					(set mv :vy 0 :ay 0)
-					(spawn-fizz-fx (+ x 8) (+ y 8)))))
+					(spawn-fizz-fx (+ x (/ w 2)) (+ grid_y (- h 8))))))
 		(defq timeout (dec (or (get :item_timeout this) 64)))
 		(if (<= timeout 0)
 			(. this :sp_kill)
@@ -501,12 +503,12 @@
 
 (defun drop-item (enemy)
 	; drop item upon enemy death
-	(bind '(ex ey) (. enemy :sp_get_pos))
+	(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
 	(when (<= 0 ex (- (* +map_width +tile_width) 32))
 		(defq cnt (dec (or *item_drop_cnt* 0))
 			frame :nil
-			drop_x 0
-			drop_y 0
+			drop_x (+ ex (/ ew 2) -8)
+			drop_y (+ ey eh -24)
 			vy -9)
 		(cond
 			((<= cnt 0)
@@ -519,9 +521,7 @@
 					drop_y (/ (neg ly) *zoom*)
 					vy 0))
 			(:t
-				(setq frame (elem-get +drop_table (random (length +drop_table)))
-					drop_x (+ ex 8)
-					drop_y (+ ey 8))))
+				(setq frame (elem-get +drop_table (random (length +drop_table))))))
 		(setq *item_drop_cnt* cnt)
 		(bind '(uses timeout) (item-info frame))
 		(defq item (Item frame uses timeout vy))

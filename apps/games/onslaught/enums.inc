@@ -15,6 +15,13 @@
 	+status_power_x (- (- 160 32) (- 32 3)) +status_strength_x (- 160 (- 32 3))
 	+status_level_y (- 40 (- +panel_height 64)))
 
+;;;;;;;;;;;;;;;;;;;;
+; Item select modes
+;;;;;;;;;;;;;;;;;;;;
+
+(enums +mode 0
+	(enum auto assist human))
+
 ;;;;;;;;;;;;;
 ; Game states
 ;;;;;;;;;;;;;

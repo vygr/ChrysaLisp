@@ -77,11 +77,16 @@
 	+at_man_naptha
 	''(24 25 26 4))
 
+(defq +black_spell_table
+	; (item uses) pairs matching cpp: 40% yellow spell (43), 40% green spell (45), 20% super helper (42)
+	''((43 1) (43 1) (45 1) (45 1) (42 3)))
+
 ; reusable 16x16 directional addon sprite class
 
 (defclass Addon (man mt_table at_speed at_table) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
 	; (Addon man mt_table at_speed at_table) -> addon sprite
 	(def this :sp_dir (or (get :sp_dir man) 1))
+	(def man :sp_addon this)
 	; set initial position immediately to eliminate 1-frame spawn lag
 	(bind '(mx my) (. man :sp_get_pos))
 	(bind '(dx dy) (first mt_table))
@@ -227,6 +232,10 @@
 	(. *layer_missiles* :add_front elem)
 	(audio-play-rpc *sfx_roar*))
 
+(defq
+	+at_helper ''(28 29)
+	+at_super_helper ''(30 31))
+
 (defun cp-helper (this that)
 	; homing helper demon tracking nearest enemy
 	(defq life (dec (or (get :life this) 128)))
@@ -234,7 +243,6 @@
 		(. this :sp_kill)
 		(def this :life life)
 		(bind '(hx hy) (. this :sp_get_pos))
-		(spawn-fizz-fx (+ hx 8) (+ hy 8))
 		(when (defq mv (elem-get (get :sp_components this) 0))
 			(if (defq enemy (first (. *layer_enemies* :children)))
 				(progn
@@ -248,24 +256,24 @@
 	(def this :sp_hitpnt 10 :life 128)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 8 8))
-		(:sp_add_component (AT 3 (list +frm_16x16_demon (+ +frm_16x16_demon 1))))
+		(:sp_add_component (AT 6 +at_helper))
 		(:sp_add_component (CP (const cp-helper)))
 		(:sp_add_component (CL *layer_enemies* -1 *man_missile_collision_table*))
 		(:sp_add_component (CL *layer_missiles* +ftp_enemy_fire *man_missile_collision_table*))
 		(:sp_set_pos x y)
-		(:sp_set_frame +frm_16x16_demon)))
+		(:sp_set_frame 28)))
 
 (defclass SuperHelper (x y) (Sprite *img_frm_16x16* :nil 16 16 :16x16 (const dt-super-helper-transform))
 	; (SuperHelper x y) -> red demon homing helper (frames 30, 31)
 	(def this :sp_hitpnt 20 :life 32)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 8 8))
-		(:sp_add_component (AT 3 (list (+ +frm_16x16_demon 2) (+ +frm_16x16_demon 3))))
+		(:sp_add_component (AT 6 +at_super_helper))
 		(:sp_add_component (CP (const cp-helper)))
 		(:sp_add_component (CL *layer_enemies* -1 *man_missile_collision_table*))
 		(:sp_add_component (CL *layer_missiles* +ftp_enemy_fire *man_missile_collision_table*))
 		(:sp_set_pos x y)
-		(:sp_set_frame (+ +frm_16x16_demon 2))))
+		(:sp_set_frame 30)))
 
 ;;;;;;;;;;;;;;;;;
 ; weapon triggers
@@ -373,15 +381,13 @@
 	(audio-play-rpc *sfx_roar*))
 
 (defun use-black-spell (man)
-	; black spell fills inventory slots
-	(defq pick (random 3)
-		item (cond
-			((= pick 0) +frm_16x16_shield)
-			((= pick 1) (+ +frm_16x16_shield 1))
-			((= pick 2) (+ +frm_16x16_shield 5))))
-	(for 0 8
-		(elem-set *item_inventory* (!) item)
-		(elem-set *item_usage* (!) 20))
+	; black spell fills all 8 inventory slots with a random powerful spell/item
+	(bind '(item uses) (elem-get +black_spell_table (random 5)))
+	(defq idx 0)
+	(while (< idx 8)
+		(elem-set *item_inventory* idx item)
+		(elem-set *item_usage* idx uses)
+		(++ idx))
 	(audio-play-rpc *sfx_spell*))
 
 (defun use-green-spell (man)

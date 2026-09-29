@@ -94,7 +94,7 @@
 			(. hit :sp_kill))))
 
 (defun cl-man-missile-hits (this hit)
-	; player missile / arrow hitting target enemy or missile
+	; player missile / arrow / fireball hitting target enemy or missile
 	(audio-play-rpc *sfx_clash2*)
 	(defq hit_type (or (get :sp_type hit) 0)
 		non_flesh (logior +ftp_enemy_fire +ftp_cannon +ftp_oil +ftp_balista
@@ -106,16 +106,20 @@
 		(defq dir (or (get :sp_dir this) (neg (or (get :sp_dir hit) 1)))
 			spray (Blood (- (+ mx (/ mw 2)) 8) (- (+ my (/ mh 2)) 8) dir))
 		(. *layer_fx* :add_front spray))
-	(defq dmg (or (get :sp_hitpnt this) 1)
-		hp (- (or (get :sp_hitpnt hit) 1) dmg))
-	(if (<= hp 0)
+	(defq missile_hp (or (get :sp_hitpnt this) 1)
+		enemy_hp (or (get :sp_hitpnt hit) 1)
+		new_missile_hp (- missile_hp enemy_hp)
+		new_enemy_hp (- enemy_hp missile_hp))
+	(if (<= new_missile_hp 0)
+		(. this :sp_kill)
+		(def this :sp_hitpnt new_missile_hp))
+	(if (<= new_enemy_hp 0)
 		(progn
-			(when (>= dmg 500)
+			(when (>= missile_hp 500)
 				(when (eql (get :sp_death hit) dt-kill-enemy)
 					(def hit :sp_death dt-kill-zap)))
 			(. hit :sp_kill))
-		(def hit :sp_hitpnt hp))
-	(. this :sp_kill))
+		(def hit :sp_hitpnt new_enemy_hp)))
 
 (defun cl-man-addon-hits (this hit)
 	; player weapon mase hitting target enemy or missile
