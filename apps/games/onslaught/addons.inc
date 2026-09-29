@@ -208,11 +208,10 @@
 (defun dt-elemental-explode (this)
 	; burst into 8 flaming fragments across all 8 directions
 	(bind '(ex ey) (. this :sp_get_pos))
-	(defq cx (+ ex 8)
-		cy (+ ey 8))
+	(defq cx (+ ex 8) cy (+ ey 8))
 	(each (lambda ((vx vy))
 		(defq frag (. (Frag cx cy vx vy) :sp_set_pos cx cy))
-		(. *layer_missiles* :add_front frag))
+		(. *layer_player* :add_front frag))
 		'((0 -8) (6 -6) (8 0) (6 6) (0 8) (-6 6) (-8 0) (-6 -6)))
 	(dt-exp-fx this))
 
@@ -229,7 +228,7 @@
 	; transform expired major demon into roaring elemental head
 	(bind '(hx hy) (. this :sp_get_pos))
 	(defq elem (Elemental (- hx 8) (- hy 8)))
-	(. *layer_missiles* :add_front elem)
+	(. *layer_player* :add_front elem)
 	(audio-play-rpc *sfx_roar*))
 
 (defq
@@ -286,7 +285,7 @@
 		(defq dir (or (get :sp_dir this) 1)
 			x (if (= dir 1) (+ ax 16) (- ax 16))
 			arr (SmallArrow x ay dir))
-		(. *layer_missiles* :add_front arr)
+		(. *layer_player* :add_front arr)
 		(audio-play-rpc *sfx_twang2*)))
 
 (defclass SmallCrossbow (man mt_table) (Addon man mt_table 1 +at_small_crossbow)
@@ -313,7 +312,7 @@
 			(defq dir (or (get :sp_dir this) 1)
 				x (if (= dir 1) (+ ax 8) (- ax 24))
 				arr (BigArrow x ay dir))
-			(. *layer_missiles* :add_front arr)
+			(. *layer_player* :add_front arr)
 			(audio-play-rpc *sfx_twang1*))))
 
 (defclass BigCrossbow (man mt_table) (Addon man mt_table 2 +at_big_crossbow)
@@ -340,7 +339,7 @@
 			(defq dir (or (get :sp_dir this) 1)
 				x (if (= dir 1) (+ ax 4) (- ax 4))
 				bomb (NBomb x ay dir))
-			(. *layer_missiles* :add_front bomb))))
+			(. *layer_player* :add_front bomb))))
 
 (defclass Naptha (man mt_table) (Addon man mt_table 3 +at_naptha)
 	; (Naptha man mt_table) -> player naptha throwing addon
@@ -377,7 +376,7 @@
 	; yellow spell spawns roaring elemental head
 	(bind '(mx my) (. man :sp_get_pos))
 	(defq elem (Elemental mx (- my 32)))
-	(. *layer_missiles* :add_front elem)
+	(. *layer_player* :add_front elem)
 	(audio-play-rpc *sfx_roar*))
 
 (defun use-black-spell (man)

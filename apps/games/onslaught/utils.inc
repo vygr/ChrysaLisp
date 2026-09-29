@@ -5,7 +5,7 @@
 (defq
 	*item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)
 	*item_usage* (list 48 0 0 0 0 0 0 0)
-	*item_selected* 0 *game_mode* +mode_auto
+	*item_selected* 0 *game_mode* +mode_auto *game_frame_count* 0
 	*item_select_pressed* :nil *item_drop_cnt* 0
 	*panel_item_sprites* (list) *panel_sight_sprite* :nil
 	+select_table
@@ -103,8 +103,20 @@
 	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (cat (. %0 :children))))
 		+sprite_layers))
 
+(defun check-empty-mase ()
+	; if player has no offensive weapons or attack spells, grant 6 mace swings in first free slot
+	(when (= (logand (++ *game_frame_count*) 127) 0)
+		(unless (some (# (and (> %0 0) (< %0 (const (+ +frm_16x16_spells 3))))) *item_inventory*)
+			(defq empty_idx (find 0 *item_inventory*))
+			(when empty_idx
+				(elem-set *item_inventory* empty_idx +frm_16x16_shield)
+				(elem-set *item_usage* empty_idx 6)
+				(when (= *game_mode* +mode_auto)
+					(item-auto-select))))))
+
 (defun update-panel-layers ()
 	; tick all active sprites across panel layers
+	(check-empty-mase)
 	(item-select)
 	(update-panel-status)
 	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (cat (. %0 :children))))

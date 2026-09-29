@@ -47,9 +47,14 @@
 			(when (defq fall_f (get :fall_frame this))
 				(. this :sp_set_frame fall_f)))
 		; on surface
+		(defq snap_y (logand y (neg +tile_height)))
+		(when (/= y snap_y)
+			(setq y snap_y)
+			(. this :sp_set_pos x y))
 		(when (/= (get :ay mv) 0)
 			(set mv :vy 0 :ay 0 :vx (* (get :max_vx mv) dir))
-			(. this :sp_set_pos x (- (logand probe_y (neg +tile_height)) h))
+			(setq y (- (logand probe_y (neg +tile_height)) h))
+			(. this :sp_set_pos x y)
 			(when at_comp
 				(defq tbl (get :table at_comp))
 				(set at_comp :speed 2 :count 0 :index (if (> (length tbl) 1) 1 0))
@@ -245,7 +250,7 @@
 			(audio-play-rpc *sfx_twang1*))))
 
 (defun blast-area (x y w h)
-	; damage/destroy enemies, missiles, and other mines in blast box
+	; damage/destroy enemies, enemy missiles, and mines in blast box
 	(while (defq hit (sprite-collide *layer_enemies* x y w h -1))
 		(. hit :sp_kill))
 	(while (defq hit (sprite-collide *layer_missiles* x y w h -1))
@@ -328,27 +333,29 @@
 	(audio-play-death))
 
 (defun dt-kill-horse (this)
-	; horse death: rider knight dismounts, horse body flies away
+	; horse death: rider knight dismounts on ground level, horse body flies away
 	(bind '(x y) (. this :sp_get_pos))
 	(defq dir (or (get :sp_dir this) 1)
 		knight (Knight)
-		mv (elem-get (get :sp_components knight) +en_comp_mv))
+		mv (elem-get (get :sp_components knight) +en_comp_mv)
+		ky (logand (+ y 32) (neg +tile_height)))
 	(def knight :sp_dir dir)
 	(when mv (set mv :vx (* (get :max_vx mv) dir)))
-	(. knight :sp_set_pos (+ x 16) y)
+	(. knight :sp_set_pos (+ x 16) ky)
 	(. *layer_enemies* :add_front knight)
 	(spawn-flying-body this)
 	(audio-play-rpc *sfx_horse*))
 
 (defun dt-kill-boarrider (this)
-	; boarrider death: spearman dismounts, boar body flies away
+	; boarrider death: spearman dismounts on ground level, boar body flies away
 	(bind '(x y) (. this :sp_get_pos))
 	(defq dir (or (get :sp_dir this) 1)
 		spearman (Spearman)
-		mv (elem-get (get :sp_components spearman) +en_comp_mv))
+		mv (elem-get (get :sp_components spearman) +en_comp_mv)
+		sy (logand y (neg +tile_height)))
 	(def spearman :sp_dir dir)
 	(when mv (set mv :vx (* (get :max_vx mv) dir)))
-	(. spearman :sp_set_pos (+ x 16) y)
+	(. spearman :sp_set_pos (+ x 16) sy)
 	(. *layer_enemies* :add_front spearman)
 	(spawn-flying-body this)
 	(audio-play-rpc *sfx_boar*))
@@ -374,28 +381,31 @@
 	(spawn-fizz-fx (+ x (/ w 2)) (+ y (/ h 2))))
 
 (defun dt-kill-balista (this)
-	; balista, cannon, and oil death: crew emerges as footman, machine body flies away
+	; balista, cannon, and oil death: crew emerges as footman on ground level
 	(bind '(x y) (. this :sp_get_pos))
 	(defq dir (or (get :sp_dir this) 1)
 		footman (Footman)
-		mv (elem-get (get :sp_components footman) +en_comp_mv))
+		mv (elem-get (get :sp_components footman) +en_comp_mv)
+		fy (logand y (neg +tile_height)))
 	(def footman :sp_dir dir)
 	(when mv (set mv :vx (* (get :max_vx mv) dir)))
-	(. footman :sp_set_pos x y)
+	(. footman :sp_set_pos x fy)
 	(. *layer_enemies* :add_front footman)
 	(spawn-flying-body this)
 	(audio-play-rpc *sfx_clash2*))
 
 (defun dt-kill-carpet (this)
-	; flying carpet death: two wizards dismount at x and x+32
+	; flying carpet death: two wizards dismount and fall to ground with gravity
+	(-- *enemy_count*)
 	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1))
+	(defq dir (or (get :sp_dir this) 1)
+		wy (logand y (neg +tile_height)))
 	(each (lambda (ox)
 		(defq wiz (Wizard)
 			mv (elem-get (get :sp_components wiz) +en_comp_mv))
 		(def wiz :sp_dir dir)
-		(when mv (set mv :vx (* (get :max_vx mv) dir)))
-		(. wiz :sp_set_pos (+ x ox) y)
+		(when mv (set mv :vx (* (get :max_vx mv) dir) :ay 1))
+		(. wiz :sp_set_pos (+ x ox) wy)
 		(. *layer_enemies* :add_front wiz)
 		(++ *enemy_count*))
 		'(0 32))
@@ -427,17 +437,17 @@
 	(audio-play-death))
 
 (defun dt-kill-skeleton-horse (this)
-	; skeleton horse death: rider skeleton dismounts, horse bursts with bones from ribcage
+	; skeleton horse death: rider skeleton dismounts on ground level, horse bursts with bones
 	(bind '(x y w h) (. this :sp_get_bounds))
 	(defq dir (or (get :sp_dir this) 1)
 		skel (Skeleton)
-		mv (elem-get (get :sp_components skel) +en_comp_mv))
+		mv (elem-get (get :sp_components skel) +en_comp_mv)
+		sy (logand (+ y 32) (neg +tile_height)))
 	(def skel :sp_dir dir)
 	(when mv (set mv :vx (* (get :max_vx mv) dir)))
-	(. skel :sp_set_pos (+ x 16) y)
+	(. skel :sp_set_pos (+ x 16) sy)
 	(. *layer_enemies* :add_front skel)
-	(defq bx (+ x 24)
-		by (+ y 28))
+	(defq bx (+ x 24) by (+ y 28))
 	(each (lambda ((vx vy))
 		(defq bone (. (Bone bx by vx vy) :sp_set_pos bx by))
 		(. *layer_fx* :add_front bone))
@@ -534,7 +544,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass Horse () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr (const dt-kill-horse))
-	(def this :sp_type +ftp_horse :bftp_type 0 :fall_frame 4 :dead_frame 5)
+	(def this :sp_type +ftp_horse :bftp_type 0 :sp_hitpnt 6 :fall_frame 4 :dead_frame 5)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 8 8))
 		(:sp_add_component (AT 2 '(0 1 2 3)))
@@ -543,7 +553,7 @@
 		(:sp_set_frame +frm_64x64_l_horse)))
 
 (defclass Spearman () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr (const dt-kill-enemy))
-	(def this :sp_type +ftp_spearman :bftp_type 1 :fall_frame 10 :duck_frame 11 :dead_frame 9)
+	(def this :sp_type +ftp_spearman :bftp_type 1 :sp_hitpnt 1 :fall_frame 10 :duck_frame 11 :dead_frame 9)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 6 8))
 		(:sp_add_component (AT 2 '(4 5 0 1 2 3)))
@@ -553,7 +563,7 @@
 		(:sp_set_frame 4)))
 
 (defclass Wizard () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr (const dt-kill-enemy))
-	(def this :sp_type +ftp_wizard :bftp_type 2 :fall_frame 22 :duck_frame 23 :dead_frame 21)
+	(def this :sp_type +ftp_wizard :bftp_type 2 :sp_hitpnt 2 :fall_frame 22 :duck_frame 23 :dead_frame 21)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 6 8))
 		(:sp_add_component (AT 2 '(16 17 12 13 14 15)))
@@ -563,7 +573,7 @@
 		(:sp_set_frame 16)))
 
 (defclass Footman () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr (const dt-kill-enemy))
-	(def this :sp_type +ftp_footman :bftp_type 3 :fall_frame 36 :duck_frame 37 :dead_frame 35)
+	(def this :sp_type +ftp_footman :bftp_type 3 :sp_hitpnt 3 :fall_frame 36 :duck_frame 37 :dead_frame 35)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 4 8))
 		(:sp_add_component (AT 2 '(25 26 27 28 29 30 31 24)))
@@ -574,7 +584,7 @@
 		(:sp_set_frame 25)))
 
 (defclass Knight () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr (const dt-kill-enemy))
-	(def this :sp_type +ftp_knight :bftp_type 4 :fall_frame 53 :duck_frame 54 :dead_frame 52)
+	(def this :sp_type +ftp_knight :bftp_type 4 :sp_hitpnt 5 :fall_frame 53 :duck_frame 54 :dead_frame 52)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 4 8))
 		(:sp_add_component (AT 2 '(42 43 44 45 46 47 48 41)))
@@ -595,7 +605,7 @@
 
 (defclass Balista () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr (const dt-kill-balista))
 	; (Balista) -> balista siege engine enemy sprite
-	(def this :sp_type +ftp_balista :bftp_type 5 :dead_frame 3)
+	(def this :sp_type +ftp_balista :bftp_type 5 :sp_hitpnt 4 :dead_frame 3)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))
 		(:sp_add_component (AT 10 '(0 1 2 1)))
@@ -665,7 +675,7 @@
 
 (defclass Cannon () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr (const dt-kill-balista))
 	; (Cannon) -> cannon artillery enemy sprite
-	(def this :sp_type +ftp_cannon :bftp_type 6 :dead_frame 7)
+	(def this :sp_type +ftp_cannon :bftp_type 6 :sp_hitpnt 4 :dead_frame 7)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))
 		(:sp_add_component (AT 4 '(4 4 4 4 4 5 5 6)))
@@ -675,7 +685,7 @@
 
 (defclass Oil () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr (const dt-kill-balista))
 	; (Oil) -> boiling oil cauldron enemy sprite
-	(def this :sp_type +ftp_oil :bftp_type 7 :dead_frame 11)
+	(def this :sp_type +ftp_oil :bftp_type 7 :sp_hitpnt 4 :dead_frame 11)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))
 		(:sp_add_component (AT 4 '(8 9 8 9 10 9)))
@@ -683,7 +693,7 @@
 		(:sp_set_frame +frm_32c32_l_oil)))
 
 (defclass BoarRider () (Sprite *img_frm_64x32_l* *img_frm_64x32_r* 64 32 :64x32_lr (const dt-kill-boarrider))
-	(def this :sp_type +ftp_boarrider :bftp_type 8 :fall_frame 4 :dead_frame 5)
+	(def this :sp_type +ftp_boarrider :bftp_type 8 :sp_hitpnt 2 :fall_frame 4 :dead_frame 5)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 6 10))
 		(:sp_add_component (AT 2 '(0 1 2 3)))
@@ -693,7 +703,7 @@
 
 (defclass Carpet () (Sprite *img_frm_64x32_l* *img_frm_64x32_r* 64 32 :64x32_lr (const dt-kill-carpet))
 	; (Carpet) -> flying carpet enemy sprite
-	(def this :sp_type +ftp_carpet :bftp_type 9)
+	(def this :sp_type +ftp_carpet :bftp_type 9 :sp_hitpnt 4)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 6 0))
 		(:sp_add_component (AT 2 '(6 7)))
@@ -702,7 +712,7 @@
 		(:sp_set_frame +frm64x32_l_carpet)))
 
 (defclass Tower () (Sprite *img_frm_64x64* :nil 64 64 :64x64 (const dt-kill-tower))
-	(def this :sp_type +ftp_tower :bftp_type 10)
+	(def this :sp_type +ftp_tower :bftp_type 10 :sp_hitpnt 8)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 6 0))
 		(:sp_add_component (AT 2 '(0 1 2 3 0 1 2 0 1 2)))
@@ -712,7 +722,7 @@
 
 (defclass Monk () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr (const dt-monk-explode))
 	; (Monk) -> monk suicide bomber enemy sprite
-	(def this :sp_type +ftp_monk :bftp_type 11 :fall_frame 20)
+	(def this :sp_type +ftp_monk :bftp_type 11 :sp_hitpnt 1 :fall_frame 20)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 3 8))
 		(:sp_add_component (AT 2 '(18 19 20)))
@@ -722,7 +732,7 @@
 
 (defclass Beserk () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr (const dt-kill-zap))
 	; (Beserk) -> stationary berserker enemy sprite
-	(def this :sp_type +ftp_beserk :bftp_type 12 :fall_frame 14 :duck_frame 15)
+	(def this :sp_type +ftp_beserk :bftp_type 12 :sp_hitpnt 20 :fall_frame 14 :duck_frame 15)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))
 		(:sp_add_component (AT 3 '(12 13 14 15 16 17)))
@@ -739,9 +749,9 @@
 		(:sp_add_component (CP (const offscreen-update)))
 		(:sp_set_frame frame)))
 
-(defclass SkeletonMonk () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic (const dt-monk-explode))
-	; (SkeletonMonk) -> skeleton monk suicide bomber enemy sprite
-	(def this :sp_type +ftp_skeleton_monk :bftp_type 13
+(defclass SkeletonMonk () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic (const dt-kill-zap))
+	; (SkeletonMonk) -> skeleton monk enemy sprite (zaps on death, does not explode)
+	(def this :sp_type +ftp_skeleton_monk :bftp_type 13 :sp_hitpnt 8
 		:fall_frame (+ +frm_fanatic_l_skeleton_monk 2))
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 3 8))
@@ -749,6 +759,7 @@
 			(+ +frm_fanatic_l_skeleton_monk 1)
 			(+ +frm_fanatic_l_skeleton_monk 2))))
 		(:sp_add_component (CP (const cp-enemy-fall)))
+		(:sp_add_component (CP (const cp-skeleton-monk)))
 		(:sp_add_component (CP (const cp-enemy-offscreen)))
 		(:sp_set_frame +frm_fanatic_l_skeleton_monk)))
 
@@ -765,7 +776,7 @@
 
 (defclass SkeletonHorse () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr (const dt-kill-skeleton-horse))
 	; (SkeletonHorse) -> undead skeleton horse enemy sprite
-	(def this :sp_type +ftp_skeleton_horse :bftp_type 14 :fall_frame 10)
+	(def this :sp_type +ftp_skeleton_horse :bftp_type 14 :sp_hitpnt 6 :fall_frame 10)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 8 8))
 		(:sp_add_component (AT 2 '(6 7 8 9)))
@@ -775,7 +786,7 @@
 
 (defclass Skeleton () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic (const dt-kill-bones))
 	; (Skeleton) -> skeleton foot soldier enemy sprite
-	(def this :sp_type +ftp_skeleton :bftp_type 15
+	(def this :sp_type +ftp_skeleton :bftp_type 15 :sp_hitpnt 5
 		:fall_frame (+ +frm_fanatic_l_skeleton 11)
 		:duck_frame (+ +frm_fanatic_l_skeleton 12))
 	(.-> this
