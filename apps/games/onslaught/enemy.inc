@@ -759,7 +759,6 @@
 			(+ +frm_fanatic_l_skeleton_monk 1)
 			(+ +frm_fanatic_l_skeleton_monk 2))))
 		(:sp_add_component (CP (const cp-enemy-fall)))
-		(:sp_add_component (CP (const cp-skeleton-monk)))
 		(:sp_add_component (CP (const cp-enemy-offscreen)))
 		(:sp_set_frame +frm_fanatic_l_skeleton_monk)))
 
