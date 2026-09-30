@@ -1,4 +1,10 @@
-# Agent Skill: ChrysaLisp Onslaught 2D Entity-Component Engine
+---
+name: onslaught
+display-name: ChrysaLisp Onslaught
+description: Use when writing, reviewing, or modifying the Onslaught 2D entity-component engine (apps/games/onslaught/) — sprites, components, collisions, and cinematic sequencing.
+---
+
+# ChrysaLisp Onslaught 2D Entity-Component Engine
 
 ## Domain & Scope
 
