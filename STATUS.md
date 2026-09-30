@@ -4,6 +4,8 @@
 
 ------
 
+New View `:add_before` and `:add_after` methods.
+
 Catch load time errors as well as running 'main' in `:lisp :run`.
 
 Added Window property `:resizable`, defaults to `:t`.

@@ -58,8 +58,8 @@
 			(ui-element *panel_strength* (Sprite *img_frm_32c32* :nil 32 32 :32c32) (:sp_frame +frm_32c32_strength)))
 		(ui-view *layer_panel_detail*)))
 
-(defq +sprite_layers `'(,*layer_fx* ,*layer_missiles* ,*layer_bodies* ,*layer_player* ,*layer_enemies*
-		,*layer_items* ,*layer_bans*)
-	+world_layers `'(,*layer_fx* ,*layer_missiles* ,*layer_bodies* ,*layer_player* ,*layer_enemies*
-		,*layer_items* ,*layer_bans* ,*layer_land* ,*layer_sky*)
+(defq +sprite_layers `'(,*layer_player* ,*layer_bans* ,*layer_items* ,*layer_enemies*
+		,*layer_missiles* ,*layer_bodies* ,*layer_fx*)
+	+world_layers `'(,*layer_player* ,*layer_bans* ,*layer_items* ,*layer_enemies*
+		,*layer_missiles* ,*layer_bodies* ,*layer_fx* ,*layer_land* ,*layer_sky*)
 	+panel_layers `'(,*layer_panel_detail* ,*layer_panel_items* ,*layer_panel_status* ,*layer_panel_axes*))

@@ -98,7 +98,7 @@
 
 ; frm_64x64 (tower)
 (enums +frm64x64 0
-	(enum tower))
+	(enum tower tower1 tower2 tower3))
 
 ; frm_64x32_l (boarrider, carpet)
 (enums +frm64x32_l 0
@@ -117,7 +117,7 @@
 		lmasehit lmasehit1 lmasehit2
 		skeleton skeleton1 skeleton2 skeleton3 skeleton4 skeleton5 skeleton6 skeleton7
 		skeleton8 skeleton9 skeleton10 skeleton11 skeleton12 skeleton13 skeleton14
-		skeleton_monk))
+		skeleton_monk skeleton_monk1 skeleton_monk2))
 
 ; frm_32x32_l (spearman, wizard, footman, knight)
 (enums +frm_32x32_l 0
@@ -168,7 +168,7 @@
 		bkaddon bkaddon1 bkaddon2 bkaddon3 bkaddon4 bkaddon5
 		flame flame1
 		blood blood1 blood2 blood3
-		skeladd))
+		skeladd skeladd1 skeladd2 skeladd3))
 
 ; frm_16x16 (pole, banners, cball, mine, wizshot, nbomb, demon, fires, sight, gold, shield/weapons, spells, diamond, segments, tends, manbits, blooddrip, fizz, manmind, pshot, mshot, bones)
 (enums +frm_16x16 0
@@ -193,7 +193,7 @@
 		manmind manmind1 manmind2 manmind3
 		pshot pshot1
 		mshot mshot1
-		bones))
+		bones bones1 bones2 bones3 bones4))
 
 ; campain 8x8
 (enums +frm_campain 0

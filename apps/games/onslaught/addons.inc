@@ -22,27 +22,7 @@
 	+mt_naptha_l
 	''((32 0) (32 0) (32 0) (0 0) (0 0) (0 0) (-16 0) (-16 0) (-16 0))
 	+mt_naptha_r
-	''((-16 0) (-16 0) (-16 0) (0 0) (0 0) (0 0) (32 0) (32 0) (32 0))
-    +mt_footman_lower_mase_l
-	''((32 -3) (32 -3) (16 0) (16 0) (-16 0) (-16 0))
-	+mt_footman_lower_mase_r
-	''((-16 -3) (-16 -3) (0 0) (0 0) (32 0) (32 0))
-	+mt_knight_mase_l
-	''((32 0) (32 0) (16 0) (16 0) (-16 0) (-16 0))
-	+mt_knight_mase_r
-	''((-16 0) (-16 0) (0 0) (0 0) (32 0) (32 0))
-	+mt_skeleton_mase_l
-	''((32 0) (32 0) (0 0) (0 0) (-16 0) (-16 0))
-	+mt_skeleton_mase_r
-	''((-16 0) (-16 0) (16 0) (16 0) (32 0) (32 0))
-    +mt_beserk_upper_mase_l
-	''((32 0) (32 0) (32 0) (8 0) (8 0) (8 0) (-16 0) (-16 0) (-16 0))
-	+mt_beserk_upper_mase_r
-	''((-16 0) (-16 0) (-16 0) (8 0) (8 0) (8 0) (32 0) (32 0) (32 0))
-	+mt_beserk_lower_mase_l
-	''((32 -8) (32 -8) (32 -8) (8 0) (8 0) (8 0) (-16 0) (-16 0) (-16 0))
-	+mt_beserk_lower_mase_r
-	''((-16 -8) (-16 -8) (-16 -8) (8 0) (8 0) (8 0) (32 0) (32 0) (32 0)))
+	''((-16 0) (-16 0) (-16 0) (0 0) (0 0) (0 0) (32 0) (32 0) (32 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; addon animation tables
@@ -131,7 +111,7 @@
 	(. man :sp_set_frame (first body_anim))
 	(set man_at :speed 2 :table body_anim :count 0 :index 1 :loop :nil)
 	(defq wep (Mase man mt 2 wep_anim hitpnt))
-	(. *layer_player* :add_back wep)
+	(. man :add_before wep)
 	wep)
 
 (defun use-super-mase (man)
@@ -158,7 +138,7 @@
 	(def this :sp_dir dir :sp_hitpnt 1)
 	(.-> this
 		(:sp_add_component (MV (* 16 dir) 0 0 0 16 0))
-		(:sp_add_component (CP (const offscreen-nodeath-update)))
+		(:sp_add_component (CP offscreen-nodeath-update))
 		(:sp_add_component (CL *layer_enemies* -1 *man_missile_collision_table*))
 		(:sp_add_component (CL *layer_missiles* +ftp_enemy_fire *man_missile_collision_table*))
 		(:sp_set_pos x y)
@@ -169,7 +149,7 @@
 	(def this :sp_dir dir :sp_hitpnt 4)
 	(.-> this
 		(:sp_add_component (MV (* 10 dir) 0 0 0 10 0))
-		(:sp_add_component (CP (const offscreen-nodeath-update)))
+		(:sp_add_component (CP offscreen-nodeath-update))
 		(:sp_add_component (CL *layer_enemies* -1 *man_missile_collision_table*))
 		(:sp_add_component (CL *layer_missiles* +ftp_enemy_fire *man_missile_collision_table*))
 		(:sp_set_pos x y)
@@ -185,13 +165,13 @@
 			(audio-play-rpc *sfx_explode*)
 			(blast-area (- x 24) (- y 24) 64 64))))
 
-(defclass NBomb (x y dir) (Sprite *img_frm_16x16* :nil 16 16 :16x16 (const dt-bomb-fx))
+(defclass NBomb (x y dir) (Sprite *img_frm_16x16* :nil 16 16 :16x16 dt-bomb-fx)
 	; (NBomb x y dir) -> thrown naptha grenade
 	(.-> this
 		(:sp_add_component (MV (* 10 dir) -4 0 1 10 8))
 		(:sp_add_component (AT 1 '(24 25 26 27)))
-		(:sp_add_component (CP (const cp-nbomb)))
-		(:sp_add_component (CP (const offscreen-nodeath-update)))
+		(:sp_add_component (CP cp-nbomb))
+		(:sp_add_component (CP offscreen-nodeath-update))
 		(:sp_set_pos x y)
 		(:sp_set_frame 24)))
 
@@ -201,7 +181,7 @@
 	(.-> this
 		(:sp_add_component (MV vx vy 0 0 8 8))
 		(:sp_add_component (AT 1 (list +frm_16x16_fires (+ +frm_16x16_fires 1))))
-		(:sp_add_component (CP (const offscreen-nodeath-update)))
+		(:sp_add_component (CP offscreen-nodeath-update))
 		(:sp_add_component (CL *layer_enemies* -1 *man_missile_collision_table*))
 		(:sp_add_component (CL *layer_missiles* +ftp_enemy_fire *man_missile_collision_table*))
 		(:sp_set_pos x y)
@@ -217,7 +197,7 @@
 		'((0 -8) (6 -6) (8 0) (6 6) (0 8) (-6 6) (-8 0) (-6 -6)))
 	(dt-exp-fx this))
 
-(defclass Elemental (x y) (Sprite *img_frm_32c32* :nil 32 32 :32c32 (const dt-elemental-explode))
+(defclass Elemental (x y) (Sprite *img_frm_32c32* :nil 32 32 :32c32 dt-elemental-explode)
 	; (Elemental x y) -> roaring demon head
 	(.-> this
 		(:sp_add_component (AT 3 (list +frm_32c32_elemental
@@ -258,19 +238,19 @@
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 8 8))
 		(:sp_add_component (AT 6 +at_helper))
-		(:sp_add_component (CP (const cp-helper)))
+		(:sp_add_component (CP cp-helper))
 		(:sp_add_component (CL *layer_enemies* -1 *man_missile_collision_table*))
 		(:sp_add_component (CL *layer_missiles* +ftp_enemy_fire *man_missile_collision_table*))
 		(:sp_set_pos x y)
 		(:sp_set_frame 28)))
 
-(defclass SuperHelper (x y) (Sprite *img_frm_16x16* :nil 16 16 :16x16 (const dt-super-helper-transform))
+(defclass SuperHelper (x y) (Sprite *img_frm_16x16* :nil 16 16 :16x16 dt-super-helper-transform)
 	; (SuperHelper x y) -> red demon homing helper (frames 30, 31)
 	(def this :sp_hitpnt 20 :life 32)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 8 8))
 		(:sp_add_component (AT 6 +at_super_helper))
-		(:sp_add_component (CP (const cp-helper)))
+		(:sp_add_component (CP cp-helper))
 		(:sp_add_component (CL *layer_enemies* -1 *man_missile_collision_table*))
 		(:sp_add_component (CL *layer_missiles* +ftp_enemy_fire *man_missile_collision_table*))
 		(:sp_set_pos x y)
@@ -292,7 +272,7 @@
 
 (defclass SmallCrossbow (man mt_table) (Addon man mt_table 1 +at_small_crossbow)
 	; (SmallCrossbow man mt_table) -> player light crossbow addon
-	(. this :sp_add_component (CP (const cp-small-crossbow))))
+	(. this :sp_add_component (CP cp-small-crossbow)))
 
 (defun use-small-crossbow (man)
 	; trigger small crossbow shooting animation and spawn arrow
@@ -303,7 +283,7 @@
 	(. man :sp_set_frame (first +at_man_small_crossbow))
 	(set man_at :speed 1 :table +at_man_small_crossbow :count 0 :index 1 :loop :nil)
 	(defq wep (SmallCrossbow man mt))
-	(. *layer_player* :add_back wep)
+	(. man :add_before wep)
 	wep)
 
 (defun cp-big-crossbow (this that)
@@ -319,7 +299,7 @@
 
 (defclass BigCrossbow (man mt_table) (Addon man mt_table 2 +at_big_crossbow)
 	; (BigCrossbow man mt_table) -> player heavy crossbow addon
-	(. this :sp_add_component (CP (const cp-big-crossbow))))
+	(. this :sp_add_component (CP cp-big-crossbow)))
 
 (defun use-big-crossbow (man)
 	; trigger big crossbow shooting animation and spawn bolt
@@ -330,7 +310,7 @@
 	(. man :sp_set_frame (first +at_man_big_crossbow))
 	(set man_at :speed 2 :table +at_man_big_crossbow :count 0 :index 1 :loop :nil)
 	(defq wep (BigCrossbow man mt))
-	(. *layer_player* :add_back wep)
+	(. man :add_before wep)
 	wep)
 
 (defun cp-naptha (this that)
@@ -345,7 +325,7 @@
 
 (defclass Naptha (man mt_table) (Addon man mt_table 3 +at_naptha)
 	; (Naptha man mt_table) -> player naptha throwing addon
-	(. this :sp_add_component (CP (const cp-naptha))))
+	(. this :sp_add_component (CP cp-naptha)))
 
 (defun use-naptha (man)
 	; trigger naptha throwing animation and lob bomb
@@ -357,7 +337,7 @@
 	(. man :sp_set_frame (first +at_man_naptha))
 	(set man_at :speed 3 :table +at_man_naptha :count 0 :index 1 :loop :nil)
 	(defq wep (Naptha man mt))
-	(. *layer_player* :add_back wep)
+	(. man :add_before wep)
 	wep)
 
 (defun use-helper (man)

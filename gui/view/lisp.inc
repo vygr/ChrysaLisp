@@ -150,6 +150,12 @@
 	(deffimethod :add_front "gui/view/lisp_add")
 		; (. view :add_front child) -> view
 
+	(deffimethod :add_before "gui/view/lisp_add_before")
+		; (. sibling :add_before view) -> sibling
+
+	(deffimethod :add_after "gui/view/lisp_add_after")
+		; (. sibling :add_after view) -> sibling
+
 	(defmethod :add_child (child)
 		; (. view :add_child child) -> view
 		(. this :add_back child))

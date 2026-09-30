@@ -262,9 +262,9 @@
 		; at (index 0 / +man_comp_at): player weapon body animations
 		(:sp_add_component (AT 0 :nil :nil))
 		; cp (index 1): player input, movement, jumping, and falling physics
-		(:sp_add_component (CP (const player-man-update)))
+		(:sp_add_component (CP player-man-update))
 		; cp (index 2): ducking height and y bounds adjustment component
-		(:sp_add_component (CP (const cp-manduck)))
+		(:sp_add_component (CP cp-manduck))
 		; cl1..cl6 (indices 3..8): collision checks
 		(:sp_add_component (CL *layer_items* +ftp_item *man_collision_table*))
 		(:sp_add_component (CL *layer_missiles* -1 *man_collision_table*))

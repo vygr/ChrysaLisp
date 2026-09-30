@@ -5,7 +5,7 @@
 (defq +max_enemy_stack 16 *enemy_max* 6 *mine_count* 0 *mine_max* 3
 	*current_map_idx* 1 *game_level* +game_level_field *battle_state_count* 0
 	*enemy_army* 0 *enemy_count* 0 *enemy_spawn_delay* 1
-	*enemy_stack* (list) *enemy_stack_index* 0
+	*enemy_stack* (list)
 	+army_names
 	''("HILLMEN" "NECROMANTIC" "ROBBER" "BOARRIDER" "MERCENARY"
 	   "KNIGHTLY" "BERSERKER" "MYSTIC" "BALISTIC" "POWDER"
@@ -123,7 +123,7 @@
 
 (defun spawn-enemy-left ()
 	; spawn an overrun enemy from the stack on the left side moving right
-	(if (<= *enemy_stack_index* 0) (spawn-enemy-right)
+	(if (empty? *enemy_stack*) (spawn-enemy-right)
 		(defq type (last *enemy_stack*) pt :nil)
 		(bind '(w h) (elem-get +enemy_sizes type))
 		(ifn (setq pt (get-spawn-surface -1 w h)) (spawn-enemy-right)
@@ -137,7 +137,6 @@
 						(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))))
 				(spawn-enemy-right)
 				(pop *enemy_stack*)
-				(-- *enemy_stack_index*)
 				(defq sp (create-enemy-type type)
 					mv (elem-get (get :sp_components sp) +en_comp_mv))
 				(def sp :sp_dir dir)
@@ -159,7 +158,7 @@
 					((= pdir 1)
 						(spawn-enemy-right))
 					(:t
-						(if (> *enemy_stack_index* 0)
+						(if (> (length *enemy_stack*) 0)
 							(spawn-enemy-left)
 							(spawn-enemy-right))))))))
 
@@ -194,14 +193,13 @@
 	(. *layer_player* :add_front man)
 	(setq *player_man* man
 		  *enemy_stack* (list)
-		  *enemy_stack_index* 0
 		  *enemy_count* 0
 		  *enemy_spawn_delay* 1
 		  *mine_count* 0
 		  *mine_max* (+ (random 3) 1)
 		  *enemy_max* (+ (random 4) 2)
-;		  *enemy_army* (random (length +army_tables)))
-		  *enemy_army* 13)
+		  *enemy_army* (random (length +army_tables)))
+;		  *enemy_army* 9)
 	(update-camera *player_man*))
 
 (defun battle-state-update ()
@@ -209,7 +207,7 @@
 	(cond
 		((or (not *player_man*) (get :sp_dead *player_man*))
 			(goto-title +game_state_hiscore))
-		((>= *enemy_stack_index* +max_enemy_stack)
+		((>= (length *enemy_stack*) +max_enemy_stack)
 			(setq *game_state* +game_state_battle_lost))
 		(:t
 			(init-mines)

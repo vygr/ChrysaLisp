@@ -138,7 +138,7 @@
 
 (defun update-panel-status ()
 	; update enemy stack flags and power/strength level indicators directly
-	(defq stack_val (max 0 (min 32 (* (or *enemy_stack_index* 0) 2)))
+	(defq stack_val (max 0 (min 32 (* (length *enemy_stack*) 2)))
 		flag_y (+ +status_flag_y (- 32 stack_val))
 		flag_oy (- 32 stack_val)
 		power_val (max 0 (min 32 (/ (* (max 0 (min +max_power (or *man_power* 0))) 32) +max_power)))
