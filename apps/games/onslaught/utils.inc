@@ -76,7 +76,7 @@
 
 (defun set-world-layers-size (w h)
 	; size all children of *world_layers*
-	(each (# (. %0 :set_size w h)) +world_layers))
+	(each (# (def %0 :zoom *zoom*) (. %0 :set_size w h)) +world_layers))
 
 (defun update-sprite-canvas (sp)
 	(when (def? :sp_canvas_tag sp)
@@ -109,6 +109,7 @@
 	(each (lambda (layer)
 		(each (lambda (sp)
 			(when (Sprite? sp)
+				(def sp :zoom *zoom*)
 				(bind '(x y w h) (. sp :sp_get_bounds))
 				(. sp :sp_set_bounds x y w h)
 				(update-sprite-canvas sp)))

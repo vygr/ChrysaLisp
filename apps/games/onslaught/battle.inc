@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq +max_enemy_stack 16 *enemy_max* 6 *mine_count* 0 *mine_max* 3
-	*current_map_idx* 1 *game_level* +game_level_field *battle_state_count* 0
+	*current_map_idx* 1 *game_level* +game_level_field *battle_state_count* 0 *man_dead_timer* 0
 	*enemy_army* 0 *enemy_count* 0 *enemy_spawn_delay* 1 *enemy_wizshot* 0
 	*enemy_stack* (list) *enemy_banner_captured* :nil
 	*man_banner* 1 *enemy_banner* 5
@@ -197,7 +197,9 @@
 			(bind '(px py) pt)
 			(defq x (if (= dir 1) px (- (+ px 1) 16))
 				y (- py 8))
-			(unless (sprite-collide *layer_bans* (- x 28) y 72 8 +ftp_enemy_fire)
+			(unless (or (<= x 32)
+						(>= x (const (- (* +map_width +tile_width) 32)))
+						(sprite-collide *layer_bans* (- x 28) y 72 8 +ftp_enemy_fire))
 				(defq mine (Mine))
 				(. mine :sp_set_pos x y)
 				(. *layer_bans* :add_front mine)
@@ -212,9 +214,15 @@
 	(set-world-layers-pos 0 0)
 	(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
 	(. *layer_sky* :sky_random)
-	(setq *game_level* +game_level_field
-		  *current_map_idx* 1)
-	(. *layer_land* :load_field_map 1)
+	(case *game_level*
+		(+game_level_seige
+			(. *layer_land* :load_seige_map))
+		(+game_level_defend
+			(. *layer_land* :load_defend_map))
+		(:t
+			(setq *game_level* +game_level_field
+				  *current_map_idx* 1)
+			(. *layer_land* :load_field_map 1)))
 	(def (defq man (Fanatic)) :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
 	(. man :sp_set_pos 8 208)
 	(. *layer_player* :add_front man)
@@ -223,6 +231,7 @@
 		  *man_strength* +max_strength
 		  *enemy_stack* (list)
 		  *enemy_banner_captured* :nil
+		  *man_dead_timer* 0
 		  *enemy_count* 0
 		  *enemy_spawn_delay* 1
 		  *mine_count* 0
@@ -248,35 +257,104 @@
 	(update-camera *player_man*))
 
 (defun battle-state-update ()
-	; check for player death, battle won, or overrun stack full
+	; check for player death sequence, battle lost, or battle won
 	(cond
-		((or (not *player_man*) (get :sp_dead *player_man*))
-			(goto-title +game_state_menu))
+		((and *player_man* (get :sp_dead *player_man*))
+			(update-sprite-layers)
+			(-- *man_dead_timer*)
+			(when (or (empty? (. *layer_player* :children))
+					  (<= *man_dead_timer* 0))
+				(goto-title +game_state_menu)))
 		((>= (length *enemy_stack*) +max_enemy_stack)
 			(setq *game_state* +game_state_battle_lost))
-		((and *enemy_banner_captured*
-			  (empty? *enemy_stack*)
-			  (empty? (. *layer_enemies* :children)))
+		(*enemy_banner_captured*
 			(setq *game_state* +game_state_battle_won))
 		(:t
 			(init-mines)
 			(init-enemies)
 			(update-camera *player_man*))))
 
+(defun cp-manstance (this that)
+	(bind '(x y) (. this :sp_get_pos))
+	(defq yv (get :man_yv this)
+		h (get :sp_h this)
+		y1 (+ h yv y)
+		f1 (. *layer_land* :get_tile_flags (+ x 8) y1)
+		f2 (. *layer_land* :get_tile_flags (+ x 23) y1))
+	(if (and (not (bits? f1 (logior +fmap_climb +fmap_stand)))
+			 (not (bits? f2 (logior +fmap_climb +fmap_stand))))
+		(progn
+			; falling
+			(. this :sp_set_frame +frm_fanatic_l_fall)
+			(setq yv (min 10 (inc yv)))
+			(setq y (+ y yv)))
+		(progn
+			; on floor: stance animation continues
+			(when (/= yv 0)
+				(setq y (- (logand y1 -16) 32))
+				(setq yv 0))))
+	(def this :man_yv yv)
+	(. this :sp_set_pos x y))
+
+(defclass ManStance (x y dir) (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
+	; player victory dance sprite
+	(def this :sp_dir dir :man_yv 0)
+	(. this :sp_set_pos x y)
+	(.-> this
+		(:sp_add_component (AT 3 (list +frm_fanatic_l_stance +frm_fanatic_l_stance1)))
+		(:sp_add_component (CP (const cp-manstance)))
+		(:sp_set_frame +frm_fanatic_l_stance)))
+
 (defun battle-won-state-init ()
-	(setq *battle_state_count* 0))
+	(setq *battle_state_count* 0)
+	; replace player with dancing victory stance without death explosion
+	(when *player_man*
+		(bind '(px py) (. *player_man* :sp_get_pos))
+		(defq pdir (get :sp_dir *player_man*))
+		(def *player_man* :sp_death :nil)
+		(. *player_man* :sp_kill)
+		(setq *player_man* (ManStance px py pdir))
+		(. *layer_player* :add_front *player_man*))
+	(clear-layer *layer_enemies*)
+	(clear-layer *layer_missiles*)
+	(setq *enemy_stack* (list)))
 
 (defun battle-won-state-update ()
-	; delay for 96 frames before returning to menu
+	; tick victory dance animation and track camera
+	(update-sprite-layers)
+	(if *player_man* (update-camera *player_man*))
 	(++ *battle_state_count*)
 	(when (>= *battle_state_count* 96)
-		(goto-title +game_state_menu)))
+		(defq next_level (case *game_level*
+				(+game_level_field +game_level_seige)
+				(+game_level_seige +game_level_field)
+				(:t +game_level_field)))
+		(setq *game_level* next_level)
+		(goto-title +game_state_battle)))
 
 (defun battle-lost-state-init ()
-	(setq *battle_state_count* 0))
+	(setq *battle_state_count* 0)
+	; replace player with stance without death explosion
+	(when *player_man*
+		(bind '(px py) (. *player_man* :sp_get_pos))
+		(defq pdir (get :sp_dir *player_man*))
+		(def *player_man* :sp_death :nil)
+		(. *player_man* :sp_kill)
+		(setq *player_man* (ManStance px py pdir))
+		(. *layer_player* :add_front *player_man*))
+	(clear-layer *layer_enemies*)
+	(clear-layer *layer_missiles*)
+	(setq *enemy_stack* (list)))
 
 (defun battle-lost-state-update ()
-	; delay for 96 frames before returning to menu
+	; delay for 96 frames before progressing to defend/field via title
+	(update-sprite-layers)
+	(if *player_man* (update-camera *player_man*))
 	(++ *battle_state_count*)
 	(when (>= *battle_state_count* 96)
-		(goto-title +game_state_menu)))
+		(defq next_level (case *game_level*
+				(+game_level_field +game_level_defend)
+				(+game_level_seige +game_level_field)
+				(:t +game_level_field)))
+		(setq *game_level* next_level)
+		(goto-title +game_state_battle)))

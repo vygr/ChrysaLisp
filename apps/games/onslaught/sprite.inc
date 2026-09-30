@@ -218,7 +218,7 @@
 
 (defclass Sprite (canvas_l canvas_r width height tag &optional death) (View)
 	; (Sprite canvas_l canvas_r width height [death]) -> sprite
-	(def this :color 0
+	(def this :color 0 :zoom *zoom*
 		:sp_x 0 :sp_y 0 :sp_w width :sp_h height
 		:sp_frame_w width :sp_frame_h height
 		:sp_canvas_l canvas_l :sp_canvas_r canvas_r :sp_canvas_tag tag
@@ -238,7 +238,7 @@
 
 	(defmethod :sp_set_pos (x y)
 		; (. sprite :sp_set_pos x y) -> sprite
-		(def this :sp_x x :sp_y y)
+		(def this :sp_x x :sp_y y :zoom *zoom*)
 		(. this :set_pos (* *zoom* x) (* *zoom* y)))
 
 	(defmethod :sp_get_pos ()
@@ -247,7 +247,7 @@
 
 	(defmethod :sp_set_size (w h)
 		; (. sprite :sp_set_size w h) -> sprite
-		(def this :sp_w w :sp_h h)
+		(def this :sp_w w :sp_h h :zoom *zoom*)
 		(. this :set_size (* *zoom* w) (* *zoom* h)))
 
 	(defmethod :sp_get_size ()
@@ -256,7 +256,7 @@
 
 	(defmethod :sp_set_bounds (x y w h)
 		; (. sprite :sp_set_bounds x y w h) -> sprite
-		(def this :sp_x x :sp_y y :sp_w w :sp_h h)
+		(def this :sp_x x :sp_y y :sp_w w :sp_h h :zoom *zoom*)
 		(. this :set_bounds (* *zoom* x) (* *zoom* y) (* *zoom* w) (* *zoom* h)))
 
 	(defmethod :sp_get_bounds ()
@@ -331,6 +331,14 @@
 							dir (get :sp_dir this))
 						(when (and (>= dir 0) (get :sp_canvas_r this))
 							(setq sx (- tw (+ sx scaled_fw))))
-						(. this :ctx_blit tid +argb_white 0 0 w h sx sy)))))
+						(if (= (get :sp_h this) 48)
+							(progn
+								; banner head (top 16x16)
+								(. this :ctx_blit tid +argb_white 0 0 scaled_fw scaled_fh sx sy)
+								; pole 1 (middle 16x16)
+								(. this :ctx_blit tid +argb_white 0 scaled_fh scaled_fw scaled_fh 0 0)
+								; pole 2 (bottom 16x16)
+								(. this :ctx_blit tid +argb_white 0 (* scaled_fh 2) scaled_fw scaled_fh 0 0))
+							(. this :ctx_blit tid +argb_white 0 0 w h sx sy))))))
 		this)
 	)

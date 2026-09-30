@@ -86,7 +86,8 @@
 		(audio-play-rpc *sfx_spell*)
 		(setq *enemy_banner_captured* :t)
 		(. hit :sp_kill)
-		(setq *man_power* (min +max_power (* *man_power* 2)))))
+		(setq *man_power* (min +max_power (* *man_power* 2)))
+		(setq *game_state* +game_state_battle_won)))
 
 (defun cl-enemy-addon-hits-man (this hit)
 	; enemy weapon addon hitting player man: play clash, spawn sparks, deduct strength

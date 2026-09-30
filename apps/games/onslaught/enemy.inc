@@ -267,38 +267,16 @@
 		(:sp_set_frame frame)))
 
 (defun cp-banner (this that)
-	; occasionally spawn fizz spark fx around banner
-	(when (= (game-random 8) 0)
-		(bind '(x y) (. this :sp_get_pos))
-		(defq fx (. (Fizz) :sp_set_pos (+ x (- (game-random 32) 8)) (+ y (- (game-random 32) 8))))
-		(. *layer_fx* :add_front fx)))
+	; spawn fizz spark fx cloud around banner head matching C++ cp_banner
+	(bind '(x y) (. this :sp_get_pos))
+	(defq fx (. (Fizz) :sp_set_pos (+ x (- (game-random 32) 16)) (+ y (- (game-random 32) 16))))
+	(. *layer_fx* :add_front fx))
 
 (defclass Banner (type frame) (Sprite *img_frm_16x16* :nil 16 48 :16x16 dt-fizz-fx)
 	; (Banner type frame) -> 16x48 banner sprite (flag top, pole middle & bottom)
 	(def this :sp_type type :sp_frame frame :sp_frame_h 16)
 	(.-> this
-		(:sp_add_component (CP cp-banner)))
-
-	(defmethod :draw ()
-		(when (/= (defq f (get :sp_frame this)) -1)
-			(when (defq c (. this :sp_get_canvas))
-				(when (defq texture (getf c +canvas_texture 0))
-					(bind '(tid tw th) (texture-metrics texture))
-					(defq zoom *zoom*
-						tile_w (* zoom 16) tile_h (* zoom 16)
-						flag_raw_y (* f tile_h)
-						flag_sy (% flag_raw_y th)
-						flag_sx (* (/ flag_raw_y th) tile_w)
-						pole_raw_y (* +frm_16x16_pole tile_h)
-						pole_sy (% pole_raw_y th)
-						pole_sx (* (/ pole_raw_y th) tile_w))
-					; top 16x16: flag
-					(. this :ctx_blit tid +argb_white 0 0 tile_w tile_h flag_sx flag_sy)
-					; middle 16x16: pole
-					(. this :ctx_blit tid +argb_white 0 tile_h tile_w tile_h pole_sx pole_sy)
-					; bottom 16x16: pole
-					(. this :ctx_blit tid +argb_white 0 (* tile_h 2) tile_w tile_h pole_sx pole_sy))))
-		this))
+		(:sp_add_component (CP cp-banner))))
 
 (defun spawn-flying-body (enemy)
 	; spawn a dead body flying backwards and upwards with gravity

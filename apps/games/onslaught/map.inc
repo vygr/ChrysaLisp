@@ -4,7 +4,7 @@
 
 (defclass FieldMap () (View)
 	; (FieldMap) -> map view
-	(def this :color 0 :map_idx 1 :map_blocks :nil :map_data :nil :map_flags :nil)
+	(def this :color 0 :zoom *zoom* :map_idx 1 :map_blocks :nil :map_data :nil :map_flags :nil :map_level +game_level_field)
 	(. this :set_size (const (* +map_width +tile_width)) (const (* +map_height +tile_height)))
 
 	(defmethod :clear ()
@@ -27,6 +27,20 @@
 		(defq map_data (load (cat *app_root* "data/fieldmap" (str map_idx) ".dat"))
 			map_flags (load (cat *app_root* "data/mapflags1.dat")))
 		(def this :map_idx map_idx :map_data map_data :map_flags map_flags :map_level +game_level_field)
+		(. this :reset_field_map))
+
+	(defmethod :load_seige_map ()
+		; (. map :load_seige_map) -> map
+		(defq map_data (load (cat *app_root* "data/seigemap.dat"))
+			map_flags (load (cat *app_root* "data/mapflags2.dat")))
+		(def this :map_data map_data :map_flags map_flags :map_level +game_level_seige)
+		(. this :reset_field_map))
+
+	(defmethod :load_defend_map ()
+		; (. map :load_defend_map) -> map
+		(defq map_data (load (cat *app_root* "data/defendmap.dat"))
+			map_flags (load (cat *app_root* "data/mapflags2.dat")))
+		(def this :map_data map_data :map_flags map_flags :map_level +game_level_defend)
 		(. this :reset_field_map))
 
 	(defmethod :get_tile_flags (x y)
