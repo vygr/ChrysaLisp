@@ -9,7 +9,7 @@
 	''((29 0) (29 0) (8 7) (8 6) (8 5) (8 4) (8 3) (8 3) (8 2) (8 1) (1 1)))
 
 (defun step-walk-cycle (this start_frame end_frame)
-	(defq tick (+ (or (get :man_walk_tick this) 0) 1)
+	(defq tick (+ (get :man_walk_tick this) 1)
 		cycle_len (+ (- end_frame start_frame) 1)
 		frame_idx (+ start_frame (% tick cycle_len)))
 	(def this :man_walk_tick tick)
@@ -30,7 +30,7 @@
 	; this = sprite, that = component instance
 	(defq man_at (elem-get (get :sp_components this) +man_comp_at))
 	(bind '(x y) (. this :sp_get_pos))
-	(defq xv (or (get :man_xv this) 0) yv (or (get :man_yv this) 0)
+	(defq xv (get :man_xv this) yv (get :man_yv this)
 		man_jump (get :man_jump this) h (get :sp_h this) w (get :sp_w this)
 		tile_h +tile_height tile_w +tile_width
 		max_x (- (* +map_width tile_w) w))
@@ -64,8 +64,8 @@
 					 (bits? flags2 +fmap_climb +fmap_stand))
 				(progn
 					; falling in air: cancel any active attack animation
-					(when (get :action_playing this)
-						(def this :action_playing :nil)
+					(when (bits? (get :sp_flags this) +fsp_action)
+						(def this :sp_flags (logand (get :sp_flags this) (lognot +fsp_action)))
 						(set man_at :table :nil :speed 0))
 					(. this :sp_set_frame +frm_fanatic_l_fall)
 					(setq yv (min 10 (inc yv)) x (+ x xv) y (+ y yv))
@@ -82,10 +82,10 @@
 
 				(cond
 					; active weapon attack action animation
-					((get :action_playing this)
+					((bits? (get :sp_flags this) +fsp_action)
 						(ifn (get :table man_at)
 							(progn
-								(def this :action_playing :nil)
+								(def this :sp_flags (logand (get :sp_flags this) (lognot +fsp_action)))
 								(if (< (get :sp_frame this) +frm_fanatic_l_duck)
 									(. this :sp_set_frame +frm_fanatic_l_stance)
 									(. this :sp_set_frame +frm_fanatic_l_duck)))
@@ -252,12 +252,14 @@
 
 			(setq x (max 0 (min max_x x)))
 			(. this :sp_set_pos x y)
+			(when (or (<= *man_power* 0) (<= *man_strength* 0))
+				(. this :sp_kill))
 			this)))
 
 (defclass Fanatic () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
 	; (Fanatic) -> sprite
 	(def this :sp_type +ftp_man :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0
-		:man_jump :nil :action_playing :nil)
+		:man_jump :nil)
 	(.-> this
 		; at (index 0 / +man_comp_at): player weapon body animations
 		(:sp_add_component (AT 0 :nil :nil))

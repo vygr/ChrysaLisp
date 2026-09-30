@@ -20,7 +20,7 @@
 	; flying carpet death: two wizards dismount and fall to ground with gravity
 	(-- *enemy_count*)
 	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1)
+	(defq dir (get :sp_dir this)
 		wy (logand y (neg +tile_height)))
 	(each (lambda (ox)
 		(defq wiz (Wizard)
@@ -39,7 +39,7 @@
 
 (defclass Carpet () (Sprite *img_frm_64x32_l* *img_frm_64x32_r* 64 32 :64x32_lr dt-kill-carpet)
 	; (Carpet) -> flying carpet enemy sprite
-	(def this :sp_type +ftp_carpet :bftp_type 9 :sp_hitpnt 4)
+	(def this :sp_type +ftp_carpet :sp_hitpnt 4)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 6 0))
 		(:sp_add_component (AT 2 +at_carpet))

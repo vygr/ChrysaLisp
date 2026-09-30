@@ -21,7 +21,7 @@
 (defun dt-skeleton-item (this)
 	; skull bomb lands and spawns a skeleton enemy
 	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1)
+	(defq dir (get :sp_dir this)
 		skel (Skeleton)
 		mv (elem-get (get :sp_components skel) +en_comp_mv))
 	(def skel :sp_dir dir)
@@ -37,7 +37,7 @@
 
 (defclass SkullBomb (x y dir) (Sprite *img_frm_16x16* :nil 16 16 :16x16 dt-skeleton-item)
 	; (SkullBomb x y dir) -> skull projectile that turns into a Skeleton when landing
-	(def this :sp_dir dir :item_timeout 24)
+	(def this :sp_dir dir :item_timeout 24 :item_prev_y -1)
 	(.-> this
 		(:sp_add_component (MV 0 -9 0 1 0 10))
 		(:sp_add_component (AT 1 +at_skeleton_item))
@@ -52,12 +52,12 @@
 
 (defun cp-skeleton-monk (this that)
 	; skeleton monk periodically fires skull bomb
-	(defq cnt (dec (or (get :skull_timer this) (+ (random 20) 20))))
+	(defq cnt (dec (get :skull_timer this)))
 	(if (<= cnt 0)
 		(progn
 			(setq cnt (+ (random 20) 20))
 			(bind '(x y) (. this :sp_get_pos))
-			(defq dir (or (get :sp_dir this) 1)
+			(defq dir (get :sp_dir this)
 				bomb (SkullBomb (+ x 8) (- y 8) dir))
 			(. *layer_items* :add_back bomb)
 			(dt-fizz-fx bomb)))
@@ -70,7 +70,8 @@
 
 (defclass SkeletonMonk () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic dt-kill-zap)
 	; (SkeletonMonk) -> skeleton monk enemy sprite (zaps on death, shoots skull bombs)
-	(def this :sp_type +ftp_skeleton_monk :bftp_type 13 :sp_hitpnt 8
+	(def this :sp_type +ftp_skeleton_monk :sp_hitpnt 8
+		:skull_timer (+ (random 20) 20)
 		:fall_frame +frm_fanatic_l_skeleton_monk2)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 3 8))

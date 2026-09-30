@@ -17,7 +17,7 @@
 (defun dt-kill-boarrider (this)
 	; boarrider death: spearman dismounts on ground level, boar body flies away
 	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1)
+	(defq dir (get :sp_dir this)
 		spearman (Spearman)
 		mv (elem-get (get :sp_components spearman) +en_comp_mv)
 		sy (logand y (neg +tile_height)))
@@ -33,7 +33,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass BoarRider () (Sprite *img_frm_64x32_l* *img_frm_64x32_r* 64 32 :64x32_lr dt-kill-boarrider)
-	(def this :sp_type +ftp_boarrider :bftp_type 8 :sp_hitpnt 2
+	(def this :sp_type +ftp_boarrider :sp_hitpnt 2
 		:fall_frame +frm64x32_l_boarrider4
 		:dead_frame +frm64x32_l_boarrider5)
 	(.-> this

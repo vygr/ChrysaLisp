@@ -47,7 +47,7 @@
 
 (defun clear-layer (layer)
 	; remove all child views from layer
-	(each (# (. %0 :sub)) (cat (. layer :children))))
+	(each (# (. %0 :sub)) (. layer :children)))
 
 (defun clear-sprite-layers ()
 	; remove all active sprites from all 7 sprite layers
@@ -95,12 +95,12 @@
 				(bind '(x y w h) (. sp :sp_get_bounds))
 				(. sp :sp_set_bounds x y w h)
 				(update-sprite-canvas sp)))
-			(cat (. layer :children))))
+			(. layer :children)))
 		(cat +sprite_layers +panel_layers)))
 
 (defun update-sprite-layers ()
 	; tick all active sprites across world layers
-	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (cat (. %0 :children))))
+	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (. %0 :children)))
 		+sprite_layers))
 
 (defun check-empty-mase ()
@@ -147,7 +147,7 @@
 		strength_val (max 0 (min 32 (/ (* (max 0 (min +max_strength (or *man_strength* 0))) 32) +max_strength)))
 		strength_y (+ +status_level_y (- 32 strength_val))
 		strength_oy (- 32 strength_val))
-	(def *layer_panel_items* :canvas *img_frm_16x16* :zoom *zoom*
+	(def *layer_panel_items* :canvas *img_frm_16x16*
 		:items *item_inventory* :selected *item_selected*)
 	(.-> *panel_flag_l*
 		(:sp_set_bounds +status_flag_l_x flag_y 32 stack_val)
@@ -167,7 +167,7 @@
 	(check-empty-mase)
 	(item-select)
 	(update-panel-status)
-	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (cat (. %0 :children))))
+	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (. %0 :children)))
 		+panel_layers))
 
 (defun update-frame ()

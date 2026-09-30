@@ -160,7 +160,7 @@
 				   (not (eql sp ignore))
 				   (/= (get :sp_frame sp) -1)
 				   (not (get :sp_dead sp))
-				   (or (= type -1) (/= 0 (logand (or (get :sp_type sp) 0) type))))
+				   (or (= type -1) (/= 0 (logand (get :sp_type sp) type))))
 			(bind '(tx ty tw th) (. sp :sp_get_bounds))
 			(if (and (< x (+ tx tw)) (< tx xw)
 					 (< y (+ ty th)) (< ty yh))
@@ -178,8 +178,8 @@
 			(cond
 				((or (func? tbl) (lambda-func? tbl))
 					(tbl this hit))
-				((list?? tbl)
-					(when (defq idx (log2 (or (get :sp_type hit) 0)))
+				((list? tbl)
+					(when (defq idx (log2 (get :sp_type hit)))
 						(when (< -1 idx (length tbl))
 							(when (defq handler (elem-get tbl idx))
 								(handler this hit))))))))
@@ -222,8 +222,9 @@
 		:sp_x 0 :sp_y 0 :sp_w width :sp_h height
 		:sp_frame_w width :sp_frame_h height
 		:sp_canvas_l canvas_l :sp_canvas_r canvas_r :sp_canvas_tag tag
-		:sp_frame 0 :sp_dir -1 :sp_oy 0 :sp_components (list)
-		:sp_death (ifn death :nil) :sp_type 0)
+		:sp_frame 0 :sp_dir 1 :sp_oy 0 :sp_components (list)
+		:sp_death (ifn death :nil death) :sp_type 0 :sp_flags 0 :sp_dead :nil
+		:sp_hitpnt 0 :sp_addon :nil)
 	(.-> this (:sp_set_pos 0 0) (:sp_set_size width height))
 
 	(defmethod :sp_set_oy (oy)
@@ -264,7 +265,7 @@
 
 	(defmethod :sp_get_canvas ()
 		; (. sprite :sp_get_canvas) -> canvas
-		(defq dir (or (get :sp_dir this) -1)
+		(defq dir (get :sp_dir this)
 			cr (get :sp_canvas_r this)
 			cl (get :sp_canvas_l this))
 		(if (and cr (>= dir 0)) cr cl))
@@ -279,8 +280,7 @@
 			(when (defq death (get :sp_death this))
 				(def this :sp_death :nil)
 				(death this))
-			(when (get :parent this)
-				(. this :sub)))
+			(. this :sub))
 		this)
 
 	(defmethod :sp_set_frame (f)
@@ -319,16 +319,16 @@
 					(bind '(tid tw th) (texture-metrics texture))
 					(bind '(w h) (. this :get_size))
 					(when (and (> w 0) (> h 0))
-						(defq zoom (or (get :zoom this) 1)
-							fw (or (get :sp_frame_w this) 16)
-							fh (or (get :sp_frame_h this) 16)
+						(defq zoom (get :zoom this)
+							fw (get :sp_frame_w this)
+							fh (get :sp_frame_h this)
 							scaled_fh (* zoom fh)
 							scaled_fw (* zoom fw)
-							raw_y (+ (* f scaled_fh) (* zoom (or (get :sp_oy this) 0)))
+							raw_y (+ (* f scaled_fh) (* zoom (get :sp_oy this)))
 							col (/ raw_y th)
 							sy (% raw_y th)
 							sx (* col scaled_fw)
-							dir (or (get :sp_dir this) -1))
+							dir (get :sp_dir this))
 						(when (and (>= dir 0) (get :sp_canvas_r this))
 							(setq sx (- tw (+ sx scaled_fw))))
 						(. this :ctx_blit tid +argb_white 0 0 w h sx sy)))))

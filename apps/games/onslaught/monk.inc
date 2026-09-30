@@ -28,7 +28,7 @@
 
 (defclass Monk () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr dt-monk-explode)
 	; (Monk) -> monk suicide bomber enemy sprite
-	(def this :sp_type +ftp_monk :bftp_type 11 :sp_hitpnt 1
+	(def this :sp_type +ftp_monk :sp_hitpnt 1
 		:fall_frame +frm_32c32_l_monk2)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 3 8))

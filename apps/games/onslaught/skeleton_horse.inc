@@ -18,7 +18,7 @@
 (defun dt-kill-skeleton-horse (this)
 	; skeleton horse death: rider skeleton dismounts on ground level, horse bursts with bones
 	(bind '(x y w h) (. this :sp_get_bounds))
-	(defq dir (or (get :sp_dir this) 1)
+	(defq dir (get :sp_dir this)
 		skel (Skeleton)
 		mv (elem-get (get :sp_components skel) +en_comp_mv)
 		sy (logand (+ y 32) (neg +tile_height)))
@@ -39,7 +39,7 @@
 
 (defclass SkeletonHorse () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr dt-kill-skeleton-horse)
 	; (SkeletonHorse) -> undead skeleton horse enemy sprite
-	(def this :sp_type +ftp_skeleton_horse :bftp_type 14 :sp_hitpnt 6 :fall_frame 10)
+	(def this :sp_type +ftp_skeleton_horse :sp_hitpnt 6 :fall_frame 10)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 8 8))
 		(:sp_add_component (AT 2 +at_skeleton_horse))

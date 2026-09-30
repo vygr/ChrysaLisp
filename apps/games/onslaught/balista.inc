@@ -17,7 +17,7 @@
 (defun dt-kill-balista (this)
 	; balista, cannon, and oil death: crew emerges as footman on ground level
 	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1)
+	(defq dir (get :sp_dir this)
 		footman (Footman)
 		mv (elem-get (get :sp_components footman) +en_comp_mv)
 		fy (logand y (neg +tile_height)))
@@ -38,7 +38,7 @@
 		at_comp (elem-get comps +en_comp_at))
 	(when (and at_comp (= (get :index at_comp) 3) (= (get :count at_comp) 0))
 		(bind '(cx cy) (. this :sp_get_pos))
-		(defq dir (or (get :sp_dir this) 1)
+		(defq dir (get :sp_dir this)
 			ax (+ cx (* dir 8))
 			ay cy
 			arrow (BalistaArrow ax ay dir))
@@ -60,7 +60,7 @@
 
 (defclass Balista () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr dt-kill-balista)
 	; (Balista) -> balista siege engine enemy sprite
-	(def this :sp_type +ftp_balista :bftp_type 5 :sp_hitpnt 4
+	(def this :sp_type +ftp_balista :sp_hitpnt 4
 		:dead_frame +frm_32c32_l_balista3)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))

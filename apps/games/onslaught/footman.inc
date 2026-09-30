@@ -38,13 +38,12 @@
 	(defq comps (get :sp_components this)
 		mv (elem-get comps +en_comp_mv)
 		at_comp (elem-get comps +en_comp_at)
-		action (get :fsp_action this)
-		collide (get :fsp_collide this))
-	(ifn action
-		(when collide
-			(def this :fsp_action :t)
+		flags (get :sp_flags this))
+	(ifn (bits? flags +fsp_action)
+		(when (bits? flags +fsp_collide)
+			(def this :sp_flags (logior flags +fsp_action))
 			(set mv :vx 0)
-			(defq dir (or (get :sp_dir this) 1)
+			(defq dir (get :sp_dir this)
 				upper (= (random 2) 0)
 				body_anim (if upper +at_footman_upper +at_footman_lower)
 				wep_anim (if upper +at_footman_upper_mase +at_footman_lower_mase)
@@ -58,8 +57,8 @@
 			(. this :add_before wep))
 		(when (and at_comp (nil? (get :table at_comp)))
 			; attack cycle finished: clear collision state and resume walk
-			(def this :fsp_action :nil :fsp_collide :nil)
-			(defq dir (or (get :sp_dir this) 1))
+			(def this :sp_flags (logand (get :sp_flags this) (lognot (logior +fsp_action +fsp_collide))))
+			(defq dir (get :sp_dir this))
 			(. this :sp_set_frame (first +at_footman))
 			(cp-enemy-duck this :nil)
 			(set at_comp :table +at_footman :speed 2 :count 0 :index 1 :loop :t)
@@ -70,7 +69,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass Footman () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr dt-kill-enemy)
-	(def this :sp_type +ftp_footman :bftp_type 3 :sp_hitpnt 3
+	(def this :sp_type +ftp_footman :sp_hitpnt 3
 		:fall_frame +frm_32x32_l_footman12
 		:duck_frame +frm_32x32_l_footman13
 		:dead_frame +frm_32x32_l_footman11)

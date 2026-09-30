@@ -24,7 +24,7 @@
 		(unless (get :cannon_fired this)
 			(def this :cannon_fired :t)
 			(bind '(cx cy) (. this :sp_get_pos))
-			(defq dir (or (get :sp_dir this) 1)
+			(defq dir (get :sp_dir this)
 				flame (CannonFlame this)
 				bx (if (= dir 1) (+ cx 32) (- cx 16))
 				by (+ cy 16)
@@ -41,10 +41,10 @@
 (defclass CannonFlame (cannon) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
 	; (CannonFlame cannon) -> flame addon sprite at bottom half
 	(bind '(cx cy) (. cannon :sp_get_pos))
-	(defq dir (or (get :sp_dir cannon) 1)
+	(defq dir (get :sp_dir cannon)
 		fx (if (= dir 1) (+ cx 32) (- cx 16))
 		fy (+ cy 16))
-	(def this :sp_dir dir)
+	(def this :sp_type 0 :sp_dir dir)
 	(.-> this
 		(:sp_add_component (AT 4 +at_cannon_flame :nil))
 		(:sp_add_component (CP offscreen-update))
@@ -62,8 +62,9 @@
 
 (defclass Cannon () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr dt-kill-balista)
 	; (Cannon) -> cannon artillery enemy sprite
-	(def this :sp_type +ftp_cannon :bftp_type 6 :sp_hitpnt 4
-		:dead_frame +frm_32c32_l_cannon3)
+	(def this :sp_type +ftp_cannon :sp_hitpnt 4
+		:dead_frame +frm_32c32_l_cannon3
+		:cannon_fired :nil)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))
 		(:sp_add_component (AT 4 +at_cannon))

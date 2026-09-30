@@ -15,13 +15,13 @@
 	+at_beserk_lower_mase
 	`'(,+frm_16x16_l_bkaddon3 ,+frm_16x16_l_bkaddon4 ,+frm_16x16_l_bkaddon5 -1)
 	+mt_beserk_upper_mase_l
-	''((32 0) (32 0) (32 0) (8 0) (8 0) (8 0) (0 0))
+	''((32 0) (32 0) (32 0) (8 0) (8 0) (8 0) (-16 0) (-16 0) (-16 0))
 	+mt_beserk_upper_mase_r
-	''((-16 0) (-16 0) (-16 0) (8 0) (8 0) (8 0) (0 0))
+	''((-16 0) (-16 0) (-16 0) (8 0) (8 0) (8 0) (32 0) (32 0) (32 0))
 	+mt_beserk_lower_mase_l
-	''((32 -8) (32 -8) (32 -8) (8 0) (8 0) (8 0) (0 0))
+	''((32 -8) (32 -8) (32 -8) (8 0) (8 0) (8 0) (-16 0) (-16 0) (-16 0))
 	+mt_beserk_lower_mase_r
-	''((-16 -8) (-16 -8) (-16 -8) (8 0) (8 0) (8 0) (0 0)))
+	''((-16 -8) (-16 -8) (-16 -8) (8 0) (8 0) (8 0) (32 0) (32 0) (32 0)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; component handlers
@@ -35,7 +35,7 @@
 		last_swing (get :beserk_swing this))
 	(when (nql current_swing last_swing)
 		(def this :beserk_swing current_swing)
-		(defq dir (or (get :sp_dir this) 1)
+		(defq dir (get :sp_dir this)
 			wep_anim (if lower +at_beserk_lower_mase +at_beserk_upper_mase)
 			wep_mt (if lower
 				(if (= dir 1) +mt_beserk_lower_mase_r +mt_beserk_lower_mase_l)
@@ -49,9 +49,10 @@
 
 (defclass Beserk () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr dt-kill-zap)
 	; (Beserk) -> stationary berserker enemy sprite
-	(def this :sp_type +ftp_beserk :bftp_type 12 :sp_hitpnt 20
+	(def this :sp_type +ftp_beserk :sp_hitpnt 20
 		:fall_frame +frm_32c32_l_beserk2
-		:duck_frame +frm_32c32_l_beserk3)
+		:duck_frame +frm_32c32_l_beserk3
+		:beserk_swing :nil)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))
 		(:sp_add_component (AT 3 +at_beserk))

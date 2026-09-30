@@ -7,19 +7,19 @@
 
 (defclass ItemPanel () (View)
 	; (ItemPanel) -> items inventory panel view
-	(def this :color 0 :canvas :nil :zoom 1 :items :nil :selected 0)
+	(def this :color 0 :canvas :nil :items :nil :selected 0)
 
 	(defmethod :draw ()
 		; (. panel :draw) -> panel
 		(when (and (defq c (get :canvas this)) (defq texture (getf c +canvas_texture 0)))
 			(bind '(tid tw th) (texture-metrics texture))
-			(defq zoom (or (get :zoom this) 1)
+			(defq zoom (get :zoom this)
 				slot_w (* zoom 16) slot_h (* zoom 16)
 				sight_raw_y (* +frm_16x16_sight slot_h)
 				sight_col (/ sight_raw_y th)
 				sight_sy (% sight_raw_y th)
 				sight_sx (* sight_col slot_w)
-				selected (or (get :selected this) 0)
+				selected (get :selected this)
 				items (get :items this))
 			(when items
 				(each (lambda (item_frame)

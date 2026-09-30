@@ -56,8 +56,8 @@
 (defun cp-letter (this that)
 	; this = sprite, that = component instance
 	(when (defq ml (get :ml_comp this))
-		(when (/= (or (get :speed ml) 0) 0)
-			(if (>= (or (get :count ml) -1) 0)
+		(when (/= (get :speed ml) 0)
+			(if (>= (get :count ml) 0)
 				(progn
 					(bind '(lx ly) (. this :sp_get_pos))
 					(spawn-fizz-fx (+ lx 16) (+ ly 16)))

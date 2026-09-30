@@ -39,7 +39,7 @@
 	(when (and mv (= (get :ay mv) 0))
 		(ifn (get :spear_throwing this)
 			(progn
-				(defq cnt (dec (or (get :spear_timer this) (+ (random 8) 16))))
+				(defq cnt (dec (get :spear_timer this)))
 				(if (<= cnt 0)
 					(progn
 						(def this :spear_throwing :t :spear_thrown :nil)
@@ -52,13 +52,13 @@
 				(when (and (not (get :spear_thrown this)) (= idx 2) (= (get :count at_comp) 0))
 					(def this :spear_thrown :t)
 					(bind '(x y) (. this :sp_get_pos))
-					(defq dir (or (get :sp_dir this) 1)
+					(defq dir (get :sp_dir this)
 						spear (Spear (+ x (* dir 16)) y dir))
 					(. *layer_missiles* :add_front spear))
 				(when (and (get :spear_thrown this) (= idx 0) (= (get :count at_comp) 0))
 					(def this :spear_throwing :nil :spear_thrown :nil)
 					(def this :spear_timer (+ (random 8) 16))
-					(defq dir (or (get :sp_dir this) 1))
+					(defq dir (get :sp_dir this))
 					(set at_comp :table +at_spearman :speed 2 :count 0 :index 0)
 					(. this :sp_set_frame (first +at_spearman))
 					(set mv :vx (* (get :max_vx mv) dir))))))
@@ -69,8 +69,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass Spearman () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr dt-kill-enemy)
-	(def this :sp_type +ftp_spearman :bftp_type 1 :sp_hitpnt 1
-		:spear_timer (+ (random 8) 16)
+	(def this :sp_type +ftp_spearman :sp_hitpnt 1
+		:spear_timer (+ (random 8) 16) :spear_throwing :nil :spear_thrown :nil
 		:fall_frame +frm_32x32_l_spearman10
 		:duck_frame +frm_32x32_l_spearman11
 		:dead_frame +frm_32x32_l_spearman9)

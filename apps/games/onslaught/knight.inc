@@ -38,13 +38,12 @@
 	(defq comps (get :sp_components this)
 		mv (elem-get comps +en_comp_mv)
 		at_comp (elem-get comps +en_comp_at)
-		action (get :fsp_action this)
-		collide (get :fsp_collide this))
-	(ifn action
-		(when collide
-			(def this :fsp_action :t)
+		flags (get :sp_flags this))
+	(ifn (bits? flags +fsp_action)
+		(when (bits? flags +fsp_collide)
+			(def this :sp_flags (logior flags +fsp_action))
 			(set mv :vx 0)
-			(defq dir (or (get :sp_dir this) 1)
+			(defq dir (get :sp_dir this)
 				man_duck (and *player_man* (>= (get :sp_frame *player_man*) +frm_fanatic_l_duck))
 				upper (not man_duck)
 				body_anim (if upper +at_knight_upper +at_knight_lower)
@@ -58,8 +57,8 @@
 			(defq wep (EnemyAddon this wep_mt 2 wep_anim 8))
 			(. this :add_before wep))
 		(when (and at_comp (nil? (get :table at_comp)))
-			(def this :fsp_action :nil :fsp_collide :nil)
-			(defq dir (or (get :sp_dir this) 1))
+			(def this :sp_flags (logand (get :sp_flags this) (lognot (logior +fsp_action +fsp_collide))))
+			(defq dir (get :sp_dir this))
 			(. this :sp_set_frame (first +at_knight))
 			(cp-enemy-duck this :nil)
 			(set at_comp :table +at_knight :speed 2 :count 0 :index 1 :loop :t)
@@ -70,7 +69,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass Knight () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr dt-kill-enemy)
-	(def this :sp_type +ftp_knight :bftp_type 4 :sp_hitpnt 5
+	(def this :sp_type +ftp_knight :sp_hitpnt 5
 		:fall_frame +frm_32x32_l_knight12
 		:duck_frame +frm_32x32_l_knight13
 		:dead_frame +frm_32x32_l_knight11)

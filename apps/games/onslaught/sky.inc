@@ -32,13 +32,13 @@
 		; (. sky :draw) -> sky
 		(bind '(w h) (. this :get_size))
 		(when (and (> w 0) (> h 0))
-			(defq c1 (or (get :sky_top this) +argb_black)
-				c2 (or (get :sky_bottom this) +argb_white))
+			(defq c1 (get :sky_top this)
+				c2 (get :sky_bottom this))
 			(if (= c1 c2)
 				(.-> this
 					(:ctx_set_color c1)
 					(:ctx_filled_box 0 0 w h))
-				(defq step (max 1 (or (get :sky_step this) 2))
+				(defq step (max 1 (get :sky_step this))
 					r1 (logand (>> c1 16) 0xff) g1 (logand (>> c1 8) 0xff) b1 (logand c1 0xff)
 					r2 (logand (>> c2 16) 0xff) g2 (logand (>> c2 8) 0xff) b2 (logand c2 0xff)
 					dr (- r2 r1) dg (- g2 g1) db (- b2 b1) y 0)

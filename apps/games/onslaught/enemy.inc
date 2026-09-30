@@ -6,10 +6,14 @@
 ; constants and movement tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun enemy-size (type)
+	; return (w h) based on type bitmask
+	(cond
+		((bits? type (logior +ftp_horse +ftp_tower +ftp_skeleton_horse)) '(64 64))
+		((bits? type (logior +ftp_boarrider +ftp_carpet)) '(64 32))
+		(:t '(32 32))))
+
 (defq
-	+enemy_sizes
-	''((64 64) (32 32) (32 32) (32 32) (32 32) (32 32) (32 32) (32 32)
-	   (64 32) (64 32) (64 64) (32 32) (32 32) (32 32) (64 64) (32 32))
 	+blat_offsets
 	''((-32 -32) (0 -32) (0 0) (-32 0)
 	   (-40 -16) (8 -16) (-16 -40) (-16 8)
@@ -123,7 +127,7 @@
 (defun cp-enemy-fall (this that)
 	; check map surface below front foot and apply gravity when walking off ledge
 	(bind '(x y w h) (. this :sp_get_bounds))
-	(defq dir (or (get :sp_dir this) 1)
+	(defq dir (get :sp_dir this)
 		comps (get :sp_components this)
 		mv (elem-get comps +en_comp_mv)
 		at_comp (elem-get comps +en_comp_at)
@@ -155,7 +159,7 @@
 				(defq tbl (get :table at_comp))
 				(set at_comp :speed 2 :count 0 :index (if (> (length tbl) 1) 1 0))
 				(when tbl (. this :sp_set_frame (first tbl))))
-			(when (/= 0 (logand (or (get :sp_type this) 0) (logior +ftp_horse +ftp_boarrider +ftp_skeleton_horse)))
+			(when (/= 0 (logand (get :sp_type this) (logior +ftp_horse +ftp_boarrider +ftp_skeleton_horse)))
 				(audio-play-rpc *sfx_hooves*)))))
 
 (defun cp-enemy-duck (this that)
@@ -175,9 +179,9 @@
 	(bind '(rx ry rw rh) (. *world_scroll* :get_relative this))
 	(bind '(ww wh) (. *world_scroll* :get_size))
 	(when (or (< rx (neg rw)) (>= rx ww) (< ry (neg rh)) (>= ry wh))
-		(when (and (< rx 0) (< (or (get :sp_dir this) 1) 0))
+		(when (and (< rx 0) (< (get :sp_dir this) 0))
 			(when (< (length *enemy_stack*) +max_enemy_stack)
-				(push *enemy_stack* (get :bftp_type this))))
+				(push *enemy_stack* (get :sp_type this))))
 		(-- *enemy_count*)
 		(def this :sp_death :nil)
 		(. this :sp_kill))
@@ -200,7 +204,7 @@
 			(bind '(x y w h) (. this :sp_get_bounds))
 			(defq vy (get :vy mv)
 				grid_y (logand (+ y h) (neg +tile_height))
-				prev_y (or (get :item_prev_y this) -1))
+				prev_y (get :item_prev_y this))
 			(def this :item_prev_y grid_y)
 			(when (and (> vy 0) (nql grid_y prev_y))
 				(defq flags (. *layer_land* :get_tile_flags (+ x (/ w 2)) grid_y))
@@ -209,7 +213,7 @@
 					(set mv :vy 0 :ay 0)
 					(dt-fizz-fx this))))
 		(progn
-			(defq timeout (dec (or (get :item_timeout this) 64)))
+			(defq timeout (dec (get :item_timeout this)))
 			(if (<= timeout 0)
 				(. this :sp_kill)
 				(def this :item_timeout timeout))))
@@ -255,9 +259,9 @@
 
 (defclass Item (frame uses timeout &optional vy) (Sprite *img_frm_16x16* :nil 16 16 :16x16 dt-fizz-fx)
 	; (Item frame uses timeout [vy]) -> collectible item on map
-	(def this :sp_type +ftp_item :sp_hitpnt uses :item_timeout timeout)
+	(def this :sp_type +ftp_item :sp_hitpnt uses :item_timeout timeout :item_prev_y -1)
 	(.-> this
-		(:sp_add_component (MV 0 (or vy -9) 0 1 0 10))
+		(:sp_add_component (MV 0 (ifn vy -9 vy) 0 1 0 10))
 		(:sp_add_component (CP cp-item))
 		(:sp_add_component (CP offscreen-nodeath-update))
 		(:sp_set_frame frame)))
@@ -266,7 +270,7 @@
 	; spawn a dead body flying backwards and upwards with gravity
 	(when (defq dead_f (get :dead_frame enemy))
 		(bind '(x y w h) (. enemy :sp_get_bounds))
-		(defq dir (or (get :sp_dir enemy) 1)
+		(defq dir (get :sp_dir enemy)
 			bh (if (= h 16) 32 h)
 			by (if (= h 16) (- y 16) y)
 			cl (get :sp_canvas_l enemy)
@@ -310,24 +314,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun create-enemy-type (type)
-	; factory function mapping 0..15 to enemy class
-	(defq sp (case type
-		(0 (Horse))
-		(1 (Spearman))
-		(2 (Wizard))
-		(3 (Footman))
-		(4 (Knight))
-		(5 (Balista))
-		(6 (Cannon))
-		(7 (Oil))
-		(8 (BoarRider))
-		(9 (Carpet))
-		(10 (Tower))
-		(11 (Monk))
-		(12 (Beserk))
-		(13 (SkeletonMonk))
-		(14 (SkeletonHorse))
-		(15 (Skeleton))
+	; factory function mapping enum.inc type bit to enemy class
+	(case type
+		(+ftp_horse (Horse))
+		(+ftp_spearman (Spearman))
+		(+ftp_wizard (Wizard))
+		(+ftp_footman (Footman))
+		(+ftp_knight (Knight))
+		(+ftp_balista (Balista))
+		(+ftp_cannon (Cannon))
+		(+ftp_oil (Oil))
+		(+ftp_boarrider (BoarRider))
+		(+ftp_carpet (Carpet))
+		(+ftp_tower (Tower))
+		(+ftp_monk (Monk))
+		(+ftp_beserk (Beserk))
+		(+ftp_skeleton_monk (SkeletonMonk))
+		(+ftp_skeleton_horse (SkeletonHorse))
+		(+ftp_skeleton (Skeleton))
 		(:t (Footman))))
-	(def sp :bftp_type type)
-	sp)

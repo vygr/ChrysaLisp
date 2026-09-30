@@ -4,45 +4,73 @@
 
 (defq +max_enemy_stack 16 *enemy_max* 6 *mine_count* 0 *mine_max* 3
 	*current_map_idx* 1 *game_level* +game_level_field *battle_state_count* 0
-	*enemy_army* 0 *enemy_count* 0 *enemy_spawn_delay* 1
-	*enemy_stack* (list)
+	*enemy_army* 0 *enemy_count* 0 *enemy_spawn_delay* 1 *enemy_wizshot* 0
+	*enemy_stack* (list) *enemy_banner_captured* :nil
 	+army_names
 	''("HILLMEN" "NECROMANTIC" "ROBBER" "BOARRIDER" "MERCENARY"
 	   "KNIGHTLY" "BERSERKER" "MYSTIC" "BALISTIC" "POWDER"
 	   "CAULDRON" "MONASTIC" "JUGGERNAUT" "PLAGUE")
 	+army_tables
-	''(; 0: hillmen
-	   (1 1 1 1 1 12 1 1 1 1 1 12 1 1 1 1 1 12)
+	`'(; 0: hillmen
+	   (,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_beserk
+	    ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_beserk
+	    ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_beserk)
 	   ; 1: necromantic
-	   (2 2 2 2 2 9 2 2 2 2 2 9 2 2 2 2 2 9)
+	   (,+ftp_wizard ,+ftp_wizard ,+ftp_wizard ,+ftp_wizard ,+ftp_wizard ,+ftp_carpet
+	    ,+ftp_wizard ,+ftp_wizard ,+ftp_wizard ,+ftp_wizard ,+ftp_wizard ,+ftp_carpet
+	    ,+ftp_wizard ,+ftp_wizard ,+ftp_wizard ,+ftp_wizard ,+ftp_wizard ,+ftp_carpet)
 	   ; 2: robber
-	   (3 3 3 3 3 6 3 3 3 3 3 6 3 3 3 3 3 3)
+	   (,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_cannon
+	    ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_cannon
+	    ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman)
 	   ; 3: boarrider
-	   (8 8 8 8 8 11 1 1 1 1 1 11 1 1 1 1 1 11)
+	   (,+ftp_boarrider ,+ftp_boarrider ,+ftp_boarrider ,+ftp_boarrider ,+ftp_boarrider ,+ftp_monk
+	    ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_monk
+	    ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_monk)
 	   ; 4: mercenary
-	   (4 4 4 4 4 10 4 4 4 4 10 4 4 4 4 4 1 4)
+	   (,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_tower
+	    ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_tower ,+ftp_knight
+	    ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_spearman ,+ftp_knight)
 	   ; 5: knightly
-	   (0 0 0 0 0 8 4 4 4 4 4 1 4 4 4 4 4 1)
+	   (,+ftp_horse ,+ftp_horse ,+ftp_horse ,+ftp_horse ,+ftp_horse ,+ftp_boarrider
+	    ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_spearman
+	    ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_knight ,+ftp_spearman)
 	   ; 6: berserker
-	   (12 12 12 12 12 1 12 12 12 12 12 1 12 12 12 12 12 1)
+	   (,+ftp_beserk ,+ftp_beserk ,+ftp_beserk ,+ftp_beserk ,+ftp_beserk ,+ftp_spearman
+	    ,+ftp_beserk ,+ftp_beserk ,+ftp_beserk ,+ftp_beserk ,+ftp_beserk ,+ftp_spearman
+	    ,+ftp_beserk ,+ftp_beserk ,+ftp_beserk ,+ftp_beserk ,+ftp_beserk ,+ftp_spearman)
 	   ; 7: mystic
-	   (9 9 9 9 9 10 9 9 9 9 10 9 9 9 9 9 9 1)
+	   (,+ftp_carpet ,+ftp_carpet ,+ftp_carpet ,+ftp_carpet ,+ftp_carpet ,+ftp_tower
+	    ,+ftp_carpet ,+ftp_carpet ,+ftp_carpet ,+ftp_carpet ,+ftp_tower ,+ftp_carpet
+	    ,+ftp_carpet ,+ftp_carpet ,+ftp_carpet ,+ftp_carpet ,+ftp_carpet ,+ftp_spearman)
 	   ; 8: balistic
-	   (5 5 5 5 6 5 5 5 5 5 5 6 3 3 3 3 3 3)
+	   (,+ftp_balista ,+ftp_balista ,+ftp_balista ,+ftp_balista ,+ftp_cannon ,+ftp_balista
+	    ,+ftp_balista ,+ftp_balista ,+ftp_balista ,+ftp_balista ,+ftp_balista ,+ftp_cannon
+	    ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman)
 	   ; 9: powder
-	   (6 6 6 6 6 3 6 6 6 6 6 3 3 3 3 3 3 3)
+	   (,+ftp_cannon ,+ftp_cannon ,+ftp_cannon ,+ftp_cannon ,+ftp_cannon ,+ftp_footman
+	    ,+ftp_cannon ,+ftp_cannon ,+ftp_cannon ,+ftp_cannon ,+ftp_cannon ,+ftp_footman
+	    ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman)
 	   ; 10: cauldron
-	   (3 3 3 3 3 0 7 7 7 7 7 4 3 3 3 3 3 4)
+	   (,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_horse
+	    ,+ftp_oil ,+ftp_oil ,+ftp_oil ,+ftp_oil ,+ftp_oil ,+ftp_knight
+	    ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_footman ,+ftp_knight)
 	   ; 11: monastic
-	   (11 11 11 11 11 12 11 11 11 11 12 11 11 11 11 11 12 11)
+	   (,+ftp_monk ,+ftp_monk ,+ftp_monk ,+ftp_monk ,+ftp_monk ,+ftp_beserk
+	    ,+ftp_monk ,+ftp_monk ,+ftp_monk ,+ftp_monk ,+ftp_beserk ,+ftp_monk
+	    ,+ftp_monk ,+ftp_monk ,+ftp_monk ,+ftp_monk ,+ftp_beserk ,+ftp_monk)
 	   ; 12: juggernaut
-	   (10 10 10 10 10 5 10 10 10 10 10 7 1 1 1 1 1 5)
+	   (,+ftp_tower ,+ftp_tower ,+ftp_tower ,+ftp_tower ,+ftp_tower ,+ftp_balista
+	    ,+ftp_tower ,+ftp_tower ,+ftp_tower ,+ftp_tower ,+ftp_tower ,+ftp_oil
+	    ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_spearman ,+ftp_balista)
 	   ; 13: plague
-	   (14 14 14 13 13 13 15 15 14 13 13 13 15 15 14 13 13 13)))
+	   (,+ftp_skeleton_horse ,+ftp_skeleton_horse ,+ftp_skeleton_horse ,+ftp_skeleton_monk ,+ftp_skeleton_monk ,+ftp_skeleton_monk
+	    ,+ftp_skeleton ,+ftp_skeleton ,+ftp_skeleton_horse ,+ftp_skeleton_monk ,+ftp_skeleton_monk ,+ftp_skeleton_monk
+	    ,+ftp_skeleton ,+ftp_skeleton ,+ftp_skeleton_horse ,+ftp_skeleton_monk ,+ftp_skeleton_monk ,+ftp_skeleton_monk)))
 
 (defun is-stationary-type (type)
-	; balista (5), cannon (6), oil (7), beserk (12)
-	(or (= type 5) (= type 6) (= type 7) (= type 12)))
+	; balista, cannon, oil, beserk
+	(bits? type +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; enemy spawn routines
@@ -64,7 +92,7 @@
 		max_rows (max 1 (/ cam_h +tile_height))
 		start_row (random max_rows)
 		cam_top_grid (- cam_y (% cam_y +tile_height))
-		sprite_h (or h 32)
+		sprite_h (ifn h 32 h)
 		row_idx 0
 		found_y :nil)
 	(while (and (not found_y) (< row_idx max_rows))
@@ -77,11 +105,8 @@
 					(. *layer_land* :get_tile_flags trail_x y)))
 			(when (and (bits? f_lead +fmap_stand) (bits? f_trail +fmap_stand)
 					   (not (bits? f_lead +fmap_climb)) (not (bits? f_trail +fmap_climb)))
-				(defq f_above (. *layer_land* :get_tile_flags probe_x (- y 1))
-					f_above_t (if (or (< trail_x 0) (>= trail_x map_w))
-						0
-						(. *layer_land* :get_tile_flags trail_x (- y 1))))
-				(unless (or (bits? f_above +fmap_stand) (bits? f_above_t +fmap_stand)
+				(defq f_above (. *layer_land* :get_tile_flags probe_x (- y 1)))
+				(unless (or (bits? f_above +fmap_stand)
 						   (< (- y sprite_h) cam_y))
 					(setq found_y y))))
 		(++ row_idx))
@@ -90,7 +115,7 @@
 (defun place-enemy-sprite (sp surface_x surface_y)
 	; place sprite so its bottom leading edge matches (surface_x, surface_y) with 1 pixel showing
 	(bind '(w h) (. sp :sp_get_size))
-	(defq dir (or (get :sp_dir sp) 1)
+	(defq dir (get :sp_dir sp)
 		x (if (= dir 1) (- (+ surface_x 1) w) surface_x)
 		y (- surface_y h))
 	(. sp :sp_set_pos x y)
@@ -102,7 +127,7 @@
 		lvl_offset (* *game_level* 6)
 		unit_idx (+ (random 6) lvl_offset)
 		type (elem-get army_tbl unit_idx))
-	(bind '(w h) (elem-get +enemy_sizes type))
+	(bind '(w h) (enemy-size type))
 	(when (defq pt (get-spawn-surface 1 w h))
 		(bind '(px py) pt)
 		(defq dir -1
@@ -125,7 +150,7 @@
 	; spawn an overrun enemy from the stack on the left side moving right
 	(if (empty? *enemy_stack*) (spawn-enemy-right)
 		(defq type (last *enemy_stack*) pt :nil)
-		(bind '(w h) (elem-get +enemy_sizes type))
+		(bind '(w h) (enemy-size type))
 		(ifn (setq pt (get-spawn-surface -1 w h)) (spawn-enemy-right)
 			(bind '(px py) pt)
 			(defq dir 1
@@ -153,21 +178,20 @@
 		(when (<= *enemy_spawn_delay* 0)
 			(setq *enemy_spawn_delay* (+ (random 8) 8))
 			(when *player_man*
-				(defq pdir (or (get :sp_dir *player_man*) 1))
-				(cond
-					((= pdir 1)
-						(spawn-enemy-right))
-					(:t
-						(if (> (length *enemy_stack*) 0)
-							(spawn-enemy-left)
-							(spawn-enemy-right))))))))
+				(defq pdir (get :sp_dir *player_man*))
+				(if (or (= pdir -1) *enemy_banner_captured*)
+					(if (> (length *enemy_stack*) 0)
+						(spawn-enemy-left)
+						(unless *enemy_banner_captured*
+							(spawn-enemy-right)))
+					(spawn-enemy-right))))))
 
 (defun init-mines ()
 	; spawn ground mines ahead of player in *layer_bans* with 1 pixel showing
 	(when (and (/= *game_level* +game_level_defend)
 			   (< *mine_count* *mine_max*)
 			   *player_man*)
-		(defq dir (or (get :sp_dir *player_man*) 1))
+		(defq dir (get :sp_dir *player_man*))
 		(when (defq pt (get-spawn-surface dir 16 8))
 			(bind '(px py) pt)
 			(defq x (if (= dir 1) px (- (+ px 1) 16))
@@ -193,22 +217,28 @@
 	(. *layer_player* :add_front man)
 	(setq *player_man* man
 		  *enemy_stack* (list)
+		  *enemy_banner_captured* :nil
 		  *enemy_count* 0
 		  *enemy_spawn_delay* 1
 		  *mine_count* 0
 		  *mine_max* (+ (random 3) 1)
 		  *enemy_max* (+ (random 4) 2)
+		  *enemy_wizshot* (random 2)
 		  *enemy_army* (random (length +army_tables)))
 ;		  *enemy_army* 9)
 	(update-camera *player_man*))
 
 (defun battle-state-update ()
-	; check for player death or overrun stack full
+	; check for player death, battle won, or overrun stack full
 	(cond
 		((or (not *player_man*) (get :sp_dead *player_man*))
 			(goto-title +game_state_hiscore))
 		((>= (length *enemy_stack*) +max_enemy_stack)
 			(setq *game_state* +game_state_battle_lost))
+		((and *enemy_banner_captured*
+			  (empty? *enemy_stack*)
+			  (empty? (. *layer_enemies* :children)))
+			(setq *game_state* +game_state_battle_won))
 		(:t
 			(init-mines)
 			(init-enemies)

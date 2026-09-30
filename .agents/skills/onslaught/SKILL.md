@@ -64,8 +64,9 @@ core scene-graph node `View`:
 		:sp_x 0 :sp_y 0 :sp_w width :sp_h height
 		:sp_frame_w width :sp_frame_h height
 		:sp_canvas_l canvas_l :sp_canvas_r canvas_r :sp_canvas_tag tag
-		:sp_frame 0 :sp_dir -1 :sp_components (list)
-		:sp_death (ifn death :nil) :sp_type 0)
+		:sp_frame 0 :sp_dir 1 :sp_oy 0 :sp_components (list)
+		:sp_death (ifn death :nil death) :sp_type 0 :sp_flags 0 :sp_dead :nil
+		:sp_hitpnt 0 :sp_addon :nil)
 	(.-> this (:sp_set_pos 0 0) (:sp_set_size width height)))
 ```
 
@@ -84,7 +85,11 @@ Key state properties on `this`:
 *	`:sp_canvas_tag`: Metadata symbol (`:fanatic`, `:16x16_lr`, `:32c32`,
 	etc.) used by `update-sprite-canvas` during zoom changes.
 
-*	`:sp_type`: Bitmask identifying the entity type (`+ftp_*`).
+*	`:sp_type`: Bitmask identifying the entity type (`+ftp_*`). Always a
+	power-of-two bitmask defined via `(bits +ftp 0 ...)`, never an index.
+
+*	`:sp_flags`: Bitmask of runtime entity flags (`+fsp_*`), including
+	`+fsp_collide` and `+fsp_action` defined via `(bits +fsp 0 ...)`.
 
 *	`:sp_frame`: Current atlas frame index. Setting this to `-1` triggers
 	immediate destruction via `:sp_kill`.
@@ -94,6 +99,10 @@ Key state properties on `this`:
 *	`:sp_death`: Optional callback closure invoked when the sprite dies.
 
 *	`:sp_dead`: Guard flag set upon death to prevent re-entrant callbacks.
+
+*	`:sp_hitpnt`: Hit point counter or remaining item usage count.
+
+*	`:sp_addon`: Optional weapon or status addon child attached to this sprite.
 
 ---
 
@@ -522,7 +531,7 @@ Weapons and items that attach to the player are modeled by `Addon`:
 (defclass Addon (man mt_table at_speed at_table)
 	(Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
 	; (Addon man mt_table at_speed at_table) -> addon sprite
-	(def this :sp_dir (or (get :sp_dir man) 1))
+	(def this :sp_dir (get :sp_dir man))
 	; set initial position immediately to eliminate 1-frame spawn lag
 	(bind '(mx my) (. man :sp_get_pos))
 	(bind '(dx dy) (first mt_table))
@@ -560,15 +569,21 @@ All constant animation tables (`+at_*`) and movement tables (`+mt_*`) must be
 declared using double-quoted literal lists `''(...)`:
 
 ```vdu
-; correct: double-quoted literal list
+; correct: double-quoted literal list for raw literals
 (defq +at_upper_mase ''(1 2 3 -1))
 (defq +mt_upper_mase_l ''((32 0) (32 0) (8 0) (8 0) (-16 0) (-16 0)))
+
+; correct: quasiquoted list when referencing constant symbols (+ftp_*, +frm_*)
+(defq +army_tables
+	`'((,+ftp_spearman ,+ftp_spearman ,+ftp_beserk ...)
+	   (,+ftp_wizard ,+ftp_carpet ...)))
 ```
 
-**Anti-Pattern:** Never define constant tables with `(defq +table (list ...))`.
-The ChrysaLisp prebinder replaces constant symbols starting with `+` directly
-in the AST. An unquoted list will be evaluated as a function call at runtime,
-causing a `not_a_function ! Obj: 14` crash.
+**Prebinder Constant Evaluation & AST Substitution:**
+In the prebind stage of the REPL, any symbol starting with `+` (`+xxxxx`) is evaluated in the current environment, and **what it evaluates to is directly substituted into the AST**:
+*	An atom/integer (e.g. `+ftp_spearman`) evaluates to its integer bitmask and is substituted directly as an integer literal.
+*	If a constant list is defined using `(defq +table (list ...))` or `'(...)`, `+table` evaluates to the raw list. Substituting that raw list directly into the AST produces an unquoted list form `(first_elem second_elem ...)`. At runtime, the evaluator treats `first_elem` as a function call, failing with `not_a_function ! Obj: ...`.
+*	Using `''(...)` (double quote) or quasiquote `` `'(,...) `` ensures that `+table` evaluates to `'(...)` (i.e. `(quote (...))`). The prebinder substitutes the `(quote ...)` form into the AST, which evaluates at runtime to the literal data list.
 
 ---
 
@@ -648,7 +663,7 @@ physics.
 The GUI compositor runs in its own cooperative task (`host_gui`). Game globals
 such as `*zoom*` do not exist in the GUI rendering task.
 
-Inside `Sprite :draw`, zoom must be accessed via scene-graph property
+Inside `Sprite :draw`, zoom is accessed via dynamic scene-graph property
 inheritance:
 
 ```vdu
@@ -659,22 +674,27 @@ inheritance:
 			(when (defq texture (getf c +canvas_texture 0))
 				(bind '(tid tw th) (texture-metrics texture))
 				(bind '(w h) (. this :get_size))
-				(defq zoom (or (get :zoom this) 1)
-					fw (or (get :sp_frame_w this) 16)
-					fh (or (get :sp_frame_h this) 16)
-					scaled_fh (* zoom fh)
-					raw_y (* f scaled_fh) col (/ raw_y th)
-					sy (% raw_y th)
-					sx (* col (* zoom fw))
-					dir (or (get :sp_dir this) 1))
-				(when (and (>= dir 0) (get :sp_canvas_r this))
-					(setq sx (- tw (+ sx w))))
-				(. this :ctx_blit tid +argb_white 0 0 w h sx sy))))
+				(when (and (> w 0) (> h 0))
+					(defq zoom (get :zoom this)
+						fw (get :sp_frame_w this)
+						fh (get :sp_frame_h this)
+						scaled_fh (* zoom fh)
+						scaled_fw (* zoom fw)
+						raw_y (+ (* f scaled_fh) (* zoom (get :sp_oy this)))
+						col (/ raw_y th)
+						sy (% raw_y th)
+						sx (* col scaled_fw)
+						dir (get :sp_dir this))
+					(when (and (>= dir 0) (get :sp_canvas_r this))
+						(setq sx (- tw (+ sx scaled_fw))))
+					(. this :ctx_blit tid +argb_white 0 0 w h sx sy)))))
 	this)
 ```
 
-This searches up `:parent` pointers to `*window*` (where `:zoom` is defined)
-and operates safely across task boundaries.
+Because `Sprite` is a `View` (and thus an `hmap`), `(get :zoom this)` walks
+up the scene graph parent chain to `*window*` (where `:zoom` is defined on the
+top-level `Window`), safely operating across task boundaries without accessing
+task-thread global variables.
 
 ---
 
@@ -702,14 +722,42 @@ When extending or maintaining this engine, follow these strict disciplines:
 	Keep camera vertical tracking anchored to `(+ y h -16)`. Never center
 	on `(/ h 2)`.
 
-6.	**Use `(or (get :zoom this) 1)` in `:draw`:**
-	Never reference `*zoom*` inside `:draw` methods.
+6.	**Use `(get :zoom this)` in `:draw`:**
+	Never reference `*zoom*` inside `:draw` methods. Access `:zoom` via
+	dynamic inheritance from the top-level `Window` using `(get :zoom this)`.
 
-7.	**No `return` in Control Flow:**
+7.	**No Defensive Property Checks `(or (get ...))`:**
+	Properties must be defined with default values at the appropriate level
+	in the class hierarchy (base `Sprite` for `:sp_*`, subclasses for
+	entity-specific properties like `:item_prev_y`, `:spear_timer`,
+	`:skull_timer`). Callers should use direct `(get :prop this)` without
+	defensive fallback wrappers.
+
+8.	**Types and Flags Are Bitmasks, Not Indices:**
+	`:sp_type` uses `+ftp_*` bit constants from `enums.inc` (`(bits +ftp 0 ...)`).
+	`:sp_flags` uses `+fsp_*` bit constants (`(bits +fsp 0 ...)`), testing
+	via `(bits? flags +fsp_...)`, setting with `logior`, and clearing with
+	`(logand ... (lognot ...))`. Never use raw index numbers or artificial
+	properties like `bftp_type`.
+
+9.	**Do Not Copy `(:children)` with `cat`:**
+	`(. view :children)` returns a fresh Lisp list of child views from the
+	scene-graph linked list. Never wrap it in `(cat (. view :children))` when
+	simply iterating over child views, as the list is not mutated.
+
+11.	**GUI Apps Cannot Run in Headless / TUI Mode:**
+	Do not attempt to launch GUI applications (like Onslaught) from the TUI /
+	headless boot image via terminal commands or subagents. The user must run
+	the game in their native ChrysaLisp GUI environment. To facilitate testing,
+	configure `battle.inc` to pick a fixed army index in `battle-state-init`
+	(e.g. `*enemy_army* 1` for Necromantic) and ask the user to test and report
+	back.
+
+12.	**No `return` in Control Flow:**
 	ChrysaLisp has no early `return` keyword. Structure branches cleanly
 	with `cond` and `ifn`.
 
-8.	**Adhere to ChrysaLisp Style Guidelines:**
+13.	**Adhere to ChrysaLisp Style Guidelines:**
 
 	*	Indent with 4-space tab characters.
 
@@ -718,3 +766,47 @@ When extending or maintaining this engine, follow these strict disciplines:
 	*	Wrap documentation at 80 columns.
 
 	*	Maintain blank lines between all markdown elements.
+
+---
+
+## 9. Testing & Verification Workflow
+
+Because Onslaught is an interactive GUI application running on top of the
+ChrysaLisp compositor:
+
+1.	**User-Driven Testing:**
+	The agent cannot run or interact with the game window directly. All gameplay
+	verification must be performed by the user launching the game in their
+	active GUI session.
+
+2.	**Targeted Army Configuration in `battle.inc`:**
+	To verify specific entity interactions, AI logic, missile collisions, or
+	rendering, set `*enemy_army*` in `battle-state-init` (`battle.inc`) to the
+	specific army index matching the scenario under test:
+
+	```lisp
+	; in apps/games/onslaught/battle.inc (battle-state-init):
+	; *enemy_army* (random (length +army_tables))
+	*enemy_army* 1 ; fixed army for user testing
+	```
+
+3.	**Army Index Quick Reference:**
+
+	*	`0`: **HILLMEN** — Spearmen, Berserkers
+	*	`1`: **NECROMANTIC** — Wizards, Carpets
+	*	`2`: **ROBBER** — Footmen, Cannons
+	*	`3`: **BOARRIDER** — Boarriders, Monks, Spearmen
+	*	`4`: **MERCENARY** — Knights, Towers, Spearmen
+	*	`5`: **KNIGHTLY** — Horses, Knights, Boarriders, Spearmen
+	*	`6`: **BERSERKER** — Berserkers, Spearmen
+	*	`7`: **MYSTIC** — Carpets, Towers, Spearmen
+	*	`8`: **BALISTIC** — Balistas, Cannons, Footmen
+	*	`9`: **POWDER** — Cannons, Footmen
+	*	`10`: **CAULDRON** — Oil, Footmen, Horses, Knights
+	*	`11`: **MONASTIC** — Monks, Berserkers
+	*	`12`: **JUGGERNAUT** — Towers, Balistas, Oil, Spearmen
+	*	`13`: **PLAGUE** — Skeletons, Skeleton Horses, Skeleton Monks
+
+4.	**Feedback Loop:**
+	Always inform the user which army index was configured and specify the
+	exact visual or gameplay behavior they should observe and report back.

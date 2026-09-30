@@ -17,7 +17,7 @@
 (defun dt-kill-horse (this)
 	; horse death: rider knight dismounts on ground level, horse body flies away
 	(bind '(x y) (. this :sp_get_pos))
-	(defq dir (or (get :sp_dir this) 1)
+	(defq dir (get :sp_dir this)
 		knight (Knight)
 		mv (elem-get (get :sp_components knight) +en_comp_mv)
 		ky (logand (+ y 32) (neg +tile_height)))
@@ -33,7 +33,7 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (defclass Horse () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr dt-kill-horse)
-	(def this :sp_type +ftp_horse :bftp_type 0 :sp_hitpnt 6
+	(def this :sp_type +ftp_horse :sp_hitpnt 6
 		:fall_frame +frm_64x64_l_horse4
 		:dead_frame +frm_64x64_l_horse5)
 	(.-> this

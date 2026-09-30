@@ -24,10 +24,9 @@
 
 	(defmethod :load_field_map (&optional map_idx)
 		; (. map :load_field_map [map_idx]) -> map
-		(setd map_idx (or (get :map_idx this) 1))
-		(defq app_root (or (get '*app_root*) "")
-			map_data (load (cat app_root "data/fieldmap" (str map_idx) ".dat"))
-			map_flags (load (cat app_root "data/mapflags1.dat")))
+		(setd map_idx (ifn map_idx (get :map_idx this) map_idx))
+		(defq map_data (load (cat *app_root* "data/fieldmap" (str map_idx) ".dat"))
+			map_flags (load (cat *app_root* "data/mapflags1.dat")))
 		(lower :map_idx :map_data :map_flags)
 		(. this :reset_field_map))
 

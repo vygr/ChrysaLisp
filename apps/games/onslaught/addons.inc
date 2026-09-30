@@ -67,7 +67,7 @@
 
 (defclass Addon (man mt_table at_speed at_table) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
 	; (Addon man mt_table at_speed at_table) -> addon sprite
-	(def this :sp_dir (or (get :sp_dir man) 1))
+	(def this :sp_dir (get :sp_dir man))
 	(def man :sp_addon this)
 	; set initial position immediately to eliminate 1-frame spawn lag
 	(bind '(mx my) (. man :sp_get_pos))
@@ -85,20 +85,20 @@
 
 (defclass EnemyAddon (enemy mt_table at_speed at_table &optional hitpnt) (Addon enemy mt_table at_speed at_table)
 	; (EnemyAddon enemy mt_table at_speed at_table [hitpnt]) -> enemy weapon addon with player collision
-	(def this :sp_hitpnt (or hitpnt 8))
+	(def this :sp_hitpnt (ifn hitpnt 8 hitpnt) :has_hit :nil)
 	(. this :sp_add_component (CL *layer_player* +ftp_man *man_collision_table*)))
 
 (defclass Mase (man mt_table at_speed at_table &optional hitpnt)
 	(Addon man mt_table at_speed at_table)
 	; (Mase man mt_table at_speed at_table [hitpnt]) -> player mase addon with collisions
-	(def this :sp_hitpnt (or hitpnt 1))
+	(def this :sp_hitpnt (ifn hitpnt 1 hitpnt))
 	(.-> this
 		(:sp_add_component (CL *layer_enemies* -1 *man_addon_collision_table*))
 		(:sp_add_component (CL *layer_missiles* -1 *man_addon_collision_table*))))
 
 (defun use-mase (man &optional hitpnt)
 	; trigger mase attack animation and spawn tracking mase sprite
-	(defq dir (or (get :sp_dir man) 1)
+	(defq dir (get :sp_dir man)
 		duck (>= (get :sp_frame man) +frm_fanatic_l_duck)
 		man_at (elem-get (get :sp_components man) +man_comp_at)
 		body_anim (if duck +at_man_lower_mase +at_man_upper_mase)
@@ -107,7 +107,7 @@
 			(duck (if (= dir 1) +mt_lower_mase_r +mt_lower_mase_l))
 			(:t (if (= dir 1) +mt_upper_mase_r +mt_upper_mase_l))))
 	(audio-play-rpc *sfx_throw*)
-	(def man :action_playing :t)
+	(def man :sp_flags (logior (get :sp_flags man) +fsp_action))
 	(. man :sp_set_frame (first body_anim))
 	(set man_at :speed 2 :table body_anim :count 0 :index 1 :loop :nil)
 	(defq wep (Mase man mt 2 wep_anim hitpnt))
@@ -219,17 +219,24 @@
 
 (defun cp-helper (this that)
 	; homing helper demon tracking nearest enemy
-	(defq life (dec (or (get :life this) 128)))
+	(defq life (dec (get :life this)))
 	(if (<= life 0)
 		(. this :sp_kill)
 		(def this :life life)
 		(bind '(hx hy) (. this :sp_get_pos))
 		(when (defq mv (elem-get (get :sp_components this) 0))
-			(if (defq enemy (first (. *layer_enemies* :children)))
+			(if (defq enemy (some (lambda (sp)
+						(when (and (Sprite? sp)
+								   (not (get :sp_dead sp))
+								   (/= (get :sp_frame sp) -1)
+								   (/= (get :sp_type sp) 0))
+							sp))
+						(. *layer_enemies* :children)))
 				(progn
 					(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
 					(set mv :ax (if (>= (+ ex (/ ew 2)) hx) 1 -1)
-							:ay (if (>= (+ ey (/ eh 2)) hy) 1 -1)))
+							:ay (if (>= (+ ey (/ eh 2)) hy) 1 -1))
+					(spawn-fizz-fx hx hy))
 				(set mv :ax 0 :ay 0 :vx 0 :vy 0)))))
 
 (defclass Helper (x y) (Sprite *img_frm_16x16* :nil 16 16 :16x16 dt-fizz-fx)
@@ -264,7 +271,7 @@
 	(unless (get :arrow_fired this)
 		(def this :arrow_fired :t)
 		(bind '(ax ay) (. this :sp_get_pos))
-		(defq dir (or (get :sp_dir this) 1)
+		(defq dir (get :sp_dir this)
 			x (if (= dir 1) (+ ax 16) (- ax 16))
 			arr (SmallArrow x ay dir))
 		(. *layer_player* :add_front arr)
@@ -272,14 +279,15 @@
 
 (defclass SmallCrossbow (man mt_table) (Addon man mt_table 1 +at_small_crossbow)
 	; (SmallCrossbow man mt_table) -> player light crossbow addon
+	(def this :arrow_fired :nil)
 	(. this :sp_add_component (CP cp-small-crossbow)))
 
 (defun use-small-crossbow (man)
 	; trigger small crossbow shooting animation and spawn arrow
-	(defq dir (or (get :sp_dir man) 1)
+	(defq dir (get :sp_dir man)
 		man_at (elem-get (get :sp_components man) +man_comp_at)
 		mt (if (= dir 1) +mt_small_crossbow_r +mt_small_crossbow_l))
-	(def man :action_playing :t)
+	(def man :sp_flags (logior (get :sp_flags man) +fsp_action))
 	(. man :sp_set_frame (first +at_man_small_crossbow))
 	(set man_at :speed 1 :table +at_man_small_crossbow :count 0 :index 1 :loop :nil)
 	(defq wep (SmallCrossbow man mt))
@@ -291,7 +299,7 @@
 		(when (and (>= (get :index mt) 7) (not (get :arrow_fired this)))
 			(def this :arrow_fired :t)
 			(bind '(ax ay) (. this :sp_get_pos))
-			(defq dir (or (get :sp_dir this) 1)
+			(defq dir (get :sp_dir this)
 				x (if (= dir 1) (+ ax 8) (- ax 24))
 				arr (BigArrow x ay dir))
 			(. *layer_player* :add_front arr)
@@ -299,14 +307,15 @@
 
 (defclass BigCrossbow (man mt_table) (Addon man mt_table 2 +at_big_crossbow)
 	; (BigCrossbow man mt_table) -> player heavy crossbow addon
+	(def this :arrow_fired :nil)
 	(. this :sp_add_component (CP cp-big-crossbow)))
 
 (defun use-big-crossbow (man)
 	; trigger big crossbow shooting animation and spawn bolt
-	(defq dir (or (get :sp_dir man) 1)
+	(defq dir (get :sp_dir man)
 		man_at (elem-get (get :sp_components man) +man_comp_at)
 		mt (if (= dir 1) +mt_big_crossbow_r +mt_big_crossbow_l))
-	(def man :action_playing :t)
+	(def man :sp_flags (logior (get :sp_flags man) +fsp_action))
 	(. man :sp_set_frame (first +at_man_big_crossbow))
 	(set man_at :speed 2 :table +at_man_big_crossbow :count 0 :index 1 :loop :nil)
 	(defq wep (BigCrossbow man mt))
@@ -318,22 +327,23 @@
 		(when (and (>= (get :index mt) 7) (not (get :bomb_thrown this)))
 			(def this :bomb_thrown :t)
 			(bind '(ax ay) (. this :sp_get_pos))
-			(defq dir (or (get :sp_dir this) 1)
+			(defq dir (get :sp_dir this)
 				x (if (= dir 1) (+ ax 4) (- ax 4))
 				bomb (NBomb x ay dir))
 			(. *layer_player* :add_front bomb))))
 
 (defclass Naptha (man mt_table) (Addon man mt_table 3 +at_naptha)
 	; (Naptha man mt_table) -> player naptha throwing addon
+	(def this :bomb_thrown :nil)
 	(. this :sp_add_component (CP cp-naptha)))
 
 (defun use-naptha (man)
 	; trigger naptha throwing animation and lob bomb
-	(defq dir (or (get :sp_dir man) 1)
+	(defq dir (get :sp_dir man)
 		man_at (elem-get (get :sp_components man) +man_comp_at)
 		mt (if (= dir 1) +mt_naptha_r +mt_naptha_l))
 	(audio-play-rpc *sfx_throw*)
-	(def man :action_playing :t)
+	(def man :sp_flags (logior (get :sp_flags man) +fsp_action))
 	(. man :sp_set_frame (first +at_man_naptha))
 	(set man_at :speed 3 :table +at_man_naptha :count 0 :index 1 :loop :nil)
 	(defq wep (Naptha man mt))
@@ -375,8 +385,12 @@
 	; green spell kills all active enemies on screen
 	(audio-play-rpc *sfx_spell*)
 	(each (lambda (enemy)
-		(when (Sprite? enemy)
-			(def enemy :sp_death dt-kill-zap)
+		(when (and (Sprite? enemy)
+				   (/= (get :sp_frame enemy) -1)
+				   (not (get :sp_dead enemy))
+				   (/= (get :sp_type enemy) 0))
+			(when (eql (get :sp_death enemy) dt-kill-enemy)
+				(def enemy :sp_death dt-kill-zap))
 			(. enemy :sp_kill)))
 		(. *layer_enemies* :children)))
 
@@ -385,21 +399,21 @@
 	(audio-play-rpc *sfx_spell*)
 	(each (lambda (enemy)
 		(when (Sprite? enemy)
-			(defq type (or (get :sp_type enemy) 0))
+			(defq type (get :sp_type enemy))
 			(unless (or (= type 0)
 						(/= (logand type (logior +ftp_cannon +ftp_balista +ftp_oil +ftp_beserk)) 0))
 				(each (lambda (comp)
 					(when (and (env? comp) (def? :max_vx comp))
 						(set comp :vx 0 :max_vx 0)))
 					(get :sp_components enemy)))))
-		(cat (. *layer_enemies* :children))))
+		(. *layer_enemies* :children)))
 
 (defun use-red-spell (man)
 	; red spell restores 20% strength
-	(setq *man_strength* (min +max_strength (+ (or *man_strength* 0) (/ +max_strength 5))))
+	(setq *man_strength* (min +max_strength (+ *man_strength* (/ +max_strength 5))))
 	(audio-play-rpc *sfx_spell*))
 
 (defun use-blue-spell (man)
 	; blue spell restores 20% power
-	(setq *man_power* (min +max_power (+ (or *man_power* 0) (/ +max_power 5))))
+	(setq *man_power* (min +max_power (+ *man_power* (/ +max_power 5))))
 	(audio-play-rpc *sfx_spell*))

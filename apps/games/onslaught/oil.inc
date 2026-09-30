@@ -41,7 +41,7 @@
 
 (defclass Oil () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr dt-kill-balista)
 	; (Oil) -> boiling oil cauldron enemy sprite
-	(def this :sp_type +ftp_oil :bftp_type 7 :sp_hitpnt 4
+	(def this :sp_type +ftp_oil :sp_hitpnt 4
 		:dead_frame +frm_32c32_l_oil3)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))

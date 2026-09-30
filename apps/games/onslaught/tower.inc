@@ -38,7 +38,7 @@
 (defun cp-tower-patrol (this that)
 	; tower patrols platform back and forth without falling off, and fires 4 spears on index 4
 	(bind '(x y w h) (. this :sp_get_bounds))
-	(defq dir (or (get :sp_dir this) 1)
+	(defq dir (get :sp_dir this)
 		comps (get :sp_components this)
 		mv (elem-get comps +en_comp_mv)
 		at_comp (elem-get comps +en_comp_at)
@@ -61,7 +61,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (defclass Tower () (Sprite *img_frm_64x64* :nil 64 64 :64x64 dt-kill-tower)
-	(def this :sp_type +ftp_tower :bftp_type 10 :sp_hitpnt 8)
+	(def this :sp_type +ftp_tower :sp_hitpnt 8)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 6 0))
 		(:sp_add_component (AT 2 +at_tower))

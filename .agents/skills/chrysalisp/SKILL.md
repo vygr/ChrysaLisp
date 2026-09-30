@@ -1055,13 +1055,11 @@ GUI rendering executes in two deterministic passes:
 
 	*	**Properties and Keywords:** Colon prefix (`:foo_bar`).
 
-*	**Prebinder Quoted Lists (`''(...)` vs `'(...)`):**
-	When defining top-level constant or variable data lists with `(defq ...)`,
-	always use double quotes: `(defq +my_list ''(...))` if you expect the
-	prebinder to embed it as a literal list. A single quote
-	`(defq +my_list '(...))` has its quote consumed during prebinding, causing
-	the list to be evaluated as a function call at load time (e.g. producing a
-	`not_a_function` error).
+*	**Prebinder Constant Evaluation & AST Substitution (`+xxxxx` and `''(...)` vs `'(...)`):**
+	In the prebind stage of the REPL, any symbol beginning with `+` (`+xxxxx`) is evaluated in the current environment, and **what it evaluates to is directly substituted into the AST**:
+	*	For numbers/atoms (e.g. `(defq +width 32)`), the atom `32` is substituted directly.
+	*	For data lists, if defined with a single quote `(defq +my_list '(1 2 3))` or unquoted `(defq +my_list (list 1 2 3))`, `+my_list` evaluates to the raw list `(1 2 3)`. When this raw list is directly substituted into the AST, it forms an unquoted list `(1 2 3)`. At runtime, the evaluator interprets the first element `1` as a function call, failing with `not_a_function ! Obj: 1`.
+	*	Therefore, constant lists must always evaluate to a quoted form: use double quotes `(defq +my_list ''(1 2 3))` for pure literals, or quasiquote `(defq +my_list `'(,+item1 ,+item2))` when referencing symbols. Prebind evaluates these to `'(1 2 3)` (i.e. `(quote (1 2 3))`), substituting the `(quote ...)` form into the AST, which evaluates at runtime to the literal data list.
 
 ## Building & Binary Verification
 
