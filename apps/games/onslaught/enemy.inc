@@ -31,7 +31,7 @@
 
 (defun audio-play-death ()
 	; randomly play death1 or death2 grunt sfx
-	(audio-play-rpc (if (= (random 2) 0) *sfx_death1* *sfx_death2*)))
+	(audio-play-rpc (if (= (game-random 2) 0) *sfx_death1* *sfx_death2*)))
 
 (defun blast-area (x y w h)
 	; damage/destroy enemies, enemy missiles, and mines in blast box
@@ -109,7 +109,7 @@
 	(defq rw (max 1 (- w 16))
 		rh (max 1 (- h 16)))
 	(times 8
-		(defq fx (. (Fizz) :sp_set_pos (+ x (random rw)) (+ y (random rh))))
+		(defq fx (. (Fizz) :sp_set_pos (+ x (game-random rw)) (+ y (game-random rh))))
 		(. *layer_fx* :add_front fx))
 	(audio-play-rpc *sfx_spell*))
 
@@ -266,6 +266,40 @@
 		(:sp_add_component (CP offscreen-nodeath-update))
 		(:sp_set_frame frame)))
 
+(defun cp-banner (this that)
+	; occasionally spawn fizz spark fx around banner
+	(when (= (game-random 8) 0)
+		(bind '(x y) (. this :sp_get_pos))
+		(defq fx (. (Fizz) :sp_set_pos (+ x (- (game-random 32) 8)) (+ y (- (game-random 32) 8))))
+		(. *layer_fx* :add_front fx)))
+
+(defclass Banner (type frame) (Sprite *img_frm_16x16* :nil 16 48 :16x16 dt-fizz-fx)
+	; (Banner type frame) -> 16x48 banner sprite (flag top, pole middle & bottom)
+	(def this :sp_type type :sp_frame frame :sp_frame_h 16)
+	(.-> this
+		(:sp_add_component (CP cp-banner)))
+
+	(defmethod :draw ()
+		(when (/= (defq f (get :sp_frame this)) -1)
+			(when (defq c (. this :sp_get_canvas))
+				(when (defq texture (getf c +canvas_texture 0))
+					(bind '(tid tw th) (texture-metrics texture))
+					(defq zoom *zoom*
+						tile_w (* zoom 16) tile_h (* zoom 16)
+						flag_raw_y (* f tile_h)
+						flag_sy (% flag_raw_y th)
+						flag_sx (* (/ flag_raw_y th) tile_w)
+						pole_raw_y (* +frm_16x16_pole tile_h)
+						pole_sy (% pole_raw_y th)
+						pole_sx (* (/ pole_raw_y th) tile_w))
+					; top 16x16: flag
+					(. this :ctx_blit tid +argb_white 0 0 tile_w tile_h flag_sx flag_sy)
+					; middle 16x16: pole
+					(. this :ctx_blit tid +argb_white 0 tile_h tile_w tile_h pole_sx pole_sy)
+					; bottom 16x16: pole
+					(. this :ctx_blit tid +argb_white 0 (* tile_h 2) tile_w tile_h pole_sx pole_sy))))
+		this))
+
 (defun spawn-flying-body (enemy)
 	; spawn a dead body flying backwards and upwards with gravity
 	(when (defq dead_f (get :dead_frame enemy))
@@ -293,15 +327,15 @@
 		(cond
 			((<= cnt 0)
 				; drop gold bag from top of visible screen
-				(setq cnt (+ (random 12) 12)
+				(setq cnt (+ (game-random 12) 12)
 					frame +frm_16x16_gold)
 				(bind '(lx ly &ignore) (. *world_scroll* :get_relative *layer_land*))
 				(bind '(ww &ignore) (. *world_scroll* :get_size))
-				(setq drop_x (+ (/ (neg lx) *zoom*) (random (max 1 (- (/ ww *zoom*) 16))))
+				(setq drop_x (+ (/ (neg lx) *zoom*) (game-random (max 1 (- (/ ww *zoom*) 16))))
 					drop_y (/ (neg ly) *zoom*)
 					vy 0))
 			(:t
-				(setq frame (elem-get +drop_table (random (length +drop_table))))))
+				(setq frame (elem-get +drop_table (game-random (length +drop_table))))))
 		(setq *item_drop_cnt* cnt)
 		(bind '(uses timeout) (item-info frame))
 		(defq item (Item frame uses timeout vy))

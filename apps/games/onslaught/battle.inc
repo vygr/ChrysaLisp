@@ -6,6 +6,7 @@
 	*current_map_idx* 1 *game_level* +game_level_field *battle_state_count* 0
 	*enemy_army* 0 *enemy_count* 0 *enemy_spawn_delay* 1 *enemy_wizshot* 0
 	*enemy_stack* (list) *enemy_banner_captured* :nil
+	*man_banner* 1 *enemy_banner* 5
 	+army_names
 	''("HILLMEN" "NECROMANTIC" "ROBBER" "BOARRIDER" "MERCENARY"
 	   "KNIGHTLY" "BERSERKER" "MYSTIC" "BALISTIC" "POWDER"
@@ -90,7 +91,7 @@
 			(+ probe_x w -1)
 			(- (+ probe_x 1) w))
 		max_rows (max 1 (/ cam_h +tile_height))
-		start_row (random max_rows)
+		start_row (game-random max_rows)
 		cam_top_grid (- cam_y (% cam_y +tile_height))
 		sprite_h (ifn h 32 h)
 		row_idx 0
@@ -125,7 +126,7 @@
 	; spawn an enemy on the right side of the screen moving left
 	(defq army_tbl (elem-get +army_tables *enemy_army*)
 		lvl_offset (* *game_level* 6)
-		unit_idx (+ (random 6) lvl_offset)
+		unit_idx (+ (game-random 6) lvl_offset)
 		type (elem-get army_tbl unit_idx))
 	(bind '(w h) (enemy-size type))
 	(when (defq pt (get-spawn-surface 1 w h))
@@ -176,7 +177,7 @@
 	(when (< *enemy_count* *enemy_max*)
 		(-- *enemy_spawn_delay*)
 		(when (<= *enemy_spawn_delay* 0)
-			(setq *enemy_spawn_delay* (+ (random 8) 8))
+			(setq *enemy_spawn_delay* (+ (game-random 8) 8))
 			(when *player_man*
 				(defq pdir (get :sp_dir *player_man*))
 				(if (or (= pdir -1) *enemy_banner_captured*)
@@ -211,28 +212,46 @@
 	(set-world-layers-pos 0 0)
 	(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
 	(. *layer_sky* :sky_random)
-	(. *layer_land* :load_field_map *current_map_idx*)
+	(setq *game_level* +game_level_field
+		  *current_map_idx* 1)
+	(. *layer_land* :load_field_map 1)
 	(def (defq man (Fanatic)) :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
 	(. man :sp_set_pos 8 208)
 	(. *layer_player* :add_front man)
 	(setq *player_man* man
+		  *man_power* +max_power
+		  *man_strength* +max_strength
 		  *enemy_stack* (list)
 		  *enemy_banner_captured* :nil
 		  *enemy_count* 0
 		  *enemy_spawn_delay* 1
 		  *mine_count* 0
-		  *mine_max* (+ (random 3) 1)
-		  *enemy_max* (+ (random 4) 2)
-		  *enemy_wizshot* (random 2)
-		  *enemy_army* (random (length +army_tables)))
-;		  *enemy_army* 9)
+		  *mine_max* (+ (game-random 3) 1)
+		  *enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2))
+		  *enemy_wizshot* (game-random 2)
+		  *enemy_army* (game-random (length +army_tables)))
+	; spawn banners
+	(bind '(mx my ex ey) (case *game_level*
+		(+game_level_seige '(16 192 2016 0))
+		(+game_level_defend '(16 0 2016 192))
+		(:t '(16 128 2016 128))))
+	(setq *man_banner* (+ +frm_16x16_banners (game-random 16))
+		  *enemy_banner* (+ +frm_16x16_banners (game-random 16)))
+	(when (= *man_banner* *enemy_banner*)
+		(setq *enemy_banner* (+ +frm_16x16_banners (% (+ (- *enemy_banner* +frm_16x16_banners) 1) 16))))
+	(defq man_ban (Banner +ftp_man_banner *man_banner*))
+	(. man_ban :sp_set_pos mx my)
+	(. *layer_bans* :add_front man_ban)
+	(defq enemy_ban (Banner +ftp_enemy_banner *enemy_banner*))
+	(. enemy_ban :sp_set_pos ex ey)
+	(. *layer_bans* :add_front enemy_ban)
 	(update-camera *player_man*))
 
 (defun battle-state-update ()
 	; check for player death, battle won, or overrun stack full
 	(cond
 		((or (not *player_man*) (get :sp_dead *player_man*))
-			(goto-title +game_state_hiscore))
+			(goto-title +game_state_menu))
 		((>= (length *enemy_stack*) +max_enemy_stack)
 			(setq *game_state* +game_state_battle_lost))
 		((and *enemy_banner_captured*
@@ -248,34 +267,16 @@
 	(setq *battle_state_count* 0))
 
 (defun battle-won-state-update ()
-	; delay for 96 frames before level interlude
+	; delay for 96 frames before returning to menu
 	(++ *battle_state_count*)
 	(when (>= *battle_state_count* 96)
-		(defq next_state (case *game_level*
-			(+game_level_field
-				(setq *game_level* +game_level_seige)
-				+game_state_battle)
-			(+game_level_seige
-				+game_state_mind)
-			(:t
-				(setq *game_level* +game_level_field)
-				+game_state_battle)))
-		(goto-title next_state)))
+		(goto-title +game_state_menu)))
 
 (defun battle-lost-state-init ()
 	(setq *battle_state_count* 0))
 
 (defun battle-lost-state-update ()
-	; delay for 96 frames before retreat interlude
+	; delay for 96 frames before returning to menu
 	(++ *battle_state_count*)
 	(when (>= *battle_state_count* 96)
-		(defq next_state (case *game_level*
-			(+game_level_field
-				(setq *game_level* +game_level_defend)
-				+game_state_battle)
-			(+game_level_seige
-				(setq *game_level* +game_level_field)
-				+game_state_battle)
-			(:t
-				+game_state_mind)))
-		(goto-title next_state)))
+		(goto-title +game_state_menu)))

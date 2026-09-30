@@ -44,7 +44,7 @@
 			(def this :sp_flags (logior flags +fsp_action))
 			(set mv :vx 0)
 			(defq dir (get :sp_dir this)
-				upper (= (random 2) 0)
+				upper (= (game-random 2) 0)
 				body_anim (if upper +at_footman_upper +at_footman_lower)
 				wep_anim (if upper +at_footman_upper_mase +at_footman_lower_mase)
 				wep_mt (if upper

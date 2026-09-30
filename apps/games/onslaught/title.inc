@@ -111,7 +111,7 @@
 
 ; state control
 
-(defq *title_letter_idx* 0 *test_addon_idx* 0 *test_addon_pressed* :nil)
+(defq *title_letter_idx* 0 *title_skip_armed* :nil *test_addon_idx* 0 *test_addon_pressed* :nil)
 
 (defun goto-title (&optional next_state)
 	; transition to title sequence with next target state
@@ -120,7 +120,7 @@
 
 (defun title-state-init (&optional next_state)
 	(if next_state (setq *game_state_next* next_state))
-	(setq *title_letter_idx* 0 *player_man* :nil)
+	(setq *title_letter_idx* 0 *player_man* :nil *title_skip_armed* :nil)
 	(clear-sprite-layers)
 	(set-world-layers-pos 0 0)
 	(set-world-layers-size (* *zoom* +screen_width) (* *zoom* +screen_height))
@@ -129,7 +129,10 @@
 	(spawn-title-letter *title_letter_idx*))
 
 (defun title-state-update ()
-	; check fire button to skip title sequence directly to next state
-	(when (bits? *game_controls* +fkey_keya)
-		(setq *test_addon_pressed* :t
-			  *game_state* (or *game_state_next* +game_state_battle))))
+	; check key press/release to skip title sequence directly to next state
+	(defq controls *game_controls*)
+	(if (/= controls 0)
+		(setq *title_skip_armed* :t)
+		(when *title_skip_armed*
+			(setq *title_skip_armed* :nil
+				  *game_state* (or *game_state_next* +game_state_battle)))))

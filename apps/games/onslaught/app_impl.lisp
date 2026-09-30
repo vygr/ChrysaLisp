@@ -4,9 +4,9 @@
 
 (import "./enums.inc")
 
-(defq *app_root* (path-to-file) *game_state* +game_state_title *game_state_next* +game_state_battle
+(defq *app_root* (path-to-file) *game_state* +game_state_menu *game_state_next* +game_state_menu
 	+zoom_min 1 +zoom_max 3 *zoom* 2 *old_zoom* 0 +frame_rate 20 *running* :t
-	*old_game_state* -1 +rate (/ 1000000 +frame_rate))
+	*old_game_state* -1 +rate (/ 1000000 +frame_rate) *game_flags* 0)
 
 (import "lib/debug/frames.inc")
 (import "service/audio/app.inc")
@@ -41,16 +41,14 @@
 (import "./skeleton.inc")
 (import "./skeleton_monk.inc")
 (import "./skeleton_horse.inc")
-
 (import "./title.inc")
 (import "./battle.inc")
+(import "./menu.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; unported state placeholders
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun menu-state-init ())
-(defun menu-state-update ())
 (defun map-state-init ())
 (defun map-state-update ())
 (defun scores-state-init ())
@@ -63,8 +61,6 @@
 (defun mind-won-state-update ())
 (defun mind-lost-state-init ())
 (defun mind-lost-state-update ())
-(defun credits-state-init ())
-(defun credits-state-update ())
 (defun oracle-state-init ())
 (defun oracle-state-update ())
 (defun demo-state-init ())
@@ -105,6 +101,7 @@
 		(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
 		(rescale-active-sprites)
 		(update-panel-status)
+		(menu-resize *zoom*)
 		(if *player_man* (update-camera *player_man*))
 		(bind '(x y) (. *window* :get_pos))
 		(bind '(w h) (. *window* :pref_size))
@@ -140,15 +137,15 @@
 							key (getf *msg* +ev_msg_key_key)
 							kmask :nil)
 						(cond
-							((or (= key (ascii-code "q")) (= key (ascii-code "Q")))
+							((or (= key (ascii-code "q")) (= key (ascii-code "Q")) (= key (ascii-code "w")) (= key (ascii-code "W")) (= key 0x40000052))
 								(setq kmask +fkey_up))
-							((or (= key (ascii-code "a")) (= key (ascii-code "A")))
+							((or (= key (ascii-code "a")) (= key (ascii-code "A")) (= key (ascii-code "s")) (= key (ascii-code "S")) (= key 0x40000051))
 								(setq kmask +fkey_down))
-							((or (= key (ascii-code "o")) (= key (ascii-code "O")))
+							((or (= key (ascii-code "o")) (= key (ascii-code "O")) (= key 0x40000050))
 								(setq kmask +fkey_left))
-							((or (= key (ascii-code "p")) (= key (ascii-code "P")))
+							((or (= key (ascii-code "p")) (= key (ascii-code "P")) (= key 0x4000004f))
 								(setq kmask +fkey_right))
-							((= key (ascii-code " "))
+							((or (= key (ascii-code " ")) (= key +char_lf) (= key +char_cr) (= key 0x40000058))
 								(setq kmask +fkey_keya))
 							((or (= key (ascii-code "[")) (= key (ascii-code "z")) (= key (ascii-code "Z")))
 								(setq kmask +fkey_keyc))

@@ -81,8 +81,8 @@
 
 (defun cl-man-hits-enemy-banner (this hit)
 	; capturing enemy banner
-	(when (= (+ (get :sp_y this) (get :sp_h this))
-			 (+ (get :sp_y hit) (get :sp_h hit)))
+	(when (<= (abs (- (+ (get :sp_y this) (get :sp_h this))
+					  (+ (get :sp_y hit) (get :sp_h hit)))) 4)
 		(audio-play-rpc *sfx_spell*)
 		(setq *enemy_banner_captured* :t)
 		(. hit :sp_kill)
@@ -94,7 +94,7 @@
 		(def this :has_hit :t)
 		(defq hit_pnt (get :sp_hitpnt this))
 		(setq *man_strength* (max 0 (- *man_strength* hit_pnt)))
-		(audio-play-rpc (if (= (random 2) 0) *sfx_clash1* *sfx_clash2*))
+		(audio-play-rpc (if (= (game-random 2) 0) *sfx_clash1* *sfx_clash2*))
 		(bind '(ax ay aw ah) (. this :sp_get_bounds))
 		(spawn-fizz-fx (+ ax (/ aw 2)) (+ ay (/ ah 2)))
 		(if (or (<= *man_strength* 0) (<= *man_power* 0))
@@ -130,7 +130,7 @@
 
 (defun cl-man-addon-hits (this hit)
 	; player weapon mase hitting target enemy or missile
-	(audio-play-rpc (if (= (random 2) 0) *sfx_clash1* *sfx_clash2*))
+	(audio-play-rpc (if (= (game-random 2) 0) *sfx_clash1* *sfx_clash2*))
 	(defq hit_type (get :sp_type hit)
 		non_flesh (logior +ftp_enemy_fire +ftp_cannon +ftp_oil +ftp_balista
 						  +ftp_tower +ftp_carpet +ftp_skeleton_monk

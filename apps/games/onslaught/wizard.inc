@@ -64,7 +64,7 @@
 				(. *layer_missiles* :add_front shot))
 			(when (and (get :wizard_shot this) (= idx 0) (= (get :count at_comp) 0))
 				(def this :wizard_shooting :nil :wizard_shot :nil
-					:wizard_timer (+ (random 16) 16))
+					:wizard_timer (+ (game-random 16) 16))
 				(set at_comp :table +at_wizard :speed 1 :count 0 :index 0)
 				(. this :sp_set_frame (first +at_wizard))
 				(set mv :vx (* (get :sp_dir this) (get :max_vx mv)))))))
@@ -78,7 +78,7 @@
 		:fall_frame +frm_32x32_l_wizard10
 		:duck_frame +frm_32x32_l_wizard11
 		:dead_frame +frm_32x32_l_wizard9
-		:wizard_timer (+ (random 16) 16)
+		:wizard_timer (+ (game-random 16) 16)
 		:wizard_shooting :nil
 		:wizard_shot :nil)
 	(.-> this

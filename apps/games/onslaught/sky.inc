@@ -22,7 +22,7 @@
 
 	(defmethod :sky_random ()
 		; pick one of the 6 field pastel colors to white gradient
-		(defq top (elem-get +sky_palette (random (const (length +sky_palette)))))
+		(defq top (elem-get +sky_palette (game-random (const (length +sky_palette)))))
 		(. this :sky_set_cols top +argb_white))
 
 	(defmethod :sky_black ()

@@ -1,3 +1,20 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; game specific seeded pseudo-random
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defq *game_seed* 0)
+
+(defun game-seed (seed)
+	; (game-seed seed) -> set 32-bit unsigned game seed
+	(setq *game_seed* (logand seed 0xffffffff)))
+
+(defun game-random (range)
+	; (game-random range) -> pseudo-random integer in 0..(range - 1)
+	(if (<= range 1) 0
+		(progn
+			(setq *game_seed* (logand (logxor (* *game_seed* 17) 0xa5a5a5a5) 0xffffffff))
+			(>>> (* range (>>> *game_seed* 16)) 16))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; layer management helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -116,11 +133,11 @@
 
 (defun get-xy-outer (w h)
 	; pick a random start point just outside the playable area
-	(case (random 4)
-		(0 (list (- (random (+ +window_width (* 2 w))) w) (neg h)))
-		(1 (list (- (random (+ +window_width (* 2 w))) w) +window_height))
-		(2 (list (neg w) (- (random (+ +window_height (* 2 h))) h)))
-		(3 (list +window_width (- (random (+ +window_height (* 2 h))) h)))))
+	(case (game-random 4)
+		(0 (list (- (game-random (+ +window_width (* 2 w))) w) (neg h)))
+		(1 (list (- (game-random (+ +window_width (* 2 w))) w) +window_height))
+		(2 (list (neg w) (- (game-random (+ +window_height (* 2 h))) h)))
+		(3 (list +window_width (- (game-random (+ +window_height (* 2 h))) h)))))
 
 (defun update-camera (sprite)
 	; center camera on sprite using feet baseline anchor (+ y h -16)

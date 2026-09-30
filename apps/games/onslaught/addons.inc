@@ -373,7 +373,7 @@
 
 (defun use-black-spell (man)
 	; black spell fills all 8 inventory slots with a random powerful spell/item
-	(bind '(item uses) (elem-get +black_spell_table (random 5)))
+	(bind '(item uses) (elem-get +black_spell_table (game-random 5)))
 	(defq idx 0)
 	(while (< idx 8)
 		(elem-set *item_inventory* idx item)

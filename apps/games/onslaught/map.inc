@@ -14,12 +14,11 @@
 
 	(defmethod :reset_field_map ()
 		; (. map :reset_field_map) -> map
-		(raise :map_idx)
-		(if map_idx
-			(lower (:map_blocks (cond
-					((= map_idx 2) *img_blocks2*)
-					((= map_idx 3) *img_blocks3*)
-					(*img_blocks1*)))))
+		(raise :map_level)
+		(lower (:map_blocks (case map_level
+				(+game_level_seige *img_blocks2*)
+				(+game_level_defend *img_blocks2*)
+				(:t *img_blocks1*))))
 		this)
 
 	(defmethod :load_field_map (&optional map_idx)
@@ -27,7 +26,7 @@
 		(setd map_idx (ifn map_idx (get :map_idx this) map_idx))
 		(defq map_data (load (cat *app_root* "data/fieldmap" (str map_idx) ".dat"))
 			map_flags (load (cat *app_root* "data/mapflags1.dat")))
-		(lower :map_idx :map_data :map_flags)
+		(def this :map_idx map_idx :map_data map_data :map_flags map_flags :map_level +game_level_field)
 		(. this :reset_field_map))
 
 	(defmethod :get_tile_flags (x y)

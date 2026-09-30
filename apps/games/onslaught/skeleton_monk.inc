@@ -55,7 +55,7 @@
 	(defq cnt (dec (get :skull_timer this)))
 	(if (<= cnt 0)
 		(progn
-			(setq cnt (+ (random 20) 20))
+			(setq cnt (+ (game-random 20) 20))
 			(bind '(x y) (. this :sp_get_pos))
 			(defq dir (get :sp_dir this)
 				bomb (SkullBomb (+ x 8) (- y 8) dir))
@@ -71,7 +71,7 @@
 (defclass SkeletonMonk () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic dt-kill-zap)
 	; (SkeletonMonk) -> skeleton monk enemy sprite (zaps on death, shoots skull bombs)
 	(def this :sp_type +ftp_skeleton_monk :sp_hitpnt 8
-		:skull_timer (+ (random 20) 20)
+		:skull_timer (+ (game-random 20) 20)
 		:fall_frame +frm_fanatic_l_skeleton_monk2)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 3 8))

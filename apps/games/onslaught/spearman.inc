@@ -57,7 +57,7 @@
 					(. *layer_missiles* :add_front spear))
 				(when (and (get :spear_thrown this) (= idx 0) (= (get :count at_comp) 0))
 					(def this :spear_throwing :nil :spear_thrown :nil)
-					(def this :spear_timer (+ (random 8) 16))
+					(def this :spear_timer (+ (game-random 8) 16))
 					(defq dir (get :sp_dir this))
 					(set at_comp :table +at_spearman :speed 2 :count 0 :index 0)
 					(. this :sp_set_frame (first +at_spearman))
@@ -70,7 +70,7 @@
 
 (defclass Spearman () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr dt-kill-enemy)
 	(def this :sp_type +ftp_spearman :sp_hitpnt 1
-		:spear_timer (+ (random 8) 16) :spear_throwing :nil :spear_thrown :nil
+		:spear_timer (+ (game-random 8) 16) :spear_throwing :nil :spear_thrown :nil
 		:fall_frame +frm_32x32_l_spearman10
 		:duck_frame +frm_32x32_l_spearman11
 		:dead_frame +frm_32x32_l_spearman9)
