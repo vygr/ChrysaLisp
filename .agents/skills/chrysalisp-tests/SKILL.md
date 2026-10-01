@@ -375,7 +375,18 @@ All checks should be performed using standard TUI pipeline commands:
 
 	Must output nothing (zero forward references).
 
-4.	**Register Clobber & Lint Analysis (`trace`):**
+4.	**Bracket Matching Check:**
+	Ensure all parentheses, square brackets, and braces are matched across all
+	source files using syntax-aware scanning (`cmd/brackets.lisp`):
+
+	```sh
+	echo "files | brackets -q" | ./run_tui.sh -f
+	```
+
+	Must output nothing (zero unmatched or unclosed brackets). For detailed
+	metrics, run with `-v` (counts and depth) or `-v 2` (type breakdowns).
+
+5.	**Register Clobber & Lint Analysis (`trace`):**
 	Build the debug VP64 emulator image and verify register clobber integrity:
 
 	```sh
@@ -386,7 +397,7 @@ All checks should be performed using standard TUI pipeline commands:
 	Must output nothing (zero mismatches between documented and calculated
 	transitive register trashes).
 
-5.	**Full Canonical Multi-Platform Rebuild (`make it`):**
+6.	**Full Canonical Multi-Platform Rebuild (`make it`):**
 	Recompile all platforms (native platforms in debug mode, VP64 in release
 	mode `*build_mode* = 0`) and regenerate reference documentation:
 
@@ -397,7 +408,7 @@ All checks should be performed using standard TUI pipeline commands:
 	*Important:* `make snapshot` must only be done after `make it` (never after
 	`make vp`), so `snapshot.zip` contains the release VP64 boot image.
 
-6.	**Emulator (-e) Deterministic Binary Diff Verification:**
+7.	**Emulator (-e) Deterministic Binary Diff Verification:**
 	Verify that the emulated VP64 build produces bit-for-bit identical binaries
 	to the native host build across all target platforms:
 
@@ -409,7 +420,7 @@ All checks should be performed using standard TUI pipeline commands:
 
 	Must produce zero diff output (exit code 0).
 
-7.	**Full Functional Test Suite (Both Native and Emulator Modes):**
+8.	**Full Functional Test Suite (Both Native and Emulator Modes):**
 	Run the complete test suite in both environments (always pipe through `grep` to save tokens):
 
 	*	Native host (under live GUI or TUI):
@@ -428,7 +439,7 @@ All checks should be performed using standard TUI pipeline commands:
 
 		Must report `Passed: 1592, Failed: 0, RESULT: SUCCESS`.
 
-8.	**Multi-Instance Network Link & Cluster Tests (Both Native and -e Modes):**
+9.	**Multi-Instance Network Link & Cluster Tests (Both Native and -e Modes):**
 	Verify distributed node discovery, connection, remote task dispatch, auto-discovery,
 	and cluster diagnostics under both native execution and VP64 emulation (`-e`):
 
@@ -450,7 +461,7 @@ All checks should be performed using standard TUI pipeline commands:
 		stabilizes topology, probes all nodes across all cluster machines with 0 bad
 		task counts, and reports `=== CLUSTER QUERY: SUCCESS ===`.
 
-9.	**Host C++ Cross-Platform Compilation Check:**
+10.	**Host C++ Cross-Platform Compilation Check:**
 	If C++ PII or driver code was modified, verify compilation across platforms.
 	On macOS, use `Makefile.mingw` to verify Windows host builds:
 
@@ -460,7 +471,7 @@ All checks should be performed using standard TUI pipeline commands:
 
 	Must compile Windows `main_gui.exe` and `main_tui.exe` with zero errors.
 
-10.	**Generate Release Snapshot (`make snapshot`):**
+11.	**Generate Release Snapshot (`make snapshot`):**
 	Only after ALL preceding pre-release tag tests have completed and are
 	verified 100% clean, generate the host distribution snapshot:
 
@@ -482,7 +493,7 @@ All checks should be performed using standard TUI pipeline commands:
 	`make snapshot`. `snapshot.zip` is the official distribution artifact for
 	new releases and the master branch.
 
-11.	**Verify Clean Host Installation (`make install`):**
+12.	**Verify Clean Host Installation (`make install`):**
 	After `snapshot.zip` is generated, verify that a clean host `make install`
 	succeeds and that the test suite passes on the freshly installed system:
 

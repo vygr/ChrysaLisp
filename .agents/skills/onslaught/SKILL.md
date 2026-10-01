@@ -774,12 +774,40 @@ When extending or maintaining this engine, follow these strict disciplines:
 Because Onslaught is an interactive GUI application running on top of the
 ChrysaLisp compositor:
 
-1.	**User-Driven Testing:**
+1.	**Static Code Verification (Before User Testing):**
+	Always run static syntax and reference checks on `apps/games/onslaught/` before
+	asking the user to test in the GUI:
+
+	*	**Bracket Matching Check (`brackets`):**
+		Verify that all parentheses, square brackets, and braces are balanced and
+		syntax-clean across all onslaught files:
+
+		```sh
+		echo "files apps/games/onslaught/ | brackets -q" | ./run.sh -f
+		```
+
+		Must output nothing (zero syntax or bracket mismatches). For a full breakdown
+		with bracket counts and nesting depths:
+
+		```sh
+		echo "files apps/games/onslaught/ | brackets -v" | ./run.sh -f
+		```
+
+	*	**Forward Reference Check (`forward`):**
+		Verify zero forward references to functions or macros:
+
+		```sh
+		echo "files apps/games/onslaught/ | forward" | ./run.sh -f
+		```
+
+		Must output nothing (zero forward references).
+
+2.	**User-Driven Testing:**
 	The agent cannot run or interact with the game window directly. All gameplay
 	verification must be performed by the user launching the game in their
 	active GUI session.
 
-2.	**Targeted Army Configuration in `battle.inc`:**
+3.	**Targeted Army Configuration in `battle.inc`:**
 	To verify specific entity interactions, AI logic, missile collisions, or
 	rendering, set `*enemy_army*` in `battle-state-init` (`battle.inc`) to the
 	specific army index matching the scenario under test:
@@ -790,7 +818,7 @@ ChrysaLisp compositor:
 	*enemy_army* 1 ; fixed army for user testing
 	```
 
-3.	**Army Index Quick Reference:**
+4.	**Army Index Quick Reference:**
 
 	*	`0`: **HILLMEN** — Spearmen, Berserkers
 	*	`1`: **NECROMANTIC** — Wizards, Carpets
@@ -807,6 +835,6 @@ ChrysaLisp compositor:
 	*	`12`: **JUGGERNAUT** — Towers, Balistas, Oil, Spearmen
 	*	`13`: **PLAGUE** — Skeletons, Skeleton Horses, Skeleton Monks
 
-4.	**Feedback Loop:**
+5.	**Feedback Loop:**
 	Always inform the user which army index was configured and specify the
 	exact visual or gameplay behavior they should observe and report back.

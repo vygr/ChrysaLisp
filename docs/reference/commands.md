@@ -1,3 +1,24 @@
+## brackets
+```code
+Usage: brackets [options] [path] ...
+
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 8.
+        -v --verbosity [level]: verbosity level 0..3 (default 0, bare -v is 1).
+            0: standard (file: OK or error).
+            1: summary (total bracket count, max nesting depth).
+            2: type breakdown (parens, square, braces, depth, top forms).
+            3: deep diagnostic with source line metrics.
+        -q --quiet: quiet mode, only report errors.
+
+    Scan source files for bracket matching (parentheses,
+    square brackets, and braces) using syntax-aware scanning.
+    Comments and string literals are safely ignored.
+
+    If no paths given on command line
+    then paths are read from stdin.
+```
 ## cat
 ```code
 Usage: cat [options] [path] ...

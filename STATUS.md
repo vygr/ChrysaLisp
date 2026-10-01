@@ -4,6 +4,8 @@
 
 ------
 
+New `brackets` CLI command (`cmd/brackets.lisp`) for parallel, syntax-aware bracket matching (`()`, `[]`, `{}`) with verbosity levels (`-v`).
+
 New View `:add_before` and `:add_after` methods.
 
 Catch load time errors as well as running 'main' in `:lisp :run`.
