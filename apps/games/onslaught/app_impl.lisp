@@ -166,8 +166,10 @@
 								(setq *item_selected* (- key (ascii-code "1")))))
 						(when kmask
 							(if (= type +ev_type_key_down)
-								(setq *game_controls* (logior *game_controls* kmask))
-								(setq *game_controls* (logand *game_controls* (lognot kmask)))))
+								(setq *game_controls* (logior *game_controls* kmask)
+									  *user_controls* (logior *user_controls* kmask))
+								(setq *game_controls* (logand *game_controls* (lognot kmask))
+									  *user_controls* (logand *user_controls* (lognot kmask)))))
 						:t)
 					((. *window* :dispatch *msg*))
 					((. *window* :event *msg*))))

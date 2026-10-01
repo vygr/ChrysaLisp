@@ -214,6 +214,10 @@
 		  *enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2)))
 	(unless *campaign_active*
 		(setq *campaign_active* :t
+			  *man_score* 0
+			  *item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)
+			  *item_usage* (list 48 0 0 0 0 0 0 0)
+			  *item_selected* 0
 			  *enemy_army* (game-random (length +army_tables))
 			  *enemy_wizshot* (game-random 2)
 			  *man_banner* (+ +frm_16x16_banners (game-random 16))

@@ -265,7 +265,9 @@
 				(++ *menu_timer*)
 				(when (>= *menu_timer* 256)
 					(. *menu_view* :sub)
-					(goto-title +game_state_credits))))))
+					(if (and *best_demo_data* (> (length *best_demo_data*) 0))
+						(goto-title +game_state_demo)
+						(goto-title +game_state_credits)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; credits state lifecycle
