@@ -4,7 +4,12 @@
 
 ------
 
-New `brackets` CLI command (`cmd/brackets.lisp`) for parallel, syntax-aware bracket matching (`()`, `[]`, `{}`) with verbosity levels (`-v`).
+Added large string chunking to `tree-save` and `tree-load`
+(`lib/collections/tree.inc`), splitting strings > 512 characters into `(cat
+...)` slices and reassembling them on load.
+
+New `brackets` CLI command (`cmd/brackets.lisp`) for parallel, syntax-aware
+bracket matching (`()`, `[]`, `{}`) with verbosity levels (`-v`).
 
 New View `:add_before` and `:add_after` methods.
 
@@ -12,16 +17,19 @@ Catch load time errors as well as running 'main' in `:lisp :run`.
 
 Added Window property `:resizable`, defaults to `:t`.
 
-`(ctx_blit)` can now take optional sx, sy arguments. If not provided, it will use the default 0,0.
+`(ctx_blit)` can now take optional sx, sy arguments. If not provided, it will
+use the default 0,0.
 
-Made `tree-load` and `tree-save` nil-safe, simplifying config file reads and writes across apps.
+Made `tree-load` and `tree-save` nil-safe, simplifying config file reads and
+writes across apps.
 
 Added `opt-toggle` to `lib/options/options.inc` for boolean options enabled by default.
 Simplified `cmd/dump.lisp` options to `-w` / `--width`.
 
-Added distributed lock server integration (`service/lock/app.inc`) across Viewer,
-Hexviewer, and Edit applications for document file loading, saving, and scanning,
-using `with-read-lock` and `with-write-lock` with clean stream flushing and closure.
+Added distributed lock server integration (`service/lock/app.inc`) across
+Viewer, Hexviewer, and Edit applications for document file loading, saving, and
+scanning, using `with-read-lock` and `with-write-lock` with clean stream
+flushing and closure.
 
 Fixed parenthesis mismatch in `cmd/includes.lisp` and `cmd/toflm.lisp` where
 unclosed functions caused worker nodes to segfault during `make docs`.
