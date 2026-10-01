@@ -97,16 +97,22 @@
 		(:sp_add_component (CP (const offscreen-update)))
 		(:sp_set_frame +frm_16x16_blooddrip)))
 
+(defq
+	+at_bigexp `'(,+frm_32c32_bigexp ,(+ +frm_32c32_bigexp 1) ,(+ +frm_32c32_bigexp 2)
+				  ,(+ +frm_32c32_bigexp 3) ,(+ +frm_32c32_bigexp 4) -1)
+	+at_fizz `'(,+frm_16x16_fizz ,(+ +frm_16x16_fizz 1) ,(+ +frm_16x16_fizz 2)
+				,(+ +frm_16x16_fizz 1) ,+frm_16x16_fizz -1))
+
 (defclass Explosion () (Sprite *img_frm_32c32* :nil 32 32 :32c32)
 	; big explosion fx (32x32)
 	(.-> this
-		(:sp_add_component (AT 2 (list +frm_32c32_bigexp (+ +frm_32c32_bigexp 1) (+ +frm_32c32_bigexp 2) (+ +frm_32c32_bigexp 3) (+ +frm_32c32_bigexp 4) -1)))
+		(:sp_add_component (AT 2 +at_bigexp :nil))
 		(:sp_set_frame +frm_32c32_bigexp)))
 
 (defclass Fizz () (Sprite *img_frm_16x16* :nil 16 16 :16x16)
 	; fizz spark fx (16x16)
 	(.-> this
-		(:sp_add_component (AT 2 (list +frm_16x16_fizz (+ +frm_16x16_fizz 1) (+ +frm_16x16_fizz 2) (+ +frm_16x16_fizz 1) +frm_16x16_fizz -1)))
+		(:sp_add_component (AT 2 +at_fizz :nil))
 		(:sp_set_frame +frm_16x16_fizz)))
 
 ; state control

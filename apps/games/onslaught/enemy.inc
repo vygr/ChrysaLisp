@@ -101,6 +101,49 @@
 	(audio-play-rpc *sfx_explode*)
 	(blast-area (- mx 32) (- my 36) 80 80))
 
+(defun spawn-flying-body (enemy)
+	; spawn a dead body flying backwards and upwards with gravity
+	(when (defq dead_f (get :dead_frame enemy))
+		(bind '(x y w h) (. enemy :sp_get_bounds))
+		(defq dir (get :sp_dir enemy)
+			bh (if (= h 16) 32 h)
+			by (if (= h 16) (- y 16) y)
+			cl (get :sp_canvas_l enemy)
+			cr (get :sp_canvas_r enemy)
+			tag (get :sp_canvas_tag enemy)
+			body (Body cl cr w bh tag dead_f dir (neg (* dir 4)) -6))
+		(. body :sp_set_pos x by)
+		(. *layer_bodies* :add_front body)
+		body))
+
+(defun drop-item (enemy)
+	; drop item upon enemy death
+	(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
+	(when (<= 0 ex (- (* +map_width +tile_width) 32))
+		(defq cnt (dec (or *item_drop_cnt* 0))
+			frame :nil
+			drop_x (+ ex (/ ew 2) -8)
+			drop_y (+ ey eh -24)
+			vy -9)
+		(cond
+			((<= cnt 0)
+				; drop gold bag from top of visible screen
+				(setq cnt (+ (game-random 12) 12)
+					frame +frm_16x16_gold)
+				(bind '(lx ly &ignore) (. *world_scroll* :get_relative *layer_land*))
+				(bind '(ww &ignore) (. *world_scroll* :get_size))
+				(setq drop_x (+ (/ (neg lx) *zoom*) (game-random (max 1 (- (/ ww *zoom*) 16))))
+					drop_y (/ (neg ly) *zoom*)
+					vy 0))
+			(:t
+				(setq frame (elem-get +drop_table (game-random (length +drop_table))))))
+		(setq *item_drop_cnt* cnt)
+		(bind '(uses timeout) (item-info frame))
+		(defq item (Item frame uses timeout vy))
+		(. item :sp_set_pos drop_x drop_y)
+		(. *layer_items* :add_front item)
+		item))
+
 (defun dt-kill-zap (this)
 	; zap disintegration death: drop item and scatter 8 sparks
 	(-- *enemy_count*)
@@ -231,12 +274,16 @@
 		(:sp_add_component (CP offscreen-update))
 		(:sp_set_frame frame)))
 
+(defq
+	+at_blood ''(35 36 37 38 -1)
+	+at_mine `'(,+frm_16x16_mine ,(+ +frm_16x16_mine 1)))
+
 (defclass Blood (x y dir) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
 	; (Blood x y dir) -> directional blood spray sprite
 	(def this :sp_dir dir)
 	(.-> this
 		(:sp_add_component (MV (* 4 dir) -4 0 1 100 100))
-		(:sp_add_component (AT 2 '(35 36 37 38 -1) :nil))
+		(:sp_add_component (AT 2 +at_blood :nil))
 		(:sp_add_component (CP offscreen-update))
 		(:sp_set_pos x y)
 		(:sp_set_frame 35)))
@@ -253,7 +300,7 @@
 	; (Mine) -> ground mine sprite with 16-pixel texture cell height
 	(def this :sp_type +ftp_enemy_fire :sp_hitpnt 150 :sp_frame_h 16)
 	(.-> this
-		(:sp_add_component (AT 2 (list +frm_16x16_mine (+ +frm_16x16_mine 1))))
+		(:sp_add_component (AT 2 +at_mine))
 		(:sp_add_component (CP cp-mine))
 		(:sp_set_frame +frm_16x16_mine)))
 
@@ -277,49 +324,6 @@
 	(def this :sp_type type :sp_frame frame :sp_frame_h 16)
 	(.-> this
 		(:sp_add_component (CP cp-banner))))
-
-(defun spawn-flying-body (enemy)
-	; spawn a dead body flying backwards and upwards with gravity
-	(when (defq dead_f (get :dead_frame enemy))
-		(bind '(x y w h) (. enemy :sp_get_bounds))
-		(defq dir (get :sp_dir enemy)
-			bh (if (= h 16) 32 h)
-			by (if (= h 16) (- y 16) y)
-			cl (get :sp_canvas_l enemy)
-			cr (get :sp_canvas_r enemy)
-			tag (get :sp_canvas_tag enemy)
-			body (Body cl cr w bh tag dead_f dir (neg (* dir 4)) -6))
-		(. body :sp_set_pos x by)
-		(. *layer_bodies* :add_front body)
-		body))
-
-(defun drop-item (enemy)
-	; drop item upon enemy death
-	(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
-	(when (<= 0 ex (- (* +map_width +tile_width) 32))
-		(defq cnt (dec (or *item_drop_cnt* 0))
-			frame :nil
-			drop_x (+ ex (/ ew 2) -8)
-			drop_y (+ ey eh -24)
-			vy -9)
-		(cond
-			((<= cnt 0)
-				; drop gold bag from top of visible screen
-				(setq cnt (+ (game-random 12) 12)
-					frame +frm_16x16_gold)
-				(bind '(lx ly &ignore) (. *world_scroll* :get_relative *layer_land*))
-				(bind '(ww &ignore) (. *world_scroll* :get_size))
-				(setq drop_x (+ (/ (neg lx) *zoom*) (game-random (max 1 (- (/ ww *zoom*) 16))))
-					drop_y (/ (neg ly) *zoom*)
-					vy 0))
-			(:t
-				(setq frame (elem-get +drop_table (game-random (length +drop_table))))))
-		(setq *item_drop_cnt* cnt)
-		(bind '(uses timeout) (item-info frame))
-		(defq item (Item frame uses timeout vy))
-		(. item :sp_set_pos drop_x drop_y)
-		(. *layer_items* :add_front item)
-		item))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; enemy factory routine

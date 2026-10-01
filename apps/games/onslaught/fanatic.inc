@@ -271,16 +271,12 @@
 				(set mv :vy (neg yv))
 				(spawn-fizz-fx (+ x 8) tile_y)
 				(when (= (get :sp_frame this) (+ +frm_16x16_manbits 1))
-					(audio-play-rpc *sfx_clash1*))
-				(defq bounces (inc (or (get :bounce_count this) 0)))
-				(def this :bounce_count bounces)
-				(when (>= bounces 4)
-					(. this :sp_kill))))))
+					(audio-play-rpc *sfx_clash1*))))))
 
 (defclass ManBits (frame vx vy) (Sprite *img_frm_16x16* :nil 16 16 :16x16 dt-fizz-fx)
 	; (ManBits frame vx vy) -> bouncing body part
 	(defq mv (MV vx vy 0 1 3 10))
-	(def this :sp_frame frame :mv_comp mv :last_tile_y -1 :bounce_count 0)
+	(def this :sp_frame frame :mv_comp mv :last_tile_y -1)
 	(.-> this
 		(:sp_add_component (CP (const cp-manbits)))
 		(:sp_add_component mv)
@@ -290,7 +286,9 @@
 (defun dt-kill-man (this)
 	; player died: explosion fx and burst into 5 bouncing pieces
 	(bind '(x y w h) (. this :sp_get_bounds))
-	(defq cx (+ x (/ w 2)) cy (+ y (/ h 2)))
+	(defq cx (+ x (/ w 2)) cy (+ y (/ h 2))
+		dir (get :sp_dir this)
+		head_vx (if (>= dir 0) 1 -1))
 	(defq exp (. (Explosion) :sp_set_pos (- cx 16) (- cy 16)))
 	(. *layer_fx* :add_front exp)
 	(audio-play-rpc *sfx_explode*)
@@ -298,12 +296,11 @@
 		(defq bit (ManBits f vx vy))
 		(. bit :sp_set_pos (- cx 8) (- cy 8))
 		(. *layer_player* :add_front bit))
-		`((,(+ +frm_16x16_manbits 1) 0 -10)
+		`((,(+ +frm_16x16_manbits 1) ,head_vx -10)
 		  (,(+ +frm_16x16_manbits 4) 1 -8)
 		  (,(+ +frm_16x16_manbits 2) -1 -8)
 		  (,+frm_16x16_manbits 2 -6)
-		  (,(+ +frm_16x16_manbits 3) -2 -6)))
-	(setq *man_dead_timer* 80))
+		  (,(+ +frm_16x16_manbits 3) -2 -6))))
 
 (defclass Fanatic () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic dt-kill-man)
 	; (Fanatic) -> sprite

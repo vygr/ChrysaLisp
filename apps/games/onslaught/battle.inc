@@ -3,10 +3,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq +max_enemy_stack 16 *enemy_max* 6 *mine_count* 0 *mine_max* 3
-	*current_map_idx* 1 *game_level* +game_level_field *battle_state_count* 0 *man_dead_timer* 0
+	*current_map_idx* 1 *game_level* +game_level_field *battle_state_count* 0
 	*enemy_army* 0 *enemy_count* 0 *enemy_spawn_delay* 1 *enemy_wizshot* 0
 	*enemy_stack* (list) *enemy_banner_captured* :nil
-	*man_banner* 1 *enemy_banner* 5
+	*man_banner* 1 *enemy_banner* 5 *campaign_active* :nil
 	+army_names
 	''("HILLMEN" "NECROMANTIC" "ROBBER" "BOARRIDER" "MERCENARY"
 	   "KNIGHTLY" "BERSERKER" "MYSTIC" "BALISTIC" "POWDER"
@@ -77,50 +77,33 @@
 ; enemy spawn routines
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(defun get-spawn-surface (side w &optional h)
-	; find solid ground surface point (x y) wide enough for w at visible screen edge on map
-	(bind '(lx ly lw lh) (. *world_scroll* :get_relative *layer_land*))
-	(bind '(ww wh) (. *world_scroll* :get_size))
-	(defq cam_x (/ (neg lx) *zoom*) cam_y (/ (neg ly) *zoom*)
-		cam_w (/ ww *zoom*) cam_h (/ wh *zoom*)
-		map_w (/ lw *zoom*) map_h (/ lh *zoom*)
-		probe_x (if (= side 1)
-			(max 0 (min (- map_w 1) (+ cam_x cam_w -1)))
-			(max 0 (min (- map_w 1) cam_x)))
-		trail_x (if (= side 1)
-			(+ probe_x w -1)
-			(- (+ probe_x 1) w))
-		max_rows (max 1 (/ cam_h +tile_height))
-		start_row (game-random max_rows)
-		cam_top_grid (- cam_y (% cam_y +tile_height))
-		sprite_h (ifn h 32 h)
-		row_idx 0
-		found_y :nil)
-	(while (and (not found_y) (< row_idx max_rows))
-		(defq cur_row (% (+ start_row row_idx) max_rows)
-			y (+ cam_top_grid (* cur_row +tile_height)))
-		(when (< y map_h)
-			(defq f_lead (. *layer_land* :get_tile_flags probe_x y)
-				f_trail (if (or (< trail_x 0) (>= trail_x map_w))
-					+fmap_stand
-					(. *layer_land* :get_tile_flags trail_x y)))
-			(when (and (bits? f_lead +fmap_stand) (bits? f_trail +fmap_stand)
-					   (not (bits? f_lead +fmap_climb)) (not (bits? f_trail +fmap_climb)))
-				(defq f_above (. *layer_land* :get_tile_flags probe_x (- y 1)))
-				(unless (or (bits? f_above +fmap_stand)
-						   (< (- y sprite_h) cam_y))
-					(setq found_y y))))
-		(++ row_idx))
-	(if found_y (list probe_x found_y) :nil))
-
-(defun place-enemy-sprite (sp surface_x surface_y)
-	; place sprite so its bottom leading edge matches (surface_x, surface_y) with 1 pixel showing
-	(bind '(w h) (. sp :sp_get_size))
-	(defq dir (get :sp_dir sp)
-		x (if (= dir 1) (- (+ surface_x 1) w) surface_x)
-		y (- surface_y h))
-	(. sp :sp_set_pos x y)
-	(list x y w h))
+(defun getxy (w h dir)
+	; C++ getxy: find solid ground surface at visible screen edge for sprite of size (w, h)
+	(bind '(lx ly &ignore) (. *world_scroll* :get_relative *layer_land*))
+	(defq cam_x (/ (neg lx) *zoom*)
+		cam_y (/ (neg ly) *zoom*)
+		w1 (- w 1)
+		x (if (= dir 1)
+			(+ cam_x (- +window_width 1))
+			(- cam_x w1))
+		x1 (if (= dir 1) (+ x w1) cam_x)
+		rand_y (game-random (* +tile_height (- (/ +window_height +tile_height) 1)))
+		y (logand (+ rand_y cam_y) (neg +tile_height))
+		map_w_px (* +tile_width +map_width)
+		map_h_px (* +tile_height +map_height)
+		found :nil)
+	(while (and (not found) (< y map_h_px))
+		(defq f1 (if (< x 0) +fmap_stand (. *layer_land* :get_tile_flags x y))
+			f2 (if (>= x1 map_w_px) +fmap_stand (. *layer_land* :get_tile_flags x1 y)))
+		(if (and (bits? f1 +fmap_stand) (bits? f2 +fmap_stand)
+				 (not (bits? f1 +fmap_climb)) (not (bits? f2 +fmap_climb)))
+			(setq found :t)
+			(setq y (+ y +tile_height))))
+	(when found
+		(defq sy (- y h))
+		(if (and (>= sy cam_y) (< sy (+ cam_y +window_height)))
+			(list x sy)
+			:nil)))
 
 (defun spawn-enemy-right ()
 	; spawn an enemy on the right side of the screen moving left
@@ -129,46 +112,42 @@
 		unit_idx (+ (game-random 6) lvl_offset)
 		type (elem-get army_tbl unit_idx))
 	(bind '(w h) (enemy-size type))
-	(when (defq pt (get-spawn-surface 1 w h))
-		(bind '(px py) pt)
-		(defq dir -1
-			x px
-			y (- py h)
-			stationary (is-stationary-type type))
-		(unless (or (and stationary (>= x (const (- (* +map_width +tile_width) 32))))
-					(and stationary (sprite-collide *layer_enemies* x y w h
-						(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))))
+	(when (defq pt (getxy w h 1))
+		(bind '(x y) pt)
+		(defq stationary (is-stationary-type type))
+		(when (or (not stationary)
+				  (and (< x (const (- (* +map_width +tile_width) 32)))
+					   (not (sprite-collide *layer_enemies* x y w h
+							(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk)))))
 			(defq sp (create-enemy-type type)
 				mv (elem-get (get :sp_components sp) +en_comp_mv))
-			(def sp :sp_dir dir)
+			(. sp :sp_set_pos x y)
+			(def sp :sp_dir -1)
 			(when mv
 				(set mv :vx (neg (get :max_vx mv))))
-			(place-enemy-sprite sp px py)
 			(. *layer_enemies* :add_front sp)
 			(++ *enemy_count*))))
 
 (defun spawn-enemy-left ()
 	; spawn an overrun enemy from the stack on the left side moving right
 	(if (empty? *enemy_stack*) (spawn-enemy-right)
-		(defq type (last *enemy_stack*) pt :nil)
+		(defq type (last *enemy_stack*))
 		(bind '(w h) (enemy-size type))
-		(ifn (setq pt (get-spawn-surface -1 w h)) (spawn-enemy-right)
-			(bind '(px py) pt)
-			(defq dir 1
-				x (- (+ px 1) w)
-				y (- py h)
-				stationary (is-stationary-type type))
-			(if (or (and stationary (<= x 0))
-					(and stationary (sprite-collide *layer_enemies* x y w h
-						(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))))
+		(ifn (defq pt (getxy w h -1)) (spawn-enemy-right)
+			(bind '(x y) pt)
+			(defq stationary (is-stationary-type type))
+			(if (and stationary
+					 (or (<= x 0)
+						 (sprite-collide *layer_enemies* x y w h
+							(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))))
 				(spawn-enemy-right)
 				(pop *enemy_stack*)
 				(defq sp (create-enemy-type type)
 					mv (elem-get (get :sp_components sp) +en_comp_mv))
-				(def sp :sp_dir dir)
+				(. sp :sp_set_pos x y)
+				(def sp :sp_dir 1)
 				(when mv
 					(set mv :vx (get :max_vx mv)))
-				(place-enemy-sprite sp px py)
 				(. *layer_enemies* :add_front sp)
 				(++ *enemy_count*)))))
 
@@ -188,22 +167,19 @@
 					(spawn-enemy-right))))))
 
 (defun init-mines ()
-	; spawn ground mines ahead of player in *layer_bans* with 1 pixel showing
+	; spawn ground mines ahead of player in *layer_bans*
 	(when (and (/= *game_level* +game_level_defend)
 			   (< *mine_count* *mine_max*)
 			   *player_man*)
 		(defq dir (get :sp_dir *player_man*))
-		(when (defq pt (get-spawn-surface dir 16 8))
-			(bind '(px py) pt)
-			(defq x (if (= dir 1) px (- (+ px 1) 16))
-				y (- py 8))
-			(unless (or (<= x 32)
-						(>= x (const (- (* +map_width +tile_width) 32)))
-						(sprite-collide *layer_bans* (- x 28) y 72 8 +ftp_enemy_fire))
-				(defq mine (Mine))
-				(. mine :sp_set_pos x y)
-				(. *layer_bans* :add_front mine)
-				(++ *mine_count*)))))
+		(when (defq pt (getxy 16 8 dir))
+			(bind '(x y) pt)
+			(when (and (>= x 0) (< x (const (- (* +map_width +tile_width) 16))))
+				(unless (sprite-collide *layer_bans* (- x 28) y 72 8 +ftp_enemy_fire)
+					(defq mine (Mine))
+					(. mine :sp_set_pos x y)
+					(. *layer_bans* :add_front mine)
+					(++ *mine_count*))))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; battle state hooks
@@ -231,45 +207,53 @@
 		  *man_strength* +max_strength
 		  *enemy_stack* (list)
 		  *enemy_banner_captured* :nil
-		  *man_dead_timer* 0
 		  *enemy_count* 0
 		  *enemy_spawn_delay* 1
 		  *mine_count* 0
 		  *mine_max* (+ (game-random 3) 1)
-		  *enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2))
-		  *enemy_wizshot* (game-random 2)
-		  *enemy_army* (game-random (length +army_tables)))
+		  *enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2)))
+	(unless *campaign_active*
+		(setq *campaign_active* :t
+			  *enemy_army* (game-random (length +army_tables))
+			  *enemy_wizshot* (game-random 2)
+			  *man_banner* (+ +frm_16x16_banners (game-random 16))
+			  *enemy_banner* (+ +frm_16x16_banners (game-random 16)))
+		(when (= *man_banner* *enemy_banner*)
+			(setq *enemy_banner* (+ +frm_16x16_banners (% (+ (- *enemy_banner* +frm_16x16_banners) 1) 16)))))
 	; spawn banners
 	(bind '(mx my ex ey) (case *game_level*
 		(+game_level_seige '(16 192 2016 0))
 		(+game_level_defend '(16 0 2016 192))
 		(:t '(16 128 2016 128))))
-	(setq *man_banner* (+ +frm_16x16_banners (game-random 16))
-		  *enemy_banner* (+ +frm_16x16_banners (game-random 16)))
-	(when (= *man_banner* *enemy_banner*)
-		(setq *enemy_banner* (+ +frm_16x16_banners (% (+ (- *enemy_banner* +frm_16x16_banners) 1) 16))))
 	(defq man_ban (Banner +ftp_man_banner *man_banner*))
 	(. man_ban :sp_set_pos mx my)
 	(. *layer_bans* :add_front man_ban)
 	(defq enemy_ban (Banner +ftp_enemy_banner *enemy_banner*))
 	(. enemy_ban :sp_set_pos ex ey)
 	(. *layer_bans* :add_front enemy_ban)
+	(record-battle-start)
 	(update-camera *player_man*))
 
 (defun battle-state-update ()
 	; check for player death sequence, battle lost, or battle won
 	(cond
+		((empty? (. *layer_player* :children))
+			; death sequence finished (all manbits left the screen)
+			(record-battle-finish)
+			(setq *campaign_active* :nil)
+			(goto-title +game_state_hiscore))
 		((and *player_man* (get :sp_dead *player_man*))
-			(update-sprite-layers)
-			(-- *man_dead_timer*)
-			(when (or (empty? (. *layer_player* :children))
-					  (<= *man_dead_timer* 0))
-				(goto-title +game_state_menu)))
+			; man is dying, manbits are currently bouncing/flying off the screen
+			:nil)
 		((>= (length *enemy_stack*) +max_enemy_stack)
+			(record-battle-finish)
+			(setq *campaign_active* :nil)
 			(setq *game_state* +game_state_battle_lost))
 		(*enemy_banner_captured*
+			(record-battle-finish)
 			(setq *game_state* +game_state_battle_won))
 		(:t
+			(record-battle-tick *game_controls*)
 			(init-mines)
 			(init-enemies)
 			(update-camera *player_man*))))
@@ -296,12 +280,15 @@
 	(def this :man_yv yv)
 	(. this :sp_set_pos x y))
 
+(defq +at_man_stance
+	`'(,+frm_fanatic_l_stance ,+frm_fanatic_l_stance1))
+
 (defclass ManStance (x y dir) (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
 	; player victory dance sprite
 	(def this :sp_dir dir :man_yv 0)
 	(. this :sp_set_pos x y)
 	(.-> this
-		(:sp_add_component (AT 3 (list +frm_fanatic_l_stance +frm_fanatic_l_stance1)))
+		(:sp_add_component (AT 3 +at_man_stance))
 		(:sp_add_component (CP (const cp-manstance)))
 		(:sp_set_frame +frm_fanatic_l_stance)))
 
@@ -321,10 +308,11 @@
 
 (defun battle-won-state-update ()
 	; tick victory dance animation and track camera
-	(update-sprite-layers)
 	(if *player_man* (update-camera *player_man*))
 	(++ *battle_state_count*)
 	(when (>= *battle_state_count* 96)
+		(when (= *game_level* +game_level_seige)
+			(setq *campaign_active* :nil))
 		(defq next_level (case *game_level*
 				(+game_level_field +game_level_seige)
 				(+game_level_seige +game_level_field)
@@ -348,7 +336,6 @@
 
 (defun battle-lost-state-update ()
 	; delay for 96 frames before progressing to defend/field via title
-	(update-sprite-layers)
 	(if *player_man* (update-camera *player_man*))
 	(++ *battle_state_count*)
 	(when (>= *battle_state_count* 96)

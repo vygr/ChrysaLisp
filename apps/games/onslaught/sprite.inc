@@ -98,8 +98,9 @@
 (defun ML (&optional speed)
 	; (ML [speed]) -> component
 	(def (defq that (env 1)) :update (const ml-update)
-		:speed (or speed 0) :count -1 :target_x 0 :target_y 0
-		:slope 0 :dx 0 :dy 0 :d1x 0 :d2x 0 :d1y 0 :d2y 0)
+		:speed (or speed 0) :table :nil :count -1 :index 0
+		:target_x 0 :target_y 0 :slope 0 :dx 0 :dy 0
+		:d1x 0 :d2x 0 :d1y 0 :d2y 0)
 	that)
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -188,7 +189,7 @@
 (defun CL (layer type table)
 	; (CL layer type table) -> component
 	(def (defq that (env 1)) :update (const cl-update)
-		:layer layer :type (ifn type -1 type) :table table)
+		:layer layer :table table :type (ifn type -1 type))
 	that)
 
 ;;;;;;;;;;;;;;;;;;;

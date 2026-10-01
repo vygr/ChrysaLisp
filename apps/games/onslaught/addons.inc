@@ -65,9 +65,15 @@
 ; reusable 16x16 directional addon sprite class
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass Addon (man mt_table at_speed at_table) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
+(defun dt-addon (this)
+	; clear addon link on parent sprite when addon finishes or dies
+	(when (defq parent (get :sp_parent_sprite this))
+		(when (eql (get :sp_addon parent) this)
+			(def parent :sp_addon :nil))))
+
+(defclass Addon (man mt_table at_speed at_table) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr dt-addon)
 	; (Addon man mt_table at_speed at_table) -> addon sprite
-	(def this :sp_dir (get :sp_dir man))
+	(def this :sp_dir (get :sp_dir man) :sp_parent_sprite man)
 	(def man :sp_addon this)
 	; set initial position immediately to eliminate 1-frame spawn lag
 	(bind '(mx my) (. man :sp_get_pos))
@@ -175,12 +181,17 @@
 		(:sp_set_pos x y)
 		(:sp_set_frame 24)))
 
+(defq
+	+at_frag `'(,+frm_16x16_fires ,(+ +frm_16x16_fires 1))
+	+at_elemental `'(,+frm_32c32_elemental ,(+ +frm_32c32_elemental 1) ,(+ +frm_32c32_elemental 2)
+					 ,(+ +frm_32c32_elemental 3) ,(+ +frm_32c32_elemental 3) -1))
+
 (defclass Frag (x y vx vy) (Sprite *img_frm_16x16* :nil 16 16 :16x16)
 	; (Frag x y vx vy) -> elemental fire fragment dealing 1000 damage
 	(def this :sp_hitpnt 1000)
 	(.-> this
 		(:sp_add_component (MV vx vy 0 0 8 8))
-		(:sp_add_component (AT 1 (list +frm_16x16_fires (+ +frm_16x16_fires 1))))
+		(:sp_add_component (AT 1 +at_frag))
 		(:sp_add_component (CP offscreen-nodeath-update))
 		(:sp_add_component (CL *layer_enemies* -1 *man_missile_collision_table*))
 		(:sp_add_component (CL *layer_missiles* +ftp_enemy_fire *man_missile_collision_table*))
@@ -200,9 +211,7 @@
 (defclass Elemental (x y) (Sprite *img_frm_32c32* :nil 32 32 :32c32 dt-elemental-explode)
 	; (Elemental x y) -> roaring demon head
 	(.-> this
-		(:sp_add_component (AT 3 (list +frm_32c32_elemental
-			(+ +frm_32c32_elemental 1) (+ +frm_32c32_elemental 2)
-			(+ +frm_32c32_elemental 3) (+ +frm_32c32_elemental 3) -1) :nil))
+		(:sp_add_component (AT 3 +at_elemental :nil))
 		(:sp_set_pos x y)
 		(:sp_set_frame +frm_32c32_elemental)))
 

@@ -15,9 +15,32 @@
 	*credits_view* :nil
 	*credits_timer* 0
 	*credits_exit_armed* :nil
+	*scores_view* :nil
+	*scores_timer* 0
+	*scores_exit_armed* :nil
+	*hiscore_view* :nil
+	*hiscore_timer* 0
+	*hiscore_exit_armed* :nil
 	+menu_dif_names ''("EASY MODE" "HARD MODE")
 	+menu_mode_names ''("AUTO MODE" "ASSIST MODE" "HUMAN MODE")
-	+menu_sound_names ''("SOUND ON" "SOUND OFF"))
+	+menu_sound_names ''("SOUND ON" "SOUND OFF")
+	+at_smith `'(,+frm_32c32_smith ,+frm_32c32_smith1 ,+frm_32c32_smith2
+				 ,+frm_32c32_smith1 ,+frm_32c32_smith -1))
+
+(defclass Smith () (Sprite *img_frm_32c32* :nil 32 32 :32c32)
+	; mr smith animated background face
+	(.-> this
+		(:sp_add_component (AT 4 +at_smith :nil))
+		(:sp_set_frame +frm_32c32_smith)))
+
+(defun game-mr-smiths ()
+	; animate mr smith faces in *layer_bodies* behind transparent text overlay views
+	(when (= (logand *game_frame_count* 3) 0)
+		(defq sfx (Smith)
+			sx (game-random (- +window_width 32))
+			sy (game-random (- +window_height 32)))
+		(. sfx :sp_set_pos sx sy)
+		(. *layer_bodies* :add_front sfx)))
 
 (defun menu-sfx (snd)
 	(when (= *menu_sound* 0)
@@ -44,7 +67,7 @@
 	(draw-ascii-string view txt x y col zoom tid))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; menu and credits view classes
+; menu, credits, scores views
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass MenuView () (View)
@@ -89,6 +112,49 @@
 		this)
 	)
 
+(defclass ScoresView () (View)
+	; (ScoresView) -> full-screen hall of glory scores view
+	(def this :color 0)
+
+	(defmethod :draw ()
+		(defq zoom (get :zoom this) tid (get :tid this)
+			names (get :names this)
+			values (get :values this)
+			y 52)
+		(draw-ascii-centered this "HALL OF GLORY" 36 +argb_red zoom tid)
+		(each (#
+			(draw-ascii-string this %0 80 y +argb_green zoom tid)
+			(draw-ascii-string this (pad (str %1) 8 " ") 192 y +argb_yellow zoom tid)
+			(setq y (+ y 8)))
+			names values)
+		(draw-ascii-centered this "PRESS FIRE TO RETURN" 144 +argb_cyan zoom tid)
+		this)
+	)
+
+(defclass HiscoreView () (View)
+	; (HiscoreView) -> full-screen glory attained message view
+	(def this :color 0)
+
+	(defmethod :draw ()
+		(defq zoom (get :zoom this) tid (get :tid this)
+			mode (get :mode this)
+			score (get :score this)
+			qualifies (get :qualifies this))
+		(cond
+			((= mode +mode_tutor)
+				(draw-ascii-centered this "TUTOR MODE WILL NEVER ENABLE YOU" 76 +argb_white zoom tid)
+				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 88 +argb_white zoom tid))
+			(qualifies
+				(draw-ascii-centered this "CONGRATULATIONS!" 76 +argb_yellow zoom tid)
+				(draw-ascii-centered this "YOU HAVE ENTERED THE HISTORY BOOKS" 88 +argb_white zoom tid))
+			(:t
+				(draw-ascii-centered this "YOU HAVE NOT ATTAINED ENOUGH GLORY" 76 +argb_white zoom tid)
+				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 88 +argb_white zoom tid)))
+		(draw-ascii-centered this (cat "YOUR GLORY WAS " (str score)) 108 +argb_yellow zoom tid)
+		(draw-ascii-centered this "PRESS FIRE TO CONTINUE" 144 +argb_cyan zoom tid)
+		this)
+	)
+
 (defun menu-sync-view ()
 	(when *menu_view*
 		(def *menu_view*
@@ -106,7 +172,15 @@
 			(. *menu_view* :change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))
 		(when *credits_view*
 			(def *credits_view* :zoom zoom :tid tid)
-			(. *credits_view* :change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))))
+			(. *credits_view* :change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))
+		(when *scores_view*
+			(def *scores_view* :zoom zoom :tid tid
+				:names *hiscore_names* :values *hiscore_values*)
+			(. *scores_view* :change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))
+		(when *hiscore_view*
+			(def *hiscore_view* :zoom zoom :tid tid
+				:mode *menu_mode* :score *man_score*)
+			(. *hiscore_view* :change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; menu state lifecycle
@@ -134,6 +208,7 @@
 	(. *menu_view* :dirty))
 
 (defun menu-state-update ()
+	(game-mr-smiths)
 	(defq controls *game_controls*)
 	; 1. Up navigation (armed on press down, triggered on key release)
 	(if (bits? controls +fkey_up)
@@ -170,15 +245,18 @@
 					(+menu_difficulty
 						(setq *menu_difficulty* (logxor *menu_difficulty* 1))
 						(menu-sfx *sfx_twang1*)
+						(config-save)
 						(menu-sync-view))
 					(+menu_mode
 						(setq *menu_mode* (% (inc *menu_mode*) 3)
 							  *game_mode* *menu_mode*)
 						(menu-sfx *sfx_twang1*)
+						(config-save)
 						(menu-sync-view))
 					(+menu_sound
 						(setq *menu_sound* (logxor *menu_sound* 1))
 						(menu-sfx *sfx_twang1*)
+						(config-save)
 						(menu-sync-view))
 					(+menu_credits
 						(. *menu_view* :sub)
@@ -211,6 +289,7 @@
 	(. *credits_view* :dirty))
 
 (defun credits-state-update ()
+	(game-mr-smiths)
 	(defq controls *game_controls*)
 	; armed on press down, triggered on key release
 	(if (/= controls 0)
@@ -223,6 +302,97 @@
 				(goto-title +game_state_menu))
 			(progn
 				(++ *credits_timer*)
-				(when (>= *credits_timer* 300)
+				(when (>= *credits_timer* 256)
 					(. *credits_view* :sub)
+					(goto-title +game_state_scores))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+; scores state lifecycle
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun scores-state-init ()
+	(clear-sprite-layers)
+	(set-world-layers-pos 0 0)
+	(defq zoom *zoom*)
+	(set-world-layers-size (* zoom +screen_width) (* zoom +screen_height))
+	(. *layer_land* :clear)
+	(. *layer_sky* :sky_black)
+	(setq *scores_timer* 0 *scores_exit_armed* :nil)
+	(unless *scores_view*
+		(setq *scores_view* (ScoresView)))
+	(bind '(tid tw th) (texture-metrics (getf *img_ascii* +canvas_texture 0)))
+	(def *scores_view* :tid tid :zoom zoom
+		:names *hiscore_names* :values *hiscore_values*)
+	(. *layer_fx* :add_front *scores_view*)
+	(.-> *scores_view*
+		(:change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))
+	(. *scores_view* :dirty))
+
+(defun scores-state-update ()
+	(game-mr-smiths)
+	(defq controls *game_controls*)
+	(if (/= controls 0)
+		(setq *scores_exit_armed* :t
+			  *scores_timer* 0)
+		(if *scores_exit_armed*
+			(progn
+				(setq *scores_exit_armed* :nil)
+				(. *scores_view* :sub)
+				(goto-title +game_state_menu))
+			(progn
+				(++ *scores_timer*)
+				(when (>= *scores_timer* 256)
+					(. *scores_view* :sub)
 					(goto-title +game_state_menu))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; hiscore state lifecycle
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun hiscore-state-init ()
+	(clear-sprite-layers)
+	(set-world-layers-pos 0 0)
+	(defq zoom *zoom*)
+	(set-world-layers-size (* zoom +screen_width) (* zoom +screen_height))
+	(. *layer_land* :clear)
+	(. *layer_sky* :sky_black)
+	(setq *hiscore_timer* 0 *hiscore_exit_armed* :nil)
+	; check if player qualifies for high score list
+	(defq qualifies :nil)
+	(when (and (/= *menu_mode* +mode_tutor) *hiscore_values*)
+		(defq insert_idx -1 i 0)
+		(while (and (< i (length *hiscore_values*)) (= insert_idx -1))
+			(when (> *man_score* (elem-get *hiscore_values* i))
+				(setq insert_idx i))
+			(++ i))
+		(when (/= insert_idx -1)
+			(setq qualifies :t)
+			(setq *hiscore_names* (slice (cat (slice *hiscore_names* 0 insert_idx) (list "FANATIC(YOU)") (slice *hiscore_names* insert_idx -1)) 0 10)
+				  *hiscore_values* (slice (cat (slice *hiscore_values* 0 insert_idx) (list *man_score*) (slice *hiscore_values* insert_idx -1)) 0 10))
+			(config-save)))
+	(unless *hiscore_view*
+		(setq *hiscore_view* (HiscoreView)))
+	(bind '(tid tw th) (texture-metrics (getf *img_ascii* +canvas_texture 0)))
+	(def *hiscore_view* :tid tid :zoom zoom
+		:mode *menu_mode* :score *man_score* :qualifies qualifies)
+	(. *layer_fx* :add_front *hiscore_view*)
+	(.-> *hiscore_view*
+		(:change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))
+	(. *hiscore_view* :dirty))
+
+(defun hiscore-state-update ()
+	(game-mr-smiths)
+	(defq controls *game_controls*)
+	(if (/= controls 0)
+		(setq *hiscore_exit_armed* :t
+			  *hiscore_timer* 0)
+		(if *hiscore_exit_armed*
+			(progn
+				(setq *hiscore_exit_armed* :nil)
+				(. *hiscore_view* :sub)
+				(goto-title +game_state_scores))
+			(progn
+				(++ *hiscore_timer*)
+				(when (>= *hiscore_timer* 256)
+					(. *hiscore_view* :sub)
+					(goto-title +game_state_scores))))))

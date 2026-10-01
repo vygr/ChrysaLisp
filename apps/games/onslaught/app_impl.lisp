@@ -42,6 +42,8 @@
 (import "./skeleton_monk.inc")
 (import "./skeleton_horse.inc")
 (import "./title.inc")
+(import "./config.inc")
+(import "./demo.inc")
 (import "./battle.inc")
 (import "./menu.inc")
 
@@ -51,22 +53,6 @@
 
 (defun map-state-init ())
 (defun map-state-update ())
-(defun scores-state-init ()
-	(setq *scores_skip_armed* :nil))
-(defun scores-state-update ()
-	(if (/= *game_controls* 0)
-		(setq *scores_skip_armed* :t)
-		(when *scores_skip_armed*
-			(setq *scores_skip_armed* :nil)
-			(goto-title +game_state_menu))))
-(defun hiscore-state-init ()
-	(setq *hiscore_skip_armed* :nil))
-(defun hiscore-state-update ()
-	(if (/= *game_controls* 0)
-		(setq *hiscore_skip_armed* :t)
-		(when *hiscore_skip_armed*
-			(setq *hiscore_skip_armed* :nil)
-			(goto-title +game_state_menu))))
 (defun mind-state-init ()
 	(setq *mind_skip_armed* :nil))
 (defun mind-state-update ()
@@ -88,14 +74,6 @@
 		(setq *oracle_skip_armed* :t)
 		(when *oracle_skip_armed*
 			(setq *oracle_skip_armed* :nil)
-			(goto-title +game_state_menu))))
-(defun demo-state-init ()
-	(setq *demo_skip_armed* :nil))
-(defun demo-state-update ()
-	(if (/= *game_controls* 0)
-		(setq *demo_skip_armed* :t)
-		(when *demo_skip_armed*
-			(setq *demo_skip_armed* :nil)
 			(goto-title +game_state_menu))))
 
 (defun dispatch-action (&rest action)
@@ -148,6 +126,7 @@
 		game_service (mail-declare (elem-get select +select_trash) "@Onslaught" "Onslaught Game 1.0"))
 	(def *window* :zoom *zoom*)
 	(load-wav-assets)
+	(config-load)
 	(window-resize)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -258,6 +237,7 @@
 							(demo-state-update))))
 				(update-frame))))
 	; unregister window and exit cleanly
+	(config-save)
 	(mail-forget game_service)
 	(unload-wav-assets)
 	(gui-sub-rpc *window*))

@@ -29,6 +29,7 @@
 				bx (if (= dir 1) (+ cx 32) (- cx 16))
 				by (+ cy 16)
 				ball (CannonBall bx by dir))
+			(def this :sp_addon flame)
 			(. this :add_before flame)
 			(. *layer_missiles* :add_front ball)
 			(audio-play-rpc *sfx_explode*))
@@ -38,13 +39,14 @@
 ; cannon, ball, and flame addon sprite classes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass CannonFlame (cannon) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
+(defclass CannonFlame (cannon) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr dt-addon)
 	; (CannonFlame cannon) -> flame addon sprite at bottom half
 	(bind '(cx cy) (. cannon :sp_get_pos))
 	(defq dir (get :sp_dir cannon)
 		fx (if (= dir 1) (+ cx 32) (- cx 16))
 		fy (+ cy 16))
-	(def this :sp_type 0 :sp_dir dir)
+	(def this :sp_type 0 :sp_dir dir :sp_parent_sprite cannon)
+	(def cannon :sp_addon this)
 	(.-> this
 		(:sp_add_component (AT 4 +at_cannon_flame :nil))
 		(:sp_add_component (CP offscreen-update))
