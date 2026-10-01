@@ -6,7 +6,11 @@
 
 ### (view-add-front parent mth child)
 
+### (view-add-after sibling mth view)
+
 ### (view-add-back parent mth child)
+
+### (view-add-before sibling mth view)
 
 ### (view-add-dirty view mth x y w h)
 
@@ -40,6 +44,18 @@
 
 ## VP methods
 
+### :add_after -> gui/view/add_after
+
+```code
+inputs
+:r0 = target view object (ptr)
+:r1 = child view object (ptr)
+outputs
+:r0 = target view object (ptr)
+trashes
+:r1-:r3
+```
+
 ### :add_back -> gui/view/add_back
 
 ```code
@@ -48,6 +64,18 @@ inputs
 :r1 = child view object (ptr)
 outputs
 :r0 = view object (ptr)
+trashes
+:r1-:r3
+```
+
+### :add_before -> gui/view/add_before
+
+```code
+inputs
+:r0 = target view object (ptr)
+:r1 = child view object (ptr)
+outputs
+:r0 = target view object (ptr)
 trashes
 :r1-:r3
 ```

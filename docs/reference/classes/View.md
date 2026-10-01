@@ -6,10 +6,22 @@
 override the default 'this' env with a View component
 ```
 
+### :add_after
+
+```code
+(. sibling :add_after view) -> sibling
+```
+
 ### :add_back
 
 ```code
 (. view :add_back child) -> view
+```
+
+### :add_before
+
+```code
+(. sibling :add_before view) -> sibling
 ```
 
 ### :add_child

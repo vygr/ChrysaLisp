@@ -12,6 +12,8 @@
 
 ### (canvas-fill canvas argb)
 
+### (canvas-flip-x canvas canvas)
+
 ### (canvas-fpoly canvas x y mode list)
 
 ### (canvas-ftri canvas path)

@@ -74,6 +74,18 @@ trashes
 :r1-:r4
 ```
 
+### :flip_x -> gui/pixmap/flip_x
+
+```code
+inputs
+:r0 = pixmap object (ptr)
+:r1 = source pixmap object (ptr)
+outputs
+:r0 = pixmap object (ptr)
+trashes
+:r1-:r11
+```
+
 ### :from_argb32 -> gui/pixmap/from_argb32
 
 ```code

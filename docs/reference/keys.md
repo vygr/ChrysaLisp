@@ -44,6 +44,15 @@
 (ascii-code "U") action-redo
 ```
 
+## apps/games/onslaught/actions.inc
+
+### *key_map_control*
+
+```code
+(ascii-code "=") action-maximise
+(ascii-code "-") action-minimise
+```
+
 ## apps/media/images/actions.inc
 
 ### *key_map_control*

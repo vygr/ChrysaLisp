@@ -26,6 +26,12 @@
 (. canvas :fill argb) -> canvas
 ```
 
+### :flip_x
+
+```code
+(. canvas :flip_x canvas) -> canvas
+```
+
 ### :fpoly
 
 ```code

@@ -72,13 +72,13 @@ parse the commands and attributes calling back to the user functions
 ### action-maximise
 
 ```code
-2x zoom: 640x480 viewport
+step zoom up to +zoom_max (3x)
 ```
 
 ### action-minimise
 
 ```code
-1x zoom: 320x240 viewport
+step zoom down to +zoom_min (1x)
 ```
 
 ### action-quit
