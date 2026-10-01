@@ -277,6 +277,7 @@
 							(demo-state-update))))
 				(update-frame))))
 	; unregister window and exit cleanly
+	(record-battle-finish)
 	(config-save)
 	(mail-forget game_service)
 	(unload-wav-assets)

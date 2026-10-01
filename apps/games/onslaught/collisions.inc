@@ -98,6 +98,7 @@
 		(. hit :sp_kill)
 		(setq *man_score* (+ *man_score* 500))
 		(setq *man_power* (min +max_power (* *man_power* 2)))
+		(record-battle-finish)
 		(setq *game_state* +game_state_battle_won)))
 
 (defun cl-enemy-addon-hits-man (this hit)

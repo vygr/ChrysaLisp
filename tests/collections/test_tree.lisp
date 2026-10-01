@@ -124,3 +124,11 @@
 (stream-seek ms9 0 0)
 (defq loaded_mix (tree-load ms9))
 (assert-eq "Tree Load: large mixed string" large_mix (. loaded_mix :find :mixed))
+
+; 12. Test loading actual onslaught.tre
+(defq o_cfg (tree-load (file-stream "usr/Guest/onslaught.tre")))
+(assert-true "onslaught.tre config exists" (not (empty? o_cfg)))
+(defq o_demo (. o_cfg :find :demo))
+(assert-true "onslaught.tre demo exists" (not (empty? o_demo)))
+(assert-true "onslaught.tre demo is string" (str? o_demo))
+(assert-true "onslaught.tre demo length > 90" (> (length o_demo) 90))

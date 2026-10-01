@@ -320,6 +320,7 @@
 		(. *layer_missiles* :children)))
 
 (defun battle-won-state-init ()
+	(record-battle-finish)
 	(setq *battle_state_count* 0)
 	; replace player with dancing victory stance without death explosion
 	(when *player_man*
@@ -348,6 +349,7 @@
 		(goto-title +game_state_battle)))
 
 (defun battle-lost-state-init ()
+	(record-battle-finish)
 	(setq *battle_state_count* 0)
 	; replace player with stance without death explosion
 	(when *player_man*
