@@ -120,14 +120,14 @@
 		(defq zoom (get :zoom this) tid (get :tid this)
 			names (get :names this)
 			values (get :values this)
-			y 52)
-		(draw-ascii-centered this "HALL OF GLORY" 36 +argb_red zoom tid)
+			y 44)
+		(draw-ascii-centered this "HALL OF GLORY" 28 +argb_red zoom tid)
 		(each (#
-			(draw-ascii-string this %0 80 y +argb_green zoom tid)
-			(draw-ascii-string this (pad (str %1) 8 " ") 192 y +argb_yellow zoom tid)
+			(draw-ascii-string this %0 72 y +argb_green zoom tid)
+			(draw-ascii-string this (pad (str %1) 8 " ") 184 y +argb_yellow zoom tid)
 			(setq y (+ y 8)))
 			names values)
-		(draw-ascii-centered this "PRESS FIRE TO RETURN" 144 +argb_cyan zoom tid)
+		(draw-ascii-centered this "PRESS FIRE TO RETURN" 136 +argb_cyan zoom tid)
 		this)
 	)
 
@@ -141,8 +141,8 @@
 			score (get :score this)
 			qualifies (get :qualifies this))
 		(cond
-			((= mode +mode_tutor)
-				(draw-ascii-centered this "TUTOR MODE WILL NEVER ENABLE YOU" 76 +argb_white zoom tid)
+			((= mode +mode_auto)
+				(draw-ascii-centered this "AUTO MODE WILL NEVER ENABLE YOU" 76 +argb_white zoom tid)
 				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 88 +argb_white zoom tid))
 			(qualifies
 				(draw-ascii-centered this "CONGRATULATIONS!" 76 +argb_yellow zoom tid)
@@ -361,7 +361,7 @@
 	(setq *hiscore_timer* 0 *hiscore_exit_armed* :nil)
 	; check if player qualifies for high score list
 	(defq qualifies :nil)
-	(when (and (/= *menu_mode* +mode_tutor) *hiscore_values*)
+	(when (and (/= *menu_mode* +mode_auto) *hiscore_values*)
 		(defq insert_idx -1 i 0)
 		(while (and (< i (length *hiscore_values*)) (= insert_idx -1))
 			(when (> *man_score* (elem-get *hiscore_values* i))

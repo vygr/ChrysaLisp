@@ -9,6 +9,8 @@
 	*config* :nil
 	*best_demo_score* 0
 	*best_demo_data* :nil
+	*session_best_score* 0
+	*session_best_demo* :nil
 	*hiscore_names* :nil
 	*hiscore_values* :nil
 	+default_hiscore_names
@@ -41,9 +43,14 @@
 		*hiscore_names* (. *config* :find :hiscore_names)
 		*hiscore_values* (. *config* :find :hiscore_values)
 		*best_demo_score* (. *config* :find :demo_score)
-		*best_demo_data* (. *config* :find :demo)))
+		*best_demo_data* (. *config* :find :demo)
+		*session_best_score* 0
+		*session_best_demo* :nil))
 
 (defun config-save ()
+	(when *session_best_demo*
+		(setq *best_demo_score* *session_best_score*
+			  *best_demo_data* *session_best_demo*))
 	(scatter *config*
 		:difficulty *menu_difficulty*
 		:mode *menu_mode*

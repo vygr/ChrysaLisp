@@ -153,7 +153,7 @@
 		(def hit :sp_hitpnt hp)))
 
 (defun collect-item (item)
-	; collect item into inventory, updating usage or filling first free slot
+	; collect item into inventory, topping out usage or filling first free slot
 	(defq frame (get :sp_frame item)
 		uses (get :sp_hitpnt item)
 		slot -1
@@ -165,13 +165,12 @@
 			((= cur frame) (setq slot idx))
 			((= cur 0) (setq empty_slot idx)))
 		(-- idx))
-	(if (/= slot -1)
-		(elem-set *item_usage* slot (+ (elem-get *item_usage* slot) uses))
-		(when (/= empty_slot -1)
-			(elem-set *item_inventory* empty_slot frame)
-			(elem-set *item_usage* empty_slot uses)))
-	(audio-play-rpc *sfx_clash2*)
-	(. item :sp_kill))
+	(defq target_slot (if (/= slot -1) slot empty_slot))
+	(when (/= target_slot -1)
+		(elem-set *item_inventory* target_slot frame)
+		(elem-set *item_usage* target_slot (max (elem-get *item_usage* target_slot) uses))
+		(audio-play-rpc *sfx_clash2*)
+		(. item :sp_kill)))
 
 (defun cl-man-hits-item (this hit)
 	; player collecting an item on touch

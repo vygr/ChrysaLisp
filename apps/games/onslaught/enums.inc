@@ -21,6 +21,7 @@
 
 (enums +mode 0
 	(enum auto assist human))
+(defq +mode_tutor +mode_auto)
 
 ;;;;;;;;;;;;;
 ; Game states

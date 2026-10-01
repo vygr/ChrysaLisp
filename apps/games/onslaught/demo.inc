@@ -54,7 +54,7 @@
 				(++ *record_count*)))))
 
 (defun record-battle-finish ()
-	; finish recording and if battle score beats current best demo score, update and save to config
+	; finish recording and if battle score beats session best, update session demo
 	(when *record_stream*
 		(when (/= *record_keys* -1)
 			(write-byte *record_stream* *record_keys*)
@@ -62,11 +62,12 @@
 		(defq demo_str (str *record_stream*)
 			  battle_score (- *man_score* *record_start_score*))
 		(setq *record_stream* :nil)
-		(when (or (> battle_score *best_demo_score*)
-				  (ifn *best_demo_data* :t (empty? *best_demo_data*)))
-			(setq *best_demo_score* (max 0 battle_score)
-				  *best_demo_data* demo_str)
-			(config-save))))
+		(when (or (> battle_score *session_best_score*)
+				  (ifn *session_best_demo* :t (empty? *session_best_demo*)))
+			(setq *session_best_score* (max 0 battle_score)
+				  *session_best_demo* demo_str
+				  *best_demo_score* *session_best_score*
+				  *best_demo_data* demo_str))))
 
 (defun demo-play-keys ()
 	(if (> *playback_count* 0)
