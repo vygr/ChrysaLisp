@@ -4,6 +4,9 @@
 
 ------
 
+Bug fix in the GUI key up event handling. Was missing sending and up to the
+owner if the target View went away.
+
 Added large string chunking to `tree-save` and `tree-load`
 (`lib/collections/tree.inc`), splitting strings > 512 characters into `(cat
 ...)` slices and reassembling them on load.
