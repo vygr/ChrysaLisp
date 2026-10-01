@@ -6,9 +6,7 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_horse
-	`'(,+frm_64x64_l_horse ,+frm_64x64_l_horse1 ,+frm_64x64_l_horse2 ,+frm_64x64_l_horse3))
+(defq +at_horse `'(,+frm_64x64_l_horse ,+frm_64x64_l_horse1 ,+frm_64x64_l_horse2 ,+frm_64x64_l_horse3))
 
 ;;;;;;;;;;;;;;;;
 ; death handlers
@@ -34,8 +32,7 @@
 
 (defclass Horse () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr dt-kill-horse)
 	(def this :sp_type +ftp_horse :sp_hitpnt 6
-		:fall_frame +frm_64x64_l_horse4
-		:dead_frame +frm_64x64_l_horse5)
+		:fall_frame +frm_64x64_l_horse4 :dead_frame +frm_64x64_l_horse5)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 8 8))
 		(:sp_add_component (AT 2 +at_horse))

@@ -11,9 +11,8 @@
 (defun game-random (range)
 	; (game-random range) -> pseudo-random integer in 0..(range - 1)
 	(if (<= range 1) 0
-		(progn
-			(setq *game_seed* (logand (logxor (* *game_seed* 17) 0xa5a5a5a5) 0xffffffff))
-			(>>> (* range (>>> *game_seed* 16)) 16))))
+		(setq *game_seed* (logand (logxor (* *game_seed* 17) 0xa5a5a5a5) 0xffffffff))
+		(>>> (* range (>>> *game_seed* 16)) 16)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; layer management helpers

@@ -6,9 +6,7 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_boarrider
-	`'(,+frm64x32_l_boarrider ,+frm64x32_l_boarrider1 ,+frm64x32_l_boarrider2 ,+frm64x32_l_boarrider3))
+(defq +at_boarrider `'(,+frm64x32_l_boarrider ,+frm64x32_l_boarrider1 ,+frm64x32_l_boarrider2 ,+frm64x32_l_boarrider3))
 
 ;;;;;;;;;;;;;;;;
 ; death handlers
@@ -34,8 +32,7 @@
 
 (defclass BoarRider () (Sprite *img_frm_64x32_l* *img_frm_64x32_r* 64 32 :64x32_lr dt-kill-boarrider)
 	(def this :sp_type +ftp_boarrider :sp_hitpnt 2
-		:fall_frame +frm64x32_l_boarrider4
-		:dead_frame +frm64x32_l_boarrider5)
+		:fall_frame +frm64x32_l_boarrider4 :dead_frame +frm64x32_l_boarrider5)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 6 10))
 		(:sp_add_component (AT 2 +at_boarrider))

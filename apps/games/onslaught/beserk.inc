@@ -6,22 +6,14 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_beserk
-	`'(,+frm_32c32_l_beserk ,+frm_32c32_l_beserk1 ,+frm_32c32_l_beserk2
+(defq +at_beserk `'(,+frm_32c32_l_beserk ,+frm_32c32_l_beserk1 ,+frm_32c32_l_beserk2
 		,+frm_32c32_l_beserk3 ,+frm_32c32_l_beserk4 ,+frm_32c32_l_beserk5)
-	+at_beserk_upper_mase
-	`'(,+frm_16x16_l_bkaddon ,+frm_16x16_l_bkaddon1 ,+frm_16x16_l_bkaddon2 -1)
-	+at_beserk_lower_mase
-	`'(,+frm_16x16_l_bkaddon3 ,+frm_16x16_l_bkaddon4 ,+frm_16x16_l_bkaddon5 -1)
-	+mt_beserk_upper_mase_l
-	''((32 0) (32 0) (32 0) (8 0) (8 0) (8 0) (-16 0) (-16 0) (-16 0))
-	+mt_beserk_upper_mase_r
-	''((-16 0) (-16 0) (-16 0) (8 0) (8 0) (8 0) (32 0) (32 0) (32 0))
-	+mt_beserk_lower_mase_l
-	''((32 -8) (32 -8) (32 -8) (8 0) (8 0) (8 0) (-16 0) (-16 0) (-16 0))
-	+mt_beserk_lower_mase_r
-	''((-16 -8) (-16 -8) (-16 -8) (8 0) (8 0) (8 0) (32 0) (32 0) (32 0)))
+	+at_beserk_upper_mase `'(,+frm_16x16_l_bkaddon ,+frm_16x16_l_bkaddon1 ,+frm_16x16_l_bkaddon2 -1)
+	+at_beserk_lower_mase `'(,+frm_16x16_l_bkaddon3 ,+frm_16x16_l_bkaddon4 ,+frm_16x16_l_bkaddon5 -1)
+	+mt_beserk_upper_mase_l ''((32 0) (32 0) (32 0) (8 0) (8 0) (8 0) (-16 0) (-16 0) (-16 0))
+	+mt_beserk_upper_mase_r ''((-16 0) (-16 0) (-16 0) (8 0) (8 0) (8 0) (32 0) (32 0) (32 0))
+	+mt_beserk_lower_mase_l ''((32 -8) (32 -8) (32 -8) (8 0) (8 0) (8 0) (-16 0) (-16 0) (-16 0))
+	+mt_beserk_lower_mase_r ''((-16 -8) (-16 -8) (-16 -8) (8 0) (8 0) (8 0) (32 0) (32 0) (32 0)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; component handlers
@@ -50,8 +42,7 @@
 (defclass Beserk () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr dt-kill-zap)
 	; (Beserk) -> stationary berserker enemy sprite
 	(def this :sp_type +ftp_beserk :sp_hitpnt 20
-		:fall_frame +frm_32c32_l_beserk2
-		:duck_frame +frm_32c32_l_beserk3
+		:fall_frame +frm_32c32_l_beserk2 :duck_frame +frm_32c32_l_beserk3
 		:beserk_swing :nil)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))

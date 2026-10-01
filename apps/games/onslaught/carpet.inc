@@ -6,11 +6,8 @@
 ; constants and movement tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_carpet
-	`'(,+frm64x32_l_carpet ,+frm64x32_l_carpet1)
-	+mt_carpet
-	''((0 -1) (0 -2) (0 -1) (0 0) (0 1) (0 2) (0 1) (0 0)))
+(defq +at_carpet `'(,+frm64x32_l_carpet ,+frm64x32_l_carpet1)
+	+mt_carpet ''((0 -1) (0 -2) (0 -1) (0 0) (0 1) (0 2) (0 1) (0 0)))
 
 ;;;;;;;;;;;;;;;;
 ; death handlers

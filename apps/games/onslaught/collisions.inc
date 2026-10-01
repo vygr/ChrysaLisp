@@ -36,7 +36,7 @@
 		(when (and (env? comp) (def? :vx comp))
 			(setq drag_xv (get :vx comp))))
 		(get :sp_components hit))
-	(if (/= (logand hit_type (logior +ftp_tower +ftp_carpet +ftp_skeleton_horse)) 0)
+	(if (bits? hit_type +ftp_tower +ftp_carpet +ftp_skeleton_horse)
 		(setq *man_power* (max 0 (- *man_power* (+ (>> hit_pnt 2) 1))))
 		(setq *man_strength* (max 0 (- *man_strength* (+ (>> hit_pnt 1) 1)))))
 	(when (/= drag_xv 0)
@@ -100,12 +100,10 @@
 		(setq *man_power* (min +max_power (* *man_power* 2)))
 		(if (= *game_state* +game_state_demo)
 			(progn
-				(setq *playback_stream* :nil
-					  *game_controls* 0)
+				(setq *playback_stream* :nil *game_controls* 0)
 				(goto-title +game_state_menu))
-			(progn
-				(record-battle-finish)
-				(setq *game_state* +game_state_battle_won)))))
+			(record-battle-finish)
+			(setq *game_state* +game_state_battle_won))))
 
 (defun cl-enemy-addon-hits-man (this hit)
 	; enemy weapon addon hitting player man: play clash, spawn sparks, deduct strength
@@ -139,14 +137,12 @@
 	(if (<= new_missile_hp 0)
 		(. this :sp_kill)
 		(def this :sp_hitpnt new_missile_hp))
-	(if (<= new_enemy_hp 0)
-		(progn
-			(play-death-score hit)
-			(when (>= missile_hp 500)
-				(when (eql (get :sp_death hit) dt-kill-enemy)
-					(def hit :sp_death dt-kill-zap)))
-			(. hit :sp_kill))
-		(def hit :sp_hitpnt new_enemy_hp)))
+	(if (> new_enemy_hp 0)
+		(def hit :sp_hitpnt new_enemy_hp)
+		(play-death-score hit)
+		(when (and (>= missile_hp 500) (eql (get :sp_death hit) dt-kill-enemy))
+			(def hit :sp_death dt-kill-zap))
+		(. hit :sp_kill)))
 
 (defun cl-man-addon-hits (this hit)
 	; player weapon mase hitting target enemy or missile
@@ -163,14 +159,12 @@
 		(. *layer_fx* :add_front spray))
 	(defq dmg (get :sp_hitpnt this)
 		hp (- (get :sp_hitpnt hit) dmg))
-	(if (<= hp 0)
-		(progn
-			(play-death-score hit)
-			(when (>= dmg 500)
-				(when (eql (get :sp_death hit) dt-kill-enemy)
-					(def hit :sp_death dt-kill-zap)))
-			(. hit :sp_kill))
-		(def hit :sp_hitpnt hp)))
+	(if (> hp 0)
+		(def hit :sp_hitpnt hp)
+		(play-death-score hit)
+		(when (and (>= dmg 500) (eql (get :sp_death hit) dt-kill-enemy))
+			(def hit :sp_death dt-kill-zap))
+		(. hit :sp_kill)))
 
 (defun collect-item (item)
 	; collect item into inventory, topping out usage or filling first free slot

@@ -6,13 +6,9 @@
 
 (defq +config_version 1
 	+config_file (cat *env_home* "onslaught.tre")
-	*config* :nil
-	*best_demo_score* 0
-	*best_demo_data* :nil
-	*session_best_score* 0
-	*session_best_demo* :nil
-	*hiscore_names* :nil
-	*hiscore_values* :nil
+	*config* :nil *best_demo_score* 0 *best_demo_data* :nil
+	*session_best_score* 0 *session_best_demo* :nil
+	*hiscore_names* :nil *hiscore_values* :nil
 	+default_hiscore_names
 	''("NEGROG (CAH)" "RUDMAN (CAH)" "GORVAR (CAH)" "TREGAR (CAH)"
 		"TATGO  (CAH)" "GONIG  (CAH)" "INDIGO (CAH)" "MOLAT  (CAH)"
@@ -34,7 +30,7 @@
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
 		(tree-load (file-stream +config_file))))
-	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+	(if (or (nil? *config*) (nql (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(setq *menu_difficulty* (. *config* :find :difficulty)
 		*menu_mode* (. *config* :find :mode)
@@ -50,7 +46,7 @@
 (defun config-save ()
 	(when *session_best_demo*
 		(setq *best_demo_score* *session_best_score*
-			  *best_demo_data* *session_best_demo*))
+			*best_demo_data* *session_best_demo*))
 	(scatter *config*
 		:difficulty *menu_difficulty*
 		:mode *menu_mode*
@@ -58,6 +54,6 @@
 		:hiscore_names *hiscore_names*
 		:hiscore_values *hiscore_values*
 		:demo_score *best_demo_score*
-		:demo (if *best_demo_data* *best_demo_data* ""))
+		:demo (or *best_demo_data* ""))
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))

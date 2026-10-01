@@ -6,12 +6,9 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_cannon
-	`'(,+frm_32c32_l_cannon ,+frm_32c32_l_cannon ,+frm_32c32_l_cannon ,+frm_32c32_l_cannon
+(defq +at_cannon `'(,+frm_32c32_l_cannon ,+frm_32c32_l_cannon ,+frm_32c32_l_cannon ,+frm_32c32_l_cannon
 		,+frm_32c32_l_cannon ,+frm_32c32_l_cannon1 ,+frm_32c32_l_cannon1 ,+frm_32c32_l_cannon2)
-	+at_cannon_flame
-	`'(,+frm_16x16_l_flame ,+frm_16x16_l_flame ,+frm_16x16_l_flame1 -1))
+	+at_cannon_flame `'(,+frm_16x16_l_flame ,+frm_16x16_l_flame ,+frm_16x16_l_flame1 -1))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; component handlers
@@ -65,8 +62,7 @@
 (defclass Cannon () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr dt-kill-balista)
 	; (Cannon) -> cannon artillery enemy sprite
 	(def this :sp_type +ftp_cannon :sp_hitpnt 4
-		:dead_frame +frm_32c32_l_cannon3
-		:cannon_fired :nil)
+		:dead_frame +frm_32c32_l_cannon3 :cannon_fired :nil)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))
 		(:sp_add_component (AT 4 +at_cannon))

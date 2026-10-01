@@ -96,7 +96,7 @@
 		(defq f1 (if (< x 0) +fmap_stand (. *layer_land* :get_tile_flags x y))
 			f2 (if (>= x1 map_w_px) +fmap_stand (. *layer_land* :get_tile_flags x1 y)))
 		(if (and (bits? f1 +fmap_stand) (bits? f2 +fmap_stand)
-				 (not (bits? f1 +fmap_climb)) (not (bits? f2 +fmap_climb)))
+				(not (bits? f1 +fmap_climb)) (not (bits? f2 +fmap_climb)))
 			(setq found :t)
 			(setq y (+ y +tile_height))))
 	(when found
@@ -116,8 +116,8 @@
 		(bind '(x y) pt)
 		(defq stationary (is-stationary-type type))
 		(when (or (not stationary)
-				  (and (< x (const (- (* +map_width +tile_width) 32)))
-					   (not (sprite-collide *layer_enemies* x y w h
+				(and (< x (const (- (* +map_width +tile_width) 32)))
+					(not (sprite-collide *layer_enemies* x y w h
 							(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk)))))
 			(defq sp (create-enemy-type type)
 				mv (elem-get (get :sp_components sp) +en_comp_mv))
@@ -202,31 +202,20 @@
 	(def (defq man (Fanatic)) :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
 	(. man :sp_set_pos 8 208)
 	(. *layer_player* :add_front man)
-	(setq *player_man* man
-		  *man_power* +max_power
-		  *man_strength* +max_strength
-		  *enemy_stack* (list)
-		  *enemy_banner_captured* :nil
-		  *enemy_count* 0
-		  *enemy_spawn_delay* 1
-		  *mine_count* 0
-		  *mine_max* (+ (game-random 3) 1)
-		  *enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2))
-		  *game_controls* 0
-		  *user_controls* 0
-		  *fire_held_first* :nil
-		  *item_select_pressed* :nil
-		  *test_addon_pressed* :nil)
+	(setq *player_man* man *man_power* +max_power *man_strength* +max_strength
+		*enemy_stack* (list) *enemy_banner_captured* :nil *enemy_count* 0
+		*enemy_spawn_delay* 1 *mine_count* 0 *mine_max* (+ (game-random 3) 1)
+		*enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2))
+		*game_controls* 0 *user_controls* 0 *fire_held_first* :nil
+		*item_select_pressed* :nil *test_addon_pressed* :nil)
 	(unless *campaign_active*
-		(setq *campaign_active* :t
-			  *man_score* 0
-			  *item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)
-			  *item_usage* (list 48 0 0 0 0 0 0 0)
-			  *item_selected* 0
-			  *enemy_army* (game-random (length +army_tables))
-			  *enemy_wizshot* (game-random 2)
-			  *man_banner* (+ +frm_16x16_banners (game-random 16))
-			  *enemy_banner* (+ +frm_16x16_banners (game-random 16)))
+		(setq *campaign_active* :t *man_score* 0
+			*item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)
+			*item_usage* (list 48 0 0 0 0 0 0 0)
+			*item_selected* 0 *enemy_army* (game-random (length +army_tables))
+			*enemy_wizshot* (game-random 2)
+			*man_banner* (+ +frm_16x16_banners (game-random 16))
+			*enemy_banner* (+ +frm_16x16_banners (game-random 16)))
 		(when (= *man_banner* *enemy_banner*)
 			(setq *enemy_banner* (+ +frm_16x16_banners (% (+ (- *enemy_banner* +frm_16x16_banners) 1) 16)))))
 	; spawn banners
@@ -273,23 +262,21 @@
 		y1 (+ h yv y)
 		f1 (. *layer_land* :get_tile_flags (+ x 8) y1)
 		f2 (. *layer_land* :get_tile_flags (+ x 23) y1))
-	(if (and (not (bits? f1 (logior +fmap_climb +fmap_stand)))
-			 (not (bits? f2 (logior +fmap_climb +fmap_stand))))
+	(ifn (or (bits? f1 +fmap_climb +fmap_stand)
+			(bits? f2 +fmap_climb +fmap_stand))
 		(progn
 			; falling
 			(. this :sp_set_frame +frm_fanatic_l_fall)
 			(setq yv (min 10 (inc yv)))
 			(setq y (+ y yv)))
-		(progn
-			; on floor: stance animation continues
-			(when (/= yv 0)
-				(setq y (- (logand y1 -16) 32))
-				(setq yv 0))))
+		; on floor: stance animation continues
+		(when (/= yv 0)
+			(setq y (- (logand y1 -16) 32))
+			(setq yv 0)))
 	(def this :man_yv yv)
 	(. this :sp_set_pos x y))
 
-(defq +at_man_stance
-	`'(,+frm_fanatic_l_stance ,+frm_fanatic_l_stance1))
+(defq +at_man_stance `'(,+frm_fanatic_l_stance ,+frm_fanatic_l_stance1))
 
 (defclass ManStance (x y dir) (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic)
 	; player victory dance sprite
@@ -305,16 +292,16 @@
 	(audio-play-rpc *sfx_spell*)
 	(each (lambda (enemy)
 		(when (and (Sprite? enemy)
-				   (/= (get :sp_frame enemy) -1)
-				   (not (get :sp_dead enemy))
-				   (/= (get :sp_type enemy) 0))
+				(/= (get :sp_frame enemy) -1)
+				(not (get :sp_dead enemy))
+				(/= (get :sp_type enemy) 0))
 			(def enemy :sp_death dt-kill-zap)
 			(. enemy :sp_kill)))
 		(. *layer_enemies* :children))
 	(each (lambda (mis)
 		(when (and (Sprite? mis)
-				   (/= (get :sp_frame mis) -1)
-				   (not (get :sp_dead mis)))
+				(/= (get :sp_frame mis) -1)
+				(not (get :sp_dead mis)))
 			(def mis :sp_death dt-fizz-fx)
 			(. mis :sp_kill)))
 		(. *layer_missiles* :children)))
@@ -336,7 +323,7 @@
 
 (defun battle-won-state-update ()
 	; tick victory dance animation and track camera
-	(if *player_man* (update-camera *player_man*))
+	(when *player_man* (update-camera *player_man*))
 	(++ *battle_state_count*)
 	(when (>= *battle_state_count* 96)
 		(when (= *game_level* +game_level_seige)
@@ -365,7 +352,7 @@
 
 (defun battle-lost-state-update ()
 	; delay for 96 frames before progressing to defend/field via title
-	(if *player_man* (update-camera *player_man*))
+	(when *player_man* (update-camera *player_man*))
 	(++ *battle_state_count*)
 	(when (>= *battle_state_count* 96)
 		(defq next_level (case *game_level*

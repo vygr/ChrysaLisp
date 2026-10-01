@@ -13,13 +13,10 @@
 		((bits? type (logior +ftp_boarrider +ftp_carpet)) '(64 32))
 		(:t '(32 32))))
 
-(defq
-	+blat_offsets
-	''((-32 -32) (0 -32) (0 0) (-32 0)
-	   (-40 -16) (8 -16) (-16 -40) (-16 8)
-	   (-24 -16) (-8 -16) (-16 -24) (-16 -8))
-	+drop_table
-	`'(,+frm_16x16_shield ,(+ +frm_16x16_shield 1) ,(+ +frm_16x16_shield 2)
+(defq +blat_offsets ''((-32 -32) (0 -32) (0 0) (-32 0)
+		(-40 -16) (8 -16) (-16 -40) (-16 8)
+		(-24 -16) (-8 -16) (-16 -24) (-16 -8))
+	+drop_table `'(,+frm_16x16_shield ,(+ +frm_16x16_shield 1) ,(+ +frm_16x16_shield 2)
 		,(+ +frm_16x16_shield 3) ,(+ +frm_16x16_shield 4) ,(+ +frm_16x16_shield 5)
 		,(+ +frm_16x16_shield 6) ,+frm_16x16_spells ,(+ +frm_16x16_spells 1)
 		,(+ +frm_16x16_spells 2) ,(+ +frm_16x16_spells 3) ,(+ +frm_16x16_spells 4)
@@ -202,7 +199,7 @@
 				(defq tbl (get :table at_comp))
 				(set at_comp :speed 2 :count 0 :index (if (> (length tbl) 1) 1 0))
 				(when tbl (. this :sp_set_frame (first tbl))))
-			(when (/= 0 (logand (get :sp_type this) (logior +ftp_horse +ftp_boarrider +ftp_skeleton_horse)))
+			(when (bits? (get :sp_type this) +ftp_horse +ftp_boarrider +ftp_skeleton_horse)
 				(audio-play-rpc *sfx_hooves*)))))
 
 (defun cp-enemy-duck (this that)
@@ -242,24 +239,21 @@
 (defun cp-item (this that)
 	; item physics: fall until hitting ground, then start timeout countdown
 	(defq mv (elem-get (get :sp_components this) 0))
-	(if (/= (get :ay mv) 0)
-		(progn
-			(bind '(x y w h) (. this :sp_get_bounds))
-			(defq vy (get :vy mv)
-				grid_y (logand (+ y h) (neg +tile_height))
-				prev_y (get :item_prev_y this))
-			(def this :item_prev_y grid_y)
-			(when (and (> vy 0) (nql grid_y prev_y))
-				(defq flags (. *layer_land* :get_tile_flags (+ x (/ w 2)) grid_y))
-				(when (and (bits? flags +fmap_stand) (not (bits? flags +fmap_climb)))
-					(. this :sp_set_pos x (- grid_y h))
-					(set mv :vy 0 :ay 0)
-					(dt-fizz-fx this))))
-		(progn
-			(defq timeout (dec (get :item_timeout this)))
-			(if (<= timeout 0)
-				(. this :sp_kill)
-				(def this :item_timeout timeout))))
+	(if (= (get :ay mv) 0)
+		(if (<= (defq timeout (dec (get :item_timeout this))) 0)
+			(. this :sp_kill)
+			(def this :item_timeout timeout))
+		(bind '(x y w h) (. this :sp_get_bounds))
+		(defq vy (get :vy mv)
+			grid_y (logand (+ y h) (neg +tile_height))
+			prev_y (get :item_prev_y this))
+		(def this :item_prev_y grid_y)
+		(when (and (> vy 0) (nql grid_y prev_y))
+			(defq flags (. *layer_land* :get_tile_flags (+ x (/ w 2)) grid_y))
+			(when (and (bits? flags +fmap_stand) (not (bits? flags +fmap_climb)))
+				(. this :sp_set_pos x (- grid_y h))
+				(set mv :vy 0 :ay 0)
+				(dt-fizz-fx this))))
 	this)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -274,8 +268,7 @@
 		(:sp_add_component (CP offscreen-update))
 		(:sp_set_frame frame)))
 
-(defq
-	+at_blood ''(35 36 37 38 -1)
+(defq +at_blood ''(35 36 37 38 -1)
 	+at_mine `'(,+frm_16x16_mine ,(+ +frm_16x16_mine 1)))
 
 (defclass Blood (x y dir) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
@@ -308,7 +301,7 @@
 	; (Item frame uses timeout [vy]) -> collectible item on map
 	(def this :sp_type +ftp_item :sp_hitpnt uses :item_timeout timeout :item_prev_y -1)
 	(.-> this
-		(:sp_add_component (MV 0 (ifn vy -9 vy) 0 1 0 10))
+		(:sp_add_component (MV 0 (or vy -9) 0 1 0 10))
 		(:sp_add_component (CP cp-item))
 		(:sp_add_component (CP offscreen-nodeath-update))
 		(:sp_set_frame frame)))

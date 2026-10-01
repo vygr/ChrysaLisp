@@ -2,60 +2,33 @@
 ; weapon and item addon sprites, movement tables & animations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+mt_upper_mase_l
-	''((32 0) (32 0) (8 0) (8 0) (-16 0) (-16 0))
-	+mt_upper_mase_r
-	''((-16 0) (-16 0) (8 0) (8 0) (32 0) (32 0))
-	+mt_lower_mase_l
-	''((32 -8) (32 -8) (8 0) (8 0) (-16 0) (-16 0))
-	+mt_lower_mase_r
-	''((-16 -8) (-16 -8) (8 0) (8 0) (32 0) (32 0))
-	+mt_big_crossbow_l
-	''((-16 16) (-16 16) (-16 16) (-16 16) (-16 0) (-16 0) (-16 0) (-16 0))
-	+mt_big_crossbow_r
-	''((32 16) (32 16) (32 16) (32 16) (32 0) (32 0) (32 0) (32 0))
-	+mt_small_crossbow_l
-	''((0 -16) (-16 0) (-16 0))
-	+mt_small_crossbow_r
-	''((16 -16) (32 0) (32 0))
-	+mt_naptha_l
-	''((32 0) (32 0) (32 0) (0 0) (0 0) (0 0) (-16 0) (-16 0) (-16 0))
-	+mt_naptha_r
-	''((-16 0) (-16 0) (-16 0) (0 0) (0 0) (0 0) (32 0) (32 0) (32 0)))
+(defq +mt_upper_mase_l ''((32 0) (32 0) (8 0) (8 0) (-16 0) (-16 0))
+	+mt_upper_mase_r ''((-16 0) (-16 0) (8 0) (8 0) (32 0) (32 0))
+	+mt_lower_mase_l ''((32 -8) (32 -8) (8 0) (8 0) (-16 0) (-16 0))
+	+mt_lower_mase_r ''((-16 -8) (-16 -8) (8 0) (8 0) (32 0) (32 0))
+	+mt_big_crossbow_l ''((-16 16) (-16 16) (-16 16) (-16 16) (-16 0) (-16 0) (-16 0) (-16 0))
+	+mt_big_crossbow_r ''((32 16) (32 16) (32 16) (32 16) (32 0) (32 0) (32 0) (32 0))
+	+mt_small_crossbow_l ''((0 -16) (-16 0) (-16 0))
+	+mt_small_crossbow_r ''((16 -16) (32 0) (32 0))
+	+mt_naptha_l ''((32 0) (32 0) (32 0) (0 0) (0 0) (0 0) (-16 0) (-16 0) (-16 0))
+	+mt_naptha_r ''((-16 0) (-16 0) (-16 0) (0 0) (0 0) (0 0) (32 0) (32 0) (32 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; addon animation tables
 ; (terminate with -1 to trigger :sp_kill)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_upper_mase
-	''(1 2 3 -1)
-	+at_lower_mase
-	''(4 5 6 -1)
-	+at_big_crossbow
-	''(10 11 12 13 -1)
-	+at_small_crossbow
-	''(7 8 9 -1)
-	+at_naptha
-	''(14 14 15 -1))
+(defq +at_upper_mase ''(1 2 3 -1) +at_lower_mase ''(4 5 6 -1)
+	+at_big_crossbow ''(10 11 12 13 -1) +at_small_crossbow ''(7 8 9 -1)
+	+at_naptha ''(14 14 15 -1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; player man body animations during weapon use
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_man_upper_mase
-	''(14 15 16 4)
-	+at_man_lower_mase
-	''(30 31 32 29)
-	+at_man_big_crossbow
-	''(20 21 22 23 0)
-	+at_man_small_crossbow
-	''(17 18 19 4)
-	+at_man_naptha
-	''(24 25 26 4))
+(defq +at_man_upper_mase ''(14 15 16 4) +at_man_lower_mase ''(30 31 32 29)
+	+at_man_big_crossbow ''(20 21 22 23 0) +at_man_small_crossbow ''(17 18 19 4)
+	+at_man_naptha ''(24 25 26 4))
 
 (defq +black_spell_table
 	; (item uses) pairs matching cpp: 40% yellow spell (43), 40% green spell (45), 20% super helper (42)
@@ -91,13 +64,13 @@
 
 (defclass EnemyAddon (enemy mt_table at_speed at_table &optional hitpnt) (Addon enemy mt_table at_speed at_table)
 	; (EnemyAddon enemy mt_table at_speed at_table [hitpnt]) -> enemy weapon addon with player collision
-	(def this :sp_hitpnt (ifn hitpnt 8 hitpnt) :has_hit :nil)
+	(def this :sp_hitpnt (or hitpnt 8) :has_hit :nil)
 	(. this :sp_add_component (CL *layer_player* +ftp_man *man_collision_table*)))
 
 (defclass Mase (man mt_table at_speed at_table &optional hitpnt)
 	(Addon man mt_table at_speed at_table)
 	; (Mase man mt_table at_speed at_table [hitpnt]) -> player mase addon with collisions
-	(def this :sp_hitpnt (ifn hitpnt 1 hitpnt))
+	(def this :sp_hitpnt (or hitpnt 1))
 	(.-> this
 		(:sp_add_component (CL *layer_enemies* -1 *man_addon_collision_table*))
 		(:sp_add_component (CL *layer_missiles* -1 *man_addon_collision_table*))))
@@ -109,9 +82,9 @@
 		man_at (elem-get (get :sp_components man) +man_comp_at)
 		body_anim (if duck +at_man_lower_mase +at_man_upper_mase)
 		wep_anim (if duck +at_lower_mase +at_upper_mase)
-		mt (cond
-			(duck (if (= dir 1) +mt_lower_mase_r +mt_lower_mase_l))
-			(:t (if (= dir 1) +mt_upper_mase_r +mt_upper_mase_l))))
+		mt (if duck
+			(if (= dir 1) +mt_lower_mase_r +mt_lower_mase_l)
+			(if (= dir 1) +mt_upper_mase_r +mt_upper_mase_l)))
 	(audio-play-rpc *sfx_throw*)
 	(def man :sp_flags (logior (get :sp_flags man) +fsp_action))
 	(. man :sp_set_frame (first body_anim))
@@ -222,9 +195,7 @@
 	(. *layer_player* :add_front elem)
 	(audio-play-rpc *sfx_roar*))
 
-(defq
-	+at_helper ''(28 29)
-	+at_super_helper ''(30 31))
+(defq +at_helper ''(28 29) +at_super_helper ''(30 31))
 
 (defun cp-helper (this that)
 	; homing helper demon tracking nearest enemy
@@ -236,15 +207,15 @@
 		(when (defq mv (elem-get (get :sp_components this) 0))
 			(if (defq enemy (some (lambda (sp)
 						(when (and (Sprite? sp)
-								   (not (get :sp_dead sp))
-								   (/= (get :sp_frame sp) -1)
-								   (/= (get :sp_type sp) 0))
+								(not (get :sp_dead sp))
+								(/= (get :sp_frame sp) -1)
+								(/= (get :sp_type sp) 0))
 							sp))
 						(. *layer_enemies* :children)))
 				(progn
 					(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
 					(set mv :ax (if (>= (+ ex (/ ew 2)) hx) 1 -1)
-							:ay (if (>= (+ ey (/ eh 2)) hy) 1 -1))
+						:ay (if (>= (+ ey (/ eh 2)) hy) 1 -1))
 					(spawn-fizz-fx hx hy))
 				(set mv :ax 0 :ay 0 :vx 0 :vy 0)))))
 
@@ -395,9 +366,9 @@
 	(audio-play-rpc *sfx_spell*)
 	(each (lambda (enemy)
 		(when (and (Sprite? enemy)
-				   (/= (get :sp_frame enemy) -1)
-				   (not (get :sp_dead enemy))
-				   (/= (get :sp_type enemy) 0))
+				(/= (get :sp_frame enemy) -1)
+				(not (get :sp_dead enemy))
+				(/= (get :sp_type enemy) 0))
 			(play-death-score enemy)
 			(when (eql (get :sp_death enemy) dt-kill-enemy)
 				(def enemy :sp_death dt-kill-zap))
@@ -411,7 +382,7 @@
 		(when (Sprite? enemy)
 			(defq type (get :sp_type enemy))
 			(unless (or (= type 0)
-						(/= (logand type (logior +ftp_cannon +ftp_balista +ftp_oil +ftp_beserk)) 0))
+					(bits? type +ftp_cannon +ftp_balista +ftp_oil +ftp_beserk))
 				(each (lambda (comp)
 					(when (and (env? comp) (def? :max_vx comp))
 						(set comp :vx 0 :max_vx 0)))

@@ -6,13 +6,9 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_skeleton_monk
-	`'(,+frm_fanatic_l_skeleton_monk
-		,+frm_fanatic_l_skeleton_monk1
-		,+frm_fanatic_l_skeleton_monk2)
-	+at_skeleton_item
-	`'(,+frm_16x16_bones3 ,+frm_16x16_bones4))
+(defq +at_skeleton_monk `'(,+frm_fanatic_l_skeleton_monk
+		,+frm_fanatic_l_skeleton_monk1 ,+frm_fanatic_l_skeleton_monk2)
+	+at_skeleton_item `'(,+frm_16x16_bones3 ,+frm_16x16_bones4))
 
 ;;;;;;;;;;;;;;;;
 ; death handlers
@@ -53,14 +49,13 @@
 (defun cp-skeleton-monk (this that)
 	; skeleton monk periodically fires skull bomb
 	(defq cnt (dec (get :skull_timer this)))
-	(if (<= cnt 0)
-		(progn
-			(setq cnt (+ (game-random 20) 20))
-			(bind '(x y) (. this :sp_get_pos))
-			(defq dir (get :sp_dir this)
-				bomb (SkullBomb (+ x 8) (- y 8) dir))
-			(. *layer_items* :add_back bomb)
-			(dt-fizz-fx bomb)))
+	(when (<= cnt 0)
+		(setq cnt (+ (game-random 20) 20))
+		(bind '(x y) (. this :sp_get_pos))
+		(defq dir (get :sp_dir this)
+			bomb (SkullBomb (+ x 8) (- y 8) dir))
+		(. *layer_items* :add_back bomb)
+		(dt-fizz-fx bomb))
 	(def this :skull_timer cnt)
 	this)
 

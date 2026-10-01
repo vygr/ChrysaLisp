@@ -20,7 +20,7 @@
 	(bind '(tx ty) (elem-get '((0 68) (36 68) (72 68) (108 68) (144 68) (180 68) (216 68) (252 68) (288 68)) idx))
 	(bind '(sx sy) (get-xy-outer 32 32))
 	(defq sp (TitleLetter idx))
-	(init-ml sp (get :ml_comp sp) sx sy tx ty 16)
+	(init-ml sp (elem-get (get :sp_components sp) 0) sx sy tx ty 16)
 	(. *layer_bodies* :add_front sp)
 	sp)
 
@@ -43,7 +43,7 @@
 
 (defun cp-sword (this that)
 	; this = sprite, that = component instance
-	(when (defq mv (get :mv_comp this))
+	(when (defq mv (elem-get (get :sp_components this) 0))
 		(when (and (>= (get :sp_y this) 52) (/= (get :ay mv) 0))
 			(set mv :ay 0 :vy 0)
 			(bind '(sx &) (. this :sp_get_pos))
@@ -55,7 +55,7 @@
 
 (defun cp-letter (this that)
 	; this = sprite, that = component instance
-	(when (defq ml (get :ml_comp this))
+	(when (defq ml (elem-get (get :sp_components this) 0))
 		(when (/= (get :speed ml) 0)
 			(if (>= (get :count ml) 0)
 				(progn
@@ -76,17 +76,16 @@
 
 (defclass TitleLetter (idx) (Sprite *img_frm_32c32* :nil 32 32 :32c32)
 	; (TitleLetter idx) -> sprite
-	(def this :letter_idx idx :ml_comp (ML 16))
+	(def this :letter_idx idx)
 	(.-> this
-		(:sp_add_component (get :ml_comp this))
+		(:sp_add_component (ML 16))
 		(:sp_add_component (CP (const cp-letter)))
 		(:sp_set_frame (+ +frm_32c32_letter_o idx))))
 
 (defclass TitleSword () (Sprite *img_frm_16x64* :nil 16 64 :16x64)
 	; (TitleSword) -> sprite
-	(def this :mv_comp (MV 0 0 0 2))
 	(.-> this
-		(:sp_add_component (get :mv_comp this))
+		(:sp_add_component (MV 0 0 0 2))
 		(:sp_add_component (CP (const cp-sword)))
 		(:sp_set_frame +frm_16x64_sword)))
 
@@ -97,11 +96,10 @@
 		(:sp_add_component (CP (const offscreen-update)))
 		(:sp_set_frame +frm_16x16_blooddrip)))
 
-(defq
-	+at_bigexp `'(,+frm_32c32_bigexp ,(+ +frm_32c32_bigexp 1) ,(+ +frm_32c32_bigexp 2)
-				  ,(+ +frm_32c32_bigexp 3) ,(+ +frm_32c32_bigexp 4) -1)
+(defq +at_bigexp `'(,+frm_32c32_bigexp ,(+ +frm_32c32_bigexp 1) ,(+ +frm_32c32_bigexp 2)
+		,(+ +frm_32c32_bigexp 3) ,(+ +frm_32c32_bigexp 4) -1)
 	+at_fizz `'(,+frm_16x16_fizz ,(+ +frm_16x16_fizz 1) ,(+ +frm_16x16_fizz 2)
-				,(+ +frm_16x16_fizz 1) ,+frm_16x16_fizz -1))
+		,(+ +frm_16x16_fizz 1) ,+frm_16x16_fizz -1))
 
 (defclass Explosion () (Sprite *img_frm_32c32* :nil 32 32 :32c32)
 	; big explosion fx (32x32)

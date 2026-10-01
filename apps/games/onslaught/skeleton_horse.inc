@@ -6,9 +6,7 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_skeleton_horse
-	`'(,+frm_64x64_l_skeleton_horse ,+frm_64x64_l_skeleton_horse1
+(defq +at_skeleton_horse `'(,+frm_64x64_l_skeleton_horse ,+frm_64x64_l_skeleton_horse1
 		,+frm_64x64_l_skeleton_horse2 ,+frm_64x64_l_skeleton_horse3))
 
 ;;;;;;;;;;;;;;;;

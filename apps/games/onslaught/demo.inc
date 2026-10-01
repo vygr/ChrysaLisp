@@ -4,15 +4,9 @@
 
 (defq
 	; input recording & playback state for demo mode
-	*record_stream* :nil
-	*record_keys* -1
-	*record_count* 0
-	*record_start_score* 0
-	*playback_stream* :nil
-	*playback_keys* 0
-	*playback_count* 0
-	*user_controls* 0
-	*demo_skip_armed* :nil)
+	*record_stream* :nil *record_keys* -1 *record_count* 0 *record_start_score* 0
+	*playback_stream* :nil *playback_keys* 0 *playback_count* 0
+	*user_controls* 0 *demo_skip_armed* :nil)
 
 (defun record-battle-finish ()
 	; finish recording and if battle score beats session best, update session demo
@@ -23,15 +17,15 @@
 				(write-byte *record_stream* *record_keys*)
 				(write-byte *record_stream* *record_count*))
 			(defq demo_str (str *record_stream*)
-				  battle_score (- *man_score* *record_start_score*))
+				battle_score (- *man_score* *record_start_score*))
 			(setq *record_stream* :nil)
 			(when (or (> battle_score *session_best_score*)
-					  (nil? *session_best_demo*)
-					  (empty? *session_best_demo*))
+					(nil? *session_best_demo*)
+					(empty? *session_best_demo*))
 				(setq *session_best_score* (max 0 battle_score)
-					  *session_best_demo* demo_str
-					  *best_demo_score* *session_best_score*
-					  *best_demo_data* demo_str)
+					*session_best_demo* demo_str
+					*best_demo_score* *session_best_score*
+					*best_demo_data* demo_str)
 				(config-save)))))
 
 (defun record-battle-start ()
@@ -39,10 +33,9 @@
 	(unless (= *game_state* +game_state_demo)
 		(when *record_stream*
 			(record-battle-finish))
-		(setq *record_keys* -1
-			  *record_count* 0
-			  *record_start_score* *man_score*
-			  *record_stream* (string-stream (cat "")))
+		(setq *record_keys* -1 *record_count* 0
+			*record_start_score* *man_score*
+			*record_stream* (string-stream (cat "")))
 		(write-long *record_stream* *game_seed*)
 		(write-short *record_stream* *game_level*)
 		(write-short *record_stream* *current_map_idx*)
@@ -117,7 +110,7 @@
 		(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
 		(. *layer_sky* :sky_set_cols sky_top sky_bottom)
 		(setq *game_level* game_level
-			  *current_map_idx* map_idx)
+			*current_map_idx* map_idx)
 		(case game_level
 			(+game_level_seige
 				(. *layer_land* :load_seige_map))
@@ -128,34 +121,15 @@
 		(def (defq man (Fanatic)) :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
 		(. man :sp_set_pos 8 208)
 		(. *layer_player* :add_front man)
-		(setq *player_man* man
-			  *man_power* man_power
-			  *man_strength* man_strength
-			  *item_selected* item_selected
-			  *item_inventory* item_inv
-			  *item_usage* item_use
-			  *menu_difficulty* menu_diff
-			  *menu_mode* menu_mode
-			  *game_mode* menu_mode
-			  *man_score* man_score
-			  *mine_max* mine_max
-			  *enemy_max* enemy_max
-			  *enemy_army* enemy_army
-			  *enemy_banner* enemy_banner
-			  *man_banner* man_banner
-			  *enemy_wizshot* enemy_wizshot
-			  *enemy_stack* (list)
-			  *enemy_banner_captured* :nil
-			  *enemy_count* 0
-			  *enemy_spawn_delay* 1
-			  *mine_count* 0
-			  *game_controls* 0
-			  *user_controls* 0
-			  *record_stream* :nil
-			  *demo_skip_armed* :nil
-			  *playback_stream* in_s
-			  *playback_keys* 0
-			  *playback_count* 0)
+		(setq *player_man* man *man_power* man_power *man_strength* man_strength
+			*item_selected* item_selected *item_inventory* item_inv *item_usage* item_use
+			*menu_difficulty* menu_diff *menu_mode* menu_mode *game_mode* menu_mode
+			*man_score* man_score *mine_max* mine_max *enemy_max* enemy_max
+			*enemy_army* enemy_army *enemy_banner* enemy_banner *man_banner* man_banner
+			*enemy_wizshot* enemy_wizshot *enemy_stack* (list) *enemy_banner_captured* :nil
+			*enemy_count* 0 *enemy_spawn_delay* 1 *mine_count* 0
+			*game_controls* 0 *user_controls* 0 *record_stream* :nil
+			*demo_skip_armed* :nil *playback_stream* in_s *playback_keys* 0 *playback_count* 0)
 		(bind '(mx my ex ey) (case *game_level*
 			(+game_level_seige '(16 192 2016 0))
 			(+game_level_defend '(16 0 2016 192))
@@ -174,28 +148,23 @@
 	(if (/= *user_controls* 0)
 		(setq *demo_skip_armed* :t)
 		(when *demo_skip_armed*
-			(setq *demo_skip_armed* :nil
-				  *playback_stream* :nil
-				  *game_controls* 0)
+			(setq *demo_skip_armed* :nil *playback_stream* :nil *game_controls* 0)
 			(goto-title +game_state_menu)))
 	; 2. Advance recorded playback
 	(when *playback_stream*
 		(defq keys (demo-play-keys))
 		(cond
 			((= keys -1)
-				(setq *playback_stream* :nil
-					  *game_controls* 0)
+				(setq *playback_stream* :nil *game_controls* 0)
 				(goto-title +game_state_menu))
 			((empty? (. *layer_player* :children))
-				(setq *playback_stream* :nil
-					  *game_controls* 0)
+				(setq *playback_stream* :nil *game_controls* 0)
 				(goto-title +game_state_menu))
 			((and *player_man* (get :sp_dead *player_man*))
 				; death sequence in progress, wait for manbits to leave screen
 				:nil)
 			((or (>= (length *enemy_stack*) +max_enemy_stack) *enemy_banner_captured*)
-				(setq *playback_stream* :nil
-					  *game_controls* 0)
+				(setq *playback_stream* :nil *game_controls* 0)
 				(goto-title +game_state_menu))
 			(:t
 				(setq *game_controls* keys)

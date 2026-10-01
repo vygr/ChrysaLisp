@@ -6,29 +6,19 @@
 ; constants and movement tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_knight
-	`'(,+frm_32x32_l_knight1 ,+frm_32x32_l_knight2 ,+frm_32x32_l_knight3
+(defq +at_knight `'(,+frm_32x32_l_knight1 ,+frm_32x32_l_knight2 ,+frm_32x32_l_knight3
 		,+frm_32x32_l_knight4 ,+frm_32x32_l_knight5 ,+frm_32x32_l_knight6
 		,+frm_32x32_l_knight7 ,+frm_32x32_l_knight)
-	+at_knight_upper
-	`'(,+frm_32x32_l_knight8 ,+frm_32x32_l_knight9 ,+frm_32x32_l_knight10
+	+at_knight_upper `'(,+frm_32x32_l_knight8 ,+frm_32x32_l_knight9 ,+frm_32x32_l_knight10
 		,+frm_32x32_l_knight)
-	+at_knight_lower
-	`'(,+frm_32x32_l_knight14 ,+frm_32x32_l_knight15 ,+frm_32x32_l_knight16
+	+at_knight_lower `'(,+frm_32x32_l_knight14 ,+frm_32x32_l_knight15 ,+frm_32x32_l_knight16
 		,+frm_32x32_l_knight13)
-	+at_knight_upper_mase
-	`'(,+frm_16x16_l_knightadd3 ,+frm_16x16_l_knightadd4 ,+frm_16x16_l_knightadd5 -1)
-	+at_knight_lower_mase
-	`'(,+frm_16x16_l_knightadd ,+frm_16x16_l_knightadd1 ,+frm_16x16_l_knightadd2 -1)
-	+mt_knight_upper_mase_l
-	''((32 0) (32 0) (8 0) (8 0) (-16 0) (-16 0))
-	+mt_knight_upper_mase_r
-	''((-16 0) (-16 0) (8 0) (8 0) (32 0) (32 0))
-	+mt_knight_mase_l
-	''((32 0) (32 0) (16 0) (16 0) (-16 0) (-16 0))
-	+mt_knight_mase_r
-	''((-16 0) (-16 0) (0 0) (0 0) (32 0) (32 0)))
+	+at_knight_upper_mase `'(,+frm_16x16_l_knightadd3 ,+frm_16x16_l_knightadd4 ,+frm_16x16_l_knightadd5 -1)
+	+at_knight_lower_mase `'(,+frm_16x16_l_knightadd ,+frm_16x16_l_knightadd1 ,+frm_16x16_l_knightadd2 -1)
+	+mt_knight_upper_mase_l ''((32 0) (32 0) (8 0) (8 0) (-16 0) (-16 0))
+	+mt_knight_upper_mase_r ''((-16 0) (-16 0) (8 0) (8 0) (32 0) (32 0))
+	+mt_knight_mase_l ''((32 0) (32 0) (16 0) (16 0) (-16 0) (-16 0))
+	+mt_knight_mase_r ''((-16 0) (-16 0) (0 0) (0 0) (32 0) (32 0)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; component handlers
@@ -70,8 +60,7 @@
 
 (defclass Knight () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr dt-kill-enemy)
 	(def this :sp_type +ftp_knight :sp_hitpnt 5
-		:fall_frame +frm_32x32_l_knight12
-		:duck_frame +frm_32x32_l_knight13
+		:fall_frame +frm_32x32_l_knight12 :duck_frame +frm_32x32_l_knight13
 		:dead_frame +frm_32x32_l_knight11)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 4 8))

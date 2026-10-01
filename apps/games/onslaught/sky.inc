@@ -4,11 +4,11 @@
 
 (defq +sky_palette
 	''(0xff7fbf7f	; green pastel
-	  0xff7f7fbf   ; blue pastel
-	  0xff7fbfbf   ; cyan pastel
-	  0xffbf7fbf   ; magenta pastel
-	  0xffbfbf7f   ; yellow pastel
-	  0xffbf7f7f)) ; red pastel
+		0xff7f7fbf	; blue pastel
+		0xff7fbfbf	; cyan pastel
+		0xffbf7fbf	; magenta pastel
+		0xffbfbf7f	; yellow pastel
+		0xffbf7f7f))	; red pastel
 
 (defclass Sky () (View)
 	; (Sky) -> sky view
@@ -47,9 +47,8 @@
 					(.-> this
 						(:ctx_set_color (logior 0xff000000 (<< r 16) (<< g 8) b))
 						(:ctx_filled_box 0 y w step))
-					(setq y (+ y step)))))
-		this)
-	)
+					(++ y step))))
+		this))
 
 (defmacro ui-sky (n &optional p &rest x)
 	; (ui-sky name [props] [body]) -> sky

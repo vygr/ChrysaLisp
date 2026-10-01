@@ -2,30 +2,17 @@
 ; onslaught main menu and credits state
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	*menu_selected* +menu_start
-	*menu_timer* 0
-	*menu_up_armed* :nil
-	*menu_down_armed* :nil
-	*menu_fire_armed* :nil
-	*menu_difficulty* 0
-	*menu_mode* +mode_auto
-	*menu_sound* 0
-	*menu_view* :nil
-	*credits_view* :nil
-	*credits_timer* 0
-	*credits_exit_armed* :nil
-	*scores_view* :nil
-	*scores_timer* 0
-	*scores_exit_armed* :nil
-	*hiscore_view* :nil
-	*hiscore_timer* 0
-	*hiscore_exit_armed* :nil
+(defq *menu_selected* +menu_start *menu_timer* 0 *menu_up_armed* :nil
+	*menu_down_armed* :nil *menu_fire_armed* :nil *menu_difficulty* 0
+	*menu_mode* +mode_auto *menu_sound* 0 *menu_view* :nil
+	*credits_view* :nil *credits_timer* 0 *credits_exit_armed* :nil
+	*scores_view* :nil *scores_timer* 0 *scores_exit_armed* :nil
+	*hiscore_view* :nil *hiscore_timer* 0 *hiscore_exit_armed* :nil
 	+menu_dif_names ''("EASY MODE" "HARD MODE")
 	+menu_mode_names ''("AUTO MODE" "ASSIST MODE" "HUMAN MODE")
 	+menu_sound_names ''("SOUND ON" "SOUND OFF")
 	+at_smith `'(,+frm_32c32_smith ,+frm_32c32_smith1 ,+frm_32c32_smith2
-				 ,+frm_32c32_smith1 ,+frm_32c32_smith -1))
+		,+frm_32c32_smith1 ,+frm_32c32_smith -1))
 
 (defclass Smith () (Sprite *img_frm_32c32* :nil 32 32 :32c32)
 	; mr smith animated background face
@@ -212,35 +199,30 @@
 	(defq controls *game_controls*)
 	; 1. Up navigation (armed on press down, triggered on key release)
 	(if (bits? controls +fkey_up)
-		(setq *menu_up_armed* :t
-			  *menu_timer* 0)
+		(setq *menu_up_armed* :t *menu_timer* 0)
 		(when *menu_up_armed*
 			(setq *menu_up_armed* :nil
-				  *menu_selected* (if (= *menu_selected* 0) 5 (dec *menu_selected*)))
+				*menu_selected* (if (= *menu_selected* 0) 5 (dec *menu_selected*)))
 			(menu-sfx *sfx_clash1*)
 			(menu-sync-view)))
 	; 2. Down navigation (armed on press down, triggered on key release)
 	(if (bits? controls +fkey_down)
-		(setq *menu_down_armed* :t
-			  *menu_timer* 0)
+		(setq *menu_down_armed* :t *menu_timer* 0)
 		(when *menu_down_armed*
 			(setq *menu_down_armed* :nil
-				  *menu_selected* (if (= *menu_selected* 5) 0 (inc *menu_selected*)))
+				*menu_selected* (if (= *menu_selected* 5) 0 (inc *menu_selected*)))
 			(menu-sfx *sfx_clash1*)
 			(menu-sync-view)))
 	; 3. Fire action (armed on press down, triggered on key release)
 	(if (bits? controls +fkey_keya)
-		(setq *menu_fire_armed* :t
-			  *menu_timer* 0)
+		(setq *menu_fire_armed* :t *menu_timer* 0)
 		(if *menu_fire_armed*
 			(progn
-				(setq *menu_fire_armed* :nil
-					  *menu_timer* 0)
+				(setq *menu_fire_armed* :nil *menu_timer* 0)
 				(case *menu_selected*
 					(+menu_start
 						(. *menu_view* :sub)
-						(setq *campaign_active* :nil
-							  *game_level* +game_level_field)
+						(setq *campaign_active* :nil *game_level* +game_level_field)
 						(goto-title +game_state_battle))
 					(+menu_define
 						(menu-sfx *sfx_spell*))
@@ -251,7 +233,7 @@
 						(menu-sync-view))
 					(+menu_mode
 						(setq *menu_mode* (% (inc *menu_mode*) 3)
-							  *game_mode* *menu_mode*)
+							*game_mode* *menu_mode*)
 						(menu-sfx *sfx_twang1*)
 						(config-save)
 						(menu-sync-view))
@@ -263,11 +245,10 @@
 					(+menu_credits
 						(. *menu_view* :sub)
 						(goto-title +game_state_credits))))
-			(progn
-				(++ *menu_timer*)
-				(when (>= *menu_timer* 256)
-					(. *menu_view* :sub)
-					(goto-title +game_state_credits))))))
+			(++ *menu_timer*)
+			(when (>= *menu_timer* 256)
+				(. *menu_view* :sub)
+				(goto-title +game_state_credits)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; credits state lifecycle
@@ -295,18 +276,16 @@
 	(defq controls *game_controls*)
 	; armed on press down, triggered on key release
 	(if (/= controls 0)
-		(setq *credits_exit_armed* :t
-			  *credits_timer* 0)
+		(setq *credits_exit_armed* :t *credits_timer* 0)
 		(if *credits_exit_armed*
 			(progn
 				(setq *credits_exit_armed* :nil)
 				(. *credits_view* :sub)
 				(goto-title +game_state_menu))
-			(progn
-				(++ *credits_timer*)
-				(when (>= *credits_timer* 256)
-					(. *credits_view* :sub)
-					(goto-title +game_state_scores))))))
+			(++ *credits_timer*)
+			(when (>= *credits_timer* 256)
+				(. *credits_view* :sub)
+				(goto-title +game_state_scores)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; scores state lifecycle
@@ -334,20 +313,18 @@
 	(game-mr-smiths)
 	(defq controls *game_controls*)
 	(if (/= controls 0)
-		(setq *scores_exit_armed* :t
-			  *scores_timer* 0)
+		(setq *scores_exit_armed* :t *scores_timer* 0)
 		(if *scores_exit_armed*
 			(progn
 				(setq *scores_exit_armed* :nil)
 				(. *scores_view* :sub)
 				(goto-title +game_state_menu))
-			(progn
-				(++ *scores_timer*)
-				(when (>= *scores_timer* 256)
-					(. *scores_view* :sub)
-					(if (and *best_demo_data* (> (length *best_demo_data*) 0))
-						(goto-title +game_state_demo)
-						(goto-title +game_state_menu)))))))
+			(++ *scores_timer*)
+			(when (>= *scores_timer* 256)
+				(. *scores_view* :sub)
+				(if (and *best_demo_data* (nempty? *best_demo_data*))
+					(goto-title +game_state_demo)
+					(goto-title +game_state_menu))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; hiscore state lifecycle
@@ -372,7 +349,7 @@
 		(when (/= insert_idx -1)
 			(setq qualifies :t)
 			(setq *hiscore_names* (slice (cat (slice *hiscore_names* 0 insert_idx) (list "FANATIC(YOU)") (slice *hiscore_names* insert_idx -1)) 0 10)
-				  *hiscore_values* (slice (cat (slice *hiscore_values* 0 insert_idx) (list *man_score*) (slice *hiscore_values* insert_idx -1)) 0 10))
+				*hiscore_values* (slice (cat (slice *hiscore_values* 0 insert_idx) (list *man_score*) (slice *hiscore_values* insert_idx -1)) 0 10))
 			(config-save)))
 	(unless *hiscore_view*
 		(setq *hiscore_view* (HiscoreView)))
@@ -388,15 +365,13 @@
 	(game-mr-smiths)
 	(defq controls *game_controls*)
 	(if (/= controls 0)
-		(setq *hiscore_exit_armed* :t
-			  *hiscore_timer* 0)
+		(setq *hiscore_exit_armed* :t *hiscore_timer* 0)
 		(if *hiscore_exit_armed*
 			(progn
 				(setq *hiscore_exit_armed* :nil)
 				(. *hiscore_view* :sub)
 				(goto-title +game_state_scores))
-			(progn
-				(++ *hiscore_timer*)
-				(when (>= *hiscore_timer* 256)
-					(. *hiscore_view* :sub)
-					(goto-title +game_state_scores))))))
+			(++ *hiscore_timer*)
+			(when (>= *hiscore_timer* 256)
+				(. *hiscore_view* :sub)
+				(goto-title +game_state_scores)))))

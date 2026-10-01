@@ -23,7 +23,7 @@
 
 	(defmethod :load_field_map (&optional map_idx)
 		; (. map :load_field_map [map_idx]) -> map
-		(setd map_idx (ifn map_idx (get :map_idx this) map_idx))
+		(setd map_idx (or map_idx (get :map_idx this)))
 		(defq map_data (load (cat *app_root* "data/fieldmap" (str map_idx) ".dat"))
 			map_flags (load (cat *app_root* "data/mapflags1.dat")))
 		(def this :map_idx map_idx :map_data map_data :map_flags map_flags :map_level +game_level_field)
@@ -76,8 +76,7 @@
 						(. this :ctx_blit tid +argb_white tile_x tile_y tile_w tile_h src_x src_y))
 					(++ tx))
 				(++ ty)))
-			this)
-	)
+		this))
 
 (defmacro ui-map (n &optional p &rest x)
 	; (ui-map name [props] [body]) -> map view

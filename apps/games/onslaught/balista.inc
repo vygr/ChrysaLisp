@@ -6,9 +6,7 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_balista
-	`'(,+frm_32c32_l_balista ,+frm_32c32_l_balista1 ,+frm_32c32_l_balista2 ,+frm_32c32_l_balista1))
+(defq +at_balista `'(,+frm_32c32_l_balista ,+frm_32c32_l_balista1 ,+frm_32c32_l_balista2 ,+frm_32c32_l_balista1))
 
 ;;;;;;;;;;;;;;;;
 ; death handlers
@@ -60,8 +58,7 @@
 
 (defclass Balista () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr dt-kill-balista)
 	; (Balista) -> balista siege engine enemy sprite
-	(def this :sp_type +ftp_balista :sp_hitpnt 4
-		:dead_frame +frm_32c32_l_balista3)
+	(def this :sp_type +ftp_balista :sp_hitpnt 4 :dead_frame +frm_32c32_l_balista3)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))
 		(:sp_add_component (AT 10 +at_balista))

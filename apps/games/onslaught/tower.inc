@@ -6,9 +6,7 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_tower
-	`'(,+frm64x64_tower ,+frm64x64_tower1 ,+frm64x64_tower2 ,+frm64x64_tower3
+(defq +at_tower `'(,+frm64x64_tower ,+frm64x64_tower1 ,+frm64x64_tower2 ,+frm64x64_tower3
 		,+frm64x64_tower ,+frm64x64_tower1 ,+frm64x64_tower2
 		,+frm64x64_tower ,+frm64x64_tower1 ,+frm64x64_tower2))
 

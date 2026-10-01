@@ -6,12 +6,9 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_spearman
-	`'(,+frm_32x32_l_spearman4 ,+frm_32x32_l_spearman5 ,+frm_32x32_l_spearman
+(defq +at_spearman `'(,+frm_32x32_l_spearman4 ,+frm_32x32_l_spearman5 ,+frm_32x32_l_spearman
 		,+frm_32x32_l_spearman1 ,+frm_32x32_l_spearman2 ,+frm_32x32_l_spearman3)
-	+at_spearman_throw
-	`'(,+frm_32x32_l_spearman6 ,+frm_32x32_l_spearman7 ,+frm_32x32_l_spearman8
+	+at_spearman_throw `'(,+frm_32x32_l_spearman6 ,+frm_32x32_l_spearman7 ,+frm_32x32_l_spearman8
 		,+frm_32x32_l_spearman7))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -47,21 +44,20 @@
 						(. this :sp_set_frame (first +at_spearman_throw))
 						(set mv :vx 0))
 					(def this :spear_timer cnt)))
-			(progn
-				(defq idx (get :index at_comp))
-				(when (and (not (get :spear_thrown this)) (= idx 2) (= (get :count at_comp) 0))
-					(def this :spear_thrown :t)
-					(bind '(x y) (. this :sp_get_pos))
-					(defq dir (get :sp_dir this)
-						spear (Spear (+ x (* dir 16)) y dir))
-					(. *layer_missiles* :add_front spear))
-				(when (and (get :spear_thrown this) (= idx 0) (= (get :count at_comp) 0))
-					(def this :spear_throwing :nil :spear_thrown :nil)
-					(def this :spear_timer (+ (game-random 8) 16))
-					(defq dir (get :sp_dir this))
-					(set at_comp :table +at_spearman :speed 2 :count 0 :index 0)
-					(. this :sp_set_frame (first +at_spearman))
-					(set mv :vx (* (get :max_vx mv) dir))))))
+			(defq idx (get :index at_comp))
+			(when (and (not (get :spear_thrown this)) (= idx 2) (= (get :count at_comp) 0))
+				(def this :spear_thrown :t)
+				(bind '(x y) (. this :sp_get_pos))
+				(defq dir (get :sp_dir this)
+					spear (Spear (+ x (* dir 16)) y dir))
+				(. *layer_missiles* :add_front spear))
+			(when (and (get :spear_thrown this) (= idx 0) (= (get :count at_comp) 0))
+				(def this :spear_throwing :nil :spear_thrown :nil)
+				(def this :spear_timer (+ (game-random 8) 16))
+				(defq dir (get :sp_dir this))
+				(set at_comp :table +at_spearman :speed 2 :count 0 :index 0)
+				(. this :sp_set_frame (first +at_spearman))
+				(set mv :vx (* (get :max_vx mv) dir)))))
 	this)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -71,8 +67,7 @@
 (defclass Spearman () (Sprite *img_frm_32x32_l* *img_frm_32x32_r* 32 32 :32x32_lr dt-kill-enemy)
 	(def this :sp_type +ftp_spearman :sp_hitpnt 1
 		:spear_timer (+ (game-random 8) 16) :spear_throwing :nil :spear_thrown :nil
-		:fall_frame +frm_32x32_l_spearman10
-		:duck_frame +frm_32x32_l_spearman11
+		:fall_frame +frm_32x32_l_spearman10 :duck_frame +frm_32x32_l_spearman11
 		:dead_frame +frm_32x32_l_spearman9)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 6 8))

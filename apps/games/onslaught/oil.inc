@@ -6,9 +6,7 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_oil
-	`'(,+frm_32c32_l_oil ,+frm_32c32_l_oil1 ,+frm_32c32_l_oil
+(defq +at_oil `'(,+frm_32c32_l_oil ,+frm_32c32_l_oil1 ,+frm_32c32_l_oil
 		,+frm_32c32_l_oil1 ,+frm_32c32_l_oil2 ,+frm_32c32_l_oil1))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -41,8 +39,7 @@
 
 (defclass Oil () (Sprite *img_frm_32c32_l* *img_frm_32c32_r* 32 32 :32c32_lr dt-kill-balista)
 	; (Oil) -> boiling oil cauldron enemy sprite
-	(def this :sp_type +ftp_oil :sp_hitpnt 4
-		:dead_frame +frm_32c32_l_oil3)
+	(def this :sp_type +ftp_oil :sp_hitpnt 4 :dead_frame +frm_32c32_l_oil3)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 0 0))
 		(:sp_add_component (AT 4 +at_oil))
