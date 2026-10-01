@@ -29,7 +29,7 @@
 	  *font* (create-font "fonts/OpenSans-Bold.ctf" 32)
 	  *running* :t)
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar *title* "Find Pairs" (0xea19) +event_close)
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (0xe972 0xe9ce) +event_scramble))

@@ -35,7 +35,7 @@
 	(or (and (>= x 2) (<= x 4))
 		(and (>= y 2) (<= y 4))))
 
-(ui-window *window* (:color +argb_grey1)
+(ui-window *window* (:color +argb_grey1 :resizable :nil)
 	(ui-title-bar *title* "Peg Solitaire" (0xea19) +event_close)
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (0xe972 0xe9fe) +event_reset))

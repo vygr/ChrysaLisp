@@ -4,7 +4,7 @@
 (enums +event 0
 	(enum close logout quit))
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Logout Manager" () ())
 	(ui-label _ (:text (num-to-utf8 0xea47) :color +argb_white
 		:font *env_warning_font*

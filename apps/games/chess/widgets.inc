@@ -5,7 +5,7 @@
 
 (defq vdu_width 38 vdu_height 12 text_buf :nil)
 
-(ui-window *window* (:color +argb_black)
+(ui-window *window* (:color +argb_black :resizable :nil)
 	(ui-title-bar _ "Chess" (0xea19) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *toolbar* ()

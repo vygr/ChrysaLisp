@@ -5,7 +5,7 @@
 (enums +event 0
 	(enum close beginner intermediate expert click))
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-flow window_flow (:flow_flags +flow_down_fill)
 		(ui-title-bar *window_title* "Minefield" (0xea19) +event_close)
 		(ui-flow view (:flow_flags +flow_flag_align_hcenter)

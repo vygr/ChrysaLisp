@@ -20,7 +20,7 @@
 	  *font* (create-font "fonts/OpenSans-Bold.ctf" 58)
 	  *running* :t)
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar *title* "Slider Puzzle" (0xea19) +event_close)
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (0xe972 0xe923) +event_scramble))

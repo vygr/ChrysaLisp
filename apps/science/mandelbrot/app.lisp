@@ -31,7 +31,7 @@
 	+retry_timeout (task-timeout 5) jobs :nil farm :nil
 	+mandel_lut `',(generate-lut))
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close)
 	(ui-canvas *canvas* +width +height +scale))
 
