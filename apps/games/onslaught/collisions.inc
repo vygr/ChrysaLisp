@@ -98,8 +98,14 @@
 		(. hit :sp_kill)
 		(setq *man_score* (+ *man_score* 500))
 		(setq *man_power* (min +max_power (* *man_power* 2)))
-		(record-battle-finish)
-		(setq *game_state* +game_state_battle_won)))
+		(if (= *game_state* +game_state_demo)
+			(progn
+				(setq *playback_stream* :nil
+					  *game_controls* 0)
+				(goto-title +game_state_menu))
+			(progn
+				(record-battle-finish)
+				(setq *game_state* +game_state_battle_won)))))
 
 (defun cl-enemy-addon-hits-man (this hit)
 	; enemy weapon addon hitting player man: play clash, spawn sparks, deduct strength

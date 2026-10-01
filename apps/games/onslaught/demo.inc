@@ -16,62 +16,66 @@
 
 (defun record-battle-finish ()
 	; finish recording and if battle score beats session best, update session demo
-	(when *record_stream*
-		(when (/= *record_keys* -1)
-			(write-byte *record_stream* *record_keys*)
-			(write-byte *record_stream* *record_count*))
-		(defq demo_str (str *record_stream*)
-			  battle_score (- *man_score* *record_start_score*))
+	(if (= *game_state* +game_state_demo)
 		(setq *record_stream* :nil)
-		(when (or (> battle_score *session_best_score*)
-				  (nil? *session_best_demo*)
-				  (empty? *session_best_demo*))
-			(setq *session_best_score* (max 0 battle_score)
-				  *session_best_demo* demo_str
-				  *best_demo_score* *session_best_score*
-				  *best_demo_data* demo_str)
-			(config-save))))
+		(when *record_stream*
+			(when (/= *record_keys* -1)
+				(write-byte *record_stream* *record_keys*)
+				(write-byte *record_stream* *record_count*))
+			(defq demo_str (str *record_stream*)
+				  battle_score (- *man_score* *record_start_score*))
+			(setq *record_stream* :nil)
+			(when (or (> battle_score *session_best_score*)
+					  (nil? *session_best_demo*)
+					  (empty? *session_best_demo*))
+				(setq *session_best_score* (max 0 battle_score)
+					  *session_best_demo* demo_str
+					  *best_demo_score* *session_best_score*
+					  *best_demo_data* demo_str)
+				(config-save)))))
 
 (defun record-battle-start ()
 	; initialize demo recording stream with initial battle state header using write-xxx
-	(when *record_stream*
-		(record-battle-finish))
-	(setq *record_keys* -1
-		  *record_count* 0
-		  *record_start_score* *man_score*
-		  *record_stream* (string-stream (cat "")))
-	(write-long *record_stream* *game_seed*)
-	(write-short *record_stream* *game_level*)
-	(write-short *record_stream* *current_map_idx*)
-	(write-short *record_stream* *enemy_army*)
-	(write-short *record_stream* *enemy_banner*)
-	(write-short *record_stream* *man_banner*)
-	(write-short *record_stream* *enemy_wizshot*)
-	(write-int *record_stream* *man_power*)
-	(write-int *record_stream* *man_strength*)
-	(write-short *record_stream* *item_selected*)
-	(each (# (write-short *record_stream* %0)) *item_inventory*)
-	(each (# (write-short *record_stream* %0)) *item_usage*)
-	(write-short *record_stream* *menu_difficulty*)
-	(write-short *record_stream* *menu_mode*)
-	(write-int *record_stream* *man_score*)
-	(write-short *record_stream* *mine_max*)
-	(write-short *record_stream* *enemy_max*)
-	(write-long *record_stream* (get :sky_top *layer_sky*))
-	(write-long *record_stream* (get :sky_bottom *layer_sky*)))
+	(unless (= *game_state* +game_state_demo)
+		(when *record_stream*
+			(record-battle-finish))
+		(setq *record_keys* -1
+			  *record_count* 0
+			  *record_start_score* *man_score*
+			  *record_stream* (string-stream (cat "")))
+		(write-long *record_stream* *game_seed*)
+		(write-short *record_stream* *game_level*)
+		(write-short *record_stream* *current_map_idx*)
+		(write-short *record_stream* *enemy_army*)
+		(write-short *record_stream* *enemy_banner*)
+		(write-short *record_stream* *man_banner*)
+		(write-short *record_stream* *enemy_wizshot*)
+		(write-int *record_stream* *man_power*)
+		(write-int *record_stream* *man_strength*)
+		(write-short *record_stream* *item_selected*)
+		(each (# (write-short *record_stream* %0)) *item_inventory*)
+		(each (# (write-short *record_stream* %0)) *item_usage*)
+		(write-short *record_stream* *menu_difficulty*)
+		(write-short *record_stream* *menu_mode*)
+		(write-int *record_stream* *man_score*)
+		(write-short *record_stream* *mine_max*)
+		(write-short *record_stream* *enemy_max*)
+		(write-long *record_stream* (get :sky_top *layer_sky*))
+		(write-long *record_stream* (get :sky_bottom *layer_sky*))))
 
 (defun record-battle-tick (k)
 	; record one tick of user controls using 2-byte rle (keys, count)
-	(when *record_stream*
-		(defq ctrl (logand k 0xff))
-		(if (= *record_keys* -1)
-			(setq *record_keys* ctrl *record_count* 0)
-			(if (or (/= *record_keys* ctrl) (= *record_count* 255))
-				(progn
-					(write-byte *record_stream* *record_keys*)
-					(write-byte *record_stream* *record_count*)
-					(setq *record_keys* ctrl *record_count* 0))
-				(++ *record_count*)))))
+	(unless (= *game_state* +game_state_demo)
+		(when *record_stream*
+			(defq ctrl (logand k 0xff))
+			(if (= *record_keys* -1)
+				(setq *record_keys* ctrl *record_count* 0)
+				(if (or (/= *record_keys* ctrl) (= *record_count* 255))
+					(progn
+						(write-byte *record_stream* *record_keys*)
+						(write-byte *record_stream* *record_count*)
+						(setq *record_keys* ctrl *record_count* 0))
+					(++ *record_count*))))))
 
 (defun demo-play-keys ()
 	(if (> *playback_count* 0)
@@ -147,6 +151,7 @@
 			  *mine_count* 0
 			  *game_controls* 0
 			  *user_controls* 0
+			  *record_stream* :nil
 			  *demo_skip_armed* :nil
 			  *playback_stream* in_s
 			  *playback_keys* 0
