@@ -170,45 +170,14 @@
 								(setq kmask +fkey_keyc))
 							((or (= scode +sc_rightbracket) (= scode +sc_x)
 								 (= key (ascii-code "]")) (= key (ascii-code "x")) (= key (ascii-code "X")))
-								(setq kmask +fkey_keyd))
-							((and (or (<= +sc_1 scode +sc_8) (<= (ascii-code "1") key (ascii-code "8"))) (= type +ev_type_key_down))
-								(setq *item_selected* (if (<= +sc_1 scode +sc_8) (- scode +sc_1) (- key (ascii-code "1"))))))
+								(setq kmask +fkey_keyd)))
 						(when kmask
 							(if (= type +ev_type_key_down)
-								(cond
-									((= kmask +fkey_keya)
-										(unless (bits? *game_controls* +fkey_keya)
-											(setq *fire_held_first* (not (bits? *game_controls* +fkey_left +fkey_right))))
-										(setq *game_controls* (logior *game_controls* +fkey_keya)
-											*user_controls* (logior *user_controls* +fkey_keya)))
-									((and (= kmask +fkey_left) (or *fire_held_first* (bits? *game_controls* +fkey_keya) (bits? *game_controls* +fkey_down)))
-										(unless *item_select_pressed*
-											(setq *item_select_pressed* :t
-												*item_selected* (% (+ *item_selected* 7) 8))))
-									((and (= kmask +fkey_right) (or *fire_held_first* (bits? *game_controls* +fkey_keya) (bits? *game_controls* +fkey_down)))
-										(unless *item_select_pressed*
-											(setq *item_select_pressed* :t
-												*item_selected* (% (+ *item_selected* 1) 8))))
-									((= kmask +fkey_keyc)
-										(setq *item_selected* (% (+ *item_selected* 7) 8)))
-									((= kmask +fkey_keyd)
-										(setq *item_selected* (% (+ *item_selected* 1) 8)))
-									(:t
-										(setq *game_controls* (logior *game_controls* kmask)
-											*user_controls* (logior *user_controls* kmask))))
-								(cond
-									((= kmask +fkey_keya)
-										(setq *fire_held_first* :nil
-											*game_controls* (logand *game_controls* (lognot +fkey_keya))
-											*user_controls* (logand *user_controls* (lognot +fkey_keya))))
-									((or (= kmask +fkey_left) (= kmask +fkey_right))
-										(setq *item_select_pressed* :nil
-											*game_controls* (logand *game_controls* (lognot kmask))
-											*user_controls* (logand *user_controls* (lognot kmask))))
-									(:t
-										(setq *game_controls* (logand *game_controls* (lognot kmask))
-											*user_controls* (logand *user_controls* (lognot kmask)))))))
-						:t)
+								(setq *game_controls* (logior *game_controls* kmask)
+									*user_controls* (logior *user_controls* kmask))
+								(setq *game_controls* (logand *game_controls* (lognot kmask))
+									*user_controls* (logand *user_controls* (lognot kmask))))
+							:t))
 					((. *window* :dispatch *msg*))
 					((. *window* :event *msg*))))
 			(+select_timer

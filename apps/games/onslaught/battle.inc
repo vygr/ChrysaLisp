@@ -206,8 +206,8 @@
 		*enemy_stack* (list) *enemy_banner_captured* :nil *enemy_count* 0
 		*enemy_spawn_delay* 1 *mine_count* 0 *mine_max* (+ (game-random 3) 1)
 		*enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2))
-		*game_controls* 0 *user_controls* 0 *fire_held_first* :nil
-		*item_select_pressed* :nil *test_addon_pressed* :nil)
+		*game_controls* 0 *user_controls* 0 *game_flags* 0
+		*test_addon_pressed* :nil)
 	(unless *campaign_active*
 		(setq *campaign_active* :t *man_score* 0
 			*item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)

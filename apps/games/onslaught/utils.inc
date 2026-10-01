@@ -43,8 +43,14 @@
 	*item_selected*)
 
 (defun item-select ()
-	; selection is handled directly on input
-	:t)
+	; move selector left/right based on *game_controls* matching cpp item_select
+	(if (bits? *game_controls* +fkey_keyc +fkey_keyd)
+		(unless (bits? *game_flags* +fflag_iselect)
+			(setq *game_flags* (logior *game_flags* +fflag_iselect))
+			(if (bits? *game_controls* +fkey_keyc)
+				(setq *item_selected* (% (+ *item_selected* 7) 8))
+				(setq *item_selected* (% (+ *item_selected* 1) 8))))
+		(setq *game_flags* (logand *game_flags* (lognot +fflag_iselect)))))
 
 (defun clear-layer (layer)
 	; remove all child views from layer

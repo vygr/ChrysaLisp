@@ -128,7 +128,7 @@
 			*enemy_army* enemy_army *enemy_banner* enemy_banner *man_banner* man_banner
 			*enemy_wizshot* enemy_wizshot *enemy_stack* (list) *enemy_banner_captured* :nil
 			*enemy_count* 0 *enemy_spawn_delay* 1 *mine_count* 0
-			*game_controls* 0 *user_controls* 0 *record_stream* :nil
+			*game_controls* 0 *user_controls* 0 *game_flags* 0 *record_stream* :nil
 			*demo_skip_armed* :nil *playback_stream* in_s *playback_keys* 0 *playback_count* 0)
 		(bind '(mx my ex ey) (case *game_level*
 			(+game_level_seige '(16 192 2016 0))
