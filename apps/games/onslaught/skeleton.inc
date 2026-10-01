@@ -6,30 +6,20 @@
 ; constants and animation tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+at_skeleton
-	`'(,+frm_fanatic_l_skeleton1 ,+frm_fanatic_l_skeleton2
+(defq +at_skeleton `'(,+frm_fanatic_l_skeleton1 ,+frm_fanatic_l_skeleton2
 		,+frm_fanatic_l_skeleton3 ,+frm_fanatic_l_skeleton4
 		,+frm_fanatic_l_skeleton5 ,+frm_fanatic_l_skeleton6
 		,+frm_fanatic_l_skeleton7 ,+frm_fanatic_l_skeleton)
-	+at_skeleton_upper
-	`'(,+frm_fanatic_l_skeleton8 ,+frm_fanatic_l_skeleton9
+	+at_skeleton_upper `'(,+frm_fanatic_l_skeleton8 ,+frm_fanatic_l_skeleton9
 		,+frm_fanatic_l_skeleton10 ,+frm_fanatic_l_skeleton9)
-	+at_skeleton_lower
-	`'(,+frm_fanatic_l_skeleton12 ,+frm_fanatic_l_skeleton13
+	+at_skeleton_lower `'(,+frm_fanatic_l_skeleton12 ,+frm_fanatic_l_skeleton13
 		,+frm_fanatic_l_skeleton14 ,+frm_fanatic_l_skeleton13)
-	+at_skeleton_upper_mase
-	`'(,+frm_16x16_l_skeladd ,+frm_16x16_l_skeladd ,+frm_16x16_l_skeladd1 -1)
-	+at_skeleton_lower_mase
-	`'(,+frm_16x16_l_skeladd2 ,+frm_16x16_l_skeladd2 ,+frm_16x16_l_skeladd3 -1)
-	+at_bone
-	`'(,+frm_16x16_bones ,+frm_16x16_bones1 ,+frm_16x16_bones2)
-	+bone_vectors
-	''((1 -8) (-1 -8) (2 -6) (-2 -6))
-	+mt_skeleton_mase_l
-	''((24 -8) (24 -8) (24 -8) (8 0) (8 0) (8 0) (0 0))
-	+mt_skeleton_mase_r
-	''((-8 -8) (-8 -8) (-8 -8) (8 0) (8 0) (8 0) (0 0)))
+	+at_skeleton_upper_mase `'(,+frm_16x16_l_skeladd ,+frm_16x16_l_skeladd ,+frm_16x16_l_skeladd1 -1)
+	+at_skeleton_lower_mase `'(,+frm_16x16_l_skeladd2 ,+frm_16x16_l_skeladd2 ,+frm_16x16_l_skeladd3 -1)
+	+at_bone `'(,+frm_16x16_bones ,+frm_16x16_bones1 ,+frm_16x16_bones2)
+	+bone_vectors ''((1 -8) (-1 -8) (2 -6) (-2 -6))
+	+mt_skeleton_mase_l ''((32 0) (32 0) (0 0) (0 0) (-16 0) (-16 0))
+	+mt_skeleton_mase_r ''((-16 0) (-16 0) (16 0) (16 0) (32 0) (32 0)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; component handlers
@@ -113,8 +103,7 @@
 (defclass Skeleton () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic dt-kill-bones)
 	; (Skeleton) -> skeleton foot soldier enemy sprite
 	(def this :sp_type +ftp_skeleton :sp_hitpnt 5
-		:fall_frame +frm_fanatic_l_skeleton11
-		:duck_frame +frm_fanatic_l_skeleton12)
+		:fall_frame +frm_fanatic_l_skeleton11 :duck_frame +frm_fanatic_l_skeleton12)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 4 8))
 		(:sp_add_component (AT 2 +at_skeleton))
