@@ -23,7 +23,7 @@
 	*item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)
 	*item_usage* (list 48 0 0 0 0 0 0 0)
 	*item_selected* 0 *game_mode* +mode_auto *game_frame_count* 0
-	*item_select_pressed* :nil *item_drop_cnt* 0
+	*item_select_pressed* :nil *item_drop_cnt* 0 *fire_held_first* :nil
 	*panel_item_sprites* (list) *panel_sight_sprite* :nil
 	+select_table
 	; item priority table matching cpp selecttable (indexed by item - +frm_16x16_gold)
@@ -31,36 +31,21 @@
 
 (defun item-auto-select ()
 	; select best item from inventory based on priority table
-	(defq best_idx *item_selected* max_pri 0)
-	(each (lambda (item_frame)
-		(when (> item_frame 0)
-			(defq pri (elem-get +select_table (- item_frame +frm_16x16_gold)))
+	(defq idx 0 best_idx *item_selected* max_pri 0)
+	(while (< idx (length *item_inventory*))
+		(defq item (elem-get *item_inventory* idx))
+		(when (> item 0)
+			(defq pri (elem-get +select_table (- item +frm_16x16_gold)))
 			(when (> pri max_pri)
-				(setq max_pri pri best_idx (!)))))
-		*item_inventory*)
+				(setq max_pri pri best_idx idx)))
+		(++ idx))
 	(when (> max_pri 0)
 		(setq *item_selected* best_idx))
 	*item_selected*)
 
 (defun item-select ()
-	; cycle selected inventory slot left or right
-	; supports dedicated keys (+fkey_keyc / +fkey_keyd) or holding down + left/right
-	(defq holding_down (bits? *game_controls* +fkey_down)
-		sel_left (or (bits? *game_controls* +fkey_keyc)
-					 (and holding_down (bits? *game_controls* +fkey_left)))
-		sel_right (or (bits? *game_controls* +fkey_keyd)
-					  (and holding_down (bits? *game_controls* +fkey_right))))
-	(cond
-		(sel_left
-			(unless *item_select_pressed*
-				(setq *item_select_pressed* :t
-					*item_selected* (% (+ *item_selected* 7) 8))))
-		(sel_right
-			(unless *item_select_pressed*
-				(setq *item_select_pressed* :t
-					*item_selected* (% (+ *item_selected* 1) 8))))
-		(:t
-			(setq *item_select_pressed* :nil))))
+	; selection is handled directly on input
+	:t)
 
 (defun clear-layer (layer)
 	; remove all child views from layer
@@ -183,13 +168,13 @@
 (defun update-panel-layers ()
 	; tick all active sprites across panel layers
 	(check-empty-mase)
-	(item-select)
 	(update-panel-status)
 	(each (# (each (lambda (sp) (when (Sprite? sp) (. sp :sp_update))) (. %0 :children)))
 		+panel_layers))
 
 (defun update-frame ()
 	; common screen and layer updates across all game states
+	(item-select)
 	(update-sprite-layers)
 	(update-panel-layers)
 	(. *world_scroll* :dirty_all)

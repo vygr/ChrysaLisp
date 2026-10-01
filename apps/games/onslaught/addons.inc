@@ -398,6 +398,7 @@
 				   (/= (get :sp_frame enemy) -1)
 				   (not (get :sp_dead enemy))
 				   (/= (get :sp_type enemy) 0))
+			(play-death-score enemy)
 			(when (eql (get :sp_death enemy) dt-kill-enemy)
 				(def enemy :sp_death dt-kill-zap))
 			(. enemy :sp_kill)))

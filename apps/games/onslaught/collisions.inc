@@ -4,6 +4,16 @@
 
 (defq *man_power* +max_power *man_strength* +max_strength *man_score* 0)
 
+(defq +score_table
+	''(50 5 10 15 20 10 10 10 25 25 80 5 50 10 50 20 1 0 0))
+
+(defun play-death-score (node)
+	(when (defq type (get :sp_type node))
+		(when (/= type 0)
+			(defq idx (log2 type))
+			(when (< -1 idx (length +score_table))
+				(setq *man_score* (+ *man_score* (elem-get +score_table idx)))))))
+
 ; collision handlers for player and weapons
 
 (defun cl-man-hits-enemy (this hit)
@@ -86,6 +96,7 @@
 		(audio-play-rpc *sfx_spell*)
 		(setq *enemy_banner_captured* :t)
 		(. hit :sp_kill)
+		(setq *man_score* (+ *man_score* 500))
 		(setq *man_power* (min +max_power (* *man_power* 2)))
 		(setq *game_state* +game_state_battle_won)))
 
@@ -123,6 +134,7 @@
 		(def this :sp_hitpnt new_missile_hp))
 	(if (<= new_enemy_hp 0)
 		(progn
+			(play-death-score hit)
 			(when (>= missile_hp 500)
 				(when (eql (get :sp_death hit) dt-kill-enemy)
 					(def hit :sp_death dt-kill-zap)))
@@ -146,6 +158,7 @@
 		hp (- (get :sp_hitpnt hit) dmg))
 	(if (<= hp 0)
 		(progn
+			(play-death-score hit)
 			(when (>= dmg 500)
 				(when (eql (get :sp_death hit) dt-kill-enemy)
 					(def hit :sp_death dt-kill-zap)))
@@ -173,8 +186,11 @@
 		(. item :sp_kill)))
 
 (defun cl-man-hits-item (this hit)
-	; player collecting an item on touch
-	(collect-item hit))
+	; player collecting an item on touch in auto mode, or ducking/down key in assist / human mode
+	(when (or (= *game_mode* +mode_auto)
+			  (= (get :sp_h this) 16)
+			  (bits? *game_controls* +fkey_down))
+		(collect-item hit)))
 
 ; collision dispatch tables indexed by (log2 type)
 

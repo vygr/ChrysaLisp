@@ -211,7 +211,12 @@
 		  *enemy_spawn_delay* 1
 		  *mine_count* 0
 		  *mine_max* (+ (game-random 3) 1)
-		  *enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2)))
+		  *enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2))
+		  *game_controls* 0
+		  *user_controls* 0
+		  *fire_held_first* :nil
+		  *item_select_pressed* :nil
+		  *test_addon_pressed* :nil)
 	(unless *campaign_active*
 		(setq *campaign_active* :t
 			  *man_score* 0
@@ -251,7 +256,6 @@
 			:nil)
 		((>= (length *enemy_stack*) +max_enemy_stack)
 			(record-battle-finish)
-			(setq *campaign_active* :nil)
 			(setq *game_state* +game_state_battle_lost))
 		(*enemy_banner_captured*
 			(record-battle-finish)
@@ -296,18 +300,37 @@
 		(:sp_add_component (CP (const cp-manstance)))
 		(:sp_set_frame +frm_fanatic_l_stance)))
 
+(defun battle-disperse-enemies ()
+	; fizzle and disperse all enemies and missiles like green spell
+	(audio-play-rpc *sfx_spell*)
+	(each (lambda (enemy)
+		(when (and (Sprite? enemy)
+				   (/= (get :sp_frame enemy) -1)
+				   (not (get :sp_dead enemy))
+				   (/= (get :sp_type enemy) 0))
+			(def enemy :sp_death dt-kill-zap)
+			(. enemy :sp_kill)))
+		(. *layer_enemies* :children))
+	(each (lambda (mis)
+		(when (and (Sprite? mis)
+				   (/= (get :sp_frame mis) -1)
+				   (not (get :sp_dead mis)))
+			(def mis :sp_death dt-fizz-fx)
+			(. mis :sp_kill)))
+		(. *layer_missiles* :children)))
+
 (defun battle-won-state-init ()
 	(setq *battle_state_count* 0)
 	; replace player with dancing victory stance without death explosion
 	(when *player_man*
 		(bind '(px py) (. *player_man* :sp_get_pos))
-		(defq pdir (get :sp_dir *player_man*))
+		(defq pdir (get :sp_dir *player_man*)
+			py_adj (if (= (get :sp_h *player_man*) 16) (- py 16) py))
 		(def *player_man* :sp_death :nil)
 		(. *player_man* :sp_kill)
-		(setq *player_man* (ManStance px py pdir))
+		(setq *player_man* (ManStance px py_adj pdir))
 		(. *layer_player* :add_front *player_man*))
-	(clear-layer *layer_enemies*)
-	(clear-layer *layer_missiles*)
+	(battle-disperse-enemies)
 	(setq *enemy_stack* (list)))
 
 (defun battle-won-state-update ()
@@ -329,13 +352,13 @@
 	; replace player with stance without death explosion
 	(when *player_man*
 		(bind '(px py) (. *player_man* :sp_get_pos))
-		(defq pdir (get :sp_dir *player_man*))
+		(defq pdir (get :sp_dir *player_man*)
+			py_adj (if (= (get :sp_h *player_man*) 16) (- py 16) py))
 		(def *player_man* :sp_death :nil)
 		(. *player_man* :sp_kill)
-		(setq *player_man* (ManStance px py pdir))
+		(setq *player_man* (ManStance px py_adj pdir))
 		(. *layer_player* :add_front *player_man*))
-	(clear-layer *layer_enemies*)
-	(clear-layer *layer_missiles*)
+	(battle-disperse-enemies)
 	(setq *enemy_stack* (list)))
 
 (defun battle-lost-state-update ()

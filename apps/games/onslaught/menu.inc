@@ -142,16 +142,16 @@
 			qualifies (get :qualifies this))
 		(cond
 			((= mode +mode_auto)
-				(draw-ascii-centered this "AUTO MODE WILL NEVER ENABLE YOU" 76 +argb_white zoom tid)
-				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 88 +argb_white zoom tid))
+				(draw-ascii-centered this "AUTO MODE WILL NEVER ENABLE YOU" 44 +argb_white zoom tid)
+				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 56 +argb_white zoom tid))
 			(qualifies
-				(draw-ascii-centered this "CONGRATULATIONS!" 76 +argb_yellow zoom tid)
-				(draw-ascii-centered this "YOU HAVE ENTERED THE HISTORY BOOKS" 88 +argb_white zoom tid))
+				(draw-ascii-centered this "CONGRATULATIONS!" 44 +argb_yellow zoom tid)
+				(draw-ascii-centered this "YOU HAVE ENTERED THE HISTORY BOOKS" 56 +argb_white zoom tid))
 			(:t
-				(draw-ascii-centered this "YOU HAVE NOT ATTAINED ENOUGH GLORY" 76 +argb_white zoom tid)
-				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 88 +argb_white zoom tid)))
-		(draw-ascii-centered this (cat "YOUR GLORY WAS " (str score)) 108 +argb_yellow zoom tid)
-		(draw-ascii-centered this "PRESS FIRE TO CONTINUE" 144 +argb_cyan zoom tid)
+				(draw-ascii-centered this "YOU HAVE NOT ATTAINED ENOUGH GLORY" 44 +argb_white zoom tid)
+				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 56 +argb_white zoom tid)))
+		(draw-ascii-centered this (cat "YOUR GLORY WAS " (str score)) 84 +argb_yellow zoom tid)
+		(draw-ascii-centered this "PRESS FIRE TO CONTINUE" 116 +argb_cyan zoom tid)
 		this)
 	)
 
@@ -239,6 +239,8 @@
 				(case *menu_selected*
 					(+menu_start
 						(. *menu_view* :sub)
+						(setq *campaign_active* :nil
+							  *game_level* +game_level_field)
 						(goto-title +game_state_battle))
 					(+menu_define
 						(menu-sfx *sfx_spell*))
@@ -265,9 +267,7 @@
 				(++ *menu_timer*)
 				(when (>= *menu_timer* 256)
 					(. *menu_view* :sub)
-					(if (and *best_demo_data* (> (length *best_demo_data*) 0))
-						(goto-title +game_state_demo)
-						(goto-title +game_state_credits)))))))
+					(goto-title +game_state_credits))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; credits state lifecycle
@@ -345,7 +345,9 @@
 				(++ *scores_timer*)
 				(when (>= *scores_timer* 256)
 					(. *scores_view* :sub)
-					(goto-title +game_state_menu))))))
+					(if (and *best_demo_data* (> (length *best_demo_data*) 0))
+						(goto-title +game_state_demo)
+						(goto-title +game_state_menu)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; hiscore state lifecycle

@@ -67,7 +67,8 @@
 			(setq *session_best_score* (max 0 battle_score)
 				  *session_best_demo* demo_str
 				  *best_demo_score* *session_best_score*
-				  *best_demo_data* demo_str))))
+				  *best_demo_data* demo_str)
+			(config-save))))
 
 (defun demo-play-keys ()
 	(if (> *playback_count* 0)
@@ -176,18 +177,18 @@
 			((= keys -1)
 				(setq *playback_stream* :nil
 					  *game_controls* 0)
-				(goto-title +game_state_credits))
+				(goto-title +game_state_menu))
 			((empty? (. *layer_player* :children))
 				(setq *playback_stream* :nil
 					  *game_controls* 0)
-				(goto-title +game_state_credits))
+				(goto-title +game_state_menu))
 			((and *player_man* (get :sp_dead *player_man*))
 				; death sequence in progress, wait for manbits to leave screen
 				:nil)
 			((or (>= (length *enemy_stack*) +max_enemy_stack) *enemy_banner_captured*)
 				(setq *playback_stream* :nil
 					  *game_controls* 0)
-				(goto-title +game_state_credits))
+				(goto-title +game_state_menu))
 			(:t
 				(setq *game_controls* keys)
 				(init-mines)

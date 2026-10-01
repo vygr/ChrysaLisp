@@ -44,8 +44,8 @@
 		*hiscore_values* (. *config* :find :hiscore_values)
 		*best_demo_score* (. *config* :find :demo_score)
 		*best_demo_data* (. *config* :find :demo)
-		*session_best_score* 0
-		*session_best_demo* :nil))
+		*session_best_score* *best_demo_score*
+		*session_best_demo* *best_demo_data*))
 
 (defun config-save ()
 	(when *session_best_demo*
@@ -58,6 +58,6 @@
 		:hiscore_names *hiscore_names*
 		:hiscore_values *hiscore_values*
 		:demo_score *best_demo_score*
-		:demo *best_demo_data*)
+		:demo (if *best_demo_data* *best_demo_data* ""))
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
