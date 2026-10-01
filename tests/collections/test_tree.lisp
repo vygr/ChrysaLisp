@@ -87,28 +87,36 @@
 (assert-eq "Tree Load: Lmap y" 200 (. loaded_lm :find 'y))
 
 ; 11. Test large string chunking (> 512 chars) roundtrip
-; a) Large binary string (hex-encoded chunks)
-(defq large_bin (pad "" 1500 "\x00\x01\x02\xa5\xff\x10")
+; a) Large binary string spanning full range of 0-255 bytes across multiple chunks
+(defq all_bytes (apply (const cat) (map (const char) (range 0 256)))
+	large_bin (cat all_bytes all_bytes all_bytes all_bytes all_bytes all_bytes)
 	tree_bin (Emap 5))
 (. tree_bin :insert :demo large_bin)
 (defq ms7 (memory-stream))
 (tree-save ms7 tree_bin)
 (stream-seek ms7 0 0)
+(defq bin_serialized (read-line ms7))
+; verify :cat statement was written
+(assert-true "Tree Save: binary :cat chunking" (find "(:cat" (read-line ms7)))
+(stream-seek ms7 0 0)
 (defq loaded_bin (tree-load ms7))
-(assert-eq "Tree Load: large binary string" large_bin (. loaded_bin :find :demo))
+(assert-eq "Tree Load: large binary string (all 0-255 bytes)" large_bin (. loaded_bin :find :demo))
 
-; b) Large ASCII text string (bracketed chunks)
-(defq large_txt (pad "" 1500 "The quick brown fox jumps over the lazy dog. ")
+; b) Large ASCII text string (bracketed chunks) with quotes, brackets, and newlines
+(defq large_txt (pad "" 1500 "The \qquick\q \tbrown [fox] jumps\n over the 'lazy' dog. ")
 	tree_txt (Emap 5))
 (. tree_txt :insert :text large_txt)
 (defq ms8 (memory-stream))
 (tree-save ms8 tree_txt)
 (stream-seek ms8 0 0)
+(read-line ms8)
+(assert-true "Tree Save: text :cat chunking" (find "(:cat" (read-line ms8)))
+(stream-seek ms8 0 0)
 (defq loaded_txt (tree-load ms8))
 (assert-eq "Tree Load: large text string" large_txt (. loaded_txt :find :text))
 
-; c) Large mixed string spanning both bracketed and hex-encoded chunks
-(defq large_mix (cat (pad "" 600 "A") "\x00\xff\x80" (pad "" 600 "B"))
+; c) Large mixed string spanning both text and binary bytes (including 0 and 255)
+(defq large_mix (cat (pad "" 600 "Hello \qworld\q [123] ") all_bytes (pad "" 600 "Goodbye!"))
 	tree_mix (Emap 5))
 (. tree_mix :insert :mixed large_mix)
 (defq ms9 (memory-stream))

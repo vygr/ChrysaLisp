@@ -22,10 +22,10 @@
 
 (defq +tree_chunk_size 512)
 
-(defun tree-encode-chunk (chunk)
-	(if (/= (rbskip +char_class_ascii (defq esc (escape chunk)) -1) 0)
-		(cat "\q" (hex-encode chunk) "\q")
-		(cat {"[} esc {]"})))
+(defun tree-encode-chunk (atom)
+	(if (/= (rbskip +char_class_ascii (defq esc (escape atom)) -1) 0)
+		(hex-encode atom)
+		(cat "[" esc "]")))
 
 (defun tree-encode (atom)
 	; (tree-encode atom) -> atom
@@ -33,11 +33,12 @@
 		((sym? atom) atom)
 		((num? atom) atom)
 		((str? atom)
-			(if (<= (length atom) +tree_chunk_size)
-				(tree-encode-chunk atom)
+			(defq enc (tree-encode-chunk atom))
+			(if (<= (length enc) +tree_chunk_size)
+				(cat "\q" enc "\q")
 				(defq chunks (reduce (lambda (p off)
-						(push p (tree-encode-chunk (slice atom off (min (length atom) (+ off +tree_chunk_size))))))
-					(range 0 (length atom) +tree_chunk_size) (list)))
+						(push p (cat "\q" (slice enc off (min (length enc) (+ off +tree_chunk_size))) "\q")))
+					(range 0 (length enc) +tree_chunk_size) (list)))
 				(cat "(:cat\n\t\t" (join chunks "\n\t\t") ")")))
 		((throw "Invalid tree encode !" atom))))
 
@@ -50,7 +51,7 @@
 	; (tree-decode atom) -> atom
 	(cond
 		((and (list?? atom) (eql (first atom) :cat))
-			(apply (const cat) (map (# (tree-decode %0)) (rest atom))))
+			(tree-decode-chunk (apply (const cat) (rest atom))))
 		((sym? atom) atom)
 		((num? atom) atom)
 		((str? atom) (tree-decode-chunk atom))
