@@ -83,7 +83,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r11
+:r2-:r11
 ```
 
 ### :from_argb32 -> gui/pixmap/from_argb32

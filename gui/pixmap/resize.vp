@@ -298,7 +298,7 @@
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
-	;:r1-:r11
+	;:r2-:r11
 
 	(vp-rdef (this src w_bytes h ddata sdata dstride sstride dst_ptr src_ptr val dend)
 		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11))
