@@ -118,7 +118,7 @@
 				mv (elem-get (get :sp_components sp) +en_comp_mv))
 			(. sp :sp_set_pos x y)
 			(def sp :sp_dir -1)
-			(when mv (set mv 'vx (neg (get 'max_vx mv))))
+			(set mv 'vx (neg (get 'max_vx mv)))
 			(. *layer_enemies* :add_front sp)
 			(++ *enemy_count*))))
 
@@ -140,7 +140,7 @@
 					mv (elem-get (get :sp_components sp) +en_comp_mv))
 				(. sp :sp_set_pos x y)
 				(def sp :sp_dir 1)
-				(when mv (set mv 'vx (get 'max_vx mv)))
+				(set mv 'vx (get 'max_vx mv))
 				(. *layer_enemies* :add_front sp)
 				(++ *enemy_count*)))))
 

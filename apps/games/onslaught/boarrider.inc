@@ -20,7 +20,7 @@
 		mv (elem-get (get :sp_components spearman) +en_comp_mv)
 		sy (logand y (neg +tile_height)))
 	(def spearman :sp_dir dir)
-	(when mv (set mv 'vx (* (get 'max_vx mv) dir)))
+	(set mv 'vx (* (get 'max_vx mv) dir))
 	(. spearman :sp_set_pos (+ x 16) sy)
 	(. *layer_enemies* :add_front spearman)
 	(spawn-flying-body this)

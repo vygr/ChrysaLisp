@@ -23,7 +23,7 @@
 		(defq wiz (Wizard)
 			mv (elem-get (get :sp_components wiz) +en_comp_mv))
 		(def wiz :sp_dir dir)
-		(when mv (set mv 'vx (* (get 'max_vx mv) dir) 'ay 1))
+		(set mv 'vx (* (get 'max_vx mv) dir) 'ay 1)
 		(. wiz :sp_set_pos (+ x ox) wy)
 		(. *layer_enemies* :add_front wiz)
 		(++ *enemy_count*))

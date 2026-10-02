@@ -22,7 +22,7 @@
 		(defq sp (Spearman)
 			mv (elem-get (get :sp_components sp) +en_comp_mv))
 		(def sp :sp_dir sdir)
-		(when mv (set mv 'vx (* (get 'max_vx mv) sdir)))
+		(set mv 'vx (* (get 'max_vx mv) sdir))
 		(. sp :sp_set_pos (+ x ox) (+ y oy))
 		(. *layer_enemies* :add_front sp)
 		(++ *enemy_count*))

@@ -20,7 +20,7 @@
 		mv (elem-get (get :sp_components footman) +en_comp_mv)
 		fy (logand y (neg +tile_height)))
 	(def footman :sp_dir dir)
-	(when mv (set mv 'vx (* (get 'max_vx mv) dir)))
+	(set mv 'vx (* (get 'max_vx mv) dir))
 	(. footman :sp_set_pos x fy)
 	(. *layer_enemies* :add_front footman)
 	(spawn-flying-body this)

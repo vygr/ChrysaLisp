@@ -68,9 +68,8 @@
 		(. this :sp_set_pos x y))
 	that)
 
-(defun init-ml (this that x y x1 y1 &optional speed)
+(defun init-ml (this that x y x1 y1 speed)
 	; (init-ml sprite ml x y x1 y1 [speed]) -> ml
-	(when speed (set that 'speed speed))
 	(. this :sp_set_pos x y)
 	(defq dx (- x1 x) dy (- y1 y)
 		d1x (cond ((< dx 0) -1) ((> dx 0) 1) (:t 0)) d2x d1x
@@ -78,7 +77,7 @@
 		abs_dx (abs dx) abs_dy (abs dy) tmpi 0)
 	(when (< abs_dx abs_dy)
 		(setq d2y d1y d2x 0 tmpi abs_dx abs_dx abs_dy abs_dy tmpi))
-	(set that 'target_x x1 'target_y y1
+	(set that 'speed speed 'target_x x1 'target_y y1
 		'dx abs_dx 'dy abs_dy 'd1x d1x 'd2x d2x 'd1y d1y 'd2y d2y
 		'count abs_dx 'slope (>> abs_dx 1))
 	that)

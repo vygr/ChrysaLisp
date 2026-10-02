@@ -183,7 +183,7 @@
 				(defq vx (get 'vx mv))
 				(when (/= vx 0)
 					(set mv 'vx (- vx dir))))
-			(when at_comp (set at_comp 'speed 0))
+			(set at_comp 'speed 0)
 			(when (defq fall_f (get :fall_frame this))
 				(. this :sp_set_frame fall_f)))
 		; on surface
