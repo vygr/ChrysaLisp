@@ -326,6 +326,8 @@
 ; (env-push [env]) -> 'env
 (ffi "class/lisp/lisp_env_pop" env-pop)
 ; (env-pop [env]) -> 'env
+(ffi "class/lisp/lisp_env_tuck" env-tuck)
+; (env-tuck [env]) -> 'env
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Stream and I/O Operations

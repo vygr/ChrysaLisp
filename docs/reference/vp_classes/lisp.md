@@ -18,6 +18,8 @@
 
 ### (env-push [env]) -> 'env
 
+### (env-tuck [env]) -> 'env
+
 ### (eval form [env]) -> 'form
 
 ### (eval-list list [env]) -> list

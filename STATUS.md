@@ -4,6 +4,11 @@
 
 ------
 
+Added `(env-tuck [env])` primitive to `:lisp` for fast dynamic environment
+splicing. Passing an `(env 1)` pushes it onto `+lisp_environment` as an
+enclosing scope, while calling without arguments restores the parent
+environment and clears `+hmap_parent` to eliminate stack frame leaks.
+
 Bug fix in the GUI key up event handling. Was missing sending and up to the
 owner if the target View went away.
 
