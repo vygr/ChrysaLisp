@@ -17,8 +17,8 @@
 (defun MV (&optional vx vy ax ay max_vx max_vy)
 	; (MV [vx vy ax ay max_vx max_vy]) -> component
 	(def (defq that (env 1)) :update (const mv-update)
-		'vx (or vx 0) 'vy (or vy 0)
-		'ax (or ax 0) 'ay (or ay 0)
+		'vx (ifn vx 0) 'vy (ifn vy 0)
+		'ax (ifn ax 0) 'ay (ifn ay 0)
 		'max_vx (or max_vx 100) 'max_vy (or max_vy 100))
 	that)
 
@@ -86,7 +86,7 @@
 (defun ML (&optional speed)
 	; (ML [speed]) -> component
 	(def (defq that (env 1)) :update (const ml-update)
-		'speed (or speed 0) 'table :nil 'count -1 'index 0
+		'speed (ifn speed 0) 'table :nil 'count -1 'index 0
 		'target_x 0 'target_y 0 'slope 0 'dx 0 'dy 0
 		'd1x 0 'd2x 0 'd1y 0 'd2y 0)
 	that)
