@@ -130,8 +130,9 @@
 		(2 (list (neg w) (- (game-random (+ +window_height (* 2 h))) h)))
 		(3 (list +window_width (- (game-random (+ +window_height (* 2 h))) h)))))
 
+(defq *cam_x* 0 *cam_y* 0)
+
 (defun update-camera (sprite)
-	; center camera on sprite using feet baseline anchor (+ y h -16)
 	(bind '(x y w h) (. sprite :sp_get_bounds))
 	(defq cam_x (- (+ x (/ w 2)) (const (/ +window_width 2)))
 		cam_y (- (+ y h -16) (const (/ +window_height 2)))
@@ -139,10 +140,10 @@
 		max_cam_y (- (* +map_height +tile_height) +window_height)
 		cx (max 0 (min max_cam_x cam_x))
 		cy (max 0 (min max_cam_y cam_y)))
-	; scroll all world layers by negative camera offset
-	(set-world-layers-pos
-		(* *zoom* (neg cx))
-		(* *zoom* (neg cy))))
+	; store pure unscaled simulation coordinates
+	(setq *cam_x* cx *cam_y* cy)
+	; scroll GUI rendering layers
+	(set-world-layers-pos (* *zoom* (neg cx)) (* *zoom* (neg cy))))
 
 (defun update-panel-status ()
 	; update enemy stack flags and power/strength level indicators directly

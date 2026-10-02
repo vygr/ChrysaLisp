@@ -9,7 +9,7 @@
 	*user_controls* 0 *demo_skip_armed* :nil)
 
 (defun record-battle-finish ()
-	; finish recording and if battle score beats session best, update session demo
+	; finish recording and update session demo
 	(if (= *game_state* +game_state_demo)
 		(setq *record_stream* :nil)
 		(when *record_stream*
@@ -88,23 +88,27 @@
 		(progn
 			(setq *playback_stream* :nil)
 			(goto-title +game_state_menu))
-		(defq in_s (string-stream *best_demo_data*))
+		; decode if loaded as an ascii hex string from an older .tre file
+		(defq raw_demo (if (starts-with "[" *best_demo_data*)
+				(hex-decode (slice *best_demo_data* 1 -2))
+				*best_demo_data*)
+			in_s (string-stream raw_demo))
 		(bind '(game_seed game_level map_idx enemy_army enemy_banner man_banner enemy_wizshot)
-			(list (read-long in_s) (read-short in_s) (read-short in_s) (read-short in_s)
-				  (read-short in_s) (read-short in_s) (read-short in_s)))
+			(list (read-long in_s) (read-ushort in_s) (read-ushort in_s) (read-ushort in_s)
+				  (read-ushort in_s) (read-ushort in_s) (read-ushort in_s)))
 		(bind '(man_power man_strength item_selected)
-			(list (read-int in_s) (read-int in_s) (read-short in_s)))
+			(list (read-uint in_s) (read-uint in_s) (read-ushort in_s)))
 		(defq item_inv (list) i 0)
 		(while (< i 8)
-			(push item_inv (read-short in_s))
+			(push item_inv (read-ushort in_s))
 			(++ i))
 		(defq item_use (list) i 0)
 		(while (< i 8)
-			(push item_use (read-short in_s))
+			(push item_use (read-ushort in_s))
 			(++ i))
 		(bind '(menu_diff menu_mode man_score mine_max enemy_max sky_top sky_bottom)
-			(list (read-short in_s) (read-short in_s) (read-int in_s)
-				  (read-short in_s) (read-short in_s) (read-long in_s) (read-long in_s)))
+			(list (read-ushort in_s) (read-ushort in_s) (read-uint in_s)
+				  (read-ushort in_s) (read-ushort in_s) (read-long in_s) (read-long in_s)))
 		(clear-sprite-layers)
 		(set-world-layers-pos 0 0)
 		(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
@@ -129,7 +133,8 @@
 			*enemy_wizshot* enemy_wizshot *enemy_stack* (list) *enemy_banner_captured* :nil
 			*enemy_count* 0 *enemy_spawn_delay* 1 *mine_count* 0
 			*game_controls* 0 *user_controls* 0 *game_flags* 0 *record_stream* :nil
-			*demo_skip_armed* :nil *playback_stream* in_s *playback_keys* 0 *playback_count* 0)
+			*demo_skip_armed* :nil *playback_stream* in_s *playback_keys* 0 *playback_count* 0
+			*item_drop_cnt* 0 *game_frame_count* 0 *test_addon_pressed* :nil)
 		(bind '(mx my ex ey) (case *game_level*
 			(+game_level_seige '(16 192 2016 0))
 			(+game_level_defend '(16 0 2016 192))

@@ -78,14 +78,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (defun getxy (w h dir)
-	; C++ getxy: find solid ground surface at visible screen edge for sprite of size (w, h)
-	(bind '(lx ly &ignore) (. *world_scroll* :get_relative *layer_land*))
-	(defq cam_x (/ (neg lx) *zoom*)
-		cam_y (/ (neg ly) *zoom*)
+	(defq cam_x *cam_x* cam_y *cam_y*
 		w1 (- w 1)
-		x (if (= dir 1)
-			(+ cam_x (- +window_width 1))
-			(- cam_x w1))
+		x (if (= dir 1) (+ cam_x (- +window_width 1)) (- cam_x w1))
 		x1 (if (= dir 1) (+ x w1) cam_x)
 		rand_y (game-random (* +tile_height (- (/ +window_height +tile_height) 1)))
 		y (logand (+ rand_y cam_y) (neg +tile_height))
@@ -197,15 +192,6 @@
 			(setq *game_level* +game_level_field
 				  *current_map_idx* 1)
 			(. *layer_land* :load_field_map 1)))
-	(def (defq man (Fanatic)) :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
-	(. man :sp_set_pos 8 208)
-	(. *layer_player* :add_front man)
-	(setq *player_man* man *man_power* +max_power *man_strength* +max_strength
-		*enemy_stack* (list) *enemy_banner_captured* :nil *enemy_count* 0
-		*enemy_spawn_delay* 1 *mine_count* 0 *mine_max* (+ (game-random 3) 1)
-		*enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2))
-		*game_controls* 0 *user_controls* 0 *game_flags* 0
-		*test_addon_pressed* :nil)
 	(unless *campaign_active*
 		(setq *campaign_active* :t *man_score* 0
 			*item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)
@@ -216,6 +202,15 @@
 			*enemy_banner* (+ +frm_16x16_banners (game-random 16)))
 		(when (= *man_banner* *enemy_banner*)
 			(setq *enemy_banner* (+ +frm_16x16_banners (% (+ (- *enemy_banner* +frm_16x16_banners) 1) 16)))))
+	(def (defq man (Fanatic)) :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
+	(. man :sp_set_pos 8 208)
+	(. *layer_player* :add_front man)
+	(setq *player_man* man *man_power* +max_power *man_strength* +max_strength
+		*enemy_stack* (list) *enemy_banner_captured* :nil *enemy_count* 0
+		*enemy_spawn_delay* 1 *mine_count* 0 *mine_max* (+ (game-random 3) 1)
+		*enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2))
+		*game_controls* 0 *user_controls* 0 *game_flags* 0
+		*test_addon_pressed* :nil *item_drop_cnt* 0 *game_frame_count* 0)
 	; spawn banners
 	(bind '(mx my ex ey) (case *game_level*
 		(+game_level_seige '(16 192 2016 0))
