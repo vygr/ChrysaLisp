@@ -20,7 +20,7 @@
 		mv (elem-get (get :sp_components knight) +en_comp_mv)
 		ky (logand (+ y 32) (neg +tile_height)))
 	(def knight :sp_dir dir)
-	(when mv (set mv :vx (* (get :max_vx mv) dir)))
+	(when mv (set mv 'vx (* (get 'max_vx mv) dir)))
 	(. knight :sp_set_pos (+ x 16) ky)
 	(. *layer_enemies* :add_front knight)
 	(spawn-flying-body this)

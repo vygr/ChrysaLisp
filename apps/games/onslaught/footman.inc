@@ -32,7 +32,7 @@
 	(ifn (bits? flags +fsp_action)
 		(when (bits? flags +fsp_collide)
 			(def this :sp_flags (logior flags +fsp_action))
-			(set mv :vx 0)
+			(set mv 'vx 0)
 			(defq dir (get :sp_dir this)
 				upper (= (game-random 2) 0)
 				body_anim (if upper +at_footman_upper +at_footman_lower)
@@ -42,17 +42,17 @@
 					(if (= dir 1) +mt_footman_lower_mase_r +mt_footman_lower_mase_l)))
 			(. this :sp_set_frame (first body_anim))
 			(cp-enemy-duck this :nil)
-			(set at_comp :table body_anim :speed 2 :count 0 :index 1 :loop :nil)
+			(set at_comp 'table body_anim 'speed 2 'count 0 'index 1 'loop :nil)
 			(defq wep (EnemyAddon this wep_mt 2 wep_anim 4))
 			(. this :add_before wep))
-		(when (and at_comp (nil? (get :table at_comp)))
+		(when (and at_comp (nil? (get 'table at_comp)))
 			; attack cycle finished: clear collision state and resume walk
 			(def this :sp_flags (logand (get :sp_flags this) (lognot (logior +fsp_action +fsp_collide))))
 			(defq dir (get :sp_dir this))
 			(. this :sp_set_frame (first +at_footman))
 			(cp-enemy-duck this :nil)
-			(set at_comp :table +at_footman :speed 2 :count 0 :index 1 :loop :t)
-			(set mv :vx (* (get :max_vx mv) dir)))))
+			(set at_comp 'table +at_footman 'speed 2 'count 0 'index 1 'loop :t)
+			(set mv 'vx (* (get 'max_vx mv) dir)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; footman sprite class

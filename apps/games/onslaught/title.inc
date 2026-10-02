@@ -44,8 +44,8 @@
 (defun cp-sword (this that)
 	; this = sprite, that = component instance
 	(when (defq mv (elem-get (get :sp_components this) 0))
-		(when (and (>= (get :sp_y this) 52) (/= (get :ay mv) 0))
-			(set mv :ay 0 :vy 0)
+		(when (and (>= (get :sp_y this) 52) (/= (get 'ay mv) 0))
+			(set mv 'ay 0 'vy 0)
 			(bind '(sx &) (. this :sp_get_pos))
 			(. this :sp_set_pos sx 52)
 			(defq fx_x (+ sx 8) fx_y (+ 52 32))
@@ -56,12 +56,12 @@
 (defun cp-letter (this that)
 	; this = sprite, that = component instance
 	(when (defq ml (elem-get (get :sp_components this) 0))
-		(when (/= (get :speed ml) 0)
-			(if (>= (get :count ml) 0)
+		(when (/= (get 'speed ml) 0)
+			(if (>= (get 'count ml) 0)
 				(progn
 					(bind '(lx ly) (. this :sp_get_pos))
 					(spawn-fizz-fx (+ lx 16) (+ ly 16)))
-				(set ml :speed 0)
+				(set ml 'speed 0)
 				(audio-play-rpc *sfx_explode*)
 				(bind '(lx ly) (. this :sp_get_pos))
 				(spawn-bomb-fx lx ly)

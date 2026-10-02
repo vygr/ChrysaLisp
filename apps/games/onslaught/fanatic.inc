@@ -191,7 +191,7 @@
 					; falling in air: cancel any active attack animation
 					(when (bits? (get :sp_flags this) +fsp_action)
 						(def this :sp_flags (logand (get :sp_flags this) (lognot +fsp_action)))
-						(set man_at :table :nil :speed 0))
+						(set man_at 'table :nil 'speed 0))
 					(when (and (bits? *game_controls* +fkey_keya) (not *test_addon_pressed*))
 						(use-current-item this :t))
 					(. this :sp_set_frame +frm_fanatic_l_fall)
@@ -210,7 +210,7 @@
 				(cond
 					; active weapon attack action animation
 					((bits? (get :sp_flags this) +fsp_action)
-						(if (get :table man_at) this
+						(if (get 'table man_at) this
 							(def this :sp_flags (logand (get :sp_flags this) (lognot +fsp_action)))
 							(if (< (get :sp_frame this) +frm_fanatic_l_duck)
 								(. this :sp_set_frame +frm_fanatic_l_stance)
@@ -284,7 +284,7 @@
 (defun cp-manbits (this that)
 	(when (defq mv (elem-get (get :sp_components this) 1))
 		(bind '(x y) (. this :sp_get_pos))
-		(defq yv (get :vy mv)
+		(defq yv (get 'vy mv)
 			h (get :sp_h this)
 			tile_y (logand (+ y yv h) -16)
 			oy (get :last_tile_y this))
@@ -293,7 +293,7 @@
 			(when (bits? (. *layer_land* :get_tile_flags (+ x 8) tile_y) +fmap_stand)
 				(defq new_y (- tile_y h))
 				(. this :sp_set_pos x new_y)
-				(set mv :vy (neg yv))
+				(set mv 'vy (neg yv))
 				(spawn-fizz-fx (+ x 8) tile_y)
 				(when (= (get :sp_frame this) (+ +frm_16x16_manbits 1))
 					(audio-play-rpc *sfx_clash1*))))))

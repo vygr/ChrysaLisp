@@ -21,7 +21,7 @@
 		skel (Skeleton)
 		mv (elem-get (get :sp_components skel) +en_comp_mv))
 	(def skel :sp_dir dir)
-	(when mv (set mv :vx (* (get :max_vx mv) dir)))
+	(when mv (set mv 'vx (* (get 'max_vx mv) dir)))
 	(. skel :sp_set_pos (- x 8) (- y 16))
 	(. *layer_enemies* :add_back skel)
 	(++ *enemy_count*)

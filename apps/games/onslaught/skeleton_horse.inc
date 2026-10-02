@@ -21,7 +21,7 @@
 		mv (elem-get (get :sp_components skel) +en_comp_mv)
 		sy (logand (+ y 32) (neg +tile_height)))
 	(def skel :sp_dir dir)
-	(when mv (set mv :vx (* (get :max_vx mv) dir)))
+	(when mv (set mv 'vx (* (get 'max_vx mv) dir)))
 	(. skel :sp_set_pos (+ x 16) sy)
 	(. *layer_enemies* :add_front skel)
 	(defq bx (+ x 24) by (+ y 28))
