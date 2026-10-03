@@ -369,7 +369,7 @@ occurring, rather than catching errors after the fact.
 	;; IDIOMATIC (single-line for simple guard/init):
 	(ifn *config* (setq *config* (Emap)))
 	(unless *syntax* (setq *syntax* (Syntax)))
-	(if (empty? items) (return :nil))
+	(if (nempty? line) (push lines line))
 
 	;; ANTI-PATTERN (vertical sprawl for a trivial branch):
 	(ifn *config*
