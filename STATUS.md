@@ -216,6 +216,18 @@ overrun !` and the stack dump. The dump shows who freed the cell, not who
 wrote on it. A double free now reports the same way, `Double free !` and
 the dump. Writing a wrong guard on purpose trips the check on every free.
 
+The `tests` command now runs the modules in parallel. It follows the `-j`
+habit of the other commands, `-j --jobs num` is the most modules to a
+batch, default 1, each batch a task farmed over the nodes with
+`pipe-farm`, and a set that fits in one batch runs in the one task, so a
+large `-j` is a serial run. A batch task ends with a line of counts, `-c`,
+that the runner adds up, and results print in module order. Module paths
+can be given as arguments. The modules under `tests/system/` share the
+lock service and wait on timers, so run one at a time after the rest.
+The gain in time is small, as those serial modules are most of the run.
+Native, 10 nodes, 1.4s against 1.6s serial. Emulator, 8 nodes, 18.8s
+against 19.1s, of which `tests/system/` alone is 14s.
+
 These two change the boot images by a few bytes, ARM64 221,924 and VP64
 release 152,092, so `snapshot.zip` is behind until it is next rebuilt.
 

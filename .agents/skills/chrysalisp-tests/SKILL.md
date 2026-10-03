@@ -79,6 +79,19 @@ Options:
 	skipped tests. Do not use it from an agent for the whole suite, it is
 	over 2,000 lines.
 
+*	`tests -j num` sets the most modules to a batch, default 1. The modules
+	run in parallel, a batch to a task, farmed over the nodes, and the
+	results print in module order. If they all fit in one batch they run in
+	the one task, one after another, so `tests -j 1000` is a serial run.
+	Use that to tell a fault in a test from a fault of running at once.
+
+*	`tests path ...` runs just the module files given.
+
+*	The modules under `tests/system/` share the one lock service and wait on
+	timers, so they always run one at a time, after the rest. A module
+	anywhere else must not rely on what another leaves behind, and must
+	give any file or service it makes a name of its own.
+
 *	`tests -f` records stack frames, with `lib/debug/frames.inc`, in every
 	function a module defines or imports. An error then says what was
 	running, where it normally says `Frame: :nil`:
@@ -284,7 +297,7 @@ identically for builds as they do for tests:
 	`(run-suite)`.
 
 *	`tests/suite.inc` — the framework: the counters, the assert macros,
-	module discovery, and `(run-suite [pattern verbose])`.
+	module discovery, and `(run-suite modules [verbose frames jobs child])`.
 
 *	Category folders — `core/`, `math/`, `collections/`, `sequences/`, `text/`,
 	`streams/`, `system/`, `net/`. Each module is a `test_<topic>.lisp` file of

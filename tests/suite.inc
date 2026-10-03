@@ -10,13 +10,24 @@
 ; automatically, and runs as top level code in an environment of its own, so
 ; nothing it defines is seen by the next module.
 
+; The modules run in parallel, in batches of -j modules to a task, farmed
+; out over the nodes. The default is one. A module can so make no use of
+; what another leaves behind, and must name any file or service it makes
+; so as not to clash. The modules under tests/system/ share the one lock
+; service, and wait on timers, so they run one at a time, after the rest.
+; A -j larger than the number of modules runs them all in the one task.
+
 (import "lib/files/files.inc")
 (import "lib/task/pipe.inc")
+(import "lib/task/cmd.inc")
 
 (defq *test_passes* 0 *test_failures* 0 *test_skips* 0
 	*test_verbose* :nil *test_frames* :nil *test_module* ""
 	;scripts under tests/ that are named test_ but are not suite modules
 	+test_excludes ''("tests/net/test_cluster.lisp")
+	;modules under here run one at a time, the last line a module's task
+	;prints is its counts, and how long to give a task before a retry
+	+test_serial "tests/system/" +test_counts "=== " +test_retry 30000000
 	;an error checked build throws on bad arguments, a release build has no
 	;checks. An extra argument is ignored by release, so is safe to try.
 	*test_checked* (catch (progn (length "abc" 1) :nil) :t))
@@ -141,22 +152,59 @@
 		(progn (test-fail "module" "to run to the end" _) :t))
 	(env-pop))
 
-(defun run-suite (&optional pattern verbose frames)
-	; (run-suite [pattern verbose frames]) -> :t | :nil
+(defun test-collect (cmd out)
+	; (test-collect cmd out)
+	;print what a batch of modules printed, and add its counts to ours. No
+	;counts line means the task did not get to the end of the batch.
+	(defq lines (split (ifn out "") "\n")
+		counts (if (nempty? lines) (last lines) ""))
+	(cond
+		((starts-with +test_counts counts)
+			(each (const print) (slice lines 0 -2))
+			(bind '(passes failures skips) (map (const str-as-num)
+				(split (slice counts (length +test_counts) -1) " ")))
+			(setq *test_passes* (+ *test_passes* passes)
+				*test_failures* (+ *test_failures* failures)
+				*test_skips* (+ *test_skips* skips)))
+		(:t (each (const print) lines)
+			(setq *test_module* cmd)
+			(test-fail "batch" "to run to the end" "no result"))))
+
+(defun run-suite (modules &optional verbose frames jobs child)
+	; (run-suite modules [verbose frames jobs child]) -> :t | :nil
+	;run the modules, at most jobs of them to a task. If they all fit in
+	;one batch they run here, one after another. A child is the task of a
+	;batch, it ends with a line of counts in place of the summary.
+	(setd jobs 1)
 	(setq *test_passes* 0 *test_failures* 0 *test_skips* 0
 		*test_verbose* verbose *test_frames* frames)
 	;services the modules rely on
-	(open-child "service/lock/app.lisp" +kn_call_run)
-	(defq modules (test-modules pattern))
-	(each (# (test-run-module %0)) modules)
+	(unless child (open-child "service/lock/app.lisp" +kn_call_run))
+	(cond
+		((or child (<= (length modules) jobs))
+			(each (# (test-run-module %0)) modules))
+		(:t ;farm out the batches, show the results in module order, then
+			;run the modules that can not share in this task
+			(defq serial (filter (# (starts-with +test_serial %0)) modules)
+				opts (cat " -c -j " (str jobs) (if verbose " -v" "") (if frames " -f" ""))
+				cmds (map (# (cat "tests" opts " " (join %0 " ")))
+					(partition (filter (# (not (starts-with +test_serial %0))) modules) jobs))
+				outs (Fmap 31))
+			(if (nempty? cmds)
+				(each (lambda ((cmd out)) (. outs :insert cmd out))
+					(pipe-farm (cat cmds) +test_retry)))
+			(each (# (test-collect %0 (. outs :find %0))) cmds)
+			(each (# (test-run-module %0)) serial)))
 	(if frames (setq *stack_frame* :nil))
-	(if *test_verbose* (print))
-	(print "=== Test Summary ===")
-	(print "Modules: " (length modules))
-	(print "Passed: " *test_passes*)
-	(print "Failed: " *test_failures*)
-	(print "Skipped: " *test_skips*
-		(if (or *test_checked* (= *test_skips* 0)) ""
-			", release build, no error checks to test"))
-	(print "RESULT: " (if (= *test_failures* 0) "SUCCESS" "FAILURE"))
+	(cond
+		(child (print +test_counts *test_passes* " " *test_failures* " " *test_skips*))
+		(:t (if *test_verbose* (print))
+			(print "=== Test Summary ===")
+			(print "Modules: " (length modules))
+			(print "Passed: " *test_passes*)
+			(print "Failed: " *test_failures*)
+			(print "Skipped: " *test_skips*
+				(if (or *test_checked* (= *test_skips* 0)) ""
+					", release build, no error checks to test"))
+			(print "RESULT: " (if (= *test_failures* 0) "SUCCESS" "FAILURE"))))
 	(= *test_failures* 0))
