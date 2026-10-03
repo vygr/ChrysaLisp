@@ -141,6 +141,10 @@ hierarchy, waiting claims and the `(with-lock)` macros, and for the Buffer
 class, the empty buffer, the ends, line joins, selections, several cursors,
 undo and redo, load and save, and find.
 
+New edge tests for the Document class, the select methods, break, tabs, case,
+sort, invert, unique, comment, trim, reflow and split, and that each is one
+undo step.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 
