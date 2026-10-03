@@ -55,6 +55,33 @@
 	;^ is the start of the text, not of each line
 	(matches "ab\nab" "^ab") '(((0 2))))
 
+; --- a pattern that needs no character can match at the very end of the text ---
+(test-cases
+	(match? "abc" "$") :t
+	(match? "abc" "\\s*$") :t
+	(match? "abc" "x$") :nil
+	(match? "abc" "^$") :nil
+	(matches "abc" "$") '(((3 3)))
+	(matches "abc" "^") '(((0 0)))
+	(matches "abc" "^$") '()
+	(matches "" "$") '(((0 0)))
+	(matches "abc" "\\s*$") '(((3 3)))
+	(matches "abc  " "\\s*$") '(((3 5)))
+	;an empty match is found at every position, the end included
+	(matches "abc" "") '(((0 0)) ((1 1)) ((2 2)) ((3 3)))
+	(matches "abc" "x*") '(((0 0)) ((1 1)) ((2 2)) ((3 3)))
+	(matches "abc" "b*") '(((0 0)) ((1 2)) ((2 2)) ((3 3)))
+	;but not again after a match that took the text right up to the end
+	(matches "aaa" "a*") '(((0 3)))
+	;$ is also the end of a line
+	(matches "a\nb" "$") '(((1 1)) ((3 3)))
+	(replace-regex "abc" "$" "<") "abc<"
+	(replace-regex "" "$" "<") "<"
+	(replace-regex "abc" "\\s*$" "!") "abc!"
+	(replace-regex "abc  " "\\s*$" "") "abc"
+	(replace-regex "abc" "x*" "-") "-a-b-c-"
+	(replace-regex "aaa" "a*" "-") "-")
+
 ; --- replace-regex ---
 (test-cases
 	(replace-regex "aaa" "a" "b") "bbb"

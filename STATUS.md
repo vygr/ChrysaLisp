@@ -105,6 +105,12 @@ file say, as it does for no stream. It threw.
 each type, so a negative fixed with a fraction goes down, and a negative real
 goes toward zero. Use `(floor)` or `(ceil)` first when the direction matters.
 
+Regexp can now match at the very end of the text. A pattern that needs no
+character, `$` or `\s*$` say, was only tried at positions before the end, so
+`(matches "abc" "$")` found nothing and `(replace-regex "abc" "$" "<")` did
+nothing. It is now tried once more at the end, unless the last match already
+took the text up to there.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

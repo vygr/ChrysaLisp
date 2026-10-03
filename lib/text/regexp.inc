@@ -302,7 +302,11 @@
 						(cond
 							((>= (bind '(l j) (search text meta i)) i)
 								(setq i +max_int out :t))
-							((++ i)))))))
+							((++ i))))
+					;a pattern that needs no char can still match at the end, $ say
+					(unless out
+						(if (>= (second (search text meta (length text))) 0)
+							(setq out :t))))))
 		out)
 
 	(defmethod :search (text meta)
@@ -334,13 +338,18 @@
 								(setq j (if (= i j) (inc j) j)))
 							(setq j (inc i)))))
 				(:t ;do it the hard way :(
-					(defq i 0)
-					(while (< i (length text))
+					(defq i 0 tl (length text))
+					(while (< i tl)
 						(cond
 							((>= (bind '(l j) (search text meta i)) i)
 								(push out l)
 								(setq i (if (= i j) (inc j) j)))
-							((++ i)))))))
+							((++ i))))
+					;a pattern that needs no char can still match at the end, $ say,
+					;unless the last match already took the text up to there
+					(when (or (empty? out) (/= (second (first (last out))) tl))
+						(bind '(l j) (search text meta tl))
+						(if (>= j tl) (push out l))))))
 		out)
 	)
 
