@@ -29,6 +29,12 @@
 
 ; --- timeouts ---
 (assert-eq "read timeout on an empty mailbox" :nil (mail-read-timeout me_a 1000))
+;a timed read that gets its mail cancels its timer, so a run of them, each
+;with a long timeout, leaves nothing behind to slow the next
+(defq me_cnt 0)
+(times 2000 (mail-send me_a "t") (if (eql (mail-read-timeout me_a 60000000) "t") (++ me_cnt)))
+(assert-eq "a run of timed reads that all get mail" 2000 me_cnt)
+(assert-eq "and the mailbox is empty after" :nil (mail-read-timeout me_a 1000))
 (mail-timeout me_a 1000 7)
 (assert-true "a timer wakes a read" (mail-read me_a))
 (defq me_t0 (pii-time))

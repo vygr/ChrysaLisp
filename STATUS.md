@@ -181,6 +181,12 @@ host is all zero, which hid such a fault until the cell came to be reused.
 This is the kind of check validate mode is for, one a debug build can not
 spare the time for. The test suite passes on it, native and emulated.
 
+`mail-read-timeout` now cancels its timer when the mail arrives first. Before,
+the timer stayed on the kernel timeout list until it ran out, so a fast run of
+RPC calls built a long list, and each new timer is placed by a walk of that
+list. 20,000 timed reads with a 5 second timeout took 0.65s and 40,000 took
+5.4s. They now take 8ms and 15ms.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

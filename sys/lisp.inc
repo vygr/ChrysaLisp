@@ -53,7 +53,10 @@
 
 (defun mail-read-timeout (mbox &optional timeout)
 	; (mail-read-timeout mbox [timeout_us]) -> msg | :nil
-	(when (= (mail-select (list mbox (mail-timeout (mail-mbox) (ifn timeout (task-timeout 1)) 0))) 0)
+	(defq timer (mail-timeout (mail-mbox) (ifn timeout (task-timeout 1)) 0))
+	(when (= (mail-select (list mbox timer)) 0)
+		;mail came first, so cancel the timer
+		(mail-timeout timer 0 0)
 		(mail-read mbox)))
 
 (defq mail-timeout-read mail-read-timeout)
