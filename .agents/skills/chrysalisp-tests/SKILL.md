@@ -110,7 +110,10 @@ Which boot image the suite runs on matters:
 
 To run every test on the emulator too, build all the boot images with the
 checks in, `make it debug`, or with the extra runtime validation as well,
-`make it validate`. The emulator run then reports `Skipped: 0`. Always finish
+`make it validate`. A validate build also fills every newly allocated heap
+cell with a pattern, bytes of `0xA5`, so code that reads memory before
+setting it fails the same way each time, rather than by luck. The emulator
+run then reports `Skipped: 0`. Always finish
 with a plain `make it`. That puts back the release VP64 image, which is what
 goes into `snapshot.zip` and what `make install` runs on. It is release on
 purpose: installed code should have no errors to check for, and it installs

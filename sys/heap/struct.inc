@@ -10,3 +10,6 @@
 
 (structure +hp_cell 0
 	(ptr block next))
+
+;what a validate build fills a newly allocated cell with
+(defq +hp_cell_fill 0xa5a5a5a5a5a5a5a5)

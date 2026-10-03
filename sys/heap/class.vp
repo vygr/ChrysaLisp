@@ -84,6 +84,21 @@
 	(vp-label 'got_cell)
 		(assign `((,cell +ln_fnode_next)) `(,next))
 		(assign `(,next) `((,this +hp_heap_free_flist)))
+	(validatecase
+		;fill the cell with a pattern that is not zero, and is no good as a
+		;pointer or a count, so any use of memory before it is set shows up,
+		;and shows up the same way every time. A new block from the host
+		;is all zero, which hides that until the cell is reused.
+		(vp-push :r3 :r4)
+		(assign `((,this +hp_heap_cellsize)) '(:r3))
+		(vp-lea-d cell :r3 :r3)
+		(vp-cpy-rr cell next)
+		(vp-cpy-cr +hp_cell_fill :r4)
+		(loop-start)
+			(vp-cpy-ri :r4 next 0)
+			(vp-add-cr +long_size next)
+		(loop-until `(,next = :r3))
+		(vp-pop :r3 :r4))
 		(exit :sys_heap :alloc `(,this ,cell))
 		(vp-ret)
 	(endif)

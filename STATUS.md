@@ -173,6 +173,14 @@ but its mailbox is good from anywhere. `tests/net/remote_onslaught.lisp` is
 an example, it opens the game on the GUI node of another machine on the LAN,
 has its mailbox id sent back, and runs the bot here to play it over the link.
 
+A validate build, `make it validate`, now fills every cell `:sys_heap :alloc`
+gives out with a pattern, `+hp_cell_fill`, bytes of `0xA5`. It is not zero,
+and is no good as a pointer or a count, so code that uses memory before
+setting it fails, and fails the same way each time. A new block from the
+host is all zero, which hid such a fault until the cell came to be reused.
+This is the kind of check validate mode is for, one a debug build can not
+spare the time for. The test suite passes on it, native and emulated.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 
