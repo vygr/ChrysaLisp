@@ -27,7 +27,11 @@ Find the task below and read that section in full before acting.
 *	**[4. Multi-Machine Cluster Diagnostic Tool (`test_cluster.lisp`)](#4-multi-machine-cluster-diagnostic-tool-test_clusterlisp)**
 	Checking a live cluster across machines on the LAN.
 
-*	**[5. The `-b` (Base CPU Offset) Mechanism](#5-the--b-base-cpu-offset-mechanism)**
+*	**[5. Driving Another Machine (`remote_onslaught.lisp`)](#5-driving-another-machine-remote_onslaughtlisp)**
+	A worked example: open a game on another machine's GUI and run its bot,
+	or run anything else there, and get the result back.
+
+*	**[6. The `-b` (Base CPU Offset) Mechanism](#6-the--b-base-cpu-offset-mechanism)**
 	Read before launching a second instance by hand, it is what stops it
 	killing the first.
 
@@ -127,7 +131,27 @@ A successful run terminates with:
 
 ---
 
-## 5. The `-b` (Base CPU Offset) Mechanism
+## 5. Driving Another Machine (`remote_onslaught.lisp`)
+
+`tests/net/remote_onslaught.lisp` is a worked example of doing real work on
+another machine over a link. It finds the other machine with `link -a`,
+probes its nodes for the one that can see the `Gui` service, pins a task
+there that opens the Onslaught game and runs its bot, and prints the bot's
+progress, mailed back. The other machine needs `./run.sh` and
+`link -l 3333 -a`. Run it with:
+
+```bash
+./run_tui.sh -f -s tests/net/remote_onslaught.lisp
+```
+
+The same pattern, a task string given to `(open-task code node +kn_call_pin 0
+mbox)` that mails its result to a reply mailbox passed in as hex, runs
+anything on a remote node, the unit tests with `(pipe-run "tests" ...)` for
+one. It is not a suite module, it is not named `test_`.
+
+---
+
+## 6. The `-b` (Base CPU Offset) Mechanism
 
 When debugging or writing custom network scripts across multiple instances on one machine:
 
