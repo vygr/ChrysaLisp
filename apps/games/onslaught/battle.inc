@@ -69,9 +69,9 @@
 	    ,+ftp_skeleton ,+ftp_skeleton ,+ftp_skeleton_horse ,+ftp_skeleton_monk ,+ftp_skeleton_monk ,+ftp_skeleton_monk
 	    ,+ftp_skeleton ,+ftp_skeleton ,+ftp_skeleton_horse ,+ftp_skeleton_monk ,+ftp_skeleton_monk ,+ftp_skeleton_monk)))
 
-(defun is-stationary-type (type)
+(defun is-stationary-type (sp_type)
 	; balista, cannon, oil, beserk
-	(bits? type +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))
+	(bits? sp_type +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; enemy spawn routines
@@ -105,16 +105,16 @@
 	(defq army_tbl (elem-get +army_tables *enemy_army*)
 		lvl_offset (* *game_level* 6)
 		unit_idx (+ (game-random 6) lvl_offset)
-		type (elem-get army_tbl unit_idx))
-	(bind '(w h) (enemy-size type))
+		sp_type (elem-get army_tbl unit_idx))
+	(bind '(w h) (enemy-size sp_type))
 	(when (defq pt (getxy w h 1))
 		(bind '(x y) pt)
-		(defq stationary (is-stationary-type type))
+		(defq stationary (is-stationary-type sp_type))
 		(when (or (not stationary)
 				(and (< x (const (- (* +map_width +tile_width) 32)))
 					(not (sprite-collide *layer_enemies* x y w h
 							(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk)))))
-			(defq sp (create-enemy-type type)
+			(defq sp (create-enemy-type sp_type)
 				mv (elem-get (get :sp_components sp) +en_comp_mv))
 			(. sp :sp_set_pos x y)
 			(def sp :sp_dir -1)
@@ -125,18 +125,18 @@
 (defun spawn-enemy-left ()
 	; spawn an overrun enemy from the stack on the left side moving right
 	(if (empty? *enemy_stack*) (spawn-enemy-right)
-		(defq type (last *enemy_stack*))
-		(bind '(w h) (enemy-size type))
+		(defq sp_type (last *enemy_stack*))
+		(bind '(w h) (enemy-size sp_type))
 		(ifn (defq pt (getxy w h -1)) (spawn-enemy-right)
 			(bind '(x y) pt)
-			(defq stationary (is-stationary-type type))
+			(defq stationary (is-stationary-type sp_type))
 			(if (and stationary
 					 (or (<= x 0)
 						 (sprite-collide *layer_enemies* x y w h
 							(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))))
 				(spawn-enemy-right)
 				(pop *enemy_stack*)
-				(defq sp (create-enemy-type type)
+				(defq sp (create-enemy-type sp_type)
 					mv (elem-get (get :sp_components sp) +en_comp_mv))
 				(. sp :sp_set_pos x y)
 				(def sp :sp_dir 1)
@@ -190,25 +190,14 @@
 			(. *layer_land* :load_defend_map))
 		(:t
 			(setq *game_level* +game_level_field
-				  *current_map_idx* 1)
-			(. *layer_land* :load_field_map 1)))
-	(unless *campaign_active*
-		(setq *campaign_active* :t *man_score* 0
-			*item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)
-			*item_usage* (list 48 0 0 0 0 0 0 0)
-			*item_selected* 0 *enemy_army* (game-random (length +army_tables))
-			*enemy_wizshot* (game-random 2)
-			*man_banner* (+ +frm_16x16_banners (game-random 16))
-			*enemy_banner* (+ +frm_16x16_banners (game-random 16)))
-		(when (= *man_banner* *enemy_banner*)
-			(setq *enemy_banner* (+ +frm_16x16_banners (% (+ (- *enemy_banner* +frm_16x16_banners) 1) 16)))))
+				*current_map_idx* (inc (game-random 3)))
+			(. *layer_land* :load_field_map *current_map_idx*)))
 	(def (defq man (Fanatic)) :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
 	(. man :sp_set_pos 8 208)
 	(. *layer_player* :add_front man)
 	(setq *player_man* man *man_power* +max_power *man_strength* +max_strength
 		*enemy_stack* (list) *enemy_banner_captured* :nil *enemy_count* 0
-		*enemy_spawn_delay* 1 *mine_count* 0 *mine_max* (+ (game-random 3) 1)
-		*enemy_max* (if (= *menu_difficulty* 0) (+ (game-random 2) 2) (+ (game-random 4) 2))
+		*enemy_spawn_delay* 1 *mine_count* 0
 		*game_controls* 0 *user_controls* 0 *game_flags* 0
 		*test_addon_pressed* :nil *item_drop_cnt* 0 *game_frame_count* 0)
 	; spawn banners
@@ -277,7 +266,7 @@
 	(. this :sp_set_pos x y)
 	(.-> this
 		(:sp_add_component (AT 3 +at_man_stance))
-		(:sp_add_component (CP (const cp-manstance)))
+		(:sp_add_component (CP cp-manstance))
 		(:sp_set_frame +frm_fanatic_l_stance)))
 
 (defun battle-disperse-enemies ()
@@ -302,55 +291,40 @@
 (defun battle-won-state-init ()
 	(record-battle-finish)
 	(setq *battle_state_count* 0)
-	; replace player with dancing victory stance without death explosion
-	(when *player_man*
-		(bind '(px py) (. *player_man* :sp_get_pos))
-		(defq pdir (get :sp_dir *player_man*)
-			py_adj (if (= (get :sp_h *player_man*) 16) (- py 16) py))
-		(def *player_man* :sp_death :nil)
-		(. *player_man* :sp_kill)
-		(setq *player_man* (ManStance px py_adj pdir))
-		(. *layer_player* :add_front *player_man*))
+	; replace player with dancing stance without death explosion
+	(bind '(px py) (. *player_man* :sp_get_pos))
+	(defq pdir (get :sp_dir *player_man*)
+		py_adj (if (= (get :sp_h *player_man*) 16) (- py 16) py))
+	(def *player_man* :sp_death :nil)
+	(. *player_man* :sp_kill)
+	(. *layer_player* :add_front (setq *player_man* (ManStance px py_adj pdir)))
 	(battle-disperse-enemies)
 	(setq *enemy_stack* (list)))
 
 (defun battle-won-state-update ()
 	; tick victory dance animation and track camera
-	(when *player_man* (update-camera *player_man*))
+	(update-camera *player_man*)
 	(++ *battle_state_count*)
 	(when (>= *battle_state_count* 96)
-		(when (= *game_level* +game_level_seige)
-			(setq *campaign_active* :nil))
-		(defq next_level (case *game_level*
-				(+game_level_field +game_level_seige)
-				(+game_level_seige +game_level_field)
-				(:t +game_level_field)))
-		(setq *game_level* next_level)
-		(goto-title +game_state_battle)))
+		;field win goes on to the seige, seige win to the mind combat
+		(defq state +game_state_battle)
+		(case *game_level*
+			(+game_level_field (setq *game_level* +game_level_seige))
+			(+game_level_seige (setq state +game_state_mind))
+			(:t (setq *game_level* +game_level_field)))
+		(goto-title state)))
 
-(defun battle-lost-state-init ()
-	(record-battle-finish)
-	(setq *battle_state_count* 0)
-	; replace player with stance without death explosion
-	(when *player_man*
-		(bind '(px py) (. *player_man* :sp_get_pos))
-		(defq pdir (get :sp_dir *player_man*)
-			py_adj (if (= (get :sp_h *player_man*) 16) (- py 16) py))
-		(def *player_man* :sp_death :nil)
-		(. *player_man* :sp_kill)
-		(setq *player_man* (ManStance px py_adj pdir))
-		(. *layer_player* :add_front *player_man*))
-	(battle-disperse-enemies)
-	(setq *enemy_stack* (list)))
+(defq battle-lost-state-init battle-won-state-init)
 
 (defun battle-lost-state-update ()
-	; delay for 96 frames before progressing to defend/field via title
-	(when *player_man* (update-camera *player_man*))
+	; delay for 96 frames before progressing via title
+	(update-camera *player_man*)
 	(++ *battle_state_count*)
 	(when (>= *battle_state_count* 96)
-		(defq next_level (case *game_level*
-				(+game_level_field +game_level_defend)
-				(+game_level_seige +game_level_field)
-				(:t +game_level_field)))
-		(setq *game_level* next_level)
-		(goto-title +game_state_battle)))
+		;field loss falls back to the defend, defend loss to the mind combat
+		(defq state +game_state_battle)
+		(case *game_level*
+			(+game_level_field (setq *game_level* +game_level_defend))
+			(+game_level_seige (setq *game_level* +game_level_field))
+			(:t (setq state +game_state_mind)))
+		(goto-title state)))

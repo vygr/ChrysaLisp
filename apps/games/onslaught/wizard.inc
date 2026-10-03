@@ -10,8 +10,8 @@
 		,+frm_32x32_l_wizard1 ,+frm_32x32_l_wizard2 ,+frm_32x32_l_wizard3)
 	+at_wizard_throw `'(,+frm_32x32_l_wizard6 ,+frm_32x32_l_wizard7 ,+frm_32x32_l_wizard8
 		,+frm_32x32_l_wizard7)
-	+at_wizard_shot_strength `'(,+frm_16x16_wizshot ,(+ +frm_16x16_wizshot 1))
-	+at_wizard_shot_power `'(,(+ +frm_16x16_wizshot 2) ,(+ +frm_16x16_wizshot 3)))
+	+at_wizard_shot_strength `'(,+frm_16x16_wizshot ,+frm_16x16_wizshot1)
+	+at_wizard_shot_power `'(,+frm_16x16_wizshot2 ,+frm_16x16_wizshot3))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; wizard and shot sprite classes
@@ -38,7 +38,7 @@
 	(defq comps (get :sp_components this)
 		mv (elem-get comps +en_comp_mv)
 		at_comp (elem-get comps +en_comp_at))
-	(when (and mv (= (get 'ay mv) 0))
+	(when (= (get 'ay mv) 0)
 		(ifn (get :wizard_shooting this)
 			(progn
 				(defq cnt (dec (get :wizard_timer this)))
@@ -60,7 +60,7 @@
 			(when (and (get :wizard_shot this) (= idx 0) (= (get 'count at_comp) 0))
 				(def this :wizard_shooting :nil :wizard_shot :nil
 					:wizard_timer (+ (game-random 16) 16))
-				(set at_comp 'table +at_wizard 'speed 1 'count 0 'index 0)
+				(set at_comp 'table +at_wizard 'speed 2 'count 0 'index 0)
 				(. this :sp_set_frame (first +at_wizard))
 				(set mv 'vx (* (get :sp_dir this) (get 'max_vx mv)))))))
 
@@ -76,8 +76,8 @@
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 6 8))
 		(:sp_add_component (AT 2 +at_wizard))
-		(:sp_add_component (CP (const cp-enemy-fall)))
-		(:sp_add_component (CP (const cp-enemy-duck)))
-		(:sp_add_component (CP (const cp-wizard)))
-		(:sp_add_component (CP (const cp-enemy-offscreen)))
+		(:sp_add_component (CP cp-enemy-fall))
+		(:sp_add_component (CP cp-enemy-duck))
+		(:sp_add_component (CP cp-wizard))
+		(:sp_add_component (CP cp-enemy-offscreen))
 		(:sp_set_frame +frm_32x32_l_wizard4)))

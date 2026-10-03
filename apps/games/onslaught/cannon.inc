@@ -26,7 +26,6 @@
 				bx (if (= dir 1) (+ cx 32) (- cx 16))
 				by (+ cy 16)
 				ball (CannonBall bx by dir))
-			(def this :sp_addon flame)
 			(. this :add_before flame)
 			(. *layer_missiles* :add_front ball)
 			(audio-play-rpc *sfx_explode*))

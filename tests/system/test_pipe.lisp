@@ -33,9 +33,17 @@
 			pipe (pipe-test-child reply_mbox "(read-line (io-stream 'stdin))"))
 		(assert-eq "pipe abort stdin blocked" :nil (mail-read-timeout reply_mbox 100000))
 		(. pipe :abort)
-		(assert-eq "pipe abort stdin" "done" (mail-read-timeout reply_mbox)))
+		(assert-eq "pipe abort stdin" "done" (mail-read-timeout reply_mbox))
+		;reader errors, also debug build only, an unbalanced form must be
+		;reported and must not crash the node
+		(each (lambda ((name cmdline err))
+				(defq pipe_out (list))
+				(pipe-run cmdline (# (push pipe_out %0)))
+				(assert-true name (find err (apply (const cat) pipe_out))))
+			'(("read missing )" "lisp -r (print (+ 1 2)" "missing )")
+			("read unexpected )" "lisp -r (print 1))" "unexpected )"))))
 	(:t ;release build, so wake the child to let it exit
-		(print "[SKIP] pipe abort, signals need a debug build")
+		(print "[SKIP] pipe abort and reader errors, need a debug build")
 		(mail-send child_mbox "")
 		(assert-eq "pipe abort child exit" "done" (mail-read-timeout reply_mbox))))
 

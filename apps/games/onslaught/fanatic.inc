@@ -5,7 +5,10 @@
 (defq *player_man* :nil *game_controls* 0
 	+man_comp_at 0
 	; 11-step jump trajectory: 2 crouch wind-up frames, 8 rising frames, 1 apex frame
-	+jump_offsets ''((29 0) (29 0) (8 7) (8 6) (8 5) (8 4) (8 3) (8 3) (8 2) (8 1) (1 1)))
+	+jump_offsets `'((,+frm_fanatic_l_duck 0) (,+frm_fanatic_l_duck 0)
+		(,+frm_fanatic_l_jump 7) (,+frm_fanatic_l_jump 6) (,+frm_fanatic_l_jump 5)
+		(,+frm_fanatic_l_jump 4) (,+frm_fanatic_l_jump 3) (,+frm_fanatic_l_jump 3)
+		(,+frm_fanatic_l_jump 2) (,+frm_fanatic_l_jump 1) (,+frm_fanatic_l_walk1 1)))
 
 (defun step-walk-cycle (this start_frame end_frame)
 	(defq tick (+ (get :man_walk_tick this) 1)
@@ -28,15 +31,15 @@
 (defun item-requires-floor? (item)
 	; items requiring standing on a floor (melee swings and crossbows)
 	(or (= item +frm_16x16_shield)           ; mase
-		(= item (+ +frm_16x16_shield 1))     ; big crossbow
-		(= item (+ +frm_16x16_shield 2))     ; small crossbow
-		(= item (+ +frm_16x16_shield 3))     ; naptha
-		(= item (+ +frm_16x16_shield 5))))   ; super mase
+		(= item +frm_16x16_shield1)     ; big crossbow
+		(= item +frm_16x16_shield2)     ; small crossbow
+		(= item +frm_16x16_shield3)     ; naptha
+		(= item +frm_16x16_shield5)))   ; super mase
 
 (defun item-requires-stand? (item)
 	; addon items that require the player to stand up first
-	(or (<= (+ +frm_16x16_shield 1) item (+ +frm_16x16_shield 4))
-		(= item (+ +frm_16x16_shield 6))))
+	(or (<= +frm_16x16_shield1 item +frm_16x16_shield4)
+		(= item +frm_16x16_shield6)))
 
 (defun use-current-item (this &optional in_air)
 	(setq *test_addon_pressed* :t)
@@ -58,7 +61,7 @@
 				(setq y (- y 16) h 32)
 				(. this :sp_set_frame +frm_fanatic_l_stance)
 				(. this :sp_set_bounds x y 32 32)
-				(def this :sp_h 32 :man_yv 0))
+				(def this :man_yv 0))
 			(cond
 				((= item +frm_16x16_shield)
 					(defq uses (dec (elem-get *item_usage* *item_selected*)))
@@ -68,7 +71,7 @@
 							(elem-set *item_usage* *item_selected* 0))
 						(elem-set *item_usage* *item_selected* uses))
 					(use-mase this))
-				((= item (+ +frm_16x16_shield 5))
+				((= item +frm_16x16_shield5)
 					(defq uses (dec (elem-get *item_usage* *item_selected*)))
 					(if (<= uses 0)
 						(progn
@@ -76,7 +79,7 @@
 							(elem-set *item_usage* *item_selected* 0))
 						(elem-set *item_usage* *item_selected* uses))
 					(use-super-mase this))
-				((= item (+ +frm_16x16_shield 1))
+				((= item +frm_16x16_shield1)
 					(defq uses (dec (elem-get *item_usage* *item_selected*)))
 					(if (<= uses 0)
 						(progn
@@ -84,7 +87,7 @@
 							(elem-set *item_usage* *item_selected* 0))
 						(elem-set *item_usage* *item_selected* uses))
 					(use-big-crossbow this))
-				((= item (+ +frm_16x16_shield 2))
+				((= item +frm_16x16_shield2)
 					(defq uses (dec (elem-get *item_usage* *item_selected*)))
 					(if (<= uses 0)
 						(progn
@@ -92,7 +95,7 @@
 							(elem-set *item_usage* *item_selected* 0))
 						(elem-set *item_usage* *item_selected* uses))
 					(use-small-crossbow this))
-				((= item (+ +frm_16x16_shield 3))
+				((= item +frm_16x16_shield3)
 					(defq uses (dec (elem-get *item_usage* *item_selected*)))
 					(if (<= uses 0)
 						(progn
@@ -100,7 +103,7 @@
 							(elem-set *item_usage* *item_selected* 0))
 						(elem-set *item_usage* *item_selected* uses))
 					(use-naptha this))
-				((= item (+ +frm_16x16_shield 4))
+				((= item +frm_16x16_shield4)
 					(defq uses (dec (elem-get *item_usage* *item_selected*)))
 					(if (<= uses 0)
 						(progn
@@ -108,7 +111,7 @@
 							(elem-set *item_usage* *item_selected* 0))
 						(elem-set *item_usage* *item_selected* uses))
 					(use-helper this))
-				((= item (+ +frm_16x16_shield 6))
+				((= item +frm_16x16_shield6)
 					(defq uses (dec (elem-get *item_usage* *item_selected*)))
 					(if (<= uses 0)
 						(progn
@@ -125,23 +128,23 @@
 					(elem-set *item_inventory* *item_selected* 0)
 					(elem-set *item_usage* *item_selected* 0)
 					(use-yellow-spell this))
-				((= item (+ +frm_16x16_spells 1))
+				((= item +frm_16x16_spells1)
 					(elem-set *item_inventory* *item_selected* 0)
 					(elem-set *item_usage* *item_selected* 0)
 					(use-black-spell this))
-				((= item (+ +frm_16x16_spells 2))
+				((= item +frm_16x16_spells2)
 					(elem-set *item_inventory* *item_selected* 0)
 					(elem-set *item_usage* *item_selected* 0)
 					(use-green-spell this))
-				((= item (+ +frm_16x16_spells 3))
+				((= item +frm_16x16_spells3)
 					(elem-set *item_inventory* *item_selected* 0)
 					(elem-set *item_usage* *item_selected* 0)
 					(use-white-spell this))
-				((= item (+ +frm_16x16_spells 4))
+				((= item +frm_16x16_spells4)
 					(elem-set *item_inventory* *item_selected* 0)
 					(elem-set *item_usage* *item_selected* 0)
 					(use-red-spell this))
-				((= item (+ +frm_16x16_spells 5))
+				((= item +frm_16x16_spells5)
 					(elem-set *item_inventory* *item_selected* 0)
 					(elem-set *item_usage* *item_selected* 0)
 					(use-blue-spell this))
@@ -227,11 +230,10 @@
 								(setq y (- y 4) x (logand (+ x 4) (neg tile_w)) xv 0 yv 0)
 								(. this :sp_set_frame (+ +frm_fanatic_l_climb (logand (>> y 2) 3)))
 								(def this :man_xv 0 :man_yv 0 :man_walk_tick 0))
-							(progn
-								; initiate jump
-								(def this :man_jump 1 :man_yv 0)
-								(bind '(jf jv) (first +jump_offsets))
-								(. this :sp_set_frame jf))))
+							; initiate jump
+							(def this :man_jump 1 :man_yv 0)
+							(bind '(jf jv) (first +jump_offsets))
+							(. this :sp_set_frame jf)))
 
 					; use currently selected item on fire button (only when grounded on surface)
 					((and (bits? *game_controls* +fkey_keya) (not *test_addon_pressed*))
@@ -250,11 +252,10 @@
 								(setq y (+ y 4) x (logand (+ x 4) (neg tile_w)) xv 0 yv 0)
 								(. this :sp_set_frame (+ +frm_fanatic_l_climb (logand (>> y 2) 3)))
 								(def this :man_xv 0 :man_yv 0 :man_walk_tick 0))
-							(progn
-								; duck on ground
-								(setq xv 0 yv 0)
-								(. this :sp_set_frame +frm_fanatic_l_duck)
-								(def this :man_xv 0 :man_yv 0 :man_walk_tick 0))))
+							; duck on ground
+							(setq xv 0 yv 0)
+							(. this :sp_set_frame +frm_fanatic_l_duck)
+							(def this :man_xv 0 :man_yv 0 :man_walk_tick 0)))
 
 					; walking left
 					((bits? *game_controls* +fkey_left)
@@ -282,29 +283,26 @@
 			this)))
 
 (defun cp-manbits (this that)
-	(when (defq mv (elem-get (get :sp_components this) 1))
-		(bind '(x y) (. this :sp_get_pos))
-		(defq yv (get 'vy mv)
-			h (get :sp_h this)
-			tile_y (logand (+ y yv h) -16)
-			oy (get :last_tile_y this))
-		(def this :last_tile_y tile_y)
-		(when (and (/= tile_y oy) (> yv 0))
-			(when (bits? (. *layer_land* :get_tile_flags (+ x 8) tile_y) +fmap_stand)
-				(defq new_y (- tile_y h))
-				(. this :sp_set_pos x new_y)
-				(set mv 'vy (neg yv))
-				(spawn-fizz-fx (+ x 8) tile_y)
-				(when (= (get :sp_frame this) (+ +frm_16x16_manbits 1))
-					(audio-play-rpc *sfx_clash1*))))))
+	(bind '(x y) (. this :sp_get_pos))
+	(defq mv (elem-get (get :sp_components this) +manbits_comp_mv)
+		yv (get 'vy mv) h (get :sp_h this)
+		tile_y (logand (+ y yv h) -16) oy (get :last_tile_y this))
+	(def this :last_tile_y tile_y)
+	(when (and (/= tile_y oy) (> yv 0)
+			(bits? (. *layer_land* :get_tile_flags (+ x 8) tile_y) +fmap_stand))
+		(. this :sp_set_pos x (- tile_y h))
+		(set mv 'vy (neg yv))
+		(spawn-fizz-fx (+ x 8) tile_y)
+		(if (= (get :sp_frame this) +frm_16x16_manbits1)
+			(audio-play-rpc *sfx_clash1*))))
 
 (defclass ManBits (frame vx vy) (Sprite *img_frm_16x16* :nil 16 16 :16x16 dt-fizz-fx)
 	; (ManBits frame vx vy) -> bouncing body part
-	(def this :sp_frame frame :last_tile_y -1)
+	(def this :last_tile_y -1)
 	(.-> this
-		(:sp_add_component (CP (const cp-manbits)))
+		(:sp_add_component (CP cp-manbits))
 		(:sp_add_component (MV vx vy 0 1 3 10))
-		(:sp_add_component (CP (const offscreen-nodeath-update)))
+		(:sp_add_component (CP offscreen-nodeath-update))
 		(:sp_set_frame frame)))
 
 (defun dt-kill-man (this)
@@ -318,11 +316,11 @@
 		(defq bit (ManBits f vx vy))
 		(. bit :sp_set_pos (- cx 8) (- cy 8))
 		(. *layer_player* :add_front bit))
-		`((,(+ +frm_16x16_manbits 1) 0 -10)
-		  (,(+ +frm_16x16_manbits 4) 1 -8)
-		  (,(+ +frm_16x16_manbits 2) -1 -8)
+		`((,+frm_16x16_manbits1 0 -10)
+		  (,+frm_16x16_manbits4 1 -8)
+		  (,+frm_16x16_manbits2 -1 -8)
 		  (,+frm_16x16_manbits 2 -6)
-		  (,(+ +frm_16x16_manbits 3) -2 -6))))
+		  (,+frm_16x16_manbits3 -2 -6))))
 
 (defclass Fanatic () (Sprite *img_fanatic_l* *img_fanatic_r* 32 32 :fanatic dt-kill-man)
 	; (Fanatic) -> sprite

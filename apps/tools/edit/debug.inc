@@ -52,7 +52,7 @@
 			(undoable buffer
 				(.-> *edit*
 					(:set_cursor 0 cy)
-					(:insert (cat {(debug-brk "} (num-to-hex-str (random +max_int)) {")}
+					(:insert (cat "(debug-brk \q" (num-to-hex-str (random +max_int)) "\q)"
 						+char_class_lf))
 					(:set_cursor 0 cy)))))
 	(refresh))

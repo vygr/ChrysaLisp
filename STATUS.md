@@ -7,6 +7,31 @@
 Added "-r, --repl" command line option to the `lisp` command. This allows for
 the passing of code on the command line to be executed in the REPL.
 
+Bug fix in `:lisp :read`. Its "missing )" and "unexpected )" errors were
+calling `:lisp :repl_error` with the arguments in the wrong order, so an
+unbalanced form, eg. `lisp -r (print (+ 1 2)`, crashed the node rather than
+reporting the error.
+
+`brackets` now skips quoted strings inside `{}` blocks, so
+`{this, "missing )"}` no longer reports a false mismatch.
+
+Onslaught can now be played remotely. A running game answers requests on its
+`@Onslaught` service, so any task on any node can set the control keys and
+read back the game state. The new `onslaught` command shows the state, sets
+keys, and has a bot, `onslaught -b 60`, that plays the game for you, path
+finding its way over the battle map to capture the enemy banner.
+See `apps/games/onslaught/app.inc` for the RPC calls.
+
+Onslaught now has the campaign map, ported from the C++ version. START GAME
+goes to the map, where you move between locations, attack enemy lands, and
+watch plagues, crusades and rebellions spread. Battles won and lost now win
+and lose territory. The mind combat against the wizardlord is ported too,
+and temples give up their talismans to those that win it. Field battles now
+pick one of the three field maps at random. Sprite deaths now work as the
+C++ engine did, a kill marks the sprite and it dies on its own turn in the
+update loop, so chained mine, monk and bomb explosions no longer nest on the
+stack, and blast kills now score. The mind duel background parallax scrolls.
+
 A command's stdin stream now has its own mailbox, `:stdio :init` no longer
 uses the task mailbox for it. This leaves `(task-mbox)` free in command apps,
 so code run via `lisp -r` under the GUI boot image can open a window and

@@ -258,7 +258,7 @@
 				(assign {data->+kn_msg_key, data->+kn_msg_callback_addr} '(:r0 :r1))
 				(vp-call-r :r1)
 				;wake originator
-				(call :sys_task :resume {data->+kn_msg_reply_id.+net_id_mbox_id)})
+				(call :sys_task :resume {data->+kn_msg_reply_id.+net_id_mbox_id})
 				(call :sys_mail :free {msg})
 				(break)
 			(vpcase '(:r0 = +kn_call_signal))

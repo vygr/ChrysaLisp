@@ -44,7 +44,7 @@
 	; (MT speed table [track]) -> component
 	(def (defq that (env 1)) :update (const mt-update)
 		'speed (or speed 1) 'table table 'count 0 'index 0
-		'track (ifn track :nil track))
+		'track track)
 	that)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -69,7 +69,7 @@
 	that)
 
 (defun init-ml (this that x y x1 y1 speed)
-	; (init-ml sprite ml x y x1 y1 [speed]) -> ml
+	; (init-ml sprite ml x y x1 y1 speed) -> ml
 	(. this :sp_set_pos x y)
 	(defq dx (- x1 x) dy (- y1 y)
 		d1x (cond ((< dx 0) -1) ((> dx 0) 1) (:t 0)) d2x d1x
@@ -202,6 +202,7 @@
 ; base sprite class
 ;;;;;;;;;;;;;;;;;;;
 
+
 (defclass Sprite (canvas_l canvas_r width height tag &optional death) (View)
 	; (Sprite canvas_l canvas_r width height [death]) -> sprite
 	(def this :color 0 :zoom *zoom*
@@ -209,7 +210,7 @@
 		:sp_frame_w width :sp_frame_h height
 		:sp_canvas_l canvas_l :sp_canvas_r canvas_r :sp_canvas_tag tag
 		:sp_frame 0 :sp_dir 1 :sp_oy 0 :sp_components (list)
-		:sp_death (ifn death :nil death) :sp_type 0 :sp_flags 0 :sp_dead :nil
+		:sp_death death :sp_type 0 :sp_flags 0 :sp_dead :nil
 		:sp_hitpnt 0 :sp_addon :nil)
 	(.-> this (:sp_set_pos 0 0) (:sp_set_size width height))
 
@@ -251,22 +252,27 @@
 
 	(defmethod :sp_get_canvas ()
 		; (. sprite :sp_get_canvas) -> canvas
-		(defq dir (get :sp_dir this)
-			cr (get :sp_canvas_r this)
-			cl (get :sp_canvas_l this))
-		(if (and cr (>= dir 0)) cr cl))
+		(if (and (defq cr (get :sp_canvas_r this)) (>= (get :sp_dir this) 0))
+			cr (get :sp_canvas_l this)))
 
 	(defmethod :sp_kill ()
 		; (. sprite :sp_kill) -> sprite
-		(unless (get :sp_dead this)
-			(def this :sp_dead :t :sp_frame -1)
-			(when (defq addon (get :sp_addon this))
-				(def this :sp_addon :nil)
-				(. addon :sp_kill))
-			(when (defq death (get :sp_death this))
-				(def this :sp_death :nil)
-				(death this))
-			(. this :sub))
+		;as the C++ killsprite, just mark it. the death hook and removal
+		;happen on this sprite's own turn in :sp_update, so a chain of
+		;deaths never nests on the stack
+		(def this :sp_dead :t :sp_frame -1)
+		this)
+
+	(defmethod :sp_reap ()
+		; (. sprite :sp_reap) -> sprite
+		;death processing, remove from the layer then run the death hook
+		(. this :sub)
+		(when (defq addon (get :sp_addon this))
+			(def this :sp_addon :nil)
+			(. addon :sp_kill))
+		(when (defq death (get :sp_death this))
+			(def this :sp_death :nil)
+			(death this))
 		this)
 
 	(defmethod :sp_set_frame (f)
@@ -284,20 +290,17 @@
 
 	(defmethod :sp_update ()
 		; (. sprite :sp_update) -> sprite
-		(if (or (= (get :sp_frame this) -1) (get :sp_dead this))
+		;as the C++ sprite_proc_cb, run the components until killed, by
+		;itself just now or by another sprite earlier, then die
+		(each (lambda (comp)
+			(unless (= (get :sp_frame this) -1)
+				(env-push comp)
+				((get :update comp) this comp)
+				(env-pop)))
+			(get :sp_components this))
+		(when (= (get :sp_frame this) -1)
 			(. this :sp_kill)
-			(progn
-				(each (lambda (comp)
-					(unless (or (= (get :sp_frame this) -1) (get :sp_dead this))
-						(if (env? comp)
-							(progn
-								(env-push comp)
-								((get :update comp) this comp)
-								(env-pop))
-							(comp this :nil))))
-					(get :sp_components this))
-				(when (or (= (get :sp_frame this) -1) (get :sp_dead this))
-					(. this :sp_kill))))
+			(. this :sp_reap))
 		this)
 
 	(defmethod :draw ()
@@ -308,16 +311,11 @@
 					(bind '(tid tw th) (texture-metrics texture))
 					(bind '(w h) (. this :get_size))
 					(when (and (> w 0) (> h 0))
-						(defq zoom (get :zoom this)
-							fw (get :sp_frame_w this)
-							fh (get :sp_frame_h this)
-							scaled_fh (* zoom fh)
-							scaled_fw (* zoom fw)
+						(defq zoom (get :zoom this) dir (get :sp_dir this)
+							scaled_fw (* zoom (get :sp_frame_w this))
+							scaled_fh (* zoom (get :sp_frame_h this))
 							raw_y (+ (* f scaled_fh) (* zoom (get :sp_oy this)))
-							col (/ raw_y th)
-							sy (% raw_y th)
-							sx (* col scaled_fw)
-							dir (get :sp_dir this))
+							sx (* (/ raw_y th) scaled_fw) sy (% raw_y th))
 						(when (and (>= dir 0) (get :sp_canvas_r this))
 							(setq sx (- tw (+ sx scaled_fw))))
 						(ifn (= (get :sp_h this) 48)

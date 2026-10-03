@@ -275,9 +275,12 @@ Conventions:
 	`:nil` if there is no object of interest. Do NOT use `catch` or `throw` in
 	runtime ChrysaLisp code.
 
-*	**Signals are debug-only:** The abort signal (`(. pipe :abort)`, Ctrl-C)
-	only wakes a blocked task in a debug build. `tests/system/test_pipe.lisp`
-	detects this and prints `[SKIP]` on a release image.
+*	**Signals and error checks are debug-only:** The abort signal
+	(`(. pipe :abort)`, Ctrl-C) only wakes a blocked task in a debug build,
+	and the reader's "missing )" / "unexpected )" checks are compiled out
+	of a release build, where an unbalanced form is undefined behaviour.
+	`tests/system/test_pipe.lisp` detects a release image and prints
+	`[SKIP]` for both.
 
 *	**Child tasks may be on another node:** A `Pipe` child can be placed on
 	any node, so `(mail-validate id)` cannot be used to check it is alive.
@@ -488,7 +491,7 @@ All checks should be performed using standard TUI pipeline commands:
 		echo "tests" | ./run.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
 		```
 
-		Must report `Passed: 1627, Failed: 0, RESULT: SUCCESS`.
+		Must report `Passed: 1629, Failed: 0, RESULT: SUCCESS`.
 
 	*	VP64 emulator:
 
@@ -497,11 +500,11 @@ All checks should be performed using standard TUI pipeline commands:
 		```
 
 		Must report `Passed: 1625, Failed: 0, RESULT: SUCCESS`, with one
-		`[SKIP] pipe abort, signals need a debug build` line. The emulator
+		`[SKIP] pipe abort and reader errors, need a debug build` line. The emulator
 		runs the release VP64 image, and signals, like `catch` / `throw`, are
 		a dev time debug build feature. To test the abort path under the
 		emulator, build the debug VP64 image with `make vp` first, which gives
-		`Passed: 1627`, then restore the release image with `make it`.
+		`Passed: 1629`, then restore the release image with `make it`.
 
 9.	**Multi-Instance Network Link & Cluster Tests (Both Native and -e Modes):**
 	Verify distributed node discovery, connection, remote task dispatch, auto-discovery,

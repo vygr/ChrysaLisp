@@ -6,21 +6,21 @@
 ; constants and movement tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun enemy-size (type)
+(defun enemy-size (sp_type)
 	; return (w h) based on type bitmask
 	(cond
-		((bits? type (logior +ftp_horse +ftp_tower +ftp_skeleton_horse)) '(64 64))
-		((bits? type (logior +ftp_boarrider +ftp_carpet)) '(64 32))
+		((bits? sp_type +ftp_horse +ftp_tower +ftp_skeleton_horse) '(64 64))
+		((bits? sp_type +ftp_boarrider +ftp_carpet) '(64 32))
 		(:t '(32 32))))
 
 (defq +blat_offsets ''((-32 -32) (0 -32) (0 0) (-32 0)
 		(-40 -16) (8 -16) (-16 -40) (-16 8)
 		(-24 -16) (-8 -16) (-16 -24) (-16 -8))
-	+drop_table `'(,+frm_16x16_shield ,(+ +frm_16x16_shield 1) ,(+ +frm_16x16_shield 2)
-		,(+ +frm_16x16_shield 3) ,(+ +frm_16x16_shield 4) ,(+ +frm_16x16_shield 5)
-		,(+ +frm_16x16_shield 6) ,+frm_16x16_spells ,(+ +frm_16x16_spells 1)
-		,(+ +frm_16x16_spells 2) ,(+ +frm_16x16_spells 3) ,(+ +frm_16x16_spells 4)
-		,(+ +frm_16x16_spells 4) ,(+ +frm_16x16_spells 5) ,(+ +frm_16x16_spells 5)))
+	+drop_table `'(,+frm_16x16_shield ,+frm_16x16_shield1 ,+frm_16x16_shield2
+		,+frm_16x16_shield3 ,+frm_16x16_shield4 ,+frm_16x16_shield5
+		,+frm_16x16_shield6 ,+frm_16x16_spells ,+frm_16x16_spells1
+		,+frm_16x16_spells2 ,+frm_16x16_spells3 ,+frm_16x16_spells4
+		,+frm_16x16_spells4 ,+frm_16x16_spells5 ,+frm_16x16_spells5))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; utilities & spawn helpers
@@ -31,32 +31,34 @@
 	(audio-play-rpc (if (= (game-random 2) 0) *sfx_death1* *sfx_death2*)))
 
 (defun blast-area (x y w h)
-	; damage/destroy enemies, enemy missiles, and mines in blast box
-	(while (defq hit (sprite-collide *layer_enemies* x y w h -1))
-		(. hit :sp_kill))
-	(while (defq hit (sprite-collide *layer_missiles* x y w h -1))
-		(. hit :sp_kill))
-	(while (defq hit (sprite-collide *layer_bans* x y w h +ftp_enemy_fire))
-		(. hit :sp_kill)))
+	; score and destroy enemies, enemy missiles, and mines in blast box.
+	; a kill only marks the sprite, so a mine or monk caught in the blast
+	; explodes on its own turn in the update loop, not inside this call
+	(each (lambda ((layer mask))
+		(while (defq hit (sprite-collide layer x y w h mask))
+			(play-death-score hit)
+			(. hit :sp_kill)))
+		(list (list *layer_enemies* -1) (list *layer_missiles* -1)
+			(list *layer_bans* +ftp_enemy_fire))))
 
 (defun item-info (frame)
 	; return (uses timeout) matching cpp definitions
 	(cond
 		((= frame +frm_16x16_gold) '(1 64))
 		((= frame +frm_16x16_shield) '(48 96))
-		((= frame (+ +frm_16x16_shield 1)) '(8 64))
-		((= frame (+ +frm_16x16_shield 2)) '(16 64))
-		((= frame (+ +frm_16x16_shield 3)) '(6 48))
-		((= frame (+ +frm_16x16_shield 4)) '(4 48))
-		((= frame (+ +frm_16x16_shield 5)) '(8 16))
-		((= frame (+ +frm_16x16_shield 6)) '(3 8))
+		((= frame +frm_16x16_shield1) '(8 64))
+		((= frame +frm_16x16_shield2) '(16 64))
+		((= frame +frm_16x16_shield3) '(6 48))
+		((= frame +frm_16x16_shield4) '(4 48))
+		((= frame +frm_16x16_shield5) '(8 16))
+		((= frame +frm_16x16_shield6) '(3 8))
 		((= frame +frm_16x16_spells) '(1 16))
-		((= frame (+ +frm_16x16_spells 1)) '(1 8))
-		((= frame (+ +frm_16x16_spells 2)) '(1 16))
-		((= frame (+ +frm_16x16_spells 3)) '(1 32))
-		((= frame (+ +frm_16x16_spells 4)) '(1 32))
-		((= frame (+ +frm_16x16_spells 5)) '(1 32))
-		('(1 32))))
+		((= frame +frm_16x16_spells1) '(1 8))
+		((= frame +frm_16x16_spells2) '(1 16))
+		((= frame +frm_16x16_spells3) '(1 32))
+		((= frame +frm_16x16_spells4) '(1 32))
+		((= frame +frm_16x16_spells5) '(1 32))
+		(:t '(1 32))))
 
 ;;;;;;;;;;;;;;;;
 ; death handlers
@@ -117,23 +119,14 @@
 	; drop item upon enemy death
 	(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
 	(when (<= 0 ex (- (* +map_width +tile_width) 32))
-		(defq cnt (dec (or *item_drop_cnt* 0))
-			frame :nil
-			drop_x (+ ex (/ ew 2) -8)
-			drop_y (+ ey eh -24)
-			vy -9)
-		(cond
-			((<= cnt 0)
-				; drop gold bag from top of visible screen
-				(setq cnt (+ (game-random 12) 12)
-					frame +frm_16x16_gold)
-				(bind '(lx ly &ignore) (. *world_scroll* :get_relative *layer_land*))
-				(bind '(ww &ignore) (. *world_scroll* :get_size))
-				(setq drop_x (+ (/ (neg lx) *zoom*) (game-random (max 1 (- (/ ww *zoom*) 16))))
-					drop_y (/ (neg ly) *zoom*)
-					vy 0))
-			(:t
-				(setq frame (elem-get +drop_table (game-random (length +drop_table))))))
+		(defq cnt (dec *item_drop_cnt*) frame :nil vy -9
+			drop_x (+ ex (/ ew 2) -8) drop_y (+ ey eh -24))
+		(if (> cnt 0)
+			(setq frame (elem-get +drop_table (game-random (length +drop_table))))
+			; drop gold bag from top of visible screen
+			(setq cnt (+ (game-random 12) 12) frame +frm_16x16_gold vy 0
+				drop_x (+ *cam_x* (game-random (const (- +window_width 16))))
+				drop_y *cam_y*))
 		(setq *item_drop_cnt* cnt)
 		(bind '(uses timeout) (item-info frame))
 		(defq item (Item frame uses timeout vy))
@@ -195,10 +188,9 @@
 			(set mv 'vy 0 'ay 0 'vx (* (get 'max_vx mv) dir))
 			(setq y (- (logand probe_y (neg +tile_height)) h))
 			(. this :sp_set_pos x y)
-			(when at_comp
-				(defq tbl (get 'table at_comp))
-				(set at_comp 'speed 2 'count 0 'index (if (> (length tbl) 1) 1 0))
-				(when tbl (. this :sp_set_frame (first tbl))))
+			(defq tbl (get 'table at_comp))
+			(set at_comp 'speed 2 'count 0 'index (if (> (length tbl) 1) 1 0))
+			(when tbl (. this :sp_set_frame (first tbl)))
 			(when (bits? (get :sp_type this) +ftp_horse +ftp_boarrider +ftp_skeleton_horse)
 				(audio-play-rpc *sfx_hooves*)))))
 
@@ -238,7 +230,7 @@
 
 (defun cp-item (this that)
 	; item physics: fall until hitting ground, then start timeout countdown
-	(defq mv (elem-get (get :sp_components this) 0))
+	(defq mv (elem-get (get :sp_components this) +comp_move))
 	(if (= (get 'ay mv) 0)
 		(if (<= (defq timeout (dec (get :item_timeout this))) 0)
 			(. this :sp_kill)
@@ -268,8 +260,9 @@
 		(:sp_add_component (CP offscreen-update))
 		(:sp_set_frame frame)))
 
-(defq +at_blood ''(35 36 37 38 -1)
-	+at_mine `'(,+frm_16x16_mine ,(+ +frm_16x16_mine 1)))
+(defq +at_blood `'(,+frm_16x16_l_blood ,+frm_16x16_l_blood1 ,+frm_16x16_l_blood2
+		,+frm_16x16_l_blood3 -1)
+	+at_mine `'(,+frm_16x16_mine ,+frm_16x16_mine1))
 
 (defclass Blood (x y dir) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
 	; (Blood x y dir) -> directional blood spray sprite
@@ -279,7 +272,7 @@
 		(:sp_add_component (AT 2 +at_blood :nil))
 		(:sp_add_component (CP offscreen-update))
 		(:sp_set_pos x y)
-		(:sp_set_frame 35)))
+		(:sp_set_frame +frm_16x16_l_blood)))
 
 (defclass Missile (frame &optional vx vy) (Sprite *img_frm_16x16_l* *img_frm_16x16_r* 16 16 :16x16_lr)
 	(setd vx 0 vy 0)
@@ -312,9 +305,9 @@
 	(defq fx (. (Fizz) :sp_set_pos (+ x (- (game-random 32) 16)) (+ y (- (game-random 32) 16))))
 	(. *layer_fx* :add_front fx))
 
-(defclass Banner (type frame) (Sprite *img_frm_16x16* :nil 16 48 :16x16 dt-fizz-fx)
-	; (Banner type frame) -> 16x48 banner sprite (flag top, pole middle & bottom)
-	(def this :sp_type type :sp_frame frame :sp_frame_h 16)
+(defclass Banner (sp_type frame) (Sprite *img_frm_16x16* :nil 16 48 :16x16 dt-fizz-fx)
+	; (Banner sp_type frame) -> 16x48 banner sprite (flag top, pole middle & bottom)
+	(def this :sp_type sp_type :sp_frame frame :sp_frame_h 16)
 	(.-> this
 		(:sp_add_component (CP cp-banner))))
 
@@ -322,9 +315,9 @@
 ; enemy factory routine
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun create-enemy-type (type)
+(defun create-enemy-type (sp_type)
 	; factory function mapping enum.inc type bit to enemy class
-	(case type
+	(case sp_type
 		(+ftp_horse (Horse))
 		(+ftp_spearman (Spearman))
 		(+ftp_wizard (Wizard))

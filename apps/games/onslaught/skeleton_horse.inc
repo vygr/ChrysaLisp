@@ -26,8 +26,7 @@
 	(. *layer_enemies* :add_front skel)
 	(defq bx (+ x 24) by (+ y 28))
 	(each (lambda ((vx vy))
-		(defq bone (. (Bone bx by vx vy) :sp_set_pos bx by))
-		(. *layer_fx* :add_front bone))
+		(. *layer_fx* :add_front (Bone bx by vx vy)))
 		+bone_vectors)
 	(audio-play-rpc *sfx_spell*))
 
@@ -37,7 +36,7 @@
 
 (defclass SkeletonHorse () (Sprite *img_frm_64x64_l* *img_frm_64x64_r* 64 64 :64x64_lr dt-kill-skeleton-horse)
 	; (SkeletonHorse) -> undead skeleton horse enemy sprite
-	(def this :sp_type +ftp_skeleton_horse :sp_hitpnt 6 :fall_frame 10)
+	(def this :sp_type +ftp_skeleton_horse :sp_hitpnt 6 :fall_frame +frm_64x64_l_skeleton_horse4)
 	(.-> this
 		(:sp_add_component (MV 0 0 0 0 8 8))
 		(:sp_add_component (AT 2 +at_skeleton_horse))

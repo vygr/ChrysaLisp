@@ -33,7 +33,7 @@
 	(defq comps (get :sp_components this)
 		mv (elem-get comps +en_comp_mv)
 		at_comp (elem-get comps +en_comp_at))
-	(when (and mv (= (get 'ay mv) 0))
+	(when (= (get 'ay mv) 0)
 		(ifn (get :spear_throwing this)
 			(progn
 				(defq cnt (dec (get :spear_timer this)))
@@ -52,8 +52,8 @@
 					spear (Spear (+ x (* dir 16)) y dir))
 				(. *layer_missiles* :add_front spear))
 			(when (and (get :spear_thrown this) (= idx 0) (= (get 'count at_comp) 0))
-				(def this :spear_throwing :nil :spear_thrown :nil)
-				(def this :spear_timer (+ (game-random 8) 16))
+				(def this :spear_throwing :nil :spear_thrown :nil
+					:spear_timer (+ (game-random 8) 16))
 				(defq dir (get :sp_dir this))
 				(set at_comp 'table +at_spearman 'speed 2 'count 0 'index 0)
 				(. this :sp_set_frame (first +at_spearman))

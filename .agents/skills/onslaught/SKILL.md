@@ -12,7 +12,9 @@ description: Use when writing, reviewing, or modifying the Onslaught 2D entity-c
 
 *	**Primary Files:** `sprite.inc`, `addons.inc`, `collisions.inc`,
 	`fanatic.inc`, `enemy.inc`, `title.inc`, `widgets.inc`, `map.inc`,
-	`sky.inc`, `utils.inc`, `assets.inc`, `enums.inc`, `app_impl.lisp`
+	`sky.inc`, `utils.inc`, `assets.inc`, `enums.inc`, `battle.inc`,
+	`menu.inc`, `mind.inc`, `campaign.inc`, `app.inc`, `remote.inc`,
+	`app_impl.lisp`, `cmd/onslaught.lisp`
 
 *	**Architectural Heritage:** Directly based on the original 1989 Commodore
 	Amiga / Atari ST game *Onslaught* by Chris Hinsley. The architectural
@@ -222,35 +224,61 @@ This mirrors the fixed struct member offset of the original C++ engine.
 
 ### 2.5 Destruction & Death Hook Contract
 
-Setting `:sp_frame` to `-1` or calling `(. sprite :sp_kill)` unlinks the sprite
-from its view layer and executes the death callback:
+Death works exactly as in the C++ engine (`engine.cpp`), where `killsprite`
+is just `SPRITE_FRAME = -1` and `sprite_proc_cb` does the death processing
+when it next visits that sprite.
+
+`(. sprite :sp_kill)`, or setting `:sp_frame` to `-1`, only marks the
+sprite. The death hook and removal happen on the sprite's own turn in
+`:sp_update`:
 
 ```vdu
 (defmethod :sp_kill ()
 	; (. sprite :sp_kill) -> sprite
-	(unless (get :sp_dead this)
-		(def this :sp_dead :t :sp_frame -1)
-		(when (defq addon (get :sp_addon this))
-			(def this :sp_addon :nil)
-			(. addon :sp_kill))
-		(when (defq death (get :sp_death this))
-			(def this :sp_death :nil)
-			(death this))
-		(. this :sub))
+	(def this :sp_dead :t :sp_frame -1)
 	this)
 
-(defmethod :sp_set_frame (f)
-	; (. sprite :sp_set_frame f) -> sprite
-	(if (= f -1)
+(defmethod :sp_reap ()
+	; (. sprite :sp_reap) -> sprite
+	(. this :sub)
+	(when (defq addon (get :sp_addon this))
+		(def this :sp_addon :nil)
+		(. addon :sp_kill))
+	(when (defq death (get :sp_death this))
+		(def this :sp_death :nil)
+		(death this))
+	this)
+
+(defmethod :sp_update ()
+	; (. sprite :sp_update) -> sprite
+	(each (lambda (comp)
+		(unless (= (get :sp_frame this) -1)
+			(env-push comp)
+			((get :update comp) this comp)
+			(env-pop)))
+		(get :sp_components this))
+	(when (= (get :sp_frame this) -1)
 		(. this :sp_kill)
-		(when (/= f (get :sp_frame this))
-			(def this :sp_frame f)))
+		(. this :sp_reap))
 	this)
 ```
 
-`:sp_dead` guarantees that `:sp_death` and `(:sub)` run exactly once, even if
-`:sp_kill` is invoked multiple times. When a sprite dies, any attached
-`:sp_addon` is killed automatically.
+*	A sprite that kills itself during its own update (an animation's `-1`,
+	going offscreen, a timeout) dies at the end of that same update.
+
+*	A sprite killed by another dies when the update loop reaches it: later
+	the same frame if it comes after its killer in the layer order, else
+	next frame. Until then it stays in its layer, is skipped by
+	`sprite-collide` and is not drawn.
+
+*	A death hook therefore always runs from the top of the update loop,
+	never from inside a collision handler or another death hook. A chain of
+	mines or monks ripples through the loop instead of nesting on the stack.
+
+*	Code may change `:sp_death` after calling `:sp_kill`, as the C++ does
+	(`killsprite(hit); hit->SPRITE_DEATH = dt_exp_fx;`).
+
+*	`clear-sprite-layers` removes sprites directly, without death hooks.
 
 ---
 
@@ -801,7 +829,139 @@ task-thread global variables.
 
 ---
 
-## 8. Prescriptions for Agents Modifying Onslaught
+## 8. Campaign Map (`campaign.inc`)
+
+`campaign.inc` is the port of the C++ `game_frame_map` family. It owns the
+map, mind and oracle game states, and is imported last, after `menu.inc`.
+
+### 8.1 Campaign State
+
+*	`*campaign_map*`: a list of 256 tile types (`+frm_campain_*`), a 16x16
+	grid loaded from `data/campainmap.dat`. Index is `x + y * 16`.
+
+*	`*location_x*` / `*location_y*`: the current location.
+	`*location_last_x*` / `*location_last_y*`: the last player owned location,
+	which events never overwrite. `*location_ox*` / `*location_oy*`: when
+	`*location_ox*` is not `-1` the only legal move is back to that location.
+
+*	`*campaign_active*` (`battle.inc`): `:nil` means a new campaign.
+	`map-state-init` then calls `game-generate-player-info`. The menu clears
+	it on START GAME, and death or losing the last territory clears it.
+
+### 8.2 Game Flow
+
+*	Menu START GAME goes straight to `+game_state_map`.
+
+*	Fire on the map enters the location: enemy, plague, crusade and
+	rebellion tiles start a battle, the oracle shows a hint, temples go to
+	the mind state. `b` uses a selected map talisman (`+fkey_keyb`).
+
+*	`game-generate-enemy-info` derives everything about the enemy at the
+	current location, `*enemy_army*`, `*enemy_banner*`, `*enemy_max*`,
+	`*mine_max*`, `*enemy_wizshot*` and `*game_level*`, by temporarily seeding
+	`game-random` with the location index. It is called every map frame, so
+	`battle-state-init` must not set these itself.
+
+*	Battle outcomes: field win -> seige, seige win -> mind. Field loss ->
+	defend, seige loss -> field, defend win -> field, defend loss -> mind.
+
+*	The mind state runs the mind combat (`mind.inc`). After 64 frames in
+	the won or lost state, `mind-won` / `mind-lost` apply the outcome: a
+	seige mind win takes the location, a defend mind loss loses the last
+	player location, a temple mind loss loses all talismans. Power is
+	restored to its value before the combat.
+
+*	Every `+campaign_event_rate` (200) map frames `campaign-events` creates,
+	destroys and grows the plagues, crusades and rebellions.
+
+### 8.3 Mind Combat (`mind.inc`)
+
+*	`Hand`: the player, runs around the inside edge of the screen in 8
+	pixel steps and fires up to `+mind_fire_max` `HandFire` shots at the mind.
+
+*	`Mind`: the wizardlord face. Homes on a random point, fires a `MindFire`
+	every 10 frames, and loses an arm segment every 8 hits. It dies when
+	`:mind_segs` reaches 0. A `MindFire` hit costs the player 200 power, and
+	power 0 loses the combat.
+
+*	Every 96 frames Mr Smith drops a `Talisman` item on the edge: a blue
+	spell (power) in a battle mind combat, or at a temple its terrain
+	talisman followed by the `+mind_items` table.
+
+*	**Multi blit drawing uses an overlay View, not segment sprites.** The
+	C++ drew the four arms from inside the mind's draw callback. A `Sprite`
+	can only draw inside its own bounds, so the arms are drawn by
+	`MindArms`, a full screen transparent `View` behind the mind. `cp-mind`
+	copies the mind's position, segment count, arm phase and frame count
+	into its properties each frame, and its `:draw` loops over the `+mind_arms`
+	table blitting segments. `MindMap`, the two plane tiled background, works
+	the same way. Use this pattern for any effect that needs many blits
+	outside one sprite's bounds.
+
+### 8.4 Drawing
+
+`CampaignView` is a full screen overlay `View`, like `MenuView`. Its `:draw`
+runs in the GUI task, so it reads only properties: `:map` (the tile list,
+or `:nil` for no map), `:canvas` (`*img_campain*`), `:tid` (ascii texture)
+and `:texts`, a list of `(txt x y col)` built each frame by
+`campaign-sync` in the game task. The banner, stance, wizardlord and sight
+are plain `Sprite` instances added to `*layer_fx*` in front of the view.
+
+---
+
+### 8.5 Stack Depth
+
+The task stack is small, around 6KB is classed as big. Hard mode against
+the Monk army, with its cascading explosions, is the deepest case, and
+peaks at about 5.3KB (it was over 7KB when death hooks ran nested inside
+collision handlers). Keep it that way:
+
+*	Never run a death hook from inside a collision handler or another death
+	hook. Call `:sp_kill` and let the sprite die on its own turn (section
+	2.5).
+
+*	Check the peak with the remote state's `:max_stack` (section 8.6) while
+	the bot plays, on a `make it validate` build so a stack overrun is
+	reported rather than crashing.
+
+### 8.6 Remote Play Service (`app.inc`, `remote.inc`)
+
+A running game declares the `@Onslaught` service on its `+select_service`
+mailbox. The main loop passes anything arriving there to `remote-request`,
+so any task, on any node, can play the game by mail:
+
+*	`app.inc` is the client side, an include for any program: the
+	`+ons_rpc` message structure and `onslaught-keys-rpc`,
+	`onslaught-state-rpc` and `onslaught-quit-rpc`.
+
+*	`(onslaught-keys-rpc keys)` sets the held control keys, a mask of the
+	`+fkey_*` bits. Remote keys act exactly as the user's keys do. Menu moves
+	and fire trigger on release, so tap by sending the key, then `0`.
+
+*	`(onslaught-state-rpc)` returns an `Lmap`: `:state` (`:menu`, `:map`,
+	`:battle`, `:mind` ...), `:level`, `:score`, `:power`, `:strength`,
+	`:inventory`, `:location`, `:back`, `:territory`, `:map` (the 256 tiles,
+	only on the map), `:army`, `:stack`, and for each sprite layer, `:player`,
+	`:enemies`, `:missiles`, `:items`, `:bans`, a list of
+	`(class frame x y)`, and `:man`, the player's `(x y w h dir)` in battle.
+
+*	`(onslaught-land-rpc)` returns the battle map's `+fmap_*` tile flags, one
+	char per tile, row by row. The bot fetches it on entering a battle and
+	path finds to the enemy banner over it. Also `:max_stack`, the peak task stack use on the
+	game's node from `(kernel-stats)`, and `:mem_used`.
+
+*	`remote.inc` is the server side. `remote-request` checks the message is
+	at least `+ons_rpc_size` long and otherwise ignores it, the service
+	mailbox is a public boundary. The state reply is `(str (remote-state))`,
+	read back by the client with `read`.
+
+*	`cmd/onslaught.lisp` is the `onslaught` command: a one line summary,
+	`-s` full state, `-k num` set keys, `-b secs` a simple bot that plays
+	(menu, map, attack, battle, mind duel), `-q` quit.
+
+---
+
+## 9. Prescriptions for Agents Modifying Onslaught
 
 When extending or maintaining this engine, follow these strict disciplines:
 
@@ -845,7 +1005,9 @@ When extending or maintaining this engine, follow these strict disciplines:
 
 8.	**No Component Handles on `Sprite`:**
 	Do not add properties like `:man_at` to `Sprite`. Index into
-	`:sp_components` using named constants (`+man_comp_at`, `+en_comp_mv`).
+	`:sp_components` using named constants: `+man_comp_at`, `+en_comp_mv`,
+	`+en_comp_at`, `+comp_move` (the MV, MT or ML that is first on missiles,
+	items, addons and fx) and `+manbits_comp_mv`. Never a raw `0` or `1`.
 
 9.	**Use `''(...)` for Constant Tables:**
 	Always define `+at_*`, `+mt_*`, and `+jump_offsets` using double-quoted
@@ -880,19 +1042,22 @@ When extending or maintaining this engine, follow these strict disciplines:
 	scene-graph linked list. Never wrap it in `(cat (. view :children))` when
 	simply iterating over child views, as the list is not mutated.
 
-16.	**GUI Apps Cannot Run in Headless / TUI Mode:**
-	Do not attempt to launch GUI applications (like Onslaught) from the TUI /
-	headless boot image via terminal commands or subagents. The user must run
-	the game in their native ChrysaLisp GUI environment. To facilitate testing,
-	configure `battle.inc` to pick a fixed army index in `battle-state-init`
-	(e.g. `*enemy_army* 1` for Necromantic) and ask the user to test and report
-	back.
+16.	**Use the Frame Enums, Not Numbers:**
+	Animation tables and `:sp_set_frame` calls use the `+frm_*` names from
+	`enums.inc` (`+frm_16x16_shield1`, `+frm_16x16_l_blood`), never magic
+	numbers or `(+ +frm_16x16_shield 1)`.
 
-17.	**No `return` in Control Flow:**
+17.	**GUI Apps Cannot Run in Headless / TUI Mode:**
+	Do not attempt to launch GUI applications (like Onslaught) from the TUI
+	boot image. Game logic and state code can be exercised by an agent with a
+	probe script under the GUI boot image (see the testing section). Gameplay
+	itself must be tested by the user in their ChrysaLisp GUI environment.
+
+18.	**No `return` in Control Flow:**
 	ChrysaLisp has no early `return` keyword. Structure branches cleanly
 	with `cond` and `ifn`.
 
-18.	**Adhere to ChrysaLisp Style Guidelines:**
+19.	**Adhere to ChrysaLisp Style Guidelines:**
 
 	*	Indent with 4-space tab characters.
 
@@ -904,7 +1069,7 @@ When extending or maintaining this engine, follow these strict disciplines:
 
 ---
 
-## 9. Testing & Verification Workflow
+## 10. Testing & Verification Workflow
 
 Because Onslaught is an interactive GUI application running on top of the
 ChrysaLisp compositor:
@@ -937,23 +1102,72 @@ ChrysaLisp compositor:
 
 		Must output nothing (zero forward references).
 
-2.	**User-Driven Testing:**
-	The agent cannot run or interact with the game window directly. All gameplay
-	verification must be performed by the user launching the game in their
-	active GUI session.
-
-3.	**Targeted Army Configuration in `battle.inc`:**
-	To verify specific entity interactions, AI logic, missile collisions, or
-	rendering, set `*enemy_army*` in `battle-state-init` (`battle.inc`) to the
-	specific army index matching the scenario under test:
+2.	**Agent Probe Scripts (Before User Testing):**
+	State and logic code can be run by an agent without playing the game.
+	Write a script in `tests/scratch/` that imports the same files as
+	`app_impl.lisp`, up to but not including `(defun main`, with `*app_root*`
+	set to `"apps/games/onslaught/"`. Do not import `app_impl.lisp` itself,
+	its `main` clashes with the `lisp` command's own. Then call the state
+	functions directly and `print` the globals:
 
 	```lisp
-	; in apps/games/onslaught/battle.inc (battle-state-init):
-	; *enemy_army* (random (length +army_tables))
+	(def *window* :zoom *zoom*)
+	(load-cpm-assets *zoom*)
+	(game-seed 12345)
+	(setq *campaign_active* :nil *game_controls* 0)
+	(map-state-init)
+	(setq *game_controls* +fkey_right) (map-state-update)
+	(print *location_x* " " *location_y*)
+	```
+
+	```sh
+	echo 'lisp -r (import {tests/scratch/probe.lisp})' | perl -e 'alarm 60; exec @ARGV' ./run.sh -n 1 -f; ./stop.sh
+	```
+
+	Keep probe loops flat, use `while` rather than nested `each` and
+	`lambda`, as the probe runs the game code several call levels deeper
+	than the real main loop does and can overflow the task stack by itself.
+	Call `(task-slice)` each frame so the host GUI stays responsive. To get
+	stack check errors rather than a VM crash, build with `make it validate`
+	first, and restore with `make it` afterwards. `(last (kernel-stats))`
+	gives the peak stack use.
+
+	To exercise the `:draw` methods too, call `(config-load)` and
+	`(window-resize)`, add `*window*` with `gui-add-front-rpc`, run frames
+	with `(update-frame)` and `(task-sleep 50000)` for a few seconds, then
+	`gui-sub-rpc`. Tell the user a window will appear. Never call
+	`config-save`, and set `*record_stream*` to `:nil` before a battle ends,
+	so the probe cannot overwrite the user's saved demo.
+
+3.	**Remote Play (Preferred for Whole Game Checks):**
+	Launch the real game and drive it through its `@Onslaught` service.
+	This runs the true main loop at its true stack depth, the user can
+	watch, and state comes back as data:
+
+	```sh
+	echo 'lisp -r (import {lib/task/pipe.inc}) (open-child {apps/games/onslaught/app.lisp} +kn_call_pin) (task-sleep 3000000) (pipe-run {onslaught -b 45}) (pipe-run {onslaught -s}) (pipe-run {onslaught -q})' | perl -e 'alarm 120; exec @ARGV' ./run.sh -n 1 -f; ./stop.sh
+	```
+
+	Use `onslaught -k num` and `onslaught -s` for scripted steps, or write a
+	script using `apps/games/onslaught/app.inc` directly. Tell the user the
+	game window will appear.
+
+4.	**User-Driven Testing:**
+	Gameplay verification must be performed by the user launching the game
+	in their active GUI session.
+
+5.	**Targeted Army Configuration:**
+	The enemy army is chosen by `game-generate-enemy-info` (`campaign.inc`)
+	from the map location. To verify specific entity interactions, AI logic,
+	missile collisions, or rendering, fix `*enemy_army*` there to the army
+	index matching the scenario under test:
+
+	```lisp
+	; in apps/games/onslaught/campaign.inc (game-generate-enemy-info):
 	*enemy_army* 1 ; fixed army for user testing
 	```
 
-4.	**Army Index Quick Reference:**
+6.	**Army Index Quick Reference:**
 
 	*	`0`: **HILLMEN** — Spearmen, Berserkers
 	*	`1`: **NECROMANTIC** — Wizards, Carpets
@@ -970,6 +1184,6 @@ ChrysaLisp compositor:
 	*	`12`: **JUGGERNAUT** — Towers, Balistas, Oil, Spearmen
 	*	`13`: **PLAGUE** — Skeletons, Skeleton Horses, Skeleton Monks
 
-5.	**Feedback Loop:**
+7.	**Feedback Loop:**
 	Always inform the user which army index was configured and specify the
 	exact visual or gameplay behavior they should observe and report back.

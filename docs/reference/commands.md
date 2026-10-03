@@ -536,6 +536,24 @@ Usage: null [options]
     options:
         -h --help: this help info.
 ```
+## onslaught
+```code
+Usage: onslaught [options]
+
+    options:
+        -h --help: this help info.
+        -s --state: print the full game state.
+        -k --keys num: set the held control keys mask.
+        -b --bot secs: let the bot play for secs seconds.
+        -q --quit: quit the game.
+
+    Remote play a running Onslaught game, on any node,
+    via its @Onslaught service.
+
+    Key mask bits: up 1, down 2, left 4, right 8, fire 16.
+
+    With no options prints a one line summary.
+```
 ## patch
 ```code
 Usage: patch [options] file_a [file_b]

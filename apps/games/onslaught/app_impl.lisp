@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./enums.inc")
+(import "./app.inc")
 
 (defq *app_root* (path-to-file) *game_state* +game_state_menu *game_state_next* +game_state_menu
 	+zoom_min 1 +zoom_max 3 *zoom* 2 *old_zoom* 0 +frame_rate 20 *running* :t
@@ -47,35 +48,9 @@
 (import "./demo.inc")
 (import "./battle.inc")
 (import "./menu.inc")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; unported state placeholders
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun map-state-init ())
-(defun map-state-update ())
-(defun mind-state-init ()
-	(setq *mind_skip_armed* :nil))
-(defun mind-state-update ()
-	(if (/= *game_controls* 0)
-		(setq *mind_skip_armed* :t)
-		(when *mind_skip_armed*
-			(setq *mind_skip_armed* :nil)
-			(goto-title +game_state_menu))))
-(defun mind-won-state-init ()
-	(goto-title +game_state_battle))
-(defun mind-won-state-update ())
-(defun mind-lost-state-init ()
-	(goto-title +game_state_battle))
-(defun mind-lost-state-update ())
-(defun oracle-state-init ()
-	(setq *oracle_skip_armed* :nil))
-(defun oracle-state-update ()
-	(if (/= *game_controls* 0)
-		(setq *oracle_skip_armed* :t)
-		(when *oracle_skip_armed*
-			(setq *oracle_skip_armed* :nil)
-			(goto-title +game_state_menu))))
+(import "./mind.inc")
+(import "./campaign.inc")
+(import "./remote.inc")
 
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (prin _) (print) :t)))
@@ -113,6 +88,8 @@
 		(rescale-active-sprites)
 		(update-panel-status)
 		(menu-resize *zoom*)
+		(campaign-resize *zoom*)
+		(mind-resize *zoom*)
 		(when *player_man* (update-camera *player_man*))
 		(bind '(x y) (. *window* :get_pos))
 		(bind '(w h) (. *window* :pref_size))
@@ -120,11 +97,11 @@
 		(.-> *window* (:change_dirty x y w h :t))))
 
 (enums +select 0
-	(enum main timer trash))
+	(enum main timer service))
 
 (defun main ()
 	(defq select (task-mboxes +select_size)
-		game_service (mail-declare (elem-get select +select_trash) "@Onslaught" "Onslaught Game 1.0"))
+		game_service (mail-declare (elem-get select +select_service) "@Onslaught" "Onslaught Game 1.0"))
 	(def *window* :zoom *zoom*)
 	(load-wav-assets)
 	(config-load)
@@ -141,14 +118,11 @@
 			(+select_main
 				; dispatch ui events (close, min, max, clicks, keys)
 				(cond
-					((and (or (= (getf *msg* +ev_msg_type) +ev_type_key_down)
-							(= (getf *msg* +ev_msg_type) +ev_type_key_up))
+					((and (or (= (defq ev_type (getf *msg* +ev_msg_type)) +ev_type_key_down)
+							(= ev_type +ev_type_key_up))
 						(not (Textfield? (. *window* :find_id (getf *msg* +ev_msg_target_id)))))
-						(defq
-							type (getf *msg* +ev_msg_type)
-							key (getf *msg* +ev_msg_key_key)
-							scode (getf *msg* +ev_msg_key_scode)
-							kmask :nil)
+						(defq key (getf *msg* +ev_msg_key_key)
+							scode (getf *msg* +ev_msg_key_scode) kmask :nil)
 						(cond
 							((or (= scode +sc_up) (= scode +sc_w) (= scode +sc_q)
 								 (= key (ascii-code "q")) (= key (ascii-code "Q")) (= key (ascii-code "w")) (= key (ascii-code "W")) (= key 0x40000052))
@@ -165,6 +139,8 @@
 							((or (= scode +sc_space) (= scode +sc_return) (= scode +sc_kp_enter)
 								 (= key (ascii-code " ")) (= key +char_lf) (= key +char_cr) (= key 0x40000058))
 								(setq kmask +fkey_keya))
+							((or (= scode +sc_b) (= key (ascii-code "b")) (= key (ascii-code "B")))
+								(setq kmask +fkey_keyb))
 							((or (= scode +sc_leftbracket) (= scode +sc_z)
 								 (= key (ascii-code "[")) (= key (ascii-code "z")) (= key (ascii-code "Z")))
 								(setq kmask +fkey_keyc))
@@ -172,7 +148,7 @@
 								 (= key (ascii-code "]")) (= key (ascii-code "x")) (= key (ascii-code "X")))
 								(setq kmask +fkey_keyd)))
 						(when kmask
-							(if (= type +ev_type_key_down)
+							(if (= ev_type +ev_type_key_down)
 								(setq *game_controls* (logior *game_controls* kmask)
 									*user_controls* (logior *user_controls* kmask))
 								(setq *game_controls* (logand *game_controls* (lognot kmask))
@@ -180,8 +156,11 @@
 							:t))
 					((. *window* :dispatch *msg*))
 					((. *window* :event *msg*))))
+			(+select_service
+				; remote play requests
+				(remote-request *msg*))
 			(+select_timer
-				; re-arm 30 fps timer
+				; re-arm frame timer
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(when (/= *game_state* *old_game_state*)
 					(setq *old_game_state* *game_state*)

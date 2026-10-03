@@ -131,10 +131,10 @@
 
 (errorcase
 (vp-label 'error2)
-	(call :lisp :repl_error {this, "missing )", +error_msg_wrong_types, list} {_, item})
+	(call :lisp :repl_error {this, list, "missing )", +error_msg_wrong_types} {_, item})
 	(goto 'error)
 (vp-label 'error1)
-	(call :lisp :repl_error {this, "unexpected )", +error_msg_wrong_types, list} {_, item})
+	(call :lisp :repl_error {this, list, "unexpected )", +error_msg_wrong_types} {_, item})
 (vp-label 'error)
 	(call :array :deref {stack})
 	(exit :lisp :read {this, item, c})

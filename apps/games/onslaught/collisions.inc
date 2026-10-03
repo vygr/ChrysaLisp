@@ -5,14 +5,16 @@
 (defq *man_power* +max_power *man_strength* +max_strength *man_score* 0)
 
 (defq +score_table
-	''(50 5 10 15 20 10 10 10 25 25 80 5 50 10 50 20 1 0 0))
+	''(50 5 10 15 20 10 10 10 25 25 80 5 50 10 50 20 1 0 0)
+	; targets that spark rather than bleed
+	+ftp_non_flesh (logior +ftp_enemy_fire +ftp_cannon +ftp_oil +ftp_balista
+		+ftp_tower +ftp_carpet +ftp_skeleton_monk +ftp_skeleton_horse +ftp_skeleton))
 
 (defun play-death-score (node)
-	(when (defq type (get :sp_type node))
-		(when (/= type 0)
-			(defq idx (log2 type))
-			(when (< -1 idx (length +score_table))
-				(setq *man_score* (+ *man_score* (elem-get +score_table idx)))))))
+	; banners and untyped sprites score nothing
+	(and (/= (defq sp_type (get :sp_type node)) 0)
+		(< (defq idx (log2 sp_type)) (length +score_table))
+		(setq *man_score* (+ *man_score* (elem-get +score_table idx)))))
 
 ; collision handlers for player and weapons
 
@@ -20,10 +22,10 @@
 	; player man colliding with enemy infantry / knight / skeleton
 	(defq frame (get :sp_frame this)
 		mv (elem-get (get :sp_components hit) +en_comp_mv))
-	(when (or (<= +frm_fanatic_l_climb frame (+ +frm_fanatic_l_climb 3))
+	(when (or (<= +frm_fanatic_l_climb frame +frm_fanatic_l_climb3)
 			  (<= (abs (- (+ (get :sp_y this) (get :sp_h this))
 						  (+ (get :sp_y hit) (get :sp_h hit)))) 4))
-		(when (and mv (= (get 'ay mv) 0))
+		(when (= (get 'ay mv) 0)
 			(def hit :sp_flags (logior (get :sp_flags hit) +fsp_collide))
 			(set mv 'vx 0))))
 
@@ -57,32 +59,25 @@
 (defun cl-man-hits (this hit)
 	; general hit by missile / enemy fire / mine
 	(defq hit_frame (get :sp_frame hit))
-	(cond
-		((and (or (= hit_frame +frm_16x16_mine) (= hit_frame (+ +frm_16x16_mine 1)))
-			  (/= (+ (get :sp_y this) (get :sp_h this))
-				  (+ (get :sp_y hit) (get :sp_h hit))))
-			; jumped over mine safely
-			:nil)
-		(:t
-			(defq hit_pnt (get :sp_hitpnt hit)
-				death_hook (get :sp_death hit)
-				dir (get :sp_dir hit))
-			(. hit :sp_kill)
-			(if (<= (+ +frm_16x16_wizshot 2) hit_frame (+ +frm_16x16_wizshot 3))
-				; wizard power shot drains player power level
-				(setq *man_power* (max 0 (- *man_power* hit_pnt)))
-				; other missiles / strength shot / mine drain strength level
-				(progn
-					(setq *man_strength* (max 0 (- *man_strength* hit_pnt)))
-					(unless death_hook
-						; projectile had no death explosion: silent directional blood spray
-						(bind '(mx my mw mh) (. this :sp_get_bounds))
-						(defq bx (- (+ mx (/ mw 2)) 8)
-							by (- (+ my (/ mh 2)) 8)
-							spray (Blood bx by dir))
-						(. *layer_fx* :add_front spray))))
-			(if (or (<= *man_strength* 0) (<= *man_power* 0))
-				(. this :sp_kill)))))
+	;a mine can be jumped over safely
+	(unless (and (<= +frm_16x16_mine hit_frame +frm_16x16_mine1)
+			(/= (+ (get :sp_y this) (get :sp_h this))
+				(+ (get :sp_y hit) (get :sp_h hit))))
+		(defq hit_pnt (get :sp_hitpnt hit) death_hook (get :sp_death hit)
+			dir (get :sp_dir hit))
+		(. hit :sp_kill)
+		(if (<= +frm_16x16_wizshot2 hit_frame +frm_16x16_wizshot3)
+			; wizard power shot drains player power level
+			(setq *man_power* (max 0 (- *man_power* hit_pnt)))
+			; other missiles / strength shot / mine drain strength level
+			(setq *man_strength* (max 0 (- *man_strength* hit_pnt)))
+			(unless death_hook
+				; projectile had no death explosion: silent directional blood spray
+				(bind '(mx my mw mh) (. this :sp_get_bounds))
+				(. *layer_fx* :add_front
+					(Blood (- (+ mx (/ mw 2)) 8) (- (+ my (/ mh 2)) 8) dir))))
+		(if (or (<= *man_strength* 0) (<= *man_power* 0))
+			(. this :sp_kill))))
 
 (defun cl-man-hits-banner (this hit)
 	; touching player banner recovers power to at least half
@@ -96,8 +91,8 @@
 		(audio-play-rpc *sfx_spell*)
 		(setq *enemy_banner_captured* :t)
 		(. hit :sp_kill)
-		(setq *man_score* (+ *man_score* 500))
-		(setq *man_power* (min +max_power (* *man_power* 2)))
+		(setq *man_score* (+ *man_score* 500)
+			*man_power* (min +max_power (* *man_power* 2)))
 		(if (= *game_state* +game_state_demo)
 			(progn
 				(setq *playback_stream* :nil *game_controls* 0)
@@ -120,12 +115,8 @@
 (defun cl-man-missile-hits (this hit)
 	; player missile / arrow / fireball hitting target enemy or missile
 	(audio-play-rpc *sfx_clash2*)
-	(defq hit_type (get :sp_type hit)
-		non_flesh (logior +ftp_enemy_fire +ftp_cannon +ftp_oil +ftp_balista
-						  +ftp_tower +ftp_carpet +ftp_skeleton_monk
-						  +ftp_skeleton_horse +ftp_skeleton))
 	(bind '(mx my mw mh) (. this :sp_get_bounds))
-	(if (/= (logand hit_type non_flesh) 0)
+	(if (bits? (get :sp_type hit) +ftp_non_flesh)
 		(spawn-fizz-fx (+ mx (/ mw 2)) (+ my (/ mh 2)))
 		(defq dir (get :sp_dir this)
 			spray (Blood (- (+ mx (/ mw 2)) 8) (- (+ my (/ mh 2)) 8) dir))
@@ -147,12 +138,8 @@
 (defun cl-man-addon-hits (this hit)
 	; player weapon mase hitting target enemy or missile
 	(audio-play-rpc (if (= (game-random 2) 0) *sfx_clash1* *sfx_clash2*))
-	(defq hit_type (get :sp_type hit)
-		non_flesh (logior +ftp_enemy_fire +ftp_cannon +ftp_oil +ftp_balista
-						  +ftp_tower +ftp_carpet +ftp_skeleton_monk
-						  +ftp_skeleton_horse +ftp_skeleton))
 	(bind '(mx my mw mh) (. this :sp_get_bounds))
-	(if (/= (logand hit_type non_flesh) 0)
+	(if (bits? (get :sp_type hit) +ftp_non_flesh)
 		(spawn-fizz-fx (+ mx (/ mw 2)) (+ my (/ mh 2)))
 		(defq dir (get :sp_dir this)
 			spray (Blood (- (+ mx (/ mw 2)) 8) (- (+ my (/ mh 2)) 8) dir))
@@ -168,11 +155,8 @@
 
 (defun collect-item (item)
 	; collect item into inventory, topping out usage or filling first free slot
-	(defq frame (get :sp_frame item)
-		uses (get :sp_hitpnt item)
-		slot -1
-		empty_slot -1
-		idx 7)
+	(defq frame (get :sp_frame item) uses (get :sp_hitpnt item)
+		slot -1 empty_slot -1 idx 7)
 	(while (>= idx 0)
 		(defq cur (elem-get *item_inventory* idx))
 		(cond

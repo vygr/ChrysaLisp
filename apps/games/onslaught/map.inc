@@ -23,7 +23,7 @@
 
 	(defmethod :load_field_map (&optional map_idx)
 		; (. map :load_field_map [map_idx]) -> map
-		(setd map_idx (or map_idx (get :map_idx this)))
+		(setd map_idx (get :map_idx this))
 		(defq map_data (load (cat *app_root* "data/fieldmap" (str map_idx) ".dat"))
 			map_flags (load (cat *app_root* "data/mapflags1.dat")))
 		(def this :map_idx map_idx :map_data map_data :map_flags map_flags :map_level +game_level_field)

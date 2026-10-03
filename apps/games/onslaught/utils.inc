@@ -57,7 +57,7 @@
 	(each (# (. %0 :sub)) (. layer :children)))
 
 (defun clear-sprite-layers ()
-	; remove all active sprites from all 7 sprite layers
+	; remove all active sprites from all 7 sprite layers, without death hooks
 	(each (# (clear-layer %0)) +sprite_layers))
 
 (defun set-world-layers-pos (x y)
@@ -69,30 +69,31 @@
 	(each (# (def %0 :zoom *zoom*) (. %0 :set_size w h)) +world_layers))
 
 (defun update-sprite-canvas (sp)
-	(when (def? :sp_canvas_tag sp)
-		(case (get :sp_canvas_tag sp)
-			(:fanatic
-				(set sp :sp_canvas_l *img_fanatic_l* :sp_canvas_r *img_fanatic_r*))
-			(:32c32
-				(set sp :sp_canvas_l *img_frm_32c32*))
-			(:16x16
-				(set sp :sp_canvas_l *img_frm_16x16*))
-			(:16x16_lr
-				(set sp :sp_canvas_l *img_frm_16x16_l* :sp_canvas_r *img_frm_16x16_r*))
-			(:16x64
-				(set sp :sp_canvas_l *img_frm_16x64*))
-			(:32x32_lr
-				(set sp :sp_canvas_l *img_frm_32x32_l* :sp_canvas_r *img_frm_32x32_r*))
-			(:32c32_lr
-				(set sp :sp_canvas_l *img_frm_32c32_l* :sp_canvas_r *img_frm_32c32_r*))
-			(:32x16_lr
-				(set sp :sp_canvas_l *img_frm_32x16_l* :sp_canvas_r *img_frm_32x16_r*))
-			(:64x32_lr
-				(set sp :sp_canvas_l *img_frm_64x32_l* :sp_canvas_r *img_frm_64x32_r*))
-			(:64x64_lr
-				(set sp :sp_canvas_l *img_frm_64x64_l* :sp_canvas_r *img_frm_64x64_r*))
-			(:64x64
-				(set sp :sp_canvas_l *img_frm_64x64*)))))
+	(case (get :sp_canvas_tag sp)
+		(:fanatic
+			(set sp :sp_canvas_l *img_fanatic_l* :sp_canvas_r *img_fanatic_r*))
+		(:32c32
+			(set sp :sp_canvas_l *img_frm_32c32*))
+		(:16x16
+			(set sp :sp_canvas_l *img_frm_16x16*))
+		(:16x16_lr
+			(set sp :sp_canvas_l *img_frm_16x16_l* :sp_canvas_r *img_frm_16x16_r*))
+		(:16x32
+			(set sp :sp_canvas_l *img_frm_16x32*))
+		(:16x64
+			(set sp :sp_canvas_l *img_frm_16x64*))
+		(:32x32_lr
+			(set sp :sp_canvas_l *img_frm_32x32_l* :sp_canvas_r *img_frm_32x32_r*))
+		(:32c32_lr
+			(set sp :sp_canvas_l *img_frm_32c32_l* :sp_canvas_r *img_frm_32c32_r*))
+		(:32x16_lr
+			(set sp :sp_canvas_l *img_frm_32x16_l* :sp_canvas_r *img_frm_32x16_r*))
+		(:64x32_lr
+			(set sp :sp_canvas_l *img_frm_64x32_l* :sp_canvas_r *img_frm_64x32_r*))
+		(:64x64_lr
+			(set sp :sp_canvas_l *img_frm_64x64_l* :sp_canvas_r *img_frm_64x64_r*))
+		(:64x64
+			(set sp :sp_canvas_l *img_frm_64x64*))))
 
 (defun rescale-active-sprites ()
 	; rescale positions, dimensions and canvases of all live sprites
@@ -114,9 +115,8 @@
 (defun check-empty-mase ()
 	; if player has no offensive weapons or attack spells, grant 6 mace swings in first free slot
 	(when (= (logand (++ *game_frame_count*) 127) 0)
-		(unless (some (# (and (> %0 0) (< %0 (const (+ +frm_16x16_spells 3))))) *item_inventory*)
-			(defq empty_idx (find 0 *item_inventory*))
-			(when empty_idx
+		(unless (some (# (< 0 %0 +frm_16x16_spells3)) *item_inventory*)
+			(when (defq empty_idx (find 0 *item_inventory*))
 				(elem-set *item_inventory* empty_idx +frm_16x16_shield)
 				(elem-set *item_usage* empty_idx 6)
 				(when (= *game_mode* +mode_auto)
@@ -150,10 +150,10 @@
 	(defq stack_val (max 0 (min 32 (* (length *enemy_stack*) 2)))
 		flag_y (+ +status_flag_y (- 32 stack_val))
 		flag_oy (- 32 stack_val)
-		power_val (max 0 (min 32 (/ (* (max 0 (min +max_power (or *man_power* 0))) 32) +max_power)))
+		power_val (max 0 (min 32 (/ (* (max 0 (min +max_power *man_power*)) 32) +max_power)))
 		power_y (+ +status_level_y (- 32 power_val))
 		power_oy (- 32 power_val)
-		strength_val (max 0 (min 32 (/ (* (max 0 (min +max_strength (or *man_strength* 0))) 32) +max_strength)))
+		strength_val (max 0 (min 32 (/ (* (max 0 (min +max_strength *man_strength*)) 32) +max_strength)))
 		strength_y (+ +status_level_y (- 32 strength_val))
 		strength_oy (- 32 strength_val))
 	(def *layer_panel_items* :canvas *img_frm_16x16*

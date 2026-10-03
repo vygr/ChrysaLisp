@@ -45,7 +45,7 @@
 			(set at_comp 'table body_anim 'speed 2 'count 0 'index 1 'loop :nil)
 			(defq wep (EnemyAddon this wep_mt 2 wep_anim 4))
 			(. this :add_before wep))
-		(when (and at_comp (nil? (get 'table at_comp)))
+		(unless (get 'table at_comp)
 			; attack cycle finished: clear collision state and resume walk
 			(def this :sp_flags (logand (get :sp_flags this) (lognot (logior +fsp_action +fsp_collide))))
 			(defq dir (get :sp_dir this))

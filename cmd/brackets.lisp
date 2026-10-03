@@ -44,7 +44,7 @@
 		(when (defq in (file-stream file))
 			(defq syntax (Syntax) line_no 0 stack (list)
 				errs (list) num_paren 0 num_square 0 num_brace 0
-				max_depth 0 top_forms 0)
+				max_depth 0 top_forms 0 in_quote :nil)
 			(while (defq raw_line (read-line in))
 				(task-slice)
 				(++ line_no)
@@ -57,6 +57,11 @@
 						(while (< ti tlen)
 							(defq ch (elem-get tok ti) ch_col (+ col ti))
 							(cond
+								;a quoted string inside a {} block, {this, "missing )"}, is not
+								;seen by the tokenizer, so skip over it here, it may span lines
+								((and (eql ch "\q") (some (# (eql (first %0) "{")) stack))
+									(setq in_quote (not in_quote)))
+								((and in_quote (nql ch "}")))
 								((or (eql ch "(") (eql ch "[") (eql ch "{"))
 									(cond
 										((eql ch "(") (++ num_paren))
@@ -66,6 +71,7 @@
 									(push stack (list ch line_no ch_col))
 									(setq max_depth (max max_depth (length stack))))
 								((or (eql ch ")") (eql ch "]") (eql ch "}"))
+									(setq in_quote :nil)
 									(cond
 										((eql ch ")") (++ num_paren))
 										((eql ch "]") (++ num_square))

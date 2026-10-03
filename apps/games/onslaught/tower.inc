@@ -47,7 +47,7 @@
 		(setq dir (neg dir))
 		(def this :sp_dir dir)
 		(set mv 'vx (* (get 'max_vx mv) dir)))
-	(when (and at_comp (= (get 'index at_comp) 4) (= (get 'count at_comp) 0))
+	(when (and (= (get 'index at_comp) 4) (= (get 'count at_comp) 0))
 		(each (lambda ((ox oy sdir))
 			(defq spear (Spear (+ x ox) (+ y oy) sdir))
 			(. *layer_missiles* :add_front spear))

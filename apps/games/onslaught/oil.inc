@@ -17,7 +17,7 @@
 	; drop boiling oil on index 5 matching cpp cp_oil
 	(defq comps (get :sp_components this)
 		at_comp (elem-get comps +en_comp_at))
-	(when (and at_comp (= (get 'index at_comp) 5) (= (get 'count at_comp) 0))
+	(when (and (= (get 'index at_comp) 5) (= (get 'count at_comp) 0))
 		(bind '(cx cy) (. this :sp_get_pos))
 		(defq drop (OilDrop (+ cx 8) (+ cy 16)))
 		(. *layer_missiles* :add_front drop)

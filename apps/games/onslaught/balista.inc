@@ -34,7 +34,7 @@
 	; fire balista arrow when bow reaches full draw (matching cpp cp_balista: index 3, count 0)
 	(defq comps (get :sp_components this)
 		at_comp (elem-get comps +en_comp_at))
-	(when (and at_comp (= (get 'index at_comp) 3) (= (get 'count at_comp) 0))
+	(when (and (= (get 'index at_comp) 3) (= (get 'count at_comp) 0))
 		(bind '(cx cy) (. this :sp_get_pos))
 		(defq dir (get :sp_dir this)
 			ax (+ cx (* dir 8))

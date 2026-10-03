@@ -18,21 +18,33 @@
 ; (terminate with -1 to trigger :sp_kill)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq +at_upper_mase ''(1 2 3 -1) +at_lower_mase ''(4 5 6 -1)
-	+at_big_crossbow ''(10 11 12 13 -1) +at_small_crossbow ''(7 8 9 -1)
-	+at_naptha ''(14 14 15 -1))
+(defq +at_upper_mase `'(,+frm_16x16_l_mase ,+frm_16x16_l_mase1 ,+frm_16x16_l_mase2 -1)
+	+at_lower_mase `'(,+frm_16x16_l_lmase ,+frm_16x16_l_lmase1 ,+frm_16x16_l_lmase2 -1)
+	+at_big_crossbow `'(,+frm_16x16_l_cbow ,+frm_16x16_l_cbow1 ,+frm_16x16_l_cbow2
+		,+frm_16x16_l_cbow3 -1)
+	+at_small_crossbow `'(,+frm_16x16_l_hbow ,+frm_16x16_l_hbow1 ,+frm_16x16_l_hbow2 -1)
+	+at_naptha `'(,+frm_16x16_l_napth ,+frm_16x16_l_napth ,+frm_16x16_l_napth1 -1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; player man body animations during weapon use
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq +at_man_upper_mase ''(14 15 16 4) +at_man_lower_mase ''(30 31 32 29)
-	+at_man_big_crossbow ''(20 21 22 23 0) +at_man_small_crossbow ''(17 18 19 4)
-	+at_man_naptha ''(24 25 26 4))
-
-(defq +black_spell_table
-	; (item uses) pairs matching cpp: 40% yellow spell (43), 40% green spell (45), 20% super helper (42)
-	''((43 1) (43 1) (45 1) (45 1) (42 3)))
+(defq +at_man_upper_mase `'(,+frm_fanatic_l_masehit ,+frm_fanatic_l_masehit1
+		,+frm_fanatic_l_masehit2 ,+frm_fanatic_l_walk4)
+	+at_man_lower_mase `'(,+frm_fanatic_l_lmasehit ,+frm_fanatic_l_lmasehit1
+		,+frm_fanatic_l_lmasehit2 ,+frm_fanatic_l_duck)
+	+at_man_big_crossbow `'(,+frm_fanatic_l_crossbow ,+frm_fanatic_l_crossbow1
+		,+frm_fanatic_l_crossbow2 ,+frm_fanatic_l_crossbow3 ,+frm_fanatic_l_walk)
+	+at_man_small_crossbow `'(,+frm_fanatic_l_handbow ,+frm_fanatic_l_handbow1
+		,+frm_fanatic_l_handbow2 ,+frm_fanatic_l_walk4)
+	+at_man_naptha `'(,+frm_fanatic_l_naptha ,+frm_fanatic_l_naptha1
+		,+frm_fanatic_l_naptha2 ,+frm_fanatic_l_walk4)
+	; (item uses) pairs matching cpp: 40% yellow spell, 40% green spell, 20% super helper
+	+black_spell_table `'((,+frm_16x16_spells 1) (,+frm_16x16_spells 1)
+		(,+frm_16x16_spells2 1) (,+frm_16x16_spells2 1) (,+frm_16x16_shield6 3))
+	+at_nbomb `'(,+frm_16x16_nbomb ,+frm_16x16_nbomb1 ,+frm_16x16_nbomb2 ,+frm_16x16_nbomb3)
+	+at_helper `'(,+frm_16x16_demon ,+frm_16x16_demon1)
+	+at_super_helper `'(,+frm_16x16_demon2 ,+frm_16x16_demon3))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; reusable 16x16 directional addon sprite class
@@ -135,29 +147,24 @@
 		(:sp_set_frame +frm_32x16_l_barrow)))
 
 (defun cp-nbomb (this that)
-	; bomb explosion upon reaching downward arc
-	(when (defq mv (elem-get (get :sp_components this) 0))
-		(when (>= (get 'vy mv) 5)
-			(bind '(x y) (. this :sp_get_pos))
-			(. this :sp_kill)
-			(spawn-bomb-fx x y)
-			(audio-play-rpc *sfx_explode*)
-			(blast-area (- x 24) (- y 24) 64 64))))
+	; bomb explodes on its downward arc, the dt-bomb-fx death hook does the damage
+	(if (>= (get 'vy (elem-get (get :sp_components this) +comp_move)) 5)
+		(. this :sp_kill)))
 
 (defclass NBomb (x y dir) (Sprite *img_frm_16x16* :nil 16 16 :16x16 dt-bomb-fx)
 	; (NBomb x y dir) -> thrown naptha grenade
 	(.-> this
 		(:sp_add_component (MV (* 10 dir) -4 0 1 10 8))
-		(:sp_add_component (AT 1 '(24 25 26 27)))
+		(:sp_add_component (AT 1 +at_nbomb))
 		(:sp_add_component (CP cp-nbomb))
 		(:sp_add_component (CP offscreen-nodeath-update))
 		(:sp_set_pos x y)
-		(:sp_set_frame 24)))
+		(:sp_set_frame +frm_16x16_nbomb)))
 
 (defq
-	+at_frag `'(,+frm_16x16_fires ,(+ +frm_16x16_fires 1))
-	+at_elemental `'(,+frm_32c32_elemental ,(+ +frm_32c32_elemental 1) ,(+ +frm_32c32_elemental 2)
-					 ,(+ +frm_32c32_elemental 3) ,(+ +frm_32c32_elemental 3) -1))
+	+at_frag `'(,+frm_16x16_fires ,+frm_16x16_fires1)
+	+at_elemental `'(,+frm_32c32_elemental ,+frm_32c32_elemental1 ,+frm_32c32_elemental2
+					 ,+frm_32c32_elemental3 ,+frm_32c32_elemental3 -1))
 
 (defclass Frag (x y vx vy) (Sprite *img_frm_16x16* :nil 16 16 :16x16)
 	; (Frag x y vx vy) -> elemental fire fragment dealing 1000 damage
@@ -176,8 +183,7 @@
 	(bind '(ex ey) (. this :sp_get_pos))
 	(defq cx (+ ex 8) cy (+ ey 8))
 	(each (lambda ((vx vy))
-		(defq frag (. (Frag cx cy vx vy) :sp_set_pos cx cy))
-		(. *layer_player* :add_front frag))
+		(. *layer_player* :add_front (Frag cx cy vx vy)))
 		'((0 -8) (6 -6) (8 0) (6 6) (0 8) (-6 6) (-8 0) (-6 -6)))
 	(dt-exp-fx this))
 
@@ -195,29 +201,23 @@
 	(. *layer_player* :add_front elem)
 	(audio-play-rpc *sfx_roar*))
 
-(defq +at_helper ''(28 29) +at_super_helper ''(30 31))
-
 (defun cp-helper (this that)
-	; homing helper demon tracking nearest enemy
+	; homing helper demon tracking the first live enemy
 	(defq life (dec (get :life this)))
 	(if (<= life 0)
 		(. this :sp_kill)
 		(def this :life life)
 		(bind '(hx hy) (. this :sp_get_pos))
-		(when (defq mv (elem-get (get :sp_components this) 0))
-			(if (defq enemy (some (lambda (sp)
-						(when (and (Sprite? sp)
-								(not (get :sp_dead sp))
-								(/= (get :sp_frame sp) -1)
-								(/= (get :sp_type sp) 0))
-							sp))
-						(. *layer_enemies* :children)))
-				(progn
-					(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
-					(set mv 'ax (if (>= (+ ex (/ ew 2)) hx) 1 -1)
-						'ay (if (>= (+ ey (/ eh 2)) hy) 1 -1))
-					(spawn-fizz-fx hx hy))
-				(set mv 'ax 0 'ay 0 'vx 0 'vy 0)))))
+		(defq mv (elem-get (get :sp_components this) +comp_move))
+		(ifn (defq enemy (some (lambda (sp)
+					(and (Sprite? sp) (not (get :sp_dead sp))
+						(/= (get :sp_frame sp) -1) (/= (get :sp_type sp) 0) sp))
+				(. *layer_enemies* :children)))
+			(set mv 'ax 0 'ay 0 'vx 0 'vy 0)
+			(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
+			(set mv 'ax (if (>= (- (+ ex (/ ew 2)) 8) hx) 1 -1)
+				'ay (if (>= (- (+ ey (/ eh 2)) 8) hy) 1 -1))
+			(spawn-fizz-fx hx hy))))
 
 (defclass Helper (x y) (Sprite *img_frm_16x16* :nil 16 16 :16x16 dt-fizz-fx)
 	; (Helper x y) -> blue demon homing helper (frames 28, 29)
@@ -229,7 +229,7 @@
 		(:sp_add_component (CL *layer_enemies* -1 *man_missile_collision_table*))
 		(:sp_add_component (CL *layer_missiles* +ftp_enemy_fire *man_missile_collision_table*))
 		(:sp_set_pos x y)
-		(:sp_set_frame 28)))
+		(:sp_set_frame +frm_16x16_demon)))
 
 (defclass SuperHelper (x y) (Sprite *img_frm_16x16* :nil 16 16 :16x16 dt-super-helper-transform)
 	; (SuperHelper x y) -> red demon homing helper (frames 30, 31)
@@ -241,7 +241,7 @@
 		(:sp_add_component (CL *layer_enemies* -1 *man_missile_collision_table*))
 		(:sp_add_component (CL *layer_missiles* +ftp_enemy_fire *man_missile_collision_table*))
 		(:sp_set_pos x y)
-		(:sp_set_frame 30)))
+		(:sp_set_frame +frm_16x16_demon2)))
 
 ;;;;;;;;;;;;;;;;;
 ; weapon triggers
@@ -275,15 +275,13 @@
 	wep)
 
 (defun cp-big-crossbow (this that)
-	(when (defq mt (elem-get (get :sp_components this) 0))
-		(when (and (>= (get 'index mt) 7) (not (get :arrow_fired this)))
-			(def this :arrow_fired :t)
-			(bind '(ax ay) (. this :sp_get_pos))
-			(defq dir (get :sp_dir this)
-				x (if (= dir 1) (+ ax 8) (- ax 24))
-				arr (BigArrow x ay dir))
-			(. *layer_player* :add_front arr)
-			(audio-play-rpc *sfx_twang1*))))
+	(when (and (>= (get 'index (elem-get (get :sp_components this) +comp_move)) 7)
+			(not (get :arrow_fired this)))
+		(def this :arrow_fired :t)
+		(bind '(ax ay) (. this :sp_get_pos))
+		(defq dir (get :sp_dir this))
+		(. *layer_player* :add_front (BigArrow (if (= dir 1) (+ ax 8) (- ax 24)) ay dir))
+		(audio-play-rpc *sfx_twang1*)))
 
 (defclass BigCrossbow (man mt_table) (Addon man mt_table 2 +at_big_crossbow)
 	; (BigCrossbow man mt_table) -> player heavy crossbow addon
@@ -303,14 +301,12 @@
 	wep)
 
 (defun cp-naptha (this that)
-	(when (defq mt (elem-get (get :sp_components this) 0))
-		(when (and (>= (get 'index mt) 7) (not (get :bomb_thrown this)))
-			(def this :bomb_thrown :t)
-			(bind '(ax ay) (. this :sp_get_pos))
-			(defq dir (get :sp_dir this)
-				x (if (= dir 1) (+ ax 4) (- ax 4))
-				bomb (NBomb x ay dir))
-			(. *layer_player* :add_front bomb))))
+	(when (and (>= (get 'index (elem-get (get :sp_components this) +comp_move)) 7)
+			(not (get :bomb_thrown this)))
+		(def this :bomb_thrown :t)
+		(bind '(ax ay) (. this :sp_get_pos))
+		(defq dir (get :sp_dir this))
+		(. *layer_player* :add_front (NBomb (if (= dir 1) (+ ax 4) (- ax 4)) ay dir))))
 
 (defclass Naptha (man mt_table) (Addon man mt_table 3 +at_naptha)
 	; (Naptha man mt_table) -> player naptha throwing addon
@@ -380,13 +376,10 @@
 	(audio-play-rpc *sfx_spell*)
 	(each (lambda (enemy)
 		(when (Sprite? enemy)
-			(defq type (get :sp_type enemy))
-			(unless (or (= type 0)
-					(bits? type +ftp_cannon +ftp_balista +ftp_oil +ftp_beserk))
-				(each (lambda (comp)
-					(when (and (env? comp) (def? 'max_vx comp))
-						(set comp 'vx 0 'max_vx 0)))
-					(get :sp_components enemy)))))
+			(defq sp_type (get :sp_type enemy))
+			(unless (or (= sp_type 0)
+					(bits? sp_type +ftp_cannon +ftp_balista +ftp_oil +ftp_beserk))
+				(set (elem-get (get :sp_components enemy) +en_comp_mv) 'vx 0 'max_vx 0))))
 		(. *layer_enemies* :children)))
 
 (defun use-red-spell (man)

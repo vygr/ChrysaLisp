@@ -49,9 +49,7 @@
 (defun draw-ascii-centered (view txt y col zoom tid)
 	; center 8x8 text across unscaled view width
 	(bind '(w &ignore) (. view :get_size))
-	(defq unscaled_w (if (and zoom (> zoom 0)) (/ w zoom) 320)
-		x (/ (- unscaled_w (* (length txt) 8)) 2))
-	(draw-ascii-string view txt x y col zoom tid))
+	(draw-ascii-string view txt (/ (- (/ w zoom) (* (length txt) 8)) 2) y col zoom tid))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; menu, credits, scores views
@@ -70,9 +68,9 @@
 		(draw-ascii-centered this "MAIN MENU" 20 +argb_yellow zoom tid)
 		(draw-ascii-centered this "START GAME" 44 (if (= selected 0) +argb_white +argb_red) zoom tid)
 		(draw-ascii-centered this "LOAD GAME" 60 (if (= selected 1) +argb_white +argb_red) zoom tid)
-		(draw-ascii-centered this (if (= dif 0) "EASY MODE" "HARD MODE") 76 (if (= selected 2) +argb_white +argb_red) zoom tid)
-		(draw-ascii-centered this (case mode (0 "AUTO MODE") (1 "ASSIST MODE") (2 "HUMAN MODE")) 92 (if (= selected 3) +argb_white +argb_red) zoom tid)
-		(draw-ascii-centered this (if (= snd 0) "SOUND ON" "SOUND OFF") 108 (if (= selected 4) +argb_white +argb_red) zoom tid)
+		(draw-ascii-centered this (elem-get +menu_dif_names dif) 76 (if (= selected 2) +argb_white +argb_red) zoom tid)
+		(draw-ascii-centered this (elem-get +menu_mode_names mode) 92 (if (= selected 3) +argb_white +argb_red) zoom tid)
+		(draw-ascii-centered this (elem-get +menu_sound_names snd) 108 (if (= selected 4) +argb_white +argb_red) zoom tid)
 		(draw-ascii-centered this "GAME CREDITS" 124 (if (= selected 5) +argb_white +argb_red) zoom tid)
 		(draw-ascii-centered this "SELECT WITH UP DOWN FIRE" 144 +argb_cyan zoom tid)
 		this)
@@ -222,8 +220,8 @@
 				(case *menu_selected*
 					(+menu_start
 						(. *menu_view* :sub)
-						(setq *campaign_active* :nil *game_level* +game_level_field)
-						(goto-title +game_state_battle))
+						;new campaign, map-state-init generates the player info
+						(setq *campaign_active* :nil *game_state* +game_state_map))
 					(+menu_define
 						(menu-sfx *sfx_spell*))
 					(+menu_difficulty
