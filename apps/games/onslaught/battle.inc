@@ -161,18 +161,21 @@
 
 (defun init-mines ()
 	; spawn ground mines ahead of player in *layer_bans*
+	; not on a frame a mine or monk blew up, else the new mine could land in
+	; the blast and set off a chain that feeds itself
 	(when (and (/= *game_level* +game_level_defend)
-			   (< *mine_count* *mine_max*)
-			   *player_man*)
-		(defq dir (get :sp_dir *player_man*))
-		(when (defq pt (getxy 16 8 dir))
-			(bind '(x y) pt)
-			(when (and (>= x 0) (< x (const (- (* +map_width +tile_width) 16))))
-				(unless (sprite-collide *layer_bans* (- x 28) y 72 8 +ftp_enemy_fire)
-					(defq mine (Mine))
-					(. mine :sp_set_pos x y)
-					(. *layer_bans* :add_front mine)
-					(++ *mine_count*))))))
+			   (< *mine_count* *mine_max*))
+		(when (and (not (bits? *game_flags* +fflag_mine)) *player_man*)
+			(defq dir (get :sp_dir *player_man*))
+			(when (defq pt (getxy 16 8 dir))
+				(bind '(x y) pt)
+				(when (and (>= x 0) (< x (const (- (* +map_width +tile_width) 16))))
+					(unless (sprite-collide *layer_bans* (- x 28) y 72 8 +ftp_enemy_fire)
+						(defq mine (Mine))
+						(. mine :sp_set_pos x y)
+						(. *layer_bans* :add_front mine)
+						(++ *mine_count*)))))
+		(setq *game_flags* (logand *game_flags* (lognot +fflag_mine)))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; battle state hooks

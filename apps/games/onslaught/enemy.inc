@@ -88,7 +88,9 @@
 	(play-sfx *sfx_explode* this))
 
 (defun dt-mine-explode (this)
-	; mine detonation: cluster explosion, blast area, decrement count
+	; mine detonation: cluster explosion, blast area, decrement count.
+	; flags the blast so init-mines holds off laying a new one into it
+	(setq *game_flags* (logior *game_flags* +fflag_mine))
 	(-- *mine_count*)
 	(bind '(mx my mw mh) (. this :sp_get_bounds))
 	(defq cx (+ mx (/ mw 2))

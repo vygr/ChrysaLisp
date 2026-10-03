@@ -14,6 +14,7 @@
 
 (defun dt-monk-explode (this)
 	; monk detonation: cluster explosion, blast area, drop item
+	(setq *game_flags* (logior *game_flags* +fflag_mine))
 	(-- *enemy_count*)
 	(bind '(mx my) (. this :sp_get_pos))
 	(dt-blat-fx this)
