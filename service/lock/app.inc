@@ -3,7 +3,7 @@
 (defq +lock_max_history 128)
 
 (enums +lock_type 0
-	(enum claim release history))
+	(enum claim release history cancel))
 
 (enums +lock_mode 0
 	(enum write read))
@@ -16,6 +16,7 @@
 (structure +lock_claim +lock_rpc_size)
 (structure +lock_release +lock_rpc_size)
 (structure +lock_history +lock_rpc_size)
+(structure +lock_cancel +lock_rpc_size)
 
 (defun lock-service ()
 	; (lock-service) -> netid | :nil
@@ -33,14 +34,24 @@
 (defun lock-claim-rpc (key &optional mode timeout)
 	; (lock-claim-rpc key [mode timeout_us]) -> :t | :nil
 	(defq svc (ensure-lock-service) mbox (mail-mbox))
-	(if (and svc
-			(mail-send svc (setf-> (cat (str-alloc +lock_claim_size) key)
+	(setd mode +lock_mode_write timeout (task-timeout 10))
+	(cond
+		((not svc) :nil)
+		((progn
+				(mail-send svc (setf-> (cat (str-alloc +lock_claim_size) key)
+					(+lock_rpc_reply_id mbox)
+					(+lock_rpc_type +lock_type_claim)
+					(+lock_rpc_mode mode)
+					(+lock_rpc_timeout timeout)))
+				(mail-read-timeout mbox timeout))
+			:t)
+		(:t ;we gave up, so tell the service. The lock may be granted just as
+			;we stop waiting, and would then be held by nobody.
+			(mail-send svc (setf-> (cat (str-alloc +lock_cancel_size) key)
 				(+lock_rpc_reply_id mbox)
-				(+lock_rpc_type +lock_type_claim)
-				(+lock_rpc_mode (ifn mode +lock_mode_write))
-				(+lock_rpc_timeout (ifn timeout (task-timeout 10)))))
-			(mail-read-timeout mbox (ifn timeout (task-timeout 10))))
-		:t :nil))
+				(+lock_rpc_type +lock_type_cancel)
+				(+lock_rpc_mode mode)))
+			:nil)))
 
 (defun lock-release-rpc (key &optional timeout)
 	; (lock-release-rpc key [timeout_us]) -> :t | :nil

@@ -151,6 +151,16 @@ line the whole indent when the break is at the line start or inside the
 indent, it gave only the part before the cursor. `:right_tab` leaves blank
 lines alone, so they gain no trailing spaces.
 
+Lock service fixes, found by running the tests on more than one node. A
+claim that timed out could still be granted, if the lock was released just
+as the caller gave up, and was then held by nobody until its lease ran out.
+`(lock-claim-rpc)` now sends a cancel when it gives up, and the service
+forgets the claim, or releases it if it had just been granted. A waiting
+claim, or a held write lock, from a node the service had not been routed to
+yet was treated as from a dead node and dropped. This happens for the first
+few seconds after a network boots. A node is now only dead if it was known
+and has gone.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

@@ -88,6 +88,13 @@ Options:
 	Use it with `-m` to chase a module that fails to run to the end. It is
 	slower, so is not the default.
 
+How many nodes the suite runs on matters too. `./run_tui.sh -f` boots the
+default network of several nodes, `-n 1` just one. Run both. Services and
+child tasks land on other nodes on a multi node network, so message timing
+and routing faults only show there. A test that waits for something that
+should happen must give it plenty of time, it returns as soon as it does,
+and use a short wait only for what should not happen.
+
 Which boot image the suite runs on matters:
 
 *	**Native, `./run_tui.sh -f`:** the native image has the error checks

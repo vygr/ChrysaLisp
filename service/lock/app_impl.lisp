@@ -8,12 +8,19 @@
 (defun conflict? (key_path locks)
 	(some (# (every (const eql) key_path (pfind %0 :path))) locks))
 
-(defun purge-expired (writes reads nodes now)
+(defun node-died? (node nodes known)
+	; (node-died? node nodes known) -> :t | :nil
+	;a node has died if it was known and is no longer there. A node that
+	;has never been seen has not died, it is just not routed to us yet, as
+	;happens for the first few seconds after a network boots.
+	(and (not (find node nodes)) (find node known)))
+
+(defun purge-expired (writes reads nodes known now)
 	(defq changed :nil i 0)
 	; 1. purge writes if node died or lease expired
 	(while (< i (length writes))
 		(defq rec (elem-get writes i) node (pfind rec :node))
-		(ifn (or (not (find node nodes))
+		(ifn (or (node-died? node nodes known)
 				(> (- now (pfind rec :time)) +lock_default_lease))
 			(++ i)
 			(elem-set writes i (last writes))
@@ -39,13 +46,15 @@
 		(clear history)
 		(each (# (push history %0)) keep)))
 
-(defun merge-locks (writes reads pending nodes now history)
+(defun merge-locks (writes reads pending nodes known now history)
 	(defq blocked (list) new_pending (list))
 	(each (lambda (req)
 		(defq node (pfind req :node))
-		; drop request if caller node died or caller already timed out
-		(unless (or (not (find node nodes))
-				(> (- now (pfind req :time)) (pfind req :timeout)))
+		; drop request if caller node died, or it is long past its timeout.
+		; A caller that gives up cancels its request, so this is only for
+		; one that could not, and waits twice as long so the cancel comes first.
+		(unless (or (node-died? node nodes known)
+				(> (- now (pfind req :time)) (* 2 (pfind req :timeout))))
 			(defq key (pfind req :key) key_path (pfind req :path) mode (pfind req :mode))
 			(cond
 				((= mode +lock_mode_write)
@@ -73,7 +82,9 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) lock_service (mail-declare (task-mbox) "@Lock" "Lock Service 0.4")
-		lock_writes (list) lock_reads (list) lock_pending (list) lock_history (list))
+		lock_writes (list) lock_reads (list) lock_pending (list) lock_history (list)
+		;every node we have ever been routed to
+		lock_known (list))
 	(mail-timeout (elem-get select +select_timer) +check_rate 0)
 	(while :t
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))
@@ -86,8 +97,8 @@
 							(defq caller_node (task-nodeid reply_id))
 							(push lock_pending (pmap :key key :path key_path :mode mode :reply reply_id
 								:node caller_node :time (pii-time) :timeout timeout))
-							; merge caller node to bypass eventual consistency lag
-							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (merge (lisp-nodes) (list caller_node)) (pii-time) lock_history)))
+							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending
+								(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history)))
 						(+lock_type_release
 							; 1. check writes
 							(ifn (defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_writes))
@@ -103,14 +114,37 @@
 								(pop lock_writes)
 								(log-lock-history lock_history "unlock" key "write"))
 							(mail-send reply_id "")
-							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time) lock_history)))
+							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending
+								(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history)))
+						(+lock_type_cancel
+							;the caller gave up waiting for a claim
+							(ifn (defq idx (some (# (if (eql (pfind %0 :reply) reply_id) (!))) lock_pending))
+								;not waiting, so it was granted as the caller gave up, undo that
+								(cond
+									((= mode +lock_mode_write)
+										(when (defq idx (some (# (if (eql (pfind %0 :reply) reply_id) (!))) lock_writes))
+											(elem-set lock_writes idx (last lock_writes))
+											(pop lock_writes)
+											(log-lock-history lock_history "unlock" key "write")))
+									((defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_reads))
+										(defq rec (elem-get lock_reads idx) cnt (dec (pfind rec :mode)))
+										(ifn (<= cnt 0)
+											(pinsert rec :mode cnt)
+											(elem-set lock_reads idx (last lock_reads))
+											(pop lock_reads))
+										(log-lock-history lock_history "unlock" key "read")))
+								;still waiting, forget it
+								(setq lock_pending (erase lock_pending idx (inc idx))))
+							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending
+								(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history)))
 						(+lock_type_history
 							;the last +lock_max_history entries
 							(mail-send reply_id (join (slice lock_history
 								(max 0 (- (length lock_history) +lock_max_history)) -1) "\n")))))
 				(+select_timer
 					(mail-timeout (elem-get select +select_timer) +check_rate 0)
-					(defq nodes (lisp-nodes) now (pii-time) purged (purge-expired lock_writes lock_reads nodes now))
+					(defq nodes (lisp-nodes) now (pii-time)
+						purged (purge-expired lock_writes lock_reads nodes (merge lock_known nodes) now))
 					(when (or purged (nempty? lock_pending))
-						(setq lock_pending (merge-locks lock_writes lock_reads lock_pending nodes now lock_history)))))))
+						(setq lock_pending (merge-locks lock_writes lock_reads lock_pending nodes lock_known now lock_history)))))))
 	(mail-forget lock_service))
