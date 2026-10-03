@@ -45,13 +45,13 @@
 ; --- Bit Counting ---
 ; nlz, nlo, ntz, nto (Leading/Trailing Zeros/Ones)
 ; 0 is 000...000 (64 bits)
-(assert-eq "nlz 0" 0 (nlz 0))
+(assert-eq "nlz 0" 64 (nlz 0))
 (assert-eq "ntz 0" 64 (ntz 0))
 ; 1 is 000...001
 (assert-eq "ntz 1" 0 (ntz 1))
 (assert-eq "nlz 1" 63 (nlz 1))
 ; -1 is 111...111
-(assert-eq "nlo -1" 0 (nlo -1))
+(assert-eq "nlo -1" 64 (nlo -1))
 (assert-eq "nto -1" 64 (nto -1))
 
 ; --- Math Ops ---

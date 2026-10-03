@@ -43,7 +43,7 @@
 			'(("read missing )" "lisp -r (print (+ 1 2)" "missing )")
 			("read unexpected )" "lisp -r (print 1))" "unexpected )"))))
 	(:t ;release build, so wake the child to let it exit
-		(print "[SKIP] pipe abort and reader errors, need a debug build")
+		(test-skip "pipe abort and reader errors" "needs an error checked build")
 		(mail-send child_mbox "")
 		(assert-eq "pipe abort child exit" "done" (mail-read-timeout reply_mbox))))
 

@@ -1,0 +1,82 @@
+(report-header "Error Checks: bad arguments must throw on a checked build")
+
+;these run only on an error checked build. A release build has no checks,
+;so there the forms are not run and are counted as skipped.
+
+; --- index out of range ---
+(assert-error "elem-get past end str" (elem-get "abc" 3))
+(assert-error "elem-get before start str" (elem-get "abc" -5))
+(assert-error "elem-get past end list" (elem-get (list 1 2 3) 3))
+(assert-error "elem-get empty list" (elem-get (list) 0))
+(assert-error "elem-get past end nums" (elem-get (nums 1 2) 2))
+(assert-error "elem-set past end" (elem-set (list 1 2 3) 3 9))
+(assert-error "slice past end str" (slice "hello" 0 6))
+(assert-error "slice before start str" (slice "hello" -7 0))
+(assert-error "slice past end list" (slice (list 1 2) 0 3))
+(assert-error "slice past end nums" (slice (nums 1 2) 3 0))
+
+; --- wrong types to sequence functions ---
+(assert-error "slice num" (slice 5 0 1))
+(assert-error "length num" (length 5))
+(assert-error "first num" (first 5))
+(assert-error "cat str list" (cat "a" (list 1)))
+(assert-error "cat str num" (cat "a" 5))
+(assert-error "cat list nums" (cat (list 1) (nums 2)))
+(assert-error "cat no args" (cat))
+(assert-error "find in num" (find 1 5))
+(assert-error "reverse num" (reverse 5))
+(assert-error "push num" (push 5 1))
+(assert-error "push str" (push "abc" "d"))
+(assert-error "push no elem" (push (list 1)))
+(assert-error "pop num" (pop 5))
+(assert-error "pop str" (pop "abc"))
+(assert-error "partition zero" (partition (list 1 2) 0))
+
+; --- arithmetic ---
+(assert-error "divide by zero" (/ 1 0))
+(assert-error "modulus by zero" (% 1 0))
+(assert-error "add str" (+ 1 "a"))
+(assert-error "add nil" (+ 1 :nil))
+(assert-error "add fixed and num" (* 1.5 2))
+(assert-error "compare str" (< 1 "a"))
+(assert-error "logand str" (logand 1 "a"))
+(assert-error "neg str" (neg "a"))
+(assert-error "abs nil" (abs :nil))
+(assert-error "add no args" (+))
+(assert-error "add one arg" (+ 5))
+(assert-error "sub one arg" (- 5))
+(assert-error "compare one arg" (= 1))
+(assert-error "min one arg" (min 3))
+(assert-error "shl one arg" (<< 1))
+(assert-error "shr one arg" (>> 1))
+(assert-error "asr one arg" (>>> 1))
+(assert-error "shl three args" (<< 1 2 3))
+(assert-error "shl str" (<< "a" 1))
+(assert-error "shl no args" (<<))
+(assert-error "nums str" (nums 1 "a"))
+(assert-error "nums-add lengths" (nums-add (nums 1 2) (nums 1)))
+
+; --- strings ---
+(assert-error "sym num" (sym 5))
+(assert-error "char str" (char "a"))
+(assert-error "code num" (code 5))
+(assert-error "code empty" (code ""))
+(assert-error "str-as-num num" (str-as-num 5))
+
+; --- binding and calling ---
+(assert-error "bind too few" (bind '(a b) (list 1)))
+(assert-error "bind too many" (bind '(a) (list 1 2)))
+(assert-error "bind num" (bind '(a b) 5))
+(assert-error "lambda too few" ((lambda (a) a)))
+(assert-error "lambda too many" ((lambda (a) a) 1 2))
+(assert-error "apply num" (apply + 5))
+(assert-error "eval no args" (eval))
+(assert-error "unbound function" (test_no_such_function 1))
+(assert-error "unbound symbol" test_no_such_symbol)
+(assert-error "setq unbound" (setq test_no_such_symbol 1))
+
+; --- environments ---
+(assert-error "def odd args" (def (env)))
+(assert-error "def num" (def 5 'a 1))
+(assert-error "get num" (get 5))
+(assert-error "env-push num" (env-push 5))

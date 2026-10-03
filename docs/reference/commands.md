@@ -723,8 +723,13 @@ Usage: tests [options]
 
     options:
         -h --help: this help info.
+        -m --match str: only the modules with str in their path.
+        -l --list: list the modules, do not run them.
+        -v --verbose: show every test, not just the failures.
 
-    Run the unit tests.
+    Run the unit tests, tests/<category>/test_<name>.lisp.
+
+    Prints the failures and a summary.
 ```
 ## time
 ```code

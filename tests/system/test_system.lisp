@@ -1,6 +1,3 @@
-(unless (def? 'report-header)
-	(import "tests/utils.inc"))
-
 (report-header "System & Tasking Smoke Tests")
 
 ; --- System Functions ---

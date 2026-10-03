@@ -53,6 +53,24 @@ prepass as one sweep with one map lookup per instruction. Boot images are
 cost that can be told from the noise. `docs/ai_digest/evidence_not_faith.md`
 has the re-measured sizes and timings.
 
+The unit tests have a new framework, `tests/suite.inc`, in place of
+`tests/run_all.lisp` and `tests/utils.inc`. The `tests` command now prints
+only the failures and a summary, so needs no `grep`, with `-v` to show every
+test, `-m str` to run just the matching modules, and `-l` to list them. Test
+modules are found by name, `tests/<category>/test_*.lisp`, and each runs in an
+environment of its own. New `(assert-error name form)` tests that a form
+throws, on an error checked build, and is counted as skipped on a release
+build. New `(test-cases form expected ...)` gives a table of edge cases. The
+raw script mode has gone.
+
+Four new edge case modules, the suite goes from 1629 to 2032 tests. They
+found these, now fixed. `(nlz 0)` and `(nlo -1)` gave 0, not 64. `(trim)` of
+a string that was all trim characters gave it back unchanged. `(join)` of an
+empty list threw. `(swap list i i)` gave `:nil`, not the list. An index out
+of range to `(slice)`, and any bad argument to `(<<)`, `(>>)` or `(>>>)`,
+crashed an error checked build rather than throw, as their error paths were
+passing the wrong register to `:lisp :repl_error`.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

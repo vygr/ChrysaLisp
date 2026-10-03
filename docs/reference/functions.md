@@ -1491,7 +1491,7 @@ accepts standard "Normal diff" format
 ### swap
 
 ```code
-(swap list idx idx)
+(swap list idx idx) -> list
 ```
 
 ### sym?
@@ -1614,6 +1614,8 @@ transfer a list of [key val]
 
 ```code
 (trim str [cls]) -> str
+
+when it is all cls the end is before the start, and slice would reverse
 ```
 
 ### trim-end

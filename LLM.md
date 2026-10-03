@@ -356,10 +356,12 @@ escape processing in both forms, so `\q` gives a double quote inside `{}`.
 Use `./run.sh -n 1 -f` instead to get the GUI boot image, with a TUI attached
 to the host, if the code depends on GUI classes or libs.
 
-There is a comprehensive test suite that can be run via.
+There is a comprehensive test suite, run with the `tests` command. It prints
+only the failures and a summary. `tests -m str` runs just the modules with
+`str` in their path, `tests -l` lists them.
 
 ```
-./run_tui.sh -n 1 -f -s tests/run_all.lisp
+echo "tests" | ./run_tui.sh -f
 ```
 
 If you are not changing the base VM or any VP level system files, which most app

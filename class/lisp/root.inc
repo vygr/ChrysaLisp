@@ -738,8 +738,8 @@
 			(push (push _q _l _p) (inc _p) _h))) _a)
 
 (defun swap (%0 %1 %2)
-	; (swap list idx idx)
-	(when (/= %1 %2)
+	; (swap list idx idx) -> list
+	(if (= %1 %2) %0
 		(defq _t (elem-get %0 %1))
 		(elem-set (elem-set %0 %1 (elem-get %0 %2)) %2 _t)))
 
@@ -917,7 +917,7 @@
 	(defq out (reduce (# (push %0 %1 seq)) seqs
 		(cap (inc (* 2 (length seqs))) (if (= (logand mode 1) 0) (list) (list seq)))))
 	(if (= (logand mode 2) 0) (pop out))
-	(apply (const cat) out))
+	(if (empty? out) (slice seq 0 0) (apply (const cat) out)))
 
 (defun unzip (seq cnt)
 	; (unzip seq cnt) -> seqs
@@ -1041,15 +1041,15 @@
 
 (defun nlz (%0)
 	; (nlz num) -> num
-	(defq n 0)
-	(while (> %0 0)
-		(setq n (inc n) %0 (<< %0 1))) n)
+	(if (= %0 0) 64
+		(progn
+			(defq n 0)
+			(while (> %0 0)
+				(setq n (inc n) %0 (<< %0 1))) n)))
 
 (defun nlo (%0)
 	; (nlo num) -> num
-	(defq n 0 %0 (lognot %0))
-	(while (> %0 0)
-		(setq n (inc n) %0 (<< %0 1))) n)
+	(nlz (lognot %0)))
 
 (defun bitcnt (n)
 	; (bitcnt n) -> num bits
@@ -1147,7 +1147,9 @@
 
 (defun trim (s &optional cls)
 	; (trim str [cls]) -> str
-	(slice s (bskip (setd cls " ") s 0) (rbskip cls s -1)))
+	;when it is all cls the end is before the start, and slice would reverse
+	(defq b (bskip (setd cls " ") s 0))
+	(slice s b (max b (rbskip cls s -1))))
 
 (defun str-to-real (%0)
 	; (str-to-real str) -> real

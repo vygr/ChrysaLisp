@@ -1,7 +1,7 @@
 ---
 name: chrysalisp-tests
 display-name: ChrysaLisp Tests
-description: Use when running or writing ChrysaLisp tests — the tests/ suite, run_all.lisp harness, assert macros, and standalone test scripts.
+description: Use when running or writing ChrysaLisp tests — the tests/ suite and its `tests` command, the assert macros, error and table tests, and standalone test scripts.
 ---
 
 # ChrysaLisp Tests Skill
@@ -17,19 +17,20 @@ acting, rather than skimming the whole file. Sections marked mandatory apply to
 every task.
 
 *	**[Running the Test Suite](#running-the-test-suite)**
-	How to run the suite from the host shell, always through `grep`. Also `lisp
-	-r` snippets, the standard sanity tools, and how piped execution works.
+	The `tests` command and its options, what the output looks like, and what
+	differs between the native and emulator images. Also `lisp -r` snippets,
+	the standard sanity tools, and how piped execution works.
 
 *	**[Standard TUI Make Commands](#standard-tui-make-commands)**
 	Every `make` option, which build each produces, and when a debug or
 	validate build is needed.
 
 *	**[Suite Layout](#suite-layout)**
-	Which file is the command, the harness, and each test module.
+	Which file is the command, the framework, and each test module.
 
 *	**[Writing Suite Modules](#writing-suite-modules)**
-	Read before adding a test to the suite: headers, assert macros, and
-	registering the module.
+	Read before adding a test to the suite: the assert macros, error tests,
+	table tests with `test-cases`, and how a module is found and isolated.
 
 *	**[Writing Standalone Test Scripts](#writing-standalone-test-scripts)**
 	One-off scripts outside the suite, with error catching and host shutdown.
@@ -47,65 +48,55 @@ every task.
 
 ## Running the Test Suite
 
-The standard, preferred way to run tests is through the TUI shell via the
-`tests` command (`cmd/tests.lisp`). This executes the suite inside the full
-operating system environment, with all standard libraries, background nodes,
-and system services initialized.
+Tests are run with the `tests` command (`cmd/tests.lisp`), inside the full
+operating system environment, with the standard libraries, background nodes
+and system services running. From the host shell, pipe the command to Node 0:
 
-From the host shell or automated tool invocations, feed the `tests` command to
-Node 0 via piped stdin.
+	echo "tests" | ./run_tui.sh -f
 
-**CRITICAL TOKEN-SAVING RULE:** When running tests from CLI / scripts / agents, **ALWAYS** pipe the output through `grep` to suppress the ~1,600 passing lines and save context tokens:
+By default it prints only the failures and a summary, so the output needs no
+filtering:
 
-*	**Failure check / quick filter (grep `[FAIL]`):**
+	=== Test Summary ===
+	Modules: 53
+	Passed: 2032
+	Failed: 0
+	Skipped: 0
+	RESULT: SUCCESS
 
-	```sh
-	echo "tests" | ./run_tui.sh -f 2>&1 | grep "\[FAIL\]"
-	```
+A failure names its module, the test, what was expected and what it got:
 
-	Outputs nothing if all tests pass; prints any failure lines if a test fails.
+	[FAIL] math/test_integers: nlz 0 | Expected: 64 | Got: 0
 
-*	**Headless TUI Mode with Summary (Preferred for AI / CLI):**
+Options:
 
-	```sh
-	echo "tests" | ./run_tui.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
-	```
+*	`tests -m str` runs only the modules with `str` in their path, so
+	`tests -m math` runs `tests/math/`, and `tests -m test_flow` one module.
 
-	Launches pure TUI on Node 0 with background VP nodes without opening a GUI
-	window, outputting only failures, skips, and the final pass/fail summary.
+*	`tests -l` lists the modules, without running them. Add `-m` to filter.
 
-*	**Emulated VP64 Mode (`-e`):**
+*	`tests -v` prints every test, pass or fail, with section headers and
+	skipped tests. Do not use it from an agent for the whole suite, it is
+	over 2,000 lines.
 
-	When verifying VM or VP-level changes across architectures:
+Which boot image the suite runs on matters:
 
-	```sh
-	echo "tests" | ./run_tui.sh -e -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
-	```
+*	**Native, `./run_tui.sh -f`:** the native image has the error checks
+	built in, so every test runs, including the error tests.
 
-*	**Full System Mode (with GUI services):**
+*	**Emulated VP64, `./run_tui.sh -e -f`:** `make it` builds the VP64 image
+	in release mode, with the error checks stripped out. The error tests
+	can not run there, so are counted as skipped, and the summary says so.
+	Run this when a change touches the VM or any VP level code.
 
-	```sh
-	echo "tests" | ./run.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
-	```
+*	**Full system, `./run.sh -f`:** the same suite with the GUI service up,
+	and a TUI attached to the host.
 
-	Launches Node 0 in the foreground with the `"Gui"` service active and a live
-	TUI shell running "under the hood" of the GUI window.
+Inside an interactive TUI or Terminal session just type `tests`.
 
-*	**Interactive TUI Session:**
-
-	Inside any interactive TUI or Terminal session:
-
-	```lisp
-	tests
-	```
-
-*	**Legacy Raw Script Fallback:**
-
-	If diagnosing low-level boot or startup issues before the TUI initializes:
-
-	```sh
-	./run_tui.sh -n 1 -f -s tests/run_all.lisp
-	```
+A full run takes a couple of seconds on native, and about 15 on the emulator.
+Guard a run with a time limit of seconds, not minutes, and treat hitting it
+as a hang or crash to investigate.
 
 ### Direct REPL Access (`lisp -r`)
 
@@ -250,23 +241,18 @@ identically for builds as they do for tests:
 
 ## Suite Layout
 
-*	`cmd/tests.lisp` — standard TUI command wrapper. Defines options, sets up
-	stdio streams, and invokes `(run-suite)`.
+*	`cmd/tests.lisp` — the `tests` command. Parses the options and calls
+	`(run-suite)`.
 
-*	`tests/run_all.lisp` — the test harness entry point. It imports
-	`./utils.inc`, defines `(run-suite)` (which resets `*test_passes*` and
-	`*test_failures*` to 0), imports every test module organized by category,
-	and calls `(print-summary)`. When executed directly without `options`
-	defined, an outer safety block wraps the run in a `catch` and shuts down
-	Node 0 via `(pii-exit)`.
-
-*	`tests/utils.inc` — the shared harness: global counters `*test_passes*` /
-	`*test_failures*`, `(report-header section_name)`, the assert macros, and
-	`(print-summary)`.
+*	`tests/suite.inc` — the framework: the counters, the assert macros,
+	module discovery, and `(run-suite [pattern verbose])`.
 
 *	Category folders — `core/`, `math/`, `collections/`, `sequences/`, `text/`,
 	`streams/`, `system/`, `net/`. Each module is a `test_<topic>.lisp` file of
-	top-level assertions executed when imported by `run_all.lisp`.
+	top-level assertions. Any file named `tests/<category>/test_*.lisp` is
+	found and run automatically, in path order, there is no list to add it
+	to. A script named `test_` that is not a suite module must be listed in
+	`+test_excludes` in `tests/suite.inc`.
 
 Keep any test scripts and associated files in the `tests/` folder. Never place
 temporary test scripts, scratch directories, or test output in the project root;
@@ -282,18 +268,48 @@ section header and then interleaves setup with assertions:
 	(defq x (my-function 10))
 	(assert-eq "basic" 20 x)
 
-No imports are needed — `utils.inc` is already loaded by `run_all.lisp`.
-Register a new module in `tests/run_all.lisp` under the matching category
-comment.
+No imports are needed for the framework, and the module needs no
+registration, the file name is enough. Each module runs in an environment of
+its own, so what it defines is gone when it ends. A module can not rely on a
+variable or function left behind by another, and has no need to `undef` its
+own.
 
-Assert macros (all take a short human-readable name first):
+Assertions, each takes a short name first:
 
 *	`(assert-eq name expected form)` — strict `eql` equality.
 
-*	`(assert-true name form)` — truthiness check.
+*	`(assert-true name form)` — the form gives anything but `:nil`. Use it
+	for predicates, many give a non `:nil` value that is not `:t`.
 
-*	`(assert-list-eq name expected form)` — deep equality via string
-	comparison (`equal?`), for nested structures.
+*	`(assert-list-eq name expected form)` — the two print the same, so a
+	list matches a `nums` vector with the same elements.
+
+*	`(assert-error name form)` — the form must throw an error. This is how
+	the argument checks at the VP to Lisp boundary are tested. It can only
+	be judged on an error checked build. On a release build the form is not
+	run, as it would be undefined behaviour, and the test is counted as
+	skipped.
+
+*	`(test-skip name why)` — count a test that can not run here.
+
+For many small cases use a table. Each form is followed by the result it
+must give, and is named by its own text. Lists are compared by content, to
+any depth, everything else by `eql`:
+
+	(test-cases
+		(slice "hello" 0 0) ""
+		(slice "hello" 3 1) "le"
+		(slice (list 1 2 3) -1 0) '(3 2 1)
+		(first (list)) :nil)
+
+Edge case modules, `test_*_edges.lisp`, are written this way. When adding
+cases, test what the language defines: empty sequences, the first and last
+index, negative indices, zero, the largest and smallest integer, and so on.
+Do not test what wrong code does on a release build, that is undefined, test
+with `assert-error` that the checked build catches it.
+
+A string in a test file can not hold an escaped `"`. Use a `{}` string when
+the text has a double quote in it, `{a "quoted" word}`.
 
 Conventions:
 
@@ -324,8 +340,8 @@ Conventions:
 	(`(. pipe :abort)`, Ctrl-C) only wakes a blocked task in a debug build,
 	and the reader's "missing )" / "unexpected )" checks are compiled out
 	of a release build, where an unbalanced form is undefined behaviour.
-	`tests/system/test_pipe.lisp` detects a release image and prints
-	`[SKIP]` for both.
+	`tests/system/test_pipe.lisp` detects a release image and counts both
+	as skipped with `(test-skip)`.
 
 *	**Child tasks may be on another node:** A `Pipe` child can be placed on
 	any node, so `(mail-validate id)` cannot be used to check it is alive.
@@ -333,7 +349,7 @@ Conventions:
 	does.
 
 *	**Optional features:** If a feature may not be defined, check `(def? 'name)`
-	and print `[SKIP] name not defined` rather than failing the suite.
+	and call `(test-skip name "not defined")` rather than failing the suite.
 
 ## Writing Standalone Test Scripts
 
@@ -531,28 +547,28 @@ All checks should be performed using standard TUI pipeline commands:
 	Must produce zero diff output (exit code 0).
 
 8.	**Full Functional Test Suite (Both Native and Emulator Modes):**
-	Run the complete test suite in both environments (always pipe through `grep` to save tokens):
+	Run the complete test suite in both environments:
 
 	*	Native host (under live GUI or TUI):
 
 		```sh
-		echo "tests" | ./run.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
+		echo "tests" | ./run.sh -f
 		```
 
-		Must report `Passed: 1629, Failed: 0, RESULT: SUCCESS`.
+		Must report `Failed: 0`, `Skipped: 0` and `RESULT: SUCCESS`.
 
 	*	VP64 emulator:
 
 		```sh
-		echo "tests" | ./run_tui.sh -e -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
+		echo "tests" | ./run_tui.sh -e -f
 		```
 
-		Must report `Passed: 1625, Failed: 0, RESULT: SUCCESS`, with one
-		`[SKIP] pipe abort and reader errors, need a debug build` line. The emulator
-		runs the release VP64 image, and signals, like `catch` / `throw`, are
-		a dev time debug build feature. To test the abort path under the
-		emulator, build the debug VP64 image with `make vp` first, which gives
-		`Passed: 1629`, then restore the release image with `make it`.
+		Must report `Failed: 0` and `RESULT: SUCCESS`. The emulator runs the
+		release VP64 image, which has no error checks or signals, so the
+		error tests are counted as `Skipped`, and the summary says why. To
+		run them under the emulator build the debug VP64 image with
+		`make vp` first, which gives `Skipped: 0`, then restore the release
+		image with `make it`.
 
 9.	**Multi-Instance Network Link & Cluster Tests (Both Native and -e Modes):**
 	Verify distributed node discovery, connection, remote task dispatch, auto-discovery,
@@ -614,7 +630,7 @@ All checks should be performed using standard TUI pipeline commands:
 
 	```sh
 	make install
-	echo "tests" | ./run_tui.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
+	echo "tests" | ./run_tui.sh -f
 	```
 
 	This verifies the full end-to-end user onboarding flow: cleaning the host

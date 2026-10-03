@@ -45,16 +45,16 @@ The `tests/net/` directory contains three categories of network tests:
 
 ## 2. In-Process Unit Tests (`test_url.lisp`, `test_json.lisp`)
 
-These modules are integrated into the canonical ChrysaLisp test suite in `tests/run_all.lisp`:
+These modules are part of the ChrysaLisp test suite, found automatically like any `tests/<category>/test_*.lisp` file:
 
 *	`test_url.lisp`: Tests URL encoding, decoding, path splitting, hex-escaping, and query parameter extraction.
 *	`test_json.lisp`: Tests JSON tokenization, nested objects, arrays, numbers, and string escaping.
 
 ### Running via Test Harness
 
-From the host shell (always pipe through `grep` to save tokens):
+From the host shell, `-m net` runs just these modules:
 ```bash
-echo "tests" | ./run_tui.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
+echo "tests -m net" | ./run_tui.sh -f
 ```
 
 Inside an interactive TUI or Terminal session:
