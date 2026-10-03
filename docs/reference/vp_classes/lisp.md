@@ -14,11 +14,9 @@
 
 ### (condn [(tst body)] ...) -> 'form
 
-### (env-pop [env]) -> 'env
+### (env-pop) -> 'env
 
 ### (env-push [env]) -> 'env
-
-### (env-tuck [env]) -> 'env
 
 ### (eval form [env]) -> 'form
 

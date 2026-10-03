@@ -95,7 +95,9 @@ custom Virtual Processor (VP64).
   binding native C/C++ functions compiled into the system.
 
 * **Environments and Scoping:** Environments are `Hmap` instances. `(env)`,
-  `(penv)`, `(env-push)`, `(env-pop)` manage lexical scopes.
+  `(penv)`, `(env-push [env])`, `(env-pop)` manage scopes. `(env-push)` pushes
+  a new scope, or the given environment, and `(env-pop)` returns the popped
+  one.
 
 * **REPL:** The `(repl stream name)` function drives the read-eval-print
   loop.

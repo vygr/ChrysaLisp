@@ -1648,6 +1648,12 @@ iterative topological sort using a heap-allocated DFS stack
 (ui-merge-props props) -> props
 ```
 
+### ui-save
+
+```code
+(ui-save stream view) -> tree | :nil
+```
+
 ### ui-tool-tips
 
 ```code

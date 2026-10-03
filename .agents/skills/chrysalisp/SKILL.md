@@ -284,6 +284,34 @@ ChrysaLisp's interpreter is self-hosted (`class/lisp/`, root environment in
 	capture defining scopes. All context must be supplied explicitly via
 	arguments or pre-exist in the caller's environment.
 
+*	**Manual Scope Control (`env-push` / `env-pop`):**
+
+	*	`(env-push)` pushes a new empty environment as the current scope.
+		This is the module pattern: `(env-push)` ... `(export-symbols ...)`
+		`(env-pop)`.
+
+	*	`(env-push env)` pushes the given environment instead, linking its
+		parent to the current scope. The environment must be parentless: a
+		fresh `(env 1)`, or one previously popped. Its bindings then read and
+		`setq` as plain variables. There is no `env-tuck`; this replaces it.
+
+	*	`(env-pop)` takes no arguments. It restores the parent scope, clears
+		the popped environment's parent link, and returns the popped
+		environment, ready to be pushed again.
+
+	*	Every push must be paired with a pop in the same function or file.
+		An unbalanced push leaves the wrong environment current when the
+		enclosing function returns.
+
+	*	While pushed, `defq` and `bind` define into the pushed environment.
+		Declare outer variables before the push and update them with `setq`:
+
+		(defq state (env 1) total :nil)
+		(def state 'count 0)
+		(env-push state)
+		(setq total (++ count))
+		(env-pop)
+
 *	**Destructuring & Tuple Unpacking (`bind` vs Manual `elem-get`):**
 	Always use `(bind '(var1 var2 ...) seq)` to unpack lists, tuples, or function return sequences.
 	Never write multi-line ladders of `(elem-get seq 0)`, `(elem-get seq 1)` in a `defq`:
@@ -655,6 +683,12 @@ ChrysaLisp's interpreter is self-hosted (`class/lisp/`, root environment in
 	present in the headless test environment or the TUI boot image
 	(`./run_tui.sh`); attempting to reference or instantiate GUI classes from
 	test scripts or TUI causes immediate `symbol_not_bound` errors.
+
+	To run GUI dependent code from an agent, pipe a `lisp -r` snippet to
+	`./run.sh -n 1 -f`, which gives the GUI boot image with a TUI attached to
+	the host. A widget tree can be built this way and dumped with
+	`(ui-save stream view)` for inspection, or a live window opened for the
+	user to interact with, see the `chrysalisp-gui-apps` skill.
 
 *	**Short-Circuiting, Embedded Binding, and Branching (`and` / `or`):**
 
@@ -1060,6 +1094,52 @@ GUI rendering executes in two deterministic passes:
 	*	For numbers/atoms (e.g. `(defq +width 32)`), the atom `32` is substituted directly.
 	*	For data lists, if defined with a single quote `(defq +my_list '(1 2 3))` or unquoted `(defq +my_list (list 1 2 3))`, `+my_list` evaluates to the raw list `(1 2 3)`. When this raw list is directly substituted into the AST, it forms an unquoted list `(1 2 3)`. At runtime, the evaluator interprets the first element `1` as a function call, failing with `not_a_function ! Obj: 1`.
 	*	Therefore, constant lists must always evaluate to a quoted form: use double quotes `(defq +my_list ''(1 2 3))` for pure literals, or quasiquote `(defq +my_list `'(,+item1 ,+item2))` when referencing symbols. Prebind evaluates these to `'(1 2 3)` (i.e. `(quote (1 2 3))`), substituting the `(quote ...)` form into the AST, which evaluates at runtime to the literal data list.
+
+## Direct REPL Access (`lisp -r`)
+
+The `lisp` command (`cmd/lisp.lisp`) has a `-r` / `--repl` option that reads
+the remainder of the command line into the REPL. Use it to try raw ChrysaLisp
+code, check a primitive's behaviour, or verify a snippet before putting it in
+source or documentation:
+
+`echo "lisp -r (print (* 123 456))" | ./run_tui.sh -n 1 -f`
+
+*	`./run_tui.sh -n 1 -f` — single node, TUI only.
+
+*	`./run.sh -n 1 -f` — single node GUI, with a TUI attached to the host. Use
+	this when the code depends on GUI classes or libs, which only exist in the
+	GUI boot image. A View tree built this way can be dumped to a file with
+	`(ui-save stream view)` for inspection (see the `chrysalisp-gui-apps`
+	skill).
+
+*	Several forms can follow `-r`; they are evaluated in order in the `lisp`
+	command's `main` environment. Output must be explicitly `print`ed. An
+	error prints as `Error: ... !` with the offending object.
+
+*	**Use `{}` for strings on the command line.** `{...}` and `"..."` are
+	identical string constructors, but the command line parser strips double
+	quotes, so `(print "hello world")` fails with `symbol_not_bound`:
+
+	`echo "lisp -r (print {hello world})" | ./run_tui.sh -n 1 -f`
+
+*	`(read)` does escape processing inside both string forms, so `\n`, `\t`,
+	`\\` and `\q` (a double quote) all work inside `{}`. Use `\q` when a
+	snippet needs a double quote character. Single quote the host shell
+	`echo` so the backslashes reach the TUI:
+
+	`echo 'lisp -r (print {a\tb\nc \qquoted\q})' | ./run_tui.sh -n 1 -f`
+
+*	To run a script file use `-r` with an import, so the command exits when
+	done: `lisp -r (import {tests/scratch/probe.lisp})`. A bare
+	`lisp file.lisp` imports the file and then waits in the stdin REPL.
+
+*	Start with one simple expression and build up. Do not batch many untested
+	snippets into one run.
+
+*	Keep `(env-push)` / `(env-pop)` balanced within a snippet.
+
+*	For anything longer than a line, write a script in `tests/scratch/` and
+	run it with `-s` instead (see the `chrysalisp-tests` skill).
 
 ## Building & Binary Verification
 

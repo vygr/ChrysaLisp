@@ -4,10 +4,19 @@
 
 ------
 
-Added `(env-tuck [env])` primitive to `:lisp` for fast dynamic environment
-splicing. Passing an `(env 1)` pushes it onto `+lisp_environment` as an
-enclosing scope, while calling without arguments restores the parent
-environment and clears `+hmap_parent` to eliminate stack frame leaks.
+Added "-r, --repl" command line option to the `lisp` command. This allows for
+the passing of code on the command line to be executed in the REPL.
+
+A command's stdin stream now has its own mailbox, `:stdio :init` no longer
+uses the task mailbox for it. This leaves `(task-mbox)` free in command apps,
+so code run via `lisp -r` under the GUI boot image can open a window and
+receive GUI events.
+
+Added `(ui-save stream view)` to `gui/lisp.inc`. Saves a View tree, types,
+properties and children, in `tree-save` format for inspection.
+
+`(env-push [env])` now pushes the given environment, or a new one if none.
+`(env-pop)` no longer takes an environment, and returns the popped environment.
 
 Bug fix in the GUI key up event handling. Was missing sending and up to the
 owner if the target View went away.

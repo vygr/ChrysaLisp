@@ -167,9 +167,13 @@ You can create private or library/object specific environments and access them
 with `(eval form [e])` !
 
 It is possible to manually push and pop the current environment using the
-`(env-push [e])` and `(env-pop [e])` functions ! The optional environment
-parameter allows construction of user environment stacks and trees. This is
-extremely low level and should be used with caution !
+`(env-push [e])` and `(env-pop)` functions ! With no parameter `(env-push)`
+pushes a new empty environment. Given the optional environment parameter it
+pushes that environment instead, which must not currently have a parent, so
+user environments can be spliced into the scope chain. `(env-pop)` unlinks
+the current environment from its parent, makes the parent current again, and
+returns the popped environment. This is extremely low level and should be
+used with caution !
 
 ### Properties
 

@@ -96,21 +96,20 @@
 
 (defun at-update (this that)
 	; this = sprite, that = component instance
-	(when table
-		(when (> speed 0)
-			(when (>= (++ count) speed)
-				(setq count 0)
-				(defq f (elem-get table index))
-				(cond
-					((= f -1)
-						(. this :sp_kill))
-					((and (not loop) (= (inc index) (length table)))
-						; non-looping animation reached end
-						(. this :sp_set_frame f)
-						(setq speed 0 table :nil count 0 index 0))
-					(:t
-						(. this :sp_set_frame f)
-						(setq index (if (= (inc index) (length table)) 0 (inc index))))))))
+	(when (> speed 0)
+		(when (>= (++ count) speed)
+			(setq count 0)
+			(defq f (elem-get table index))
+			(cond
+				((= f -1)
+					(. this :sp_kill))
+				((and (not loop) (= (inc index) (length table)))
+					; non-looping animation reached end
+					(. this :sp_set_frame f)
+					(setq speed 0 table :nil count 0 index 0))
+				(:t
+					(. this :sp_set_frame f)
+					(setq index (if (= (inc index) (length table)) 0 (inc index)))))))
 	that)
 
 (defun AT (speed table &rest opt)
@@ -127,8 +126,7 @@
 
 (defun cp-update (this that)
 	; this = sprite, that = component instance
-	(when proc
-		(proc this that))
+	(proc this that)
 	that)
 
 (defun CP (proc)
@@ -293,9 +291,9 @@
 					(unless (or (= (get :sp_frame this) -1) (get :sp_dead this))
 						(if (env? comp)
 							(progn
-								(env-tuck comp)
+								(env-push comp)
 								((get :update comp) this comp)
-								(env-tuck))
+								(env-pop))
 							(comp this :nil))))
 					(get :sp_components this))
 				(when (or (= (get :sp_frame this) -1) (get :sp_dead this))

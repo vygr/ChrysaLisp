@@ -341,6 +341,21 @@ raw `script_name.lisp` file.
 
 Keep any test scripts and associated files in the `tests/` folder !
 
+For a quick one line experiment there is no need for a script file. The `lisp`
+command has a `-r, --repl` option that reads the remainder of the command line
+into the REPL.
+
+```
+echo "lisp -r (print (* 123 456))" | ./run_tui.sh -n 1 -f
+```
+
+Use `{}` rather than `""` for strings on the command line, eg. `(print {hello
+world})`, as the command line parser strips double quotes. The reader does
+escape processing in both forms, so `\q` gives a double quote inside `{}`.
+
+Use `./run.sh -n 1 -f` instead to get the GUI boot image, with a TUI attached
+to the host, if the code depends on GUI classes or libs.
+
 There is a comprehensive test suite that can be run via.
 
 ```

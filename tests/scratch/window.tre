@@ -1,0 +1,621 @@
+((:Lmap 1)
+	:type :Window
+	:last_buttons 0
+	:is_window :t
+	:resizable :t
+	:drag_mode 0
+	:drag_offx 0
+	:drag_offy 0
+	:zoom 1.00000
+	:font
+	((:list 2)
+		"[fonts/OpenSans-Regular.ctf]"
+		18
+	)
+	:ink_color 4278190080
+	:color 4290822336
+	:hint_color 4289769648
+	:no_hint_color 4278190080
+	:border 1
+	:shadow 5
+	:children
+	((:list 1)
+		((:Lmap 1)
+			:type :Flow
+			:flow_flags 152
+			:children
+			((:list 3)
+				((:Lmap 1)
+					:type :Flow
+					:flow_flags 97
+					:color 4292927712
+					:border 1
+					:font
+					((:list 2)
+						"[fonts/Entypo.ctf]"
+						22
+					)
+					:children
+					((:list 4)
+						((:Lmap 1)
+							:type :Button
+							:state 1
+							:flow_flags 2312
+							:border 1
+							:text "EEA899"
+							:targets
+							((:array 1)
+								0
+							)
+							:children
+							((:list 1)
+								((:Lmap 1)
+									:type :Flow
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Text
+											:color 0
+											:state 0
+											:sym_cache :nil
+											:text_cache :nil
+											:offset 0
+										)
+									)
+								)
+							)
+						)
+						((:Lmap 1)
+							:type :Button
+							:state 1
+							:flow_flags 2312
+							:border 1
+							:text "EEA89B"
+							:targets
+							((:array 1)
+								1
+							)
+							:children
+							((:list 1)
+								((:Lmap 1)
+									:type :Flow
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Text
+											:color 0
+											:state 0
+											:sym_cache :nil
+											:text_cache :nil
+											:offset 0
+										)
+									)
+								)
+							)
+						)
+						((:Lmap 1)
+							:type :Button
+							:state 1
+							:flow_flags 2312
+							:border 1
+							:text "EEA89A"
+							:targets
+							((:array 1)
+								2
+							)
+							:children
+							((:list 1)
+								((:Lmap 1)
+									:type :Flow
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Text
+											:color 0
+											:state 0
+											:sym_cache :nil
+											:text_cache :nil
+											:offset 0
+										)
+									)
+								)
+							)
+						)
+						((:Lmap 1)
+							:type :Title
+							:font
+							((:list 2)
+								"[fonts/OpenSans-Bold.ctf]"
+								20
+							)
+							:border 1
+							:text "[Template]"
+							:children
+							((:list 1)
+								((:Lmap 1)
+									:type :Flow
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Text
+											:color 0
+											:state 0
+											:sym_cache :nil
+											:text_cache :nil
+											:offset 0
+										)
+									)
+								)
+							)
+						)
+					)
+				)
+				((:Lmap 1)
+					:type :Flow
+					:flow_flags 34
+					:color 4290822336
+					:font
+					((:list 2)
+						"[fonts/Entypo.ctf]"
+						28
+					)
+					:children
+					((:list 6)
+						((:Lmap 1)
+							:type :Button
+							:state 1
+							:flow_flags 2312
+							:border 1
+							:text "EEA7BE"
+							:targets
+							((:array 1)
+								3
+							)
+							:tip_text "[undo]"
+							:children
+							((:list 1)
+								((:Lmap 1)
+									:type :Flow
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Text
+											:color 0
+											:state 0
+											:sym_cache :nil
+											:text_cache :nil
+											:offset 0
+										)
+									)
+								)
+							)
+						)
+						((:Lmap 1)
+							:type :Button
+							:state 1
+							:flow_flags 2312
+							:border 1
+							:text "EEA69D"
+							:targets
+							((:array 1)
+								4
+							)
+							:tip_text "[redo]"
+							:children
+							((:list 1)
+								((:Lmap 1)
+									:type :Flow
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Text
+											:color 0
+											:state 0
+											:sym_cache :nil
+											:text_cache :nil
+											:offset 0
+										)
+									)
+								)
+							)
+						)
+						((:Lmap 1)
+							:type :Button
+							:state 1
+							:flow_flags 2312
+							:border 1
+							:text "EEA7BF"
+							:targets
+							((:array 1)
+								5
+							)
+							:tip_text "[rewind]"
+							:children
+							((:list 1)
+								((:Lmap 1)
+									:type :Flow
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Text
+											:color 0
+											:state 0
+											:sym_cache :nil
+											:text_cache :nil
+											:offset 0
+										)
+									)
+								)
+							)
+						)
+						((:Lmap 1)
+							:type :Button
+							:state 1
+							:flow_flags 2312
+							:border 1
+							:text "EEA888"
+							:targets
+							((:array 1)
+								6
+							)
+							:tip_text "[cut]"
+							:children
+							((:list 1)
+								((:Lmap 1)
+									:type :Flow
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Text
+											:color 0
+											:state 0
+											:sym_cache :nil
+											:text_cache :nil
+											:offset 0
+										)
+									)
+								)
+							)
+						)
+						((:Lmap 1)
+							:type :Button
+							:state 1
+							:flow_flags 2312
+							:border 1
+							:text "EEA78A"
+							:targets
+							((:array 1)
+								7
+							)
+							:tip_text "[copy]"
+							:children
+							((:list 1)
+								((:Lmap 1)
+									:type :Flow
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Text
+											:color 0
+											:state 0
+											:sym_cache :nil
+											:text_cache :nil
+											:offset 0
+										)
+									)
+								)
+							)
+						)
+						((:Lmap 1)
+							:type :Button
+							:state 1
+							:flow_flags 2312
+							:border 1
+							:text "EEA789"
+							:targets
+							((:array 1)
+								8
+							)
+							:tip_text "[paste]"
+							:children
+							((:list 1)
+								((:Lmap 1)
+									:type :Flow
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Text
+											:color 0
+											:state 0
+											:sym_cache :nil
+											:text_cache :nil
+											:offset 0
+										)
+									)
+								)
+							)
+						)
+					)
+				)
+				((:Lmap 1)
+					:type :Stack
+					:flow_flags 152
+					:children
+					((:list 2)
+						((:Lmap 1)
+							:type :Radiobar
+							:flow_flags 34
+							:mode :nil
+							:targets
+							((:array 1)
+								-66
+							)
+							:children
+							((:list 4)
+								((:Lmap 1)
+									:type :Button
+									:state 1
+									:text "[main]"
+									:targets
+									((:array 1)
+										-68
+									)
+									:tip_text "[main_view]"
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Flow
+											:children
+											((:list 1)
+												((:Lmap 1)
+													:type :Text
+													:color 0
+													:state 0
+													:sym_cache :nil
+													:text_cache :nil
+													:offset 0
+												)
+											)
+										)
+									)
+								)
+								((:Lmap 1)
+									:type :Button
+									:state 1
+									:text "[settings]"
+									:targets
+									((:array 1)
+										-68
+									)
+									:tip_text "[settings_view]"
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Flow
+											:children
+											((:list 1)
+												((:Lmap 1)
+													:type :Text
+													:color 0
+													:state 0
+													:sym_cache :nil
+													:text_cache :nil
+													:offset 0
+												)
+											)
+										)
+									)
+								)
+								((:Lmap 1)
+									:type :Button
+									:state 1
+									:text "[status]"
+									:targets
+									((:array 1)
+										-68
+									)
+									:tip_text "[status_view]"
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Flow
+											:children
+											((:list 1)
+												((:Lmap 1)
+													:type :Text
+													:color 0
+													:state 0
+													:sym_cache :nil
+													:text_cache :nil
+													:offset 0
+												)
+											)
+										)
+									)
+								)
+								((:Lmap 1)
+									:type :Button
+									:state 1
+									:text "[info]"
+									:targets
+									((:array 1)
+										-68
+									)
+									:tip_text "[info_view]"
+									:children
+									((:list 1)
+										((:Lmap 1)
+											:type :Flow
+											:children
+											((:list 1)
+												((:Lmap 1)
+													:type :Text
+													:color 0
+													:state 0
+													:sym_cache :nil
+													:text_cache :nil
+													:offset 0
+												)
+											)
+										)
+									)
+								)
+							)
+						)
+						((:Lmap 1)
+							:type :Flow
+							:flow_flags 240
+							:children
+							((:list 4)
+								((:Lmap 1)
+									:type :Grid
+									:grid_width 2
+									:grid_height 2
+									:color 4294944000
+									:children
+									((:list 4)
+										((:Lmap 1)
+											:type :Button
+											:state 1
+											:flow_flags 2312
+											:border 1
+											:text "[1]"
+											:targets
+											((:array 1)
+												9
+											)
+											:children
+											((:list 1)
+												((:Lmap 1)
+													:type :Flow
+													:children
+													((:list 1)
+														((:Lmap 1)
+															:type :Text
+															:color 0
+															:state 0
+															:sym_cache :nil
+															:text_cache :nil
+															:offset 0
+														)
+													)
+												)
+											)
+										)
+										((:Lmap 1)
+											:type :Button
+											:state 1
+											:flow_flags 2312
+											:border 1
+											:text "[2]"
+											:targets
+											((:array 1)
+												10
+											)
+											:children
+											((:list 1)
+												((:Lmap 1)
+													:type :Flow
+													:children
+													((:list 1)
+														((:Lmap 1)
+															:type :Text
+															:color 0
+															:state 0
+															:sym_cache :nil
+															:text_cache :nil
+															:offset 0
+														)
+													)
+												)
+											)
+										)
+										((:Lmap 1)
+											:type :Button
+											:state 1
+											:flow_flags 2312
+											:border 1
+											:text "[3]"
+											:targets
+											((:array 1)
+												11
+											)
+											:children
+											((:list 1)
+												((:Lmap 1)
+													:type :Flow
+													:children
+													((:list 1)
+														((:Lmap 1)
+															:type :Text
+															:color 0
+															:state 0
+															:sym_cache :nil
+															:text_cache :nil
+															:offset 0
+														)
+													)
+												)
+											)
+										)
+										((:Lmap 1)
+											:type :Button
+											:state 1
+											:flow_flags 2312
+											:border 1
+											:text "[4]"
+											:targets
+											((:array 1)
+												12
+											)
+											:children
+											((:list 1)
+												((:Lmap 1)
+													:type :Flow
+													:children
+													((:list 1)
+														((:Lmap 1)
+															:type :Text
+															:color 0
+															:state 0
+															:sym_cache :nil
+															:text_cache :nil
+															:offset 0
+														)
+													)
+												)
+											)
+										)
+									)
+								)
+								((:Lmap 1)
+									:type :Backdrop
+									:style :lines
+									:spacing 16
+									:min_width 512
+									:min_height 256
+									:color 4278190080
+									:ink_color 4294901760
+								)
+								((:Lmap 1)
+									:type :Backdrop
+									:style :axis
+									:spacing 16
+									:ink_color 4278255360
+									:color 4278190080
+								)
+								((:Lmap 1)
+									:type :Backdrop
+									:style :grid
+									:spacing 16
+									:ink_color 4278190335
+									:color 4278190080
+								)
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+)

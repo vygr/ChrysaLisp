@@ -20,7 +20,7 @@
 	;:r1-:r6, :r14, :f0-:f15
 
 	(def-vars
-		(ptr this mbox msg data)
+		(ptr this msg data)
 		(union
 			(ptr vtable)
 			(long ok)))
@@ -36,8 +36,8 @@
 		(call :sys_mail :mymail :nil {msg, data})
 		(vpif {msg->+msg_length})
 			;create stdin, stdout, stderr
-			(call :sys_task :mailbox :nil {mbox, _, _})
-			(call :in :create {mbox} {this->+stdio_stdin})
+			;stdin has its own mailbox, leaving the task mailbox free
+			(call :in :create {0} {this->+stdio_stdin})
 			(call :out :create
 				{data->+stdio_msg_init_stdout.+net_id_mbox_id,
 				data->+stdio_msg_init_stdout.+net_id_node_id.+node_id_node1,

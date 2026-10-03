@@ -73,6 +73,7 @@
 	(import "tests/system/test_fs_paths.lisp")
 	(import "tests/system/test_mail.lisp")
 	(import "tests/system/test_lock.lisp")
+	(import "tests/system/test_pipe.lisp")
 
 	; Network
 	(import "tests/net/test_url.lisp")

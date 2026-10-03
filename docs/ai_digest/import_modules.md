@@ -76,7 +76,13 @@ The pattern consists of three steps:
     symbols from the temporary child environment up into its parent.
 
 3.  **`(env-pop)`**: The temporary environment, containing all private helper
-    functions and variables, is completely discarded.
+    functions and variables, is unlinked from its parent and returned. As the
+    module ignores the returned value it is completely discarded.
+
+`(env-push)` can also be given an existing parentless environment to push,
+instead of creating a new one. This is not used by the module pattern, but lets
+user code splice its own environments into the scope chain, with `(env-pop)`
+handing the environment back for later reuse.
 
 This disciplined "sandbox and export" approach achieves robust encapsulation,
 preventing internal implementation details from polluting the parent scope,

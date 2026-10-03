@@ -121,6 +121,22 @@ Copy `cmd/template.lisp` as the starting point:
 *	**Output:** Write results to stdout with `print`/`prin`; that is
 	all the pipe needs.
 
+## Stdin and the Task Mailbox
+
+A command's stdin stream has its own mailbox. `(task-mbox)` is only used to
+receive the stdio init message, read by `(create-stdio)`, and is free for the
+app's own use after that.
+
+## Trying Code from the Command Line
+
+*	`lisp -r ...` reads the remainder of the command line into the REPL, so
+	a pattern can be tried before it goes into a cmd app:
+
+	`echo "lisp -r (print (* 123 456))" | ./run_tui.sh -n 1 -f`
+
+*	The finished app is run the same way, by piping its command line to the
+	TUI: `echo "files cmd/ .lisp | wc -lc" | ./run_tui.sh -n 1 -f`
+
 ## Examples
 
 *	`cmd/template.lisp`: minimal starting point.

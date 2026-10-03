@@ -453,6 +453,7 @@ Usage: lisp [options] [path] ...
 
     options:
         -h --help: this help info.
+        -r --repl ...: read code from remainder of command line into REPL.
 
     If no paths given on command line
     then will REPL from stdin.

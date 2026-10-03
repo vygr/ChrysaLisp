@@ -55,8 +55,11 @@
 		args))
 
 (defun redraw-line ()
-	;CR, Prompt, Buffer, Clear-To-End
-	(print +CR *env_terminal_prompt* buffer +CSI "K")
+	;if only the prompt is on the line, just the Buffer
+	;else CR, Prompt, Buffer, Clear-To-End
+	(if prompted (print buffer)
+		(print +CR *env_terminal_prompt* buffer +CSI "K"))
+	(setq prompted :nil)
 	;Position cursor if not at end of buffer
 	(if (< cursor (length buffer))
 		(print +CSI (str (- (length buffer) cursor)) "D")))
@@ -92,8 +95,8 @@
 									(scatter *meta_map* :history history)
 									(setq *history_idx* (length history) *history* history)
 									(config-save)))))
-					(if (not cmd) (print *env_terminal_prompt*))
-					(setq buffer "" cursor 0))
+					(unless cmd (print *env_terminal_prompt*))
+					(setq buffer "" cursor 0 prompted (not cmd)))
 				((or (= c 127) (= c 8)) ; Ctrl-H, Backspace (often 127 on TUI)
 					(when (> cursor 0)
 						(setq buffer (erase buffer (dec cursor) cursor))
@@ -180,7 +183,7 @@
 	(print "ChrysaLisp Terminal" +LF *env_terminal_prompt*)
 	;create child and send args
 	(mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_pin) (task-mbox))
-	(defq cmd :nil buffer "" cursor 0 esc_state 0 last_input 0
+	(defq cmd :nil buffer "" cursor 0 esc_state 0 last_input 0 prompted :t
 		*meta_map* :nil *history_idx* (config-load) *eof* :nil
 		*select* (list (task-mbox)))
 	(bind '(*history*) (gather *meta_map* :history))
@@ -197,6 +200,7 @@
 				(setq cmd :nil)
 				(if *eof*
 					(pii-exit)
-					(print +CR +LF *env_terminal_prompt*)))
+					(print +CR +LF *env_terminal_prompt*)
+					(setq prompted :t)))
 			(:t ;string from pipe
 				(print data)))))

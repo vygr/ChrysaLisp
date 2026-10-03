@@ -32,9 +32,9 @@ The Onslaught engine is built around four unifying principles:
 	Each sprite is an independent entity hosting its own coordinate state,
 	visual atlas, and an ordered component execution pipeline.
 
-2.	**Dynamic Component Scoping via `env-tuck`:**
+2.	**Dynamic Component Scoping via `env-push`:**
 	Components are encapsulated instances created via `(env 1)`. During
-	entity updates, `(env-tuck comp)` temporarily grafts the component
+	entity updates, `(env-push comp)` temporarily grafts the component
 	into the dynamic environment chain immediately beneath the handler's
 	argument frame. Handlers read and mutate component state directly via
 	`setq` and `++` as native local variables, avoiding property lookup
@@ -109,14 +109,14 @@ Key state properties on `this`:
 
 ---
 
-### 2.2 The `env-tuck` Invocation Contract
+### 2.2 The `env-push` Invocation Contract
 
 Every component is an `(env 1)` environment holding its state variables
 without colon prefixes (`vx`, `vy`, `speed`, `count`, etc.). During each
 frame tick, `update-sprite-layers` invokes `(. sprite :sp_update)` across all
 active sprites in each layer.
 
-The `:sp_update` pipeline wraps component execution in `env-tuck`:
+The `:sp_update` pipeline wraps component execution in `env-push` / `env-pop`:
 
 ```vdu
 (defmethod :sp_update ()
@@ -128,9 +128,9 @@ The `:sp_update` pipeline wraps component execution in `env-tuck`:
 				(unless (or (= (get :sp_frame this) -1) (get :sp_dead this))
 					(if (env? comp)
 						(progn
-							(env-tuck comp)
+							(env-push comp)
 							((get :update comp) this comp)
-							(env-tuck))
+							(env-pop))
 						(comp this :nil))))
 				(get :sp_components this))
 			(when (or (= (get :sp_frame this) -1) (get :sp_dead this))
@@ -138,9 +138,9 @@ The `:sp_update` pipeline wraps component execution in `env-tuck`:
 	this)
 ```
 
-The `env-tuck` execution lifecycle:
+The `env-push` execution lifecycle:
 
-1.	**Tuck:** `(env-tuck comp)` pushes `comp` onto `+lisp_environment` and
+1.	**Push:** `(env-push comp)` pushes `comp` onto `+lisp_environment` and
 	links `comp->+hmap_parent` to the caller's environment.
 
 2.	**Invocation:** `((get :update comp) this comp)` is called. The
@@ -171,7 +171,7 @@ The `env-tuck` execution lifecycle:
 		`(defq count 0)` creates a shadowed local variable in the handler
 		frame, leaving `comp`'s state unmutated. Use `(setq count 0)`.
 
-4.	**Untuck:** `(env-tuck)` with no arguments restores `+lisp_environment`
+4.	**Pop:** `(env-pop)` takes no arguments, restores `+lisp_environment`
 	to the caller's frame and clears `comp->+hmap_parent` to `0`, preventing
 	stack frame memory leaks across frames.
 
@@ -180,12 +180,12 @@ The `env-tuck` execution lifecycle:
 ### 2.3 External Access to Component Variables
 
 When entity logic, collision hooks, or dismount callbacks need to inspect or
-modify a component's variables from outside its tucked handler, **always use
+modify a component's variables from outside its pushed handler, **always use
 quoted bare symbols** (`'vx`, `'vy`, `'table`, `'speed`, `'index`, `'count`),
 never colon keywords:
 
 ```vdu
-; correct: using quoted bare symbols on untucked components
+; correct: using quoted bare symbols on unpushed components
 (set mv 'vx 0)
 (set mv 'vx (* (get 'max_vx mv) dir))
 (set at_comp 'table body_anim 'speed 2 'count 0 'index 1 'loop :nil)
@@ -805,9 +805,9 @@ task-thread global variables.
 
 When extending or maintaining this engine, follow these strict disciplines:
 
-1.	**Follow the `env-tuck` Dynamic Scoping Model:**
-	Wrap component execution in `(:sp_update)` with `(env-tuck comp)` before
-	invoking the handler and `(env-tuck)` immediately after. Component handlers
+1.	**Follow the `env-push` Dynamic Scoping Model:**
+	Wrap component execution in `(:sp_update)` with `(env-push comp)` before
+	invoking the handler and `(env-pop)` immediately after. Component handlers
 	access component state as bare local variables.
 
 2.	**No Colon Prefixes on Component State Variables:**

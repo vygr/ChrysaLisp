@@ -207,7 +207,8 @@ cycle:
 Key points:
 
 *	The module pattern — `env-push` ... `export-symbols` + `env-pop` —
-	keeps the maps local to this file's environment.
+	keeps the maps local to this file's environment. `(env-pop)` takes no
+	arguments and returns the popped environment, which the module ignores.
 
 *	Map values are action function *names*, not calls:
 	`dispatch-action` evaluates the list.
@@ -392,10 +393,193 @@ Key points:
 	changed regions with `:add_dirty` and widgets with `:dirty` (see
 	`apps/demos/boing/app.lisp`).
 
+## Running GUI Code & Inspecting View Trees
+
+An agent cannot take a screen grab, but it can build a widget tree under the
+GUI boot image and get the resulting View tree back as a file to inspect. This
+is the next best thing, and should be used to check a `widgets.inc` before
+asking the user to run the app.
+
+*	**Run under the GUI boot image:** `./run.sh -n 1 -f` gives a single GUI
+	node with a TUI attached to the host, so piped `lisp -r` snippets can use
+	GUI classes and libs. The TUI boot image (`./run_tui.sh`) cannot.
+
+*	**Dump a View tree with `ui-save`:** `(ui-save stream view)`
+	(`gui/lisp.inc`) walks a view and its children and writes a `tree-save`
+	format file. Import `usr/env.inc` first, as the `ui-xxx` macros need the
+	`*env_xxx*` settings:
+
+	```sh
+	echo 'lisp -r (import {usr/env.inc}) (import {gui/lisp.inc}) (import {apps/template/widgets.inc}) (ui-save (file-stream {tests/scratch/window.tre} +file_open_write) *window*)' | ./run.sh -n 1 -f
+	```
+
+	Use `{}` strings, as the command line parser strips double quotes. For
+	anything longer put the code in a `tests/scratch/` script and run it
+	with `lisp -r (import {tests/scratch/probe.lisp})`.
+
+*	**What the dump contains:** One `Lmap` per view holding `:type` (the
+	class, eg. `:Button`), the view's own properties, and a `:children` list
+	of the child views in order. Only symbols, numbers, strings, and flat
+	sequences of those are saved. Fonts are saved as `(name pixels)`. Views,
+	vtables, and other objects are skipped. Inherited properties do not
+	appear on a child, only on the ancestor that defines them.
+
+	```
+	((:Lmap 1)
+		:type :Button
+		:state 1
+		:border 1
+		:text "[Template]"
+		:tip_text "[undo]"
+		:children
+		((:list 1)
+			...
+	```
+
+*	**What to check:** The nesting matches the intended layout, each widget
+	has the expected `:type`, and `:text`, `:tip_text`, `:flow_flags`,
+	`:color`, `:min_width` etc. hold the intended values. The file reads back
+	with `(tree-load (file-stream path))` if it needs checking in code.
+
+*	**Layout can be run too:** Sizes are not in the dump, but the layout
+	passes work without a visible window:
+
+	```lisp
+	(bind '(w h) (. *window* :pref_size))
+	(. *window* :change 0 0 w h)
+	(print w " " h " " (. *b1* :get_bounds))
+	```
+
+*	Delete the dump and any probe script from `tests/scratch/` when done.
+
+### Opening a Live Window for the User
+
+A dump does not draw anything or handle events. To check those, open a real
+window from a `lisp -r` script under `./run.sh -n 1 -f` and let the user
+interact with it. A command's stdin stream has its own mailbox, so
+`(task-mbox)` is free in the `lisp` command's task. The GUI service sends
+events to the `(task-mbox)` of the task that called `gui-add-front-rpc`, so
+a normal `(task-mboxes +select_size)` event loop works unchanged.
+
+Anything the script prints comes back on the host stdout, so the agent sees
+what the user did. `tests/scratch/gui_probe.lisp`:
+
+```lisp
+(import "usr/env.inc")
+(import "gui/lisp.inc")
+
+(enums +event 0
+	(enum close click))
+
+(enums +select 0
+	(enum main timer))
+
+(ui-window *window* ()
+	(ui-title-bar *title* "GUI Probe" (0xea19) +event_close)
+	(. (ui-button *b1* (:text "Click me" :min_width 256 :min_height 64))
+		:connect +event_click))
+
+(defq select (task-mboxes +select_size) running :t)
+(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+(gui-add-front-rpc (. *window* :change x y w h))
+(mail-timeout (elem-get select +select_timer) 15000000 0)
+(while running
+	(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
+	(cond
+		((= idx +select_timer) (setq running :nil))
+		((= (defq id (getf msg +ev_msg_target_id)) +event_close) (setq running :nil))
+		(:t (when (= id +event_click)
+				(print "button clicked")
+				(stream-flush (io-stream 'stdout)))
+			(. *window* :event msg))))
+(gui-sub-rpc *window*)
+```
+
+```sh
+echo 'lisp -r (import {tests/scratch/gui_probe.lisp})' | ./run.sh -n 1 -f
+```
+
+*	**Always give the loop a way to end.** The host command blocks until the
+	script returns, so use a `mail-timeout` on a timer mailbox, as above, as
+	well as the close button. Tell the user the window is coming and how long
+	it stays open.
+
+*	**Flush after each `print`** with `(stream-flush (io-stream 'stdout))` so
+	output is not held until exit.
+
+*	**Use `-n 1`, or a pinned child (see below).** The GUI service passes
+	View pointers, so the code must run on the GUI node. `./run.sh -f` puts the GUI service and the TUI on
+	node 0, but on a multi-node start a piped command is placed on another
+	node, where the `Gui` service is not visible. Test with
+	`(mail-enquire {Gui,})`: it returns `()` when the code is not on a GUI
+	node, and `gui-rpc` then does nothing. After startup give the services
+	time to declare, eg. `(task-sleep 1000000)`, before the enquiry.
+
+*	**Never index an empty enquiry.** Check `(nempty? (mail-enquire {Gui,}))`
+	before taking `first` of it.
+
+*	**Guard the launch.** `-f` shuts the network down when the TUI exits, but
+	a snippet that never returns leaves the GUI up for the user to quit by
+	hand. Wrap the launch in a host timeout and follow it with `./stop.sh`:
+
+	```sh
+	echo 'lisp -r ...' | perl -e 'alarm 30; exec @ARGV' ./run.sh -n 1 -f; ./stop.sh
+	```
+
+*	**Always `gui-sub-rpc` the window** before the script ends.
+
+### Multi-Node: Run the GUI Code on the GUI Node
+
+On a multi-node start (`./run.sh -f`) a command issued to the TUI can run on
+any node, so do not open the window from the command itself. Find the GUI
+node and launch a pinned child task there, as `cmd/cluster.lisp` does for
+its probes. The child does the GUI work and reports to a reply mailbox.
+
+The launcher, run with `lisp -r (import {tests/scratch/gui_remote.lisp})`:
+
+```lisp
+(defq nodes (net-quiet) probe_mbox (mail-mbox) reply_mbox (mail-mbox)
+	launch_mbox (mail-mbox) gui_node :nil)
+;ask every node if it can see a Gui service
+(each (lambda (node)
+	(open-task (str `(mail-send (hex-decode ,(hex-encode probe_mbox))
+			(str (list (hex-encode (task-nodeid)) (length (mail-enquire "Gui,"))))))
+		node +kn_call_pin 0 launch_mbox)) nodes)
+(times (length nodes)
+	(when (defq msg (mail-read-timeout probe_mbox 2000000))
+		(bind '(node_hex gui_count) (first (read (string-stream msg))))
+		(if (> gui_count 0) (setq gui_node node_hex))))
+;run the GUI child, pinned on the GUI node
+(ifn gui_node (print "no GUI node found")
+	(open-task (str `(progn
+			(defq reply_mbox (hex-decode ,(hex-encode reply_mbox)))
+			(import "tests/scratch/gui_child.lisp")))
+		(hex-decode gui_node) +kn_call_pin 0 launch_mbox)
+	(print (mail-read-timeout reply_mbox 20000000)))
+```
+
+*	`(net-quiet)` waits for the node list to settle and returns it. After
+	startup it can take a little while for all the VP nodes to talk to each
+	other and for the routing to sort itself out, so the list may still be
+	short, eg. 4 of 10 nodes. If no GUI node is found, wait with
+	`(task-sleep 1000000)` and probe again, rather than treat it as a
+	failure.
+
+*	The task given to `open-task` is a string of Lisp code. Build it with
+	`(str `(...))` and pass mailboxes through it as `(hex-encode netid)`,
+	decoded in the child with `hex-decode`.
+
+*	`gui_child.lisp` is the live window script above, with its `print` calls
+	replaced by a final `(mail-send reply_mbox (str (list ...)))`. A child
+	task launched this way has no stdio, so it must report by mail.
+
+*	Always read the reply with `mail-read-timeout`, so a child that fails
+	cannot hang the launcher.
+
 ## GUI App Debugging & Validation Disciplines
 
 *	**GUI App Debug Prints (`(print "xyz")(print)`):**
-	Because GUI apps cannot be launched directly in headless automated test / agent environments, pair with the user for execution. Use top-level trace checkpoints:
+	A widget tree can be built and dumped, or a live window opened for the user, from an agent (see the section above). For a full GUI app launched from the desktop, pair with the user for execution. Use top-level trace checkpoints:
 	```lisp
 	(print "CHECKPOINT 1: before import")(print)
 	```

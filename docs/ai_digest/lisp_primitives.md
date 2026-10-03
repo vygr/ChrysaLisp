@@ -944,12 +944,35 @@ Lexical environment creation and variable manipulation.
 
 	*	`(penv [env]) -> :nil | env`
 
-*	**`env-push` / `env-pop`**: Pushes or pops a child scope in the environment
-	tree.
+*	**`env-push` / `env-pop`**: Pushes or pops the current scope of the
+	environment chain. Every push must be paired with a pop.
 
 	*	`(env-push [env]) -> 'env`
 
-	*	`(env-pop [env]) -> 'env`
+		With no argument, pushes a new empty environment whose parent is the
+		current environment. Given an environment, pushes that environment
+		instead, linking its parent to the current environment. The given
+		environment must not currently have a parent, eg. a fresh `(env 1)`
+		or one previously returned by `(env-pop)`. Returns the new current
+		environment.
+
+	*	`(env-pop) -> 'env`
+
+		Takes no arguments. Makes the parent of the current environment
+		current again, clears the popped environment's parent link, so it
+		holds no reference to the scope it was pushed on, and returns the
+		popped environment.
+
+	Pushing a user environment splices its bindings into the scope chain, so
+	code can read and `setq` them as plain variables, and the environment can
+	be pushed again later:
+
+		(defq state (env 1))
+		(def state 'count 0)
+		(env-push state)
+		(++ count)
+		(env-pop)
+		(get 'count state) -> 1
 
 *	**`env-resize`**: Reallocates an environment hash map with new bucket counts.
 

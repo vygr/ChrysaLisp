@@ -72,6 +72,56 @@ Node 0 via piped stdin.
 	./run_tui.sh -n 1 -f -s tests/run_all.lisp
 	```
 
+### Direct REPL Access (`lisp -r`)
+
+To try a snippet of raw ChrysaLisp code, pass it to the `lisp` command's
+`-r` / `--repl` option. The remainder of the command line is read into the
+REPL:
+
+```sh
+echo "lisp -r (print (* 123 456))" | ./run_tui.sh -n 1 -f
+```
+
+*	`./run_tui.sh -n 1 -f` gives a single TUI only node.
+
+*	`./run.sh -n 1 -f` gives a single GUI node with a TUI attached to the
+	host, so GUI dependent code and libs can be run with the GUI boot image.
+
+*	Use `{}` for strings: `lisp -r (print {hello world})`. The command line
+	parser strips double quotes. `(read)` does escape processing in both
+	string forms, so use `\q` inside `{}` for a double quote character, as
+	well as `\n`, `\t` and `\\`.
+
+*	To run a scratch script use `lisp -r (import {tests/scratch/probe.lisp})`
+	so the command exits when done. A bare `lisp file.lisp` imports the file
+	and then waits in the stdin REPL.
+
+*	Start with one simple expression and build up. Do not batch many untested
+	snippets into one invocation.
+
+*	On a multi-node start the node list and routing take a little while to
+	settle. `(lisp-nodes)` and `(mail-enquire ...)` can be incomplete in the
+	first second or so; wait with `(net-quiet)` or `(task-sleep 1000000)`.
+
+*	Keep `(env-push)` / `(env-pop)` balanced in a snippet. An unbalanced push
+	leaves the wrong environment current when the command's `main` returns.
+
+### Standard Sanity Tools
+
+The standard sanity test tools from the TUI are `includes`, `forward`,
+`brackets` and `trace`:
+
+```sh
+echo "files | includes" | ./run_tui.sh -f
+echo "files | forward" | ./run_tui.sh -f
+echo "files | brackets -q" | ./run_tui.sh -f
+```
+
+`trace` must only be run after `make vp` has built the debug VP64 image.
+Running it against release objects reports spurious mismatches. Always
+follow with `make it` to restore the release image (see the pre-release
+steps below).
+
 ### How Piped Execution Works
 
 Node 0 reads host stdin. When input is piped (e.g. `echo "tests" | ...`), host
@@ -224,6 +274,15 @@ Conventions:
 	exist for testing. To throw an error use `(throw "Description !" obj)`, or
 	`:nil` if there is no object of interest. Do NOT use `catch` or `throw` in
 	runtime ChrysaLisp code.
+
+*	**Signals are debug-only:** The abort signal (`(. pipe :abort)`, Ctrl-C)
+	only wakes a blocked task in a debug build. `tests/system/test_pipe.lisp`
+	detects this and prints `[SKIP]` on a release image.
+
+*	**Child tasks may be on another node:** A `Pipe` child can be placed on
+	any node, so `(mail-validate id)` cannot be used to check it is alive.
+	Have the child report to a reply mailbox instead, as `test_pipe.lisp`
+	does.
 
 *	**Optional features:** If a feature may not be defined, check `(def? 'name)`
 	and print `[SKIP] name not defined` rather than failing the suite.
@@ -429,7 +488,7 @@ All checks should be performed using standard TUI pipeline commands:
 		echo "tests" | ./run.sh -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
 		```
 
-		Must report `Passed: 1592, Failed: 0, RESULT: SUCCESS`.
+		Must report `Passed: 1627, Failed: 0, RESULT: SUCCESS`.
 
 	*	VP64 emulator:
 
@@ -437,7 +496,12 @@ All checks should be performed using standard TUI pipeline commands:
 		echo "tests" | ./run_tui.sh -e -f 2>&1 | grep -E "\[FAIL\]|\[SKIP\]|Passed:|Failed:|RESULT"
 		```
 
-		Must report `Passed: 1592, Failed: 0, RESULT: SUCCESS`.
+		Must report `Passed: 1625, Failed: 0, RESULT: SUCCESS`, with one
+		`[SKIP] pipe abort, signals need a debug build` line. The emulator
+		runs the release VP64 image, and signals, like `catch` / `throw`, are
+		a dev time debug build feature. To test the abort path under the
+		emulator, build the debug VP64 image with `make vp` first, which gives
+		`Passed: 1627`, then restore the release image with `make it`.
 
 9.	**Multi-Instance Network Link & Cluster Tests (Both Native and -e Modes):**
 	Verify distributed node discovery, connection, remote task dispatch, auto-discovery,
