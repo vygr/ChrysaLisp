@@ -42,6 +42,17 @@ and remainder swapped. `emit-cvt-rf` had the wrong `ffint.d.l` opcode, and
 `emit-cvt-fr` trashed `:f12`. Constants over 32 bits could also skip a needed
 `lu32i.d` or `lu52i.d`. All the other opcodes were checked against `as`.
 
+Call fusion for the link register targets, ARM64, RISCV64 and LA64. A call
+saves the link register on the stack around itself, so when one call follows
+another in straight line code the restore and the save between them cancel.
+The translator prepass now leaves the link on the stack between such calls
+and adjusts any `:rsp` relative access there by the extra slot. The shared
+code is in `lib/trans/vp.inc`, and on ARM64 it is folded into the existing
+prepass as one sweep with one map lookup per instruction. Boot images are
+2.4% smaller on ARM64 and 4.2% smaller on RISCV64 and LA64, for no build time
+cost that can be told from the noise. `docs/ai_digest/evidence_not_faith.md`
+has the re-measured sizes and timings.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

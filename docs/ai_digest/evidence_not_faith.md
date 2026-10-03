@@ -9,10 +9,10 @@ These are not aspirations; they are the measured results of a system designed
 from first principles. This document presents the concrete evidence for these
 claims, derived directly from the system's own build and diagnostic tools.
 
-## The Anatomy of a 66ms Build: What Actually Happens
+## The Anatomy of a 70ms Build: What Actually Happens
 
-When a benchmark reports an entire operating system rebuild in **0.0667 seconds
-(66.7 ms)** on an Apple Silicon M4 processor booted with 20 VP nodes, it is
+When a benchmark reports an entire operating system rebuild in **0.070 seconds
+(70 ms)** on an Apple Silicon M4 Max processor booted with 20 VP nodes, it is
 natural to assume it is merely compiling a few differential modules using a
 pre-warmed, monolithic compiler cached in memory.
 
@@ -106,7 +106,7 @@ As soon as all compilation jobs finish and each worker task exits:
 ## The Benchmarks: Multi-Platform Build Analysis
 
 The following benchmarks were captured on an Apple MacBook Pro equipped with an
-Apple M4 processor.
+Apple M4 Max processor, from the TUI, and were last re-measured on 2026-10-03.
 
 ### Test 1: Native Compilation & Distributed Lifecycle (The Baseline)
 
@@ -114,41 +114,43 @@ This test measures the complete, cold lifecycle: synthesizing 20 independent
 toolchains, compiling all source modules, linking the complete OS, and tearing
 down all compiler environments.
 
-* **Command:** `make test`
+* **Command:** `make test`, on 20 nodes, `./run_tui.sh -n 20`
 
 * **Action:** The Lisp application `cmd/make.lisp` executes repeated cold
   rebuild cycles, reporting live statistical metrics inside ChrysaLisp's native
   GUI benchmark window.
 
-* **Mean Time:** **66,705 us (0.0667 seconds)**.
+* **Mean Time:** **~69,800 us (0.0698 seconds)**, two runs of the benchmark
+  gave means of 0.0699 and 0.0697 seconds. On 19 nodes five runs gave means
+  of 0.0707 to 0.0723 seconds.
 
-* **Best Time:** **~60,000–61,000 us (~0.060 seconds)** (observed at the far
-  left bound of the distribution, well below the 65.3ms grid mark).
+* **Best Time:** **~66,400 us (0.0664 seconds)**.
 
-* **Worst Time:** **73,988 us (0.0739 seconds)**.
+* **Worst Time:** **~73,100 us (0.0731 seconds)**.
 
-* **Jitter / Spread:** **~8.6 ms total variance**.
+* **Jitter / Spread:** **~6.7 ms** between the best and worst cycle. The 19
+  node runs were wider, 7 to 15 ms within a run.
 
-* **Evidence:** The extremely tight spread between best and worst runs proves
-  the total absence of GC pause spikes, allocator fragmentation, or JIT
-  de-optimization penalties. At ~66.7ms, the system can execute this complete
-  birth-to-death compilation cycle **15 times per second**.
+* **Evidence:** The tight spread between best and worst runs proves the
+  absence of GC pause spikes, allocator fragmentation, or JIT de-optimization
+  penalties. At ~70ms, the system can execute this complete birth-to-death
+  compilation cycle **14 times per second**.
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 
 This test measures the time to simultaneously compile all system sources for six
 different target architectures from scratch.
 
-* **Command:** `make all platforms | time`
+* **Command:** `make all platforms | time`, on 19 nodes
 
 * **Action:** Invokes `make-all-platforms`, cross-compiling the operating system
   for `x86_64/AMD64`, `x86_64/WIN64`, `arm64/ARM64`, `riscv64/RISCV64`,
   `la64/LA64`, and `vp64/VP64`.
 
-* **Result:** **0.42 seconds**.
+* **Result:** **~0.45 seconds**, four runs gave 0.42, 0.43, 0.45 and 0.47.
 
 * **Evidence:** The entire operating system is compiled from source six times
-  over (once for each architecture) in roughly four-tenths of a second,
+  over (once for each architecture) in under half a second,
   demonstrating the massive throughput of the lightweight JIT assembler.
 
 ### Test 3: The Bootstrap Install (The Portability Test)
@@ -161,9 +163,10 @@ while running entirely inside the portable C++ software emulator.
 * **Action:** Launches the **emulated VP64** environment and invokes `make all
   boot` to construct a fully native **ARM64** boot image from source.
 
-* **Result (Apple M4):** **1.68 seconds**.
+* **Result (Apple M4 Max):** **~1.8 seconds**, as reported by the installer,
+  six runs gave 1.74 to 1.85.
 
-* **Result (Raspberry Pi 4):** **~10.0 seconds**.
+* **Result (Raspberry Pi 4):** **~10.0 seconds**, not re-measured.
 
 * **Evidence:** Even when executing inside a single-threaded portable C++
   software emulator, ChrysaLisp can compile and link its entire native
@@ -175,17 +178,24 @@ while running entirely inside the portable C++ software emulator.
 ChrysaLisp's "linkerless" direct-offset architecture produces self-contained,
 minimal `boot_image` binaries across all supported architectures:
 
-* `obj/vp64/VP64/sys/boot_image`: **151,316 bytes**
+* `obj/vp64/VP64/sys/boot_image`: **152,076 bytes**
 
-* `obj/x86_64/AMD64/sys/boot_image`: **206,420 bytes**
+* `obj/x86_64/AMD64/sys/boot_image`: **207,620 bytes**
 
-* `obj/x86_64/WIN64/sys/boot_image`: **206,884 bytes**
+* `obj/x86_64/WIN64/sys/boot_image`: **208,084 bytes**
 
-* `obj/arm64/ARM64/sys/boot_image`: **225,948 bytes**
+* `obj/arm64/ARM64/sys/boot_image`: **221,692 bytes**
 
-* `obj/riscv64/RISCV64/sys/boot_image`: **264,196 bytes**
+* `obj/riscv64/RISCV64/sys/boot_image`: **256,684 bytes**
 
-* `obj/la64/LA64/sys/boot_image`: **265,884 bytes**
+* `obj/la64/LA64/sys/boot_image`: **256,324 bytes**
+
+The three link register targets include call fusion, see `lib/trans/vp.inc`.
+Without it they were 227,196, 267,900 and 267,516 bytes, so it saves 2.4% on
+ARM64 and 4.2% on RISCV64 and LA64. What it costs was measured too. On ARM64,
+as one sweep with the existing prepass, `make test` on 19 nodes went from a
+mean of 0.0714 to 0.0723 seconds over 8 interleaved runs each, and the
+bootstrap install from 1.79 to 1.82 seconds. Both differences are inside the run to run noise.
 
 Because these complete system images are around ~200 KB, they fit entirely
 inside the L1/L2 instruction and data caches of modern CPU cores. The CPU rarely

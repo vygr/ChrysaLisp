@@ -575,10 +575,52 @@
 	(emit-cpy-rr +la64_rtmp5 +la64_rlnk)))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
-;module, that exports everything !
-(export-symbols (map (const first) (tolist (env))))
+;;;;;;;;;;;;;;;;;;;;;;;
+; prepass, call fusion
+;;;;;;;;;;;;;;;;;;;;;;;
+
+;call fusion emitters, see lib/trans/vp.inc
+
+(defmacro la64-bl (l)
+	`(cond
+		((la64-within (defq c (- ,l *pc*)) 28)
+			(la64-b26 0x54000000 c)) ; bl
+		(:t (throw "emit-call constant out of range !" c))))
+
+(defun emit-la64-call-h (l) (emit-push +la64_rlnk) (la64-bl l))
+(defun emit-la64-call-m (l) (la64-bl l))
+(defun emit-la64-call-t (l) (la64-bl l) (emit-pop +la64_rlnk))
+
+(defun emit-la64-call-r-h (r &ignore) (emit-push +la64_rlnk) (la64-jirl +la64_rlnk r 0))
+(defun emit-la64-call-r-m (r &ignore) (la64-jirl +la64_rlnk r 0))
+(defun emit-la64-call-r-t (r &ignore) (la64-jirl +la64_rlnk r 0) (emit-pop +la64_rlnk))
+
+(defun emit-la64-call-i-h (s i &ignore)
+	(emit-cpy-ir s i +la64_rtmp1) (emit-la64-call-r-h +la64_rtmp1))
+(defun emit-la64-call-i-m (s i &ignore)
+	(emit-cpy-ir s i +la64_rtmp1) (emit-la64-call-r-m +la64_rtmp1))
+(defun emit-la64-call-i-t (s i &ignore)
+	(emit-cpy-ir s i +la64_rtmp1) (emit-la64-call-r-t +la64_rtmp1))
+
+(defun emit-la64-call-p-h (l)
+	(emit-cpy-pr l +la64_rtmp1) (emit-la64-call-r-h +la64_rtmp1))
+(defun emit-la64-call-p-m (l)
+	(emit-cpy-pr l +la64_rtmp1) (emit-la64-call-r-m +la64_rtmp1))
+(defun emit-la64-call-p-t (l)
+	(emit-cpy-pr l +la64_rtmp1) (emit-la64-call-r-t +la64_rtmp1))
+
+(defq emit_list (filter (# (starts-with "emit-" %0))
+		(merge (map (const first) (tolist (penv))) (map (const first) (tolist (env)))))
+	+la64_call_fuse_map (trans-call-fuse-map emit_list "la64")
+	+la64_sp_map (trans-sp-map emit_list))
+
+(redefun emit-prepass (emit_list)
+	(trans-fuse-calls emit_list +la64_call_fuse_map +la64_sp_map))
+
+;module, that exports all emit-* !
+(export-symbols emit_list)
 ;plus any private instruction maps if validating
 (validatecase
-	(defq emit_maps (list))
+	(defq emit_maps (list +la64_call_fuse_map +la64_sp_map))
 	(export-symbols '(emit_maps)))
 (env-pop)

@@ -573,10 +573,54 @@
 	(emit-cpy-rr +riscv64_rtmp5 +riscv64_rlnk)))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
-;module, that exports everything !
-(export-symbols (map (const first) (tolist (env))))
+;;;;;;;;;;;;;;;;;;;;;;;
+; prepass, call fusion
+;;;;;;;;;;;;;;;;;;;;;;;
+
+;call fusion emitters, see lib/trans/vp.inc
+
+(defmacro riscv64-jal (l)
+	`(cond
+		((riscv64-within (defq c (- ,l *pc*)) 21)
+			(riscv64-j 0x6f +riscv64_rlnk c))
+		(:t (throw "emit-call constant out of range !" c))))
+
+(defmacro riscv64-jalr (r) `(riscv64-i 0x67 +riscv64_rlnk ,r 0x0 0x0))
+
+(defun emit-riscv64-call-h (l) (emit-push +riscv64_rlnk) (riscv64-jal l))
+(defun emit-riscv64-call-m (l) (riscv64-jal l))
+(defun emit-riscv64-call-t (l) (riscv64-jal l) (emit-pop +riscv64_rlnk))
+
+(defun emit-riscv64-call-r-h (r &ignore) (emit-push +riscv64_rlnk) (riscv64-jalr r))
+(defun emit-riscv64-call-r-m (r &ignore) (riscv64-jalr r))
+(defun emit-riscv64-call-r-t (r &ignore) (riscv64-jalr r) (emit-pop +riscv64_rlnk))
+
+(defun emit-riscv64-call-i-h (s i &ignore)
+	(emit-cpy-ir s i +riscv64_rtmp1) (emit-riscv64-call-r-h +riscv64_rtmp1))
+(defun emit-riscv64-call-i-m (s i &ignore)
+	(emit-cpy-ir s i +riscv64_rtmp1) (emit-riscv64-call-r-m +riscv64_rtmp1))
+(defun emit-riscv64-call-i-t (s i &ignore)
+	(emit-cpy-ir s i +riscv64_rtmp1) (emit-riscv64-call-r-t +riscv64_rtmp1))
+
+(defun emit-riscv64-call-p-h (l)
+	(emit-cpy-pr l +riscv64_rtmp1) (emit-riscv64-call-r-h +riscv64_rtmp1))
+(defun emit-riscv64-call-p-m (l)
+	(emit-cpy-pr l +riscv64_rtmp1) (emit-riscv64-call-r-m +riscv64_rtmp1))
+(defun emit-riscv64-call-p-t (l)
+	(emit-cpy-pr l +riscv64_rtmp1) (emit-riscv64-call-r-t +riscv64_rtmp1))
+
+(defq emit_list (filter (# (starts-with "emit-" %0))
+		(merge (map (const first) (tolist (penv))) (map (const first) (tolist (env)))))
+	+riscv64_call_fuse_map (trans-call-fuse-map emit_list "riscv64")
+	+riscv64_sp_map (trans-sp-map emit_list))
+
+(redefun emit-prepass (emit_list)
+	(trans-fuse-calls emit_list +riscv64_call_fuse_map +riscv64_sp_map))
+
+;module, that exports all emit-* !
+(export-symbols emit_list)
 ;plus any private instruction maps if validating
 (validatecase
-	(defq emit_maps (list))
+	(defq emit_maps (list +riscv64_call_fuse_map +riscv64_sp_map))
 	(export-symbols '(emit_maps)))
 (env-pop)
