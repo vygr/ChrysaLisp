@@ -11,7 +11,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f7
+	;:r1-:r6, :r14, :f0-:f15
 
 	(vp-rdef (this args cnt ox0 oy0))
 	(vp-fdef (x0 y0 xc yc x2 y2 four two temp))

@@ -779,6 +779,28 @@ Every method must follow standard boundary and scoping conventions:
 
 (def-func-end)
 
+### Generated Function Headers (`gen-create`, `gen-type`)
+
+`(gen-create :class [name])` and `(gen-type :class)` generate the
+`class/x/create` and `class/x/type` functions. They are documented in the
+same way as a method, by a header comment directly under the call:
+
+(gen-type :list)
+	;inputs
+	;:r0 = list object (ptr)
+	;outputs
+	;:r0 = list object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r5, :f0-:f15
+
+The doc scanner (`lib/files/info.inc`), `make docs` and `trace` all read
+it, and `trace -i -l -w` keeps the `;trashes` line correct. When adding a
+class, add these headers too, with `;none` as the trashes, and let
+`trace -w` fill it in. Leave the `;inputs` section out of a `gen-create`
+header when the class's `:vcreate` is declared with different inputs to its
+`:create`, as both map to the one function and the scanner checks each.
+
 ### The `assign` Macro & CScript Memory Rules
 
 `(assign ...)` evaluates expressions, moves data, and loads/stores memory
@@ -1163,6 +1185,10 @@ sessions, developers and LLMs have direct access to the standard ChrysaLisp
 	go into `snapshot.zip`, which is executed by `make install` to cross-compile
 	the native host and needs the full speed of a release build; always restore
 	the release image with `make it`).
+
+*	`make apps debug` — compile the `apps/` VP functions with a debug VP64
+	build, which `make vp` does not do. Needed before `trace` so the app
+	functions are linted too; restore with `make apps`.
 
 *	`make docs` — scan source files and regenerate all Markdown reference
 	documentation under `docs/reference/`.

@@ -3,7 +3,18 @@
 
 (gen-vtable :pset)
 (gen-create :pset)
+	;outputs
+	;:r0 = 0 if error, else pset object (ptr)
+	;trashes
+	;:r0-:r2, :f0-:f15
 (gen-type :pset)
+	;inputs
+	;:r0 = pset object (ptr)
+	;outputs
+	;:r0 = pset object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r5, :f0-:f15
 
 (def-method :pset :pfind)
 	;inputs

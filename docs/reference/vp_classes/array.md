@@ -65,6 +65,13 @@ trashes
 
 ### :create -> class/array/create
 
+```code
+outputs
+:r0 = 0 if error, else array object (ptr)
+trashes
+:r0-:r2, :f0-:f15
+```
+
 ### :deinit -> class/array/deinit
 
 ```code
@@ -523,9 +530,35 @@ trashes
 
 ### :type -> class/array/type
 
+```code
+inputs
+:r0 = array object (ptr)
+outputs
+:r0 = array object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
+
 ### :vcreate -> class/array/create
 
+```code
+outputs
+:r0 = 0 if error, else array object (ptr)
+trashes
+:r0-:r2, :f0-:f15
+```
+
 ### :velement -> class/num/create
+
+```code
+inputs
+:r0 = initial value (long)
+outputs
+:r0 = 0 if error, else num object (ptr)
+trashes
+:r0-:r2, :r14, :f0-:f15
+```
 
 ### :vtable -> class/array/vtable
 

@@ -49,6 +49,15 @@ trashes
 
 ### :create -> class/hset/create
 
+```code
+inputs
+:r0 = num buckets (uint)
+outputs
+:r0 = 0 if error, else hset object (ptr)
+trashes
+:r0-:r5, :r14, :f0-:f15
+```
+
 ### :each -> class/hset/each
 
 ```code
@@ -97,6 +106,16 @@ trashes
 ```
 
 ### :type -> class/hset/type
+
+```code
+inputs
+:r0 = hset object (ptr)
+outputs
+:r0 = hset object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/hset/vtable
 

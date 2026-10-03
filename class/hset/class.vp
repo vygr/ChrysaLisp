@@ -2,8 +2,21 @@
 (include "./class.inc")
 
 (gen-create :hset)
+	;inputs
+	;:r0 = num buckets (uint)
+	;outputs
+	;:r0 = 0 if error, else hset object (ptr)
+	;trashes
+	;:r0-:r5, :r14, :f0-:f15
 (gen-vtable :hset)
 (gen-type :hset)
+	;inputs
+	;:r0 = hset object (ptr)
+	;outputs
+	;:r0 = hset object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r5, :f0-:f15
 
 (def-method :hset :init)
 	;inputs

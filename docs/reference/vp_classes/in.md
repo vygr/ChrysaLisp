@@ -12,6 +12,15 @@
 
 ### :create -> class/in/create
 
+```code
+inputs
+:r0 = 0, else mailbox id (uint)
+outputs
+:r0 = 0 if error, else in object (ptr)
+trashes
+:r0-:r5, :r14, :f0-:f15
+```
+
 ### :deinit -> class/in/deinit
 
 ```code
@@ -61,6 +70,16 @@ trashes
 ```
 
 ### :type -> class/in/type
+
+```code
+inputs
+:r0 = in object (ptr)
+outputs
+:r0 = in object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/in/vtable
 

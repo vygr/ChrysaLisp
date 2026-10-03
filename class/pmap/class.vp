@@ -3,7 +3,18 @@
 
 (gen-vtable :pmap)
 (gen-create :pmap)
+	;outputs
+	;:r0 = 0 if error, else pmap object (ptr)
+	;trashes
+	;:r0-:r2, :f0-:f15
 (gen-type :pmap)
+	;inputs
+	;:r0 = pmap object (ptr)
+	;outputs
+	;:r0 = pmap object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r5, :f0-:f15
 
 (def-method :pmap :pfind)
 	;inputs

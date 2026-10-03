@@ -5,6 +5,10 @@
 (include "././region/class.inc")
 
 (gen-create :view)
+	;outputs
+	;:r0 = 0 if error, else view object (ptr)
+	;trashes
+	;:r0-:r5, :f0-:f15
 (gen-vtable :view)
 
 (def-method :view :init)

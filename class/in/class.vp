@@ -4,8 +4,21 @@
 (include "././list/class.inc")
 
 (gen-create :in)
+	;inputs
+	;:r0 = 0, else mailbox id (uint)
+	;outputs
+	;:r0 = 0 if error, else in object (ptr)
+	;trashes
+	;:r0-:r5, :r14, :f0-:f15
 (gen-vtable :in)
 (gen-type :in)
+	;inputs
+	;:r0 = in object (ptr)
+	;outputs
+	;:r0 = in object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r5, :f0-:f15
 
 (def-method :in :init)
 	;inputs

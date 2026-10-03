@@ -14,6 +14,13 @@
 
 ### :create -> gui/vdu/create
 
+```code
+outputs
+:r0 = 0 if error, else vdu object (ptr)
+trashes
+:r0-:r5, :f0-:f15
+```
+
 ### :deinit -> gui/vdu/deinit
 
 ```code

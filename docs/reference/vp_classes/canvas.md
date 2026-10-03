@@ -32,7 +32,27 @@
 
 ### :create -> gui/canvas/create
 
+```code
+inputs
+:r0 = width (pixels)
+:r1 = height (pixels)
+:r2 = aa scale (uint)
+outputs
+:r0 = 0 if error, else canvas object (ptr)
+trashes
+:r0-:r7, :r14, :f0-:f15
+```
+
 ### :create_pixmap -> gui/canvas/create_pixmap
+
+```code
+inputs
+:r0 = pixmap object (ptr)
+outputs
+:r0 = 0 if error, else canvas object (ptr)
+trashes
+:r0-:r5, :r14, :f0-:f15
+```
 
 ### :deinit -> gui/canvas/deinit
 

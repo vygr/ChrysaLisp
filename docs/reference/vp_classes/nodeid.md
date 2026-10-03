@@ -42,5 +42,15 @@ trashes
 
 ### :type -> class/nodeid/type
 
+```code
+inputs
+:r0 = nodeid object (ptr)
+outputs
+:r0 = nodeid object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
+
 ### :vtable -> class/nodeid/vtable
 

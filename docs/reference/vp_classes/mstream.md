@@ -6,6 +6,15 @@
 
 ### :create -> class/mstream/create
 
+```code
+inputs
+none
+outputs
+:r0 = 0 if error, else mstream object (ptr)
+trashes
+:r0-:r5, :f0-:f15
+```
+
 ### :deinit -> class/mstream/deinit
 
 ```code
@@ -100,6 +109,16 @@ trashes
 ```
 
 ### :type -> class/mstream/type
+
+```code
+inputs
+:r0 = mstream object (ptr)
+outputs
+:r0 = mstream object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/mstream/vtable
 

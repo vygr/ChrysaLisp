@@ -60,6 +60,15 @@ trashes
 
 ### :create -> class/hmap/create
 
+```code
+inputs
+:r0 = num buckets (uint)
+outputs
+:r0 = 0 if error, else hmap object (ptr)
+trashes
+:r0-:r5, :r14, :f0-:f15
+```
+
 ### :deinit -> class/hmap/deinit
 
 ```code
@@ -213,6 +222,16 @@ trashes
 ```
 
 ### :type -> class/hmap/type
+
+```code
+inputs
+:r0 = hmap object (ptr)
+outputs
+:r0 = hmap object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/hmap/vtable
 

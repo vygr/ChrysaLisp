@@ -22,6 +22,12 @@ keys, and has a bot, `onslaught -b 60`, that plays the game for you, path
 finding its way over the battle map to capture the enemy banner.
 See `apps/games/onslaught/app.inc` for the RPC calls.
 
+`trace -i -l` now lints every function, with no `grep -v` filters. The
+generated `class/x/create` and `class/x/type` functions are documented by a
+header comment under their `(gen-create)` and `(gen-type)` calls, which the
+doc scanner, `make docs` and `trace -w` all use. The `apps/` VP functions are
+scanned too, build them with `make apps debug` before linting.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

@@ -11,7 +11,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this buckets func line hit record rec_id num_id args)
@@ -79,7 +79,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14, :f0-:f15
 
 	(entry '(:r0 :r1))
 
@@ -129,7 +129,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r14, :f0-:f15
 
 	(def-vars
 		(ptr this buckets line records rec_line)

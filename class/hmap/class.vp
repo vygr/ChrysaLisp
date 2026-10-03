@@ -3,8 +3,21 @@
 (include "././hset/class.inc")
 
 (gen-create :hmap)
+	;inputs
+	;:r0 = num buckets (uint)
+	;outputs
+	;:r0 = 0 if error, else hmap object (ptr)
+	;trashes
+	;:r0-:r5, :r14, :f0-:f15
 (gen-vtable :hmap)
 (gen-type :hmap)
+	;inputs
+	;:r0 = hmap object (ptr)
+	;outputs
+	;:r0 = hmap object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r5, :f0-:f15
 
 (def-method :hmap :init)
 	;inputs

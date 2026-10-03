@@ -80,6 +80,13 @@ trashes
 
 ### :create -> class/list/create
 
+```code
+outputs
+:r0 = 0 if error, else list object (ptr)
+trashes
+:r0-:r2, :f0-:f15
+```
+
 ### :deinit -> class/list/deinit
 
 ```code
@@ -248,7 +255,24 @@ trashes
 
 ### :type -> class/list/type
 
+```code
+inputs
+:r0 = list object (ptr)
+outputs
+:r0 = list object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
+
 ### :vcreate -> class/list/create
+
+```code
+outputs
+:r0 = 0 if error, else list object (ptr)
+trashes
+:r0-:r2, :f0-:f15
+```
 
 ### :vtable -> class/list/vtable
 

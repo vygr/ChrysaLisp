@@ -3,5 +3,16 @@
 (include "./class.inc")
 
 (gen-create :path)
+	;outputs
+	;:r0 = 0 if error, else path object (ptr)
+	;trashes
+	;:r0-:r2, :f0-:f15
 (gen-vtable :path)
 (gen-type :path)
+	;inputs
+	;:r0 = path object (ptr)
+	;outputs
+	;:r0 = path object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r5, :f0-:f15

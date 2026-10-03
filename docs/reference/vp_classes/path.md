@@ -26,6 +26,13 @@
 
 ### :create -> gui/path/create
 
+```code
+outputs
+:r0 = 0 if error, else path object (ptr)
+trashes
+:r0-:r2, :f0-:f15
+```
+
 ### :filter_polygon -> gui/path/filter_polygon
 
 ```code
@@ -200,7 +207,24 @@ trashes
 
 ### :type -> gui/path/type
 
+```code
+inputs
+:r0 = path object (ptr)
+outputs
+:r0 = path object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
+
 ### :vcreate -> gui/path/create
+
+```code
+outputs
+:r0 = 0 if error, else path object (ptr)
+trashes
+:r0-:r2, :f0-:f15
+```
 
 ### :vtable -> gui/path/vtable
 

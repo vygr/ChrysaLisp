@@ -10,6 +10,15 @@
 
 ### :create -> class/stdio/create
 
+```code
+inputs
+none
+outputs
+:r0 = 0 if error, else stdio object (ptr)
+trashes
+:r0-:r6, :r14, :f0-:f15
+```
+
 ### :deinit -> class/stdio/deinit
 
 ```code
@@ -35,6 +44,16 @@ trashes
 ```
 
 ### :type -> class/stdio/type
+
+```code
+inputs
+:r0 = stdio object (ptr)
+outputs
+:r0 = stdio object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/stdio/vtable
 

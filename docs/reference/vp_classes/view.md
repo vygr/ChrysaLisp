@@ -117,6 +117,13 @@ trashes
 
 ### :create -> gui/view/create
 
+```code
+outputs
+:r0 = 0 if error, else view object (ptr)
+trashes
+:r0-:r5, :f0-:f15
+```
+
 ### :deinit -> gui/view/deinit
 
 ```code

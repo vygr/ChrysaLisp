@@ -208,9 +208,15 @@
 												:file "none"
 												:trashes_line 0))))
 										(push (. f_entry :find :implements) (list active_class method_name))))
-								((eql op "def-method")
+								((find op '("def-method" "gen-create" "gen-type"))
+									;generated functions are documented just as methods are,
+									;by the header comment after the (gen-create) (gen-type) call
 									(defq class_name (sym (second tokens))
-										method_name (sym (third tokens))
+										method_name (cond
+											((eql op "def-method") (sym (third tokens)))
+											((eql op "gen-type") :type)
+											((> (length tokens) 2) (sym (cat ":create_" (third tokens))))
+											(:t :create))
 										f_path_val (or (db-f-path class_db class_name method_name)
 													(sym (cat class_name ":" method_name))))
 									(setq func_name f_path_val state :header))
@@ -314,8 +320,7 @@
 
 (defun files-all-vp-source ()
 	; (files-all-vp-source) -> ordered_files
-	(tsort (filter (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2))
-		(const files-depends)))
+	(tsort (files-all "." '(".vp") 2) (const files-depends)))
 
 (defun database-stale? (cache_file lib_file vp_files)
 	(defq cache_age (age cache_file))

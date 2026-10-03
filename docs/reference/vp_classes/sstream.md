@@ -18,6 +18,15 @@ trashes
 
 ### :create -> class/sstream/create
 
+```code
+inputs
+:r0 = str object (ptr)
+outputs
+:r0 = 0 if error, else sstream object (ptr)
+trashes
+:r0-:r5, :r14, :f0-:f15
+```
+
 ### :flush -> class/sstream/flush
 
 ```code
@@ -70,6 +79,16 @@ trashes
 ```
 
 ### :type -> class/sstream/type
+
+```code
+inputs
+:r0 = sstream object (ptr)
+outputs
+:r0 = sstream object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/sstream/vtable
 

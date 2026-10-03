@@ -42,8 +42,7 @@ the `Pipe` class from `lib/task/pipe.inc`:
 
 *	Example:
 
-	files obj/vp/ | grep -v apps/ | grep -v /create | grep -v /type
-	| trace -l
+	files obj/vp/ | grep class/ | trace -l
 
 ## Canonical Structure
 

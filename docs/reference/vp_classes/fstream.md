@@ -6,6 +6,16 @@
 
 ### :create -> class/fstream/create
 
+```code
+inputs
+:r0 = c string filename (pubyte)
+:r1 = open mode (uint)
+outputs
+:r0 = 0 if error, else fstream object (ptr)
+trashes
+:r0-:r14, :f0-:f15
+```
+
 ### :deinit -> class/fstream/deinit
 
 ```code
@@ -70,6 +80,16 @@ trashes
 ```
 
 ### :type -> class/fstream/type
+
+```code
+inputs
+:r0 = fstream object (ptr)
+outputs
+:r0 = fstream object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/fstream/vtable
 

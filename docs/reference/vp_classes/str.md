@@ -418,6 +418,16 @@ trashes
 
 ### :type -> class/str/type
 
+```code
+inputs
+:r0 = str object (ptr)
+outputs
+:r0 = str object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
+
 ### :unescape -> class/str/unescape
 
 ```code

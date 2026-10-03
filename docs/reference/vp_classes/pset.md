@@ -12,6 +12,13 @@
 
 ### :create -> class/pset/create
 
+```code
+outputs
+:r0 = 0 if error, else pset object (ptr)
+trashes
+:r0-:r2, :f0-:f15
+```
+
 ### :pfind -> class/pset/find
 
 ```code
@@ -42,7 +49,24 @@ trashes
 
 ### :type -> class/pset/type
 
+```code
+inputs
+:r0 = pset object (ptr)
+outputs
+:r0 = pset object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
+
 ### :vcreate -> class/pset/create
+
+```code
+outputs
+:r0 = 0 if error, else pset object (ptr)
+trashes
+:r0-:r2, :f0-:f15
+```
 
 ### :vtable -> class/pset/vtable
 

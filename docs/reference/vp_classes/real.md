@@ -55,6 +55,15 @@ trashes
 
 ### :create -> class/real/create
 
+```code
+inputs
+:r0 = initial value (real)
+outputs
+:r0 = 0 if error, else real object (ptr)
+trashes
+:r0-:r2, :r14, :f0-:f15
+```
+
 ### :div -> class/real/div
 
 ```code
@@ -289,7 +298,26 @@ trashes
 
 ### :type -> class/real/type
 
+```code
+inputs
+:r0 = real object (ptr)
+outputs
+:r0 = real object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
+
 ### :vcreate -> class/real/create
+
+```code
+inputs
+:r0 = initial value (real)
+outputs
+:r0 = 0 if error, else real object (ptr)
+trashes
+:r0-:r2, :r14, :f0-:f15
+```
 
 ### :vtable -> class/real/vtable
 

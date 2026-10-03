@@ -6,6 +6,15 @@
 
 ### :create -> class/func/create
 
+```code
+inputs
+:r0 = function value (ptr)
+outputs
+:r0 = 0 if error, else func object (ptr)
+trashes
+:r0-:r2, :r14, :f0-:f15
+```
+
 ### :init -> class/num/init
 
 ```code
@@ -33,6 +42,16 @@ trashes
 ```
 
 ### :type -> class/func/type
+
+```code
+inputs
+:r0 = func object (ptr)
+outputs
+:r0 = func object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/func/vtable
 

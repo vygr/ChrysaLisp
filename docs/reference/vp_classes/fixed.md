@@ -42,6 +42,15 @@ trashes
 
 ### :create -> class/fixed/create
 
+```code
+inputs
+:r0 = initial value (fixed)
+outputs
+:r0 = 0 if error, else fixed object (ptr)
+trashes
+:r0-:r2, :r14, :f0-:f15
+```
+
 ### :div -> class/fixed/div
 
 ```code
@@ -158,7 +167,26 @@ trashes
 
 ### :type -> class/fixed/type
 
+```code
+inputs
+:r0 = fixed object (ptr)
+outputs
+:r0 = fixed object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
+
 ### :vcreate -> class/fixed/create
+
+```code
+inputs
+:r0 = initial value (fixed)
+outputs
+:r0 = 0 if error, else fixed object (ptr)
+trashes
+:r0-:r2, :r14, :f0-:f15
+```
 
 ### :vtable -> class/fixed/vtable
 

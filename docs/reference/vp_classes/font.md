@@ -32,6 +32,17 @@ trashes
 
 ### :create -> gui/font/create
 
+```code
+inputs
+:r0 = name c string (pubyte)
+:r1 = 0, else ctf data string object (ptr)
+:r2 = font size (pixels)
+outputs
+:r0 = 0 if error, else font object (ptr)
+trashes
+:r0-:r14, :f0-:f15
+```
+
 ### :deinit -> gui/font/deinit
 
 ```code

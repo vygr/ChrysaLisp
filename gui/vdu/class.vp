@@ -7,6 +7,10 @@
 (include "././ctx/class.inc")
 
 (gen-create :vdu)
+	;outputs
+	;:r0 = 0 if error, else vdu object (ptr)
+	;trashes
+	;:r0-:r5, :f0-:f15
 (gen-vtable :vdu)
 
 (def-method :vdu :init)

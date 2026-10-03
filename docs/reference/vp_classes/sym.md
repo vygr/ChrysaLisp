@@ -93,5 +93,15 @@ trashes
 
 ### :type -> class/sym/type
 
+```code
+inputs
+:r0 = sym object (ptr)
+outputs
+:r0 = sym object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
+
 ### :vtable -> class/sym/vtable
 

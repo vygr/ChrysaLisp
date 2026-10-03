@@ -62,6 +62,18 @@
 
 ### :create -> class/lisp/create
 
+```code
+inputs
+:r0 = script string object (ptr)
+:r1 = stdin stream object (ptr)
+:r2 = stdout stream object (ptr)
+:r3 = stderr stream object (ptr)
+outputs
+:r0 = 0 if error, else lisp object (ptr)
+trashes
+:r0-:r14, :f0-:f15
+```
+
 ### :deinit -> class/lisp/deinit
 
 ```code
@@ -380,6 +392,16 @@ trashes
 ```
 
 ### :type -> class/lisp/type
+
+```code
+inputs
+:r0 = lisp object (ptr)
+outputs
+:r0 = lisp object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/lisp/vtable
 

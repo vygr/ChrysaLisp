@@ -168,6 +168,15 @@
 							(setq state :info)
 							(push docs (list))
 							(push functions (f-path (sym name) (sym (third line_split)))))
+						((gen-create gen-type)
+							;generated functions, documented at the (gen-xxx :class) call
+							(when (starts-with ":" name)
+								(setq state :info)
+								(push docs (list))
+								(push functions (f-path (sym name) (cond
+									((eql type 'gen-type) :type)
+									((> (length line_split) 2) (sym (cat ":create_" (third line_split))))
+									(:t :create))))))
 						((def-func defun)
 							(setq state :info)
 							(push docs (list))

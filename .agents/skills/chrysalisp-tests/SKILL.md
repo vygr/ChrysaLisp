@@ -117,10 +117,12 @@ echo "files | forward" | ./run_tui.sh -f
 echo "files | brackets -q" | ./run_tui.sh -f
 ```
 
-`trace` must only be run after `make vp` has built the debug VP64 image.
-Running it against release objects reports spurious mismatches. Always
-follow with `make it` to restore the release image (see the pre-release
-steps below).
+`trace` must only be run on debug VP objects: `make vp` for the system, and
+`make apps debug` for the `apps/` VP functions, which `make vp` does not
+build. Running it against release objects reports spurious mismatches, and
+`trace -w` would then write wrong trashes into the source. Always follow
+with `make it` and `make apps` to restore the release images (see the
+pre-release steps below).
 
 ### How Piped Execution Works
 
@@ -174,11 +176,19 @@ identically for builds as they do for tests:
 	```
 
 	Builds the VP64 image in debug mode (`*build_mode* = 1`). Used with `trace`
-	(`cmd/trace.lisp`) to perform register usage and clobber analysis:
+	(`cmd/trace.lisp`) to perform register usage and clobber analysis, along
+	with `make apps debug` for the `apps/` VP functions:
 
 	```sh
-	echo "files obj/vp/ | grep -v apps/ | grep -v /create | grep -v /type | trace -i -l" | ./run_tui.sh -f
+	echo "make apps debug" | ./run_tui.sh -f
+	echo "files obj/vp/ | trace -i -l" | ./run_tui.sh -f
 	```
+
+	Every function is linted, no filtering is needed. The generated
+	`class/x/create` and `class/x/type` functions are documented by the
+	header comment under their `(gen-create :x)` and `(gen-type :x)` calls.
+	`trace -i -l -w` writes the calculated trashes back to the source on a
+	mismatch.
 
 	*Important:* The debug VP64 boot image produced by `make vp` must NEVER be
 	packaged into `snapshot.zip`. The VP64 image in `snapshot.zip` is executed
@@ -453,11 +463,13 @@ All checks should be performed using standard TUI pipeline commands:
 
 	```sh
 	echo "make vp" | ./run_tui.sh -f
-	echo "files obj/vp/ | grep -v apps/ | grep -v /create | grep -v /type | trace -i -l" | ./run_tui.sh -f
+	echo "make apps debug" | ./run_tui.sh -f
+	echo "files obj/vp/ | trace -i -l" | ./run_tui.sh -f
 	```
 
 	Must output nothing (zero mismatches between documented and calculated
-	transitive register trashes).
+	transitive register trashes, for every function, apps and generated
+	create and type functions included).
 
 6.	**Full Canonical Multi-Platform Rebuild (`make it`):**
 	Recompile all platforms (native platforms in debug mode, VP64 in release
@@ -465,6 +477,7 @@ All checks should be performed using standard TUI pipeline commands:
 
 	```sh
 	echo "make it | time -s" | ./run_tui.sh -f
+	echo "make apps" | ./run_tui.sh -f
 	```
 
 	*Important:* `make snapshot` must only be done after `make it` (never after

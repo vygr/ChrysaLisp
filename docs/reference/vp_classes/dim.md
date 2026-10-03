@@ -14,6 +14,16 @@
 
 ### :create -> class/dim/create
 
+```code
+inputs
+:r0 = dims nums object (ptr)
+:r1 = elements array object (ptr)
+outputs
+:r0 = 0 if error, else dim object (ptr)
+trashes
+:r0-:r3, :r14, :f0-:f15
+```
+
 ### :deinit -> class/dim/deinit
 
 ```code
@@ -41,6 +51,16 @@ trashes
 ```
 
 ### :type -> class/dim/type
+
+```code
+inputs
+:r0 = dim object (ptr)
+outputs
+:r0 = dim object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/dim/vtable
 

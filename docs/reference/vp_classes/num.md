@@ -87,6 +87,15 @@ trashes
 
 ### :create -> class/num/create
 
+```code
+inputs
+:r0 = initial value (long)
+outputs
+:r0 = 0 if error, else num object (ptr)
+trashes
+:r0-:r2, :r14, :f0-:f15
+```
+
 ### :div -> class/num/div
 
 ```code
@@ -364,7 +373,26 @@ trashes
 
 ### :type -> class/num/type
 
+```code
+inputs
+:r0 = num object (ptr)
+outputs
+:r0 = num object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
+
 ### :vcreate -> class/num/create
+
+```code
+inputs
+:r0 = initial value (long)
+outputs
+:r0 = 0 if error, else num object (ptr)
+trashes
+:r0-:r2, :r14, :f0-:f15
+```
 
 ### :vtable -> class/num/vtable
 

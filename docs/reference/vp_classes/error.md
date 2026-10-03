@@ -6,6 +6,21 @@
 
 ### :create -> class/error/create
 
+```code
+inputs
+:r0 = description c string (pubyte)
+:r1 = 0, else error msg index (uint)
+:r2 = error payload object (ptr)
+:r3 = script string (ptr)
+:r4 = stream string (ptr)
+:r5 = stream line number (uint)
+:r6 = stack frame (ptr)
+outputs
+:r0 = 0 if error, else error object (ptr)
+trashes
+:r0-:r8, :r14, :f0-:f15
+```
+
 ### :deinit -> class/error/deinit
 
 ```code
@@ -62,6 +77,16 @@ trashes
 ```
 
 ### :type -> class/error/type
+
+```code
+inputs
+:r0 = error object (ptr)
+outputs
+:r0 = error object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/error/vtable
 

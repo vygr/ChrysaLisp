@@ -6,6 +6,17 @@
 
 ### :create -> gui/texture/create
 
+```code
+inputs
+:r0 = texture handle (ulong)
+:r1 = texture width (pixels)
+:r2 = texture height (pixels)
+outputs
+:r0 = 0 if error, else texture object (ptr)
+trashes
+:r0-:r4, :r14, :f0-:f15
+```
+
 ### :deinit -> gui/texture/deinit
 
 ```code

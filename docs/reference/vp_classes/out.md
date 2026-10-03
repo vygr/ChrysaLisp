@@ -10,6 +10,17 @@
 
 ### :create -> class/out/create
 
+```code
+inputs
+:r0 = target ID (net_id)
+:r1 = target ID (net_id)
+:r2 = target ID (net_id)
+outputs
+:r0 = 0 if error, else out object (ptr)
+trashes
+:r0-:r6, :r14, :f0-:f15
+```
+
 ### :deinit -> class/out/deinit
 
 ```code
@@ -59,6 +70,16 @@ trashes
 ```
 
 ### :type -> class/out/type
+
+```code
+inputs
+:r0 = out object (ptr)
+outputs
+:r0 = out object (ptr)
+:r1 = type list object (ptr)
+trashes
+:r1-:r5, :f0-:f15
+```
 
 ### :vtable -> class/out/vtable
 
