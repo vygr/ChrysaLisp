@@ -34,6 +34,14 @@ emitted no code and the boot image crashed at startup. Tested on Linux
 riscv64 under QEMU, the test suite passes and a self hosted `make all boot`
 gives a byte identical boot image to the one cross built on the Mac.
 
+LA64 native is running, tested the same way on Linux loong64 under QEMU. The
+`Makefile` now knows a `loongarch64` host, and these faults in
+`lib/trans/la64.inc` are fixed. `emit-lea-p` split its offset unsigned, but
+`addi.d` sign extends. `emit-div-rrr` and `emit-div-rrr-u` returned quotient
+and remainder swapped. `emit-cvt-rf` had the wrong `ffint.d.l` opcode, and
+`emit-cvt-fr` trashed `:f12`. Constants over 32 bits could also skip a needed
+`lu32i.d` or `lu52i.d`. All the other opcodes were checked against `as`.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

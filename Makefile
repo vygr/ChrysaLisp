@@ -7,8 +7,13 @@ else
 	ifeq ($(CPU),riscv64)
 		ABI ?= RISCV64
 	else
-		CPU := arm64
-		ABI ?= ARM64
+		ifeq ($(CPU),loongarch64)
+			CPU := la64
+			ABI ?= LA64
+		else
+			CPU := arm64
+			ABI ?= ARM64
+		endif
 	endif
 endif
 

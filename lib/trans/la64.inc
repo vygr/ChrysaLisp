@@ -102,13 +102,14 @@
 (defun emit-xor-rr (s d) (la64-3r 0x00158000 d d s))                     ; xor d, d, s
 
 (defun emit-div-rrr (s d1 d2)
-	(la64-3r 0x00228000 +la64_rtmp1 d2 s) ; mod.d tmp, d2, s (remainder)
-	(la64-3r 0x00220000 d1 d2 s)          ; div.d d1, d2, s  (quotient)
+	;d1 gets the remainder, d2 the quotient
+	(la64-3r 0x00220000 +la64_rtmp1 d2 s) ; div.d tmp, d2, s (quotient)
+	(la64-3r 0x00228000 d1 d2 s)          ; mod.d d1, d2, s  (remainder)
 	(emit-cpy-rr +la64_rtmp1 d2))
 
 (defun emit-div-rrr-u (s d1 d2)
-	(la64-3r 0x00238000 +la64_rtmp1 d2 s) ; mod.du tmp, d2, s (remainder)
-	(la64-3r 0x00230000 d1 d2 s)          ; div.du d1, d2, s  (quotient)
+	(la64-3r 0x00230000 +la64_rtmp1 d2 s) ; div.du tmp, d2, s (quotient)
+	(la64-3r 0x00238000 d1 d2 s)          ; mod.du d1, d2, s  (remainder)
 	(emit-cpy-rr +la64_rtmp1 d2))
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -129,8 +130,10 @@
 				h12 (>>> c 52))
 			(la64-1ri20 0x14000000 r u20) ; lu12i.w
 			(if (/= l12 0) (la64-2ri12 0x03800000 r r l12)) ; ori
-			(if (/= m20 0) (la64-1ri20 0x16000000 r m20)) ; lu32i.d
-			(if (/= h12 0) (la64-2ri12 0x03000000 r r h12))))) ; lu52i.d
+			;lu12i.w and lu32i.d sign extend, so the upper parts can only be
+			;skipped when they match that extension, not when they are 0
+			(la64-1ri20 0x16000000 r m20) ; lu32i.d
+			(if (/= c (>>> (<< c 12) 12)) (la64-2ri12 0x03000000 r r h12))))) ; lu52i.d
 
 (defun emit-cpy-cr (c r) (la64-cr c r))
 
@@ -403,7 +406,8 @@
 	(defq c (- l *pc*))
 	(cond
 		((la64-within c 32)
-			(defq l12 (logand c 0xfff) u20 (>>> (logand c 0xfffff000) 12))
+			;addi.d sign extends its 12 bits, so split as upper + signed lower
+			(defq l12 (>>> (<< c 52) 52) u20 (>>> (- c l12) 12))
 			(la64-1ri20 0x1c000000 d u20) ; pcaddu12i
 			(if (/= l12 0) (la64-2ri12 0x02c00000 d d l12))) ; addi.d
 		(:t (throw "emit-lea-p constant out of range !" c))))
@@ -458,11 +462,15 @@
 
 (defun emit-cvt-rf (s d)
 	(emit-cpy-rf s d)
-	(la64-3r 0x011d3800 d d 0)) ; ffint.d.l
+	(la64-3r 0x011d2800 d d 0)) ; ffint.d.l
 
 (defun emit-cvt-fr (s d)
-	(la64-3r 0x011aa800 +la64_rtmp1 s 0) ; ftintrz.l.d
-	(emit-cpy-fr +la64_rtmp1 d))
+	;ftintrz only targets a float register, so convert s in place and put
+	;it back after, rather than trash some other float register
+	(emit-cpy-fr s +la64_rtmp1)
+	(la64-3r 0x011aa800 s s 0) ; ftintrz.l.d
+	(emit-cpy-fr s d)
+	(emit-cpy-rf +la64_rtmp1 s))
 
 (defun emit-add-ff (s d) (la64-3r 0x01010000 d d s)) ; fadd.d
 (defun emit-sub-ff (s d) (la64-3r 0x01030000 d d s)) ; fsub.d
