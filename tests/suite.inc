@@ -11,6 +11,7 @@
 ; nothing it defines is seen by the next module.
 
 (import "lib/files/files.inc")
+(import "lib/task/pipe.inc")
 
 (defq *test_passes* 0 *test_failures* 0 *test_skips* 0
 	*test_verbose* :nil *test_frames* :nil *test_module* ""
@@ -56,6 +57,15 @@
 	; (equal? a b) -> :t | :nil
 	;loose equality, do they print the same
 	(eql (str a) (str b)))
+
+(defun test-output (code)
+	; (test-output code) -> str
+	;what a snippet of Lisp code prints, run in a task of its own so that
+	;nothing reaches the terminal. The code is a command line, so use {}
+	;for its strings, and it can not hold a | or a !, they split a pipe.
+	(defq out (list))
+	(pipe-run (cat "lisp -r " code) (# (push out %0)))
+	(join out ""))
 
 (defun test-check (name expected got)
 	(if (test-equal? expected got)

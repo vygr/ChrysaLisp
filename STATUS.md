@@ -161,6 +161,11 @@ yet was treated as from a dead node and dropped. This happens for the first
 few seconds after a network boots. A node is now only dead if it was known
 and has gone.
 
+The tests no longer print to the terminal. The few that test `(print)`,
+`(prin)` and `(edit-print)` now capture the output with the new
+`(test-output code)`, which runs the code in a task of its own, and check
+what was printed, not just the return value.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

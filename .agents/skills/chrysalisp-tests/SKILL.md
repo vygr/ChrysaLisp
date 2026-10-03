@@ -59,7 +59,7 @@ filtering:
 
 	=== Test Summary ===
 	Modules: 67
-	Passed: 3162
+	Passed: 3167
 	Failed: 0
 	Skipped: 0
 	RESULT: SUCCESS
@@ -319,6 +319,15 @@ Assertions, each takes a short name first:
 	skipped.
 
 *	`(test-skip name why)` — count a test that can not run here.
+
+*	`(test-output code)` — what a snippet of code prints, as a string. It
+	is run with `lisp -r` in a task of its own, so nothing reaches the
+	terminal. Use it to test anything that prints, a test must not print
+	to the terminal itself, the suite is quiet. The code is a command
+	line, so use `{}` for its strings, and it can not hold a `|` or a `!`,
+	which split a pipe, so no `lines!` or `each!` in it:
+
+		(assert-eq "print" "a5\n" (test-output "(print {a} 5)"))
 
 For many small cases use a table. Each form is followed by the result it
 must give, and is named by its own text. Lists are compared by content, to

@@ -415,5 +415,8 @@
 (assert-eq "edit-break L0" "    Edit line\n" (. *edit* :get_text_line 0))
 (assert-eq "edit-break L1" "    \n" (. *edit* :get_text_line 1))
 
-; --- Smoke Test ---
-(edit-print "Smoke test edit-print")
+; --- edit-print, the selected text, or its arguments ---
+(test-cases
+	(test-output (cat "(import {lib/text/edit.inc}) (defq *file* {t} *edit* (Document))"
+		" (edit-insert {ab}) (edit-select-all) (edit-print) (edit-print {x} 1)"))
+		"ab\nx1\n")

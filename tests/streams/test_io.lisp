@@ -88,12 +88,19 @@
 (assert-eq "file-stream read" "Hello" (read-blk fs_test 5))
 (pii-remove test_file_io)
 
-; --- Print and Prin Return Values ---
-(assert-eq "print no args" :nil (print))
-(assert-eq "print with args" :nil (print "  [print test output]"))
-(assert-eq "prin no args" :nil (prin))
-(assert-eq "prin with args" :nil (prin "  [prin test output]\n"))
+; --- print and prin, what they write and what they return ---
+;the output is captured from a task of its own, so the terminal stays clean
+(test-cases
+	(test-output "(print)") "\n"
+	(test-output "(print {a} 5 :k (list 1 {b}))") "a5:k(1 \qb\q)\n"
+	(test-output "(prin)") ""
+	(test-output "(prin {a} 5)") "a5"
+	(test-output "(prin {a}) (prin {b}) (print) (print {c})") "ab\nc\n"
+	;both return :nil
+	(test-output "(prin (list (print {x}) (prin {y})))") "x\ny(:nil :nil)"
+	(prin) :nil
+	(prin "") :nil)
 
-; --- lines! with print directly ---
-(stream-seek ms_lines 0 0)
-(assert-eq "lines! print directly" :nil (lines! print ms_lines 0 2))
+; --- lines! with a native function directly ---
+;prin of an empty line writes nothing, so this stays off the terminal
+(assert-eq "lines! prin directly" :nil (lines! prin (string-stream "\n\n\n") 0 2))
