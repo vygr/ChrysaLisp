@@ -129,10 +129,15 @@
 	(spawn-title-letter *title_letter_idx*))
 
 (defun title-state-update ()
-	; check key press/release to skip title sequence directly to next state
+	; a fresh key press and release skips the title sequence directly to the
+	; next state. A key still held from the state that brought us here, the
+	; fire that picked a map square say, must be let go of first.
 	(defq controls *game_controls*)
-	(if (/= controls 0)
-		(setq *title_skip_armed* :t)
-		(when *title_skip_armed*
+	(cond
+		((not *title_skip_armed*)
+			(if (= controls 0) (setq *title_skip_armed* :ready)))
+		((eql *title_skip_armed* :ready)
+			(if (/= controls 0) (setq *title_skip_armed* :t)))
+		((= controls 0)
 			(setq *title_skip_armed* :nil
 				*game_state* *game_state_next*))))

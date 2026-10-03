@@ -215,13 +215,15 @@
 					(+menu_start
 						(. *menu_view* :sub)
 						;new campaign, map-state-init generates the player info
-						(setq *campaign_active* :nil *game_state* +game_state_map))
+						(setq *campaign_active* :nil)
+						(goto-title +game_state_map))
 					(+menu_define
 						;load game, map-state-init restores the saved campaign
 						(ifn *campaign_state* (play-sfx *sfx_out*)
 							(. *menu_view* :sub)
 							(play-sfx *sfx_spell*)
-							(setq *campaign_active* :load *game_state* +game_state_map)))
+							(setq *campaign_active* :load)
+							(goto-title +game_state_map)))
 					(+menu_difficulty
 						(setq *menu_difficulty* (logxor *menu_difficulty* 1))
 						(play-sfx *sfx_twang1*)
