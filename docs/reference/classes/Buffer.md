@@ -54,6 +54,14 @@ clips coordinates to valid buffer positions
 (. buffer :copy) -> text
 ```
 
+### :copy_parts
+
+```code
+(. buffer :copy_parts) -> (text ...)
+
+the selected text of each cursor, one for each cursor, empty or not
+```
+
 ### :cut
 
 ```code
@@ -314,6 +322,16 @@ cursors format: ((cx cy ax ay sx) ...)
 
 ```code
 (. buffer :paste text) -> buffer
+```
+
+### :paste_parts
+
+```code
+(. buffer :paste_parts (text ...)) -> buffer
+
+replace the selection of each cursor with its own text, there must
+be one for each cursor. An empty text just deletes the selection,
+which :paste can not do as it splits its text on form feeds.
 ```
 
 ### :prev_found_cursor

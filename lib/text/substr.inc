@@ -19,7 +19,8 @@
 		; (. substr :search meta) -> matches
 		(if (str? meta) (setq meta (. this :compile meta)))
 		(defq out (list) sstr (first meta))
-		(when (and sstr (>= (defq l (length text)) (length sstr)))
+		;an empty pattern finds nothing
+		(when (and sstr (>= (defq l (length text)) (length sstr) 1))
 			(defq j 0 text (str text))
 			(while (and (defq i (find (first sstr) text j))
 						(<= (setq j (+ i (length sstr))) l))
@@ -32,7 +33,8 @@
 		; (. substr :match? text meta) -> :t | :nil
 		(if (str? meta) (setq meta (. this :compile meta)))
 		(defq out :nil sstr (first meta))
-		(when (and sstr (>= (defq l (length text)) (length sstr)))
+		;an empty pattern finds nothing
+		(when (and sstr (>= (defq l (length text)) (length sstr) 1))
 			(defq j 0 text (str text))
 			(while (and (defq i (find (first sstr) text j))
 						(<= (setq j (+ i (length sstr))) l))

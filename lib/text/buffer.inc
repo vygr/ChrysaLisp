@@ -990,13 +990,18 @@
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(. this :idelete cx cy ax ay)) (get :cursors this))))
 
-	(defmethod :copy ()
-		; (. buffer :copy) -> text
+	(defmethod :copy_parts ()
+		; (. buffer :copy_parts) -> (text ...)
+		;the selected text of each cursor, one for each cursor, empty or not
 		(defq text (list))
 		(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(push text (. this :icopy cx cy ax ay)))
 			(get :cursors this))
-		(join text "\f"))
+		text)
+
+	(defmethod :copy ()
+		; (. buffer :copy) -> text
+		(join (. this :copy_parts) "\f"))
 
 	(defmethod :cut ()
 		; (. buffer :cut) -> text
@@ -1007,6 +1012,18 @@
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(. this :idelete cx cy ax ay)) (get :cursors this)))
 		(join text "\f"))
+
+	(defmethod :paste_parts (parts)
+		; (. buffer :paste_parts (text ...)) -> buffer
+		;replace the selection of each cursor with its own text, there must
+		;be one for each cursor. An empty text just deletes the selection,
+		;which :paste can not do as it splits its text on form feeds.
+		(undoable this
+			(reach (lambda (csr text) (task-slice)
+				(bind '(cx cy) (csr-sort-top csr))
+				(. this :iinsert cx cy text)) (get :cursors this) parts)
+			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
+				(. this :idelete cx cy ax ay)) (get :cursors this))))
 
 	(defmethod :paste (text)
 		; (. buffer :paste text) -> buffer

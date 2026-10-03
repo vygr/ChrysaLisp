@@ -64,6 +64,9 @@
 
 (defun replace-matches (text match_lst compiled)
 	; (replace-matches text matches compiled|rep_str) -> text
+	;with nothing matched the text is given back as it is, which also
+	;covers an empty text, that has no parts to splice
+	(if (empty? match_lst) text (progn
 	(if (str? compiled) (setq compiled (replace-compile compiled)))
 	(bind '(p_nums z_nums c_map rep_str) compiled)
 	; pre-allocate parts list to avoid resizing
@@ -91,7 +94,7 @@
 	; preserve tail text
 	(if (< last_pos (length text)) (push parts (nums last_pos -1)))
 	; perform the atomic splice using the concatenated index vectors
-	(splice text rep_str (apply (const cat) parts)))
+	(splice text rep_str (apply (const cat) parts)))))
 
 (defun replace-edits (text match_lst compiled)
 	; (replace-edits text matches compiled|rep_str) -> ((start end rep_str) ...)

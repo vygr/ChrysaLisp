@@ -61,12 +61,12 @@
 (defun edit-replace (pattern)
 	(bind '(regexp wmode xmode imode) (. *edit* :get_last_find))
 	(unless (eql regexp "")
-		(defq csr_text (split (. *edit* :copy) "\f") pattern (replace-compile pattern))
+		;work on the text of each cursor as a list, so an empty selection,
+		;or a replacement that comes out empty, keeps its place
+		(defq csr_text (. *edit* :copy_parts) pattern (replace-compile pattern))
 		(when (bind '(engine meta &ignore) (query regexp wmode xmode imode))
-			(defq csr_match (map (# (. engine :search %0 meta)) csr_text)
-				new_text (map (# (replace-matches %0 %1 pattern)) csr_text csr_match))
-			(unless (empty? new_text)
-				(. *edit* :paste (join new_text "\f"))))))
+			(. *edit* :paste_parts (map (# (replace-matches %0
+				(. engine :search (if imode (to-lower %0) %0) meta) pattern)) csr_text)))))
 
 ;module
 ;export all symbols beginning with "edit-"

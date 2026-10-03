@@ -118,6 +118,17 @@ tests outside the pattern's group, as `!(cat|dog)!`, with that group as
 group 0, so capture group numbers do not change. An empty pattern with whole
 words on is left empty, it was `!!`, which matched at every word break.
 
+Editor replace, `(edit-replace)`, fixes. Replacing with nothing, to delete the
+matches, did nothing, as `(. buffer :paste)` splits its text on form feeds
+and that drops empty parts. Replace now works on a list, with the new
+`(. buffer :copy_parts)` and `(. buffer :paste_parts parts)`, which keep an
+empty text for a cursor in its place. Replace with ignore case on now finds
+its matches, it searched the text without lowering it. `(replace-matches)`
+gives the text back unchanged when nothing matched, so `(replace-str)` and
+`(replace-regex)` no longer throw on an empty text, and a substring search
+for an empty pattern finds nothing rather than throw. New edit edge tests
+cover these, and editing with several cursors.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

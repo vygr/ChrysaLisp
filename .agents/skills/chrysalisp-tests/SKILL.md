@@ -58,8 +58,8 @@ By default it prints only the failures and a summary, so the output needs no
 filtering:
 
 	=== Test Summary ===
-	Modules: 63
-	Passed: 2754
+	Modules: 64
+	Passed: 2830
 	Failed: 0
 	Skipped: 0
 	RESULT: SUCCESS

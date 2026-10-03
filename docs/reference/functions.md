@@ -1306,6 +1306,9 @@ returns a list of edit operations compatible with Editor buffers
 
 ```code
 (replace-matches text matches compiled|rep_str) -> text
+
+with nothing matched the text is given back as it is, which also
+covers an empty text, that has no parts to splice
 ```
 
 ### replace-regex
