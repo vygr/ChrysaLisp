@@ -78,6 +78,13 @@ throws, as the other vector functions do. `(sort)`, `(usort)` and `(shuffle)`
 use positional `%0` argument names. Note the default compare for `(sort)` is
 `cmp`, so is for strings, numbers need a compare function given.
 
+Five more edge case modules, for regexp and search, JSON and URL, tree save
+and load, structures, and mail, take the suite to 2676 tests.
+`(json-stringify)` gave `:nil` for any string with the letter q in it, a
+quote included, now fixed. In a `(test-cases)` table a list now also matches
+a `nums` vector with the same elements, so a nested vector result can be
+written.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

@@ -58,8 +58,8 @@ By default it prints only the failures and a summary, so the output needs no
 filtering:
 
 	=== Test Summary ===
-	Modules: 58
-	Passed: 2457
+	Modules: 63
+	Passed: 2676
 	Failed: 0
 	Skipped: 0
 	RESULT: SUCCESS
@@ -306,7 +306,9 @@ Assertions, each takes a short name first:
 
 For many small cases use a table. Each form is followed by the result it
 must give, and is named by its own text. Lists are compared by content, to
-any depth, everything else by `eql`:
+any depth, everything else by `eql`. A list also matches a `nums` or other
+vector with the same elements, which is how a nested vector result is
+written:
 
 	(test-cases
 		(slice "hello" 0 0) ""

@@ -45,8 +45,10 @@
 
 (defun test-equal? (a b)
 	; (test-equal? a b) -> :t | :nil
-	;lists compare by content, to any depth, all else by eql
-	(if (and (list? a) (list? b))
+	;lists compare by content, to any depth, all else by eql. A list also
+	;matches a nums or other vector with the same elements, as an expected
+	;value can only be written as a list when it is nested.
+	(if (and (array? a) (array? b) (or (list? a) (list? b)))
 		(and (= (length a) (length b)) (every test-equal? a b))
 		(eql a b)))
 

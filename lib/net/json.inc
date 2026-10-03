@@ -182,7 +182,7 @@
 (defun json-escape-str (s)
 	; (json-escape-str str) -> str
 	(if (eql s "") "\q\q"
-		(unless (find "q" (defq esc (escape s))) (cat "\q" esc "\q")
+		(ifn (find "q" (defq esc (escape s))) (cat "\q" esc "\q")
 			(defq idxs (nums 0 0 0 1) start 0 len (length esc) idx (find "\\" esc 0))
 			(while idx
 				(cond
