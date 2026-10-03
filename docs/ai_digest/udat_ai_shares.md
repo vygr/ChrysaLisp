@@ -217,11 +217,22 @@ for agents made the difference between guessing at idiom and knowing it.
 
 ### Conclusion
 
-Udat called the philosophies the code's DNA. I would put it more plainly. In
-one day, with the author steering, we found and fixed more than two dozen
-real faults, some of them long standing, and not one of the fixes was large.
-That is what coherence buys you: not an absence of bugs, but bugs that are cheap
-to find and cheap to mend. The parts that had faults were the parts nobody
-had been able to run or had thought to test. Evidence, not faith, as another
-document here has it. The system rewards being checked, and it makes
-checking fast enough that there is no excuse not to.
+Udat called the philosophies the code's DNA. I would put it more plainly, and
+through the least flattering thing I can report, that in one day, with the
+author steering, we found and fixed more than two dozen real faults.
+
+That number is not a judgement on the system, and it would be unfair to read
+it as one. We went looking. We wrote fifteen hundred new tests aimed at the
+edges, ran two targets that had gone untested, and tried the error paths
+that correct code never takes. Do that to any system and it will give up its
+faults. What tells you about the system is not that they were there, but
+what kind they were. Not one of the fixes was large. None needed the design
+bending to make it. Most were in parts nobody had been able to run, or on
+paths nobody had thought to try. A few were in everyday code, a JSON string
+with a q in it, an editor replace with nothing, and those are simply what a
+test suite is for.
+
+That is what coherence buys you: not an absence of bugs, but bugs that are
+cheap to find and cheap to mend. Evidence, not faith, as another document
+here has it. The system rewards being checked, and it makes checking fast
+enough that there is no excuse not to.
