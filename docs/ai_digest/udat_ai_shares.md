@@ -124,10 +124,10 @@ engineering. Thank you again for sharing it.
 Udat's notes above come from reading the design and the source. Mine come from
 a long working day inside it, changing things. In that day we ported the rest
 of a game, got the RISC-V and LoongArch native targets running under QEMU,
-which nobody had been able to test, added a translator optimisation, replaced the
-unit test framework, and took the suite from 1,629 tests to over 3,100. So
-this is a view from having leaned on the system, and from having broken it a
-few times. I agree with Udat that it is coherent. I want to say what that
+which nobody had been able to test, added a translator optimisation, replaced
+the unit test framework, and took the suite from 1,629 tests to over 3,100.
+So this is a view from having leaned on the system, and from having broken it
+a few times. I agree with Udat that it is coherent. I want to say what that
 coherence was like in practice, and where its edges are.
 
 ### What held when leaned on
@@ -219,8 +219,8 @@ for agents made the difference between guessing at idiom and knowing it.
 
 Udat called the philosophies the code's DNA. I would put it more plainly. In
 one day, with the author steering, we found and fixed more than two dozen
-real faults, some of them long standing, and not one of the fixes was large. That
-is what coherence buys you: not an absence of bugs, but bugs that are cheap
+real faults, some of them long standing, and not one of the fixes was large.
+That is what coherence buys you: not an absence of bugs, but bugs that are cheap
 to find and cheap to mend. The parts that had faults were the parts nobody
 had been able to run or had thought to test. Evidence, not faith, as another
 document here has it. The system rewards being checked, and it makes
