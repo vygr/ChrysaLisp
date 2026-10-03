@@ -558,20 +558,19 @@
 (case *abi*
 (RISCV64
 (defun emit-call-abi (r b c n &rest x)
-	(defun emit-call-abi (r b c n &rest x)
-		(defq s (* +ptr_size (length x)))
-		(emit-cpy-rr +riscv64_rsp +riscv64_rtmp4)
-		(emit-cpy-rr +riscv64_rlnk +riscv64_rtmp5)
-		(cond
-			((= (% *func_align* 16) 0)
-				(emit-sub-cr (align s 16) +riscv64_rsp))
-			(:t (emit-sub-cr s +riscv64_rsp)
-				(emit-and-cr -16 +riscv64_rsp)))
-		(each (# (emit-cpy-ri %0 +riscv64_rsp (* +ptr_size (!)))) (reverse x))
-		(emit-cpy-ir b c +riscv64_rtmp1)
-		(riscv64-i 0x67 +riscv64_rlnk +riscv64_rtmp1 0x0 0x0)
-		(emit-cpy-rr +riscv64_rtmp4 +riscv64_rsp)
-		(emit-cpy-rr +riscv64_rtmp5 +riscv64_rlnk))))
+	(defq s (* +ptr_size (length x)))
+	(emit-cpy-rr +riscv64_rsp +riscv64_rtmp4)
+	(emit-cpy-rr +riscv64_rlnk +riscv64_rtmp5)
+	(cond
+		((= (% *func_align* 16) 0)
+			(emit-sub-cr (align s 16) +riscv64_rsp))
+		(:t (emit-sub-cr s +riscv64_rsp)
+			(emit-and-cr -16 +riscv64_rsp)))
+	(each (# (emit-cpy-ri %0 +riscv64_rsp (* +ptr_size (!)))) (reverse x))
+	(emit-cpy-ir b c +riscv64_rtmp1)
+	(riscv64-i 0x67 +riscv64_rlnk +riscv64_rtmp1 0x0 0x0)
+	(emit-cpy-rr +riscv64_rtmp4 +riscv64_rsp)
+	(emit-cpy-rr +riscv64_rtmp5 +riscv64_rlnk)))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
 ;module, that exports everything !

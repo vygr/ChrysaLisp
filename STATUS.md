@@ -28,6 +28,12 @@ header comment under their `(gen-create)` and `(gen-type)` calls, which the
 doc scanner, `make docs` and `trace -w` all use. The `apps/` VP functions are
 scanned too, build them with `make apps debug` before linting.
 
+Riscv64 native is running again. `emit-call-abi` in `lib/trans/riscv64.inc`
+had picked up a nested copy of its own `(defun)`, so every host ABI call
+emitted no code and the boot image crashed at startup. Tested on Linux
+riscv64 under QEMU, the test suite passes and a self hosted `make all boot`
+gives a byte identical boot image to the one cross built on the Mac.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 
