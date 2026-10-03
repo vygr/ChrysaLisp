@@ -36,6 +36,8 @@ trashes
 :r1-:r6, :f0-:f15
 ```
 
+### :double_free -> sys/heap/double_free
+
 ### :free -> sys/heap/free
 
 ```code
@@ -61,4 +63,6 @@ outputs
 trashes
 :r1-:r2
 ```
+
+### :overrun -> sys/heap/overrun
 

@@ -116,7 +116,8 @@ setting it fails the same way each time, rather than by luck. It fills each
 freed cell with a second pattern, bytes of `0x5A`, and aborts on a double
 free. It checks the count on every object ref and deref, and reports
 `Dead object !` with a stack dump, and checks each `:sys_mem :free` is of
-a block that was given out, `Bad free !`. A fault address or pc of `0x5a5a5a5a5a5a5a5a` means use after free.
+a block that was given out, `Bad free !`. It keeps a guard word after
+every heap cell and tests it on free, `Heap overrun !`. A fault address or pc of `0x5a5a5a5a5a5a5a5a` means use after free.
 If a validate image will not boot, `make install` puts back the working
 VP64 image from `snapshot.zip`, and `./run_tui.sh -e` can build from it.
 The emulator

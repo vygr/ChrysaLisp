@@ -20,8 +20,8 @@
 
 	;size of block to contain these cells
 	(vp-max-cr 1 :r2)
-	;allow for block pointer
-	(vp-add-cr +hp_cell_next :r1)
+	;allow for block pointer, and the guard word of a validate build
+	(vp-add-cr (+ +hp_cell_next +hp_cell_guard_size) :r1)
 	(vp-mul-rr :r1 :r2)
 	;round up to next page size
 	(vp-add-cr (+ +hp_block_size (dec ld_page_size)) :r2)
@@ -98,6 +98,9 @@
 			(vp-cpy-ri :r4 next 0)
 			(vp-add-cr +long_size next)
 		(loop-until `(,next = :r3))
+		;and the guard word after it
+		(vp-cpy-cr +hp_cell_guard :r4)
+		(vp-cpy-ri :r4 :r3 0)
 		(vp-pop :r3 :r4))
 		(exit :sys_heap :alloc `(,this ,cell))
 		(vp-ret)
@@ -118,7 +121,9 @@
 	(vp-xor-rr next next)
 	(vp-xor-rr cnt cnt)
 	(vp-sub-rr cellsize blockend)
-	(vp-add-cr +hp_cell_next cellsize)
+	(validatecase
+		(vp-sub-cr +hp_cell_guard_size blockend))
+	(vp-add-cr (+ +hp_cell_next +hp_cell_guard_size) cellsize)
 	(assign `(,next) `((,block +hp_block_free_flist)))
 	(assign `(,next) `((,block +hp_block_free_flist_tail)))
 	(assign `(,cnt) `((,block +hp_block_freecnt)))
@@ -135,6 +140,28 @@
 	(goto 'got_cell)
 
 (def-func-end)
+
+(validatecase (def-method :sys_heap :overrun)
+	;trashes
+	;:r0-:r1, :f0-:f15
+	;info
+	;a cell being freed has had its guard word written on, report and dump
+
+	(call :host_os :pii_write_str '(2 "Heap overrun !\n"))
+	(jump :sys_task :dump)
+
+(def-func-end))
+
+(validatecase (def-method :sys_heap :double_free)
+	;trashes
+	;:r0-:r1, :f0-:f15
+	;info
+	;a cell being freed is already free, report and dump
+
+	(call :host_os :pii_write_str '(2 "Double free !\n"))
+	(jump :sys_task :dump)
+
+(def-func-end))
 
 (def-method :sys_heap :collect)
 	;inputs

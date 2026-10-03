@@ -207,6 +207,15 @@ of the `:sys_mem` heaps, else `Bad free !` and the dump. No test reaches
 that one. The validate ARM64 image is now 251,308 bytes, most of the growth
 is the count test at each inline ref.
 
+A validate build keeps a guard word, `+hp_cell_guard`, after every heap
+cell. It sits outside the cell size, in the stride between cells, so
+`+hp_heap_cellsize` is the same in every build, and `:array`, `:str` and
+the rest use the whole cell as before. The guard is written on alloc and
+tested on free, a changed one is a write past the end of the cell, `Heap
+overrun !` and the stack dump. The dump shows who freed the cell, not who
+wrote on it. A double free now reports the same way, `Double free !` and
+the dump. Writing a wrong guard on purpose trips the check on every free.
+
 These two change the boot images by a few bytes, ARM64 221,924 and VP64
 release 152,092, so `snapshot.zip` is behind until it is next rebuilt.
 

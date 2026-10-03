@@ -11,7 +11,9 @@
 	(dec-method :deinit sys/heap/deinit :static (:r0) (:r0))
 	(dec-method :alloc sys/heap/alloc :static (:r0) (:r0 :r1))
 	(dec-method :free sys/heap/free :static (:r0 :r1) (:r0 :r1))
-	(dec-method :collect sys/heap/collect :static (:r0) (:r0)))
+	(dec-method :collect sys/heap/collect :static (:r0) (:r0))
+	(dec-method :overrun sys/heap/overrun)
+	(dec-method :double_free sys/heap/double_free))
 
 ;;;;;;;;;;;;;
 ; heap macros
@@ -28,6 +30,8 @@
 	;%2 = old first cell (ptr)
 
 	(validatecase
+		;the guard word after the cell must be whole, else something wrote
+		;past the end of the cell.
 		;fill the cell, past its free list link, with the freed pattern, so
 		;any use of it after the free shows up. If it holds that pattern
 		;already then it is being freed twice.
@@ -37,12 +41,17 @@
 		(vp-push end fill tmp)
 		(assign `((,%0 +hp_heap_cellsize)) `(,end))
 		(vp-lea-d %1 end end)
+		(vp-cpy-cr +hp_cell_guard fill)
+		(assign `((,end 0)) `(,tmp))
+		(vpif `(,tmp /= ,fill))
+			(jump :sys_heap :overrun)
+		(endif)
 		(vp-lea-i %1 +ptr_size %2)
 		(vp-cpy-cr +hp_cell_free_fill fill)
 		(vpif `(,%2 /= ,end))
 			(assign `((,%2 0)) `(,tmp))
 			(vpif `(,tmp = ,fill))
-				(abort "Double free !")
+				(jump :sys_heap :double_free)
 			(endif)
 			(loop-start)
 				(vp-cpy-ri fill %2 0)
