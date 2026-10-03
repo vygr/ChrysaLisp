@@ -100,6 +100,62 @@
 	(replace-regex "abc" "b(x)?" "[$1]") "a[]c"
 	(replace-regex "abc" "(x)?(b)" "$1-$2") "a-bc")
 
+; --- query, a search built from the find options ---
+(defun re-find (text pattern whole_words regexp)
+	; the spans a query finds
+	(bind '(engine meta &ignore) (query pattern whole_words regexp :nil))
+	(map (const first) (. engine :search text meta)))
+
+(defun re-swap (text pattern rep whole_words regexp)
+	(bind '(engine meta &ignore) (query pattern whole_words regexp :nil))
+	(replace-matches text (. engine :search text meta) rep))
+
+;whole words, a plain pattern
+(test-cases
+	(re-find "the fox jumps" "fox" :t :nil) '((4 7))
+	(re-find "the foxes jump" "fox" :t :nil) '()
+	(re-find "firefox jumps" "fox" :t :nil) '()
+	(re-find "fox" "fox" :t :nil) '((0 3))
+	(re-find "fox,fox;fox" "fox" :t :nil) '((0 3) (4 7) (8 11))
+	(re-find "ab abc ab" "ab" :t :nil) '((0 2) (7 9))
+	;a digit or underscore is part of a word
+	(re-find "a fox_b" "fox" :t :nil) '()
+	(re-find "fox1 fox" "fox" :t :nil) '((5 8))
+	;regexp characters in a plain pattern are just text
+	(re-find "x a.b y" "a.b" :t :nil) '((2 5))
+	(re-find "axb" "a.b" :t :nil) '()
+	(re-find "c++ rocks" "c++" :t :nil) '((0 3))
+	(re-find "x (y) z" "(y)" :t :nil) '((2 5))
+	;a pattern can be several words
+	(re-find "foo bar" "foo bar" :t :nil) '((0 7))
+	(re-find "foo bar" "o b" :t :nil) '()
+	(re-swap "cat concat cat" "cat" "X" :t :nil) "X concat X"
+	(re-swap "cat concat cat" "cat" "X" :nil :nil) "X conX X")
+
+;whole words, a regexp pattern, the word breaks apply to every alternative
+(test-cases
+	(re-find "the cat and dog" "cat|dog" :t :t) '((4 7) (12 15))
+	(re-find "the cats and dogs" "cat|dog" :t :t) '()
+	(re-find "concat dogma" "cat|dog" :t :t) '()
+	(re-find "a dog" "cat|dog" :t :t) '((2 5))
+	(re-find "the fox" "f.x" :t :t) '((4 7))
+	(re-find "the foxy" "f.x" :t :t) '()
+	;capture groups keep their numbers
+	(re-swap "a cat or dog" "(c)at|(d)og" "[$0:$1$2]" :t :t) "a [cat:c] or [dog:d]"
+	(re-swap "a cat or dogs" "(c)at|(d)og" "[$0:$1$2]" :t :t) "a [cat:c] or dogs"
+	(re-swap "a cat or dogs" "(c)at|(d)og" "[$0:$1$2]" :nil :t) "a [cat:c] or [dog:d]s")
+
+;an empty pattern stays empty, whole words or not, and ignore case lowers the pattern
+(test-cases
+	(third (query "" :t :nil :nil)) ""
+	(third (query "" :t :t :nil)) ""
+	(third (query "" :nil :nil :nil)) ""
+	(third (query "FOX" :nil :nil :t)) "fox"
+	(re-find "The FOX" "fox" :t :nil) '())
+
+(bind '(re_engine re_meta &ignore) (query "FOX" :t :nil :t))
+(assert-list-eq "ignore case, on lowered text" '(((4 7))) (. re_engine :search (to-lower "The FOX") re_meta))
+
 ; --- substr and replace-str take the pattern as plain text ---
 (test-cases
 	(substr "aaa" "a") '(((0 1)) ((1 2)) ((2 3)))

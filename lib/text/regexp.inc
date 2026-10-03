@@ -264,10 +264,13 @@
 	; (Regexp [num_buckets]) -> regexp
 	(def this :meta_cache (Fmap num_buckets))
 
-	(defmethod :compile (pattern)
-		; (. regexp :compile pattern) -> :nil | meta
+	(defmethod :compile (pattern &optional whole_words)
+		; (. regexp :compile pattern [whole_words]) -> :nil | meta
+		;the pattern is made group 0. For whole words the word break tests
+		;go outside that group, so they apply to the pattern as a whole, not
+		;just to its first and last alternatives.
 		(raise :meta_cache)
-		(setq pattern (cat "(" pattern ")"))
+		(setq pattern (if whole_words (cat "!(" pattern ")!") (cat "(" pattern ")")))
 		(unless (defq meta (. meta_cache :find pattern))
 			(setq meta (catch (compile (postfix (tokenize pattern))) :t))
 			(. meta_cache :insert pattern meta))

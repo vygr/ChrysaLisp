@@ -1239,6 +1239,9 @@ run pipe farm and collect output
 
 ```code
 (query pattern whole_words regexp ignore_case) -> (engine meta pattern)
+
+whole words is done by the regexp engine, a plain pattern is escaped
+for it. An empty pattern stays empty, and matches as it would without.
 ```
 
 ### quote?

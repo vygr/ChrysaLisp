@@ -29,12 +29,15 @@
 
 (defun query (_p _w _x _i)
 	; (query pattern whole_words regexp ignore_case) -> (engine meta pattern)
+	;whole words is done by the regexp engine, a plain pattern is escaped
+	;for it. An empty pattern stays empty, and matches as it would without.
 	(if _i (setq _p (to-lower _p)))
-	(if (and (nql _p "") _w (not _x))
+	(if (eql _p "") (setq _w :nil))
+	(if (and _w (not _x))
 		(setq _p (escape-regexp _p)))
-	(defq _e (if (or _w _x) +regexp +substr)
-		_p (if _w (cat "!" _p "!") _p))
-	(list _e (. _e :compile _p) _p))
+	(defq _e (if (or _w _x) +regexp +substr))
+	(list _e (if _w (. _e :compile _p :t) (. _e :compile _p))
+		(if _w (cat "!(" _p ")!") _p)))
 
 (defun replace-compile (rep_str)
 	; (replace-compile rep_str) -> (p_nums z_nums c_map rep_str)

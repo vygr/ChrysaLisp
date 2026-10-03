@@ -111,6 +111,13 @@ character, `$` or `\s*$` say, was only tried at positions before the end, so
 nothing. It is now tried once more at the end, unless the last match already
 took the text up to there.
 
+Whole word searches with `(query)` now work for a regexp with alternatives.
+The pattern was wrapped as `!cat|dog!`, which is `!cat` or `dog!`, so found
+`cat` in `cats`. `(. regexp :compile pattern :t)` now puts the word break
+tests outside the pattern's group, as `!(cat|dog)!`, with that group as
+group 0, so capture group numbers do not change. An empty pattern with whole
+words on is left empty, it was `!!`, which matched at every word break.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 
