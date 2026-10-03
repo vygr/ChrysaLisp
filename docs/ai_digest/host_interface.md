@@ -144,7 +144,8 @@ the host.
         * `host_audio_add_sfx`: Loads a sound effect (currently only `.wav`)
           and returns a handle.
 
-        * `host_audio_play_sfx`: Plays a loaded sound effect by its handle.
+        * `host_audio_play_sfx`: Plays a loaded sound effect by its handle,
+          with a stereo pan from -255 (left) to 255 (right).
 
         * `host_audio_change_sfx`: Pauses, resumes, or stops a playing sound
           effect.

@@ -24,7 +24,7 @@
 	(. footman :sp_set_pos x fy)
 	(. *layer_enemies* :add_front footman)
 	(spawn-flying-body this)
-	(audio-play-rpc *sfx_clash2*))
+	(play-sfx *sfx_clash2* this))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; component handlers
@@ -41,7 +41,7 @@
 			ay cy
 			arrow (BalistaArrow ax ay dir))
 		(. *layer_missiles* :add_front arrow)
-		(audio-play-rpc *sfx_twang1*)))
+		(play-sfx *sfx_twang1* this)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; balista and arrow sprite classes

@@ -10,7 +10,7 @@
 
 ### (audio-init)
 
-### (audio-play handle)
+### (audio-play handle pan)
 
 ### (audio-remove handle)
 

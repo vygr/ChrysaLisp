@@ -305,21 +305,21 @@
 
 	(structure local 0
 		(ptr this)
-		(long c_handle c_ret))
+		(long c_handle c_pan c_ret))
 
 	(entry :host_audio :lisp_play '(:r0 :r1))
 
-	;check 1 arg with given type
-	(errorif-lisp-args-sig 'error :r1 1)
+	;check 2 args with given types
+	(errorif-lisp-args-sig 'error :r1 2)
 
 	;allocate stack for locals
 	(vp-alloc local_size)
 	;save lisp `this`
 	(assign '(:r0) '((:rsp local_this)))
-	;cast input numeric arg
-	(list-bind-args :r1 '(:r1) '(:num))
-	;save it so kernel callback can see it
-	(assign '(:r1) '((:rsp local_c_handle)))
+	;cast input numeric args
+	(list-bind-args :r1 '(:r1 :r2) '(:num :num))
+	;save them so kernel callback can see them
+	(assign '(:r1 :r2) '((:rsp local_c_handle) (:rsp local_c_pan)))
 	;callback in kernel thread/stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	;convert C return value to number
@@ -338,14 +338,14 @@
 	;kernel callback
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :play '((:r0 local_c_handle)) '(:r0))
+	(host-audio-call :host_audio :play '((:r0 local_c_handle) (:r0 local_c_pan)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 local_c_ret)))
 	(vp-ret)
 
 (errorcase
 	(vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(audio-play handle)" +error_msg_wrong_types))
-	(signature '(:NUM)))
+	(jump :lisp :repl_error '(:r0 :r1 "(audio-play handle pan)" +error_msg_wrong_types))
+	(signature '(:NUM :NUM)))
 
 (def-func-end)

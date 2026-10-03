@@ -28,7 +28,7 @@
 				ball (CannonBall bx by dir))
 			(. this :add_before flame)
 			(. *layer_missiles* :add_front ball)
-			(audio-play-rpc *sfx_explode*))
+			(play-sfx *sfx_explode* this))
 		(def this :cannon_fired :nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

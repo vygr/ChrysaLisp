@@ -28,7 +28,7 @@
 	(each (lambda ((vx vy))
 		(. *layer_fx* :add_front (Bone bx by vx vy)))
 		+bone_vectors)
-	(audio-play-rpc *sfx_spell*))
+	(play-sfx *sfx_spell* this))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; skeleton horse sprite class

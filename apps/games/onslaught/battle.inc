@@ -195,7 +195,8 @@
 	(def (defq man (Fanatic)) :sp_dir 1 :man_xv 0 :man_yv 0 :man_walk_tick 0)
 	(. man :sp_set_pos 8 208)
 	(. *layer_player* :add_front man)
-	(setq *player_man* man *man_power* +max_power *man_strength* +max_strength
+	;power and strength carry over from battle to battle
+	(setq *player_man* man
 		*enemy_stack* (list) *enemy_banner_captured* :nil *enemy_count* 0
 		*enemy_spawn_delay* 1 *mine_count* 0
 		*game_controls* 0 *user_controls* 0 *game_flags* 0
@@ -220,7 +221,7 @@
 		((empty? (. *layer_player* :children))
 			; death sequence finished (all manbits left the screen)
 			(record-battle-finish)
-			(setq *campaign_active* :nil)
+			(setq *campaign_active* :nil *campaign_state* :nil)
 			(goto-title +game_state_hiscore))
 		((and *player_man* (get :sp_dead *player_man*))
 			; man is dying, manbits are currently bouncing/flying off the screen
@@ -271,7 +272,7 @@
 
 (defun battle-disperse-enemies ()
 	; fizzle and disperse all enemies and missiles like green spell
-	(audio-play-rpc *sfx_spell*)
+	(play-sfx *sfx_spell*)
 	(each (lambda (enemy)
 		(when (and (Sprite? enemy)
 				(/= (get :sp_frame enemy) -1)

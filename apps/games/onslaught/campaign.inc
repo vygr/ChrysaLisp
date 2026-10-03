@@ -124,6 +124,7 @@
 (defun game-generate-player-info ()
 	; start a new campaign
 	(setq *man_score* 0 *item_selected* 0
+		*man_power* (const (/ +max_power 2)) *man_strength* +max_strength
 		*item_inventory* (list +frm_16x16_shield 0 0 0 0 0 0 0)
 		*item_usage* (list 48 0 0 0 0 0 0 0)
 		*campaign_map* (map (const code) (load (cat *app_root* "data/campainmap.dat")))
@@ -142,6 +143,44 @@
 		*man_cult* (game-random (length +cult_names))
 		*man_banner* (+ +frm_16x16_banners *man_cult*))
 	(game-generate-enemy-info))
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; campaign save and load
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun campaign-snapshot ()
+	; remember the campaign in progress, if any, for config-save
+	(setq *campaign_state* (if *campaign_active*
+		(scatter (Emap)
+			:tiles (cat *campaign_map*)
+			:location (list *location_x* *location_y* *location_last_x* *location_last_y*
+				*location_ox* *location_oy*)
+			:events (list *event_count* *plague_create* *crusade_create* *rebellion_create*
+				*plague_destroy* *crusade_destroy* *rebellion_destroy*)
+			:name *man_name* :homeland *man_homeland* :cult *man_cult*
+			:score *man_score* :power *man_power* :strength *man_strength*
+			:inventory (cat *item_inventory*) :usage (cat *item_usage*)
+			:selected *item_selected*))))
+
+(defun campaign-restore ()
+	; carry on with the saved campaign
+	(bind '(tiles location events name homeland cult score power strength
+			inventory usage selected)
+		(gather *campaign_state* :tiles :location :events :name :homeland :cult
+			:score :power :strength :inventory :usage :selected))
+	(bind '(x y last_x last_y ox oy) location)
+	(bind '(event_count pc cc rc pd cd rd) events)
+	(setq *campaign_map* (cat tiles) *location_x* x *location_y* y
+		*location_last_x* last_x *location_last_y* last_y
+		*location_ox* ox *location_oy* oy *event_count* event_count
+		*plague_create* pc *crusade_create* cc *rebellion_create* rc
+		*plague_destroy* pd *crusade_destroy* cd *rebellion_destroy* rd
+		*man_name* name *man_homeland* homeland *man_cult* cult
+		*man_banner* (+ +frm_16x16_banners cult)
+		*man_score* score *man_power* power *man_strength* strength
+		*item_inventory* (cat inventory) *item_usage* (cat usage)
+		*item_selected* selected *campaign_active* :t
+		*man_territory* (campaign-count +frm_campain_player)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; campaign map events
@@ -368,9 +407,14 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defun map-state-init ()
-	(unless *campaign_active*
-		(setq *campaign_active* :t)
-		(game-generate-player-info))
+	(cond
+		((eql *campaign_active* :load) (campaign-restore))
+		((not *campaign_active*)
+			(setq *campaign_active* :t)
+			(game-generate-player-info)))
+	;every return to the map is saved
+	(campaign-snapshot)
+	(config-save)
 	(campaign-view-init)
 	;set man status and experience, wait for key release
 	(setq *man_score* (min *man_score* 999999)
@@ -435,7 +479,7 @@
 				(+ *location_last_x* (* *location_last_y* +campaign_width)) tile)
 			(if (= (setq *man_territory* (campaign-count +frm_campain_player)) 0)
 				;game over
-				(setq *campaign_active* :nil state +game_state_hiscore)
+				(setq *campaign_active* :nil *campaign_state* :nil state +game_state_hiscore)
 				;fall back to a random player location
 				(defq location (game-random +campaign_size))
 				(while (/= (elem-get *campaign_map* location) +frm_campain_player)

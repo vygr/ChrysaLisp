@@ -6,7 +6,15 @@
 	; input recording & playback state for demo mode
 	*record_stream* :nil *record_keys* -1 *record_count* 0 *record_start_score* 0
 	*playback_stream* :nil *playback_keys* 0 *playback_count* 0
-	*user_controls* 0 *demo_skip_armed* :nil)
+	*user_controls* 0 *demo_skip_armed* :nil *demo_saved_settings* :nil)
+
+(defun demo-restore-settings ()
+	; a demo plays with the difficulty and mode it was recorded in,
+	; put the user's own settings back once it is over
+	(when *demo_saved_settings*
+		(bind '(difficulty mode) *demo_saved_settings*)
+		(setq *menu_difficulty* difficulty *menu_mode* mode *game_mode* mode
+			*demo_saved_settings* :nil)))
 
 (defun record-battle-finish ()
 	; finish recording and update session demo
@@ -109,6 +117,7 @@
 		(bind '(menu_diff menu_mode man_score mine_max enemy_max sky_top sky_bottom)
 			(list (read-ushort in_s) (read-ushort in_s) (read-uint in_s)
 				  (read-ushort in_s) (read-ushort in_s) (read-long in_s) (read-long in_s)))
+		(setq *demo_saved_settings* (list *menu_difficulty* *menu_mode*))
 		(clear-sprite-layers)
 		(set-world-layers-pos 0 0)
 		(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))

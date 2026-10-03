@@ -97,7 +97,7 @@
 		mt (if duck
 			(if (= dir 1) +mt_lower_mase_r +mt_lower_mase_l)
 			(if (= dir 1) +mt_upper_mase_r +mt_upper_mase_l)))
-	(audio-play-rpc *sfx_throw*)
+	(play-sfx *sfx_throw* man)
 	(def man :sp_flags (logior (get :sp_flags man) +fsp_action))
 	(. man :sp_set_frame (first body_anim))
 	(set man_at 'speed 2 'table body_anim 'count 0 'index 1 'loop :nil)
@@ -117,7 +117,7 @@
 		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
 		(. *layer_fx* :add_front exp))
 		'((-32 -16) (-16 -32) (0 -16) (-16 0)))
-	(audio-play-rpc *sfx_explode*)
+	(play-sfx *sfx_explode* this)
 	(blast-area (- x 24) (- y 24) 64 64))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -199,7 +199,7 @@
 	(bind '(hx hy) (. this :sp_get_pos))
 	(defq elem (Elemental (- hx 8) (- hy 8)))
 	(. *layer_player* :add_front elem)
-	(audio-play-rpc *sfx_roar*))
+	(play-sfx *sfx_roar* this))
 
 (defun cp-helper (this that)
 	; homing helper demon tracking the first live enemy
@@ -255,7 +255,7 @@
 			x (if (= dir 1) (+ ax 16) (- ax 16))
 			arr (SmallArrow x ay dir))
 		(. *layer_player* :add_front arr)
-		(audio-play-rpc *sfx_twang2*)))
+		(play-sfx *sfx_twang2* this)))
 
 (defclass SmallCrossbow (man mt_table) (Addon man mt_table 1 +at_small_crossbow)
 	; (SmallCrossbow man mt_table) -> player light crossbow addon
@@ -281,7 +281,7 @@
 		(bind '(ax ay) (. this :sp_get_pos))
 		(defq dir (get :sp_dir this))
 		(. *layer_player* :add_front (BigArrow (if (= dir 1) (+ ax 8) (- ax 24)) ay dir))
-		(audio-play-rpc *sfx_twang1*)))
+		(play-sfx *sfx_twang1* this)))
 
 (defclass BigCrossbow (man mt_table) (Addon man mt_table 2 +at_big_crossbow)
 	; (BigCrossbow man mt_table) -> player heavy crossbow addon
@@ -318,7 +318,7 @@
 	(defq dir (get :sp_dir man)
 		man_at (elem-get (get :sp_components man) +man_comp_at)
 		mt (if (= dir 1) +mt_naptha_r +mt_naptha_l))
-	(audio-play-rpc *sfx_throw*)
+	(play-sfx *sfx_throw* man)
 	(def man :sp_flags (logior (get :sp_flags man) +fsp_action))
 	(. man :sp_set_frame (first +at_man_naptha))
 	(set man_at 'speed 3 'table +at_man_naptha 'count 0 'index 1 'loop :nil)
@@ -331,21 +331,21 @@
 	(bind '(mx my mw mh) (. man :sp_get_bounds))
 	(defq wep (Helper (+ mx 8) (- (+ my (/ mh 2)) 8)))
 	(. *layer_player* :add_front wep)
-	(audio-play-rpc *sfx_spell*))
+	(play-sfx *sfx_spell* man))
 
 (defun use-super-helper (man)
 	; spawn red demon homing helper
 	(bind '(mx my mw mh) (. man :sp_get_bounds))
 	(defq wep (SuperHelper (+ mx 8) (- (+ my (/ mh 2)) 8)))
 	(. *layer_player* :add_front wep)
-	(audio-play-rpc *sfx_spell*))
+	(play-sfx *sfx_spell* man))
 
 (defun use-yellow-spell (man)
 	; yellow spell spawns roaring elemental head
 	(bind '(mx my) (. man :sp_get_pos))
 	(defq elem (Elemental mx (- my 32)))
 	(. *layer_player* :add_front elem)
-	(audio-play-rpc *sfx_roar*))
+	(play-sfx *sfx_roar* man))
 
 (defun use-black-spell (man)
 	; black spell fills all 8 inventory slots with a random powerful spell/item
@@ -355,11 +355,11 @@
 		(elem-set *item_inventory* idx item)
 		(elem-set *item_usage* idx uses)
 		(++ idx))
-	(audio-play-rpc *sfx_spell*))
+	(play-sfx *sfx_spell* man))
 
 (defun use-green-spell (man)
 	; green spell kills all active enemies on screen
-	(audio-play-rpc *sfx_spell*)
+	(play-sfx *sfx_spell* man)
 	(each (lambda (enemy)
 		(when (and (Sprite? enemy)
 				(/= (get :sp_frame enemy) -1)
@@ -373,7 +373,7 @@
 
 (defun use-white-spell (man)
 	; white spell freezes non-stationary enemies in place
-	(audio-play-rpc *sfx_spell*)
+	(play-sfx *sfx_spell* man)
 	(each (lambda (enemy)
 		(when (Sprite? enemy)
 			(defq sp_type (get :sp_type enemy))
@@ -385,9 +385,22 @@
 (defun use-red-spell (man)
 	; red spell restores 20% strength
 	(setq *man_strength* (min +max_strength (+ *man_strength* (/ +max_strength 5))))
-	(audio-play-rpc *sfx_spell*))
+	(play-sfx *sfx_spell* man))
 
 (defun use-blue-spell (man)
 	; blue spell restores 20% power
 	(setq *man_power* (min +max_power (+ *man_power* (/ +max_power 5))))
-	(audio-play-rpc *sfx_spell*))
+	(play-sfx *sfx_spell* man))
+
+(defun use-talisman (man)
+	; any talisman destroys all the missiles, scoring them, and all the mines
+	(each (lambda (sp)
+		(when (and (Sprite? sp) (not (get :sp_dead sp)))
+			(. sp :sp_kill)
+			(play-death-score sp)))
+		(. *layer_missiles* :children))
+	(each (lambda (sp)
+		(if (and (Sprite? sp) (= (get :sp_type sp) +ftp_enemy_fire))
+			(. sp :sp_kill)))
+		(. *layer_bans* :children))
+	(play-sfx *sfx_spell* man))

@@ -153,7 +153,7 @@
 			(setq *man_power* (min +max_power (+ *man_power*
 				(if (find +frm_16x16_diamond4 *item_inventory*)
 					(const (/ +max_power 10)) (const (/ +max_power 5))))))
-			(audio-play-rpc *sfx_clash2*)
+			(play-sfx *sfx_clash2* this)
 			(. hit :sp_kill))
 		(:t (collect-item hit))))
 
@@ -234,7 +234,7 @@
 					(map (# (+ %0 8)) (. *mind_sprite* :sp_get_pos))))
 				(init-ml (defq fire (HandFire)) (elem-get (get :sp_components fire) +comp_move) x y tx ty 8)
 				(. *layer_player* :add_front fire)
-				(audio-play-rpc *sfx_spell*)))
+				(play-sfx *sfx_spell* this)))
 		(setq *game_flags* (logand *game_flags* (lognot +fflag_select))))
 	;face inwards
 	(. this :sp_set_frame (cond

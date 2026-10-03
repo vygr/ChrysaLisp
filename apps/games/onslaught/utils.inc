@@ -57,7 +57,9 @@
 	(each (# (. %0 :sub)) (. layer :children)))
 
 (defun clear-sprite-layers ()
-	; remove all active sprites from all 7 sprite layers, without death hooks
+	; remove all active sprites from all 7 sprite layers, without death hooks,
+	; and put the camera, which sounds pan about, back to the origin
+	(setq *cam_x* 0 *cam_y* 0)
 	(each (# (clear-layer %0)) +sprite_layers))
 
 (defun set-world-layers-pos (x y)
@@ -131,6 +133,19 @@
 		(3 (list +window_width (- (game-random (+ +window_height (* 2 h))) h)))))
 
 (defq *cam_x* 0 *cam_y* 0)
+
+;how far a sound at the screen edge pans, 255 is hard left or right. as
+;most of the action is on the right, keep some of it in the other ear
+(defq +pan_spread 170)
+
+(defun play-sfx (sfx &optional sp)
+	; (play-sfx sfx [sprite])
+	;play a sound effect, panned to where the sprite is on the screen
+	(audio-play-rpc sfx (if sp
+		(max (const (neg +pan_spread)) (min +pan_spread
+			(/ (* (- (+ (get :sp_x sp) (/ (get :sp_w sp) 2)) *cam_x*
+				(const (/ +window_width 2))) +pan_spread) (const (/ +window_width 2)))))
+		0)))
 
 (defun update-camera (sprite)
 	(bind '(x y w h) (. sprite :sp_get_bounds))

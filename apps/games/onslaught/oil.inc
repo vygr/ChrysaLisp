@@ -21,7 +21,7 @@
 		(bind '(cx cy) (. this :sp_get_pos))
 		(defq drop (OilDrop (+ cx 8) (+ cy 16)))
 		(. *layer_missiles* :add_front drop)
-		(audio-play-rpc *sfx_spell*))
+		(play-sfx *sfx_spell* this))
 	this)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -848,6 +848,17 @@ map, mind and oracle game states, and is imported last, after `menu.inc`.
 	`map-state-init` then calls `game-generate-player-info`. The menu clears
 	it on START GAME, and death or losing the last territory clears it.
 
+*	**Save and load.** `campaign-snapshot` copies the campaign in progress
+	into `*campaign_state*`, an `Emap` that `config-save` writes as
+	`:campaign`. It is taken on every return to the map and at exit, and
+	cleared when the campaign ends. The menu's LOAD GAME sets
+	`*campaign_active*` to `:load`, and `map-state-init` then calls
+	`campaign-restore`.
+
+*	**Power and strength carry over** from battle to battle, as in the C++.
+	`game-generate-player-info` sets them, power at half, at the start of a
+	campaign. `battle-state-init` must not reset them.
+
 ### 8.2 Game Flow
 
 *	Menu START GAME goes straight to `+game_state_map`.
@@ -870,6 +881,14 @@ map, mind and oracle game states, and is imported last, after `menu.inc`.
 	seige mind win takes the location, a defend mind loss loses the last
 	player location, a temple mind loss loses all talismans. Power is
 	restored to its value before the combat.
+
+*	Any talisman used in battle destroys all missiles, scoring them, and
+	all mines, and costs one of its three uses (`use-talisman`).
+
+*	The hall of glory asks for initials when the glory beats the lowest
+	entry and the mode is not auto. Left and right spin a 3 by 11 grid of
+	letters under a fixed sight, fire picks the letter, `[` is backspace
+	and `]` enters. The entry is the generated name plus the initials.
 
 *	Every `+campaign_event_rate` (200) map frames `campaign-events` creates,
 	destroys and grows the plagues, crusades and rebellions.
@@ -1047,17 +1066,22 @@ When extending or maintaining this engine, follow these strict disciplines:
 	`enums.inc` (`+frm_16x16_shield1`, `+frm_16x16_l_blood`), never magic
 	numbers or `(+ +frm_16x16_shield 1)`.
 
-17.	**GUI Apps Cannot Run in Headless / TUI Mode:**
+17.	**Play Sounds with `play-sfx`:**
+	Use `(play-sfx sfx sprite)` (`utils.inc`), not `audio-play-rpc`, so the
+	effect is panned to where the sprite is on the screen. Leave the sprite
+	off only for sounds with no position, such as the menu's.
+
+18.	**GUI Apps Cannot Run in Headless / TUI Mode:**
 	Do not attempt to launch GUI applications (like Onslaught) from the TUI
 	boot image. Game logic and state code can be exercised by an agent with a
 	probe script under the GUI boot image (see the testing section). Gameplay
 	itself must be tested by the user in their ChrysaLisp GUI environment.
 
-18.	**No `return` in Control Flow:**
+19.	**No `return` in Control Flow:**
 	ChrysaLisp has no early `return` keyword. Structure branches cleanly
 	with `cond` and `ifn`.
 
-19.	**Adhere to ChrysaLisp Style Guidelines:**
+20.	**Adhere to ChrysaLisp Style Guidelines:**
 
 	*	Indent with 4-space tab characters.
 
@@ -1135,9 +1159,13 @@ ChrysaLisp compositor:
 	To exercise the `:draw` methods too, call `(config-load)` and
 	`(window-resize)`, add `*window*` with `gui-add-front-rpc`, run frames
 	with `(update-frame)` and `(task-sleep 50000)` for a few seconds, then
-	`gui-sub-rpc`. Tell the user a window will appear. Never call
-	`config-save`, and set `*record_stream*` to `:nil` before a battle ends,
-	so the probe cannot overwrite the user's saved demo.
+	`gui-sub-rpc`. Tell the user a window will appear.
+
+	**Keep probes off the user's config.** `map-state-init` saves the
+	campaign with `config-save`, and a finished battle can save a demo. Add
+	`(setq *env_home* "tests/scratch/")` straight after the probe's
+	`(import "usr/env.inc")`, before `config.inc` is imported, so
+	`+config_file` points at a scratch file.
 
 3.	**Remote Play (Preferred for Whole Game Checks):**
 	Launch the real game and drive it through its `@Onslaught` service.
@@ -1145,8 +1173,14 @@ ChrysaLisp compositor:
 	watch, and state comes back as data:
 
 	```sh
-	echo 'lisp -r (import {lib/task/pipe.inc}) (open-child {apps/games/onslaught/app.lisp} +kn_call_pin) (task-sleep 3000000) (pipe-run {onslaught -b 45}) (pipe-run {onslaught -s}) (pipe-run {onslaught -q})' | perl -e 'alarm 120; exec @ARGV' ./run.sh -n 1 -f; ./stop.sh
+	echo 'lisp -r (import {lib/task/pipe.inc}) (open-child {service/audio/app.lisp} +kn_call_pin) (task-sleep 1000000) (open-child {apps/games/onslaught/app.lisp} +kn_call_pin) (task-sleep 3000000) (pipe-run {onslaught -b 45}) (pipe-run {onslaught -s}) (pipe-run {onslaught -q})' | perl -e 'alarm 120; exec @ARGV' ./run.sh -n 1 -f; ./stop.sh
 	```
+
+	The audio service is normally started by the login app, so start it
+	first as above, or the game finds no `@Audio` service and plays
+	silently. This runs the real game on the user's real config file: its
+	campaign is saved there, so clear `:campaign` afterwards if the bot's
+	game should not be left for LOAD GAME.
 
 	Use `onslaught -k num` and `onslaught -s` for scripted steps, or write a
 	script using `apps/games/onslaught/app.inc` directly. Tell the user the

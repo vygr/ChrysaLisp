@@ -36,7 +36,8 @@
 					(audio-reply handle))
 				(+audio_type_play
 					; Play sound effect
-					(audio-call play (getf msg +audio_play_handle)))
+					(audio-call play (getf msg +audio_play_handle)
+									(getf msg +audio_play_pan)))
 				(+audio_type_change
 					; Change playing state
 					(audio-call change (getf msg +audio_change_handle)

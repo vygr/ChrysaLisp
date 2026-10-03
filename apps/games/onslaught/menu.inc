@@ -4,13 +4,15 @@
 
 (defq *menu_selected* +menu_start *menu_timer* 0 *menu_up_armed* :nil
 	*menu_down_armed* :nil *menu_fire_armed* :nil *menu_difficulty* 0
-	*menu_mode* +mode_auto *menu_sound* 0 *menu_view* :nil
+	*menu_mode* +mode_auto *menu_view* :nil
 	*credits_view* :nil *credits_timer* 0 *credits_exit_armed* :nil
 	*scores_view* :nil *scores_timer* 0 *scores_exit_armed* :nil
 	*hiscore_view* :nil *hiscore_timer* 0 *hiscore_exit_armed* :nil
+	*hiscore_entry* :nil *hiscore_text* 0 *hiscore_initials* "" *hiscore_sight* :nil
+	; letter picker, [ is backspace, ] is enter
+	+hiscore_letters "ABCDEFGHIJKLMNOPQRSTUVWXYZ(). ?[]" +hiscore_pick 16
 	+menu_dif_names ''("EASY MODE" "HARD MODE")
 	+menu_mode_names ''("AUTO MODE" "ASSIST MODE" "HUMAN MODE")
-	+menu_sound_names ''("SOUND ON" "SOUND OFF")
 	+at_smith `'(,+frm_32c32_smith ,+frm_32c32_smith1 ,+frm_32c32_smith2
 		,+frm_32c32_smith1 ,+frm_32c32_smith -1))
 
@@ -28,10 +30,6 @@
 			sy (game-random (- +window_height 32)))
 		(. sfx :sp_set_pos sx sy)
 		(. *layer_bodies* :add_front sfx)))
-
-(defun menu-sfx (snd)
-	(when (= *menu_sound* 0)
-		(audio-play-rpc snd)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 8x8 ascii text blitter helpers
@@ -63,16 +61,14 @@
 		(defq zoom (get :zoom this) tid (get :tid this)
 			selected (get :selected this)
 			dif (get :difficulty this)
-			mode (get :mode this)
-			snd (get :sound this))
+			mode (get :mode this))
 		(draw-ascii-centered this "MAIN MENU" 20 +argb_yellow zoom tid)
 		(draw-ascii-centered this "START GAME" 44 (if (= selected 0) +argb_white +argb_red) zoom tid)
 		(draw-ascii-centered this "LOAD GAME" 60 (if (= selected 1) +argb_white +argb_red) zoom tid)
 		(draw-ascii-centered this (elem-get +menu_dif_names dif) 76 (if (= selected 2) +argb_white +argb_red) zoom tid)
 		(draw-ascii-centered this (elem-get +menu_mode_names mode) 92 (if (= selected 3) +argb_white +argb_red) zoom tid)
-		(draw-ascii-centered this (elem-get +menu_sound_names snd) 108 (if (= selected 4) +argb_white +argb_red) zoom tid)
-		(draw-ascii-centered this "GAME CREDITS" 124 (if (= selected 5) +argb_white +argb_red) zoom tid)
-		(draw-ascii-centered this "SELECT WITH UP DOWN FIRE" 144 +argb_cyan zoom tid)
+		(draw-ascii-centered this "GAME CREDITS" 108 (if (= selected 4) +argb_white +argb_red) zoom tid)
+		(draw-ascii-centered this "SELECT WITH UP DOWN FIRE" 128 +argb_cyan zoom tid)
 		this)
 	)
 
@@ -117,26 +113,26 @@
 	)
 
 (defclass HiscoreView () (View)
-	; (HiscoreView) -> full-screen glory attained message view
+	; (HiscoreView) -> full-screen glory attained message and name entry view
 	(def this :color 0)
 
 	(defmethod :draw ()
-		(defq zoom (get :zoom this) tid (get :tid this)
-			mode (get :mode this)
-			score (get :score this)
-			qualifies (get :qualifies this))
+		(defq zoom (get :zoom this) tid (get :tid this))
 		(cond
-			((= mode +mode_auto)
-				(draw-ascii-centered this "AUTO MODE WILL NEVER ENABLE YOU" 44 +argb_white zoom tid)
-				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 56 +argb_white zoom tid))
-			(qualifies
-				(draw-ascii-centered this "CONGRATULATIONS!" 44 +argb_yellow zoom tid)
-				(draw-ascii-centered this "YOU HAVE ENTERED THE HISTORY BOOKS" 56 +argb_white zoom tid))
-			(:t
-				(draw-ascii-centered this "YOU HAVE NOT ATTAINED ENOUGH GLORY" 44 +argb_white zoom tid)
-				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 56 +argb_white zoom tid)))
-		(draw-ascii-centered this (cat "YOUR GLORY WAS " (str score)) 84 +argb_yellow zoom tid)
-		(draw-ascii-centered this "PRESS FIRE TO CONTINUE" 116 +argb_cyan zoom tid)
+			((defq letters (get :letters this))
+				;enter initials, a 3 by 11 grid of letters under the sight
+				(draw-ascii-string this "PLEASE ENTER INITIALS" 72 52 +argb_white zoom tid)
+				(draw-ascii-string this "(   )" 136 68 +argb_green zoom tid)
+				(draw-ascii-string this (get :initials this) 144 68 +argb_cyan zoom tid)
+				(each (# (draw-ascii-string this %0 (+ 72 (* (% (!) 11) 16))
+						(+ 84 (* (/ (!) 11) 16)) +argb_white zoom tid))
+					letters))
+			(:t (draw-ascii-centered this (if (= (get :mode this) +mode_auto)
+						"AUTO MODE WILL NEVER ENABLE YOU" "YOU HAVE NOT ATTAINED ENOUGH GLORY")
+					68 +argb_white zoom tid)
+				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 76 +argb_white zoom tid)
+				(draw-ascii-centered this (cat "YOUR GLORY WAS " (str (get :score this)))
+					92 +argb_yellow zoom tid)))
 		this)
 	)
 
@@ -145,8 +141,7 @@
 		(def *menu_view*
 			:selected *menu_selected*
 			:difficulty *menu_difficulty*
-			:mode *menu_mode*
-			:sound *menu_sound*)
+			:mode *menu_mode*)
 		(. *menu_view* :dirty)))
 
 (defun menu-resize (zoom)
@@ -163,8 +158,7 @@
 				:names *hiscore_names* :values *hiscore_values*)
 			(. *scores_view* :change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))
 		(when *hiscore_view*
-			(def *hiscore_view* :zoom zoom :tid tid
-				:mode *menu_mode* :score *man_score*)
+			(def *hiscore_view* :zoom zoom :tid tid)
 			(. *hiscore_view* :change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -172,6 +166,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun menu-state-init ()
+	(demo-restore-settings)
 	(clear-sprite-layers)
 	(set-world-layers-pos 0 0)
 	(defq zoom *zoom*)
@@ -185,8 +180,7 @@
 	(def *menu_view* :tid tid :zoom zoom
 		:selected *menu_selected*
 		:difficulty *menu_difficulty*
-		:mode *menu_mode*
-		:sound *menu_sound*)
+		:mode *menu_mode*)
 	(. *layer_fx* :add_front *menu_view*)
 	(.-> *menu_view*
 		(:change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))
@@ -200,16 +194,16 @@
 		(setq *menu_up_armed* :t *menu_timer* 0)
 		(when *menu_up_armed*
 			(setq *menu_up_armed* :nil
-				*menu_selected* (if (= *menu_selected* 0) 5 (dec *menu_selected*)))
-			(menu-sfx *sfx_clash1*)
+				*menu_selected* (if (= *menu_selected* 0) +menu_credits (dec *menu_selected*)))
+			(play-sfx *sfx_clash1*)
 			(menu-sync-view)))
 	; 2. Down navigation (armed on press down, triggered on key release)
 	(if (bits? controls +fkey_down)
 		(setq *menu_down_armed* :t *menu_timer* 0)
 		(when *menu_down_armed*
 			(setq *menu_down_armed* :nil
-				*menu_selected* (if (= *menu_selected* 5) 0 (inc *menu_selected*)))
-			(menu-sfx *sfx_clash1*)
+				*menu_selected* (if (= *menu_selected* +menu_credits) 0 (inc *menu_selected*)))
+			(play-sfx *sfx_clash1*)
 			(menu-sync-view)))
 	; 3. Fire action (armed on press down, triggered on key release)
 	(if (bits? controls +fkey_keya)
@@ -223,21 +217,20 @@
 						;new campaign, map-state-init generates the player info
 						(setq *campaign_active* :nil *game_state* +game_state_map))
 					(+menu_define
-						(menu-sfx *sfx_spell*))
+						;load game, map-state-init restores the saved campaign
+						(ifn *campaign_state* (play-sfx *sfx_out*)
+							(. *menu_view* :sub)
+							(play-sfx *sfx_spell*)
+							(setq *campaign_active* :load *game_state* +game_state_map)))
 					(+menu_difficulty
 						(setq *menu_difficulty* (logxor *menu_difficulty* 1))
-						(menu-sfx *sfx_twang1*)
+						(play-sfx *sfx_twang1*)
 						(config-save)
 						(menu-sync-view))
 					(+menu_mode
 						(setq *menu_mode* (% (inc *menu_mode*) 3)
 							*game_mode* *menu_mode*)
-						(menu-sfx *sfx_twang1*)
-						(config-save)
-						(menu-sync-view))
-					(+menu_sound
-						(setq *menu_sound* (logxor *menu_sound* 1))
-						(menu-sfx *sfx_twang1*)
+						(play-sfx *sfx_twang1*)
 						(config-save)
 						(menu-sync-view))
 					(+menu_credits
@@ -328,6 +321,25 @@
 ; hiscore state lifecycle
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun hiscore-sync-view ()
+	; the letters rotate under the fixed sight
+	(def *hiscore_view* :mode *menu_mode* :score *man_score*
+		:initials *hiscore_initials*
+		:letters (if *hiscore_entry*
+			(cat (slice +hiscore_letters *hiscore_text* -1)
+				(slice +hiscore_letters 0 *hiscore_text*)))))
+
+(defun hiscore-insert ()
+	; add the generated name and entered initials to the hall of glory
+	(defq idx 0 name (cat *man_name* (slice "       " (length *man_name*) -1)
+		"(" *hiscore_initials* (slice "   " (length *hiscore_initials*) -1) ")"))
+	(while (<= *man_score* (elem-get *hiscore_values* idx)) (++ idx))
+	(setq *hiscore_names* (slice (cat (slice *hiscore_names* 0 idx) (list name)
+			(slice *hiscore_names* idx -1)) 0 10)
+		*hiscore_values* (slice (cat (slice *hiscore_values* 0 idx) (list *man_score*)
+			(slice *hiscore_values* idx -1)) 0 10))
+	(config-save))
+
 (defun hiscore-state-init ()
 	(clear-sprite-layers)
 	(set-world-layers-pos 0 0)
@@ -335,41 +347,59 @@
 	(set-world-layers-size (* zoom +screen_width) (* zoom +screen_height))
 	(. *layer_land* :clear)
 	(. *layer_sky* :sky_black)
-	(setq *hiscore_timer* 0 *hiscore_exit_armed* :nil)
-	; check if player qualifies for high score list
-	(defq qualifies :nil)
-	(when (and (/= *menu_mode* +mode_auto) *hiscore_values*)
-		(defq insert_idx -1 i 0)
-		(while (and (< i (length *hiscore_values*)) (= insert_idx -1))
-			(when (> *man_score* (elem-get *hiscore_values* i))
-				(setq insert_idx i))
-			(++ i))
-		(when (/= insert_idx -1)
-			(setq qualifies :t)
-			(setq *hiscore_names* (slice (cat (slice *hiscore_names* 0 insert_idx) (list "FANATIC(YOU)") (slice *hiscore_names* insert_idx -1)) 0 10)
-				*hiscore_values* (slice (cat (slice *hiscore_values* 0 insert_idx) (list *man_score*) (slice *hiscore_values* insert_idx -1)) 0 10))
-			(config-save)))
+	;no glory in auto mode, or if not enough to beat the lowest
+	(setq *hiscore_timer* 0 *hiscore_exit_armed* :nil *hiscore_text* 0
+		*hiscore_initials* "" *game_flags* (logior *game_flags* +fflag_select)
+		*hiscore_entry* (and (/= *menu_mode* +mode_auto)
+			(> *man_score* (last *hiscore_values*))))
 	(unless *hiscore_view*
 		(setq *hiscore_view* (HiscoreView)))
 	(bind '(tid tw th) (texture-metrics (getf *img_ascii* +canvas_texture 0)))
-	(def *hiscore_view* :tid tid :zoom zoom
-		:mode *menu_mode* :score *man_score* :qualifies qualifies)
+	(def *hiscore_view* :tid tid :zoom zoom)
+	(hiscore-sync-view)
 	(. *layer_fx* :add_front *hiscore_view*)
-	(.-> *hiscore_view*
-		(:change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))
+	(. *hiscore_view* :change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t)
+	(when *hiscore_entry*
+		(.-> (setq *hiscore_sight* (Sprite *img_frm_16x16* :nil 16 16 :16x16))
+			(:sp_set_frame +frm_16x16_sight)
+			(:sp_set_pos (const (- (/ +window_width 2) 12)) (const (+ (/ +window_height 2) 12))))
+		(. *layer_fx* :add_front *hiscore_sight*))
 	(. *hiscore_view* :dirty))
+
+(defun hiscore-entry-update ()
+	; left and right spin the letters, fire picks the one under the sight
+	(if (= (defq controls *game_controls*) 0)
+		(setq *game_flags* (logand *game_flags* (lognot +fflag_select)))
+		(unless (bits? *game_flags* +fflag_select)
+			(setq *game_flags* (logior *game_flags* +fflag_select))
+			(defq num (length +hiscore_letters))
+			(cond
+				((bits? controls +fkey_left)
+					(setq *hiscore_text* (% (+ *hiscore_text* (dec num)) num)))
+				((bits? controls +fkey_right)
+					(setq *hiscore_text* (% (inc *hiscore_text*) num)))
+				((bits? controls +fkey_keya)
+					(dt-exp-fx *hiscore_sight*)
+					(defq letter (elem-get +hiscore_letters
+						(% (+ *hiscore_text* +hiscore_pick) num)))
+					(cond
+						((eql letter "[")
+							(setq *hiscore_initials* (slice *hiscore_initials* 0
+								(max 0 (dec (length *hiscore_initials*))))))
+						((eql letter "]")
+							(hiscore-insert)
+							(. *hiscore_view* :sub)
+							(goto-title +game_state_scores))
+						((< (length *hiscore_initials*) 3)
+							(setq *hiscore_initials* (cat *hiscore_initials* letter))))))
+			(hiscore-sync-view))))
 
 (defun hiscore-state-update ()
 	(game-mr-smiths)
-	(defq controls *game_controls*)
-	(if (/= controls 0)
-		(setq *hiscore_exit_armed* :t *hiscore_timer* 0)
-		(if *hiscore_exit_armed*
-			(progn
+	(if *hiscore_entry* (hiscore-entry-update)
+		(if (/= *game_controls* 0)
+			(setq *hiscore_exit_armed* :t *hiscore_timer* 0)
+			(when (or *hiscore_exit_armed* (>= (++ *hiscore_timer*) 256))
 				(setq *hiscore_exit_armed* :nil)
-				(. *hiscore_view* :sub)
-				(goto-title +game_state_scores))
-			(++ *hiscore_timer*)
-			(when (>= *hiscore_timer* 256)
 				(. *hiscore_view* :sub)
 				(goto-title +game_state_scores)))))

@@ -44,7 +44,7 @@
 ;;;;;;;;;;;;;
 
 (enums +menu 0
-	(enum start define difficulty mode sound credits))
+	(enum start define difficulty mode credits))
 
 ;;;;;;;;;
 ; Sounds

@@ -1090,9 +1090,10 @@ Audio playback daemon interface (`service/audio/app.inc`).
 
 	*	`(audio-add-rpc file_path) -> handle`
 
-*	**`audio-play-rpc`**: Starts audio sample playback.
+*	**`audio-play-rpc`**: Starts audio sample playback, with an optional
+	stereo pan from -255, full left, to 255, full right. Default 0, centre.
 
-	*	`(audio-play-rpc handle)`
+	*	`(audio-play-rpc handle [pan])`
 
 *	**`audio-change-rpc`**: Modifies playback state of an audio sample.
 

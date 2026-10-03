@@ -32,6 +32,10 @@
 	; (remote-state) -> (key value ...)
 	(list :state (elem-get +remote_state_names *game_state*) :man (remote-man)
 		:level *game_level* :frame *game_frame_count* :menu *menu_selected*
+		;the letter under the sight when entering initials
+		:letter (and (= *game_state* +game_state_hiscore) *hiscore_entry*
+			(elem-get +hiscore_letters (% (+ *hiscore_text* +hiscore_pick)
+				(length +hiscore_letters))))
 		:score *man_score* :power *man_power* :strength *man_strength*
 		:inventory *item_inventory* :usage *item_usage* :selected *item_selected*
 		:location (list *location_x* *location_y*)

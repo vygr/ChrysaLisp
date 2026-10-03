@@ -24,7 +24,7 @@
 	(. spearman :sp_set_pos (+ x 16) sy)
 	(. *layer_enemies* :add_front spearman)
 	(spawn-flying-body this)
-	(audio-play-rpc *sfx_boar*))
+	(play-sfx *sfx_boar* this))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; boarrider sprite class

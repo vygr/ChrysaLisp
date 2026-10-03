@@ -226,6 +226,8 @@
 				(update-frame))))
 	; unregister window and exit cleanly
 	(record-battle-finish)
+	(demo-restore-settings)
+	(campaign-snapshot)
 	(config-save)
 	(mail-forget game_service)
 	(unload-wav-assets)

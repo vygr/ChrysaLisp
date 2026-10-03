@@ -8,7 +8,7 @@
 	+config_file (cat *env_home* "onslaught.tre")
 	*config* :nil *best_demo_score* 0 *best_demo_data* :nil
 	*session_best_score* 0 *session_best_demo* :nil
-	*hiscore_names* :nil *hiscore_values* :nil
+	*hiscore_names* :nil *hiscore_values* :nil *campaign_state* :nil
 	+default_hiscore_names
 	''("NEGROG (CAH)" "RUDMAN (CAH)" "GORVAR (CAH)" "TREGAR (CAH)"
 		"TATGO  (CAH)" "GONIG  (CAH)" "INDIGO (CAH)" "MOLAT  (CAH)"
@@ -21,7 +21,6 @@
 		:version +config_version
 		:difficulty 0
 		:mode +mode_auto
-		:sound 0
 		:hiscore_names +default_hiscore_names
 		:hiscore_values +default_hiscore_values
 		:demo_score 0
@@ -35,9 +34,9 @@
 	(setq *menu_difficulty* (. *config* :find :difficulty)
 		*menu_mode* (. *config* :find :mode)
 		*game_mode* *menu_mode*
-		*menu_sound* (. *config* :find :sound)
 		*hiscore_names* (. *config* :find :hiscore_names)
 		*hiscore_values* (. *config* :find :hiscore_values)
+		*campaign_state* (. *config* :find :campaign)
 		*best_demo_score* (. *config* :find :demo_score)
 		*best_demo_data* (. *config* :find :demo)
 		*session_best_score* *best_demo_score*
@@ -50,9 +49,9 @@
 	(scatter *config*
 		:difficulty *menu_difficulty*
 		:mode *menu_mode*
-		:sound *menu_sound*
 		:hiscore_names *hiscore_names*
 		:hiscore_values *hiscore_values*
+		:campaign *campaign_state*
 		:demo_score *best_demo_score*
 		:demo (or *best_demo_data* ""))
 	(with-write-lock +config_file

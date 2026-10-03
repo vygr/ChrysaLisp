@@ -23,7 +23,7 @@
 	(. knight :sp_set_pos (+ x 16) ky)
 	(. *layer_enemies* :add_front knight)
 	(spawn-flying-body this)
-	(audio-play-rpc *sfx_horse*))
+	(play-sfx *sfx_horse* this))
 
 ;;;;;;;;;;;;;;;;;;;
 ; horse sprite class

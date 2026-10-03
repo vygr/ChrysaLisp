@@ -165,8 +165,14 @@
 	; (bot-keys state tick) -> keys, fire and menu moves trigger on release
 	(defq tap (= (logand tick 1) 0))
 	(case (. state :find :state)
-		((:title :scores :hiscore :credits :oracle)
+		((:title :scores :credits :oracle)
 			(if tap +fkey_keya 0))
+		(:hiscore
+			;if asked for initials, spin round to the ] and enter
+			(cond
+				((not tap) 0)
+				((eql (ifn (. state :find :letter) "]") "]") +fkey_keya)
+				(:t +fkey_right)))
 		(:menu
 			(cond
 				((not tap) 0)

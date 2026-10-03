@@ -22,6 +22,18 @@ keys, and has a bot, `onslaught -b 60`, that plays the game for you, path
 finding its way over the battle map to capture the enemy banner.
 See `apps/games/onslaught/app.inc` for the RPC calls.
 
+Sound effects can now be panned. `(audio-play-rpc handle [pan])` takes an
+optional pan, -255 full left to 255 full right, default 0 centre. The host
+`host_audio_play_sfx` and the `:host_audio :play` binding take the pan as a
+second argument, so the host binaries need rebuilding with `make`.
+
+Onslaught is now feature complete against the C++ version. Its sound effects
+pan to where the sprite is on the screen. LOAD GAME restores the saved campaign, which is
+saved on every return to the map and on exit. Power and strength now carry
+over between battles. Talismans used in battle destroy all missiles and
+mines. The hall of glory asks for your initials. The SOUND menu option, which
+was for music, is removed.
+
 Onslaught now has the campaign map, ported from the C++ version. START GAME
 goes to the map, where you move between locations, attack enemy lands, and
 watch plagues, crusades and rebellions spread. Battles won and lost now win

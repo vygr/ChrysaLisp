@@ -81,7 +81,7 @@
 	(each (lambda ((vx vy))
 		(. *layer_fx* :add_front (Bone bx by vx vy)))
 		+bone_vectors)
-	(audio-play-death))
+	(audio-play-death this))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; sprite classes

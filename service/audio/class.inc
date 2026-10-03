@@ -8,7 +8,7 @@
 	(dec-method :init :nil :virtual (abi-args 0) (:r0))
 	(dec-method :deinit :nil :virtual (abi-args 0))
 	(dec-method :add :nil :virtual (abi-args 1) (:r0))
-	(dec-method :play :nil :virtual (abi-args 1) (:r0))
+	(dec-method :play :nil :virtual (abi-args 2) (:r0))
 	(dec-method :change :nil :virtual (abi-args 2) (:r0))
 	(dec-method :remove :nil :virtual (abi-args 1) (:r0))
 	(dec-method :lisp_init service/audio/lisp_init :static (:r0 :r1) (:r0 :r1))

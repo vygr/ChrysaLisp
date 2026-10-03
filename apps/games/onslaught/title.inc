@@ -38,7 +38,7 @@
 
 (defun dt-drip (this)
 	; death hook for drip
-	(audio-play-rpc *sfx_drip*)
+	(play-sfx *sfx_drip* this)
 	(setq *game_state* *game_state_next*))
 
 (defun cp-sword (this that)
@@ -48,7 +48,7 @@
 		(set mv 'ay 0 'vy 0)
 		(bind '(sx &) (. this :sp_get_pos))
 		(. this :sp_set_pos sx 52)
-		(audio-play-rpc *sfx_clash2*)
+		(play-sfx *sfx_clash2* this)
 		(spawn-fizz-fx (+ sx 8) 84)
 		(spawn-title-drip sx 84)))
 
@@ -60,7 +60,7 @@
 		(if (>= (get 'count ml) 0)
 			(spawn-fizz-fx (+ lx 16) (+ ly 16))
 			(set ml 'speed 0)
-			(audio-play-rpc *sfx_explode*)
+			(play-sfx *sfx_explode* this)
 			(spawn-bomb-fx lx ly)
 			(if (< (++ *title_letter_idx*) 9)
 				(spawn-title-letter *title_letter_idx*)

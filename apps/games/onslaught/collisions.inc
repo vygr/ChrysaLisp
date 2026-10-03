@@ -51,7 +51,7 @@
 (defun cl-man-hits-monk (this hit)
 	; monk drains player strength and detonates
 	(setq *man_strength* (max 0 (- *man_strength* 200)))
-	(audio-play-rpc *sfx_death1*)
+	(play-sfx *sfx_death1* this)
 	(. hit :sp_kill)
 	(if (or (<= *man_strength* 0) (<= *man_power* 0))
 		(. this :sp_kill)))
@@ -88,7 +88,7 @@
 	; capturing enemy banner
 	(when (<= (abs (- (+ (get :sp_y this) (get :sp_h this))
 					  (+ (get :sp_y hit) (get :sp_h hit)))) 4)
-		(audio-play-rpc *sfx_spell*)
+		(play-sfx *sfx_spell* this)
 		(setq *enemy_banner_captured* :t)
 		(. hit :sp_kill)
 		(setq *man_score* (+ *man_score* 500)
@@ -106,7 +106,7 @@
 		(def this :has_hit :t)
 		(defq hit_pnt (get :sp_hitpnt this))
 		(setq *man_strength* (max 0 (- *man_strength* hit_pnt)))
-		(audio-play-rpc (if (= (game-random 2) 0) *sfx_clash1* *sfx_clash2*))
+		(play-sfx (if (= (game-random 2) 0) *sfx_clash1* *sfx_clash2*) this)
 		(bind '(ax ay aw ah) (. this :sp_get_bounds))
 		(spawn-fizz-fx (+ ax (/ aw 2)) (+ ay (/ ah 2)))
 		(if (or (<= *man_strength* 0) (<= *man_power* 0))
@@ -114,7 +114,7 @@
 
 (defun cl-man-missile-hits (this hit)
 	; player missile / arrow / fireball hitting target enemy or missile
-	(audio-play-rpc *sfx_clash2*)
+	(play-sfx *sfx_clash2* this)
 	(bind '(mx my mw mh) (. this :sp_get_bounds))
 	(if (bits? (get :sp_type hit) +ftp_non_flesh)
 		(spawn-fizz-fx (+ mx (/ mw 2)) (+ my (/ mh 2)))
@@ -137,7 +137,7 @@
 
 (defun cl-man-addon-hits (this hit)
 	; player weapon mase hitting target enemy or missile
-	(audio-play-rpc (if (= (game-random 2) 0) *sfx_clash1* *sfx_clash2*))
+	(play-sfx (if (= (game-random 2) 0) *sfx_clash1* *sfx_clash2*) this)
 	(bind '(mx my mw mh) (. this :sp_get_bounds))
 	(if (bits? (get :sp_type hit) +ftp_non_flesh)
 		(spawn-fizz-fx (+ mx (/ mw 2)) (+ my (/ mh 2)))
@@ -167,7 +167,7 @@
 	(when (/= target_slot -1)
 		(elem-set *item_inventory* target_slot frame)
 		(elem-set *item_usage* target_slot (max (elem-get *item_usage* target_slot) uses))
-		(audio-play-rpc *sfx_clash2*)
+		(play-sfx *sfx_clash2* item)
 		(. item :sp_kill)))
 
 (defun cl-man-hits-item (this hit)

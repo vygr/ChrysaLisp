@@ -26,9 +26,9 @@
 ; utilities & spawn helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun audio-play-death ()
+(defun audio-play-death (sp)
 	; randomly play death1 or death2 grunt sfx
-	(audio-play-rpc (if (= (game-random 2) 0) *sfx_death1* *sfx_death2*)))
+	(play-sfx (if (= (game-random 2) 0) *sfx_death1* *sfx_death2*) sp))
 
 (defun blast-area (x y w h)
 	; score and destroy enemies, enemy missiles, and mines in blast box.
@@ -69,7 +69,7 @@
 	(bind '(mx my mw mh) (. this :sp_get_bounds))
 	(defq exp (. (Explosion) :sp_set_pos (- (+ mx (/ mw 2)) 16) (- (+ my (/ mh 2)) 16)))
 	(. *layer_fx* :add_front exp)
-	(audio-play-rpc *sfx_explode*))
+	(play-sfx *sfx_explode* this))
 
 (defun dt-fizz-fx (this)
 	; spawn fizz spark fx on item death
@@ -85,7 +85,7 @@
 		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
 		(. *layer_fx* :add_front exp))
 		+blat_offsets)
-	(audio-play-rpc *sfx_explode*))
+	(play-sfx *sfx_explode* this))
 
 (defun dt-mine-explode (this)
 	; mine detonation: cluster explosion, blast area, decrement count
@@ -97,7 +97,7 @@
 		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
 		(. *layer_fx* :add_front exp))
 		+blat_offsets)
-	(audio-play-rpc *sfx_explode*)
+	(play-sfx *sfx_explode* this)
 	(blast-area (- mx 32) (- my 36) 80 80))
 
 (defun spawn-flying-body (enemy)
@@ -144,14 +144,14 @@
 	(times 8
 		(defq fx (. (Fizz) :sp_set_pos (+ x (game-random rw)) (+ y (game-random rh))))
 		(. *layer_fx* :add_front fx))
-	(audio-play-rpc *sfx_spell*))
+	(play-sfx *sfx_spell* this))
 
 (defun dt-kill-enemy (this)
 	; general enemy death: drop item, spawn flying corpse, random death grunt
 	(-- *enemy_count*)
 	(drop-item this)
 	(spawn-flying-body this)
-	(audio-play-death))
+	(audio-play-death this))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; component handlers
@@ -192,7 +192,7 @@
 			(set at_comp 'speed 2 'count 0 'index (if (> (length tbl) 1) 1 0))
 			(when tbl (. this :sp_set_frame (first tbl)))
 			(when (bits? (get :sp_type this) +ftp_horse +ftp_boarrider +ftp_skeleton_horse)
-				(audio-play-rpc *sfx_hooves*)))))
+				(play-sfx *sfx_hooves* this)))))
 
 (defun cp-enemy-duck (this that)
 	; adjust sprite height and y when ducking vs standing

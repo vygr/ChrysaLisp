@@ -16,8 +16,10 @@
 	(uint retval))
 
 ; audio_play - params
+; pan is -255 (full left) to 255 (full right), 0 is centre
 (structure +audio_play +audio_rpc_size
-	(uint handle))
+	(uint handle)
+	(int pan))
 
 ; audio_change - params
 (structure +audio_change +audio_rpc_size
@@ -41,15 +43,16 @@
 			(setq handle (getf reply +audio_ret_retval))))
 	handle)
 
-(defun audio-play-rpc (handle)
-	; (audio-play-rpc handle)
+(defun audio-play-rpc (handle &optional pan)
+	; (audio-play-rpc handle [pan])
 	(when (nempty? (defq service (mail-enquire "@Audio,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (setf-> (str-alloc +audio_play_size)
 			(+audio_rpc_reply_id mbox)
 			(+audio_rpc_type +audio_type_play)
-			(+audio_play_handle handle)))
+			(+audio_play_handle handle)
+			(+audio_play_pan (ifn pan 0))))
 		(mail-read-timeout mbox)))
 
 (defun audio-change-rpc (handle state)
