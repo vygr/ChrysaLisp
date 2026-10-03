@@ -147,6 +147,29 @@ You can create, destroy and search for the mailbox/s for a service/s task/s of
 interest, via the `:sys_mail :enquire`, `:sys_mail :declare` and `:sys_mail
 :forget` method calls.
 
+How far a service name travels depends on its first character. This is a
+later addition, the directory was at first one flat network wide list.
+
+* `Name`, no prefix, is a local service. It's only seen on the VP node that
+  declared it. The `Gui` service is one, only the node that owns the display
+  can see it.
+
+* `@Name` is a system wide service. It's seen by every VP node of the one
+  `system`, the group of nodes launched together on a single host machine,
+  which all share a `system_id`. `@Lock`, `@Net` and `@Audio` are like this.
+  Join several machines with link drivers and each still has its own, an
+  enquire for `@Lock` only ever finds the one for your own machine.
+
+* `*Name` is a global service. It's seen by every VP node of every machine in
+  the network. `*Chat` is one, which is rather the point of it.
+
+The prefix only limits who can find the name. It doesn't limit who can use
+the mailbox ! A `net_id` is good from anywhere, messages are routed by it, so
+if a task on another machine looks up its own `@Onslaught` and sends you the
+`net_id`, you can talk to that service directly, from across the network.
+`tests/net/remote_onslaught.lisp` does exactly this, it plays a game running
+on one machine with a bot running on another.
+
 ## Does the VP OS even exist ?
 
 I was going to say that the system is an emergent OS... but that leads to a
