@@ -67,7 +67,11 @@
 	(replace-regex "a.b" "\\." "-") "a-b"
 	(replace-regex "abc" "^" ">") ">abc"
 	;a $ not followed by a group number is itself
-	(replace-regex "price 10" "(\\d+)" "$$1") "price $10")
+	(replace-regex "price 10" "(\\d+)" "$$1") "price $10"
+	;a group that took no part in the match is empty
+	(replace-regex "abc" "(x)?b" "[$1]") "a[]c"
+	(replace-regex "abc" "b(x)?" "[$1]") "a[]c"
+	(replace-regex "abc" "(x)?(b)" "$1-$2") "a-bc")
 
 ; --- substr and replace-str take the pattern as plain text ---
 (test-cases

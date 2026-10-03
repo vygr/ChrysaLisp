@@ -77,9 +77,11 @@
 		(each (lambda ((offset group_idx))
 			; SAFETY: only patch if the group actually exists in this match result
 			(when (< group_idx (length match))
+				;a group that took no part in the match has an end of 0, so
+				;clamp it to the start, else the splice would take a reversed slice
 				(bind '(gs ge) (elem-get match group_idx))
 				(elem-set t_nums offset gs)
-				(elem-set t_nums (inc offset) ge))) c_map)
+				(elem-set t_nums (inc offset) (max gs ge)))) c_map)
 		; merge pattern mask and text data and push to list
 		(push parts (nums-add p_nums t_nums))
 		(setq last_pos me)) match_lst)
@@ -99,7 +101,7 @@
 			(when (< group_idx (length match))
 				(bind '(gs ge) (elem-get match group_idx))
 				(elem-set t_nums offset gs)
-				(elem-set t_nums (inc offset) ge))) c_map)
+				(elem-set t_nums (inc offset) (max gs ge)))) c_map)
 		(list (first (first match)) (second (first match))
 			(splice text rep_str (nums-add p_nums t_nums)))) match_lst))
 

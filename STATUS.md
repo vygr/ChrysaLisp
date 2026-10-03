@@ -85,6 +85,19 @@ quote included, now fixed. In a `(test-cases)` table a list now also matches
 a `nums` vector with the same elements, so a nested vector result can be
 written.
 
+Bug fix in `(map!)` and `(filter!)`. When the function they call threw an
+error they did not put back the loop index of the loop around them, so
+catching that error and carrying on gave the outer loop a wrong `(!)`, or
+crashed. `(each!)`, `(some!)` and `(reduce!)` were correct.
+
+`(pivot)`, so `(sort)`, now passes on an error thrown by the compare function,
+on an error checked build. It was taken as an equal compare, so sorting
+numbers with the default string compare gave an unsorted list and no error.
+
+`(replace-regex)` and `(replace-regex-edits)` now give the empty string for a
+capture group that took no part in the match, `(x)?b` say. It gave text from
+a reversed slice.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

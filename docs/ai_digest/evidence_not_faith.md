@@ -180,15 +180,15 @@ minimal `boot_image` binaries across all supported architectures:
 
 * `obj/vp64/VP64/sys/boot_image`: **152,076 bytes**
 
-* `obj/x86_64/AMD64/sys/boot_image`: **207,620 bytes**
+* `obj/x86_64/AMD64/sys/boot_image`: **207,788 bytes**
 
-* `obj/x86_64/WIN64/sys/boot_image`: **208,084 bytes**
+* `obj/x86_64/WIN64/sys/boot_image`: **208,252 bytes**
 
-* `obj/arm64/ARM64/sys/boot_image`: **221,716 bytes**
+* `obj/arm64/ARM64/sys/boot_image`: **221,900 bytes**
 
-* `obj/riscv64/RISCV64/sys/boot_image`: **256,684 bytes**
+* `obj/riscv64/RISCV64/sys/boot_image`: **256,900 bytes**
 
-* `obj/la64/LA64/sys/boot_image`: **256,324 bytes**
+* `obj/la64/LA64/sys/boot_image`: **256,532 bytes**
 
 The three link register targets include call fusion, see `lib/trans/vp.inc`.
 Without it they were 227,196, 267,900 and 267,516 bytes, so it saves 2.4% on

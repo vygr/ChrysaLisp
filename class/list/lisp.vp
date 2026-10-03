@@ -73,8 +73,10 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
+	;error is the value local, used in an error checked build to hold the
+	;first error the compare function throws
 	(structure pdata 0
-		(ptr this func params))
+		(ptr this func params error))
 
 	(def-vars
 		(ptr this func)
@@ -103,9 +105,13 @@
 	(gotoif {start < 0 || start >= end || end > length} 'error2))
 
 	(call :list :create :nil {params})
+(errorcase
+	(assign {0} {value}))
 	(call :list :get_iter {list, start} {_, liter})
 	(call :list :get_iter {list, end} {_, hiter})
 	(call :list :pivot {list, liter, hiter, $callback, &this} {_, liter})
+(errorcase
+	(gotoif {value} 'error3))
 	(call :list :get_begin {list} {_, iter_begin})
 	(call :num :create {(liter - iter_begin) >> 3} {value})
 	(call :list :deref {params})
@@ -119,6 +125,11 @@
 	(jump :lisp :repl_error {this, args, "(pivot lambda list start end)", +error_msg_wrong_types})
 (vp-label 'error2)
 	(jump :lisp :repl_error {this, args, "(pivot lambda list start end)", +error_msg_not_valid_index})
+(vp-label 'error3)
+	;the compare function threw, pass its error on
+	(call :list :deref {params})
+	(exit :list :lisp_pivot {this, value})
+	(return)
 	(signature '(:obj :LIST :NUM :NUM)))
 
 	(pop-scope-syms)
@@ -132,6 +143,9 @@
 		(union
 			(pptr hiter)
 			(long result)))
+(errorcase
+	(def-vars
+		(ptr lisp)))
 
 	(push-scope)
 	(entry :array :sort_callback {pdata, liter, hiter})
@@ -141,6 +155,12 @@
 	(d-call :list :clear {pdata->pdata_params})
 	(call :list :push_back2 {pdata->pdata_params, liter, hiter})
 	(call :lisp :repl_apply {pdata->pdata_this, pdata->pdata_params, pdata->pdata_func} {_, value})
+(errorcase
+	(assign {pdata->pdata_this} {lisp})
+	(vpif {value->+obj_vtable = lisp->+lisp_error && pdata->pdata_error = 0})
+		(call :obj :ref {value})
+		(assign {value} {pdata->pdata_error})
+	(endif))
 	(assign {0} {result})
 	(call :obj :inst_of (cat {value, @} (f-path :num :vtable)) '(val tmp))
 	(vpif `(,tmp /= 0))

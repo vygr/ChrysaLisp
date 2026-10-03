@@ -350,6 +350,8 @@
 	(call :obj :deref {out})
 	(jump :lisp :repl_error {this, seqs, "(map! lambda seqs [start end out])", +error_msg_not_valid_index})
 (vp-label 'error3)
+	;the function threw, put the outer loop index back as a normal exit does
+	(assign {old_idx} {this->+lisp_seq_idx})
 	(call :obj :deref {out})
 	(exit :seq :lisp_map {this, value})
 	(return)
@@ -584,6 +586,8 @@
 	(call :obj :deref {out})
 	(jump :lisp :repl_error {this, seq, "(filter! lambda seq [start end out])", +error_msg_not_valid_index})
 (vp-label 'error3)
+	;the function threw, put the outer loop index back as a normal exit does
+	(assign {old_idx} {this->+lisp_seq_idx})
 	(call :obj :deref {args})
 	(call :obj :deref {out})
 	(exit :seq :lisp_filter {this, value})
