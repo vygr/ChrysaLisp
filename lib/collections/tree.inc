@@ -154,8 +154,9 @@
 
 (defun tree-load (stream)
 	; (tree-load stream) -> tree | :nil
-	(when stream
-		(defq items (first (read stream)) root (tree-node (first items))
+	;:nil if there is no stream, or nothing in it to read
+	(when (and stream (defq items (first (read stream))))
+		(defq root (tree-node (first items))
 			stack (list (rest items) root))
 		(while (defq node (pop stack) items (pop stack))
 			(case (tree-type node)

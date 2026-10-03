@@ -67,5 +67,13 @@
 (assert-true "set str member" (. te_l :find "two"))
 (assert-true "set sym member" (. te_l :find :three))
 
+; --- nothing to load gives :nil ---
+(test-cases
+	(tree-load :nil) :nil
+	(tree-load (memory-stream)) :nil
+	(tree-load (string-stream "")) :nil
+	(tree-load (string-stream "  \n")) :nil
+	(tree-load (string-stream "; just a comment")) :nil)
+
 ;a nums vector is not a tree value
 (assert-error "nums value" (tree-save (memory-stream) (te-value (nums 1 2))))

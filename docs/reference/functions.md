@@ -1592,6 +1592,8 @@ transfer a list of [key val]
 
 ```code
 (tree-load stream) -> tree | :nil
+
+:nil if there is no stream, or nothing in it to read
 ```
 
 ### tree-node

@@ -98,6 +98,9 @@ numbers with the default string compare gave an unsorted list and no error.
 capture group that took no part in the match, `(x)?b` say. It gave text from
 a reversed slice.
 
+`(tree-load)` gives `:nil` for a stream with nothing in it to read, an empty
+file say, as it does for no stream. It threw.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 
