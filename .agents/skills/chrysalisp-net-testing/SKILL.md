@@ -10,6 +10,27 @@ This skill documents the available ChrysaLisp network tests in `tests/net/`, how
 
 ---
 
+## Contents
+
+Find the task below and read that section in full before acting.
+
+*	**[1. Network Test Inventory in `tests/net/`](#1-network-test-inventory-in-testsnet)**
+	What each network test is, how it runs, and what it covers.
+
+*	**[2. In-Process Unit Tests (`test_url.lisp`, `test_json.lisp`)](#2-in-process-unit-tests-test_urllisp-test_jsonlisp)**
+	The URL and JSON tests that run inside the normal suite.
+
+*	**[3. Automated Single-Machine Loopback Test (`test_loopback.sh`)](#3-automated-single-machine-loopback-test-test_loopbacksh)**
+	Two instances on one machine joined by a TCP link. How it works and how to
+	run it.
+
+*	**[4. Multi-Machine Cluster Diagnostic Tool (`test_cluster.lisp`)](#4-multi-machine-cluster-diagnostic-tool-test_clusterlisp)**
+	Checking a live cluster across machines on the LAN.
+
+*	**[5. The `-b` (Base CPU Offset) Mechanism](#5-the--b-base-cpu-offset-mechanism)**
+	Read before launching a second instance by hand, it is what stops it
+	killing the first.
+
 ## 1. Network Test Inventory in `tests/net/`
 
 The `tests/net/` directory contains three categories of network tests:

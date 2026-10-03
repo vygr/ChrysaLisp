@@ -6,6 +6,48 @@ description: Use when writing, reviewing, or modifying the Onslaught 2D entity-c
 
 # ChrysaLisp Onslaught 2D Entity-Component Engine
 
+## Contents
+
+This is a long skill. Find the task below and read that section in full before
+acting, rather than skimming the whole file. Sections marked mandatory apply to
+every task.
+
+*	**[Domain & Scope](#domain--scope)**
+	Which files make up the game, and what "as the C++" refers to.
+
+*	**[1. Core Engineering Philosophy](#1-core-engineering-philosophy)**
+	The four principles the engine is built on.
+
+*	**[2. The Entity-Component Model (`Sprite`)](#2-the-entity-component-model-sprite)**
+	The `Sprite` host object, the `env-push` invocation contract, reaching
+	component variables, and the kill and death hook contract. Read before
+	touching `sprite.inc` or writing a component.
+
+*	**[3. The Standard Component Suite (`sprite.inc`)](#3-the-standard-component-suite-spriteinc)**
+	Each component: `CP`, `MV`, `MT`, `ML`, `AT`, `CL`, and offscreen culling.
+
+*	**[4. Collision & Combat Subsystem (`collisions.inc`)](#4-collision--combat-subsystem-collisionsinc)**
+	How collisions are centralised and the order they run in.
+
+*	**[5. Addon Weapon & Item Subsystem (`addons.inc`)](#5-addon-weapon--item-subsystem-addonsinc)**
+	The `Addon` class and the literal list rule for tables.
+
+*	**[6. Player Physics, Ducking & Camera (`fanatic.inc`, `utils.inc`)](#6-player-physics-ducking--camera-fanaticinc-utilsinc)**
+	Ducking bounds, camera tracking, and the jump arc.
+
+*	**[7. Task Isolation & Rendering](#7-task-isolation--rendering)**
+	What the GUI task can and cannot see when it draws a sprite.
+
+*	**[8. Campaign Map (`campaign.inc`)](#8-campaign-map-campaigninc)**
+	Campaign state, game flow, mind combat, drawing, stack depth, and the
+	remote play service and bot.
+
+*	**[9. Prescriptions for Agents Modifying Onslaught](#9-prescriptions-for-agents-modifying-onslaught)**
+	Mandatory. The numbered rules to follow for any change to the game.
+
+*	**[10. Testing & Verification Workflow](#10-testing--verification-workflow)**
+	How to check a change statically, then run the game and the bot.
+
 ## Domain & Scope
 
 *	**Target Application:** `apps/games/onslaught/`

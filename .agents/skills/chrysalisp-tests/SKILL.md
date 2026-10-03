@@ -10,6 +10,41 @@ ChrysaLisp has a comprehensive functional test suite in `tests/`. The
 general ChrysaLisp disciplines (see the `chrysalisp` skill, `LLM.md`, and
 `docs/ai_digest/`) apply to test code as well.
 
+## Contents
+
+This is a long skill. Find the task below and read that section in full before
+acting, rather than skimming the whole file. Sections marked mandatory apply to
+every task.
+
+*	**[Running the Test Suite](#running-the-test-suite)**
+	How to run the suite from the host shell, always through `grep`. Also `lisp
+	-r` snippets, the standard sanity tools, and how piped execution works.
+
+*	**[Standard TUI Make Commands](#standard-tui-make-commands)**
+	Every `make` option, which build each produces, and when a debug or
+	validate build is needed.
+
+*	**[Suite Layout](#suite-layout)**
+	Which file is the command, the harness, and each test module.
+
+*	**[Writing Suite Modules](#writing-suite-modules)**
+	Read before adding a test to the suite: headers, assert macros, and
+	registering the module.
+
+*	**[Writing Standalone Test Scripts](#writing-standalone-test-scripts)**
+	One-off scripts outside the suite, with error catching and host shutdown.
+
+*	**[Lock Service & Lock History Inspection](#lock-service--lock-history-inspection)**
+	The `@Lock` service, its history buffer, and how to inspect it from the
+	TUI, by RPC, and in unit tests.
+
+*	**[Pre-Public Release Tag Verification (Mandatory)](#pre-public-release-tag-verification-mandatory)**
+	Mandatory before a release tag or a significant contribution. The full list
+	of checks that must pass.
+
+*	**[Multi-Instance & Network Link Testing](#multi-instance--network-link-testing)**
+	Pointer to the `chrysalisp-net-testing` skill, with the key launch pattern.
+
 ## Running the Test Suite
 
 The standard, preferred way to run tests is through the TUI shell via the

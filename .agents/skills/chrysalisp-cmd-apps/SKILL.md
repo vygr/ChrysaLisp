@@ -12,6 +12,28 @@ results to stdout. The general ChrysaLisp disciplines (see the
 `chrysalisp` skill, `LLM.md`, and `docs/ai_digest/`) apply on top of these
 app-specific patterns.
 
+## Contents
+
+Find the task below and read that section in full before acting.
+
+*	**[How CMD Apps Run](#how-cmd-apps-run)**
+	How the TUI launches a command, and what stdin, stdout and pipes are.
+
+*	**[Canonical Structure](#canonical-structure)**
+	The skeleton every command follows, starting from `cmd/template.lisp`.
+
+*	**[Key Patterns](#key-patterns)**
+	Options, reading stdin or file arguments, and `pipe-farm` parallelism.
+
+*	**[Stdin and the Task Mailbox](#stdin-and-the-task-mailbox)**
+	Stdin has its own mailbox, so the task mailbox is free for the app.
+
+*	**[Trying Code from the Command Line](#trying-code-from-the-command-line)**
+	`lisp -r` snippets from the host shell.
+
+*	**[Examples](#examples)**
+	Existing commands to copy from, by what each demonstrates.
+
 ## How CMD Apps Run
 
 CMD apps run inside the TUI or Terminal app (`apps/tui/`), which uses

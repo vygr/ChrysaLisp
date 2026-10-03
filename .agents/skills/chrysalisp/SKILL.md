@@ -22,6 +22,74 @@ ChrysaLisp treats the host OS as a set of drivers via its Platform
 Implementation Interface (PII), rather than acting as a runtime dependent on
 one.
 
+## Contents
+
+This is a long skill. Find the task below and read that section in full before
+acting, rather than skimming the whole file. Sections marked mandatory apply to
+every task.
+
+*	**[Output Directives (Mandatory)](#output-directives-mandatory)**
+	Mandatory. How to present work: diffs not whole files, tab indentation,
+	`.md` wrapped at 80 columns with blank lines between elements.
+
+*	**[Documentation Index & AI Digest](#documentation-index--ai-digest)**
+	Where the 70 deep-dive documents are, through `LLM.md`. Go there for design
+	rationale this skill only summarises.
+
+*	**[Core Architectural Philosophies](#core-architectural-philosophies)**
+	The three philosophies and the ephemeral `netid`. Read before designing
+	anything new, they explain why the usual machinery is absent.
+
+*	**[The Lisp Implementation & Symbol Engine](#the-lisp-implementation--symbol-engine)**
+	How the interpreter is built: vector primitives, symbols, environments and
+	lookup. Read when performance or evaluation order matters.
+
+*	**[Core Lisp Disciplines (Must Follow)](#core-lisp-disciplines-must-follow)**
+	Mandatory for any Lisp code. Covers indentation and line wrapping, `eql`
+	and n-ary comparisons, dynamic scoping with `env-push` / `env-pop`, `bind`
+	destructuring, not shadowing built-ins, `'()` versus `(list)`, control flow
+	and conditionals, lists as stacks, `#` versus `lambda`, variable binding,
+	object syntax, the loop index `(!)`, compile-time constants, the top-level
+	`defun` prebinder rule, the GUI event loop, and `and` / `or` short-circuit
+	binding.
+
+*	**[Virtual Processor (VP) Assembler & CScript Guide](#virtual-processor-vp-assembler--cscript-guide)**
+	Read before touching a `.vp` file. Registers, method boilerplate,
+	`gen-create` / `gen-type` headers, `assign` and CScript memory rules, field
+	helpers, raw VP loops, calling conventions, and the lowering workflow.
+
+*	**[Numerical Representations & Systems](#numerical-representations--systems)**
+	The three number types, `num`, `fixed` and `real`, and their vector forms.
+
+*	**[Subsystems & Architecture Reference](#subsystems--architecture-reference)**
+	The shared memory link protocol, the distributed JIT build pipeline, and
+	the two-pass GUI layout.
+
+*	**[File & Naming Conventions](#file--naming-conventions)**
+	What each file extension is for and how functions, variables, constants and
+	globals are named.
+
+*	**[Direct REPL Access (`lisp -r`)](#direct-repl-access-lisp--r)**
+	How to try a snippet from the host shell before it goes into a file.
+
+*	**[Building & Binary Verification](#building--binary-verification)**
+	The `make` command and its options, the lint tools, and the checks to run
+	before a commit.
+
+## Output Directives (Mandatory)
+
+*	Do not emit entire unmodified source files. Provide focused diffs or
+	concise cut-and-paste snippets indicating exact locations.
+
+*	Always use 4-space tab indentation in ChrysaLisp source code and
+	documentation.
+
+*	Always place a blank line between all documentation elements in `.md`
+	files, including between individual bullet points and sub-bullets.
+
+*	Always wrap ChrysaLisp `.md` documentation at 80 columns (do not wrap
+	source code blocks).
+
 ## Documentation Index & AI Digest
 
 For comprehensive architectural guides, design rationale, and system
@@ -1226,17 +1294,3 @@ From the host shell or automated tool invocations, pipe commands directly to
 	4.	Verify bit-for-bit identity using host `diff`:
 
 		`diff -r obj/ ../ChrysaLisp_copy/obj/`
-
-## Output Directives (Mandatory)
-
-*	Do not emit entire unmodified source files. Provide focused diffs or
-	concise cut-and-paste snippets indicating exact locations.
-
-*	Always use 4-space tab indentation in ChrysaLisp source code and
-	documentation.
-
-*	Always place a blank line between all documentation elements in `.md`
-	files, including between individual bullet points and sub-bullets.
-
-*	Always wrap ChrysaLisp `.md` documentation at 80 columns (do not wrap
-	source code blocks).

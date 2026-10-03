@@ -11,6 +11,43 @@ a widget tree, and dispatches events from a mailbox select loop. The
 general ChrysaLisp disciplines (see the `chrysalisp` skill, `LLM.md`, and
 `docs/ai_digest/`) apply on top of these app-specific patterns.
 
+## Contents
+
+This is a long skill. Find the task below and read that section in full before
+acting, rather than skimming the whole file. Sections marked mandatory apply to
+every task.
+
+*	**[Canonical File Structure](#canonical-file-structure)**
+	The files a GUI app is made of, starting from `apps/template/`.
+
+*	**[app.lisp — The Event Loop](#applisp--the-event-loop)**
+	The entry point: imports, mailbox select, and the main loop.
+
+*	**[widgets.inc — The Widget Tree](#widgetsinc--the-widget-tree)**
+	Event enums and the `ui-` tree that builds the window.
+
+*	**[Two-Pass GUI Layout & Constraint Primitives](#two-pass-gui-layout--constraint-primitives)**
+	How views are sized and placed. Read before writing a custom widget or
+	fighting a layout.
+
+*	**[actions.inc — The Switchboard](#actionsinc--the-switchboard)**
+	Mapping events and keys to action handlers.
+
+*	**[ui.inc — The Action Handlers](#uiinc--the-action-handlers)**
+	The handler functions themselves.
+
+*	**[Advanced Patterns](#advanced-patterns)**
+	Single instance guard, services and RPC, zoom, and the other patterns the
+	larger apps use.
+
+*	**[Running GUI Code & Inspecting View Trees](#running-gui-code--inspecting-view-trees)**
+	How an agent checks GUI work without a screen grab: dump a View tree with
+	`ui-save`, open a live window for the user, and run on the GUI node of a
+	multi-node boot.
+
+*	**[GUI App Debugging & Validation Disciplines](#gui-app-debugging--validation-disciplines)**
+	Debug prints, and what to verify before handing an app to the user.
+
 ## Canonical File Structure
 
 Copy `apps/template/` as the starting point for a new app:
