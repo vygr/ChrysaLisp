@@ -28,8 +28,9 @@ Find the task below and read that section in full before acting.
 	Checking a live cluster across machines on the LAN.
 
 *	**[5. Driving Another Machine (`remote_onslaught.lisp`)](#5-driving-another-machine-remote_onslaughtlisp)**
-	A worked example: open a game on another machine's GUI and run its bot,
-	or run anything else there, and get the result back.
+	A worked example: open a game on another machine's GUI, get the mailbox
+	id of its service back, and play it from here. How to reach a service
+	whose name is not seen across machines.
 
 *	**[6. The `-b` (Base CPU Offset) Mechanism](#6-the--b-base-cpu-offset-mechanism)**
 	Read before launching a second instance by hand, it is what stops it
@@ -135,14 +136,22 @@ A successful run terminates with:
 
 `tests/net/remote_onslaught.lisp` is a worked example of doing real work on
 another machine over a link. It finds the other machine with `link -a`,
-probes its nodes for the one that can see the `Gui` service, pins a task
-there that opens the Onslaught game and runs its bot, and prints the bot's
-progress, mailed back. The other machine needs `./run.sh` and
+probes its nodes for the one that can see the `Gui` service, and pins a task
+there that opens the Onslaught game and mails back the mailbox id of the
+game's service. The bot is then run on this machine, `onslaught -m id -b 60`,
+playing the game on the other one over the link, reading its state and
+setting its keys 20 times a second. The other machine needs `./run.sh` and
 `link -l 3333 -a`. Run it with:
 
 ```bash
 ./run_tui.sh -f -s tests/net/remote_onslaught.lisp
 ```
+
+The game declares itself as `@Onslaught`, and an `@` name is only seen on its
+own machine, so a `(mail-enquire)` from here does not find it. But a mailbox
+is good from anywhere, mail is routed by its id. So the way to reach a system
+wide or local service on another machine is to have a task over there look
+the name up and send the mailbox id back.
 
 The same pattern, a task string given to `(open-task code node +kn_call_pin 0
 mbox)` that mails its result to a reply mailbox passed in as hex, runs

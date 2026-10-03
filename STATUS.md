@@ -166,6 +166,13 @@ The tests no longer print to the terminal. The few that test `(print)`,
 `(test-output code)`, which runs the code in a task of its own, and check
 what was printed, not just the return value.
 
+The `onslaught` command can play a game on another machine. `-i` prints the
+mailbox id of a game's service, and `-m id` plays the game with that id. The
+`@Onslaught` name is system wide, so only finds a game on the same machine,
+but its mailbox is good from anywhere. `tests/net/remote_onslaught.lisp` is
+an example, it opens the game on the GUI node of another machine on the LAN,
+has its mailbox id sent back, and runs the bot here to play it over the link.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

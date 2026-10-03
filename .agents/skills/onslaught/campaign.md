@@ -165,3 +165,12 @@ so any task, on any node, can play the game by mail:
 *	`cmd/onslaught.lisp` is the `onslaught` command: a one line summary,
 	`-s` full state, `-k num` set keys, `-b secs` a simple bot that plays
 	(menu, map, attack, battle, mind duel), `-q` quit.
+
+*	`@Onslaught` is a system wide name, so only finds a game on the same
+	machine. A mailbox is good from anywhere though. `onslaught -i` prints
+	the mailbox id of the game's service, and `onslaught -m id` plays the
+	game with that id, by setting `*onslaught_mbox*` in `app.inc`, which
+	`(onslaught-service)` uses in place of the lookup. So a game on another
+	machine of a cluster can be played from here once its id is known.
+	`tests/net/remote_onslaught.lisp` does it: it opens the game on another
+	machine's GUI node, has the id mailed back, and runs the bot here.

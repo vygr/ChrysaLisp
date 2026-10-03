@@ -1,5 +1,5 @@
-;Start Onslaught on the GUI node of another machine on the LAN, and let its
-;bot play the game there for a while.
+;Start Onslaught on the GUI node of another machine on the LAN, then play it
+;from this machine, with the bot running here and the game running there.
 ;
 ;The other machine must be running the GUI, ./run.sh, with a link listening,
 ;'link -l 3333 -a' from its Terminal. Then on this machine:
@@ -8,10 +8,15 @@
 ;
 ;How it works. 'link -a' finds the other machine. A probe task on each of its
 ;nodes says if it can see a Gui service. One task is then pinned on that GUI
-;node. It starts the audio service if needed, opens the game, and runs the
-;'onslaught -b' bot command there, as the game's @Onslaught service is system
-;wide, so is only seen on its own machine. The bot's progress lines are
-;mailed back here. The game is left open on the other machine.
+;node. It starts the audio service if needed, opens the game, and mails back
+;the mailbox id of the game's service.
+;
+;That id is the trick. The game declares itself as @Onslaught, a system wide
+;name, so a (mail-enquire) for it from here finds nothing. But a mailbox is
+;good from anywhere, mail is routed by its id, so once we have the id we can
+;talk to the game directly. 'onslaught -m id -b 60' runs the bot on this
+;machine, reading the state and setting the keys of the game on the other
+;one, 20 times a second, over the link.
 (import "lib/task/pipe.inc")
 (when (empty? (mail-enquire "@Net,"))
 	(open-child "service/net/app.lisp" +kn_call_run)
@@ -35,23 +40,28 @@
 		(if (> gui_count 0) (setq gui_node node_hex))))
 (ifn gui_node
 	(print "NO GUI on the remote machine, it needs to be running ./run.sh")
-	(print "remote GUI node " (slice gui_node 0 12) ", starting the game and the bot...")
+	(print "remote GUI node " (slice gui_node 0 12) ", starting the game...")
 	(open-task (str `(progn
-			(import "lib/task/pipe.inc")
-			(defq out (list))
 			(if (empty? (mail-enquire "@Audio,"))
 				(open-child "service/audio/app.lisp" +kn_call_pin))
 			(task-sleep 500000)
 			(if (empty? (mail-enquire "@Onslaught,"))
 				(open-child "apps/games/onslaught/app.lisp" +kn_call_pin))
-			(task-sleep 3000000)
-			(pipe-run "onslaught -b 60" (lambda (%0) (push out %0)))
+			;wait for the game to declare its service, then send its mailbox id
+			(defq tries 0)
+			(while (and (empty? (defq svc (mail-enquire "@Onslaught,"))) (< (++ tries) 50))
+				(task-sleep 100000))
 			(mail-send (hex-decode ,(hex-encode reply_mbox))
-				(cat (cpu) " " (abi) " " (os) "\n" (join out "")))))
+				(if (empty? svc) "" (second (split (first svc) ","))))))
 		(hex-decode gui_node) +kn_call_pin 0 launch_mbox)
-	(if (defq reply (mail-read-timeout reply_mbox 120000000))
-		(print "REMOTE BOT on " reply)
-		(print "no reply from the remote node")))
+	(defq game_mbox (mail-read-timeout reply_mbox 15000000))
+	(if (or (not game_mbox) (eql game_mbox ""))
+		(print "the game did not start on the remote node")
+		(progn
+			(print "game service mailbox " game_mbox)
+			(print "playing it from here...")
+			(pipe-run (cat "onslaught -m " game_mbox " -b 60")
+				(lambda (%0) (prin %0) (stream-flush (io-stream "stdout")))))))
 (stream-flush (io-stream "stdout"))
 (task-sleep 200000)
 (pii-exit)

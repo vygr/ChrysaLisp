@@ -12,9 +12,16 @@
         -k --keys num: set the held control keys mask.
         -b --bot secs: let the bot play for secs seconds.
         -q --quit: quit the game.
+        -i --id: print the mailbox id of the game's service.
+        -m --mbox id: the game to play, by the mailbox id of
+            its service, as -i prints it.
 
     Remote play a running Onslaught game, on any node,
     via its @Onslaught service.
+
+    That name only finds a game on this machine. To play
+    one on another machine, get its id there with -i, and
+    give it here with -m.
 
     Key mask bits: up 1, down 2, left 4, right 8, fire 16.
 
@@ -23,6 +30,8 @@
 (("-k" "--keys") ,(opt-num 'opt_k))
 (("-b" "--bot") ,(opt-num 'opt_b))
 (("-q" "--quit") ,(opt-flag 'opt_q))
+(("-i" "--id") ,(opt-flag 'opt_i))
+(("-m" "--mbox") ,(opt-str 'opt_m))
 ))
 
 (defun enemy-tile? (tile)
@@ -197,10 +206,13 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_s :nil opt_k :nil opt_b :nil opt_q :nil args (options stdio usage)))
+			(defq opt_s :nil opt_k :nil opt_b :nil opt_q :nil opt_i :nil opt_m :nil
+				args (options stdio usage)))
+		(if opt_m (setq *onslaught_mbox* (hex-decode opt_m)))
 		(cond
 			((not (onslaught-service))
 				(print "No Onslaught game running !"))
+			(opt_i (print (hex-encode (onslaught-service))))
 			(opt_q (onslaught-quit-rpc))
 			(opt_k (onslaught-keys-rpc opt_k))
 			(opt_b

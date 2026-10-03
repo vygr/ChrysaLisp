@@ -546,9 +546,16 @@ Usage: onslaught [options]
         -k --keys num: set the held control keys mask.
         -b --bot secs: let the bot play for secs seconds.
         -q --quit: quit the game.
+        -i --id: print the mailbox id of the game's service.
+        -m --mbox id: the game to play, by the mailbox id of
+            its service, as -i prints it.
 
     Remote play a running Onslaught game, on any node,
     via its @Onslaught service.
+
+    That name only finds a game on this machine. To play
+    one on another machine, get its id there with -i, and
+    give it here with -m.
 
     Key mask bits: up 1, down 2, left 4, right 8, fire 16.
 

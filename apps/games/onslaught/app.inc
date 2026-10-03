@@ -13,10 +13,16 @@
 	(netid reply_id)
 	(uint type keys))
 
+;the @Onslaught name is system wide, so only finds a game on this machine.
+;A mailbox is good from anywhere though, so to play a game on another machine
+;set this to its service mailbox, however you came by it.
+(defq *onslaught_mbox* :nil)
+
 (defun onslaught-service ()
 	; (onslaught-service) -> netid | :nil
-	(when (nempty? (defq s (mail-enquire "@Onslaught,")))
-		(hex-decode (second (split (first s) ",")))))
+	(or *onslaught_mbox*
+		(when (nempty? (defq s (mail-enquire "@Onslaught,")))
+			(hex-decode (second (split (first s) ","))))))
 
 (defun onslaught-rpc (type &optional keys)
 	; (onslaught-rpc type [keys]) -> reply | :nil
