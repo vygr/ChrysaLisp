@@ -79,6 +79,15 @@ Options:
 	skipped tests. Do not use it from an agent for the whole suite, it is
 	over 2,000 lines.
 
+*	`tests -f` records stack frames, with `lib/debug/frames.inc`, in every
+	function a module defines or imports. An error then says what was
+	running, where it normally says `Frame: :nil`:
+
+		Frame: ("zz-outer -> tests/x/test_y.lisp(3)" "zz-inner -> tests/x/test_y.lisp(1)")
+
+	Use it with `-m` to chase a module that fails to run to the end. It is
+	slower, so is not the default.
+
 Which boot image the suite runs on matters:
 
 *	**Native, `./run_tui.sh -f`:** the native image has the error checks

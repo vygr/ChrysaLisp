@@ -13,7 +13,7 @@
 (import "lib/files/files.inc")
 
 (defq *test_passes* 0 *test_failures* 0 *test_skips* 0
-	*test_verbose* :nil *test_module* ""
+	*test_verbose* :nil *test_frames* :nil *test_module* ""
 	;scripts under tests/ that are named test_ but are not suite modules
 	+test_excludes ''("tests/net/test_cluster.lisp")
 	;an error checked build throws on bad arguments, a release build has no
@@ -124,17 +124,22 @@
 (defun test-run-module (file)
 	(defq *test_module* (slice file 6 -6))
 	(env-push)
+	;with frames on, functions the module defines or imports record their
+	;calls, so an error says what was running, at some cost in speed
+	(if *test_frames* (import "lib/debug/frames.inc"))
 	(catch (import file)
 		(progn (test-fail "module" "to run to the end" _) :t))
 	(env-pop))
 
-(defun run-suite (&optional pattern verbose)
-	; (run-suite [pattern verbose]) -> :t | :nil
-	(setq *test_passes* 0 *test_failures* 0 *test_skips* 0 *test_verbose* verbose)
+(defun run-suite (&optional pattern verbose frames)
+	; (run-suite [pattern verbose frames]) -> :t | :nil
+	(setq *test_passes* 0 *test_failures* 0 *test_skips* 0
+		*test_verbose* verbose *test_frames* frames)
 	;services the modules rely on
 	(open-child "service/lock/app.lisp" +kn_call_run)
 	(defq modules (test-modules pattern))
 	(each (# (test-run-module %0)) modules)
+	(if frames (setq *stack_frame* :nil))
 	(if *test_verbose* (print))
 	(print "=== Test Summary ===")
 	(print "Modules: " (length modules))

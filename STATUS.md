@@ -129,6 +129,10 @@ gives the text back unchanged when nothing matched, so `(replace-str)` and
 for an empty pattern finds nothing rather than throw. New edit edge tests
 cover these, and editing with several cursors.
 
+`tests -f` records stack frames, using `lib/debug/frames.inc`, in the
+functions each test module defines or imports, so an error in a module says
+what was running rather than `Frame: :nil`.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

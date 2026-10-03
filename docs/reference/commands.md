@@ -726,6 +726,8 @@ Usage: tests [options]
         -m --match str: only the modules with str in their path.
         -l --list: list the modules, do not run them.
         -v --verbose: show every test, not just the failures.
+        -f --frames: record stack frames, so an error says what
+            was running. Slower.
 
     Run the unit tests, tests/<category>/test_<name>.lisp.
 
