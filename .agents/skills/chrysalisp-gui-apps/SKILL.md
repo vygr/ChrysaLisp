@@ -291,7 +291,10 @@ Key points:
 *	**Services and RPC.** Declare a service in `main` with
 	`(mail-declare mbox "Name" "info")`, add a `remote` select slot for
 	its mailbox, handle remote messages in the loop, and `(mail-forget
-	key)` on exit (see `apps/tools/edit/app_impl.lisp`).
+	key)` on exit (see `apps/tools/edit/app_impl.lisp`). The name's first
+	character sets its scope: `@Name` is seen across the whole machine,
+	`*Name` across every linked machine, and a plain `Name` only on its
+	own node.
 
 *	**Zoom.** Scale font sizes with
 	`(n2i (* (n2f size) (n2f (get :zoom *window*))))`, set

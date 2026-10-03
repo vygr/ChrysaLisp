@@ -439,6 +439,22 @@ Independent ChrysaLisp instances communicate over shared memory using
 	`lk_chan_status_ping` (routing heartbeat), `lk_chan_status_frag`
 	(message data fragment), and `lk_chan_status_skip` (buffer wrap marker).
 
+### Service Names & Their Scope
+
+A service is declared with `(mail-declare mbox "Name" "info")` and found with
+`(mail-enquire "Name")`. The first character of the name sets how far it is
+seen:
+
+*	**`@Name`, system wide:** seen by every node of the one machine, the
+	one "system". `@Lock`, `@Net`, `@Audio`. Each machine in a cluster has
+	its own, so `(mail-enquire "@Lock,")` only ever finds this machine's.
+
+*	**`*Name`, global:** seen by every node of every machine linked into the
+	cluster. `*Chat`.
+
+*	**`Name`, local:** no prefix, seen only on the node that declared it.
+	`Terminal`.
+
 ### Distributed JIT Compilation Pipeline
 
 Dynamic VP compilation (`lisp.vp`) is protected by network locking:
