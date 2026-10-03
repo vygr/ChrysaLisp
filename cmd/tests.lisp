@@ -20,9 +20,8 @@
     just the module paths given.
 
     The modules run in parallel, a batch to a task, over the
-    nodes. Those under tests/system/ run one at a time, after
-    the rest. If the modules all fit in one batch they run in
-    this task, one after another, so a large -j is a serial run.
+    nodes. If they all fit in one batch they run in this task,
+    one after another, so a large -j is a serial run.
 
     Prints the failures and a summary.")
 (("-m" "--match") ,(opt-str 'opt_m))

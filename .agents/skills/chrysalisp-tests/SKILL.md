@@ -87,10 +87,11 @@ Options:
 
 *	`tests path ...` runs just the module files given.
 
-*	The modules under `tests/system/` share the one lock service and wait on
-	timers, so they always run one at a time, after the rest. A module
-	anywhere else must not rely on what another leaves behind, and must
-	give any file or service it makes a name of its own.
+*	Every module runs at the same time as the others, so a module must not
+	rely on what another leaves behind, and must give any file or service
+	it makes a name of its own. Tests that do depend on each other go in
+	the one module. The lock service tests are one module for that reason,
+	they read back the history of the one `@Lock` service.
 
 *	`tests -f` records stack frames, with `lib/debug/frames.inc`, in every
 	function a module defines or imports. An error then says what was

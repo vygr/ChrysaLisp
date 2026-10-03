@@ -222,11 +222,13 @@ batch, default 1, each batch a task farmed over the nodes with
 `pipe-farm`, and a set that fits in one batch runs in the one task, so a
 large `-j` is a serial run. A batch task ends with a line of counts, `-c`,
 that the runner adds up, and results print in module order. Module paths
-can be given as arguments. The modules under `tests/system/` share the
-lock service and wait on timers, so run one at a time after the rest.
-The gain in time is small, as those serial modules are most of the run.
-Native, 10 nodes, 1.4s against 1.6s serial. Emulator, 8 nodes, 18.8s
-against 19.1s, of which `tests/system/` alone is 14s.
+can be given as arguments. No module is held back to run alone. The rule
+is that tests which depend on each other go in the one module, so the two
+lock service modules, which both read its history, are now the one,
+`tests/system/test_lock.lisp`, 66 modules in all. Native, 10 nodes, 1.1s
+against 1.6s for the serial run, `-j 1000`. Emulator, 11.1s against 19.1s.
+The emulator is no faster on 8 nodes than on 1, the waits on timers in the
+system modules set the time, not the work.
 
 These two change the boot images by a few bytes, ARM64 221,924 and VP64
 release 152,092, so `snapshot.zip` is behind until it is next rebuilt.
