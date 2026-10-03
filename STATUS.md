@@ -145,6 +145,12 @@ New edge tests for the Document class, the select methods, break, tabs, case,
 sort, invert, unique, comment, trim, reflow and split, and that each is one
 undo step.
 
+Document class changes. `:select_line` on a selection over several lines now
+takes all of them whole, it took just the top one. `:break` gives the new
+line the whole indent when the break is at the line start or inside the
+indent, it gave only the part before the cursor. `:right_tab` leaves blank
+lines alone, so they gain no trailing spaces.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

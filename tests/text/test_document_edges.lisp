@@ -49,6 +49,12 @@
 	;the end of file line
 	(de-csr "ab\ncd\nef" 0 3 :select_line) '(0 4 0 3)
 	(de-csr "" 0 0 :select_line) '(0 1 0 0)
+	;a selection over several lines grows to take all of them whole
+	(first (second (de-sel "ab\ncd\nef" 1 2 1 0 :select_line))) '(0 3 0 0)
+	(first (second (de-sel "ab\ncd\nef" 1 0 1 2 :select_line))) '(0 3 0 0)
+	(first (second (de-sel "ab\ncd\nef" 1 1 1 0 :select_line))) '(0 2 0 0)
+	;lines already selected whole are left as they are
+	(first (second (de-sel "ab\ncd\nef" 0 2 0 0 :select_line))) '(0 2 0 0)
 	(de-csr "abc" 1 0 :select_all) '(0 1 0 0)
 	(de-csr "a\nb" 0 0 :select_all) '(0 2 0 0)
 	(de-csr "" 0 0 :select_all) '(0 0 0 0))
@@ -99,7 +105,11 @@
 	(de-at "abcd" 2 0 :break) '("ab\ncd\n\n" ((0 1 0 1)))
 	(de-at "    abcd" 6 0 :break) '("    ab\n    cd\n\n" ((4 1 4 1)))
 	(de-at "    abcd" 8 0 :break) '("    abcd\n    \n\n" ((4 1 4 1)))
-	(de-at "    abcd" 0 0 :break) '("\nabcd\n\n" ((0 1 0 1)))
+	;a break at the line start, or inside the indent, keeps the whole indent
+	(de-at "    abcd" 0 0 :break) '("\n    abcd\n\n" ((4 1 4 1)))
+	(de-at "    abcd" 2 0 :break) '("\n    abcd\n\n" ((4 1 4 1)))
+	(de-at "    abcd" 4 0 :break) '("\n    abcd\n\n" ((4 1 4 1)))
+	(de-at "\tabcd" 0 0 :break) '("\n\tabcd\n\n" ((1 1 1 1)))
 	(de-at "\tab cd" 3 0 :break) '("\tab\n\tcd\n\n" ((1 1 1 1)))
 	;spaces around the break are dropped, wherever the cursor is in them
 	(de-at "ab   cd" 2 0 :break) '("ab\ncd\n\n" ((0 1 0 1)))
@@ -138,7 +148,11 @@
 	(de-text "\ta\n \tb" 0 2 0 0 :left_tab) "\ta\n\tb\n\n"
 	(de-text "    a\n    b" 0 2 0 0 :left_tab :left_tab) "a\nb\n\n"
 	(de-text "a\nb" 0 2 0 0 :right_tab :left_tab) "a\nb\n\n"
-	(de-text "" 0 0 0 0 :left_tab) "\n")
+	(de-text "" 0 0 0 0 :left_tab) "\n"
+	;a blank line is not indented, so gains no trailing spaces
+	(de-text "a\n\nc" 0 3 0 0 :right_tab) "    a\n\n    c\n\n"
+	(de-text "a\n  \nc" 0 3 0 0 :right_tab) "    a\n  \n    c\n\n"
+	(de-text "" 0 0 0 0 :right_tab) "\n")
 
 ; --- to_upper and to_lower, on the selection only ---
 (test-cases

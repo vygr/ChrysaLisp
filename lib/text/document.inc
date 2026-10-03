@@ -27,12 +27,8 @@
 
 	(defmethod :select_line ()
 		; (. document :select_line) -> document
-		(lower (:cursors (. this :merge_cursors
-			(map (lambda (csr) (task-slice)
-					(bind '(& & cx cy &ignore) (csr-floor csr))
-					(nums 0 (inc cy) 0 cy -1))
-				(get :cursors this)))))
-		this)
+		;the whole of every line each cursor's selection touches
+		(. this :floor_selection))
 
 	(defmethod :select_paragraph ()
 		; (. document :select_paragraph) -> document
@@ -94,8 +90,9 @@
 					(when (or (/= cx ax) (/= cy ay))
 						(. this :idelete cx cy ax ay))
 					(defq line (. this :get_text_line cy)
-						  indent_len (bskip +char_class_space line 0)
-						  indent_str (slice line 0 (min indent_len cx))
+						  ;the new line takes the whole indent, even when
+						  ;the break is made inside it
+						  indent_str (slice line 0 (bskip +char_class_space line 0))
 						  trim_left (rbskip +char_class_space line cx)
 						  trim_right (bskip +char_class_space line cx))
 					(. this :idelete trim_left cy trim_right cy)
@@ -135,8 +132,12 @@
 			(. this :floor_selection)
 			(defq tab (pad "" (. this :get_tab_width) "        "))
 			(raise :cursors)
+			;a blank line is left alone, so it gains no trailing spaces
 			(each (lambda ((& ay & cy &ignore))
-					(until (= cy ay) (. this :iinsert 0 cy tab) (++ cy)))
+					(until (= cy ay)
+						(unless (blank-line? (. this :get_text_line cy))
+							(. this :iinsert 0 cy tab))
+						(++ cy)))
 				cursors)
 			(lower :cursors))
 		this)

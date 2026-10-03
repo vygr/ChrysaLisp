@@ -64,6 +64,8 @@
 
 ```code
 (. document :select_line) -> document
+
+the whole of every line each cursor's selection touches
 ```
 
 ### :select_paragraph

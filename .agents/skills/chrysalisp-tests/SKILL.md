@@ -59,7 +59,7 @@ filtering:
 
 	=== Test Summary ===
 	Modules: 67
-	Passed: 3152
+	Passed: 3162
 	Failed: 0
 	Skipped: 0
 	RESULT: SUCCESS
