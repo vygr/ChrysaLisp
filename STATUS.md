@@ -22,6 +22,9 @@ keys, and has a bot, `onslaught -b 60`, that plays the game for you, path
 finding its way over the battle map to capture the enemy banner.
 See `apps/games/onslaught/app.inc` for the RPC calls.
 
+Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
+error paths never freed the part read form.
+
 Sound effects can now be panned. `(audio-play-rpc handle [pan])` takes an
 optional pan, -255 full left to 255 full right, default 0 centre. The host
 `host_audio_play_sfx` and the `:host_audio :play` binding take the pan as a

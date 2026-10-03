@@ -136,6 +136,12 @@
 (vp-label 'error1)
 	(call :lisp :repl_error {this, list, "unexpected )", +error_msg_wrong_types} {_, item})
 (vp-label 'error)
+	;free the whole of the part read form, from its root list,
+	;the error holds its own ref to the payload list
+	(vpif {stack->+array_length})
+		(call :array :get_first {stack} {_, list})
+	(endif)
+	(call :list :deref {list})
 	(call :array :deref {stack})
 	(exit :lisp :read {this, item, c})
 	(return))
