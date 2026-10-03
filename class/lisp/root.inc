@@ -96,6 +96,10 @@
 ; (sign num) -> -1 | 0 | 1
 (ffi "class/num/lisp_n2i" n2i)
 ; (n2i num) -> num
+;the fastest conversion for each type, with no rounding mode. A fixed is
+;shifted, so goes down, a real is truncated, so goes toward zero. They only
+;differ for a negative value with a fraction. If it matters, use (floor) or
+;(ceil) first.
 (ffi "class/num/lisp_n2f" n2f)
 ; (n2f num) -> fixed
 (ffi "class/num/lisp_n2r" n2r)

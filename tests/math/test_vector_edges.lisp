@@ -73,6 +73,17 @@
 	(n2i (n2f 7)) 7
 	(n2f (n2r 1.5)) 1.5
 	(n2i (n2r 1.5)) 1
+	;n2i is the fastest conversion for each type, with no rounding mode, so
+	;for a negative value with a fraction a fixed goes down, a real toward zero
+	(n2i -5.9) -6
+	(n2i (n2r -5.9)) -5
+	;use floor or ceil first when the direction matters
+	(n2i (floor -5.9)) -6
+	(n2i (floor (n2r -5.9))) -6
+	(n2i (ceil -5.9)) -5
+	(n2i (ceil (n2r -5.9))) -5
+	(n2i -5.0) -5
+	(n2i (n2r -5.0)) -5
 	(type-of 1.0) '(:num :fixed)
 	(type-of (n2r 1)) '(:num :fixed :real))
 

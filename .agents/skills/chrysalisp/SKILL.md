@@ -412,7 +412,11 @@ ChrysaLisp natively supports three numerical types:
 
 *	**Conversions:**
 
-	*	`(n2i x)`: Converts `fixed` or `real` to integer `num`.
+	*	`(n2i x)`: Converts `fixed` or `real` to integer `num`. It is the
+		fastest conversion for each type and has no rounding mode: a `fixed`
+		goes down, `(n2i -5.9)` is -6, a `real` goes toward zero,
+		`(n2i (n2r -5.9))` is -5. When the direction matters apply `(floor)`
+		or `(ceil)` first.
 
 	*	`(n2f x)`: Converts `num` or `real` to 48.16 `fixed`.
 

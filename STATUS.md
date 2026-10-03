@@ -101,6 +101,10 @@ a reversed slice.
 `(tree-load)` gives `:nil` for a stream with nothing in it to read, an empty
 file say, as it does for no stream. It threw.
 
+`(n2i)` is noted as having no rounding mode. It is the fastest conversion for
+each type, so a negative fixed with a fraction goes down, and a negative real
+goes toward zero. Use `(floor)` or `(ceil)` first when the direction matters.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 
