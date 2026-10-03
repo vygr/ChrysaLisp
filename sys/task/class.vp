@@ -359,8 +359,13 @@
 	(assign {tcb} (list tcb))
 	(ln-remove-node tcb next_tcb)
 
-	;free our task control block
-	(call :sys_mem :free {tcb})
+	;free our task control block, but our stack is inside it, so move onto
+	;the kernel task's stack first, below its saved state, for the call
+	(assign {tcb} (list tcb))
+	(fn-bind 'sys/statics/statics next_tcb)
+	(assign `((,next_tcb statics_sys_task_kernel_tcb)) `(,next_tcb))
+	(assign `((,next_tcb +tk_node_stack)) '(:rsp))
+	(call :sys_mem :free `(,tcb))
 	(jump :sys_task :restore)
 
 	(pop-scope-syms)

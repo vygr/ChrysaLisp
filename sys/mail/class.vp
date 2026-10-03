@@ -102,13 +102,14 @@
 		(vp-cpy-rr :r0 :r1)
 		(ln-remove-node :r1 :r2)
 
-		;free mailbox node
+		;splice any dead mail to postman, while the node is still ours
+		(call :sys_mail :junk_mail '((& :r0 +mbox_list)))
+
+		;free mailbox node, :r3 is still its mail list
 		(fn-bind 'sys/statics/statics :r1)
+		(vp-lea-i :r3 (neg +mbox_list) :r0)
 		(vp-add-cr statics_sys_mail_mbox_heap :r1)
 		(hp-freecell :r1 :r0 :r2)
-
-		;splice any dead mail to postman
-		(call :sys_mail :junk_mail '((& :r0 +mbox_list)))
 	(endif)
 	(vp-ret)
 

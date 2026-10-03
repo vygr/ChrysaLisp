@@ -181,6 +181,26 @@ host is all zero, which hid such a fault until the cell came to be reused.
 This is the kind of check validate mode is for, one a debug build can not
 spare the time for. The test suite passes on it, native and emulated.
 
+A validate build also fills each cell as it is freed, past its free list
+link, with a second pattern, `+hp_cell_free_fill`, bytes of `0x5A`, so use
+after a free fails too. A cell that already holds that pattern when freed
+is a double free, and aborts with `Double free !`. No test reaches that
+abort, there is no route to a double free from Lisp. The fill found two
+faults at once, both harmless in a normal build as nothing reused the cell
+in time, and both are fixed for every build:
+
+* `:sys_mail :free_mbox` freed the mailbox node and then read its mail
+	list. It now splices the mail off first.
+
+* `:sys_task :stop` frees the task control block that holds the stack it
+	is running on, with a call, so the return address sat in the freed cell.
+	It now moves onto the kernel task's stack, below its saved state, for
+	that call. ARM64 did not show it, the return address is in the link
+	register. The emulator did.
+
+These two change the boot images by a few bytes, ARM64 221,924 and VP64
+release 152,092, so `snapshot.zip` is behind until it is next rebuilt.
+
 `mail-read-timeout` now cancels its timer when the mail arrives first. Before,
 the timer stayed on the kernel timeout list until it ran out, so a fast run of
 RPC calls built a long list, and each new timer is placed by a walk of that

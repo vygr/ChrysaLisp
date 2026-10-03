@@ -112,7 +112,12 @@ To run every test on the emulator too, build all the boot images with the
 checks in, `make it debug`, or with the extra runtime validation as well,
 `make it validate`. A validate build also fills every newly allocated heap
 cell with a pattern, bytes of `0xA5`, so code that reads memory before
-setting it fails the same way each time, rather than by luck. The emulator
+setting it fails the same way each time, rather than by luck. It fills each
+freed cell with a second pattern, bytes of `0x5A`, and aborts on a double
+free. A fault address or pc of `0x5a5a5a5a5a5a5a5a` means use after free.
+If a validate image will not boot, `make install` puts back the working
+VP64 image from `snapshot.zip`, and `./run_tui.sh -e` can build from it.
+The emulator
 run then reports `Skipped: 0`. Always finish
 with a plain `make it`. That puts back the release VP64 image, which is what
 goes into `snapshot.zip` and what `make install` runs on. It is release on
