@@ -67,8 +67,8 @@ Sections of this file:
 	The three number types, `num`, `fixed` and `real`, and their vector forms.
 
 *	**[Subsystems & Architecture Reference](#subsystems--architecture-reference)**
-	The shared memory link protocol, the distributed JIT build pipeline, and
-	the two-pass GUI layout.
+	The shared memory link protocol, service names and their scope, the
+	distributed JIT build pipeline, and the two-pass GUI layout.
 
 *	**[File & Naming Conventions](#file--naming-conventions)**
 	What each file extension is for and how functions, variables, constants and
