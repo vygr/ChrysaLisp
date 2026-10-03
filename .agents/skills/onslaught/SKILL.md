@@ -16,6 +16,11 @@ description: Use when writing, reviewing, or modifying the Onslaught 2D entity-c
 	`menu.inc`, `mind.inc`, `campaign.inc`, `app.inc`, `remote.inc`,
 	`app_impl.lisp`, `cmd/onslaught.lisp`
 
+*	**The C++ Version:** The game is a complete port of an earlier C++
+	version (`onslaught.cpp`, with its sprite engine in `engine.cpp`). Where
+	this skill says "as the C++" it means that version. Its source is not in
+	this repository.
+
 *	**Architectural Heritage:** Directly based on the original 1989 Commodore
 	Amiga / Atari ST game *Onslaught* by Chris Hinsley. The architectural
 	insights developed during the creation of this engine—treating sprites as
