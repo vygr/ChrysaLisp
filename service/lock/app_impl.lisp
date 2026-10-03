@@ -31,9 +31,13 @@
 	changed)
 
 (defun log-lock-history (history action key mode)
+	;the list is trimmed in place, as the caller holds it, and only once it
+	;is twice the size, so the trim is not done on every lock
 	(push history (cat key " (" action " " mode ")"))
-	(when (> (length history) +lock_max_history)
-		(erase history 0 (- (length history) +lock_max_history))))
+	(when (>= (length history) (const (* 2 +lock_max_history)))
+		(defq keep (slice history (const (neg (inc +lock_max_history))) -1))
+		(clear history)
+		(each (# (push history %0)) keep)))
 
 (defun merge-locks (writes reads pending nodes now history)
 	(defq blocked (list) new_pending (list))
@@ -101,7 +105,9 @@
 							(mail-send reply_id "")
 							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending (lisp-nodes) (pii-time) lock_history)))
 						(+lock_type_history
-							(mail-send reply_id (join lock_history "\n")))))
+							;the last +lock_max_history entries
+							(mail-send reply_id (join (slice lock_history
+								(max 0 (- (length lock_history) +lock_max_history)) -1) "\n")))))
 				(+select_timer
 					(mail-timeout (elem-get select +select_timer) +check_rate 0)
 					(defq nodes (lisp-nodes) now (pii-time) purged (purge-expired lock_writes lock_reads nodes now))

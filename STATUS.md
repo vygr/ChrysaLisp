@@ -133,6 +133,14 @@ cover these, and editing with several cursors.
 functions each test module defines or imports, so an error in a module says
 what was running rather than `Frame: :nil`.
 
+The lock service history was never trimmed. It is meant to hold the last
+`+lock_max_history` entries, but the result of the trim was thrown away, so
+the list grew for as long as the service ran. It is now trimmed in place.
+New edge tests for the lock service, contention, shared reads, the key
+hierarchy, waiting claims and the `(with-lock)` macros, and for the Buffer
+class, the empty buffer, the ends, line joins, selections, several cursors,
+undo and redo, load and save, and find.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 
