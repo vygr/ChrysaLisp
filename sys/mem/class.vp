@@ -163,12 +163,25 @@
 
 	(vpif '(:r0 /= 0))
 		(vp-cpy-ir :r0 (- +sys_mem_header_heap +sys_mem_header_size) :r1)
+	(validatecase
+		;the heap in the header must be one of ours, else this is not
+		;the address of a block we gave out
+		(fn-bind 'sys/statics/statics :r2)
+		(vp-add-cr statics_sys_mem_heaps :r2)
+		(gotoif '(:r1 < :r2) 'bad_free)
+		(vp-add-cr (* (length +mem_heap_cell_sizes) +hp_heap_size) :r2)
+		(gotoif '(:r1 >= :r2) 'bad_free))
 		(vp-sub-cr +sys_mem_header_size :r0)
 		(hp-freecell :r1 :r0 :r2)
 	(endif)
 
 	(exit :sys_mem :free '())
 	(vp-ret)
+
+(validatecase
+(vp-label 'bad_free)
+	(call :host_os :pii_write_str '(2 "Bad free !\n"))
+	(jump :sys_task :dump))
 
 (def-func-end)
 

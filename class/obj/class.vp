@@ -77,6 +77,14 @@
 	(vpif '(:r1 = 1))
 		(jump :obj :destroy '(:r0))
 	(endif)
+	(validatecase
+		;no live object has a count of 0, and a freed one holds the fill
+		(vpif '(:r1 = 0))
+			(jump :obj :dead)
+		(endif)
+		(vpif '(:r1 > +obj_count_max))
+			(jump :obj :dead)
+		(endif))
 
 	;dec ref count
 	(vp-sub-cr 1 :r1)
@@ -84,6 +92,17 @@
 	(vp-ret)
 
 (def-func-end)
+
+(validatecase (def-method :obj :dead)
+	;trashes
+	;:r0-:r1, :f0-:f15
+	;info
+	;a ref or deref of an object that is not alive, report and dump
+
+	(call :host_os :pii_write_str '(2 "Dead object !\n"))
+	(jump :sys_task :dump)
+
+(def-func-end))
 
 (def-method :obj :deref_if)
 	;inputs

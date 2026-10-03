@@ -9,6 +9,7 @@
 	(dec-method :eql class/obj/eql :virtual (:r0 :r1) (:r0 :r1))
 	(dec-method :print class/obj/print :virtual (:r0 :r1) (:r0))
 	(dec-method :null class/obj/null)
+	(dec-method :dead class/obj/dead)
 	(dec-method :destroy class/obj/destroy :static (:r0))
 	(dec-method :init class/obj/init :static (:r0 :r1) (:r0 :r1))
 	(dec-method :inst_of class/obj/inst_of :static (:r0 :r1) (:r0 :r1))
@@ -51,6 +52,14 @@
 	(setd o :r0 c :r1 x 1)
 	(if (eql o c) (throw "Invalid object or count !" (list o c)))
 	(assign `((,o +obj_count)) `(,c))
+	(validatecase
+		;no live object has a count of 0, and a freed one holds the fill
+		(vpif `(,c = 0))
+			(jump :obj :dead)
+		(endif)
+		(vpif `(,c > +obj_count_max))
+			(jump :obj :dead)
+		(endif))
 	(if (vp-rreg? x)
 		(vp-add-rr x c)
 		(vp-add-cr x c))

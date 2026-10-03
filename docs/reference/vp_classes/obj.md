@@ -20,6 +20,8 @@
 
 ## VP methods
 
+### :dead -> class/obj/dead
+
 ### :deinit -> class/obj/null
 
 ### :deref -> class/obj/deref

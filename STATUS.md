@@ -198,6 +198,15 @@ in time, and both are fixed for every build:
 	that call. ARM64 did not show it, the return address is in the link
 	register. The emulator did.
 
+Two more validate checks. Every `:obj :ref` and `:obj :deref` tests the
+count, 0 or above `+obj_count_max` is not a live object, a freed one holds
+the fill, and jumps to `:obj :dead`, which prints `Dead object !` and the
+stack dump. `(obj-ref)` on the stale address of a freed list trips it, as
+it should. `:sys_mem :free` tests that the heap in the block header is one
+of the `:sys_mem` heaps, else `Bad free !` and the dump. No test reaches
+that one. The validate ARM64 image is now 251,308 bytes, most of the growth
+is the count test at each inline ref.
+
 These two change the boot images by a few bytes, ARM64 221,924 and VP64
 release 152,092, so `snapshot.zip` is behind until it is next rebuilt.
 
