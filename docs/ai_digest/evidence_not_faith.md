@@ -184,7 +184,7 @@ minimal `boot_image` binaries across all supported architectures:
 
 * `obj/x86_64/WIN64/sys/boot_image`: **208,084 bytes**
 
-* `obj/arm64/ARM64/sys/boot_image`: **221,692 bytes**
+* `obj/arm64/ARM64/sys/boot_image`: **221,716 bytes**
 
 * `obj/riscv64/RISCV64/sys/boot_image`: **256,684 bytes**
 

@@ -58,8 +58,8 @@ By default it prints only the failures and a summary, so the output needs no
 filtering:
 
 	=== Test Summary ===
-	Modules: 53
-	Passed: 2032
+	Modules: 58
+	Passed: 2457
 	Failed: 0
 	Skipped: 0
 	RESULT: SUCCESS
@@ -91,6 +91,18 @@ Which boot image the suite runs on matters:
 
 *	**Full system, `./run.sh -f`:** the same suite with the GUI service up,
 	and a TUI attached to the host.
+
+To run every test on the emulator too, build all the boot images with the
+checks in, `make it debug`, or with the extra runtime validation as well,
+`make it validate`. The emulator run then reports `Skipped: 0`. Always finish
+with a plain `make it`. That puts back the release VP64 image, which is what
+goes into `snapshot.zip` and what `make install` runs on. It is release on
+purpose: installed code should have no errors to check for, and it installs
+about 20% faster.
+
+	echo "make it debug" | ./run_tui.sh -f
+	echo "tests" | ./run_tui.sh -e -f
+	echo "make it" | ./run_tui.sh -f
 
 Inside an interactive TUI or Terminal session just type `tests`.
 
@@ -566,9 +578,9 @@ All checks should be performed using standard TUI pipeline commands:
 		Must report `Failed: 0` and `RESULT: SUCCESS`. The emulator runs the
 		release VP64 image, which has no error checks or signals, so the
 		error tests are counted as `Skipped`, and the summary says why. To
-		run them under the emulator build the debug VP64 image with
-		`make vp` first, which gives `Skipped: 0`, then restore the release
-		image with `make it`.
+		run them under the emulator build every image with the checks in,
+		`make it debug`, and again with `make it validate`. Both must give
+		`Skipped: 0`. Then restore the release image with `make it`.
 
 9.	**Multi-Instance Network Link & Cluster Tests (Both Native and -e Modes):**
 	Verify distributed node discovery, connection, remote task dispatch, auto-discovery,

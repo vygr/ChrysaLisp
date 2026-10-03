@@ -71,6 +71,13 @@ of range to `(slice)`, and any bad argument to `(<<)`, `(>>)` or `(>>>)`,
 crashed an error checked build rather than throw, as their error paths were
 passing the wrong register to `:lisp :repl_error`.
 
+Five more edge case modules, for iteration, flow and binding, collections,
+vectors with fixeds and reals, and streams, take the suite to 2457 tests.
+`(nums-sum)` of an empty vector crashed an error checked build, it now
+throws, as the other vector functions do. `(sort)`, `(usort)` and `(shuffle)`
+use positional `%0` argument names. Note the default compare for `(sort)` is
+`cmp`, so is for strings, numbers need a compare function given.
+
 Fixed a memory leak in `:lisp :read`. The "missing )" and "unexpected )"
 error paths never freed the part read form.
 

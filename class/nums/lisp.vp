@@ -314,6 +314,11 @@
 	(entry :nums :lisp_sum '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
+(errorcase
+	;an empty vector has no sum, as with the other vector ops
+	(array-bind-args :r1 '(:r2))
+	(assign '((:r2 +array_length)) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))

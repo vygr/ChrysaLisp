@@ -1410,6 +1410,8 @@ adjust text offset
 
 ```code
 (sort list [fcmp start end]) -> list
+
+the default fcmp is cmp, which is for strings
 ```
 
 ### start

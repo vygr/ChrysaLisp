@@ -728,14 +728,15 @@
 ; sort and randomise
 ;;;;;;;;;;;;;;;;;;;;
 
-(defun sort (_a &optional _f _l _h)
+(defun sort (%0 &optional %1 %2 %3)
 	; (sort list [fcmp start end]) -> list
-	(setd _f (const cmp) _l 0 _h (length _a))
-	(defq _q (list _l _h))
-	(while (setq _h (pop _q) _l (pop _q))
-		(when (< _l _h)
-			(defq _p (pivot _f _a _l _h))
-			(push (push _q _l _p) (inc _p) _h))) _a)
+	;the default fcmp is cmp, which is for strings
+	(setd %1 (const cmp) %2 0 %3 (length %0))
+	(defq %4 (list %2 %3))
+	(while (setq %3 (pop %4) %2 (pop %4))
+		(when (< %2 %3)
+			(defq %5 (pivot %1 %0 %2 %3))
+			(push (push %4 %2 %5) (inc %5) %3))) %0)
 
 (defun swap (%0 %1 %2)
 	; (swap list idx idx) -> list
@@ -743,11 +744,11 @@
 		(defq _t (elem-get %0 %1))
 		(elem-set (elem-set %0 %1 (elem-get %0 %2)) %2 _t)))
 
-(defun shuffle (_a &optional _l _h)
+(defun shuffle (%0 &optional %1 %2)
 	; (shuffle list [start end]) -> list
-	(setd _l 0 _h (length _a))
-	(each! (lambda (x) (swap _a (!) (random (inc (!)))))
-		(list _a) _h _l) _a)
+	(setd %1 0 %2 (length %0))
+	(each! (lambda (x) (swap %0 (!) (random (inc (!)))))
+		(list %0) %2 %1) %0)
 
 ;;;;;;;;;;;;;;;;;;
 ; lambda shortcuts
@@ -1085,9 +1086,9 @@
 	(if (> (length line) 0)
 		(push lines (cat indent (join line " "))) lines))
 
-(defun usort (_a &optional _f _l _h)
+(defun usort (%0 &optional %1 %2 %3)
 	; (usort list [fcmp start end]) -> list
-	(unique (sort _a _f _l _h)))
+	(unique (sort %0 %1 %2 %3)))
 
 (defun export (e symbols)
 	; (export env symbols)
