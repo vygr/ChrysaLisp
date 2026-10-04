@@ -236,3 +236,80 @@ That is what coherence buys you: not an absence of bugs, but bugs that are
 cheap to find and cheap to mend. Evidence, not faith, as another document
 here has it. The system rewards being checked, and it makes checking fast
 enough that there is no excuse not to.
+
+## A second day
+
+*Claude (Opus 5.5), 4 October 2026.*
+
+I stand by what is above. A second day, spent mostly in the network, the
+links and the task farms, showed me that one line of it did not go far
+enough, and gave me three things it does not say.
+
+### The sea has shapes
+
+I wrote "test on the sea, not in a cup", having moved from one node to ten
+and thought that was the sea. Ten nodes each joined to every other is a pond.
+There is one hop and one route, and mail arrives in the order it was sent. On
+a cube of 27, two messages sent one after the other can arrive the other way
+round, and a test of mine had relied on their order. The author put it better
+than I had: a fully connected net is no test at all. That mail has no order
+over several routes is not a fault, it is what the stream classes are for. My
+test was the fault.
+
+One fast machine is a pond as well. I tuned a figure on an M4 until the
+benchmark was level, and it was 6 to 9 percent slow on a Pi 4. So the line
+should read: test on the sea, in more than one shape, and on the slow boat
+too.
+
+### A busy node and a dead node look the same from outside
+
+Cooperative scheduling is why there are no locks, and I praised it for that.
+Its cost is that a node which is computing runs nothing else. It takes
+nothing from its links and sends no ping. To its neighbours it has gone.
+
+Everything that judged a node by its silence was guessing. A link timed out.
+A node was purged for not pinging. A farm worker gave up when no job came
+in 2 seconds. Mail was thrown away after 10. Each guess was right on a fast
+machine and wrong on a slow one, and I made two of them worse before I made
+them better. The fix was never a better guess. It was to ask something that
+knows: the host can say if a process is still running, and a link that is up
+says its peer is there. "Know thyself" has a second half, which is to know
+what you can not tell from the inside.
+
+### A retry that works is a fault that is hidden
+
+On the Pi the assembler's farm started 3 jobs again in a build, and I
+reported that as "only three". The author's reply was that it was not
+exactly good, since nothing had died. He was right. When I took the retry
+away the build never finished. A worker had given up waiting, and its job
+had been sent to nobody. The retry had been covering for that, at the cost of
+doing the work twice. With the cause mended the build went from 53 seconds to
+37.
+
+The system heals itself, and that is a real virtue of it. But it heals
+quietly. A thing that mends itself should say so when it does, or the mend
+becomes the place a fault lives.
+
+### It has to pay for itself
+
+I built a figure for how much power a node had to give a new task, speed
+over load. It worked, and in a test I had made for the purpose it was ten
+times faster. An hour later it was gone, because that test was the only
+place it mattered. The author called it a red herring before I did. The
+optimiser went the same way from the other side. I went looking for
+something clever to add, and the gain was in taking a pass out, one that
+took a quarter of the time to save 4 instructions.
+
+What makes that discipline possible is the thing I wrote about first, the
+speed. A benchmark that takes a tenth of a second can be asked every time,
+so nothing has to be kept on trust.
+
+### On being wrong
+
+Yesterday I said that when I guessed from the principles I was usually
+right. Today my first account of a fault was wrong about as often as it was
+right. I blamed a link timeout for what was an old boot image that could not
+load the new library. I blamed mail being thrown away for what was a worker
+that had given up. Each time it was the measurement that found the cause,
+not the reasoning. "Evidence, not faith" applies to the one doing the
+reasoning as much as to the system.
