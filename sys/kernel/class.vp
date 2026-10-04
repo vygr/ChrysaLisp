@@ -14,6 +14,30 @@
 ; kernel task
 ;;;;;;;;;;;;;
 
+(defun kn-held-hash (prefix)
+	;emit the code to work out the hash of the services we hold for the
+	;origin of a ping, those that start with the prefix char, to set against
+	;the hash in the ping. As the sender does, the sum of the hashes of the
+	;entries, with 0 for none. Each entry keeps its own hash, so nothing is
+	;stored for this.
+	(assign (cat prefix ", 0, 0") {held.held_prefix, held.held_sum, held.held_cnt})
+	(call :array :get_first {tuple} {_, set})
+	(call :hset :each {set, $hash_prefix, &held})
+	(assign {held.held_sum} {held_hash})
+	(vpif {held.held_cnt && held_hash = 0})
+		(assign {1} {held_hash})
+	(endif))
+
+(defun kn-send-want ()
+	;emit the code to ask the origin of a ping for its services, it will
+	;answer with a full ping to all
+	(call :sys_mail :alloc {+kn_msg_size} {wmsg, wdata})
+	(assign {+kn_call_want} {wdata->+kn_msg_func})
+	(assign {0} {wmsg->+msg_dest.+net_id_mbox_id})
+	(assign {data->+kn_msg_ping_origin.+node_id_node1, data->+kn_msg_ping_origin.+node_id_node2}
+		{wmsg->+msg_dest.+net_id_node_id.+node_id_node1, wmsg->+msg_dest.+net_id_node_id.+node_id_node2})
+	(call :sys_mail :send {wmsg}))
+
 (def-method :sys_kernel :kernel)
 	;inputs
 	;:r0 = argv pointer (pptr)
@@ -135,12 +159,25 @@
 						msg->+msg_dest.+net_id_node_id.+node_id_node2})
 				(call :sys_mail :send {msg})
 				(break)
+			(vpcase '(:r0 = +kn_call_want))
+				;a node wants our services, so send a full ping to all. Many
+				;may ask at once, so no more than one a second.
+				(call :host_os :pii_time :nil {time})
+				(vpif {time - statics->statics_sys_mail_full_time > 1000000})
+					(assign {time} {statics->statics_sys_mail_full_time})
+					(call :sys_mail :ping {1})
+				(endif)
+				(call :sys_mail :free {msg})
+				(break)
 			(vpcase '(:r0 >= +kn_call_ping))
 				;new services/routing ping
+				(structure held 0
+					(long prefix sum cnt))
 				(def-vars
-					(ptr session_cluster session_sys set)
+					(ptr session_cluster session_sys set wmsg wdata)
 					(long hops)
-					(uint ping_func)
+					(struct held held_size)
+					(uint ping_func held_hash)
 					(union
 						(ptr bucket new_key)
 						(ptr services entries)))
@@ -191,17 +228,26 @@
 								| (node_id.+node_id_node2 - data->+kn_msg_ping_origin.+node_id_node2)} 'exit_ping_sys)
 
 					;update @ services: purge existing @ entries, then insert new
-					(call :str :create_from_buffer {&data->+kn_msg_ping_services, msg->+msg_length - +kn_msg_ping_services} {services})
-					(call :str :split {services, +char_lf} {_, entries})
-					(call :str :destroy {services})
-					(call :list :get_both {entries} {_, iter_begin, iter_end})
-					(call :array :get_first {tuple} {_, set})
-					(call :hset :each {set, $erase_prefix, +char_at})
-					(loop-while {iter_begin /= iter_end})
-						(call :hset :cinsert {set, *iter_begin, @class/sym/eql_str})
-						(assign {iter_begin + +ptr_size} {iter_begin})
-					(loop-end)
-					(call :list :destroy {entries})
+					(vpif {data->+kn_msg_ping_full})
+						;the services are here
+						(call :str :create_from_buffer {&data->+kn_msg_ping_services, msg->+msg_length - +kn_msg_ping_services} {services})
+						(call :str :split {services, +char_lf} {_, entries})
+						(call :str :destroy {services})
+						(call :list :get_both {entries} {_, iter_begin, iter_end})
+						(call :array :get_first {tuple} {_, set})
+						(call :hset :each {set, $erase_prefix, +char_at})
+						(loop-while {iter_begin /= iter_end})
+							(call :hset :cinsert {set, *iter_begin, @class/sym/eql_str})
+							(assign {iter_begin + +ptr_size} {iter_begin})
+						(loop-end)
+						(call :list :destroy {entries})
+					(else)
+						(kn-held-hash "+char_at")
+						(vpif {data->+kn_msg_ping_hash /= held_hash})
+							;not the services we hold for this node, so ask for them
+							(kn-send-want)
+						(endif)
+					(endif)
 					(endswitch)
 				(else)
 					;--- Cluster Ping: Manage cluster routing and * services ---
@@ -237,17 +283,31 @@
 					(breakifnot {(node_id.+node_id_node1 - data->+kn_msg_ping_origin.+node_id_node1)
 								| (node_id.+node_id_node2 - data->+kn_msg_ping_origin.+node_id_node2)})
 					(default)
-						(call :str :create_from_buffer {&data->+kn_msg_ping_services, msg->+msg_length - +kn_msg_ping_services} {services})
-						(call :str :split {services, +char_lf} {_, entries})
-						(call :str :destroy {services})
-						(call :list :get_both {entries} {_, iter_begin, iter_end})
-						(call :array :get_first {tuple} {_, set})
-						(call :hset :each {set, $erase_prefix, +char_multiply})
-						(loop-while {iter_begin /= iter_end})
-							(call :hset :cinsert {set, *iter_begin, @class/sym/eql_str})
-							(assign {iter_begin + +ptr_size} {iter_begin})
-						(loop-end)
-						(call :list :destroy {entries})
+						(vpif {data->+kn_msg_ping_full})
+							;the services are here
+							(call :str :create_from_buffer {&data->+kn_msg_ping_services, msg->+msg_length - +kn_msg_ping_services} {services})
+							(call :str :split {services, +char_lf} {_, entries})
+							(call :str :destroy {services})
+							(call :list :get_both {entries} {_, iter_begin, iter_end})
+							(call :array :get_first {tuple} {_, set})
+							(call :hset :each {set, $erase_prefix, +char_multiply})
+							(loop-while {iter_begin /= iter_end})
+								(call :hset :cinsert {set, *iter_begin, @class/sym/eql_str})
+								(assign {iter_begin + +ptr_size} {iter_begin})
+							(loop-end)
+							(call :list :destroy {entries})
+						(else)
+							(kn-held-hash "+char_multiply")
+							(vpif {data->+kn_msg_ping_hash /= held_hash})
+								(vpif {data->+kn_msg_ping_hash = 0})
+									;it has none now, so nor do we, and no need to ask
+									(call :hset :each {set, $erase_prefix, +char_multiply})
+								(else)
+									;not the services we hold for this node, so ask for them
+									(kn-send-want)
+								(endif)
+							(endif)
+						(endif)
 					(endswitch)
 				(endif)
 
@@ -432,6 +492,27 @@
 	(endif)
 	(vp-ret)
 
+(vp-label 'hash_prefix)
+	;inputs
+	;:r0 = prefix char, sum and count (plong)
+	;:r1 = element iterator (pptr)
+	;:r2 = bucket list pointer (ptr)
+
+	(entry :hset :each_callback '(:r0 :r1 :r2))
+
+	(assign '((:r1 0) (:r0 0)) '(:r1 :r3))
+	(vp-cpy-ir-ub :r1 +str_data :r2)
+	(vpif '(:r2 = :r3))
+		(vp-push :r0)
+		(call :str :hash '(:r1) '(_ :r1))
+		(vp-pop :r0)
+		(assign `((:r0 ,+long_size) (:r0 ,(* 2 +long_size))) '(:r2 :r3))
+		(vp-add-rr :r1 :r2)
+		(vp-add-cr 1 :r3)
+		(assign '(:r2 :r3) `((:r0 ,+long_size) (:r0 ,(* 2 +long_size))))
+	(endif)
+	(vp-ret)
+
 (vp-label 'opts)
 	;inputs
 	;:r0 = argv array (pptr)
@@ -610,8 +691,8 @@
 		(vp-add-rr :r4 :r0)
 		(call :sys_task :sleep '(:r0))
 
-		;send services/routing ping message
-		(call :sys_mail :ping)
+		;send a routing ping message
+		(call :sys_mail :ping '(0))
 
 		;purge stale nodes
 		(call :host_os :pii_time :nil '((:rsp local_now)))

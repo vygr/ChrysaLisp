@@ -560,6 +560,7 @@
 		(call :hset :create `(1) {set})
 		(call :array :push_back2 {tuple, set, 0})
 		(call :array :push_back2 {tuple, -1, -1})
+		(call :array :push_back {tuple, -1})
 		(call :list :push_back2 {bucket, key, tuple})
 	(else)
 		(assign {tuple[+ptr_size]} {tuple})
@@ -570,7 +571,7 @@
 	(call :array :get_first {tuple} {_, set})
 	(call :sys_mail :service {name, id, info} {name})
 	(call :hset :cinsert {set, name, @class/sym/eql_str})
-	(call :sys_mail :ping)
+	(call :sys_mail :ping {1})
 
 	(exit :sys_mail :declare {name})
 	(pop-scope)
@@ -641,7 +642,7 @@
 	;find in service map and erase
 	(fn-bind 'sys/statics/statics :r1)
 	(call :hmap :each '((:r1 statics_sys_mail_node_map) ($ callback) :r0))
-	(jump :sys_mail :ping)
+	(jump :sys_mail :ping '(1))
 
 (vp-label 'callback)
 	;inputs
@@ -662,22 +663,56 @@
 
 (def-func-end)
 
+(defun ping-send (entries func)
+	;emit the code to hash, build and send the ping for a list of services.
+	;The hash of the list is the sum of the hashes of its entries, so the
+	;order they are held in does not matter, and 0 is kept for no services.
+	;The list is entry, line feed, entry, line feed...
+	(assign (cat func ", 0, 0") {func_type, hash, any})
+	(call :list :get_both entries {_, iter_begin, iter_end})
+	(loop-while {iter_begin /= iter_end})
+		(call :str :hash {*iter_begin} {_, h})
+		(assign {hash + h, 1} {hash, any})
+		(assign {iter_begin + +ptr_size * 2} {iter_begin})
+	(loop-end)
+	(vpif {any && hash = 0})
+		(assign {1} {hash})
+	(endif)
+	;the services follow the header only in a full ping
+	(call :str :cat (cat "cat.cat_lf, " entries) {services})
+	(assign {0} {body})
+	(vpif {full})
+		(assign {services->+str_length} {body})
+	(endif)
+	(call :sys_mail :alloc {+kn_msg_ping_services + body} {msg, data})
+	(assign {msg, data, key, statics, func_type, hash, full} '(:r0 :r1 :r5 :r7 :r6 :r9 :r10))
+	(vp-call 'ping_header)
+	(vpif {body})
+		(call :sys_mem :copy {&services->+str_data, &data->+kn_msg_ping_services, body})
+	(endif)
+	(call :sys_mail :send {msg})
+	(call :str :destroy {services}))
+
 (def-method :sys_mail :ping)
+	;inputs
+	;:r0 = 0 for a routing ping, else a full ping with the services (uint)
 	;trashes
 	;:r0-:r14, :f0-:f15
 	;info
-	;ping services out to network (cluster * and system @)
+	;ping out to network (cluster * and system @). A routing ping holds a
+	;hash of the services, a node that does not have them will ask.
 
 	(structure cat 0
 		(ptr entries_global entries_sys lf))
 
 	(def-vars
 		(ptr key bucket set msg data services statics)
-		(pptr tuple)
+		(pptr tuple iter_begin iter_end)
 		(struct cat cat_size)
-		(uint func_type))
+		(uint func_type full hash body any h))
 
 	(push-scope)
+	(entry :sys_mail :ping {full})
 
 	(call :nodeid :create {@sys/statics/statics.statics_sys_task_kernel_node_id} {key})
 	(assign {@sys/statics/statics} {statics})
@@ -691,34 +726,21 @@
 		(call :hset :each {set, $callback, &cat})
 
 		;1. Send cluster ping (*)
-		(assign {+kn_call_ping} {func_type})
-		(call :str :cat {cat.cat_lf, cat.cat_entries_global} {services})
-		(call :sys_mail :alloc {+kn_msg_ping_services + services->+str_length} {msg, data})
-		(assign {msg, data, key, statics, func_type} '(:r0 :r1 :r5 :r7 :r6))
-		(vp-call 'ping_header)
-		(call :sys_mem :copy {&services->+str_data, &data->+kn_msg_ping_services, services->+str_length})
-		(call :sys_mail :send {msg})
-		(call :str :destroy {services})
+		(ping-send "cat.cat_entries_global" "+kn_call_ping")
 
 		;2. Send system ping (@) if any system-local services exist
 		(vpif {cat.cat_entries_sys->+array_length})
-			(assign {+kn_call_ping_sys} {func_type})
-			(call :str :cat {cat.cat_lf, cat.cat_entries_sys} {services})
-			(call :sys_mail :alloc {+kn_msg_ping_services + services->+str_length} {msg, data})
-			(assign {msg, data, key, statics, func_type} '(:r0 :r1 :r5 :r7 :r6))
-			(vp-call 'ping_header)
-			(call :sys_mem :copy {&services->+str_data, &data->+kn_msg_ping_services, services->+str_length})
-			(call :sys_mail :send {msg})
-			(call :str :destroy {services})
+			(ping-send "cat.cat_entries_sys" "+kn_call_ping_sys")
 		(endif)
 
 		(call :list :destroy {cat.cat_entries_global})
 		(call :list :destroy {cat.cat_entries_sys})
 		(call :str :destroy {cat.cat_lf})
 	(else)
-		(assign {+kn_call_ping} {func_type})
+		;no services at all
+		(assign {+kn_call_ping, 0} {func_type, hash})
 		(call :sys_mail :alloc {+kn_msg_ping_services} {msg, data})
-		(assign {msg, data, key, statics, func_type} '(:r0 :r1 :r5 :r7 :r6))
+		(assign {msg, data, key, statics, func_type, hash, full} '(:r0 :r1 :r5 :r7 :r6 :r9 :r10))
 		(vp-call 'ping_header)
 		(call :sys_mail :send {msg})
 	(endif)
@@ -728,7 +750,11 @@
 	(assign '((:r7 statics_sys_mail_session) 0) '(:r8 :r2))
 	(vp-add-cr 1 :r8)
 	(assign '(:r8) '((:r7 statics_sys_mail_session)))
-	(assign '(:r6 :r8 :r2) `((:r1 ,+kn_msg_ping_func) (:r1 ,+kn_msg_ping_session) (:r1 ,+kn_msg_ping_hops)))
+	(assign '(:r6) `((:r1 ,+kn_msg_ping_func)))
+	(vp-cpy-ri-i :r8 :r1 +kn_msg_ping_session)
+	(vp-cpy-ri-i :r2 :r1 +kn_msg_ping_hops)
+	(vp-cpy-ri-i :r9 :r1 +kn_msg_ping_hash)
+	(vp-cpy-ri-i :r10 :r1 +kn_msg_ping_full)
 	(load-node-id :r5 +str_data)
 	(save-net-id :r0 +msg_dest)
 	(save-node-id :r1 +kn_msg_ping_origin)

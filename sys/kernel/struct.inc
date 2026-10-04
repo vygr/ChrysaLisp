@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (enums +kn_call 0
-	(enum exit callback signal pin run ping ping_sys))
+	(enum exit callback signal pin run want ping ping_sys))
 
 ;;;;;;;;;;;;;;;;;;
 ; kernel mail data
@@ -26,4 +26,6 @@
 	(long func)
 	(nodeid via origin)
 	(uint session hops)
+	;a hash of the origin's services, 0 for none, and if the services follow
+	(uint hash full)
 	(offset services))

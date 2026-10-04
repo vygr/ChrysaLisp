@@ -183,10 +183,13 @@ never breaks out
 ### :ping -> sys/mail/ping
 
 ```code
+inputs
+:r0 = 0 for a routing ping, else a full ping with the services (uint)
 trashes
 :r0-:r14, :f0-:f15
 info
-ping services out to network (cluster * and system @)
+ping out to network (cluster * and system @). A routing ping holds a
+hash of the services, a node that does not have them will ask.
 ```
 
 ### :poll -> sys/mail/poll

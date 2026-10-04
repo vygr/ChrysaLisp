@@ -24,6 +24,8 @@
 	;sys_mail statics
 	(uint sys_mail_session sys_mail_next_mbox_id)
 	(ptr sys_mail_links_array sys_mail_node_map sys_mail_out_mbox_addr)
+	;when a full ping was last sent in answer to a want
+	(long sys_mail_full_time)
 	(struct sys_mail_msg_heap +hp_heap_size)
 	(struct sys_mail_mbox_heap +hp_heap_size)
 	;keep these together

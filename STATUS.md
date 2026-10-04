@@ -216,6 +216,26 @@ overrun !` and the stack dump. The dump shows who freed the cell, not who
 wrote on it. A double free now reports the same way, `Double free !` and
 the dump. Writing a wrong guard on purpose trips the check on every free.
 
+The routing ping no longer carries a node's services. It holds a hash of
+them, the sum of the hash each entry string already keeps, so the order
+they are held in does not matter, with 0 for none. A node that gets a ping
+adds up the entries it holds for that origin, and if the two differ it asks
+the origin, with the new kernel call `+kn_call_want`. The origin answers
+with a full ping to all, services and hash, and no more than one a second
+however many ask. `declare` and `forget` still send a full ping at once, so
+a change spreads without anyone having to ask. A ping is now a fixed size,
+whatever services a node has, and a service list crosses the network once,
+when it changes.
+
+On the networks to hand it saves nothing, there are too few `*` services
+for the lists to have cost much. A full mesh of 20 forwards about 730 pings
+a node every 5 seconds, 92KB, before and after. That cost is the flood
+itself, and is the next thing to go at. The slots of a node's entry in the
+node map now have names, in `sys/mail/class.inc`. New test,
+`tests/system/test_services.lisp`. Checked on a full mesh, a cube of 27, a
+ring of 12 and a tree of 15. The ping message has changed, so every machine
+on a network must have this build.
+
 The lock service gives a node that drops out of the routes 5 seconds to
 come back before it is taken to have died. A lock test failed once, a claim
 on a free key was not granted within its 2 seconds, and then passed in the
