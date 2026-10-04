@@ -15,8 +15,11 @@
 ;msg lk_data_size area max size when allocated as a string object
 ;allowing for heap pointer and null byte, rounded down for faster memcpy
 ;and fitted into an entire memory cell, 6104 ATM
+;a peer that takes nothing from the link for the timeout is taken to be
+;down. An emulated node runs some 10 times slower, so is given longer.
 (defq lk_page_size 4096 lk_sleep_min 100 lk_sleep_max 800 lk_bufs_per_chan 5
-	lk_timeout 3000000 lk_timeout_max 60000000 lk_beat 1000000 lk_stall 100000
+	lk_timeout (if (eql *cpu* 'vp64) 30000000 3000000)
+	lk_timeout_max 60000000 lk_beat 1000000 lk_stall 100000
 	lk_data_size  (some! (lambda (%0) (if (>= %0 lk_page_size)
 		(- %0 +str_size +long_size +sys_mem_header_size))) (list +mem_heap_cell_sizes)))
 

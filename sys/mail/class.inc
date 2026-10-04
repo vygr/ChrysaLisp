@@ -58,10 +58,12 @@
 ;for each node it knows of, and no less than the min stagger, so the rate
 ;of the answers does not grow with the network. A node not heard from in
 ;the spread plus the window is purged. A node is also purged if not heard
-;from in twice the period its last ping gave, plus the slack.
+;from in twice the period its last ping gave, plus the slack. An emulated
+;node runs some 10 times slower, so the window and the slack are longer.
 (defcvar 'ping_period_min 1000000 'ping_period_max 64000000 'ping_tick 100000
-	'ping_stagger 50000 'ping_stagger_min 1000000 'ping_window 3000000
-	'ping_slack 2000000 'ping_stall 1000000)
+	'ping_stagger 50000 'ping_stagger_min 1000000
+	'ping_window (if (eql *cpu* 'vp64) 30000000 3000000)
+	'ping_slack (if (eql *cpu* 'vp64) 20000000 2000000) 'ping_stall 1000000)
 (defcvar 'num_mbox_buckets 8)
 
 ;useful helpers for net_id and node_id
