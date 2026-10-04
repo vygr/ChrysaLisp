@@ -42,6 +42,7 @@
 ;one line, every gap of its lowest weight is broken, so each body form has a
 ;line of its own. The flags change that.
 ;	:fill, no, it breaks only where a line runs out, as bindings do.
+;	:even, with :fill, it breaks where the two lines come out most even.
 ;	:pairs, the last two weights take turns, for a value then a name.
 ;	:one, with two or more of the last arguments, the form is always broken.
 ;	:clauses, an argument that always breaks is a clause, with that rule.
@@ -55,16 +56,16 @@
 (defq +rules (Fmap 101) +blocks (Fmap 31))
 
 (enums +r 0
-	(enum weights low one fill pairs clauses))
+	(enum weights low one fill pairs clauses even))
 
 (defun rule (ops ws &rest flags)
 	;a rule is kept as (weights low one fill pairs clauses), all worked out
 	;here, the once, so that applying a rule is only a matter of looking
 	(defq nums (filter (# (num? %0)) ws)
 		rule (list ws (if (nempty? nums) (reduce (# (min %0 %1)) nums))
-				(if (find :one flags) :t)
-				(if (find :fill flags) :t)
-				(if (find :pairs flags) :t) (if (find :clauses flags) :t)))
+				(if (find :one flags) :t) (if (find :fill flags) :t)
+				(if (find :pairs flags) :t) (if (find :clauses flags) :t)
+				(if (find :even flags) :t)))
 	(each (# (. +rules :insert %0 rule)) (words ops)))
 
 ;definitions, the name and arguments stay on the opening line
@@ -100,7 +101,7 @@
 (rule "host-gui-call host-audio-call deffimethod defgetmethod" '(-))
 (rule "defsetmethod defproxymethod" '(-))
 ;any other call, and a list of data
-(rule "call" '(9 7) :fill)
+(rule "call" '(9 7) :fill :even)
 (rule "list" '(4) :fill)
 ;a quoted list is data, and wraps easily
 (rule "data" '(4) :fill)
@@ -612,8 +613,10 @@
 									((not fit) (first pool))
 									;every such gap is going to break, so the first
 									((not (elem-get rule +r_fill)) (first pool))
-									;bindings are filled, as many to a line as fit
-									((or (elem-get rule +r_pairs) (empty? even)) (last pool))
+									;most that fill take as much as fits on the line
+									((or (not (elem-get rule +r_even))
+										(empty? even))
+										(last pool))
 									;else where the two lines come out most even
 									(:t
 										(reduce (# (if (<= (elem-get %1 5) (elem-get %0 5)) %1 %0)) even)))))

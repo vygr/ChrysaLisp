@@ -196,9 +196,8 @@
 		(defq text (load file) once (format-lisp text :nil (ends-with ".vp" file)))
 		(assert-eq (cat file ", same tokens") :t (eql (fm-squash text) (fm-squash once)))
 		(assert-eq (cat file ", second pass") :t (eql once (format-lisp once :nil (ends-with ".vp" file)))))
-	'("class/lisp/root.inc"
-		"lib/text/buffer.inc"
-		"sys/heap/class.vp" "gui/region/class.vp" "apps/tui/tui.lisp" "lib/asm/vp.inc"))
+	'("class/lisp/root.inc" "lib/text/buffer.inc" "sys/heap/class.vp"
+		"gui/region/class.vp" "apps/tui/tui.lisp" "lib/asm/vp.inc"))
 
 ; --- fmt formats itself, and finds nothing to do ---
 (each (lambda (file)
