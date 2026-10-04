@@ -309,7 +309,10 @@ that is itself a jump or a return, 11 branches over a jump, and 23 dead
 writes and copies that would need liveness, which a JIT can not afford. A
 bound on how far back a scan looks gains nothing, a scan stops at a label
 or a call soon enough. A test for the nop before a lookup was slower than
-letting the lookup miss.
+letting the lookup miss. Better than either, `emit-vp-nop`, the nop the
+optimiser puts in place of what it removes, is now in `+vp_emit_ops`, so it
+has its slot, with nothing in it, in every map of the ops, and a lookup of
+it is a hit on its cached slot, not a search of the whole map and a miss.
 
 A node now tells its neighbours its load, not just how many tasks it has,
 and a new task goes to the neighbour with the least. A count of tasks is not

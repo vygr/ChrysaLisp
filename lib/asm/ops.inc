@@ -23,4 +23,8 @@
 	emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff emit-sqrt-ff
 	emit-abs-ff emit-neg-ff emit-cpy-ff emit-cvt-rf emit-cvt-fr emit-cpy-rf
 	emit-cpy-fr emit-cpy-if emit-cpy-fi emit-cpy-df emit-cpy-fd
+	;the nop the VP optimiser puts in place of an instruction it removes. It
+	;is never emitted, but it is looked up, so it has its slot in every map
+	;of the ops, or each lookup of it would search the whole map, and miss.
+	emit-vp-nop
 ))

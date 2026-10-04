@@ -97,8 +97,7 @@
 		(idx (eql ,r (elem-get ,inst idx))))))
 
 (defmacro trashes? (r inst info)
-	;as trashes-reg?, with the info of the op to hand. The nop an
-	;instruction is replaced by is not a VP op, so has no info.
+	;as trashes-reg?, with the info of the op to hand
 	(static-qqp (cond
 		((eql (defq idx (first ,info)) :multi) (uses? ,r ,inst))
 		(idx (eql ,r (elem-get ,inst idx))))))
@@ -113,8 +112,7 @@
 			(setq c 1) (!))
 		((and (eql rop (first inst)) (eql b (second inst)) (nql b (last inst)) (= i (third inst)))
 			(setq c 3) (!))
-		((not (defq info (pfind +opt_info_map (first inst)))) :nil)
-		((trashes? b inst info) -1)
+		((trashes? b inst (defq info (pfind +opt_info_map (first inst)))) -1)
 		((second info))))
 
 (defun find-past-w (_ rop1 rop2 wop b i)
@@ -122,15 +120,13 @@
 		((and (eql wop (first inst)) (eql b (third inst)) (= i (last inst))) (!))
 		((and (or (eql rop1 (first inst)) (eql rop2 (first inst)))
 			(eql b (second inst)) (nql b (last inst)) (= i (third inst))) -1)
-		((not (defq info (pfind +opt_info_map (first inst)))) :nil)
-		((trashes? b inst info) -1)
+		((trashes? b inst (defq info (pfind +opt_info_map (first inst)))) -1)
 		((third info))))
 
 (defun find-past-rr (_ rs rd)
 	(find-past
 		((lmatch? inst `(emit-cpy-rr ,rs ,rd)) (!))
-		((not (defq info (pfind +opt_info_map (first inst)))) :nil)
-		((trashes? rs inst info) -1)
+		((trashes? rs inst (defq info (pfind +opt_info_map (first inst)))) -1)
 		((trashes? rd inst info) -1)
 		((second info))))
 
@@ -143,8 +139,7 @@
 (defun find-past-cr (_ rd)
 	(find-past
 		((lmatch? inst `(emit-cpy-cr _ ,rd)) (!))
-		((not (defq info (pfind +opt_info_map (first inst)))) :nil)
-		((trashes? rd inst info) -1)
+		((trashes? rd inst (defq info (pfind +opt_info_map (first inst)))) -1)
 		((second info))))
 
 (defun opt-read-after-read-write ()
