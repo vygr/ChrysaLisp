@@ -121,7 +121,7 @@
 		(ptr lk_node msg data rx head)
 		(nodeid node_id)
 		(long is_owner)
-		(uint length status sleep_time))
+		(uint length status sleep_time quiet))
 
 	(push-scope)
 
@@ -142,7 +142,7 @@
 	(else)
 		(assign {rx + lk_shmem_chan_1} {rx})
 	(endif)
-	(assign {rx, lk_sleep_min} {head, sleep_time})
+	(assign {rx, lk_sleep_min, 0} {head, sleep_time, quiet})
 
 	;read messages from the shared buffer
 	(loop-start)
@@ -172,7 +172,7 @@
 				(assign {lk_chan_status_ready} {head->lk_buf_status})
 			(elseif {status = lk_chan_status_frag})
 				;reset to min poling
-				(assign {lk_sleep_min} {sleep_time})
+				(assign {lk_sleep_min, 0} {sleep_time, quiet})
 
 				;is this msg part of a parcel for this node
 				(vpif {head->lk_buf_size.lk_frag_total
@@ -231,12 +231,19 @@
 		(loop-end)
 
 		;small sleep as nothing to do
-		(vp-rdef (sleep_time))
+		;the sleep doubles, to lk_sleep_max, so mail goes through quickly
+		;while there is some. A link that has had none for lk_quiet sleeps
+		;goes on to lk_sleep_idle, an idle network should not be busy.
 		(call :sys_task :sleep {sleep_time})
-		(assign {sleep_time} `(,sleep_time))
-		(vp-shl-cr 1 sleep_time)
-		(vp-min-cr lk_sleep_max sleep_time)
-		(assign `(,sleep_time) {sleep_time})
+		(assign {sleep_time << 1, quiet + 1} {sleep_time, quiet})
+		(vpif {quiet > lk_quiet})
+			(assign {lk_quiet + 1} {quiet})
+			(vpif {sleep_time > lk_sleep_idle})
+				(assign {lk_sleep_idle} {sleep_time})
+			(endif)
+		(elseif {sleep_time > lk_sleep_max})
+			(assign {lk_sleep_max} {sleep_time})
+		(endif)
 
 		;exit if link closed
 		(breakif {lk_node->lk_node_task_count = -1})
@@ -257,7 +264,7 @@
 		(long is_owner then now beat last gap timeout pid checked)
 		(ptr last_tail)
 		(int free)
-		(uint last_count sleep_time seen down alive drop))
+		(uint last_count sleep_time seen down alive drop quiet))
 
 	(push-scope)
 
@@ -283,7 +290,7 @@
 		(assign {tx + lk_shmem_chan_2} {tx})
 	(endif)
 	(call :host_os :pii_time :nil {then})
-	(assign {tx, tx, lk_sleep_min, 0} {head, tail, sleep_time, last_count})
+	(assign {tx, tx, lk_sleep_min, 0, 0} {head, tail, sleep_time, last_count, quiet})
 	(assign {tx, then, then, 0, 0, lk_timeout} {last_tail, now, beat, seen, down, timeout})
 	(call :host_os :pii_pid :nil {pid})
 	(assign {then, 1} {checked, alive})
@@ -381,7 +388,7 @@
 			(assign `(,msg) {msg})
 
 			;reset to min poling
-			(assign {lk_sleep_min} {sleep_time})
+			(assign {lk_sleep_min, 0} {sleep_time, quiet})
 
 			;copy frag data
 			(vp-rdef (msg tx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
@@ -432,12 +439,19 @@
 		(loop-end)
 
 		;small sleep if nothing to do
-		(vp-rdef (sleep_time))
+		;the sleep doubles, to lk_sleep_max, so mail goes through quickly
+		;while there is some. A link that has had none for lk_quiet sleeps
+		;goes on to lk_sleep_idle, an idle network should not be busy.
 		(call :sys_task :sleep {sleep_time})
-		(assign {sleep_time} `(,sleep_time))
-		(vp-shl-cr 1 sleep_time)
-		(vp-min-cr lk_sleep_max sleep_time)
-		(assign `(,sleep_time) {sleep_time})
+		(assign {sleep_time << 1, quiet + 1} {sleep_time, quiet})
+		(vpif {quiet > lk_quiet})
+			(assign {lk_quiet + 1} {quiet})
+			(vpif {sleep_time > lk_sleep_idle})
+				(assign {lk_sleep_idle} {sleep_time})
+			(endif)
+		(elseif {sleep_time > lk_sleep_max})
+			(assign {lk_sleep_max} {sleep_time})
+		(endif)
 
 		;if I have not run for a while, this node was busy, or was
 		;stopped, that time says nothing about the peer

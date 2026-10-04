@@ -292,6 +292,22 @@ later, a second for the host to say so, and the spread and window of the
 kick. All the nodes of a machine must have this build, the link's status
 has changed, the ping between machines has not.
 
+An idle network burns far less. A link's tasks polled every 0.8ms when
+there was nothing to do, each of them, so the cost of doing nothing grew
+with the links a node has. A fully connected 27 took 3.76 percent of a core
+for each node, a 5 by 5 mesh of 4 links 1.09, a cube of 27 of 6 links 1.29.
+A link still starts at 0.1ms and doubles to 0.8ms, so mail cuts through
+while there is some, but one that has had no mail for `lk_quiet` sleeps,
+some 50ms, now goes on doubling to `lk_sleep_idle`, 8ms. Any mail puts it
+back. Those 3 networks are now 0.85, 0.22 and 0.27 percent, and `make test`
+is as it was on each, 0.078 seconds, the cube still level with the fully
+connected. Just raising the limit to 8ms made `make test` a quarter slower,
+the links eased off between jobs, and holding the fast stage for a second
+only halved the burn, each routing ping held every link fast. What it does
+cost is that the first mail onto a link gone quiet can wait up to 8ms at
+each end, a task started now and then on another node answers in 8ms where
+it took 1. Measure it with `ps`, the cpu time of each node over 20 seconds.
+
 The generic VP optimiser, `lib/asm/vpopt.inc`, is now one sweep. It looks
 each instruction up once, to see which pass it is for, it was up to 4 maps
 in turn, and each instruction a scan back goes over once, not twice. The
