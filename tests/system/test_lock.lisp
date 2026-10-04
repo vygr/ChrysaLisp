@@ -269,10 +269,14 @@
 (assert-eq "waiting claim, granted on release" :t (le-granted? le_mbox))
 (lock-release-rpc "le/q1")
 
-;a waiting write is not overtaken by a later read
+;a waiting write is not overtaken by a later read. Two messages sent one
+;after the other can arrive the other way round, where there is more than
+;one route between the nodes, so see the write is waiting before the read
+;is sent.
 (le-claim "le/q2" +lock_mode_read)
-(defq le_write (le-ask "le/q2") le_read (le-ask "le/q2" +lock_mode_read))
-(assert-list-eq "queue, both wait" '(:t :t) (list (le-waiting? le_write) (le-waiting? le_read)))
+(defq le_write (le-ask "le/q2") le_write_waits (le-waiting? le_write)
+	le_read (le-ask "le/q2" +lock_mode_read))
+(assert-list-eq "queue, both wait" '(:t :t) (list le_write_waits (le-waiting? le_read)))
 (lock-release-rpc "le/q2")
 (assert-list-eq "queue, write first" '(:t :t) (list (le-granted? le_write) (le-waiting? le_read)))
 (lock-release-rpc "le/q2")
