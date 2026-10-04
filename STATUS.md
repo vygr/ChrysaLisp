@@ -216,6 +216,19 @@ overrun !` and the stack dump. The dump shows who freed the cell, not who
 wrote on it. A double free now reports the same way, `Double free !` and
 the dump. Writing a wrong guard on purpose trips the check on every free.
 
+The Lisp reader no longer pushes a char back into its stream. `:lisp
+:read_num`, on a minus not followed by a digit, used to step the stream
+back one char and jump to `:lisp :read_sym`, which takes the symbol from
+the stream buffer. That is only safe if the char is still in the buffer,
+and no stream type made sure of it. It now reads the rest of the symbol,
+if there is any, and puts the minus in front. It was found by the `fmt`
+work. One formatted file, the same token for token, read `(- ax 24)` as
+`( ax 24)`, every time in a task that had read other files first, and never
+on its own. With the change it reads right every time. No small test was
+found that trips the old reader, so `tests/core/test_reader_minus.lisp`
+checks what a minus reads as, but would not have caught this. The boot
+images change, ARM64 222,124 and VP64 release 152,244.
+
 The `fmt` command has a new engine, in `lib/text/format.inc`, so the editor
 or anything else can call `(format-lisp text)`. The layout is made from the
 code alone, the line breaks inside a form are not kept. Only white space
