@@ -319,7 +319,8 @@ same for `run.sh` and the topology scripts, starts one node, which runs
 are 2 for each processor, and no more than 32, fully connected, and waits
 till they are seen, so the services started next spread over them, they do
 not all end up on the first node. 32 nodes on a 16 processor MacBook are up
-in a third of a second. The PowerShell and batch scripts do not have this
+in a third of a second. `make install` now uses it, the installer ran on 10
+nodes whatever the machine, too many for a Pi4, too few for the MacBook. The PowerShell and batch scripts do not have this
 yet.
 
 Every node now knows which machine every other node is on. The routing ping

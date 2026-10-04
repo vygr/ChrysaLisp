@@ -104,7 +104,7 @@ snapshot:
 		`find obj -name "main_tui.exe"`
 
 inst:
-	@./run_tui.sh -i -e -f
+	@./run_tui.sh -n 0 -i -e -f
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT):	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
 	$(CXX) -o $@ $^ $(SDL_LIBS) $(LDFLAGS)
