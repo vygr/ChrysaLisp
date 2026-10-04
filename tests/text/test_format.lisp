@@ -27,11 +27,11 @@
 	(fm-src "(defun f (a)" "(print a)" "    (if a" "  b" "c))"))
 (fm-keep "a condition carried over is two tabs in"
 	(fm-src "(when (and a" "\t\tb)" "\tc)") (fm-src "(when (and a" "b)" "c)"))
-(fm-keep "a line that carries a form on is indented to just past where the form starts"
+(fm-keep "a form opened inside another on a line is a tab further in, to show whose a line is"
 	(fm-src "(each (lambda (x)" "\t\t(print x))" "\tl)") (fm-src "(each (lambda (x)" "(print x))" "l)"))
-(fm-keep "and so for each form opened on the line" (fm-src "(a (b (c d" "\t\te)" "\tf)" "\tg)")
+(fm-keep "and so on for each form opened on the line" (fm-src "(a (b (c d" "\t\t\te)" "\t\tf)" "\tg)")
 	(fm-src "(a (b (c d" "e)" "f)" "g)"))
-(fm-keep "however far along the line the form starts" (fm-src "(defq a_name (list 1" "\t\t\t\t2)" "\tb 3)")
+(fm-keep "however far along the line the form starts" (fm-src "(defq a_name (list 1" "\t\t2)" "\tb 3)")
 	(fm-src "(defq a_name (list 1" "2)" "b 3)"))
 (fm-keep "bindings, and a value carried over" (fm-src "(defq a 1" "\tb (foo" "\t\tc)" "\td 2)")
 	(fm-src "(defq a 1" "b (foo" "c)" "d 2)"))
@@ -85,15 +85,17 @@
 (fm-keep "in a function, a comment at the margin stays, as a banner does"
 	(fm-src "(def-func 'a)" "\t;note" ";;;;;;" "; b" ";;;;;;" "\t(vp-ret)"
 		"(def-func-end)") (fm-src "(def-func 'a)" "  ;note" ";;;;;;" "; b" "  ;;;;;;" "(vp-ret)"
-							"(def-func-end)"))
+			"(def-func-end)"))
 
 ; --- the layout is made from nothing but the code ---
 (fm-check "line breaks in a form are not kept, a short form is one line"
 	(fm-src "(defq x 1 y 2 z 3)" "(if (> a b) (print a) (print b))")
 	(fm-src "(defq x 1 y 2" "\tz 3)" "(if (> a b) (print a)" "\t(print b))"))
-(fm-check "a definition always has its body on lines of its own"
-	(fm-src "(defun f (a)" "\t(print a))" "(defmacro m (a)" "\t:nil)")
-	(fm-src "(defun f (a) (print a))" "(defmacro m (a) :nil)"))
+(fm-check "a short definition, with the one body form, is a line"
+	(fm-src "(defun f (a) (print a))" "(defmacro m (a) :nil)")
+	(fm-src "(defun f (a)" "\t(print a))" "(defmacro m (a) :nil)"))
+(fm-check "with more than the one body form, each has a line" (fm-src "(defun f (a)" "\t(print a)" "\t(print a))")
+	(fm-src "(defun f (a) (print a) (print a))"))
 (fm-check "cond always has a clause to a line, a clause with one form is a line"
 	(fm-src "(cond" "\t((= a 1) (print 1))" "\t((= a 2)" "\t\t(print 2)" "\t\t(print 3))" "\t(:t :nil))")
 	(fm-src "(cond ((= a 1) (print 1)) ((= a 2) (print 2)" "(print 3)) (:t :nil))"))
@@ -119,13 +121,12 @@
 	(fm-src "(defun m ()" "\t(vp-cpy-rr :r0 :r1)" "\t(call :a :b '(:r0))" "\t(vp-ret))" "(def-func 'a)" "(errorcase"
 		"\t(call :a :b)"
 		"\t(jump :c :d))" "(def-func-end)") (fm-src "(defun m ()" "(vp-cpy-rr :r0 :r1)" "(call :a :b" "'(:r0))"
-												"(vp-ret))" "(def-func 'a)" "(errorcase" "(call :a :b)"
-												"(jump :c :d))" "(def-func-end)"))
+			"(vp-ret))" "(def-func 'a)" "(errorcase" "(call :a :b)"
+			"(jump :c :d))" "(def-func-end)"))
 (fm-check "and is not moved to the start of a line if it was not at one"
 	(fm-src "(defun m () (vp-cpy-rr :r0 :r1)" "\t(vp-ret))") (fm-src "(defun m () (vp-cpy-rr :r0 :r1)" "(vp-ret))"))
 (fm-check "the lines of a key map are kept"
-	(fm-src "(defq" "\t*key_map* (scatter (Fmap)" "\t\t\t\t(ascii-code \qa\q) action-a"
-		"\t\t\t\t(ascii-code \qb\q) action-b)"
+	(fm-src "(defq" "\t*key_map* (scatter (Fmap)" "\t\t(ascii-code \qa\q) action-a" "\t\t(ascii-code \qb\q) action-b)"
 		""
 		"\tx 1 y 2)")
 	(fm-src "(defq" "*key_map* (scatter (Fmap)"
@@ -165,21 +166,19 @@
 	(fm-src "(print (alpha-function one two) (beta-function three) (gamma-function four five) six)") 40)
 (fm-check "the opening line of a definition is never broken"
 	(fm-src "(defun a-long-function-name (argument_one argument_two)" "\t(print 1))") (fm-src
-																						"(defun a-long-function-name (argument_one argument_two) (print 1))")
-	40)
+		"(defun a-long-function-name (argument_one argument_two) (print 1))") 40)
 (fm-check "a form the scanners read as a line is never broken" (fm-src
-																"(dec-method :a_method class/name/a_method :static (:r0 :r1) (:r0))")
-	(fm-src
-		"(dec-method :a_method class/name/a_method :static (:r0 :r1) (:r0))") 40)
+		"(dec-method :a_method class/name/a_method :static (:r0 :r1) (:r0))") (fm-src
+			"(dec-method :a_method class/name/a_method :static (:r0 :r1) (:r0))") 40)
 (fm-check "a string is never broken" (fm-src "(print \qa long string that will not fit in the limit at all\q)")
 	(fm-src "(print \qa long string that will not fit in the limit at all\q)") 40)
 (fm-check "a line is never broken just before a definition"
-	(fm-src "(when alpha-beta-gamma-delta-epsilon (defun foo ()" "\t\t\t\t\t\t\t\t\t\t(print 1)))")
+	(fm-src "(when alpha-beta-gamma-delta-epsilon (defun foo ()" "\t\t(print 1)))")
 	(fm-src "(when alpha-beta-gamma-delta-epsilon (defun foo () (print 1)))") 40)
 (fm-check "a VP instruction gets half as much again" (fm-src "(vp-simd vp-cpy-ri-i `(,a ,b) `(,c) `(,d ,e) `(,f))")
 	(fm-src "(vp-simd vp-cpy-ri-i `(,a ,b) `(,c) `(,d ,e) `(,f))") 40)
 (fm-check "properties break before a name"
-	(fm-src "(ui-label x (:text \q0\q" "\t\t\t\t:color +argb_white" "\t\t\t\t:font a_font_name))")
+	(fm-src "(ui-label x (:text \q0\q" "\t\t:color +argb_white" "\t\t:font a_font_name))")
 	(fm-src "(ui-label x (:text \q0\q :color +argb_white :font a_font_name))") 40)
 (fm-check "a value that is too long has a line of its own, in from its name"
 	(fm-src "(setq a_name" "\t\t(a-function-name (another-function argument_one)))")

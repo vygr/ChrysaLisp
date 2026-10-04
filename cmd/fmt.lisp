@@ -110,7 +110,7 @@
 					(print "Left alone, it does not read: " file)
 					:nil)
 				((and (eql before (catch (forms formatted) :t))
-					(eql (squash data) (squash formatted)))
+						(eql (squash data) (squash formatted)))
 					formatted)
 				(:t
 					(print "Left alone, fmt would have changed the code: " file)
@@ -131,7 +131,7 @@
 		(if (empty? files) (lines! (# (push files %0) :nil) (io-stream 'stdin)))
 		(setq files
 				(usort (filter (lambda (file)
-								(some (# (ends-with %0 file)) +file_types))
+							(some (# (ends-with %0 file)) +file_types))
 						files)))
 		(cond
 			((<= (length files) opt_j)
@@ -152,7 +152,7 @@
 									(print %0)))
 							(split result (ascii-char 10))))
 					(pipe-farm (map (# (str (first args) " -c -j " opt_j " -l " opt_l " " (slice (str %0) 1 -2)))
-								(partition files opt_j))))
+							(partition files opt_j))))
 				(each (lambda (file)
 						(if opt_c (print "Needs formatting: " file)
 							(if (defq formatted (work file))
@@ -161,4 +161,4 @@
 			(:t ;farm out the formatting, and print the results
 				(each (lambda ((job result)) (prin result))
 					(pipe-farm (map (# (str (first args) " -j " opt_j " -l " opt_l " " (slice (str %0) 1 -2)))
-								(partition files opt_j))))))))
+							(partition files opt_j))))))))

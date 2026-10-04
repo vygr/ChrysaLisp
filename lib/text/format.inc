@@ -50,8 +50,7 @@
 ;The source scanners read a line at a time, and take a line that starts with
 ;defun, or the like, to be one. So no line here must start with such a word.
 
-(defun words (%0)
-	(split %0 " "))
+(defun words (%0) (split %0 " "))
 
 (defq +rules (Fmap 101) +blocks (Fmap 31))
 
@@ -63,13 +62,14 @@
 	;here, the once, so that applying a rule is only a matter of looking
 	(defq nums (filter (# (num? %0)) ws)
 		rule (list ws (if (nempty? nums) (reduce (# (min %0 %1)) nums))
-				(if (find :one flags) :t) (if (find :fill flags) :t)
-				(if (find :pairs flags) :t) (if (find :clauses flags) :t)
-				(if (find :even flags) :t)))
+			(if (find :one flags) :t) (if (find :fill flags) :t)
+			(if (find :pairs flags) :t) (if (find :clauses flags) :t)
+			(if (find :even flags) :t)))
 	(each (# (. +rules :insert %0 rule)) (words ops)))
 
-;definitions, the name and arguments stay on the opening line
-(rule "redefun defun redefmacro defmacro defabstractmethod defmethod" '(- - 0))
+;definitions, the name and arguments stay on the opening line. A short one,
+;with the one body form, is a line
+(rule "redefun defun redefmacro defmacro defabstractmethod defmethod" '(- - 1) :one)
 (rule "structure enums bits def-class" '(- - 0))
 (rule "ui-root ui-stack defclass" '(- - - 0))
 (rule "def-vars union errorcase validatecase noterrorcase" '(0))
@@ -111,7 +111,7 @@
 (each (lambda ((tag ops)) (each (# (. +blocks :insert %0 tag)) (words ops)))
 	'((:open "def-method def-func vpif vpifnot loop-start loop-while switch")
 		(:open "loop-whilenot loop-flist loop-list-forward loop-list-backward") (:close
-																						"def-func-end endif loop-end loop-until loop-untilnot endswitch")
+				"def-func-end endif loop-end loop-until loop-untilnot endswitch")
 		(:mid "else elseif elseifnot vpcase vpcasenot default vp-label")
 		(:mid "errorcase validatecase noterrorcase")))
 
@@ -124,15 +124,14 @@
 ;never broken, and a line is never broken just before one of these, as a
 ;scanner would then see a definition where it saw none before.
 (defq +defs `',(words (cat
-						"redefun defun redefmacro defmacro defabstractmethod defmethod "
-						"structure enums bits defclass def-class"))
-	+scanned `',(words (cat
-						"redefun defun redefmacro defmacro defabstractmethod defmethod "
-						"structure enums bits defclass def-class ffi import include "
-						"signature dec-method def-method def-func gen-vtable gen-create "
-						"def-struct gen-type deffimethod defgetmethod defsetmethod "
-						"def-enum defproxymethod *key_map* *key_map_shift* "
-						"def-bit *key_map_control*")))
+			"redefun defun redefmacro defmacro defabstractmethod defmethod "
+			"structure enums bits defclass def-class")) +scanned `',(words (cat
+					"redefun defun redefmacro defmacro defabstractmethod defmethod "
+					"structure enums bits defclass def-class ffi import include "
+					"signature dec-method def-method def-func gen-vtable gen-create "
+					"def-struct gen-type deffimethod defgetmethod defsetmethod "
+					"def-enum defproxymethod *key_map* *key_map_shift* "
+					"def-bit *key_map_control*")))
 
 ;what the source scanners split a line with, to get its first word
 (defq +cls_docs (char-class (cat " ()'\t\r" (ascii-char 34)))
@@ -142,19 +141,19 @@
 
 ;VP forms, other than the vp-xxx instructions, that get the wider limit
 (defq +vp_forms `',(words (cat
-							"assign entry exit call jump f-call s-call v-call d-call r-call f-jump "
-							"s-jump v-jump d-jump r-jump f-bind s-bind v-bind d-bind fn-call "
-							"fn-jump fn-bind fn-string load-fields save-fields assign-fields goto "
-							"gotoif gotoifnot break breakif breakifnot continue continueif "
-							"continueifnot nextcaseif nextcaseifnot repeatif repeatifnot exitif "
-							"exitifnot errorif errorifnot errorif-lisp-args-sig "
-							"errorif-lisp-args-len errorif-lisp-args-match errorif-lisp-args-type "
-							"vpif vpifnot elseif elseifnot loop-while loop-whilenot loop-until "
-							"loop-untilnot vpcase vpcasenot")))
+			"assign entry exit call jump f-call s-call v-call d-call r-call f-jump "
+			"s-jump v-jump d-jump r-jump f-bind s-bind v-bind d-bind fn-call "
+			"fn-jump fn-bind fn-string load-fields save-fields assign-fields goto "
+			"gotoif gotoifnot break breakif breakifnot continue continueif "
+			"continueifnot nextcaseif nextcaseifnot repeatif repeatifnot exitif "
+			"exitifnot errorif errorifnot errorif-lisp-args-sig "
+			"errorif-lisp-args-len errorif-lisp-args-match errorif-lisp-args-type "
+			"vpif vpifnot elseif elseifnot loop-while loop-whilenot loop-until "
+			"loop-untilnot vpcase vpcasenot")))
 (each (# (. +keep :insert %0 :t)) +vp_forms)
 (each (# (. +keep :insert %0 :t)) (words (cat
-											"to-array save-net-id load-net-id assign-net-id host-os-call "
-											"host-gui-call host-audio-call")))
+			"to-array save-net-id load-net-id assign-net-id host-os-call "
+			"host-gui-call host-audio-call")))
 
 ;an open form, as it sits on the stack
 (enums +f 0
@@ -239,12 +238,12 @@
 	;form around it, and the index of that form's last element
 	(cond
 		((and par_rule
-			(elem-get par_rule +r_clauses)
-			(eql (gap-weight par_rule (inc par_argc)) 0))
+				(elem-get par_rule +r_clauses)
+				(eql (gap-weight par_rule (inc par_argc)) 0))
 			(. +rules :find "clause"))
 		((and (> i 0)
-			(eql (first (defq tok (elem-get tokens (dec i)))) :q)
-			(eql (slice body (second tok) (third tok)) "'"))
+				(eql (first (defq tok (elem-get tokens (dec i)))) :q)
+				(eql (slice body (second tok) (third tok)) "'"))
 			(. +rules :find "data"))
 		((not op) (. +rules :find "list"))
 		;a line that holds the usage of a function is never broken
@@ -352,11 +351,16 @@
 									(elem-get par +f_rule))
 								(if par (elem-get par +f_argc) 0)))
 					(if par (elem-set par +f_argc (inc (elem-get par +f_argc))))
-					;the column the form starts at is kept, a line that carries
-					;it on is indented to just past there
+					;a line that carries the form on is a tab in from the line it
+					;opened on, and a tab more for each form that opened on that
+					;line before it, so the indent shows which form owns a line
 					(push stack (list (elem-get tok 5)
-									(+ (* ind +tab_width) (- (second tok) start)) -1 0 :t (and relay (elem-get tok 4))
-									(elem-get tok 3))))
+							(* (+ ind
+									(reduce (# (if (elem-get %1 +f_here)
+												(inc %0)
+												%0))
+										stack 0)) +tab_width) -1 0 :t
+							(and relay (elem-get tok 4)) (elem-get tok 3))))
 				(:rp
 					(when (nempty? stack)
 						(defq f (pop stack) op (elem-get f +f_op)
@@ -377,9 +381,9 @@
 	(defq f (solid-frame) op (line-op tokens body)
 		tag (and op (. +blocks :find op))
 		ind (if f (+ (/ (elem-get f +f_col) +tab_width) 1 (elem-get f +f_blocks)
-					;a value on a line of its own sits in from its name
-					(if (pairs-value? (elem-get f +f_rule) (inc (elem-get f +f_argc))) 1 0))
-				top_blocks))
+				;a value on a line of its own sits in from its name
+				(if (pairs-value? (elem-get f +f_rule) (inc (elem-get f +f_argc))) 1 0))
+			top_blocks))
 	(cond
 		((or (eql tag :mid) (eql tag :close)) (max 0 (dec ind)))
 		;a close bracket sits under the line its form opened on
@@ -390,7 +394,7 @@
 			(cond
 				;at the margin it stays at the margin, as a banner does
 				((or (empty? lead)
-					(starts-with ";;" (slice body (second (first tokens)) (third (first tokens)))))
+						(starts-with ";;" (slice body (second (first tokens)) (third (first tokens)))))
 					0)
 				;notes under a top level form keep their indent
 				((and note (= top_blocks 0) (nempty? lead)) 1)
@@ -459,115 +463,98 @@
 			loc (list) gid 0 cands (list) i 0 from 0 prev :nil ptok :nil
 			seen :nil cut :t stopped :nil collect (or collect over))
 		(while (progn (some! (lambda (tok) (setq i (!)) (cond
-															;on a line that is too long, there is no need to look past
-															;half as long again, once there is a place to break
-															((and cut
-																over
-																(nempty? cands)
-																(> (+ left (second tok)) hard))
-																(setq stopped :t))
-															(:t
-																(defq kind (first tok))
-																;is the gap before this token a place to break ?
-																(when (and seen
-																		(not (eql kind :rp))
-																		(not (eql prev :q))
-																		(not (eql prev :lp)))
-																	;the form the gap is in, one opened on this line, else
-																	;the one the line started in
-																	(defq g
-																			(cond
-																				((nempty? loc) (last loc))
-																				(bf
-																					(list (elem-get bf +f_op)
-																						(elem-get bf +f_rule) base_argc
-																						(neg (inc basei))
-																						(elem-get bf +f_split) :nil))))
-																	(cond
-																		;one top level form to a line
-																		((not g)
-																			(unless (keep-word? body (second tok))
-																				(setq res i)))
-																		;nothing breaks in a form that never breaks, nor
-																		;in the opening line of a definition
-																		((elem-get g 5))
-																		;nor where a scanner would take the new line for
-																		;a form it looks for
-																		((and (defq w
-																					(gap-weight (defq grule (second g))
-																						(inc (third g))))
-																			(not (keep-word? body (second tok))))
-																			(cond
-																				((or (= w 0)
-																					;a form over more than one line breaks
-																					;at every gap of its lowest weight
-																					(and (elem-get g 4)
-																						(not (elem-get grule +r_fill))
-																						(= w (elem-get grule +r_low))))
-																					(if collect
-																						(setq res
-																								(or (ahead (open-starts tokens
-																											i)
-																										cands tokens)
-																									i))
-																						;look again, with the gaps gathered,
-																						;to look ahead
-																						(setq res i redo :t)))
-																				;how wide the line is up to here, and the
-																				;wider of that and what would be left
-																				(collect
-																					(push cands
-																						(list (length loc) i
-																							(defq w1
-																									(+ left
-																										(third ptok)))
-																							(elem-get g 3) w
-																							(max w1
-																								(+ left +tab_width
-																									(- code_end
-																										(second tok))))
-																							grule)))))))
-																;move over the token
-																(case kind
-																	(:lp
-																		(defq par (if (nempty? loc) (last loc))
-																			prule
-																				(if par (second par)
-																					(if bf (elem-get bf +f_rule)))
-																			pargc (if par (third par) base_argc)
-																			ftok
-																				(tok-rule tokens body i n prule pargc))
-																		(if par
-																			(elem-set par 2 (inc pargc))
-																			(++ base_argc))
-																		(push loc
-																			(list (elem-get ftok 5) (elem-get ftok 3)
-																				-1 (++ gid) (elem-get ftok 4)
-																				(and par
-																					(or (elem-get par 5)
-																						(not (elem-get prule +r_low))
-																						(and (find (first par) +defs)
-																							(not (gap-weight prule
-																									(inc pargc)))))
-																					:t))))
-																	(:rp
-																		(if (nempty? loc) (pop loc)
-																			(setq basei (dec basei)
-																				bf
-																					(if (>= basei 0)
-																						(elem-get stack basei))
-																				base_argc
-																					(if bf (elem-get bf +f_argc) 0))))
-																	((:atom :str)
-																		(if (nempty? loc)
-																			(elem-set (defq g (last loc)) 2
-																				(inc (third g)))
-																			(++ base_argc))))
-																(setq prev kind
-																	ptok tok
-																	seen (or seen (not (eql kind :rp))))
-																res)))
-						(list tokens) :nil from n)
+							;on a line that is too long, there is no need to look past
+							;half as long again, once there is a place to break
+							((and cut
+									over
+									(nempty? cands)
+									(> (+ left (second tok)) hard))
+								(setq stopped :t))
+							(:t
+								(defq kind (first tok))
+								;is the gap before this token a place to break ?
+								(when (and seen
+										(not (eql kind :rp))
+										(not (eql prev :q))
+										(not (eql prev :lp)))
+									;the form the gap is in, one opened on this line, else
+									;the one the line started in
+									(defq g
+											(cond
+												((nempty? loc) (last loc))
+												(bf
+													(list (elem-get bf +f_op)
+														(elem-get bf +f_rule)
+														base_argc
+														(neg (inc basei))
+														(elem-get bf +f_split) :nil))))
+									(cond
+										;one top level form to a line
+										((not g)
+											(unless (keep-word? body (second tok)) (setq res i)))
+										;nothing breaks in a form that never breaks, nor
+										;in the opening line of a definition
+										((elem-get g 5))
+										;nor where a scanner would take the new line for
+										;a form it looks for
+										((and (defq w (gap-weight (defq grule (second g)) (inc (third g))))
+												(not (keep-word? body (second tok))))
+											(cond
+												((or (= w 0)
+														;a form over more than one line breaks
+														;at every gap of its lowest weight
+														(and (elem-get g 4)
+															(not (elem-get grule +r_fill))
+															(= w (elem-get grule +r_low))))
+													(if collect
+														(setq res (or (ahead (open-starts tokens i) cands tokens) i))
+														;look again, with the gaps gathered,
+														;to look ahead
+														(setq res i redo :t)))
+												;how wide the line is up to here, and the
+												;wider of that and what would be left
+												(collect
+													(push cands
+														(list (length loc) i
+															(defq w1 (+ left (third ptok))) (elem-get g 3) w
+															(max w1 (+ left +tab_width (- code_end (second tok))))
+															grule)))))))
+								;move over the token
+								(case kind
+									(:lp
+										(defq par (if (nempty? loc) (last loc))
+											prule
+												(if par (second par)
+													(if bf
+														(elem-get bf +f_rule)))
+											pargc (if par (third par) base_argc)
+											ftok (tok-rule tokens body i n prule pargc))
+										(if par (elem-set par 2 (inc pargc)) (++ base_argc))
+										(push loc
+											(list (elem-get ftok 5)
+												(elem-get ftok 3) -1 (++ gid)
+												(elem-get ftok 4)
+												(and par
+													(or (elem-get par 5)
+														(not (elem-get prule +r_low))
+														(and (find (first par) +defs)
+															(not (gap-weight prule (inc pargc)))))
+													:t))))
+									(:rp
+										(if (nempty? loc) (pop loc)
+											(setq basei (dec basei)
+												bf
+													(if (>= basei 0)
+														(elem-get stack basei))
+												base_argc
+													(if bf (elem-get bf +f_argc) 0))))
+									((:atom :str)
+										(if (nempty? loc)
+											(elem-set (defq g (last loc)) 2 (inc (third g)))
+											(++ base_argc))))
+								(setq prev kind ptok tok
+									seen (or seen (not (eql kind :rp))))
+								res))) (list tokens) :nil from n)
 				(when (and (not res) over (nempty? cands))
 					;the limit is pressure to break, not an order to. First a
 					;place, a gap of weight 5 or under, that leaves the line
@@ -615,7 +602,7 @@
 									((not (elem-get rule +r_fill)) (first pool))
 									;most that fill take as much as fits on the line
 									((or (not (elem-get rule +r_even))
-										(empty? even))
+											(empty? even))
 										(last pool))
 									;else where the two lines come out most even
 									(:t
@@ -626,17 +613,14 @@
 							;would have, they sit just past where it starts
 							room
 								(if (nempty? starts)
-									(- limit
-										(* (inc (/ (+ left (second (elem-get tokens (last starts)))) +tab_width))
-											+tab_width))
+									(- limit (* (+ ind (length starts)) +tab_width))
 									limit) at (or
-												;look ahead, the break may be better made further
-												;out. A form that is only being filled, a list of
-												;data or the arguments of a call, stays where it is,
-												;unless it would have less than half the line.
-												(and (or (not (elem-get (elem-get best 6) +r_fill))
-														(< room (/ limit 2)))
-													(ahead starts cands tokens)) (second best)))
+										;look ahead, the break may be better made further
+										;out. A form that is only being filled, a list of
+										;data or the arguments of a call, stays where it is,
+										;unless it would have less than half the line.
+										(and (or (not (elem-get (elem-get best 6) +r_fill)) (< room (/ limit 2)))
+											(ahead starts cands tokens)) (second best)))
 						;a break must be worth it. If all it would do is put a
 						;scrap on a line of its own, the line is left as it is,
 						;until it is half as long again.
@@ -718,10 +702,10 @@
 						(flush :t)
 						(setq joined :nil cur (cat lead body)))
 					((and cur
-						(> depth 0)
-						(not cur_end)
-						(not (eql kind :cmt))
-						(not (keep-word? body 0)))
+							(> depth 0)
+							(not cur_end)
+							(not (eql kind :cmt))
+							(not (keep-word? body 0)))
 						(setq joined :t
 							cur
 								(cat cur
