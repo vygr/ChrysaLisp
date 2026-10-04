@@ -5,6 +5,11 @@
 ; mail static class
 ;;;;;;;;;;;;;;;;;;;
 
+;a node's entry in the node map is an array, these are its slots. The
+;routes to the node, the node ids of the peers to send by, follow the hops.
+(defq +node_set 0 +node_time 1 +node_session_cluster 2 +node_session_sys 3
+	+node_hops 4 +node_vias 5)
+
 (def-class :sys_mail :nil
 	(dec-method :statics_init sys/mail/statics_init :static)
 	(dec-method :statics_init1 sys/mail/statics_init1 :static)

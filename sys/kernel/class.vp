@@ -158,7 +158,7 @@
 				(vpifnot {tuple})
 					(call :nodeid :create {&data->+kn_msg_ping_origin} {new_key})
 					(call :array :create :nil {tuple})
-					;tuple: set[0], time[1], session_cluster[2], session_sys[3], hops[4], vias[5+]
+					;the slots of the tuple are named in sys/mail/class.inc
 					(call :hset :create {1} {set})
 					(call :array :push_back2 {tuple, set, 0})
 					(call :array :push_back2 {tuple, -1, -1})
@@ -170,7 +170,8 @@
 
 				;load current sessions and hops
 				(call :array :get_begin {tuple} '(_ :r1))
-				(assign `((:r1 ,(* +long_size 2)) (:r1 ,(* +long_size 3)) (:r1 ,(* +long_size 4))) '(:r1 :r2 :r3))
+				(assign `((:r1 ,(* +long_size +node_session_cluster)) (:r1 ,(* +long_size +node_session_sys))
+					(:r1 ,(* +long_size +node_hops))) '(:r1 :r2 :r3))
 				(assign '(:r1 :r2 :r3) {session_cluster, session_sys, hops})
 
 				(vpif {ping_func = +kn_call_ping_sys})
@@ -179,8 +180,8 @@
 					(breakif {data->+kn_msg_ping_session <= session_sys} 'exit_ping_sys)
 
 					;update session_sys (index 3) and time (index 1)
-					(call :array :set_elem {tuple, data->+kn_msg_ping_session, 3})
-					(call :array :set_elem {tuple, time, 1})
+					(call :array :set_elem {tuple, data->+kn_msg_ping_session, +node_session_sys})
+					(call :array :set_elem {tuple, time, +node_time})
 
 					;flood onwards within the physical system
 					(call 'flood_fill {statics, msg, data, node_id.+node_id_node1, node_id.+node_id_node2})
@@ -208,14 +209,14 @@
 					(breakif {data->+kn_msg_ping_session < session_cluster} 'exit_ping_cluster)
 					(vpcase {data->+kn_msg_ping_session > session_cluster})
 						;new cluster session: truncate back to 4 elements (preserves set, time, session_cluster, session_sys)
-						(call :array :set_length {tuple, 4})
-						(call :array :set_elem {tuple, time, 1})
-						(call :array :set_elem {tuple, data->+kn_msg_ping_session, 2})
+						(call :array :set_length {tuple, +node_hops})
+						(call :array :set_elem {tuple, time, +node_time})
+						(call :array :set_elem {tuple, data->+kn_msg_ping_session, +node_session_cluster})
 						(call :array :push_back {tuple, data->+kn_msg_ping_hops})
 						(goto 'flood_via)
 					(vpcase {data->+kn_msg_ping_hops < hops})
-						;better route: truncate back to 4 elements, push new hops
-						(call :array :set_length {tuple, 4})
+						;better route: truncate back to the hops, push new hops
+						(call :array :set_length {tuple, +node_hops})
 						(call :array :push_back {tuple, data->+kn_msg_ping_hops})
 					(vp-label 'flood_via)
 						(call :array :push_back2 {tuple,
@@ -655,11 +656,11 @@
 	(switch)
 	(breakif `(,kid1 = 0))
 	(assign `((,tuple +array_begin) (,data local_now)) `(,tuple ,kid1))
-	(assign `((,tuple ,+ptr_size)) `(,kid2))
+	(assign `((,tuple ,(* +node_time +ptr_size))) `(,kid2))
 	(vp-sub-rr kid2 kid1)
 	(breakif (list kid1 '< (* ping_period 2)))
 	(default)
-		(call :hset :deref `((,tuple 0)))
+		(call :hset :deref `((,tuple ,(* +node_set +ptr_size))))
 		(call :list :erase2 '((:rsp local_bucket) (:rsp local_iter)))
 	(endif)
 
