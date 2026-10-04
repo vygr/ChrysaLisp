@@ -35,6 +35,14 @@ function wrap {
     $wp
 }
 
+# with -n 0 the first node sizes the network to the machine. It starts
+# the other nodes, and then runs the script it was given.
+function auto_run {
+    param ($run)
+    if ($global:auto -eq $TRUE) { return "`"(progn (node-auto) (import {$run}))`"" }
+    return $run
+}
+
 function boot_cpu_gui {
     param ($front, $cpu, $link)
     $cmd = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\main_gui.exe"
@@ -44,9 +52,9 @@ function boot_cpu_gui {
     if ($global:ngui -eq 0) {
         if ($cpu -lt 1) {
             if ($front -eq $FALSE) {
-                Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $global:script"
+                Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $(auto_run $global:script)"
             } else {
-                $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $global:script" -PassThru -Wait
+                $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $(auto_run $global:script)" -PassThru -Wait
                 if ($process.ExitCode -eq 0) {
                     . "$NHROOT\stop.ps1"
                     Clear-Host
@@ -57,9 +65,9 @@ function boot_cpu_gui {
         }
     } elseif ($cpu -lt $global:ngui) {
         if ($front -eq $FALSE -or $cpu -ge 1) {
-            Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run service/gui/app.lisp"
+            Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $(auto_run 'service/gui/app.lisp')"
         } else {
-            $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run apps/tui/tui_gui.lisp" -PassThru -Wait
+            $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $(auto_run 'apps/tui/tui_gui.lisp')" -PassThru -Wait
             if ($process.ExitCode -eq 0) {
                 . "$NHROOT\stop.ps1"
                 Clear-Host
@@ -78,9 +86,9 @@ function boot_cpu_tui {
     if ($global:emu -ne '') { $argstring += " $global:emu" }
     if ($cpu -lt 1) {
         if ($front -eq $FALSE) {
-            Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $global:script" -Wait
+            Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $(auto_run $global:script)" -Wait
         } else {
-            $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $global:script" -PassThru -Wait
+            $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList "$argstring -run $(auto_run $global:script)" -PassThru -Wait
             if ($process.ExitCode -eq 0) {
                 . "$NHROOT\stop.ps1"
                 Clear-Host
@@ -100,6 +108,7 @@ function main {
     $global:ngui = 1
     $global:emu = ""
     $global:front = $FALSE
+    $global:auto = $FALSE
     $global:script = "apps/tui/tui.lisp"
     $global:showhelp = $FALSE
 
@@ -111,7 +120,10 @@ function main {
             "-e" { $global:emu = "-e" }
             "-f" { $global:front = $TRUE }
             "-g" { $global:ngui = [int]$args[++$i] }
-            "-n" { $global:ncpu = [int]$args[++$i] }
+            "-n" {
+                $global:ncpu = [int]$args[++$i]
+                if ($global:ncpu -eq 0) { $global:auto = $TRUE; $global:ncpu = 1 }
+            }
             "-b" { $global:bcpu = [int]$args[++$i] }
             "-h" { $global:showhelp = $TRUE }
             "--help" { $global:showhelp = $TRUE }

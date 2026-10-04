@@ -5,7 +5,7 @@
 main 4 4 @args
 
 if ($showhelp -eq $TRUE) {
-    Write-Output "[-n cnt] number of nodes"
+    Write-Output "[-n cnt] number of nodes, 0 to size to the machine"
     Write-Output "[-b base] base offset"
     Write-Output "[-g cnt] number of guis"
     Write-Output "[-s script_name] script mode"

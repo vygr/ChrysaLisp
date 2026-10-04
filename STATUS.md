@@ -339,8 +339,9 @@ are 2 for each processor, and no more than 32, fully connected, and waits
 till they are seen, so the services started next spread over them, they do
 not all end up on the first node. 32 nodes on a 16 processor MacBook are up
 in a third of a second. `make install` now uses it, the installer ran on 10
-nodes whatever the machine, too many for a Pi4, too few for the MacBook. The PowerShell and batch scripts do not have this
-yet.
+nodes whatever the machine, too many for a Pi4, too few for the MacBook. The
+PowerShell scripts take `-n 0` too, that has not been run, the batch files
+do not.
 
 Every node now knows which machine every other node is on. The routing ping
 carries the system id of its origin, and the node map keeps it. `(lisp-nodes
