@@ -276,6 +276,22 @@ is dropped after 7, and is back a third of a second after it is resumed.
 Stopped again for 6 seconds it is not dropped. Killed, it is gone 12
 seconds later, the time is still fading from the first stop.
 
+A shared memory link now knows the process at the other end, each side
+sends its process id in the link's status ping, and the out link asks the
+host once a second if that process is still running. So a dead node is known
+in a second, for certain, and a busy one is never taken for dead. Scheduling
+is cooperative, a node that computes for a long time without a yield runs
+no link task and sends no ping, to its neighbours it looked dead, and a task
+farm then restarted its job. Only a process that is there but has taken
+nothing from the link for 60 seconds is now dropped, it is stuck. The 3
+second timeout, and what it learns, is kept for a peer whose process is not
+known. And a node is not purged from the node map, however long since its
+ping, while it is the peer of one of this node's links. One node of 4
+stopped for 12 seconds is now not dropped, killed it is gone 5 seconds
+later, a second for the host to say so, and the spread and window of the
+kick. All the nodes of a machine must have this build, the link's status
+has changed, the ping between machines has not.
+
 An emulated node runs some 10 times slower, so the VP64 build gives a link
 30 seconds, and the ping window and slack are 10 times longer too. With 3
 seconds the suite on 4 emulated nodes would sometimes lose a node and hang.
