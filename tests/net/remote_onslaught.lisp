@@ -6,9 +6,10 @@
 ;
 ;	./run_tui.sh -f -s tests/net/remote_onslaught.lisp
 ;
-;How it works. 'link -a' finds the other machine. A probe task on each of its
-;nodes says if it can see a Gui service. One task is then pinned on that GUI
-;node. It starts the audio service if needed, opens the game, and mails back
+;How it works. 'link -a' finds the other machines. Each node known has the
+;system id of its machine, so (lisp-systems) is the machines, and (lisp-nodes
+;system) the nodes of one. A probe task on each node of the other machines
+;says if it can see a Gui service. One task is then pinned on that GUI node. It starts the audio service if needed, opens the game, and mails back
 ;the mailbox id of the game's service.
 ;
 ;That id is the trick. The game declares itself as @Onslaught, a system wide
@@ -21,15 +22,18 @@
 (when (empty? (mail-enquire "@Net,"))
 	(open-child "service/net/app.lisp" +kn_call_run)
 	(task-sleep 200000))
-(defq local_nodes (net-quiet 500000 6) waited 0)
+(defq waited 0)
+(net-quiet 500000 6)
 (pipe-run "link -a" (const prin))
-(while (and (<= (length (lisp-nodes)) (length local_nodes)) (< (++ waited) 30))
+(while (and (< (length (lisp-systems)) 2) (< (++ waited) 30))
 	(task-sleep 1000000))
-(defq all_nodes (net-quiet 500000 8)
-	remote_nodes (filter (# (not (find %0 local_nodes))) all_nodes)
+(net-quiet 500000 8)
+(defq systems (rest (lisp-systems))
+	remote_nodes (reduce (# (cat %0 (lisp-nodes %1))) systems (list))
 	probe_mbox (mail-mbox) reply_mbox (mail-mbox) launch_mbox (mail-mbox) gui_node :nil)
-(print "local nodes " (length local_nodes) ", remote nodes " (length remote_nodes))
-;ask every remote node if it can see a Gui service
+(print "local nodes " (length (lisp-nodes :t)))
+(each (# (print "machine " (slice (hex-encode %0) 0 8) ", nodes " (length (lisp-nodes %0)))) systems)
+;ask the nodes of the other machines if they can see a Gui service
 (each (lambda (node)
 	(open-task (str `(mail-send (hex-decode ,(hex-encode probe_mbox))
 			(str (list (hex-encode (task-nodeid)) (length (mail-enquire "Gui,"))))))
@@ -39,7 +43,7 @@
 		(bind '(node_hex gui_count) (first (read (string-stream msg))))
 		(if (> gui_count 0) (setq gui_node node_hex))))
 (ifn gui_node
-	(print "NO GUI on the remote machine, it needs to be running ./run.sh")
+	(print "NO GUI on another machine, one needs to be running ./run.sh")
 	(print "remote GUI node " (slice gui_node 0 12) ", starting the game...")
 	(open-task (str `(progn
 			(if (empty? (mail-enquire "@Audio,"))
