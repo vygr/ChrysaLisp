@@ -257,7 +257,7 @@
 		(long is_owner then now beat)
 		(ptr last_tail)
 		(int free)
-		(uint last_count sleep_time))
+		(uint last_count sleep_time seen))
 
 	(push-scope)
 
@@ -284,7 +284,7 @@
 	(endif)
 	(call :host_os :pii_time :nil {then})
 	(assign {tx, tx, lk_sleep_min, 0} {head, tail, sleep_time, last_count})
-	(assign {tx, then, then} {last_tail, now, beat})
+	(assign {tx, then, then, 0} {last_tail, now, beat, seen})
 
 	;write messages through the shared buffer
 	(loop-start)
@@ -312,14 +312,18 @@
 
 			;the peer is alive if it has taken something from the buffer, or
 			;there is nothing left in it to take. That resets the timeout,
-			;room in the buffer does not, a dead peer leaves plenty.
-			(vpif {tail /= last_tail || tail = head})
+			;room in the buffer does not, a dead peer leaves plenty. A peer
+			;that has yet to take anything may not have started, so wait.
+			(vpif {tail /= last_tail})
+				(assign {1} {seen})
+			(endif)
+			(vpif {tail /= last_tail || tail = head || seen = 0})
 				(assign {tail, now} {last_tail, then})
 			(endif)
 
 			;need to send a ping ? If my task count has changed, or as a
 			;heartbeat, so there is always something for a live peer to take
-			(vpif {statics->statics_sys_task_task_count /= last_count || now - beat > lk_beat})
+			(vpif {statics->statics_sys_task_task_count /= last_count || (seen && now - beat > lk_beat)})
 				;wait for at least one lk_node, plus buf header as we
 				;must write another lk_chan_status_ready to halt the :in !
 				(breakif {free < (lk_node_size + lk_buf_size)} 'sleep)
