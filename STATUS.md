@@ -293,7 +293,9 @@ shows the process id, processors and memory. A node started this way is
 seen on the network a tenth of a second later. The Windows side builds,
 with `make -f Makefile.mingw`, but has not been run. The host programs must
 be rebuilt, `make`, a new boot image on an old host will crash if it calls
-these.
+these. And an install from before this cannot build its way forward, the
+old boot image does not have the functions the Lisp library now binds, so
+update with `make install`, which starts from the new `snapshot.zip`.
 
 A test that changes the network, adds a node say, upsets the tests running
 beside it. Such a module goes in `tests/solo/`, the runner runs those one at
