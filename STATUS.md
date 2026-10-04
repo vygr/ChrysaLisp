@@ -306,6 +306,25 @@ not all end up on the first node. 32 nodes on a 16 processor MacBook are up
 in a third of a second. The PowerShell and batch scripts do not have this
 yet.
 
+Every node now knows which machine every other node is on. The routing ping
+carries the system id of its origin, and the node map keeps it. `(lisp-nodes
+:t)` gives the nodes on this machine, those that share its file system,
+`(lisp-nodes system)` those of some other machine, and `(lisp-systems)` the
+machines known. So to find, say, the node of another machine that has the
+GUI, ask the nodes of that machine, not every node there is. `(mail-nodes)`
+now gives a string for each node, its node id then its system id. The ping
+message has changed, so every machine must have this build.
+
+The `Local` task farm uses it. It was written before there was a system id,
+so it started with this node alone, launched a few workers, and launched
+more each time a reply showed it a node it had not seen. Now it takes the
+nodes of this machine when it is made, starts the same herd it would have
+grown to, a worker to each node in turn, at once, and starts more if nodes
+join later. `:add_node` has gone. On a fully connected network here it is
+no faster, `make all` on 10 nodes takes a tenth of a second either way, and
+1.4 seconds emulated, the old way found the nodes soon enough. It is there
+for the machines and the networks where it did not.
+
 A test that changes the network, adds a node say, upsets the tests running
 beside it. Such a module goes in `tests/solo/`, the runner runs those one at
 a time after all the others. `tests/solo/test_spawn.lisp` starts a node,

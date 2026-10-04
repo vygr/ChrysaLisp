@@ -180,9 +180,10 @@ via_node_1, via_node_2...]`.
 The Kernel `:ping` task wakes every `ping_tick` (a tenth of a second) and
 sends a ping when one is due.
 
-1. **Routing ping:** The `+kn_msg_ping` message holds the origin ID, session
-   ID, hop count, a hash of the origin's services, and the longest time till
-   the origin's next ping. A node that does not hold the services for that
+1. **Routing ping:** The `+kn_msg_ping` message holds the origin ID, the
+   system ID of the machine the origin is on, session ID, hop count, a hash
+   of the origin's services, and the longest time till the origin's next
+   ping. A node that does not hold the services for that
    hash sends a `+kn_call_want` back, and gets them in a full ping.
 
 2. **Full ping:** As a routing ping, with the service list after it. One is

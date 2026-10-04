@@ -487,7 +487,8 @@
 (ffi "sys/mail/lisp_declare" mail-declare)
 ; (mail-declare mbox name info) -> key
 (ffi "sys/mail/lisp_devices" mail-nodes)
-; (mail-nodes) -> nodeids
+; (mail-nodes) -> (str ...)
+;each is the node id, then the id of the machine the node is on
 (ffi "sys/mail/lisp_enquire" mail-enquire)
 ; (mail-enquire prefix) -> netids
 (ffi "sys/mail/lisp_forget" mail-forget)
@@ -1277,10 +1278,27 @@
 		;ptr, long, real
 		(+long_size)))
 
-(defun lisp-nodes ()
-	; (lisp-nodes) -> nodes
-	(merge (map (const cat) (mail-nodes))
-		(list (slice (task-mbox) +mailbox_id_size -1))))
+(defun lisp-nodes (&optional system)
+	; (lisp-nodes [system]) -> nodes
+	;the nodes known. With a system id, only those on that machine, and
+	;with :t, only those on the same machine as this node, so those that
+	;share its file system.
+	(defq nodes (mail-nodes) me (cat (system-id)))
+	(when system
+		(if (eql system :t) (setq system me))
+		(setq nodes (filter (# (eql (slice %0 +node_id_size -1) system)) nodes)))
+	(defq nodes (map (# (slice %0 0 +node_id_size)) nodes))
+	(if (or (not system) (eql system me))
+		(merge nodes (list (slice (task-mbox) +mailbox_id_size -1))))
+	nodes)
+
+(defun lisp-systems ()
+	; (lisp-systems) -> systems
+	;the system ids of the machines known, this one first. A node not yet
+	;heard from has no system id, all zero.
+	(defq me (cat (system-id)))
+	(reduce (# (if (or (find %1 %0) (eql %1 (const (cat (char 0 8) (char 0 8))))) %0 (push %0 %1)))
+		(map (# (slice %0 +node_id_size -1)) (mail-nodes)) (list me)))
 
 (defun max-length (%0)
 	; (max-length list) -> max

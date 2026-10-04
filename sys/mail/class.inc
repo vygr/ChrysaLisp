@@ -7,9 +7,10 @@
 
 ;a node's entry in the node map is an array, these are its slots. The time
 ;is when the node is purged, if not heard from before then. The
+;system is the id of the machine the node is on, 0 till its ping is heard. The
 ;routes to the node, the node ids of the peers to send by, follow the hops.
 (defq +node_set 0 +node_time 1 +node_session_cluster 2 +node_session_sys 3
-	+node_hops 4 +node_vias 5)
+	+node_system1 4 +node_system2 5 +node_hops 6 +node_vias 7)
 
 (def-class :sys_mail :nil
 	(dec-method :statics_init sys/mail/statics_init :static)

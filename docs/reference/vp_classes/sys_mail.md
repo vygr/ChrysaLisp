@@ -4,7 +4,7 @@
 
 ### (mail-declare mbox name info) -> key
 
-### (mail-nodes) -> nodeids
+### (mail-nodes) -> (str ...)
 
 ### (mail-enquire prefix) -> netids
 
@@ -81,6 +81,8 @@ outputs
 :r0 = known network nodes list object (ptr)
 trashes
 :r0-:r14, :f0-:f15
+info
+each is a string, the node id and then the id of the machine it is on
 ```
 
 ### :enquire -> sys/mail/enquire

@@ -612,6 +612,12 @@ gather a list of [key|val|:nil]
 (get-cstr str idx) -> str
 ```
 
+### grow
+
+```code
+start children till the herd is the size the worker nodes call for
+```
+
 ### gui-rpc
 
 ```code
@@ -920,7 +926,20 @@ the operator of the form the line starts with
 ### lisp-nodes
 
 ```code
-(lisp-nodes) -> nodes
+(lisp-nodes [system]) -> nodes
+
+the nodes known. With a system id, only those on that machine, and
+with :t, only those on the same machine as this node, so those that
+share its file system.
+```
+
+### lisp-systems
+
+```code
+(lisp-systems) -> systems
+
+the system ids of the machines known, this one first. A node not yet
+heard from has no system id, all zero.
 ```
 
 ### list?
@@ -1652,7 +1671,7 @@ start a child
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args

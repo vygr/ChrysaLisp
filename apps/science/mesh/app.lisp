@@ -157,7 +157,6 @@
 				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
 					(def val :child child)
-					(. farm :add_node (task-nodeid child))
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child mesh response

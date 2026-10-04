@@ -566,6 +566,7 @@
 		(call :hset :create `(1) {set})
 		(call :array :push_back2 {tuple, set, 0})
 		(call :array :push_back2 {tuple, -1, -1})
+		(call :array :push_back2 {tuple, 0, 0})
 		(call :array :push_back {tuple, -1})
 		(call :list :push_back2 {bucket, key, tuple})
 	(else)
@@ -778,6 +779,8 @@
 	(save-net-id :r0 +msg_dest)
 	(save-node-id :r1 +kn_msg_ping_origin)
 	(save-node-id :r1 +kn_msg_ping_via)
+	(load-node-id :r7 statics_sys_task_kernel_system_id)
+	(save-node-id :r1 +kn_msg_ping_system)
 	(vp-ret)
 
 	(pop-scope-syms)
@@ -877,6 +880,8 @@
 	;:r0 = known network nodes list object (ptr)
 	;trashes
 	;:r0-:r14, :f0-:f15
+	;info
+	;each is a string, the node id and then the id of the machine it is on
 
 	(call :list :create :nil '(:r0))
 	(vp-push :r0)
@@ -895,8 +900,17 @@
 
 	(entry :hmap :each_callback '(:r0 :r1 :r2))
 
-	(assign '((:r1 0)) '(:r1))
-	(class/obj/ref :r1 :r2)
+	(vp-push :r0)
+	(assign '((:r1 0) (:r1 +ptr_size)) '(:r2 :r3))
+	(assign '((:r3 +array_begin)) '(:r3))
+	(vp-alloc (* +node_id_size 2))
+	(load-node-id :r2 +str_data :r4 :r5)
+	(save-node-id :rsp 0 :r4 :r5)
+	(assign `((:r3 ,(* +node_system1 +long_size)) (:r3 ,(* +node_system2 +long_size))) '(:r4 :r5))
+	(save-node-id :rsp +node_id_size :r4 :r5)
+	(call :str :create_from_buffer `((& :rsp 0) ,(* +node_id_size 2)) '(:r1))
+	(vp-free (* +node_id_size 2))
+	(vp-pop :r0)
 	(jump :list :push_back '(:r0 :r1))
 
 (def-func-end)

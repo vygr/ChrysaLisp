@@ -11,37 +11,46 @@
 	(. this :erase key))
 
 (defun start ()
-	;start a child
+	;start a child, on the worker nodes in turn
 	(defq key (def this :key (inc (get :key this))) val (env 1))
 	(. this :insert key val)
 	(def val :timestamp now)
-	(callback create e key val worker_nodes))
+	(callback create e key val
+		(list (elem-get worker_nodes (% key (length worker_nodes))))))
 
 (defun restart ()
 	;restart a child
 	(setq mutated :t)
 	(stop) (start))
 
+(defun grow ()
+	;start children till the herd is the size the worker nodes call for
+	(defq want (max 1 (min herd_max
+		(+ herd_init (* herd_growth (dec (length worker_nodes)))))))
+	(while (< (. this :size) want)
+		(setq mutated :t)
+		(start)))
+
 (defclass Local (create destroy &optional herd_max herd_init herd_growth) (Fmap)
 	; (Local fnc_create fnc_destroy [herd_max herd_init herd_growth]) -> local
+	;a herd of worker tasks on the nodes of this machine, those that share
+	;its file system. The herd is herd_init workers, and herd_growth more
+	;for each node other than this one, and no more than herd_max. They are
+	;started at once, on each node in turn.
 	(setd herd_max +max_int herd_init 1 herd_growth 1)
-	(lower :create :destroy :herd_max :herd_growth
-		(:key -1 :worker_nodes (list (task-nodeid))))
-	(raise :worker_nodes (now (pii-time) e (penv)))
-	(times (max 1 (min herd_max herd_init)) (start))
+	(lower :create :destroy :herd_max :herd_init :herd_growth (:key -1))
+	(defq worker_nodes (lisp-nodes :t) mutated :nil now (pii-time) e (penv))
+	(grow)
 
 	(defmethod :refresh (&optional timeout)
 		; (. local :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
-		(defq network_nodes (lisp-nodes) old_keys (list) old_vals (list)
-			worker_nodes (filter (# (find %0 network_nodes)) (get :worker_nodes this))
-			create (get :create this) destroy (get :destroy this)
-			mutated :nil now (pii-time) e (penv))
-		(lower :worker_nodes)
+		(raise :create :destroy :herd_max :herd_init :herd_growth
+			(network_nodes (lisp-nodes) worker_nodes (lisp-nodes :t)
+			old_keys (list) old_vals (list) mutated :nil now (pii-time) e (penv)))
 		(. this :each (# (push old_keys %0) (push old_vals %1)))
 		;test for vanished and timeout nodes
 		(each (lambda (key val)
-			(defq child (get :child val))
 			(cond
 				((or (not (defq child (get :child val)))
 					(find (task-nodeid child) network_nodes))
@@ -53,24 +62,16 @@
 						(restart)))
 				(:t ;not found child node on network !
 					(restart)))) old_keys old_vals)
+		;more nodes may have joined
+		(grow)
 		mutated)
 
 	(defmethod :restart (key val)
 		; (. local :restart key val) -> local
 		;restart task
-		(raise :worker_nodes :create :destroy (mutated :nil now (pii-time) e (penv)))
+		(raise :create :destroy
+			(worker_nodes (lisp-nodes :t) mutated :nil now (pii-time) e (penv)))
 		(restart) this)
-
-	(defmethod :add_node (node)
-		; (. local :add_node node) -> local
-		;add new node
-		(raise :worker_nodes :herd_max)
-		(unless (find node worker_nodes)
-			(push worker_nodes node)
-			(when (> (defq remaining (- herd_max (. this :size))) 0)
-				(raise :create :herd_growth (now (pii-time) e (penv)))
-				(times (max 1 (min remaining herd_growth)) (start))))
-		this)
 
 	(defmethod :close ()
 		; (. local :close) -> local

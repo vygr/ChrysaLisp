@@ -4,14 +4,11 @@
 
 ```code
 (Local fnc_create fnc_destroy [herd_max herd_init herd_growth]) -> local
-```
 
-### :add_node
-
-```code
-(. local :add_node node) -> local
-
-add new node
+a herd of worker tasks on the nodes of this machine, those that share
+its file system. The herd is herd_init workers, and herd_growth more
+for each node other than this one, and no more than herd_max. They are
+started at once, on each node in turn.
 ```
 
 ### :close

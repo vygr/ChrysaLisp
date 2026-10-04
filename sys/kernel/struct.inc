@@ -25,6 +25,8 @@
 (structure +kn_msg_ping 0
 	(long func)
 	(nodeid via origin)
+	;the machine the origin is on
+	(nodeid system)
 	(uint session hops)
 	;a hash of the origin's services, 0 for none, and if the services follow
 	(uint hash full)

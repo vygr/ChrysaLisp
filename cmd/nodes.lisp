@@ -30,4 +30,4 @@
 			((> opt_a 0)
 				(each (# (print (if (< %0 0) "failed to start a node" (cat "started pid: " (str %0)))))
 					(node-spawn opt_a)))
-			(:t (each (# (print (hex-encode %0))) (mail-nodes))))))
+			(:t (each (# (print (hex-encode %0))) (lisp-nodes))))))

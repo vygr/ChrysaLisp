@@ -200,6 +200,7 @@
 					(call :hset :create {1} {set})
 					(call :array :push_back2 {tuple, set, 0})
 					(call :array :push_back2 {tuple, -1, -1})
+					(call :array :push_back2 {tuple, 0, 0})
 					(call :array :push_back {tuple, -1})
 					(call :list :push_back2 {bucket, new_key, tuple})
 				(else)
@@ -259,6 +260,8 @@
 						(call :array :set_length {tuple, +node_hops})
 						(call :array :set_elem {tuple, time + (data->+kn_msg_ping_interval * 2) + ping_slack, +node_time})
 						(call :array :set_elem {tuple, data->+kn_msg_ping_session, +node_session_cluster})
+						(call :array :set_elem {tuple, data->+kn_msg_ping_system.+node_id_node1, +node_system1})
+						(call :array :set_elem {tuple, data->+kn_msg_ping_system.+node_id_node2, +node_system2})
 						(call :array :push_back {tuple, data->+kn_msg_ping_hops})
 						;a kick from another node ?
 						(vpif {data->+kn_msg_ping_kick})
