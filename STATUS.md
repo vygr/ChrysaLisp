@@ -297,7 +297,7 @@ and a new task goes to the neighbour with the least. A count of tasks is not
 how busy a node is, most tasks are asleep, and one that computes without a
 yield holds up all the rest. The load is the task count, plus how late a
 task that is ready to run has lately been in getting to, one more task for
-each `lag_per_task`, 8ms. The ping task measures the lateness, it asks to
+each `lag_per_task`, 32ms. The ping task measures the lateness, it asks to
 sleep a tick and sees when it wakes, it rises at once and falls away by a
 quarter a tick. A node that is busy can not say so, so the out link counts
 the time a peer has left the link untaken the same way, till the peer next
@@ -307,8 +307,10 @@ answer, now none do, and they take 1ms. `make test` is as it was, 0.091
 seconds on 10 nodes, 0.076 on 19. A first go, with the count in the load
 only brought up to date each tick, sent the workers of a farm all to the
 same nodes, and a build took 6 times as long, the count has to be live. And
-at 1ms a task the lateness swamped the count, and a build on 10 nodes was a
-tenth slower. All the nodes of a machine must have this build.
+the lateness must not swamp the count. At 1ms a task a build on 10 nodes of
+the MacBook was a tenth slower, at 8ms it was level there, but 6 to 9
+percent slower on a Pi4, where each compile makes a node late, at 32ms it
+is level on both. All the nodes of a machine must have this build.
 
 The task farms no longer lose a job on a slow machine. A farm worker,
 `lib/asm/asm.lisp` and `lib/task/cmd.lisp`, ended if it had no job for 2
