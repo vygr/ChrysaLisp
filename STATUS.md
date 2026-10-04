@@ -292,6 +292,25 @@ later, a second for the host to say so, and the spread and window of the
 kick. All the nodes of a machine must have this build, the link's status
 has changed, the ping between machines has not.
 
+The generic VP optimiser, `lib/asm/vpopt.inc`, is now one sweep. It looks
+each instruction up once, to see which pass it is for, it was up to 4 maps
+in turn, and each instruction a scan back goes over once, not twice. The
+second sweep, that ran read after read/write again, has gone, it took a
+quarter of the time to save 4 instructions in the whole system. The
+optimiser's time over a full build is 55ms, it was 79, `make test` on 20
+nodes 0.0745 seconds, it was 0.077, and the arm64 boot image is 16 bytes
+bigger. The boot images of all 6 targets are byte for byte those of the old
+code with only the second sweep taken out. The maps are all made over
+`+vp_emit_ops`, in its order, so a symbol's cached slot is right for each.
+
+A look at what the optimiser leaves, in the 29,530 instructions of the 925
+functions, found little, so no new passes. 82 branches or jumps to a label
+that is itself a jump or a return, 11 branches over a jump, and 23 dead
+writes and copies that would need liveness, which a JIT can not afford. A
+bound on how far back a scan looks gains nothing, a scan stops at a label
+or a call soon enough. A test for the nop before a lookup was slower than
+letting the lookup miss.
+
 A node now tells its neighbours its load, not just how many tasks it has,
 and a new task goes to the neighbour with the least. A count of tasks is not
 how busy a node is, most tasks are asleep, and one that computes without a
