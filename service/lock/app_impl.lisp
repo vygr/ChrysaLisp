@@ -3,7 +3,9 @@
 (enums +select 0
 	(enum main timer))
 
-(defq +check_rate 1000000 +lock_default_lease (task-timeout 60))
+(defq +check_rate 1000000 +lock_default_lease (task-timeout 60)
+	;how long a node can be missing from the routes before it has died
+	+lock_node_grace (task-timeout 5))
 
 (defun conflict? (key_path locks)
 	(some (# (every (const eql) key_path (pfind %0 :path))) locks))
@@ -13,7 +15,19 @@
 	;a node has died if it was known and is no longer there. A node that
 	;has never been seen has not died, it is just not routed to us yet, as
 	;happens for the first few seconds after a network boots.
-	(and (not (find node nodes)) (find node known)))
+	;A known node that drops out of the routes is given time to come back.
+	;The routes shift about while a network settles, and a node missed for
+	;a moment would have its claims dropped, and its locks taken away.
+	(cond
+		((find node nodes)
+			(if (defq idx (some (# (if (eql (first %0) node) (!))) lock_gone))
+				(setq lock_gone (erase lock_gone idx (inc idx))))
+			:nil)
+		((not (find node known)) :nil)
+		((defq rec (some (# (if (eql (first %0) node) %0)) lock_gone))
+			(> (- now (second rec)) +lock_node_grace))
+		(:t (push lock_gone (list node now))
+			:nil)))
 
 (defun purge-expired (writes reads nodes known now)
 	(defq changed :nil i 0)
@@ -84,7 +98,9 @@
 	(defq select (task-mboxes +select_size) lock_service (mail-declare (task-mbox) "@Lock" "Lock Service 0.4")
 		lock_writes (list) lock_reads (list) lock_pending (list) lock_history (list)
 		;every node we have ever been routed to
-		lock_known (list))
+		lock_known (list)
+		;nodes missing from the routes, and since when
+		lock_gone (list))
 	(mail-timeout (elem-get select +select_timer) +check_rate 0)
 	(while :t
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))

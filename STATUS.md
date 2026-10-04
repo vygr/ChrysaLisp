@@ -216,6 +216,17 @@ overrun !` and the stack dump. The dump shows who freed the cell, not who
 wrote on it. A double free now reports the same way, `Double free !` and
 the dump. Writing a wrong guard on purpose trips the check on every free.
 
+The lock service gives a node that drops out of the routes 5 seconds to
+come back before it is taken to have died. A lock test failed once, a claim
+on a free key was not granted within its 2 seconds, and then passed in the
+next 90 runs. The cause was not proved. The likely one is that, now the
+tests run in parallel, the lock tests start while a network is still
+settling, the routes shift, and a node missed for a moment had its waiting
+claim dropped without a word.
+
+`:fstream` no longer keeps a spare byte in front of its buffer, it was only
+there for the reader to step back to.
+
 The Lisp reader no longer pushes a char back into its stream. `:lisp
 :read_num`, on a minus not followed by a digit, used to step the stream
 back one char and jump to `:lisp :read_sym`, which takes the symbol from
