@@ -115,9 +115,10 @@ a last resort.
 ### apply-tokens
 
 ```code
-(apply-tokens tokens body ind end)
+(apply-tokens tokens body ind end [start])
 
-move the stack of open forms over the tokens up to end
+move the stack of open forms over the tokens up to end. The tokens
+are of a line, or a part of one that begins at the char start.
 ```
 
 ### array?
@@ -477,8 +478,17 @@ new files returned by the handler are merged into the work list.
 
 ```code
 (find-break tokens body ind limit) -> :nil | token index
+```
 
-where to break a line, by the rules of the forms on it
+### find-gap
+
+```code
+(find-gap tokens body ind limit collect) -> :nil | :again | token index
+
+where to break a line, by the rules of the forms on it. The gaps are
+only gathered up if the line is too long, or collect is given, as most
+lines are not, and need no more than a look for a break that must be.
+:again if such a break was found, and the gaps are needed to look ahead.
 ```
 
 ### fixed?
@@ -949,14 +959,6 @@ the operator of the form the line starts with
 (long-to-hex-str num) -> str
 ```
 
-### low-weight
-
-```code
-(low-weight rule) -> :nil | num
-
-the lowest weight of a rule, :nil if it never breaks
-```
-
 ### lz4-compress
 
 ```code
@@ -1156,6 +1158,15 @@ convert to obj-set args
 
 ```code
 (open-remote task node mode) -> net_id
+```
+
+### open-starts
+
+```code
+(open-starts tokens end) -> (token index ...)
+
+the forms that open on this line, and are still open at token end, as
+the tokens they open at, outermost first
 ```
 
 ### open-task
@@ -1518,6 +1529,14 @@ restart a child
 (rpad form width [str]) -> str
 ```
 
+### rule
+
+```code
+a rule is kept as (weights low one fill pairs clauses), all worked out
+
+here, the once, so that applying a rule is only a matter of looking
+```
+
 ### scan-line
 
 ```code
@@ -1736,6 +1755,16 @@ accepts standard "Normal diff" format
 
 ```code
 (timezone-offset-seconds tz) -> seconds
+```
+
+### tok-rule
+
+```code
+(tok-rule tokens body i n prule pargc) -> token
+
+the token that opens a form, with the rule of the form, whether the
+form must be broken, and its operator, kept on the end of it. They are
+worked out the once, the first time the token is come to.
 ```
 
 ### transfer

@@ -126,8 +126,7 @@
 
 (defun main ()
 	(when (and (defq stdio (create-stdio))
-			(defq opt_j 4 opt_w :nil opt_c :nil opt_l 80
-				args (options stdio usage)))
+			(defq opt_j 4 opt_w :nil opt_c :nil opt_l 80 args (options stdio usage)))
 		(defq files (rest args))
 		(if (empty? files) (lines! (# (push files %0) :nil) (io-stream 'stdin)))
 		(setq files
@@ -139,9 +138,7 @@
 				;do them here
 				(each (lambda (file) (defq formatted (work file))
 						(cond
-							(opt_c
-								(if formatted
-									(print "Needs formatting: " file)))
+							(opt_c (if formatted (print "Needs formatting: " file)))
 							(opt_w (if formatted (write-file file formatted)))
 							(:t (prin (ifn formatted (load file))))))
 					files))

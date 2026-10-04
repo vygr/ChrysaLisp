@@ -68,15 +68,17 @@
 
 ; --- VP assembler blocks ---
 (fm-keep "block forms indent the lines between them"
-	(fm-src "(def-method :a :b)" "\t;inputs" "\t(vpif '(:r0 = 0))"
-		"\t\t(vp-cpy-rr :r0 :r1)" "\t(else)" "\t\t(vp-ret)" "\t(endif)"
+	(fm-src "(def-method :a :b)" "\t;inputs"
+		"\t(vpif '(:r0 = 0))" "\t\t(vp-cpy-rr :r0 :r1)" "\t(else)" "\t\t(vp-ret)" "\t(endif)"
 		"(errorcase" "(vp-label 'error)" "\t(jump :a :b))" "(def-func-end)")
 	(fm-src "(def-method :a :b)" " ;inputs" "(vpif '(:r0 = 0))"
 		"(vp-cpy-rr :r0 :r1)" "(else)" "(vp-ret)" "(endif)"
 		"(errorcase" "(vp-label 'error)" "(jump :a :b))" "(def-func-end)"))
 (fm-keep "loops and a switch"
 	(fm-src "(def-func 'a)" "\t(loop-start)" "\t\t(switch)" "\t\t(vpcase '(:r0 = 0))" "\t\t\t(break)" "\t\t(default)"
-		"\t\t\t(vp-ret)" "\t\t(endswitch)" "\t(loop-until '(:r0 = 0))" "(def-func-end)")
+		"\t\t\t(vp-ret)"
+		"\t\t(endswitch)"
+		"\t(loop-until '(:r0 = 0))" "(def-func-end)")
 	(fm-src "(def-func 'a)" "(loop-start)" "(switch)" "(vpcase '(:r0 = 0))"
 		"(break)" "(default)" "(vp-ret)" "(endswitch)"
 		"(loop-until '(:r0 = 0))" "(def-func-end)"))
@@ -115,17 +117,19 @@
 		"(dec-method :d a/b/d))"))
 (fm-check "a VP instruction is a line of its own"
 	(fm-src "(defun m ()" "\t(vp-cpy-rr :r0 :r1)" "\t(call :a :b '(:r0))" "\t(vp-ret))" "(def-func 'a)" "(errorcase"
-		"\t(call :a :b)" "\t(jump :c :d))" "(def-func-end)")
-	(fm-src "(defun m ()" "(vp-cpy-rr :r0 :r1)" "(call :a :b" "'(:r0))"
-		"(vp-ret))" "(def-func 'a)" "(errorcase" "(call :a :b)"
-		"(jump :c :d))" "(def-func-end)"))
+		"\t(call :a :b)"
+		"\t(jump :c :d))" "(def-func-end)") (fm-src "(defun m ()" "(vp-cpy-rr :r0 :r1)" "(call :a :b" "'(:r0))"
+												"(vp-ret))" "(def-func 'a)" "(errorcase" "(call :a :b)"
+												"(jump :c :d))" "(def-func-end)"))
 (fm-check "and is not moved to the start of a line if it was not at one"
 	(fm-src "(defun m () (vp-cpy-rr :r0 :r1)" "\t(vp-ret))") (fm-src "(defun m () (vp-cpy-rr :r0 :r1)" "(vp-ret))"))
 (fm-check "the lines of a key map are kept"
 	(fm-src "(defq" "\t*key_map* (scatter (Fmap)" "\t\t\t\t(ascii-code \qa\q) action-a"
-		"\t\t\t\t(ascii-code \qb\q) action-b)" "" "\tx 1 y 2)")
-	(fm-src "(defq" "*key_map* (scatter (Fmap)" "(ascii-code \qa\q) action-a"
-		"(ascii-code \qb\q) action-b)" "" "x 1" "y 2)"))
+		"\t\t\t\t(ascii-code \qb\q) action-b)"
+		""
+		"\tx 1 y 2)")
+	(fm-src "(defq" "*key_map* (scatter (Fmap)"
+		"(ascii-code \qa\q) action-a" "(ascii-code \qb\q) action-b)" "" "x 1" "y 2)"))
 
 ; --- a line that is too long is broken ---
 (fm-check "bindings break before a name, as many to a line as fit"
@@ -189,12 +193,12 @@
 
 ; --- on real source, only white space changes, and a second pass does nothing ---
 (each (lambda (file)
-		(defq text (load file)
-			once (format-lisp text :nil (ends-with ".vp" file)))
+		(defq text (load file) once (format-lisp text :nil (ends-with ".vp" file)))
 		(assert-eq (cat file ", same tokens") :t (eql (fm-squash text) (fm-squash once)))
 		(assert-eq (cat file ", second pass") :t (eql once (format-lisp once :nil (ends-with ".vp" file)))))
-	'("class/lisp/root.inc" "lib/text/buffer.inc" "sys/heap/class.vp"
-		"gui/region/class.vp" "apps/tui/tui.lisp" "lib/asm/vp.inc"))
+	'("class/lisp/root.inc"
+		"lib/text/buffer.inc"
+		"sys/heap/class.vp" "gui/region/class.vp" "apps/tui/tui.lisp" "lib/asm/vp.inc"))
 
 ; --- fmt formats itself, and finds nothing to do ---
 (each (lambda (file)
