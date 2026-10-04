@@ -254,7 +254,8 @@
 	(def-vars
 		(ptr statics lk_node key msg data tx head tail)
 		(nodeid node_id system_id)
-		(long is_owner then now)
+		(long is_owner then now beat)
+		(ptr last_tail)
 		(int free)
 		(uint last_count sleep_time))
 
@@ -283,6 +284,7 @@
 	(endif)
 	(call :host_os :pii_time :nil {then})
 	(assign {tx, tx, lk_sleep_min, 0} {head, tail, sleep_time, last_count})
+	(assign {tx, then, then} {last_tail, now, beat})
 
 	;write messages through the shared buffer
 	(loop-start)
@@ -308,14 +310,20 @@
 			(endif)
 			(assign `(,tail) {free})
 
-			;need to send a ping ?
-			(vpif {statics->statics_sys_task_task_count /= last_count})
+			;the peer is alive if it has taken something from the buffer, or
+			;there is nothing left in it to take. That resets the timeout,
+			;room in the buffer does not, a dead peer leaves plenty.
+			(vpif {tail /= last_tail || tail = head})
+				(assign {tail, now} {last_tail, then})
+			(endif)
+
+			;need to send a ping ? If my task count has changed, or as a
+			;heartbeat, so there is always something for a live peer to take
+			(vpif {statics->statics_sys_task_task_count /= last_count || now - beat > lk_beat})
 				;wait for at least one lk_node, plus buf header as we
 				;must write another lk_chan_status_ready to halt the :in !
 				(breakif {free < (lk_node_size + lk_buf_size)} 'sleep)
-
-				;reset timeout
-				(call :host_os :pii_time :nil {then})
+				(assign {now} {beat})
 
 				;write my task count, node id, and system id
 				(vp-rdef (dst cnt t0 t1 t2 t3))
@@ -339,9 +347,6 @@
 			;wait for at least one max fragment, plus buf header as we
 			;must write another lk_chan_status_ready to halt the :in !
 			(breakif {free < (lk_buf_size + lk_frag_size + lk_data_size + lk_buf_size)})
-
-			;reset timeout
-			(call :host_os :pii_time :nil {then})
 
 			;see if any mail for this link
 			(vp-rdef (node1 node2 key lk_node) (method-input :sys_mail :ready))
