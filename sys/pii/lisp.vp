@@ -290,7 +290,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :f0-:f15
 
 	(entry :host_os :lisp_alive '(:r0 :r1))
 
