@@ -6,7 +6,7 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
-    [release] [debug] [vp] [test]
+    [release] [debug] [vp] [test] [fmt]
 
     options:
         -h --help: this help info.
@@ -22,7 +22,8 @@
     release:    it/apps release mode.
     debug:      it/apps debug mode.
     validate:   it/apps validate mode.
-    test:       test make timings.")
+    test:       test make timings.
+    fmt:        format all the source files, with the fmt command.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 ))
 
@@ -238,6 +239,10 @@
 	(. folders :each (# (push cmds (cat "cat -f " (join %1 " ") " | save ai/" %0 ".txt"))))
 	(pipe-farm cmds))
 
+(defun make-fmt ()
+	;format every source file, only those that need it are written
+	(pipe-run "files . | fmt -w"))
+
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
@@ -245,10 +250,11 @@
 			(defq opt_v 0 args (options stdio usage)))
 		(each (# (def (penv) (sym %0) (find %0 args)))
 			'("all" "platforms" "boot" "docs" "it" "apps"
-				"release" "debug" "validate" "test" "ai" "vp"))
+				"release" "debug" "validate" "test" "ai" "vp" "fmt"))
 		(defq mode (or (if validate 2) (if debug 1) (if release 0))
 			*build_verb* opt_v)
 		(cond
+			(fmt (make-fmt))
 			(test (make-test))
 			(vp (remake-all-vp 1))
 			(it (remake-all-platforms mode) (make-docs))

@@ -8,6 +8,8 @@ examples. `SKILL.md` carries a one line summary of each.
 
 *	[Tab Style](#tab-style)
 
+*	[Indentation and the `fmt` Command](#indentation-and-the-fmt-command)
+
 *	[Sensible `defq` and `setq` Line Wrapping](#sensible-defq-and-setq-line-wrapping)
 
 *	[Type-Dependent Equality with `eql`](#type-dependent-equality-with-eql)
@@ -56,6 +58,70 @@ examples. `SKILL.md` carries a one line summary of each.
 
 Always use leading 4-space tab characters for indentation
 in source code and documentation, with spaces afterwards if needed.
+
+## Indentation and the `fmt` Command
+
+The indent of a line comes from the structure alone. These are the rules the
+`fmt` command applies, and the rules most of the tree already follows, so
+write new code this way.
+
+*	A line is one tab in from the line its enclosing form opened on. Not
+	lined up under an argument.
+
+	```vdu
+	(defun f (a)
+		(print a)
+		(if a
+			(print 1)
+			(print 2)))
+	```
+
+*	Where several forms open on the one line, each is a tab further in than
+	the one around it. The indent then shows which form owns a line. Here
+	the body of the `lambda` is two tabs in, and the rest of the arguments
+	of the `reduce` one tab in.
+
+	```vdu
+	(defq moves (reduce (lambda (out (dx dy key))
+			(defq nx (+ x dx) ny (+ y dy))
+			(push out (list nx ny key)))
+		(list (list -1 0 +fkey_left) (list 1 0 +fkey_right))
+		(list)))
+
+	(when (and (first-test a)
+			(second-test b))
+		(print a))
+	```
+
+*	VP block forms, `(vpif)` `(loop-start)` `(switch)` and the like, indent
+	the lines between them. `(else)` `(vpcase)` `(vp-label)` sit one back.
+	`(errorcase)` `(validatecase)` `(noterrorcase)` add no indent, what is in
+	them sits where it would without them.
+
+*	No line starts with a close bracket, they gather on the line above.
+
+`fmt` lays a form out afresh, the line breaks you made inside it are not
+kept, and it changes only the white space between tokens. A form is one
+line if it fits in 80 columns, 120 for VP assembler. A definition always
+has its body on lines of its own, and `cond` and `case` a clause to a line.
+A longer line is broken at the outermost form that can be. It never breaks
+a string, the opening line of a definition, or a form the source scanners
+read as a line, such as `(dec-method)`. Comments, and the lines they are
+on, are kept. `fmt -l 0` keeps your line breaks and only indents.
+
+*	`fmt path ...` prints the formatted text, `fmt -c` lists the files that
+	need formatting, `fmt -w` writes them. `make fmt` does the whole tree.
+
+*	`(import "lib/text/format.inc")` gives `(format-lisp text [limit wide])`.
+
+*	The source scanners and the doc builder read a line at a time, and take
+	a line that starts with `defun`, `defmethod`, `ffi`, `dec-method` and
+	such to be one. So never start a line of data, or of a string, with one
+	of those words. `fmt` will not create such a line, but you can.
+
+*	The tree as a whole has not yet been run through `fmt`. Until it has, do
+	not run `fmt -w` on a file you are making a small change to, the diff
+	would bury the change.
 
 ## Sensible `defq` and `setq` Line Wrapping
 

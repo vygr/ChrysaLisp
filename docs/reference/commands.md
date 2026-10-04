@@ -228,43 +228,65 @@ Usage: fmt [options] [path] ...
 
     options:
         -h --help: this help info.
-        -j --jobs num: max jobs per batch, default 8.
+        -j --jobs num: max jobs per batch, default 4.
         -w --write: overwrite files in-place, default :nil.
-        -c --check: check if files need formatting without writing.
+        -c --check: list the files that need formatting.
+        -l --limit num: line length that brings pressure to
+            break, default 80. VP assembler lines get half as
+            much again. 0 keeps your line breaks, and only
+            indents and tidies.
 
-    Auto-formats ChrysaLisp source code according to tab indentation,
-    declarative form templates, and pair-packing rules.
+    Formats ChrysaLisp source code. Only white space between
+    tokens is ever changed, so what the reader sees, and so
+    what gets built, is the same before and after.
 
-    Restricts targets to unique .lisp, .inc, and .vp files. If no paths
-    are specified on the command line, paths are read from stdin.
+    The layout is made from the code alone. The line breaks
+    inside a form are not kept, the form is laid out afresh.
 
-    Template roles and numeric options:
-        :head
-            header parameter; stays on the same line as the opening operator.
-        (:short_head [max_len])
-            conditional header; stays on the same line if it fits within
-            max_len (default 70), otherwise breaks to a new line as :body.
-        :body
-            body statement; breaks to a new line indented by 1 tab.
-        :flow
-            flows elements horizontally on the same line separated by spaces.
-        (:pairs [max_pairs_per_line] [max_col])
-            packs key-value pairs up to max_pairs_per_line per line (default 4)
-            and wraps when line length reaches max_col (default 70).
-            never breaks between a key and its value.
-        (:clauses [max_per_line] [max_body_actions] [max_len])
-            controls clause structure and layout (default: 1 1 70).
-            max_per_line: maximum number of clauses allowed on a single line.
-            max_body_actions: maximum body expressions allowed for single-line flow.
-            max_len: character length threshold for inline clause flow.
-            clauses with more body expressions break each action onto its own line.
-        (:data [max_items_per_line] [max_col])
-            formats quoted data lists, packing max_items_per_line per line (default 5)
-            and wrapping when line length reaches max_col (default 70).
-        (:choice [max_len] [max_body_actions] short_tmpl multiline_tmpl)
-            dynamically uses short_tmpl if the form fits within max_len (default 72)
-            and body expressions <= max_body_actions (if specified),
-            otherwise falls back to multiline_tmpl.
+    Indentation, with tabs, from the structure alone. A line
+    is one tab in from the line its enclosing form opened on.
+    Where several forms open on the one line, each is a tab
+    further in than the one around it, so the indent shows
+    which form owns a line. VP block forms, (vpif)
+    (loop-start) and so on, indent the lines between them.
+
+    A form is one line if it fits. A definition always has its
+    body on lines of its own, as does a (cond) or (case) each
+    of its clauses. A (when) (while) and the like is one line
+    only with a single body form. An (if) keeps its test and
+    then form on the opening line, and its else form too if
+    there is just the one, else each else form has a line.
+
+    The limit is pressure to break, not an order to. A line
+    over it is broken where the structure has a place for it,
+    at the outermost form that can be. A form with a body
+    then has each body form on a line of its own, bindings
+    break before a name, and are filled. A line with no such
+    place is left, until it is half as long again, and is
+    then broken between arguments.
+
+    Tidying. One space between tokens, no trailing white
+    space, no runs of blank lines, no line starts with a close
+    bracket, and the file ends with one newline.
+
+    What is kept from the source. Strings, comments and the
+    lines they are on, blank lines, and the text of a
+    (defq usage ...) form.
+
+    The source scanners and the doc builder read a line at a
+    time. A form they look for, (def-method) (dec-method)
+    (import) (ffi) a VP instruction and the like, starts a
+    line if and only if it did in the source, and is never
+    broken, nor is the opening line of a definition. Comments
+    right under such a line stay right under it, and the lines
+    of a key map are kept.
+
+    As a guard, the result must read as the same forms as the
+    source, or the file is left alone.
+
+    Restricts targets to unique .lisp, .inc, and .vp files. If
+    no paths are given on the command line, paths are read from
+    stdin.
 ```
 ## forward
 ```code
@@ -483,7 +505,7 @@ Usage: lz4 [options] [file]
 ## make
 ```code
 Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
-    [release] [debug] [vp] [test]
+    [release] [debug] [vp] [test] [fmt]
 
     options:
         -h --help: this help info.
@@ -500,6 +522,7 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
     debug:      it/apps debug mode.
     validate:   it/apps validate mode.
     test:       test make timings.
+    fmt:        format all the source files, with the fmt command.
 ```
 ## mv
 ```code
@@ -726,7 +749,7 @@ Usage: template [options] [path] ...
 ```
 ## tests
 ```code
-Usage: tests [options]
+Usage: tests [options] [path] ...
 
     options:
         -h --help: this help info.
@@ -735,8 +758,16 @@ Usage: tests [options]
         -v --verbose: show every test, not just the failures.
         -f --frames: record stack frames, so an error says what
             was running. Slower.
+        -j --jobs num: max modules per batch, default 1.
+        -c --counts: end with a line of counts, not the summary.
+            The task of a batch is run with this.
 
-    Run the unit tests, tests/<category>/test_<name>.lisp.
+    Run the unit tests, tests/<category>/test_<name>.lisp, or
+    just the module paths given.
+
+    The modules run in parallel, a batch to a task, over the
+    nodes. If they all fit in one batch they run in this task,
+    one after another, so a large -j is a serial run.
 
     Prints the failures and a summary.
 ```

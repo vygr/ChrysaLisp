@@ -216,6 +216,66 @@ overrun !` and the stack dump. The dump shows who freed the cell, not who
 wrote on it. A double free now reports the same way, `Double free !` and
 the dump. Writing a wrong guard on purpose trips the check on every free.
 
+The `fmt` command has a new engine, in `lib/text/format.inc`, so the editor
+or anything else can call `(format-lisp text)`. The layout is made from the
+code alone, the line breaks inside a form are not kept. Only white space
+between tokens is ever changed.
+
+* Indent comes from the structure, and shows which form owns each line. A
+	line is one tab in from the line its enclosing form opened on. Where
+	several forms open on the one line, each is a tab further in than the
+	one around it, so the body of a lambda sits further in than the rest of
+	the arguments of the `reduce` it is passed to. The VP block forms indent
+	the lines between them.
+
+* A form is one line if it fits, 80 columns, 120 for VP. A definition
+	always has its body on lines of its own, `cond` and `case` a clause to a
+	line. A `when`, `while` and the like is one line only with a single body
+	form. An `if` keeps its test and then form on the opening line, if they
+	fit, and the else form too if there is just the one and it fits. More
+	than one else form, and each has a line.
+
+* The limit is pressure to break, not an order to. A line over it is
+	broken where the structure has a place for it, at the outermost gap
+	that fits. A form with a body then has each body form on its own line.
+	Bindings and property lists break only before a name, and are filled.
+	A structural place at any depth is used before a gap between arguments.
+	A break must be worth it, one that would only put a scrap on a line of
+	its own is not made. A line with no place worth breaking at is left as
+	it is, until it is half as long again, and is then broken between
+	arguments, where the two lines come out most even.
+
+* Strings, comments and the lines they are on, blank lines, and the usage
+	text of a command are kept as they are.
+
+The source scanners and the doc builder stay as they are, fast and reading
+a line at a time. `fmt` works round them. A form they look for, `defun`
+`dec-method` `import` `ffi` `call` a VP instruction and the like, starts a
+line if and only if it did in the source. Such a line is never broken, nor
+is the opening line of a definition. Comments right under such a line stay
+right under it, as they are its docs, and the lines of a key map are kept,
+as the docs quote them.
+
+Checked on a formatted copy of the whole tree, 707 files, not on samples.
+The Lisp reader gives the same forms for every file. All six boot images
+and all 6,417 object files build byte for byte the same. `make docs` gives
+the same docs. The lint, `includes`, `forward` and `brackets` checks give
+the same output. The test suite passes. A second pass changes nothing. It
+changes 19.4% of the lines, in 511 files, and takes 15 seconds on 10 nodes.
+
+`fmt` does not trust its own result. It reads the source and the result
+with the Lisp reader, and leaves the file alone, with a message, if the
+forms differ or if anything but white space changed. `fmt -l 0` keeps the
+line breaks of the source, and only indents and tidies, that changes 5.3%
+of the lines. `make fmt` runs it over the whole tree.
+
+`tests/text/test_format.lisp` holds each rule as a test, 134 in all, and
+checks that `fmt` formats its own source and finds nothing to do. `fmt -w`
+on many files does the checking in the farm and the writing in the one
+task after, as a task starting up could import a library file half written.
+
+The tree itself has not been formatted, that is a decision still to make.
+
 The `tests` command now runs the modules in parallel. It follows the `-j`
 habit of the other commands, `-j --jobs num` is the most modules to a
 batch, default 1, each batch a task farmed over the nodes with

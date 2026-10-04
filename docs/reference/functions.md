@@ -93,10 +93,31 @@ launch logout app
 (age path) -> 0 | time ns
 ```
 
+### ahead
+
+```code
+(ahead chain cands tokens) -> :nil | token index
+
+look ahead. A break has been found inside the forms that open on this
+line at the tokens in chain, outermost first. Those forms are going to
+be over several lines. Better that such a form starts a line of its
+own, near the left, than hangs off the end of this one. So give the
+gap before the outermost of them, if there is one and it is more than
+a last resort.
+```
+
 ### align
 
 ```code
 (align num div) -> num
+```
+
+### apply-tokens
+
+```code
+(apply-tokens tokens body ind end)
+
+move the stack of open forms over the tokens up to end
 ```
 
 ### array?
@@ -331,6 +352,14 @@ returns :t if csr2 is enclosed within (or equal to) csr1
 (each-mergeable lambda seq) -> seq
 ```
 
+### elem-end
+
+```code
+(elem-end tokens i n) -> pos
+
+where the element that starts at token i ends
+```
+
 ### empty?
 
 ```code
@@ -444,6 +473,14 @@ iterates through files, processing lines.
 new files returned by the handler are merged into the work list.
 ```
 
+### find-break
+
+```code
+(find-break tokens body ind limit) -> :nil | token index
+
+where to break a line, by the rules of the forms on it
+```
+
 ### fixed?
 
 ```code
@@ -474,6 +511,43 @@ new files returned by the handler are merged into the work list.
 (flush-bits stream (array bit_pool bit_pool_size))
 ```
 
+### form-elems
+
+```code
+(form-elems tokens i n) -> num
+
+the count of elements in the form that opens at token i, operator and
+all, or 1000 if it does not close on this line
+```
+
+### form-op
+
+```code
+(form-op tokens body i) -> :nil | str
+
+the operator of the form that opens at token i
+```
+
+### form-rule
+
+```code
+(form-rule op par_rule par_argc tokens body i n) -> rule
+
+the rule for the form that opens at token i, given the rule of the
+form around it, and the index of that form's last element
+```
+
+### format-lisp
+
+```code
+(format-lisp data [limit wide]) -> str
+
+format the source text. limit is the line length to break at, default
+80, VP assembler lines get half as much again. wide if it is all VP.
+A limit of 0 keeps the line breaks of the source, and only indents and
+tidies.
+```
+
 ### found?
 
 ```code
@@ -498,6 +572,14 @@ cache loading of function blobs etc
 
 ```code
 (func? form) -> :t | :nil
+```
+
+### gap-weight
+
+```code
+(gap-weight rule j) -> :nil | num
+
+the weight of the gap before argument j of a form, :nil for never
 ```
 
 ### gather
@@ -765,6 +847,16 @@ tells us which vertices are inside the surface
 (json-to-tre str_or_stream) -> pmap | list | scalar
 ```
 
+### keep-word?
+
+```code
+(keep-word? text pos) -> :t | :nil
+
+would a source scanner, reading a line that starts at pos, take it
+for a form it looks for ? Such a line must start where it did in the
+source, no more and no less.
+```
+
 ### lambda-func?
 
 ```code
@@ -797,6 +889,22 @@ very basic attenuation and diffuse
 (lighting-at3 col at sp)
 
 very basic attenuation, diffuse and specular
+```
+
+### line-indent
+
+```code
+(line-indent tokens body lead) -> indent
+
+the indent of a line, from the open forms and what it starts with
+```
+
+### line-op
+
+```code
+(line-op tokens body) -> :nil | str
+
+the operator of the form the line starts with
 ```
 
 ### lisp-nodes
@@ -839,6 +947,14 @@ very basic attenuation, diffuse and specular
 
 ```code
 (long-to-hex-str num) -> str
+```
+
+### low-weight
+
+```code
+(low-weight rule) -> :nil | num
+
+the lowest weight of a rule, :nil if it never breaks
 ```
 
 ### lz4-compress
@@ -919,6 +1035,15 @@ very basic attenuation, diffuse and specular
 (msafe? o) -> :t | :nil
 ```
 
+### must-break?
+
+```code
+(must-break? rule elems) -> :t | :nil
+
+is the form broken however short, as it has more than the one of its
+last arguments
+```
+
 ### neg?
 
 ```code
@@ -935,6 +1060,14 @@ very basic attenuation, diffuse and specular
 
 ```code
 (net-quiet [delay_us] [stable_count] [last_cnt]) -> (node_id ...)
+```
+
+### next-op
+
+```code
+(next-op tokens body i n) -> :nil | str
+
+the word a line would start with, were it to start at token i
 ```
 
 ### nil?
@@ -1117,6 +1250,14 @@ scan the stdio args and process according to the optlist
 (pad form width [str]) -> str
 ```
 
+### pairs-value?
+
+```code
+(pairs-value? rule j) -> :t | :nil
+
+is argument j of a form, with this rule, the value of a binding
+```
+
 ### path-gen-ellipse
 
 ```code
@@ -1286,6 +1427,15 @@ for it. An empty pattern stays empty, and matches as it would without.
 project verts to screen
 ```
 
+### repl-error?
+
+```code
+(repl-error? tokens body i n) -> :t | :nil
+
+is the form that opens at token i a jump or call to :repl_error, such
+a line holds the usage of a function, and is never broken
+```
+
 ### replace-compile
 
 ```code
@@ -1368,6 +1518,15 @@ restart a child
 (rpad form width [str]) -> str
 ```
 
+### scan-line
+
+```code
+(scan-line body instr) -> (tokens instr)
+
+the tokens of a line as (kind start end), as the Lisp reader would see
+them. instr is the class of the closing char if in a string.
+```
+
 ### scatter
 
 ```code
@@ -1412,12 +1571,29 @@ adjust text offset
 (slices list) -> ((s0 e0) (s1 e1) ...)
 ```
 
+### solid-frame
+
+```code
+(solid-frame) -> :nil | frame
+
+the innermost open form that is not transparent
+```
+
 ### sort
 
 ```code
 (sort list [fcmp start end]) -> list
 
 the default fcmp is cmp, which is for strings
+```
+
+### squeeze
+
+```code
+(squeeze body tokens) -> str
+
+the line with one space between its tokens, and none inside a bracket.
+The gap before a comment at the end is kept, it may line comments up.
 ```
 
 ### start
@@ -1670,6 +1846,19 @@ iterative topological sort using a heap-allocated DFS stack
 
 ```code
 (ui-tool-tips view tips)
+```
+
+### unbreak
+
+```code
+(unbreak data) -> (lines frozen)
+
+take out the line breaks inside forms, so the layout is then made
+from nothing but the code. A line stays a line of its own if it is
+blank, a comment, follows a comment, is in a string or the help text
+of a command, or starts with a form the source scanners look for.
+A frozen line is one that must not then be broken. The doc builder
+reads the comments under a definition, and the lines of a key map.
 ```
 
 ### unique

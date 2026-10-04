@@ -285,6 +285,12 @@ each rule and worked examples of the right and wrong way. In short:
 *	**Tab Style:**
 	Indent with tab characters, 4 wide, in source and in documentation.
 
+*	**Indentation and the `fmt` Command:**
+	A line is one tab in from the line its enclosing form opened on. Forms
+	that open on the same line are each a tab further in, so the indent
+	shows which form owns a line. `fmt` applies this and lays out each form,
+	changing only white space.
+
 *	**Sensible `defq` and `setq` Line Wrapping:**
 	Pack several variable and value pairs per line, up to about 80 to 100
 	columns, and combine consecutive `defq` forms into one.
