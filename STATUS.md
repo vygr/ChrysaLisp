@@ -297,6 +297,15 @@ these. And an install from before this cannot build its way forward, the
 old boot image does not have the functions the Lisp library now binds, so
 update with `make install`, which starts from the new `snapshot.zip`.
 
+A network can size itself to the machine. `./run_tui.sh -n 0`, and the
+same for `run.sh` and the topology scripts, starts one node, which runs
+`(node-auto)` before the script it was given. That starts nodes till there
+are 2 for each processor, and no more than 32, fully connected, and waits
+till they are seen, so the services started next spread over them, they do
+not all end up on the first node. 32 nodes on a 16 processor MacBook are up
+in a third of a second. The PowerShell and batch scripts do not have this
+yet.
+
 A test that changes the network, adds a node say, upsets the tests running
 beside it. Such a module goes in `tests/solo/`, the runner runs those one at
 a time after all the others. `tests/solo/test_spawn.lisp` starts a node,

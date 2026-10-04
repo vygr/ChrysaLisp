@@ -69,6 +69,18 @@ function wrap
 	fi
 }
 
+#with -n 0 the first node sizes the network to the machine. It starts
+#the other nodes, and then runs the script it was given.
+function auto_run
+{
+	if [ "$auto" == "" ]
+	then
+		echo "$1"
+	else
+		echo "(progn (node-auto) (import {$1}))"
+	fi
+}
+
 function boot_cpu_gui
 {
 	if [ $num_gui -eq 0 ]
@@ -77,9 +89,9 @@ function boot_cpu_gui
 		then
 			if [ "$front" == "" ]
 			then
-				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script &
+				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run $script)" &
 			else
-				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
+				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run $script)"
 				status=$?
 				restore_tty
 				{
@@ -94,9 +106,9 @@ function boot_cpu_gui
 	then
 		if [ "$front" == "" ] || [ $1 -ge 1 ]
 		then
-			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run service/gui/app.lisp &
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run service/gui/app.lisp)" &
 		else
-			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run apps/tui/tui_gui.lisp
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run apps/tui/tui_gui.lisp)"
 			status=$?
 			restore_tty
 			{
@@ -115,12 +127,12 @@ function boot_cpu_tui
 	then
 		if [ "$front" == "" ]
 		then
-			./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
+			./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run $script)"
 			status=$?
 			restore_tty
 			return $status
 		else
-			./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
+			./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run $script)"
 			status=$?
 			restore_tty
 			{
@@ -142,6 +154,7 @@ function main
 	num_gui=1
 	emu=""
 	front=""
+	auto=""
 	script="apps/tui/tui.lisp"
 	while [ "$#" -gt 0 ]; do
 	case $1 in
@@ -167,13 +180,18 @@ function main
 			;;
 		-n)
 			num_cpu=$2
+			if [ $num_cpu -eq 0 ]
+			then
+				auto=1
+				num_cpu=1
+			fi
 			shift 2
 			;;
 		-b)
 			base_cpu=$2
 			shift 2
 			;;
-		*)	echo "[-n cnt] number of nodes"
+		*)	echo "[-n cnt] number of nodes, 0 to size to the machine"
 			echo "[-b base] base offset"
 			echo "[-g cnt] number of guis"
 			echo "[-s script_name] script mode"

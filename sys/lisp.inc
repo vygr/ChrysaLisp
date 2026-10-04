@@ -47,6 +47,10 @@
 		(if (= 0 (get-long tail 0)) (setq tail (task-mbox))))
 	ids)
 
+(defun task-timeout (time)
+	; (task-timeout s) -> ns
+	(if (starts-with "obj/vp64" (load-path)) (* time 10000000) (* time 1000000)))
+
 (defun node-link (name)
 	; (node-link name) -> net_id
 	;start a shared memory link on this node. The node at the other end
@@ -60,7 +64,8 @@
 	;start num more nodes on this machine, default 1, each linked to this
 	;node and to each other. A pid of -1 is a node the host could not start.
 	(setd num 1)
-	(defq links (map (lambda (_) (list)) (range 0 (inc num)))
+	(if (< num 1) (list)
+	(progn (defq links (map (lambda (_) (list)) (range 0 (inc num)))
 		chars "0123456789abcdefghijklmnopqrstuvwxyz")
 	(each (lambda (i) (each (lambda (j)
 			;a link name is ???-???, the form the stop scripts clear away
@@ -73,11 +78,21 @@
 		(pii-spawn (join (map (lambda (name) (cat "-l " name)) names) " ")))
 		(rest links)))
 	(each (const node-link) (first links))
-	pids)
+	pids)))
 
-(defun task-timeout (time)
-	; (task-timeout s) -> ns
-	(if (starts-with "obj/vp64" (load-path)) (* time 10000000) (* time 1000000)))
+(defun node-auto (&optional per_cpu)
+	; (node-auto [per_cpu]) -> (pid ...)
+	;size the network to this machine. Start nodes till there are per_cpu
+	;for each processor, default 2, and no more than 32, then wait for
+	;them to be seen, so what is started next can spread over them.
+	(setd per_cpu 2)
+	(defq before (length (lisp-nodes))
+		pids (node-spawn (max 0 (- (min 32 (* per_cpu (pii-cpus))) before)))
+		want (+ before (length (filter (lambda (pid) (> pid 0)) pids)))
+		t0 (pii-time))
+	(while (and (< (length (lisp-nodes)) want) (< (- (pii-time) t0) (task-timeout 10)))
+		(task-sleep 10000))
+	pids)
 
 (defun mail-read-timeout (mbox &optional timeout)
 	; (mail-read-timeout mbox [timeout_us]) -> msg | :nil
