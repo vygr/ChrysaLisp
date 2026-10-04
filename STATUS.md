@@ -261,7 +261,20 @@ this node was busy or the machine was asleep, and do not count that time
 against the peer, or the nodes. Suspending all 4 nodes of a network for 13
 seconds, the links used to close as it woke, now it carries on. Under the
 emulator a busy node can leave a link untouched for 8 seconds, natively the
-most seen was 0.4, so the 10 second link timeout stays.
+most seen was 0.4.
+
+A shared memory link that times out is no longer torn down. The out link
+marks it down, forgets the peer, so nothing is routed that way and the ping
+task kicks the network, and carries on watching. A peer that was only busy,
+or stopped, takes from the buffer again, the in link hears from it, and the
+link is up again. So a wrong guess costs a moment, not a node, and the
+timeout is now 3 seconds, not 10. It also learns. When a peer comes back
+after leaving the link for a time, it is allowed twice that from then on,
+up to 60 seconds, and that fades by a sixteenth each second, so a peer that
+later dies is not waited on for long. One node of 4 stopped for 12 seconds
+is dropped after 7, and is back a third of a second after it is resumed.
+Stopped again for 6 seconds it is not dropped. Killed, it is gone 12
+seconds later, the time is still fading from the first stop.
 
 New launch scripts, `run_tui_ring.sh`, `run_tui_cube.sh`, `run_tui_tree.sh`,
 `run_tui_mesh.sh` and `run_tui_star.sh`, the topologies with no GUI, so

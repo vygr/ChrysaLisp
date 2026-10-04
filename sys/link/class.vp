@@ -254,10 +254,10 @@
 	(def-vars
 		(ptr statics lk_node key msg data tx head tail)
 		(nodeid node_id system_id)
-		(long is_owner then now beat last)
+		(long is_owner then now beat last gap timeout)
 		(ptr last_tail)
 		(int free)
-		(uint last_count sleep_time seen))
+		(uint last_count sleep_time seen down))
 
 	(push-scope)
 
@@ -284,7 +284,7 @@
 	(endif)
 	(call :host_os :pii_time :nil {then})
 	(assign {tx, tx, lk_sleep_min, 0} {head, tail, sleep_time, last_count})
-	(assign {tx, then, then, 0} {last_tail, now, beat, seen})
+	(assign {tx, then, then, 0, 0, lk_timeout} {last_tail, now, beat, seen, down, timeout})
 
 	;write messages through the shared buffer
 	(loop-start)
@@ -315,7 +315,19 @@
 			;room in the buffer does not, a dead peer leaves plenty. A peer
 			;that has yet to take anything may not have started, so wait.
 			(vpif {tail /= last_tail})
-				(assign {1} {seen})
+				;it has, so if the link was down it is up again. And learn
+				;from how long the peer left it, a busy node is not a dead
+				;one, so allow this peer twice as long from now on.
+				(vpif {seen})
+					(assign {(now - then) * 2} {gap})
+					(vpif {gap > lk_timeout_max})
+						(assign {lk_timeout_max} {gap})
+					(endif)
+					(vpif {gap > timeout})
+						(assign {gap} {timeout})
+					(endif)
+				(endif)
+				(assign {1, 0} {seen, down})
 			(endif)
 			(vpif {tail /= last_tail || tail = head || seen = 0})
 				(assign {tail, now} {last_tail, then})
@@ -323,11 +335,15 @@
 
 			;need to send a ping ? If my task count has changed, or as a
 			;heartbeat, so there is always something for a live peer to take
-			(vpif {statics->statics_sys_task_task_count /= last_count || (seen && now - beat > lk_beat)})
+			(vpif {statics->statics_sys_task_task_count /= last_count || (seen && down = 0 && now - beat > lk_beat)})
 				;wait for at least one lk_node, plus buf header as we
 				;must write another lk_chan_status_ready to halt the :in !
 				(breakif {free < (lk_node_size + lk_buf_size)} 'sleep)
 				(assign {now} {beat})
+
+				;what was learned of a busy peer fades, so one that then
+				;dies is not waited on for long
+				(assign {timeout - ((timeout - lk_timeout) >> 4)} {timeout})
 
 				;write my task count, node id, and system id
 				(vp-rdef (dst cnt t0 t1 t2 t3))
@@ -428,20 +444,26 @@
 			(assign {then + (now - last)} {then})
 		(endif)
 
-		;exit if blocked longer than timeout
-		(breakif {now - then > lk_timeout})
-	(loop-end)
+		;if the peer has taken nothing for longer than the timeout, mark
+		;the link down. The peer is forgotten, so nothing is sent this way,
+		;and the ping task sees the change and kicks the network. If the
+		;peer was just busy, the :in sets it again when it next hears
+		;from it, and the link is up again.
+		(vpif {down = 0 && now - then > timeout})
+			(assign {1} {down})
+			(vp-rdef (node zero))
+			(assign {lk_node, 0} `(,node ,zero))
+			(save-fields node
+					`(,(+ lk_node_peer_node_id +node_id_node1)
+					,(+ lk_node_peer_node_id +node_id_node2)
+					,(+ lk_node_peer_system_id +node_id_node1)
+					,(+ lk_node_peer_system_id +node_id_node2))
+				`(,zero ,zero ,zero ,zero))
+		(endif)
 
-	;mark link closed
-	(vp-rdef (node cnt zero))
-	(assign {lk_node, -1, 0} `(,node ,cnt ,zero))
-	(save-fields node
-			`(lk_node_task_count
-			,(+ lk_node_peer_node_id +node_id_node1)
-			,(+ lk_node_peer_node_id +node_id_node2)
-			,(+ lk_node_peer_system_id +node_id_node1)
-			,(+ lk_node_peer_system_id +node_id_node2))
-		`(,cnt ,zero ,zero ,zero ,zero))
+		;exit if link closed
+		(breakif {lk_node->lk_node_task_count = -1})
+	(loop-end)
 
 	(call :nodeid :destroy {key})
 
