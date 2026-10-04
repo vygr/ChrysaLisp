@@ -621,12 +621,22 @@
 									(:t
 										(reduce (# (if (<= (elem-get %1 5) (elem-get %0 5)) %1 %0)) even)))))
 					(when best
-						(defq at (or
-									;look ahead, the break may be better made further out.
-									;But not for a form that is only being filled, a list
-									;of data, or the arguments of a call
-									(and (not (elem-get (elem-get best 6) +r_fill))
-										(ahead (open-starts tokens (second best)) cands tokens)) (second best)))
+						(defq starts (open-starts tokens (second best))
+							;how much room the lines that carry the form on
+							;would have, they sit just past where it starts
+							room
+								(if (nempty? starts)
+									(- limit
+										(* (inc (/ (+ left (second (elem-get tokens (last starts)))) +tab_width))
+											+tab_width))
+									limit) at (or
+												;look ahead, the break may be better made further
+												;out. A form that is only being filled, a list of
+												;data or the arguments of a call, stays where it is,
+												;unless it would have less than half the line.
+												(and (or (not (elem-get (elem-get best 6) +r_fill))
+														(< room (/ limit 2)))
+													(ahead starts cands tokens)) (second best)))
 						;a break must be worth it. If all it would do is put a
 						;scrap on a line of its own, the line is left as it is,
 						;until it is half as long again.
