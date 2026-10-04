@@ -483,6 +483,74 @@ int64_t pii_sysid(char *buf, size_t len)
 	return 0;
 }
 
+extern char **host_argv;
+static char pii_spawn_buf[8192];
+
+int64_t pii_spawn(const char *args)
+{
+	//start another node, this host and this boot image, with these args.
+	//returns its process id, or -1.
+	if (!host_argv) return -1;
+	int n = snprintf(pii_spawn_buf, sizeof(pii_spawn_buf), "\"%s\" %s %s%s",
+		host_argv[0], host_argv[1], args, run_emu ? " -e" : "");
+	if (n < 0 || n >= (int)sizeof(pii_spawn_buf)) return -1;
+	//it does not share the console input
+	SECURITY_ATTRIBUTES sa;
+	memset(&sa, 0, sizeof(sa));
+	sa.nLength = sizeof(sa);
+	sa.bInheritHandle = TRUE;
+	HANDLE nul = CreateFileA("NUL", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, OPEN_EXISTING, 0, NULL);
+	STARTUPINFOA si;
+	PROCESS_INFORMATION pi;
+	memset(&si, 0, sizeof(si));
+	memset(&pi, 0, sizeof(pi));
+	si.cb = sizeof(si);
+	si.dwFlags = STARTF_USESTDHANDLES;
+	si.hStdInput = nul;
+	si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+	BOOL ok = CreateProcessA(NULL, pii_spawn_buf, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi);
+	if (nul != INVALID_HANDLE_VALUE) CloseHandle(nul);
+	if (!ok) return -1;
+	CloseHandle(pi.hThread);
+	CloseHandle(pi.hProcess);
+	return (int64_t)pi.dwProcessId;
+}
+
+int64_t pii_pid()
+{
+	return (int64_t)GetCurrentProcessId();
+}
+
+int64_t pii_alive(int64_t pid)
+{
+	//is this process running ? 1 if so, else 0
+	if (pid <= 0) return 0;
+	HANDLE h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, (DWORD)pid);
+	if (!h) return 0;
+	DWORD code = 0;
+	BOOL ok = GetExitCodeProcess(h, &code);
+	CloseHandle(h);
+	return (ok && code == STILL_ACTIVE) ? 1 : 0;
+}
+
+int64_t pii_cpus()
+{
+	//the number of processors this machine has online
+	SYSTEM_INFO info;
+	GetSystemInfo(&info);
+	return info.dwNumberOfProcessors < 1 ? 1 : (int64_t)info.dwNumberOfProcessors;
+}
+
+int64_t pii_memory()
+{
+	//the physical memory this machine has, in bytes
+	MEMORYSTATUSEX ms;
+	ms.dwLength = sizeof(ms);
+	if (!GlobalMemoryStatusEx(&ms)) return 0;
+	return (int64_t)ms.ullTotalPhys;
+}
+
 void (*host_os_funcs[]) = {
 	(void*)exit,
 	(void*)pii_stat,
@@ -504,6 +572,11 @@ void (*host_os_funcs[]) = {
 	(void*)pii_random,
 	(void*)pii_sleep,
 	(void*)pii_sysid,
+	(void*)pii_spawn,
+	(void*)pii_pid,
+	(void*)pii_alive,
+	(void*)pii_cpus,
+	(void*)pii_memory,
 };
 
 #endif

@@ -444,6 +444,16 @@
 ; (pii-time) -> ns
 (ffi "sys/pii/lisp_exit" pii-exit)
 ; (pii-exit)
+(ffi "sys/pii/lisp_spawn" pii-spawn)
+; (pii-spawn args) -> pid | -1
+(ffi "sys/pii/lisp_pid" pii-pid)
+; (pii-pid) -> pid
+(ffi "sys/pii/lisp_alive" pii-alive)
+; (pii-alive pid) -> :nil | :t
+(ffi "sys/pii/lisp_cpus" pii-cpus)
+; (pii-cpus) -> num
+(ffi "sys/pii/lisp_memory" pii-memory)
+; (pii-memory) -> bytes
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Kernel & System

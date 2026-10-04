@@ -180,6 +180,38 @@ Direct primitives bridging ChrysaLisp to host operating system drivers.
 
 	*	`(pii-exit)`
 
+*	**`pii-spawn`**: Starts another node, the same host program and boot
+	image as this one, with the given command line arguments. Gives its
+	process id, or -1.
+
+	*	`(pii-spawn args) -> pid | -1`
+
+*	**`pii-pid`**: The process id of this node.
+
+	*	`(pii-pid) -> pid`
+
+*	**`pii-alive`**: Is the process with this id running ?
+
+	*	`(pii-alive pid) -> :nil | :t`
+
+*	**`pii-cpus`**: The number of processors the machine has online.
+
+	*	`(pii-cpus) -> num`
+
+*	**`pii-memory`**: The physical memory of the machine, in bytes.
+
+	*	`(pii-memory) -> bytes`
+
+*	**`node-spawn`**: Starts more nodes on this machine, each linked by
+	shared memory to this node and to each other. Gives their process ids.
+
+	*	`(node-spawn [num]) -> (pid ...)`
+
+*	**`node-link`**: Starts a shared memory link on this node, the node at
+	the other end starts one of the same name.
+
+	*	`(node-link name) -> net_id`
+
 ## File and Directory Utilities
 
 Filesystem traversal, dependency analysis, and path resolution.

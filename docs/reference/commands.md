@@ -551,6 +551,12 @@ Usage: nodes [options]
 
     options:
         -h --help: this help info.
+        -a --add num: start num more nodes on this machine,
+            linked to this node and to each other.
+        -i --info: this node's process id, and the processors
+            and memory of its machine.
+
+    List the nodes known to this node.
 ```
 ## null
 ```code
@@ -768,6 +774,9 @@ Usage: tests [options] [path] ...
     The modules run in parallel, a batch to a task, over the
     nodes. If they all fit in one batch they run in this task,
     one after another, so a large -j is a serial run.
+
+    A module in tests/solo/ changes the network, so those are
+    run one at a time, after all the others.
 
     Prints the failures and a summary.
 ```

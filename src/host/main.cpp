@@ -36,6 +36,9 @@ extern void(*host_audio_funcs[]);
 
 extern void (*host_net_funcs[]);
 
+//how this host was started, so it can start another like itself
+char **host_argv = nullptr;
+
 #ifdef _WIN64
 DWORD old_mode;
 
@@ -86,6 +89,7 @@ void *host_calls[] = {
 int main(int argc, char *argv[])
 {
 	int ret_val = 0;
+	host_argv = argv;
 	if (argc > 1)
 	{
 		//check for -e option

@@ -20,6 +20,9 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sched.h>
+#include <spawn.h>
+#include <signal.h>
+#include <errno.h>
 #include <libkern/OSCacheControl.h>
 
 static char pii_path_buf[4096];
@@ -397,6 +400,62 @@ int64_t pii_sysid(char *buf, size_t len)
 	return 0;
 }
 
+extern char **environ;
+extern char **host_argv;
+static char pii_spawn_buf[4096];
+
+int64_t pii_spawn(const char *args)
+{
+	//start another node, this host and this boot image, with these args.
+	//returns its process id, or -1.
+	char *argv[68];
+	int argc = 0;
+	size_t len = strlen(args);
+	if (!host_argv || len >= sizeof(pii_spawn_buf)) return -1;
+	memcpy(pii_spawn_buf, args, len + 1);
+	argv[argc++] = host_argv[0];
+	argv[argc++] = host_argv[1];
+	for (char *tok = strtok(pii_spawn_buf, " "); tok && argc < 64; tok = strtok(NULL, " ")) argv[argc++] = tok;
+	if (run_emu) argv[argc++] = (char*)"-e";
+	argv[argc] = NULL;
+	//no zombies when it exits, and it does not share the terminal input
+	signal(SIGCHLD, SIG_IGN);
+	posix_spawn_file_actions_t fa;
+	posix_spawn_file_actions_init(&fa);
+	posix_spawn_file_actions_addopen(&fa, 0, "/dev/null", O_RDONLY, 0);
+	pid_t pid;
+	int err = posix_spawn(&pid, argv[0], &fa, NULL, argv, environ);
+	posix_spawn_file_actions_destroy(&fa);
+	return err ? -1 : (int64_t)pid;
+}
+
+int64_t pii_pid()
+{
+	return (int64_t)getpid();
+}
+
+int64_t pii_alive(int64_t pid)
+{
+	//is this process running ? 1 if so, else 0
+	if (pid <= 0) return 0;
+	return (kill((pid_t)pid, 0) == 0 || errno == EPERM) ? 1 : 0;
+}
+
+int64_t pii_cpus()
+{
+	//the number of processors this machine has online
+	long n = sysconf(_SC_NPROCESSORS_ONLN);
+	return n < 1 ? 1 : (int64_t)n;
+}
+
+int64_t pii_memory()
+{
+	//the physical memory this machine has, in bytes
+	long pages = sysconf(_SC_PHYS_PAGES);
+	long size = sysconf(_SC_PAGESIZE);
+	return (pages < 0 || size < 0) ? 0 : (int64_t)pages * (int64_t)size;
+}
+
 void (*host_os_funcs[]) = {
 	(void*)exit,
 	(void*)pii_stat,
@@ -418,6 +477,11 @@ void (*host_os_funcs[]) = {
 	(void*)pii_random,
 	(void*)pii_sleep,
 	(void*)pii_sysid,
+	(void*)pii_spawn,
+	(void*)pii_pid,
+	(void*)pii_alive,
+	(void*)pii_cpus,
+	(void*)pii_memory,
 };
 
 #endif

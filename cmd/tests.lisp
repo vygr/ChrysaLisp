@@ -23,6 +23,9 @@
     nodes. If they all fit in one batch they run in this task,
     one after another, so a large -j is a serial run.
 
+    A module in tests/solo/ changes the network, so those are
+    run one at a time, after all the others.
+
     Prints the failures and a summary.")
 (("-m" "--match") ,(opt-str 'opt_m))
 (("-l" "--list") ,(opt-flag 'opt_l))

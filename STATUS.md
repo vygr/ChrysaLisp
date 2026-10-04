@@ -276,6 +276,40 @@ is dropped after 7, and is back a third of a second after it is resumed.
 Stopped again for 6 seconds it is not dropped. Killed, it is gone 12
 seconds later, the time is still fading from the first stop.
 
+An emulated node runs some 10 times slower, so the VP64 build gives a link
+30 seconds, and the ping window and slack are 10 times longer too. With 3
+seconds the suite on 4 emulated nodes would sometimes lose a node and hang.
+
+The host can now be asked about the machine, and to start another node. New
+host functions, `pii_spawn`, `pii_pid`, `pii_alive`, `pii_cpus` and
+`pii_memory`, on Darwin, Linux and Windows, and from Lisp `(pii-spawn args)`
+`(pii-pid)` `(pii-alive pid)` `(pii-cpus)` and `(pii-memory)`. `pii_spawn`
+runs the same host program and boot image as the node that asks, with the
+arguments given, and `-e` if that node is emulated. `(node-spawn [num])`
+uses it to start more nodes on this machine, each joined by a shared memory
+link to this node and to each other, and `(node-link name)` starts one end
+of such a link on a running node. `nodes -a 3` adds 3 nodes, `nodes -i`
+shows the process id, processors and memory. A node started this way is
+seen on the network a tenth of a second later. The Windows side builds,
+with `make -f Makefile.mingw`, but has not been run. The host programs must
+be rebuilt, `make`, a new boot image on an old host will crash if it calls
+these.
+
+A test that changes the network, adds a node say, upsets the tests running
+beside it. Such a module goes in `tests/solo/`, the runner runs those one at
+a time after all the others. `tests/solo/test_spawn.lisp` starts a node,
+runs a task on it and ends it. `tests/system/test_host.lisp` checks the
+rest.
+
+The lock test that failed now and then is explained. Two messages sent one
+after the other from one task to another can arrive the other way round,
+when there is more than one route between the nodes. On a cube of 27, 200
+numbered messages to each other node, 17 of the 26 saw some out of order,
+on a full mesh none do. The test sent a write claim then a read claim, and
+expected the write to be queued first. It failed 2 runs in 8 on the cube,
+now it waits to see the write queued before it sends the read, and passed
+14 of 14. The mail system itself is as it was, it does not keep the order.
+
 New launch scripts, `run_tui_ring.sh`, `run_tui_cube.sh`, `run_tui_tree.sh`,
 `run_tui_mesh.sh` and `run_tui_star.sh`, the topologies with no GUI, so
 `echo "tests" | ./run_tui_cube.sh -n 3 -f` runs the suite on a cube of 27.

@@ -1090,6 +1090,24 @@ the word a line would start with, were it to start at token i
 (nlz num) -> num
 ```
 
+### node-link
+
+```code
+(node-link name) -> net_id
+
+start a shared memory link on this node. The node at the other end
+starts one of the same name.
+```
+
+### node-spawn
+
+```code
+(node-spawn [num]) -> (pid ...)
+
+start num more nodes on this machine, default 1, each linked to this
+node and to each other. A pid of -1 is a node the host could not start.
+```
+
 ### nto
 
 ```code

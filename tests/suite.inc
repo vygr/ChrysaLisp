@@ -180,17 +180,22 @@
 		*test_verbose* verbose *test_frames* frames)
 	;services the modules rely on
 	(unless child (open-child "service/lock/app.lisp" +kn_call_run))
+	;a module in tests/solo/ changes the network, adds a node say, which
+	;would upset the others, so those run here, one at a time, at the end
+	(defq solo (filter (# (starts-with "tests/solo/" %0)) modules)
+		others (filter (# (not (starts-with "tests/solo/" %0))) modules))
 	(cond
 		((or child (<= (length modules) jobs))
-			(each (# (test-run-module %0)) modules))
+			(each (# (test-run-module %0)) others))
 		(:t ;farm out the batches, show the results in module order
 			(defq opts (cat " -c -j " (str jobs) (if verbose " -v" "") (if frames " -f" ""))
 				cmds (map (# (cat "tests" opts " " (join %0 " ")))
-					(partition modules jobs))
+					(partition others jobs))
 				outs (Fmap 31))
 			(each (lambda ((cmd out)) (. outs :insert cmd out))
 				(pipe-farm (cat cmds) +test_retry))
 			(each (# (test-collect %0 (. outs :find %0))) cmds)))
+	(each (# (test-run-module %0)) solo)
 	(if frames (setq *stack_frame* :nil))
 	(cond
 		(child (print +test_counts *test_passes* " " *test_failures* " " *test_skips*))

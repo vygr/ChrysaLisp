@@ -47,6 +47,34 @@
 		(if (= 0 (get-long tail 0)) (setq tail (task-mbox))))
 	ids)
 
+(defun node-link (name)
+	; (node-link name) -> net_id
+	;start a shared memory link on this node. The node at the other end
+	;starts one of the same name.
+	(defq link (open-child "sys/link/link" +kn_call_pin))
+	(if (/= 0 (get-long link 0)) (mail-send link (cat name (char 0))))
+	link)
+
+(defun node-spawn (&optional num)
+	; (node-spawn [num]) -> (pid ...)
+	;start num more nodes on this machine, default 1, each linked to this
+	;node and to each other. A pid of -1 is a node the host could not start.
+	(setd num 1)
+	(defq links (map (lambda (_) (list)) (range 0 (inc num)))
+		chars "0123456789abcdefghijklmnopqrstuvwxyz")
+	(each (lambda (i) (each (lambda (j)
+			;a link name is ???-???, the form the stop scripts clear away
+			(defq name (apply (const cat) (map (lambda (_)
+				(if (= _ 3) "-" (elem-get chars (random 36)))) (range 0 7))))
+			(push (elem-get links i) name)
+			(push (elem-get links j) name))
+		(range (inc i) (inc num)))) (range 0 num))
+	(defq pids (map (lambda (names)
+		(pii-spawn (join (map (lambda (name) (cat "-l " name)) names) " ")))
+		(rest links)))
+	(each (const node-link) (first links))
+	pids)
+
 (defun task-timeout (time)
 	; (task-timeout s) -> ns
 	(if (starts-with "obj/vp64" (load-path)) (* time 10000000) (* time 1000000)))

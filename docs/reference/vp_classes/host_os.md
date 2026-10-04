@@ -2,15 +2,25 @@
 
 ## Lisp Bindings
 
+### (pii-alive pid) -> :nil | :t
+
+### (pii-cpus) -> num
+
 ### (pii-dirlist path) -> info
 
 ### (pii-exit)
 
 ### (pii-fstat path) -> info
 
+### (pii-memory) -> bytes
+
+### (pii-pid) -> pid
+
 ### (pii-read-char fd) -> char
 
 ### (pii-remove path)
+
+### (pii-spawn args) -> pid | -1
 
 ### (pii-time) -> ns
 
@@ -18,17 +28,23 @@
 
 ## VP methods
 
+### :alive -> :nil
+
 ### :clear_icache -> :nil
 
 ### :close -> :nil
 
 ### :close_shared -> :nil
 
+### :cpus -> :nil
+
 ### :dirlist -> :nil
 
 ### :exit -> :nil
 
 ### :gettime -> :nil
+
+### :memory -> :nil
 
 ### :mmap -> :nil
 
@@ -39,6 +55,21 @@
 ### :open -> :nil
 
 ### :open_shared -> :nil
+
+### :pid -> :nil
+
+### :pii_alive -> sys/pii/alive
+
+```code
+inputs
+:r0 = process id (long)
+outputs
+:r0 = 1 if running, else 0 (long)
+trashes
+:r0, :f0-:f15
+info
+is this process running ?
+```
 
 ### :pii_clear_icache -> sys/pii/clear_icache
 
@@ -75,6 +106,17 @@ trashes
 :r0, :f0-:f15
 ```
 
+### :pii_cpus -> sys/pii/cpus
+
+```code
+outputs
+:r0 = number of processors (long)
+trashes
+:r0, :f0-:f15
+info
+the number of processors this machine has online
+```
+
 ### :pii_dirlist -> sys/pii/dirlist
 
 ```code
@@ -98,6 +140,17 @@ trashes
 ```
 
 ### :pii_flush -> sys/pii/flush
+
+### :pii_memory -> sys/pii/memory
+
+```code
+outputs
+:r0 = physical memory in bytes (long)
+trashes
+:r0, :f0-:f15
+info
+the physical memory this machine has
+```
 
 ### :pii_mmap -> sys/pii/mmap
 
@@ -162,6 +215,17 @@ trashes
 :r0, :f0-:f15
 ```
 
+### :pii_pid -> sys/pii/pid
+
+```code
+outputs
+:r0 = process id (long)
+trashes
+:r0, :f0-:f15
+info
+the process id of this node
+```
+
 ### :pii_rand -> sys/pii/rand
 
 ```code
@@ -220,6 +284,19 @@ outputs
 :r0 = -1 if error, else file position (long)
 trashes
 :r0, :f0-:f15
+```
+
+### :pii_spawn -> sys/pii/spawn
+
+```code
+inputs
+:r0 = c string args (pubyte)
+outputs
+:r0 = process id, -1 if error (long)
+trashes
+:r0, :f0-:f15
+info
+start another node, this host and this boot image, with these args
 ```
 
 ### :pii_stat -> sys/pii/stat
@@ -325,6 +402,8 @@ trashes
 ### :seek -> :nil
 
 ### :sleep -> :nil
+
+### :spawn -> :nil
 
 ### :stat -> :nil
 
