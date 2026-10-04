@@ -49,7 +49,10 @@
 	(unless (list?? files) (setq files (list files)))
 	(when (nempty? files)
 		(shuffle files)
-		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 2)
+		;a job is started again if its node goes. The timeout is only for a
+		;worker that dies and its node does not, so it is long, a slow job
+		;must not be taken for a dead one.
+		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 60)
 			select (list (mail-mbox) (mail-mbox) (mail-mbox))
 			jobs (map (# (str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*))) files)
 			max_workers (length files)

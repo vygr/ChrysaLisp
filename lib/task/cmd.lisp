@@ -4,7 +4,10 @@
 
 (import "./pipe.inc")
 
-(defq +timeout 2000000)
+;a worker with no job for this long ends, its farm has gone and did not
+;say. It must be long, the farm's node may be busy, and a job sent to a
+;worker that has ended is lost.
+(defq +timeout (task-timeout 60))
 
 (enums +select 0
 	(enum main timeout))

@@ -292,6 +292,25 @@ later, a second for the host to say so, and the spread and window of the
 kick. All the nodes of a machine must have this build, the link's status
 has changed, the ping between machines has not.
 
+The task farms no longer lose a job on a slow machine. A farm worker,
+`lib/asm/asm.lisp` and `lib/task/cmd.lisp`, ended if it had no job for 2
+seconds, so as not to be left behind if its farm went away. But scheduling
+is cooperative, and on a Pi4 under the emulator the farm's own node is busy
+for longer than that, it cannot hand out the next job in time, the worker
+ends, and the job is then sent to nobody. The assembler's farm started a
+job again after 2 seconds, 20 emulated, which hid it, 3 jobs were started
+again in a build on the Pi4, and each one cost the time. A worker now waits
+60 seconds, the farm ends its workers itself when it is done, and the farm
+starts a job again after 60 seconds, not 2, that is only for a worker that
+dies and its node does not. The emulated build on the Pi4, 8 nodes, went
+from 53 seconds to 37, with no job started again.
+
+Mail waiting to go out was freed after 10 seconds, as undeliverable. A busy
+node does not take from its links for longer than that, so mail for a node
+that was there could be lost. It is now freed only if the node it is for is
+no longer known, and a parcel not yet whole only if the node it is from is
+not.
+
 An emulated node runs some 10 times slower, so the VP64 build gives a link
 30 seconds, and the ping window and slack are 10 times longer too. With 3
 seconds the suite on 4 emulated nodes would sometimes lose a node and hang.
