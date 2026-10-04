@@ -254,7 +254,7 @@
 	(def-vars
 		(ptr statics lk_node key msg data tx head tail)
 		(nodeid node_id system_id)
-		(long is_owner then now beat)
+		(long is_owner then now beat last)
 		(ptr last_tail)
 		(int free)
 		(uint last_count sleep_time seen))
@@ -420,8 +420,15 @@
 		(vp-min-cr lk_sleep_max sleep_time)
 		(assign `(,sleep_time) {sleep_time})
 
-		;exit if blocked longer than timeout
+		;if I have not run for a while, this node was busy, or was
+		;stopped, that time says nothing about the peer
+		(assign {now} {last})
 		(call :host_os :pii_time :nil {now})
+		(vpif {now - last > lk_stall})
+			(assign {then + (now - last)} {then})
+		(endif)
+
+		;exit if blocked longer than timeout
 		(breakif {now - then > lk_timeout})
 	(loop-end)
 

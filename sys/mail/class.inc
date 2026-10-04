@@ -61,7 +61,7 @@
 ;from in twice the period its last ping gave, plus the slack.
 (defcvar 'ping_period_min 1000000 'ping_period_max 64000000 'ping_tick 100000
 	'ping_stagger 50000 'ping_stagger_min 1000000 'ping_window 3000000
-	'ping_slack 2000000)
+	'ping_slack 2000000 'ping_stall 1000000)
 (defcvar 'num_mbox_buckets 8)
 
 ;useful helpers for net_id and node_id

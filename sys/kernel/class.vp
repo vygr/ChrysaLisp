@@ -691,7 +691,7 @@
 		(ptr statics link)
 		(pptr iter_begin iter_end)
 		(struct purge purge_size)
-		(long now sig gap rnd purge_nodes purge_mail))
+		(long now last sig gap rnd purge_nodes purge_mail))
 
 	(push-scope)
 
@@ -699,10 +699,20 @@
 	(call :sys_task :count '(-2))
 
 	(assign {@sys/statics/statics, 0, 0} {statics, purge_nodes, purge_mail})
+	(call :host_os :pii_time :nil {now})
 	(call :sys_kernel :id :nil {purge.purge_node_id.+node_id_node1, purge.purge_node_id.+node_id_node2})
 	(loop-start)
 		(call :sys_task :sleep '(ping_tick))
+		(assign {now} {last})
 		(call :host_os :pii_time :nil {now})
+
+		;if I have not run for a while, this node was busy, or was
+		;stopped, and may have missed pings. So give every node that
+		;time again before it is purged.
+		(assign {now - last} {gap})
+		(vpif {gap > ping_stall})
+			(call :hmap :each {statics->statics_sys_mail_node_map, $stall_callback, &gap})
+		(endif)
 
 		;has a link come up or gone down ? If so kick the network, and
 		;soon, but not at once, as more links may be about to change.
@@ -760,6 +770,21 @@
 
 	(pop-scope)
 	(return)
+
+(vp-label 'stall_callback)
+	;inputs
+	;:r0 = predicate data (ptr)
+	;:r1 = element iterator (pptr)
+	;:r2 = bucket list pointer (ptr)
+
+	(entry :hmap :each_callback '(:r0 :r1 :r2))
+
+	(assign '((:r0 0) (:r1 +ptr_size)) '(:r0 :r1))
+	(assign '((:r1 +array_begin)) '(:r1))
+	(assign `((:r1 ,(* +node_time +long_size))) '(:r2))
+	(vp-add-rr :r0 :r2)
+	(assign '(:r2) `((:r1 ,(* +node_time +long_size))))
+	(vp-ret)
 
 (vp-label 'purge_callback)
 	;inputs

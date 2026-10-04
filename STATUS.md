@@ -256,6 +256,13 @@ to notice it. Killing the node that joins the two halves of a quiet tree of
 notice, 1 of spread and 3 of window. `declare`, `forget`, and the answer to a `+kn_call_want`, now ask
 the ping task for a full ping, which goes within a tenth of a second.
 
+A link, and the ping task, now notice when they have not run for a while,
+this node was busy or the machine was asleep, and do not count that time
+against the peer, or the nodes. Suspending all 4 nodes of a network for 13
+seconds, the links used to close as it woke, now it carries on. Under the
+emulator a busy node can leave a link untouched for 8 seconds, natively the
+most seen was 0.4, so the 10 second link timeout stays.
+
 New launch scripts, `run_tui_ring.sh`, `run_tui_cube.sh`, `run_tui_tree.sh`,
 `run_tui_mesh.sh` and `run_tui_star.sh`, the topologies with no GUI, so
 `echo "tests" | ./run_tui_cube.sh -n 3 -f` runs the suite on a cube of 27.
