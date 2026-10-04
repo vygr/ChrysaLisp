@@ -100,28 +100,15 @@ write new code this way.
 
 *	No line starts with a close bracket, they gather on the line above.
 
-`fmt` lays a form out afresh, the line breaks you made inside it are not
-kept, and it changes only the white space between tokens. A form is one
-line if it fits in 80 columns, 120 for VP assembler. A definition always
-has its body on lines of its own, and `cond` and `case` a clause to a line.
-A longer line is broken at the outermost form that can be. It never breaks
-a string, the opening line of a definition, or a form the source scanners
-read as a line, such as `(dec-method)`. Comments, and the lines they are
-on, are kept. `fmt -l 0` keeps your line breaks and only indents.
-
-*	`fmt path ...` prints the formatted text, `fmt -c` lists the files that
-	need formatting, `fmt -w` writes them. `make fmt` does the whole tree.
-
-*	`(import "lib/text/format.inc")` gives `(format-lisp text [limit wide])`.
+The `fmt` command, `lib/text/format.inc`, is an experiment and is parked.
+Do not run `fmt -w` or `make fmt` on the tree, and do not treat its output
+as the standard. The indent rules above are how the source is written by
+hand, and stand without it.
 
 *	The source scanners and the doc builder read a line at a time, and take
 	a line that starts with `defun`, `defmethod`, `ffi`, `dec-method` and
 	such to be one. So never start a line of data, or of a string, with one
-	of those words. `fmt` will not create such a line, but you can.
-
-*	The tree as a whole has not yet been run through `fmt`. Until it has, do
-	not run `fmt -w` on a file you are making a small change to, the diff
-	would bury the change.
+	of those words.
 
 ## Sensible `defq` and `setq` Line Wrapping
 
