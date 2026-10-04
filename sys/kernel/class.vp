@@ -691,7 +691,7 @@
 		(long now))
 
 	(def-vars
-		(ptr statics link)
+		(ptr statics link key)
 		(pptr iter_begin iter_end)
 		(struct purge purge_size)
 		(long now last sig gap rnd purge_nodes purge_mail))
@@ -702,6 +702,7 @@
 	(call :sys_task :count '(-2))
 
 	(assign {@sys/statics/statics, 0, 0} {statics, purge_nodes, purge_mail})
+	(call :nodeid :create '(0) {key})
 	(call :host_os :pii_time :nil {now})
 	(call :sys_kernel :id :nil {purge.purge_node_id.+node_id_node1, purge.purge_node_id.+node_id_node2})
 	(loop-start)
@@ -764,10 +765,10 @@
 		;purge stale messages and parcels
 		(vpif {now >= purge_mail})
 			(assign {now + ping_period} {purge_mail})
-			(assign {&statics->statics_sys_mail_outbound_list, now} '(:r0 :r1))
-			(vp-call 'purge_mail)
-			(assign {&statics->statics_sys_mail_parcel_list, now} '(:r0 :r1))
-			(vp-call 'purge_mail)
+			(assign {&statics->statics_sys_mail_outbound_list, now, key} '(:r0 :r1 :r2))
+			(vp-call 'purge_mail_out)
+			(assign {&statics->statics_sys_mail_parcel_list, now, key} '(:r0 :r1 :r2))
+			(vp-call 'purge_mail_in)
 		(endif)
 	(loop-end)
 
@@ -839,34 +840,48 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(vp-label 'purge_mail)
+(defun kn-purge-mail (name id)
+	;emit a routine to free the stale mail in a list. Mail is stale if it
+	;has been in the list for 2 ping periods, and the node it is to, or
+	;from, is no longer known. Mail for a node that is known stays, however
+	;long, the node is busy, and will take it when it can.
 	;inputs
 	;:r0 = mail list (ptr)
 	;:r1 = now (long)
-
-	(structure local 0
-		(ptr next)
-		(long now))
-
+	;:r2 = nodeid key object (ptr)
+	(vp-label name)
 	(vp-rdef (time now node next))
-
-	(vp-alloc local_size)
-	(entry `(,next ,now))
-
-	(assign `(,now) '((:rsp local_now)))
+	(vp-alloc purge_mail_size)
+	(entry `(,next ,now :r2))
+	(assign `(,now :r2) '((:rsp purge_mail_now) (:rsp purge_mail_key)))
 	(loop-list-forward next 0 node next)
 		(assign `((,node +msg_timestamp)) `(,time))
 		(vp-sub-rr now time)
 		(continueif `(,time >= ,(* ping_period -2)))
-		(vp-cpy-rr node :r0)
-		(ln-remove-node node :r1)
-		(assign `(,next) '((:rsp local_next)))
-		(call :sys_mail :free '(:r0))
-		(assign '((:rsp local_next) (:rsp local_now)) `(,next ,now))
+		(assign `(,node ,next) '((:rsp purge_mail_node) (:rsp purge_mail_next)))
+		(load-node-id node id :r3 :r4)
+		(assign '((:rsp purge_mail_key)) '(:r1))
+		(save-node-id :r1 +str_data :r3 :r4)
+		(fn-bind 'sys/statics/statics :r0)
+		(call :hmap :cfind `((:r0 statics_sys_mail_node_map) :r1 (@ ,(f-path :nodeid :eql))) '(_ :r1 _))
+		(vpif '(:r1 = 0))
+			(assign '((:rsp purge_mail_node)) '(:r0))
+			(vp-cpy-rr :r0 :r2)
+			(ln-remove-node :r2 :r1)
+			(call :sys_mail :free '(:r0))
+		(endif)
+		(assign '((:rsp purge_mail_next) (:rsp purge_mail_now)) `(,next ,now))
 	(loop-end)
+	(vp-free purge_mail_size)
+	(vp-ret))
 
-	(vp-free local_size)
-	(vp-ret)
+	(structure purge_mail 0
+		(ptr next node key)
+		(long now))
+
+	;mail waiting to go out is to a node, a parcel not yet whole is from one
+	(kn-purge-mail 'purge_mail_out (+ +msg_dest +net_id_node_id))
+	(kn-purge-mail 'purge_mail_in (+ +msg_src +net_id_node_id))
 
 (def-func-end)
 
