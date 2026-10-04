@@ -347,9 +347,9 @@
 				;dies is not waited on for long
 				(assign {timeout - ((timeout - lk_timeout) >> 4)} {timeout})
 
-				;write my task count, process id, node id, and system id
+				;write my load, process id, node id, and system id
 				(vp-rdef (dst cnt t0 t1 t2 t3 t4))
-				(assign {&head->lk_buf_size, statics->statics_sys_task_task_count,
+				(assign {&head->lk_buf_size, statics->statics_sys_task_task_count + statics->statics_sys_task_lag,
 						node_id.+node_id_node1, node_id.+node_id_node2,
 						system_id.+node_id_node1, system_id.+node_id_node2, pid}
 					`(,dst ,cnt ,t0 ,t1 ,t2 ,t3 ,t4))
@@ -360,7 +360,7 @@
 						,(+ lk_node_peer_system_id +node_id_node1) ,(+ lk_node_peer_system_id +node_id_node2)
 						lk_node_peer_pid)
 					`(,cnt ,t0 ,t1 ,t2 ,t3 ,t4))
-				(assign `(,cnt) {last_count})
+				(assign {statics->statics_sys_task_task_count} {last_count})
 
 				;write buf ping, wrap head and trigger :in
 				(call 'write_buf {head, tx, lk_chan_status_ping, lk_buf_size + lk_node_size} {head})
@@ -445,6 +445,16 @@
 		(call :host_os :pii_time :nil {now})
 		(vpif {now - last > lk_stall})
 			(assign {then + (now - last)} {then})
+		(endif)
+
+		;a peer that is not taking from the link is busy, and can not say
+		;so. So count the ms it has left the link as its load, till it
+		;next says what its load is.
+		(vpif {seen && down = 0})
+			(assign {(now - then) / lag_per_task} {gap})
+			(vpif {gap > lk_node->lk_node_task_count})
+				(assign {gap} {lk_node->lk_node_task_count})
+			(endif)
 		(endif)
 
 		;is the peer down ? If it has said what its process is, ask the

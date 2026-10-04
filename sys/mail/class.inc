@@ -65,6 +65,9 @@
 	'ping_stagger 50000 'ping_stagger_min 1000000
 	'ping_window (if (eql *cpu* 'vp64) 30000000 3000000)
 	'ping_slack (if (eql *cpu* 'vp64) 20000000 2000000) 'ping_stall 1000000)
+;how late a node is in running a task that is ready counts as load, one
+;more task for each this many us. See sys/statics/class.inc.
+(defcvar 'lag_per_task 8000)
 (defcvar 'num_mbox_buckets 8)
 
 ;useful helpers for net_id and node_id

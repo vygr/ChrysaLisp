@@ -126,9 +126,10 @@
 				(call :sys_mail :send '(:r3))
 				(break)
 			(vpcase '(:r0 = +kn_call_run))
-				;find best cpu to run task on the same physical system
+				;find best cpu to run task on the same physical system, the
+				;one with the least load, see sys/statics/class.inc
 				(call :array :clear {best_nodes})
-				(assign {statics->statics_sys_task_task_count} {best_cnt})
+				(assign {statics->statics_sys_task_task_count + statics->statics_sys_task_lag} {best_cnt})
 				(call :array :get_both {statics->statics_sys_mail_links_array}
 					{_, iter_begin, iter_end})
 				(loop-while {iter_begin /= iter_end})
@@ -150,7 +151,7 @@
 						link->lk_node_peer_node_id.+node_id_node1,
 						link->lk_node_peer_node_id.+node_id_node2})
 				(loop-end)
-				(gotoif {statics->statics_sys_task_task_count <= best_cnt} 'run_here)
+				(gotoif {statics->statics_sys_task_task_count + statics->statics_sys_task_lag <= best_cnt} 'run_here)
 				;send to random better kernel
 				(call :array :get_length {best_nodes} {_, best_cnt})
 				(assign {(best_rand + 1 => best_rand) % (best_cnt >> 1)} {best_cnt})
@@ -694,7 +695,7 @@
 		(ptr statics link key)
 		(pptr iter_begin iter_end)
 		(struct purge purge_size)
-		(long now last sig gap rnd purge_nodes purge_mail))
+		(long now last sig gap rnd purge_nodes purge_mail late lag))
 
 	(push-scope)
 
@@ -703,6 +704,7 @@
 
 	(assign {@sys/statics/statics, 0, 0} {statics, purge_nodes, purge_mail})
 	(call :nodeid :create '(0) {key})
+	(assign {0, 0} {lag, statics->statics_sys_task_lag})
 	(call :host_os :pii_time :nil {now})
 	(call :sys_kernel :id :nil {purge.purge_node_id.+node_id_node1, purge.purge_node_id.+node_id_node2})
 	(loop-start)
@@ -714,6 +716,19 @@
 		;stopped, and may have missed pings. So give every node that
 		;time again before it is purged.
 		(assign {now - last} {gap})
+
+		;how late am I ? I asked to sleep for a tick. A task that is ready
+		;to run waits that long for this node, so it is the honest measure
+		;of how busy the node is, a count of its tasks is not, most of them
+		;are asleep. It rises at once, and falls away by a quarter a tick.
+		(assign {gap - ping_tick} {late})
+		(vpif {late > lag})
+			(assign {late} {lag})
+		(else)
+			(assign {lag - (lag >> 2)} {lag})
+		(endif)
+		(assign {lag / lag_per_task} {statics->statics_sys_task_lag})
+
 		(vpif {gap > ping_stall})
 			(call :hmap :each {statics->statics_sys_mail_node_map, $stall_callback, &gap})
 		(endif)
