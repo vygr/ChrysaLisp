@@ -160,12 +160,13 @@
 				(call :sys_mail :send {msg})
 				(break)
 			(vpcase '(:r0 = +kn_call_want))
-				;a node wants our services, so send a full ping to all. Many
-				;may ask at once, so no more than one a second.
+				;a node wants our services, so a full ping is due. Many may
+				;ask at once, so no more than one a second.
 				(call :host_os :pii_time :nil {time})
-				(vpif {time - statics->statics_sys_mail_full_time > 1000000})
-					(assign {time} {statics->statics_sys_mail_full_time})
-					(call :sys_mail :ping {1})
+				(assign {1, statics->statics_sys_mail_full_time + 1000000}
+					{statics->statics_sys_mail_ping_full, time})
+				(vpif {time < statics->statics_sys_mail_ping_next})
+					(assign {time} {statics->statics_sys_mail_ping_next})
 				(endif)
 				(call :sys_mail :free {msg})
 				(break)
@@ -218,7 +219,7 @@
 
 					;update session_sys (index 3) and time (index 1)
 					(call :array :set_elem {tuple, data->+kn_msg_ping_session, +node_session_sys})
-					(call :array :set_elem {tuple, time, +node_time})
+					(call :array :set_elem {tuple, time + (data->+kn_msg_ping_interval * 2) + ping_slack, +node_time})
 
 					;flood onwards within the physical system
 					(call 'flood_fill {statics, msg, data, node_id.+node_id_node1, node_id.+node_id_node2})
@@ -256,9 +257,16 @@
 					(vpcase {data->+kn_msg_ping_session > session_cluster})
 						;new cluster session: truncate back to 4 elements (preserves set, time, session_cluster, session_sys)
 						(call :array :set_length {tuple, +node_hops})
-						(call :array :set_elem {tuple, time, +node_time})
+						(call :array :set_elem {tuple, time + (data->+kn_msg_ping_interval * 2) + ping_slack, +node_time})
 						(call :array :set_elem {tuple, data->+kn_msg_ping_session, +node_session_cluster})
 						(call :array :push_back {tuple, data->+kn_msg_ping_hops})
+						;a kick from another node ?
+						(vpif {data->+kn_msg_ping_kick})
+							(vpif {(node_id.+node_id_node1 - data->+kn_msg_ping_origin.+node_id_node1)
+									| (node_id.+node_id_node2 - data->+kn_msg_ping_origin.+node_id_node2)})
+								(call :sys_mail :kick)
+							(endif)
+						(endif)
 						(goto 'flood_via)
 					(vpcase {data->+kn_msg_ping_hops < hops})
 						;better route: truncate back to the hops, push new hops
@@ -675,42 +683,83 @@
 	;trashes
 	;none
 
-	(structure local 0
+	(structure purge 0
 		(nodeid node_id)
 		(long now))
 
-	(vp-alloc local_size)
+	(def-vars
+		(ptr statics link)
+		(pptr iter_begin iter_end)
+		(struct purge purge_size)
+		(long now sig gap rnd purge_nodes purge_mail))
+
+	(push-scope)
 
 	;don't count ping or postman tasks in load balancing
 	(call :sys_task :count '(-2))
 
-	(call :sys_kernel :id :nil `((:rsp ,(+ local_node_id +node_id_node1)) (:rsp ,(+ local_node_id +node_id_node2))))
-	(vp-cpy-cr 2500000 :r4)
+	(assign {@sys/statics/statics, 0, 0} {statics, purge_nodes, purge_mail})
+	(call :sys_kernel :id :nil {purge.purge_node_id.+node_id_node1, purge.purge_node_id.+node_id_node2})
 	(loop-start)
-		(call :sys_math :i_rand '(1000000) '(:r0))
-		(vp-add-rr :r4 :r0)
-		(call :sys_task :sleep '(:r0))
+		(call :sys_task :sleep '(ping_tick))
+		(call :host_os :pii_time :nil {now})
 
-		;send a routing ping message
-		(call :sys_mail :ping '(0))
+		;has a link come up or gone down ? If so kick the network, and
+		;soon, but not at once, as more links may be about to change.
+		(assign {0} {sig})
+		(call :array :get_both {statics->statics_sys_mail_links_array} {_, iter_begin, iter_end})
+		(loop-while {iter_begin /= iter_end})
+			(assign {*iter_begin} {link})
+			(assign {iter_begin + +ptr_size} {iter_begin})
+			(assign {sig + link->lk_node_peer_node_id.+node_id_node1
+				+ link->lk_node_peer_node_id.+node_id_node2} {sig})
+		(loop-end)
+		(vpif {sig /= statics->statics_sys_mail_links_sig})
+			(assign {sig, 1} {statics->statics_sys_mail_links_sig, statics->statics_sys_mail_ping_kick})
+			(call :sys_mail :kick)
+			(call :sys_math :i_rand '((* ping_tick 2)) {rnd})
+			(assign {now + rnd} {rnd})
+			(vpif {rnd < statics->statics_sys_mail_ping_next})
+				(assign {rnd} {statics->statics_sys_mail_ping_next})
+			(endif)
+		(endif)
+
+		;time to ping ? The ping says how long till the next, at most,
+		;and then the period is backed off.
+		(vpif {now >= statics->statics_sys_mail_ping_next})
+			(vpif {statics->statics_sys_mail_ping_full})
+				(assign {now} {statics->statics_sys_mail_full_time})
+			(endif)
+			(call :sys_mail :ping {statics->statics_sys_mail_ping_full})
+			(assign {statics->statics_sys_mail_ping_interval} {gap})
+			(call :sys_math :i_rand {gap >> 2} {rnd})
+			(assign {now + gap - rnd, 0, 0} {statics->statics_sys_mail_ping_next,
+				statics->statics_sys_mail_ping_full, statics->statics_sys_mail_ping_kick})
+			(assign {gap << 1} {gap})
+			(vpif {gap > ping_period_max})
+				(assign {ping_period_max} {gap})
+			(endif)
+			(assign {gap} {statics->statics_sys_mail_ping_interval})
+		(endif)
 
 		;purge stale nodes
-		(call :host_os :pii_time :nil '((:rsp local_now)))
-		(fn-bind 'sys/statics/statics :r0)
-		(call :hmap :each '((:r0 statics_sys_mail_node_map) ($ purge_callback) :rsp))
+		(vpif {now >= purge_nodes})
+			(assign {now + 1000000, now} {purge_nodes, purge.purge_now})
+			(call :hmap :each {statics->statics_sys_mail_node_map, $purge_callback, &purge})
+		(endif)
 
 		;purge stale messages and parcels
-		(fn-bind 'sys/statics/statics :r0)
-		(call 'purge_mail '((& :r0 statics_sys_mail_outbound_list) (:rsp local_now)))
-		(fn-bind 'sys/statics/statics :r0)
-		(call 'purge_mail '((& :r0 statics_sys_mail_parcel_list) (:rsp local_now)))
-
-		;next ping period
-		(vp-cpy-cr (- ping_period 500000) :r4)
+		(vpif {now >= purge_mail})
+			(assign {now + ping_period} {purge_mail})
+			(assign {&statics->statics_sys_mail_outbound_list, now} '(:r0 :r1))
+			(vp-call 'purge_mail)
+			(assign {&statics->statics_sys_mail_parcel_list, now} '(:r0 :r1))
+			(vp-call 'purge_mail)
+		(endif)
 	(loop-end)
 
-	(vp-free local_size)
-	(vp-ret)
+	(pop-scope)
+	(return)
 
 (vp-label 'purge_callback)
 	;inputs
@@ -730,16 +779,15 @@
 
 	(assign `((,iter 0) (,iter ,+ptr_size)) `(,key ,tuple))
 	(load-node-id key +str_data kid1 kid2)
-	(load-node-id data (+ local_node_id +node_id_node1) did1 did2)
+	(load-node-id data (+ purge_node_id +node_id_node1) did1 did2)
 	(vp-sub-rr did1 kid1)
 	(vp-sub-rr did2 kid2)
 	(vp-or-rr kid2 kid1)
 	(switch)
 	(breakif `(,kid1 = 0))
-	(assign `((,tuple +array_begin) (,data local_now)) `(,tuple ,kid1))
+	(assign `((,tuple +array_begin) (,data purge_now)) `(,tuple ,kid1))
 	(assign `((,tuple ,(* +node_time +ptr_size))) `(,kid2))
-	(vp-sub-rr kid2 kid1)
-	(breakif (list kid1 '< (* ping_period 2)))
+	(breakif `(,kid1 <= ,kid2))
 	(default)
 		(call :hset :deref `((,tuple ,(* +node_set +ptr_size))))
 		(call :list :erase2 '((:rsp local_bucket) (:rsp local_iter)))

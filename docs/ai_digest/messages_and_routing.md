@@ -177,15 +177,27 @@ via_node_1, via_node_2...]`.
 
 ### The Ping Cycle (`sys/kernel/class.vp`)
 
-Every `ping_period` (5,000,000 microseconds / 5 seconds), the Kernel `:ping`
-task:
+The Kernel `:ping` task wakes every `ping_tick` (a tenth of a second) and
+sends a ping when one is due.
 
-1. Gathers all local services into a string.
+1. **Routing ping:** The `+kn_msg_ping` message holds the origin ID, session
+   ID, hop count, a hash of the origin's services, and the longest time till
+   the origin's next ping. A node that does not hold the services for that
+   hash sends a `+kn_call_want` back, and gets them in a full ping.
 
-2. Broadcasts a `+kn_msg_ping` message out to the network.
+2. **Full ping:** As a routing ping, with the service list after it. One is
+   sent when a service is declared or forgotten, and when asked for.
 
-3. The message contains the sender's origin ID, session ID, hop count, and
-   services.
+3. **Back off:** Each ping doubles the time to the next, from
+   `ping_period_min` (1 second) to `ping_period_max` (64 seconds), so a
+   settled network goes quiet.
+
+4. **Kick:** The task sums the peers of its links each tick. When the sum
+   changes a link has come up or gone down, and its next ping is a kick. A
+   node that receives a kick, `:sys_mail :kick`, starts its back off again,
+   pings at a random time within `ping_stagger` (1 second), so not all do at
+   once, and expects to hear from every node within `ping_window`
+   (4 seconds). So only the nodes at the edge of a change need notice it.
 
 ### Flood Fill Logic
 
@@ -211,15 +223,17 @@ When a kernel receives a Ping (`flood_fill` in `sys/kernel/class.vp`):
 ## 4. Self-Healing and Garbage Collection
 
 To maintain the "Formless" philosophy, nodes must cleanly forget state related
-to disconnected or crashed peers. This runs automatically at the end of every
-5-second `:ping` cycle.
+to disconnected or crashed peers. The `:ping` task does this, routes each
+second, messages and parcels each `ping_period` (5 seconds).
 
 ### 1. Route Purging (`purge_callback`)
 
 * Scans `statics_sys_mail_node_map`.
 
-* If a route's `timestamp` is older than `ping_period * 2` (10 seconds), the
-  node is considered dead.
+* A route's `timestamp` is when it expires. A ping sets it to twice the time
+  the ping gave till the next, plus `ping_slack`, and a kick brings every
+  route's forward to `ping_window` from now. If it has passed, the node is
+  considered dead.
 
 * The route and its advertised services are erased.
 

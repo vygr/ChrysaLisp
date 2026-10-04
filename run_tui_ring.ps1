@@ -1,0 +1,24 @@
+# common functions
+. "$PSScriptRoot\funcs.ps1"
+
+# process args defaults
+main 64 64 @args
+
+if ($showhelp -eq $TRUE) {
+    Write-Output "[-n cnt] number of nodes"
+    Write-Output "[-b base] base offset"
+    Write-Output "[-g cnt] number of guis"
+    Write-Output "[-s script_name] script mode"
+    Write-Output "[-e] emulator mode"
+    Write-Output "[-f] foreground mode"
+    Write-Output "[-h] help"
+} else {
+    for ($cpu = $ncpu - 1; $cpu -ge 0; $cpu--) {
+        $links = ""
+        for ($lcpu = $cpu - 1; $lcpu -le $cpu + 1; $lcpu++) {
+            $wp = wrap $lcpu $ncpu
+            $links += add_link $cpu $wp $links
+        }
+        boot_cpu_tui $front $cpu $links
+    }
+}

@@ -5,7 +5,8 @@
 ; mail static class
 ;;;;;;;;;;;;;;;;;;;
 
-;a node's entry in the node map is an array, these are its slots. The
+;a node's entry in the node map is an array, these are its slots. The time
+;is when the node is purged, if not heard from before then. The
 ;routes to the node, the node ids of the peers to send by, follow the hops.
 (defq +node_set 0 +node_time 1 +node_session_cluster 2 +node_session_sys 3
 	+node_hops 4 +node_vias 5)
@@ -27,6 +28,7 @@
 	(dec-method :mymail sys/mail/mymail :static :nil (:r0 :r1))
 	(dec-method :service sys/mail/service :static (:r0 :r1 :r2) (:r0))
 	(dec-method :ping sys/mail/ping :static (:r0))
+	(dec-method :kick sys/mail/kick :static)
 	(dec-method :declare sys/mail/declare :static (:r0 :r1 :r2) (:r0))
 	(dec-method :forget sys/mail/forget :static (:r0))
 	(dec-method :enquire sys/mail/enquire :static (:r0) (:r0))
@@ -50,6 +52,13 @@
 	(dec-method :lisp_timeout sys/mail/lisp_timeout :static (:r0 :r1) (:r0 :r1)))
 
 ;must be power 2
+;the ping backs off, from the min period to the max, till a kick starts it
+;again. A kick is a ping from a node that saw a link come up or go down.
+;Each node answers one at some time within the stagger, and a node not
+;heard from within the window is purged. A node is also purged if not heard
+;from in twice the period its last ping gave, plus the slack.
+(defcvar 'ping_period_min 1000000 'ping_period_max 64000000 'ping_tick 100000
+	'ping_stagger 1000000 'ping_window 4000000 'ping_slack 2000000)
 (defcvar 'num_mbox_buckets 8)
 
 ;useful helpers for net_id and node_id

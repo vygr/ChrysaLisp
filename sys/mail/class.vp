@@ -5,6 +5,7 @@
 (include "class/hmap/class.inc")
 (include "././link/class.inc")
 (include "././kernel/class.inc")
+(include "././math/class.inc")
 
 (def-method :sys_mail :statics_init)
 	;info
@@ -33,7 +34,12 @@
 	;init postmen task
 	(fn-bind 'sys/statics/statics :r7)
 	(vp-xor-rr :r0 :r0)
-	(assign '(:r0) '((:r7 statics_sys_mail_session)))
+	(vp-cpy-cr ping_period_min :r1)
+	(assign '(:r0 :r0 :r0 :r0 :r0 :r0 :r1)
+		'((:r7 statics_sys_mail_session) (:r7 statics_sys_mail_full_time)
+		(:r7 statics_sys_mail_ping_next) (:r7 statics_sys_mail_ping_full)
+		(:r7 statics_sys_mail_ping_kick) (:r7 statics_sys_mail_links_sig)
+		(:r7 statics_sys_mail_ping_interval)))
 	(call :sys_task :start `((@ ,(f-path :sys_mail :out))) '(_ :r1 _ _ _))
 	(fn-bind 'sys/statics/statics :r7)
 	(assign '(:r1) '((:r7 statics_sys_mail_out_mbox_addr)))
@@ -571,7 +577,11 @@
 	(call :array :get_first {tuple} {_, set})
 	(call :sys_mail :service {name, id, info} {name})
 	(call :hset :cinsert {set, name, @class/sym/eql_str})
-	(call :sys_mail :ping {1})
+	;a full ping is now due
+	(fn-bind 'sys/statics/statics :r0)
+	(vp-cpy-cr 1 :r1)
+	(vp-xor-rr :r2 :r2)
+	(assign '(:r1 :r2) '((:r0 statics_sys_mail_ping_full) (:r0 statics_sys_mail_ping_next)))
 
 	(exit :sys_mail :declare {name})
 	(pop-scope)
@@ -642,7 +652,12 @@
 	;find in service map and erase
 	(fn-bind 'sys/statics/statics :r1)
 	(call :hmap :each '((:r1 statics_sys_mail_node_map) ($ callback) :r0))
-	(jump :sys_mail :ping '(1))
+	;a full ping is now due
+	(fn-bind 'sys/statics/statics :r0)
+	(vp-cpy-cr 1 :r1)
+	(vp-xor-rr :r2 :r2)
+	(assign '(:r1 :r2) '((:r0 statics_sys_mail_ping_full) (:r0 statics_sys_mail_ping_next)))
+	(vp-ret)
 
 (vp-label 'callback)
 	;inputs
@@ -755,6 +770,10 @@
 	(vp-cpy-ri-i :r2 :r1 +kn_msg_ping_hops)
 	(vp-cpy-ri-i :r9 :r1 +kn_msg_ping_hash)
 	(vp-cpy-ri-i :r10 :r1 +kn_msg_ping_full)
+	(assign '((:r7 statics_sys_mail_ping_interval)) '(:r8))
+	(vp-cpy-ri-i :r8 :r1 +kn_msg_ping_interval)
+	(assign '((:r7 statics_sys_mail_ping_kick)) '(:r8))
+	(vp-cpy-ri-i :r8 :r1 +kn_msg_ping_kick)
 	(load-node-id :r5 +str_data)
 	(save-net-id :r0 +msg_dest)
 	(save-node-id :r1 +kn_msg_ping_origin)
@@ -781,6 +800,51 @@
 		(class/obj/ref :r1 :r3)
 		(class/obj/ref :r2 :r3)
 		(jump :list :push_back2 '((:r0 cat_entries_sys) :r1 :r2))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_mail :kick)
+	;trashes
+	;:r0-:r14, :f0-:f15
+	;info
+	;the network has changed. Ping soon, at a random time so that not all
+	;nodes do at once, start the back off again, and expect to hear from
+	;every node within the window, those that are not heard from are purged.
+
+	(def-vars
+		(ptr statics)
+		(long now limit))
+
+	(push-scope)
+
+	(assign {@sys/statics/statics} {statics})
+	(call :host_os :pii_time :nil {now})
+	(call :sys_math :i_rand '(ping_stagger) {limit})
+	(assign {now + limit} {limit})
+	(vpif {limit < statics->statics_sys_mail_ping_next})
+		(assign {limit} {statics->statics_sys_mail_ping_next})
+	(endif)
+	(assign {ping_period_min, now + ping_window} {statics->statics_sys_mail_ping_interval, limit})
+	(call :hmap :each {statics->statics_sys_mail_node_map, $callback, &limit})
+
+	(pop-scope)
+	(return)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = predicate data (ptr)
+	;:r1 = element iterator (ptr)
+	;:r2 = bucket list pointer (ptr)
+
+	(entry :hmap :each_callback '(:r0 :r1 :r2))
+
+	(assign '((:r0 0) (:r1 +ptr_size)) '(:r0 :r1))
+	(assign '((:r1 +array_begin)) '(:r1))
+	(assign `((:r1 ,(* +node_time +long_size))) '(:r2))
+	(vpif '(:r0 < :r2))
+		(assign '(:r0) `((:r1 ,(* +node_time +long_size))))
 	(endif)
 	(vp-ret)
 

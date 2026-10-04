@@ -159,6 +159,17 @@ trashes
 :r0-:r2, :r4
 ```
 
+### :kick -> sys/mail/kick
+
+```code
+trashes
+:r0-:r14, :f0-:f15
+info
+the network has changed. Ping soon, at a random time so that not all
+nodes do at once, start the back off again, and expect to hear from
+every node within the window, those that are not heard from are purged.
+```
+
 ### :mymail -> sys/mail/mymail
 
 ```code

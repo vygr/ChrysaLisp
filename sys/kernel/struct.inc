@@ -28,4 +28,6 @@
 	(uint session hops)
 	;a hash of the origin's services, 0 for none, and if the services follow
 	(uint hash full)
+	;the longest it will be till the origin's next ping, and if this is a kick
+	(uint interval kick)
 	(offset services))

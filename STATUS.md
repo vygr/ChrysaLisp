@@ -236,6 +236,29 @@ node map now have names, in `sys/mail/class.inc`. New test,
 ring of 12 and a tree of 15. The ping message has changed, so every machine
 on a network must have this build.
 
+The ping now backs off. Each ping doubles the time to the next, from 1
+second to 64, and says in the message how long that is, so a settled
+network goes quiet. A node is purged if not heard from in twice the time
+its last ping gave, plus 2 seconds.
+
+What wakes the network is a kick. A shared memory out link now sends its
+status ping each second as a heartbeat, and closes when the peer has taken
+nothing for 10 seconds, before it only closed if the buffer was full. The
+kernel ping task sums the peers of its links 10 times a second, and when
+the sum changes, a link has come up or gone down, its next ping is a kick.
+Every node that gets a kick starts its back off again, pings at a random
+time in the next second, so not all at once, and purges any node it has
+not heard from in 4 seconds. So only the nodes at the edge of a change have
+to notice it. Killing the node that joins the two halves of a quiet tree of
+15, the 8 nodes left drop the other 7 in one go, 4 seconds after the links
+notice. `declare`, `forget`, and the answer to a `+kn_call_want`, now ask
+the ping task for a full ping, which goes within a tenth of a second.
+
+New launch scripts, `run_tui_ring.sh`, `run_tui_cube.sh`, `run_tui_tree.sh`,
+`run_tui_mesh.sh` and `run_tui_star.sh`, the topologies with no GUI, so
+`echo "tests" | ./run_tui_cube.sh -n 3 -f` runs the suite on a cube of 27.
+The ping message has changed again, so every machine must have this build.
+
 The lock service gives a node that drops out of the routes 5 seconds to
 come back before it is taken to have died. A lock test failed once, a claim
 on a free key was not granted within its 2 seconds, and then passed in the
