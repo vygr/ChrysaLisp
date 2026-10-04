@@ -54,11 +54,14 @@
 ;must be power 2
 ;the ping backs off, from the min period to the max, till a kick starts it
 ;again. A kick is a ping from a node that saw a link come up or go down.
-;Each node answers one at some time within the stagger, and a node not
-;heard from within the window is purged. A node is also purged if not heard
+;Each node answers one at some time within the spread, which is the stagger
+;for each node it knows of, and no less than the min stagger, so the rate
+;of the answers does not grow with the network. A node not heard from in
+;the spread plus the window is purged. A node is also purged if not heard
 ;from in twice the period its last ping gave, plus the slack.
 (defcvar 'ping_period_min 1000000 'ping_period_max 64000000 'ping_tick 100000
-	'ping_stagger 1000000 'ping_window 4000000 'ping_slack 2000000)
+	'ping_stagger 50000 'ping_stagger_min 1000000 'ping_window 3000000
+	'ping_slack 2000000)
 (defcvar 'num_mbox_buckets 8)
 
 ;useful helpers for net_id and node_id

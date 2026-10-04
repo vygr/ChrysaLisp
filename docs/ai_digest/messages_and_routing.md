@@ -195,9 +195,12 @@ sends a ping when one is due.
 4. **Kick:** The task sums the peers of its links each tick. When the sum
    changes a link has come up or gone down, and its next ping is a kick. A
    node that receives a kick, `:sys_mail :kick`, starts its back off again,
-   pings at a random time within `ping_stagger` (1 second), so not all do at
-   once, and expects to hear from every node within `ping_window`
-   (4 seconds). So only the nodes at the edge of a change need notice it.
+   and pings at a random time within the spread, so not all do at once. The
+   spread is `ping_stagger` (a twentieth of a second) for each node it knows
+   of, and no less than `ping_stagger_min` (1 second), so the rate of the
+   answers does not grow with the network. It expects to hear from every
+   node within the spread plus `ping_window` (3 seconds). So only the nodes
+   at the edge of a change need notice it.
 
 ### Flood Fill Logic
 
@@ -232,7 +235,7 @@ second, messages and parcels each `ping_period` (5 seconds).
 
 * A route's `timestamp` is when it expires. A ping sets it to twice the time
   the ping gave till the next, plus `ping_slack`, and a kick brings every
-  route's forward to `ping_window` from now. If it has passed, the node is
+  route's forward to the spread plus `ping_window` from now. If it has passed, the node is
   considered dead.
 
 * The route and its advertised services are erased.

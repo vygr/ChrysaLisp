@@ -809,25 +809,44 @@
 	;trashes
 	;:r0-:r14, :f0-:f15
 	;info
-	;the network has changed. Ping soon, at a random time so that not all
-	;nodes do at once, start the back off again, and expect to hear from
-	;every node within the window, those that are not heard from are purged.
+	;the network has changed. Ping soon, at a random time within the
+	;spread, so that not all nodes do at once, start the back off again,
+	;and expect to hear from every node within the spread plus the window,
+	;those that are not heard from are purged. The spread grows with the
+	;number of nodes known.
+
+	(structure kick 0
+		(long limit count))
 
 	(def-vars
 		(ptr statics)
-		(long now limit))
+		(long now spread rnd)
+		(struct kick kick_size))
 
 	(push-scope)
 
+	;count the nodes, with a limit that changes none of them
 	(assign {@sys/statics/statics} {statics})
 	(call :host_os :pii_time :nil {now})
-	(call :sys_math :i_rand '(ping_stagger) {limit})
-	(assign {now + limit} {limit})
-	(vpif {limit < statics->statics_sys_mail_ping_next})
-		(assign {limit} {statics->statics_sys_mail_ping_next})
+	(assign {2000000000} {spread})
+	(assign {now + spread, 0} {kick.kick_limit, kick.kick_count})
+	(call :hmap :each {statics->statics_sys_mail_node_map, $callback, &kick})
+	(assign {kick.kick_count * ping_stagger} {spread})
+	(vpif {spread < ping_stagger_min})
+		(assign {ping_stagger_min} {spread})
 	(endif)
-	(assign {ping_period_min, now + ping_window} {statics->statics_sys_mail_ping_interval, limit})
-	(call :hmap :each {statics->statics_sys_mail_node_map, $callback, &limit})
+
+	;my ping
+	(call :sys_math :i_rand {spread} {rnd})
+	(assign {now + rnd} {rnd})
+	(vpif {rnd < statics->statics_sys_mail_ping_next})
+		(assign {rnd} {statics->statics_sys_mail_ping_next})
+	(endif)
+	(assign {ping_period_min} {statics->statics_sys_mail_ping_interval})
+
+	;and when theirs must be here by
+	(assign {now + spread + ping_window} {kick.kick_limit})
+	(call :hmap :each {statics->statics_sys_mail_node_map, $callback, &kick})
 
 	(pop-scope)
 	(return)
@@ -840,7 +859,10 @@
 
 	(entry :hmap :each_callback '(:r0 :r1 :r2))
 
-	(assign '((:r0 0) (:r1 +ptr_size)) '(:r0 :r1))
+	(assign '((:r0 kick_count)) '(:r2))
+	(vp-add-cr 1 :r2)
+	(assign '(:r2) '((:r0 kick_count)))
+	(assign '((:r0 kick_limit) (:r1 +ptr_size)) '(:r0 :r1))
 	(assign '((:r1 +array_begin)) '(:r1))
 	(assign `((:r1 ,(* +node_time +long_size))) '(:r2))
 	(vpif '(:r0 < :r2))

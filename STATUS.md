@@ -247,11 +247,13 @@ nothing for 10 seconds, before it only closed if the buffer was full. The
 kernel ping task sums the peers of its links 10 times a second, and when
 the sum changes, a link has come up or gone down, its next ping is a kick.
 Every node that gets a kick starts its back off again, pings at a random
-time in the next second, so not all at once, and purges any node it has
-not heard from in 4 seconds. So only the nodes at the edge of a change have
+time within the spread, so not all at once, and purges any node it has not
+heard from in the spread plus 3 seconds. The spread is a twentieth of a
+second for each node it knows of, and no less than 1 second, so the rate of
+the answers does not grow with the network. So only the nodes at the edge of a change have
 to notice it. Killing the node that joins the two halves of a quiet tree of
 15, the 8 nodes left drop the other 7 in one go, 4 seconds after the links
-notice. `declare`, `forget`, and the answer to a `+kn_call_want`, now ask
+notice, 1 of spread and 3 of window. `declare`, `forget`, and the answer to a `+kn_call_want`, now ask
 the ping task for a full ping, which goes within a tenth of a second.
 
 New launch scripts, `run_tui_ring.sh`, `run_tui_cube.sh`, `run_tui_tree.sh`,

@@ -165,9 +165,11 @@ trashes
 trashes
 :r0-:r14, :f0-:f15
 info
-the network has changed. Ping soon, at a random time so that not all
-nodes do at once, start the back off again, and expect to hear from
-every node within the window, those that are not heard from are purged.
+the network has changed. Ping soon, at a random time within the
+spread, so that not all nodes do at once, start the back off again,
+and expect to hear from every node within the spread plus the window,
+those that are not heard from are purged. The spread grows with the
+number of nodes known.
 ```
 
 ### :mymail -> sys/mail/mymail
