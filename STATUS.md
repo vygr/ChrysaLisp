@@ -24,7 +24,8 @@ function, assembled once for the CPU of the node and kept under `obj/`. It
 gives the same pixels as the CPU back end and is 37 times as fast on the Macs,
 84 times on the Pi 4. The raymarch shader at 320 by 240 takes 219ms on one
 core of an M4, 377ms on the x64, 913ms on the Pi 4. Tested on ARM64 macOS and
-Linux, x86_64 macOS, and the VP64 emulator.
+Linux, x86_64 macOS, RISC-V 64 and LoongArch 64 under QEMU, and the VP64
+emulator.
 
 New demo, `apps/demos/surface`, the raymarch shader with no GPU. It makes a
 slider for each input the shader declares, packs the inputs block each frame,

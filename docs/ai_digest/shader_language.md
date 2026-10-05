@@ -271,6 +271,11 @@ method for each built in. Over the 3,072 pixels of the first row of the table
 they give the same values to all 6 decimal places that were compared. Every
 test of a pixel in the test module is run through both.
 
+The test module, 157 tests, passes on ARM64 macOS, ARM64 Linux on a Pi 4,
+x86_64 macOS, RISC-V 64 and LoongArch 64 Linux under QEMU, and the VP64
+emulator, so the VP back end has made working code through all five
+translators.
+
 ## How Fast
 
 The raymarch shader, default settings, time 2.0, one core, the whole frame in

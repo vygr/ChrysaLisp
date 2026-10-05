@@ -634,14 +634,16 @@
 	(defq name (cat "lib/gpu/jit/s" (str (logand (hash (str +sv_version program)) 0xffffffffffff)))
 		obj (cat "obj/" *cpu* "/" *abi* "/" name))
 	(bind '(text frame_size) (sv-source program name))
+	;the lock is held to bind as well, so that no task can load a
+	;function that another is part way through writing
+	(lock-claim-rpc obj)
 	(when (= (age obj) 0)
-		(lock-claim-rpc obj)
-		(when (= (age obj) 0)
-			(save text (cat obj ".vp"))
-			(within-compile-env (# (include (cat obj ".vp")))))
-		(lock-release-rpc obj))
-	(if (= (age obj) 0) (sh-err "could not assemble" name))
-	(list (ffi name) frame_size))
+		(save text (cat obj ".vp"))
+		(within-compile-env (# (include (cat obj ".vp")))))
+	(defq shade (if (/= (age obj) 0) (ffi name)))
+	(lock-release-rpc obj)
+	(unless shade (sh-err "could not assemble" name))
+	(list shade frame_size))
 
 (defun shader-vp-frame (program native &optional vals)
 	; (shader-vp-frame program native [((name val) ...)]) -> frame
