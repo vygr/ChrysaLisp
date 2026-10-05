@@ -144,6 +144,13 @@ VP code, he was astonished. Chris's reply was:
 
 > "Don't everybody do that?"
 
+Even so, it was one thing to be told the code was portable and another to see
+it. Andy Thomason wrote a translator for the Intel 386, and the same VP code
+that ran on the transputers ran on the PC. That, Chris says, was the first
+time Nik really believed it. His own reaction was less surprised:
+
+> "See, I told you it would work. Why wouldn't it?"
+
 Nik became the one who told people, and the first articles show him doing it.
 The Independent, on 19 February 1990, under the headline "More power to your
 elbow", reported a system in which every chip pretends "to be a standard
