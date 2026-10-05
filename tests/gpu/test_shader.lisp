@@ -281,9 +281,33 @@
 		(defq lines (split text sh_lf))
 		(join (slice lines (find "vec4 shader_main(vec2 frag)" lines) (find "void main()" lines)) sh_lf)))
 
+(report-header "GPU: shader language, the inputs block")
+
+(defq prog (sh-src
+	"(input a :float 1.5)" "(input b :vec3)" "(input c :int -3)" "(input d :vec2)"
+	"(input e :float 0.2)" "(input f :vec4)" "(input g :int 7)"
+	"(defun main :vec4 ((frag :vec2)) (return (vec4 a e (:x d) (:z b))))"))
+(assert-list-eq "layout" '(80 (a :float 0) (b :vec3 16) (c :int 28) (d :vec2 32)
+	(e :float 40) (f :vec4 48) (g :int 64)) (shader-layout prog))
+(defq blk (shader-pack prog))
+(assert-eq "block size" 80 (length blk))
+(assert-list-eq "defaults packed" '(0x3fc00000 0 0 0 0 0 0 0xfffffffd 0 0 0x3e4ccccd 0 0 0 0 0 7 0 0 0)
+	(map (# (get-uint blk (* %0 4))) (range 0 20)))
+(defq blk (shader-pack prog (list '(b (1.0 -2.5 16777217)) '(d (0.3 64.0)) (list 'a (n2r 0.75)) '(c 9))))
+(assert-list-eq "values packed" '(0x3f400000 0 0 0 0x3f800000 0xc0200000 0x4b800000 9 0x3e99999a 0x42800000 0x3e4ccccd)
+	(map (# (get-uint blk (* %0 4))) (range 0 11)))
+(defq vals (shader-unpack prog blk))
+(assert-list-eq "unpacked names" '(a b c d e f g) (map (const first) vals))
+(assert-list-eq "unpacked ints" '(9 7) (list (second (third vals)) (second (last vals))))
+(assert-eq "unpacked float" (n2r 0.75) (second (first vals)))
+(assert-list-eq "unpacked vector" (reals (n2r 1.0) (n2r -2.5) (n2r 16777216)) (second (second vals)))
+(assert-pixel "block to the CPU back end" '(0.75 0.2 0.3 16777216.0) prog vals)
+(assert-error "wrong size of vector" (shader-pack prog '((d (1.0 2.0 3.0)))))
+
 (report-header "GPU: the raymarch shader")
 
 (defq prog (shader-load "lib/gpu/shaders/raymarch.shader") text (shader-glsl prog))
+(assert-eq "inputs block size" 64 (first (shader-layout prog)))
 (assert-list-eq "inputs" '(time resolution arg_aa arg_aa_adaptive arg_aa_debug arg_depth
 	arg_aa_limit arg_ao arg_ref arg_shadow arg_bump arg_dis arg_march) (map (const first) (first prog)))
 (assert-eq "functions" 19 (length (last prog)))

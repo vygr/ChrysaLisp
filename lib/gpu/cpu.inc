@@ -272,13 +272,6 @@
 				(static-qq (task-slice)))
 			'_out)))
 
-(defun cpu-real (val)
-	;a fixed is rounded as a float literal of the language is
-	(cond
-		((real? val) val)
-		((fixed? val) (str-to-real (sh-decimal val)))
-		((n2r val))))
-
 (defun shader-cpu-args (program &optional vals)
 	; (shader-cpu-args program [((name val) ...)]) -> (val ...)
 	;the input args for the lambda, defaults for those not given
@@ -287,8 +280,8 @@
 			(setq val (second v)))
 		(cond
 			((eql type :int) (n2i val))
-			((eql type :float) (cpu-real val))
+			((eql type :float) (shader-real val))
 			((reals? val) val)
-			((apply (const reals) (map (const cpu-real)
+			((apply (const reals) (map (const shader-real)
 				(if (seq? val) val (map (lambda (_) 0) (range 0 (shader-dim type)))))))))
 		(first program)))

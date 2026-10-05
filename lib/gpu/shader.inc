@@ -343,3 +343,78 @@
 	; (shader-load file) -> program
 	(unless (defq stream (file-stream file)) (sh-err "no such file" file))
 	(shader-compile (shader-read stream)))
+
+;;;;;;;;;;;;;;;;;;
+; the inputs block
+;;;;;;;;;;;;;;;;;;
+
+;the values of the inputs for a frame travel as one block of bytes, laid
+;out by the std140 rules of a GPU uniform block. A float is 32 bits, an
+;int is 32 bits, and a vector is 2, 3 or 4 floats, a vec2 on an 8 byte
+;boundary, a vec3 or vec4 on a 16 byte boundary.
+
+(defun shader-layout (program)
+	; (shader-layout program) -> (size (name type offset) ...)
+	(defq offset 0 fields (map (lambda ((name type &rest _))
+		(defq d (ifn (shader-dim type) 1) a (elem-get '(0 4 8 16 16) d))
+		(setq offset (+ (defq o (align offset a)) (* d 4)))
+		(list name type o)) (first program)))
+	(cat (list (align offset 16)) fields))
+
+(defun shader-real (val)
+	; (shader-real num) -> real
+	;a fixed is rounded as a float literal of the language is
+	(cond
+		((real? val) val)
+		((fixed? val) (str-to-real (sh-decimal val)))
+		((n2r val))))
+
+(defun sh-real-to-float (val)
+	;the bits of a 32 bit float, from a real, a fixed or an int
+	(defq val (get-long (set-real (str-alloc 8) 0 (shader-real val)) 0)
+		e (- (logand (>> val 52) 0x7ff) 896)
+		m (>> (+ (logand val 0xfffffffffffff) 0x10000000) 29))
+	;a tie rounds to even, then the mantissa may have carried
+	(if (and (= (logand val 0x1fffffff) 0x10000000) (odd? m)) (setq m (dec m)))
+	(if (= m 0x800000) (setq m 0 e (inc e)))
+	(cond
+		((<= e 0) 0)
+		((>= e 255) (logior (<< (>> val 63) 31) 0x7f800000))
+		((logior (<< (>> val 63) 31) (<< e 23) m))))
+
+(defun sh-float-to-real (val)
+	;a real from the bits of a 32 bit float
+	(defq e (logand (>> val 23) 0xff))
+	(get-real (set-long (str-alloc 8) 0 (if (= e 0) 0
+		(logior (<< (logand (>> val 31) 1) 63) (<< (+ e 896) 52)
+			(<< (logand val 0x7fffff) 29)))) 0))
+
+(defun shader-pack (program &optional vals)
+	; (shader-pack program [((name val) ...)]) -> block
+	;a value not given is the default of the input. A float can be a
+	;real, a fixed or an int, a vector is a sequence of them.
+	(bind '(size &rest fields) (shader-layout program))
+	(defq block (str-alloc size))
+	(each (# (set-long block %0 0)) (range 0 size 8))
+	(each (lambda ((name type offset) (& & val &rest _))
+		(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
+			(setq val (second v)))
+		(cond
+			((eql type :int) (set-int block offset (n2i val)))
+			((eql type :float) (set-int block offset (sh-real-to-float val)))
+			((seq? val)
+				(unless (= (length val) (shader-dim type))
+					(sh-err "wrong size of vector input" name))
+				(each (# (set-int block (+ offset (* (!) 4)) (sh-real-to-float %0))) val))))
+		fields (first program))
+	block)
+
+(defun shader-unpack (program block)
+	; (shader-unpack program block) -> ((name val) ...)
+	;a float comes back as a real, a vector as a reals
+	(map (lambda ((name type offset))
+		(list name (cond
+			((eql type :int) (get-int block offset))
+			((eql type :float) (sh-float-to-real (get-uint block offset)))
+			((apply (const reals) (map (# (sh-float-to-real (get-uint block (+ offset (* %0 4)))))
+				(range 0 (shader-dim type)))))))) (rest (shader-layout program))))
