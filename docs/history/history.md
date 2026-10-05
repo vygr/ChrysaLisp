@@ -502,6 +502,16 @@ years of work, that Lisp, an interpreter with no compiler behind it,
 assembles the whole system in a third of a second on one core, see
 [Till the Pips Squeak](../ai_digest/till_the_pips_squeak.md).
 
+It has not been written quite alone. The repository's own log shows the
+others who have put work into it, Frank V. Castellucci above all, and Andy
+Stout again, thirty years after Taos. Martyn, who worked at ARM and is now at
+Graphcore, did the first work to get it running on Windows, and still tests
+it there, with the blessing of both employers. He is also the one who says,
+when it is needed:
+
+> "Cheer up Chris, they will know about it one day. They can't ignore all
+> this forever."
+
 The games on it are his own, ported from the originals. Onslaught, which won
 its gold awards and whose engine became an operating system, runs on the
 system that engine became.
