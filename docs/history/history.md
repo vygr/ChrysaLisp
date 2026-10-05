@@ -243,13 +243,15 @@ So, as plainly as it can be put:
 | Francis Charig   | Chairman. The funding, the business, and Japan.        |
 | Dr Ian Thomas    | The brief that explains Taos, now [in this repository](../intro/taos.md). |
 
-One piece of work shows what those people could do with it. Andy Thomason
-had been the star programmer at a company that made professional PostScript
-RIPs, the software that turns a page description into the dots a printer
-lays down, for the publishing houses of London. He wrote one for Taos. Andy
-Stout took it to Saatchi and Saatchi and ran it there in parallel with their
-commercial RIP. It beat the commercial one every time, and matched its
-output so exactly that it reproduced its bugs.
+One piece of work shows what those people could do with it. Andy Thomason had
+been the star programmer at a company that made professional PostScript RIPs,
+the software that turns a page description into the dots a printer lays down,
+for the publishing houses of London. He wrote one for Taos. Andy Stout took it
+to Saatchi and Saatchi and ran it there in parallel with their commercial RIP.
+It beat the commercial one every time, and matched its output so exactly that
+it reproduced its bugs. Andy later wrote the assembler and development
+environment used for the PlayStation, and now lectures at Goldsmiths,
+University of London.
 
 ### What the world made of it
 
@@ -343,9 +345,9 @@ people at Cray were pulling his leg. Parallelogram's editorial that winter was
 headed "TAOS: IMPOSSIBLE BUT TRUE?".
 
 Guy Kewney, who wrote the first newspaper piece about Taos, for The
-Independent, did not take it on trust either. He came to the house and
-brought with him DJ, the man who wrote CIX, the conferencing system, to check
-that he was not being fooled.
+Independent, did not take it on trust either. He came to the house and brought
+a second pair of eyes with him, a man known on CIX, the conferencing system,
+as DJ, and said to have written it, to check that he was not being fooled.
 
 Others took it harder. Chris remembers visitors who went faint at the
 demonstration, one hitting his head on the wall. His mother would help them
