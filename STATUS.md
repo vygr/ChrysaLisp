@@ -4,6 +4,31 @@
 
 ------
 
+The first step to GPU support, a shader language of our own. New `lib/gpu/`.
+A shader is written as s-expressions, `lib/gpu/shader.inc` reads and type
+checks it, and a back end takes the typed tree. `lib/gpu/glsl.inc` gives GLSL
+fragment shader text. `lib/gpu/cpu.inc` gives a Lisp lambda that shades a tile
+of pixels with no GPU, a float is a `real` and a vector a `reals`.
+
+The surface raymarch demo, https://vygr.github.io/JS-Raymarch, is ported as
+`lib/gpu/shaders/raymarch.shader`. Its GLSL text was run on the GPU of an M4
+Max and read back, and the CPU back end agrees with it, pixel for pixel, over
+all the controls bar the bump map, whose noise hangs on the last bits of a
+32 bit float.
+
+The inputs of a shader, the values of an app's controls, travel as one std140
+block, `(shader-layout)`, `(shader-pack)` and `(shader-unpack)`.
+
+New demo, `apps/demos/surface`, the raymarch shader with no GPU. It makes a
+slider for each input the shader declares, packs the inputs block each frame,
+and farms the tiles over the nodes. A 320 by 240 frame takes about 0.55
+seconds on 16 nodes of an M4 Max. It is not in the launcher's list yet.
+
+There is no host GPU interface and no `@Gpu` service yet. New doc,
+`docs/ai_digest/shader_language.md`. New tests, `tests/gpu/test_shader.lisp`.
+
+------
+
 First run of this work on Windows, by Martyn Blyss. Install, the TUI and GUI,
 `make it` and `make test`, 0.19 seconds, all worked. The test suite hung, and
 `nodes -a 1` took down the node it was typed on.
