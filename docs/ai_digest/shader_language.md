@@ -353,6 +353,10 @@ Demos list in `apps/system/launcher/app.lisp`, or to your own launcher config.
   16 float registers is refused.
 * The native functions are never removed from `obj/`, one is left for each
   version of each shader that has been run.
+* Tasks that ask for the same native function at the same moment are held
+  apart by the lock service, as `(jit)` is. The login app, the TUI and the
+  test suite start it. With no `@Lock` service running, 16 children starting
+  together from a cold cache read each other's half written files.
 * A tile is shaded in one call with no task switch, so keep tiles small.
 * The VP code is plain scalar code. Nothing is kept in a register between
   statements, no common terms are shared, and there is no SIMD.
