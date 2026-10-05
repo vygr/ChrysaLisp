@@ -145,9 +145,10 @@ VP code, he was astonished. Chris's reply was:
 > "Don't everybody do that?"
 
 Even so, it was one thing to be told the code was portable and another to see
-it. Andy Thomason wrote a translator for the Intel 386, and the same VP code
-that ran on the transputers ran on the PC. That, Chris says, was the first
-time Nik really believed it. His own reaction was less surprised:
+it. Shortly after Andy Henson's translator for the T800, Andy Thomason wrote
+one for the Intel 386, and the same VP code that ran on the transputers ran on
+the PC. That, Chris says, was the first time Nik really believed it. His own
+reaction was less surprised:
 
 > "See, I told you it would work. Why wouldn't it?"
 
