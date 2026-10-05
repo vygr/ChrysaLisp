@@ -298,6 +298,11 @@ Deep dives into meta-commentary and design philosophy:
     the Lisp engine was squeezed, 40% fewer instructions and far less stack,
     step by step, with what was measured and what did not work.
 
+72. **[How We Got Here](docs/history/history.md)** - The history behind
+    ChrysaLisp, from 1980s games to Taos and the Virtual Processor, Tao Group
+    and intent, to today, with who did what. The press cuttings of the time
+    are in `docs/history/press/`.
+
 ---
 
 ## Reading Paths

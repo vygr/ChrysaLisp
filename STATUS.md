@@ -4,6 +4,13 @@
 
 ------
 
+New `docs/history/`. `docs/history/history.md`, "How We Got Here", is the
+record of where ChrysaLisp came from, the Spectrum games at Mikro-Gen, the
+macro set under the ST and Amiga games that became the Virtual Processor,
+Taos, Tao Group and intent, and on to this repository, with who did what.
+`docs/history/press/` holds reduced scans of what the press wrote about Taos
+from 1990 to 1996, each credited to its author and publication.
+
 `docs/ai_digest/udat_ai_shares.md` is now `docs/ai_digest/ai_thoughts.md`. It
 holds the views of more than one AI, Udat's from reading the design, and
 Claude's from working in the code, with a section for each day.
