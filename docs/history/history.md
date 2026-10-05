@@ -259,10 +259,12 @@ whole scene from the cover of the IEE Review, hundreds of textured,
 reflecting objects, on a PC full of transputers. The PC ran so hot that Chris
 stood fanning it with a newspaper.
 
-The PC was his own Dell. In it were three Fast 9 transputer cards, designed
-by Pat Mills and lent for the show by Quintek of Bristol, and one T800
-graphics card, which was his. He had bought it with money borrowed from his
-mother:
+The PC was his own Dell, a 20MHz 386. It was the same machine on which he had
+written the Art Studio and the ST and Amiga games, cross assembling with PDS
+and sending the code down a cable. In it were three Fast 9 transputer cards,
+designed by Pat Mills and lent for the show by Quintek of Bristol, and one
+T800 graphics card, which was his. He had bought it with money borrowed from
+his mother:
 
 > "Mum, I'm going to port my games work to this fancy graphics card, but I
 > need some cash..."
