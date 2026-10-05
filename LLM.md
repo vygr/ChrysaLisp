@@ -293,6 +293,10 @@ Deep dives into meta-commentary and design philosophy:
     queueing, scoped RAII macros (`with-lock`, `with-read-lock`,
     `with-write-lock`), and bounded audit history logging.
 
+71. **[Till the Pips Squeak](docs/ai_digest/till_the_pips_squeak.md)** - How
+    the Lisp engine was squeezed, 40% fewer instructions and far less stack,
+    step by step, with what was measured and what did not work.
+
 ---
 
 ## Reading Paths

@@ -4,6 +4,24 @@
 
 ------
 
+The Lisp engine has been squeezed. Over the test suite it runs 40% fewer
+instructions, and the recursive core holds far less on the stack, a special
+form and the body of a lambda hold nothing at all. The args list and the
+environment of a call are reused, not made and freed, a prebound function is
+not evaluated, and the Lisp object is fetched from the task control block, not
+kept in a stack slot at every level. `make test` on one node is 0.33 seconds,
+from 0.54. New doc `docs/ai_digest/till_the_pips_squeak.md` has each step, what
+it saved, and what was tried that did not pay.
+
+The boot environment is spread over 509 buckets once `class/lisp/root.inc` has
+loaded. It was one bucket, and a symbol not bound anywhere, as the first
+element of most lists the reader expands is not, was a scan of all 828 of its
+symbols. A full build is 4.4% fewer instructions for it.
+
+A node whose process has gone is forgotten by its neighbours at once, a shared
+memory link asks the host if its peer still runs. It was left to run out its
+time, a few seconds, and a task started on it in that time got no answer.
+
 Added "-r, --repl" command line option to the `lisp` command. This allows for
 the passing of code on the command line to be executed in the REPL.
 
