@@ -3470,7 +3470,7 @@ main.c for the host support.
 
 New snapshot.zip bringing the Windows version up to date and providing a new
 prebuilt main.exe for folks that want to try the Windows version. Many thanks
-to Martyn Bliss aka BananaEarwig for the new build. This should fix the GUI
+to Martyn Blyss aka BananaEarwig for the new build. This should fix the GUI
 issue on Windows as well as bring the new (file-stream) open options.
 
 Removed (def:) macro as this is now redundant since the keyword symbols
@@ -3478,7 +3478,7 @@ addition.
 
 Corrected (#) macro after testing with pre-binding turned off.
 
-Enabled (pii-remove) now we have Windows support care of Martyn Bliss.
+Enabled (pii-remove) now we have Windows support care of Martyn Blyss.
 
 Removed (defcfun) (defcfun-bind) (defcmacro) (defcmacro-bind) from the compiler
 environment. (include) now imports into the `*compile_env*` directly.
@@ -3487,7 +3487,7 @@ Fix for Windows main.c gettimeofday() EPOC calculation. GUI clock app now
 displays correctly on Windows.
 
 Fix for render to texture mode GUI on Windows, nice bit of sleuthing with
-Martyn Bliss to get that sorted. Folks should join the IRC group to join in :)
+Martyn Blyss to get that sorted. Folks should join the IRC group to join in :)
 A much better fix will come along but this temp fix gets us running for now.
 
 ------
@@ -4336,7 +4336,7 @@ platforms and Windows TUI is far more useable than it was.
 
 ------
 
-Many thanks to Martyn Bliss for pushing the Windows port forward. We now have
+Many thanks to Martyn Blyss for pushing the Windows port forward. We now have
 support for running on Windows 64bit. A few things remain to be done to get the
 Windows version running a multiple virtual CPU network, but the GUI is now
 running and the TUI is able to be used to compile and build images.
