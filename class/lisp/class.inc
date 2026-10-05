@@ -2,6 +2,7 @@
 (include "././error/class.inc")
 (include "././list/class.inc")
 (include "./struct.inc")
+(include "sys/task/class.inc")
 
 (def-class :lisp :obj
 	(dec-method :vtable class/lisp/vtable)
@@ -60,3 +61,12 @@
 	(dec-method :lisp_identity class/lisp/lisp_identity :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_repl_info class/lisp/lisp_repl_info :static (:r0 :r1) (:r0 :r1))
 	(dec-method :run class/lisp/run))
+
+(defun lisp-this (r)
+	;emit the load of the task's lisp object, from its tcb, to a register.
+	;The lisp object is the first input of most methods here, and by
+	;contract is given back as the first output. A method that calls a lot
+	;need not keep it on the stack to do that, it can fetch it again.
+	(fn-bind 'sys/statics/statics r)
+	(assign `((,r statics_sys_task_current_tcb)) `(,r))
+	(assign `((,r +tk_node_lisp)) `(,r)))

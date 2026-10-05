@@ -15,7 +15,7 @@
 	;:r1-:r14, :f0-:f15
 
 	(def-vars
-		(ptr this form value func args))
+		(ptr form value func args))
 
 	(entry :lisp :repl_eval '(:r0 :r1))
 
@@ -51,8 +51,11 @@
 	(errorcase
 		(assign '((:r1 +array_length)) '(:r2))
 		(gotoif '(:r2 = 0) 'error1))
+		;the lisp object has no slot in the frame. It stays in :r0 where it
+		;can, every eval gives it back, and is fetched from the tcb to
+		;give back at the end.
 		(push-scope)
-		(assign '(:r0 :r1) {this, form})
+		(assign '(:r1) {form})
 		(array-bind-args :r1 '(:r1))
 		;the function is nearly always prebound, a func object, that evals
 		;to itself, so no need to call to find that out
@@ -79,27 +82,32 @@
 			(assign {form} '(:r1))
 			(call :lisp :repl_apply '(:r0 :r1 :r2) {_, value})
 			(call :obj :deref {func})
-			(exit :lisp :repl_eval {this, value})
+			(lisp-this :r0)
+			(assign {value} '(:r1))
+			(exit :lisp :repl_eval '(:r0 :r1))
 			(return)
 		(endif)
 		;none special form, so evaluate the args into a new list, that
 		;takes each value as it is given, with no ref. The form's slot
 		;holds the iterator over the form, the value's slot its end, they
 		;are not needed till after.
+		(vp-cpy-rr :r0 :r10)
 		(call :list :create :nil '(:r0))
 		(assign {form} '(:r1))
 		(assign '(:r0) {args})
 		(assign '((:r1 +array_length)) '(:r1))
 		(vp-sub-cr 1 :r1)
-		(vpif '(:r1 /= 0))
+		(vpif '(:r1 = 0))
+			(vp-cpy-rr :r10 :r0)
+		(else)
 			(call :array :set_cap '(:r0 :r1))
 			(assign {form} '(:r1))
 			(class/array/get_both :r1 :r2 :r3)
 			(vp-add-cr +ptr_size :r2)
 			(assign '(:r3) {value})
+			(vp-cpy-rr :r10 :r0)
 			(loop-start)
 				(assign '(:r2) {form})
-				(assign {this} '(:r0))
 				(call :lisp :repl_eval '(:r0 (:r2 0)) '(:r0 :r1))
 			(errorcase
 				(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
@@ -107,21 +115,24 @@
 					(assign '(:r1) {value})
 					(goto 'error)
 				(endif))
-				(assign {args, form, value} '(:r0 :r2 :r3))
-				(assign '((:r0 +array_length) (:r0 +array_begin)) '(:r4 :r5))
+				(assign {args, form, value} '(:r7 :r2 :r3))
+				(assign '((:r7 +array_length) (:r7 +array_begin)) '(:r4 :r5))
 				(vp-cpy-rr :r4 :r6)
 				(vp-shl-cr (log2 +ptr_size) :r6)
 				(vp-add-cr 1 :r4)
 				(vp-add-rr :r5 :r6)
-				(assign '(:r4 :r1) '((:r0 +array_length) (:r6 0)))
+				(assign '(:r4 :r1) '((:r7 +array_length) (:r6 0)))
 				(vp-add-cr +ptr_size :r2)
 			(loop-until '(:r2 = :r3))
 		(endif)
-		(call :lisp :repl_apply {this, args, func} {_, value})
+		(assign {args, func} '(:r1 :r2))
+		(call :lisp :repl_apply '(:r0 :r1 :r2) {_, value})
 	(vp-label 'error)
 		(call :obj :deref {args})
 		(call :obj :deref {func})
-		(exit :lisp :repl_eval {this, value})
+		(lisp-this :r0)
+		(assign {value} '(:r1))
+		(exit :lisp :repl_eval '(:r0 :r1))
 		(return)
 	(errorcase
 	(vp-label 'funcall_exit)
