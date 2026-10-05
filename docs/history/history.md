@@ -299,6 +299,10 @@ makes us even".
 Sir Hossein Yassaie, then at Inmos and later of Imagination Technologies,
 understood it fully too.
 
+And Andy Stout. He was working on a transputer system of his own, called
+Mercury. He was shown Taos one day, and gave up his own project to work on
+it. He went on to write the C standard libraries for Taos and for intent.
+
 ## 5. Tao Group, 1991 to 2007
 
 Chris was co-founder and chief technology officer of Tao Group, and held
