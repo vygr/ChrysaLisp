@@ -19,10 +19,17 @@ all the controls bar the bump map, whose noise hangs on the last bits of a
 The inputs of a shader, the values of an app's controls, travel as one std140
 block, `(shader-layout)`, `(shader-pack)` and `(shader-unpack)`.
 
+A third back end, `lib/gpu/vp.inc`, turns a shader into VP source for a native
+function, assembled once for the CPU of the node and kept under `obj/`. It
+gives the same pixels as the CPU back end and is 37 times as fast on the Macs,
+84 times on the Pi 4. The raymarch shader at 320 by 240 takes 219ms on one
+core of an M4, 377ms on the x64, 913ms on the Pi 4. Tested on ARM64 macOS and
+Linux, x86_64 macOS, and the VP64 emulator.
+
 New demo, `apps/demos/surface`, the raymarch shader with no GPU. It makes a
 slider for each input the shader declares, packs the inputs block each frame,
-and farms the tiles over the nodes. A 320 by 240 frame takes about 0.55
-seconds on 16 nodes of an M4 Max. It is not in the launcher's list yet.
+and farms the tiles over the nodes as native code. A 640 by 480 frame takes
+76 to 96ms on 16 nodes of an M4 Max. It is not in the launcher's list yet.
 
 There is no host GPU interface and no `@Gpu` service yet. New doc,
 `docs/ai_digest/shader_language.md`. New tests, `tests/gpu/test_shader.lisp`.

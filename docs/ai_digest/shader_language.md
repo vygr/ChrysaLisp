@@ -2,15 +2,17 @@
 
 ChrysaLisp has its own shader language. A shader is written as s-expressions,
 read by the Lisp reader, type checked in Lisp, and handed to a back end. One
-back end gives the text of a GLSL fragment shader for a GPU. Another gives a
-Lisp lambda that shades pixels with no GPU at all, which can be farmed over the
-nodes of a network. The same source, the same inputs, the same picture.
+back end gives the text of a GLSL fragment shader for a GPU. One gives VP code,
+a native function that shades pixels with no GPU at all, on any CPU ChrysaLisp
+runs on, which can be farmed over the nodes of a network. One gives a Lisp
+lambda that does the same, interpreted, the reference the others are checked
+against. The same source, the same inputs, the same picture.
 
 This is the first step towards GPU support. There is no host GPU interface
 yet, and no `@Gpu` service, see "What Is Not Here Yet". What is here is the
-part that had no decisions waiting on it, the language, the two back ends, the
-way the values of an app's controls reach a shader each frame, and a demo that
-runs the lot.
+part that had no decisions waiting on it, the language, the three back ends,
+the way the values of an app's controls reach a shader each frame, and a demo
+that runs the lot.
 
 ## Why Our Own Language
 
@@ -27,7 +29,8 @@ rewrite of every shader.
 
 * `lib/gpu/shader.inc`, the reader, the type checker, and the inputs block.
 * `lib/gpu/glsl.inc`, the GLSL text back end.
-* `lib/gpu/cpu.inc`, the CPU back end.
+* `lib/gpu/cpu.inc`, the CPU back end, interpreted Lisp.
+* `lib/gpu/vp.inc`, the VP back end, native code.
 * `lib/gpu/shaders/raymarch.shader`, the surface raymarch demo, a port of
   https://vygr.github.io/JS-Raymarch.
 * `apps/demos/surface/`, an app that runs that shader with no GPU.
@@ -122,6 +125,7 @@ They mean what they mean in GLSL. `fract` of -0.25 is 0.75, `mod` of -0.25 and
 ```lisp
 (import "lib/gpu/glsl.inc")
 (import "lib/gpu/cpu.inc")
+(import "lib/gpu/vp.inc")
 
 (defq program (shader-load "lib/gpu/shaders/raymarch.shader"))
 ```
@@ -185,6 +189,64 @@ of that `if`, and a loop into a `while` with a flag.
 `pow` is not a primitive of `real`. It is done by squaring for the whole part
 of the power, and by repeated square roots for the rest.
 
+## The VP Back End
+
+`(shader-vp program)` gives a native function for the program.
+
+```lisp
+(defq native (shader-vp program)
+	frame (shader-vp-frame program native '((time 2.0) (resolution (640.0 480.0))))
+	pixels (shader-vp-argb native frame 0 0 640 480 480))
+```
+
+`(shader-vp-frame program native [vals])` gives the block of memory the native
+function works in, with the values of the inputs written at the start of it,
+from the same `(name value)` pairs the other back ends take.
+
+`(shader-vp-argb native frame x y x1 y1 [height])` shades a tile and gives the
+pixels as a string of 32 bit argb, clamped, which is what `(. canvas :tile)`
+takes. If the height of the frame is given then row 0 is the top row, as a
+canvas has it, and the shader still sees y going up.
+`(shader-vp-pixels native frame x y x1 y1)` gives the pixels as a list of
+`reals`, as the CPU back end does.
+
+The back end writes VP source, the same assembler source the rest of the
+system is written in, and the assembler turns it into code for the CPU of the
+node, ARM64, x86_64, RISC-V, or the VP64 of the emulator. The source and the
+function are kept under `obj/`, in `lib/gpu/jit/`, named by a hash of the
+program. The first task to ask for a program assembles it, under a lock, and
+every task on that machine after that just binds to it. The raymarch shader is
+2,460 lines of VP, assembles in 14ms, and is 10KB of ARM64 code.
+
+How the code is laid out.
+
+* There is no recursion in the language, so every parameter and local of
+  every function is given a slot of its own in one frame, 8 bytes for each
+  float or int. The frame is the string the caller gives, so none of it is on
+  the task's stack. The frame for the raymarch shader is 2,056 bytes.
+* A function is a label, and a call is a `vp-call`. The args are stored to the
+  parameter slots of the callee, and the result is read back from its result
+  slot.
+* A value being worked on is held in registers, a float in each of `:f0` to
+  `:f15`, an int or bool in `:r2` to `:r10`. A `vec3` is three registers. Any
+  that are live over a call are saved on the stack around it.
+* `:r13` holds the frame and `:r12` the constants. A float literal is a
+  constant in the function's table.
+* A `(break)` is a jump, a `(return)` is a store and a jump, a test is a
+  branch on the float or int compare. `and` and `or` stop at the first arg
+  that settles them.
+* `sin` and `cos` call `:sys_math :r_sin`. `pow` is a subroutine in the
+  function, with the same method as the CPU back end, so the two agree.
+  `floor`, `fract` and `mod` are built from a convert to int and back.
+
+It has one limit the others do not. An expression that holds more than 16
+floats at once, counting each component, has no register for the next, and is
+refused with an error. Split it with a `(defq)`. The raymarch shader fits
+as it is written.
+
+Its maths is IEEE doubles, done by the CPU, so a divide by zero gives an
+infinity as it does on a GPU.
+
 ## Do They Agree
 
 The raymarch shader was rendered by both back ends at 48 by 36 over five
@@ -203,6 +265,36 @@ against the GPU in 32 bit floats.
 The last is not a fault. The bump map is built on `fract(sin(n) * 43758.5453)`,
 a hash that depends on the last bits of a float, so 32 bit and 64 bit maths
 give different noise. Any two GPUs can differ there as well.
+
+The VP back end and the CPU back end both work in doubles, with the same
+method for each built in. Over the 3,072 pixels of the first row of the table
+they give the same values to all 6 decimal places that were compared. Every
+test of a pixel in the test module is run through both.
+
+## How Fast
+
+The raymarch shader, default settings, time 2.0, one core, the whole frame in
+one call.
+
+| Machine | CPU back end, 64 by 48 | VP back end, 64 by 48 | VP back end, 320 by 240 |
+|---|---|---|---|
+| Apple M4 Max | 322ms | 8.7ms | 219ms |
+| MacBook Pro 2018, i9-8950HK | 530ms | 14.4ms | 377ms |
+| Raspberry Pi 4 | 3,103ms | 36.9ms | 913ms |
+
+Native code is 37 times as fast as the interpreter on the two Macs, and 84
+times on the Pi. On the M4 one core shades about 350,000 pixels a second.
+
+At 640 by 480 on one core of the M4, by what the controls ask for.
+
+| Settings | Frame |
+|---|---|
+| depth 0, no occlusion | 413ms |
+| defaults, depth 1 | 860ms |
+| bump 0.005 | 1,053ms |
+| depth 2 | 1,264ms |
+| displace 0.02 | 2,299ms |
+| anti alias, 4 samples a pixel | 3,392ms |
 
 ## The Inputs Block
 
@@ -231,27 +323,34 @@ with its name and value. It knows nothing else of the shader, a new input in
 the shader file is a new slider. It gives the two inputs that have no range,
 `time` and `resolution`, itself.
 
-Each frame it packs the inputs block and cuts the frame into tiles of 4 rows.
-A farm of child tasks, one for each node, shades them. A child compiles the
-shader with the CPU back end when it starts, and for each tile unpacks the
-block, shades, and sends back the pixels. When the last tile is in the frame
-is shown and the next one starts, with whatever the sliders say by then.
+Each frame it packs the inputs block and cuts the frame into tiles of 8 rows.
+A farm of child tasks, one for each node, shades them. A child gets the native
+function for the shader from the VP back end when it starts, and for each tile
+unpacks the block into a frame, shades, and sends back the pixels. When the
+last tile is in the frame is shown and the next one starts, with whatever the
+sliders say by then.
 
-On an Apple M4 Max, 16 nodes, a 320 by 240 frame at the default settings takes
-about 0.55 seconds. One node shades from 7,000 to 10,000 pixels a second.
-Reading and checking the shader, 240 lines, takes about a millisecond.
+On an Apple M4 Max, 16 nodes, a 640 by 480 frame at the default settings takes
+from 76 to 96ms, 10 to 13 frames a second, with no GPU. The same demo on the
+interpreted CPU back end took about 550ms for a 320 by 240 frame. Reading and
+checking the shader, 205 lines, takes about a millisecond.
 
 The app is not in the launcher's list yet. To try it add `"surface"` to the
 Demos list in `apps/system/launcher/app.lisp`, or to your own launcher config.
 
-## What The CPU Back End Does Not Do
+## Limits
 
-* A divide by zero is an error on an error checked build, where a GPU gives
-  an infinity. The raymarch shader at time 0.0 has the camera at the point it
-  looks at, and so fails there, on a GPU it gives a black frame.
-* It is interpreted. The next step is a back end that gives VP code, the real
-  registers and instructions are there, see `apps/demos/raymarch/lisp.vp`,
-  and the VP maths is 64 bit where this is too.
+* On the CPU back end a divide by zero is an error on an error checked
+  build, where a GPU, and the VP back end, give an infinity. The raymarch
+  shader at time 0.0 has the camera at the point it looks at. The CPU back end
+  fails there, the other two give a black frame.
+* The VP back end has no register spill, an expression that needs more than
+  16 float registers is refused.
+* The native functions are never removed from `obj/`, one is left for each
+  version of each shader that has been run.
+* A tile is shaded in one call with no task switch, so keep tiles small.
+* The VP code is plain scalar code. Nothing is kept in a register between
+  statements, no common terms are shared, and there is no SIMD.
 
 ## What Is Not Here Yet
 

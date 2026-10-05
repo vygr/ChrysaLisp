@@ -11,7 +11,7 @@
 (enums +select 0
 	(enum main task reply timer))
 
-(defq +width 320 +height 240 +scale 1 +line_batch 4 +steps 1000
+(defq +width 640 +height 480 +scale 1 +line_batch 8 +steps 1000
 	+timer_rate (/ 1000000 2) +retry_timeout (task-timeout 5)
 	program (shader-load +shader_file) controls (list)
 	jobs (list) tiles (list) farm :nil select :nil id :t
@@ -153,7 +153,7 @@
 						(. *canvas* :swap 0)
 						(def (. *status* :dirty) :text (cat "Frame "
 							(str (/ (- (pii-time) frame_time) 1000)) "ms, "
-							(str (length (lisp-nodes))) " nodes, no GPU"))
+							(str (length (lisp-nodes))) " nodes, native code, no GPU"))
 						(start-frame))))
 			(:t ;timer event
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)

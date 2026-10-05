@@ -317,6 +317,48 @@
 (assert-pixel "block to the CPU back end" '(0.75 0.2 0.3 16777216.0) prog vals)
 (assert-error "wrong size of vector" (shader-pack prog '((d (1.0 2.0 3.0)))))
 
+(report-header "GPU: shader language, VP back end")
+
+;a tile as 32 bit argb pixels, clamped, and with the top row first
+(defq prog (sh-src "(input k :float 4.0)" "(input n :int 2)"
+		"(defun main :vec4 ((frag :vec2)) (return (vec4 (/ frag k) (float n) -1.0)))")
+	native (shader-vp prog) frame (shader-vp-frame prog native))
+(assert-true "native function" (func? (first native)))
+(assert-eq "frame holds the inputs" (n2r 4.0) (get-real frame 0))
+(assert-eq "frame holds the ints" 2 (get-long frame 8))
+(defq out (shader-vp-argb native frame 0 0 2 2))
+(assert-eq "argb size" 16 (length out))
+(assert-list-eq "argb tile" '(0xff1f1fff 0xff5f1fff 0xff1f5fff 0xff5f5fff)
+	(map (# (get-uint out (* %0 4))) (range 0 4)))
+(assert-list-eq "argb tile, top row first" '(0xff1fdfff 0xff5fdfff 0xff1f9fff 0xff5f9fff)
+	(map (# (get-uint (shader-vp-argb native frame 0 0 2 2 4) (* %0 4))) (range 0 4)))
+(assert-list-eq "argb tile, inputs given" '(0xff3f3f00 0xffbf3f00)
+	(map (# (get-uint (shader-vp-argb native
+		(shader-vp-frame prog native '((k 2.0) (n 0))) 0 0 2 1) (* %0 4))) (range 0 2)))
+(assert-list-eq "same program, same function" (first native) (first (shader-vp prog)))
+(defq pixels (shader-vp-pixels native frame 1 2 3 4))
+(assert-list-eq "pixels tile" '((0.375 0.625) (0.625 0.625) (0.375 0.875) (0.625 0.875))
+	(map (# (map (const n2f) (slice %0 0 2))) pixels))
+
+;every float register is in use at once here, and a call saves them all
+(assert-pixel "registers saved over calls" '(13.0 26.0 39.0 52.0)
+	(sh-src "(defun f :vec4 ((a :vec4)) (return (* a 2.0)))"
+		"(defun main :vec4 ((frag :vec2))"
+		"(defq a (vec4 1.0 2.0 3.0 4.0))"
+		"(return (+ a (+ (f a) (f (+ a (f (f a))))))))"))
+;one more value held and there is no register for it, the CPU back end
+;has no such limit
+(defq prog (sh-src "(defun f :vec4 ((a :vec4)) (return (* a 2.0)))"
+	"(defun main :vec4 ((frag :vec2))"
+	"(defq a (vec4 1.0 2.0 3.0 4.0))"
+	"(return (+ a (+ (f a) (+ (f (f a)) (+ a (f (+ a (f (f a))))))))))"))
+(assert-list-eq "deep expression, CPU back end" '(18.0 36.0 54.0 72.0) (sh-pixel prog))
+(assert-error "deep expression, VP back end" (shader-vp prog))
+(assert-pixel "sin and pow in the middle of a vector" '(1.8415 4.5403 11.0 0.0)
+	(sh-main "(defq a (vec4 1.0 2.0 3.0 4.0))"
+		"(return (vec4 (+ (:x a) (sin (:x a))) (+ (* (:y a) 2.0) (cos (:x a)))"
+		"(+ (:z a) (pow (:y a) (:z a))) (- (:w a) (pow (:y a) 2.0))))"))
+
 (report-header "GPU: the raymarch shader")
 
 (defq prog (shader-load "lib/gpu/shaders/raymarch.shader") text (shader-glsl prog))

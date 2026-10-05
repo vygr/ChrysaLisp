@@ -304,9 +304,9 @@ Deep dives into meta-commentary and design philosophy:
     are in `docs/history/press/`.
 
 73. **[The Shader Language](docs/ai_digest/shader_language.md)** - Shaders
-    written as s-expressions, type checked in Lisp, with a GLSL text back end
-    and a CPU back end that needs no GPU, the inputs block, and the surface
-    raymarch demo.
+    written as s-expressions, type checked in Lisp, with a GLSL text back end,
+    and VP native code and Lisp back ends that need no GPU, the inputs block,
+    and the surface raymarch demo.
 
 ---
 
