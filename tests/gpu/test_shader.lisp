@@ -2,6 +2,7 @@
 
 (import "lib/gpu/glsl.inc")
 (import "lib/gpu/cpu.inc")
+(import "lib/gpu/vp.inc")
 
 (defq sh_lf (ascii-char 10))
 
@@ -19,18 +20,30 @@
 	(map (const n2f) (first (apply (shader-cpu program)
 		(cat (list x y (inc x) (inc y)) (shader-cpu-args program vals))))))
 
+(defun sh-pixel-vp (program &optional vals x y)
+	;the vec4 the VP back end gives for one pixel, as fixeds
+	(setd x 0 y 0)
+	(defq native (shader-vp program))
+	(map (const n2f) (first (shader-vp-pixels native
+		(shader-vp-frame program native vals) x y (inc x) (inc y)))))
+
 (defun sh-near? (a b)
 	(and (= (length a) (length b))
 		(every (# (< (abs (- %0 %1)) 0.0015)) a b)))
 
 (defmacro assert-pixel (name expected program &rest args)
 	; (assert-pixel name expected program [vals x y])
-	(defq res (gensym) exp (gensym))
+	;both the CPU back end and the VP back end must give the pixel
+	(defq res (gensym) exp (gensym) prg (gensym))
 	`(progn
-		(defq ,res (sh-pixel ,program ~args) ,exp ,expected)
+		(defq ,prg ,program ,exp ,expected ,res (sh-pixel ,prg ~args))
 		(if (sh-near? ,exp ,res)
 			(test-pass ,name)
-			(test-fail ,name ,exp ,res))))
+			(test-fail ,name ,exp ,res))
+		(setq ,res (sh-pixel-vp ,prg ~args))
+		(if (sh-near? ,exp ,res)
+			(test-pass (cat ,name ", native"))
+			(test-fail (cat ,name ", native") ,exp ,res))))
 
 ;the tree for a small program
 (defq prog (sh-src
