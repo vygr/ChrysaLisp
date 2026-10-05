@@ -4,6 +4,23 @@
 
 ------
 
+First run of this work on Windows, by Martyn Blyss. Install, the TUI and GUI,
+`make it` and `make test`, 0.19 seconds, all worked. The test suite hung, and
+`nodes -a 1` took down the node it was typed on.
+
+The cause was `(pii-spawn)`. A host call runs on the stack of the task that
+makes it, a few KB of heap, and `CreateProcess` on Windows needs far more. A
+heavy host call belongs on the kernel task's stack, by `:sys_task :callback`,
+as the net, audio and gui calls are made, and `:host_os :lisp_spawn` now does
+that, on every host. `nodes -a 1` on Windows now starts the node and it joins.
+
+Also found by that run. The Windows host read its `.system_id` file in text
+mode, 16 random bytes can hold one that text mode takes as the end of the
+file, it is now binary. `(net-quiet)` could wait for ever on a network that
+never settled, it now gives up. The tree test now skips a saved game with no
+battle recorded, and the format test takes the CRs out of a Windows checkout
+before it gives source to the formatter.
+
 New `docs/history/`. `docs/history/history.md`, "How We Got Here", is the
 record of where ChrysaLisp came from, the Spectrum games at Mikro-Gen, the
 macro set under the ST and Amiga games that became the Virtual Processor,
