@@ -152,6 +152,11 @@ outputs
 :r1 = hmap object (ptr)
 trashes
 :r1-:r14, :f0-:f15
+info
+if no other has a ref to the environment, and it is as it was made,
+a single bucket that has not grown, its keys and values are dropped,
+in line where they live on, and it goes on the chain of empty ones,
+the link held as its parent. If not it is given a deref, as before.
 ```
 
 ### :env_push -> class/lisp/env_push
@@ -163,7 +168,11 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = hmap object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r5, :r14, :f0-:f15
+info
+the new environment is taken from the chain of empty ones the lisp
+object keeps, :env_pop puts them there, so most calls of a lambda
+need not create one.
 ```
 
 ### :init -> class/lisp/init

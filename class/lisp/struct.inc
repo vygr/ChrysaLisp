@@ -10,4 +10,7 @@
 	(ptr error)
 	;a chain of empty lists, for the args of a call, see :lisp :repl_eval
 	(ptr args_pool)
+	;a chain of empty environments, for the call of a lambda, see :lisp
+	;:env_push
+	(ptr env_pool)
 	(uint seq_idx stream_line nextsym))

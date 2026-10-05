@@ -10,17 +10,26 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = hmap object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r5, :r14, :f0-:f15
+	;info
+	;the new environment is taken from the chain of empty ones the lisp
+	;object keeps, :env_pop puts them there, so most calls of a lambda
+	;need not create one.
 
 	(entry :lisp :env_push '(:r0))
 
-	(vp-push :r0)
-	(assign '((:r0 +lisp_environment)) '(:r0))
-	(call :hmap :create '(1) '(:r0))
-	(assign '((:rsp 0)) '(:r1))
-	(call :hmap :set_parent '(:r0 (:r1 +lisp_environment)) '(:r1))
-	(vp-pop :r0)
-	(assign '(:r1) '((:r0 +lisp_environment)))
+	(assign '((:r0 +lisp_env_pool)) '(:r1))
+	(vpif '(:r1 = 0))
+		(vp-push :r0)
+		(call :hmap :create '(1) '(:r1))
+		(vp-pop :r0)
+	(else)
+		(assign '((:r1 +hmap_parent)) '(:r2))
+		(assign '(:r2) '((:r0 +lisp_env_pool)))
+	(endif)
+	;the ref the lisp object had, to the old one, is now the new one's
+	(assign '((:r0 +lisp_environment)) '(:r2))
+	(assign '(:r2 :r1) '((:r1 +hmap_parent) (:r0 +lisp_environment)))
 
 	(exit :lisp :env_push '(:r0 :r1))
 	(vp-ret)
@@ -35,23 +44,57 @@
 	;:r1 = hmap object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f15
+	;info
+	;if no other has a ref to the environment, and it is as it was made,
+	;a single bucket that has not grown, its keys and values are dropped,
+	;in line where they live on, and it goes on the chain of empty ones,
+	;the link held as its parent. If not it is given a deref, as before.
 
-	(structure local 0
-		(ptr this new_env))
+	(vp-rdef (this env parent value iter_begin iter_end tmp))
 
-	(vp-alloc local_size)
-	(entry :lisp :env_pop '(:r0))
+	(entry :lisp :env_pop `(,this))
 
-	(assign '(:r0 (:r0 +lisp_environment)) '((:rsp local_this) :r0))
-	(assign '((:r0 +hmap_parent)) '(:r1))
-	(assign '(:r1) '((:rsp local_new_env)))
-	(class/obj/ref :r1 :r2)
-	(call :obj :deref '(:r0))
-	(assign '((:rsp local_this) (:rsp local_new_env)) '(:r0 :r1))
-	(assign '(:r1) '((:r0 +lisp_environment)))
+	(assign `((,this +lisp_environment)) `(,env))
+	(assign `((,env +hmap_parent) (,env +obj_count) (,env +array_begin) (& ,env +hmap_elems))
+		`(,parent ,value ,iter_begin ,iter_end))
+	(assign `(,parent (,env +array_num_buckets)) `((,this +lisp_environment) ,tmp))
+	(gotoif `(,value /= 1) 'slow)
+	(gotoif `(,iter_begin /= ,iter_end) 'slow)
+	(gotoif `(,tmp /= 1) 'slow)
+	(assign `((,env +array_length)) `(,iter_end))
+	(vpif `(,iter_end /= 0))
+		(vp-shl-cr (log2 +ptr_size) iter_end)
+		(vp-add-rr iter_begin iter_end)
+		(loop-start)
+			(assign `((,iter_begin 0)) `(,value))
+			(class/obj/deref-live value tmp 'last_ref)
+		(vp-label 'derefed)
+			(vp-add-cr +ptr_size iter_begin)
+		(loop-until `(,iter_begin = ,iter_end))
+		(vp-xor-rr value value)
+		(assign `(,value) `((,env +array_length)))
+	(endif)
+	;the ref it had, to its parent, is now the lisp object's
+	(assign `((,this +lisp_env_pool)) `(,value))
+	(assign `(,value ,env) `((,env +hmap_parent) (,this +lisp_env_pool)))
 
-	(exit :lisp :env_pop '(:r0 :r1))
-	(vp-free local_size)
+	(exit :lisp :env_pop `(,this ,parent))
+	(vp-ret)
+
+(vp-label 'last_ref)
+	;the last ref of a key or value, so a call, and all is trashed
+	(vp-push this env parent iter_begin iter_end)
+	(call :obj :deref `(,value))
+	(vp-pop this env parent iter_begin iter_end)
+	(goto 'derefed)
+
+(vp-label 'slow)
+	(vp-push this parent)
+	(class/obj/ref parent tmp)
+	(call :obj :deref `(,env))
+	(vp-pop this parent)
+
+	(exit :lisp :env_pop `(,this ,parent))
 	(vp-ret)
 
 (def-func-end)
