@@ -256,8 +256,20 @@ At a graphics show at Alexandra Palace, Tao had a small stand showing Tim
 Moore's ray tracer. It was next to Silicon Graphics, who were showing their
 new Iris workstation, ray tracing a single sphere. Tao's was rendering the
 whole scene from the cover of the IEE Review, hundreds of textured,
-reflecting objects, on a PC with a card of transputers in it. The PC ran so
-hot that Chris stood fanning it with a newspaper.
+reflecting objects, on a PC full of transputers. The PC ran so hot that Chris
+stood fanning it with a newspaper.
+
+The PC was his own Dell. In it were three Fast 9 transputer cards, designed
+by Pat Mills and lent for the show by Quintek of Bristol, and one T800
+graphics card, which was his. He had bought it with money borrowed from his
+mother:
+
+> "Mum, I'm going to port my games work to this fancy graphics card, but I
+> need some cash..."
+
+She had bought him the ZX81 too, and the RAM pack, and the Spectrum. So the
+same person paid for the first computer in this history and for the first
+transputer.
 
 ### Those who saw it
 
