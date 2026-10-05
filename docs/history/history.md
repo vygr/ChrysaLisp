@@ -242,6 +242,23 @@ It was also resisted. The same award page quotes Francis Charig:
 
 The first funding had collapsed. Charig found the money in Japan.
 
+### On the show floor
+
+Two scenes from 1991, as Chris remembers them, with the caution that it was a
+long time ago.
+
+At one show Taos ran as a single parallel system across the whole floor. An
+optical link ran from Tao's stand to another company's, he thinks Paratech's,
+and the two pooled their transputers for the day. One network, two stands,
+and whatever was running spread itself over both.
+
+At a graphics show at Alexandra Palace, Tao had a small stand showing Tim
+Moore's ray tracer. It was next to Silicon Graphics, who were showing their
+new Iris workstation, ray tracing a single sphere. Tao's was rendering the
+whole scene from the cover of the IEE Review, hundreds of textured,
+reflecting objects, on a PC with a card of transputers in it. The PC ran so
+hot that Chris stood fanning it with a newspaper.
+
 ### Those who saw it
 
 Some people understood at once, and they are remembered here.
