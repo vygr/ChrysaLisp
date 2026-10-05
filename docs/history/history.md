@@ -253,11 +253,13 @@ and the two pooled their transputers for the day. One network, two stands,
 and whatever was running spread itself over both.
 
 At a graphics show at Alexandra Palace, Tao had a small stand showing Tim
-Moore's ray tracer. It was next to Silicon Graphics, who were showing their
-new Iris workstation, ray tracing a single sphere. Tao's was rendering the
-whole scene from the cover of the IEE Review, hundreds of textured,
-reflecting objects, on a PC full of transputers. The PC ran so hot that Chris
-stood fanning it with a newspaper.
+Moore's ray tracer, by then much optimised. It was next to Silicon Graphics,
+who were showing their new Iris workstation, ray tracing a single sphere in
+about a minute. Tao's scene was nine or so coloured, reflecting balls on a
+chequered floor, and it rendered in about five seconds. To prove it was not a
+recording, visitors were invited to edit the file of colours themselves and
+watch it render again. The PC ran so hot that Chris stood fanning it with a
+newspaper.
 
 The PC was his own Dell, a 20MHz 386. It was the same machine on which he had
 written the Art Studio and the ST and Amiga games, with the PDS development
@@ -278,6 +280,24 @@ mother:
 She had bought him the ZX81 too, and the RAM pack, and the Spectrum. So the
 same person paid for the first computer in this history and for the first
 transputer.
+
+### Too good to be true
+
+In the first years Taos was developed at home, in Bracknell, and people came
+to the house to see it. Not all of them believed what they saw.
+
+The reporter from Parallelogram, the parallel computing journal, suspected a
+trick. Cray had offices in Bracknell, and he accused Chris of having a line
+running to one of their machines. He made him switch the PC off and on again
+five times. Then he said he thought the people at Cray were pulling his leg.
+Parallelogram's editorial that winter was headed "TAOS: IMPOSSIBLE BUT
+TRUE?".
+
+Others took it harder. Chris remembers visitors who went faint at the
+demonstration, one hitting his head on the wall. His mother would help them
+up and walk them round the garden:
+
+> "Do you want a cup of tea... bit of a shock, love..."
 
 ### Those who saw it
 
