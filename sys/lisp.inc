@@ -107,9 +107,12 @@
 
 (defun net-quiet (&optional delay count last_cnt)
 	; (net-quiet [delay_us] [stable_count] [last_cnt]) -> (node_id ...)
+	;wait till the number of nodes known has stayed the same for a while.
+	;A network that never settles must not hang the caller, so it gives
+	;up, with what it has, after 20 times as long as a settled one takes.
 	(setd delay 100000 count 8 last_cnt 0)
-	(defq stable 0)
-	(while (< stable count)
+	(defq stable 0 tries (* count 20))
+	(while (and (< stable count) (> (-- tries) 0))
 		(task-sleep delay)
 		(defq cnt (length (lisp-nodes)))
 		(if (and (> cnt 0) (= cnt last_cnt))
