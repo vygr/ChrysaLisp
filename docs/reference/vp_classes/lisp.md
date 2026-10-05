@@ -328,6 +328,18 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14, :f0-:f15
+info
+this is the heart of the recursion, so what it holds on the stack,
+over each call it makes, is kept to the least. A symbol, or a form
+that evals to itself, uses none. A special form is a jump, so none. A
+built in function holds the form and the args while the args eval,
+and only the args while it runs. A lambda holds the form and the args
+while the args eval, and nothing while its body runs.
+
+The function of a form is nearly always prebound, a func object or a
+lambda list, held by the form. So it is not given a ref, and is found
+from the form when wanted, with no slot of its own. Only a function
+that has to be evaluated, the general case, has a slot, and a ref.
 ```
 
 ### :repl_eval_list -> class/lisp/repl_eval_list
