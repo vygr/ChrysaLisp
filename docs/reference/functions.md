@@ -1081,6 +1081,10 @@ last arguments
 
 ```code
 (net-quiet [delay_us] [stable_count] [last_cnt]) -> (node_id ...)
+
+wait till the number of nodes known has stayed the same for a while.
+A network that never settles must not hang the caller, so it gives
+up, with what it has, after 20 times as long as a settled one takes.
 ```
 
 ### next-op
@@ -1666,13 +1670,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args

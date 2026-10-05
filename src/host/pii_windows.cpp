@@ -466,7 +466,9 @@ int64_t pii_sysid(char *buf, size_t len)
 	}
 
 	// 2. Fallback: persistent local file .system_id
-	fd = open(".system_id", O_RDONLY);
+	//binary, or a byte of the id that text mode takes as the end of the file,
+	//or as a line end, gives a short or a different read
+	fd = open(".system_id", O_RDONLY | O_BINARY);
 	if (fd >= 0) {
 		ssize_t n = read(fd, buf, 16);
 		close(fd);
@@ -475,7 +477,7 @@ int64_t pii_sysid(char *buf, size_t len)
 
 	// 3. Fallback: generate and persist random 16-byte ID
 	pii_random(buf, 16);
-	fd = open(".system_id", O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+	fd = open(".system_id", O_CREAT | O_WRONLY | O_BINARY | O_TRUNC, S_IRUSR | S_IWUSR);
 	if (fd >= 0) {
 		write(fd, buf, 16);
 		close(fd);
@@ -486,35 +488,76 @@ int64_t pii_sysid(char *buf, size_t len)
 extern char **host_argv;
 static char pii_spawn_buf[8192];
 
+//CreateProcess needs far more stack than a VP task has, a host call runs on
+//the stack of the task that makes it, and that is a few KB of heap. So the
+//process is started by a thread of its own, made before any task runs, and
+//the task only signals it and waits.
+static HANDLE pii_spawn_req = NULL;
+static HANDLE pii_spawn_done = NULL;
+static volatile int64_t pii_spawn_pid = -1;
+
+static DWORD WINAPI pii_spawn_thread(LPVOID)
+{
+	for (;;)
+	{
+		WaitForSingleObject(pii_spawn_req, INFINITE);
+		int64_t pid = -1;
+		//it does not share the console input
+		SECURITY_ATTRIBUTES sa;
+		memset(&sa, 0, sizeof(sa));
+		sa.nLength = sizeof(sa);
+		sa.bInheritHandle = TRUE;
+		HANDLE nul = CreateFileA("NUL", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, OPEN_EXISTING, 0, NULL);
+		STARTUPINFOA si;
+		PROCESS_INFORMATION pi;
+		memset(&si, 0, sizeof(si));
+		memset(&pi, 0, sizeof(pi));
+		si.cb = sizeof(si);
+		si.dwFlags = STARTF_USESTDHANDLES;
+		si.hStdInput = nul;
+		si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+		si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+		if (CreateProcessA(NULL, pii_spawn_buf, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi))
+		{
+			CloseHandle(pi.hThread);
+			CloseHandle(pi.hProcess);
+			pid = (int64_t)pi.dwProcessId;
+		}
+		if (nul != INVALID_HANDLE_VALUE) CloseHandle(nul);
+		pii_spawn_pid = pid;
+		SetEvent(pii_spawn_done);
+	}
+	return 0;
+}
+
+//made as the program loads, on the main thread's own stack
+static struct pii_spawn_init
+{
+	pii_spawn_init()
+	{
+		pii_spawn_req = CreateEventA(NULL, FALSE, FALSE, NULL);
+		pii_spawn_done = CreateEventA(NULL, FALSE, FALSE, NULL);
+		if (pii_spawn_req && pii_spawn_done)
+		{
+			HANDLE t = CreateThread(NULL, 0, pii_spawn_thread, NULL, 0, NULL);
+			if (t) CloseHandle(t);
+			else pii_spawn_req = NULL;
+		}
+	}
+} pii_spawn_init_now;
+
 int64_t pii_spawn(const char *args)
 {
 	//start another node, this host and this boot image, with these args.
 	//returns its process id, or -1.
-	if (!host_argv) return -1;
+	if (!host_argv || !pii_spawn_req || !pii_spawn_done) return -1;
 	int n = snprintf(pii_spawn_buf, sizeof(pii_spawn_buf), "\"%s\" %s %s%s",
 		host_argv[0], host_argv[1], args, run_emu ? " -e" : "");
 	if (n < 0 || n >= (int)sizeof(pii_spawn_buf)) return -1;
-	//it does not share the console input
-	SECURITY_ATTRIBUTES sa;
-	memset(&sa, 0, sizeof(sa));
-	sa.nLength = sizeof(sa);
-	sa.bInheritHandle = TRUE;
-	HANDLE nul = CreateFileA("NUL", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, OPEN_EXISTING, 0, NULL);
-	STARTUPINFOA si;
-	PROCESS_INFORMATION pi;
-	memset(&si, 0, sizeof(si));
-	memset(&pi, 0, sizeof(pi));
-	si.cb = sizeof(si);
-	si.dwFlags = STARTF_USESTDHANDLES;
-	si.hStdInput = nul;
-	si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-	si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
-	BOOL ok = CreateProcessA(NULL, pii_spawn_buf, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi);
-	if (nul != INVALID_HANDLE_VALUE) CloseHandle(nul);
-	if (!ok) return -1;
-	CloseHandle(pi.hThread);
-	CloseHandle(pi.hProcess);
-	return (int64_t)pi.dwProcessId;
+	pii_spawn_pid = -1;
+	SetEvent(pii_spawn_req);
+	WaitForSingleObject(pii_spawn_done, INFINITE);
+	return pii_spawn_pid;
 }
 
 int64_t pii_pid()
