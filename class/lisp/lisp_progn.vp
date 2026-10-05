@@ -10,45 +10,48 @@
 	;:r1 = return value object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f15
-
-	(def-vars
-		(ptr this)
-		(pptr begin)
-		(uint len))
+	;info
+	;only the args are kept, in one slot, over the eval of the test. What
+	;follows the test is a jump, with nothing left on the stack.
 
 	(entry :lisp :lisp_if '(:r0 :r1))
 
 	(assign '((:r1 +array_length)) '(:r2))
 	(errorif '(:r2 < 3) 'error)
+
+	(vp-push :r1)
 	(assign '((:r1 +array_begin)) '(:r1))
-
-	(push-scope)
-	(assign '(:r0 :r1 :r2) {this, begin, len})
-
 	(call :lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
-	(assign '((:r0 +lisp_sym_nil)) '(:r2))
-	(vpif '(:r1 /= :r2))
+	(vp-pop :r2)
+	(assign '((:r0 +lisp_sym_nil)) '(:r3))
+	(vpif '(:r1 /= :r3))
 	(errorcase
-		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
-		(gotoif '(:r2 = :r3) 'error1))
-		(call :obj :deref '(:r1))
-		(jump :lisp :repl_eval {this, begin[+ptr_size * 2]})
+		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r4 :r5))
+		(gotoif '(:r4 = :r5) 'error1))
+		(class/obj/deref-live :r1 :r3 'last_ref)
+	(vp-label 'derefed)
+		(assign '((:r2 +array_begin)) '(:r2))
+		(jump :lisp :repl_eval `(:r0 (:r2 ,(* 2 +ptr_size))))
 	(endif)
 
-	(assign {this, begin, len} '(:r0 :r2 :r3))
-	(vp-shl-cr (log2 +ptr_size) :r3)
-	(vp-add-rr :r2 :r3)
-	(vp-add-cr (* 3 +ptr_size) :r2)
-	(jump :lisp :repl_progn '(:r0 :r1 :r2 :r3))
+	(class/array/get_both :r2 :r4 :r3)
+	(vp-add-cr (* 3 +ptr_size) :r4)
+	(jump :lisp :repl_progn '(:r0 :r1 :r4 :r3))
+
+(vp-label 'last_ref)
+	;the last ref of the test's value, so a call, and all is trashed
+	(vp-push :r2)
+	(call :obj :deref '(:r1))
+	(vp-pop :r2)
+	(lisp-this :r0)
+	(goto 'derefed)
 
 (errorcase
 (vp-label 'error1)
 	(exit :lisp :lisp_if '(:r0 :r1))
-	(return)
+	(vp-ret)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(if tst form [else_form ...])" +error_msg_wrong_num_of_args)))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -61,39 +64,33 @@
 	;:r1 = return value object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f15
-
-	(def-vars
-		(ptr this)
-		(pptr begin)
-		(uint len))
+	;info
+	;only the args are kept, in one slot, over the eval of the test. What
+	;follows the test is a jump, with nothing left on the stack.
 
 	(entry :lisp :lisp_ifn '(:r0 :r1))
 
 	(assign '((:r1 +array_length)) '(:r2))
 	(errorif '(:r2 < 3) 'error)
+
+	(vp-push :r1)
 	(assign '((:r1 +array_begin)) '(:r1))
-
-	(push-scope)
-	(assign '(:r0 :r1 :r2) {this, begin, len})
-
 	(call :lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
-	(assign '((:r0 +lisp_sym_nil)) '(:r2))
-	(vpif '(:r1 = :r2))
-		(class/obj/ref :r1 :r2 -1)
-		(jump :lisp :repl_eval {this, begin[+ptr_size * 2]})
+	(vp-pop :r2)
+	(assign '((:r0 +lisp_sym_nil)) '(:r3))
+	(vpif '(:r1 = :r3))
+		(class/obj/ref :r1 :r3 -1)
+		(assign '((:r2 +array_begin)) '(:r2))
+		(jump :lisp :repl_eval `(:r0 (:r2 ,(* 2 +ptr_size))))
 	(endif)
 
-	(assign {this, begin, len} '(:r0 :r2 :r3))
-	(vp-shl-cr (log2 +ptr_size) :r3)
-	(vp-add-rr :r2 :r3)
-	(vp-add-cr (* 3 +ptr_size) :r2)
-	(jump :lisp :repl_progn '(:r0 :r1 :r2 :r3))
+	(class/array/get_both :r2 :r4 :r3)
+	(vp-add-cr (* 3 +ptr_size) :r4)
+	(jump :lisp :repl_progn '(:r0 :r1 :r4 :r3))
 
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(ifn tst form [else_form ...])" +error_msg_wrong_num_of_args)))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -106,42 +103,45 @@
 	;:r1 = return value object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f15
-
-	(def-vars
-		(ptr this args))
+	;info
+	;only the args are kept, in one slot. The lisp object stays in :r0,
+	;each eval gives it back.
 
 	(vp-rdef (this args iter_begin iter_end tmp vtable))
 
 	(entry :lisp :lisp_while `(,this ,args))
 
 (errorcase
-	(assign `((,args +array_length)) '(:r2))
-	(gotoif '(:r2 < 2) 'error))
+	(assign `((,args +array_length)) `(,tmp))
+	(gotoif `(,tmp < 2) 'error))
 
-	(push-scope)
-	(assign `(,this ,args) {this, args})
-
+	(vp-push args)
 	(loop-start)
 		(assign `((,args +array_begin)) `(,args))
 		(call :lisp :repl_eval `(,this (,args ,+ptr_size)) `(,this ,args))
 		(assign `((,this +lisp_sym_nil)) `(,tmp))
 		(breakif `(,args = ,tmp))
-		(assign {args} `(,tmp))
+		(assign '((:rsp 0)) `(,tmp))
 		(class/array/get_both tmp iter_begin iter_end)
 		(call :lisp :repl_progn `(,this ,args (& ,iter_begin ,(* 2 +ptr_size)) ,iter_end)
 			`(,this ,args))
-
 	(errorcase
 		(assign `((,args +obj_vtable) (,this +lisp_error)) `(,vtable ,tmp))
 		(breakif `(,vtable = ,tmp)))
-
-		(call :obj :deref `(,args))
-		(assign {this, args} `(,this ,args))
+		(class/obj/deref-live args tmp 'last_ref)
+	(vp-label 'derefed)
+		(assign '((:rsp 0)) `(,args))
 	(loop-end)
 
 	(exit :lisp :lisp_while `(,this ,args))
-	(pop-scope)
-	(return)
+	(vp-free +ptr_size)
+	(vp-ret)
+
+(vp-label 'last_ref)
+	;the last ref of the body's value, so a call, and all is trashed
+	(call :obj :deref `(,args))
+	(lisp-this this)
+	(goto 'derefed)
 
 (errorcase
 (vp-label 'error)
@@ -158,42 +158,45 @@
 	;:r1 = return value object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f15
-
-	(def-vars
-		(ptr this args))
+	;info
+	;only the args are kept, in one slot. The lisp object stays in :r0,
+	;each eval gives it back.
 
 	(vp-rdef (this args iter_begin iter_end tmp vtable))
 
 	(entry :lisp :lisp_until `(,this ,args))
 
 (errorcase
-	(assign `((,args +array_length)) '(:r2))
-	(gotoif '(:r2 < 2) 'error))
+	(assign `((,args +array_length)) `(,tmp))
+	(gotoif `(,tmp < 2) 'error))
 
-	(push-scope)
-	(assign `(,this ,args) {this, args})
-
+	(vp-push args)
 	(loop-start)
 		(assign `((,args +array_begin)) `(,args))
 		(call :lisp :repl_eval `(,this (,args ,+ptr_size)) `(,this ,args))
 		(assign `((,this +lisp_sym_nil)) `(,tmp))
 		(breakif `(,args /= ,tmp))
-		(assign {args} `(,tmp))
+		(assign '((:rsp 0)) `(,tmp))
 		(class/array/get_both tmp iter_begin iter_end)
 		(call :lisp :repl_progn `(,this ,args (& ,iter_begin ,(* 2 +ptr_size)) ,iter_end)
 			`(,this ,args))
-
 	(errorcase
 		(assign `((,args +obj_vtable) (,this +lisp_error)) `(,vtable ,tmp))
 		(breakif `(,vtable = ,tmp)))
-
-		(call :obj :deref `(,args))
-		(assign {this, args} `(,this ,args))
+		(class/obj/deref-live args tmp 'last_ref)
+	(vp-label 'derefed)
+		(assign '((:rsp 0)) `(,args))
 	(loop-end)
 
 	(exit :lisp :lisp_until `(,this ,args))
-	(pop-scope)
-	(return)
+	(vp-free +ptr_size)
+	(vp-ret)
+
+(vp-label 'last_ref)
+	;the last ref of the body's value, so a call, and all is trashed
+	(call :obj :deref `(,args))
+	(lisp-this this)
+	(goto 'derefed)
 
 (errorcase
 (vp-label 'error)
@@ -210,56 +213,66 @@
 	;:r1 = return value object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f15
+	;info
+	;the frame is the two iterators over the clauses, and in a build with
+	;error checks the args, to report. The lisp object stays in :r0, each
+	;eval gives it back. The body of the clause chosen is a jump, with
+	;nothing left on the stack.
 
-	(def-vars
-		(ptr this args)
-		(pptr iter_begin iter_end))
+	(structure local 0
+		(pptr iter_begin iter_end)
+		(ptr args))
+
+	(defq frame (if (>= *build_mode* 1) local_size local_args))
 
 	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
-	(push-scope)
-	(entry :lisp :lisp_cond {this, args})
+	(entry :lisp :lisp_cond `(,this ,value))
 
-	(assign {this, args} `(,this ,value))
+	(vp-alloc frame)
+	(errorcase
+		(assign `(,value) '((:rsp local_args))))
 	(class/array/get_both value iter_begin iter_end)
-	(assign `(,iter_end) {iter_end})
+	(assign `(,iter_end) '((:rsp local_iter_end)))
 	(loop-start)
 		(vp-add-cr +ptr_size iter_begin)
 		(breakif `(,iter_begin = ,iter_end))
-		(assign `(,iter_begin) {iter_begin})
+		(assign `(,iter_begin) '((:rsp local_iter_begin)))
 		(vp-cpy-ir iter_begin 0 value)
-
 	(errorcase
 		(assign `((,value +obj_vtable) (@ ,(f-path :list :vtable))) `(,vtable ,tmp))
 		(gotoif `(,vtable /= ,tmp) 'error2)
 		(assign `((,value +array_length)) `(,tmp))
-		(errorif `(,tmp = 0) 'error1))
-
+		(gotoif `(,tmp = 0) 'error1))
 		(assign `((,value +array_begin)) `(,tmp))
 		(call :lisp :repl_eval `(,this (,tmp 0)) `(,this ,value))
 		(assign `((,this +lisp_sym_nil)) `(,tmp))
 		(vpif `(,value /= ,tmp))
-			(assign {*iter_begin} `(,tmp))
+			(assign '((:rsp local_iter_begin)) `(,tmp))
+			(assign `((,tmp 0)) `(,tmp))
 			(class/array/get_both tmp iter_begin iter_end)
+			(vp-free frame)
 			(jump :lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
 		(endif)
 		(class/obj/ref value tmp -1)
-		(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
+		(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) `(,iter_begin ,iter_end))
 	(loop-end)
-
 	(assign `((,this +lisp_sym_nil)) `(,value))
 	(class/obj/ref value tmp)
 
 	(exit :lisp :lisp_cond `(,this ,value))
-	(return)
+	(vp-free frame)
+	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {args, "(cond [(tst [body])] ...)", +error_msg_wrong_num_of_args})
+	(assign '((:rsp local_args) +error_msg_wrong_num_of_args) '(:r1 :r3))
+	(goto 'error)
 (vp-label 'error2)
-	(jump :lisp :repl_error {args, "(cond [(tst [body])] ...)", +error_msg_not_a_list}))
-
-	(pop-scope-syms)
+	(assign '((:rsp local_args) +error_msg_not_a_list) '(:r1 :r3))
+(vp-label 'error)
+	(vp-free frame)
+	(jump :lisp :repl_error '(:r1 "(cond [(tst [body])] ...)" :r3)))
 
 (def-func-end)
 
@@ -272,63 +285,77 @@
 	;:r1 = return value object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f15
+	;info
+	;the frame is the two iterators over the clauses, and in a build with
+	;error checks the args, to report. The lisp object stays in :r0, each
+	;eval gives it back. The body of the clause chosen is a jump, with
+	;nothing left on the stack.
 
-	(def-vars
-		(ptr this args)
-		(pptr iter_begin iter_end))
+	(structure local 0
+		(pptr iter_begin iter_end)
+		(ptr args))
+
+	(defq frame (if (>= *build_mode* 1) local_size local_args))
 
 	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
-	(push-scope)
-	(entry :lisp :lisp_condn {this, args})
+	(entry :lisp :lisp_condn `(,this ,value))
 
-	(assign {this} `(,this))
+	(vp-alloc frame)
+	(errorcase
+		(assign `(,value) '((:rsp local_args))))
+	(class/array/get_both value iter_begin iter_end)
+	(assign `(,iter_end) '((:rsp local_iter_end)))
 	(assign `((,this +lisp_sym_t)) `(,value))
 	(class/obj/ref value tmp)
-
-	(assign {args} `(,tmp))
-	(class/array/get_both tmp iter_begin iter_end)
-	(assign `(,iter_end) {iter_end})
 	(loop-start)
 		(vp-add-cr +ptr_size iter_begin)
 		(breakif `(,iter_begin = ,iter_end))
-		(assign `(,iter_begin) {iter_begin})
-
-		(call :obj :deref `(,value))
-		(assign {this, *iter_begin} `(,this ,value))
-
+		(assign `(,iter_begin) '((:rsp local_iter_begin)))
+		(class/obj/deref-live value tmp 'last_ref)
+	(vp-label 'derefed)
+		(vp-cpy-ir iter_begin 0 value)
 	(errorcase
 		(assign `((,value +obj_vtable) (@ ,(f-path :list :vtable))) `(,vtable ,tmp))
 		(gotoif `(,vtable /= ,tmp) 'error2)
 		(assign `((,value +array_length)) `(,tmp))
-		(errorif `(,tmp = 0) 'error1))
-
+		(gotoif `(,tmp = 0) 'error1))
 		(assign `((,value +array_begin)) `(,tmp))
 		(call :lisp :repl_eval `(,this (,tmp 0)) `(,this ,value))
 		(assign `((,this +lisp_sym_nil)) `(,tmp))
 		(vpif `(,value = ,tmp))
-			(assign {*iter_begin} `(,tmp))
+			(assign '((:rsp local_iter_begin)) `(,tmp))
+			(assign `((,tmp 0)) `(,tmp))
 			(class/array/get_both tmp iter_begin iter_end)
+			(vp-free frame)
 			(jump :lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
 		(endif)
-
 	(errorcase
 		(assign `((,value +obj_vtable) (,this +lisp_error)) `(,vtable ,tmp))
 		(breakif `(,vtable = ,tmp)))
-
-		(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
+		(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) `(,iter_begin ,iter_end))
 	(loop-end)
 
 	(exit :lisp :lisp_condn `(,this ,value))
-	(return)
+	(vp-free frame)
+	(vp-ret)
+
+(vp-label 'last_ref)
+	;the last ref of the last test's value, so a call, and all is trashed
+	(call :obj :deref `(,value))
+	(lisp-this this)
+	(assign '((:rsp local_iter_begin)) `(,iter_begin))
+	(goto 'derefed)
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {args, "(condn [(tst [body])] ...)", +error_msg_wrong_num_of_args})
+	(assign '((:rsp local_args) +error_msg_wrong_num_of_args) '(:r1 :r3))
+	(goto 'error)
 (vp-label 'error2)
-	(jump :lisp :repl_error {args, "(condn [(tst [body])] ...)", +error_msg_not_a_list}))
-
-	(pop-scope-syms)
+	(assign '((:rsp local_args) +error_msg_not_a_list) '(:r1 :r3))
+(vp-label 'error)
+	(vp-free frame)
+	(jump :lisp :repl_error '(:r1 "(condn [(tst [body])] ...)" :r3)))
 
 (def-func-end)
 
