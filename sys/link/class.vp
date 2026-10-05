@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "class/nodeid/class.inc")
 (include "class/array/class.inc")
+(include "class/hmap/class.inc")
 (include "./class.inc")
 (include "././kernel/class.inc")
 
@@ -254,12 +255,25 @@
 
 (def-func-end)
 
+(defun lk-forget-peer ()
+	;emit the end of the peer's node, when its process is seen to be gone.
+	;That is certain, so the node is not left to run out its time, its time
+	;is set as up now, and the ping task purges it, at once if it sees the
+	;link change, or within the second.
+	(assign {lk_node, key} '(:r0 :r1))
+	(assign-node-id :r0 lk_node_peer_node_id :r1 +str_data)
+	(call :hmap :cfind {statics->statics_sys_mail_node_map, key, @class/nodeid/eql} {_, tuple, bucket})
+	(vpif {tuple})
+		(assign {(pptr tuple)[+ptr_size]} {tuple})
+		(call :array :set_elem {tuple, 0, +node_time})
+	(endif))
+
 (def-method :sys_link :out)
 	;trashes
 	;:r0-:r14, :f0-:f15
 
 	(def-vars
-		(ptr statics lk_node key msg data tx head tail)
+		(ptr statics lk_node key msg data tx head tail tuple bucket)
 		(nodeid node_id system_id)
 		(long is_owner then now beat last gap timeout pid checked)
 		(ptr last_tail)
@@ -497,6 +511,10 @@
 		;the peer was just busy, the :in sets it again when it next hears
 		;from it, and the link is up again.
 		(vpif {drop})
+			(vpifnot {alive})
+				;its process is gone, that is certain
+				(lk-forget-peer)
+			(endif)
 			(assign {1, 1} {down, alive})
 			(vp-rdef (node zero))
 			(assign {lk_node, 0} `(,node ,zero))
@@ -512,6 +530,23 @@
 		;exit if link closed
 		(breakif {lk_node->lk_node_task_count = -1})
 	(loop-end)
+
+	;the link was closed. A peer that is exiting closes its links first,
+	;so if its process is known, give it a moment to go, and if it has,
+	;the node is gone too. If it runs on, it only closed the link.
+	(vpif {lk_node->lk_node_peer_pid})
+		(assign {20} {quiet})
+		(loop-start)
+			(call :host_os :pii_alive {lk_node->lk_node_peer_pid} {alive})
+			(breakifnot {alive})
+			(assign {quiet - 1} {quiet})
+			(breakifnot {quiet})
+			(call :sys_task :sleep {10000})
+		(loop-end)
+		(vpifnot {alive})
+			(lk-forget-peer)
+		(endif)
+	(endif)
 
 	(call :nodeid :destroy {key})
 

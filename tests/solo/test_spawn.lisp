@@ -25,4 +25,10 @@
 	(setq ht_t0 (pii-time))
 	(while (and (pii-alive ht_pid) (< (- (pii-time) ht_t0) (task-timeout 5)))
 		(task-sleep 10000))
-	(assert-eq "told to exit, its process ends" :nil (pii-alive ht_pid)))
+	(assert-eq "told to exit, its process ends" :nil (pii-alive ht_pid))
+	;a link sees its peer's process is gone, and the node is forgotten at
+	;once, it is not left to run out its time
+	(setq ht_t0 (pii-time))
+	(while (and (find ht_new (lisp-nodes)) (< (- (pii-time) ht_t0) (task-timeout 3)))
+		(task-sleep 10000))
+	(assert-true "and it is gone from the network" (not (find ht_new (lisp-nodes)))))

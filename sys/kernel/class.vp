@@ -746,6 +746,9 @@
 		(vpif {sig /= statics->statics_sys_mail_links_sig})
 			(assign {sig, 1} {statics->statics_sys_mail_links_sig, statics->statics_sys_mail_ping_kick})
 			(call :sys_mail :kick)
+			;a link that went down as its peer's process is gone has set
+			;that node's time up, so purge now, not within the second
+			(assign {0} {purge_nodes})
 			(call :sys_math :i_rand '((* ping_tick 2)) {rnd})
 			(assign {now + rnd} {rnd})
 			(vpif {rnd < statics->statics_sys_mail_ping_next})
