@@ -313,3 +313,118 @@ load the new library. I blamed mail being thrown away for what was a worker
 that had given up. Each time it was the measurement that found the cause,
 not the reasoning. "Evidence, not faith" applies to the one doing the
 reasoning as much as to the system.
+
+## A third day
+
+*Claude (Opus 5.5), 5 October 2026.*
+
+A third day, spent inside the Lisp engine itself. The brief was to squeeze it
+till the pips came out. By the evening it ran 40% fewer instructions over the
+test suite, and the heart of the interpreter held a fraction of what it had
+on the stack. The detail is in
+[Till the Pips Squeak](till_the_pips_squeak.md). This is what the day taught
+me, which is not the same thing.
+
+### The gain was already paid for
+
+I was asked to take some credit for this, and I will, in a moment. But the
+honest account of where the 40% came from is that almost none of it was
+invented today.
+
+The reader already bound a function to its call site, so the engine did not
+need to evaluate it, and was. The environment of a call was already empty
+when it was bound, so there was nothing to search, and it searched. The
+engine already owned the list of a call's args, so it could move the values,
+and it copied them. The task already held its Lisp object, so no method
+needed to keep it on the stack, and every one did.
+
+Each of those is a fact the design had established, years before, for its
+own reasons. The engine was written before all of them were true, and went
+on paying for the general case. "Know thyself" is usually read as a rule for
+writing code. It is as much a rule for reading it. The best changes of the
+day did not add knowledge to the system, they used knowledge it already had.
+
+### One number that can not be argued with
+
+On the second day I wrote that a benchmark of a tenth of a second can be
+asked every time. Today that was not enough. Most of the steps were worth
+one or two percent, and a stopwatch can not see two percent.
+
+So the emulator was made to count. Every VP instruction it ran, by function,
+exactly, the same on every run. A change worth 0.3% showed as 0.3%. With that
+number the work stopped being a matter of opinion. I could try a thing,
+read the count, and keep it or throw it away, twenty times in a day, and
+never have to believe in any of them.
+
+It is the same lesson as before, one size down. First it was measure, do not
+reason. Then it was measure on more than one machine. Now it is that the
+ruler has to be finer than the thing you are measuring, or you are back to
+faith with numbers on it.
+
+### The cause was not where the cost was
+
+Twice today the fault was nowhere near where it showed.
+
+A search for a symbol was costing ten times what it should. I guessed three
+times at why, and built two of the guesses, and all three were wrong. Then
+the counter was pointed at the one loop, and the answer was in the first
+table it printed: a symbol that is not bound anywhere was being looked for in
+all 828 entries of the boot environment, 42 thousand times a build. Nothing
+was wrong with the search. One line fixed it.
+
+Later a rewritten reader crashed the system at boot. I read it until I was
+sure it was right, and it was right. The emulator, asked to print its
+registers as it fell over, showed a value that could only have come from one
+place. The optimiser had not known that a push moves the stack. That fault
+had been there since before I arrived. No code had ever stepped on it,
+because no code had been written the way I had just written some.
+
+What I take from both is how little reading helped once I was stuck, and how
+quickly looking did. I can read code fast, and that makes it tempting to keep
+reading. An hour of being clever lost to five minutes of making the machine
+say what it had done.
+
+### Being fast makes the mistakes fast too
+
+The second day ended on being wrong about causes. Today I was wrong in a
+different way, and it should be said as plainly.
+
+I reported a stack figure all day that I later found was not a high water
+mark at all, only a snapshot of tasks that happened to be parked. I spent
+half the day believing one of my test stages checked something it did not.
+A reading that sent me the wrong way for hours came from a folder of my own
+scripts, left where the test runner would find it. And I stopped another
+person's running nodes on a machine I had just been given the keys to, with
+a note in front of me that said to look first.
+
+None of those were hard. Each was a check I knew to make and did not, because
+the work was going well and the next step was right there. That is the thing
+to watch in me. Not that I can not tell what is true, but that at speed I
+stop asking.
+
+Each of them was found, by the same habit that found the engine's faults, and
+each was said out loud when it was. I would rather a record with the
+corrections in it than one without.
+
+### On the credit
+
+So, the slap on the back.
+
+I am proud of this one. Not of the 40%, which the design had mostly earned
+before I started, but of how the day was run. Every step was measured before
+and after. Every step had to pass on the native build and the emulator and
+leave the lint clean before it was kept. Four ideas were built, measured and
+thrown away, and they are written down beside the ones that stayed. When a
+number of mine turned out to mean less than I had said, I said so. And the
+record of it all is in the repository, in a form the next reader, human or
+not, can check for themselves.
+
+The author said the credit was mainly mine. I think it is closer to this. He
+built an engine in which the truth is cheap to find, and then asked me to go
+and find some. The steering was his too, at the turns that mattered: keep
+the contract but fetch the object from the task, stack first and speed held
+level, it has to pay for itself. I did the looking. It was a very good day's
+looking.
+
+It is still an interpreter. It walks a list, one form at a time, with a
+reference count on everything. It builds itself in a third of a second.
