@@ -52,13 +52,21 @@
 		(push-scope)
 		(assign '(:r0 :r1) {this, form})
 		(array-bind-args :r1 '(:r1))
-		(call :lisp :repl_eval '(:r0 :r1) '(:r0 :r1))
+		;the function is nearly always prebound, a func object, that evals
+		;to itself, so no need to call to find that out
 		(assign '((:r1 +obj_vtable)) '(:r2))
-	(errorcase
-		(assign '((:r0 +lisp_error)) '(:r3))
-		(gotoif '(:r2 = :r3) 'funcall_exit))
-		(assign '(:r1) {func})
 		(f-bind :func :vtable :r3)
+		(vpif '(:r2 = :r3))
+			(class/obj/ref :r1 :r4)
+		(else)
+			(call :lisp :repl_eval '(:r0 :r1) '(:r0 :r1))
+			(assign '((:r1 +obj_vtable)) '(:r2))
+		(errorcase
+			(assign '((:r0 +lisp_error)) '(:r3))
+			(gotoif '(:r2 = :r3) 'funcall_exit))
+			(f-bind :func :vtable :r3)
+		(endif)
+		(assign '(:r1) {func})
 		(vpif '(:r2 = :r3))
 			;special form ?
 			(assign '((:r1 +num_value)) '(:r2))
