@@ -284,15 +284,15 @@ transputer.
 
 ### Too good to be true
 
-In the first years Taos was developed at home, in Bracknell, and people came
-to the house to see it. Not all of them believed what they saw.
+In the first years Taos was developed at home, in Bracknell, Berkshire, and
+people came to the house to see it. Not all of them believed what they saw.
 
 The reporter from Parallelogram, the parallel computing journal, suspected a
-trick. Cray had offices in Bracknell, and he accused Chris of having a line
-running to one of their machines. He made him switch the PC off and on again
-five times. Then he said he thought the people at Cray were pulling his leg.
-Parallelogram's editorial that winter was headed "TAOS: IMPOSSIBLE BUT
-TRUE?".
+trick. Cray had a site in Bracknell, next to the weather forecasting centre,
+and he accused Chris of having a line running to one of its machines. He made
+him switch the PC off and on again five times. Then he said he thought the
+people at Cray were pulling his leg. Parallelogram's editorial that winter was
+headed "TAOS: IMPOSSIBLE BUT TRUE?".
 
 Guy Kewney, who wrote the first newspaper piece about Taos, for The
 Independent, did not take it on trust either. He came to the house and
