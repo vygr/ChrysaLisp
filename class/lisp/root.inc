@@ -1566,3 +1566,14 @@
 ;;	(. *freq_map* :each (lambda (k v) (push freq (list k v))))
 ;;	(each (lambda ((k v)) (print k " -> " v))
 ;;		(reverse (sort freq (# (- (second %0) (second %1)))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Boot environment, now loaded
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;the boot environment is one bucket while it loads, each symbol found at
+;its slot. But it is the end of every search, and a symbol that is not bound
+;at all, as the first of most lists the reader expands and binds is not, was
+;a scan of all of it, every time. So now it is spread over buckets, a symbol
+;that is not here costs a look at one short bucket.
+(env-resize 509)
