@@ -169,71 +169,120 @@ Here is the step-by-step execution flow when evaluating `(my-func arg0 arg1)`:
 [ Call Site: repl_eval ]
        |
        v
-[ 1. Evaluate Operator ] ---> Built-in FFI (:func)? ---> [ Jump Native Code ]
+[ 1. Look at the Operator ] ---> Special form (:func)? ---> [ Jump Native Code ]
+       |
+       v (Built in :func, or Lambda Template)
+[ 2. Evaluate Arguments ]        <--- Takes an args list from the chain
+       |
+       +---> Built in (:func)? ---> [ Call Native Code ] ---> [ Args list back to the chain ]
        |
        v (Lambda Template)
-[ 2. Evaluate Arguments (repl_eval_list) ]
-       |
-       v
-[ 3. Allocate Scope (env_push) ] <--- Recycles L1 Heap Cell
+[ 3. Take Scope (env_push) ]     <--- Takes an environment from the chain
        |
        v
 [ 4. Bind Parameters (env_bind) ] ---> Sets symbol +str_hashslot
        |
        v
+[ Args list back to the chain ]
+       |
+       v
 [ 5. Execute Body (repl_progn) ]  ---> O(1) cached variable reads
        |
        v
-[ 6. Destroy Scope (env_pop) ]   ---> Returns Cell to Free List
+[ 6. Give back Scope (env_pop) ]  ---> Environment back to the chain
        |
        v
 [ Return Value to Caller ]
 ```
 
+All of this is in line in `:lisp :repl_eval`, which is the heart of the
+recursion, so the aim is not only speed, it is to hold as little as it can on
+the stack over each call it makes:
+
+| Form                          | Held on the stack, plus the return address |
+|-------------------------------|--------------------------------------------|
+| symbol, or evals to itself    | nothing, no call is made that recurses     |
+| special form                  | nothing, it is a jump                      |
+| built in, while args eval     | the form and the args list, 16 bytes       |
+| built in, while it runs       | the args list, 8 bytes                     |
+| lambda, while args eval       | the form and the args list, 16 bytes       |
+| lambda, while its body runs   | nothing                                    |
+
+The Lisp object, `this`, is not held on the stack at all. By contract each
+method gives it back in `:r0`, and code that has lost it, after a call that
+trashes every register, fetches it again from the task control block, with
+`(lisp-this reg)`.
+
 ### Phase 1: Operator Resolution (`class/lisp/repl_eval.vp`)
 
-*	The interpreter evaluates the first element of the form.
+*	The first element of the form is nearly always prebound, by `:lisp
+	:repl_bind` at read time, so it is not evaluated, the engine only looks at
+	what it is. The form holds it, so it needs no reference of its own, and
+	no stack slot, it is found again from the form when wanted.
 
-*	**Native FFI (`:func`):** If the operator is an FFI binding, the engine
-	extracts the function pointer directly from `+num_value` and executes a
-	register jump. There is no intermediate marshalling layer.
+*	**Special form (`:func`, with type bits set):** The engine extracts the
+	function pointer from `+num_value` and jumps to it, with the form as its
+	args. There is no frame, and the value it returns is returned direct to
+	the caller of `:repl_eval`.
 
-*	**Lambda Template (`:list`):** If the operator is a user-defined function,
-	the engine confirms it is a lambda template and proceeds to evaluate the
-	arguments.
+*	**Built in function (`:func`):** The args are evaluated, then the
+	function pointer is called direct, not through `:repl_apply`.
+
+*	**Lambda Template (`:list`):** If the operator is a list that starts with
+	the prebound `lambda`, it is a user-defined function, it would only
+	evaluate to itself, so that step is skipped.
+
+*	**Anything else:** The operator is evaluated, the general case. That
+	result does hold a reference, in a third stack slot, and is applied with
+	`:repl_apply`. This is rare.
 
 ### Phase 2: Argument Evaluation (`class/lisp/repl_eval.vp`)
 
-*	`repl_eval_list` iterates across the argument expressions, evaluating each
-	against the caller's current environment.
+*	The argument expressions are evaluated, each against the caller's current
+	environment, straight into the args list, which takes each value as it is
+	given, with no extra reference.
 
-*	Arguments are gathered into a temporary argument list allocated from the
-	recycled cell heap.
+*	The args list is not created for the call. The Lisp object keeps a chain
+	of empty lists, `+lisp_args_pool`, the link held in the first element of
+	each. One is taken from it, and when the call is done, if no other has a
+	reference to the list, and it has not grown past its own storage, its
+	values are dropped, in line where they live on, and it is put back. Only
+	the first call at each depth of nesting creates one.
+
+*	The place in the form is not kept, it is found from the length of the args
+	list so far. So the frame is just the form and the args list.
 
 ### Phase 3: Scope Instantiation (`class/lisp/env_bind.vp`)
 
-*	`env_push` creates the new local execution environment:
+*	`env_push` takes the new local execution environment from a second chain
+	the Lisp object keeps, `+lisp_env_pool`, of empty single-bucket `:hmap`
+	objects, the link held as the parent of each. Only if the chain is empty
+	is one created:
 
 	```vdu
-	(call :hmap :create '(1) '(:r0))
-	(call :hmap :set_parent '(:r0 (:r1 +lisp_environment)) '(:r1))
+	(call :hmap :create '(1) '(:r1))
 	```
 
-*	The allocation requests a single-bucket `:hmap`. The heap manager
-	immediately yields the topmost free cell in L1 cache.
-
 *	The new environment's `+hmap_parent` pointer is linked to the caller's
-	current lexical environment.
+	current environment, and takes over the reference the Lisp object had to
+	it.
 
 ### Phase 4: Parameter Binding (`class/lisp/env_bind.vp`)
 
 *	`env_bind` matches formal parameters against evaluated arguments.
 
-*	The engine supports high-speed positional matching as well as
-	`&optional`, `&rest`, `&most`, and `&ignore` destructuring.
+*	The usual call, a list of plain symbols, bound to as many values, in the
+	empty environment `env_push` just gave, needs no search. Each key-value
+	pair is put in place in the inline array, and the symbol's `+str_hashslot`
+	is set, with no call and no stack frame.
 
-*	For each parameter, `:hmap :pinsert` appends the key-value pair to the
-	inline array and immediately updates the symbol's `+str_hashslot`.
+*	Anything else, `&optional`, `&rest`, `&most`, `&ignore`, a list to
+	destructure, a symbol given twice, or an environment that is not empty, as
+	`(bind)` may be given, goes to the general code, which uses `:hmap
+	:pinsert`.
+
+*	Once bound, the values are held by the environment, so the args list goes
+	back to its chain before the body runs.
 
 ### Phase 5: Body Evaluation (`class/lisp/lisp_progn.vp`)
 
@@ -243,23 +292,25 @@ Here is the step-by-step execution flow when evaluating `(my-func arg0 arg1)`:
 	proactively cached `+str_hashslot` for instantaneous `O(1)` reads.
 
 *	**Tail-Call Optimization:** If the body contains multiple expressions, all
-	leading expressions are evaluated and discarded. The final expression is
-	evaluated via a direct jump to `repl_eval`, reusing the call frame.
+	leading expressions are evaluated and discarded, with a frame of two
+	iterators. The final expression is evaluated via a direct jump to
+	`repl_eval`, with no frame. A body of one expression, which most are, uses
+	no stack at all.
+
+*	The flow control forms follow the same rule. `(if)` holds one slot, only
+	over its test, `(while)` one slot, `(cond)` two, and the branch taken is a
+	jump.
 
 ### Phase 6: Scope Tear-down (`class/lisp/env_bind.vp`)
 
-*	When execution finishes, `env_pop` restores the parent environment:
+*	When execution finishes, `env_pop` restores the parent environment.
 
-	```vdu
-	(assign '((:r0 +hmap_parent)) '(:r1))
-	(call :obj :deref '(:r0))
-	(assign '(:r1) '((:r0 +lisp_environment)))
-	```
+*	If no other has a reference to the local environment, and it is still a
+	single bucket in its own storage, its keys and values are dropped, in line
+	where they live on, and it goes back on the chain.
 
-*	The local environment's reference count drops to zero.
-
-*	`sys_mem :free` immediately returns the cell to the top of the L1 free
-	list.
+*	If not, say it was captured with `(env)`, or resized, it is given a
+	`deref` as any object, and is freed when its last reference goes.
 
 *	Any temporary objects whose reference counts reach zero during the call are
 	immediately freed in-place without garbage collector pauses.
