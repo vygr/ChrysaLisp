@@ -2,6 +2,7 @@
 (include "lib/consts/chars.inc")
 (include "./class.inc")
 (include "././hmap/class.inc")
+(include "././hset/class.inc")
 (include "././func/class.inc")
 
 (defun eval-args (err)
@@ -154,16 +155,24 @@
 		;eval to symbol binding ?
 		(assign '((:r1 +str_data ub)) '(:r2))
 		(gotoif '(:r2 = +char_colon) 'toself)
-		;:hmap :get keeps to :r0-:r9, so the lisp object, and the form if
-		;there is an error to report, wait in higher registers, not on
-		;the stack
-		(vp-cpy-rr :r0 :r10)
+		;the search of the environment is in line, it keeps to :r0-:r7, so
+		;the lisp object, and the form if there is an error to report,
+		;wait in higher registers, not on the stack
+		(vp-cpy-rr :r0 :r8)
 	(errorcase
 		(vp-cpy-rr :r1 :r11))
-		(call :hmap :get '((:r0 +lisp_environment) :r1) '(_ :r1))
-		(vp-cpy-rr :r10 :r0)
+		(assign '((:r0 +lisp_environment)) '(:r0))
+		(hmap-search :r0 :r1 :r1 :r2)
+	(vp-label 'found)
+		;have the key, so a ref of its value
+		(assign '((:r1 +ptr_size)) '(:r1))
+		(class/obj/ref :r1 :r2)
+		(exit :lisp :repl_eval '(:r8 :r1))
+		(vp-ret)
+	(vp-label 'not_found)
+		(vp-cpy-rr :r8 :r0)
 	(errorcase
-		(gotoif '(:r1 = 0) 'error2))
+		(goto 'error2))
 		(exit :lisp :repl_eval '(:r0 :r1))
 		(vp-ret)
 	(errorcase

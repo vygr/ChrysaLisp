@@ -349,53 +349,6 @@
 
 (def-func-end)
 
-(defun hmap-search (this key iter bucket)
-	;emit the search of an hmap, and then of its parents, for a key, as
-	;:hmap :pfind and :hset :bucket do it, but in line, it is the hot path
-	;of every symbol lookup. Falls out the end not found, with iter 0, and
-	;jumps to the 'found label if it is.
-	;trashes
-	;:r3-:r7, and what :hset :bucket does, :r1-:r6
-	(vp-rdef (iter_end iter_begin slot num saved_key) '(:r3 :r4 :r5 :r6 :r7))
-	(assign `(,key) `(,saved_key))
-	(loop-start)
-		;most are a single bucket, the hmap itself
-		(assign `((,this +array_num_buckets)) `(,num))
-		(vp-cpy-rr this bucket)
-		(vpif `(,num /= 1))
-			(call :hset :bucket `(,this ,saved_key) `(,this ,bucket))
-		(endif)
-		(class/array/get_both bucket iter_begin iter_end)
-		(vpif `(,iter_begin /= ,iter_end))
-			;use the key address, and last known slot
-			(vp-cpy-rr iter_begin iter)
-			(assign `((,saved_key +str_hashslot)) `(,slot))
-			(vp-shl-cr (log2 (* +ptr_size 2)) slot)
-			(vp-add-rr slot iter)
-			(vpif `(,iter < ,iter_end))
-				(assign `((,iter 0)) `(,slot))
-				(gotoif `(,saved_key = ,slot) 'found)
-			(endif)
-			;cache miss, so scan the bucket
-			(vp-cpy-rr iter_begin iter)
-			(loop-start)
-				(assign `((,iter 0)) `(,slot))
-				(gotoif `(,saved_key = ,slot) 'scan_found)
-				(vp-add-cr (* +ptr_size 2) iter)
-			(loop-until `(,iter = ,iter_end))
-		(endif)
-		;not here, so on to the parent
-		(assign `((,this +hmap_parent)) `(,this))
-	(loop-until `(,this = 0))
-	(vp-xor-rr iter iter)
-	(goto 'not_found)
-(vp-label 'scan_found)
-	;note the slot for next time
-	(vp-cpy-rr iter slot)
-	(vp-sub-rr iter_begin slot)
-	(vp-shr-cr (log2 (* +ptr_size 2)) slot)
-	(assign `(,slot) `((,saved_key +str_hashslot))))
-
 (def-method :hmap :search)
 	;inputs
 	;:r0 = hmap object (ptr)
