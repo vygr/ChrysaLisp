@@ -4,6 +4,10 @@
 
 ------
 
+`docs/ai_digest/udat_ai_shares.md` is now `docs/ai_digest/ai_thoughts.md`. It
+holds the views of more than one AI, Udat's from reading the design, and
+Claude's from working in the code, with a section for each day.
+
 Release notes are now kept, one file for each release, in `docs/releases/`,
 from `docs/releases/v7.0.md` on. They are the short form of this file, what a
 release means to someone who has not followed every change.
