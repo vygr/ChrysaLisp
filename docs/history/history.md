@@ -260,11 +260,14 @@ reflecting objects, on a PC full of transputers. The PC ran so hot that Chris
 stood fanning it with a newspaper.
 
 The PC was his own Dell, a 20MHz 386. It was the same machine on which he had
-written the Art Studio and the ST and Amiga games, cross assembling with PDS
-and sending the code down a cable. In it were three Fast 9 transputer cards,
-designed by Pat Mills and lent for the show by Quintek of Bristol, and one
-T800 graphics card, which was his. He had bought it with money borrowed from
-his mother:
+written the Art Studio and the ST and Amiga games, with the PDS development
+system. The ST or Amiga booted a small downloader from the boot sector of a
+floppy. The PC assembled the game and sent it down a wire to the printer port,
+and it ran. Press reset, build and send, and try again.
+
+For the show that PC held three Fast 9 transputer cards, designed by Pat Mills
+and lent for the show by Quintek of Bristol, and one T800 graphics card, which
+was his. He had bought it with money borrowed from his mother:
 
 > "Mum, I'm going to port my games work to this fancy graphics card, but I
 > need some cash..."
