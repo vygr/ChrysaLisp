@@ -133,7 +133,8 @@
 (cond
 	((not o_cfg)
 		(test-skip "onslaught.tre" "no saved game config on this machine"))
-	((not o_demo)
+	((or (not o_demo) (empty? o_demo))
+		;no demo, or an empty one, the game has been run but no battle fought
 		(assert-true "onslaught.tre config exists" (not (empty? o_cfg)))
 		(test-skip "onslaught.tre demo" "no battle recorded on this machine"))
 	(:t (assert-true "onslaught.tre config exists" (not (empty? o_cfg)))
