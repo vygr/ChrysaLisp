@@ -292,6 +292,12 @@ The build benchmark, `make test`, mean time for a full build:
 | Apple M4, 1 node             | 0.543 s      | 0.328 s    |
 | Apple M4, 19 nodes           | 0.076 s      | 0.053 s    |
 | Raspberry Pi 4, 8 nodes      | 2.3 s was the best ever seen | 1.45 s |
+| Intel i9-8950HK MacBook, 10 nodes | about 0.23 s | 0.18 s to 0.20 s |
+
+The M4 figures were measured at both ends of the day. The start figures for
+the Pi 4 and the Intel MacBook are what had been seen on them before the work,
+not runs made that morning, the end figures for both were measured, two runs
+each.
 
 How the instruction count fell, step by step:
 
