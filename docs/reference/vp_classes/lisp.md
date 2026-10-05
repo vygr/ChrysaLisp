@@ -382,6 +382,10 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14, :f0-:f15
+info
+the last form is a jump to its eval, with nothing left on the stack.
+The frame is only for the forms before it, and has no slot for the
+lisp object, it stays in :r0, each eval gives it back.
 ```
 
 ### :run -> class/lisp/run

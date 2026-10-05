@@ -65,6 +65,32 @@
 		(vp-add-cr x c))
 	(assign `(,c) `((,o +obj_count))))
 
+(defun class/obj/deref-live (o c l)
+	;inputs
+	;o = object (reg)
+	;c = temp (reg)
+	;l = label to jump to if this is the last ref
+	;trashes
+	;c
+	;info
+	;a deref in line, of an object that has some other ref. If it has not,
+	;this is the last, it jumps to the label, for the caller to call :obj
+	;:deref, which trashes every register, and come back. So the usual
+	;case, the object lives on, costs no call and keeps the registers.
+	(if (eql o c) (throw "Invalid object or count !" (list o c)))
+	(assign `((,o +obj_count)) `(,c))
+	(gotoif `(,c = 1) l)
+	(validatecase
+		;no live object has a count of 0, and a freed one holds the fill
+		(vpif `(,c = 0))
+			(jump :obj :dead)
+		(endif)
+		(vpif `(,c > +obj_count_max))
+			(jump :obj :dead)
+		(endif))
+	(vp-sub-cr 1 c)
+	(assign `(,c) `((,o +obj_count))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; field helpers, sorted load, saves and transfer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
