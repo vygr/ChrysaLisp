@@ -365,11 +365,13 @@ Chris describes how the demonstrations went, time after time:
 
 One more visitor matters to this story more than he knew. Darren Pegg had
 written OBED for the Atari ST, an object editor, a 3D modeller well before its
-time. The two met at a demonstration day for Jack Tramiel of Atari in London,
-Darren showing OBED and a game, Chris showing the Art Studio, and have been
-best friends ever since. Darren came for the ray tracer demonstration, and it
-nearly finished him as well. He went out and walked round the garden for ten
-minutes, came back in as cool as a cucumber, and said:
+time. He is, Chris says, another of those people who can do literally anything
+with a computer. The two met at a demonstration day for Jack Tramiel of Atari
+in London, Darren showing OBED and a game, Chris showing the Art Studio, and
+have been best friends ever since. Darren came for the ray tracer
+demonstration, and it nearly finished him as well. He went out and walked
+round the garden for ten minutes, came back in as cool as a cucumber, and
+said:
 
 > "OK, carry on..."
 
