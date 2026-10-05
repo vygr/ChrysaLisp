@@ -196,6 +196,7 @@ So, as plainly as it can be put:
 |------------------|--------------------------------------------------------|
 | Chris Hinsley    | The VP and its macro specification. The kernel, mail, load balancing and binding. The transputer port. The GUI. |
 | Andy Henson      | The first true translator, for the T800. Later the first work on the Java to VP translator. |
+| Andy Thomason    | The first x86 translator. The PostScript interpreter.  |
 | Tim Moore        | The ray tracer. The BASIC interpreter.                 |
 | Andy Stout       | The C standard libraries for Taos and intent. The console hardware, with Chris. |
 | Nik Spicer       | No code. The first to understand it, and the one who told the world. |
@@ -292,6 +293,11 @@ running to one of their machines. He made him switch the PC off and on again
 five times. Then he said he thought the people at Cray were pulling his leg.
 Parallelogram's editorial that winter was headed "TAOS: IMPOSSIBLE BUT
 TRUE?".
+
+Guy Kewney, who wrote the first newspaper piece about Taos, for The
+Independent, did not take it on trust either. He came to the house and
+brought with him DJ, the man who wrote CIX, the conferencing system, to check
+that he was not being fooled.
 
 Others took it harder. Chris remembers visitors who went faint at the
 demonstration, one hitting his head on the wall. His mother would help them
