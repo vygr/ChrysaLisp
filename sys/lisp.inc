@@ -83,9 +83,10 @@
 (defun node-auto (&optional per_cpu)
 	; (node-auto [per_cpu]) -> (pid ...)
 	;size the network to this machine. Start nodes till there are per_cpu
-	;for each processor, default 2, and no more than 32, then wait for
-	;them to be seen, so what is started next can spread over them.
-	(setd per_cpu 2)
+	;for each processor, default 1, and no more than 32, then wait for
+	;them to be seen, so what is started next can spread over them. One
+	;for each is where a full build is quickest, more only share them out.
+	(setd per_cpu 1)
 	(defq before (length (lisp-nodes))
 		pids (node-spawn (max 0 (- (min 32 (* per_cpu (pii-cpus))) before)))
 		want (+ before (length (filter (lambda (pid) (> pid 0)) pids)))

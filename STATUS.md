@@ -4,6 +4,11 @@
 
 ------
 
+`(node-auto)`, and so `-n 0`, now starts 1 node for each processor, it was 2.
+A full build is quickest at about that on an M4, an Intel MacBook and a Pi4,
+twice as many was 8% to 20% slower. A machine with 16 processors now gets 16
+nodes, a Pi4 gets 4.
+
 The Lisp engine has been squeezed. Over the test suite it runs 40% fewer
 instructions, and the recursive core holds far less on the stack, a special
 form and the body of a lambda hold nothing at all. The args list and the

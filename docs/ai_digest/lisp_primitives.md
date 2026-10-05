@@ -1456,7 +1456,7 @@ Direct host operating system primitives provided by the host engine.
 	*	`(node-link name) -> net_id`
 
 *	**`node-auto`**: Sizes the network to this machine. Starts nodes till
-	there are `per_cpu` for each processor, default 2, and no more than 32,
+	there are `per_cpu` for each processor, default 1, and no more than 32,
 	and waits till they are seen.
 
 	*	`(node-auto [per_cpu]) -> (pid ...)`
