@@ -222,6 +222,12 @@
 		(print ~info)
 		(stream-flush (io-stream 'stdout)))))
 
+(defmacro lisp-restored (callee)
+	;:lisp :repl_error takes the lisp object from the tcb, and gives it back
+	;in :r0, where a method that reports an error had it on entry. So after
+	;it :r0 is as it was, whatever the caller had done with it.
+	(static-qq (if (eql ,callee "class/lisp/repl_error") (pinsert trace_map :r0 :r0))))
+
 (defun analyze-function (function db)
 	(cond
 		((not (defq insts (get-function-insts function)))
@@ -290,9 +296,20 @@
 							(bind '(& src & offset) inst)
 							(pinsert stack_map (+ *rsp* offset) (pfind trace_map src))))
 					((emit-cpy-ir emit-cpy-if)
-						;stack load 64 bit
+						;stack load 64 bit, or the load of the task's lisp
+						;object, statics -> a tcb -> its lisp object, which
+						;is what a method of the lisp has in :r0 on entry,
+						;so that restores it, see (lisp-this)
 						(bind '(& src offset dst) inst)
-						(pinsert trace_map dst (if (eql src :rsp) (pfind stack_map (+ *rsp* offset)))))
+						(pinsert trace_map dst (cond
+							((eql src :rsp) (pfind stack_map (+ *rsp* offset)))
+							((eql (defq val (pfind trace_map src)) :statics) :statics_ptr)
+							((and (eql val :statics_ptr) (= offset +tk_node_lisp)) :r0))))
+					(emit-cpy-pr
+						;the address of the statics, or of anything else
+						(pinsert trace_map (last inst)
+							(if (eql (catch (resolve-static-method insts (second inst)) :t)
+								"sys/statics/statics") :statics)))
 					((emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i)
 						;quantize offset down to the nearest 8-byte
 						;boundary and erase the slot
@@ -324,7 +341,8 @@
 						(when (and (not (find callee +zero_clobber_funcs))
 								(defq callee_entry (. db :find callee)))
 							(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
-							(vpmap-clobber trace_map (second callee_entry))))
+							(vpmap-clobber trace_map (second callee_entry)))
+						(lisp-restored callee))
 					(emit-jmp-p
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
@@ -334,6 +352,7 @@
 								(defq callee_entry (. db :find callee)))
 							(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
 							(vpmap-clobber trace_map (second callee_entry)))
+						(lisp-restored callee)
 						(unless (setq *pc* (pop call_stack))
 							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
