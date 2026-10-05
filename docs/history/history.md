@@ -332,6 +332,26 @@ And some took it the other way. When Andy Henson came for his demonstration
 he got so excited that she thought he was going to expire on the spot. He
 went on to write the first translator.
 
+Chris describes how the demonstrations went, time after time:
+
+> "Them rocking up, knew everything, can't show me anything new. Do a demo.
+> They faint or refuse to accept reality. My mum making tea, and then them
+> not knowing what to do about any of what they had just seen."
+
+One more visitor matters to this story more than he knew. Darren Pegg had
+written OBED for the Atari ST. The two met at a demonstration day for Jack
+Tramiel of Atari in London, Darren showing OBED and a game, Chris showing the
+Art Studio, and have been best friends ever since. Darren came for the ray
+tracer demonstration, and it nearly finished him as well. He went out and
+walked round the garden for ten minutes, came back in as cool as a cucumber,
+and said:
+
+> "OK, carry on..."
+
+Years later it was Darren, by then chief technology officer of a games
+company in Canada, who kept telling Chris that he should look at Lisp as a
+language to write an assembler in.
+
 ### Those who saw it
 
 Some people understood at once, and they are remembered here.
@@ -446,7 +466,8 @@ start on the assumption that any node may vanish at any time, see
 
 And it adds one thing none of the earlier turns had. The assembler, the
 compiler and the build system are written in a Lisp, which runs on the VP,
-which they assemble. The system builds itself. In October 2026, after ten
+which they assemble. The Lisp is Darren Pegg's doing. Chris says he can be
+blamed for nagging him to look at it. The system builds itself. In October 2026, after ten
 years of work, that Lisp, an interpreter with no compiler behind it,
 assembles the whole system in a third of a second on one core, see
 [Till the Pips Squeak](../ai_digest/till_the_pips_squeak.md).
