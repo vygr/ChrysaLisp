@@ -364,9 +364,14 @@ and said:
 
 > "OK, carry on..."
 
-Years later it was Darren, by then chief technology officer of a games
-company in Canada, who kept telling Chris that he should look at Lisp as a
-language to write an assembler in.
+Years later it was Darren, who became chief technology officer of Mino Games
+in Canada, who kept telling Chris that he should look at Lisp as a language
+to write an assembler in.
+
+Both are retired now. Darren messes about with boats, and tells Chris that he
+cannot write any code these days without closures or continuations.
+ChrysaLisp has neither, [on purpose](../ai_digest/closure_or_not.md). Chris
+puts his friend's need for them down to a weak mind.
 
 ### Those who saw it
 
