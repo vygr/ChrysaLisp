@@ -1115,8 +1115,9 @@ the word a line would start with, were it to start at token i
 (node-auto [per_cpu]) -> (pid ...)
 
 size the network to this machine. Start nodes till there are per_cpu
-for each processor, default 2, and no more than 32, then wait for
-them to be seen, so what is started next can spread over them.
+for each processor, default 1, and no more than 32, then wait for
+them to be seen, so what is started next can spread over them. One
+for each is where a full build is quickest, more only share them out.
 ```
 
 ### node-link

@@ -14,44 +14,69 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(def-vars
-		(ptr this value args)
-		(pptr iter_begin fptr))
+	;info
+	;the args are kept in one slot, with the path, then the function
+	;pointer, then the new func object, each in turn in a second.
 
-	(push-scope)
-	(entry :lisp :lisp_ffi {this, args})
+	(entry :lisp :lisp_ffi '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2 4)
 
-	(call :list :get_begin {args} {_, iter_begin})
-	(call :lisp :repl_eval {this, iter_begin[+ptr_size * 1]} {_, value})
+	(vp-push :r1)
+	(assign '((:r1 +array_begin)) '(:r1))
+	(call :lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
 (errorcase
-	(gotoif {value->+obj_vtable = this->+lisp_error} 'exit)
-	(call :obj :inst_of (cat {value, @} (f-path :str :vtable)) '(_ tmp))
-	(gotoif `(,tmp = 0) 'error1))
-	(call :sys_load :bind {&value->+str_data} {fptr})
-	(errorifnot {fptr} 'error1)
-	(call :obj :deref {value})
-	(assign {0} {value})
-	(vpif {args->+array_length = 4})
-		(assign {iter_begin[+ptr_size * 3]->+num_value} {value})
+	(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
+	(gotoif '(:r2 = :r3) 'exit))
+	(vp-push :r1)
+(errorcase
+	(call :obj :inst_of `(:r1 (@ ,(f-path :str :vtable))) '(_ :r1))
+	(gotoif '(:r1 = 0) 'error1)
+	(assign '((:rsp 0)) '(:r1)))
+	(call :sys_load :bind '((& :r1 +str_data)) '(:r0))
+(errorcase
+	(gotoif '(:r0 = 0) 'error1))
+
+	;the path goes, the function pointer takes its slot
+	(assign '((:rsp 0)) '(:r1))
+	(assign '(:r0) '((:rsp 0)))
+	(call :obj :deref '(:r1))
+	(assign `((:rsp 0) (:rsp ,+ptr_size)) '(:r0 :r1))
+	(assign '((:r1 +array_length)) '(:r2))
+	(vpif '(:r2 = 4))
+		;with its flags
+		(assign '((:r1 +array_begin)) '(:r3))
+		(assign `((:r3 ,(* 3 +ptr_size))) '(:r3))
+		(assign '((:r3 +num_value)) '(:r3))
+		(vp-or-rr :r3 :r0)
 	(endif)
-	(call :func :create {value | fptr} {value})
-	(vpif {args->+array_length >= 3})
-		(call :hmap :pinsert {this->+lisp_environment, iter_begin[+ptr_size * 2], value})
+	(call :func :create '(:r0) '(:r0))
+	(assign `(:r0 (:rsp ,+ptr_size)) '((:rsp 0) :r1))
+	(assign '((:r1 +array_length)) '(:r2))
+	(vpif '(:r2 >= 3))
+		;bind it to the symbol given
+		(assign '((:r1 +array_begin)) '(:r1))
+		(assign `((:r1 ,(* 2 +ptr_size))) '(:r1))
+		(vp-cpy-rr :r0 :r2)
+		(lisp-this :r0)
+		(assign '((:r0 +lisp_environment)) '(:r0))
+		(call :hmap :pinsert '(:r0 :r1 :r2))
 	(endif)
+	(lisp-this :r0)
+	(vp-pop :r1)
 
 (vp-label 'exit)
-	(exit :lisp :lisp_ffi {this, value})
-	(return)
+	(exit :lisp :lisp_ffi '(:r0 :r1))
+	(vp-free +ptr_size)
+	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
-	(call :obj :deref {value})
+	(vp-pop :r0)
+	(call :obj :deref '(:r0))
+	(vp-pop :r1)
 (vp-label 'error)
-	(jump :lisp :repl_error {args, "(ffi path [sym flags])", +error_msg_wrong_types})
+	(jump :lisp :repl_error '(:r1 "(ffi path [sym flags])" +error_msg_wrong_types))
 	(signature '(:obj :obj :SYM :NUM)))
-
-	(pop-scope-syms)
 
 (def-func-end)

@@ -13,35 +13,33 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(def-vars
-		(ptr this value)
-		(union
-			(ptr args)
-			(pptr iter_begin iter_end)))
+	(entry :lisp :lisp_prin '(:r0 :r1))
 
-	(push-scope)
-	(entry :lisp :lisp_prin {this, args})
+	(class/array/get_both :r1 :r1 :r2)
+	(vpif '(:r1 /= :r2))
+		;the two iterators are all that is kept
+		(vp-push :r1 :r2)
+		(loop-start)
+			(assign '((:r1 0)) '(:r2))
+			(assign `((:r2 +obj_vtable) (@ ,(f-path :str :vtable))) '(:r3 :r4))
+			(vpif '(:r3 = :r4))
+				(call :stream :write '((:r0 +lisp_stdout) (& :r2 +str_data) (:r2 +str_length)))
+				(lisp-this :r0)
+			(else)
+				(call :lisp :repl_print '(:r0 (:r0 +lisp_stdout) :r2 1) '(:r0))
+			(endif)
+			(assign `((:rsp ,+ptr_size) (:rsp 0)) '(:r1 :r2))
+			(vp-add-cr +ptr_size :r1)
+			(breakif '(:r1 = :r2))
+			(assign '(:r1) `((:rsp ,+ptr_size)))
+		(loop-end)
+		(vp-free (* 2 +ptr_size))
+	(endif)
+	(assign '((:r0 +lisp_sym_nil)) '(:r1))
+	(class/obj/ref :r1 :r2)
 
-	(call :list :get_both {args} '(_ :r1 :r2))
-	(assign '(:r2) {iter_end})
-	(loop-while '(:r1 /= :r2))
-		(vp-cpy-ir :r1 0 :r0)
-		(assign '(:r1 :r0) {iter_begin, value})
-		(assign '((:r0 +obj_vtable)) '(:r1))
-		(f-bind :str :vtable :r2)
-		(vpif '(:r1 = :r2))
-			(call :stream :write {this->+lisp_stdout, &value->+str_data, value->+str_length})
-		(else)
-			(call :lisp :repl_print {this, this->+lisp_stdout, value, 1})
-		(endif)
-		(assign {iter_begin, iter_end} '(:r1 :r2))
-		(vp-add-cr +ptr_size :r1)
-	(loop-end)
-	(call :obj :ref {this->+lisp_sym_nil} {value})
-
-	(exit :lisp :lisp_prin {this, value})
-	(pop-scope)
-	(return)
+	(exit :lisp :lisp_prin '(:r0 :r1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -55,20 +53,24 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(def-vars
-		(ptr this args value))
+	(entry :lisp :lisp_print '(:r0 :r1))
 
-	(push-scope)
-	(entry :lisp :lisp_print {this, args})
-
-	(call :lisp :lisp_prin {this, args} {_, value})
-	(call :stream :write_char {this->+lisp_stdout, +char_lf})
-	(vpifnot {args->+array_length})
-		(call :stream :flush {this->+lisp_stdout})
+	(vp-push :r1)
+	(call :lisp :lisp_prin '(:r0 :r1) '(:r0 :r1))
+	;the value takes the slot, the args are only wanted for their length
+	(assign '((:rsp 0)) '(:r2))
+	(assign '(:r1 (:r2 +array_length)) '((:rsp 0) :r2))
+	(vp-push :r2)
+	(call :stream :write_char '((:r0 +lisp_stdout) +char_lf))
+	(lisp-this :r0)
+	(vp-pop :r2)
+	(vpif '(:r2 = 0))
+		(call :stream :flush '((:r0 +lisp_stdout)))
+		(lisp-this :r0)
 	(endif)
+	(vp-pop :r1)
 
-	(exit :lisp :lisp_print {this, value})
-	(pop-scope)
-	(return)
+	(exit :lisp :lisp_print '(:r0 :r1))
+	(vp-ret)
 
 (def-func-end)

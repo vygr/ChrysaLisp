@@ -37,48 +37,67 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(def-vars
-		(ptr this args value str_args str_value)
-		(pptr iter_begin))
-(errorcase
-	(def-vars
-		(uint length)))
+	;info
+	;only the args are kept, in one slot, while the form runs, that is
+	;the path that nests. The rest is only stacked if it gave an error.
 
-	(push-scope)
-	(entry :lisp :lisp_catch {this, args})
+	(entry :lisp :lisp_catch '(:r0 :r1))
 
 (errorcase
-	(d-call :array :get_length {args} {_, length})
-	(gotoif {length /= 3} 'error1))
+	(assign '((:r1 +array_length)) '(:r2))
+	(gotoif '(:r2 /= 3) 'error1))
 
-	(call :list :get_begin {args} {_, iter_begin})
-	(call :lisp :repl_eval {this, iter_begin[+ptr_size * 1]} {_, value})
-	(vpif {value->+obj_vtable = this->+lisp_error})
-		(call :lisp :env_push {this})
-		(call :list :create :nil {str_args})
-		(call :obj :ref {value})
-		(call :list :push_back {str_args, value})
-		(call :str :lisp_str {this, str_args} {_, str_value})
-		(call :hmap :pinsert {this->+lisp_environment, this->+lisp_sym_underscore, str_value})
-		(call :obj :deref {str_args})
-		(call :obj :deref {str_value})
-		(call :lisp :repl_eval {this, iter_begin[+ptr_size * 2]} {_, args})
-		(call :lisp :env_pop {this})
-		(vpif {args->+obj_vtable = this->+lisp_error || args /= this->+lisp_sym_nil})
-			(call :obj :deref {value})
-			(assign {args} {value})
+	(vp-push :r1)
+	(assign '((:r1 +array_begin)) '(:r1))
+	(call :lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
+	(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
+	(vpif '(:r2 = :r3))
+		;an error, so run the handler, in a new environment, with _ bound
+		;to the error as a string
+		(vp-push :r1)
+		(call :lisp :env_push '(:r0))
+		(call :list :create :nil '(:r0))
+		(assign '((:rsp 0)) '(:r1))
+		(class/obj/ref :r1 :r2)
+		(call :list :push_back '(:r0 :r1) '(:r1 _ _ _))
+		(vp-push :r1)
+		(lisp-this :r0)
+		(call :str :lisp_str '(:r0 :r1) '(:r0 :r2))
+		(vp-push :r2)
+		(assign '((:r0 +lisp_sym_underscore) (:r0 +lisp_environment)) '(:r1 :r0))
+		(call :hmap :pinsert '(:r0 :r1 :r2))
+		(vp-pop :r0)
+		(call :obj :deref '(:r0))
+		(vp-pop :r0)
+		(call :obj :deref '(:r0))
+		(lisp-this :r0)
+		(assign `((:rsp ,+ptr_size)) '(:r1))
+		(assign '((:r1 +array_begin)) '(:r1))
+		(call :lisp :repl_eval `(:r0 (:r1 ,(* 2 +ptr_size))) '(:r0 :r1))
+		(vp-push :r1)
+		(call :lisp :env_pop '(:r0) '(:r0 _))
+		(vp-pop :r1)
+		;the error stands if the handler gave :nil, if not, or if it gave
+		;an error of its own, what it gave is the value
+		(assign '((:r1 +obj_vtable) (:r0 +lisp_error) (:r0 +lisp_sym_nil)) '(:r2 :r3 :r4))
+		(vpif '(:r2 /= :r3) '(:r1 = :r4))
+			(class/obj/ref :r1 :r2 -1)
+			(vp-pop :r1)
 		(else)
-			(call :obj :deref {args})
+			(assign '((:rsp 0)) '(:r0))
+			(assign '(:r1) '((:rsp 0)))
+			(call :obj :deref '(:r0))
+			(lisp-this :r0)
+			(vp-pop :r1)
 		(endif)
 	(endif)
 
-	(exit :lisp :lisp_catch {this, value})
-	(return)
+	(exit :lisp :lisp_catch '(:r0 :r1))
+	(vp-free +ptr_size)
+	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {args, "(catch form eform)", +error_msg_wrong_num_of_args}))
-
-	(pop-scope-syms)
+	(jump :lisp :repl_error '(:r1 "(catch form eform)" +error_msg_wrong_num_of_args)))
 
 (def-func-end)

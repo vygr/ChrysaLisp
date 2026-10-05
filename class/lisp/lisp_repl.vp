@@ -14,66 +14,100 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(def-vars
-		(ptr this args stream ast value old_name)
-		(int char)
-		(uint length old_line))
+	;info
+	;an (import) is a repl, in a repl, so this nests. The lisp object is
+	;not in the frame, it is fetched again after a call that trashes it.
 
-	(push-scope)
-	(entry :lisp :lisp_repl {this, args})
+	(structure local 0
+		(ptr args ast value old_name)
+		(long char old_line))
 
-	(d-call :array :get_length {args} {_, length})
-	(errorif {length /= 2} 'error1)
-	(call :list :get_first {args} {_, stream})
+	(entry :lisp :lisp_repl '(:r0 :r1))
+
+	(vp-alloc local_size)
+	(assign '(:r1) '((:rsp local_args)))
 
 (errorcase
-	(call :obj :inst_of (cat {stream, @} (f-path :stream :vtable)) '(_ tmp))
-	(gotoif `(,tmp = 0) 'error2))
-
-	(call :list :get_second {args} {_, value})
-(errorcase
-	(call :obj :inst_of (cat {value, @} (f-path :str :vtable)) '(_ tmp))
-	(gotoif `(,tmp = 0) 'error3))
+	(assign '((:r1 +array_length)) '(:r2))
+	(gotoif '(:r2 /= 2) 'error1)
+	(assign '((:r1 +array_begin)) '(:r1))
+	(call :obj :inst_of `((:r1 0) (@ ,(f-path :stream :vtable))) '(_ :r1))
+	(gotoif '(:r1 = 0) 'error2)
+	(assign '((:rsp local_args)) '(:r1))
+	(assign '((:r1 +array_begin)) '(:r1))
+	(call :obj :inst_of `((:r1 ,+ptr_size) (@ ,(f-path :str :vtable))) '(_ :r1))
+	(gotoif '(:r1 = 0) 'error3)
+	(lisp-this :r0)
+	(assign '((:rsp local_args)) '(:r1)))
 
 	;push old repl info
 	;we have refs to the name (from the args), so we DON'T need to manage our use here !
-	(assign {this->+lisp_stream_name, this->+lisp_stream_line} {old_name, old_line})
-	(assign {value, 1} {this->+lisp_stream_name, this->+lisp_stream_line})
+	(assign '((:r1 +array_begin)) '(:r1))
+	(assign `((:r1 ,+ptr_size) (:r0 +lisp_stream_name) (:r0 +lisp_stream_line)) '(:r2 :r3 :r4))
+	(assign '(:r3 :r4) '((:rsp local_old_name) (:rsp local_old_line)))
+	(vp-cpy-cr 1 :r4)
+	(assign '(:r2 :r4) '((:r0 +lisp_stream_name) (:r0 +lisp_stream_line)))
+	(assign '((:r0 +lisp_sym_nil)) '(:r2))
+	(class/obj/ref :r2 :r3)
+	(assign '(:r2) '((:rsp local_value)))
 
-	(call :obj :ref {this->+lisp_sym_nil} {value})
-	(call :stream :read_char {stream} {_, char})
-	(loop-while {char /= -1})
-		(call :stream :flush {this->+lisp_stdout})
-		(call :stream :flush {this->+lisp_stderr})
-		(call :lisp :read {this, stream, char} {_, ast, char})
-		(call :lisp :repl_expand {this, &ast})
-		(call :lisp :repl_bind {this, ast})
-		(call :obj :deref {value})
-		(call :lisp :repl_eval {this, ast} {_, value})
-		(call :obj :deref {ast})
-		(vpif {stream = this->+lisp_stdin})
-			(call :lisp :repl_print {this, this->+lisp_stdout, value, 1})
-			(call :stream :write_char {this->+lisp_stdout, +char_lf})
+	(call :stream :read_char '((:r1 0)) '(_ :r1))
+	(loop-while '(:r1 /= -1))
+		(assign '(:r1) '((:rsp local_char)))
+		(lisp-this :r0)
+		(call :stream :flush '((:r0 +lisp_stdout)))
+		(lisp-this :r0)
+		(call :stream :flush '((:r0 +lisp_stderr)))
+		(lisp-this :r0)
+		(assign '((:rsp local_args) (:rsp local_char)) '(:r1 :r2))
+		(assign '((:r1 +array_begin)) '(:r1))
+		(call :lisp :read '(:r0 (:r1 0) :r2) '(:r0 :r1 :r2))
+		(assign '(:r1 :r2) '((:rsp local_ast) (:rsp local_char)))
+		(call :lisp :repl_expand '(:r0 (& :rsp local_ast)) '(:r0))
+		(call :lisp :repl_bind '(:r0 (:rsp local_ast)) '(:r0))
+		(call :obj :deref '((:rsp local_value)))
+		(lisp-this :r0)
+		(call :lisp :repl_eval '(:r0 (:rsp local_ast)) '(_ :r1))
+		(assign '(:r1) '((:rsp local_value)))
+		(call :obj :deref '((:rsp local_ast)))
+		(lisp-this :r0)
+		(assign '((:rsp local_args) (:r0 +lisp_stdin)) '(:r1 :r2))
+		(assign '((:r1 +array_begin)) '(:r1))
+		(assign '((:r1 0)) '(:r1))
+		(vpif '(:r1 = :r2))
+			(call :lisp :repl_print '(:r0 (:r0 +lisp_stdout) (:rsp local_value) 1) '(:r0))
+			(call :stream :write_char '((:r0 +lisp_stdout) +char_lf))
+			(lisp-this :r0)
 		(endif)
 	(errorcase
-		(breakif {value->+obj_vtable = this->+lisp_error}))
+		(assign '((:rsp local_value)) '(:r1))
+		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r1 :r2))
+		(breakif '(:r1 = :r2)))
+		(assign '((:rsp local_char)) '(:r1))
 	(loop-end)
 
 	;pop old repl info
-	(assign {old_name, old_line} {this->+lisp_stream_name, this->+lisp_stream_line})
+	(lisp-this :r0)
+	(assign '((:rsp local_old_name) (:rsp local_old_line) (:rsp local_value)) '(:r2 :r3 :r1))
+	(assign '(:r2 :r3) '((:r0 +lisp_stream_name) (:r0 +lisp_stream_line)))
 
-	(exit :lisp :lisp_repl {this, value})
-	(return)
+	(exit :lisp :lisp_repl '(:r0 :r1))
+	(vp-free local_size)
+	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {args, "(repl stream path)", +error_msg_wrong_num_of_args})
+	(vp-cpy-cr +error_msg_wrong_num_of_args :r3)
+	(goto 'error)
 (vp-label 'error2)
-	(jump :lisp :repl_error {args, "(repl stream path)", +error_msg_not_a_stream})
+	(vp-cpy-cr +error_msg_not_a_stream :r3)
+	(goto 'error)
 (vp-label 'error3)
-	(jump :lisp :repl_error {args, "(repl stream path)", +error_msg_not_a_string}))
-
-	(pop-scope-syms)
+	(vp-cpy-cr +error_msg_not_a_string :r3)
+(vp-label 'error)
+	(assign '((:rsp local_args)) '(:r1))
+	(vp-free local_size)
+	(jump :lisp :repl_error '(:r1 "(repl stream path)" :r3)))
 
 (def-func-end)
 

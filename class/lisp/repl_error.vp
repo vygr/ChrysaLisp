@@ -17,29 +17,26 @@
 	;code, and so a caller need not keep its lisp object to hand, on the
 	;stack say, just in case it has an error.
 
-	(def-vars
-		(ptr this payload desc)
-		(pptr frame)
-		(uint msg))
+	(entry :lisp :repl_error '(:r1 :r2 :r3))
 
-	(push-scope)
-	(entry :lisp :repl_error {payload, desc, msg})
+	(vp-push :r1 :r2 :r3)
 	(lisp-this :r0)
-	(assign '(:r0) {this})
-
-	(call :hmap :search {this->+lisp_environment, this->+lisp_sym_stack_frame} {_, frame, _})
-	(vpif {frame})
-		(assign {frame[+ptr_size]} {frame})
-		(call :obj :ref {frame})
+	(assign '((:r0 +lisp_sym_stack_frame) (:r0 +lisp_environment)) '(:r1 :r0))
+	(call :hmap :search '(:r0 :r1) '(_ :r1 _))
+	(vpif '(:r1 /= 0))
+		(assign `((:r1 ,+ptr_size)) '(:r6))
+		(class/obj/ref :r6 :r1)
 	(else)
-		(call :list :create :nil {frame})
+		(call :list :create :nil '(:r6))
 	(endif)
+	(lisp-this :r7)
+	;payload, description and msg, to where :error :create wants them
+	(vp-pop :r2 :r0 :r1)
+	(assign '((:r7 +lisp_script_name) (:r7 +lisp_stream_name) (:r7 +lisp_stream_line)) '(:r3 :r4 :r5))
+	(call :error :create '(:r0 :r1 :r2 :r3 :r4 :r5 :r6) '(:r1))
+	(lisp-this :r0)
 
-	(call :error :create {desc, msg, payload, this->+lisp_script_name,
-		this->+lisp_stream_name, this->+lisp_stream_line, frame} {frame})
-
-	(exit :lisp :repl_error {this, frame})
-	(pop-scope)
-	(return)
+	(exit :lisp :repl_error '(:r0 :r1))
+	(vp-ret)
 
 (def-func-end)

@@ -13,55 +13,70 @@
 	;trashes
 	;:r0-:r14, :f0-:f15
 
-	(def-vars
-		(ptr script lisp args obj))
-
-	;init app vars
-	(push-scope)
-
 	;get param string
-	(call :sys_mail :mymail :nil {script, _})
-	(call :sys_mail :free_obj {script} {script, _, _})
+	(call :sys_mail :mymail :nil '(:r0 _))
+	(call :sys_mail :free_obj '(:r0) '(:r0 _ _))
+	(vp-push :r0)
 
 	;string output stream
-	(call :str :create_from_buffer {0, str_gap} {obj})
-	(call :sstream :create {obj} {obj})
+	(call :str :create_from_buffer '(0 str_gap) '(:r0))
+	(call :sstream :create '(:r0) '(:r1))
 
 	;create lisp class
-	(call :lisp :create {script, obj, obj, obj} {lisp})
-	(vpifnot {lisp})
+	(vp-pop :r0)
+	(vp-push :r1)
+	(call :lisp :create '(:r0 :r1 :r1 :r1) '(:r0))
+	(vp-pop :r1)
+	(vpif '(:r0 = 0))
 		;script failed to load - flush error output from sstream
-		(call :stream :flush {obj})
-		(call :obj :deref {obj})
+		(call :stream :flush '(:r1) '(:r0))
+		(call :obj :deref '(:r0))
 	(else)
-		(call :obj :deref {obj})
+		(vp-push :r0)
+		(call :obj :deref '(:r1))
+
 		;do we have a main ?
-		(call :view :get_prop {lisp->+lisp_environment, static_sym_main} {_, obj})
-		(vpif {obj})
+		(assign '((:rsp 0)) '(:r0))
+		(call :view :get_prop '((:r0 +lisp_environment) static_sym_main) '(_ :r1))
+		(vpif '(:r1 /= 0))
 			;run main
-			(call :list :create :nil {args})
-			(call :lisp :repl_apply {lisp, args, obj} {_, obj})
-			(vpif {obj->+obj_vtable = lisp->+lisp_error})
+			(vp-push :r1)
+			(call :list :create :nil '(:r1))
+			;the args take the slot the main function had
+			(assign `((:rsp 0) (:rsp ,+ptr_size)) '(:r2 :r0))
+			(assign '(:r1) '((:rsp 0)))
+			(call :lisp :repl_apply '(:r0 :r1 :r2) '(_ :r1))
+			(vp-push :r1)
+			(assign `((:rsp ,(* 2 +ptr_size))) '(:r2))
+			(assign '((:r1 +obj_vtable) (:r2 +lisp_error)) '(:r3 :r4))
+			(vpif '(:r3 = :r4))
 				;error in main
-				(call :obj :print {obj, lisp->+lisp_stderr})
-				(call :stream :write_char {lisp->+lisp_stderr, +char_lf})
-				(call :stream :flush {lisp->+lisp_stderr})
+				(call :obj :print '(:r1 (:r2 +lisp_stderr)))
+				(assign `((:rsp ,(* 2 +ptr_size))) '(:r0))
+				(call :stream :write_char '((:r0 +lisp_stderr) +char_lf))
+				(assign `((:rsp ,(* 2 +ptr_size))) '(:r0))
+				(call :stream :flush '((:r0 +lisp_stderr)))
 			(endif)
-			(call :obj :deref {args})
-			(call :obj :deref {obj})
+			(vp-pop :r0)
+			(call :obj :deref '(:r0))
+			(vp-pop :r0)
+			(call :obj :deref '(:r0))
 		(endif)
-		(call :lisp :deref {lisp})
+		(vp-pop :r0)
+		(call :lisp :deref '(:r0))
 	(endif)
 
 	;flush interned symbols, nums, font cache and mem blocks
-	(vpif {@sys/statics/statics.statics_font_count >= font_max_word_cache})
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '((:r0 statics_font_count)) '(:r0))
+	(vpif '(:r0 >= font_max_word_cache))
 		(call :font :flush)
 	(endif)
-	(call :hset :flush {@sys/statics/statics.statics_num_intern})
-	(call :hset :flush {@sys/statics/statics.statics_sym_intern})
+	(fn-bind 'sys/statics/statics :r0)
+	(call :hset :flush '((:r0 statics_num_intern)))
+	(fn-bind 'sys/statics/statics :r0)
+	(call :hset :flush '((:r0 statics_sym_intern)))
 	(call :sys_mem :collect)
-
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
