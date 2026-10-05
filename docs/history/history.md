@@ -328,6 +328,10 @@ up and walk them round the garden:
 
 > "Do you want a cup of tea... bit of a shock, love..."
 
+And some took it the other way. When Andy Henson came for his demonstration
+he got so excited that she thought he was going to expire on the spot. He
+went on to write the first translator.
+
 ### Those who saw it
 
 Some people understood at once, and they are remembered here.
