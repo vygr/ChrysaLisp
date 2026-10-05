@@ -133,9 +133,16 @@ The processor to plug in was the Inmos transputer.
 > institutes and universities, had been trying to do for a long time." (Edge,
 > June 1994)
 
-Andy Henson wrote the first true translator, for the T800 transputer, working
-from the VP macro specification. BYTE later called him "Tao Systems'
-translator supremo".
+Up to this point the Virtual Processor had lived inside the assembler. The
+macros turned VP source into the native code of one machine or another as it
+was assembled. To port a program was to press a button and assemble it again.
+But what went to disc was native code, for one processor.
+
+The step that made Taos what it became was to store the VP code itself, and
+translate it as it was loaded. Then one file on disc would run on any
+processor, and on several different ones at once. Andy Henson wrote the first
+true translator, for the T800 transputer, working from the VP macro
+specification. BYTE later called him "Tao Systems' translator supremo".
 
 Nik Spicer came from the European arm of Microway, a maker of transputer
 boards. He wrote no code. He was the first outsider to understand what he was
