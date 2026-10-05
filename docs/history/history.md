@@ -190,11 +190,11 @@ four R3000s at once.
 ### The chip that never was
 
 One of the first translators was for a processor that was never made. Sir
-Clive Sinclair was funding a new chip, the PgC7600, designed by Chris
-Shelton: an unclocked design, timed by its own wavefronts instead of a
-clock, and meant to be very fast and very cheap. Chris went to several
-meetings at Sinclair Research in London, and Tao wrote the assembler and the
-translator for it, ready for the silicon.
+Clive Sinclair was funding a new chip, the PgC7600, designed by Chris Shelton.
+PgC stood for Pretty Good Chip. It was an unclocked design, timed by its own
+wavefronts instead of a clock, and meant to be very fast and very cheap. Chris
+went to several meetings at Sinclair Research in London, and Tao wrote the
+assembler and the translator for it, ready for the silicon.
 
 BYTE's article on the chip, in March 1991, says its designers had "even
 modified the instruction set of the PgC to better accommodate Taos's
