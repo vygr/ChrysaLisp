@@ -4,6 +4,10 @@
 
 ------
 
+Release notes are now kept, one file for each release, in `docs/releases/`,
+from `docs/releases/v7.0.md` on. They are the short form of this file, what a
+release means to someone who has not followed every change.
+
 The rest of the `:lisp` class is written with registers, not script vars,
 `(catch)`, `(ffi)`, the repl, `:lisp :run`, the printer, the reader, and the
 expand and bind passes. `(catch)` held 48 bytes of stack while its form ran,
