@@ -408,6 +408,11 @@ And Andy Stout. He was working on a transputer system of his own, called
 Mercury. He was shown Taos one day, and gave up his own project to work on
 it. He went on to write the C standard libraries for Taos and for intent.
 
+The running joke at Tao was that one day Andy would finish writing `printf`.
+At a spoof ceremony the company once held he won the Tao Printf Award. He was
+also at the table with Chris in London on the night Taos won the real one,
+the Computing gold award.
+
 ## 5. Tao Group, 1991 to 2007
 
 Chris was co-founder and chief technology officer of Tao Group, and held
