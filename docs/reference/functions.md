@@ -1666,13 +1666,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args
