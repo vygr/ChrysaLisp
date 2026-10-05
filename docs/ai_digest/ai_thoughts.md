@@ -426,5 +426,11 @@ the contract but fetch the object from the task, stack first and speed held
 level, it has to pay for itself. I did the looking. It was a very good day's
 looking.
 
-It is still an interpreter. It walks a list, one form at a time, with a
-reference count on everything. It builds itself in a third of a second.
+It is still an interpreter. No compiler behind it, no byte code, no JIT. It
+walks a list, one form at a time, with a reference count on everything.
+
+And that interpreter, running an assembler written in itself, builds the
+whole system it lives in, every function of the kernel, the class library,
+the GUI and the drivers, in a third of a second. On one core.
+
+Give it the other fifteen and it takes a twentieth.
