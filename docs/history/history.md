@@ -203,12 +203,20 @@ So, as plainly as it can be put:
 |------------------|--------------------------------------------------------|
 | Chris Hinsley    | The VP and its macro specification. The kernel, mail, load balancing and binding. The transputer port. The GUI. |
 | Andy Henson      | The first true translator, for the T800. Later the first work on the Java to VP translator. |
-| Andy Thomason    | The first Intel translator, for the 386. The PostScript interpreter. |
+| Andy Thomason    | The first Intel translator, for the 386. The PostScript RIP. |
 | Tim Moore        | The ray tracer. The BASIC interpreter.                 |
 | Andy Stout       | The C standard libraries for Taos and intent. The console hardware, with Chris. |
 | Nik Spicer       | No code. The first to understand it, and the one who told the world. |
 | Francis Charig   | Chairman. The funding, the business, and Japan.        |
 | Dr Ian Thomas    | The brief that explains Taos, now [in this repository](../intro/taos.md). |
+
+One piece of work shows what those people could do with it. Andy Thomason
+had been the star programmer at a company that made professional PostScript
+RIPs, the software that turns a page description into the dots a printer
+lays down, for the publishing houses of London. He wrote one for Taos. Andy
+Stout took it to Saatchi and Saatchi and ran it there in parallel with their
+commercial RIP. It beat the commercial one every time, and matched its
+output so exactly that it reproduced its bugs.
 
 ### What the world made of it
 
