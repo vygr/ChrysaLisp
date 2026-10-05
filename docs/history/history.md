@@ -196,7 +196,7 @@ So, as plainly as it can be put:
 |------------------|--------------------------------------------------------|
 | Chris Hinsley    | The VP and its macro specification. The kernel, mail, load balancing and binding. The transputer port. The GUI. |
 | Andy Henson      | The first true translator, for the T800. Later the first work on the Java to VP translator. |
-| Andy Thomason    | The first x86 translator. The PostScript interpreter.  |
+| Andy Thomason    | The first Intel translator, for the 386. The PostScript interpreter. |
 | Tim Moore        | The ray tracer. The BASIC interpreter.                 |
 | Andy Stout       | The C standard libraries for Taos and intent. The console hardware, with Chris. |
 | Nik Spicer       | No code. The first to understand it, and the one who told the world. |
