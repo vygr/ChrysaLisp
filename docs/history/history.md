@@ -203,6 +203,15 @@ PgC7600 translator among the first three written. The chip went nowhere. The
 translator is still in the Taos 1.28 kit, for a processor that does not
 exist.
 
+Chris remembers Shelton as a lovely man, far ahead with his ideas, and the
+chip, with affection, as "a washing machine controller with no clock". The
+idea has stayed with him. The processor ran flat out inside a horizon of its
+own, at whatever speed its own logic allowed, and only fell into step with
+the outside world when it had to talk to memory. He sees the same shape in
+ChrysaLisp, which is built to do its work inside the processor's first level
+cache, and to step outside it as seldom as it can, see
+[Keeping It Hot](../ai_digest/keeping_it_hot.md).
+
 ### Who did what
 
 The record needs one correction, and it is made here without blame to
