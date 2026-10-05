@@ -265,9 +265,12 @@ system. The ST or Amiga booted a small downloader from the boot sector of a
 floppy. The PC assembled the game and sent it down a wire to the printer port,
 and it ran. Press reset, build and send, and try again.
 
-For the show that PC held three Fast 9 transputer cards, designed by Pat Mills
-and lent for the show by Quintek of Bristol, and one T800 graphics card, which
-was his. He had bought it with money borrowed from his mother:
+For the show that PC held three Fast 9 cards, each with nine T800 transputers
+at 30MHz, designed by Pat Mills and lent by Quintek of Bristol. With them was
+one T800 graphics card, which was his. That is twenty eight transputers in one
+desktop PC, which explains the newspaper. He says you really could have cooked
+an egg on them. He had bought the graphics card with money borrowed from his
+mother:
 
 > "Mum, I'm going to port my games work to this fancy graphics card, but I
 > need some cash..."
