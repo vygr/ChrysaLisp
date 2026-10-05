@@ -68,6 +68,7 @@
 		(assign {0} {this->+lisp_seq_idx})
 		(assign {0} {this->+lisp_stream_line})
 		(assign {0} {this->+lisp_nextsym})
+		(assign {0} {this->+lisp_args_pool})
 
 		;tls stack, object tls, error vtable
 		(assign {@sys/statics/statics.statics_sys_task_current_tcb} {func})
@@ -273,6 +274,19 @@
 
 	(push-scope)
 	(entry :lisp :deinit {this})
+
+	;free the chain of args lists, each is empty, and holds the next in
+	;its first element
+	(assign {this} '(:r0))
+	(loop-start)
+		(assign '((:r0 +lisp_args_pool)) '(:r1))
+		(breakif '(:r1 = 0))
+		(assign '((:r1 +array_begin)) '(:r2))
+		(assign '((:r2 0)) '(:r2))
+		(assign '(:r2) '((:r0 +lisp_args_pool)))
+		(call :obj :deref '(:r1))
+		(assign {this} '(:r0))
+	(loop-end)
 
 	;deinit myself
 	(assign {&this->+lisp_stdin} {iter})

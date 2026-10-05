@@ -12,23 +12,37 @@
 	;outputs
 	;:r0 = lisp object (ptr)
 	;info
-	;emit the eval of the args of a form, into a new list, that takes each
+	;emit the eval of the args of a form, into a list, that takes each
 	;value as it is given, with no ref. The frame, of the caller, holds the
-	;form, in local_form, and the new list, in local_args, and no more, the
+	;form, in local_form, and the list, in local_args, and no more, the
 	;place in the form is found from the length of the list so far.
-	(vp-cpy-rr :r0 :r10)
-	(call :list :create :nil '(:r0))
-	(assign '((:rsp local_form)) '(:r1))
-	(assign '(:r0) '((:rsp local_args)))
-	(assign '((:r1 +array_length)) '(:r1))
-	(vp-sub-cr 1 :r1)
-	(vpif '(:r1 = 0))
+	;
+	;The list is taken from the chain of empty ones the lisp object keeps,
+	;so most calls need not create one.
+	(assign '((:r0 +lisp_args_pool) (:r1 +array_length)) '(:r2 :r3))
+	(vp-sub-cr 1 :r3)
+	(vpif '(:r2 = 0))
+		(vp-cpy-rr :r0 :r10)
+		(call :list :create :nil '(:r2))
 		(vp-cpy-rr :r10 :r0)
+		(assign '((:rsp local_form)) '(:r1))
+		(assign '((:r1 +array_length)) '(:r3))
+		(vp-sub-cr 1 :r3)
 	(else)
-		(call :array :set_cap '(:r0 :r1))
-		(assign '((:rsp local_form)) '(:r2))
-		(assign '((:r2 +array_begin)) '(:r2))
-		(vp-cpy-rr :r10 :r0)
+		(assign '((:r2 +array_begin)) '(:r4))
+		(assign '((:r4 0)) '(:r4))
+		(assign '(:r4) '((:r0 +lisp_args_pool)))
+	(endif)
+	(assign '(:r2) '((:rsp local_args)))
+	(vpif '(:r3 /= 0))
+		(assign '((:r2 +array_capacity)) '(:r4))
+		(vpif '(:r3 > :r4))
+			(vp-cpy-rr :r0 :r10)
+			(call :array :set_cap '(:r2 :r3))
+			(vp-cpy-rr :r10 :r0)
+			(assign '((:rsp local_form)) '(:r1))
+		(endif)
+		(assign '((:r1 +array_begin)) '(:r2))
 		(vp-cpy-cr +ptr_size :r6)
 		(loop-start)
 			(call :lisp :repl_eval '(:r0 (:r2 :r6)) '(:r0 :r1))
@@ -49,6 +63,58 @@
 		(loop-end)
 	(endif))
 
+(defun drop-args (n)
+	;inputs
+	;:r0 = args list object (ptr)
+	;n = number of this use, for its labels
+	;outputs
+	;:r0 = lisp object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;emit the end of an args list. If no other has a ref to it, and it has
+	;not grown, its values are dropped, in line where they live on, and it
+	;goes on the chain of empty lists, the link held in its first element.
+	;If not it is given a deref, as any object. The code for the rare
+	;cases is emitted by (drop-args-slow), out of the flow.
+	(defq slow (sym (cat "drop_slow_" (str n))) last (sym (cat "drop_last_" (str n)))
+		next (sym (cat "drop_next_" (str n))) done (sym (cat "drop_done_" (str n))))
+	(assign '((:r0 +obj_count) (:r0 +array_begin) (& :r0 +array_elems)) '(:r1 :r2 :r3))
+	(gotoif '(:r1 /= 1) slow)
+	(gotoif '(:r2 /= :r3) slow)
+	(assign '((:r0 +array_length)) '(:r3))
+	(vpif '(:r3 /= 0))
+		(vp-shl-cr (log2 +ptr_size) :r3)
+		(vp-add-rr :r2 :r3)
+		(loop-start)
+			(assign '((:r2 0)) '(:r1))
+			(class/obj/deref-live :r1 :r4 last)
+		(vp-label next)
+			(vp-add-cr +ptr_size :r2)
+		(loop-until '(:r2 = :r3))
+		(vp-xor-rr :r1 :r1)
+		(assign '(:r1 (& :r0 +array_elems)) '((:r0 +array_length) :r2))
+	(endif)
+	(vp-cpy-rr :r0 :r1)
+	(lisp-this :r0)
+	(assign '((:r0 +lisp_args_pool)) '(:r3))
+	(assign '(:r3 :r1) '((:r2 0) (:r0 +lisp_args_pool)))
+(vp-label done))
+
+(defun drop-args-slow (n)
+	(defq slow (sym (cat "drop_slow_" (str n))) last (sym (cat "drop_last_" (str n)))
+		next (sym (cat "drop_next_" (str n))) done (sym (cat "drop_done_" (str n))))
+(vp-label last)
+	;the last ref of a value, so a call, and all is trashed
+	(vp-push :r0 :r2 :r3)
+	(call :obj :deref '(:r1))
+	(vp-pop :r0 :r2 :r3)
+	(goto next)
+(vp-label slow)
+	(call :obj :deref '(:r0))
+	(lisp-this :r0)
+	(goto done))
+
 (def-method :lisp :repl_eval)
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -63,7 +129,8 @@
 	;over each call it makes, is kept to the least. A symbol, or a form
 	;that evals to itself, uses none. A special form is a jump, so none. A
 	;built in function holds the form and the args while the args eval,
-	;and only the args while it runs. A lambda holds the form and the args
+	;and only the args while it runs. The list for the args is taken from,
+	;and given back to, a chain of empty ones. A lambda holds the form and the args
 	;while the args eval, and nothing while its body runs.
 	;
 	;The function of a form is nearly always prebound, a func object or a
@@ -137,11 +204,11 @@
 			(assign '((:rsp 0)) '(:r0))
 		(vp-label 'drop_args)
 			(assign '(:r1) '((:rsp 0)))
-			(call :obj :deref '(:r0))
-			(lisp-this :r0)
+			(drop-args 0)
 			(vp-pop :r1)
 			(exit :lisp :repl_eval '(:r0 :r1))
 			(vp-ret)
+			(drop-args-slow 0)
 		(errorcase
 		(vp-label 'error_args)
 			;an arg gave an error, it is the value
@@ -168,8 +235,7 @@
 			;the values are bound, so the args can go, before the body runs
 			(assign '((:rsp local_args)) '(:r0))
 			(assign '(:r1) '((:rsp local_args)))
-			(call :obj :deref '(:r0))
-			(lisp-this :r0)
+			(drop-args 1)
 			(assign '((:rsp local_form) (:rsp local_args)) '(:r2 :r1))
 			(vp-free frame)
 			(assign '((:r2 +array_begin)) '(:r2))
@@ -182,6 +248,7 @@
 			(vp-pop :r1)
 			(exit :lisp :repl_eval '(:r0 :r1))
 			(vp-ret)
+			(drop-args-slow 1)
 		(endif)
 		;the general case, the function has to be evaluated
 		(vp-alloc frame_general)

@@ -8,4 +8,6 @@
 		sym_splicing sym_ffi sym_stack_frame func_ffi func_lambda func_macro func_quote
 		func_qquote stream_name script_name)
 	(ptr error)
+	;a chain of empty lists, for the args of a call, see :lisp :repl_eval
+	(ptr args_pool)
 	(uint seq_idx stream_line nextsym))

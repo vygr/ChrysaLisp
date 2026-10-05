@@ -333,7 +333,8 @@ this is the heart of the recursion, so what it holds on the stack,
 over each call it makes, is kept to the least. A symbol, or a form
 that evals to itself, uses none. A special form is a jump, so none. A
 built in function holds the form and the args while the args eval,
-and only the args while it runs. A lambda holds the form and the args
+and only the args while it runs. The list for the args is taken from,
+and given back to, a chain of empty ones. A lambda holds the form and the args
 while the args eval, and nothing while its body runs.
 
 The function of a form is nearly always prebound, a func object or a
