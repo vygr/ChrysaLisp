@@ -111,7 +111,7 @@ outputs
 :r0 = hmap object (ptr)
 :r1 = 0 if not found, else value object (ptr)
 trashes
-:r1-:r9
+:r1-:r8
 ```
 
 ### :init -> class/hmap/init
@@ -192,7 +192,7 @@ outputs
 :r1 = 0, else iterator (pptr)
 :r2 = bucket list (ptr)
 trashes
-:r1-:r9
+:r1-:r8
 ```
 
 ### :set -> class/hmap/set

@@ -32,7 +32,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this ,args "(pmap [key val] ...)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error `(,args "(pmap [key val] ...)" +error_msg_wrong_num_of_args)))
 
 (def-func-end)
 
@@ -74,7 +74,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this ,args "(pfind props key)" +error_msg_wrong_types))
+	(jump :lisp :repl_error `(,args "(pfind props key)" +error_msg_wrong_types))
 	(signature '(:pset :obj)))
 
 (def-func-end)
@@ -153,7 +153,7 @@
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) `(,this ,args))
 	(vp-free local_size)
-	(jump :lisp :repl_error `(,this ,args "(pinsert props key [val] ...)" ,msg)))
+	(jump :lisp :repl_error `(,args "(pinsert props key [val] ...)" ,msg)))
 
 (def-func-end)
 
@@ -220,7 +220,7 @@
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) `(,this ,args))
 	(vp-free local_size)
-	(jump :lisp :repl_error `(,this ,args "(perase props key [key] ...)" ,msg)))
+	(jump :lisp :repl_error `(,args "(perase props key [key] ...)" ,msg)))
 
 (def-func-end)
 

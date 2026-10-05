@@ -37,7 +37,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(array [num ...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(array [num ...])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -55,7 +55,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(nums [num ...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(nums [num ...])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -73,7 +73,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(fixeds [fixed ...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(fixeds [fixed ...])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -91,7 +91,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(reals [real ...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(reals [real ...])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -109,7 +109,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(path [fixed ...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(path [fixed ...])" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -148,7 +148,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(clear array ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(clear array ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -183,7 +183,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(pop array)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(pop array)" +error_msg_wrong_types))
 	(signature '(:array)))
 
 (def-func-end)
@@ -289,7 +289,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this ,args "(push array elem ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error `(,args "(push array elem ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -333,7 +333,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this ,args "(cap len array ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error `(,args "(cap len array ...)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -381,10 +381,10 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error `(,this ,args "(elem-set array idx elem)" +error_msg_wrong_types))
+	(jump :lisp :repl_error `(,args "(elem-set array idx elem)" +error_msg_wrong_types))
 (vp-label 'error2)
 	(vp-pop this args)
-	(jump :lisp :repl_error `(,this ,args "(elem-set array idx elem)" +error_msg_not_valid_index))
+	(jump :lisp :repl_error `(,args "(elem-set array idx elem)" +error_msg_not_valid_index))
 	(signature '(:array :NUM :obj)))
 
 (def-func-end)

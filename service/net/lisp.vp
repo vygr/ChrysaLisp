@@ -41,7 +41,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-init)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(net-init)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -83,7 +83,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-deinit)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(net-deinit)" +error_msg_wrong_types)))
 
 (def-func-end)
 
@@ -128,7 +128,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-connect host port)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(net-connect host port)" +error_msg_wrong_types))
 	(signature '(:str :NUM)))
 
 (def-func-end)
@@ -173,7 +173,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-listen port)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(net-listen port)" +error_msg_wrong_types))
 	(signature '(:NUM)))
 
 (def-func-end)
@@ -218,7 +218,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-accept handle)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(net-accept handle)" +error_msg_wrong_types))
 	(signature '(:NUM)))
 
 (def-func-end)
@@ -250,7 +250,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-send handle str)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(net-send handle str)" +error_msg_wrong_types))
 	(signature '(:NUM :str)))
 
 (def-func-end)
@@ -311,7 +311,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-recv handle max_len)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(net-recv handle max_len)" +error_msg_wrong_types))
 	(signature '(:NUM :NUM)))
 
 (def-func-end)
@@ -340,7 +340,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-close handle)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(net-close handle)" +error_msg_wrong_types))
 	(signature '(:NUM)))
 
 (def-func-end)
@@ -371,7 +371,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-poll handle)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(net-poll handle)" +error_msg_wrong_types))
 	(signature '(:NUM)))
 
 (def-func-end)
@@ -416,7 +416,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-udp-bind port)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(net-udp-bind port)" +error_msg_wrong_types))
 	(signature '(:NUM)))
 
 (def-func-end)
@@ -466,7 +466,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-udp-send handle host port str)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(net-udp-send handle host port str)" +error_msg_wrong_types))
 	(signature '(:NUM :str :NUM :str)))
 
 (def-func-end)
@@ -541,7 +541,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(net-udp-recv handle max_len)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(net-udp-recv handle max_len)" +error_msg_wrong_types))
 	(signature '(:NUM :NUM)))
 
 (def-func-end)

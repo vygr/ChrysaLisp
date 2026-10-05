@@ -114,10 +114,10 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, seqs, "(each! lambda seqs [start end])", +error_msg_wrong_types})
+	(jump :lisp :repl_error {seqs, "(each! lambda seqs [start end])", +error_msg_wrong_types})
 (vp-label 'error2)
 	(call :obj :deref {value})
-	(jump :lisp :repl_error {this, seqs, "(each! lambda seqs [start end])", +error_msg_not_valid_index})
+	(jump :lisp :repl_error {seqs, "(each! lambda seqs [start end])", +error_msg_not_valid_index})
 	(signature '(:obj :LIST :NUM :NUM)))
 
 	(pop-scope-syms)
@@ -227,10 +227,10 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, seqs, "(some! lambda seqs [mode start end])", +error_msg_wrong_types})
+	(jump :lisp :repl_error {seqs, "(some! lambda seqs [mode start end])", +error_msg_wrong_types})
 (vp-label 'error2)
 	(call :obj :deref {value})
-	(jump :lisp :repl_error {this, seqs, "(some! lambda seqs [mode start end])", +error_msg_not_valid_index})
+	(jump :lisp :repl_error {seqs, "(some! lambda seqs [mode start end])", +error_msg_not_valid_index})
 	(signature '(:obj :LIST :obj :NUM :NUM)))
 
 	(pop-scope-syms)
@@ -345,10 +345,10 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, seqs, "(map! lambda seqs [start end out])", +error_msg_wrong_types})
+	(jump :lisp :repl_error {seqs, "(map! lambda seqs [start end out])", +error_msg_wrong_types})
 (vp-label 'error2)
 	(call :obj :deref {out})
-	(jump :lisp :repl_error {this, seqs, "(map! lambda seqs [start end out])", +error_msg_not_valid_index})
+	(jump :lisp :repl_error {seqs, "(map! lambda seqs [start end out])", +error_msg_not_valid_index})
 (vp-label 'error3)
 	;the function threw, put the outer loop index back as a normal exit does
 	(assign {old_idx} {this->+lisp_seq_idx})
@@ -457,10 +457,10 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, seqs, "(reduce! lambda seqs init [start end])", +error_msg_wrong_types})
+	(jump :lisp :repl_error {seqs, "(reduce! lambda seqs init [start end])", +error_msg_wrong_types})
 (vp-label 'error2)
 	(call :obj :deref {value})
-	(jump :lisp :repl_error {this, seqs, "(reduce! lambda seqs init [start end])", +error_msg_not_valid_index})
+	(jump :lisp :repl_error {seqs, "(reduce! lambda seqs init [start end])", +error_msg_not_valid_index})
 	(signature '(:obj :LIST :obj :NUM :NUM)))
 
 	(pop-scope-syms)
@@ -581,10 +581,10 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {this, seq, "(filter! lambda seq [start end out])", +error_msg_wrong_types})
+	(jump :lisp :repl_error {seq, "(filter! lambda seq [start end out])", +error_msg_wrong_types})
 (vp-label 'error2)
 	(call :obj :deref {out})
-	(jump :lisp :repl_error {this, seq, "(filter! lambda seq [start end out])", +error_msg_not_valid_index})
+	(jump :lisp :repl_error {seq, "(filter! lambda seq [start end out])", +error_msg_not_valid_index})
 (vp-label 'error3)
 	;the function threw, put the outer loop index back as a normal exit does
 	(assign {old_idx} {this->+lisp_seq_idx})

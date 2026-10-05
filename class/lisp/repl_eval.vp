@@ -43,9 +43,9 @@
 	(errorcase
 		;these jump with no stack frame to unwind, so are here, before it
 	(vp-label 'error1)
-		(jump :lisp :repl_error '(:r0 :r1 "(eval form [env])" +error_msg_not_a_function))
+		(jump :lisp :repl_error '(:r1 "(eval form [env])" +error_msg_not_a_function))
 	(vp-label 'error2)
-		(jump :lisp :repl_error '(:r0 :r11 "(eval form [env])" +error_msg_symbol_not_bound)))
+		(jump :lisp :repl_error '(:r11 "(eval form [env])" +error_msg_symbol_not_bound)))
 	(vpcase '(:r2 = :r4))
 		;apply function, don't eval args if special form
 	(errorcase

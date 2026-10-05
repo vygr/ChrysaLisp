@@ -303,7 +303,6 @@ trashes
 
 ```code
 inputs
-:r0 = lisp object (ptr)
 :r1 = error payload object (ptr)
 :r2 = description c string (pubyte)
 :r3 = 0, else error msg number (uint)
@@ -311,7 +310,11 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = error object (ptr)
 trashes
-:r1-:r9, :r14, :f0-:f15
+:r1-:r8, :r14, :f0-:f15
+info
+the lisp object is the one the task holds, in its tcb. This is cold
+code, and so a caller need not keep its lisp object to hand, on the
+stack say, just in case it has an error.
 ```
 
 ### :repl_eval -> class/lisp/repl_eval

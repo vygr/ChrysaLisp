@@ -1,11 +1,9 @@
 (include "lib/asm/func.inc")
-(include "sys/task/class.inc")
 (include "./class.inc")
 (include "././hmap/class.inc")
 
 (def-method :lisp :repl_error)
 	;inputs
-	;:r0 = any, not used (ptr)
 	;:r1 = error payload object (ptr)
 	;:r2 = description c string (pubyte)
 	;:r3 = 0, else error msg number (uint)
@@ -13,11 +11,11 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = error object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r8, :r14, :f0-:f15
 	;info
-	;the lisp object is the one the task holds, in its tcb, not the one
-	;given. This is cold code, and so a caller need not keep its lisp
-	;object to hand, on the stack say, just in case it has an error.
+	;the lisp object is the one the task holds, in its tcb. This is cold
+	;code, and so a caller need not keep its lisp object to hand, on the
+	;stack say, just in case it has an error.
 
 	(def-vars
 		(ptr this payload desc)
@@ -25,10 +23,9 @@
 		(uint msg))
 
 	(push-scope)
-	(fn-bind 'sys/statics/statics :r0)
-	(assign '((:r0 statics_sys_task_current_tcb)) '(:r0))
-	(assign '((:r0 +tk_node_lisp)) '(:r0))
-	(entry :lisp :repl_error {this, payload, desc, msg})
+	(entry :lisp :repl_error {payload, desc, msg})
+	(lisp-this :r0)
+	(assign '(:r0) {this})
 
 	(call :hmap :search {this->+lisp_environment, this->+lisp_sym_stack_frame} {_, frame, _})
 	(vpif {frame})

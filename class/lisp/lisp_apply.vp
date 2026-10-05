@@ -21,7 +21,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r0 :r1 "(apply lambda seq)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(apply lambda seq)" +error_msg_wrong_types))
 	(signature '(:obj :seq)))
 
 (def-func-end)
@@ -62,10 +62,10 @@
 (vp-label 'error2)
 	(fn-bind 'sys/statics/statics args)
 	(assign `((,args ,(+ statics_static_syms static_sym_vtable))) `(,args))
-	(jump :lisp :repl_error `(,this ,args "(. env sym [...])" +error_msg_symbol_not_bound))
+	(jump :lisp :repl_error `(,args "(. env sym [...])" +error_msg_symbol_not_bound))
 (vp-label 'error1)
-	(jump :lisp :repl_error `(,this ,mth "(. env sym [...])" +error_msg_symbol_not_bound))
+	(jump :lisp :repl_error `(,mth "(. env sym [...])" +error_msg_symbol_not_bound))
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this ,args "(. env sym [...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error `(,args "(. env sym [...])" +error_msg_wrong_types)))
 
 (def-func-end)

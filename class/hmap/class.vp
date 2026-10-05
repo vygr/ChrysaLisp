@@ -405,11 +405,11 @@
 	;:r1 = 0, else iterator (pptr)
 	;:r2 = bucket list (ptr)
 	;trashes
-	;:r1-:r9
+	;:r1-:r8
 
 	(vp-rdef (this key) (method-input :hmap :search))
 	(vp-rdef (& iter bucket) (method-output :hmap :search))
-	(vp-rdef (saved_this) '(:r9))
+	(vp-rdef (saved_this) '(:r8))
 
 	(entry :hmap :search `(,this ,key))
 	(assign `(,this) `(,saved_this))
@@ -468,12 +468,12 @@
 	;:r0 = hmap object (ptr)
 	;:r1 = 0 if not found, else value object (ptr)
 	;trashes
-	;:r1-:r9
+	;:r1-:r8
 
 	(vp-rdef (this key) (method-input :hmap :get))
 	(vp-rdef (& iter) (method-output :hmap :get))
 	(vp-rdef (bucket) '(:r2))
-	(vp-rdef (saved_this) '(:r9))
+	(vp-rdef (saved_this) '(:r8))
 
 	(entry :hmap :get `(,this ,key))
 	(assign `(,this) `(,saved_this))

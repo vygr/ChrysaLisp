@@ -60,7 +60,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this ,args "(pfindi props key)" +error_msg_wrong_types))
+	(jump :lisp :repl_error `(,args "(pfindi props key)" +error_msg_wrong_types))
 	(signature '(:pset :obj)))
 
 (def-func-end)

@@ -670,7 +670,7 @@
 	;:r0 = view object (ptr)
 	;:r1 = 0 else, property object (ptr)
 	;trashes
-	;:r1-:r9
+	;:r1-:r8
 
 	(entry :view :ref_prop '(:r0 :r1))
 
@@ -692,7 +692,7 @@
 	;:r0 = view object (ptr)
 	;:r1 = 0 else, property object (ptr)
 	;trashes
-	;:r1-:r9
+	;:r1-:r8
 
 	(entry :view :get_prop '(:r0 :r1))
 
@@ -714,7 +714,7 @@
 	;:r0 = view object (ptr)
 	;:r1 = property value (long)
 	;trashes
-	;:r1-:r9
+	;:r1-:r8
 
 	(entry :view :get_long_prop '(:r0 :r1))
 
