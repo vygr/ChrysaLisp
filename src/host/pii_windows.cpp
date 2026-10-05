@@ -140,11 +140,10 @@ int64_t pii_read(int64_t fd, void *addr, size_t len)
 {
 	if (!fd)
 	{
+		//no echo here, the terminal app has a line editor of its own, and
+		//draws the line. An echo as well showed each command line twice.
 		if (!_kbhit()) return -1;
 		int ch = _getch();
-		putchar(ch);
-		if (ch == 13) putchar(10);
-		if (ch == 8) putchar(32), putchar(8);
 		*((char*)addr) = (char)ch;
 		return 1;
 	}
