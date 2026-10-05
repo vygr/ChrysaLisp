@@ -1,4 +1,5 @@
 (include "lib/asm/func.inc")
+(include "lib/consts/chars.inc")
 (include "./class.inc")
 (include "././hmap/class.inc")
 
@@ -81,6 +82,42 @@
 	(call :obj :inst_of (cat {vals, @} (f-path :seq :vtable)) '(_ tmp))
 	(gotoif `(,tmp = 0) 'error2))
 
+	;the fast path, a list of plain symbols, bound to a list of as many
+	;values, as nearly every call of a lambda is. Anything else, a & symbol,
+	;a list to destructure, a count that differs, goes to the general code,
+	;which starts again from the first var, to bind one twice does no harm.
+	(assign {vars, vals} '(:r1 :r2))
+	(assign `((:r2 +obj_vtable) (@ ,(f-path :list :vtable))) '(:r3 :r4))
+	(gotoif '(:r3 /= :r4) 'general)
+	(assign '((:r1 +array_length) (:r2 +array_length)) '(:r3 :r4))
+	(gotoif '(:r3 /= :r4) 'general)
+	(vpif '(:r3 /= 0))
+		(vp-xor-rr :r5 :r5)
+		(assign '(:r3 :r5) {len_vars, index_vars})
+		(loop-start)
+			(assign '((:r1 +array_begin) (:r2 +array_begin)) '(:r1 :r2))
+			(vp-shl-cr (log2 +ptr_size) :r5)
+			(vp-cpy-dr :r1 :r5 :r1)
+			(vp-cpy-dr :r2 :r5 :r2)
+			(assign `((:r1 +obj_vtable) (@ ,(f-path :sym :vtable))) '(:r3 :r4))
+			(gotoif '(:r3 /= :r4) 'general)
+			(assign '((:r1 +str_data ub)) '(:r3))
+			(gotoif '(:r3 = +char_ampersand) 'general)
+			(assign {this} '(:r0))
+			(assign '(:r2) {value})
+			(call :hmap :pinsert '((:r0 +lisp_environment) :r1 :r2))
+			(assign {index_vars, len_vars, vars, vals} '(:r5 :r3 :r1 :r2))
+			(vp-add-cr 1 :r5)
+			(assign '(:r5) {index_vars})
+		(loop-until '(:r5 = :r3))
+		;the last value bound is what is given back
+		(assign {this, value} '(:r0 :r1))
+		(class/obj/ref :r1 :r2)
+		(exit :lisp :env_bind '(:r0 :r1))
+		(return)
+	(endif)
+
+(vp-label 'general)
 	(assign {+state_normal => index_vars => index_vals} {state})
 	(call :obj :ref {this->+lisp_sym_nil} {value})
 	(d-call :array :get_length {vars} {_, len_vars})
