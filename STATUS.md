@@ -4,6 +4,19 @@
 
 ------
 
+The rest of the `:lisp` class is written with registers, not script vars,
+`(catch)`, `(ffi)`, the repl, `:lisp :run`, the printer, the reader, and the
+expand and bind passes. `(catch)` held 48 bytes of stack while its form ran,
+it now holds 8. A full build is 1% fewer instructions. Only `:lisp :init` and
+`:lisp :deinit` are as they were.
+
+Bug fix in the generic VP optimiser. It turns a read of a stack slot into a
+register copy if the same offset from `:rsp` was read or written just before.
+A `(vp-push)` or `(vp-pop)` between the two moves `:rsp`, so it is not the
+same slot, but that did not end the search, only an alloc or a free did. Code
+that pushes and then reads a slot could get the wrong value. Nothing in the
+tree did, till now.
+
 `(node-auto)`, and so `-n 0`, now starts 1 node for each processor, it was 2.
 A full build is quickest at about that on an M4, an Intel MacBook and a Pi4,
 twice as many was 8% to 20% slower. A machine with 16 processors now gets 16

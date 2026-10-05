@@ -264,6 +264,9 @@ return address, while it calls down to the next.
 | `(if)`, over its test           | 24     | 8     |
 | `(while)`                       | 16     | 8     |
 | `(cond)`                        | 32     | 16    |
+| `(catch)`, while its form runs  | 48     | 8     |
+| the printer, for each list in a list | 48 | 32    |
+| the repl, for each `(import)` in an import | 64 | 48 |
 
 The 16 bytes a call holds while its args evaluate is the form and the args
 list. There is no slot for where it has got to in the form, that is worked out
@@ -283,14 +286,15 @@ The test suite, run serially in one node, on an Apple M4:
 |------------------------------|--------------|------------|
 | Instructions                 | 15.05 G      | 9.01 G, 40.1% fewer |
 | CPU time                     | 1.021 s      | 0.63 s     |
-| Stack depth of the suite's parked tasks | 3,288 bytes | 1,608 bytes |
+| Stack depth of the suite's parked tasks | 3,288 bytes | 1,552 bytes |
 
 The build benchmark, `make test`, mean time for a full build:
 
 | Machine                      | Start of day | End of day |
 |------------------------------|--------------|------------|
-| Apple M4, 1 node             | 0.543 s      | 0.328 s    |
+| Apple M4, 1 node             | 0.543 s      | 0.316 s    |
 | Apple M4, 19 nodes           | 0.076 s      | 0.053 s    |
+| Apple M4, 16 nodes, what `-n 0` now gives | | 0.050 s  |
 | Raspberry Pi 4, 8 nodes      | 2.3 s was the best ever seen | 1.45 s |
 | Intel i9-8950HK MacBook, 10 nodes | about 0.23 s | 0.18 s to 0.20 s |
 
@@ -317,6 +321,7 @@ How the instruction count fell, step by step:
 | Lookup in line in `:repl_eval`, args moved             | 60.6%               |
 | General `:env_bind` in registers                       | 60.4%               |
 | Boot environment in buckets                            | 59.9%               |
+| The cold methods in registers, section 9               | 59.9%               |
 
 ## 7. What Did Not Work
 
@@ -384,7 +389,58 @@ symbol that is not there now costs a look at one short bucket. A full build
 runs 4.4% fewer instructions, and `:hmap :search` went from 198 instructions a
 call to 86.
 
-## 9. What Was Learned
+## 9. The Rest of the Class, and a Bug in the Optimiser
+
+With the hot path done, the rest of the `:lisp` class was brought to the same
+style: `(catch)`, `(ffi)`, the repl, `:lisp :run`, the printer, the reader and
+its symbol and string readers, `:lisp :repl_expand`, `:lisp :repl_bind`,
+`:lisp :repl_eval_list` and `:lisp :repl_error`. They were written with
+script variables, which give a method one stack frame, made on entry, that
+holds the Lisp object and every value it uses for the whole of the method.
+They now use registers, and stack only what has to live over a call, for as
+long as it has to.
+
+Most of this is cold, and was done for one style through the class. It moved
+the test suite's instruction count by nothing that shows. But the read,
+expand, bind path is what loads every source file, and a full build runs 1.0%
+fewer instructions for it, 4.164 G from 4.204 G. And three of these nest, so
+their frames are in the table in section 5.3.
+
+Only `:lisp :init` and `:lisp :deinit`, in `class/lisp/class.vp`, are left as
+they were. They run once for a task, in a straight line, and script variables
+read well there.
+
+### A push moved the stack, and the optimiser did not know
+
+The rewritten string reader crashed the system at boot, on the native build
+and on the emulator alike. Reading the source found nothing wrong with it,
+because nothing was.
+
+The instrumented emulator was given a handler, to print the VP registers and
+the top of the stack when it faults. At the fault `:r0` held `0x22`, a double
+quote, where it should have held the string stream, and so did `:r2`. The
+code was:
+
+```vdu
+(assign `((:rsp ,+ptr_size)) '(:r2))
+...
+(vp-push :r1)
+(call :stream :write_char `((:rsp ,+ptr_size) :r1))
+```
+
+The generic VP optimiser, `lib/asm/vpopt.inc`, turns a read of a stack slot
+into a register copy, if it finds an earlier read or write of the same offset
+from `:rsp` with nothing between that changes it. An alloc or a free ended
+that search, they move `:rsp`. A push or a pop did not. So the second read of
+`(:rsp 8)` became a copy of `:r2`, the slot that was at 8 before the push.
+
+The gap had been there all along. Code written with script variables only
+allocs and frees, so nothing had ever pushed between two reads of a slot.
+Push and pop now end the search. It is one more case of section 8, the fault
+was not where the crash was, and looking at what the machine had done found
+it when reading the source could not.
+
+## 10. What Was Learned
 
 *	**Measure what cannot be argued with.** An exact instruction count turned
 	every question into a number. Most of the steps above are worth one or two
@@ -411,7 +467,7 @@ call to 86.
 *	**A guess is a place to look, not an answer.** Three plausible guesses
 	about the search were wrong. One afternoon of counting was right.
 
-## 10. Care Points
+## 11. Care Points
 
 These are the things the new engine relies on, that the old one did not.
 
@@ -438,7 +494,7 @@ These are the things the new engine relies on, that the old one did not.
 	3,072 bytes runs the test suite and a build, and 2,560 does not start. The
 	Lisp engine is no longer the larger part of what a task needs.
 
-## 11. Where to Look
+## 12. Where to Look
 
 | What                                         | Where                            |
 |----------------------------------------------|----------------------------------|
@@ -450,4 +506,5 @@ These are the things the new engine relies on, that the old one did not.
 | `(hmap-search)`                              | `class/hmap/class.inc`           |
 | `(class/obj/deref-live)`                     | `class/obj/class.inc`            |
 | The boot environment's buckets               | the end of `class/lisp/root.inc` |
+| The optimiser's stack slot tracking          | `lib/asm/vpopt.inc`              |
 | The call, phase by phase                     | [Keeping It Hot](keeping_it_hot.md) |
