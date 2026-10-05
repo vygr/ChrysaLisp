@@ -1,0 +1,294 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Shader language, CPU back end.
+; A program becomes a Lisp lambda that shades a tile of pixels,
+; with no GPU. A float is a real, a vector is a reals, an int is
+; a num. Vectors are never changed in place, so they can be
+; shared, and constants are folded into the code.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(import "./shader.inc")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; run time, called by the lambda
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defq +cpu_0 (n2r 0) +cpu_1 (n2r 1) +cpu_2 (n2r 2) +cpu_-1 (n2r -1) +cpu_1/2 (n2r 0.5))
+
+(defun cpu-splat (f n)
+	(case n (2 (reals f f)) (3 (reals f f f)) (:t (reals f f f f))))
+
+(defun cpu-vmap (f v)
+	(apply (const reals) (map f v)))
+
+(defun cpu-mod (x y)
+	(- x (* y (floor (/ x y)))))
+
+(defun cpu-vmod (x y)
+	(nums-sub x (nums-mul y (fixeds-floor (nums-div x y)))))
+
+(defun cpu-mix (a b f)
+	(+ a (* (- b a) f)))
+
+(defun cpu-vmix (a b f)
+	(nums-add a (nums-scale (nums-sub b a) f)))
+
+(defun cpu-vmixv (a b f)
+	(nums-add a (nums-mul (nums-sub b a) f)))
+
+(defun cpu-norm (v)
+	(nums-scale v (recip (sqrt (nums-dot v v)))))
+
+(defun cpu-length (v)
+	(sqrt (nums-dot v v)))
+
+(defun cpu-reflect (i n)
+	(nums-sub i (nums-scale n (* (nums-dot n i) +cpu_2))))
+
+(defun cpu-cross ((x1 y1 z1) (x2 y2 z2))
+	(reals (- (* y1 z2) (* z1 y2)) (- (* z1 x2) (* x1 z2)) (- (* x1 y2) (* y1 x2))))
+
+(defun cpu-pow (x y)
+	;whole part of the power by squaring, the rest by repeated roots
+	(cond
+		((<= x +cpu_0) +cpu_0)
+		(:t (defq n (floor y) f (- y n) i (abs (n2i n)) r +cpu_1 s x)
+			(while (> i 0)
+				(if (odd? i) (setq r (* r s)))
+				(setq s (* s s) i (>> i 1)))
+			(if (< n +cpu_0) (setq r (recip r)))
+			(setq s x i 0)
+			(while (and (> f +cpu_0) (< (++ i) 32))
+				(setq s (sqrt s) f (* f +cpu_2))
+				(when (>= f +cpu_1)
+					(setq r (* r s) f (- f +cpu_1))))
+			r)))
+
+(defun cpu-vpow (x y)
+	(apply (const reals) (map (const cpu-pow) x y)))
+
+(defun cpu-swz (v idxs)
+	(apply (const reals) (map (# (elem-get v %0)) idxs)))
+
+(defun cpu-swz-set (v idxs val)
+	(setq v (cat v))
+	(if (real? val)
+		(elem-set v (first idxs) val)
+		(each (# (elem-set v %0 %1)) idxs val))
+	v)
+
+;;;;;;;;;;;;;;
+; the compiler
+;;;;;;;;;;;;;;
+
+(defun cpu-const? (form)
+	(not (or (sym? form) (list? form))))
+
+(defun cpu-fold (form)
+	;run it now if all the args are constants
+	(if (and (list? form) (every (const cpu-const?) (rest form))) (eval form) form))
+
+(defun cpu-splat-form (form n)
+	(cpu-fold (list (const cpu-splat) form n)))
+
+(defun cpu-arith (i a ta b tb)
+	;one step of + - * /, by the types of the two sides
+	(defq va (shader-dim ta) vb (shader-dim tb))
+	(cpu-fold (cond
+		((and va vb)
+			(list (elem-get (static-q (nums-add nums-sub nums-mul nums-div)) i) a b))
+		(va (case i
+			(2 (list (const nums-scale) a b))
+			(3 (list (const nums-scale) a (cpu-fold (list (const recip) b))))
+			(:t (list (elem-get (static-q (nums-add nums-sub)) i) a (cpu-splat-form b va)))))
+		(vb (case i
+			(2 (list (const nums-scale) b a))
+			(:t (list (elem-get (static-q (nums-add nums-sub nums-mul nums-div)) i)
+				(cpu-splat-form a vb) b))))
+		((list (elem-get (static-q (+ - * /)) i) a b)))))
+
+(defun cpu-op (op type args types)
+	;a built in op
+	(defq a (first args) b (second args) c (third args)
+		ta (first types) tb (second types) tc (third types) va (shader-dim ta))
+	(cond
+		((defq i (find op '(+ - * /)))
+			(cond
+				((> (length args) 1)
+					(each (# (setq a (cpu-arith i a ta %0 %1)
+						ta (if (shader-dim ta) ta %1))) (rest args) (rest types))
+					a)
+				(va (list (const nums-scale) a +cpu_-1))
+				((list (const neg) a))))
+		((defq i (find op '(< <= > >= = /=)))
+			(cond
+				((not (eql ta :bool)) (list (elem-get (static-q (< <= > >= = /=)) i) a b))
+				((= i 4) (list (const eql) a b))
+				((list (const if) (list (const eql) a b) :nil :t))))
+		((eql op 'and)
+			(reduce (# (list (const if) %0 %1)) args))
+		((eql op 'or)
+			(reduce (# (list (const if) %0 :t %1)) args))
+		((eql op 'not) (list (const if) a :nil :t))
+		((eql op 'float) (if (eql ta :int) (list (const n2r) a) a))
+		((eql op 'int) (if (eql ta :int) a (list (const n2i) a)))
+		((find op '(vec2 vec3 vec4))
+			;ints are made floats, then a splat, or a join of the parts
+			(setq args (map (# (if (eql %1 :int) (cpu-fold (list (const n2r) %0)) %0)) args types))
+			(cond
+				((and (= (length args) 1) (not va))
+					(cpu-splat-form a (shader-dim type)))
+				((notany (const shader-dim) types)
+					(cat (list (const reals)) args))
+				((cat (list (const cat)) (map (# (if (shader-dim %1) %0
+					(cpu-fold (list (const reals) %0)))) args types)))))
+		((defq i (find op '(sin cos sqrt floor fract abs)))
+			(if va
+				(case i
+					(3 (list (const fixeds-floor) a))
+					(4 (list (const fixeds-frac) a))
+					(5 (list (const nums-abs) a))
+					(:t (list (const cpu-vmap) (elem-get (static-q (sin cos sqrt)) i) a)))
+				(list (elem-get (static-q (sin cos sqrt floor frac abs)) i) a)))
+		((defq i (find op '(min max mod)))
+			(cond
+				((not va) (list (elem-get (static-q (min max cpu-mod)) i) a b))
+				((list (elem-get (static-q (nums-min nums-max cpu-vmod)) i) a
+					(if (shader-dim tb) b (cpu-splat-form b va))))))
+		((eql op 'pow)
+			(list (if va (const cpu-vpow) (const cpu-pow)) a b))
+		((eql op 'clamp)
+			(cond
+				((not va) (list (const min) (list (const max) a b) c))
+				((list (const nums-min) (list (const nums-max) a
+						(if (shader-dim tb) b (cpu-splat-form b va)))
+					(if (shader-dim tc) c (cpu-splat-form c va))))))
+		((eql op 'mix)
+			(list (cond ((not va) (const cpu-mix)) ((shader-dim tc) (const cpu-vmixv))
+				((const cpu-vmix))) a b c))
+		((eql op 'dot) (list (const nums-dot) a b))
+		((eql op 'cross) (list (const cpu-cross) a b))
+		((eql op 'length) (list (if va (const cpu-length) (const abs)) a))
+		((eql op 'normalize) (list (const cpu-norm) a))
+		((eql op 'reflect) (list (const cpu-reflect) a b))))
+
+(defun cpu-expr (node)
+	(bind '(type tag a &optional b) node)
+	(case tag
+		(:lit (if (eql type :float) (str-to-real a) a))
+		(:var (if (eql b :const) (second (some (# (if (eql (first %0) a) %0)) cvals)) a))
+		(:swz (defq v (cpu-expr b))
+			(cond
+				((= (length a) 1)
+					(cpu-fold (list (const elem-get) v (first a))))
+				((every (const =) a (range (first a) (+ (first a) (length a))))
+					(cpu-fold (list (const slice) v (first a) (inc (last a)))))
+				((cpu-fold (list (const cpu-swz) v (list (const quote) a))))))
+		(:user (cat (list (second (some (# (if (eql (first %0) a) %0)) fvals)))
+			(map cpu-expr b)))
+		(:t (cpu-fold (cpu-op a type (map cpu-expr b) (map (const first) b))))))
+
+(defun cpu-exits? (block in_loop)
+	;does this block hold a return, or a break of the loop it is in ?
+	(some (lambda ((tag &optional a b c d))
+		(case tag
+			(:return :t)
+			(:break (not in_loop))
+			(:if (or (cpu-exits? b in_loop) (cpu-exits? c in_loop)))
+			(:for (cpu-exits? d :t))
+			(:t :nil))) block))
+
+(defun cpu-loop-return? (block)
+	;does this block hold a return from inside a loop ?
+	(some (lambda ((tag &optional a b c d))
+		(case tag
+			(:if (or (cpu-loop-return? b) (cpu-loop-return? c)))
+			(:for (cpu-exits? d :t))
+			(:t :nil))) block))
+
+(defun cpu-block (block flag)
+	;forms for a block. With no flag it is the body of the function,
+	;and the value of the last form is the return value. With a flag
+	;it is the body of a loop, and the flag is set to leave the loop.
+	(cond
+		((empty? block) (list))
+		(:t (bind '(tag &optional a b c d) (first block))
+			(defq more (rest block))
+			(case tag
+				(:defq (cat (list (list (const defq) a (cpu-expr b))) (cpu-block more flag)))
+				(:setq (cat (list (list (const setq) a (cpu-expr b))) (cpu-block more flag)))
+				(:setsw (cat (list (list (const setq) a
+						(list (const cpu-swz-set) a (list (const quote) b) (cpu-expr c))))
+					(cpu-block more flag)))
+				(:return (if flag
+					(list (list (const setq) '_rv (cpu-expr a) flag :ret))
+					(list (cpu-expr a))))
+				(:break (list (list (const setq) flag :t)))
+				(:if (defq test (cpu-expr a))
+					(if (or (cpu-exits? b :nil) (cpu-exits? c :nil))
+						;the rest of the block goes inside both sides
+						(list (list (const if) test
+							(cat (list (const progn)) (cpu-block (cat b more) flag))
+							(cat (list (const progn)) (cpu-block (cat c more) flag))))
+						(cat (list (cat (list (const if) test
+								(cat (list (const progn)) (cpu-block b flag)))
+								(if (nempty? c) (list (cat (list (const progn)) (cpu-block c flag))) (list))))
+							(cpu-block more flag))))
+				(:for (defq loop_flag (sym (cat "_b" (str (++ flag_num))))
+						loop (list
+							(list (const defq) a (cpu-fold (list (const -) (cpu-expr b) 1)) loop_flag :nil)
+							(cat (list (const while) (list (const if) loop_flag :nil
+									(list (const <) (list (const setq) a (list (const +) a 1)) (cpu-expr c))))
+								(cpu-block d loop_flag))))
+					(if (cpu-exits? d :t)
+						;a return in the loop, so leave this block as well
+						(cat loop (list (list (const if) (list (const eql) loop_flag :ret)
+							(if flag (list (const setq) flag :ret) '_rv)
+							(cat (list (const progn)) (cpu-block more flag)))))
+						(cat loop (cpu-block more flag))))))))
+
+(defun shader-cpu (program)
+	; (shader-cpu program) -> lambda
+	; (lambda x y x1 y1 input ...) -> (vec4 ...)
+	;the lambda shades the pixels of the tile, row by row, the
+	;centre of pixel x y is at frag coord x + 0.5, y + 0.5
+	(bind '(inputs consts globals funcs) program)
+	(defq cvals (list) fvals (list) flag_num 0)
+	(each (lambda ((name type e))
+		(push cvals (list name (if (cpu-const? (defq v (cpu-expr e))) v (eval v))))) consts)
+	(each (lambda ((name type params block))
+		(push fvals (list name (cat (list (const lambda) (map (const first) params))
+			(if (cpu-loop-return? block) (list (list (const defq) '_rv :nil)) (list))
+			(cpu-block block :nil))))) funcs)
+	(defq main (second (some (# (if (eql (first %0) 'main) %0)) fvals)))
+	(cat (list (const lambda) (cat '(_x _y _x1 _y1) (map (const first) inputs)))
+		(map (lambda ((name type e)) (list (const defq) name (cpu-expr e))) globals)
+		(list
+			(static-qq (defq _out (list) _yy (- _y 1)))
+			(list (const while) (static-qq (< (setq _yy (+ _yy 1)) _y1))
+				(static-qq (defq _xx (- _x 1)))
+				(list (const while) (static-qq (< (setq _xx (+ _xx 1)) _x1))
+					(list (const push) '_out (list main
+						(static-qq (reals (+ (n2r _xx) ,+cpu_1/2) (+ (n2r _yy) ,+cpu_1/2))))))
+				(static-qq (task-slice)))
+			'_out)))
+
+(defun cpu-real (val)
+	;a fixed is rounded as a float literal of the language is
+	(cond
+		((real? val) val)
+		((fixed? val) (str-to-real (sh-decimal val)))
+		((n2r val))))
+
+(defun shader-cpu-args (program &optional vals)
+	; (shader-cpu-args program [((name val) ...)]) -> (val ...)
+	;the input args for the lambda, defaults for those not given
+	(map (lambda ((name type val lo hi))
+		(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
+			(setq val (second v)))
+		(cond
+			((eql type :int) (n2i val))
+			((eql type :float) (cpu-real val))
+			((reals? val) val)
+			((apply (const reals) (map (const cpu-real)
+				(if (seq? val) val (map (lambda (_) 0) (range 0 (shader-dim type)))))))))
+		(first program)))
