@@ -191,8 +191,10 @@
 (fm-check "a short line is left alone" (fm-src "(if a b c)") (fm-src "(if a b c)") 40)
 
 ; --- on real source, only white space changes, and a second pass does nothing ---
+;a Windows checkout may have CR LF line ends, the formatter works in LF
+(defun fm-load (file) (apply (const cat) (split (load file) (ascii-char 13))))
 (each (lambda (file)
-		(defq text (load file) once (format-lisp text :nil (ends-with ".vp" file)))
+		(defq text (fm-load file) once (format-lisp text :nil (ends-with ".vp" file)))
 		(assert-eq (cat file ", same tokens") :t (eql (fm-squash text) (fm-squash once)))
 		(assert-eq (cat file ", second pass") :t (eql once (format-lisp once :nil (ends-with ".vp" file)))))
 	'("class/lisp/root.inc" "lib/text/buffer.inc" "sys/heap/class.vp"
@@ -200,5 +202,5 @@
 
 ; --- fmt formats itself, and finds nothing to do ---
 (each (lambda (file)
-		(assert-eq (cat file ", is as fmt would have it") :t (eql (defq text (load file)) (format-lisp text))))
+		(assert-eq (cat file ", is as fmt would have it") :t (eql (defq text (fm-load file)) (format-lisp text))))
 	'("lib/text/format.inc" "cmd/fmt.lisp" "tests/text/test_format.lisp"))

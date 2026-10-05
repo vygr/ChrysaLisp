@@ -125,13 +125,18 @@
 (defq loaded_mix (tree-load ms9))
 (assert-eq "Tree Load: large mixed string" large_mix (. loaded_mix :find :mixed))
 
-; 12. Test loading actual onslaught.tre, it is only there once the game has
-; been played on this machine
-(if (defq o_cfg (tree-load (file-stream "usr/Guest/onslaught.tre")))
-	(progn
+; 12. Test loading actual onslaught.tre. It is only there once the game has
+; been played on this machine, and only holds a demo once a battle has been
+; recorded.
+(defq o_cfg (tree-load (file-stream "usr/Guest/onslaught.tre"))
+	o_demo (if o_cfg (. o_cfg :find :demo)))
+(cond
+	((not o_cfg)
+		(test-skip "onslaught.tre" "no saved game config on this machine"))
+	((not o_demo)
 		(assert-true "onslaught.tre config exists" (not (empty? o_cfg)))
-		(defq o_demo (. o_cfg :find :demo))
+		(test-skip "onslaught.tre demo" "no battle recorded on this machine"))
+	(:t (assert-true "onslaught.tre config exists" (not (empty? o_cfg)))
 		(assert-true "onslaught.tre demo exists" (not (empty? o_demo)))
 		(assert-true "onslaught.tre demo is string" (str? o_demo))
-		(assert-true "onslaught.tre demo length > 90" (> (length o_demo) 90)))
-	(test-skip "onslaught.tre" "no saved game config on this machine"))
+		(assert-true "onslaught.tre demo length > 90" (> (length o_demo) 90))))
