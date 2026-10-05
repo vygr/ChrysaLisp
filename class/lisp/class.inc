@@ -70,3 +70,113 @@
 	(fn-bind 'sys/statics/statics r)
 	(assign `((,r statics_sys_task_current_tcb)) `(,r))
 	(assign `((,r +tk_node_lisp)) `(,r)))
+
+(defun lisp-bind-fresh (steal bail not_fresh)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = vars list object (ptr)
+	;:r2 = vals list object (ptr)
+	;steal = :t to take the values from the vals list, and leave it empty
+	;bail = label of the code (lisp-bind-fresh-bail) emits
+	;not_fresh = label to jump to if this is not the case for it
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;:r12 = vars list object (ptr)
+	;:r13 = vals list object (ptr)
+	;trashes
+	;:r1-:r13
+	;info
+	;emit the bind of the args of a lambda call. A list of plain symbols,
+	;bound to a list of as many values, in an environment that is empty,
+	;as :env_push gave it, a single bucket with the room. So no search, no
+	;call, and no frame, each pair is put in place, and the symbol told its
+	;slot. That slot also shows up a symbol given twice, the only way it
+	;can point at itself here is if this loop put it there.
+	;
+	;That, a & symbol, a list to destructure, a count that differs, and
+	;all else, jumps to not_fresh, with the inputs as they were, to do it
+	;with the general code of :env_bind.
+	;
+	;If the caller owns the vals list, and is done with it, steal moves
+	;the values, with no ref, and none to drop after.
+	(vp-rdef (this vars vals env iter_end index sym val dst tmp tmp2 sym_vtable)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11))
+	(assign `((,vars +obj_vtable) (,vals +obj_vtable) (@ ,(f-path :list :vtable)))
+		`(,tmp ,tmp2 ,sym_vtable))
+	(gotoif `(,tmp /= ,sym_vtable) not_fresh)
+	(gotoif `(,tmp2 /= ,sym_vtable) not_fresh)
+	(assign `((,vars +array_length) (,vals +array_length) (,this +lisp_environment))
+		`(,iter_end ,tmp ,env))
+	(gotoif `(,iter_end /= ,tmp) not_fresh)
+	(vp-cpy-rr vars :r12)
+	(vp-cpy-rr vals :r13)
+	(vpif `(,iter_end = 0))
+		;no vars, so no value bound
+		(assign `((,this +lisp_sym_nil)) `(,val))
+	(else)
+		(assign `((,env +array_length) (,env +array_num_buckets) (,env +array_capacity))
+			`(,tmp ,tmp2 ,index))
+		(gotoif `(,tmp /= 0) not_fresh)
+		(gotoif `(,tmp2 /= 1) not_fresh)
+		(vp-shr-cr 1 index)
+		(gotoif `(,iter_end > ,index) not_fresh)
+		;from here on :r1 and :r2 are iterators
+		(assign `((,vars +array_begin) (,vals +array_begin) (,env +array_begin) (@ ,(f-path :sym :vtable)))
+			`(,vars ,vals ,dst ,sym_vtable))
+		(vp-shl-cr (log2 +ptr_size) iter_end)
+		(vp-xor-rr index index)
+		(vp-add-rr vars iter_end)
+		(loop-start)
+			(assign `((,vars 0)) `(,sym))
+			(assign `((,sym +obj_vtable) (,sym +str_data ub)) `(,tmp ,tmp2))
+			(gotoif `(,tmp /= ,sym_vtable) bail)
+			(gotoif `(,tmp2 = +char_ampersand) bail)
+			(assign `((,sym +str_hashslot)) `(,tmp))
+			(vpif `(,tmp < ,index))
+				(assign `((,env +array_begin)) `(,tmp2))
+				(vp-shl-cr (log2 (* +ptr_size 2)) tmp)
+				(vp-cpy-dr tmp2 tmp tmp)
+				(gotoif `(,tmp = ,sym) bail)
+			(endif)
+			(assign `((,vals 0) ,index) `(,val (,sym +str_hashslot)))
+			(class/obj/ref sym tmp)
+			(unless steal (class/obj/ref val tmp))
+			(assign `(,sym ,val) `((,dst 0) (,dst ,+ptr_size)))
+			(vp-add-cr 1 index)
+			(vp-add-cr +ptr_size vars)
+			(vp-add-cr +ptr_size vals)
+			(vp-add-cr (* +ptr_size 2) dst)
+		(loop-until `(,vars = ,iter_end))
+		(vp-shl-cr 1 index)
+		(assign `(,index) `((,env +array_length)))
+		(when steal
+			(vp-xor-rr tmp tmp)
+			(assign `(,tmp) '((:r13 +array_length))))
+	(endif)
+	;the last value bound is what is given back
+	(class/obj/ref val tmp)
+	(vp-cpy-rr val vars))
+
+(defun lisp-bind-fresh-bail (steal bail not_fresh)
+	;emit the code (lisp-bind-fresh) jumps to if it has to give up part way,
+	;out of its flow. It puts the inputs back, and goes on to not_fresh.
+	(vp-rdef (this vars vals env iter_end index sym val dst tmp tmp2 sym_vtable)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11))
+(vp-label bail)
+	(cond
+		(steal
+			;nothing was bound, the values are still the list's, so take
+			;back the ref each symbol was given
+			(loop-while `(,index /= 0))
+				(vp-sub-cr (* +ptr_size 2) dst)
+				(vp-sub-cr 1 index)
+				(assign `((,dst 0)) `(,sym))
+				(class/obj/ref sym tmp -1)
+			(loop-end))
+		(:t	;keep what is bound so far, to bind one twice does no harm
+			(vp-shl-cr 1 index)
+			(assign `(,index) `((,env +array_length)))))
+	(vp-cpy-rr :r12 vars)
+	(vp-cpy-rr :r13 vals)
+	(goto not_fresh))

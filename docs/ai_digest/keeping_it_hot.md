@@ -281,8 +281,10 @@ trashes every register, fetches it again from the task control block, with
 	`(bind)` may be given, goes to the general code, which uses `:hmap
 	:pinsert`.
 
-*	Once bound, the values are held by the environment, so the args list goes
-	back to its chain before the body runs.
+*	`:repl_eval` has this usual case in line, `(lisp-bind-fresh)` emits it for
+	both, and as it owns the args list it moves the values to the
+	environment, with no reference taken and none to drop after. The args
+	list is then empty, and goes back to its chain before the body runs.
 
 ### Phase 5: Body Evaluation (`class/lisp/lisp_progn.vp`)
 
