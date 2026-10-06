@@ -9,12 +9,22 @@ EXE_EXT := .exe
 # Define the default target for this file
 default: windows_all
 
+# The GUI driver, sdl3 unless told otherwise, make -f Makefile.mingw GUI=sdl
+GUI ?= sdl3
+
 # Dependencies
 SDL2_PATH := $(CURDIR)/deps/SDL2-2.30.3/x86_64-w64-mingw32
 SDL2_MIXER_PATH := $(CURDIR)/deps/SDL2_mixer-2.8.0/x86_64-w64-mingw32
+SDL3_VERSION := 3.4.16
+SDL3_PATH := $(CURDIR)/deps/SDL3-$(SDL3_VERSION)/x86_64-w64-mingw32
 
+ifneq ($(filter sdl3 raw3,$(GUI)),)
+SDL_CFLAGS := -I$(SDL3_PATH)/include
+SDL_LIBS   := -L$(SDL3_PATH)/lib -lSDL3 -lwinmm
+else
 SDL_CFLAGS := -I$(SDL2_PATH)/include/SDL2 -I$(SDL2_MIXER_PATH)/include/SDL2
 SDL_LIBS   := -L$(SDL2_PATH)/lib -L$(SDL2_MIXER_PATH)/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lwinmm
+endif
 
 CFLAGS := -O3 -nostdlib -fno-exceptions -MMD -D_WIN64 -ffunction-sections -fdata-sections -flto
 CPPFLAGS := -std=c++14
@@ -34,11 +44,13 @@ win_dirs:
 
 windows_tui: win_dirs obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe
 
+#deps is a folder as well, so make has to be told this is not a file to check
+.PHONY: deps
 deps:
 	mkdir -p deps
-	curl -L https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-devel-2.30.3-mingw.tar.gz -o deps/SDL2.tar.gz
-	curl -L https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.8.0/SDL2_mixer-devel-2.8.0-mingw.tar.gz -o deps/SDL2_mixer.tar.gz
-	tar -C deps -xzf deps/SDL2.tar.gz
-	tar -C deps -xzf deps/SDL2_mixer.tar.gz
+	[ -d $(SDL2_PATH) ] || (curl -L https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-devel-2.30.3-mingw.tar.gz -o deps/SDL2.tar.gz && tar -C deps -xzf deps/SDL2.tar.gz)
+	[ -d $(SDL2_MIXER_PATH) ] || (curl -L https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.8.0/SDL2_mixer-devel-2.8.0-mingw.tar.gz -o deps/SDL2_mixer.tar.gz && tar -C deps -xzf deps/SDL2_mixer.tar.gz)
+	[ -d $(SDL3_PATH) ] || (curl -L https://github.com/libsdl-org/SDL/releases/download/release-$(SDL3_VERSION)/SDL3-devel-$(SDL3_VERSION)-mingw.tar.gz -o deps/SDL3.tar.gz && tar -C deps -xzf deps/SDL3.tar.gz)
 
-windows_all: deps win_dirs obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe
+#hostenv notes which GUI driver this is, so a change of GUI= links main_gui again
+windows_all: deps win_dirs hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe

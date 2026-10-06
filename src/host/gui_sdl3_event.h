@@ -49,8 +49,14 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			return true;
 		case SDL_EVENT_MOUSE_WHEEL:
 			out->type = host_gui_event_mouse_wheel;
+#if SDL_VERSION_ATLEAST(3, 4, 0)
 			out->x = e.wheel.integer_x;
 			out->y = e.wheel.integer_y;
+#else
+			// before SDL 3.4 there are only the float amounts
+			out->x = (int32_t)e.wheel.x;
+			out->y = (int32_t)e.wheel.y;
+#endif
 			out->direction = e.wheel.direction;
 			// a wheel can turn less than a whole step
 			if (out->x || out->y) return true;

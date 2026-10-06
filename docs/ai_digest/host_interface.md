@@ -70,7 +70,10 @@ the host.
     * The specific implementation is chosen at compile time based on the `GUI`
       make variable, which sets the `_HOST_GUI` preprocessor define.
 
-    * `_HOST_GUI = 0` (Default or `GUI=sdl`): Uses `src/host/gui_sdl.cpp`.
+    * With no `GUI=` given the driver is `sdl3` if SDL3 is on the machine,
+      else `sdl`.
+
+    * `_HOST_GUI = 0` (`GUI=sdl`): Uses `src/host/gui_sdl.cpp`.
       This relies on the SDL2 library for windowing, event handling, and 2D
       rendering.
 
@@ -84,9 +87,10 @@ the host.
 
     * `_HOST_GUI = 3` (`GUI=sdl3`): Uses `src/host/gui_sdl3.cpp`. The GUI on
       SDL3, with SDL's GPU renderer for the 2D drawing. It is the one driver
-      that can draw a shader on the GPU, see the shader calls below. It needs
-      SDL 3.4 or later, and runs on a desktop or, with no desktop, on the bare
-      display of a Linux machine.
+      that can draw a shader on the GPU, see the shader calls below, for
+      which it needs SDL 3.4 or later, on an older SDL3 it is built without.
+      It runs on a desktop or, with no desktop, on the bare display of a
+      Linux machine.
 
     * `_HOST_GUI = 4` (`GUI=raw3`): The raw driver, `src/host/gui_raw.cpp`,
       with SDL3 for the window and events in place of SDL2.
@@ -486,8 +490,9 @@ processes.
     * `OS`, `CPU`, `ABI`: Determined by `uname` (or hardcoded for Windows in
       scripts).
 
-    * `GUI`: Set externally, `make GUI=sdl3` say. One of `sdl`, the
-      default, `fb`, `raw`, `sdl3` and `raw3`.
+    * `GUI`: Set externally, `make GUI=sdl` say. One of `sdl3`, `sdl`,
+      `raw3`, `raw` and `fb`. Not given, it is `sdl3` if `pkg-config` knows
+      of SDL3 or there is an `sdl3_prefix` file, else `sdl`.
 
     * `HOST_GUI`: Preprocessor define set from `$(GUI)`, 0 for `sdl`, 1 for
       `fb`, 2 for `raw`, 3 for `sdl3`, 4 for `raw3`.

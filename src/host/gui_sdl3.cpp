@@ -78,6 +78,11 @@ static SDL_Texture *create_backbuffer(uint64_t w, uint64_t h)
 	return t;
 }
 
+// the GPU renderer, that lets a shader share the device the GUI is drawn
+// with, came with SDL 3.4. On an older SDL3, the 3.2 of Debian 13 say, the
+// driver is built without it, the GUI runs, and it can not draw a shader.
+#define HOST_GUI_GPU SDL_VERSION_ATLEAST(3, 4, 0)
+
 // the GPU device is made here, not by the renderer, to ask for no more
 // than is used. A device SDL makes for itself wants depth clamping and the
 // like, which a small GPU may not have, the Raspberry Pi 4 has no depth
@@ -85,6 +90,9 @@ static SDL_Texture *create_backbuffer(uint64_t w, uint64_t h)
 
 static SDL_GPUDevice *create_device()
 {
+#if !HOST_GUI_GPU
+	return nullptr;
+#else
 	auto props = SDL_CreateProperties();
 	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN, true);
 	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_MSL_BOOLEAN, true);
@@ -95,6 +103,7 @@ static SDL_GPUDevice *create_device()
 	auto dev = SDL_CreateGPUDeviceWithProperties(props);
 	SDL_DestroyProperties(props);
 	return dev;
+#endif
 }
 
 void host_gui_init(host_gui_rect *rect, uint64_t flags)
@@ -121,7 +130,9 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 		SDL_WINDOW_RESIZABLE | (bare ? SDL_WINDOW_VULKAN : 0));
 	// the GPU renderer if there is one, so that a shader can share its device
 	device = create_device();
+#if HOST_GUI_GPU
 	if (device) renderer = SDL_CreateGPURenderer(device, window);
+#endif
 	if (!renderer)
 	{
 		if (device) SDL_DestroyGPUDevice(device);
@@ -355,8 +366,6 @@ void *host_gui_shader_texture(uint64_t w, uint64_t h)
 	return new_texture(t, 0);
 }
 
-// draw the shader over the whole of the texture, the block is its inputs
-
 // a shader is drawn into a texture, all of it, or the part given. A draw
 // that takes the GPU a long time holds up the drawing of the GUI behind it,
 // so there is only ever one on the go. While the last has not finished this
@@ -364,9 +373,11 @@ void *host_gui_shader_texture(uint64_t w, uint64_t h)
 // with a slow GPU draws a frame as strips, each small enough to be done in
 // a tick, and the GUI is drawn in between them.
 
-
 uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, uint64_t size, const host_gui_rect *rect)
 {
+#if !HOST_GUI_GPU
+	return 0;
+#else
 	auto shader = (Shader*)handle;
 	if (!device || !shader || !texture) return 0;
 	if (shader_fence)
@@ -404,6 +415,7 @@ uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, ui
 	SDL_EndGPURenderPass(pass);
 	shader_fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
 	return 1;
+#endif
 }
 
 // copy a texture into a buffer, 32 bit premultiplied argb, as it was uploaded

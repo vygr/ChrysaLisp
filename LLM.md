@@ -308,6 +308,10 @@ Deep dives into meta-commentary and design philosophy:
     and VP native code and Lisp back ends that need no GPU, the inputs block,
     and the surface raymarch demo.
 
+74. **[Moving From SDL2 To SDL3](docs/intro/sdl3.md)** - The GUI is on SDL3,
+    what each machine needs, building SDL3 from source for an older Mac or a
+    Raspberry Pi, the Pi with no desktop, Windows, and staying on SDL2.
+
 ---
 
 ## Reading Paths

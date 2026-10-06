@@ -97,21 +97,29 @@ cd ChrysaLisp
 
 ### 2. Install Dependencies
 
+The GUI is on SDL3. `make install` uses it if it is on the machine, and SDL2 if
+it is not. See `docs/intro/sdl3.md` for a machine that has neither to hand, an
+older Mac or Pi, and for what each gives you.
+
 * **macOS**:
 
   * Xcode Command Line Tools: `xcode-select --install` (if needed).
 
-  * SDL2: `brew install sdl2 sdl2_mixer`
+  * SDL3: `brew install sdl3`
 
 * **Linux (Debian/Ubuntu based)**:
 
-  * Build tools: `sudo apt-get install build-essential git`
+  * Build tools: `sudo apt-get install build-essential git pkg-config`
 
-  * SDL2: `sudo apt-get install libsdl2-dev libsdl2-mixer-dev`
+  * SDL3: `sudo apt-get install libsdl3-dev`, where the release has it. To
+    draw shaders on the GPU it has to be SDL 3.4 or later, which for now means
+    building it from source, see `docs/intro/sdl3.md`.
+
+  * Or SDL2: `sudo apt-get install libsdl2-dev libsdl2-mixer-dev`
 
 * **Windows**:
 
-  * Copy SDL2 and SDL2_mixer DLLs (64-bit) into the ChrysaLisp root directory. See `docs/intro.md` for details.
+  * Nothing to install, `install.bat` fetches `SDL3.dll`.
 
   * **macOS Cross-Compile**: To build Windows executables on macOS: `brew install mingw-w64` then `make -f Makefile.mingw windows_all`.
 
@@ -130,8 +138,6 @@ make install
 ```
 
 * **Windows**:
-
-  (Ensure DLLs from step 2 are in place if using pre-built executables from the snapshot)
 
 ```code
 install.bat

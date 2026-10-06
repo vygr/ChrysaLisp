@@ -25,12 +25,14 @@ dependencies for macOS, Linux (including Raspberry Pi), and Windows.
 xcode-select --install
 ```
 
-3. **SDL2 and SDL2_mixer**: These libraries are needed for the graphical user 
-   interface (GUI) and audio. Install them via Homebrew:
+3. **SDL3**: This library is needed for the graphical user interface (GUI)
+   and audio. Install it via Homebrew:
 
 ```code
-brew install sdl2 sdl2_mixer
+brew install sdl3
 ```
+
+   On a Mac too old for Homebrew to have it, see `docs/intro/sdl3.md`.
 
 4. **Git**: For cloning the repository (if you choose that method).
 
@@ -47,7 +49,18 @@ sudo apt-get update
 sudo apt-get install build-essential git
 ```
 
-2. **SDL2 and SDL2_mixer**:
+2. **SDL3**, where the release has it, Debian 13 and later:
+
+```code
+sudo apt-get install pkg-config libsdl3-dev
+```
+
+   That gives the GUI. To draw shaders on the GPU it has to be SDL 3.4 or
+   later, and Debian 13 has 3.2, so for that SDL3 is built from source, see
+   `docs/intro/sdl3.md`.
+
+3. Or **SDL2 and SDL2_mixer**, on a release with no SDL3. `make install` uses
+   SDL2 when it finds no SDL3:
 
 ```code
 sudo apt-get install libsdl2-dev libsdl2-mixer-dev
@@ -74,44 +87,18 @@ brew install mingw-w64
 make -f Makefile.mingw windows_all
 ```
 
-   This will automatically download the necessary Windows SDL2 development 
-   libraries into a `deps/` folder and build both `main_tui.exe` and 
-   `main_gui.exe` in `obj/x86_64/WIN64/Windows/`.
+   This will automatically download the Windows SDL development libraries
+   into a `deps/` folder and build both `main_tui.exe` and `main_gui.exe` in
+   `obj/x86_64/WIN64/Windows/`. The GUI driver is SDL3, add `GUI=sdl` for
+   SDL2.
 
-3. **SDL2 and SDL2_mixer**: Download the 64-bit development libraries:
+3. **SDL3**: The one library the GUI needs is `SDL3.dll`, in the root of the
+   ChrysaLisp directory. `install.bat` fetches it if it is not there. To get
+   it by hand, it is in `SDL3-3.x.x-win32-x64.zip` on the
+   [SDL releases page](https://github.com/libsdl-org/SDL/releases). There is
+   no mixer library, and none of its DLLs, any more.
 
-    * SDL2: From [libsdl.org/download-2.0.php](https://www.libsdl.org/download-2.0.php) 
-      (e.g., `SDL2-devel-2.x.x-mingw.tar.gz` or `SDL2-devel-2.x.x-VC.zip`).
-
-    * SDL2_mixer: From the SDL_mixer page (linked from SDL's site) (e.g., 
-      `SDL2_mixer-devel-2.x.x-mingw.tar.gz` or `SDL2_mixer-devel-2.x.x-VC.zip`).
-
-    Extract the archives. You will need to copy the following DLL files from 
-    their `lib/x64/` (or similar) directories into your main ChrysaLisp 
-    directory later:
-
-    * `SDL2.dll`
-
-    * `SDL2_mixer.dll`
-
-    * `libFLAC-8.dll` (or similar, if it's a dependency of SDL2_mixer you chose)
-
-    * `libmodplug-1.dll` (or similar)
-
-    * `libmpg123-0.dll` (or similar)
-
-    * `libogg-0.dll` (or similar)
-
-    * `libopus-0.dll` (or similar)
-
-    * `libvorbis-0.dll` (or similar)
-
-    * `libvorbisfile-3.dll` (or similar)
-
-    (The exact list of SDL2_mixer dependencies might vary; ensure all required 
-    DLLs are present).
-
-3. **Git (Optional)**: If you plan to clone the repository, install Git for 
+4. **Git (Optional)**: If you plan to clone the repository, install Git for 
    Windows from [git-scm.com](https://git-scm.com).
 
 ### Raspberry Pi Framebuffer Mode (Advanced)
@@ -263,11 +250,10 @@ make install
 
 ### Windows (64-bit)
 
-1. **Prepare DLLs**: If you haven't already, copy the required SDL2 and SDL2_mixer 
-   DLLs (e.g., `SDL2.dll`, `SDL2_mixer.dll`, and their dependencies) into the root 
-   of your ChrysaLisp directory where `main_tui.exe` and `main_gui.exe` will reside 
-   or be built. The release snapshot usually includes pre-built `main_tui.exe` and 
-   `main_gui.exe`.
+1. **The DLL**: `install.bat` fetches `SDL3.dll` into the root of your
+   ChrysaLisp directory if it is not there, it needs `curl` and `tar`, which
+   Windows 10 and later have. The release snapshot includes pre-built
+   `main_tui.exe` and `main_gui.exe`.
 
 2. **Build and Install (if pre-built executables are not used or need rebuilding)**:
 

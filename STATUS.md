@@ -4,6 +4,27 @@
 
 ------
 
+SDL3 is the default. `make install`, and `make`, build the sdl3 GUI driver if
+SDL3 is on the machine, `pkg-config` knows of it or there is an `sdl3_prefix`
+file, and the SDL2 driver if it is not. `GUI=sdl` asks for SDL2 by name.
+
+The sdl3 driver builds on an SDL3 older than 3.4 as well, the 3.2 of Debian
+13 say. The GUI is the same, it can not draw a shader, the GPU renderer came
+with 3.4. So `apt-get install libsdl3-dev` is enough for the GUI, and SDL3
+from source is only for the shaders.
+
+Windows is on SDL3 too. `Makefile.mingw` builds the sdl3 driver, `GUI=sdl`
+for SDL2, and fetches the SDL3 development files. `main_gui.exe` in the
+snapshot now needs `SDL3.dll` and nothing else, no SDL2 and no mixer DLLs,
+and `install.bat` fetches it if it is not there. Built on the Mac, not yet
+run on Windows.
+
+`docs/intro/sdl3.md` walks through the move, what each machine needs, SDL3
+from source for an older Mac or a Raspberry Pi, the Pi with no desktop, and
+staying on SDL2. The README and the intro say SDL3. `snapshot.zip` is new.
+
+------
+
 `+swap_write` goes with `+swap_read`. `(. canvas :swap +swap_write)` is the
 pixmap to the texture, where it was `(. canvas :swap 0)`, or
 `+pixmap_mode_normal`, neither of which said which way the pixels went. A

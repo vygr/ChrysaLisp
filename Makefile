@@ -19,6 +19,20 @@ endif
 
 EXE_EXT ?=
 
+#the GUI driver is sdl3, if SDL3 is on this machine, else sdl, which is SDL2.
+#Say which with GUI=, one of sdl3 sdl raw3 raw fb.
+ifeq ($(GUI),)
+ifneq ($(SDL3_PREFIX)$(shell cat sdl3_prefix 2>/dev/null),)
+	GUI := sdl3
+else
+ifeq ($(shell pkg-config --exists sdl3 2>/dev/null && echo yes),yes)
+	GUI := sdl3
+else
+	GUI := sdl
+endif
+endif
+endif
+
 HGUI := $(shell echo $(GUI) | tr '[:upper:]' '[:lower:]')
 
 #each GUI driver has its own objects, so a change of GUI= is a build of that driver
@@ -76,8 +90,10 @@ endif
 
 ifneq ($(HOST_GUI),1)
 	HOST_AUDIO := 0
+ifeq ($(filter 3 4,$(HOST_GUI)),)
 	SDL_CFLAGS ?= $(shell sdl2-config --cflags)
 	SDL_LIBS ?= $(shell sdl2-config --libs) -lSDL2_mixer
+endif
 	AUDIO_FLAGS := -D_HOST_AUDIO=$(HOST_AUDIO)
 else
 	HOST_AUDIO := -1
@@ -94,6 +110,11 @@ endif
 #make gui GUI=sdl3 SDL3_PREFIX=$$HOME/sdl3_build/install
 ifneq ($(filter 3 4,$(HOST_GUI)),)
 	HOST_AUDIO := 1
+	AUDIO_FLAGS := -D_HOST_AUDIO=$(HOST_AUDIO)
+endif
+#a cross build for Windows gives its own SDL flags, see Makefile.mingw
+ifneq ($(OS),Windows)
+ifneq ($(filter 3 4,$(HOST_GUI)),)
 ifeq ($(SDL3_PREFIX),)
 	SDL3_PREFIX := $(shell cat sdl3_prefix 2>/dev/null)
 else
@@ -106,7 +127,7 @@ else
 	SDL_CFLAGS := $(shell pkg-config --cflags sdl3)
 	SDL_LIBS := $(shell pkg-config --libs sdl3)
 endif
-	AUDIO_FLAGS := -D_HOST_AUDIO=$(HOST_AUDIO)
+endif
 endif
 
 all:		hostenv tui gui
