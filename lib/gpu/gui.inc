@@ -11,6 +11,7 @@
 	; (shader-gui program) -> :nil | shader
 	;a shader the GPU can draw into a canvas, with (. canvas :shade shader
 	;block), where block is from (shader-pack). :nil if this host can not.
+	;The driver builds it in its own time, till then :shade draws nothing.
 	(case (canvas-shader-format)
 		(1 (defq shader (canvas-shader-create (shader-msl-vertex) (shader-msl program)))
 			(if (/= shader 0) shader))

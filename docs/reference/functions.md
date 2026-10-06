@@ -1820,6 +1820,7 @@ the input args for the lambda, defaults for those not given
 
 a shader the GPU can draw into a canvas, with (. canvas :shade shader
 block), where block is from (shader-pack). :nil if this host can not.
+The driver builds it in its own time, till then :shade draws nothing.
 ```
 
 ### shader-layout

@@ -31,10 +31,30 @@ static void set_macos_activation_policy(intptr_t policy)
 
 // a shader, the pipeline that draws it into a target texture
 
+// a shader is built by a thread of its own. A driver can take a long time
+// to build one, the Raspberry Pi 4's takes 18 seconds over the raymarch
+// shader the first time it sees it, and the GUI must not stop for that.
+enum
+{
+	shader_building,
+	shader_ready,
+	shader_failed,
+	shader_dropped,
+};
+
 struct Shader
 {
 	SDL_GPUGraphicsPipeline *pipeline;
+	SDL_AtomicInt state;
+	SDL_GPUShaderFormat format;
+	Uint8 *vertex;
+	Uint8 *fragment;
+	size_t vertex_size;
+	size_t fragment_size;
 };
+
+// how many shaders are being built
+static SDL_AtomicInt shader_builds;
 
 static const SDL_PixelFormat target_pixel_format = SDL_PIXELFORMAT_ARGB8888;
 static const SDL_GPUTextureFormat target_gpu_format = SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM;
@@ -166,6 +186,8 @@ void host_gui_deinit()
 	}
 	if (device)
 	{
+		// a shader being built is using the device
+		while (SDL_GetAtomicInt(&shader_builds) > 0) SDL_Delay(10);
 		if (shader_fence) SDL_ReleaseGPUFence(device, shader_fence);
 		shader_fence = nullptr;
 		SDL_DestroyGPUDevice(device);
@@ -304,23 +326,26 @@ uint64_t host_gui_shader_format()
 	return 0;
 }
 
-static SDL_GPUShader *create_shader(const char *code, uint64_t size, SDL_GPUShaderStage stage, const char *entry)
+static SDL_GPUShader *create_shader(const Uint8 *code, size_t size, SDL_GPUShaderFormat format,
+	SDL_GPUShaderStage stage, const char *entry)
 {
 	SDL_GPUShaderCreateInfo info = {};
-	info.code = (const Uint8*)code;
+	info.code = code;
 	info.code_size = size;
 	info.entrypoint = entry;
-	info.format = host_gui_shader_format() == 1 ? SDL_GPU_SHADERFORMAT_MSL : SDL_GPU_SHADERFORMAT_SPIRV;
+	info.format = format;
 	info.stage = stage;
 	info.num_uniform_buffers = 1;
 	return SDL_CreateGPUShader(device, &info);
 }
 
-void *host_gui_shader_create(const char *vertex, uint64_t vertex_size, const char *fragment, uint64_t fragment_size)
+static int SDLCALL build_shader(void *data)
 {
-	if (!host_gui_shader_format()) return nullptr;
-	auto vs = create_shader(vertex, vertex_size, SDL_GPU_SHADERSTAGE_VERTEX, "vertex_main");
-	auto fs = create_shader(fragment, fragment_size, SDL_GPU_SHADERSTAGE_FRAGMENT, "fragment_main");
+	auto shader = (Shader*)data;
+	auto vs = create_shader(shader->vertex, shader->vertex_size, shader->format,
+		SDL_GPU_SHADERSTAGE_VERTEX, "vertex_main");
+	auto fs = create_shader(shader->fragment, shader->fragment_size, shader->format,
+		SDL_GPU_SHADERSTAGE_FRAGMENT, "fragment_main");
 	SDL_GPUGraphicsPipeline *pipeline = nullptr;
 	if (vs && fs)
 	{
@@ -340,9 +365,54 @@ void *host_gui_shader_create(const char *vertex, uint64_t vertex_size, const cha
 	if (!pipeline) SDL_Log("shader: %s", SDL_GetError());
 	if (vs) SDL_ReleaseGPUShader(device, vs);
 	if (fs) SDL_ReleaseGPUShader(device, fs);
-	if (!pipeline) return nullptr;
-	auto shader = (Shader*)SDL_malloc(sizeof(Shader));
+	SDL_free(shader->vertex);
+	SDL_free(shader->fragment);
 	shader->pipeline = pipeline;
+	if (!SDL_CompareAndSwapAtomicInt(&shader->state, shader_building, pipeline ? shader_ready : shader_failed))
+	{
+		// it was destroyed while it was being built
+		if (pipeline) SDL_ReleaseGPUGraphicsPipeline(device, pipeline);
+		SDL_free(shader);
+	}
+	SDL_AddAtomicInt(&shader_builds, -1);
+	return 0;
+}
+
+static Uint8 *copy_code(const char *code, uint64_t size)
+{
+	// a byte more, and zero, text is read as far as that by some drivers
+	auto copy = (Uint8*)SDL_malloc(size + 1);
+	SDL_memcpy(copy, code, size);
+	copy[size] = 0;
+	return copy;
+}
+
+// the handle is given at once, the shader may not be built yet, and may
+// turn out not to build at all. host_gui_shader_draw says which.
+
+void *host_gui_shader_create(const char *vertex, uint64_t vertex_size, const char *fragment, uint64_t fragment_size)
+{
+	auto format = host_gui_shader_format();
+	if (!format) return nullptr;
+	auto shader = (Shader*)SDL_malloc(sizeof(Shader));
+	shader->pipeline = nullptr;
+	shader->format = format == 1 ? SDL_GPU_SHADERFORMAT_MSL : SDL_GPU_SHADERFORMAT_SPIRV;
+	shader->vertex = copy_code(vertex, vertex_size);
+	shader->fragment = copy_code(fragment, fragment_size);
+	shader->vertex_size = vertex_size;
+	shader->fragment_size = fragment_size;
+	SDL_SetAtomicInt(&shader->state, shader_building);
+	SDL_AddAtomicInt(&shader_builds, 1);
+	// a driver's compiler can want a deep stack
+	auto props = SDL_CreateProperties();
+	SDL_SetPointerProperty(props, SDL_PROP_THREAD_CREATE_ENTRY_FUNCTION_POINTER, (void*)build_shader);
+	SDL_SetStringProperty(props, SDL_PROP_THREAD_CREATE_NAME_STRING, "shader");
+	SDL_SetPointerProperty(props, SDL_PROP_THREAD_CREATE_USERDATA_POINTER, shader);
+	SDL_SetNumberProperty(props, SDL_PROP_THREAD_CREATE_STACKSIZE_NUMBER, 8 * 1024 * 1024);
+	auto thread = SDL_CreateThreadWithProperties(props);
+	SDL_DestroyProperties(props);
+	if (thread) SDL_DetachThread(thread);
+	else build_shader(shader);
 	return shader;
 }
 
@@ -350,7 +420,9 @@ void host_gui_shader_destroy(void *handle)
 {
 	auto shader = (Shader*)handle;
 	if (!shader) return;
-	if (device) SDL_ReleaseGPUGraphicsPipeline(device, shader->pipeline);
+	// still being built, the thread that is building it frees it
+	if (SDL_CompareAndSwapAtomicInt(&shader->state, shader_building, shader_dropped)) return;
+	if (device && shader->pipeline) SDL_ReleaseGPUGraphicsPipeline(device, shader->pipeline);
 	SDL_free(shader);
 }
 
@@ -368,10 +440,11 @@ void *host_gui_shader_texture(uint64_t w, uint64_t h)
 
 // a shader is drawn into a texture, all of it, or the part given. A draw
 // that takes the GPU a long time holds up the drawing of the GUI behind it,
-// so there is only ever one on the go. While the last has not finished this
-// draws nothing and returns 0, and the caller tries again later. A caller
-// with a slow GPU draws a frame as strips, each small enough to be done in
-// a tick, and the GUI is drawn in between them.
+// so there is only ever one on the go. While the last has not finished, or
+// the shader is still being built, this draws nothing and returns 0, and the
+// caller tries again later. A caller with a slow GPU draws a frame as
+// strips, each small enough to be done in a tick, and the GUI is drawn in
+// between them. A shader that did not build returns -1.
 
 uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, uint64_t size, const host_gui_rect *rect)
 {
@@ -380,6 +453,9 @@ uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, ui
 #else
 	auto shader = (Shader*)handle;
 	if (!device || !shader || !texture) return 0;
+	auto state = SDL_GetAtomicInt(&shader->state);
+	if (state == shader_building) return 0;
+	if (state != shader_ready) return (uint64_t)-1;
 	if (shader_fence)
 	{
 		if (!SDL_QueryGPUFence(device, shader_fence)) return 0;

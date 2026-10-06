@@ -189,8 +189,11 @@
 	(vpif '(:r7 /= 0))
 		(call :canvas :shade in '(:r0 :r8))
 	(endif)
-	(vpif '(:r8 /= 0))
+	(vpif '(:r8 > 0))
 		(call :obj :ref '(:r0) '(:r1))
+	(elseif '(:r8 < 0))
+		;the shader did not build
+		(call :num :create '(:r8) '(:r1))
 	(else)
 		(assign '((:rsp 0)) '(:r1))
 		(assign '((:r1 +lisp_sym_nil)) '(:r1))

@@ -4,6 +4,25 @@
 
 ------
 
+A shader is built on a thread, and the GUI no longer stops while a driver
+builds one. On the Raspberry Pi 4 the first build of the raymarch shader
+takes 18 seconds, and the whole desktop froze for it.
+
+Why it takes 18 seconds was looked at first. The Pi's driver compiles the
+shader, can not fit it in the GPU's registers, and compiles it again another
+way, three times, about six seconds each. It is the size of the shader once
+every function is inlined, not the form of the SPIR-V. The same module put
+through `spirv-opt -O` takes 26 seconds. So the back end is as it was.
+
+`(shader-gui program)` now returns at once. `(. canvas :shade ...)` draws
+nothing and returns `:nil` while the shader is being built, and `:error` if
+it did not build. The surface demo says the driver is building the shader,
+and goes back to the CPU if it can not. With the driver's cache off, on the
+Pi, the demo's twice a second tick kept coming all through the 18 seconds,
+the longest gap 844ms.
+
+------
+
 The GUI leaves the apps on its node some time between frames. It set its
 next tick, a 60th of a second on, before it drew a frame. A driver that waits
 for the display takes a frame time over that, 20ms on a 50Hz TV, so the tick

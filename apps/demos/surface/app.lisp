@@ -27,6 +27,8 @@
 	gpu_inputs :nil gpu_y 0 gpu_strip +height gpu_wait 0
 	;the strips are drawn off screen, and the whole frame then put on show
 	gpu_back (Canvas +width +height +scale)
+	;has the driver built the shader yet, it has once a strip is drawn
+	gpu_built :nil
 	;a notice on the status line stays for a while
 	+notice_time 4000000 notice_until 0)
 
@@ -147,8 +149,18 @@
 	;takes the whole frame as one strip, every tick.
 	(unless gpu_inputs (start-frame))
 	(cond
-		((. gpu_back :shade gpu_shader gpu_inputs 0 gpu_y +width
-				(defq y1 (min +height (+ gpu_y gpu_strip))))
+		((eql (defq drawn (. gpu_back :shade gpu_shader gpu_inputs 0 gpu_y +width
+				(defq y1 (min +height (+ gpu_y gpu_strip))))) :error)
+			;the driver could not build the shader, so back to the CPU
+			(canvas-shader-destroy gpu_shader)
+			(setq gpu_shader :nil)
+			(. *mode* :set_selected 0)
+			(set-mode)
+			(setq notice_until (+ (pii-time) +notice_time))
+			(set-label *status* "No GPU, the driver could not build the shader"))
+		(drawn
+			;the wait for the driver to build the shader says nothing of the GPU
+			(unless gpu_built (setq gpu_built :t gpu_wait 1))
 			;a strip should take the GPU more than one tick and less than two,
 			;so the GPU is not left idle, and the GUI does not wait long
 			(setq gpu_strip (max 4 (min +height (case gpu_wait
@@ -170,7 +182,7 @@
 		((and gpu (not gpu_shader))
 			(. *mode* :set_selected 0)
 			(setq notice_until (+ (pii-time) +notice_time))
-			(set-label *status* "No GPU, this host GUI driver can not draw a shader, see make gui GUI=sdl3"))
+			(set-label *status* "No GPU, this host GUI driver can not draw a shader, see docs/intro/sdl3.md"))
 		((not (eql gpu gpu_mode))
 			;drop what is left of a CPU frame, a tile that comes in late is not shown
 			(setq gpu_mode gpu jobs (list) tiles (list) gpu_frames 0 gpu_time (pii-time) ticks 0
@@ -237,9 +249,10 @@
 					(cond
 						(gpu_mode
 							(defq now (pii-time) rate (/ (* gpu_frames 10000000) (- now gpu_time)))
-							(set-label *status* (cat "GPU, "
+							(set-label *status* (if gpu_built (cat "GPU, "
 								(str (/ rate 10)) "." (str (% rate 10)) " frames a second"
-								(if (< gpu_strip +height) (cat ", in strips of " (str gpu_strip) " lines") "")))
+								(if (< gpu_strip +height) (cat ", in strips of " (str gpu_strip) " lines") ""))
+								"GPU, the driver is building the shader"))
 							(setq gpu_frames 0 gpu_time now))
 						((. farm :refresh +retry_timeout)))))))
 	;close window and children

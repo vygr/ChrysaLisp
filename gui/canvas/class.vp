@@ -298,7 +298,7 @@
 	;:r6 = y1 (pixels)
 	;outputs
 	;:r0 = canvas object (ptr)
-	;:r1 = 0 if not drawn, the GPU is busy with the last
+	;:r1 = 0 if not drawn, the GPU is busy, -1 if the shader did not build
 	;trashes
 	;:r1-:r14, :f0-:f15
 	;info

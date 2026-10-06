@@ -229,8 +229,15 @@ the same frame.
 | 640 by 480 frame and read back | 394ms | |
 
 The first build is long. The V3D compiler takes 18 seconds over this shader,
-once, then Mesa keeps the result on disk. Whether a module with fewer
-variables in it would build quicker has not been tried.
+once, then Mesa keeps the result on disk. It is not the form of the module.
+The driver says what it is doing, `V3D_DEBUG=perf`, and it is this, it
+compiles the shader, can not fit it in the registers the GPU has, and
+compiles it again another way, three times in all, about six seconds each,
+ending with 36 values spilled to memory. Every function of a SPIR-V module
+is inlined, and this shader calls 42 times. The same module put through
+`spirv-opt -O` first, which is what a GLSL compiler would hand over, takes 26
+seconds. So nothing was changed in the back end. The driver builds the
+shader on a thread of its own instead, see below, and the GUI carries on.
 
 Two things had to be found out to get SDL on to the V3D at all. The SDL3 of
 Debian 13 is 3.2.10, and the GPU renderer the driver uses came with 3.4. And
@@ -267,9 +274,17 @@ inputs block. The pixmap of the canvas is not used and not changed. A later
 `(. canvas :swap +swap_write)` puts the pixmap back on show, so an app can go from one to
 the other frame by frame.
 
-One shader draw is on the go at a time. `:shade` returns the canvas if it
-drew, and `:nil` if the GPU has not finished the last one, in which case it
-drew nothing, and the app tries again on its next tick. On a fast GPU it
+A shader is built by the driver in its own time, on a thread, so
+`(shader-gui program)` returns at once, with a shader that may not be ready.
+`:shade` returns the canvas if it drew, `:nil` if it drew nothing and the app
+should try again on its next tick, and `:error` if the driver could not build
+the shader. It draws nothing while the shader is still being built. On the
+Raspberry Pi 4 that is the 18 seconds, the first time, and the surface demo's
+status line says so while the desktop carries on, where the whole GUI used to
+stop.
+
+One shader draw is on the go at a time as well, so `:nil` is also the GPU not
+having finished the last one. On a fast GPU it
 never matters. On a slow one it is what keeps the desktop alive. The GUI is
 drawn by the same GPU, a GPU can not be stopped part way through a draw, and
 a Raspberry Pi 4 takes 400ms over a frame of the raymarch shader, so with a

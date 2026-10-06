@@ -159,7 +159,8 @@ the host.
         * `host_gui_shader_create`: A shader from a vertex and a fragment
           shader in that language, each given as bytes and a length. Returns
           a handle, or 0. The entry points are `vertex_main` and
-          `fragment_main`.
+          `fragment_main`. The handle is given at once and the shader is
+          built on a thread, a driver can take many seconds over it.
 
         * `host_gui_shader_destroy`: Free a shader.
 
@@ -168,10 +169,11 @@ the host.
 
         * `host_gui_shader_draw`: Draw a shader into such a texture, with a
           block of bytes as its inputs, and a `host_gui_rect`, the part of
-          the texture to draw, or 0 for all of it. Returns 1 if it drew. One
-          draw is on the go at a time, while the GPU has not finished the
-          last this draws nothing and returns 0, and the caller tries again
-          later. That is so a GPU that takes long over a frame can be given
+          the texture to draw, or 0 for all of it. Returns 1 if it drew, and
+          -1 if the shader did not build. One draw is on the go at a time,
+          while the GPU has not finished the last, or the shader is still
+          being built, this draws nothing and returns 0, and the caller tries
+          again later. That is so a GPU that takes long over a frame can be given
           it a strip at a time, with the GUI drawn in between.
 
         * `host_gui_read_texture`: Read a texture back as 32 bit ARGB pixels,
