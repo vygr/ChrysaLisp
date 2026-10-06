@@ -4,6 +4,23 @@
 
 ------
 
+The sound mixer is out of the SDL3 audio driver and in a file of its own,
+`src/host/mixer.h`, with no SDL in it. The voices, the pan, the mixing and
+the limiter are there. The driver is left with the device, reading a wav
+file, and the lock, 157 lines where it was 296. Another audio driver, on
+something other than SDL, has the mixer ready made. One scripted run of
+plays, pans, pauses, 40 plays to steal voices, a sound removed as it played,
+and nine loud ones at once for the limiter, gives the same bytes from the old
+driver's code and from the new mixer.
+
+Moving the mixer into VP, as a task, was looked at and not done. A task that
+asks to be woken every 5ms, on a node also shading tiles of the raymarch
+shader, was up to 44ms late on the M4 and 171ms late on the Raspberry Pi 4.
+A sound device has to be fed on time, so that is a job for a thread of the
+host, till the day there is no host.
+
+------
+
 The surface demo comes up on the GPU, if the driver can draw a shader. If the
 driver has not built the shader in half a second the CPU starts on the
 frames, and the GPU takes over when it is built. On the Raspberry Pi 4, with

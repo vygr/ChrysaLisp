@@ -185,9 +185,26 @@ the host.
     * The implementation is chosen by `_HOST_AUDIO`, which follows the GUI
       driver. `_HOST_AUDIO = 0` uses `src/host/audio_sdl.cpp`, on SDL2 and
       the SDL2_mixer library. `_HOST_AUDIO = 1` uses
-      `src/host/audio_sdl3.cpp`, on SDL3 alone, SDL gives it the device and
-      reads a wav file, and the mixing is done in the driver, 32 voices, with
-      a limiter, so there is no mixer library to depend on.
+      `src/host/audio_sdl3.cpp`, on SDL3 alone, there is no mixer library to
+      depend on.
+
+    * The mixing is in `src/host/mixer.h`, which has no SDL in it, nor any
+      other library. Sounds are held as float stereo at 44.1kHz, 32 play at
+      once, each with its pan, and the mix is limited, not clipped. A driver
+      on top of it does three things. It opens a device and, when the device
+      wants more, calls `mixer_mix`. It reads a sound file into float stereo
+      for `mixer_add`. And it holds a lock of its own round every call to
+      the mixer. The SDL3 driver is those three and little else.
+
+    * The mixing is on a thread of the host, the one the device calls on,
+      and not a ChrysaLisp task. Tasks are co-operative, a task runs when
+      the ones before it let go, and a sound device that is not fed in time
+      is heard. A task that asked to be woken every 5ms on a node that was
+      also shading tiles of the raymarch shader was up to 44ms late on an
+      Apple M4 Max and 171ms late on a Raspberry Pi 4. A mixer that was a
+      task would have to keep that much sound queued ahead, which is that
+      much delay on every sound effect, and a task that held its node for a
+      second would still break it.
 
     * Functions include:
 

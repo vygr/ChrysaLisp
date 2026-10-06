@@ -326,7 +326,7 @@ the renderer then blits. `make gui` builds the SDL2 driver again.
 SDL2 and SDL3 share the names of their calls, so one program can not link
 both, and the sdl3 GUI driver comes with an AUDIO driver of its own,
 `src/host/audio_sdl3.cpp`. SDL3 gives it the device and reads a wav file, the
-mixing is done in the driver, 32 voices, each with its pan, so there is no
+mixing is done by `src/host/mixer.h`, 32 voices, each with its pan, so there is no
 mixer library to depend on.
 
 The surface demo has a CPU and a GPU button, and comes up on the GPU if the
