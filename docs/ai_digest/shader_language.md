@@ -295,6 +295,13 @@ is inlined, and this shader calls 42 times. The same module put through
 seconds. So nothing was changed in the back end. The driver builds the
 shader on a thread of its own instead, see below, and the GUI carries on.
 
+Every pixel the test suite checks was then run the same way, 42 of them, the
+small shaders that test each operator, the loops, the function calls and the
+inputs, as well as the six of the raymarch frame. On the Pi's GPU through
+Vulkan, on its software Vulkan driver, and, as MSL, on an Apple M4 Max through
+Metal, all 42 are within 0.00005 of what the CPU back end gives. No fault was
+found in either back end.
+
 Two things had to be found out to get SDL on to the V3D at all. The SDL3 of
 Debian 13 is 3.2.10, and the GPU renderer the driver uses came with 3.4. And
 a device SDL makes for itself asks for depth clamping, which the V3D does not
@@ -609,8 +616,6 @@ The app is in the Demos list of the launcher, as surface.
   desktop, SDL on the bare display. It has not been run on a Linux desktop,
   X11 or Wayland. On Windows, where SDL gives it Vulkan, it has been run by
   Martyn Blyss, and the surface demo draws on the GPU there.
-* The SPIR-V back end has been checked against the others on the raymarch
-  shader only, the small shaders of the test suite are checked for form.
 * Raylib is the fall back if SDL3 will not do for a host.
 * The GLSL back end does not guard names against the reserved words of GLSL.
 * Compute, and rendering as a service for a node with no GPU, are deferred.

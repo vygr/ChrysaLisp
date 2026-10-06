@@ -4,6 +4,16 @@
 
 ------
 
+The SPIR-V and MSL back ends were only ever checked for pixels on the
+raymarch shader. Every pixel case of the shader tests has now been run on a
+GPU, 42 of them, the small shaders for each operator, the loops, the calls
+and the inputs. A Raspberry Pi 4's GPU through Vulkan, its software Vulkan
+driver, and an Apple M4 Max through Metal, all give every one to within
+0.00005 of the CPU back end. No fault found. The test suite itself can not
+do this, it runs with no GUI and so no GPU.
+
+------
+
 A `shader` command. `shader file` shows the GLSL a shader compiles to,
 `-t msl`, `-t spirv`, `-t vp`, `-t cpu` and `-t tree` the other back ends
 and the checked tree, and `-o file` writes it to a file, SPIR-V as the
