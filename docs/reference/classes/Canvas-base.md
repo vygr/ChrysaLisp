@@ -16,6 +16,16 @@ with the pixmap freed the size is that of the texture
 (. canvas :draw) -> canvas
 ```
 
+### :exchange
+
+```code
+(. canvas :exchange that) -> canvas
+
+the two canvases exchange what they show, their textures. So one
+can be off screen, drawn into by a shader a strip at a time, and
+put on show when the frame is whole. They must be the same size.
+```
+
 ### :fbox
 
 ```code

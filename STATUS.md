@@ -17,6 +17,9 @@ ticks. On the Pi, with the pointer moving, the screen is drawn 50 times a
 second again, and the raymarch runs at about 1.5 frames a second where it
 ran at 2.4. On a Mac the strip is the whole frame, as before.
 
+The strips are drawn into a canvas that is not on show, and the two canvases
+exchange their textures when the frame is whole, `(. canvas :exchange that)`.
+
 The host call `shader_draw` has a fifth argument, the rectangle, and returns
 if it drew, in all four drivers. `docs/ai_digest/host_interface.md` has the
 shader calls, the clipboard calls, the five `GUI=` drivers and the two audio

@@ -59,6 +59,20 @@
 		(if ((const (ffi "gui/canvas/lisp_shade")) this shader block x y x1 y1)
 			(. this :dirty)))
 
+	(defmethod :exchange (that)
+		; (. canvas :exchange that) -> canvas
+		;the two canvases exchange what they show, their textures. So one
+		;can be off screen, drawn into by a shader a strip at a time, and
+		;put on show when the frame is whole. They must be the same size.
+		(defq tex (getf this +canvas_texture 0) flags (getf this +canvas_flags 0)
+			that_flags (getf that +canvas_flags 0)
+			mask (const +canvas_flag_shader) keep (const (logxor +canvas_flag_shader -1)))
+		(setf this +canvas_texture (getf that +canvas_texture 0) 0)
+		(setf that +canvas_texture tex 0)
+		(setf this +canvas_flags (logior (logand flags keep) (logand that_flags mask)) 0)
+		(setf that +canvas_flags (logior (logand that_flags keep) (logand flags mask)) 0)
+		(. this :dirty))
+
 	(defmethod :next_frame ()
 		; (. canvas :next_frame) -> canvas
 		((const (ffi "gui/canvas/lisp_next_frame")) this))

@@ -25,6 +25,8 @@
 	;a GPU frame is drawn as strips, each of so many lines, so that a GPU
 	;that is slow at it leaves room for the GUI to be drawn in between
 	gpu_inputs :nil gpu_y 0 gpu_strip +height gpu_wait 0
+	;the strips are drawn off screen, and the whole frame then put on show
+	gpu_back (Canvas +width +height +scale)
 	;a notice on the status line stays for a while
 	+notice_time 4000000 notice_until 0)
 
@@ -145,7 +147,7 @@
 	;takes the whole frame as one strip, every tick.
 	(unless gpu_inputs (start-frame))
 	(cond
-		((. *canvas* :shade gpu_shader gpu_inputs 0 gpu_y +width
+		((. gpu_back :shade gpu_shader gpu_inputs 0 gpu_y +width
 				(defq y1 (min +height (+ gpu_y gpu_strip))))
 			;a strip should take the GPU more than one tick and less than two,
 			;so the GPU is not left idle, and the GUI does not wait long
@@ -156,6 +158,7 @@
 				(:t (/ (* gpu_strip 2) (inc gpu_wait)))))))
 			(setq gpu_wait 0 gpu_y y1)
 			(when (>= gpu_y +height)
+				(. *canvas* :exchange gpu_back)
 				(++ gpu_frames)
 				(setq gpu_inputs :nil)))
 		(:t (++ gpu_wait))))
@@ -233,9 +236,9 @@
 				(when (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
 					(cond
 						(gpu_mode
-							(defq now (pii-time))
+							(defq now (pii-time) rate (/ (* gpu_frames 10000000) (- now gpu_time)))
 							(set-label *status* (cat "GPU, "
-								(str (/ (* gpu_frames 1000000) (- now gpu_time))) " frames a second"
+								(str (/ rate 10)) "." (str (% rate 10)) " frames a second"
 								(if (< gpu_strip +height) (cat ", in strips of " (str gpu_strip) " lines") "")))
 							(setq gpu_frames 0 gpu_time now))
 						((. farm :refresh +retry_timeout)))))))

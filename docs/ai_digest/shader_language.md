@@ -285,6 +285,11 @@ With the pointer moving the screen is then drawn 50 times a second, every
 where it ran at 2.4 with the desktop frozen. On a Mac the strip is the whole
 frame and nothing has changed.
 
+The strips are not drawn on show, a frame filling in from the top is a poor
+thing to watch. The demo has a second canvas that is never added to the
+window, draws the strips into that, and when the frame is whole
+`(. canvas :exchange that)` has the two canvases exchange their textures.
+
 To get at the pixels the GPU drew, swap the other way, `(. canvas :swap
 +swap_read)`. A swap with a negative number reads the texture back into the
 pixmap. The raymarch shader drawn this way and read back is within 1 in 255
