@@ -461,7 +461,7 @@ are made available via `gui/lisp.inc`.
 ```vdu
 (ui-canvas *drawing_area* 200 150 1
     (:on_draw (lambda (this)
-        (.-> this (:set_color +argb_red) (:fbox 10 10 50 50) (:swap 0)))))
+        (.-> this (:set_color +argb_red) (:fbox 10 10 50 50) (:swap +swap_write)))))
 ```
 
 ---

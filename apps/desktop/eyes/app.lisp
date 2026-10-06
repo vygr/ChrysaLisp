@@ -96,7 +96,7 @@
 		hr (* pupil_r 0.3) max_d (- eye_r iris_r) eye_cy (* h 0.5))
 	(draw-eye (* w 0.25) rel_mx rel_my eye_cy eye_r iris_r pupil_r hr max_d)
 	(draw-eye (* w 0.75) rel_mx rel_my eye_cy eye_r iris_r pupil_r hr max_d)
-	(. *canvas* :swap +pixmap_mode_normal))
+	(. *canvas* :swap +swap_write))
 
 ;;;;;;;;;;;
 ; Main Loop

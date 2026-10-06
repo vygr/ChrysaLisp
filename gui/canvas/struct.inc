@@ -11,11 +11,12 @@
 	(int x ys ye w dda)
 	(align))
 
-;load flags
-;a swap with a negative number goes the other way, the texture is read
-;back into the pixmap, and a pixmap that was freed is made again
+;which way a swap goes. Write is the pixmap to the texture, to which a
+;+pixmap_mode and any +swap_flag can be added. Read, or any negative number,
+;goes the other way, the texture is read back into the pixmap, and a pixmap
+;that was freed is made again.
 (enums +swap -1
-	(enum read))
+	(enum read write))
 
 ;swap flags, with the +pixmap_mode to upload in. Free lets go of the pixmap
 ;once it is a texture. The canvas still draws, but can not be drawn on.

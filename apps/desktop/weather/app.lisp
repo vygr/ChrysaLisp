@@ -124,7 +124,7 @@
 			(draw-snow canvas cx cy))
 		; Default: Rain / Drizzle / Showers
 		(:t (draw-rain canvas cx cy)))
-	(. canvas :swap 0))
+	(. canvas :swap +swap_write))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Weather" (0xea19) +event_close)

@@ -4,6 +4,14 @@
 
 ------
 
+`+swap_write` goes with `+swap_read`. `(. canvas :swap +swap_write)` is the
+pixmap to the texture, where it was `(. canvas :swap 0)`, or
+`+pixmap_mode_normal`, neither of which said which way the pixels went. A
+`+pixmap_mode` and any `+swap_flag` can be added to it. The apps and docs
+use it.
+
+------
+
 A shader can be drawn into part of a canvas, `(. canvas :shade shader block
 x y x1 y1)`, and `:shade` now says if it drew. One shader draw is on the go
 at a time, `:nil` is the GPU still busy with the last.

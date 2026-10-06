@@ -197,7 +197,7 @@
 				(:set_color 0xeeffffff)
 				(:fpoly 0.0 0.0 +winding_none_zero (list sel_ring)))))
 		(range 0 (length *cities*)))
-	(. canvas :swap 0))
+	(. canvas :swap +swap_write))
 
 (ui-window *window* ()
 	(ui-title-bar _ "World Sun Clock" (0xea19) +event_close)

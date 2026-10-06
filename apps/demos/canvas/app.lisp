@@ -230,7 +230,7 @@
 	(fpoly 0x50000000 +winding_none_zero (transform-shadow a4 fp4 t4_x t4_y txt_s))
 	(fpoly 0xffffffff +winding_none_zero (transform-copy a4 fp4 t4_x t4_y txt_s))
 
-	(. *canvas* :swap +pixmap_mode_normal))
+	(. *canvas* :swap +swap_write))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)

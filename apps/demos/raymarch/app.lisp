@@ -69,7 +69,7 @@
 
 (defun main ()
 	(setq select (task-mboxes +select_size))
-	(.-> canvas (:fill +argb_black) (:swap 0))
+	(.-> canvas (:fill +argb_black) (:swap +swap_write))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(setq lst_stream (file-stream "apps/media/films/data/raymarch.lst" +file_open_write))
@@ -103,7 +103,7 @@
 				(if farm (. farm :refresh +retry_timeout))
 				(when dirty
 					(setq dirty :nil)
-					(. canvas :swap +pixmap_mode_normal)
+					(. canvas :swap +swap_write)
 					(when (= 0 (length jobs))
 						(defq working :nil)
 						(if farm

@@ -137,7 +137,7 @@
 		(.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 		(create-clockface (* (n2f clock_size) (n2f clock_scale)))
 		(view-analog-time clock (float-time) (* (n2f clock_size) (n2f clock_scale)))
-		(. clock :swap +pixmap_mode_normal))
+		(. clock :swap +swap_write))
 	(when *display*
 		(set *display* :text (view-digital-time (date))))
 	(bind '(w h) (. *window* :pref_size))
@@ -154,7 +154,7 @@
 				(mail-timeout (elem-get select +select_timer) (next-sec-delay) 0)
 				(when clock
 					(view-analog-time clock (float-time) (* (n2f clock_size) (n2f clock_scale)))
-					(. clock :swap +pixmap_mode_normal))
+					(. clock :swap +swap_write))
 				(when *display*
 					(set *display* :text (view-digital-time (date)))
 					(.-> *display* :layout :dirty)))

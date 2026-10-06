@@ -64,10 +64,10 @@
 			(defq base_p (path margin_x (* h 0.5) (- w margin_x) (* h 0.5))
 				base_stroke (path-stroke-polyline base_p 1.5 +join_miter +cap_round +cap_round))
 			(.-> canvas (:set_color 0x33ffffff) (:fpoly 0.0 0.0 +winding_none_zero (list base_stroke)))
-			(. canvas :swap 0))
+			(. canvas :swap +swap_write))
 		(defq flt_pts (list))
 		(each (# (when (and %0 (str? %0)) (push flt_pts (str-to-num %0)))) sparkline_pts)
-		(if (< (length flt_pts) 2) (. canvas :swap 0)
+		(if (< (length flt_pts) 2) (. canvas :swap +swap_write)
 			(defq min_val (first flt_pts) max_val (first flt_pts))
 			(each (# (setq min_val (min min_val %0)
 					max_val (max max_val %0)))
@@ -125,7 +125,7 @@
 					(.-> canvas
 						(:set_color 0x99ffffff)
 						(:fpoly 0.0 0.0 +winding_none_zero (list dot_ring)))
-					(. canvas :swap 0))))
+					(. canvas :swap +swap_write))))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Crypto Ticker" (0xea19) +event_close)

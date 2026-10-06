@@ -38,8 +38,9 @@
 
 	(defmethod :swap (flags)
 		; (. canvas :swap flags) -> canvas
-		;the pixmap to the texture, in the +pixmap_mode given, with any
-		;+swap_flag. Or +swap_read, the texture back to the pixmap.
+		;+swap_write, the pixmap to the texture, to which a +pixmap_mode
+		;and any +swap_flag can be added. Or +swap_read, the texture back
+		;to the pixmap.
 		(. ((const (ffi "gui/canvas/lisp_swap")) this flags) :dirty))
 
 	(defmethod :free ()

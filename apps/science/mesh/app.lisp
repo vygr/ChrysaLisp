@@ -137,7 +137,7 @@
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
+	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap +swap_write))
 	(. *style_toolbar* :set_selected 0)
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(defq select (task-mboxes +select_size) *running* :t *dirty* :t

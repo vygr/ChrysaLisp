@@ -264,7 +264,7 @@ takes, gives it the shader from that back end, MSL text or a SPIR-V module,
 and returns the shader, or `:nil` if this driver can not draw one.
 `(. canvas :shade shader block)` draws it over the whole canvas with that
 inputs block. The pixmap of the canvas is not used and not changed. A later
-`(. canvas :swap)` puts the pixmap back on show, so an app can go from one to
+`(. canvas :swap +swap_write)` puts the pixmap back on show, so an app can go from one to
 the other frame by frame.
 
 One shader draw is on the go at a time. `:shade` returns the canvas if it

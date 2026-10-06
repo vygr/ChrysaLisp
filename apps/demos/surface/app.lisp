@@ -187,7 +187,7 @@
 (defun main ()
 	(setq select (task-mboxes +select_size))
 	(make-controls)
-	(.-> *canvas* (:fill +argb_black) (:swap 0))
+	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(setq farm (Farm create destroy (length (lisp-nodes)))
@@ -224,7 +224,7 @@
 					(setq tiles (erase tiles i (inc i)))
 					(when (empty? tiles)
 						;the frame is done, show it and start the next
-						(. *canvas* :swap 0)
+						(. *canvas* :swap +swap_write)
 						(if (> (pii-time) notice_until)
 							(set-label *status* (cat "Frame "
 								(str (/ (- (pii-time) frame_time) 1000)) "ms, "

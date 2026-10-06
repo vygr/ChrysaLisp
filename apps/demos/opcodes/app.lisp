@@ -228,7 +228,7 @@
 			(map (# (path-transform tx_matrix %0 (cat %0))) core_paths)))
 		*bouncers*)
 
-	(. *canvas* :swap +pixmap_mode_normal))
+	(. *canvas* :swap +swap_write))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)

@@ -244,7 +244,7 @@
 						(. canvas :ftri p)))
 				(task-slice))
 			poly_buckets)
-		(. canvas :swap +pixmap_mode_normal)
+		(. canvas :swap +swap_write)
 		this)
 	)
 
