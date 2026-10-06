@@ -77,6 +77,26 @@ static SDL_Texture *create_backbuffer(uint64_t w, uint64_t h)
 	return t;
 }
 
+// the GPU device is made here, not by the renderer, to ask for no more
+// than is used. A device SDL makes for itself wants depth clamping and the
+// like, which a small GPU may not have, the Raspberry Pi 4 has no depth
+// clamp, and SDL then picks a software device in its place.
+
+static SDL_GPUDevice *create_device()
+{
+	auto props = SDL_CreateProperties();
+	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN, true);
+	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_MSL_BOOLEAN, true);
+	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_DXIL_BOOLEAN, true);
+	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_CLIP_DISTANCE_BOOLEAN, false);
+	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_DEPTH_CLAMPING_BOOLEAN, false);
+	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_INDIRECT_DRAW_FIRST_INSTANCE_BOOLEAN, false);
+	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_ANISOTROPY_BOOLEAN, false);
+	auto dev = SDL_CreateGPUDeviceWithProperties(props);
+	SDL_DestroyProperties(props);
+	return dev;
+}
+
 void host_gui_init(host_gui_rect *rect, uint64_t flags)
 {
 #if defined(__APPLE__)
@@ -85,9 +105,14 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	window = SDL_CreateWindow("ChrysaLisp GUI Window", rect->w, rect->h, SDL_WINDOW_RESIZABLE);
 	// the GPU renderer if there is one, so that a shader can share its device
-	renderer = SDL_CreateGPURenderer(nullptr, window);
-	if (renderer) device = SDL_GetGPURendererDevice(renderer);
-	else renderer = SDL_CreateRenderer(window, nullptr);
+	device = create_device();
+	if (device) renderer = SDL_CreateGPURenderer(device, window);
+	if (!renderer)
+	{
+		if (device) SDL_DestroyGPUDevice(device);
+		device = nullptr;
+		renderer = SDL_CreateRenderer(window, nullptr);
+	}
 	SDL_SetRenderVSync(renderer, 1);
 	backbuffer = create_backbuffer(rect->w, rect->h);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -106,6 +131,10 @@ void host_gui_deinit()
 	{
 		SDL_DestroyRenderer(renderer);
 		renderer = nullptr;
+	}
+	if (device)
+	{
+		SDL_DestroyGPUDevice(device);
 		device = nullptr;
 	}
 	if (window)
@@ -268,6 +297,8 @@ void *host_gui_shader_create(const char *vertex, uint64_t vertex_size, const cha
 		info.fragment_shader = fs;
 		info.primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST;
 		info.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
+		// depth is clipped, not clamped, the device was not asked for clamping
+		info.rasterizer_state.enable_depth_clip = true;
 		info.target_info.color_target_descriptions = &target;
 		info.target_info.num_color_targets = 1;
 		pipeline = SDL_CreateGPUGraphicsPipeline(device, &info);

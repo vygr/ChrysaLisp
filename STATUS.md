@@ -4,6 +4,22 @@
 
 ------
 
+The sdl3 driver makes its own GPU device, and asks for no more than it uses.
+The Raspberry Pi 4 was reflashed today with the 64 bit Raspberry Pi OS, Debian
+13, and that showed two things. Its SDL3 package is 3.2.10, and the driver
+needs 3.4, for the GPU renderer, so SDL3 has to be built from source there, as
+on the x64 MacBook. And the device SDL makes for itself wants depth clamping,
+which the Pi's GPU, the V3D, does not have, so SDL passed over it without a
+word and picked llvmpipe, a software renderer. Asked for without the depth
+clamp, clip distance, indirect first instance and anisotropy features, none of
+which are used, SDL picks the V3D. On the M4 the same raymarch frame comes
+back as before.
+
+The Pi can not draw a shader yet, its device takes SPIR-V, and there is no
+SPIR-V back end.
+
+------
+
 The Windows launch scripts keep to their session too, as the macOS and Linux
 ones do. Not yet run on Windows. The session logic has been run under
 PowerShell 7 on the Mac against a made up process table, the launch itself has
