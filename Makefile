@@ -89,10 +89,17 @@ endif
 #SDL2 and SDL3 share the names of their calls, so one program can not
 #link both. The sdl3 and raw3 GUI drivers go with the sdl3 AUDIO driver,
 #which does its own mixing, there is no mixer library.
+#SDL3 is found with pkg-config, or give the folder it was installed to,
+#make gui GUI=sdl3 SDL3_PREFIX=$$HOME/sdl3_build/install
 ifneq ($(filter 3 4,$(HOST_GUI)),)
 	HOST_AUDIO := 1
+ifneq ($(SDL3_PREFIX),)
+	SDL_CFLAGS := -I$(SDL3_PREFIX)/include
+	SDL_LIBS := -L$(SDL3_PREFIX)/lib -Wl,-rpath,$(SDL3_PREFIX)/lib -lSDL3
+else
 	SDL_CFLAGS := $(shell pkg-config --cflags sdl3)
 	SDL_LIBS := $(shell pkg-config --libs sdl3)
+endif
 	AUDIO_FLAGS := -D_HOST_AUDIO=$(HOST_AUDIO)
 endif
 
