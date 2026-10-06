@@ -4,6 +4,17 @@
 
 ------
 
+The three machines as one network, checked after all of today's changes to
+the hosts, the sessions and the link names. Eight nodes on the M4, four on
+the Raspberry Pi 4 and eight on the x64 MacBook, the M4 linking to the other
+two over TCP. All three machines were seen 2.3 seconds after the links were
+asked for. A task was then started on every one of the 20 nodes, from the
+M4, in 48ms, and all 20 answered a poll in 68ms. The Pi was running its
+frame buffer desktop, a second session, at the time, and the two did not
+meet.
+
+------
+
 The frame buffer driver, a second round, with Chris at the Pi. It was run as
 it is meant to be, the launch script, four nodes, the ordinary user, owning
 its console. Onslaught, the surface demo, dragging windows and the mouse are
