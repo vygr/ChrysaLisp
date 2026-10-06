@@ -39,11 +39,22 @@ static Voice voices[MAX_VOICES];
 static uint64_t playCount = 0;
 static SDL_AudioStream *stream = nullptr;
 
-// the limiter. When the mix would go over full scale the gain of the
-// whole mix is brought down at once to hold it there, and is then let
-// back up slowly, so a loud moment is turned down, not clipped.
+// the limiter. Up to the knee, 90% of full scale, the mix is left as it
+// is. Over the knee it is eased in under full scale, the further over
+// the harder, and never reaches it. The gain of the whole mix is brought
+// down at once for a peak, and is then let back up slowly, so a loud
+// moment is turned down, not clipped.
+#define LIMIT_KNEE 0.9f
 #define LIMIT_RELEASE (1.0f / (0.25f * MIX_RATE))
 static float limiter_gain = 1.0f;
+
+static float limiter_want(float peak)
+{
+	// the gain that takes a peak to where it should be
+	if (peak <= LIMIT_KNEE) return 1.0f;
+	const float room = 1.0f - LIMIT_KNEE;
+	return (LIMIT_KNEE + room * (1.0f - SDL_expf((LIMIT_KNEE - peak) / room))) / peak;
+}
 
 static void logAudioError(const char *msg)
 {
@@ -82,8 +93,9 @@ static void SDLCALL mix_callback(void *userdata, SDL_AudioStream *s, int additio
 			float peak = l < 0.0f ? -l : l;
 			float peak_r = r < 0.0f ? -r : r;
 			if (peak_r > peak) peak = peak_r;
-			if (peak * limiter_gain > 1.0f) limiter_gain = 1.0f / peak;
-			else limiter_gain += (1.0f - limiter_gain) * LIMIT_RELEASE;
+			float want = limiter_want(peak);
+			if (want < limiter_gain) limiter_gain = want;
+			else limiter_gain += (want - limiter_gain) * LIMIT_RELEASE;
 			mix[i * 2] = l * limiter_gain;
 			mix[i * 2 + 1] = r * limiter_gain;
 		}

@@ -5,11 +5,12 @@
 ------
 
 The mixer of the sdl3 AUDIO driver has a limiter. It used to clamp the mix at
-full scale, so a loud moment was clipped. Now the gain of the whole mix is
-brought down at once to hold it at full scale, and let back up over a quarter
-of a second. One sound is not touched. With 8 of the same sound at once, half
-the samples were clipped, 15,641 of 31,752, and now 248 touch full scale and
-none is flattened.
+full scale, so a loud moment was clipped. Now the mix is left alone up to 90%
+of full scale, and over that is eased in under it, a peak of 100% comes out
+at 96%, and one of 150% just short of full scale. The gain of the whole mix
+is brought down at once for a peak, and let back up over a quarter of a
+second. With 8 of the same sound at once, half the samples were clipped,
+15,641 of 31,752, now none is flattened.
 
 ------
 
