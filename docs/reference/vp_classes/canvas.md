@@ -177,6 +177,21 @@ trashes
 :r1-:r8
 ```
 
+### :read -> gui/canvas/read
+
+```code
+inputs
+:r0 = canvas object (ptr)
+outputs
+:r0 = canvas object (ptr)
+trashes
+:r1-:r14, :f0-:f15
+info
+the texture of the canvas is read back into its pixmap. The
+canvas is given a new pixmap, premultiplied, so one that was
+freed is made again, and one that is shared is left alone.
+```
+
 ### :set_clip -> gui/canvas/set_clip
 
 ```code

@@ -12,6 +12,11 @@
 	(align))
 
 ;load flags
+;a swap with a negative number goes the other way, the texture is read
+;back into the pixmap, and a pixmap that was freed is made again
+(enums +swap -1
+	(enum read))
+
 ;swap flags, with the +pixmap_mode to upload in. Free lets go of the pixmap
 ;once it is a texture. The canvas still draws, but can not be drawn on.
 ;Keep leaves the texture as it is, there is no upload.

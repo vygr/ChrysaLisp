@@ -109,6 +109,9 @@ the GPU draws the shader into the texture of the canvas
 
 ```code
 (. canvas :swap flags) -> canvas
+
+the pixmap to the texture, in the +pixmap_mode given, with any
++swap_flag. Or +swap_read, the texture back to the pixmap.
 ```
 
 ### :tile

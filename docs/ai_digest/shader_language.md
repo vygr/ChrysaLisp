@@ -212,6 +212,11 @@ the whole canvas with that inputs block. The pixmap of the canvas is not used
 and not changed. A later `(. canvas :swap)` puts the pixmap back on show, so
 an app can go from one to the other frame by frame.
 
+To get at the pixels the GPU drew, swap the other way, `(. canvas :swap
++swap_read)`. A swap with a negative number reads the texture back into the
+pixmap. The raymarch shader drawn this way and read back is within 1 in 255
+of the native code for it, on every pixel of a 64 by 48 frame.
+
 Under that are three functions, `(canvas-shader-format)`,
 `(canvas-shader-create vertex fragment)` and `(canvas-shader-destroy shader)`,
 and five calls at the end of the host GUI table, `shader_format`,
@@ -446,8 +451,6 @@ Demos list in `apps/system/launcher/app.lisp`, or to your own launcher config.
 
 ## What Is Not Here Yet
 
-* The read back. On `(. canvas :swap)` a positive flag is pixmap to GPU, as
-  now, and a negative flag will be GPU back to the pixmap.
 * The sdl3 GUI driver has only been run on a Mac.
 * Raylib is the fall back if SDL3 will not do for a host.
 * A SPIR-V back end, for SDL3 on Vulkan, which is Linux and the Pi.

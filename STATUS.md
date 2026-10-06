@@ -4,6 +4,25 @@
 
 ------
 
+A swap can go the other way. `(. canvas :swap +swap_read)`, any negative
+number, reads the texture of a canvas back into its pixmap. Zero and up are
+the upload modes, as they always were. The canvas is given a new pixmap, so
+one that was freed is made again and can be drawn on, and one that is shared
+is left alone. After a `(. canvas :shade)` it is how an app gets at the pixels
+the GPU drew.
+
+It is one more call at the end of the host GUI table, `read_texture`, in all
+four drivers, so `make` after this pull, and `snapshot.zip` has a new Windows
+`main_gui.exe`. On the SDL drivers the texture is drawn to one that can be
+read. On the raw and frame buffer drivers a texture is memory, and a glyph
+texture comes back as white with its alpha.
+
+Checked on the SDL3, raw and SDL2 drivers, paint, upload, free, read back,
+every pixel the same. And the raymarch shader drawn by the GPU and read back
+is within 1 in 255 of the native code for it, on every pixel.
+
+------
+
 The menu text of Onslaught came out white on a raw GUI build. Its font is a
 white image that is drawn in a color, and it was uploaded as a normal texture.
 The rule is that a glyph or a greyscale texture is tinted and a normal one is

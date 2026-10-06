@@ -309,6 +309,35 @@ void host_gui_shader_draw(void *handle, void *texture, const void *block, uint64
 	SDL_SubmitGPUCommandBuffer(cmd);
 }
 
+// copy a texture into a buffer, 32 bit premultiplied argb, as it was uploaded
+
+uint64_t host_gui_read_texture(void *handle, uint32_t *data, uint64_t w, uint64_t h, uint64_t stride)
+{
+	auto t = (SDL_Texture*)handle;
+	if (!t || !renderer) return 0;
+	// it is drawn, as it is, to a texture that can be read from
+	auto copy = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, (int)w, (int)h);
+	if (!copy) return 0;
+	SDL_BlendMode blend;
+	Uint8 r, g, b;
+	SDL_GetTextureBlendMode(t, &blend);
+	SDL_GetTextureColorMod(t, &r, &g, &b);
+	SDL_SetTextureBlendMode(t, SDL_BLENDMODE_NONE);
+	SDL_SetTextureColorMod(t, 255, 255, 255);
+	auto target = SDL_GetRenderTarget(renderer);
+	SDL_SetRenderTarget(renderer, copy);
+	SDL_RenderTexture(renderer, t, 0, 0);
+	auto surface = SDL_RenderReadPixels(renderer, nullptr);
+	SDL_SetRenderTarget(renderer, target);
+	SDL_SetTextureBlendMode(t, blend);
+	SDL_SetTextureColorMod(t, r, g, b);
+	bool ok = surface && SDL_ConvertPixels(surface->w, surface->h, surface->format, surface->pixels, surface->pitch,
+		SDL_PIXELFORMAT_ARGB8888, data, (int)stride);
+	if (surface) SDL_DestroySurface(surface);
+	SDL_DestroyTexture(copy);
+	return ok;
+}
+
 void (*host_gui_funcs[]) = {
 	(void*)host_gui_init,
 	(void*)host_gui_deinit,
@@ -333,6 +362,7 @@ void (*host_gui_funcs[]) = {
 	(void*)host_gui_shader_destroy,
 	(void*)host_gui_shader_texture,
 	(void*)host_gui_shader_draw,
+	(void*)host_gui_read_texture,
 };
 
 #endif

@@ -58,6 +58,8 @@ the dirty region bounds is returned for use by the :flush call !
 
 ### :poll_event -> :nil
 
+### :read_texture -> :nil
+
 ### :resize -> :nil
 
 ### :set_clip -> :nil

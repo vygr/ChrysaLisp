@@ -825,6 +825,36 @@ void host_gui_shader_draw(void *handle, void *texture, const void *block, uint64
 {
 }
 
+// copy a texture into a buffer, 32 bit premultiplied argb. A glyph texture
+// has only alpha, and comes back as white, a greyscale one as its grey.
+
+uint64_t host_gui_read_texture(void *handle, uint32_t *data, uint64_t w, uint64_t h, uint64_t stride)
+{
+	Texture *t = (Texture*)handle;
+	if (!t || (uint64_t)t->width != w || (uint64_t)t->height != h) return 0;
+	for (uint64_t y = 0; y < h; y++)
+	{
+		const uint8_t *src = (const uint8_t*)t->pixels + y * t->pitch;
+		uint32_t *dst = (uint32_t*)((uint8_t*)data + y * stride);
+		for (uint64_t x = 0; x < w; x++)
+		{
+			if (t->mode == 1)
+			{
+				uint32_t a = src[x];
+				dst[x] = (a << 24) | (a << 16) | (a << 8) | a;
+			}
+			else if (t->mode == 2)
+			{
+				uint32_t p = ((const uint16_t*)src)[x];
+				uint32_t a = p >> 8, c = p & 0xff;
+				dst[x] = (a << 24) | (c << 16) | (c << 8) | c;
+			}
+			else dst[x] = ((const uint32_t*)src)[x];
+		}
+	}
+	return 1;
+}
+
 void (*host_gui_funcs[]) = {
     (void*)host_gui_init,
     (void*)host_gui_deinit,
@@ -849,6 +879,7 @@ void (*host_gui_funcs[]) = {
 	(void*)host_gui_shader_destroy,
 	(void*)host_gui_shader_texture,
 	(void*)host_gui_shader_draw,
+	(void*)host_gui_read_texture,
 };
 
 /* open linux framebuffer*/

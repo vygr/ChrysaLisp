@@ -157,14 +157,17 @@
 
 	(def-vars
 		(ptr this pixmap texture)
-		(uint flags))
+		(int flags))
 
 	(push-scope)
 	(entry :canvas :swap {this, flags})
 
-	;a canvas that has freed its pixmap has nothing new to show
+	;a negative number is the other way, the texture back to the pixmap
 	(assign {this->+canvas_pixmap} {pixmap})
-	(vpif {pixmap})
+	(vpif {flags < 0})
+		(call :canvas :read {this})
+	;a canvas that has freed its pixmap has nothing new to show
+	(elseif {pixmap})
 	(vpifnot {flags & +swap_flag_keep})
 		;must be in premul alpha format
 		(call :pixmap :as_premul {pixmap})
@@ -202,6 +205,84 @@
 
 	(exit :canvas :swap {this})
 	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method :canvas :read 16)
+	;inputs
+	;:r0 = canvas object (ptr)
+	;outputs
+	;:r0 = canvas object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;the texture of the canvas is read back into its pixmap. The
+	;canvas is given a new pixmap, premultiplied, so one that was
+	;freed is made again, and one that is shared is left alone.
+
+	(structure local 0
+		(ptr this pixmap)
+		(long handle ok))
+
+	(def-vars
+		(struct frame local_size)
+		(ptr this texture pixmap old)
+		(uint w h))
+
+	(push-scope)
+	(entry :canvas :read {this})
+
+	(assign {this->+canvas_texture} {texture})
+	(vpif {texture})
+		;a pixmap the size of the texture, for the host GUI driver to fill
+		(assign {texture->+texture_width, texture->+texture_height} {w, h})
+		(call :pixmap :create {w, h, -32} {pixmap})
+		(assign {this, pixmap, texture->+texture_handle, 0}
+			{frame.local_this, frame.local_pixmap, frame.local_handle, frame.local_ok})
+		(call :sys_task :callback {&frame, $callback})
+		(vpif {frame.local_ok})
+			;the pixmap of a canvas is its texture times the scale
+			(vpif {this->+canvas_scale /= 1})
+				(assign {pixmap} {old})
+				(call :pixmap :create {w * this->+canvas_scale, h * this->+canvas_scale, -32} {pixmap})
+				(call :pixmap :resize {pixmap, old})
+				(call :pixmap :deref {old})
+			(endif)
+			(call :pixmap :deref_if {this->+canvas_pixmap})
+			(assign {pixmap} {this->+canvas_pixmap})
+			;and all of it can be drawn on
+			(call :canvas :set_clip {this, 0, 0, pixmap->+pixmap_width, pixmap->+pixmap_height})
+		(else)
+			(call :pixmap :deref {pixmap})
+		(endif)
+	(endif)
+
+	(exit :canvas :read {this})
+	(pop-scope)
+	(return)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data
+
+	(def-vars
+		(ptr user old_stack pixmap)
+		(long ok))
+
+	(vp-cpy-rr :rsp :r1)
+	(push-scope)
+	(vp-and-cr -16 :rsp)
+	(entry {user, old_stack})
+
+	(assign {user->local_pixmap} {pixmap})
+	(host-gui-call :host_gui :read_texture {user->local_handle, &pixmap->+pixmap_data,
+			pixmap->+pixmap_width, pixmap->+pixmap_height, pixmap->+pixmap_stride}
+		{ok})
+	(assign {ok} {user->local_ok})
+
+	(assign {old_stack} '(:rsp))
+	(pop-scope-syms)
 	(return)
 
 (def-func-end)
