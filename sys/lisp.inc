@@ -78,6 +78,13 @@
 		(pii-spawn (join (map (lambda (name) (cat "-l " name)) names) " ")))
 		(rest links)))
 	(each (const node-link) (first links))
+	;leave the pids and the link names for the launch script that started
+	;this node's session, it stops what its nodes started, see funcs.sh
+	(unless (eql (os) 'Windows)
+		(defq file (cat "/tmp/chrysalisp_" (str (pii-pid)) ".session"))
+		(save (cat (if (/= (age file) 0) (load file) "")
+			(join (map (# (cat "pid " (str %0) (ascii-char 10))) (filter (# (> %0 0)) pids)) "")
+			(join (map (# (cat "link " %0 (ascii-char 10))) (unique (flatten links))) "")) file))
 	pids)))
 
 (defun node-auto (&optional per_cpu)

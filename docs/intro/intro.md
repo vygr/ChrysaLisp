@@ -350,7 +350,12 @@ make GUI=fb install
 
 ### Stopping the ChrysaLisp Network
 
-To shut down all background ChrysaLisp processes:
+On macOS, Linux and the Raspberry Pi a session, the nodes one launch script
+started, stops itself. Quit the GUI, or leave the TUI, and the rest of its
+nodes are stopped with it. More than one session can run on a machine, each
+has link names of its own, and stopping one leaves the others alone.
+
+To shut down every ChrysaLisp process on the machine, whoever started it:
 
 * **macOS / Linux / Raspberry Pi**:
 
@@ -381,8 +386,6 @@ network setups using specialized scripts. These scripts typically accept common
 arguments:
 
 * `-n <count>`: Specifies the number of VP nodes to launch.
-
-* `-b <base_id>`: Sets the starting node ID for this group of nodes.
 
 * `-e`: Runs the nodes using the VP64 emulator with the VP64 boot image (slower, 
   but useful for debugging or if native compilation is an issue).

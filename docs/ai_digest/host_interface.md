@@ -393,9 +393,6 @@ The run scripts accept common arguments:
 
 * `-n <count>`: Number of nodes (or side length for mesh/cube).
 
-* `-b <base_offset>`: Base number for CPU IDs, useful for running multiple
-  topologies side-by-side without link name clashes.
-
 * `-e`: Run in emulator mode (passes `-e` to `main_gui`/`main_tui`).
 
 * `-f`: Run the primary node in the foreground.
@@ -404,9 +401,20 @@ The run scripts accept common arguments:
 
 ## Stop Scripts
 
+* **A session stops itself.** The shell launch scripts keep the pid of each
+  node they start, and give the links of a launch names of its own, six
+  characters of base 36 from a random number. A node that starts more nodes,
+  `(node-spawn)`, leaves their pids and link names in
+  `/tmp/chrysalisp_<pid>.session`. When the first node of a session exits the
+  script stops the rest and removes their link and session files, at once if
+  the launch was in the foreground, by a watch it leaves behind if not. A node
+  exits when its GUI quits. So two sessions on one machine do not meet, and
+  stopping one leaves the other alone.
+
 * **`stop.sh`:** Uses `killall main_gui -KILL` and `killall main_tui -KILL`
-  to forcefully terminate all ChrysaLisp node processes. It also removes
-  link files from `/tmp/` (e.g., `rm -f /tmp/???-???`).
+  to forcefully terminate all ChrysaLisp node processes, whoever started
+  them. It also removes link and session files from `/tmp/`. It is for when
+  a session has not stopped itself.
 
 * **`stop.ps1`:** Uses `Stop-Process -Name main_gui -Force` and `Stop-Process
   -Name main_tui -Force`.

@@ -4,6 +4,26 @@
 
 ------
 
+A session stops only itself, on macOS and Linux. A session is the nodes one
+launch script started, and the nodes they started in turn.
+
+It was that every launch began by stopping every node on the machine, and a
+launch in the foreground ended the same way, so two sessions could not be up
+at once, and closing one took the other with it. Now the links of a launch
+have names of its own, from a random number, the script keeps the pid of each
+node it starts, and `(node-spawn)` leaves the pids and link names of what it
+starts in `/tmp/chrysalisp_<pid>.session`. When the first node of a session
+exits, the script stops the rest and clears up their files. A launch that is
+not in the foreground leaves a watch to do it.
+
+A node now exits when its GUI quits, it used to carry on with no window till
+the next launch stopped it. `-b`, the base offset for link names, is gone,
+there is nothing left for it to do. `./stop.sh` is as it was, it stops
+every node on the machine, for when a session has not stopped itself. The
+Windows scripts are not changed.
+
+------
+
 A swap can go the other way. `(. canvas :swap +swap_read)`, any negative
 number, reads the texture of a canvas back into its pixmap. Zero and up are
 the upload modes, as they always were. The canvas is given a new pixmap, so

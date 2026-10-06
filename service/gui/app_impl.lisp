@@ -138,4 +138,7 @@
 	(mail-timeout (elem-get select +select_timer) 0 0)
 	(each (# (. %0 :sub)) (. *screen* :children))
 	(setq *mouse* :nil *screen* :nil)
-	(gui-deinit))
+	(gui-deinit)
+	;the GUI has quit, and so this node goes with it. If it was the first
+	;node of its session, the launch script then stops the rest, see funcs.sh
+	(pii-exit))

@@ -185,6 +185,12 @@ You can combine options, for example: `make all platforms boot`.
 
 ### 6. Stopping ChrysaLisp
 
+On macOS and Linux a session, the nodes one launch script started, stops
+itself. Quit the GUI, or leave the TUI, and the rest of its nodes are stopped
+with it. Other sessions on the machine are left alone.
+
+To stop every node on the machine, whoever started it:
+
 * macOS/Linux: `./stop.sh`
 
 * Windows Batch: `stop.bat`

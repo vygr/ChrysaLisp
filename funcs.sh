@@ -25,39 +25,103 @@ function restore_tty
 
 trap restore_tty EXIT INT TERM HUP
 
-function zero_pad
+#a session is the nodes one launch script started, and those nodes
+#started in turn. Each has link names of its own, so two sessions on
+#one machine do not meet, and a session stops only itself.
+
+session_pids=""
+session_links=""
+session_salt=$(( ((RANDOM << 15) | RANDOM) * 1021 + RANDOM ))
+
+function link_name
 {
-	if [ $1 -lt 100 ]
-	then
-		zp="0$1"
-	else
-		zp=$1
-	fi
-	if [ $zp -lt 10 ]
-	then
-		zp="0$zp"
-	fi
+	#the name of the link between two nodes, ???-??? in base 36, the
+	#form the stop scripts clear away
+	local n=$(( ($session_salt + $1 * 128 + $2) % 2176782336 ))
+	local digits="0123456789abcdefghijklmnopqrstuvwxyz"
+	local name=""
+	for ((i=0; i<6; i++))
+	do
+		name="${digits:$(($n % 36)):1}$name"
+		n=$(($n / 36))
+	done
+	nl="${name:0:3}-${name:3:3}"
 }
 
 function add_link
 {
-	zero_pad $(($1 + $base_cpu))
-	l1=$zp
-	zero_pad $(($2 + $base_cpu))
-	l2=$zp
-	if [ $l1 != $l2 ]
+	if [ $1 != $2 ]
 	then
-		if [ $l1 -lt $l2 ]
+		if [ $1 -lt $2 ]
 		then
-			nl=$l1-$l2
+			link_name $1 $2
 		else
-			nl=$l2-$l1
+			link_name $2 $1
 		fi
 		if [[ "$links" != *"$nl"* ]]
 		then
 			links+="-l $nl "
 		fi
+		if [[ "$session_links" != *"$nl"* ]]
+		then
+			session_links+="$nl "
+		fi
 	fi
+}
+
+function session_stop
+{
+	#stop every node of this session. A node that starts more nodes,
+	#(node-spawn), leaves their pids and link names in a file.
+	local todo="$session_pids"
+	local seen=""
+	local pid
+	local what
+	local val
+	while [ -n "$todo" ]
+	do
+		pid=${todo%% *}
+		todo=${todo#* }
+		if [ -n "$pid" ] && [[ " $seen " != *" $pid "* ]]
+		then
+			seen+="$pid "
+			if [ -f "$TEMP/chrysalisp_$pid.session" ]
+			then
+				while read what val
+				do
+					if [ "$what" == "pid" ]
+					then
+						todo+="$val "
+					elif [ "$what" == "link" ]
+					then
+						session_links+="$val "
+					fi
+				done < "$TEMP/chrysalisp_$pid.session"
+				rm -f "$TEMP/chrysalisp_$pid.session"
+			fi
+		fi
+	done
+	for pid in $seen
+	do
+		kill -KILL $pid 2>/dev/null
+	done
+	for val in $session_links
+	do
+		rm -f "$TEMP/$val"
+	done
+}
+
+function session_watch
+{
+	#stop the session when its first node has gone, for a launch
+	#that does not wait for it
+	(
+		while kill -0 $1 2>/dev/null
+		do
+			sleep 1
+		done
+		session_stop
+	) &> /dev/null &
 }
 
 function wrap
@@ -81,43 +145,63 @@ function auto_run
 	fi
 }
 
+#the first node, node 0, is the one the session lives by. It is the
+#last to be booted. If the launch is in the foreground it is waited
+#for, and then the session is stopped. If not, a watch is left to
+#stop the session when it has gone.
+function boot_first
+{
+	if [ "$front" == "" ] && [ "$1" != "wait" ]
+	then
+		shift
+		"$@" &
+		session_pids+="$! "
+		session_watch $!
+	else
+		shift
+		"$@" <&0 &
+		local pid=$!
+		session_pids+="$pid "
+		wait $pid
+		status=$?
+		restore_tty
+		session_stop
+		return $status
+	fi
+}
+
 function boot_cpu_gui
 {
 	if [ $num_gui -eq 0 ]
 	then
 		if [ $1 -lt 1 ]
 		then
-			if [ "$front" == "" ]
-			then
-				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run $script)" &
-			else
-				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run $script)"
-				status=$?
-				restore_tty
-				{
-					./stop.sh
-				} &> /dev/null
-				return $status
-			fi
+			boot_first nowait ./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run $script)"
+			return $?
 		else
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu &
+			session_pids+="$! "
+			disown $!
 		fi
 	elif [ $1 -lt $num_gui ]
 	then
-		if [ "$front" == "" ] || [ $1 -ge 1 ]
+		if [ $1 -ge 1 ]
 		then
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run service/gui/app.lisp)" &
+			session_pids+="$! "
+			disown $!
+		elif [ "$front" == "" ]
+		then
+			boot_first nowait ./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run service/gui/app.lisp)"
+			return $?
 		else
-			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run apps/tui/tui_gui.lisp)"
-			status=$?
-			restore_tty
-			{
-				./stop.sh
-			} &> /dev/null
-			return $status
+			boot_first wait ./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run apps/tui/tui_gui.lisp)"
+			return $?
 		fi
 	else
 		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu &
+		session_pids+="$! "
+		disown $!
 	fi
 }
 
@@ -125,23 +209,13 @@ function boot_cpu_tui
 {
 	if [ $1 -lt 1 ]
 	then
-		if [ "$front" == "" ]
-		then
-			./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run $script)"
-			status=$?
-			restore_tty
-			return $status
-		else
-			./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run $script)"
-			status=$?
-			restore_tty
-			{
-				./stop.sh
-			} &> /dev/null
-			return $status
-		fi
+		#a TUI is always waited for, it has the terminal
+		boot_first wait ./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run $script)"
+		return $?
 	else
 		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu &
+		session_pids+="$! "
+		disown $!
 	fi
 }
 
@@ -150,7 +224,6 @@ function main
 	num_cpu=$1
 	max_cpu=$2
 	shift 2
-	base_cpu=0
 	num_gui=1
 	emu=""
 	front=""
@@ -187,12 +260,7 @@ function main
 			fi
 			shift 2
 			;;
-		-b)
-			base_cpu=$2
-			shift 2
-			;;
 		*)	echo "[-n cnt] number of nodes, 0 to size to the machine"
-			echo "[-b base] base offset"
 			echo "[-g cnt] number of guis"
 			echo "[-s script_name] script mode"
 			echo "[-e] emulator mode"
@@ -210,9 +278,7 @@ function main
 		num_cpu=$max_cpu
 	fi
 
-	#shutdown all nodes if base is 0
-	if [ $base_cpu -eq 0 ]
-	then
-		./stop.sh
-	fi
+	#where the links, and the files of a session, are kept
+	export TEMP=/tmp/
+	mkdir -p $TEMP
 }
