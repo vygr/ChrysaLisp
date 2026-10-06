@@ -39,6 +39,10 @@ ifeq ($(HGUI),sdl3)
 	HOST_GUI := 3
 	OBJ_GUI := gui_sdl3
 endif
+ifeq ($(HGUI),raw3)
+	HOST_GUI := 4
+	OBJ_GUI := gui_raw3
+endif
 
 OBJ_DIR_GUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/$(OBJ_GUI)
 OBJ_DIR_TUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/tui
@@ -83,9 +87,9 @@ else
 endif
 
 #SDL2 and SDL3 share the names of their calls, so one program can not
-#link both. The sdl3 GUI driver goes with the sdl3 AUDIO driver, which
-#does its own mixing, there is no mixer library.
-ifeq ($(HOST_GUI),3)
+#link both. The sdl3 and raw3 GUI drivers go with the sdl3 AUDIO driver,
+#which does its own mixing, there is no mixer library.
+ifneq ($(filter 3 4,$(HOST_GUI)),)
 	HOST_AUDIO := 1
 	SDL_CFLAGS := $(shell pkg-config --cflags sdl3)
 	SDL_LIBS := $(shell pkg-config --libs sdl3)
@@ -109,6 +113,9 @@ ifeq ($(HOST_GUI),2)
 endif
 ifeq ($(HOST_GUI),3)
 	@echo Building sdl3 GUI driver.
+endif
+ifeq ($(HOST_GUI),4)
+	@echo Building raw GUI driver, on SDL3.
 endif
 ifeq ($(HOST_AUDIO),0)
 	@echo Building sdl AUDIO driver.

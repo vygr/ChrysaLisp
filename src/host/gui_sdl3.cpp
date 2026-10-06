@@ -7,7 +7,7 @@
 #include <SDL3/SDL.h>
 #include <stdint.h>
 #include <string.h>
-#include "gui_event.h"
+#include "gui_sdl3_event.h"
 
 #if defined(__APPLE__)
 #include <objc/message.h>
@@ -107,79 +107,9 @@ void host_gui_deinit()
 #endif
 }
 
-// the next event for the GUI service, 0 if there is none. Not every
-// SDL event is one it takes, so they are read till one is.
-
-static bool next_event(host_gui_event *out)
-{
-	SDL_Event e;
-	while (SDL_PollEvent(&e))
-	{
-		memset(out, 0, sizeof(host_gui_event));
-		switch (e.type)
-		{
-		case SDL_EVENT_QUIT:
-			out->type = host_gui_event_quit;
-			return true;
-		case SDL_EVENT_WINDOW_RESIZED:
-			out->type = host_gui_event_resized;
-			out->x = e.window.data1;
-			out->y = e.window.data2;
-			return true;
-		case SDL_EVENT_WINDOW_SHOWN:
-		case SDL_EVENT_WINDOW_RESTORED:
-			out->type = host_gui_event_shown;
-			return true;
-		case SDL_EVENT_KEY_DOWN:
-		case SDL_EVENT_KEY_UP:
-			out->type = e.type == SDL_EVENT_KEY_DOWN ? host_gui_event_key_down : host_gui_event_key_up;
-			out->scode = e.key.scancode;
-			return true;
-		case SDL_EVENT_MOUSE_MOTION:
-			out->type = host_gui_event_mouse_motion;
-			out->x = (int32_t)e.motion.x;
-			out->y = (int32_t)e.motion.y;
-			out->buttons = e.motion.state;
-			return true;
-		case SDL_EVENT_MOUSE_BUTTON_DOWN:
-		case SDL_EVENT_MOUSE_BUTTON_UP:
-			out->type = e.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? host_gui_event_mouse_down : host_gui_event_mouse_up;
-			out->x = (int32_t)e.button.x;
-			out->y = (int32_t)e.button.y;
-			out->buttons = e.button.button;
-			out->count = e.button.clicks;
-			return true;
-		case SDL_EVENT_MOUSE_WHEEL:
-			out->type = host_gui_event_mouse_wheel;
-			out->x = e.wheel.integer_x;
-			out->y = e.wheel.integer_y;
-			out->direction = e.wheel.direction;
-			// a wheel can turn less than a whole step
-			if (out->x || out->y) return true;
-			break;
-		default:
-			break;
-		}
-	}
-	return false;
-}
-
-// with no handle the question is only if there is an event, and it
-// is kept for the call that takes it
-
 uint64_t host_gui_poll_event(void *handle)
 {
-	static host_gui_event pending;
-	static bool have_pending = false;
-	SDL_PumpEvents();
-	if (!have_pending) have_pending = next_event(&pending);
-	if (!have_pending) return 0;
-	if (handle)
-	{
-		memcpy(handle, &pending, sizeof(host_gui_event));
-		have_pending = false;
-	}
-	return 1;
+	return host_gui_sdl3_poll(handle);
 }
 
 void *host_gui_create_texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)

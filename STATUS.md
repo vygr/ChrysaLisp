@@ -4,6 +4,13 @@
 
 ------
 
+The raw GUI driver can be built on SDL3, `make gui GUI=raw3`. It does all its
+own drawing into a buffer, SDL only puts the buffer in a window and gives the
+events, so the move is small. `make gui GUI=raw` is the same driver on SDL2,
+as before. The raw3 build has the sdl3 AUDIO driver.
+
+------
+
 A GUI driver now gives the GUI service an event of our own, not a copy of an
 SDL2 event. `src/host/gui_event.h` has the one record every driver fills,
 type, position, buttons, clicks, key and wheel direction, and

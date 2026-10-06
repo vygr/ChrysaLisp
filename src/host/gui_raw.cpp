@@ -1,5 +1,9 @@
 #if defined(_HOST_GUI)
-#if _HOST_GUI == 2
+#if _HOST_GUI == 2 || _HOST_GUI == 4
+
+// raw GUI driver. All the drawing is done here, into a buffer, SDL only
+// puts the buffer in a window and gives the events. _HOST_GUI 2 is on
+// SDL2, _HOST_GUI 4 is on SDL3.
 
 #include <stdint.h>
 #include <memory>
@@ -27,8 +31,13 @@ uint32_t scr_height = 0;
 uint32_t scr_stride = 0;
 
 //this code is just so we can see the output !
+#if _HOST_GUI == 4
+#include <SDL3/SDL.h>
+#include "gui_sdl3_event.h"
+#else
 #include <SDL.h>
 #include "gui_sdl2_event.h"
+#endif
 SDL_Window *window;
 SDL_Renderer *renderer;
 
@@ -51,7 +60,7 @@ static void set_macos_activation_policy(int policy = 0)
 // screen setup/access functions
 ////////////////////////////////
 
-SDL_Rect clip;
+host_gui_rect clip;
 
 void host_gui_resize(uint64_t w, uint64_t h)
 {
@@ -64,11 +73,22 @@ void host_gui_resize(uint64_t w, uint64_t h)
 	backbuffer = (pixel_t *)malloc(scr_height * scr_stride);
 }
 
-void host_gui_init(SDL_Rect *rect, uint64_t flags)
+void host_gui_init(host_gui_rect *rect, uint64_t flags)
 {
 	host_gui_resize(rect->w, rect->h);
 
 	//this code is just so we can see the output !
+#if _HOST_GUI == 4
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+#ifdef __APPLE__
+	set_macos_activation_policy();
+#endif
+	window = SDL_CreateWindow("ChrysaLisp GUI Window", scr_width, scr_height, SDL_WINDOW_RESIZABLE);
+	renderer = SDL_CreateRenderer(window, nullptr);
+	SDL_SetRenderVSync(renderer, 1);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+	if (flags) SDL_HideCursor();
+#else
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 #ifdef __APPLE__
@@ -84,6 +104,7 @@ void host_gui_init(SDL_Rect *rect, uint64_t flags)
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderTarget(renderer, 0);
 	if (flags) SDL_ShowCursor(SDL_DISABLE);
+#endif
 }
 
 void host_gui_deinit()
@@ -97,9 +118,16 @@ void host_gui_deinit()
 	backbuffer = 0;
 
 	//this code is just so we can see the output !
+#if _HOST_GUI == 4
+	SDL_ShowCursor();
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+#else
 	SDL_ShowCursor(SDL_ENABLE);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+#endif
 #ifdef __APPLE__
 	set_macos_activation_policy(2);
 #endif
@@ -113,7 +141,7 @@ void host_gui_end_composite()
 {
 }
 
-void host_gui_flush(const SDL_Rect *rect)
+void host_gui_flush(const host_gui_rect *rect)
 {
 	//no need to clip to screen
 	if (rect->w <= 0 || rect->h <= 0) return;
@@ -134,6 +162,16 @@ void host_gui_flush(const SDL_Rect *rect)
 	} while (src != src_end);
 
 	//this code is just so we can see the output !
+#if _HOST_GUI == 4
+	auto surface = SDL_CreateSurfaceFrom(scr_width, scr_height, SDL_PIXELFORMAT_ARGB8888, screen, scr_stride);
+	auto t = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_SetTextureBlendMode(t, SDL_BLENDMODE_NONE);
+	SDL_SetTextureScaleMode(t, SDL_SCALEMODE_NEAREST);
+	SDL_DestroySurface(surface);
+	SDL_RenderTexture(renderer, t, 0, 0);
+	SDL_DestroyTexture(t);
+	SDL_RenderPresent(renderer);
+#else
 	auto surface = SDL_CreateRGBSurfaceFrom(screen, scr_width, scr_height, 32, scr_stride, 0xff0000, 0xff00, 0xff, 0xff000000);
 	auto t = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_SetTextureBlendMode(t, SDL_BLENDMODE_NONE);
@@ -141,6 +179,7 @@ void host_gui_flush(const SDL_Rect *rect)
 	SDL_RenderCopy(renderer, t, 0, 0);
 	SDL_DestroyTexture(t);
 	SDL_RenderPresent(renderer);
+#endif
 }
 
 ////////////////////
@@ -217,7 +256,7 @@ void host_gui_set_texture_color(void *handle, uint8_t r, uint8_t g, uint8_t b)
 // drawing functions
 ////////////////////
 
-void host_gui_set_clip(const SDL_Rect *rect)
+void host_gui_set_clip(const host_gui_rect *rect)
 {
 	//store as x, y, x1, y1 !
 	clip = *rect;
@@ -233,10 +272,10 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 	color_g = ((g + 1) * a) & 0xff00;
 }
 
-void host_gui_filled_box(const SDL_Rect *rect)
+void host_gui_filled_box(const host_gui_rect *rect)
 {
 	//clip
-	SDL_Rect r = *rect;
+	host_gui_rect r = *rect;
 	if (color_a == 0) return;
 	if (r.w <= 0 || r.h <= 0) return;
 	r.w += r.x;
@@ -284,10 +323,10 @@ void host_gui_filled_box(const SDL_Rect *rect)
 	}
 }
 
-void host_gui_box(const SDL_Rect *rect)
+void host_gui_box(const host_gui_rect *rect)
 {
 	//just call filled box and let it do the clipping and drawing
-	SDL_Rect r = *rect;
+	host_gui_rect r = *rect;
 	if (rect->w <= 0 || rect->h <= 0) return;
 	r.h = 1;
 	host_gui_filled_box(&r);
@@ -304,12 +343,12 @@ void host_gui_box(const SDL_Rect *rect)
 	host_gui_filled_box(&r);
 }
 
-void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
+void host_gui_blit(void *handle, const host_gui_rect *srect, const host_gui_rect *drect)
 {
 	auto t = (Texture*)handle;
 	//clip
-	SDL_Rect dr = *drect;
-	SDL_Rect sr = *srect;
+	host_gui_rect dr = *drect;
+	host_gui_rect sr = *srect;
 	if (dr.w <= 0 || dr.h <= 0) return;
 	dr.w += dr.x;
 	dr.h += dr.y;
@@ -462,7 +501,11 @@ void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
 
 uint64_t host_gui_poll_event(void *handle)
 {
+#if _HOST_GUI == 4
+	return host_gui_sdl3_poll(handle);
+#else
 	return host_gui_sdl2_poll(handle);
+#endif
 }
 
 ///////////////////////////
@@ -471,7 +514,11 @@ uint64_t host_gui_poll_event(void *handle)
 
 uint64_t host_gui_clip_put(const char *text)
 {
+#if _HOST_GUI == 4
+	return SDL_SetClipboardText(text) ? 0 : -1;
+#else
 	return SDL_SetClipboardText(text);
+#endif
 }
 
 char *host_gui_clip_get()
