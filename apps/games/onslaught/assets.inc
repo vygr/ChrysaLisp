@@ -52,9 +52,10 @@
 	; (load-cpm-assets zoom)
 	; loads and caches all assets at the given zoom level, generating _r counterparts
 	; each _r is made straight after its _l, so only one pair of pixmaps is held at a time
-	; the ascii font is white, and is drawn in a color, so it is a glyph
-	; texture, alpha only, a normal texture is not tinted by every GUI driver
-	(setq *img_ascii* (load-scaled-image "image/ascii.cpm" zoom :nil +pixmap_mode_glyph)
+	; the ascii font is white on solid black, and is drawn in a color, so it
+	; is a greyscale texture, a normal texture is not tinted by every GUI
+	; driver, and a glyph texture is its alpha alone, which here is all solid
+	(setq *img_ascii* (load-scaled-image "image/ascii.cpm" zoom :nil +pixmap_mode_greyscale)
 		*img_blocks1* (load-scaled-image "image/blocks1.cpm" zoom)
 		*img_blocks2* (load-scaled-image "image/blocks2.cpm" zoom)
 		*img_blocks3* (load-scaled-image "image/blocks3.cpm" zoom)
