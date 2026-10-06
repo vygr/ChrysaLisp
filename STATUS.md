@@ -18,6 +18,12 @@ byte for byte at the ten pixels looked at, as on the M4. The surface demo
 in GPU mode runs at 2 frames a second there, 640 by 480. That shader is a
 lot for a Pi 4's GPU.
 
+The TV was plugged in with the Pi already running, and the first time the
+demo ran the TV kept losing the picture, as if it lost sync. Nothing the Pi
+could be asked showed a fault, the mode never changed, every frame grabbed
+from the display was whole. Started again it was steady, and steady after a
+reboot with the TV attached. Not explained. Boot the Pi with the screen on.
+
 ------
 
 A SPIR-V back end for the shader language, `lib/gpu/spirv.inc`, so a shader
