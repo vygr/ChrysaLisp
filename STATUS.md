@@ -4,6 +4,13 @@
 
 ------
 
+The raw GUI driver now tints a normal texture when it is blitted with a color,
+as the SDL drivers always have. It only did so for a glyph or a greyscale
+texture, so the menu text of Onslaught, a white font tinted as it is drawn,
+came out white on a raw build.
+
+------
+
 A canvas can free its pixmap. Many a canvas only ever has a pixmap as the step
 to get its texture made, an image that is loaded and then shown, and the
 pixels then sat in memory for nothing.
