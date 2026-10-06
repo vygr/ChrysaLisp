@@ -5,7 +5,7 @@
 (enums +event 0
 	(enum close login create))
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Login Manager" () ())
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_width 1)
