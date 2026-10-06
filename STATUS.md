@@ -8,6 +8,13 @@ The declarations of the shader language begin with `def`, `definput`,
 `defconst` and `defglobal`, where they were `input`, `const` and `global`, to
 go with `defun` and `defq`. Darren's point. The old words are an error.
 
+And the value of a shader function is its last form, as in Lisp, his point as
+well. `(defun hash :float ((n :float)) (fract (* (sin n) 43758.5453)))`, with
+no `return`. If the last form is an `if`, it is the last form of each arm,
+and through a `progn` too. `return` stays, for leaving early. The raymarch
+shader had 20 of them and has one. It is all in the checker, the back ends
+see the same tree as before, and the same pixels come out.
+
 ------
 
 Windows on SDL3 works. Martyn Blyss ran it. `install.bat` fetched `SDL3.dll`

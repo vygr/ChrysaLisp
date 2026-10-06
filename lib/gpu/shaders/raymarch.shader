@@ -33,34 +33,34 @@
 	(:z cam_pos)))
 
 (defun hash :float ((n :float))
-	(return (fract (* (sin n) 43758.5453))))
+	(fract (* (sin n) 43758.5453)))
 
 (defun hash33 :vec3 ((p :vec3))
 	(defq n (sin (dot p (vec3 7 157 113))))
-	(return (fract (* (vec3 2097152 262144 32768) n))))
+	(fract (* (vec3 2097152 262144 32768) n)))
 
 (defun noise :float ((x :vec3))
 	(defq p (floor x) f (fract x))
 	(setq f (* f f (- 3.0 (* 2.0 f))))
 	(defq n (+ (* (:x p) 7.0) (* (:y p) 57.0) (* 111.0 (:z p))))
-	(return (mix
+	(mix
 		(mix (mix (hash (+ n 0.0)) (hash (+ n 7.0)) (:x f))
 			(mix (hash (+ n 57.0)) (hash (+ n 64.0)) (:x f)) (:y f))
 		(mix (mix (hash (+ n 111.0)) (hash (+ n 118.0)) (:x f))
 			(mix (hash (+ n 168.0)) (hash (+ n 175.0)) (:x f)) (:y f))
-		(:z f))))
+		(:z f)))
 
 (defun sinusoidal_bump :float ((p :vec3))
-	(return (+
+	(+
 		(* (sin (+ (* (:x p) 4.0) (* time 0.97)))
 			(cos (+ (* (:y p) 4.0) (* time 2.17)))
 			(sin (- (* (:z p) 4.0) (* time 1.31))))
 		(* 0.5 (sin (+ (* (:x p) 8.0) (* time 0.57)))
 			(cos (+ (* (:y p) 8.0) (* time 2.11)))
-			(sin (- (* (:z p) 8.0) (* time 1.23)))))))
+			(sin (- (* (:z p) 8.0) (* time 1.23))))))
 
 (defun bump :float ((p :vec3))
-	(return (+ (* (noise (* p 64.0)) 0.667) (* (noise (* p 128.0)) 0.333))))
+	(+ (* (noise (* p 64.0)) 0.667) (* (noise (* p 128.0)) 0.333)))
 
 (defun bumpmap :vec3 ((p :vec3) (n :vec3) (bf :float))
 	(defq grad (/ (vec3
@@ -71,41 +71,41 @@
 		(- (bump (vec3 (:x p) (:y p) (+ (:z p) eps)))
 			(bump (vec3 (:x p) (:y p) (- (:z p) eps))))) (+ eps eps)))
 	(setq grad (- grad (* n (dot n grad))))
-	(return (normalize (- n (* bf grad)))))
+	(normalize (- n (* bf grad))))
 
 ;field equation for a sphere
 (defun sphere :float ((p :vec3) (center :vec3) (radius :float))
-	(return (- (length (- p center)) radius)))
+	(- (length (- p center)) radius))
 
 ;field equation for a cube
 (defun box :float ((p :vec3) (b :vec3))
 	(defq d (- (abs p) b))
-	(return (+ (min (max (:x d) (max (:y d) (:z d))) 0.0) (length (max d 0.0)))))
+	(+ (min (max (:x d) (max (:y d) (:z d))) 0.0) (length (max d 0.0))))
 
 ;field equation for a rounded cube
 (defun rounded_cube :float ((p :vec3) (xt :vec3) (r :float))
-	(return (- (length (max (+ (- (abs p) xt) (vec3 r)) 0.0)) r)))
+	(- (length (max (+ (- (abs p) xt) (vec3 r)) 0.0)) r))
 
 ;smooth min between two values
 (defun smin :float ((a :float) (b :float) (k :float))
 	(defq h (clamp (+ 0.5 (/ (* 0.5 (- b a)) k)) 0.0 1.0))
-	(return (- (mix b a h) (* k h (- 1.0 h)))))
+	(- (mix b a h) (* k h (- 1.0 h))))
 
 ;the scene
 (defun scene :float ((p :vec3))
 	(defq d 0.0)
 	(if (> arg_dis 0.0) (setq d (* (sinusoidal_bump (* p 4.0)) arg_dis)))
 	(setq p (- (fract p) 0.5))
-	(return (+ (sphere p (vec3 0.0) 0.35) d)))
+	(+ (sphere p (vec3 0.0) 0.35) d))
 
 (defun get_normal :vec3 ((p :vec3))
-	(return (normalize (vec3
+	(normalize (vec3
 		(- (scene (vec3 (+ (:x p) eps) (:y p) (:z p)))
 			(scene (vec3 (- (:x p) eps) (:y p) (:z p))))
 		(- (scene (vec3 (:x p) (+ (:y p) eps) (:z p)))
 			(scene (vec3 (:x p) (- (:y p) eps) (:z p))))
 		(- (scene (vec3 (:x p) (:y p) (+ (:z p) eps)))
-			(scene (vec3 (:x p) (:y p) (- (:z p) eps))))))))
+			(scene (vec3 (:x p) (:y p) (- (:z p) eps)))))))
 
 (defun calc_ao :float ((p :vec3) (n :vec3))
 	(defq r 0.0 w 1.0)
@@ -113,7 +113,7 @@
 		(defq d0 (* (float i) 0.2))
 		(setq r (+ r (* w (- d0 (scene (+ p (* n d0))))))
 			w (* w 0.5)))
-	(return (- 1.0 (clamp r 0.0 1.0))))
+	(- 1.0 (clamp r 0.0 1.0)))
 
 (defun calc_shadow :float ((ro :vec3) (rd :vec3) (l :float) (end :float) (k :float))
 	(defq shade 1.0)
@@ -122,7 +122,7 @@
 		(setq shade (min shade (/ (* k h) l)))
 		(if (or (<= shade 0.1) (>= l end)) (break))
 		(setq l (+ l h)))
-	(return (max shade 0.1)))
+	(max shade 0.1))
 
 (defun lighting :vec3 ((sp :vec3) (sn :vec3) (cp :vec3))
 	(defq obj_color (floor (mod sp 2.0))
@@ -140,8 +140,8 @@
 		diffuse (max 0.0 (dot sn ld))
 		specular (max 0.0 (dot ref (normalize (- cp sp)))))
 	(setq specular (pow specular specular_power))
-	(return (* (+ (* obj_color (+ (* diffuse 0.8) ambient)) (* specular 0.5))
-		lcolor light_atten ss ao)))
+	(* (+ (* obj_color (+ (* diffuse 0.8) ambient)) (* specular 0.5))
+		lcolor light_atten ss ao))
 
 (defun ray_march :vec2 ((ro :vec3) (rd :vec3) (l :float) (end :float))
 	(defq d 0.0 cnt 0.0)
@@ -152,7 +152,7 @@
 		(if (or (<= d min_distance) (>= l end)) (break)))
 	(when (> d min_distance)
 		(setq l end cnt 0.0))
-	(return (vec2 l cnt)))
+	(vec2 l cnt))
 
 (defun scene_ray :vec4 ((ro :vec3) (rd :vec3))
 	(defq p_ray (ray_march ro rd 0.0 clip_far))
@@ -175,15 +175,15 @@
 			bn (get_normal sp)
 			color (+ color (* (lighting sp bn ro) ref))
 			ref (* ref arg_ref)))
-	(return (vec4 (clamp color 0.0 1.0) (:y p_ray))))
+	(vec4 (clamp color 0.0 1.0) (:y p_ray)))
 
 ;the ray through a point on the screen
 (defun pixel_ray :vec4 ((cords :vec2) (forward :vec3) (right :vec3) (up :vec3))
 	(defq aspect (vec2 (/ (:x resolution) (:y resolution)) 1.0)
 		screen_cords (* (- (/ (* 2.0 cords) resolution) 1.0) aspect))
-	(return (scene_ray cam_pos (normalize (+ forward
+	(scene_ray cam_pos (normalize (+ forward
 		(* fov (:x screen_cords) right)
-		(* fov (:y screen_cords) up))))))
+		(* fov (:y screen_cords) up)))))
 
 (defun main :vec4 ((frag :vec2))
 	(defq lookat (vec3 0.0 0.0 0.0)
@@ -202,4 +202,4 @@
 			(setq color (+ color (vec4 2.0)))))
 	(setq color (* color scale)
 		(:w color) 1.0)
-	(return color))
+	color)

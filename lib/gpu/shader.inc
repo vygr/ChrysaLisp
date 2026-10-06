@@ -265,6 +265,25 @@
 			(push out (list :return e)))
 		((sh-err "unknown statement" form))))
 
+(defun sh-tail (form)
+	;the last form of a function is its value, as in Lisp, so if it is not
+	;a statement it is returned. And so for the last form of each arm of an
+	;if that is last, and of a progn that is last. The back ends still see
+	;a return, they are statement languages.
+	(cond
+		((not (and (list? form) (nempty? form)))
+			(list 'return form))
+		((eql (first form) 'if)
+			(if (<= 3 (length form) 4)
+				(cat (list 'if (second form)) (map sh-tail (slice form 2 -1)))
+				form))
+		((eql (first form) 'progn)
+			(if (> (length form) 1)
+				(cat (slice form 0 -2) (list (sh-tail (last form))))
+				form))
+		((find (first form) '(defq setq when for break return)) form)
+		((list 'return form))))
+
 (defun sh-returns? (block)
 	;does every path through the block end at a return ?
 	(and (nempty? block)
@@ -321,7 +340,10 @@
 					(sh-name (first %0) form)
 					(sh-type (second %0) form)
 					(push syms (list (first %0) (second %0) :param))) params)
-				(defq block (sh-block (slice form 4 -1)))
+				(defq body (slice form 4 -1))
+				(if (nempty? body)
+					(setq body (cat (slice body 0 -2) (list (sh-tail (last body))))))
+				(defq block (sh-block body))
 				(setq syms (slice syms 0 mark))
 				(unless (sh-returns? block) (sh-err "function does not return" form))
 				(push funcs (list name ret_type params block)))

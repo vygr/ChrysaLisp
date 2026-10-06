@@ -53,7 +53,7 @@ across the frame.
 
 (defun main :vec4 ((frag :vec2))
 	(defq uv (/ frag resolution))
-	(return (vec4 (* tint (:x uv) level) 1.0)))
+	(vec4 (* tint (:x uv) level) 1.0))
 ```
 
 Every shader has a `main`. It takes the coordinate of the pixel, with the
@@ -88,8 +88,9 @@ Each begins with `def`, as `defun` and `defq` do in ChrysaLisp.
 * `(defglobal name expr)`. A value worked out once a frame from the inputs,
   before any pixel is shaded. It can not be set by a function.
 * `(defun name type ((param type) ...) body ...)`. A function. It must be
-  declared before it is called, so there is no recursion. Every path through
-  it must end at a `(return expr)`.
+  declared before it is called, so there is no recursion. Its value is its
+  last form, as in Lisp, see below. Every path through it must end at a
+  value.
 
 ## Statements
 
@@ -102,7 +103,28 @@ Each begins with `def`, as `defun` and `defq` do in ChrysaLisp.
   to, but not including, `end`. The bounds are int literals or constants, a
   shader loop must have a known limit. `i` can not be set.
 * `(break)`. Leave the loop.
-* `(return expr)`. Can be anywhere, inside a loop too.
+* `(return expr)`. Leave the function early, with this value. Can be
+  anywhere, inside a loop too.
+
+The value of a function is its last form. It need not say `return`.
+
+```lisp
+(defun hash :float ((n :float))
+	(fract (* (sin n) 43758.5453)))
+
+(defun bigger :float ((a :float) (b :float))
+	(if (> a b) a b))
+```
+
+If the last form is an `if`, the last form of each of its arms is the value,
+and so on down, through a `progn` as well. An `if` with one arm, a `when` and
+a `for` are not values, a function that ends with one has not said what it
+returns, and is refused. `return` is for leaving early. Of the 19 functions
+of the raymarch shader one has a `return` in it.
+
+Nothing else in a function is an expression on its own, a form that is not
+last has to be a statement. And the back ends still see a `return`, GLSL,
+MSL and SPIR-V are statement languages, the checker puts it there.
 
 A name can only mean one thing. A local can not have the name of an input, a
 constant, a global, a function, a parameter, or another local that is in

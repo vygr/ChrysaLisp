@@ -121,6 +121,28 @@
 (assert-error "const is not a declaration" (sh-src "(const c 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))"))
 (assert-error "global is not a declaration" (sh-src "(global g 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 g)))"))
 
+;the last form of a function is its value
+(assert-list-eq "last form is the value"
+	(last (sh-src "(defun f :float ((a :float)) (return (* a 2.0)))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1.0))))"))
+	(last (sh-src "(defun f :float ((a :float)) (* a 2.0))" "(defun main :vec4 ((frag :vec2)) (vec4 (f 1.0)))")))
+(assert-list-eq "last form of each arm of a last if"
+	(last (sh-main "(if (> (:x frag) 1.0) (return (vec4 1.0)) (return (vec4 0.0)))"))
+	(last (sh-main "(if (> (:x frag) 1.0) (vec4 1.0) (vec4 0.0))")))
+(assert-list-eq "last form of a last progn, and of an if in it"
+	(last (sh-main "(defq a 1.0)" "(if (> a 0.0) (progn (setq a 2.0) (return (vec4 a))) (return (vec4 0.0)))"))
+	(last (sh-main "(defq a 1.0)" "(if (> a 0.0) (progn (setq a 2.0) (vec4 a)) (vec4 0.0))")))
+(assert-list-eq "a name as the value"
+	(last (sh-main "(defq v (vec4 0.5))" "(return v)"))
+	(last (sh-main "(defq v (vec4 0.5))" "v")))
+(assert-list-eq "a return can still be said"
+	(last (sh-main "(if (> (:x frag) 1.0) (return (vec4 1.0)))" "(return (vec4 0.0))"))
+	(last (sh-main "(if (> (:x frag) 1.0) (return (vec4 1.0)))" "(vec4 0.0)")))
+(assert-error "value of the wrong type" (sh-main "1.0"))
+(assert-error "a value that is not last" (sh-main "(vec4 1.0)" "(vec4 0.0)"))
+(assert-error "an if with one arm is no value" (sh-main "(if (> (:x frag) 1.0) (vec4 1.0))"))
+(assert-error "a when is no value" (sh-main "(when (> (:x frag) 1.0) (vec4 1.0))"))
+(assert-error "a loop is no value" (sh-main "(for (i 0 4) (vec4 1.0))"))
+
 (report-header "GPU: shader language, CPU back end")
 
 ;scalars

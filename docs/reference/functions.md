@@ -1777,6 +1777,16 @@ does every path through the block end at a return ?
 component indices of a swizzle like :xyz or :rgb
 ```
 
+### sh-tail
+
+```code
+the last form of a function is its value, as in Lisp, so if it is not
+
+a statement it is returned. And so for the last form of each arm of an
+if that is last, and of a progn that is last. The back ends still see
+a return, they are statement languages.
+```
+
 ### shader-compile
 
 ```code
