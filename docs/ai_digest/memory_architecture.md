@@ -21,8 +21,8 @@ and deallocation requests within the system.
 	  from the host OS for every small request. Instead, it manages an array of
 	  `:sys_heap` instances. As seen in `sys/mem/class.vp` (`:statics_init`), it
 	  initializes a series of heaps, each responsible for a different range of cell
-	  sizes (e.g., starting from `mem_cell_min_size` and doubling up to
-	  `mem_cell_max_size`). This is a common strategy for **pool allocation** or
+	  sizes (starting from `mem_cell_min_size`, 24 bytes, and doubling till a
+	  cell holds `mem_cell_max_size`, 64MB, so the largest is 96MB). This is a common strategy for **pool allocation** or
 	  **slab allocation**, designed to reduce fragmentation and improve the speed
 	  of allocating commonly sized objects.
 

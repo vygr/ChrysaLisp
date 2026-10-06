@@ -5,6 +5,6 @@
 	+max_cell_count (/ (* 32 1024) +mem_cell_min_size)
 	+mem_heap_cell_sizes `'(,+mem_cell_min_size))
 
-;fill in heap size info
-(while (<= (defq cs (* (last +mem_heap_cell_sizes) 2)) +mem_cell_max_size)
-	(push +mem_heap_cell_sizes cs))
+;fill in heap size info, doubling till a cell holds the max size
+(while (< (defq cs (last +mem_heap_cell_sizes)) +mem_cell_max_size)
+	(push +mem_heap_cell_sizes (* cs 2)))
