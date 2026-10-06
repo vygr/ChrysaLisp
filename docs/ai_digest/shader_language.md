@@ -551,8 +551,8 @@ The app is in the Demos list of the launcher, as surface.
 
 * The sdl3 GUI driver has been run on Macs and on a Raspberry Pi 4 with no
   desktop, SDL on the bare display. It has not been run on a Linux desktop,
-  X11 or Wayland. For Windows it is built, and is the driver in the
-  snapshot, but it has not been run there by us.
+  X11 or Wayland. On Windows, where SDL gives it Vulkan, it has been run by
+  Martyn Blyss, and the surface demo draws on the GPU there.
 * The SPIR-V back end has been checked against the others on the raymarch
   shader only, the small shaders of the test suite are checked for form.
 * Raylib is the fall back if SDL3 will not do for a host.

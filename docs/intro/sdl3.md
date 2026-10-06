@@ -28,7 +28,7 @@ SDL3 does not come ready made for.
 | Debian 13, Raspberry Pi OS on it | `apt-get install libsdl3-dev`, it is 3.2 | no |
 | The same, for shaders | build SDL3 from source | yes |
 | An older Debian or Raspberry Pi OS | stay on SDL2, or build SDL3 from source | SDL2 no |
-| Windows | `install.bat` fetches `SDL3.dll` | not yet run, see below |
+| Windows | `install.bat` fetches `SDL3.dll` | yes |
 
 ## SDL3 From Source
 
@@ -111,9 +111,10 @@ no SDL at all, see `docs/intro/framebuffer.md`.
 the programs in the snapshot are built for it. The SDL2 DLLs, `SDL2.dll`,
 `SDL2_mixer.dll` and the rest, are not used any more and can be deleted.
 
-The Windows programs are built on a Mac and have not been run by us on
-Windows on SDL3. For shaders the driver asks SDL for Vulkan, which needs a
-graphics driver that has it, most do.
+The Windows programs are built on a Mac. Martyn Blyss ran them on Windows,
+the install and its fetch of `SDL3.dll`, the GUI from `run.bat` and from
+`run.ps1`, and the Surface demo on the GPU. For shaders the driver asks SDL
+for Vulkan, which needs a graphics driver that has it, most do.
 
 To build them, `make -f Makefile.mingw windows_all`, and for SDL2,
 `make -f Makefile.mingw GUI=sdl windows_all`.

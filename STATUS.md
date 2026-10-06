@@ -4,6 +4,21 @@
 
 ------
 
+Windows on SDL3 works. Martyn Blyss ran it. `install.bat` fetched `SDL3.dll`
+and installed, the GUI came up from `run.bat` and from `run.ps1`, the surface
+demo draws on the GPU, which on Windows is Vulkan and the SPIR-V back end,
+and a session stops its own nodes when its desktop is quit. None of that had
+been run on Windows before, it was all built and written on a Mac.
+
+The Network Monitor says how many nodes there are, under its charts, Martyn's
+idea, to save counting thin bars.
+
+The surface demo's status line on the CPU read "native code, no GPU", which
+on a machine with a GPU looked like a fault. It now reads "native code on the
+CPU".
+
+------
+
 The sound mixer is out of the SDL3 audio driver and in a file of its own,
 `src/host/mixer.h`, with no SDL in it. The voices, the pan, the mixing and
 the limiter are there. The driver is left with the device, reading a wav

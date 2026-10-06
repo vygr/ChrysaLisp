@@ -21,7 +21,17 @@
 		(ui-hchart _ "Tasks" +task_scale_size (:color +argb_green))
 		(ui-hchart _ "Alloc (kb)" +mem_scale_size (:units 1024 :color +argb_yellow))
 		(ui-hchart _ "Used (kb)" +mem_scale_size (:units 1024 :color +argb_red))
-		(ui-hchart _ "Stack (b)" +stack_scale_size (:color +argb_cyan))))
+		(ui-hchart _ "Stack (b)" +stack_scale_size (:color +argb_cyan)))
+	(ui-label *status* (:text "..." :font *env_body_font*)))
+
+(defun show-nodes ()
+	;how many nodes there are, to save counting the bars. A label lays
+	;its text out once, so it is laid out again for the new text.
+	(defq num (length (lisp-nodes))
+		text (cat (str num) (if (= num 1) " node" " nodes")))
+	(unless (eql (get :text *status*) text)
+		(def *status* :text text)
+		(.-> *status* :layout :dirty)))
 
 (defun create (key now)
 	; (create key now) -> val
@@ -46,6 +56,7 @@
 	(defq id :t select (task-mboxes +select_size)
 		global_tasks (Global create destroy) poll_que (list)
 		charts (. *charts* :children))
+	(show-nodes)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(. *window* :set_flags +view_flag_at_front +view_flag_at_front)
 	(gui-add-front-rpc (. *window* :change_dirty x y w h))
@@ -81,6 +92,7 @@
 				(mail-timeout (elem-get select +select_nodes) +poll_rate 0)
 				(when (. global_tasks :refresh +retry_timeout)
 					;nodes have mutated
+					(show-nodes)
 					(bind '(x y w h) (apply view-fit
 						(cat (. *window* :get_pos) (. *window* :pref_size))))
 					(. *window* :change_dirty x y w h)

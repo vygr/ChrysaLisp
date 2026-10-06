@@ -257,8 +257,8 @@
 						(if (> (pii-time) notice_until)
 							(set-label *status* (cat "Frame "
 								(str (/ (- (pii-time) frame_time) 1000)) "ms, "
-								(str (length (lisp-nodes))) " nodes, native code, "
-								(if gpu_want "while the driver builds the shader for the GPU" "no GPU"))))
+								(str (length (lisp-nodes))) " nodes, native code on the CPU"
+								(if gpu_want ", while the driver builds the shader for the GPU" ""))))
 						(start-frame))))
 			(:t ;timer event, a strip of the GPU frame every tick, or all of it
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)

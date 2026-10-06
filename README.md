@@ -191,8 +191,7 @@ You can combine options, for example: `make all platforms boot`.
 
 ### 6. Stopping ChrysaLisp
 
-On macOS and Linux a session, the nodes one launch script started, stops
-itself. It lives while it has a terminal or a desktop open. Quit the last
+A session, the nodes one launch script started, stops itself. It lives while it has a terminal or a desktop open. Quit the last
 desktop, or leave the TUI, and the rest of its nodes are stopped. Other
 sessions on the machine are left alone. `nodes -g 1` opens another desktop.
 
