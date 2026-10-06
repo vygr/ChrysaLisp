@@ -12,7 +12,8 @@
 (defq +file_types ''(".cpm" ".flm" ".tga" ".svg" ".cwb") *canvas* :nil)
 
 (defun win-refresh (file)
-	(when (defq new_canvas (canvas-load file 0))
+	;the image is only ever shown, so its pixmap is freed once it is a texture
+	(when (defq new_canvas (canvas-load file +load_flag_free))
 		(setq *canvas* new_canvas)
 		(bind '(w h) (. *canvas* :pref_size))
 		(def *image_scroll* :min_width w :min_height h)

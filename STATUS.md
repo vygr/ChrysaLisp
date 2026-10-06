@@ -4,6 +4,15 @@
 
 ------
 
+Three more apps free the pixmap of a canvas that is only ever shown. The
+wallpaper, whose pixmap is the size of the screen, the image viewer, and the
+PCB viewer. Live memory each takes when started, on one node, before and
+after, 7.0MB to 0.8MB, 6.4MB to 0.3MB, and 2.3MB to 0.8MB. Boing and freeball
+are left as they are, their frames are shared pixmaps, held by the cache for
+every copy of the app to use.
+
+------
+
 The mixer of the sdl3 AUDIO driver has a limiter. It used to clamp the mix at
 full scale, so a loud moment was clipped. Now the mix is left alone up to 90%
 of full scale, and over that is eased in under it, a peak of 100% comes out

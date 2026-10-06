@@ -24,7 +24,9 @@
 	(. wallpaper :sub)
 	(gui-add-back-rpc (.-> (setq wallpaper (Canvas w h 1))
 		(:resize (canvas-load (elem-get *env_wallpaper_images* index) +load_flag_noswap))
-		(:swap 0)
+		;the wallpaper is only ever shown, so its pixmap, the size of
+		;the screen, is freed once it is a texture
+		(:swap +swap_flag_free)
 		(:set_flags (+ (const (+ +view_flag_at_back +view_flag_dirty_all)) flag)
 			(const (+ +view_flag_at_back +view_flag_dirty_all +view_flag_opaque)))
 		(:change 0 0 w h))))

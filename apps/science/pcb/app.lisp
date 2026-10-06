@@ -55,12 +55,14 @@
 	(ui-progress progress (:value 100 :maximum 100))
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
+;a PCB is drawn once and then only ever shown, so the pixmap of its
+;canvas is freed once it is a texture
 (defun win-load (%0)
 	(setq pcb_data (load (defq file (elem-get *pcbs* (setq *index* %0)))) pcb (pcb-read pcb_data))
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(def *window_title* :text (cat "Pcb -> " (slice file (rfind "/" file) -1)))
-	(. pcb_scroll :add_child (. canvas :swap +pixmap_mode_normal))
+	(. pcb_scroll :add_child (. canvas :swap +swap_flag_free))
 	(. *window_title* :layout)
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(def pcb_scroll :min_width 32 :min_height 32)
@@ -69,13 +71,13 @@
 (defun win-zoom ()
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
-	(. pcb_scroll :add_child (. canvas :swap +pixmap_mode_normal))
+	(. pcb_scroll :add_child (. canvas :swap +swap_flag_free))
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(def pcb_scroll :min_width 32 :min_height 32)
 	(. *window* :change_dirty x y w h))
 
 (defun win-show ()
-	(.-> pcb_scroll (:add_child (. (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale) :swap +pixmap_mode_normal)) :layout))
+	(.-> pcb_scroll (:add_child (. (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale) :swap +swap_flag_free)) :layout))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))
