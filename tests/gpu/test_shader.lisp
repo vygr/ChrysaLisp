@@ -49,11 +49,11 @@
 
 ;the tree for a small program
 (defq prog (sh-src
-	"(input k :float 1.5 0.0 4.0)"
-	"(input n :int 3)"
-	"(input size :vec2)"
-	"(const two 2.0)"
-	"(global g (* k two))"
+	"(definput k :float 1.5 0.0 4.0)"
+	"(definput n :int 3)"
+	"(definput size :vec2)"
+	"(defconst two 2.0)"
+	"(defglobal g (* k two))"
 	"(defun half :float ((a :float)) (return (* a 0.5)))"
 	"(defun main :vec4 ((frag :vec2)) (return (vec4 (half g) frag 1.0)))"))
 (bind '(inputs consts globals funcs) prog)
@@ -66,7 +66,7 @@
 	(first (last (first funcs))))
 
 ;float literals are decimals, to 4 places from the reader, or as given in a str
-(defq prog (sh-src "(const a 0.001)" "(const b -43758.5453)" {(const c "3.1415926535898")} {(const d "7")}
+(defq prog (sh-src "(defconst a 0.001)" "(defconst b -43758.5453)" {(defconst c "3.1415926535898")} {(defconst d "7")}
 	"(defun main :vec4 ((frag :vec2)) (return (vec4 a b c d)))"))
 (assert-list-eq "decimal literals" '("0.0010" "-43758.5453" "3.1415926535898" "7.0")
 	(map (# (third (third %0))) (second prog)))
@@ -102,20 +102,24 @@
 (assert-error "local is a reserved word" (sh-main "(defq sin 1.0)" "(return (vec4 1.0))"))
 (assert-error "setq changes the type" (sh-main "(defq a 1.0)" "(setq a 1)" "(return (vec4 a))"))
 (assert-error "setq of a loop counter" (sh-main "(for (i 0 4) (setq i 2))" "(return (vec4 1.0))"))
-(assert-error "setq of a const" (sh-src "(const c 1.0)" "(defun main :vec4 ((frag :vec2)) (setq c 2.0) (return (vec4 c)))"))
-(assert-error "setq of an input" (sh-src "(input k :float)" "(defun main :vec4 ((frag :vec2)) (setq k 2.0) (return (vec4 k)))"))
+(assert-error "setq of a const" (sh-src "(defconst c 1.0)" "(defun main :vec4 ((frag :vec2)) (setq c 2.0) (return (vec4 c)))"))
+(assert-error "setq of an input" (sh-src "(definput k :float)" "(defun main :vec4 ((frag :vec2)) (setq k 2.0) (return (vec4 k)))"))
 (assert-error "component out of range" (sh-main "(return (vec4 (:z frag)))"))
 (assert-error "component set twice" (sh-main "(defq a (vec2 1.0))" "(setq (:xx a) (vec2 1.0))" "(return (vec4 a a))"))
 (assert-error "break outside a loop" (sh-main "(break)" "(return (vec4 1.0))"))
-(assert-error "loop bound is not a constant" (sh-src "(input n :int)" "(defun main :vec4 ((frag :vec2)) (for (i 0 n)) (return (vec4 1.0)))"))
-(assert-error "const from an input" (sh-src "(input k :float)" "(const c (* k 2.0))" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))"))
+(assert-error "loop bound is not a constant" (sh-src "(definput n :int)" "(defun main :vec4 ((frag :vec2)) (for (i 0 n)) (return (vec4 1.0)))"))
+(assert-error "const from an input" (sh-src "(definput k :float)" "(defconst c (* k 2.0))" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))"))
 (assert-error "wrong args to function" (sh-src "(defun f :float ((a :float)) (return a))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1))))"))
 (assert-error "recursion" (sh-src "(defun f :float ((a :float)) (return (f a)))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1.0))))"))
 (assert-error "no main" (sh-src "(defun f :float ((a :float)) (return a))"))
 (assert-error "wrong main" (sh-src "(defun main :vec3 ((frag :vec2)) (return (vec3 1.0)))"))
-(assert-error "vector input with a default" (sh-src "(input v :vec2 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))"))
-(assert-error "float input with an int default" (sh-src "(input k :float 1)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))"))
+(assert-error "vector input with a default" (sh-src "(definput v :vec2 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))"))
+(assert-error "float input with an int default" (sh-src "(definput k :float 1)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))"))
 (assert-error "not a number" (sh-main {(return (vec4 "1.0e3"))}))
+;the declarations were once input, const and global
+(assert-error "input is not a declaration" (sh-src "(input k :float)" "(defun main :vec4 ((frag :vec2)) (return (vec4 k)))"))
+(assert-error "const is not a declaration" (sh-src "(const c 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))"))
+(assert-error "global is not a declaration" (sh-src "(global g 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 g)))"))
 
 (report-header "GPU: shader language, CPU back end")
 
@@ -226,9 +230,9 @@
 
 ;inputs, constants, globals and the frag coord
 (defq prog (sh-src
-	"(input k :float 1.5)" "(input n :int 3)" "(input size :vec2)"
-	"(const two 2.0)" "(const four (* two two))"
-	"(global g (* k two))" "(global h (+ g (float n)))"
+	"(definput k :float 1.5)" "(definput n :int 3)" "(definput size :vec2)"
+	"(defconst two 2.0)" "(defconst four (* two two))"
+	"(defglobal g (* k two))" "(defglobal h (+ g (float n)))"
 	"(defun main :vec4 ((frag :vec2)) (return (vec4 (+ g four) h (/ frag size))))"))
 (assert-pixel "defaults" '(7.0 6.0 0.25 0.25) prog '((size (2.0 2.0))))
 (assert-pixel "values given" '(5.0 6.0 0.625 0.875) prog '((size (4.0 4.0)) (n 5) (k 0.5)) 2 3)
@@ -371,9 +375,9 @@
 	"}"
 	"") sh_lf)
 	(shader-msl (sh-src
-		"(input k :float 1.5)" "(input b :vec3)" "(input n :int 3)" "(input size :vec2)"
-		"(const two 2.0)"
-		"(global g (* k two))"
+		"(definput k :float 1.5)" "(definput b :vec3)" "(definput n :int 3)" "(definput size :vec2)"
+		"(defconst two 2.0)"
+		"(defglobal g (* k two))"
 		"(defun half :vec3 ((a :vec3)) (return (mod (max a 0.5) two)))"
 		"(defun main :vec4 ((frag :vec2))"
 		"(defq c (half b))"
@@ -429,11 +433,11 @@
 (assert-true "SPIR-V vertex block set" (spvt-has? insts 71 :nil 34 1))
 
 (defq module (shader-spirv (sh-src
-		"(input k :float 1.5 0.0 4.0)"
-		"(input n :int 3)"
-		"(input tint :vec3)"
-		"(const two 2.0)"
-		"(global scale (* k two))"
+		"(definput k :float 1.5 0.0 4.0)"
+		"(definput n :int 3)"
+		"(definput tint :vec3)"
+		"(defconst two 2.0)"
+		"(defglobal scale (* k two))"
 		"(defun wave :float ((a :float))"
 		"	(return (sin (* a scale))))"
 		"(defun main :vec4 ((frag :vec2))"
@@ -470,8 +474,8 @@
 (report-header "GPU: shader language, the inputs block")
 
 (defq prog (sh-src
-	"(input a :float 1.5)" "(input b :vec3)" "(input c :int -3)" "(input d :vec2)"
-	"(input e :float 0.2)" "(input f :vec4)" "(input g :int 7)"
+	"(definput a :float 1.5)" "(definput b :vec3)" "(definput c :int -3)" "(definput d :vec2)"
+	"(definput e :float 0.2)" "(definput f :vec4)" "(definput g :int 7)"
 	"(defun main :vec4 ((frag :vec2)) (return (vec4 a e (:x d) (:z b))))"))
 (assert-list-eq "layout" '(80 (a :float 0) (b :vec3 16) (c :int 28) (d :vec2 32)
 	(e :float 40) (f :vec4 48) (g :int 64)) (shader-layout prog))
@@ -493,7 +497,7 @@
 (report-header "GPU: shader language, VP back end")
 
 ;a tile as 32 bit argb pixels, clamped, and with the top row first
-(defq prog (sh-src "(input k :float 4.0)" "(input n :int 2)"
+(defq prog (sh-src "(definput k :float 4.0)" "(definput n :int 2)"
 		"(defun main :vec4 ((frag :vec2)) (return (vec4 (/ frag k) (float n) -1.0)))")
 	native (shader-vp prog) frame (shader-vp-frame prog native))
 (assert-true "native function" (func? (first native)))

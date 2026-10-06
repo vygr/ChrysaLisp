@@ -4,6 +4,12 @@
 
 ------
 
+The declarations of the shader language begin with `def`, `definput`,
+`defconst` and `defglobal`, where they were `input`, `const` and `global`, to
+go with `defun` and `defq`. Darren's point. The old words are an error.
+
+------
+
 Windows on SDL3 works. Martyn Blyss ran it. `install.bat` fetched `SDL3.dll`
 and installed, the GUI came up from `run.bat` and from `run.ps1`, the surface
 demo draws on the GPU, which on Windows is Vulkan and the SPIR-V back end,

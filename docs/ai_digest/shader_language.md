@@ -46,10 +46,10 @@ A shader file is a list of declarations. This one fades from black to a colour
 across the frame.
 
 ```lisp
-(input resolution :vec2)
-(input level :float 0.5 0.0 1.0)
+(definput resolution :vec2)
+(definput level :float 0.5 0.0 1.0)
 
-(const tint (vec3 1.0 0.5 0.25))
+(defconst tint (vec3 1.0 0.5 0.25))
 
 (defun main :vec4 ((frag :vec2))
 	(defq uv (/ frag resolution))
@@ -71,19 +71,21 @@ and `(int f)` convert.
 The Lisp reader gives a float literal as a 16.16 fixed point number, which is
 good to 4 decimal places, so a float literal is rounded to 4 places, `0.001`
 is 0.0010 and not the 0.00099 the fixed holds. A number that needs more digits
-is written as a string, `(const pi "3.1415926535898")`. Both back ends are
+is written as a string, `(defconst pi "3.1415926535898")`. Both back ends are
 given the same decimal text.
 
 `:t` and `:nil` are the bool literals.
 
 ## Declarations
 
-* `(input name type [default min max])`. A value the app gives for each
+Each begins with `def`, as `defun` and `defq` do in ChrysaLisp.
+
+* `(definput name type [default min max])`. A value the app gives for each
   frame. The type is `:float`, `:int` or a vector. A float or int can have a
   default, and a range, which is there for the app to build a control from. In
   GLSL an input is a uniform.
-* `(const name expr)`. A constant, from literals and other constants.
-* `(global name expr)`. A value worked out once a frame from the inputs,
+* `(defconst name expr)`. A constant, from literals and other constants.
+* `(defglobal name expr)`. A value worked out once a frame from the inputs,
   before any pixel is shaded. It can not be set by a function.
 * `(defun name type ((param type) ...) body ...)`. A function. It must be
   declared before it is called, so there is no recursion. Every path through
