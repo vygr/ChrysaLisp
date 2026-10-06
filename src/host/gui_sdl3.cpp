@@ -139,6 +139,7 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 	auto bare = driver && !SDL_strcmp(driver, "kmsdrm");
 	if (bare)
 	{
+		host_gui_sdl3_wheel = -1;
 		auto mode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
 		if (mode)
 		{

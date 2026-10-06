@@ -52,6 +52,13 @@
 				(+ev_msg_type +ev_type_enter)
 				(+ev_msg_target_id *mouse_id*))))) view)
 
+(defun held-mouse-id ()
+	;the view the mouse is on. While a button is held that is the view it
+	;went down on, a window being dragged can lag behind the pointer, and
+	;to look under the pointer again would let go of it
+	(or (and (/= *mouse_buttons* 0) (. *screen* :find_id *mouse_id*))
+		(set-mouse-id)))
+
 (defun set-focus-id ()
 	(cond
 		(*focus*
@@ -63,7 +70,7 @@
 					(+ev_msg_target_id *mouse_id*))))
 			(setq *mouse_id* (. *focus* :get_id))
 			*focus*)
-		((set-mouse-id))))
+		((held-mouse-id))))
 
 (defun action-key-down ()
 	(defq view (set-focus-id)
@@ -99,7 +106,7 @@
 			(+ev_msg_key_mod *mods*)))))
 
 (defun action-mouse-wheel ()
-	(mouse-type (defq view (set-mouse-id))
+	(mouse-type (defq view (held-mouse-id))
 		(- *mouse_x* (getf view +view_ctx_x 0))
 		(- *mouse_y* (getf view +view_ctx_y 0)))
 	(if (defq owner (. view :find_owner))

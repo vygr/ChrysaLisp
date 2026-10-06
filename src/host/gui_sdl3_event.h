@@ -6,6 +6,13 @@
 #include <string.h>
 #include "gui_event.h"
 
+/* which way a wheel scrolls. On a desktop the window system has turned the
+   wheel the way its user set it before SDL sees it. On a bare display there
+   is nobody to do that, and the driver sets this to -1, so a wheel moves
+   what is under it the way the hand moves, as on a Mac. */
+
+static int32_t host_gui_sdl3_wheel = 1;
+
 /* the next event the GUI service takes, not every SDL event is one */
 
 static bool host_gui_sdl3_next(host_gui_event *out)
@@ -50,12 +57,12 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 		case SDL_EVENT_MOUSE_WHEEL:
 			out->type = host_gui_event_mouse_wheel;
 #if SDL_VERSION_ATLEAST(3, 4, 0)
-			out->x = e.wheel.integer_x;
-			out->y = e.wheel.integer_y;
+			out->x = e.wheel.integer_x * host_gui_sdl3_wheel;
+			out->y = e.wheel.integer_y * host_gui_sdl3_wheel;
 #else
 			// before SDL 3.4 there are only the float amounts
-			out->x = (int32_t)e.wheel.x;
-			out->y = (int32_t)e.wheel.y;
+			out->x = (int32_t)e.wheel.x * host_gui_sdl3_wheel;
+			out->y = (int32_t)e.wheel.y * host_gui_sdl3_wheel;
 #endif
 			out->direction = e.wheel.direction;
 			// a wheel can turn less than a whole step
