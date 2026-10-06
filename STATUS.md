@@ -4,6 +4,29 @@
 
 ------
 
+exFAT on a real device, a 4GB USB flash stick, through its raw device.
+
+A raw device is read and written a whole sector at a time, at the start of a
+sector, where an image file takes any size at any offset. So `lib/fs/exfat.inc`
+has a block layer under it. The device is only asked for whole blocks, a
+block is 8 sectors, the last 512 blocks read are kept, and a write that is
+not whole sectors is read, changed and written back. An image file goes
+through the same layer. The bitmap is written back only where it changed,
+and the search for free clusters starts from where the last was found and
+steps over a byte of the bitmap that is all in use.
+
+The same turn and turn about as on the images, macOS's checker run on the
+stick between each. macOS put five files on it, a 5MB one among them.
+ChrysaLisp mounted it in 16ms and read all five the same as the originals,
+then made directories and 43 files, a 4MB one in 2 seconds, 40 small ones
+with long names in 3, and deleted one of macOS's. The checker passed it,
+macOS read all 43 right. macOS wrote a reply and deleted one, ChrysaLisp
+read the reply and wrote again, and the checker passed that.
+
+The stick is left with `from_mac` and `from_chrysalisp` on it.
+
+------
+
 exFAT is written as well as read. `(exfat-save vol path data)`,
 `(exfat-mkdir vol path)` and `(exfat-delete vol path)`, in `lib/fs/exfat.inc`.
 A file is given a run of free clusters if there is one long enough, and then

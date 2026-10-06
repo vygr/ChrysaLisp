@@ -13,7 +13,10 @@
 ;	:stream, the device, :file if it is a file of the host
 ;	:sector_shift :cluster_shift, the sizes of a sector and a cluster
 ;	:fat_offset :heap_offset, in sectors, :cluster_count :root
-;	:bitmap, a bit for each cluster that is in use, and where it is kept
+;	:bitmap, a bit for each cluster that is in use, and where it is kept,
+;	:dirty_lo :dirty_hi the bytes of it that have changed, :hint where
+;	the next free cluster is looked for
+;	:cache :cached, the blocks of the device last read
 ;	:upcase, the upper case of each character that has one
 ;an entry of a directory is (name dir size start no_fat index count)
 ;	start is its first cluster. no_fat is a file whose clusters run on
@@ -90,20 +93,75 @@
 	(struct reserved 8))
 
 
-(defun exfat-read (vol offset len)
-	; (exfat-read vol offset len) -> str
-	;bytes of the device
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the device, in blocks of sectors
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;a real device is read and written a whole sector at a time, at the start
+;of a sector, and each read is slow. So the device is only ever asked for
+;whole blocks, a block is 8 sectors, and the blocks last read are kept.
+;A file that is the image of a disk does not care, and is treated the same.
+
+(defq +exfat_block_shift 12 +exfat_block_size 4096 +exfat_cache_blocks 512)
+
+(defun exfat-raw-read (vol offset len)
+	;whole blocks from the device, :nil if they are not all there
 	(defq stream (get :stream vol))
 	(stream-seek stream offset 0)
-	(read-blk stream len))
+	(if (and (defq data (read-blk stream len)) (= (length data) len)) data))
+
+(defun exfat-raw-write (vol offset data)
+	;whole sectors to the device
+	(defq stream (get :stream vol))
+	(stream-seek stream offset 0)
+	(write-blk stream data))
+
+(defun exfat-block (vol index)
+	;a block of the device, from those kept if it is there
+	(defq cache (get :cache vol))
+	(or (. cache :find index)
+		(progn
+			(when (>= (get :cached vol) +exfat_cache_blocks)
+				(. cache :empty)
+				(def vol :cached 0))
+			;the last block of a device can be short of a whole block
+			(defq data (ifn (exfat-raw-read vol (<< index +exfat_block_shift) +exfat_block_size)
+				(apply (const cat) (cat (list "") (filter (const identity) (map (lambda (i)
+					(exfat-raw-read vol (+ (<< index +exfat_block_shift) (* i 512)) 512))
+					(range 0 8)))))))
+			(. cache :insert index data)
+			(def vol :cached (inc (get :cached vol)))
+			data)))
+
+(defun exfat-read (vol offset len)
+	; (exfat-read vol offset len) -> str
+	;bytes of the device. A long read goes straight to the device, a
+	;short one comes from the blocks it is in.
+	(defq lo (>> offset +exfat_block_shift) hi (>> (+ offset len (dec +exfat_block_size)) +exfat_block_shift)
+		base (<< lo +exfat_block_shift))
+	(slice (if (> (- hi lo) 4)
+			(ifn (exfat-raw-read vol base (<< (- hi lo) +exfat_block_shift))
+				(apply (const cat) (map (# (exfat-block vol %0)) (range lo hi))))
+			(apply (const cat) (map (# (exfat-block vol %0)) (range lo hi))))
+		(- offset base) (+ (- offset base) len)))
 
 (defun exfat-write (vol offset data)
 	; (exfat-write vol offset data) -> vol
-	;bytes to the device. A seek puts what was written before it where it
-	;belongs, the last write of all is put there by (exfat-sync)
-	(defq stream (get :stream vol))
-	(stream-seek stream offset 0)
-	(write-blk stream data)
+	;bytes to the device. Whole sectors are written, so a write that is
+	;not whole sectors is read, changed and written back. A seek puts what
+	;was written before it where it belongs, the last write of all is put
+	;there by (exfat-sync)
+	(defq len (length data) lo (logand offset -512) hi (logand (+ offset len 511) -512))
+	(unless (and (= lo offset) (= hi (+ offset len)))
+		(defq old (exfat-read vol lo (- hi lo)))
+		(setq data (cat (slice old 0 (- offset lo)) data (slice old (- (+ offset len) lo) -1))))
+	;the blocks kept are no longer what is on the device
+	(defq cache (get :cache vol))
+	(each (# (when (. cache :find %0)
+			(. cache :erase %0)
+			(def vol :cached (dec (get :cached vol)))))
+		(range (>> lo +exfat_block_shift) (>> (+ hi (dec +exfat_block_size)) +exfat_block_shift)))
+	(exfat-raw-write vol lo data)
 	vol)
 
 (defun exfat-sync (vol)
@@ -126,7 +184,8 @@
 	;a path is a file of the host that is the image of a disk, opened
 	;to be read and written. A stream can be a memory stream.
 	(when (defq stream (if (str? device) (file-stream device +file_open_append) device))
-		(def (defq vol (env 1)) :stream stream :file (str? device))
+		(def (defq vol (env 1)) :stream stream :file (str? device)
+			:cache (Fmap 101) :cached 0 :hint 2 :dirty_lo -1 :dirty_hi -1)
 		(defq boot (exfat-read vol 0 +exfat_boot_size))
 		(when (and boot (= (length boot) +exfat_boot_size)
 				(eql (getf boot +exfat_boot_name) "EXFAT   "))
@@ -360,21 +419,47 @@
 (defun exfat-mark (vol cluster used)
 	(defq bit (- cluster 2) bitmap (get :bitmap vol) i (>> bit 3)
 		mask (<< 1 (logand bit 7)) old (code bitmap 1 i))
-	(set-byte bitmap i (if used (logior old mask) (logand old (logxor mask 0xff)))))
+	(set-byte bitmap i (if used (logior old mask) (logand old (logxor mask 0xff))))
+	(defq lo (get :dirty_lo vol))
+	(def vol :dirty_lo (if (< lo 0) i (min lo i)) :dirty_hi (max (get :dirty_hi vol) i))
+	;a cluster that is free again is where to look next
+	(unless used (def vol :hint (min (get :hint vol) cluster))))
 
 (defun exfat-bitmap-save (vol)
-	;the bitmap back to the clusters it is kept in
-	(defq bitmap (get :bitmap vol) size (exfat-cluster-size vol))
-	(each (lambda (cluster)
-		(defq at (* (!) size))
-		(exfat-write vol (exfat-cluster-offset vol cluster)
-			(slice bitmap at (min (length bitmap) (+ at size)))))
-		(exfat-chain vol (get :bitmap_first vol) (length bitmap) :nil)))
+	;the bitmap back to the clusters it is kept in, the ones that changed
+	(defq bitmap (get :bitmap vol) size (exfat-cluster-size vol)
+		lo (get :dirty_lo vol) hi (get :dirty_hi vol))
+	(when (>= lo 0)
+		(defq clusters (exfat-chain vol (get :bitmap_first vol) (length bitmap) :nil))
+		(each (lambda (i)
+			(defq at (* i size))
+			(exfat-write vol (exfat-cluster-offset vol (elem-get clusters i))
+				(slice bitmap at (min (length bitmap) (+ at size)))))
+			(range (/ lo size) (inc (/ hi size))))
+		(def vol :dirty_lo -1 :dirty_hi -1)))
 
 (defun exfat-fat-set (vol cluster next)
 	;the cluster that follows a cluster, to the allocation table
 	(exfat-write vol (+ (<< (get :fat_offset vol) (get :sector_shift vol)) (* cluster 4))
 		(char next 4)))
+
+(defun exfat-scan (vol from to want loose)
+	;look for a run of free clusters from one cluster up to another. The
+	;first few free ones are noted on the way, in case there is no run.
+	;A byte of the bitmap that is all in use is stepped over in one.
+	(defq cluster from run 0 found :nil bitmap (get :bitmap vol))
+	(while (and (< cluster to) (not found))
+		(cond
+			((and (= (logand (- cluster 2) 7) 0) (<= (+ cluster 8) to)
+					(= (logand (code bitmap 1 (>> (- cluster 2) 3)) 0xff) 0xff))
+				(setq run 0 cluster (+ cluster 8)))
+			((exfat-used? vol cluster)
+				(setq run 0 cluster (inc cluster)))
+			(:t (setq run (inc run))
+				(if (< (length loose) want) (push loose cluster))
+				(if (= run want) (setq found (- cluster (dec want))))
+				(setq cluster (inc cluster)))))
+	found)
 
 (defun exfat-alloc (vol want)
 	; (exfat-alloc vol want) -> :nil | (clusters no_fat)
@@ -382,18 +467,16 @@
 	;enough, and the file then needs no chain. If not, the first free
 	;clusters there are, with a chain through them. :nil if there are
 	;too few. The clusters are marked as used.
-	(defq limit (+ (get :cluster_count vol) 2) cluster 2 run 0 found :nil loose (list))
-	(while (and (< cluster limit) (not found))
-		(cond
-			((exfat-used? vol cluster) (setq run 0))
-			(:t (setq run (inc run))
-				(if (< (length loose) want) (push loose cluster))
-				(if (= run want) (setq found (- cluster (dec want))))))
-		(setq cluster (inc cluster)))
+	(defq limit (+ (get :cluster_count vol) 2) hint (max 2 (min (get :hint vol) limit))
+		loose (list) found (exfat-scan vol hint limit want loose))
+	;nothing after where the last was found, so from the start
+	(unless found
+		(setq loose (list) found (exfat-scan vol 2 limit want loose)))
 	(cond
 		(found
 			(defq clusters (range found (+ found want)))
 			(each (# (exfat-mark vol %0 :t)) clusters)
+			(def vol :hint (+ found want))
 			(list clusters :t))
 		((= (length loose) want)
 			(each (# (exfat-mark vol %0 :t)) loose)
