@@ -4,6 +4,29 @@
 
 ------
 
+A start on a file system of our own, for the day there is no host to ask.
+exFAT, as it has no 4GB limit on a file, every other system reads and writes
+it, and it is not much more than FAT. New `lib/fs/exfat.inc`, the read side,
+in Lisp. It mounts a volume, lists a directory, finds a path, reads a file,
+and walks a tree.
+
+A volume is anything that gives bytes at an offset, for now a file of the
+host that is the image of a disk. The structures on the disk are described
+with `structure`, and read with `getf` and `getf->`. Nothing in it calls
+itself, a walk of the tree keeps its own list of the directories still to
+do, a task has a small stack and a tree can be any depth.
+
+Checked against macOS. It made two volumes and filled them, nested folders,
+a long name, a name with accents, a 5MB file, files of exactly one cluster
+and one byte over, and on a nearly full volume a 3MB file it had to scatter
+over 15 runs of clusters. Read here, every file is the same byte for byte
+as the one macOS was given, the scattered one through its allocation chain.
+
+Not done, writing, a test in the suite, which wants a volume it can make for
+itself, and the service an app would talk to.
+
+------
+
 The frame buffer GUI has sound. It has no SDL under it, so it had no audio
 driver. New `src/host/audio_alsa.cpp`, an ALSA driver, on top of the mixer
 that was moved out of the SDL3 driver today, and a new wav reader of our
