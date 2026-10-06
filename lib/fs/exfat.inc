@@ -504,15 +504,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun exfat-stamp ()
-	;the time now, as a directory entry keeps it
+	;the time now, as a directory entry keeps it, months from 1
 	(bind '(sec min hour day month year &rest _) (date))
-	(logior (<< (- year 1980) 25) (<< month 21) (<< day 16) (<< hour 11) (<< min 5) (>> sec 1)))
+	(logior (<< (- year 1980) 25) (<< (inc month) 21) (<< day 16) (<< hour 11) (<< min 5) (>> sec 1)))
+
+(defun exfat-zone ()
+	;the time zone a stamp is in, quarter hours from UTC, and the bit
+	;that says it is known, or a reader takes the stamp as its own time
+	(logior 0x80 (logand (/ (timezone-offset-seconds *local_timezone*) 900) 0x7f)))
 
 (defun exfat-set (vol name dir size start no_fat)
 	; (exfat-set vol name dir size start no_fat) -> str
 	;the entries of a file, one for the file, one for its data, and as
 	;many as its name needs, with the checksum of them all
-	(defq units (exfat-units name) stamp (exfat-stamp)
+	(defq units (exfat-units name) stamp (exfat-stamp) zone (exfat-zone)
 		names (/ (+ (length units) (dec +exfat_name_units)) +exfat_name_units)
 		parts (list
 			(setf-> (exfat-zeros +exfat_file_size)
@@ -521,7 +526,10 @@
 				(+exfat_file_attributes (if dir +exfat_attr_dir +exfat_attr_archive))
 				(+exfat_file_create stamp)
 				(+exfat_file_modify stamp)
-				(+exfat_file_access stamp))
+				(+exfat_file_access stamp)
+				(+exfat_file_create_tz zone)
+				(+exfat_file_modify_tz zone)
+				(+exfat_file_access_tz zone))
 			(setf-> (exfat-zeros +exfat_stream_size)
 				(+exfat_stream_type +exfat_type_stream)
 				(+exfat_stream_flags (logior +exfat_flag_alloc (if no_fat +exfat_flag_no_fat 0)))
