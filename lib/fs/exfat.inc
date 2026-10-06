@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; exFAT, the file system, read from a volume.
+; exFAT, the file system, read from and written to a volume.
 ; A volume is anything that gives bytes at an offset, here a file of
 ; the host that is the image of a disk. Nothing of the host's own
 ; file system code is used, the structures on the disk are read here.
@@ -10,11 +10,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;a volume is an environment, with
-;	:stream, the device
+;	:stream, the device, :file if it is a file of the host
 ;	:sector_shift :cluster_shift, the sizes of a sector and a cluster
 ;	:fat_offset :heap_offset, in sectors, :cluster_count :root
-;an entry of a directory is (name dir size first no_fat)
-;	no_fat is a file whose clusters run on from first, with no chain
+;	:bitmap, a bit for each cluster that is in use, and where it is kept
+;	:upcase, the upper case of each character that has one
+;an entry of a directory is (name dir size start no_fat index count)
+;	start is its first cluster. no_fat is a file whose clusters run on
+;	from there, with no chain
+;	index is where its entries are in the directory, count how many more
+;	follow the first of them
+;a path, found, is the entries from the root down to it, (root ... entry)
+
+(import "lib/date/date.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the structures on the disk
@@ -36,7 +44,9 @@
 	(enum end))
 (defq +exfat_type_bitmap 0x81 +exfat_type_upcase 0x82 +exfat_type_label 0x83
 	+exfat_type_file 0x85 +exfat_type_stream 0xc0 +exfat_type_name 0xc1
-	+exfat_attr_dir 0x10 +exfat_flag_no_fat 2 +exfat_name_units 15)
+	+exfat_attr_dir 0x10 +exfat_attr_archive 0x20
+	+exfat_flag_alloc 1 +exfat_flag_no_fat 2 +exfat_name_units 15
+	+exfat_last 0xffffffff +exfat_in_use 0x80)
 
 (structure +exfat_entry 0
 	(ubyte type)
@@ -87,10 +97,36 @@
 	(stream-seek stream offset 0)
 	(read-blk stream len))
 
-(defun exfat-mount (path)
-	; (exfat-mount path) -> :nil | vol
-	(when (defq stream (file-stream path))
-		(def (defq vol (env 1)) :stream stream)
+(defun exfat-write (vol offset data)
+	; (exfat-write vol offset data) -> vol
+	;bytes to the device. A seek puts what was written before it where it
+	;belongs, the last write of all is put there by (exfat-sync)
+	(defq stream (get :stream vol))
+	(stream-seek stream offset 0)
+	(write-blk stream data)
+	vol)
+
+(defun exfat-sync (vol)
+	; (exfat-sync vol) -> vol
+	;all that was written is on the device. A file stream holds its last
+	;write till it is flushed or closed, and a task that ends with the
+	;stream open would lose it, here the bitmap, the last thing written.
+	;A memory stream is not flushed, a flush ends the string where it stands.
+	(if (get :file vol) (stream-flush (get :stream vol)))
+	vol)
+
+(defun exfat-zeros (len)
+	; (exfat-zeros len) -> str
+	(defq z (const (char 0 8)))
+	(while (< (length z) len) (setq z (cat z z)))
+	(slice z 0 len))
+
+(defun exfat-mount (device)
+	; (exfat-mount path | stream) -> :nil | vol
+	;a path is a file of the host that is the image of a disk, opened
+	;to be read and written. A stream can be a memory stream.
+	(when (defq stream (if (str? device) (file-stream device +file_open_append) device))
+		(def (defq vol (env 1)) :stream stream :file (str? device))
 		(defq boot (exfat-read vol 0 +exfat_boot_size))
 		(when (and boot (= (length boot) +exfat_boot_size)
 				(eql (getf boot +exfat_boot_name) "EXFAT   "))
@@ -102,8 +138,23 @@
 				:fat_offset fat_offset :heap_offset heap_offset
 				:cluster_count cluster_count :root root
 				:sector_shift sector_shift
-				:cluster_shift (+ sector_shift cluster_shift))
-			vol)))
+				:cluster_shift (+ sector_shift cluster_shift)
+				:bitmap :nil :bitmap_first 0 :upcase (Fmap 101))
+			;the root has an entry for the bitmap and one for the upper case table
+			(defq data (exfat-data vol root :nil :nil) i 0
+				n (/ (length data) +exfat_entry_size) type 1)
+			(while (and (< i n) (/= type +exfat_type_end))
+				(defq e (slice data (* i +exfat_entry_size) (* (inc i) +exfat_entry_size)))
+				(setq type (getf e +exfat_entry_type) i (inc i))
+				(cond
+					((= type +exfat_type_bitmap)
+						(bind '(start len) (getf-> e +exfat_bitmap_first_cluster +exfat_bitmap_data_length))
+						(def vol :bitmap_first start
+							:bitmap (cat (exfat-data vol start len :nil))))
+					((= type +exfat_type_upcase)
+						(bind '(start len) (getf-> e +exfat_upcase_first_cluster +exfat_upcase_data_length))
+						(exfat-upcase-load vol (exfat-data vol start len :nil)))))
+			(if (get :bitmap vol) vol))))
 
 (defun exfat-cluster-size (vol)
 	(<< 1 (get :cluster_shift vol)))
@@ -118,25 +169,25 @@
 	(get-uint (exfat-read vol (+ (<< (get :fat_offset vol) (get :sector_shift vol))
 		(* cluster 4)) 4) 0))
 
-(defun exfat-chain (vol first len no_fat)
-	; (exfat-chain vol first len no_fat) -> (cluster ...)
+(defun exfat-chain (vol start len no_fat)
+	; (exfat-chain vol start len no_fat) -> (cluster ...)
 	;the clusters of a file or a directory. A len of :nil is all of the chain
 	(defq size (exfat-cluster-size vol) limit (+ (get :cluster_count vol) 2)
 		clusters (list))
 	(cond
-		((< first 2) clusters)
-		(no_fat (range first (+ first (/ (+ len (dec size)) size))))
+		((< start 2) clusters)
+		(no_fat (range start (+ start (/ (+ len (dec size)) size))))
 		(:t (defq want (if len (/ (+ len (dec size)) size) limit))
-			(while (and (>= first 2) (< first limit) (< (length clusters) want))
-				(push clusters first)
-				(setq first (exfat-next vol first)))
+			(while (and (>= start 2) (< start limit) (< (length clusters) want))
+				(push clusters start)
+				(setq start (exfat-next vol start)))
 			clusters)))
 
-(defun exfat-data (vol first len no_fat)
-	; (exfat-data vol first len no_fat) -> str
+(defun exfat-data (vol start len no_fat)
+	; (exfat-data vol start len no_fat) -> str
 	;the bytes of a file or a directory, a run of clusters is one read
 	(defq size (exfat-cluster-size vol) parts (list)
-		clusters (exfat-chain vol first len no_fat) i 0 n (length clusters))
+		clusters (exfat-chain vol start len no_fat) i 0 n (length clusters))
 	(while (< i n)
 		(defq j (inc i))
 		(while (and (< j n) (= (elem-get clusters j) (+ (elem-get clusters i) (- j i))))
@@ -160,11 +211,59 @@
 		(push out (num-to-utf8 c)))
 	(apply (const cat) (cat (list "") out)))
 
-(defun exfat-entries (vol first len no_fat)
-	; (exfat-entries vol first len no_fat) -> ((name dir size first no_fat) ...)
+(defun exfat-units (name)
+	; (exfat-units name) -> (unit ...)
+	;a UTF-8 name as the 16 bit characters the disk holds
+	(defq out (list) i 0 n (length name))
+	(while (< i n)
+		(defq c (code name 1 i) more (cond ((< c 0x80) 0) ((< c 0xe0) 1) ((< c 0xf0) 2) (:t 3)))
+		(setq c (logand c (elem-get '(0x7f 0x1f 0x0f 0x07) more)) i (inc i))
+		(while (and (> more 0) (< i n))
+			(setq c (logior (<< c 6) (logand (code name 1 i) 0x3f)) i (inc i) more (dec more)))
+		(cond
+			((< c 0x10000) (push out c))
+			;one character that takes two
+			(:t (setq c (- c 0x10000))
+				(push out (+ 0xd800 (>> c 10)) (+ 0xdc00 (logand c 0x3ff))))))
+	out)
+
+(defun exfat-upcase-load (vol data)
+	;the table of the volume, the upper case of every character in turn.
+	;0xffff then a count stands for that many that are their own upper case
+	(defq map (get :upcase vol) i 0 c 0 n (/ (length data) 2))
+	(while (< i n)
+		(defq u (get-ushort data (* i 2)))
+		(setq i (inc i))
+		(cond
+			((and (= u 0xffff) (< i n))
+				(setq c (+ c (get-ushort data (* i 2))) i (inc i)))
+			(:t (if (/= u c) (. map :insert c u))
+				(setq c (inc c))))))
+
+(defun exfat-upper (vol unit)
+	(ifn (. (get :upcase vol) :find unit) unit))
+
+(defun exfat-hash (vol units)
+	;the hash of a name, of its upper case, a byte at a time
+	(reduce (lambda (hash unit)
+		(setq unit (exfat-upper vol unit)
+			hash (logand (+ (if (= (logand hash 1) 1) 0x8000 0) (>> hash 1) (logand unit 0xff)) 0xffff))
+		(logand (+ (if (= (logand hash 1) 1) 0x8000 0) (>> hash 1) (>> unit 8)) 0xffff)) units 0))
+
+(defun exfat-checksum (set)
+	;the checksum of the entries of a file, all but the checksum itself
+	(defq sum 0)
+	(each (lambda (i)
+		(unless (<= 2 i 3)
+			(setq sum (logand (+ (if (= (logand sum 1) 1) 0x8000 0) (>> sum 1) (code set 1 i)) 0xffff))))
+		(range 0 (length set)))
+	sum)
+
+(defun exfat-entries (vol start len no_fat)
+	; (exfat-entries vol start len no_fat) -> ((name dir size start no_fat index count) ...)
 	;the files and directories of a directory. A file is a set of entries,
 	;one for the file, one for its data, then as many as its name needs
-	(defq data (exfat-data vol first len no_fat) out (list) i 0
+	(defq data (exfat-data vol start len no_fat) out (list) i 0
 		n (/ (length data) +exfat_entry_size) type 1)
 	(defun entry (i)
 		(slice data (* i +exfat_entry_size) (* (inc i) +exfat_entry_size)))
@@ -184,33 +283,53 @@
 							left (- left +exfat_name_units)))
 					(setq k (inc k)))
 				(push out (list name (/= (logand attrs +exfat_attr_dir) 0) size start
-					(/= (logand flags +exfat_flag_no_fat) 0)))))
+					(/= (logand flags +exfat_flag_no_fat) 0) i count))))
 		(setq i (+ i (inc count))))
 	out)
 
-(defun exfat-find (vol path)
-	; (exfat-find vol path) -> :nil | (name dir size first no_fat)
-	;the entry for a path from the root, names are matched without case
-	(defq entry (list "" :t :nil (get :root vol) :nil))
+(defun exfat-same? (vol a b)
+	;are two names the same, as the volume sees it, with no regard to case
+	(defq a (exfat-units a) b (exfat-units b))
+	(and (= (length a) (length b))
+		(every (# (= (exfat-upper vol %0) (exfat-upper vol %1))) a b)))
+
+(defun exfat-root (vol)
+	;the root as an entry, its length is not kept, its chain is followed
+	(list "" :t :nil (get :root vol) :nil -1 0))
+
+(defun exfat-dir (vol entry)
+	; (exfat-dir vol entry) -> ((name dir size start no_fat index count) ...)
+	;what is in a directory
+	(bind '(& & size start no_fat &rest _) entry)
+	(exfat-entries vol start size no_fat))
+
+(defun exfat-path (vol path)
+	; (exfat-path vol path) -> :nil | (root ... entry)
+	;the entries from the root down to a path
+	(defq found (list (exfat-root vol)))
 	(each (lambda (part)
-		(when entry
-			(bind '(& dir size first no_fat) entry)
-			(setq entry (if dir (some (# (if (eql (to-lower (first %0)) (to-lower part)) %0))
-				(exfat-entries vol first size no_fat))))))
+		(when found
+			(defq entry (if (second (last found))
+				(some (# (if (exfat-same? vol (first %0) part) %0))
+					(exfat-dir vol (last found)))))
+			(if entry (push found entry) (setq found :nil))))
 		(filter (# (nempty? %0)) (split path "/")))
-	entry)
+	found)
+
+(defun exfat-find (vol path)
+	; (exfat-find vol path) -> :nil | (name dir size start no_fat index count)
+	(if (defq found (exfat-path vol path)) (last found)))
 
 (defun exfat-list (vol path)
-	; (exfat-list vol path) -> :nil | ((name dir size first no_fat) ...)
+	; (exfat-list vol path) -> :nil | ((name dir size start no_fat index count) ...)
 	(when (and (defq entry (exfat-find vol path)) (second entry))
-		(bind '(& & size first no_fat) entry)
-		(exfat-entries vol first size no_fat)))
+		(exfat-dir vol entry)))
 
 (defun exfat-load (vol path)
 	; (exfat-load vol path) -> :nil | str
 	(when (and (defq entry (exfat-find vol path)) (not (second entry)))
-		(bind '(& & size first no_fat) entry)
-		(exfat-data vol first size no_fat)))
+		(bind '(& & size start no_fat &rest _) entry)
+		(exfat-data vol start size no_fat)))
 
 (defun exfat-walk (vol path fnc)
 	; (exfat-walk vol path fnc) -> vol
@@ -228,3 +347,240 @@
 		;so that they come off the list in the order they were found
 		(reach (# (push todo %0)) dirs))
 	vol)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; writing, the bitmap and the clusters
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun exfat-used? (vol cluster)
+	;is a cluster in use, the bitmap has a bit for each, cluster 2 is bit 0
+	(defq bit (- cluster 2))
+	(/= 0 (logand (code (get :bitmap vol) 1 (>> bit 3)) (<< 1 (logand bit 7)))))
+
+(defun exfat-mark (vol cluster used)
+	(defq bit (- cluster 2) bitmap (get :bitmap vol) i (>> bit 3)
+		mask (<< 1 (logand bit 7)) old (code bitmap 1 i))
+	(set-byte bitmap i (if used (logior old mask) (logand old (logxor mask 0xff)))))
+
+(defun exfat-bitmap-save (vol)
+	;the bitmap back to the clusters it is kept in
+	(defq bitmap (get :bitmap vol) size (exfat-cluster-size vol))
+	(each (lambda (cluster)
+		(defq at (* (!) size))
+		(exfat-write vol (exfat-cluster-offset vol cluster)
+			(slice bitmap at (min (length bitmap) (+ at size)))))
+		(exfat-chain vol (get :bitmap_first vol) (length bitmap) :nil)))
+
+(defun exfat-fat-set (vol cluster next)
+	;the cluster that follows a cluster, to the allocation table
+	(exfat-write vol (+ (<< (get :fat_offset vol) (get :sector_shift vol)) (* cluster 4))
+		(char next 4)))
+
+(defun exfat-alloc (vol want)
+	; (exfat-alloc vol want) -> :nil | (clusters no_fat)
+	;clusters for a file. A run of free clusters if there is one long
+	;enough, and the file then needs no chain. If not, the first free
+	;clusters there are, with a chain through them. :nil if there are
+	;too few. The clusters are marked as used.
+	(defq limit (+ (get :cluster_count vol) 2) cluster 2 run 0 found :nil loose (list))
+	(while (and (< cluster limit) (not found))
+		(cond
+			((exfat-used? vol cluster) (setq run 0))
+			(:t (setq run (inc run))
+				(if (< (length loose) want) (push loose cluster))
+				(if (= run want) (setq found (- cluster (dec want))))))
+		(setq cluster (inc cluster)))
+	(cond
+		(found
+			(defq clusters (range found (+ found want)))
+			(each (# (exfat-mark vol %0 :t)) clusters)
+			(list clusters :t))
+		((= (length loose) want)
+			(each (# (exfat-mark vol %0 :t)) loose)
+			(each (# (exfat-fat-set vol %0 %1)) loose (cat (rest loose) (list +exfat_last)))
+			(list loose :nil))))
+
+(defun exfat-release (vol start len no_fat)
+	;the clusters of a file are free again
+	(each (# (exfat-mark vol %0 :nil)) (exfat-chain vol start len no_fat)))
+
+(defun exfat-store (vol clusters data)
+	;data to clusters, the end of the last is made zero, a run is one write
+	(defq size (exfat-cluster-size vol) i 0 n (length clusters)
+		data (cat data (exfat-zeros (- (* n size) (length data)))))
+	(while (< i n)
+		(defq j (inc i))
+		(while (and (< j n) (= (elem-get clusters j) (+ (elem-get clusters i) (- j i))))
+			(setq j (inc j)))
+		(exfat-write vol (exfat-cluster-offset vol (elem-get clusters i))
+			(slice data (* i size) (* j size)))
+		(setq i j)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; writing, the directories
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun exfat-stamp ()
+	;the time now, as a directory entry keeps it
+	(bind '(sec min hour day month year &rest _) (date))
+	(logior (<< (- year 1980) 25) (<< month 21) (<< day 16) (<< hour 11) (<< min 5) (>> sec 1)))
+
+(defun exfat-set (vol name dir size start no_fat)
+	; (exfat-set vol name dir size start no_fat) -> str
+	;the entries of a file, one for the file, one for its data, and as
+	;many as its name needs, with the checksum of them all
+	(defq units (exfat-units name) stamp (exfat-stamp)
+		names (/ (+ (length units) (dec +exfat_name_units)) +exfat_name_units)
+		parts (list
+			(setf-> (exfat-zeros +exfat_file_size)
+				(+exfat_file_type +exfat_type_file)
+				(+exfat_file_count (inc names))
+				(+exfat_file_attributes (if dir +exfat_attr_dir +exfat_attr_archive))
+				(+exfat_file_create stamp)
+				(+exfat_file_modify stamp)
+				(+exfat_file_access stamp))
+			(setf-> (exfat-zeros +exfat_stream_size)
+				(+exfat_stream_type +exfat_type_stream)
+				(+exfat_stream_flags (logior +exfat_flag_alloc (if no_fat +exfat_flag_no_fat 0)))
+				(+exfat_stream_name_length (length units))
+				(+exfat_stream_name_hash (exfat-hash vol units))
+				(+exfat_stream_valid_length size)
+				(+exfat_stream_first_cluster start)
+				(+exfat_stream_data_length size))))
+	(each (lambda (i)
+		(defq e (setf-> (exfat-zeros +exfat_name_size) (+exfat_name_type +exfat_type_name)))
+		(each (# (set-short e (+ 2 (* (!) 2)) %0))
+			(slice units (* i +exfat_name_units) (min (length units) (* (inc i) +exfat_name_units))))
+		(push parts e)) (range 0 names))
+	(defq eset (apply (const cat) parts))
+	(set-short eset +exfat_file_checksum (exfat-checksum eset))
+	eset)
+
+(defun exfat-dir-put (vol entry index data)
+	;entries to a directory, from an index on. They can cross from one
+	;cluster of the directory to the next, so they go an entry at a time
+	(bind '(& & size start no_fat &rest _) entry)
+	(defq clusters (exfat-chain vol start size no_fat) shift (get :cluster_shift vol))
+	(each (lambda (i)
+		(defq at (* (+ index i) +exfat_entry_size))
+		(exfat-write vol (+ (exfat-cluster-offset vol (elem-get clusters (>> at shift)))
+				(logand at (dec (<< 1 shift))))
+			(slice data (* i +exfat_entry_size) (* (inc i) +exfat_entry_size))))
+		(range 0 (/ (length data) +exfat_entry_size))))
+
+(defun exfat-dir-data (vol entry)
+	(bind '(& & size start no_fat &rest _) entry)
+	(exfat-data vol start size no_fat))
+
+(defun exfat-grow (vol found)
+	; (exfat-grow vol found) -> :nil | found
+	;a directory is given one more cluster. found is the entries from the
+	;root down to it, and comes back with the directory as it now is.
+	(when (defq got (exfat-alloc vol 1))
+		(bind '(name dir size start no_fat index count) (defq entry (last found)))
+		(defq fresh (first (first got)) cluster_size (exfat-cluster-size vol)
+			clusters (exfat-chain vol start size no_fat))
+		(exfat-store vol (list fresh) "")
+		(cond
+			;it still runs on with no chain
+			((and no_fat (= fresh (inc (last clusters)))))
+			(:t ;a chain, made now if it had none
+				(when no_fat
+					(each (# (exfat-fat-set vol %0 %1)) clusters (rest clusters))
+					(setq no_fat :nil))
+				(exfat-fat-set vol (last clusters) fresh)
+				(exfat-fat-set vol fresh +exfat_last)))
+		;the root keeps no length. Any other has its own entry in the
+		;directory above it, which is put right
+		(when (>= index 0)
+			(setq size (+ size cluster_size))
+			(defq parent (elem-get found (- (length found) 2))
+				eset (slice (exfat-dir-data vol parent) (* index +exfat_entry_size)
+					(* (+ index count 1) +exfat_entry_size))
+				eset (cat (slice eset 0 +exfat_entry_size)
+					(setf-> (slice eset +exfat_entry_size (* 2 +exfat_entry_size))
+						(+exfat_stream_flags (logior +exfat_flag_alloc (if no_fat +exfat_flag_no_fat 0)))
+						(+exfat_stream_valid_length size)
+						(+exfat_stream_data_length size))
+					(slice eset (* 2 +exfat_entry_size) -1)))
+			(set-short eset +exfat_file_checksum (exfat-checksum eset))
+			(exfat-dir-put vol parent index eset))
+		(exfat-bitmap-save vol)
+		(cat (slice found 0 -2) (list (list name dir size start no_fat index count)))))
+
+(defun exfat-slot (vol found want)
+	; (exfat-slot vol found want) -> :nil | (index found)
+	;room for that many entries, one after another, in a directory. A
+	;deleted entry is room, and so is everything from the end mark on.
+	;If there is none the directory is grown, till there is.
+	(defq index :nil)
+	(while (and found (not index))
+		(defq data (exfat-dir-data vol (last found)) n (/ (length data) +exfat_entry_size)
+			i 0 run 0 ended :nil)
+		(while (and (< i n) (not index))
+			(defq type (code data 1 (* i +exfat_entry_size)))
+			(if (= type +exfat_type_end) (setq ended :t))
+			(setq run (if (or ended (< type +exfat_in_use)) (inc run) 0) i (inc i))
+			(if (= run want) (setq index (- i want))))
+		(unless index (setq found (exfat-grow vol found))))
+	(if index (list index found)))
+
+(defun exfat-split (path)
+	; (exfat-split path) -> (parent name)
+	(defq parts (filter (# (nempty? %0)) (split path "/")))
+	(list (join (slice parts 0 -2) "/") (ifn (last parts) "")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; writing, what an app would ask for
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun exfat-add (vol path dir data)
+	;a new file or directory, of this data, in the directory it names
+	(bind '(parent name) (exfat-split path))
+	(defq found (exfat-path vol parent) size (length data) cluster_size (exfat-cluster-size vol)
+		got (if (> size 0) (exfat-alloc vol (/ (+ size (dec cluster_size)) cluster_size)) (list (list) :nil)))
+	(when (and found (second (last found)) (nempty? name) got)
+		(bind '(clusters no_fat) got)
+		(exfat-store vol clusters data)
+		(defq eset (exfat-set vol name dir size (if (empty? clusters) 0 (first clusters)) no_fat)
+			slot (exfat-slot vol found (/ (length eset) +exfat_entry_size)))
+		(when slot
+			(exfat-dir-put vol (last (second slot)) (first slot) eset)
+			(exfat-bitmap-save vol)
+			(exfat-sync vol)
+			:t)))
+
+(defun exfat-delete (vol path)
+	; (exfat-delete vol path) -> :nil | :t
+	;a file, or a directory that has nothing in it
+	(defq found (exfat-path vol path))
+	(when (and found (> (length found) 1))
+		(bind '(name dir size start no_fat index count) (last found))
+		(when (or (not dir) (empty? (exfat-dir vol (last found))))
+			(defq parent (elem-get found (- (length found) 2))
+				eset (cat (slice (exfat-dir-data vol parent) (* index +exfat_entry_size)
+					(* (+ index count 1) +exfat_entry_size))))
+			;an entry that is not in use has the top bit of its type clear
+			(each (lambda (i)
+				(defq at (* i +exfat_entry_size))
+				(set-byte eset at (logand (code eset 1 at) (dec +exfat_in_use)))) (range 0 (inc count)))
+			(exfat-dir-put vol parent index eset)
+			(exfat-release vol start size no_fat)
+			(exfat-bitmap-save vol)
+			(exfat-sync vol)
+			:t)))
+
+(defun exfat-save (vol path data)
+	; (exfat-save vol path data) -> :nil | :t
+	;a file of this data. One of that name is replaced.
+	(defq old (exfat-find vol path))
+	(cond
+		((and old (second old)) :nil)
+		(:t (if old (exfat-delete vol path))
+			(exfat-add vol path :nil data))))
+
+(defun exfat-mkdir (vol path)
+	; (exfat-mkdir vol path) -> :nil | :t
+	;a new directory, of one cluster with nothing in it
+	(unless (exfat-find vol path)
+		(exfat-add vol path :t (exfat-zeros (exfat-cluster-size vol)))))

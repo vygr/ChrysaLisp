@@ -4,6 +4,44 @@
 
 ------
 
+exFAT is written as well as read. `(exfat-save vol path data)`,
+`(exfat-mkdir vol path)` and `(exfat-delete vol path)`, in `lib/fs/exfat.inc`.
+A file is given a run of free clusters if there is one long enough, and then
+needs no chain. If there is not it takes the free clusters there are and a
+chain is written through them. A directory that is full is grown by a
+cluster, and its own entry in the directory above it put right. A name is
+hashed through the upper case table of the volume, read when it is mounted,
+so a name with accents is found by any system.
+
+The volume can be a memory stream as well as a file, `(exfat-mount stream)`.
+
+Proven from both sides, on disk images, macOS and ChrysaLisp taking turns.
+macOS made a volume and filled it. ChrysaLisp added 76 files and three
+directories to it, one with 70 long names in it that had to grow twice,
+deleted a file and replaced another. macOS's own checker, `fsck_exfat`, then
+passed the volume, and macOS read every one of the 76 right, and its own
+files were untouched. macOS then added a file and deleted eleven, ChrysaLisp
+read that back and wrote once more into the gaps, and the checker passed it
+again. On a nearly full volume ChrysaLisp wrote a 3.5MB file that would not
+fit any one gap, 855 clusters in 18 runs with a chain, and the checker passed
+that, and macOS read it right.
+
+Two things found on the way. The checksum and the name hash were checked
+first against what macOS had stored, all 19 entries of a volume, before
+anything was written. And the first time round the third leg failed. A file
+stream holds its last write till it is flushed or closed, the last write of
+a save is the bitmap, and a task that ended with the volume open lost it,
+so macOS gave the cluster to something else. Every write now ends with a
+flush of a volume that is a file.
+
+Not done. Replacing a file frees the old one before the new one is written,
+so a replace on a full volume loses the old. No rename, no timestamps kept
+from the old file, and the volume is not marked as in use while it is
+written. A real device wants reads and writes of whole sectors, an image
+file does not. No test in the suite yet, no service.
+
+------
+
 A start on a file system of our own, for the day there is no host to ask.
 exFAT, as it has no 4GB limit on a file, every other system reads and writes
 it, and it is not much more than FAT. New `lib/fs/exfat.inc`, the read side,
