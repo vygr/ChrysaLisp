@@ -186,7 +186,9 @@ the host.
       driver. `_HOST_AUDIO = 0` uses `src/host/audio_sdl.cpp`, on SDL2 and
       the SDL2_mixer library. `_HOST_AUDIO = 1` uses
       `src/host/audio_sdl3.cpp`, on SDL3 alone, there is no mixer library to
-      depend on.
+      depend on. `_HOST_AUDIO = 2` uses `src/host/audio_alsa.cpp`, on ALSA,
+      for the frame buffer GUI, which has no SDL under it. A build with no
+      audio driver has no table, and the audio service does not start.
 
     * The mixing is in `src/host/mixer.h`, which has no SDL in it, nor any
       other library. Sounds are held as float stereo at 44.1kHz, 32 play at
@@ -195,6 +197,13 @@ the host.
       wants more, calls `mixer_mix`. It reads a sound file into float stereo
       for `mixer_add`. And it holds a lock of its own round every call to
       the mixer. The SDL3 driver is those three and little else.
+
+    * A wav file is read by `src/host/wav.h`, which has no library in it
+      either. PCM of 8, 16, 24 and 32 bits and 32 bit float, any number of
+      channels, any rate, into the float stereo the mixer wants. The ALSA
+      driver is `mixer.h`, `wav.h`, a thread that feeds the device, and a
+      lock, 173 lines. It is what a driver for a machine with no host under
+      it would look like.
 
     * The mixing is on a thread of the host, the one the device calls on,
       and not a ChrysaLisp task. Tasks are co-operative, a task runs when
@@ -517,8 +526,9 @@ processes.
       `fb`, 2 for `raw`, 3 for `sdl3`, 4 for `raw3`.
 
     * `HOST_AUDIO`: Preprocessor define, 0 for the SDL2_mixer driver, 1 for
-      the SDL3 driver. It follows the GUI driver, and there is none with
-      `GUI=fb`.
+      the SDL3 driver, 2 for the ALSA driver. It follows the GUI driver,
+      `GUI=fb` has the ALSA driver if `pkg-config` knows of ALSA, and none if
+      it does not.
 
     * `SDL3_PREFIX`: The folder SDL3 is installed in, for a machine where
       `pkg-config` does not know of it, one built from source say. It is

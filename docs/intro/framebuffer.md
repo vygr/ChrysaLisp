@@ -97,11 +97,16 @@ everything ready to go for running ChrysaLisp.
 To pull down the source and build ChrysaLisp, use the following:
 
 ```code
-sudo apt install git
+sudo apt install git build-essential pkg-config libasound2-dev
 git clone https://github.com/vygr/ChrysaLisp.git
 cd ChrysaLisp/
 make GUI=fb install
 ```
+
+`libasound2-dev` is for sound, through ALSA. Without it the build has no
+sound and says so, `No AUDIO driver.` Sound goes to the default ALSA device,
+which on a Pi is the headphone socket. For the TV, down the HDMI cable, see
+`docs/intro/sdl3.md`.
 
 ### Running ChrysaLisp on FRAMEBUFFER after setup
 

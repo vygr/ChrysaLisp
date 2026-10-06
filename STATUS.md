@@ -4,6 +4,28 @@
 
 ------
 
+The frame buffer GUI has sound. It has no SDL under it, so it had no audio
+driver. New `src/host/audio_alsa.cpp`, an ALSA driver, on top of the mixer
+that was moved out of the SDL3 driver today, and a new wav reader of our
+own, `src/host/wav.h`. So that build has sound with no SDL in it at all, and
+the driver is 173 lines, a device, a thread that feeds it, and a lock.
+
+`wav.h` reads PCM of 8, 16, 24 and 32 bits and 32 bit float, any channels,
+any rate. Against SDL's reader on the sound files in the tree it gives the
+same number of frames and the same peaks. It changes rate by drawing a line
+between samples, where SDL filters, so the samples differ a little.
+
+`make GUI=fb` builds the ALSA driver if the development files of ALSA are
+there, `libasound2-dev`, and says `No AUDIO driver.` if they are not. Heard
+on the Raspberry Pi 4, Onslaught's sounds from the TV, Chris in the next
+room.
+
+The frame buffer build on a Pi is the nearest thing there is to ChrysaLisp
+on its own. The net, the files, USB and Bluetooth, and the display, are
+Linux. All that is seen and heard is ChrysaLisp.
+
+------
+
 The frame buffer driver on a 32 bit display. The Pi's frame buffer was 16
 bit, it is 32 bit with `video=HDMI-A-1:1920x1080M-32@50` on the end of
 `/boot/firmware/cmdline.txt`, and that is the other pixel path of the driver.

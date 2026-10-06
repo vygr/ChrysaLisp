@@ -44,6 +44,13 @@ endif
 ifeq ($(HGUI),fb)
 	HOST_GUI := 1
 	OBJ_GUI := gui_fb
+#the frame buffer GUI has no SDL under it. Its sound is ALSA, if the
+#development files of ALSA are on the machine, else it has none. The two
+#are built in folders of their own, every file is built for one or the other.
+ifeq ($(shell pkg-config --exists alsa 2>/dev/null && echo yes),yes)
+	FB_ALSA := yes
+	OBJ_GUI := gui_fb_alsa
+endif
 endif
 ifeq ($(HGUI),raw)
 	HOST_GUI := 2
@@ -68,7 +75,7 @@ OBJ_DIRS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_GUI)/%,$(SRC_DIRS))
 OBJ_DIRS += $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_TUI)/%,$(SRC_DIRS))
 
 SRC_FILES_CORE := src/host/main.cpp src/host/vp64.cpp src/host/net.cpp src/host/pii_linux.cpp src/host/pii_windows.cpp src/host/pii_darwin.cpp
-SRC_FILES_DRIVERS := src/host/audio_sdl.cpp src/host/audio_sdl3.cpp src/host/gui_sdl.cpp src/host/gui_sdl3.cpp src/host/gui_raw.cpp src/host/gui_fb.c
+SRC_FILES_DRIVERS := src/host/audio_sdl.cpp src/host/audio_sdl3.cpp src/host/audio_alsa.cpp src/host/gui_sdl.cpp src/host/gui_sdl3.cpp src/host/gui_raw.cpp src/host/gui_fb.c
 
 OBJ_FILES_CORE_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_CORE))
 OBJ_FILES_DRIVERS_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_DRIVERS))
@@ -96,10 +103,17 @@ ifeq ($(filter 3 4,$(HOST_GUI)),)
 endif
 	AUDIO_FLAGS := -D_HOST_AUDIO=$(HOST_AUDIO)
 else
+ifeq ($(FB_ALSA),yes)
+	HOST_AUDIO := 2
+	SDL_CFLAGS ?= $(shell pkg-config --cflags alsa)
+	SDL_LIBS ?= $(shell pkg-config --libs alsa)
+	AUDIO_FLAGS := -D_HOST_AUDIO=$(HOST_AUDIO)
+else
 	HOST_AUDIO := -1
 	SDL_CFLAGS ?= 
 	SDL_LIBS ?= 
 	AUDIO_FLAGS := -Dhost_audio_funcs=nullptr
+endif
 endif
 
 #SDL2 and SDL3 share the names of their calls, so one program can not
@@ -156,6 +170,12 @@ ifeq ($(HOST_AUDIO),0)
 endif
 ifeq ($(HOST_AUDIO),1)
 	@echo Building sdl3 AUDIO driver.
+endif
+ifeq ($(HOST_AUDIO),2)
+	@echo Building alsa AUDIO driver.
+endif
+ifeq ($(HOST_AUDIO),-1)
+	@echo No AUDIO driver.
 endif
 ifneq ($(OS),Windows)
 	@echo $(CPU) > cpu
