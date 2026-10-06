@@ -4,6 +4,60 @@
 
 ------
 
+exFAT can format a volume, has a test in the suite, and its loose ends are
+tied.
+
+`(exfat-format path | stream size [label cluster_shift])` makes a new volume
+with nothing in it, a new image file or a stream that is already that long.
+The boot sectors and their spare with the checksum, the allocation table, the
+bitmap, the upper case table and the root. The upper case table is the one
+every system writes, 5836 bytes, and is made in `lib/fs/upcase.inc` from 119
+runs of characters, it comes out the same byte for byte as the one macOS
+writes. macOS's checker passes a 2MB, a 64MB and a 4GB volume formatted here,
+and macOS mounts them, reads what ChrysaLisp put on them and writes to them.
+
+`tests/system/test_exfat.lisp`, 94 tests, all on volumes formatted in a memory
+stream, so nothing of the host is needed. Names with accents, Greek and an
+emoji, a directory grown past a cluster, a file broken up over the gaps of a
+volume with 512 byte clusters, a volume filled to the last cluster. macOS's
+checker passes the two volumes the test leaves behind.
+
+The block layer now keeps what is written as well as what is read. A small
+write changes the blocks that are kept, and they go to the device together,
+in order, those next to each other as one write. So the chain of a file is
+written in one go, not an entry at a time, and so are the entries of a
+directory. A directory's blocks are kept when it is read, it is read for
+every path that goes through it. A run of four whole blocks or more still
+goes straight to the device, and the rest of the last cluster of a file is
+no longer written, nobody is given it to read.
+
+`(exfat-begin vol)` and `(exfat-end vol)` go round some writing, and can be
+one inside another. All of it goes to the device at the last end. Each
+writing call has its own, so they are only needed to make a batch of many.
+On the flash stick 50 small files in a batch are 11ms each, they were 59ms,
+and one at a time they are 36ms. Deleting 98 as a batch is 64ms, it was 2
+seconds.
+
+At the first begin the volume is marked as being written, and that goes to
+the device before anything else does. At the last end the mark is taken off.
+`(get :unclean vol)` after a mount says the mark was found, the device was
+pulled out while it was written, or another system has it mounted.
+
+`(exfat-rename vol from to)` gives a file or a directory a new name, a new
+directory to be in, or both, and keeps its dates. Its data is not moved. A
+name that differs only by case is allowed, a directory into itself is not.
+
+`(exfat-save)` over a file that is there changes its entries where they are.
+The new data is put beside the old, and the old is let go once the new is in
+place. Only if there is no room for both is the old let go first, and if
+there is no room even then the old file is still there as it was.
+`(exfat-free vol)` is the room left, in bytes.
+
+Files are stamped with the right month, they were a month early, and the
+stamp says it is UTC.
+
+------
+
 exFAT on a real device, a 4GB USB flash stick, through its raw device.
 
 A raw device is read and written a whole sector at a time, at the start of a

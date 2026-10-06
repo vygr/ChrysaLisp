@@ -477,6 +477,450 @@ where the element that starts at token i ends
 (exec form)
 ```
 
+### exfat-add
+
+```code
+a new file or directory, of this data, in the directory it names
+```
+
+### exfat-alloc
+
+```code
+(exfat-alloc vol want) -> :nil | (clusters no_fat)
+
+clusters for a file. A run of free clusters if there is one long
+enough, and the file then needs no chain. If not, the first free
+clusters there are, with a chain through them. :nil if there are
+too few. The clusters are marked as used.
+```
+
+### exfat-begin
+
+```code
+(exfat-begin vol) -> vol
+
+the start of some writing. Every (exfat-begin) has its (exfat-end), and
+they can be one inside another. The writing in between goes to the
+device at the last (exfat-end), so many small files cost little more
+than one.
+```
+
+### exfat-bitmap-save
+
+```code
+the bitmap back to the clusters it is kept in, the ones that changed
+```
+
+### exfat-block
+
+```code
+a block of the device, from those kept if it is there
+```
+
+### exfat-busy
+
+```code
+the volume says of itself that it is being written, and that goes to
+
+the device at once, before anything else does. If the device is pulled
+out, or the power goes, whoever mounts it next can tell.
+```
+
+### exfat-chain
+
+```code
+(exfat-chain vol start len no_fat) -> (cluster ...)
+
+the clusters of a file or a directory. A len of :nil is all of the chain
+```
+
+### exfat-checksum
+
+```code
+the checksum of the entries of a file, all but the checksum itself
+```
+
+### exfat-cluster-offset
+
+```code
+where a cluster is on the device, the first is cluster 2
+```
+
+### exfat-data
+
+```code
+(exfat-data vol start len no_fat [keep]) -> str
+
+the bytes of a file or a directory, a run of clusters is one read.
+keep is for a directory, its blocks are kept
+```
+
+### exfat-delete
+
+```code
+(exfat-delete vol path) -> :nil | :t
+
+a file, or a directory that has nothing in it
+```
+
+### exfat-dir
+
+```code
+(exfat-dir vol entry) -> ((name dir size start no_fat index count) ...)
+
+what is in a directory
+```
+
+### exfat-dir-put
+
+```code
+entries to a directory, from an index on. They can cross from one
+
+cluster of the directory to the next, so they go an entry at a time
+```
+
+### exfat-drop
+
+```code
+a block is no longer kept, and is not to be written
+```
+
+### exfat-end
+
+```code
+(exfat-end vol) -> vol
+```
+
+### exfat-entries
+
+```code
+(exfat-entries vol start len no_fat) -> ((name dir size start no_fat index count) ...)
+
+the files and directories of a directory. A file is a set of entries,
+one for the file, one for its data, then as many as its name needs
+```
+
+### exfat-eset
+
+```code
+the entries of what was found, as they are in the directory above it
+```
+
+### exfat-fat-set
+
+```code
+the cluster that follows a cluster, to the allocation table
+```
+
+### exfat-find
+
+```code
+(exfat-find vol path) -> :nil | (name dir size start no_fat index count)
+```
+
+### exfat-flush
+
+```code
+(exfat-flush vol) -> vol
+
+the blocks that were changed, to the device, in the order they are on
+it, and those that are next to each other as one write
+```
+
+### exfat-format
+
+```code
+(exfat-format path | stream size [label cluster_shift]) -> :nil | :t
+
+a new volume of that many bytes with nothing in it. A path is a new
+file of the host, the image of a disk. A stream is written where it
+is, and must be that long, a memory stream of zeros say.
+cluster_shift is the sectors of a cluster as a power of 2, it is 4096
+byte clusters up to 256MB, 32768 up to 32GB and 131072 over that if
+it is not given.
+```
+
+### exfat-free
+
+```code
+(exfat-free vol) -> bytes
+
+the room there is left, the clusters that are not in use
+```
+
+### exfat-grow
+
+```code
+(exfat-grow vol found) -> :nil | found
+
+a directory is given one more cluster. found is the entries from the
+root down to it, and comes back with the directory as it now is.
+```
+
+### exfat-hash
+
+```code
+the hash of a name, of its upper case, a byte at a time
+```
+
+### exfat-keep
+
+```code
+a block is kept. When there are too many, those that were changed go
+
+to the device and all are let go
+```
+
+### exfat-list
+
+```code
+(exfat-list vol path) -> :nil | ((name dir size start no_fat index count) ...)
+```
+
+### exfat-load
+
+```code
+(exfat-load vol path) -> :nil | str
+```
+
+### exfat-mkdir
+
+```code
+(exfat-mkdir vol path) -> :nil | :t
+
+a new directory, of one cluster with nothing in it
+```
+
+### exfat-mount
+
+```code
+(exfat-mount path | stream) -> :nil | vol
+
+a path is a file of the host that is the image of a disk, opened
+to be read and written. A stream can be a memory stream.
+```
+
+### exfat-name
+
+```code
+a name is 16 bit characters, low byte first, here made UTF-8
+```
+
+### exfat-next
+
+```code
+the cluster that follows this one, from the allocation table
+```
+
+### exfat-path
+
+```code
+(exfat-path vol path) -> :nil | (root ... entry)
+
+the entries from the root down to a path
+```
+
+### exfat-raw-read
+
+```code
+whole blocks from the device, :nil if they are not all there
+```
+
+### exfat-raw-write
+
+```code
+whole sectors to the device
+```
+
+### exfat-read
+
+```code
+(exfat-read vol offset len [keep]) -> str
+
+bytes of the device. A block that is kept comes from where it is kept,
+it may have been changed. A run of blocks that are not is one read of
+the device, and they are kept if the run is short or if keep is asked
+for, as it is for a directory, which is read over and over.
+```
+
+### exfat-release
+
+```code
+the clusters of a file are free again
+```
+
+### exfat-rename
+
+```code
+(exfat-rename vol from to) -> :nil | :t
+
+a file or a directory is given a new name, a new directory to be in,
+or both. Its data is not moved. :nil if there is one of that name
+there, or if a directory would end up inside itself.
+```
+
+### exfat-replace
+
+```code
+a file that is there is given new data. Its entries stay where they
+
+are and are changed. The new data is put beside the old, which is let
+go when the new is in place. Only if there is no room for both is the
+old let go first.
+```
+
+### exfat-root
+
+```code
+the root as an entry, its length is not kept, its chain is followed
+```
+
+### exfat-same?
+
+```code
+are two names the same, as the volume sees it, with no regard to case
+```
+
+### exfat-save
+
+```code
+(exfat-save vol path data) -> :nil | :t
+
+a file of this data. One of that name is replaced, and is still there
+as it was if there is no room for the new data.
+```
+
+### exfat-scan
+
+```code
+look for a run of free clusters from one cluster up to another. The
+
+first few free ones are noted on the way, in case there is no run.
+A byte of the bitmap that is all in use is stepped over in one.
+```
+
+### exfat-set
+
+```code
+(exfat-set vol name dir size start no_fat) -> str
+
+the entries of a file, one for the file, one for its data, and as
+many as its name needs, with the checksum of them all
+```
+
+### exfat-slot
+
+```code
+(exfat-slot vol found want) -> :nil | (index found)
+
+room for that many entries, one after another, in a directory. A
+deleted entry is room, and so is everything from the end mark on.
+If there is none the directory is grown, till there is.
+```
+
+### exfat-split
+
+```code
+(exfat-split path) -> (parent name)
+```
+
+### exfat-stamp
+
+```code
+the time now, as a directory entry keeps it, months from 1
+```
+
+### exfat-store
+
+```code
+data to clusters, a run is one write. What is left of the last block
+
+is made zero. The rest of the last cluster is not written, nobody is
+given it to read, and a directory is always whole clusters
+```
+
+### exfat-sum
+
+```code
+the checksum of the boot sectors and of the upper case table, 32 bit
+```
+
+### exfat-sync
+
+```code
+(exfat-sync vol) -> vol
+
+all that was written is on the device. A file stream holds its last
+write till it is flushed or closed, and a task that ends with the
+stream open would lose it. A memory stream is not flushed, a flush
+ends the string where it stands.
+```
+
+### exfat-units
+
+```code
+(exfat-units name) -> (unit ...)
+
+a UTF-8 name as the 16 bit characters the disk holds
+```
+
+### exfat-upcase-load
+
+```code
+the table of the volume, the upper case of every character in turn.
+
+0xffff then a count stands for that many that are their own upper case
+```
+
+### exfat-upcase-table
+
+```code
+(exfat-upcase-table) -> str
+```
+
+### exfat-used?
+
+```code
+is a cluster in use, the bitmap has a bit for each, cluster 2 is bit 0
+```
+
+### exfat-walk
+
+```code
+(exfat-walk vol path fnc) -> vol
+
+(fnc path entry)
+every file and directory under a path, a directory before what is in
+it. It keeps a list of the directories still to do, it does not call
+itself, so the depth of the tree costs no stack.
+```
+
+### exfat-write
+
+```code
+(exfat-write vol offset data) -> vol
+
+bytes to the device. A run of whole blocks goes straight to it. The
+rest, the ends of a long write and all of a short one, change the
+blocks that are kept, a block that is only part written is read first.
+```
+
+### exfat-zeros
+
+```code
+(exfat-zeros len) -> str
+
+always a string of its own, it is often changed in place
+```
+
+### exfat-zone
+
+```code
+the time zone a stamp is in, quarter hours from UTC, and the bit
+
+that says it is known, or a reader takes the stamp as its own time
+```
+
 ### export
 
 ```code
@@ -493,6 +937,12 @@ where the element that starts at token i ends
 
 ```code
 (export-symbols symbols)
+```
+
+### fcluster
+
+```code
+the boot sectors, 12 of them, and the same again as a spare
 ```
 
 ### files-all
@@ -708,6 +1158,15 @@ start children till the herd is the size the worker nodes call for
 
 ```code
 (handler state page line) -> state
+```
+
+### held-mouse-id
+
+```code
+the view the mouse is on. While a button is held that is the view it
+
+went down on, a window being dragged can lag behind the pointer, and
+to look under the pointer again would let go of it
 ```
 
 ### hex-decode-stream
@@ -2097,13 +2556,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args
