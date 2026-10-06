@@ -17,7 +17,7 @@
 
 ;flags
 (bits +canvas_flag 0
-	(bit antialias))
+	(bit antialias shader))
 
 ;winding
 (enums +winding 0

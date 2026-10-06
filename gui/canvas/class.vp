@@ -182,8 +182,80 @@
 	(call :texture :deref_if {texture})
 	(call :pixmap :deref {pixmap})
 
+	;the texture is now not one a shader can draw into
+	(assign {(this->+canvas_flags | +canvas_flag_shader) ^ +canvas_flag_shader} {this->+canvas_flags})
+
 	(exit :canvas :swap {this})
 	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method :canvas :shade 16)
+	;inputs
+	;:r0 = canvas object (ptr)
+	;:r1 = shader handle (long)
+	;:r2 = inputs block str object (ptr)
+	;outputs
+	;:r0 = canvas object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;the GPU draws the shader into the texture of the canvas, the
+	;pixmap is not used, and is not changed
+
+	(structure local 0
+		(ptr this block)
+		(long shader))
+
+	(def-vars
+		(struct frame local_size))
+
+	(push-scope)
+	(entry :canvas :shade {frame.local_this, frame.local_shader, frame.local_block})
+
+	(call :sys_task :callback {&frame, $callback})
+
+	(exit :canvas :shade {frame.local_this})
+	(pop-scope)
+	(return)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data
+
+	(def-vars
+		(ptr user this old_stack pixmap texture block)
+		(long tex_id)
+		(uint w h))
+
+	(vp-cpy-rr :rsp :r1)
+	(push-scope)
+	(vp-and-cr -16 :rsp)
+	(entry {user, old_stack})
+
+	(assign {user->local_this} {this})
+	(vpifnot {this->+canvas_flags & +canvas_flag_shader})
+		;no texture a shader can draw into, so make one, the size the canvas is shown at
+		(assign {this->+canvas_pixmap} {pixmap})
+		(assign {pixmap->+pixmap_width / this->+canvas_scale,
+			pixmap->+pixmap_height / this->+canvas_scale} {w, h})
+		(host-gui-call :host_gui :shader_texture {w, h} {tex_id})
+		(vpif {tex_id})
+			(assign {this->+canvas_texture} {texture})
+			(call :texture :create {tex_id, w, h} {this->+canvas_texture})
+			(call :texture :deref_if {texture})
+			(assign {this->+canvas_flags | +canvas_flag_shader} {this->+canvas_flags})
+		(endif)
+	(endif)
+	(vpif {this->+canvas_flags & +canvas_flag_shader})
+		(assign {user->local_block, this->+canvas_texture} {block, texture})
+		(host-gui-call :host_gui :shader_draw {user->local_shader, texture->+texture_handle,
+			&block->+str_data, block->+str_length})
+	(endif)
+
+	(assign {old_stack} '(:rsp))
+	(pop-scope-syms)
 	(return)
 
 (def-func-end)

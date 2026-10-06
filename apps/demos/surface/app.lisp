@@ -3,22 +3,30 @@
 (import "gui/lisp.inc")
 (import "lib/task/farm.inc")
 (import "lib/gpu/shader.inc")
+(import "lib/gpu/gui.inc")
 (import "./app.inc")
 
 (enums +event 0
-	(enum close))
+	(enum close)
+	(enum mode))
 
 (enums +select 0
 	(enum main task reply timer))
 
 (defq +width 640 +height 480 +scale 1 +line_batch 8 +steps 1000
-	+timer_rate (/ 1000000 2) +retry_timeout (task-timeout 5)
+	+timer_rate (/ 1000000 2) +gpu_rate (/ 1000000 60) +retry_timeout (task-timeout 5)
 	program (shader-load +shader_file) controls (list)
 	jobs (list) tiles (list) farm :nil select :nil id :t
-	start_time (pii-time) frame_time 0)
+	start_time (pii-time) frame_time 0
+	;the shader on the GPU, if the host GUI driver can draw one, and
+	;the frames it has drawn since the status line was last set
+	gpu_shader :nil gpu_mode :nil gpu_frames 0 gpu_time 0)
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Surface" (0xea19) +event_close)
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font*)) :connect +event_mode)
+		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_body_font*)
 		(ui-grid *names* (:grid_width 1))
 		(ui-grid *values* (:grid_width 1))
@@ -107,18 +115,37 @@
 		(push vals (list name val))
 		(set-label label (control-text type val))) controls)
 	(defq inputs (shader-pack program vals))
-	(setq tiles (range 0 +height +line_batch)
-		jobs (map (lambda (y)
-			(cat (setf-> (str-alloc +job_size)
-				(+job_x 0)
-				(+job_y y)
-				(+job_x1 +width)
-				(+job_y1 (min +height (+ y +line_batch)))
-				(+job_height +height)) inputs)) tiles))
-	;wake the children that have no job
-	(. farm :each (lambda (key val)
-		(if (and (get :child val) (not (get :job val)))
-			(dispatch-job key val)))))
+	(cond
+		(gpu_mode
+			;the GPU draws the frame into the texture of the canvas
+			(. *canvas* :shade gpu_shader inputs)
+			(++ gpu_frames))
+		(:t ;the nodes shade it, a tile each, as native code
+			(setq tiles (range 0 +height +line_batch)
+				jobs (map (lambda (y)
+					(cat (setf-> (str-alloc +job_size)
+						(+job_x 0)
+						(+job_y y)
+						(+job_x1 +width)
+						(+job_y1 (min +height (+ y +line_batch)))
+						(+job_height +height)) inputs)) tiles))
+			;wake the children that have no job
+			(. farm :each (lambda (key val)
+				(if (and (get :child val) (not (get :job val)))
+					(dispatch-job key val)))))))
+
+(defun set-mode ()
+	;the CPU or GPU button was pressed
+	(defq gpu (= (. *mode* :get_selected) 1))
+	(cond
+		((and gpu (not gpu_shader))
+			(. *mode* :set_selected 0)
+			(set-label *status* "The host GUI driver can not draw a shader"))
+		((not (eql gpu gpu_mode))
+			;drop what is left of a CPU frame, a tile that comes in late is not shown
+			;the timer takes up the new rate at its next tick
+			(setq gpu_mode gpu jobs (list) tiles (list) gpu_frames 0 gpu_time (pii-time))
+			(start-frame))))
 
 (defun main ()
 	(setq select (task-mboxes +select_size))
@@ -126,7 +153,9 @@
 	(.-> *canvas* (:fill +argb_black) (:swap 0))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(setq farm (Farm create destroy (length (lisp-nodes))))
+	(setq farm (Farm create destroy (length (lisp-nodes)))
+		gpu_shader (shader-gui program))
+	(. *mode* :set_selected 0)
 	(start-frame)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(while id
@@ -138,6 +167,8 @@
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
 						(setq id :nil))
+					((= id +event_mode)
+						(set-mode))
 					((. *window* :event msg))))
 			(+select_task
 				;child launch response
@@ -151,7 +182,7 @@
 					+job_key +job_x +job_y +job_x1 +job_y1))
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
-				(. *canvas* :tile msg x y x1 y1)
+				(unless gpu_mode (. *canvas* :tile msg x y x1 y1))
 				(when (defq i (find y tiles))
 					(setq tiles (erase tiles i (inc i)))
 					(when (empty? tiles)
@@ -162,8 +193,19 @@
 							(str (length (lisp-nodes))) " nodes, native code, no GPU"))
 						(start-frame))))
 			(:t ;timer event
-				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
-				(. farm :refresh +retry_timeout))))
+				(cond
+					(gpu_mode
+						;a frame every tick, and the rate every half second
+						(mail-timeout (elem-get select +select_timer) +gpu_rate 0)
+						(start-frame)
+						(when (> (defq now (pii-time)) (+ gpu_time +timer_rate))
+							(set-label *status* (cat "GPU, "
+								(str (/ (* gpu_frames 1000000) (- now gpu_time))) " frames a second"))
+							(setq gpu_frames 0 gpu_time now)
+							(. farm :refresh +retry_timeout)))
+					(:t (mail-timeout (elem-get select +select_timer) +timer_rate 0)
+						(. farm :refresh +retry_timeout))))))
 	;close window and children
+	(if gpu_shader (canvas-shader-destroy gpu_shader))
 	(. farm :close)
 	(gui-sub-rpc *window*))

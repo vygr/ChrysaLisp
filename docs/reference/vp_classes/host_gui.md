@@ -66,6 +66,16 @@ the dirty region bounds is returned for use by the :flush call !
 
 ### :set_texture_color -> :nil
 
+### :shader_create -> :nil
+
+### :shader_destroy -> :nil
+
+### :shader_draw -> :nil
+
+### :shader_format -> :nil
+
+### :shader_texture -> :nil
+
 ### :update -> service/gui/update
 
 ```code

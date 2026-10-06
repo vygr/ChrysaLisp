@@ -25,3 +25,4 @@ main.vcxproj.user
 *.log
 typos.toml
 .system_id
+/src/obj/

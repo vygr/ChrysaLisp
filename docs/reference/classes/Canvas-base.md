@@ -86,6 +86,14 @@
 (. canvas :set_color argb) -> canvas
 ```
 
+### :shade
+
+```code
+(. canvas :shade shader block) -> canvas
+
+the GPU draws the shader into the texture of the canvas
+```
+
 ### :swap
 
 ```code

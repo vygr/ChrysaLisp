@@ -40,6 +40,11 @@
 		; (. canvas :swap flags) -> canvas
 		(. ((const (ffi "gui/canvas/lisp_swap")) this flags) :dirty))
 
+	(defmethod :shade (shader block)
+		; (. canvas :shade shader block) -> canvas
+		;the GPU draws the shader into the texture of the canvas
+		(. ((const (ffi "gui/canvas/lisp_shade")) this shader block) :dirty))
+
 	(defmethod :next_frame ()
 		; (. canvas :next_frame) -> canvas
 		((const (ffi "gui/canvas/lisp_next_frame")) this))
@@ -153,6 +158,21 @@
 			(ifn (bits? flags +load_flag_noswap)
 				(. this :swap swap_mode))))
 	this)
+
+(defun canvas-shader-format ()
+	; (canvas-shader-format) -> 0 | 1 | 2
+	;the shading language the host GUI driver takes for a shader,
+	;0 if it can not draw one, 1 for MSL, 2 for SPIR-V
+	((const (ffi "gui/canvas/lisp_shader_format"))))
+
+(defun canvas-shader-create (vertex fragment)
+	; (canvas-shader-create vertex fragment) -> 0 | shader
+	;a shader from the text of its vertex and fragment stages
+	((const (ffi "gui/canvas/lisp_shader_create")) vertex fragment))
+
+(defun canvas-shader-destroy (shader)
+	; (canvas-shader-destroy shader) -> shader
+	((const (ffi "gui/canvas/lisp_shader_destroy")) shader))
 
 (defun canvas-flush ()
 	; (canvas-flush)

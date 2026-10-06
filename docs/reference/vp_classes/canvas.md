@@ -24,6 +24,14 @@
 
 ### (canvas-resize canvas canvas)
 
+### (canvas-shade canvas shader block)
+
+### (canvas-shader-create vertex fragment)
+
+### (canvas-shader-destroy shader)
+
+### (canvas-shader-format)
+
 ### (canvas-swap canvas flags)
 
 ### (canvas-tile canvas data x1 y1 x2 y2)
@@ -201,6 +209,22 @@ outputs
 :r14 = max_y (fixed)
 trashes
 :r1-:r14, :f0-:f15
+```
+
+### :shade -> gui/canvas/shade
+
+```code
+inputs
+:r0 = canvas object (ptr)
+:r1 = shader handle (long)
+:r2 = inputs block str object (ptr)
+outputs
+:r0 = canvas object (ptr)
+trashes
+:r1-:r14, :f0-:f15
+info
+the GPU draws the shader into the texture of the canvas, the
+pixmap is not used, and is not changed
 ```
 
 ### :span -> gui/canvas/span

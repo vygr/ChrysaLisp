@@ -19,8 +19,31 @@ endif
 
 EXE_EXT ?=
 
-OBJ_DIR_GUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/gui
+HGUI := $(shell echo $(GUI) | tr '[:upper:]' '[:lower:]')
+
+#each GUI driver has its own objects, so a change of GUI= is a build of that driver
+HOST_GUI := 0
+OBJ_GUI := gui
+ifeq ($(HGUI),sdl)
+	HOST_GUI := 0
+endif
+ifeq ($(HGUI),fb)
+	HOST_GUI := 1
+	OBJ_GUI := gui_fb
+endif
+ifeq ($(HGUI),raw)
+	HOST_GUI := 2
+	OBJ_GUI := gui_raw
+endif
+ifeq ($(HGUI),sdl3)
+	HOST_GUI := 3
+	OBJ_GUI := gui_sdl3
+endif
+
+OBJ_DIR_GUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/$(OBJ_GUI)
 OBJ_DIR_TUI := ./src/obj/$(CPU)/$(ABI)/$(OS)/tui
+#which GUI driver main_gui was last linked with
+GUI_DRIVER := ./src/obj/$(CPU)/$(ABI)/$(OS)/gui_driver
 
 SRC_DIRS := $(shell find $(SRC_DIR) -type d | grep -v "/obj")
 OBJ_DIRS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_GUI)/%,$(SRC_DIRS))
@@ -45,21 +68,6 @@ ifneq ($(OS),Windows)
 endif
 ifeq ($(OS),Darwin)
 	LDFLAGS += -framework Cocoa -lobjc
-endif
-HGUI := $(shell echo $(GUI) | tr '[:upper:]' '[:lower:]')
-
-HOST_GUI := 0
-ifeq ($(HGUI),sdl)
-	HOST_GUI := 0
-endif
-ifeq ($(HGUI),fb)
-	HOST_GUI := 1
-endif
-ifeq ($(HGUI),raw)
-	HOST_GUI := 2
-endif
-ifeq ($(HGUI),sdl3)
-	HOST_GUI := 3
 endif
 
 ifneq ($(HOST_GUI),1)
@@ -110,6 +118,7 @@ ifneq ($(OS),Windows)
 	@echo $(ABI) > abi
 endif
 	@mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIRS)
+	@if [ "`cat $(GUI_DRIVER) 2>/dev/null`" != "$(OBJ_GUI)" ]; then echo $(OBJ_GUI) > $(GUI_DRIVER); fi
 
 snapshot:
 	@rm -f snapshot.zip
@@ -121,8 +130,10 @@ snapshot:
 inst:
 	@./run_tui.sh -n 0 -i -e -f
 
-obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT):	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
-	$(CXX) -o $@ $^ $(SDL_LIBS) $(LDFLAGS)
+obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT):	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI) $(GUI_DRIVER)
+	$(CXX) -o $@ $(filter %.o,$^) $(SDL_LIBS) $(LDFLAGS)
+
+$(GUI_DRIVER):	hostenv
 
 obj/$(CPU)/$(ABI)/$(OS)/main_tui$(EXE_EXT):	$(OBJ_FILES_CORE_TUI)
 	$(CXX) -o $@ $^ $(LDFLAGS)

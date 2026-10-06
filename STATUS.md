@@ -4,6 +4,25 @@
 
 ------
 
+A shader on the GPU, in the GUI. New GUI driver, `src/host/gui_sdl3.cpp`,
+`make gui GUI=sdl3`, the GUI on SDL3 with its GPU renderer. The host GUI table
+has five new calls to draw a shader into a texture, and every driver has them,
+the SDL2, raw and frame buffer drivers answer that they can not. So the host
+programs must be rebuilt with `make`, and `snapshot.zip` has a new Windows
+`main_gui.exe`.
+
+`(. canvas :shade shader block)` draws a shader over a canvas on the GPU, and
+`(shader-gui program)` in `lib/gpu/gui.inc` makes the shader from whichever
+back end the driver takes. The surface demo has a CPU and a GPU button. On an
+M4 Max the GPU side runs at the 60 frames a second of its timer, the CPU side
+on 16 nodes at 10.
+
+The sdl3 driver has no sound yet, SDL2 and SDL3 can not be linked into one
+program and the AUDIO driver is SDL2. Each GUI driver now has its own object
+folder, so `make gui GUI=...` is a build of that driver, not a mix.
+
+------
+
 A fourth shader back end, `lib/gpu/msl.inc`, gives Metal Shading Language
 text, for the SDL3 GPU interface on a Mac. The raymarch shader was run that
 way, offscreen, SDL 3.4.16 on the Metal driver of an M4 Max, with the inputs

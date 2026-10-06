@@ -32,6 +32,8 @@ rewrite of every shader.
 * `lib/gpu/msl.inc`, the Metal Shading Language text back end.
 * `lib/gpu/cpu.inc`, the CPU back end, interpreted Lisp.
 * `lib/gpu/vp.inc`, the VP back end, native code.
+* `lib/gpu/gui.inc`, a shader on the GPU of the GUI.
+* `src/host/gui_sdl3.cpp`, the SDL3 GUI driver, which can draw one.
 * `lib/gpu/shaders/raymarch.shader`, the surface raymarch demo, a port of
   https://vygr.github.io/JS-Raymarch.
 * `apps/demos/surface/`, an app that runs that shader with no GPU.
@@ -187,6 +189,47 @@ gives the same picture, and takes 11.4ms for the 1024 by 768 frame and read
 back. With the bump map on the two machines give quite different noise, 1,164
 of 1,728 pixels differ by more than 0.01, the hash in the shader hangs on
 how each GPU works out `sin`.
+
+## On The GPU, In The GUI
+
+Graphics belongs to the GUI. A GUI app runs on the node that has the GUI, so
+that no pixmap has to cross a link, and a shader is drawn there too, by the
+host GUI driver, into the texture of a canvas. There is no service and no
+message. The texture is then composited like any other.
+
+```lisp
+(import "lib/gpu/gui.inc")
+
+(defq shader (shader-gui program))
+(when shader
+	(. canvas :shade shader (shader-pack program vals)))
+```
+
+`(shader-gui program)` asks the host GUI driver which shading language it
+takes, gives it the text from that back end, and returns the shader, or `:nil`
+if this driver can not draw one. `(. canvas :shade shader block)` draws it over
+the whole canvas with that inputs block. The pixmap of the canvas is not used
+and not changed. A later `(. canvas :swap)` puts the pixmap back on show, so
+an app can go from one to the other frame by frame.
+
+Under that are three functions, `(canvas-shader-format)`,
+`(canvas-shader-create vertex fragment)` and `(canvas-shader-destroy shader)`,
+and five calls at the end of the host GUI table, `shader_format`,
+`shader_create`, `shader_destroy`, `shader_texture` and `shader_draw`. Every
+driver has them, the SDL2, raw and frame buffer drivers answer that they can
+not, format 0.
+
+The driver that can is `src/host/gui_sdl3.cpp`, built with `make gui GUI=sdl3`.
+It is the GUI on SDL3, with SDL's GPU renderer for the 2D drawing, and a
+shader is drawn with SDL's GPU interface on the same device, into a texture
+the renderer then blits. It gives the GUI service the same event record the
+other drivers do. SDL2 and SDL3 share the names of their calls, so one program
+can not link both, and as the AUDIO driver is SDL2 the sdl3 build has no sound
+yet. `make gui` builds the SDL2 driver again.
+
+The surface demo has a CPU and a GPU button. On the sdl3 driver, GPU draws the
+frame on the GPU at 60 frames a second, the rate of its timer. On any other
+driver the button says the driver can not, and it stays on the CPU.
 
 ## The CPU Back End
 
@@ -400,11 +443,11 @@ Demos list in `apps/system/launcher/app.lisp`, or to your own launcher config.
 
 ## What Is Not Here Yet
 
-* The host GPU interface. The route is SDL3 and its GPU interface, with
-  raylib as the fall back. Graphics belongs to the GUI host, a shader draw is
-  a host GUI call into a texture on the node that has the GUI, there is no
-  service for it. On `(. canvas :swap)` a positive flag is pixmap to GPU, as
+* The read back. On `(. canvas :swap)` a positive flag is pixmap to GPU, as
   now, and a negative flag will be GPU back to the pixmap.
+* The sdl3 GUI driver has only been run on a Mac. It has no sound, and it
+  still gives the GUI service an event record with the layout of SDL2's.
+* Raylib is the fall back if SDL3 will not do for a host.
 * A SPIR-V back end, for SDL3 on Vulkan, which is Linux and the Pi.
 * The GLSL back end does not guard names against the reserved words of GLSL.
 * Compute, and rendering as a service for a node with no GPU, are deferred.

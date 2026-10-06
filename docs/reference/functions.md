@@ -226,6 +226,29 @@ flush any shared pixmaps that have no users.
 (canvas-save canvas file type [optionals...]) -> :nil | canvas
 ```
 
+### canvas-shader-create
+
+```code
+(canvas-shader-create vertex fragment) -> 0 | shader
+
+a shader from the text of its vertex and fragment stages
+```
+
+### canvas-shader-destroy
+
+```code
+(canvas-shader-destroy shader) -> shader
+```
+
+### canvas-shader-format
+
+```code
+(canvas-shader-format) -> 0 | 1 | 2
+
+the shading language the host GUI driver takes for a shader,
+0 if it can not draw one, 1 for MSL, 2 for SPIR-V
+```
+
 ### char-class
 
 ```code
@@ -1774,6 +1797,15 @@ the input args for the lambda, defaults for those not given
 (shader-glsl program) -> str
 ```
 
+### shader-gui
+
+```code
+(shader-gui program) -> :nil | shader
+
+a shader the GPU can draw into a canvas, with (. canvas :shade shader
+block), where block is from (shader-pack). :nil if this host can not.
+```
+
 ### shader-layout
 
 ```code
@@ -1915,13 +1947,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args
