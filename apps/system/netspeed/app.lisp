@@ -20,15 +20,19 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Speed" (0xea19) +event_close)
-	(ui-grid *net_charts* (:grid_height 1)
-		(ui-hchart _ "Net Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
-		(ui-hchart _ "Net Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
-		(ui-hchart _ "Net Reals (bops/s)" +scale_size (:units +bops :color +argb_red)))
-	(ui-grid *charts* (:grid_height 1)
-		(ui-hchart _ "Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
-		(ui-hchart _ "Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
-		(ui-hchart _ "Reals (bops/s)" +scale_size (:units +bops :color +argb_red)))
-	(ui-label *status* (:text "..." :font *env_body_font*)))
+	;the status line is at the bottom, and it is the charts of the nodes
+	;that stretch
+	(ui-flow _ (:flow_flags +flow_up_fill)
+		(ui-label *status* (:text "..." :font *env_body_font*))
+		(ui-flow _ (:flow_flags +flow_down_fill)
+			(ui-grid *net_charts* (:grid_height 1)
+				(ui-hchart _ "Net Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
+				(ui-hchart _ "Net Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
+				(ui-hchart _ "Net Reals (bops/s)" +scale_size (:units +bops :color +argb_red)))
+			(ui-grid *charts* (:grid_height 1)
+				(ui-hchart _ "Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
+				(ui-hchart _ "Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
+				(ui-hchart _ "Reals (bops/s)" +scale_size (:units +bops :color +argb_red))))))
 
 (defun show-nodes ()
 	;how many nodes there are, to save counting the bars. A label lays

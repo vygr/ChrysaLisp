@@ -17,12 +17,14 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Monitor" (0xea19) +event_close)
-	(ui-grid *charts* (:grid_height 1)
-		(ui-hchart _ "Tasks" +task_scale_size (:color +argb_green))
-		(ui-hchart _ "Alloc (kb)" +mem_scale_size (:units 1024 :color +argb_yellow))
-		(ui-hchart _ "Used (kb)" +mem_scale_size (:units 1024 :color +argb_red))
-		(ui-hchart _ "Stack (b)" +stack_scale_size (:color +argb_cyan)))
-	(ui-label *status* (:text "..." :font *env_body_font*)))
+	;the status line is at the bottom, and it is the charts that stretch
+	(ui-flow _ (:flow_flags +flow_up_fill)
+		(ui-label *status* (:text "..." :font *env_body_font*))
+		(ui-grid *charts* (:grid_height 1)
+			(ui-hchart _ "Tasks" +task_scale_size (:color +argb_green))
+			(ui-hchart _ "Alloc (kb)" +mem_scale_size (:units 1024 :color +argb_yellow))
+			(ui-hchart _ "Used (kb)" +mem_scale_size (:units 1024 :color +argb_red))
+			(ui-hchart _ "Stack (b)" +stack_scale_size (:color +argb_cyan)))))
 
 (defun show-nodes ()
 	;how many nodes there are, to save counting the bars. A label lays
