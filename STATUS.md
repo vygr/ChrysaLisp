@@ -4,6 +4,36 @@
 
 ------
 
+The frame buffer driver has been run, on the Raspberry Pi 4. It had been
+changed for the new event record and built, and never run. The desktop comes
+up, a click logs in, the wallpaper, Eyes and the Terminal draw, and a command
+typed at the Terminal runs. A pretend mouse and keyboard did the clicking and
+typing, through `uinput`, and the frame buffer was read back to see it.
+
+Two faults, both older than today's work.
+
+A mouse moving at a steady rate did not move the pointer. The driver took a
+report as a move only if it differed from the report before, and what a
+report holds is how far the mouse moved, so the same distance twice running
+was thrown away. A real mouse seldom repeats itself exactly, so it showed as
+a pointer that lagged a little. It is now a move if the distance is not zero.
+
+Logging in crashed the node. The login app starts the audio service, the
+frame buffer build has no audio driver, and the service called through a
+table that was not there. The TUI host has none either, so a node added with
+`nodes -t` could do the same. The service now asks first, and if the host has
+no audio driver, or it will not start, there is no service and an app's
+sounds are quietly not played. And the login app starts it on its own node,
+the one with the GUI, not on whichever node of the machine is least busy.
+
+It is meant to be run from a login on the Pi's own console, `./run.sh -f`.
+The test was over ssh, so it gave one node a console of its own with
+`openvt`, as root. Started over ssh onto a console that a login prompt is sat
+on, the two fight over the keys. Not tested, the launch script on the console
+itself, a network of more than one node, and a user who is not root.
+
+------
+
 The SPIR-V and MSL back ends were only ever checked for pixels on the
 raymarch shader. Every pixel case of the shader tests has now been run on a
 GPU, 42 of them, the small shaders for each operator, the loops, the calls

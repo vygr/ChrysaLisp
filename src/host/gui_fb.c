@@ -661,7 +661,7 @@ static uint64_t get_event_timeout(void *data, int timeout)
         if (fds[1].revents & POLLIN)
 		{
             int x, y, w, b;
-            static int lastx = -1, lasty = -1, lastb = 0;
+            static int lastb = 0;
             if (read_mouse(&x, &y, &w, &b))
 			{
                 if (b & (BUTTON_SCROLLUP|BUTTON_SCROLLDN))
@@ -694,7 +694,10 @@ static uint64_t get_event_timeout(void *data, int timeout)
                     lastb = b;
                     return 1;
                 }
-                if (x != lastx || y != lasty)
+                /* x and y are how far it moved. They were tested against the
+                 * last report, so a mouse moving at a steady rate, the same
+                 * each report, did not move the pointer at all */
+                if (x || y)
 				{
                     event->type = host_gui_event_mouse_motion;
                     posx += x;
@@ -707,8 +710,6 @@ static uint64_t get_event_timeout(void *data, int timeout)
                     event->y = posy;
                     if (b & BUTTON_L) event->buttons |= host_gui_buttons_left;
                     if (b & BUTTON_R) event->buttons |= host_gui_buttons_right;
-                    lastx = x;
-                    lasty = y;
                     return 1;
                 }
             }

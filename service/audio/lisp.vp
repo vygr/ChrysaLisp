@@ -57,7 +57,15 @@
 	;kernel callback
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :init '() '(:r0))
+	;a host with no audio driver has no table to call, the TUI host,
+	;and a GUI host built for the frame buffer
+	(fn-bind 'sys/statics/statics :r14)
+	(vp-cpy-ir :r14 statics_sys_load_host_audio_funcs :r14)
+	(vpif '(:r14 /= 0))
+		(host-audio-call :host_audio :init '() '(:r0))
+	(else)
+		(vp-cpy-cr -1 :r0)
+	(endif)
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 local_c_ret)))
 	(vp-ret)
