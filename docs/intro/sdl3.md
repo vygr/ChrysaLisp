@@ -92,6 +92,16 @@ Two things to know. Plug the screen in before the Pi is started, plugged in
 later the picture came and went the first time the GUI ran. And the wireless
 USB mouse we tried on that Pi lagged badly, a Bluetooth mouse did not.
 
+Sound goes to the Pi's default sound device, which is the headphone socket,
+not the TV. To send it down the HDMI cable, make the first HDMI port the
+default, and start ChrysaLisp again.
+
+```code
+printf "defaults.pcm.card 1\ndefaults.ctl.card 1\n" | sudo tee /etc/asound.conf
+```
+
+`aplay -l` lists the cards, `vc4hdmi0` is the port next to the power socket.
+
 The frame buffer driver, `make GUI=fb install`, is still there for a Pi with
 no SDL at all, see `docs/intro/framebuffer.md`.
 
