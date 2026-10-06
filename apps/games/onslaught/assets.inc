@@ -35,13 +35,14 @@
 		(. c :free)
 		flipped))
 
-(defun load-scaled-image (rel_path zoom &optional keep)
-	; (load-scaled-image rel_path zoom [keep]) -> canvas
+(defun load-scaled-image (rel_path zoom &optional keep mode)
+	; (load-scaled-image rel_path zoom [keep mode]) -> canvas
 	; loads an image from disk and resizes to the specified zoom level
 	; the image is only ever shown, so its pixmap is freed once it is a
 	; texture, unless it is kept to make a flipped copy from
+	; the mode is the +pixmap_mode of the texture, normal if not given
 	(defq c (canvas-load (cat *app_root* rel_path) +load_flag_noswap)
-		flags (if keep 0 +swap_flag_free))
+		flags (+ (ifn mode +pixmap_mode_normal) (if keep 0 +swap_flag_free)))
 	(ifn (and c (/= zoom 1)) (. c :swap flags)
 		(defq pix (getf c +canvas_pixmap 0))
 		(.-> (Canvas (* (getf pix +pixmap_width 0) zoom) (* (getf pix +pixmap_height 0) zoom) 1)
@@ -51,7 +52,9 @@
 	; (load-cpm-assets zoom)
 	; loads and caches all assets at the given zoom level, generating _r counterparts
 	; each _r is made straight after its _l, so only one pair of pixmaps is held at a time
-	(setq *img_ascii* (load-scaled-image "image/ascii.cpm" zoom)
+	; the ascii font is white, and is drawn in a color, so it is a glyph
+	; texture, alpha only, a normal texture is not tinted by every GUI driver
+	(setq *img_ascii* (load-scaled-image "image/ascii.cpm" zoom :nil +pixmap_mode_glyph)
 		*img_blocks1* (load-scaled-image "image/blocks1.cpm" zoom)
 		*img_blocks2* (load-scaled-image "image/blocks2.cpm" zoom)
 		*img_blocks3* (load-scaled-image "image/blocks3.cpm" zoom)

@@ -462,11 +462,6 @@ void host_gui_blit(void *handle, const host_gui_rect *srect, const host_gui_rect
 		uint32_t span = (dr.w - dr.x) * sizeof(pixel_t);
 		uint32_t dstride = scr_stride - span;
 		uint32_t sstride = t->s - span;
-		//the texture color, each channel + 1, so white is 256 and is no change
-		const pixel_t tr = t->rb >> 16;
-		const pixel_t tg = t->g >> 8;
-		const pixel_t tb = t->rb & 0xffff;
-		const bool tint = tr != 256 || tg != 256 || tb != 256;
 		do
 		{
 			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
@@ -475,13 +470,6 @@ void host_gui_blit(void *handle, const host_gui_rect *srect, const host_gui_rect
 				pixel_t sa = *src++;
 				if (sa > 0xffffff)
 				{
-					if (tint)
-					{
-						sa = (sa & 0xff000000)
-							+ (((((sa >> 16) & 0xff) * tr) >> 8) << 16)
-							+ (((((sa >> 8) & 0xff) * tg) >> 8) << 8)
-							+ (((sa & 0xff) * tb) >> 8);
-					}
 					if (sa < 0xff000000)
 					{
 						pixel_t srb = sa & 0xff00ff;

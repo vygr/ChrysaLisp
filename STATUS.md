@@ -4,10 +4,11 @@
 
 ------
 
-The raw GUI driver now tints a normal texture when it is blitted with a color,
-as the SDL drivers always have. It only did so for a glyph or a greyscale
-texture, so the menu text of Onslaught, a white font tinted as it is drawn,
-came out white on a raw build.
+The menu text of Onslaught came out white on a raw GUI build. Its font is a
+white image that is drawn in a color, and it was uploaded as a normal texture.
+The rule is that a glyph or a greyscale texture is tinted and a normal one is
+not, the raw driver keeps to it, the SDL drivers tint anything. The font is
+now uploaded as a glyph texture, `+pixmap_mode_glyph`, alpha only.
 
 ------
 
