@@ -212,10 +212,9 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
 
             * Texture management.
 
-            * Event polling and translation into ChrysaLisp's `SDL_Event`-
-              like structure (even if not using SDL, ChrysaLisp's GUI event
-              system internally uses these structures as seen in
-              `service/gui/lisp.inc`).
+            * Event polling, each event given as a `host_gui_event`, the
+              one record every driver fills, see `src/host/gui_event.h`
+              and `sys/pii/lisp.inc`.
 
             * Clip rectangle management.
 

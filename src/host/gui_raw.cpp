@@ -28,6 +28,7 @@ uint32_t scr_stride = 0;
 
 //this code is just so we can see the output !
 #include <SDL.h>
+#include "gui_sdl2_event.h"
 SDL_Window *window;
 SDL_Renderer *renderer;
 
@@ -461,8 +462,7 @@ void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
 
 uint64_t host_gui_poll_event(void *handle)
 {
-	SDL_PumpEvents();
-	return SDL_PollEvent((SDL_Event*)handle);
+	return host_gui_sdl2_poll(handle);
 }
 
 ///////////////////////////

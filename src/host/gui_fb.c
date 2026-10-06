@@ -21,7 +21,7 @@
 #include <linux/keyboard.h>
 #include <linux/kd.h>
 #include <linux/vt.h>
-#include "sdl_dummy.h"
+#include "gui_event.h"
 
 #define DEBUG   1      /* exit on ESC, don't change to graphics console */
 
@@ -43,10 +43,7 @@
 typedef uint32_t pixel_t;       /* fixed ARGB8888 for now */
 typedef uint8_t alpha_t;        /* size of alpha channel */
 
-typedef struct rect {
-    int32_t x, y;
-    int32_t w, h;
-} SDL_Rect;
+typedef host_gui_rect SDL_Rect;
 
 typedef struct drawable {
     int32_t pixtype;            /* pixel format */
@@ -637,7 +634,7 @@ const uint8_t scan_code_to_hid_table[] =
 static uint64_t get_event_timeout(void *data, int timeout)
 {
     struct pollfd fds[2];
-    SDL_Event *event = (SDL_Event *)data;
+    host_gui_event *event = (host_gui_event *)data;
 
     fds[0].fd = keybd_fd;
     fds[0].events = POLLIN;
@@ -645,7 +642,7 @@ static uint64_t get_event_timeout(void *data, int timeout)
     fds[1].events = POLLIN;
     if (poll(fds, 2, timeout) > 0)
 	{
-        memset(event, 0, sizeof(SDL_Event));
+        memset(event, 0, sizeof(host_gui_event));
         if (fds[0].revents & POLLIN)
 		{
             int c;
@@ -656,8 +653,8 @@ static uint64_t get_event_timeout(void *data, int timeout)
 #if DEBUG
 				if (c == 41) exit(1);      /* exit on ESC! */
 #endif
-				event->key.keysym.scancode = c;
-				event->type = (buf[0] & 0x80) ? SDL_KEYUP : SDL_KEYDOWN;
+				event->scode = c;
+				event->type = (buf[0] & 0x80) ? host_gui_event_key_up : host_gui_event_key_down;
 				return 1;
             }
         }
@@ -669,10 +666,10 @@ static uint64_t get_event_timeout(void *data, int timeout)
 			{
                 if (b & (BUTTON_SCROLLUP|BUTTON_SCROLLDN))
 				{
-                    event->wheel.type = SDL_MOUSEWHEEL;
-                    event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
-                    if (b & BUTTON_M) event->wheel.x = w * SCROLLFACTOR;
-					else event->wheel.y = w * SCROLLFACTOR;
+                    event->type = host_gui_event_mouse_wheel;
+                    event->direction = 0;
+                    if (b & BUTTON_M) event->x = w * SCROLLFACTOR;
+					else event->y = w * SCROLLFACTOR;
                     lastb = b;
                     return 1;
                 }
@@ -680,40 +677,36 @@ static uint64_t get_event_timeout(void *data, int timeout)
 				{
                     if ((b & BUTTON_L) ^ (lastb & BUTTON_L))
 					{
-                        event->button.button = SDL_BUTTON_LEFT;
-                        event->type = (b & BUTTON_L)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
-                        event->button.state = (b & BUTTON_L)? SDL_PRESSED: SDL_RELEASED;
-                        event->button.x = posx;
-                        event->button.y = posy;
-                        event->button.clicks = 1;
+                        event->buttons = host_gui_button_left;
+                        event->type = (b & BUTTON_L)? host_gui_event_mouse_down: host_gui_event_mouse_up;
+                        event->x = posx;
+                        event->y = posy;
+                        event->count = 1;
                     }
 					else if ((b & BUTTON_R) ^ (lastb & BUTTON_R))
 					{
-                        event->button.button = SDL_BUTTON_RIGHT;
-                        event->type = (b & BUTTON_R)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
-                        event->button.state = (b & BUTTON_R)? SDL_PRESSED: SDL_RELEASED;
-                        event->button.x = posx;
-                        event->button.y = posy;
-                        event->button.clicks = 1;
+                        event->buttons = host_gui_button_right;
+                        event->type = (b & BUTTON_R)? host_gui_event_mouse_down: host_gui_event_mouse_up;
+                        event->x = posx;
+                        event->y = posy;
+                        event->count = 1;
                     }
                     lastb = b;
                     return 1;
                 }
                 if (x != lastx || y != lasty)
 				{
-                    event->type = SDL_MOUSEMOTION;
+                    event->type = host_gui_event_mouse_motion;
                     posx += x;
                     posy += y;
                     if (posx < 0) posx = 0;
                     if (posy < 0) posy = 0;
                     if (posx >= fb.width) posx = fb.width - 1;
                     if (posy >= fb.height) posy = fb.height - 1;
-                    event->motion.x = posx;
-                    event->motion.y = posy;
-                    event->motion.xrel = x;
-                    event->motion.yrel = y;
-                    if (b & BUTTON_L) event->motion.state |= SDL_BUTTON_LMASK;
-                    if (b & BUTTON_R) event->motion.state |= SDL_BUTTON_RMASK;
+                    event->x = posx;
+                    event->y = posy;
+                    if (b & BUTTON_L) event->buttons |= host_gui_buttons_left;
+                    if (b & BUTTON_R) event->buttons |= host_gui_buttons_right;
                     lastx = x;
                     lasty = y;
                     return 1;
@@ -721,14 +714,14 @@ static uint64_t get_event_timeout(void *data, int timeout)
             }
         }
     }
-    event->type = 0;
+    event->type = host_gui_event_none;
     return 1;
 }
 
 uint64_t host_gui_poll_event(void *handle)
 {
-	SDL_Event *event = (SDL_Event*)handle;
-    static SDL_Event ev; /* ev.type inited to 0 ! */
+	host_gui_event *event = (host_gui_event*)handle;
+    static host_gui_event ev; /* ev.type inited to none ! */
 
     if (event == NULL)
 	{
@@ -741,7 +734,7 @@ uint64_t host_gui_poll_event(void *handle)
     if (ev.type)
 	{
         *event = ev;
-        ev.type = 0;
+        ev.type = host_gui_event_none;
     }
 	else get_event_timeout(event, 0);
     return event->type;

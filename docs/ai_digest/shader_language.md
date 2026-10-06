@@ -222,8 +222,7 @@ not, format 0.
 The driver that can is `src/host/gui_sdl3.cpp`, built with `make gui GUI=sdl3`.
 It is the GUI on SDL3, with SDL's GPU renderer for the 2D drawing, and a
 shader is drawn with SDL's GPU interface on the same device, into a texture
-the renderer then blits. It gives the GUI service the same event record the
-other drivers do. `make gui` builds the SDL2 driver again.
+the renderer then blits. `make gui` builds the SDL2 driver again.
 
 SDL2 and SDL3 share the names of their calls, so one program can not link
 both, and the sdl3 GUI driver comes with an AUDIO driver of its own,
@@ -449,8 +448,7 @@ Demos list in `apps/system/launcher/app.lisp`, or to your own launcher config.
 
 * The read back. On `(. canvas :swap)` a positive flag is pixmap to GPU, as
   now, and a negative flag will be GPU back to the pixmap.
-* The sdl3 GUI driver has only been run on a Mac, and it still gives the GUI
-  service an event record with the layout of SDL2's.
+* The sdl3 GUI driver has only been run on a Mac.
 * Raylib is the fall back if SDL3 will not do for a host.
 * A SPIR-V back end, for SDL3 on Vulkan, which is Linux and the Pi.
 * The GLSL back end does not guard names against the reserved words of GLSL.

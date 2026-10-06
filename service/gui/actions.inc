@@ -67,7 +67,7 @@
 
 (defun action-key-down ()
 	(defq view (set-focus-id)
-		scode (getf msg +sdl_keyboard_event_scode))
+		scode (getf msg +gui_event_scode))
 	(update-mods-down scode)
 	;(prin scode)(print)
 	(defq owner (. view :find_owner))
@@ -86,7 +86,7 @@
 
 (defun action-key-up ()
 	(defq view (set-focus-id)
-		scode (getf msg +sdl_keyboard_event_scode))
+		scode (getf msg +gui_event_scode))
 	(update-mods-up scode)
 	(when (defq entry (. *key_dispatch* :find scode))
 		(. *key_dispatch* :erase scode)
@@ -106,14 +106,14 @@
 		(mail-send owner (setf-> (str-alloc +ev_msg_wheel_size)
 			(+ev_msg_type +ev_type_wheel)
 			(+ev_msg_target_id *mouse_id*)
-			(+ev_msg_wheel_x (getf msg +sdl_mouse_wheel_event_x))
-			(+ev_msg_wheel_y (getf msg +sdl_mouse_wheel_event_y))
-			(+ev_msg_wheel_direction (getf msg +sdl_mouse_wheel_event_direction))))))
+			(+ev_msg_wheel_x (getf msg +gui_event_x))
+			(+ev_msg_wheel_y (getf msg +gui_event_y))
+			(+ev_msg_wheel_direction (getf msg +gui_event_direction))))))
 
 (defun action-mouse-motion ()
-	(setq *mouse_x* (getf msg +sdl_mouse_motion_event_x)
-		*mouse_y* (getf msg +sdl_mouse_motion_event_y)
-		*mouse_buttons* (getf msg +sdl_mouse_motion_event_state))
+	(setq *mouse_x* (getf msg +gui_event_x)
+		*mouse_y* (getf msg +gui_event_y)
+		*mouse_buttons* (getf msg +gui_event_buttons))
 	(when (= *mouse_buttons* 0) (set-mouse-id))
 	(and (defq view (. *screen* :find_id *mouse_id*))
 		(defq owner (. view :find_owner))
@@ -131,9 +131,9 @@
 		(- *mouse_y* (if view (getf view +view_ctx_y 0) 0))))
 
 (defun action-mouse-button-down ()
-	(setq *mouse_x* (getf msg +sdl_mouse_button_event_x)
-		*mouse_y* (getf msg +sdl_mouse_button_event_y)
-		*mouse_buttons* (getf msg +sdl_mouse_button_event_button))
+	(setq *mouse_x* (getf msg +gui_event_x)
+		*mouse_y* (getf msg +gui_event_y)
+		*mouse_buttons* (getf msg +gui_event_buttons))
 	(when (and (defq view (set-mouse-id))
 			(defq owner (. view :find_owner)))
 		(mail-send owner (setf-> (str-alloc +ev_msg_mouse_size)
@@ -144,13 +144,13 @@
 			(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
 			(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
 			(+ev_msg_mouse_buttons *mouse_buttons*)
-			(+ev_msg_mouse_count (getf msg +sdl_mouse_button_event_clicks))))
+			(+ev_msg_mouse_count (getf msg +gui_event_count))))
 		(setq *focus* (if (Textfield? view) view))))
 
 (defun action-mouse-button-up ()
-	(setq *mouse_x* (getf msg +sdl_mouse_button_event_x)
-		*mouse_y* (getf msg +sdl_mouse_button_event_y)
-		*mouse_buttons* (getf msg +sdl_mouse_button_event_button))
+	(setq *mouse_x* (getf msg +gui_event_x)
+		*mouse_y* (getf msg +gui_event_y)
+		*mouse_buttons* (getf msg +gui_event_buttons))
 	(and (defq view (. *screen* :find_id *mouse_id*))
 		(defq owner (. view :find_owner))
 		(mail-send owner (setf-> (str-alloc +ev_msg_mouse_size)
@@ -161,41 +161,41 @@
 			(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
 			(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
 			(+ev_msg_mouse_buttons 0)
-			(+ev_msg_mouse_count (getf msg +sdl_mouse_button_event_clicks)))))
+			(+ev_msg_mouse_count (getf msg +gui_event_count)))))
 	(mouse-type (defq view (set-mouse-id))
 		(- *mouse_x* (getf view +view_ctx_x 0))
 		(- *mouse_y* (getf view +view_ctx_y 0))))
 
-(defun action-window ()
-	(cond
-		((= (defq event (getf msg +sdl_window_event_event)) +SDL_WINDOWEVENT_SIZE_CHANGED)
-			(.-> *screen*
-				(:set_bounds 0 0
-					(getf msg +sdl_window_event_data1)
-					(getf msg +sdl_window_event_data2))
-				(:set_flags +view_flag_dirty_all +view_flag_dirty_all))
-			(each (lambda (child)
-				(mail-send (. child :find_owner)
-					(setf-> (str-alloc +ev_msg_gui_size)
-						(+ev_msg_type +ev_type_gui)
-						(+ev_msg_target_id (. child :get_id))))) (. *screen* :children))
-			(gui-update *mouse_x* *mouse_y* 1))
-		((or (= event +SDL_WINDOWEVENT_SHOWN) (= event +SDL_WINDOWEVENT_RESTORED))
-			(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))))
+(defun action-resized ()
+	;the host window is a new size
+	(.-> *screen*
+		(:set_bounds 0 0 (getf msg +gui_event_x) (getf msg +gui_event_y))
+		(:set_flags +view_flag_dirty_all +view_flag_dirty_all))
+	(each (lambda (child)
+		(mail-send (. child :find_owner)
+			(setf-> (str-alloc +ev_msg_gui_size)
+				(+ev_msg_type +ev_type_gui)
+				(+ev_msg_target_id (. child :get_id))))) (. *screen* :children))
+	(gui-update *mouse_x* *mouse_y* 1))
+
+(defun action-shown ()
+	;the host window is on show again
+	(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))
 
 (defun action-quit ()
 	;launch logout app
 	(open-child "apps/system/logout/app.lisp" +kn_call_pin))
 
 (defq *event_map* (scatter (Fmap)
-	+SDL_MOUSEWHEEL action-mouse-wheel
-	+SDL_MOUSEMOTION action-mouse-motion
-	+SDL_MOUSEBUTTONDOWN action-mouse-button-down
-	+SDL_MOUSEBUTTONUP action-mouse-button-up
-	+SDL_KEYDOWN action-key-down
-	+SDL_KEYUP action-key-up
-	+SDL_WINDOWEVENT action-window
-	+SDL_QUIT action-quit))
+	+gui_ev_mouse_wheel action-mouse-wheel
+	+gui_ev_mouse_motion action-mouse-motion
+	+gui_ev_mouse_down action-mouse-button-down
+	+gui_ev_mouse_up action-mouse-button-up
+	+gui_ev_key_down action-key-down
+	+gui_ev_key_up action-key-up
+	+gui_ev_resized action-resized
+	+gui_ev_shown action-shown
+	+gui_ev_quit action-quit))
 
 ;module
 (export-symbols

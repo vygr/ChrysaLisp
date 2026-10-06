@@ -7,6 +7,7 @@
 #include <SDL3/SDL.h>
 #include <stdint.h>
 #include <string.h>
+#include "gui_event.h"
 
 #if defined(__APPLE__)
 #include <objc/message.h>
@@ -27,80 +28,6 @@ static void set_macos_activation_policy(intptr_t policy)
 	}
 }
 #endif
-
-// what the GUI service is given, a rect, and an event record with the
-// layout of an SDL2 event, as the other drivers give it
-
-struct Rect
-{
-	int32_t x, y, w, h;
-};
-
-enum
-{
-	EV_QUIT = 0x100,
-	EV_WINDOWEVENT = 0x200,
-	EV_KEYDOWN = 0x300,
-	EV_KEYUP,
-	EV_MOUSEMOTION = 0x400,
-	EV_MOUSEBUTTONDOWN,
-	EV_MOUSEBUTTONUP,
-	EV_MOUSEWHEEL,
-};
-
-enum
-{
-	EV_WINDOW_SHOWN = 0x1,
-	EV_WINDOW_SIZE_CHANGED = 0x6,
-	EV_WINDOW_RESTORED = 0x9,
-};
-
-struct WindowEvent
-{
-	uint32_t type, timestamp, windowID;
-	uint8_t event, padding1, padding2, padding3;
-	int32_t data1, data2;
-};
-
-struct KeyEvent
-{
-	uint32_t type, timestamp, windowID;
-	uint8_t state, repeat, padding2, padding3;
-	int32_t scancode, sym;
-	uint16_t mod;
-	uint32_t unused;
-};
-
-struct MotionEvent
-{
-	uint32_t type, timestamp, windowID, which, state;
-	int32_t x, y, xrel, yrel;
-};
-
-struct ButtonEvent
-{
-	uint32_t type, timestamp, windowID, which;
-	uint8_t button, state, clicks, padding1;
-	int32_t x, y;
-};
-
-struct WheelEvent
-{
-	uint32_t type, timestamp, windowID, which;
-	int32_t x, y;
-	uint32_t direction;
-};
-
-union Event
-{
-	uint32_t type;
-	WindowEvent window;
-	KeyEvent key;
-	MotionEvent motion;
-	ButtonEvent button;
-	WheelEvent wheel;
-	uint8_t padding[56];
-};
 
 // a shader, the pipeline that draws it into a target texture
 
@@ -131,7 +58,7 @@ static SDL_Texture *create_backbuffer(uint64_t w, uint64_t h)
 	return t;
 }
 
-void host_gui_init(Rect *rect, uint64_t flags)
+void host_gui_init(host_gui_rect *rect, uint64_t flags)
 {
 #if defined(__APPLE__)
 	set_macos_activation_policy(0); // NSApplicationActivationPolicyRegular
@@ -183,61 +110,52 @@ void host_gui_deinit()
 // the next event for the GUI service, 0 if there is none. Not every
 // SDL event is one it takes, so they are read till one is.
 
-static bool next_event(Event *out)
+static bool next_event(host_gui_event *out)
 {
 	SDL_Event e;
 	while (SDL_PollEvent(&e))
 	{
-		memset(out, 0, sizeof(Event));
+		memset(out, 0, sizeof(host_gui_event));
 		switch (e.type)
 		{
 		case SDL_EVENT_QUIT:
-			out->type = EV_QUIT;
+			out->type = host_gui_event_quit;
 			return true;
 		case SDL_EVENT_WINDOW_RESIZED:
-			out->window.type = EV_WINDOWEVENT;
-			out->window.event = EV_WINDOW_SIZE_CHANGED;
-			out->window.data1 = e.window.data1;
-			out->window.data2 = e.window.data2;
+			out->type = host_gui_event_resized;
+			out->x = e.window.data1;
+			out->y = e.window.data2;
 			return true;
 		case SDL_EVENT_WINDOW_SHOWN:
 		case SDL_EVENT_WINDOW_RESTORED:
-			out->window.type = EV_WINDOWEVENT;
-			out->window.event = e.type == SDL_EVENT_WINDOW_SHOWN ? EV_WINDOW_SHOWN : EV_WINDOW_RESTORED;
+			out->type = host_gui_event_shown;
 			return true;
 		case SDL_EVENT_KEY_DOWN:
 		case SDL_EVENT_KEY_UP:
-			out->key.type = e.type == SDL_EVENT_KEY_DOWN ? EV_KEYDOWN : EV_KEYUP;
-			out->key.state = e.key.down;
-			out->key.repeat = e.key.repeat;
-			out->key.scancode = e.key.scancode;
-			out->key.sym = e.key.key;
-			out->key.mod = e.key.mod;
+			out->type = e.type == SDL_EVENT_KEY_DOWN ? host_gui_event_key_down : host_gui_event_key_up;
+			out->scode = e.key.scancode;
 			return true;
 		case SDL_EVENT_MOUSE_MOTION:
-			out->motion.type = EV_MOUSEMOTION;
-			out->motion.state = e.motion.state;
-			out->motion.x = (int32_t)e.motion.x;
-			out->motion.y = (int32_t)e.motion.y;
-			out->motion.xrel = (int32_t)e.motion.xrel;
-			out->motion.yrel = (int32_t)e.motion.yrel;
+			out->type = host_gui_event_mouse_motion;
+			out->x = (int32_t)e.motion.x;
+			out->y = (int32_t)e.motion.y;
+			out->buttons = e.motion.state;
 			return true;
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		case SDL_EVENT_MOUSE_BUTTON_UP:
-			out->button.type = e.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? EV_MOUSEBUTTONDOWN : EV_MOUSEBUTTONUP;
-			out->button.button = e.button.button;
-			out->button.state = e.button.down;
-			out->button.clicks = e.button.clicks;
-			out->button.x = (int32_t)e.button.x;
-			out->button.y = (int32_t)e.button.y;
+			out->type = e.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? host_gui_event_mouse_down : host_gui_event_mouse_up;
+			out->x = (int32_t)e.button.x;
+			out->y = (int32_t)e.button.y;
+			out->buttons = e.button.button;
+			out->count = e.button.clicks;
 			return true;
 		case SDL_EVENT_MOUSE_WHEEL:
-			out->wheel.type = EV_MOUSEWHEEL;
-			out->wheel.x = e.wheel.integer_x;
-			out->wheel.y = e.wheel.integer_y;
-			out->wheel.direction = e.wheel.direction;
+			out->type = host_gui_event_mouse_wheel;
+			out->x = e.wheel.integer_x;
+			out->y = e.wheel.integer_y;
+			out->direction = e.wheel.direction;
 			// a wheel can turn less than a whole step
-			if (out->wheel.x || out->wheel.y) return true;
+			if (out->x || out->y) return true;
 			break;
 		default:
 			break;
@@ -251,14 +169,14 @@ static bool next_event(Event *out)
 
 uint64_t host_gui_poll_event(void *handle)
 {
-	static Event pending;
+	static host_gui_event pending;
 	static bool have_pending = false;
 	SDL_PumpEvents();
 	if (!have_pending) have_pending = next_event(&pending);
 	if (!have_pending) return 0;
 	if (handle)
 	{
-		memcpy(handle, &pending, sizeof(Event));
+		memcpy(handle, &pending, sizeof(host_gui_event));
 		have_pending = false;
 	}
 	return 1;
@@ -290,7 +208,7 @@ void host_gui_end_composite()
 	SDL_SetRenderTarget(renderer, 0);
 }
 
-void host_gui_flush(const Rect *rect)
+void host_gui_flush(const host_gui_rect *rect)
 {
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_RenderTexture(renderer, backbuffer, 0, 0);
@@ -298,19 +216,19 @@ void host_gui_flush(const Rect *rect)
 	SDL_RenderPresent(renderer);
 }
 
-static SDL_FRect frect(const Rect *rect)
+static SDL_FRect frect(const host_gui_rect *rect)
 {
 	SDL_FRect r = {(float)rect->x, (float)rect->y, (float)rect->w, (float)rect->h};
 	return r;
 }
 
-void host_gui_box(const Rect *rect)
+void host_gui_box(const host_gui_rect *rect)
 {
 	auto r = frect(rect);
 	SDL_RenderRect(renderer, &r);
 }
 
-void host_gui_filled_box(const Rect *rect)
+void host_gui_filled_box(const host_gui_rect *rect)
 {
 	auto r = frect(rect);
 	SDL_RenderFillRect(renderer, &r);
@@ -327,7 +245,7 @@ void host_gui_set_texture_color(void *handle, uint8_t r, uint8_t g, uint8_t b)
 	SDL_SetTextureColorMod(t, r, g, b);
 }
 
-void host_gui_blit(void *handle, const Rect *srect, const Rect *drect)
+void host_gui_blit(void *handle, const host_gui_rect *srect, const host_gui_rect *drect)
 {
 	auto t = (SDL_Texture*)handle;
 	auto s = frect(srect);
@@ -335,7 +253,7 @@ void host_gui_blit(void *handle, const Rect *srect, const Rect *drect)
 	SDL_RenderTexture(renderer, t, &s, &d);
 }
 
-void host_gui_set_clip(const Rect *rect)
+void host_gui_set_clip(const host_gui_rect *rect)
 {
 	SDL_SetRenderClipRect(renderer, (const SDL_Rect*)rect);
 }

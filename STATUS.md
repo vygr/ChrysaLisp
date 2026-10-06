@@ -4,6 +4,19 @@
 
 ------
 
+A GUI driver now gives the GUI service an event of our own, not a copy of an
+SDL2 event. `src/host/gui_event.h` has the one record every driver fills,
+type, position, buttons, clicks, key and wheel direction, and
+`sys/pii/lisp.inc` has the same for the GUI service, `+gui_event_...` and
+`+gui_ev_...`. The SDL2, SDL3, raw and frame buffer drivers all fill it, and
+`src/host/sdl_dummy.h`, the fake SDL header the frame buffer driver needed, is
+gone. A window that is resized and a window that is shown are now two events.
+
+The host programs and the GUI service must match, so `make` after this pull,
+and `snapshot.zip` has a new Windows `main_gui.exe`.
+
+------
+
 The sdl3 GUI driver has sound. New AUDIO driver, `src/host/audio_sdl3.cpp`,
 built with `make gui GUI=sdl3`. SDL3 opens the device and reads a wav file,
 the driver does the mixing itself, 32 voices each with its pan, so there is

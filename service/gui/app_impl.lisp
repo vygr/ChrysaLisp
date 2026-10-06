@@ -121,14 +121,14 @@
 					(defq last_motion :nil)
 					(while (defq msg (gui-event))
 						(cond
-							((= (defq type (getf msg +sdl_common_event_type)) +SDL_MOUSEMOTION)
+							((= (defq type (getf msg +gui_event_type)) +gui_ev_mouse_motion)
 								(setq last_motion msg))
 							(:t (when last_motion
-									(dispatch last_motion +SDL_MOUSEMOTION)
+									(dispatch last_motion +gui_ev_mouse_motion)
 									(setq last_motion :nil))
 								(dispatch msg type))))
 					(when last_motion
-						(dispatch last_motion +SDL_MOUSEMOTION))
+						(dispatch last_motion +gui_ev_mouse_motion))
 					;remove orphans
 					(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
 							(.-> %0 :hide :sub))) (defq children (. *screen* :children)))

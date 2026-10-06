@@ -124,8 +124,9 @@ the host.
         * `host_gui_resize`: Handles window resize events.
 
         * `host_gui_poll_event`: Polls for host system events (keyboard,
-          mouse, window) and translates them into an `SDL_Event`-like
-          structure.
+          mouse, window) and gives each as a `host_gui_event`, the one
+          record every driver fills, see `src/host/gui_event.h` and
+          `sys/pii/lisp.inc`.
 
 3. **`host_audio_funcs` (Audio Layer):**
 

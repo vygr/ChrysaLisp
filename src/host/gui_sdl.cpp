@@ -2,6 +2,7 @@
 #if _HOST_GUI == 0
 
 #include <SDL.h>
+#include "gui_sdl2_event.h"
 
 #if defined(__APPLE__)
 #include <objc/message.h>
@@ -81,8 +82,7 @@ void host_gui_deinit()
 
 uint64_t host_gui_poll_event(void *handle)
 {
-	SDL_PumpEvents();
-	return SDL_PollEvent((SDL_Event*)handle);
+	return host_gui_sdl2_poll(handle);
 }
 
 void *host_gui_create_texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
