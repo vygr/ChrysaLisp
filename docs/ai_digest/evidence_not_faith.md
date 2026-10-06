@@ -9,10 +9,11 @@ These are not aspirations; they are the measured results of a system designed
 from first principles. This document presents the concrete evidence for these
 claims, derived directly from the system's own build and diagnostic tools.
 
-## The Anatomy of a 70ms Build: What Actually Happens
+## The Anatomy of a 50ms Build: What Actually Happens
 
-When a benchmark reports an entire operating system rebuild in **0.070 seconds
-(70 ms)** on an Apple Silicon M4 Max processor booted with 20 VP nodes, it is
+When a benchmark reports an entire operating system rebuild in **0.053 seconds
+(53 ms)** on an Apple Silicon M4 Max processor booted with 16 VP nodes, one
+for each of its processors, which is what `./run_tui.sh -n 0` gives, it is
 natural to assume it is merely compiling a few differential modules using a
 pre-warmed, monolithic compiler cached in memory.
 
@@ -23,7 +24,7 @@ cold, and hermetic lifecycle across a shared-nothing cluster:
 [Zero State: No Compiler/Build Tools in RAM]
        |
        V (Phase 1: Genesis in microseconds)
-[Synthesize ~40 Independent Toolchains Across 20 Nodes]
+[Synthesize 28 Independent Toolchains Across 16 Nodes]
        |
        V (Phase 2: Parallel MIMD Compilation & Linking)
 [Assemble OS, Route Packets, Arbitrate Locks Across Herd]
@@ -35,20 +36,21 @@ cold, and hermetic lifecycle across a shared-nothing cluster:
 [Return to Zero State: Clean RAM]
 ```
 
-### 1. Phase 1: Synthesizing ~40 Independent Toolchains Across 20 Nodes
+### 1. Phase 1: Synthesizing 28 Independent Toolchains Across 16 Nodes
 
 Before the build command executes, **no assembler, compiler, or code generator
 exists in memory on any node**. Because ChrysaLisp uses a strictly isolated,
 task-centric memory model across its nodes:
 
-* **~40 Task-Isolated Syntheses:** The make pipeline (`lib/asm/asm.inc`) uses
-  `lib/task/local.inc` to spawn a dynamic herd of worker tasks
-  (`lib/asm/asm.lisp`) across the 20 VP nodes—typically scaling to approximately
-  40 worker tasks (~2 per node).
+* **28 Task-Isolated Syntheses:** The make pipeline (`lib/asm/asm.inc`) uses
+  `lib/task/local.inc` to spawn a herd of worker tasks (`lib/asm/asm.lisp`)
+  across the 16 VP nodes. The herd starts as a tenth of the number of source
+  files, 13 for the 135 `.vp` files, and has one more for each node other
+  than the one that asked, so 28 worker tasks on 16 nodes.
 
 * **Task-Local `within-compile-env` Environments:** While worker tasks share the
   root environment of their host node, the compilation environment is scoped per
-  task. Each of the ~40 worker tasks enters its own `(within-compile-env ...)`
+  task. Each of the 28 worker tasks enters its own `(within-compile-env ...)`
   block, independently synthesizing its own private compiler environment from
   scratch in parallel.
 
@@ -56,17 +58,17 @@ task-centric memory model across its nodes:
   worker task evaluates `lib/asm/`, macro generators (`def-class`, `def-method`,
   `assign`), register allocation tables, and CScript transpilers.
 
-* **RAM-Native Toolchains:** Within microseconds, approximately 40 complete,
-  fully functional native assembly engines are live in RAM across the 20-node
+* **RAM-Native Toolchains:** Within microseconds, 28 complete, fully
+  functional native assembly engines are live in RAM across the 16-node
   cluster.
 
-### 2. Phase 2: Distributed Parallel Execution Across ~40 Worker Tasks
+### 2. Phase 2: Distributed Parallel Execution Across 28 Worker Tasks
 
-Once the ~40 worker tasks across the 20 nodes have independently synthesized
+Once the 28 worker tasks across the 16 nodes have independently synthesized
 their toolchains, the build workload is dynamically distributed:
 
-* **20 Host OS Processes:** The host kernel (macOS) actively schedules and
-  context-switches 20 separate host processes across its performance and
+* **16 Host OS Processes:** The host kernel (macOS) actively schedules and
+  context-switches 16 separate host processes across its performance and
   efficiency cores, hosting the cooperative task scheduler within each VP node.
 
 * **Dynamic Herd Dispatch:** The master build coordinator dispatches jobs to the
@@ -100,57 +102,71 @@ As soon as all compilation jobs finish and each worker task exits:
   structures are dereferenced, and memory cells are returned to the allocator
   via `:sys_mem :collect`.
 
-* **No Lingering State:** The ~40 toolchain instances **do not remain cached in
+* **No Lingering State:** The 28 toolchain instances **do not remain cached in
   memory** between build cycles. The next run begins again from absolute zero.
 
 ## The Benchmarks: Multi-Platform Build Analysis
 
-The following benchmarks were captured on an Apple MacBook Pro equipped with an
-Apple M4 Max processor, from the TUI, and were last re-measured on 2026-10-03.
+The following benchmarks were last re-measured on 2026-10-06, from the TUI,
+on three machines, each with one node for each processor, `./run_tui.sh -n 0`.
+
+* An Apple MacBook Pro with an Apple M4 Max processor, 16 nodes. A second
+  session of 16 nodes, a GUI, was up and idle on it while these were taken.
+
+* An Apple MacBook Pro of 2018 with an Intel i9-8950HK processor, 12 nodes.
+
+* A Raspberry Pi 4, 4 nodes.
 
 ### Test 1: Native Compilation & Distributed Lifecycle (The Baseline)
 
-This test measures the complete, cold lifecycle: synthesizing 20 independent
+This test measures the complete, cold lifecycle: synthesizing the independent
 toolchains, compiling all source modules, linking the complete OS, and tearing
 down all compiler environments.
 
-* **Command:** `make test`, on 20 nodes, `./run_tui.sh -n 20`
+* **Command:** `make test`
 
 * **Action:** The Lisp application `cmd/make.lisp` executes repeated cold
-  rebuild cycles, reporting live statistical metrics inside ChrysaLisp's native
-  GUI benchmark window.
+  rebuild cycles, and reports the mean, the best and the worst.
 
-* **Mean Time:** **~69,800 us (0.0698 seconds)**, two runs of the benchmark
-  gave means of 0.0699 and 0.0697 seconds. On 19 nodes five runs gave means
-  of 0.0707 to 0.0723 seconds.
+| Machine | Nodes | Mean | Best | Worst | On one node, mean |
+|---|---|---|---|---|---|
+| Apple M4 Max | 16 | 0.052 to 0.055 | 0.048 | 0.057 to 0.073 | 0.340 |
+| Intel i9-8950HK | 12 | 0.170 to 0.190 | 0.158 | 0.178 to 0.222 | 0.757 |
+| Raspberry Pi 4 | 4 | 1.28 to 1.45 | 1.15 | 1.35 to 2.78 | 3.74 |
 
-* **Best Time:** **~66,400 us (0.0664 seconds)**.
+All times are seconds. The M4 figures are five runs of the benchmark, the
+others three. On 20 nodes the M4 gave means of 0.052 and 0.056, so more nodes
+than processors no longer helps.
 
-* **Worst Time:** **~73,100 us (0.0731 seconds)**.
+* **Evidence:** On the M4 the best and worst cycle of a run are within 9 to
+  25 ms of each other, with no GC pause spikes, allocator fragmentation, or
+  JIT de-optimization penalties behind them. At ~53ms, the system can execute
+  this complete birth-to-death compilation cycle **19 times per second**. On
+  one node, one core, it does so 3 times a second.
 
-* **Jitter / Spread:** **~6.7 ms** between the best and worst cycle. The 19
-  node runs were wider, 7 to 15 ms within a run.
-
-* **Evidence:** The tight spread between best and worst runs proves the
-  absence of GC pause spikes, allocator fragmentation, or JIT de-optimization
-  penalties. At ~70ms, the system can execute this complete birth-to-death
-  compilation cycle **14 times per second**.
+These are quicker than the 0.070 seconds, on 20 nodes, that this document gave
+until 2026-10-03. The difference is the work on the Lisp engine, see
+`docs/ai_digest/till_the_pips_squeak.md`.
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 
 This test measures the time to simultaneously compile all system sources for six
 different target architectures from scratch.
 
-* **Command:** `make all platforms | time`, on 19 nodes
+* **Command:** `make all platforms | time`
 
 * **Action:** Invokes `make-all-platforms`, cross-compiling the operating system
   for `x86_64/AMD64`, `x86_64/WIN64`, `arm64/ARM64`, `riscv64/RISCV64`,
   `la64/LA64`, and `vp64/VP64`.
 
-* **Result:** **~0.45 seconds**, four runs gave 0.42, 0.43, 0.45 and 0.47.
+| Machine | Nodes | Result |
+|---|---|---|
+| Apple M4 Max | 16 | 0.32 to 0.37 seconds, five runs |
+| Intel i9-8950HK | 12 | 1.18 to 1.22 seconds, three runs |
+| Raspberry Pi 4 | 4 | 7.6 and 9.0 seconds, two runs |
 
 * **Evidence:** The entire operating system is compiled from source six times
-  over (once for each architecture) in under half a second,
+  over (once for each architecture) in about a third of a second on the M4,
   demonstrating the massive throughput of the lightweight JIT assembler.
 
 ### Test 3: The Bootstrap Install (The Portability Test)
@@ -160,44 +176,56 @@ while running entirely inside the portable C++ software emulator.
 
 * **Command:** `make install`
 
-* **Action:** Launches the **emulated VP64** environment and invokes `make all
-  boot` to construct a fully native **ARM64** boot image from source.
+* **Action:** Launches the **emulated VP64** environment, on one emulated node
+  for each processor, and invokes `make all boot` to construct a fully native
+  boot image from source. The time is the one the installer reports.
 
-* **Result (Apple M4 Max):** **~1.8 seconds**, as reported by the installer,
-  six runs gave 1.74 to 1.85.
+| Machine | Nodes | Result |
+|---|---|---|
+| Apple M4 Max | 16 | 1.13 to 1.19 seconds, four runs |
+| Intel i9-8950HK | 12 | 3.42 to 3.51 seconds, three runs |
+| Raspberry Pi 4 | 4 | 23.8 and 24.0 seconds, two runs |
 
-* **Result (Raspberry Pi 4):** **~10.0 seconds**, not re-measured.
+On the Pi 4 the same install on one emulated node took 74 seconds, and on two
+40 seconds, so it is the four nodes that bring it to 24.
 
-* **Evidence:** Even when executing inside a single-threaded portable C++
-  software emulator, ChrysaLisp can compile and link its entire native
-  environment in under 2 seconds on an M4 laptop, and in 10 seconds on a
-  low-power Raspberry Pi 4.
+* **Evidence:** Even when executing inside a portable C++ software emulator,
+  ChrysaLisp can compile and link its entire native environment in a little
+  over a second on an M4 laptop, and in 24 seconds on a low-power Raspberry
+  Pi 4.
+
+The 10 seconds this document used to give for the Pi 4 was from an earlier and
+smaller system, and had not been measured again till now.
 
 ## Compact Boot Images: L1 Cache Residence
 
 ChrysaLisp's "linkerless" direct-offset architecture produces self-contained,
 minimal `boot_image` binaries across all supported architectures:
 
-* `obj/vp64/VP64/sys/boot_image`: **152,076 bytes**
+* `obj/vp64/VP64/sys/boot_image`: **160,764 bytes**
 
-* `obj/x86_64/AMD64/sys/boot_image`: **207,788 bytes**
+* `obj/x86_64/AMD64/sys/boot_image`: **218,524 bytes**
 
-* `obj/x86_64/WIN64/sys/boot_image`: **208,252 bytes**
+* `obj/x86_64/WIN64/sys/boot_image`: **219,076 bytes**
 
-* `obj/arm64/ARM64/sys/boot_image`: **221,900 bytes**
+* `obj/arm64/ARM64/sys/boot_image`: **233,164 bytes**
 
-* `obj/riscv64/RISCV64/sys/boot_image`: **256,900 bytes**
+* `obj/riscv64/RISCV64/sys/boot_image`: **270,540 bytes**
 
-* `obj/la64/LA64/sys/boot_image`: **256,532 bytes**
+* `obj/la64/LA64/sys/boot_image`: **270,108 bytes**
+
+These are the sizes on 2026-10-06, about 5% up on those of 2026-10-03.
 
 The three link register targets include call fusion, see `lib/trans/vp.inc`.
-Without it they were 227,196, 267,900 and 267,516 bytes, so it saves 2.4% on
-ARM64 and 4.2% on RISCV64 and LA64. What it costs was measured too. On ARM64,
-as one sweep with the existing prepass, `make test` on 19 nodes went from a
-mean of 0.0714 to 0.0723 seconds over 8 interleaved runs each, and the
-bootstrap install from 1.79 to 1.82 seconds. Both differences are inside the run to run noise.
+It was measured when it went in, on 2026-10-03. The images were then 221,900,
+256,900 and 256,532 bytes, and without it 227,196, 267,900 and 267,516, so it
+saves 2.4% on ARM64 and 4.2% on RISCV64 and LA64. What it costs was measured
+too. On ARM64, as one sweep with the existing prepass, `make test` on 19
+nodes went from a mean of 0.0714 to 0.0723 seconds over 8 interleaved runs
+each, and the bootstrap install from 1.79 to 1.82 seconds, as they were that
+day. Both differences are inside the run to run noise.
 
-Because these complete system images are around ~200 KB, they fit entirely
+Because these complete system images are from 160 to 270 KB, they fit entirely
 inside the L1/L2 instruction and data caches of modern CPU cores. The CPU rarely
 stalls on main memory access during core execution, resulting in near-zero memory
 bus latency.

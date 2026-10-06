@@ -4,6 +4,17 @@
 
 ------
 
+`docs/ai_digest/evidence_not_faith.md` has new figures, measured on 2026-10-06
+on three machines, each with one node for each processor. `make test`, mean,
+is 0.053 seconds on 16 nodes of an M4 Max, it was 0.070 on 20, 0.17 on the 12
+nodes of an i9-8950HK, and 1.3 to 1.45 on the 4 of a Pi 4. All six targets
+cross compile in a third of a second on the M4. The bootstrap install takes
+1.2 seconds on the M4, 3.5 on the Intel, and 24 on the Pi 4, the 10 seconds
+the doc gave for the Pi was old and had not been measured again. A build is
+28 worker tasks on 16 nodes, not the 40 on 20 the doc said.
+
+------
+
 All four GUI drivers now keep to one rule for color. A blit in a color tints
 a glyph texture or a greyscale texture, the single channel ones, and draws a
 normal texture as it is. The raw and frame buffer drivers always did. The SDL2
