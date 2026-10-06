@@ -39,6 +39,12 @@
 (defun control-text (type val)
 	(if (eql type :int) (str val) (real-to-str val 4)))
 
+(defun set-label (label text)
+	;a label lays its text out once, so lay it out again for the new text
+	(unless (eql (get :text label) text)
+		(def label :text text)
+		(.-> label :layout :dirty)))
+
 (defun make-label (text)
 	(defq label (Label))
 	(def label :text text :border *env_label_border* :min_width 64
@@ -99,7 +105,7 @@
 		(bind '(name type lo hi slider label &rest _) control)
 		(defq val (control-value control))
 		(push vals (list name val))
-		(def (. label :dirty) :text (control-text type val))) controls)
+		(set-label label (control-text type val))) controls)
 	(defq inputs (shader-pack program vals))
 	(setq tiles (range 0 +height +line_batch)
 		jobs (map (lambda (y)
@@ -151,7 +157,7 @@
 					(when (empty? tiles)
 						;the frame is done, show it and start the next
 						(. *canvas* :swap 0)
-						(def (. *status* :dirty) :text (cat "Frame "
+						(set-label *status* (cat "Frame "
 							(str (/ (- (pii-time) frame_time) 1000)) "ms, "
 							(str (length (lisp-nodes))) " nodes, native code, no GPU"))
 						(start-frame))))
