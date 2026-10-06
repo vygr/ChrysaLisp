@@ -59,14 +59,20 @@
 	(if (/= 0 (get-long link 0)) (mail-send link (cat name (char 0))))
 	link)
 
-(defun node-spawn (&optional num)
-	; (node-spawn [num]) -> (pid ...)
+(defun node-spawn (&optional num kind script)
+	; (node-spawn [num kind script]) -> (pid ...)
 	;start num more nodes on this machine, default 1, each linked to this
 	;node and to each other. A pid of -1 is a node the host could not start.
+	;kind is the host program, :gui or :tui, this node's own if not given,
+	;so a GUI node can be added to a TUI network, and a TUI node to a GUI
+	;one. script is run on each new node. A node with a script is a front
+	;of its session, a way in to it, a desktop is service/gui/app.lisp.
 	(setd num 1)
 	(if (< num 1) (list)
 	(progn (defq links (map (lambda (_) (list)) (range 0 (inc num)))
-		chars "0123456789abcdefghijklmnopqrstuvwxyz")
+		chars "0123456789abcdefghijklmnopqrstuvwxyz"
+		host (case kind (:gui "-gui ") (:tui "-tui ") (:t ""))
+		run (if script (cat " -run " script) ""))
 	(each (lambda (i) (each (lambda (j)
 			;a link name is ???-???, the form the stop scripts clear away
 			(defq name (apply (const cat) (map (lambda (_)
@@ -75,15 +81,16 @@
 			(push (elem-get links j) name))
 		(range (inc i) (inc num)))) (range 0 num))
 	(defq pids (map (lambda (names)
-		(pii-spawn (join (map (lambda (name) (cat "-l " name)) names) " ")))
+		(pii-spawn (cat host (join (map (lambda (name) (cat "-l " name)) names) " ") run)))
 		(rest links)))
 	(each (const node-link) (first links))
 	;leave the pids and the link names for the launch script that started
 	;this node's session, it stops what its nodes started, see funcs.sh
 	(unless (eql (os) 'Windows)
-		(defq file (cat "/tmp/chrysalisp_" (str (pii-pid)) ".session"))
+		(defq file (cat "/tmp/chrysalisp_" (str (pii-pid)) ".session")
+			live (filter (# (> %0 0)) pids))
 		(save (cat (if (/= (age file) 0) (load file) "")
-			(join (map (# (cat "pid " (str %0) (ascii-char 10))) (filter (# (> %0 0)) pids)) "")
+			(join (map (# (cat (if script "front " "pid ") (str %0) (ascii-char 10))) live) "")
 			(join (map (# (cat "link " %0 (ascii-char 10))) (unique (flatten links))) "")) file))
 	pids)))
 

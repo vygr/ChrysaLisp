@@ -487,6 +487,27 @@ int64_t pii_sysid(char *buf, size_t len)
 extern char **host_argv;
 static char pii_spawn_buf[8192];
 
+//the host to start is this one, or its sibling, main_gui or main_tui,
+//if the args start with -gui or -tui
+
+static char pii_spawn_host[4096];
+
+static const char *pii_spawn_which(const char **args)
+{
+	const char *want = NULL;
+	if (!strncmp(*args, "-gui ", 5)) want = "main_gui.exe";
+	else if (!strncmp(*args, "-tui ", 5)) want = "main_tui.exe";
+	if (!want) return host_argv[0];
+	*args += 5;
+	const char *slash = strrchr(host_argv[0], '\\');
+	const char *slash2 = strrchr(host_argv[0], '/');
+	if (slash2 > slash) slash = slash2;
+	int dir = slash ? (int)(slash - host_argv[0] + 1) : 0;
+	int n = snprintf(pii_spawn_host, sizeof(pii_spawn_host), "%.*s%s", dir, host_argv[0], want);
+	if (n < 0 || n >= (int)sizeof(pii_spawn_host)) return host_argv[0];
+	return pii_spawn_host;
+}
+
 int64_t pii_spawn(const char *args)
 {
 	//start another node, this host and this boot image, with these args.
@@ -494,8 +515,9 @@ int64_t pii_spawn(const char *args)
 	//a VP task has, so this must be called on the kernel task's stack, see
 	//:host_os :lisp_spawn.
 	if (!host_argv) return -1;
+	const char *host = pii_spawn_which(&args);
 	int n = snprintf(pii_spawn_buf, sizeof(pii_spawn_buf), "\"%s\" %s %s%s",
-		host_argv[0], host_argv[1], args, run_emu ? " -e" : "");
+		host, host_argv[1], args, run_emu ? " -e" : "");
 	if (n < 0 || n >= (int)sizeof(pii_spawn_buf)) return -1;
 	//it does not share the console input
 	SECURITY_ATTRIBUTES sa;

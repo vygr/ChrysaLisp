@@ -2,7 +2,7 @@
 (import "gui/lisp.inc")
 
 (enums +event 0
-	(enum close logout quit))
+	(enum close logout quit shutdown))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Logout Manager" () ())
@@ -11,7 +11,7 @@
 		:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))
 	(ui-label _ (:text "Do you wish to exit?" :color +argb_white))
 	(ui-grid _ (:grid_height 1)
-		(ui-buttons ("Cancel" "Logout" "Quit") +event_close)))
+		(ui-buttons ("Cancel" "Logout" "Quit" "Shutdown") +event_close)))
 
 (defun position-window ()
 	(bind '(w h) (. *window* :pref_size))
@@ -34,7 +34,16 @@
 			;logout button
 			(gui-logout-rpc))
 		((= id +event_quit)
-			;quit button
+			;quit button, this desktop goes, the network lives on
+			;while it has another desktop, or a terminal
 			(gui-quit-rpc))
+		((= id +event_shutdown)
+			;shutdown button, every node of this network that is on
+			;this machine goes, this one last
+			(defq me (task-nodeid))
+			(each (# (open-task "apps/system/logout/shutdown.lisp" %0 +kn_call_pin 0 (task-mbox)))
+				(filter (# (nql %0 me)) (lisp-nodes :t)))
+			(task-sleep 200000)
+			(pii-exit))
 		((. *window* :event msg))))
 	(gui-sub-rpc *window*))

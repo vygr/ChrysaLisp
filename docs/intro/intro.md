@@ -351,9 +351,13 @@ make GUI=fb install
 ### Stopping the ChrysaLisp Network
 
 On macOS, Linux and the Raspberry Pi a session, the nodes one launch script
-started, stops itself. Quit the GUI, or leave the TUI, and the rest of its
-nodes are stopped with it. More than one session can run on a machine, each
-has link names of its own, and stopping one leaves the others alone.
+started, stops itself. A session lives while it has a way in, a terminal or a
+desktop. A desktop is a node, `nodes -g 1` in a terminal adds one, to a TUI
+network as well, and Quit closes it and leaves the rest up. When the last
+terminal or desktop has gone the rest of the nodes are stopped. Shutdown, on
+the same panel as Quit, stops them all at once. More than one session can run
+on a machine, each has link names of its own, and stopping one leaves the
+others alone.
 
 To shut down every ChrysaLisp process on the machine, whoever started it:
 

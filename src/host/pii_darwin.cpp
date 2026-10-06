@@ -404,16 +404,37 @@ extern char **environ;
 extern char **host_argv;
 static char pii_spawn_buf[4096];
 
+//the host to start is this one, or its sibling, main_gui or main_tui,
+//if the args start with -gui or -tui
+
+static char pii_spawn_host[4096];
+
+static const char *pii_spawn_which(const char **args)
+{
+	const char *want = NULL;
+	if (!strncmp(*args, "-gui ", 5)) want = "main_gui";
+	else if (!strncmp(*args, "-tui ", 5)) want = "main_tui";
+	if (!want) return host_argv[0];
+	*args += 5;
+	const char *slash = strrchr(host_argv[0], '/');
+	int dir = slash ? (int)(slash - host_argv[0] + 1) : 0;
+	int n = snprintf(pii_spawn_host, sizeof(pii_spawn_host), "%.*s%s", dir, host_argv[0], want);
+	if (n < 0 || n >= (int)sizeof(pii_spawn_host)) return host_argv[0];
+	return pii_spawn_host;
+}
+
 int64_t pii_spawn(const char *args)
 {
-	//start another node, this host and this boot image, with these args.
-	//returns its process id, or -1.
+	//start another node, this host or its sibling, and this boot image,
+	//with these args. returns its process id, or -1.
 	char *argv[68];
 	int argc = 0;
+	if (!host_argv) return -1;
+	const char *host = pii_spawn_which(&args);
 	size_t len = strlen(args);
 	if (!host_argv || len >= sizeof(pii_spawn_buf)) return -1;
 	memcpy(pii_spawn_buf, args, len + 1);
-	argv[argc++] = host_argv[0];
+	argv[argc++] = (char*)host;
 	argv[argc++] = host_argv[1];
 	for (char *tok = strtok(pii_spawn_buf, " "); tok && argc < 64; tok = strtok(NULL, " ")) argv[argc++] = tok;
 	if (run_emu) argv[argc++] = (char*)"-e";

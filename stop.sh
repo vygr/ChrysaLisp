@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # stop every node on this machine, whoever started it. A session
-# stops itself when its first node goes, see funcs.sh, this is for
-# when one has not.
+# stops itself when its last terminal or desktop goes, see funcs.sh,
+# this is for when one has not.
 killall main_gui -KILL &> /dev/null
 killall main_tui -KILL &> /dev/null
 

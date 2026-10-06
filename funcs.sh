@@ -27,9 +27,13 @@ trap restore_tty EXIT INT TERM HUP
 
 #a session is the nodes one launch script started, and those nodes
 #started in turn. Each has link names of its own, so two sessions on
-#one machine do not meet, and a session stops only itself.
+#one machine do not meet, and a session stops only itself. It lives
+#while it has a front, a terminal or a desktop, a way in to it. A
+#desktop can be closed and another opened, nodes -g, and when the last
+#front has gone the rest of the nodes are stopped.
 
 session_pids=""
+session_fronts=""
 session_links=""
 session_salt=$(( ((RANDOM << 15) | RANDOM) * 1021 + RANDOM ))
 
@@ -69,54 +73,85 @@ function add_link
 	fi
 }
 
-function session_stop
+function session_scan
 {
-	#stop every node of this session. A node that starts more nodes,
-	#(node-spawn), leaves their pids and link names in a file.
+	#every node of this session, and its fronts. A node that starts
+	#more nodes, (node-spawn), leaves their pids and link names in a file.
 	local todo="$session_pids"
-	local seen=""
 	local pid
 	local what
 	local val
+	scan_pids=""
+	scan_fronts="$session_fronts"
+	scan_links="$session_links"
+	scan_files=""
 	while [ -n "$todo" ]
 	do
 		pid=${todo%% *}
 		todo=${todo#* }
-		if [ -n "$pid" ] && [[ " $seen " != *" $pid "* ]]
+		if [ -n "$pid" ] && [[ " $scan_pids " != *" $pid "* ]]
 		then
-			seen+="$pid "
+			scan_pids+="$pid "
 			if [ -f "$TEMP/chrysalisp_$pid.session" ]
 			then
+				scan_files+="$TEMP/chrysalisp_$pid.session "
 				while read what val
 				do
 					if [ "$what" == "pid" ]
 					then
 						todo+="$val "
+					elif [ "$what" == "front" ]
+					then
+						todo+="$val "
+						scan_fronts+="$val "
 					elif [ "$what" == "link" ]
 					then
-						session_links+="$val "
+						scan_links+="$val "
 					fi
 				done < "$TEMP/chrysalisp_$pid.session"
-				rm -f "$TEMP/chrysalisp_$pid.session"
 			fi
 		fi
 	done
-	for pid in $seen
+}
+
+function session_has_front
+{
+	#a front is a way in to the session, a terminal or a desktop. A
+	#session lives while it has one.
+	local pid
+	session_scan
+	for pid in $scan_fronts
+	do
+		if kill -0 $pid 2>/dev/null
+		then
+			return 0
+		fi
+	done
+	return 1
+}
+
+function session_stop
+{
+	#stop every node of this session, and clear away its files
+	local pid
+	local val
+	session_scan
+	for pid in $scan_pids
 	do
 		kill -KILL $pid 2>/dev/null
 	done
-	for val in $session_links
+	for val in $scan_links
 	do
 		rm -f "$TEMP/$val"
 	done
+	rm -f $scan_files
 }
 
 function session_watch
 {
-	#stop the session when its first node has gone, for a launch
-	#that does not wait for it
+	#stop the session when its last front has gone
 	(
-		while kill -0 $1 2>/dev/null
+		while session_has_front
 		do
 			sleep 1
 		done
@@ -145,10 +180,10 @@ function auto_run
 	fi
 }
 
-#the first node, node 0, is the one the session lives by. It is the
-#last to be booted. If the launch is in the foreground it is waited
-#for, and then the session is stopped. If not, a watch is left to
-#stop the session when it has gone.
+#the first node, node 0, is a front, and is the last to be booted.
+#If the launch is in the foreground it is waited for. A watch is then
+#left to stop the session when its last front has gone, which is at
+#once if this was the only one.
 function boot_first
 {
 	if [ "$front" == "" ] && [ "$1" != "wait" ]
@@ -156,16 +191,23 @@ function boot_first
 		shift
 		"$@" &
 		session_pids+="$! "
-		session_watch $!
+		session_fronts+="$! "
+		session_watch
 	else
 		shift
 		"$@" <&0 &
 		local pid=$!
 		session_pids+="$pid "
+		session_fronts+="$pid "
 		wait $pid
 		status=$?
 		restore_tty
-		session_stop
+		if session_has_front
+		then
+			session_watch
+		else
+			session_stop
+		fi
 		return $status
 	fi
 }
@@ -189,6 +231,7 @@ function boot_cpu_gui
 		then
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run service/gui/app.lisp)" &
 			session_pids+="$! "
+			session_fronts+="$! "
 			disown $!
 		elif [ "$front" == "" ]
 		then

@@ -139,6 +139,7 @@
 	(each (# (. %0 :sub)) (. *screen* :children))
 	(setq *mouse* :nil *screen* :nil)
 	(gui-deinit)
-	;the GUI has quit, and so this node goes with it. If it was the first
-	;node of its session, the launch script then stops the rest, see funcs.sh
+	;the GUI has quit, and so this node goes with it, a desktop is a node.
+	;The rest of its session lives on while there is another desktop, or a
+	;terminal, see funcs.sh
 	(pii-exit))

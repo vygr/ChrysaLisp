@@ -405,11 +405,17 @@ The run scripts accept common arguments:
   node they start, and give the links of a launch names of its own, six
   characters of base 36 from a random number. A node that starts more nodes,
   `(node-spawn)`, leaves their pids and link names in
-  `/tmp/chrysalisp_<pid>.session`. When the first node of a session exits the
-  script stops the rest and removes their link and session files, at once if
-  the launch was in the foreground, by a watch it leaves behind if not. A node
-  exits when its GUI quits. So two sessions on one machine do not meet, and
+  `/tmp/chrysalisp_<pid>.session`. A session lives while it has a front, a
+  way in, a terminal or a desktop. When the last front has gone the script,
+  or a watch it leaves behind, stops the rest of the nodes and removes their
+  link and session files. So two sessions on one machine do not meet, and
   stopping one leaves the other alone.
+
+* **A desktop is a node.** `(node-spawn num kind script)` can start either
+  host program, `:gui` or `:tui`, whichever this node is, and give the new
+  node a script to run. `nodes -g 1` starts a GUI node that runs the GUI
+  service, a desktop, on a TUI network as well, and `nodes -t 1` adds a node
+  on the lighter TUI host to a GUI network. A node exits when its GUI quits.
 
 * **`stop.sh`:** Uses `killall main_gui -KILL` and `killall main_tui -KILL`
   to forcefully terminate all ChrysaLisp node processes, whoever started

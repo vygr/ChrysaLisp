@@ -4,6 +4,31 @@
 
 ------
 
+A desktop is a node, to be added and taken away, and a session lives while it
+has a way in.
+
+`(pii-spawn)` can start either host program, a GUI node from a TUI node and
+the other way round, and `(node-spawn num kind script)` gives the new node a
+script to run. `nodes -g 1` adds a desktop, a GUI node that runs the GUI
+service, to a TUI network as well. `nodes -t 1` adds a node on the TUI host,
+which is the lighter. Quit closes that desktop, its node exits, and the rest
+of the network stays up.
+
+A session no longer ends with its first node. It ends when its last front has
+gone, a front is a terminal or a desktop, and the launch script, or the watch
+it leaves, then stops the rest of its nodes. So leave the TUI of a network
+that has a desktop and it lives on, close the desktop and it is gone. New
+Shutdown button beside Quit, it stops every node of the network that is on
+this machine.
+
+`make gui GUI=sdl3` on a machine with no `pkg-config` is given the folder
+SDL3 is in, once, `SDL3_PREFIX=`, and keeps it in the file `sdl3_prefix`.
+
+The host programs must be rebuilt, `make`, and `snapshot.zip` has new Windows
+programs.
+
+------
+
 A session stops only itself, on macOS and Linux. A session is the nodes one
 launch script started, and the nodes they started in turn.
 
