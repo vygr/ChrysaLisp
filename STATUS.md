@@ -4,6 +4,22 @@
 
 ------
 
+The GUI runs on a Raspberry Pi 4 on the sdl3 driver, with no desktop under
+it, and a shader is drawn by the Pi's GPU into a canvas. The Pi has
+Raspberry Pi OS Lite, SDL is on the bare display, and a TV on the HDMI port.
+
+On a bare display Vulkan can only have a window that was made for Vulkan and
+is the size of the display mode, so the driver now makes it so, and hands
+the size of the display back as the size of the screen. If the GPU renderer
+can not be had the window is made again, plain, for SDL's other renderers.
+
+The raymarch frame, drawn in the GUI and read back, is the same on the Pi,
+byte for byte at the ten pixels looked at, as on the M4. The surface demo
+in GPU mode runs at 2 frames a second there, 640 by 480. That shader is a
+lot for a Pi 4's GPU.
+
+------
+
 A SPIR-V back end for the shader language, `lib/gpu/spirv.inc`, so a shader
 can be drawn on a Vulkan GPU, which is Linux and the Raspberry Pi.
 `(shader-spirv program)` gives the binary module, made word by word in Lisp,

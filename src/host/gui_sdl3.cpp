@@ -103,7 +103,22 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 	set_macos_activation_policy(0); // NSApplicationActivationPolicyRegular
 #endif
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-	window = SDL_CreateWindow("ChrysaLisp GUI Window", rect->w, rect->h, SDL_WINDOW_RESIZABLE);
+	// with no desktop, SDL on the bare display, a Raspberry Pi with no
+	// window system say, the window is the whole screen. Vulkan can only
+	// have it if it is made for Vulkan and is the size of the display mode.
+	auto driver = SDL_GetCurrentVideoDriver();
+	auto bare = driver && !SDL_strcmp(driver, "kmsdrm");
+	if (bare)
+	{
+		auto mode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+		if (mode)
+		{
+			rect->w = mode->w;
+			rect->h = mode->h;
+		}
+	}
+	window = SDL_CreateWindow("ChrysaLisp GUI Window", rect->w, rect->h,
+		SDL_WINDOW_RESIZABLE | (bare ? SDL_WINDOW_VULKAN : 0));
 	// the GPU renderer if there is one, so that a shader can share its device
 	device = create_device();
 	if (device) renderer = SDL_CreateGPURenderer(device, window);
@@ -111,6 +126,12 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 	{
 		if (device) SDL_DestroyGPUDevice(device);
 		device = nullptr;
+		if (bare)
+		{
+			// a window made for Vulkan is no use to another renderer
+			SDL_DestroyWindow(window);
+			window = SDL_CreateWindow("ChrysaLisp GUI Window", rect->w, rect->h, SDL_WINDOW_RESIZABLE);
+		}
 		renderer = SDL_CreateRenderer(window, nullptr);
 	}
 	SDL_SetRenderVSync(renderer, 1);

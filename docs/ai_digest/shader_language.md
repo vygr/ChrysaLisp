@@ -238,6 +238,11 @@ a device SDL makes for itself asks for depth clamping, which the V3D does not
 have, so SDL picks llvmpipe and says nothing. The sdl3 driver now makes its
 own device, without the features it does not use.
 
+With a TV on the Pi the GUI was then run on the sdl3 driver, and the shader
+drawn into a canvas and read back, `(. canvas :swap +swap_read)`. The ten
+pixels looked at are the same bytes the M4 gives. The surface demo in GPU
+mode runs at 2 frames a second, 640 by 480, which fits the 394ms above.
+
 ## On The GPU, In The GUI
 
 Graphics belongs to the GUI. A GUI app runs on the node that has the GUI, so
@@ -499,9 +504,9 @@ Demos list in `apps/system/launcher/app.lisp`, or to your own launcher config.
 
 ## What Is Not Here Yet
 
-* The sdl3 GUI driver has only been run on a Mac. On the Pi the SPIR-V back
-  end has drawn on the GPU, but from a test program with no window, the Pi
-  had no screen. The GUI itself has not been seen there on SDL3.
+* The sdl3 GUI driver has been run on Macs and on a Raspberry Pi 4 with no
+  desktop, SDL on the bare display. It has not been run on a Linux desktop,
+  X11 or Wayland, nor on Windows.
 * The SPIR-V back end has been checked against the others on the raymarch
   shader only, the small shaders of the test suite are checked for form.
 * Raylib is the fall back if SDL3 will not do for a host.
