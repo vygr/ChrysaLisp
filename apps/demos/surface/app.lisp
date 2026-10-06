@@ -20,7 +20,9 @@
 	start_time (pii-time) frame_time 0
 	;the shader on the GPU, if the host GUI driver can draw one, and
 	;the frames it has drawn since the status line was last set
-	gpu_shader :nil gpu_mode :nil gpu_frames 0 gpu_time 0)
+	gpu_shader :nil gpu_mode :nil gpu_frames 0 gpu_time 0
+	;a notice on the status line stays for a while
+	+notice_time 4000000 notice_until 0)
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Surface" (0xea19) +event_close)
@@ -140,7 +142,8 @@
 	(cond
 		((and gpu (not gpu_shader))
 			(. *mode* :set_selected 0)
-			(set-label *status* "The host GUI driver can not draw a shader"))
+			(setq notice_until (+ (pii-time) +notice_time))
+			(set-label *status* "No GPU, this host GUI driver can not draw a shader, see make gui GUI=sdl3"))
 		((not (eql gpu gpu_mode))
 			;drop what is left of a CPU frame, a tile that comes in late is not shown
 			;the timer takes up the new rate at its next tick
@@ -188,9 +191,10 @@
 					(when (empty? tiles)
 						;the frame is done, show it and start the next
 						(. *canvas* :swap 0)
-						(set-label *status* (cat "Frame "
-							(str (/ (- (pii-time) frame_time) 1000)) "ms, "
-							(str (length (lisp-nodes))) " nodes, native code, no GPU"))
+						(if (> (pii-time) notice_until)
+							(set-label *status* (cat "Frame "
+								(str (/ (- (pii-time) frame_time) 1000)) "ms, "
+								(str (length (lisp-nodes))) " nodes, native code, no GPU")))
 						(start-frame))))
 			(:t ;timer event
 				(cond
