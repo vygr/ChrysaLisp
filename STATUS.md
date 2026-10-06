@@ -4,6 +4,23 @@
 
 ------
 
+The frame buffer driver on a 32 bit display. The Pi's frame buffer was 16
+bit, it is 32 bit with `video=HDMI-A-1:1920x1080M-32@50` on the end of
+`/boot/firmware/cmdline.txt`, and that is the other pixel path of the driver.
+No bands, the colors right, and as quick, Chris at the Pi.
+
+A window being dragged was let go of, just after the desktop came up, and
+then it stopped happening. To ask the mouse for wheel reports the driver
+writes six bytes, each is answered with a byte, and it read the answers once,
+four at most. The rest were taken as the start of the first reports, so every
+report was out of step, its button bits too, till it happened to fall back
+in. It now reads all the answers away, and checks the bit that is always set
+in the first byte of a report. Not seen to fail by me before the change, the
+cause is from reading the code. After it, a 300 pixel drag straight after
+start up held all the way.
+
+------
+
 The three machines as one network, checked after all of today's changes to
 the hosts, the sessions and the link names. Eight nodes on the M4, four on
 the Raspberry Pi 4 and eight on the x64 MacBook, the M4 linking to the other

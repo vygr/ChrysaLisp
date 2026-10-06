@@ -1019,8 +1019,15 @@ static int open_mouse(void)
     /* try to switch the mouse to ImPS/2 protocol*/
     if (write(mouse_fd, imps2, sizeof(imps2)) != sizeof(imps2))
         /*printf("Can't switch to ImPS/2 protocol\n")*/;
-    if (read(mouse_fd, buf, 4) != 1 || buf[0] != 0xF4)
-        /*printf("Failed to switch to ImPS/2 protocol.\n")*/;
+    /* each byte written is answered with a byte, six of them. They were
+     * read once, four at most, and the rest were then taken as the start
+     * of the first mouse reports, which put every report out of step, the
+     * button bits with them, till it happened to fall back in. So they
+     * are all read away here. */
+    for (int tries = 0; tries < 10; tries++) {
+        while (read(mouse_fd, buf, sizeof(buf)) > 0);
+        usleep(5000);
+    }
 
     return mouse_fd;
 }
@@ -1056,6 +1063,9 @@ static int read_mouse(int *dx, int *dy, int *dw, int *bp)
 
     n = read(mouse_fd, data, sizeof(data));
     if (n != 3 && n != 4)
+        return 0;
+    /* bit 3 of the first byte of a report is always set, see above */
+    if (!(data[0] & 0x08))
         return 0;
 
     button = 0;
