@@ -137,9 +137,9 @@
 	(assign '((:rsp 0)) '(:r0))
 	(call :texture :deref_if '((:r0 +canvas_texture)))
 
-	;free pixel buffer
+	;free pixel buffer, if it has not been freed by a swap
 	(assign '((:rsp 0)) '(:r0))
-	(call :pixmap :deref '((:r0 +canvas_pixmap)))
+	(call :pixmap :deref_if '((:r0 +canvas_pixmap)))
 
 	(vp-pop :r0)
 	(s-jump :canvas :deinit '(:r0))
@@ -162,28 +162,43 @@
 	(push-scope)
 	(entry :canvas :swap {this, flags})
 
-	;must be in premul alpha format
+	;a canvas that has freed its pixmap has nothing new to show
 	(assign {this->+canvas_pixmap} {pixmap})
-	(call :pixmap :as_premul {pixmap})
+	(vpif {pixmap})
+	(vpifnot {flags & +swap_flag_keep})
+		;must be in premul alpha format
+		(call :pixmap :as_premul {pixmap})
 
-	;scale the pixmap if needed
-	(vpif {this->+canvas_scale = 1})
-		(call :pixmap :ref {pixmap} {pixmap})
-	(else)
-		(call :pixmap :create {pixmap->+pixmap_width / this->+canvas_scale,
-			pixmap->+pixmap_height / this->+canvas_scale, -32} {pixmap})
-		(call :pixmap :resize {pixmap, this->+canvas_pixmap})
+		;scale the pixmap if needed
+		(vpif {this->+canvas_scale = 1})
+			(call :pixmap :ref {pixmap} {pixmap})
+		(else)
+			(call :pixmap :create {pixmap->+pixmap_width / this->+canvas_scale,
+				pixmap->+pixmap_height / this->+canvas_scale, -32} {pixmap})
+			(call :pixmap :resize {pixmap, this->+canvas_pixmap})
+		(endif)
+
+		;upload then ref_if the texture
+		(call :pixmap :upload {pixmap, flags & 0xff})
+		(assign {this->+canvas_texture} {texture})
+		(call :texture :ref_if {pixmap->+pixmap_texture} {this->+canvas_texture})
+		(call :texture :deref_if {texture})
+		(call :pixmap :deref {pixmap})
+
+		;the texture is now not one a shader can draw into
+		(assign {(this->+canvas_flags | +canvas_flag_shader) ^ +canvas_flag_shader} {this->+canvas_flags})
 	(endif)
 
-	;upload then ref_if the texture
-	(call :pixmap :upload {pixmap, flags})
-	(assign {this->+canvas_texture} {texture})
-	(call :texture :ref_if {pixmap->+pixmap_texture} {this->+canvas_texture})
-	(call :texture :deref_if {texture})
-	(call :pixmap :deref {pixmap})
-
-	;the texture is now not one a shader can draw into
-	(assign {(this->+canvas_flags | +canvas_flag_shader) ^ +canvas_flag_shader} {this->+canvas_flags})
+		;free the pixmap if asked. One that is shared lives on in the
+		;cache, this only lets go of it. The clip is left as one that
+		;nothing is inside, so every draw call is clipped away.
+		(vpif {flags & +swap_flag_free})
+			(call :pixmap :deref {this->+canvas_pixmap})
+			(assign {0, 0x7fffffff, 0x7fffffff, 0, 0}
+				{this->+canvas_pixmap, this->+canvas_cx, this->+canvas_cy,
+				this->+canvas_cx1, this->+canvas_cy1})
+		(endif)
+	(endif)
 
 	(exit :canvas :swap {this})
 	(pop-scope)
@@ -237,10 +252,15 @@
 	(assign {user->local_this} {this})
 	(vpifnot {this->+canvas_flags & +canvas_flag_shader})
 		;no texture a shader can draw into, so make one, the size the canvas is shown at
-		(assign {this->+canvas_pixmap} {pixmap})
-		(assign {pixmap->+pixmap_width / this->+canvas_scale,
-			pixmap->+pixmap_height / this->+canvas_scale} {w, h})
-		(host-gui-call :host_gui :shader_texture {w, h} {tex_id})
+		(assign {this->+canvas_pixmap, this->+canvas_texture, 0} {pixmap, texture, tex_id})
+		(vpif {pixmap})
+			(assign {pixmap->+pixmap_width / this->+canvas_scale,
+				pixmap->+pixmap_height / this->+canvas_scale} {w, h})
+			(host-gui-call :host_gui :shader_texture {w, h} {tex_id})
+		(elseif {texture})
+			(assign {texture->+texture_width, texture->+texture_height} {w, h})
+			(host-gui-call :host_gui :shader_texture {w, h} {tex_id})
+		(endif)
 		(vpif {tex_id})
 			(assign {this->+canvas_texture} {texture})
 			(call :texture :create {tex_id, w, h} {this->+canvas_texture})
@@ -274,8 +294,9 @@
 
 	(entry :canvas :set_clip '(:r0 :r7 :r8 :r9 :r10))
 
-	;clip check
+	;clip check, with no pixmap the clip stays as one nothing is inside
 	(assign '((:r0 +canvas_pixmap)) '(:r2))
+	(vpif '(:r2 /= 0))
 	(assign '((:r2 +pixmap_width) (:r2 +pixmap_height)) '(:r1 :r2))
 	(vpif '(:r7 <= :r9) '(:r8 <= :r10) '(:r7 < :r1) '(:r8 < :r2) '(:r9 >= 0) '(:r10 >= 0))
 		(vpif '(:r7 < 0))
@@ -286,6 +307,7 @@
 		(endif)
 		(vp-simd vp-min-rr '(:r1 :r2) '(:r9 :r10))
 		(assign '(:r7 :r8 :r9 :r10) '((:r0 +canvas_cx) (:r0 +canvas_cy) (:r0 +canvas_cx1) (:r0 +canvas_cy1)))
+	(endif)
 	(endif)
 
 	(exit :canvas :set_clip '(:r0))

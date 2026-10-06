@@ -4,6 +4,24 @@
 
 ------
 
+A canvas can free its pixmap. Many a canvas only ever has a pixmap as the step
+to get its texture made, an image that is loaded and then shown, and the
+pixels then sat in memory for nothing.
+
+`(. canvas :swap +swap_flag_free)` uploads the pixmap and then lets go of it,
+and `(. canvas :free)` lets go of it with the texture left as it is.
+`(canvas-load file +load_flag_free)` does it for an image as it is loaded. The
+canvas still draws, and still knows its size, from the texture. It can not be
+drawn on, every draw call is clipped away, at no cost to a draw call on a
+canvas that has its pixmap. A pixmap that is shared lives on in the cache,
+the canvas only lets go of its hold on it.
+
+Onslaught frees the pixmaps of all its images, and makes each flipped image
+straight after the one it is flipped from. The memory its images hold, at
+zoom 1, 2 and 3, was 4.7MB, 18.4MB and 36.7MB, and is now 7KB, 27KB and 40KB.
+
+------
+
 The raw GUI driver can be built on SDL3, `make gui GUI=raw3`. It does all its
 own drawing into a buffer, SDL only puts the buffer in a window and gives the
 events, so the move is small. `make gui GUI=raw` is the same driver on SDL2,

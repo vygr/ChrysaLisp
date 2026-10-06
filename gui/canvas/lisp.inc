@@ -40,6 +40,12 @@
 		; (. canvas :swap flags) -> canvas
 		(. ((const (ffi "gui/canvas/lisp_swap")) this flags) :dirty))
 
+	(defmethod :free ()
+		; (. canvas :free) -> canvas
+		;let go of the pixmap, the texture stays as it is. For a canvas
+		;that is only ever shown, it can not be drawn on after this.
+		((const (ffi "gui/canvas/lisp_swap")) this (const (+ +swap_flag_free +swap_flag_keep))))
+
 	(defmethod :shade (shader block)
 		; (. canvas :shade shader block) -> canvas
 		;the GPU draws the shader into the texture of the canvas
@@ -95,10 +101,15 @@
 
 	(defmethod :constraint ()
 		; (. canvas :constraint) -> (width height)
-		(defq canvas_scale (getf this +canvas_scale 0)
-			pixmap (getf this +canvas_pixmap 0))
-		(list (/ (getf pixmap +pixmap_width 0) canvas_scale)
-			(/ (getf pixmap +pixmap_height 0) canvas_scale)))
+		;with the pixmap freed the size is that of the texture
+		(cond
+			((defq pixmap (getf this +canvas_pixmap 0))
+				(defq canvas_scale (getf this +canvas_scale 0))
+				(list (/ (getf pixmap +pixmap_width 0) canvas_scale)
+					(/ (getf pixmap +pixmap_height 0) canvas_scale)))
+			((defq texture (getf this +canvas_texture 0))
+				(rest (texture-metrics texture)))
+			((list 0 0))))
 
 	(defmethod :get_clip ()
 		; (. canvas :get_clip) -> (cx cy cx1 cy1)
@@ -156,7 +167,8 @@
 			(if (bits? flags +load_flag_film)
 				(setf pixmap +pixmap_stream stream 0))
 			(ifn (bits? flags +load_flag_noswap)
-				(. this :swap swap_mode))))
+				(. this :swap (if (bits? flags +load_flag_free)
+					(+ swap_mode +swap_flag_free) swap_mode)))))
 	this)
 
 (defun canvas-shader-format ()

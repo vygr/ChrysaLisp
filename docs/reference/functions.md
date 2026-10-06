@@ -87,6 +87,18 @@ step zoom down to +zoom_min (1x)
 launch logout app
 ```
 
+### action-resized
+
+```code
+the host window is a new size
+```
+
+### action-shown
+
+```code
+the host window is on show again
+```
+
 ### age
 
 ```code

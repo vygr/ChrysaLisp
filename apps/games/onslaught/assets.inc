@@ -26,23 +26,31 @@
 (defun flip-canvas (c)
 	; (flip-canvas canvas) -> canvas
 	; creates a horizontally flipped right-facing copy of a left-facing canvas
+	; the copy is only ever shown, so its pixmap is freed, and then that of
+	; the canvas it was made from
 	(when c
-		(defq pix (getf c +canvas_pixmap 0))
-		(.-> (Canvas (getf pix +pixmap_width 0) (getf pix +pixmap_height 0) 1)
-			(:flip_x c) (:swap 0))))
+		(defq pix (getf c +canvas_pixmap 0)
+			flipped (.-> (Canvas (getf pix +pixmap_width 0) (getf pix +pixmap_height 0) 1)
+				(:flip_x c) (:swap +swap_flag_free)))
+		(. c :free)
+		flipped))
 
-(defun load-scaled-image (rel_path zoom)
-	; (load-scaled-image rel_path zoom) -> canvas
+(defun load-scaled-image (rel_path zoom &optional keep)
+	; (load-scaled-image rel_path zoom [keep]) -> canvas
 	; loads an image from disk and resizes to the specified zoom level
-	(defq c (canvas-load (cat *app_root* rel_path) +load_flag_noswap))
-	(ifn (and c (/= zoom 1)) (. c :swap 0)
+	; the image is only ever shown, so its pixmap is freed once it is a
+	; texture, unless it is kept to make a flipped copy from
+	(defq c (canvas-load (cat *app_root* rel_path) +load_flag_noswap)
+		flags (if keep 0 +swap_flag_free))
+	(ifn (and c (/= zoom 1)) (. c :swap flags)
 		(defq pix (getf c +canvas_pixmap 0))
 		(.-> (Canvas (* (getf pix +pixmap_width 0) zoom) (* (getf pix +pixmap_height 0) zoom) 1)
-			(:resize c) (:swap 0))))
+			(:resize c) (:swap flags))))
 
 (defun load-cpm-assets (zoom)
 	; (load-cpm-assets zoom)
 	; loads and caches all assets at the given zoom level, generating _r counterparts
+	; each _r is made straight after its _l, so only one pair of pixmaps is held at a time
 	(setq *img_ascii* (load-scaled-image "image/ascii.cpm" zoom)
 		*img_blocks1* (load-scaled-image "image/blocks1.cpm" zoom)
 		*img_blocks2* (load-scaled-image "image/blocks2.cpm" zoom)
@@ -54,21 +62,21 @@
 		*img_frm_16x64* (load-scaled-image "image/frm_16x64.cpm" zoom)
 		*img_frm_32c32* (load-scaled-image "image/frm_32c32.cpm" zoom)
 		*img_frm_64x64* (load-scaled-image "image/frm_64x64.cpm" zoom)
-		*img_fanatic_l* (load-scaled-image "image/fanatic_l.cpm" zoom)
-		*img_frm_16x16_l* (load-scaled-image "image/frm_16x16_l.cpm" zoom)
-		*img_frm_32c32_l* (load-scaled-image "image/frm_32c32_l.cpm" zoom)
-		*img_frm_32x16_l* (load-scaled-image "image/frm_32x16_l.cpm" zoom)
-		*img_frm_32x32_l* (load-scaled-image "image/frm_32x32_l.cpm" zoom)
-		*img_frm_64x32_l* (load-scaled-image "image/frm_64x32_l.cpm" zoom)
-		*img_frm_64x64_l* (load-scaled-image "image/frm_64x64_l.cpm" zoom)
-		*img_panel* (load-scaled-image "image/panel.cpm" zoom)
+		*img_fanatic_l* (load-scaled-image "image/fanatic_l.cpm" zoom :t)
 		*img_fanatic_r* (flip-canvas *img_fanatic_l*)
+		*img_frm_16x16_l* (load-scaled-image "image/frm_16x16_l.cpm" zoom :t)
 		*img_frm_16x16_r* (flip-canvas *img_frm_16x16_l*)
+		*img_frm_32c32_l* (load-scaled-image "image/frm_32c32_l.cpm" zoom :t)
 		*img_frm_32c32_r* (flip-canvas *img_frm_32c32_l*)
+		*img_frm_32x16_l* (load-scaled-image "image/frm_32x16_l.cpm" zoom :t)
 		*img_frm_32x16_r* (flip-canvas *img_frm_32x16_l*)
+		*img_frm_32x32_l* (load-scaled-image "image/frm_32x32_l.cpm" zoom :t)
 		*img_frm_32x32_r* (flip-canvas *img_frm_32x32_l*)
+		*img_frm_64x32_l* (load-scaled-image "image/frm_64x32_l.cpm" zoom :t)
 		*img_frm_64x32_r* (flip-canvas *img_frm_64x32_l*)
-		*img_frm_64x64_r* (flip-canvas *img_frm_64x64_l*)))
+		*img_frm_64x64_l* (load-scaled-image "image/frm_64x64_l.cpm" zoom :t)
+		*img_frm_64x64_r* (flip-canvas *img_frm_64x64_l*)
+		*img_panel* (load-scaled-image "image/panel.cpm" zoom)))
 
 (defun unload-wav-assets ()
 	; (unload-wav-assets)

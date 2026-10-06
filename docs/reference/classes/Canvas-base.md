@@ -6,6 +6,8 @@
 
 ```code
 (. canvas :constraint) -> (width height)
+
+with the pixmap freed the size is that of the texture
 ```
 
 ### :draw
@@ -36,6 +38,15 @@
 
 ```code
 (. canvas :fpoly x y winding_mode paths) -> canvas
+```
+
+### :free
+
+```code
+(. canvas :free) -> canvas
+
+let go of the pixmap, the texture stays as it is. For a canvas
+that is only ever shown, it can not be drawn on after this.
 ```
 
 ### :ftri
