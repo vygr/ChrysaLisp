@@ -329,9 +329,13 @@ both, and the sdl3 GUI driver comes with an AUDIO driver of its own,
 mixing is done in the driver, 32 voices, each with its pan, so there is no
 mixer library to depend on.
 
-The surface demo has a CPU and a GPU button. On the sdl3 driver, GPU draws the
-frame on the GPU at 60 frames a second, the rate of its timer. On any other
-driver the button says the driver can not, and it stays on the CPU.
+The surface demo has a CPU and a GPU button, and comes up on the GPU if the
+driver can draw a shader. On a Mac that is 60 frames a second, the rate of
+its timer. If the driver has not built the shader within half a second the
+CPU starts drawing frames, and the GPU takes over when the shader is built,
+which on a Raspberry Pi 4 the first time is 18 seconds on. On a driver that
+can not, the SDL2 one say, it comes up on the CPU, and the GPU button says
+the driver can not.
 
 ## The CPU Back End
 
@@ -503,7 +507,8 @@ same 32 bit values the GPU would be given.
 
 ## The Demo
 
-`apps/demos/surface` is the raymarch shader on screen, with no GPU.
+`apps/demos/surface` is the raymarch shader on screen, on the GPU, or with no
+GPU. This is how it draws with none, the CPU button.
 
 The app reads the shader, and makes a slider for each input that has a range,
 with its name and value. It knows nothing else of the shader, a new input in
@@ -522,8 +527,7 @@ from 76 to 96ms, 10 to 13 frames a second, with no GPU. The same demo on the
 interpreted CPU back end took about 550ms for a 320 by 240 frame. Reading and
 checking the shader, 205 lines, takes about a millisecond.
 
-The app is not in the launcher's list yet. To try it add `"surface"` to the
-Demos list in `apps/system/launcher/app.lisp`, or to your own launcher config.
+The app is in the Demos list of the launcher, as surface.
 
 ## Limits
 

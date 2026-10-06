@@ -27,8 +27,10 @@
 	gpu_inputs :nil gpu_y 0 gpu_strip +height gpu_wait 0
 	;the strips are drawn off screen, and the whole frame then put on show
 	gpu_back (Canvas +width +height +scale)
-	;has the driver built the shader yet, it has once a strip is drawn
-	gpu_built :nil
+	;the GPU is wanted, the button, and gpu_mode is it drawing the frames,
+	;which it does once the driver has built the shader. Till then the CPU
+	;draws them, if it has been started
+	gpu_want :nil cpu_running :nil
 	;a notice on the status line stays for a while
 	+notice_time 4000000 notice_until 0)
 
@@ -113,54 +115,69 @@
 		(push jobs job)
 		(undef val :job)))
 
-(defun start-frame ()
-	;the inputs block for this frame, from the time and the controls,
-	;goes out with every tile of it
+(defun frame-inputs (now)
+	;the inputs block for a frame, from the time and the controls
 	(defq vals (list
-			(list 'time (/ (n2r (- (setq frame_time (pii-time)) start_time)) (const (n2r 1000000))))
+			(list 'time (/ (n2r (- now start_time)) (const (n2r 1000000))))
 			(list 'resolution (list +width +height))))
 	(each (lambda (control)
 		(bind '(name type lo hi slider label &rest _) control)
 		(defq val (control-value control))
 		(push vals (list name val))
 		(set-label label (control-text type val))) controls)
-	(defq inputs (shader-pack program vals))
-	(cond
-		(gpu_mode
-			;the GPU draws the frame into the texture of the canvas, see gpu-tick
-			(setq gpu_inputs inputs gpu_y 0))
-		(:t ;the nodes shade it, a tile each, as native code
-			(setq tiles (range 0 +height +line_batch)
-				jobs (map (lambda (y)
-					(cat (setf-> (str-alloc +job_size)
-						(+job_x 0)
-						(+job_y y)
-						(+job_x1 +width)
-						(+job_y1 (min +height (+ y +line_batch)))
-						(+job_height +height)) inputs)) tiles))
-			;wake the children that have no job
-			(. farm :each (lambda (key val)
-				(if (and (get :child val) (not (get :job val)))
-					(dispatch-job key val)))))))
+	(shader-pack program vals))
+
+(defun start-frame ()
+	;a frame on the CPU, the nodes shade it, a tile each, as native code.
+	;The inputs block goes out with every tile of it.
+	(defq inputs (frame-inputs (setq frame_time (pii-time))))
+	(setq cpu_running :t tiles (range 0 +height +line_batch)
+		jobs (map (lambda (y)
+			(cat (setf-> (str-alloc +job_size)
+				(+job_x 0)
+				(+job_y y)
+				(+job_x1 +width)
+				(+job_y1 (min +height (+ y +line_batch)))
+				(+job_height +height)) inputs)) tiles))
+	;wake the children that have no job
+	(. farm :each (lambda (key val)
+		(if (and (get :child val) (not (get :job val)))
+			(dispatch-job key val)))))
+
+(defun to-cpu ()
+	;the frames are drawn by the CPU from here on
+	(setq gpu_mode :nil gpu_inputs :nil gpu_y 0 gpu_wait 0 ticks 0)
+	;a child with no work for a while has gone, so every child is started
+	;again, and takes a tile as it comes up
+	(defq keys (list) vals (list))
+	(. farm :each (# (push keys %0) (push vals %1)))
+	(each (# (. farm :restart %0 %1)) keys vals)
+	(setq jobs (list) tiles (list))
+	(start-frame))
 
 (defun gpu-tick ()
 	;the next strip of the GPU frame, if the GPU has done with the last.
 	;The strip is sized to what the GPU does in about a tick. A fast GPU
-	;takes the whole frame as one strip, every tick.
-	(unless gpu_inputs (start-frame))
+	;takes the whole frame as one strip, every tick. Till the driver has
+	;built the shader nothing is drawn, and the CPU carries on.
+	(unless gpu_inputs (setq gpu_inputs (frame-inputs (pii-time)) gpu_y 0))
 	(cond
 		((eql (defq drawn (. gpu_back :shade gpu_shader gpu_inputs 0 gpu_y +width
 				(defq y1 (min +height (+ gpu_y gpu_strip))))) :error)
-			;the driver could not build the shader, so back to the CPU
+			;the driver could not build the shader, so it is the CPU
 			(canvas-shader-destroy gpu_shader)
-			(setq gpu_shader :nil)
+			(setq gpu_shader :nil gpu_want :nil)
 			(. *mode* :set_selected 0)
-			(set-mode)
+			(if (or gpu_mode (not cpu_running)) (to-cpu))
 			(setq notice_until (+ (pii-time) +notice_time))
 			(set-label *status* "No GPU, the driver could not build the shader"))
 		(drawn
-			;the wait for the driver to build the shader says nothing of the GPU
-			(unless gpu_built (setq gpu_built :t gpu_wait 1))
+			(unless gpu_mode
+				;the shader is built, the GPU draws the frames from here on. What
+				;is left of a CPU frame is dropped, a tile that comes in late is
+				;not shown. The wait for the build says nothing of the GPU.
+				(setq gpu_mode :t cpu_running :nil jobs (list) tiles (list)
+					gpu_frames 0 gpu_time (pii-time) ticks 0 gpu_wait 1))
 			;a strip should take the GPU more than one tick and less than two,
 			;so the GPU is not left idle, and the GUI does not wait long
 			(setq gpu_strip (max 4 (min +height (case gpu_wait
@@ -177,24 +194,17 @@
 
 (defun set-mode ()
 	;the CPU or GPU button was pressed
-	(defq gpu (= (. *mode* :get_selected) 1))
 	(cond
-		((and gpu (not gpu_shader))
+		((/= (. *mode* :get_selected) 1)
+			(setq gpu_want :nil)
+			(if gpu_mode (to-cpu)))
+		((not gpu_shader)
 			(. *mode* :set_selected 0)
 			(setq notice_until (+ (pii-time) +notice_time))
 			(set-label *status* "No GPU, this host GUI driver can not draw a shader, see docs/intro/sdl3.md"))
-		((not (eql gpu gpu_mode))
-			;drop what is left of a CPU frame, a tile that comes in late is not shown
-			(setq gpu_mode gpu jobs (list) tiles (list) gpu_frames 0 gpu_time (pii-time) ticks 0
-				gpu_inputs :nil gpu_y 0 gpu_wait 0)
-			(unless gpu
-				;a child with no work for a while has gone, so back on the CPU
-				;every child is started again, and takes a tile as it comes up
-				(defq keys (list) vals (list))
-				(. farm :each (# (push keys %0) (push vals %1)))
-				(each (# (. farm :restart %0 %1)) keys vals)
-				(setq jobs (list)))
-			(start-frame))))
+		((not gpu_want)
+			;the GPU takes over when the driver has built the shader
+			(setq gpu_want :t gpu_inputs :nil gpu_y 0 gpu_wait 0))))
 
 (defun main ()
 	(setq select (task-mboxes +select_size))
@@ -204,8 +214,15 @@
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(setq farm (Farm create destroy (length (lisp-nodes)))
 		gpu_shader (shader-gui program))
-	(. *mode* :set_selected 0)
-	(start-frame)
+	;it comes up on the GPU if there is one. The CPU is not started at
+	;once, most drivers have the shader built before it would have a frame
+	(cond
+		(gpu_shader
+			(. *mode* :set_selected 1)
+			(setq gpu_want :t)
+			(set-label *status* "GPU, the driver is building the shader"))
+		(:t (. *mode* :set_selected 0)
+			(start-frame)))
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -240,20 +257,22 @@
 						(if (> (pii-time) notice_until)
 							(set-label *status* (cat "Frame "
 								(str (/ (- (pii-time) frame_time) 1000)) "ms, "
-								(str (length (lisp-nodes))) " nodes, native code, no GPU")))
+								(str (length (lisp-nodes))) " nodes, native code, "
+								(if gpu_want "while the driver builds the shader for the GPU" "no GPU"))))
 						(start-frame))))
 			(:t ;timer event, a strip of the GPU frame every tick, or all of it
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
-				(if gpu_mode (gpu-tick))
+				(if gpu_want (gpu-tick))
 				(when (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
 					(cond
 						(gpu_mode
 							(defq now (pii-time) rate (/ (* gpu_frames 10000000) (- now gpu_time)))
-							(set-label *status* (if gpu_built (cat "GPU, "
+							(set-label *status* (cat "GPU, "
 								(str (/ rate 10)) "." (str (% rate 10)) " frames a second"
-								(if (< gpu_strip +height) (cat ", in strips of " (str gpu_strip) " lines") ""))
-								"GPU, the driver is building the shader"))
+								(if (< gpu_strip +height) (cat ", in strips of " (str gpu_strip) " lines") "")))
 							(setq gpu_frames 0 gpu_time now))
+						;the shader is taking the driver a while, so the CPU starts
+						((not cpu_running) (start-frame))
 						((. farm :refresh +retry_timeout)))))))
 	;close window and children
 	(if gpu_shader (canvas-shader-destroy gpu_shader))

@@ -4,6 +4,15 @@
 
 ------
 
+The surface demo comes up on the GPU, if the driver can draw a shader. If the
+driver has not built the shader in half a second the CPU starts on the
+frames, and the GPU takes over when it is built. On the Raspberry Pi 4, with
+the driver's cache off, the CPU drew frames for 18 seconds and the GPU then
+took over. On the M4 it is on the GPU from the first tick and the CPU is
+never started.
+
+------
+
 A shader is built on a thread, and the GUI no longer stops while a driver
 builds one. On the Raspberry Pi 4 the first build of the raymarch shader
 takes 18 seconds, and the whole desktop froze for it.
