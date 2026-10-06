@@ -1,6 +1,7 @@
 (report-header "GPU: shader language, type checker")
 
 (import "lib/gpu/glsl.inc")
+(import "lib/gpu/msl.inc")
 (import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
 
@@ -293,6 +294,93 @@
 			"(return (vec4 (mix c (:bgr c) 0.5) 1.0))")))
 		(defq lines (split text sh_lf))
 		(join (slice lines (find "vec4 shader_main(vec2 frag)" lines) (find "void main()" lines)) sh_lf)))
+
+(report-header "GPU: shader language, MSL back end")
+
+(assert-eq "MSL text" (join '(
+	"#include <metal_stdlib>"
+	"using namespace metal;"
+	""
+	"template<typename T, typename U> static inline T sh_mod(T x, U y) { return x - y * floor(x / y); }"
+	""
+	"struct Inputs"
+	"{"
+	"\tfloat k_;"
+	"\tfloat pad_1;"
+	"\tfloat pad_2;"
+	"\tfloat pad_3;"
+	"\tpacked_float3 b_;"
+	"\tint n_;"
+	"\tpacked_float2 size_;"
+	"};"
+	""
+	"struct Shader"
+	"{"
+	"\tfloat k_;"
+	"\tfloat3 b_;"
+	"\tint n_;"
+	"\tfloat2 size_;"
+	"\tfloat g_;"
+	"\tfloat two_ = 2.0000;"
+	""
+	"\tfloat3 half_(float3 a_)"
+	"\t{"
+	"\t\treturn sh_mod(max(a_, float3(0.5000)), float3(two_));"
+	"\t}"
+	""
+	"\tfloat4 shader_main(float2 frag_)"
+	"\t{"
+	"\t\tfloat3 c_ = half_(b_);"
+	"\t\tfor (int i_ = 0; i_ < 4; i_++)"
+	"\t\t{"
+	"\t\t\tif ((float(i_) > g_))"
+	"\t\t\t{"
+	"\t\t\t\tbreak;"
+	"\t\t\t}"
+	"\t\t\telse"
+	"\t\t\t{"
+	"\t\t\t\tc_ = (c_ + 0.2500);"
+	"\t\t\t}"
+	"\t\t}"
+	"\t\tc_.zx = (-c_.xy);"
+	"\t\treturn float4(mix(c_, c_.zyx, float3(0.5000)), (frag_.x / size_.x));"
+	"\t}"
+	""
+	"\tvoid shader_init()"
+	"\t{"
+	"\t\tg_ = (k_ * two_);"
+	"\t}"
+	"};"
+	""
+	"struct VertexOut"
+	"{"
+	"\tfloat4 position [[position]];"
+	"\tfloat2 frag;"
+	"};"
+	""
+	"fragment float4 fragment_main(VertexOut in [[stage_in]], constant Inputs &inputs [[buffer(0)]])"
+	"{"
+	"\tShader s;"
+	"\ts.k_ = inputs.k_;"
+	"\ts.b_ = float3(inputs.b_);"
+	"\ts.n_ = inputs.n_;"
+	"\ts.size_ = float2(inputs.size_);"
+	"\ts.shader_init();"
+	"\treturn s.shader_main(in.frag);"
+	"}"
+	"") sh_lf)
+	(shader-msl (sh-src
+		"(input k :float 1.5)" "(input b :vec3)" "(input n :int 3)" "(input size :vec2)"
+		"(const two 2.0)"
+		"(global g (* k two))"
+		"(defun half :vec3 ((a :vec3)) (return (mod (max a 0.5) two)))"
+		"(defun main :vec4 ((frag :vec2))"
+		"(defq c (half b))"
+		"(for (i 0 4) (if (> (float i) g) (break) (setq c (+ c 0.25))))"
+		"(setq (:zx c) (- (:xy c)))"
+		"(return (vec4 (mix c (:bgr c) 0.5) (/ (:x frag) (:x size)))))")))
+(assert-true "MSL vertex shader" (find "vertex VertexOut vertex_main(uint vid [[vertex_id]], constant Target &target [[buffer(0)]])"
+	(split (shader-msl-vertex) sh_lf)))
 
 (report-header "GPU: shader language, the inputs block")
 

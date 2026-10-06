@@ -29,6 +29,7 @@ rewrite of every shader.
 
 * `lib/gpu/shader.inc`, the reader, the type checker, and the inputs block.
 * `lib/gpu/glsl.inc`, the GLSL text back end.
+* `lib/gpu/msl.inc`, the Metal Shading Language text back end.
 * `lib/gpu/cpu.inc`, the CPU back end, interpreted Lisp.
 * `lib/gpu/vp.inc`, the VP back end, native code.
 * `lib/gpu/shaders/raymarch.shader`, the surface raymarch demo, a port of
@@ -150,6 +151,36 @@ The text for the raymarch shader was compiled and run on the GPU of an Apple
 M4 Max, in an offscreen context, and the pixels read back as floats. That is
 how the CPU back end was checked, and six pixels of that render are in the
 test module as its reference.
+
+## The MSL Back End
+
+`(shader-msl program)` gives the text of a fragment shader in the Metal
+Shading Language, which is what the SDL3 GPU interface takes on a Mac. The
+entry point is `fragment_main`.
+
+MSL has no globals that can be set, and a function can not see the uniforms
+of the entry point. So the shader is a struct. The inputs, constants and
+globals are its members, the functions are its methods, and the entry point
+copies the inputs in, sets the globals, and calls `shader_main`.
+
+The inputs are one uniform buffer, at `[[buffer(0)]]`, a struct with packed
+vectors and pad words that put each input at its offset in the inputs block.
+So the host hands the block from `(shader-pack)` to the GPU as it is.
+
+Every name of the shader is given a trailing `_`, so that it can not be a
+word of MSL. `half` is a type there.
+
+`(shader-msl-vertex)` gives the vertex shader that goes with every fragment
+shader, one triangle that covers the target, entry point `vertex_main`. Its
+uniform is the size of the target, and it gives each pixel its frag coord
+with y going up, so a shader does not know that Metal counts y down.
+
+This was run through the SDL3 GPU interface, SDL 3.4.16 on the Metal driver
+of an Apple M4 Max, to a float texture and read back. Over the six settings
+in the table below it agrees with OpenGL and with the CPU back end as closely
+as they agree with each other. A 1024 by 768 frame, with the read back of
+every pixel, takes 1.1 to 1.3ms. The first build of the shader by Metal takes
+about 470ms, after that Metal has it cached and it takes 1ms.
 
 ## The CPU Back End
 
@@ -363,11 +394,12 @@ Demos list in `apps/system/launcher/app.lisp`, or to your own launcher config.
 
 ## What Is Not Here Yet
 
-* The host GPU interface. The choice of host library is open, OpenGL as the
-  GLSL back end stands, the SDL3 GPU interface, or WebGPU. The last two do not
-  take GLSL text, they would each need a back end of their own, SPIR-V or MSL
-  for SDL3, WGSL for WebGPU.
-* The `@Gpu` service. The plan is one service for each GPU, as there can be
-  many `@Net` services, that takes a program, an inputs block and a target,
-  and gives a texture id, or the pixels for a card that is not the display's.
+* The host GPU interface. The route is SDL3 and its GPU interface, with
+  raylib as the fall back. Graphics belongs to the GUI host, a shader draw is
+  a host GUI call into a texture on the node that has the GUI, there is no
+  service for it. On `(. canvas :swap)` a positive flag is pixmap to GPU, as
+  now, and a negative flag will be GPU back to the pixmap.
+* A SPIR-V back end, for SDL3 on Vulkan, which is Linux and the Pi.
+* The GLSL back end does not guard names against the reserved words of GLSL.
+* Compute, and rendering as a service for a node with no GPU, are deferred.
 * Vertex shaders, meshes, textures as inputs, and compute.

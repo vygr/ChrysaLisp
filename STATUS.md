@@ -4,6 +4,19 @@
 
 ------
 
+A fourth shader back end, `lib/gpu/msl.inc`, gives Metal Shading Language
+text, for the SDL3 GPU interface on a Mac. The raymarch shader was run that
+way, offscreen, SDL 3.4.16 on the Metal driver of an M4 Max, with the inputs
+block from `(shader-pack)` as the uniform, and it agrees with OpenGL and with
+the CPU back end. A 1024 by 768 frame with every pixel read back takes 1.1 to
+1.3ms. The route for the host is SDL3, with raylib as the fall back, and
+graphics belongs to the GUI host, not to a service.
+
+The launcher's default lists now have Onslaught in Games and the surface
+demo in Demos.
+
+------
+
 The first step to GPU support, a shader language of our own. New `lib/gpu/`.
 A shader is written as s-expressions, `lib/gpu/shader.inc` reads and type
 checks it, and a back end takes the typed tree. `lib/gpu/glsl.inc` gives GLSL
