@@ -4,6 +4,17 @@
 
 ------
 
+The GUI leaves the apps on its node some time between frames. It set its
+next tick, a 60th of a second on, before it drew a frame. A driver that waits
+for the display takes a frame time over that, 20ms on a 50Hz TV, so the tick
+was always due again at once, and the GUI runs above the apps on its node.
+On a Raspberry Pi 4 a window being dragged did not move till the mouse
+stopped, the app that owned it got no time to move it. The tick is now set
+when the frame is done, for what is left of the frame time, and never less
+than a 240th of a second.
+
+------
+
 SDL3 is the default. `make install`, and `make`, build the sdl3 GUI driver if
 SDL3 is on the machine, `pkg-config` knows of it or there is an `sdl3_prefix`
 file, and the SDL2 driver if it is not. `GUI=sdl` asks for SDL2 by name.

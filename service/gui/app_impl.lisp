@@ -22,7 +22,9 @@
 (setq *profile_map* (env 1) *stack_frame* (list) *debug_state* :gui)
 
 ;frame rate
-(defq +rate (/ 1000000 60))
+(defq +rate (/ 1000000 60)
+	;the least time the apps on this node are left between two GUI frames
+	+min_gap (/ 1000000 240))
 
 (defun mouse-type (view rx ry)
 	(if view
@@ -115,7 +117,7 @@
 							(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
 					(mail-send reply msg))
 				(+select_timer	;timer event
-					(mail-timeout (elem-get select +select_timer) +rate 0)
+					(defq frame_start (pii-time))
 					(gui-update *mouse_x* *mouse_y* 0)
 					;dispatch events, roll up mouse motion
 					(defq last_motion :nil)
@@ -133,7 +135,15 @@
 					(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
 							(.-> %0 :hide :sub))) (defq children (. *screen* :children)))
 					;quit if no apps
-					(and *quitting* (<= (length children) 1) (setq *running* :nil))))))
+					(and *quitting* (<= (length children) 1) (setq *running* :nil))
+					;the next frame is due a frame time after this one began. But
+					;an update can wait in the driver for the display, and if that
+					;takes the whole frame time the next would be due at once. The
+					;GUI runs above the apps on its node, so they would get no time
+					;at all while the screen kept changing, a window being dragged
+					;did not move till the mouse stopped. So they are left some.
+					(mail-timeout (elem-get select +select_timer)
+						(max +min_gap (- +rate (- (pii-time) frame_start))) 0)))))
 	(mail-forget service)
 	(mail-timeout (elem-get select +select_timer) 0 0)
 	(each (# (. %0 :sub)) (. *screen* :children))
