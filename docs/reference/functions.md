@@ -264,6 +264,51 @@ O(1) arithmetic calendar conversion (month 0..11, day 1..31)
 (cpu) -> sym
 ```
 
+### cpu-arith
+
+```code
+one step of + - * /, by the types of the two sides
+```
+
+### cpu-block
+
+```code
+forms for a block. With no flag it is the body of the function,
+
+and the value of the last form is the return value. With a flag
+it is the body of a loop, and the flag is set to leave the loop.
+```
+
+### cpu-exits?
+
+```code
+does this block hold a return, or a break of the loop it is in ?
+```
+
+### cpu-fold
+
+```code
+run it now if all the args are constants
+```
+
+### cpu-loop-return?
+
+```code
+does this block hold a return from inside a loop ?
+```
+
+### cpu-op
+
+```code
+a built in op
+```
+
+### cpu-pow
+
+```code
+whole part of the power by squaring, the rest by repeated roots
+```
+
 ### csr-cmp
 
 ```code
@@ -1056,6 +1101,12 @@ heard from has no system id, all zero.
 (msafe? o) -> :t | :nil
 ```
 
+### msl-name
+
+```code
+a name is given a trailing _ so it can not be a word of MSL, half say
+```
+
 ### must-break?
 
 ```code
@@ -1624,6 +1675,200 @@ scatter a list of [key]|[key val]
 adjust text offset
 ```
 
+### sh-block
+
+```code
+statements in a scope of their own
+```
+
+### sh-const-int
+
+```code
+a loop bound, an int literal or an int constant
+```
+
+### sh-decimal
+
+```code
+the Lisp reader gives a float literal as a 16.16 fixed, which is good
+
+to 4 decimal places, so that is what it is rounded to. A number that
+needs more is written as a str, and is taken as it stands.
+```
+
+### sh-float-to-real
+
+```code
+a real from the bits of a 32 bit float
+```
+
+### sh-literal
+
+```code
+default, min or max of an input
+```
+
+### sh-name
+
+```code
+a new name must be a plain symbol, and must not hide anything
+```
+
+### sh-op-type
+
+```code
+result type of a built in op, or :nil if the types are wrong
+```
+
+### sh-real-to-float
+
+```code
+the bits of a 32 bit float, from a real, a fixed or an int
+```
+
+### sh-returns?
+
+```code
+does every path through the block end at a return ?
+```
+
+### sh-swizzle
+
+```code
+component indices of a swizzle like :xyz or :rgb
+```
+
+### shader-compile
+
+```code
+(shader-compile forms) -> program
+```
+
+### shader-cpu
+
+```code
+(shader-cpu program) -> lambda
+
+(lambda x y x1 y1 input ...) -> (vec4 ...)
+the lambda shades the pixels of the tile, row by row, the
+centre of pixel x y is at frag coord x + 0.5, y + 0.5
+```
+
+### shader-cpu-args
+
+```code
+(shader-cpu-args program [((name val) ...)]) -> (val ...)
+
+the input args for the lambda, defaults for those not given
+```
+
+### shader-dim
+
+```code
+(shader-dim type) -> :nil | 2 | 3 | 4
+```
+
+### shader-glsl
+
+```code
+(shader-glsl program) -> str
+```
+
+### shader-layout
+
+```code
+(shader-layout program) -> (size (name type offset) ...)
+```
+
+### shader-load
+
+```code
+(shader-load file) -> program
+```
+
+### shader-msl
+
+```code
+(shader-msl program) -> str
+
+the entry point is fragment_main
+```
+
+### shader-msl-vertex
+
+```code
+(shader-msl-vertex) -> str
+
+the vertex shader that goes with every fragment shader, one triangle
+that covers the target. Its uniform is the size of the target, and it
+gives each pixel its frag coord, with y up. The entry point is vertex_main.
+```
+
+### shader-pack
+
+```code
+(shader-pack program [((name val) ...)]) -> block
+
+a value not given is the default of the input. A float can be a
+real, a fixed or an int, a vector is a sequence of them.
+```
+
+### shader-read
+
+```code
+(shader-read stream) -> forms
+```
+
+### shader-real
+
+```code
+(shader-real num) -> real
+
+a fixed is rounded as a float literal of the language is
+```
+
+### shader-unpack
+
+```code
+(shader-unpack program block) -> ((name val) ...)
+
+a float comes back as a real, a vector as a reals
+```
+
+### shader-vp
+
+```code
+(shader-vp program) -> (shade frame_size)
+
+the native function for a program. It is assembled if this is
+the first time this CPU has been given this program.
+```
+
+### shader-vp-argb
+
+```code
+(shader-vp-argb native frame x y x1 y1 [height]) -> str
+
+the pixels of a tile, row by row, each a 32 bit argb. If the height
+of the frame is given then row 0 is the top row, as a canvas has it.
+```
+
+### shader-vp-frame
+
+```code
+(shader-vp-frame program native [((name val) ...)]) -> frame
+
+the frame the native function works in, with the inputs set
+```
+
+### shader-vp-pixels
+
+```code
+(shader-vp-pixels native frame x y x1 y1) -> (vec4 ...)
+
+the pixels of a tile, row by row, each a reals of 4
+```
+
 ### short-to-hex-str
 
 ```code
@@ -1741,6 +1986,92 @@ accepts standard "Normal diff" format
 
 ```code
 (substr text substr) -> matches
+```
+
+### sv-arith
+
+```code
+one step of + - * /, by the types of the two sides
+```
+
+### sv-branch
+
+```code
+code to jump to the label if the bool is as sense says
+```
+
+### sv-calls?
+
+```code
+does this expression call a function of the shader ?
+```
+
+### sv-const
+
+```code
+a float constant, to a new register
+```
+
+### sv-expr
+
+```code
+code for an expression, the registers that hold the value
+```
+
+### sv-floor
+
+```code
+floor of a register, in place
+```
+
+### sv-op
+
+```code
+a built in op
+```
+
+### sv-pow
+
+```code
+x to the power y, both kept, to a new register
+```
+
+### sv-sin
+
+```code
+sin or cos of a register, which is given up, to a new register
+```
+
+### sv-slots
+
+```code
+room in the frame for a value of this type
+```
+
+### sv-source
+
+```code
+-> (text frame_size)
+
+the VP source of the native function for a program
+```
+
+### sv-spill
+
+```code
+save the live registers, all of them or those of a list
+```
+
+### sv-src
+
+```code
+a float goes with every component of a vector
+```
+
+### sv-var
+
+```code
+the frame offset of a variable, the last one of that name declared
 ```
 
 ### swap
