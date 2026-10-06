@@ -4,6 +4,15 @@
 
 ------
 
+A `shader` command. `shader file` shows the GLSL a shader compiles to,
+`-t msl`, `-t spirv`, `-t vp`, `-t cpu` and `-t tree` the other back ends
+and the checked tree, and `-o file` writes it to a file, SPIR-V as the
+binary. Darren asked how to see what a shader is compiled to. And it makes
+the language a tool on its own, a shader written here can be handed to a
+GLSL, a Metal or a Vulkan program that has nothing to do with ChrysaLisp.
+
+------
+
 The declarations of the shader language begin with `def`, `definput`,
 `defconst` and `defglobal`, where they were `input`, `const` and `global`, to
 go with `defun` and `defq`. Darren's point. The old words are an error.

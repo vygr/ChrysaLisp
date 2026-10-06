@@ -37,7 +37,9 @@ rewrite of every shader.
 * `src/host/gui_sdl3.cpp`, the SDL3 GUI driver, which can draw one.
 * `lib/gpu/shaders/raymarch.shader`, the surface raymarch demo, a port of
   https://vygr.github.io/JS-Raymarch.
-* `apps/demos/surface/`, an app that runs that shader with no GPU.
+* `apps/demos/surface/`, an app that runs that shader, on the GPU or with none.
+* `cmd/shader.lisp`, the `shader` command, a shader compiled from the command
+  line.
 * `tests/gpu/test_shader.lisp`, the tests.
 
 ## A Shader
@@ -165,6 +167,36 @@ a stream. A fault in the source is thrown as an error with the form at fault.
 The program is a list, `(inputs consts globals funcs)`, in which every
 expression carries its type. That tree is all a back end is given. The layout
 of it is in the comments at the head of `lib/gpu/shader.inc`.
+
+## The shader Command
+
+`shader` compiles a shader file and shows what it is compiled to, or writes
+it to a file. It is how to see what each back end makes of a shader, and it
+makes the language a tool for work that has nothing to do with ChrysaLisp,
+a shader written once here and handed to a GLSL, a Metal or a Vulkan
+program.
+
+```code
+shader lib/gpu/shaders/raymarch.shader
+shader -t msl lib/gpu/shaders/raymarch.shader
+shader -t spirv lib/gpu/shaders/raymarch.shader
+shader -t spirv -o raymarch.spv lib/gpu/shaders/raymarch.shader
+```
+
+The targets, `-t`, are `glsl`, the default, `msl`, `spirv`, `vp`, the VP
+assembler source of the native code back end, `cpu`, the Lisp the CPU back
+end runs, and `tree`, the checked and typed tree every back end is given.
+`-v` gives the vertex shader that goes with every fragment shader, for `msl`
+and `spirv`. `-o file` writes to a file.
+
+SPIR-V is a binary. With no `-o` it is shown as a listing, an instruction to
+a line, its name and its words. With `-o` the module itself is written, as a
+driver takes it, and `spirv-dis` will name the ids of it.
+
+A shader used outside has to be given what ChrysaLisp gives it here. Each
+back end's section says what that is, the uniforms of the GLSL, the buffer
+of the MSL and the set and binding of the SPIR-V, all laid out as the inputs
+block, and the frag coord with y going up.
 
 ## The GLSL Back End
 

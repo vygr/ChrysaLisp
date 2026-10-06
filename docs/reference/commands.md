@@ -674,6 +674,33 @@ Usage: sed [options] [path] ...
     Stream editor. Reads from stdin if no files specified.
     Writes to stdout.
 ```
+## shader
+```code
+Usage: shader [options] file
+
+    options:
+        -h --help: this help info.
+        -t --target name: what to show, default glsl.
+            glsl    GLSL text, for OpenGL and WebGL.
+            msl     Metal Shading Language text, for Apple.
+            spirv   a SPIR-V module, for Vulkan, as a listing.
+            vp      VP assembler source, the native code back end.
+            cpu     the Lisp the CPU back end runs.
+            tree    the checked, typed tree the back ends are given.
+        -v --vertex: the vertex shader that goes with every
+            fragment shader, for msl and spirv.
+        -o --out file: write it to a file. A spirv module is
+            then written as the binary a driver, or spirv-dis,
+            takes, not as a listing.
+
+    Compiles a shader in the shader language, and shows what
+    it is compiled to, or writes it to a file for use outside
+    ChrysaLisp. See docs/ai_digest/shader_language.md.
+
+    shader lib/gpu/shaders/raymarch.shader
+    shader -t msl -o raymarch.metal lib/gpu/shaders/raymarch.shader
+    shader -t spirv -o raymarch.spv lib/gpu/shaders/raymarch.shader
+```
 ## shuffle
 ```code
 Usage: shuffle [options] [line] ...
