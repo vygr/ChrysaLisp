@@ -484,6 +484,31 @@ void host_gui_clip_free(char *text)
 	SDL_free(text);
 }
 
+// this driver can not draw a shader
+
+uint64_t host_gui_shader_format()
+{
+	return 0;
+}
+
+void *host_gui_shader_create(const char *vertex, uint64_t vertex_size, const char *fragment, uint64_t fragment_size)
+{
+	return 0;
+}
+
+void host_gui_shader_destroy(void *handle)
+{
+}
+
+void *host_gui_shader_texture(uint64_t w, uint64_t h)
+{
+	return 0;
+}
+
+void host_gui_shader_draw(void *handle, void *texture, const void *block, uint64_t size)
+{
+}
+
 void (*host_gui_funcs[]) = {
 	(void*)host_gui_init,
 	(void*)host_gui_deinit,
@@ -503,6 +528,11 @@ void (*host_gui_funcs[]) = {
     (void*)host_gui_clip_put,
     (void*)host_gui_clip_get,
     (void*)host_gui_clip_free,
+	(void*)host_gui_shader_format,
+	(void*)host_gui_shader_create,
+	(void*)host_gui_shader_destroy,
+	(void*)host_gui_shader_texture,
+	(void*)host_gui_shader_draw,
 };
 
 #endif
