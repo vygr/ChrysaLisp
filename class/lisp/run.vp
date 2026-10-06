@@ -23,8 +23,8 @@
 	(call :sstream :create '(:r0) '(:r1))
 
 	;create lisp class
-	(vp-pop :r0)
-	(vp-push :r1)
+	(assign '((:rsp 0)) '(:r0))
+	(assign '(:r1) '((:rsp 0)))
 	(call :lisp :create '(:r0 :r1 :r1 :r1) '(:r0))
 	(vp-pop :r1)
 	(vpif '(:r0 = 0))
