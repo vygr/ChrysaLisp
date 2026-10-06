@@ -48,10 +48,16 @@
 		;that is only ever shown, it can not be drawn on after this.
 		((const (ffi "gui/canvas/lisp_swap")) this (const (+ +swap_flag_free +swap_flag_keep))))
 
-	(defmethod :shade (shader block)
-		; (. canvas :shade shader block) -> canvas
-		;the GPU draws the shader into the texture of the canvas
-		(. ((const (ffi "gui/canvas/lisp_shade")) this shader block) :dirty))
+	(defmethod :shade (shader block &optional x y x1 y1)
+		; (. canvas :shade shader block [x y x1 y1]) -> :nil | canvas
+		;the GPU draws the shader into the texture of the canvas, all of
+		;it, or the part given, in pixels of the texture. One draw is on
+		;the go at a time, :nil is the GPU still busy with the last, it
+		;has drawn nothing, try again. A frame a slow GPU takes long over
+		;is best drawn as strips, so the GUI can be drawn in between.
+		(setd x 0 y 0 x1 0 y1 0)
+		(if ((const (ffi "gui/canvas/lisp_shade")) this shader block x y x1 y1)
+			(. this :dirty)))
 
 	(defmethod :next_frame ()
 		; (. canvas :next_frame) -> canvas

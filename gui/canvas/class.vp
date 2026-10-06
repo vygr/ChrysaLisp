@@ -292,27 +292,35 @@
 	;:r0 = canvas object (ptr)
 	;:r1 = shader handle (long)
 	;:r2 = inputs block str object (ptr)
+	;:r3 = x (pixels)
+	;:r4 = y (pixels)
+	;:r5 = x1 (pixels)
+	;:r6 = y1 (pixels)
 	;outputs
 	;:r0 = canvas object (ptr)
+	;:r1 = 0 if not drawn, the GPU is busy with the last
 	;trashes
 	;:r1-:r14, :f0-:f15
 	;info
 	;the GPU draws the shader into the texture of the canvas, the
-	;pixmap is not used, and is not changed
+	;pixmap is not used, and is not changed. The part of the texture
+	;given is drawn, all of it if x1 is not greater than x.
 
 	(structure local 0
 		(ptr this block)
-		(long shader))
+		(long shader x y x1 y1 result))
 
 	(def-vars
 		(struct frame local_size))
 
 	(push-scope)
-	(entry :canvas :shade {frame.local_this, frame.local_shader, frame.local_block})
+	(entry :canvas :shade {frame.local_this, frame.local_shader, frame.local_block,
+		frame.local_x, frame.local_y, frame.local_x1, frame.local_y1})
 
+	(assign {0} {frame.local_result})
 	(call :sys_task :callback {&frame, $callback})
 
-	(exit :canvas :shade {frame.local_this})
+	(exit :canvas :shade {frame.local_this, frame.local_result})
 	(pop-scope)
 	(return)
 
@@ -323,7 +331,8 @@
 	(def-vars
 		(ptr user this old_stack pixmap texture block)
 		(long tex_id)
-		(uint w h))
+		(uint w h)
+		(struct rect host_gui_rect_size))
 
 	(vp-cpy-rr :rsp :r1)
 	(push-scope)
@@ -351,8 +360,16 @@
 	(endif)
 	(vpif {this->+canvas_flags & +canvas_flag_shader})
 		(assign {user->local_block, this->+canvas_texture} {block, texture})
-		(host-gui-call :host_gui :shader_draw {user->local_shader, texture->+texture_handle,
-			&block->+str_data, block->+str_length})
+		(vpif {user->local_x1 > user->local_x})
+			(assign {user->local_x, user->local_y,
+				user->local_x1 - user->local_x, user->local_y1 - user->local_y}
+				{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h})
+			(host-gui-call :host_gui :shader_draw {user->local_shader, texture->+texture_handle,
+				&block->+str_data, block->+str_length, &rect} {user->local_result})
+		(else)
+			(host-gui-call :host_gui :shader_draw {user->local_shader, texture->+texture_handle,
+				&block->+str_data, block->+str_length, 0} {user->local_result})
+		(endif)
 	(endif)
 
 	(assign {old_stack} '(:rsp))

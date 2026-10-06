@@ -100,9 +100,13 @@ that is only ever shown, it can not be drawn on after this.
 ### :shade
 
 ```code
-(. canvas :shade shader block) -> canvas
+(. canvas :shade shader block [x y x1 y1]) -> :nil | canvas
 
-the GPU draws the shader into the texture of the canvas
+the GPU draws the shader into the texture of the canvas, all of
+it, or the part given, in pixels of the texture. One draw is on
+the go at a time, :nil is the GPU still busy with the last, it
+has drawn nothing, try again. A frame a slow GPU takes long over
+is best drawn as strips, so the GUI can be drawn in between.
 ```
 
 ### :swap

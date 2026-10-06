@@ -78,10 +78,23 @@ the host.
       Linux Framebuffer access, along with direct `/dev/tty` for keyboard and
       `/dev/input/mice` for mouse.
 
-    * `_HOST_GUI = 2` (`GUI=raw`): Uses `src/host/gui_raw.cpp`. This is a
-      minimal, raw pixel buffer implementation, likely for testing or
-      environments without SDL/framebuffer, where an external mechanism might
-      display the buffer.
+    * `_HOST_GUI = 2` (`GUI=raw`): Uses `src/host/gui_raw.cpp`. The drawing is
+      done by the driver itself into a pixel buffer, and SDL2 is used only for
+      the window, the events, and to show the buffer.
+
+    * `_HOST_GUI = 3` (`GUI=sdl3`): Uses `src/host/gui_sdl3.cpp`. The GUI on
+      SDL3, with SDL's GPU renderer for the 2D drawing. It is the one driver
+      that can draw a shader on the GPU, see the shader calls below. It needs
+      SDL 3.4 or later, and runs on a desktop or, with no desktop, on the bare
+      display of a Linux machine.
+
+    * `_HOST_GUI = 4` (`GUI=raw3`): The raw driver, `src/host/gui_raw.cpp`,
+      with SDL3 for the window and events in place of SDL2.
+
+    * SDL2 and SDL3 give their calls the same names, so one program can not
+      link both. `GUI=sdl` and `GUI=raw` are SDL2 programs, `GUI=sdl3` and
+      `GUI=raw3` are SDL3 programs, each with the audio driver that goes with
+      it.
 
     * Common functions provided by these drivers (interfacing with
       `service/gui/composite.vp` and `gui/ctx/*`):
@@ -128,17 +141,52 @@ the host.
           record every driver fills, see `src/host/gui_event.h` and
           `sys/pii/lisp.inc`.
 
+        * `host_gui_clip_put`, `host_gui_clip_get`, `host_gui_clip_free`: Put
+          text on the host clipboard, get the text that is on it, and free
+          what a get returned.
+
+    * The shader calls, at the end of the table. A driver that can not draw
+      a shader has them all the same, and answers format 0. Only the sdl3
+      driver can. See `docs/ai_digest/shader_language.md`.
+
+        * `host_gui_shader_format`: The shading language the driver takes, 0
+          none, 1 Metal Shading Language text, 2 a SPIR-V module.
+
+        * `host_gui_shader_create`: A shader from a vertex and a fragment
+          shader in that language, each given as bytes and a length. Returns
+          a handle, or 0. The entry points are `vertex_main` and
+          `fragment_main`.
+
+        * `host_gui_shader_destroy`: Free a shader.
+
+        * `host_gui_shader_texture`: A texture of a width and height that a
+          shader can draw into, and that `host_gui_blit` can then draw.
+
+        * `host_gui_shader_draw`: Draw a shader into such a texture, with a
+          block of bytes as its inputs, and a `host_gui_rect`, the part of
+          the texture to draw, or 0 for all of it. Returns 1 if it drew. One
+          draw is on the go at a time, while the GPU has not finished the
+          last this draws nothing and returns 0, and the caller tries again
+          later. That is so a GPU that takes long over a frame can be given
+          it a strip at a time, with the GUI drawn in between.
+
+        * `host_gui_read_texture`: Read a texture back as 32 bit ARGB pixels,
+          premultiplied, into memory of the width, height and stride given.
+          Returns 1 if it could.
+
 3. **`host_audio_funcs` (Audio Layer):**
 
-    * The implementation is chosen by `_HOST_AUDIO`. Currently, `_HOST_AUDIO =
-      0` uses `src/host/audio_sdl.cpp`.
-
-    * Relies on SDL2_mixer library.
+    * The implementation is chosen by `_HOST_AUDIO`, which follows the GUI
+      driver. `_HOST_AUDIO = 0` uses `src/host/audio_sdl.cpp`, on SDL2 and
+      the SDL2_mixer library. `_HOST_AUDIO = 1` uses
+      `src/host/audio_sdl3.cpp`, on SDL3 alone, SDL gives it the device and
+      reads a wav file, and the mixing is done in the driver, 32 voices, with
+      a limiter, so there is no mixer library to depend on.
 
     * Functions include:
 
         * `host_audio_init`: Initializes the audio system
-          (SDL_Init(SDL_INIT_AUDIO), Mix_OpenAudio).
+          and opens the device.
 
         * `host_audio_deinit`: Shuts down the audio system.
 
@@ -438,13 +486,19 @@ processes.
     * `OS`, `CPU`, `ABI`: Determined by `uname` (or hardcoded for Windows in
       scripts).
 
-    * `GUI`: Can be set externally (e.g., `make GUI=fb`). Defaults likely to
-      SDL.
+    * `GUI`: Set externally, `make GUI=sdl3` say. One of `sdl`, the
+      default, `fb`, `raw`, `sdl3` and `raw3`.
 
-    * `HOST_GUI`: Preprocessor define set based on `$(GUI)` (0 for SDL, 1 for
-      FB, 2 for Raw).
+    * `HOST_GUI`: Preprocessor define set from `$(GUI)`, 0 for `sdl`, 1 for
+      `fb`, 2 for `raw`, 3 for `sdl3`, 4 for `raw3`.
 
-    * `HOST_AUDIO`: Preprocessor define (currently fixed at 0 for SDL_mixer).
+    * `HOST_AUDIO`: Preprocessor define, 0 for the SDL2_mixer driver, 1 for
+      the SDL3 driver. It follows the GUI driver, and there is none with
+      `GUI=fb`.
+
+    * `SDL3_PREFIX`: The folder SDL3 is installed in, for a machine where
+      `pkg-config` does not know of it, one built from source say. It is
+      kept in the file `sdl3_prefix`, so it need be given only once.
 
 * **Targets:**
 
@@ -476,9 +530,13 @@ processes.
       object files (in `$(OBJ_DIR_GUI)`) and TUI-specific object files (in
       `$(OBJ_DIR_TUI)`).
 
-    * GUI builds conditionally include SDL cflags (`sdl2-config --cflags`)
-      and link against SDL and SDL_mixer libs (`sdl2-config --libs
-      -lSDL2_mixer`), unless `GUI=fb` is specified.
+    * Each GUI driver has an object folder of its own, so a change of `GUI=`
+      builds that driver and links `main_gui` again, and a change back does
+      not build it all a second time.
+
+    * SDL2 builds take their flags from `sdl2-config`, and link SDL2 and
+      SDL2_mixer. SDL3 builds take theirs from `pkg-config sdl3`, or from
+      `SDL3_PREFIX`. `GUI=fb` links no SDL.
 
     * The `_HOST_GUI` and `_HOST_AUDIO` defines are passed to the compiler
       to select the correct host driver code.

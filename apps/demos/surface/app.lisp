@@ -22,6 +22,9 @@
 	;the shader on the GPU, if the host GUI driver can draw one, and
 	;the frames it has drawn since the status line was last set
 	gpu_shader :nil gpu_mode :nil gpu_frames 0 gpu_time 0
+	;a GPU frame is drawn as strips, each of so many lines, so that a GPU
+	;that is slow at it leaves room for the GUI to be drawn in between
+	gpu_inputs :nil gpu_y 0 gpu_strip +height gpu_wait 0
 	;a notice on the status line stays for a while
 	+notice_time 4000000 notice_until 0)
 
@@ -120,9 +123,8 @@
 	(defq inputs (shader-pack program vals))
 	(cond
 		(gpu_mode
-			;the GPU draws the frame into the texture of the canvas
-			(. *canvas* :shade gpu_shader inputs)
-			(++ gpu_frames))
+			;the GPU draws the frame into the texture of the canvas, see gpu-tick
+			(setq gpu_inputs inputs gpu_y 0))
 		(:t ;the nodes shade it, a tile each, as native code
 			(setq tiles (range 0 +height +line_batch)
 				jobs (map (lambda (y)
@@ -137,6 +139,27 @@
 				(if (and (get :child val) (not (get :job val)))
 					(dispatch-job key val)))))))
 
+(defun gpu-tick ()
+	;the next strip of the GPU frame, if the GPU has done with the last.
+	;The strip is sized to what the GPU does in about a tick. A fast GPU
+	;takes the whole frame as one strip, every tick.
+	(unless gpu_inputs (start-frame))
+	(cond
+		((. *canvas* :shade gpu_shader gpu_inputs 0 gpu_y +width
+				(defq y1 (min +height (+ gpu_y gpu_strip))))
+			;a strip should take the GPU more than one tick and less than two,
+			;so the GPU is not left idle, and the GUI does not wait long
+			(setq gpu_strip (max 4 (min +height (case gpu_wait
+				(0 (inc (/ (* gpu_strip 5) 4)))
+				(1 gpu_strip)
+				(2 (/ (* gpu_strip 4) 5))
+				(:t (/ (* gpu_strip 2) (inc gpu_wait)))))))
+			(setq gpu_wait 0 gpu_y y1)
+			(when (>= gpu_y +height)
+				(++ gpu_frames)
+				(setq gpu_inputs :nil)))
+		(:t (++ gpu_wait))))
+
 (defun set-mode ()
 	;the CPU or GPU button was pressed
 	(defq gpu (= (. *mode* :get_selected) 1))
@@ -147,7 +170,8 @@
 			(set-label *status* "No GPU, this host GUI driver can not draw a shader, see make gui GUI=sdl3"))
 		((not (eql gpu gpu_mode))
 			;drop what is left of a CPU frame, a tile that comes in late is not shown
-			(setq gpu_mode gpu jobs (list) tiles (list) gpu_frames 0 gpu_time (pii-time) ticks 0)
+			(setq gpu_mode gpu jobs (list) tiles (list) gpu_frames 0 gpu_time (pii-time) ticks 0
+				gpu_inputs :nil gpu_y 0 gpu_wait 0)
 			(unless gpu
 				;a child with no work for a while has gone, so back on the CPU
 				;every child is started again, and takes a tile as it comes up
@@ -203,15 +227,16 @@
 								(str (/ (- (pii-time) frame_time) 1000)) "ms, "
 								(str (length (lisp-nodes))) " nodes, native code, no GPU")))
 						(start-frame))))
-			(:t ;timer event, a GPU frame every tick
+			(:t ;timer event, a strip of the GPU frame every tick, or all of it
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
-				(if gpu_mode (start-frame))
+				(if gpu_mode (gpu-tick))
 				(when (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
 					(cond
 						(gpu_mode
 							(defq now (pii-time))
 							(set-label *status* (cat "GPU, "
-								(str (/ (* gpu_frames 1000000) (- now gpu_time))) " frames a second"))
+								(str (/ (* gpu_frames 1000000) (- now gpu_time))) " frames a second"
+								(if (< gpu_strip +height) (cat ", in strips of " (str gpu_strip) " lines") "")))
 							(setq gpu_frames 0 gpu_time now))
 						((. farm :refresh +retry_timeout)))))))
 	;close window and children

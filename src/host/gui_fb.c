@@ -821,8 +821,9 @@ void *host_gui_shader_texture(uint64_t w, uint64_t h)
 	return 0;
 }
 
-void host_gui_shader_draw(void *handle, void *texture, const void *block, uint64_t size)
+uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, uint64_t size, const host_gui_rect *rect)
 {
+	return 0;
 }
 
 // copy a texture into a buffer, 32 bit premultiplied argb. A glyph texture

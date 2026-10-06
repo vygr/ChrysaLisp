@@ -27,7 +27,7 @@
 	(dec-method :shader_create :nil :virtual (abi-args 4) (:r0))
 	(dec-method :shader_destroy :nil :virtual (abi-args 1) (:r0))
 	(dec-method :shader_texture :nil :virtual (abi-args 2) (:r0))
-	(dec-method :shader_draw :nil :virtual (abi-args 4) (:r0))
+	(dec-method :shader_draw :nil :virtual (abi-args 5) (:r0))
 	(dec-method :read_texture :nil :virtual (abi-args 5) (:r0))
 	(dec-method :update service/gui/update :static (:r0 :r1 :r2))
 	(dec-method :composite service/gui/composite :static (:r0) (:r7 :r8 :r9 :r10))

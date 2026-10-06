@@ -176,15 +176,20 @@
 
 	(entry :canvas :lisp_shade '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(errorif-lisp-args-sig 'error :r1 7)
 
 	(vp-push :r0)
 	(defq in (method-input :canvas :shade))
-	(list-bind-args :r1 in '(:canvas :num :obj))
+	(list-bind-args :r1 in '(:canvas :num :obj :num :num :num :num))
 
-	(shader-on-gui-node)
-	(vpif '(:r3 /= 0))
-		(call :canvas :shade in '(:r0))
+	;is there a host GUI driver on this node ?
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_host_gui_funcs)) '(:r7))
+	(vp-xor-rr :r8 :r8)
+	(vpif '(:r7 /= 0))
+		(call :canvas :shade in '(:r0 :r8))
+	(endif)
+	(vpif '(:r8 /= 0))
 		(call :obj :ref '(:r0) '(:r1))
 	(else)
 		(assign '((:rsp 0)) '(:r1))
@@ -199,8 +204,8 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(canvas-shade canvas shader block)" +error_msg_wrong_types))
-	(signature '(:CANVAS :NUM :STR)))
+	(jump :lisp :repl_error '(:r1 "(canvas-shade canvas shader block x y x1 y1)" +error_msg_wrong_types))
+	(signature '(:CANVAS :NUM :STR :NUM :NUM :NUM :NUM)))
 
 (def-func-end)
 

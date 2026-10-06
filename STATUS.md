@@ -4,6 +4,29 @@
 
 ------
 
+A shader can be drawn into part of a canvas, `(. canvas :shade shader block
+x y x1 y1)`, and `:shade` now says if it drew. One shader draw is on the go
+at a time, `:nil` is the GPU still busy with the last.
+
+It came from the Raspberry Pi. Its GPU takes 400ms over a frame of the
+raymarch shader, the GUI is drawn by the same GPU, and a draw can not be
+stopped part way, so with the surface demo in GPU mode the mouse pointer
+moved about twice a second. The demo now draws its GPU frame as strips, one
+on each tick the GPU is free, sized to take the GPU between one and two
+ticks. On the Pi, with the pointer moving, the screen is drawn 50 times a
+second again, and the raymarch runs at about 1.5 frames a second where it
+ran at 2.4. On a Mac the strip is the whole frame, as before.
+
+The host call `shader_draw` has a fifth argument, the rectangle, and returns
+if it drew, in all four drivers. `docs/ai_digest/host_interface.md` has the
+shader calls, the clipboard calls, the five `GUI=` drivers and the two audio
+drivers in it, it had none of them.
+
+The sdl3 driver no longer offers SDL the Direct3D shader format, there is no
+back end for it, so that on Windows SDL would take Vulkan.
+
+------
+
 The GUI runs on a Raspberry Pi 4 on the sdl3 driver, with no desktop under
 it, and a shader is drawn by the Pi's GPU into a canvas. The Pi has
 Raspberry Pi OS Lite, SDL is on the bare display, and a TV on the HDMI port.

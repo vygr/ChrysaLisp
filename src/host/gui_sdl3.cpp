@@ -62,6 +62,7 @@ static SDL_Window *window = nullptr;
 static SDL_Renderer *renderer = nullptr;
 static SDL_Texture *backbuffer = nullptr;
 static SDL_GPUDevice *device = nullptr;
+static SDL_GPUFence *shader_fence = nullptr;
 
 static SDL_BlendMode premul_blend_mode()
 {
@@ -87,7 +88,6 @@ static SDL_GPUDevice *create_device()
 	auto props = SDL_CreateProperties();
 	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN, true);
 	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_MSL_BOOLEAN, true);
-	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_DXIL_BOOLEAN, true);
 	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_CLIP_DISTANCE_BOOLEAN, false);
 	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_DEPTH_CLAMPING_BOOLEAN, false);
 	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_INDIRECT_DRAW_FIRST_INSTANCE_BOOLEAN, false);
@@ -155,6 +155,8 @@ void host_gui_deinit()
 	}
 	if (device)
 	{
+		if (shader_fence) SDL_ReleaseGPUFence(device, shader_fence);
+		shader_fence = nullptr;
 		SDL_DestroyGPUDevice(device);
 		device = nullptr;
 	}
@@ -355,31 +357,53 @@ void *host_gui_shader_texture(uint64_t w, uint64_t h)
 
 // draw the shader over the whole of the texture, the block is its inputs
 
-void host_gui_shader_draw(void *handle, void *texture, const void *block, uint64_t size)
+// a shader is drawn into a texture, all of it, or the part given. A draw
+// that takes the GPU a long time holds up the drawing of the GUI behind it,
+// so there is only ever one on the go. While the last has not finished this
+// draws nothing and returns 0, and the caller tries again later. A caller
+// with a slow GPU draws a frame as strips, each small enough to be done in
+// a tick, and the GUI is drawn in between them.
+
+
+uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, uint64_t size, const host_gui_rect *rect)
 {
 	auto shader = (Shader*)handle;
-	if (!device || !shader || !texture) return;
+	if (!device || !shader || !texture) return 0;
+	if (shader_fence)
+	{
+		if (!SDL_QueryGPUFence(device, shader_fence)) return 0;
+		SDL_ReleaseGPUFence(device, shader_fence);
+		shader_fence = nullptr;
+	}
 	auto t = ((Texture*)texture)->texture;
 	auto target = (SDL_GPUTexture*)SDL_GetPointerProperty(SDL_GetTextureProperties(t),
 		SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr);
-	if (!target) return;
+	if (!target) return 0;
 	float w, h;
 	SDL_GetTextureSize(t, &w, &h);
 	float target_size[4] = {w, h, 0.0f, 0.0f};
 	// what the renderer has drawn so far goes first
 	SDL_FlushRenderer(renderer);
 	auto cmd = SDL_AcquireGPUCommandBuffer(device);
+	if (!cmd) return 0;
 	SDL_PushGPUVertexUniformData(cmd, 0, target_size, sizeof(target_size));
 	SDL_PushGPUFragmentUniformData(cmd, 0, block, (Uint32)size);
 	SDL_GPUColorTargetInfo info = {};
 	info.texture = target;
-	info.load_op = SDL_GPU_LOADOP_DONT_CARE;
+	// a part leaves the rest of the texture as it was
+	info.load_op = rect ? SDL_GPU_LOADOP_LOAD : SDL_GPU_LOADOP_DONT_CARE;
 	info.store_op = SDL_GPU_STOREOP_STORE;
 	auto pass = SDL_BeginGPURenderPass(cmd, &info, 1, nullptr);
 	SDL_BindGPUGraphicsPipeline(pass, shader->pipeline);
+	if (rect)
+	{
+		SDL_Rect scissor = {rect->x, rect->y, rect->w, rect->h};
+		SDL_SetGPUScissor(pass, &scissor);
+	}
 	SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
 	SDL_EndGPURenderPass(pass);
-	SDL_SubmitGPUCommandBuffer(cmd);
+	shader_fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+	return 1;
 }
 
 // copy a texture into a buffer, 32 bit premultiplied argb, as it was uploaded

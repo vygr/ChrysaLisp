@@ -241,7 +241,8 @@ own device, without the features it does not use.
 With a TV on the Pi the GUI was then run on the sdl3 driver, and the shader
 drawn into a canvas and read back, `(. canvas :swap +swap_read)`. The ten
 pixels looked at are the same bytes the M4 gives. The surface demo in GPU
-mode runs at 2 frames a second, 640 by 480, which fits the 394ms above.
+mode ran at 2 frames a second, 640 by 480, which fits the 394ms above,
+and that was with nothing else able to draw, see the next section.
 
 ## On The GPU, In The GUI
 
@@ -259,11 +260,30 @@ message. The texture is then composited like any other.
 ```
 
 `(shader-gui program)` asks the host GUI driver which shading language it
-takes, gives it the shader from that back end, MSL text or a SPIR-V module, and returns the shader, or `:nil`
-if this driver can not draw one. `(. canvas :shade shader block)` draws it over
-the whole canvas with that inputs block. The pixmap of the canvas is not used
-and not changed. A later `(. canvas :swap)` puts the pixmap back on show, so
-an app can go from one to the other frame by frame.
+takes, gives it the shader from that back end, MSL text or a SPIR-V module,
+and returns the shader, or `:nil` if this driver can not draw one.
+`(. canvas :shade shader block)` draws it over the whole canvas with that
+inputs block. The pixmap of the canvas is not used and not changed. A later
+`(. canvas :swap)` puts the pixmap back on show, so an app can go from one to
+the other frame by frame.
+
+One shader draw is on the go at a time. `:shade` returns the canvas if it
+drew, and `:nil` if the GPU has not finished the last one, in which case it
+drew nothing, and the app tries again on its next tick. On a fast GPU it
+never matters. On a slow one it is what keeps the desktop alive. The GUI is
+drawn by the same GPU, a GPU can not be stopped part way through a draw, and
+a Raspberry Pi 4 takes 400ms over a frame of the raymarch shader, so with a
+frame asked for on every tick the mouse pointer moved twice a second.
+
+So a part of the canvas can be drawn, `(. canvas :shade shader block x y x1
+y1)`, in pixels of the texture, and the rest is left as it was. The surface
+demo draws its GPU frame as strips, one on each tick the GPU is free, and
+sizes the strip by how many ticks the last one took, to take the GPU more
+than one tick and less than two. On the Pi that settles at 15 to 40 lines.
+With the pointer moving the screen is then drawn 50 times a second, every
+20ms, the rate of the TV, and the raymarch runs at about 1.5 frames a second
+where it ran at 2.4 with the desktop frozen. On a Mac the strip is the whole
+frame and nothing has changed.
 
 To get at the pixels the GPU drew, swap the other way, `(. canvas :swap
 +swap_read)`. A swap with a negative number reads the texture back into the
@@ -272,8 +292,9 @@ of the native code for it, on every pixel of a 64 by 48 frame.
 
 Under that are three functions, `(canvas-shader-format)`,
 `(canvas-shader-create vertex fragment)` and `(canvas-shader-destroy shader)`,
-and five calls at the end of the host GUI table, `shader_format`,
-`shader_create`, `shader_destroy`, `shader_texture` and `shader_draw`. Every
+and six calls at the end of the host GUI table, `shader_format`,
+`shader_create`, `shader_destroy`, `shader_texture`, `shader_draw` and
+`read_texture`, see `docs/ai_digest/host_interface.md`. Every
 driver has them, the SDL2, raw and frame buffer drivers answer that they can
 not, format 0.
 
