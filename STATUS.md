@@ -4,6 +4,14 @@
 
 ------
 
+The sdl3 GUI driver has sound. New AUDIO driver, `src/host/audio_sdl3.cpp`,
+built with `make gui GUI=sdl3`. SDL3 opens the device and reads a wav file,
+the driver does the mixing itself, 32 voices each with its pan, so there is
+no SDL_mixer to install. Pause, resume and stop now act on every voice that
+is playing the sound.
+
+------
+
 A shader on the GPU, in the GUI. New GUI driver, `src/host/gui_sdl3.cpp`,
 `make gui GUI=sdl3`, the GUI on SDL3 with its GPU renderer. The host GUI table
 has five new calls to draw a shader into a texture, and every driver has them,
@@ -17,8 +25,8 @@ back end the driver takes. The surface demo has a CPU and a GPU button. On an
 M4 Max the GPU side runs at the 60 frames a second of its timer, the CPU side
 on 16 nodes at 10.
 
-The sdl3 driver has no sound yet, SDL2 and SDL3 can not be linked into one
-program and the AUDIO driver is SDL2. Each GUI driver now has its own object
+SDL2 and SDL3 can not be linked into one program, their calls have the same
+names. Each GUI driver now has its own object
 folder, so `make gui GUI=...` is a build of that driver, not a mix.
 
 ------

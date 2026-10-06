@@ -50,7 +50,7 @@ OBJ_DIRS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_GUI)/%,$(SRC_DIRS))
 OBJ_DIRS += $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_TUI)/%,$(SRC_DIRS))
 
 SRC_FILES_CORE := src/host/main.cpp src/host/vp64.cpp src/host/net.cpp src/host/pii_linux.cpp src/host/pii_windows.cpp src/host/pii_darwin.cpp
-SRC_FILES_DRIVERS := src/host/audio_sdl.cpp src/host/gui_sdl.cpp src/host/gui_sdl3.cpp src/host/gui_raw.cpp src/host/gui_fb.c
+SRC_FILES_DRIVERS := src/host/audio_sdl.cpp src/host/audio_sdl3.cpp src/host/gui_sdl.cpp src/host/gui_sdl3.cpp src/host/gui_raw.cpp src/host/gui_fb.c
 
 OBJ_FILES_CORE_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_CORE))
 OBJ_FILES_DRIVERS_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_DRIVERS))
@@ -83,12 +83,13 @@ else
 endif
 
 #SDL2 and SDL3 share the names of their calls, so one program can not
-#link both. The AUDIO driver is SDL2, so the sdl3 GUI driver has no AUDIO.
+#link both. The sdl3 GUI driver goes with the sdl3 AUDIO driver, which
+#does its own mixing, there is no mixer library.
 ifeq ($(HOST_GUI),3)
-	HOST_AUDIO := -1
+	HOST_AUDIO := 1
 	SDL_CFLAGS := $(shell pkg-config --cflags sdl3)
 	SDL_LIBS := $(shell pkg-config --libs sdl3)
-	AUDIO_FLAGS := -Dhost_audio_funcs=nullptr
+	AUDIO_FLAGS := -D_HOST_AUDIO=$(HOST_AUDIO)
 endif
 
 all:		hostenv tui gui
@@ -111,6 +112,9 @@ ifeq ($(HOST_GUI),3)
 endif
 ifeq ($(HOST_AUDIO),0)
 	@echo Building sdl AUDIO driver.
+endif
+ifeq ($(HOST_AUDIO),1)
+	@echo Building sdl3 AUDIO driver.
 endif
 ifneq ($(OS),Windows)
 	@echo $(CPU) > cpu
