@@ -17,7 +17,7 @@
 	jobs (list) tiles (list) farm :nil select :nil id :t
 	start_time (pii-time) frame_time 0)
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Surface" (0xea19) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_body_font*)
 		(ui-grid *names* (:grid_width 1))
