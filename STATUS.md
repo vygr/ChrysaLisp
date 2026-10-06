@@ -4,6 +4,15 @@
 
 ------
 
+The mixer of the sdl3 AUDIO driver has a limiter. It used to clamp the mix at
+full scale, so a loud moment was clipped. Now the gain of the whole mix is
+brought down at once to hold it at full scale, and let back up over a quarter
+of a second. One sound is not touched. With 8 of the same sound at once, half
+the samples were clipped, 15,641 of 31,752, and now 248 touch full scale and
+none is flattened.
+
+------
+
 `docs/ai_digest/evidence_not_faith.md` has new figures, measured on 2026-10-06
 on three machines, each with one node for each processor. `make test`, mean,
 is 0.053 seconds on 16 nodes of an M4 Max, it was 0.070 on 20, 0.17 on the 12

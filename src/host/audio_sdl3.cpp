@@ -39,13 +39,19 @@ static Voice voices[MAX_VOICES];
 static uint64_t playCount = 0;
 static SDL_AudioStream *stream = nullptr;
 
+// the limiter. When the mix would go over full scale the gain of the
+// whole mix is brought down at once to hold it there, and is then let
+// back up slowly, so a loud moment is turned down, not clipped.
+#define LIMIT_RELEASE (1.0f / (0.25f * MIX_RATE))
+static float limiter_gain = 1.0f;
+
 static void logAudioError(const char *msg)
 {
 	fprintf(stderr, "%s error: %s\n", msg, SDL_GetError());
 }
 
 // SDL asks for more, on its audio thread, with the stream locked.
-// Each voice is added to the mix, and the mix is clamped.
+// Each voice is added to the mix, and the mix is limited.
 
 static void SDLCALL mix_callback(void *userdata, SDL_AudioStream *s, int additional_amount, int total_amount)
 {
@@ -70,10 +76,16 @@ static void SDLCALL mix_callback(void *userdata, SDL_AudioStream *s, int additio
 			voice->position += count;
 			if (voice->position >= voice->sfx->frames) voice->sfx = nullptr;
 		}
-		for (int i = 0; i < n * MIX_CHANNELS; ++i)
+		for (int i = 0; i < n; ++i)
 		{
-			if (mix[i] > 1.0f) mix[i] = 1.0f;
-			else if (mix[i] < -1.0f) mix[i] = -1.0f;
+			float l = mix[i * 2], r = mix[i * 2 + 1];
+			float peak = l < 0.0f ? -l : l;
+			float peak_r = r < 0.0f ? -r : r;
+			if (peak_r > peak) peak = peak_r;
+			if (peak * limiter_gain > 1.0f) limiter_gain = 1.0f / peak;
+			else limiter_gain += (1.0f - limiter_gain) * LIMIT_RELEASE;
+			mix[i * 2] = l * limiter_gain;
+			mix[i * 2 + 1] = r * limiter_gain;
 		}
 		SDL_PutAudioStreamData(s, mix, (int)(sizeof(float) * MIX_CHANNELS * n));
 		frames -= n;
@@ -100,6 +112,7 @@ int host_audio_init()
 	memset(voices, 0, sizeof(voices));
 	sfxCount = 0;
 	nextHandle = 0x1000;
+	limiter_gain = 1.0f;
 	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, mix_callback, nullptr);
 	if (!stream)
 	{
