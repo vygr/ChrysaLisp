@@ -10,7 +10,7 @@
 		:font *env_warning_font*
 		:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))
 	(ui-label _ (:text "Do you wish to exit?" :color +argb_white))
-	(ui-grid _ (:grid_height 1)
+	(ui-grid _ (:grid_width 2)
 		(ui-buttons ("Cancel" "Logout" "Quit" "Shutdown") +event_close)))
 
 (defun position-window ()
