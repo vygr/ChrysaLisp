@@ -182,6 +182,12 @@ as they agree with each other. A 1024 by 768 frame, with the read back of
 every pixel, takes 1.1 to 1.3ms. The first build of the shader by Metal takes
 about 470ms, after that Metal has it cached and it takes 1ms.
 
+The same run on a 2018 MacBook Pro, x86_64, with SDL 3.4.16 built from source,
+gives the same picture, and takes 11.4ms for the 1024 by 768 frame and read
+back. With the bump map on the two machines give quite different noise, 1,164
+of 1,728 pixels differ by more than 0.01, the hash in the shader hangs on
+how each GPU works out `sin`.
+
 ## The CPU Back End
 
 `(shader-cpu program)` gives a Lisp lambda that shades a tile.
