@@ -4,6 +4,16 @@
 
 ------
 
+All four GUI drivers now keep to one rule for color. A blit in a color tints
+a glyph texture or a greyscale texture, the single channel ones, and draws a
+normal texture as it is. The raw and frame buffer drivers always did. The SDL2
+and SDL3 drivers tinted anything, which is how a wrongly uploaded font went
+unseen. Every blit in the tree that is given a color, the text and VDU
+glyphs, the atoms of the molecule demo and the menu of Onslaught, is of a
+glyph or greyscale texture, so nothing changes on screen.
+
+------
+
 A desktop is a node, to be added and taken away, and a session lives while it
 has a way in.
 

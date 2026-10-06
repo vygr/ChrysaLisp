@@ -39,6 +39,25 @@ struct Shader
 static const SDL_PixelFormat target_pixel_format = SDL_PIXELFORMAT_ARGB8888;
 static const SDL_GPUTextureFormat target_gpu_format = SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM;
 
+// a texture, as the GUI knows it. Only a glyph or a greyscale texture is
+// drawn in a color, mode 1 or 2, a normal one is drawn as it is, the
+// same as the drivers that do their own drawing.
+
+struct Texture
+{
+	SDL_Texture *texture;
+	uint64_t mode;
+};
+
+static void *new_texture(SDL_Texture *t, uint64_t mode)
+{
+	if (!t) return nullptr;
+	auto texture = (Texture*)SDL_malloc(sizeof(Texture));
+	texture->texture = t;
+	texture->mode = mode;
+	return texture;
+}
+
 static SDL_Window *window = nullptr;
 static SDL_Renderer *renderer = nullptr;
 static SDL_Texture *backbuffer = nullptr;
@@ -119,13 +138,15 @@ void *host_gui_create_texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s
 	SDL_SetTextureBlendMode(t, premul_blend_mode());
 	SDL_SetTextureScaleMode(t, SDL_SCALEMODE_NEAREST);
 	SDL_DestroySurface(surface);
-	return t;
+	return new_texture(t, m);
 }
 
 void host_gui_destroy_texture(void *handle)
 {
-	auto t = (SDL_Texture*)handle;
-	SDL_DestroyTexture(t);
+	auto texture = (Texture*)handle;
+	if (!texture) return;
+	SDL_DestroyTexture(texture->texture);
+	SDL_free(texture);
 }
 
 void host_gui_begin_composite()
@@ -171,13 +192,13 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 void host_gui_set_texture_color(void *handle, uint8_t r, uint8_t g, uint8_t b)
 {
-	auto t = (SDL_Texture*)handle;
-	SDL_SetTextureColorMod(t, r, g, b);
+	auto texture = (Texture*)handle;
+	if (texture->mode) SDL_SetTextureColorMod(texture->texture, r, g, b);
 }
 
 void host_gui_blit(void *handle, const host_gui_rect *srect, const host_gui_rect *drect)
 {
-	auto t = (SDL_Texture*)handle;
+	auto t = ((Texture*)handle)->texture;
 	auto s = frect(srect);
 	auto d = frect(drect);
 	SDL_RenderTexture(renderer, t, &s, &d);
@@ -277,7 +298,7 @@ void *host_gui_shader_texture(uint64_t w, uint64_t h)
 	if (!t) return nullptr;
 	SDL_SetTextureBlendMode(t, premul_blend_mode());
 	SDL_SetTextureScaleMode(t, SDL_SCALEMODE_NEAREST);
-	return t;
+	return new_texture(t, 0);
 }
 
 // draw the shader over the whole of the texture, the block is its inputs
@@ -285,8 +306,8 @@ void *host_gui_shader_texture(uint64_t w, uint64_t h)
 void host_gui_shader_draw(void *handle, void *texture, const void *block, uint64_t size)
 {
 	auto shader = (Shader*)handle;
-	auto t = (SDL_Texture*)texture;
-	if (!device || !shader || !t) return;
+	if (!device || !shader || !texture) return;
+	auto t = ((Texture*)texture)->texture;
 	auto target = (SDL_GPUTexture*)SDL_GetPointerProperty(SDL_GetTextureProperties(t),
 		SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr);
 	if (!target) return;
@@ -313,8 +334,8 @@ void host_gui_shader_draw(void *handle, void *texture, const void *block, uint64
 
 uint64_t host_gui_read_texture(void *handle, uint32_t *data, uint64_t w, uint64_t h, uint64_t stride)
 {
-	auto t = (SDL_Texture*)handle;
-	if (!t || !renderer) return 0;
+	if (!handle || !renderer) return 0;
+	auto t = ((Texture*)handle)->texture;
 	// it is drawn, as it is, to a texture that can be read from
 	auto copy = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, (int)w, (int)h);
 	if (!copy) return 0;

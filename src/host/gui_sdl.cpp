@@ -24,6 +24,25 @@ static void set_macos_activation_policy(intptr_t policy)
 }
 #endif
 
+// a texture, as the GUI knows it. Only a glyph or a greyscale texture is
+// drawn in a color, mode 1 or 2, a normal one is drawn as it is, the
+// same as the drivers that do their own drawing.
+
+struct Texture
+{
+	SDL_Texture *texture;
+	uint64_t mode;
+};
+
+static void *new_texture(SDL_Texture *t, uint64_t mode)
+{
+	if (!t) return nullptr;
+	auto texture = (Texture*)SDL_malloc(sizeof(Texture));
+	texture->texture = t;
+	texture->mode = mode;
+	return texture;
+}
+
 SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
 SDL_Texture *backbuffer = nullptr;
@@ -93,13 +112,15 @@ void *host_gui_create_texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s
 		SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD);
 	SDL_SetTextureBlendMode(t, mode);
 	SDL_FreeSurface(surface);
-	return t;
+	return new_texture(t, m);
 }
 
 void host_gui_destroy_texture(void *handle)
 {
-	auto t = (SDL_Texture*)handle;
-	SDL_DestroyTexture(t);
+	auto texture = (Texture*)handle;
+	if (!texture) return;
+	SDL_DestroyTexture(texture->texture);
+	SDL_free(texture);
 }
 
 void host_gui_begin_composite()
@@ -137,13 +158,13 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 void host_gui_set_texture_color(void *handle, uint8_t r, uint8_t g, uint8_t b)
 {
-	auto t = (SDL_Texture*)handle;
-	SDL_SetTextureColorMod(t, r, g, b);
+	auto texture = (Texture*)handle;
+	if (texture->mode) SDL_SetTextureColorMod(texture->texture, r, g, b);
 }
 
 void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
 {
-	auto t = (SDL_Texture*)handle;
+	auto t = ((Texture*)handle)->texture;
 	SDL_RenderCopy(renderer, t, srect, drect);
 }
 
@@ -205,8 +226,8 @@ void host_gui_shader_draw(void *handle, void *texture, const void *block, uint64
 
 uint64_t host_gui_read_texture(void *handle, uint32_t *data, uint64_t w, uint64_t h, uint64_t stride)
 {
-	auto t = (SDL_Texture*)handle;
-	if (!t || !renderer) return 0;
+	if (!handle || !renderer) return 0;
+	auto t = ((Texture*)handle)->texture;
 	// it is drawn, as it is, to a texture that can be read from
 	auto copy = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, (int)w, (int)h);
 	if (!copy) return 0;
