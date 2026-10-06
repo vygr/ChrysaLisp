@@ -4,6 +4,28 @@
 
 ------
 
+The Windows launch scripts keep to their session too, as the macOS and Linux
+ones do. Not yet run on Windows. The session logic has been run under
+PowerShell 7 on the Mac against a made up process table, the launch itself has
+not been run at all.
+
+A launch no longer stops every node first, the links of a launch have names of
+its own, and `-b` is gone. Windows links are named mappings, not files, so
+there is nothing in a temp folder to keep track of. A session's nodes are
+found by parent, the nodes the script started and what they started in turn,
+so `(node-spawn)` need leave no file. A front is a node that was given a
+script to run. When the first node exits the script stops the rest if no front
+is left, else it leaves a watch, `session_watch.ps1`, a hidden PowerShell that
+stops them when the last front has gone. The first node is waited for by its
+own handle, `Start-Process -Wait` waits for every node it starts as well,
+which with `-n 0` is all of them.
+
+`run.bat`, `run_tui.bat` and `run_mesh.bat` now hand over to the PowerShell
+scripts, and take their options. `stop.bat`, `stop.ps1` and `install.bat` are
+as they were, they stop every node on the machine.
+
+------
+
 Three more apps free the pixmap of a canvas that is only ever shown. The
 wallpaper, whose pixmap is the size of the screen, the image viewer, and the
 PCB viewer. Live memory each takes when started, on one node, before and
