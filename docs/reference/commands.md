@@ -553,6 +553,9 @@ Usage: nodes [options]
         -h --help: this help info.
         -a --add num: start num more nodes on this machine,
             linked to this node and to each other.
+        -g --gui num: start num more nodes, each a GUI desktop.
+        -t --tui num: start num more nodes on the TUI host,
+            which is the lighter, it has no GUI.
         -i --info: this node's process id, and the processors
             and memory of its machine.
 

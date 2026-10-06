@@ -1222,10 +1222,14 @@ starts one of the same name.
 ### node-spawn
 
 ```code
-(node-spawn [num]) -> (pid ...)
+(node-spawn [num kind script]) -> (pid ...)
 
 start num more nodes on this machine, default 1, each linked to this
 node and to each other. A pid of -1 is a node the host could not start.
+kind is the host program, :gui or :tui, this node's own if not given,
+so a GUI node can be added to a TUI network, and a TUI node to a GUI
+one. script is run on each new node. A node with a script is a front
+of its session, a way in to it, a desktop is service/gui/app.lisp.
 ```
 
 ### nto
@@ -1871,6 +1875,25 @@ real, a fixed or an int, a vector is a sequence of them.
 a fixed is rounded as a float literal of the language is
 ```
 
+### shader-spirv
+
+```code
+(shader-spirv program) -> str
+
+the entry point is fragment_main
+```
+
+### shader-spirv-vertex
+
+```code
+(shader-spirv-vertex) -> str
+
+the vertex shader that goes with every fragment shader, one triangle
+that covers the target. Its uniform, set 1 binding 0, is the size of
+the target, and it gives each pixel its frag coord, with y up. The
+entry point is vertex_main.
+```
+
 ### shader-unpack
 
 ```code
@@ -1945,6 +1968,110 @@ the innermost open form that is not transparent
 (sort list [fcmp start end]) -> list
 
 the default fcmp is cmp, which is for strings
+```
+
+### spv-block
+
+```code
+the statements of a block, up to the one that leaves it
+```
+
+### spv-block-var
+
+```code
+a uniform block of these members, -> (var_id ptr_type_id ...) the
+
+pointer types are those of the members
+```
+
+### spv-const
+
+```code
+a float is given as the bits of it
+```
+
+### spv-emit
+
+```code
+an instruction that gives a value of this type, to the block
+```
+
+### spv-expr
+
+```code
+(spv-expr node) -> id
+```
+
+### spv-ext
+
+```code
+an instruction of the GLSL.std.450 set
+```
+
+### spv-fold
+
+```code
+an op of two, over more than two
+```
+
+### spv-function
+
+```code
+a function, fnc is given the ids of its parameters and makes its body
+```
+
+### spv-global
+
+```code
+a variable of the module
+```
+
+### spv-local
+
+```code
+a variable of the function, they all go at its start
+```
+
+### spv-memo
+
+```code
+the id of a type or a constant, made the first time it is asked for
+```
+
+### spv-module
+
+```code
+the bytes of the module, model is 0 vertex, 4 fragment
+```
+
+### spv-op
+
+```code
+an instruction, its first word has its length and its opcode
+```
+
+### spv-ptr
+
+```code
+a pointer type, class is 1 input, 2 uniform, 3 output, 6 private, 7 function
+```
+
+### spv-splat
+
+```code
+a float that goes with a vector is made a vector
+```
+
+### spv-str
+
+```code
+the words of a string, it ends with a zero byte
+```
+
+### spv-var
+
+```code
+(spv-var name) -> (id type)
 ```
 
 ### squeeze

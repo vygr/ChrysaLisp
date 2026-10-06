@@ -30,6 +30,7 @@ rewrite of every shader.
 * `lib/gpu/shader.inc`, the reader, the type checker, and the inputs block.
 * `lib/gpu/glsl.inc`, the GLSL text back end.
 * `lib/gpu/msl.inc`, the Metal Shading Language text back end.
+* `lib/gpu/spirv.inc`, the SPIR-V binary back end, for Vulkan.
 * `lib/gpu/cpu.inc`, the CPU back end, interpreted Lisp.
 * `lib/gpu/vp.inc`, the VP back end, native code.
 * `lib/gpu/gui.inc`, a shader on the GPU of the GUI.
@@ -190,6 +191,53 @@ back. With the bump map on the two machines give quite different noise, 1,164
 of 1,728 pixels differ by more than 0.01, the hash in the shader hangs on
 how each GPU works out `sin`.
 
+## The SPIR-V Back End
+
+`(shader-spirv program)` gives a SPIR-V module, a fragment shader for Vulkan,
+as SDL's GPU interface wants it, entry point `fragment_main`. It is the
+binary, not text. No compiler is called on, there is no `glslc` to install,
+the words of the module are made in Lisp, about 300 lines of it.
+
+Every input, constant, global, parameter and local is a variable, read with
+a load and set with a store, and the driver's own compiler makes registers of
+them. The inputs are one uniform block, set 3 binding 0, with the offsets of
+the inputs block, and are copied out of it at the start. Control flow is
+structured, as SPIR-V has it, an `if` has a merge block, a `for` a merge block
+and a continue block, and a `break` branches to the merge block of its loop.
+The maths is the `GLSL.std.450` set, `mod` is `OpFMod`. Both sides of an `and`
+and an `or` are worked out, where GLSL and MSL stop at the first that
+settles it, and nothing in the language can tell the two apart but a function
+that sets a global.
+
+`(shader-spirv-vertex)` gives the vertex shader that goes with it, entry
+point `vertex_main`, its uniform at set 1 binding 0. SDL's Vulkan driver has
+y going up as its Metal driver does, so the two vertex shaders are the same
+sums.
+
+This was run on a Raspberry Pi 4, 2GB, Raspberry Pi OS on Debian 13, Mesa
+26.2, SDL 3.4.16 built from source, on the Pi's own GPU, the V3D, through its
+Vulkan driver, to a float texture and read back. `spirv-val` passes the
+modules. The 64 by 48 raymarch frame is within 0.0025 of the CPU back end's
+on every pixel, 3,072 of them. Mesa's software Vulkan driver, llvmpipe, gives
+the same frame.
+
+| | V3D | llvmpipe |
+| :--- | ---: | ---: |
+| First build of the shader | 17.9s | 0.9s |
+| Build after that, from Mesa's cache | 1.4ms | 0.9s |
+| 64 by 48 frame and read back | 6.0ms | 19.9ms |
+| 640 by 480 frame and read back | 394ms | |
+
+The first build is long. The V3D compiler takes 18 seconds over this shader,
+once, then Mesa keeps the result on disk. Whether a module with fewer
+variables in it would build quicker has not been tried.
+
+Two things had to be found out to get SDL on to the V3D at all. The SDL3 of
+Debian 13 is 3.2.10, and the GPU renderer the driver uses came with 3.4. And
+a device SDL makes for itself asks for depth clamping, which the V3D does not
+have, so SDL picks llvmpipe and says nothing. The sdl3 driver now makes its
+own device, without the features it does not use.
+
 ## On The GPU, In The GUI
 
 Graphics belongs to the GUI. A GUI app runs on the node that has the GUI, so
@@ -206,7 +254,7 @@ message. The texture is then composited like any other.
 ```
 
 `(shader-gui program)` asks the host GUI driver which shading language it
-takes, gives it the text from that back end, and returns the shader, or `:nil`
+takes, gives it the shader from that back end, MSL text or a SPIR-V module, and returns the shader, or `:nil`
 if this driver can not draw one. `(. canvas :shade shader block)` draws it over
 the whole canvas with that inputs block. The pixmap of the canvas is not used
 and not changed. A later `(. canvas :swap)` puts the pixmap back on show, so
@@ -451,9 +499,12 @@ Demos list in `apps/system/launcher/app.lisp`, or to your own launcher config.
 
 ## What Is Not Here Yet
 
-* The sdl3 GUI driver has only been run on a Mac.
+* The sdl3 GUI driver has only been run on a Mac. On the Pi the SPIR-V back
+  end has drawn on the GPU, but from a test program with no window, the Pi
+  had no screen. The GUI itself has not been seen there on SDL3.
+* The SPIR-V back end has been checked against the others on the raymarch
+  shader only, the small shaders of the test suite are checked for form.
 * Raylib is the fall back if SDL3 will not do for a host.
-* A SPIR-V back end, for SDL3 on Vulkan, which is Linux and the Pi.
 * The GLSL back end does not guard names against the reserved words of GLSL.
 * Compute, and rendering as a service for a node with no GPU, are deferred.
 * Vertex shaders, meshes, textures as inputs, and compute.

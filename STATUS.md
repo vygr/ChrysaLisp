@@ -4,6 +4,21 @@
 
 ------
 
+A SPIR-V back end for the shader language, `lib/gpu/spirv.inc`, so a shader
+can be drawn on a Vulkan GPU, which is Linux and the Raspberry Pi.
+`(shader-spirv program)` gives the binary module, made word by word in Lisp,
+no outside compiler is called on. `(shader-gui)` uses it when the driver says
+it takes SPIR-V.
+
+On the Raspberry Pi 4 the raymarch shader runs on the Pi's own GPU, and the
+frame is within 0.0025 of the CPU back end's on every pixel. The first build
+of the shader by the Pi's driver takes 18 seconds, after that it is cached.
+A 640 by 480 frame with its read back takes 394ms. That was from a test
+program with no window, the Pi has no screen plugged in, so the GUI on SDL3
+has still not been seen on it.
+
+------
+
 The sdl3 driver makes its own GPU device, and asks for no more than it uses.
 The Raspberry Pi 4 was reflashed today with the 64 bit Raspberry Pi OS, Debian
 13, and that showed two things. Its SDL3 package is 3.2.10, and the driver

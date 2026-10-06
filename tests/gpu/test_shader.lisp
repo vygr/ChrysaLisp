@@ -2,6 +2,7 @@
 
 (import "lib/gpu/glsl.inc")
 (import "lib/gpu/msl.inc")
+(import "lib/gpu/spirv.inc")
 (import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
 
@@ -381,6 +382,90 @@
 		"(return (vec4 (mix c (:bgr c) 0.5) (/ (:x frag) (:x size)))))")))
 (assert-true "MSL vertex shader" (find "vertex VertexOut vertex_main(uint vid [[vertex_id]], constant Target &target [[buffer(0)]])"
 	(split (shader-msl-vertex) sh_lf)))
+
+(report-header "GPU: shader language, SPIR-V back end")
+
+;a module is checked as a stream of words here, each instruction of the
+;right length and each id made once. That it draws what the other back
+;ends draw was seen on a Raspberry Pi 4, see docs/ai_digest/shader_language.md
+
+(defun spvt-words (module)
+	(map (# (logand (code module 4 (* %0 4)) 0xffffffff)) (range 0 (/ (length module) 4))))
+
+(defun spvt-insts (module)
+	;the instructions, each (opcode operand ...), or :nil if they do not
+	;end where the module does
+	(defq words (spvt-words module) insts (list) i 5 n (length words) ok (> n 5))
+	(while (and ok (< i n))
+		(defq len (>> (elem-get words i) 16))
+		(cond
+			((or (= len 0) (> (+ i len) n)) (setq ok :nil))
+			(:t (push insts (cat (list (logand (elem-get words i) 0xffff)) (slice words (inc i) (+ i len))))
+				(setq i (+ i len)))))
+	(if ok insts))
+
+(defun spvt-ids (insts)
+	;the ids the instructions make, in order
+	(sort (reduce (lambda (ids (op &rest args))
+		(cond
+			((find op '(17 14 15 16 71 72 62 246 247 249 250 253 254 56)) ids)
+			((find op '(11 19 20 21 22 23 30 32 33 248)) (push ids (first args)))
+			((push ids (second args))))) insts (list)) (const -)))
+
+(defun spvt-has? (insts &rest pattern)
+	;is there an instruction that starts with these words, :nil is any word
+	(some (lambda (inst)
+		(and (>= (length inst) (length pattern))
+			(every (# (or (not %0) (eql %0 %1))) pattern inst))) insts))
+
+(defq module (shader-spirv-vertex) words (spvt-words module) insts (spvt-insts module))
+(assert-list-eq "SPIR-V vertex header" (list 0x07230203 0x00010000 0) (slice words 0 3))
+(assert-eq "SPIR-V vertex size" 896 (length module))
+(assert-true "SPIR-V vertex stream" insts)
+(assert-list-eq "SPIR-V vertex ids" (range 1 (elem-get words 3)) (spvt-ids insts))
+(assert-true "SPIR-V vertex entry point" (apply spvt-has? (cat (list insts 15 0 :nil) (spv-str "vertex_main"))))
+(assert-true "SPIR-V vertex index" (spvt-has? insts 71 :nil 11 42))
+(assert-true "SPIR-V vertex position" (spvt-has? insts 71 :nil 11 0))
+(assert-true "SPIR-V vertex block set" (spvt-has? insts 71 :nil 34 1))
+
+(defq module (shader-spirv (sh-src
+		"(input k :float 1.5 0.0 4.0)"
+		"(input n :int 3)"
+		"(input tint :vec3)"
+		"(const two 2.0)"
+		"(global scale (* k two))"
+		"(defun wave :float ((a :float))"
+		"	(return (sin (* a scale))))"
+		"(defun main :vec4 ((frag :vec2))"
+		"	(defq c (vec3 0.0) total 0.0)"
+		"	(for (i 0 8)"
+		"		(if (> total 3.0) (break))"
+		"		(setq total (+ total (wave (float i)))))"
+		"	(setq (:x c) total (:yz c) (:xy frag))"
+		"	(if (and (> n 2) (not (< k 0.0)))"
+		"		(return (vec4 (mix c tint 0.5) 1.0))"
+		"		(return (vec4 (clamp c 0.0 1.0) (mod total 2.0)))))"))
+	words (spvt-words module) insts (spvt-insts module))
+(assert-true "SPIR-V fragment stream" insts)
+(assert-list-eq "SPIR-V fragment ids" (range 1 (elem-get words 3)) (spvt-ids insts))
+(assert-true "SPIR-V fragment entry point" (apply spvt-has? (cat (list insts 15 4 :nil) (spv-str "fragment_main"))))
+(assert-true "SPIR-V origin upper left" (spvt-has? insts 16 :nil 7))
+(assert-true "SPIR-V block set" (spvt-has? insts 71 :nil 34 3))
+(assert-true "SPIR-V block offsets" (and (spvt-has? insts 72 :nil 0 35 0)
+	(spvt-has? insts 72 :nil 1 35 4) (spvt-has? insts 72 :nil 2 35 16)))
+(assert-true "SPIR-V float constant" (spvt-has? insts 43 :nil :nil 0x3f000000))
+(assert-true "SPIR-V sin" (spvt-has? insts 12 :nil :nil 1 13))
+(assert-true "SPIR-V mix clamp" (and (spvt-has? insts 12 :nil :nil 1 46) (spvt-has? insts 12 :nil :nil 1 43)))
+(assert-true "SPIR-V loop" (spvt-has? insts 246))
+(assert-eq "SPIR-V ifs" 2 (length (filter (# (= (first %0) 247)) insts)))
+(assert-eq "SPIR-V functions" 3 (length (filter (# (= (first %0) 54)) insts)))
+(assert-true "SPIR-V set of components" (and (spvt-has? insts 82) (spvt-has? insts 79 :nil :nil :nil :nil 0 3 4)))
+
+(defq module (shader-spirv (shader-load "lib/gpu/shaders/raymarch.shader"))
+	words (spvt-words module) insts (spvt-insts module))
+(assert-true "SPIR-V raymarch stream" insts)
+(assert-list-eq "SPIR-V raymarch ids" (range 1 (elem-get words 3)) (spvt-ids insts))
+(assert-eq "SPIR-V raymarch functions" 20 (length (filter (# (= (first %0) 54)) insts)))
 
 (report-header "GPU: shader language, the inputs block")
 
