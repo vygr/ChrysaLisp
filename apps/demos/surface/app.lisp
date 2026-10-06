@@ -14,7 +14,8 @@
 	(enum main task reply timer))
 
 (defq +width 640 +height 480 +scale 1 +line_batch 8 +steps 1000
-	+timer_rate (/ 1000000 2) +gpu_rate (/ 1000000 60) +retry_timeout (task-timeout 5)
+	;the timer ticks at the rate of a GPU frame, the slow jobs are done every so many
+	+timer_rate (/ 1000000 60) +slow_ticks 30 ticks 0 +retry_timeout (task-timeout 5)
 	program (shader-load +shader_file) controls (list)
 	jobs (list) tiles (list) farm :nil select :nil id :t
 	start_time (pii-time) frame_time 0
@@ -146,8 +147,14 @@
 			(set-label *status* "No GPU, this host GUI driver can not draw a shader, see make gui GUI=sdl3"))
 		((not (eql gpu gpu_mode))
 			;drop what is left of a CPU frame, a tile that comes in late is not shown
-			;the timer takes up the new rate at its next tick
-			(setq gpu_mode gpu jobs (list) tiles (list) gpu_frames 0 gpu_time (pii-time))
+			(setq gpu_mode gpu jobs (list) tiles (list) gpu_frames 0 gpu_time (pii-time) ticks 0)
+			(unless gpu
+				;a child with no work for a while has gone, so back on the CPU
+				;every child is started again, and takes a tile as it comes up
+				(defq keys (list) vals (list))
+				(. farm :each (# (push keys %0) (push vals %1)))
+				(each (# (. farm :restart %0 %1)) keys vals)
+				(setq jobs (list)))
 			(start-frame))))
 
 (defun main ()
@@ -196,19 +203,17 @@
 								(str (/ (- (pii-time) frame_time) 1000)) "ms, "
 								(str (length (lisp-nodes))) " nodes, native code, no GPU")))
 						(start-frame))))
-			(:t ;timer event
-				(cond
-					(gpu_mode
-						;a frame every tick, and the rate every half second
-						(mail-timeout (elem-get select +select_timer) +gpu_rate 0)
-						(start-frame)
-						(when (> (defq now (pii-time)) (+ gpu_time +timer_rate))
+			(:t ;timer event, a GPU frame every tick
+				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
+				(if gpu_mode (start-frame))
+				(when (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
+					(cond
+						(gpu_mode
+							(defq now (pii-time))
 							(set-label *status* (cat "GPU, "
 								(str (/ (* gpu_frames 1000000) (- now gpu_time))) " frames a second"))
-							(setq gpu_frames 0 gpu_time now)
-							(. farm :refresh +retry_timeout)))
-					(:t (mail-timeout (elem-get select +select_timer) +timer_rate 0)
-						(. farm :refresh +retry_timeout))))))
+							(setq gpu_frames 0 gpu_time now))
+						((. farm :refresh +retry_timeout)))))))
 	;close window and children
 	(if gpu_shader (canvas-shader-destroy gpu_shader))
 	(. farm :close)
