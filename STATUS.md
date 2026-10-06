@@ -33,7 +33,7 @@ and a session stops its own nodes when its desktop is quit. None of that had
 been run on Windows before, it was all built and written on a Mac.
 
 The Network Monitor says how many nodes there are, under its charts, Martyn's
-idea, to save counting thin bars.
+idea, to save counting thin bars. Network Speed says it too.
 
 The surface demo's status line on the CPU read "native code, no GPU", which
 on a machine with a GPU looked like a fault. It now reads "native code on the
