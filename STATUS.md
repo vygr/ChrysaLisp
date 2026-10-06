@@ -4,6 +4,28 @@
 
 ------
 
+The frame buffer driver, a second round, with Chris at the Pi. It was run as
+it is meant to be, the launch script, four nodes, the ordinary user, owning
+its console. Onslaught, the surface demo, dragging windows and the mouse are
+all good on it.
+
+A tinted texture had its red and blue swapped. The driver kept the tint with
+blue at the top, where a pixel has red. Text is tinted black, white or grey,
+so it never showed, Onslaught's colored text did.
+
+The text cursor of the console flashed through the top left of the desktop,
+and the Escape key ended the node. Both were a debug setting, left on in
+2023, that kept the console in text mode and made Escape a way out. The
+console is now put in graphics mode while the GUI runs, and Escape is a key.
+The asserts, and the handlers that put the console back if the node crashes,
+are kept.
+
+The Pi's frame buffer is 16 bit, so a smooth gradient shows bands, and the
+frame buffer build has no audio driver, so no sound. Neither is a fault of
+the driver.
+
+------
+
 The frame buffer driver has been run, on the Raspberry Pi 4. It had been
 changed for the new event record and built, and never run. The desktop comes
 up, a click logs in, the wallpaper, Eyes and the Terminal draw, and a command

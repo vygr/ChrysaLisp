@@ -23,7 +23,13 @@
 #include <linux/vt.h>
 #include "gui_event.h"
 
-#define DEBUG   1      /* exit on ESC, don't change to graphics console */
+#define DEBUG   1      /* asserts, and the console put back to text if it crashes */
+
+/* the console is put in graphics mode while the GUI runs, so its text cursor
+ * does not flash through the desktop. Set to 0 to see what is printed. */
+#define GRAPHICS_CONSOLE    1
+/* the Escape key is a key like any other. Set to 1 and it ends the node. */
+#define ESC_EXITS           0
 
 #define PATH_FRAMEBUFFER    "/dev/fb0"          /* or env "FRAMEBUFFER" */
 #define PATH_KEYBOARD       "/dev/tty"          /* or env "CONSOLE" */
@@ -183,9 +189,11 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 void host_gui_set_texture_color(void *handle, uint8_t r, uint8_t g, uint8_t b)
 {
-    /* colors used in color mod blit */
+    /* colors used in color mod blit, in the order of a pixel, red at the
+     * top. It was blue at the top, and a tinted texture came out with its
+     * red and blue swapped */
 	Texture *t = (Texture*)handle;
-    t->color = r | (g << 8) | (b << 16);
+    t->color = (r << 16) | (g << 8) | b;
 }
 
 /* allocate drawable for passed data and return a handle to it */
@@ -650,7 +658,7 @@ static uint64_t get_event_timeout(void *data, int timeout)
             if (read(keybd_fd, buf, sizeof(buf)) > 0)
 			{
 				c = scan_code_to_hid_table[buf[0] & 0x7f];
-#if DEBUG
+#if ESC_EXITS
 				if (c == 41) exit(1);      /* exit on ESC! */
 #endif
 				event->scode = c;
@@ -968,7 +976,7 @@ static int open_framebuffer(void)
 
     /* switch console to graphic mode, no more printf error messages */
     if (keybd_fd >= 0) {
-#if !DEBUG
+#if GRAPHICS_CONSOLE
         ioctl(keybd_fd, KDSETMODE, KD_GRAPHICS);
 #endif
     }
