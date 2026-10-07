@@ -1,20 +1,20 @@
 # ChrysaLisp Native Acceleration Guide
 
 This is a detailed breakdown of the native code acceleration used in the
-Mandelbrot and Raymarch applications. This guide explains how to write
+Mandelbrot application. This guide explains how to write
 `lisp.vp` files, handle floating-point mathematics in the Virtual Processor
 (VP), and integrate them into ChrysaLisp applications.
 
-## Analyzing Mandelbrot and Raymarch
+## Analyzing Mandelbrot
 
 In ChrysaLisp, performance-critical code can be offloaded from the
 interpreter to the Virtual Processor (VP) assembly. These files are typically
 named `lisp.vp`. They define native functions that can be called directly
 from Lisp code via the Foreign Function Interface (FFI).
 
-This guide analyzes `apps/science/mandelbrot/lisp.vp` and
-`apps/demos/raymarch/lisp.vp` to demonstrate register management,
-floating-point math, constant loading, and SIMD operations.
+This guide analyzes `apps/science/mandelbrot/lisp.vp` to demonstrate
+register management, floating-point math, constant loading, and SIMD
+operations.
 
 ### 1. The Anatomy of a Native Function
 
@@ -25,10 +25,10 @@ The entry point expects arguments in specific registers (Standard ABI: `:r0`
 #### Basic Structure
 
 ```vdu
-(def-func 'apps/science/mandelbrot/depth)
+(def-func (path-to-absolute "./depth"))
     ; 1. Register Definition
     (vp-rdef (this args cnt ox0 oy0))       ; Integer/Pointer registers
-    (vp-fdef (x0 y0 xc yc x2 y2 four two))  ; Floating-point registers
+    (vp-fdef (x0 y0 xc yc x2 y2 four two temp)) ; Floating-point registers
 
     ; 2. Entry and Setup
     (entry `(,this ,args))
@@ -65,14 +65,14 @@ automatically.
 * **`vp-fdef` (Floating Point):** Maps symbols to floating-point registers
   (`:f0` - `:f15`).
 
-**Example from Raymarch:**
+**Example from Mandelbrot:**
 
 ```vdu
 ; Define integer registers (pointers, counters)
-(vp-rdef (this args ray_org ray_dir consts cnt trunc len max_len ...))
+(vp-rdef (this args cnt ox0 oy0))
 
 ; Define float registers (math operands)
-(vp-fdef (p0 p1 p2 flen fmax_len fmin_dist fmarch_factor ...))
+(vp-fdef (x0 y0 xc yc x2 y2 four two temp))
 ```
 
 *Note: The compiler allocates registers from the pool. You do not need to
@@ -143,27 +143,26 @@ usually `_ff`.
     (breakif `(,temp >= ,four)) ; Break loop if temp >= 4.0
     ```
 
-### 5. Advanced: SIMD in Raymarch
+### 5. Advanced: SIMD in Mandelbrot
 
-The Raymarch app (`apps/demos/raymarch/lisp.vp`) demonstrates `vp-simd`, a
-powerful macro that unrolls operations to process vectors (X, Y, Z) in
-parallel. While VP64 is scalar, this macro generates the sequence of scalar
-instructions automatically, making code cleaner.
+The Mandelbrot function uses `vp-simd`, which applies one operation across
+lists of registers. While VP64 is scalar, it generates the sequence of
+scalar instructions for you, which keeps the code short. A list shorter
+than the longest is made up to that length with its last register.
 
-**Example from `apps/demos/raymarch/lisp.vp`:**
+**Examples from `apps/science/mandelbrot/lisp.vp`:**
 
 ```vdu
-; Multiply p0, p1, p2 by p0, p1, p2 (Square them)
-(vp-simd vp-mul-ff `(,p0 ,p1 ,p2) `(,p0 ,p1 ,p2))
+; Zero cnt, then convert it into each of xc, yc, x2, y2 (all 0.0)
+(vp-xor-rr cnt cnt)
+(vp-simd vp-cvt-rf `(,cnt) `(,xc ,yc ,x2 ,y2))
 
-; Add p1 to p0
-(vp-add-ff p1 p0)
+; Add x0 to xc and y0 to yc
+(vp-simd vp-add-ff `(,x0 ,y0) `(,xc ,yc))
 
-; Add p2 to p0 (Now p0 = x^2 + y^2 + z^2)
-(vp-add-ff p2 p0)
-
-; Square Root
-(vp-sqrt-ff p0 p0)
+; Copy xc, yc to x2, y2, then square them
+(vp-simd vp-cpy-ff `(,xc ,yc) `(,x2 ,y2))
+(vp-simd vp-mul-ff `(,x2 ,y2) `(,x2 ,y2))
 ```
 
 ### 6. Integration: Linking to Lisp
@@ -174,14 +173,14 @@ To make these functions available to the high-level Lisp interpreter:
    `apps/science/mandelbrot/child.lisp`), compile the VP file.
 
     ```vdu
-    (jit "apps/science/mandelbrot/" "lisp.vp" '("depth"))
+    (jit *app_root* "lisp.vp" '("depth"))
     ```
 
 2. **Define FFI:** Bind the native function name to a Lisp symbol.
 
     ```vdu
     ; Format: (ffi "path/to/func_name" lisp-symbol-name)
-    (ffi "apps/science/mandelbrot/depth" depth)
+    (ffi (cat *app_root* "depth") depth)
     ```
 
 3. **Call:** Use it like a standard Lisp function.
@@ -226,12 +225,13 @@ Here is the breakdown of the inner loop of the Mandelbrot set calculator
     ; y = 2 * x * y + y0
     (vp-mul-ff two yc)
     (vp-mul-ff xc yc)
-    (vp-add-ff y0 yc) ; Note: In source, this add happens implicitly
 
     ; x = x2 - y2 + x0
     (vp-cpy-ff x2 xc)
     (vp-sub-ff y2 xc)
-    (vp-add-ff x0 xc)
+
+    ; the two adds, x0 to xc and y0 to yc
+    (vp-simd vp-add-ff `(,x0 ,y0) `(,xc ,yc))
 
     ; Update squares
     (vp-simd vp-cpy-ff `(,xc ,yc) `(,x2 ,y2))
@@ -244,7 +244,7 @@ Here is the breakdown of the inner loop of the Mandelbrot set calculator
 ### Summary of Best Practices
 
 1. **Use `vp-rdef`/`vp-fdef`**: Never hardcode register names (e.g., `:r5`,
-   `:f2`) inside the logic logic. Use named variables.
+   `:f2`) inside the logic. Use named variables.
 
 2. **Argument Binding**: Use `list-bind-args` or `array-bind-args` to
    efficiently unpack Lisp data structures into registers.
