@@ -2398,6 +2398,17 @@ the pixels of a tile, row by row, each a 32 bit argb. If the height
 of the frame is given then row 0 is the top row, as a canvas has it.
 ```
 
+### shader-vp-draw
+
+```code
+(shader-vp-draw native frame pixmap x y x1 y1 [height]) -> :nil | pixmap
+
+a tile drawn straight onto a 32 bit pixmap, where it belongs on it,
+with no copy of the pixels in between. :nil if the tile is not all
+inside the pixmap. The pixels are full on, so they are right for a
+pixmap that is premultiplied as well as one that is not.
+```
+
 ### shader-vp-frame
 
 ```code

@@ -6,6 +6,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./shader.inc")
+(import "gui/pixmap/struct.inc")
 
 ;there is no recursion, so every variable of every function has a slot
 ;of its own in one frame, 8 bytes for each float or int. The frame is a
@@ -21,7 +22,7 @@
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
 	;part of the name of the native function, so a change to this file
 	;that changes the code must change this
-	+sv_version 1)
+	+sv_version 2)
 
 (defun sv-emit (&rest form)
 	(push code form))
@@ -430,8 +431,8 @@
 		ret_offset 0 ret_label :nil)
 	;the frame starts with the inputs, then what the tile loop keeps
 	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) inputs)
-	(bind '(s_x0 s_x1 s_x s_y s_y1 s_mode s_height s_out)
-		(map (lambda (_) (sv-slots :int)) (range 0 8)))
+	(bind '(s_x0 s_x1 s_x s_y s_y1 s_mode s_height s_out s_skip)
+		(map (lambda (_) (sv-slots :int)) (range 0 9)))
 	;constants and globals are set once for a tile
 	(sv-emit 'vp-label (sv-q 'sh_init))
 	(each (lambda ((name type e))
@@ -478,8 +479,30 @@
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r13 :r6 :r7 :r8)
-		'(:num :num :num :num :str :str :num :num))
+		'(:num :num :num :num :str :obj :num :num))
 	(vp-lea-p 'fn_consts :r12)
+	;where the pixels go, and what is skipped at the end of each row. A
+	;string is filled row after row. In mode 2 out is a pixmap, and the
+	;tile is drawn where it belongs on it
+	(vp-xor-rr :r9 :r9)
+	(vp-beq-cr 2 :r7 'sh_pixmap)
+	(vp-add-cr +str_data :r6)
+	(vp-jmp 'sh_out)
+(vp-label 'sh_pixmap)
+	(vp-cpy-ir-ui :r6 } (str +pixmap_stride) { :r9)
+	(vp-cpy-ir :r6 } (str +pixmap_data) { :r6)
+	(vp-cpy-rr :r3 :r10)
+	(vp-mul-rr :r9 :r10)
+	(vp-add-rr :r10 :r6)
+	(vp-cpy-rr :r2 :r10)
+	(vp-shl-cr 2 :r10)
+	(vp-add-rr :r10 :r6)
+	(vp-cpy-rr :r4 :r10)
+	(vp-sub-rr :r2 :r10)
+	(vp-shl-cr 2 :r10)
+	(vp-sub-rr :r10 :r9)
+(vp-label 'sh_out)
+	(vp-cpy-ri :r9 :r13 } (str s_skip) {)
 	(vp-cpy-ri :r2 :r13 } (str s_x0) {)
 	(vp-cpy-ri :r3 :r13 } (str s_y) {)
 	(vp-cpy-ri :r4 :r13 } (str s_x1) {)
@@ -551,6 +574,10 @@
 	(vp-cpy-ri :r2 :r13 } (str s_x) {)
 	(vp-jmp 'sh_xloop)
 (vp-label 'sh_xend)
+	(vp-cpy-ir :r13 } (str s_out) { :r2)
+	(vp-cpy-ir :r13 } (str s_skip) { :r3)
+	(vp-add-rr :r3 :r2)
+	(vp-cpy-ri :r2 :r13 } (str s_out) {)
 	(vp-cpy-ir :r13 } (str s_y) { :r2)
 	(vp-add-cr 1 :r2)
 	(vp-cpy-ri :r2 :r13 } (str s_y) {)
@@ -620,7 +647,7 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(shade x y x1 y1 frame out mode height)" +error_msg_wrong_types))
-	(signature '(:num :num :num :num :str :str :num :num)))
+	(signature '(:num :num :num :num :str :obj :num :num)))
 
 (def-func-end)
 }))
@@ -666,6 +693,17 @@
 	(defq out (str-alloc (* (- x1 x) (- y1 y) 4)))
 	((first native) x y x1 y1 frame out 1 (ifn height 0))
 	out)
+
+(defun shader-vp-draw (native frame pixmap x y x1 y1 &optional height)
+	; (shader-vp-draw native frame pixmap x y x1 y1 [height]) -> :nil | pixmap
+	;a tile drawn straight onto a 32 bit pixmap, where it belongs on it,
+	;with no copy of the pixels in between. :nil if the tile is not all
+	;inside the pixmap. The pixels are full on, so they are right for a
+	;pixmap that is premultiplied as well as one that is not.
+	(when (and (<= 0 x) (< x x1) (<= x1 (getf pixmap +pixmap_width 0))
+			(<= 0 y) (< y y1) (<= y1 (getf pixmap +pixmap_height 0)))
+		((first native) x y x1 y1 frame pixmap 2 (ifn height 0))
+		pixmap))
 
 (defun shader-vp-pixels (native frame x y x1 y1)
 	; (shader-vp-pixels native frame x y x1 y1) -> (vec4 ...)

@@ -34,3 +34,24 @@
 (setq a :nil made :nil)
 (assert-eq "the pixels outlast the one that made them" before (px-bytes found))
 (assert-eq "the key went with the one that made it" :nil (pixmap-shared 64 32 key))
+
+;a shader drawn straight into a pixmap is the same as one shaded into a
+;string and put there a pixel at a time
+(import "lib/gpu/vp.inc")
+(defq program (shader-compile (shader-read (string-stream
+		"(defun main :vec4 ((frag :vec2)) (vec4 (/ (:x frag) 64.0) (/ (:y frag) 32.0) 0.25 1.0))")))
+	native (shader-vp program) frame (shader-vp-frame program native (list))
+	direct (pixmap-shared 64 32 0) other (Canvas 64 32 1))
+(each (lambda ((x y x1 y1))
+	(shader-vp-draw native frame direct x y x1 y1 32)
+	(. other :tile (shader-vp-argb native frame x y x1 y1 32) x y x1 y1))
+	'((0 0 64 8) (0 8 64 20) (0 20 30 32) (30 20 64 32)))
+;the pixels are the shader's own, to the bit
+(assert-eq "a shader drawn straight into a pixmap" (shader-vp-argb native frame 0 0 64 8 32)
+	(slice (px-bytes direct) 0 (* 64 8 4)))
+;a pixel put there by :tile is premultiplied on the way, and comes out one
+;level darker, so the two agree to within that
+(assert-true "the same as a tile put there, to within a level"
+	(every (# (<= (abs (- (code %0) (code %1))) 1)) (px-bytes direct) (px-bytes (getf other +canvas_pixmap 0))))
+(assert-true "and it is a picture" (nql (px-bytes direct) (px-bytes (getf (Canvas 64 32 1) +canvas_pixmap 0))))
+(assert-eq "a tile that is not inside the pixmap is not drawn" :nil (shader-vp-draw native frame direct 0 0 65 8 32))

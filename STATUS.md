@@ -4,6 +4,22 @@
 
 ------
 
+A shader can be shaded straight into a pixmap, `(shader-vp-draw native
+frame pixmap x y x1 y1 [height])`, `lib/gpu/vp.inc`. The native function
+writes each pixel where it belongs, with no string in between. The nodes of
+the surface demo do it, into the shared pixmap of the app's canvas.
+
+They used to shade into a string and put it there with `:tile`, which is
+not a copy, it is a `:plot` for every pixel, and the premultiply on the way
+left each channel one level darker. Now the pixels are the shader's own, to
+the bit. A frame takes the same time as before, to within what a run varies
+by, the shading is still all of it.
+
+Tested on three machines, the M4, the x86_64 MacBook and the Raspberry Pi
+4, the tree copied to each with rsync.
+
+------
+
 A shared pixmap makes its own key, and on a network where a message goes
 through other nodes it is a good deal faster.
 

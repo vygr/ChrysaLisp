@@ -1,4 +1,4 @@
-(import "gui/lisp.inc")
+(import "gui/pixmap/lisp.inc")
 (import "lib/gpu/vp.inc")
 (import "./app.inc")
 
@@ -9,28 +9,25 @@
 ;child on this machine to ask for it
 (defq program (shader-load +shader_file) native (shader-vp program))
 
-;the canvas of the app, if its pixels are in shared memory that this node
-;can reach, and the key it was found by
+;the pixels of the app's canvas, if they are in shared memory that this
+;node can reach, and the key they were found by
 (defq shared_key 0 shared :nil)
 
 (defun attach (key width height)
-	;the app's canvas, found again if the key has changed. :nil if this
-	;node can not reach it, it is on another machine say
+	;the app's pixels, found again if the key has changed. :nil if this
+	;node can not reach them, it is on another machine say
 	(unless (= key shared_key)
-		(setq shared_key key shared (and (/= key 0)
-			(defq pixmap (pixmap-shared width height key))
-			(Canvas-pixmap pixmap))))
+		(setq shared_key key shared (and (/= key 0) (pixmap-shared width height key))))
 	shared)
 
 (defun rect (key mbox x y x1 y1 height width canvas_key inputs)
 	;shade the tile, the canvas has y down, so the height is given. It is
-	;drawn straight onto the app's canvas if that can be reached, and only
+	;shaded straight into the app's pixels if they can be reached, and only
 	;the word that it is done goes back. If not the pixels go back.
-	(defq data (shader-vp-argb native (shader-vp-frame program native
-			(shader-unpack program inputs)) x y x1 y1 height))
-	(when (defq canvas (attach canvas_key width height))
-		(. canvas :tile data x y x1 y1)
-		(setq data ""))
+	(defq frame (shader-vp-frame program native (shader-unpack program inputs))
+		pixmap (attach canvas_key width height)
+		data (if (and pixmap (shader-vp-draw native frame pixmap x y x1 y1 height)) ""
+			(shader-vp-argb native frame x y x1 y1 height)))
 	(mail-send mbox (cat data
 		(char key +long_size) (char x +int_size) (char y +int_size)
 		(char x1 +int_size) (char y1 +int_size))))
