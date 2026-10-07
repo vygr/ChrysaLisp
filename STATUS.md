@@ -4,6 +4,11 @@
 
 ------
 
+`apps/demos/raymarch/lisp.vp` has gone, nothing compiled it or bound to
+it since the demo went over to a shader. It was the only native source file
+not in use. `docs/ai_digest/app_acceleration.md` teaches from the Mandelbrot
+one alone.
+
 Alpha in the triangle pipeline, the see through objects of Mesh are see
 through again.
 
