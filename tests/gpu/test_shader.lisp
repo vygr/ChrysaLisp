@@ -845,6 +845,16 @@
 	'((0 0 20 7) (0 7 9 20) (9 7 20 20)))
 (assert-eq "a frame drawn in three parts"
 	(shader-cpu-tris tvert tpix tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+;and by strips, each with a depth buffer of only its own rows, and the
+;vertices as the bytes they are in a message
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0)
+	tbytes (shader-verts-str tverts))
+(assert-eq "vertices as bytes" (* (length tverts) 8) (length tbytes))
+(each (lambda ((y y1)) (shader-vp-draw-tris pipe tbytes ttris pixmap (shader-vp-depth 20 (- y1 y))
+		tvv tpv :nil 3 0 y 20 y1 y))
+	'((0 6) (6 13) (13 20)))
+(assert-eq "a frame drawn in three strips, each with a depth buffer of its own rows"
+	(shader-cpu-tris tvert tpix tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
 ;triangles of 4 numbers, as a mesh has them, the 4th is not a vertex
 (defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
 (shader-vp-draw-tris pipe tverts (nums 0 1 2 99 3 4 5 99) pixmap depth tvv tpv :nil 4)

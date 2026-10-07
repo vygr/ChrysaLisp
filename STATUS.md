@@ -4,6 +4,72 @@
 
 ------
 
+A frame of triangles is drawn by the nodes, a strip each, and the Mesh demo
+does.
+
+*	`lib/gpu/tris.inc` and its child, `lib/gpu/tris_child.lisp`, on the jobs
+	library. A job is a strip of the rows of the frame, drawn straight onto
+	the pixels of the app's canvas, which are in shared memory, by a child
+	with a depth buffer of its own for just those rows. The job lists what
+	is drawn, each mesh by a number with the inputs of the two shaders, and
+	the rows it may be on. It does not carry a mesh, a child that has not
+	got one asks the app for it, the once. A child whose strip is none of
+	the rows of a mesh does nothing for it.
+
+*	The Mesh demo's faces are drawn so, by a child on each node but its
+	own, when its canvas can be shared and there is another node. It draws
+	them itself while the children get ready, so the picture does not stop
+	for them, and if they can not be had. `lib/math/scene.inc` gives a
+	frame as a list of draws, `(. scene :draws ...)`, with the rows each
+	object may be on, from a ball round its mesh, and that list is what is
+	sent or what is drawn here, `(. scene :draw canvas draws)`.
+
+*	A frame by the farm is the frame by one task, to the bit, 810,000
+	pixels of 810,000. Two things made it so. A pixel's place in a triangle
+	is worked out from where the pixel is, it was stepped to from its
+	neighbour, and the steps add up differently from another start. And a
+	draw here is given its inputs from the blocks they travel in, which are
+	32 bit floats, as the children are.
+
+*	A native function gives the other tasks of its node a turn as it goes.
+	Chris: "Is there any point we can deschedule sensibly ? ... This is
+	going to keep being an issue !". There is, and it costs next to
+	nothing, all that the fill keeps from pixel to pixel is in its frame,
+	the pixel shader has every register, so at the top of a row there is
+	only the frame to keep hold of. It counts its work and gives way every
+	16,384, a pixel is 1 and a triangle 32. A tile of a pixel shader gives
+	way every 4,096 pixels, and the vertex function every 2,048 vertices.
+
+*	`(Jobs path task_mbox reply_mbox [size away])`, with `away` the children
+	are kept off the node of the app, pinned to the others in turn.
+
+*	`(shader-vp-draw-tris)` has a last argument, the row a depth buffer
+	starts at, for one that is only a strip. The vertices can be a str, the
+	bytes of a reals, `(shader-verts-str)`, as they are in a message. The
+	reals a draw places its vertices into is kept and used again, and a new
+	depth buffer is one copy of a kept one.
+
+A frame of 20,000 triangles that cover 900 by 900 evenly, by one task and
+by 2, 3 and 4 children. An Apple M4 Max, 12ms, and 8, 6 and 5ms. A
+Raspberry Pi 4, 154ms, and 90, 73 and 64ms. The Mesh demo on the Pi, 900 by
+900, is 140 to 155ms a frame drawn by the one task and 62 to 98ms by three
+children.
+
+A strip for each child is the quickest, more strips are slower, every strip
+has every triangle of its meshes to look at before it draws a pixel.
+
+Two faults of the Mesh demo found on the way. Its frame timer was ahead of
+the farm's mailboxes in the order they are read, and a frame takes longer
+than the timer on a Pi, so the timer was always there to be read and the
+farm never was. The timers are last now. And a canvas that was replaced, the
+window sized, while the children were being readied left them looking for
+pixels that had gone, which was taken for a host with no shared memory.
+
+New tests, `tests/gpu/test_tris.lisp`, 13, a frame by three children and by
+seven strips against the frame by one task, each mesh asked for the once,
+and a mesh left out by its rows. `tests/system/test_jobs.lisp`, children
+kept away.
+
 The light of the Mesh demo is up, to the left and in front again, and the
 pipeline is said to be what it is, the spaces of OpenGL.
 

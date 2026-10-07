@@ -41,9 +41,19 @@
 		(:t (undef val :job :timestamp))))
 
 (defun create (key val nodes)
-	;a child is started, the word that it has comes to the task mailbox
+	;a child is started, the word that it has comes to the task mailbox.
+	;If the children are to be away from this node, and there is another,
+	;it is on one of the others, each in turn
+	(defq mode +kn_call_run)
+	(when (get :away this)
+		(defq me (task-nodeid)
+			others (filter (# (not (eql %0 me))) (lisp-nodes :t)))
+		;it is pinned there, a task that is only run on a node may be
+		;moved on by the kernel, to this one as likely as not
+		(if (nempty? others)
+			(setq mode +kn_call_pin nodes (list (elem-get others (% key (length others)))))))
 	(open-task (get :path this) (elem-get nodes (random (length nodes)))
-		+kn_call_run key (get :task_mbox this)))
+		mode key (get :task_mbox this)))
 
 (defun destroy (key val)
 	;a child is told to go, the job it had goes back on the queue
@@ -64,15 +74,21 @@
 		(if (and (get :child val) (not (get :job val)))
 			(dispatch key val)))))
 
-(defclass Jobs (path task_mbox reply_mbox &optional size) :nil
-	; (Jobs path task_mbox reply_mbox [size]) -> jobs
+(defclass Jobs (path task_mbox reply_mbox &optional size away) :nil
+	; (Jobs path task_mbox reply_mbox [size away]) -> jobs
 	;children of the task at path, a node's worth of them if no size is
 	;given, on any of the nodes. A size that is a list, (herd_max
 	;[herd_init herd_growth]), is a herd on the nodes of this machine,
 	;those that share its file system, as (Local) has it. They are
 	;started at once.
+	;
+	;With away the children are kept off this node, if this machine has
+	;another. A child whose job is one long call of native code, with no
+	;task switch in it, holds up everything else on its node while it
+	;runs, and on the node of the app that is the app itself, its mail to
+	;the other children and from them, and the GUI if it is there.
 	(def this :path path :task_mbox task_mbox :reply_mbox reply_mbox
-		:queue (list) :out 0 :tried (Fmap) :tries 0)
+		:queue (list) :out 0 :tried (Fmap) :tries 0 :away away)
 	(def this :farm (if (list? size)
 		(apply (const Local) (cat (list (const create) (const destroy)) size))
 		(Farm (const create) (const destroy) (ifn size (max 1 (length (lisp-nodes)))))))

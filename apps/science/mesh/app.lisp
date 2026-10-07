@@ -3,6 +3,7 @@
 (import "gui/lisp.inc")
 (import "lib/math/mesh.inc")
 (import "lib/math/scene.inc")
+(import "lib/gpu/tris.inc")
 (import "./app.inc")
 
 (enums +event 0
@@ -12,8 +13,11 @@
 	(enum layout)
 	(enum style))
 
+;the timers are last. A frame can take longer than the frame timer, and
+;what is first in the list is what is read first, so a timer that was
+;ahead of the farm would leave the farm unread
 (enums +select 0
-	(enum main task reply tip frame_timer retry_timer))
+	(enum main task reply tip farm_task farm_reply farm_ask frame_timer retry_timer))
 
 (defq anti_alias :nil frame_timer_rate (/ 1000000 30) retry_timer_rate 1000000
 	retry_timeout (task-timeout 10) +min_size 450 +max_size 800
@@ -25,6 +29,11 @@
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
 	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
 	*auto_mode* :nil *render_mode* :nil)
+
+;the pixels of the canvas are in shared memory if the host has it, and
+;the faces are then drawn on them by a child on each node, a strip each
+(defun make-canvas (size)
+	(ifn (canvas-shared size size canvas_scale) (Canvas size size canvas_scale)))
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Mesh" (0xea19 0xea1b 0xea1a) +event_close)
@@ -48,7 +57,7 @@
 				:connect +event_zrot)))
 	(ui-backdrop *main_backdrop* (:style :plain :color +argb_black :ink_color +argb_grey8
 			:min_width +min_size :min_height +min_size)
-		(ui-canvas *main_widget* canvas_size canvas_size canvas_scale)))
+		(ui-element *main_widget* (make-canvas canvas_size) (:color 0))))
 
 (defun tooltips (mbox)
 	(def *window* :tip_mbox mbox)
@@ -108,6 +117,46 @@
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (prin _) (print) :t)))
 
+(defun strips (draws rows)
+	;a job for each child of the farm, a strip of the frame, or with no
+	;rows, which a child answers when it has the shaders and the meshes
+	(defq count (. farm :size) size (* canvas_size canvas_scale))
+	(setq farm_key (canvas-key *main_widget*))
+	(. farm :add (map (# (shader-strip +scene_vertex_file +scene_pixel_file
+			(elem-get select +select_farm_ask) farm_key size size
+			(if rows (/ (* %0 size) count) 0) (if rows (/ (* (inc %0) size) count) 0) :t draws))
+		(range 0 count))))
+
+(defun warm-farm (draws)
+	;a child on each node, started, or started again, one with nothing to
+	;do for a while has gone. Till they have all said they are ready the
+	;frames are drawn here
+	;a child for each node but this one, and none of them on this one, a
+	;strip is one long call and would hold up the app and the GUI
+	(if farm (. farm :restart)
+		(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
+			(elem-get select +select_farm_reply)
+			(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)))
+	(setq warming :t farming :nil last_farm 1)
+	(strips draws :nil))
+
+(defun draw-faces ()
+	;a frame of the faces. By the farm if the pixels can be shared, there
+	;is more than this node, and the children are ready. Here if not
+	(defq draws (. scene :draws +left +right +top +bottom +near +far (* canvas_size canvas_scale))
+		now (pii-time))
+	(cond
+		((and (not no_farm) (not warming) (/= (canvas-key *main_widget*) 0)
+				(> (length (lisp-nodes :t)) 1) farm (< (- now last_farm) +farm_stale))
+			(setq farming :t last_farm now)
+			(. *main_widget* :fill 0)
+			(strips draws :t))
+		(:t (if (and (not no_farm) (not warming) (/= (canvas-key *main_widget*) 0)
+					(> (length (lisp-nodes :t)) 1))
+				(warm-farm draws))
+			(.-> scene (:draw *main_widget* draws))
+			(. *main_widget* :swap +swap_write))))
+
 (defun main ()
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap +swap_write))
@@ -115,6 +164,10 @@
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(defq select (task-mboxes +select_size) *running* :t *dirty* :t
 		meshes (list) scene (create-scene meshes)
+		;the farm that draws the faces, a frame is out with it, it has
+		;been asked if it is ready, and it can not reach the pixels
+		farm :nil farming :nil warming :nil no_farm :nil last_farm 0 ticks 0 farm_key 0
+		+farm_stale 3000000
 		;the meshes are made by a herd of children on this machine's nodes
 		jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
 			(elem-get select +select_reply) '(4 2)))
@@ -162,12 +215,41 @@
 					(set-rot *xrot_slider* *rotx*)
 					(set-rot *yrot_slider* *roty*)
 					(set-rot *zrot_slider* *rotz*))
-				(when *dirty*
+				;the next frame, if the last is not still out with the farm
+				(when (and *dirty* (not farming))
 					(setq *dirty* :nil)
 					(. scene :set_rotation +real_0 +real_0 *rotz*)
 					(each (# (. %0 :set_rotation *rotx* *roty* +real_0)) (. scene :children))
-					(. scene :render *main_widget* (* canvas_size canvas_scale)
-						+left +right +top +bottom +near +far *render_mode*)))
+					(if *render_mode*
+						(draw-faces)
+						(. scene :render *main_widget* (* canvas_size canvas_scale)
+							+left +right +top +bottom +near +far :nil)))
+				(if (and farm (= (setq ticks (% (inc ticks) 30)) 0))
+					(. farm :refresh retry_timeout)))
+			((= idx +select_farm_task)
+				;a child of the farm has started
+				(if farm (. farm :launched *msg*)))
+			((= idx +select_farm_ask)
+				;a child of the farm has not got a mesh
+				(shader-mesh-send *msg* (. scene :mesh (getf *msg* +strip_ask_mesh))))
+			((= idx +select_farm_reply)
+				;a strip is drawn, or a child has said it is ready
+				(when (and farm (defq out (. farm :answered *msg*)))
+					;a child that could not reach the pixels. If they are
+					;still the pixels of the canvas the farm is no use, and
+					;the faces are drawn here from now on. If the canvas is
+					;a new one, the window was sized, the farm is asked
+					;again for the new one
+					(when (= (getf *msg* +strip_reply_drawn) 0)
+						(setq *dirty* :t last_farm 0)
+						(if (= farm_key (canvas-key *main_widget*)) (setq no_farm :t)))
+					(when (= out 0)
+						(cond
+							(warming (setq warming :nil)
+								(if (> last_farm 0) (setq last_farm (pii-time))))
+							(farming (setq farming :nil)
+								(if (= farm_key (canvas-key *main_widget*))
+									(. *main_widget* :swap +swap_write)))))))
 			;must be gui event to main mailbox
 			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
@@ -198,5 +280,6 @@
 						(char key))))
 			((. *window* :event *msg*))))
 	(. jobs :close)
+	(if farm (. farm :close))
 	(gui-sub-rpc *window*)
 	(profile-report "Mesh"))

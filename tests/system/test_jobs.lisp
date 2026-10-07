@@ -71,3 +71,23 @@
 (assert-eq "a herd" (min 3 (inc (length (lisp-nodes :t)))) (. jobs :size))
 (assert-list-eq "a herd does the work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3)) 10000000))
 (. jobs :close)
+
+;children kept away from this node, if this machine has another. New
+;mailboxes, so that no word of a child of the farms before is taken for
+;one of these
+(defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
+(defq jobs (Jobs "tests/system/data/jobs_child.lisp"
+	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 3 0) :t)
+	jt_nodes (list))
+(mail-timeout (elem-get jt_select +jt_timer) 5000000 0)
+(while (and (< (length jt_nodes) 3)
+		(= (defq jt_idx (mail-select jt_select)) +jt_task))
+	(defq jt_msg (mail-read (elem-get jt_select jt_idx)))
+	(push jt_nodes (task-nodeid (getf jt_msg +kn_msg_reply_id)))
+	(. jobs :launched jt_msg))
+(mail-timeout (elem-get jt_select +jt_timer) 0 0)
+(assert-eq "three children kept away" 3 (length jt_nodes))
+(assert-true "none of them on this node, if there is another"
+	(or (<= (length (lisp-nodes :t)) 1) (notany (# (eql %0 (task-nodeid))) jt_nodes)))
+(assert-list-eq "and they work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3)) 10000000))
+(. jobs :close)

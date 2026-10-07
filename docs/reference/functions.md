@@ -157,6 +157,16 @@ are of a line, or a part of one that begins at the char start.
 (atom? o) -> :t | :nil
 ```
 
+### ball-rows
+
+```code
+(ball-rows centre radius mat4x4_obj mat4x4_frust height) -> (y y1)
+
+the rows of a frame of that height a ball may be on, as it is seen.
+All of them if it is at the eye or behind it. The ball is as big as
+the most the matrix of its object stretches anything
+```
+
 ### bit-mask
 
 ```code
@@ -402,7 +412,10 @@ what a value of the type is before it is set
 ### create
 
 ```code
-a child is started, the word that it has comes to the task mailbox
+a child is started, the word that it has comes to the task mailbox.
+
+If the children are to be away from this node, and there is another,
+it is on one of the others, each in turn
 ```
 
 ### csr-cmp
@@ -1834,15 +1847,31 @@ heard from has no system id, all zero.
 (max-length list) -> max
 ```
 
+### mesh-ball
+
+```code
+(mesh-ball mesh) -> (centre radius)
+
+a ball that the mesh is inside, the middle of its box and how far
+the furthest vertex is from there
+```
+
 ### mesh-corners
 
 ```code
-(mesh-corners mesh) -> (verts tris)
+(mesh-corners mesh) -> str
 
 a mesh as the shaders want it. A face is lit flat, so a vertex that
 faces share is a vertex of its own for each of them, where it is and
 then the normal of that face, 7 numbers. The triangles are then just
-the vertices in the order they come.
+the vertices in the order they come. It is the bytes of the numbers,
+as they go in a message to a child that draws.
+
+The meshes of lib/math/mesh.inc have their faces going round clockwise
+as seen from outside, with normals that point in. The way it is done
+everywhere else, and by the pipeline, is counter clockwise with
+normals that point out. So here two corners of each face are swapped
+and its normal is turned round.
 ```
 
 ### min-length
@@ -2313,14 +2342,6 @@ for it. An empty pattern stays empty, and matches as it would without.
 (reflow words line_width [indent tab_width]) -> lines
 ```
 
-### render-object-tris
-
-```code
-the faces of an object, drawn by the shaders, as native code. The
-
-mesh is made into what they want the first time it is drawn
-```
-
 ### repl-error?
 
 ```code
@@ -2435,6 +2456,12 @@ them. instr is the class of the closing char if in a string.
 (scatter map|set [key]|[key val] ...) -> map|set
 
 scatter a list of [key]|[key val]
+```
+
+### scene-order
+
+```code
+the triangles of count vertices taken three at a time
 ```
 
 ### scene-pipeline
@@ -2635,6 +2662,15 @@ The driver builds it in its own time, till then :shade draws nothing.
 (shader-load file) -> program
 ```
 
+### shader-mesh-send
+
+```code
+(shader-mesh-send msg verts)
+
+answer a child that asked for a mesh, msg is what came to the ask
+mailbox, verts the vertices of the mesh as a str, (shader-verts-str)
+```
+
 ### shader-msl
 
 ```code
@@ -2719,6 +2755,19 @@ entry point is vertex_main.
 (shader-stage program) -> :pixel | :vertex
 ```
 
+### shader-strip
+
+```code
+(shader-strip vfile pfile ask shared width height y y1 cull draws) -> job
+
+the job for rows y to y1 of a frame of that width and height. ask
+is the mailbox a child asks for a mesh at, shared the key of the
+pixels, (canvas-key). draws is a list of (mesh vblock pblock [y y1]),
+the number of a mesh, the blocks of (shader-pack) for the two
+shaders, and the rows of the frame the mesh may be on, if the app
+knows, all of them if not.
+```
+
 ### shader-tile
 
 ```code
@@ -2753,6 +2802,14 @@ a float comes back as a real, a vector as a reals
 what a vertex shader sets for the pixel shader, or a pixel shader reads
 ```
 
+### shader-verts-str
+
+```code
+(shader-verts-str reals) -> str
+
+the bytes of a reals of vertices, to send in a message
+```
+
 ### shader-vp
 
 ```code
@@ -2777,8 +2834,10 @@ of the frame is given then row 0 is the top row, as a canvas has it.
 (shader-vp-depth width height) -> depth
 
 a depth buffer for a pixmap of this size, with nothing in it, all of
-it as far away as can be. A new one is made for each frame, it is
-quicker than it sounds, the bytes are copied and not set one by one
+it as far away as can be. A new one is made for each frame, and it is
+a copy of one that is kept, the one copy of the bytes. What is kept is
+all but the last 4 bytes, so that joining them on is always a new
+str, the one that is kept is never the one that is handed out
 ```
 
 ### shader-vp-draw
@@ -2798,10 +2857,11 @@ color times its alpha.
 ### shader-vp-draw-tris
 
 ```code
-(shader-vp-draw-tris pipeline verts tris pixmap depth [vvals pvals cull tri_size x y x1 y1]) -> pixmap
+(shader-vp-draw-tris pipeline verts tris pixmap depth [vvals pvals cull tri_size x y x1 y1 depth_y]) -> pixmap
 
 draw triangles on a 32 bit pixmap. verts is a reals, the attrs of a
-vertex one after another, vertex after vertex. tris is a nums, three
+vertex one after another, vertex after vertex, or the bytes of one
+in a str. tris is a nums, three
 numbers of vertices for each triangle, the first three of every
 tri_size, 3 if not given. vvals and pvals are the inputs of the two
 shaders. Where a vertex shader puts a vertex, x and y of -1 to 1 are
@@ -2811,8 +2871,11 @@ is left out, it faces away. A cull of :front leaves out those that go
 round the other way, for a mesh made the other way round, or a view
 that is turned over. Only the pixels of x y x1 y1 are drawn,
 all of the pixmap if they are not given, so that a frame can be drawn
-a part at a time, or by several tasks. A pixel is full on. A triangle
-with a vertex that is not in front of the eye is left out whole.
+a part at a time, or by several tasks. A task that draws rows y to y1
+only can have a depth buffer of just those rows, and says so with a
+depth_y of y, the row its depth buffer starts at. A pixel is full on.
+A triangle with a vertex that is not in front of the eye is left out
+whole.
 ```
 
 ### shader-vp-fill
@@ -2858,7 +2921,9 @@ the pixels of a tile, row by row, each a reals of 4
 
 place the vertices of a reals, the attrs of one after another, vertex
 after vertex. The result is a reals, for each vertex where it is, 4
-numbers, then its varyings.
+numbers, then its varyings. The vertices can be a str, the bytes of
+such a reals, 8 to a number, as (shader-verts-str) makes, which is
+how they are when they have come in a message.
 ```
 
 ### shader-vp-vertex
@@ -3151,7 +3216,7 @@ those of the bindings in (sv-fill-source)
 
 the VP source of the native function that fills triangles with a
 pixel shader. params is where in the frame the caller's numbers go,
-(ntris stride tstride vw vh cx0 cy0 cx1 cy1 cull vary), vary is the
+(ntris stride tstride vw vh cx0 cy0 cx1 cy1 cull dy vary), vary is the
 first of a slot for each number of the varyings, where in a placed
 vertex that number is, in bytes
 ```
@@ -3204,6 +3269,16 @@ CPU has not got it yet
 
 ```code
 a built in op
+```
+
+### sv-place-again
+
+```code
+as (shader-vp-place), for a result that is used at once and let go
+
+of, as a draw does. The reals the last such call of that size gave
+is used again, every number of it is written, so there is no new one
+to make and clear for each object of each frame
 ```
 
 ### sv-pow

@@ -5,7 +5,7 @@
 (defun set-canvas (size)
 	(defq parent (penv *main_widget*))
 	(. *main_widget* :sub)
-	(setq *main_widget* (Canvas size size canvas_scale) canvas_size size *dirty* :t)
+	(setq *main_widget* (make-canvas size) canvas_size size *dirty* :t)
 	(bind '(w h) (. parent :get_size))
 	(. parent :add_child *main_widget*)
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:change 0 0 w h))

@@ -5,6 +5,10 @@
 (import "./mesh.inc")
 (import "././gpu/vp.inc")
 
+;the two shaders the faces of a scene are drawn with
+(defq +scene_vertex_file "lib/gpu/shaders/mesh_vertex.shader"
+	+scene_pixel_file "lib/gpu/shaders/mesh_lit.shader")
+
 ;module
 (env-push)
 
@@ -58,15 +62,19 @@
 (defun scene-pipeline ()
 	;the two shaders a scene is drawn with, assembled the first time
 	(memoize :scene_pipeline (shader-vp-pipeline
-		(shader-load "lib/gpu/shaders/mesh_vertex.shader")
-		(shader-load "lib/gpu/shaders/mesh_lit.shader")) 3))
+		(shader-load +scene_vertex_file) (shader-load +scene_pixel_file)) 3))
+
+(defun scene-order (count)
+	;the triangles of count vertices taken three at a time
+	(memoize count (apply (const nums) (range 0 count)) 11))
 
 (defun mesh-corners (mesh)
-	; (mesh-corners mesh) -> (verts tris)
+	; (mesh-corners mesh) -> str
 	;a mesh as the shaders want it. A face is lit flat, so a vertex that
 	;faces share is a vertex of its own for each of them, where it is and
 	;then the normal of that face, 7 numbers. The triangles are then just
-	;the vertices in the order they come.
+	;the vertices in the order they come. It is the bytes of the numbers,
+	;as they go in a message to a child that draws.
 	;
 	;The meshes of lib/math/mesh.inc have their faces going round clockwise
 	;as seen from outside, with normals that point in. The way it is done
@@ -78,19 +86,37 @@
 		(defq n (nums-scale (slice norms (* in +vec3_size) (* (inc in) +vec3_size)) +real_-1))
 		(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) n))
 			(list i0 i2 i1))) (partition (. mesh :get_tris) +tri_size))
-	(defq flat (apply (const cat) out))
-	(list flat (apply (const nums) (range 0 (/ (length flat) 7)))))
+	(shader-verts-str (apply (const cat) out)))
 
-(defun render-object-tris (pixmap depth mat4x4_frust mat4x4_obj object)
-	;the faces of an object, drawn by the shaders, as native code. The
-	;mesh is made into what they want the first time it is drawn
-	(unless (eql (get :corners_of object) (defq mesh (. object :get_mesh)))
-		(def object :corners_of mesh :corners (mesh-corners mesh)))
-	(bind '(verts tris) (get :corners object))
-	(shader-vp-draw-tris (scene-pipeline) verts tris pixmap depth
-		(list (list 'model mat4x4_obj) (list 'lens mat4x4_frust))
-		(list (list 'color (rest (. object :get_color))))
-		:t))
+(defun mesh-ball (mesh)
+	; (mesh-ball mesh) -> (centre radius)
+	;a ball that the mesh is inside, the middle of its box and how far
+	;the furthest vertex is from there
+	(defq verts (partition (. mesh :get_verts) +vec4_size)
+		lo (reduce (const nums-min) verts) hi (reduce (const nums-max) verts)
+		centre (nums-scale (nums-add lo hi) +real_1/2) far +real_0)
+	(each (# (defq d (nums-sub %0 centre)) (setq far (max far (nums-dot d d)))) verts)
+	(list (cat (slice centre 0 3) (reals +real_1)) (sqrt far)))
+
+(defun ball-rows (centre radius mat4x4_obj mat4x4_frust height)
+	; (ball-rows centre radius mat4x4_obj mat4x4_frust height) -> (y y1)
+	;the rows of a frame of that height a ball may be on, as it is seen.
+	;All of them if it is at the eye or behind it. The ball is as big as
+	;the most the matrix of its object stretches anything
+	(defq eye (mat4x4-vec4-mul mat4x4_obj centre)
+		stretch (sqrt (max
+			(nums-dot (defq c0 (reals (elem-get mat4x4_obj 0) (elem-get mat4x4_obj 4) (elem-get mat4x4_obj 8))) c0)
+			(nums-dot (defq c1 (reals (elem-get mat4x4_obj 1) (elem-get mat4x4_obj 5) (elem-get mat4x4_obj 9))) c1)
+			(nums-dot (defq c2 (reals (elem-get mat4x4_obj 2) (elem-get mat4x4_obj 6) (elem-get mat4x4_obj 10))) c2)))
+		r (* radius stretch) clip (mat4x4-vec4-mul mat4x4_frust eye) w (- (elem-get clip 3) r))
+	(cond
+		((<= w +real_0) (list 0 height))
+		(:t (defq mid (/ (elem-get clip 1) (elem-get clip 3))
+				;how big it is on the screen, taken at its nearest point
+				reach (/ (* r (abs (elem-get mat4x4_frust 5))) w)
+				half (* (n2r height) +real_1/2))
+			(list (max 0 (- (n2i (* (- +real_1 (+ mid reach)) half)) 2))
+				(min height (+ (n2i (* (- +real_1 (- mid reach)) half)) 3))))))
 
 (defclass Scene-node (&optional name) :nil
 	; (Scene-node [name]) -> scene_node
@@ -220,39 +246,91 @@
 
 (defclass Scene (&optional name) (Scene-node name)
 	; (Scene [name]) -> scene_node
-	(def this :poly_buckets (defq poly_buckets (lists +num_poly_buckets)))
+	(def this :poly_buckets (lists +num_poly_buckets) :meshes (list))
 
-	(defmethod :render (canvas size left right top bottom near far mode)
-		; (. scene_node :render canvas size left right top bottom near far mode) -> scene_node
-		;with mode the faces of the meshes are drawn, by a vertex shader and
-		;a pixel shader, with a depth buffer. Without it their vertices are,
-		;as dots
-		(. canvas :fill 0)
+	(defmethod :draws (left right top bottom near far height)
+		; (. scene :draws left right top bottom near far height) -> ((mesh vblock pblock y y1) ...)
+		;what is drawn for a frame of the faces, as it is seen now, a frame
+		;of that many rows. For each object that has a mesh, the number of
+		;the mesh, the inputs of the vertex shader and of the pixel shader
+		;for it, as the blocks they travel in, and the rows it may be on.
+		;It is what a child that draws a strip is sent, and what is drawn
+		;from here, so the two are the same to the bit.
 		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
-			matrix_stack (list (Mat4x4-unity))
-			pixmap (getf canvas +canvas_pixmap 0)
-			depth (if mode (shader-vp-depth (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0))))
-		(raise :poly_buckets)
-		(. scene :walk_nodes
+			matrix_stack (list (Mat4x4-unity)) draws (list) pipeline (scene-pipeline))
+		(raise :meshes)
+		(. this :walk_nodes
 			(lambda (object children)
 				(defq mat4x4_obj (mat4x4-mul (last matrix_stack) (. object :get_matrix)))
 				(push matrix_stack mat4x4_obj)
 				(when (def? :mesh object)
-					(defq mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
-					(if mode
-						(render-object-tris pixmap depth mat4x4_frust mat4x4_obj object)
-						(render-object-verts size mat4x4_proj object))
-					(task-slice))
+					;the mesh is made into what the shaders want, and given
+					;its number, the first time it is seen
+					(unless (eql (get :corners_of object) (defq mesh (. object :get_mesh)))
+						(def object :corners_of mesh :corners_id (length meshes)
+							:ball (mesh-ball mesh))
+						(push meshes (mesh-corners mesh)))
+					(bind '(centre radius) (get :ball object))
+					(push draws (cat (list (get :corners_id object)
+						(shader-pack (first pipeline)
+							(list (list 'model mat4x4_obj) (list 'lens mat4x4_frust)))
+						(shader-pack (second pipeline)
+							(list (list 'color (rest (. object :get_color))))))
+						(ball-rows centre radius mat4x4_obj mat4x4_frust height))))
 				:nil)
 			(lambda (object children)
 				(pop matrix_stack)))
-		(reach (lambda (path_list)
-				(while (defq p (pop path_list))
-					(bind '(p col sx sy) p)
-					(. canvas :set_color col)
-					(. canvas :fpoly sx sy +winding_odd_even (list p)))
-				(task-slice))
-			poly_buckets)
+		draws)
+
+	(defmethod :mesh (id)
+		; (. scene :mesh id) -> str
+		;the mesh of that number, as the shaders want it, for a child that
+		;has asked for it
+		(elem-get (get :meshes this) id))
+
+	(defmethod :draw (canvas draws)
+		; (. scene :draw canvas draws) -> scene
+		;the faces of a frame, drawn here, by the shaders as native code,
+		;with a depth buffer. The canvas is not swapped
+		(defq pixmap (getf canvas +canvas_pixmap 0) pipeline (scene-pipeline)
+			depth (shader-vp-depth (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0)))
+		(raise :meshes)
+		(. canvas :fill 0)
+		(each (lambda ((id vblock pblock &rest _))
+			(defq verts (elem-get meshes id))
+			(shader-vp-draw-tris pipeline verts (scene-order (/ (length verts) 56)) pixmap depth
+				(shader-unpack (first pipeline) vblock) (shader-unpack (second pipeline) pblock) :t)
+			(task-slice)) draws)
+		this)
+
+	(defmethod :render (canvas size left right top bottom near far mode)
+		; (. scene :render canvas size left right top bottom near far mode) -> scene
+		;with mode the faces of the meshes are drawn, by a vertex shader and
+		;a pixel shader, with a depth buffer. Without it their vertices are,
+		;as dots
+		(cond
+			(mode (. this :draw canvas (. this :draws left right top bottom near far size)))
+			(:t (. canvas :fill 0)
+				(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
+					matrix_stack (list (Mat4x4-unity)))
+				(raise :poly_buckets)
+				(. this :walk_nodes
+					(lambda (object children)
+						(defq mat4x4_obj (mat4x4-mul (last matrix_stack) (. object :get_matrix)))
+						(push matrix_stack mat4x4_obj)
+						(when (def? :mesh object)
+							(render-object-verts size (mat4x4-mul mat4x4_frust mat4x4_obj) object)
+							(task-slice))
+						:nil)
+					(lambda (object children)
+						(pop matrix_stack)))
+				(reach (lambda (path_list)
+						(while (defq p (pop path_list))
+							(bind '(p col sx sy) p)
+							(. canvas :set_color col)
+							(. canvas :fpoly sx sy +winding_odd_even (list p)))
+						(task-slice))
+					poly_buckets)))
 		(. canvas :swap +swap_write)
 		this)
 	)

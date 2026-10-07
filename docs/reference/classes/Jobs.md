@@ -1,13 +1,19 @@
 # Jobs
 
 ```code
-(Jobs path task_mbox reply_mbox [size]) -> jobs
+(Jobs path task_mbox reply_mbox [size away]) -> jobs
 
 children of the task at path, a node's worth of them if no size is
 given, on any of the nodes. A size that is a list, (herd_max
 [herd_init herd_growth]), is a herd on the nodes of this machine,
 those that share its file system, as (Local) has it. They are
 started at once.
+
+With away the children are kept off this node, if this machine has
+another. A child whose job is one long call of native code, with no
+task switch in it, holds up everything else on its node while it
+runs, and on the node of the app that is the app itself, its mail to
+the other children and from them, and the GUI if it is there.
 ```
 
 ### :add

@@ -329,6 +329,55 @@ A sphere of 6,240 triangles, 800 by 800, a colour for each pixel from a
 varying, takes 2.5ms on one core of an Apple M4 Max with those facing away
 left out, 4.4ms with them. On a Raspberry Pi 4, 23ms and 35ms.
 
+### Triangles by strips
+
+A frame of triangles is drawn by a child on each node, a strip of the rows
+each, straight onto the pixels of the app's canvas, which are in shared
+memory, `(canvas-shared)`. `lib/gpu/tris.inc`, on the jobs library,
+`lib/task/jobs.inc`, as `lib/gpu/tile.inc` is for a pixel shader alone.
+
+```lisp
+(defq jobs (Jobs +shader_tris_child task_mbox reply_mbox '(64 3 0) :t))
+(. jobs :add (map (# (shader-strip vfile pfile ask_mbox (canvas-key canvas)
+	width height (/ (* %0 height) 3) (/ (* (inc %0) height) 3) :t draws)) (range 0 3)))
+```
+
+* A job is a strip. It names the two shader files, and lists what is drawn,
+  `draws`, each a `(mesh vblock pblock [y y1])`, the number of a mesh, the
+  blocks of `(shader-pack)` for the two shaders, and, if the app knows, the
+  rows of the frame the mesh may be on. A child whose strip is none of those
+  rows does nothing for that mesh, it does not place its vertices.
+* A job does not carry the meshes. A child that has not got one asks the app
+  for it, the once, at the mailbox the app gave, and the app answers with
+  `(shader-mesh-send msg verts)`, the vertices as the bytes of
+  `(shader-verts-str)`. So a frame is a few small messages.
+* A child has a depth buffer of its own, of just its rows. Only the pixels
+  are shared.
+* The inputs travel as the blocks a GPU takes, 32 bit floats. An app that
+  also draws a frame itself gives its own draw the values from the blocks,
+  `(shader-unpack)`, and then a frame by the farm and a frame by one task are
+  the same to the bit. That holds because a pixel is worked out from where
+  it is, not stepped to from its neighbour, whichever strip it is in.
+* A strip for each child is the quickest, more strips than children is
+  slower. Every strip has all the triangles of its meshes to look at before
+  it draws a pixel.
+* The children are best kept off the node of the app, the last argument of
+  `(Jobs)`.
+
+A frame of 20,000 triangles that cover a 900 by 900 canvas evenly takes one
+task 12ms on an Apple M4 Max and 154ms on a Raspberry Pi 4. With 2, 3 and 4
+children it is 8, 6 and 5ms, and 90, 73 and 64ms.
+
+### Giving way
+
+A native function gives the other tasks of its node a turn as it goes, a
+shader does not hold a node for as long as it runs. The triangle fill counts
+its work, a pixel is 1 and a triangle 32, and gives way every 16,384. A tile
+of a pixel shader gives way every 4,096 pixels. The vertex function gives
+way every 2,048 vertices. It costs next to nothing, all that such a function
+keeps from one pixel to the next is in its frame, so at the top of a row
+there is nothing in a register to save.
+
 The GLSL, MSL and SPIR-V back ends have no vertex stage yet, so the GPU does
 not draw triangles yet. They say so.
 
@@ -823,7 +872,9 @@ The app is in the Demos list of the launcher, as surface.
   apart by the lock service, as `(jit)` is. The login app, the TUI and the
   test suite start it. With no `@Lock` service running, 16 children starting
   together from a cold cache read each other's half written files.
-* A tile is shaded in one call with no task switch, so keep tiles small.
+* A tile gives way to the other tasks of its node every 4,096 pixels, but a
+  pixel that is a great deal of work is still a long time, so keep tiles
+  small.
 * The VP code is plain scalar code. Nothing is kept in a register between
   statements, no common terms are shared, and there is no SIMD.
 
