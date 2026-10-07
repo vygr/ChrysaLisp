@@ -4,6 +4,26 @@
 
 ------
 
+Triangles on the GPU of a Raspberry Pi, through Vulkan.
+
+`(shader-spirv-pair vertex pixel)`, in `lib/gpu/spirv.inc`, the SPIR-V for a
+vertex shader and a pixel shader that go together, a vertex module and a
+fragment module, the words of them made in Lisp as the fragment shader's
+are. A matrix type, in a block a column at a time. Attrs and varyings at
+locations. The frag coord from where the pixel is and the size of the
+target. `(shader-gui-pair)` hands them to the driver where it takes SPIR-V.
+
+The modules pass `spirv-val`, for the Mesh shaders and for a pair with
+matrices in locals and globals and varyings in another order. And the Mesh
+demo was run on the Pi's own GPU, the V3D, the whole scene, nearest in
+front, lit from the top left, 40ms a frame, where three children take 62 to
+98ms and one task 140 to 155ms.
+
+Nothing in the host changed for it. Windows takes the same SPIR-V, and has
+not been tried.
+
+Tests of what a module of a pair must have, in `tests/gpu/test_shader.lisp`.
+
 Triangles on the GPU, on a Mac, and the Mesh demo has CPU and GPU buttons.
 
 *	`(shader-msl-pair vertex pixel)`, in `lib/gpu/msl.inc`, the Metal text

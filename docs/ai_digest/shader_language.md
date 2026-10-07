@@ -380,8 +380,8 @@ there is nothing in a register to save.
 
 ### Triangles on the GPU
 
-The same two shader files are drawn by the GPU of the GUI, on a host whose
-driver takes Metal Shading Language, a Mac.
+The same two shader files are drawn by the GPU of the GUI, through Metal on
+a Mac and through Vulkan on a Raspberry Pi.
 
 ```lisp
 (defq pair (shader-gui-pair vertex pixel :t))
@@ -420,8 +420,21 @@ with a scale at the size of its pixmap, and it is then scaled down.
 The Mesh demo has CPU and GPU buttons, and the g key, to change between the
 nodes and the GPU as it runs.
 
-The GLSL and SPIR-V back ends have no vertex stage yet, so a Raspberry Pi
-and Windows do not draw triangles on the GPU yet. They say so.
+`(shader-spirv-pair vertex pixel)` is the same for Vulkan, a vertex module
+and a fragment module, their words made here as the fragment shader's are.
+The attrs and the varyings are at locations, the inputs of the vertex shader
+are a block in set 1, those of the pixel shader in set 3, with the size of
+the target at binding 1 of it, as SDL's GPU interface wants them. A matrix
+is a matrix type, a column at a time in its block, and a matrix times a vec3
+is by a 3 by 3 made of its first three columns. The modules pass
+`spirv-val`.
+
+On a Raspberry Pi 4 the Mesh demo, 900 by 900 as the nodes draw it, is 140
+to 155ms a frame by one task, 62 to 98ms by three children, and 40ms on its
+own GPU, with every vertex sent again each frame.
+
+The GLSL back end has no vertex stage. Windows takes the SPIR-V, and has not
+been tried.
 
 ## Using It
 

@@ -41,6 +41,9 @@
 		(1 (bind '(vertex_text fragment_text) (shader-msl-pair vertex pixel))
 			(defq pair (canvas-shader-create (cat head vertex_text) fragment_text))
 			(if (/= pair 0) pair))
+		(2 (bind '(vertex_module fragment_module) (shader-spirv-pair vertex pixel))
+			(defq pair (canvas-shader-create (cat head vertex_module) fragment_module))
+			(if (/= pair 0) pair))
 		(:t :nil)))
 
 (defun shader-gui-frame (canvas pair draws)
@@ -61,5 +64,8 @@
 		(cat block (slice (const (char 0 8)) 0 (- (logand (+ (length block) 7) -8) (length block)))))
 	(. canvas :shade pair (apply (const cat) (cat (list (char (length draws) 8))
 		(map (lambda ((verts count vblock pblock))
+			;a shader with no inputs still has a block, of nothing
+			(if (empty? vblock) (setq vblock (const (char 0 8))))
+			(if (empty? pblock) (setq pblock (const (char 0 8))))
 			(cat (char count 8) (char (length vblock) 8) (char (length pblock) 8) (char (length verts) 8)
 				(pad8 vblock) (pad8 pblock) verts)) draws)))))

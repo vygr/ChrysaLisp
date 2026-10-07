@@ -3,7 +3,8 @@
 ; The module is a fragment shader for Vulkan, as SDL's GPU interface
 ; wants it. The inputs are one uniform block, set 3 binding 0, laid
 ; out as the inputs block. No compiler is called on, the words of the
-; module are made here.
+; module are made here. A vertex shader and a pixel shader that go
+; together are a vertex module and a fragment module, (shader-spirv-pair).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./shader.inc")
@@ -49,6 +50,9 @@
 			(:bool (spv-op spv_types 20 id))
 			(:int (spv-op spv_types 21 id 32 1))
 			(:float (spv-op spv_types 22 id 32))
+			;a matrix is its columns, 4 of vec4, and for a vec3, 3 of vec3
+			(:mat4 (spv-op spv_types 24 id (spv-type :vec4) 4))
+			(:mat3 (spv-op spv_types 24 id (spv-type :vec3) 3))
 			(:t (spv-op spv_types 23 id ft (shader-dim type))))
 		id)))
 
@@ -139,6 +143,20 @@
 		(:t (defq types (map (const first) b) ids (map spv-expr b)
 				ta (first types) ia (first ids) ib (second ids) ic (third ids) i :nil)
 			(cond
+				((find :mat4 types)
+					;matrices, made the one, then times the vector, if it ends
+					;with one. A vec3 is by the 3 by 3 of the matrix, its first
+					;three columns, cut to three
+					(defq m (reduce (# (spv-emit :mat4 146 %0 %1))
+						(if (eql type :mat4) ids (slice ids 0 -2))))
+					(cond
+						((eql type :mat4) m)
+						((eql type :vec4) (spv-emit :vec4 145 m (last ids)))
+						(:t (spv-emit :vec3 145
+							(apply (const spv-emit) (cat (list :mat3 80) (map (lambda (col)
+								(defq c (spv-emit :vec4 81 m col))
+								(spv-emit :vec3 79 c c 0 1 2)) '(0 1 2))))
+							(last ids)))))
 				((defq i (find a '(+ - * /)))
 					(if (= (length ids) 1)
 						(spv-emit type (if (eql type :int) 126 127) ia)
@@ -244,17 +262,62 @@
 	(each (# (push spv_code %0)) spv_body)
 	(spv-op spv_code 56))
 
-(defun spv-block-var (types offsets set)
+(defun spv-block-var (types offsets set &optional binding)
 	;a uniform block of these members, -> (var_id ptr_type_id ...) the
-	;pointer types are those of the members
+	;pointer types are those of the members. A matrix is a column at a
+	;time, each 16 bytes on from the last
 	(defq tids (map (const spv-type) types) sid (spv-id) vid (spv-id))
 	(apply (const spv-op) (cat (list spv_types 30 sid) tids))
 	(spv-op spv_decor 71 sid 2)
-	(each (# (spv-op spv_decor 72 sid (!) 35 %0)) offsets)
-	(spv-op spv_types 59 (spv-ptr "block" sid 2) vid 2)
+	(each (# (spv-op spv_decor 72 sid (!) 35 %0)
+		(when (eql %1 :mat4)
+			(spv-op spv_decor 72 sid (!) 5)
+			(spv-op spv_decor 72 sid (!) 7 16))) offsets types)
+	(spv-op spv_types 59 (spv-ptr (cat "block " (str sid)) sid 2) vid 2)
 	(spv-op spv_decor 71 vid 34 set)
-	(spv-op spv_decor 71 vid 33 0)
+	(spv-op spv_decor 71 vid 33 (ifn binding 0))
 	(cat (list vid) (map (# (spv-ptr %0 %1 2)) types tids)))
+
+(defun spv-program (program)
+	; (spv-program program) -> block
+	;the inputs block of a program, a variable for each of its inputs,
+	;constants and globals, and its functions
+	(bind '(inputs consts globals funcs &rest _) program)
+	(defq layout (rest (shader-layout program)) block :nil)
+	(if (nempty? layout)
+		(setq block (spv-block-var (map (const second) layout) (map (const third) layout)
+			(if (eql (shader-stage program) :vertex) 1 3))))
+	(each (lambda ((name type &rest _)) (spv-global name type)) (cat inputs consts globals))
+	(each (lambda ((name &rest _)) (. spv_fmap :insert name (spv-id))) funcs)
+	(each (lambda ((name type params block))
+		(spv-function (. spv_fmap :find name) type (map (const second) params) (lambda (pids)
+			(each (lambda ((pname ptype) pid)
+				(spv-op spv_body 62 (spv-local pname ptype) pid)) params pids)
+			(spv-block block)
+			(unless spv_term (spv-op spv_body 254 (spv-null type))))))
+		funcs)
+	block)
+
+(defun spv-start (program block)
+	;at the start of the entry point the inputs are copied from the block,
+	;and the constants and the globals are set
+	(bind '(inputs consts globals &rest _) program)
+	(each (lambda ((name type &rest _))
+		(defq p (spv-id))
+		(spv-op spv_body 65 (elem-get block (inc (!))) p (first block) (spv-const :int (!)))
+		(spv-op spv_body 62 (first (spv-var name)) (spv-emit type 61 p))) inputs)
+	(each (lambda ((name type e))
+		(spv-op spv_body 62 (first (spv-var name)) (spv-expr e))) (cat consts globals)))
+
+(defun spv-port (name type class decor value)
+	;a variable that comes in to the module, class 1, or goes out, class
+	;3, at a location, decor 30, or as a built in, decor 11. A shader's
+	;name for it, if it has one, reads and sets it as it is
+	(defq id (spv-id))
+	(spv-op spv_types 59 (spv-ptr type (spv-type type) class) id class)
+	(spv-op spv_decor 71 id decor value)
+	(if name (. spv_gvars :insert name (list id type)))
+	id)
 
 (defun spv-module (model entry name interface)
 	;the bytes of the module, model is 0 vertex, 4 fragment
@@ -273,39 +336,79 @@
 	; (shader-spirv program) -> str
 	;the entry point is fragment_main
 	(sh-pixel-only program "SPIR-V")
-	(bind '(inputs consts globals funcs &rest _) program)
 	(spv-module-vars)
 	(setq spv_glsl (spv-id))
-	(defq entry (spv-id) frag_in (spv-id) colour_out (spv-id)
-		layout (rest (shader-layout program)) block :nil)
-	(spv-op spv_types 59 (spv-ptr :vec2 (spv-type :vec2) 1) frag_in 1)
-	(spv-op spv_decor 71 frag_in 30 0)
-	(spv-op spv_types 59 (spv-ptr :vec4 (spv-type :vec4) 3) colour_out 3)
-	(spv-op spv_decor 71 colour_out 30 0)
-	(if (nempty? layout)
-		(setq block (spv-block-var (map (const second) layout) (map (const third) layout) 3)))
-	(each (lambda ((name type &rest _)) (spv-global name type)) (cat inputs consts globals))
-	(each (lambda ((name &rest _)) (. spv_fmap :insert name (spv-id))) funcs)
-	(each (lambda ((name type params block))
-		(spv-function (. spv_fmap :find name) type (map (const second) params) (lambda (pids)
-			(each (lambda ((pname ptype) pid)
-				(spv-op spv_body 62 (spv-local pname ptype) pid)) params pids)
-			(spv-block block)
-			(unless spv_term (spv-op spv_body 254 (spv-null type))))))
-		funcs)
+	(defq entry (spv-id)
+		frag_in (spv-port :nil :vec2 1 30 0) colour_out (spv-port :nil :vec4 3 30 0)
+		block (spv-program program))
 	;the inputs are copied from the block, the constants and the globals
 	;are set, then main is called
 	(spv-function entry :void (list) (lambda (pids)
-		(each (lambda ((name type &rest _))
-			(defq p (spv-id))
-			(spv-op spv_body 65 (elem-get block (inc (!))) p (first block) (spv-const :int (!)))
-			(spv-op spv_body 62 (first (spv-var name)) (spv-emit type 61 p))) inputs)
-		(each (lambda ((name type e))
-			(spv-op spv_body 62 (first (spv-var name)) (spv-expr e))) (cat consts globals))
+		(spv-start program block)
 		(spv-op spv_body 62 colour_out
 			(spv-emit :vec4 57 (. spv_fmap :find 'main) (spv-emit :vec2 61 frag_in)))
 		(spv-op spv_body 253)))
 	(spv-module 4 entry "fragment_main" (list frag_in colour_out)))
+
+(defun shader-spirv-pair (vertex pixel)
+	; (shader-spirv-pair vertex pixel) -> (vertex_module fragment_module)
+	;a vertex shader and a pixel shader that go together, to draw
+	;triangles with. The entry points are vertex_main and fragment_main.
+	;
+	;The vertex module takes the attrs of a vertex at locations, in the
+	;order the shader has them, and its inputs as a block, set 1 binding
+	;0. It hands on each of its varyings, at a location. Where it puts a
+	;vertex has z of -1 to 1 in view, a GPU of this kind has 0 to 1, so z
+	;is moved as it leaves.
+	;
+	;The fragment module takes the varyings the pixel shader reads, at
+	;the place each has in the vertex shader's list, its inputs as a
+	;block, set 3 binding 0, and the size of the target, set 3 binding 1,
+	;from which, and where the pixel is, comes the frag coord, y up. A
+	;pixel is full on, as the native code has it.
+	(shader-pair vertex pixel)
+	(defq varyings (shader-varyings vertex))
+	;the vertex module
+	(spv-module-vars)
+	(setq spv_glsl (spv-id))
+	(defq entry (spv-id) ports (list)
+		position_out (spv-port :nil :vec4 3 11 0))
+	(each (lambda ((name type)) (push ports (spv-port name type 1 30 (!)))) (shader-attrs vertex))
+	(each (lambda ((name type)) (push ports (spv-port name type 3 30 (!)))) varyings)
+	(defq block (spv-program vertex))
+	(spv-function entry :void (list) (lambda (pids)
+		(spv-start vertex block)
+		;a varying that is not set is 0
+		(each (lambda ((name type)) (spv-op spv_body 62 (first (spv-var name)) (spv-null type))) varyings)
+		(defq p (spv-emit :vec4 57 (. spv_fmap :find 'main))
+			z (spv-emit :float 81 p 2) w (spv-emit :float 81 p 3)
+			half (spv-const :float 0x3f000000))
+		(spv-op spv_body 62 position_out (spv-emit :vec4 80
+			(spv-emit :float 81 p 0) (spv-emit :float 81 p 1)
+			(spv-emit :float 133 (spv-emit :float 129 z w) half) w))
+		(spv-op spv_body 253)))
+	(defq vertex_module (spv-module 0 entry "vertex_main" (cat (list position_out) ports)))
+	;the fragment module
+	(spv-module-vars)
+	(setq spv_glsl (spv-id))
+	(defq entry (spv-id) ports (list)
+		coord_in (spv-port :nil :vec4 1 11 15) colour_out (spv-port :nil :vec4 3 30 0))
+	(each (lambda ((name type))
+		(push ports (spv-port name type 1 30 (some (# (if (eql (first %0) name) (!))) varyings))))
+		(shader-varyings pixel))
+	(defq block (spv-program pixel) target (spv-block-var '(:vec2) '(0) 3 1))
+	(spv-function entry :void (list) (lambda (pids)
+		(spv-start pixel block)
+		(defq coord (spv-emit :vec4 61 coord_in) size (spv-id))
+		(spv-op spv_body 65 (second target) size (first target) (spv-const :int 0))
+		(defq c (spv-emit :vec4 57 (. spv_fmap :find 'main) (spv-emit :vec2 80
+			(spv-emit :float 81 coord 0)
+			(spv-emit :float 131 (spv-emit :float 81 (spv-emit :vec2 61 size) 1) (spv-emit :float 81 coord 1)))))
+		(spv-op spv_body 62 colour_out (spv-emit :vec4 80
+			(spv-emit :float 81 c 0) (spv-emit :float 81 c 1) (spv-emit :float 81 c 2)
+			(spv-const :float 0x3f800000)))
+		(spv-op spv_body 253)))
+	(list vertex_module (spv-module 4 entry "fragment_main" (cat (list coord_in colour_out) ports))))
 
 (defun shader-spirv-vertex ()
 	; (shader-spirv-vertex) -> str

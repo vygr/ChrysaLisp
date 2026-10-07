@@ -435,7 +435,7 @@
 	(sort (reduce (lambda (ids (op &rest args))
 		(cond
 			((find op '(17 14 15 16 71 72 62 246 247 249 250 253 254 56)) ids)
-			((find op '(11 19 20 21 22 23 30 32 33 248)) (push ids (first args)))
+			((find op '(11 19 20 21 22 23 24 30 32 33 248)) (push ids (first args)))
 			((push ids (second args))))) insts (list)) (const -)))
 
 (defun spvt-has? (insts &rest pattern)
@@ -893,9 +893,40 @@
 (assert-error "MSL pair, two that do not go together" (shader-msl-pair vert
 	(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
 
+;the SPIR-V modules for a pair. Each is a stream of instructions that
+;parses to its end, with every id made once, and has what a vertex and a
+;fragment module of a pair must have
+(bind '(sv sf) (shader-spirv-pair vert pix))
+(each (lambda ((name module model entry has))
+	(defq words (spvt-words module) insts (spvt-insts module))
+	(assert-true (cat "SPIR-V pair, " name ", stream") insts)
+	(assert-list-eq (cat "SPIR-V pair, " name ", ids") (range 1 (elem-get words 3)) (spvt-ids insts))
+	(assert-true (cat "SPIR-V pair, " name ", entry point")
+		(apply spvt-has? (cat (list insts 15 model :nil) (spv-str entry))))
+	(each (lambda ((what &rest inst))
+		(assert-true (cat "SPIR-V pair, " name ", " what) (apply spvt-has? (cat (list insts) inst)))) has))
+	(list
+		(list "vertex" sv 0 "vertex_main" '(
+			("a matrix type" 24 :nil :nil 4)
+			("where the vertex is" 71 :nil 11 0)
+			("an attr at location 1" 71 :nil 30 1)
+			("a varying at location 2" 71 :nil 30 2)
+			("its block in set 1" 71 :nil 34 1)
+			("a matrix a column at a time" 72 :nil 0 5)
+			("16 bytes a column" 72 :nil 0 7 16)
+			("a matrix times a matrix" 146)
+			("a matrix times a vector" 145)))
+		(list "fragment" sf 4 "fragment_main" '(
+			("the frag coord" 71 :nil 11 15)
+			("origin at the upper left" 16 :nil 7)
+			("its blocks in set 3" 71 :nil 34 3)
+			("the size of the target at binding 1" 71 :nil 33 1)))))
+(assert-error "SPIR-V pair, two that do not go together" (shader-spirv-pair vert
+	(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
+
 ;the back ends that have no vertex stage yet say so
 (assert-error "GLSL, not yet" (shader-glsl vert))
 (assert-error "MSL, a pixel shader with varyings is half of a pair" (shader-msl pix))
-(assert-error "SPIR-V, not yet" (shader-spirv vert))
+(assert-error "SPIR-V, a vertex shader is half of a pair" (shader-spirv vert))
 (assert-error "VP, a pixel shader with varyings shades no tile" (shader-vp pix))
 (assert-error "VP, a vertex shader is not a pixel shader" (shader-vp vert))
