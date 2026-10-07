@@ -146,15 +146,13 @@ The distributed pipe functionality is primarily managed by components found in
 
     * **Operation:**
 
-        * It creates a `Local` farm (similar to the `Farm` class described in
-          `lib/task/farm.inc`).
+        * It creates a `Jobs` object, `lib/task/jobs.inc`, with a herd
+          size, so its workers are a `Local` farm, on the nodes of this
+          machine.
 
-        * The `create` callback for the farm launches instances of
-          `lib/task/cmd.lisp` on available nodes.
-
-        * `dispatch-job` sends individual command strings from the
-          `jobs_list` to available worker tasks. The message includes a
-          reply mailbox and a unique key.
+        * The jobs library launches instances of `lib/task/cmd.lisp` on
+          those nodes, and sends each a command string from the queue. The
+          message starts with a unique key and a reply mailbox.
 
         * The `lib/task/cmd.lisp` worker executes the received command
           (using `pipe-run` internally, so each job can itself be a

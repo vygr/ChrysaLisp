@@ -7,16 +7,16 @@
 (defun create-mesh (key mbox name command)
 	(defq mesh (exec (first (read (string-stream command))))
 		verts (. mesh :get_verts) norms (. mesh :get_norms) tris (. mesh :get_tris)
-		reply_msg (setf-> (str-alloc (+ +job_reply_size
+		reply_msg (setf-> (str-alloc (+ +mesh_reply_size
 				(* (length verts) +long_size)
 				(* (length norms) +long_size)
 				(* (length tris) +long_size)))
 			(+job_reply_key key)
-			(+job_reply_num_verts (/ (length verts) +vec4_size))
-			(+job_reply_num_norms (/ (length norms) +vec3_size))
-			(+job_reply_num_tris (/ (length tris) +tri_size))
-			(+job_reply_name name))
-		data (+ +str_data +job_reply_data))
+			(+mesh_reply_num_verts (/ (length verts) +vec4_size))
+			(+mesh_reply_num_norms (/ (length norms) +vec3_size))
+			(+mesh_reply_num_tris (/ (length tris) +tri_size))
+			(+mesh_reply_name name))
+		data (+ +str_data +mesh_reply_data))
 	(each (# (obj-set reply_msg data +type_real %0) (++ data +long_size)) verts)
 	(each (# (obj-set reply_msg data +type_real %0) (++ data +long_size)) norms)
 	(each (# (obj-set reply_msg data +type_long %0) (++ data +long_size)) tris)
@@ -35,4 +35,4 @@
 				;main mailbox, reset timeout and reply with mesh data
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(create-mesh (getf msg +job_key) (getf msg +job_reply)
-					(getf msg +job_name) (slice msg +job_command -1))))))
+					(getf msg +mesh_name) (slice msg +mesh_command -1))))))

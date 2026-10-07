@@ -14,6 +14,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./farm.inc")
+(import "./local.inc")
 
 (structure +job 0
 	(long key)
@@ -60,10 +61,15 @@
 (defclass Jobs (path task_mbox reply_mbox &optional size) :nil
 	; (Jobs path task_mbox reply_mbox [size]) -> jobs
 	;children of the task at path, a node's worth of them if no size is
-	;given. They are started at once.
+	;given, on any of the nodes. A size that is a list, (herd_max
+	;[herd_init herd_growth]), is a herd on the nodes of this machine,
+	;those that share its file system, as (Local) has it. They are
+	;started at once.
 	(def this :path path :task_mbox task_mbox :reply_mbox reply_mbox
 		:queue (list) :out 0)
-	(def this :farm (Farm (const create) (const destroy) (ifn size (max 1 (length (lisp-nodes))))))
+	(def this :farm (if (list? size)
+		(apply (const Local) (cat (list (const create) (const destroy)) size))
+		(Farm (const create) (const destroy) (ifn size (max 1 (length (lisp-nodes)))))))
 
 	(defmethod :add (jobs)
 		; (. jobs :add jobs) -> jobs
@@ -97,6 +103,25 @@
 		(when (and (defq val (. (get :farm this) :find key)) (get :job val))
 			(def this :out (dec (get :out this)))
 			(dispatch key val)
+			(get :out this)))
+
+	(defmethod :job (msg)
+		; (. jobs :job msg) -> :nil | job
+		;the job an answer is to, msg is what came to the reply mailbox,
+		;asked before it is passed to (:answered). :nil if the answer
+		;is from a child that has since been started again.
+		(and (defq val (. (get :farm this) :find (getf msg +job_reply_key)))
+			(get :job val)))
+
+	(defmethod :failed (msg)
+		; (. jobs :failed msg) -> :nil | num
+		;as (:answered), for a job that went wrong. It is not put back
+		;on the queue, and its child is started again.
+		(defq key (getf msg +job_reply_key) farm (get :farm this))
+		(when (and (defq val (. farm :find key)) (get :job val))
+			(def this :out (dec (get :out this)))
+			(undef val :job :timestamp)
+			(. farm :restart key val)
 			(get :out this)))
 
 	(defmethod :clear ()

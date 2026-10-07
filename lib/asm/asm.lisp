@@ -49,7 +49,7 @@
 					;compile the file list and catch any errors
 					(setq *msg* (list))
 					(catch (each include *files*) (progn (print _) :t))
-					;send reply
-					(print *reply_key*)
-					(mail-send *reply_mbox* (apply (const cat) *msg*)))))))
+					;send reply, the key it was given, then what was said
+					(mail-send *reply_mbox* (apply (const cat)
+						(insert *msg* 0 (list (char *reply_key* +long_size))))))))))
 	(profile-report "Asm"))

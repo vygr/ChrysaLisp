@@ -148,13 +148,16 @@ to decide, "it's not coming". That might be in the link layer or the library
 layer or whatever. Here we will show how to make the application immune to the
 problem no matter what layer caused the issue.
 
-If we look at the Raymarch demo `apps/demos/raymarch/app.lisp` this consists of a
+If we look at a demo that farms its work out, the Canvas demo
+`apps/demos/canvas/app.lisp` is one, it consists of a
 parent GUI app and a child task that's spawned multiple times to fill the
 available nodes. Those child tasks are then `farmed` with jobs from a job que.
 Each time a job result comes back the que is drained and a new job is sent out
 to that child. Repeat till the job que is empty.
 
-This demo makes use of the `lib/task/farm.inc` library. This library holds a
+The demos do this through the `lib/task/jobs.inc` library, a queue of jobs
+on top of the `lib/task/farm.inc` library, and it is the code of that we look
+at here. An app of your own can use either. The farm library holds a
 map of task id to child task records. We expect to receive a reply from a task
 within a certain amount of time and if we don't get one then we destroy that
 child's task record and restart.
@@ -184,12 +187,14 @@ guaranteed to happen !
 every so often to pump our retry calls. In this case we will be calling a
 method on the Farm library to restart any child tasks that are overdue.
 
-Let's not get bogged down in all the specifics of this application but
-concentrate on what happens when we get the callbacks from the library and how
-to send off a job.
+Let's not get bogged down in the specifics of any one application but
+concentrate on what happens when we get the callbacks from the farm library
+and how to send off a job. These are the three functions the jobs library
+gives the farm, `this` is the jobs object, which holds the queue and the
+mailboxes.
 
 ```file
-apps/demos/raymarch/app.lisp "dispatch-job" "main"
+lib/task/jobs.inc "(defun dispatch" "(defun idle"
 ```
 
 When the library wishes to create a new child task, it'll call our `(create)`
@@ -208,14 +213,15 @@ function. Here we look to see if we ever received the tasks network ID, and if
 so send off a `quit` message to it. Then look to see if it had an outstanding
 job request, and if it did, we push the request back onto the job que.
 
-The `(dispatch-job)` function will be used below in the event loop to dispatch
+The `(dispatch)` function is used in the event loop to dispatch
 a new job to any newly started child task, as they report in, or issue a new
 job as we receive a result.
 
-A farm is created that's twice as big as the known number of network nodes.
+Here is the event loop of an app that uses the farm library directly, with
+those three functions as its own, `(dispatch-job)` its name for the first. A
+farm is created that's twice as big as the known number of network nodes.
 Roughly two child tasks will exist per node. Remember that ChrysaLisp does the
-final task distribution, in this demo we only suggest the node to start the
-task.
+final task distribution, we only suggest the node to start the task.
 
 ```vdu
 (defun main ()
@@ -271,6 +277,12 @@ first job is dispatched.
 
 * When the retry timer expires we reset the timer, call the farm `:refresh`
 method, details below, and close the farm if all the jobs are finished.
+
+With the jobs library the two middle cases are a line each, `(. jobs
+:launched msg)` and `(. jobs :answered msg)`, which gives how many jobs are
+still out, and the timer case is `(. jobs :refresh retry_timeout)`. The
+assembler, `lib/asm/asm.inc`, and the command farm, `lib/task/cmd.inc`, are
+short examples of that.
 
 The Farm class is listed here:
 

@@ -3,7 +3,6 @@
 (import "gui/lisp.inc")
 (import "lib/math/mesh.inc")
 (import "lib/math/scene.inc")
-(import "lib/task/local.inc")
 (import "./app.inc")
 
 (enums +event 0
@@ -65,37 +64,11 @@
 (defun get-rot (slider)
 	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
 
-(defun dispatch-job (key val)
-	;send another job to child
-	(cond
-		((defq job (pop jobs))
-			(def val :job job :timestamp (pii-time))
-			(mail-send (get :child val)
-				(setf-> job
-					(+job_key key)
-					(+job_reply (elem-get select +select_reply)))))
-		(:t ;no jobs in que
-			(undef val :job :timestamp))))
-
-(defun create (key val nodes)
-	; (create key val nodes)
-	;function called when entry is created
-	(open-task (const (cat *app_root* "child.lisp")) (elem-get nodes (random (length nodes)))
-		+kn_call_run key (elem-get select +select_task)))
-
-(defun destroy (key val)
-	; (destroy key val)
-	;function called when entry is destroyed
-	(when (defq child (get :child val)) (mail-send child ""))
-	(when (defq job (get :job val))
-		(push jobs job)
-		(undef val :job)))
-
 (defun create-scene (job_que)
 	; (create-scene job_que) -> scene_root
 	;create mesh loader jobs
 	(each (lambda ((name command))
-			(push job_que (cat (str-alloc +job_name) (pad name 16) command)))
+			(push job_que (cat (str-alloc +mesh_name) (pad name 16) command)))
 		`(
 		("sphere.1" "(Mesh-iso (Iso-sphere 40 40 40) (n2r 0.25))")
 		("cube.1" "(Mesh-iso (Iso-cube 10 10 10) (n2r 0.45))")
@@ -141,7 +114,11 @@
 	(. *style_toolbar* :set_selected 0)
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(defq select (task-mboxes +select_size) *running* :t *dirty* :t
-		jobs (list) scene (create-scene jobs) farm (Local create destroy 4 2))
+		meshes (list) scene (create-scene meshes)
+		;the meshes are made by a herd of children on this machine's nodes
+		jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
+			(elem-get select +select_reply) '(4 2)))
+	(. jobs :add meshes)
 	(tooltips (elem-get select +select_tip))
 	(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
 	(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0)
@@ -154,34 +131,26 @@
 					(. view :show_tip)))
 			((= idx +select_task)
 				;child task launch response
-				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))
-				(when (defq val (. farm :find key))
-					(def val :child child)
-					(dispatch-job key val)))
+				(. jobs :launched *msg*))
 			((= idx +select_reply)
 				;child mesh response
-				(defq key (getf *msg* +job_reply_key)
-					mesh_name (trim (getf *msg* +job_reply_name))
-					mesh (Mesh-data
-							(getf *msg* +job_reply_num_verts)
-							(getf *msg* +job_reply_num_norms)
-							(getf *msg* +job_reply_num_tris)
-							(slice *msg* +job_reply_data -1)))
-				(each (# (. %0 :set_mesh mesh)) (. scene :find_nodes mesh_name))
-				(setq *dirty* :t)
-				(when (defq val (. farm :find key))
-					(dispatch-job key val)))
+				(when (defq out (. jobs :answered *msg*))
+					(defq mesh_name (trim (getf *msg* +mesh_reply_name))
+						mesh (Mesh-data
+								(getf *msg* +mesh_reply_num_verts)
+								(getf *msg* +mesh_reply_num_norms)
+								(getf *msg* +mesh_reply_num_tris)
+								(slice *msg* +mesh_reply_data -1)))
+					(each (# (. %0 :set_mesh mesh)) (. scene :find_nodes mesh_name))
+					(setq *dirty* :t)
+					(when (= out 0)
+						;all the meshes are here, the children can go
+						(mail-timeout (elem-get select +select_retry_timer) 0 0)
+						(. jobs :close))))
 			((= idx +select_retry_timer)
 				;retry timer event
 				(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0)
-				(. farm :refresh retry_timeout)
-				(when (nempty? jobs)
-					(defq working :nil)
-					(. farm :each (lambda (key val)
-						(setq working (or working (get :job val)))))
-					(unless working
-						(mail-timeout (elem-get select +select_retry_timer) 0 0)
-						(. farm :close))))
+				(. jobs :refresh retry_timeout))
 			((= idx +select_frame_timer)
 				;frame timer event
 				(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
@@ -228,6 +197,6 @@
 						;insert char etc ...
 						(char key))))
 			((. *window* :event *msg*))))
-	(. farm :close)
+	(. jobs :close)
 	(gui-sub-rpc *window*)
 	(profile-report "Mesh"))

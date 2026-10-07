@@ -2,7 +2,7 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(import "././task/local.inc")
+(import "././task/jobs.inc")
 (import "././boot/image.inc")
 (import "././files/files.inc")
 
@@ -11,38 +11,6 @@
 
 (enums +select 0
 	(enum reply launch timer))
-
-(defun dispatch-job (key val)
-	;send another job to child
-	(cond
-		((defq job (pop jobs))
-			(def val :job job :timestamp (pii-time))
-			(mail-send (get :child val) (cat
-				(char key +long_size) (elem-get select +select_reply) job)))
-		(:t ;no jobs in que
-			(undef val :job :timestamp))))
-
-(defun cancel-job (key val)
-	;cancel this job
-	(undef val :job :timestamp)
-	(. farm :restart key val))
-
-(defun create (key val nodes)
-	; (create key val nodes)
-	;function called when entry is created
-	;bias to go out to the edge nodes
-	(defq nodes (slice nodes (/ (length nodes) 2) -1))
-	(open-task "lib/asm/asm.lisp" (elem-get nodes (random (length nodes)))
-		+kn_call_run key (elem-get select +select_launch)))
-
-(defun destroy (key val)
-	; (destroy key val)
-	;function called when entry is destroyed
-	(when (defq child (get :child val)) (mail-send child ""))
-	(when (defq job (get :job val))
-		;(print "Restarting job ! -> " job)
-		(push jobs job)
-		(undef val :job :timestamp)))
 
 (defun compile (files &optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
@@ -54,11 +22,13 @@
 		;must not be taken for a dead one.
 		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 60)
 			select (list (mail-mbox) (mail-mbox) (mail-mbox))
-			jobs (map (# (str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*))) files)
 			max_workers (length files)
 			init_workers (/ (* max_workers 10) 100)
 			new_workers (/ (* init_workers 10) 100)
-			farm (Local (const create) (const destroy) max_workers init_workers new_workers))
+			jobs (Jobs "lib/asm/asm.lisp" (elem-get select +select_launch)
+				(elem-get select +select_reply) (list max_workers init_workers new_workers)))
+		(. jobs :add (map (# (cat (const (str-alloc +job_size))
+			(str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*)))) files))
 		(mail-timeout (elem-get select +select_timer) timer_rate 0)
 		(while working
 			(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -68,33 +38,24 @@
 					(setq working :nil))
 				((= idx +select_launch)
 					;child launch response
-					(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
-					(when (defq val (. farm :find key))
-						(def val :child child)
-						(dispatch-job key val)))
+					(. jobs :launched msg))
 				((= idx +select_reply)
-					;child worker response
-					(defq key (str-as-num (pop (defq msg (split msg "\n"))))
-						error_flag :nil)
+					;child worker response, the key it was given, then
+					;what it said. A job with an error is not tried again.
+					(defq error_flag :nil)
 					(each (# (cond
 						((starts-with "Error:" %0)
 							(push errors %0)
 							(setq error_flag :t))
-						(:t (print %0)))) msg)
-					(when (defq val (. farm :find key))
-						(if error_flag
-							(cancel-job key val)
-							(dispatch-job key val)))
+						(:t (print %0)))) (split (slice msg +job_reply_size -1) "\n"))
 					(stream-flush (io-stream 'stdout))
 					;all jobs done ?
-					(when (= 0 (length jobs))
-						(setq working :nil)
-						(. farm :each (lambda (key val)
-							(setq working (or working (get :job val)))))))
+					(if (eql 0 (if error_flag (. jobs :failed msg) (. jobs :answered msg)))
+						(setq working :nil)))
 				(:t ;timer event
 					(mail-timeout (elem-get select +select_timer) timer_rate 0)
-					(. farm :refresh retry_timeout))))
-		(. farm :close)
+					(. jobs :refresh retry_timeout))))
+		(. jobs :close)
 		(each (const print) errors))
 	(print "Done") :nil)
 

@@ -1,8 +1,7 @@
-;message structures
-(structure +job 0
-	(long key atom_key)
-	(netid reply)
-	(offset file))
+(import "lib/task/jobs.inc")
 
-(structure +job_reply 0
-	(long key))
+;an atom image for a child to make, its size and the file it goes in.
+;The answer is the bare reply, the image is in the file
+(structure +atom +job_size
+	(long key)
+	(offset file))

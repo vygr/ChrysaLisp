@@ -35,8 +35,9 @@
 					*reply_mbox* (getf *msg* +job_reply)
 					*cmd* (slice *msg* +job_params -1))
 				;run the command and catch output
+				;the reply is the key it was given, then what the command said
 				(setq *msg* (string-stream (cat "")))
-				(write-line *msg* (str *reply_key*))
+				(write-blk *msg* (char *reply_key* +long_size))
 				(catch (pipe-run *cmd* (# (write-blk *msg* (str %0))))
 					(progn (write-line *msg* (str _ " " *cmd*)) :t))
 				;send reply

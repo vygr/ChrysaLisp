@@ -4,6 +4,42 @@
 
 ------
 
+The assembler, the command farm, Mesh and Molecule are on the jobs library.
+
+`lib/task/jobs.inc` had the farm of the demos. It now has the other kind as
+well, a size that is a list, `(herd_max [herd_init herd_growth])`, is a
+herd on the nodes of this machine, as `(Local)` has it, which is what a
+build wants, its children share the file system. Two new methods. `(. jobs
+:job msg)` is the job an answer is to, and `(. jobs :failed msg)` is
+`(:answered)` for a job that went wrong, it is not put back on the queue and
+its child is started again, which is what the assembler does with a file
+that has an error in it.
+
+`lib/asm/asm.inc` and `lib/task/cmd.inc`, `(pipe-farm)`, lose their own
+copies of the dispatch, create and destroy functions and the launch and
+reply handling, and so do `apps/science/mesh` and `apps/science/molecule`.
+The children of the assembler and of the command farm answer with the key
+they were given as a long, then their text, as the others do. It was a
+number in the text.
+
+The build is no slower for it, `make test`, the mean of ten full builds,
+before and after on each machine. An Apple M4 Max with 19 nodes 0.051 to
+0.055s and 0.052 to 0.054s. A 2018 x86_64 MacBook Pro with 12 nodes 0.170
+to 0.201s and 0.169 to 0.174s. A Raspberry Pi 4 with 4 nodes 1.30 to 1.46s
+and 1.26 to 1.28s.
+
+Chess is left as it is. It has one child, which sends a run of numbered
+answers to a job, and that is not the shape of a queue of jobs.
+
+The size of the assembler's herd was timed while it was open, a set number
+of workers for each node against what it has, a tenth of the files and one
+more for each node past the first. No one number for each node is best. On
+the M4 one is best with 19 nodes, 0.049s, and worst with 10 and with 4,
+where two and four are. On the x86_64 with 12 nodes one is best, 0.158s. On
+the Pi with 4 nodes two is, and one is worst. What it has is within a
+tenth of the best in every case but a single node, where one worker gives
+0.27s and its 14 give 0.33s. So it is left as it is.
+
 The end of a terminal's input is passed on to the command it is running,
 and a pipe no longer loses the last of what a command said.
 

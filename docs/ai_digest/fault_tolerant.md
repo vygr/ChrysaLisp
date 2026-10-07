@@ -110,11 +110,11 @@ tasks must adapt, is central to ChrysaLisp's robustness.
 
     * **Mechanism:**
 
-        * Uses a `Local` farm internally.
+        * Uses the `Jobs` library, with a `Local` farm under it.
 
         * Worker tasks are instances of `lib/task/cmd.lisp`.
 
-        * `dispatch-job` sends command strings to workers.
+        * The jobs library sends command strings to workers.
 
         * Includes a `retry_timeout` for jobs. If a worker doesn't complete
           its command within this time, its job is effectively requeued by
@@ -207,7 +207,7 @@ tasks must adapt, is central to ChrysaLisp's robustness.
       workers are responsible for rendering a single tile.
 
     * The main app maintains a queue of jobs (tiles to render).
-      `dispatch-job` sends a tile's parameters to an available worker.
+      The `Jobs` library sends a tile's parameters to an available worker.
 
     * Workers compute the tile and send the resulting pixel data (or an
       error) back to a **reply mailbox** specified by the main app.

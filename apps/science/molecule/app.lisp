@@ -3,7 +3,6 @@
 (import "gui/lisp.inc")
 (import "lib/math/matrix.inc")
 (import "lib/files/files.inc")
-(import "lib/task/local.inc")
 (import "./app.inc")
 
 (enums +event 0
@@ -93,30 +92,6 @@
 		(const (Vec3-f 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ 0xff000000 (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
-(defun dispatch-job (node_key val)
-	(when (get :child val)
-		(cond
-			((defq job_key (pop jobs_qued))
-				(push jobs_in_flight job_key)
-				(def val :job job_key :timestamp (pii-time))
-				(mail-send (get :child val)
-					(setf-> (cat (str-alloc +job_size) +atom_cache_dir "atom_" (str job_key) ".cpm")
-						(+job_key node_key)
-						(+job_atom_key job_key)
-						(+job_reply (elem-get select +select_reply)))))
-			(:t (undef val :job :timestamp)))))
-
-(defun create (key val nodes)
-	(open-task (const (cat *app_root* "child.lisp")) (elem-get nodes (random (length nodes)))
-		+kn_call_run key (elem-get select +select_task)))
-
-(defun destroy (node_key val)
-	(when (defq child (get :child val)) (mail-send child ""))
-	(when (defq job_key (get :job val))
-		(setq jobs_in_flight (filter (# (nql %0 job_key)) jobs_in_flight))
-		(push jobs_qued job_key)
-		(undef val :job :timestamp)))
-
 (defun get-atom-texture (radius)
 	(defq key (n2i (+ (* (quant radius +radius_quant) (n2r 2.0)) (n2r 0.5)))
 		canvas :nil file :nil)
@@ -165,19 +140,24 @@
 						blit_x (n2i (- sx (n2r (/ tw 2))))
 						blit_y (n2i (- sy (n2r (/ th 2)))))
 					(push new_draw_list (list tid col blit_x blit_y tw th)))
-				(when (and key file (not (find key jobs_qued)) (not (find key jobs_in_flight)))
-					(push jobs_qued key)))
+				(when (and key file (not (find key atoms_asked)) (not (find key atoms_new)))
+					(push atoms_new key)))
 			(task-slice))) indices)
 	(set *main_widget* :atom_draw_list new_draw_list)
 	(. *main_widget* :dirty)
-	(when (nempty? jobs_qued)
-		(unless farm
-			(setq farm (Local (const create) (const destroy) +max_workers
-				(/ (* +max_workers +init_workers_%) 100)
-				(/ (* +max_workers +grow_workers_%) 100)))
+	(when (nempty? atoms_new)
+		;the images not yet in the cache are made by a herd of children,
+		;started when there is one to make
+		(unless jobs
+			(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
+				(elem-get select +select_reply) (list +max_workers
+					(/ (* +max_workers +init_workers_%) 100)
+					(/ (* +max_workers +grow_workers_%) 100))))
 			(mail-timeout (elem-get select +select_retry_timer) +retry_timer_rate 0))
 		(mail-timeout (elem-get select +select_idle_timer) +idle_timeout 0)
-		(. farm :each (lambda (key val) (unless (get :job val) (dispatch-job key val))))))
+		(. jobs :add (map (# (setf-> (cat (str-alloc +atom_size) +atom_cache_dir "atom_" (str %0) ".cpm")
+			(+atom_key %0))) atoms_new))
+		(setq atoms_asked (cat atoms_asked atoms_new) atoms_new (list))))
 
 (defun sdf-file (index)
 	(when (defq stream (file-stream (defq file (elem-get sdf_files index))))
@@ -224,7 +204,7 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t
-		farm :nil jobs_qued (list) jobs_in_flight (list))
+		jobs :nil atoms_asked (list) atoms_new (list))
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(. *style_toolbar* :set_selected 1)
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -254,27 +234,22 @@
 					(render)))
 			((= idx +select_task)
 				;child task launch response
-				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))
-				(when (defq val (. farm :find key))
-					(def val :child child)
-					(dispatch-job key val)))
+				(if jobs (. jobs :launched *msg*)))
 			((= idx +select_reply)
-				;child response
-				(defq node_key (getf *msg* +job_reply_key))
-				(when (defq val (. farm :find node_key))
-					(defq job_key (get :job val))
-					(setq jobs_in_flight (filter (# (nql %0 job_key)) jobs_in_flight))
-					(setq *dirty* :t)
-					(dispatch-job node_key val)))
+				;child response, an atom image is in the cache
+				(when (and jobs (defq job (. jobs :job *msg*)))
+					(defq atom_key (getf job +atom_key))
+					(setq atoms_asked (filter (# (nql %0 atom_key)) atoms_asked) *dirty* :t)
+					(. jobs :answered *msg*)))
 			((= idx +select_retry_timer)
 				;retry timer event
 				(mail-timeout (elem-get select +select_retry_timer) +retry_timer_rate 0)
-				(when farm (. farm :refresh +retry_timeout)))
+				(when jobs (. jobs :refresh +retry_timeout)))
 			((= idx +select_idle_timer)
 				;idle timer event
-				(when (and farm (empty? jobs_qued) (empty? jobs_in_flight))
-					(. farm :close)
-					(setq farm :nil)
+				(when (and jobs (= (. jobs :out) 0))
+					(. jobs :close)
+					(setq jobs :nil)
 					(mail-timeout (elem-get select +select_retry_timer) 0 0)
 					(mail-timeout (elem-get select +select_idle_timer) 0 0)
 					; drop any stale network replies!
@@ -282,6 +257,6 @@
 					(elem-set select +select_reply (mail-mbox))))
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
-	(if farm (. farm :close))
+	(if jobs (. jobs :close))
 	(gui-sub-rpc *window*)
 	(profile-report "Molecule"))

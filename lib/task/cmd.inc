@@ -2,7 +2,7 @@
 ; pipe farm object
 ;;;;;;;;;;;;;;;;;;
 
-(import "./local.inc")
+(import "./jobs.inc")
 
 ;module
 (env-push)
@@ -10,36 +10,17 @@
 (enums +select 0
 	(enum task reply timer))
 
-(defun dispatch-job (key val)
-	(cond
-		((defq job (pop jobs))
-			(def val :job job :timestamp (pii-time))
-			(mail-send (get :child val) (cat
-				(char key +long_size) (elem-get select +select_reply) job)))
-		(:t ;no jobs in que
-			(undef val :job :timestamp))))
-
-(defun create (key val nodes)
-	(defq nodes (slice nodes (/ (length nodes) 2) -1))
-	(open-task "lib/task/cmd.lisp" (elem-get nodes (random (length nodes)))
-		+kn_call_run key (elem-get select +select_task)))
-
-(defun destroy (key val)
-	(when (defq child (get :child val)) (mail-send child ""))
-	(when (defq job (get :job val))
-		;(print "Restarting cmd job ! -> " job)
-		(push jobs job)
-		(undef val :job :timestamp)))
-
-(defun pipe-farm (jobs &optional retry_timeout)
+(defun pipe-farm (cmds &optional retry_timeout)
 	; (pipe-farm jobs [retry_timeout]) -> ((job result) ...)
 	;run pipe farm and collect output
 	(task-count -1) ;we will be only collating results !
 	(setd retry_timeout 1000000)
-	(defq timer_rate (/ 1000000 1) working :t results (cap (length jobs) (list))
+	(defq timer_rate (/ 1000000 1) working (nempty? cmds) results (cap (length cmds) (list))
 		retry_timeout (task-timeout retry_timeout)
 		select (list (mail-mbox) (mail-mbox) (mail-mbox))
-		farm (Local (const create) (const destroy) (length jobs) 10))
+		jobs (Jobs "lib/task/cmd.lisp" (elem-get select +select_task)
+			(elem-get select +select_reply) (list (length cmds) 10)))
+	(. jobs :add (map (# (cat (const (str-alloc +job_size)) %0)) cmds))
 	(mail-timeout (elem-get select +select_timer) timer_rate 0)
 	(while working
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -49,27 +30,17 @@
 				(setq working :nil))
 			((= idx +select_task)
 				;child launch response
-				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
-				(when (defq val (. farm :find key))
-					(def val :child child)
-					(dispatch-job key val)))
+				(. jobs :launched msg))
 			((= idx +select_reply)
 				;child worker response
-				(defq key_pos (find "\n" msg)
-					key (str-as-num (slice msg 0 key_pos))
-					msg (slice msg (inc key_pos) -1))
-				(when (defq val (. farm :find key))
-					(push results (list (get :job val) msg))
-					(dispatch-job key val))
-				;all jobs done ?
-				(when (= 0 (length jobs))
-					(setq working :nil)
-					(. farm :each (lambda (key val)
-						(setq working (or working (get :job val)))))))
+				(when (defq job (. jobs :job msg))
+					(push results (list (slice job +job_size -1) (slice msg +job_reply_size -1)))
+					;all jobs done ?
+					(if (= 0 (. jobs :answered msg)) (setq working :nil))))
 			(:t ;timer event
 				(mail-timeout (elem-get select +select_timer) timer_rate 0)
-				(. farm :refresh retry_timeout))))
-	(. farm :close)
+				(. jobs :refresh retry_timeout))))
+	(. jobs :close)
 	(task-count 1)	;we where only collating results !
 	results)
 
