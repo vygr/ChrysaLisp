@@ -38,6 +38,11 @@ rewrite of every shader.
 * `lib/gpu/shaders/raymarch.shader`, the surface raymarch demo, a port of
   https://vygr.github.io/JS-Raymarch.
 * `apps/demos/surface/`, an app that runs that shader, on the GPU or with none.
+* `apps/demos/raymarch/`, a second shader, `film.shader`, and an app that
+  draws a film with it, on the GPU, reading each frame back to save it, or
+  with none.
+* `lib/gpu/tile.inc` and `lib/gpu/tile_child.lisp`, a shader drawn with no
+  GPU by the nodes, a tile each, as native code. Both apps use it.
 * `cmd/shader.lisp`, the `shader` command, a shader compiled from the command
   line.
 * `tests/gpu/test_shader.lisp`, the tests.

@@ -3,6 +3,7 @@
 (import "gui/lisp.inc")
 (import "lib/gpu/shader.inc")
 (import "lib/gpu/gui.inc")
+(import "lib/gpu/tile.inc")
 (import "./app.inc")
 
 (enums +event 0
@@ -112,15 +113,9 @@
 	;The inputs block goes out with every tile of it.
 	(defq inputs (frame-inputs (setq frame_time (pii-time))))
 	(setq cpu_running :t)
-	(. jobs :add (map (lambda (y)
-		(cat (setf-> (str-alloc +tile_size)
-			(+tile_x 0)
-			(+tile_y y)
-			(+tile_x1 +width)
-			(+tile_y1 (min +height (+ y +line_batch)))
-			(+tile_height +height)
-			(+tile_width +width)
-			(+tile_shared shared_key)) inputs)) (range 0 +height +line_batch))))
+	(. jobs :add (map (# (shader-tile +shader_file inputs
+		0 %0 +width (min +height (+ %0 +line_batch)) +width +height shared_key))
+		(range 0 +height +line_batch))))
 
 (defun to-cpu ()
 	;the frames are drawn by the CPU from here on
@@ -188,7 +183,7 @@
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(setq jobs (Jobs (cat *app_root* "child.lisp")
+	(setq jobs (Jobs +shader_tile_child
 			(elem-get select +select_task) (elem-get select +select_reply))
 		gpu_shader (shader-gui program))
 	;it comes up on the GPU if there is one. The CPU is not started at
@@ -221,10 +216,7 @@
 				;over is not shown
 				(when (and (defq out (. jobs :answered msg)) (not gpu_mode))
 					;a child that could not reach the canvas sends the pixels
-					(when (> (length msg) +tile_reply_size)
-						(bind '(x y x1 y1) (getf-> msg +tile_reply_x +tile_reply_y
-							+tile_reply_x1 +tile_reply_y1))
-						(. *canvas* :tile (slice msg +tile_reply_pixels -1) x y x1 y1))
+					(shader-tile-show *canvas* msg)
 					(when (= out 0)
 						;the frame is done, show it and start the next
 						(. *canvas* :swap +swap_write)

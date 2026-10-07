@@ -588,3 +588,15 @@
 	(17 2 0.0033 0.5215 0.5248)
 	(50 3 0.4024 0.4024 0.4024)
 	(48 45 0.3835 0.0409 0.3835)))
+
+;the second shader, the Raymarch film. Every back end takes it, and the
+;native code gives the pixels the Lisp back end does
+(defq film (shader-load "apps/demos/raymarch/film.shader")
+	film_vals '((resolution (96.0 96.0)) (cam_z -2.4) (light_x -0.02)))
+(assert-true "film, GLSL" (> (length (shader-glsl film)) 1000))
+(assert-true "film, MSL" (> (length (shader-msl film)) 1000))
+(assert-true "film, SPIR-V" (> (length (shader-spirv film)) 1000))
+(each (lambda ((x y))
+	(assert-true (cat "film, native code and Lisp agree, " (str x) " " (str y))
+		(sh-near? (sh-pixel film film_vals x y) (sh-pixel-vp film film_vals x y))))
+	'((48 48) (10 80) (70 20)))

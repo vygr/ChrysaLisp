@@ -202,7 +202,7 @@ tasks must adapt, is central to ChrysaLisp's robustness.
       a pool of worker tasks.
 
     * The `create` callback in the main application starts app-specific
-      worker tasks (`apps/demos/raymarch/child.lisp`,
+      worker tasks (`lib/gpu/tile_child.lisp`,
       `apps/science/mandelbrot/child.lisp`) on available nodes. These
       workers are responsible for rendering a single tile.
 

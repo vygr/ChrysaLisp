@@ -4,6 +4,36 @@
 
 ------
 
+A second shader, and a film made with it. The Raymarch demo draws its film
+on the GPU and reads each frame back to save it.
+
+The film is a flight into a lattice of balls, 40 frames of 600 by 600, soft
+shadows, a highlight and two bounces of reflection, saved as it is drawn
+for the Films app to play. It was Lisp on the nodes, with two functions of
+VP by hand. It is now `apps/demos/raymarch/film.shader`, 100 lines of the
+shader language. Against the Lisp it replaces, 1024 pixels of a small frame
+on the CPU back end, the worst is 6 of 255 out.
+
+The GPU draws a frame, `(. canvas :shade)`, `(. canvas :swap +swap_read)`
+brings it back from the texture to the pixmap, and `(canvas-save)` writes
+it. A Raspberry Pi 4 made the whole film in 35 seconds, drawing, reading
+back and saving, a frame of it saved there is the frame of the film in the
+repo but for 54 in 200000 sampled values, at the edges of shadows. Chris
+recorded it and played it back on an M4. With no GPU the nodes draw it,
+the same shader as native code, straight onto the canvas, and one node of
+the Pi takes 4.3 seconds a frame.
+
+The child that shades tiles of a shader as native code is now one for any
+app, `lib/gpu/tile_child.lisp`, with `(shader-tile)` and `(shader-tile-show)`
+in `lib/gpu/tile.inc`, the path of the shader file goes with the tile. The
+Surface demo uses it too, its own child is gone.
+
+`apps/demos/raymarch/lisp.vp`, the two functions of VP by hand, is no longer
+used by the app. It is left, `docs/ai_digest/app_acceleration.md` teaches
+from it.
+
+------
+
 The code that hands work out to a farm of children is in one place,
 `lib/task/jobs.inc`, and five apps use it and draw on shared pixels.
 

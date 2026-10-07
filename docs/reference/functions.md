@@ -2417,6 +2417,24 @@ the target, and it gives each pixel its frag coord, with y up. The
 entry point is vertex_main.
 ```
 
+### shader-tile
+
+```code
+(shader-tile file inputs x y x1 y1 width height shared) -> job
+
+the job for a tile of a frame of that width and height, inputs is the
+block from (shader-pack), shared the key of the pixels, (canvas-key)
+```
+
+### shader-tile-show
+
+```code
+(shader-tile-show canvas msg) -> canvas
+
+the answer to a tile. If the child could not reach the pixels of the
+canvas they came with the answer, and are put there
+```
+
 ### shader-unpack
 
 ```code
