@@ -4,6 +4,31 @@
 
 ------
 
+The end of a terminal's input is passed on to the command it is running,
+and a pipe no longer loses the last of what a command said.
+
+A TUI session fed from a pipe, `(echo "lisp file"; sleep 5) | ./run_tui.sh
+-f`, did not stop when its input closed if the command was one that reads
+its stdin, and `lisp file` is, it drops into a REPL once the file has run.
+The terminal noted the end of its input and waited for the command, which
+was waiting for an end of input it was never sent. The nodes were left
+running till `./stop.sh`. It is the same from the keyboard, Ctrl-D with a
+command running.
+
+`(. pipe :eof)`, new, ends the stdin of a pipe and leaves the rest open, so
+what the command goes on to say is still read. `apps/tui/tui.lisp` calls it.
+A `:write` after it is dropped, and `:close` after it is as it was.
+
+That showed an older fault. `(. pipe :read)` took the pipe as closed when
+any of its streams stopped, and a stderr can stop before the last of the
+stdout has been read, when the output after it was thrown away. A command
+is not let go till its stdin is closed, which is why it did not show, the
+reader saw the stdout stop first. With the stdin ended early the stderr
+stops first, every time. The pipe is now closed when its stdout stops.
+
+`tests/system/test_pipe.lisp` has the case, a command given the end of its
+input that then prints.
+
 An opaque color is premultiplied to itself. It used to lose a level.
 
 `:pixmap :to_premul` multiplied each channel by the alpha and shifted down

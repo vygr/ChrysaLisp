@@ -21,6 +21,16 @@ clear the stdin stream, which will send
 stopping and stopped into the pipe
 ```
 
+### :eof
+
+```code
+(. pipe :eof) -> pipe
+
+the end of the pipe's stdin. The stdin stream is cleared, which
+sends stopping and stopped into the pipe, and what the pipe has
+yet to say can still be read
+```
+
 ### :poll
 
 ```code

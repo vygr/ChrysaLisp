@@ -105,7 +105,9 @@
 				((= c 4) ; Ctrl-D (EOF/Delete)
 					(if (= (length buffer) 0)
 						(if cmd
-							(setq *eof* :t)
+							(progn ; End of the command's input, exit when it is done
+								(setq *eof* :t)
+								(. cmd :eof))
 							(progn ; Exit shell
 								(print +CR +LF "Exiting..." +CR +LF)
 								(pii-exit)))

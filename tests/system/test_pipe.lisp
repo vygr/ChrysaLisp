@@ -20,6 +20,17 @@
 (. pipe :close)
 (assert-eq "pipe close stdin" "done" (mail-read-timeout reply_mbox))
 
+; --- Eof, the end of stdin with the pipe left open, what the command
+; --- says after it is still read, and a write after it is dropped ---
+(defq pipe (Pipe "lisp -r (read-line (io-stream 'stdin)) (print {after eof})")
+	pipe_out (list))
+(. pipe :eof)
+(. pipe :write "dropped")
+(while (defq data (. pipe :read))
+	(unless (eql data :t) (push pipe_out data)))
+(. pipe :close)
+(assert-true "pipe eof, then its output" (find "after eof" (apply (const cat) pipe_out)))
+
 ; --- Abort, the signal path, signals are a debug build only feature ---
 (defq reply_mbox (mail-mbox)
 	pipe (pipe-test-child reply_mbox "(mail-read (task-mbox))")

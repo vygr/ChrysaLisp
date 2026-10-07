@@ -48,7 +48,7 @@
 			(push streams stdout (out-stream stdout_mbox))
 			(push select (in-mbox stdout))
 			(def this :select (cat user_select select) :user_select user_select
-				:streams streams :ids mboxs :state :t)))
+				:streams streams :stdout stdout :ids mboxs :state :t)))
 
 	(defmethod :poll ()
 		; (. pipe :poll) -> :nil | :t
@@ -63,19 +63,33 @@
 			(defq user_select_len (length (get :user_select this)))
 			(cond
 				((< (defq idx (mail-select (get :select this))) user_select_len))
-				(:t ;must be stdout or one of the stderr's
-					(if (/= (in-get-state (in-next-msg (defq msg_in
-								(elem-get (get :streams this) (- idx user_select_len)))))
-							+stream_mail_state_started)
+				(:t ;must be stdout or one of the stderr's. The pipe is
+					;closed when its stdout stops, a stderr can stop
+					;before the last of the stdout has been read
+					(if (and (/= (in-get-state (in-next-msg (defq msg_in
+									(elem-get (get :streams this) (- idx user_select_len)))))
+								+stream_mail_state_started)
+							(eql msg_in (get :stdout this)))
 						(def this :state :nil))
 					(read-avail msg_in)))))
 
 	(defmethod :write (string)
 		; (. pipe :write string) -> pipe
 		;last stream is :out to first pipe element
-		(defq stream (last (get :streams this)))
-		(write-blk stream string)
-		(stream-flush stream)
+		(unless (get :eof this)
+			(defq stream (last (get :streams this)))
+			(write-blk stream string)
+			(stream-flush stream))
+		this)
+
+	(defmethod :eof ()
+		; (. pipe :eof) -> pipe
+		;the end of the pipe's stdin. The stdin stream is cleared, which
+		;sends stopping and stopped into the pipe, and what the pipe has
+		;yet to say can still be read
+		(unless (get :eof this)
+			(def this :eof :t)
+			(pop (get :streams this)))
 		this)
 
 	(defmethod :abort ()
@@ -103,7 +117,7 @@
 		;clear the stdin stream, which will send
 		;stopping and stopped into the pipe
 		(raise :select :streams)
-		(pop streams)
+		(unless (get :eof this) (pop streams))
 		;wait for stdout and stderr streams to stop
 		;if it goes on too long, then abort !
 		(mail-timeout (last (push select (mail-mbox))) +pipe_abort_delay 0)
