@@ -28,7 +28,7 @@
 	; 1. Golden Arrow: Cubic bezier with round tail and barbed head (+cap_round, +cap_arrow)
 	; Using the stroke-over-stroke technique: polyline stroke -> polygon stroke -> outline + core
 	arrow1_body
-		(path-stroke-polylines (list) (* f_width 0.035) +join_bevel +cap_round +cap_arrow
+		(path-stroke-polylines (list) (* f_width 0.055) +join_bevel +cap_round +cap_arrow
 			(list (path-gen-cubic
 				(* f_width -0.42) (* f_height 0.28)
 				(* f_width -0.26) (* f_height -0.30)
@@ -36,13 +36,13 @@
 				(* f_width 0.38) (* f_height -0.35)
 				(path))))
 	arrow1_outline
-		(path-stroke-polygons (list) (* f_width 0.012) +join_miter arrow1_body)
+		(path-stroke-polygons (list) (* f_width 0.018) +join_miter arrow1_body)
 	arrow1_core
 		(slice arrow1_outline 1 2)
 
 	; 2. Emerald Arrow: Cubic bezier with butt tail and triangle head (+cap_butt, +cap_tri)
 	arrow2_body
-		(path-stroke-polylines (list) (* f_width 0.030) +join_bevel +cap_butt +cap_tri
+		(path-stroke-polylines (list) (* f_width 0.048) +join_bevel +cap_butt +cap_tri
 			(list (path-gen-cubic
 				(* f_width 0.38) (* f_height 0.24)
 				(* f_width 0.18) (* f_height -0.36)
@@ -50,7 +50,7 @@
 				(* f_width -0.36) (* f_height -0.24)
 				(path))))
 	arrow2_outline
-		(path-stroke-polygons (list) (* f_width 0.010) +join_bevel arrow2_body)
+		(path-stroke-polygons (list) (* f_width 0.016) +join_bevel arrow2_body)
 	arrow2_core
 		(slice arrow2_outline 1 2)
 
@@ -61,18 +61,18 @@
 			(* f_width 0.22) (* f_height 0.13)
 			(* f_width 0.04) (* f_height 0.04) (path)))
 	badge_outline
-		(path-stroke-polygons (list) (* f_width 0.012) +join_round badge_rect)
+		(path-stroke-polygons (list) (* f_width 0.022) +join_round badge_rect)
 	badge_core
 		(slice badge_outline 1 2)
 
 	; 4. Arc Horns: Dual circular arcs with +cap_square and +cap_tri
 	horns_body
-		(path-stroke-polylines (list) (* f_width 0.048) +join_bevel +cap_square +cap_tri
+		(path-stroke-polylines (list) (* f_width 0.070) +join_bevel +cap_square +cap_tri
 			(list
 				(path-gen-arc (* f_width -0.10) (* f_height -0.18) 0.8 1.6 (* f_width 0.20) (path))
 				(path-gen-arc (* f_width -0.18) (* f_height -0.18) 3.8 2.0 (* f_width 0.11) (path))))
 	horns_outline
-		(path-stroke-polygons (list) (* f_width 0.020) +join_miter horns_body)
+		(path-stroke-polygons (list) (* f_width 0.028) +join_miter horns_body)
 	horns_core
 		(list (second horns_outline) (elem-get horns_outline 3))
 
@@ -80,13 +80,13 @@
 	ring_body
 		(list (path-gen-arc (* f_width 0.18) (* f_height 0.24) 0.0 +fp_2pi (* f_width 0.11) (path)))
 	ring_outline
-		(path-stroke-polygons (list) (* f_width 0.018) +join_miter ring_body)
+		(path-stroke-polygons (list) (* f_width 0.032) +join_miter ring_body)
 	ring_core
 		(slice ring_outline 0 1)
 
 	; 6. Quadratic Ribbon: High parabolic arch using path-gen-quadratic with +join_round and +cap_round
 	quad_ribbon
-		(path-stroke-polylines (list) (* f_width 0.048) +join_round +cap_round +cap_round
+		(path-stroke-polylines (list) (* f_width 0.072) +join_round +cap_round +cap_round
 			(list (path-gen-quadratic
 				(* f_width -0.40) (* f_height 0.40)
 				(* f_width -0.18) (* f_height -1.05)
@@ -104,7 +104,7 @@
 
 	; 8. Sharp Zigzag: Demonstrates acute +join_miter corners with +cap_square and +cap_butt
 	zigzag_miter
-		(path-stroke-polylines (list) (* f_width 0.030) +join_miter +cap_square +cap_butt
+		(path-stroke-polylines (list) (* f_width 0.050) +join_miter +cap_square +cap_butt
 			(list (path
 				(* f_width -0.35) (* f_height -0.32)
 				(* f_width -0.20) (* f_height -0.45)
@@ -130,7 +130,7 @@
 
 (defun live-ribbon (turn fi)
 	;a ribbon that bends two ways and swells
-	(path-stroke-polylines (list) (* f_width (+ 0.030 (* 0.014 (sin (+ (* turn 5.0) fi)))))
+	(path-stroke-polylines (list) (* f_width (+ 0.050 (* 0.020 (sin (+ (* turn 5.0) fi)))))
 		+join_round +cap_round +cap_round
 		(list (path-gen-cubic
 			(* f_width -0.34) 0.0
@@ -140,13 +140,13 @@
 
 (defun live-horn (turn fi)
 	;an arc that opens and closes, with a point on it
-	(path-stroke-polylines (list) (* f_width 0.040) +join_bevel +cap_square +cap_tri
+	(path-stroke-polylines (list) (* f_width 0.062) +join_bevel +cap_square +cap_tri
 		(list (path-gen-arc 0.0 0.0 (* turn 2.0)
 			(+ 2.6 (* 2.2 (sin (+ (* turn 6.0) fi)))) (* f_width 0.22) (path)))))
 
 (defun live-ring (turn fi)
 	;a ring that gets thick and thin
-	(path-stroke-polygons (list) (* f_width (+ 0.030 (* 0.022 (sin (+ (* turn 8.0) fi)))))
+	(path-stroke-polygons (list) (* f_width (+ 0.048 (* 0.026 (sin (+ (* turn 8.0) fi)))))
 		+join_miter
 		(list (path-gen-arc 0.0 0.0 0.0 +fp_2pi (* f_width 0.20) (path)))))
 
