@@ -23,7 +23,7 @@
 				l1_vx l1_vy l1_npvx l1_npvy l1_rvx l1_rvy))
 		(plong iter iter_begin iter_end)
 		(ptr this path1)
-		(int radius step c c1)
+		(int radius step c c1 l1_len l2_len back room)
 		(byte join_style cap1_style cap2_style))
 
 	(push-scope)
@@ -53,6 +53,9 @@
 			(vec-load 1 {radius})
 			(vec-fscale 2)
 			(vec-store 2 {l2_rvx, l2_rvy})
+			(vec-load 2 {l2_vx, l2_vy})
+			(vec-flength 2)
+			(vec-store 1 {l2_len})
 
 			(vpif {step > 0})
 				(assign {cap1_style} {c})
@@ -132,6 +135,7 @@
 			(loop-while {iter /= iter_begin && iter /= iter_end})
 				(vec-load 4 {p2, l2_v, l2_npv, l2_rv})
 				(vec-store 4 {p1, l1_v, l1_npv, l1_rv})
+				(assign {l2_len} {l1_len})
 				(assign {iter[0]} {p2x})
 				(assign {iter[+long_size]} {p2y})
 				(assign {iter + step} {iter})
@@ -145,6 +149,9 @@
 				(vec-load 1 {radius})
 				(vec-fscale 2)
 				(vec-store 2 {l2_rvx, l2_rvy})
+				(vec-load 2 {l2_vx, l2_vy})
+				(vec-flength 2)
+				(vec-store 1 {l2_len})
 
 				;what kind of join
 				(vec-load 2 {l1_npvx, l1_npvy} {l2_npvx, l2_npvy})
@@ -155,9 +162,25 @@
 				(vec-fdot 2)
 				(vec-store 1 {c1})
 
+				;on the inside of a turn the two edges meet at a point that is some
+				;way back along both lines, further the sharper the turn. Is it
+				;further back than the shorter of the lines is long ?
+				(vec-load 2 {l1_len, l2_len})
+				(vec-min 1)
+				(vec-load 1 {c1 + 1.0})
+				(vec-fmul 1)
+				(vec-store 1 {room})
+				(vec-load 2 {radius, 0 - c})
+				(vec-fmul 1)
+				(vec-store 1 {back})
+
 				(switch)
 				(vpcase {(c < 0.01) && (c > -0.01) || (c1 < -0.9)})
 					;accuracy limit
+					(goto 'do_bevel)
+				(vpcase {c <= 0 && back > room})
+					;too sharp for lines this short, the point where the edges
+					;meet would be out past the ends of them, a spike
 					(goto 'do_bevel)
 				(vpcase {c <= 0 || join_style = +join_miter})
 					;mitre join

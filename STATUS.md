@@ -4,6 +4,37 @@
 
 ------
 
+An old fault in the stroker is mended, the spike a stroked outline threw
+out from a sharp turn of short lines.
+
+The notch of the glyph r, where the arm leaves the stem, showed it, in the
+glow of the Opcodes demo. On the inside of a turn the two edges of a stroke
+meet at a point some way back along both lines, the sharper the turn the
+further back, and the outline was always taken to that point, a mitre,
+whatever the join asked for. In the notch the point is four times the
+radius away, a good deal further than the lines there are long, so the
+outline shot out to it and back. The test for too sharp a turn only looked
+at the angle. It now asks as well if the point is further back than the
+shorter of the two lines is long, and if so falls back to a bevel, in
+`:path :stroke_joints` and `:path :stroke_polyline`. A new test,
+`tests/system/test_stroke.lisp`, no point of a stroked glyph further out
+than the radius, fails on the old stroker and passes on this one.
+
+A stroked outline still laps over itself wherever the shape is thinner than
+the stroke is wide, and where two letters are close, as any offset outline
+does. Filled by the odd even rule that leaves holes. So the Opcodes demo
+now fills its glow and its outline by the none zero rule, and they are
+whole.
+
+The Opcodes demo is drawn by all the nodes too, a slice each, as the Canvas
+demo is. Its scene is not worked out from the clock, the opcodes bounce and
+change, so where each of them is goes out with every slice, 64 bytes an
+opcode. There is a slider for how many, 9 to 240. On an M4 Max with 16
+nodes a frame of 24 is 4.3ms by one task and 2.2ms by them all, 90 is 16ms
+and 8ms, 240 is 38ms and 16ms, and the picture is the same bit for bit.
+
+------
+
 The Canvas demo is a scene drawn by all the nodes, each a slice of it,
 straight onto the shared pixmap of the app's canvas.
 
