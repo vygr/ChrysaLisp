@@ -121,10 +121,6 @@
 		; (. canvas :fpoly x y winding_mode paths) -> canvas
 		((const (ffi "gui/canvas/lisp_fpoly")) this x y winding_mode paths))
 
-	(defmethod :ftri (tri_path)
-		; (. canvas :ftri tri) -> canvas
-		((const (ffi "gui/canvas/lisp_ftri")) this tri_path))
-
 	(defmethod :constraint ()
 		; (. canvas :constraint) -> (width height)
 		;with the pixmap freed the size is that of the texture

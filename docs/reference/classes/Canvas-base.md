@@ -59,12 +59,6 @@ let go of the pixmap, the texture stays as it is. For a canvas
 that is only ever shown, it can not be drawn on after this.
 ```
 
-### :ftri
-
-```code
-(. canvas :ftri tri) -> canvas
-```
-
 ### :get_clip
 
 ```code

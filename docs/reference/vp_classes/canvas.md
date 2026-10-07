@@ -16,8 +16,6 @@
 
 ### (canvas-fpoly canvas x y mode list)
 
-### (canvas-ftri canvas path)
-
 ### (canvas-next-frame canvas)
 
 ### (canvas-plot canvas x y)
@@ -101,23 +99,6 @@ outputs
 :r0 = canvas object (ptr)
 trashes
 :r1-:r14, :f0-:f15
-```
-
-### :ftri -> gui/canvas/ftri
-
-```code
-inputs
-:r0 = canvas object (ptr)
-:r1 = x0 (fixed)
-:r2 = y0 (fixed)
-:r3 = x1 (fixed)
-:r4 = y1 (fixed)
-:r5 = x2 (fixed)
-:r6 = y2 (fixed)
-outputs
-:r0 = canvas object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :init -> gui/canvas/init

@@ -4,6 +4,15 @@
 
 ------
 
+`(. canvas :ftri)` has gone.
+
+The flat fill of a triangle, `gui/canvas/ftri.vp`, and its Lisp binding. The
+Mesh demo was all that called it, and draws with shaders now. Chris: "it's
+just flat fill, and even though it was fun, it uses up boot image ... park
+that in history of git". The ARM64 boot image is 232,804 bytes, it was
+233,884. `(. canvas :fpoly)` is another matter and is as it was, glyphs and
+every path are drawn by it.
+
 The Mesh demo draws its faces with the shaders.
 
 `lib/math/scene.inc`, the scene that Mesh is, with two shaders of its own in

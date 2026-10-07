@@ -821,10 +821,10 @@ The app is in the Demos list of the launcher, as surface.
 * Raylib is the fall back if SDL3 will not do for a host.
 * The GLSL back end does not guard names against the reserved words of GLSL.
 * Compute, and rendering as a service for a node with no GPU, are deferred.
-* A vertex shader in any back end but the Lisp reference, and so a mesh
-  drawn with one. The plan is a pipeline assembled as native code for a
-  machine with no GPU, as a pixel shader is, then the GPU, checked by it.
-  When that is in, `(. canvas :ftri)` goes, a flat fill that Mesh alone uses.
+* A vertex shader on the GPU, the GLSL, MSL and SPIR-V back ends have no
+  vertex stage, and the host has no mesh, no depth buffer and no frame of
+  several draws. Triangles are drawn as native code only.
+* Clipping to the near plane, and a pixel that is partly clear.
 * Textures as inputs, and compute.
 * A shader gives four channels. One that makes a single channel image, a
   greyscale or a glyph, gives a grey and the texture is made in that mode

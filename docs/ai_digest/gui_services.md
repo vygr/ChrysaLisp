@@ -441,7 +441,7 @@ are made available via `gui/lisp.inc`.
 
     * `(:plot x y)`, `(:fbox x y width height)`: Draw primitives.
 
-    * `(:fpoly x y winding_mode paths)`, `(:ftri tri)`: Draw filled
+    * `(:fpoly x y winding_mode paths)`: Draw filled
       polygons/triangles.
 
     * `(:swap flags)`: Uploads the canvas content to a texture (for display)
