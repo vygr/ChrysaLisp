@@ -48,5 +48,23 @@
 (. jobs :restart)
 (assert-eq "restart empties the queue" 0 (. jobs :out))
 (assert-list-eq "after a restart" '(2 4 6 8) (jt-run (map (const jt-work) '(1 2 3 4)) 10000000))
+
+;a job its child dies of is put back, again and again, and is counted,
+;which is how a job no child can do is told from a slow one
+(assert-eq "no job has been put back" 0 (. jobs :tries))
+(assert-list-eq "the jobs beside one that kills its child" '(10 12)
+	(jt-run (list (jt-work 5) (jt-work 99 :t) (jt-work 6)) 3500000))
+(assert-eq "the one that kills is still out" 1 (. jobs :out))
+(assert-true "and has been tried more than once" (>= (. jobs :tries) 2))
+(. jobs :restart)
+(assert-eq "a restart forgets the count" 0 (. jobs :tries))
 (. jobs :close)
 (assert-eq "close" 0 (. jobs :out))
+
+;a herd, on the nodes of this machine, two and one more for each node
+;past the first, and no more than three
+(defq jobs (Jobs "tests/system/data/jobs_child.lisp"
+	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 2)))
+(assert-eq "a herd" (min 3 (inc (length (lisp-nodes :t)))) (. jobs :size))
+(assert-list-eq "a herd does the work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3)) 10000000))
+(. jobs :close)

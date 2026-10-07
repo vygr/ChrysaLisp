@@ -4,6 +4,27 @@
 
 ------
 
+A build on one node is a fifth quicker, and a build whose workers can not
+answer stops and says so.
+
+The assembler's herd is a tenth of the files and one more for each node
+past the first, 14 workers for the 140 files of a full build. On a single
+node there is nothing for more than one to gain, each has only its own
+setting up to do. With one node it now has one worker. `make test` with
+`-n 1` on an Apple M4 Max, the mean of ten full builds, was 0.33s and is
+0.265s. With 19 nodes it is as it was, 0.053s.
+
+A worker that can not start, a fault in `lib/asm/asm.lisp` did it, never
+answers, and the build waited for it and its like for ever, starting them
+again each minute with nothing said. `(. jobs :tries)`, new in
+`lib/task/jobs.inc`, is the most times any one job has been put back on the
+queue, its child gone or too long over it. The assembler says `No answer
+from a worker, trying again` the first and the second time a file comes
+back, and on the third it stops with an error, three minutes in.
+
+`tests/system/test_jobs.lisp` has a job that kills its child, counted, and a
+herd.
+
 The assembler, the command farm, Mesh and Molecule are on the jobs library.
 
 `lib/task/jobs.inc` had the farm of the demos. It now has the other kind as

@@ -21,9 +21,13 @@
 		;worker that dies and its node does not, so it is long, a slow job
 		;must not be taken for a dead one.
 		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 60)
+			told 0
 			select (list (mail-mbox) (mail-mbox) (mail-mbox))
 			max_workers (length files)
-			init_workers (/ (* max_workers 10) 100)
+			;a tenth of the files, and a tenth of that again for each more
+			;node. On one node a worker is all there is to gain, more of
+			;them only each set up to compile, and it was timed
+			init_workers (if (> (length (lisp-nodes :t)) 1) (/ (* max_workers 10) 100) 1)
 			new_workers (/ (* init_workers 10) 100)
 			jobs (Jobs "lib/asm/asm.lisp" (elem-get select +select_launch)
 				(elem-get select +select_reply) (list max_workers init_workers new_workers)))
@@ -54,7 +58,17 @@
 						(setq working :nil)))
 				(:t ;timer event
 					(mail-timeout (elem-get select +select_timer) timer_rate 0)
-					(. jobs :refresh retry_timeout))))
+					(. jobs :refresh retry_timeout)
+					;a file that has gone out and not come back, again
+					;and again, is not waited on for ever
+					(when (> (defq tries (. jobs :tries)) told)
+						(setq told tries)
+						(cond
+							((< tries 3)
+								(print "No answer from a worker, trying again")
+								(stream-flush (io-stream 'stdout)))
+							(:t (push errors "Error: no answer from the workers, the build is stopped")
+								(setq working :nil)))))))
 		(. jobs :close)
 		(each (const print) errors))
 	(print "Done") :nil)

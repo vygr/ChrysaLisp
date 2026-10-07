@@ -108,3 +108,13 @@ through a job that is no longer wanted is told to stop.
 how many children there are
 ```
 
+### :tries
+
+```code
+(. jobs :tries) -> num
+
+the most times any one job has been put back on the queue, its
+child gone or too long over it. A job that no child can do, or
+a child that can not start, shows as this going up and up.
+```
+

@@ -49,6 +49,12 @@
 	;a child is told to go, the job it had goes back on the queue
 	(when (defq child (get :child val)) (mail-send child ""))
 	(when (defq job (get :job val))
+		;and it is counted, a job that keeps coming back is one no
+		;child can do
+		(defq tried (get :tried this) body (slice job +job_size -1)
+			n (inc (ifn (. tried :find body) 0)))
+		(. tried :insert body n)
+		(def this :tries (max n (get :tries this)))
 		(push (get :queue this) job)
 		(undef val :job)))
 
@@ -66,7 +72,7 @@
 	;those that share its file system, as (Local) has it. They are
 	;started at once.
 	(def this :path path :task_mbox task_mbox :reply_mbox reply_mbox
-		:queue (list) :out 0)
+		:queue (list) :out 0 :tried (Fmap) :tries 0)
 	(def this :farm (if (list? size)
 		(apply (const Local) (cat (list (const create) (const destroy)) size))
 		(Farm (const create) (const destroy) (ifn size (max 1 (length (lisp-nodes)))))))
@@ -130,7 +136,7 @@
 		;to finish and are all that is out
 		(defq n 0)
 		(. (get :farm this) :each (lambda (key val) (if (get :job val) (setq n (inc n)))))
-		(def this :queue (list) :out n)
+		(def this :queue (list) :out n :tried (Fmap) :tries 0)
 		this)
 
 	(defmethod :restart ()
@@ -141,7 +147,7 @@
 		(defq farm (get :farm this) keys (list) vals (list))
 		(. farm :each (# (undef %1 :job) (push keys %0) (push vals %1)))
 		(each (# (. farm :restart %0 %1)) keys vals)
-		(def this :queue (list) :out 0)
+		(def this :queue (list) :out 0 :tried (Fmap) :tries 0)
 		this)
 
 	(defmethod :refresh (&optional timeout)
@@ -149,6 +155,13 @@
 		;start again any child that has gone, or has had its job for
 		;longer than the timeout
 		(. (get :farm this) :refresh timeout))
+
+	(defmethod :tries ()
+		; (. jobs :tries) -> num
+		;the most times any one job has been put back on the queue, its
+		;child gone or too long over it. A job that no child can do, or
+		;a child that can not start, shows as this going up and up.
+		(get :tries this))
 
 	(defmethod :size ()
 		; (. jobs :size) -> num
@@ -161,7 +174,7 @@
 		; (. jobs :close) -> jobs
 		;every child is told to go
 		(. (get :farm this) :close)
-		(def this :queue (list) :out 0)
+		(def this :queue (list) :out 0 :tried (Fmap) :tries 0)
 		this)
 	)
 
