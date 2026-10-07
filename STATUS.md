@@ -28,6 +28,17 @@ app, `lib/gpu/tile_child.lisp`, with `(shader-tile)` and `(shader-tile-show)`
 in `lib/gpu/tile.inc`, the path of the shader file goes with the tile. The
 Surface demo uses it too, its own child is gone.
 
+When the last frame is saved the demo makes the film file itself, the list
+of frames through `toflm`, `apps/media/films/data/raymarch.flm`, which is
+what the Films app plays. The frames and the film are 24 bits a pixel, at
+16 the shading of the balls showed bands. Every frame of the film file is
+its saved frame.
+
+The frames and the film file in the repo are those of an Apple M4 Max. Two
+runs give the same files, checked on the Pi's GPU, so a run on the M4 that
+changes one shows in git at once. Another GPU differs a little at the edges
+of shadows, so they are only to be made again on the M4.
+
 `apps/demos/raymarch/lisp.vp`, the two functions of VP by hand, is no longer
 used by the app. It is left, `docs/ai_digest/app_acceleration.md` teaches
 from it.

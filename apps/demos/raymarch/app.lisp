@@ -4,6 +4,7 @@
 (import "lib/gpu/shader.inc")
 (import "lib/gpu/gui.inc")
 (import "lib/gpu/tile.inc")
+(import "lib/task/pipe.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; The Raymarch film. A shader is drawn for each frame of a flight into
@@ -22,6 +23,8 @@
 
 (defq +shader_file (cat *app_root* "film.shader")
 	+film_path "apps/media/films/data/" +film_name "raymarch"
+	;24 bits a pixel, at 16 the shading of the balls shows bands
+	+film_bits 24
 	+width 600 +height 600 +line_batch 8
 	+timer_rate (/ 1000000 60) +slow_ticks 30 ticks 0 +retry_timeout (task-timeout 5)
 	+num_frames 40 frame_idx 0 z_start (n2r -3.0) z_dist (n2r 2.0)
@@ -65,9 +68,13 @@
 			(write-line lst_stream (cat +film_path +film_name "_0.cpm"))
 			(stream-flush lst_stream)
 			(setq lst_stream :nil mode :done)
+			(defq frames_ms (/ (- (pii-time) film_time) 1000) now (pii-time))
+			;the frames are made into the one file the Films app plays
+			(pipe-run (cat "cat " +film_path +film_name ".lst | toflm -f " (str +film_bits) " -n "
+				+film_path +film_name ".flm") (lambda (_)))
 			(set-label *status* (cat "The film is made, " (str +num_frames) " frames in "
-				(str (/ (- (pii-time) film_time) 1000)) "ms, by the "
-				(if gpu_shader "GPU" "nodes"))))
+				(str frames_ms) "ms, by the " (if gpu_shader "GPU" "nodes")
+				", and " (str (/ (- (pii-time) now) 1000)) "ms to make them the .flm")))
 		((eql mode :cpu)
 			;the nodes shade it, a tile each
 			(defq inputs (frame-inputs) key (canvas-key *canvas*))
@@ -78,7 +85,7 @@
 (defun frame-done ()
 	;the frame is whole, and is in the pixmap of the canvas. Save it
 	(defq cpm_path (cat +film_path +film_name "_" (str frame_idx) ".cpm"))
-	(canvas-save *canvas* cpm_path 16 :t :t)
+	(canvas-save *canvas* cpm_path +film_bits :t :t)
 	;the save left the pixmap as argb. Every pixel is full on, so that is
 	;the same as premultiplied, and the type is all that has to change
 	(setf (getf *canvas* +canvas_pixmap 0) +pixmap_type -32 0)
