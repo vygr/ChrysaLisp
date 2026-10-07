@@ -375,6 +375,12 @@ column of the other
 a matrix times a vec4, each row of the matrix dotted with it
 ```
 
+### cpu-mat-vec3
+
+```code
+the 3 by 3 of a matrix times a vec3
+```
+
 ### cpu-op
 
 ```code
@@ -2721,7 +2727,7 @@ what a vertex shader sets for the pixel shader, or a pixel shader reads
 ```code
 (shader-vp program) -> (shade frame_size)
 
-the native function for a program. It is assembled if this is
+the native function for a pixel shader. It is assembled if this is
 the first time this CPU has been given this program.
 ```
 
@@ -2762,6 +2768,26 @@ the frame the native function works in, with the inputs set
 (shader-vp-pixels native frame x y x1 y1) -> (vec4 ...)
 
 the pixels of a tile, row by row, each a reals of 4
+```
+
+### shader-vp-place
+
+```code
+(shader-vp-place native frame verts) -> reals
+
+place the vertices of a reals, the attrs of one after another, vertex
+after vertex. The result is a reals, for each vertex where it is, 4
+numbers, then its varyings.
+```
+
+### shader-vp-vertex
+
+```code
+(shader-vp-vertex program) -> (place frame_size attr_slots out_slots)
+
+the native function for a vertex shader, it places vertices. A vertex
+is attr_slots numbers, its attrs one after another, and what comes
+out for it is out_slots numbers, where it is, 4, then its varyings.
 ```
 
 ### short-to-hex-str
@@ -2914,13 +2940,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args
@@ -3005,10 +3031,22 @@ code to jump to the label if the bool is as sense says
 does this expression call a function of the shader ?
 ```
 
+### sv-code-text
+
+```code
+the code so far as lines of VP source
+```
+
 ### sv-const
 
 ```code
 a float constant, to a new register
+```
+
+### sv-define
+
+```code
+a new variable, set to the value of an expression
 ```
 
 ### sv-expr
@@ -3023,6 +3061,44 @@ code for an expression, the registers that hold the value
 floor of a register, in place
 ```
 
+### sv-mat
+
+```code
+code for an expression that is a matrix, where in the frame it is. A
+
+variable is where it is kept. A product is worked out into new slots,
+each number of it a row of the one by a column of the other.
+```
+
+### sv-mat-copy
+
+```code
+a matrix from one place in the frame to another
+```
+
+### sv-mat-vec
+
+```code
+a matrix times a vector that is in registers, to new registers. A
+
+vec3 is by the 3 by 3 of the matrix
+```
+
+### sv-name
+
+```code
+the name of the native function of a program
+```
+
+### sv-native
+
+```code
+-> :nil | func
+
+the native function of this name, assembled from the text if this
+CPU has not got it yet
+```
+
 ### sv-op
 
 ```code
@@ -3033,6 +3109,23 @@ a built in op
 
 ```code
 x to the power y, both kept, to a new register
+```
+
+### sv-program
+
+```code
+-> (main_param_offsets main_ret_offset)
+
+the code of a program, after its inputs have been given their slots.
+A label that sets its constants and globals, then each function at a
+label of its own. The labels start with the prefix, so that the two
+programs of a pair can be in the one native function.
+```
+
+### sv-reals
+
+```code
+a reals of n numbers, all 0
 ```
 
 ### sv-sin
@@ -3071,6 +3164,14 @@ a float goes with every component of a vector
 
 ```code
 the frame offset of a variable, the last one of that name declared
+```
+
+### sv-vertex-source
+
+```code
+-> (text frame_size attr_slots out_slots)
+
+the VP source of the native function that places vertices
 ```
 
 ### swap

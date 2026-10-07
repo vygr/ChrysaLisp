@@ -722,8 +722,59 @@
 (assert-error "the reference places with a vertex shader" (shader-cpu-vertex pix))
 (assert-error "and shades with a pixel shader" (shader-cpu vert))
 
+;the native code places vertices as the reference does. A vertex goes in
+;as its attrs one after another, and comes out as where it is, then its
+;varyings
+(defq vnative (shader-vp-vertex vert)
+	vvals (list (list 'model model) (list 'view view) '(tint (1.0 0.5 0.25)))
+	vframe (shader-vp-frame vert vnative vvals)
+	flat (apply (const cat) (map (# (apply (const cat) %0)) verts))
+	out (shader-vp-place vnative vframe flat))
+(assert-true "native function for a vertex shader" (func? (first vnative)))
+(assert-list-eq "numbers in and out for a vertex" '(6 10) (rest (rest vnative)))
+(assert-eq "numbers out" 20 (length out))
+(each (lambda (want)
+	(assert-true (cat "native code and the reference agree, vertex " (str (!)))
+		(sh-near? (map (const n2f) (apply (const cat) (map (# (if (real? %0) (reals %0) %0)) want)))
+			(map (const n2f) (slice out (* (!) 10) (* (inc (!)) 10))))))
+	placed)
+(assert-eq "no vertices, nothing out" 0 (length (shader-vp-place vnative vframe (reals))))
+(assert-list-eq "same program, same function" (first vnative) (first (shader-vp-vertex vert)))
+
+;matrices kept in locals and globals, set, and multiplied together
+(defq vert2 (sh-src
+	"(definput a :mat4)"
+	"(definput b :mat4)"
+	"(defattr p :vec4)"
+	"(defvarying turned :vec3)"
+	"(defglobal ab (* a b))"
+	"(defun main :vec4 ()"
+	"	(defq m ab n b)"
+	"	(setq n (* a a b))"
+	"	(setq turned (* m (:xyz p)))"
+	"	(+ (* m p) (* n p) (* a b p)))")
+	vvals (list (list 'a model) (list 'b view))
+	pts (list (list (reals (n2r 1) (n2r 2) (n2r 3) (n2r 1))) (list (reals (n2r -0.5) (n2r 0.25) (n2r 4) (n2r 1))))
+	want (apply (shader-cpu-vertex vert2) (cat (list pts) (shader-cpu-args vert2 vvals)))
+	vnative (shader-vp-vertex vert2)
+	out (shader-vp-place vnative (shader-vp-frame vert2 vnative vvals)
+		(apply (const cat) (map (const first) pts))))
+(each (lambda ((pos turned))
+	(assert-true (cat "matrices in locals and globals, vertex " (str (!)))
+		(sh-near? (map (const n2f) (cat pos turned)) (map (const n2f) (slice out (* (!) 7) (* (inc (!)) 7))))))
+	want)
+(defq ab (mat4x4-mul model view))
+(assert-true "and the reference is the matrix library's answer"
+	(sh-near? (map (const n2f) (second (first want)))
+		(map (const n2f) (mat4x4-vec3-mul ab (slice (first (first pts)) 0 3)))))
+(assert-error "a function can not take a matrix"
+	(sh-src "(defun f :vec4 ((m :mat4)) (vec4 0.0))" "(defun main :vec4 () (vec4 0.0))"))
+(assert-error "a function can not give a matrix"
+	(sh-src "(definput m :mat4)" "(defun f :mat4 () m)" "(defun main :vec4 () (vec4 0.0))"))
+
 ;the back ends that have no vertex stage yet say so
 (assert-error "GLSL, not yet" (shader-glsl vert))
 (assert-error "MSL, not yet" (shader-msl pix))
 (assert-error "SPIR-V, not yet" (shader-spirv vert))
-(assert-error "VP, not yet" (shader-vp pix))
+(assert-error "VP, a pixel shader with varyings, not yet" (shader-vp pix))
+(assert-error "VP, a vertex shader is not a pixel shader" (shader-vp vert))

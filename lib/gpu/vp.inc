@@ -14,7 +14,9 @@
 ;none of this is on the task's stack. :r13 holds the frame, :r12 the
 ;constants. A value being worked on is in registers, a float in each
 ;of :f0 to :f15, an int or bool in :r2 to :r10, and any that are live
-;over a call are saved on the stack around it.
+;over a call are saved on the stack around it. A matrix is never in
+;registers, it is 16 slots of the frame, a row at a time, and is known by
+;where it is.
 
 (defq +sv_fregs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
 	+sv_rregs ''(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
@@ -22,7 +24,7 @@
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
 	;part of the name of the native function, so a change to this file
 	;that changes the code must change this
-	+sv_version 4)
+	+sv_version 5)
 
 (defun sv-emit (&rest form)
 	(push code form))
@@ -53,7 +55,7 @@
 (defun sv-slots (type)
 	;room in the frame for a value of this type
 	(defq offset frame_size)
-	(setq frame_size (+ frame_size (* (ifn (shader-dim type) 1) 8)))
+	(setq frame_size (+ frame_size (* (shader-size type) 8)))
 	offset)
 
 (defun sv-var (name)
@@ -70,6 +72,67 @@
 	(if (sh-float? type)
 		(each (# (sv-emit 'vp-cpy-fi %0 :r13 (+ offset (* (!) 8)))) regs)
 		(sv-emit 'vp-cpy-ri (first regs) :r13 offset)))
+
+(defun sv-mat-copy (from to)
+	;a matrix from one place in the frame to another
+	(defq r (sv-getf))
+	(each (# (sv-emit 'vp-cpy-if :r13 (+ from (* %0 8)) r)
+		(sv-emit 'vp-cpy-fi r :r13 (+ to (* %0 8)))) (range 0 16))
+	(sv-put r))
+
+(defun sv-mat (node)
+	;code for an expression that is a matrix, where in the frame it is. A
+	;variable is where it is kept. A product is worked out into new slots,
+	;each number of it a row of the one by a column of the other.
+	(bind '(type tag a &optional b) node)
+	(cond
+		((eql tag :var) (sv-var a))
+		(:t (defq at (sv-mat (first b)))
+			(each (lambda (arg)
+				(defq with (sv-mat arg) out (sv-slots :mat4)
+					acc (sv-getf) x (sv-getf) y (sv-getf))
+				(each (lambda (i)
+					(defq row (/ i 4) col (% i 4))
+					(each (lambda (k)
+						(sv-emit 'vp-cpy-if :r13 (+ at (* (+ (* row 4) k) 8)) (if (= k 0) acc x))
+						(sv-emit 'vp-cpy-if :r13 (+ with (* (+ (* k 4) col) 8)) y)
+						(sv-emit 'vp-mul-ff y (if (= k 0) acc x))
+						(if (/= k 0) (sv-emit 'vp-add-ff x acc))) (range 0 4))
+					(sv-emit 'vp-cpy-fi acc :r13 (+ out (* i 8)))) (range 0 16))
+				(sv-puts (list acc x y))
+				(setq at out)) (rest b))
+			at)))
+
+(defun sv-mat-vec (at regs)
+	;a matrix times a vector that is in registers, to new registers. A
+	;vec3 is by the 3 by 3 of the matrix
+	(defq n (length regs) x (sv-getf)
+		out (map (lambda (row)
+			(defq acc (sv-getf))
+			(each (lambda (k)
+				(sv-emit 'vp-cpy-if :r13 (+ at (* (+ (* row 4) k) 8)) (if (= k 0) acc x))
+				(sv-emit 'vp-mul-ff (elem-get regs k) (if (= k 0) acc x))
+				(if (/= k 0) (sv-emit 'vp-add-ff x acc))) (range 0 n))
+			acc) (range 0 n)))
+	(sv-put x)
+	(sv-puts regs)
+	out)
+
+(defun sv-define (name type e)
+	;a new variable, set to the value of an expression
+	(cond
+		((eql type :mat4)
+			;a product is in slots of its own already, and they are the
+			;variable. Another variable is copied, it may be set later
+			(defq at (sv-mat e))
+			(when (eql (second e) :var)
+				(sv-mat-copy at (defq to (sv-slots :mat4)))
+				(setq at to))
+			(push vars (list name at)))
+		(:t (defq regs (sv-expr e) offset (sv-slots type))
+			(push vars (list name offset))
+			(sv-store regs type offset)
+			(sv-puts regs))))
 
 (defun sv-const (val)
 	;a float constant, to a new register
@@ -176,6 +239,12 @@
 	(bind '(type & op args) node)
 	(defq types (map (const first) args) ta (first types) va (shader-dim ta))
 	(cond
+		((find :mat4 types)
+			;matrices times a vector, the vector is last, and each matrix
+			;is applied to it in turn, the nearest first
+			(defq v (sv-expr (last args)))
+			(reach (# (setq v (sv-mat-vec (sv-mat %0) v))) (slice args 0 -2))
+			v)
 		((defq i (find op '(+ - * /)))
 			(defq a (sv-expr (first args)))
 			(cond
@@ -378,13 +447,12 @@
 (defun sv-block (block)
 	(each (lambda ((tag &optional a b c d))
 		(case tag
-			(:defq (defq regs (sv-expr b) offset (sv-slots (first b)))
-				(push vars (list a offset))
-				(sv-store regs (first b) offset)
-				(sv-puts regs))
-			(:setq (defq regs (sv-expr b))
-				(sv-store regs (first b) (sv-var a))
-				(sv-puts regs))
+			(:defq (sv-define a (first b) b))
+			(:setq (cond
+				((eql (first b) :mat4) (sv-mat-copy (sv-mat b) (sv-var a)))
+				(:t (defq regs (sv-expr b))
+					(sv-store regs (first b) (sv-var a))
+					(sv-puts regs))))
 			(:setsw (defq regs (sv-expr c) offset (sv-var a))
 				(each (# (sv-emit 'vp-cpy-fi %0 :r13 (+ offset (* %1 8)))) regs b)
 				(sv-puts regs))
@@ -422,6 +490,187 @@
 				(sv-puts regs)
 				(sv-emit 'vp-jmp (sv-q ret_label))))) block))
 
+;the power subroutine, in every native function
+(defq +sv_pow_text
+{(vp-label 'sh_pow)
+	;:f0 to the power :f1, to :f0, trashes :r0-:r1, :f0-:f7
+	;whole part of the power by squaring, the rest by repeated roots
+	(vp-cpy-if :r12 (fn-const (n2r 0)) :f2)
+	(vp-cpy-if :r12 (fn-const (n2r 1)) :f6)
+	(vp-bgt-ff :f2 :f0 'sh_pow_pos)
+	(vp-cpy-ff :f2 :f0)
+	(vp-ret)
+(vp-label 'sh_pow_pos)
+	(vp-cpy-ff :f0 :f7)
+	(vp-cvt-fr :f1 :r0)
+	(vp-cvt-rf :r0 :f3)
+	(vp-ble-ff :f1 :f3 'sh_pow_floor)
+	(vp-sub-ff :f6 :f3)
+	(vp-sub-cr 1 :r0)
+(vp-label 'sh_pow_floor)
+	(vp-sub-ff :f3 :f1)
+	(vp-cpy-ff :f6 :f4)
+	(vp-cpy-ff :f0 :f5)
+	(vp-abs-rr :r0 :r1)
+(vp-label 'sh_pow_whole)
+	(vp-beq-cr 0 :r1 'sh_pow_recip)
+	(vp-cpy-rr :r1 :r0)
+	(vp-and-cr 1 :r0)
+	(vp-beq-cr 0 :r0 'sh_pow_even)
+	(vp-mul-ff :f5 :f4)
+(vp-label 'sh_pow_even)
+	(vp-mul-ff :f5 :f5)
+	(vp-shr-cr 1 :r1)
+	(vp-jmp 'sh_pow_whole)
+(vp-label 'sh_pow_recip)
+	(vp-bge-ff :f2 :f3 'sh_pow_rest)
+	(vp-cpy-ff :f6 :f5)
+	(vp-div-ff :f4 :f5)
+	(vp-cpy-ff :f5 :f4)
+(vp-label 'sh_pow_rest)
+	(vp-cpy-ff :f7 :f5)
+	(vp-cpy-cr 31 :r1)
+(vp-label 'sh_pow_root)
+	(vp-ble-ff :f2 :f1 'sh_pow_done)
+	(vp-beq-cr 0 :r1 'sh_pow_done)
+	(vp-sub-cr 1 :r1)
+	(vp-sqrt-ff :f5 :f5)
+	(vp-add-ff :f1 :f1)
+	(vp-blt-ff :f6 :f1 'sh_pow_root)
+	(vp-mul-ff :f5 :f4)
+	(vp-sub-ff :f6 :f1)
+	(vp-jmp 'sh_pow_root)
+(vp-label 'sh_pow_done)
+	(vp-cpy-ff :f4 :f0)
+	(vp-ret)
+
+})
+
+(defun sv-program (program prefix)
+	; -> (main_param_offsets main_ret_offset)
+	;the code of a program, after its inputs have been given their slots.
+	;A label that sets its constants and globals, then each function at a
+	;label of its own. The labels start with the prefix, so that the two
+	;programs of a pair can be in the one native function.
+	(bind '(inputs consts globals funcs &rest _) program)
+	(sv-emit 'vp-label (sv-q (sym (cat prefix "h_init"))))
+	(each (lambda ((name type e)) (sv-define name type e)) (cat consts globals))
+	(sv-emit 'vp-ret)
+	(defq num_globals (length vars))
+	(each (lambda ((name type params block))
+		(setq vars (slice vars 0 num_globals))
+		(defq label (sym (cat prefix "f_" name))
+			offsets (map (lambda ((pname ptype))
+				(push vars (list pname (defq offset (sv-slots ptype)))) offset) params))
+		(setq ret_offset (sv-slots type) ret_label (sv-new-label))
+		(push finfo (list name label offsets ret_offset))
+		(sv-emit 'vp-label (sv-q label))
+		(sv-block block)
+		(sv-emit 'vp-label (sv-q ret_label))
+		(sv-emit 'vp-ret)) funcs)
+	(bind '(& & offsets ret) (some (# (if (eql (first %0) 'main) %0)) finfo))
+	(list offsets ret))
+
+(defun sv-code-text ()
+	;the code so far as lines of VP source
+	(defq lf (ascii-char 10))
+	(join (map (# (if (eql (first %0) 'vp-label) (str %0) (cat (ascii-char 9) (str %0)))) code) lf))
+
+(defun sv-vertex-source (program name)
+	; -> (text frame_size attr_slots out_slots)
+	;the VP source of the native function that places vertices
+	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
+		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
+		ret_offset 0 ret_label :nil)
+	;the frame starts with the inputs, then the attrs of the vertex being
+	;placed, then its varyings, then what the loop keeps
+	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) (first program))
+	(defq attr_at frame_size)
+	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-attrs program))
+	(defq vary_at frame_size attr_slots (/ (- vary_at attr_at) 8))
+	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-varyings program))
+	(defq vary_slots (/ (- frame_size vary_at) 8))
+	(bind '(s_in s_out s_n) (map (lambda (_) (sv-slots :int)) (range 0 3)))
+	(bind '(& ret) (sv-program program "v"))
+	(defq lf (ascii-char 10) text (cat
+{(include "lib/asm/func.inc")
+(include "sys/math/class.inc")
+(include "class/num/class.inc")
+(include "class/str/class.inc")
+(include "class/array/class.inc")
+(include "class/lisp/class.inc")
+
+(def-func "} name {")
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;(place frame verts out count) -> :nil
+
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 4)
+
+	(vp-push :r0)
+	(list-bind-args :r1 '(:r13 :r6 :r7 :r8) '(:str :obj :obj :num))
+	(vp-lea-p 'fn_consts :r12)
+	(vp-cpy-ir :r6 +array_begin :r6)
+	(vp-cpy-ir :r7 +array_begin :r7)
+	(vp-cpy-ri :r6 :r13 } (str s_in) {)
+	(vp-cpy-ri :r7 :r13 } (str s_out) {)
+	(vp-cpy-ri :r8 :r13 } (str s_n) {)
+	(vp-call 'vh_init)
+(vp-label 'sh_vloop)
+	(vp-cpy-ir :r13 } (str s_n) { :r2)
+	(vp-ble-cr 0 :r2 'sh_vdone)
+	(vp-sub-cr 1 :r2)
+	(vp-cpy-ri :r2 :r13 } (str s_n) {)
+	;the attrs of this vertex, and its varyings start as 0
+	(vp-cpy-ir :r13 } (str s_in) { :r2)
+	(each (lambda (i)
+		(vp-cpy-ir :r2 (* i 8) :r3)
+		(vp-cpy-ri :r3 :r13 (+ } (str attr_at) { (* i 8)))) (range 0 } (str attr_slots) {))
+	(vp-add-cr } (str (* attr_slots 8)) { :r2)
+	(vp-cpy-ri :r2 :r13 } (str s_in) {)
+	(vp-xor-rr :r3 :r3)
+	(each (lambda (i)
+		(vp-cpy-ri :r3 :r13 (+ } (str vary_at) { (* i 8)))) (range 0 } (str vary_slots) {))
+	(vp-call 'vf_main)
+	;where it is, then its varyings
+	(vp-cpy-ir :r13 } (str s_out) { :r2)
+	(each (lambda (i)
+		(vp-cpy-ir :r13 (+ } (str ret) { (* i 8)) :r3)
+		(vp-cpy-ri :r3 :r2 (* i 8))) (range 0 4))
+	(each (lambda (i)
+		(vp-cpy-ir :r13 (+ } (str vary_at) { (* i 8)) :r3)
+		(vp-cpy-ri :r3 :r2 (+ 32 (* i 8)))) (range 0 } (str vary_slots) {))
+	(vp-add-cr } (str (+ 32 (* vary_slots 8))) { :r2)
+	(vp-cpy-ri :r2 :r13 } (str s_out) {)
+	(vp-jmp 'sh_vloop)
+(vp-label 'sh_vdone)
+	(vp-pop :r0)
+	(assign '((:r0 +lisp_sym_nil)) '(:r1))
+	(class/obj/ref :r1 :r2)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+} +sv_pow_text (sv-code-text) {
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(place frame verts out count)" +error_msg_wrong_types))
+	(signature '(:str :obj :obj :num)))
+
+(def-func-end)
+}))
+	(list text frame_size attr_slots (+ 4 vary_slots)))
+
 (defun sv-source (program name)
 	; -> (text frame_size)
 	;the VP source of the native function for a program
@@ -434,27 +683,7 @@
 	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) inputs)
 	(bind '(s_x0 s_x1 s_x s_y s_y1 s_mode s_height s_out s_skip)
 		(map (lambda (_) (sv-slots :int)) (range 0 9)))
-	;constants and globals are set once for a tile
-	(sv-emit 'vp-label (sv-q 'sh_init))
-	(each (lambda ((name type e))
-		(defq regs (sv-expr e) offset (sv-slots type))
-		(push vars (list name offset))
-		(sv-store regs type offset)
-		(sv-puts regs)) (cat consts globals))
-	(sv-emit 'vp-ret)
-	(defq num_globals (length vars))
-	(each (lambda ((name type params block))
-		(setq vars (slice vars 0 num_globals))
-		(defq label (sym (cat "sf_" name))
-			offsets (map (lambda ((pname ptype))
-				(push vars (list pname (defq offset (sv-slots ptype)))) offset) params))
-		(setq ret_offset (sv-slots type) ret_label (sv-new-label))
-		(push finfo (list name label offsets ret_offset))
-		(sv-emit 'vp-label (sv-q label))
-		(sv-block block)
-		(sv-emit 'vp-label (sv-q ret_label))
-		(sv-emit 'vp-ret)) funcs)
-	(bind '(& & (frag) ret) (some (# (if (eql (first %0) 'main) %0)) finfo))
+	(bind '((frag) ret) (sv-program program "s"))
 	(defq lf (ascii-char 10) text (cat
 {(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
@@ -600,59 +829,7 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(vp-label 'sh_pow)
-	;:f0 to the power :f1, to :f0, trashes :r0-:r1, :f0-:f7
-	;whole part of the power by squaring, the rest by repeated roots
-	(vp-cpy-if :r12 (fn-const (n2r 0)) :f2)
-	(vp-cpy-if :r12 (fn-const (n2r 1)) :f6)
-	(vp-bgt-ff :f2 :f0 'sh_pow_pos)
-	(vp-cpy-ff :f2 :f0)
-	(vp-ret)
-(vp-label 'sh_pow_pos)
-	(vp-cpy-ff :f0 :f7)
-	(vp-cvt-fr :f1 :r0)
-	(vp-cvt-rf :r0 :f3)
-	(vp-ble-ff :f1 :f3 'sh_pow_floor)
-	(vp-sub-ff :f6 :f3)
-	(vp-sub-cr 1 :r0)
-(vp-label 'sh_pow_floor)
-	(vp-sub-ff :f3 :f1)
-	(vp-cpy-ff :f6 :f4)
-	(vp-cpy-ff :f0 :f5)
-	(vp-abs-rr :r0 :r1)
-(vp-label 'sh_pow_whole)
-	(vp-beq-cr 0 :r1 'sh_pow_recip)
-	(vp-cpy-rr :r1 :r0)
-	(vp-and-cr 1 :r0)
-	(vp-beq-cr 0 :r0 'sh_pow_even)
-	(vp-mul-ff :f5 :f4)
-(vp-label 'sh_pow_even)
-	(vp-mul-ff :f5 :f5)
-	(vp-shr-cr 1 :r1)
-	(vp-jmp 'sh_pow_whole)
-(vp-label 'sh_pow_recip)
-	(vp-bge-ff :f2 :f3 'sh_pow_rest)
-	(vp-cpy-ff :f6 :f5)
-	(vp-div-ff :f4 :f5)
-	(vp-cpy-ff :f5 :f4)
-(vp-label 'sh_pow_rest)
-	(vp-cpy-ff :f7 :f5)
-	(vp-cpy-cr 31 :r1)
-(vp-label 'sh_pow_root)
-	(vp-ble-ff :f2 :f1 'sh_pow_done)
-	(vp-beq-cr 0 :r1 'sh_pow_done)
-	(vp-sub-cr 1 :r1)
-	(vp-sqrt-ff :f5 :f5)
-	(vp-add-ff :f1 :f1)
-	(vp-blt-ff :f6 :f1 'sh_pow_root)
-	(vp-mul-ff :f5 :f4)
-	(vp-sub-ff :f6 :f1)
-	(vp-jmp 'sh_pow_root)
-(vp-label 'sh_pow_done)
-	(vp-cpy-ff :f4 :f0)
-	(vp-ret)
-
-} (join (map (# (if (eql (first %0) 'vp-label) (str %0) (cat (ascii-char 9) (str %0)))) code) lf) {
+} +sv_pow_text (sv-code-text) {
 
 (errorcase
 (vp-label 'error)
@@ -663,24 +840,60 @@
 }))
 	(list text frame_size))
 
-(defun shader-vp (program)
-	; (shader-vp program) -> (shade frame_size)
-	;the native function for a program. It is assembled if this is
-	;the first time this CPU has been given this program.
+(defun sv-native (name text)
+	; -> :nil | func
+	;the native function of this name, assembled from the text if this
+	;CPU has not got it yet
 	(bind '(& *cpu* *abi*) (map (const sym) (split (load-path) "/")))
-	(defq name (cat "lib/gpu/jit/s" (str (logand (hash (str +sv_version program)) 0xffffffffffff)))
-		obj (cat "obj/" *cpu* "/" *abi* "/" name))
-	(bind '(text frame_size) (sv-source program name))
+	(defq obj (cat "obj/" *cpu* "/" *abi* "/" name))
 	;the lock is held to bind as well, so that no task can load a
 	;function that another is part way through writing
 	(lock-claim-rpc obj)
 	(when (= (age obj) 0)
 		(save text (cat obj ".vp"))
 		(within-compile-env (# (include (cat obj ".vp")))))
-	(defq shade (if (/= (age obj) 0) (ffi name)))
+	(defq func (if (/= (age obj) 0) (ffi name)))
 	(lock-release-rpc obj)
-	(unless shade (sh-err "could not assemble" name))
-	(list shade frame_size))
+	(unless func (sh-err "could not assemble" name))
+	func)
+
+(defun sv-name (letter program)
+	;the name of the native function of a program
+	(cat "lib/gpu/jit/" letter (str (logand (hash (str +sv_version program)) 0xffffffffffff))))
+
+(defun shader-vp (program)
+	; (shader-vp program) -> (shade frame_size)
+	;the native function for a pixel shader. It is assembled if this is
+	;the first time this CPU has been given this program.
+	(defq name (sv-name "s" program))
+	(bind '(text frame_size) (sv-source program name))
+	(list (sv-native name text) frame_size))
+
+(defun shader-vp-vertex (program)
+	; (shader-vp-vertex program) -> (place frame_size attr_slots out_slots)
+	;the native function for a vertex shader, it places vertices. A vertex
+	;is attr_slots numbers, its attrs one after another, and what comes
+	;out for it is out_slots numbers, where it is, 4, then its varyings.
+	(unless (eql (shader-stage program) :vertex) (sh-err "not a vertex shader" 'main))
+	(defq name (sv-name "v" program))
+	(bind '(text frame_size attr_slots out_slots) (sv-vertex-source program name))
+	(list (sv-native name text) frame_size attr_slots out_slots))
+
+(defun sv-reals (n)
+	;a reals of n numbers, all 0
+	(defq out (reals (n2r 0) (n2r 0) (n2r 0) (n2r 0)))
+	(while (< (length out) n) (setq out (cat out out)))
+	(slice out 0 n))
+
+(defun shader-vp-place (native frame verts)
+	; (shader-vp-place native frame verts) -> reals
+	;place the vertices of a reals, the attrs of one after another, vertex
+	;after vertex. The result is a reals, for each vertex where it is, 4
+	;numbers, then its varyings.
+	(bind '(place & attr_slots out_slots) native)
+	(defq count (/ (length verts) (max attr_slots 1)) out (sv-reals (* count out_slots)))
+	(if (> count 0) (place frame verts out count))
+	out)
 
 (defun shader-vp-frame (program native &optional vals)
 	; (shader-vp-frame program native [((name val) ...)]) -> frame
@@ -693,7 +906,7 @@
 			((eql type :int) (set-long frame offset (n2i val)))
 			((eql type :float) (set-real frame offset (shader-real val)))
 			((seq? val) (each (# (set-real frame (+ offset (* (!) 8)) (shader-real %0))) val)))
-		(setq offset (+ offset (* (ifn (shader-dim type) 1) 8)))) (first program))
+		(setq offset (+ offset (* (shader-size type) 8)))) (first program))
 	frame)
 
 (defun shader-vp-argb (native frame x y x1 y1 &optional height)

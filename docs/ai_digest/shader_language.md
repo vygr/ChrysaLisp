@@ -237,9 +237,36 @@ them, and every pixel of the tile has those. Where the reference puts a
 vertex is where `(mat4x4-vec4-mul)` puts it, and a normal where
 `(mat4x4-vec3-mul)` does.
 
-The other back ends have no vertex stage yet, GLSL, MSL, SPIR-V and VP. They
-refuse a vertex shader, a pixel shader with varyings, and a matrix, and say
-so. Nothing draws a triangle with a shader yet.
+The VP back end has the vertex shader as native code.
+
+```lisp
+(defq native (shader-vp-vertex vertex)
+	frame (shader-vp-frame vertex native vals)
+	out (shader-vp-place native frame verts))
+```
+
+`(shader-vp-vertex program)` gives `(place frame_size attr_slots out_slots)`,
+the native function and how many numbers a vertex is going in and coming out.
+`verts` is a `reals`, the attrs of a vertex one after another, vertex after
+vertex. `(shader-vp-place native frame verts)` gives a `reals`, for each
+vertex where it is, 4 numbers, then its varyings. So a vertex shader can be
+used with no pixel shader at all, by an app that only wants its vertices
+placed and will draw them itself.
+
+A matrix is never in registers, it is 16 slots of the frame, and a product
+of matrices is worked out into slots of its own. `(* a b c v)` is done from
+the right, a matrix by a vector three times, there is no product of matrices
+in it. A product that does not change from vertex to vertex belongs in a
+`defglobal`, it is then worked out once. 65,536 vertices placed by a matrix
+take 250us on an Apple M4 Max, `(mat4x4-vec4-mul)`, written by hand for that
+one job, takes 152us.
+
+A function can not take a matrix or give one, a matrix is an input, a
+global or a local.
+
+The GLSL, MSL and SPIR-V back ends have no vertex stage yet, and the VP back
+end has no pixel shader with varyings yet. They say so. Nothing draws a
+triangle with a shader yet.
 
 ## Using It
 

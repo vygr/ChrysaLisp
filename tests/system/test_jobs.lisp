@@ -18,12 +18,12 @@
 (defun jt-work (num &optional die)
 	(setf-> (str-alloc +work_size) (+work_num num) (+work_die (if die 1 0))))
 
-(defun jt-run (work timeout)
-	;add the work and take the answers till none are out, or too long
-	;has gone by. The numbers that came back, sorted.
+(defun jt-run (work timeout &optional done)
+	;add the work and take the answers till none are out, or done says
+	;so, or too long has gone by. The numbers that came back, sorted.
 	(defq got (list) end (+ (pii-time) timeout) left :t)
 	(. jobs :add work)
-	(while (and left (< (pii-time) end))
+	(while (and left (< (pii-time) end) (not (and done (done))))
 		(mail-timeout (elem-get jt_select +jt_timer) 200000 0)
 		(defq msg (mail-read (elem-get jt_select (defq idx (mail-select jt_select)))))
 		(case idx
@@ -52,8 +52,11 @@
 ;a job its child dies of is put back, again and again, and is counted,
 ;which is how a job no child can do is told from a slow one
 (assert-eq "no job has been put back" 0 (. jobs :tries))
+;it is run till the two that can be done are, and the other has been
+;put back twice, however long a slow machine takes over that
 (assert-list-eq "the jobs beside one that kills its child" '(10 12)
-	(jt-run (list (jt-work 5) (jt-work 99 :t) (jt-work 6)) 3500000))
+	(jt-run (list (jt-work 5) (jt-work 99 :t) (jt-work 6)) 30000000
+		(# (and (= (length got) 2) (>= (. jobs :tries) 2)))))
 (assert-eq "the one that kills is still out" 1 (. jobs :out))
 (assert-true "and has been tried more than once" (>= (. jobs :tries) 2))
 (. jobs :restart)

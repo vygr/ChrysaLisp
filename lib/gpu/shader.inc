@@ -383,10 +383,14 @@
 				(sh-name name form)
 				(setq ret_type (sh-type (third form) form))
 				(defq mark (length syms))
+				;a matrix is an input, a global or a local, it is not
+				;handed to a function or back from one
+				(if (eql ret_type :mat4) (sh-err "a function can not give a matrix" form))
 				(each (# (unless (and (list? %0) (= (length %0) 2))
 						(sh-err "wrong parameter" form))
 					(sh-name (first %0) form)
-					(sh-type (second %0) form)
+					(if (eql (sh-type (second %0) form) :mat4)
+						(sh-err "a function can not take a matrix" form))
 					(push syms (list (first %0) (second %0) :param))) params)
 				(defq body (slice form 4 -1))
 				(if (nempty? body)

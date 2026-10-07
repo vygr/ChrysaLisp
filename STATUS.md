@@ -4,6 +4,28 @@
 
 ------
 
+A vertex shader as native code.
+
+`(shader-vp-vertex program)` and `(shader-vp-place native frame verts)`, in
+`lib/gpu/vp.inc`. The vertices go in as a `reals`, the attrs of each one
+after another, and come out as a `reals`, for each where it is, then its
+varyings. It agrees with the reference. So a vertex shader can be used on
+its own, by an app that wants its vertices placed and draws them itself,
+and it is the first half of the pipeline that is to draw triangles.
+
+In native code a matrix is 16 slots of the frame, never registers, and
+`(* a b c v)` is done from the right, a matrix by a vector three times.
+65,536 vertices placed by a matrix take 250us on an Apple M4 Max. The
+`(mat4x4-vec4-mul)` of the matrix library, written by hand for that one
+job, takes 152us.
+
+A function of a shader can not take a matrix or give one, on any back end.
+
+13 more tests, 267 in `tests/gpu/test_shader.lisp`. And a test of the day
+before in `tests/system/test_jobs.lisp` gave a job 3.5 seconds to be put
+back twice, which a Raspberry Pi 4 running the whole suite did not always
+manage. It now waits for it.
+
 The shader language has vertex shaders, in the reference back end.
 
 A vertex shader is a file of its own, as a pixel shader is, and any vertex
