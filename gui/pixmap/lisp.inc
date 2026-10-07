@@ -10,3 +10,14 @@
 ; (pixmap-write pixmap stream type) -> pixmap
 (ffi "gui/pixmap/lisp_read" pixmap-read)
 ; (pixmap-read pixmap stream type) -> :nil | pixmap
+(ffi "gui/pixmap/lisp_shared" pixmap-shared)
+; (pixmap-shared width height key create) -> :nil | pixmap
+;a premultiplied 32 bit pixmap with its pixels in shared memory, under the
+;name key, at most 30 characters. create 1 makes it, the pixels zero, and
+;the name goes when that pixmap does. create 0 finds one another node of
+;this machine made, of the same size, and both draw on the same pixels.
+
+(defun pixmap-key ()
+	; (pixmap-key) -> str
+	;a name for a shared pixmap that no other task will come up with
+	(cat "clpx-" (str (pii-time)) "-" (str (logand (get-long (task-mbox) 0) 0xffffff))))

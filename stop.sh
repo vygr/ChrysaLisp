@@ -13,6 +13,17 @@ mkdir -p $TEMP
 rm -f $TEMP/???-???
 rm -f $TEMP/chrysalisp_*.session
 
+# shared memory a node made, for pixels, is not a file to delete. The
+# host program lets go of what dead nodes left
+for host in obj/*/*/*/main_tui obj/*/*/*/main_gui
+do
+	if [ -x "$host" ]
+	then
+		"$host" -shm_sweep 2>/dev/null
+		break
+	fi
+done
+
 if [ -t 0 ]
 then
 	stty sane 2>/dev/null

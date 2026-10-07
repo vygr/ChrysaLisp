@@ -130,6 +130,98 @@ int64_t pii_close_shared(const char *path, int64_t hndl)
 	return unlink(path);
 }
 
+// shared memory that is only ever memory, it has no file behind it for the
+// system to write back to. It is for pixels that several nodes of this
+// machine draw on. One node makes a piece of it under a name, the others
+// find it by the name, and it lasts till the one that made it lets go of
+// the name and the last of them has unmapped it.
+//
+// A node that is killed lets go of nothing, and a name is not a file that
+// a script can delete. So each name is noted in a file of its own, with the
+// pid of who made it, and pii_shm_sweep lets go of the names of the dead.
+
+#define PII_SHM_NOTE "/tmp/chrysalisp_shm_"
+
+int64_t pii_shm_open(const char *name, size_t len, uint64_t create)
+{
+	// 1 to make it, 0 to find one that is there. Returns a handle for
+	// pii_mmap, or -1, and never waits
+	char path[64], note[128];
+	snprintf(path, sizeof(path), "/%s", name);
+	if (create)
+	{
+		int fd = shm_open(path, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
+		if (fd == -1) return -1;
+		if (ftruncate(fd, len) == -1)
+		{
+			close(fd);
+			shm_unlink(path);
+			return -1;
+		}
+		snprintf(note, sizeof(note), PII_SHM_NOTE "%s", name);
+		FILE *f = fopen(note, "w");
+		if (f)
+		{
+			fprintf(f, "%d\n", (int)getpid());
+			fclose(f);
+		}
+		return fd;
+	}
+	int fd = shm_open(path, O_RDWR, 0);
+	if (fd == -1) return -1;
+	// it is a whole number of pages, so it can be longer than was asked
+	struct stat st;
+	if (fstat(fd, &st) == -1 || st.st_size < (off_t)len)
+	{
+		close(fd);
+		return -1;
+	}
+	return fd;
+}
+
+int64_t pii_shm_close(const char *name, int64_t hndl, uint64_t owner)
+{
+	// the one that made it lets go of the name as well
+	char path[64], note[128];
+	close((int)hndl);
+	if (owner)
+	{
+		snprintf(path, sizeof(path), "/%s", name);
+		snprintf(note, sizeof(note), PII_SHM_NOTE "%s", name);
+		shm_unlink(path);
+		unlink(note);
+	}
+	return 0;
+}
+
+void pii_shm_sweep()
+{
+	// let go of every name whose maker is no longer running
+	const char *prefix = "chrysalisp_shm_";
+	size_t prefix_len = strlen(prefix);
+	char path[64], note[512];
+	DIR *dir = opendir("/tmp");
+	if (!dir) return;
+	struct dirent *entry;
+	while ((entry = readdir(dir)))
+	{
+		if (strncmp(entry->d_name, prefix, prefix_len)) continue;
+		snprintf(note, sizeof(note), "/tmp/%s", entry->d_name);
+		int pid = 0;
+		FILE *f = fopen(note, "r");
+		if (f)
+		{
+			if (fscanf(f, "%d", &pid) != 1) pid = 0;
+			fclose(f);
+		}
+		if (pid > 0 && (kill((pid_t)pid, 0) == 0 || errno == EPERM)) continue;
+		snprintf(path, sizeof(path), "/%s", entry->d_name + prefix_len);
+		shm_unlink(path);
+		unlink(note);
+	}
+	closedir(dir);
+}
+
 int64_t pii_read(int64_t fd, void *addr, size_t len)
 {
 	return read((int)fd, addr, len);
@@ -502,6 +594,8 @@ void (*host_os_funcs[]) = {
 	(void*)pii_alive,
 	(void*)pii_cpus,
 	(void*)pii_memory,
+	(void*)pii_shm_open,
+	(void*)pii_shm_close,
 };
 
 #endif

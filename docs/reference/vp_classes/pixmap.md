@@ -10,6 +10,8 @@
 
 ### (pixmap-read pixmap stream type) -> :nil | pixmap
 
+### (pixmap-shared width height key create) -> :nil | pixmap
+
 ### (pixmap-to-argb32 pixel type) -> argb32
 
 ### (pixmap-write pixmap stream type) -> pixmap
@@ -49,6 +51,26 @@ outputs
 :r0 = 0 if error, else pixmap object (ptr)
 trashes
 :r0-:r7, :f0-:f15
+```
+
+### :create_shared -> gui/pixmap/create_shared
+
+```code
+inputs
+:r0 = width (pixels)
+:r1 = height (pixels)
+:r2 = type (int)
+:r3 = key str object (ptr)
+:r4 = 1 to make the shared memory, 0 to find it (long)
+outputs
+:r0 = 0 if error, else pixmap object (ptr)
+trashes
+:r0-:r14, :f0-:f15
+info
+a pixmap with its pixels in shared memory, under the name key. The
+one that makes it has them zero, and lets go of the name when it
+goes. Another node of this machine finds it by the key and the same
+size, and draws on the same pixels.
 ```
 
 ### :deinit -> gui/pixmap/deinit

@@ -46,11 +46,26 @@ the host.
 
         * `pii_gettime`: Get current time in microseconds.
 
-        * `pii_open_shared`: Open/create a shared memory object (POSIX
-          `shm_open` or Windows `CreateFileMapping`). Used for inter-process
-          links.
+        * `pii_open_shared`: Open/create the shared memory of a link, a file
+          in `/tmp` on macOS and Linux, Windows `CreateFileMapping`. It
+          waits for the other end to make it. Used for inter-process links.
 
-        * `pii_close_shared`: Close/unlink a shared memory object.
+        * `pii_close_shared`: Close the shared memory of a link. The file is
+          removed by the launch scripts.
+
+        * `pii_shm_open`: Shared memory that is only ever memory, POSIX
+          `shm_open` or Windows `CreateFileMapping` with no file, so nothing
+          is written to disk. One node makes it under a name, of at most 30
+          characters, others on the machine find it by the name, and it
+          never waits, one that is not there is an error. Used for the
+          pixels of a pixmap that several nodes draw on.
+
+        * `pii_shm_close`: Close it. The node that made it lets go of the
+          name as well, and the memory lasts till the last node has unmapped
+          it. A node that is killed lets go of nothing, so on macOS and
+          Linux each name is noted in `/tmp/chrysalisp_shm_<name>` with the
+          pid of its maker, and the host program run as `main_tui
+          -shm_sweep` lets go of the names of the dead. `stop.sh` runs it.
 
         * `pii_flush_icache` (or `pii_clear_icache`): Ensure instruction cache
           coherency after writing/modifying code in memory.

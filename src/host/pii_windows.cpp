@@ -136,6 +136,39 @@ int64_t pii_close_shared(const char *path, int64_t hndl)
 	return -1;
 }
 
+// shared memory for pixels that several nodes of this machine draw on, see
+// pii_darwin.cpp. Windows keeps it in memory, and lets go of it when the
+// last node closes its handle, so there is nothing to sweep.
+
+int64_t pii_shm_open(const char *name, size_t len, uint64_t create)
+{
+	// 1 to make it, 0 to find one that is there. Returns a handle for
+	// pii_mmap, or -1
+	HANDLE hndl;
+	if (create)
+	{
+		hndl = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
+			(DWORD)((uint64_t)len >> 32), (DWORD)len, name);
+		if (hndl && GetLastError() == ERROR_ALREADY_EXISTS)
+		{
+			CloseHandle(hndl);
+			hndl = NULL;
+		}
+	}
+	else hndl = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, name);
+	return hndl ? (int64_t)hndl : -1;
+}
+
+int64_t pii_shm_close(const char *name, int64_t hndl, uint64_t owner)
+{
+	CloseHandle((HANDLE)hndl);
+	return 0;
+}
+
+void pii_shm_sweep()
+{
+}
+
 int64_t pii_read(int64_t fd, void *addr, size_t len)
 {
 	if (!fd)
@@ -602,6 +635,8 @@ void (*host_os_funcs[]) = {
 	(void*)pii_alive,
 	(void*)pii_cpus,
 	(void*)pii_memory,
+	(void*)pii_shm_open,
+	(void*)pii_shm_close,
 };
 
 #endif

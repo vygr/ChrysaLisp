@@ -538,3 +538,44 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :host_os :pii_shm_open)
+	;inputs
+	;:r0 = c string name (pubyte)
+	;:r1 = length (long)
+	;:r2 = 1 to make it, 0 to find it (long)
+	;outputs
+	;:r0 = handle (long), -1 if error
+	;trashes
+	;:r0, :f0-:f15
+	;info
+	;shared memory that is only ever memory, for :pii_mmap +mmap_shared.
+	;It never waits, one that is not there to be found is an error
+
+	(entry :host_os :pii_shm_open '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-os-call :host_os :shm_open '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit :host_os :pii_shm_open '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :host_os :pii_shm_close)
+	;inputs
+	;:r0 = c string name (pubyte)
+	;:r1 = handle (long)
+	;:r2 = 1 if this made it, and so lets go of the name (long)
+	;outputs
+	;:r0 = error code (long)
+	;trashes
+	;:r0, :f0-:f15
+
+	(entry :host_os :pii_shm_close '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-os-call :host_os :shm_close '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit :host_os :pii_shm_close '(:r0))
+	(vp-ret)
+
+(def-func-end)

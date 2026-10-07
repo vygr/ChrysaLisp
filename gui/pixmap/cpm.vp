@@ -38,7 +38,7 @@
 		(vpif {num_bits = 15})
 			(assign {16} {num_bits})
 		(endif)
-		(assign {&this->+pixmap_data} {data})
+		(assign {this->+pixmap_data} {data})
 		(assign {data + this->+pixmap_height * this->+pixmap_stride} {data_end})
 		(assign {0, 0} {bit_pool, bit_pool_size})
 

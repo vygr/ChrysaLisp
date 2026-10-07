@@ -4,6 +4,55 @@
 
 ------
 
+A pixmap can have its pixels in shared memory, for the nodes of one machine
+to draw on together.
+
+`(pixmap-shared width height key create)`, `gui/pixmap/lisp.inc`. With
+create 1 it makes the pixels under the name key, and `(pixmap-key)` gives a
+name no other task will. With create 0 it finds the pixels another node
+made. `(Canvas-pixmap pixmap)` is a canvas on either, and what one draws the
+other has. It is a thing of the pixmap alone, `:sys_mem` knows nothing of
+it. The one that made it lets go of the name when it goes, the pixels last
+till the last pixmap on them has gone, so a task that is late, or one whose
+master has died, draws on memory that is still there.
+
+The pixels of every pixmap are now behind a pointer, `+pixmap_data`. They
+follow the object as they did, or they are in the shared memory.
+
+Two new host calls, `pii_shm_open` and `pii_shm_close`, POSIX shared memory
+on macOS and Linux, a mapping with no file on Windows. The links keep their
+files in `/tmp`, they are small. A file would have the system writing a
+megabyte of pixels back to disk as they change. A node that is killed
+leaves its name behind, the same as it leaves a link file, and `stop.sh`
+clears both, the names through the host program, `main_tui -shm_sweep`,
+on macOS a name is not a file that can be deleted.
+
+**The host programs and the boot image must match again**, the table of
+host calls has grown by two.
+
+The surface demo's canvas is one, and the nodes draw their tiles straight
+onto it and send back 24 bytes, not the 20KB of pixels. A node that can not
+find the pixels, it is on another machine, sends them as it did.
+
+It is not faster for it. The demo's CPU path was run with no window, 30
+frames of 640 by 480 each way, twice over. On an M4 Max with 16 nodes a
+frame is 93.8ms and 94.7ms with the tiles sent as messages and 93.1ms and
+94.5ms on the shared pixmap. On a Raspberry Pi 4 with 4 nodes it is 1450ms
+and 1457ms against 1443ms and 1438ms. The time is the shading, the links
+move the 1.2MB of a frame while the nodes shade. The size of a tile does
+not help either, from 2 lines to 60 the frame only gets slower, 96ms to
+145ms, as the slower cores are left holding bigger tiles. What it does
+give is the means, several tasks drawing on one canvas, and a big image
+handed to a farm without sending it.
+
+Checked: the two canvases hold the same picture pixel for pixel, on macOS
+and on Linux. The demo itself was run on the Pi's frame buffer. A new test,
+`tests/system/test_pixmap_shared.lisp`, passes native and on the VP64
+emulator. All six boot images build. The Windows host code compiles, it has
+not been run.
+
+------
+
 exFAT can format a volume, has a test in the suite, and its loose ends are
 tied.
 

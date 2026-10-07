@@ -1952,6 +1952,14 @@ run pipe farm and collect output
 (pipe-split cmdline) -> ((mode cmd) ...)
 ```
 
+### pixmap-key
+
+```code
+(pixmap-key) -> str
+
+a name for a shared pixmap that no other task will come up with
+```
+
 ### pmap?
 
 ```code

@@ -25,6 +25,7 @@ extern int64_t pii_munmap(void *addr, size_t len, uint64_t mode);
 extern int64_t pii_mprotect(void *addr, size_t len, uint64_t mode);
 extern void *pii_flush_icache(void* addr, size_t len);
 extern void (*host_os_funcs[]);
+extern void pii_shm_sweep();
 
 #ifdef _HOST_GUI
 extern void (*host_gui_funcs[]);
@@ -92,6 +93,13 @@ int main(int argc, char *argv[])
 	host_argv = argv;
 	if (argc > 1)
 	{
+		//let go of the shared memory dead nodes left behind, and no more
+		if (!strcmp(argv[1], "-shm_sweep"))
+		{
+			pii_shm_sweep();
+			return 0;
+		}
+
 		//check for -e option
 		for (int i = 0; i < argc; ++i)
 		{

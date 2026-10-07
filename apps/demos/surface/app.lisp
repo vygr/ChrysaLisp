@@ -14,6 +14,12 @@
 	(enum main task reply timer))
 
 (defq +width 640 +height 480 +scale 1 +line_batch 8 +steps 1000
+	;the pixels of the canvas are in shared memory if the host has it, and
+	;the name they are under goes out with every tile
+	shared_name (pixmap-key) shared_pixmap (pixmap-shared +width +height shared_name 1)
+	shared_field (cat (if shared_pixmap shared_name "") (char 0 +long_size) (char 0 +long_size)
+		(char 0 +long_size) (char 0 +long_size))
+	shared_field (slice shared_field 0 32)
 	;the timer ticks at the rate of a GPU frame, the slow jobs are done every so many
 	+timer_rate (/ 1000000 60) +slow_ticks 30 ticks 0 +retry_timeout (task-timeout 5)
 	program (shader-load +shader_file) controls (list)
@@ -44,7 +50,10 @@
 		(ui-grid *values* (:grid_width 1))
 		(ui-grid *sliders* (:grid_width 1)))
 	(ui-label *status* (:text "..." :font *env_body_font*))
-	(ui-canvas *canvas* +width +height +scale))
+	;the pixels of the canvas are in shared memory, the nodes of this
+	;machine draw their tiles straight onto them
+	(ui-element *canvas* (if shared_pixmap (Canvas-pixmap shared_pixmap)
+		(Canvas +width +height +scale)) (:color 0)))
 
 (defun control-value ((name type lo hi slider label val init))
 	;the value of the input, from where its slider is, and the
@@ -138,7 +147,9 @@
 				(+job_y y)
 				(+job_x1 +width)
 				(+job_y1 (min +height (+ y +line_batch)))
-				(+job_height +height)) inputs)) tiles))
+				(+job_height +height)
+				(+job_width +width)
+				(+job_shared shared_field)) inputs)) tiles))
 	;wake the children that have no job
 	(. farm :each (lambda (key val)
 		(if (and (get :child val) (not (get :job val)))
@@ -248,7 +259,9 @@
 					+job_key +job_x +job_y +job_x1 +job_y1))
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
-				(unless gpu_mode (. *canvas* :tile msg x y x1 y1))
+				;a child that could not reach the canvas sends the pixels
+				(unless (or gpu_mode (= (length msg) +job_reply))
+					(. *canvas* :tile msg x y x1 y1))
 				(when (defq i (find y tiles))
 					(setq tiles (erase tiles i (inc i)))
 					(when (empty? tiles)

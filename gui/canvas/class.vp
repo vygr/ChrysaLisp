@@ -276,7 +276,7 @@
 	(entry {user, old_stack})
 
 	(assign {user->local_pixmap} {pixmap})
-	(host-gui-call :host_gui :read_texture {user->local_handle, &pixmap->+pixmap_data,
+	(host-gui-call :host_gui :read_texture {user->local_handle, pixmap->+pixmap_data,
 			pixmap->+pixmap_width, pixmap->+pixmap_height, pixmap->+pixmap_stride}
 		{ok})
 	(assign {ok} {user->local_ok})
@@ -445,7 +445,7 @@
 	(breakif '(:r2 = 0))
 	(vpcase '(:r2 = 0xff))
 		(assign '((:r0 +canvas_pixmap)) '(:r3))
-		(assign '((:r3 +pixmap_stride) (& :r3 +pixmap_data)) '(:r2 :r3))
+		(assign '((:r3 +pixmap_stride) (:r3 +pixmap_data)) '(:r2 :r3))
 		(vp-mul-rr :r2 :r8)
 		(vp-simd vp-shl-cr `(,(log2 +int_size)) '(:r7 :r9))
 		(vp-add-rr :r8 :r3)
@@ -461,7 +461,7 @@
 		(vp-sub-rr :r2 :r6)
 
 		(assign '((:r0 +canvas_pixmap)) '(:r3))
-		(assign '((:r3 +pixmap_stride) (& :r3 +pixmap_data)) '(:r2 :r3))
+		(assign '((:r3 +pixmap_stride) (:r3 +pixmap_data)) '(:r2 :r3))
 		(vp-mul-rr :r2 :r8)
 		(vp-simd vp-shl-cr `(,(log2 +int_size)) '(:r7 :r9))
 		(vp-add-rr :r8 :r3)
@@ -532,7 +532,7 @@
 	(assign '((:r0 +canvas_cx) (:r0 +canvas_cy) (:r0 +canvas_cx1) (:r0 +canvas_cy1)) '(:r3 :r4 :r5 :r6))
 	(vpif '(:r7 >= :r3) '(:r8 >= :r4) '(:r7 < :r5) '(:r8 < :r6))
 		(assign '((:r0 +canvas_pixmap)) '(:r2))
-		(assign '((:r2 +pixmap_stride) (& :r2 +pixmap_data)) '(:r1 :r2))
+		(assign '((:r2 +pixmap_stride) (:r2 +pixmap_data)) '(:r1 :r2))
 		(vp-mul-rr :r1 :r8)
 		(vp-shl-cr (log2 +int_size) :r7)
 		(vp-add-rr :r8 :r2)
@@ -573,7 +573,7 @@
 	(breakif `(,dcol = 0))
 	(vpcase `(,dcol = 0xff))
 		(assign `((,this +canvas_pixmap)) `(,cx))
-		(assign `((,cx +pixmap_stride) (& ,cx +pixmap_data)) `(,dcol ,cx))
+		(assign `((,cx +pixmap_stride) (,cx +pixmap_data)) `(,dcol ,cx))
 		(vp-mul-rr dcol y)
 		(vp-shl-cr (log2 +int_size) x)
 		(vp-add-rr y cx)
@@ -586,7 +586,7 @@
 		(vp-sub-rr dcol cy1)
 
 		(assign `((,this +canvas_pixmap)) `(,cx))
-		(assign `((,cx +pixmap_stride) (& ,cx +pixmap_data)) `(,dcol ,cx))
+		(assign `((,cx +pixmap_stride) (,cx +pixmap_data)) `(,dcol ,cx))
 		(vp-mul-rr dcol y)
 		(vp-shl-cr (log2 +int_size) x)
 		(vp-simd vp-add-rr `(,y ,cx) `(,cx ,x))

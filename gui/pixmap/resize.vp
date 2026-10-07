@@ -44,7 +44,7 @@
 	(loop-end)
 	(assign {source->+pixmap_width * 256} {(buf)[x2 * +int_size]})
 
-	(assign {&this->+pixmap_size} {data})
+	(assign {this->+pixmap_data} {data})
 	(assign {0} {y2})
 	(loop-while {y2 < this->+pixmap_height})
 		(assign {y2 *> fh} {y1a})
@@ -78,7 +78,7 @@
 				(endif)
 				(assign (list weight_y) {weight_y})
 
-				(assign {&source->+pixmap_size + ((y * source->+pixmap_width + x1c) * +int_size)} {sdata})
+				(assign {source->+pixmap_data + ((y * source->+pixmap_width + x1c) * +int_size)} {sdata})
 				(assign {x1c} {x})
 				(loop-while {x <= x1d})
 					(vp-rdef (weight_x x1c x1d x x1a x1b))
@@ -151,7 +151,7 @@
 
 	(entry :pixmap :resize_2 (list this source))
 
-	(assign `((& ,this +pixmap_size) (& ,source +pixmap_size)) `(,data , sdata))
+	(assign `((,this +pixmap_data) (,source +pixmap_data)) `(,data , sdata))
 	(assign `((,source +pixmap_stride) (,source +pixmap_height) 0xff00ff00 0xff00ff)
 		(list sw ydata mga mrb))
 
@@ -212,7 +212,7 @@
 
 	(entry :pixmap :resize_3 (list this source))
 
-	(assign `((& ,this +pixmap_size) (& ,source +pixmap_size)) `(,data , sdata))
+	(assign `((,this +pixmap_data) (,source +pixmap_data)) `(,data , sdata))
 	(assign `(,(/ (<< 1 32) 9) (,source +pixmap_stride) (,source +pixmap_height) 0xff00ff00 0xff00ff)
 		(list q sw ydata mga mrb))
 
@@ -322,7 +322,7 @@
 	(gotoif `(,w_bytes <= 0) 'done)
 	(gotoif `(,h <= 0) 'done)
 
-	(assign `((& ,this +pixmap_data) (& ,src +pixmap_data)) `(,ddata ,sdata))
+	(assign `((,this +pixmap_data) (,src +pixmap_data)) `(,ddata ,sdata))
 
 	;sdata points to the rightmost pixel of row 0 in src: sdata + (src_width - 1) * 4
 	(assign `((,src +pixmap_width)) `(,val))

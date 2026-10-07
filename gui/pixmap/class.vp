@@ -23,7 +23,7 @@
 	;create new pixmap object
 	(vp-mul-rr :r1 :r0)
 	(vp-mul-cr +int_size :r0)
-	(vp-add-cr +pixmap_data :r0)
+	(vp-add-cr +pixmap_pixels :r0)
 	(call :sys_mem :alloc '(:r0) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;init the object
@@ -63,19 +63,83 @@
 	(vpif '(:r1 /= 0))
 		(vp-push :r0)
 		(assign '(0) '(:r1))
-		(assign '(:r1 :r1 :r1 :r1)
+		(assign '(:r1 :r1 :r1 :r1 :r1 :r1 :r1)
 			'((:r0 +pixmap_texture) (:r0 +pixmap_stream)
-			(:r0 +pixmap_bufp) (:r0 +pixmap_stream_type)))
+			(:r0 +pixmap_bufp) (:r0 +pixmap_stream_type)
+			(:r0 +pixmap_key) (:r0 +pixmap_handle) (:r0 +pixmap_owner)))
 
-		;clear pixel buffer
+		;the pixels follow the object, clear them
+		(assign '((& :r0 +pixmap_pixels)) '(:r1))
+		(assign '(:r1) '((:r0 +pixmap_data)))
 		(assign '((:r0 +pixmap_height) (:r0 +pixmap_stride)) '(:r1 :r2))
 		(vp-mul-rr :r2 :r1)
-		(call :sys_mem :fill '((& :r0 +pixmap_data) :r1 0))
+		(call :sys_mem :fill '((:r0 +pixmap_data) :r1 0))
 		(vp-pop :r0)
 	(endif)
 
 	(exit :pixmap :init '(:r0 :r1))
 	(vp-ret)
+
+(def-func-end)
+
+(def-method :pixmap :create_shared)
+	;inputs
+	;:r0 = width (pixels)
+	;:r1 = height (pixels)
+	;:r2 = type (int)
+	;:r3 = key str object (ptr)
+	;:r4 = 1 to make the shared memory, 0 to find it (long)
+	;outputs
+	;:r0 = 0 if error, else pixmap object (ptr)
+	;trashes
+	;:r0-:r14, :f0-:f15
+	;info
+	;a pixmap with its pixels in shared memory, under the name key. The
+	;one that makes it has them zero, and lets go of the name when it
+	;goes. Another node of this machine finds it by the key and the same
+	;size, and draws on the same pixels.
+
+	(def-vars
+		(ptr this key)
+		(pubyte data)
+		(long handle create len)
+		(uint width height)
+		(int type))
+
+	(push-scope)
+	(entry :pixmap :create_shared {width, height, type, key, create})
+
+	(call :sys_mem :alloc {+pixmap_size} {this, _})
+	(vpif {this})
+		(assign {height * width * +int_size, 0} {len, data})
+		(call :host_os :pii_shm_open {&key->+str_data, len, create} {handle})
+		(vpif {handle /= -1})
+			(call :host_os :pii_mmap {len, handle, +mmap_shared} {data})
+			(vpif {data = -1})
+				(assign {0} {data})
+			(endif)
+			(vpifnot {data})
+				(call :host_os :pii_shm_close {&key->+str_data, handle, create})
+			(endif)
+		(endif)
+		(vpif {data})
+			(call :obj :init (cat {this, @} (f-path :pixmap :vtable)) {_, _})
+			(call :str :ref {key})
+			(assign {width, height, type, width * +int_size}
+				{this->+pixmap_width, this->+pixmap_height, this->+pixmap_type, this->+pixmap_stride})
+			(assign {0, 0, 0, 0}
+				{this->+pixmap_texture, this->+pixmap_stream, this->+pixmap_bufp, this->+pixmap_stream_type})
+			(assign {data, key, handle, create}
+				{this->+pixmap_data, this->+pixmap_key, this->+pixmap_handle, this->+pixmap_owner})
+		(else)
+			(call :sys_mem :free {this})
+			(assign {0} {this})
+		(endif)
+	(endif)
+
+	(exit :pixmap :create_shared {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -95,6 +159,20 @@
 	;free any texture
 	(assign '((:rsp 0)) '(:r0))
 	(call :texture :deref_if '((:r0 +pixmap_texture)))
+
+	;let go of any shared memory, and of its name if this made it
+	(assign '((:rsp 0)) '(:r0))
+	(assign '((:r0 +pixmap_key)) '(:r1))
+	(vpif '(:r1 /= 0))
+		(assign '((:r0 +pixmap_height) (:r0 +pixmap_stride)) '(:r1 :r2))
+		(vp-mul-rr :r2 :r1)
+		(call :host_os :pii_munmap '((:r0 +pixmap_data) :r1 +mmap_shared))
+		(assign '((:rsp 0)) '(:r0))
+		(assign '((:r0 +pixmap_key) (:r0 +pixmap_handle) (:r0 +pixmap_owner)) '(:r3 :r1 :r2))
+		(call :host_os :pii_shm_close '((& :r3 +str_data) :r1 :r2))
+		(assign '((:rsp 0)) '(:r0))
+		(call :str :deref '((:r0 +pixmap_key)))
+	(endif)
 
 	(vp-pop :r0)
 	(s-jump :pixmap :deinit '(:r0))
@@ -144,7 +222,7 @@
 	(call :texture :deref_if {this->+pixmap_texture})
 
 	;create SDL surface from pixel buffer, convert to texture
-	(host-gui-call :host_gui :create_texture {&this->+pixmap_data,
+	(host-gui-call :host_gui :create_texture {this->+pixmap_data,
 			this->+pixmap_width, this->+pixmap_height,
 			this->+pixmap_stride, user->local_flags}
 		{tex_id})
@@ -237,7 +315,7 @@
 	(vp-shl-cr 32 :r1)
 	(vp-cpy-rr :r0 :r4)
 	(vp-add-rr :r1 :r2)
-	(assign '((:r0 +pixmap_height) (:r0 +pixmap_stride) (& :r0 +pixmap_data)) '(:r1 :r3 :r0))
+	(assign '((:r0 +pixmap_height) (:r0 +pixmap_stride) (:r0 +pixmap_data)) '(:r1 :r3 :r0))
 	(vp-mul-rr :r3 :r1)
 	(call :sys_mem :fill '(:r0 :r1 :r2))
 
@@ -264,7 +342,7 @@
 		(vp-mul-cr -1 pix)
 		(assign `(,pix) `((,this +pixmap_type)))
 
-		(assign `((& ,this +pixmap_data) (,this +pixmap_stride) (,this +pixmap_height))
+		(assign `((,this +pixmap_data) (,this +pixmap_stride) (,this +pixmap_height))
 			`(,dst ,end ,height))
 		(vp-mul-rr height end)
 		(vp-simd vp-xor-rr `(,pmul ,argb) `(,pmul ,argb))
@@ -303,7 +381,7 @@
 		(vp-mul-cr -1 pix)
 		(assign `(,pix) `((,this +pixmap_type)))
 
-		(assign `((& ,this +pixmap_data) (,this +pixmap_stride) (,this +pixmap_height))
+		(assign `((,this +pixmap_data) (,this +pixmap_stride) (,this +pixmap_height))
 			`(,dst ,end ,height))
 		(vp-mul-rr height end)
 		(vp-simd vp-xor-rr `(,pmul ,argb) `(,pmul ,argb))

@@ -286,6 +286,35 @@ trashes
 :r0, :f0-:f15
 ```
 
+### :pii_shm_close -> sys/pii/shm_close
+
+```code
+inputs
+:r0 = c string name (pubyte)
+:r1 = handle (long)
+:r2 = 1 if this made it, and so lets go of the name (long)
+outputs
+:r0 = error code (long)
+trashes
+:r0, :f0-:f15
+```
+
+### :pii_shm_open -> sys/pii/shm_open
+
+```code
+inputs
+:r0 = c string name (pubyte)
+:r1 = length (long)
+:r2 = 1 to make it, 0 to find it (long)
+outputs
+:r0 = handle (long), -1 if error
+trashes
+:r0, :f0-:f15
+info
+shared memory that is only ever memory, for :pii_mmap +mmap_shared.
+It never waits, one that is not there to be found is an error
+```
+
 ### :pii_spawn -> sys/pii/spawn
 
 ```code
@@ -400,6 +429,10 @@ trashes
 ### :remove -> :nil
 
 ### :seek -> :nil
+
+### :shm_close -> :nil
+
+### :shm_open -> :nil
 
 ### :sleep -> :nil
 
