@@ -4,6 +4,15 @@
 
 ------
 
+Notes on the Storage service, an idea, not built.
+
+`docs/ai_digest/storage_service.md`. What the file system work is for. A
+`@Storage` service on each machine, that between them distribute, replicate
+and migrate what is stored and mend what is lost, with queries sent as tasks
+to where the data is. Chris's words for it, "a distributed raid, with the
+kicker of sending the tasks to the data". The notes are of a conversation,
+what he wants of it, what was talked over, and what is open.
+
 FAT32 is read.
 
 `lib/fs/fat32.inc`. It is not written, exFAT is the file system proper,
