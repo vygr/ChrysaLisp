@@ -13,7 +13,8 @@
 (defvarying facing :vec3)
 (defvarying fade :float)
 
-(defconst light (vec3 0.55 0.55 -0.55))
+;the way to the light, it is up, to the left, and on our side of the scene
+(defconst light (vec3 -0.55 0.55 0.55))
 (defconst ambient 0.25)
 
 (defun main :vec4 ((frag :vec2))

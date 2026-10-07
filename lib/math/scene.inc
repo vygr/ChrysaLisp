@@ -67,11 +67,17 @@
 	;faces share is a vertex of its own for each of them, where it is and
 	;then the normal of that face, 7 numbers. The triangles are then just
 	;the vertices in the order they come.
+	;
+	;The meshes of lib/math/mesh.inc have their faces going round clockwise
+	;as seen from outside, with normals that point in. The way it is done
+	;everywhere else, and by the pipeline, is counter clockwise with
+	;normals that point out. So here two corners of each face are swapped
+	;and its normal is turned round.
 	(defq verts (. mesh :get_verts) norms (. mesh :get_norms) out (list (reals)))
 	(each (lambda ((i0 i1 i2 in))
-		(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
+		(defq n (nums-scale (slice norms (* in +vec3_size) (* (inc in) +vec3_size)) +real_-1))
 		(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) n))
-			(list i0 i1 i2))) (partition (. mesh :get_tris) +tri_size))
+			(list i0 i2 i1))) (partition (. mesh :get_tris) +tri_size))
 	(defq flat (apply (const cat) out))
 	(list flat (apply (const nums) (range 0 (/ (length flat) 7)))))
 
@@ -84,7 +90,7 @@
 	(shader-vp-draw-tris (scene-pipeline) verts tris pixmap depth
 		(list (list 'model mat4x4_obj) (list 'lens mat4x4_frust))
 		(list (list 'color (rest (. object :get_color))))
-		:front))
+		:t))
 
 (defclass Scene-node (&optional name) :nil
 	; (Scene-node [name]) -> scene_node

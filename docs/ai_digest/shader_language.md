@@ -299,6 +299,21 @@ pixmap depth [vvals pvals cull tri_size x y x1 y1])` draws.
   eye is left out whole, there is no clipping to the near plane.
 * Calls add up, the depth buffer is what is nearest so far, in any order.
 
+The spaces are those of OpenGL, which is what `lib/math/matrix.inc` makes
+matrices for, `(Mat4x4-frustum)` is its `glFrustum`.
+
+* The eye is at the origin and looks down -z, x to the right, y up.
+* After the divide by w, x and y of -1 to 1 are the edges of the pixmap, y
+  up, and z of -1 is the near plane, 1 the far.
+* The frag coord has its origin at the bottom left, y up.
+* The front of a triangle is the side its vertices go round counter
+  clockwise from, and a normal points out of the front.
+
+The meshes of `lib/math/mesh.inc` are the other way round, clockwise from
+outside with normals that point in, as the code that used to draw them
+wanted. `lib/math/scene.inc` turns them round as it hands them to the
+shaders, so the shaders and the pipeline are the usual way.
+
 The two shaders are a native function each, not one for the pair. The vertex
 function places the vertices, and the pixel shader's function fills
 triangles from placed vertices, whoever placed them. So a vertex shader is

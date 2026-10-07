@@ -4,6 +4,24 @@
 
 ------
 
+The light of the Mesh demo is up, to the left and in front again, and the
+pipeline is said to be what it is, the spaces of OpenGL.
+
+The eye looks down -z, y is up, a triangle's front is the side its vertices
+go round counter clockwise from, and a normal points out of it.
+`(Mat4x4-frustum)` is `glFrustum`, so the matrix library was right all
+along. Two things in the old Mesh code were not. It drew with y going down,
+hence the teapot. And the meshes of `lib/math/mesh.inc`, those it makes and
+those it loads, have their faces clockwise from outside with normals that
+point in, 528 faces of 528 on a sphere, which the old test for a face that
+faces away and the old light were written to suit. With y up and the light
+left as it was, it came from below.
+
+`lib/math/scene.inc` now turns a mesh round as it hands it to the shaders,
+two corners of a face swapped and its normal reversed, and the shaders and
+the cull are the usual way. `mesh_lit.shader` has the way to the light as
+up, left and towards us. `lib/math/mesh.inc` is as it was.
+
 `(. canvas :ftri)` has gone.
 
 The flat fill of a triangle, `gui/canvas/ftri.vp`, and its Lisp binding. The
