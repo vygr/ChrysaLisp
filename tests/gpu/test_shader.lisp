@@ -875,9 +875,27 @@
 (assert-error "a pair that does not go together" (shader-vp-pipeline tvert
 	(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
 
+;the Metal text for a pair, a vertex function and a fragment function
+(bind '(mv mf) (shader-msl-pair vert pix))
+(each (lambda ((name text want))
+	(assert-true (cat "MSL pair, " name) (every (# (find %0 (split text sh_lf))) want)))
+	(list
+		(list "the vertex function" mv (list
+			"vertex VertexOut vertex_main(VertexIn in [[stage_in]], constant Inputs &inputs [[buffer(0)]])"
+			"\tfloat4x4 model_;" "\tfloat3 position_ [[attribute(0)]];" "\tfloat3 normal_ [[attribute(1)]];"
+			"\tfloat shade_ [[user(locn0)]];" "\tfloat3 color_ [[user(locn1)]];" "\tfloat2 unset_ [[user(locn2)]];"
+			"\tout.position = float4(p.x, p.y, (p.z + p.w) * 0.5, p.w);"))
+		(list "the fragment function, its varyings by their place in the vertex shader" mf (list
+			"\tfloat3 color_ [[user(locn1)]];" "\tfloat shade_ [[user(locn0)]];"
+			"\tfloat4 c = s.shader_main(float2(in.position.x, float2(target.size).y - in.position.y));"
+			"\treturn float4(c.xyz, 1.0);"))))
+(assert-true "MSL pair, a matrix times a vec3" (find "sh_mul3(model_, normal_)" mv))
+(assert-error "MSL pair, two that do not go together" (shader-msl-pair vert
+	(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
+
 ;the back ends that have no vertex stage yet say so
 (assert-error "GLSL, not yet" (shader-glsl vert))
-(assert-error "MSL, not yet" (shader-msl pix))
+(assert-error "MSL, a pixel shader with varyings is half of a pair" (shader-msl pix))
 (assert-error "SPIR-V, not yet" (shader-spirv vert))
 (assert-error "VP, a pixel shader with varyings shades no tile" (shader-vp pix))
 (assert-error "VP, a vertex shader is not a pixel shader" (shader-vp vert))

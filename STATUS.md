@@ -4,6 +4,39 @@
 
 ------
 
+Triangles on the GPU, on a Mac, and the Mesh demo has CPU and GPU buttons.
+
+*	`(shader-msl-pair vertex pixel)`, in `lib/gpu/msl.inc`, the Metal text
+	for a vertex shader and a pixel shader that go together, a vertex
+	function and a fragment function, from the same two files the nodes draw
+	with.
+
+*	`(shader-gui-pair vertex pixel [cull])` and `(shader-gui-frame canvas
+	pair draws)`, in `lib/gpu/gui.inc`. A frame of triangles drawn by the
+	GPU of the GUI into the texture of a canvas, with a depth buffer.
+
+*	`src/host/gui_sdl3.cpp` makes a pipeline with a vertex layout, a depth
+	test and a cull for a pair, and draws a frame of many things in the one
+	pass. Nothing was added to the host's table, a pair is known by 16 bytes
+	before the code of its vertex shader, and a frame is the block of a
+	draw. So an older host program runs the new Lisp, it just has no GPU
+	for triangles.
+
+*	The Mesh demo draws its faces on the GPU where the host can, and has
+	CPU and GPU buttons, and the g key, to change as it runs. Where the host
+	can not, a Raspberry Pi, the button goes back to CPU and the nodes
+	draw. Chris, of the M4: "looks great".
+
+It was read back from the M4's GPU before it was shown, the whole scene,
+nearest in front, lit from the top left.
+
+Short of what it should be. The vertices of every mesh go to the GPU again
+with every frame. The GPU draws at the size the canvas is shown, the nodes
+at twice that and scaled down. And it is Metal only, there is no SPIR-V
+vertex stage, so not yet a Raspberry Pi or Windows.
+
+4 tests of the Metal text in `tests/gpu/test_shader.lisp`.
+
 The meshes are the usual way round where they are made.
 
 `lib/math/mesh.inc`. A face goes round counter clockwise as seen from

@@ -378,8 +378,50 @@ way every 2,048 vertices. It costs next to nothing, all that such a function
 keeps from one pixel to the next is in its frame, so at the top of a row
 there is nothing in a register to save.
 
-The GLSL, MSL and SPIR-V back ends have no vertex stage yet, so the GPU does
-not draw triangles yet. They say so.
+### Triangles on the GPU
+
+The same two shader files are drawn by the GPU of the GUI, on a host whose
+driver takes Metal Shading Language, a Mac.
+
+```lisp
+(defq pair (shader-gui-pair vertex pixel :t))
+(shader-gui-frame canvas pair draws)
+```
+
+`(shader-gui-pair vertex pixel [cull])` gives a pair the GPU can draw with,
+`:nil` if this host can not. `(shader-gui-frame canvas pair draws)` draws a
+frame into the texture of the canvas, with a depth buffer, `draws` a list of
+`(verts count vblock pblock)`, the vertices of a mesh as the bytes of
+`(shader-verts-str)`, how many there are, and the blocks of the two shaders.
+It gives the canvas, `:nil` if the GPU is busy or the pair is still being
+built, try again, or `:error`.
+
+`(shader-msl-pair vertex pixel)` is the text, a vertex function and a
+fragment function. The attrs of a vertex are `[[attribute(n)]]`, the
+varyings `[[user(locn n)]]`, by their place in the vertex shader's list, and
+a matrix is a `float4x4`. Where the vertex shader puts a vertex has z of -1
+to 1, a GPU of this kind wants 0 to 1, so z is moved as it leaves the vertex
+function. The frag coord of the pixel shader comes from where the pixel is
+and the size of the target, y up. A pixel is full on.
+
+It rides on the two calls the driver had for a pixel shader, nothing was
+added to the host's table. The code of the vertex shader is given to the
+driver with 16 bytes before it, `CLMESH`, how many attrs, the cull, and the
+floats of each attr, which is how the driver knows it is a pair, and makes a
+pipeline with a depth test. And a frame is given to it as the block of a
+draw, a count, then for each thing drawn the lengths, the two blocks and the
+vertices. `src/host/gui_sdl3.cpp`.
+
+Two things are short of what they should be. The vertices of every mesh go
+to the GPU again with every frame, there is no mesh kept on it. And the GPU
+draws at the size the canvas is shown, where the native code draws a canvas
+with a scale at the size of its pixmap, and it is then scaled down.
+
+The Mesh demo has CPU and GPU buttons, and the g key, to change between the
+nodes and the GPU as it runs.
+
+The GLSL and SPIR-V back ends have no vertex stage yet, so a Raspberry Pi
+and Windows do not draw triangles on the GPU yet. They say so.
 
 ## Using It
 

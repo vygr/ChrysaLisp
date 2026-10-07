@@ -15,6 +15,7 @@
 	+event_auto action-auto
 	+event_mode action-mode
 	+event_style action-style
+	+event_gpu action-gpu
 	+event_close action-close
 	+event_layout action-layout
 	+event_min action-minimise
@@ -22,7 +23,8 @@
 
 *key_map* (scatter (Fmap)
 	(ascii-code "a") action-auto
-	(ascii-code "m") action-mode)
+	(ascii-code "m") action-mode
+	(ascii-code "g") action-gpu-key)
 
 *key_map_shift* (scatter (Fmap))
 

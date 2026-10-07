@@ -4,6 +4,7 @@
 (import "lib/math/mesh.inc")
 (import "lib/math/scene.inc")
 (import "lib/gpu/tris.inc")
+(import "lib/gpu/gui.inc")
 (import "./app.inc")
 
 (enums +event 0
@@ -11,7 +12,7 @@
 	(enum mode auto)
 	(enum xrot yrot zrot)
 	(enum layout)
-	(enum style))
+	(enum style gpu))
 
 ;the timers are last. A frame can take longer than the frame timer, and
 ;what is first in the list is what is read first, so a timer that was
@@ -28,7 +29,7 @@
 	+near +focal_dist +far (+ +near +stage_depth)
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
 	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
-	*auto_mode* :nil *render_mode* :nil)
+	*auto_mode* :nil *render_mode* :nil *use_gpu* :t)
 
 ;the pixels of the canvas are in shared memory if the host has it, and
 ;the faces are then drawn on them by a child on each node, a strip each
@@ -42,6 +43,8 @@
 			(ui-buttons (0xe962 0xea43) +event_mode))
 		(. (ui-radio-bar *style_toolbar* (0xe976 0xe9a3 0xe9f0)
 			(:color *env_toolbar2_col*)) :connect +event_style)
+		;what draws the faces, the nodes, a strip each, or the GPU of the GUI
+		(. (ui-radio-bar *gpu_toolbar* ("CPU" "GPU") (:font *env_body_font*)) :connect +event_gpu)
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_width 1 :font *env_body_font*)
@@ -140,12 +143,46 @@
 	(setq warming :t farming :nil last_farm 1)
 	(strips draws :nil))
 
+(defun draw-faces-gpu (draws)
+	; (draw-faces-gpu draws) -> :t | :nil
+	;a frame of the faces by the GPU of the GUI, if the host has one that
+	;can and it is wanted, the g key says. :t if there is no more to do for
+	;this frame, it was drawn, or the GPU is busy and it is to be tried
+	;again. :nil if the frame is to be drawn by the nodes, or here
+	(when (and *use_gpu* (not gpu_pair) (not gpu_failed))
+		;the pair of shaders, the first time, the driver builds it in its
+		;own time
+		(unless (setq gpu_pair (shader-gui-pair (shader-load +scene_vertex_file)
+				(shader-load +scene_pixel_file) :t))
+			(setq gpu_failed :t)))
+	;a host that can not, and the button goes back
+	(when (and *use_gpu* gpu_failed)
+		(setq *use_gpu* :nil)
+		(. *gpu_toolbar* :set_selected 0))
+	(when (and *use_gpu* gpu_pair)
+		(defq drawn (shader-gui-frame *main_widget* gpu_pair
+			(map (lambda ((id vblock pblock &rest _))
+				(defq verts (. scene :mesh id))
+				(list verts (/ (length verts) 56) vblock pblock)) draws)))
+		(cond
+			((eql drawn :error)
+				(setq gpu_pair :nil gpu_failed :t *use_gpu* :nil)
+				(. *gpu_toolbar* :set_selected 0)
+				:nil)
+			(drawn (setq gpu_drawn :t))
+			;not drawn. Once the GPU has drawn a frame that is it being busy,
+			;so this frame is tried again. Before that the driver is still
+			;building the pair, and the frame is drawn the other way
+			(gpu_drawn (setq *dirty* :t)))))
+
 (defun draw-faces ()
-	;a frame of the faces. By the farm if the pixels can be shared, there
-	;is more than this node, and the children are ready. Here if not
+	;a frame of the faces. By the GPU if it can and is wanted. If not, by
+	;the farm if the pixels can be shared, there is more than this node,
+	;and the children are ready. Here if not
 	(defq draws (. scene :draws +left +right +top +bottom +near +far (* canvas_size canvas_scale))
 		now (pii-time))
 	(cond
+		((draw-faces-gpu draws))
 		((and (not no_farm) (not warming) (/= (canvas-key *main_widget*) 0)
 				(> (length (lisp-nodes :t)) 1) farm (< (- now last_farm) +farm_stale))
 			(setq farming :t last_farm now)
@@ -161,12 +198,15 @@
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap +swap_write))
 	(. *style_toolbar* :set_selected 0)
+	(. *gpu_toolbar* :set_selected (if *use_gpu* 1 0))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(defq select (task-mboxes +select_size) *running* :t *dirty* :t
 		meshes (list) scene (create-scene meshes)
 		;the farm that draws the faces, a frame is out with it, it has
 		;been asked if it is ready, and it can not reach the pixels
 		farm :nil farming :nil warming :nil no_farm :nil last_farm 0 ticks 0 farm_key 0
+		;the pair of shaders on the GPU, it has drawn a frame, and it can not
+		gpu_pair :nil gpu_drawn :nil gpu_failed :nil
 		+farm_stale 3000000
 		;the meshes are made by a herd of children on this machine's nodes
 		jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)

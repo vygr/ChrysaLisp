@@ -25,6 +25,15 @@
 (defun action-maximise ()
 	(set-size +max_size))
 
+(defun action-gpu ()
+	;the faces by the GPU, or by the nodes, as the buttons say
+	(setq *use_gpu* (= (. *gpu_toolbar* :get_selected) 1) *dirty* :t))
+
+(defun action-gpu-key ()
+	;the g key, the other of the two
+	(. *gpu_toolbar* :set_selected (if *use_gpu* 0 1))
+	(action-gpu))
+
 (defun action-layout ()
 	(bind '(w h) (. (penv *main_widget*) :get_size))
 	(set-canvas (min w h)))

@@ -51,7 +51,25 @@ struct Shader
 	Uint8 *fragment;
 	size_t vertex_size;
 	size_t fragment_size;
+	// a pair that draws triangles, how many attrs a vertex has, how many
+	// floats each is, and whether a triangle that faces away is left out
+	bool mesh;
+	Uint8 num_attrs;
+	Uint8 attrs[8];
+	Uint8 cull;
+	Uint32 stride;
 };
+
+// the vertex code of a pair that draws triangles has this before it, 16
+// bytes, the name, how many attrs, the cull, then the floats of each attr
+static const char mesh_magic[] = "CLMESH";
+static const size_t mesh_header_size = 16;
+
+// the depth buffer triangles are drawn with, kept for the next frame of
+// the same size
+static SDL_GPUTexture *depth_texture = nullptr;
+static Uint32 depth_w = 0, depth_h = 0;
+static SDL_GPUTextureFormat depth_format = SDL_GPU_TEXTUREFORMAT_INVALID;
 
 // how many shaders are being built
 static SDL_AtomicInt shader_builds;
@@ -191,6 +209,8 @@ void host_gui_deinit()
 		while (SDL_GetAtomicInt(&shader_builds) > 0) SDL_Delay(10);
 		if (shader_fence) SDL_ReleaseGPUFence(device, shader_fence);
 		shader_fence = nullptr;
+		if (depth_texture) SDL_ReleaseGPUTexture(device, depth_texture);
+		depth_texture = nullptr;
 		SDL_DestroyGPUDevice(device);
 		device = nullptr;
 	}
@@ -328,7 +348,7 @@ uint64_t host_gui_shader_format()
 }
 
 static SDL_GPUShader *create_shader(const Uint8 *code, size_t size, SDL_GPUShaderFormat format,
-	SDL_GPUShaderStage stage, const char *entry)
+	SDL_GPUShaderStage stage, const char *entry, Uint32 uniforms)
 {
 	SDL_GPUShaderCreateInfo info = {};
 	info.code = code;
@@ -336,17 +356,38 @@ static SDL_GPUShader *create_shader(const Uint8 *code, size_t size, SDL_GPUShade
 	info.entrypoint = entry;
 	info.format = format;
 	info.stage = stage;
-	info.num_uniform_buffers = 1;
+	info.num_uniform_buffers = uniforms;
 	return SDL_CreateGPUShader(device, &info);
+}
+
+// the format of a depth buffer, the first of these the GPU has
+
+static SDL_GPUTextureFormat find_depth_format()
+{
+	if (depth_format != SDL_GPU_TEXTUREFORMAT_INVALID) return depth_format;
+	const SDL_GPUTextureFormat formats[] = {SDL_GPU_TEXTUREFORMAT_D32_FLOAT,
+		SDL_GPU_TEXTUREFORMAT_D24_UNORM, SDL_GPU_TEXTUREFORMAT_D16_UNORM};
+	for (auto f : formats)
+	{
+		if (SDL_GPUTextureSupportsFormat(device, f, SDL_GPU_TEXTURETYPE_2D, SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET))
+		{
+			depth_format = f;
+			break;
+		}
+	}
+	return depth_format;
 }
 
 static int SDLCALL build_shader(void *data)
 {
 	auto shader = (Shader*)data;
+	// a pair that draws triangles has the inputs of the vertex shader as the
+	// vertex stage's block, and the fragment stage has the size of the target
+	// as a second block, after the inputs of the pixel shader
 	auto vs = create_shader(shader->vertex, shader->vertex_size, shader->format,
-		SDL_GPU_SHADERSTAGE_VERTEX, "vertex_main");
+		SDL_GPU_SHADERSTAGE_VERTEX, "vertex_main", 1);
 	auto fs = create_shader(shader->fragment, shader->fragment_size, shader->format,
-		SDL_GPU_SHADERSTAGE_FRAGMENT, "fragment_main");
+		SDL_GPU_SHADERSTAGE_FRAGMENT, "fragment_main", shader->mesh ? 2 : 1);
 	SDL_GPUGraphicsPipeline *pipeline = nullptr;
 	if (vs && fs)
 	{
@@ -361,6 +402,41 @@ static int SDLCALL build_shader(void *data)
 		info.rasterizer_state.enable_depth_clip = true;
 		info.target_info.color_target_descriptions = &target;
 		info.target_info.num_color_targets = 1;
+		SDL_GPUVertexBufferDescription buffer = {};
+		SDL_GPUVertexAttribute attrs[8] = {};
+		if (shader->mesh)
+		{
+			// the attrs of a vertex, floats, one after another in the one buffer
+			const SDL_GPUVertexElementFormat formats[] = {SDL_GPU_VERTEXELEMENTFORMAT_FLOAT,
+				SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3,
+				SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4};
+			Uint32 offset = 0;
+			for (int i = 0; i < shader->num_attrs; ++i)
+			{
+				attrs[i].location = i;
+				attrs[i].buffer_slot = 0;
+				attrs[i].format = formats[shader->attrs[i] - 1];
+				attrs[i].offset = offset;
+				offset += shader->attrs[i] * sizeof(float);
+			}
+			buffer.slot = 0;
+			buffer.pitch = offset;
+			buffer.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
+			info.vertex_input_state.vertex_buffer_descriptions = &buffer;
+			info.vertex_input_state.num_vertex_buffers = 1;
+			info.vertex_input_state.vertex_attributes = attrs;
+			info.vertex_input_state.num_vertex_attributes = shader->num_attrs;
+			// the front of a triangle is the side it goes round counter
+			// clockwise from, and what is nearest is what is seen
+			info.rasterizer_state.front_face = SDL_GPU_FRONTFACE_COUNTER_CLOCKWISE;
+			info.rasterizer_state.cull_mode = shader->cull == 1 ? SDL_GPU_CULLMODE_BACK
+				: shader->cull == 2 ? SDL_GPU_CULLMODE_FRONT : SDL_GPU_CULLMODE_NONE;
+			info.depth_stencil_state.enable_depth_test = true;
+			info.depth_stencil_state.enable_depth_write = true;
+			info.depth_stencil_state.compare_op = SDL_GPU_COMPAREOP_LESS;
+			info.target_info.has_depth_stencil_target = true;
+			info.target_info.depth_stencil_format = find_depth_format();
+		}
 		pipeline = SDL_CreateGPUGraphicsPipeline(device, &info);
 	}
 	if (!pipeline) SDL_Log("shader: %s", SDL_GetError());
@@ -398,6 +474,24 @@ void *host_gui_shader_create(const char *vertex, uint64_t vertex_size, const cha
 	auto shader = (Shader*)SDL_malloc(sizeof(Shader));
 	shader->pipeline = nullptr;
 	shader->format = format == 1 ? SDL_GPU_SHADERFORMAT_MSL : SDL_GPU_SHADERFORMAT_SPIRV;
+	shader->mesh = false;
+	if (vertex_size > mesh_header_size && !SDL_memcmp(vertex, mesh_magic, sizeof(mesh_magic) - 1))
+	{
+		// a pair that draws triangles, the code follows what it says of itself
+		auto head = (const Uint8*)vertex;
+		shader->mesh = true;
+		shader->num_attrs = head[6] > 8 ? 8 : head[6];
+		shader->cull = head[7];
+		shader->stride = 0;
+		for (int i = 0; i < shader->num_attrs; ++i)
+		{
+			auto n = head[8 + i];
+			shader->attrs[i] = n < 1 ? 1 : n > 4 ? 4 : n;
+			shader->stride += shader->attrs[i];
+		}
+		vertex += mesh_header_size;
+		vertex_size -= mesh_header_size;
+	}
 	shader->vertex = copy_code(vertex, vertex_size);
 	shader->fragment = copy_code(fragment, fragment_size);
 	shader->vertex_size = vertex_size;
@@ -439,6 +533,138 @@ void *host_gui_shader_texture(uint64_t w, uint64_t h)
 	return new_texture(t, 0);
 }
 
+#if HOST_GUI_GPU
+
+// triangles, drawn into a texture by a pair of shaders, with a depth
+// buffer. The block is not the inputs of a shader, it is a frame, what is
+// drawn, one thing after another, each with the inputs of the vertex shader
+// and of the pixel shader for it, and its vertices.
+//
+// A count, 8 bytes. Then for each, 8 bytes each, how many vertices, the
+// length of the vertex shader's block, of the pixel shader's block, and of
+// the vertices. Then the two blocks, each made up to a whole 8 bytes, and
+// the vertices, a double for each number, as the nodes have them. They go
+// to the GPU as floats.
+
+static uint64_t draw_tris(Shader *shader, SDL_GPUTexture *target, Uint32 w, Uint32 h,
+	const Uint8 *data, uint64_t size)
+{
+	if (find_depth_format() == SDL_GPU_TEXTUREFORMAT_INVALID) return (uint64_t)-1;
+	if (!depth_texture || depth_w != w || depth_h != h)
+	{
+		if (depth_texture) SDL_ReleaseGPUTexture(device, depth_texture);
+		SDL_GPUTextureCreateInfo info = {};
+		info.type = SDL_GPU_TEXTURETYPE_2D;
+		info.format = depth_format;
+		info.usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET;
+		info.width = w;
+		info.height = h;
+		info.layer_count_or_depth = 1;
+		info.num_levels = 1;
+		depth_texture = SDL_CreateGPUTexture(device, &info);
+		depth_w = w;
+		depth_h = h;
+		if (!depth_texture) return 0;
+	}
+	// how many floats there are in all, they go in the one buffer
+	struct Draw { uint64_t count, vlen, plen, dlen; const Uint8 *vblock, *pblock, *verts; Uint32 first; };
+	if (size < 8) return 0;
+	uint64_t count;
+	SDL_memcpy(&count, data, 8);
+	auto draws = (Draw*)SDL_malloc(sizeof(Draw) * (count ? count : 1));
+	const Uint8 *at = data + 8, *end = data + size;
+	uint64_t floats = 0, good = 0;
+	for (; good < count && at + 32 <= end; ++good)
+	{
+		auto d = &draws[good];
+		SDL_memcpy(d, at, 32);
+		at += 32;
+		auto vpad = (d->vlen + 7) & ~(uint64_t)7, ppad = (d->plen + 7) & ~(uint64_t)7;
+		if (at + vpad + ppad + d->dlen > end) break;
+		d->vblock = at;
+		d->pblock = at + vpad;
+		d->verts = at + vpad + ppad;
+		at += vpad + ppad + d->dlen;
+		// no more vertices than there are numbers for
+		auto have = d->dlen / 8 / (shader->stride ? shader->stride : 1);
+		if (d->count > have) d->count = have;
+		d->first = (Uint32)(floats / (shader->stride ? shader->stride : 1));
+		floats += d->count * shader->stride;
+	}
+	SDL_GPUBuffer *buffer = nullptr;
+	SDL_FlushRenderer(renderer);
+	auto cmd = SDL_AcquireGPUCommandBuffer(device);
+	if (!cmd)
+	{
+		SDL_free(draws);
+		return 0;
+	}
+	if (floats)
+	{
+		SDL_GPUBufferCreateInfo bi = {};
+		bi.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
+		bi.size = (Uint32)(floats * sizeof(float));
+		buffer = SDL_CreateGPUBuffer(device, &bi);
+		SDL_GPUTransferBufferCreateInfo ti = {};
+		ti.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+		ti.size = bi.size;
+		auto transfer = SDL_CreateGPUTransferBuffer(device, &ti);
+		auto out = (float*)SDL_MapGPUTransferBuffer(device, transfer, false);
+		for (uint64_t i = 0; i < good; ++i)
+		{
+			auto n = draws[i].count * shader->stride;
+			for (uint64_t j = 0; j < n; ++j)
+			{
+				double v;
+				SDL_memcpy(&v, draws[i].verts + j * 8, 8);
+				*out++ = (float)v;
+			}
+		}
+		SDL_UnmapGPUTransferBuffer(device, transfer);
+		auto copy = SDL_BeginGPUCopyPass(cmd);
+		SDL_GPUTransferBufferLocation from = {transfer, 0};
+		SDL_GPUBufferRegion to = {buffer, 0, bi.size};
+		SDL_UploadToGPUBuffer(copy, &from, &to, false);
+		SDL_EndGPUCopyPass(copy);
+		SDL_ReleaseGPUTransferBuffer(device, transfer);
+	}
+	SDL_GPUColorTargetInfo color = {};
+	color.texture = target;
+	color.load_op = SDL_GPU_LOADOP_CLEAR;
+	color.store_op = SDL_GPU_STOREOP_STORE;
+	SDL_GPUDepthStencilTargetInfo depth = {};
+	depth.texture = depth_texture;
+	depth.clear_depth = 1.0f;
+	depth.load_op = SDL_GPU_LOADOP_CLEAR;
+	depth.store_op = SDL_GPU_STOREOP_DONT_CARE;
+	depth.stencil_load_op = SDL_GPU_LOADOP_DONT_CARE;
+	depth.stencil_store_op = SDL_GPU_STOREOP_DONT_CARE;
+	float target_size[4] = {(float)w, (float)h, 0.0f, 0.0f};
+	auto pass = SDL_BeginGPURenderPass(cmd, &color, 1, &depth);
+	SDL_BindGPUGraphicsPipeline(pass, shader->pipeline);
+	if (buffer)
+	{
+		SDL_GPUBufferBinding binding = {buffer, 0};
+		SDL_BindGPUVertexBuffers(pass, 0, &binding, 1);
+		for (uint64_t i = 0; i < good; ++i)
+		{
+			auto d = &draws[i];
+			if (!d->count) continue;
+			SDL_PushGPUVertexUniformData(cmd, 0, d->vblock, (Uint32)d->vlen);
+			SDL_PushGPUFragmentUniformData(cmd, 0, d->pblock, (Uint32)d->plen);
+			SDL_PushGPUFragmentUniformData(cmd, 1, target_size, sizeof(target_size));
+			SDL_DrawGPUPrimitives(pass, (Uint32)d->count, 1, d->first, 0);
+		}
+	}
+	SDL_EndGPURenderPass(pass);
+	shader_fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+	if (buffer) SDL_ReleaseGPUBuffer(device, buffer);
+	SDL_free(draws);
+	return 1;
+}
+
+#endif
+
 // a shader is drawn into a texture, all of it, or the part given. A draw
 // that takes the GPU a long time holds up the drawing of the GUI behind it,
 // so there is only ever one on the go. While the last has not finished, or
@@ -470,6 +696,7 @@ uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, ui
 	float w, h;
 	SDL_GetTextureSize(t, &w, &h);
 	float target_size[4] = {w, h, 0.0f, 0.0f};
+	if (shader->mesh) return draw_tris(shader, target, (Uint32)w, (Uint32)h, (const Uint8*)block, size);
 	// what the renderer has drawn so far goes first
 	SDL_FlushRenderer(renderer);
 	auto cmd = SDL_AcquireGPUCommandBuffer(device);
