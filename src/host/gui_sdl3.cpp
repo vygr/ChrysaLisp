@@ -70,6 +70,11 @@ struct Mesh
 // the depth buffer triangles are drawn with, kept for the next frame of
 // the same size
 static SDL_GPUTexture *depth_texture = nullptr;
+// triangles are drawn with 4 samples a pixel where the device has that, into
+// a texture of its own that is resolved to the one that is shown
+static SDL_GPUTexture *sample_texture = nullptr;
+static SDL_GPUSampleCount sample_count = SDL_GPU_SAMPLECOUNT_1;
+static bool sample_count_found = false;
 static Uint32 depth_w = 0, depth_h = 0;
 static SDL_GPUTextureFormat depth_format = SDL_GPU_TEXTUREFORMAT_INVALID;
 
@@ -213,6 +218,8 @@ void host_gui_deinit()
 		shader_fence = nullptr;
 		if (depth_texture) SDL_ReleaseGPUTexture(device, depth_texture);
 		depth_texture = nullptr;
+		if (sample_texture) SDL_ReleaseGPUTexture(device, sample_texture);
+		sample_texture = nullptr;
 		SDL_DestroyGPUDevice(device);
 		device = nullptr;
 	}
@@ -382,6 +389,19 @@ static SDL_GPUTextureFormat find_depth_format()
 	return depth_format;
 }
 
+static SDL_GPUSampleCount find_sample_count()
+{
+	// both the color and the depth of a triangle target must have it
+	if (sample_count_found) return sample_count;
+	auto depth = find_depth_format();
+	if (depth != SDL_GPU_TEXTUREFORMAT_INVALID
+		&& SDL_GPUTextureSupportsSampleCount(device, target_gpu_format, SDL_GPU_SAMPLECOUNT_4)
+		&& SDL_GPUTextureSupportsSampleCount(device, depth, SDL_GPU_SAMPLECOUNT_4))
+		sample_count = SDL_GPU_SAMPLECOUNT_4;
+	sample_count_found = true;
+	return sample_count;
+}
+
 static int SDLCALL build_shader(void *data)
 {
 	auto shader = (Shader*)data;
@@ -448,6 +468,7 @@ static int SDLCALL build_shader(void *data)
 			info.depth_stencil_state.compare_op = SDL_GPU_COMPAREOP_LESS;
 			info.target_info.has_depth_stencil_target = true;
 			info.target_info.depth_stencil_format = find_depth_format();
+			info.multisample_state.sample_count = sample_count;
 		}
 		pipeline = SDL_CreateGPUGraphicsPipeline(device, &info);
 	}
@@ -523,6 +544,8 @@ void *host_gui_pair_create(const char *vertex, uint64_t vertex_size, const char 
 	return nullptr;
 #else
 	if (!host_gui_shader_format() || find_depth_format() == SDL_GPU_TEXTUREFORMAT_INVALID) return nullptr;
+	// found here, the pair is built on a thread
+	find_sample_count();
 	auto shader = (Shader*)SDL_malloc(sizeof(Shader));
 	shader->mesh = true;
 	shader->num_attrs = layout[0] > 8 ? 8 : layout[0];
@@ -676,6 +699,8 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 	if (result == 1 && (!depth_texture || depth_w != w || depth_h != h))
 	{
 		if (depth_texture) SDL_ReleaseGPUTexture(device, depth_texture);
+		if (sample_texture) SDL_ReleaseGPUTexture(device, sample_texture);
+		sample_texture = nullptr;
 		SDL_GPUTextureCreateInfo info = {};
 		info.type = SDL_GPU_TEXTURETYPE_2D;
 		info.format = depth_format;
@@ -684,10 +709,18 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 		info.height = h;
 		info.layer_count_or_depth = 1;
 		info.num_levels = 1;
+		info.sample_count = find_sample_count();
 		depth_texture = SDL_CreateGPUTexture(device, &info);
 		depth_w = w;
 		depth_h = h;
 		if (!depth_texture) result = 0;
+		if (depth_texture && sample_count != SDL_GPU_SAMPLECOUNT_1)
+		{
+			info.format = target_gpu_format;
+			info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
+			sample_texture = SDL_CreateGPUTexture(device, &info);
+			if (!sample_texture) result = 0;
+		}
 	}
 	SDL_GPUCommandBuffer *cmd = nullptr;
 	if (result == 1)
@@ -703,6 +736,13 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 		color.texture = target;
 		color.load_op = SDL_GPU_LOADOP_CLEAR;
 		color.store_op = SDL_GPU_STOREOP_STORE;
+		if (sample_texture)
+		{
+			// drawn with the samples, and the texture that is shown gets what they come to
+			color.texture = sample_texture;
+			color.resolve_texture = target;
+			color.store_op = SDL_GPU_STOREOP_RESOLVE;
+		}
 		SDL_GPUDepthStencilTargetInfo depth = {};
 		depth.texture = depth_texture;
 		depth.clear_depth = 1.0f;

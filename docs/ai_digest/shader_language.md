@@ -433,9 +433,12 @@ blocks. `src/host/gui_sdl3.cpp`. The Lisp side of them is
 `(canvas-pair-create)`, `(canvas-mesh-create)`, `(canvas-mesh-destroy)` and
 `(. canvas :shade_tris frame)`, in `gui/canvas/lisp.inc`.
 
-One thing is short of what it should be. The GPU draws at the size the
-canvas is shown, where the native code draws a canvas with a scale at the
-size of its pixmap, and it is then scaled down.
+The edges of triangles are smoothed by the GPU's own means. The driver
+draws a frame into a target with 4 samples a pixel, where the device has
+that, and the texture the canvas shows gets what they come to. That texture
+is the size the canvas is shown, as it always was. The native code gets its
+smooth edges another way, a canvas with a scale is drawn at the size of its
+pixmap, and scaled down.
 
 The Mesh demo has CPU and GPU buttons, and the g key, to change between the
 nodes and the GPU as it runs.

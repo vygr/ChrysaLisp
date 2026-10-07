@@ -218,7 +218,10 @@ the host.
           drawn, 8 bytes each, a pair, a mesh, the length of the vertex
           shader's block and of the pixel shader's, then the two blocks,
           each made up to a whole 8 bytes. Returns as `host_gui_shader_draw`
-          does, 1, 0 for try again, or -1.
+          does, 1, 0 for try again, or -1. A pixel comes from the fragment
+          shader with its alpha multiplied in, and is blended over what is
+          there. The frame is drawn with 4 samples a pixel if the device
+          has that, and resolved into the texture.
 
 3. **`host_audio_funcs` (Audio Layer):**
 

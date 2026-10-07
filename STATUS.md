@@ -4,6 +4,17 @@
 
 ------
 
+Triangles on the GPU have smooth edges.
+
+*	The sdl3 driver draws a frame of triangles with 4 samples a pixel, where
+	the device has that for the color and the depth of the target, and
+	resolves it into the texture of the canvas. With none, as before. The
+	texture is the size it always was, the samples are the GPU's own.
+
+*	Seen on an M4 through Metal, the shades between along every edge, and
+	run on the GPU of a Raspberry Pi 4 through Vulkan, 146ms a frame for the
+	Mesh demo alone on one node, where it was 138ms.
+
 `apps/demos/raymarch/lisp.vp` has gone, nothing compiled it or bound to
 it since the demo went over to a shader. It was the only native source file
 not in use. `docs/ai_digest/app_acceleration.md` teaches from the Mandelbrot
