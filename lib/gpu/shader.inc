@@ -112,7 +112,7 @@
 			;3 of the matrix, so a direction is turned and not moved.
 			;That is all a matrix does
 			(and (eql op '*) (> n 1)
-				(every (# (eql %0 :mat4)) (slice types 0 -2))
+				(some! (# (eql %0 :mat4)) (list types) :t 0 -2)
 				(if (find (last types) '(:mat4 :vec4 :vec3)) (last types))))
 		((find op *sh_arith*)
 			(and (> n (if (eql op '-) 0 1))
@@ -164,10 +164,10 @@
 
 (defun sh-swizzle (name type form)
 	;component indices of a swizzle like :xyz or :rgb
-	(defq d (shader-dim type) idxs (map (# (cond
+	(defq d (shader-dim type) idxs (map! (# (cond
 		((defq i (find %0 "xyzw")) i)
 		((defq i (find %0 "rgba")) i)
-		((sh-err "unknown component" form)))) (rest name)))
+		((sh-err "unknown component" form)))) (list name) 1))
 	(unless d (sh-err "components of a value that is not a vector" form))
 	(unless (<= 1 (length idxs) 4) (sh-err "wrong number of components" form))
 	(unless (every (# (< %0 d)) idxs) (sh-err "component out of range" form))
@@ -209,13 +209,13 @@
 			(list (sh-vec (length idxs)) :swz idxs arg))
 		((defq f (sh-func op))
 			(if const_only (sh-err "not a constant" form))
-			(defq args (map sh-expr (rest form)))
+			(defq args (map! sh-expr (list form) 1))
 			(unless (and (= (length args) (length (third f)))
 					(every (# (eql (first %0) (second %1))) args (third f)))
 				(sh-err "wrong args to function" form))
 			(list (second f) :user op args))
 		((sh-op? op)
-			(defq args (map sh-expr (rest form)))
+			(defq args (map! sh-expr (list form) 1))
 			(unless (defq type (sh-op-type op (map (const first) args)))
 				(sh-err "wrong types" form))
 			(list type :op op args))
@@ -315,7 +315,7 @@
 			(list 'return form))
 		((eql (first form) 'if)
 			(if (<= 3 (length form) 4)
-				(cat (list 'if (second form)) (map sh-tail (slice form 2 -1)))
+				(cat (list 'if (second form)) (map! sh-tail (list form) 2))
 				form))
 		((eql (first form) 'progn)
 			(if (> (length form) 1)
@@ -519,7 +519,7 @@
 (defun shader-unpack (program block)
 	; (shader-unpack program block) -> ((name val) ...)
 	;a float comes back as a real, a vector as a reals
-	(map (lambda ((name type offset))
+	(map! (lambda ((name type offset))
 		(list name (cond
 			((eql type :int) (get-int block offset))
 			((eql type :float) (sh-float-to-real (get-uint block offset)))
@@ -527,4 +527,4 @@
 				(apply (const reals) (map (# (sh-float-to-real (get-uint block
 					(+ offset (* (+ (* (% %0 4) 4) (/ %0 4)) 4))))) (range 0 16))))
 			((apply (const reals) (map (# (sh-float-to-real (get-uint block (+ offset (* %0 4)))))
-				(range 0 (shader-dim type)))))))) (rest (shader-layout program))))
+				(range 0 (shader-dim type)))))))) (list (shader-layout program)) 1))

@@ -114,7 +114,7 @@
 
 (defun cpu-fold (form)
 	;run it now if all the args are constants
-	(if (and (list? form) (every (const cpu-const?) (rest form))) (eval form) form))
+	(if (and (list? form) (some! (const cpu-const?) (list form) :t 1)) (eval form) form))
 
 (defun cpu-splat-form (form n)
 	(cpu-fold (list (const cpu-splat) form n)))
@@ -146,8 +146,8 @@
 		((defq i (find op '(+ - * /)))
 			(cond
 				((> (length args) 1)
-					(each (# (setq a (cpu-arith i a ta %0 %1)
-						ta (if (shader-dim ta) ta %1))) (rest args) (rest types))
+					(each! (# (setq a (cpu-arith i a ta %0 %1)
+						ta (if (shader-dim ta) ta %1))) (list args types) 1)
 					a)
 				(va (list (const nums-scale) a +cpu_-1))
 				((list (const neg) a))))

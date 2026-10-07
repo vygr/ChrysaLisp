@@ -122,8 +122,8 @@
 (defun spv-fold (type opcode ids types)
 	;an op of two, over more than two
 	(defq acc (spv-splat (first ids) (first types) type))
-	(each (lambda (id ty)
-		(setq acc (spv-emit type opcode acc (spv-splat id ty type)))) (rest ids) (rest types))
+	(each! (lambda (id ty)
+		(setq acc (spv-emit type opcode acc (spv-splat id ty type)))) (list ids types) 1)
 	acc)
 
 (defun spv-expr (node)

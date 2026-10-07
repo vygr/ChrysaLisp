@@ -4,6 +4,13 @@
 
 ------
 
+The shader back ends walk part of a list with no copy of it.
+
+*	Where `lib/gpu/` took a `(rest)` or a `(slice)` of a list only to go
+	over it, it now uses `(each!)`, `(map!)` and `(some!)` with a start and
+	an end. The code made is the same, the tests were run with the native
+	functions all made again.
+
 The assembler says when a function is too big.
 
 *	The header of a function has 16 bits for its length, and for where its

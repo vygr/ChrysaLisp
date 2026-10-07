@@ -80,13 +80,14 @@
 	;A matrix is on a 16 byte boundary as it is, and is its columns
 	(defq offset 0 pads 0)
 	(push lines "struct Inputs" "{")
-	(each (lambda ((name type at))
+;the layout but for its first, the size of the block
+	(each! (lambda ((name type at))
 		(while (< offset at)
 			(push lines (cat "\tfloat pad_" (str (++ pads)) ";"))
 			(setq offset (+ offset 4)))
 		(push lines (cat "\t" (if (shader-dim type) (cat "packed_" (msl-type type)) (msl-type type))
 			" " (msl-name name) ";"))
-		(setq offset (+ offset (* (shader-size type) 4)))) (rest (shader-layout program)))
+		(setq offset (+ offset (* (shader-size type) 4)))) (list (shader-layout program)) 1)
 	;a block with nothing in it is still a block
 	(if (empty? (first program)) (push lines "\tfloat pad_0;"))
 	(push lines "};" ""))
