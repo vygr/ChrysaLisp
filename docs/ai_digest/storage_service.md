@@ -172,11 +172,11 @@ It is three copies that buy the slack. With two the same wait is a gamble.
   see the store can tell that two blocks are the same, and can test for a
   file they have. Whether that matters depends on who can see a store.
 
-There is a hash now, SHA-256, `docs/ai_digest/crypto.md`. There is no cipher
-and no field arithmetic yet. They are VP, a block at a time is too much for
-Lisp. ChaCha20 with
-Poly1305 is add, rotate and xor, no tables and nothing of any one CPU. The
-same cipher and hash would serve TLS.
+There is a hash now, SHA-256, and a cipher, ChaCha20 with Poly1305,
+`docs/ai_digest/crypto.md`. There is no field arithmetic yet. They are VP, a
+block at a time is too much for Lisp. ChaCha20 with Poly1305 is add, rotate
+and xor, no tables and nothing of any one CPU. The same cipher and hash
+would serve TLS.
 
 Where the keys are kept, and whether the machines share one, is open.
 
@@ -216,6 +216,8 @@ over its links, so a link is where trust would be checked.
 * `lib/fs/fat32.inc`, FAT32, read only.
 * `lib/crypto/sha256.inc`, SHA-256, what would name a block by its content,
   and HMAC on it.
+* `lib/crypto/aead.inc`, ChaCha20 with Poly1305, to seal a block and open
+  it.
 * The directory of services, `(mail-declare)` and `(mail-enquire)`, by which
   the services would find each other.
 * `lib/task/jobs.inc`, and `(open-task)`, tasks to a chosen node with the

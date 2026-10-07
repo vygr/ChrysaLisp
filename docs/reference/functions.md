@@ -99,6 +99,28 @@ the host window is a new size
 the host window is on show again
 ```
 
+### aead-open
+
+```code
+(aead-open key nonce aad sealed) -> :nil | str
+```
+
+### aead-seal
+
+```code
+(aead-seal key nonce aad data) -> str
+```
+
+### aead-tag
+
+```code
+the tag of what was encrypted and what goes with it. The key of the
+
+tag is the start of block 0 of the stream, and is for this nonce
+alone. Each of the two is made up with 0 to a whole 16 bytes, and
+how long they were comes last
+```
+
 ### age
 
 ```code
@@ -318,6 +340,12 @@ machine can all draw on. With no key the pixels are made, and
 (canvas-key) is the key of them. Given that key, and the same size,
 a task on another node has a canvas on the same pixels. :nil if the
 host has no shared memory, or there are no pixels of that key.
+```
+
+### chacha20
+
+```code
+(chacha20 key nonce counter data) -> str
 ```
 
 ### char-class
@@ -1496,6 +1524,16 @@ to look under the pointer again would let go of it
 (hex-encode-stream in_stream out_stream [chunk_size flags])
 ```
 
+### hmac-sha256
+
+```code
+(hmac-sha256 key data) -> str
+
+the hash of a str with a key, HMAC of RFC 2104, 32 bytes. Only one
+who has the key can make it, or check it. A key longer than a block
+is hashed first, and one that is shorter is made up with 0.
+```
+
 ### http-body-str
 
 ```code
@@ -2341,6 +2379,40 @@ the key of the shared memory its pixels are in, 0 if they are its own
 
 ```code
 (pmap? form) -> :t | :nil
+```
+
+### poly1305
+
+```code
+(poly1305 key data) -> str
+
+the tag of a str, 16 bytes
+```
+
+### poly1305-add
+
+```code
+(poly1305-add ctx data) -> ctx
+
+more of what the tag is of
+```
+
+### poly1305-end
+
+```code
+(poly1305-end ctx) -> str
+
+the tag of all that was added, 16 bytes. The ctx is done with.
+```
+
+### poly1305-start
+
+```code
+(poly1305-start key) -> ctx
+
+a tag with nothing in it yet. The state the native code keeps, the
+bytes that do not yet make a block, and the half of the key that
+is added at the end
 ```
 
 ### pos?
@@ -3308,13 +3380,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args

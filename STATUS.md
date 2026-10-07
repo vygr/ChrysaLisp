@@ -4,6 +4,36 @@
 
 ------
 
+A cipher, ChaCha20 with Poly1305, RFC 8439. Data can be sealed and opened.
+
+*	`(aead-seal key nonce aad data)` and `(aead-open key nonce aad sealed)`,
+	in `lib/crypto/aead.inc`. What is sealed is hidden and guarded, 16 bytes
+	longer for its tag, and it opens to what it was or to `:nil`.
+
+*	`(chacha20 key nonce counter data)`, in `lib/crypto/chacha20.inc`, the
+	cipher alone. `(poly1305 key data)`, in `lib/crypto/poly1305.inc`, the
+	tag alone, with `(poly1305-start)`, `(poly1305-add)` and
+	`(poly1305-end)` for what comes a part at a time.
+
+*	The work is VP, two more functions in `lib/crypto/lisp.vp`.
+	`(chacha20-xor)`, 12 of the 16 numbers of a block in registers and four
+	on the stack. `(poly1305-blocks)`, a number of 130 bits as five of 26,
+	so that the products fit in 64 bits. Both give the other tasks of their
+	node a turn every 64KB.
+
+*	On one core of an Apple M4 Max, ChaCha20 441MB a second, Poly1305
+	2,778MB a second, and a seal 378MB a second.
+
+*	**The boot image grows again**, by 2,928 bytes on ARM64, to 238,284. It
+	is 5,696 bytes bigger for all of `lib/crypto/`.
+
+*	Tests, `tests/crypto/test_chacha20.lisp`, `test_poly1305.lisp` and
+	`test_aead.lisp`, 171 of them. The three examples of the RFC, every
+	length about the edges of the blocks, and that nothing opens with a bit
+	changed. Run on ARM64, x86_64 and the VP64 emulator.
+
+*	`docs/ai_digest/crypto.md` has it.
+
 A hash, SHA-256, the first of the primitives the storage service wants.
 
 *	New `lib/crypto/`. `(sha256 data)`, in `lib/crypto/sha256.inc`, the 32

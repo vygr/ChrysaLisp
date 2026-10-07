@@ -6,7 +6,19 @@ data at a time is too much work for Lisp, so the part that is done for every
 byte is native code, `lib/crypto/lisp.vp`, and the part that is done once,
 the padding and the like, is Lisp.
 
-There is a hash so far, SHA-256, and HMAC on it. No cipher yet.
+There is a hash, SHA-256, with HMAC on it, and a cipher that guards what it
+hides, ChaCha20 with Poly1305.
+
+| | native code | on one core of an Apple M4 Max |
+|---|---|---|
+| SHA-256 | 2,848 bytes | 253MB a second |
+| ChaCha20 | 2,200 bytes | 441MB a second |
+| Poly1305 | 888 bytes | 2,778MB a second |
+| seal, the two together | | 378MB a second |
+
+The sizes are those of ARM64. None of it uses the instructions a CPU may
+have for this, it is the same VP on every CPU, and all of it is in the boot
+image, as the native code of every library is.
 
 ## SHA-256
 
@@ -72,10 +84,8 @@ sum is kept. The 8 working numbers stay in registers for all 64 rounds, which
 are written out 8 at a time, after which each number is back in the register
 it started in.
 
-The function is 2,848 bytes on ARM64, and is in the boot image, as the
-native code of every library is. It hashes 253MB a second on one core of an
-Apple M4 Max. It uses none of the SHA instructions a CPU may have, it
-is the same VP on every CPU.
+It hashes 253MB a second on one core of an Apple M4 Max, with none of the
+SHA instructions a CPU may have.
 
 ### Tests
 
@@ -86,8 +96,113 @@ time, in parts of nine sizes. What the native code refuses. And for HMAC
 the test cases of RFC 4231. The answers it is checked against were made with
 Python's `hashlib` and `hmac`.
 
+## ChaCha20 With Poly1305
+
+The AEAD of RFC 8439, and what to use to hide data. It hides it, and it
+guards it, what is opened is what was sealed or it does not open.
+
+```lisp
+(import "lib/crypto/aead.inc")
+
+(defq sealed (aead-seal key nonce aad data))
+(defq data (aead-open key nonce aad sealed))
+```
+
+* `(aead-seal key nonce aad data) -> str`, the data encrypted, with a tag
+  of 16 bytes after it, so 16 bytes longer.
+* `(aead-open key nonce aad sealed) -> :nil | str`, the data, or `:nil` if
+  the tag is not right. That is when any bit of what was sealed, of the aad,
+  of the key or of the nonce is not what it was sealed with, or it is cut
+  short.
+
+The key is a str of 32 bytes, the nonce one of 12. **A nonce must never be
+used twice with a key**, two things sealed with the same pair give each
+other away, and the key of the tag with them. A counter is a good nonce. So
+is the name of the thing, if a thing is only ever sealed once.
+
+`aad` is data that goes with it, guarded but not hidden, the name of a
+block, a header, or `""`. It is not in what comes back from a seal, the one
+who opens has to have it.
+
+It is the two below put together as the RFC has it. The key of the tag is
+the start of block 0 of the cipher's stream, so it is new for each nonce,
+and the data is encrypted from block 1. The tag is of the aad, then what was
+encrypted, each made up with 0 to a whole 16 bytes, then how long each was.
+A tag is checked a byte at a time with every byte looked at, right or
+wrong.
+
+### ChaCha20
+
+```lisp
+(import "lib/crypto/chacha20.inc")
+
+(chacha20 key nonce counter data) -> str
+```
+
+The data, each byte xored with the next byte of a stream that the key, the
+nonce and the counter make. Done again with the same three it gives the data
+back. The counter is the number of the first block of 64 bytes of the
+stream, so `(chacha20 key nonce 3 ...)` is the stream from 192 bytes in.
+
+It hides and does not guard. A bit changed on the way is a bit changed when
+it is decrypted, and nothing says so. Use the seal.
+
+```lisp
+(chacha20-xor key nonce counter data out offset length) -> out
+```
+
+The native code. `length` bytes of `data`, from that offset, go to the same
+place in `out`, which can be the data itself. It is given 64KB at a time,
+with `(task-slice)` between. A part of a block at the end is done on the
+stack and copied out.
+
+The block is 16 numbers of 32 bits. VP has 15 registers, so 12 are in
+registers through the 20 rounds and the four of the third row are on the
+stack, the one a quarter round uses loaded for it and stored after. A rotate
+left is two shifts, an or, and an and.
+
+### Poly1305
+
+```lisp
+(import "lib/crypto/poly1305.inc")
+
+(poly1305 key data) -> str
+```
+
+A tag of 16 bytes for a str, that only one who has the key could have made.
+The key is 32 bytes and is for the one message, a key used for two lets it
+be worked out, which is why the seal makes one for each nonce.
+`(poly1305-start key)`, `(poly1305-add ctx data)` and `(poly1305-end ctx)`
+are for what comes a part at a time.
+
+```lisp
+(poly1305-blocks state data offset count top) -> state
+```
+
+The native code. The tag is a sum, of each 16 bytes as a number, times a
+part of the key, and on, all less a multiple of the prime 2 to the 130 less
+5. The sum is a number of 130 bits, kept as five of 26, so that a product of
+two of them, and five such added, fits in 64 bits, VP has no way to get at
+the top half of a product. What would go above 130 bits comes back in at the
+bottom times 5. `top` is 1 for whole blocks and 0 for a last block that has
+had its own top bit put in, which is done in Lisp, as is the last of the
+arithmetic, done once.
+
+### Tests
+
+`tests/crypto/test_chacha20.lisp`, `test_poly1305.lisp` and `test_aead.lisp`.
+The three examples of RFC 8439. Every length about the edges of the blocks
+of both, with aad of four lengths. More than the native code is given at
+once. Keys and data of all ones, where the sums of Poly1305 are biggest. A
+part of a str, to another, and onto itself. And that nothing opens with a
+bit changed, a byte short, or a byte too many. The answers are from a Python
+of the RFC written for the job, which gives the RFC's own.
+
 ## Not here yet
 
-* A cipher. ChaCha20 with Poly1305 is the one meant, add, rotate and xor,
-  with no tables and nothing of any one CPU.
+* A way to make a key from a password, and random bytes for a key or a
+  nonce from Lisp. The host has them, `pii_random`.
+* A check for a CPU that can not load a number from an address that is not
+  a multiple of its size. The native code loads 4 and 8 bytes at a time
+  from wherever in a str it is told to start.
 * Arithmetic on a field, for error correction and for signatures.
