@@ -20,14 +20,16 @@
 
     Calculate and trace active transitive register clobber state for
     virtual methods and static functions. Analyses compiled instructions
-    directly via symbolic execution and traces live registers.")
+    directly via symbolic execution and traces live registers.
+
+    Shaders assembled as they ran, lib/gpu/jit/, are left out.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-l" "--lint") ,(opt-flag 'opt_l))
 (("-w" "--write") ,(opt-flag 'opt_w))
 (("-i" "--integrity") ,(opt-flag 'opt_i))
 ))
 
-(defq +obj_dir "obj/vp/"
+(defq +obj_dir "obj/vp/" +jit_dir "lib/gpu/jit/"
 	+all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs))
 	+all_abi_trashed_regs (list quote +vp_fregs)
 	+zero_clobber_funcs ''("class/lisp/repl_error" "sys/task/dump" "sys/task/stack"))
@@ -470,8 +472,11 @@
 		(when (nempty? functions)
 			(with-read-lock +obj_dir
 				(if opt_w (setq opt_l :t))
-				(defq functions (map (# (if (starts-with +obj_dir %0)
-						(slice %0 (const (length +obj_dir)) -1) %0)) functions)
+				;a shader that was assembled as it ran has no source to check
+				;it against, so those are left out
+				(defq functions (filter (# (not (starts-with +jit_dir %0)))
+						(map (# (if (starts-with +obj_dir %0)
+							(slice %0 (const (length +obj_dir)) -1) %0)) functions))
 					*class_db* (files-classes-info)
 					*doc_db* (files-function-info *class_db*)
 					db (propagate-trashes functions))

@@ -866,6 +866,8 @@ Usage: trace [options] [function_name] ...
     Calculate and trace active transitive register clobber state for
     virtual methods and static functions. Analyses compiled instructions
     directly via symbolic execution and traces live registers.
+
+    Shaders assembled as they ran, lib/gpu/jit/, are left out.
 ```
 ## unhuff
 ```code

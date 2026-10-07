@@ -64,7 +64,7 @@ inputs
 outputs
 :r0 = 0 if error, else pixmap object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r4, :f0-:f15
 info
 a pixmap with its pixels in shared memory. With no key it makes them,
 zero, under a key of its own, +pixmap_key, and lets go of the key when
