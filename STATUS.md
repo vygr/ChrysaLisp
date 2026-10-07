@@ -4,6 +4,27 @@
 
 ------
 
+The native code of a vertex shader is about twice as fast.
+
+*	The vertex function read each attr of a vertex into its frame, and
+	copied where the vertex was, and its varyings, out of the frame after.
+	It now reads and writes them where they are, by two registers kept for
+	that, `:r11` and `:r10`, which a call of the system, sin or pow, is
+	made to keep. `lib/gpu/vp.inc`.
+
+*	A swizzle of a variable loads only the parts asked for, it loaded the
+	whole vector. And a function whose last form is its value no longer
+	ends with a jump to the next line.
+
+*	65,536 vertices on one core of an Apple M4 Max. A matrix by a vec4,
+	204us to 116us, where `(mat4x4-vec4-mul)`, written by hand, takes
+	131us and makes its reals as well. The vertex shader of the Mesh demo,
+	477us to 242us.
+
+*	A test of a vertex shader that calls sin and pow, has a function of its
+	own that reads an attr, reads a varying back, and leaves early, in
+	`tests/gpu/test_shader.lisp`.
+
 Triangles are clipped to the near plane.
 
 *	A triangle with a vertex behind the near plane was left out whole, so

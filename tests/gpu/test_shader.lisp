@@ -767,6 +767,36 @@
 (assert-true "and the reference is the matrix library's answer"
 	(sh-near? (map (const n2f) (second (first want)))
 		(map (const n2f) (mat4x4-vec3-mul ab (slice (first (first pts)) 0 3)))))
+;a vertex function reads its attrs and writes its vertex where they are,
+;by two registers. A call of the system must not lose them, nor a function
+;of the shader's own that reads an attr, and a varying can be read back
+(defq vert3 (sh-src
+	"(definput a :mat4)"
+	"(defattr p :vec4)"
+	"(defattr k :float)"
+	"(defvarying wave :vec2)"
+	"(defvarying far :float)"
+	"(defun bend :float ((x :float)) (+ (sin (* x k)) (pow (abs (:y p)) 1.5)))"
+	"(defun main :vec4 ()"
+	"	(setq wave (vec2 (bend (:x p)) (cos k)))"
+	"	(setq far (+ (:x wave) (:y wave) (:z p)))"
+	"	(defq q (* a p))"
+	"	(if (> k 1.5) (return (vec4 (:zyx q) far)))"
+	"	(+ q (vec4 (:y wave) (bend k) (:w q) far)))")
+	pts3 (list (list (reals (n2r 1) (n2r 2) (n2r 3) (n2r 1)) (n2r 0.5))
+		(list (reals (n2r -0.5) (n2r 0.25) (n2r 4) (n2r 1)) (n2r 2))
+		(list (reals (n2r 0.3) (n2r -1.25) (n2r -2) (n2r 1)) (n2r 1.25)))
+	vvals3 (list (list 'a model))
+	want3 (apply (shader-cpu-vertex vert3) (cat (list pts3) (shader-cpu-args vert3 vvals3)))
+	vnative3 (shader-vp-vertex vert3)
+	out3 (shader-vp-place vnative3 (shader-vp-frame vert3 vnative3 vvals3)
+		(apply (const cat) (map (# (cat (first %0) (reals (second %0)))) pts3))))
+(assert-eq "sin, pow and a function that reads an attr, the size of what comes out" 21 (length out3))
+(each (lambda ((pos wave far))
+	(assert-true (cat "sin, pow and a function that reads an attr, vertex " (str (!)))
+		(sh-near? (map (const n2f) (cat pos wave (reals far)))
+			(map (const n2f) (slice out3 (* (!) 7) (* (inc (!)) 7))))))
+	want3)
 (assert-error "a function can not take a matrix"
 	(sh-src "(defun f :vec4 ((m :mat4)) (vec4 0.0))" "(defun main :vec4 () (vec4 0.0))"))
 (assert-error "a function can not give a matrix"

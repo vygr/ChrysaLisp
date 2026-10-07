@@ -31,10 +31,28 @@
 	;and this many pixels of a tile of a pixel shader, they are far more
 	;work each
 	+sv_tile_work 4096
-	+sv_version 14)
+	+sv_version 15)
+
+;a vertex function reads the attrs of a vertex where they are, by :r11,
+;and writes where it is and its varyings where they are to go, by :r10.
+;The slots the attrs, the varyings and what main returns were given in
+;the frame are not used, and this says what is there in their place,
+;each (first last register offset). It is empty for a pixel shader
+(defq *sv_maps* (list))
 
 (defun sv-emit (&rest form)
-	(push code form))
+	;a call of the system can lose the two registers of a vertex function
+	(defq keep (and (eql (first form) 'call) (nempty? *sv_maps*)))
+	(when keep (push code '(vp-push :r10) '(vp-push :r11)))
+	(push code form)
+	(when keep (push code '(vp-pop :r11) '(vp-pop :r10))))
+
+(defun sv-at (offset)
+	; -> (register offset)
+	;where a slot of the frame is
+	(if (defq m (some (# (if (<= (first %0) offset (dec (second %0))) %0)) *sv_maps*))
+		(list (third m) (+ (- offset (first m)) (elem-get m 3)))
+		(list :r13 offset)))
 
 (defun sv-q (label)
 	(list 'quote label))
@@ -71,13 +89,15 @@
 
 (defun sv-load (type offset)
 	(if (sh-float? type)
-		(map (# (sv-emit 'vp-cpy-if :r13 (+ offset (* %0 8)) (defq r (sv-getf))) r)
+		(map (# (bind '(base at) (sv-at (+ offset (* %0 8))))
+				(sv-emit 'vp-cpy-if base at (defq r (sv-getf))) r)
 			(range 0 (ifn (shader-dim type) 1)))
 		(progn (sv-emit 'vp-cpy-ir :r13 offset (defq r (sv-getr))) (list r))))
 
 (defun sv-store (regs type offset)
 	(if (sh-float? type)
-		(each (# (sv-emit 'vp-cpy-fi %0 :r13 (+ offset (* (!) 8)))) regs)
+		(each (# (bind '(base at) (sv-at (+ offset (* (!) 8))))
+			(sv-emit 'vp-cpy-fi %0 base at)) regs)
 		(sv-emit 'vp-cpy-ri (first regs) :r13 offset)))
 
 (defun sv-mat-copy (from to)
@@ -398,14 +418,20 @@
 			(:t (sv-emit 'vp-cpy-cr (cond ((eql type :int) a) (a 1) (0)) (defq r (sv-getr)))
 				(list r))))
 		(:var (sv-load type (sv-var a)))
-		(:swz (defq regs (sv-expr b) used (list)
-				out (map (# (defq r (elem-get regs %0))
-					(cond
-						((find r used)
-							(sv-emit 'vp-cpy-ff r (defq r (sv-getf))) r)
-						((push used r) r))) a))
-			(sv-puts (filter (# (not (find %0 used))) regs))
-			out)
+		(:swz (cond
+			((eql (second b) :var)
+				;of a variable, only the parts asked for are loaded
+				(defq offset (sv-var (third b)))
+				(map (# (bind '(base at) (sv-at (+ offset (* %0 8))))
+					(sv-emit 'vp-cpy-if base at (defq r (sv-getf))) r) a))
+			(:t (defq regs (sv-expr b) used (list)
+					out (map (# (defq r (elem-get regs %0))
+						(cond
+							((find r used)
+								(sv-emit 'vp-cpy-ff r (defq r (sv-getf))) r)
+							((push used r) r))) a))
+				(sv-puts (filter (# (not (find %0 used))) regs))
+				out)))
 		(:user (bind '(& label offsets result) (some (# (if (eql (first %0) a) %0)) finfo))
 			;a value can go to its parameter slot at once if no later
 			;arg can call a function, else all are held till the end
@@ -461,7 +487,8 @@
 					(sv-store regs (first b) (sv-var a))
 					(sv-puts regs))))
 			(:setsw (defq regs (sv-expr c) offset (sv-var a))
-				(each (# (sv-emit 'vp-cpy-fi %0 :r13 (+ offset (* %1 8)))) regs b)
+				(each (# (bind '(base at) (sv-at (+ offset (* %1 8))))
+					(sv-emit 'vp-cpy-fi %0 base at)) regs b)
 				(sv-puts regs))
 			(:if (defq l_else (sv-new-label))
 				(sv-branch a l_else :nil)
@@ -515,8 +542,15 @@
 				(push vars (list pname (defq offset (sv-slots ptype)))) offset) params))
 		(setq ret_offset (sv-slots type) ret_label (sv-new-label))
 		(push finfo (list name label offsets ret_offset))
+		;what the main of a vertex shader returns goes where the vertex
+		;is to be written
+		(if (and (nempty? *sv_maps*) (eql name 'main))
+			(push *sv_maps* (list ret_offset (+ ret_offset 32) :r10 0)))
 		(sv-emit 'vp-label (sv-q label))
 		(sv-block block)
+		;a return that is the last thing has no jump to make
+		(if (and (eql (first (last code)) 'vp-jmp) (eql (second (second (last code))) ret_label))
+			(pop code))
 		(sv-emit 'vp-label (sv-q ret_label))
 		(sv-emit 'vp-ret)) funcs)
 	(bind '(& & offsets ret) (some (# (if (eql (first %0) 'main) %0)) finfo))
@@ -530,18 +564,21 @@
 (defun sv-vertex-source (program name)
 	; -> (text frame_size attr_slots out_slots)
 	;the VP source of the native function that places vertices
-	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
+	(defq code (list) live (list) free_f (cat +sv_fregs)
+		free_r (filter (# (not (eql %0 :r10))) +sv_rregs)
 		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
 		ret_offset 0 ret_label :nil)
-	;the frame starts with the inputs, then the attrs of the vertex being
-	;placed, then its varyings, then what the loop keeps
+	;the frame starts with the inputs, then slots for the attrs and the
+	;varyings that are never used, they are read and written where they
+	;are, then what the loop keeps
 	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) (first program))
 	(defq attr_at frame_size)
 	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-attrs program))
 	(defq vary_at frame_size attr_slots (/ (- vary_at attr_at) 8))
 	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-varyings program))
-	(defq vary_slots (/ (- frame_size vary_at) 8))
-	(bind '(s_in s_out s_n) (map (lambda (_) (sv-slots :int)) (range 0 3)))
+	(defq vary_slots (/ (- frame_size vary_at) 8)
+		*sv_maps* (list (list attr_at vary_at :r11 0) (list vary_at frame_size :r10 32)))
+	(bind '(s_n) (map (lambda (_) (sv-slots :int)) (range 0 1)))
 	(bind '(& ret) (sv-program program "v"))
 	(defq lf (ascii-char 10) text (cat
 {(include "lib/asm/func.inc")
@@ -580,8 +617,9 @@
 		(vp-add-cr +str_data :r6)
 	(endif)
 	(vp-cpy-ir :r7 +array_begin :r7)
-	(vp-cpy-ri :r6 :r13 } (str s_in) {)
-	(vp-cpy-ri :r7 :r13 } (str s_out) {)
+	;:r11 is the vertex being read, :r10 where it is being written
+	(vp-cpy-rr :r6 :r11)
+	(vp-cpy-rr :r7 :r10)
 	(vp-cpy-ri :r8 :r13 } (str s_n) {)
 	(vp-call 'vh_init)
 (vp-label 'sh_vloop)
@@ -589,36 +627,22 @@
 	(vp-ble-cr 0 :r2 'sh_vdone)
 	(vp-sub-cr 1 :r2)
 	(vp-cpy-ri :r2 :r13 } (str s_n) {)
-	;every so many vertices the other tasks of the node have a turn. All
-	;that is kept is in the frame
+	;every so many vertices the other tasks of the node have a turn
 	(vp-and-cr 2047 :r2)
 	(vpif '(:r2 = 0))
-		(vp-push :r13)
+		(vp-push :r13 :r10 :r11)
 		(call :sys_task :sleep '(0))
-		(vp-pop :r13)
+		(vp-pop :r13 :r10 :r11)
 		(vp-lea-p 'fn_consts :r12)
 	(endif)
-	;the attrs of this vertex, and its varyings start as 0
-	(vp-cpy-ir :r13 } (str s_in) { :r2)
-	(each (lambda (i)
-		(vp-cpy-ir :r2 (* i 8) :r3)
-		(vp-cpy-ri :r3 :r13 (+ } (str attr_at) { (* i 8)))) (range 0 } (str attr_slots) {))
-	(vp-add-cr } (str (* attr_slots 8)) { :r2)
-	(vp-cpy-ri :r2 :r13 } (str s_in) {)
+	;its varyings start as 0, main reads its attrs and writes where it is
+	;and its varyings, all where they are
 	(vp-xor-rr :r3 :r3)
 	(each (lambda (i)
-		(vp-cpy-ri :r3 :r13 (+ } (str vary_at) { (* i 8)))) (range 0 } (str vary_slots) {))
+		(vp-cpy-ri :r3 :r10 (+ 32 (* i 8)))) (range 0 } (str vary_slots) {))
 	(vp-call 'vf_main)
-	;where it is, then its varyings
-	(vp-cpy-ir :r13 } (str s_out) { :r2)
-	(each (lambda (i)
-		(vp-cpy-ir :r13 (+ } (str ret) { (* i 8)) :r3)
-		(vp-cpy-ri :r3 :r2 (* i 8))) (range 0 4))
-	(each (lambda (i)
-		(vp-cpy-ir :r13 (+ } (str vary_at) { (* i 8)) :r3)
-		(vp-cpy-ri :r3 :r2 (+ 32 (* i 8)))) (range 0 } (str vary_slots) {))
-	(vp-add-cr } (str (+ 32 (* vary_slots 8))) { :r2)
-	(vp-cpy-ri :r2 :r13 } (str s_out) {)
+	(vp-add-cr } (str (* attr_slots 8)) { :r11)
+	(vp-add-cr } (str (+ 32 (* vary_slots 8))) { :r10)
 	(vp-jmp 'sh_vloop)
 (vp-label 'sh_vdone)
 	(vp-pop :r0)

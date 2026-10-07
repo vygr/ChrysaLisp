@@ -260,9 +260,17 @@ A matrix is never in registers, it is 16 slots of the frame, and a product
 of matrices is worked out into slots of its own. `(* a b c v)` is done from
 the right, a matrix by a vector three times, there is no product of matrices
 in it. A product that does not change from vertex to vertex belongs in a
-`defglobal`, it is then worked out once. 65,536 vertices placed by a matrix
-take 250us on an Apple M4 Max, `(mat4x4-vec4-mul)`, written by hand for that
-one job, takes 152us.
+`defglobal`, it is then worked out once.
+
+The vertex function reads the attrs of a vertex where they are, and writes
+where it is and its varyings where they are to go, by two registers it
+keeps for that, `:r11` and `:r10`. Nothing of a vertex is copied to the
+frame or from it. 65,536 vertices placed by a matrix take 116us on an Apple
+M4 Max, into a reals that is used again, as a draw does. It was 204us
+when they were copied. `(mat4x4-vec4-mul)`, written by hand for that one
+job, takes 131us, with a new reals to make. The vertex shader of the Mesh
+demo, a matrix by a vec4, another by a vec3, and two divides, takes 242us,
+and was 477us.
 
 A function can not take a matrix or give one, a matrix is an input, a
 global or a local.
@@ -320,10 +328,8 @@ matrices for, `(Mat4x4-frustum)` is its `glFrustum`.
 * The front of a triangle is the side its vertices go round counter
   clockwise from, and a normal points out of the front.
 
-The meshes of `lib/math/mesh.inc` are the other way round, clockwise from
-outside with normals that point in, as the code that used to draw them
-wanted. `lib/math/scene.inc` turns them round as it hands them to the
-shaders, so the shaders and the pipeline are the usual way.
+The meshes of `lib/math/mesh.inc` are made that way round, and the teapot
+file is.
 
 The two shaders are a native function each, not one for the pair. The vertex
 function places the vertices, and the pixel shader's function fills
