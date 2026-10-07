@@ -12,11 +12,16 @@
 
 (defun pipe-farm (cmds &optional retry_timeout)
 	; (pipe-farm jobs [retry_timeout]) -> ((job result) ...)
-	;run pipe farm and collect output
+	;run pipe farm and collect output. A job that is not answered within
+	;retry_timeout, in microseconds, a minute if not given, is given to a
+	;new worker, and so is one whose node has gone. A job that has been
+	;given out three times with no answer stops the farm, and it and any
+	;that are still out have no result.
 	(task-count -1) ;we will be only collating results !
-	(setd retry_timeout 1000000)
+	(setd retry_timeout 60000000)
 	(defq timer_rate (/ 1000000 1) working (nempty? cmds) results (cap (length cmds) (list))
-		retry_timeout (task-timeout retry_timeout)
+		;the timeout is longer on the emulator, as (task-timeout) has it
+		retry_timeout (* retry_timeout (/ (task-timeout 1) 1000000))
 		select (list (mail-mbox) (mail-mbox) (mail-mbox))
 		jobs (Jobs "lib/task/cmd.lisp" (elem-get select +select_task)
 			(elem-get select +select_reply) (list (length cmds) 10)))
@@ -39,7 +44,8 @@
 					(if (= 0 (. jobs :answered msg)) (setq working :nil))))
 			(:t ;timer event
 				(mail-timeout (elem-get select +select_timer) timer_rate 0)
-				(. jobs :refresh retry_timeout))))
+				(. jobs :refresh retry_timeout)
+				(if (>= (. jobs :tries) 3) (setq working :nil)))))
 	(. jobs :close)
 	(task-count 1)	;we where only collating results !
 	results)

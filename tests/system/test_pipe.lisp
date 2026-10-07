@@ -58,4 +58,17 @@
 		(mail-send child_mbox "")
 		(assert-eq "pipe abort child exit" "done" (mail-read-timeout reply_mbox))))
 
-(undef (env) 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply)
+; --- A farm of commands, and one of them that never answers in time ---
+(import "lib/task/cmd.inc")
+(defq farmed (pipe-farm (list "echo one" "echo two" "echo three")))
+(assert-list-eq "pipe farm, every command answered" '("one" "three" "two")
+	(sort (map (# (first (split (second %0) (ascii-char 10)))) farmed)))
+(assert-eq "pipe farm, nothing to do" 0 (length (pipe-farm (list))))
+;the slow one is given out three times, then the farm stops, with the
+;result of the quick one and none for the slow
+(defq farmed (pipe-farm (list "echo quick"
+	(cat "lisp -r (task-sleep " (str (* 5 (task-timeout 1))) ")")) 400000))
+(assert-list-eq "pipe farm, a command that is too slow is given up on" '("echo quick")
+	(map (const first) farmed))
+
+(undef (env) 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply 'farmed)

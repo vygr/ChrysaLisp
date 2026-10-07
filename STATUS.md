@@ -4,6 +4,28 @@
 
 ------
 
+The retry timeout of the command farm is real again.
+
+`(pipe-farm jobs [retry_timeout])` takes its timeout in microseconds, and
+since July 2025 has put it through `(task-timeout)`, which takes seconds and
+gives microseconds. So the second it had by default was eleven days, and
+the thirty seconds the test suite asks for was a year. A command that never
+answered was never given to another worker, the farm waited on it for good.
+A lost node still was noticed, that is another test.
+
+It is microseconds once more, ten times as long on the emulator, as
+`(task-timeout)` has it. The default is now a minute, not a second. A second
+would give up on commands that have been running to their end all this
+time. And as the assembler does, a job that has been given out three times
+with no answer stops the farm, with no result for it or for any still out.
+
+The suite's thirty seconds was measured before it was made to bite. The
+slowest batch of the suite is 3.6s on an Apple M4 Max and 7.0s on a
+Raspberry Pi 4 with one node.
+
+Tests in `tests/system/test_pipe.lisp`, a farm of three commands, and one
+with a command that is too slow.
+
 Notes on the Storage service, an idea, not built.
 
 `docs/ai_digest/storage_service.md`. What the file system work is for. A

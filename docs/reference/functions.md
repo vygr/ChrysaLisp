@@ -2160,7 +2160,11 @@ transform an absolute filename to a relative one
 ```code
 (pipe-farm jobs [retry_timeout]) -> ((job result) ...)
 
-run pipe farm and collect output
+run pipe farm and collect output. A job that is not answered within
+retry_timeout, in microseconds, a minute if not given, is given to a
+new worker, and so is one whose node has gone. A job that has been
+given out three times with no answer stops the farm, and it and any
+that are still out have no result.
 ```
 
 ### pipe-run
@@ -2819,13 +2823,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args
