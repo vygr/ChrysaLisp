@@ -39,7 +39,7 @@
 			tf_vvals (map (# (list (list 'model %0) (list 'lens tf_lens)))
 				(list (mat4x4-mul (Mat4x4-translate (n2r 0.3) (n2r 0) (n2r -2.2)) (Mat4x4-rotx (n2r 0.4)))
 					(mat4x4-mul (Mat4x4-translate (n2r -0.2) (n2r 0.1) (n2r -3)) (Mat4x4-rotx (n2r 1.1)))))
-			tf_pvals (map (# (list (list 'color %0))) '((1.0 0.2 0.2) (0.2 1.0 0.3)))
+			tf_pvals (map (# (list (list 'color %0))) '((1.0 0.2 0.2 1.0) (0.2 1.0 0.3 0.5)))
 			tf_draws (map (# (list (!) (shader-pack tf_vertex %0) (shader-pack tf_pixel %1))) tf_vvals tf_pvals)
 			;three children, whatever the nodes, so the frame is three strips
 			tf_jobs (Jobs +shader_tris_child (elem-get tf_select +tf_task) (elem-get tf_select +tf_reply) '(3 3 0))

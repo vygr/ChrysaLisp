@@ -435,6 +435,14 @@ static int SDLCALL build_shader(void *data)
 			info.rasterizer_state.front_face = SDL_GPU_FRONTFACE_COUNTER_CLOCKWISE;
 			info.rasterizer_state.cull_mode = shader->cull == 1 ? SDL_GPU_CULLMODE_BACK
 				: shader->cull == 2 ? SDL_GPU_CULLMODE_FRONT : SDL_GPU_CULLMODE_NONE;
+			// a pixel comes with its alpha multiplied in, and goes over what is there
+			target.blend_state.enable_blend = true;
+			target.blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+			target.blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+			target.blend_state.color_blend_op = SDL_GPU_BLENDOP_ADD;
+			target.blend_state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+			target.blend_state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+			target.blend_state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
 			info.depth_stencil_state.enable_depth_test = true;
 			info.depth_stencil_state.enable_depth_write = true;
 			info.depth_stencil_state.compare_op = SDL_GPU_COMPAREOP_LESS;

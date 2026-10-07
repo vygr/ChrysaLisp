@@ -4,6 +4,34 @@
 
 ------
 
+Alpha in the triangle pipeline, the see through objects of Mesh are see
+through again.
+
+*	The alpha a pixel shader gives is how much of the pixel there is. 0 is
+	not drawn and leaves the depth buffer alone, 1 is written, and they are
+	tested for first. In between the pixel goes over what is there, with the
+	arithmetic of `:canvas :plot`, and `:pixmap :to_premul` is what the
+	native code calls. It was full on whatever the shader gave.
+
+*	The same on every back end, `(shader-vp-draw-tris)`, the reference
+	`(shader-cpu-tris)`, which agrees to the bit, and the Metal and SPIR-V
+	pairs, which throw the pixel away under 1 in 255 and hand on a color
+	with its alpha multiplied in. The sdl3 driver blends the triangle
+	target that way.
+
+*	A see through pixel is kept in the depth buffer as any other, so the
+	scene, `lib/math/scene.inc`, draws what is solid first and then what is
+	see through, the furthest first. A see through object drawn with no cull
+	does not show its own back faces through its front.
+
+*	`lib/gpu/shaders/mesh_lit.shader` takes its color as a vec4, the alpha
+	last.
+
+*	Tests of the two quick ways, of half over nothing, and of half over
+	solid, in `tests/gpu/test_shader.lisp`. The pixel shader the triangle
+	tests already had gives an alpha that changes down the frame, so they
+	all test it too.
+
 A mesh is kept on the GPU, and the host has calls of its own for triangles.
 
 *	Four calls at the end of the GUI's table. `host_gui_pair_create`, a

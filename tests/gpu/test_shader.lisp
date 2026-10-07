@@ -434,7 +434,7 @@
 	;the ids the instructions make, in order
 	(sort (reduce (lambda (ids (op &rest args))
 		(cond
-			((find op '(17 14 15 16 71 72 62 246 247 249 250 253 254 56)) ids)
+			((find op '(17 14 15 16 71 72 62 246 247 249 250 252 253 254 56)) ids)
 			((find op '(11 19 20 21 22 23 24 30 32 33 248)) (push ids (first args)))
 			((push ids (second args))))) insts (list)) (const -)))
 
@@ -835,10 +835,53 @@
 
 ;the nearer triangle is the one seen, whichever is drawn first
 (defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
-(shader-vp-draw-tris pipe tverts (nums 3 4 5 0 1 2) pixmap depth tvv tpv)
-(shader-vp-draw-tris pipe tverts (nums 6 7 8 0 1 9) pixmap depth tvv tpv)
-(assert-eq "the order they are drawn in does not matter, nor how many calls"
-	(shader-cpu-tris tvert tpix tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+(defq tsolid (sh-src "(definput gain :float 1.0)" "(defvarying col :vec3)" "(defvarying glow :float)"
+		"(defun main :vec4 ((frag :vec2)) (vec4 (* col glow gain) 1.0))")
+	pipe_solid (shader-vp-pipeline tvert tsolid))
+(shader-vp-draw-tris pipe_solid tverts (nums 3 4 5 0 1 2) pixmap depth tvv tpv)
+(shader-vp-draw-tris pipe_solid tverts (nums 6 7 8 0 1 9) pixmap depth tvv tpv)
+(assert-eq "solid, the order they are drawn in does not matter, nor how many calls"
+	(shader-cpu-tris tvert tsolid tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+;alpha. The pixel shader of the tests above has an alpha that goes from
+;next to nothing at the bottom row to nearly full on at the top, so
+;they are all tests of a pixel going over what is there. Here, the two
+;quick ways, and what is under a see through pixel
+(defun tri-alpha (alpha)
+	(sh-src "(definput gain :float 1.0)" "(defvarying col :vec3)" "(defvarying glow :float)"
+		(cat "(defun main :vec4 ((frag :vec2)) (vec4 (* col glow gain) " alpha "))")))
+(defq tnone (tri-alpha "0.0") thalf (tri-alpha "0.5") tover (tri-alpha "7.0"))
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+(shader-vp-draw-tris (shader-vp-pipeline tvert tnone) tverts ttris pixmap depth tvv tpv)
+(assert-eq "alpha of 0, nothing drawn" 0 (tri-drawn (slice (tri-pixels pixmap) 0 1600)))
+(shader-vp-draw-tris pipe_solid tverts ttris pixmap depth tvv tpv)
+(assert-eq "alpha of 0 left the depth buffer alone, so what is drawn next is all there"
+	(shader-cpu-tris tvert tsolid tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+(shader-vp-draw-tris (shader-vp-pipeline tvert tover) tverts ttris pixmap depth tvv tpv)
+(assert-eq "alpha over 1 is full on"
+	(shader-cpu-tris tvert tsolid tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+;half there, over nothing, a pixel has half its color and half its
+;alpha, 127 of 255, and 255 * 127 / 256 of white
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+(shader-vp-draw-tris (shader-vp-pipeline tvert thalf) tverts (nums 6 7 8) pixmap depth tvv '((gain 1.0)))
+(defq half_pixels (slice (tri-pixels pixmap) 0 1600)
+	half_seen (filter (# (/= %0 0)) (map (# (get-uint half_pixels %0)) (range 0 1600 4))))
+(assert-true "half there, some pixels" (> (length half_seen) 10))
+(assert-true "half there, over nothing, half the color and half the alpha"
+	(every (# (= %0 0x7f7e7e7e)) half_seen))
+(assert-eq "half there, as the reference has it"
+	(shader-cpu-tris tvert thalf tverts (nums 6 7 8) 20 20 tvv '((gain 1.0))) half_pixels)
+;and over a solid one that is further off, it is not what either is alone
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+(shader-vp-draw-tris pipe_solid tverts (nums 3 4 5) pixmap depth tvv tpv)
+(defq under_pixels (slice (tri-pixels pixmap) 0 1600))
+(shader-vp-draw-tris (shader-vp-pipeline tvert thalf) tverts (nums 6 7 8) pixmap depth tvv '((gain 1.0)))
+(defq over_pixels (slice (tri-pixels pixmap) 0 1600)
+	mixed (filter (# (and (/= (get-uint under_pixels %0) 0) (/= (get-uint half_pixels %0) 0))) (range 0 1600 4)))
+(assert-true "see through over solid, pixels where both are" (> (length mixed) 10))
+(assert-true "see through over solid, a mix of the two, and as good as solid"
+	(every (# (defq p (get-uint over_pixels %0))
+		(and (>= (>> p 24) 0xfe) (/= p (get-uint under_pixels %0)) (/= p (get-uint half_pixels %0)))) mixed))
 ;a frame drawn a part at a time is the frame
 (defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
 (each (lambda ((x y x1 y1)) (shader-vp-draw-tris pipe tverts ttris pixmap depth tvv tpv :nil 3 x y x1 y1))
@@ -887,8 +930,9 @@
 			"\tout.position = float4(p.x, p.y, (p.z + p.w) * 0.5, p.w);"))
 		(list "the fragment function, its varyings by their place in the vertex shader" mf (list
 			"\tfloat3 color_ [[user(locn1)]];" "\tfloat shade_ [[user(locn0)]];"
-			"\tfloat4 c = s.shader_main(float2(in.position.x, float2(target.size).y - in.position.y));"
-			"\treturn float4(c.xyz, 1.0);"))))
+			"\tfloat4 c = clamp(s.shader_main(float2(in.position.x, float2(target.size).y - in.position.y)), 0.0, 1.0);"
+			"\tif (c.w < 0.003921568627) discard_fragment();"
+			"\treturn float4(c.xyz * c.w, c.w);"))))
 (assert-true "MSL pair, a matrix times a vec3" (find "sh_mul3(model_, normal_)" mv))
 (assert-error "MSL pair, two that do not go together" (shader-msl-pair vert
 	(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))

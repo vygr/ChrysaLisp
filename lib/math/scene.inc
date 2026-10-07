@@ -248,10 +248,11 @@
 		;of that many rows. For each object that has a mesh, the number of
 		;the mesh, the inputs of the vertex shader and of the pixel shader
 		;for it, as the blocks they travel in, and the rows it may be on.
+		;Objects that are see through come last, the furthest first.
 		;It is what a child that draws a strip is sent, and what is drawn
 		;from here, so the two are the same to the bit.
 		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
-			matrix_stack (list (Mat4x4-unity)) draws (list) pipeline (scene-pipeline))
+			matrix_stack (list (Mat4x4-unity)) draws (list) thin (list) pipeline (scene-pipeline))
 		(raise :meshes)
 		(. this :walk_nodes
 			(lambda (object children)
@@ -265,15 +266,25 @@
 							:ball (mesh-ball mesh))
 						(push meshes (mesh-corners mesh)))
 					(bind '(centre radius) (get :ball object))
-					(push draws (cat (list (get :corners_id object)
-						(shader-pack (first pipeline)
-							(list (list 'model mat4x4_obj) (list 'lens mat4x4_frust)))
-						(shader-pack (second pipeline)
-							(list (list 'color (rest (. object :get_color))))))
-						(ball-rows centre radius mat4x4_obj mat4x4_frust height))))
+					;its color, then how much of it there is, as the pixel
+					;shader has it
+					(defq col (. object :get_color) alpha (first col)
+						draw (cat (list (get :corners_id object)
+							(shader-pack (first pipeline)
+								(list (list 'model mat4x4_obj) (list 'lens mat4x4_frust)))
+							(shader-pack (second pipeline)
+								(list (list 'color (cat (rest col) (slice col 0 1))))))
+							(ball-rows centre radius mat4x4_obj mat4x4_frust height)))
+					;what is see through is drawn after all that is not, the
+					;furthest first, by how far off its middle is
+					(if (< alpha 1.0)
+						(push thin (list (elem-get (mat4x4-vec4-mul mat4x4_obj centre) 2) draw))
+						(push draws draw)))
 				:nil)
 			(lambda (object children)
 				(pop matrix_stack)))
+		(each (# (push draws (second %0)))
+			(sort thin (# (cond ((< (first %0) (first %1)) -1) ((> (first %0) (first %1)) 1) (0)))))
 		draws)
 
 	(defmethod :mesh (id)

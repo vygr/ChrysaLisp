@@ -31,7 +31,7 @@
 	;and this many pixels of a tile of a pixel shader, they are far more
 	;work each
 	+sv_tile_work 4096
-	+sv_version 12)
+	+sv_version 13)
 
 (defun sv-emit (&rest form)
 	(push code form))
@@ -813,18 +813,41 @@
 	(E 'vp-sub-rr :r6 :r7) (E 'vp-sub-cr 1 :r7)
 	(E 'vp-cvt-rf :r7 :f4) (E 'vp-add-ff :f5 :f4) (S :f4 (+ frag 8))
 	(E 'vp-call (Q 'sf_main))
-	;the pixel, alpha full on, and its depth
+	;the alpha of the pixel, 0 to 255. One of 0 is not there at all, and
+	;is the quick way out
 	(K 0 :f1) (K 1 :f2) (K 255 :f3)
-	(E 'vp-cpy-cr 0xff :r4)
+	(L (+ ret 24) :f0)
+	(E 'vp-max-ff :f1 :f0) (E 'vp-min-ff :f2 :f0) (E 'vp-mul-ff :f3 :f0)
+	(E 'vp-cvt-fr :f0 :r4)
+	(E 'vp-beq-cr 0 :r4 (Q 'sr_next))
+	;the pixel, a 32 bit argb
+	(E 'vp-cpy-rr :r4 :r7)
 	(each (lambda (offset)
 		(L offset :f0)
 		(E 'vp-max-ff :f1 :f0) (E 'vp-min-ff :f2 :f0) (E 'vp-mul-ff :f3 :f0)
 		(E 'vp-cvt-fr :f0 :r5)
-		(E 'vp-shl-cr 8 :r4) (E 'vp-add-rr :r5 :r4)) (list ret (+ ret 8) (+ ret 16)))
+		(E 'vp-shl-cr 8 :r7) (E 'vp-add-rr :r5 :r7)) (list ret (+ ret 8) (+ ret 16)))
 	(LI s_y :r5) (LI s_pstride :r6) (E 'vp-mul-rr :r6 :r5)
 	(LI s_x :r2) (E 'vp-cpy-rr :r2 :r6) (E 'vp-shl-cr 2 :r6) (E 'vp-add-rr :r6 :r5)
 	(LI s_pix :r6) (E 'vp-add-rr :r6 :r5)
-	(E 'vp-cpy-ri-i :r4 :r5 0)
+	;full on is the other quick way, it is just written
+	(E 'vp-beq-cr 255 :r4 (Q 'sr_solid))
+	;see through. It goes over what is there as a pixel a canvas plots
+	;does, :canvas :plot, its alpha multiplied in, and what is there,
+	;which has had its own multiplied in, left with the rest
+	(E 'vp-cpy-rr :r7 :r1)
+	(E 'call :pixmap :to_premul (Q '(:r1)) (Q '(:r1)))
+	(E 'vp-cpy-rr :r1 :r7)
+	(E 'vp-cpy-cr 0xff :r8) (E 'vp-sub-rr :r4 :r8)
+	(E 'vp-cpy-cr 0x00ff00ff :r2) (E 'vp-cpy-cr 0xff00ff00 :r3)
+	(E 'vp-cpy-ir-ui :r5 0 :r6) (E 'vp-cpy-rr :r6 :r9)
+	(E 'vp-and-rr :r2 :r6) (E 'vp-and-rr :r3 :r9)
+	(E 'vp-mul-rr :r8 :r6) (E 'vp-mul-rr :r8 :r9)
+	(E 'vp-shr-cr 8 :r6) (E 'vp-shr-cr 8 :r9)
+	(E 'vp-and-rr :r2 :r6) (E 'vp-and-rr :r3 :r9)
+	(E 'vp-add-rr :r9 :r6) (E 'vp-add-rr :r6 :r7)
+	(E 'vp-label (Q 'sr_solid))
+	(E 'vp-cpy-ri-i :r7 :r5 0)
 	(LI s_zi :r4) (LI s_dptr :r5)
 	(E 'vp-cpy-ri-i :r4 :r5 0)
 	;the next pixel
@@ -886,6 +909,7 @@
 {(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
+(include "gui/pixmap/class.inc")
 (include "class/str/class.inc")
 (include "class/array/class.inc")
 (include "class/lisp/class.inc")
@@ -1221,7 +1245,12 @@
 	;all of the pixmap if they are not given, so that a frame can be drawn
 	;a part at a time, or by several tasks. A task that draws rows y to y1
 	;only can have a depth buffer of just those rows, and says so with a
-	;depth_y of y, the row its depth buffer starts at. A pixel is full on.
+	;depth_y of y, the row its depth buffer starts at. A pixel whose alpha
+	;is 0 is not drawn, and leaves the depth buffer alone. One that is
+	;full on is written. One between goes over what is there, which is
+	;taken to have had its alpha multiplied in, and its depth is kept as
+	;any other, so what is see through is to be drawn after what is not,
+	;the furthest first.
 	;A triangle with a vertex that is not in front of the eye is left out
 	;whole.
 	(bind '(vertex pixel place fill offsets) pipeline)

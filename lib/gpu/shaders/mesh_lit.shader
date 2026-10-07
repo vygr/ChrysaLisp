@@ -7,8 +7,8 @@
 ; to the light.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;the color of the object
-(definput color :vec3)
+;the color of the object, and how much of it there is, 1 is solid
+(definput color :vec4)
 
 (defvarying facing :vec3)
 (defvarying fade :float)
@@ -18,7 +18,8 @@
 (defconst ambient 0.25)
 
 (defun main :vec4 ((frag :vec2))
-	(defq turn (max (dot (normalize facing) light) 0.0)
+	(defq tint (:xyz color)
+		turn (max (dot (normalize facing) light) 0.0)
 		turn2 (* turn turn)
 		shine (* turn2 turn2 turn2))
-	(vec4 (min (+ (* color fade) (* color ambient) (vec3 shine)) (vec3 1.0)) 1.0))
+	(vec4 (min (+ (* tint fade) (* tint ambient) (vec3 shine)) (vec3 1.0)) (:w color)))

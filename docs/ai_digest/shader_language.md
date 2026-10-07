@@ -295,9 +295,18 @@ pixmap depth [vvals pvals cull tri_size x y x1 y1])` draws.
 * `x y x1 y1` is the part of the pixmap to draw, all of it if not given. So
   a frame can be drawn a part at a time, or by several tasks on a pixmap they
   share, each its own part, with a depth buffer each.
-* A pixel is full on. A triangle with a vertex that is not in front of the
-  eye is left out whole, there is no clipping to the near plane.
-* Calls add up, the depth buffer is what is nearest so far, in any order.
+* The alpha `main` gives is how much of the pixel there is. At 0 the pixel
+  is not drawn, and the depth buffer is left alone. At 1 it is written. In
+  between it goes over what is there, as a pixel that `:canvas :plot` plots
+  does, its alpha multiplied in with `:pixmap :to_premul`, the pixmap taken
+  to hold pixels that have had theirs multiplied in, as a canvas does. The
+  two ends are tested for first, they are the quick ways.
+* A see through pixel is kept in the depth buffer as any other. So what is
+  solid is drawn first, in any order, and then what is see through, the
+  furthest first. `(. scene :draws ...)` gives its draws in that order.
+* A triangle with a vertex that is not in front of the eye is left out
+  whole, there is no clipping to the near plane.
+* Calls add up, the depth buffer is what is nearest so far.
 
 The spaces are those of OpenGL, which is what `lib/math/matrix.inc` makes
 matrices for, `(Mat4x4-frustum)` is its `glFrustum`.
@@ -408,7 +417,11 @@ varyings `[[user(locn n)]]`, by their place in the vertex shader's list, and
 a matrix is a `float4x4`. Where the vertex shader puts a vertex has z of -1
 to 1, a GPU of this kind wants 0 to 1, so z is moved as it leaves the vertex
 function. The frag coord of the pixel shader comes from where the pixel is
-and the size of the target, y up. A pixel is full on.
+and the size of the target, y up. A pixel whose alpha is under 1 in 255 is
+thrown away, and the color leaves the fragment function with its alpha
+multiplied in, the driver blends the target that way. So the GPU has the
+rule the native code has, though not its rounding, a see through pixel can
+be a level out.
 
 The host has three calls for it, and one to let go of a mesh,
 `docs/ai_digest/host_interface.md`. A pair is made from the code of the two

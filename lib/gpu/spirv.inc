@@ -365,7 +365,8 @@
 	;the place each has in the vertex shader's list, its inputs as a
 	;block, set 3 binding 0, and the size of the target, set 3 binding 1,
 	;from which, and where the pixel is, comes the frag coord, y up. A
-	;pixel is full on, as the native code has it.
+	;pixel whose alpha is under 1 in 255 is not drawn. The color leaves
+	;with its alpha multiplied in, for a target that is blended that way.
 	(shader-pair vertex pixel)
 	(defq varyings (shader-varyings vertex))
 	;the vertex module
@@ -404,9 +405,20 @@
 		(defq c (spv-emit :vec4 57 (. spv_fmap :find 'main) (spv-emit :vec2 80
 			(spv-emit :float 81 coord 0)
 			(spv-emit :float 131 (spv-emit :float 81 (spv-emit :vec2 61 size) 1) (spv-emit :float 81 coord 1)))))
+		;each part kept to 0 to 1. A pixel whose alpha is under 1 in 255
+		;is not drawn, and the color leaves with its alpha multiplied in
+		(defq f0 (spv-const :float 0) f1 (spv-const :float 0x3f800000)
+			parts (map (# (spv-ext :float 43 (spv-emit :float 81 c %0) f0 f1)) '(0 1 2 3))
+			alpha (elem-get parts 3) lk (spv-id) lm (spv-id)
+			thin (spv-emit :bool 184 alpha (spv-const :float 0x3b808081)))
+		(spv-op spv_body 247 lm 0)
+		(spv-op spv_body 250 thin lk lm)
+		(spv-op spv_body 248 lk)
+		(spv-op spv_body 252)
+		(spv-op spv_body 248 lm)
 		(spv-op spv_body 62 colour_out (spv-emit :vec4 80
-			(spv-emit :float 81 c 0) (spv-emit :float 81 c 1) (spv-emit :float 81 c 2)
-			(spv-const :float 0x3f800000)))
+			(spv-emit :float 133 (first parts) alpha) (spv-emit :float 133 (second parts) alpha)
+			(spv-emit :float 133 (third parts) alpha) alpha))
 		(spv-op spv_body 253)))
 	(list vertex_module (spv-module 4 entry "fragment_main" (cat (list coord_in colour_out) ports))))
 

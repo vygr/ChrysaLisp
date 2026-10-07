@@ -358,6 +358,11 @@
 ; triangles, the reference
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun cpu-share (pixel share)
+	;that much of a 32 bit argb pixel, a share of 0 to 256
+	(+ (logand (>> (* (logand pixel 0xff00ff) share) 8) 0xff00ff)
+		(<< (logand (>> (* (logand (>> pixel 8) 0xff00ff) share) 8) 0xff00ff) 8)))
+
 (defun shader-cpu-tris (vertex pixel verts tris width height &optional vvals pvals cull tri_size x y x1 y1)
 	; (shader-cpu-tris vertex pixel verts tris width height [vvals pvals cull tri_size x y x1 y1]) -> str
 	;triangles drawn with a vertex shader and a pixel shader, in Lisp, a
@@ -425,10 +430,20 @@
 												(nums-scale c q2)))) picks)
 									col (first (apply shade (cat (list px (- height 1 py) (inc px) (- height py))
 										inputs vary))))
-								(elem-set depth di z)
-								(set-int out (* di 4) (reduce (# (+ (<< %0 8)
-									(n2i (* (min (max %1 +cpu_0) +cpu_1) (const (n2r 255))))))
-									(slice col 0 3) 0xff)))))
+								;alpha of 0 is not drawn, full on is written,
+								;and between goes over what is there as
+								;:canvas :plot has it, in whole numbers
+								(defq alpha (n2i (* (min (max (elem-get col 3) +cpu_0) +cpu_1) (const (n2r 255))))
+									pixel (reduce (# (+ (<< %0 8)
+										(n2i (* (min (max %1 +cpu_0) +cpu_1) (const (n2r 255))))))
+										(slice col 0 3) 0xff))
+								(when (/= alpha 0)
+									(when (/= alpha 255)
+										(setq pixel (+ (<< alpha 24)
+											(cpu-share (logand pixel 0xffffff) (+ alpha (>> alpha 7)))
+											(cpu-share (get-uint out (* di 4)) (- 255 alpha)))))
+									(elem-set depth di z)
+									(set-int out (* di 4) pixel)))))
 						(range (max x 0) (min x1 width))))
 					(range (max y 0) (min y1 height))))))
 		(partition tris tri_size))

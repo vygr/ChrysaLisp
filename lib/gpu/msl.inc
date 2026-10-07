@@ -155,8 +155,9 @@
 	;The fragment function takes the varyings the pixel shader reads, by
 	;the place each has in the vertex shader's list, its inputs at
 	;[[buffer(0)]], and the size of the target at [[buffer(1)]], from
-	;which, and where the pixel is, comes the frag coord, y up. A pixel is
-	;full on, as the native code has it.
+	;which, and where the pixel is, comes the frag coord, y up. A pixel
+	;whose alpha is under 1 in 255 is not drawn. The color leaves with its
+	;alpha multiplied in, for a target that is blended that way.
 	(shader-pair vertex pixel)
 	(defq lines (cat *msl_pair_head*) varyings (shader-varyings vertex))
 	(msl-inputs vertex lines)
@@ -198,8 +199,9 @@
 	(each (lambda ((name type))
 		(push lines (cat "\ts." (msl-name name) " = in." (msl-name name) ";"))) (shader-varyings pixel))
 	(push lines "\ts.shader_init();"
-		"\tfloat4 c = s.shader_main(float2(in.position.x, float2(target.size).y - in.position.y));"
-		"\treturn float4(c.xyz, 1.0);" "}" "")
+		"\tfloat4 c = clamp(s.shader_main(float2(in.position.x, float2(target.size).y - in.position.y)), 0.0, 1.0);"
+		"\tif (c.w < 0.003921568627) discard_fragment();"
+		"\treturn float4(c.xyz * c.w, c.w);" "}" "")
 	(list vertex_text (join lines (ascii-char 10))))
 
 (defun shader-msl-vertex ()
