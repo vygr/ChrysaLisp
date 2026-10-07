@@ -4,6 +4,21 @@
 
 ------
 
+The Molecule app places its atoms with a vertex shader.
+
+`apps/science/molecule/place.shader`, used on its own, there is no pixel
+shader with it. An atom goes in as where it is in the molecule and its
+radius. The three matrices, the turn, the move back and the view, are inputs,
+and are made one in a `defglobal`, once for all the atoms. What comes back
+for an atom is where it is, then its varyings, x, y and radius on the
+widget, how deep it is and how much light gets to it, and the app draws a
+picture of a ball there, as it did. So Molecule is two shaders now, one for
+where the atoms are and one for what an atom looks like.
+
+It no longer calls `(mat4x4-vec4-mul)`, and the perspective divide and the
+rest for each atom are out of the Lisp. It still makes the turn with
+`(mat4x4-mul)`.
+
 A vertex shader as native code.
 
 `(shader-vp-vertex program)` and `(shader-vp-place native frame verts)`, in

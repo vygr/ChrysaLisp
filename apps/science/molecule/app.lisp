@@ -32,6 +32,12 @@
 	;is made for each size that is drawn, and kept
 	atom_program (shader-load (cat *app_root* "atom.shader"))
 	atom_native (shader-vp atom_program)
+	;where the atoms are is a shader too, a vertex shader, as native code.
+	;An atom goes in as its place and its radius, 5 numbers, and comes out
+	;as 9
+	place_program (shader-load (cat *app_root* "place.shader"))
+	place_native (shader-vp-vertex place_program)
+	*atoms* (reals) +placed_size 9
 	+palette (push `(,quote) (map (lambda (%0) (Vec3-f
 			(n2f (/ (logand (>> %0 16) 0xff) 0xff))
 			(n2f (/ (logand (>> %0 8) 0xff) 0xff))
@@ -119,33 +125,30 @@
 			(texture-metrics (getf canvas +canvas_texture 0)))))
 
 (defun render ()
-	(defq mrx (Mat4x4-rotx *rotx*) mry (Mat4x4-roty *roty*) mrz (Mat4x4-rotz *rotz*)
-		mrot (mat4x4-mul (mat4x4-mul mrx mry) mrz)
-		mtrans (Mat4x4-translate +real_0 +real_0 (const (- +real_0 +focal_dist +real_2)))
-		mfrust (Mat4x4-frustum +left +right +top +bottom +near +far)
-		matrix (mat4x4-mul mfrust (mat4x4-mul mtrans mrot))
-		tverts (mat4x4-vec4-mul matrix *verts*)
+	;the atoms are placed by the vertex shader, all of them in one call of
+	;its native code. For each it gives where the atom is, 4 numbers, then
+	;x, y and radius on the widget, then its depth and its light
+	(bind '(w h) (. *main_widget* :get_size))
+	(defq out (shader-vp-place place_native
+			(shader-vp-frame place_program place_native (list
+				(list 'spin (mat4x4-mul (mat4x4-mul (Mat4x4-rotx *rotx*) (Mat4x4-roty *roty*))
+					(Mat4x4-rotz *rotz*)))
+				(list 'move (const (Mat4x4-translate +real_0 +real_0 (- +real_0 +focal_dist +real_2))))
+				(list 'lens (const (Mat4x4-frustum +left +right +top +bottom +near +far)))
+				(list 'centre (list (>> w 1) (>> h 1)))
+				(list 'half (* +real_1/2 (n2r (dec canvas_size))))))
+			*atoms*)
 		indices (if (> *num_atoms* 0)
-					(filter (# (<= +near (elem-get tverts (+ (* %0 4) 3)) +far))
+					(filter (# (<= +near (elem-get out (+ (* %0 +placed_size) 3)) +far))
 							(range 0 (dec *num_atoms*)))
 					(list))
-		indices (sort indices (# (if (<= (elem-get tverts (+ (* %0 4) 3))
-										(elem-get tverts (+ (* %1 4) 3))) 1 -1))))
-	(bind '(w h) (. *main_widget* :get_size))
-	(defq cx (n2r (>> w 1)) cy (n2r (>> h 1))
-		sp (* +real_1/2 (n2r (dec canvas_size))) new_draw_list (list))
+		indices (sort indices (# (if (<= (elem-get out (+ (* %0 +placed_size) 3))
+										(elem-get out (+ (* %1 +placed_size) 3))) 1 -1)))
+		new_draw_list (list))
 	(each (lambda (i)
-		(defq vi (* i 4)
-			mw (elem-get tverts (+ vi 3))
-			rw (recip mw)
-			z (* (elem-get tverts (+ vi 2)) rw))
+		(bind '(sx sy r z at) (slice out (+ (* i +placed_size) 4) (* (inc i) +placed_size)))
 		(when (<= +real_-1 z +real_1)
-			(defq x (* (elem-get tverts vi) rw)
-				y (* (elem-get tverts (+ vi 1)) rw)
-				at (recip (+ z +real_2))
-				r (* (elem-get *radii* i) sp rw)
-				sx (+ cx (* x sp)) sy (+ cy (* y sp))
-				c (elem-get *colors* i))
+			(defq c (elem-get *colors* i))
 			(bind '(tid tw th) (get-atom-texture r))
 			(when tid
 				(defq col (lighting c (* at +real_1/2))
@@ -186,7 +189,10 @@
 			(push new_verts (vector-scale (vector-sub v center v) scale_p v) +real_1))
 			(partition *verts* 3))
 		(setq *verts* new_verts)
-		(vector-scale *radii* scale_r *radii*)))
+		(vector-scale *radii* scale_r *radii*)
+		;what the vertex shader is given, each atom and then its radius
+		(setq *atoms* (apply (const cat) (cat (list (reals))
+			(map (# (cat %0 (reals %1))) (partition *verts* 4) *radii*))))))
 
 (defun reset ()
 	(setq *dirty* :t

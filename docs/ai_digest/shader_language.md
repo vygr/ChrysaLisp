@@ -251,7 +251,10 @@ the native function and how many numbers a vertex is going in and coming out.
 vertex. `(shader-vp-place native frame verts)` gives a `reals`, for each
 vertex where it is, 4 numbers, then its varyings. So a vertex shader can be
 used with no pixel shader at all, by an app that only wants its vertices
-placed and will draw them itself.
+placed and will draw them itself. The Molecule app does, its atoms are
+placed by `apps/science/molecule/place.shader`, whose varyings are what the
+app wants to know of each, where on the widget it is, how big, and how deep,
+and it draws a picture of a ball at each.
 
 A matrix is never in registers, it is 16 slots of the frame, and a product
 of matrices is worked out into slots of its own. `(* a b c v)` is done from
