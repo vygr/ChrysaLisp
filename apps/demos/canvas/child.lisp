@@ -19,10 +19,13 @@
 
 (defun draw-slice (key mbox canvas_key angle count y y1)
 	;draw the rows, and say how many shapes it took, -1 if the canvas
-	;could not be reached
+	;could not be reached. No rows at all is the app asking if this child
+	;is up, with the scene loaded and the canvas found
 	(mail-send mbox (cat (char key +long_size) (char y +int_size)
-		(char (if (attach canvas_key)
-			(scene-draw canvas (/ (n2f angle) 65536.0) count y y1) -1) +int_size))))
+		(char (cond
+			((not (attach canvas_key)) -1)
+			((>= y y1) 0)
+			((scene-draw canvas (/ (n2f angle) 65536.0) count y y1))) +int_size))))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t +timeout 5000000)

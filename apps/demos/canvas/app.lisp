@@ -21,6 +21,9 @@
 	shared_pixmap (pixmap-shared +scene_width +scene_height 0)
 	shared_key (if shared_pixmap (pixmap-key shared_pixmap) 0)
 	select :nil farm :nil jobs (list) slices (list) farming :nil
+	;how many children are still to say they are up. Till they all have
+	;the frames are drawn here, so the picture never stops for them
+	warming 0
 	start_time (pii-time) frame_time 0 frame_shapes 0 frames 0 frames_us 0)
 
 (ui-window *window* (:resizable :nil)
@@ -83,6 +86,20 @@
 		(push jobs job)
 		(undef val :job)))
 
+(defun warm-farm (&optional fresh)
+	;every child is started again, one with no work for a while has gone,
+	;unless they are fresh, only just started. Each is asked for a slice
+	;of no rows, which it answers when it has the scene loaded and has
+	;found the canvas
+	(defq keys (list) vals (list))
+	(. farm :each (# (push keys %0) (push vals %1)))
+	(unless fresh (each (# (. farm :restart %0 %1)) keys vals))
+	(setq warming (length keys)
+		jobs (map (lambda (_)
+			(setf-> (str-alloc +job_size)
+				(+job_shared shared_key) (+job_angle 0) (+job_count 0)
+				(+job_y +scene_height) (+job_y1 +scene_height))) keys)))
+
 (defun start-farm-frame ()
 	;a frame drawn by the nodes, a slice for each of them. More slices than
 	;that was slower when it was timed, a shape near the edge of a slice is
@@ -100,11 +117,11 @@
 		(if (and (get :child val) (not (get :job val)))
 			(dispatch-job key val)))))
 
-(defun one-task-frame ()
+(defun one-task-frame (how)
 	;a frame drawn here, all of it
 	(setq frame_time (pii-time))
 	(scene-draw *canvas* (scene-angle) (shape-count) 0 +scene_height)
-	(frame-done "one task"))
+	(frame-done how))
 
 (defun main ()
 	(setq select (task-mboxes +select_size))
@@ -114,6 +131,7 @@
 	(setq farm (Farm create destroy (max 1 (length (lisp-nodes)))))
 	;it comes up on all the nodes, if their pixels can be shared
 	(. *mode* :set_selected (if shared_pixmap 1 0))
+	(if shared_pixmap (warm-farm :t))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(defq id :t)
 	(while id
@@ -124,9 +142,12 @@
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id :nil))
 					((= id +event_mode)
-						(when (and (= (. *mode* :get_selected) 1) (not shared_pixmap))
-							(. *mode* :set_selected 0)
-							(set-label *status* "This host has no shared memory for the nodes to draw on")))
+						(cond
+							((/= (. *mode* :get_selected) 1))
+							((not shared_pixmap)
+								(. *mode* :set_selected 0)
+								(set-label *status* "This host has no shared memory for the nodes to draw on"))
+							((not farming) (warm-farm))))
 					((. *window* :event msg))))
 			(+select_task
 				;child launch response
@@ -139,6 +160,8 @@
 				(bind '(key y drawn) (getf-> msg +reply_key +reply_y +reply_drawn))
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
+				;a child that is up, or one that can not reach the canvas
+				(if (= y +scene_height) (setq warming (max 0 (dec warming))))
 				(when (and farming (defq i (find y slices)))
 					(setq slices (erase slices i (inc i)) frame_shapes (+ frame_shapes drawn))
 					(when (empty? slices)
@@ -148,9 +171,12 @@
 			(:t ;timer event, the next frame if the last is done
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(unless farming
-					(if (and shared_pixmap (= (. *mode* :get_selected) 1))
-						(start-farm-frame)
-						(one-task-frame)))
+					(cond
+						((or (not shared_pixmap) (/= (. *mode* :get_selected) 1))
+							(one-task-frame "one task"))
+						((> warming 0)
+							(one-task-frame "one task, while the nodes get ready"))
+						((start-farm-frame))))
 				(when (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
 					(. farm :refresh +retry_timeout)))))
 	(. farm :close)
