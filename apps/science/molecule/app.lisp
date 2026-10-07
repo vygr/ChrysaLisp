@@ -3,7 +3,7 @@
 (import "gui/lisp.inc")
 (import "lib/math/matrix.inc")
 (import "lib/files/files.inc")
-(import "./app.inc")
+(import "lib/gpu/vp.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -13,7 +13,7 @@
 	(enum style))
 
 (enums +select 0
-	(enum main tip timer task reply retry_timer idle_timer))
+	(enum main tip timer))
 
 (enums +ball 0
 	(enum vertex radius col))
@@ -27,9 +27,11 @@
 	atom_draw_list (list) atom_cache (Fmap 31) canvas_size +min_size
 	sdf_files (sort (files-all (cat *app_root* "data") '(".sdf")))
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
-	+max_workers 8 +init_workers_% 10 +grow_workers_% 10
-	+retry_timeout (task-timeout 5) +idle_timeout 5000000 +retry_timer_rate 1000000
-	+atom_cache_dir (cat *app_root* "data/cache/") +radius_quant (n2r 1.0)
+	+radius_quant (n2r 1.0)
+	;an atom is a shader, a lit grey ball, as native code. An image of it
+	;is made for each size that is drawn, and kept
+	atom_program (shader-load (cat *app_root* "atom.shader"))
+	atom_native (shader-vp atom_program)
 	+palette (push `(,quote) (map (lambda (%0) (Vec3-f
 			(n2f (/ (logand (>> %0 16) 0xff) 0xff))
 			(n2f (/ (logand (>> %0 8) 0xff) 0xff))
@@ -93,17 +95,28 @@
 	(+ 0xff000000 (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
 (defun get-atom-texture (radius)
-	(defq key (n2i (+ (* (quant radius +radius_quant) (n2r 2.0)) (n2r 0.5)))
-		canvas :nil file :nil)
-	(if (> key 0)
-		(progn
-			(setq file (cat +atom_cache_dir "atom_" (str key) ".cpm"))
-			(unless (setq canvas (. atom_cache :find key))
-				(setq canvas (canvas-load file +load_flag_shared +pixmap_mode_greyscale))
-				(if canvas (. atom_cache :insert key canvas)))))
-	(if canvas
-		(cat (texture-metrics (getf canvas +canvas_texture 0)) (list key file))
-		(list :nil 0 0 key file)))
+	; (get-atom-texture radius) -> (tid tw th) | (:nil 0 0)
+	;the image of an atom this big, a greyscale texture, to be drawn in
+	;the color of the atom. The shader draws it the first time it is asked
+	;for, straight onto the pixels of a canvas. It goes in the shared
+	;pixmap cache of the node, so every Molecule that is open has the one
+	;image of a size.
+	(defq key (n2i (+ (* (quant radius +radius_quant) (n2r 2.0)) (n2r 0.5))))
+	(cond
+		((<= key 0) (list :nil 0 0))
+		(:t (unless (defq canvas (. atom_cache :find key))
+				(defq name (cat "molecule/atom_" (str key)))
+				(cond
+					((defq pixmap (. *pixmap_cache* :find name))
+						(setq canvas (Canvas-pixmap pixmap)))
+					(:t (setq canvas (Canvas key key 1))
+						(shader-vp-draw atom_native
+							(shader-vp-frame atom_program atom_native (list (list 'resolution (list key key))))
+							(defq pixmap (getf canvas +canvas_pixmap 0)) 0 0 key key key :t)
+						(. *pixmap_cache* :insert name pixmap)
+						(. canvas :swap (const (+ +swap_write +pixmap_mode_greyscale)))))
+				(. atom_cache :insert key canvas))
+			(texture-metrics (getf canvas +canvas_texture 0)))))
 
 (defun render ()
 	(defq mrx (Mat4x4-rotx *rotx*) mry (Mat4x4-roty *roty*) mrz (Mat4x4-rotz *rotz*)
@@ -133,31 +146,15 @@
 				r (* (elem-get *radii* i) sp rw)
 				sx (+ cx (* x sp)) sy (+ cy (* y sp))
 				c (elem-get *colors* i))
-			(bind '(tid tw th key file) (get-atom-texture r))
-			(if tid
-				(progn
-					(defq col (lighting c (* at +real_1/2))
-						blit_x (n2i (- sx (n2r (/ tw 2))))
-						blit_y (n2i (- sy (n2r (/ th 2)))))
-					(push new_draw_list (list tid col blit_x blit_y tw th)))
-				(when (and key file (not (find key atoms_asked)) (not (find key atoms_new)))
-					(push atoms_new key)))
+			(bind '(tid tw th) (get-atom-texture r))
+			(when tid
+				(defq col (lighting c (* at +real_1/2))
+					blit_x (n2i (- sx (n2r (/ tw 2))))
+					blit_y (n2i (- sy (n2r (/ th 2)))))
+				(push new_draw_list (list tid col blit_x blit_y tw th)))
 			(task-slice))) indices)
 	(set *main_widget* :atom_draw_list new_draw_list)
-	(. *main_widget* :dirty)
-	(when (nempty? atoms_new)
-		;the images not yet in the cache are made by a herd of children,
-		;started when there is one to make
-		(unless jobs
-			(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
-				(elem-get select +select_reply) (list +max_workers
-					(/ (* +max_workers +init_workers_%) 100)
-					(/ (* +max_workers +grow_workers_%) 100))))
-			(mail-timeout (elem-get select +select_retry_timer) +retry_timer_rate 0))
-		(mail-timeout (elem-get select +select_idle_timer) +idle_timeout 0)
-		(. jobs :add (map (# (setf-> (cat (str-alloc +atom_size) +atom_cache_dir "atom_" (str %0) ".cpm")
-			(+atom_key %0))) atoms_new))
-		(setq atoms_asked (cat atoms_asked atoms_new) atoms_new (list))))
+	(. *main_widget* :dirty))
 
 (defun sdf-file (index)
 	(when (defq stream (file-stream (defq file (elem-get sdf_files index))))
@@ -203,8 +200,7 @@
 	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
-	(defq select (task-mboxes +select_size) *running* :t
-		jobs :nil atoms_asked (list) atoms_new (list))
+	(defq select (task-mboxes +select_size) *running* :t)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(. *style_toolbar* :set_selected 1)
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -232,31 +228,7 @@
 				(when *dirty*
 					(setq *dirty* :nil)
 					(render)))
-			((= idx +select_task)
-				;child task launch response
-				(if jobs (. jobs :launched *msg*)))
-			((= idx +select_reply)
-				;child response, an atom image is in the cache
-				(when (and jobs (defq job (. jobs :job *msg*)))
-					(defq atom_key (getf job +atom_key))
-					(setq atoms_asked (filter (# (nql %0 atom_key)) atoms_asked) *dirty* :t)
-					(. jobs :answered *msg*)))
-			((= idx +select_retry_timer)
-				;retry timer event
-				(mail-timeout (elem-get select +select_retry_timer) +retry_timer_rate 0)
-				(when jobs (. jobs :refresh +retry_timeout)))
-			((= idx +select_idle_timer)
-				;idle timer event
-				(when (and jobs (= (. jobs :out) 0))
-					(. jobs :close)
-					(setq jobs :nil)
-					(mail-timeout (elem-get select +select_retry_timer) 0 0)
-					(mail-timeout (elem-get select +select_idle_timer) 0 0)
-					; drop any stale network replies!
-					(elem-set select +select_task (mail-mbox))
-					(elem-set select +select_reply (mail-mbox))))
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
-	(if jobs (. jobs :close))
 	(gui-sub-rpc *window*)
 	(profile-report "Molecule"))

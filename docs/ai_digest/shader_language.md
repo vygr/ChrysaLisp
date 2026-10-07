@@ -464,6 +464,41 @@ canvas has it, and the shader still sees y going up.
 `(shader-vp-pixels native frame x y x1 y1)` gives the pixels as a list of
 `reals`, as the CPU back end does.
 
+`(shader-vp-draw native frame pixmap x y x1 y1 [height alpha])` draws the
+tile straight onto a 32 bit pixmap, where it belongs on it, with no string in
+between. It gives `:nil`, and draws nothing, if the tile is not all inside
+the pixmap.
+
+A pixel from `(shader-vp-argb)` or `(shader-vp-draw)` has its alpha full on,
+whatever `main` gave. The raymarch shader keeps a distance in its alpha. Give
+`(shader-vp-draw)` a last arg of `:t` and the alpha is the one `main` gave,
+for a shader that is to be seen through. A pixmap is premultiplied, so such a
+shader gives its colour times its alpha.
+
+### A shader as an image maker
+
+A shader need not be a frame of a demo. The Molecule app draws each atom as a
+picture of a lit ball, in a size for each distance, a few dozen of them, in
+grey, and draws them in the colour of the atom. The ball is a shader,
+`apps/science/molecule/atom.shader`. Clear outside the ball, and at
+its edge the alpha is the share of the pixel the ball covers.
+
+```lisp
+(defq canvas (Canvas size size 1))
+(shader-vp-draw native
+	(shader-vp-frame program native (list (list 'resolution (list size size))))
+	(getf canvas +canvas_pixmap 0) 0 0 size size size :t)
+(. canvas :swap (+ +swap_write +pixmap_mode_greyscale +swap_flag_free))
+```
+
+The pixmap is uploaded as a greyscale texture, which is what lets it be drawn
+in a colour, and is then let go. An image of 100 pixels across takes 0.18ms on
+an Apple M4, and the shader 12ms to assemble the first time the machine sees
+it. It was Lisp, a pixel at a time and three times the size to smooth the
+edge, on a farm of children, with the images kept in files so as not to do it
+twice. Molecule keeps the pixmap, in the shared pixmap cache of the node, so
+that every Molecule that is open has the one image of a size.
+
 The back end writes VP source, the same assembler source the rest of the
 system is written in, and the assembler turns it into code for the CPU of the
 node, ARM64, x86_64, RISC-V, or the VP64 of the emulator. The source and the
@@ -625,3 +660,8 @@ The app is in the Demos list of the launcher, as surface.
 * The GLSL back end does not guard names against the reserved words of GLSL.
 * Compute, and rendering as a service for a node with no GPU, are deferred.
 * Vertex shaders, meshes, textures as inputs, and compute.
+* A shader gives four channels. One that makes a single channel image, a
+  greyscale or a glyph, gives a grey and the texture is made in that mode
+  from the pixmap. On the GPU a shader draws into a texture that is not of
+  such a mode, so an image to be drawn in a colour is made by the VP back end
+  for now.

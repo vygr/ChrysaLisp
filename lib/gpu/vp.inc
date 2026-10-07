@@ -22,7 +22,7 @@
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
 	;part of the name of the native function, so a change to this file
 	;that changes the code must change this
-	+sv_version 2)
+	+sv_version 4)
 
 (defun sv-emit (&rest form)
 	(push code form))
@@ -482,10 +482,11 @@
 		'(:num :num :num :num :str :obj :num :num))
 	(vp-lea-p 'fn_consts :r12)
 	;where the pixels go, and what is skipped at the end of each row. A
-	;string is filled row after row. In mode 2 out is a pixmap, and the
-	;tile is drawn where it belongs on it
+	;string is filled row after row. In modes 2 and 3 out is a pixmap,
+	;and the tile is drawn where it belongs on it
 	(vp-xor-rr :r9 :r9)
 	(vp-beq-cr 2 :r7 'sh_pixmap)
+	(vp-beq-cr 3 :r7 'sh_pixmap)
 	(vp-add-cr +str_data :r6)
 	(vp-jmp 'sh_out)
 (vp-label 'sh_pixmap)
@@ -552,11 +553,19 @@
 	(vp-add-cr 32 :r2)
 	(vp-jmp 'sh_next)
 (vp-label 'sh_argb)
-	;mode 1, a 32 bit argb pixel, alpha full on
+	;modes 1 and 2, a 32 bit argb pixel, alpha full on. In mode 3 the
+	;alpha is the one main gave
 	(vp-cpy-if :r12 (fn-const (n2r 0)) :f1)
 	(vp-cpy-if :r12 (fn-const (n2r 1)) :f2)
 	(vp-cpy-if :r12 (fn-const (n2r 255)) :f3)
 	(vp-cpy-cr 0xff :r4)
+	(vp-bne-cr 3 :r3 'sh_rgb)
+	(vp-cpy-if :r13 } (str (+ ret 24)) { :f0)
+	(vp-max-ff :f1 :f0)
+	(vp-min-ff :f2 :f0)
+	(vp-mul-ff :f3 :f0)
+	(vp-cvt-fr :f0 :r4)
+(vp-label 'sh_rgb)
 	(each (lambda (offset)
 		(vp-cpy-if :r13 offset :f0)
 		(vp-max-ff :f1 :f0)
@@ -694,15 +703,18 @@
 	((first native) x y x1 y1 frame out 1 (ifn height 0))
 	out)
 
-(defun shader-vp-draw (native frame pixmap x y x1 y1 &optional height)
-	; (shader-vp-draw native frame pixmap x y x1 y1 [height]) -> :nil | pixmap
+(defun shader-vp-draw (native frame pixmap x y x1 y1 &optional height alpha)
+	; (shader-vp-draw native frame pixmap x y x1 y1 [height alpha]) -> :nil | pixmap
 	;a tile drawn straight onto a 32 bit pixmap, where it belongs on it,
 	;with no copy of the pixels in between. :nil if the tile is not all
 	;inside the pixmap. The pixels are full on, so they are right for a
-	;pixmap that is premultiplied as well as one that is not.
+	;pixmap that is premultiplied as well as one that is not. With alpha
+	;the alpha of a pixel is the one main gave, for a shader that is to be
+	;seen through. A pixmap is premultiplied, so such a shader gives its
+	;color times its alpha.
 	(when (and (<= 0 x) (< x x1) (<= x1 (getf pixmap +pixmap_width 0))
 			(<= 0 y) (< y y1) (<= y1 (getf pixmap +pixmap_height 0)))
-		((first native) x y x1 y1 frame pixmap 2 (ifn height 0))
+		((first native) x y x1 y1 frame pixmap (if alpha 3 2) (ifn height 0))
 		pixmap))
 
 (defun shader-vp-pixels (native frame x y x1 y1)

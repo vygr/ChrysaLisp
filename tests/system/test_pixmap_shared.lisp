@@ -49,12 +49,24 @@
 ;the pixels are the shader's own, to the bit
 (assert-eq "a shader drawn straight into a pixmap" (shader-vp-argb native frame 0 0 64 8 32)
 	(slice (px-bytes direct) 0 (* 64 8 4)))
-;a pixel put there by :tile is premultiplied on the way, and comes out one
-;level darker, so the two agree to within that
-(assert-true "the same as a tile put there, to within a level"
-	(every (# (<= (abs (- (code %0) (code %1))) 1)) (px-bytes direct) (px-bytes (getf other +canvas_pixmap 0))))
+;and the same as a tile put there by :tile, which premultiplies on the way
+(assert-eq "the same as a tile put there"
+	(px-bytes direct) (px-bytes (getf other +canvas_pixmap 0)))
 (assert-true "and it is a picture" (nql (px-bytes direct) (px-bytes (getf (Canvas 64 32 1) +canvas_pixmap 0))))
 (assert-eq "a tile that is not inside the pixmap is not drawn" :nil (shader-vp-draw native frame direct 0 0 65 8 32))
+
+;the alpha is full on whatever main gave, unless it is asked for, and then
+;the pixel is main's own, for a shader that is to be seen through
+(defq program (shader-compile (shader-read (string-stream
+		"(defun main :vec4 ((frag :vec2)) (vec4 0.5 0.25 0.0 0.5))")))
+	native (shader-vp program) frame (shader-vp-frame program native (list))
+	seen (Canvas 4 4 1))
+(shader-vp-draw native frame (getf seen +canvas_pixmap 0) 0 0 4 4 4)
+(assert-list-eq "alpha full on" '(0 63 127 255)
+	(map (const code) (slice (px-bytes (getf seen +canvas_pixmap 0)) 0 4)))
+(shader-vp-draw native frame (getf seen +canvas_pixmap 0) 0 0 4 4 4 :t)
+(assert-list-eq "the alpha main gave" '(0 63 127 127)
+	(map (const code) (slice (px-bytes (getf seen +canvas_pixmap 0)) 0 4)))
 
 ;the clip of a canvas, set from Lisp, keeps a draw to a slice of the rows
 (defq whole (Canvas 64 32 1) part (Canvas 64 32 1))

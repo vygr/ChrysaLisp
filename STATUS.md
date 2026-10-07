@@ -4,6 +4,48 @@
 
 ------
 
+The atoms of the Molecule app are drawn by a shader.
+
+`apps/science/molecule/atom.shader`, a lit grey ball that fills the frame,
+clear outside it, with an edge that is the share of each pixel the ball
+covers. The app draws it as native code, the VP back end, so on any machine,
+straight onto the pixels of a canvas that is then a greyscale texture, an
+image for each size of atom the first time one is drawn. An image goes in
+the shared pixmap cache of the node, as a loaded one did, so every Molecule
+that is open has the one image of a size. Two open on a Raspberry Pi 4 held
+24 images between them.
+
+It was Lisp, a pixel at a time, three times the size and scaled down to
+smooth the edge, done by a farm of children and kept in files under
+`data/cache/` so as not to be done twice. An image 100 pixels across now
+takes 0.18ms on an Apple M4 Max, and the shader 12ms to assemble the first
+time a machine sees it. So the children, the farm, the cache and its folder
+have gone, `child.lisp` and `app.inc` with them.
+
+An atom whose image was not ready was left out of a frame and drawn in a
+later one, so as not to stall. There is no wait to step round now. On the
+Pi, the slowest machine there is to try, an image 32 across takes 0.19ms,
+100 across 1.8ms, and all 48 sizes from 4 to 98 take 28ms, which is the
+worst a first frame could cost.
+
+`(shader-vp-draw native frame pixmap x y x1 y1 [height alpha])` has the new
+last arg. A pixel had its alpha full on whatever `main` gave, and still has,
+the raymarch shader keeps a distance in its alpha. With `:t` the alpha is
+the one `main` gave, for a shader that is to be seen through. A pixmap is
+premultiplied, so such a shader gives its colour times its alpha.
+
+On the single channel question. A greyscale texture is made from a pixmap
+in that mode, and it is the mode that lets it be drawn in a colour, so a
+shader that gives a grey, by way of a pixmap, is a single channel image
+today with nothing new. What is not there is the GPU drawing into a texture
+of that mode. For images this small the native code is the right tool, the
+GPU has a shader to build first, 18 seconds on a Raspberry Pi 4.
+
+A test in `tests/system/test_pixmap_shared.lisp`, the alpha full on and the
+alpha `main` gave. And a tile put on a canvas by `:tile` is now the shader's
+own pixels to the bit, since the premultiply fix, the test said to within a
+level.
+
 A build on one node is a fifth quicker, and a build whose workers can not
 answer stops and says so.
 

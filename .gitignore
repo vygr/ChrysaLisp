@@ -4,7 +4,6 @@
 deps/
 /x64/
 /ai/
-cache/
 /usr/*/*.tre
 /lib/files/*.tre
 /tests/scratch/
