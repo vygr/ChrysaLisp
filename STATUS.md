@@ -4,6 +4,17 @@
 
 ------
 
+A real device formatted by ChrysaLisp. The 4GB flash stick, through its raw
+device, `(exfat-format stream size "ChrysaLisp")`, half a second, 32768 byte
+clusters, 124986 of them. macOS's checker passes it and macOS mounts it under
+the name it was given. Then the turn and turn about again. ChrysaLisp put a
+directory and a 5MB file on it, macOS read them the same and added a
+directory, a 5MB file and a reply, ChrysaLisp read those the same, moved
+the reply to its own directory under a new name and wrote once more, and
+the checker passed it after each.
+
+------
+
 The boot image is kept down. Against v7.0 the ARM64 image had grown by 4272
 bytes, 17 new functions, for the shaders on a canvas, the shared pixmap, the
 mail and link work and the checks of a debug build. 544 of that is back.
