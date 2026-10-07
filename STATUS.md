@@ -4,6 +4,19 @@
 
 ------
 
+The meshes are the usual way round where they are made.
+
+`lib/math/mesh.inc`. A face goes round counter clockwise as seen from
+outside, and its normal points out. The sphere, the torus and the iso
+surfaces gave their faces the other way, and so did the teapot file,
+`apps/science/mesh/data/teapot.obj`, its faces are turned round in the file
+and a mesh that is loaded is taken as it comes, as any other OBJ file is.
+Measured, each has a volume greater than 0 as it is wound, and every normal
+goes with its winding.
+
+`lib/math/scene.inc` no longer turns a mesh round as it hands it to the
+shaders.
+
 `:sys_math :r_pow`, a real to a power.
 
 It was a subroutine in every native function a shader was made into, 51

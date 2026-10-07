@@ -13,6 +13,11 @@
 (defmacro Tri (i0 i1 i2 in)
 	`(nums ,i0 ,i1 ,i2 ,in))
 
+;a face goes round counter clockwise as it is seen from outside, and its
+;normal points out, the way it is done everywhere, and what a shader and
+;the triangle pipeline of lib/gpu/ take. Each of the makers below gives its
+;faces so, and a mesh that is loaded is taken to be so.
+
 (defun Normal (p0 p1 p2)
 	(defq n (apply (const reals) (vector-cross-3d
 			(vector-sub p0 p1 +reals_tmp3)
@@ -103,13 +108,13 @@
 				i0 (+ (!) y_eps2) i1 (+ xn y_eps2)
 				i2 (+ i0 eps2) i3 (+ i1 eps2)
 				in (/ (length norms) +vec3_size))
-			(push tris i0 i1 i2 in i2 i1 i3 in)
+			(push tris i0 i2 i1 in i2 i3 i1 in)
 			; Scale indices to byte offsets for normal generation
 			(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
 			(push norms (Normal
 				(slice verts i0 (+ i0 +vec3_size))
-				(slice verts i1 (+ i1 +vec3_size))
-				(slice verts i2 (+ i2 +vec3_size))))))
+				(slice verts i2 (+ i2 +vec3_size))
+				(slice verts i1 (+ i1 +vec3_size))))))
 	; gen norms and tris for end cap fans
 	(defq y (* eps2 (- eps 2)))
 	(for 0 eps2
@@ -117,21 +122,21 @@
 			i0 (+ (!) y) i1 (+ xn y)
 			i2 (dec (/ (length verts) +vec4_size))
 			in (/ (length norms) +vec3_size))
-		(push tris i0 i1 i2 in)
+		(push tris i0 i2 i1 in)
 		(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
 		(push norms (Normal
 			(slice verts i0 (+ i0 +vec3_size))
-			(slice verts i1 (+ i1 +vec3_size))
-			(slice verts i2 (+ i2 +vec3_size))))
+			(slice verts i2 (+ i2 +vec3_size))
+			(slice verts i1 (+ i1 +vec3_size))))
 		(defq i0 xn i1 (!)
 			i2 (- (/ (length verts) +vec4_size) 2)
 			in (/ (length norms) +vec3_size))
-		(push tris i0 i1 i2 in)
+		(push tris i0 i2 i1 in)
 		(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
 		(push norms (Normal
 			(slice verts i0 (+ i0 +vec3_size))
-			(slice verts i1 (+ i1 +vec3_size))
-			(slice verts i2 (+ i2 +vec3_size)))))
+			(slice verts i2 (+ i2 +vec3_size))
+			(slice verts i1 (+ i1 +vec3_size)))))
 	(lower :verts :norms :tris))
 
 (defclass Mesh-torus (radius_ring radius_body eps) (Mesh)
@@ -159,13 +164,13 @@
 				i0 (+ (!) y_eps2) i1 (+ xn y_eps2)
 				i2 (+ (!) yn_eps2) i3 (+ xn yn_eps2)
 				in (/ (length norms) +vec3_size))
-			(push tris i2 i0 i1 in i2 i1 i3 in)
+			(push tris i2 i1 i0 in i2 i3 i1 in)
 			; Scale indices to byte offsets for the normal generation
 			(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
 			(push norms (Normal
 				(slice verts i0 (+ i0 +vec3_size))
-				(slice verts i1 (+ i1 +vec3_size))
-				(slice verts i2 (+ i2 +vec3_size))))))
+				(slice verts i2 (+ i2 +vec3_size))
+				(slice verts i1 (+ i1 +vec3_size))))))
 	(lower :verts :norms :tris))
 
 ;evaluates a single 2D slice of the 3D volume
@@ -207,9 +212,9 @@
 				; Extract cached 3D coordinates and scalar values for the 8 corners
 				(each (lambda ((v0 v1 v2))
 						(defq i (/ (length verts) +vec4_size) in (/ (length norms) +vec3_size))
-						(push tris i (inc i) (+ i 2) in)
+						(push tris i (+ i 2) (inc i) in)
 						(push verts v0 +real_1 v1 +real_1 v2 +real_1)
-						(push norms (Normal v0 v1 v2)))
+						(push norms (Normal v0 v2 v1)))
 					(iso-surface (list
 						(elem-get slice_z1 idx_00)
 						(elem-get slice_z1 idx_10)

@@ -11,11 +11,11 @@
 
 (defun tf-corners (mesh)
 	;a mesh as the shaders want it, a vertex of its own for each corner of
-	;each face, with the normal of the face, turned the usual way round
+	;each face, with the normal of the face
 	(defq verts (. mesh :get_verts) norms (. mesh :get_norms) out (list (reals)))
 	(each (lambda ((i0 i1 i2 in))
-		(defq n (nums-scale (slice norms (* in 3) (* (inc in) 3)) +real_-1))
-		(each (# (push out (slice verts (* %0 4) (* (inc %0) 4)) n)) (list i0 i2 i1)))
+		(defq n (slice norms (* in 3) (* (inc in) 3)))
+		(each (# (push out (slice verts (* %0 4) (* (inc %0) 4)) n)) (list i0 i1 i2)))
 		(partition (. mesh :get_tris) 4))
 	(apply (const cat) out))
 

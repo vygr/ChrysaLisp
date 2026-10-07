@@ -75,17 +75,11 @@
 	;then the normal of that face, 7 numbers. The triangles are then just
 	;the vertices in the order they come. It is the bytes of the numbers,
 	;as they go in a message to a child that draws.
-	;
-	;The meshes of lib/math/mesh.inc have their faces going round clockwise
-	;as seen from outside, with normals that point in. The way it is done
-	;everywhere else, and by the pipeline, is counter clockwise with
-	;normals that point out. So here two corners of each face are swapped
-	;and its normal is turned round.
 	(defq verts (. mesh :get_verts) norms (. mesh :get_norms) out (list (reals)))
 	(each (lambda ((i0 i1 i2 in))
-		(defq n (nums-scale (slice norms (* in +vec3_size) (* (inc in) +vec3_size)) +real_-1))
+		(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
 		(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) n))
-			(list i0 i2 i1))) (partition (. mesh :get_tris) +tri_size))
+			(list i0 i1 i2))) (partition (. mesh :get_tris) +tri_size))
 	(shader-verts-str (apply (const cat) out)))
 
 (defun mesh-ball (mesh)
