@@ -461,11 +461,13 @@ is by a 3 by 3 made of its first three columns. The modules pass
 `spirv-val`.
 
 On a Raspberry Pi 4 the Mesh demo, 900 by 900 as the nodes draw it, is 140
-to 155ms a frame by one task, 62 to 98ms by three children, and 40ms on its
-own GPU, with every vertex sent again each frame.
+to 155ms a frame by one task and 62 to 98ms by three children. On its own
+GPU it is 36ms a frame alone on one node and 40ms with four nodes up, which
+is the 30 a second of the demo's timer, the GPU is busy for a frame in
+several hundred. That is with see through pixels and 4 samples a pixel.
 
 The GLSL back end has no vertex stage. Windows takes the SPIR-V, and has not
-been tried.
+been tried, its host has to be built again first.
 
 ## Using It
 

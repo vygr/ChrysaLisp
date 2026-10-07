@@ -4,6 +4,16 @@
 
 ------
 
+A correction, to two timings given below that were wrong, and were mine. The
+Mesh demo on the GPU of a Raspberry Pi 4 was said to take 138ms a frame, 153ms
+before meshes were kept on the GPU, and 146ms with 4 samples a pixel. The
+copy of the demo that timed it had a line added that made it draw every
+frame a second time, on the CPU. Timed with one that does not, 898 frames in
+32.7 seconds alone on one node, 36ms a frame, and 776 in 30.8 seconds with
+four nodes up, 40ms a frame. That is the 30 a second of the demo's timer,
+and the GPU was busy for 1 frame of 899, and for 3 of 779. With see through
+pixels and 4 samples a pixel both on. The lines below are put right.
+
 A cipher, ChaCha20 with Poly1305, RFC 8439. Data can be sealed and opened.
 
 *	`(aead-seal key nonce aad data)` and `(aead-open key nonce aad sealed)`,
@@ -121,8 +131,8 @@ Triangles on the GPU have smooth edges.
 	texture is the size it always was, the samples are the GPU's own.
 
 *	Seen on an M4 through Metal, the shades between along every edge, and
-	run on the GPU of a Raspberry Pi 4 through Vulkan, 146ms a frame for the
-	Mesh demo alone on one node, where it was 138ms.
+	run on the GPU of a Raspberry Pi 4 through Vulkan, where the Mesh demo
+	still draws a frame for every tick of its timer, 36ms a frame.
 
 `apps/demos/raymarch/lisp.vp` has gone, nothing compiled it or bound to
 it since the demo went over to a shader. It was the only native source file
@@ -178,8 +188,7 @@ A mesh is kept on the GPU, and the host has calls of its own for triangles.
 
 *	The Mesh demo makes each mesh on the GPU the first time it draws it, and
 	lets go of them when it closes. A frame sent the vertices of every mesh
-	before. On a Raspberry Pi 4, the demo alone on one node, 138ms from
-	frame to frame where it was 153ms.
+	before.
 
 *	**The host programs and the boot image must match**, the table has
 	grown. `make` builds the host programs. The Windows programs in the
