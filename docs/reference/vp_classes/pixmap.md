@@ -53,26 +53,6 @@ trashes
 :r0-:r7, :f0-:f15
 ```
 
-### :create_shared -> gui/pixmap/create_shared
-
-```code
-inputs
-:r0 = width (pixels)
-:r1 = height (pixels)
-:r2 = type (int)
-:r3 = key (long), 0 to make the shared memory, else the key to find it by
-outputs
-:r0 = 0 if error, else pixmap object (ptr)
-trashes
-:r0-:r4, :f0-:f15
-info
-a pixmap with its pixels in shared memory. With no key it makes them,
-zero, under a key of its own, +pixmap_key, and lets go of the key when
-it goes. Given that key, a pixmap on another node of this machine
-finds them, if it asks for the same size, and both draw on the same
-pixels.
-```
-
 ### :deinit -> gui/pixmap/deinit
 
 ```code

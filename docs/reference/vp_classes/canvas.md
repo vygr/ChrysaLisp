@@ -226,28 +226,6 @@ trashes
 :r1-:r14, :f0-:f15
 ```
 
-### :shade -> gui/canvas/shade
-
-```code
-inputs
-:r0 = canvas object (ptr)
-:r1 = shader handle (long)
-:r2 = inputs block str object (ptr)
-:r3 = x (pixels)
-:r4 = y (pixels)
-:r5 = x1 (pixels)
-:r6 = y1 (pixels)
-outputs
-:r0 = canvas object (ptr)
-:r1 = 0 if not drawn, the GPU is busy, -1 if the shader did not build
-trashes
-:r1-:r14, :f0-:f15
-info
-the GPU draws the shader into the texture of the canvas, the
-pixmap is not used, and is not changed. The part of the texture
-given is drawn, all of it if x1 is not greater than x.
-```
-
 ### :span -> gui/canvas/span
 
 ```code

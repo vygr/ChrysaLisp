@@ -4,6 +4,27 @@
 
 ------
 
+The boot image is kept down. Against v7.0 the ARM64 image had grown by 4272
+bytes, 17 new functions, for the shaders on a canvas, the shared pixmap, the
+mail and link work and the checks of a debug build. 544 of that is back.
+`:canvas :shade` had the one caller, its Lisp function, and is now part of
+it, and the two host calls its callback made twice over are made once.
+`:pixmap :create_shared` is part of `(pixmap-shared)` and written with
+registers, not the C style compiler. The message of a refused allocation is
+short again. The image is 234268 bytes, v7.0 was 230540.
+
+The listings and objects of a function that is taken out stay under `obj/`
+till they are deleted, and the lint then warns of them.
+
+`includes` now sees the inline functions and macros of a `class.inc`, a .vp
+file that uses `(hmap-search)` needs `class/hmap/class.inc`. `make it` ends
+with `includes` and `imports` run to report. The lint is run on debug
+objects only, `make vp`, `make apps debug`, `files obj/vp/ | trace -i -l`,
+and has no warnings. It leaves out `lib/gpu/jit/`, the shaders that were
+assembled as they ran.
+
+------
+
 A shader can be shaded straight into a pixmap, `(shader-vp-draw native
 frame pixmap x y x1 y1 [height])`, `lib/gpu/vp.inc`. The native function
 writes each pixel where it belongs, with no string in between. The nodes of

@@ -2,6 +2,7 @@
 (include "class/lisp/class.inc")
 (include "class/fixed/class.inc")
 (include "./class.inc")
+(include "././texture/class.inc")
 (include "././pixmap/class.inc")
 (include "././path/class.inc")
 
@@ -164,7 +165,7 @@
 	(fn-bind 'sys/statics/statics :r3)
 	(assign '((:r3 statics_sys_load_host_gui_funcs)) '(:r3)))
 
-(def-method :canvas :lisp_shade)
+(def-method :canvas :lisp_shade 16)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -173,37 +174,99 @@
 	;:r1 = return value object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f15
+	;info
+	;the GPU draws the shader into the texture of the canvas, the
+	;pixmap is not used, and is not changed. The part of the texture
+	;given is drawn, all of it if x1 is not greater than x. The result
+	;is 0 if not drawn, the GPU is busy, -1 if the shader did not build.
+
+	(structure local 0
+		(ptr this block lisp)
+		(long shader x y x1 y1 result))
 
 	(entry :canvas :lisp_shade '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 7)
 
-	(vp-push :r0)
-	(defq in (method-input :canvas :shade))
-	(list-bind-args :r1 in '(:canvas :num :obj :num :num :num :num))
-
-	;is there a host GUI driver on this node ?
-	(fn-bind 'sys/statics/statics :r7)
-	(assign '((:r7 statics_sys_load_host_gui_funcs)) '(:r7))
-	(vp-xor-rr :r8 :r8)
-	(vpif '(:r7 /= 0))
-		(call :canvas :shade in '(:r0 :r8))
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_lisp)))
+	(list-bind-args :r1 '(:r0 :r2 :r4 :r5 :r6 :r7 :r8) '(:canvas :num :obj :num :num :num :num))
+	(vp-xor-rr :r9 :r9)
+	(assign '(:r0 :r2 :r4 :r5 :r6 :r7 :r8 :r9)
+		'((:rsp local_this) (:rsp local_shader) (:rsp local_block) (:rsp local_x)
+		(:rsp local_y) (:rsp local_x1) (:rsp local_y1) (:rsp local_result)))
+	(shader-on-gui-node)
+	(vpif '(:r3 /= 0))
+		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
+	(assign '((:rsp local_this) (:rsp local_result)) '(:r0 :r8))
 	(vpif '(:r8 > 0))
 		(call :obj :ref '(:r0) '(:r1))
 	(elseif '(:r8 < 0))
 		;the shader did not build
 		(call :num :create '(:r8) '(:r1))
 	(else)
-		(assign '((:rsp 0)) '(:r1))
+		(assign '((:rsp local_lisp)) '(:r1))
 		(assign '((:r1 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
-
-	(vp-pop :r0)
+	(assign '((:rsp local_lisp)) '(:r0))
+	(vp-free local_size)
 
 	(exit :canvas :lisp_shade '(:r0 :r1))
 	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data
+
+	(def-vars
+		(ptr user this old_stack pixmap texture block part)
+		(long tex_id)
+		(uint w h)
+		(struct rect host_gui_rect_size))
+
+	(vp-cpy-rr :rsp :r1)
+	(push-scope)
+	(vp-and-cr -16 :rsp)
+	(entry {user, old_stack})
+
+	(assign {user->local_this} {this})
+	(vpifnot {this->+canvas_flags & +canvas_flag_shader})
+		;no texture a shader can draw into, so make one, the size the canvas is shown at
+		(assign {this->+canvas_pixmap, this->+canvas_texture, 0, 0} {pixmap, texture, tex_id, w})
+		(vpif {pixmap})
+			(assign {pixmap->+pixmap_width / this->+canvas_scale,
+				pixmap->+pixmap_height / this->+canvas_scale} {w, h})
+		(elseif {texture})
+			(assign {texture->+texture_width, texture->+texture_height} {w, h})
+		(endif)
+		(vpif {w})
+			(host-gui-call :host_gui :shader_texture {w, h} {tex_id})
+		(endif)
+		(vpif {tex_id})
+			(assign {this->+canvas_texture} {texture})
+			(call :texture :create {tex_id, w, h} {this->+canvas_texture})
+			(call :texture :deref_if {texture})
+			(assign {this->+canvas_flags | +canvas_flag_shader} {this->+canvas_flags})
+		(endif)
+	(endif)
+	(vpif {this->+canvas_flags & +canvas_flag_shader})
+		(assign {user->local_block, this->+canvas_texture} {block, texture})
+		;the part to draw, no rect is all of it
+		(assign {0} {part})
+		(vpif {user->local_x1 > user->local_x})
+			(assign {user->local_x, user->local_y,
+				user->local_x1 - user->local_x, user->local_y1 - user->local_y, &rect}
+				{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h, part})
+		(endif)
+		(host-gui-call :host_gui :shader_draw {user->local_shader, texture->+texture_handle,
+			&block->+str_data, block->+str_length, part} {user->local_result})
+	(endif)
+
+	(assign {old_stack} '(:rsp))
+	(pop-scope-syms)
+	(return)
 
 (errorcase
 (vp-label 'error)

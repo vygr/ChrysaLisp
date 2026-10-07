@@ -5,7 +5,6 @@
 	(dec-method :vtable gui/pixmap/vtable)
 	(dec-method :deinit gui/pixmap/deinit :override)
 	(dec-method :create gui/pixmap/create :static (:r0 :r1 :r2) (:r0))
-	(dec-method :create_shared gui/pixmap/create_shared :static (:r0 :r1 :r2 :r3) (:r0))
 	(dec-method :init gui/pixmap/init :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))
 	(dec-method :upload gui/pixmap/upload :static (:r0 :r1) (:r0))
 	(dec-method :resize gui/pixmap/resize :static (:r0 :r1) (:r0))

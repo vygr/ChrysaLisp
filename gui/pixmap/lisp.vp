@@ -312,16 +312,71 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r14, :f0-:f15
+	;info
+	;a premultiplied 32 bit pixmap with its pixels in shared memory. With
+	;no key it makes them, zero, under a key of its own, +pixmap_key, and
+	;lets go of the key when it goes. Given that key, a pixmap on another
+	;node of this machine finds them, if it asks for the same size, and
+	;both draw on the same pixels.
+
+	(vp-rdef (pixmap width height key len handle owner tries data)
+		'(:r6 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r7))
 
 	(entry :pixmap :lisp_shared '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
-	(list-bind-args :r1 '(:r0 :r1 :r3) '(:num :num :num))
-	(call :pixmap :create_shared '(:r0 :r1 -32 :r3) '(:r1))
+	(list-bind-args :r1 `(,width ,height ,key) '(:num :num :num))
+	(vp-cpy-rr width len)
+	(vp-mul-rr height len)
+	(vp-mul-cr +int_size len)
+	(vp-cpy-cr -1 handle)
+	(vp-xor-rr owner owner)
+	(vp-xor-rr pixmap pixmap)
+	(vpif `(,key /= 0))
+		(call :host_os :pii_shm_open `(,key ,len 0) `(,handle))
+	(else)
+		;a key at random, another if it is taken
+		(vp-cpy-cr 1 owner)
+		(vp-cpy-cr 8 tries)
+		(vp-alloc +long_size)
+		(loop-start)
+			(call :host_os :pii_rand '(:rsp +long_size))
+			(assign '((:rsp 0)) `(,key))
+			(vpif `(,key /= 0))
+				(call :host_os :pii_shm_open `(,key ,len 1) `(,handle))
+			(endif)
+			(breakif `(,handle /= -1))
+			(vp-sub-cr 1 tries)
+		(loop-until `(,tries = 0))
+		(vp-free +long_size)
+	(endif)
+	(vpif `(,handle /= -1))
+		;mapped, it is the address, or it is 0 or -1
+		(call :host_os :pii_mmap `(,len ,handle +mmap_shared) `(,data))
+		(vp-lea-i data 1 :r1)
+		(vpif '(:r1 > 1))
+			(call :sys_mem :alloc '(+pixmap_size) '(:r0 _))
+			(call :obj :init `(:r0 (@ ,(f-path :pixmap :vtable))) `(,pixmap _))
+			(vp-xor-rr :r1 :r1)
+			(vp-cpy-cr -32 :r2)
+			(vp-cpy-rr width :r3)
+			(vp-mul-cr +int_size :r3)
+			(assign `(,width ,height :r2 :r3 :r1 :r1 :r1 :r1 ,data ,key ,handle ,owner)
+				`((,pixmap +pixmap_width) (,pixmap +pixmap_height)
+				(,pixmap +pixmap_type) (,pixmap +pixmap_stride)
+				(,pixmap +pixmap_texture) (,pixmap +pixmap_stream)
+				(,pixmap +pixmap_bufp) (,pixmap +pixmap_stream_type)
+				(,pixmap +pixmap_data) (,pixmap +pixmap_key)
+				(,pixmap +pixmap_handle) (,pixmap +pixmap_owner)))
+		(else)
+			(call :host_os :pii_shm_close `(,key ,handle ,owner))
+		(endif)
+	(endif)
 	(vp-pop :r0)
+	(vp-cpy-rr pixmap :r1)
 	(vpif '(:r1 = 0))
 		(assign '((:r0 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
