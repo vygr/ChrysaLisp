@@ -4,6 +4,33 @@
 
 ------
 
+Triangles, drawn by a vertex shader and a pixel shader, as native code.
+
+`(shader-vp-pipeline vertex pixel)`, `(shader-vp-depth width height)` and
+`(shader-vp-draw-tris pipeline verts tris pixmap depth ...)`, in
+`lib/gpu/vp.inc`. A depth buffer, varyings spread over a triangle with the
+perspective right, triangles that face away left out if asked, and a part
+of the pixmap at a time if asked, so several tasks can draw a frame between
+them on a pixmap they share.
+
+The two shaders are a native function each. The pixel shader's fills
+triangles from vertices that have been placed, whoever placed them, so one
+vertex shader serves many pixel shaders in the code as well as in the
+source, and each is assembled once.
+
+`(shader-cpu-tris)` in `lib/gpu/cpu.inc` is the reference, the same in Lisp
+a pixel at a time. The native code draws what it draws to the bit, crossing
+triangles, culling, parts of the screen, varyings in another order.
+
+A sphere of 6,240 triangles, 800 by 800, coloured by a varying, takes 2.5ms
+on one core of an Apple M4 Max with those that face away left out, and 23ms
+on a Raspberry Pi 4.
+
+A triangle with a vertex behind the eye is left out whole, there is no
+clipping to the near plane. And it is on no GPU yet.
+
+15 more tests, 282 in `tests/gpu/test_shader.lisp`.
+
 The Molecule app places its atoms with a vertex shader.
 
 `apps/science/molecule/place.shader`, used on its own, there is no pixel

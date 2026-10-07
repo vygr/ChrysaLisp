@@ -24,7 +24,7 @@
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
 	;part of the name of the native function, so a change to this file
 	;that changes the code must change this
-	+sv_version 5)
+	+sv_version 6)
 
 (defun sv-emit (&rest form)
 	(push code form))
@@ -671,6 +671,278 @@
 }))
 	(list text frame_size attr_slots (+ 4 vary_slots)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; triangles, filled by a pixel shader
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;the native function of a pixel shader that fills triangles. It is given
+;vertices that have been placed, by any vertex shader, and for each
+;triangle works out the pixels it covers. A pixel that is nearer than what
+;is there already, by the depth buffer, has its varyings worked out from
+;those of the three vertices, and the pixel shader is run for it.
+;
+;All that is kept from pixel to pixel is in the frame, the pixel shader has
+;every register. The numbers the caller sets are slots of the frame too,
+;it is told where they are.
+
+(defun sv-fill-code ()
+	;the code that walks the triangles, to the code list. The slots are
+	;those of the bindings in (sv-fill-source)
+	(defun E (&rest form) (push code form))
+	(defun L (slot reg) (E 'vp-cpy-if :r13 slot reg))
+	(defun S (reg slot) (E 'vp-cpy-fi reg :r13 slot))
+	(defun LI (slot reg) (E 'vp-cpy-ir :r13 slot reg))
+	(defun SI (reg slot) (E 'vp-cpy-ri reg :r13 slot))
+	(defun K (val reg) (E 'vp-cpy-if :r12 (list 'fn-const (logior (n2r val))) reg))
+	(defun Q (label) (list 'quote label))
+	(E 'vp-call (Q 'sh_init))
+	(E 'vp-label (Q 'sr_tri))
+	;the next triangle, its three vertices
+	(LI s_ntris :r2)
+	(E 'vp-ble-cr 0 :r2 (Q 'sr_done))
+	(E 'vp-sub-cr 1 :r2)
+	(SI :r2 s_ntris)
+	(LI s_tris :r2)
+	(E 'vp-cpy-ir :r2 0 :r3) (E 'vp-cpy-ir :r2 8 :r4) (E 'vp-cpy-ir :r2 16 :r5)
+	(LI s_tstride :r6)
+	(E 'vp-add-rr :r6 :r2)
+	(SI :r2 s_tris)
+	(LI s_stride :r6) (LI s_placed :r7)
+	(each (lambda (r slot)
+		(E 'vp-mul-rr :r6 r) (E 'vp-add-rr :r7 r) (SI r slot))
+		'(:r3 :r4 :r5) (list s_p0 s_p1 s_p2))
+	;where each is on the screen, row 0 at the top, its depth, and 1 / w.
+	;A vertex that is not in front of the eye, and the triangle is left out
+	(LI s_vw :r8) (E 'vp-cvt-rf :r8 :f12)
+	(LI s_vh :r8) (E 'vp-cvt-rf :r8 :f13)
+	(K 1 :f14) (K 0.5 :f15)
+	(E 'vp-cpy-if :r12 (list 'fn-const (logior (str-to-real "0.000001"))) :f11)
+	(each (lambda (r sx sy iw z)
+		(E 'vp-cpy-if r 24 :f6)
+		(E 'vp-ble-ff :f11 :f6 (Q 'sr_tri))
+		(E 'vp-cpy-ff :f14 :f7) (E 'vp-div-ff :f6 :f7) (S :f7 iw)
+		(E 'vp-cpy-if r 0 sx) (E 'vp-mul-ff :f7 sx) (E 'vp-add-ff :f14 sx)
+		(E 'vp-mul-ff :f15 sx) (E 'vp-mul-ff :f12 sx)
+		(E 'vp-cpy-if r 8 :f8) (E 'vp-mul-ff :f7 :f8)
+		(E 'vp-cpy-ff :f14 sy) (E 'vp-sub-ff :f8 sy)
+		(E 'vp-mul-ff :f15 sy) (E 'vp-mul-ff :f13 sy)
+		(E 'vp-cpy-if r 16 :f8) (E 'vp-mul-ff :f7 :f8) (S :f8 z))
+		'(:r3 :r4 :r5) '(:f0 :f2 :f4) '(:f1 :f3 :f5)
+		(list f_iw0 f_iw1 f_iw2) (list f_z0 f_z1 f_z2))
+	;twice its area, with a sign that says which way it faces. One of no
+	;area is left out, and one that faces away if they are to be
+	(E 'vp-cpy-ff :f2 :f6) (E 'vp-sub-ff :f0 :f6)
+	(E 'vp-cpy-ff :f5 :f7) (E 'vp-sub-ff :f1 :f7) (E 'vp-mul-ff :f7 :f6)
+	(E 'vp-cpy-ff :f3 :f7) (E 'vp-sub-ff :f1 :f7)
+	(E 'vp-cpy-ff :f4 :f8) (E 'vp-sub-ff :f0 :f8) (E 'vp-mul-ff :f8 :f7)
+	(E 'vp-sub-ff :f7 :f6)
+	(K 0 :f9)
+	(E 'vp-beq-ff :f9 :f6 (Q 'sr_tri))
+	(LI s_cull :r8)
+	(E 'vp-beq-cr 0 :r8 (Q 'sr_faces))
+	(E 'vp-bgt-ff :f9 :f6 (Q 'sr_tri))
+	(E 'vp-label (Q 'sr_faces))
+	(E 'vp-cpy-ff :f14 :f10) (E 'vp-div-ff :f6 :f10)
+	;the pixels it may cover, kept to the part of the screen asked for
+	(E 'vp-cpy-ff :f0 :f6) (E 'vp-min-ff :f2 :f6) (E 'vp-min-ff :f4 :f6)
+	(E 'vp-cpy-ff :f0 :f7) (E 'vp-max-ff :f2 :f7) (E 'vp-max-ff :f4 :f7)
+	(E 'vp-cpy-ff :f1 :f8) (E 'vp-min-ff :f3 :f8) (E 'vp-min-ff :f5 :f8)
+	(E 'vp-cpy-ff :f1 :f9) (E 'vp-max-ff :f3 :f9) (E 'vp-max-ff :f5 :f9)
+	(each (lambda (lo hi c0 c1 smin smax)
+		(LI c0 :r8) (E 'vp-cvt-rf :r8 :f11) (E 'vp-max-ff :f11 lo)
+		(LI c1 :r10) (E 'vp-cvt-rf :r10 :f11) (E 'vp-min-ff :f11 hi)
+		(E 'vp-blt-ff lo hi (Q 'sr_tri))
+		(E 'vp-cvt-fr lo :r8) (SI :r8 smin)
+		(E 'vp-cvt-fr hi :r9) (E 'vp-add-cr 1 :r9) (E 'vp-min-rr :r10 :r9) (SI :r9 smax))
+		'(:f6 :f8) '(:f7 :f9) (list s_cx0 s_cy0) (list s_cx1 s_cy1)
+		(list s_minx s_y) (list s_maxx s_maxy))
+	;the centre of the first pixel
+	(LI s_minx :r8) (E 'vp-cvt-rf :r8 :f6) (E 'vp-add-ff :f15 :f6)
+	(LI s_y :r8) (E 'vp-cvt-rf :r8 :f8) (E 'vp-add-ff :f15 :f8)
+	;for each edge, the share of the triangle a point has from the vertex
+	;across from it, there, and what it changes by for a pixel along and
+	;a pixel down. The three shares of a point add up to 1, and one that is
+	;less than 0 says the point is outside
+	(each (lambda (ax ay bx by row kx ky)
+		(E 'vp-cpy-ff bx :f11) (E 'vp-sub-ff ax :f11)
+		(E 'vp-cpy-ff by :f7) (E 'vp-sub-ff ay :f7)
+		(E 'vp-cpy-ff :f8 :f12) (E 'vp-sub-ff ay :f12) (E 'vp-mul-ff :f11 :f12)
+		(E 'vp-cpy-ff :f6 :f13) (E 'vp-sub-ff ax :f13) (E 'vp-mul-ff :f7 :f13)
+		(E 'vp-sub-ff :f13 :f12) (E 'vp-mul-ff :f10 :f12) (S :f12 row)
+		(E 'vp-mul-ff :f10 :f7) (E 'vp-neg-ff :f7 :f7) (S :f7 kx)
+		(E 'vp-mul-ff :f10 :f11) (S :f11 ky))
+		'(:f2 :f4 :f0) '(:f3 :f5 :f1) '(:f4 :f0 :f2) '(:f5 :f1 :f3)
+		(list f_row0 f_row1 f_row2) (list f_kx0 f_kx1 f_kx2) (list f_ky0 f_ky1 f_ky2))
+	;a row
+	(E 'vp-label (Q 'sr_row))
+	(LI s_y :r2) (LI s_maxy :r3)
+	(E 'vp-bge-rr :r3 :r2 (Q 'sr_tri))
+	(each (lambda (row e) (L row :f0) (S :f0 e))
+		(list f_row0 f_row1 f_row2) (list f_e0 f_e1 f_e2))
+	(LI s_minx :r2) (SI :r2 s_x)
+	;a pixel
+	(E 'vp-label (Q 'sr_px))
+	(LI s_x :r2) (LI s_maxx :r3)
+	(E 'vp-bge-rr :r3 :r2 (Q 'sr_rowend))
+	(L f_e0 :f0) (L f_e1 :f1) (L f_e2 :f2)
+	(K 0 :f3)
+	(E 'vp-blt-ff :f3 :f0 (Q 'sr_next))
+	(E 'vp-blt-ff :f3 :f1 (Q 'sr_next))
+	(E 'vp-blt-ff :f3 :f2 (Q 'sr_next))
+	;its depth, -1 to 1 is in view, as a number of 32 bits. It is drawn
+	;if that is less than what the depth buffer has
+	(L f_z0 :f4) (E 'vp-mul-ff :f0 :f4)
+	(L f_z1 :f5) (E 'vp-mul-ff :f1 :f5) (E 'vp-add-ff :f5 :f4)
+	(L f_z2 :f5) (E 'vp-mul-ff :f2 :f5) (E 'vp-add-ff :f5 :f4)
+	(K -1 :f5) (E 'vp-blt-ff :f5 :f4 (Q 'sr_next))
+	(K 1 :f5) (E 'vp-bgt-ff :f5 :f4 (Q 'sr_next))
+	(E 'vp-add-ff :f5 :f4)
+	(K 2147483647 :f6) (E 'vp-mul-ff :f6 :f4)
+	(E 'vp-cvt-fr :f4 :r4)
+	(LI s_y :r5) (LI s_vw :r6)
+	(E 'vp-mul-rr :r6 :r5) (E 'vp-add-rr :r2 :r5) (E 'vp-shl-cr 2 :r5)
+	(LI s_depth :r6) (E 'vp-add-rr :r6 :r5)
+	(E 'vp-cpy-ir-ui :r5 0 :r6)
+	(E 'vp-bge-rr :r6 :r4 (Q 'sr_next))
+	(SI :r4 s_zi) (SI :r5 s_dptr)
+	;the shares, each over the w of its vertex, and made to add up to 1
+	;again, are how much of each vertex a varying has here, with the
+	;perspective right
+	(L f_iw0 :f4) (E 'vp-mul-ff :f4 :f0)
+	(L f_iw1 :f4) (E 'vp-mul-ff :f4 :f1)
+	(L f_iw2 :f4) (E 'vp-mul-ff :f4 :f2)
+	(E 'vp-cpy-ff :f0 :f4) (E 'vp-add-ff :f1 :f4) (E 'vp-add-ff :f2 :f4)
+	(K 1 :f5) (E 'vp-div-ff :f4 :f5)
+	(E 'vp-mul-ff :f5 :f0) (E 'vp-mul-ff :f5 :f1) (E 'vp-mul-ff :f5 :f2)
+	(LI s_p0 :r3) (LI s_p1 :r4) (LI s_p2 :r5)
+	(each (lambda (i)
+		(LI (+ s_vary (* i 8)) :r6)
+		(E 'vp-cpy-rr :r3 :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-cpy-if :r7 0 :f4) (E 'vp-mul-ff :f0 :f4)
+		(E 'vp-cpy-rr :r4 :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-cpy-if :r7 0 :f5) (E 'vp-mul-ff :f1 :f5)
+		(E 'vp-add-ff :f5 :f4)
+		(E 'vp-cpy-rr :r5 :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-cpy-if :r7 0 :f5) (E 'vp-mul-ff :f2 :f5)
+		(E 'vp-add-ff :f5 :f4)
+		(S :f4 (+ vary_at (* i 8)))) (range 0 vary_slots))
+	;the frag coord, the centre of the pixel, y up
+	(K 0.5 :f5)
+	(E 'vp-cvt-rf :r2 :f4) (E 'vp-add-ff :f5 :f4) (S :f4 frag)
+	(LI s_y :r6) (LI s_vh :r7)
+	(E 'vp-sub-rr :r6 :r7) (E 'vp-sub-cr 1 :r7)
+	(E 'vp-cvt-rf :r7 :f4) (E 'vp-add-ff :f5 :f4) (S :f4 (+ frag 8))
+	(E 'vp-call (Q 'sf_main))
+	;the pixel, alpha full on, and its depth
+	(K 0 :f1) (K 1 :f2) (K 255 :f3)
+	(E 'vp-cpy-cr 0xff :r4)
+	(each (lambda (offset)
+		(L offset :f0)
+		(E 'vp-max-ff :f1 :f0) (E 'vp-min-ff :f2 :f0) (E 'vp-mul-ff :f3 :f0)
+		(E 'vp-cvt-fr :f0 :r5)
+		(E 'vp-shl-cr 8 :r4) (E 'vp-add-rr :r5 :r4)) (list ret (+ ret 8) (+ ret 16)))
+	(LI s_y :r5) (LI s_pstride :r6) (E 'vp-mul-rr :r6 :r5)
+	(LI s_x :r2) (E 'vp-cpy-rr :r2 :r6) (E 'vp-shl-cr 2 :r6) (E 'vp-add-rr :r6 :r5)
+	(LI s_pix :r6) (E 'vp-add-rr :r6 :r5)
+	(E 'vp-cpy-ri-i :r4 :r5 0)
+	(LI s_zi :r4) (LI s_dptr :r5)
+	(E 'vp-cpy-ri-i :r4 :r5 0)
+	;the next pixel
+	(E 'vp-label (Q 'sr_next))
+	(each (lambda (e kx) (L e :f0) (L kx :f1) (E 'vp-add-ff :f1 :f0) (S :f0 e))
+		(list f_e0 f_e1 f_e2) (list f_kx0 f_kx1 f_kx2))
+	(LI s_x :r2) (E 'vp-add-cr 1 :r2) (SI :r2 s_x)
+	(E 'vp-jmp (Q 'sr_px))
+	;the next row
+	(E 'vp-label (Q 'sr_rowend))
+	(each (lambda (row ky) (L row :f0) (L ky :f1) (E 'vp-add-ff :f1 :f0) (S :f0 row))
+		(list f_row0 f_row1 f_row2) (list f_ky0 f_ky1 f_ky2))
+	(LI s_y :r2) (E 'vp-add-cr 1 :r2) (SI :r2 s_y)
+	(E 'vp-jmp (Q 'sr_row))
+	(E 'vp-label (Q 'sr_done)))
+
+(defun sv-fill-source (program name)
+	; -> (text frame_size params vary_slots)
+	;the VP source of the native function that fills triangles with a
+	;pixel shader. params is where in the frame the caller's numbers go,
+	;(ntris stride tstride vw vh cx0 cy0 cx1 cy1 cull vary), vary is the
+	;first of a slot for each number of the varyings, where in a placed
+	;vertex that number is, in bytes
+	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
+		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
+		ret_offset 0 ret_label :nil)
+	;the frame starts with the inputs, then the varyings of the pixel
+	;being shaded, then what the walk of the triangles keeps
+	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) (first program))
+	(defq vary_at frame_size)
+	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-varyings program))
+	(defq vary_slots (/ (- frame_size vary_at) 8))
+	(bind '(s_ntris s_stride s_tstride s_vw s_vh s_cx0 s_cy0 s_cx1 s_cy1 s_cull
+			s_placed s_tris s_pix s_pstride s_depth s_p0 s_p1 s_p2
+			s_minx s_maxx s_y s_maxy s_x s_zi s_dptr
+			f_iw0 f_iw1 f_iw2 f_z0 f_z1 f_z2 f_row0 f_row1 f_row2 f_e0 f_e1 f_e2
+			f_kx0 f_kx1 f_kx2 f_ky0 f_ky1 f_ky2)
+		(map (lambda (_) (sv-slots :int)) (range 0 43)))
+	(defq s_vary frame_size)
+	(times vary_slots (sv-slots :int))
+	(bind '((frag) ret) (sv-program program "s"))
+	(defq funcs_text (sv-code-text))
+	(setq code (list))
+	(sv-fill-code)
+	(defq lf (ascii-char 10) text (cat
+{(include "lib/asm/func.inc")
+(include "sys/math/class.inc")
+(include "class/num/class.inc")
+(include "class/str/class.inc")
+(include "class/array/class.inc")
+(include "class/lisp/class.inc")
+
+(def-func "} name {")
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;(fill frame placed tris pixmap depth) -> :nil
+
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 5)
+
+	(vp-push :r0)
+	(list-bind-args :r1 '(:r13 :r6 :r7 :r8 :r9) '(:str :obj :obj :obj :str))
+	(vp-lea-p 'fn_consts :r12)
+	(vp-cpy-ir :r6 +array_begin :r6)
+	(vp-cpy-ir :r7 +array_begin :r7)
+	(vp-cpy-ir-ui :r8 } (str +pixmap_stride) { :r10)
+	(vp-cpy-ir :r8 } (str +pixmap_data) { :r8)
+	(vp-cpy-ri :r6 :r13 } (str s_placed) {)
+	(vp-cpy-ri :r7 :r13 } (str s_tris) {)
+	(vp-cpy-ri :r8 :r13 } (str s_pix) {)
+	(vp-cpy-ri :r10 :r13 } (str s_pstride) {)
+	(vp-cpy-ri :r9 :r13 } (str s_depth) {)
+} (sv-code-text) {
+	(vp-pop :r0)
+	(assign '((:r0 +lisp_sym_nil)) '(:r1))
+	(class/obj/ref :r1 :r2)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+} +sv_pow_text funcs_text {
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(fill frame placed tris pixmap depth)" +error_msg_wrong_types))
+	(signature '(:str :obj :obj :obj :str)))
+
+(def-func-end)
+}))
+	(list text frame_size
+		(list s_ntris s_stride s_tstride s_vw s_vh s_cx0 s_cy0 s_cx1 s_cy1 s_cull s_vary)
+		vary_slots))
+
 (defun sv-source (program name)
 	; -> (text frame_size)
 	;the VP source of the native function for a program
@@ -878,6 +1150,69 @@
 	(defq name (sv-name "v" program))
 	(bind '(text frame_size attr_slots out_slots) (sv-vertex-source program name))
 	(list (sv-native name text) frame_size attr_slots out_slots))
+
+(defun shader-vp-fill (program)
+	; (shader-vp-fill program) -> (fill frame_size params vary_slots)
+	;the native function for a pixel shader that fills triangles with it
+	(unless (eql (shader-stage program) :pixel) (sh-err "not a pixel shader" 'main))
+	(defq name (sv-name "t" program))
+	(bind '(text frame_size params vary_slots) (sv-fill-source program name))
+	(list (sv-native name text) frame_size params vary_slots))
+
+(defun shader-vp-pipeline (vertex pixel)
+	; (shader-vp-pipeline vertex pixel) -> pipeline
+	;a vertex shader and a pixel shader as native code, to draw triangles
+	;with. Each is a function of its own, so a vertex shader is assembled
+	;once however many pixel shaders it is used with, and a pixel shader
+	;once however many vertex shaders. What ties the two is where in a
+	;placed vertex each varying of the pixel shader is.
+	(shader-pair vertex pixel)
+	(defq place (shader-vp-vertex vertex) fill (shader-vp-fill pixel)
+		at 32 where (map (lambda ((name type))
+			(defq o at) (setq at (+ at (* (shader-size type) 8))) (list name o))
+			(shader-varyings vertex)))
+	(list vertex pixel place fill
+		(apply (const cat) (cat (list (list)) (map (lambda ((name type))
+			(defq o (second (some (# (if (eql (first %0) name) %0)) where)))
+			(map (# (+ o (* %0 8))) (range 0 (shader-size type))))
+			(shader-varyings pixel))))))
+
+(defun shader-vp-depth (width height)
+	; (shader-vp-depth width height) -> depth
+	;a depth buffer for a pixmap of this size, with nothing in it, all of
+	;it as far away as can be. A new one is made for each frame, it is
+	;quicker than it sounds, the bytes are copied and not set one by one
+	(defq n (* width height 4) depth (const (char -1 8)))
+	(while (< (length depth) n) (setq depth (cat depth depth)))
+	(slice depth 0 n))
+
+(defun shader-vp-draw-tris (pipeline verts tris pixmap depth &optional vvals pvals cull tri_size x y x1 y1)
+	; (shader-vp-draw-tris pipeline verts tris pixmap depth [vvals pvals cull tri_size x y x1 y1]) -> pixmap
+	;draw triangles on a 32 bit pixmap. verts is a reals, the attrs of a
+	;vertex one after another, vertex after vertex. tris is a nums, three
+	;numbers of vertices for each triangle, the first three of every
+	;tri_size, 3 if not given. vvals and pvals are the inputs of the two
+	;shaders. Where a vertex shader puts a vertex, x and y of -1 to 1 are
+	;the edges of the pixmap, y up, and z of -1 to 1 is in view, nearest
+	;first. With cull a triangle whose vertices go round clockwise as seen
+	;is left out, it faces away. Only the pixels of x y x1 y1 are drawn,
+	;all of the pixmap if they are not given, so that a frame can be drawn
+	;a part at a time, or by several tasks. A pixel is full on. A triangle
+	;with a vertex that is not in front of the eye is left out whole.
+	(bind '(vertex pixel place fill offsets) pipeline)
+	(defq width (getf pixmap +pixmap_width 0) height (getf pixmap +pixmap_height 0))
+	(setd tri_size 3 x 0 y 0 x1 width y1 height)
+	(defq placed (shader-vp-place place (shader-vp-frame vertex place vvals) verts)
+		frame (shader-vp-frame pixel fill pvals))
+	(bind '(s_ntris s_stride s_tstride s_vw s_vh s_cx0 s_cy0 s_cx1 s_cy1 s_cull s_vary) (third fill))
+	(each (# (set-long frame %0 %1))
+		(list s_ntris s_stride s_tstride s_vw s_vh s_cx0 s_cy0 s_cx1 s_cy1 s_cull)
+		(list (/ (length tris) tri_size) (* (elem-get place 3) 8) (* tri_size 8) width height
+			(max x 0) (max y 0) (min x1 width) (min y1 height) (if cull 1 0)))
+	(each (# (set-long frame (+ s_vary (* (!) 8)) %0)) offsets)
+	(if (and (nempty? tris) (nempty? placed))
+		((first fill) frame placed tris pixmap depth))
+	pixmap)
 
 (defun sv-reals (n)
 	;a reals of n numbers, all 0

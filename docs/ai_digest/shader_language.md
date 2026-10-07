@@ -267,9 +267,55 @@ one job, takes 152us.
 A function can not take a matrix or give one, a matrix is an input, a
 global or a local.
 
-The GLSL, MSL and SPIR-V back ends have no vertex stage yet, and the VP back
-end has no pixel shader with varyings yet. They say so. Nothing draws a
-triangle with a shader yet.
+### Triangles
+
+A vertex shader and a pixel shader together draw triangles, as native code,
+on a pixmap, with a depth buffer.
+
+```lisp
+(defq pipeline (shader-vp-pipeline vertex pixel)
+	depth (shader-vp-depth width height))
+(shader-vp-draw-tris pipeline verts tris pixmap depth vvals pvals :t)
+```
+
+`(shader-vp-pipeline vertex pixel)` checks the two go together and gives the
+pipeline. `(shader-vp-depth width height)` is a depth buffer with nothing in
+it, a new one for each frame. `(shader-vp-draw-tris pipeline verts tris
+pixmap depth [vvals pvals cull tri_size x y x1 y1])` draws.
+
+* `verts` is a `reals`, the attrs of a vertex one after another. `tris` is a
+  `nums`, three numbers of vertices for each triangle, the first three of
+  every `tri_size`, a mesh of `lib/math/mesh.inc` has 4.
+* Where the vertex shader puts a vertex, x and y of -1 to 1 are the edges of
+  the pixmap, y up, as the frag coord has it, and z of -1 to 1 is in view,
+  the nearest seen. That is where `(Mat4x4-frustum)` puts things.
+* A varying is spread over a triangle with the perspective right.
+* With `cull`, a triangle whose vertices go round clockwise, as seen, faces
+  away and is left out.
+* `x y x1 y1` is the part of the pixmap to draw, all of it if not given. So
+  a frame can be drawn a part at a time, or by several tasks on a pixmap they
+  share, each its own part, with a depth buffer each.
+* A pixel is full on. A triangle with a vertex that is not in front of the
+  eye is left out whole, there is no clipping to the near plane.
+* Calls add up, the depth buffer is what is nearest so far, in any order.
+
+The two shaders are a native function each, not one for the pair. The vertex
+function places the vertices, and the pixel shader's function fills
+triangles from placed vertices, whoever placed them. So a vertex shader is
+assembled once however many pixel shaders it is used with. What ties a pair
+is a short list, where in a placed vertex each varying of the pixel shader
+is.
+
+`(shader-cpu-tris vertex pixel verts tris width height ...)` is the
+reference, the same in Lisp, a pixel at a time, and gives the pixels as a
+string. The native code draws what it draws, to the bit.
+
+A sphere of 6,240 triangles, 800 by 800, a colour for each pixel from a
+varying, takes 2.5ms on one core of an Apple M4 Max with those facing away
+left out, 4.4ms with them. On a Raspberry Pi 4, 23ms and 35ms.
+
+The GLSL, MSL and SPIR-V back ends have no vertex stage yet, so the GPU does
+not draw triangles yet. They say so.
 
 ## Using It
 

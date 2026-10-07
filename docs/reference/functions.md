@@ -2558,6 +2558,18 @@ the input args for the lambda, defaults for those not given, then a
 value for each varying of a pixel shader, 0 for those not given
 ```
 
+### shader-cpu-tris
+
+```code
+(shader-cpu-tris vertex pixel verts tris width height [vvals pvals cull tri_size x y x1 y1]) -> str
+
+triangles drawn with a vertex shader and a pixel shader, in Lisp, a
+pixel at a time. It is slow, and is what the native code is checked
+by. The args are those of (shader-vp-draw-tris), with the size of the
+frame in place of a pixmap. The result is the pixels, row by row, the
+top row first, each a 32 bit argb, 0 where nothing was drawn.
+```
+
 ### shader-cpu-vertex
 
 ```code
@@ -2740,6 +2752,16 @@ the pixels of a tile, row by row, each a 32 bit argb. If the height
 of the frame is given then row 0 is the top row, as a canvas has it.
 ```
 
+### shader-vp-depth
+
+```code
+(shader-vp-depth width height) -> depth
+
+a depth buffer for a pixmap of this size, with nothing in it, all of
+it as far away as can be. A new one is made for each frame, it is
+quicker than it sounds, the bytes are copied and not set one by one
+```
+
 ### shader-vp-draw
 
 ```code
@@ -2754,12 +2776,50 @@ seen through. A pixmap is premultiplied, so such a shader gives its
 color times its alpha.
 ```
 
+### shader-vp-draw-tris
+
+```code
+(shader-vp-draw-tris pipeline verts tris pixmap depth [vvals pvals cull tri_size x y x1 y1]) -> pixmap
+
+draw triangles on a 32 bit pixmap. verts is a reals, the attrs of a
+vertex one after another, vertex after vertex. tris is a nums, three
+numbers of vertices for each triangle, the first three of every
+tri_size, 3 if not given. vvals and pvals are the inputs of the two
+shaders. Where a vertex shader puts a vertex, x and y of -1 to 1 are
+the edges of the pixmap, y up, and z of -1 to 1 is in view, nearest
+first. With cull a triangle whose vertices go round clockwise as seen
+is left out, it faces away. Only the pixels of x y x1 y1 are drawn,
+all of the pixmap if they are not given, so that a frame can be drawn
+a part at a time, or by several tasks. A pixel is full on. A triangle
+with a vertex that is not in front of the eye is left out whole.
+```
+
+### shader-vp-fill
+
+```code
+(shader-vp-fill program) -> (fill frame_size params vary_slots)
+
+the native function for a pixel shader that fills triangles with it
+```
+
 ### shader-vp-frame
 
 ```code
 (shader-vp-frame program native [((name val) ...)]) -> frame
 
 the frame the native function works in, with the inputs set
+```
+
+### shader-vp-pipeline
+
+```code
+(shader-vp-pipeline vertex pixel) -> pipeline
+
+a vertex shader and a pixel shader as native code, to draw triangles
+with. Each is a function of its own, so a vertex shader is assembled
+once however many pixel shaders it is used with, and a pixel shader
+once however many vertex shaders. What ties the two is where in a
+placed vertex each varying of the pixel shader is.
 ```
 
 ### shader-vp-pixels
@@ -2940,13 +3000,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args
@@ -3053,6 +3113,26 @@ a new variable, set to the value of an expression
 
 ```code
 code for an expression, the registers that hold the value
+```
+
+### sv-fill-code
+
+```code
+the code that walks the triangles, to the code list. The slots are
+
+those of the bindings in (sv-fill-source)
+```
+
+### sv-fill-source
+
+```code
+-> (text frame_size params vary_slots)
+
+the VP source of the native function that fills triangles with a
+pixel shader. params is where in the frame the caller's numbers go,
+(ntris stride tstride vw vh cx0 cy0 cx1 cy1 cull vary), vary is the
+first of a slot for each number of the varyings, where in a placed
+vertex that number is, in bytes
 ```
 
 ### sv-floor

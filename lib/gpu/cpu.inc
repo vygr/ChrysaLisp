@@ -343,11 +343,85 @@
 	(map (lambda ((name type &optional val lo hi))
 		(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
 			(setq val (second v)))
+		;a varying has no default, it is 0
+		(unless val (setq val 0))
 		(cond
-			((eql type :int) (n2i (ifn val 0)))
-			((eql type :float) (shader-real (ifn val 0)))
+			((eql type :int) (n2i val))
+			((eql type :float) (shader-real val))
 			((reals? val) val)
 			((apply (const reals) (map (const shader-real)
 				(if (seq? val) val (map (lambda (_) 0) (range 0 (shader-size type)))))))))
 		(cat (first program)
 			(if (eql (shader-stage program) :pixel) (shader-varyings program) (list)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; triangles, the reference
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun shader-cpu-tris (vertex pixel verts tris width height &optional vvals pvals cull tri_size x y x1 y1)
+	; (shader-cpu-tris vertex pixel verts tris width height [vvals pvals cull tri_size x y x1 y1]) -> str
+	;triangles drawn with a vertex shader and a pixel shader, in Lisp, a
+	;pixel at a time. It is slow, and is what the native code is checked
+	;by. The args are those of (shader-vp-draw-tris), with the size of the
+	;frame in place of a pixmap. The result is the pixels, row by row, the
+	;top row first, each a 32 bit argb, 0 where nothing was drawn.
+	(shader-pair vertex pixel)
+	(setd tri_size 3 x 0 y 0 x1 width y1 height)
+	(defq sizes (map (# (shader-size (second %0))) (shader-attrs vertex))
+		stride (reduce (const +) sizes 0) at 0
+		;each vertex as a list of its attrs
+		vlist (map (lambda (v)
+			(setq at (* v stride))
+			(map (lambda (n) (defq a (slice verts at (+ at n)))
+				(setq at (+ at n)) (if (= n 1) (first a) a)) sizes))
+			(range 0 (/ (length verts) (max stride 1))))
+		placed (apply (eval (shader-cpu-vertex vertex)) (cat (list vlist) (shader-cpu-args vertex vvals)))
+		shade (eval (shader-cpu pixel)) inputs (slice (shader-cpu-args pixel pvals) 0 (length (first pixel)))
+		;where in what a vertex was placed as each varying of the pixel shader is
+		picks (map (lambda ((name type))
+			(inc (some (# (if (eql (first %0) name) (!))) (shader-varyings vertex))))
+			(shader-varyings pixel))
+		out (str-alloc (* width height 4)) depth (map (lambda (_) +cpu_2) (range 0 (* width height)))
+		fw (n2r width) fh (n2r height))
+	(each (# (set-long out %0 0)) (range 0 (length out) 8))
+	(each (lambda ((i0 i1 i2 &rest _))
+		(defq vs (list (elem-get placed i0) (elem-get placed i1) (elem-get placed i2))
+			ws (map (# (elem-get (first %0) 3)) vs))
+		(when (every (# (> %0 (const (str-to-real "0.000001")))) ws)
+			(defq iw (map (const recip) ws)
+				sx (map (# (* (+ (* (first (first %0)) %1) +cpu_1) +cpu_1/2 fw)) vs iw)
+				sy (map (# (* (- +cpu_1 (* (second (first %0)) %1)) +cpu_1/2 fh)) vs iw)
+				zs (map (# (* (third (first %0)) %1)) vs iw))
+			(bind '(x0 x1s x2) sx) (bind '(y0 y1s y2) sy)
+			(defq area (- (* (- x1s x0) (- y2 y0)) (* (- y1s y0) (- x2 x0))))
+			(unless (or (= area +cpu_0) (and cull (> area +cpu_0)))
+				(defq ia (recip area))
+				(each (lambda (py)
+					(each (lambda (px)
+						(defq cx (+ (n2r px) +cpu_1/2) cy (+ (n2r py) +cpu_1/2)
+							b0 (* (- (* (- x2 x1s) (- cy y1s)) (* (- y2 y1s) (- cx x1s))) ia)
+							b1 (* (- (* (- x0 x2) (- cy y2)) (* (- y0 y2) (- cx x2))) ia)
+							b2 (* (- (* (- x1s x0) (- cy y0)) (* (- y1s y0) (- cx x0))) ia))
+						(when (and (>= b0 +cpu_0) (>= b1 +cpu_0) (>= b2 +cpu_0))
+							(defq z (+ (* b0 (first zs)) (* b1 (second zs)) (* b2 (third zs)))
+								di (+ (* py width) px))
+							(when (and (>= z +cpu_-1) (<= z +cpu_1) (< z (elem-get depth di)))
+								(defq q0 (* b0 (first iw)) q1 (* b1 (second iw)) q2 (* b2 (third iw))
+									r (recip (+ q0 q1 q2)) q0 (* q0 r) q1 (* q1 r) q2 (* q2 r)
+									vary (map (lambda (pick)
+										(defq a (elem-get (first vs) pick) b (elem-get (second vs) pick)
+											c (elem-get (third vs) pick))
+										(if (real? a)
+											(+ (* a q0) (* b q1) (* c q2))
+											(nums-add (nums-add (nums-scale a q0) (nums-scale b q1))
+												(nums-scale c q2)))) picks)
+									col (first (apply shade (cat (list px (- height 1 py) (inc px) (- height py))
+										inputs vary))))
+								(elem-set depth di z)
+								(set-int out (* di 4) (reduce (# (+ (<< %0 8)
+									(n2i (* (min (max %1 +cpu_0) +cpu_1) (const (n2r 255))))))
+									(slice col 0 3) 0xff)))))
+						(range (max x 0) (min x1 width))))
+					(range (max y 0) (min y1 height))))))
+		(partition tris tri_size))
+	out)

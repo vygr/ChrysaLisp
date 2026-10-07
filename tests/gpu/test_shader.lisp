@@ -772,9 +772,99 @@
 (assert-error "a function can not give a matrix"
 	(sh-src "(definput m :mat4)" "(defun f :mat4 () m)" "(defun main :vec4 () (vec4 0.0))"))
 
+(report-header "GPU: shader language, triangles drawn by a pair of shaders")
+
+(import "gui/canvas/lisp.inc")
+
+;triangles drawn as native code are, to the bit, what the reference
+;draws, a pixel at a time in Lisp. The vertex shader has more varyings
+;than the pixel shader reads, and in another order. The matrix gives a w
+;that changes with depth, so a varying has perspective to get right
+(defq tvert (sh-src "(definput m :mat4)" "(defattr p :vec4)" "(defattr c :vec3)" "(defattr k :float)"
+		"(defvarying unused :vec2)" "(defvarying glow :float)" "(defvarying col :vec3)"
+		"(defun main :vec4 () (setq col c glow k) (* m p))")
+	tpix (sh-src "(definput gain :float 1.0)" "(defvarying col :vec3)" "(defvarying glow :float)"
+		"(defun main :vec4 ((frag :vec2)) (vec4 (* col glow gain) (/ (:y frag) 20.0)))")
+	pipe (shader-vp-pipeline tvert tpix)
+	tm (apply (const reals) (map (const n2r) '(1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.7 1.2)))
+	;two that cross in depth, one that faces away, and one behind the eye
+	tverts (apply (const reals) (map (const n2r) '(
+		-0.93 -0.81 -0.5 1   1 0 0   1
+		 0.87 -0.73  0.5 1   0 1 0   0.5
+		 0.11  0.91  0   1   0 0 1   1
+		-0.77 -0.89  0.6 1   1 1 0   1
+		 0.95 -0.83 -0.7 1   0 1 1   1
+		 0.03  0.79 0.1  1   1 0 1   0.25
+		-0.5  -0.5  -0.6 1   1 1 1   1
+		-0.1   0.4  -0.6 1   1 1 1   1
+		 0.4  -0.5  -0.6 1   1 1 1   1
+		 0.0   0.0  -3.0 1   1 1 1   1)))
+	ttris (nums 0 1 2 3 4 5 6 7 8 0 1 9)
+	tvv (list (list 'm tm)) tpv '((gain 0.9)))
+(assert-list-eq "where in a placed vertex the pixel shader's varyings are" '(56 64 72 48) (last pipe))
+
+(defun tri-pixels (pixmap)
+	;the pixels of a pixmap, as they are saved
+	(defq stream (memory-stream))
+	(pixmap-write pixmap stream 32)
+	(stream-seek stream 0 0)
+	(read-blk stream 100000))
+
+(defun tri-drawn (pixels)
+	;how many pixels were drawn
+	(length (filter (# (/= (get-uint pixels %0) 0)) (range 0 (length pixels) 4))))
+
+(defq drawn (list))
+(each (lambda ((title cull x y x1 y1))
+	(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0)
+		depth (shader-vp-depth 20 20))
+	(shader-vp-draw-tris pipe tverts ttris pixmap depth tvv tpv cull 3 x y x1 y1)
+	(defq got (slice (tri-pixels pixmap) 0 1600)
+		want (shader-cpu-tris tvert tpix tverts ttris 20 20 tvv tpv cull 3 x y x1 y1))
+	(push drawn want)
+	(assert-eq (cat "native code and the reference, " title) want got))
+	'(("all of it" :nil 0 0 20 20) ("those that face away left out" :t 0 0 20 20)
+	("a part of the screen" :nil 3 5 17 14) ("a part that is not on the screen" :nil -5 -5 40 8)))
+(assert-true "it is a picture" (> (tri-drawn (first drawn)) 100))
+(assert-true "one faced away, and without it the picture is another"
+	(not (eql (second drawn) (first drawn))))
+(assert-true "a part is less" (< (tri-drawn (third drawn)) (tri-drawn (first drawn))))
+
+;the nearer triangle is the one seen, whichever is drawn first
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+(shader-vp-draw-tris pipe tverts (nums 3 4 5 0 1 2) pixmap depth tvv tpv)
+(shader-vp-draw-tris pipe tverts (nums 6 7 8 0 1 9) pixmap depth tvv tpv)
+(assert-eq "the order they are drawn in does not matter, nor how many calls"
+	(shader-cpu-tris tvert tpix tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+;a frame drawn a part at a time is the frame
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+(each (lambda ((x y x1 y1)) (shader-vp-draw-tris pipe tverts ttris pixmap depth tvv tpv :nil 3 x y x1 y1))
+	'((0 0 20 7) (0 7 9 20) (9 7 20 20)))
+(assert-eq "a frame drawn in three parts"
+	(shader-cpu-tris tvert tpix tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+;triangles of 4 numbers, as a mesh has them, the 4th is not a vertex
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+(shader-vp-draw-tris pipe tverts (nums 0 1 2 99 3 4 5 99) pixmap depth tvv tpv :nil 4)
+(assert-eq "triangles of 4 numbers"
+	(shader-cpu-tris tvert tpix tverts (nums 0 1 2 3 4 5) 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+;nothing to draw
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+(shader-vp-draw-tris pipe tverts (nums) pixmap depth tvv tpv)
+(assert-eq "no triangles, nothing drawn" 0 (tri-drawn (slice (tri-pixels pixmap) 0 1600)))
+;a pixel shader with no varyings goes with it too, and one function of
+;each kind serves every pair it is in
+(defq flat (sh-main "(vec4 0.25 0.5 0.75 1.0)") pipe2 (shader-vp-pipeline tvert flat)
+	canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+(shader-vp-draw-tris pipe2 tverts ttris pixmap depth tvv)
+(assert-eq "a pixel shader with no varyings"
+	(shader-cpu-tris tvert flat tverts ttris 20 20 tvv) (slice (tri-pixels pixmap) 0 1600))
+(assert-list-eq "the one vertex function for both pairs" (first (third pipe)) (first (third pipe2)))
+(assert-error "a pair that does not go together" (shader-vp-pipeline tvert
+	(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
+
 ;the back ends that have no vertex stage yet say so
 (assert-error "GLSL, not yet" (shader-glsl vert))
 (assert-error "MSL, not yet" (shader-msl pix))
 (assert-error "SPIR-V, not yet" (shader-spirv vert))
-(assert-error "VP, a pixel shader with varyings, not yet" (shader-vp pix))
+(assert-error "VP, a pixel shader with varyings shades no tile" (shader-vp pix))
 (assert-error "VP, a vertex shader is not a pixel shader" (shader-vp vert))
