@@ -28,8 +28,8 @@
 ;	follow the first of them
 ;a path, found, is the entries from the root down to it, (root ... entry)
 
-(import "lib/date/date.inc")
-(import "lib/fs/upcase.inc")
+(import "././date/date.inc")
+(import "./upcase.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the structures on the disk

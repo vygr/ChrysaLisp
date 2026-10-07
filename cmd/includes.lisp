@@ -17,6 +17,11 @@
     Scan for needed includes in .vp files, optionally
     edits the file rewriting the include block.
 
+    A file is needed for the classes whose methods are called,
+    for the constants that are used, and for the inline functions
+    and macros of a class.inc that are used. What such an inline
+    needs in turn, its class.inc must include for itself.
+
     If no paths given on command line
     then will take paths from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
@@ -86,7 +91,11 @@
 									(progn (merge classes (list (first item))) :t))) +class_prefixes))
 					((some (lambda (item)
 						(if (some! (# (starts-with %0 token)) (list item) :nil 1)
-									(progn (merge requires (list (first item))) :t))) +require_prefixes))))
+									(progn (merge requires (list (first item))) :t))) +require_prefixes))
+					;an inline function or macro that a class.inc defines, the
+					;file that defines it is needed, (hmap-search) say
+					((and (not (starts-with ":" token)) (defq inline_file (. defs_map :find token)))
+						(merge requires (list inline_file)))))
 				input) :nil) +split_class))
 	;convert to the files we need, keep any apps/ include files !
 	(merge requires (map (const find-file) classes))
@@ -150,8 +159,14 @@
 						(with-read-lock file
 							(when (defq in_s (file-stream file))
 								(lines! (# (defq input (split %0 +split_class))
-										(when (eql (first input) "def-class")
-											(. defs_map :insert (second input) file))
+										(cond
+											((eql (first input) "def-class")
+												(. defs_map :insert (second input) file))
+											;the inline functions and macros it defines, but
+											;not those of the assembler, every file has them
+											((and (not (starts-with "./lib/asm/" file)) (not (starts-with "lib/asm/" file))
+													(or (starts-with "(defun " %0) (starts-with "(defmacro " %0)))
+												(. defs_map :insert (second input) file)))
 										:nil)
 									in_s)
 								(setq in_s :nil))))

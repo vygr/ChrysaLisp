@@ -17,7 +17,9 @@
     platforms:  for all platforms not just the host.
     docs:       scan source files and create documentation.
     vp:         the VP64 and obj/vp/ outputs.
-    it:         all of the above !
+    it:         all of the above, and then a check of the include
+                and import lists, what includes and imports would
+                change is printed.
     apps:       only the apps !
     release:    it/apps release mode.
     debug:      it/apps debug mode.
@@ -239,6 +241,13 @@
 	(. folders :each (# (push cmds (cat "cat -f " (join %1 " ") " | save ai/" %0 ".txt"))))
 	(pipe-farm cmds))
 
+(defun make-check ()
+	;the include list of every .vp file and the import paths of every source
+	;file, as (includes) and (imports) would have them. What they would
+	;change is printed, nothing is written, -w on either does that
+	(pipe-run "files | includes")
+	(pipe-run "files | imports"))
+
 (defun make-fmt ()
 	;format every source file, only those that need it are written
 	(pipe-run "files . | fmt -w"))
@@ -257,7 +266,7 @@
 			(fmt (make-fmt))
 			(test (make-test))
 			(vp (remake-all-vp 1))
-			(it (remake-all-platforms mode) (make-docs))
+			(it (remake-all-platforms mode) (make-docs) (make-check))
 			(apps (make-app-platforms mode))
 			((and boot all platforms) (remake-all-platforms))
 			((and boot all) (remake-all))

@@ -1,10 +1,8 @@
 (include "lib/asm/func.inc")
-(include "lib/consts/chars.inc")
 (include "gui/view/class.inc")
 (include "gui/font/class.inc")
 (include "./class.inc")
 (include "././sstream/class.inc")
-(include "././hset/class.inc")
 
 (def-func 'class/lisp/run)
 	;lisp run loop task

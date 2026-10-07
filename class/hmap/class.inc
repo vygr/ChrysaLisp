@@ -1,4 +1,5 @@
 (include "././list/class.inc")
+(include "././hset/class.inc")
 (include "./struct.inc")
 
 (def-class :hmap :list

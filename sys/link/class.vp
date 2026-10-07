@@ -1,6 +1,5 @@
 (include "lib/asm/func.inc")
 (include "class/nodeid/class.inc")
-(include "class/array/class.inc")
 (include "class/hmap/class.inc")
 (include "./class.inc")
 (include "././kernel/class.inc")

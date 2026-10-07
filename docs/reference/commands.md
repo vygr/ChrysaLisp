@@ -443,6 +443,11 @@ Usage: includes [options] [path] ...
     Scan for needed includes in .vp files, optionally
     edits the file rewriting the include block.
 
+    A file is needed for the classes whose methods are called,
+    for the constants that are used, and for the inline functions
+    and macros of a class.inc that are used. What such an inline
+    needs in turn, its class.inc must include for itself.
+
     If no paths given on command line
     then will take paths from stdin.
 ```
@@ -516,7 +521,9 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
     platforms:  for all platforms not just the host.
     docs:       scan source files and create documentation.
     vp:         the VP64 and obj/vp/ outputs.
-    it:         all of the above !
+    it:         all of the above, and then a check of the include
+                and import lists, what includes and imports would
+                change is printed.
     apps:       only the apps !
     release:    it/apps release mode.
     debug:      it/apps debug mode.

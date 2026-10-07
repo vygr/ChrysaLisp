@@ -11,7 +11,7 @@
 ; structure alone, one tab in from the line its enclosing form opened on. A
 ; line longer than the limit is broken. See 'fmt -h' for the rules in full.
 
-(import "lib/consts/chars.inc")
+(import "././consts/chars.inc")
 
 ;module
 (env-push)

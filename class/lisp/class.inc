@@ -3,6 +3,7 @@
 (include "././list/class.inc")
 (include "./struct.inc")
 (include "sys/task/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-class :lisp :obj
 	(dec-method :vtable class/lisp/vtable)
