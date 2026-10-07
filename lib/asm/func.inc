@@ -106,6 +106,8 @@
 		(if (eql *cpu* 'vp64) (save *out* (cat "obj/vp/" (str *func_name*))))
 		(if *build_emit* (print *out*)))
 	(defq *out* (emit-translate *emit_code*))
+	;the header has 16 bits for the length, and for where the links and paths are
+	(if (> (length *out*) 0xffff) (throw "Function too big, over 64KB !" *func_name*))
 	(save *out* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))
 	(if (> *build_verb* 0)
 		(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out*) ")"))))

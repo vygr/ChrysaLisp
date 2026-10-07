@@ -4,6 +4,14 @@
 
 ------
 
+The assembler says when a function is too big.
+
+*	The header of a function has 16 bits for its length, and for where its
+	links and paths are. One over 64KB was written all the same, with a
+	length that had wrapped. `(def-func-end)` now throws "Function too big,
+	over 64KB !". One of 64,040 bytes assembles, and one a little bigger is
+	refused. The biggest a shader has made so far is about 10KB.
+
 The native code of a vertex shader is about twice as fast.
 
 *	The vertex function read each attr of a vertex into its frame, and
