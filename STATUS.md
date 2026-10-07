@@ -15,7 +15,8 @@ Chris: "having things modular is the way to go".
 *	`(defattr name type)`, a value each vertex has, its position, its normal.
 *	`(defvarying name type)`, a value the vertex shader sets and a pixel
 	shader of the same declaration reads, spread over the triangle.
-*	`:mat4`, a matrix, which multiplies a matrix or a `:vec4` and does
+*	`:mat4`, a matrix, which multiplies a matrix, a `:vec4`, or a `:vec3`
+	by its 3 by 3, as the two routines of the matrix library do, and does
 	nothing else. It is given as `lib/math/matrix.inc` makes one, and packed
 	into the inputs block a column at a time, as a GPU has it.
 *	`(shader-pair vertex pixel)` checks that two go together.
@@ -34,7 +35,7 @@ for, "the odd one out now on the graphics performance front", and when it
 draws through this `(. canvas :ftri)` goes, a flat fill that nothing else
 uses, about 1,200 bytes of the boot image.
 
-50 new tests in `tests/gpu/test_shader.lisp`, 252 in all.
+52 new tests in `tests/gpu/test_shader.lisp`, 254 in all.
 
 The retry timeout of the command farm is real again.
 

@@ -618,7 +618,7 @@
 	"(defvarying unset :vec2)"
 	"(defun lit :float ((n :vec3)) (max (dot n (vec3 0.0 0.0 1.0)) 0.0))"
 	"(defun main :vec4 ()"
-	"	(defq n (:xyz (* model (vec4 normal 0.0))))"
+	"	(defq n (* model normal))"
 	"	(setq shade (lit n) color (* tint shade))"
 	"	(* view model (vec4 position 1.0)))"))
 (assert-eq "a vertex shader" :vertex (shader-stage vert))
@@ -635,9 +635,11 @@
 (test-cases
 	(sh-vert-type "(defq a (* m v))" "a") :vec4
 	(sh-vert-type "(defq a (* m m))" "v") :mat4
-	(sh-vert-type "(defq a (* m m m v))" "a") :vec4)
+	(sh-vert-type "(defq a (* m m m v))" "a") :vec4
+	(sh-vert-type "(defq a (* m (:xyz v)))" "v") :vec3
+	(sh-vert-type "(defq a (* m m (:xyz v)))" "v") :vec3)
 (assert-error "a vector times a matrix" (sh-vert-type "(defq a (* v m))" "v"))
-(assert-error "a matrix times a vec3" (sh-vert-type "(defq a (* m (:xyz v)))" "v"))
+(assert-error "a matrix times a vec2" (sh-vert-type "(defq a (* m (:xy v)))" "v"))
 (assert-error "a matrix times a float" (sh-vert-type "(defq a (* m 2.0))" "v"))
 (assert-error "a matrix added" (sh-vert-type "(defq a (+ m m))" "v"))
 (assert-error "a matrix has no components" (sh-vert-type "(defq a (:x m))" "v"))
@@ -689,7 +691,7 @@
 	(assert-true (cat "where vertex " (str (!)) " is, as the matrix library has it")
 		(sh-near? (map (const n2f) pos)
 			(map (const n2f) (mat4x4-vec4-mul both (cat position (reals (n2r 1)))))))
-	(defq n (mat4x4-vec4-mul model (cat normal (reals (n2r 0))))
+	(defq n (mat4x4-vec3-mul model normal)
 		want (max (n2f (third n)) 0.0))
 	(assert-true (cat "varying of vertex " (str (!)) ", a float")
 		(sh-near? (list (n2f shade)) (list want)))

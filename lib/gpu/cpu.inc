@@ -75,6 +75,10 @@
 	(reals (nums-dot (slice m 0 4) v) (nums-dot (slice m 4 8) v)
 		(nums-dot (slice m 8 12) v) (nums-dot (slice m 12 16) v)))
 
+(defun cpu-mat-vec3 (m v)
+	;the 3 by 3 of a matrix times a vec3
+	(reals (nums-dot (slice m 0 3) v) (nums-dot (slice m 4 7) v) (nums-dot (slice m 8 11) v)))
+
 (defun cpu-mat-mul (a b)
 	;a matrix times a matrix, each row of the one dotted with each
 	;column of the other
@@ -120,7 +124,8 @@
 	(defq va (shader-dim ta) vb (shader-dim tb))
 	(cpu-fold (cond
 		((eql ta :mat4)
-			(list (if (eql tb :mat4) (const cpu-mat-mul) (const cpu-mat-vec)) a b))
+			(list (cond ((eql tb :mat4) (const cpu-mat-mul)) ((eql tb :vec3) (const cpu-mat-vec3))
+				((const cpu-mat-vec))) a b))
 		((and va vb)
 			(list (elem-get (static-q (nums-add nums-sub nums-mul nums-div)) i) a b))
 		(va (case i

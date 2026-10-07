@@ -176,7 +176,7 @@ serves many pixel shaders.
 (defvarying shade :float)
 
 (defun main :vec4 ()
-	(defq n (:xyz (* model (vec4 normal 0.0))))
+	(defq n (* model normal))
 	(setq shade (max (dot n (vec3 0.0 0.0 1.0)) 0.0))
 	(* view model (vec4 position 1.0)))
 ```
@@ -193,7 +193,9 @@ serves many pixel shaders.
 * `:mat4` is the type of a matrix, and all a matrix does is multiply.
   `(* m m)` is a matrix, `(* m v)` with a `:vec4` is a `:vec4`, the vector on
   the right, and `(* a b c v)` is the three applied to the vector, the last
-  first. A matrix is an input, there is no way to make one in a shader.
+  first. `(* m v)` with a `:vec3` is a `:vec3`, by the 3 by 3 of the matrix,
+  so a normal or a direction is turned and not moved, as `(mat4x4-vec3-mul)`
+  has it. A matrix is an input, there is no way to make one in a shader.
 
 ```lisp
 (defvarying shade :float)
@@ -232,7 +234,8 @@ shader has them. For each the lambda gives a list, where the vertex is, then
 each varying as `main` left it. And the lambda of a pixel shader that has
 varyings takes a value for each after its inputs, `(shader-cpu-args)` gives
 them, and every pixel of the tile has those. Where the reference puts a
-vertex is where `(mat4x4-vec4-mul)` puts it.
+vertex is where `(mat4x4-vec4-mul)` puts it, and a normal where
+`(mat4x4-vec3-mul)` does.
 
 The other back ends have no vertex stage yet, GLSL, MSL, SPIR-V and VP. They
 refuse a vertex shader, a pixel shader with varyings, and a matrix, and say

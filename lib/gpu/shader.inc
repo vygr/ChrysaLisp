@@ -108,10 +108,12 @@
 	(cond
 		((find :mat4 types)
 			;a matrix times a matrix is a matrix, times a vec4 is a vec4,
-			;the vector on the right. That is all a matrix does
+			;the vector on the right. Times a vec3 is a vec3, by the 3 by
+			;3 of the matrix, so a direction is turned and not moved.
+			;That is all a matrix does
 			(and (eql op '*) (> n 1)
 				(every (# (eql %0 :mat4)) (slice types 0 -2))
-				(if (find (last types) '(:mat4 :vec4)) (last types))))
+				(if (find (last types) '(:mat4 :vec4 :vec3)) (last types))))
 		((find op *sh_arith*)
 			(and (> n (if (eql op '-) 0 1))
 				(or (sh-float? a) (eql a :int))
