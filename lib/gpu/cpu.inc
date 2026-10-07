@@ -358,6 +358,34 @@
 ; triangles, the reference
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun cpu-edge-cut (a b da db)
+	;where the edge from vertex a, in front of the near plane, to vertex b,
+	;behind it, crosses the plane, every number of the vertex
+	(defq at (/ da (- da db)))
+	(map (# (if (real? %0)
+		(+ %0 (* (- %1 %0) at))
+		(nums-add %0 (nums-scale (nums-sub %1 %0) at)))) a b))
+
+(defun cpu-near-cut (vs)
+	; (cpu-near-cut (v0 v1 v2)) -> ((v0 v1 v2) ...)
+	;a triangle cut by the near plane, where z is -w, as the native code
+	;cuts it. None, the triangle, a smaller one, or two
+	(defq ds (map (# (+ (elem-get (first %0) 2) (elem-get (first %0) 3))) vs)
+		ins (map (# (>= %0 +cpu_0)) ds) count (length (filter identity ins)))
+	(cond
+		((= count 0) (list))
+		((= count 3) (list vs))
+		(:t ;taken round till the one in front is first, or the one behind last
+			(defq turn (if (= count 1)
+				(some (# (if %0 (!))) ins)
+				(% (inc (some (# (unless %0 (!))) ins)) 3)))
+			(bind '(a b c) (map (# (elem-get vs (% (+ %0 turn) 3))) '(0 1 2)))
+			(bind '(da db dc) (map (# (elem-get ds (% (+ %0 turn) 3))) '(0 1 2)))
+			(if (= count 1)
+				(list (list a (cpu-edge-cut a b da db) (cpu-edge-cut a c da dc)))
+				(progn (defq ac (cpu-edge-cut a c da dc) bc (cpu-edge-cut b c db dc))
+					(list (list a b bc) (list a bc ac)))))))
+
 (defun cpu-share (pixel share)
 	;that much of a 32 bit argb pixel, a share of 0 to 256
 	(+ (logand (>> (* (logand pixel 0xff00ff) share) 8) 0xff00ff)
@@ -390,8 +418,8 @@
 		fw (n2r width) fh (n2r height))
 	(each (# (set-long out %0 0)) (range 0 (length out) 8))
 	(each (lambda ((i0 i1 i2 &rest _))
-		(defq vs (list (elem-get placed i0) (elem-get placed i1) (elem-get placed i2))
-			ws (map (# (elem-get (first %0) 3)) vs))
+		(each (lambda (vs)
+		(defq ws (map (# (elem-get (first %0) 3)) vs))
 		(when (every (# (> %0 (const (str-to-real "0.000001")))) ws)
 			(defq iw (map (const recip) ws)
 				sx (map (# (* (+ (* (first (first %0)) %1) +cpu_1) +cpu_1/2 fw)) vs iw)
@@ -446,5 +474,6 @@
 									(set-int out (* di 4) pixel)))))
 						(range (max x 0) (min x1 width))))
 					(range (max y 0) (min y1 height))))))
+			(cpu-near-cut (list (elem-get placed i0) (elem-get placed i1) (elem-get placed i2)))))
 		(partition tris tri_size))
 	out)

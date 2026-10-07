@@ -4,6 +4,24 @@
 
 ------
 
+Triangles are clipped to the near plane.
+
+*	A triangle with a vertex behind the near plane was left out whole, so
+	an object lost faces as it came up to the eye. It is now cut where the
+	plane goes through it, and what is in front is drawn, one triangle or
+	two, with the varyings right along the cut. In the native code,
+	`(shader-vp-draw-tris)`, and in the reference, `(shader-cpu-tris)`,
+	which agree to the bit. The GPU always did.
+
+*	The native code copies the three vertices of a triangle into its frame,
+	where each is and the varyings the pixel shader reads, which is where a
+	cut triangle is made. A pixel then has its varyings with no sum to find
+	them, and a 900 by 900 frame of the Mesh demo on one core of an M4 went
+	from 8.2ms to 8.0ms.
+
+*	Tests of each way a triangle can be cut, whichever vertex comes first,
+	in `tests/gpu/test_shader.lisp`.
+
 Triangles on the GPU have smooth edges.
 
 *	The sdl3 driver draws a frame of triangles with 4 samples a pixel, where

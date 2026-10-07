@@ -304,8 +304,10 @@ pixmap depth [vvals pvals cull tri_size x y x1 y1])` draws.
 * A see through pixel is kept in the depth buffer as any other. So what is
   solid is drawn first, in any order, and then what is see through, the
   furthest first. `(. scene :draws ...)` gives its draws in that order.
-* A triangle with a vertex that is not in front of the eye is left out
-  whole, there is no clipping to the near plane.
+* A triangle the near plane goes through, where z is -w, is cut by it, and
+  what is in front is drawn, one triangle or two. The cut is made on the
+  vertices as they were placed, before the divide by w, so the varyings of
+  what is left are right. One wholly behind is left out.
 * Calls add up, the depth buffer is what is nearest so far.
 
 The spaces are those of OpenGL, which is what `lib/math/matrix.inc` makes
@@ -965,10 +967,11 @@ The app is in the Demos list of the launcher, as surface.
 * Raylib is the fall back if SDL3 will not do for a host.
 * The GLSL back end does not guard names against the reserved words of GLSL.
 * Compute, and rendering as a service for a node with no GPU, are deferred.
-* A vertex shader on the GPU, the GLSL, MSL and SPIR-V back ends have no
-  vertex stage, and the host has no mesh, no depth buffer and no frame of
-  several draws. Triangles are drawn as native code only.
-* Clipping to the near plane, and a pixel that is partly clear.
+* The GLSL back end has no vertex stage. Triangles are drawn as native
+  code, and on the GPU through Metal and Vulkan.
+* GPU triangles on Windows. The host there has to be built again for the
+  calls a mesh and a frame have.
+* A see through object that shows its own back faces through its front.
 * Textures as inputs, and compute.
 * A shader gives four channels. One that makes a single channel image, a
   greyscale or a glyph, gives a grey and the texture is made in that mode

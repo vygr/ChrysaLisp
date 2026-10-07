@@ -31,7 +31,7 @@
 	;and this many pixels of a tile of a pixel shader, they are far more
 	;work each
 	+sv_tile_work 4096
-	+sv_version 13)
+	+sv_version 14)
 
 (defun sv-emit (&rest form)
 	(push code form))
@@ -663,8 +663,30 @@
 	(defun SI (reg slot) (E 'vp-cpy-ri reg :r13 slot))
 	(defun K (val reg) (E 'vp-cpy-if :r12 (list 'fn-const (logior (n2r val))) reg))
 	(defun Q (label) (list 'quote label))
+	(defun T (k j) (+ tv_at (* (+ (* k tv_n) j) 8)))
+	(defun lerp (ka kb da db kd)
+		;vertex kd is where the edge from vertex ka, in front of the near
+		;plane, to vertex kb, behind it, crosses the plane
+		(E 'vp-cpy-ff da :f5) (E 'vp-cpy-ff da :f4) (E 'vp-sub-ff db :f4) (E 'vp-div-ff :f4 :f5)
+		(each (lambda (j)
+			(L (T ka j) :f6) (L (T kb j) :f7)
+			(E 'vp-sub-ff :f6 :f7) (E 'vp-mul-ff :f5 :f7) (E 'vp-add-ff :f6 :f7)
+			(S :f7 (T kd j))) (range 0 tv_n)))
 	(E 'vp-call (Q 'sh_init))
+	(E 'vp-xor-rr :r2 :r2)
+	(SI :r2 s_pend)
 	(E 'vp-label (Q 'sr_tri))
+	;a triangle that was cut by the near plane can be two, and the other
+	;one is waiting, vertices 0, 2 and 3 of what was cut
+	(LI s_pend :r2)
+	(E 'vp-beq-cr 0 :r2 (Q 'sr_fetch))
+	(E 'vp-xor-rr :r2 :r2)
+	(SI :r2 s_pend)
+	(each (lambda (j)
+		(L (T 2 j) :f6) (S :f6 (T 1 j))
+		(L (T 3 j) :f6) (S :f6 (T 2 j))) (range 0 tv_n))
+	(E 'vp-jmp (Q 'sr_setup))
+	(E 'vp-label (Q 'sr_fetch))
 	;the next triangle, its three vertices. A triangle is some work done,
 	;whether or not it is drawn
 	(E 'vp-cpy-cr 32 :r2)
@@ -679,26 +701,80 @@
 	(E 'vp-add-rr :r6 :r2)
 	(SI :r2 s_tris)
 	(LI s_stride :r6) (LI s_placed :r7)
-	(each (lambda (r slot)
-		(E 'vp-mul-rr :r6 r) (E 'vp-add-rr :r7 r) (SI r slot))
-		'(:r3 :r4 :r5) (list s_p0 s_p1 s_p2))
-	;where each is on the screen, row 0 at the top, its depth, and 1 / w.
-	;A vertex that is not in front of the eye, and the triangle is left out
+	(each (lambda (r)
+		(E 'vp-mul-rr :r6 r) (E 'vp-add-rr :r7 r))
+		'(:r3 :r4 :r5))
+	;the near plane. A vertex is in front of it if its z + w is not less
+	;than 0. With none in front the triangle is left out
+	(K 0 :f3)
+	(E 'vp-xor-rr :r8 :r8)
+	(each (lambda (r d bit label)
+		(E 'vp-cpy-if r 16 d) (E 'vp-cpy-if r 24 :f6) (E 'vp-add-ff :f6 d)
+		(E 'vp-blt-ff :f3 d (Q label))
+		(E 'vp-add-cr bit :r8)
+		(E 'vp-label (Q label)))
+		'(:r3 :r4 :r5) '(:f0 :f1 :f2) '(1 2 4) '(sr_out0 sr_out1 sr_out2))
+	(E 'vp-beq-cr 0 :r8 (Q 'sr_tri))
+	;with one or two behind it, the vertices are taken round, the same
+	;way round, till the one in front is the first, or the one behind
+	;is the last
+	(E 'vp-beq-cr 2 :r8 (Q 'sr_rot1))
+	(E 'vp-beq-cr 6 :r8 (Q 'sr_rot1))
+	(E 'vp-beq-cr 4 :r8 (Q 'sr_rot2))
+	(E 'vp-beq-cr 5 :r8 (Q 'sr_rot2))
+	(E 'vp-jmp (Q 'sr_rotted))
+	(E 'vp-label (Q 'sr_rot1))
+	(E 'vp-cpy-rr :r3 :r6) (E 'vp-cpy-rr :r4 :r3) (E 'vp-cpy-rr :r5 :r4) (E 'vp-cpy-rr :r6 :r5)
+	(E 'vp-cpy-ff :f0 :f4) (E 'vp-cpy-ff :f1 :f0) (E 'vp-cpy-ff :f2 :f1) (E 'vp-cpy-ff :f4 :f2)
+	(E 'vp-jmp (Q 'sr_rotted))
+	(E 'vp-label (Q 'sr_rot2))
+	(E 'vp-cpy-rr :r5 :r6) (E 'vp-cpy-rr :r4 :r5) (E 'vp-cpy-rr :r3 :r4) (E 'vp-cpy-rr :r6 :r3)
+	(E 'vp-cpy-ff :f2 :f4) (E 'vp-cpy-ff :f1 :f2) (E 'vp-cpy-ff :f0 :f1) (E 'vp-cpy-ff :f4 :f0)
+	(E 'vp-label (Q 'sr_rotted))
+	;the three are copied to the frame, where each is and the varyings
+	;the pixel shader reads, so a pixel has them without a sum to find
+	;them, and a triangle that is cut has somewhere to be
+	(each (lambda (r k)
+		(each (lambda (j) (E 'vp-cpy-if r (* j 8) :f6) (S :f6 (T k j))) (range 0 4))
+		(each (lambda (i)
+			(LI (+ s_vary (* i 8)) :r6)
+			(E 'vp-cpy-rr r :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-cpy-if :r7 0 :f6)
+			(S :f6 (T k (+ 4 i)))) (range 0 vary_slots)))
+		'(:r3 :r4 :r5) '(0 1 2))
+	(E 'vp-beq-cr 7 :r8 (Q 'sr_setup))
+	(E 'vp-beq-cr 1 :r8 (Q 'sr_clip1))
+	(E 'vp-beq-cr 2 :r8 (Q 'sr_clip1))
+	(E 'vp-beq-cr 4 :r8 (Q 'sr_clip1))
+	;the last is behind. What is left has four corners, the first two,
+	;where the edge from the second crosses, and where the edge from the
+	;first does. It is two triangles, and the second waits
+	(lerp 0 2 :f0 :f2 3)
+	(lerp 1 2 :f1 :f2 2)
+	(E 'vp-cpy-cr 1 :r2)
+	(SI :r2 s_pend)
+	(E 'vp-jmp (Q 'sr_setup))
+	;only the first is in front. What is left is it, and where its two
+	;edges cross
+	(E 'vp-label (Q 'sr_clip1))
+	(lerp 0 1 :f0 :f1 1)
+	(lerp 0 2 :f0 :f2 2)
+	(E 'vp-label (Q 'sr_setup))
+	;where each is on the screen, row 0 at the top, its depth, and 1 / w
 	(LI s_vw :r8) (E 'vp-cvt-rf :r8 :f12)
 	(LI s_vh :r8) (E 'vp-cvt-rf :r8 :f13)
 	(K 1 :f14) (K 0.5 :f15)
 	(E 'vp-cpy-if :r12 (list 'fn-const (logior (str-to-real "0.000001"))) :f11)
-	(each (lambda (r sx sy iw z)
-		(E 'vp-cpy-if r 24 :f6)
+	(each (lambda (k sx sy iw z)
+		(L (T k 3) :f6)
 		(E 'vp-ble-ff :f11 :f6 (Q 'sr_tri))
 		(E 'vp-cpy-ff :f14 :f7) (E 'vp-div-ff :f6 :f7) (S :f7 iw)
-		(E 'vp-cpy-if r 0 sx) (E 'vp-mul-ff :f7 sx) (E 'vp-add-ff :f14 sx)
+		(L (T k 0) sx) (E 'vp-mul-ff :f7 sx) (E 'vp-add-ff :f14 sx)
 		(E 'vp-mul-ff :f15 sx) (E 'vp-mul-ff :f12 sx)
-		(E 'vp-cpy-if r 8 :f8) (E 'vp-mul-ff :f7 :f8)
+		(L (T k 1) :f8) (E 'vp-mul-ff :f7 :f8)
 		(E 'vp-cpy-ff :f14 sy) (E 'vp-sub-ff :f8 sy)
 		(E 'vp-mul-ff :f15 sy) (E 'vp-mul-ff :f13 sy)
-		(E 'vp-cpy-if r 16 :f8) (E 'vp-mul-ff :f7 :f8) (S :f8 z))
-		'(:r3 :r4 :r5) '(:f0 :f2 :f4) '(:f1 :f3 :f5)
+		(L (T k 2) :f8) (E 'vp-mul-ff :f7 :f8) (S :f8 z))
+		'(0 1 2) '(:f0 :f2 :f4) '(:f1 :f3 :f5)
 		(list f_iw0 f_iw1 f_iw2) (list f_z0 f_z1 f_z2))
 	;twice its area, with a sign that says which way it faces. One of no
 	;area is left out, and one that faces away if they are to be
@@ -797,13 +873,11 @@
 	(E 'vp-cpy-ff :f0 :f4) (E 'vp-add-ff :f1 :f4) (E 'vp-add-ff :f2 :f4)
 	(K 1 :f5) (E 'vp-div-ff :f4 :f5)
 	(E 'vp-mul-ff :f5 :f0) (E 'vp-mul-ff :f5 :f1) (E 'vp-mul-ff :f5 :f2)
-	(LI s_p0 :r3) (LI s_p1 :r4) (LI s_p2 :r5)
 	(each (lambda (i)
-		(LI (+ s_vary (* i 8)) :r6)
-		(E 'vp-cpy-rr :r3 :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-cpy-if :r7 0 :f4) (E 'vp-mul-ff :f0 :f4)
-		(E 'vp-cpy-rr :r4 :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-cpy-if :r7 0 :f5) (E 'vp-mul-ff :f1 :f5)
+		(L (T 0 (+ 4 i)) :f4) (E 'vp-mul-ff :f0 :f4)
+		(L (T 1 (+ 4 i)) :f5) (E 'vp-mul-ff :f1 :f5)
 		(E 'vp-add-ff :f5 :f4)
-		(E 'vp-cpy-rr :r5 :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-cpy-if :r7 0 :f5) (E 'vp-mul-ff :f2 :f5)
+		(L (T 2 (+ 4 i)) :f5) (E 'vp-mul-ff :f2 :f5)
 		(E 'vp-add-ff :f5 :f4)
 		(S :f4 (+ vary_at (* i 8)))) (range 0 vary_slots))
 	;the frag coord, the centre of the pixel, y up
@@ -894,13 +968,17 @@
 	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-varyings program))
 	(defq vary_slots (/ (- frame_size vary_at) 8))
 	(bind '(s_ntris s_stride s_tstride s_vw s_vh s_cx0 s_cy0 s_cx1 s_cy1 s_cull s_dy
-			s_placed s_tris s_pix s_pstride s_depth s_p0 s_p1 s_p2
+			s_placed s_tris s_pix s_pstride s_depth s_pend
 			s_minx s_maxx s_y s_maxy s_x s_zi s_dptr s_work
 			f_iw0 f_iw1 f_iw2 f_z0 f_z1 f_z2 f_row0 f_row1 f_row2 f_e0 f_e1 f_e2
 			f_kx0 f_kx1 f_kx2 f_ky0 f_ky1 f_ky2)
-		(map (lambda (_) (sv-slots :int)) (range 0 45)))
+		(map (lambda (_) (sv-slots :int)) (range 0 43)))
 	(defq s_vary frame_size)
 	(times vary_slots (sv-slots :int))
+	;four vertices, where each is and its varyings, the three of the
+	;triangle being drawn and one more for a triangle that is cut
+	(defq tv_at frame_size tv_n (+ 4 vary_slots))
+	(times (* 4 tv_n) (sv-slots :int))
 	(bind '((frag) ret) (sv-program program "s"))
 	(defq funcs_text (sv-code-text))
 	(setq code (list))
@@ -1251,8 +1329,8 @@
 	;taken to have had its alpha multiplied in, and its depth is kept as
 	;any other, so what is see through is to be drawn after what is not,
 	;the furthest first.
-	;A triangle with a vertex that is not in front of the eye is left out
-	;whole.
+	;A triangle that the near plane goes through, where z is -w, is cut by
+	;it, and what is in front is drawn.
 	(bind '(vertex pixel place fill offsets) pipeline)
 	(defq width (getf pixmap +pixmap_width 0) height (getf pixmap +pixmap_height 0))
 	(setd tri_size 3 x 0 y 0 x1 width y1 height depth_y 0)

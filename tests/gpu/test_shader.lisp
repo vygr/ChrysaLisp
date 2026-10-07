@@ -898,6 +898,24 @@
 	'((0 6) (6 13) (13 20)))
 (assert-eq "a frame drawn in three strips, each with a depth buffer of its own rows"
 	(shader-cpu-tris tvert tpix tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+;the near plane. A triangle with one vertex behind it, or two, is cut,
+;and what is in front is drawn, whichever of its vertices comes first
+(defq tnear (cat tverts (apply (const reals) (map (const n2r) '(0.3 0.2 -3.0 1   0 1 0   1)))))
+(each (lambda ((title tri))
+	(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+	(shader-vp-draw-tris pipe_solid tnear tri pixmap depth tvv tpv)
+	(defq got (slice (tri-pixels pixmap) 0 1600))
+	(assert-true (cat "the near plane, " title ", some of it is drawn") (> (tri-drawn got) 0))
+	(assert-eq (cat "the near plane, " title ", native code and the reference")
+		(shader-cpu-tris tvert tsolid tnear tri 20 20 tvv tpv) got))
+	(list (list "the last vertex behind" (nums 0 1 9)) (list "the second behind" (nums 1 9 0))
+		(list "the first behind" (nums 9 0 1)) (list "the first in front" (nums 2 9 10))
+		(list "the last in front" (nums 9 10 2)) (list "the second in front" (nums 10 2 9))
+		(list "all behind and all in front" (nums 9 10 9 0 1 2))
+		(list "cut ones among whole ones" (nums 0 1 2 0 1 9 3 4 5 10 2 9 6 7 8))))
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
+(shader-vp-draw-tris pipe_solid tnear (nums 9 10 9) pixmap depth tvv tpv)
+(assert-eq "the near plane, all behind, nothing drawn" 0 (tri-drawn (slice (tri-pixels pixmap) 0 1600)))
 ;triangles of 4 numbers, as a mesh has them, the 4th is not a vertex
 (defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
 (shader-vp-draw-tris pipe tverts (nums 0 1 2 99 3 4 5 99) pixmap depth tvv tpv :nil 4)
