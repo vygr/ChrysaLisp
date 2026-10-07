@@ -316,11 +316,11 @@
 
 	(entry :pixmap :lisp_shared '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
-	(list-bind-args :r1 '(:r0 :r1 :r3 :r4) '(:num :num :obj :num))
-	(call :pixmap :create_shared '(:r0 :r1 -32 :r3 :r4) '(:r1))
+	(list-bind-args :r1 '(:r0 :r1 :r3) '(:num :num :num))
+	(call :pixmap :create_shared '(:r0 :r1 -32 :r3) '(:r1))
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
 		(assign '((:r0 +lisp_sym_nil)) '(:r1))
@@ -332,7 +332,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(pixmap-shared width height key create)" +error_msg_wrong_types))
-	(signature '(:NUM :NUM :STR :NUM)))
+	(jump :lisp :repl_error '(:r1 "(pixmap-shared width height key)" +error_msg_wrong_types))
+	(signature '(:NUM :NUM :NUM)))
 
 (def-func-end)

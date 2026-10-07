@@ -4,6 +4,37 @@
 
 ------
 
+A shared pixmap makes its own key, and on a network where a message goes
+through other nodes it is a good deal faster.
+
+`(pixmap-shared width height key)`. With a key of 0 it makes the shared
+memory under a 64 bit key picked at random, `(pixmap-key pixmap)`. Given
+that key, a pixmap on another node finds the same pixels. A key is a
+number, it goes in a message as a long, and there is no name to think up.
+The two host calls take the key, not a name.
+
+The first figures were on the network `run_tui.sh` makes, every node linked
+to every other, where a tile goes over one link. On the others a tile goes
+through nodes on its way back, link buffer to link buffer. The CPU path of
+the surface demo again, no window, 20 frames each way, twice, on an M4 Max.
+A frame, tiles sent as messages against tiles drawn on the shared pixmap:
+
+| Network | Size | Messages | Shared | |
+|---|---|---|---|---|
+| all linked, 16 nodes | 640 by 480 | 100ms | 100ms | the same |
+| mesh 4 by 4 | 640 by 480 | 152ms | 130ms | 15% less |
+| ring of 16 | 640 by 480 | 185ms | 137ms | 26% less |
+| cube 2 by 2 by 2 | 640 by 480 | 320ms | 266ms | 17% less |
+| all linked, 16 nodes | 1024 by 768 | 238ms | 241ms | the same |
+| mesh 4 by 4 | 1024 by 768 | 358ms | 316ms | 12% less |
+| ring of 16 | 1024 by 768 | 898ms | 377ms | 58% less |
+
+So where every node has a link to the app the links keep up and the time is
+the shading, and where the tiles are relayed the pixels are worth keeping
+off the links, the more so the bigger the frame and the longer the way.
+
+------
+
 A pixmap can have its pixels in shared memory, for the nodes of one machine
 to draw on together.
 

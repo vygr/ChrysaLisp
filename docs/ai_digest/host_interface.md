@@ -55,17 +55,18 @@ the host.
 
         * `pii_shm_open`: Shared memory that is only ever memory, POSIX
           `shm_open` or Windows `CreateFileMapping` with no file, so nothing
-          is written to disk. One node makes it under a name, of at most 30
-          characters, others on the machine find it by the name, and it
-          never waits, one that is not there is an error. Used for the
-          pixels of a pixmap that several nodes draw on.
+          is written to disk. One node makes it under a key, a 64 bit
+          number, others on the machine find it by the key, and it never
+          waits, one that is not there to be found is an error, and so is
+          one that is there to be made. Its name is `clpx-` and the key in
+          hex. Used for the pixels of a pixmap that several nodes draw on.
 
         * `pii_shm_close`: Close it. The node that made it lets go of the
-          name as well, and the memory lasts till the last node has unmapped
+          key as well, and the memory lasts till the last node has unmapped
           it. A node that is killed lets go of nothing, so on macOS and
-          Linux each name is noted in `/tmp/chrysalisp_shm_<name>` with the
+          Linux each one is noted in `/tmp/chrysalisp_shm_<name>` with the
           pid of its maker, and the host program run as `main_tui
-          -shm_sweep` lets go of the names of the dead. `stop.sh` runs it.
+          -shm_sweep` lets go of those of the dead. `stop.sh` runs it.
 
         * `pii_flush_icache` (or `pii_clear_icache`): Ensure instruction cache
           coherency after writing/modifying code in memory.

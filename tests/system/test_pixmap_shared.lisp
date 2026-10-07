@@ -9,13 +9,15 @@
 	(stream-seek stream 0 0)
 	(read-blk stream 1000000))
 
-(defq key (pixmap-key) made (pixmap-shared 64 32 key 1) found (pixmap-shared 64 32 key 0))
+(defq made (pixmap-shared 64 32 0) key (pixmap-key made) found (pixmap-shared 64 32 key))
 (assert-true "made" made)
-(assert-true "found by its name" found)
-(assert-eq "one that was never made is not found" :nil (pixmap-shared 64 32 (cat key "x") 0))
-(assert-eq "one that is smaller than asked for is not found" :nil (pixmap-shared 640 320 key 0))
-(assert-eq "a name can only be made once" :nil (pixmap-shared 64 32 key 1))
-(assert-true "two keys differ" (nql key (pixmap-key)))
+(assert-true "it has a key" (/= key 0))
+(assert-true "found by its key" found)
+(assert-eq "the one that found it has the key" key (pixmap-key found))
+(assert-eq "one that was never made is not found" :nil (pixmap-shared 64 32 (+ key 1)))
+(assert-eq "one that is smaller than asked for is not found" :nil (pixmap-shared 640 320 key))
+(assert-true "two keys differ" (/= key (pixmap-key (pixmap-shared 64 32 0))))
+(assert-eq "a plain pixmap has no key" 0 (pixmap-key (getf (Canvas 8 8 1) +canvas_pixmap 0)))
 
 ;drawn on through one, seen through the other, and the same as a canvas
 ;that has its pixels to itself
@@ -31,4 +33,4 @@
 (defq before (px-bytes found))
 (setq a :nil made :nil)
 (assert-eq "the pixels outlast the one that made them" before (px-bytes found))
-(assert-eq "the name went with the one that made it" :nil (pixmap-shared 64 32 key 0))
+(assert-eq "the key went with the one that made it" :nil (pixmap-shared 64 32 key))

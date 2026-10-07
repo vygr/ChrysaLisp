@@ -1955,9 +1955,9 @@ run pipe farm and collect output
 ### pixmap-key
 
 ```code
-(pixmap-key) -> str
+(pixmap-key pixmap) -> 0 | key
 
-a name for a shared pixmap that no other task will come up with
+the key of the shared memory its pixels are in, 0 if they are its own
 ```
 
 ### pmap?

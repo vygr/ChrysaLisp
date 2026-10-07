@@ -5,12 +5,11 @@
 	(ptr texture stream)
 	(pubyte bufp)
 	(uint stream_type width height stride)
-	;the pixels. They follow the object, or they are in shared memory,
-	;under the name key, that other nodes of this machine can draw on.
-	;owner is the pixmap that made the shared memory.
+	;the pixels. They follow the object, or they are in shared memory that
+	;other nodes of this machine can draw on, under a key, which is 0 if
+	;they are not. owner is the pixmap that made the shared memory.
 	(pubyte data)
-	(ptr key)
-	(long handle owner)
+	(long key handle owner)
 	(align)
 	(offset pixels))
 

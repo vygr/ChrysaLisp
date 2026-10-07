@@ -10,26 +10,25 @@
 (defq program (shader-load +shader_file) native (shader-vp program))
 
 ;the canvas of the app, if its pixels are in shared memory that this node
-;can reach, and the name it was found by
-(defq shared_name "" shared :nil)
+;can reach, and the key it was found by
+(defq shared_key 0 shared :nil)
 
-(defun attach (name width height)
-	;the app's canvas, found again if the name has changed. :nil if this
+(defun attach (key width height)
+	;the app's canvas, found again if the key has changed. :nil if this
 	;node can not reach it, it is on another machine say
-	(unless (eql name shared_name)
-		(setq shared_name name shared (and (nempty? name)
-			(defq pixmap (pixmap-shared width height name 0))
+	(unless (= key shared_key)
+		(setq shared_key key shared (and (/= key 0)
+			(defq pixmap (pixmap-shared width height key))
 			(Canvas-pixmap pixmap))))
 	shared)
 
-(defun rect (key mbox x y x1 y1 height width name inputs)
+(defun rect (key mbox x y x1 y1 height width canvas_key inputs)
 	;shade the tile, the canvas has y down, so the height is given. It is
 	;drawn straight onto the app's canvas if that can be reached, and only
 	;the word that it is done goes back. If not the pixels go back.
 	(defq data (shader-vp-argb native (shader-vp-frame program native
-			(shader-unpack program inputs)) x y x1 y1 height)
-		name (slice name 0 (ifn (find (ascii-char 0) name) -1)))
-	(when (defq canvas (attach name width height))
+			(shader-unpack program inputs)) x y x1 y1 height))
+	(when (defq canvas (attach canvas_key width height))
 		(. canvas :tile data x y x1 y1)
 		(setq data ""))
 	(mail-send mbox (cat data

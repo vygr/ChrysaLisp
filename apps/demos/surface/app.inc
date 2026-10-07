@@ -7,6 +7,6 @@
 	(uint x y x1 y1)
 	(netid reply)
 	(uint height width)
-	;the name of the shared pixmap the tile is drawn on, zeros after it
-	(struct shared 32)
+	;the key of the shared pixmap the tile is drawn on, 0 if there is none
+	(long shared)
 	(offset inputs))

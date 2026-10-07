@@ -290,9 +290,9 @@ trashes
 
 ```code
 inputs
-:r0 = c string name (pubyte)
+:r0 = key (long)
 :r1 = handle (long)
-:r2 = 1 if this made it, and so lets go of the name (long)
+:r2 = 1 if this made it, and so lets go of the key (long)
 outputs
 :r0 = error code (long)
 trashes
@@ -303,7 +303,7 @@ trashes
 
 ```code
 inputs
-:r0 = c string name (pubyte)
+:r0 = key (long)
 :r1 = length (long)
 :r2 = 1 to make it, 0 to find it (long)
 outputs
@@ -312,7 +312,8 @@ trashes
 :r0, :f0-:f15
 info
 shared memory that is only ever memory, for :pii_mmap +mmap_shared.
-It never waits, one that is not there to be found is an error
+It never waits, one that is not there to be found is an error, and
+so is one that is there to be made
 ```
 
 ### :pii_spawn -> sys/pii/spawn

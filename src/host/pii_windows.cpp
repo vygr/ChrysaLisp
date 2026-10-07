@@ -140,11 +140,13 @@ int64_t pii_close_shared(const char *path, int64_t hndl)
 // pii_darwin.cpp. Windows keeps it in memory, and lets go of it when the
 // last node closes its handle, so there is nothing to sweep.
 
-int64_t pii_shm_open(const char *name, size_t len, uint64_t create)
+int64_t pii_shm_open(uint64_t key, size_t len, uint64_t create)
 {
 	// 1 to make it, 0 to find one that is there. Returns a handle for
-	// pii_mmap, or -1
+	// pii_mmap, or -1. A key that is taken can not be made
 	HANDLE hndl;
+	char name[64];
+	snprintf(name, sizeof(name), "clpx-%016llx", (unsigned long long)key);
 	if (create)
 	{
 		hndl = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
@@ -159,7 +161,7 @@ int64_t pii_shm_open(const char *name, size_t len, uint64_t create)
 	return hndl ? (int64_t)hndl : -1;
 }
 
-int64_t pii_shm_close(const char *name, int64_t hndl, uint64_t owner)
+int64_t pii_shm_close(uint64_t key, int64_t hndl, uint64_t owner)
 {
 	CloseHandle((HANDLE)hndl);
 	return 0;

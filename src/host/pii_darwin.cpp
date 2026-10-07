@@ -133,9 +133,10 @@ int64_t pii_close_shared(const char *path, int64_t hndl)
 
 // shared memory that is only ever memory, it has no file behind it for the
 // system to write back to. It is for pixels that several nodes of this
-// machine draw on. One node makes a piece of it under a name, the others
-// find it by the name, and it lasts till the one that made it lets go of
-// the name and the last of them has unmapped it.
+// machine draw on. One node makes a piece of it under a key, a 64 bit
+// number, the others find it by the key, and it lasts till the one that
+// made it lets go of the key and the last of them has unmapped it. The key
+// is its name, clpx- and the key in hex.
 //
 // A node that is killed lets go of nothing, and a name is not a file that
 // a script can delete. So each name is noted in a file of its own, with the
@@ -143,12 +144,18 @@ int64_t pii_close_shared(const char *path, int64_t hndl)
 
 #define PII_SHM_NOTE "/tmp/chrysalisp_shm_"
 
-int64_t pii_shm_open(const char *name, size_t len, uint64_t create)
+static void pii_shm_names(uint64_t key, char *path, char *note)
+{
+	snprintf(path, 64, "/clpx-%016llx", (unsigned long long)key);
+	snprintf(note, 128, PII_SHM_NOTE "clpx-%016llx", (unsigned long long)key);
+}
+
+int64_t pii_shm_open(uint64_t key, size_t len, uint64_t create)
 {
 	// 1 to make it, 0 to find one that is there. Returns a handle for
-	// pii_mmap, or -1, and never waits
+	// pii_mmap, or -1, and never waits. A key that is taken can not be made
 	char path[64], note[128];
-	snprintf(path, sizeof(path), "/%s", name);
+	pii_shm_names(key, path, note);
 	if (create)
 	{
 		int fd = shm_open(path, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
@@ -159,7 +166,6 @@ int64_t pii_shm_open(const char *name, size_t len, uint64_t create)
 			shm_unlink(path);
 			return -1;
 		}
-		snprintf(note, sizeof(note), PII_SHM_NOTE "%s", name);
 		FILE *f = fopen(note, "w");
 		if (f)
 		{
@@ -180,15 +186,14 @@ int64_t pii_shm_open(const char *name, size_t len, uint64_t create)
 	return fd;
 }
 
-int64_t pii_shm_close(const char *name, int64_t hndl, uint64_t owner)
+int64_t pii_shm_close(uint64_t key, int64_t hndl, uint64_t owner)
 {
-	// the one that made it lets go of the name as well
+	// the one that made it lets go of the key as well
 	char path[64], note[128];
 	close((int)hndl);
 	if (owner)
 	{
-		snprintf(path, sizeof(path), "/%s", name);
-		snprintf(note, sizeof(note), PII_SHM_NOTE "%s", name);
+		pii_shm_names(key, path, note);
 		shm_unlink(path);
 		unlink(note);
 	}
