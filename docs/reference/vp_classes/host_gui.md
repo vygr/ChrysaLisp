@@ -56,6 +56,12 @@ the dirty region bounds is returned for use by the :flush call !
 
 ### :init -> :nil
 
+### :mesh_create -> :nil
+
+### :mesh_destroy -> :nil
+
+### :pair_create -> :nil
+
 ### :poll_event -> :nil
 
 ### :read_texture -> :nil
@@ -77,6 +83,8 @@ the dirty region bounds is returned for use by the :flush call !
 ### :shader_format -> :nil
 
 ### :shader_texture -> :nil
+
+### :tris_draw -> :nil
 
 ### :update -> service/gui/update
 

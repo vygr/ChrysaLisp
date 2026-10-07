@@ -251,6 +251,32 @@ they are its own
 (canvas-load file flags [swap_mode]) -> :nil | canvas
 ```
 
+### canvas-mesh-create
+
+```code
+(canvas-mesh-create verts) -> 0 | mesh
+
+the vertices of a mesh, kept on the GPU, from the bytes of a reals,
+the attrs of a vertex one after another
+```
+
+### canvas-mesh-destroy
+
+```code
+(canvas-mesh-destroy mesh) -> mesh
+```
+
+### canvas-pair-create
+
+```code
+(canvas-pair-create vertex fragment layout) -> 0 | pair
+
+a vertex shader and a pixel shader that draw triangles, from the text
+of their stages. The layout is a byte for how many attrs a vertex
+has, a byte for the cull, 0 none, 1 what faces away, 2 what faces us,
+then a byte for the floats of each attr
+```
+
 ### canvas-save
 
 ```code
@@ -269,6 +295,8 @@ a shader from the text of its vertex and fragment stages
 
 ```code
 (canvas-shader-destroy shader) -> shader
+
+a shader, or a pair
 ```
 
 ### canvas-shader-format
@@ -1866,12 +1894,6 @@ faces share is a vertex of its own for each of them, where it is and
 then the normal of that face, 7 numbers. The triangles are then just
 the vertices in the order they come. It is the bytes of the numbers,
 as they go in a message to a child that draws.
-
-The meshes of lib/math/mesh.inc have their faces going round clockwise
-as seen from outside, with normals that point in. The way it is done
-everywhere else, and by the pipeline, is counter clockwise with
-normals that point out. So here two corners of each face are swapped
-and its normal is turned round.
 ```
 
 ### min-length
@@ -1892,10 +1914,33 @@ and its normal is turned round.
 (msafe? o) -> :t | :nil
 ```
 
+### msl-inputs
+
+```code
+the inputs block, packed types and pad words give the std140 offsets.
+
+A matrix is on a 16 byte boundary as it is, and is its columns
+```
+
 ### msl-name
 
 ```code
 a name is given a trailing _ so it can not be a word of MSL, half say
+```
+
+### msl-set-inputs
+
+```code
+the members that are inputs, from the block
+```
+
+### msl-struct
+
+```code
+the shader as a struct. The inputs, the globals, the attrs and the
+
+varyings are members, the constants are members with a value, and the
+functions are methods
 ```
 
 ### must-break?
@@ -2650,6 +2695,42 @@ block), where block is from (shader-pack). :nil if this host can not.
 The driver builds it in its own time, till then :shade draws nothing.
 ```
 
+### shader-gui-frame
+
+```code
+(shader-gui-frame canvas draws) -> :nil | :error | canvas
+
+a frame of triangles drawn by the GPU into the texture of a canvas,
+with a depth buffer. draws is a list of (pair mesh vblock pblock), a
+pair, a mesh, and the blocks of (shader-pack) for the two shaders of
+the pair. :nil is the GPU still busy with the last frame, or the
+driver still building a pair, nothing was drawn, try again. :error is
+a pair the driver could not build.
+```
+
+### shader-gui-mesh
+
+```code
+(shader-gui-mesh verts) -> :nil | mesh
+
+the vertices of a mesh, kept on the GPU, to be drawn with a pair
+whose vertex shader has those attrs. verts is the bytes of
+(shader-verts-str). :nil if this host can not. It is let go of with
+(canvas-mesh-destroy).
+```
+
+### shader-gui-pair
+
+```code
+(shader-gui-pair vertex pixel [cull]) -> :nil | pair
+
+a vertex shader and a pixel shader that the GPU can draw triangles
+into a canvas with, (shader-gui-frame). :nil if this host can not.
+With cull a triangle that faces away is left out, :front those that
+face us. The driver builds it in its own time. It is let go of with
+(canvas-shader-destroy).
+```
+
 ### shader-layout
 
 ```code
@@ -2677,6 +2758,27 @@ mailbox, verts the vertices of the mesh as a str, (shader-verts-str)
 (shader-msl program) -> str
 
 the entry point is fragment_main
+```
+
+### shader-msl-pair
+
+```code
+(shader-msl-pair vertex pixel) -> (vertex_text fragment_text)
+
+a vertex shader and a pixel shader that go together, to draw
+triangles with. The entry points are vertex_main and fragment_main.
+
+The vertex function takes the attrs of a vertex as [[attribute(n)]],
+in the order the shader has them, and its inputs at [[buffer(0)]].
+What it hands on is each of its varyings, [[user(locn n)]]. Where it
+puts a vertex has z of -1 to 1 in view, a GPU of this kind has 0 to
+1, so z is moved as it leaves.
+
+The fragment function takes the varyings the pixel shader reads, by
+the place each has in the vertex shader's list, its inputs at
+[[buffer(0)]], and the size of the target at [[buffer(1)]], from
+which, and where the pixel is, comes the frag coord, y up. A pixel is
+full on, as the native code has it.
 ```
 
 ### shader-msl-vertex
@@ -2736,6 +2838,27 @@ how many numbers a value of the type is
 (shader-spirv program) -> str
 
 the entry point is fragment_main
+```
+
+### shader-spirv-pair
+
+```code
+(shader-spirv-pair vertex pixel) -> (vertex_module fragment_module)
+
+a vertex shader and a pixel shader that go together, to draw
+triangles with. The entry points are vertex_main and fragment_main.
+
+The vertex module takes the attrs of a vertex at locations, in the
+order the shader has them, and its inputs as a block, set 1 binding
+0. It hands on each of its varyings, at a location. Where it puts a
+vertex has z of -1 to 1 in view, a GPU of this kind has 0 to 1, so z
+is moved as it leaves.
+
+The fragment module takes the varyings the pixel shader reads, at
+the place each has in the vertex shader's list, its inputs as a
+block, set 3 binding 0, and the size of the target, set 3 binding 1,
+from which, and where the pixel is, comes the frag coord, y up. A
+pixel is full on, as the native code has it.
 ```
 
 ### shader-spirv-vertex
@@ -2981,7 +3104,8 @@ the statements of a block, up to the one that leaves it
 ```code
 a uniform block of these members, -> (var_id ptr_type_id ...) the
 
-pointer types are those of the members
+pointer types are those of the members. A matrix is a column at a
+time, each 16 bytes on from the last
 ```
 
 ### spv-const
@@ -3050,6 +3174,24 @@ the bytes of the module, model is 0 vertex, 4 fragment
 an instruction, its first word has its length and its opcode
 ```
 
+### spv-port
+
+```code
+a variable that comes in to the module, class 1, or goes out, class
+
+3, at a location, decor 30, or as a built in, decor 11. A shader's
+name for it, if it has one, reads and sets it as it is
+```
+
+### spv-program
+
+```code
+(spv-program program) -> block
+
+the inputs block of a program, a variable for each of its inputs,
+constants and globals, and its functions
+```
+
 ### spv-ptr
 
 ```code
@@ -3060,6 +3202,14 @@ a pointer type, class is 1 input, 2 uniform, 3 output, 6 private, 7 function
 
 ```code
 a float that goes with a vector is made a vector
+```
+
+### spv-start
+
+```code
+at the start of the entry point the inputs are copied from the block,
+
+and the constants and the globals are set
 ```
 
 ### spv-str

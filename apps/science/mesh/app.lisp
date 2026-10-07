@@ -160,10 +160,14 @@
 		(setq *use_gpu* :nil)
 		(. *gpu_toolbar* :set_selected 0))
 	(when (and *use_gpu* gpu_pair)
-		(defq drawn (shader-gui-frame *main_widget* gpu_pair
+		(defq drawn (shader-gui-frame *main_widget*
 			(map (lambda ((id vblock pblock &rest _))
-				(defq verts (. scene :mesh id))
-				(list verts (/ (length verts) 56) vblock pblock)) draws)))
+				;a mesh goes to the GPU the first time it is drawn, and
+				;is kept there
+				(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))
+				(unless (elem-get gpu_meshes id)
+					(elem-set gpu_meshes id (shader-gui-mesh (. scene :mesh id))))
+				(list gpu_pair (ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws)))
 		(cond
 			((eql drawn :error)
 				(setq gpu_pair :nil gpu_failed :t *use_gpu* :nil)
@@ -206,7 +210,7 @@
 		;been asked if it is ready, and it can not reach the pixels
 		farm :nil farming :nil warming :nil no_farm :nil last_farm 0 ticks 0 farm_key 0
 		;the pair of shaders on the GPU, it has drawn a frame, and it can not
-		gpu_pair :nil gpu_drawn :nil gpu_failed :nil
+		gpu_pair :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
 		+farm_stale 3000000
 		;the meshes are made by a herd of children on this machine's nodes
 		jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
@@ -321,5 +325,8 @@
 			((. *window* :event *msg*))))
 	(. jobs :close)
 	(if farm (. farm :close))
+	;what was kept on the GPU
+	(each (# (if %0 (canvas-mesh-destroy %0))) gpu_meshes)
+	(if gpu_pair (canvas-shader-destroy gpu_pair))
 	(gui-sub-rpc *window*)
 	(profile-report "Mesh"))

@@ -4,6 +4,37 @@
 
 ------
 
+A mesh is kept on the GPU, and the host has calls of its own for triangles.
+
+*	Four calls at the end of the GUI's table. `host_gui_pair_create`, a
+	vertex shader and a pixel shader that draw triangles, with a layout of
+	the attrs and the cull. `host_gui_mesh_create` and
+	`host_gui_mesh_destroy`, the vertices of a mesh, kept on the GPU.
+	`host_gui_tris_draw`, a frame, a pair and a mesh and two blocks for each
+	thing drawn. The sdl3 driver draws them. The sdl, raw and fb drivers have
+	them and answer 0.
+
+*	The 16 bytes that went before the code of a vertex shader to say it was
+	a pair, and the frame that went through `host_gui_shader_draw`, are gone.
+
+*	`(shader-gui-mesh verts)`, in `lib/gpu/gui.inc`, and `(shader-gui-frame
+	canvas draws)` now takes `(pair mesh vblock pblock)` for each thing
+	drawn, so a frame can use more than the one pair. Under them
+	`(canvas-pair-create)`, `(canvas-mesh-create)`, `(canvas-mesh-destroy)`
+	and `(. canvas :shade_tris frame)`.
+
+*	The Mesh demo makes each mesh on the GPU the first time it draws it, and
+	lets go of them when it closes. A frame sent the vertices of every mesh
+	before. On a Raspberry Pi 4, the demo alone on one node, 138ms from
+	frame to frame where it was 153ms.
+
+*	**The host programs and the boot image must match**, the table has
+	grown. `make` builds the host programs. The Windows programs in the
+	snapshot are not rebuilt, so GPU triangles on Windows wait for that.
+
+*	`docs/ai_digest/shader_language.md` and
+	`docs/ai_digest/host_interface.md` have it.
+
 Triangles on the GPU of a Raspberry Pi, through Vulkan.
 
 `(shader-spirv-pair vertex pixel)`, in `lib/gpu/spirv.inc`, the SPIR-V for a

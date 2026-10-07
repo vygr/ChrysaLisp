@@ -124,6 +124,20 @@ slow GPU takes long over is best drawn as strips, so the GUI can
 be drawn in between.
 ```
 
+### :shade_tris
+
+```code
+(. canvas :shade_tris frame) -> :nil | :error | canvas
+
+the GPU draws a frame of triangles into the texture of the
+canvas, with a depth buffer. The frame is a count, 8 bytes, then
+for each thing drawn, 8 bytes each, its pair, its mesh, the
+length of the vertex shader's block and of the pixel shader's,
+then the two blocks, each made up to a whole 8 bytes. :nil is
+the GPU still busy, or a pair still being built, nothing was
+drawn, try again. :error is a pair the driver could not build.
+```
+
 ### :swap
 
 ```code

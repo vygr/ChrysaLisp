@@ -16,7 +16,13 @@
 
 ### (canvas-fpoly canvas x y mode list)
 
+### (canvas-mesh-create verts)
+
+### (canvas-mesh-destroy mesh)
+
 ### (canvas-next-frame canvas)
+
+### (canvas-pair-create vertex fragment layout)
 
 ### (canvas-plot canvas x y)
 

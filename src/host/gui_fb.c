@@ -865,6 +865,28 @@ uint64_t host_gui_read_texture(void *handle, uint32_t *data, uint64_t w, uint64_
 	return 1;
 }
 
+// this driver can not draw triangles with a pair of shaders
+
+void *host_gui_mesh_create(const void *verts, uint64_t size)
+{
+	return 0;
+}
+
+void host_gui_mesh_destroy(void *handle)
+{
+}
+
+void *host_gui_pair_create(const char *vertex, uint64_t vertex_size, const char *fragment, uint64_t fragment_size,
+	const uint8_t *layout)
+{
+	return 0;
+}
+
+uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
+{
+	return 0;
+}
+
 void (*host_gui_funcs[]) = {
     (void*)host_gui_init,
     (void*)host_gui_deinit,
@@ -890,6 +912,10 @@ void (*host_gui_funcs[]) = {
 	(void*)host_gui_shader_texture,
 	(void*)host_gui_shader_draw,
 	(void*)host_gui_read_texture,
+	(void*)host_gui_mesh_create,
+	(void*)host_gui_mesh_destroy,
+	(void*)host_gui_pair_create,
+	(void*)host_gui_tris_draw,
 };
 
 /* open linux framebuffer*/

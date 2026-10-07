@@ -178,6 +178,8 @@
 	;pixmap is not used, and is not changed. The part of the texture
 	;given is drawn, all of it if x1 is not greater than x. The result
 	;is 0 if not drawn, the GPU is busy, -1 if the shader did not build.
+	;With a shader of 0 the block is a frame of triangles, and all of the
+	;texture is drawn.
 
 	(structure local 0
 		(ptr this block lisp)
@@ -259,8 +261,14 @@
 				user->local_x1 - user->local_x, user->local_y1 - user->local_y, &rect}
 				{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h, part})
 		(endif)
-		(host-gui-call :host_gui :shader_draw {user->local_shader, texture->+texture_handle,
-			&block->+str_data, block->+str_length, part} {user->local_result})
+		(vpif {user->local_shader})
+			(host-gui-call :host_gui :shader_draw {user->local_shader, texture->+texture_handle,
+				&block->+str_data, block->+str_length, part} {user->local_result})
+		(else)
+			;no shader, the block is a frame of triangles, each with its pair
+			(host-gui-call :host_gui :tris_draw {texture->+texture_handle,
+				&block->+str_data, block->+str_length} {user->local_result})
+		(endif)
 	(endif)
 
 	(assign {old_stack} '(:rsp))
@@ -411,6 +419,160 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(canvas-shader-destroy shader)" +error_msg_wrong_types))
+	(signature '(:NUM)))
+
+(def-func-end)
+
+(def-method :canvas :lisp_pair_create)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;a vertex shader and a pixel shader that draw triangles. The layout
+	;is how many attrs a vertex has, the cull, and the floats of each
+	;attr, a byte each. 0 if the driver can not.
+
+	(structure local 0
+		(ptr this vertex fragment layout)
+		(long result))
+
+	(entry :canvas :lisp_pair_create '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 3)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(list-bind-args :r1 '(:r2 :r3 :r4) '(:obj :obj :obj))
+	(vp-xor-rr :r5 :r5)
+	(assign '(:r2 :r3 :r4 :r5)
+		'((:rsp local_vertex) (:rsp local_fragment) (:rsp local_layout) (:rsp local_result)))
+	(shader-on-gui-node)
+	(vpif '(:r3 /= 0))
+		(call :sys_task :callback '(:rsp ($ callback)))
+	(endif)
+	(call :num :create '((:rsp local_result)) '(:r1))
+	(assign '((:rsp local_this)) '(:r0))
+	(vp-free local_size)
+
+	(exit :canvas :lisp_pair_create '(:r0 :r1))
+	(vp-ret)
+
+	(shader-callback-begin)
+	(assign '((:r0 local_vertex) (:r0 local_fragment) (:r0 local_layout)) '(:r5 :r6 :r9))
+	(assign '((:r5 +str_length) (:r6 +str_length)) '(:r7 :r8))
+	(host-gui-call :host_gui :pair_create
+		'((& :r5 +str_data) :r7 (& :r6 +str_data) :r8 (& :r9 +str_data)) '(:r0))
+	(assign '((:rsp 0)) '(:r1))
+	(assign '(:r0) '((:r1 local_result)))
+	(shader-callback-end)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(canvas-pair-create vertex fragment layout)" +error_msg_wrong_types))
+	(signature '(:STR :STR :STR)))
+
+(def-func-end)
+
+(def-method :canvas :lisp_mesh_create)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;the vertices of a mesh, kept on the GPU. They are given as the bytes
+	;of a reals. 0 if the driver can not.
+
+	(structure local 0
+		(ptr this verts)
+		(long result))
+
+	(entry :canvas :lisp_mesh_create '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 1)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(list-bind-args :r1 '(:r2) '(:obj))
+	(vp-xor-rr :r4 :r4)
+	(assign '(:r2 :r4) '((:rsp local_verts) (:rsp local_result)))
+	(shader-on-gui-node)
+	(vpif '(:r3 /= 0))
+		(call :sys_task :callback '(:rsp ($ callback)))
+	(endif)
+	(call :num :create '((:rsp local_result)) '(:r1))
+	(assign '((:rsp local_this)) '(:r0))
+	(vp-free local_size)
+
+	(exit :canvas :lisp_mesh_create '(:r0 :r1))
+	(vp-ret)
+
+	(shader-callback-begin)
+	(assign '((:r0 local_verts)) '(:r5))
+	(assign '((:r5 +str_length)) '(:r7))
+	(host-gui-call :host_gui :mesh_create '((& :r5 +str_data) :r7) '(:r0))
+	(assign '((:rsp 0)) '(:r1))
+	(assign '(:r0) '((:r1 local_result)))
+	(shader-callback-end)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(canvas-mesh-create verts)" +error_msg_wrong_types))
+	(signature '(:STR)))
+
+(def-func-end)
+
+(def-method :canvas :lisp_mesh_destroy)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(structure local 0
+		(ptr this args)
+		(long mesh))
+
+	(entry :canvas :lisp_mesh_destroy '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 1)
+
+	(vp-alloc local_size)
+	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(list-bind-args :r1 '(:r2) '(:num))
+	(assign '(:r2) '((:rsp local_mesh)))
+	(shader-on-gui-node)
+	(vpif '(:r3 /= 0))
+		(call :sys_task :callback '(:rsp ($ callback)))
+	(endif)
+	(assign '((:rsp local_args)) '(:r1))
+	(assign '((:r1 +array_begin)) '(:r1))
+	(assign '((:r1 0)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(assign '((:rsp local_this)) '(:r0))
+	(vp-free local_size)
+
+	(exit :canvas :lisp_mesh_destroy '(:r0 :r1))
+	(vp-ret)
+
+	(shader-callback-begin)
+	(host-gui-call :host_gui :mesh_destroy '((:r0 local_mesh)))
+	(shader-callback-end)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(canvas-mesh-destroy mesh)" +error_msg_wrong_types))
 	(signature '(:NUM)))
 
 (def-func-end)

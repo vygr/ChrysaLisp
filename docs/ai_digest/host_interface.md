@@ -196,6 +196,30 @@ the host.
           premultiplied, into memory of the width, height and stride given.
           Returns 1 if it could.
 
+    * The triangle calls, after them. The sdl3 driver draws them, the others
+      have them and answer 0.
+
+        * `host_gui_pair_create`: A vertex shader and a pixel shader that
+          draw triangles, each given as bytes and a length, and a layout, a
+          byte for how many attrs a vertex has, a byte for the cull, 0 none,
+          1 what faces away, 2 what faces us, then a byte for the floats of
+          each attr. Returns a handle, or 0, and is built on a thread as a
+          shader is. `host_gui_shader_destroy` frees it.
+
+        * `host_gui_mesh_create`: The vertices of a mesh, kept on the GPU.
+          They are given as doubles, the bytes of a reals, and kept as
+          floats. Returns a handle, or 0.
+
+        * `host_gui_mesh_destroy`: Free a mesh.
+
+        * `host_gui_tris_draw`: Draw a frame of triangles into a texture
+          made by `host_gui_shader_texture`, with a depth buffer. The frame
+          is a block and its length, a count, 8 bytes, then for each thing
+          drawn, 8 bytes each, a pair, a mesh, the length of the vertex
+          shader's block and of the pixel shader's, then the two blocks,
+          each made up to a whole 8 bytes. Returns as `host_gui_shader_draw`
+          does, 1, 0 for try again, or -1.
+
 3. **`host_audio_funcs` (Audio Layer):**
 
     * The implementation is chosen by `_HOST_AUDIO`, which follows the GUI

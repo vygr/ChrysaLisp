@@ -78,6 +78,7 @@
 ```code
 (ascii-code "a") action-auto
 (ascii-code "m") action-mode
+(ascii-code "g") action-gpu-key
 ```
 
 ### *key_map_control*

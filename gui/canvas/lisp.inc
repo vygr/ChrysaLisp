@@ -63,6 +63,19 @@
 			((num? (defq drawn ((const (ffi "gui/canvas/lisp_shade")) this shader block x y x1 y1))) :error)
 			(drawn (. this :dirty))))
 
+	(defmethod :shade_tris (frame)
+		; (. canvas :shade_tris frame) -> :nil | :error | canvas
+		;the GPU draws a frame of triangles into the texture of the
+		;canvas, with a depth buffer. The frame is a count, 8 bytes, then
+		;for each thing drawn, 8 bytes each, its pair, its mesh, the
+		;length of the vertex shader's block and of the pixel shader's,
+		;then the two blocks, each made up to a whole 8 bytes. :nil is
+		;the GPU still busy, or a pair still being built, nothing was
+		;drawn, try again. :error is a pair the driver could not build.
+		(cond
+			((num? (defq drawn ((const (ffi "gui/canvas/lisp_shade")) this 0 frame 0 0 0 0))) :error)
+			(drawn (. this :dirty))))
+
 	(defmethod :exchange (that)
 		; (. canvas :exchange that) -> canvas
 		;the two canvases exchange what they show, their textures. So one
@@ -242,7 +255,26 @@
 
 (defun canvas-shader-destroy (shader)
 	; (canvas-shader-destroy shader) -> shader
+	;a shader, or a pair
 	((const (ffi "gui/canvas/lisp_shader_destroy")) shader))
+
+(defun canvas-pair-create (vertex fragment layout)
+	; (canvas-pair-create vertex fragment layout) -> 0 | pair
+	;a vertex shader and a pixel shader that draw triangles, from the text
+	;of their stages. The layout is a byte for how many attrs a vertex
+	;has, a byte for the cull, 0 none, 1 what faces away, 2 what faces us,
+	;then a byte for the floats of each attr
+	((const (ffi "gui/canvas/lisp_pair_create")) vertex fragment layout))
+
+(defun canvas-mesh-create (verts)
+	; (canvas-mesh-create verts) -> 0 | mesh
+	;the vertices of a mesh, kept on the GPU, from the bytes of a reals,
+	;the attrs of a vertex one after another
+	((const (ffi "gui/canvas/lisp_mesh_create")) verts))
+
+(defun canvas-mesh-destroy (mesh)
+	; (canvas-mesh-destroy mesh) -> mesh
+	((const (ffi "gui/canvas/lisp_mesh_destroy")) mesh))
 
 (defun canvas-flush ()
 	; (canvas-flush)

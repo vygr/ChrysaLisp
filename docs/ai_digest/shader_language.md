@@ -384,17 +384,23 @@ The same two shader files are drawn by the GPU of the GUI, through Metal on
 a Mac and through Vulkan on a Raspberry Pi.
 
 ```lisp
-(defq pair (shader-gui-pair vertex pixel :t))
-(shader-gui-frame canvas pair draws)
+(defq pair (shader-gui-pair vertex pixel :t)
+	mesh (shader-gui-mesh verts))
+(shader-gui-frame canvas (list (list pair mesh vblock pblock)))
 ```
 
 `(shader-gui-pair vertex pixel [cull])` gives a pair the GPU can draw with,
-`:nil` if this host can not. `(shader-gui-frame canvas pair draws)` draws a
-frame into the texture of the canvas, with a depth buffer, `draws` a list of
-`(verts count vblock pblock)`, the vertices of a mesh as the bytes of
-`(shader-verts-str)`, how many there are, and the blocks of the two shaders.
-It gives the canvas, `:nil` if the GPU is busy or the pair is still being
-built, try again, or `:error`.
+`:nil` if this host can not. `(shader-gui-mesh verts)` puts the vertices of a
+mesh on the GPU, the bytes of `(shader-verts-str)`, and they stay there, a
+frame names the mesh and sends none of it. `(shader-gui-frame canvas draws)`
+draws a frame into the texture of the canvas, with a depth buffer, `draws` a
+list of `(pair mesh vblock pblock)`, a pair, a mesh, and the blocks of the two
+shaders of the pair. So the things of a frame need not all be drawn with the
+one pair. It gives the canvas, `:nil` if the GPU is busy or a pair is still
+being built, try again, or `:error`.
+
+A pair is let go of with `(canvas-shader-destroy)`, and a mesh with
+`(canvas-mesh-destroy)`.
 
 `(shader-msl-pair vertex pixel)` is the text, a vertex function and a
 fragment function. The attrs of a vertex are `[[attribute(n)]]`, the
@@ -404,18 +410,19 @@ to 1, a GPU of this kind wants 0 to 1, so z is moved as it leaves the vertex
 function. The frag coord of the pixel shader comes from where the pixel is
 and the size of the target, y up. A pixel is full on.
 
-It rides on the two calls the driver had for a pixel shader, nothing was
-added to the host's table. The code of the vertex shader is given to the
-driver with 16 bytes before it, `CLMESH`, how many attrs, the cull, and the
-floats of each attr, which is how the driver knows it is a pair, and makes a
-pipeline with a depth test. And a frame is given to it as the block of a
-draw, a count, then for each thing drawn the lengths, the two blocks and the
-vertices. `src/host/gui_sdl3.cpp`.
+The host has three calls for it, and one to let go of a mesh,
+`docs/ai_digest/host_interface.md`. A pair is made from the code of the two
+stages and a layout, a byte for how many attrs a vertex has, a byte for the
+cull, and a byte for the floats of each attr, and the driver makes a pipeline
+with a depth test. A frame is given to it as the one block, a count, then for
+each thing drawn its pair, its mesh, the lengths of the two blocks, and the
+blocks. `src/host/gui_sdl3.cpp`. The Lisp side of them is
+`(canvas-pair-create)`, `(canvas-mesh-create)`, `(canvas-mesh-destroy)` and
+`(. canvas :shade_tris frame)`, in `gui/canvas/lisp.inc`.
 
-Two things are short of what they should be. The vertices of every mesh go
-to the GPU again with every frame, there is no mesh kept on it. And the GPU
-draws at the size the canvas is shown, where the native code draws a canvas
-with a scale at the size of its pixmap, and it is then scaled down.
+One thing is short of what it should be. The GPU draws at the size the
+canvas is shown, where the native code draws a canvas with a scale at the
+size of its pixmap, and it is then scaled down.
 
 The Mesh demo has CPU and GPU buttons, and the g key, to change between the
 nodes and the GPU as it runs.
