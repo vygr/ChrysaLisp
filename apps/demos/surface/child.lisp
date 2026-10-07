@@ -28,9 +28,10 @@
 		pixmap (attach canvas_key width height)
 		data (if (and pixmap (shader-vp-draw native frame pixmap x y x1 y1 height)) ""
 			(shader-vp-argb native frame x y x1 y1 height)))
-	(mail-send mbox (cat data
-		(char key +long_size) (char x +int_size) (char y +int_size)
-		(char x1 +int_size) (char y1 +int_size))))
+	(mail-send mbox (cat (setf-> (str-alloc +tile_reply_size)
+		(+job_reply_key key)
+		(+tile_reply_x x) (+tile_reply_y y)
+		(+tile_reply_x1 x1) (+tile_reply_y1 y1)) data)))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
@@ -45,5 +46,5 @@
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(apply rect (push (getf-> msg +job_key +job_reply
-						+job_x +job_y +job_x1 +job_y1 +job_height +job_width +job_shared)
-					(slice msg +job_inputs -1)))))))
+						+tile_x +tile_y +tile_x1 +tile_y1 +tile_height +tile_width +tile_shared)
+					(slice msg +tile_inputs -1)))))))

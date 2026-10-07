@@ -13,19 +13,21 @@
 	;node can not reach the pixels, it is on another machine say
 	(unless (= key shared_key)
 		(setq shared_key key canvas (and (/= key 0)
-			(defq pixmap (pixmap-shared +scene_width +scene_height key))
-			(. (Canvas-pixmap pixmap) :set_canvas_flags +canvas_flag_antialias))))
+			(defq found (canvas-shared +scene_width +scene_height 1 key))
+			(. found :set_canvas_flags +canvas_flag_antialias))))
 	canvas)
 
 (defun draw-slice (key mbox canvas_key y y1 packed)
 	;draw the rows, and say how many opcodes it took, -1 if the canvas
 	;could not be reached. No rows at all is the app asking if this child
 	;is up, with the scene loaded and the canvas found
-	(mail-send mbox (cat (char key +long_size) (char y +int_size)
-		(char (cond
+	(mail-send mbox (setf-> (str-alloc +slice_reply_size)
+		(+job_reply_key key)
+		(+slice_reply_y y)
+		(+slice_reply_drawn (cond
 			((not (attach canvas_key)) -1)
 			((>= y y1) 0)
-			((scene-draw canvas packed y y1))) +int_size))))
+			((scene-draw canvas packed y y1)))))))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
@@ -39,5 +41,5 @@
 			((= idx +select_main)
 				;a slice to draw
 				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(apply draw-slice (push (getf-> msg +job_key +job_reply +job_shared +job_y +job_y1)
-					(slice msg +job_bouncers -1)))))))
+				(apply draw-slice (push (getf-> msg +job_key +job_reply +slice_shared +slice_y +slice_y1)
+					(slice msg +slice_bouncers -1)))))))

@@ -46,6 +46,13 @@ tasks must adapt, is central to ChrysaLisp's robustness.
       independent jobs among them. `Farm` is a higher-level abstraction
       often built upon `Local`.
 
+   * **`Jobs` (`lib/task/jobs.inc`)** is built on `Farm` for the common case,
+     a queue of job messages handed out to the children one each. It owns the
+     queue, starts the children, puts the job of a child that dies back on
+     the queue, and tells the app how many jobs are still unanswered. The app
+     passes it what arrives on its task and reply mailboxes, `(. jobs
+     :launched msg)` and `(. jobs :answered msg)`.
+
     * **Mechanism:**
 
         * **`create` callback:** Invoked to launch a new worker task when

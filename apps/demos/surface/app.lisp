@@ -1,7 +1,6 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-(import "lib/task/farm.inc")
 (import "lib/gpu/shader.inc")
 (import "lib/gpu/gui.inc")
 (import "./app.inc")
@@ -21,7 +20,7 @@
 	;the timer ticks at the rate of a GPU frame, the slow jobs are done every so many
 	+timer_rate (/ 1000000 60) +slow_ticks 30 ticks 0 +retry_timeout (task-timeout 5)
 	program (shader-load +shader_file) controls (list)
-	jobs (list) tiles (list) farm :nil select :nil id :t
+	jobs :nil select :nil id :t
 	start_time (pii-time) frame_time 0
 	;the shader on the GPU, if the host GUI driver can draw one, and
 	;the frames it has drawn since the status line was last set
@@ -96,32 +95,6 @@
 			(push controls (list name type lo hi slider label val init))))
 		(first program)))
 
-(defun dispatch-job (key val)
-	;send another job to child
-	(cond
-		((defq job (pop jobs))
-			(def val :job job :timestamp (pii-time))
-			(mail-send (get :child val)
-				(setf-> job
-					(+job_key key)
-					(+job_reply (elem-get select +select_reply)))))
-		(:t ;no jobs in que
-			(undef val :job :timestamp))))
-
-(defun create (key val nodes)
-	; (create key val nodes)
-	;function called when entry is created
-	(open-task (const (cat *app_root* "child.lisp")) (elem-get nodes (random (length nodes)))
-		+kn_call_run key (elem-get select +select_task)))
-
-(defun destroy (key val)
-	; (destroy key val)
-	;function called when entry is destroyed
-	(when (defq child (get :child val)) (mail-send child ""))
-	(when (defq job (get :job val))
-		(push jobs job)
-		(undef val :job)))
-
 (defun frame-inputs (now)
 	;the inputs block for a frame, from the time and the controls
 	(defq vals (list
@@ -138,30 +111,23 @@
 	;a frame on the CPU, the nodes shade it, a tile each, as native code.
 	;The inputs block goes out with every tile of it.
 	(defq inputs (frame-inputs (setq frame_time (pii-time))))
-	(setq cpu_running :t tiles (range 0 +height +line_batch)
-		jobs (map (lambda (y)
-			(cat (setf-> (str-alloc +job_size)
-				(+job_x 0)
-				(+job_y y)
-				(+job_x1 +width)
-				(+job_y1 (min +height (+ y +line_batch)))
-				(+job_height +height)
-				(+job_width +width)
-				(+job_shared shared_key)) inputs)) tiles))
-	;wake the children that have no job
-	(. farm :each (lambda (key val)
-		(if (and (get :child val) (not (get :job val)))
-			(dispatch-job key val)))))
+	(setq cpu_running :t)
+	(. jobs :add (map (lambda (y)
+		(cat (setf-> (str-alloc +tile_size)
+			(+tile_x 0)
+			(+tile_y y)
+			(+tile_x1 +width)
+			(+tile_y1 (min +height (+ y +line_batch)))
+			(+tile_height +height)
+			(+tile_width +width)
+			(+tile_shared shared_key)) inputs)) (range 0 +height +line_batch))))
 
 (defun to-cpu ()
 	;the frames are drawn by the CPU from here on
 	(setq gpu_mode :nil gpu_inputs :nil gpu_y 0 gpu_wait 0 ticks 0)
 	;a child with no work for a while has gone, so every child is started
 	;again, and takes a tile as it comes up
-	(defq keys (list) vals (list))
-	(. farm :each (# (push keys %0) (push vals %1)))
-	(each (# (. farm :restart %0 %1)) keys vals)
-	(setq jobs (list) tiles (list))
+	(. jobs :restart)
 	(start-frame))
 
 (defun gpu-tick ()
@@ -185,7 +151,8 @@
 				;the shader is built, the GPU draws the frames from here on. What
 				;is left of a CPU frame is dropped, a tile that comes in late is
 				;not shown. The wait for the build says nothing of the GPU.
-				(setq gpu_mode :t cpu_running :nil jobs (list) tiles (list)
+				(. jobs :clear)
+				(setq gpu_mode :t cpu_running :nil
 					gpu_frames 0 gpu_time (pii-time) ticks 0 gpu_wait 1))
 			;a strip should take the GPU more than one tick and less than two,
 			;so the GPU is not left idle, and the GUI does not wait long
@@ -221,7 +188,8 @@
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(setq farm (Farm create destroy (length (lisp-nodes)))
+	(setq jobs (Jobs (cat *app_root* "child.lisp")
+			(elem-get select +select_task) (elem-get select +select_reply))
 		gpu_shader (shader-gui program))
 	;it comes up on the GPU if there is one. The CPU is not started at
 	;once, most drivers have the shader built before it would have a frame
@@ -246,23 +214,18 @@
 						(set-mode))
 					((. *window* :event msg))))
 			(+select_task
-				;child launch response
-				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
-				(when (defq val (. farm :find key))
-					(def val :child child)
-					(dispatch-job key val)))
+				;a child has started
+				(. jobs :launched msg))
 			(+select_reply
-				;child response
-				(bind '(key x y x1 y1) (getf-> (slice msg (- -1 +job_reply) -1)
-					+job_key +job_x +job_y +job_x1 +job_y1))
-				(when (defq val (. farm :find key))
-					(dispatch-job key val))
-				;a child that could not reach the canvas sends the pixels
-				(unless (or gpu_mode (= (length msg) +job_reply))
-					(. *canvas* :tile msg x y x1 y1))
-				(when (defq i (find y tiles))
-					(setq tiles (erase tiles i (inc i)))
-					(when (empty? tiles)
+				;a tile is shaded. One that comes in after the GPU has taken
+				;over is not shown
+				(when (and (defq out (. jobs :answered msg)) (not gpu_mode))
+					;a child that could not reach the canvas sends the pixels
+					(when (> (length msg) +tile_reply_size)
+						(bind '(x y x1 y1) (getf-> msg +tile_reply_x +tile_reply_y
+							+tile_reply_x1 +tile_reply_y1))
+						(. *canvas* :tile (slice msg +tile_reply_pixels -1) x y x1 y1))
+					(when (= out 0)
 						;the frame is done, show it and start the next
 						(. *canvas* :swap +swap_write)
 						(if (> (pii-time) notice_until)
@@ -284,8 +247,8 @@
 							(setq gpu_frames 0 gpu_time now))
 						;the shader is taking the driver a while, so the CPU starts
 						((not cpu_running) (start-frame))
-						((. farm :refresh +retry_timeout)))))))
+						((. jobs :refresh +retry_timeout)))))))
 	;close window and children
 	(if gpu_shader (canvas-shader-destroy gpu_shader))
-	(. farm :close)
+	(. jobs :close)
 	(gui-sub-rpc *window*))

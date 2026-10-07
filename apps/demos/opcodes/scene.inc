@@ -7,15 +7,19 @@
 
 (import "lib/math/vector.inc")
 (import "lib/asm/ops.inc")
+(import "lib/task/jobs.inc")
 
-(structure +job 0
-	(long key)
-	(netid reply)
-	;the key of the shared pixmap, and the rows to draw
+;a slice for a child to draw, the key of the shared pixels and the rows,
+;then a +bouncer for every opcode
+(structure +slice +job_size
 	(long shared)
 	(uint y y1)
-	;then a +bouncer for every opcode
 	(offset bouncers))
+
+;its answer, the first row, and how many opcodes it drew, -1 if it could
+;not reach the pixels
+(structure +slice_reply +job_reply_size
+	(uint y drawn))
 
 ;an opcode as it is for one frame, the numbers are fixeds
 (structure +bouncer 0

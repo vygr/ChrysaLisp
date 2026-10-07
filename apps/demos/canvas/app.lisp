@@ -1,7 +1,6 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-(import "lib/task/farm.inc")
 (import "./scene.inc")
 
 (enums +event 0
@@ -10,20 +9,17 @@
 (enums +select 0
 	(enum main task reply timer))
 
-(structure +reply 0
-	(long key)
-	(uint y drawn))
-
 (defq +rate (/ 1000000 60) +slow_ticks 30 ticks 0 +retry_timeout (task-timeout 5)
 	+min_shapes 12 +max_shapes 1200
 	;the pixels of the canvas are in shared memory if the host has it, and
 	;the children draw their slices straight onto them
-	shared_pixmap (pixmap-shared +scene_width +scene_height 0)
-	shared_key (if shared_pixmap (pixmap-key shared_pixmap) 0)
-	select :nil farm :nil jobs (list) slices (list) farming :nil
-	;how many children are still to say they are up. Till they all have
-	;the frames are drawn here, so the picture never stops for them
-	warming 0
+	shared_canvas (canvas-shared +scene_width +scene_height 1)
+	shared_key (if shared_canvas (canvas-key shared_canvas) 0)
+	select :nil jobs :nil
+	;farming, a frame is out with the children. warming, they have been
+	;asked if they are up, and till they all are the frames are drawn
+	;here, so the picture never stops for them
+	farming :nil warming :nil
 	start_time (pii-time) frame_time 0 frame_shapes 0 frames 0 frames_us 0)
 
 (ui-window *window* (:resizable :nil)
@@ -34,8 +30,7 @@
 		(. (ui-slider *shapes* (:maximum (- +max_shapes +min_shapes) :portion 100
 			:value 180 :min_width 256)) :connect +event_shapes))
 	(ui-label *status* (:text "..." :font *env_body_font*))
-	(ui-element *canvas* (if shared_pixmap (Canvas-pixmap shared_pixmap)
-		(Canvas +scene_width +scene_height 1)) (:color 0)))
+	(ui-element *canvas* (ifn shared_canvas (Canvas +scene_width +scene_height 1)) (:color 0)))
 
 (defun set-label (label text)
 	;a label lays its text out once, so lay it out again for the new text
@@ -60,45 +55,20 @@
 			(str (shape-count)) " shapes, " how))
 		(setq frames 0 frames_us 0)))
 
-(defun dispatch-job (key val)
-	;send another job to child
-	(cond
-		((defq job (pop jobs))
-			(def val :job job :timestamp (pii-time))
-			(mail-send (get :child val)
-				(setf-> job
-					(+job_key key)
-					(+job_reply (elem-get select +select_reply)))))
-		(:t ;no jobs in que
-			(undef val :job :timestamp))))
-
-(defun create (key val nodes)
-	; (create key val nodes)
-	;function called when entry is created
-	(open-task (const (cat *app_root* "child.lisp")) (elem-get nodes (random (length nodes)))
-		+kn_call_run key (elem-get select +select_task)))
-
-(defun destroy (key val)
-	; (destroy key val)
-	;function called when entry is destroyed
-	(when (defq child (get :child val)) (mail-send child ""))
-	(when (defq job (get :job val))
-		(push jobs job)
-		(undef val :job)))
+(defun slice-job (angle shapes y y1)
+	(setf-> (str-alloc +slice_size)
+		(+slice_shared shared_key) (+slice_angle angle) (+slice_count shapes)
+		(+slice_y y) (+slice_y1 y1)))
 
 (defun warm-farm (&optional fresh)
 	;every child is started again, one with no work for a while has gone,
 	;unless they are fresh, only just started. Each is asked for a slice
 	;of no rows, which it answers when it has the scene loaded and has
 	;found the canvas
-	(defq keys (list) vals (list))
-	(. farm :each (# (push keys %0) (push vals %1)))
-	(unless fresh (each (# (. farm :restart %0 %1)) keys vals))
-	(setq warming (length keys)
-		jobs (map (lambda (_)
-			(setf-> (str-alloc +job_size)
-				(+job_shared shared_key) (+job_angle 0) (+job_count 0)
-				(+job_y +scene_height) (+job_y1 +scene_height))) keys)))
+	(unless fresh (. jobs :restart))
+	(setq warming :t farming :nil)
+	(. jobs :add (map (lambda (_) (slice-job 0 0 +scene_height +scene_height))
+		(range 0 (. jobs :size)))))
 
 (defun start-farm-frame ()
 	;a frame drawn by the nodes, a slice for each of them. More slices than
@@ -106,16 +76,9 @@
 	;worked on by both sides of it
 	(defq count (max 1 (length (lisp-nodes)))
 		angle (n2i (* (scene-angle) 65536.0)) shapes (shape-count))
-	(setq farming :t frame_time (pii-time) frame_shapes 0
-		slices (map (# (/ (* %0 +scene_height) count)) (range 0 count))
-		jobs (map (lambda (y)
-			(setf-> (str-alloc +job_size)
-				(+job_shared shared_key) (+job_angle angle) (+job_count shapes)
-				(+job_y y) (+job_y1 (/ (* (inc (!)) +scene_height) count))))
-			slices))
-	(. farm :each (lambda (key val)
-		(if (and (get :child val) (not (get :job val)))
-			(dispatch-job key val)))))
+	(setq farming :t frame_time (pii-time) frame_shapes 0)
+	(. jobs :add (map (# (slice-job angle shapes (/ (* %0 +scene_height) count)
+		(/ (* (inc %0) +scene_height) count))) (range 0 count))))
 
 (defun one-task-frame (how)
 	;a frame drawn here, all of it
@@ -128,10 +91,11 @@
 	(.-> *canvas* (:set_canvas_flags +canvas_flag_antialias) (:fill +argb_black) (:swap +swap_write))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(setq farm (Farm create destroy (max 1 (length (lisp-nodes)))))
+	(setq jobs (Jobs (cat *app_root* "child.lisp")
+		(elem-get select +select_task) (elem-get select +select_reply)))
 	;it comes up on all the nodes, if their pixels can be shared
-	(. *mode* :set_selected (if shared_pixmap 1 0))
-	(if shared_pixmap (warm-farm :t))
+	(. *mode* :set_selected (if shared_canvas 1 0))
+	(if shared_canvas (warm-farm :t))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(defq id :t)
 	(while id
@@ -144,40 +108,35 @@
 					((= id +event_mode)
 						(cond
 							((/= (. *mode* :get_selected) 1))
-							((not shared_pixmap)
+							((not shared_canvas)
 								(. *mode* :set_selected 0)
 								(set-label *status* "This host has no shared memory for the nodes to draw on"))
 							((not farming) (warm-farm))))
 					((. *window* :event msg))))
 			(+select_task
-				;child launch response
-				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
-				(when (defq val (. farm :find key))
-					(def val :child child)
-					(dispatch-job key val)))
+				;a child has started
+				(. jobs :launched msg))
 			(+select_reply
-				;a slice is drawn
-				(bind '(key y drawn) (getf-> msg +reply_key +reply_y +reply_drawn))
-				(when (defq val (. farm :find key))
-					(dispatch-job key val))
-				;a child that is up, or one that can not reach the canvas
-				(if (= y +scene_height) (setq warming (max 0 (dec warming))))
-				(when (and farming (defq i (find y slices)))
-					(setq slices (erase slices i (inc i)) frame_shapes (+ frame_shapes drawn))
-					(when (empty? slices)
-						(setq farming :nil)
-						(frame-done (cat (str (length (lisp-nodes))) " nodes, "
-							(str frame_shapes) " shapes drawn over the slices")))))
+				;a slice is drawn, or a child has said it is up
+				(when (defq out (. jobs :answered msg))
+					(cond
+						(warming (if (= out 0) (setq warming :nil)))
+						(farming
+							(setq frame_shapes (+ frame_shapes (getf msg +slice_reply_drawn)))
+							(when (= out 0)
+								(setq farming :nil)
+								(frame-done (cat (str (length (lisp-nodes))) " nodes, "
+									(str frame_shapes) " shapes drawn over the slices")))))))
 			(:t ;timer event, the next frame if the last is done
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(unless farming
 					(cond
-						((or (not shared_pixmap) (/= (. *mode* :get_selected) 1))
+						((or (not shared_canvas) (/= (. *mode* :get_selected) 1))
 							(one-task-frame "one task"))
-						((> warming 0)
+						(warming
 							(one-task-frame "one task, while the nodes get ready"))
 						((start-farm-frame))))
 				(when (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
-					(. farm :refresh +retry_timeout)))))
-	(. farm :close)
+					(. jobs :refresh +retry_timeout)))))
+	(. jobs :close)
 	(gui-sub-rpc *window*))

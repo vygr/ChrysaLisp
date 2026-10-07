@@ -4,6 +4,35 @@
 
 ------
 
+The code that hands work out to a farm of children is in one place,
+`lib/task/jobs.inc`, and five apps use it and draw on shared pixels.
+
+Every app with a farm had its own copy of the same three functions, create,
+destroy and dispatch-job, and its own two handlers, ten copies in all. A
+`Jobs` object owns the queue and the farm. `(Jobs path task_mbox
+reply_mbox [size])` starts the children, `(. jobs :add jobs)` queues work,
+`(. jobs :launched msg)` and `(. jobs :answered msg)` take what comes to the
+two mailboxes, and the second says how many jobs are still out, so a frame
+is done when it says none, and says `:nil` for an answer from a child that
+has since been started again. `:restart`, `:clear`, `:refresh` and `:close`
+are the rest. A job starts with a `+job`, a key and a mailbox, an answer
+with a `+job_reply`, the key, as all ten copies had it. A new test,
+`tests/system/test_jobs.lisp`.
+
+`(canvas-shared width height scale [key])` is a canvas on shared pixels in
+one call, made or found, and `(canvas-key canvas)` its key.
+
+The Surface, Canvas and Opcodes demos are moved onto it and work as they
+did. So are the Raymarch demo and the Mandelbrot app, and their children
+now draw their tiles and squares straight onto the app's canvas and send
+back a few bytes, where they sent the pixels. A click on the Mandelbrot
+starts the children again, and a square from the old picture that comes in
+late is left alone, where the app used to swap its mailbox to be rid of
+them. The other five copies, the assembler, the command farm, Mesh,
+Molecule and Chess, are as they were.
+
+------
+
 The stroker has the code for a joint once. `:path :stroke_polyline` had a
 copy of the loop that `:path :stroke_joints` is, and now calls it, for the
 way out and for the way back. Every stroke comes out as it did, byte for

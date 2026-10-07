@@ -226,6 +226,15 @@ flush any shared pixmaps that have no users.
 (canvas-info file) -> (width height type) | (-1 -1 -1)
 ```
 
+### canvas-key
+
+```code
+(canvas-key canvas) -> 0 | key
+
+the key of the shared memory the pixels of a canvas are in, 0 if
+they are its own
+```
+
 ### canvas-load
 
 ```code
@@ -259,6 +268,18 @@ a shader from the text of its vertex and fragment stages
 
 the shading language the host GUI driver takes for a shader,
 0 if it can not draw one, 1 for MSL, 2 for SPIR-V
+```
+
+### canvas-shared
+
+```code
+(canvas-shared width height scale [key]) -> :nil | canvas
+
+a canvas with its pixels in shared memory, that the nodes of this
+machine can all draw on. With no key the pixels are made, and
+(canvas-key) is the key of them. Given that key, and the same size,
+a task on another node has a canvas on the same pixels. :nil if the
+host has no shared memory, or there are no pixels of that key.
 ```
 
 ### char-class
@@ -344,6 +365,12 @@ a built in op
 whole part of the power by squaring, the rest by repeated roots
 ```
 
+### create
+
+```code
+a child is started, the word that it has comes to the task mailbox
+```
+
 ### csr-cmp
 
 ```code
@@ -425,6 +452,18 @@ returns :t if csr2 is enclosed within (or equal to) csr1
 
 ```code
 (decode-date str) -> td
+```
+
+### destroy
+
+```code
+a child is told to go, the job it had goes back on the queue
+```
+
+### dispatch
+
+```code
+the next job on the queue to a child, if there is one
 ```
 
 ### each-mergeable
@@ -1283,6 +1322,12 @@ Reads a self-describing codebook from a stream and reconstructs the model.
 
 ```code
 Writes a self-describing codebook (via the frequency map) to a stream.
+```
+
+### idle
+
+```code
+every child that is up and has no job is given one
 ```
 
 ### import

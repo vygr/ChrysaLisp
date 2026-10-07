@@ -170,6 +170,24 @@
 	(defq super this this ((const (ffi "gui/canvas/lisp_create_pixmap")) pixmap))
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
 
+(defun canvas-shared (width height scale &optional key)
+	; (canvas-shared width height scale [key]) -> :nil | canvas
+	;a canvas with its pixels in shared memory, that the nodes of this
+	;machine can all draw on. With no key the pixels are made, and
+	;(canvas-key) is the key of them. Given that key, and the same size,
+	;a task on another node has a canvas on the same pixels. :nil if the
+	;host has no shared memory, or there are no pixels of that key.
+	(when (defq pixmap (pixmap-shared (* width scale) (* height scale) (ifn key 0)))
+		(defq canvas (Canvas-pixmap pixmap))
+		(setf canvas +canvas_scale scale 0)
+		canvas))
+
+(defun canvas-key (canvas)
+	; (canvas-key canvas) -> 0 | key
+	;the key of the shared memory the pixels of a canvas are in, 0 if
+	;they are its own
+	(if (defq pixmap (getf canvas +canvas_pixmap 0)) (pixmap-key pixmap) 0))
+
 (defun canvas-info (file)
 	; (canvas-info file) -> (width height type) | (-1 -1 -1)
 	(or (if (defq stream (file-stream file))

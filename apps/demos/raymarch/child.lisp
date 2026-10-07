@@ -105,9 +105,23 @@
 						r (* r +ref_coef)))
 			(vector-clamp color (const (cat +reals_tmp3)) +reals_one3))))
 
-(defun rect (key mbox x y x1 y1 w h cam_z light_x light_z)
-	(defq reply (string-stream (str-alloc (+ (* (+ (* (- x1 x) (- y1 y)) 4) +int_size) +long_size)))
-		tile (list x y x1 y1) w2 (/ w +real_2) h2 (/ h +real_2) y (dec y)
+;the canvas of the app, on its pixels in shared memory, and the key they
+;were found by
+(defq shared_key 0 canvas :nil)
+
+(defun attach (key w h)
+	;the app's canvas, found again if the key has changed. :nil if this
+	;node can not reach the pixels, it is on another machine say
+	(unless (= key shared_key)
+		(setq shared_key key canvas (and (/= key 0) (canvas-shared w h 1 key))))
+	canvas)
+
+(defun rect (key mbox x y x1 y1 canvas_key w h cam_z light_x light_z)
+	;march the tile. It is drawn straight onto the app's canvas if that
+	;can be reached, and only the word that it is done goes back. If not
+	;the pixels go back.
+	(defq pixels (string-stream (str-alloc (* (- x1 x) (- y1 y) +int_size)))
+		ty y w2 (/ w +real_2) h2 (/ h +real_2) y (dec y)
 		light_pos (reals light_x (n2r -0.1) light_z)
 		screen_z (+ cam_z (const (n2r 3.0))))
 	(while (< (++ y) y1)
@@ -117,13 +131,20 @@
 				ray_dir (vector-norm (vector-sub
 					(reals (/ (* (- (n2r xp) w2) +real_1) w2)
 						(/ (* (- (n2r y) h2) +real_1) h2) screen_z) ray_origin)))
-			(write-int reply (reduce! (# (+ %0 (<< (n2i %1) %2))) (list
+			(write-int pixels (reduce! (# (+ %0 (<< (n2i %1) %2))) (list
 				(vector-scale (scene-ray ray_origin ray_dir light_pos) +real_255 +reals_tmp3)
 				'(16 8 0)) +argb_black))
 			(task-slice)))
-	(write-long reply key)
-	(write-int reply tile)
-	(mail-send mbox (str reply)))
+	(defq pixels (str pixels)
+		reply (setf-> (str-alloc +tile_reply_size)
+			(+job_reply_key key)
+			(+tile_reply_x x) (+tile_reply_y ty)
+			(+tile_reply_x1 x1) (+tile_reply_y1 y1)))
+	(cond
+		((attach canvas_key (n2i w) (n2i h))
+			(. canvas :tile pixels x ty x1 y1)
+			(mail-send mbox reply))
+		((mail-send mbox (cat reply pixels)))))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
@@ -138,4 +159,5 @@
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(apply rect (getf-> msg +job_key +job_reply
-					+job_x +job_y +job_x1 +job_y1 +job_w +job_h +job_cam_z +job_light_x +job_light_z))))))
+					+tile_x +tile_y +tile_x1 +tile_y1 +tile_shared
+					+tile_w +tile_h +tile_cam_z +tile_light_x +tile_light_z))))))

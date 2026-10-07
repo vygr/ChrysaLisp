@@ -5,14 +5,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/math/vector.inc")
+(import "lib/task/jobs.inc")
 
-(structure +job 0
-	(long key)
-	(netid reply)
-	;the key of the shared pixmap, the turn of the scene as a fixed, how
-	;many shapes there are, and the rows to draw
+;a slice for a child to draw, the key of the shared pixels, the turn of
+;the scene as a fixed, how many shapes there are, and the rows
+(structure +slice +job_size
 	(long shared angle count)
 	(uint y y1))
+
+;its answer, the first row, and how many shapes it drew, -1 if it could
+;not reach the pixels
+(structure +slice_reply +job_reply_size
+	(uint y drawn))
 
 (defq +scene_width 1024 +scene_height 768
 	;the shapes are made at the size they had on a canvas of 600
