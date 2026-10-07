@@ -4,6 +4,42 @@
 
 ------
 
+The Bubbles demo is a structure of arrays, thousands of bubbles, drawn by
+all the nodes.
+
+It was a list of bubbles, each with a place and a speed, and a loop over
+them for every frame. Now there is an array of every x, one of every y, and
+so on, `apps/demos/bubbles/scene.inc`, and a frame is some thirty array
+operations, `nums-add`, `nums-mul`, `nums-div`, `nums-mod`, each one call
+of native code however many bubbles there are. Where 2000 bubbles are,
+where they are on the screen, how big, and where their highlights are, is
+worked out in 25 millionths of a second, with no Lisp per bubble.
+
+A bubble does not have its speed turned round at a wall. Its place is a
+function of the time, it goes on at its speed and the box folds it back, a
+triangle wave, which is five of those operations. And the scene is made
+from a seed. So the app and every child have the same bubbles in the same
+places from a seed, a count and a time, and nothing of the scene is sent,
+a slice is 80 bytes. The one loop over every bubble is the broad phase,
+which of them reach these rows, and those are sorted far to near and
+drawn. Two bubbles as far away as each other are drawn in the order of
+their numbers, so every slice blends them the same way.
+
+A slider goes from 50 to 3000 bubbles, the button makes new ones, and the
+mouse on the canvas still moves the light. The picture the nodes draw is
+the one a single task draws, bit for bit. A frame by one task against a
+frame by all the nodes, timed with no window:
+
+| | 500 bubbles | 2000 | 3000 |
+|---|---|---|---|
+| M4 Max, 16 nodes | 3.9ms, 2.4ms | 16.6ms, 6.5ms | 25.9ms, 9.3ms |
+| x86_64 MacBook, 12 nodes | 8.5ms, 3.8ms | 33.7ms, 13.1ms | 49.4ms, 19.5ms |
+| Raspberry Pi 4, 4 nodes | 37.4ms, 23.2ms | 154ms, 94.5ms | |
+
+At 50 bubbles one task is the faster, there is too little to share out.
+
+------
+
 A second shader, and a film made with it. The Raymarch demo draws its film
 on the GPU and reads each frame back to save it.
 
