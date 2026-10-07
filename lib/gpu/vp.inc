@@ -425,7 +425,8 @@
 (defun sv-source (program name)
 	; -> (text frame_size)
 	;the VP source of the native function for a program
-	(bind '(inputs consts globals funcs) program)
+	(sh-pixel-only program "VP")
+	(bind '(inputs consts globals funcs &rest _) program)
 	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
 		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
 		ret_offset 0 ret_label :nil)

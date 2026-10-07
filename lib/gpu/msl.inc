@@ -73,7 +73,8 @@
 (defun shader-msl (program)
 	; (shader-msl program) -> str
 	;the entry point is fragment_main
-	(bind '(inputs consts globals funcs) program)
+	(sh-pixel-only program "MSL")
+	(bind '(inputs consts globals funcs &rest _) program)
 	(defq offset 0 pads 0 lines (list "#include <metal_stdlib>" "using namespace metal;" ""
 		"template<typename T, typename U> static inline T sh_mod(T x, U y) { return x - y * floor(x / y); }" ""
 		"struct Inputs" "{"))

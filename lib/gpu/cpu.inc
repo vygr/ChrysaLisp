@@ -1,9 +1,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Shader language, CPU back end.
 ; A program becomes a Lisp lambda that shades a tile of pixels,
+; or, for a vertex shader, one that places a list of vertices,
 ; with no GPU. A float is a real, a vector is a reals, an int is
-; a num. Vectors are never changed in place, so they can be
-; shared, and constants are folded into the code.
+; a num, a matrix is a reals of 16, a row at a time, as
+; lib/math/matrix.inc has one. Vectors are never changed in place,
+; so they can be shared, and constants are folded into the code.
+;
+; It is the reference, what the other back ends are checked by.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./shader.inc")
@@ -66,6 +70,27 @@
 (defun cpu-vpow (x y)
 	(apply (const reals) (map (const cpu-pow) x y)))
 
+(defun cpu-mat-vec (m v)
+	;a matrix times a vec4, each row of the matrix dotted with it
+	(reals (nums-dot (slice m 0 4) v) (nums-dot (slice m 4 8) v)
+		(nums-dot (slice m 8 12) v) (nums-dot (slice m 12 16) v)))
+
+(defun cpu-mat-mul (a b)
+	;a matrix times a matrix, each row of the one dotted with each
+	;column of the other
+	(defq cols (map (# (reals (elem-get b %0) (elem-get b (+ %0 4))
+		(elem-get b (+ %0 8)) (elem-get b (+ %0 12)))) (range 0 4)))
+	(apply (const reals) (map (# (nums-dot (slice a (* (/ %0 4) 4) (+ (* (/ %0 4) 4) 4))
+		(elem-get cols (% %0 4)))) (range 0 16))))
+
+(defun cpu-zero (type)
+	;what a value of the type is before it is set
+	(cond
+		((eql type :mat4) (apply (const reals) (map (lambda (_) +cpu_0) (range 0 16))))
+		((shader-dim type) (cpu-splat +cpu_0 (shader-dim type)))
+		((eql type :int) 0)
+		(+cpu_0)))
+
 (defun cpu-swz (v idxs)
 	(apply (const reals) (map (# (elem-get v %0)) idxs)))
 
@@ -94,6 +119,8 @@
 	;one step of + - * /, by the types of the two sides
 	(defq va (shader-dim ta) vb (shader-dim tb))
 	(cpu-fold (cond
+		((eql ta :mat4)
+			(list (if (eql tb :mat4) (const cpu-mat-mul) (const cpu-mat-vec)) a b))
 		((and va vb)
 			(list (elem-get (static-q (nums-add nums-sub nums-mul nums-div)) i) a b))
 		(va (case i
@@ -246,21 +273,53 @@
 							(cat (list (const progn)) (cpu-block more flag)))))
 						(cat loop (cpu-block more flag))))))))
 
-(defun shader-cpu (program)
-	; (shader-cpu program) -> lambda
-	; (lambda x y x1 y1 input ...) -> (vec4 ...)
-	;the lambda shades the pixels of the tile, row by row, the
-	;centre of pixel x y is at frag coord x + 0.5, y + 0.5
-	(bind '(inputs consts globals funcs) program)
-	(defq cvals (list) fvals (list) flag_num 0)
+(defun cpu-funcs (program)
+	; -> the lambda of main
+	;the constants worked out, and each function a lambda
+	(bind '(inputs consts globals funcs &rest _) program)
 	(each (lambda ((name type e))
 		(push cvals (list name (if (cpu-const? (defq v (cpu-expr e))) v (eval v))))) consts)
 	(each (lambda ((name type params block))
 		(push fvals (list name (cat (list (const lambda) (map (const first) params))
 			(if (cpu-loop-return? block) (list (list (const defq) '_rv :nil)) (list))
 			(cpu-block block :nil))))) funcs)
-	(defq main (second (some (# (if (eql (first %0) 'main) %0)) fvals)))
-	(cat (list (const lambda) (cat '(_x _y _x1 _y1) (map (const first) inputs)))
+	(second (some (# (if (eql (first %0) 'main) %0)) fvals)))
+
+(defun shader-cpu-vertex (program)
+	; (shader-cpu-vertex program) -> lambda
+	; (lambda verts input ...) -> ((position varying ...) ...)
+	;the lambda places each vertex of a list. A vertex is a list of its
+	;attrs, in the order the shader has them. For each it gives where the
+	;vertex is, a vec4, as main gave it, then what main left each varying
+	;as, in the order the shader has them. A varying that is not set is 0.
+	(unless (eql (shader-stage program) :vertex) (sh-err "not a vertex shader" 'main))
+	(bind '(inputs consts globals funcs &rest _) program)
+	(defq cvals (list) fvals (list) flag_num 0 main (cpu-funcs program)
+		varyings (shader-varyings program))
+	(cat (list (const lambda) (cat '(_verts) (map (const first) inputs)))
+		(map (lambda ((name type e)) (list (const defq) name (cpu-expr e))) globals)
+		(list
+			(static-qq (defq _out (list) _i -1))
+			(cat (list (const while) (static-qq (< (setq _i (+ _i 1)) (length _verts)))
+					(list (const bind) (list (const quote) (map (const first) (shader-attrs program)))
+						(static-qq (elem-get _verts _i))))
+				(map (lambda ((name type)) (list (const defq) name (cpu-zero type))) varyings)
+				(list (list (const push) '_out
+					(cat (list (const list) (list main)) (map (const first) varyings)))))
+			'_out)))
+
+(defun shader-cpu (program)
+	; (shader-cpu program) -> lambda
+	; (lambda x y x1 y1 input ... varying ...) -> (vec4 ...)
+	;the lambda shades the pixels of the tile, row by row, the
+	;centre of pixel x y is at frag coord x + 0.5, y + 0.5. A pixel
+	;shader with varyings is given a value for each, after the inputs,
+	;and every pixel of the tile has those.
+	(unless (eql (shader-stage program) :pixel) (sh-err "not a pixel shader" 'main))
+	(bind '(inputs consts globals funcs &rest _) program)
+	(defq cvals (list) fvals (list) flag_num 0 main (cpu-funcs program))
+	(cat (list (const lambda) (cat '(_x _y _x1 _y1) (map (const first) inputs)
+			(map (const first) (shader-varyings program))))
 		(map (lambda ((name type e)) (list (const defq) name (cpu-expr e))) globals)
 		(list
 			(static-qq (defq _out (list) _yy (- _y 1)))
@@ -274,14 +333,16 @@
 
 (defun shader-cpu-args (program &optional vals)
 	; (shader-cpu-args program [((name val) ...)]) -> (val ...)
-	;the input args for the lambda, defaults for those not given
-	(map (lambda ((name type val lo hi))
+	;the input args for the lambda, defaults for those not given, then a
+	;value for each varying of a pixel shader, 0 for those not given
+	(map (lambda ((name type &optional val lo hi))
 		(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
 			(setq val (second v)))
 		(cond
-			((eql type :int) (n2i val))
-			((eql type :float) (shader-real val))
+			((eql type :int) (n2i (ifn val 0)))
+			((eql type :float) (shader-real (ifn val 0)))
 			((reals? val) val)
 			((apply (const reals) (map (const shader-real)
-				(if (seq? val) val (map (lambda (_) 0) (range 0 (shader-dim type)))))))))
-		(first program)))
+				(if (seq? val) val (map (lambda (_) 0) (range 0 (shader-size type)))))))))
+		(cat (first program)
+			(if (eql (shader-stage program) :pixel) (shader-varyings program) (list)))))

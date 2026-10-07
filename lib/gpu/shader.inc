@@ -3,13 +3,23 @@
 ; The tree is what the back ends take, see glsl.inc and cpu.inc.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;a program is (inputs consts globals funcs)
+;a program is (inputs consts globals funcs stage)
 ;	input, (name type default min max)
 ;	const and global, (name type expr)
 ;	func, (name type ((name type) ...) block)
+;	stage, (kind attrs varyings), kind is :pixel or :vertex, an attr and
+;	a varying are (name type)
+;
+;there are two kinds of shader, each a file of its own. A pixel shader
+;gives the color of a pixel, its main takes the frag coord. A vertex
+;shader gives where a vertex is, its main takes nothing, it reads the
+;attrs of the vertex, and what it sets its varyings to is what a pixel
+;shader that has varyings of those names reads, spread over the triangle.
+;Any vertex shader goes with any pixel shader whose varyings it has.
 ;an expr is (type tag ...)
 ;	(type :lit value), a float value is a str of the decimal number
 ;	(type :var name kind), kind is :input :const :global :param :local :loop
+;		:attr :varying
 ;	(type :swz (idx ...) expr)
 ;	(type :user name (expr ...))
 ;	(type :op name (expr ...))
@@ -23,8 +33,9 @@
 ;	(:return expr)
 
 ; these lists are not + constants, a prebound list would be run as a form
-(defq *sh_types* '(:float :int :bool :vec2 :vec3 :vec4)
-	*sh_input_types* '(:float :int :vec2 :vec3 :vec4)
+(defq *sh_types* '(:float :int :bool :vec2 :vec3 :vec4 :mat4)
+	*sh_input_types* '(:float :int :vec2 :vec3 :vec4 :mat4)
+	*sh_vertex_types* '(:float :vec2 :vec3 :vec4)
 	*sh_arith* '(+ - * /)
 	*sh_order* '(< <= > >=)
 	*sh_equal* '(= /=)
@@ -33,7 +44,8 @@
 	*sh_gen1* '(sin cos sqrt floor fract abs)
 	*sh_gen2* '(min max mod)
 	*sh_others* '(not float int pow clamp mix dot cross length normalize reflect)
-	*sh_words* '(definput defconst defglobal defun defq setq if when progn for break return))
+	*sh_words* '(definput defconst defglobal defattr defvarying defun
+		defq setq if when progn for break return))
 
 (defun sh-err (msg form)
 	(throw (cat "Shader, " msg " !") form))
@@ -41,6 +53,25 @@
 (defun shader-dim (type)
 	; (shader-dim type) -> :nil | 2 | 3 | 4
 	(case type (:vec2 2) (:vec3 3) (:vec4 4) (:t :nil)))
+
+(defun shader-size (type)
+	; (shader-size type) -> 1 | 2 | 3 | 4 | 16
+	;how many numbers a value of the type is
+	(cond ((eql type :mat4) 16) ((shader-dim type)) (1)))
+
+(defun shader-stage (program)
+	; (shader-stage program) -> :pixel | :vertex
+	(first (elem-get program 4)))
+
+(defun shader-attrs (program)
+	; (shader-attrs program) -> ((name type) ...)
+	;what a vertex shader reads of each vertex
+	(second (elem-get program 4)))
+
+(defun shader-varyings (program)
+	; (shader-varyings program) -> ((name type) ...)
+	;what a vertex shader sets for the pixel shader, or a pixel shader reads
+	(third (elem-get program 4)))
 
 (defun sh-vec (n)
 	(elem-get '(:float :float :vec2 :vec3 :vec4) n))
@@ -75,6 +106,12 @@
 	;result type of a built in op, or :nil if the types are wrong
 	(defq n (length types) a (first types) b (second types) c (third types))
 	(cond
+		((find :mat4 types)
+			;a matrix times a matrix is a matrix, times a vec4 is a vec4,
+			;the vector on the right. That is all a matrix does
+			(and (eql op '*) (> n 1)
+				(every (# (eql %0 :mat4)) (slice types 0 -2))
+				(if (find (last types) '(:mat4 :vec4)) (last types))))
 		((find op *sh_arith*)
 			(and (> n (if (eql op '-) 0 1))
 				(or (sh-float? a) (eql a :int))
@@ -220,8 +257,9 @@
 					(setq idxs (first name) name (second name)))
 				(unless (and (sym? name) (defq v (sh-find name)))
 					(sh-err "unknown name" form))
-				(unless (find (third v) '(:local :param))
-					(sh-err "can only set a local or a parameter" form))
+				(unless (find (third v) '(:local :param :varying))
+					(sh-err "can only set a local, a parameter or a varying" form))
+				(if (eql (third v) :varying) (setq sets_varying :t))
 				(cond
 					(idxs
 						(setq idxs (sh-swizzle idxs (second v) form))
@@ -305,6 +343,7 @@
 (defun shader-compile (forms)
 	; (shader-compile forms) -> program
 	(defq syms (list) funcs (list) inputs (list) consts (list) globals (list)
+		attrs (list) varyings (list) sets_varying :nil
 		const_only :nil ret_type :nil loop_depth 0)
 	(each (lambda (form)
 		(unless (and (list? form) (nempty? form)) (sh-err "not a declaration" form))
@@ -315,12 +354,19 @@
 				(sh-name name form)
 				(unless (find (defq type (third form)) *sh_input_types*)
 					(sh-err "wrong input type" form))
-				(if (and (shader-dim type) (> n 2))
-					(sh-err "a vector input has no default" form))
+				(if (and (> (shader-size type) 1) (> n 2))
+					(sh-err "a vector or matrix input has no default" form))
 				(bind '(& & & &optional val lo hi) form)
 				(push inputs (list name type (sh-literal type val form)
 					(if lo (sh-literal type lo form)) (if hi (sh-literal type hi form))))
 				(push syms (list name type :input)))
+			((find op '(defattr defvarying))
+				(unless (= n 2) (sh-err "wrong number of args" form))
+				(sh-name name form)
+				(unless (find (defq type (third form)) *sh_vertex_types*)
+					(sh-err "wrong type, a float or a vector" form))
+				(push (if (eql op 'defattr) attrs varyings) (list name type))
+				(push syms (list name type (if (eql op 'defattr) :attr :varying))))
 			((find op '(defconst defglobal))
 				(unless (= n 2) (sh-err "wrong number of args" form))
 				(sh-name name form)
@@ -348,10 +394,37 @@
 				(unless (sh-returns? block) (sh-err "function does not return" form))
 				(push funcs (list name ret_type params block)))
 			((sh-err "unknown declaration" form)))) forms)
+	;main says which kind it is, a pixel shader's takes the frag coord, a
+	;vertex shader's takes nothing
 	(unless (and (defq f (sh-func 'main)) (eql (second f) :vec4)
-			(lmatch? (map (const second) (third f)) '(:vec2)))
-		(sh-err "no (defun main :vec4 ((frag :vec2)) ...)" 'main))
-	(list inputs consts globals funcs))
+			(or (empty? (third f)) (lmatch? (map (const second) (third f)) '(:vec2))))
+		(sh-err "no (defun main :vec4 ((frag :vec2)) ...), or (defun main :vec4 () ...) for a vertex shader" 'main))
+	(defq kind (if (empty? (third f)) :vertex :pixel))
+	(when (eql kind :pixel)
+		(if (nempty? attrs) (sh-err "a pixel shader has no attrs" (first (first attrs))))
+		(if sets_varying (sh-err "a pixel shader can not set a varying" 'main)))
+	(list inputs consts globals funcs (list kind attrs varyings)))
+
+(defun sh-pixel-only (program back_end)
+	;for a back end that has not got the vertex stage yet. It has only
+	;pixel shaders with no varyings and no matrix in them
+	(when (or (eql (shader-stage program) :vertex) (nempty? (shader-varyings program))
+			(some (# (eql (second %0) :mat4)) (first program)))
+		(sh-err (cat "the " back_end " back end has no vertex stage, varyings or matrix yet") 'main)))
+
+(defun shader-pair (vertex pixel)
+	; (shader-pair vertex pixel) -> (vertex pixel)
+	;a vertex shader and a pixel shader that go together. Every varying
+	;the pixel shader reads must be one the vertex shader has, of the same
+	;type. The vertex shader may have more, they are not used.
+	(unless (eql (shader-stage vertex) :vertex) (sh-err "not a vertex shader" 'main))
+	(unless (eql (shader-stage pixel) :pixel) (sh-err "not a pixel shader" 'main))
+	(each (lambda ((name type))
+		(unless (some (# (and (eql (first %0) name) (eql (second %0) type)))
+				(shader-varyings vertex))
+			(sh-err "the vertex shader has no such varying" name)))
+		(shader-varyings pixel))
+	(list vertex pixel))
 
 (defun shader-read (stream)
 	; (shader-read stream) -> forms
@@ -373,12 +446,14 @@
 ;the values of the inputs for a frame travel as one block of bytes, laid
 ;out by the std140 rules of a GPU uniform block. A float is 32 bits, an
 ;int is 32 bits, and a vector is 2, 3 or 4 floats, a vec2 on an 8 byte
-;boundary, a vec3 or vec4 on a 16 byte boundary.
+;boundary, a vec3 or vec4 on a 16 byte boundary. A mat4 is its 4 columns,
+;each a vec4. A matrix is given, and comes back, as ChrysaLisp has one, 16
+;numbers a row at a time, as lib/math/matrix.inc makes them.
 
 (defun shader-layout (program)
 	; (shader-layout program) -> (size (name type offset) ...)
 	(defq offset 0 fields (map (lambda ((name type &rest _))
-		(defq d (ifn (shader-dim type) 1) a (elem-get '(0 4 8 16 16) d))
+		(defq d (shader-size type) a (if (= d 16) 16 (elem-get '(0 4 8 16 16) d)))
 		(setq offset (+ (defq o (align offset a)) (* d 4)))
 		(list name type o)) (first program)))
 	(cat (list (align offset 16)) fields))
@@ -424,10 +499,14 @@
 		(cond
 			((eql type :int) (set-int block offset (n2i val)))
 			((eql type :float) (set-int block offset (sh-real-to-float val)))
-			((seq? val)
-				(unless (= (length val) (shader-dim type))
-					(sh-err "wrong size of vector input" name))
-				(each (# (set-int block (+ offset (* (!) 4)) (sh-real-to-float %0))) val))))
+			((not (seq? val)))
+			((/= (length val) (shader-size type))
+				(sh-err "wrong size of vector input" name))
+			((eql type :mat4)
+				;a row at a time to a column at a time
+				(each (# (set-int block (+ offset (* (+ (* (% (!) 4) 4) (/ (!) 4)) 4))
+					(sh-real-to-float %0))) val))
+			((each (# (set-int block (+ offset (* (!) 4)) (sh-real-to-float %0))) val))))
 		fields (first program))
 	block)
 
@@ -438,5 +517,8 @@
 		(list name (cond
 			((eql type :int) (get-int block offset))
 			((eql type :float) (sh-float-to-real (get-uint block offset)))
+			((eql type :mat4)
+				(apply (const reals) (map (# (sh-float-to-real (get-uint block
+					(+ offset (* (+ (* (% %0 4) 4) (/ %0 4)) 4))))) (range 0 16))))
 			((apply (const reals) (map (# (sh-float-to-real (get-uint block (+ offset (* %0 4)))))
 				(range 0 (shader-dim type)))))))) (rest (shader-layout program))))

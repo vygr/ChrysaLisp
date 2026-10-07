@@ -56,7 +56,7 @@
 	"(defglobal g (* k two))"
 	"(defun half :float ((a :float)) (return (* a 0.5)))"
 	"(defun main :vec4 ((frag :vec2)) (return (vec4 (half g) frag 1.0)))"))
-(bind '(inputs consts globals funcs) prog)
+(bind '(inputs consts globals funcs &rest _) prog)
 (assert-list-eq "inputs" '((k :float 1.5 0.0 4.0) (n :int 3 :nil :nil) (size :vec2 0 :nil :nil)) inputs)
 (assert-list-eq "const" '((two :float (:float :lit "2.0000"))) consts)
 (assert-eq "global type" :float (second (first globals)))
@@ -74,7 +74,7 @@
 ;types of the ops
 (defun sh-local-type (program)
 	;the type of the first local of main
-	(first (third (first (last (first (last program)))))))
+	(first (third (first (last (first (elem-get program 3)))))))
 
 (test-cases
 	(sh-local-type (sh-main "(defq a (* (vec3 1.0) 2.0))" "(return (vec4 a 1.0))")) :vec3
@@ -564,7 +564,7 @@
 (assert-eq "inputs block size" 64 (first (shader-layout prog)))
 (assert-list-eq "inputs" '(time resolution arg_aa arg_aa_adaptive arg_aa_debug arg_depth
 	arg_aa_limit arg_ao arg_ref arg_shadow arg_bump arg_dis arg_march) (map (const first) (first prog)))
-(assert-eq "functions" 19 (length (last prog)))
+(assert-eq "functions" 19 (length (elem-get prog 3)))
 (assert-true "GLSL scene" (find (join '(
 	"float scene(vec3 p)"
 	"{"
@@ -600,3 +600,128 @@
 	(assert-true (cat "film, native code and Lisp agree, " (str x) " " (str y))
 		(sh-near? (sh-pixel film film_vals x y) (sh-pixel-vp film film_vals x y))))
 	'((48 48) (10 80) (70 20)))
+
+(report-header "GPU: shader language, vertex shaders, varyings and a matrix")
+
+(import "lib/math/matrix.inc")
+
+;a vertex shader, its main takes nothing. It reads the attrs of a vertex
+;and its inputs, gives where the vertex is, and sets its varyings
+(defq vert (sh-src
+	"(definput model :mat4)"
+	"(definput view :mat4)"
+	"(definput tint :vec3)"
+	"(defattr position :vec3)"
+	"(defattr normal :vec3)"
+	"(defvarying shade :float)"
+	"(defvarying color :vec3)"
+	"(defvarying unset :vec2)"
+	"(defun lit :float ((n :vec3)) (max (dot n (vec3 0.0 0.0 1.0)) 0.0))"
+	"(defun main :vec4 ()"
+	"	(defq n (:xyz (* model (vec4 normal 0.0))))"
+	"	(setq shade (lit n) color (* tint shade))"
+	"	(* view model (vec4 position 1.0)))"))
+(assert-eq "a vertex shader" :vertex (shader-stage vert))
+(assert-list-eq "its attrs" '((position :vec3) (normal :vec3)) (shader-attrs vert))
+(assert-list-eq "its varyings" '((shade :float) (color :vec3) (unset :vec2)) (shader-varyings vert))
+(assert-eq "a pixel shader" :pixel (shader-stage film))
+(assert-eq "a pixel shader has no attrs" 0 (length (shader-attrs film)))
+
+;the types of a matrix
+(defun sh-vert-type (&rest lines)
+	;the type of the first local of the main of a vertex shader
+	(first (third (first (last (first (elem-get (sh-src "(definput m :mat4)" "(definput v :vec4)"
+		(cat "(defun main :vec4 () " (join lines " ") ")")) 3)))))))
+(test-cases
+	(sh-vert-type "(defq a (* m v))" "a") :vec4
+	(sh-vert-type "(defq a (* m m))" "v") :mat4
+	(sh-vert-type "(defq a (* m m m v))" "a") :vec4)
+(assert-error "a vector times a matrix" (sh-vert-type "(defq a (* v m))" "v"))
+(assert-error "a matrix times a vec3" (sh-vert-type "(defq a (* m (:xyz v)))" "v"))
+(assert-error "a matrix times a float" (sh-vert-type "(defq a (* m 2.0))" "v"))
+(assert-error "a matrix added" (sh-vert-type "(defq a (+ m m))" "v"))
+(assert-error "a matrix has no components" (sh-vert-type "(defq a (:x m))" "v"))
+(assert-error "a matrix input has no default" (sh-src "(definput m :mat4 1.0)" "(defun main :vec4 () (vec4 0.0))"))
+
+;what is not allowed
+(assert-error "an attr can not be set"
+	(sh-src "(defattr p :vec3)" "(defun main :vec4 () (setq p (vec3 0.0)) (vec4 p 1.0))"))
+(assert-error "an attr of a matrix"
+	(sh-src "(defattr p :mat4)" "(defun main :vec4 () (vec4 0.0))"))
+(assert-error "a varying of an int"
+	(sh-src "(defvarying p :int)" "(defun main :vec4 () (vec4 0.0))"))
+(assert-error "a pixel shader with an attr"
+	(sh-src "(defattr p :vec3)" "(defun main :vec4 ((frag :vec2)) (vec4 p 1.0))"))
+(assert-error "a pixel shader that sets a varying"
+	(sh-src "(defvarying c :vec3)" "(defun main :vec4 ((frag :vec2)) (setq c (vec3 0.0)) (vec4 c 1.0))"))
+(assert-error "a varying set to the wrong type"
+	(sh-src "(defvarying c :vec3)" "(defun main :vec4 () (setq c 1.0) (vec4 0.0))"))
+(assert-error "a varying can not be a constant"
+	(sh-src "(defvarying c :float)" "(defconst k (* c 2.0))" "(defun main :vec4 () (vec4 0.0))"))
+(assert-error "main with the wrong parameters"
+	(sh-src "(defun main :vec4 ((a :float)) (vec4 a))"))
+
+;the inputs block, a matrix is its 4 columns, on a 16 byte boundary, and
+;is given a row at a time
+(assert-list-eq "layout with matrices" '(144 (model :mat4 0) (view :mat4 64) (tint :vec3 128))
+	(shader-layout vert))
+(defq rows (map (const n2r) (range 1 17))
+	blk (shader-pack vert (list (list 'model rows) '(tint (0.5 0.25 1.0)))))
+(assert-eq "block size" 144 (length blk))
+(assert-list-eq "a matrix packed a column at a time"
+	(map (const sh-real-to-float) '(1 5 9 13 2 6 10 14 3 7 11 15 4 8 12 16))
+	(map (# (get-uint blk (* %0 4))) (range 0 16)))
+(assert-list-eq "and comes back a row at a time" rows (second (first (shader-unpack vert blk))))
+(assert-error "wrong size of matrix" (shader-pack vert '((model (1.0 2.0 3.0)))))
+
+;the reference, the Lisp back end. The matrices are those of the matrix
+;library, and where it puts a vertex is where the library does
+(defq place (shader-cpu-vertex vert)
+	model (mat4x4-mul (Mat4x4-translate (n2r 1) (n2r 2) (n2r 3)) (Mat4x4-rotx (n2r 0.5)))
+	view (Mat4x4-frustum (n2r -1) (n2r 1) (n2r 1) (n2r -1) (n2r 2) (n2r 10))
+	verts (list (list (reals (n2r 0.5) (n2r -0.25) (n2r 2)) (reals (n2r 0) (n2r 0) (n2r 1)))
+		(list (reals (n2r -3) (n2r 1) (n2r 0.75)) (reals (n2r 0) (n2r 1) (n2r 0))))
+	placed (apply place (cat (list verts)
+		(shader-cpu-args vert (list (list 'model model) (list 'view view) '(tint (1.0 0.5 0.25))))))
+	both (mat4x4-mul view model))
+(assert-eq "a vertex out for each in" 2 (length placed))
+(each (lambda ((position normal) (pos shade color unset))
+	(assert-true (cat "where vertex " (str (!)) " is, as the matrix library has it")
+		(sh-near? (map (const n2f) pos)
+			(map (const n2f) (mat4x4-vec4-mul both (cat position (reals (n2r 1)))))))
+	(defq n (mat4x4-vec4-mul model (cat normal (reals (n2r 0))))
+		want (max (n2f (third n)) 0.0))
+	(assert-true (cat "varying of vertex " (str (!)) ", a float")
+		(sh-near? (list (n2f shade)) (list want)))
+	(assert-true (cat "varying of vertex " (str (!)) ", a vector")
+		(sh-near? (map (const n2f) color) (list want (* want 0.5) (* want 0.25))))
+	(assert-list-eq (cat "varying of vertex " (str (!)) ", not set, is 0") '(0.0 0.0)
+		(map (const n2f) unset)))
+	verts placed)
+
+;a pixel shader reads varyings, by name, and goes with a vertex shader
+;that has them
+(defq pix (sh-src
+	"(defvarying color :vec3)"
+	"(defvarying shade :float)"
+	"(defun main :vec4 ((frag :vec2)) (vec4 (* color shade) 1.0))"))
+(assert-list-eq "the varyings of a pixel shader" '((color :vec3) (shade :float)) (shader-varyings pix))
+(assert-list-eq "the pixel shader given its varyings" '(0.4 0.2 0.1 1.0)
+	(sh-pixel pix '((color (0.8 0.4 0.2)) (shade 0.5))))
+(assert-true "a pair" (lmatch? (shader-pair vert pix) (list vert pix)))
+(assert-true "a pixel shader with no varyings goes with any vertex shader"
+	(shader-pair vert film))
+(assert-error "a varying the vertex shader has not got"
+	(shader-pair vert (sh-src "(defvarying glow :float)" "(defun main :vec4 ((frag :vec2)) (vec4 glow))")))
+(assert-error "a varying of another type"
+	(shader-pair vert (sh-src "(defvarying shade :vec2)" "(defun main :vec4 ((frag :vec2)) (vec4 shade shade))")))
+(assert-error "two pixel shaders are not a pair" (shader-pair pix pix))
+(assert-error "two vertex shaders are not a pair" (shader-pair vert vert))
+(assert-error "the reference places with a vertex shader" (shader-cpu-vertex pix))
+(assert-error "and shades with a pixel shader" (shader-cpu vert))
+
+;the back ends that have no vertex stage yet say so
+(assert-error "GLSL, not yet" (shader-glsl vert))
+(assert-error "MSL, not yet" (shader-msl pix))
+(assert-error "SPIR-V, not yet" (shader-spirv vert))
+(assert-error "VP, not yet" (shader-vp pix))

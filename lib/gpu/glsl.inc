@@ -60,7 +60,8 @@
 
 (defun shader-glsl (program)
 	; (shader-glsl program) -> str
-	(bind '(inputs consts globals funcs) program)
+	(sh-pixel-only program "GLSL")
+	(bind '(inputs consts globals funcs &rest _) program)
 	(defq lines (list "#ifdef GL_ES" "precision highp float;" "#endif" ""))
 	(each (lambda ((name type &rest _))
 		(push lines (cat "uniform " (glsl-type type) " " (glsl-name name) ";"))) inputs)

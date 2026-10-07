@@ -347,10 +347,32 @@ does this block hold a return, or a break of the loop it is in ?
 run it now if all the args are constants
 ```
 
+### cpu-funcs
+
+```code
+-> the lambda of main
+
+the constants worked out, and each function a lambda
+```
+
 ### cpu-loop-return?
 
 ```code
 does this block hold a return from inside a loop ?
+```
+
+### cpu-mat-mul
+
+```code
+a matrix times a matrix, each row of the one dotted with each
+
+column of the other
+```
+
+### cpu-mat-vec
+
+```code
+a matrix times a vec4, each row of the matrix dotted with it
 ```
 
 ### cpu-op
@@ -363,6 +385,12 @@ a built in op
 
 ```code
 whole part of the power by squaring, the rest by repeated roots
+```
+
+### cpu-zero
+
+```code
+what a value of the type is before it is set
 ```
 
 ### create
@@ -2453,6 +2481,14 @@ a new name must be a plain symbol, and must not hide anything
 result type of a built in op, or :nil if the types are wrong
 ```
 
+### sh-pixel-only
+
+```code
+for a back end that has not got the vertex stage yet. It has only
+
+pixel shaders with no varyings and no matrix in them
+```
+
 ### sh-real-to-float
 
 ```code
@@ -2481,6 +2517,14 @@ if that is last, and of a progn that is last. The back ends still see
 a return, they are statement languages.
 ```
 
+### shader-attrs
+
+```code
+(shader-attrs program) -> ((name type) ...)
+
+what a vertex shader reads of each vertex
+```
+
 ### shader-compile
 
 ```code
@@ -2492,9 +2536,11 @@ a return, they are statement languages.
 ```code
 (shader-cpu program) -> lambda
 
-(lambda x y x1 y1 input ...) -> (vec4 ...)
+(lambda x y x1 y1 input ... varying ...) -> (vec4 ...)
 the lambda shades the pixels of the tile, row by row, the
-centre of pixel x y is at frag coord x + 0.5, y + 0.5
+centre of pixel x y is at frag coord x + 0.5, y + 0.5. A pixel
+shader with varyings is given a value for each, after the inputs,
+and every pixel of the tile has those.
 ```
 
 ### shader-cpu-args
@@ -2502,7 +2548,20 @@ centre of pixel x y is at frag coord x + 0.5, y + 0.5
 ```code
 (shader-cpu-args program [((name val) ...)]) -> (val ...)
 
-the input args for the lambda, defaults for those not given
+the input args for the lambda, defaults for those not given, then a
+value for each varying of a pixel shader, 0 for those not given
+```
+
+### shader-cpu-vertex
+
+```code
+(shader-cpu-vertex program) -> lambda
+
+(lambda verts input ...) -> ((position varying ...) ...)
+the lambda places each vertex of a list. A vertex is a list of its
+attrs, in the order the shader has them. For each it gives where the
+vertex is, a vec4, as main gave it, then what main left each varying
+as, in the order the shader has them. A varying that is not set is 0.
 ```
 
 ### shader-dim
@@ -2566,6 +2625,16 @@ a value not given is the default of the input. A float can be a
 real, a fixed or an int, a vector is a sequence of them.
 ```
 
+### shader-pair
+
+```code
+(shader-pair vertex pixel) -> (vertex pixel)
+
+a vertex shader and a pixel shader that go together. Every varying
+the pixel shader reads must be one the vertex shader has, of the same
+type. The vertex shader may have more, they are not used.
+```
+
 ### shader-read
 
 ```code
@@ -2578,6 +2647,14 @@ real, a fixed or an int, a vector is a sequence of them.
 (shader-real num) -> real
 
 a fixed is rounded as a float literal of the language is
+```
+
+### shader-size
+
+```code
+(shader-size type) -> 1 | 2 | 3 | 4 | 16
+
+how many numbers a value of the type is
 ```
 
 ### shader-spirv
@@ -2597,6 +2674,12 @@ the vertex shader that goes with every fragment shader, one triangle
 that covers the target. Its uniform, set 1 binding 0, is the size of
 the target, and it gives each pixel its frag coord, with y up. The
 entry point is vertex_main.
+```
+
+### shader-stage
+
+```code
+(shader-stage program) -> :pixel | :vertex
 ```
 
 ### shader-tile
@@ -2623,6 +2706,14 @@ canvas they came with the answer, and are put there
 (shader-unpack program block) -> ((name val) ...)
 
 a float comes back as a real, a vector as a reals
+```
+
+### shader-varyings
+
+```code
+(shader-varyings program) -> ((name type) ...)
+
+what a vertex shader sets for the pixel shader, or a pixel shader reads
 ```
 
 ### shader-vp

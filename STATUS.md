@@ -4,6 +4,38 @@
 
 ------
 
+The shader language has vertex shaders, in the reference back end.
+
+A vertex shader is a file of its own, as a pixel shader is, and any vertex
+shader goes with any pixel shader whose varyings it has, one serves many.
+Chris: "having things modular is the way to go".
+
+*	The `main` of a vertex shader takes nothing, which is what says it is
+	one, and its value is where the vertex is.
+*	`(defattr name type)`, a value each vertex has, its position, its normal.
+*	`(defvarying name type)`, a value the vertex shader sets and a pixel
+	shader of the same declaration reads, spread over the triangle.
+*	`:mat4`, a matrix, which multiplies a matrix or a `:vec4` and does
+	nothing else. It is given as `lib/math/matrix.inc` makes one, and packed
+	into the inputs block a column at a time, as a GPU has it.
+*	`(shader-pair vertex pixel)` checks that two go together.
+	`(shader-stage)`, `(shader-attrs)` and `(shader-varyings)`.
+*	`(shader-cpu-vertex program)`, the reference, a lambda that places a list
+	of vertices. Where it puts one is where `(mat4x4-vec4-mul)` does.
+
+A program is now `(inputs consts globals funcs stage)`.
+
+That is the first of three steps, and it draws nothing yet. The GLSL, MSL,
+SPIR-V and VP back ends refuse a vertex shader, a varying and a matrix, and
+say so. Next is a pipeline assembled as native code, vertices, then
+triangles filled with a depth test, the pixel shader run for each pixel, for
+a machine with no GPU. Then the GPU, checked by it. Mesh is what it is all
+for, "the odd one out now on the graphics performance front", and when it
+draws through this `(. canvas :ftri)` goes, a flat fill that nothing else
+uses, about 1,200 bytes of the boot image.
+
+50 new tests in `tests/gpu/test_shader.lisp`, 252 in all.
+
 The retry timeout of the command farm is real again.
 
 `(pipe-farm jobs [retry_timeout])` takes its timeout in microseconds, and

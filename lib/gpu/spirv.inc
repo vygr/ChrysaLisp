@@ -272,7 +272,8 @@
 (defun shader-spirv (program)
 	; (shader-spirv program) -> str
 	;the entry point is fragment_main
-	(bind '(inputs consts globals funcs) program)
+	(sh-pixel-only program "SPIR-V")
+	(bind '(inputs consts globals funcs &rest _) program)
 	(spv-module-vars)
 	(setq spv_glsl (spv-id))
 	(defq entry (spv-id) frag_in (spv-id) colour_out (spv-id)

@@ -69,7 +69,8 @@ does, and it returns the colour of the pixel as red, green, blue and alpha.
 
 ## Types
 
-`:float`, `:int`, `:bool`, `:vec2`, `:vec3` and `:vec4`. A vector is of floats.
+`:float`, `:int`, `:bool`, `:vec2`, `:vec3`, `:vec4` and `:mat4`. A vector is
+of floats. A `:mat4` is a 4 by 4 matrix, see Vertex Shaders below.
 
 A number with a decimal point is a float, `2.0`. A number without is an int,
 `2`. They do not mix, `(+ 1 2.0)` is an error, as it is in GLSL. `(float i)`
@@ -98,6 +99,9 @@ Each begins with `def`, as `defun` and `defq` do in ChrysaLisp.
   declared before it is called, so there is no recursion. Its value is its
   last form, as in Lisp, see below. Every path through it must end at a
   value.
+
+* `(defattr name type)` and `(defvarying name type)`, of a vertex shader and
+  of the pixel shader that goes with it, see Vertex Shaders below.
 
 ## Statements
 
@@ -154,6 +158,85 @@ name.
 
 They mean what they mean in GLSL. `fract` of -0.25 is 0.75, `mod` of -0.25 and
 2.0 is 1.75.
+
+## Vertex Shaders
+
+A shader so far gives the colour of a pixel, a pixel shader. A vertex shader
+gives where a vertex is. The two are files of their own, and any vertex
+shader goes with any pixel shader whose varyings it has, so one vertex shader
+serves many pixel shaders.
+
+```lisp
+(definput model :mat4)
+(definput view :mat4)
+
+(defattr position :vec3)
+(defattr normal :vec3)
+
+(defvarying shade :float)
+
+(defun main :vec4 ()
+	(defq n (:xyz (* model (vec4 normal 0.0))))
+	(setq shade (max (dot n (vec3 0.0 0.0 1.0)) 0.0))
+	(* view model (vec4 position 1.0)))
+```
+
+* The `main` of a vertex shader takes nothing, and that is what says it is
+  one. Its value is where the vertex is, a `:vec4`, before the divide by w.
+* `(defattr name type)` is a value each vertex has, its position, its normal.
+  A float or a vector. It is read and not set.
+* `(defvarying name type)` is a value the vertex shader hands on. A float or
+  a vector. A vertex shader sets it, with `setq`, in any of its functions,
+  and one it does not set is 0. A pixel shader that declares a varying of
+  the same name and type reads it, as a value spread over the triangle from
+  what its three vertices set, and can not set it.
+* `:mat4` is the type of a matrix, and all a matrix does is multiply.
+  `(* m m)` is a matrix, `(* m v)` with a `:vec4` is a `:vec4`, the vector on
+  the right, and `(* a b c v)` is the three applied to the vector, the last
+  first. A matrix is an input, there is no way to make one in a shader.
+
+```lisp
+(defvarying shade :float)
+
+(defun main :vec4 ((frag :vec2))
+	(vec4 (vec3 shade) 1.0))
+```
+
+That pixel shader goes with the vertex shader above, and with any other that
+has a `shade`.
+
+```lisp
+(defq pair (shader-pair vertex pixel))
+```
+
+`(shader-pair vertex pixel)` checks the two go together, every varying the
+pixel shader reads must be one the vertex shader has, and gives them back as
+a list. `(shader-stage program)` is `:vertex` or `:pixel`,
+`(shader-attrs program)` and `(shader-varyings program)` are the lists of
+`(name type)`.
+
+A matrix is given to `(shader-pack)` as ChrysaLisp has one, 16 numbers a row
+at a time, as `lib/math/matrix.inc` makes them, `(Mat4x4-frustum)` and the
+rest. In the inputs block it is its 4 columns, each a `vec4`, as a GPU wants
+it.
+
+The Lisp back end is the reference for it.
+
+```lisp
+(defq place (shader-cpu-vertex vertex)
+	placed (apply place (cat (list verts) (shader-cpu-args vertex vals))))
+```
+
+`verts` is a list of vertices, each a list of its attrs in the order the
+shader has them. For each the lambda gives a list, where the vertex is, then
+each varying as `main` left it. And the lambda of a pixel shader that has
+varyings takes a value for each after its inputs, `(shader-cpu-args)` gives
+them, and every pixel of the tile has those. Where the reference puts a
+vertex is where `(mat4x4-vec4-mul)` puts it.
+
+The other back ends have no vertex stage yet, GLSL, MSL, SPIR-V and VP. They
+refuse a vertex shader, a pixel shader with varyings, and a matrix, and say
+so. Nothing draws a triangle with a shader yet.
 
 ## Using It
 
@@ -659,7 +742,11 @@ The app is in the Demos list of the launcher, as surface.
 * Raylib is the fall back if SDL3 will not do for a host.
 * The GLSL back end does not guard names against the reserved words of GLSL.
 * Compute, and rendering as a service for a node with no GPU, are deferred.
-* Vertex shaders, meshes, textures as inputs, and compute.
+* A vertex shader in any back end but the Lisp reference, and so a mesh
+  drawn with one. The plan is a pipeline assembled as native code for a
+  machine with no GPU, as a pixel shader is, then the GPU, checked by it.
+  When that is in, `(. canvas :ftri)` goes, a flat fill that Mesh alone uses.
+* Textures as inputs, and compute.
 * A shader gives four channels. One that makes a single channel image, a
   greyscale or a glyph, gives a grey and the texture is made in that mode
   from the pixmap. On the GPU a shader draws into a texture that is not of

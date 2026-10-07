@@ -89,7 +89,7 @@
 
 (defun tree-listing (program)
 	;the program, a declaration to a line
-	(bind '(inputs consts globals funcs) program)
+	(bind '(inputs consts globals funcs &rest _) program)
 	(defq lines (list))
 	(each (# (push lines (cat "input " (str %0)))) inputs)
 	(each (# (push lines (cat "const " (str %0)))) consts)
