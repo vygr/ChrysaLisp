@@ -824,11 +824,14 @@
 	(push drawn want)
 	(assert-eq (cat "native code and the reference, " title) want got))
 	'(("all of it" :nil 0 0 20 20) ("those that face away left out" :t 0 0 20 20)
+	("those that face us left out" :front 0 0 20 20)
 	("a part of the screen" :nil 3 5 17 14) ("a part that is not on the screen" :nil -5 -5 40 8)))
 (assert-true "it is a picture" (> (tri-drawn (first drawn)) 100))
 (assert-true "one faced away, and without it the picture is another"
 	(not (eql (second drawn) (first drawn))))
-(assert-true "a part is less" (< (tri-drawn (third drawn)) (tri-drawn (first drawn))))
+(assert-true "with only the one that faced away the picture is small"
+	(< 0 (tri-drawn (third drawn)) 120))
+(assert-true "a part is less" (< (tri-drawn (elem-get drawn 3)) (tri-drawn (first drawn))))
 
 ;the nearer triangle is the one seen, whichever is drawn first
 (defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))

@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;
 
 (import "./mesh.inc")
+(import "././gpu/vp.inc")
 
 ;module
 (env-push)
@@ -47,43 +48,43 @@
 	(each (lambda ((x y z w))
 			(defq rw (recip w) z (* z rw))
 			(when (<= +real_-1 z +real_1)
+				;y is up, as the faces are drawn
 				(defq x (* x rw) y (* y rw) at (recip (+ z +real_2)) r (* (const (n2r 0.02)) sp rw)
-					sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
+					sx (* (+ x +real_1) sp) sy (* (- +real_1 y) sp))
 				(push (elem-get poly_buckets (n2i (* (+ z +real_1) (const (n2r (/ +num_poly_buckets 2))))))
 					(list (circle r) (lighting col at) (n2f sx) (n2f sy)))))
 		(partition (mat4x4-vec4-mul mat4x4_proj (. object :get_verts)) +vec4_size)))
 
-(defun render-object-tris (size imat4x4_obj mat4x4_proj object)
-	;project verts to screen
-	(defq verts (. object :get_verts)
-		proj_verts (partition (mat4x4-vec4-mul mat4x4_proj verts) +vec4_size)
-		num_verts (length proj_verts) screen_verts (cap num_verts (list))
-		screen_zs (cap num_verts (list)) ats (cap num_verts (list))
-		sp (* +real_1/2 (n2r (dec size))))
-	(each (lambda ((x y z w))
-			(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
-				sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
-			(push screen_zs z)
-			(push screen_verts (path (n2f sx) (n2f sy)))
-			(push ats at)) proj_verts)
-	;light and sort front facing
-	(defq verts (partition verts +vec4_size) norms (partition (. object :get_norms) +vec3_size)
-		cam_pos (mat4x4-vec4-mul imat4x4_obj (const (Vec4-r +real_0 +real_0 +real_0 +real_1)))
-		light_vec (mat4x4-vec3-mul imat4x4_obj (const (Vec3-r (n2r 0.55) (n2r 0.55) (n2r -0.55))))
-		col (. object :get_color))
+(defun scene-pipeline ()
+	;the two shaders a scene is drawn with, assembled the first time
+	(memoize :scene_pipeline (shader-vp-pipeline
+		(shader-load "lib/gpu/shaders/mesh_vertex.shader")
+		(shader-load "lib/gpu/shaders/mesh_lit.shader")) 3))
+
+(defun mesh-corners (mesh)
+	; (mesh-corners mesh) -> (verts tris)
+	;a mesh as the shaders want it. A face is lit flat, so a vertex that
+	;faces share is a vertex of its own for each of them, where it is and
+	;then the normal of that face, 7 numbers. The triangles are then just
+	;the vertices in the order they come.
+	(defq verts (. mesh :get_verts) norms (. mesh :get_norms) out (list (reals)))
 	(each (lambda ((i0 i1 i2 in))
-			(when (and (> (vector-dot (defq n (elem-get norms in)) (vector-sub (elem-get verts i0) cam_pos)) +real_0)
-					(<= +real_-1 (elem-get screen_zs i1) +real_1)
-					(<= +real_-1 (elem-get screen_zs i2) +real_1)
-					(<= +real_-1 (defq z0 (elem-get screen_zs i0)) +real_1))
-				(defq sp (max +real_0 (vector-dot n light_vec))
-					sp (* sp sp sp sp sp sp)
-					at (+ (elem-get ats i0) (elem-get ats i1) (elem-get ats i2))
-					bucket (n2i (* (+ z0 +real_1) (const (n2r (/ +num_poly_buckets 2))))))
-				(push (elem-get poly_buckets bucket) (list
-					(cat (elem-get screen_verts i0) (elem-get screen_verts i1) (elem-get screen_verts i2))
-					(lighting-at3 col at sp)))))
-		(partition (. object :get_tris) +tri_size)))
+		(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
+		(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) n))
+			(list i0 i1 i2))) (partition (. mesh :get_tris) +tri_size))
+	(defq flat (apply (const cat) out))
+	(list flat (apply (const nums) (range 0 (/ (length flat) 7)))))
+
+(defun render-object-tris (pixmap depth mat4x4_frust mat4x4_obj object)
+	;the faces of an object, drawn by the shaders, as native code. The
+	;mesh is made into what they want the first time it is drawn
+	(unless (eql (get :corners_of object) (defq mesh (. object :get_mesh)))
+		(def object :corners_of mesh :corners (mesh-corners mesh)))
+	(bind '(verts tris) (get :corners object))
+	(shader-vp-draw-tris (scene-pipeline) verts tris pixmap depth
+		(list (list 'model mat4x4_obj) (list 'lens mat4x4_frust))
+		(list (list 'color (rest (. object :get_color))))
+		:front))
 
 (defclass Scene-node (&optional name) :nil
 	; (Scene-node [name]) -> scene_node
@@ -216,20 +217,24 @@
 	(def this :poly_buckets (defq poly_buckets (lists +num_poly_buckets)))
 
 	(defmethod :render (canvas size left right top bottom near far mode)
-		; (. scene_node :render canvas size left right top bottom near far) -> scene_node
+		; (. scene_node :render canvas size left right top bottom near far mode) -> scene_node
+		;with mode the faces of the meshes are drawn, by a vertex shader and
+		;a pixel shader, with a depth buffer. Without it their vertices are,
+		;as dots
 		(. canvas :fill 0)
 		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
-			matrix_stack (list (Mat4x4-unity)))
+			matrix_stack (list (Mat4x4-unity))
+			pixmap (getf canvas +canvas_pixmap 0)
+			depth (if mode (shader-vp-depth (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0))))
 		(raise :poly_buckets)
 		(. scene :walk_nodes
 			(lambda (object children)
-				(defq mat4x4_obj (mat4x4-mul (last matrix_stack) (. object :get_matrix))
-					imat4x4_obj (mat4x4-inv mat4x4_obj))
+				(defq mat4x4_obj (mat4x4-mul (last matrix_stack) (. object :get_matrix)))
 				(push matrix_stack mat4x4_obj)
 				(when (def? :mesh object)
 					(defq mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
 					(if mode
-						(render-object-tris size imat4x4_obj mat4x4_proj object)
+						(render-object-tris pixmap depth mat4x4_frust mat4x4_obj object)
 						(render-object-verts size mat4x4_proj object))
 					(task-slice))
 				:nil)
@@ -237,11 +242,9 @@
 				(pop matrix_stack)))
 		(reach (lambda (path_list)
 				(while (defq p (pop path_list))
-					(bind '(p col &optional sx sy) p)
+					(bind '(p col sx sy) p)
 					(. canvas :set_color col)
-					(if sx
-						(. canvas :fpoly sx sy +winding_odd_even (list p))
-						(. canvas :ftri p)))
+					(. canvas :fpoly sx sy +winding_odd_even (list p)))
 				(task-slice))
 			poly_buckets)
 		(. canvas :swap +swap_write)

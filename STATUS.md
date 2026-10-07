@@ -4,6 +4,30 @@
 
 ------
 
+The Mesh demo draws its faces with the shaders.
+
+`lib/math/scene.inc`, the scene that Mesh is, with two shaders of its own in
+`lib/gpu/shaders/`, `mesh_vertex.shader` and `mesh_lit.shader`. A vertex is
+placed by the matrix of its object and that of the view, and hands on which
+way its face is turned and how much light there is that far away. A pixel
+has the color of the object, less of it the further away, a little whatever
+the light, and a highlight. The lighting is what the Lisp did, for each
+pixel now, not for each triangle.
+
+The Lisp that turned each triangle to the eye, lit it, sorted the lot into
+256 buckets by depth and filled them one at a time has gone. There is a
+depth buffer, so where two shapes cross they cross, and nothing is drawn
+through what is in front of it. A mesh is made into what the shaders want
+the first time it is drawn, a face is lit flat, so its three corners are
+vertices of their own with its normal.
+
+The picture is the other way up. It was drawn with y going down, and the
+teapot was upside down, y is up now, in the dots as well. An object with a
+color that is partly clear, the cube, is drawn solid, a pixel of the
+pipeline is full on.
+
+Nothing calls `(. canvas :ftri)` now, nor `(mat4x4-inv)`.
+
 Triangles, drawn by a vertex shader and a pixel shader, as native code.
 
 `(shader-vp-pipeline vertex pixel)`, `(shader-vp-depth width height)` and

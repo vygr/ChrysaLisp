@@ -1834,6 +1834,17 @@ heard from has no system id, all zero.
 (max-length list) -> max
 ```
 
+### mesh-corners
+
+```code
+(mesh-corners mesh) -> (verts tris)
+
+a mesh as the shaders want it. A face is lit flat, so a vertex that
+faces share is a vertex of its own for each of them, where it is and
+then the normal of that face, 7 numbers. The triangles are then just
+the vertices in the order they come.
+```
+
 ### min-length
 
 ```code
@@ -2305,7 +2316,9 @@ for it. An empty pattern stays empty, and matches as it would without.
 ### render-object-tris
 
 ```code
-project verts to screen
+the faces of an object, drawn by the shaders, as native code. The
+
+mesh is made into what they want the first time it is drawn
 ```
 
 ### repl-error?
@@ -2422,6 +2435,12 @@ them. instr is the class of the closing char if in a string.
 (scatter map|set [key]|[key val] ...) -> map|set
 
 scatter a list of [key]|[key val]
+```
+
+### scene-pipeline
+
+```code
+the two shaders a scene is drawn with, assembled the first time
 ```
 
 ### search
@@ -2788,7 +2807,9 @@ tri_size, 3 if not given. vvals and pvals are the inputs of the two
 shaders. Where a vertex shader puts a vertex, x and y of -1 to 1 are
 the edges of the pixmap, y up, and z of -1 to 1 is in view, nearest
 first. With cull a triangle whose vertices go round clockwise as seen
-is left out, it faces away. Only the pixels of x y x1 y1 are drawn,
+is left out, it faces away. A cull of :front leaves out those that go
+round the other way, for a mesh made the other way round, or a view
+that is turned over. Only the pixels of x y x1 y1 are drawn,
 all of the pixmap if they are not given, so that a frame can be drawn
 a part at a time, or by several tasks. A pixel is full on. A triangle
 with a vertex that is not in front of the eye is left out whole.
@@ -3000,13 +3021,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args

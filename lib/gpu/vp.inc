@@ -24,7 +24,7 @@
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
 	;part of the name of the native function, so a change to this file
 	;that changes the code must change this
-	+sv_version 6)
+	+sv_version 7)
 
 (defun sv-emit (&rest form)
 	(push code form))
@@ -740,7 +740,11 @@
 	(E 'vp-beq-ff :f9 :f6 (Q 'sr_tri))
 	(LI s_cull :r8)
 	(E 'vp-beq-cr 0 :r8 (Q 'sr_faces))
+	(E 'vp-beq-cr 2 :r8 (Q 'sr_front))
 	(E 'vp-bgt-ff :f9 :f6 (Q 'sr_tri))
+	(E 'vp-jmp (Q 'sr_faces))
+	(E 'vp-label (Q 'sr_front))
+	(E 'vp-blt-ff :f9 :f6 (Q 'sr_tri))
 	(E 'vp-label (Q 'sr_faces))
 	(E 'vp-cpy-ff :f14 :f10) (E 'vp-div-ff :f6 :f10)
 	;the pixels it may cover, kept to the part of the screen asked for
@@ -1195,7 +1199,9 @@
 	;shaders. Where a vertex shader puts a vertex, x and y of -1 to 1 are
 	;the edges of the pixmap, y up, and z of -1 to 1 is in view, nearest
 	;first. With cull a triangle whose vertices go round clockwise as seen
-	;is left out, it faces away. Only the pixels of x y x1 y1 are drawn,
+	;is left out, it faces away. A cull of :front leaves out those that go
+	;round the other way, for a mesh made the other way round, or a view
+	;that is turned over. Only the pixels of x y x1 y1 are drawn,
 	;all of the pixmap if they are not given, so that a frame can be drawn
 	;a part at a time, or by several tasks. A pixel is full on. A triangle
 	;with a vertex that is not in front of the eye is left out whole.
@@ -1208,7 +1214,8 @@
 	(each (# (set-long frame %0 %1))
 		(list s_ntris s_stride s_tstride s_vw s_vh s_cx0 s_cy0 s_cx1 s_cy1 s_cull)
 		(list (/ (length tris) tri_size) (* (elem-get place 3) 8) (* tri_size 8) width height
-			(max x 0) (max y 0) (min x1 width) (min y1 height) (if cull 1 0)))
+			(max x 0) (max y 0) (min x1 width) (min y1 height)
+			(cond ((not cull) 0) ((eql cull :front) 2) (1))))
 	(each (# (set-long frame (+ s_vary (* (!) 8)) %0)) offsets)
 	(if (and (nempty? tris) (nempty? placed))
 		((first fill) frame placed tris pixmap depth))
