@@ -978,6 +978,127 @@ that says it is known, or a reader takes the stamp as its own time
 (export-symbols symbols)
 ```
 
+### fat32-chain
+
+```code
+(fat32-chain vol start) -> (cluster ...)
+
+the clusters of a file or a directory. A chain that goes round on
+itself is cut off at the size of the volume
+```
+
+### fat32-checksum
+
+```code
+the checksum of an 8 and 3 name, each part of a long name has it
+```
+
+### fat32-data
+
+```code
+(fat32-data vol start len [keep]) -> str
+
+the bytes of a file or a directory, a run of clusters is one read.
+A len of :nil is all of the chain, a directory has no length. keep is
+for a directory, its blocks are kept
+```
+
+### fat32-dir
+
+```code
+(fat32-dir vol entry) -> ((name dir size start no_fat index count) ...)
+
+what is in a directory
+```
+
+### fat32-entries
+
+```code
+(fat32-entries vol start) -> ((name dir size start no_fat index count) ...)
+
+the files and directories of a directory. The parts of a long name
+come before the entry of their file, the last part first, and are
+its name if they are all there and their checksum is that of its
+8 and 3 name. Then that is its name.
+```
+
+### fat32-find
+
+```code
+(fat32-find vol path) -> :nil | (name dir size start no_fat index count)
+```
+
+### fat32-list
+
+```code
+(fat32-list vol path) -> :nil | ((name dir size start no_fat index count) ...)
+```
+
+### fat32-load
+
+```code
+(fat32-load vol path) -> :nil | str
+```
+
+### fat32-mount
+
+```code
+(fat32-mount path | stream) -> :nil | vol
+
+a path is a file of the host that is the image of a disk. A stream
+can be a memory stream. A volume that is FAT12 or FAT16 is not taken.
+```
+
+### fat32-next
+
+```code
+the cluster that follows this one, the top 4 bits are not part of it.
+
+Every file has a chain, so it is read from the block as it is kept,
+an entry of the table never lies over the end of a block
+```
+
+### fat32-path
+
+```code
+(fat32-path vol path) -> :nil | (root ... entry)
+
+the entries from the root down to a path
+```
+
+### fat32-root
+
+```code
+the root as an entry
+```
+
+### fat32-shift
+
+```code
+the power of 2 that n is, :nil if it is not one
+```
+
+### fat32-short
+
+```code
+the 8 and 3 name of an entry. It is held in upper case, with a bit
+
+each for a name and an end that are to be shown in lower. A character
+past 127 is of a code page that is not known here, it is taken as
+Latin 1
+```
+
+### fat32-walk
+
+```code
+(fat32-walk vol path fnc) -> vol
+
+(fnc path entry)
+every file and directory under a path, a directory before what is in
+it. It keeps a list of the directories still to do, it does not call
+itself, so the depth of the tree costs no stack.
+```
+
 ### fcluster
 
 ```code

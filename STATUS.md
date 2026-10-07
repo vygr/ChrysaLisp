@@ -4,6 +4,38 @@
 
 ------
 
+FAT32 is read.
+
+`lib/fs/fat32.inc`. It is not written, exFAT is the file system proper,
+this is for the volumes that are FAT32 and will stay so, the boot partition
+of a Raspberry Pi is one. `(fat32-mount path | stream)`, then `(fat32-find)`,
+`(fat32-list)`, `(fat32-load)`, `(fat32-path)` and `(fat32-walk)`, as exFAT
+has them, and an entry of a directory is the list exFAT gives, so what
+reads the one reads the other. `(get :label vol)` is the name of the volume.
+
+It reads the device through the blocks exFAT keeps, and uses its upper case
+table to find a name with no regard to case, its cluster sums and its
+16 bit names. What is its own is the first sector, the table, which every
+file is chained through, and the directory, an entry of 8 and 3 characters
+for a file with the parts of its long name before it, last part first.
+Nothing in it calls itself. A FAT12 or FAT16 volume is not taken.
+
+Read for real three ways. A volume macOS made and filled, 512 byte
+clusters, and one `newfs_msdos` made with 4KB clusters, 90 files and 7
+directories each, long names, accents, mixed case, a 3MB file, an empty
+one, five deep, every byte as the files that went in. And the boot
+partition of the Raspberry Pi 4 itself, a copy of it, 527 files and 15
+directories, 80MB, every byte as Linux has them.
+
+A new test, `tests/system/test_fat32.lisp`, 34 checks on volumes laid out by
+hand in a memory stream, there is nothing to format one with. A root over
+two clusters, a deleted file, names in lower case by their flags, a long
+name of exactly 13, a long name that is another file's, clusters out of
+order, a chain that goes round on itself, and what is not a volume.
+
+A character past 127 in an 8 and 3 name is taken as Latin 1, the code page
+it is really in is not known here. A long name has no such doubt.
+
 The atoms of the Molecule app are drawn by a shader.
 
 `apps/science/molecule/atom.shader`, a lit grey ball that fills the frame,
