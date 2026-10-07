@@ -24,6 +24,7 @@ what is drawn for a frame of the faces, as it is seen now, a frame
 of that many rows. For each object that has a mesh, the number of
 the mesh, the inputs of the vertex shader and of the pixel shader
 for it, as the blocks they travel in, and the rows it may be on.
+Objects that are see through come last, the furthest first.
 It is what a child that draws a strip is sent, and what is drawn
 from here, so the two are the same to the bit.
 ```

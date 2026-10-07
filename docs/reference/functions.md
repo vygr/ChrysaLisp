@@ -373,6 +373,14 @@ and the value of the last form is the return value. With a flag
 it is the body of a loop, and the flag is set to leave the loop.
 ```
 
+### cpu-edge-cut
+
+```code
+where the edge from vertex a, in front of the near plane, to vertex b,
+
+behind it, crosses the plane, every number of the vertex
+```
+
 ### cpu-exits?
 
 ```code
@@ -419,6 +427,15 @@ a matrix times a vec4, each row of the matrix dotted with it
 the 3 by 3 of a matrix times a vec3
 ```
 
+### cpu-near-cut
+
+```code
+(cpu-near-cut (v0 v1 v2)) -> ((v0 v1 v2) ...)
+
+a triangle cut by the near plane, where z is -w, as the native code
+cuts it. None, the triangle, a smaller one, or two
+```
+
 ### cpu-op
 
 ```code
@@ -429,6 +446,12 @@ a built in op
 
 ```code
 whole part of the power by squaring, the rest by repeated roots
+```
+
+### cpu-share
+
+```code
+that much of a 32 bit argb pixel, a share of 0 to 256
 ```
 
 ### cpu-zero
@@ -1728,6 +1751,14 @@ source, no more and no less.
 (leapyear? year) -> :t | :nil
 ```
 
+### lerp
+
+```code
+vertex kd is where the edge from vertex ka, in front of the near
+
+plane, to vertex kb, behind it, crosses the plane
+```
+
 ### lighting
 
 ```code
@@ -2614,6 +2645,40 @@ if that is last, and of a progn that is last. The back ends still see
 a return, they are statement languages.
 ```
 
+### sha256
+
+```code
+(sha256 data) -> str
+
+the hash of a str, 32 bytes
+```
+
+### sha256-add
+
+```code
+(sha256-add ctx data) -> ctx
+
+more of what is being hashed
+```
+
+### sha256-end
+
+```code
+(sha256-end ctx) -> str
+
+the hash of all that was added, 32 bytes. The ctx is done with.
+```
+
+### sha256-start
+
+```code
+(sha256-start) -> ctx
+
+a hash with nothing in it yet. The state, the first 32 bits of the
+fractions of the square roots of the first 8 primes, the bytes that
+do not yet make a block, and how many bytes there have been.
+```
+
 ### shader-attrs
 
 ```code
@@ -2777,8 +2842,9 @@ puts a vertex has z of -1 to 1 in view, a GPU of this kind has 0 to
 The fragment function takes the varyings the pixel shader reads, by
 the place each has in the vertex shader's list, its inputs at
 [[buffer(0)]], and the size of the target at [[buffer(1)]], from
-which, and where the pixel is, comes the frag coord, y up. A pixel is
-full on, as the native code has it.
+which, and where the pixel is, comes the frag coord, y up. A pixel
+whose alpha is under 1 in 255 is not drawn. The color leaves with its
+alpha multiplied in, for a target that is blended that way.
 ```
 
 ### shader-msl-vertex
@@ -2858,7 +2924,8 @@ The fragment module takes the varyings the pixel shader reads, at
 the place each has in the vertex shader's list, its inputs as a
 block, set 3 binding 0, and the size of the target, set 3 binding 1,
 from which, and where the pixel is, comes the frag coord, y up. A
-pixel is full on, as the native code has it.
+pixel whose alpha is under 1 in 255 is not drawn. The color leaves
+with its alpha multiplied in, for a target that is blended that way.
 ```
 
 ### shader-spirv-vertex
@@ -2996,9 +3063,14 @@ that is turned over. Only the pixels of x y x1 y1 are drawn,
 all of the pixmap if they are not given, so that a frame can be drawn
 a part at a time, or by several tasks. A task that draws rows y to y1
 only can have a depth buffer of just those rows, and says so with a
-depth_y of y, the row its depth buffer starts at. A pixel is full on.
-A triangle with a vertex that is not in front of the eye is left out
-whole.
+depth_y of y, the row its depth buffer starts at. A pixel whose alpha
+is 0 is not drawn, and leaves the depth buffer alone. One that is
+full on is written. One between goes over what is there, which is
+taken to have had its alpha multiplied in, and its depth is kept as
+any other, so what is see through is to be drawn after what is not,
+the furthest first.
+A triangle that the near plane goes through, where z is -w, is cut by
+it, and what is in front is drawn.
 ```
 
 ### shader-vp-fill
@@ -3236,13 +3308,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args
@@ -3315,6 +3387,14 @@ accepts standard "Normal diff" format
 one step of + - * /, by the types of the two sides
 ```
 
+### sv-at
+
+```code
+-> (register offset)
+
+where a slot of the frame is
+```
+
 ### sv-branch
 
 ```code
@@ -3343,6 +3423,12 @@ a float constant, to a new register
 
 ```code
 a new variable, set to the value of an expression
+```
+
+### sv-emit
+
+```code
+a call of the system can lose the two registers of a vertex function
 ```
 
 ### sv-expr

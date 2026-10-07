@@ -1,0 +1,174 @@
+(include "lib/asm/func.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; The native code of lib/crypto, the part of a hash or a cipher
+; that is done for every byte. What is done once, the padding and
+; the like, is Lisp, lib/crypto/sha256.inc.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(def-func (path-to-absolute "./sha256_blocks"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;(sha256-blocks state data offset count) -> state
+	;the state is 8 numbers of 32 bits, as they are on this machine, in a
+	;str of 32 bytes, and is changed where it is. count blocks of 64
+	;bytes, from that offset of the data, are taken into it.
+
+	;a number of 32 bits is kept in a register with nothing above it, so
+	;x with a copy of itself above it, moved down n, has x rotated right
+	;by n as its low 32 bits. What is above 32 bits in a sum does no
+	;harm, and is cut off when the sum is kept.
+	(vp-rdef (ra rb rc rd re rf rg rh rw rk t1 t2 t3 t4 rm))
+
+	(defun sha-round (RA RB RC RD RE RF RG RH j)
+		;round j of 8, the registers that are a to h in this round. What
+		;is to be the new e is left in D, and the new a in H
+		(vp-cpy-rr RE t1) (vp-shl-cr 32 t1) (vp-or-rr RE t1)
+		(vp-cpy-rr t1 t2) (vp-shr-cr 6 t2)
+		(vp-cpy-rr t1 t3) (vp-shr-cr 11 t3) (vp-xor-rr t3 t2)
+		(vp-shr-cr 25 t1) (vp-xor-rr t1 t2)
+		;choose, f where e has a bit and g where it has not
+		(vp-cpy-rr RF t1) (vp-xor-rr RG t1) (vp-and-rr RE t1) (vp-xor-rr RG t1)
+		(vp-add-rr t2 RH) (vp-add-rr t1 RH)
+		(vp-cpy-ir-ui rk (* j 4) t1) (vp-add-rr t1 RH)
+		(vp-cpy-ir-ui rw (* j 4) t1) (vp-add-rr t1 RH)
+		(vp-add-rr RH RD) (vp-and-rr rm RD)
+		(vp-cpy-rr RA t1) (vp-shl-cr 32 t1) (vp-or-rr RA t1)
+		(vp-cpy-rr t1 t2) (vp-shr-cr 2 t2)
+		(vp-cpy-rr t1 t3) (vp-shr-cr 13 t3) (vp-xor-rr t3 t2)
+		(vp-shr-cr 22 t1) (vp-xor-rr t1 t2)
+		;majority, of a, b and c
+		(vp-cpy-rr RA t1) (vp-or-rr RB t1) (vp-and-rr RC t1)
+		(vp-cpy-rr RA t3) (vp-and-rr RB t3) (vp-or-rr t3 t1)
+		(vp-add-rr t2 RH) (vp-add-rr t1 RH) (vp-and-rr rm RH))
+
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 4)
+	(list-bind-args :r1 '(:r2 :r3 :r4 :r5) '(:obj :obj :num :num))
+(errorcase
+	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r6 :r7))
+	(gotoif '(:r6 /= 32) 'error)
+	(gotoif '(:r4 < 0) 'error)
+	(gotoif '(:r5 < 0) 'error)
+	(vp-cpy-rr :r5 :r6)
+	(vp-shl-cr 6 :r6)
+	(vp-add-rr :r4 :r6)
+	(gotoif '(:r6 > :r7) 'error))
+
+	;the stack has the 64 words of a block's schedule, then where the
+	;state is, where the next block is, how many are left, the lisp
+	;object and the state object
+	(vp-alloc 304)
+	(vp-cpy-ri :r0 :rsp 280)
+	(vp-cpy-ri :r2 :rsp 288)
+	(vp-add-cr +str_data :r2)
+	(vp-add-cr +str_data :r3)
+	(vp-add-rr :r4 :r3)
+	(vp-cpy-ri :r2 :rsp 256)
+	(vp-cpy-ri :r3 :rsp 264)
+	(vp-cpy-ri :r5 :rsp 272)
+
+(vp-label 'block)
+	(vp-cpy-ir :rsp 272 t1)
+	(vp-beq-cr 0 t1 'done)
+	(vp-sub-cr 1 t1)
+	(vp-cpy-ri t1 :rsp 272)
+	;the first 16 words are the block, its bytes the other way round
+	(vp-cpy-ir :rsp 264 t4)
+	(each (lambda (i)
+		(vp-cpy-ir-ui t4 (* i 4) t2)
+		(vp-cpy-rr t2 t3) (vp-shr-cr 8 t3) (vp-and-cr 0x00ff00ff t3)
+		(vp-and-cr 0x00ff00ff t2) (vp-shl-cr 8 t2) (vp-or-rr t3 t2)
+		(vp-cpy-rr t2 t3) (vp-shr-cr 16 t3) (vp-shl-cr 16 t2) (vp-or-rr t3 t2)
+		(vp-cpy-ri-i t2 :rsp (* i 4))) (range 0 16))
+	(vp-add-cr 64 t4)
+	(vp-cpy-ri t4 :rsp 264)
+	;the other 48, each from four that came before it. w is 16 words
+	;behind the one being made
+	(vp-lea-i :rsp 0 rw)
+	(vp-lea-i :rsp 192 rk)
+(vp-label 'sched)
+	(vp-cpy-ir-ui rw 4 t1)
+	(vp-cpy-rr t1 t2) (vp-shl-cr 32 t2) (vp-or-rr t1 t2)
+	(vp-cpy-rr t2 t3) (vp-shr-cr 7 t3) (vp-shr-cr 18 t2) (vp-xor-rr t2 t3)
+	(vp-shr-cr 3 t1) (vp-xor-rr t1 t3)
+	(vp-cpy-ir-ui rw 56 t1)
+	(vp-cpy-rr t1 t2) (vp-shl-cr 32 t2) (vp-or-rr t1 t2)
+	(vp-cpy-rr t2 t4) (vp-shr-cr 17 t4) (vp-shr-cr 19 t2) (vp-xor-rr t2 t4)
+	(vp-shr-cr 10 t1) (vp-xor-rr t1 t4)
+	(vp-add-rr t4 t3)
+	(vp-cpy-ir-ui rw 0 t1) (vp-add-rr t1 t3)
+	(vp-cpy-ir-ui rw 36 t1) (vp-add-rr t1 t3)
+	(vp-cpy-ri-i t3 rw 64)
+	(vp-add-cr 4 rw)
+	(vp-bne-rr rk rw 'sched)
+	;the 64 rounds, 8 at a time, after which a to h are in the registers
+	;they started in
+	(vp-cpy-ir :rsp 256 t4)
+	(each (lambda (r) (vp-cpy-ir-ui t4 (* (!) 4) r)) (list ra rb rc rd re rf rg rh))
+	(vp-cpy-cr 0xffffffff rm)
+	(vp-lea-i :rsp 0 rw)
+	(vp-lea-p 'k256 rk)
+(vp-label 'rounds)
+	(defq roles (list ra rb rc rd re rf rg rh))
+	(each (lambda (j)
+		(apply sha-round (cat roles (list j)))
+		(setq roles (cat (list (last roles)) (slice roles 0 -2)))) (range 0 8))
+	(vp-add-cr 32 rw)
+	(vp-add-cr 32 rk)
+	(vp-lea-i :rsp 256 t4)
+	(vp-bne-rr t4 rw 'rounds)
+	;and they are added to the state
+	(vp-cpy-ir :rsp 256 t4)
+	(each (lambda (r)
+		(vp-cpy-ir-ui t4 (* (!) 4) t1)
+		(vp-add-rr t1 r)
+		(vp-cpy-ri-i r t4 (* (!) 4))) (list ra rb rc rd re rf rg rh))
+	(vp-jmp 'block)
+
+(vp-label 'done)
+	(vp-cpy-ir :rsp 280 :r0)
+	(vp-cpy-ir :rsp 288 :r1)
+	(vp-free 304)
+	(class/obj/ref :r1 :r2)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+	;the first 32 bits of the fractions of the cube roots of the first
+	;64 primes
+	(vp-align 4)
+(vp-label 'k256)
+	(vp-int 0x428a2f98 0x71374491 0xb5c0fbcf 0xe9b5dba5)
+	(vp-int 0x3956c25b 0x59f111f1 0x923f82a4 0xab1c5ed5)
+	(vp-int 0xd807aa98 0x12835b01 0x243185be 0x550c7dc3)
+	(vp-int 0x72be5d74 0x80deb1fe 0x9bdc06a7 0xc19bf174)
+	(vp-int 0xe49b69c1 0xefbe4786 0x0fc19dc6 0x240ca1cc)
+	(vp-int 0x2de92c6f 0x4a7484aa 0x5cb0a9dc 0x76f988da)
+	(vp-int 0x983e5152 0xa831c66d 0xb00327c8 0xbf597fc7)
+	(vp-int 0xc6e00bf3 0xd5a79147 0x06ca6351 0x14292967)
+	(vp-int 0x27b70a85 0x2e1b2138 0x4d2c6dfc 0x53380d13)
+	(vp-int 0x650a7354 0x766a0abb 0x81c2c92e 0x92722c85)
+	(vp-int 0xa2bfe8a1 0xa81a664b 0xc24b8b70 0xc76c51a3)
+	(vp-int 0xd192e819 0xd6990624 0xf40e3585 0x106aa070)
+	(vp-int 0x19a4c116 0x1e376c08 0x2748774c 0x34b0bcb5)
+	(vp-int 0x391c0cb3 0x4ed8aa4a 0x5b9cca4f 0x682e6ff3)
+	(vp-int 0x748f82ee 0x78a5636f 0x84c87814 0x8cc70208)
+	(vp-int 0x90befffa 0xa4506ceb 0xbef9a3f7 0xc67178f2)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(sha256-blocks state data offset count)" +error_msg_wrong_types))
+	(signature '(:str :str :NUM :NUM)))
+
+(def-func-end)

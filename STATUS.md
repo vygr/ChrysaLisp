@@ -4,6 +4,31 @@
 
 ------
 
+A hash, SHA-256, the first of the primitives the storage service wants.
+
+*	New `lib/crypto/`. `(sha256 data)`, in `lib/crypto/sha256.inc`, the 32
+	bytes of the hash of a str. `(sha256-start)`, `(sha256-add ctx data)` and
+	`(sha256-end ctx)` for what comes a part at a time. `(hmac-sha256 key
+	data)`, the hash with a key.
+
+*	The work on each block of 64 bytes is native code,
+	`lib/crypto/lisp.vp`, `(sha256-blocks state data offset count)`. VP has
+	no rotate, so a number of 32 bits is rotated with a copy of itself above
+	it in a 64 bit register. A long hash gives the other tasks of its node a
+	turn every 64KB.
+
+*	253MB a second on one core of an Apple M4 Max, with none of the SHA
+	instructions of a CPU, it is the same VP on all of them.
+
+*	**The boot image grows**, by 2,768 bytes on ARM64, to 235,356. All
+	native code outside `apps/` is in it, and this is.
+
+*	Tests in a new folder, `tests/crypto/test_sha256.lisp`, the answers of
+	FIPS 180-4 and RFC 4231, every length about the edges of a block, and a
+	million bytes. Run on ARM64, x86_64, and the VP64 emulator.
+
+*	New doc, `docs/ai_digest/crypto.md`.
+
 The shader back ends walk part of a list with no copy of it.
 
 *	Where `lib/gpu/` took a `(rest)` or a `(slice)` of a list only to go
