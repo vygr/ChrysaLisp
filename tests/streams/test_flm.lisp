@@ -31,19 +31,14 @@
 	(assert-true (cat "a film to play, " (str format) " bit") played)
 	(when played
 		(setf (getf played +canvas_pixmap 0) +pixmap_stream out 0)
-		;the first frame comes back to the bit. To play the next the pixmap
-		;is made premultiplied, which takes a level off every channel, so
-		;from there a frame is the one that went in to within a level, and
-		;a wrong frame would be far further out than that
-		(assert-eq (cat "the first frame played back to the bit, " (str format) " bit")
-			(first want) (flm-pixels played))
-		(defq near 0)
+		;every frame comes back to the bit, the first, and those after it,
+		;which are decoded a run at a time and premultiplied as they are
+		(defq same 0)
 		(each (lambda (frame)
-			(defq got (flm-pixels played))
-			(if (every (# (<= (abs (- (code %0) (code %1))) 1)) got frame) (setq near (inc near)))
+			(if (eql (flm-pixels played) frame) (setq same (inc same)))
 			(. played :next_frame)) want)
-		(assert-eq (cat "every frame played back as it went in, " (str format) " bit") 6 near)
-		;and two frames that differ are not within a level of each other
+		(assert-eq (cat "every frame played back to the bit, " (str format) " bit") 6 same)
+		;and two frames that differ are told apart
 		(assert-true "frames that differ are told apart"
-			(notevery (# (<= (abs (- (code %0) (code %1))) 1)) (first want) (second want)))))
+			(not (eql (first want) (second want))))))
 	'(32 24))

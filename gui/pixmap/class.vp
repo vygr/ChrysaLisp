@@ -180,18 +180,31 @@
 	;trashes
 	;:r1-:r3
 
-	(vp-rdef (& col g rb))
+	;the alpha is scaled to 0 to 256, so an opaque color is left as it is.
+	;red and blue stay where they are, green goes up to bit 32, and the one
+	;multiply does all three.
+
+	(vp-rdef (& col g a))
 
 	(entry :pixmap :to_premul `(,col))
 
-	(vp-simd vp-cpy-rr `(,col) `(,rb ,g))
-	(vp-shr-cr 24 col)
-	(vp-simd vp-and-cr '(0xff00ff 0xff00) `(,rb ,g))
-	(vp-simd vp-mul-rr `(,col) `(,rb ,g))
-	(vp-shl-cr 24 col)
-	(vp-simd vp-shr-cr '(8) `(,rb ,g))
-	(vp-simd vp-and-cr '(0xff00ff 0xff00) `(,rb ,g))
-	(vp-add-rr rb col)
+	(vp-simd vp-cpy-rr `(,col) `(,a ,g))
+	(vp-shr-cr 24 a)
+	(vp-and-cr 0xff00 g)
+	(vp-and-cr 0xff00ff col)
+	(vp-shl-cr 24 g)
+	(vp-add-rr g col)
+	(vp-cpy-rr a g)
+	(vp-shr-cr 7 g)
+	(vp-add-rr a g)
+	(vp-mul-rr g col)
+	(vp-shl-cr 24 a)
+	(vp-shr-cr 8 col)
+	(vp-cpy-rr col g)
+	(vp-and-cr 0xff00ff col)
+	(vp-shr-cr 24 g)
+	(vp-add-rr a col)
+	(vp-and-cr 0xff00 g)
 	(vp-add-rr g col)
 
 	(exit :pixmap :to_premul `(,col))

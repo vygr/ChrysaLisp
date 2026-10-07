@@ -4,6 +4,25 @@
 
 ------
 
+An opaque color is premultiplied to itself. It used to lose a level.
+
+`:pixmap :to_premul` multiplied each channel by the alpha and shifted down
+by 8, and 255 times 255 over 256 is 254. So every opaque color that went
+through it came out a level down on each channel, white as `0xfffefefe`, a
+`:fill`, a `:plot`, a polygon, a pixmap made premultiplied, and each frame
+of a film after its first, which is where it showed, a film went a touch
+darker as it began to play. The alpha is now scaled to 0 to 256 first, its
+top bit added to it, so 255 leaves a color as it is and 0 still clears it.
+
+Red and blue stay where they are in the register, green is moved up to
+bit 32, and one multiply does the three, where there were two. It is 8
+bytes on the boot image, and was not timed.
+
+`tests/streams/test_flm.lisp` now has every frame of a film played back to
+the bit, not to within a level. The first six frames of the Raymarch film
+play back as the `.cpm` frames they were made from, and `toflm` still makes
+the film file in the repo from them, byte for byte.
+
 A film is written as a stream, frames pumped in and the `.flm` out, and
 the Raymarch demo records straight into it.
 
