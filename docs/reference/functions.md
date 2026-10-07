@@ -1078,6 +1078,63 @@ lines are not, and need no more than a look for a break that must be.
 (flatten list) -> list
 ```
 
+### flm-add
+
+```code
+(flm-add film canvas) -> film
+
+the next frame of the film, what is on the canvas now. It must be
+the size of the first. The pixmap of the canvas is left as argb.
+```
+
+### flm-close
+
+```code
+(flm-close film) -> frames
+
+no more frames. The feed is flushed and let go, which is the end of
+it for the encoder, and when it has written the last of the film it
+says how many frames it made, which is the result
+```
+
+### flm-encode
+
+```code
+the encoder task. The feed is the size of a frame, then frame after
+
+frame of pixels, till it ends
+```
+
+### flm-encode-frame
+
+```code
+the next frame of the film, written to its stream
+```
+
+### flm-encoder
+
+```code
+the state of a film being written to a stream
+```
+
+### flm-open
+
+```code
+(flm-open stream format) -> film
+
+a film to be written to a stream, format is the bits of a pixel,
+1, 8, 12, 15, 16, 24 or 32. The encoder is started, and waits for
+frames
+```
+
+### flm-stage
+
+```code
+the source of the encoder task, it says where its feed is, makes the
+
+film, and says how many frames there were
+```
+
 ### float-time
 
 ```code
@@ -2638,13 +2695,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args

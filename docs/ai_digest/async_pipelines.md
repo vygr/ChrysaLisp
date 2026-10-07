@@ -354,3 +354,18 @@ The Async Local Pipeline embodies the core tenets of ChrysaLisp system design:
 
    Pinning raw Lisp strings as child tasks via `+kn_call_pin` combines
    multi-core MIMD parallelism with zero-copy address-space sharing.
+
+## A Film Written as a Stream
+
+`lib/streams/flm.inc` is the same pattern turned to writing a film. `(flm-open
+stream format)` starts the encoder as a pinned task of raw Lisp, which sends
+back the mailbox of its input stream, and the producer makes an `out-stream`
+to it. `(flm-add film canvas)` writes the pixels of a frame to that feed, and
+no more. `(flm-close film)` flushes the feed and lets it go, which is the end
+of the stream for the encoder, and waits for it to say how many frames it
+wrote. The file stream is the sink, handed to the task by weak reference, as
+the image save does.
+
+The `toflm` command and the Raymarch demo both use it. The demo pumps each
+frame in as the GPU hands it back, with no file for a frame.
+

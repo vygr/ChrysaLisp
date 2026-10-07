@@ -4,11 +4,12 @@
 (import "lib/gpu/shader.inc")
 (import "lib/gpu/gui.inc")
 (import "lib/gpu/tile.inc")
-(import "lib/task/pipe.inc")
+(import "lib/streams/flm.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; The Raymarch film. A shader is drawn for each frame of a flight into
-; a lattice of balls, and the frame is saved, for the Films app to play.
+; a lattice of balls, and the frame goes straight into the film file,
+; for the Films app to play.
 ;
 ; The GPU draws it if the host has one, and the frame is then read back
 ; from the texture to be saved. With no GPU the nodes of the machine
@@ -28,8 +29,8 @@
 	+width 600 +height 600 +line_batch 8
 	+timer_rate (/ 1000000 60) +slow_ticks 30 ticks 0 +retry_timeout (task-timeout 5)
 	+num_frames 40 frame_idx 0 z_start (n2r -3.0) z_dist (n2r 2.0)
-	program (shader-load +shader_file) select :nil jobs :nil lst_stream :nil
-	film_time 0 frame_time 0 frame_us 0
+	program (shader-load +shader_file) select :nil jobs :nil film :nil
+	film_time 0 frame_time 0 frame_us 0 save_us 0 first_frame :nil
 	;how the frames are being drawn. :wait, the driver is building the
 	;shader. :gpu, the GPU. :cpu, the nodes. :done, the film is made
 	mode :wait gpu_shader :nil
@@ -64,17 +65,17 @@
 	(setq frame_time (pii-time) gpu_inputs :nil gpu_y 0)
 	(cond
 		((>= frame_idx +num_frames)
-			;the list ends where it began, the film loops
-			(write-line lst_stream (cat +film_path +film_name "_0.cpm"))
-			(stream-flush lst_stream)
-			(setq lst_stream :nil mode :done)
-			(defq frames_ms (/ (- (pii-time) film_time) 1000) now (pii-time))
-			;the frames are made into the one file the Films app plays
-			(pipe-run (cat "cat " +film_path +film_name ".lst | toflm -f " (str +film_bits) " -n "
-				+film_path +film_name ".flm") (lambda (_)))
+			;the film ends where it began, so that it loops, and is whole
+			(defq again (Canvas +width +height 1) pixmap (getf again +canvas_pixmap 0))
+			(setf pixmap +pixmap_type 32 0)
+			(stream-seek first_frame 0 0)
+			(pixmap-read pixmap first_frame 32)
+			(flm-add film again)
+			(flm-close film)
+			(setq film :nil first_frame :nil mode :done)
 			(set-label *status* (cat "The film is made, " (str +num_frames) " frames in "
-				(str frames_ms) "ms, by the " (if gpu_shader "GPU" "nodes")
-				", and " (str (/ (- (pii-time) now) 1000)) "ms to make them the .flm")))
+				(str (/ (- (pii-time) film_time) 1000)) "ms, by the "
+				(if gpu_shader "GPU" "nodes") ", " (str (/ save_us 1000)) "ms of it writing the film")))
 		((eql mode :cpu)
 			;the nodes shade it, a tile each
 			(defq inputs (frame-inputs) key (canvas-key *canvas*))
@@ -83,15 +84,19 @@
 				(range 0 +height +line_batch))))))
 
 (defun frame-done ()
-	;the frame is whole, and is in the pixmap of the canvas. Save it
-	(defq cpm_path (cat +film_path +film_name "_" (str frame_idx) ".cpm"))
-	(canvas-save *canvas* cpm_path +film_bits :t :t)
-	;the save left the pixmap as argb. Every pixel is full on, so that is
-	;the same as premultiplied, and the type is all that has to change
-	(setf (getf *canvas* +canvas_pixmap 0) +pixmap_type -32 0)
-	(write-line lst_stream cpm_path)
-	(stream-flush lst_stream)
-	(setq frame_us (- (pii-time) frame_time) frame_idx (inc frame_idx))
+	;the frame is whole, and is in the pixmap of the canvas. It goes
+	;straight into the film, there is no file for a frame
+	(defq now (pii-time) pixmap (getf *canvas* +canvas_pixmap 0))
+	(flm-add film *canvas*)
+	(when (= frame_idx 0)
+		;the pixels of the first frame are kept, to be the last as well
+		(setq first_frame (memory-stream))
+		(pixmap-write pixmap first_frame 32))
+	;that left the pixmap as argb. Every pixel is full on, so that is the
+	;same as premultiplied, and the type is all that has to change
+	(setf pixmap +pixmap_type -32 0)
+	(setq save_us (+ save_us (- (pii-time) now))
+		frame_us (- (pii-time) frame_time) frame_idx (inc frame_idx))
 	(set-label *status* (cat (if (eql mode :gpu) "GPU" (cat (str (length (lisp-nodes))) " nodes"))
 		", frame " (str frame_idx) " of " (str +num_frames) ", "
 		(str (/ frame_us 1000)) "ms to draw and save it"))
@@ -137,7 +142,7 @@
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(setq lst_stream (file-stream (cat +film_path +film_name ".lst") +file_open_write)
+	(setq film (flm-open (file-stream (cat +film_path +film_name ".flm") +file_open_write) +film_bits)
 		jobs (Jobs +shader_tile_child
 			(elem-get select +select_task) (elem-get select +select_reply))
 		gpu_shader (shader-gui program) film_time (pii-time))

@@ -4,6 +4,35 @@
 
 ------
 
+A film is written as a stream, frames pumped in and the `.flm` out, and
+the Raymarch demo records straight into it.
+
+`lib/streams/flm.inc`. `(flm-open stream format)` sets the pipe up,
+`(flm-add film canvas)` pumps a frame in, and `(flm-close film)` ends it,
+with the film flushed and whole. It is an async local pipeline, as the load
+and save of a `.cpm` are. The encoder is a task of its own on the node, fed
+by a stream, and the stream the film goes to is the sink. A frame is only
+written to the feed, so the next can be on its way while the last is
+encoded, and the feed holds the maker back if the encoder falls behind.
+
+The `toflm` command is that, with its frames loaded from files, the encoder
+came out of it. The 40 frames of the Raymarch film through it give the film
+file in the repo, byte for byte, and so they stay as its test data, with
+their `.lst`.
+
+The Raymarch demo no longer saves a file for each frame and makes the film
+from them after. It opens the film, pumps each frame in as the GPU hands it
+back, and closes it. On a Raspberry Pi 4 the film was 39 seconds to draw
+and save and 40 more to make into a `.flm`, and is now 44 seconds all told,
+and the same file to the byte.
+
+A new test, `tests/streams/test_flm.lisp`, frames pumped in and played back.
+The first comes back to the bit. To play the next a film's pixmap is made
+premultiplied, which takes a level off every channel, so the rest come back
+to within a level, as they always have.
+
+------
+
 The Bubbles demo is a structure of arrays, thousands of bubbles, drawn by
 all the nodes.
 
