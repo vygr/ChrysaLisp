@@ -4,6 +4,15 @@
 
 ------
 
+The stroker has the code for a joint once. `:path :stroke_polyline` had a
+copy of the loop that `:path :stroke_joints` is, and now calls it, for the
+way out and for the way back. Every stroke comes out as it did, byte for
+byte, 81 polylines of every join and cap at three widths and four frames
+of the Canvas demo were compared. The function went from 2192 bytes to
+1408 and the ARM64 boot image from 234668 to 233876.
+
+------
+
 An old fault in the stroker is mended, the spike a stroked outline threw
 out from a sharp turn of short lines.
 
