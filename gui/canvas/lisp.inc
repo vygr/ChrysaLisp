@@ -141,6 +141,21 @@
 		; (. canvas :get_clip) -> (cx cy cx1 cy1)
 		(getf-> this (+canvas_cx 0) (+canvas_cy 0)
 			 (+canvas_cx1 0) (+canvas_cy1 0)))
+
+	(defmethod :set_clip (x y x1 y1)
+		; (. canvas :set_clip x y x1 y1) -> canvas
+		;what is drawn from here on is kept to this part of the pixmap. It
+		;is cut down to the pixmap, and with no pixmap it is left alone.
+		(when (defq pixmap (getf this +canvas_pixmap 0))
+			(setq x (max x 0) y (max y 0)
+				x1 (min x1 (getf pixmap +pixmap_width 0))
+				y1 (min y1 (getf pixmap +pixmap_height 0)))
+			(when (and (<= x x1) (<= y y1))
+				(setf this +canvas_cx x 0)
+				(setf this +canvas_cy y 0)
+				(setf this +canvas_cx1 x1 0)
+				(setf this +canvas_cy1 y1 0)))
+		this)
 	)
 
 (defclass Canvas (width height scale) (Canvas-base)

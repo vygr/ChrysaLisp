@@ -101,6 +101,15 @@ that is only ever shown, it can not be drawn on after this.
 (. canvas :set_canvas_flags flags) -> canvas
 ```
 
+### :set_clip
+
+```code
+(. canvas :set_clip x y x1 y1) -> canvas
+
+what is drawn from here on is kept to this part of the pixmap. It
+is cut down to the pixmap, and with no pixmap it is left alone.
+```
+
 ### :set_color
 
 ```code

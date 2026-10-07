@@ -4,6 +4,38 @@
 
 ------
 
+The Canvas demo is a scene drawn by all the nodes, each a slice of it,
+straight onto the shared pixmap of the app's canvas.
+
+A field of shapes, 12 to 1200 of them on a slider, on a canvas of 1024 by
+768. Each turns and drifts in a way worked out from its number and the
+clock, so every node knows the whole scene from two numbers and nothing of
+it is sent. Some are stroked once when the app starts. Some are live, a
+curve that bends and is stroked afresh for every frame.
+
+A child is given the rows of its slice. For each shape it works out how far
+down it is and how far it can reach, the broad phase, and a shape that is
+not in the rows is not turned, placed or filled, and a live one is not bent
+or stroked. The clip of the canvas, `(. canvas :set_clip x y x1 y1)`, new
+from Lisp, cuts those that are to the rows, the narrow phase. The scene is
+`apps/demos/canvas/scene.inc`, the app and the child both draw with it, and
+the buttons choose one task or all the nodes.
+
+The picture the nodes draw between them is the one a single task draws,
+bit for bit. Timed with no window, a frame by one task against a frame by
+all the nodes, a slice each:
+
+| | 180 shapes | 600 shapes | 1200 shapes |
+|---|---|---|---|
+| M4 Max, 16 nodes | 5.8ms, 2.7ms | 18.5ms, 5.7ms | 37.0ms, 9.6ms |
+| Raspberry Pi 4, 4 nodes | 43.9ms, 23.5ms | 144ms, 72.6ms | |
+
+More slices than nodes was slower, a shape near the edge of a slice is
+worked on from both sides of it. A scene that is far bigger, a whiteboard
+with the paths kept on every child, is where this is heading.
+
+------
+
 A real device formatted by ChrysaLisp. The 4GB flash stick, through its raw
 device, `(exfat-format stream size "ChrysaLisp")`, half a second, 32768 byte
 clusters, 124986 of them. macOS's checker passes it and macOS mounts it under

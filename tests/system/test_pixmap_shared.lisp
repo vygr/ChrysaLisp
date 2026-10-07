@@ -55,3 +55,11 @@
 	(every (# (<= (abs (- (code %0) (code %1))) 1)) (px-bytes direct) (px-bytes (getf other +canvas_pixmap 0))))
 (assert-true "and it is a picture" (nql (px-bytes direct) (px-bytes (getf (Canvas 64 32 1) +canvas_pixmap 0))))
 (assert-eq "a tile that is not inside the pixmap is not drawn" :nil (shader-vp-draw native frame direct 0 0 65 8 32))
+
+;the clip of a canvas, set from Lisp, keeps a draw to a slice of the rows
+(defq whole (Canvas 64 32 1) part (Canvas 64 32 1))
+(assert-list-eq "a clip is cut down to the pixmap" '(0 8 64 32) (. (. part :set_clip -5 8 100 100) :get_clip))
+(.-> part (:set_clip 0 8 64 16) (:set_color 0xff405060) (:fbox 0 0 64 32))
+(.-> whole (:set_color 0xff405060) (:fbox 0 8 64 8))
+(assert-eq "a draw is kept to the clip" (px-bytes (getf whole +canvas_pixmap 0)) (px-bytes (getf part +canvas_pixmap 0)))
+
