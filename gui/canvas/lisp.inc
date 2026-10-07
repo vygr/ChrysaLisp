@@ -175,7 +175,10 @@
 	;host has no shared memory, or there are no pixels of that key.
 	(when (defq pixmap (pixmap-shared (* width scale) (* height scale) (ifn key 0)))
 		(defq canvas (Canvas-pixmap pixmap))
+		;a canvas made of a pixmap takes its size as a view from the pixmap,
+		;and with a scale it is that much smaller
 		(setf canvas +canvas_scale scale 0)
+		(. canvas :set_size width height)
 		canvas))
 
 (defun canvas-key (canvas)

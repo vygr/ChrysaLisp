@@ -4,6 +4,37 @@
 
 ------
 
+`:sys_math :r_pow`, a real to a power.
+
+It was a subroutine in every native function a shader was made into, 51
+lines of each. Chris: "we can move that to :sys_math :r_pow, no problem". It
+is 240 bytes on ARM64, in the boot image, which is 231,412 bytes with it
+there and `(mat4x4-inv)` gone. The raymarch shader's function is 10,256
+bytes, it was 10,400 with the yield in and the subroutine still there.
+
+On the 64KB a VP function can be, its header has its offsets as 16 bits.
+That raymarch function is the biggest a shader has made, so there is six
+times the room yet. A figure of 27KB given in talk was the size of a
+directory, read off a listing by mistake.
+
+A shared canvas with a scale is the right size as a view, and
+`(mat4x4-inv)` has gone.
+
+`(canvas-shared width height scale)` made its canvas of a pixmap, which gave
+it the size of the pixmap as a view, then set the scale, and left the size.
+With a scale of 2 the view was twice too big, and the picture, in the
+middle of it, was down and to the right of where it should be, half of it
+out of sight, till the window was next laid out. The Mesh demo showed it,
+on the frame it came up with.
+
+`(mat4x4-inv)`, the inverse of a matrix, `class/reals/mat4x4_inv`, is not
+called by anything now that Mesh lights its faces in a shader, and is out
+of the boot image, 1,760 bytes with its Lisp binding. What a vertex shader
+might want an inverse for, a matrix for normals under a stretch that is not
+even, a camera, a ray from the mouse, is once for an object or a frame, not
+once for a vertex, so when it is wanted it can be Lisp, or come back from
+the history.
+
 A frame of triangles is drawn by the nodes, a strip each, and the Mesh demo
 does.
 

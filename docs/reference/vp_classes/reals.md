@@ -4,8 +4,6 @@
 
 ## Lisp Bindings
 
-### (mat4x4-inv reals [reals]) -> reals
-
 ### (mat4x4-mul reals reals [reals]) -> reals
 
 ### (mat4x4-vec3-mul reals reals [reals]) -> reals
@@ -112,18 +110,6 @@ outputs
 :r0 = reals object (ptr)
 trashes
 :r1-:r5, :f0-:f3
-```
-
-### :mat4x4_inv -> class/reals/mat4x4_inv
-
-```code
-inputs
-:r0 = output reals object (ptr)
-:r1 = input matrix reals object (ptr)
-outputs
-:r0 = output reals object (ptr)
-trashes
-:r1-:r3, :f0-:f15
 ```
 
 ### :mat4x4_mul -> class/reals/mat4x4_mul

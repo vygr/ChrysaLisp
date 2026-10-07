@@ -761,11 +761,9 @@ High-performance vector operations executed across packed numeric vectors.
 
 	*	`(reals-quant reals tol [reals]) -> reals`
 
-*	**`mat4x4-mul` / `mat4x4-inv`**: 4x4 matrix multiplication and inversion.
+*	**`mat4x4-mul`**: 4x4 matrix multiplication.
 
 	*	`(mat4x4-mul reals reals [reals]) -> reals`
-
-	*	`(mat4x4-inv reals [reals]) -> reals`
 
 *	**`mat4x4-vec4-mul` / `mat4x4-vec3-mul`**: Matrix-vector transformation.
 

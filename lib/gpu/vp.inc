@@ -31,7 +31,7 @@
 	;and this many pixels of a tile of a pixel shader, they are far more
 	;work each
 	+sv_tile_work 4096
-	+sv_version 11)
+	+sv_version 12)
 
 (defun sv-emit (&rest form)
 	(push code form))
@@ -195,7 +195,7 @@
 	(defq saved (sv-spill :t))
 	(sv-emit 'vp-cpy-if :rsp (* (find x saved) 8) :f0)
 	(sv-emit 'vp-cpy-if :rsp (* (find y saved) 8) :f1)
-	(sv-emit 'vp-call (sv-q 'sh_pow))
+	(sv-emit 'call :sys_math :r_pow (sv-q '(:f0 :f1)) (sv-q '(:f0)))
 	(defq r (sv-getf))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
 	(sv-unspill saved)
@@ -497,62 +497,6 @@
 				(sv-puts regs)
 				(sv-emit 'vp-jmp (sv-q ret_label))))) block))
 
-;the power subroutine, in every native function
-(defq +sv_pow_text
-{(vp-label 'sh_pow)
-	;:f0 to the power :f1, to :f0, trashes :r0-:r1, :f0-:f7
-	;whole part of the power by squaring, the rest by repeated roots
-	(vp-cpy-if :r12 (fn-const (n2r 0)) :f2)
-	(vp-cpy-if :r12 (fn-const (n2r 1)) :f6)
-	(vp-bgt-ff :f2 :f0 'sh_pow_pos)
-	(vp-cpy-ff :f2 :f0)
-	(vp-ret)
-(vp-label 'sh_pow_pos)
-	(vp-cpy-ff :f0 :f7)
-	(vp-cvt-fr :f1 :r0)
-	(vp-cvt-rf :r0 :f3)
-	(vp-ble-ff :f1 :f3 'sh_pow_floor)
-	(vp-sub-ff :f6 :f3)
-	(vp-sub-cr 1 :r0)
-(vp-label 'sh_pow_floor)
-	(vp-sub-ff :f3 :f1)
-	(vp-cpy-ff :f6 :f4)
-	(vp-cpy-ff :f0 :f5)
-	(vp-abs-rr :r0 :r1)
-(vp-label 'sh_pow_whole)
-	(vp-beq-cr 0 :r1 'sh_pow_recip)
-	(vp-cpy-rr :r1 :r0)
-	(vp-and-cr 1 :r0)
-	(vp-beq-cr 0 :r0 'sh_pow_even)
-	(vp-mul-ff :f5 :f4)
-(vp-label 'sh_pow_even)
-	(vp-mul-ff :f5 :f5)
-	(vp-shr-cr 1 :r1)
-	(vp-jmp 'sh_pow_whole)
-(vp-label 'sh_pow_recip)
-	(vp-bge-ff :f2 :f3 'sh_pow_rest)
-	(vp-cpy-ff :f6 :f5)
-	(vp-div-ff :f4 :f5)
-	(vp-cpy-ff :f5 :f4)
-(vp-label 'sh_pow_rest)
-	(vp-cpy-ff :f7 :f5)
-	(vp-cpy-cr 31 :r1)
-(vp-label 'sh_pow_root)
-	(vp-ble-ff :f2 :f1 'sh_pow_done)
-	(vp-beq-cr 0 :r1 'sh_pow_done)
-	(vp-sub-cr 1 :r1)
-	(vp-sqrt-ff :f5 :f5)
-	(vp-add-ff :f1 :f1)
-	(vp-blt-ff :f6 :f1 'sh_pow_root)
-	(vp-mul-ff :f5 :f4)
-	(vp-sub-ff :f6 :f1)
-	(vp-jmp 'sh_pow_root)
-(vp-label 'sh_pow_done)
-	(vp-cpy-ff :f4 :f0)
-	(vp-ret)
-
-})
-
 (defun sv-program (program prefix)
 	; -> (main_param_offsets main_ret_offset)
 	;the code of a program, after its inputs have been given their slots.
@@ -626,6 +570,8 @@
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r13 :r6 :r7 :r8 :r9) '(:str :obj :obj :num :num))
+	;a constant, so that there is a table of them, a shader may have none
+	(fn-const 0)
 	(vp-lea-p 'fn_consts :r12)
 	;the vertices are a reals, or the bytes of one in a str
 	(vpif '(:r9 = 0))
@@ -682,7 +628,7 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-} +sv_pow_text (sv-code-text) {
+} (sv-code-text) {
 
 (errorcase
 (vp-label 'error)
@@ -981,7 +927,7 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-} +sv_pow_text funcs_text {
+} funcs_text {
 
 (errorcase
 (vp-label 'error)
@@ -1170,7 +1116,7 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-} +sv_pow_text (sv-code-text) {
+} (sv-code-text) {
 
 (errorcase
 (vp-label 'error)

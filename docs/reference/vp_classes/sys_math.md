@@ -81,6 +81,22 @@ trashes
 :r0-:r3, :f0-:f15
 ```
 
+### :r_pow -> sys/math/r_pow
+
+```code
+inputs
+:f0 = real (real)
+:f1 = power (real)
+outputs
+:f0 = real to the power (real)
+trashes
+:r0-:r2, :f0-:f7
+info
+0 if the real is not greater than 0. The whole part of the power is
+by squaring, the rest by repeated roots, to 31 bits of it. It is the
+method of the shader language, every back end of which must agree
+```
+
 ### :r_sin -> sys/math/r_sin
 
 ```code

@@ -347,3 +347,77 @@
 	(return)
 
 (def-func-end)
+
+(def-method :sys_math :r_pow)
+	;inputs
+	;:f0 = real (real)
+	;:f1 = power (real)
+	;outputs
+	;:f0 = real to the power (real)
+	;trashes
+	;:r0-:r2, :f0-:f7
+	;info
+	;0 if the real is not greater than 0. The whole part of the power is
+	;by squaring, the rest by repeated roots, to 31 bits of it. It is the
+	;method of the shader language, every back end of which must agree
+
+	(entry :sys_math :r_pow '(:f0 :f1))
+
+	(vp-lea-p 'fn_consts :r2)
+	(vp-cpy-if :r2 (fn-const (n2r 0)) :f2)
+	(vp-cpy-if :r2 (fn-const (n2r 1)) :f6)
+	(vp-bgt-ff :f2 :f0 'positive)
+	(vp-cpy-ff :f2 :f0)
+	(vp-jmp 'exit)
+(vp-label 'positive)
+	;the whole part of the power, and what is left of it
+	(vp-cpy-ff :f0 :f7)
+	(vp-cvt-fr :f1 :r0)
+	(vp-cvt-rf :r0 :f3)
+	(vp-ble-ff :f1 :f3 'floored)
+	(vp-sub-ff :f6 :f3)
+	(vp-sub-cr 1 :r0)
+(vp-label 'floored)
+	(vp-sub-ff :f3 :f1)
+	(vp-cpy-ff :f6 :f4)
+	(vp-cpy-ff :f0 :f5)
+	(vp-abs-rr :r0 :r1)
+(vp-label 'whole)
+	;the whole part, by squaring
+	(vp-beq-cr 0 :r1 'recip)
+	(vp-cpy-rr :r1 :r0)
+	(vp-and-cr 1 :r0)
+	(vp-beq-cr 0 :r0 'even)
+	(vp-mul-ff :f5 :f4)
+(vp-label 'even)
+	(vp-mul-ff :f5 :f5)
+	(vp-shr-cr 1 :r1)
+	(vp-jmp 'whole)
+(vp-label 'recip)
+	;a power less than 0 is 1 over it
+	(vp-bge-ff :f2 :f3 'rest)
+	(vp-cpy-ff :f6 :f5)
+	(vp-div-ff :f4 :f5)
+	(vp-cpy-ff :f5 :f4)
+(vp-label 'rest)
+	(vp-cpy-ff :f7 :f5)
+	(vp-cpy-cr 31 :r1)
+(vp-label 'root)
+	;the rest, a bit of it at a time, by a root for each bit
+	(vp-ble-ff :f2 :f1 'done)
+	(vp-beq-cr 0 :r1 'done)
+	(vp-sub-cr 1 :r1)
+	(vp-sqrt-ff :f5 :f5)
+	(vp-add-ff :f1 :f1)
+	(vp-blt-ff :f6 :f1 'root)
+	(vp-mul-ff :f5 :f4)
+	(vp-sub-ff :f6 :f1)
+	(vp-jmp 'root)
+(vp-label 'done)
+	(vp-cpy-ff :f4 :f0)
+(vp-label 'exit)
+
+	(exit :sys_math :r_pow '(:f0))
+	(vp-ret)
+
+(def-func-end)
