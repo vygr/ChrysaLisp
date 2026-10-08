@@ -127,8 +127,14 @@ function wrap {
 # with -n 0 the first node sizes the network to the machine. It starts
 # the other nodes, and then runs the script it was given.
 function auto_run {
-    param ($run)
-    if ($global:auto -eq $TRUE) { return "`"(progn (node-auto) (import {$run}))`"" }
+    # sized to the machine, the first node starts the others itself, so the
+    # other desktops asked for, -g, are for it to start as well, $guis of them
+    param ($run, $guis = 0)
+    if ($global:auto -eq $TRUE) {
+        # it waits to see them before it sizes the rest, or they are not counted
+        if ($guis -gt 0) { return "`"(progn (node-spawn $guis :gui {service/gui/app.lisp}) (defq t0 (pii-time)) (while (and (<= (length (lisp-nodes)) $guis) (< (- (pii-time) t0) 10000000)) (task-sleep 10000)) (node-auto) (import {$run}))`"" }
+        return "`"(progn (node-auto) (import {$run}))`""
+    }
     return $run
 }
 
@@ -148,9 +154,9 @@ function boot_cpu_gui {
         if ($cpu -ge 1) {
             boot_node $cmd "$argstring -run $(auto_run 'service/gui/app.lisp')"
         } elseif ($front -eq $FALSE) {
-            boot_first $FALSE $cmd "$argstring -run $(auto_run 'service/gui/app.lisp')"
+            boot_first $FALSE $cmd "$argstring -run $(auto_run 'service/gui/app.lisp' ($global:ngui - 1))"
         } else {
-            boot_first $TRUE $cmd "$argstring -run $(auto_run 'apps/tui/tui_gui.lisp')"
+            boot_first $TRUE $cmd "$argstring -run $(auto_run 'apps/tui/tui_gui.lisp' ($global:ngui - 1))"
         }
     } else {
         boot_node $cmd $argstring

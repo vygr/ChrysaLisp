@@ -4,6 +4,22 @@
 
 ------
 
+`./run.sh -g 2` gave one desktop. Chris found it, on the M4.
+
+*	A launch is sized to the machine now, with no `-n`. The launch script
+	then starts only the first node, which starts the rest itself. But it
+	was the script that made a node a desktop, the first `-g` of the nodes
+	it started, and it started one. So `-g 2` was one desktop, as `-n 0 -g
+	2` had always been, only nobody had typed that.
+
+*	The first node now starts the other desktops as well, `(node-spawn)`,
+	and waits to see them before it sizes the rest, so they are counted. On
+	a Raspberry Pi 4, `-g 1`, `-g 2` and `-g 3` give 1, 2 and 3 desktops of
+	4 nodes, and `-n 6 -g 2` gives 2 of 6 as it did. `funcs.sh`, and the
+	same in `funcs.ps1`, which has not been run.
+
+------
+
 The desktop keeps its turn when every core is busy. Chris ran the GUI on the
 raw driver, which has no GPU, so everything is drawn by the nodes, with the
 Surface and Mesh demos up together.

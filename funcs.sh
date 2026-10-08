@@ -172,9 +172,17 @@ function wrap
 #the other nodes, and then runs the script it was given.
 function auto_run
 {
+	#what the first node runs. Sized to the machine, it starts the other
+	#nodes itself, and the launch script starts only it. So the other
+	#desktops asked for, -g, are for it to start as well, $2 of them. It
+	#waits to see them before it sizes the rest, or they are not counted
+	#and the network is that many nodes too big
 	if [ "$auto" == "" ]
 	then
 		echo "$1"
+	elif [ "${2:-0}" -gt 0 ]
+	then
+		echo "(progn (node-spawn $2 :gui {service/gui/app.lisp}) (defq t0 (pii-time)) (while (and (<= (length (lisp-nodes)) $2) (< (- (pii-time) t0) 10000000)) (task-sleep 10000)) (node-auto) (import {$1}))"
 	else
 		echo "(progn (node-auto) (import {$1}))"
 	fi
@@ -235,10 +243,10 @@ function boot_cpu_gui
 			disown $!
 		elif [ "$front" == "" ]
 		then
-			boot_first nowait ./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run service/gui/app.lisp)"
+			boot_first nowait ./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run service/gui/app.lisp $(($num_gui - 1)))"
 			return $?
 		else
-			boot_first wait ./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run apps/tui/tui_gui.lisp)"
+			boot_first wait ./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run "$(auto_run apps/tui/tui_gui.lisp $(($num_gui - 1)))"
 			return $?
 		fi
 	else
