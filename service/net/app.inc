@@ -1,6 +1,6 @@
 ; RPC command types
 (enums +net_rpc_type 0
-	(enum connect listen accept link beacon discover hello))
+	(enum connect listen accept link beacon discover hello peers))
 
 ; Common RPC request header
 (structure +net_rpc 0
@@ -39,6 +39,10 @@
 ; Hello: one @Net service to another, the peers it knows. No reply
 (structure +net_rpc_hello +net_rpc_size
 	(offset text))
+
+; Peers: what the service knows of the other machines, its reply is the
+; reply header and then text, a line a peer, (mesh-peers-text)
+(structure +net_rpc_peers +net_rpc_size)
 
 ; Reply header to connect or accept
 (structure +net_rpc_reply 0
@@ -183,3 +187,19 @@
 		(if reply (getf reply +net_rpc_reply_status) :nil)))
 
 
+
+(defun net-peers-rpc ()
+	; (net-peers-rpc) -> :nil | ((system_id ip port linked build) ...)
+	;what the Net service of this machine knows of the others, from their
+	;beacons and from each other. linked is "linked" or "unlinked", build
+	;is "same", "differs" or "unknown", the boot image they run as against
+	;this one's. :nil if the service does not answer
+	(when (defq svc (net-service))
+		(defq reply_mbox (mail-mbox))
+		(mail-send svc (setf-> (str-alloc +net_rpc_peers_size)
+			(+net_rpc_type +net_rpc_type_peers)
+			(+net_rpc_reply_id reply_mbox)))
+		(when (defq reply (mail-read-timeout reply_mbox))
+			(reduce (lambda (out line)
+				(if (= (length (defq parts (split line " "))) 5) (push out parts))
+				out) (split (slice reply +net_rpc_reply_size -1) (ascii-char 10)) (list)))))

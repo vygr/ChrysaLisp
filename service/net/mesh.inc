@@ -25,8 +25,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;a peer, what is known of one other system
+;build is the id of the boot image it runs, lib/boot/id.inc, as its
+;beacon said, "" if it has not said
 (enums +mesh_peer 0
-	(enum ip port dialler knows_me said_hello t_dialled t_wait t_heard t_seen tries))
+	(enum ip port dialler knows_me said_hello t_dialled t_wait t_heard t_seen tries build))
 
 ;not again within this of a dial, twice as long after each that brought no
 ;link, up to 8 times. How long to wait for a peer that should be the one to
@@ -37,14 +39,16 @@
 	; (mesh-peer peers sys) -> peer
 	;the peer of that system id, a new one with no address if not known
 	(or (. peers :find sys)
-		(progn (. peers :insert sys (defq peer (list "" 0 :nil :nil :nil 0 0 0 0 0))) peer)))
+		(progn (. peers :insert sys (defq peer (list "" 0 :nil :nil :nil 0 0 0 0 0 ""))) peer)))
 
-(defun mesh-beacon (peers sys ip port dials i_beacon now)
-	; (mesh-beacon peers sys ip port dials i_beacon now) -> peer
+(defun mesh-beacon (peers sys ip port dials i_beacon now &optional build)
+	; (mesh-beacon peers sys ip port dials i_beacon now [build]) -> peer
 	;a beacon was heard, first hand, so its address is the one to have.
 	;A peer that hears beacons and dials will dial me if I beacon, until a
-	;hello from it says for sure
+	;hello from it says for sure. build is the id of its boot image, if
+	;its beacon had one
 	(defq peer (mesh-peer peers sys))
+	(if build (elem-set peer +mesh_peer_build build))
 	(elem-set peer +mesh_peer_ip ip)
 	(elem-set peer +mesh_peer_port port)
 	(elem-set peer +mesh_peer_t_heard now)
@@ -129,3 +133,40 @@
 			(each (# (elem-set peer %0 %1))
 				(static-q (0 1 2 3 4 5 6 9)) (static-q ("" 0 :nil :nil :nil 0 0 0))))))
 	peers)
+
+(defun mesh-beacon-text (port sys inst dials build)
+	; (mesh-beacon-text port sys inst dials build) -> str
+	;what a beacon says. The port to dial, who it is, which node of it, a D
+	;if it hears beacons and dials, and a B and the start of the id of its
+	;boot image, if it has one. A beacon from before there were ids has no
+	;B, and one that does not know of them takes no notice of it
+	(cat "CHRYSA_BEACON:" (str port) ":" sys ":" inst (if dials ":D" "")
+		(if (nempty? build) (cat ":B" (slice build 0 (min 16 (length build)))) "")))
+
+(defun mesh-beacon-read (data)
+	; (mesh-beacon-read data) -> :nil | (port sys inst dials build)
+	;a beacon taken apart, :nil if it is not one
+	(when (and (starts-with "CHRYSA_BEACON:" data) (>= (length (defq parts (split data ":"))) 4))
+		(defq dials :nil build "")
+		(each! (# (cond
+				((eql %0 "D") (setq dials :t))
+				((starts-with "B" %0) (setq build (rest %0)))))
+			(list parts) 4)
+		(list (str-as-num (second parts)) (third parts) (elem-get parts 3) dials build)))
+
+(defun mesh-peers-text (peers linked my_build)
+	; (mesh-peers-text peers linked my_build) -> str
+	;what is known of the peers, a line each, for mesh the command to say:
+	;its system id, its address, its port, if there is a link to it, and
+	;its build as against this one's, same, differs, or unknown
+	(defq out (list))
+	(. peers :each (lambda (sys peer)
+		(defq build (elem-get peer +mesh_peer_build))
+		(push out (cat sys " " (if (eql (elem-get peer +mesh_peer_ip) "") "-" (elem-get peer +mesh_peer_ip))
+			" " (str (elem-get peer +mesh_peer_port)) " " (if (find sys linked) "linked" "unlinked") " "
+			(cond
+				((or (eql build "") (eql my_build "")) "unknown")
+				((starts-with build my_build) "same")
+				(:t "differs"))
+			(ascii-char 10)))))
+	(apply (const cat) (cat (list "") out)))

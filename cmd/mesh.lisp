@@ -1,5 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/task/pipe.inc")
+(import "service/net/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -55,8 +56,21 @@
 			(pad (str (length (lisp-nodes system))) 3) " nodes  " (what-is system)
 			(if (eql system (cat (system-id))) "  (this machine)" "")))
 		systems)
+	;what the Net service has heard of, by their beacons. One that is
+	;heard and is not a machine above has not joined, and one on another
+	;build is why
+	(defq heard (ifn (net-peers-rpc) (list)) known (map (const hex-encode) systems)
+		odd (filter (lambda ((sys ip port linked build))
+			(or (eql build "differs") (not (find (to-upper sys) known)))) heard))
+	(when (nempty? odd)
+		(print "Heard, and not right:")
+		(each (lambda ((sys ip port linked build))
+			(print "    " (slice (to-upper sys) 0 8) "  " ip
+				(if (find (to-upper sys) known) "" ", has not joined")
+				(if (eql build "differs") ", is on a different build. Update, and make install, on both." "")))
+			odd))
 	;what to look at when it is not as hoped
-	(when (and is_joined (= (length systems) 1))
+	(when (and is_joined (= (length systems) 1) (empty? odd))
 		(print)
 		(print "No other machine is seen. If one should be:")
 		(print "    Has it joined too ? mesh -j there, and mesh to see.")

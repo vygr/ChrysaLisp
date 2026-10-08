@@ -4,6 +4,40 @@
 
 ------
 
+A machine on a different build is named, it is not just not there.
+
+*	Two machines on different builds can link and then not see each other,
+	and nothing said why. `mesh` now does: "192.168.1.64, is on a different
+	build. Update, and make install, on both."
+
+*	A build has an id, `lib/boot/id.inc`. A boot image is not the same
+	bytes on one CPU as on another, so it is the hash of what the image was
+	built from, the VP source and all it includes, written beside the image
+	as it is made, `obj/<cpu>/<abi>/sys/boot_id`. All six images of one
+	tree have the one id, and the M4, the x64 and the Pi built the same.
+	It adds 20ms to a build on the M4.
+
+*	It is in the beacon, the first 16 digits, after a `B`. A beacon is
+	heard whether or not a link can carry anything, which is the case it is
+	for. A beacon from before has none and is read as it was, and an older
+	system takes no notice of the `B`.
+
+*	The Net service keeps the build of each peer, and has a new request,
+	what it knows of the others, `(net-peers-rpc)`: each one's id, address,
+	port, if there is a link to it, and its build, same, differs or
+	unknown. `mesh` lists those that are on another build, and those that
+	are heard and have not joined.
+
+*	Tried by giving the Pi a line of source the others had not, and a
+	build. The M4 named the Pi, and the Pi named the other two. Put back,
+	nothing is named.
+
+*	It is of the VP source. The Lisp a node loads as it runs is not in it,
+	that is the tree, and the tree of hashes will say.
+	`tests/system/test_bootid.lisp`, and 14 more in `tests/net/test_mesh.lisp`.
+
+------
+
 A test of a real TCP link, and the Net service started where there is none.
 
 *	The fault of the ping, 8 October, passed every test, none had a TCP

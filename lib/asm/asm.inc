@@ -4,6 +4,7 @@
 
 (import "././task/jobs.inc")
 (import "././boot/image.inc")
+(import "././boot/id.inc")
 (import "././files/files.inc")
 
 ;module
@@ -153,7 +154,10 @@
 			(defq *prods* (list))
 			;lists of all file imports and products
 			(each-mergeable (# (merge *prods* (bind '(d %0) (make-info %0))) (merge l d))
-				(defq l (all-vp-files))) *prods*)) *abi* *cpu*))
+				(defq l (all-vp-files)))
+			;what the image is built from, as one number, beside it
+			(save (boot-id-of l) (boot-id-file *cpu* *abi*))
+			*prods*)) *abi* *cpu*))
 
 (defun make-all (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))

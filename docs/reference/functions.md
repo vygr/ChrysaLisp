@@ -201,6 +201,30 @@ the most the matrix of its object stretches anything
 (bitcnt n) -> num bits
 ```
 
+### boot-id
+
+```code
+(boot-id) -> hex | ""
+
+the id of the boot image this node's machine has, "" if it was made
+before there was one
+```
+
+### boot-id-file
+
+```code
+(boot-id-file cpu abi) -> path
+```
+
+### boot-id-of
+
+```code
+(boot-id-of files) -> hex
+
+the id of those source files, whatever order they are given in. The
+name of each and the hash of what is in it, all hashed
+```
+
 ### bracket-cursors
 
 ```code

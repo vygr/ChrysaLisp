@@ -1,6 +1,7 @@
 (import "./app.inc")
 (import "./mesh.inc")
 (import "./door.inc")
+(import "lib/boot/id.inc")
 
 ;low-level PII network bindings
 (ffi "service/net/lisp_init" net-init)
@@ -82,6 +83,8 @@
 		mesh_service :nil
 		mesh_peers (Fmap 31)
 		last_mesh_time 0
+		;the id of the boot image this machine has, to say in the beacon
+		my_build (boot-id)
 		my_sys_id (hex-encode (system-id))
 		my_inst_id (hex-encode (first (lisp-nodes))))
 	(mail-timeout (elem-get select +select_timer) sleep_time 0)
@@ -165,6 +168,13 @@
 								(mail-send reply_id (setf-> (str-alloc +net_rpc_reply_size)
 									(+net_rpc_reply_handle 0)
 									(+net_rpc_reply_status -1)))))
+						(+net_rpc_type_peers
+							(mail-send reply_id (cat (setf-> (str-alloc +net_rpc_reply_size)
+									(+net_rpc_reply_handle 0) (+net_rpc_reply_status 0))
+								(mesh-peers-text mesh_peers
+									(if *net_can_mesh* (map (# (hex-encode (slice %0 +node_id_size
+										(const (* 2 +node_id_size))))) (net-links)) (list))
+									my_build))))
 						(+net_rpc_type_hello
 							(if mesh (mesh-heard mesh_peers my_sys_id (slice msg +net_rpc_hello_text -1) (pii-time))))
 						(+net_rpc_type_discover
@@ -192,8 +202,7 @@
 							(. beacon_ports :each (lambda (p)
 								;the D says this one hears beacons and dials, so of two
 								;that both do, only one need
-								(defq beacon_msg (cat "CHRYSA_BEACON:" (str p) ":" my_sys_id ":" my_inst_id
-									(if (> disco_socket 0) ":D" "")))
+								(defq beacon_msg (mesh-beacon-text p my_sys_id my_inst_id (> disco_socket 0) my_build))
 								(net-udp-send beacon_socket "255.255.255.255" +disco_udp_port beacon_msg)
 								(net-udp-send beacon_socket "127.0.0.1" +disco_udp_port beacon_msg)))))
 					; Poll incoming beacons if auto-discovery active
@@ -202,17 +211,12 @@
 						(while (setq pkt (net-udp-recv disco_socket 256))
 							(setq active :t)
 							(defq data (first pkt) src_ip (second pkt))
-							(when (starts-with "CHRYSA_BEACON:" data)
-								(defq parts (split data ":"))
-								(when (>= (length parts) 4)
-									(defq tcp_port (str-as-num (elem-get parts 1))
-										peer_sys_id (elem-get parts 2)
-										peer_inst_id (elem-get parts 3))
-									;what is heard is noted, the links are made below
-									(unless (eql peer_inst_id my_inst_id)
-										(mesh-beacon mesh_peers peer_sys_id src_ip tcp_port
-											(and (> (length parts) 4) (eql (elem-get parts 4) "D"))
-											(nempty? beacon_ports) now))))))
+							(when (defq beacon (mesh-beacon-read data))
+								(bind '(tcp_port peer_sys_id peer_inst_id dials build) beacon)
+								;what is heard is noted, the links are made below
+								(unless (eql peer_inst_id my_inst_id)
+									(mesh-beacon mesh_peers peer_sys_id src_ip tcp_port dials
+										(nempty? beacon_ports) now build)))))
 					; The mesh. A link to each peer there is none to, and a hello to
 					; each of the other services
 					(when (and mesh (> (- now last_mesh_time) +beacon_interval))

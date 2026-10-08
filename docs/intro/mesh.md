@@ -39,7 +39,9 @@ git pull
 make install
 ```
 
-Machines on different versions may link and then not see each other.
+Machines on different versions may link and then not see each other. If
+that happens `mesh` says so, it names the machine and says it is on a
+different build.
 
 ## 3. Join, on each machine
 
@@ -84,7 +86,8 @@ lists every node there is.
   ChrysaLisp folder, or neither has. And ChrysaLisp was started after the
   file was put there.
 
-* **The version.** `git pull` and `make install` on both.
+* **The version.** `git pull` and `make install` on both. `mesh` names a
+  machine it can hear that is on a different build.
 
 * **The firewall.** Each machine must let in TCP port 3333 and UDP port
   3334. macOS asks the first time, "Do you want the application main_gui
