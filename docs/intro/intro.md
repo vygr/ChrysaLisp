@@ -497,6 +497,34 @@ any peer it has no link to. Two people with notepads who meet, compare
 pages, copy what the other has that they do not, and go back to what they
 were doing. `service/net/mesh.inc`.
 
+#### A Key
+
+A link, once made, is trusted with everything. The machine at the other end
+can mail any service and start a task on any node. So a network of machines
+that are not alone on their wire wants a key.
+
+```code
+link -k
+```
+
+makes one, the file `mesh_key` at the root of the tree, 64 hex digits. Put
+the same file on every machine of the network, by hand, it is never sent
+over a link and `sync` leaves it out. Any other text in the file is taken
+as a passphrase. Start each machine again after, the Net service reads the
+key as it starts.
+
+A machine with a key links only to machines with the same key. When two
+connect, each proves to the other that it has it, before a byte of mail
+goes over, and a connection that does not is closed. A machine with a key
+and one with none do not link. All that was said above is as it was, `link
+-l`, `link -a`, `link -m` and `link host`, each goes through the door when
+there is a key. `sync` and everything else that goes over a link is behind
+it.
+
+What it does not do. The mail that then goes over the link is not hidden
+and not signed, one who can read the wire can read it. The key says who is
+let in, not what is said. `service/net/door.inc`.
+
 ### Best Practices & Tips
 
 * **Connections are fully bidirectional**:

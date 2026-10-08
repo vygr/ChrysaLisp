@@ -3,7 +3,7 @@
 
 ;the rules of a .gitignore
 (defq sy_rules (sync-rules (cat ".vs/" (ascii-char 10) "/obj/" (ascii-char 10) "# a comment" (ascii-char 10)
-	"os" (ascii-char 10) "*.o" (ascii-char 10) "/usr/*/*.tre" (ascii-char 10) (ascii-char 10) "!kept" (ascii-char 10))))
+	"  os " (ascii-char 13) (ascii-char 10) "*.o" (ascii-char 10) "/usr/*/*.tre" (ascii-char 10) (ascii-char 10) "!kept" (ascii-char 10))))
 (defun sy-out? (path is_dir) (sync-ignored? sy_rules (split path "/") is_dir))
 (test-cases
 	(sy-out? ".git" :t) :t

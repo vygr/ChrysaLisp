@@ -48,7 +48,7 @@
 	;folder is never listed
 	(defq out (list (list :nil :t (list ".git"))))
 	(each (lambda (line)
-		(setq line (trim line (static-q " \t\r")))
+		(setq line (trim line (const (char-class " \t\r"))))
 		(unless (or (eql line "") (starts-with "#" line) (starts-with "!" line))
 			(defq dir_only (ends-with "/" line))
 			(if dir_only (setq line (slice line 0 -2)))

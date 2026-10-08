@@ -26,3 +26,4 @@ typos.toml
 .system_id
 /src/obj/
 sdl3_prefix
+mesh_key

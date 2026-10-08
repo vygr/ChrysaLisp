@@ -4,6 +4,51 @@
 
 ------
 
+A key for the links between machines. After the 7.2 tag.
+
+*	A link, once made, is trusted with everything, the node at the other
+	end can mail any service and start a task on any node. So signing the
+	beacon or the hello would not have been enough, it is the link that is
+	guarded. `service/net/door.inc`.
+
+*	The key is the file `mesh_key` at the root of the tree, 64 hex digits,
+	or a passphrase, which PBKDF2 makes a key of. `link -k` makes one. It is
+	put on each machine by hand, git does not keep it and `sync` does not
+	send it. With no such file a link is as it always was.
+
+*	When two machines with a key connect, each sends 16 bytes it has just
+	made up, and then an HMAC SHA-256, under the key, of which end it is and
+	both lots. Each checks the other's. Only then are the tasks that carry
+	mail started on the connection. One that fails is closed. It is done in
+	Lisp, by a task for each connection, so one that says nothing holds up
+	nobody. `service/net/door.lisp`, and `service/net/gate.lisp` listens.
+
+*	Every way a link is made goes through it, `link -l`, `link host`, and
+	the mesh's own dialling. `sync` and all else that goes over a link is
+	behind it.
+
+*	Tried on an M4, an x86_64 Mac and a Raspberry Pi 4. The same key on all
+	three, one link a pair as before, and the test loop runs over it. The Pi
+	given another key had no link to either, in 16 seconds of trying, nor
+	with no key at all. Given the right one again it was back within half a
+	minute.
+
+*	20 tests, `tests/net/test_door.lisp`, the proof over a real connection.
+	The same key, another key, an end that takes the wrong part, one that
+	says something else, one that says nothing, one that starts and goes.
+
+*	It does not hide or sign what then goes over the link. One who can
+	read the wire reads the mail, and one who can change it after the proof
+	can. And it is not on by default, a machine has a key when someone puts
+	one there.
+
+*	A trap for the doc. `(trim)` wants its characters in order, it searches
+	them by halves, and given `" \t\r\n"` trimmed nothing and said nothing.
+	`(char-class)` makes one. The rules of a `.gitignore` in `sync` had the
+	same fault, a line with a space or a return on the end was not matched.
+
+------
+
 The release check for 7.2, every stage passes on every machine.
 
 *	An Apple M4 Max, a 2018 x86_64 MacBook Pro and a Raspberry Pi 4, each

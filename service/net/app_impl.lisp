@@ -1,5 +1,6 @@
 (import "./app.inc")
 (import "./mesh.inc")
+(import "./door.inc")
 
 ;low-level PII network bindings
 (ffi "service/net/lisp_init" net-init)
@@ -48,6 +49,24 @@
 			(in-set-state (get :server_in session) +stream_mail_state_aborted)))
 	(. sessions :erase handle))
 
+(defun net-start-link (key target)
+	; (net-start-link key target) -> net_id
+	;a link, ":port" to listen or "host:port" to dial. On a machine with a
+	;key it is through the door, service/net/door.inc, each end proves it
+	;has the key before the link carries anything. With none, as it was
+	(cond
+		((not key)
+			(defq child (open-child "service/net/link" +kn_call_pin))
+			;a copy goes, the link cuts the str where it lies
+			(if (/= (get-long child 0) 0) (mail-send child (cat target))))
+		((starts-with ":" target)
+			(defq child (open-child "service/net/gate.lisp" +kn_call_pin))
+			(if (/= (get-long child 0) 0)
+				(mail-send child (cat key (if (eql target ":") "3333" (slice target 1 -1))))))
+		(:t (defq child (open-child "service/net/door.lisp" +kn_call_pin))
+			(if (/= (get-long child 0) 0) (mail-send child (cat "D" key target)))))
+	child)
+
 (defun main ()
 	(net-init)
 	(defq service (mail-declare (task-mbox) "@Net" "Net Service 0.1")
@@ -57,6 +76,8 @@
 		beacon_socket 0
 		last_beacon_time 0
 		disco_socket 0
+		;the key of this machine, if it has one, worked out the once
+		net_key (door-key)
 		mesh :nil
 		mesh_service :nil
 		mesh_peers (Fmap 31)
@@ -122,10 +143,9 @@
 									(+net_rpc_reply_status -1)))))
 						(+net_rpc_type_link
 							(defq target (slice msg +net_rpc_link_target -1)
-								child (open-child "service/net/link" +kn_call_pin))
+								child (net-start-link net_key target))
 							(if (/= (get-long child 0) 0)
 								(progn
-									(mail-send child target)
 									(mail-send reply_id (setf-> (str-alloc +net_rpc_reply_size)
 										(+net_rpc_reply_handle 0)
 										(+net_rpc_reply_status 0))))
@@ -201,10 +221,8 @@
 						(. mesh_peers :each (lambda (sys peer)
 							(when (mesh-dial? peer my_sys_id sys (find sys linked) now)
 								(setq active :t)
-								(defq child (open-child "service/net/link" +kn_call_pin))
-								(when (/= (get-long child 0) 0)
-									(mail-send child (cat (elem-get peer +mesh_peer_ip) ":"
-										(str (elem-get peer +mesh_peer_port))))))))
+								(net-start-link net_key (cat (elem-get peer +mesh_peer_ip) ":"
+									(str (elem-get peer +mesh_peer_port)))))))
 						(defq hello (cat (setf-> (str-alloc +net_rpc_hello_size)
 								(+net_rpc_type +net_rpc_type_hello)
 								(+net_rpc_reply_id (task-mbox)))

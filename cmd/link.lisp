@@ -16,6 +16,7 @@
         -l --listen [port]: listen for incoming TCP network link (default: 3333).
         -a --auto: auto-discovery mode (beacon when listening, discover when client).
         -m --mesh: link to the peers of whoever is linked to, with no discovery.
+        -k --key: make a key for this machine, the file mesh_key, if it has none.
         -v --verbose: verbose output.
 
     Start TCP network link driver/s.
@@ -32,11 +33,18 @@
     Every machine that runs both link -l 3333 -a and link -a finds the
     others and has one link to each, none is on the way between two.
 
+    A machine with a key, the file mesh_key at the root of the tree, links
+    only to machines with the same key, each end proves it has it before
+    the link carries anything. link -k makes one, 64 hex digits. Put the
+    same file on every machine of the network, by hand, it is never sent.
+    Start the Net service again after, it reads the key as it starts.
+
     If no host names given on command line and -l/-a/-m not passed,
     then names are read from stdin.")
 (("-l" "--listen") ,(opt-listen 'opt_l))
 (("-a" "--auto") ,(opt-flag 'opt_a))
 (("-m" "--mesh") ,(opt-flag 'opt_m))
+(("-k" "--key") ,(opt-flag 'opt_k))
 (("-v" "--verbose") ,(opt-flag 'opt_v))
 ))
 
@@ -53,7 +61,13 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_l :nil opt_a :nil opt_m :nil opt_v :nil args (options stdio usage)))
+			(defq opt_l :nil opt_a :nil opt_m :nil opt_k :nil opt_v :nil args (options stdio usage)))
+		(when opt_k
+			(import "lib/crypto/random.inc")
+			(cond
+				((pii-fstat "mesh_key") (print "This machine has a key already, mesh_key. It is left as it is."))
+				(:t (save (cat (to-lower (hex-encode (random-bytes 32))) (ascii-char 10)) "mesh_key")
+					(print "A key for this machine is in mesh_key. Put the same file on every machine that is to link to it."))))
 		(when opt_l
 			(start-link (cat ":" (str opt_l)) opt_v)
 			(when opt_a
@@ -67,7 +81,7 @@
 				(when opt_v (print "Starting LAN auto-discovery listener..."))
 				(start-mesh :nil))
 			((<= (length args) 1)
-				(unless (or opt_l opt_m)
+				(unless (or opt_l opt_m opt_k)
 					;from stdin
 					(lines! (# (start-link %0 opt_v) :nil) (io-stream 'stdin))))
 			(:t

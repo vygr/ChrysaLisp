@@ -191,6 +191,18 @@ Each gives `:nil` or a number, and the number can be `0`, which is true. A
 real is a fixed, and a fixed is a num. To tell them apart ask `real?`
 first, then `fixed?`, then `num?`.
 
+### `trim` wants its characters in order
+
+```lisp
+(trim "  ab \n" " \t\r\n")              ; nothing is trimmed
+(trim "  ab \n" (char-class " \t\r\n")) ; -> "ab"
+```
+
+The characters to trim are a class, searched by halves, so they have to be
+in order, and a str typed as it comes to mind is not. `(char-class)` makes
+one, sorted, and with ranges, `"a-z0-9"`. Given one that is not in order,
+`(trim)`, `(bskip)` and the like miss some of it, and say nothing.
+
 ### `find` with a str in a str looks for its first character
 
 ```lisp

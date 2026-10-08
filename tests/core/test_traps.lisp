@@ -67,6 +67,8 @@
 (assert-true "a fixed is not a real" (not (real? 1.5)))
 (assert-eq "num? of a num is 0, which is true" 0 (num? 3))
 
+(assert-eq "trim with characters not in order trims nothing" 6 (length (trim (cat "  ab " (ascii-char 10)) " \t\r\n")))
+(assert-eq "with a class of them it does" "ab" (trim (cat "  ab " (ascii-char 10)) (char-class " \t\r\n")))
 (assert-eq "find of a str in a str is of its first character" 1 (find "elx" "hello"))
 (assert-list-eq "substr is the one for a str in a str" '(2 4) (first (first (substr "hello" "ll"))))
 (assert-error "sort of numbers with nothing said" (sort (list 3 1 2)))
