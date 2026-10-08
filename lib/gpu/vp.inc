@@ -31,21 +31,40 @@
 	;and this many pixels of a tile of a pixel shader, they are far more
 	;work each
 	+sv_tile_work 4096
-	+sv_version 16)
+	+sv_version 19)
 
 ;a vertex function reads the attrs of a vertex where they are, by :r11,
 ;and writes where it is and its varyings where they are to go, by :r10.
 ;The slots the attrs, the varyings and what main returns were given in
 ;the frame are not used, and this says what is there in their place,
 ;each (first last register offset). It is empty for a pixel shader
-(defq *sv_maps* (list))
+(defq *sv_maps* (list)
+	;for a function Lisp calls, the registers its reals args and what it
+	;gives are reached by, (entry (param register) ... (:ret register))
+	*sv_entry* :nil)
 
 (defun sv-emit (&rest form)
-	;a call of the system can lose the two registers of a vertex function
-	(defq keep (and (eql (first form) 'call) (nempty? *sv_maps*)))
-	(when keep (push code '(vp-push :r10) '(vp-push :r11)))
+	;a call of the system can lose the registers things are reached by
+	(defq keep (if (eql (first form) 'call)
+		(reduce (# (if (find (third %1) %0) %0 (push %0 (third %1)))) *sv_maps* (list)) (list)))
+	(each (# (push code (list 'vp-push %0))) keep)
 	(push code form)
-	(when keep (push code '(vp-pop :r11) '(vp-pop :r10))))
+	(each! (# (push code (list 'vp-pop %0))) (list keep) -1 0))
+
+(defun sv-ld (offset reg)
+	;a float from a slot of the frame, or from where that slot really is
+	(bind '(base at) (sv-at offset))
+	(sv-emit 'vp-cpy-if base at reg))
+
+(defun sv-st (reg offset)
+	(bind '(base at) (sv-at offset))
+	(sv-emit 'vp-cpy-fi reg base at))
+
+(defun sv-sets? (tree name)
+	;does any statement of a block set this variable
+	(and (list? tree) (nempty? tree)
+		(or (and (find (first tree) '(:setq :setsw)) (> (length tree) 1) (eql (second tree) name))
+			(some (# (sv-sets? %0 name)) tree))))
 
 (defun sv-at (offset)
 	; -> (register offset)
@@ -103,30 +122,39 @@
 (defun sv-mat-copy (from to)
 	;a matrix from one place in the frame to another
 	(defq r (sv-getf))
-	(each (# (sv-emit 'vp-cpy-if :r13 (+ from (* %0 8)) r)
-		(sv-emit 'vp-cpy-fi r :r13 (+ to (* %0 8)))) (range 0 16))
+	(each (# (sv-ld (+ from (* %0 8)) r)
+		(sv-st r (+ to (* %0 8)))) (range 0 16))
 	(sv-put r))
 
-(defun sv-mat (node)
+(defun sv-mat (node &optional into)
 	;code for an expression that is a matrix, where in the frame it is. A
 	;variable is where it is kept. A product is worked out into new slots,
-	;each number of it a row of the one by a column of the other.
+	;each number of it a row of the one by a column of the other. With
+	;into, the last product of a chain is worked out there, a place that
+	;is no part of what it is made from
 	(bind '(type tag a &optional b) node)
 	(cond
 		((eql tag :var) (sv-var a))
 		(:t (defq at (sv-mat (first b)))
 			(each! (lambda (arg)
-				(defq with (sv-mat arg) out (sv-slots :mat4)
-					acc (sv-getf) x (sv-getf) y (sv-getf))
-				(each (lambda (i)
-					(defq row (/ i 4) col (% i 4))
+				(defq with (sv-mat arg)
+					out (if (and into (= (!) (dec (length b)))) into (sv-slots :mat4))
+					scale (sv-getf)
+					sums (list (sv-getf) (sv-getf) (sv-getf) (sv-getf))
+					terms (list (sv-getf) (sv-getf) (sv-getf) (sv-getf)))
+				;a row of the answer at a time, its four numbers side by
+				;side, so that none waits on another. Each is a number
+				;of the row of the one times a row of the other, added
+				;up in the same order as ever
+				(each (lambda (row)
 					(each (lambda (k)
-						(sv-emit 'vp-cpy-if :r13 (+ at (* (+ (* row 4) k) 8)) (if (= k 0) acc x))
-						(sv-emit 'vp-cpy-if :r13 (+ with (* (+ (* k 4) col) 8)) y)
-						(sv-emit 'vp-mul-ff y (if (= k 0) acc x))
-						(if (/= k 0) (sv-emit 'vp-add-ff x acc))) (range 0 4))
-					(sv-emit 'vp-cpy-fi acc :r13 (+ out (* i 8)))) (range 0 16))
-				(sv-puts (list acc x y))
+						(sv-ld (+ at (* (+ (* row 4) k) 8)) scale)
+						(defq into_regs (if (= k 0) sums terms))
+						(each (# (sv-ld (+ with (* (+ (* k 4) (!)) 8)) %0)) into_regs)
+						(each (# (sv-emit 'vp-mul-ff scale %0)) into_regs)
+						(if (/= k 0) (each (# (sv-emit 'vp-add-ff %0 %1)) terms sums))) (range 0 4))
+					(each (# (sv-st %0 (+ out (* (+ (* row 4) (!)) 8)))) sums)) (range 0 4))
+				(sv-puts (cat (list scale) sums terms))
 				(setq at out)) (list b) 1)
 			at)))
 
@@ -137,7 +165,7 @@
 		out (map (lambda (row)
 			(defq acc (sv-getf))
 			(each (lambda (k)
-				(sv-emit 'vp-cpy-if :r13 (+ at (* (+ (* row 4) k) 8)) (if (= k 0) acc x))
+				(sv-ld (+ at (* (+ (* row 4) k) 8)) (if (= k 0) acc x))
 				(sv-emit 'vp-mul-ff (elem-get regs k) (if (= k 0) acc x))
 				(if (/= k 0) (sv-emit 'vp-add-ff x acc))) (range 0 n))
 			acc) (range 0 n)))
@@ -521,7 +549,9 @@
 			(:break (sv-emit 'vp-jmp (sv-q (last loops))))
 			(:return (cond
 					;a matrix is copied to where what is given goes
-					((eql (first a) :mat4) (sv-mat-copy (sv-mat a) ret_offset))
+					((eql (first a) :mat4)
+						(defq at (sv-mat a ret_offset))
+						(if (/= at ret_offset) (sv-mat-copy at ret_offset)))
 					(:t (defq regs (sv-expr a))
 						(sv-store regs (first a) ret_offset)
 						(sv-puts regs)))
@@ -549,6 +579,18 @@
 		;is to be written
 		(if (and (nempty? *sv_maps*) (eql name 'main))
 			(push *sv_maps* (list ret_offset (+ ret_offset 32) :r10 0)))
+		;a function Lisp calls reads a reals arg where it is, if it never
+		;sets it, and what it gives goes where it is to go
+		(when (and *sv_entry* (eql name (first *sv_entry*)))
+			(each (lambda ((which reg))
+				(cond
+					((eql which :ret)
+						(push *sv_maps* (list ret_offset (+ ret_offset (* (shader-size type) 8)) reg 0)))
+					((sv-sets? block (first (elem-get params which)))
+						(elem-set (elem-get (rest *sv_entry*) (!)) 1 :nil))
+					(:t (defq at (elem-get offsets which))
+						(push *sv_maps* (list at (+ at (* (shader-size (second (elem-get params which))) 8)) reg 0)))))
+				(rest *sv_entry*)))
 		(sv-emit 'vp-label (sv-q label))
 		(sv-block block)
 		;a return that is the last thing has no jump to make
@@ -1318,45 +1360,60 @@
 	; -> text
 	;the VP source of the native function for a function of a file of
 	;functions. It is called from Lisp as any native function is. Its
-	;frame is on the stack, the args are copied to it, and what it gives
-	;is a new real, num or reals
-	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
+	;frame is on the stack. A number arg is copied to it. A reals arg is
+	;read where it is, by a register, the first three of them, if the
+	;function never sets it, else it is copied too. What it gives is a
+	;new real, num or reals, and a reals is made first and written
+	;straight into.
+	(bind '(& ret_type params) (shader-func program fname))
+	(defq count (shader-size ret_type) bases (list :r8 :r9 :r11)
+		*sv_maps* (list)
+		*sv_entry* (cat (list fname)
+			(reduce (lambda (out (pname ptype))
+				(if (and (> (shader-size ptype) 1) (nempty? bases))
+					(push out (list (!) (pop bases))) out)) params (list))
+			(if (> count 1) (list (list :ret :r10)) (list)))
+		code (list) live (list) free_f (cat +sv_fregs)
+		free_r (filter (# (not (find %0 '(:r8 :r9 :r10)))) +sv_rregs)
 		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
 		ret_offset 0 ret_label :nil)
-	(bind '(& ret_type params) (shader-func program fname))
 	(bind '(offsets ret) (sv-program program "u" fname))
-	(defq frame (logand (+ frame_size 15) -16) count (shader-size ret_type)
+	;above the frame, what it gives, and the args
+	(defq frame (logand (+ frame_size 15) -16) s_gives frame s_args (+ frame 8)
 		lf (ascii-char 10) tab (ascii-char 9)
 		;an arg that is a reals has to be the right length
-		checks (join (map (lambda ((pname ptype)) (if (> (shader-size ptype) 1)
+		checks (map (lambda ((pname ptype)) (if (> (shader-size ptype) 1)
 			(cat tab "(vp-cpy-ir :r1 +array_begin :r2)" lf
 				tab "(vp-cpy-ir :r2 " (str (* (!) 8)) " :r2)" lf
 				tab "(assign '((:r2 +array_length)) '(:r3))" lf
-				tab "(gotoif '(:r3 /= " (str (shader-size ptype)) ") 'error)" lf) "")) params) "")
-		;each arg to its slots of the frame, the bits as they are
+				tab "(gotoif '(:r3 /= " (str (shader-size ptype)) ") 'error)" lf) "")) (cat params '((_ :float))))
+		;each arg to its slots of the frame, the bits as they are, or the
+		;register it is reached by set to where it is
 		copies (map (lambda ((pname ptype) offset)
-			(cat tab "(vp-cpy-ir :r1 " (str (* (!) 8)) " :r2)" lf
-				(if (> (shader-size ptype) 1)
-					(cat tab "(vp-cpy-ir :r2 +array_begin :r2)" lf
-						(join (map (# (cat tab "(vp-cpy-ir :r2 " (str (* %0 8)) " :r3)" lf
-							tab "(vp-cpy-ri :r3 :r13 " (str (+ offset (* %0 8))) ")" lf))
-							(range 0 (shader-size ptype))) ""))
-					(cat tab "(vp-cpy-ir :r2 +num_value :r3)" lf
-						tab "(vp-cpy-ri :r3 :r13 " (str offset) ")" lf)))) params offsets)
-		copies (if (empty? copies) "" (join copies ""))
-		;what it gives, made new
-		gives (cond
-			((> count 1)
-				(cat tab "(call :reals :create :nil '(:r0))" lf
-					tab "(call :reals :set_cap '(:r0 " (str count) ") '(:r0))" lf
-					tab "(call :reals :set_length '(:r0 " (str count) ") '(:r0 _))" lf
-					tab "(vp-lea-i :rsp 0 :r13)" lf
-					tab "(vp-cpy-ir :r0 +array_begin :r2)" lf
-					(join (map (# (cat tab "(vp-cpy-ir :r13 " (str (+ ret (* %0 8))) " :r3)" lf
-						tab "(vp-cpy-ri :r3 :r2 " (str (* %0 8)) ")" lf)) (range 0 count)) "")
-					tab "(vp-cpy-rr :r0 :r1)" lf))
-			(:t (cat tab "(vp-cpy-ir :r13 " (str ret) " :r0)" lf
-				tab "(call " (if (eql ret_type :float) ":real" ":num") " :create '(:r0) '(:r1))" lf)))
+			(defq at (!) reg (some (lambda ((which reg)) (if (and (eql which at) reg) reg)) (rest *sv_entry*)))
+			(cat tab "(vp-cpy-ir :r1 " (str (* at 8)) " :r2)" lf
+				(cond
+					(reg (cat tab "(vp-cpy-ir :r2 +array_begin " (str reg) ")" lf))
+					((> (shader-size ptype) 1)
+						(cat tab "(vp-cpy-ir :r2 +array_begin :r2)" lf
+							(join (map (# (cat tab "(vp-cpy-ir :r2 " (str (* %0 8)) " :r3)" lf
+								tab "(vp-cpy-ri :r3 :r13 " (str (+ offset (* %0 8))) ")" lf))
+								(range 0 (shader-size ptype))) "")))
+					(:t (cat tab "(vp-cpy-ir :r2 +num_value :r3)" lf
+						tab "(vp-cpy-ri :r3 :r13 " (str offset) ")" lf))))) (cat params '((_ :float))) (cat offsets '(0)))
+		makes (if (> count 1)
+			(cat tab "(call :reals :create :nil '(:r0))" lf
+				tab "(call :reals :set_cap '(:r0 " (str count) ") '(:r0))" lf
+				tab "(call :reals :set_length '(:r0 " (str count) ") '(:r0 _))" lf
+				tab "(vp-cpy-ri :r0 :rsp " (str s_gives) ")" lf) "")
+		reach (if (> count 1)
+			(cat tab "(vp-cpy-ir :rsp " (str s_gives) " :r10)" lf
+				tab "(vp-cpy-ir :r10 +array_begin :r10)" lf) "")
+		gives (if (> count 1)
+			(cat tab "(vp-cpy-ir :rsp " (str s_gives) " :r1)" lf)
+			(cat tab "(vp-cpy-ir :r13 " (str ret) " :r0)" lf
+				tab "(call " (if (eql ret_type :float) ":real" ":num") " :create '(:r0) '(:r1))" lf))
+		arg_names (apply (const cat) (cat (list "") (map (# (cat " " (str (first %0)))) params)))
 		text (cat
 {(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
@@ -1378,26 +1435,29 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 	;info
-	;(} (str fname) (apply (const cat) (cat (list "") (map (# (cat " " (str (first %0)))) params))) {) -> } (str ret_type) {
+	;(} (str fname) arg_names {) -> } (str ret_type) {
 
 	(entry '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 } (str (length params)) {)
 (errorcase
-} checks {)
+} (apply (const cat) (cat (list "") (slice checks 0 -2))) {)
 
 	(vp-push :r0)
-	(vp-alloc } (str frame) {)
+	(vp-alloc } (str (+ frame 16)) {)
+	(vp-cpy-ri :r1 :rsp } (str s_args) {)
+} makes {
 	(vp-lea-i :rsp 0 :r13)
 	;a constant, so that there is a table of them, a function may have none
 	(fn-const 0)
 	(vp-lea-p 'fn_consts :r12)
+	(vp-cpy-ir :rsp } (str s_args) { :r1)
 	(vp-cpy-ir :r1 +array_begin :r1)
-} copies {
+} (apply (const cat) (cat (list "") (slice copies 0 -2))) reach {
 	(vp-call 'uh_init)
 	(vp-call '} (str (sym (cat "uf_" fname))) {)
 } gives {
-	(vp-free } (str frame) {)
+	(vp-free } (str (+ frame 16)) {)
 	(vp-pop :r0)
 
 	(exit '(:r0 :r1))
@@ -1407,9 +1467,9 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(} (str fname) (apply (const cat) (cat (list "") (map (# (cat " " (str (first %0)))) params))) {)" +error_msg_wrong_types))
-	(signature '(} (if (empty? params) "" (join (map (lambda ((pname ptype)) (cond
-		((> (shader-size ptype) 1) ":REALS") ((eql ptype :float) ":REAL") (":NUM"))) params) " ")) {)))
+	(jump :lisp :repl_error '(:r1 "(} (str fname) arg_names {)" +error_msg_wrong_types))
+	(signature '(} (apply (const cat) (cat (list "") (map (lambda ((pname ptype)) (cond
+		((> (shader-size ptype) 1) ":REALS ") ((eql ptype :float) ":REAL ") (":NUM "))) params))) {)))
 
 (def-func-end)
 }))

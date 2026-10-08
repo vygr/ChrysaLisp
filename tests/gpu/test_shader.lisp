@@ -1075,6 +1075,32 @@
 (assert-true "an int comes back as a num" (num? ((shader-vp-func fn_prog 'count) 1 (n2r 0))))
 (assert-list-eq "same program, same function" fn_mul (shader-vp-func fn_prog 'mul))
 
+;a reals arg is read where it is, the first three of them, and what is
+;given is written where it goes. A function that sets an arg has a copy
+;of it, and so has a fourth reals arg, so no arg is ever changed
+(defq fn_more (sh-src
+	"(defun sets :vec3 ((a :vec3) (k :float)) (setq a (* a k)) (+ a (vec3 (sin k))))"
+	"(defun part :vec3 ((a :vec3)) (setq (:y a) 9.0) a)"
+	"(defun four :vec4 ((a :vec4) (b :vec4) (c :vec4) (d :vec4) (k :float)) (+ (* a k) b (* c d)))"
+	"(defun chain :mat4 ((a :mat4) (b :mat4) (c :mat4)) (* a b c))"
+	"(defun keeps :mat4 ((a :mat4) (b :mat4)) (defq m (* a b)) (setq m (* m a)) m)")
+	fn_v (reals (n2r 1) (n2r 2) (n2r 3) (n2r 4)) fn_w (reals (n2r 0.5) (n2r -1) (n2r 2) (n2r 0.25))
+	fn_n3 (reals (n2r 0) (n2r 0.6) (n2r 0.8)))
+(each (lambda ((name args))
+	(defq before (map (# (str %0)) args)
+		native (shader-vp-func fn_more name) ref (eval (shader-cpu-func fn_more name)))
+	(assert-eq (cat "args where they are, native code and the reference, " (str name))
+		(str (apply ref args)) (str (apply native args)))
+	(assert-list-eq (cat "args where they are, no arg is changed, " (str name))
+		before (map (# (str %0)) args)))
+	(list (list 'sets (list fn_n3 (n2r 2))) (list 'part (list fn_n3))
+		(list 'four (list fn_v fn_w fn_v fn_w (n2r 3)))
+		(list 'chain (list fn_a fn_b fn_a)) (list 'keeps (list fn_a fn_b))))
+(assert-eq "three matrices, as the library has it" (str (mat4x4-mul (mat4x4-mul fn_a fn_b) fn_a))
+	(str ((shader-vp-func fn_more 'chain) fn_a fn_b fn_a)))
+(assert-eq "the same reals as two args" (str (mat4x4-mul fn_a fn_a))
+	(str ((shader-vp-func fn_prog 'mul) fn_a fn_a)))
+
 ;what is refused, by the language
 (assert-error "no functions at all" (sh-src "(defconst a 1.0)"))
 (assert-error "functions have args, not inputs"

@@ -512,16 +512,30 @@ matrix and give one, which a function of a shader can not. One that does is
 for Lisp to call, not for another function of the file, a matrix is never
 in registers to be handed on.
 
-The native function has its frame on the stack. Each arg is copied to it,
-the function is run, and what it gives is copied to a new real, num or
-reals. It checks how many args it has, their types, and the length of each
-reals.
+The native function has its frame on the stack. A number arg is copied to
+it. A reals arg is read where it is, by a register, the first three of
+them, unless the function sets it, when it is copied, so no arg is ever
+changed. A reals that is given is made first and written straight into. It
+checks how many args it has, their types, and the length of each reals.
 
-On a 2018 x86_64 MacBook Pro, a matrix by a vec4 is 98ns a call, where
-`(mat4x4-vec4-mul)`, written by hand, is 92ns. A matrix by a matrix is 156ns,
-by hand 113ns, the product is worked out to one place and copied to
-another twice. Most of each is the call from Lisp. The answers are the same
-to the bit.
+A product of matrices is worked out a row of the answer at a time, its four
+numbers side by side so that none waits on another, which is how the
+library's routine, written by hand, does it.
+
+A call from Lisp, the answers the same to the bit.
+
+| | a matrix by a matrix | by hand | a matrix by a vec4 | by hand |
+|---|---|---|---|---|
+| Apple M4 Max | 52ns | 51ns | 42ns | 43ns |
+| 2018 x86_64 MacBook Pro | 112ns | 114ns | 97ns | 92ns |
+| Raspberry Pi 4 | 518ns | 518ns | | |
+
+An empty lambda called the same way is 49ns on the x86_64, so most of each
+is the call. It was 156ns for the matrices there when each arg was copied
+in, the product copied out twice, and one number worked out at a time.
+
+`shader -t vp file` shows the VP of each function of such a file, as it
+does of a shader, and `-t cpu` the Lisp.
 
 The GLSL, MSL and SPIR-V back ends have no functions for Lisp yet. That is
 compute on a GPU, and is to come.

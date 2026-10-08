@@ -4,6 +4,27 @@
 
 ------
 
+A typed function called from Lisp is as quick as VP written by hand, and
+the `shader` command shows the code of every kind of file.
+
+*	A function for Lisp read each reals arg into its frame, and copied
+	what it gave out again. It now reads an arg where it is, by a register,
+	unless it sets it, and writes what it gives straight into the new
+	reals. A product of matrices is worked out four numbers at a time, as
+	the library's own routine is. `lib/gpu/vp.inc`.
+
+*	A matrix by a matrix, typed against `(mat4x4-mul)` by hand, 52ns and
+	51ns on an Apple M4 Max, 112ns and 114ns on a 2018 x86_64 MacBook Pro,
+	518ns and 518ns on a Raspberry Pi 4. It was 156ns on the x86_64. The
+	answers are the same to the bit.
+
+*	`shader -t vp` and `shader -t cpu` take a vertex shader, a pixel shader
+	that fills triangles, and a file of functions, each function of it in
+	turn. They took a plain pixel shader only.
+
+*	Tests that no arg is changed, by a function that sets one, one with
+	more reals args than registers, and one given the same reals twice.
+
 A shader file is known by a hash of it, and its native code is found by
 that, with nothing of the file checked.
 

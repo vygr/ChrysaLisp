@@ -17,7 +17,9 @@
             msl     Metal Shading Language text, for Apple.
             spirv   a SPIR-V module, for Vulkan, as a listing.
             vp      VP assembler source, the native code back end.
-            cpu     the Lisp the CPU back end runs.
+                    Of a pixel shader, a vertex shader, or each
+                    function of a file of functions for Lisp.
+            cpu     the Lisp the CPU back end runs, of any of them.
             tree    the checked, typed tree the back ends are given.
         -v --vertex: the vertex shader that goes with every
             fragment shader, for msl and spirv.
@@ -30,6 +32,7 @@
     ChrysaLisp. See docs/ai_digest/shader_language.md.
 
     shader lib/gpu/shaders/raymarch.shader
+    shader -t vp lib/gpu/shaders/mesh_vertex.shader
     shader -t msl -o raymarch.metal lib/gpu/shaders/raymarch.shader
     shader -t spirv -o raymarch.spv lib/gpu/shaders/raymarch.shader")
 (("-t" "--target") ,(opt-str 'opt_t))
@@ -99,6 +102,32 @@
 		(each (# (push lines (cat (ascii-char 9) (str %0)))) block)) funcs)
 	(join lines (ascii-char 10)))
 
+(defun vp-listing (program)
+	;the VP source of the native code of a program, whatever kind it is.
+	;A vertex shader places vertices. A pixel shader that reads varyings
+	;fills triangles, one that reads none shades a tile. A file of
+	;functions is a native function for each, one after another
+	(defq name "lib/gpu/jit/shader" stage (shader-stage program))
+	(cond
+		((eql stage :vertex) (first (sv-vertex-source program name)))
+		((eql stage :func)
+			(join (map (lambda ((fname &rest _))
+				(sv-func-source program fname (cat name "_" (str fname))))
+				(shader-funcs program)) (ascii-char 10)))
+		((nempty? (shader-varyings program)) (first (sv-fill-source program name)))
+		((first (sv-source program name)))))
+
+(defun cpu-listing (program)
+	;the Lisp the reference back end runs, whatever kind the program is
+	(defq stage (shader-stage program))
+	(cond
+		((eql stage :vertex) (str (shader-cpu-vertex program)))
+		((eql stage :func)
+			(join (map (lambda ((fname &rest _))
+				(cat ";" (str fname) (ascii-char 10) (str (shader-cpu-func program fname))))
+				(shader-funcs program)) (ascii-char 10)))
+		((str (shader-cpu program)))))
+
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
@@ -116,9 +145,8 @@
 						((eql target 'spirv)
 							(defq module (if opt_v (shader-spirv-vertex) (shader-spirv program)))
 							(if opt_o module (spirv-listing module)))
-						((eql target 'vp)
-							(first (sv-source program "lib/gpu/jit/shader")))
-						((eql target 'cpu) (str (shader-cpu program)))
+						((eql target 'vp) (vp-listing program))
+						((eql target 'cpu) (cpu-listing program))
 						((eql target 'tree) (tree-listing program))))
 				(cond
 					((not out) (print (second (first usage))))
