@@ -2,10 +2,10 @@
 . "$PSScriptRoot\funcs.ps1"
 
 # process args defaults
-main 10 32 @args
+main 0 32 @args
 
 if ($showhelp -eq $TRUE) {
-    Write-Output "[-n cnt] number of nodes, 0 to size to the machine"
+    Write-Output "[-n cnt] number of nodes, 0 to size to the machine, the default"
     Write-Output "[-g cnt] number of guis"
     Write-Output "[-s script_name] script mode"
     Write-Output "[-e] emulator mode"

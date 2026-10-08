@@ -4,7 +4,7 @@
 source funcs.sh
 
 #process args defaults
-main 10 32 $@
+main 0 32 $@
 
 if [ $num_cpu -ne 0 ]
 then

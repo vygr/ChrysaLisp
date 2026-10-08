@@ -4,6 +4,24 @@
 
 ------
 
+A launch is sized to the machine, with no need to say so. Martyn Blyss's
+suggestion.
+
+*	`run.sh`, `run_tui.sh` and their `.ps1` and `.bat` twins started 10
+	nodes, on any machine, too many for a Raspberry Pi and too few for a big
+	Mac. With no `-n` they now do what `-n 0` does, a node for each core.
+	`-n 10` is still ten. The scripts of the other topologies, ring, mesh,
+	cube, star and tree, are as they were, their counts are their shape.
+
+*	`install.bat` started 10 emulator nodes by hand. It runs the install as
+	`make install` does on the other systems, `run_tui.ps1 -n 0 -i -e -f`.
+
+*	The shell side is tested, 16 nodes on the M4 and 4 on the Pi, for the
+	GUI and the TUI, and a count given is the count had. The PowerShell and
+	`install.bat` side is read and not run, there is no Windows here.
+
+------
+
 GPU triangles run on Windows. Martyn Blyss ran the new snapshot there, the
 Mesh demo with its GPU button, and all of it works. The host programs in it
 were cross built on a Mac and that was the first time they were started.

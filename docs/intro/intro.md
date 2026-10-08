@@ -369,12 +369,14 @@ stop.bat
 ## Exploring Network Topologies (Advanced)
 
 ChrysaLisp is designed for distributed computing. The standard `run.sh` and 
-`run_tui.sh` (and their `.bat`/`.ps1` counterparts) start a default network 
-topology (often a fully connected mesh of 10 nodes). You can explore different 
-network setups using specialized scripts. These scripts typically accept common 
-arguments:
+`run_tui.sh` (and their `.bat`/`.ps1` counterparts) start a fully connected 
+network sized to the machine, a node for each core it has. You can explore 
+different network setups using specialized scripts. These scripts typically 
+accept common arguments:
 
-* `-n <count>`: Specifies the number of VP nodes to launch.
+* `-n <count>`: Specifies the number of VP nodes to launch. `-n 0` sizes the 
+  network to the machine, which is what `run.sh` and `run_tui.sh` do when no 
+  count is given. The topology scripts below each have a count of their own.
 
 * `-e`: Runs the nodes using the VP64 emulator with the VP64 boot image (slower, 
   but useful for debugging or if native compilation is an issue).

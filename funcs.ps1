@@ -180,6 +180,8 @@ function main {
     $global:emu = ""
     $global:front = $FALSE
     $global:auto = $FALSE
+    # a default of 0 nodes is the network sized to the machine, as -n 0 is
+    if ($global:ncpu -eq 0) { $global:auto = $TRUE; $global:ncpu = 1 }
     $global:script = "apps/tui/tui.lisp"
     $global:showhelp = $FALSE
 
@@ -193,6 +195,7 @@ function main {
             "-g" { $global:ngui = [int]$args[++$i] }
             "-n" {
                 $global:ncpu = [int]$args[++$i]
+                $global:auto = $FALSE
                 if ($global:ncpu -eq 0) { $global:auto = $TRUE; $global:ncpu = 1 }
             }
             "-h" { $global:showhelp = $TRUE }

@@ -271,6 +271,12 @@ function main
 	emu=""
 	front=""
 	auto=""
+	#a default of 0 nodes is the network sized to the machine, as -n 0 is
+	if [ $num_cpu -eq 0 ]
+	then
+		auto=1
+		num_cpu=1
+	fi
 	script="apps/tui/tui.lisp"
 	while [ "$#" -gt 0 ]; do
 	case $1 in
@@ -296,6 +302,7 @@ function main
 			;;
 		-n)
 			num_cpu=$2
+			auto=""
 			if [ $num_cpu -eq 0 ]
 			then
 				auto=1
@@ -303,7 +310,7 @@ function main
 			fi
 			shift 2
 			;;
-		*)	echo "[-n cnt] number of nodes, 0 to size to the machine"
+		*)	echo "[-n cnt] number of nodes, 0 to size to the machine, which a script with no count of its own does"
 			echo "[-g cnt] number of guis"
 			echo "[-s script_name] script mode"
 			echo "[-e] emulator mode"
