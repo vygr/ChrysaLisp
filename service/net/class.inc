@@ -66,6 +66,11 @@
 	(uint task_count)
 	(align))
 
+;what follows the header of a ping on the wire, the start of a link's
+;record, lk_node, its ids and its load. It is the wire's own size, the
+;record has more that is not sent
+(defq +net_ping_payload_size (- +net_ping_pkt_size +net_wire_hdr_size))
+
 (structure +net_frag_pkt 0
 	(uint wire_length wire_type)
 	(netid dest src)

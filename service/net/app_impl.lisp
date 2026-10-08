@@ -31,7 +31,7 @@
 ;service still runs there, with no mesh, and says why if one is asked for.
 ;It is the state a machine is in between new source and make all boot
 (defq *net_can_mesh* (eql :there (catch (progn (ffi "service/net/lisp_links" net-links) :there) :not)))
-; (net-links) -> (system_id ...)
+; (net-links) -> (link ...), a link is the fields of lib/net/links.inc
 
 (bits +net_poll 0
 	(bit in out error))
@@ -217,7 +217,8 @@
 					; each of the other services
 					(when (and mesh (> (- now last_mesh_time) +beacon_interval))
 						(setq last_mesh_time now)
-						(defq linked (map (const hex-encode) (net-links)))
+						(defq linked (map (# (hex-encode (slice %0 +node_id_size (const (* 2 +node_id_size)))))
+							(net-links)))
 						(. mesh_peers :each (lambda (sys peer)
 							(when (mesh-dial? peer my_sys_id sys (find sys linked) now)
 								(setq active :t)

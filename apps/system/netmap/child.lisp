@@ -1,0 +1,25 @@
+(import "lib/net/links.inc")
+(import "./app.inc")
+
+(enums +select 0
+	(enum main timeout))
+
+(defun main ()
+	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
+	(while running
+		(mail-timeout (elem-get select +select_timeout) +timeout 0)
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
+		(cond
+			((or (= idx +select_timeout) (eql msg ""))
+				;timeout or quit
+				(setq running :nil))
+			((= idx +select_main)
+				;main mailbox, reset timeout and reply with this node, its
+				;load, and its links
+				(mail-timeout (elem-get select +select_timeout) 0 0)
+				(defq links (net-links))
+				(mail-send msg (apply (const cat) (cat (list (setf-> (str-alloc +reply_size)
+					(+reply_node (task-nodeid))
+					(+reply_system (system-id))
+					(+reply_task_count (first (kernel-stats)))
+					(+reply_num_links (length links)))) links)))))))

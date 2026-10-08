@@ -4,6 +4,61 @@
 
 ------
 
+Network Map, the network as it is, in three dimensions.
+
+*	Martyn asked if Netmon could show the topology now the first node makes
+	it. Chris: "lets do a 3D representation of the network we see !", with
+	nodes that come and go, and heat for the links and the load.
+
+*	New app, `apps/system/netmap`, Network Map, in the launcher under
+	System. A ball for each node, the color of the machine it is on, bigger
+	the more tasks it has. A bar for each link, thicker between machines,
+	from a dim blue when it is idle to red when it is busy. It turns slowly.
+
+*	It is the network that is there, not the one that was launched. A child
+	on each node says what that node's links are to, four times a second,
+	so a node that comes or goes is seen, and a ring, a star, a tree, a
+	mesh and a cube each look like what they are.
+
+*	It lays itself out as a bedspring. Each link is a spring, each node
+	pushes every other away, and they are left to settle. A busy link pulls
+	harder and to a shorter length, so nodes that talk draw together. Dr Ian
+	Thomas did a bedspring model of a network for Taos, this is in his
+	honour.
+
+*	It is drawn with the scene and shaders of the Mesh demo, by the GPU of
+	the GUI if it has one, here if not. Every ball shares one mesh and
+	every bar another. 16 nodes and 120 links is 5ms a frame to lay out and
+	pose, at 20 frames a second.
+
+*	The kernel now counts the bytes of mail each link has carried, a field
+	on the end of the link's record, one add in each of the two link
+	drivers. `(net-links)` gives the whole record of each link, shared
+	memory and TCP, the peer's node id, its machine, its load, and the
+	count, `lib/net/links.inc`. It gave only the machine.
+
+*	New `(Mesh-cylinder radius height eps)` in `lib/math/mesh.inc`, made
+	directly, not from an iso surface. A bar is one, with a matrix that
+	lays it along its link.
+
+*	A fault of Claude's on the way, found before it was committed. A ping
+	on a TCP link is 40 bytes, and the end that reads it read "the size of
+	a link's record", which the new count made 48. It waited for 8 more
+	bytes for ever, and no machine saw another. Every test passed, none
+	has two machines. The wire has a size of its own now,
+	`+net_ping_payload_size`. The standing nodes not meeting is what showed
+	it.
+
+*	`includes -w` took out an include that was needed, for a name that is
+	spliced in, `,lk_node_size`. It knows such a name now.
+
+*	The layout and the drawing were checked with no desktop, pictures of
+	each shape and of the three machines. The window itself, and the GPU
+	path, were opened and gave no error, but nobody has looked at them
+	yet.
+
+------
+
 `rack`, a command on every machine of the mesh. The dev loop, in the repo.
 
 *	Since the mesh and `sync` worked, a change has been tested on the M4,

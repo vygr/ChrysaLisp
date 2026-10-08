@@ -351,12 +351,12 @@
 	(vp-rdef (node zero))
 	(assign {&lk_node, 0} `(,node ,zero))
 	(save-fields node
-			`(lk_node_task_count
+			`(lk_node_task_count lk_node_sent
 			,(+ lk_node_peer_node_id +node_id_node1)
 			,(+ lk_node_peer_node_id +node_id_node2)
 			,(+ lk_node_peer_system_id +node_id_node1)
 			,(+ lk_node_peer_system_id +node_id_node2))
-		`(,zero ,zero ,zero ,zero ,zero))
+		`(,zero ,zero ,zero ,zero ,zero ,zero))
 	(assign '((@ sys/statics/statics)) '(:r7))
 	(assign '((:r7 statics_sys_mail_links_array)) '(:r0))
 	(assign {&lk_node} '(:r1))
@@ -461,7 +461,7 @@
 	(vp-rdef (ping_pkt) '(:r4))
 	(vp-rdef (wlen wtype) '(:r0 :r1))
 	(vp-rdef (node1 node2) (method-output :sys_kernel :id))
-	(assign {&ping_pkt, lk_node_size, +net_wire_type_ping} `(,ping_pkt ,wlen ,wtype))
+	(assign {&ping_pkt, +net_ping_payload_size, +net_wire_type_ping} `(,ping_pkt ,wlen ,wtype))
 	(save-fields ping_pkt
 		'(+net_ping_pkt_wire_length +net_ping_pkt_wire_type)
 		`(,wlen ,wtype))
@@ -496,6 +496,8 @@
 	(vpif `(,ready_msg /= 0))
 		;we have mail to transmit
 		(assign `(,ready_msg) {msg})
+		;how much this link has carried
+		(assign {lk_node->lk_node_sent + msg->+msg_length} {lk_node->lk_node_sent})
 		(vp-rdef (msg frag_pkt t0 t1 t2 t3 t4 t5 t6 t7 t8))
 		(assign {msg, &frag_pkt} `(,msg ,frag_pkt))
 		(assign-fields
@@ -635,8 +637,8 @@
 	(goto 'in_exit)
 
 (vp-label 'in_ping)
-	;read 40-byte ping payload (lk_node_size)
-	(call :host_net :recv_all {conn_handle, &ping_payload, lk_node_size, lk_node} `(,recv_status))
+	;read the ping payload, 40 bytes, the start of a link's record
+	(call :host_net :recv_all {conn_handle, &ping_payload, +net_ping_payload_size, lk_node} `(,recv_status))
 	(gotoif `(,recv_status < 0) 'in_exit)
 
 	;update peer node id, peer system id, and task count on lk_node

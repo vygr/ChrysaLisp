@@ -557,8 +557,10 @@
 	;trashes
 	;:r1-:r5, :f0-:f15
 
-	;the system id of the peer of each link this node has, a str each.
-	;A link whose peer has yet to say who it is gives an id of zeros
+	;what this node knows of each link it has, a str each, the fields of
+	;lib/net/links.inc: the node id of its peer, the system id of its
+	;peer, the peer's load, and the bytes of mail sent on it. A link whose
+	;peer has yet to say who it is gives ids of zeros
 
 	(structure local 0
 		(ptr this ret iter_begin iter_end))
@@ -580,7 +582,7 @@
 		(assign '((:r1 0)) '(:r0))
 		(vp-add-cr +ptr_size :r1)
 		(assign '(:r1) '((:rsp local_iter_begin)))
-		(call :str :create_from_buffer `((& :r0 lk_node_peer_system_id) ,+node_id_size) '(:r0))
+		(call :str :create_from_buffer `((& :r0 0) ,lk_node_size) '(:r0))
 		(call :list :push_back '((:rsp local_ret) :r0))
 		(assign '((:rsp local_iter_begin)) '(:r1))
 	(loop-end)

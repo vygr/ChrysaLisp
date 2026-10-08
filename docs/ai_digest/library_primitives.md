@@ -638,7 +638,7 @@ Macros for assembling declarative widget hierarchies.
 
 	*	`(Mat4x4-frustum left right top bottom near far) -> reals`
 
-*	**`Mesh` / `Mesh-sphere` / `Mesh-torus` / `Mesh-iso` / `Mesh-obj` / `Mesh-data`**:
+*	**`Mesh` / `Mesh-sphere` / `Mesh-cylinder` / `Mesh-torus` / `Mesh-iso` / `Mesh-obj` / `Mesh-data`**:
 	3D triangle mesh representations.
 
 *	**`Scene` / `Scene-node` / `Scene-object`**: Hierarchical 3D scene graph.

@@ -139,6 +139,26 @@
 			(slice verts i1 (+ i1 +vec3_size)))))
 	(lower :verts :norms :tris))
 
+(defclass Mesh-cylinder (radius height eps) (Mesh)
+	; (Mesh-cylinder radius height eps) -> mesh
+	;a cylinder that stands on the y axis, its middle at the origin, eps
+	;sides round, with its two ends closed
+	(defq step (/ +real_2pi (n2r eps)) half (* height +real_1/2)
+		verts (reals) tris (nums)
+		xs (map! (# (* radius (sin (* (n2r (!)) step)))) '() 0 eps)
+		zs (map! (# (* radius (cos (* (n2r (!)) step)))) '() 0 eps))
+	;a ring at the top, a ring at the bottom, then the middle of each end
+	(each! (# (push verts %0 half %1 +real_1)) (list xs zs))
+	(each! (# (push verts %0 (neg half) %1 +real_1)) (list xs zs))
+	(push verts +real_0 half +real_0 +real_1 +real_0 (neg half) +real_0 +real_1)
+	(for 0 eps
+		(defq t0 (!) t1 (% (inc (!)) eps) b0 (+ t0 eps) b1 (+ t1 eps))
+		;the side, two faces, then a slice of each end
+		(push tris t0 b0 t1 0 b0 b1 t1 0
+			(* eps 2) t0 t1 0 (inc (* eps 2)) b1 b0 0))
+	(bind '(norms tris) (gen-norms verts tris))
+	(lower :verts :norms :tris))
+
 (defclass Mesh-torus (radius_ring radius_body eps) (Mesh)
 	; (Mesh-torus radius_ring radius_body eps) -> mesh
 	(defq eps2 (* eps 2) eps_r (n2r eps) eps2_r (n2r eps2)
@@ -279,5 +299,5 @@
 
 ;module
 (export-symbols '(+tri_size))
-(export-classes '(Mesh Mesh-data Mesh-torus Mesh-sphere Mesh-iso Mesh-obj))
+(export-classes '(Mesh Mesh-data Mesh-torus Mesh-sphere Mesh-cylinder Mesh-iso Mesh-obj))
 (env-pop)

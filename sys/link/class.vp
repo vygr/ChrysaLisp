@@ -28,12 +28,12 @@
 	(vp-rdef (node zero))
 	(assign {&lk_node, 0} `(,node ,zero))
 	(save-fields node
-			`(lk_node_task_count lk_node_peer_pid
+			`(lk_node_task_count lk_node_peer_pid lk_node_sent
 			,(+ lk_node_peer_node_id +node_id_node1)
 			,(+ lk_node_peer_node_id +node_id_node2)
 			,(+ lk_node_peer_system_id +node_id_node1)
 			,(+ lk_node_peer_system_id +node_id_node2))
-		`(,zero ,zero ,zero ,zero ,zero ,zero))
+		`(,zero ,zero ,zero ,zero ,zero ,zero ,zero))
 	(call :array :push_back {statics->statics_sys_mail_links_array, &lk_node})
 
 	;read params msg from kernel
@@ -399,6 +399,9 @@
 			(call :sys_mail :ready `(,node1 ,node2 ,key) `(,msg))
 			(breakif `(,msg = 0))
 			(assign `(,msg) {msg})
+
+			;how much this link has carried
+			(assign {lk_node->lk_node_sent + msg->+msg_length} {lk_node->lk_node_sent})
 
 			;reset to min poling
 			(assign {lk_sleep_min, 0} {sleep_time, quiet})

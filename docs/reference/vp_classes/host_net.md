@@ -12,7 +12,7 @@
 
 ### (net-init)
 
-### (net-links)
+### (net-links) -> (link ...)
 
 ### (net-listen port)
 

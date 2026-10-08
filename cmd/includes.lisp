@@ -29,7 +29,8 @@
 (("-w" "--write") ,(opt-flag 'opt_w))
 ))
 
-(defq +split_class (char-class " ()'\t\r\q{@}<>")
+;a name that is spliced in, ,lk_node_size, is that name
+(defq +split_class (char-class " ()'\t\r\q{@}<>,`")
 	+implicit_file "lib/asm/func.inc"
 	+class_prefixes ''(
 		(":fixeds" "+fixeds_") (":fixed" "+fixed_")

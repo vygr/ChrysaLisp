@@ -34,11 +34,14 @@
 
 ;peer info. The task count is the peer's load, see sys/statics/class.inc.
 ;The process id is that of the peer of a shared memory link, which is on
-;this machine, so the host can be asked if it is still running.
+;this machine, so the host can be asked if it is still running. Sent is
+;the bytes of mail this node has put on the link, it only grows, how busy
+;a link is is how fast. (net-links) gives these to Lisp, lib/net/links.inc
 (structure lk_node 0
 	(nodeid peer_node_id)
 	(nodeid peer_system_id)
 	(uint task_count peer_pid)
+	(long sent)
 	(align))
 
 ;fragment info
