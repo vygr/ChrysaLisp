@@ -4,6 +4,21 @@
 
 ------
 
+Two small ones.
+
+*	`shader -p file`, the other shader of a pair. A vertex shader and a
+	pixel shader that go together are shown as the two halves the GLSL,
+	Metal or SPIR-V back end makes of them, in either order, and `-o`
+	writes them to `.vert` and `.frag`. The command could only show a lone
+	pixel shader for those.
+
+*	A key for the links that is a passphrase is made into a key with
+	100,000 rounds of PBKDF2 as the Net service starts. Timed, 0.4 seconds
+	on an M4 and 3.7 on a Raspberry Pi 4. A key of 64 hex digits, which
+	`link -k` makes, takes none. `docs/intro/intro.md` says so.
+
+------
+
 A signature, Ed25519, and the hash it is made with, SHA-512. For a release
 that only its publisher can issue and anyone can check, which a shared key
 can not do, whoever can check one of those can make one.

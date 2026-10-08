@@ -23,6 +23,10 @@
             tree    the checked, typed tree the back ends are given.
         -v --vertex: the vertex shader that goes with every
             fragment shader, for msl and spirv.
+        -p --pair file: the other shader of a pair, a vertex shader
+            and a pixel shader that go together, in either order, for
+            glsl, msl and spirv. Both halves are shown. With -o they
+            are written to the file's name with .vert and .frag on.
         -o --out file: write it to a file. A spirv module is
             then written as the binary a driver, or spirv-dis,
             takes, not as a listing.
@@ -34,9 +38,11 @@
     shader lib/gpu/shaders/raymarch.shader
     shader -t vp lib/gpu/shaders/mesh_vertex.shader
     shader -t msl -o raymarch.metal lib/gpu/shaders/raymarch.shader
-    shader -t spirv -o raymarch.spv lib/gpu/shaders/raymarch.shader")
+    shader -t spirv -o raymarch.spv lib/gpu/shaders/raymarch.shader
+    shader -p lib/gpu/shaders/mesh_lit.shader lib/gpu/shaders/mesh_vertex.shader")
 (("-t" "--target") ,(opt-str 'opt_t))
 (("-v" "--vertex") ,(opt-flag 'opt_v))
+(("-p" "--pair") ,(opt-str 'opt_p))
 (("-o" "--out") ,(opt-str 'opt_o))
 ))
 
@@ -134,8 +140,25 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_t "glsl" opt_v :nil opt_o :nil args (options stdio usage)))
+			(defq opt_t "glsl" opt_v :nil opt_p :nil opt_o :nil args (options stdio usage)))
 		(cond
+			((and opt_p (= (length args) 2))
+				;a pair, the two files in either order
+				(defq one (shader-load (second args)) two (shader-load opt_p) target (sym opt_t)
+					vertex (if (eql (shader-stage one) :vertex) one two)
+					pixel (if (eql (shader-stage one) :vertex) two one)
+					pair (cond
+						((eql target 'glsl) (shader-glsl-pair vertex pixel))
+						((eql target 'msl) (shader-msl-pair vertex pixel))
+						((eql target 'spirv) (shader-spirv-pair vertex pixel))))
+				(cond
+					((not pair) (print (second (first usage))))
+					(opt_o (save (first pair) (cat opt_o ".vert")) (save (second pair) (cat opt_o ".frag")))
+					((eql target 'spirv)
+						(print "; the vertex module") (print (spirv-listing (first pair)))
+						(print "; the fragment module") (print (spirv-listing (second pair))))
+					(:t (print "// the vertex shader") (print (first pair))
+						(print "// the fragment shader") (print (second pair)))))
 			((and (not opt_v) (/= (length args) 2))
 				(print (second (first usage))))
 			(:t (defq program (if (> (length args) 1) (shader-load (second args)))

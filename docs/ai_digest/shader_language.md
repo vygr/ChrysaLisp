@@ -604,7 +604,9 @@ the two both have links as the one uniform.
 
 The pair of the Mesh demo, `mesh_vertex.shader` and `mesh_lit.shader`, was
 given to `glslangValidator` on a Raspberry Pi 4, as GLSL ES 1.00 and as
-desktop GLSL 1.20, each half alone and the two linked, with no error. No
+desktop GLSL 1.20, each half alone and the two linked, with no error.
+`shader -p lib/gpu/shaders/mesh_lit.shader lib/gpu/shaders/mesh_vertex.shader`
+shows the two, and with `-t msl` or `-t spirv` the pair of those back ends. No
 host draws with it, the SDL3 driver takes the Metal and the SPIR-V, so it
 has been compiled and not run.
 

@@ -510,8 +510,10 @@ link -k
 makes one, the file `mesh_key` at the root of the tree, 64 hex digits. Put
 the same file on every machine of the network, by hand, it is never sent
 over a link and `sync` leaves it out. Any other text in the file is taken
-as a passphrase. Start each machine again after, the Net service reads the
-key as it starts.
+as a passphrase, and is made into a key the slow way on purpose, so that it
+is dear to guess, 0.4 seconds on an Apple M4 Max and 3.7 on a Raspberry Pi
+4, the once, as the Net service starts. A key of hex takes no time. Start
+each machine again after, the Net service reads the key as it starts.
 
 A machine with a key links only to machines with the same key. When two
 connect, each proves to the other that it has it, before a byte of mail
