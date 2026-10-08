@@ -27,6 +27,34 @@
 
 ------
 
+`diff` writes a block of changes as a block.
+
+*	`(stream-diff)` irons the path it has found, so that between two runs
+	of lines that are the same, all the lines that go come first and then
+	all that are new. It then wrote each line as a change of its own, `2d1`,
+	`3d1`, `4d1`. A block is now one entry, `2,4d1` for a run deleted,
+	`1a2,4` for a run added, `2,3c2,5` for the one changed for the other,
+	with the `---` between, as `diff(1)` writes them. It is the same diff,
+	the same search and the same ironing, only the writing of it.
+
+*	For five lines with a change, a delete and an add it is now, to the
+	byte, what `diff(1)` gives. `pipe.inc` against its 7.1 self is 3
+	changes, where `diff(1)` finds 9 smaller ones, and `STATUS.md` 2.
+
+*	Both `patch` commands take it, this one and the system's, for five
+	pairs up to 5,000 lines. Six more tests, of the text of a diff.
+
+*	Measured for Chris, not changed. How many paths are kept and how many
+	are let grow, 4 and 16, make no difference to the diff when raised, to
+	128 and 512, only to the time, 4 times as long for each doubling, the
+	paths kept are all but copies of each other. Keeping the furthest path
+	of each diagonal gives `pipe.inc` the least diff there is, 78 lines
+	where it is 182, in half the time, and makes `STATUS.md`, one big block
+	added at the top, worse. So which paths are kept is the rule to look
+	at, and there is not yet one that is right for both.
+
+------
+
 Tidying, from Chris reading the Onslaught source.
 
 *	`(neg +tile_height)` and the like, an expression of nothing but

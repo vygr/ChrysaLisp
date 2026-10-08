@@ -29,6 +29,25 @@
 		(:t (for x a (push out (nums (!) y)) (++ y))))
 	(push out (nums a b)))
 
+(defun diff-range (lo hi)
+	;a line, or the first and last of a run of them
+	(if (= lo hi) (str lo) (str lo "," hi)))
+
+(defun diff-hunk (c ha hb dels adds)
+	;one change, the lines of a that go and the lines of b that come, from
+	;after line ha of a and line hb of b. The ironed path has them in
+	;blocks, so they are written as blocks, a run of lines deleted, a run
+	;added, or the one changed for the other
+	(defq na (length dels) nb (length adds))
+	(cond
+		((and (= na 0) (= nb 0)))
+		((= nb 0) (write-line c (str (diff-range (inc ha) (+ ha na)) "d" hb)))
+		((= na 0) (write-line c (str ha "a" (diff-range (inc hb) (+ hb nb)))))
+		(:t (write-line c (str (diff-range (inc ha) (+ ha na)) "c" (diff-range (inc hb) (+ hb nb))))))
+	(each (# (write-line c (str "< " %0))) dels)
+	(if (and (> na 0) (> nb 0)) (write-line c "---"))
+	(each (# (write-line c (str "> " %0))) adds))
+
 (defun stream-diff (a b c)
 	; (stream-diff a b c)
 	;difference between streams a and b, write to stream c
@@ -37,12 +56,8 @@
 		bl (list) lb (lines! (# (push bl %0) :nil) b) lb (length bl))
 	(cond
 		((and (= la 0) (= lb 0)))
-		((= la 0) (each (#
-			(write-line c (str "0a" (inc (!))))
-			(write-line c (str "> " %0))) bl))
-		((= lb 0) (each (#
-			(write-line c (str (inc (!)) "d0"))
-			(write-line c (str "< " %0))) al))
+		((= la 0) (diff-hunk c 0 0 (list) bl))
+		((= lb 0) (diff-hunk c 0 0 al (list)))
 		(:t (defq ps (list (nums 0 0)) nps (list) goal (nums la lb) run :t)
 			(while run
 				(each (lambda (p)
@@ -62,20 +77,21 @@
 					(task-slice)
 					(setq ps (slice (sort ps (# (- (goal-distance %0) (goal-distance %1))))
 						0 +min_paths))))
-			(defq a -1 b -1)
+			(defq a -1 b -1 ha 0 hb 0 dels (list) adds (list))
 			(sort ps (# (- (length %0) (length %1))))
 			(each (lambda ((pa pb))
 					(task-slice)
 					(cond
-						((and (/= pa a) (/= pb b)))
-						((= pa a)
-							(write-line c (str a "a" pb))
-							(write-line c (str "> " (elem-get bl b))))
-						(:t
-							(write-line c (str pa "d" b))
-							(write-line c (str "< " (elem-get al a)))))
+						((and (/= pa a) (/= pb b))
+							;a line that is the same, what went before it is a change
+							(diff-hunk c ha hb dels adds)
+							(clear dels adds)
+							(setq ha pa hb pb))
+						((= pa a) (push adds (elem-get bl b)))
+						(:t (push dels (elem-get al a))))
 					(setq a pa b pb))
-				(iron (partition (first ps) 2))))))
+				(iron (partition (first ps) 2)))
+			(diff-hunk c ha hb dels adds))))
 
 (defun stream-patch (a b c)
 	; (stream-patch a b c)
