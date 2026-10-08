@@ -22,7 +22,9 @@
 ;bedspring model of a network for Taos, this is in his honour.
 
 (enums +event 0
-	(enum close))
+	(enum close)
+	(enum auto)
+	(enum xrot yrot zrot))
 
 (enums +select 0
 	(enum main task reply frame_timer poll_timer))
@@ -51,10 +53,41 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Map" (0xea19) +event_close)
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-tool-bar *main_toolbar* ()
+			(ui-buttons (0xea43) +event_auto))
+		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-grid _ (:grid_width 1 :font *env_body_font*)
+			(ui-label _ (:text "X rot:"))
+			(ui-label _ (:text "Y rot:"))
+			(ui-label _ (:text "Z rot:")))
+		(ui-grid _ (:grid_width 1)
+			(. (ui-slider *xrot_slider* (:value 0 :maximum 1000 :portion 10 :color +argb_green))
+				:connect +event_xrot)
+			(. (ui-slider *yrot_slider* (:value 0 :maximum 1000 :portion 10 :color +argb_green))
+				:connect +event_yrot)
+			(. (ui-slider *zrot_slider* (:value 0 :maximum 1000 :portion 10 :color +argb_green))
+				:connect +event_zrot)))
 	(ui-flow _ (:flow_flags +flow_up_fill)
 		(ui-label *status* (:text "..." :font *env_body_font*))
 		(ui-backdrop _ (:style :plain :color +argb_black :min_width +size :min_height +size)
 			(ui-element *canvas* (Canvas +size +size +scale) (:color 0)))))
+
+(defun set-rot (slider angle)
+	(set (. slider :dirty) :value
+		(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
+
+(defun get-rot (slider)
+	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
+
+(defun set-auto (on)
+	;it turns by itself, or it is turned by the sliders. The button is
+	;lit while it turns by itself
+	(defq button (first (. *main_toolbar* :children)))
+	(undef (. button :dirty) :color)
+	(if (setq auto on)
+		(def button :color (canvas-brighter (get :color *main_toolbar*)))))
 
 (defun rnd ()
 	;somewhere between -1/2 and 1/2
@@ -240,8 +273,7 @@
 					(n2f (+ (* cool (const (n2r 0.6))) (* red (const (n2r 0.1))) (* white (const (n2r 0.9)))))))
 			(push objs bar))))
 	(set world :children objs)
-	(.-> world (:set_scale zoom zoom zoom)
-		(:set_rotation (const (n2r 0.4)) spin +real_0)))
+	(.-> world (:set_scale zoom zoom zoom) (:set_rotation rotx roty rotz)))
 
 (defun draw-frame ()
 	;a frame, by the GPU of the GUI if it has one that can, else here
@@ -277,7 +309,8 @@
 
 (defun main ()
 	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t
-		machines (list) links (Fmap 31) top_rate (n2r +quiet) zoom +real_1 spin +real_0
+		machines (list) links (Fmap 31) top_rate (n2r +quiet) zoom +real_1
+		auto :nil rotx (const (n2r 0.4)) roty +real_0 rotz +real_0
 		gpu_pair :nil gpu_shiny :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
 		ball_mesh (Mesh-sphere +real_1 16) bar_mesh (Mesh-cylinder +real_1 +real_1 8)
 		ball_proto (Scene-object ball_mesh (fixeds 1.0 1.0 1.0 1.0))
@@ -291,6 +324,7 @@
 		(:set_translation +real_0 +real_0 (const (- +real_0 +focal_dist +real_2))))
 	(. scene :draws +left +right +top +bottom +near +far (* +size +scale))
 	(defq global_tasks (Global create destroy))
+	(set-auto :t)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -303,6 +337,11 @@
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id :nil))
+					((= id +event_auto) (set-auto (not auto)))
+					;a slider is moved, and it no longer turns by itself
+					((= id +event_xrot) (set-auto :nil) (setq rotx (get-rot *xrot_slider*)))
+					((= id +event_yrot) (set-auto :nil) (setq roty (get-rot *yrot_slider*)))
+					((= id +event_zrot) (set-auto :nil) (setq rotz (get-rot *zrot_slider*)))
 					((. *window* :event msg))))
 			(+select_task
 				;a child has started
@@ -321,7 +360,13 @@
 				(clear poll_que))
 			(:t ;frame timer
 				(mail-timeout (elem-get select +select_frame_timer) +frame_rate 0)
-				(setq spin (% (+ spin (const (n2r 0.01))) +real_2pi))
+				(when auto
+					(setq rotx (% (+ rotx (const (n2r 0.003))) +real_2pi)
+						roty (% (+ roty (const (n2r 0.01))) +real_2pi)
+						rotz (% (+ rotz (const (n2r 0.002))) +real_2pi))
+					(set-rot *xrot_slider* rotx)
+					(set-rot *yrot_slider* roty)
+					(set-rot *zrot_slider* rotz))
 				(spring-step)
 				(pose-scene)
 				(draw-frame))))

@@ -41,6 +41,9 @@ Network Map, the network as it is, in three dimensions.
 	desktop and every time. It was the next of eight in the order they
 	were heard from.
 
+*	Sliders to turn it about X, Y and Z, and an auto button, as the
+	Molecule app has. It turns by itself till a slider is moved.
+
 *	It is the network that is there, not the one that was launched. A child
 	on each node says what that node's links are to, four times a second,
 	so a node that comes or goes is seen, and a ring, a star, a tree, a
