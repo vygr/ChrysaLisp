@@ -647,6 +647,29 @@ Usage: patch [options] file_a [file_b]
     If no second file is given it will
     be read from stdin.
 ```
+## rack
+```code
+Usage: rack [options] "command line"
+
+    options:
+        -h --help: this help info.
+        -b --build: make, and make all boot, on each machine first, in a
+            session before the one that runs the command.
+        -l --leave machines: machines to bring level and not run on, as
+            sync lists them, arm64/Linux, with a , between.
+        -d --delete paths: files to remove on the other machines, with
+            a : between.
+
+    Run a command line on every machine of the mesh. Each machine that
+    takes a sync, sync -a, is first made the same as this one. Then each,
+    and this one, starts a session of its own, new, sized to itself, runs
+    the command, and the session ends.
+
+    A line comes back for each machine.
+
+        rack "tests -a"     ; every test, on every machine
+        rack -b tests       ; after a change to the VP code
+```
 ## repeat
 ```code
 Usage: repeat [options] command_line

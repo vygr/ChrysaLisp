@@ -2691,6 +2691,30 @@ for it. An empty pattern stays empty, and matches as it would without.
 (quote? form) -> :t | :nil
 ```
 
+### rack-fresh
+
+```code
+(rack-fresh phases) -> str
+
+on this machine, a new session for each phase, a list of command
+lines, one after another, and what they said. A session is started by
+the host, so it is on the boot image as it is on disk now, which a
+phase before it may have made
+```
+
+### rack-run
+
+```code
+(rack-run cmdline [make_first leave_out gone]) -> (line ...)
+
+make every machine that takes a sync the same as this one, then run
+the command line on each, and on this one. With make_first, make and
+make all boot are run first, in a session before. leave_out is the
+machines not to run on, as (sync-services) names them, they are still
+made the same. gone is paths to remove on the others. The lines are
+SYNC and GONE for each other machine, RAN for each machine, and DONE
+```
+
 ### range
 
 ```code
@@ -3766,13 +3790,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args

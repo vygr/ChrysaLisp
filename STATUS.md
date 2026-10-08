@@ -4,6 +4,34 @@
 
 ------
 
+`rack`, a command on every machine of the mesh. The dev loop, in the repo.
+
+*	Since the mesh and `sync` worked, a change has been tested on the M4,
+	the x64 Mac and the Pi by ChrysaLisp, not by ssh and rsync: each has a
+	node that stays up, in the mesh and taking a sync, the M4's makes the
+	other two the same and each machine runs the tests in a new session of
+	its own. It was scripts of Claude's outside the repo. It is now part of
+	the system.
+
+*	`rack "tests -a"`, `cmd/rack.lisp`. Every machine that takes a sync is
+	made the same as this one, then each, and this one, runs the command
+	line in a session it starts for it, and a line comes back for each.
+	`-b` makes the boot image first, `-l` leaves machines out, `-d` removes
+	files on the others. `lib/rack/rack.inc`.
+
+*	`./rack.sh up`, `down`, `status`, this machine's member of the mesh, a
+	node that stays up, `lib/rack/member.lisp`. `./rack.sh run` has it run
+	a command line, from a shell.
+
+*	On the three machines, with nothing to send, 1 second for all of it.
+	With a boot image to make on each first, 4.6.
+
+*	It is not started unless asked for, a member takes a sync and so can be
+	written to. Nothing here starts it by default. No Windows yet.
+	`docs/ai_digest/rack.md`.
+
+------
+
 The topology launch scripts are gone, the first node makes the network.
 
 *	Chris: "do we NEED the topology launch scripts anymore ? or just pass in
