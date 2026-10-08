@@ -68,6 +68,10 @@ Network Map, the network as it is, in three dimensions.
 	desktop and every time. It was the next of eight in the order they
 	were heard from.
 
+*	The picture follows the window. Make the window bigger or smaller and
+	the scene is drawn to fit, a square, down to 320. And it is drawn a
+	little bigger in it.
+
 *	Sliders to turn it about X, Y and Z, and an auto button, as the
 	Molecule app has. It turns by itself till a slider is moved.
 

@@ -24,12 +24,13 @@
 (enums +event 0
 	(enum close)
 	(enum auto)
-	(enum xrot yrot zrot))
+	(enum xrot yrot zrot)
+	(enum layout))
 
 (enums +select 0
 	(enum main task reply frame_timer poll_timer))
 
-(defq +size 640 +scale 1 +frame_rate (/ 1000000 20) +poll_rate (/ 1000000 4)
+(defq +size 640 +min_size 320 +scale 1 +frame_rate (/ 1000000 20) +poll_rate (/ 1000000 4)
 	+retry_timeout (task-timeout 5)
 	+focal_dist +real_2 +near +focal_dist +far (+ +near +real_4)
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
@@ -49,7 +50,7 @@
 	+ball_size (n2r 0.09) +bar_size (n2r 0.016)
 	;how far out the furthest node is drawn. The window is 2 from the
 	;middle to an edge, where the middle of it all is
-	+fit (n2r 1.5))
+	+fit (n2r 1.65))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Map" (0xea19) +event_close)
@@ -88,6 +89,17 @@
 	(undef (. button :dirty) :color)
 	(if (setq auto on)
 		(def button :color (canvas-brighter (get :color *main_toolbar*)))))
+
+(defun set-canvas (size)
+	;the window is a new size, and so is the picture, a square that fits
+	(unless (= size canvas_size)
+		(defq parent (penv *canvas*))
+		(. *canvas* :sub)
+		(setq *canvas* (Canvas size size +scale) canvas_size size)
+		(bind '(w h) (. parent :get_size))
+		(. parent :add_child *canvas*)
+		(. *canvas* :change 0 0 w h)
+		(. *window* :layout)))
 
 (defun rnd ()
 	;somewhere between -1/2 and 1/2
@@ -277,7 +289,7 @@
 
 (defun draw-frame ()
 	;a frame, by the GPU of the GUI if it has one that can, else here
-	(defq draws (. scene :draws +left +right +top +bottom +near +far (* +size +scale)))
+	(defq draws (. scene :draws +left +right +top +bottom +near +far (* canvas_size +scale)))
 	;the pair of shaders the bars are drawn with, and the pair the balls
 	;are, on the GPU, the first time
 	(when (and (not gpu_pair) (not gpu_failed))
@@ -308,7 +320,7 @@
 		(.-> *status* :layout :dirty)))
 
 (defun main ()
-	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t
+	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t canvas_size +size
 		machines (list) links (Fmap 31) top_rate (n2r +quiet) zoom +real_1
 		auto :nil rotx (const (n2r 0.4)) roty +real_0 rotz +real_0
 		gpu_pair :nil gpu_shiny :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
@@ -322,12 +334,14 @@
 	(.-> world (:add_node ball_proto) (:add_node bar_proto))
 	(.-> scene (:add_node world)
 		(:set_translation +real_0 +real_0 (const (- +real_0 +focal_dist +real_2))))
-	(. scene :draws +left +right +top +bottom +near +far (* +size +scale))
+	(. scene :draws +left +right +top +bottom +near +far (* canvas_size +scale))
 	(defq global_tasks (Global create destroy))
 	(set-auto :t)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(gui-add-front-rpc (. *window* :change x y w h))
+	;it opens at its full size, and can then be made smaller
+	(def (penv *canvas*) :min_width +min_size :min_height +min_size)
 	(mail-timeout (elem-get select +select_frame_timer) +frame_rate 0)
 	(mail-timeout (elem-get select +select_poll_timer) 1 0)
 	(while id
@@ -337,6 +351,9 @@
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id :nil))
+					((= id +event_layout)
+						(bind '(w h) (. (penv *canvas*) :get_size))
+						(set-canvas (max +min_size (min w h))))
 					((= id +event_auto) (set-auto (not auto)))
 					;a slider is moved, and it no longer turns by itself
 					((= id +event_xrot) (set-auto :nil) (setq rotx (get-rot *xrot_slider*)))
