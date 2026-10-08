@@ -4,6 +4,23 @@
 
 ------
 
+Each canvas that triangles are drawn into has its own depth buffer.
+
+*	The sdl3 driver kept one depth buffer, and one target of 4 samples a
+	pixel, for the whole GUI, the size of the last frame drawn. Two
+	canvases of different sizes would have had both made again for every
+	frame of each. They belong to the texture now, and go when it does.
+	`src/host/gui_sdl3.cpp`.
+
+*	Three Mesh demos at once on an Apple M4 Max, the one that counted drew
+	269 frames of 270, none refused.
+
+*	On a Raspberry Pi 4, the Surface and Mesh demos both on its GPU, 35
+	seconds, with this and the rule below. Mesh drew 465 frames, 13 a
+	second, where with one draw for the whole GUI it drew 61. Its timer
+	ticked 21 times a second, as it did then. The display was drawn 36
+	times a second, the longest wait 41ms.
+
 Sharing the GPU, put right for a slow one.
 
 *	One draw at a time for each texture, the change below, was right on a

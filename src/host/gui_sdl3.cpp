@@ -67,15 +67,11 @@ struct Mesh
 	Uint32 floats;
 };
 
-// the depth buffer triangles are drawn with, kept for the next frame of
-// the same size
-static SDL_GPUTexture *depth_texture = nullptr;
-// triangles are drawn with 4 samples a pixel where the device has that, into
-// a texture of its own that is resolved to the one that is shown
-static SDL_GPUTexture *sample_texture = nullptr;
+// triangles are drawn with a depth buffer, and with 4 samples a pixel where
+// the device has that, into a target that is resolved to the texture that
+// is shown. Each texture drawn into has its own of both, see Texture
 static SDL_GPUSampleCount sample_count = SDL_GPU_SAMPLECOUNT_1;
 static bool sample_count_found = false;
-static Uint32 depth_w = 0, depth_h = 0;
 static SDL_GPUTextureFormat depth_format = SDL_GPU_TEXTUREFORMAT_INVALID;
 
 // how many shaders are being built
@@ -96,6 +92,13 @@ struct Texture
 	// finished it, and when it was handed over
 	SDL_GPUFence *fence;
 	Uint64 drawn_at;
+	// what triangles drawn into this texture need of their own, made the first
+	// time they are, a depth buffer, and a target with 4 samples a pixel if the
+	// device has that. Each texture has its own, so two of different sizes do
+	// not make each other's again every frame
+	SDL_GPUTexture *depth;
+	SDL_GPUTexture *samples;
+	Uint32 depth_w, depth_h;
 };
 
 // Who may draw on the GPU, and when. See gpu_may_draw().
@@ -125,6 +128,9 @@ static void *new_texture(SDL_Texture *t, uint64_t mode)
 	texture->mode = mode;
 	texture->fence = nullptr;
 	texture->drawn_at = 0;
+	texture->depth = nullptr;
+	texture->samples = nullptr;
+	texture->depth_w = texture->depth_h = 0;
 	return texture;
 }
 
@@ -238,10 +244,6 @@ void host_gui_deinit()
 	{
 		// a shader being built is using the device
 		while (SDL_GetAtomicInt(&shader_builds) > 0) SDL_Delay(10);
-		if (depth_texture) SDL_ReleaseGPUTexture(device, depth_texture);
-		depth_texture = nullptr;
-		if (sample_texture) SDL_ReleaseGPUTexture(device, sample_texture);
-		sample_texture = nullptr;
 		SDL_DestroyGPUDevice(device);
 		device = nullptr;
 	}
@@ -284,6 +286,8 @@ void host_gui_destroy_texture(void *handle)
 	if (!texture) return;
 #if HOST_GUI_GPU
 	if (texture->fence && device) SDL_ReleaseGPUFence(device, texture->fence);
+	if (texture->depth && device) SDL_ReleaseGPUTexture(device, texture->depth);
+	if (texture->samples && device) SDL_ReleaseGPUTexture(device, texture->samples);
 	gpu_forget(texture);
 	if (gpu_waiting == texture) gpu_waiting = nullptr;
 #endif
@@ -776,11 +780,11 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 	float fw = 0, fh = 0;
 	if (result == 1) SDL_GetTextureSize(t, &fw, &fh);
 	Uint32 w = (Uint32)fw, h = (Uint32)fh;
-	if (result == 1 && (!depth_texture || depth_w != w || depth_h != h))
+	if (result == 1 && (!tex->depth || tex->depth_w != w || tex->depth_h != h))
 	{
-		if (depth_texture) SDL_ReleaseGPUTexture(device, depth_texture);
-		if (sample_texture) SDL_ReleaseGPUTexture(device, sample_texture);
-		sample_texture = nullptr;
+		if (tex->depth) SDL_ReleaseGPUTexture(device, tex->depth);
+		if (tex->samples) SDL_ReleaseGPUTexture(device, tex->samples);
+		tex->samples = nullptr;
 		SDL_GPUTextureCreateInfo info = {};
 		info.type = SDL_GPU_TEXTURETYPE_2D;
 		info.format = depth_format;
@@ -790,16 +794,16 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 		info.layer_count_or_depth = 1;
 		info.num_levels = 1;
 		info.sample_count = find_sample_count();
-		depth_texture = SDL_CreateGPUTexture(device, &info);
-		depth_w = w;
-		depth_h = h;
-		if (!depth_texture) result = 0;
-		if (depth_texture && sample_count != SDL_GPU_SAMPLECOUNT_1)
+		tex->depth = SDL_CreateGPUTexture(device, &info);
+		tex->depth_w = w;
+		tex->depth_h = h;
+		if (!tex->depth) result = 0;
+		if (tex->depth && sample_count != SDL_GPU_SAMPLECOUNT_1)
 		{
 			info.format = target_gpu_format;
 			info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
-			sample_texture = SDL_CreateGPUTexture(device, &info);
-			if (!sample_texture) result = 0;
+			tex->samples = SDL_CreateGPUTexture(device, &info);
+			if (!tex->samples) result = 0;
 		}
 	}
 	SDL_GPUCommandBuffer *cmd = nullptr;
@@ -816,15 +820,15 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 		color.texture = target;
 		color.load_op = SDL_GPU_LOADOP_CLEAR;
 		color.store_op = SDL_GPU_STOREOP_STORE;
-		if (sample_texture)
+		if (tex->samples)
 		{
 			// drawn with the samples, and the texture that is shown gets what they come to
-			color.texture = sample_texture;
+			color.texture = tex->samples;
 			color.resolve_texture = target;
 			color.store_op = SDL_GPU_STOREOP_RESOLVE;
 		}
 		SDL_GPUDepthStencilTargetInfo depth = {};
-		depth.texture = depth_texture;
+		depth.texture = tex->depth;
 		depth.clear_depth = 1.0f;
 		depth.load_op = SDL_GPU_LOADOP_CLEAR;
 		depth.store_op = SDL_GPU_STOREOP_DONT_CARE;
