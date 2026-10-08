@@ -4,6 +4,24 @@
 
 ------
 
+What a back end makes for the GPU is kept, and a back end is known by a hash
+of its own source.
+
+*	`(shader-gui)` and `(shader-gui-pair)` keep the Metal text or the
+	SPIR-V modules of a file, or of a pair, beside the native code, under
+	the hashes of the files. The next time they are handed to the driver
+	with nothing of the file read. `(shader-kept-text name lambda)`,
+	`lib/gpu/shader.inc`, `lib/gpu/gui.inc`.
+
+*	The name of what a back end keeps had a number in it, to be changed
+	by hand when the back end changed. It is now `(shader-make files)`, a
+	hash of the files the back end is written in, VP, Metal and SPIR-V
+	each. A change to a back end can not find what the old one made.
+
+*	Found on the way, and not mended: reading a fixed point number too
+	big for one, `1791408183000000.0`, stops an x86_64 node with a floating
+	point exception. On ARM64 it does not.
+
 A typed function called from Lisp is as quick as VP written by hand, and
 the `shader` command shows the code of every kind of file.
 

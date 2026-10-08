@@ -23,15 +23,16 @@
 	+sv_rregs ''(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
 	+sv_sin_trash ''(:f0 :f1 :f2 :f3)
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
-	;part of the name of the native function, so a change to this file
-	;that changes the code must change this
 	;this much work, a pixel is 1, and a native function gives the other
 	;tasks of its node a turn
 	+sv_work 16384
 	;and this many pixels of a tile of a pixel shader, they are far more
 	;work each
 	+sv_tile_work 4096
-	+sv_version 19)
+	;the files this back end is written in. A hash of them is part of
+	;the name of every native function, so a change to any of them is a
+	;new name, and the functions the old ones made are not found
+	+sv_made_by ''("lib/gpu/vp.inc" "lib/gpu/shader.inc"))
 
 ;a vertex function reads the attrs of a vertex where they are, by :r11,
 ;and writes where it is and its varyings where they are to go, by :r10.
@@ -1318,7 +1319,7 @@
 (defun sv-name (letter program)
 	;the name of the native function of a program, from the hash of its
 	;source, and which make of this back end it is
-	(cat "lib/gpu/jit/" letter (str +sv_version) "_" (elem-get program 5)))
+	(cat "lib/gpu/jit/" letter (shader-make +sv_made_by) "_" (elem-get program 5)))
 
 (defun sv-kept (name)
 	; (sv-kept name) -> :nil | (func info)

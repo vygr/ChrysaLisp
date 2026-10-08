@@ -4,6 +4,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././crypto/sha256.inc")
+(import "././collections/collections.inc")
 
 ;a program is (inputs consts globals funcs stage key text). key is a hash
 ;of the source, and text the source, of a program from a file that has
@@ -377,6 +378,24 @@
 	;source is kept under its key, so a source that has been met before
 	;is found again without a line of it being read
 	(apply (const cat) (map (# (byte-to-hex-str (code %0))) (slice (sha256 text) 0 16))))
+
+(defun shader-make (files)
+	; (shader-make files) -> str
+	;which make of a back end this is, a hash of the files it is written
+	;in, 8 hex digits. It is part of the name of all that a back end
+	;keeps, so that a change to the back end is a change of name, and
+	;what the old one made is not found. Worked out once by a task.
+	(memoize (str files)
+		(slice (shader-key (apply (const cat) (map (# (ifn (load %0) "")) files))) 0 8) 11))
+
+(defun shader-kept-text (name make)
+	; (shader-kept-text name lambda) -> str
+	;what a back end makes of a program, text or a module, kept in a
+	;file of that name beside the native code, and made only if it is
+	;not there
+	(defq path (cat (load-path) "lib/gpu/jit/" name))
+	(or (load path)
+		(progn (defq text (make)) (save text path) text)))
 
 (defun shader-compile (forms &optional head_only)
 	; (shader-compile forms [head_only]) -> program

@@ -895,7 +895,10 @@ every task on that machine after that just binds to it. The raymarch shader is
 ### A file is known by a hash of it
 
 The native code is a cache, and what it is kept under is a hash of the
-source file, SHA-256, with the make of the back end. So whether the code
+source file, SHA-256, with the make of the back end, `(shader-make files)`,
+which is a hash of the files the back end is written in. A change to a back
+end is so a change of name, and what the old one made is not found, there
+is no number to remember to change. So whether the code
 for a file is there already is found out without a line of the file being
 read as a program.
 
@@ -917,6 +920,13 @@ there the function is whole.
 `(shader-full program)` is what any back end calls before it makes
 something. It fills in the same program. A program from text,
 `(shader-compile forms)`, is all there from the start, and has a key too.
+
+What a back end makes of a file for the GPU is kept the same way,
+`(shader-kept-text name lambda)`. `(shader-gui)` and `(shader-gui-pair)`
+keep the Metal text or the SPIR-V modules of a file, or of a pair of files,
+under the hashes of the files and of the back end, and hand them to the
+driver the next time with nothing of the file read. What the driver then
+does with them, its own compile, is its own to keep.
 
 Everything works with `obj/<cpu>/<abi>/lib/gpu/jit/` cleared. It is slower
 the once, as each function is made again. The tests are run that way and

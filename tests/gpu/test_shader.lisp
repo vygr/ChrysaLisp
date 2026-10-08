@@ -1166,3 +1166,25 @@
 (assert-eq "before the reference is asked for, only the head" :lazy (second kf_atom))
 (shader-cpu kf_atom)
 (assert-true "the reference read the rest" (list? (second kf_atom)))
+
+;which make of a back end it is, is a hash of the files it is written in,
+;and is part of the name of all it keeps, so a change to a back end can
+;not find what the old one made
+(assert-eq "a make of 8 hex digits" 8 (length (shader-make '("lib/gpu/vp.inc" "lib/gpu/shader.inc"))))
+(assert-eq "the same files, the same make"
+	(shader-make '("lib/gpu/vp.inc" "lib/gpu/shader.inc")) (shader-make '("lib/gpu/vp.inc" "lib/gpu/shader.inc")))
+(assert-true "other files, another make"
+	(not (eql (shader-make '("lib/gpu/vp.inc" "lib/gpu/shader.inc")) (shader-make '("lib/gpu/msl.inc" "lib/gpu/shader.inc")))))
+;what a back end makes of a program for the GPU is kept under a name,
+;and made only if it is not there
+(defq kt_name (cat "test_kept_" (str (pii-time)) "_" (hex-encode (task-mbox)) ".txt")
+	kt_made 0
+	kt_first (shader-kept-text kt_name (# (setq kt_made (inc kt_made)) "made the once"))
+	kt_second (shader-kept-text kt_name (# (setq kt_made (inc kt_made)) "made again")))
+(assert-eq "kept text, as it was made" "made the once" kt_first)
+(assert-eq "kept text, found the next time" "made the once" kt_second)
+(assert-eq "kept text, made the once" 1 kt_made)
+(pii-remove (cat (load-path) "lib/gpu/jit/" kt_name))
+(defq kt_msl (shader-kept-text (cat "test_kept_" (elem-get kf_prog 5) ".msl") (# (shader-msl kf_prog))))
+(assert-eq "the Metal text of a file, kept, is what the back end makes" (shader-msl (shader-load kf_file)) kt_msl)
+(pii-remove (cat (load-path) "lib/gpu/jit/test_kept_" (elem-get kf_prog 5) ".msl"))

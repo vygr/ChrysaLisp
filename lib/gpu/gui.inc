@@ -7,21 +7,45 @@
 (import "./msl.inc")
 (import "./spirv.inc")
 
+;what a back end makes of a file for the GPU is kept, under the hash of
+;the file and of the back end, as its native code is. So a file that has
+;been met before is handed to the driver with nothing of it read
+(defq +gui_msl_by ''("lib/gpu/msl.inc" "lib/gpu/shader.inc")
+	+gui_spirv_by ''("lib/gpu/spirv.inc" "lib/gpu/shader.inc"))
+
 (defun shader-gui (program)
 	; (shader-gui program) -> :nil | shader
 	;a shader the GPU can draw into a canvas, with (. canvas :shade shader
 	;block), where block is from (shader-pack). :nil if this host can not.
 	;The driver builds it in its own time, till then :shade draws nothing.
 	(case (canvas-shader-format)
-		(1 (defq shader (canvas-shader-create (shader-msl-vertex) (shader-msl program)))
+		(1 (defq shader (canvas-shader-create (shader-msl-vertex)
+				(shader-kept-text (cat "g" (shader-make +gui_msl_by) "_" (elem-get program 5) ".msl")
+					(# (shader-msl program)))))
 			(if (/= shader 0) shader))
-		(2 (defq shader (canvas-shader-create (shader-spirv-vertex) (shader-spirv program)))
+		(2 (defq shader (canvas-shader-create (shader-spirv-vertex)
+				(shader-kept-text (cat "g" (shader-make +gui_spirv_by) "_" (elem-get program 5) ".spv")
+					(# (shader-spirv program)))))
 			(if (/= shader 0) shader))
 		(:t :nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; triangles, on the GPU of the GUI
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun shader-gui-pair-text (vertex pixel by ext make)
+	; -> (vertex_stage fragment_stage)
+	;the two stages of a pair, kept, both made if either is not there.
+	;The fragment stage is written last, so if it is there both are
+	(defq name (cat "p" (shader-make by) "_" (elem-get vertex 5) "_" (elem-get pixel 5))
+		path (cat (load-path) "lib/gpu/jit/" name))
+	(cond
+		((and (defq fragment (load (cat path ".f" ext))) (defq vertex_stage (load (cat path ".v" ext))))
+			(list vertex_stage fragment))
+		(:t (defq both (make))
+			(save (first both) (cat path ".v" ext))
+			(save (second both) (cat path ".f" ext))
+			both)))
 
 (defun shader-gui-pair (vertex pixel &optional cull)
 	; (shader-gui-pair vertex pixel [cull]) -> :nil | pair
@@ -34,9 +58,11 @@
 			(char (cond ((not cull) 0) ((eql cull :front) 2) (1)) 1)
 			(apply (const cat) (map (# (char (shader-size (second %0)) 1)) (shader-attrs vertex))))
 		pair (case (canvas-shader-format)
-			(1 (bind '(vertex_text fragment_text) (shader-msl-pair vertex pixel))
+			(1 (bind '(vertex_text fragment_text) (shader-gui-pair-text vertex pixel +gui_msl_by ".msl"
+					(# (shader-msl-pair vertex pixel))))
 				(canvas-pair-create vertex_text fragment_text layout))
-			(2 (bind '(vertex_module fragment_module) (shader-spirv-pair vertex pixel))
+			(2 (bind '(vertex_module fragment_module) (shader-gui-pair-text vertex pixel +gui_spirv_by ".spv"
+					(# (shader-spirv-pair vertex pixel))))
 				(canvas-pair-create vertex_module fragment_module layout))
 			(:t 0)))
 	(if (/= pair 0) pair))
