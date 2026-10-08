@@ -4,6 +4,32 @@
 
 ------
 
+Each desktop has its own sound. Chris, with two desktops up, quit one, and
+the Boing demo on the other went quiet.
+
+*	There was one `@Audio` service for the machine. Each desktop tried to
+	start it as it logged in, and only the first did, on its own node,
+	sound is played by the host of a node. With `-g 2` that is the second
+	desktop, it comes up first. When it quit, its process went and the
+	service with it, and nothing started another. Nothing broke, a sound
+	with no service to play it is not played.
+
+*	Chris: "they both had separate nodes ... separate @Audio services ?" So
+	now each desktop has one, on its node, and an app is given the one on
+	the node it is on, `(audio-service)`, which for an app with a window is
+	its desktop's. A task on a node with no desktop has any one there is.
+	`service/audio/app.lisp`, `service/audio/app.inc`.
+
+*	Not heard. It is written and its choosing of a service is tested, the
+	sound itself wants ears, on a machine with two desktops.
+
+*	The clipboard is started the same way, one for the machine on the node
+	of the first desktop up. It has not been tried, and is left, one
+	clipboard between the desktops of a machine is what it should be, it
+	is where it lives that is wrong.
+
+------
+
 `./run.sh -g 2` gave one desktop. Chris found it, on the M4.
 
 *	A launch is sized to the machine now, with no `-n`. The launch script
