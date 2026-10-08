@@ -10,8 +10,9 @@
 (import "./app.inc")
 
 ;The network as it is, in three dimensions. A ball for each node, the
-;color of the machine it is on, bigger the more tasks it has. A bar for
-;each link, hotter the more mail it carries. Each node is asked who its
+;color of the machine it is on, bigger and whiter the more tasks it has. A
+;bar for each link, hotter the more mail it carries, from blue through red
+;to white. Each node is asked who its
 ;links are to, so it is the network that is there, not the one that was
 ;launched, and it is asked again as nodes come and go.
 ;
@@ -34,8 +35,10 @@
 	;the bedspring. How hard nodes push apart, how stiff a link is and how
 	;long it would be, how much a busy link is more, the pull to the
 	;middle, what is lost each step, and the step
-	+k_push (n2r 0.02) +k_spring (n2r 4.0) +rest (n2r 0.5) +k_heat (n2r 2.0)
+	+k_push (n2r 0.02) +k_spring (n2r 4.0) +rest (n2r 0.5) +k_heat (n2r 1.0)
 	+k_middle (n2r 0.3) +damp (n2r 0.85) +dt (n2r 0.05)
+	;the bytes a link carries between polls that is no more than idle
+	+quiet 4096
 	+ball_size (n2r 0.09) +bar_size (n2r 0.016)
 	;how far out the furthest node is drawn. The window is 2 from the
 	;middle to an edge, where the middle of it all is
@@ -111,7 +114,7 @@
 				:sent sent :heat +real_0
 				:bar (share (Scene-object bar_mesh (fixeds 1.0 0.3 0.4 0.6)) bar_proto)))
 		(defq rate (max 0 (- sent (get :sent link))))
-		(setq top_rate (max top_rate rate 1))
+		(setq top_rate (max top_rate rate))
 		;heat comes up fast and goes down slow
 		(defq want (/ (n2r rate) (n2r top_rate)) heat (get :heat link))
 		(def link :sent sent :heat (if (> want heat) want
@@ -119,7 +122,8 @@
 		(. links :insert name link)))
 	(if (/= (. links :size) (. old :size)) (setq changed :t))
 	;the busiest fades, so a burst long gone does not leave all else cold
-	(setq top_rate (max 1 (/ (* top_rate 15) 16))))
+	;but not to nothing, or the pings of an idle network would be hot
+	(setq top_rate (max +quiet (/ (* top_rate 15) 16))))
 
 (defun spring-step ()
 	;a step of the bedspring
@@ -170,11 +174,14 @@
 	(. global_tasks :each (lambda (key node)
 		(defq ball (get :ball node) pos (get :pos node)
 			;as big on the screen however far out it is all drawn from
-			size (/ (* +ball_size (+ +real_1 (/ (n2r (min 40 (get :tasks node))) (const (n2r 40))))) zoom)
+			load (/ (n2r (min 40 (get :tasks node))) (const (n2r 40)))
+			size (/ (* +ball_size (+ +real_1 load)) zoom)
 			col (elem-get +machine_cols (% (max 0 (ifn (find (get :system node) machines) 0))
 				(const (length +machine_cols)))))
 		(.-> ball (:set_translation (first pos) (second pos) (third pos)) (:set_scale size size size))
-		(def ball :color (apply (const fixeds) col))
+		;the color of its machine, and whiter the more it has to do
+		(def ball :color (apply (const fixeds) (cat (list 1.0)
+			(map! (# (n2f (+ (n2r %0) (* (- +real_1 (n2r %0)) load)))) (list col) 1))))
 		(push objs ball)))
 	(. links :each (lambda (name link)
 		(when (and (defq a (. global_tasks :find (get :a link)))
@@ -190,7 +197,10 @@
 				u (nums-scale u (/ thick (sqrt (+ (nums-dot u u) (const (n2r 0.000001))))))
 				v (apply (const reals) (vector-cross-3d d u))
 				v (nums-scale v (/ thick (sqrt (+ (nums-dot v v) (const (n2r 0.000001))))))
-				heat (get :heat link) cool (- +real_1 heat) bar (get :bar link))
+				;cold is a dim blue, half way is red, and hot is white
+				heat (get :heat link) bar (get :bar link)
+				red (min +real_1 (* heat +real_2)) cool (- +real_1 red)
+				white (max +real_0 (- (* heat +real_2) +real_1)))
 			;a machine to machine link is twice as thick
 			(unless (eql (get :system a) (get :system b))
 				(nums-scale u +real_2 u) (nums-scale v +real_2 v))
@@ -199,11 +209,10 @@
 				(second u) (second d) (second v) (second mid)
 				(third u) (third d) (third v) (third mid)
 				+real_0 +real_0 +real_0 +real_1)
-				;cold is a dim blue, hot is red
 				:color (fixeds 1.0
-					(n2f (+ (* cool (const (n2r 0.25))) heat))
-					(n2f (+ (* cool (const (n2r 0.35))) (* heat (const (n2r 0.25)))))
-					(n2f (+ (* cool (const (n2r 0.6))) (* heat (const (n2r 0.1)))))))
+					(n2f (+ (* cool (const (n2r 0.25))) red))
+					(n2f (+ (* cool (const (n2r 0.35))) (* red (const (n2r 0.2))) (* white (const (n2r 0.8)))))
+					(n2f (+ (* cool (const (n2r 0.6))) (* red (const (n2r 0.1))) (* white (const (n2r 0.9)))))))
 			(push objs bar))))
 	(set world :children objs)
 	(.-> world (:set_scale zoom zoom zoom)
@@ -239,7 +248,7 @@
 
 (defun main ()
 	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t
-		machines (list) links (Fmap 31) top_rate 1 zoom +real_1 spin +real_0
+		machines (list) links (Fmap 31) top_rate +quiet zoom +real_1 spin +real_0
 		gpu_pair :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
 		ball_mesh (Mesh-sphere +real_1 12) bar_mesh (Mesh-cylinder +real_1 +real_1 8)
 		ball_proto (Scene-object ball_mesh (fixeds 1.0 1.0 1.0 1.0))

@@ -15,6 +15,12 @@ Network Map, the network as it is, in three dimensions.
 	the more tasks it has. A bar for each link, thicker between machines,
 	from a dim blue when it is idle to red when it is busy. It turns slowly.
 
+*	Heat, as Chris had it. A link goes from blue through red to white, by
+	the mail it carries set against the busiest link there has been of
+	late, and no less than 16K a second, so the pings of an idle network
+	are not hot. A node is whiter, as well as bigger, the more it has to
+	do, its machine's color under that. And it fills its window.
+
 *	It is the network that is there, not the one that was launched. A child
 	on each node says what that node's links are to, four times a second,
 	so a node that comes or goes is seen, and a ring, a star, a tree, a
