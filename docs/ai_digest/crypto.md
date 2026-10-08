@@ -21,7 +21,10 @@ is made with, SHA-512.
 
 The sizes are those of ARM64. None of it uses the instructions a CPU may
 have for this, it is the same VP on every CPU, and all of it is in the boot
-image, as the native code of every library is.
+image, as the native code of every library is. With the random bytes it is
+12,632 bytes of an image of 245,196, and it stays there, Chris's call: every
+node can hash, seal and check a signature with nothing to load or compile,
+which the key of a link needs, and a signed release will.
 
 ## SHA-256
 
