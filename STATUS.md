@@ -4,6 +4,18 @@
 
 ------
 
+Every test passes on RISC-V and on LoongArch, under QEMU.
+
+*	All 85 modules, 4144 tests, on each, with the shaders as native code,
+	the triangles, and the hash and the cipher, none of which had been run
+	there. And a self hosted `make all boot` on each gives the boot image
+	the Mac cross builds, to the byte.
+
+*	The host programs there were from 3 October, and with them the tests
+	that use a host call added since killed the node. They are built from
+	the source first now. `docs/ai_digest/test_cache.md` has what a release
+	is tested with.
+
 Two tests wait as long as the machine needs.
 
 *	`tests/gpu/test_tris.lisp` and `tests/system/test_jobs.lisp` gave their

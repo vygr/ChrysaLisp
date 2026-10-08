@@ -90,9 +90,11 @@ All of this, from cold, on each machine there is, each CPU and each OS.
 * `make vp`, `make apps debug`, then `files obj/vp/ | trace -i -l`, the
   lint, which must say nothing. Then `make apps` and `make all boot`, to
   leave the release build.
-* RISC-V and LoongArch under QEMU, from the cross built boot images. A
-  self hosted `make all boot` there must give the same image to the byte,
-  and `tests -a` must pass.
+* RISC-V and LoongArch under QEMU. The host program is built there first,
+  from the source as it is, one left from an older tree has a shorter table
+  of calls than the boot image expects and the node dies of it. Then, from
+  the cross built boot images, a self hosted `make all boot` must give the
+  same image to the byte, and `tests -a` must pass.
 
 A test that waits for another task asks `(task-timeout seconds)` how long,
 which is ten times as long on the emulator. A wait of a set number of
