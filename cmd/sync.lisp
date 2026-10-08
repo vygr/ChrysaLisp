@@ -67,17 +67,21 @@
 				(defq rules_text (ifn (load (cat opt_r "/.gitignore")) "")
 					kept (if (eql opt_r ".") (cat "obj/" (cpu) "/" (abi) "/sync_hashes")))
 				(each (lambda ((svc id machine root))
-					(defq t0 (pii-time) result (sync-push svc opt_r rules_text opt_c opt_d kept))
+					;a host with no modes for its files is not sent them, or asked for them
+					(defq t0 (pii-time) result (sync-push svc opt_r rules_text opt_c opt_d kept
+						(or (eql (os) 'Windows) (ends-with "/Windows" machine))))
 					(cond
 						((not result) (print (slice id 0 8) " " machine " did not answer"))
-						(:t (bind '(sent bytes removed failed send gone) result)
+						(:t (bind '(sent bytes removed failed send gone remoded) result)
 							(when (or opt_v opt_c)
 								(each (# (print "  " (if opt_c "differs " "sent ") %0)) send)
 								(each (# (print "  " (if opt_d (if opt_c "would remove " "removed ") "only there ") %0)) gone))
 							(print (slice id 0 8) " " machine " "
 								(if opt_c
-									(cat (str (length send)) " differ, " (str (length gone)) " only there")
+									(cat (str (length send)) " differ, " (str (length gone)) " only there"
+										(if (> remoded 0) (cat ", " (str remoded) " with another mode") ""))
 									(cat (str sent) " sent, " (str bytes) " bytes, " (str removed) " removed"
+										(if (> remoded 0) (cat ", " (str remoded) " given their mode") "")
 										(if (> failed 0) (cat ", " (str failed) " FAILED") "")
 										(if (and (not opt_d) (nempty? gone)) (cat ", " (str (length gone)) " only there") "")))
 								", " (str (/ (- (pii-time) t0) 1000)) "ms"))))

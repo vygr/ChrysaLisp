@@ -3,9 +3,10 @@
 # capture the repo root at dot-source time - $PSScriptRoot is unreliable inside functions
 $NHROOT = $PSScriptRoot
 
-if (Test-Path os) { $NHOS = (Get-Content os -Raw).Trim() } else { $NHOS = "Windows" }
-if (Test-Path cpu) { $NHCPU = (Get-Content cpu -Raw).Trim() } else { $NHCPU = "x86_64" }
-if (Test-Path abi) { $NHABI = (Get-Content abi -Raw).Trim() } else { $NHABI = "WIN64" }
+# what this machine is, for where its host programs are, obj\<cpu>\<abi>\<os>
+$NHOS = "Windows"
+$NHCPU = "x86_64"
+$NHABI = "WIN64"
 
 $HOS = $NHOS
 $HCPU = $NHCPU

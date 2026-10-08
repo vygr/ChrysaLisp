@@ -177,11 +177,7 @@ endif
 ifeq ($(HOST_AUDIO),-1)
 	@echo No AUDIO driver.
 endif
-ifneq ($(OS),Windows)
-	@echo $(CPU) > cpu
-	@echo $(OS) > os
-	@echo $(ABI) > abi
-endif
+	@rm -f cpu abi os
 	@mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIRS)
 	@if [ "`cat $(GUI_DRIVER) 2>/dev/null`" != "$(OBJ_GUI)" ]; then echo $(OBJ_GUI) > $(GUI_DRIVER); rm -f obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT); fi
 

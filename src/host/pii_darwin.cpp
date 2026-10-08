@@ -574,6 +574,24 @@ int64_t pii_memory()
 	return (pages < 0 || size < 0) ? 0 : (int64_t)pages * (int64_t)size;
 }
 
+int64_t pii_host(char *buf, size_t len)
+{
+	//what this host program is, "cpu abi os", as the build names them
+	const char *s = PII_HOST_CPU " " PII_HOST_ABI " " PII_HOST_OS;
+	size_t n = strlen(s);
+	if (len == 0) return 0;
+	if (n >= len) n = len - 1;
+	memcpy(buf, s, n);
+	buf[n] = 0;
+	return (int64_t)n;
+}
+
+int64_t pii_chmod(const char *path, uint64_t mode)
+{
+	//the mode of a file, who may read, write and run it
+	return chmod(path, (mode_t)(mode & 07777)) == 0 ? 0 : -1;
+}
+
 void (*host_os_funcs[]) = {
 	(void*)exit,
 	(void*)pii_stat,
@@ -602,6 +620,8 @@ void (*host_os_funcs[]) = {
 	(void*)pii_memory,
 	(void*)pii_shm_open,
 	(void*)pii_shm_close,
+	(void*)pii_host,
+	(void*)pii_chmod,
 };
 
 #endif

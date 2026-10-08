@@ -29,6 +29,7 @@
 		(when (>= (length msg) +sync_rpc_size)
 			(defq reply_id (getf msg +sync_rpc_reply_id) kind (getf msg +sync_rpc_type)
 				at (getf msg +sync_rpc_at) total (getf msg +sync_rpc_total)
+				mode (logand (getf msg +sync_rpc_mode) 511)
 				data (slice msg +sync_rpc_data -1) status 0 back "")
 			(catch
 				(case (if (or fenced (= kind +sync_type_quit)) kind -1)
@@ -49,11 +50,17 @@
 									(:t (write-blk out body)
 										(when (>= (setq out_at (+ out_at (length body))) total)
 											(stream-flush out)
-											(setq out :nil out_path "")))))))
+											(setq out :nil out_path "")
+											;the file is whole, and is given its mode
+											(if (/= mode 0) (pii-chmod (cat root "/" path) mode))))))))
 					(+sync_type_del
 						(if (and (sync-safe? data) (sync-inside? root data real))
 							(pii-remove (cat root "/" data))
 							(setq status -2)))
+					(+sync_type_mode
+						(if (and (/= mode 0) (sync-safe? data) (sync-inside? root data real)
+								(= 0 (pii-chmod (cat root "/" data) mode)))
+							:t (setq status -2)))
 					(+sync_type_quit (setq running :nil))
 					(:t (setq status -1)))
 				(progn (setq status -4 back (str _) out :nil out_path "") :t))

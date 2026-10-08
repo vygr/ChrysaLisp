@@ -68,6 +68,17 @@ the host.
           pid of its maker, and the host program run as `main_tui
           -shm_sweep` lets go of those of the dead. `stop.sh` runs it.
 
+        * `pii_host`: What the host program is, the text `cpu abi os`, as
+          `arm64 ARM64 Darwin`, from what its compiler was told. `(cpu)`,
+          `(abi)` and `(os)` are its three words. It is the host's own, on
+          the emulator the boot image is VP64 and this is still the
+          machine's. There were three files, `cpu`, `abi` and `os`, that the
+          `Makefile` wrote and these read, they are gone.
+
+        * `pii_chmod`: Set the mode of a file, who may read, write and run
+          it. Nothing on Windows. Used by `sync`, a script sent is one that
+          can be run.
+
         * `pii_flush_icache` (or `pii_clear_icache`): Ensure instruction cache
           coherency after writing/modifying code in memory.
 
@@ -594,9 +605,9 @@ processes.
     * `tui`: Builds the TUI-only main executable
       (`obj/$(CPU)/$(ABI)/$(OS)/main_tui`).
 
-    * `hostenv`: Creates `cpu`, `os`, `abi` files in the current directory,
-      which are likely read by Lisp `make` scripts to determine the current
-      build environment. It also creates necessary object directories.
+    * `hostenv`: Says which GUI driver is being built and makes the object
+      directories. It removes the `cpu`, `os` and `abi` files an older
+      build left, the host program now says what it is, `pii_host`.
 
     * `install`: Runs `clean`, `hostenv`, `tui`, `gui`, then `inst`. The `inst`
       rule executes `./run_tui.sh -n 8 -i -e -f`, performing the initial

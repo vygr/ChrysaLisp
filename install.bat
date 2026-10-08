@@ -1,7 +1,4 @@
 @echo off
-@echo Windows > os
-@echo x86_64 > cpu
-@echo WIN64 > abi
 @call stop.bat
 @tar -xf snapshot.zip
 @rem the GUI is on SDL3, its one library is fetched if it is not here

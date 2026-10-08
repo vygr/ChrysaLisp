@@ -448,6 +448,11 @@
 ; (pii-pid) -> pid
 (ffi "sys/pii/lisp_alive" pii-alive)
 ; (pii-alive pid) -> :nil | :t
+(ffi "sys/pii/lisp_host" pii-host)
+; (pii-host) -> str
+;what the host program is, "cpu abi os"
+(ffi "sys/pii/lisp_chmod" pii-chmod)
+; (pii-chmod path mode) -> 0 | -1
 (ffi "sys/pii/lisp_cpus" pii-cpus)
 ; (pii-cpus) -> num
 (ffi "sys/pii/lisp_memory" pii-memory)
@@ -1515,23 +1520,22 @@
 ;build_mode 2, validate, with extra runtime validation checking
 (defq *build_mode* 1 *build_emit* :nil *build_inst* :nil *build_verb* 0)
 
+;what this machine is, the names the build and the object folders have,
+;obj/<cpu>/<abi>/<os>. The host program says, it was built for them. They
+;were three files the Makefile left, read each time one of these was
+;called. They are the host's own, so on the emulator not what the boot
+;image is, (load-path) has that
 (defun os ()
 	; (os) -> sym
-	(defq o 'Linux)
-	(when (defq f (file-stream 'os))
-		(bind '(o &) (read f))) o)
+	(sym (third (split (pii-host) " "))))
 
 (defun cpu ()
 	; (cpu) -> sym
-	(defq o 'x86_64)
-	(when (defq f (file-stream 'cpu))
-		(bind '(o &) (read f))) o)
+	(sym (first (split (pii-host) " "))))
 
 (defun abi ()
 	; (abi) -> sym
-	(defq o 'AMD64)
-	(when (defq f (file-stream 'abi))
-		(bind '(o &) (read f))) o)
+	(sym (second (split (pii-host) " "))))
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)

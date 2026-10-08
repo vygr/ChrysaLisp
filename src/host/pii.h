@@ -28,6 +28,34 @@ enum
 	file_open_append
 };
 
+//what this host program was built for, the names the build and the object
+//folders have for them, obj/<cpu>/<abi>/<os>. The compiler knows, so the
+//program can say, and nothing has to be left in a file for it
+#if defined(_WIN64)
+	#define PII_HOST_CPU "x86_64"
+	#define PII_HOST_ABI "WIN64"
+	#define PII_HOST_OS "Windows"
+#else
+	#if defined(__aarch64__) || defined(__arm64__)
+		#define PII_HOST_CPU "arm64"
+		#define PII_HOST_ABI "ARM64"
+	#elif defined(__riscv)
+		#define PII_HOST_CPU "riscv64"
+		#define PII_HOST_ABI "RISCV64"
+	#elif defined(__loongarch64)
+		#define PII_HOST_CPU "la64"
+		#define PII_HOST_ABI "LA64"
+	#else
+		#define PII_HOST_CPU "x86_64"
+		#define PII_HOST_ABI "AMD64"
+	#endif
+	#if defined(__APPLE__)
+		#define PII_HOST_OS "Darwin"
+	#else
+		#define PII_HOST_OS "Linux"
+	#endif
+#endif
+
 struct pii_stat_info
 {
 	int64_t mtime;

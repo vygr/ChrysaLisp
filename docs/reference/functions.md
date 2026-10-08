@@ -586,6 +586,22 @@ returns :t if csr2 is enclosed within (or equal to) csr1
 a child is told to go, the job it had goes back on the queue
 ```
 
+### diff-hunk
+
+```code
+one change, the lines of a that go and the lines of b that come, from
+
+after line ha of a and line hb of b. The ironed path has them in
+blocks, so they are written as blocks, a run of lines deleted, a run
+added, or the one changed for the other
+```
+
+### diff-range
+
+```code
+a line, or the first and last of a run of them
+```
+
 ### dispatch
 
 ```code
@@ -4048,10 +4064,11 @@ the VP source of the native function that places vertices
 ### sync-diff
 
 ```code
-(sync-diff mine theirs) -> (send remove)
+(sync-diff mine theirs) -> (send remove remode)
 
-the paths to send, not there or not the same, and the paths that are
-there and not here
+the paths to send, not there or not the same, the paths that are
+there and not here, and the paths that are the same but for their
+mode, each with the mode it should have
 ```
 
 ### sync-hear
@@ -4095,7 +4112,7 @@ anything else something else, a link for one. :nil if it is not there
 ### sync-list
 
 ```code
-(sync-list root rules [kept]) -> ((path size hash) ...)
+(sync-list root rules [kept]) -> ((path size hash mode) ...)
 
 the files of a tree, with the size and the SHA-256 of each. With a
 file to keep them in, a hash is not worked out again for a file whose
@@ -4106,7 +4123,7 @@ always hashed, its time may not change if it is changed again
 ### sync-list-read
 
 ```code
-(sync-list-read text) -> ((path size hash) ...)
+(sync-list-read text) -> ((path size hash mode) ...)
 ```
 
 ### sync-list-text
@@ -4120,12 +4137,16 @@ a list as it goes in a message, a line a file
 ### sync-push
 
 ```code
-(sync-push svc root rules_text [check remove kept]) -> :nil | (sent bytes removed failed send gone)
+(sync-push svc root rules_text [check remove kept no_modes])
 
+	-> :nil | (sent bytes removed failed send gone remoded)
 make the tree a sync service has the same as the one under root. With
 check nothing is changed there. With remove, what is there and not
 here is removed. send and gone are the paths that differ, and the ones
-only there. :nil if the service does not answer
+only there. A file is given the mode it has here, who may read, write
+and run it, and one that is the same but for its mode has that set,
+unless no_modes, for a host that has no such thing. :nil if the
+service does not answer
 ```
 
 ### sync-rules
@@ -4167,7 +4188,7 @@ the machines that will take a sync, as their services say
 ### sync-tell
 
 ```code
-(sync-tell svc reply_mbox kind data [at total])
+(sync-tell svc reply_mbox kind data [at total mode])
 
 a message to a sync service
 ```

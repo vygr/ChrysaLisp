@@ -1,8 +1,15 @@
 #useful functions
 
-OS=`cat os`
-CPU=`cat cpu`
-ABI=`cat abi`
+#what this machine is, as the Makefile names it, for where its host
+#programs are, obj/<cpu>/<abi>/<os>
+OS=`uname`
+CPU=`uname -m`
+case $CPU in
+	x86_64) ABI=AMD64 ;;
+	riscv64) ABI=RISCV64 ;;
+	loongarch64) CPU=la64; ABI=LA64 ;;
+	*) CPU=arm64; ABI=ARM64 ;;
+esac
 
 #save terminal state and ensure it is restored on exit or crash
 if [ -t 0 ]

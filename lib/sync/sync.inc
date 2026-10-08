@@ -22,15 +22,15 @@
 ; These are the parts, cmd/sync.lisp is the command.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/crypto/sha256.inc")
+(import "././crypto/sha256.inc")
 
 ;what is asked of the service, and what it says back
 (enums +sync_type 0
-	(enum list put del quit))
+	(enum list put del quit mode))
 
 (structure +sync_rpc 0
 	(netid reply_id)
-	(uint type)
+	(uint type mode)
 	(long at total)
 	(offset data))
 
@@ -141,7 +141,7 @@
 	(sort out))
 
 (defun sync-list (root rules &optional kept)
-	; (sync-list root rules [kept]) -> ((path size hash) ...)
+	; (sync-list root rules [kept]) -> ((path size hash mode) ...)
 	;the files of a tree, with the size and the SHA-256 of each. With a
 	;file to keep them in, a hash is not worked out again for a file whose
 	;time and size are as they were. One changed in the last two seconds is
@@ -161,7 +161,8 @@
 				(setq hit (list mtime size (hex-encode (sha256 (ifn (load (cat root "/" path)) "")))) dirty :t)
 				(task-slice))
 			(push lines (cat (str mtime) " " (str size) " " (third hit) " " path))
-			(push out (list path size (third hit)))))
+			;the mode is who may read, write and run it, the low 9 bits
+			(push out (list path size (third hit) (logand (third info) 511)))))
 		(sync-walk root rules))
 	(if (and kept dirty) (save (join lines (ascii-char 10)) kept))
 	out)
@@ -169,33 +170,41 @@
 (defun sync-list-text (entries)
 	; (sync-list-text entries) -> str
 	;a list as it goes in a message, a line a file
-	(join (map (lambda ((path size hash)) (cat hash " " (str size) " " path)) entries) (ascii-char 10)))
+	(join (map (lambda ((path size hash mode)) (cat hash " " (str size) " " (str mode) " " path)) entries)
+		(ascii-char 10)))
 
 (defun sync-list-read (text)
-	; (sync-list-read text) -> ((path size hash) ...)
+	; (sync-list-read text) -> ((path size hash mode) ...)
 	(reduce (lambda (out line)
-		(if (>= (length (defq parts (split line " "))) 3)
-			(push out (list (join (slice parts 2 -1) " ") (str-as-num (second parts)) (first parts))))
+		(if (>= (length (defq parts (split line " "))) 4)
+			(push out (list (join (slice parts 3 -1) " ") (str-as-num (second parts)) (first parts)
+				(str-as-num (third parts)))))
 		out) (split text (ascii-char 10)) (list)))
 
 (defun sync-diff (mine theirs)
-	; (sync-diff mine theirs) -> (send remove)
-	;the paths to send, not there or not the same, and the paths that are
-	;there and not here
+	; (sync-diff mine theirs) -> (send remove remode)
+	;the paths to send, not there or not the same, the paths that are
+	;there and not here, and the paths that are the same but for their
+	;mode, each with the mode it should have
 	(defq have (Fmap 101) keep (Fset 101))
-	(each (lambda ((path size hash)) (. have :insert path hash)) theirs)
-	(each (lambda ((path size hash)) (. keep :insert path)) mine)
-	(list (reduce (lambda (out (path size hash))
-			(if (nql hash (ifn (. have :find path) "")) (push out path)) out) mine (list))
-		(reduce (lambda (out (path size hash))
-			(unless (. keep :find path) (push out path)) out) theirs (list))))
+	(each (lambda ((path size hash mode)) (. have :insert path (list hash mode))) theirs)
+	(each (lambda ((path size hash mode)) (. keep :insert path)) mine)
+	(list (reduce (lambda (out (path size hash mode))
+			(if (nql hash (first (ifn (. have :find path) '("" 0)))) (push out path)) out) mine (list))
+		(reduce (lambda (out (path size hash mode))
+			(unless (. keep :find path) (push out path)) out) theirs (list))
+		(reduce (lambda (out (path size hash mode))
+			(defq there (. have :find path))
+			(if (and there (eql hash (first there)) (/= mode (second there))) (push out (list path mode)))
+			out) mine (list))))
 
-(defun sync-tell (svc reply_mbox kind data &optional at total)
-	; (sync-tell svc reply_mbox kind data [at total])
+(defun sync-tell (svc reply_mbox kind data &optional at total mode)
+	; (sync-tell svc reply_mbox kind data [at total mode])
 	;a message to a sync service
 	(mail-send svc (cat (setf-> (str-alloc +sync_rpc_size)
 		(+sync_rpc_reply_id reply_mbox)
 		(+sync_rpc_type kind)
+		(+sync_rpc_mode (ifn mode 0))
 		(+sync_rpc_at (ifn at 0))
 		(+sync_rpc_total (ifn total 0))) data)))
 
@@ -205,19 +214,25 @@
 	(when (defq reply (mail-read-timeout reply_mbox (ifn wait +sync_wait)))
 		(list (getf reply +sync_reply_status) (slice reply +sync_reply_data -1))))
 
-(defun sync-push (svc root rules_text &optional check remove kept)
-	; (sync-push svc root rules_text [check remove kept]) -> :nil | (sent bytes removed failed send gone)
+(defun sync-push (svc root rules_text &optional check remove kept no_modes)
+	; (sync-push svc root rules_text [check remove kept no_modes])
+	;	-> :nil | (sent bytes removed failed send gone remoded)
 	;make the tree a sync service has the same as the one under root. With
 	;check nothing is changed there. With remove, what is there and not
 	;here is removed. send and gone are the paths that differ, and the ones
-	;only there. :nil if the service does not answer
+	;only there. A file is given the mode it has here, who may read, write
+	;and run it, and one that is the same but for its mode has that set,
+	;unless no_modes, for a host that has no such thing. :nil if the
+	;service does not answer
 	(defq reply_mbox (mail-mbox) rules (sync-rules rules_text))
 	;it lists its tree as this one is listed
 	(sync-tell svc reply_mbox +sync_type_list rules_text)
 	(defq mine (sync-list root rules kept) reply (sync-hear reply_mbox))
 	(when (and reply (= (first reply) 0))
-		(bind '(send gone) (sync-diff mine (sync-list-read (second reply))))
-		(defq sent 0 bytes 0 removed 0 failed 0)
+		(bind '(send gone remode) (sync-diff mine (sync-list-read (second reply))))
+		(defq sent 0 bytes 0 removed 0 failed 0 remoded 0 modes (Fmap 101))
+		(if no_modes (setq remode (list))
+			(each (lambda ((path size hash mode)) (. modes :insert path mode)) mine))
 		(unless check
 			(each (lambda (path)
 				(defq data (ifn (load (cat root "/" path)) "") total (length data) at 0 ok :t)
@@ -225,18 +240,23 @@
 				(while (and ok (or (< at total) (= at 0)))
 					(defq end (min total (+ at +sync_chunk)))
 					(sync-tell svc reply_mbox +sync_type_put
-						(cat path (ascii-char 10) (slice data at end)) at total)
+						(cat path (ascii-char 10) (slice data at end)) at total (. modes :find path))
 					(setq ok (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
 						at (if (= end at) (inc total) end)))
 				(if ok (setq sent (inc sent) bytes (+ bytes total)) (setq failed (inc failed))))
 				send)
+			(each (lambda ((path mode))
+				(sync-tell svc reply_mbox +sync_type_mode path 0 0 mode)
+				(if (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
+					(setq remoded (inc remoded)) (setq failed (inc failed))))
+				remode)
 			(when remove
 				(each (lambda (path)
 					(sync-tell svc reply_mbox +sync_type_del path)
 					(if (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
 						(setq removed (inc removed)) (setq failed (inc failed))))
 					gone)))
-		(list sent bytes removed failed send gone)))
+		(list sent bytes removed failed send gone (if check (length remode) remoded))))
 
 (defun sync-services (&optional name)
 	; (sync-services [name]) -> ((mbox system_id machine root) ...)

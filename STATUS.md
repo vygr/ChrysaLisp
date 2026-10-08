@@ -4,6 +4,34 @@
 
 ------
 
+The `cpu`, `abi` and `os` files are gone, and `sync` sends the mode of a
+file. Two new host calls, so a new `snapshot.zip` and a `make install`.
+
+*	Chris asked if the three files the `Makefile` wrote were needed. They
+	are not. The host program knows what it was built for, and a new call,
+	`(pii-host)`, has it say, `arm64 ARM64 Darwin`. `(cpu)`, `(abi)` and
+	`(os)` are its three words. The `Makefile` and `install.bat` no longer
+	write the files, the `Makefile` removes old ones, and the launch
+	scripts, which read them to find the host program, ask `uname`, or on
+	Windows know.
+
+*	It is the host's own answer. On the emulator `(cpu)` is still the
+	machine's, as it was with the files, the boot image's is in
+	`(load-path)`.
+
+*	`(pii-chmod path mode)`, the second call, sets who may read, write and
+	run a file. Nothing on Windows.
+
+*	`sync` has the mode of each file in its list. A file sent is given the
+	mode it has where it came from, a script arrives as one that can be
+	run. A file the same but for its mode is not sent again, its mode is
+	set, and `sync -c` counts those apart from the ones that differ. Not
+	from or to Windows. 12 more tests.
+
+*	Windows is built but not run, it waits on Martyn.
+
+------
+
 `patch` did not work, found reviewing `diff` for Chris.
 
 *	`(stream-patch)`, and so the `patch` command, threw on every diff it
@@ -484,7 +512,7 @@ first step of that, a push.
 	machine, the fence round a `run` task stands.
 
 *	What the tree's `.gitignore` leaves out is not sent or removed, so
-	each machine keeps its own `obj/`, `cpu`, `abi`, `os` and `.system_id`.
+	each machine keeps its own `obj/` and `.system_id`.
 
 *	From an M4 to an x86_64 Mac and a Raspberry Pi 4. The first list of
 	the tree, 146MB, 1 second and 3.3. After that 0.2 seconds, the hashes

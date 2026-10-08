@@ -83,7 +83,7 @@ machines alone on their wire, and wrong for any that are not.
 ## What is sent
 
 Every file under the root, but what the tree's own `.gitignore` leaves out,
-so `obj/`, the `cpu`, `abi` and `os` files, `.system_id`, and the like stay
+so `obj/`, `.system_id`, and the like stay
 as each machine has them. Both sides list by the sender's rules. `.git` is
 never listed. The rules understood are a name, a `folder/`, a `/path` from
 the root, and a `*` in one part of a path. A rule that takes one back, `!`,
@@ -117,12 +117,12 @@ see `STATUS.md`.
 
 * `(sync-rules text) -> rules`, the rules of a `.gitignore`.
 * `(sync-walk root rules) -> paths`, the files of a tree.
-* `(sync-list root rules [kept]) -> ((path size hash) ...)`.
-* `(sync-diff mine theirs) -> (send remove)`.
+* `(sync-list root rules [kept]) -> ((path size hash mode) ...)`.
+* `(sync-diff mine theirs) -> (send remove remode)`.
 * `(sync-services [name]) -> ((mbox system_id machine root) ...)`, who will
   take a sync.
-* `(sync-push svc root rules_text [check remove kept])
-  -> :nil | (sent bytes removed failed send gone)`.
+* `(sync-push svc root rules_text [check remove kept no_modes])
+  -> :nil | (sent bytes removed failed send gone remoded)`.
 
 `service/sync/app_impl.lisp` is the service, `cmd/sync.lisp` the command.
 
@@ -135,6 +135,15 @@ file of more than one part, a file of nothing, what the rules leave out,
 and a remove. It has been run between an M4, an x86_64 Mac and a Raspberry
 Pi 4, and `rsync` then found no file different.
 
+## The mode of a file
+
+Who may read, write and run a file, the low 9 bits of its mode, is in the
+list with its hash. A file sent is given the mode it has where it came
+from, so a script is one that can be run. A file that is the same but for
+its mode is not sent again, its mode is set, and `sync -c` counts those
+apart. Windows has no such thing, a push from one or to one leaves modes
+alone.
+
 ## Not here yet
 
 * Pull. A machine that sees a newer tree on a neighbour and fetches it, so
@@ -142,7 +151,4 @@ Pi 4, and `rsync` then found no file different.
   who is to have it. This is the aim, push is the first step.
 * A version, to know a newer tree by, and a restart when one has arrived.
 * A key, so that only a machine that has it can write.
-* The modes of files. A new file is made as the host makes one, a new
-  script is not marked as one to run. It needs a host call to set a mode,
-  which there is not.
 * A folder that is empty, and a folder that is left empty by a remove.

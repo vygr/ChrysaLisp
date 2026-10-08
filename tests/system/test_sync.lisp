@@ -53,11 +53,14 @@
 (pii-remove "tests/scratch/sync_fence/real/file.txt")
 
 ;what differs
-(defq sy_diff (sync-diff '(("a" 1 "H1") ("b" 2 "H2") ("c" 3 "H3")) '(("a" 1 "H1") ("b" 2 "XX") ("d" 4 "H4"))))
+(defq sy_diff (sync-diff '(("a" 1 "H1" 420) ("b" 2 "H2" 420) ("c" 3 "H3" 420) ("e" 5 "H5" 493))
+	'(("a" 1 "H1" 420) ("b" 2 "XX" 493) ("d" 4 "H4" 420) ("e" 5 "H5" 420))))
 (assert-list-eq "what is not the same, and what is not there, is sent" '("b" "c") (first sy_diff))
 (assert-list-eq "what is only there" '("d") (second sy_diff))
+(assert-list-eq "what is the same but for its mode, a changed one is sent whole" '("e" 493) (first (third sy_diff)))
+(assert-eq "and only that" 1 (length (third sy_diff)))
 (assert-list-eq "a list as text and back"
-	'("with space.txt" 12 "ABCD") (first (sync-list-read (sync-list-text '(("with space.txt" 12 "ABCD"))))))
+	'("with space.txt" 12 "ABCD" 493) (first (sync-list-read (sync-list-text '(("with space.txt" 12 "ABCD" 493))))))
 
 ;a tree, a service with a root of its own, and a push from one to the other
 (defq sy_src "tests/scratch/sync_src" sy_dst "tests/scratch/sync_dst" sy_name "*SyncTest"
@@ -114,6 +117,29 @@
 
 (setq sy_res (sync-push sy_svc sy_src sy_text))
 (assert-eq "a push again sends nothing" 0 (first sy_res))
+
+;the mode of a file, who may read, write and run it. Not on a host that has none
+(unless (eql (os) 'Windows)
+	(defun sy-mode (file) (logand (third (pii-fstat file)) 511))
+	(save "#!/bin/bash" (cat sy_src "/run.sh"))
+	(pii-chmod (cat sy_src "/run.sh") 493)
+	(setq sy_res (sync-push sy_svc sy_src sy_text))
+	(assert-eq "a new script is sent" 1 (first sy_res))
+	(assert-eq "and can be run there as here" 493 (sy-mode (cat sy_dst "/run.sh")))
+	(pii-chmod (cat sy_src "/run.sh") 420)
+	(setq sy_res (sync-push sy_svc sy_src sy_text :t))
+	(assert-eq "a file the same but for its mode is not one that differs" 0 (length (elem-get sy_res 4)))
+	(assert-eq "it is one with another mode" 1 (elem-get sy_res 6))
+	(assert-eq "and a check changes nothing" 493 (sy-mode (cat sy_dst "/run.sh")))
+	(setq sy_res (sync-push sy_svc sy_src sy_text))
+	(assert-eq "it is not sent again" 0 (first sy_res))
+	(assert-eq "its mode is set" 420 (sy-mode (cat sy_dst "/run.sh")))
+	(assert-eq "and counted" 1 (elem-get sy_res 6))
+	(pii-chmod (cat sy_src "/run.sh") 493)
+	(setq sy_res (sync-push sy_svc sy_src sy_text :nil :nil :nil :t))
+	(assert-eq "told there are no modes, none is set" 420 (sy-mode (cat sy_dst "/run.sh")))
+	(pii-chmod (cat sy_src "/run.sh") 420)
+	(pii-remove (cat sy_src "/run.sh")) (pii-remove (cat sy_dst "/run.sh")))
 (save "one changed" (cat sy_src "/one.txt"))
 (setq sy_res (sync-push sy_svc sy_src sy_text :nil :t))
 (assert-eq "one file changed, one sent" 1 (first sy_res))
@@ -145,6 +171,8 @@
 (sync-tell sy_out sy_mbox +sync_type_quit "")
 (sync-hear sy_mbox)
 
+(sync-tell sy_svc sy_mbox +sync_type_mode "../sync_src/one.txt" 0 0 493)
+(assert-eq "so is a mode set on one" -2 (first (sync-hear sy_mbox)))
 (sync-tell sy_svc sy_mbox 99 "")
 (assert-eq "and what it does not know" -1 (first (sync-hear sy_mbox)))
 

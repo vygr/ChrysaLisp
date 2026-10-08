@@ -4,6 +4,8 @@
 
 ### (pii-alive pid) -> :nil | :t
 
+### (pii-chmod path mode) -> 0 | -1
+
 ### (pii-cpus) -> num
 
 ### (pii-dirlist path) -> info
@@ -11,6 +13,8 @@
 ### (pii-exit)
 
 ### (pii-fstat path) -> info
+
+### (pii-host) -> str
 
 ### (pii-memory) -> bytes
 
@@ -30,6 +34,8 @@
 
 ### :alive -> :nil
 
+### :chmod -> :nil
+
 ### :clear_icache -> :nil
 
 ### :close -> :nil
@@ -43,6 +49,8 @@
 ### :exit -> :nil
 
 ### :gettime -> :nil
+
+### :host -> :nil
 
 ### :memory -> :nil
 
@@ -69,6 +77,20 @@ trashes
 :r0, :f0-:f15
 info
 is this process running ?
+```
+
+### :pii_chmod -> sys/pii/chmod
+
+```code
+inputs
+:r0 = c string filename (pubyte)
+:r1 = mode (ulong)
+outputs
+:r0 = error code (long)
+trashes
+:r0, :f0-:f15
+info
+set the mode of a file, who may read, write and run it
 ```
 
 ### :pii_clear_icache -> sys/pii/clear_icache
@@ -140,6 +162,21 @@ trashes
 ```
 
 ### :pii_flush -> sys/pii/flush
+
+### :pii_host -> sys/pii/host
+
+```code
+inputs
+:r0 = buffer (pubyte)
+:r1 = buffer length (ulong)
+outputs
+:r0 = length of what was written (long)
+trashes
+:r0, :f0-:f15
+info
+what this host program is, "cpu abi os", the names the build and the
+object folders have for them
+```
 
 ### :pii_memory -> sys/pii/memory
 

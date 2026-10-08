@@ -1,8 +1,7 @@
 (include "lib/asm/func.inc")
+(include "sys/link/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
-(include "sys/link/class.inc")
-(include "class/array/class.inc")
 (include "./class.inc")
 
 (def-method :host_net :lisp_init)

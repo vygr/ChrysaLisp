@@ -580,3 +580,44 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :host_os :pii_host)
+	;inputs
+	;:r0 = buffer (pubyte)
+	;:r1 = buffer length (ulong)
+	;outputs
+	;:r0 = length of what was written (long)
+	;trashes
+	;:r0, :f0-:f15
+	;info
+	;what this host program is, "cpu abi os", the names the build and the
+	;object folders have for them
+
+	(entry :host_os :pii_host '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-os-call :host_os :host '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit :host_os :pii_host '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :host_os :pii_chmod)
+	;inputs
+	;:r0 = c string filename (pubyte)
+	;:r1 = mode (ulong)
+	;outputs
+	;:r0 = error code (long)
+	;trashes
+	;:r0, :f0-:f15
+	;info
+	;set the mode of a file, who may read, write and run it
+
+	(entry :host_os :pii_chmod '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-os-call :host_os :chmod '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit :host_os :pii_chmod '(:r0))
+	(vp-ret)
+
+(def-func-end)

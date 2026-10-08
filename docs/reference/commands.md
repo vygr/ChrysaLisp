@@ -732,6 +732,10 @@ Usage: shader [options] file
             tree    the checked, typed tree the back ends are given.
         -v --vertex: the vertex shader that goes with every
             fragment shader, for msl and spirv.
+        -p --pair file: the other shader of a pair, a vertex shader
+            and a pixel shader that go together, in either order, for
+            glsl, msl and spirv. Both halves are shown. With -o they
+            are written to the file's name with .vert and .frag on.
         -o --out file: write it to a file. A spirv module is
             then written as the binary a driver, or spirv-dis,
             takes, not as a listing.
@@ -744,6 +748,7 @@ Usage: shader [options] file
     shader -t vp lib/gpu/shaders/mesh_vertex.shader
     shader -t msl -o raymarch.metal lib/gpu/shaders/raymarch.shader
     shader -t spirv -o raymarch.spv lib/gpu/shaders/raymarch.shader
+    shader -p lib/gpu/shaders/mesh_lit.shader lib/gpu/shaders/mesh_vertex.shader
 ```
 ## shuffle
 ```code
