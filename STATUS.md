@@ -4,6 +4,23 @@
 
 ------
 
+Reading a number too big for a fixed no longer stops an x86_64 node.
+
+*	`1791408183000000.0`, read by the reader or by `(str-to-num)`, stopped
+	an x86_64 node dead with a floating point exception. A number with a
+	point is shifted up 16 bits and divided, a 128 bit number by a 64 bit
+	one, and the top half was the sign of what the shift left. A number too
+	big for a fixed could leave that bit set, and the answer was then too
+	big for the divide, which x86_64 will not have and ARM64 lets by. The
+	number is never below 0 there, so the top half is now 0.
+	`:sys_str :to_long`, `sys/str/class.vp`.
+
+*	Such a number is still not right, it can not be, a fixed has not the
+	bits. It is a number, and the node carries on.
+
+*	Tests, `tests/core/test_reader_big.lisp`. It was found by a test that
+	made a shader from the time of day.
+
 Random bytes for a key or a nonce, and a change of GUI driver always links
 the host program again.
 

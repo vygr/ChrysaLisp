@@ -463,7 +463,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r6, :f0-:f15
 	;info
 	;(random-bytes size) -> str
 	;that many bytes from the host's own source of random bytes, which is
