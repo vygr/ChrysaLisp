@@ -2343,6 +2343,21 @@ the path to this file
 transform an absolute filename to a relative one
 ```
 
+### pbkdf2-bytes
+
+```code
+(pbkdf2-bytes state) -> str
+
+the 8 numbers of a state as the 32 bytes of the hash, each number the
+top byte first
+```
+
+### pbkdf2-sha256
+
+```code
+(pbkdf2-sha256 password salt count size) -> str
+```
+
 ### pipe-farm
 
 ```code

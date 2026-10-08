@@ -51,6 +51,6 @@ yet to say can still be read
 ```code
 (. pipe :write string) -> pipe
 
-last stream is :out to first pipe element
+first stream is :out to first pipe element
 ```
 
