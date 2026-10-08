@@ -46,7 +46,7 @@ Tidying, from Chris reading the Onslaught source.
 
 *	Onslaught was run on a Raspberry Pi 4 with its bot playing, menu to
 	map to battle, and each of the eight other apps changed was started
-	there, no errors. The look of the menus wants an eye.
+	there, no errors. Chris looked at the menus, the characters are good.
 
 ------
 
