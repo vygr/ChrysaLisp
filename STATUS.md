@@ -23,10 +23,17 @@ the Boing demo on the other went quiet.
 *	Not heard. It is written and its choosing of a service is tested, the
 	sound itself wants ears, on a machine with two desktops.
 
-*	The clipboard is started the same way, one for the machine on the node
-	of the first desktop up. It has not been tried, and is left, one
-	clipboard between the desktops of a machine is what it should be, it
-	is where it lives that is wrong.
+*	The clipboard was started the same way and is mended the same way,
+	Chris: "It would probably work out best if they each had one for now."
+	Each desktop has a `@Clipboard` service on its node, and an app has its
+	own desktop's, `(clip-service)`. It has to be on a GUI node, it talks to
+	the clipboard of the host through the GUI driver. So on a host that has
+	a clipboard, which SDL has, the desktops of a machine still share the
+	one, the host's. With none, each desktop's is its own.
+
+*	Not mended, and wider than these two. A service there should be one of
+	for a network, a `*` service, on a node that can go, has nothing to
+	start it again somewhere else.
 
 ------
 

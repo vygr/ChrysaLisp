@@ -1,4 +1,4 @@
-(report-header "Audio: a task has the audio service of its own node")
+(report-header "Audio and clipboard: a task has the service of its own node")
 (import "service/audio/app.inc")
 
 ;each desktop has an audio service, on its node. An app is given the one on
@@ -10,5 +10,12 @@
 	(slice (audio-service) +mailbox_id_size -1))
 (mail-forget as_key)
 (assert-eq "and when it has gone, what there was before" as_before (audio-service))
+
+;the clipboard is found the same way
+(import "service/clipboard/app.inc")
+(defq as_before (clip-service) as_key (mail-declare (task-mbox) "@Clipboard" "a test"))
+(assert-eq "the clipboard service on this node is the one had" (task-mbox) (clip-service))
+(mail-forget as_key)
+(assert-eq "and when it has gone, what there was before" as_before (clip-service))
 
 (undef (env) 'as_before 'as_key)
