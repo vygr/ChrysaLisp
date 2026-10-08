@@ -140,5 +140,6 @@ Pi 4, and `rsync` then found no file different.
 * A version, to know a newer tree by, and a restart when one has arrived.
 * A key, so that only a machine that has it can write.
 * The modes of files. A new file is made as the host makes one, a new
-  script is not marked as one to run.
+  script is not marked as one to run. It needs a host call to set a mode,
+  which there is not.
 * A folder that is empty, and a folder that is left empty by a remove.

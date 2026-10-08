@@ -4,6 +4,22 @@
 
 ------
 
+A link that is lost is made again, seen to happen.
+
+*	It was in the code and in the tests of the logic, and had not been
+	seen, there was no way on the Pi to break a connection. There is one.
+	The Pi's route to the x86_64 Mac is cut, with its TCP told to give up
+	after 2 tries where it takes 15. The link was gone 6 seconds into the
+	cut, on both, and stayed gone. 2 seconds after the route came back there
+	was one new link between the two, and one it stayed.
+
+*	The modes of files are not sent by a sync and can not be yet. A new
+	file is made as the host makes one, a script arrives not marked to run.
+	The host has no call to set a mode, and one is a change to the table of
+	host calls, so it waits for the next change that needs a new snapshot.
+
+------
+
 Mail over a TCP link was slow, two faults, neither in what was using it.
 
 *	Found by asking why a sync with nothing to send took 1 to 2 seconds
@@ -160,9 +176,8 @@ The mesh forgets a machine that has gone, and what a lost link does.
 	and nothing else. For 40 each saw the other's nodes go, and come back
 	within seconds of the route, over the same TCP connection, which the
 	host had kept. No second link was made, the kernel still listed the
-	first. So the redial of a lost link is in the code and in the tests of
-	the logic, and has not been seen to happen, there was no tool on the Pi
-	to reset a connection with.
+	first. The redial of a lost link was not seen here, it has been since,
+	see above.
 
 *	The Net service starts on a boot image from before `(net-links)`. A
 	session started between new source and `make all boot` printed an error
