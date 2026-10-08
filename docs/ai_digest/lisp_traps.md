@@ -67,6 +67,18 @@ passed as `:nil` is `:nil`. So an optional that defaults to `:t` can never
 be turned off. Name it the other way round, so that not given, and `:nil`,
 both mean the usual thing.
 
+### A `#` with no `%0` in it takes no arguments
+
+```lisp
+(filter (# (/= 0 (% (!) 3))) seq) ; wrong_num_of_args
+(pipe-run "echo x" (# :nil))      ; the same
+```
+
+`(# ...)` makes a lambda of as many parameters as the highest `%n` in its
+body. One that uses only `(!)`, the index, or nothing of what it is given,
+has none, and is then called with one. Write `(lambda (_) ...)` for a
+function that ignores what it is given.
+
 ### Scope is dynamic
 
 A name that is not a local of a function is looked for in the function

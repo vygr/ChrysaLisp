@@ -4,6 +4,29 @@
 
 ------
 
+`patch` did not work, found reviewing `diff` for Chris.
+
+*	`(stream-patch)`, and so the `patch` command, threw on every diff it
+	was given. Three faults, one behind another. A pattern it took its
+	header apart with had `&ignore` for one thing to skip, which skips all
+	the rest, so nothing after it was bound. A part of the header that is
+	not there, the second number of a range, was told by its start and end
+	being the same, and the regexp gives it an end before its start. And
+	it copied one line too many before each change.
+
+*	It had no test that looked at what it gave. The one that ran it threw
+	its output away. `tests/system/test_diff.lisp`, 30 of them, a diff put
+	to the first file is the second, both ways, for twelve pairs, and a
+	diff as `diff(1)` writes one, with ranges and changes.
+
+*	`diff` itself was right. The system's `patch` takes its output and
+	gives the second file, for six pairs up to 5,000 lines.
+
+*	A trap for the doc, `(# ...)` with no `%0` in it takes no arguments.
+	Claude has now written that three times in a day.
+
+------
+
 Tidying, from Chris reading the Onslaught source.
 
 *	`(neg +tile_height)` and the like, an expression of nothing but

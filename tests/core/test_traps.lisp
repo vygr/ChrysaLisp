@@ -15,6 +15,9 @@
 (assert-error "a parameter with the name of a macro"
 	(eval (read (string-stream "(progn (defun tr-f4 (bits) bits) (tr-f4 5))"))))
 
+(assert-error "a # with no %0 in it takes no arguments" (map (# (!)) (list 1 2 3)))
+(assert-list-eq "a lambda that ignores what it is given does" '(0 1 2) (map (lambda (_) (!)) (list 1 2 3)))
+
 (defun tr-setd (&optional listen) (setd listen :t) listen)
 (assert-eq "an optional that defaults to :t can not be passed :nil" :t (tr-setd :nil))
 

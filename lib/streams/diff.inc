@@ -89,15 +89,17 @@
 			((empty? match)
 				; skip unexpected headers or EOF
 				(if (or (starts-with "---" p) (starts-with "+++" p)) :t (setq run :nil)))
-			(:t (bind '((&ignore (x1 x2) (x3 x4) (x5 x6) (x7 x8) (x9 x10))) match)
+			(:t (bind '((& (x1 x2) (x3 x4) (x5 x6) (x7 x8) (x9 x10))) match)
 				(defq s1 (str-to-num (slice p x1 x2))
-					e1 (if (= x3 x4) s1 (str-to-num (slice p (inc x3) x4)))
+					;a part of the header that is not there has an end before its start
+					e1 (if (<= x4 x3) s1 (str-to-num (slice p (inc x3) x4)))
 					op (slice p x5 x6)
 					s2 (str-to-num (slice p x7 x8))
-					e2 (if (= x9 x10) s2 (str-to-num (slice p (inc x9) x10)))
+					e2 (if (<= x10 x9) s2 (str-to-num (slice p (inc x9) x10)))
 					target_line (if (eql op "a") (inc s1) s1))
-				; advance original file output stream
-				(while (<= ln target_line)
+				; advance original file output stream, up to the line the
+				; operation is at, and not that line itself
+				(while (< ln target_line)
 					(write-line c (read-line a))
 					(++ ln))
 				; apply normal diff operation
