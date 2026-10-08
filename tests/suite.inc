@@ -153,7 +153,7 @@
 
 (defun test-hex (bytes)
 	;the first 16 bytes, as hex
-	(apply (const cat) (map (# (byte-to-hex-str (code %0))) (slice bytes 0 16))))
+	(apply (const cat) (map! (# (byte-to-hex-str (code %0))) (list bytes) 0 16)))
 
 (defun test-file-scan (file text)
 	; (test-file-scan file text) -> paths
@@ -242,8 +242,9 @@
 				(. *test_files* :insert (second fields) (list (str-as-num (third fields))
 					(elem-get fields 3) (if (> (length fields) 4) (split (elem-get fields 4) " ") (list)))))
 			((and (eql (first fields) "M") (= (length fields) 6))
-				(. kept :insert (second fields) (cat (list (third fields))
-					(map (const str-as-num) (slice fields 3 6)))))))
+				;the key, then the three counts, into the one list
+				(. kept :insert (second fields)
+					(map! (const str-as-num) (list fields) 3 6 (list (third fields)))))))
 		(split (ifn (load (test-cache-path)) "") (ascii-char 10)))
 	kept)
 
@@ -302,11 +303,11 @@
 		counts (if (nempty? lines) (last lines) ""))
 	(cond
 		((starts-with +test_counts counts)
-			(each (# (cond
+			(each! (# (cond
 				((starts-with +test_module_counts %0)
 					(defq fields (split (slice %0 (length +test_module_counts) -1) " "))
-					(. *test_done* :insert (first fields) (map (const str-as-num) (rest fields))))
-				((print %0)))) (slice lines 0 -2))
+					(. *test_done* :insert (first fields) (map! (const str-as-num) (list fields) 1)))
+				((print %0)))) (list lines) 0 -2)
 			(bind '(passes failures skips) (map (const str-as-num)
 				(split (slice counts (length +test_counts) -1) " ")))
 			(setq *test_passes* (+ *test_passes* passes)

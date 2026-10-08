@@ -4,6 +4,26 @@
 
 ------
 
+More code walks part of a list with no copy of it, and collects into the one
+list.
+
+*	The cache of test results, the hash of a shader, the functions for
+	Lisp, Poly1305, and the `shader` and `lint` commands took a `(rest)` or
+	a `(slice)` of a list to go over it, or joined lists that were each
+	made to be joined. They use the range of `(each!)`, `(map!)` and
+	`(some!)`, and the list that `(map!)` and `(filter!)` can add to. These
+	were all written after the last such change, the habit had not held.
+
+*	A lock test asked that its own claim be the very last in the history
+	of the lock service. The service is the one for the whole network, and
+	on a Raspberry Pi 4 a shader being assembled by another test claimed a
+	lock as it looked. It looks for its claim near the end now.
+
+*	All that a release is tested with was run again and passed, every
+	stage on three machines, and RISC-V and LoongArch under QEMU. And all
+	the tests pass run one after another in the one task, from an empty
+	cache of shaders, on the three machines.
+
 The most negative number divided by -1 no longer stops an x86_64 node.
 
 *	`(/ -9223372036854775808 -1)`, and `%` the same, stopped an x86_64 node

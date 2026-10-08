@@ -41,8 +41,10 @@
 			(logand (>> hi 14) +poly1305_mask)
 			(>> hi 40))
 		state (str-alloc 120))
+	;h, which is 0, then r, then 5 times each of r but its first, into the
+	;one list, then the slot that is the native code's own
 	(each (# (set-long state (* (!) 8) %0))
-		(cat '(0 0 0 0 0) r (map (# (* %0 5)) (rest r)) '(0)))
+		(push (map! (# (* %0 5)) (list r) 1 -1 (cat (list 0 0 0 0 0) r)) 0))
 	(list state "" (slice key 16 32)))
 
 (defun poly1305-add (ctx data)

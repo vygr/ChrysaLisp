@@ -34,20 +34,25 @@
 	(if opt_v (print cmd ": " (/ (- (pii-time) t0) 1000) "ms"))
 	(filter (# (nempty? (trim %0))) (split (apply (const cat) (cat (list "") out)) (ascii-char 10))))
 
-(defun build-errors (cmd)
-	; (build-errors cmd) -> lines
-	;a build says a lot, only an error is wanted
-	(filter (# (found? %0 "rror")) (run-step cmd)))
+(defun build-errors (cmd said)
+	; (build-errors cmd said) -> said
+	;a build says a lot, only an error is wanted, added to what has been
+	;said so far
+	(filter! (# (found? %0 "rror")) (run-step cmd) 0 -1 said))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_k :nil opt_v :nil args (options stdio usage)))
-		(defq t0 (pii-time)
-			said (cat (build-errors "make vp") (build-errors "make apps debug")
-				(run-step "files obj/vp/ | trace -i -l")
-				(if opt_k (list) (cat (build-errors "make apps") (build-errors "make all boot")))))
+		;all that is said goes into the one list, as it is said
+		(defq t0 (pii-time) said (list))
+		(build-errors "make vp" said)
+		(build-errors "make apps debug" said)
+		(each (# (push said %0)) (run-step "files obj/vp/ | trace -i -l"))
+		(unless opt_k
+			(build-errors "make apps" said)
+			(build-errors "make all boot" said))
 		(each (const print) said)
 		(print (if (empty? said) "lint: clean" "lint: see above")
 			", " (/ (- (pii-time) t0) 1000) "ms"

@@ -377,7 +377,7 @@
 	;what a source is known by, a hash of it. The native code made from a
 	;source is kept under its key, so a source that has been met before
 	;is found again without a line of it being read
-	(apply (const cat) (map (# (byte-to-hex-str (code %0))) (slice (sha256 text) 0 16))))
+	(apply (const cat) (map! (# (byte-to-hex-str (code %0))) (list (sha256 text)) 0 16)))
 
 (defun shader-make (files)
 	; (shader-make files) -> str

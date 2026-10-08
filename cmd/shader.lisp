@@ -68,12 +68,14 @@
 	;end makes that hold a name have it shown as the name.
 	(defq at (case op (11 1) (15 2) (:t :nil)))
 	(cond
-		(at (defq text (apply (const cat) (map (# (char %0 4)) (slice args at -1)))
+		(at (defq text (apply (const cat) (map! (# (char %0 4)) (list args) at))
 				end (find (ascii-char 0) text)
 				used (inc (/ end 4)))
-			(cat (map (const str) (slice args 0 at))
-				(list (cat (ascii-char 34) (slice text 0 end) (ascii-char 34)))
-				(map (const str) (slice args (+ at used) -1))))
+			;the words before the name, the name, the words after, into the
+			;one list
+			(map! (const str) (list args) (+ at used) -1
+				(push (map! (const str) (list args) 0 at)
+					(cat (ascii-char 34) (slice text 0 end) (ascii-char 34)))))
 		((map (const str) args))))
 
 (defun spirv-listing (module)

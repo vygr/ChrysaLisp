@@ -583,15 +583,15 @@
 		;a function Lisp calls reads a reals arg where it is, if it never
 		;sets it, and what it gives goes where it is to go
 		(when (and *sv_entry* (eql name (first *sv_entry*)))
-			(each (lambda ((which reg))
+			(each! (lambda ((which reg))
 				(cond
 					((eql which :ret)
 						(push *sv_maps* (list ret_offset (+ ret_offset (* (shader-size type) 8)) reg 0)))
 					((sv-sets? block (first (elem-get params which)))
-						(elem-set (elem-get (rest *sv_entry*) (!)) 1 :nil))
+						(elem-set (elem-get *sv_entry* (!)) 1 :nil))
 					(:t (defq at (elem-get offsets which))
 						(push *sv_maps* (list at (+ at (* (shader-size (second (elem-get params which))) 8)) reg 0)))))
-				(rest *sv_entry*)))
+				(list *sv_entry*) 1))
 		(sv-emit 'vp-label (sv-q label))
 		(sv-block block)
 		;a return that is the last thing has no jump to make
@@ -1391,7 +1391,7 @@
 		;each arg to its slots of the frame, the bits as they are, or the
 		;register it is reached by set to where it is
 		copies (map (lambda ((pname ptype) offset)
-			(defq at (!) reg (some (lambda ((which reg)) (if (and (eql which at) reg) reg)) (rest *sv_entry*)))
+			(defq at (!) reg (some! (lambda ((which reg)) (if (and (eql which at) reg) reg)) (list *sv_entry*) :nil 1))
 			(cat tab "(vp-cpy-ir :r1 " (str (* at 8)) " :r2)" lf
 				(cond
 					(reg (cat tab "(vp-cpy-ir :r2 +array_begin " (str reg) ")" lf))
