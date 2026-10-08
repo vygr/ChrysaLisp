@@ -39,16 +39,15 @@
 	+k_middle (n2r 0.3) +damp (n2r 0.85) +dt (n2r 0.05)
 	;the bytes a link carries between polls that is no more than idle
 	+quiet 4096
+	;the shaders a ball is drawn with
+	+shiny ''("lib/gpu/shaders/shiny_vertex.shader" "lib/gpu/shaders/shiny_lit.shader")
 	;how much of the way a link's flow goes, each poll, to what it carried
 	;in that poll. A fifth, at 4 polls a second, is a second or so
 	+ease (n2r 0.2)
 	+ball_size (n2r 0.09) +bar_size (n2r 0.016)
 	;how far out the furthest node is drawn. The window is 2 from the
 	;middle to an edge, where the middle of it all is
-	+fit (n2r 1.5)
-	;a color for each machine, alpha first
-	+machine_cols ''((1.0 0.3 0.8 1.0) (1.0 1.0 0.7 0.2) (1.0 0.5 1.0 0.4) (1.0 1.0 0.4 0.8)
-		(1.0 0.4 1.0 1.0) (1.0 1.0 1.0 0.4) (1.0 0.7 0.5 1.0) (1.0 0.9 0.9 0.9)))
+	+fit (n2r 1.5))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Map" (0xea19) +event_close)
@@ -61,11 +60,33 @@
 	;somewhere between -1/2 and 1/2
 	(/ (n2r (- (random 1000) 500)) (const (n2r 1000))))
 
+(defun machine-color (system)
+	; (machine-color system) -> (r g b)
+	;the color of a machine, from its id, so it is the same color on every
+	;desktop and every time. The id picks where round the colors it is, and
+	;it is kept bright, and not too deep, it is whitened by load
+	(memoize system (progn
+		(defq h (if (< (length system) +node_id_size) 200
+				(% (logand (logxor (get-long system 0) (>>> (get-long system 0) 17)
+					(get-long system 8) (>>> (get-long system 8) 29)) 0x7fffffff) 360))
+			f (/ (n2r (% h 60)) (const (n2r 60)))
+			lo (const (n2r 0.25)) up (+ lo (* f (const (n2r 0.75))))
+			down (- +real_1 (* f (const (n2r 0.75)))))
+		(case (/ h 60)
+			(0 (list +real_1 up lo))
+			(1 (list down +real_1 lo))
+			(2 (list lo +real_1 up))
+			(3 (list lo down +real_1))
+			(4 (list up lo +real_1))
+			(:t (list +real_1 lo down)))) 31))
+
 (defun share (obj proto)
 	;an object that draws the mesh a first one of its kind was drawn with,
-	;so the scene has the mesh once, and so has the GPU
+	;so the scene has the mesh once, and so has the GPU. And is lit as it
+	;is, a ball shines
 	(def obj :corners_of (get :corners_of proto) :corners_id (get :corners_id proto)
 		:ball (get :ball proto))
+	(if (def? :shaders proto) (def obj :shaders (get :shaders proto)))
 	obj)
 
 (defun create (key now)
@@ -181,13 +202,11 @@
 		(defq ball (get :ball node) pos (get :pos node)
 			;as big on the screen however far out it is all drawn from
 			load (/ (n2r (min 40 (get :tasks node))) (const (n2r 40)))
-			size (/ (* +ball_size (+ +real_1 load)) zoom)
-			col (elem-get +machine_cols (% (max 0 (ifn (find (get :system node) machines) 0))
-				(const (length +machine_cols)))))
+			size (/ (* +ball_size (+ +real_1 load)) zoom))
 		(.-> ball (:set_translation (first pos) (second pos) (third pos)) (:set_scale size size size))
 		;the color of its machine, and whiter the more it has to do
 		(def ball :color (apply (const fixeds) (cat (list 1.0)
-			(map! (# (n2f (+ (n2r %0) (* (- +real_1 (n2r %0)) load)))) (list col) 1))))
+			(map (# (n2f (+ %0 (* (- +real_1 %0) load)))) (machine-color (get :system node))))))
 		(push objs ball)))
 	(. links :each (lambda (name link)
 		(when (and (defq a (. global_tasks :find (get :a link)))
@@ -227,16 +246,20 @@
 (defun draw-frame ()
 	;a frame, by the GPU of the GUI if it has one that can, else here
 	(defq draws (. scene :draws +left +right +top +bottom +near +far (* +size +scale)))
+	;the pair of shaders the bars are drawn with, and the pair the balls
+	;are, on the GPU, the first time
 	(when (and (not gpu_pair) (not gpu_failed))
-		(unless (setq gpu_pair (shader-gui-pair (shader-load +scene_vertex_file)
-				(shader-load +scene_pixel_file) :t))
-			(setq gpu_failed :t)))
+		(unless (and (setq gpu_pair (shader-gui-pair (shader-load +scene_vertex_file)
+					(shader-load +scene_pixel_file) :t))
+				(setq gpu_shiny (shader-gui-pair (shader-load (first +shiny))
+					(shader-load (second +shiny)) :t)))
+			(setq gpu_pair :nil gpu_failed :t)))
 	(defq drawn (if gpu_pair (shader-gui-frame *canvas*
-		(map (lambda ((id vblock pblock &rest _))
+		(map (lambda ((id vblock pblock &optional y y1 files))
 			(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))
 			(unless (elem-get gpu_meshes id)
 				(elem-set gpu_meshes id (shader-gui-mesh (. scene :mesh id))))
-			(list gpu_pair (ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws))))
+			(list (if files gpu_shiny gpu_pair) (ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws))))
 	(cond
 		((eql drawn :error) (setq gpu_pair :nil gpu_failed :t))
 		(drawn (setq gpu_drawn :t))
@@ -255,12 +278,14 @@
 (defun main ()
 	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t
 		machines (list) links (Fmap 31) top_rate (n2r +quiet) zoom +real_1 spin +real_0
-		gpu_pair :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
-		ball_mesh (Mesh-sphere +real_1 12) bar_mesh (Mesh-cylinder +real_1 +real_1 8)
+		gpu_pair :nil gpu_shiny :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
+		ball_mesh (Mesh-sphere +real_1 16) bar_mesh (Mesh-cylinder +real_1 +real_1 8)
 		ball_proto (Scene-object ball_mesh (fixeds 1.0 1.0 1.0 1.0))
 		bar_proto (Scene-object bar_mesh (fixeds 1.0 1.0 1.0 1.0))
 		scene (Scene "root") world (Scene-node "world"))
-	;the two meshes are made ready once, and every ball and bar shares them
+	;the two meshes are made ready once, and every ball and bar shares them.
+	;A ball is lit smooth, and shines
+	(def ball_proto :smooth :t :shaders +shiny)
 	(.-> world (:add_node ball_proto) (:add_node bar_proto))
 	(.-> scene (:add_node world)
 		(:set_translation +real_0 +real_0 (const (- +real_0 +focal_dist +real_2))))
@@ -303,4 +328,5 @@
 	(. global_tasks :close)
 	(each (# (if %0 (canvas-mesh-destroy %0))) gpu_meshes)
 	(if gpu_pair (canvas-shader-destroy gpu_pair))
+	(if gpu_shiny (canvas-shader-destroy gpu_shiny))
 	(gui-sub-rpc *window*))

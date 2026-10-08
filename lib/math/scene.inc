@@ -59,10 +59,13 @@
 					(list (circle r) (lighting col at) (n2f sx) (n2f sy)))))
 		(partition (mat4x4-vec4-mul mat4x4_proj (. object :get_verts)) +vec4_size)))
 
-(defun scene-pipeline ()
-	;the two shaders a scene is drawn with, assembled the first time
-	(memoize :scene_pipeline (shader-vp-pipeline
-		(shader-load +scene_vertex_file) (shader-load +scene_pixel_file)) 3))
+(defun scene-pipeline (&optional files)
+	;the two shaders a scene is drawn with, assembled the first time. Or
+	;those of an object that has two of its own, their files
+	(memoize (if files (sym (cat (first files) (second files))) :scene_pipeline)
+		(shader-vp-pipeline
+			(shader-load (if files (first files) +scene_vertex_file))
+			(shader-load (if files (second files) +scene_pixel_file))) 3))
 
 (defun scene-order (count)
 	;the triangles of count vertices taken three at a time
@@ -80,6 +83,26 @@
 		(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
 		(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) n))
 			(list i0 i1 i2))) (partition (. mesh :get_tris) +tri_size))
+	(shader-verts-str (apply (const cat) out)))
+
+(defun mesh-corners-smooth (mesh)
+	; (mesh-corners-smooth mesh) -> str
+	;a mesh as the shaders want it, lit smooth. The normal at a vertex is
+	;that of all the faces that share it, taken together, so a face shades
+	;from corner to corner and a ball of faces is round
+	(defq verts (. mesh :get_verts) norms (. mesh :get_norms)
+		tris (partition (. mesh :get_tris) +tri_size) out (list (reals))
+		sums (map (lambda (_) (reals +real_0 +real_0 +real_0))
+			(range 0 (/ (length verts) +vec4_size))))
+	(each (lambda ((i0 i1 i2 in))
+		(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
+		(each (# (nums-add (elem-get sums %0) n (elem-get sums %0))) (list i0 i1 i2))) tris)
+	(each (lambda (n)
+		(defq d (nums-dot n n))
+		(if (> d +real_0) (nums-scale n (recip (sqrt d)) n))) sums)
+	(each (lambda ((i0 i1 i2 in))
+		(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) (elem-get sums %0)))
+			(list i0 i1 i2))) tris)
 	(shader-verts-str (apply (const cat) out)))
 
 (defun mesh-ball (mesh)
@@ -251,6 +274,10 @@
 		;Objects that are see through come last, the furthest first.
 		;It is what a child that draws a strip is sent, and what is drawn
 		;from here, so the two are the same to the bit.
+		;An object with :smooth is lit smooth, a normal a vertex. One with
+		;:shaders, the files of a vertex and a pixel shader, is drawn with
+		;those, they have the inputs of the scene's own, and its draw has
+		;the files on the end, for what draws it to choose them by.
 		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
 			matrix_stack (list (Mat4x4-unity)) draws (list) thin (list) pipeline (scene-pipeline))
 		(raise :meshes)
@@ -264,17 +291,20 @@
 					(unless (eql (get :corners_of object) (defq mesh (. object :get_mesh)))
 						(def object :corners_of mesh :corners_id (length meshes)
 							:ball (mesh-ball mesh))
-						(push meshes (mesh-corners mesh)))
+						(push meshes (if (def? :smooth object) (mesh-corners-smooth mesh) (mesh-corners mesh))))
 					(bind '(centre radius) (get :ball object))
 					;its color, then how much of it there is, as the pixel
 					;shader has it
 					(defq col (. object :get_color) alpha (first col)
+						files (if (def? :shaders object) (get :shaders object))
+						with (if files (scene-pipeline files) pipeline)
 						draw (cat (list (get :corners_id object)
-							(shader-pack (first pipeline)
+							(shader-pack (first with)
 								(list (list 'model mat4x4_obj) (list 'lens mat4x4_frust)))
-							(shader-pack (second pipeline)
+							(shader-pack (second with)
 								(list (list 'color (cat (rest col) (slice col 0 1))))))
-							(ball-rows centre radius mat4x4_obj mat4x4_frust height)))
+							(ball-rows centre radius mat4x4_obj mat4x4_frust height)
+							(if files (list files) '())))
 					;what is see through is drawn after all that is not, the
 					;furthest first, by how far off its middle is
 					(if (< alpha 1.0)
@@ -301,10 +331,10 @@
 			depth (shader-vp-depth (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0)))
 		(raise :meshes)
 		(. canvas :fill 0)
-		(each (lambda ((id vblock pblock &rest _))
-			(defq verts (elem-get meshes id))
-			(shader-vp-draw-tris pipeline verts (scene-order (/ (length verts) 56)) pixmap depth
-				(shader-unpack (first pipeline) vblock) (shader-unpack (second pipeline) pblock) :t)
+		(each (lambda ((id vblock pblock &optional y y1 files))
+			(defq verts (elem-get meshes id) with (if files (scene-pipeline files) pipeline))
+			(shader-vp-draw-tris with verts (scene-order (/ (length verts) 56)) pixmap depth
+				(shader-unpack (first with) vblock) (shader-unpack (second with) pblock) :t)
 			(task-slice)) draws)
 		this)
 

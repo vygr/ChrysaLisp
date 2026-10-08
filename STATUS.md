@@ -28,6 +28,19 @@ Network Map, the network as it is, in three dimensions.
 	45, 17, 8, 3, 1. It had jumped to white at once, and the bedspring
 	with it.
 
+*	The balls shine. Two new shaders, `lib/gpu/shaders/shiny_vertex.shader`
+	and `shiny_lit.shader`, the lighting of Phong as Blinn has it, a light
+	up, left and on our side, and a white spot where the surface is turned
+	half way between it and the eye. A scene object with `:smooth` is lit
+	with a normal a vertex, taken from the faces that share it, so a ball
+	is round, and one with `:shaders` is drawn with a pair of its own. The
+	Mesh demo and the scene's own shaders are as they were.
+	`tests/gpu/test_scene.lisp`.
+
+*	The color of a machine is from its system id, the same on every
+	desktop and every time. It was the next of eight in the order they
+	were heard from.
+
 *	It is the network that is there, not the one that was launched. A child
 	on each node says what that node's links are to, four times a second,
 	so a node that comes or goes is seen, and a ring, a star, a tree, a
