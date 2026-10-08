@@ -83,10 +83,46 @@
 
 (defun sync-safe? (path)
 	; (sync-safe? path) -> :nil | :t
-	;a path the service will write to. Under its root, and not up out of it
-	(and (str? path) (nempty? path) (not (starts-with "/" path))
+	;a path the service will write to, by how it is written. Under its
+	;root, and not up out of it. No .., no start at the top of the host's
+	;files or of a drive, no ~, and no character below a space
+	(and (str? path) (nempty? path) (not (starts-with "/" path)) (not (starts-with "~" path))
 		(not (find ":" path)) (not (find (ascii-char 92) path)) (not (found? path "//"))
+		(not (some (# (< (code %0) 32)) path))
 		(not (some (# (or (eql %0 "..") (eql %0 ".") (eql %0 ".git"))) (split path "/")))))
+
+(defun sync-kind (folder entry)
+	; (sync-kind folder entry) -> :nil | kind
+	;what the host says an entry of a folder is, "4" a folder, "8" a file,
+	;anything else something else, a link for one. :nil if it is not there
+	(defq found :nil)
+	(each! (lambda (it kind) (if (eql it entry) (setq found kind)))
+		(unzip (split (pii-dirlist folder) ",") 2))
+	found)
+
+(defun sync-inside? (root path &optional real)
+	; (sync-inside? root path [real]) -> :nil | :t
+	;is a path, safe as written, under the root as the host has it ? Every
+	;folder on the way has to be a folder, and the file a file, or not
+	;there yet. A link is neither, so a link in the tree to somewhere else
+	;is never gone through, and nothing is written or removed beyond it.
+	;real is a set of the folders found to be so, to ask the host the once
+	(defq at root ok :t segs (split path "/") end (dec (length segs)))
+	(some! (lambda (seg)
+		(defq is_last (= (!) end) next (cat at "/" seg))
+		(cond
+			((and (not is_last) real (. real :find next)))
+			(:t (defq kind (sync-kind at seg))
+				(cond
+					;not there, so nothing is below it, and it will be made
+					((not kind) (setq end -1))
+					((eql kind (if is_last "8" "4"))
+						(if (and real (not is_last)) (. real :insert next)))
+					(:t (setq ok :nil)))))
+		(setq at next)
+		(or (not ok) (= end -1)))
+		(list segs))
+	ok)
 
 (defun sync-walk (root rules)
 	; (sync-walk root rules) -> paths

@@ -44,9 +44,34 @@ be sent one. `sync -x` stops it, and so does the end of its session. The
 name starts with a `*`, a service seen from every machine, where an `@` is a
 service for its own machine.
 
-The service writes only under the root it was started with, the system's
-own tree unless `-r` says another. A path that is not under it, one with a
-`..`, or that starts with a `/`, or into `.git`, is refused.
+## It can not get out of the ChrysaLisp tree
+
+A sync writes and removes files, so where it can reach is fenced, three
+times over.
+
+* **The root is in the tree.** The service's root is the folder ChrysaLisp
+  was launched from, or a folder inside it. `sync -a -r /somewhere` is
+  refused by the command, and a service started some other way with a root
+  outside takes nothing at all.
+* **A path can not be written to climb out.** One with a `..` in it, that
+  starts with a `/` or a `~`, that has a `:` or a `\`, or a character below
+  a space, is refused. So is one into `.git`.
+* **A link is never gone through.** Before a file is written or removed,
+  each folder on the way to it is asked of the host. It has to be a real
+  folder, and the file a real file or not there yet. A symbolic link is
+  neither. So a link in the tree that points at your documents is not a way
+  to them, not to write, and not to remove. The list of a tree does not go
+  through one either.
+
+The worst a sync can do is to the ChrysaLisp install itself, every file in
+it written over or, with `-d`, removed. That you can get back from GitHub.
+
+**What this does not fence.** The files a sync writes include the
+`Makefile` and the launch scripts. They are run later, by you, or by an
+update that does `make install`, and what they run is not held to the tree.
+So a sync from a machine you do not trust is that machine running its code
+as you, at the next launch. The fence is on the sync, the trust is in who
+may send one, and for now that is anyone with a link.
 
 **Any machine that has a link to one that accepts can write its files.**
 There is no key and no check of who is asking. That is right for machines

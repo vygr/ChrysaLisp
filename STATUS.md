@@ -4,6 +4,30 @@
 
 ------
 
+A sync can not reach outside the ChrysaLisp tree. Chris: "I can take
+deleting a ChrysaLisp install, I can't take losing everything I can't get
+back from GitHub."
+
+*	The service's root has to be the tree ChrysaLisp was launched in, or a
+	folder inside it. One started with a root anywhere else takes nothing.
+
+*	No file is written or removed through a symbolic link. Each folder on
+	the way to a file is asked of the host, and has to be a real folder,
+	the file a real file or not there. A path was already refused for a
+	`..`, a `/` at the start, a `:` or a `\`, now a `~` and a character
+	below a space as well.
+
+*	Tried by hand, a tree with a link to `/tmp`, a link to a file outside,
+	and a root that was itself a link. A write through each, and a remove,
+	all refused, and nothing outside was changed. The suite has no way to
+	make a link, so its tests are of real folders and of a root outside.
+
+*	It does not fence what the synced files do when they are run. A
+	`Makefile` or a launch script from another machine is that machine's
+	code run as you. `docs/ai_digest/sync.md` says so.
+
+------
+
 New `sync` command, the files of another machine made the same as this
 one's, over the links, with no `ssh` and no `rsync`. Chris: "All we have to
 do to update a rack is update one system, then walk away." This is the

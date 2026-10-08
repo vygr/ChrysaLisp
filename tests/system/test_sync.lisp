@@ -36,7 +36,21 @@
 	(sync-safe? ".git/config") :nil
 	(sync-safe? "a/.git/config") :nil
 	(sync-safe? "c:/windows") :nil
+	(sync-safe? "~/Documents/x") :nil
+	(sync-safe? (cat "a" (ascii-char 0) "/../b")) :nil
+	(sync-safe? (cat "a" (ascii-char 10) "b")) :nil
 	(sync-safe? (cat "a" (ascii-char 92) "b")) :nil)
+
+;under the root as the host has it. A folder on the way has to be a folder
+(save "x" "tests/scratch/sync_fence/real/file.txt")
+(test-cases
+	(sync-inside? "tests/scratch/sync_fence" "real/file.txt") :t
+	(sync-inside? "tests/scratch/sync_fence" "real/new.txt") :t
+	(sync-inside? "tests/scratch/sync_fence" "not/there/yet.txt") :t
+	(sync-inside? "tests/scratch/sync_fence" "real") :nil
+	(sync-inside? "tests/scratch/sync_fence" "real/file.txt/below.txt") :nil
+	(sync-inside? "tests/scratch/sync_fence" "real/file.txt" (Fset 3)) :t)
+(pii-remove "tests/scratch/sync_fence/real/file.txt")
 
 ;what differs
 (defq sy_diff (sync-diff '(("a" 1 "H1") ("b" 2 "H2") ("c" 3 "H3")) '(("a" 1 "H1") ("b" 2 "XX") ("d" 4 "H4"))))
@@ -112,6 +126,19 @@
 (assert-true "and it is still there" (pii-fstat (cat sy_src "/one.txt")))
 (sync-tell sy_svc sy_mbox +sync_type_put (cat "late.txt" (ascii-char 10) "part") 4 8)
 (assert-eq "a part of a file with no start is refused" -3 (first (sync-hear sy_mbox)))
+;a service given a root that is not in the system's tree takes nothing
+(mail-send (open-child "service/sync/app.lisp" +kn_call_pin) (cat "*SyncTestOut" (ascii-char 10) "/tmp"))
+(setq sy_wait 0)
+(while (and (empty? (sync-services "*SyncTestOut")) (< (setq sy_wait (inc sy_wait)) 1500)) (task-sleep 10000))
+(defq sy_out (first (first (sync-services "*SyncTestOut"))))
+(sync-tell sy_out sy_mbox +sync_type_put (cat "sync_outside_probe.txt" (ascii-char 10) "out") 0 3)
+(assert-eq "a service with a root outside the tree refuses a file" -1 (first (sync-hear sy_mbox)))
+(assert-true "and it is not written" (not (pii-fstat "/tmp/sync_outside_probe.txt")))
+(sync-tell sy_out sy_mbox +sync_type_list "")
+(assert-eq "and will not list it" -1 (first (sync-hear sy_mbox)))
+(sync-tell sy_out sy_mbox +sync_type_quit "")
+(sync-hear sy_mbox)
+
 (sync-tell sy_svc sy_mbox 99 "")
 (assert-eq "and what it does not know" -1 (first (sync-hear sy_mbox)))
 
@@ -124,4 +151,4 @@
 	(progn (sync-tell sy_svc sy_mbox +sync_type_list "") (sync-hear sy_mbox 300000)))
 
 (sy-clear sy_src) (sy-clear sy_dst)
-(undef (env) 'sy_rules 'sy_diff 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_wait 'sy_svc 'sy_res 'sy_mbox)
+(undef (env) 'sy_rules 'sy_diff 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_wait 'sy_svc 'sy_res 'sy_mbox 'sy_out)

@@ -55,6 +55,8 @@
 			(opt_a
 				(cond
 					((nempty? here) (print "This machine takes a sync already, under " (last (first here))))
+					((not (or (eql opt_r ".") (and (sync-safe? opt_r) (sync-inside? "." (cat opt_r "/x")))))
+						(print "A sync is only taken under the system's own tree, not " opt_r))
 					(:t (mail-send (open-child "service/sync/app.lisp" +kn_call_pin)
 							(cat "*Sync" (ascii-char 10) opt_r))
 						(print "This machine will take a sync, under " opt_r))))
