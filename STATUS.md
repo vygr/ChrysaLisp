@@ -4,6 +4,31 @@
 
 ------
 
+Sharing the GPU, put right for a slow one.
+
+*	One draw at a time for each texture, the change below, was right on a
+	fast GPU and wrong on a slow one. On a Raspberry Pi 4 with the Surface
+	and Mesh demos both on its GPU, draws piled up in front of the GUI's
+	own, and the display went from 37 frames a second to 2.5.
+
+*	The rule now. One draw at a time for a texture. And a draw waits for
+	the GPU to be done with any other texture's draw, unless that draw is
+	fresh, handed over in the last 3ms, which on a fast GPU every draw is.
+	A texture that was refused has the next turn. `gpu_may_draw()`,
+	`src/host/gui_sdl3.cpp`.
+
+*	The two demos together, the frames of Mesh that were drawn, and how
+	often the display was.
+
+	| | one for the GUI | one a texture | the rule now |
+	|---|---|---|---|
+	| Apple M4 Max, 10 seconds | 216 of 299 | 299 of 299 | 299 of 299 |
+	| Raspberry Pi 4, about 30 seconds | 61 | 29 | 215 |
+	| the Pi's display, a second | 37 | 2.5 | 32 |
+
+*	On the Pi it was the first of them that starved Mesh, Surface asks
+	every tick and took every gap. It is the turn that mends that.
+
 Two apps that draw on the GPU no longer hold each other up.
 
 *	The Mesh demo stuttered with the Surface demo running beside it, both

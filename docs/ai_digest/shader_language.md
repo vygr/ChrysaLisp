@@ -736,7 +736,8 @@ Raspberry Pi 4 that is the 18 seconds, the first time, and the surface demo's
 status line says so while the desktop carries on, where the whole GUI used to
 stop.
 
-One shader draw is on the go at a time for a canvas as well, so `:nil` is also the GPU not
+One shader draw is on the go at a time for a canvas as well, and on a slow GPU
+for the whole GUI, `docs/ai_digest/host_interface.md` has the rule, so `:nil` is also the GPU not
 having finished the last one. On a fast GPU it
 never matters. On a slow one it is what keeps the desktop alive. The GUI is
 drawn by the same GPU, a GPU can not be stopped part way through a draw, and

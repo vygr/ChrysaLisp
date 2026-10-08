@@ -93,10 +93,29 @@ struct Texture
 	SDL_Texture *texture;
 	uint64_t mode;
 	// the last shader or triangle draw into this texture, if the GPU has not
-	// finished it. One draw is on the go at a time for a texture, not for the
-	// whole GUI, so two apps that draw on the GPU do not hold each other up
+	// finished it, and when it was handed over
 	SDL_GPUFence *fence;
+	Uint64 drawn_at;
 };
+
+// Who may draw on the GPU, and when. See gpu_may_draw().
+static Texture *gpu_flights[32];
+static int gpu_num_flights = 0;
+static Texture *gpu_waiting = nullptr;
+static Uint64 gpu_waiting_since = 0;
+// another texture's draw that is younger than this does not hold a draw up
+static const Uint64 gpu_fresh_ns = 3000000;
+// and one that was refused has the next turn for this long, then loses it
+static const Uint64 gpu_turn_ns = 100000000;
+
+static void gpu_forget(Texture *tex)
+{
+	// a texture that is going, or has no draw on the go
+	for (int i = 0; i < gpu_num_flights; ++i)
+	{
+		if (gpu_flights[i] == tex) gpu_flights[i--] = gpu_flights[--gpu_num_flights];
+	}
+}
 
 static void *new_texture(SDL_Texture *t, uint64_t mode)
 {
@@ -105,6 +124,7 @@ static void *new_texture(SDL_Texture *t, uint64_t mode)
 	texture->texture = t;
 	texture->mode = mode;
 	texture->fence = nullptr;
+	texture->drawn_at = 0;
 	return texture;
 }
 
@@ -264,6 +284,8 @@ void host_gui_destroy_texture(void *handle)
 	if (!texture) return;
 #if HOST_GUI_GPU
 	if (texture->fence && device) SDL_ReleaseGPUFence(device, texture->fence);
+	gpu_forget(texture);
+	if (gpu_waiting == texture) gpu_waiting = nullptr;
 #endif
 	SDL_DestroyTexture(texture->texture);
 	SDL_free(texture);
@@ -656,6 +678,66 @@ void *host_gui_shader_texture(uint64_t w, uint64_t h)
 // pixel shader's block, then the two blocks, each made up to a whole 8
 // bytes.
 
+#if HOST_GUI_GPU
+static bool gpu_may_draw(Texture *tex)
+{
+	// May this texture have a shader or triangle draw now ?
+	//
+	// One draw is on the go at a time for a texture. And a draw has to wait
+	// for the GPU to be done with any other texture's draw, unless that
+	// draw is fresh, handed over only a moment ago. The GUI is drawn by the
+	// same GPU, and a GPU can not be stopped part way through a draw, so
+	// on a slow one draws that pile up stop the desktop, a Raspberry Pi 4
+	// went to 2 frames a second with two apps drawing. On a fast one every
+	// draw is fresh, the GPU is done with it in a millisecond or two, and
+	// two apps draw with no thought for each other.
+	//
+	// A texture that is refused has the next turn. Without that an app that
+	// asks every tick takes every gap, and one that asks half as often is
+	// never drawn.
+	auto now = SDL_GetTicksNS();
+	if (tex->fence)
+	{
+		if (!SDL_QueryGPUFence(device, tex->fence)) return false;
+		SDL_ReleaseGPUFence(device, tex->fence);
+		tex->fence = nullptr;
+		gpu_forget(tex);
+	}
+	bool busy = false;
+	for (int i = 0; i < gpu_num_flights; ++i)
+	{
+		auto other = gpu_flights[i];
+		if (SDL_QueryGPUFence(device, other->fence))
+		{
+			SDL_ReleaseGPUFence(device, other->fence);
+			other->fence = nullptr;
+			gpu_flights[i--] = gpu_flights[--gpu_num_flights];
+		}
+		else if (now - other->drawn_at > gpu_fresh_ns) busy = true;
+	}
+	if (gpu_waiting && now - gpu_waiting_since > gpu_turn_ns) gpu_waiting = nullptr;
+	if (busy || (gpu_waiting && gpu_waiting != tex) || gpu_num_flights >= 32)
+	{
+		if (!gpu_waiting)
+		{
+			gpu_waiting = tex;
+			gpu_waiting_since = now;
+		}
+		return false;
+	}
+	if (gpu_waiting == tex) gpu_waiting = nullptr;
+	return true;
+}
+
+static void gpu_drawing(Texture *tex, SDL_GPUFence *fence)
+{
+	// a draw has been handed to the GPU
+	tex->fence = fence;
+	tex->drawn_at = SDL_GetTicksNS();
+	if (fence) gpu_flights[gpu_num_flights++] = tex;
+}
+#endif
+
 uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 {
 #if !HOST_GUI_GPU
@@ -686,15 +768,7 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 		else if (state != shader_ready || !d->pair->mesh) { result = (uint64_t)-1; break; }
 	}
 	auto tex = (Texture*)texture;
-	if (result == 1 && tex->fence)
-	{
-		if (!SDL_QueryGPUFence(device, tex->fence)) result = 0;
-		else
-		{
-			SDL_ReleaseGPUFence(device, tex->fence);
-			tex->fence = nullptr;
-		}
-	}
+	if (result == 1 && !gpu_may_draw(tex)) result = 0;
 	auto t = ((Texture*)texture)->texture;
 	auto target = result == 1 ? (SDL_GPUTexture*)SDL_GetPointerProperty(SDL_GetTextureProperties(t),
 		SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr) : nullptr;
@@ -771,7 +845,7 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 			SDL_DrawGPUPrimitives(pass, d->mesh->floats / d->pair->stride, 1, 0, 0);
 		}
 		SDL_EndGPURenderPass(pass);
-		tex->fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+		gpu_drawing(tex, SDL_SubmitGPUCommandBufferAndAcquireFence(cmd));
 	}
 	SDL_free(draws);
 	return result;
@@ -797,12 +871,7 @@ uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, ui
 	if (state == shader_building) return 0;
 	if (state != shader_ready || shader->mesh) return (uint64_t)-1;
 	auto tex = (Texture*)texture;
-	if (tex->fence)
-	{
-		if (!SDL_QueryGPUFence(device, tex->fence)) return 0;
-		SDL_ReleaseGPUFence(device, tex->fence);
-		tex->fence = nullptr;
-	}
+	if (!gpu_may_draw(tex)) return 0;
 	auto t = ((Texture*)texture)->texture;
 	auto target = (SDL_GPUTexture*)SDL_GetPointerProperty(SDL_GetTextureProperties(t),
 		SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr);
@@ -830,7 +899,7 @@ uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, ui
 	}
 	SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
 	SDL_EndGPURenderPass(pass);
-	tex->fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+	gpu_drawing(tex, SDL_SubmitGPUCommandBufferAndAcquireFence(cmd));
 	return 1;
 #endif
 }
