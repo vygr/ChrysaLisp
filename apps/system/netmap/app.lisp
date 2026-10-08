@@ -36,7 +36,10 @@
 	;middle, what is lost each step, and the step
 	+k_push (n2r 0.02) +k_spring (n2r 4.0) +rest (n2r 0.5) +k_heat (n2r 2.0)
 	+k_middle (n2r 0.3) +damp (n2r 0.85) +dt (n2r 0.05)
-	+ball_size (n2r 0.07) +bar_size (n2r 0.012) +fit (n2r 0.85)
+	+ball_size (n2r 0.09) +bar_size (n2r 0.016)
+	;how far out the furthest node is drawn. The window is 2 from the
+	;middle to an edge, where the middle of it all is
+	+fit (n2r 1.5)
 	;a color for each machine, alpha first
 	+machine_cols ''((1.0 0.3 0.8 1.0) (1.0 1.0 0.7 0.2) (1.0 0.5 1.0 0.4) (1.0 1.0 0.4 0.8)
 		(1.0 0.4 1.0 1.0) (1.0 1.0 1.0 0.4) (1.0 0.7 0.5 1.0) (1.0 0.9 0.9 0.9)))
