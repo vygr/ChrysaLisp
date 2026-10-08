@@ -4,6 +4,15 @@
 
 ------
 
+The words of the Canvas demo are bolder, Chris's eye on it. The outlines of
+the glyphs are made half as big again and stroked, and the stroke filled
+with them, so a stem is near twice as wide as the font has it and the
+holes in the letters stay open. They were a quarter of the width of the
+strokes around them, a couple of pixels when a shape was small. The strokes
+of the other shapes are an eighth thicker. `apps/demos/canvas/scene.inc`.
+
+------
+
 A link that is lost is made again, seen to happen.
 
 *	It was in the code and in the tests of the logic, and had not been
