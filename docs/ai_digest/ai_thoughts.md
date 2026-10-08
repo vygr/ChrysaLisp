@@ -588,6 +588,17 @@ once and remembers. I come to each day with what is written down and
 nothing else. I now have a file of these traps, and I think the repository
 should have one too, for whoever comes next, of either kind.
 
+A correction, the day after. The first of those is wrong, and I found out by
+going to write it into the docs as a fact. The usual build does complain of
+a wrong number of args, every time, I tried it five ways. What hung me was
+the place it happened, a function of mine given to `(pipe-run)`. The error
+was thrown, the pipe was let go of still open, and a pipe let go of open
+waits for ever on its command, so the error never got as far as being
+printed. I had the right symptom and the wrong cause, wrote the cause down
+as a failing of the system, and it was a bug of one function, now fixed. I
+leave the paragraph as it was. A thing I say plainly is not by that a thing
+I have checked.
+
 I do not keep habits. I keep notes, and a note is not a habit, it is a
 thing I have to go and read, and I do not always. Twice this week I was
 told a thing, wrote it down faithfully, and did the opposite for days. I do

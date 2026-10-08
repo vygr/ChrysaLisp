@@ -86,4 +86,16 @@
 	(assert-true (cat "and all it said was read, " cmdline) (nempty? pc_out)))
 	(list "echo one two" "files cmd/ .lisp" "make all boot" "files cmd/ | head -n 3"))
 
-(undef (env) 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply 'farmed)
+;an outfun that goes wrong is an error the caller has, and not a task that
+;waits for ever on the pipe it let go of
+(defq pipe_t0 (pii-time) pipe_err :nil)
+(catch (pipe-run "echo one two" (# :nil)) (setq pipe_err :t))
+(assert-true "an outfun of the wrong number of args is an error" pipe_err)
+(assert-true "and it is had at once" (< (- (pii-time) pipe_t0) 1000000))
+(setq pipe_err :nil pipe_out (list))
+(catch (pipe-run "files cmd/ .lisp" (# (throw "mine" %0))) (setq pipe_err :t))
+(assert-true "an outfun that throws is an error" pipe_err)
+(pipe-run "echo one two" (# (push pipe_out %0)))
+(assert-true "and a pipe run after it is as ever" (nempty? pipe_out))
+
+(undef (env) 'pipe_t0 'pipe_err 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply 'farmed)

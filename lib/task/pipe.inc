@@ -148,15 +148,19 @@
 	(task-count -1) ;we will be only collating results !
 	(setd out print)
 	(defq pipe (Pipe cmdline))
-	(while pipe
-		(defq data (. pipe :read))
-		(cond
-			((eql data :nil)
-				;pipe is closed
-				(. pipe :close)
-				(setq pipe :nil))
-			(:t ;string from pipe
-				(callback out (penv) data))))
+	;an error from the outfun closes the pipe on its way by. A pipe let go
+	;of while still open waits for ever on a command that has not stopped,
+	;and the error is never seen
+	(catch (while pipe
+			(defq data (. pipe :read))
+			(cond
+				((eql data :nil)
+					;pipe is closed
+					(. pipe :close)
+					(setq pipe :nil))
+				(:t ;string from pipe
+					(callback out (penv) data))))
+		(progn (. pipe :close) (task-count 1) :nil))
 	(task-count 1)) ;we where only collating results !
 
 ;module

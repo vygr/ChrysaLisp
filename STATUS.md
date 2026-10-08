@@ -4,6 +4,24 @@
 
 ------
 
+A key from a password, and an error that was a hang.
+
+*	`(pbkdf2-sha256 password salt count size)`, `lib/crypto/pbkdf2.inc`,
+	PBKDF2 of RFC 8018 over the HMAC that was there. All Lisp but the hash.
+	The hash of the key with each pad is done once, so a time round is two
+	calls of the native code, 100,000 of them in 0.48 seconds on an M4.
+	Tested with the cases that go round with RFC 6070, the answers from
+	Python's `hashlib`. `docs/ai_digest/crypto.md`.
+
+*	An error thrown by the function given to `(pipe-run)`, one of the wrong
+	number of args say, never arrived. The pipe was let go of while still
+	open, and a pipe let go of open waits for ever on its command. The task
+	hung with nothing said. `(pipe-run)` closes the pipe as the error goes
+	by. A `Pipe` an app makes for itself and drops without `(. pipe :close)`
+	still waits, that is not changed.
+
+------
+
 Notes for 7.2, a draft, `docs/releases/v7.2.md`, all that has gone in since
 the 7.1 tag but the frame buffer and sound work its own notes have. It is to
 be a tag and not a GitHub release, when the list of what is outstanding has
