@@ -88,13 +88,12 @@
 
 ;an outfun that goes wrong is an error the caller has, and not a task that
 ;waits for ever on the pipe it let go of
+;only a checked build has the error, a release build skips the two
 (defq pipe_t0 (pii-time) pipe_err :nil)
-(catch (pipe-run "echo one two" (# :nil)) (setq pipe_err :t))
-(assert-true "an outfun of the wrong number of args is an error" pipe_err)
+(assert-error "an outfun of the wrong number of args is an error" (pipe-run "echo one two" (# :nil)))
 (assert-true "and it is had at once" (< (- (pii-time) pipe_t0) 1000000))
-(setq pipe_err :nil pipe_out (list))
-(catch (pipe-run "files cmd/ .lisp" (# (throw "mine" %0))) (setq pipe_err :t))
-(assert-true "an outfun that throws is an error" pipe_err)
+(setq pipe_out (list))
+(assert-error "an outfun that throws is an error" (pipe-run "files cmd/ .lisp" (# (throw "mine" %0))))
 (pipe-run "echo one two" (# (push pipe_out %0)))
 (assert-true "and a pipe run after it is as ever" (nempty? pipe_out))
 

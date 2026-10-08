@@ -172,8 +172,9 @@ sorts the list it is given, it does not make another.
 `make all boot` is the checked build. A wrong number of args, a wrong type,
 an index past the end, are each an error with the name of the function. A
 release build, `make it`, the snapshot, and the emulator's image, has none
-of those checks, and the same mistake there stops the node or worse. Work
-in the checked build. `docs/ai_digest/exceptions.md`.
+of those checks, and the same mistake there stops the node or worse. Nor
+does a `throw` from a function given to `(pipe-run)` get out of it there.
+Work in the checked build. `docs/ai_digest/exceptions.md`.
 
 ### A handler that gives `:nil` passes the error on
 
