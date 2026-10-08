@@ -470,8 +470,9 @@ GPU it is 36ms a frame alone on one node and 40ms with four nodes up, which
 is the 30 a second of the demo's timer, the GPU is busy for a frame in
 several hundred. That is with see through pixels and 4 samples a pixel.
 
-The GLSL back end has no vertex stage. Windows takes the SPIR-V, and has not
-been tried, its host has to be built again first.
+The GLSL back end has a pair too, `(shader-glsl-pair)`, see its section. No
+host draws with it. Windows has been run, Martyn Blyss, the Mesh demo with
+its GPU button.
 
 ## Functions For Lisp To Call
 
@@ -589,6 +590,23 @@ of the MSL and the set and binding of the SPIR-V, all laid out as the inputs
 block, and the frag coord with y going up.
 
 ## The GLSL Back End
+
+`(shader-glsl-pair vertex pixel)` is the text of a vertex shader and a
+fragment shader that go together, `(vertex_text fragment_text)`. The attrs
+of a vertex are each an `attribute`, the varyings each a `varying`, by
+name, and a matrix is a `mat4`. A varying the vertex shader does not set is
+0. Where it puts a vertex is `gl_Position` as it is, z of -1 to 1 is what
+GL has. The fragment shader has the varyings the pixel shader reads, the
+frag coord is GL's own, y up, a pixel whose alpha is under 1 in 255 is not
+drawn, and the color leaves with its alpha multiplied in, as the other back
+ends have it. Both halves are given the same precision, so that an input
+the two both have links as the one uniform.
+
+The pair of the Mesh demo, `mesh_vertex.shader` and `mesh_lit.shader`, was
+given to `glslangValidator` on a Raspberry Pi 4, as GLSL ES 1.00 and as
+desktop GLSL 1.20, each half alone and the two linked, with no error. No
+host draws with it, the SDL3 driver takes the Metal and the SPIR-V, so it
+has been compiled and not run.
 
 `(shader-glsl program)` gives the text of a fragment shader. Each input is a
 uniform of the same name, each function is a function, `main` becomes
@@ -1103,10 +1121,8 @@ The app is in the Demos list of the launcher, as surface.
 * Raylib is the fall back if SDL3 will not do for a host.
 * The GLSL back end does not guard names against the reserved words of GLSL.
 * Compute, and rendering as a service for a node with no GPU, are deferred.
-* The GLSL back end has no vertex stage. Triangles are drawn as native
+* No host draws triangles with the GLSL pair. They are drawn as native
   code, and on the GPU through Metal and Vulkan.
-* GPU triangles on Windows. The host there has to be built again for the
-  calls a mesh and a frame have.
 * Textures as inputs, and compute.
 * A shader gives four channels. One that makes a single channel image, a
   greyscale or a glyph, gives a grey and the texture is made in that mode

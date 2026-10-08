@@ -4,6 +4,25 @@
 
 ------
 
+The GLSL back end has a vertex stage, `(shader-glsl-pair vertex pixel)`.
+
+*	A vertex shader and a pixel shader that go together, as a vertex shader
+	and a fragment shader of GLSL, the text of each. The attrs are
+	attributes, the varyings are varyings, by name, a matrix is a `mat4`. A
+	matrix times a vec3 turns it by the 3 by 3, as the other back ends
+	have it. Alpha under 1 in 255 is not drawn, and the color leaves with
+	its alpha multiplied in. `lib/gpu/glsl.inc`.
+
+*	The pair of the Mesh demo was given to `glslangValidator` on a
+	Raspberry Pi 4. GLSL ES 1.00 and desktop GLSL 1.20, each half alone and
+	the two linked, no error. A fault put in on purpose was caught, so it
+	was looking.
+
+*	It is compiled, not run. No host draws with GLSL, the SDL3 driver
+	takes Metal and SPIR-V.
+
+------
+
 A key for the links between machines. After the 7.2 tag.
 
 *	A link, once made, is trusted with everything, the node at the other

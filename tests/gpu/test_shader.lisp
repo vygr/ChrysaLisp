@@ -983,9 +983,36 @@
 			"\tfloat4 c = clamp(s.shader_main(float2(in.position.x, float2(target.size).y - in.position.y)), 0.0, 1.0);"
 			"\tif (c.w < 0.003921568627) discard_fragment();"
 			"\treturn float4(c.xyz * c.w, c.w);"))))
-(assert-true "MSL pair, a matrix times a vec3" (find "sh_mul3(model_, normal_)" mv))
+(assert-true "MSL pair, a matrix times a vec3" (found? mv "sh_mul3(model_, normal_)"))
 (assert-error "MSL pair, two that do not go together" (shader-msl-pair vert
 	(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
+
+;the GLSL text for a pair, a vertex shader and a fragment shader
+(bind '(gv gf) (shader-glsl-pair vert pix))
+(each (lambda ((name text want))
+	(assert-true (cat "GLSL pair, " name) (every (# (find %0 (split text sh_lf))) want)))
+	(list
+		(list "the vertex shader" gv (list
+			"precision highp float;" "uniform mat4 model;"
+			"attribute vec3 position;" "attribute vec3 normal;"
+			"varying float shade;" "varying vec3 color;" "varying vec2 unset;"
+			"\tunset = vec2(0.0);" "\tgl_Position = shader_main();"))
+		(list "the fragment shader, its varyings by name" gf (list
+			"precision highp float;" "varying vec3 color;" "varying float shade;"
+			"\tvec4 c = clamp(shader_main(gl_FragCoord.xy), 0.0, 1.0);"
+			"\tif (c.a < 0.003921568627) discard;"
+			"\tgl_FragColor = vec4(c.rgb * c.a, c.a);"))))
+(assert-true "GLSL pair, a matrix times a vec3" (found? gv "sh_mul3(model, normal)"))
+(assert-true "GLSL pair, the fragment shader has no attribute" (not (found? gf "attribute")))
+(assert-true "GLSL pair, a varying the pixel shader does not read is not in it" (not (found? gf "unset")))
+(assert-error "GLSL pair, two that do not go together" (shader-glsl-pair vert
+	(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
+(assert-error "GLSL pair, the wrong way round" (shader-glsl-pair pix vert))
+;the two of the Mesh demo, which a GLSL compiler has taken and linked
+(bind '(gv gf) (shader-glsl-pair (shader-load "lib/gpu/shaders/mesh_vertex.shader")
+	(shader-load "lib/gpu/shaders/mesh_lit.shader")))
+(assert-true "GLSL pair, the Mesh demo's vertex shader" (find "\tboth = (lens * model);" (split gv sh_lf)))
+(assert-true "GLSL pair, the Mesh demo's fragment shader" (find "uniform vec4 color;" (split gf sh_lf)))
 
 ;the SPIR-V modules for a pair. Each is a stream of instructions that
 ;parses to its end, with every id made once, and has what a vertex and a
@@ -1018,8 +1045,8 @@
 (assert-error "SPIR-V pair, two that do not go together" (shader-spirv-pair vert
 	(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
 
-;the back ends that have no vertex stage yet say so
-(assert-error "GLSL, not yet" (shader-glsl vert))
+;a vertex shader, or a pixel shader with varyings, is half of a pair
+(assert-error "GLSL, a vertex shader is half of a pair" (shader-glsl vert))
 (assert-error "MSL, a pixel shader with varyings is half of a pair" (shader-msl pix))
 (assert-error "SPIR-V, a vertex shader is half of a pair" (shader-spirv vert))
 (assert-error "VP, a pixel shader with varyings shades no tile" (shader-vp pix))
