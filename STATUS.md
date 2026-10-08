@@ -4,6 +4,50 @@
 
 ------
 
+The Net services make a mesh between themselves. Chris's idea, a TCP link
+was treated as a wire between two machines and it is not one.
+
+*	Every machine that runs `link -l 3333 -a` and `link -a` finds the
+	others and has one link to each. None is a through node for two others.
+	Of a pair, the lower system id makes the link and the other waits, 15
+	seconds at most, so there are not two. On an M4, an x86_64 Mac and a
+	Raspberry Pi 4 that is three links, one a pair, steady, where two
+	machines alone made two.
+
+*	Each service keeps a list of its peers, system id, address and port,
+	from the beacons it hears. Every 2 seconds it mails the list to each
+	other `@Net` it can find, a hello, and adds what it is sent to its own.
+	It then links to any peer it has an address for and no link to. So a
+	lost link is made again, there was nothing that did that.
+
+*	New `link -m host`, a mesh with no discovery. The machine joins by one
+	address and is linked to every peer that one knows. The M4 joined the Pi
+	with it, and had a link of its own to the x86_64 Mac 14 seconds on.
+	Without the `-m` it had none and the Pi was in the middle.
+
+*	New `(net-links)`, the system id of the peer of each link the node
+	has, from the kernel's own list. It is how a service knows there is a
+	link already, whoever made it, by discovery or by hand.
+
+*	A beacon says if its sender hears beacons too, a `D` on the end, so one
+	that only listens and beacons is still dialled by one that discovers,
+	as it was. The old use, a server and a client, gives one link as before.
+
+*	`service/net/mesh.inc` is the logic alone, who knows whom and who
+	dials, with 27 tests in `tests/net/test_mesh.lisp`. The rest is tested
+	on the three machines by hand, there is no test in the suite that has
+	more than one machine.
+
+*	Not done. A peer that has gone is not forgotten, it is dialled every 10
+	seconds for as long as the service runs. Every pair is linked however
+	many machines there are, there is no limit. Only the node with the Net
+	service has the links, the other nodes of a machine reach it over their
+	own. And anything that speaks the beacon is let in.
+
+*	The boot image is 264 bytes bigger, 238,796 on ARM64.
+
+------
+
 Auto discovery made a new link every 2 seconds, for ever.
 
 *	`link -a` hears a beacon and connects to a peer it has not seen. It

@@ -1,4 +1,5 @@
 (import "./app.inc")
+(import "./mesh.inc")
 
 ;low-level PII network bindings
 (ffi "service/net/lisp_init" net-init)
@@ -25,6 +26,8 @@
 ; (net-udp-send handle host port str) -> bytes_sent
 (ffi "service/net/lisp_udp_recv" net-udp-recv)
 ; (net-udp-recv handle max_len) -> (data ip port) | :nil
+(ffi "service/net/lisp_links" net-links)
+; (net-links) -> (system_id ...)
 
 (bits +net_poll 0
 	(bit in out error))
@@ -51,7 +54,9 @@
 		beacon_socket 0
 		last_beacon_time 0
 		disco_socket 0
-		disco_seen (Fset 31)
+		mesh :nil
+		mesh_peers (Fmap 31)
+		last_mesh_time 0
 		my_sys_id (hex-encode (system-id))
 		my_inst_id (hex-encode (first (lisp-nodes))))
 	(mail-timeout (elem-get select +select_timer) sleep_time 0)
@@ -136,10 +141,13 @@
 								(mail-send reply_id (setf-> (str-alloc +net_rpc_reply_size)
 									(+net_rpc_reply_handle 0)
 									(+net_rpc_reply_status -1)))))
+						(+net_rpc_type_hello
+							(if mesh (mesh-heard mesh_peers my_sys_id (slice msg +net_rpc_hello_text -1))))
 						(+net_rpc_type_discover
-							(when (= disco_socket 0)
+							(setq mesh :t)
+							(when (and (= disco_socket 0) (/= (getf msg +net_rpc_discover_udp) 0))
 								(setq disco_socket (net-udp-bind +disco_udp_port)))
-							(if (> disco_socket 0)
+							(if (or (> disco_socket 0) (= (getf msg +net_rpc_discover_udp) 0))
 								(mail-send reply_id (setf-> (str-alloc +net_rpc_reply_size)
 									(+net_rpc_reply_handle disco_socket)
 									(+net_rpc_reply_status 0)))
@@ -154,7 +162,10 @@
 						(when (> (- now last_beacon_time) +beacon_interval)
 							(setq last_beacon_time now active :t)
 							(. beacon_ports :each (lambda (p)
-								(defq beacon_msg (cat "CHRYSA_BEACON:" (str p) ":" my_sys_id ":" my_inst_id))
+								;the D says this one hears beacons and dials, so of two
+								;that both do, only one need
+								(defq beacon_msg (cat "CHRYSA_BEACON:" (str p) ":" my_sys_id ":" my_inst_id
+									(if (> disco_socket 0) ":D" "")))
 								(net-udp-send beacon_socket "255.255.255.255" +disco_udp_port beacon_msg)
 								(net-udp-send beacon_socket "127.0.0.1" +disco_udp_port beacon_msg)))))
 					; Poll incoming beacons if auto-discovery active
@@ -169,19 +180,31 @@
 									(defq tcp_port (str-as-num (elem-get parts 1))
 										peer_sys_id (elem-get parts 2)
 										peer_inst_id (elem-get parts 3))
+									;what is heard is noted, the links are made below
 									(unless (eql peer_inst_id my_inst_id)
-										(defq peer_key (cat src_ip ":" (str tcp_port)))
-										(unless (. disco_seen :find peer_key)
-											(. disco_seen :insert peer_key)
-											(print "Auto-discovery: connecting to peer at " peer_key)
-											(defq child (open-child "service/net/link" +kn_call_pin))
-											(when (/= (get-long child 0) 0)
-												;a copy goes to the link. It ends the host at the ':'
-												;where it lies, in the message, and a str sent on the
-												;one node is the str itself, so the key of the peer
-												;was no longer what was looked for, and every beacon
-												;made another link
-												(mail-send child (cat peer_key)))))))))
+										(mesh-beacon mesh_peers peer_sys_id src_ip tcp_port
+											(and (> (length parts) 4) (eql (elem-get parts 4) "D"))
+											(nempty? beacon_ports)))))))
+					; The mesh. A link to each peer there is none to, and a hello to
+					; each of the other services
+					(when (and mesh (> (- now last_mesh_time) +beacon_interval))
+						(setq last_mesh_time now)
+						(defq linked (map (const hex-encode) (net-links)))
+						(. mesh_peers :each (lambda (sys peer)
+							(when (mesh-dial? peer my_sys_id sys (find sys linked) now)
+								(setq active :t)
+								(defq child (open-child "service/net/link" +kn_call_pin))
+								(when (/= (get-long child 0) 0)
+									(mail-send child (cat (elem-get peer +mesh_peer_ip) ":"
+										(str (elem-get peer +mesh_peer_port))))))))
+						(defq hello (cat (setf-> (str-alloc +net_rpc_hello_size)
+								(+net_rpc_type +net_rpc_type_hello)
+								(+net_rpc_reply_id (task-mbox)))
+							(mesh-hello mesh_peers my_sys_id)))
+						(each (lambda (entry)
+							(defq mbox (hex-decode (second (split entry ","))))
+							(unless (eql mbox (task-mbox)) (mail-send mbox (cat hello))))
+							(mail-enquire "@Net,")))
 					(. sessions :each (lambda (handle session)
 						(case (get :type session)
 							(:connecting

@@ -464,6 +464,37 @@ link -l 3333 -a
 link -a
 ```
 
+#### A Mesh, With Nobody In The Middle
+
+A TCP link is not a wire between two machines, any machine on a network can
+reach any other. So the Net services arrange it between themselves. Run both
+of these on every machine:
+
+```code
+link -l 3333 -a
+link -a
+```
+
+Each machine finds the others and ends with one link to each. No machine is
+on the way between two others, and of each pair only one makes the link, the
+one with the lower system id. If a link is lost it is made again. Nothing
+is asked of an application, it mails a service by name as it always did.
+
+A machine that can not hear the beacons, on another subnet say, joins by
+the address of any one machine, and is then linked to all of them:
+
+```code
+link -m 192.168.1.100
+```
+
+How it is done. Each service keeps a list of the others it knows, who they
+are and where they listen, from their beacons. Every 2 seconds it sends its
+list to each other Net service it can reach, a hello, by mail, as any
+service talks to another. What it hears it adds to its own, and it links to
+any peer it has no link to. Two people with notepads who meet, compare
+pages, copy what the other has that they do not, and go back to what they
+were doing. `service/net/mesh.inc`.
+
 ### Best Practices & Tips
 
 * **Connections are fully bidirectional**:

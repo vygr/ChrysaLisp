@@ -1,6 +1,6 @@
 ; RPC command types
 (enums +net_rpc_type 0
-	(enum connect listen accept link beacon discover))
+	(enum connect listen accept link beacon discover hello))
 
 ; Common RPC request header
 (structure +net_rpc 0
@@ -31,8 +31,14 @@
 (structure +net_rpc_beacon +net_rpc_size
 	(uint port))
 
-; Discover request: tells @Net to listen for beacons on UDP 3334 and auto-link
-(structure +net_rpc_discover +net_rpc_size)
+; Discover request: tells @Net to make a mesh with the other @Net services,
+; and with udp not 0 to listen for beacons on UDP 3334 as well
+(structure +net_rpc_discover +net_rpc_size
+	(uint udp))
+
+; Hello: one @Net service to another, the peers it knows. No reply
+(structure +net_rpc_hello +net_rpc_size
+	(offset text))
 
 ; Reply header to connect or accept
 (structure +net_rpc_reply 0
@@ -151,14 +157,18 @@
 		(defq reply (mail-read-timeout reply_mbox))
 		(if reply (getf reply +net_rpc_reply_status) :nil)))
 
-(defun net-discover-rpc ()
-	; (net-discover-rpc) -> status | :nil
+(defun net-discover-rpc (&optional udp)
+	; (net-discover-rpc [udp]) -> status | :nil
+	;the service makes a mesh with the others it can reach. With udp :t,
+	;the default, it listens for their beacons as well
+	(setd udp :t)
 	(defq svc (ensure-net-service))
 	(when svc
 		(defq reply_mbox (mail-mbox)
 			req (setf-> (str-alloc +net_rpc_discover_size)
 				(+net_rpc_type +net_rpc_type_discover)
-				(+net_rpc_reply_id reply_mbox)))
+				(+net_rpc_reply_id reply_mbox)
+				(+net_rpc_discover_udp (if udp 1 0))))
 		(mail-send svc req)
 		(defq reply (mail-read-timeout reply_mbox))
 		(if reply (getf reply +net_rpc_reply_status) :nil)))

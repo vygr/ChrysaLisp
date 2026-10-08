@@ -29,6 +29,7 @@
 	(dec-method :lisp_udp_bind service/net/lisp_udp_bind :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_udp_send service/net/lisp_udp_send :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_udp_recv service/net/lisp_udp_recv :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_links service/net/lisp_links :static (:r0 :r1) (:r0 :r1))
 	(dec-method :link service/net/link)
 	(dec-method :conn service/net/conn)
 	(dec-method :in service/net/in)
