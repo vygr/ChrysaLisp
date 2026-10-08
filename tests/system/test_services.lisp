@@ -7,9 +7,11 @@
 	sv_far (filter (# (nql %0 sv_me)) sv_nodes))
 
 (defun sv-wait (want)
-	;wait for the test service to be seen, or to be gone, :t if it was
+	;wait for the test service to be seen, or to be gone, :t if it was. It
+	;is as long as a slow machine with a lot else to do can take, and no
+	;longer than it takes when it does not
 	(defq t0 (pii-time) ok :nil)
-	(while (and (not ok) (< (- (pii-time) t0) (task-timeout 4)))
+	(while (and (not ok) (< (- (pii-time) t0) (task-timeout 15)))
 		(if (eql want (nempty? (mail-enquire "*ServiceEdge"))) (setq ok :t)
 			(task-sleep 10000)))
 	ok)
@@ -26,11 +28,11 @@
 			(task-sleep 200000))))
 		(assert-eq "not there to start with" 0 (length (mail-enquire "*ServiceEdge")))
 		(open-task sv_code (last sv_far) +kn_call_pin 0 (defq sv_task (mail-mbox)))
-		(assert-eq "the far task declares it" "declared" (mail-read-timeout sv_reply (task-timeout 3)))
+		(assert-eq "the far task declares it" "declared" (mail-read-timeout sv_reply (task-timeout 15)))
 		(assert-eq "and it is seen here" :t (sv-wait :t))
 		(defq sv_entry (first (mail-enquire "*ServiceEdge")))
 		(assert-eq "with its info" "a test" (last (split sv_entry ",")))
 		;its mailbox is in the entry, tell it to forget the service
 		(mail-send (hex-decode (second (split sv_entry ","))) "go")
-		(assert-eq "the far task forgets it" "forgotten" (mail-read-timeout sv_reply (task-timeout 3)))
+		(assert-eq "the far task forgets it" "forgotten" (mail-read-timeout sv_reply (task-timeout 15)))
 		(assert-eq "and it is gone here" :t (sv-wait :nil))))

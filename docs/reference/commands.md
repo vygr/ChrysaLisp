@@ -804,6 +804,8 @@ Usage: tests [options] [path] ...
         -j --jobs num: max modules per batch, default 1.
         -c --counts: end with a line of counts, not the summary.
             The task of a batch is run with this.
+        -a --all: run every module, whatever the cache has.
+        -s --stale: list the modules that would be run, run none.
 
     Run the unit tests, tests/<category>/test_<name>.lisp, or
     just the module paths given.
@@ -814,6 +816,11 @@ Usage: tests [options] [path] ...
 
     A module in tests/solo/ changes the network, so those are
     run one at a time, after all the others.
+
+    The results are a cache. A module is run again only when
+    something it stands on has changed, what it imports, a file or
+    a command it names, the boot image or a host program. If not,
+    its counts are as they were. -a runs them all, for a release.
 
     Prints the failures and a summary.
 ```

@@ -74,6 +74,30 @@ again on the change back.
 and the emulated platforms, whatever the cache has. The cache is for the
 work between releases.
 
+## What A Release Is Tested With
+
+All of this, from cold, on each machine there is, each CPU and each OS.
+
+* `make install`, from `snapshot.zip`, as a new user has it. If it fails,
+  the snapshot is too old for the tree and a new one is wanted.
+* `tests -a`, every module.
+* `make it`, the boot images of all six CPUs, and the docs.
+* `tests -a` on the VP64 emulator, the launch scripts take `-e`. On a
+  machine of four cores or fewer, `tests -a -j 500`, a module at a time.
+  With them all at once a Raspberry Pi 4 is overrun, and a different test
+  with a wait in it fails each time. A module at a time they all pass, in
+  six and a half minutes.
+* `make vp`, `make apps debug`, then `files obj/vp/ | trace -i -l`, the
+  lint, which must say nothing. Then `make apps` and `make all boot`, to
+  leave the release build.
+* RISC-V and LoongArch under QEMU, from the cross built boot images. A
+  self hosted `make all boot` there must give the same image to the byte,
+  and `tests -a` must pass.
+
+A test that waits for another task asks `(task-timeout seconds)` how long,
+which is ten times as long on the emulator. A wait of a set number of
+microseconds is a test that fails on a slow enough machine.
+
 ## Three Machines
 
 A change to Lisp is the one result on every machine. A change to VP or to a

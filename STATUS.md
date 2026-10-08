@@ -16,6 +16,11 @@ Two tests wait as long as the machine needs.
 	different test with a wait in it fails each time. A module at a time,
 	`tests -a -j 500`, all of them pass there, in six and a half minutes.
 
+*	The lock tests wait `(task-timeout)` too, and the services test gives a
+	service on another node longer to be seen, both were among those that
+	failed there. What a release is tested with is written down,
+	`docs/ai_digest/test_cache.md`.
+
 Functions for Lisp to call, in the typed language of the shaders. Compute,
 on the CPU first.
 

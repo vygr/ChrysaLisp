@@ -175,9 +175,10 @@
 (report-header "Lock Edges: contention, shared reads, key hierarchy, waiting claims, history cap")
 
 ;a claim that should be granted is given plenty of time, as the service
-;can be on another node, it comes back as soon as it is granted. A claim
+;can be on another node, it comes back as soon as it is granted. How long
+;that is depends on the machine, the emulator is slow, (task-timeout). A claim
 ;that can not be granted waits only le_wait, then gives :nil.
-(defq le_wait 30000 le_long 2000000)
+(defq le_wait 30000 le_long (task-timeout 2))
 
 (defun le-claim (key &optional mode)
 	; claim a lock that should be free
@@ -194,7 +195,7 @@
 		(+lock_rpc_reply_id mbox)
 		(+lock_rpc_type +lock_type_claim)
 		(+lock_rpc_mode (ifn mode +lock_mode_write))
-		(+lock_rpc_timeout 2000000)))
+		(+lock_rpc_timeout le_long)))
 	mbox)
 
 (defun le-granted? (mbox &optional wait)

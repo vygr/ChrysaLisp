@@ -424,7 +424,7 @@ run it now if all the args are constants
 ### cpu-funcs
 
 ```code
--> the lambda of main
+-> the lambda of main, or of the function named
 
 the constants worked out, and each function a lambda
 ```
@@ -2786,6 +2786,17 @@ the input args for the lambda, defaults for those not given, then a
 value for each varying of a pixel shader, 0 for those not given
 ```
 
+### shader-cpu-func
+
+```code
+(shader-cpu-func program name) -> lambda
+
+(lambda arg ...) -> value
+a function of a file of functions, as a Lisp lambda. It is what the
+native code of (shader-vp-func) is checked by. A float is a real, a
+vector a reals, and a matrix a reals of 16, a row at a time.
+```
+
 ### shader-cpu-tris
 
 ```code
@@ -2814,6 +2825,22 @@ as, in the order the shader has them. A varying that is not set is 0.
 
 ```code
 (shader-dim type) -> :nil | 2 | 3 | 4
+```
+
+### shader-func
+
+```code
+(shader-func program name) -> (name type ((name type) ...))
+
+a function of a program that Lisp can call
+```
+
+### shader-funcs
+
+```code
+(shader-funcs program) -> ((name type ((name type) ...)) ...)
+
+the functions of a program, what each gives and takes
 ```
 
 ### shader-glsl
@@ -3014,7 +3041,7 @@ entry point is vertex_main.
 ### shader-stage
 
 ```code
-(shader-stage program) -> :pixel | :vertex
+(shader-stage program) -> :pixel | :vertex | :func
 ```
 
 ### shader-strip
@@ -3159,6 +3186,18 @@ the native function for a pixel shader that fills triangles with it
 (shader-vp-frame program native [((name val) ...)]) -> frame
 
 the frame the native function works in, with the inputs set
+```
+
+### shader-vp-func
+
+```code
+(shader-vp-func program name) -> func
+
+a function of a file of functions, as a native function Lisp calls,
+(func arg ...) -> value. A :float is a real, an :int a num, a vector
+a reals of its size, a :mat4 a reals of 16, a row at a time, and
+what comes back is one of those, made new. It is assembled the first
+time this CPU meets it, and kept.
 ```
 
 ### shader-vp-pipeline
@@ -3380,13 +3419,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args
@@ -3535,6 +3574,17 @@ vertex that number is, in bytes
 floor of a register, in place
 ```
 
+### sv-func-source
+
+```code
+-> text
+
+the VP source of the native function for a function of a file of
+functions. It is called from Lisp as any native function is. Its
+frame is on the stack, the args are copied to it, and what it gives
+is a new real, num or reals
+```
+
 ### sv-mat
 
 ```code
@@ -3598,7 +3648,7 @@ x to the power y, both kept, to a new register
 ### sv-program
 
 ```code
--> (main_param_offsets main_ret_offset)
+-> (main_param_offsets main_ret_offset), or those of the entry named
 
 the code of a program, after its inputs have been given their slots.
 A label that sets its constants and globals, then each function at a
