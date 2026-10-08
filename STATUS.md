@@ -30,6 +30,11 @@ Terminal and then the TUI, `zyz` and Enter.
 	half. It does not stop a command that never reads or writes, it is told
 	and does not look.
 
+*	Chris tried both keys in the GUI Terminal, on the changed Pipe class.
+	Ctrl-D is the end of input. The early stages of a pipeline close at
+	once, they have had all there is, and what is still going 2 seconds on
+	is stopped. Ctrl-Shift-D is abort, all of it stopped at once.
+
 ------
 
 One sync service for a machine. Chris asked whether its `app.lisp` had the
