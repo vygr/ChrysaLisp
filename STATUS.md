@@ -4,6 +4,36 @@
 
 ------
 
+A pipe let go of while open, and a doc of traps.
+
+*	A `Pipe` dropped without `(. pipe :close)` hung its task. Its streams
+	were let go of in the order they were held, what the commands say and
+	then the stdin. The first waits for the commands to stop, the commands
+	wait for their stdin to end, and that was next in the queue. The stdin
+	stream is now the first of a pipe's streams, so it ends first, and the
+	pipe goes when its commands do. `lib/task/pipe.inc`.
+
+*	One to a command that never ends still waits, there is nothing to tell
+	it to stop but `(. pipe :close)`, which gives it 2 seconds, or
+	`(. pipe :abort)`. `docs/ai_digest/pipe_commands.md` says so.
+
+*	Every holder of a pipe was looked at for the same fault. The command
+	farm's child goes through `(pipe-run)`, fixed last time. The Terminal
+	and the TUI close or abort theirs on every way out. None was left.
+
+*	New `docs/ai_digest/lisp_traps.md`. Constants put in the code, a macro
+	name as a parameter, dynamic scope, what a function of a module can
+	call, what is true, numbers that do not mix, `find` of a str in a str,
+	and errors that are never seen. `tests/core/test_traps.lisp` checks each
+	one, so the doc can not go stale without a test saying so.
+
+*	Two of the traps were not what Claude's own notes said. A function of a
+	module can call itself if it is exported, what it can not call is one
+	defined below it. And `find` of a str in a str does not fail, it finds
+	the first character.
+
+------
+
 A key from a password, and an error that was a hang.
 
 *	`(pbkdf2-sha256 password salt count size)`, `lib/crypto/pbkdf2.inc`,

@@ -312,6 +312,11 @@ Deep dives into meta-commentary and design philosophy:
     what each machine needs, building SDL3 from source for an older Mac or a
     Raspberry Pi, the Pi with no desktop, Windows, and staying on SDL2.
 
+75. **[Lisp Traps](docs/ai_digest/lisp_traps.md)** - What catches out someone
+    new to writing ChrysaLisp Lisp: constants put in the code, macro names as
+    parameters, dynamic scope, modules, numbers that do not mix, and errors
+    that are never seen. Each is checked by a test.
+
 ---
 
 ## Reading Paths
