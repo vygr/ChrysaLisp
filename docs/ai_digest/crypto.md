@@ -7,7 +7,8 @@ byte is native code, `lib/crypto/lisp.vp`, and the part that is done once,
 the padding and the like, is Lisp.
 
 There is a hash, SHA-256, with HMAC on it, and a cipher that guards what it
-hides, ChaCha20 with Poly1305.
+hides, ChaCha20 with Poly1305. And a signature, Ed25519, with the hash it
+is made with, SHA-512.
 
 | | native code | on one core of an Apple M4 Max |
 |---|---|---|
@@ -15,6 +16,8 @@ hides, ChaCha20 with Poly1305.
 | ChaCha20 | 2,200 bytes | 441MB a second |
 | Poly1305 | 888 bytes | 2,778MB a second |
 | seal, the two together | | 378MB a second |
+| SHA-512 | 3,520 bytes | 488MB a second |
+| Ed25519, to check a signature | 2,336 bytes | 1.9ms |
 
 The sizes are those of ARM64. None of it uses the instructions a CPU may
 have for this, it is the same VP on every CPU, and all of it is in the boot
@@ -127,6 +130,91 @@ Python's `hashlib` and `hmac`.
 `tests/crypto/test_pbkdf2.lisp`. The test cases that go round with RFC 6070,
 for SHA-256, a key of more than one block of the hash, a password longer
 than a block, and that the size asked for is the size had.
+
+## SHA-512
+
+```lisp
+(import "lib/crypto/sha512.inc")
+
+(sha512 data) -> str
+```
+
+The hash of FIPS 180-4 with words of 64 bits, 64 bytes for any amount of
+data. `(sha512-start)`, `(sha512-add ctx data)` and `(sha512-end ctx)` are
+for what comes a part at a time, as SHA-256 has them. It is here because
+Ed25519 is made with it, and on a 64 bit CPU it is twice as quick as
+SHA-256, 488MB a second on an M4 where that is 253.
+
+`(sha512-blocks state data offset count)` is the native code, blocks of 128
+bytes into a state of 8 numbers of 64 bits. A number is a whole register,
+so a sum wraps as it should with nothing to cut off. A rotate is two
+shifts and an or.
+
+`tests/crypto/test_sha512.lisp`, the answers of the standard, every length
+about the edges of a block, a str added a part at a time, and what the
+native code refuses. The answers are Python's `hashlib`.
+
+## Ed25519, A Signature
+
+```lisp
+(import "lib/crypto/ed25519.inc")
+
+(defq seed (random-bytes 32)
+	public (ed25519-public seed)
+	signature (ed25519-sign seed message))
+
+(ed25519-verify public message signature) -> :t | :nil
+```
+
+The signature of RFC 8032. Whoever holds a secret seed can sign a message,
+and anyone with the public key of that seed can check that the signature
+is of this message, by that holder, and that not a bit of either has been
+changed. The public key gives nothing away, it can be put where anyone
+reads it.
+
+That is what a shared key can not do. With HMAC, or the door of a link,
+whoever can check can also make. With a signature only one can make, and
+all can check. It is what would let a release be something only its
+publisher can issue.
+
+* `(ed25519-public seed) -> str`, 32 bytes, from a seed of 32 bytes.
+* `(ed25519-sign seed message) -> str`, 64 bytes. The same seed and message
+  give the same signature every time, there is no chance in it.
+* `(ed25519-verify public message signature) -> :nil | :t`. `:nil` for
+  anything that is not right, a wrong length, a key that is not a point of
+  the curve, a signature written the long way round.
+
+| | M4 Max | 2018 x86_64 MacBook Pro | Raspberry Pi 4 |
+|---|---|---|---|
+| a public key | 0.9ms | 1.5ms | 7.7ms |
+| to sign | 2.3ms | 4.1ms | 21ms |
+| to check | 1.9ms | 3.3ms | 17ms |
+
+The arithmetic is of numbers less than the prime 2 to the 255 less 19, a
+field. Each is 16 numbers of 16 bits in a `nums`, so that a product of two
+of them, and 16 such added, fits in 64 bits, VP can not get at the top half
+of a product. It follows TweetNaCl, which is small enough to check against
+by eye.
+
+It is Lisp but for the hash and one function, `(ed-mul o a b)`, the
+multiply of two numbers of the field, which is nearly all of the work. In
+Lisp a check took 405ms on the M4, with the multiply native it takes 1.9.
+The Lisp one is kept, `(ed-mul-ref)`, and the tests set the two against
+each other.
+
+**It is not constant time.** A careful one in C takes the same time
+whatever the secret is. This does not, the Lisp around the multiply
+branches on the bits of the secret. So it is right for checking, where
+there is no secret, and for signing on a machine where nobody can time it.
+It is not for signing as a service that others can call and measure.
+
+`tests/crypto/test_ed25519.lisp`. The first three test cases of RFC 8032
+and two more, the public key, the signature, and that it checks. The
+native multiply against the Lisp one on 240 pairs of numbers. And that
+nothing checks with a bit changed in the message, either half of the
+signature, or the key, with another key, cut short, or written the long
+way. The answers are from a Python of the RFC written for the job, which
+gives the RFC's own.
 
 ## ChaCha20 With Poly1305
 
@@ -282,4 +370,8 @@ there, give it a `(slice)` of the data and an offset of 0.
 * The native code handling a start that is not a multiple of 4 or 8, on a
   CPU that can not load from one. See below, the library never gives it
   one.
-* Arithmetic on a field, for error correction and for signatures.
+* Arithmetic on the small field of 256, for error correction. The field
+  of a signature is here, see Ed25519.
+* A signature that takes the same time whatever the secret.
+* Agreeing a key with someone over an open wire, X25519, which is the same
+  field and most of the same code.

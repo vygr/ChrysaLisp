@@ -460,6 +460,7 @@ Usage: link [options] [host[:port] ...]
         -l --listen [port]: listen for incoming TCP network link (default: 3333).
         -a --auto: auto-discovery mode (beacon when listening, discover when client).
         -m --mesh: link to the peers of whoever is linked to, with no discovery.
+        -k --key: make a key for this machine, the file mesh_key, if it has none.
         -v --verbose: verbose output.
 
     Start TCP network link driver/s.
@@ -475,6 +476,12 @@ Usage: link [options] [host[:port] ...]
 
     Every machine that runs both link -l 3333 -a and link -a finds the
     others and has one link to each, none is on the way between two.
+
+    A machine with a key, the file mesh_key at the root of the tree, links
+    only to machines with the same key, each end proves it has it before
+    the link carries anything. link -k makes one, 64 hex digits. Put the
+    same file on every machine of the network, by hand, it is never sent.
+    Start the Net service again after, it reads the key as it starts.
 
     If no host names given on command line and -l/-a/-m not passed,
     then names are read from stdin.

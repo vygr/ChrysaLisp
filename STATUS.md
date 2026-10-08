@@ -4,6 +4,44 @@
 
 ------
 
+A signature, Ed25519, and the hash it is made with, SHA-512. For a release
+that only its publisher can issue and anyone can check, which a shared key
+can not do, whoever can check one of those can make one.
+
+*	New `lib/crypto/sha512.inc`. SHA-512, the work on each block of 128
+	bytes native, 3,520 bytes, 488MB a second on an M4, twice SHA-256 as it
+	should be with words of 64 bits. 35 tests against Python's answers,
+	which passed the first time it ran.
+
+*	New `lib/crypto/ed25519.inc`, the signature of RFC 8032.
+	`(ed25519-public seed)`, `(ed25519-sign seed message)` and
+	`(ed25519-verify public message signature)`. The numbers of its field
+	are 16 of 16 bits in a `nums`, as TweetNaCl has them, which it follows.
+
+*	It was written in Lisp first, and was right, the public key of the
+	RFC's first case came out on the first run. A check took 405ms on the
+	M4. Nearly all of that is one function, the multiply of two numbers of
+	the field, 39 microseconds in Lisp. That one is now native,
+	`gf25519_mul`, 2,336 bytes, 97 nanoseconds, and a check takes 1.9ms.
+	On an x86_64 Mac 3.3ms, on a Raspberry Pi 4 17ms. The Lisp multiply is
+	kept and the tests set the two against each other on 240 pairs.
+
+*	40 tests. The RFC's first three cases and two more. And that nothing
+	checks with a bit changed in the message, the signature or the key,
+	with another key, cut short, or with its second half written the long
+	way round.
+
+*	It is not constant time, and says so. Right for checking, and for
+	signing where nobody can time it.
+
+*	Every test passes on the three machines and on the emulator, the lint
+	is clean. The boot image is 5,704 bytes bigger for the two, 244,556 on
+	ARM64, the native code of `lib/crypto/` is now 12,152 of it.
+
+*	Nothing uses it yet. A release, and a pull, are not built.
+
+------
+
 A command that does not exist hung the terminal. Chris found it, in the GUI
 Terminal and then the TUI, `zyz` and Enter.
 

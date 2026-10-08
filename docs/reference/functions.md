@@ -598,6 +598,154 @@ the next job on the queue to a child, if there is one
 (each-mergeable lambda seq) -> seq
 ```
 
+### ed-add
+
+```code
+(ed-add p q) -> p
+
+the point p and the point q, added, into p. A point is 4 numbers
+```
+
+### ed-car
+
+```code
+(ed-car o) -> o
+
+each part down to 16 bits, what is over going on to the next, and
+what is over the top coming back in at the bottom 38 times
+```
+
+### ed-copy
+
+```code
+(ed-copy a) -> a new number of the field, the same as a
+```
+
+### ed-decode-neg
+
+```code
+(ed-decode-neg bytes) -> :nil | point
+
+the point of 32 bytes, with its x the other way, which is what a
+check wants. :nil if they are not a point of the curve
+```
+
+### ed-encode
+
+```code
+(ed-encode p) -> str
+
+a point as 32 bytes, its y, with whether its x is odd in the top bit
+```
+
+### ed-inv
+
+```code
+(ed-inv a) -> 1 over a, a new number
+```
+
+### ed-mod-l
+
+```code
+(ed-mod-l x) -> str
+
+a list of 64 numbers, the bytes of a number, the low one first, less
+every multiple of the order of the base point that will come off it,
+as 32 bytes. The list is changed
+```
+
+### ed-mul-ref
+
+```code
+(ed-mul-ref o a b) -> o
+
+what (ed-mul) does, in Lisp, to check it by
+```
+
+### ed-odd?
+
+```code
+(ed-odd? a) -> 0 | 1
+```
+
+### ed-pack
+
+```code
+(ed-pack n) -> str
+
+a number of the field as its 32 bytes, the low byte first, and less
+than the prime, the prime is taken off twice if it will come off
+```
+
+### ed-point
+
+```code
+(ed-point x y) -> a point, of its x and y
+```
+
+### ed-pow2523
+
+```code
+(ed-pow2523 a) -> a to the power of (p-5)/8, a new number
+```
+
+### ed-reduce
+
+```code
+(ed-reduce hash) -> str
+
+the 64 bytes of a hash as a number, less the order of the base point
+as often as it will come off, 32 bytes
+```
+
+### ed-scalarmult
+
+```code
+(ed-scalarmult q scalar) -> point
+
+the point q added to itself the number of times the 32 bytes of the
+scalar say, the low byte first. q is not changed
+```
+
+### ed-secret
+
+```code
+(ed-secret seed) -> (scalar prefix)
+
+the number a seed stands for, and the other half of its hash
+```
+
+### ed-unpack
+
+```code
+(ed-unpack bytes) -> a number of the field, from its 32 bytes
+```
+
+### ed25519-public
+
+```code
+(ed25519-public seed) -> str
+
+the public key of a secret seed of 32 bytes, 32 bytes
+```
+
+### ed25519-sign
+
+```code
+(ed25519-sign seed message) -> str
+
+the signature of a message under a secret seed, 64 bytes
+```
+
+### ed25519-verify
+
+```code
+(ed25519-verify public message signature) -> :nil | :t
+
+is it the signature of this message, by the holder of the secret
+that this is the public key of ?
+```
+
 ### elem-end
 
 ```code
@@ -1483,6 +1631,14 @@ gather a list of [key|val|:nil]
 
 ```code
 (get-cstr str idx) -> str
+```
+
+### glsl-decls
+
+```code
+the inputs as uniforms, the constants, the globals and the functions
+
+of a program, onto the lines of whoever calls
 ```
 
 ### grow
@@ -2766,6 +2922,40 @@ fractions of the square roots of the first 8 primes, the bytes that
 do not yet make a block, and how many bytes there have been.
 ```
 
+### sha512
+
+```code
+(sha512 data) -> str
+
+the hash of a str, 64 bytes
+```
+
+### sha512-add
+
+```code
+(sha512-add ctx data) -> ctx
+
+more of what is being hashed
+```
+
+### sha512-end
+
+```code
+(sha512-end ctx) -> str
+
+the hash of all that was added, 64 bytes. The ctx is done with.
+```
+
+### sha512-start
+
+```code
+(sha512-start) -> ctx
+
+a hash with nothing in it yet. The state, the first 64 bits of the
+fractions of the square roots of the first 8 primes, the bytes that
+do not yet make a block, and how many bytes there have been.
+```
+
 ### shader-attrs
 
 ```code
@@ -2876,6 +3066,28 @@ the functions of a program, what each gives and takes
 
 ```code
 (shader-glsl program) -> str
+```
+
+### shader-glsl-pair
+
+```code
+(shader-glsl-pair vertex pixel) -> (vertex_text fragment_text)
+
+a vertex shader and a pixel shader that go together, to draw
+triangles with, as a vertex shader and a fragment shader of GLSL.
+
+The vertex shader has each attr of a vertex as an attribute, and each
+of its varyings as a varying, of the same names, and its inputs as
+uniforms. A varying it does not set is 0. Where it puts a vertex is
+gl_Position as it is, z of -1 to 1 in view is what GL has.
+
+The fragment shader has the varyings the pixel shader reads, by name,
+and its inputs as uniforms. The frag coord is GL's own, y up. A pixel
+whose alpha is under 1 in 255 is not drawn. The color leaves with its
+alpha multiplied in, for a target that is blended that way.
+
+An input the two both have, of the one name, is the one uniform, as
+GL links them, and both are given the same precision so that it can.
 ```
 
 ### shader-gui
@@ -3494,13 +3706,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args

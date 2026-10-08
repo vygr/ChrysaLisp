@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
+(include "class/nums/class.inc")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; The native code of lib/crypto, the part of a hash or a cipher
 ; that is done for every byte. What is done once, the padding and
@@ -169,6 +170,181 @@
 (errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(sha256-blocks state data offset count)" +error_msg_wrong_types))
+	(signature '(:str :str :NUM :NUM)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./sha512_blocks"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r13
+	;info
+	;(sha512-blocks state data offset count) -> state
+	;the state is 8 numbers of 64 bits, as they are on this machine, in a
+	;str of 64 bytes, and is changed where it is. count blocks of 128
+	;bytes, from that offset of the data, are taken into it.
+
+	;a number is a whole register here, so a sum wraps as it should with
+	;nothing to cut off. VP has no rotate, a rotate right by n is the
+	;number moved down n, or'd with it moved up 64 less n.
+	(vp-rdef (ra rb rc rd re rf rg rh rw rk t1 t2 t3 t4))
+
+	(defun sha512-rotr (x n to tmp)
+		;x rotated right by n, into to. tmp is used
+		(vp-cpy-rr x to) (vp-shr-cr n to)
+		(vp-cpy-rr x tmp) (vp-shl-cr (- 64 n) tmp) (vp-or-rr tmp to))
+
+	(defun sha512-round (RA RB RC RD RE RF RG RH j)
+		;round j of 8, the registers that are a to h in this round. What
+		;is to be the new e is left in D, and the new a in H
+		(sha512-rotr RE 14 t2 t1)
+		(sha512-rotr RE 18 t3 t1) (vp-xor-rr t3 t2)
+		(sha512-rotr RE 41 t3 t1) (vp-xor-rr t3 t2)
+		;choose, f where e has a bit and g where it has not
+		(vp-cpy-rr RF t1) (vp-xor-rr RG t1) (vp-and-rr RE t1) (vp-xor-rr RG t1)
+		(vp-add-rr t2 RH) (vp-add-rr t1 RH)
+		(vp-cpy-ir rk (* j 8) t1) (vp-add-rr t1 RH)
+		(vp-cpy-ir rw (* j 8) t1) (vp-add-rr t1 RH)
+		(vp-add-rr RH RD)
+		(sha512-rotr RA 28 t2 t1)
+		(sha512-rotr RA 34 t3 t1) (vp-xor-rr t3 t2)
+		(sha512-rotr RA 39 t3 t1) (vp-xor-rr t3 t2)
+		;majority, of a, b and c
+		(vp-cpy-rr RA t1) (vp-or-rr RB t1) (vp-and-rr RC t1)
+		(vp-cpy-rr RA t3) (vp-and-rr RB t3) (vp-or-rr t3 t1)
+		(vp-add-rr t2 RH) (vp-add-rr t1 RH))
+
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 4)
+	(list-bind-args :r1 '(:r2 :r3 :r4 :r5) '(:obj :obj :num :num))
+(errorcase
+	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r6 :r7))
+	(gotoif '(:r6 /= 64) 'error)
+	(gotoif '(:r4 < 0) 'error)
+	(gotoif '(:r5 < 0) 'error)
+	(vp-cpy-rr :r5 :r6)
+	(vp-shl-cr 7 :r6)
+	(vp-add-rr :r4 :r6)
+	(gotoif '(:r6 > :r7) 'error))
+
+	;the stack has the 80 words of a block's schedule, then where the
+	;state is, where the next block is, how many are left, the lisp
+	;object and the state object
+	(vp-alloc 688)
+	(vp-cpy-ri :r0 :rsp 664)
+	(vp-cpy-ri :r2 :rsp 672)
+	(vp-add-cr +str_data :r2)
+	(vp-add-cr +str_data :r3)
+	(vp-add-rr :r4 :r3)
+	(vp-cpy-ri :r2 :rsp 640)
+	(vp-cpy-ri :r3 :rsp 648)
+	(vp-cpy-ri :r5 :rsp 656)
+
+(vp-label 'block)
+	(vp-cpy-ir :rsp 656 t1)
+	(vp-beq-cr 0 t1 'done)
+	(vp-sub-cr 1 t1)
+	(vp-cpy-ri t1 :rsp 656)
+	;the first 16 words are the block, its bytes the other way round. The
+	;bytes of each pair change places, then the pairs, then the halves
+	(vp-cpy-ir :rsp 648 t4)
+	(vp-cpy-cr 0x00ff00ff00ff00ff ra)
+	(vp-cpy-cr 0x0000ffff0000ffff rb)
+	(each (lambda (i)
+		(vp-cpy-ir t4 (* i 8) t2)
+		(vp-cpy-rr t2 t3) (vp-shr-cr 8 t3) (vp-and-rr ra t3)
+		(vp-and-rr ra t2) (vp-shl-cr 8 t2) (vp-or-rr t3 t2)
+		(vp-cpy-rr t2 t3) (vp-shr-cr 16 t3) (vp-and-rr rb t3)
+		(vp-and-rr rb t2) (vp-shl-cr 16 t2) (vp-or-rr t3 t2)
+		(vp-cpy-rr t2 t3) (vp-shr-cr 32 t3) (vp-shl-cr 32 t2) (vp-or-rr t3 t2)
+		(vp-cpy-ri t2 :rsp (* i 8))) (range 0 16))
+	(vp-add-cr 128 t4)
+	(vp-cpy-ri t4 :rsp 648)
+	;the other 64, each from four that came before it. w is 16 words
+	;behind the one being made
+	(vp-lea-i :rsp 0 rw)
+	(vp-lea-i :rsp 512 rk)
+(vp-label 'sched)
+	(vp-cpy-ir rw 8 t1)
+	(sha512-rotr t1 1 t3 t2)
+	(sha512-rotr t1 8 t4 t2) (vp-xor-rr t4 t3)
+	(vp-shr-cr 7 t1) (vp-xor-rr t1 t3)
+	(vp-cpy-ir rw 112 t1)
+	(sha512-rotr t1 19 t4 t2)
+	(sha512-rotr t1 61 ra t2) (vp-xor-rr ra t4)
+	(vp-shr-cr 6 t1) (vp-xor-rr t1 t4)
+	(vp-add-rr t4 t3)
+	(vp-cpy-ir rw 0 t1) (vp-add-rr t1 t3)
+	(vp-cpy-ir rw 72 t1) (vp-add-rr t1 t3)
+	(vp-cpy-ri t3 rw 128)
+	(vp-add-cr 8 rw)
+	(vp-bne-rr rk rw 'sched)
+	;the 80 rounds, 8 at a time, after which a to h are in the registers
+	;they started in
+	(vp-cpy-ir :rsp 640 t4)
+	(each (lambda (r) (vp-cpy-ir t4 (* (!) 8) r)) (list ra rb rc rd re rf rg rh))
+	(vp-lea-i :rsp 0 rw)
+	(vp-lea-p 'k512 rk)
+(vp-label 'rounds)
+	(defq roles (list ra rb rc rd re rf rg rh))
+	(each (lambda (j)
+		(apply sha512-round (cat roles (list j)))
+		(setq roles (cat (list (last roles)) (slice roles 0 -2)))) (range 0 8))
+	(vp-add-cr 64 rw)
+	(vp-add-cr 64 rk)
+	(vp-lea-i :rsp 640 t4)
+	(vp-bne-rr t4 rw 'rounds)
+	;and they are added to the state
+	(vp-cpy-ir :rsp 640 t4)
+	(each (lambda (r)
+		(vp-cpy-ir t4 (* (!) 8) t1)
+		(vp-add-rr t1 r)
+		(vp-cpy-ri r t4 (* (!) 8))) (list ra rb rc rd re rf rg rh))
+	(vp-jmp 'block)
+
+(vp-label 'done)
+	(vp-cpy-ir :rsp 664 :r0)
+	(vp-cpy-ir :rsp 672 :r1)
+	(vp-free 688)
+	(class/obj/ref :r1 :r2)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+	;the first 64 bits of the fractions of the cube roots of the first
+	;80 primes, each as the signed number of the same bits
+	(vp-align 8)
+(vp-label 'k512)
+	(vp-long 4794697086780616226 8158064640168781261 -5349999486874862801 -1606136188198331460)
+	(vp-long 4131703408338449720 6480981068601479193 -7908458776815382629 -6116909921290321640)
+	(vp-long -2880145864133508542 1334009975649890238 2608012711638119052 6128411473006802146)
+	(vp-long 8268148722764581231 -9160688886553864527 -7215885187991268811 -4495734319001033068)
+	(vp-long -1973867731355612462 -1171420211273849373 1135362057144423861 2597628984639134821)
+	(vp-long 3308224258029322869 5365058923640841347 6679025012923562964 8573033837759648693)
+	(vp-long -7476448914759557205 -6327057829258317296 -5763719355590565569 -4658551843659510044)
+	(vp-long -4116276920077217854 -3051310485924567259 489312712824947311 1452737877330783856)
+	(vp-long 2861767655752347644 3322285676063803686 5560940570517711597 5996557281743188959)
+	(vp-long 7280758554555802590 8532644243296465576 -9096487096722542874 -7894198246740708037)
+	(vp-long -6719396339535248540 -6333637450476146687 -4446306890439682159 -4076793802049405392)
+	(vp-long -3345356375505022440 -2983346525034927856 -860691631967231958 1182934255886127544)
+	(vp-long 1847814050463011016 2177327727835720531 2830643537854262169 3796741975233480872)
+	(vp-long 4115178125766777443 5681478168544905931 6601373596472566643 7507060721942968483)
+	(vp-long 8399075790359081724 8693463985226723168 -8878714635349349518 -8302665154208450068)
+	(vp-long -8016688836872298968 -6606660893046293015 -4685533653050689259 -4147400797238176981)
+	(vp-long -3880063495543823972 -3348786107499101689 -1523767162380948706 -757361751448694408)
+	(vp-long 500013540394364858 748580250866718886 1242879168328830382 1977374033974150939)
+	(vp-long 2944078676154940804 3659926193048069267 4368137639120453308 4836135668995329356)
+	(vp-long 5532061633213252278 6448918945643986474 6902733635092675308 7801388544844847127)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(sha512-blocks state data offset count)" +error_msg_wrong_types))
 	(signature '(:str :str :NUM :NUM)))
 
 (def-func-end)
@@ -452,6 +628,102 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(poly1305-blocks state data offset count top)" +error_msg_wrong_types))
 	(signature '(:str :str :NUM :NUM :NUM)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./gf25519_mul"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :r8-:r12
+	;info
+	;(gf25519-mul o a b) -> o
+	;o is a times b, numbers of the field of the prime 2 to the 255 less
+	;19, each 16 numbers of 16 bits or so in a nums. o can be a, or b, or
+	;both, the answer is made on the stack and then put in o.
+
+	;16 by 16 products, each added in where its two parts say, 31 sums
+	;that fit in 64 bits. The top 15 come back in at the bottom 38 times,
+	;2 to the 256 is 38 in this field. Then each sum is taken down to 16
+	;bits, what is over going on to the next, twice. It is the M of
+	;TweetNaCl, as (ed-mul-ref) of lib/crypto/ed25519.inc is in Lisp.
+	(vp-rdef (po pa pb pacc pend ai v u w) '(:r8 :r9 :r10 :r11 :r12 :r3 :r4 :r5 :r6))
+
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 3)
+	(errorif-lisp-args-match 'error :r1 :nums 3)
+	(array-bind-args :r1 `(,po ,pa ,pb))
+(errorcase
+	(each (lambda (r)
+		(assign `((,r +array_length)) '(:r2))
+		(gotoif '(:r2 < 16) 'error)) (list po pa pb)))
+
+	(vp-push :r0 po)
+	(assign `((,pa +array_begin) (,pb +array_begin)) `(,pa ,pb))
+	(vp-alloc 256)
+	(vp-xor-rr v v)
+	(each (lambda (i) (vp-cpy-ri v :rsp (* i 8))) (range 0 31))
+	;the products
+	(vp-lea-i :rsp 0 pacc)
+	(vp-lea-i pa 128 pend)
+(vp-label 'mul_loop)
+	(vp-cpy-ir pa 0 ai)
+	(each (lambda (j)
+		(vp-cpy-ir pb (* j 8) v)
+		(vp-mul-rr ai v)
+		(vp-cpy-ir pacc (* j 8) u)
+		(vp-add-rr v u)
+		(vp-cpy-ri u pacc (* j 8))) (range 0 16))
+	(vp-add-cr 8 pa)
+	(vp-add-cr 8 pacc)
+	(vp-bne-rr pend pa 'mul_loop)
+	;the top 15 come back in
+	(each (lambda (i)
+		(vp-cpy-ir :rsp (* (+ i 16) 8) v)
+		(vp-mul-cr 38 v)
+		(vp-cpy-ir :rsp (* i 8) u)
+		(vp-add-rr v u)
+		(vp-cpy-ri u :rsp (* i 8))) (range 0 15))
+	;each down to 16 bits, twice
+	(times 2
+		(each (lambda (i)
+			(vp-cpy-ir :rsp (* i 8) v)
+			(vp-add-cr 65536 v)
+			(vp-cpy-rr v u) (vp-asr-cr 16 u)
+			(vp-cpy-rr u w) (vp-shl-cr 16 w) (vp-sub-rr w v)
+			(vp-cpy-ri v :rsp (* i 8))
+			(vp-sub-cr 1 u)
+			(cond
+				((< i 15)
+					(vp-cpy-ir :rsp (* (inc i) 8) v)
+					(vp-add-rr u v)
+					(vp-cpy-ri v :rsp (* (inc i) 8)))
+				(:t (vp-mul-cr 38 u)
+					(vp-cpy-ir :rsp 0 v)
+					(vp-add-rr u v)
+					(vp-cpy-ri v :rsp 0)))) (range 0 16)))
+	;and into o
+	(vp-cpy-ir :rsp 256 :r1)
+	(assign '((:r1 +array_begin)) `(,u))
+	(each (lambda (i)
+		(vp-cpy-ir :rsp (* i 8) v)
+		(vp-cpy-ri v u (* i 8))) (range 0 16))
+	(vp-free 256)
+	(vp-pop :r0 :r1)
+	(class/obj/ref :r1 :r2)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(gf25519-mul o a b)" +error_msg_wrong_types))
+	(signature '(:nums :nums :nums)))
 
 (def-func-end)
 
