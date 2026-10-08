@@ -227,6 +227,10 @@ Mail over a TCP link was slow, two faults, neither in what was using it.
 	memory link looks at the queue every few hundred microseconds, so never
 	showed it. A TCP link sleeps till it is woken, up to 5 seconds, so the
 	fragments sat till something else woke it. The postman wakes them now.
+	That a link is woken when there is mail for it was always the design,
+	Chris put `:wake_links` in on 18 May, in `sys/mail/class.vp`, where a
+	message that fits is queued. The postman's queue, in the file beside
+	it, was the one place it was not called.
 	A message of 7KB to the Pi was 335ms and is 6ms, of 28KB was 1,084ms
 	and is 9ms, of 1MB was 807ms and is 154ms.
 
