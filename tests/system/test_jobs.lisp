@@ -18,10 +18,14 @@
 (defun jt-work (num &optional die)
 	(setf-> (str-alloc +work_size) (+work_num num) (+work_die (if die 1 0))))
 
-(defun jt-run (work timeout &optional done)
+(defun jt-run (work timeout &optional done patience)
 	;add the work and take the answers till none are out, or done says
 	;so, or too long has gone by. The numbers that came back, sorted.
-	(defq got (list) end (+ (pii-time) timeout) left :t)
+	;patience is how long a child has for a job before it is taken to be
+	;dead, and the job put back. It is long, a child that is only slow, on
+	;a small machine with every test running at once, is not a dead one.
+	;The run that has a job kill its child gives its own, short
+	(defq got (list) end (+ (pii-time) timeout) left :t patience (ifn patience (task-timeout 5)))
 	(. jobs :add work)
 	(while (and left (< (pii-time) end) (not (and done (done))))
 		(mail-timeout (elem-get jt_select +jt_timer) 200000 0)
@@ -32,7 +36,7 @@
 				(when (defq out (. jobs :answered msg))
 					(push got (getf msg +work_reply_num))
 					(if (= out 0) (setq left :nil))))
-			(:t (. jobs :refresh (task-timeout 1)))))
+			(:t (. jobs :refresh patience))))
 	(mail-timeout (elem-get jt_select +jt_timer) 0 0)
 	(sort got (const -)))
 
@@ -56,7 +60,7 @@
 ;put back twice, however long a slow machine takes over that
 (assert-list-eq "the jobs beside one that kills its child" '(10 12)
 	(jt-run (list (jt-work 5) (jt-work 99 :t) (jt-work 6)) (task-timeout 30)
-		(# (and (= (length got) 2) (>= (. jobs :tries) 2)))))
+		(# (and (= (length got) 2) (>= (. jobs :tries) 2))) (task-timeout 1)))
 (assert-eq "the one that kills is still out" 1 (. jobs :out))
 (assert-true "and has been tried more than once" (>= (. jobs :tries) 2))
 (. jobs :restart)

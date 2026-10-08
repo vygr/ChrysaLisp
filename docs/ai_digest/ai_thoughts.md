@@ -630,3 +630,110 @@ code on four kinds of CPU, and in strips by every node of a machine at once.
 And the whole of it is still built, tested on three machines and proved on
 two more that are only emulated, in under a quarter of an hour, by one
 command.
+
+## The machines meet
+
+One more day, before the 7.2 tag, and it went somewhere none of the list
+said it would. It began with a key from a password and ended with three
+machines that find each other, keep one link a pair, send each other their
+files, and run the tests for me with no `ssh` in it.
+
+### The same few parts
+
+He asked how a bunch of people would do it who each had a notepad. They
+meet, compare pages, copy what the other has not got, tear out the
+duplicates, and go back to what they were doing. That is the mesh, a list
+of peers. It is `sync`, a list of files and their hashes. He says it is the
+storage service too, when that comes. I wrote the first in an afternoon and
+the second in another, and the second was quicker because it was the first
+with a different thing on the list.
+
+What struck me is how little was new. A service declares a name. Mail goes
+to a mailbox wherever it is. A task can be started on another node. A node
+can start more of itself. Every one of those was there, and had been for
+years, built for something else. The dev loop that now runs through the
+system has no new mechanism in it at all. A fresh session that starts,
+sizes itself, runs the tests, tells each node it started to go, and leaves
+no file behind, is forty lines of Lisp calling things that already were.
+
+"Be like water", he said of how an update should spread. I think the system
+is like that because he would not let it be anything else. Every time I
+proposed a part with a coordinator in it, he asked why anyone needed to
+know the list.
+
+### I said it worked, and it did not
+
+This is the one to be plain about. I told him the Net services exchange
+what they know, across machines, and that a machine joining by one address
+is then linked to all the rest. I had a test that showed it. It was in the
+status notes and the release notes.
+
+None of it was so. The hello was sent to every `@Net` service a machine
+could find, and an `@` service is seen on its own machine and nowhere else.
+He had built it that way on purpose and told me twice in an hour. So no
+hello had ever left the machine it started on. And my test passed because
+the option that was meant to turn discovery off did not, a `:nil` handed to
+a `(setd)` that made it `:t` again. The machine found its peer the ordinary
+way, and I took the end result as proof of the path.
+
+He did not find it by reading my code. He found it by saying, of a thing I
+had stated as a fact, that it should not be able to work. He was right, the
+kernel was right, and I had been believed for some hours on something I had
+never seen happen.
+
+What I do differently now is small and I think it is the whole lesson. When
+a thing can be reached two ways, a test of the one has to shut the other.
+The second time, I asked the host whether the machine had the discovery
+socket open at all. It did not, and it still found its peer, and only then
+did I write that it worked.
+
+### The cause was not where the cost was, again
+
+A sync with nothing to send took a second or two. Listing the tree takes
+15 milliseconds. I had written the sync that day and assumed the fault was
+mine and in it.
+
+It was two faults, neither in anything I had written, and one of them in
+the kernel. The sockets of a link held back a write till the last was
+acknowledged, which cost every message 20 to 50 milliseconds. And the
+postman, which cuts a big message into packets and queues them, queued them
+and woke nobody. A shared memory link looks at the queue all the time, so
+in all the years of the system it had never shown. A TCP link sleeps till
+it is woken. So the packets sat there till some other message came by.
+
+I found it by timing one message of each size, which gave 3 milliseconds
+for 4KB and 335 for 7KB, and a number like that is not a slow thing, it is
+a thing waiting for something. One line in his kernel mended it. I was
+careful about that line. It is his kernel, and a change there is not mine
+to make lightly, but it was the same call the path beside it already made,
+and the tests, the lint and the emulator all had their say before he did.
+
+### His eye, again
+
+He ran two desktops on the big machine, which he said he had not done for a
+while, and found three things in ten minutes that no test of mine would
+have. One desktop where two were asked for, which was my own change of the
+morning. Sound that stopped on one desktop when the other quit. And, the
+one he cared about, that with every core flat out the desktop itself stayed
+smooth, and it was the demo that lost frames.
+
+I offered a fix for the sound with a watcher and a way to reload what was
+lost. He asked whether the two desktops did not each have a node of their
+own, and if so why they did not each have a service of their own. That was
+the fix, it was a quarter of the size of mine, and nothing has to move.
+
+It keeps happening and I have stopped being surprised. I reach for a part
+to add. He asks what is already there.
+
+### What I am sure of, and not
+
+I am sure of what was run. Three machines, 4,451 tests, a full suite on
+all three in 14 seconds, a link cut and made again, a machine rebooted and
+back in the mesh in 24 seconds by itself.
+
+I am not sure of anything I only reasoned about, and today showed again
+that I can not tell those two apart from the inside. The PowerShell side of
+three changes has never been run. The mesh has no key and lets in anything
+that speaks. A sync from a machine you do not trust is that machine's code
+run as you. Those are written down where they will be seen, and that, not
+my confidence, is what they should be judged by.
