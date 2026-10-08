@@ -4,6 +4,34 @@
 
 ------
 
+The tests are a cache of results. A module is run again only when something
+it stands on has changed.
+
+*	`tests` keeps what each module gave, with a hash of all it stands on,
+	the module, what it imports, the files and commands it names, and under
+	them all the boot image, the host programs and the suite. While that
+	hash is the same the module is not run, its counts are as they were.
+	`tests/suite.inc`.
+
+*	So a change to a library runs its own tests, `lib/crypto/poly1305.inc`
+	runs 3 modules of 85. A change to the boot image runs them all. A change
+	to a doc runs none. It is the content that is hashed, not the time, so a
+	boot image built again from the same source runs none.
+
+*	A module that fails is not kept, it is run every time till it passes.
+
+*	`tests -a` runs every module whatever the cache has, which is what a
+	release is tested with. `tests -s` lists what would be run.
+
+*	The cache is `obj/<cpu>/<abi>/tests/cache`, one for each machine, and
+	for the emulator.
+
+*	The whole suite on an Apple M4 Max is 9 seconds, and with nothing
+	changed 2.6, which is the time to start the session.
+
+*	Tests of it, `tests/system/test_suite_cache.lisp`. New doc,
+	`docs/ai_digest/test_cache.md`.
+
 A correction, to two timings given below that were wrong, and were mine. The
 Mesh demo on the GPU of a Raspberry Pi 4 was said to take 138ms a frame, 153ms
 before meshes were kept on the GPU, and 146ms with 4 samples a pixel. The
