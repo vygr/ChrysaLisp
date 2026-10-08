@@ -36,6 +36,9 @@
 (assert-eq "0 is true" :yes (if 0 :yes :no))
 (assert-eq "an empty str is true" :yes (if "" :yes :no))
 
+(assert-eq "the first of :nil is its first character" ":" (first :nil))
+(assert-eq "so the first of the first of nothing is true" :yes (if (first (first (list))) :yes :no))
+
 (defun tr-quoted () (defq out '()) (push out 1))
 (tr-quoted)
 (assert-eq "a quoted list is the one list every time" 2 (length (tr-quoted)))

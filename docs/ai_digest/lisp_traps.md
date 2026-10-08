@@ -111,6 +111,17 @@ prefix the assembler does not use. There is no test of this one.
 
 Ask `(empty? seq)` or `(nempty? seq)`, and `(= n 0)`.
 
+### `:nil` is a symbol, and a symbol is a sequence
+
+```lisp
+(first (list))  ; -> :nil
+(first :nil)    ; -> ":", which is true
+```
+
+So `(first (first found))`, with nothing found, is `":"` and not `:nil`,
+and a loop that waits for it to be true has it at once. Ask `(empty? found)`
+before taking it apart.
+
 ### A quoted list is the one list, every time
 
 ```lisp

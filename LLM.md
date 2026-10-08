@@ -317,6 +317,10 @@ Deep dives into meta-commentary and design philosophy:
     parameters, dynamic scope, modules, numbers that do not mix, and errors
     that are never seen. Each is checked by a test.
 
+76. **[Sync](docs/ai_digest/sync.md)** - The `sync` command, the files of
+    another machine made the same as this one's over the links between
+    them, and the service a machine runs to say it will take one.
+
 ---
 
 ## Reading Paths

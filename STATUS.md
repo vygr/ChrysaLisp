@@ -4,6 +4,45 @@
 
 ------
 
+New `sync` command, the files of another machine made the same as this
+one's, over the links, with no `ssh` and no `rsync`. Chris: "All we have to
+do to update a rack is update one system, then walk away." This is the
+first step of that, a push.
+
+*	Each side lists its files with a SHA-256 of each, the lists are
+	compared, and only what differs goes over. `sync -a` on a machine that
+	will take one, `sync` to see who will, `sync -t all -c` to see what
+	would change, `sync -t all` to send it. `docs/ai_digest/sync.md`.
+
+*	A machine takes a sync only if it runs the `*Sync` service, which
+	`sync -a` starts. It writes only under its root. There is no key, any
+	machine with a link to it can write.
+
+*	It is all mail between the machines. No task is started on another
+	machine, the fence round a `run` task stands.
+
+*	What the tree's `.gitignore` leaves out is not sent or removed, so
+	each machine keeps its own `obj/`, `cpu`, `abi`, `os` and `.system_id`.
+
+*	From an M4 to an x86_64 Mac and a Raspberry Pi 4. The first list of
+	the tree, 146MB, 1 second and 3.3. After that 0.2 seconds, the hashes
+	are kept. Two changed files sent in 0.3 seconds. `rsync` then found no
+	file different on either.
+
+*	A file goes 128KB at a time, each part waited for, so in order. A
+	37MB file took 7 seconds to the Pi and 49 to the x86_64 Mac. Slow, and
+	a window or the `:in` `:out` streams would mend it.
+
+*	Not done. Pull, which is the aim, an update that spreads from machine
+	to machine. A version and a restart. A key. File modes. The test
+	scripts still use `rsync`.
+
+*	A trap for the doc, `(first :nil)` is `":"`, which is true. A loop
+	that waited for `(first (first found))` had it at once with nothing
+	found.
+
+------
+
 The mesh forgets a machine that has gone, and what a lost link does.
 
 *	A peer is alive while it is heard from, its beacon or its hello, or
