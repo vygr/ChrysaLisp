@@ -21,6 +21,13 @@ Network Map, the network as it is, in three dimensions.
 	are not hot. A node is whiter, as well as bigger, the more it has to
 	do, its machine's color under that. And it fills its window.
 
+*	Heat is smooth, both ways. A link has a flow, what it carries taken
+	over a second or so, and its heat is that against the most any link
+	carried in a poll of late. Through a burst of two seconds the hottest
+	link read 59, 86, 95, 98 of a hundred, a half second apart, and then
+	45, 17, 8, 3, 1. It had jumped to white at once, and the bedspring
+	with it.
+
 *	It is the network that is there, not the one that was launched. A child
 	on each node says what that node's links are to, four times a second,
 	so a node that comes or goes is seen, and a ring, a star, a tree, a

@@ -39,6 +39,9 @@
 	+k_middle (n2r 0.3) +damp (n2r 0.85) +dt (n2r 0.05)
 	;the bytes a link carries between polls that is no more than idle
 	+quiet 4096
+	;how much of the way a link's flow goes, each poll, to what it carried
+	;in that poll. A fifth, at 4 polls a second, is a second or so
+	+ease (n2r 0.2)
 	+ball_size (n2r 0.09) +bar_size (n2r 0.016)
 	;how far out the furthest node is drawn. The window is 2 from the
 	;middle to an edge, where the middle of it all is
@@ -96,8 +99,11 @@
 
 (defun links-gather ()
 	;the links there are, from what each end says, each once, with how
-	;much mail both ends have put on it. And how fast that is growing, set
-	;against the busiest there has been, is how hot it is
+	;much mail both ends have put on it. How fast that is growing, taken
+	;over a second or so, is its flow, and its flow set against the most
+	;there has been of late is how hot it is. So heat comes up and goes
+	;down smoothly, a flow that lasts is hotter than a burst, and the
+	;bedspring is not tugged about
 	(defq seen (Fmap 31) now (pii-time))
 	(. global_tasks :each (lambda (key node)
 		(each (lambda ((peer sent))
@@ -111,19 +117,19 @@
 		(unless (defq link (. old :find name))
 			(setq changed :t)
 			(def (setq link (env 1)) :a (slice name 0 +node_id_size) :b (slice name +node_id_size -1)
-				:sent sent :heat +real_0
+				:sent sent :flow +real_0 :heat +real_0
 				:bar (share (Scene-object bar_mesh (fixeds 1.0 0.3 0.4 0.6)) bar_proto)))
-		(defq rate (max 0 (- sent (get :sent link))))
+		;the most there has been is of what a poll carried, not of the
+		;flow, or the busiest link would be white the moment it began
+		(defq rate (n2r (max 0 (- sent (get :sent link)))) flow (get :flow link)
+			flow (+ flow (* (- rate flow) +ease)))
 		(setq top_rate (max top_rate rate))
-		;heat comes up fast and goes down slow
-		(defq want (/ (n2r rate) (n2r top_rate)) heat (get :heat link))
-		(def link :sent sent :heat (if (> want heat) want
-			(+ heat (* (- want heat) (const (n2r 0.25))))))
+		(def link :sent sent :flow flow :heat (/ flow top_rate))
 		(. links :insert name link)))
 	(if (/= (. links :size) (. old :size)) (setq changed :t))
 	;the busiest fades, so a burst long gone does not leave all else cold
 	;but not to nothing, or the pings of an idle network would be hot
-	(setq top_rate (max +quiet (/ (* top_rate 15) 16))))
+	(setq top_rate (max (const (n2r +quiet)) (* top_rate (const (n2r 0.97))))))
 
 (defun spring-step ()
 	;a step of the bedspring
@@ -248,7 +254,7 @@
 
 (defun main ()
 	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t
-		machines (list) links (Fmap 31) top_rate +quiet zoom +real_1 spin +real_0
+		machines (list) links (Fmap 31) top_rate (n2r +quiet) zoom +real_1 spin +real_0
 		gpu_pair :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
 		ball_mesh (Mesh-sphere +real_1 12) bar_mesh (Mesh-cylinder +real_1 +real_1 8)
 		ball_proto (Scene-object ball_mesh (fixeds 1.0 1.0 1.0 1.0))
