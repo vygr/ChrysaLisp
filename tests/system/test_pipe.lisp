@@ -58,6 +58,46 @@
 		(mail-send child_mbox "")
 		(assert-eq "pipe abort child exit" "done" (mail-read-timeout reply_mbox))))
 
+; --- Abort of a command that never reads or writes. It is signalled, and
+; --- (task-sleep) and (task-slice) are where it finds that it was, an
+; --- error there
+(defun pipe-told (reply_mbox body)
+	; (pipe-told reply_mbox body) -> pipe
+	;a command that says it has started, runs body, and says so if it is
+	;stopped by an error. It is waited for to start, how long that takes
+	;is the machine's affair
+	(defq pipe (Pipe (cat "lisp -r (progn (mail-send (hex-decode {" (hex-encode reply_mbox)
+		"}) {started}) (catch " body " (progn (mail-send (hex-decode {" (hex-encode reply_mbox)
+		"}) (if (find {task_aborted} (str _)) {aborted} {other})) :nil)))")))
+	(assert-eq "the command starts" "started" (mail-read-timeout reply_mbox (task-timeout 10)))
+	pipe)
+;a task is stopped by an error, so this is of a build that checks for them
+(cond
+	((not *test_checked*) (test-skip "abort of a command that never reads or writes" "needs an error checked build"))
+	(:t
+	(defq reply_mbox (mail-mbox)
+		pipe (pipe-told reply_mbox (cat "(task-sleep " (str (* 30 (task-timeout 1))) ")")))
+	(assert-eq "a command that only sleeps says no more" :nil (mail-read-timeout reply_mbox 200000))
+	(defq t0 (pii-time))
+	(. pipe :abort)
+	(assert-eq "aborted, it is woken and stopped, it does not sleep on" "aborted"
+		(mail-read-timeout reply_mbox (task-timeout 5)))
+	(assert-true "and long before its sleep was over" (< (- (pii-time) t0) (* 10 (task-timeout 1))))
+	(defq reply_mbox (mail-mbox) pipe (pipe-told reply_mbox "(while :t (task-slice))"))
+	(assert-eq "a command that only works, and lets others run, says no more" :nil (mail-read-timeout reply_mbox 200000))
+	(. pipe :abort)
+	(assert-eq "aborted, it is stopped" "aborted" (mail-read-timeout reply_mbox (task-timeout 5)))
+	(defq reply_mbox (mail-mbox) pipe (pipe-told reply_mbox
+		(cat "(progn (catch (task-sleep " (str (* 30 (task-timeout 1))) ") :t) (while :t (task-sleep 1000)))")))
+	(task-sleep 200000)
+	(. pipe :abort)
+	(assert-eq "one that catches the error and sleeps again is stopped again" "aborted"
+		(mail-read-timeout reply_mbox (task-timeout 5)))))
+;a task that is not aborted sleeps and wakes as it did
+(defq t0 (pii-time))
+(task-sleep 50000)
+(assert-true "a sleep is still a sleep" (>= (- (pii-time) t0) 50000))
+
 ; --- A farm of commands, and one of them that never answers in time ---
 (import "lib/task/cmd.inc")
 (defq farmed (pipe-farm (list "echo one" "echo two" "echo three")))

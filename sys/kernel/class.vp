@@ -342,6 +342,17 @@
 					(vp-or-rr :r1 :r2)
 					(assign '(:r2) '((:r0 +tk_node_flags)))
 				(errorcase
+					;one that is asleep is woken, to find it has been
+					;signalled, (task-sleep) does. It is on the timer list,
+					;its time is when it is to wake. As is one that waits
+					;for mail. Only in a build with error checks, it is by an
+					;error that a task is stopped, and a release build has
+					;none, there a signal sets the flag and no more
+					(assign '((:r0 +tk_node_time)) '(:r1))
+					(vpif '(:r1 > 0))
+						(vp-cpy-cr -1 :r1)
+						(assign '(:r1) '((:r0 +tk_node_time)))
+					(endif)
 					(call :sys_task :resume '(:r0)))
 				(endif)
 				(call :sys_mail :free {msg})

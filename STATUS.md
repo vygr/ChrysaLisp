@@ -4,6 +4,42 @@
 
 ------
 
+A command that never reads or writes can be aborted.
+
+*	A pipe that aborts its commands, the Terminal's Ctrl-Shift-D, signals
+	each one, and a command found that it had been only when it next read
+	or wrote. One that only slept, or only worked, went on. `lisp -r
+	(task-sleep 100000000)` could not be stopped.
+
+*	The kernel now wakes a task that is asleep when it is signalled, and
+	`(task-sleep)` and `(task-slice)` look, before the sleep and after, to
+	see if their task has been. If it has they give an error,
+	`task_aborted`, a new one, which ends a command as any error does. A
+	command that catches it and sleeps again is stopped again, the flag
+	stays.
+
+*	Only in a build with error checks, the normal one, as the signal that
+	wakes a task waiting for mail already was. Claude had it in every
+	build first, and on the emulator's release image a loop round a sleep
+	then span for ever: an error there is a value like any other, the loop
+	went round on it, and the sleep, now giving an error at once, no
+	longer let anything else run. The node hung. In a release build a
+	signal still sets the flag and no more.
+
+*	`tests/system/test_pipe.lisp`, 9 more: a command that only sleeps is
+	stopped long before its sleep is over, one that only works is stopped,
+	one that catches the error and sleeps again is stopped again, and a
+	sleep that is not aborted is still a sleep. Each command says it has
+	started before it is aborted, the first go at these timed it by the
+	clock and failed on the emulator for that alone.
+
+*	Not done: a command that works and never calls `(task-slice)`. It lets
+	nothing else run either, the signal can not reach its node's kernel.
+	And a command stuck in a read of mail that is not its stdin, in a
+	release build.
+
+------
+
 A tree of hashes, and `sync` on it. One number says if two trees are the same.
 
 *	Chris, of what a version is: "can a rescan just know what folders have
