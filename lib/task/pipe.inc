@@ -121,7 +121,15 @@
 		;wait for stdout and stderr streams to stop
 		;if it goes on too long, then abort !
 		(mail-timeout (last (push select (mail-mbox))) +pipe_abort_delay 0)
-		(defq user_select_len (length (get :user_select this)))
+		(defq user_select_len (length (get :user_select this)) at (length streams))
+		;a stream that has stopped already has no more to say, and is not
+		;waited for. After (. pipe :eof) a stderr can stop, and be read as
+		;stopped, while the last of the stdout is still coming. To wait for
+		;it then was to wait for the abort timer, every time
+		(while (>= (setq at (dec at)) 0)
+			(if (>= (in-get-state (elem-get streams at)) +stream_mail_state_stopped)
+				(setq streams (erase streams at (inc at))
+					select (erase select (+ at user_select_len) (+ at user_select_len 1)))))
 		(while (and (nempty? streams)
 					(< (defq mboxs (slice select user_select_len -1) idx (mail-select mboxs))
 						(dec (length mboxs))))

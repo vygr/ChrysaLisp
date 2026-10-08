@@ -71,4 +71,19 @@
 (assert-list-eq "pipe farm, a command that is too slow is given up on" '("echo quick")
 	(map (const first) farmed))
 
+;a pipe that is told its input has ended, read till it stops, and closed,
+;closes at once. A stderr can stop, and be read as stopped, while the last
+;of the stdout is still coming, and the close then waited for it to stop
+;again, which it never would, till the abort timer of 2 seconds went
+(each (lambda (cmdline)
+	(defq pc (Pipe cmdline) pc_out (list))
+	(. pc :eof)
+	(while (defq pc_data (. pc :read)) (if (str? pc_data) (push pc_out pc_data)))
+	(defq pc_t0 (pii-time))
+	(. pc :close)
+	(assert-true (cat "closes at once after eof, " cmdline)
+		(< (- (pii-time) pc_t0) (/ (task-timeout 1) 2)))
+	(assert-true (cat "and all it said was read, " cmdline) (nempty? pc_out)))
+	(list "echo one two" "files cmd/ .lisp" "make all boot" "files cmd/ | head -n 3"))
+
 (undef (env) 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply 'farmed)

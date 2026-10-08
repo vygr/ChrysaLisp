@@ -87,9 +87,9 @@ All of this, from cold, on each machine there is, each CPU and each OS.
   With them all at once a Raspberry Pi 4 is overrun, and a different test
   with a wait in it fails each time. A module at a time they all pass, in
   six and a half minutes.
-* `make vp`, `make apps debug`, then `files obj/vp/ | trace -i -l`, the
-  lint, which must say nothing. Then `make apps` and `make all boot`, to
-  leave the release build.
+* `lint`, which must say `lint: clean`. It is `make vp`, `make apps
+  debug`, then `files obj/vp/ | trace -i -l`, and then `make apps` and
+  `make all boot` to leave the release build, all in the one session.
 * RISC-V and LoongArch under QEMU. The host program is built there first,
   from the source as it is, one left from an older tree has a shorter table
   of calls than the boot image expects and the node dies of it. Then, from
@@ -114,3 +114,22 @@ them at once and each does only what it must.
 all that files stand on, `(test-base)` what is under every module,
 `(test-key module base)` the hash of a module, and `(run-suite)` does the
 rest. `tests/system/test_suite_cache.lisp` tests them.
+
+## The Lint
+
+```code
+lint
+lint: clean, 834ms
+```
+
+The trace lint works out what each VP function really trashes, and says
+where that is not what its header has written down. It is only right on a
+debug build. `lint` makes one, runs the trace lint over every listing under
+`obj/vp/`, puts the release build back, and prints what any of it had to
+say, which is nothing when all is well. `-k` leaves the debug build, `-v`
+says what each step took. `cmd/lint.lisp`.
+
+It is run after any change to VP. It is under a second of work on an Apple
+M4 Max, and 1.4 seconds from a shell with the session to start and stop. It
+was 14 seconds as five commands, each a session of its own, and each of
+those waited 2 seconds for nothing, see `STATUS.md` for 2026-10-08.

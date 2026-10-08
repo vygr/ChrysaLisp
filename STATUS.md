@@ -4,6 +4,29 @@
 
 ------
 
+A command from a script no longer waits 2 seconds to end, and the lint is one
+command.
+
+*	A pipe that had been told its input was over, as one run from a script
+	is, took 2 seconds longer to close than it needed. A stderr could stop,
+	and be read as stopped, while the last of the stdout was still coming,
+	and the close then waited for it to stop again, till the abort timer.
+	`(. pipe :close)` now leaves out a stream that has stopped already.
+	`lib/task/pipe.inc`.
+
+*	`echo "make all boot" | ./run_tui.sh` was 2.7 seconds and is 0.67. The
+	tests of one folder 2.6 seconds and 0.6. All the tests 9 seconds and 5,
+	each module is a pipe of its own. A run of the tests with nothing to
+	run again, 2.6 seconds and 0.58. On an Apple M4 Max.
+
+*	New `lint` command. A debug build, the trace lint of every listing, and
+	the release build back, in the one go, `lint: clean` when all is well.
+	0.83 seconds in a session, 1.4 from a shell, where the five commands it
+	is took 14.
+
+*	A test that a pipe closes at once after its input is over, which the
+	old close fails, in `tests/system/test_pipe.lisp`.
+
 Reading a number too big for a fixed no longer stops an x86_64 node.
 
 *	`1791408183000000.0`, read by the reader or by `(str-to-num)`, stopped
