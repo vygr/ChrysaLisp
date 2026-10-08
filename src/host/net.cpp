@@ -60,6 +60,19 @@ static void set_nonblocking(socket_t fd) {
 #endif
 }
 
+static void set_nodelay(socket_t fd) {
+	//send what is written when it is written. A link writes a small header
+	//and then the data of each message, and TCP would hold the second till
+	//the first was acknowledged, which the other end puts off, so every
+	//message waited 20 to 50ms
+	int opt = 1;
+#ifdef _WIN64
+	setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (const char *)&opt, sizeof(opt));
+#else
+	setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt));
+#endif
+}
+
 static void close_fd(socket_t fd) {
 #ifdef _WIN64
 	closesocket(fd);
@@ -117,6 +130,7 @@ static void resolve_and_connect_worker(uint32_t handle) {
 		if (fd == SOCK_INVALID) continue;
 
 		set_nonblocking(fd);
+		if (p->ai_socktype == SOCK_STREAM) set_nodelay(fd);
 		ret = connect(fd, p->ai_addr, (int)p->ai_addrlen);
 
 #ifdef _WIN64
@@ -279,6 +293,7 @@ uint32_t host_net_accept(uint32_t handle) {
 	if (client_fd == SOCK_INVALID) return 0;
 
 	set_nonblocking(client_fd);
+	set_nodelay(client_fd);
 	return alloc_slot(client_fd, SOCK_STATE_CONNECTED);
 }
 

@@ -4,6 +4,47 @@
 
 ------
 
+Mail over a TCP link was slow, two faults, neither in what was using it.
+
+*	Found by asking why a sync with nothing to send took 1 to 2 seconds
+	when listing the tree takes 15ms. The round trip of the smallest message
+	to another machine was 48ms to a Raspberry Pi 4 and 20ms to an x86_64
+	Mac, on a LAN where a ping is under 1. And a message too big for one
+	packet took from 170ms to 1.8 seconds, a different time each go.
+
+*	**The sockets of a link held back what was written.** A link writes a
+	small header and then the data of each message. TCP holds a second small
+	write till the first is acknowledged, and the other end puts that off,
+	40ms on Linux. The host now sets `TCP_NODELAY` on a TCP socket as it
+	connects or accepts, `src/host/net.cpp`. The smallest round trip is 4ms
+	to the Pi and 8ms to the Mac.
+
+*	**The postman did not wake the links.** A message bigger than a packet
+	goes to the postman, `sys/mail/out.vp`, which cuts it into fragments
+	and queues them. A message that fits is queued and the links are woken,
+	`:sys_task :wake_links`. The postman queued and woke nobody. A shared
+	memory link looks at the queue every few hundred microseconds, so never
+	showed it. A TCP link sleeps till it is woken, up to 5 seconds, so the
+	fragments sat till something else woke it. The postman wakes them now.
+	A message of 7KB to the Pi was 335ms and is 6ms, of 28KB was 1,084ms
+	and is 9ms, of 1MB was 807ms and is 154ms.
+
+*	A sync with nothing to send is 0.2 seconds through the mesh. A test
+	run of three machines with nothing to run again is 1.3 seconds, and was
+	3.3. A file of 37MB goes to the Pi at 6MB a second and to the Mac, on
+	Wi-Fi, at 1.5MB, where plain `ssh` does 8.7MB and 1.9MB over the same
+	two. So it is the network now, and a window of parts in flight, or the
+	`:in` and `:out` streams, is not needed for it.
+
+*	The host programs have to be made again for the first of these, `make`.
+	Nothing in the table of calls has changed, an old host program runs the
+	new boot image and is only slower over a link. The Windows programs in
+	the snapshot are the old ones. The boot image is 16 bytes bigger.
+
+*	Every test passes on the three machines and on the emulator.
+
+------
+
 The mesh did not do what Claude said it did, and now does. An `@` service is
 for its own machine and is not seen from another, only a `*` service is.
 Chris: "a machine should only be able to see its own @ services ! only * go

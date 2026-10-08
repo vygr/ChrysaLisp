@@ -70,6 +70,11 @@
 		;free parcel
 		(call :sys_mail :free `(,msg))
 
+		;wake any sleeping link task, as a packet that is not a parcel
+		;does. A link that sleeps till it is woken, a TCP link, did not
+		;send these till something else woke it, up to seconds later
+		(call :sys_task :wake_links)
+
 		;let other links get at some packets
 		(call :sys_task :sleep '(0))
 		;exit if signaled by kernel...

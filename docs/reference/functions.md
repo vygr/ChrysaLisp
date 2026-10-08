@@ -3494,13 +3494,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args
@@ -3831,6 +3831,142 @@ the VP source of the native function that places vertices
 
 ```code
 (sym? form) -> :t | :nil
+```
+
+### sync-diff
+
+```code
+(sync-diff mine theirs) -> (send remove)
+
+the paths to send, not there or not the same, and the paths that are
+there and not here
+```
+
+### sync-hear
+
+```code
+(sync-hear reply_mbox [wait]) -> :nil | (status data)
+
+what it says back, :nil if it does not in the time
+```
+
+### sync-ignored?
+
+```code
+(sync-ignored? rules segs is_dir) -> :nil | :t
+
+is a path, as its parts, left out ? The folders above it are taken
+to have been asked of already, as a walk down the tree does
+```
+
+### sync-inside?
+
+```code
+(sync-inside? root path [real]) -> :nil | :t
+
+is a path, safe as written, under the root as the host has it ? Every
+folder on the way has to be a folder, and the file a file, or not
+there yet. A link is neither, so a link in the tree to somewhere else
+is never gone through, and nothing is written or removed beyond it.
+real is a set of the folders found to be so, to ask the host the once
+```
+
+### sync-kind
+
+```code
+(sync-kind folder entry) -> :nil | kind
+
+what the host says an entry of a folder is, "4" a folder, "8" a file,
+anything else something else, a link for one. :nil if it is not there
+```
+
+### sync-list
+
+```code
+(sync-list root rules [kept]) -> ((path size hash) ...)
+
+the files of a tree, with the size and the SHA-256 of each. With a
+file to keep them in, a hash is not worked out again for a file whose
+time and size are as they were. One changed in the last two seconds is
+always hashed, its time may not change if it is changed again
+```
+
+### sync-list-read
+
+```code
+(sync-list-read text) -> ((path size hash) ...)
+```
+
+### sync-list-text
+
+```code
+(sync-list-text entries) -> str
+
+a list as it goes in a message, a line a file
+```
+
+### sync-push
+
+```code
+(sync-push svc root rules_text [check remove kept]) -> :nil | (sent bytes removed failed send gone)
+
+make the tree a sync service has the same as the one under root. With
+check nothing is changed there. With remove, what is there and not
+here is removed. send and gone are the paths that differ, and the ones
+only there. :nil if the service does not answer
+```
+
+### sync-rules
+
+```code
+(sync-rules text) -> rules
+
+the rules of a .gitignore, each (anchored dir_only segments). Those
+that take back a rule, !, are not known and are left out. The .git
+folder is never listed
+```
+
+### sync-safe?
+
+```code
+(sync-safe? path) -> :nil | :t
+
+a path the service will write to, by how it is written. Under its
+root, and not up out of it. No .., no start at the top of the host's
+files or of a drive, no ~, and no character below a space
+```
+
+### sync-seg?
+
+```code
+(sync-seg? pat seg) -> :nil | :t
+
+does one part of a path match one part of a rule, which may have a *
+```
+
+### sync-services
+
+```code
+(sync-services [name]) -> ((mbox system_id machine root) ...)
+
+the machines that will take a sync, as their services say
+```
+
+### sync-tell
+
+```code
+(sync-tell svc reply_mbox kind data [at total])
+
+a message to a sync service
+```
+
+### sync-walk
+
+```code
+(sync-walk root rules) -> paths
+
+every file under the root that the rules do not leave out, each a
+path from the root, in order
 ```
 
 ### task-mboxes

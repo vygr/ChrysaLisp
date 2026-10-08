@@ -459,6 +459,7 @@ Usage: link [options] [host[:port] ...]
         -h --help: this help info.
         -l --listen [port]: listen for incoming TCP network link (default: 3333).
         -a --auto: auto-discovery mode (beacon when listening, discover when client).
+        -m --mesh: link to the peers of whoever is linked to, with no discovery.
         -v --verbose: verbose output.
 
     Start TCP network link driver/s.
@@ -467,11 +468,15 @@ Usage: link [options] [host[:port] ...]
         link -l 3333          ; Listen on port 3333 for incoming network links
         link -l 3333 -a       ; Listen on port 3333 and beacon for auto-discovery
         link -a               ; Auto-discover LAN peers and connect
+        link -m 192.168.1.100 ; Connect to a peer, and to each peer it knows
         link 192.168.1.100    ; Connect to peer on default port 3333
         link 127.0.0.1:3333   ; Connect to peer on specified port
         link server.local     ; Connect to peer by DNS/mDNS hostname
 
-    If no host names given on command line and -l/-a not passed,
+    Every machine that runs both link -l 3333 -a and link -a finds the
+    others and has one link to each, none is on the way between two.
+
+    If no host names given on command line and -l/-a/-m not passed,
     then names are read from stdin.
 ```
 ## lint
@@ -786,6 +791,35 @@ Usage: stats [options]
         -h --help: this help info.
 
     Some simple object statistics.
+```
+## sync
+```code
+Usage: sync [options]
+
+    options:
+        -h --help: this help info.
+        -a --accept: this machine will take a sync, till it is told
+            not to or its session ends.
+        -x --stop: this machine will no longer take a sync.
+        -t --to id: make that machine's tree the same as this one's.
+            The start of its id, as the list shows it, or all.
+        -c --check: with -t, say what differs and change nothing.
+        -d --delete: with -t, remove what is there and not here.
+        -r --root path: the root of the tree, default the system's own.
+        -v --verbose: name each file.
+
+    Make the files of another machine the same as the files of this one,
+    over the links between them. Only what differs is sent. What the
+    .gitignore of the tree leaves out is not sent, or removed.
+
+    A machine only takes a sync if it was told to, sync -a.
+
+    With no options, list the machines that will take one.
+
+        sync -a           ; on the machine to be updated
+        sync              ; on this one, who will take a sync ?
+        sync -t all -c    ; what would change on them
+        sync -t D649      ; send it to the one
 ```
 ## tail
 ```code

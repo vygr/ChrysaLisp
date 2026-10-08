@@ -95,16 +95,18 @@ The hash of a file is kept, with its time and size, in
 `obj/<cpu>/<abi>/sync_hashes`, and is worked out again only for a file
 whose time or size has changed, or that changed in the last two seconds.
 The whole tree, 146MB in 1,400 files, is first listed in 1 second on a 2018
-x86_64 MacBook Pro and 3.3 seconds on a Raspberry Pi 4, and in 0.2 seconds
-after that.
+x86_64 MacBook Pro and 3.3 seconds on a Raspberry Pi 4. After that it is
+15ms on an M4 and 0.1 seconds on the Pi, and a sync with nothing to send is
+0.2 seconds from start to end.
 
 A file goes over 128KB at a time, each part waited for before the next is
 sent, and the service refuses a part that is not the next. So the parts
-arrive in order however many routes there are between the two. It is not
-quick for a big file, 37MB took 7 seconds to the Pi and 49 to the x86_64
-Mac, 5MB and 0.8MB a second. Source files are small and it does not show.
-A window of parts in flight, or the `:in` and `:out` streams, is what would
-mend it.
+arrive in order however many routes there are between the two. 37MB goes to
+the Pi at 6MB a second, and to the x86_64 Mac, which is on Wi-Fi, at 1.5MB.
+Plain `ssh` does 8.7MB and 1.9MB over the same two, so it is the network
+that sets the pace and not the waiting. It was slower than that, 49 seconds
+to the Mac, till two faults in how mail goes over a TCP link were mended,
+see `STATUS.md`.
 
 ## The parts
 

@@ -12,6 +12,8 @@
 
 ### (net-init)
 
+### (net-links)
+
 ### (net-listen port)
 
 ### (net-poll handle)
