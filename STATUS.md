@@ -4,6 +4,24 @@
 
 ------
 
+The desktop keeps its turn when every core is busy. Chris ran the GUI on the
+raw driver, which has no GPU, so everything is drawn by the nodes, with the
+Surface and Mesh demos up together.
+
+*	The desktop was smooth and quick to answer throughout. The GUI is a
+	high priority task and had its turn first, and the native code of the
+	shaders gave way to it often enough.
+
+*	Mesh lost frames, a bit chuggy. The two demos share what is left, and
+	not evenly. That is the right thing to slow down, the work that can
+	wait and not what is being touched. It is left as it is, a GUI with no
+	GPU and two such demos is not a likely case.
+
+*	Full screen worked, on SDL3. The raw driver fell back to drawing on the
+	CPU for the apps that would use the GPU, as it should.
+
+------
+
 The words of the Canvas demo are bolder, Chris's eye on it. The outlines of
 the glyphs are made half as big again and stroked, and the stroke filled
 with them, so a stem is near twice as wide as the font has it and the
