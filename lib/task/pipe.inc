@@ -45,7 +45,12 @@
 					(+stdio_msg_init_stderr stderr_mbox)
 					(+stdio_msg_init_ack ack_mbox)))
 				(setq stdout_mbox (getf (mail-read ack_mbox) +stdio_msg_init_stdout))) mboxs args select)
-			(push streams stdout (out-stream stdout_mbox))
+			;the stdin stream goes first of the streams, with what the pipe
+			;says after it. A list lets go of its first element first, so a
+			;pipe that is let go of while open ends its stdin, and then waits
+			;for what the commands say to stop, as they do when their stdin
+			;has. The other way round each side waits for the other, for ever
+			(setq streams (cat (list (out-stream stdout_mbox)) streams (list stdout)))
 			(push select (in-mbox stdout))
 			(def this :select (cat user_select select) :user_select user_select
 				:streams streams :stdout stdout :ids mboxs :state :t)))
@@ -67,7 +72,7 @@
 					;closed when its stdout stops, a stderr can stop
 					;before the last of the stdout has been read
 					(if (and (/= (in-get-state (in-next-msg (defq msg_in
-									(elem-get (get :streams this) (- idx user_select_len)))))
+									(elem-get (get :streams this) (inc (- idx user_select_len))))))
 								+stream_mail_state_started)
 							(eql msg_in (get :stdout this)))
 						(def this :state :nil))
@@ -75,9 +80,9 @@
 
 	(defmethod :write (string)
 		; (. pipe :write string) -> pipe
-		;last stream is :out to first pipe element
+		;first stream is :out to first pipe element
 		(unless (get :eof this)
-			(defq stream (last (get :streams this)))
+			(defq stream (first (get :streams this)))
 			(write-blk stream string)
 			(stream-flush stream))
 		this)
@@ -89,7 +94,7 @@
 		;yet to say can still be read
 		(unless (get :eof this)
 			(def this :eof :t)
-			(pop (get :streams this)))
+			(elem-set (get :streams this) 0 :nil))
 		this)
 
 	(defmethod :abort ()
@@ -109,7 +114,7 @@
 					(+kn_msg_signal_flags +tk_flag_aborted))))
 			(get :ids this))
 		;now destroy all the streams
-		(while (pop streams) (pop select))
+		(while (nempty? streams) (if (pop streams) (pop select)))
 		this)
 
 	(defmethod :close ()
@@ -117,7 +122,10 @@
 		;clear the stdin stream, which will send
 		;stopping and stopped into the pipe
 		(raise :select :streams)
-		(unless (get :eof this) (pop streams))
+		(def this :eof :t)
+		(elem-set streams 0 :nil)
+		;what is left to wait for, the stdout and stderr streams
+		(setq streams (rest streams))
 		;wait for stdout and stderr streams to stop
 		;if it goes on too long, then abort !
 		(mail-timeout (last (push select (mail-mbox))) +pipe_abort_delay 0)

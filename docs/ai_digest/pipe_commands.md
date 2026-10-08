@@ -126,6 +126,12 @@ The distributed pipe functionality is primarily managed by components found in
         * `:close()`: Initiates a graceful shutdown of the pipeline, waiting
           for all stderr streams to report they have stopped.
 
+        A `Pipe` that is let go of without `:close()` ends its stdin and
+        waits, with no time limit, for what the commands say to stop. That
+        is at once for commands that end when their stdin does. For one
+        that will not end, `:close()` or `:abort()` it, or the task waits
+        for ever. `pipe-run` closes its pipe if the output function throws.
+
 3. **`pipe-run cmdline_string [&optional output_function]`** (from
    `lib/task/pipe.inc`):
 

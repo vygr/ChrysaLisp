@@ -98,4 +98,25 @@
 (pipe-run "echo one two" (# (push pipe_out %0)))
 (assert-true "and a pipe run after it is as ever" (nempty? pipe_out))
 
+;a pipe let go of while open ends its stdin and goes, it is not waited on
+;for ever. One that had not been read, one mid way, and one written to
+(each (lambda (cmdline)
+	(defq pd (Pipe cmdline) pipe_t0 (pii-time))
+	(if (eql cmdline "cat") (. pd :write "abc"))
+	(if (eql cmdline "echo one two") (. pd :read))
+	(setq pd :nil)
+	(assert-true (cat "a pipe let go of open is gone, " cmdline) (< (- (pii-time) pipe_t0) 1000000)))
+	(list "echo one two" "echo one | cat" "cat" "files cmd/ .lisp | sort"))
+(setq pipe_out (list))
+(pipe-run "echo one two" (# (push pipe_out %0)))
+(assert-true "and a pipe run after them is as ever" (nempty? pipe_out))
+;an abort, before and after the end of stdin
+(each (lambda (ended)
+	(defq pd (Pipe "lisp -r (while :t (task-sleep 100000))") pipe_t0 (pii-time))
+	(if ended (. pd :eof))
+	(. pd :abort)
+	(setq pd :nil)
+	(assert-true (cat "a pipe aborted is gone, stdin ended " (str ended)) (< (- (pii-time) pipe_t0) 1000000)))
+	(list :nil :t))
+
 (undef (env) 'pipe_t0 'pipe_err 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply 'farmed)
