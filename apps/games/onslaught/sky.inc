@@ -13,7 +13,7 @@
 (defclass Sky () (View)
 	; (Sky) -> sky view
 	(def this :color +argb_black :sky_top +argb_black :sky_bottom +argb_black :sky_step 2)
-	(. this :set_size (* +map_width +tile_width) (* +map_height +tile_height))
+	(. this :set_size (const (* +map_width +tile_width)) (const (* +map_height +tile_height)))
 
 	(defmethod :sky_set_cols (c1 c2)
 		; (. sky :sky_set_cols c1 c2) -> sky

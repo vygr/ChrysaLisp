@@ -18,7 +18,7 @@
 	(-- *enemy_count*)
 	(bind '(x y) (. this :sp_get_pos))
 	(defq dir (get :sp_dir this)
-		wy (logand y (neg +tile_height)))
+		wy (logand y (const (neg +tile_height))))
 	(each (lambda (ox)
 		(defq wiz (Wizard)
 			mv (elem-get (get :sp_components wiz) +en_comp_mv))

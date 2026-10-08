@@ -43,7 +43,7 @@
 		(setq *man_strength* (max 0 (- *man_strength* (+ (>> hit_pnt 1) 1)))))
 	(when (/= drag_xv 0)
 		(bind '(x y) (. this :sp_get_pos))
-		(setq x (max 0 (min (- (* +map_width +tile_width) 32) (+ x (/ drag_xv 2)))))
+		(setq x (max 0 (min (const (- (* +map_width +tile_width) 32)) (+ x (/ drag_xv 2)))))
 		(. this :sp_set_pos x y))
 	(if (or (<= *man_strength* 0) (<= *man_power* 0))
 		(. this :sp_kill)))
@@ -81,8 +81,8 @@
 
 (defun cl-man-hits-banner (this hit)
 	; touching player banner recovers power to at least half
-	(when (< *man_power* (/ +max_power 2))
-		(setq *man_power* (/ +max_power 2))))
+	(when (< *man_power* (const (/ +max_power 2)))
+		(setq *man_power* (const (/ +max_power 2)))))
 
 (defun cl-man-hits-enemy-banner (this hit)
 	; capturing enemy banner

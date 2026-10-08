@@ -200,7 +200,7 @@
 					(bind '(w h) (. *canvas* :get_size))
 					(defq lx (n2f (* (- (getf *msg* +ev_msg_mouse_rx) (/ w 2)) 4))
 						ly (n2f (* (- (getf *msg* +ev_msg_mouse_ry) (/ h 2)) 4))
-						lz (* +box_size -4.0)
+						lz (const (* +box_size -4.0))
 						len (sqrt (+ (* lx lx) (* ly ly) (* lz lz))))
 					(setq light_x (/ lx len) light_y (/ ly len)))
 			((. *window* :event *msg*))))

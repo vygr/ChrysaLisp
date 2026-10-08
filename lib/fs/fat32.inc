@@ -134,7 +134,7 @@
 				:root (get-uint boot +fat32_boot_root)
 				:sector_shift sector_shift
 				:cluster_shift (+ sector_shift cluster_shift)
-				:label (trim (slice boot +fat32_boot_label (+ +fat32_boot_label 11)))
+				:label (trim (slice boot +fat32_boot_label (const (+ +fat32_boot_label 11))))
 				:upcase (Fmap 101))
 			;names are found with no regard to case, by the table exFAT has
 			(exfat-upcase-load vol (exfat-upcase-table))

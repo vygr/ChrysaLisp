@@ -4,6 +4,29 @@
 
 ------
 
+Tidying, from Chris reading the Onslaught source.
+
+*	`(neg +tile_height)` and the like, an expression of nothing but
+	constants, was worked out every time it was reached. 80 of them are
+	now `(const ...)`, worked out once as the function is made, 42 in
+	Onslaught and the rest in the exFAT library, the demos and the science
+	apps. Only inside a function, a `(defq)` of constants at the top of a
+	file runs once as it is.
+
+*	A list of components put in a variable to be used the once, in the
+	ballista and the oil of Onslaught, is used where it is.
+
+*	The characters of Onslaught's menus had a black square behind each.
+	`ascii.cpm` was white on solid black, drawn as a greyscale texture. It
+	is white on nothing now, and a glyph texture, as the glyphs of a font
+	are, so only the character is drawn, in its color.
+
+*	Onslaught was run on a Raspberry Pi 4 with its bot playing, menu to
+	map to battle, and each of the eight other apps changed was started
+	there, no errors. The look of the menus wants an eye.
+
+------
+
 Two small ones.
 
 *	`shader -p file`, the other shader of a pair. A vertex shader and a

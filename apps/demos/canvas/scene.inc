@@ -193,7 +193,7 @@
 	;turned, placed or drawn, nor stroked if it is a live one, and the clip
 	;of the canvas cuts those that do to the rows.
 	(defq fy (n2f y) fy1 (n2f y1) drawn 0
-		cx (* (n2f +scene_width) 0.5) cy (* (n2f +scene_height) 0.5)
+		cx (const (* (n2f +scene_width) 0.5)) cy (const (* (n2f +scene_height) 0.5))
 		ax (* cx 0.92) ay (* cy 0.90))
 	(.-> canvas (:set_clip 0 y +scene_width y1)
 		(:set_color 0xff141c28) (:fbox 0 y +scene_width (- y1 y)))

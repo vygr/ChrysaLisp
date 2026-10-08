@@ -120,7 +120,7 @@
 		(setq *demo_saved_settings* (list *menu_difficulty* *menu_mode*))
 		(clear-sprite-layers)
 		(set-world-layers-pos 0 0)
-		(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
+		(set-world-layers-size (* *zoom* (const (* +map_width +tile_width))) (* *zoom* (const (* +map_height +tile_height))))
 		(. *layer_sky* :sky_set_cols sky_top sky_bottom)
 		(setq *game_level* game_level
 			*current_map_idx* map_idx)

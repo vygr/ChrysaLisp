@@ -384,12 +384,12 @@
 
 (defun use-red-spell (man)
 	; red spell restores 20% strength
-	(setq *man_strength* (min +max_strength (+ *man_strength* (/ +max_strength 5))))
+	(setq *man_strength* (min +max_strength (+ *man_strength* (const (/ +max_strength 5)))))
 	(play-sfx *sfx_spell* man))
 
 (defun use-blue-spell (man)
 	; blue spell restores 20% power
-	(setq *man_power* (min +max_power (+ *man_power* (/ +max_power 5))))
+	(setq *man_power* (min +max_power (+ *man_power* (const (/ +max_power 5)))))
 	(play-sfx *sfx_spell* man))
 
 (defun use-talisman (man)

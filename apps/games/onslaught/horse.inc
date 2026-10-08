@@ -17,7 +17,7 @@
 	(bind '(x y) (. this :sp_get_pos))
 	(defq dir (get :sp_dir this) knight (Knight)
 		mv (elem-get (get :sp_components knight) +en_comp_mv)
-		ky (logand (+ y 32) (neg +tile_height)))
+		ky (logand (+ y 32) (const (neg +tile_height))))
 	(def knight :sp_dir dir)
 	(set mv 'vx (* (get 'max_vx mv) dir))
 	(. knight :sp_set_pos (+ x 16) ky)

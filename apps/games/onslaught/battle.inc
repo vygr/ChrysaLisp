@@ -80,12 +80,12 @@
 (defun getxy (w h dir)
 	(defq cam_x *cam_x* cam_y *cam_y*
 		w1 (- w 1)
-		x (if (= dir 1) (+ cam_x (- +window_width 1)) (- cam_x w1))
+		x (if (= dir 1) (+ cam_x (const (- +window_width 1))) (- cam_x w1))
 		x1 (if (= dir 1) (+ x w1) cam_x)
-		rand_y (game-random (* +tile_height (- (/ +window_height +tile_height) 1)))
-		y (logand (+ rand_y cam_y) (neg +tile_height))
-		map_w_px (* +tile_width +map_width)
-		map_h_px (* +tile_height +map_height)
+		rand_y (game-random (const (* +tile_height (- (/ +window_height +tile_height) 1))))
+		y (logand (+ rand_y cam_y) (const (neg +tile_height)))
+		map_w_px (const (* +tile_width +map_width))
+		map_h_px (const (* +tile_height +map_height))
 		found :nil)
 	(while (and (not found) (< y map_h_px))
 		(defq f1 (if (< x 0) +fmap_stand (. *layer_land* :get_tile_flags x y))
@@ -113,7 +113,7 @@
 		(when (or (not stationary)
 				(and (< x (const (- (* +map_width +tile_width) 32)))
 					(not (sprite-collide *layer_enemies* x y w h
-							(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk)))))
+							(const (logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))))))
 			(defq sp (create-enemy-type sp_type)
 				mv (elem-get (get :sp_components sp) +en_comp_mv))
 			(. sp :sp_set_pos x y)
@@ -133,7 +133,7 @@
 			(if (and stationary
 					 (or (<= x 0)
 						 (sprite-collide *layer_enemies* x y w h
-							(logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk))))
+							(const (logior +ftp_balista +ftp_cannon +ftp_oil +ftp_beserk)))))
 				(spawn-enemy-right)
 				(pop *enemy_stack*)
 				(defq sp (create-enemy-type sp_type)
@@ -184,7 +184,7 @@
 (defun battle-state-init ()
 	(clear-sprite-layers)
 	(set-world-layers-pos 0 0)
-	(set-world-layers-size (* *zoom* (* +map_width +tile_width)) (* *zoom* (* +map_height +tile_height)))
+	(set-world-layers-size (* *zoom* (const (* +map_width +tile_width))) (* *zoom* (const (* +map_height +tile_height))))
 	(. *layer_sky* :sky_random)
 	(case *game_level*
 		(+game_level_seige

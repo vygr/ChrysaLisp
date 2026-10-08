@@ -18,7 +18,7 @@
 	(defq dir (get :sp_dir this)
 		spearman (Spearman)
 		mv (elem-get (get :sp_components spearman) +en_comp_mv)
-		sy (logand y (neg +tile_height)))
+		sy (logand y (const (neg +tile_height))))
 	(def spearman :sp_dir dir)
 	(set mv 'vx (* (get 'max_vx mv) dir))
 	(. spearman :sp_set_pos (+ x 16) sy)

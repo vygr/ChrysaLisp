@@ -269,13 +269,13 @@
 					((bits? *game_controls* +fkey_left)
 						(setq xv -4 x (+ x xv) y (* (/ y tile_h) tile_h))
 						(def this :sp_dir -1 :man_xv xv)
-						(step-walk-cycle this +frm_fanatic_l_walk (dec +frm_fanatic_l_jump)))
+						(step-walk-cycle this +frm_fanatic_l_walk (const (dec +frm_fanatic_l_jump))))
 
 					; walking right
 					((bits? *game_controls* +fkey_right)
 						(setq xv 4 x (+ x xv) y (* (/ y tile_h) tile_h))
 						(def this :sp_dir 1 :man_xv xv)
-						(step-walk-cycle this +frm_fanatic_l_walk (dec +frm_fanatic_l_jump)))
+						(step-walk-cycle this +frm_fanatic_l_walk (const (dec +frm_fanatic_l_jump))))
 
 					; no movement
 					(:t
@@ -345,10 +345,10 @@
 		(:sp_add_component (CL *layer_items* +ftp_item *man_collision_table*))
 		(:sp_add_component (CL *layer_missiles* -1 *man_collision_table*))
 		(:sp_add_component (CL *layer_enemies*
-			(logior +ftp_tower +ftp_horse +ftp_boarrider +ftp_carpet +ftp_skeleton_horse)
+			(const (logior +ftp_tower +ftp_horse +ftp_boarrider +ftp_carpet +ftp_skeleton_horse))
 			*man_collision_table*))
 		(:sp_add_component (CL *layer_enemies*
-			(logior +ftp_knight +ftp_skeleton +ftp_monk +ftp_skeleton_monk)
+			(const (logior +ftp_knight +ftp_skeleton +ftp_monk +ftp_skeleton_monk))
 			*man_collision_table*))
 		(:sp_add_component (CL *layer_enemies* +ftp_footman *man_collision_table*))
 		(:sp_add_component (CL *layer_bans* -1 *man_collision_table*))

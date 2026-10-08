@@ -26,8 +26,8 @@
 	; animate mr smith faces in *layer_bodies* behind transparent text overlay views
 	(when (= (logand *game_frame_count* 3) 0)
 		(defq sfx (Smith)
-			sx (game-random (- +window_width 32))
-			sy (game-random (- +window_height 32)))
+			sx (game-random (const (- +window_width 32)))
+			sy (game-random (const (- +window_height 32))))
 		(. sfx :sp_set_pos sx sy)
 		(. *layer_bodies* :add_front sfx)))
 

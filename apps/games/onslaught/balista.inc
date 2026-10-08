@@ -18,7 +18,7 @@
 	(defq dir (get :sp_dir this)
 		footman (Footman)
 		mv (elem-get (get :sp_components footman) +en_comp_mv)
-		fy (logand y (neg +tile_height)))
+		fy (logand y (const (neg +tile_height))))
 	(def footman :sp_dir dir)
 	(set mv 'vx (* (get 'max_vx mv) dir))
 	(. footman :sp_set_pos x fy)
@@ -32,8 +32,7 @@
 
 (defun cp-balista (this that)
 	; fire balista arrow when bow reaches full draw (matching cpp cp_balista: index 3, count 0)
-	(defq comps (get :sp_components this)
-		at_comp (elem-get comps +en_comp_at))
+	(defq at_comp (elem-get (get :sp_components this) +en_comp_at))
 	(when (and (= (get 'index at_comp) 3) (= (get 'count at_comp) 0))
 		(bind '(cx cy) (. this :sp_get_pos))
 		(defq dir (get :sp_dir this)

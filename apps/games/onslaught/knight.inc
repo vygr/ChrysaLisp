@@ -47,7 +47,7 @@
 			(defq wep (EnemyAddon this wep_mt 2 wep_anim 8))
 			(. this :add_before wep))
 		(unless (get 'table at_comp)
-			(def this :sp_flags (logand (get :sp_flags this) (lognot (logior +fsp_action +fsp_collide))))
+			(def this :sp_flags (logand (get :sp_flags this) (lognot (const (logior +fsp_action +fsp_collide)))))
 			(defq dir (get :sp_dir this))
 			(. this :sp_set_frame (first +at_knight))
 			(cp-enemy-duck this :nil)

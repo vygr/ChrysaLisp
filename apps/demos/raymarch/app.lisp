@@ -54,7 +54,7 @@
 
 (defun frame-inputs ()
 	;the inputs block for the frame, where the camera and the light are
-	(defq fraction (/ (n2r frame_idx) (n2r +num_frames)))
+	(defq fraction (/ (n2r frame_idx) (const (n2r +num_frames))))
 	(shader-pack program (list
 		(list 'resolution (list +width +height))
 		(list 'cam_z (+ z_start (* z_dist fraction)))

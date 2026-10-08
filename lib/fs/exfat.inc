@@ -177,7 +177,7 @@
 	;it may have been changed. A run of blocks that are not is one read of
 	;the device, and they are kept if the run is short or if keep is asked
 	;for, as it is for a directory, which is read over and over.
-	(defq lo (>> offset +exfat_block_shift) hi (>> (+ offset len (dec +exfat_block_size)) +exfat_block_shift)
+	(defq lo (>> offset +exfat_block_shift) hi (>> (+ offset len (const (dec +exfat_block_size))) +exfat_block_shift)
 		base (<< lo +exfat_block_shift) cache (get :cache vol) parts (list "") i lo)
 	(while (< i hi)
 		(cond
@@ -204,8 +204,8 @@
 	;rest, the ends of a long write and all of a short one, change the
 	;blocks that are kept, a block that is only part written is read first.
 	(defq end (+ offset (length data)) dirty (get :dirty vol)
-		lo (>> offset +exfat_block_shift) hi (>> (+ end (dec +exfat_block_size)) +exfat_block_shift)
-		whole_lo (>> (+ offset (dec +exfat_block_size)) +exfat_block_shift)
+		lo (>> offset +exfat_block_shift) hi (>> (+ end (const (dec +exfat_block_size))) +exfat_block_shift)
+		whole_lo (>> (+ offset (const (dec +exfat_block_size))) +exfat_block_shift)
 		whole_hi (>> end +exfat_block_shift))
 	(if (< (- whole_hi whole_lo) +exfat_direct_blocks) (setq whole_hi whole_lo))
 	(each (lambda (index)
@@ -594,7 +594,7 @@
 	;given it to read, and a directory is always whole clusters
 	(defq size (exfat-cluster-size vol) i 0 n (length clusters)
 		data (cat data (exfat-zeros (- (min (* n size)
-			(logand (+ (length data) (dec +exfat_block_size)) (neg +exfat_block_size))) (length data)))))
+			(logand (+ (length data) (const (dec +exfat_block_size))) (const (neg +exfat_block_size)))) (length data)))))
 	(while (< i n)
 		(defq j (inc i))
 		(while (and (< j n) (= (elem-get clusters j) (+ (elem-get clusters i) (- j i))))
@@ -623,7 +623,7 @@
 	;the entries of a file, one for the file, one for its data, and as
 	;many as its name needs, with the checksum of them all
 	(defq units (exfat-units name) stamp (exfat-stamp) zone (exfat-zone)
-		names (/ (+ (length units) (dec +exfat_name_units)) +exfat_name_units)
+		names (/ (+ (length units) (const (dec +exfat_name_units))) +exfat_name_units)
 		parts (list
 			(setf-> (exfat-zeros +exfat_file_size)
 				(+exfat_file_type +exfat_type_file)
@@ -694,11 +694,11 @@
 				eset (slice (exfat-dir-data vol parent) (* index +exfat_entry_size)
 					(* (+ index count 1) +exfat_entry_size))
 				eset (cat (slice eset 0 +exfat_entry_size)
-					(setf-> (slice eset +exfat_entry_size (* 2 +exfat_entry_size))
+					(setf-> (slice eset +exfat_entry_size (const (* 2 +exfat_entry_size)))
 						(+exfat_stream_flags (logior +exfat_flag_alloc (if no_fat +exfat_flag_no_fat 0)))
 						(+exfat_stream_valid_length size)
 						(+exfat_stream_data_length size))
-					(slice eset (* 2 +exfat_entry_size) -1)))
+					(slice eset (const (* 2 +exfat_entry_size)) -1)))
 			(set-short eset +exfat_file_checksum (exfat-checksum eset))
 			(exfat-dir-put vol parent index eset))
 		(exfat-bitmap-save vol)
@@ -780,7 +780,7 @@
 			;an entry that is not in use has the top bit of its type clear
 			(each (lambda (i)
 				(defq at (* i +exfat_entry_size))
-				(set-byte eset at (logand (code eset 1 at) (dec +exfat_in_use)))) (range 0 (inc count)))
+				(set-byte eset at (logand (code eset 1 at) (const (dec +exfat_in_use))))) (range 0 (inc count)))
 			(exfat-dir-put vol (elem-get found (- (length found) 2)) index eset)
 			(exfat-release vol start size no_fat)
 			(exfat-end vol)
@@ -811,12 +811,12 @@
 					(+exfat_file_modify stamp) (+exfat_file_access stamp)
 					(+exfat_file_modify_10ms 0)
 					(+exfat_file_modify_tz zone) (+exfat_file_access_tz zone))
-				(setf-> (slice eset +exfat_entry_size (* 2 +exfat_entry_size))
+				(setf-> (slice eset +exfat_entry_size (const (* 2 +exfat_entry_size)))
 					(+exfat_stream_flags (logior +exfat_flag_alloc (if no_fat +exfat_flag_no_fat 0)))
 					(+exfat_stream_valid_length new_size)
 					(+exfat_stream_first_cluster (if (empty? clusters) 0 (first clusters)))
 					(+exfat_stream_data_length new_size))
-				(slice eset (* 2 +exfat_entry_size) -1)))
+				(slice eset (const (* 2 +exfat_entry_size)) -1)))
 		(set-short eset +exfat_file_checksum (exfat-checksum eset))
 		(exfat-dir-put vol (elem-get found (- (length found) 2)) index eset)
 		(each (# (exfat-mark vol %0 :nil)) old))
@@ -862,15 +862,15 @@
 				eset (cat
 					(setf-> (slice old 0 +exfat_entry_size)
 						(+exfat_file_count (getf fresh +exfat_file_count)))
-					(setf-> (slice old +exfat_entry_size (* 2 +exfat_entry_size))
+					(setf-> (slice old +exfat_entry_size (const (* 2 +exfat_entry_size)))
 						(+exfat_stream_name_length (length units))
 						(+exfat_stream_name_hash (exfat-hash vol units)))
-					(slice fresh (* 2 +exfat_entry_size) -1)))
+					(slice fresh (const (* 2 +exfat_entry_size)) -1)))
 			(set-short eset +exfat_file_checksum (exfat-checksum eset))
 			;the old entries are let go first, the new can go where they were
 			(each (lambda (i)
 				(defq at (* i +exfat_entry_size))
-				(set-byte old at (logand (code old 1 at) (dec +exfat_in_use)))) (range 0 (inc count)))
+				(set-byte old at (logand (code old 1 at) (const (dec +exfat_in_use))))) (range 0 (inc count)))
 			(exfat-dir-put vol (elem-get found (- (length found) 2)) index old)
 			(cond
 				((defq slot (exfat-slot vol target (/ (length eset) +exfat_entry_size)))

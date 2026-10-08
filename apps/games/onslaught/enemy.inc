@@ -120,7 +120,7 @@
 (defun drop-item (enemy)
 	; drop item upon enemy death
 	(bind '(ex ey ew eh) (. enemy :sp_get_bounds))
-	(when (<= 0 ex (- (* +map_width +tile_width) 32))
+	(when (<= 0 ex (const (- (* +map_width +tile_width) 32)))
 		(defq cnt (dec *item_drop_cnt*) frame :nil vy -9
 			drop_x (+ ex (/ ew 2) -8) drop_y (+ ey eh -24))
 		(if (> cnt 0)
@@ -182,13 +182,13 @@
 			(when (defq fall_f (get :fall_frame this))
 				(. this :sp_set_frame fall_f)))
 		; on surface
-		(defq snap_y (logand y (neg +tile_height)))
+		(defq snap_y (logand y (const (neg +tile_height))))
 		(when (/= y snap_y)
 			(setq y snap_y)
 			(. this :sp_set_pos x y))
 		(when (/= (get 'ay mv) 0)
 			(set mv 'vy 0 'ay 0 'vx (* (get 'max_vx mv) dir))
-			(setq y (- (logand probe_y (neg +tile_height)) h))
+			(setq y (- (logand probe_y (const (neg +tile_height))) h))
 			(. this :sp_set_pos x y)
 			(defq tbl (get 'table at_comp))
 			(set at_comp 'speed 2 'count 0 'index (if (> (length tbl) 1) 1 0))
@@ -239,7 +239,7 @@
 			(def this :item_timeout timeout))
 		(bind '(x y w h) (. this :sp_get_bounds))
 		(defq vy (get 'vy mv)
-			grid_y (logand (+ y h) (neg +tile_height))
+			grid_y (logand (+ y h) (const (neg +tile_height)))
 			prev_y (get :item_prev_y this))
 		(def this :item_prev_y grid_y)
 		(when (and (> vy 0) (nql grid_y prev_y))

@@ -151,8 +151,8 @@
 	(bind '(x y w h) (. sprite :sp_get_bounds))
 	(defq cam_x (- (+ x (/ w 2)) (const (/ +window_width 2)))
 		cam_y (- (+ y h -16) (const (/ +window_height 2)))
-		max_cam_x (- (* +map_width +tile_width) +window_width)
-		max_cam_y (- (* +map_height +tile_height) +window_height)
+		max_cam_x (const (- (* +map_width +tile_width) +window_width))
+		max_cam_y (const (- (* +map_height +tile_height) +window_height))
 		cx (max 0 (min max_cam_x cam_x))
 		cy (max 0 (min max_cam_y cam_y)))
 	; store pure unscaled simulation coordinates
