@@ -58,6 +58,7 @@
 		last_beacon_time 0
 		disco_socket 0
 		mesh :nil
+		mesh_service :nil
 		mesh_peers (Fmap 31)
 		last_mesh_time 0
 		my_sys_id (hex-encode (system-id))
@@ -148,6 +149,10 @@
 							(if mesh (mesh-heard mesh_peers my_sys_id (slice msg +net_rpc_hello_text -1) (pii-time))))
 						(+net_rpc_type_discover
 							(setq mesh *net_can_mesh*)
+							;a service that makes a mesh says so to every machine. @Net is
+							;for this machine and is not seen from another, a * name is
+							(if (and mesh (not mesh_service))
+								(setq mesh_service (mail-declare (task-mbox) "*NetMesh" "Net Mesh 0.1")))
 							(when (and mesh (= disco_socket 0) (/= (getf msg +net_rpc_discover_udp) 0))
 								(setq disco_socket (net-udp-bind +disco_udp_port)))
 							(if (and mesh (or (> disco_socket 0) (= (getf msg +net_rpc_discover_udp) 0)))
@@ -207,7 +212,7 @@
 						(each (lambda (entry)
 							(defq mbox (hex-decode (second (split entry ","))))
 							(unless (eql mbox (task-mbox)) (mail-send mbox (cat hello))))
-							(mail-enquire "@Net,")))
+							(mail-enquire "*NetMesh,")))
 					(. sessions :each (lambda (handle session)
 						(case (get :type session)
 							(:connecting
@@ -285,5 +290,6 @@
 					(mail-timeout (elem-get select +select_timer) sleep_time 0)))))
 	(when (> beacon_socket 0) (net-close beacon_socket))
 	(when (> disco_socket 0) (net-close disco_socket))
+	(if mesh_service (mail-forget mesh_service))
 	(mail-forget service)
 	(net-deinit))

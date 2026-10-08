@@ -491,7 +491,8 @@ link -m 192.168.1.100
 How it is done. Each service keeps a list of the others it knows, who they
 are and where they listen, from their beacons. Every 2 seconds it sends its
 list to each other Net service it can reach, a hello, by mail, as any
-service talks to another. What it hears it adds to its own, and it links to
+service talks to another. It finds them by the name `*NetMesh`, a `*`
+service is seen from every machine, where `@Net` is for its own. What it hears it adds to its own, and it links to
 any peer it has no link to. Two people with notepads who meet, compare
 pages, copy what the other has that they do not, and go back to what they
 were doing. `service/net/mesh.inc`.

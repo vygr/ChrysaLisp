@@ -15,6 +15,9 @@
 (assert-error "a parameter with the name of a macro"
 	(eval (read (string-stream "(progn (defun tr-f4 (bits) bits) (tr-f4 5))"))))
 
+(defun tr-setd (&optional listen) (setd listen :t) listen)
+(assert-eq "an optional that defaults to :t can not be passed :nil" :t (tr-setd :nil))
+
 (defun tr-helper () (setq tr_total 99))
 (defun tr-caller () (defq tr_total 1) (tr-helper) tr_total)
 (assert-eq "a function can setq a local of its caller" 99 (tr-caller))

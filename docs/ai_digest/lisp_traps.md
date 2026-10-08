@@ -55,6 +55,18 @@ or `when`, both macros, is seen as a call of the macro. The error is
 If a short, common name gives an error that makes no sense, try another
 name.
 
+### `setd` can not tell `:nil` from not given
+
+```lisp
+(defun f (&optional listen) (setd listen :t) listen)
+(f :nil) ; -> :t
+```
+
+`setd` gives a default to a parameter that is `:nil`, and one that was
+passed as `:nil` is `:nil`. So an optional that defaults to `:t` can never
+be turned off. Name it the other way round, so that not given, and `:nil`,
+both mean the usual thing.
+
 ### Scope is dynamic
 
 A name that is not a local of a function is looked for in the function

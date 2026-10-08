@@ -4,6 +4,38 @@
 
 ------
 
+The mesh did not do what Claude said it did, and now does. An `@` service is
+for its own machine and is not seen from another, only a `*` service is.
+Chris: "a machine should only be able to see its own @ services ! only * go
+outside the TCP bridge !"
+
+*	The kernel has it right, and always did. A system ping carries the `@`
+	services and is not sent down a link to another machine. Tried, two
+	machines linked each see the other's `*` service and not its `@` one.
+
+*	The Net services sent their hello, the list of peers, to every `@Net`
+	they could find. That was only ever their own. So no hello crossed
+	between machines, and that half of the mesh, a machine told of a peer
+	by another, had not once worked. One link a pair, and the full mesh of
+	machines that all beacon, did work, each hears the others' beacons
+	first hand and needs no hello for it.
+
+*	The test that seemed to show it was wrong as well. `link -m`, a mesh
+	with no discovery, listened for beacons all the same. Its "no" was
+	passed as `:nil` to an optional that `(setd)` then made `:t`. So the M4
+	found the x86_64 Mac by its beacon, and the entry below that says it was
+	told of it by the Pi is not so.
+
+*	A service that makes a mesh now declares `*NetMesh` as well as `@Net`,
+	and the hello goes to those. `link -m` does not listen. Run again, the
+	M4 with `-m` had no UDP socket open, the host was asked, and had a link
+	of its own to the x86_64 Mac inside 20 seconds, which can only have come
+	of a hello. All three with beacons, one link a pair as before.
+
+*	The `(setd)` trap is in `docs/ai_digest/lisp_traps.md` with a test.
+
+------
+
 A sync can not reach outside the ChrysaLisp tree. Chris: "I can take
 deleting a ChrysaLisp install, I can't take losing everything I can't get
 back from GitHub."

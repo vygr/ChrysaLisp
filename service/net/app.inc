@@ -157,18 +157,18 @@
 		(defq reply (mail-read-timeout reply_mbox))
 		(if reply (getf reply +net_rpc_reply_status) :nil)))
 
-(defun net-discover-rpc (&optional udp)
-	; (net-discover-rpc [udp]) -> status | :nil
-	;the service makes a mesh with the others it can reach. With udp :t,
-	;the default, it listens for their beacons as well
-	(setd udp :t)
+(defun net-discover-rpc (&optional mesh_only)
+	; (net-discover-rpc [mesh_only]) -> status | :nil
+	;the service makes a mesh with the others it can reach, and listens
+	;for their beacons. With mesh_only :t it does not listen, it has only
+	;what the other services tell it
 	(defq svc (ensure-net-service))
 	(when svc
 		(defq reply_mbox (mail-mbox)
 			req (setf-> (str-alloc +net_rpc_discover_size)
 				(+net_rpc_type +net_rpc_type_discover)
 				(+net_rpc_reply_id reply_mbox)
-				(+net_rpc_discover_udp (if udp 1 0))))
+				(+net_rpc_discover_udp (if mesh_only 0 1))))
 		(mail-send svc req)
 		(defq reply (mail-read-timeout reply_mbox))
 		(if reply (getf reply +net_rpc_reply_status) :nil)))
