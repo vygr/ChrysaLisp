@@ -1147,6 +1147,9 @@
 (defq kf_first (shader-vp kf_prog) kf_again (shader-load kf_file) kf_second (shader-vp kf_again))
 (assert-eq "found again with only the head read" :lazy (second kf_again))
 (assert-list-eq "the same function, and the same size of frame" kf_first kf_second)
+;made here first, this test must not lean on another having made it
+(shader-vp-pipeline (shader-load "lib/gpu/shaders/mesh_vertex.shader")
+	(shader-load "lib/gpu/shaders/mesh_lit.shader"))
 (defq kf_pipe (shader-vp-pipeline (shader-load "lib/gpu/shaders/mesh_vertex.shader")
 	(shader-load "lib/gpu/shaders/mesh_lit.shader")))
 (assert-eq "a pipeline found again, its vertex shader not read" :lazy (second (first kf_pipe)))

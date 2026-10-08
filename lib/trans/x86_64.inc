@@ -332,17 +332,33 @@
 					(emitm-int c))
 				(:t (throw "emit-mul-cr constant out of range !" c))))))
 
+(defun x64-idiv (s)
+	;rdx:rax divided by s, signed. The most negative number by -1 has an
+	;answer that does not fit, and this CPU stops the program for that,
+	;where ARM64, RISC-V and LoongArch give the number back with nothing
+	;left over. So -1 is not divided by, the number is negated, which for
+	;that one number is itself, and nothing is left over.
+	;	cmp s, -1 / jne +7 / neg rax / xor edx, edx / jmp +3 / idiv s
+	(emitm-byte (x64-rex 1 0 0 (>> s 3)) 0x83 (x64-modrm 3 7 s) 0xff
+		0x75 7
+		(x64-rex 1 0 0 0) 0xf7 0xd8
+		0x31 0xd2
+		0xeb 3
+		(x64-rex 1 0 0 (>> s 3)) 0xf7 (x64-modrm 3 7 s)))
+
 (defun emit-div-rrr (s d1 d2)
 	(cond
 		((and (eql d1 +x64_rdx) (eql d2 +x64_rax))
-			(emitm-byte (x64-rex 1 0 0 (>> s 3)) 0xf7 (x64-modrm 3 7 s)))
+			(x64-idiv s))
 		((and (eql d1 +x64_rax) (eql d2 +x64_rdx) (nql s +x64_rax) (nql s +x64_rdx))
-			(emitm-byte (x64-rex 1 0 0 0) 0x92 (x64-rex 1 0 0 (>> s 3)) 0xf7 (x64-modrm 3 7 s) (x64-rex 1 0 0 0) 0x92))
+			(emitm-byte (x64-rex 1 0 0 0) 0x92)
+			(x64-idiv s)
+			(emitm-byte (x64-rex 1 0 0 0) 0x92))
 		(:t (emit-push d2 d1 s +x64_rdx +x64_rcx +x64_rax)
 			(emit-cpy-ir +x64_rsp 24 +x64_rcx)
 			(emit-cpy-ir +x64_rsp 32 +x64_rdx)
 			(emit-cpy-ir +x64_rsp 40 +x64_rax)
-			(emitm-byte (x64-rex 1 0 0 0) 0xf7 (x64-modrm 3 7 1))
+			(x64-idiv +x64_rcx)
 			(emit-cpy-ri +x64_rdx +x64_rsp 32)
 			(emit-cpy-ri +x64_rax +x64_rsp 40)
 			(emit-pop d2 d1 s +x64_rdx +x64_rcx +x64_rax))))

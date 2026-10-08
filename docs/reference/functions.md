@@ -2762,7 +2762,12 @@ what a vertex shader reads of each vertex
 ### shader-compile
 
 ```code
-(shader-compile forms) -> program
+(shader-compile forms [head_only]) -> program
+
+with head_only only what a caller of a ready made function needs is
+taken, the inputs, the attrs and varyings, the kind, and what each
+function gives and takes. No body is read or checked, and the consts
+and globals are :lazy. (shader-full) reads the rest when it is wanted.
 ```
 
 ### shader-cpu
@@ -2825,6 +2830,15 @@ as, in the order the shader has them. A varying that is not set is 0.
 
 ```code
 (shader-dim type) -> :nil | 2 | 3 | 4
+```
+
+### shader-full
+
+```code
+(shader-full program) -> program
+
+a program with all of it there. One that was loaded with only its
+head has the rest read and checked now, into the same program
 ```
 
 ### shader-func
@@ -2895,6 +2909,35 @@ face us. The driver builds it in its own time. It is let go of with
 (canvas-shader-destroy).
 ```
 
+### shader-gui-pair-text
+
+```code
+-> (vertex_stage fragment_stage)
+
+the two stages of a pair, kept, both made if either is not there.
+The fragment stage is written last, so if it is there both are
+```
+
+### shader-kept-text
+
+```code
+(shader-kept-text name lambda) -> str
+
+what a back end makes of a program, text or a module, kept in a
+file of that name beside the native code, and made only if it is
+not there
+```
+
+### shader-key
+
+```code
+(shader-key text) -> str
+
+what a source is known by, a hash of it. The native code made from a
+source is kept under its key, so a source that has been met before
+is found again without a line of it being read
+```
+
 ### shader-layout
 
 ```code
@@ -2905,6 +2948,23 @@ face us. The driver builds it in its own time. It is let go of with
 
 ```code
 (shader-load file) -> program
+
+a program from a file. Only its head is read, and a hash of the file
+taken, which is what its native code is kept under. The rest is read
+and checked when a back end has to make something from it,
+(shader-full), so a file whose native code is there already costs a
+hash and a few lines
+```
+
+### shader-make
+
+```code
+(shader-make files) -> str
+
+which make of a back end this is, a hash of the files it is written
+in, 8 hex digits. It is part of the name of all that a back end
+keeps, so that a change to the back end is a change of name, and
+what the old one made is not found. Worked out once by a task.
 ```
 
 ### shader-mesh-send
@@ -3539,7 +3599,7 @@ a new variable, set to the value of an expression
 ### sv-emit
 
 ```code
-a call of the system can lose the two registers of a vertex function
+a call of the system can lose the registers things are reached by
 ```
 
 ### sv-expr
@@ -3581,8 +3641,36 @@ floor of a register, in place
 
 the VP source of the native function for a function of a file of
 functions. It is called from Lisp as any native function is. Its
-frame is on the stack, the args are copied to it, and what it gives
-is a new real, num or reals
+frame is on the stack. A number arg is copied to it. A reals arg is
+read where it is, by a register, the first three of them, if the
+function never sets it, else it is copied too. What it gives is a
+new real, num or reals, and a reals is made first and written
+straight into.
+```
+
+### sv-keep
+
+```code
+(sv-keep name func info) -> (func ~info)
+
+keep the numbers that go with a native function just made
+```
+
+### sv-kept
+
+```code
+(sv-kept name) -> :nil | (func info)
+
+the native function of that name if it is there from before, and
+the numbers that were kept with it. Nothing of the program is read
+to find out. The numbers are written last, after the function is
+whole, so if they are there it is
+```
+
+### sv-ld
+
+```code
+a float from a slot of the frame, or from where that slot really is
 ```
 
 ### sv-mat
@@ -3591,7 +3679,9 @@ is a new real, num or reals
 code for an expression that is a matrix, where in the frame it is. A
 
 variable is where it is kept. A product is worked out into new slots,
-each number of it a row of the one by a column of the other.
+each number of it a row of the one by a column of the other. With
+into, the last product of a chain is worked out there, a place that
+is no part of what it is made from
 ```
 
 ### sv-mat-copy
@@ -3611,7 +3701,9 @@ vec3 is by the 3 by 3 of the matrix
 ### sv-name
 
 ```code
-the name of the native function of a program
+the name of the native function of a program, from the hash of its
+
+source, and which make of this back end it is
 ```
 
 ### sv-native
@@ -3660,6 +3752,12 @@ programs of a pair can be in the one native function.
 
 ```code
 a reals of n numbers, all 0
+```
+
+### sv-sets?
+
+```code
+does any statement of a block set this variable
 ```
 
 ### sv-sin

@@ -4,6 +4,30 @@
 
 ------
 
+The most negative number divided by -1 no longer stops an x86_64 node.
+
+*	`(/ -9223372036854775808 -1)`, and `%` the same, stopped an x86_64 node
+	dead, on any build. The answer is one too big to be a number, and
+	x86_64 will not have that, where ARM64, RISC-V and LoongArch give the
+	number back with nothing left over. The x86_64 translator now does not
+	divide by -1, it negates, which gives the same as the others, so VP
+	means the one thing on every CPU. `lib/trans/x86_64.inc`. 280 bytes
+	more of boot image on x86_64.
+
+*	Found by trying every divide Lisp can reach. A divide by 0 is an error
+	on the usual build, which has its checks, on every CPU. Only a release
+	build has none.
+
+*	Tests, `tests/core/test_divide_edges.lisp`.
+
+*	All that a release is tested with was run again, with the `lint`
+	command as its lint. Every stage passed on the two Macs, and RISC-V and
+	LoongArch under QEMU passed every test. On the Raspberry Pi 4 one test
+	failed on the emulator, a test of the shader cache that leaned on
+	another module having made the Mesh shaders first, which is so when
+	the modules run side by side and not when they run one after another.
+	It makes them itself now.
+
 A command from a script no longer waits 2 seconds to end, and the lint is one
 command.
 

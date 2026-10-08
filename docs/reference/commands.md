@@ -474,6 +474,28 @@ Usage: link [options] [host[:port] ...]
     If no host names given on command line and -l/-a not passed,
     then names are read from stdin.
 ```
+## lint
+```code
+Usage: lint [options]
+
+    options:
+        -h --help: this help info.
+        -k --keep: leave the debug build, do not make the
+            release build again after.
+        -v --verbose: say what each step took.
+
+    The lint of the VP source, all of it in the one go.
+
+    The trace lint works out what each function really
+    trashes, and says where that is not what its header has
+    written down. It is only right on a debug build, so this
+    makes one, 'make vp' then 'make apps debug', runs
+    'files obj/vp/ | trace -i -l', and puts the release
+    build back, 'make apps' then 'make all boot'.
+
+    Prints what the lint and the builds have to say, which
+    is nothing when all is well, then a line to say so.
+```
 ## lisp
 ```code
 Usage: lisp [options] [path] ...
@@ -692,7 +714,9 @@ Usage: shader [options] file
             msl     Metal Shading Language text, for Apple.
             spirv   a SPIR-V module, for Vulkan, as a listing.
             vp      VP assembler source, the native code back end.
-            cpu     the Lisp the CPU back end runs.
+                    Of a pixel shader, a vertex shader, or each
+                    function of a file of functions for Lisp.
+            cpu     the Lisp the CPU back end runs, of any of them.
             tree    the checked, typed tree the back ends are given.
         -v --vertex: the vertex shader that goes with every
             fragment shader, for msl and spirv.
@@ -705,6 +729,7 @@ Usage: shader [options] file
     ChrysaLisp. See docs/ai_digest/shader_language.md.
 
     shader lib/gpu/shaders/raymarch.shader
+    shader -t vp lib/gpu/shaders/mesh_vertex.shader
     shader -t msl -o raymarch.metal lib/gpu/shaders/raymarch.shader
     shader -t spirv -o raymarch.spv lib/gpu/shaders/raymarch.shader
 ```
