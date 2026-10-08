@@ -183,7 +183,7 @@ ifneq ($(OS),Windows)
 	@echo $(ABI) > abi
 endif
 	@mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIRS)
-	@if [ "`cat $(GUI_DRIVER) 2>/dev/null`" != "$(OBJ_GUI)" ]; then echo $(OBJ_GUI) > $(GUI_DRIVER); fi
+	@if [ "`cat $(GUI_DRIVER) 2>/dev/null`" != "$(OBJ_GUI)" ]; then echo $(OBJ_GUI) > $(GUI_DRIVER); rm -f obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT); fi
 
 snapshot:
 	@rm -f snapshot.zip

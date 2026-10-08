@@ -426,8 +426,20 @@ void *pii_flush_icache(void* addr, size_t len)
 	return addr;
 }
 
+// the system's own source of random bytes, RtlGenRandom, in advapi32
+extern "C" BOOLEAN NTAPI SystemFunction036(PVOID buffer, ULONG length);
+
 void pii_random(char* addr, size_t len)
 {
+	// what a key or a nonce is made from has to be from the system, not rand()
+	size_t done = 0;
+	while (done < len)
+	{
+		ULONG part = (ULONG)((len - done) > 0x10000000 ? 0x10000000 : (len - done));
+		if (!SystemFunction036(addr + done, part)) break;
+		done += part;
+	}
+	if (done == len) return;
 	static bool seeded = false;
 	if (!seeded) {
         // XOR Time and PID guarantees concurrent nodes won't generate the same ID

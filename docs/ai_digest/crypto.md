@@ -198,10 +198,31 @@ part of a str, to another, and onto itself. And that nothing opens with a
 bit changed, a byte short, or a byte too many. The answers are from a Python
 of the RFC written for the job, which gives the RFC's own.
 
+## Random Bytes
+
+```lisp
+(import "lib/crypto/random.inc")
+
+(defq key (random-bytes 32) nonce (random-bytes 12))
+```
+
+`(random-bytes size) -> str`, that many bytes that can not be guessed, from
+the host's own source, `/dev/urandom` on a Mac and on Linux, `RtlGenRandom`
+on Windows. It is what a key is made from. A nonce of 12 bytes made this way
+is safe for as many messages as anyone will send with one key, though a
+counter is surer, it can not come round twice.
+
+`(random num)`, of the language, is not this. It gives numbers from a seed,
+quick, and good for a game or a test, and whoever knows the seed knows them
+all.
+
+The Windows host program used `rand()` for these, seeded from the time and
+its process number, which would not have done for a key. It asks the system
+now. That is built here for Windows and links, and has not been run there.
+
 ## Not here yet
 
-* A way to make a key from a password, and random bytes for a key or a
-  nonce from Lisp. The host has them, `pii_random`.
+* A way to make a key from a password.
 * A check for a CPU that can not load a number from an address that is not
   a multiple of its size. The native code loads 4 and 8 bytes at a time
   from wherever in a str it is told to start.

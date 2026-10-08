@@ -4,6 +4,27 @@
 
 ------
 
+Random bytes for a key or a nonce, and a change of GUI driver always links
+the host program again.
+
+*	`(random-bytes size)`, in `lib/crypto/random.inc`, bytes from the
+	host's own source, `/dev/urandom` or `RtlGenRandom`. `(random)` of the
+	language gives numbers from a seed and is not for a key. The native
+	part is one more function in `lib/crypto/lisp.vp`, 248 bytes more of
+	boot image on ARM64.
+
+*	The Windows host program made its random bytes with `rand()`. It asks
+	the system now, `src/host/pii_windows.cpp`. It is cross built here and
+	links, and is not yet run on Windows. The programs in the snapshot are
+	the old ones.
+
+*	`make GUI=raw` then `make` at once left the raw program in place. Make
+	compares times to the second, and the note of which driver was built
+	was written in the same second as the program. A change of driver now
+	removes the program, `Makefile`.
+
+*	Tests, `tests/crypto/test_random.lisp`.
+
 What a back end makes for the GPU is kept, and a back end is known by a hash
 of its own source.
 
