@@ -4,6 +4,14 @@
 
 ------
 
+GPU triangles run on Windows. Martyn Blyss ran the new snapshot there, the
+Mesh demo with its GPU button, and all of it works. The host programs in it
+were cross built on a Mac and that was the first time they were started.
+The snapshot installs on the M4, the x64 Mac and the Pi, and RISC-V and
+LoongArch under QEMU build themselves to the byte and pass every test.
+
+------
+
 A pipe let go of while open, and a doc of traps.
 
 *	A `Pipe` dropped without `(. pipe :close)` hung its task. Its streams
