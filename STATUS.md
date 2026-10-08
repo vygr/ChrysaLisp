@@ -4,6 +4,23 @@
 
 ------
 
+The release check for 7.2, every stage passes on every machine.
+
+*	An Apple M4 Max, a 2018 x86_64 MacBook Pro and a Raspberry Pi 4, each
+	from cold. `make install` from the snapshot as it is, every test, 4,451
+	on the Macs and 4,448 on the Pi, the boot images of all six CPUs, every
+	test again on the emulator's release image, and the lint, clean.
+
+*	RISC-V and LoongArch under QEMU. The host program built there, a self
+	hosted build the same to the byte as the Mac's cross build, 927
+	objects, and every test, 4,445 on each.
+
+*	The snapshot is not made again. `make install` works from it on all
+	three. Its Windows host programs are from before mail over a TCP link
+	was made quick, and are slower over a link for it, no more.
+
+------
+
 Each desktop has its own sound. Chris, with two desktops up, quit one, and
 the Boing demo on the other went quiet.
 
