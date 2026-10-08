@@ -26,7 +26,7 @@ outside the TCP bridge !"
 	found the x86_64 Mac by its beacon, and the entry below that says it was
 	told of it by the Pi is not so.
 
-*	A service that makes a mesh now declares `*NetMesh` as well as `@Net`,
+*	A service that makes a mesh now declares `*Mesh` as well as `@Net`,
 	and the hello goes to those. `link -m` does not listen. Run again, the
 	M4 with `-m` had no UDP socket open, the host was asked, and had a link
 	of its own to the x86_64 Mac inside 20 seconds, which can only have come

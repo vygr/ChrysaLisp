@@ -152,7 +152,7 @@
 							;a service that makes a mesh says so to every machine. @Net is
 							;for this machine and is not seen from another, a * name is
 							(if (and mesh (not mesh_service))
-								(setq mesh_service (mail-declare (task-mbox) "*NetMesh" "Net Mesh 0.1")))
+								(setq mesh_service (mail-declare (task-mbox) "*Mesh" "Mesh 0.1")))
 							(when (and mesh (= disco_socket 0) (/= (getf msg +net_rpc_discover_udp) 0))
 								(setq disco_socket (net-udp-bind +disco_udp_port)))
 							(if (and mesh (or (> disco_socket 0) (= (getf msg +net_rpc_discover_udp) 0)))
@@ -212,7 +212,7 @@
 						(each (lambda (entry)
 							(defq mbox (hex-decode (second (split entry ","))))
 							(unless (eql mbox (task-mbox)) (mail-send mbox (cat hello))))
-							(mail-enquire "*NetMesh,")))
+							(mail-enquire "*Mesh,")))
 					(. sessions :each (lambda (handle session)
 						(case (get :type session)
 							(:connecting
