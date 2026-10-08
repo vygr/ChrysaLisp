@@ -32,22 +32,22 @@
 				(when (defq out (. jobs :answered msg))
 					(push got (getf msg +work_reply_num))
 					(if (= out 0) (setq left :nil))))
-			(:t (. jobs :refresh 1000000))))
+			(:t (. jobs :refresh (task-timeout 1)))))
 	(mail-timeout (elem-get jt_select +jt_timer) 0 0)
 	(sort got (const -)))
 
 (assert-eq "children" 4 (. jobs :size))
 (assert-eq "nothing out" 0 (. jobs :out))
 (assert-list-eq "every job answered, once" (map (# (* 2 %0)) (range 0 40))
-	(jt-run (map (const jt-work) (range 0 40)) 10000000))
+	(jt-run (map (const jt-work) (range 0 40)) (task-timeout 10)))
 (assert-eq "none out after" 0 (. jobs :out))
 (assert-list-eq "and again on the same children" '(200 202 204)
-	(jt-run (map (const jt-work) '(100 101 102)) 10000000))
+	(jt-run (map (const jt-work) '(100 101 102)) (task-timeout 10)))
 
 ;every child started again, the queue emptied, and they work as before
 (. jobs :restart)
 (assert-eq "restart empties the queue" 0 (. jobs :out))
-(assert-list-eq "after a restart" '(2 4 6 8) (jt-run (map (const jt-work) '(1 2 3 4)) 10000000))
+(assert-list-eq "after a restart" '(2 4 6 8) (jt-run (map (const jt-work) '(1 2 3 4)) (task-timeout 10)))
 
 ;a job its child dies of is put back, again and again, and is counted,
 ;which is how a job no child can do is told from a slow one
@@ -55,7 +55,7 @@
 ;it is run till the two that can be done are, and the other has been
 ;put back twice, however long a slow machine takes over that
 (assert-list-eq "the jobs beside one that kills its child" '(10 12)
-	(jt-run (list (jt-work 5) (jt-work 99 :t) (jt-work 6)) 30000000
+	(jt-run (list (jt-work 5) (jt-work 99 :t) (jt-work 6)) (task-timeout 30)
 		(# (and (= (length got) 2) (>= (. jobs :tries) 2)))))
 (assert-eq "the one that kills is still out" 1 (. jobs :out))
 (assert-true "and has been tried more than once" (>= (. jobs :tries) 2))
@@ -69,7 +69,7 @@
 (defq jobs (Jobs "tests/system/data/jobs_child.lisp"
 	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 2)))
 (assert-eq "a herd" (min 3 (inc (length (lisp-nodes :t)))) (. jobs :size))
-(assert-list-eq "a herd does the work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3)) 10000000))
+(assert-list-eq "a herd does the work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3)) (task-timeout 10)))
 (. jobs :close)
 
 ;children kept away from this node, if this machine has another. New
@@ -79,7 +79,7 @@
 (defq jobs (Jobs "tests/system/data/jobs_child.lisp"
 	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 3 0) :t)
 	jt_nodes (list))
-(mail-timeout (elem-get jt_select +jt_timer) 5000000 0)
+(mail-timeout (elem-get jt_select +jt_timer) (task-timeout 5) 0)
 (while (and (< (length jt_nodes) 3)
 		(= (defq jt_idx (mail-select jt_select)) +jt_task))
 	(defq jt_msg (mail-read (elem-get jt_select jt_idx)))
@@ -89,5 +89,5 @@
 (assert-eq "three children kept away" 3 (length jt_nodes))
 (assert-true "none of them on this node, if there is another"
 	(or (<= (length (lisp-nodes :t)) 1) (notany (# (eql %0 (task-nodeid))) jt_nodes)))
-(assert-list-eq "and they work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3)) 10000000))
+(assert-list-eq "and they work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3)) (task-timeout 10)))
 (. jobs :close)

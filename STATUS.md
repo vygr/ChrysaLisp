@@ -4,6 +4,18 @@
 
 ------
 
+Two tests wait as long as the machine needs.
+
+*	`tests/gpu/test_tris.lisp` and `tests/system/test_jobs.lisp` gave their
+	children a set number of seconds. They now ask `(task-timeout)`, which
+	is ten times as long on the VP64 emulator. Found by running every test
+	on the emulator on a Raspberry Pi 4, where the strips of a frame took
+	over 30 seconds with every other module running beside them.
+
+*	With all 85 modules at once on the emulator a Pi 4 is overrun, and a
+	different test with a wait in it fails each time. A module at a time,
+	`tests -a -j 500`, all of them pass there, in six and a half minutes.
+
 Functions for Lisp to call, in the typed language of the shaders. Compute,
 on the CPU first.
 

@@ -51,7 +51,7 @@
 			(. tf_jobs :add (map (# (shader-strip tf_vfile tf_pfile (elem-get tf_select +tf_ask)
 				(canvas-key tf_canvas) tf_size tf_size (/ (* %0 tf_size) strips) (/ (* (inc %0) tf_size) strips)
 				:t tf_draws)) (range 0 strips)))
-			(mail-timeout (elem-get tf_select +tf_timer) 30000000 0)
+			(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 30) 0)
 			(while (> out 0)
 				(defq msg (mail-read (elem-get tf_select (defq idx (mail-select tf_select)))))
 				(case idx
