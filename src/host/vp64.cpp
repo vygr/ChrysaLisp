@@ -134,11 +134,16 @@ struct u128 { uint64_t lo; uint64_t hi; };
 #define vp_ext_rr(sr, dr) regs[dr] = (regs[sr] >> 63)
 
 #if defined(_MSC_VER)
-#define vp_div_rrr(sr, dr, drr) regs[dr] = _div128(regs[sr], regs[dr], regs[drr], &regs[sr])
-#define vp_div_rrr_u(sr, dr, drr) regs[dr] = _udiv128((uint64_t)regs[sr], (uint64_t)regs[dr], (uint64_t)regs[drr], (uint64_t*)&regs[sr])
+// a divide means the one thing on every CPU. By 0 the answer is 0 and what is
+// left over is the number. The most negative number by -1 is itself, with
+// nothing left over.
+#define vp_div_rrr(sr, dr, drr) { int64_t d = regs[drr]; if (!d) { regs[sr] = regs[dr]; regs[dr] = 0; } else if (d == -1) { regs[dr] = (int64_t)(0 - (uint64_t)regs[dr]); regs[sr] = 0; } else regs[dr] = _div128(regs[sr], regs[dr], d, &regs[sr]); }
+#define vp_div_rrr_u(sr, dr, drr) { uint64_t d = (uint64_t)regs[drr]; if (!d) { regs[sr] = regs[dr]; regs[dr] = 0; } else regs[dr] = _udiv128((uint64_t)regs[sr], (uint64_t)regs[dr], d, (uint64_t*)&regs[sr]); }
 #else
-#define vp_div_rrr(sr, dr, drr) { i128 v = {regs[dr], regs[sr]}; int64_t d = regs[drr]; regs[dr] = (__int128_t&)v / d; regs[sr] = (__int128_t&)v % d; }
-#define vp_div_rrr_u(sr, dr, drr) { u128 v = {(uint64_t)regs[dr], (uint64_t)regs[sr]}; uint64_t d = (uint64_t)regs[drr]; regs[dr] = (__uint128_t&)v / d; regs[sr] = (__uint128_t&)v % d; }
+// a divide means the one thing on every CPU. By 0 the answer is 0 and what is
+// left over is the number.
+#define vp_div_rrr(sr, dr, drr) { i128 v = {regs[dr], regs[sr]}; int64_t d = regs[drr]; if (!d) { regs[sr] = regs[dr]; regs[dr] = 0; } else { regs[dr] = (__int128_t&)v / d; regs[sr] = (__int128_t&)v % d; } }
+#define vp_div_rrr_u(sr, dr, drr) { u128 v = {(uint64_t)regs[dr], (uint64_t)regs[sr]}; uint64_t d = (uint64_t)regs[drr]; if (!d) { regs[sr] = regs[dr]; regs[dr] = 0; } else { regs[dr] = (__uint128_t&)v / d; regs[sr] = (__uint128_t&)v % d; } }
 #endif
 
 #define vp_seq_rr(sr, dr) vp_op_rr(==, sr, dr)

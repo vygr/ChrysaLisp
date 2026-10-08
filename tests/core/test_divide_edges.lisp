@@ -28,3 +28,23 @@
 (assert-error "what is left of a number by 0" (% 1 0))
 (assert-error "a fixed by 0" (/ 1.5 0.0))
 (assert-error "a nums by a nums with a 0 in it" (nums-div (nums 1 2) (nums 1 0)))
+
+;a divide in native code, with no check in front of it, means the one thing
+;on every CPU. By 0 the answer is 0, and what is left over is the number.
+;A typed function is such a divide, the language of the shaders checks
+;nothing, so it is what shows what the CPU itself is made to do
+(import "lib/gpu/vp.inc")
+(defq de_prog (shader-compile (shader-read (string-stream (cat
+		"(defun quot :int ((a :int) (b :int)) (/ a b))"
+		"(defun both :int ((a :int) (b :int)) (+ (* (/ a b) 1000) (- a (* (/ a b) b))))"))))
+	de_quot (shader-vp-func de_prog 'quot) de_both (shader-vp-func de_prog 'both))
+(assert-eq "native, 7 by 0 is 0" 0 (de_quot 7 0))
+(assert-eq "native, -7 by 0 is 0" 0 (de_quot -7 0))
+(assert-eq "native, 0 by 0 is 0" 0 (de_quot 0 0))
+(assert-eq "native, the most negative number by 0 is 0" 0 (de_quot de_min 0))
+(assert-eq "native, the most negative number by -1 is itself" de_min (de_quot de_min -1))
+(assert-eq "native, and the node carries on, 7 by 2" 3 (de_quot 7 2))
+(assert-eq "native, -7 by 2" -3 (de_quot -7 2))
+(assert-eq "native, 7 by -1" -7 (de_quot 7 -1))
+(assert-eq "native, an answer and what is left, 17 by 5" 3002 (de_both 17 5))
+(assert-eq "native, an answer and what is left, 17 by 0" 17 (de_both 17 0))

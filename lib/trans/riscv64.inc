@@ -91,15 +91,28 @@
 (defun emit-and-rr (s d) (unless (eql s d) (riscv64-r 0x33 d d s 0x7 0x0)))
 (defun emit-mul-rr (s d) (riscv64-r 0x33 d d s 0x0 0x1))
 
-(defun emit-div-rrr (s d1 d2)
-	(riscv64-r 0x33 +riscv64_rtmp1 d2 s 0x4 0x1)
-	(riscv64-r 0x33 d1 d2 s 0x6 0x1)
+(defun riscv64-div (f3 s d1 d2)
+	;d2 divided by s, the answer to d2 and what is left over to d1. A
+	;divide means the one thing on every CPU. By 0 this CPU gives an
+	;answer of all ones, so the answer is cleared if s is 0, which is
+	;what ARM64 gives. What is left over is the number less the answer
+	;times s, which is then the number, and is a multiply where it was a
+	;second divide.
+	;	div tmp1, d2, s / sltu tmp2, zero, s / sub tmp2, zero, tmp2
+	;	and tmp1, tmp1, tmp2 / mul tmp2, tmp1, s / sub d1, d2, tmp2
+	(riscv64-r 0x33 +riscv64_rtmp1 d2 s f3 0x1)
+	(riscv64-r 0x33 +riscv64_rtmp2 +riscv64_rzero s 0x3 0x0)
+	(riscv64-r 0x33 +riscv64_rtmp2 +riscv64_rzero +riscv64_rtmp2 0x0 0x20)
+	(riscv64-r 0x33 +riscv64_rtmp1 +riscv64_rtmp1 +riscv64_rtmp2 0x7 0x0)
+	(riscv64-r 0x33 +riscv64_rtmp2 +riscv64_rtmp1 s 0x0 0x1)
+	(riscv64-r 0x33 d1 d2 +riscv64_rtmp2 0x0 0x20)
 	(emit-cpy-rr +riscv64_rtmp1 d2))
 
+(defun emit-div-rrr (s d1 d2)
+	(riscv64-div 0x4 s d1 d2))
+
 (defun emit-div-rrr-u (s d1 d2)
-	(riscv64-r 0x33 +riscv64_rtmp1 d2 s 0x5 0x1)
-	(riscv64-r 0x33 d1 d2 s 0x7 0x1)
-	(emit-cpy-rr +riscv64_rtmp1 d2))
+	(riscv64-div 0x5 s d1 d2))
 
 (defun riscv64-cr (c r)
 	(cond

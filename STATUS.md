@@ -4,6 +4,31 @@
 
 ------
 
+A divide by 0 with no check in front of it gives the same on every CPU.
+
+*	On the usual build a divide by 0 is an error, the check is there. On a
+	release build, and in native code that has no check, a shader, a typed
+	function, it was whatever the CPU did. x86_64 stopped the node. ARM64
+	gave 0. RISC-V gave all ones. LoongArch may give anything. Chris: make
+	all the platforms behave the same, if it costs no speed.
+
+*	Now the answer is 0 and what is left over is the number, on all of
+	them, which is what ARM64 always gave. The x86_64 translator tests for
+	0 before it divides. The RISC-V and LoongArch translators clear the
+	answer if the divisor is 0, and work out what is left over as the
+	number less the answer times the divisor, a multiply where they did a
+	second divide. The emulator tests for 0. `lib/trans/x86_64.inc`,
+	`lib/trans/riscv64.inc`, `lib/trans/la64.inc`, `src/host/vp64.cpp`.
+
+*	It costs a test and a branch that is never taken beside a divide, on
+	x86_64, and on the other two a divide less.
+
+*	Tests of a divide with no check, an int divide in a typed function, in
+	`tests/core/test_divide_edges.lisp`. They pass on ARM64 and x86_64, on
+	the emulator, and on RISC-V and LoongArch under QEMU, where a self
+	hosted build still gives the boot image the Mac cross builds, to the
+	byte.
+
 Each canvas that triangles are drawn into has its own depth buffer.
 
 *	The sdl3 driver kept one depth buffer, and one target of 4 samples a

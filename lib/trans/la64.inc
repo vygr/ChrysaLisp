@@ -101,16 +101,24 @@
 (defun emit-or-rr  (s d) (unless (eql s d) (la64-3r 0x00150000 d d s)))  ; or d, d, s
 (defun emit-xor-rr (s d) (la64-3r 0x00158000 d d s))                     ; xor d, d, s
 
-(defun emit-div-rrr (s d1 d2)
-	;d1 gets the remainder, d2 the quotient
-	(la64-3r 0x00220000 +la64_rtmp1 d2 s) ; div.d tmp, d2, s (quotient)
-	(la64-3r 0x00228000 d1 d2 s)          ; mod.d d1, d2, s  (remainder)
+(defun la64-div (o s d1 d2)
+	;d2 divided by s, the answer to d2 and what is left over to d1. A
+	;divide means the one thing on every CPU. By 0 this CPU may give
+	;anything, so the answer is cleared if s is 0, which is what ARM64
+	;gives. What is left over is the number less the answer times s,
+	;which is then the number, and is a multiply where it was a second
+	;divide.
+	(la64-3r o +la64_rtmp1 d2 s)                     ; div.d or div.du tmp1, d2, s
+	(la64-3r 0x00130000 +la64_rtmp1 +la64_rtmp1 s)   ; maskeqz tmp1, tmp1, s
+	(la64-3r 0x001d8000 +la64_rtmp2 +la64_rtmp1 s)   ; mul.d tmp2, tmp1, s
+	(la64-3r 0x00118000 d1 d2 +la64_rtmp2)           ; sub.d d1, d2, tmp2
 	(emit-cpy-rr +la64_rtmp1 d2))
 
+(defun emit-div-rrr (s d1 d2)
+	(la64-div 0x00220000 s d1 d2))
+
 (defun emit-div-rrr-u (s d1 d2)
-	(la64-3r 0x00230000 +la64_rtmp1 d2 s) ; div.du tmp, d2, s (quotient)
-	(la64-3r 0x00238000 d1 d2 s)          ; mod.du d1, d2, s  (remainder)
-	(emit-cpy-rr +la64_rtmp1 d2))
+	(la64-div 0x00230000 s d1 d2))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; Group 3: ALU (CR)
