@@ -176,7 +176,12 @@
 											(print "Auto-discovery: connecting to peer at " peer_key)
 											(defq child (open-child "service/net/link" +kn_call_pin))
 											(when (/= (get-long child 0) 0)
-												(mail-send child peer_key))))))))
+												;a copy goes to the link. It ends the host at the ':'
+												;where it lies, in the message, and a str sent on the
+												;one node is the str itself, so the key of the peer
+												;was no longer what was looked for, and every beacon
+												;made another link
+												(mail-send child (cat peer_key)))))))))
 					(. sessions :each (lambda (handle session)
 						(case (get :type session)
 							(:connecting

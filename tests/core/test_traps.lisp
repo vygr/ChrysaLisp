@@ -46,6 +46,11 @@
 (push (first tr_b) 2)
 (assert-eq "a copy of a list has the same lists in it" 2 (length (first tr_a)))
 
+(defq tr_mbox (mail-mbox) tr_sent (str-alloc 8))
+(mail-send tr_mbox tr_sent)
+(set-long (mail-read tr_mbox) 0 5)
+(assert-eq "a str mailed on the one node is the str itself" 5 (get-long tr_sent 0))
+
 (assert-error "an integer and a fixed do not add" (+ 1 1.5))
 (assert-error "a real and a fixed do not add" (+ (n2r 1.5) 1.5))
 (assert-true "an integer is not equal to a fixed of the same worth" (not (= 1 1.0)))
@@ -68,4 +73,4 @@
 	(catch (catch (throw "inner" 1) :nil) :outer))
 (assert-eq "one that gives :t ends it" :t (catch (throw "inner" 1) :t))
 
-(undef (env) 'tr_a 'tr_b 'tr_sort)
+(undef (env) 'tr_a 'tr_b 'tr_sort 'tr_mbox 'tr_sent)

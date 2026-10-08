@@ -4,6 +4,27 @@
 
 ------
 
+Auto discovery made a new link every 2 seconds, for ever.
+
+*	`link -a` hears a beacon and connects to a peer it has not seen. It
+	kept the address of each peer in a set, and mailed that same str to the
+	link task. A str mailed on the one node is the str itself, and the link
+	ends the host at the `:` where it lies, so the key in the set was cut
+	short and never matched again. Every beacon, one each 2 seconds, made
+	another TCP link to the same peer, 13 in half a minute between an M4
+	and a Raspberry Pi 4. Nothing broke, the routes all worked, they piled
+	up. The service mails a copy. `service/net/app_impl.lisp`.
+
+*	Found by a test of what Chris asked, two machines that each beacon and
+	each discover, as every one would from an SD image that is the same on
+	all of them. With the fault gone that gives two links between the pair,
+	one made by each, steady, and every node of both answers. So it works,
+	with a link more than is needed.
+
+*	The trap is in `docs/ai_digest/lisp_traps.md` with a test.
+
+------
+
 A launch is sized to the machine, with no need to say so. Martyn Blyss's
 suggestion.
 

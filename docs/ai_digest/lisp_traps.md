@@ -127,6 +127,24 @@ for a list that will be changed.
 `(cat lst)` is a new list of the same elements. A list inside it is the
 same list in both.
 
+### A str mailed on the one node is the str itself
+
+A message to a task on the same node is not copied, what arrives is the
+object that was sent. If the one who gets it writes into it, the sender's
+is written into, and so is any list or set the sender had put it in.
+
+```lisp
+(defq mbox (mail-mbox) sent (str-alloc 8))
+(mail-send mbox sent)
+(set-long (mail-read mbox) 0 5)
+(get-long sent 0) ; -> 5
+```
+
+The Net service kept the address of each peer in a set, and mailed the
+same str to the link, which cuts it at the `:` where it lies. The key was
+never found again, and every beacon made another link. Send `(cat msg)` if
+you keep what you send, or if you do not know what the other end does.
+
 ### Numbers do not mix
 
 A number with a point, `1.5`, is a fixed, 16 bits each side of the point.
