@@ -67,7 +67,7 @@
 ;the slow one is given out three times, then the farm stops, with the
 ;result of the quick one and none for the slow
 (defq farmed (pipe-farm (list "echo quick"
-	(cat "lisp -r (task-sleep " (str (* 10 (task-timeout 1))) ")")) (task-timeout 1)))
+	(cat "lisp -r (task-sleep " (str (* 10 (task-timeout 1))) ")")) 1000000))
 (assert-list-eq "pipe farm, a command that is too slow is given up on" '("echo quick")
 	(map (const first) farmed))
 

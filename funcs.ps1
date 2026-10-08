@@ -21,31 +21,6 @@ $HABI = $NHABI
 
 $global:session_pids = @()
 $global:session_start = (Get-Date).AddSeconds(-2)
-$global:session_salt = [long](Get-Random -Maximum 2147483647)
-
-function link_name {
-    # the name of the link between two nodes, ???-??? in base 36
-    param ($src, $dst)
-    $n = ($global:session_salt + $src * 128 + $dst) % 2176782336
-    $digits = "0123456789abcdefghijklmnopqrstuvwxyz"
-    $name = ""
-    for ($i = 0; $i -lt 6; $i++) {
-        $name = $digits.Substring([int]($n % 36), 1) + $name
-        $n = [long][Math]::Floor($n / 36)
-    }
-    $name.Substring(0, 3) + "-" + $name.Substring(3, 3)
-}
-
-function add_link {
-    param ($src, $dst, $links)
-    $src = [long]$src
-    $dst = [long]$dst
-    if ($src -ne $dst) {
-        if ($src -lt $dst) { $nl = link_name $src $dst } else { $nl = link_name $dst $src }
-        if ($links.IndexOf($nl) -eq -1) { return "-l $nl " }
-    }
-    return ""
-}
 
 function session_scan {
     # every running node of this session, those the launch script started
@@ -91,14 +66,7 @@ function session_watch {
     $null = Start-Process -FilePath $shell -WorkingDirectory $NHROOT -WindowStyle Hidden -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$NHROOT\session_watch.ps1`" $($global:session_start.Ticks) $ids" -PassThru
 }
 
-function boot_node {
-    # a node that is not waited for
-    param ($cmd, $argstring)
-    $process = Start-Process -FilePath $cmd -WorkingDirectory $NHROOT -NoNewWindow -ArgumentList $argstring -PassThru
-    $global:session_pids += $process.Id
-}
-
-# the first node, node 0, is a front, and is the last to be booted.
+# the first node, node 0, is a front.
 # If the launch is in the foreground it is waited for. A watch is then
 # left to stop the session when its last front has gone, which is at
 # once if this was the only one.
@@ -118,81 +86,54 @@ function boot_first {
     }
 }
 
-function wrap {
-    param ($cpu, $num_cpu)
-    $wp = $cpu % $num_cpu
-    if ($wp -lt 0) { $wp += $num_cpu }
-    $wp
-}
-
-# with -n 0 the first node sizes the network to the machine. It starts
-# the other nodes, and then runs the script it was given.
-function auto_run {
-    # sized to the machine, the first node starts the others itself, so the
-    # other desktops asked for, -g, are for it to start as well, $guis of them
+# the launch script starts one node, the first. That node starts the
+# rest, in the shape asked for, -t, and as many as asked for, -n, or sized
+# to the machine, (node-net) in sys/lisp.inc has the shapes, and then runs
+# the script it was given. The other desktops asked for, -g, $guis of
+# them, are for it to start as well, they are the first of the nodes it
+# starts.
+function first_run {
     param ($run, $guis = 0)
-    if ($global:auto -eq $TRUE) {
-        # it waits to see them before it sizes the rest, or they are not counted
-        if ($guis -gt 0) { return "`"(progn (node-spawn $guis :gui {service/gui/app.lisp}) (defq t0 (pii-time)) (while (and (<= (length (lisp-nodes)) $guis) (< (- (pii-time) t0) 10000000)) (task-sleep 10000)) (node-auto) (import {$run}))`"" }
-        return "`"(progn (node-auto) (import {$run}))`""
-    }
-    return $run
+    if ($guis -gt 0) { return "`"(progn (node-net :$global:shape $global:ncpu $guis :gui {service/gui/app.lisp}) (import {$run}))`"" }
+    return "`"(progn (node-net :$global:shape $global:ncpu) (import {$run}))`""
 }
 
-function boot_cpu_gui {
-    param ($front, $cpu, $link)
+function boot_gui {
     $cmd = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\main_gui.exe"
     $boot = if ($global:emu -eq '-e') { "obj/vp64/VP64/sys/boot_image" } else { "obj/$HCPU/$HABI/sys/boot_image" }
-    $argstring = "$boot " + $link.Trim()
+    $argstring = $boot
     if ($global:emu -ne '') { $argstring += " $global:emu" }
     if ($global:ngui -eq 0) {
-        if ($cpu -lt 1) {
-            boot_first $front $cmd "$argstring -run $(auto_run $global:script)"
-        } else {
-            boot_node $cmd $argstring
-        }
-    } elseif ($cpu -lt $global:ngui) {
-        if ($cpu -ge 1) {
-            boot_node $cmd "$argstring -run $(auto_run 'service/gui/app.lisp')"
-        } elseif ($front -eq $FALSE) {
-            boot_first $FALSE $cmd "$argstring -run $(auto_run 'service/gui/app.lisp' ($global:ngui - 1))"
-        } else {
-            boot_first $TRUE $cmd "$argstring -run $(auto_run 'apps/tui/tui_gui.lisp' ($global:ngui - 1))"
-        }
+        # no desktop, a script on the GUI host program
+        boot_first $global:front $cmd "$argstring -run $(first_run $global:script)"
+    } elseif ($global:front -eq $FALSE) {
+        boot_first $FALSE $cmd "$argstring -run $(first_run 'service/gui/app.lisp' ($global:ngui - 1))"
     } else {
-        boot_node $cmd $argstring
+        boot_first $TRUE $cmd "$argstring -run $(first_run 'apps/tui/tui_gui.lisp' ($global:ngui - 1))"
     }
 }
 
-function boot_cpu_tui {
-    param ($front, $cpu, $link)
+function boot_tui {
     $cmd = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\main_tui.exe"
     $boot = if ($global:emu -eq '-e') { "obj/vp64/VP64/sys/boot_image" } else { "obj/$HCPU/$HABI/sys/boot_image" }
-    $argstring = "$boot " + $link.Trim()
+    $argstring = $boot
     if ($global:emu -ne '') { $argstring += " $global:emu" }
-    if ($cpu -lt 1) {
-        # a TUI is always waited for, it has the terminal
-        boot_first $TRUE $cmd "$argstring -run $(auto_run $global:script)"
-    } else {
-        boot_node $cmd $argstring
-    }
+    # a TUI is always waited for, it has the terminal
+    boot_first $TRUE $cmd "$argstring -run $(first_run $global:script)"
 }
 
 function main {
     # no param() block - keeps ALL args in $args with no named-parameter binding
-    # $args[0] = default node count, $args[1] = max node count, rest = flags
-    $global:ncpu = [int]$args[0]
-    $maxn = [int]$args[1]
+    # 0 nodes is the network sized to the machine
+    $global:ncpu = 0
     $global:ngui = 1
+    $global:shape = "full"
     $global:emu = ""
     $global:front = $FALSE
-    $global:auto = $FALSE
-    # a default of 0 nodes is the network sized to the machine, as -n 0 is
-    if ($global:ncpu -eq 0) { $global:auto = $TRUE; $global:ncpu = 1 }
     $global:script = "apps/tui/tui.lisp"
     $global:showhelp = $FALSE
 
-    for ($i = 2; $i -lt $args.Count; $i++) {
+    for ($i = 0; $i -lt $args.Count; $i++) {
         $arg = $args[$i]
         switch ($arg) {
             "-i" { $global:script = "apps/tui/install.lisp" }
@@ -200,16 +141,21 @@ function main {
             "-e" { $global:emu = "-e" }
             "-f" { $global:front = $TRUE }
             "-g" { $global:ngui = [int]$args[++$i] }
-            "-n" {
-                $global:ncpu = [int]$args[++$i]
-                $global:auto = $FALSE
-                if ($global:ncpu -eq 0) { $global:auto = $TRUE; $global:ncpu = 1 }
-            }
+            "-n" { $global:ncpu = [int]$args[++$i] }
+            "-t" { $global:shape = $args[++$i] }
             "-h" { $global:showhelp = $TRUE }
             "--help" { $global:showhelp = $TRUE }
             default { $global:showhelp = $TRUE }
         }
     }
 
-    if ($global:ncpu -gt $maxn) { $global:ncpu = $maxn }
+    if ($global:showhelp -eq $TRUE) {
+        Write-Output "[-n cnt] number of nodes, the width of a mesh or a cube, 0 to size to the machine, the default"
+        Write-Output "[-t shape] full, ring, star, tree, mesh or cube, full is the default"
+        Write-Output "[-g cnt] number of guis"
+        Write-Output "[-s script_name] script mode"
+        Write-Output "[-e] emulator mode"
+        Write-Output "[-f] foreground mode"
+        Write-Output "[-h] help"
+    }
 }

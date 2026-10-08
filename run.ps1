@@ -1,22 +1,9 @@
 # common functions
 . "$PSScriptRoot\funcs.ps1"
 
-# process args defaults
-main 0 32 @args
+# process args
+main @args
 
-if ($showhelp -eq $TRUE) {
-    Write-Output "[-n cnt] number of nodes, 0 to size to the machine, the default"
-    Write-Output "[-g cnt] number of guis"
-    Write-Output "[-s script_name] script mode"
-    Write-Output "[-e] emulator mode"
-    Write-Output "[-f] foreground mode"
-    Write-Output "[-h] help"
-} else {
-    for ($cpu = $ncpu - 1; $cpu -ge 0; $cpu--) {
-        $links = ""
-        for ($lcpu = 0; $lcpu -lt $ncpu; $lcpu++) {
-            $links += add_link $cpu $lcpu $links
-        }
-        boot_cpu_gui $front $cpu $links
-    }
+if ($showhelp -eq $FALSE) {
+    boot_gui
 }

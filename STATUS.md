@@ -4,6 +4,45 @@
 
 ------
 
+The topology launch scripts are gone, the first node makes the network.
+
+*	Chris: "do we NEED the topology launch scripts anymore ? or just pass in
+	a topology flag/width to the boot kernel. ? After all WE can now start
+	nodes and links !" We do not. There were twenty one of them, `run_ring`,
+	`run_mesh`, `run_cube`, `run_star`, `run_tree`, for a desktop and for a
+	terminal, in bash and in PowerShell, each working out the same links.
+
+*	`run.sh` and `run_tui.sh`, and the Windows ones, take `-t shape`, `full`,
+	`ring`, `star`, `tree`, `mesh` or `cube`, with `-n` the number of nodes,
+	or the width of a mesh or a cube. `./run.sh -t ring -n 8`.
+
+*	A launch script now starts one node, always, and no links. It has that
+	node run `(node-net shape cnt)`, new in `sys/lisp.inc`, which works out
+	the links, `(node-shape)`, names them, starts the other nodes with
+	theirs, `(node-start)`, and waits till they are seen. `(node-spawn)` and
+	`(node-auto)` are on the same `(node-start)`. The link naming and the
+	loops are out of `funcs.sh` and `funcs.ps1`, 150 lines.
+
+*	With no `-n` a shape is sized to the machine as `full` is, the largest
+	with no more than a node for each processor. On 16 cores a ring of 16,
+	a mesh 4 wide, a cube 2 wide.
+
+*	No kernel change and no new snapshot, it is the host call that starts a
+	node, there since 7.0, used for more.
+
+*	Each shape started on the M4, all nodes seen in 120ms, and every session
+	clears its own nodes, links and files away. The whole test suite passes
+	on a ring. `tests/system/test_shape.lisp`, 27, the links of each shape
+	counted and every node reached.
+
+*	The PowerShell scripts are changed the same way and not run, there is
+	no PowerShell here. For Martyn.
+
+*	A trap found on the way, in the doc and its test. A local with the name
+	of a function, `num`, alone in an `and`, is called, not looked at.
+
+------
+
 The `cpu`, `abi` and `os` files are gone, and `sync` sends the mode of a
 file. Two new host calls, so a new `snapshot.zip` and a `make install`.
 

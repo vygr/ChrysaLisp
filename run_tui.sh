@@ -3,18 +3,10 @@
 #common functions
 source funcs.sh
 
-#process args defaults
-main 0 32 $@
+#process args
+main $@
 
-if [ $num_cpu -ne 0 ]
+if [ "$help" == "" ]
 then
-	for ((cpu=$num_cpu-1; cpu>=0; cpu--))
-	do
-		links=""
-		for ((lcpu=0; lcpu<$num_cpu; lcpu++))
-		do
-			add_link $cpu $lcpu
-		done
-		boot_cpu_tui $cpu "$links"
-	done
+	boot_tui
 fi

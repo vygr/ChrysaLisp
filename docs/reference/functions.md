@@ -2261,17 +2261,61 @@ start a shared memory link on this node. The node at the other end
 starts one of the same name.
 ```
 
+### node-net
+
+```code
+(node-net shape [cnt fronts kind script]) -> (pid ...)
+
+make this node, alone, node 0 of a network of a shape, (node-shape)
+has them and what cnt is, and wait for the nodes to be seen. The first
+fronts of them, default none, are of kind and run script, as
+(node-start) has it, the other desktops of a session.
+```
+
+### node-shape
+
+```code
+(node-shape shape [cnt]) -> (total pairs)
+
+the links of a network of a shape, each a list of two node numbers.
+:full, every node to every other, :ring, :star, node 0 in the middle,
+:tree, two below each, :mesh, a square that wraps round, and :cube. cnt
+is the number of nodes, the width for a :mesh or a :cube. Not given, or
+0, it is sized to this machine, the most that is no more than one for
+each processor. No more than 64 nodes, 32 for :full.
+```
+
 ### node-spawn
 
 ```code
 (node-spawn [num kind script]) -> (pid ...)
 
 start num more nodes on this machine, default 1, each linked to this
-node and to each other. A pid of -1 is a node the host could not start.
-kind is the host program, :gui or :tui, this node's own if not given,
+node and to each other. kind and script are as (node-start) has them,
 so a GUI node can be added to a TUI network, and a TUI node to a GUI
-one. script is run on each new node. A node with a script is a front
-of its session, a way in to it, a desktop is service/gui/app.lisp.
+one.
+```
+
+### node-start
+
+```code
+(node-start total pairs [fronts kind script]) -> (pid ...)
+
+this node is node 0 of total, start the others, 1 on, linked as pairs
+has them, each a list of two node numbers. A pid of -1 is a node the
+host could not start. The first fronts of them, all if not given, are
+of kind, the host program, :gui or :tui, this node's own if not given,
+and run script. A node with a script is a front of its session, a way
+in to it, a desktop is service/gui/app.lisp.
+```
+
+### node-wait
+
+```code
+(node-wait want)
+
+wait till that many nodes are seen, so what is started next can
+spread over them, and not for ever
 ```
 
 ### nto

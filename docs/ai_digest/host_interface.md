@@ -387,8 +387,8 @@ bytecode interpreter.
 * Let's break down the `run_tui.sh -i -e -f` command:
 
     * `run_tui.sh`: This script (and its PowerShell equivalent `run_tui.ps1`)
-      is designed to launch multiple ChrysaLisp nodes connected in a default
-      fully-connected mesh topology.
+      launches the first node of a network, which starts the rest, fully
+      connected and sized to the machine unless told otherwise.
 
     * `-i`: This tells `run_tui.sh` to set the initial script for the primary
       node (CPU 0) to `apps/tui/install.lisp` instead of the default
@@ -404,7 +404,8 @@ bytecode interpreter.
 
     * `make install` triggers `run_tui.sh -e ... -i ...`.
 
-    * `run_tui.sh` launches 8 instances of `main_tui` (or `main_tui.exe`).
+    * `run_tui.sh` launches one `main_tui` (or `main_tui.exe`), and that
+      node starts one more for each of the machine's other cores.
 
     * Each `main_tui` instance, due to the `-e` flag, loads
       `obj/vp64/VP64/sys/boot_image` and starts the `vp64()` interpreter.
@@ -427,125 +428,73 @@ bytecode interpreter.
 
 ## Run Scripts and Network Topologies
 
-The `run*.sh` (for Linux/macOS) and `run*.ps1` (for Windows PowerShell)
-scripts are used to launch multiple ChrysaLisp VP nodes and connect them in
-various network topologies. They share common helper functions from
-`funcs.sh` or `funcs.ps1`.
+There are two launch scripts, `run.sh` for a desktop and `run_tui.sh` for a
+terminal, and `run.ps1`, `run_tui.ps1` and the `.bat` files that call them
+on Windows. They share `funcs.sh` or `funcs.ps1`.
 
-**Helper Functions (e.g., in `funcs.sh`):**
+**A launch script starts one node.** It starts the first node, with no
+links, and gives it a line of Lisp to run:
 
-* `zero_pad <num>`: Pads a number with leading zeros to ensure 3-digit link
-  names (e.g., `001`, `008`, `012`).
+```code
+./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $emu -run
+	"(progn (node-net :ring 8) (import {service/gui/app.lisp}))"
+```
 
-* `add_link <src_cpu> <dst_cpu>`:
+That node starts the others. `(node-net shape [cnt fronts kind script])` in
+`sys/lisp.inc` works out the links of the shape, `(node-shape)`, makes a
+name for each, six characters of base 36 from a random number, starts each
+other node with the names of its links, `(node-start)` and the host's
+`pii_spawn`, opens its own, and waits till the nodes are seen. Then the
+script it was given is run. The other desktops of `-g` are the first of the
+nodes it starts, GUI hosts that run the GUI service.
 
-    * Takes two CPU numbers (relative to the `base_cpu` for the script).
+There were launch scripts for each shape, `run_ring.sh`, `run_mesh.sh` and
+the rest, twenty one files that worked out the same links in bash and again
+in PowerShell. They are gone, the shapes are written once.
 
-    * Pads them using `zero_pad`.
+**Shapes:**
 
-    * Constructs a link string like `-l 001-002`.
+* `full`, the default: every node linked to every other. No more than 32.
 
-    * Ensures that links are specified consistently (e.g., always
-      `smaller-larger`) to avoid duplicates in the `links` variable for a
-      node.
+* `ring`: node `n` to `n+1`, the last to the first.
 
-    * Appends the link string to a global `links` variable if it's a new link
-      for the current node being configured.
+* `star`: every node to node 0.
 
-* `wrap <cpu_num> <num_total_cpus>`: Calculates `$cpu_num % $num_total_cpus`
-  for circular topologies.
+* `tree`: node `n` to the one above, `(n-1)/2`, a binary tree.
 
-* `boot_cpu_gui <cpu_idx_in_script> "<link_args_string>"`, `boot_cpu_tui
-  <cpu_idx_in_script> "<link_args_string>"`:
+* `mesh`: `cnt` by `cnt`, each node to the next along and the next down,
+  wrapping at the edges, four links a node.
 
-    * These are the core functions for launching a single ChrysaLisp node.
+* `cube`: `cnt` by `cnt` by `cnt`, the same in three dimensions, six links
+  a node.
 
-    * They construct the command line: `./obj/$CPU/$ABI/$OS/main_gui
-      obj/$CPU/$ABI/sys/boot_image <link_args_string> $emu -run
-      <initial_script>`.
+No more than 64 nodes. With no count, or 0, the shape is sized to the
+machine, the largest with no more than a node for each processor.
 
-    * The `$emu` variable will be "-e" if emulator mode is active for the
-      script.
+**Arguments:**
 
-    * The `<initial_script>` is typically `service/gui/app.lisp` for
-      `boot_cpu_gui` and `apps/tui/tui.lisp` for `boot_cpu_tui` for the
-      primary node (node 0 in the script's context). Other nodes usually
-      don't get an initial `-run` script and just start their link drivers.
+* `-n <count>`: Number of nodes, the width of a mesh or a cube, 0 to size
+  to the machine, the default.
 
-    * They handle backgrounding (`&`) for all but the primary foreground
-      node (if `-f` is used).
+* `-t <shape>`: `full`, `ring`, `star`, `tree`, `mesh` or `cube`.
 
-**Topologies:**
+* `-g <count>`: Number of desktops.
 
-* **`run.sh`, `run.ps1` (Default - Fully Connected Mesh):**
+* `-s <script>`: The script the first node runs.
 
-    * Typically launches 10 nodes (`num_cpu=10`).
-
-    * Each node `cpu` is linked to every other node `lcpu` (`for lcpu=0;
-      lcpu<$num_cpu; lcpu++`). This creates a fully connected mesh where
-      every node has a direct link to every other node.
-
-* **`run_ring.sh`, `run_ring.ps1`:**
-
-    * Launches `num_cpu` nodes (default 64).
-
-    * Each node `cpu` is linked to `cpu-1` (wrapped) and `cpu+1` (wrapped),
-      forming a ring.
-
-* **`run_mesh.sh`, `run_mesh.ps1`:**
-
-    * Launches `num_cpu * num_cpu` nodes (default 8x8 = 64).
-
-    * Nodes are arranged in a 2D grid. Each node `(cpu_x, cpu_y)` is linked to
-      its neighbors: `(cpu_x-1, cpu_y)`, `(cpu_x+1, cpu_y)`, `(cpu_x,
-      cpu_y-1)`, `(cpu_x, cpu_y+1)`, with wrapping at the edges (toroidal
-      mesh).
-
-* **`run_cube.sh` (No `.ps1` directly provided, but logic is similar):**
-
-    * Launches `num_cpu * num_cpu * num_cpu` nodes (default 4x4x4 = 64).
-
-    * Nodes in a 3D grid. Each node `(x,y,z)` is linked to its 6 Cartesian
-      neighbors `(x±1,y,z)`, `(x,y±1,z)`, `(x,y,z±1)`, with wrapping
-      (toroidal cube/3D torus).
-
-* **`run_star.sh`, `run_star.ps1`:**
-
-    * Launches `num_cpu` nodes (default 64).
-
-    * Node 0 is the central hub. All other nodes `cpu > 0` are linked only to
-      node 0.
-
-* **`run_tree.sh`, `run_tree.ps1`:**
-
-    * Launches `num_cpu` nodes (default 64).
-
-    * Connects nodes in a binary tree structure:
-
-        * Node `cpu` is linked to its parent `(cpu-1)/2`.
-
-        * Node `cpu` is linked to its left child `(cpu*2)+1` (if it exists).
-
-        * Node `cpu` is linked to its right child `(cpu*2)+2` (if it exists).
-
-**Passing Arguments:**
-
-The run scripts accept common arguments:
-
-* `-n <count>`: Number of nodes (or side length for mesh/cube).
-
-* `-e`: Run in emulator mode (passes `-e` to `main_gui`/`main_tui`).
+* `-e`: Run in emulator mode (passes `-e` to `main_gui`/`main_tui`, and a
+  node passes it on to those it starts).
 
 * `-f`: Run the primary node in the foreground.
 
-* `-i`: (for `run_tui.sh`) Run `apps/tui/install.lisp` on the primary node.
+* `-i`: Run `apps/tui/install.lisp` on the primary node.
 
 ## Stop Scripts
 
-* **A session stops itself.** The shell launch scripts keep the pid of each
-  node they start, and give the links of a launch names of its own, six
-  characters of base 36 from a random number. A node that starts more nodes,
-  `(node-spawn)`, leaves their pids and link names in
+* **A session stops itself.** The shell launch scripts keep the pid of the
+  node they start. A node that starts more nodes, `(node-net)` or
+  `(node-spawn)`, gives their links names of its own and leaves their pids
+  and link names in
   `/tmp/chrysalisp_<pid>.session`. A session lives while it has a front, a
   way in, a terminal or a desktop. When the last front has gone the script,
   or a watch it leaves behind, stops the rest of the nodes and removes their

@@ -1446,7 +1446,25 @@ Direct host operating system primitives provided by the host engine.
 *	**`node-spawn`**: Starts more nodes on this machine, each linked by
 	shared memory to this node and to each other. Gives their process ids.
 
-	*	`(node-spawn [num]) -> (pid ...)`
+	*	`(node-spawn [num kind script]) -> (pid ...)`
+
+*	**`node-shape`**: The links of a network of a shape, `:full`, `:ring`,
+	`:star`, `:tree`, `:mesh` or `:cube`, each a list of two node numbers.
+	`cnt` is the number of nodes, the width of a mesh or a cube, and with
+	none it is sized to the machine.
+
+	*	`(node-shape shape [cnt]) -> (total pairs)`
+
+*	**`node-net`**: Makes this node, alone, node 0 of a network of a shape,
+	and waits till the nodes are seen. It is what the launch scripts have
+	the first node run, `-t` and `-n`.
+
+	*	`(node-net shape [cnt fronts kind script]) -> (pid ...)`
+
+*	**`node-start`**: This node is node 0 of `total`, start the others,
+	linked as `pairs` has them. Under the other three.
+
+	*	`(node-start total pairs [fronts kind script]) -> (pid ...)`
 
 *	**`node-link`**: Starts a shared memory link on this node, the node at
 	the other end starts one of the same name.

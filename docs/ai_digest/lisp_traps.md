@@ -55,6 +55,23 @@ or `when`, both macros, is seen as a call of the macro. The error is
 If a short, common name gives an error that makes no sense, try another
 name.
 
+### A local with the name of a function, alone in an `and` or an `or`
+
+`(and a b)` is made into `(condn (a) (b))`, and `(or a b)` into `(cond (a)
+(b))`. Each term is then a list of one thing, and a list is a call. When
+the function is made, a name at the head of a list that is a function is
+bound to it. So a local called `num`, `str`, `list`, `first`, any function,
+is called, with nothing, in place of being looked at.
+
+```lisp
+(defun f (&optional num) (and num (> num 0)))
+(f) ; -> (> num num ...) wrong_types, num was called, gave 0, and went on
+```
+
+At the top level, not in a function, it works, nothing is bound there. Give
+the local another name, `cnt`, or write the term as a test, `(and (num? cnt)
+...)`.
+
 ### `setd` can not tell `:nil` from not given
 
 ```lisp

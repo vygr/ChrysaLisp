@@ -368,46 +368,46 @@ stop.bat
 
 ## Exploring Network Topologies (Advanced)
 
-ChrysaLisp is designed for distributed computing. The standard `run.sh` and 
-`run_tui.sh` (and their `.bat`/`.ps1` counterparts) start a fully connected 
-network sized to the machine, a node for each core it has. You can explore 
-different network setups using specialized scripts. These scripts typically 
-accept common arguments:
+ChrysaLisp is designed for distributed computing. `run.sh` and `run_tui.sh`
+(and their `.bat`/`.ps1` counterparts) start a fully connected network sized
+to the machine, a node for each core it has. The same two scripts make the
+other shapes:
 
-* `-n <count>`: Specifies the number of VP nodes to launch. `-n 0` sizes the 
-  network to the machine, which is what `run.sh` and `run_tui.sh` do when no 
-  count is given. The topology scripts below each have a count of their own.
+* `-t <shape>`: The shape of the network, `full`, `ring`, `star`, `tree`,
+  `mesh` or `cube`. `full` is the default.
 
-* `-e`: Runs the nodes using the VP64 emulator with the VP64 boot image (slower, 
-  but useful for debugging or if native compilation is an issue).
+    * `ring`: Each node is connected to two neighbors.
 
-* `-f`: (For GUI scripts like `run.sh`) Runs the primary node in the foreground; 
-  closing it will trigger a shutdown of other nodes. For TUI scripts, it often 
-  means the primary TUI is attached to the first node.
+    * `star`: Every node is connected to the first, and to no other.
 
-Common topology scripts (found in the root ChrysaLisp directory):
+    * `tree`: A binary tree, one node above each and two below.
 
-* `run_ring.sh/.bat/.ps1`: Connects nodes in a ring topology. Each node is 
-  connected to two neighbors.
+    * `mesh`: A square grid that wraps round, four neighbors a node.
 
-* `run_mesh.sh/.bat/.ps1`: Connects nodes in a 2D mesh (grid) topology. Each node 
-  is connected to up to four neighbors (up, down, left, right, with wraparound).
+    * `cube`: The same in three dimensions, six neighbors a node.
 
-* `run_cube.sh/.bat/.ps1`: Connects nodes in a 3D cube (toroidal mesh) topology. 
-  Each node is connected to up to six neighbors.
+* `-n <count>`: The number of nodes, or for a `mesh` or a `cube` how many
+  wide it is. `-n 0`, and no count, sizes the network to the machine, the
+  largest of that shape with no more than a node for each core. No more than
+  64 nodes, 32 for `full`.
 
-* `run_tree.sh/.bat/.ps1`: Connects nodes in a binary tree topology.
+* `-e`: Runs the nodes using the VP64 emulator with the VP64 boot image
+  (slower, but useful for debugging or if native compilation is an issue).
 
-* `run_star.sh/.bat/.ps1`: Connects all peripheral nodes to a central hub node.
+* `-f`: Runs the primary node in the foreground.
 
-**Example**: To run an 8-node ring network on macOS/Linux:
+**Example**: An 8 node ring, and a mesh 4 wide, 16 nodes:
 
 ```code
-./run_ring.sh -n 8
+./run.sh -t ring -n 8
+./run_tui.sh -t mesh -n 4
 ```
 
-The first node (node 0 by default if `-b` is not used) will typically start the 
-GUI or TUI.
+The launch script starts only the first node. That node works out the links
+of the shape and starts the rest itself, `(node-net)` in `sys/lisp.inc`, so
+the shapes are written once, in Lisp, for every platform. In any shape but
+`full` mail goes through other nodes to get where it is going, which is what
+they are for, to see the routing work on one machine.
 
 ## Distributed Networking Across Physical Machines
 
