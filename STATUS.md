@@ -4,6 +4,15 @@
 
 ------
 
+One sync service for a machine. Chris asked whether its `app.lisp` had the
+check the other services have. It had none, only the `sync` command looked
+before it started one, so a second started any other way would have run
+beside the first. The service itself now looks, for one of its name on this
+machine, by system id, the name is a `*` one and is seen from them all. It
+is in the service's `main`, the name is not known till its message is read.
+
+------
+
 The loads of the hash and the cipher that are not aligned, looked at. The
 7.2 notes had it as not ready, native code that loads 4 and 8 bytes from
 wherever it is told to start, run under QEMU and not on a real RISC-V or

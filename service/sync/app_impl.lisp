@@ -9,6 +9,12 @@
 
 (defun main ()
 	(bind '(name root) (split (mail-read (task-mbox)) (ascii-char 10)))
+	;one for a machine. The name is a * one, seen from every machine, so it
+	;is this machine's own that is looked for, by its system id. It is here
+	;and not in app.lisp, as the other services have it, the name is not
+	;known till the message is read
+	(defq me (hex-encode (system-id)))
+	(unless (some (# (eql (second %0) me)) (sync-services name))
 	(defq service (mail-declare (task-mbox) name
 			(cat "Sync Service 0.1 " (cpu) "/" (os) " " root))
 		;the hashes of the system's own tree are kept, with what else is built
@@ -53,4 +59,4 @@
 				(progn (setq status -4 back (str _) out :nil out_path "") :t))
 			(mail-send reply_id (cat (setf-> (str-alloc +sync_reply_size)
 				(+sync_reply_status status)) back))))
-	(mail-forget service))
+	(mail-forget service)))

@@ -89,6 +89,12 @@
 (assert-true "the service says it is there" sy_svc)
 (assert-eq "and where it writes" sy_dst (last (first (sync-services sy_name))))
 
+;a second one of the same name on this machine does not start
+(mail-send (open-child "service/sync/app.lisp" +kn_call_pin) (cat sy_name (ascii-char 10) "tests/scratch/sync_other"))
+(task-sleep 500000)
+(assert-eq "one sync service of a name for a machine" 1 (length (sync-services sy_name)))
+(assert-eq "and it is the first" sy_dst (last (first (sync-services sy_name))))
+
 (defq sy_res (sync-push sy_svc sy_src sy_text :t))
 (assert-eq "a check finds what differs" 4 (length (elem-get sy_res 4)))
 (assert-list-eq "and what is only there" '("extra.txt") (elem-get sy_res 5))
