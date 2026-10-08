@@ -4,6 +4,33 @@
 
 ------
 
+`mesh`, one command to join a machine to the others, and a guide.
+
+*	Martyn has three machines and asked how to mesh them. Chris: "We need
+	a simple user guide for folks ! And maybe some tools to help them ?"
+
+*	New command, `mesh`. `mesh -k` makes a key. `mesh -j` joins, it is the
+	two `link` commands, and waits to see who is there. `mesh -t address`
+	joins by way of one named machine, for a network where they are not
+	found. `mesh`, with nothing, says how it stands: the key, if this
+	machine has joined, and each machine, how many nodes it has and what it
+	is. When it has joined and sees nobody it lists what to look at, the
+	key, the version, the firewall, the network.
+
+*	`docs/intro/mesh.md`, Joining Machines Together, three steps, how to
+	see it in the Network Map, and what to do when a machine is not found.
+	`docs/intro/intro.md` points at it.
+
+*	Proved on the Pi from a plain session, its standing node stopped
+	first: `mesh -j` listed the M4 and the x64 in 21 seconds. That long
+	because the others had just lost it and do not try again at once, 6
+	seconds when all are new.
+
+*	Nothing joins by itself, it is still a thing asked for. Windows not
+	tried.
+
+------
+
 Network Map, the network as it is, in three dimensions.
 
 *	Martyn asked if Netmon could show the topology now the first node makes

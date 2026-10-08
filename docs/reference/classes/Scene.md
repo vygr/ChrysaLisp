@@ -27,6 +27,10 @@ for it, as the blocks they travel in, and the rows it may be on.
 Objects that are see through come last, the furthest first.
 It is what a child that draws a strip is sent, and what is drawn
 from here, so the two are the same to the bit.
+An object with :smooth is lit smooth, a normal a vertex. One with
+:shaders, the files of a vertex and a pixel shader, is drawn with
+those, they have the inputs of the scene's own, and its draw has
+the files on the end, for what draws it to choose them by.
 ```
 
 ### :mesh

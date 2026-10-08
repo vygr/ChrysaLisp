@@ -2137,6 +2137,16 @@ the vertices in the order they come. It is the bytes of the numbers,
 as they go in a message to a child that draws.
 ```
 
+### mesh-corners-smooth
+
+```code
+(mesh-corners-smooth mesh) -> str
+
+a mesh as the shaders want it, lit smooth. The normal at a vertex is
+that of all the faces that share it, taken together, so a face shades
+from corner to corner and a ball of faces is round
+```
+
 ### min-length
 
 ```code
@@ -2870,7 +2880,9 @@ the triangles of count vertices taken three at a time
 ### scene-pipeline
 
 ```code
-the two shaders a scene is drawn with, assembled the first time
+the two shaders a scene is drawn with, assembled the first time. Or
+
+those of an object that has two of its own, their files
 ```
 
 ### search
@@ -3790,13 +3802,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args

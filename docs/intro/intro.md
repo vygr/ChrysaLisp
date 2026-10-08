@@ -419,6 +419,10 @@ ChrysaLisp has built-in, native TCP network linking (`service/net`) that enables
 
 * **Transparent Message Routing**: Once linked, ChrysaLisp tasks communicate transparently across all nodes using the same message-passing primitives (`mail-send`, `open-remote`, etc.).
 
+**The short way is `mesh -j` on each machine. [Joining Machines
+Together](mesh.md) is the guide, three steps, and what to look at when a
+machine is not found.** What follows is what is under it.
+
 ### How to Link Machines:
 
 1. **On Machine A (Server / Compute Node)**:

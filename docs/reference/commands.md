@@ -565,6 +565,30 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
     test:       test make timings.
     fmt:        format all the source files, with the fmt command.
 ```
+## mesh
+```code
+Usage: mesh [options]
+
+    options:
+        -h --help: this help info.
+        -j --join: join this machine to the others on the network.
+        -t --to host: join by way of one machine, its name or address,
+            for when the others are not found by themselves.
+        -k --key: make a key, the file mesh_key, if there is none.
+
+    Join the machines on a network into one, and say how it stands.
+
+    With no options, say how it stands: if this machine has a key, if it
+    has joined, and each machine there is, how many nodes it has, and
+    what it is. If something looks wrong it says what to look at.
+
+        mesh -k           ; once, on one machine, then copy mesh_key to
+                          ; the same place on the others, by hand
+        mesh -j           ; on each machine, each time it is started
+        mesh              ; who is there ?
+
+    docs/intro/mesh.md is the guide.
+```
 ## mv
 ```code
 Usage: mv [options] path1 path2
