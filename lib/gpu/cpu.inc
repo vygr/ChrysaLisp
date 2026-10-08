@@ -282,7 +282,7 @@
 	; -> the lambda of main, or of the function named
 	;the constants worked out, and each function a lambda
 	(setd entry 'main)
-	(bind '(inputs consts globals funcs &rest _) program)
+	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(each (lambda ((name type e))
 		(push cvals (list name (if (cpu-const? (defq v (cpu-expr e))) v (eval v))))) consts)
 	(each (lambda ((name type params block))
@@ -298,7 +298,7 @@
 	;native code of (shader-vp-func) is checked by. A float is a real, a
 	;vector a reals, and a matrix a reals of 16, a row at a time.
 	(defq params (map (const first) (third (shader-func program name))))
-	(bind '(inputs consts globals funcs &rest _) program)
+	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(defq cvals (list) fvals (list) flag_num 0 entry (cpu-funcs program name))
 	(cat (list (const lambda) params)
 		(map (lambda ((name type e)) (list (const defq) name (cpu-expr e))) globals)
@@ -312,7 +312,7 @@
 	;vertex is, a vec4, as main gave it, then what main left each varying
 	;as, in the order the shader has them. A varying that is not set is 0.
 	(unless (eql (shader-stage program) :vertex) (sh-err "not a vertex shader" 'main))
-	(bind '(inputs consts globals funcs &rest _) program)
+	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(defq cvals (list) fvals (list) flag_num 0 main (cpu-funcs program)
 		varyings (shader-varyings program))
 	(cat (list (const lambda) (cat '(_verts) (map (const first) inputs)))
@@ -335,7 +335,7 @@
 	;shader with varyings is given a value for each, after the inputs,
 	;and every pixel of the tile has those.
 	(unless (eql (shader-stage program) :pixel) (sh-err "not a pixel shader" 'main))
-	(bind '(inputs consts globals funcs &rest _) program)
+	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(defq cvals (list) fvals (list) flag_num 0 main (cpu-funcs program))
 	(cat (list (const lambda) (cat '(_x _y _x1 _y1) (map (const first) inputs)
 			(map (const first) (shader-varyings program))))

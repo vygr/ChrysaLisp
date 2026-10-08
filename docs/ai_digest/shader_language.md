@@ -494,7 +494,8 @@ work that is all numbers. It is the typed language of the shaders, with
 args in place of a pixel or a vertex.
 
 * `(shader-vp-func program name) -> func`. It is assembled the first time a
-  CPU meets it, kept under `obj/`, and bound by name, as a shader is.
+  CPU meets it, kept under `obj/` by a hash of its source, and bound by
+  name, as a shader is.
 * `(func arg ...)`. A `:float` is a real, an `:int` a num, a vector a reals
   of its size, and a `:mat4` a reals of 16, a row at a time, as
   `lib/math/matrix.inc` has a matrix. What comes back is one of those, made
@@ -873,9 +874,55 @@ The back end writes VP source, the same assembler source the rest of the
 system is written in, and the assembler turns it into code for the CPU of the
 node, ARM64, x86_64, RISC-V, or the VP64 of the emulator. The source and the
 function are kept under `obj/`, in `lib/gpu/jit/`, named by a hash of the
-program. The first task to ask for a program assembles it, under a lock, and
+source. The first task to ask for a program assembles it, under a lock, and
 every task on that machine after that just binds to it. The raymarch shader is
 2,460 lines of VP, assembles in 14ms, and is 10KB of ARM64 code.
+
+### A file is known by a hash of it
+
+The native code is a cache, and what it is kept under is a hash of the
+source file, SHA-256, with the make of the back end. So whether the code
+for a file is there already is found out without a line of the file being
+read as a program.
+
+`(shader-load file)` takes the hash, and reads only the head of the file,
+its inputs, its attrs and varyings, its kind, and what each function gives
+and takes. That is all a caller of a function that is ready made needs, to
+lay out its frame and its block of inputs. No body is read or checked, the
+consts and globals of the program are `:lazy`.
+
+`(shader-vp)`, `(shader-vp-vertex)`, `(shader-vp-fill)` and
+`(shader-vp-func)` look for the function by its name. If it is there, with
+the few numbers that are kept beside it, the size of its frame and where its
+slots are, in a `.info` file, it is bound and that is all. The system's own
+list of bound functions is a cache of that in turn. If it is not there the
+program has the rest of it read and checked, `(shader-full program)`, the VP
+is written and assembled, and the numbers kept, last, so that if they are
+there the function is whole.
+
+`(shader-full program)` is what any back end calls before it makes
+something. It fills in the same program. A program from text,
+`(shader-compile forms)`, is all there from the start, and has a key too.
+
+Everything works with `obj/<cpu>/<abi>/lib/gpu/jit/` cleared. It is slower
+the once, as each function is made again. The tests are run that way and
+the other.
+
+Loading a file whose native code is there, the read and the function both.
+
+| | Apple M4 Max, before | after | Raspberry Pi 4, before | after |
+|---|---|---|---|---|
+| the raymarch shader | 4.2ms | 0.14ms | 41ms | 1.0ms |
+| the film shader | 1.4ms | 0.07ms | 15ms | 0.49ms |
+| the Mesh pipeline, two files | 0.66ms | 0.07ms | 7.0ms | 0.51ms |
+
+Before, the file was read, checked and its VP written every time, and only
+the assembler was saved. What is left is the reader going over the file for
+its head.
+
+A function that is bound stays bound. If its file under `obj/` is taken
+away or made again, a task that has it already still has the old one. A way
+to make what is bound go stale is not here, it is one to do.
 
 How the code is laid out.
 

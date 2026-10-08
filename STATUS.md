@@ -4,6 +4,34 @@
 
 ------
 
+A shader file is known by a hash of it, and its native code is found by
+that, with nothing of the file checked.
+
+*	The native code of a shader was kept, but to find it the file was read,
+	type checked, and its VP written, every time, only the assembler was
+	saved. Now `(shader-load file)` takes a SHA-256 of the file and reads
+	only its head, the inputs, attrs, varyings and what each function takes.
+	The back end looks for the function under that hash, binds it, and
+	reads the few numbers kept beside it. `lib/gpu/shader.inc`,
+	`lib/gpu/vp.inc`.
+
+*	On a miss the rest of the program is read and checked,
+	`(shader-full program)`, as every back end does before it makes
+	anything. So it all works with the cache cleared, slower the once. The
+	tests are run both ways.
+
+*	Loading the raymarch shader when its code is there, 4.2ms to 0.14ms on
+	an Apple M4 Max, 41ms to 1.0ms on a Raspberry Pi 4. The Mesh pipeline,
+	two files, 7.0ms to 0.51ms on the Pi. Every task that uses a shader does
+	this, each child of a farm.
+
+*	A program has two more parts, its key and its source. The name of a
+	native function is now from the SHA-256 of the source, it was 48 bits of
+	the interpreter's hash of the checked tree.
+
+*	Not here, and to do: a way to make a function that is already bound go
+	stale.
+
 Every test passes on RISC-V and on LoongArch, under QEMU.
 
 *	All 85 modules, 4144 tests, on each, with the shaders as native code,

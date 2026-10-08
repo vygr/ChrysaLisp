@@ -96,7 +96,7 @@
 	;the shader as a struct. The inputs, the globals, the attrs and the
 	;varyings are members, the constants are members with a value, and the
 	;functions are methods
-	(bind '(inputs consts globals funcs &rest _) program)
+	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(push lines "struct Shader" "{")
 	(each (lambda ((name type &rest _))
 		(push lines (cat "\t" (msl-type type) " " (msl-name name) ";")))

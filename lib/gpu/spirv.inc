@@ -282,7 +282,7 @@
 	; (spv-program program) -> block
 	;the inputs block of a program, a variable for each of its inputs,
 	;constants and globals, and its functions
-	(bind '(inputs consts globals funcs &rest _) program)
+	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(defq layout (rest (shader-layout program)) block :nil)
 	(if (nempty? layout)
 		(setq block (spv-block-var (map (const second) layout) (map (const third) layout)

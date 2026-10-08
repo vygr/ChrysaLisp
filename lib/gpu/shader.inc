@@ -3,7 +3,11 @@
 ; The tree is what the back ends take, see glsl.inc and cpu.inc.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;a program is (inputs consts globals funcs stage)
+(import "././crypto/sha256.inc")
+
+;a program is (inputs consts globals funcs stage key text). key is a hash
+;of the source, and text the source, of a program from a file that has
+;only had its head read, see (shader-load) and (shader-full)
 ;	input, (name type default min max)
 ;	const and global, (name type expr)
 ;	func, (name type ((name type) ...) block)
@@ -367,8 +371,19 @@
 		((and (eql type :float) (fixed? val) (not (real? val))) val)
 		((sh-err "wrong input value" form))))
 
-(defun shader-compile (forms)
-	; (shader-compile forms) -> program
+(defun shader-key (text)
+	; (shader-key text) -> str
+	;what a source is known by, a hash of it. The native code made from a
+	;source is kept under its key, so a source that has been met before
+	;is found again without a line of it being read
+	(apply (const cat) (map (# (byte-to-hex-str (code %0))) (slice (sha256 text) 0 16))))
+
+(defun shader-compile (forms &optional head_only)
+	; (shader-compile forms [head_only]) -> program
+	;with head_only only what a caller of a ready made function needs is
+	;taken, the inputs, the attrs and varyings, the kind, and what each
+	;function gives and takes. No body is read or checked, and the consts
+	;and globals are :lazy. (shader-full) reads the rest when it is wanted.
 	(defq syms (list) funcs (list) inputs (list) consts (list) globals (list)
 		attrs (list) varyings (list) sets_varying :nil
 		const_only :nil ret_type :nil loop_depth 0)
@@ -394,6 +409,10 @@
 					(sh-err "wrong type, a float or a vector" form))
 				(push (if (eql op 'defattr) attrs varyings) (list name type))
 				(push syms (list name type (if (eql op 'defattr) :attr :varying))))
+			((and head_only (find op '(defconst defglobal))))
+			((and head_only (eql op 'defun))
+				(unless (and (>= n 3) (list? (elem-get form 3))) (sh-err "wrong function header" form))
+				(push funcs (list name (third form) (elem-get form 3))))
 			((find op '(defconst defglobal))
 				(unless (= n 2) (sh-err "wrong number of args" form))
 				(sh-name name form)
@@ -443,7 +462,18 @@
 	(when (eql kind :pixel)
 		(if (nempty? attrs) (sh-err "a pixel shader has no attrs" (first (first attrs))))
 		(if sets_varying (sh-err "a pixel shader can not set a varying" 'main)))
-	(list inputs consts globals funcs (list kind attrs varyings)))
+	(if head_only
+		(list inputs :lazy :lazy funcs (list kind attrs varyings) :nil :nil)
+		(list inputs consts globals funcs (list kind attrs varyings) (shader-key (str forms)) :nil)))
+
+(defun shader-full (program)
+	; (shader-full program) -> program
+	;a program with all of it there. One that was loaded with only its
+	;head has the rest read and checked now, into the same program
+	(when (eql (second program) :lazy)
+		(defq full (shader-compile (shader-read (string-stream (elem-get program 6)))))
+		(each (# (elem-set program %0 (elem-get full %0))) '(0 1 2 3 4)))
+	program)
 
 (defun sh-pixel-only (program back_end)
 	;for a back end that has not got the vertex stage yet. It has only
@@ -478,8 +508,16 @@
 
 (defun shader-load (file)
 	; (shader-load file) -> program
-	(unless (defq stream (file-stream file)) (sh-err "no such file" file))
-	(shader-compile (shader-read stream)))
+	;a program from a file. Only its head is read, and a hash of the file
+	;taken, which is what its native code is kept under. The rest is read
+	;and checked when a back end has to make something from it,
+	;(shader-full), so a file whose native code is there already costs a
+	;hash and a few lines
+	(unless (defq text (load file)) (sh-err "no such file" file))
+	(defq program (shader-compile (shader-read (string-stream text)) :t))
+	(elem-set program 5 (shader-key text))
+	(elem-set program 6 text)
+	program)
 
 ;;;;;;;;;;;;;;;;;;
 ; the inputs block

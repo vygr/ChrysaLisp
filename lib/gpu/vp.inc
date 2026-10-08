@@ -31,7 +31,7 @@
 	;and this many pixels of a tile of a pixel shader, they are far more
 	;work each
 	+sv_tile_work 4096
-	+sv_version 15)
+	+sv_version 16)
 
 ;a vertex function reads the attrs of a vertex where they are, by :r11,
 ;and writes where it is and its varyings where they are to go, by :r10.
@@ -533,7 +533,7 @@
 	;A label that sets its constants and globals, then each function at a
 	;label of its own. The labels start with the prefix, so that the two
 	;programs of a pair can be in the one native function.
-	(bind '(inputs consts globals funcs &rest _) program)
+	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(sv-emit 'vp-label (sv-q (sym (cat prefix "h_init"))))
 	(each (lambda ((name type e)) (sv-define name type e)) (cat consts globals))
 	(sv-emit 'vp-ret)
@@ -1073,7 +1073,7 @@
 	; -> (text frame_size)
 	;the VP source of the native function for a program
 	(sh-pixel-only program "VP")
-	(bind '(inputs consts globals funcs &rest _) program)
+	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
 		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
 		ret_offset 0 ret_label :nil)
@@ -1274,16 +1274,34 @@
 	func)
 
 (defun sv-name (letter program)
-	;the name of the native function of a program
-	(cat "lib/gpu/jit/" letter (str (logand (hash (str +sv_version program)) 0xffffffffffff))))
+	;the name of the native function of a program, from the hash of its
+	;source, and which make of this back end it is
+	(cat "lib/gpu/jit/" letter (str +sv_version) "_" (elem-get program 5)))
+
+(defun sv-kept (name)
+	; (sv-kept name) -> :nil | (func info)
+	;the native function of that name if it is there from before, and
+	;the numbers that were kept with it. Nothing of the program is read
+	;to find out. The numbers are written last, after the function is
+	;whole, so if they are there it is
+	(defq obj (cat (load-path) name))
+	(when (and (/= (age obj) 0) (defq info (load (cat obj ".info"))))
+		(list (ffi name) (first (read (string-stream info))))))
+
+(defun sv-keep (name func info)
+	; (sv-keep name func info) -> (func ~info)
+	;keep the numbers that go with a native function just made
+	(save (str info) (cat (load-path) name ".info"))
+	(cat (list func) info))
 
 (defun shader-vp (program)
 	; (shader-vp program) -> (shade frame_size)
 	;the native function for a pixel shader. It is assembled if this is
 	;the first time this CPU has been given this program.
 	(defq name (sv-name "s" program))
-	(bind '(text frame_size) (sv-source program name))
-	(list (sv-native name text) frame_size))
+	(if (defq kept (sv-kept name)) (cat (list (first kept)) (second kept))
+		(progn (bind '(text frame_size) (sv-source (shader-full program) name))
+			(sv-keep name (sv-native name text) (list frame_size)))))
 
 (defun shader-vp-vertex (program)
 	; (shader-vp-vertex program) -> (place frame_size attr_slots out_slots)
@@ -1292,8 +1310,9 @@
 	;out for it is out_slots numbers, where it is, 4, then its varyings.
 	(unless (eql (shader-stage program) :vertex) (sh-err "not a vertex shader" 'main))
 	(defq name (sv-name "v" program))
-	(bind '(text frame_size attr_slots out_slots) (sv-vertex-source program name))
-	(list (sv-native name text) frame_size attr_slots out_slots))
+	(if (defq kept (sv-kept name)) (cat (list (first kept)) (second kept))
+		(progn (bind '(text frame_size attr_slots out_slots) (sv-vertex-source (shader-full program) name))
+			(sv-keep name (sv-native name text) (list frame_size attr_slots out_slots)))))
 
 (defun sv-func-source (program fname name)
 	; -> text
@@ -1404,16 +1423,19 @@
 	;what comes back is one of those, made new. It is assembled the first
 	;time this CPU meets it, and kept.
 	(shader-func program name)
-	(defq native_name (cat "lib/gpu/jit/f" (str (logand (hash (str +sv_version name program)) 0xffffffffffff))))
-	(sv-native native_name (sv-func-source program name native_name)))
+	(defq native_name (cat (sv-name "f" program) "_" (str name)))
+	(if (defq kept (sv-kept native_name)) (first kept)
+		(first (sv-keep native_name
+			(sv-native native_name (sv-func-source (shader-full program) name native_name)) (list)))))
 
 (defun shader-vp-fill (program)
 	; (shader-vp-fill program) -> (fill frame_size params vary_slots)
 	;the native function for a pixel shader that fills triangles with it
 	(unless (eql (shader-stage program) :pixel) (sh-err "not a pixel shader" 'main))
 	(defq name (sv-name "t" program))
-	(bind '(text frame_size params vary_slots) (sv-fill-source program name))
-	(list (sv-native name text) frame_size params vary_slots))
+	(if (defq kept (sv-kept name)) (cat (list (first kept)) (second kept))
+		(progn (bind '(text frame_size params vary_slots) (sv-fill-source (shader-full program) name))
+			(sv-keep name (sv-native name text) (list frame_size params vary_slots)))))
 
 (defun shader-vp-pipeline (vertex pixel)
 	; (shader-vp-pipeline vertex pixel) -> pipeline

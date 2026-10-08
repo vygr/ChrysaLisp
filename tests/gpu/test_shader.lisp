@@ -1095,3 +1095,48 @@
 (assert-error "a reals of the wrong length" (fn_place fn_b fn_n))
 (assert-error "a number where a reals should be" (fn_place fn_b (n2r 1)))
 (assert-error "a fixed where a real should be" ((shader-vp-func fn_prog 'bend) 0.5))
+
+(report-header "GPU: shader language, a file is known by a hash of it")
+
+;a file is loaded with only its head read, and a hash of it taken. Its
+;native code is kept under that hash, so a file that has been met before
+;costs no reading or checking of its functions
+(defq kf_file "lib/gpu/shaders/raymarch.shader" kf_prog (shader-load kf_file))
+(assert-eq "only the head is read" :lazy (second kf_prog))
+(assert-eq "a key of 32 hex digits" 32 (length (elem-get kf_prog 5)))
+(assert-eq "the key is the hash of the file" (shader-key (load kf_file)) (elem-get kf_prog 5))
+(assert-eq "the same file, the same key" (elem-get kf_prog 5) (elem-get (shader-load kf_file) 5))
+(assert-true "another file, another key"
+	(not (eql (elem-get kf_prog 5) (elem-get (shader-load "apps/demos/raymarch/film.shader") 5))))
+(assert-true "a byte more, another key" (not (eql (shader-key "abc") (shader-key "abc "))))
+;what a caller of a ready made function needs is there without the rest
+(assert-eq "its kind" :pixel (shader-stage kf_prog))
+(assert-true "its inputs" (nempty? (first kf_prog)))
+(assert-true "its block can be packed" (> (length (shader-pack kf_prog)) 0))
+(defq kf_vert (shader-load "lib/gpu/shaders/mesh_vertex.shader"))
+(assert-list-eq "the attrs of a vertex shader" '((position :vec4) (normal :vec3)) (shader-attrs kf_vert))
+(assert-list-eq "and its varyings" '((facing :vec3) (fade :float)) (shader-varyings kf_vert))
+;the native function is made once, and after that is found by the key
+;with the program still not read
+(defq kf_first (shader-vp kf_prog) kf_again (shader-load kf_file) kf_second (shader-vp kf_again))
+(assert-eq "found again with only the head read" :lazy (second kf_again))
+(assert-list-eq "the same function, and the same size of frame" kf_first kf_second)
+(defq kf_pipe (shader-vp-pipeline (shader-load "lib/gpu/shaders/mesh_vertex.shader")
+	(shader-load "lib/gpu/shaders/mesh_lit.shader")))
+(assert-eq "a pipeline found again, its vertex shader not read" :lazy (second (first kf_pipe)))
+(assert-eq "nor its pixel shader" :lazy (second (second kf_pipe)))
+;the rest is read when it is asked for, into the same program
+(defq kf_same (shader-full kf_again))
+(assert-true "all of it, when it is wanted" (list? (second kf_again)))
+(assert-list-eq "the same program" kf_again kf_same)
+(assert-eq "and what a function gives is there" :vec4
+	(second (some (# (if (eql (first %0) 'main) %0)) (shader-funcs kf_again))))
+;a program from text has a key too, and is all there from the start
+(defq kf_text (sh-main "(vec4 0.25)"))
+(assert-eq "from text, a key" 32 (length (elem-get kf_text 5)))
+(assert-true "from text, all of it" (list? (second kf_text)))
+;the Lisp reference reads the rest for itself
+(defq kf_atom (shader-load "apps/science/molecule/atom.shader"))
+(assert-eq "before the reference is asked for, only the head" :lazy (second kf_atom))
+(shader-cpu kf_atom)
+(assert-true "the reference read the rest" (list? (second kf_atom)))
