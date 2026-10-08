@@ -4,6 +4,31 @@
 
 ------
 
+A test of a real TCP link, and the Net service started where there is none.
+
+*	The fault of the ping, 8 October, passed every test, none had a TCP
+	link in it. `tests/solo/test_tcp_link.lisp` has. It listens, starts a
+	second network of one node, `tests/solo/tcp_peer.lisp`, that dials it by
+	the machine's own address, through the door if the machine has a key,
+	and then: the node is seen, runs a task, 170K of mail goes there and
+	comes back the same, four seconds of pings on it is still there, and
+	told to exit it goes. 8 tests, 5 seconds.
+
+*	It was checked against the fault. With the read of a ping put back to
+	the size of a link's record, the test fails, the node is never seen.
+	Put right, it passes. On the M4, the x64, the Pi and the emulator.
+
+*	Writing it found another. A node that is not a desktop or a terminal
+	has no Net service, and `link` then went round it, a bare link, with no
+	door. On a machine with a key that end could not get in anywhere, and
+	if it listened it listened with no key at all. `(ensure-net-service)`
+	now starts the service when there is none, having waited for one.
+
+*	`./rack.sh down` stops the nodes its standing node started as well,
+	`nodes -a` or a desktop, by the notes they leave. It left them running.
+
+------
+
 `mesh`, one command to join a machine to the others, and a guide.
 
 *	Martyn has three machines and asked how to mesh them. Chris: "We need

@@ -4,7 +4,8 @@
 # this machine's member of the mesh, a node that stays up, finds the other
 # machines, links to them and takes a sync, lib/rack/member.lisp.
 #   up      start it, if it is not up
-#   down    stop it, and only it. stop.sh stops every node of the machine
+#   down    stop it, and the nodes it started, and no others. stop.sh
+#           stops every node of the machine
 #   status  is it up
 #   run     have it run a command line, and say what came of it, as
 #           ./rack.sh run 'rack "tests -a"'
@@ -43,7 +44,34 @@ case $what in
 	down)
 		if [ -n "$up" ]
 		then
-			kill -KILL $pid
+			#and the nodes it was asked to start, nodes -a, or a desktop,
+			#nodes -g, with their links. It left a note of them, as
+			#every node that starts nodes does, see funcs.sh
+			todo="$pid "
+			seen=""
+			while [ -n "$todo" ]
+			do
+				one=${todo%% *}
+				todo=${todo#* }
+				if [ -n "$one" ] && [[ " $seen " != *" $one "* ]]
+				then
+					seen+="$one "
+					if [ -f "$TEMP/chrysalisp_$one.session" ]
+					then
+						while read what val
+						do
+							if [ "$what" == "link" ]
+							then
+								rm -f "$TEMP/$val"
+							else
+								todo+="$val "
+							fi
+						done < "$TEMP/chrysalisp_$one.session"
+						rm -f "$TEMP/chrysalisp_$one.session"
+					fi
+					kill -KILL $one 2>/dev/null
+				fi
+			done
 			rm -f $TEMP/chrysalisp_rack.pid
 			echo "stopped, pid $pid"
 		else

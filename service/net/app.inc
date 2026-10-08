@@ -63,10 +63,19 @@
 
 (defun ensure-net-service ()
 	; (ensure-net-service) -> netid | :nil
+	;the Net service of this machine. It is waited for, a desktop or a
+	;terminal starts one as it comes up. A node that is neither has none,
+	;so one is started, or a link from there would go round the service,
+	;and round the key of the machine with it
 	(defq svc (net-service) retries 50)
 	(while (and (not svc) (> (-- retries) 0))
 		(task-sleep 10000)
 		(setq svc (net-service)))
+	(unless svc
+		(open-child "service/net/app.lisp" +kn_call_run)
+		(setq retries 100)
+		(while (and (not (setq svc (net-service))) (> (-- retries) 0))
+			(task-sleep 10000)))
 	svc)
 
 (defun net-open-rpc (host port)
