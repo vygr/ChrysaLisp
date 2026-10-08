@@ -469,6 +469,58 @@ several hundred. That is with see through pixels and 4 samples a pixel.
 The GLSL back end has no vertex stage. Windows takes the SPIR-V, and has not
 been tried, its host has to be built again first.
 
+## Functions For Lisp To Call
+
+A file with no `main` is not a shader. It is functions, each of which can be
+made into a native function that Lisp calls as it calls any other.
+
+```lisp
+(defq program (shader-compile (shader-read (string-stream (cat
+	"(defun place :vec4 ((m :mat4) (p :vec4)) (* m p))"
+	"(defun mix3 :vec3 ((a :vec3) (b :vec3) (t :float)) (+ (* a (- 1.0 t)) (* b t)))")))))
+(defq place (shader-vp-func program 'place))
+(place matrix point)
+```
+
+This is not ChrysaLisp being compiled, and it is not to be. The interpreter
+and the small boot image are the core, and are good on their own. This is a
+way in to what a machine has that the language can not reach by itself, its
+native floating point today, and a GPU or an accelerator later, for the
+work that is all numbers. It is the typed language of the shaders, with
+args in place of a pixel or a vertex.
+
+* `(shader-vp-func program name) -> func`. It is assembled the first time a
+  CPU meets it, kept under `obj/`, and bound by name, as a shader is.
+* `(func arg ...)`. A `:float` is a real, an `:int` a num, a vector a reals
+  of its size, and a `:mat4` a reals of 16, a row at a time, as
+  `lib/math/matrix.inc` has a matrix. What comes back is one of those, made
+  new. An arg is not changed.
+* `(shader-func program name)` is what a function gives and takes,
+  `(shader-funcs program)` all of them, and `(shader-stage program)` is
+  `:func`.
+* `(shader-cpu-func program name)` is the same function as a Lisp lambda,
+  the reference the native code is checked by.
+
+Such a file has `defconst`, `defglobal` and `defun`. It has no `definput`,
+`defattr` or `defvarying`, a function has args. A function of it can take a
+matrix and give one, which a function of a shader can not. One that does is
+for Lisp to call, not for another function of the file, a matrix is never
+in registers to be handed on.
+
+The native function has its frame on the stack. Each arg is copied to it,
+the function is run, and what it gives is copied to a new real, num or
+reals. It checks how many args it has, their types, and the length of each
+reals.
+
+On a 2018 x86_64 MacBook Pro, a matrix by a vec4 is 98ns a call, where
+`(mat4x4-vec4-mul)`, written by hand, is 92ns. A matrix by a matrix is 156ns,
+by hand 113ns, the product is worked out to one place and copied to
+another twice. Most of each is the call from Lisp. The answers are the same
+to the bit.
+
+The GLSL, MSL and SPIR-V back ends have no functions for Lisp yet. That is
+compute on a GPU, and is to come.
+
 ## Using It
 
 ```lisp

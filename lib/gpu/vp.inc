@@ -519,13 +519,16 @@
 				(sv-emit 'vp-jmp (sv-q l_top))
 				(sv-emit 'vp-label (sv-q l_exit)))
 			(:break (sv-emit 'vp-jmp (sv-q (last loops))))
-			(:return (defq regs (sv-expr a))
-				(sv-store regs (first a) ret_offset)
-				(sv-puts regs)
+			(:return (cond
+					;a matrix is copied to where what is given goes
+					((eql (first a) :mat4) (sv-mat-copy (sv-mat a) ret_offset))
+					(:t (defq regs (sv-expr a))
+						(sv-store regs (first a) ret_offset)
+						(sv-puts regs)))
 				(sv-emit 'vp-jmp (sv-q ret_label))))) block))
 
-(defun sv-program (program prefix)
-	; -> (main_param_offsets main_ret_offset)
+(defun sv-program (program prefix &optional entry)
+	; -> (main_param_offsets main_ret_offset), or those of the entry named
 	;the code of a program, after its inputs have been given their slots.
 	;A label that sets its constants and globals, then each function at a
 	;label of its own. The labels start with the prefix, so that the two
@@ -553,7 +556,7 @@
 			(pop code))
 		(sv-emit 'vp-label (sv-q ret_label))
 		(sv-emit 'vp-ret)) funcs)
-	(bind '(& & offsets ret) (some (# (if (eql (first %0) 'main) %0)) finfo))
+	(bind '(& & offsets ret) (some (# (if (eql (first %0) (ifn entry 'main)) %0)) finfo))
 	(list offsets ret))
 
 (defun sv-code-text ()
@@ -1291,6 +1294,118 @@
 	(defq name (sv-name "v" program))
 	(bind '(text frame_size attr_slots out_slots) (sv-vertex-source program name))
 	(list (sv-native name text) frame_size attr_slots out_slots))
+
+(defun sv-func-source (program fname name)
+	; -> text
+	;the VP source of the native function for a function of a file of
+	;functions. It is called from Lisp as any native function is. Its
+	;frame is on the stack, the args are copied to it, and what it gives
+	;is a new real, num or reals
+	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
+		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
+		ret_offset 0 ret_label :nil)
+	(bind '(& ret_type params) (shader-func program fname))
+	(bind '(offsets ret) (sv-program program "u" fname))
+	(defq frame (logand (+ frame_size 15) -16) count (shader-size ret_type)
+		lf (ascii-char 10) tab (ascii-char 9)
+		;an arg that is a reals has to be the right length
+		checks (join (map (lambda ((pname ptype)) (if (> (shader-size ptype) 1)
+			(cat tab "(vp-cpy-ir :r1 +array_begin :r2)" lf
+				tab "(vp-cpy-ir :r2 " (str (* (!) 8)) " :r2)" lf
+				tab "(assign '((:r2 +array_length)) '(:r3))" lf
+				tab "(gotoif '(:r3 /= " (str (shader-size ptype)) ") 'error)" lf) "")) params) "")
+		;each arg to its slots of the frame, the bits as they are
+		copies (map (lambda ((pname ptype) offset)
+			(cat tab "(vp-cpy-ir :r1 " (str (* (!) 8)) " :r2)" lf
+				(if (> (shader-size ptype) 1)
+					(cat tab "(vp-cpy-ir :r2 +array_begin :r2)" lf
+						(join (map (# (cat tab "(vp-cpy-ir :r2 " (str (* %0 8)) " :r3)" lf
+							tab "(vp-cpy-ri :r3 :r13 " (str (+ offset (* %0 8))) ")" lf))
+							(range 0 (shader-size ptype))) ""))
+					(cat tab "(vp-cpy-ir :r2 +num_value :r3)" lf
+						tab "(vp-cpy-ri :r3 :r13 " (str offset) ")" lf)))) params offsets)
+		copies (if (empty? copies) "" (join copies ""))
+		;what it gives, made new
+		gives (cond
+			((> count 1)
+				(cat tab "(call :reals :create :nil '(:r0))" lf
+					tab "(call :reals :set_cap '(:r0 " (str count) ") '(:r0))" lf
+					tab "(call :reals :set_length '(:r0 " (str count) ") '(:r0 _))" lf
+					tab "(vp-lea-i :rsp 0 :r13)" lf
+					tab "(vp-cpy-ir :r0 +array_begin :r2)" lf
+					(join (map (# (cat tab "(vp-cpy-ir :r13 " (str (+ ret (* %0 8))) " :r3)" lf
+						tab "(vp-cpy-ri :r3 :r2 " (str (* %0 8)) ")" lf)) (range 0 count)) "")
+					tab "(vp-cpy-rr :r0 :r1)" lf))
+			(:t (cat tab "(vp-cpy-ir :r13 " (str ret) " :r0)" lf
+				tab "(call " (if (eql ret_type :float) ":real" ":num") " :create '(:r0) '(:r1))" lf)))
+		text (cat
+{(include "lib/asm/func.inc")
+(include "sys/math/class.inc")
+(include "class/num/class.inc")
+(include "class/real/class.inc")
+(include "class/reals/class.inc")
+(include "class/str/class.inc")
+(include "class/array/class.inc")
+(include "class/lisp/class.inc")
+(include "sys/task/class.inc")
+
+(def-func "} name {")
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;(} (str fname) (apply (const cat) (cat (list "") (map (# (cat " " (str (first %0)))) params))) {) -> } (str ret_type) {
+
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 } (str (length params)) {)
+(errorcase
+} checks {)
+
+	(vp-push :r0)
+	(vp-alloc } (str frame) {)
+	(vp-lea-i :rsp 0 :r13)
+	;a constant, so that there is a table of them, a function may have none
+	(fn-const 0)
+	(vp-lea-p 'fn_consts :r12)
+	(vp-cpy-ir :r1 +array_begin :r1)
+} copies {
+	(vp-call 'uh_init)
+	(vp-call '} (str (sym (cat "uf_" fname))) {)
+} gives {
+	(vp-free } (str frame) {)
+	(vp-pop :r0)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+} (sv-code-text) {
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(} (str fname) (apply (const cat) (cat (list "") (map (# (cat " " (str (first %0)))) params))) {)" +error_msg_wrong_types))
+	(signature '(} (if (empty? params) "" (join (map (lambda ((pname ptype)) (cond
+		((> (shader-size ptype) 1) ":REALS") ((eql ptype :float) ":REAL") (":NUM"))) params) " ")) {)))
+
+(def-func-end)
+}))
+	text)
+
+(defun shader-vp-func (program name)
+	; (shader-vp-func program name) -> func
+	;a function of a file of functions, as a native function Lisp calls,
+	;(func arg ...) -> value. A :float is a real, an :int a num, a vector
+	;a reals of its size, a :mat4 a reals of 16, a row at a time, and
+	;what comes back is one of those, made new. It is assembled the first
+	;time this CPU meets it, and kept.
+	(shader-func program name)
+	(defq native_name (cat "lib/gpu/jit/f" (str (logand (hash (str +sv_version name program)) 0xffffffffffff))))
+	(sv-native native_name (sv-func-source program name native_name)))
 
 (defun shader-vp-fill (program)
 	; (shader-vp-fill program) -> (fill frame_size params vary_slots)

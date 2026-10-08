@@ -111,7 +111,9 @@
 (assert-error "const from an input" (sh-src "(definput k :float)" "(defconst c (* k 2.0))" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))"))
 (assert-error "wrong args to function" (sh-src "(defun f :float ((a :float)) (return a))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1))))"))
 (assert-error "recursion" (sh-src "(defun f :float ((a :float)) (return (f a)))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1.0))))"))
-(assert-error "no main" (sh-src "(defun f :float ((a :float)) (return a))"))
+;a file with no main is functions for Lisp to call, tested further on
+(assert-eq "no main, functions" :func (shader-stage (sh-src "(defun f :float ((a :float)) (return a))")))
+(assert-error "a main that is neither kind" (sh-src "(defun main :float ((a :float)) (return a))"))
 (assert-error "wrong main" (sh-src "(defun main :vec3 ((frag :vec2)) (return (vec3 1.0)))"))
 (assert-error "vector input with a default" (sh-src "(definput v :vec2 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))"))
 (assert-error "float input with an int default" (sh-src "(definput k :float 1)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))"))
@@ -1022,3 +1024,74 @@
 (assert-error "SPIR-V, a vertex shader is half of a pair" (shader-spirv vert))
 (assert-error "VP, a pixel shader with varyings shades no tile" (shader-vp pix))
 (assert-error "VP, a vertex shader is not a pixel shader" (shader-vp vert))
+
+(report-header "GPU: shader language, functions for Lisp to call")
+
+;a file with no main is functions. Each is a native function that Lisp
+;calls, and gives what the Lisp reference gives, to the bit
+(defq fn_prog (sh-src
+	"(defconst half 0.5)"
+	"(defglobal twice (* half 4.0))"
+	"(defun mul :mat4 ((a :mat4) (b :mat4)) (* a b))"
+	"(defun place :vec4 ((m :mat4) (p :vec4)) (* m p))"
+	"(defun turn :vec3 ((m :mat4) (n :vec3)) (* m n))"
+	"(defun same :mat4 ((m :mat4)) m)"
+	"(defun wave :float ((x :float) (k :float)) (+ (sin (* x k)) (pow (abs x) 1.5) half))"
+	"(defun mix3 :vec3 ((a :vec3) (b :vec3) (t :float)) (+ (* a (- 1.0 t)) (* b t)))"
+	"(defun bend :float ((x :float)) (wave x twice))"
+	"(defun count :int ((n :int) (x :float)) (defq c n) (for (i 0 5) (if (> x 0.5) (setq c (+ c i)))) c)"
+	"(defun none :float () (* half twice))")
+	fn_a (Mat4x4-rotx (n2r 0.5))
+	fn_b (Mat4x4-frustum (n2r -1) (n2r 1) (n2r 1) (n2r -1) (n2r 2) (n2r 6))
+	fn_p (reals (n2r 0.1) (n2r 0.2) (n2r -3) (n2r 1))
+	fn_n (reals (n2r 0) (n2r 0.6) (n2r 0.8)))
+(assert-eq "no main, so it is functions" :func (shader-stage fn_prog))
+(assert-list-eq "what a function gives and takes" '(place :vec4 ((m :mat4) (p :vec4)))
+	(shader-func fn_prog 'place))
+(assert-eq "all its functions" 9 (length (shader-funcs fn_prog)))
+(each (lambda ((name args))
+	(defq native (shader-vp-func fn_prog name) ref (eval (shader-cpu-func fn_prog name)))
+	(assert-eq (cat "native code and the reference, " (str name))
+		(str (apply ref args)) (str (apply native args))))
+	(list (list 'mul (list fn_a fn_b)) (list 'place (list fn_b fn_p)) (list 'turn (list fn_a fn_n))
+		(list 'same (list fn_b))
+		(list 'wave (list (n2r 0.7) (n2r 3)))
+		(list 'mix3 (list fn_n (reals (n2r 1) (n2r 2) (n2r 3)) (n2r 0.25)))
+		(list 'bend (list (n2r 0.3))) (list 'count (list 5 (n2r 0.9))) (list 'count (list 5 (n2r 0.1)))
+		(list 'none (list))))
+;and what the matrix library gives, written by hand
+(defq fn_mul (shader-vp-func fn_prog 'mul) fn_place (shader-vp-func fn_prog 'place)
+	fn_turn (shader-vp-func fn_prog 'turn))
+(assert-eq "a matrix by a matrix, as the library has it" (str (mat4x4-mul fn_a fn_b)) (str (fn_mul fn_a fn_b)))
+(assert-eq "a matrix by a vec4, as the library has it" (str (mat4x4-vec4-mul fn_b fn_p)) (str (fn_place fn_b fn_p)))
+(assert-eq "a matrix by a vec3, as the library has it" (str (mat4x4-vec3-mul fn_a fn_n)) (str (fn_turn fn_a fn_n)))
+;what comes back is new each time, and the args are as they were
+(defq fn_before (cat fn_b) fn_one (fn_mul fn_a fn_b) fn_two (fn_mul fn_a fn_b))
+(assert-true "a reals of 16 comes back" (and (reals? fn_one) (= (length fn_one) 16)))
+(elem-set fn_one 0 (n2r 99))
+(assert-true "new each time" (not (eql (str fn_one) (str fn_two))))
+(assert-eq "the args are as they were" (str fn_before) (str fn_b))
+(assert-true "a float comes back as a real" (real? ((shader-vp-func fn_prog 'none))))
+(assert-true "an int comes back as a num" (num? ((shader-vp-func fn_prog 'count) 1 (n2r 0))))
+(assert-list-eq "same program, same function" fn_mul (shader-vp-func fn_prog 'mul))
+
+;what is refused, by the language
+(assert-error "no functions at all" (sh-src "(defconst a 1.0)"))
+(assert-error "functions have args, not inputs"
+	(sh-src "(definput a :float 1.0)" "(defun f :float () a)"))
+(assert-error "functions have no attrs" (sh-src "(defattr p :vec3)" "(defun f :float () 1.0)"))
+(assert-error "a function with a matrix is not called by another"
+	(sh-src "(defun f :vec4 ((m :mat4) (p :vec4)) (* m p))"
+		"(defun g :vec4 ((m :mat4) (p :vec4)) (f m p))"))
+(assert-error "no such function" (shader-vp-func fn_prog 'nope))
+(assert-error "a shader is not functions" (shader-vp-func (sh-main "(vec4 1.0)") 'main))
+(assert-error "functions are not a pixel shader" (shader-vp fn_prog))
+(assert-error "functions are not a vertex shader" (shader-vp-vertex fn_prog))
+(assert-error "GLSL, not yet" (shader-glsl fn_prog))
+(assert-error "MSL, not yet" (shader-msl fn_prog))
+(assert-error "SPIR-V, not yet" (shader-spirv fn_prog))
+;and by the native code
+(assert-error "too few args" (fn_mul fn_a))
+(assert-error "a reals of the wrong length" (fn_place fn_b fn_n))
+(assert-error "a number where a reals should be" (fn_place fn_b (n2r 1)))
+(assert-error "a fixed where a real should be" ((shader-vp-func fn_prog 'bend) 0.5))

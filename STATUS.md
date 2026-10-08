@@ -4,6 +4,32 @@
 
 ------
 
+Functions for Lisp to call, in the typed language of the shaders. Compute,
+on the CPU first.
+
+*	A file with no `main` is functions, not a shader. `(shader-vp-func
+	program name)` makes one of them a native function that Lisp calls as
+	any other, `(place matrix point)`. A float is a real, an int a num, a
+	vector a reals, a matrix a reals of 16, and what comes back is one of
+	those, new. Assembled the first time a CPU meets it, kept, and bound by
+	name, as a shader is.
+
+*	It is not Lisp compiled, and is not going to be. The interpreter and
+	the boot image are the core. It is a way in to what a machine has beyond
+	the language, native floating point now, a GPU or an accelerator to
+	come.
+
+*	Such a function can take a matrix and give one. `(shader-func)`,
+	`(shader-funcs)`, a stage of `:func`, and `(shader-cpu-func)`, the Lisp
+	reference, which the native code matches to the bit.
+
+*	On a 2018 x86_64 MacBook Pro a matrix by a vec4 is 98ns a call, by the
+	hand written `(mat4x4-vec4-mul)` 92ns. A matrix by a matrix 156ns, by
+	hand 113ns. The answers are the same to the bit.
+
+*	Tests in `tests/gpu/test_shader.lisp`, run on x86_64 and on a Raspberry
+	Pi 4. `docs/ai_digest/shader_language.md` has it.
+
 The tests are a cache of results. A module is run again only when something
 it stands on has changed.
 

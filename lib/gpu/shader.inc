@@ -7,8 +7,17 @@
 ;	input, (name type default min max)
 ;	const and global, (name type expr)
 ;	func, (name type ((name type) ...) block)
-;	stage, (kind attrs varyings), kind is :pixel or :vertex, an attr and
-;	a varying are (name type)
+;	stage, (kind attrs varyings), kind is :pixel, :vertex or :func, an
+;	attr and a varying are (name type)
+;
+;a file with no main is not a shader, it is functions, kind :func. Each
+;can be made into a native function that Lisp calls, with numbers,
+;vectors and matrices as its args and its value, (shader-vp-func). It is
+;not Lisp compiled. It is a way in to what the machine has that the
+;language can not reach by itself, for work that is all numbers. Such a
+;file has no inputs, attrs or varyings, a function of it can take a
+;matrix and give one, and one that does is for Lisp to call, not another
+;function.
 ;
 ;there are two kinds of shader, each a file of its own. A pixel shader
 ;gives the color of a pixel, its main takes the frag coord. A vertex
@@ -60,8 +69,21 @@
 	(cond ((eql type :mat4) 16) ((shader-dim type)) (1)))
 
 (defun shader-stage (program)
-	; (shader-stage program) -> :pixel | :vertex
+	; (shader-stage program) -> :pixel | :vertex | :func
 	(first (elem-get program 4)))
+
+(defun shader-funcs (program)
+	; (shader-funcs program) -> ((name type ((name type) ...)) ...)
+	;the functions of a program, what each gives and takes
+	(map (# (slice %0 0 3)) (elem-get program 3)))
+
+(defun shader-func (program name)
+	; (shader-func program name) -> (name type ((name type) ...))
+	;a function of a program that Lisp can call
+	(unless (eql (shader-stage program) :func) (sh-err "not functions for Lisp, it has a main" name))
+	(unless (defq f (some (# (if (eql (first %0) name) %0)) (shader-funcs program)))
+		(sh-err "no such function" name))
+	f)
 
 (defun shader-attrs (program)
 	; (shader-attrs program) -> ((name type) ...)
@@ -213,6 +235,9 @@
 			(unless (and (= (length args) (length (third f)))
 					(every (# (eql (first %0) (second %1))) args (third f)))
 				(sh-err "wrong args to function" form))
+			;a matrix is never in registers, so is not handed on
+			(if (or (eql (second f) :mat4) (some (# (eql (second %0) :mat4)) (third f)))
+				(sh-err "a function with a matrix is for Lisp to call" form))
 			(list (second f) :user op args))
 		((sh-op? op)
 			(defq args (map! sh-expr (list form) 1))
@@ -383,14 +408,10 @@
 				(sh-name name form)
 				(setq ret_type (sh-type (third form) form))
 				(defq mark (length syms))
-				;a matrix is an input, a global or a local, it is not
-				;handed to a function or back from one
-				(if (eql ret_type :mat4) (sh-err "a function can not give a matrix" form))
 				(each (# (unless (and (list? %0) (= (length %0) 2))
 						(sh-err "wrong parameter" form))
 					(sh-name (first %0) form)
-					(if (eql (sh-type (second %0) form) :mat4)
-						(sh-err "a function can not take a matrix" form))
+					(sh-type (second %0) form)
 					(push syms (list (first %0) (second %0) :param))) params)
 				(defq body (slice form 4 -1))
 				(if (nempty? body)
@@ -401,11 +422,24 @@
 				(push funcs (list name ret_type params block)))
 			((sh-err "unknown declaration" form)))) forms)
 	;main says which kind it is, a pixel shader's takes the frag coord, a
-	;vertex shader's takes nothing
-	(unless (and (defq f (sh-func 'main)) (eql (second f) :vec4)
-			(or (empty? (third f)) (lmatch? (map (const second) (third f)) '(:vec2))))
-		(sh-err "no (defun main :vec4 ((frag :vec2)) ...), or (defun main :vec4 () ...) for a vertex shader" 'main))
-	(defq kind (if (empty? (third f)) :vertex :pixel))
+	;vertex shader's takes nothing. With no main it is functions for Lisp
+	;to call
+	(defq f (sh-func 'main))
+	(cond
+		((not f)
+			(if (empty? funcs) (sh-err "no functions" 'main))
+			(if (or (nempty? inputs) (nempty? attrs) (nempty? varyings))
+				(sh-err "functions for Lisp have no inputs, attrs or varyings, they have args" 'main)))
+		(:t (unless (and (eql (second f) :vec4)
+					(or (empty? (third f)) (lmatch? (map (const second) (third f)) '(:vec2))))
+				(sh-err "no (defun main :vec4 ((frag :vec2)) ...), or (defun main :vec4 () ...) for a vertex shader" 'main))
+			;a matrix is an input, a global or a local of a shader, it
+			;is not handed to a function or back from one
+			(each (lambda ((name type params &rest _))
+				(if (eql type :mat4) (sh-err "a function can not give a matrix" name))
+				(if (some (# (eql (second %0) :mat4)) params)
+					(sh-err "a function can not take a matrix" name))) funcs)))
+	(defq kind (cond ((not f) :func) ((empty? (third f)) :vertex) (:pixel)))
 	(when (eql kind :pixel)
 		(if (nempty? attrs) (sh-err "a pixel shader has no attrs" (first (first attrs))))
 		(if sets_varying (sh-err "a pixel shader can not set a varying" 'main)))
@@ -414,6 +448,8 @@
 (defun sh-pixel-only (program back_end)
 	;for a back end that has not got the vertex stage yet. It has only
 	;pixel shaders with no varyings and no matrix in them
+	(if (eql (shader-stage program) :func)
+		(sh-err (cat "the " back_end " back end has no functions for Lisp yet") 'main))
 	(when (or (eql (shader-stage program) :vertex) (nempty? (shader-varyings program))
 			(some (# (eql (second %0) :mat4)) (first program)))
 		(sh-err (cat "the " back_end " back end has no vertex stage, varyings or matrix yet") 'main)))

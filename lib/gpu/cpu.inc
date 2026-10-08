@@ -278,9 +278,10 @@
 							(cat (list (const progn)) (cpu-block more flag)))))
 						(cat loop (cpu-block more flag))))))))
 
-(defun cpu-funcs (program)
-	; -> the lambda of main
+(defun cpu-funcs (program &optional entry)
+	; -> the lambda of main, or of the function named
 	;the constants worked out, and each function a lambda
+	(setd entry 'main)
 	(bind '(inputs consts globals funcs &rest _) program)
 	(each (lambda ((name type e))
 		(push cvals (list name (if (cpu-const? (defq v (cpu-expr e))) v (eval v))))) consts)
@@ -288,7 +289,20 @@
 		(push fvals (list name (cat (list (const lambda) (map (const first) params))
 			(if (cpu-loop-return? block) (list (list (const defq) '_rv :nil)) (list))
 			(cpu-block block :nil))))) funcs)
-	(second (some (# (if (eql (first %0) 'main) %0)) fvals)))
+	(second (some (# (if (eql (first %0) entry) %0)) fvals)))
+
+(defun shader-cpu-func (program name)
+	; (shader-cpu-func program name) -> lambda
+	; (lambda arg ...) -> value
+	;a function of a file of functions, as a Lisp lambda. It is what the
+	;native code of (shader-vp-func) is checked by. A float is a real, a
+	;vector a reals, and a matrix a reals of 16, a row at a time.
+	(defq params (map (const first) (third (shader-func program name))))
+	(bind '(inputs consts globals funcs &rest _) program)
+	(defq cvals (list) fvals (list) flag_num 0 entry (cpu-funcs program name))
+	(cat (list (const lambda) params)
+		(map (lambda ((name type e)) (list (const defq) name (cpu-expr e))) globals)
+		(list (cat (list entry) params))))
 
 (defun shader-cpu-vertex (program)
 	; (shader-cpu-vertex program) -> lambda
