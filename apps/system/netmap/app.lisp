@@ -8,6 +8,7 @@
 (import "lib/gpu/tris.inc")
 (import "lib/gpu/gui.inc")
 (import "./app.inc")
+(import "./map.inc")
 
 ;The network as it is, in three dimensions. A ball for each node, the
 ;color of the machine it is on, bigger and whiter the more tasks it has. A
@@ -35,22 +36,9 @@
 	+focal_dist +real_2 +near +focal_dist +far (+ +near +real_4)
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
 	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
-	;the bedspring. How hard nodes push apart, how stiff a link is and how
-	;long it would be, how much a busy link is more, the pull to the
-	;middle, what is lost each step, and the step
-	+k_push (n2r 0.02) +k_spring (n2r 4.0) +rest (n2r 0.5) +k_heat (n2r 1.0)
-	+k_middle (n2r 0.3) +damp (n2r 0.85) +dt (n2r 0.05)
-	;the bytes a link carries between polls that is no more than idle
-	+quiet 4096
 	;the shaders a ball is drawn with
 	+shiny ''("lib/gpu/shaders/shiny_vertex.shader" "lib/gpu/shaders/shiny_lit.shader")
-	;how much of the way a link's flow goes, each poll, to what it carried
-	;in that poll. A fifth, at 4 polls a second, is a second or so
-	+ease (n2r 0.2)
-	+ball_size (n2r 0.09) +bar_size (n2r 0.016)
-	;how far out the furthest node is drawn. The window is 2 from the
-	;middle to an edge, where the middle of it all is
-	+fit (n2r 1.65))
+	+ball_size (n2r 0.09) +bar_size (n2r 0.016))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Map" (0xea19) +event_close)
@@ -101,30 +89,6 @@
 		(. *canvas* :change 0 0 w h)
 		(. *window* :layout)))
 
-(defun rnd ()
-	;somewhere between -1/2 and 1/2
-	(/ (n2r (- (random 1000) 500)) (const (n2r 1000))))
-
-(defun machine-color (system)
-	; (machine-color system) -> (r g b)
-	;the color of a machine, from its id, so it is the same color on every
-	;desktop and every time. The id picks where round the colors it is, and
-	;it is kept bright, and not too deep, it is whitened by load
-	(memoize system (progn
-		(defq h (if (< (length system) +node_id_size) 200
-				(% (logand (logxor (get-long system 0) (>>> (get-long system 0) 17)
-					(get-long system 8) (>>> (get-long system 8) 29)) 0x7fffffff) 360))
-			f (/ (n2r (% h 60)) (const (n2r 60)))
-			lo (const (n2r 0.25)) up (+ lo (* f (const (n2r 0.75))))
-			down (- +real_1 (* f (const (n2r 0.75)))))
-		(case (/ h 60)
-			(0 (list +real_1 up lo))
-			(1 (list down +real_1 lo))
-			(2 (list lo +real_1 up))
-			(3 (list lo down +real_1))
-			(4 (list up lo +real_1))
-			(:t (list +real_1 lo down)))) 31))
-
 (defun share (obj proto)
 	;an object that draws the mesh a first one of its kind was drawn with,
 	;so the scene has the mesh once, and so has the GPU. And is lit as it
@@ -133,6 +97,10 @@
 		:ball (get :ball proto))
 	(if (def? :shaders proto) (def obj :shaders (get :shaders proto)))
 	obj)
+
+(defun make-bar ()
+	;the bar of a new link, map.inc asks for one
+	(share (Scene-object bar_mesh (fixeds 1.0 0.3 0.4 0.6)) bar_proto))
 
 (defun create (key now)
 	; (create key now) -> val
@@ -162,83 +130,6 @@
 					(list (getf link +link_peer_node) (getf link +link_sent)))
 				(range 0 (getf msg +reply_num_links))))
 		(push poll_que (get :child node))))
-
-(defun links-gather ()
-	;the links there are, from what each end says, each once, with how
-	;much mail both ends have put on it. How fast that is growing, taken
-	;over a second or so, is its flow, and its flow set against the most
-	;there has been of late is how hot it is. So heat comes up and goes
-	;down smoothly, a flow that lasts is hotter than a burst, and the
-	;bedspring is not tugged about
-	(defq seen (Fmap 31) now (pii-time))
-	(. global_tasks :each (lambda (key node)
-		(each (lambda ((peer sent))
-			(when (. global_tasks :find peer)
-				(defq name (if (< (cmp key peer) 0) (cat key peer) (cat peer key)))
-				(. seen :insert name (+ sent (ifn (. seen :find name) 0)))))
-			(get :links node))))
-	(defq old links)
-	(setq links (Fmap 31))
-	(. seen :each (lambda (name sent)
-		(unless (defq link (. old :find name))
-			(setq changed :t)
-			(def (setq link (env 1)) :a (slice name 0 +node_id_size) :b (slice name +node_id_size -1)
-				:sent sent :flow +real_0 :heat +real_0
-				:bar (share (Scene-object bar_mesh (fixeds 1.0 0.3 0.4 0.6)) bar_proto)))
-		;the most there has been is of what a poll carried, not of the
-		;flow, or the busiest link would be white the moment it began
-		(defq rate (n2r (max 0 (- sent (get :sent link)))) flow (get :flow link)
-			flow (+ flow (* (- rate flow) +ease)))
-		(setq top_rate (max top_rate rate))
-		(def link :sent sent :flow flow :heat (/ flow top_rate))
-		(. links :insert name link)))
-	(if (/= (. links :size) (. old :size)) (setq changed :t))
-	;the busiest fades, so a burst long gone does not leave all else cold
-	;but not to nothing, or the pings of an idle network would be hot
-	(setq top_rate (max (const (n2r +quiet)) (* top_rate (const (n2r 0.97))))))
-
-(defun spring-step ()
-	;a step of the bedspring
-	(defq nodes (list) forces (list))
-	(. global_tasks :each (lambda (key node) (push nodes node)
-		(push forces (nums-scale (get :pos node) (neg +k_middle)))))
-	;every node pushes every other away
-	(each! (lambda (node force)
-		(defq i (!) p (get :pos node))
-		(each! (lambda (node1 force1)
-			(defq d (nums-sub p (get :pos node1)) d2 (+ (nums-dot d d) (const (n2r 0.0001)))
-				f (nums-scale d (/ +k_push (* d2 (sqrt d2)))))
-			(nums-add force f force)
-			(nums-sub force1 f force1))
-			(list nodes forces) (inc i)))
-		(list nodes forces))
-	;every link pulls its two ends to the length it would be, a hot one
-	;harder and to a shorter length
-	(. links :each (lambda (name link)
-		(when (and (defq a (. global_tasks :find (get :a link)))
-				(defq b (. global_tasks :find (get :b link))))
-			(defq d (nums-sub (get :pos b) (get :pos a)) len (sqrt (+ (nums-dot d d) (const (n2r 0.0001))))
-				warm (+ +real_1 (* +k_heat (get :heat link)))
-				f (nums-scale d (/ (* +k_spring warm (- len (/ +rest warm))) len))
-				fa (elem-get forces (find a nodes)) fb (elem-get forces (find b nodes)))
-			(nums-add fa f fa)
-			(nums-sub fb f fb))))
-	(defq reach (const (n2r 0.01)) middle (reals +real_0 +real_0 +real_0))
-	(each (lambda (node force)
-		(defq vel (get :vel node) pos (get :pos node))
-		(nums-scale (nums-add vel (nums-scale force +dt) vel) +damp vel)
-		(nums-add pos (nums-scale vel +dt) pos)
-		(nums-add middle pos middle))
-		nodes forces)
-	;kept about its own middle, it does not drift off
-	(when (nempty? nodes)
-		(nums-scale middle (/ +real_1 (n2r (length nodes))) middle)
-		(each (lambda (node)
-			(defq pos (get :pos node))
-			(nums-sub pos middle pos)
-			(setq reach (max reach (nums-dot pos pos)))) nodes))
-	;how big it all is, so that it can be drawn to fit, eased
-	(setq zoom (+ zoom (* (- (/ +fit (sqrt reach)) zoom) (const (n2r 0.1))))))
 
 (defun pose-scene ()
 	;put each ball and each bar where the bedspring has it

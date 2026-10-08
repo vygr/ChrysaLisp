@@ -4,6 +4,23 @@
 
 ------
 
+The Network Map's workings in a file of their own, with a test.
+
+*	The links, their heat, the bedspring and the color of a machine are
+	now `apps/system/netmap/map.inc`, with nothing of the window or the
+	drawing in them. The app is the window, the scene and the drawing. No
+	change to what it does, the same pictures come out.
+
+*	`tests/system/test_netmap.lisp`, 26, with no desktop. Two nodes that
+	each say the other are one link, with what both sent. A flow that
+	lasts heats a link a step at a time and it cools when the flow stops.
+	A trickle on a quiet network is not hot. Two linked nodes settle about
+	the spring's length apart, one with no link is pushed further off, the
+	middle stays in the middle, and a hot link is shorter and not of no
+	length. It is a net under the changes Chris has for it.
+
+------
+
 A command that never reads or writes can be aborted.
 
 *	A pipe that aborts its commands, the Terminal's Ctrl-Shift-D, signals
