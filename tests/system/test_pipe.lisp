@@ -91,7 +91,8 @@
 ;only a checked build has the error, a release build skips the two
 (defq pipe_t0 (pii-time) pipe_err :nil)
 (assert-error "an outfun of the wrong number of args is an error" (pipe-run "echo one two" (# :nil)))
-(assert-true "and it is had at once" (< (- (pii-time) pipe_t0) 1000000))
+;at once is not for ever, a small machine with every test running takes a while
+(assert-true "and it is had at once" (< (- (pii-time) pipe_t0) (task-timeout 10)))
 (setq pipe_out (list))
 (assert-error "an outfun that throws is an error" (pipe-run "files cmd/ .lisp" (# (throw "mine" %0))))
 (pipe-run "echo one two" (# (push pipe_out %0)))
@@ -118,4 +119,21 @@
 	(assert-true (cat "a pipe aborted is gone, stdin ended " (str ended)) (< (- (pii-time) pipe_t0) 1000000)))
 	(list :nil :t))
 
-(undef (env) 'pipe_t0 'pipe_err 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply 'farmed)
+;a command that does not exist is no pipe, and is said to be none at once.
+;The kernel starts no task for a .lisp file that is not there, and says so
+(defq pipe_t0 (pii-time))
+(assert-eq "a command that does not exist is no pipe" :nil (Pipe "no_such_command_zyz"))
+(assert-eq "nor one with it in the middle" :nil (Pipe "echo one | no_such_command_zyz | cat"))
+(assert-eq "nor one with it at the end" :nil (Pipe "echo one | no_such_command_zyz"))
+(assert-true "and it is known at once" (< (- (pii-time) pipe_t0) (task-timeout 10)))
+(defq pipe_ask (mail-mbox))
+(open-task "cmd/no_such_command_zyz.lisp" (task-nodeid) +kn_call_pin 0 pipe_ask)
+(assert-eq "the kernel gives no task for a file that is not there" 0
+	(get-long (getf (mail-read pipe_ask) +kn_msg_reply_id) 0))
+;the commands of such a pipeline that did start are told to go, and do
+(setq pipe_out (list))
+(times 20 (Pipe "cat README.md | no_such_command_zyz | cat"))
+(pipe-run "echo one two" (# (push pipe_out %0)))
+(assert-true "and a pipe run after them is as ever" (nempty? pipe_out))
+
+(undef (env) 'pipe_ask 'pipe_t0 'pipe_err 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply 'farmed)

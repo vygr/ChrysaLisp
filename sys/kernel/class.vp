@@ -593,6 +593,11 @@
 		(vpif {length >= 5})
 			(call :sys_str :compare {arg + length - 5, ".lisp"} {length})
 			(vpifnot {length})
+				;a .lisp file, and it has to be there. One that is not is
+				;no task, the id is 0, and whoever asked is told so. A pipe
+				;with a command that does not exist waited on it for ever
+				(call :host_os :pii_stat {arg, @sys/statics/statics.statics_sys_load_stat_buffer} {func})
+				(gotoif {func} 'opt_run_exit)
 				(assign {1} {is_lisp})
 			(endif)
 		(endif)
@@ -622,6 +627,7 @@
 		(endif)
 	(endif)
 
+(vp-label 'opt_run_exit)
 	(exit {id.+net_id_mbox_id, id.+net_id_node_id.+node_id_node1, id.+net_id_node_id.+node_id_node2})
 	(pop-scope)
 	(return)

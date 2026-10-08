@@ -4,6 +4,34 @@
 
 ------
 
+A command that does not exist hung the terminal. Chris found it, in the GUI
+Terminal and then the TUI, `zyz` and Enter.
+
+*	Till 8 September the kernel looked to see that a `.lisp` file was there
+	before it started a task for it, and gave an id of 0 if not, which is
+	what a pipe takes to mean one of its commands could not be started,
+	"Pipe Error !". The change that let a task be a form of Lisp as well as
+	a file wrote that part of the kernel again, and the look was lost. Since
+	then a task was started for a file that was not there, died loading it,
+	and the pipe waited for ever for it to say it was up. The 7.1 and 7.2
+	tags both have it.
+
+*	The look is back, `sys/kernel/class.vp`. A pipe with a command that is
+	not there, alone or among others, is no pipe, at once, and the commands
+	of it that did start are told to go and do.
+
+*	Tests for it in `tests/system/test_pipe.lisp`. There were none, which
+	is how it went a month. Every test passes on the x86_64 Mac and the Pi,
+	and on the emulator. The M4 was in use.
+
+*	The abort key of the GUI Terminal is Ctrl-Shift-D, and Ctrl-C is copy.
+	Claude had asked Chris to test Ctrl-C. An abort does stop a pipeline, 9
+	tasks of `cat README.md | dump` 8 times over gone in a second and a
+	half. It does not stop a command that never reads or writes, it is told
+	and does not look.
+
+------
+
 One sync service for a machine. Chris asked whether its `app.lisp` had the
 check the other services have. It had none, only the `sync` command looked
 before it started one, so a second started any other way would have run
