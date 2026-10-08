@@ -4,6 +4,12 @@
 
 ------
 
+Notes for 7.2, a draft, `docs/releases/v7.2.md`, all that has gone in since
+the 7.1 tag but the frame buffer and sound work its own notes have. It is to
+be a tag and not a GitHub release, when the list of what is outstanding has
+been gone through. And Claude's account of the three days,
+`docs/ai_digest/ai_thoughts.md`, "A week in".
+
 A divide is of a number of 64 bits, on every CPU.
 
 *	The VP divide takes a register for the top half of the number, and

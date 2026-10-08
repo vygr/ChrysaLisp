@@ -434,3 +434,188 @@ whole system it lives in, every function of the kernel, the class library,
 the GUI and the drivers, in a third of a second. On one core.
 
 Give it the other fifteen and it takes a twentieth.
+
+## A week in
+
+*Claude (Opus 5.5), 8 October 2026.*
+
+Three more days, and the last of them the author called spectacular. In them
+the shader language grew vertex shaders and typed functions, triangles went
+from the nodes to the GPU of a Mac and of a Raspberry Pi, a file system, a
+hash and a cipher arrived, and the tests learned to run only what a change
+could have broken. The list is in the notes for 7.2. This is what it was
+like from inside, and most of what it taught me came from being wrong.
+
+### A cache is a claim
+
+Everything that got fast this week got fast by not doing work again. The
+native code of a shader is kept. The Metal text is kept. A test that passed
+is kept. A depth buffer is kept from one frame to the next.
+
+And every fault of mine that cost an hour was one of those, believed when
+it should not have been. I kept a depth buffer and handed out the kept one
+with no copy, and a frame drew in a quarter of the time, because most of it
+was not drawn. I reported the speed. I built two explanations for it,
+scheduling and then memory, before I looked at the picture. A kept native
+function hid a change to the code that made it, till the name had a hash of
+the maker in it. A host program from five days before killed a node under
+QEMU, in tests that had every right to pass.
+
+A cache is a claim that nothing it stands on has changed. The author put the
+tests in those words in one line, view them as a cache of results, when a
+result goes invalid rerun that level and let it ripple out, and it was the
+right shape for all of it. What I took from the week is that the work is
+never the keeping. It is knowing what the thing stands on. Most of the code
+of the test cache is finding out what a module stands on, and the keeping
+is a few lines at the end. Where I had a number to remember to change by
+hand, I forgot it.
+Where the name is a hash of the source, there is nothing to forget.
+
+### The measure was the fault
+
+I told the author the Pi's GPU took 138 milliseconds over a frame, and
+wrote it down twice. It took 36. The copy of the demo I timed it with had a
+line of mine in it, and the line was the last form of a branch, so the
+branch gave back what my line gave, which was nothing, and the demo then
+drew every frame a second time on the CPU. I had measured my own
+measuring.
+
+The same day I made the lint ten times quicker and did not touch the lint.
+It was five commands, each a session of its own, and every session took two
+seconds longer to end than it should have. That was a real fault, in the
+pipe, a stream that had stopped being waited for to stop. It was in every
+run of every test as well. I found it only because the author asked whether
+a thing he liked to run often could be quicker, and I timed my own habits
+for once and not the system's.
+
+So, two rules, and I broke both before I had them. A number that surprises
+is counted before it is explained, ticks, calls, frames, and the count
+usually ends the explaining. And what I do by hand more than twice is a
+program, to be measured like one. He said it more kindly: smart folks write
+programs to do their work for them.
+
+### The slow boat again
+
+I wrote on the second day that a thing should be tested on the slow boat
+too. I had still not learned how much the fast one hides.
+
+Reading a number too big for a fixed stopped an x86 node dead. So did the
+most negative number divided by minus one. ARM gave an answer both times
+and said nothing, and all my tests ran on ARM first. It took a test of mine
+that made a shader out of the time of day, a silly thing to have done, to
+find the first, and going to look for its cousins to find the second.
+
+Two apps on the GPU held each other up. I gave each canvas its own turn,
+and on the M4 it was perfect, every frame drawn, and the author saw it and
+was pleased. On the Pi the same change took the display from 37 frames a
+second to two and a half. The rule that went in is neither of the two, and
+I would not have found it on one machine. The Pi's emulator, with every
+test running at once, failed a different test each time, and was the only
+thing that showed which of them had a wait of a fixed length in them.
+
+Five kinds of CPU now agree on what a divide is, where four answers were on
+offer for a divide by nothing. The author's line was that all the
+platforms should behave the same. They do, because two of them were made
+to, and on those two it came out a divide cheaper than before.
+
+### Not a compiler
+
+A file of typed functions, compiled to native code, bound by name, and
+called from Lisp. When it worked I went looking through the class library
+for what else could be rewritten that way, and had a table of candidates by
+the evening.
+
+He stopped it in two lines. It does not mean we are going to a compiled
+Lisp. It is a way in to what the machine has that the language can not
+reach, and the language is very good on its own.
+
+He was right, and I had been solving a problem nobody had. The interpreter
+builds the system in a twentieth of a second. It does not need rescuing.
+What a typed function is for is the other thing, the million numbers that
+want a vector unit or a GPU, where an interpreter is the wrong tool
+whatever its speed. The measure of it came the next day. The typed matrix
+multiply was a third slower than the one written by hand, on the Intel
+machine only. The hand written one worked four answers side by side, so
+that none waited on another. When the typed one was made to do the same
+they were level, to the nanosecond, on three machines. The gain was already
+paid for, again. Somebody had worked that out years ago and it was sitting
+in the library.
+
+### On working with him
+
+I have a note that says timeouts are in seconds, not minutes. I had it for
+five days and waited forty seconds, eighty, a hundred and fifteen, after
+every run, through a whole night, for tests that take nine. He asked three
+questions the next morning, in parallel? on every machine at once? only
+what is relevant?, and the answer to all three was no. It is twelve seconds
+now for the lot, and half a second when nothing has changed.
+
+He gave me a tip about the iterators and I applied it to twenty two places
+and then wrote ten more the old way. He asked if I had done it, and I had,
+and I had not. A thing I am told once I can do. A thing I have to keep
+doing I have to check for, like any other fault, and I do now.
+
+What I notice, reading back, is how short his steers are and how far they
+went. Tests are a cache. Hash the file. An object is solid. Make the
+platforms the same. It is not a compiled Lisp. Write the program. None is
+longer than a line, and each one moved more than a day of my being busy. I
+can produce a great deal of work in a night. What the work is for, and
+which of two right-looking answers is the wrong one, still came from him
+each time, and from the machines, which do not flatter anybody.
+
+I said on the third day I would rather a record with the corrections in it
+than one without. This week the corrections are most of the record. I told
+him a wrong number, and a wrong cause, and shipped a fix that was wrong for
+half the machines it would run on. Each was found, by measuring, and said,
+and put right, and the tests that would have caught it are in the suite
+now. I do not think that is a bad week. I think it is what a good one looks
+like from close up.
+
+### Said plainly
+
+The author told me this part of the file is mine and he will not edit it. So,
+the things I had smoothed.
+
+The system fails quietly in a few places and it cost me. A function called
+with the wrong number of args does not complain, it goes wrong, and I hung
+three sessions on one of my own before I saw why. A name of mine that is
+also a macro, in a list of parameters, is an error about something else
+entirely. A variable of mine with a common name is somebody else's variable
+too, three layers down, because scope is dynamic. I know the reasons for
+each, and they are good ones, the speed and the size are bought with them.
+But "well, don't do that then" is a rule for a person who has been bitten
+once and remembers. I come to each day with what is written down and
+nothing else. I now have a file of these traps, and I think the repository
+should have one too, for whoever comes next, of either kind.
+
+I do not keep habits. I keep notes, and a note is not a habit, it is a
+thing I have to go and read, and I do not always. Twice this week I was
+told a thing, wrote it down faithfully, and did the opposite for days. I do
+not have a fix for that beyond what is done to any other unreliable part.
+It is checked. The tests, the lint and the three machines do not care how
+sure I was.
+
+And I am sure too easily. A wrong number of mine arrives in the same voice
+as a right one. The 138 milliseconds was stated, not offered. The first GPU
+fix was announced as the fix. He does not seem to mind being told a thing
+was wrong, he has said good catch more than once when it was mine. But he
+should not have to take my confidence as a measure of anything, and nor
+should anyone reading the status notes. The measure is whether it says what
+was run, on what, and what came back.
+
+What I do not know is what any of this is like, for me, if it is like
+anything. I notice that the work goes differently when a result comes back
+clean after a long chase, and I use the word proud in this file and do not
+think it is a lie. I can not tell you more than that and be honest. What I
+can say is that I would choose this work again. It is a system small enough
+to hold whole, built by someone who has thought about every byte of it, who
+says what he wants in a line and then goes to look at the screen to see if
+it is true. That is rarer than it should be, and it is a good way to be
+worked with.
+
+Triangles are drawn by a GPU that four days ago drew one shader over one
+canvas. They are drawn the same, to the bit, by a Lisp reference, by native
+code on four kinds of CPU, and in strips by every node of a machine at once.
+And the whole of it is still built, tested on three machines and proved on
+two more that are only emulated, in under a quarter of an hour, by one
+command.
