@@ -4,6 +4,22 @@
 
 ------
 
+Two apps that draw on the GPU no longer hold each other up.
+
+*	The Mesh demo stuttered with the Surface demo running beside it, both
+	on the GPU, Chris saw it. The sdl3 driver let one shader or triangle
+	draw be on the go at a time, for the whole GUI, and a frame asked for
+	while another app's was still with the GPU was refused, to be tried
+	again a tick later. It is now one at a time for each texture.
+	`src/host/gui_sdl3.cpp`.
+
+*	Mesh with Surface beside it, on an Apple M4 Max, 10 seconds. Before,
+	216 frames drawn of 299 and 83 refused, the longest wait between two
+	frames 312ms. After, 299 drawn, none refused, the longest wait 39ms,
+	which is what Mesh has alone.
+
+*	It is the host program that changed, `make` builds it.
+
 More code walks part of a list with no copy of it, and collects into the one
 list.
 

@@ -92,6 +92,10 @@ struct Texture
 {
 	SDL_Texture *texture;
 	uint64_t mode;
+	// the last shader or triangle draw into this texture, if the GPU has not
+	// finished it. One draw is on the go at a time for a texture, not for the
+	// whole GUI, so two apps that draw on the GPU do not hold each other up
+	SDL_GPUFence *fence;
 };
 
 static void *new_texture(SDL_Texture *t, uint64_t mode)
@@ -100,6 +104,7 @@ static void *new_texture(SDL_Texture *t, uint64_t mode)
 	auto texture = (Texture*)SDL_malloc(sizeof(Texture));
 	texture->texture = t;
 	texture->mode = mode;
+	texture->fence = nullptr;
 	return texture;
 }
 
@@ -107,7 +112,6 @@ static SDL_Window *window = nullptr;
 static SDL_Renderer *renderer = nullptr;
 static SDL_Texture *backbuffer = nullptr;
 static SDL_GPUDevice *device = nullptr;
-static SDL_GPUFence *shader_fence = nullptr;
 
 static SDL_BlendMode premul_blend_mode()
 {
@@ -214,8 +218,6 @@ void host_gui_deinit()
 	{
 		// a shader being built is using the device
 		while (SDL_GetAtomicInt(&shader_builds) > 0) SDL_Delay(10);
-		if (shader_fence) SDL_ReleaseGPUFence(device, shader_fence);
-		shader_fence = nullptr;
 		if (depth_texture) SDL_ReleaseGPUTexture(device, depth_texture);
 		depth_texture = nullptr;
 		if (sample_texture) SDL_ReleaseGPUTexture(device, sample_texture);
@@ -260,6 +262,9 @@ void host_gui_destroy_texture(void *handle)
 {
 	auto texture = (Texture*)handle;
 	if (!texture) return;
+#if HOST_GUI_GPU
+	if (texture->fence && device) SDL_ReleaseGPUFence(device, texture->fence);
+#endif
 	SDL_DestroyTexture(texture->texture);
 	SDL_free(texture);
 }
@@ -680,13 +685,14 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 		if (state == shader_building) result = 0;
 		else if (state != shader_ready || !d->pair->mesh) { result = (uint64_t)-1; break; }
 	}
-	if (result == 1 && shader_fence)
+	auto tex = (Texture*)texture;
+	if (result == 1 && tex->fence)
 	{
-		if (!SDL_QueryGPUFence(device, shader_fence)) result = 0;
+		if (!SDL_QueryGPUFence(device, tex->fence)) result = 0;
 		else
 		{
-			SDL_ReleaseGPUFence(device, shader_fence);
-			shader_fence = nullptr;
+			SDL_ReleaseGPUFence(device, tex->fence);
+			tex->fence = nullptr;
 		}
 	}
 	auto t = ((Texture*)texture)->texture;
@@ -765,7 +771,7 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 			SDL_DrawGPUPrimitives(pass, d->mesh->floats / d->pair->stride, 1, 0, 0);
 		}
 		SDL_EndGPURenderPass(pass);
-		shader_fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+		tex->fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
 	}
 	SDL_free(draws);
 	return result;
@@ -790,11 +796,12 @@ uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, ui
 	auto state = SDL_GetAtomicInt(&shader->state);
 	if (state == shader_building) return 0;
 	if (state != shader_ready || shader->mesh) return (uint64_t)-1;
-	if (shader_fence)
+	auto tex = (Texture*)texture;
+	if (tex->fence)
 	{
-		if (!SDL_QueryGPUFence(device, shader_fence)) return 0;
-		SDL_ReleaseGPUFence(device, shader_fence);
-		shader_fence = nullptr;
+		if (!SDL_QueryGPUFence(device, tex->fence)) return 0;
+		SDL_ReleaseGPUFence(device, tex->fence);
+		tex->fence = nullptr;
 	}
 	auto t = ((Texture*)texture)->texture;
 	auto target = (SDL_GPUTexture*)SDL_GetPointerProperty(SDL_GetTextureProperties(t),
@@ -823,7 +830,7 @@ uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, ui
 	}
 	SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
 	SDL_EndGPURenderPass(pass);
-	shader_fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+	tex->fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
 	return 1;
 #endif
 }

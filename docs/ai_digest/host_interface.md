@@ -186,10 +186,12 @@ the host.
         * `host_gui_shader_draw`: Draw a shader into such a texture, with a
           block of bytes as its inputs, and a `host_gui_rect`, the part of
           the texture to draw, or 0 for all of it. Returns 1 if it drew, and
-          -1 if the shader did not build. One draw is on the go at a time,
-          while the GPU has not finished the last, or the shader is still
-          being built, this draws nothing and returns 0, and the caller tries
-          again later. That is so a GPU that takes long over a frame can be given
+          -1 if the shader did not build. One draw is on the go at a time
+          for a texture, while the GPU has not finished the last into it,
+          or the shader is still being built, this draws nothing and returns
+          0, and the caller tries again later. It is for each texture, not
+          for the GUI, two apps that draw on the GPU do not wait on each
+          other. That is so a GPU that takes long over a frame can be given
           it a strip at a time, with the GUI drawn in between.
 
         * `host_gui_read_texture`: Read a texture back as 32 bit ARGB pixels,
