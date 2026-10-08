@@ -20,8 +20,9 @@ the Boing demo on the other went quiet.
 	its desktop's. A task on a node with no desktop has any one there is.
 	`service/audio/app.lisp`, `service/audio/app.inc`.
 
-*	Not heard. It is written and its choosing of a service is tested, the
-	sound itself wants ears, on a machine with two desktops.
+*	Chris tried it on the M4 with two desktops. Both had sound, and the
+	one left still had it when the other quit. A copy on one desktop was
+	pasted on the other, by way of the host's clipboard.
 
 *	The clipboard was started the same way and is mended the same way,
 	Chris: "It would probably work out best if they each had one for now."
