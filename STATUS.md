@@ -4,6 +4,50 @@
 
 ------
 
+A tree of hashes, and `sync` on it. One number says if two trees are the same.
+
+*	Chris, of what a version is: "can a rescan just know what folders have
+	changed ? and we sum up hash in a cached tree ?", and of that being
+	what the Storage service will want, "exactly !". So it is a library of
+	its own, `lib/hash/tree.inc`, and `sync` is the first to use it.
+
+*	A thing has a name like a path and a hash. A folder has the hash of
+	what is in it, the name, kind and hash of each, and so on up, and the
+	hash of the top is of all of it. Two trees are compared a folder at a
+	time from the top, `(hash-tree-compare)`, going only into folders whose
+	hashes differ. Of 1000 things in 111 folders with one changed, 3
+	folders are looked at. It knows nothing of files.
+	`tests/system/test_hashtree.lisp`, 21.
+
+*	`sync` asks a service for the top of its tree, one message, 64
+	characters back. The same as this one's, and that is all. If not, it
+	asks for the folders that differ, and sends the files. It asked for
+	the whole list each time, 130KB for this tree. The answers are the
+	same as before, to the file, `tests/system/test_sync.lisp`.
+
+*	`sync`, with no options, says of each machine if its tree is the same
+	as this one's, by that number.
+
+*	The service holds the hash of each file from one asking to the next.
+	The file under `obj/` is read once, and is what it starts again from.
+
+*	A sync with nothing to send, M4 to the x64 75 to 120ms, to the Pi
+	190ms. It was 130 to 400. The time is each side looking at its 1,400
+	files, 15ms on the M4 and 110 on the Pi, and making the tree, 6 and
+	60. Less is said, it is not much less work.
+
+*	An older sync is told apart. Asked for its top it does not know what
+	is meant, and nothing is sent to it, "has an older sync, it must be
+	updated another way". And a new service no longer knows the old
+	request for the whole list, so an older sync that asks gets no answer.
+	They did answer each other, and every file was sent.
+
+*	Not done: which of two trees is the newer, which a hash does not say,
+	a folder that is empty, and pull. Those are the release, and Chris's
+	to shape.
+
+------
+
 A machine on a different build is named, it is not just not there.
 
 *	Two machines on different builds can link and then not see each other,

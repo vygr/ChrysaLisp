@@ -50,10 +50,11 @@
 	(each (lambda ((svc id machine root))
 		(defq t1 (pii-time) result (sync-push svc "." rules_text :nil :nil
 			(cat "obj/" (cpu) "/" (abi) "/sync_hashes") (ends-with "/Windows" machine)))
-		(push out (if result
-			(cat "SYNC " machine " " (str (first result)) " sent " (str (second result)) " bytes "
-				(str (elem-get result 3)) " failed " (str (/ (- (pii-time) t1) 1000)) "ms")
-			(cat "SYNC " machine " no answer")))
+		(push out (cond
+			((not result) (cat "SYNC " machine " no answer"))
+			((eql result :old) (setq result :nil) (cat "SYNC " machine " no answer, it has an older sync"))
+			(:t (cat "SYNC " machine " " (str (first result)) " sent " (str (second result)) " bytes "
+				(str (elem-get result 3)) " failed " (str (/ (- (pii-time) t1) 1000)) "ms"))))
 		;what was deleted here is removed there, those files and no others
 		(when (and result (nempty? gone))
 			(defq removed 0)

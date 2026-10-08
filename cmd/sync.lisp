@@ -72,6 +72,8 @@
 						(or (eql (os) 'Windows) (ends-with "/Windows" machine))))
 					(cond
 						((not result) (print (slice id 0 8) " " machine " did not answer"))
+						((eql result :old) (print (slice id 0 8) " " machine
+							" has an older sync, it must be updated another way, and its sync started again"))
 						(:t (bind '(sent bytes removed failed send gone remoded) result)
 							(when (or opt_v opt_c)
 								(each (# (print "  " (if opt_c "differs " "sent ") %0)) send)
@@ -87,6 +89,24 @@
 								", " (str (/ (- (pii-time) t0) 1000)) "ms"))))
 					targets))
 			(:t (if (empty? services) (print "No machine takes a sync. Run sync -a on one that will."))
+				;is each one's tree the same as this one's ? One number from
+				;each says, the top of its tree of hashes
+				(defq rules_text (ifn (load (cat opt_r "/.gitignore")) "")
+					kept (if (eql opt_r ".") (cat "obj/" (cpu) "/" (abi) "/sync_hashes"))
+					mine (if (nempty? there) (Fmap 3)))
 				(each (lambda ((svc id machine root))
-					(print (slice id 0 8) " " machine " " root (if (eql id me) " (this machine)" "")))
+					(print (slice id 0 8) " " machine " " root
+						(cond
+							((eql id me) " (this machine)")
+							(:t (defq no_modes (or (eql (os) 'Windows) (ends-with "/Windows" machine))
+									theirs (sync-root svc rules_text no_modes 20000000))
+								;my own top, worked out the once, with modes or without
+								(unless (. mine :find no_modes)
+									(. mine :insert no_modes (hash-tree-root
+										(sync-tree opt_r (sync-rules rules_text) kept no_modes))))
+								(cond
+									((not theirs) ", no answer")
+									((eql theirs :old) ", an older sync")
+									((eql theirs (. mine :find no_modes)) ", the same as this one")
+									(:t ", differs from this one"))))))
 					services)))))

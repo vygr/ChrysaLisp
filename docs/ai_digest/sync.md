@@ -13,8 +13,9 @@ sync -t all       ; send it
 
 ```
 > sync
-C96A1B10 x86_64/Darwin .
-D649CA0E arm64/Linux .
+8921786E arm64/Darwin . (this machine)
+C96A1B10 x86_64/Darwin ., differs from this one
+D649CA0E arm64/Linux ., differs from this one
 > sync -t all -c
   differs docs/ai_digest/test_cache.md
   differs tests/new_file.txt
@@ -28,10 +29,28 @@ D649CA0E arm64/Linux 2 sent, 6065 bytes, 0 removed, 322ms
 ## How
 
 Two people with notepads who meet, compare pages, and copy across what the
-other has not got. Each side lists its files, a name, a size and a SHA-256
-of each. The lists are compared, and only a file that is not there, or is
-not the same, goes over. It is the model the Net services make their mesh
-with, `service/net/mesh.inc`, and the one a storage service would use.
+other has not got. It is the model the Net services make their mesh with,
+`service/net/mesh.inc`, and the one a storage service would use.
+
+Each side has a tree of hashes of its files, `lib/hash/tree.inc`. A file
+has its SHA-256. A folder has the hash of what is in it, the name and the
+hash of each file and each folder. So the hash of the top is of everything
+below it, one number that says what the whole tree is.
+
+The two tops are compared first. If they are the same the trees are, and
+that is all that is said, 64 characters each way for 1,400 files. If they
+differ the folders are compared from the top down, and only the folders
+whose hashes differ are gone into. One file changed five folders down is
+six folders asked for, a few hundred bytes each. Only a file that is not
+there, or is not the same, then goes over.
+
+`sync` with no options asks each machine for its top and says if its tree
+is the same as this one's. That number is the version of a tree, the same
+on every machine that has the same files.
+
+The tree of hashes is a library of its own. It knows nothing of files, a
+thing is a name like a path, a hash, and a word more, the mode here. It is
+there for what else has trees to compare.
 
 It all goes as mail between the two machines, by whatever links there are.
 No task is started on the other machine.
@@ -99,8 +118,11 @@ The hash of a file is kept, with its time and size, in
 whose time or size has changed, or that changed in the last two seconds.
 The whole tree, 146MB in 1,400 files, is first listed in 1 second on a 2018
 x86_64 MacBook Pro and 3.3 seconds on a Raspberry Pi 4. After that it is
-15ms on an M4 and 0.1 seconds on the Pi, and a sync with nothing to send is
-0.2 seconds from start to end.
+15ms on an M4 and 0.1 seconds on the Pi, the tree of hashes is 6ms and
+0.06 seconds more, and a sync with nothing to send is 0.1 to 0.2 seconds
+from start to end. What is said between the two is then a hash each way.
+It was the whole list each time, 130KB. The service holds the hashes from
+one asking to the next, the file is what it starts again from.
 
 A file goes over 128KB at a time, each part waited for before the next is
 sent, and the service refuses a part that is not the next. So the parts
@@ -117,12 +139,27 @@ see `STATUS.md`.
 
 * `(sync-rules text) -> rules`, the rules of a `.gitignore`.
 * `(sync-walk root rules) -> paths`, the files of a tree.
-* `(sync-list root rules [kept]) -> ((path size hash mode) ...)`.
-* `(sync-diff mine theirs) -> (send remove remode)`.
+* `(sync-list root rules [kept live]) -> ((path size hash mode) ...)`.
+* `(sync-tree root rules [kept no_modes live]) -> tree`, the tree of hashes.
+* `(sync-root svc rules_text [no_modes wait]) -> :nil | :old | hash`, the
+  top of the tree a service has.
 * `(sync-services [name]) -> ((mbox system_id machine root) ...)`, who will
   take a sync.
 * `(sync-push svc root rules_text [check remove kept no_modes])
-  -> :nil | (sent bytes removed failed send gone remoded)`.
+  -> :nil | :old | (sent bytes removed failed send gone remoded)`.
+
+`lib/hash/tree.inc`
+
+* `(hash-tree things) -> tree`, of things each `(path hash [meta])`.
+* `(hash-tree-root tree) -> hash`, the top.
+* `(hash-tree-kids tree folder) -> kids`, what is in a folder, each
+  `(name kind hash meta)`.
+* `(hash-tree-text kids) -> str` and `(hash-tree-read text) -> kids`, a
+  folder as it goes in a message.
+* `(hash-tree-compare mine theirs)
+  -> (differ meta gone into only_mine only_theirs)`, one folder against
+  the same folder of another tree.
+* `(hash-tree-under tree folder) -> paths`, all that is below a folder.
 
 `service/sync/app_impl.lisp` is the service, `cmd/sync.lisp` the command.
 
@@ -149,6 +186,9 @@ alone.
 * Pull. A machine that sees a newer tree on a neighbour and fetches it, so
   an update spreads from machine to machine and nobody holds the list of
   who is to have it. This is the aim, push is the first step.
-* A version, to know a newer tree by, and a restart when one has arrived.
+* Which of two trees is the newer. The top of a tree says if two are the
+  same, not which came first. And a restart when a newer one has arrived.
 * A key, so that only a machine that has it can write.
 * A folder that is empty, and a folder that is left empty by a remove.
+* An older sync. One from before the tree of hashes is told apart, and
+  nothing is sent to it. It has to be updated another way, once.

@@ -1699,6 +1699,71 @@ start children till the herd is the size the worker nodes call for
 (handler state page line) -> state
 ```
 
+### hash-tree
+
+```code
+(hash-tree things) -> tree
+
+the tree of things, each (path hash [meta]). A map, the path of a
+folder, "" the top, to (hash kids), the kids in the order of their
+names. A tree of nothing has a top, with nothing in it
+```
+
+### hash-tree-compare
+
+```code
+(hash-tree-compare mine theirs) -> (differ meta gone into only_mine only_theirs)
+
+one folder of mine against the same folder of theirs, both as kids.
+The names of: things I have that they have not, or not the same.
+Things that are the same but for the meta, each (name meta) with
+mine. Things they have and I have not. Folders we both have that are
+not the same, to go into. Folders only I have, and folders only they
+have. A name that is a thing on one side and a folder on the other is
+both a thing and a folder that one has and the other has not
+```
+
+### hash-tree-kids
+
+```code
+(hash-tree-kids tree folder) -> kids
+
+what is in a folder, nothing if there is no such folder
+```
+
+### hash-tree-read
+
+```code
+(hash-tree-read text) -> kids
+
+a folder from its text. A name may have spaces in it, it is last
+```
+
+### hash-tree-root
+
+```code
+(hash-tree-root tree) -> hash
+
+the hash of the top, which is of all of it
+```
+
+### hash-tree-text
+
+```code
+(hash-tree-text kids) -> str
+
+a folder as text, a line each, in the order of their names. It is
+what a folder's hash is the hash of, and what goes in a message
+```
+
+### hash-tree-under
+
+```code
+(hash-tree-under tree folder) -> paths
+
+the path of every thing in a folder and in the folders below it
+```
+
 ### held-mouse-id
 
 ```code
@@ -3826,13 +3891,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args
@@ -4165,16 +4230,6 @@ the VP source of the native function that places vertices
 (sym? form) -> :t | :nil
 ```
 
-### sync-diff
-
-```code
-(sync-diff mine theirs) -> (send remove remode)
-
-the paths to send, not there or not the same, the paths that are
-there and not here, and the paths that are the same but for their
-mode, each with the mode it should have
-```
-
 ### sync-hear
 
 ```code
@@ -4216,26 +4271,15 @@ anything else something else, a link for one. :nil if it is not there
 ### sync-list
 
 ```code
-(sync-list root rules [kept]) -> ((path size hash mode) ...)
+(sync-list root rules [kept live]) -> ((path size hash mode) ...)
 
 the files of a tree, with the size and the SHA-256 of each. With a
 file to keep them in, a hash is not worked out again for a file whose
 time and size are as they were. One changed in the last two seconds is
-always hashed, its time may not change if it is changed again
-```
-
-### sync-list-read
-
-```code
-(sync-list-read text) -> ((path size hash mode) ...)
-```
-
-### sync-list-text
-
-```code
-(sync-list-text entries) -> str
-
-a list as it goes in a message, a line a file
+always hashed, its time may not change if it is changed again.
+live is a map to hold them in between one call and the next, for a
+task that stays, a service. The file is then read the once, and is
+what is there when the task starts again
 ```
 
 ### sync-push
@@ -4243,14 +4287,24 @@ a list as it goes in a message, a line a file
 ```code
 (sync-push svc root rules_text [check remove kept no_modes])
 
-	-> :nil | (sent bytes removed failed send gone remoded)
+	-> :nil | :old | (sent bytes removed failed send gone remoded)
 make the tree a sync service has the same as the one under root. With
 check nothing is changed there. With remove, what is there and not
 here is removed. send and gone are the paths that differ, and the ones
 only there. A file is given the mode it has here, who may read, write
 and run it, and one that is the same but for its mode has that set,
 unless no_modes, for a host that has no such thing. :nil if the
-service does not answer
+service does not answer, :old if it is from before there were trees
+```
+
+### sync-root
+
+```code
+(sync-root svc rules_text [no_modes wait]) -> :nil | :old | hash
+
+the top of the tree a sync service has, by those rules. It works it
+out when asked, and keeps it to be asked of its folders. :nil if it
+does not answer, :old if it is a sync from before there were trees
 ```
 
 ### sync-rules
@@ -4295,6 +4349,16 @@ the machines that will take a sync, as their services say
 (sync-tell svc reply_mbox kind data [at total mode])
 
 a message to a sync service
+```
+
+### sync-tree
+
+```code
+(sync-tree root rules [kept no_modes live]) -> tree
+
+the tree of hashes of the files under a root. The mode of a file is
+part of it, unless no_modes, for a host that has no such thing. kept
+and live are as (sync-list) has them
 ```
 
 ### sync-walk

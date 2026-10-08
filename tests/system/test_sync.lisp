@@ -52,16 +52,6 @@
 	(sync-inside? "tests/scratch/sync_fence" "real/file.txt" (Fset 3)) :t)
 (pii-remove "tests/scratch/sync_fence/real/file.txt")
 
-;what differs
-(defq sy_diff (sync-diff '(("a" 1 "H1" 420) ("b" 2 "H2" 420) ("c" 3 "H3" 420) ("e" 5 "H5" 493))
-	'(("a" 1 "H1" 420) ("b" 2 "XX" 493) ("d" 4 "H4" 420) ("e" 5 "H5" 420))))
-(assert-list-eq "what is not the same, and what is not there, is sent" '("b" "c") (first sy_diff))
-(assert-list-eq "what is only there" '("d") (second sy_diff))
-(assert-list-eq "what is the same but for its mode, a changed one is sent whole" '("e" 493) (first (third sy_diff)))
-(assert-eq "and only that" 1 (length (third sy_diff)))
-(assert-list-eq "a list as text and back"
-	'("with space.txt" 12 "ABCD" 493) (first (sync-list-read (sync-list-text '(("with space.txt" 12 "ABCD" 493))))))
-
 ;a tree, a service with a root of its own, and a push from one to the other
 (defq sy_src "tests/scratch/sync_src" sy_dst "tests/scratch/sync_dst" sy_name "*SyncTest"
 	sy_big (apply (const cat) (map (# (cat "line " (str %0) (ascii-char 10))) (range 0 30000))))
@@ -118,6 +108,27 @@
 (setq sy_res (sync-push sy_svc sy_src sy_text))
 (assert-eq "a push again sends nothing" 0 (first sy_res))
 
+;it has a file this one has not, so the tops of the two are not the same
+(defq sy_top (hash-tree-root (sync-tree sy_src (sync-rules sy_text))))
+(assert-true "one file more there, and the tops of the two trees differ" (nql sy_top (sync-root sy_svc sy_text)))
+;a change three folders down is found from the top
+(save "deep" (cat sy_src "/a/b/c/deep.txt"))
+(save "deep" (cat sy_dst "/a/b/c/deep.txt"))
+(save "side" (cat sy_dst "/a/b/side.txt"))
+(save "only there" (cat sy_dst "/there/only/x.txt"))
+(save "deeper" (cat sy_src "/a/b/c/deep.txt"))
+(setq sy_res (sync-push sy_svc sy_src sy_text :t))
+(assert-list-eq "a file changed three folders down is what differs" '("a/b/c/deep.txt") (elem-get sy_res 4))
+(assert-list-eq "and what is only there, in a folder we both have and in one only it has"
+	'("a/b/side.txt" "extra.txt" "there/only/x.txt") (elem-get sy_res 5))
+(setq sy_res (sync-push sy_svc sy_src sy_text))
+(assert-eq "it is sent" "deeper" (load (cat sy_dst "/a/b/c/deep.txt")))
+(assert-eq "and no other" 1 (first sy_res))
+(each (# (pii-remove %0)) (list (cat sy_src "/a/b/c/deep.txt") (cat sy_dst "/a/b/c/deep.txt")
+	(cat sy_dst "/a/b/side.txt") (cat sy_dst "/there/only/x.txt")))
+(setq sy_res (sync-push sy_svc sy_src sy_text :t))
+(assert-eq "taken away again, nothing differs" 0 (length (elem-get sy_res 4)))
+
 ;the mode of a file, who may read, write and run it. Not on a host that has none
 (unless (eql (os) 'Windows)
 	(defun sy-mode (file) (logand (third (pii-fstat file)) 511))
@@ -147,6 +158,11 @@
 (assert-eq "with remove, what is only there goes" 1 (third sy_res))
 (assert-true "it has gone" (not (pii-fstat (cat sy_dst "/extra.txt"))))
 (assert-eq "but not what the rules leave out" "theirs" (load (cat sy_dst "/obj/built.txt")))
+;now the two are the same, and one number from each says so
+(setq sy_top (hash-tree-root (sync-tree sy_src (sync-rules sy_text))))
+(assert-eq "the top of the service's tree, by the same rules, is the top of this one" sy_top
+	(sync-root sy_svc sy_text))
+(assert-true "by other rules it is not" (nql sy_top (sync-root sy_svc "")))
 
 ;what the service will not do
 (defq sy_mbox (mail-mbox))
@@ -166,8 +182,8 @@
 (sync-tell sy_out sy_mbox +sync_type_put (cat "sync_outside_probe.txt" (ascii-char 10) "out") 0 3)
 (assert-eq "a service with a root outside the tree refuses a file" -1 (first (sync-hear sy_mbox)))
 (assert-true "and it is not written" (not (pii-fstat "/tmp/sync_outside_probe.txt")))
-(sync-tell sy_out sy_mbox +sync_type_list "")
-(assert-eq "and will not list it" -1 (first (sync-hear sy_mbox)))
+(sync-tell sy_out sy_mbox +sync_type_root "")
+(assert-eq "and will not say what is there" -1 (first (sync-hear sy_mbox)))
 (sync-tell sy_out sy_mbox +sync_type_quit "")
 (sync-hear sy_mbox)
 
@@ -175,6 +191,25 @@
 (assert-eq "so is a mode set on one" -2 (first (sync-hear sy_mbox)))
 (sync-tell sy_svc sy_mbox 99 "")
 (assert-eq "and what it does not know" -1 (first (sync-hear sy_mbox)))
+(sync-tell sy_svc sy_mbox +sync_type_list "")
+(assert-eq "the whole list, as an older sync asks for it, it no longer knows" -1 (first (sync-hear sy_mbox)))
+(sync-tell sy_svc sy_mbox +sync_type_put (cat "late2.txt" (ascii-char 10) "x") 0 1)
+(sync-hear sy_mbox)
+(sync-tell sy_svc sy_mbox +sync_type_folder "")
+(assert-eq "a folder asked for with no tree worked out, after a write, is refused" -5 (first (sync-hear sy_mbox)))
+(pii-remove (cat sy_dst "/late2.txt"))
+
+;a sync from before there were trees knows nothing of a top, and is told apart
+(defq sy_old (mail-mbox))
+(open-task (str `(progn
+		(defq mbox (mail-mbox))
+		(mail-send (hex-decode ,(hex-encode sy_old)) mbox)
+		(times 2 (defq msg (mail-read mbox))
+			(mail-send (slice msg 0 +net_id_size) (char -1 +int_size)))))
+	(task-nodeid) +kn_call_pin 0 (mail-mbox))
+(defq sy_old_svc (mail-read-timeout sy_old (task-timeout 5)))
+(assert-eq "its top is asked for and it is known to be old" :old (sync-root sy_old_svc sy_text))
+(assert-eq "and a push to it sends nothing, and says so" :old (sync-push sy_old_svc sy_src sy_text))
 
 (sync-tell sy_svc sy_mbox +sync_type_quit "")
 (sync-hear sy_mbox)
@@ -185,4 +220,4 @@
 	(progn (sync-tell sy_svc sy_mbox +sync_type_list "") (sync-hear sy_mbox 300000)))
 
 (sy-clear sy_src) (sy-clear sy_dst)
-(undef (env) 'sy_rules 'sy_diff 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_wait 'sy_svc 'sy_res 'sy_mbox 'sy_out)
+(undef (env) 'sy_rules 'sy_top 'sy_old 'sy_old_svc 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_wait 'sy_svc 'sy_res 'sy_mbox 'sy_out)
