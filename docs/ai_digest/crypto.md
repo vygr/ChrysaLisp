@@ -60,6 +60,34 @@ The parts can be of any size, the hash is the same as that of the whole.
 HMAC of RFC 2104, the hash of a str with a key, 32 bytes, that only one who
 has the key can make or check. It is SHA-256 twice over, and is all Lisp.
 
+### A key from a password
+
+```lisp
+(import "lib/crypto/pbkdf2.inc")
+
+(defq salt (random-bytes 16)
+	key (pbkdf2-sha256 password salt 100000 32))
+```
+
+`(pbkdf2-sha256 password salt count size) -> str`, PBKDF2 of RFC 8018 with
+the HMAC above, `size` bytes to use as a key. The same four give the same
+key on any machine.
+
+A password is short and can be guessed, so the key is made slow to work
+out, `count` times round. That costs the one who knows the password once,
+and one who is guessing it every guess. 100,000 times round is 0.48 seconds
+on an Apple M4 Max. The salt is not secret, it is kept with what the key is
+for, and is there so the same password is not the same key twice, and so a
+table of guesses made for one is no use for another.
+
+The hash of the key with each of the two pads of HMAC is the same every
+time round, so it is done the once, and each time round is two calls of the
+native code and no more. That is near 4 times quicker than calling
+`(hmac-sha256)` each time. It calls `(task-slice)` every 1,024 times round.
+
+It is all Lisp but the hash. It does not make guessing dear in memory, as
+scrypt and Argon2 do, only in time.
+
 ### The native code
 
 ```lisp
@@ -95,6 +123,10 @@ the edges of a block, where the padding changes. A str added a part at a
 time, in parts of nine sizes. What the native code refuses. And for HMAC
 the test cases of RFC 4231. The answers it is checked against were made with
 Python's `hashlib` and `hmac`.
+
+`tests/crypto/test_pbkdf2.lisp`. The test cases that go round with RFC 6070,
+for SHA-256, a key of more than one block of the hash, a password longer
+than a block, and that the size asked for is the size had.
 
 ## ChaCha20 With Poly1305
 
@@ -222,7 +254,6 @@ now. That is built here for Windows and links, and has not been run there.
 
 ## Not here yet
 
-* A way to make a key from a password.
 * A check for a CPU that can not load a number from an address that is not
   a multiple of its size. The native code loads 4 and 8 bytes at a time
   from wherever in a str it is told to start.
