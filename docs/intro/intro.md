@@ -477,8 +477,9 @@ link -a
 
 Each machine finds the others and ends with one link to each. No machine is
 on the way between two others, and of each pair only one makes the link, the
-one with the lower system id. If a link is lost it is made again. Nothing
-is asked of an application, it mails a service by name as it always did.
+one with the lower system id. If a link is lost it is made again, and a
+machine that has gone is forgotten after half a minute. Nothing is asked of
+an application, it mails a service by name as it always did.
 
 A machine that can not hear the beacons, on another subnet say, joins by
 the address of any one machine, and is then linked to all of them:

@@ -40,6 +40,11 @@
 (("-v" "--verbose") ,(opt-flag 'opt_v))
 ))
 
+(defun start-mesh (udp)
+	;the service makes a mesh, or says why not
+	(unless (eql (net-discover-rpc udp) 0)
+		(print "link: no auto discovery or mesh. The Net service could not start it, the port may be in use, or the boot image is older than the source, make all boot.")))
+
 (defun start-link (target verbose)
 	(when verbose (print "Starting network link: " target))
 	(net-link-rpc target))
@@ -56,11 +61,11 @@
 				(net-beacon-rpc opt_l)))
 		(when opt_m
 			(when opt_v (print "Making a mesh with the peers of each link"))
-			(net-discover-rpc :nil))
+			(start-mesh :nil))
 		(cond
 			((and opt_a (not opt_l))
 				(when opt_v (print "Starting LAN auto-discovery listener..."))
-				(net-discover-rpc))
+				(start-mesh :t))
 			((<= (length args) 1)
 				(unless (or opt_l opt_m)
 					;from stdin

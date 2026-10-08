@@ -4,6 +4,37 @@
 
 ------
 
+The mesh forgets a machine that has gone, and what a lost link does.
+
+*	A peer is alive while it is heard from, its beacon or its hello, or
+	while another service says it has heard it. After 30 seconds of nothing
+	its address is let go of and it is not dialled. A service only passes on
+	the peers it has heard itself, so word of one that has gone stops going
+	round. It was dialled every 10 seconds for as long as the service ran.
+
+*	A dial that brings no link is tried again after 10 seconds, then 20,
+	40 and 80.
+
+*	Tried on the three machines. The x86_64 Mac stopped, the other two
+	carried on as a pair. It was started again 20 seconds later, a new
+	system to them, and was back with a link to each 15 seconds after that.
+
+*	A cut of the wire does not lose a link. The Pi's route to the x86_64
+	Mac was taken away for 6 seconds, and for 40. For 6 one probe timed out
+	and nothing else. For 40 each saw the other's nodes go, and come back
+	within seconds of the route, over the same TCP connection, which the
+	host had kept. No second link was made, the kernel still listed the
+	first. So the redial of a lost link is in the code and in the tests of
+	the logic, and has not been seen to happen, there was no tool on the Pi
+	to reset a connection with.
+
+*	The Net service starts on a boot image from before `(net-links)`. A
+	session started between new source and `make all boot` printed an error
+	of an `ffi` each time. It runs with no mesh there, and `link -a` or
+	`link -m` says so, and to `make all boot`.
+
+------
+
 The Net services make a mesh between themselves. Chris's idea, a TCP link
 was treated as a wire between two machines and it is not one.
 
@@ -38,8 +69,7 @@ was treated as a wire between two machines and it is not one.
 	on the three machines by hand, there is no test in the suite that has
 	more than one machine.
 
-*	Not done. A peer that has gone is not forgotten, it is dialled every 10
-	seconds for as long as the service runs. Every pair is linked however
+*	Not done. Every pair is linked however
 	many machines there are, there is no limit. Only the node with the Net
 	service has the links, the other nodes of a machine reach it over their
 	own. And anything that speaks the beacon is let in.

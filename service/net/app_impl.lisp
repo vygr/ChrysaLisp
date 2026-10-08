@@ -26,7 +26,10 @@
 ; (net-udp-send handle host port str) -> bytes_sent
 (ffi "service/net/lisp_udp_recv" net-udp-recv)
 ; (net-udp-recv handle max_len) -> (data ip port) | :nil
-(ffi "service/net/lisp_links" net-links)
+;a boot image from before this call was written has not got it. The
+;service still runs there, with no mesh, and says why if one is asked for.
+;It is the state a machine is in between new source and make all boot
+(defq *net_can_mesh* (eql :there (catch (progn (ffi "service/net/lisp_links" net-links) :there) :not)))
 ; (net-links) -> (system_id ...)
 
 (bits +net_poll 0
@@ -142,12 +145,12 @@
 									(+net_rpc_reply_handle 0)
 									(+net_rpc_reply_status -1)))))
 						(+net_rpc_type_hello
-							(if mesh (mesh-heard mesh_peers my_sys_id (slice msg +net_rpc_hello_text -1))))
+							(if mesh (mesh-heard mesh_peers my_sys_id (slice msg +net_rpc_hello_text -1) (pii-time))))
 						(+net_rpc_type_discover
-							(setq mesh :t)
-							(when (and (= disco_socket 0) (/= (getf msg +net_rpc_discover_udp) 0))
+							(setq mesh *net_can_mesh*)
+							(when (and mesh (= disco_socket 0) (/= (getf msg +net_rpc_discover_udp) 0))
 								(setq disco_socket (net-udp-bind +disco_udp_port)))
-							(if (or (> disco_socket 0) (= (getf msg +net_rpc_discover_udp) 0))
+							(if (and mesh (or (> disco_socket 0) (= (getf msg +net_rpc_discover_udp) 0)))
 								(mail-send reply_id (setf-> (str-alloc +net_rpc_reply_size)
 									(+net_rpc_reply_handle disco_socket)
 									(+net_rpc_reply_status 0)))
@@ -184,7 +187,7 @@
 									(unless (eql peer_inst_id my_inst_id)
 										(mesh-beacon mesh_peers peer_sys_id src_ip tcp_port
 											(and (> (length parts) 4) (eql (elem-get parts 4) "D"))
-											(nempty? beacon_ports)))))))
+											(nempty? beacon_ports) now))))))
 					; The mesh. A link to each peer there is none to, and a hello to
 					; each of the other services
 					(when (and mesh (> (- now last_mesh_time) +beacon_interval))
@@ -200,7 +203,7 @@
 						(defq hello (cat (setf-> (str-alloc +net_rpc_hello_size)
 								(+net_rpc_type +net_rpc_type_hello)
 								(+net_rpc_reply_id (task-mbox)))
-							(mesh-hello mesh_peers my_sys_id)))
+							(mesh-hello (mesh-forget mesh_peers now) my_sys_id now)))
 						(each (lambda (entry)
 							(defq mbox (hex-decode (second (split entry ","))))
 							(unless (eql mbox (task-mbox)) (mail-send mbox (cat hello))))
