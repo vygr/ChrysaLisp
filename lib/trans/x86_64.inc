@@ -342,10 +342,13 @@
 	;The most negative number by -1 has an answer that does not fit. So
 	;-1 is not divided by, the number is negated, which for that one
 	;number is itself, and nothing is left over.
+	;And it is a number of 64 bits that is divided, as the other CPUs
+	;have it, they have no divide of 128. What is in rdx when it gets
+	;here is not looked at, the sign of rax is put there, cqo.
 	;	test s, s / jz zero / cmp s, -1 / jne div
 	;	neg rax / xor edx, edx / jmp done
 	;zero:	mov rdx, rax / xor eax, eax / jmp done
-	;div:	idiv s
+	;div:	cqo / idiv s
 	;done:
 	(emitm-byte (x64-rex 1 (>> s 3) 0 (>> s 3)) 0x85 (x64-modrm 3 s s)
 		0x74 13
@@ -353,20 +356,23 @@
 		0x75 14
 		(x64-rex 1 0 0 0) 0xf7 0xd8
 		0x31 0xd2
-		0xeb 10
+		0xeb 12
 		(x64-rex 1 0 0 0) 0x89 0xc2
 		0x31 0xc0
-		0xeb 3
+		0xeb 5
+		(x64-rex 1 0 0 0) 0x99
 		(x64-rex 1 0 0 (>> s 3)) 0xf7 (x64-modrm 3 7 s)))
 
 (defun x64-div (s)
-	;rdx:rax divided by s, not signed. By 0, the answer is 0 and what is
-	;left over is the number.
-	;	test s, s / jz zero / div s / jmp done
+	;rax divided by s, not signed. By 0, the answer is 0 and what is left
+	;over is the number. It is a number of 64 bits that is divided, what
+	;is in rdx when it gets here is not looked at, it is cleared.
+	;	test s, s / jz zero / xor edx, edx / div s / jmp done
 	;zero:	mov rdx, rax / xor eax, eax
 	;done:
 	(emitm-byte (x64-rex 1 (>> s 3) 0 (>> s 3)) 0x85 (x64-modrm 3 s s)
-		0x74 5
+		0x74 7
+		0x31 0xd2
 		(x64-rex 1 0 0 (>> s 3)) 0xf7 (x64-modrm 3 6 s)
 		0xeb 5
 		(x64-rex 1 0 0 0) 0x89 0xc2

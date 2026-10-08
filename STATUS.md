@@ -4,6 +4,25 @@
 
 ------
 
+A divide is of a number of 64 bits, on every CPU.
+
+*	The VP divide takes a register for the top half of the number, and
+	gives what is left over in it. ARM64, RISC-V and LoongArch never looked
+	at the top half, they have no divide of 128 bits. x86_64 and the
+	emulator did, and x86_64 would have stopped the node on a top half big
+	enough that the answer did not fit. Every caller sets it as a divide of
+	64 bits would, so nothing went wrong, it only could have.
+
+*	The x86_64 translator now puts the sign of the number there itself for
+	a signed divide, and 0 for an unsigned one, and the emulator divides 64
+	bits. So a divide means the one thing on all of them, and there is no
+	divide left that stops an x86_64 node. `lib/trans/x86_64.inc`,
+	`src/host/vp64.cpp`.
+
+*	Tests of big numbers of either sign in `tests/core/test_divide_edges.lisp`.
+	Every test passes on ARM64 and x86_64, on the emulator on both, and on
+	RISC-V and LoongArch under QEMU.
+
 A divide by 0 with no check in front of it gives the same on every CPU.
 
 *	On the usual build a divide by 0 is an error, the check is there. On a

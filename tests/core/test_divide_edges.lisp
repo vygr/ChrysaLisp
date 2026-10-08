@@ -48,3 +48,19 @@
 (assert-eq "native, 7 by -1" -7 (de_quot 7 -1))
 (assert-eq "native, an answer and what is left, 17 by 5" 3002 (de_both 17 5))
 (assert-eq "native, an answer and what is left, 17 by 0" 17 (de_both 17 0))
+
+;it is a number of 64 bits that is divided, on every CPU. Big numbers of
+;either sign, where a divide of 128 bits with the wrong top half would go
+;wrong, or stop
+(assert-eq "native, a big number by a small one" 4611686018427387903 (de_quot 9223372036854775807 2))
+(assert-eq "native, a big number below 0 by a small one" -4611686018427387904 (de_quot de_min 2))
+(assert-eq "native, a big number by 1" 9223372036854775807 (de_quot 9223372036854775807 1))
+(assert-eq "native, the most negative number by 1" de_min (de_quot de_min 1))
+(assert-eq "native, a small number by a big one" 0 (de_quot 5 9223372036854775807))
+(assert-eq "native, what is left of a big one" 1 (- (de_both 9223372036854775807 2) (* 4611686018427387903 1000)))
+(test-cases
+	(/ 9223372036854775807 3) 3074457345618258602
+	(% 9223372036854775807 3) 1
+	(/ -9223372036854775807 3) -3074457345618258602
+	(partition (list 1 2 3 4 5) 2) '((1 2) (3 4) (5))
+	(str-to-num "123.5") 123.5)

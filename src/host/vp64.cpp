@@ -88,8 +88,6 @@ enum Opcodes {
 	vp64_cvt_rf, vp64_cvt_fr, vp64_cpy_rf, vp64_cpy_fr,
 };
 
-struct i128 { int64_t lo; int64_t hi; };
-struct u128 { uint64_t lo; uint64_t hi; };
 
 // generic operations
 #define vp_op(op, s, d) d = d op s
@@ -133,18 +131,13 @@ struct u128 { uint64_t lo; uint64_t hi; };
 #define vp_swp_rr(sr, dr) { int64_t t = regs[dr]; regs[dr] = regs[sr]; regs[sr] = t; }
 #define vp_ext_rr(sr, dr) regs[dr] = (regs[sr] >> 63)
 
-#if defined(_MSC_VER)
-// a divide means the one thing on every CPU. By 0 the answer is 0 and what is
-// left over is the number. The most negative number by -1 is itself, with
-// nothing left over.
-#define vp_div_rrr(sr, dr, drr) { int64_t d = regs[drr]; if (!d) { regs[sr] = regs[dr]; regs[dr] = 0; } else if (d == -1) { regs[dr] = (int64_t)(0 - (uint64_t)regs[dr]); regs[sr] = 0; } else regs[dr] = _div128(regs[sr], regs[dr], d, &regs[sr]); }
-#define vp_div_rrr_u(sr, dr, drr) { uint64_t d = (uint64_t)regs[drr]; if (!d) { regs[sr] = regs[dr]; regs[dr] = 0; } else regs[dr] = _udiv128((uint64_t)regs[sr], (uint64_t)regs[dr], d, (uint64_t*)&regs[sr]); }
-#else
-// a divide means the one thing on every CPU. By 0 the answer is 0 and what is
-// left over is the number.
-#define vp_div_rrr(sr, dr, drr) { i128 v = {regs[dr], regs[sr]}; int64_t d = regs[drr]; if (!d) { regs[sr] = regs[dr]; regs[dr] = 0; } else { regs[dr] = (__int128_t&)v / d; regs[sr] = (__int128_t&)v % d; } }
-#define vp_div_rrr_u(sr, dr, drr) { u128 v = {(uint64_t)regs[dr], (uint64_t)regs[sr]}; uint64_t d = (uint64_t)regs[drr]; if (!d) { regs[sr] = regs[dr]; regs[dr] = 0; } else { regs[dr] = (__uint128_t&)v / d; regs[sr] = (__uint128_t&)v % d; } }
-#endif
+// a divide means the one thing on every CPU, whatever the CPU would do itself.
+// It is a number of 64 bits that is divided, most CPUs have no divide of 128,
+// and what the register for what is left over holds beforehand is not looked
+// at. By 0 the answer is 0 and what is left over is the number. The most
+// negative number by -1 is itself, with nothing left over.
+#define vp_div_rrr(sr, dr, drr) { int64_t n = regs[dr]; int64_t d = regs[drr]; if (!d) { regs[sr] = n; regs[dr] = 0; } else if (d == -1) { regs[dr] = (int64_t)(0 - (uint64_t)n); regs[sr] = 0; } else { regs[dr] = n / d; regs[sr] = n % d; } }
+#define vp_div_rrr_u(sr, dr, drr) { uint64_t n = (uint64_t)regs[dr]; uint64_t d = (uint64_t)regs[drr]; if (!d) { regs[sr] = (int64_t)n; regs[dr] = 0; } else { regs[dr] = (int64_t)(n / d); regs[sr] = (int64_t)(n % d); } }
 
 #define vp_seq_rr(sr, dr) vp_op_rr(==, sr, dr)
 #define vp_sne_rr(sr, dr) vp_op_rr(!=, sr, dr)
