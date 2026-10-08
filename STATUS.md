@@ -4,6 +4,24 @@
 
 ------
 
+The loads of the hash and the cipher that are not aligned, looked at. The
+7.2 notes had it as not ready, native code that loads 4 and 8 bytes from
+wherever it is told to start, run under QEMU and not on a real RISC-V or
+LoongArch.
+
+*	The library never gives it a start that is not aligned. The bytes of a
+	str are 24 bytes into its object, a multiple of 8. Every call the
+	library makes of the native code is at offset 0 or a multiple of 64, 16
+	for Poly1305, a part left over is joined to the front of the next lot
+	as a new str. So every load in `(sha256)`, HMAC, PBKDF2, `(chacha20)`,
+	Poly1305 and the seal is aligned, on any CPU.
+
+*	Only a call of the native code itself with an odd offset is not, which
+	nothing but the tests does. No code is changed. `docs/ai_digest/crypto.md`
+	says what is and is not aligned, and what to do on a machine that traps.
+
+------
+
 The GLSL back end has a vertex stage, `(shader-glsl-pair vertex pixel)`.
 
 *	A vertex shader and a pixel shader that go together, as a vertex shader

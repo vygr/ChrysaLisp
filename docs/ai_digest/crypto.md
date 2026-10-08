@@ -252,9 +252,34 @@ The Windows host program used `rand()` for these, seeded from the time and
 its process number, which would not have done for a key. It asks the system
 now. That is built here for Windows and links, and has not been run there.
 
+## Loads That Are Not Aligned
+
+The native code loads 4 bytes at a time for the hash and the cipher, and 8
+for Poly1305, from the data at the offset it is given. Some CPUs can not
+load a number from an address that is not a multiple of its size, a small
+RISC-V or LoongArch core traps, and is slow at best.
+
+Looked at, the library never asks it to. The bytes of a str start 24 bytes
+into its object, which is on a multiple of 8, so offset 0 is aligned for
+either size. And every call the library makes is at offset 0 or a multiple
+of 64, the hash and the cipher a block at a time from the start of a str,
+Poly1305 a multiple of 16. Where a part was left over from the last call it
+is joined to the front of the next, a new str, and the count starts at 0
+again. That is `(sha256)`, `(hmac-sha256)`, `(pbkdf2-sha256)`, `(chacha20)`,
+`(poly1305)`, `(aead-seal)` and `(aead-open)`, and so the door of a link and
+`sync`, which stand on them.
+
+What can be unaligned is a call of the native code itself, `(sha256-blocks)`,
+`(chacha20-xor)` or `(poly1305-blocks)`, with an offset that is not a
+multiple of 4, or of 8 for the last. The tests do it, on purpose. On ARM64
+and x86_64 that is as quick as any other. On Linux on the others it is right
+and may be slow, the kernel does the load for the CPU. On a machine with no
+kernel under it, it would be a trap. If the native code is ever called so
+there, give it a `(slice)` of the data and an offset of 0.
+
 ## Not here yet
 
-* A check for a CPU that can not load a number from an address that is not
-  a multiple of its size. The native code loads 4 and 8 bytes at a time
-  from wherever in a str it is told to start.
+* The native code handling a start that is not a multiple of 4 or 8, on a
+  CPU that can not load from one. See below, the library never gives it
+  one.
 * Arithmetic on a field, for error correction and for signatures.
