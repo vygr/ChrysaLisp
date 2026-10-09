@@ -90,9 +90,9 @@ makes a font for each:
 There is one set, and a small arrow is one of it at a small size. The
 arrows of a spinner, the toggle of a folder in the files widget and of a
 category in the launcher are `prev`, `next`, `up` and `down`, from the
-bold font, `*env_tiny_symbol_font*`, at 10 pixels, whatever the theme,
-but Sharp, which has its own. At that size a line is a pixel, and the
-bold one is the one that is seen.
+bold font, `*env_tiny_symbol_font*`, at 10 pixels, whatever the theme.
+At that size a line is a pixel, and the bold one is the one that is
+seen. A change of theme leaves them as they are.
 
 Which theme a desktop has is chosen in the Themes app, and is kept for
 the user, `usr/<user>/theme`. A change is seen at once: the GUI sends

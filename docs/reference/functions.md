@@ -4134,13 +4134,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args
@@ -4704,12 +4704,12 @@ name and no more, it is read by every app as it starts, and there is
 nothing in it to go wrong
 ```
 
-### theme-files
+### theme-file
 
 ```code
-(theme-files name) -> (symbols_file tiny_file)
+(theme-file name) -> symbols_file
 
-the fonts of a theme, those of the first if there is none of that name
+the font of a theme, that of the first if there is none of that name
 ```
 
 ### theme-save

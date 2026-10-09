@@ -17,24 +17,30 @@ One set of arrows, used small where a small one is wanted.
 	font: "we already had the set at 0xe063 !" They were `up` and `down`
 	again. They are taken out, the kit is as it was, 112 symbols.
 
-*	The smallest of them are drawn with the bold font, in every theme
-	but Sharp, which has its own. Chris: "For these small spinner and
-	tree uses we may be best to use the Bold version of the font ?" A
-	theme named a second font for that size already, the next weight up,
-	Claude had taken it out an hour before and it is back. Light named
-	the regular one, it names the bold.
+*	The smallest of them are drawn with the bold font, at 10, whatever
+	the theme. Chris: "For these small spinner and tree uses we may be
+	best to use the Bold version of the font ?", and "allways uses a
+	fixed font/face for these chevrons". So a theme is a name and one
+	font, `(theme-file name)`, it was `(theme-files)` and gave a second
+	for that size, and a change of theme leaves the small ones alone.
 
 *	Chris: "We should also use this for the collapse and expand for the
 	File widget ! We have several places there that use the same." The
 	toggle of a folder was the characters `^` and `>` in the font of the
 	file names, with the symbols in the title bar above it. It is `up`
 	and `next` in that small symbol font, `gui/files/lisp.inc`, and a
-	theme swaps it with the rest. The toggle of a category in the
+	theme does not change it. The toggle of a category in the
 	launcher the same, at the size of a title's buttons.
 
-*	4,898 pass on the M4. A files widget made with no desktop: its
-	toggles are the symbols, shut when it is collapsed and open when
-	expanded. Not seen: any of it on a desktop.
+*	The files widget then stopped a desktop from starting. It needs the
+	names of the symbols as it loads now, and did not import them. The
+	GUI service loads the GUI a file at a time, in the order of what
+	each imports, and it came before the names. Claude had tried it only
+	in a terminal session, where the whole GUI is imported in one go.
+	Chris found it by starting a desktop.
+
+*	4,898 pass on the M4, and a one node GUI starts. Not seen: any of it
+	on a desktop.
 
 ------
 

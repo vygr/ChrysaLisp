@@ -5,10 +5,10 @@
 
 ;the themes, and the one a user has
 (assert-true "there are themes, and the first is Light" (eql (first (first *themes*)) "Light"))
-(assert-true "every theme's fonts are there"
-	(every (lambda ((name symbols tiny)) (and (pii-fstat symbols) (pii-fstat tiny))) *themes*))
-(assert-list-eq "the fonts of a theme" '("fonts/Symbols-Light.ctf" "fonts/Symbols-Bold.ctf") (theme-files "Light"))
-(assert-list-eq "of one that is not, the first's" (theme-files "Light") (theme-files "Nope"))
+(assert-true "every theme's font is there"
+	(every (lambda ((name symbols)) (pii-fstat symbols)) *themes*))
+(assert-eq "the font of a theme" "fonts/Symbols-Light.ctf" (theme-file "Light"))
+(assert-eq "of one that is not, the first's" (theme-file "Light") (theme-file "Nope"))
 (defq th_home "tests/scratch/theme/")
 (if (pii-fstat (cat th_home "theme")) (pii-remove (cat th_home "theme")))
 (assert-eq "a user who never chose has the first" "Light" (theme-current th_home))
@@ -27,28 +27,28 @@
 		(ui-buttons (+sym_undo +sym_redo) 1))
 	(ui-label th_mine (:text "x" :font th_own))
 	(ui-label th_text (:text "words" :font *env_body_font*)))
-(defq th_regular (theme-files "Regular") th_bold (theme-files "Bold")
+(defq th_regular (theme-file "Regular") th_bold (theme-file "Bold")
 	th_was *env_symbol_font* th_body *env_body_font*)
 ;the test has the theme of whoever runs it, start from one that is known
 (. th_window :theme "Regular")
 (assert-true "the bar has the symbol font of the theme"
-	(eql (get :font th_bar) (create-font (first th_regular) 28)))
+	(eql (get :font th_bar) (create-font th_regular 28)))
 (. th_window :theme "Bold")
 (assert-true "the theme is changed, and the bar has the new one's, the same size"
-	(eql (get :font th_bar) (create-font (first th_bold) 28)))
+	(eql (get :font th_bar) (create-font th_bold 28)))
 (assert-true "the buttons of the title are a size of their own, and have that"
-	(eql (get :font (penv th_title)) (create-font (first th_bold) 22)))
+	(eql (get :font (penv th_title)) (create-font th_bold 22)))
 (assert-true "the task's own name for the font is the new one, for what is made next"
-	(eql *env_symbol_font* (create-font (first th_bold) 28)))
+	(eql *env_symbol_font* (create-font th_bold 28)))
 (assert-true "a font the app made for itself is left" (eql (get :font th_mine) th_own))
 (assert-true "and the font of text is" (eql (get :font th_text) th_body))
 (. th_window :theme "Bold")
-(assert-true "the same theme again changes nothing" (eql (get :font th_bar) (create-font (first th_bold) 28)))
+(assert-true "the same theme again changes nothing" (eql (get :font th_bar) (create-font th_bold 28)))
 (. th_window :theme "Sharp")
 (assert-true "and another, straight from that" (eql (get :font th_bar) (create-font "fonts/Symbols-Sharp.ctf" 28)))
 ;as an event, as the GUI sends it to a window
 (. th_window :event (cat (setf-> (str-alloc +ev_msg_theme_size)
 	(+ev_msg_type +ev_type_theme) (+ev_msg_target_id (. th_window :get_id))) "Light"))
 (assert-true "the event does it" (eql (get :font th_bar) (create-font "fonts/Symbols-Light.ctf" 28)))
-(assert-true "the smallest symbols of the light theme are the bold font"
+(assert-true "the smallest symbols are the bold font, whatever the theme"
 	(eql *env_tiny_symbol_font* (create-font "fonts/Symbols-Bold.ctf" 10)))
