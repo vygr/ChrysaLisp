@@ -5,9 +5,11 @@
 (import "./mesh.inc")
 (import "././gpu/vp.inc")
 
-;the two shaders the faces of a scene are drawn with
+;the two shaders the faces of a scene are drawn with. And the two for a
+;scene, or an object, that is to shine, a highlight as Phong has it
 (defq +scene_vertex_file "lib/gpu/shaders/mesh_vertex.shader"
-	+scene_pixel_file "lib/gpu/shaders/mesh_lit.shader")
+	+scene_pixel_file "lib/gpu/shaders/mesh_lit.shader"
+	+scene_shiny_files ''("lib/gpu/shaders/shiny_vertex.shader" "lib/gpu/shaders/shiny_lit.shader"))
 
 ;module
 (env-push)
@@ -263,7 +265,15 @@
 
 (defclass Scene (&optional name) (Scene-node name)
 	; (Scene [name]) -> scene_node
-	(def this :poly_buckets (lists +num_poly_buckets) :meshes (list))
+	(def this :poly_buckets (lists +num_poly_buckets) :meshes (list) :shaders :nil)
+
+	(defmethod :set_shaders (files)
+		; (. scene :set_shaders files) -> scene
+		;the files of the vertex and the pixel shader every object of the
+		;scene is drawn with, that has not two of its own. :nil is the
+		;scene's usual two
+		(lower (:shaders files))
+		this)
 
 	(defmethod :draws (left right top bottom near far height)
 		; (. scene :draws left right top bottom near far height) -> ((mesh vblock pblock y y1) ...)
@@ -279,7 +289,8 @@
 		;those, they have the inputs of the scene's own, and its draw has
 		;the files on the end, for what draws it to choose them by.
 		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
-			matrix_stack (list (Mat4x4-unity)) draws (list) thin (list) pipeline (scene-pipeline))
+			matrix_stack (list (Mat4x4-unity)) draws (list) thin (list)
+			pipeline (scene-pipeline (get :shaders this)))
 		(raise :meshes)
 		(. this :walk_nodes
 			(lambda (object children)
@@ -327,7 +338,7 @@
 		; (. scene :draw canvas draws) -> scene
 		;the faces of a frame, drawn here, by the shaders as native code,
 		;with a depth buffer. The canvas is not swapped
-		(defq pixmap (getf canvas +canvas_pixmap 0) pipeline (scene-pipeline)
+		(defq pixmap (getf canvas +canvas_pixmap 0) pipeline (scene-pipeline (get :shaders this))
 			depth (shader-vp-depth (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0)))
 		(raise :meshes)
 		(. canvas :fill 0)

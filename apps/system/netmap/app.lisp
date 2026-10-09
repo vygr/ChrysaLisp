@@ -36,8 +36,6 @@
 	+focal_dist +real_2 +near +focal_dist +far (+ +near +real_4)
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
 	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
-	;the shaders a ball is drawn with
-	+shiny ''("lib/gpu/shaders/shiny_vertex.shader" "lib/gpu/shaders/shiny_lit.shader")
 	+ball_size (n2r 0.09) +bar_size (n2r 0.016))
 
 (ui-window *window* ()
@@ -191,8 +189,8 @@
 	(when (and (not gpu_pair) (not gpu_failed))
 		(unless (and (setq gpu_pair (shader-gui-pair (shader-load +scene_vertex_file)
 					(shader-load +scene_pixel_file) :t))
-				(setq gpu_shiny (shader-gui-pair (shader-load (first +shiny))
-					(shader-load (second +shiny)) :t)))
+				(setq gpu_shiny (shader-gui-pair (shader-load (first +scene_shiny_files))
+					(shader-load (second +scene_shiny_files)) :t)))
 			(setq gpu_pair :nil gpu_failed :t)))
 	(defq drawn (if gpu_pair (shader-gui-frame *canvas*
 		(map (lambda ((id vblock pblock &optional y y1 files))
@@ -226,7 +224,7 @@
 		scene (Scene "root") world (Scene-node "world"))
 	;the two meshes are made ready once, and every ball and bar shares them.
 	;A ball is lit smooth, and shines
-	(def ball_proto :smooth :t :shaders +shiny)
+	(def ball_proto :smooth :t :shaders +scene_shiny_files)
 	(.-> world (:add_node ball_proto) (:add_node bar_proto))
 	(.-> scene (:add_node world)
 		(:set_translation +real_0 +real_0 (const (- +real_0 +focal_dist +real_2))))

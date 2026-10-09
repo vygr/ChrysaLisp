@@ -112,7 +112,13 @@
 	(.-> teapot_obj
 		(:set_translation (const (- +real_1/2 +real_-1/3)) (const (+ +real_-1/2 +real_-1/3)) (const (- +real_0 +focal_dist +real_1)))
 		(:set_rotation +real_0 +real_hpi +real_0))
-	(.-> scene (:add_node sphere_obj) (:add_node torus_obj) (:add_node teapot_obj)))
+	;all of it shines, a highlight where a face is turned half way between
+	;the light and the eye. What is round is lit smooth, a normal a
+	;vertex. The cube is not, its faces are flat
+	(each (# (def %0 :smooth :t))
+		(list sphere_obj capsule1_obj capsule2_obj torus_obj sphere2_obj teapot_obj))
+	(.-> scene (:set_shaders +scene_shiny_files)
+		(:add_node sphere_obj) (:add_node torus_obj) (:add_node teapot_obj)))
 
 ;import actions and bindings
 (import "./actions.inc")
@@ -125,7 +131,7 @@
 	;rows, which a child answers when it has the shaders and the meshes
 	(defq count (. farm :size) size (* canvas_size canvas_scale))
 	(setq farm_key (canvas-key *main_widget*))
-	(. farm :add (map (# (shader-strip +scene_vertex_file +scene_pixel_file
+	(. farm :add (map (# (shader-strip (first +scene_shiny_files) (second +scene_shiny_files)
 			(elem-get select +select_farm_ask) farm_key size size
 			(if rows (/ (* %0 size) count) 0) (if rows (/ (* (inc %0) size) count) 0) :t draws))
 		(range 0 count))))
@@ -152,8 +158,8 @@
 	(when (and *use_gpu* (not gpu_pair) (not gpu_failed))
 		;the pair of shaders, the first time, the driver builds it in its
 		;own time
-		(unless (setq gpu_pair (shader-gui-pair (shader-load +scene_vertex_file)
-				(shader-load +scene_pixel_file) :t))
+		(unless (setq gpu_pair (shader-gui-pair (shader-load (first +scene_shiny_files))
+				(shader-load (second +scene_shiny_files)) :t))
 			(setq gpu_failed :t)))
 	;a host that can not, and the button goes back
 	(when (and *use_gpu* gpu_failed)

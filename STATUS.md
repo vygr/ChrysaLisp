@@ -4,6 +4,25 @@
 
 ------
 
+The Mesh demo shines.
+
+*	Chris: "We should Phong shade the mesh demo now we have the shader for
+	it !" It is drawn with the two shaders the Network Map's balls are,
+	the same light, up, left and on our side, and a highlight. What is
+	round is lit smooth, a normal a vertex, the spheres, the capsules, the
+	torus and the teapot, whose handle can now be seen. The cube is left
+	with flat faces.
+
+*	A scene can be given a pair of shaders for all of its objects,
+	`(. scene :set_shaders files)`, as an object could be given a pair of
+	its own. The demo's three ways of drawing, the GPU, the farm of
+	nodes, and one task, all name the same pair, `+scene_shiny_files`.
+
+*	Looked at as a picture drawn by one task with no desktop, the old
+	lighting beside the new. The GPU and the farm are not looked at.
+
+------
+
 A symbol font of our own, `fonts/Symbols.ctf`, and symbols by name.
 
 *	Chris: "We use a symbol font that comes from a generic Entypo font,
