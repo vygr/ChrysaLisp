@@ -4,6 +4,26 @@
 
 ------
 
+Windows, Martyn Blyss's second run, of the push with the two fixes.
+
+*	The user of a session is right there now, `solo/test_user` passes,
+	the vertical tab did it.
+
+*	`solo/test_gone` failed, and it was the test. It stopped its ring by
+	name, `(node-stop)`, which works from the note a node leaves of what
+	it started, and no note is kept on Windows. The ring was left
+	running. It now tells each node of the ring to go, by node.
+	`solo/test_tcp_link` failed after it for the first time, and is taken
+	to have been those nodes still being there. Not known till it is run.
+
+*	`system/test_symbols` still fails, the names file is not what the
+	symbols make. It was taken for returns at the ends of lines, and the
+	test leaves those out now, so it is something else. Not known.
+
+*	`system/test_pixmap_shared` as before, not looked at.
+
+------
+
 No function of the tree is used above where it is defined. The three
 rings of `lib/gpu/` are not rings now, they are loops.
 

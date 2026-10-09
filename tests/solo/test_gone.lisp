@@ -69,6 +69,9 @@
 (each (# (mail-send %0 "report")) gn_counters)
 (assert-list-eq "of 250 sent to each of the two, all arrive, what went by way of the one that has gone too"
 	'("250" "250") (map (lambda (&) (ifn (mail-read-timeout gn_mbox (task-timeout 5)) "none")) gn_counters))
+;each is told to go, by node. A network is stopped by name from the note
+;of it, (node-stop), and no note is kept on Windows
+(each (# (open-task "(pii-exit)" %0 +kn_call_pin 0 (mail-mbox))) gn_others)
 (node-stop "gn_r")
 (assert-true "the ring is stopped" (gn-gone gn_pids))
 ;a node that has gone is known of for a few seconds more. The test that
