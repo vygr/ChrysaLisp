@@ -263,6 +263,14 @@ and said in its editorial:
 > man's efforts, coding for his own benefit, rather than the cumulative
 > efforts of some corporate programming team."
 
+That was Edge of June 1994, which Chris has as issue 9. Taos had the front
+cover, he says, the editorial, on page 3, and a four page article, "Taos:
+setting new standards", from page 10. The picture at the head of the
+editorial is the one that was on the cover of the IEE Review, two linked
+rings of open cubes with a coloured ball in each, over a chequered floor. It
+was Tao's company logo, and it too is in the repo,
+`apps/media/images/data/rings.cpm`, drawn by Tim Moore's ray tracer.
+
 In 1994 Taos 1.27 won the gold award for UK IT Innovation at the Computing
 Awards for Excellence, ahead of the ARM 700 family of processors, which took
 bronze. Ted Nelson, who invented hypertext, forecasting the future of

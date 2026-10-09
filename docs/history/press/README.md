@@ -49,3 +49,7 @@ Read with [How We Got Here](../history.md), which quotes from them.
 
 *	The file called "IEEE 1992" in the original collection is the IEE Review,
 	of the UK's Institution of Electrical Engineers.
+
+*	The Edge cutting is five pages, the editorial, page 3 of the magazine,
+	and the four pages of the article. Chris remembers it as issue 9, with
+	Taos on the front cover as well. The cover is not in the collection.
