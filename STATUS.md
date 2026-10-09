@@ -26,7 +26,10 @@ Two machines in the Network Map are never nearly the one color.
 	afternoon, 65 and 58: the first has its own, the second is clear of
 	it. The app was run in a one node desktop with four networks of
 	their own added, stopped, and one more added, and gave no error.
-	Not seen.
+
+*	Seen by Chris on a desktop, four networks of three and a cube of
+	eight, each a system of its own, with the three machines: "all
+	works."
 
 ------
 
