@@ -4,6 +4,19 @@
 
 ------
 
+Light is the theme a user starts with.
+
+*	Chris, having tried the four on a desktop: "light is the best default
+	IMHO, we should go with that as the github default people get." It is
+	first in `*themes*`, the first is what a user who has not chosen has.
+	A user who has chosen keeps what they chose.
+
+*	Seen by Chris, from a click in the Themes app: the choice is kept, the
+	windows that are open redraw, and an app opened after starts in it.
+	The Themes window is not one to resize.
+
+------
+
 How hard a node works, and the Network Map shows it.
 
 *	Chris: "running the Chess app, and the NetMap, I would have expected

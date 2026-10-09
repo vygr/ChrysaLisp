@@ -4,18 +4,18 @@
 (import "gui/lisp.inc")
 
 ;the themes, and the one a user has
-(assert-true "there are themes, and the first is Regular" (eql (first (first *themes*)) "Regular"))
+(assert-true "there are themes, and the first is Light" (eql (first (first *themes*)) "Light"))
 (assert-true "every theme's fonts are there"
 	(every (lambda ((name symbols tiny)) (and (pii-fstat symbols) (pii-fstat tiny))) *themes*))
 (assert-list-eq "the fonts of a theme" '("fonts/Symbols-Light.ctf" "fonts/Symbols.ctf") (theme-files "Light"))
-(assert-list-eq "of one that is not, the first's" (theme-files "Regular") (theme-files "Nope"))
+(assert-list-eq "of one that is not, the first's" (theme-files "Light") (theme-files "Nope"))
 (defq th_home "tests/scratch/theme/")
 (if (pii-fstat (cat th_home "theme")) (pii-remove (cat th_home "theme")))
-(assert-eq "a user who never chose has the first" "Regular" (theme-current th_home))
+(assert-eq "a user who never chose has the first" "Light" (theme-current th_home))
 (theme-save th_home "Sharp")
 (assert-eq "one that is chosen is kept" "Sharp" (theme-current th_home))
 (save "Nonsense" (cat th_home "theme"))
-(assert-eq "a file that names no theme is the first" "Regular" (theme-current th_home))
+(assert-eq "a file that names no theme is the first" "Light" (theme-current th_home))
 (pii-remove (cat th_home "theme"))
 
 ;a window, with a bar of symbols, a label in a font of its own, and one in

@@ -10,10 +10,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;a theme, its name, the font of its symbols, and the font of the smallest
-;of them, which want more weight than the rest
+;of them, which want more weight than the rest. The first is the one a
+;user who has not chosen has
 (defq *themes* (list
-	(list "Regular" "fonts/Symbols.ctf" "fonts/Symbols-Bold.ctf")
 	(list "Light" "fonts/Symbols-Light.ctf" "fonts/Symbols.ctf")
+	(list "Regular" "fonts/Symbols.ctf" "fonts/Symbols-Bold.ctf")
 	(list "Bold" "fonts/Symbols-Bold.ctf" "fonts/Symbols-Bold.ctf")
 	(list "Sharp" "fonts/Symbols-Sharp.ctf" "fonts/Symbols-Sharp.ctf")))
 
