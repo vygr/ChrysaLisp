@@ -227,13 +227,16 @@ and its own last. A real is a fixed, and a fixed is a num.
 (type-of (Fmap))      ; -> (:seq :array :list :hmap)
 ```
 
-A predicate with one `?` finds its class in that chain, so it is true of
-the class and of every class that inherits from it. What it gives is where
-in the chain, a number, and `0` is true, only `:nil` is false.
+A predicate with one `?` asks if a thing is of a class or of any class
+built on it, is its class in that chain. The answer is true or it is
+`:nil`. What comes back when it is true is not `:t`, it is a number as it
+happens, `0` for one, and `0` is true, only `:nil` is false. It is an
+answer to test, not a value to read.
 
 ```lisp
-(num? (n2r 1.5))      ; -> 0, a real is a num
-(list? (Fmap))        ; -> 2, a map is a list
+(num? (n2r 1.5))      ; -> true, a real is a num
+(list? (Fmap))        ; -> true, a map is a list
+(if (num? 3) "yes")   ; -> "yes", though what (num? 3) gave was 0
 ```
 
 A predicate with two, `list??`, asks if it is that class itself, the last
@@ -244,7 +247,7 @@ and `str??`.
 ```lisp
 (list?? (list))       ; -> :t
 (list?? (Fmap))       ; -> :nil
-(str? 'name)          ; -> 1, a symbol is a str
+(str? 'name)          ; -> true, a symbol is a str
 (str?? 'name)         ; -> :nil
 (num?? 1.5)           ; -> :nil, it is a fixed
 ```

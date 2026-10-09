@@ -149,5 +149,5 @@
 	'(:t :t :t :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num?)))
 (assert-list-eq "an array here, all seven kinds of one"
 	'(:nil :nil :nil :nil :nil :t :t :t :t :t :t :t) (pq-which (const array?)))
-(assert-eq "a symbol is a str" 1 (str? 'a))
+(assert-true "a symbol is a str" (str? 'a))
 (assert-eq ":nil is a symbol, so not a str itself" :nil (str?? :nil))

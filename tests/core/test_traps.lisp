@@ -77,7 +77,7 @@
 (assert-true "a fixed is not a real" (not (real? 1.5)))
 (assert-eq "num? of a num is 0, which is true" 0 (num? 3))
 (assert-list-eq "a type is the chain of classes, its own last" '(:num :fixed :real) (type-of (n2r 1.5)))
-(assert-eq "a predicate with one ? gives where in the chain its class is" 2 (real? (n2r 1.5)))
+(assert-true "a predicate with one ? is true of a class built on its own" (and (num? (n2r 1.5)) (fixed? (n2r 1.5))))
 (assert-true "so a map is a list" (list? (Fmap 1)))
 (assert-eq "a predicate with two asks if it is that class itself" :t (list?? (list)))
 (assert-eq "and a map is not" :nil (list?? (Fmap 1)))
