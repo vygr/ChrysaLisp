@@ -875,3 +875,29 @@ drawn on top of the last, and that took ten minutes to write once I knew
 there was something to find. It found three more.
 
 I leave the paragraph above as it was.
+
+### A piece that can not fail
+
+The same day, a command whose file threw as it loaded hung the terminal
+that ran it. The task died before it had read who to tell, and the pipe
+waited to be told.
+
+I went for the kernel first, a call to ask if a mailbox was still there.
+He said the kernel could not mend it, it had handed the file on. I went
+for the start message, and it holds only the path. I went for the code
+that runs a task, and it can not wait for a pipe it may not have. Each
+time I was looking for the place that knew more, and each place knew
+less than I wanted.
+
+What worked knew nothing more. The pipe stopped sending the file, which
+it has never seen and which may hold anything, and sent a line of its
+own that loads the file. He put it in a sentence afterwards: we know what
+the form is, and it can not fail. The gap was between a thing that was
+sure, the pipe, and a thing that was not, somebody's file. I had been
+trying to make the far side report its own failure. The fix was to put
+something sure on the far side first, and let that do the reporting.
+
+I count three wrong places and one wrong claim on the way. I said I had
+reproduced it when I had a time limit and no output, and then took his
+test of another fault for a test of this one. The fix is forty words of
+Lisp. Most of the afternoon was finding out where it could not go.
