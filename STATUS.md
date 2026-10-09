@@ -4,6 +4,51 @@
 
 ------
 
+No function of the tree is used above where it is defined. The three
+rings of `lib/gpu/` are not rings now, they are loops.
+
+*	Chris, when asked how a ring of functions that call each other was to
+	be written: "recursive descent is bad anyway ! the stack will run out !
+	use a (list) as a user stack. Look at the flatten function in root.inc
+	for an example...this is the ChrysaLisp way, we don't do recursive
+	functions." And: "They are slower as well, due to causing shadowing
+	of +str_hashslots !"
+
+*	`lib/gpu/vp.inc`, the shader to VP compiler. `(sv-expr)`, `(sv-op)`
+	and `(sv-branch)` called each other, once for every part of an
+	expression. An expression is now laid out first as a list of steps, in
+	the order its code is to come, `(sv-lin)`, with a list as the stack of
+	what is still to be laid out. `(sv-run)` then does the steps one
+	after another, with a list of the values so far. A label that is not
+	made till a step is done is passed about in a cell. `(sv-op)` is
+	gone, what it did for each op is `(sv-apply)`, which calls nothing
+	that calls it.
+
+*	`lib/gpu/shader.inc`, the front end. `(sh-block)` and `(sh-stmt)`
+	called each other, for an `if`, a `when`, a `progn` and a `for`. A
+	statement that has blocks in it now leaves each on a list of frames,
+	and `(sh-block)` does them one at a time, each with what is to be
+	made of it when it is done.
+
+*	The check that it is the same compiler: every shader in the tree, 9
+	of them, 7,974 lines of VP source in all, compiled before and after.
+	The same bytes. And the tests of the GPU, which run every op on four
+	back ends against each other. 4,965 pass on the M4, the x64 and the
+	Pi.
+
+*	`files | forward` says one thing of the whole tree, the test that
+	means to, and the release script lets only that be.
+
+*	Not done, and the same fault: functions that call themselves, which
+	the check does not look for. In `lib/gpu/` there are some twenty,
+	`(sv-block)`, `(sv-mat)`, `(sh-expr)`, `(sh-tail)`, `(cpu-expr)`,
+	`(cpu-block)`, `(spv-expr)`, `(spv-block)` and the like, every back
+	end walks its tree with them. A rough count of the tree says 249
+	functions have their own name in their body, in 169 files, a good
+	many of those are not calls.
+
+------
+
 Seven more forward references put in order, in `lib/gpu/`, the ones that
 were only a function written below what calls it: `(sv-at)`,
 `(sv-define)`, `(shader-vp-draw-tris)` and `(shader-read)` are moved. 27

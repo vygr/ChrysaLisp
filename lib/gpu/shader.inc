@@ -265,14 +265,11 @@
 		(sh-err "wrong number of args" form))
 	(partition args 2))
 
-(defun sh-block (forms)
-	;statements in a scope of their own
-	(defq mark (length syms) out (list))
-	(each (# (sh-stmt %0 out)) forms)
-	(setq syms (slice syms 0 mark))
-	out)
-
-(defun sh-stmt (form out)
+(defun sh-stmt (form out frames)
+	;a statement, checked and typed, onto out. One that has blocks in it
+	;does not do them, a function that calls itself has no stack to spare.
+	;It leaves each on frames for (sh-block) to do next, with what is to
+	;be made of it when it is done
 	(unless (and (list? form) (nempty? form)) (sh-err "not a statement" form))
 	(defq op (first form) n (dec (length form)))
 	(cond
@@ -307,12 +304,12 @@
 				(sh-err "wrong number of args" form))
 			(defq e (sh-expr (second form)))
 			(unless (eql (first e) :bool) (sh-err "test is not a bool" form))
-			(push out (if (eql op 'if)
-				(list :if e (sh-block (list (third form)))
-					(if (= n 3) (sh-block (list (last form))) (list)))
-				(list :if e (sh-block (slice form 2 -1)) (list)))))
+			(push frames (if (eql op 'if)
+				(list (list (third form)) 0 (list) (length syms)
+					(list :then e out (if (= n 3) (list (last form)))))
+				(list (slice form 2 -1) 0 (list) (length syms) (list :then e out :nil)))))
 		((eql op 'progn)
-			(each (# (push out %0)) (sh-block (rest form))))
+			(push frames (list (rest form) 0 (list) (length syms) (list :progn out))))
 		((eql op 'for)
 			(unless (and (>= n 1) (list? (defq head (second form)))
 					(= (length head) 3))
@@ -322,9 +319,8 @@
 			(sh-name name form)
 			(push syms (list name :int :loop))
 			(++ loop_depth)
-			(push out (list :for name start end (sh-block (slice form 2 -1))))
-			(-- loop_depth)
-			(setq syms (slice syms 0 mark)))
+			(push frames (list (slice form 2 -1) 0 (list) (length syms)
+				(list :for out name start end mark))))
 		((eql op 'break)
 			(unless (and (= n 0) (> loop_depth 0)) (sh-err "break outside a loop" form))
 			(push out (list :break)))
@@ -334,6 +330,39 @@
 			(unless (eql (first e) ret_type) (sh-err "wrong return type" form))
 			(push out (list :return e)))
 		((sh-err "unknown statement" form))))
+
+(defun sh-block (forms)
+	;statements in a scope of their own. A block can have blocks in it, and
+	;they are done here one at a time, with a list as the stack of those
+	;that are part done, as (flatten) does it. A frame is a block: its
+	;forms, how far through them it is, its statements so far, how long
+	;syms was when it began, and what is to be made of it when it is done
+	(defq result :nil frames (list (list forms 0 (list) (length syms) (list :top))))
+	(while (nempty? frames)
+		(bind '(forms i out mark made) (defq frame (last frames)))
+		(cond
+			((< i (length forms))
+				;its next statement, which may leave a block on frames
+				(elem-set frame 1 (inc i))
+				(sh-stmt (elem-get forms i) out frames))
+			(:t ;the block is done, its names go, and it is put where it belongs
+				(pop frames)
+				(setq syms (slice syms 0 mark))
+				(case (first made)
+					(:top (setq result out))
+					(:then (bind '(& e into other) made)
+						;the one arm of an if. The other is done next, if it has one
+						(if other
+							(push frames (list other 0 (list) (length syms) (list :else e into out)))
+							(push into (list :if e out (list)))))
+					(:else (bind '(& e into arm) made)
+						(push into (list :if e arm out)))
+					(:progn (each (# (push (second made) %0)) out))
+					(:for (bind '(& into name start end was) made)
+						(-- loop_depth)
+						(setq syms (slice syms 0 was))
+						(push into (list :for name start end out)))))))
+	result)
 
 (defun sh-tail (form)
 	;the last form of a function is its value, as in Lisp, so if it is not

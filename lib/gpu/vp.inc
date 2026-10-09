@@ -274,67 +274,46 @@
 		(:op (some sv-calls? b))
 		(:t :nil)))
 
-(defun sv-op (node)
-	;a built in op
+;An expression is a tree, and code for it is made without a function that
+;calls itself, there is no stack to spare for one. The tree is first laid
+;out as a list of steps, in the order the code is to come, (sv-lin), with a
+;list as the stack of what is still to be laid out, as (flatten) does it.
+;A step is then one of these, and (sv-run) does them one after another,
+;with a list of the values so far, the registers each is in.
+
+(defun sv-leaf (node)
+	;a value with nothing under it, the registers that hold it
+	(bind '(type tag a &optional b) node)
+	(case tag
+		(:lit (cond
+			((eql type :float) (list (sv-const (str-to-real a))))
+			(:t (sv-emit 'vp-cpy-cr (cond ((eql type :int) a) (a 1) (0)) (defq r (sv-getr)))
+				(list r))))
+		(:var (sv-load type (sv-var a)))
+		(:t ;parts of a variable, only the parts asked for are loaded
+			(defq offset (sv-var (third b)))
+			(map (# (bind '(base at) (sv-at (+ offset (* %0 8))))
+				(sv-emit 'vp-cpy-if base at (defq r (sv-getf))) r) a))))
+
+(defun sv-apply (node a b c)
+	;a built in op whose args are all worked out before it, they are in a,
+	;b and c, as many as it has
 	(bind '(type & op args) node)
 	(defq types (map (const first) args) ta (first types) va (shader-dim ta))
 	(cond
-		((find :mat4 types)
-			;matrices times a vector, the vector is last, and each matrix
-			;is applied to it in turn, the nearest first
-			(defq v (sv-expr (last args)))
-			(each! (# (setq v (sv-mat-vec (sv-mat %0) v))) (list args) -2 0)
-			v)
-		((defq i (find op '(+ - * /)))
-			(defq a (sv-expr (first args)))
-			(cond
-				((> (length args) 1)
-					(each! (# (setq a (sv-arith i a ta (sv-expr %0) %1)
-						ta (if (shader-dim ta) ta %1))) (list args types) 1))
-				((eql ta :int)
-					(sv-emit 'vp-cpy-rr (first a) (defq tmp (sv-getr)))
-					(sv-emit 'vp-xor-rr (first a) (first a))
-					(sv-emit 'vp-sub-rr tmp (first a))
-					(sv-put tmp))
-				((each (# (sv-emit 'vp-neg-ff %0 %0)) a)))
-			a)
-		((find op '(< <= > >= = /= and or not))
-			;a bool as a value
-			(defq r (sv-getr) l (sv-new-label))
-			(sv-emit 'vp-cpy-cr 1 r)
-			(sv-branch node l :t)
-			(sv-emit 'vp-cpy-cr 0 r)
-			(sv-emit 'vp-label (sv-q l))
-			(list r))
 		((eql op 'float)
-			(defq a (sv-expr (first args)))
 			(cond
 				((eql ta :int)
 					(sv-emit 'vp-cvt-rf (first a) (defq r (sv-getf)))
 					(sv-puts a) (list r))
 				(a)))
 		((eql op 'int)
-			(defq a (sv-expr (first args)))
 			(cond
 				((eql ta :float)
 					(sv-emit 'vp-cvt-fr (first a) (defq r (sv-getr)))
 					(sv-puts a) (list r))
 				(a)))
-		((find op '(vec2 vec3 vec4))
-			(defq regs (list))
-			(each (lambda (arg)
-				(defq a (sv-expr arg))
-				(cond
-					((eql (first arg) :int)
-						(sv-emit 'vp-cvt-rf (first a) (defq r (sv-getf)))
-						(sv-puts a) (push regs r))
-					((each (# (push regs %0)) a)))) args)
-			(while (< (length regs) (shader-dim type))
-				(sv-emit 'vp-cpy-ff (first regs) (defq r (sv-getf)))
-				(push regs r))
-			regs)
 		((defq i (find op '(sin cos sqrt abs floor fract)))
-			(defq a (sv-expr (first args)))
 			(case i
 				((0 1) (defq n (length a))
 					(times n (push a (sv-sin (first a) (= i 1)))
@@ -349,7 +328,6 @@
 						(sv-emit 'vp-sub-ff tmp %0)) a)
 					(sv-put tmp) a)))
 		((defq i (find op '(min max mod)))
-			(defq a (sv-expr (first args)) b (sv-expr (second args)))
 			(cond
 				((< i 2)
 					(each (# (sv-emit (if (= i 0) 'vp-min-ff 'vp-max-ff) (sv-src b (!)) %0)) a))
@@ -362,27 +340,22 @@
 					(sv-put tmp)))
 			(sv-puts b) a)
 		((eql op 'pow)
-			(defq a (sv-expr (first args)) b (sv-expr (second args))
-				regs (map (const sv-pow) a b))
+			(defq regs (map (const sv-pow) a b))
 			(sv-puts a) (sv-puts b) regs)
 		((eql op 'clamp)
-			(defq a (sv-expr (first args)) b (sv-expr (second args)) c (sv-expr (third args)))
 			(each (# (sv-emit 'vp-max-ff (sv-src b (!)) %0)
 				(sv-emit 'vp-min-ff (sv-src c (!)) %0)) a)
 			(sv-puts b) (sv-puts c) a)
 		((eql op 'mix)
-			(defq a (sv-expr (first args)) b (sv-expr (second args)) c (sv-expr (third args)))
 			(each (# (sv-emit 'vp-sub-ff %0 %1)
 				(sv-emit 'vp-mul-ff (sv-src c (!)) %1)
 				(sv-emit 'vp-add-ff %1 %0)) a b)
 			(sv-puts b) (sv-puts c) a)
 		((eql op 'dot)
-			(defq a (sv-expr (first args)) b (sv-expr (second args)))
 			(each (# (sv-emit 'vp-mul-ff %1 %0)) a b)
 			(each! (# (sv-emit 'vp-add-ff %0 (first a))) (list a) 1)
 			(sv-puts b) (each! (const sv-put) (list a) 1) (list (first a)))
 		((eql op 'length)
-			(defq a (sv-expr (first args)))
 			(cond
 				(va (each (# (sv-emit 'vp-mul-ff %0 %0)) a)
 					(each! (# (sv-emit 'vp-add-ff %0 (first a))) (list a) 1)
@@ -390,7 +363,7 @@
 					(each! (const sv-put) (list a) 1) (list (first a)))
 				(:t (sv-emit 'vp-abs-ff (first a) (first a)) a)))
 		((eql op 'normalize)
-			(defq a (sv-expr (first args)) acc (sv-getf) tmp (sv-getf))
+			(defq acc (sv-getf) tmp (sv-getf))
 			(sv-emit 'vp-cpy-ff (first a) acc)
 			(sv-emit 'vp-mul-ff acc acc)
 			(each! (# (sv-emit 'vp-cpy-ff %0 tmp)
@@ -400,7 +373,7 @@
 			(each (# (sv-emit 'vp-div-ff acc %0)) a)
 			(sv-put acc) (sv-put tmp) a)
 		((eql op 'cross)
-			(defq a (sv-expr (first args)) b (sv-expr (second args)) tmp (sv-getf)
+			(defq tmp (sv-getf)
 				regs (map (lambda (i j)
 					(sv-emit 'vp-cpy-ff (elem-get a i) (defq r (sv-getf)))
 					(sv-emit 'vp-mul-ff (elem-get b j) r)
@@ -411,7 +384,7 @@
 			(sv-put tmp) (sv-puts a) (sv-puts b) regs)
 		((eql op 'reflect)
 			;i - 2 * dot(n, i) * n
-			(defq a (sv-expr (first args)) b (sv-expr (second args)) acc (sv-getf) tmp (sv-getf))
+			(defq acc (sv-getf) tmp (sv-getf))
 			(sv-emit 'vp-cpy-ff (first a) acc)
 			(sv-emit 'vp-mul-ff (first b) acc)
 			(each! (# (sv-emit 'vp-cpy-ff %0 tmp)
@@ -422,73 +395,173 @@
 				(sv-emit 'vp-sub-ff %1 %0)) a b)
 			(sv-put acc) (sv-put tmp) (sv-puts b) a)))
 
-(defun sv-expr (node)
-	;code for an expression, the registers that hold the value
+(defun sv-lin-expr (node)
+	;the steps of an expression, those under it still to be laid out
 	(bind '(type tag a &optional b) node)
 	(case tag
-		(:lit (cond
-			((eql type :float) (list (sv-const (str-to-real a))))
-			(:t (sv-emit 'vp-cpy-cr (cond ((eql type :int) a) (a 1) (0)) (defq r (sv-getr)))
-				(list r))))
-		(:var (sv-load type (sv-var a)))
-		(:swz (cond
-			((eql (second b) :var)
-				;of a variable, only the parts asked for are loaded
-				(defq offset (sv-var (third b)))
-				(map (# (bind '(base at) (sv-at (+ offset (* %0 8))))
-					(sv-emit 'vp-cpy-if base at (defq r (sv-getf))) r) a))
-			(:t (defq regs (sv-expr b) used (list)
+		((:lit :var) (list (list :leaf node)))
+		(:swz (if (eql (second b) :var) (list (list :leaf node))
+			(list (list :expr b) (list :swz node))))
+		(:user ;a call of a function of the shader, each arg and what is done with it
+			(defq items (list (list :user_begin)))
+			(each (# (push items (list :expr %0) (list :user_arg node (!)))) b)
+			(push items (list :user_call node)))
+		(:t (bind '(type & op args) node)
+			(defq types (map (const first) args))
+			(cond
+				((find :mat4 types)
+					;matrices times a vector, the vector is last
+					(list (list :expr (last args)) (list :mat4 node)))
+				((defq i (find op '(+ - * /)))
+					(cond
+						((> (length args) 1)
+							(defq items (list (list :expr (first args))) ta (first types))
+							(each! (# (push items (list :expr %0) (list :arith i ta %1))
+								(setq ta (if (shader-dim ta) ta %1))) (list args types) 1)
+							items)
+						((list (list :expr (first args)) (list :neg (first types))))))
+				((find op '(< <= > >= = /= and or not))
+					;a bool as a value
+					(defq cell (list :nil))
+					(list (list :bool_begin cell) (list :branch node cell :t) (list :bool_end cell)))
+				((find op '(vec2 vec3 vec4))
+					(defq items (list (list :vec_begin)))
+					(each (# (push items (list :expr %0) (list :vec_part (first %0)))) args)
+					(push items (list :vec_end type)))
+				(:t ;the args, as many as the op has, and then the op
+					(defq n (cond
+							((find op '(float int sin cos sqrt abs floor fract length normalize)) 1)
+							((find op '(clamp mix)) 3)
+							(2))
+						items (map (# (list :expr %0)) (slice args 0 n)))
+					(push items (list :apply node n)))))))
+
+(defun sv-lin-branch (node cell sense)
+	;the steps of a jump to a label if a bool is as sense says. The label
+	;is in a cell, a list of it, it may not be made till the steps are done
+	(bind '(type tag a &optional b) node)
+	(cond
+		((and (eql tag :op) (defq i (find a '(< <= > >= = /=))))
+			(list (list :expr (first b)) (list :expr (second b))
+				(list :br_cmp (if sense i (elem-get '(3 2 1 0 5 4) i))
+					(eql (first (first b)) :float) cell)))
+		((and (eql tag :op) (eql a 'not))
+			(list (list :branch (first b) cell (not sense))))
+		((and (eql tag :op) (find a '(and or)))
+			(cond
+				((eql (eql a 'and) (not sense))
+					;any one of them settles it
+					(map (# (list :branch %0 cell sense)) b))
+				(:t (defq skip (list :nil) items (list (list :new_label skip)))
+					(each (# (push items (list :branch %0 skip (not sense)))) (most b))
+					(push items (list :branch (last b) cell sense) (list :label skip)))))
+		((list (list :expr node) (list :br_val sense cell)))))
+
+(defun sv-lin (items)
+	; (sv-lin items) -> steps
+	;lay out what is to be done, in order. What is still to be laid out is
+	;on a stack, a list, and the next thing is the last of it
+	(defq steps (list) stack (reverse items))
+	(while (defq item (pop stack))
+		(case (first item)
+			(:expr (each (# (push stack %0)) (reverse (sv-lin-expr (second item)))))
+			(:branch (each (# (push stack %0))
+				(reverse (sv-lin-branch (second item) (third item) (elem-get item 3)))))
+			(:t (push steps item))))
+	steps)
+
+(defun sv-run (steps)
+	; (sv-run steps) -> values
+	;do the steps, the code comes out as they are done. The values are a
+	;stack, a list, each the registers a value is in
+	(defq vs (list))
+	(each (lambda ((kind &optional p0 p1 p2))
+		(case kind
+			(:leaf (push vs (sv-leaf p0)))
+			(:swz (bind '(type tag a &optional b) p0)
+				(defq regs (pop vs) used (list)
 					out (map (# (defq r (elem-get regs %0))
 						(cond
 							((find r used)
 								(sv-emit 'vp-cpy-ff r (defq r (sv-getf))) r)
 							((push used r) r))) a))
 				(sv-puts (filter (# (not (find %0 used))) regs))
-				out)))
-		(:user (bind '(& label offsets result) (some (# (if (eql (first %0) a) %0)) finfo))
-			;a value can go to its parameter slot at once if no later
-			;arg can call a function, else all are held till the end
-			(defq held (list))
-			(each (lambda (arg offset)
-				(push held (list (sv-expr arg) (first arg) offset))
-				(unless (some! sv-calls? (list b) :nil (inc (!)))
+				(push vs out))
+			(:apply (defq c (if (> p1 2) (pop vs)) b (if (> p1 1) (pop vs)) a (pop vs))
+				(push vs (sv-apply p0 a b c)))
+			(:arith (defq b (pop vs) a (pop vs))
+				(push vs (sv-arith p0 a p1 b p2)))
+			(:neg (defq a (last vs))
+				(cond
+					((eql p0 :int)
+						(sv-emit 'vp-cpy-rr (first a) (defq tmp (sv-getr)))
+						(sv-emit 'vp-xor-rr (first a) (first a))
+						(sv-emit 'vp-sub-rr tmp (first a))
+						(sv-put tmp))
+					((each (# (sv-emit 'vp-neg-ff %0 %0)) a))))
+			(:mat4 (bind '(type & op args) p0)
+				(defq v (pop vs))
+				;each matrix is applied to the vector in turn, the nearest first
+				(each! (# (setq v (sv-mat-vec (sv-mat %0) v))) (list args) -2 0)
+				(push vs v))
+			(:bool_begin (defq r (sv-getr))
+				(elem-set p0 0 (sv-new-label))
+				(sv-emit 'vp-cpy-cr 1 r)
+				(push vs (list r)))
+			(:bool_end (sv-emit 'vp-cpy-cr 0 (first (last vs)))
+				(sv-emit 'vp-label (sv-q (first p0))))
+			(:vec_begin (push vs (list)))
+			(:vec_part (defq a (pop vs) regs (last vs))
+				(cond
+					((eql p0 :int)
+						(sv-emit 'vp-cvt-rf (first a) (defq r (sv-getf)))
+						(sv-puts a) (push regs r))
+					((each (# (push regs %0)) a))))
+			(:vec_end (defq regs (last vs))
+				(while (< (length regs) (shader-dim p0))
+					(sv-emit 'vp-cpy-ff (first regs) (defq r (sv-getf)))
+					(push regs r)))
+			(:user_begin (push vs (list)))
+			(:user_arg (bind '(type tag a &optional b) p0)
+				(bind '(& label offsets result) (some (# (if (eql (first %0) a) %0)) finfo))
+				;a value can go to its parameter slot at once if no later
+				;arg can call a function, else all are held till the end
+				(defq regs (pop vs) held (last vs) arg (elem-get b p1))
+				(push held (list regs (first arg) (elem-get offsets p1)))
+				(unless (some! sv-calls? (list b) :nil (inc p1))
 					(each (lambda ((regs type offset))
 						(sv-store regs type offset)
 						(sv-puts regs)) held)
-					(clear held))) b offsets)
-			(defq saved (sv-spill :t))
-			(sv-emit 'vp-call (sv-q label))
-			(defq regs (sv-load type result))
-			(sv-unspill saved)
-			regs)
-		(:t (sv-op node))))
+					(clear held)))
+			(:user_call (bind '(type tag a &optional b) p0)
+				(bind '(& label offsets result) (some (# (if (eql (first %0) a) %0)) finfo))
+				(pop vs)
+				(defq saved (sv-spill :t))
+				(sv-emit 'vp-call (sv-q label))
+				(defq regs (sv-load type result))
+				(sv-unspill saved)
+				(push vs regs))
+			(:br_cmp (defq y (pop vs) x (pop vs))
+				(sv-emit (elem-get (if p1
+						'(vp-blt-ff vp-ble-ff vp-bgt-ff vp-bge-ff vp-beq-ff vp-bne-ff)
+						'(vp-blt-rr vp-ble-rr vp-bgt-rr vp-bge-rr vp-beq-rr vp-bne-rr)) p0)
+					(first y) (first x) (sv-q (first p2)))
+				(sv-puts x) (sv-puts y))
+			(:br_val (defq r (pop vs))
+				(sv-emit (if p0 'vp-bne-cr 'vp-beq-cr) 0 (first r) (sv-q (first p1)))
+				(sv-puts r))
+			(:new_label (elem-set p0 0 (sv-new-label)))
+			(:label (sv-emit 'vp-label (sv-q (first p0))))))
+		steps)
+	vs)
+
+(defun sv-expr (node)
+	;code for an expression, the registers that hold the value
+	(first (sv-run (sv-lin (list (list :expr node))))))
 
 (defun sv-branch (node label sense)
 	;code to jump to the label if the bool is as sense says
-	(bind '(type tag a &optional b) node)
-	(cond
-		((and (eql tag :op) (defq i (find a '(< <= > >= = /=))))
-			(defq x (sv-expr (first b)) y (sv-expr (second b))
-				i (if sense i (elem-get '(3 2 1 0 5 4) i)))
-			(sv-emit (elem-get (if (eql (first (first b)) :float)
-					'(vp-blt-ff vp-ble-ff vp-bgt-ff vp-bge-ff vp-beq-ff vp-bne-ff)
-					'(vp-blt-rr vp-ble-rr vp-bgt-rr vp-bge-rr vp-beq-rr vp-bne-rr)) i)
-				(first y) (first x) (sv-q label))
-			(sv-puts x) (sv-puts y))
-		((and (eql tag :op) (eql a 'not))
-			(sv-branch (first b) label (not sense)))
-		((and (eql tag :op) (find a '(and or)))
-			(cond
-				((eql (eql a 'and) (not sense))
-					;any one of them settles it
-					(each (# (sv-branch %0 label sense)) b))
-				(:t (defq skip (sv-new-label))
-					(each (# (sv-branch %0 skip (not sense))) (most b))
-					(sv-branch (last b) label sense)
-					(sv-emit 'vp-label (sv-q skip)))))
-		(:t (defq r (sv-expr node))
-			(sv-emit (if sense 'vp-bne-cr 'vp-beq-cr) 0 (first r) (sv-q label))
-			(sv-puts r))))
+	(sv-run (sv-lin (list (list :branch node (list label) sense)))))
 
 (defun sv-define (name type e)
 	;a new variable, set to the value of an expression
