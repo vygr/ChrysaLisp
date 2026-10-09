@@ -36,7 +36,7 @@
 	+focal_dist +real_2 +near +focal_dist +far (+ +near +real_4)
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
 	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
-	+ball_size (n2r 0.09) +bar_size (n2r 0.016))
+	+ball_size (n2r 0.11) +bar_size (n2r 0.011))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Map" (+sym_close) +event_close)
