@@ -13,8 +13,11 @@
 
 ;the documents of the Docs app: the folder they are under, and what they
 ;end with. The tree at the left is these, a search is of these, and a link
-;is followed only to one of these. Change them here and all three follow
-(defq +doc_root "docs" +doc_types '(".md"))
+;is followed only to one of these. Change them here and all three follow.
+;The kinds are a list, and a + constant is put in place of its name as the
+;code is read, so it is quoted twice, as the Editor's +file_types is.
+;Quoted once, the list is put there bare and is run as a call
+(defq +doc_root "docs" +doc_types ''(".md"))
 
 (defq +margin_width (* 8 3)
 	+doc_font (first (font-info *env_window_font*))

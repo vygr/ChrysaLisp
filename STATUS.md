@@ -4,6 +4,41 @@
 
 ------
 
+The Docs app would not start, and had not since `702237b77`, which was
+pushed.
+
+*	Chris, on a desktop: "Docs app dosn't launch", with `(lambda ([arg
+	...]) body) not_a_function ... Obj: ".md"`. The kinds of file the
+	app shows were named once in that commit, `+doc_types '(".md")`. A
+	`+` constant is put in place of its name as the code is read, a
+	list quoted once is put there bare, and `(:populate +doc_root
+	+doc_types)` was a call of `".md"`. It is quoted twice, as the
+	Editor's `+file_types` is.
+
+*	This trap is in Claude's own notes, with that very cure, and the
+	notes were not looked at. Nothing caught it because no test starts
+	an app, and he had tried links and history before that commit, not
+	after. It was pushed broken.
+
+*	`tests/system/test_apps.lisp`, new, 3: every file of `apps/` is
+	looked through for a `+` name given a list quoted once on a line of
+	a `(defq)`. Against the app as it was broken it fails and names the
+	line.
+
+*	In mending it Claude emptied three files of the app,
+	`app.lisp`, `search.inc` and `ui.inc`, with a line of script that
+	opened each to write before it read it. They were as committed,
+	and were put back from the commit, nothing was lost. Under his
+	desktop, for the minute it took.
+
+What was run. The lines that failed, in a session with the app loaded:
+the kinds, the files, the tree filled and a document found in it. Every
+test, 5,045, on the x64 and the Pi; the M4 had his desktop up.
+
+Not seen: the Docs app start, by Chris, since.
+
+------
+
 The documents link to each other. Item 45, Chris: "45 lets do that to
 refresh the docs for people."
 
