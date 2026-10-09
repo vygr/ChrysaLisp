@@ -4,6 +4,54 @@
 
 ------
 
+Two small ones, while Chris ate, and what they turned up.
+
+*	Forward references. `files | forward` named one, in a test,
+	`tests/system/test_fat32.lisp`, a function used above where it is
+	defined. Moved. Listing them all, not the first three, there were 45,
+	and the check has not been part of what a release is tested with.
+
+*	Most were not calls. A comment that names a function that comes
+	later, `;(node-nets) and (node-stop)`, was taken for a use of it.
+	`forward` now leaves out what is in a comment, from a `;` with an even
+	number of quotes before it. And `sys/lisp.inc` had two that were real,
+	`(node-shape)` and `(mail-read-timeout)`, moved above what calls them.
+
+*	Left, 40, in three files and one that is meant: `lib/gpu/vp.inc` 32
+	and `lib/gpu/shader.inc` 2, most of them functions that call each
+	other, `(sv-expr)` and its helpers, which no order mends,
+	`lib/fs/exfat.inc` 5, and `tests/core/test_traps.lisp` 1, the trap it
+	is there to show. Not touched, on the list.
+
+*	The test of stopping networks was to be made quicker with smaller
+	rings. Rings of 4 for 8 made no difference, it was not the nodes.
+	Timed from outside, a sample of the processes four times a second: a
+	stop asked every node of the machine which process it was, and
+	waited 2 seconds for each that did not answer. A node that has just
+	been stopped is still known of for 4 seconds and never answers. So a
+	second network stopped after a first waited on the first's dead
+	nodes, 5 seconds for three of them.
+
+*	That was the stop, not the test. `(node-stop)` now sends every node
+	the list of processes that are to go, and one that finds it is one of
+	them goes, by itself, in half a second. Nothing is asked and nothing
+	is waited for. The race of this afternoon is still mended by it, as a
+	terminal does it, none left of 6 runs.
+
+*	The test waited three times for stopped nodes to be forgotten, 4
+	seconds each. It is put in an order that needs it once. The module
+	was 17.7 seconds on the M4 and is 8.5. Every test on the three
+	machines, 23, 24 and 28 seconds, they were 31, 36 and 52. With the
+	stop code of before this afternoon the test still fails, with rings
+	of 4.
+
+*	Seen on the way and not mended: for those 4 seconds a task left to
+	find a node, `+kn_call_run`, can be sent to a node that has gone, and
+	is lost. A command typed then may never start, and its terminal
+	waits. The kernel still counts the link to it. On the list.
+
+------
+
 A session can be some user's, `./run.sh -u Test`, and Claude's are.
 
 *	Chris: "how about the user switch for your work ? is that easy." Who

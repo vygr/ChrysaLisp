@@ -2481,9 +2481,9 @@ of this machine's, 16 characters, the kernel's -sid option.
 stop the nodes of a network that was added by name, all of them, and
 clear away its links and the note of it. :nil if there is none of
 that name, else how many nodes are to go. Each node of this machine
-is asked which process it is. Those of the network are each sent a
-task that exits them, not at once: the one that asks may itself be a
-node of the network, and is given the time to say what it did
+is sent a task that exits it if it is one of them, not at once: the one
+that asks may itself be a node of the network, and is given the time
+to say what it did
 ```
 
 ### node-wait

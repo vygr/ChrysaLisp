@@ -297,7 +297,8 @@ Usage: forward [options] [path] ...
         -j --jobs num: max jobs per batch, default 1.
 
     Scan source files for use of forward
-    references to functions or macros.
+    references to functions or macros. What
+    is in a comment is not looked at.
 
     If no paths given on command line
     then will test files from stdin.

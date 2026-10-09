@@ -8,6 +8,11 @@
 ;at cluster 2
 (defq +ff_sectors 1024 +ff_reserved 32 +ff_fat_sectors 8 +ff_heap (+ 32 8 8))
 
+(defun ff-fat (image cluster next)
+	;an entry of the table, in both copies of it
+	(set-int image (+ (* +ff_reserved 512) (* cluster 4)) next)
+	(set-int image (+ (* (+ +ff_reserved +ff_fat_sectors) 512) (* cluster 4)) next))
+
 (defun ff-new (label)
 	;an empty volume, as a string to be filled in
 	(defq image (exfat-zeros (* +ff_sectors 512)))
@@ -18,11 +23,6 @@
 	(each (# (set-byte image (+ 82 (!)) (code %0))) "FAT32   ")
 	(ff-fat image 0 0x0ffffff8) (ff-fat image 1 0x0fffffff) (ff-fat image 2 0x0fffffff)
 	image)
-
-(defun ff-fat (image cluster next)
-	;an entry of the table, in both copies of it
-	(set-int image (+ (* +ff_reserved 512) (* cluster 4)) next)
-	(set-int image (+ (* (+ +ff_reserved +ff_fat_sectors) 512) (* cluster 4)) next))
 
 (defun ff-put (image clusters data)
 	;data in these clusters, chained in this order

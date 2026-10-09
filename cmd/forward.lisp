@@ -12,7 +12,8 @@
         -j --jobs num: max jobs per batch, default 1.
 
     Scan source files for use of forward
-    references to functions or macros.
+    references to functions or macros. What
+    is in a comment is not looked at.
 
     If no paths given on command line
     then will test files from stdin.")
@@ -24,6 +25,14 @@
 	(with-read-lock file
 		(defq defs_map (Fmap 11) uses_map (Fmap 101))
 		(files-scan file (lambda (input file line idx)
+			;a comment can name a function that is defined further on, it
+			;does not call it. It starts at a ; with an even number of
+			;quotes before it, one inside a string is not one
+			(defq quotes 0)
+			(when (defq cut (some! (# (cond
+					((eql %0 (ascii-char 34)) (++ quotes) :nil)
+					((and (eql %0 ";") (= (logand quotes 1) 0)) (!)))) (list input)))
+				(setq input (slice input 0 cut)))
 			(defq defs (matches input "^\\(def(un|macro)\\s+([^ \r\f\v\n\t()]+)")
 				uses (matches input "\\(\\s*(\\D[^ \r\f\v\n\t()]*)"))
 			(when (nempty? defs)

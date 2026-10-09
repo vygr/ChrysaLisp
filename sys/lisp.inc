@@ -121,16 +121,6 @@
 	(while (and (< (length (lisp-nodes)) want) (< (- (pii-time) t0) (task-timeout 10)))
 		(task-sleep 10000)))
 
-(defun node-spawn (&optional num kind script)
-	; (node-spawn [num kind script]) -> (pid ...)
-	;start num more nodes on this machine, default 1, each linked to this
-	;node and to each other. kind and script are as (node-start) has them,
-	;so a GUI node can be added to a TUI network, and a TUI node to a GUI
-	;one.
-	(setd num 1)
-	(if (< num 1) (list)
-		(node-start (inc num) (second (node-shape :full (inc num))) :nil kind script)))
-
 (defun node-shape (shape &optional cnt)
 	; (node-shape shape [cnt]) -> (total pairs)
 	;the links of a network of a shape, each a list of two node numbers.
@@ -170,6 +160,16 @@
 			(range (inc i) total))) (range 0 total))))
 	(list total pairs))
 
+(defun node-spawn (&optional num kind script)
+	; (node-spawn [num kind script]) -> (pid ...)
+	;start num more nodes on this machine, default 1, each linked to this
+	;node and to each other. kind and script are as (node-start) has them,
+	;so a GUI node can be added to a TUI network, and a TUI node to a GUI
+	;one.
+	(setd num 1)
+	(if (< num 1) (list)
+		(node-start (inc num) (second (node-shape :full (inc num))) :nil kind script)))
+
 (defun node-net (shape &optional cnt fronts kind script id sid)
 	; (node-net shape [cnt fronts kind script id sid]) -> (pid ...)
 	;make this node node 0 of a network of a shape, (node-shape) has them
@@ -205,6 +205,16 @@
 	(node-wait (+ before (length (filter (lambda (pid) (> pid 0)) pids))))
 	pids)
 
+(defun mail-read-timeout (mbox &optional timeout)
+	; (mail-read-timeout mbox [timeout_us]) -> msg | :nil
+	(defq timer (mail-timeout (mail-mbox) (ifn timeout (task-timeout 1)) 0))
+	(when (= (mail-select (list mbox timer)) 0)
+		;mail came first, so cancel the timer
+		(mail-timeout timer 0 0)
+		(mail-read mbox)))
+
+(defq mail-timeout-read mail-read-timeout)
+
 (defun node-nets ()
 	; (node-nets) -> ((id shape total (pid ...) (link ...) file sid) ...)
 	;the networks added to this machine's sessions by name, (node-net)
@@ -236,9 +246,9 @@
 	;stop the nodes of a network that was added by name, all of them, and
 	;clear away its links and the note of it. :nil if there is none of
 	;that name, else how many nodes are to go. Each node of this machine
-	;is asked which process it is. Those of the network are each sent a
-	;task that exits them, not at once: the one that asks may itself be a
-	;node of the network, and is given the time to say what it did
+	;is sent a task that exits it if it is one of them, not at once: the one
+	;that asks may itself be a node of the network, and is given the time
+	;to say what it did
 	(when (defq nets (node-nets) net (some (# (if (eql (first %0) id) %0)) nets))
 		(bind '(& & & pids links file sid) net)
 		;a network that one of these nodes added is hung from it, and would
@@ -250,24 +260,16 @@
 					(- -1 (const (length ".session"))))) pids)
 				(setq told (+ told (ifn (node-stop other) 0)))))
 			nets)
-		;the nodes of this machine, and of the network's system if it is
-		;one of its own
-		(defq mbox (mail-mbox) nodes (cat (lisp-nodes :t) (if sid (lisp-nodes sid) (list)))
-			doomed (list))
-		(each (# (open-task (str `(mail-send (hex-decode ,(hex-encode mbox))
-				(cat (str (pii-pid)) " " (hex-encode (task-nodeid)))))
-			%0 +kn_call_pin 0 (mail-mbox))) nodes)
-		(times (length nodes)
-			(when (defq reply (mail-read-timeout mbox (task-timeout 2)))
-				(bind '(pid node) (split reply " "))
-				(if (find (str-as-num pid) pids) (push doomed node))))
-		;each is told now, while every one of them is up to pass it on, to
-		;go in a moment, by itself. One node told to tell them later may
-		;be gone by then, and a node that goes cuts off those the mail
-		;went through it to reach, the far side of a ring was left running
+		;every node of this machine, and of the network's system if it is
+		;one of its own, is sent the processes that are to go, and one that
+		;finds it is one of them goes, in a moment, by itself. They are told
+		;now, while every one of them is up to pass it on: a node that goes
+		;cuts off those the mail went through it to reach, the far side of
+		;a ring was left running. None is asked which it is and waited on,
+		;a node that has just gone is still known of, and never answers
 		(defq wait (/ (task-timeout 1) 2))
-		(each (# (open-task (str `(progn (task-sleep ,wait) (pii-exit)))
-			(hex-decode %0) +kn_call_pin 0 (mail-mbox))) doomed)
+		(each (# (open-task (str `(if (find (pii-pid) (quote ,pids)) (progn (task-sleep ,wait) (pii-exit))))
+			%0 +kn_call_pin 0 (mail-mbox))) (cat (lisp-nodes :t) (if sid (lisp-nodes sid) (list))))
 		(each (# (pii-remove (cat "/tmp/" %0))) links)
 		;the note, less this network's lines
 		;each line that stays ends as it did, what is noted next goes on
@@ -278,17 +280,7 @@
 					((starts-with "net " line) (setq keep (nql (second (split line " ")) id)))
 					(keep)))
 			(split (ifn (load file) "") (ascii-char 10)))))) file)
-		(+ told (length doomed))))
-
-(defun mail-read-timeout (mbox &optional timeout)
-	; (mail-read-timeout mbox [timeout_us]) -> msg | :nil
-	(defq timer (mail-timeout (mail-mbox) (ifn timeout (task-timeout 1)) 0))
-	(when (= (mail-select (list mbox timer)) 0)
-		;mail came first, so cancel the timer
-		(mail-timeout timer 0 0)
-		(mail-read mbox)))
-
-(defq mail-timeout-read mail-read-timeout)
+		(+ told (length pids))))
 
 (defun net-quiet (&optional delay count last_cnt)
 	; (net-quiet [delay_us] [stable_count] [last_cnt]) -> (node_id ...)
