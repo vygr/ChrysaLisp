@@ -45,6 +45,10 @@
 			(while (defq raw_line (read-line in))
 				(task-slice)
 				(++ line_no)
+				;the name of a definition is on the line its defun is on. A
+				;defun with none after it is a word of something else, a key
+				;of a case
+				(setq want :nil)
 				(bind '(toks states) (. syntax :tokenize (trim-end raw_line "\r")))
 				(each (lambda (tok state)
 					(case state

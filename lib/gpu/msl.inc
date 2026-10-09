@@ -26,16 +26,16 @@
 	(if (eql (first (setq val (str val))) "-") (cat "(" val ")") val))
 
 (defun msl-expr (node)
-	(bind '(type tag a &optional b) node)
-	(case tag
-		(:lit (cond
-			((eql type :bool) (if a "true" "false"))
-			((msl-num a))))
-		(:var (msl-name a))
-		(:swz (cat (msl-expr b) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
-		(:user (cat (msl-name a) "(" (join (map msl-expr b) ", ") ")"))
-		(:t (defq args (map msl-expr b))
-			(cond
+	(sh-fold node (lambda (node args)
+		(bind '(type tag a &optional b) node)
+		(case tag
+			(:lit (cond
+				((eql type :bool) (if a "true" "false"))
+				((msl-num a))))
+			(:var (msl-name a))
+			(:swz (cat (first args) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
+			(:user (cat (msl-name a) "(" (join args ", ") ")"))
+			(:t (cond
 				((and (eql a '*) (eql type :vec3) (eql (first (first b)) :mat4))
 					;matrices, then a vec3, which is turned by the 3 by 3
 					(cat "sh_mul3(" (join (slice args 0 -2) " * ") ", " (last args) ")"))
@@ -50,30 +50,38 @@
 					;a float that goes with a vector is made a vector
 					(cat (if (eql a 'mod) "sh_mod" (str a)) "(" (join (map (# (if (and (shader-dim type)
 						(eql (first %1) :float)) (cat (msl-type type) "(" %0 ")") %0)) args b) ", ") ")"))
-				((cat (str a) "(" (join args ", ") ")"))))))
+				((cat (str a) "(" (join args ", ") ")"))))))))
 
 (defun msl-block (block indent)
-	(defq tab (pad "" indent "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"))
-	(each (lambda ((tag &optional a b c d))
-		(case tag
-			(:defq (push lines (cat tab (msl-type (first b)) " " (msl-name a) " = " (msl-expr b) ";")))
-			(:setq (push lines (cat tab (msl-name a) " = " (msl-expr b) ";")))
-			(:setsw (push lines (cat tab (msl-name a) "."
-				(apply (const cat) (map (# (elem-get "xyzw" %0)) b)) " = " (msl-expr c) ";")))
-			(:if (push lines (cat tab "if (" (msl-expr a) ")") (cat tab "{"))
-				(msl-block b (inc indent))
-				(push lines (cat tab "}"))
-				(when (nempty? c)
-					(push lines (cat tab "else") (cat tab "{"))
-					(msl-block c (inc indent))
-					(push lines (cat tab "}"))))
-			(:for (defq i (msl-name a))
-				(push lines (cat tab "for (int " i " = " (msl-expr b) "; " i " < " (msl-expr c) "; " i "++)")
-					(cat tab "{"))
-				(msl-block d (inc indent))
-				(push lines (cat tab "}")))
-			(:break (push lines (cat tab "break;")))
-			(:return (push lines (cat tab "return " (msl-expr a) ";"))))) block))
+	;the lines of a block. An if and a for have blocks in them: what is
+	;still to come is a list, the next thing last, a statement and how far
+	;in it is, or a line that closes what was opened before it
+	(defq stack (map (# (list :stmt %0 indent)) (reverse block)))
+	(while (defq item (pop stack))
+		(bind '(kind p0 &optional indent) item)
+		(cond
+			((eql kind :line) (push lines p0))
+			(:t (defq tab (pad "" indent "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"))
+				(bind '(tag &optional a b c d) p0)
+				(case tag
+					(:defq (push lines (cat tab (msl-type (first b)) " " (msl-name a) " = " (msl-expr b) ";")))
+					(:setq (push lines (cat tab (msl-name a) " = " (msl-expr b) ";")))
+					(:setsw (push lines (cat tab (msl-name a) "."
+						(apply (const cat) (map (# (elem-get "xyzw" %0)) b)) " = " (msl-expr c) ";")))
+					(:if (push lines (cat tab "if (" (msl-expr a) ")") (cat tab "{"))
+						(when (nempty? c)
+							(push stack (list :line (cat tab "}")))
+							(each (# (push stack (list :stmt %0 (inc indent)))) (reverse c))
+							(push stack (list :line (cat tab "{")) (list :line (cat tab "else"))))
+						(push stack (list :line (cat tab "}")))
+						(each (# (push stack (list :stmt %0 (inc indent)))) (reverse b)))
+					(:for (defq i (msl-name a))
+						(push lines (cat tab "for (int " i " = " (msl-expr b) "; " i " < " (msl-expr c) "; " i "++)")
+							(cat tab "{"))
+						(push stack (list :line (cat tab "}")))
+						(each (# (push stack (list :stmt %0 (inc indent)))) (reverse d)))
+					(:break (push lines (cat tab "break;")))
+					(:return (push lines (cat tab "return " (msl-expr a) ";"))))))))
 
 (defun msl-inputs (program lines)
 	;the inputs block, packed types and pad words give the std140 offsets.

@@ -69,10 +69,15 @@
 	(sv-emit 'vp-cpy-fi reg base at))
 
 (defun sv-sets? (tree name)
-	;does any statement of a block set this variable
-	(and (list? tree) (nempty? tree)
-		(or (and (find (first tree) '(:setq :setsw)) (> (length tree) 1) (eql (second tree) name))
-			(some (# (sv-sets? %0 name)) tree))))
+	;does any statement of a block set this variable. The block is walked
+	;with a list as the stack of what is still to be looked at
+	(defq stack (list tree) found :nil)
+	(while (and (not found) (nempty? stack))
+		(when (and (list? (defq node (pop stack))) (nempty? node))
+			(if (and (find (first node) '(:setq :setsw)) (> (length node) 1) (eql (second node) name))
+				(setq found :t)
+				(each (# (push stack %0)) node))))
+	found)
 
 (defun sv-q (label)
 	(list 'quote label))
@@ -132,14 +137,27 @@
 	;variable is where it is kept. A product is worked out into new slots,
 	;each number of it a row of the one by a column of the other. With
 	;into, the last product of a chain is worked out there, a place that
-	;is no part of what it is made from
-	(bind '(type tag a &optional b) node)
-	(cond
-		((eql tag :var) (sv-var a))
-		(:t (defq at (sv-mat (first b)))
-			(each! (lambda (arg)
-				(defq with (sv-mat arg)
-					out (if (and into (= (!) (dec (length b)))) into (sv-slots :mat4))
+	;is no part of what it is made from.
+	;A product can be of products. It is laid out as steps first, a list
+	;as the stack of what is still to be laid out, and the steps are then
+	;done with a list of where each matrix so far is
+	(defq steps (list) stack (list (list :mat node into)) vs (list))
+	(while (defq item (pop stack))
+		(cond
+			((eql (first item) :mat)
+				(bind '(type tag a &optional b) (second item))
+				(cond
+					((eql tag :var) (push steps (list :var a)))
+					(:t (defq items (list (list :mat (first b) :nil)) to (third item))
+						(each! (# (push items (list :mat %0 :nil)
+							(list :mul (if (= (!) (dec (length b))) to)))) (list b) 1)
+						(each (# (push stack %0)) (reverse items)))))
+			((push steps item))))
+	(each (lambda ((kind p0))
+		(cond
+			((eql kind :var) (push vs (sv-var p0)))
+			(:t (defq with (pop vs) at (pop vs)
+					out (ifn p0 (sv-slots :mat4))
 					scale (sv-getf)
 					sums (list (sv-getf) (sv-getf) (sv-getf) (sv-getf))
 					terms (list (sv-getf) (sv-getf) (sv-getf) (sv-getf)))
@@ -156,8 +174,9 @@
 						(if (/= k 0) (each (# (sv-emit 'vp-add-ff %0 %1)) terms sums))) (range 0 4))
 					(each (# (sv-st %0 (+ out (* (+ (* row 4) (!)) 8)))) sums)) (range 0 4))
 				(sv-puts (cat (list scale) sums terms))
-				(setq at out)) (list b) 1)
-			at)))
+				(push vs out))))
+		steps)
+	(first vs))
 
 (defun sv-mat-vec (at regs)
 	;a matrix times a vector that is in registers, to new registers. A
@@ -266,13 +285,16 @@
 			(sv-puts a) b)))
 
 (defun sv-calls? (node)
-	;does this expression call a function of the shader ?
-	(bind '(type tag a &optional b) node)
-	(case tag
-		(:user :t)
-		(:swz (sv-calls? b))
-		(:op (some sv-calls? b))
-		(:t :nil)))
+	;does this expression call a function of the shader ? Walked with a
+	;list as the stack of what is still to be looked at
+	(defq stack (list node) found :nil)
+	(while (and (not found) (nempty? stack))
+		(bind '(type tag a &optional b) (pop stack))
+		(case tag
+			(:user (setq found :t))
+			(:swz (push stack b))
+			(:op (each (# (push stack %0)) b))))
+	found)
 
 ;An expression is a tree, and code for it is made without a function that
 ;calls itself, there is no stack to spare for one. The tree is first laid
@@ -580,56 +602,69 @@
 			(sv-puts regs))))
 
 (defun sv-block (block)
-	(each (lambda ((tag &optional a b c d))
-		(case tag
-			(:defq (sv-define a (first b) b))
-			(:setq (cond
-				((eql (first b) :mat4) (sv-mat-copy (sv-mat b) (sv-var a)))
-				(:t (defq regs (sv-expr b))
-					(sv-store regs (first b) (sv-var a))
-					(sv-puts regs))))
-			(:setsw (defq regs (sv-expr c) offset (sv-var a))
-				(each (# (bind '(base at) (sv-at (+ offset (* %1 8))))
-					(sv-emit 'vp-cpy-fi %0 base at)) regs b)
-				(sv-puts regs))
-			(:if (defq l_else (sv-new-label))
-				(sv-branch a l_else :nil)
-				(sv-block b)
+	;code for the statements of a block. An if and a for have blocks in
+	;them, and no function here calls itself: what is still to be done is
+	;a list, the next thing last, a statement or what is to come after a
+	;block that was put there before it
+	(defq stack (map (# (list :stmt %0)) (reverse block)))
+	(while (defq item (pop stack))
+		(bind '(kind p0 &optional p1 p2) item)
+		(case kind
+			(:label (sv-emit 'vp-label (sv-q p0)))
+			(:else ;the block of an if is done, p0 its else label, p1 the other block
 				(cond
-					((nempty? c)
+					((nempty? p1)
 						(sv-emit 'vp-jmp (sv-q (defq l_end (sv-new-label))))
-						(sv-emit 'vp-label (sv-q l_else))
-						(sv-block c)
-						(sv-emit 'vp-label (sv-q l_end)))
-					((sv-emit 'vp-label (sv-q l_else)))))
-			(:for (defq offset (sv-slots :int) l_top (sv-new-label) l_exit (sv-new-label)
-					regs (sv-expr b))
-				(push vars (list a offset))
-				(sv-store regs :int offset)
-				(sv-puts regs)
-				(sv-emit 'vp-label (sv-q l_top))
-				(defq regs (sv-load :int offset) end (sv-expr c))
-				(sv-emit 'vp-bge-rr (first end) (first regs) (sv-q l_exit))
-				(sv-puts regs) (sv-puts end)
-				(push loops l_exit)
-				(sv-block d)
+						(sv-emit 'vp-label (sv-q p0))
+						(push stack (list :label l_end))
+						(each (# (push stack (list :stmt %0))) (reverse p1)))
+					((sv-emit 'vp-label (sv-q p0)))))
+			(:next ;the block of a for is done, p0 its counter, p1 and p2 its labels
 				(pop loops)
-				(defq regs (sv-load :int offset))
+				(defq regs (sv-load :int p0))
 				(sv-emit 'vp-add-cr 1 (first regs))
-				(sv-store regs :int offset)
+				(sv-store regs :int p0)
 				(sv-puts regs)
-				(sv-emit 'vp-jmp (sv-q l_top))
-				(sv-emit 'vp-label (sv-q l_exit)))
-			(:break (sv-emit 'vp-jmp (sv-q (last loops))))
-			(:return (cond
-					;a matrix is copied to where what is given goes
-					((eql (first a) :mat4)
-						(defq at (sv-mat a ret_offset))
-						(if (/= at ret_offset) (sv-mat-copy at ret_offset)))
-					(:t (defq regs (sv-expr a))
-						(sv-store regs (first a) ret_offset)
-						(sv-puts regs)))
-				(sv-emit 'vp-jmp (sv-q ret_label))))) block))
+				(sv-emit 'vp-jmp (sv-q p1))
+				(sv-emit 'vp-label (sv-q p2)))
+			(:t (bind '(tag &optional a b c d) p0)
+				(case tag
+					(:defq (sv-define a (first b) b))
+					(:setq (cond
+						((eql (first b) :mat4) (sv-mat-copy (sv-mat b) (sv-var a)))
+						(:t (defq regs (sv-expr b))
+							(sv-store regs (first b) (sv-var a))
+							(sv-puts regs))))
+					(:setsw (defq regs (sv-expr c) offset (sv-var a))
+						(each (# (bind '(base at) (sv-at (+ offset (* %1 8))))
+							(sv-emit 'vp-cpy-fi %0 base at)) regs b)
+						(sv-puts regs))
+					(:if (defq l_else (sv-new-label))
+						(sv-branch a l_else :nil)
+						(push stack (list :else l_else c))
+						(each (# (push stack (list :stmt %0))) (reverse b)))
+					(:for (defq offset (sv-slots :int) l_top (sv-new-label) l_exit (sv-new-label)
+							regs (sv-expr b))
+						(push vars (list a offset))
+						(sv-store regs :int offset)
+						(sv-puts regs)
+						(sv-emit 'vp-label (sv-q l_top))
+						(defq regs (sv-load :int offset) end (sv-expr c))
+						(sv-emit 'vp-bge-rr (first end) (first regs) (sv-q l_exit))
+						(sv-puts regs) (sv-puts end)
+						(push loops l_exit)
+						(push stack (list :next offset l_top l_exit))
+						(each (# (push stack (list :stmt %0))) (reverse d)))
+					(:break (sv-emit 'vp-jmp (sv-q (last loops))))
+					(:return (cond
+							;a matrix is copied to where what is given goes
+							((eql (first a) :mat4)
+								(defq at (sv-mat a ret_offset))
+								(if (/= at ret_offset) (sv-mat-copy at ret_offset)))
+							(:t (defq regs (sv-expr a))
+								(sv-store regs (first a) ret_offset)
+								(sv-puts regs)))
+						(sv-emit 'vp-jmp (sv-q ret_label))))))))
 
 (defun sv-program (program prefix &optional entry)
 	; -> (main_param_offsets main_ret_offset), or those of the entry named

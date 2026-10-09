@@ -61,11 +61,11 @@
 	;a rule is kept as (weights low one fill pairs clauses), all worked out
 	;here, the once, so that applying a rule is only a matter of looking
 	(defq nums (filter (# (num? %0)) ws)
-		rule (list ws (if (nempty? nums) (reduce (# (min %0 %1)) nums))
+		made (list ws (if (nempty? nums) (reduce (# (min %0 %1)) nums))
 			(if (find :one flags) :t) (if (find :fill flags) :t)
 			(if (find :pairs flags) :t) (if (find :clauses flags) :t)
 			(if (find :even flags) :t)))
-	(each (# (. +rules :insert %0 rule)) (words ops)))
+	(each (# (. +rules :insert %0 made)) (words ops)))
 
 ;definitions, the name and arguments stay on the opening line. A short one,
 ;with the one body form, is a line

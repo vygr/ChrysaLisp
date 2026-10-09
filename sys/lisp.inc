@@ -251,38 +251,50 @@
 	;is sent a task that exits it if it is one of them, not at once: the one
 	;that asks may itself be a node of the network, and is given the time
 	;to say what it did
-	(when (defq nets (node-nets) net (some (# (if (eql (first %0) id) %0)) nets))
-		(bind '(& & & pids links file sid) net)
+	(when (some (# (eql (first %0) id)) (defq nets (node-nets)))
 		;a network that one of these nodes added is hung from it, and would
-		;be left with no way in, so it goes first. The note of a network is
-		;named for the process of the node that added it
-		(defq told 0)
-		(each (lambda ((other & & & & its_file &))
-			(if (find (str-as-num (slice its_file (const (length "/tmp/chrysalisp_"))
-					(- -1 (const (length ".session"))))) pids)
-				(setq told (+ told (ifn (node-stop other) 0)))))
-			nets)
-		;every node of this machine, and of the network's system if it is
-		;one of its own, is sent the processes that are to go, and one that
-		;finds it is one of them goes, in a moment, by itself. They are told
-		;now, while every one of them is up to pass it on: a node that goes
-		;cuts off those the mail went through it to reach, the far side of
-		;a ring was left running. None is asked which it is and waited on,
-		;a node that has just gone is still known of, and never answers
-		(defq wait (/ (task-timeout 1) 2))
-		(each (# (open-task (str `(if (find (pii-pid) (quote ,pids)) (progn (task-sleep ,wait) (pii-exit))))
-			%0 +kn_call_pin 0 (mail-mbox))) (cat (lisp-nodes :t) (if sid (lisp-nodes sid) (list))))
-		(each (# (pii-remove (cat "/tmp/" %0))) links)
-		;the note, less this network's lines
-		;each line that stays ends as it did, what is noted next goes on
-		;the end of the file and would run on from a last line that did not
-		(defq keep :t)
-		(save (apply (const cat) (cat (list "") (map (# (cat %0 (ascii-char 10))) (filter (lambda (line)
-				(cond
-					((starts-with "net " line) (setq keep (nql (second (split line " ")) id)))
-					(keep)))
-			(split (ifn (load file) "") (ascii-char 10)))))) file)
-		(+ told (length pids))))
+		;be left with no way in, so it goes first, and so for one hung from
+		;that. They are found with a list of those still to look at, this
+		;does not call itself. The note of a network is named for the
+		;process of the node that added it
+		(defq found (list) todo (list id) told 0)
+		(while (defq name (pop todo))
+			(when (and (not (find name found))
+					(defq net (some (# (if (eql (first %0) name) %0)) nets)))
+				(push found name)
+				(each (lambda ((other & & & & its_file &))
+					(if (find (str-as-num (slice its_file (const (length "/tmp/chrysalisp_"))
+							(- -1 (const (length ".session"))))) (elem-get net 3))
+						(push todo other)))
+					nets)))
+		;the last found are the furthest out, and go first
+		(each! (lambda (name)
+			(when (defq net (some (# (if (eql (first %0) name) %0)) (node-nets)))
+				(bind '(& & & pids links file sid) net)
+				(defq id name)
+				;every node of this machine, and of the network's system if it is
+				;one of its own, is sent the processes that are to go, and one that
+				;finds it is one of them goes, in a moment, by itself. They are told
+				;now, while every one of them is up to pass it on: a node that goes
+				;cuts off those the mail went through it to reach, the far side of
+				;a ring was left running. None is asked which it is and waited on,
+				;a node that has just gone is still known of, and never answers
+				(defq wait (/ (task-timeout 1) 2))
+				(each (# (open-task (str `(if (find (pii-pid) (quote ,pids)) (progn (task-sleep ,wait) (pii-exit))))
+					%0 +kn_call_pin 0 (mail-mbox))) (cat (lisp-nodes :t) (if sid (lisp-nodes sid) (list))))
+				(each (# (pii-remove (cat "/tmp/" %0))) links)
+				;the note, less this network's lines
+				;each line that stays ends as it did, what is noted next goes on
+				;the end of the file and would run on from a last line that did not
+				(defq keep :t)
+				(save (apply (const cat) (cat (list "") (map (# (cat %0 (ascii-char 10))) (filter (lambda (line)
+						(cond
+							((starts-with "net " line) (setq keep (nql (second (split line " ")) id)))
+							(keep)))
+					(split (ifn (load file) "") (ascii-char 10)))))) file)
+				(setq told (+ told (length pids)))))
+			(list found) -1 0)
+		told))
 
 (defun net-quiet (&optional delay count last_cnt)
 	; (net-quiet [delay_us] [stable_count] [last_cnt]) -> (node_id ...)

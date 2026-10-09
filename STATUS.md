@@ -4,6 +4,49 @@
 
 ------
 
+No function of the tree calls itself. Chris: "this is the ChrysaLisp
+way, we don't do recursive functions", "the stack will run out ! use a
+(list) as a user stack", and "They are slower as well, due to causeing
+shadowing of +str_hashslots !". Asked whether to go on to the ones that
+call themselves: "yes carry on, we have to fix this."
+
+*	`forward` reads a file with the `Syntax` class now, as the
+	highlighter and `fmt` do, not line by line. It reports a function
+	used above where it is defined, and a function that calls itself,
+	`file (line) name calls itself`. Over the tree, `files | forward`,
+	it reports `tests/core/test_traps.lisp` only, which is there to show
+	the trap.
+
+*	It found a fault that was real. `(structure)` with a `(union)` in it
+	threw `symbol_not_bound _structure`, the macro's helper called
+	itself from inside a module. Nothing in the tree had a union in a
+	structure, so nothing had shown it. `lib/class/struct.inc` is a loop
+	over a list of open frames now, and `tests/core/test_structs.lisp`
+	has a union and a union in a union.
+
+*	`lib/gpu/`, all of it. `(sh-fold node fnc)` in `shader.inc` is the
+	one walk of an expression, leaves first, and the expression writers
+	of glsl, msl, cpu and spirv are each a function handed to it. The
+	block writers keep a list of what is left to do. `(spv-type)` gives
+	out its ids in the order it did.
+
+*	Outside it: `(test-equal?)` in `tests/suite.inc`, `(real-to-str)`
+	in `class/lisp/root.inc`, `(atan)` of the sunclock, `(node-stop)` in
+	`sys/lisp.inc`, and a local named `rule` in `lib/text/format.inc`
+	that was not a call but hid the function of that name.
+
+What was run. The nine shaders through `shader -t` for glsl, msl, spirv,
+vp, cpu and tree, 54 outputs, each the same byte for byte as before the
+work. `make all boot`, the boot image has the hash it had. The new
+`(atan)` against the old at ten values, the same. Every test on the M4,
+the x64 and the Pi, 4,975 passed.
+
+Not seen: a shader on a GPU after this, only that what is written for
+each back end is what was written before. `(node-stop)` of a net that
+started a net, by a test; the tests stop nets one deep.
+
+------
+
 Windows, Martyn Blyss's second run, of the push with the two fixes.
 
 *	The user of a session is right there now, `solo/test_user` passes,

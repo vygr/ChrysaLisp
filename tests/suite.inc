@@ -73,10 +73,19 @@
 	; (test-equal? a b) -> :t | :nil
 	;lists compare by content, to any depth, all else by eql. A list also
 	;matches a nums or other vector with the same elements, as an expected
-	;value can only be written as a list when it is nested.
-	(if (and (array? a) (array? b) (or (list? a) (list? b)))
-		(and (= (length a) (length b)) (every test-equal? a b))
-		(eql a b)))
+	;value can only be written as a list when it is nested. The pairs
+	;still to compare are a list, this does not call itself
+	(defq pairs (list a b) same :t)
+	(while (and same (nempty? pairs))
+		(defq b (pop pairs) a (pop pairs))
+		(cond
+			((and (array? a) (array? b) (or (list? a) (list? b)))
+				(if (= (length a) (length b))
+					(each (# (push pairs %0 %1)) a b)
+					(setq same :nil)))
+			((eql a b))
+			((setq same :nil))))
+	same)
 
 (defun equal? (a b)
 	; (equal? a b) -> :t | :nil

@@ -1222,10 +1222,12 @@
 (defun real-to-str (r &optional precision)
 	; (real-to-str real [precision]) -> str
 	(ifn (real? r) (setq r (n2r r)))
+	;one that is less than 0 is that of what it is without its sign, with
+	;a - before it
+	(defq sign "")
+	(when (< r (const (n2r 0))) (setq r (neg r) sign "-"))
 	(cond
 		((= r (const (n2r 0))) "0.0")
-		((< r (const (n2r 0)))
-			(cat "-" (real-to-str (neg r) precision)))
 		(:t
 			(setd precision 8)
 			(setq precision (min 14 (max 1 precision)))
@@ -1257,10 +1259,10 @@
 				frac_clean (trim-end frac_str "0"))
 			(if (eql frac_clean "") (setq frac_clean "0"))
 			(if is_exp
-				(cat (str int_part) "." frac_clean "e"
+				(cat sign (str int_part) "." frac_clean "e"
 					(if (< exp 0) "-" "+")
 					(pad (str (abs exp)) 2 "0"))
-				(cat (str int_part) "." frac_clean)))))
+				(cat sign (str int_part) "." frac_clean)))))
 
 (defun str-as-num (%0)
 	; (str-as-num str) -> num

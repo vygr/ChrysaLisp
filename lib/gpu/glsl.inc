@@ -19,16 +19,16 @@
 	(if (eql (first (setq val (str val))) "-") (cat "(" val ")") val))
 
 (defun glsl-expr (node)
-	(bind '(type tag a &optional b) node)
-	(case tag
-		(:lit (cond
-			((eql type :bool) (if a "true" "false"))
-			((glsl-num a))))
-		(:var (glsl-name a))
-		(:swz (cat (glsl-expr b) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
-		(:user (cat (glsl-name a) "(" (join (map glsl-expr b) ", ") ")"))
-		(:t (defq args (map glsl-expr b))
-			(cond
+	(sh-fold node (lambda (node args)
+		(bind '(type tag a &optional b) node)
+		(case tag
+			(:lit (cond
+				((eql type :bool) (if a "true" "false"))
+				((glsl-num a))))
+			(:var (glsl-name a))
+			(:swz (cat (first args) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
+			(:user (cat (glsl-name a) "(" (join args ", ") ")"))
+			(:t (cond
 				((and (eql a '*) (eql type :vec3) (eql (first (first b)) :mat4))
 					;matrices, then a vec3, which is turned by the 3 by 3
 					(cat "sh_mul3(" (join (slice args 0 -2) " * ") ", " (last args) ")"))
@@ -38,30 +38,38 @@
 						(cat "(" (join args (elem-get
 							'(" + " " - " " * " " / " " < " " <= " " > " " >= " " == " " != " " && " " || ") i)) ")")))
 				((eql a 'not) (cat "(!" (first args) ")"))
-				((cat (str a) "(" (join args ", ") ")"))))))
+				((cat (str a) "(" (join args ", ") ")"))))))))
 
 (defun glsl-block (block indent)
-	(defq tab (pad "" indent "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"))
-	(each (lambda ((tag &optional a b c d))
-		(case tag
-			(:defq (push lines (cat tab (glsl-type (first b)) " " (glsl-name a) " = " (glsl-expr b) ";")))
-			(:setq (push lines (cat tab (glsl-name a) " = " (glsl-expr b) ";")))
-			(:setsw (push lines (cat tab (glsl-name a) "."
-				(apply (const cat) (map (# (elem-get "xyzw" %0)) b)) " = " (glsl-expr c) ";")))
-			(:if (push lines (cat tab "if (" (glsl-expr a) ")") (cat tab "{"))
-				(glsl-block b (inc indent))
-				(push lines (cat tab "}"))
-				(when (nempty? c)
-					(push lines (cat tab "else") (cat tab "{"))
-					(glsl-block c (inc indent))
-					(push lines (cat tab "}"))))
-			(:for (defq i (glsl-name a))
-				(push lines (cat tab "for (int " i " = " (glsl-expr b) "; " i " < " (glsl-expr c) "; " i "++)")
-					(cat tab "{"))
-				(glsl-block d (inc indent))
-				(push lines (cat tab "}")))
-			(:break (push lines (cat tab "break;")))
-			(:return (push lines (cat tab "return " (glsl-expr a) ";"))))) block))
+	;the lines of a block. An if and a for have blocks in them: what is
+	;still to come is a list, the next thing last, a statement and how far
+	;in it is, or a line that closes what was opened before it
+	(defq stack (map (# (list :stmt %0 indent)) (reverse block)))
+	(while (defq item (pop stack))
+		(bind '(kind p0 &optional indent) item)
+		(cond
+			((eql kind :line) (push lines p0))
+			(:t (defq tab (pad "" indent "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"))
+				(bind '(tag &optional a b c d) p0)
+				(case tag
+					(:defq (push lines (cat tab (glsl-type (first b)) " " (glsl-name a) " = " (glsl-expr b) ";")))
+					(:setq (push lines (cat tab (glsl-name a) " = " (glsl-expr b) ";")))
+					(:setsw (push lines (cat tab (glsl-name a) "."
+						(apply (const cat) (map (# (elem-get "xyzw" %0)) b)) " = " (glsl-expr c) ";")))
+					(:if (push lines (cat tab "if (" (glsl-expr a) ")") (cat tab "{"))
+						(when (nempty? c)
+							(push stack (list :line (cat tab "}")))
+							(each (# (push stack (list :stmt %0 (inc indent)))) (reverse c))
+							(push stack (list :line (cat tab "{")) (list :line (cat tab "else"))))
+						(push stack (list :line (cat tab "}")))
+						(each (# (push stack (list :stmt %0 (inc indent)))) (reverse b)))
+					(:for (defq i (glsl-name a))
+						(push lines (cat tab "for (int " i " = " (glsl-expr b) "; " i " < " (glsl-expr c) "; " i "++)")
+							(cat tab "{"))
+						(push stack (list :line (cat tab "}")))
+						(each (# (push stack (list :stmt %0 (inc indent)))) (reverse d)))
+					(:break (push lines (cat tab "break;")))
+					(:return (push lines (cat tab "return " (glsl-expr a) ";"))))))))
 
 (defun glsl-decls (program)
 	;the inputs as uniforms, the constants, the globals and the functions

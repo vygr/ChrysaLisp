@@ -17,7 +17,8 @@
 	(push values (num base) type)
 	(++ base alloc))
 
-(defun _structure (base line)
+(defun _structure_line (base line)
+	;a line that is not a union, the base after it
 	(case (first line)
 		(align
 			(if (> (length line) 1)
@@ -29,11 +30,6 @@
 		(struct
 			(defq field (second line) alloc (eval (third line)))
 			(new-field (str alloc) alloc +byte_size))
-		(union
-			(defq union_base base max_base base)
-			(each! (lambda (line) (setq max_base (max max_base (_structure union_base line))))
-				(list line) 1)
-			(setq base max_base))
 		(:t (each! (lambda (field)
 				(case (first line)
 					(byte (new-field "b" +byte_size))
@@ -59,6 +55,35 @@
 					(nodeid (new-field "no" +node_id_size +byte_size))
 					(netid (new-field "ne" +net_id_size +byte_size))))
 				(list line) 1))) base)
+
+(defun _structure (base line)
+	;a line of a structure, the base after it. A union is lines that all
+	;start at the one base, and it ends where the longest of them does. A
+	;union can have a union in it. This did call itself for each, by name,
+	;and it is a function of a module, its name is gone once the module
+	;has loaded, so a structure with a union in it could not be made. The
+	;unions that are open are a list, each (lines next base longest)
+	(defq open (list) todo (list line base) value :nil)
+	(while todo
+		(bind '(line base) todo)
+		(setq todo :nil value :nil)
+		(if (eql (first line) 'union)
+			(push open (list line 1 base base))
+			(setq value (_structure_line base line)))
+		;hand the value on, to the union this was a line of, and find the
+		;next line that is to be done
+		(defq going :t)
+		(while (and going (nempty? open))
+			(defq frame (last open))
+			(if value (elem-set frame 3 (max (elem-get frame 3) value)))
+			(bind '(lines next start longest) frame)
+			(cond
+				((< next (length lines))
+					(elem-set frame 1 (inc next))
+					(setq todo (list (elem-get lines next) start) going :nil))
+				(:t (pop open)
+					(setq value longest)))))
+	value)
 
 (defmacro structure (name base &rest lines)
 	; (structure name base [(byte field ...)] ...)

@@ -204,79 +204,103 @@
 		((eql op 'reflect) (list (const cpu-reflect) a b))))
 
 (defun cpu-expr (node)
-	(bind '(type tag a &optional b) node)
-	(case tag
-		(:lit (if (eql type :float) (str-to-real a) a))
-		(:var (if (eql b :const) (second (some (# (if (eql (first %0) a) %0)) cvals)) a))
-		(:swz (defq v (cpu-expr b))
-			(cond
-				((= (length a) 1)
-					(cpu-fold (list (const elem-get) v (first a))))
-				((every (const =) a (range (first a) (+ (first a) (length a))))
-					(cpu-fold (list (const slice) v (first a) (inc (last a)))))
-				((cpu-fold (list (const cpu-swz) v (list (const quote) a))))))
-		(:user (cat (list (second (some (# (if (eql (first %0) a) %0)) fvals)))
-			(map cpu-expr b)))
-		(:t (cpu-fold (cpu-op a type (map cpu-expr b) (map (const first) b))))))
+	(sh-fold node (lambda (node args)
+		(bind '(type tag a &optional b) node)
+		(case tag
+			(:lit (if (eql type :float) (str-to-real a) a))
+			(:var (if (eql b :const) (second (some (# (if (eql (first %0) a) %0)) cvals)) a))
+			(:swz (defq v (first args))
+				(cond
+					((= (length a) 1)
+						(cpu-fold (list (const elem-get) v (first a))))
+					((every (const =) a (range (first a) (+ (first a) (length a))))
+						(cpu-fold (list (const slice) v (first a) (inc (last a)))))
+					((cpu-fold (list (const cpu-swz) v (list (const quote) a))))))
+			(:user (cat (list (second (some (# (if (eql (first %0) a) %0)) fvals))) args))
+			(:t (cpu-fold (cpu-op a type args (map (const first) b))))))))
 
 (defun cpu-exits? (block in_loop)
-	;does this block hold a return, or a break of the loop it is in ?
-	(some (lambda ((tag &optional a b c d))
-		(case tag
-			(:return :t)
-			(:break (not in_loop))
-			(:if (or (cpu-exits? b in_loop) (cpu-exits? c in_loop)))
-			(:for (cpu-exits? d :t))
-			(:t :nil))) block))
+	;does this block hold a return, or a break of the loop it is in ? The
+	;blocks in it are asked in turn, from a list of those still to ask
+	(defq stack (list (list block in_loop)) found :nil)
+	(while (and (not found) (defq item (pop stack)))
+		(bind '(block in_loop) item)
+		(each (lambda ((tag &optional a b c d))
+			(case tag
+				(:return (setq found :t))
+				(:break (unless in_loop (setq found :t)))
+				(:if (push stack (list b in_loop) (list c in_loop)))
+				(:for (push stack (list d :t))))) block))
+	found)
 
 (defun cpu-loop-return? (block)
 	;does this block hold a return from inside a loop ?
-	(some (lambda ((tag &optional a b c d))
-		(case tag
-			(:if (or (cpu-loop-return? b) (cpu-loop-return? c)))
-			(:for (cpu-exits? d :t))
-			(:t :nil))) block))
+	(defq stack (list block) found :nil)
+	(while (and (not found) (defq block (pop stack)))
+		(each (lambda ((tag &optional a b c d))
+			(case tag
+				(:if (push stack b c))
+				(:for (if (cpu-exits? d :t) (setq found :t))))) block))
+	found)
 
 (defun cpu-block (block flag)
 	;forms for a block. With no flag it is the body of the function,
 	;and the value of the last form is the return value. With a flag
 	;it is the body of a loop, and the flag is set to leave the loop.
-	(cond
-		((empty? block) (list))
-		(:t (bind '(tag &optional a b c d) (first block))
-			(defq more (rest block))
+	;The forms of a block go onto a list. An if and a for have lists of
+	;their own, for the blocks in them, and the rest of a block can go
+	;inside the arms of an if that leaves it. Each is a thing to do, a
+	;block, its flag and the list its forms go onto, on a list of those
+	;still to do. No function here calls itself
+	(defq out (list) stack (list (list block flag out)))
+	(while (defq item (pop stack))
+		(bind '(block flag into) item)
+		(defq at -1 going :t)
+		(while (and going (< (++ at) (length block)))
+			(bind '(tag &optional a b c d) (elem-get block at))
 			(case tag
-				(:defq (cat (list (list (const defq) a (cpu-expr b))) (cpu-block more flag)))
-				(:setq (cat (list (list (const setq) a (cpu-expr b))) (cpu-block more flag)))
-				(:setsw (cat (list (list (const setq) a
-						(list (const cpu-swz-set) a (list (const quote) b) (cpu-expr c))))
-					(cpu-block more flag)))
-				(:return (if flag
-					(list (list (const setq) '_rv (cpu-expr a) flag :ret))
-					(list (cpu-expr a))))
-				(:break (list (list (const setq) flag :t)))
-				(:if (defq test (cpu-expr a))
-					(if (or (cpu-exits? b :nil) (cpu-exits? c :nil))
-						;the rest of the block goes inside both sides
-						(list (list (const if) test
-							(cat (list (const progn)) (cpu-block (cat b more) flag))
-							(cat (list (const progn)) (cpu-block (cat c more) flag))))
-						(cat (list (cat (list (const if) test
-								(cat (list (const progn)) (cpu-block b flag)))
-								(if (nempty? c) (list (cat (list (const progn)) (cpu-block c flag))) (list))))
-							(cpu-block more flag))))
-				(:for (defq loop_flag (sym (cat "_b" (str (++ flag_num))))
-						loop (list
-							(list (const defq) a (cpu-fold (list (const -) (cpu-expr b) 1)) loop_flag :nil)
-							(cat (list (const while) (list (const if) loop_flag :nil
-									(list (const <) (list (const setq) a (list (const +) a 1)) (cpu-expr c))))
-								(cpu-block d loop_flag))))
-					(if (cpu-exits? d :t)
-						;a return in the loop, so leave this block as well
-						(cat loop (list (list (const if) (list (const eql) loop_flag :ret)
-							(if flag (list (const setq) flag :ret) '_rv)
-							(cat (list (const progn)) (cpu-block more flag)))))
-						(cat loop (cpu-block more flag))))))))
+				(:defq (push into (list (const defq) a (cpu-expr b))))
+				(:setq (push into (list (const setq) a (cpu-expr b))))
+				(:setsw (push into (list (const setq) a
+					(list (const cpu-swz-set) a (list (const quote) b) (cpu-expr c)))))
+				(:return (setq going :nil)
+					(push into (if flag
+						(list (const setq) '_rv (cpu-expr a) flag :ret)
+						(cpu-expr a))))
+				(:break (setq going :nil)
+					(push into (list (const setq) flag :t)))
+				(:if (setq going :nil)
+					(defq test (cpu-expr a) more (slice block (inc at) -1)
+						arm (list (const progn)))
+					(cond
+						((or (cpu-exits? b :nil) (cpu-exits? c :nil))
+							;the rest of the block goes inside both sides
+							(defq other (list (const progn)))
+							(push into (list (const if) test arm other))
+							(push stack (list (cat c more) flag other) (list (cat b more) flag arm)))
+						(:t (push into (defq form (list (const if) test arm)))
+							(push stack (list more flag into))
+							(when (nempty? c)
+								(push form (defq other (list (const progn))))
+								(push stack (list c flag other)))
+							(push stack (list b flag arm)))))
+				(:for (setq going :nil)
+					(defq loop_flag (sym (cat "_b" (str (++ flag_num))))
+						more (slice block (inc at) -1)
+						start (list (const defq) a (cpu-fold (list (const -) (cpu-expr b) 1)) loop_flag :nil)
+						body (list (const while) (list (const if) loop_flag :nil
+							(list (const <) (list (const setq) a (list (const +) a 1)) (cpu-expr c)))))
+					(push into start body)
+					(cond
+						((cpu-exits? d :t)
+							;a return in the loop, so leave this block as well
+							(push into (list (const if) (list (const eql) loop_flag :ret)
+								(if flag (list (const setq) flag :ret) '_rv)
+								(defq after (list (const progn)))))
+							(push stack (list more flag after)))
+						((push stack (list more flag into))))
+					(push stack (list d loop_flag body))))))
+	out)
 
 (defun cpu-funcs (program &optional entry)
 	; -> the lambda of main, or of the function named

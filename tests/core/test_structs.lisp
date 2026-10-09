@@ -105,3 +105,34 @@
 (assert-true "bits? match" (bits? 5 +bt_test_B0 +bt_test_B2))
 (assert-true "bits? miss"  (not (bits? 2 +bt_test_B0 +bt_test_B2)))
 (assert-eq "bit-mask" 5 (bit-mask +bt_test_B0 +bt_test_B2))
+
+;a union, lines that all start at the one base, and it ends where the
+;longest of them does. It could not be made at all: the function that
+;lays a structure out called itself by name for one, and it is a function
+;of a module, its name is gone once the module has loaded
+(structure +ts_un 0
+	(long head)
+	(union
+		(long wide_a wide_b)
+		(uint narrow_a narrow_b narrow_c narrow_d narrow_e))
+	(byte tail))
+(assert-eq "the lines of a union start at the one place" +ts_un_wide_a +ts_un_narrow_a)
+(assert-eq "which is after what came before it" 8 +ts_un_wide_a)
+(assert-eq "each goes on from there by itself" 16 +ts_un_wide_b)
+(assert-eq "the other too" 24 +ts_un_narrow_e)
+(assert-eq "what follows is after the longest of them" 28 +ts_un_tail)
+(assert-eq "and the size has it" 29 +ts_un_size)
+;a union in a union
+(structure +ts_uu 0
+	(union
+		(long one)
+		(union
+			(byte in_a)
+			(long in_b in_c))
+		(int two))
+	(byte tail))
+(assert-eq "a union in a union starts where that one does" 0 +ts_uu_in_a)
+(assert-eq "and is as long as its longest" 8 +ts_uu_in_c)
+(assert-eq "the outer is as long as the inner" 16 +ts_uu_tail)
+(assert-eq "and the size" 17 +ts_uu_size)
+

@@ -215,41 +215,57 @@
 				(pad (str (% n 10000)) 4 "0000")))))
 
 (defun sh-expr (form)
-	(cond
-		((real? form) (sh-err "real number literal" form))
-		((fixed? form) (list :float :lit (sh-decimal form)))
-		((num? form) (list :int :lit form))
-		((eql form :t) (list :bool :lit :t))
-		((eql form :nil) (list :bool :lit :nil))
-		((and (str? form) (not (sym? form))) (list :float :lit (sh-decimal form)))
-		((sym? form)
-			(unless (defq e (sh-find form)) (sh-err "unknown name" form))
-			(if (and const_only (not (eql (third e) :const)))
-				(sh-err "not a constant" form))
-			(list (second e) :var form (third e)))
-		((not (and (list? form) (nempty? form) (sym? (defq op (first form)))))
-			(sh-err "not an expression" form))
-		((eql (first op) ":")
-			(unless (= (length form) 2) (sh-err "wrong number of args" form))
-			(defq arg (sh-expr (second form))
-				idxs (sh-swizzle op (first arg) form))
-			(list (sh-vec (length idxs)) :swz idxs arg))
-		((defq f (sh-func op))
-			(if const_only (sh-err "not a constant" form))
-			(defq args (map! sh-expr (list form) 1))
-			(unless (and (= (length args) (length (third f)))
-					(every (# (eql (first %0) (second %1))) args (third f)))
-				(sh-err "wrong args to function" form))
-			;a matrix is never in registers, so is not handed on
-			(if (or (eql (second f) :mat4) (some (# (eql (second %0) :mat4)) (third f)))
-				(sh-err "a function with a matrix is for Lisp to call" form))
-			(list (second f) :user op args))
-		((sh-op? op)
-			(defq args (map! sh-expr (list form) 1))
-			(unless (defq type (sh-op-type op (map (const first) args)))
-				(sh-err "wrong types" form))
-			(list type :op op args))
-		((sh-err "unknown function" form))))
+	;an expression, checked and typed. One can have others in it to any
+	;depth, and no function here calls itself: what is still to be done is
+	;a list, the next thing last, an expression or the making of one whose
+	;args are done, and what has been made so far is another
+	(defq stack (list (list :expr form)) vs (list))
+	(while (defq item (pop stack))
+		(bind '(kind form &optional op f) item)
+		(case kind
+			(:swz (defq arg (pop vs) idxs (sh-swizzle op (first arg) form))
+				(push vs (list (sh-vec (length idxs)) :swz idxs arg)))
+			(:user (defq n (dec (length form)) args (slice vs (- (length vs) n) -1))
+				(times n (pop vs))
+				(unless (and (= (length args) (length (third f)))
+						(every (# (eql (first %0) (second %1))) args (third f)))
+					(sh-err "wrong args to function" form))
+				;a matrix is never in registers, so is not handed on
+				(if (or (eql (second f) :mat4) (some (# (eql (second %0) :mat4)) (third f)))
+					(sh-err "a function with a matrix is for Lisp to call" form))
+				(push vs (list (second f) :user op args)))
+			(:op (defq n (dec (length form)) args (slice vs (- (length vs) n) -1))
+				(times n (pop vs))
+				(unless (defq type (sh-op-type op (map (const first) args)))
+					(sh-err "wrong types" form))
+				(push vs (list type :op op args)))
+			(:t (cond
+				((real? form) (sh-err "real number literal" form))
+				((fixed? form) (push vs (list :float :lit (sh-decimal form))))
+				((num? form) (push vs (list :int :lit form)))
+				((eql form :t) (push vs (list :bool :lit :t)))
+				((eql form :nil) (push vs (list :bool :lit :nil)))
+				((and (str? form) (not (sym? form))) (push vs (list :float :lit (sh-decimal form))))
+				((sym? form)
+					(unless (defq e (sh-find form)) (sh-err "unknown name" form))
+					(if (and const_only (not (eql (third e) :const)))
+						(sh-err "not a constant" form))
+					(push vs (list (second e) :var form (third e))))
+				((not (and (list? form) (nempty? form) (sym? (defq op (first form)))))
+					(sh-err "not an expression" form))
+				((eql (first op) ":")
+					(unless (= (length form) 2) (sh-err "wrong number of args" form))
+					(push stack (list :swz form op) (list :expr (second form))))
+				((defq f (sh-func op))
+					(if const_only (sh-err "not a constant" form))
+					;the args are done first, in order, the first is put on last
+					(push stack (list :user form op f))
+					(each! (# (push stack (list :expr %0))) (list form) -1 1))
+				((sh-op? op)
+					(push stack (list :op form op))
+					(each! (# (push stack (list :expr %0))) (list form) -1 1))
+				((sh-err "unknown function" form))))))
+	(first vs))
 
 (defun sh-const-int (form)
 	;a loop bound, an int literal or an int constant
@@ -369,27 +385,59 @@
 	;a statement it is returned. And so for the last form of each arm of an
 	;if that is last, and of a progn that is last. The back ends still see
 	;a return, they are statement languages.
-	(cond
-		((not (and (list? form) (nempty? form)))
-			(list 'return form))
-		((eql (first form) 'if)
-			(if (<= 3 (length form) 4)
-				(cat (list 'if (second form)) (map! sh-tail (list form) 2))
-				form))
-		((eql (first form) 'progn)
-			(if (> (length form) 1)
-				(cat (slice form 0 -2) (list (sh-tail (last form))))
-				form))
-		((find (first form) '(defq setq when for break return)) form)
-		((list 'return form))))
+	;An arm can be an if again. Each form that is to be looked at is a
+	;place, a list and where in it, on a list of those still to do
+	(defq top (list form) todo (list (list top 0)))
+	(while (defq spot (pop todo))
+		(bind '(held idx) spot)
+		(defq form (elem-get held idx))
+		(cond
+			((not (and (list? form) (nempty? form)))
+				(elem-set held idx (list 'return form)))
+			((eql (first form) 'if)
+				(when (<= 3 (length form) 4)
+					(elem-set held idx (defq arms (cat form)))
+					(each! (lambda (&) (push todo (list arms (!)))) (list arms) 2)))
+			((eql (first form) 'progn)
+				(when (> (length form) 1)
+					(elem-set held idx (defq arms (cat form)))
+					(push todo (list arms (dec (length arms))))))
+			((find (first form) '(defq setq when for break return)))
+			((elem-set held idx (list 'return form)))))
+	(first top))
 
 (defun sh-returns? (block)
-	;does every path through the block end at a return ?
-	(and (nempty? block)
-		(case (first (defq s (last block)))
-			(:return :t)
-			(:if (and (sh-returns? (third s)) (sh-returns? (last s))))
-			(:t :nil))))
+	;does every path through the block end at a return ? The arms of an
+	;if that is last are blocks to ask it of in turn, on a list
+	(defq stack (list block) all :t)
+	(while (and all (defq block (pop stack)))
+		(cond
+			((empty? block) (setq all :nil))
+			(:t (case (first (defq s (last block)))
+				(:return)
+				(:if (push stack (third s) (last s)))
+				(:t (setq all :nil))))))
+	all)
+
+(defun sh-fold (node fnc)
+	; (sh-fold node fnc) -> value
+	;what a back end makes of an expression, from the bottom up. fnc is
+	;(lambda (node args) ...) -> value, called for each node with what was
+	;made of those under it, in order. A back end's own function for an
+	;expression then calls nothing that calls it, the walk is here, with a
+	;list as the stack of what is still to do, as (flatten) does it
+	(defq stack (list (list node :nil)) vs (list))
+	(while (defq item (pop stack))
+		(bind '(node done) item)
+		(defq kids (case (second node) (:swz (list (last node))) ((:user :op) (last node)) (:t '())))
+		(cond
+			((or done (empty? kids))
+				(defq n (length kids) args (slice vs (- (length vs) n) -1))
+				(times n (pop vs))
+				(push vs (fnc node args)))
+			(:t (push stack (list node :t))
+				(each! (# (push stack (list %0 :nil))) (list kids) -1 0))))
+	(first vs))
 
 (defun sh-literal (type val form)
 	;default, min or max of an input

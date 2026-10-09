@@ -35,16 +35,17 @@
 (defun atan (x)
 	; High-accuracy arctangent approximation (Abramowitz & Stegun 4.4.49)
 	; Error < 0.0001 degrees
-	(cond
-		((< x 0.0) (neg (atan (neg x))))
-		((> x 1.0) (- +fp_hpi (atan (/ 1.0 x))))
-		(:t
-			(defq x2 (* x x))
-			(* x (+ 0.99997726
-				(* x2 (+ -0.33262347
-					(* x2 (+ 0.19354346
-						(* x2 (+ -0.11643287
-							(* x2 (- 0.05265332 (* 0.01172120 x2))))))))))))))
+	;the series is for 0 to 1. One below 0 is that of the number without
+	;its sign, and one above 1 is a quarter turn less that of 1 over it
+	(defq minus (< x 0.0) x (abs x) over (> x 1.0) x (if over (/ 1.0 x) x)
+		x2 (* x x)
+		r (* x (+ 0.99997726
+			(* x2 (+ -0.33262347
+				(* x2 (+ 0.19354346
+					(* x2 (+ -0.11643287
+						(* x2 (- 0.05265332 (* 0.01172120 x2)))))))))))
+		r (if over (- +fp_hpi r) r))
+	(if minus (neg r) r))
 
 (defun atan2 (y x)
 	; Two-argument arctangent returning angle in [-pi, +pi)
