@@ -9,6 +9,8 @@
 (assert-true "a name is lower case, digits and _" (every (# (eql %0 (to-lower %0))) sy_names))
 (assert-eq "a symbol has a constant, the first is close" +sf_base +sym_close)
 (assert-eq "and its code is where it is in the list" (+ +sf_base (find "save_all" sy_names)) +sym_save_all)
+(assert-eq "a new symbol goes on the end, the codes before it are as they were" 0xe06f +sym_gerber)
+(assert-eq "the two for the smallest size" (inc +sym_small_up) +sym_small_down)
 
 ;the kit
 (assert-list-eq "a line is its points" '(:line (6.0 6.0 18.0 18.0)) (first (s-line 6 6 18 18)))

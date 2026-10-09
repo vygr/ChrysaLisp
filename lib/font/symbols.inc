@@ -164,6 +164,15 @@
 	(setd s 0.74)
 	(s-map items (# (+ 2.0 (* (- %0 2.0) s))) (# (+ 2.0 (* (- %0 2.0) s))) (# (* %0 s))))
 
+(defun s-heavy (items &optional f)
+	; (s-heavy items [f]) -> items
+	;the strokes of a thing made f times the weight of the theme's, twice
+	;if not said. For a symbol that is only ever drawn small
+	(setd f 2.0)
+	(map (lambda ((kind &rest data))
+		(if (eql kind :line) (list kind (first data) (n2f f)) (cat (list kind) data)))
+		items))
+
 ;the badges. All of them, three dots along the bottom. Everywhere, a ring
 ;at the bottom right
 (defun s-all (items)
@@ -203,7 +212,8 @@
 	(each (lambda ((kind &rest data))
 		(defq ps (list))
 		(case kind
-			(:line (push ps (path-stroke-polyline (scaled (first data)) r joint cap cap)))
+			(:line (defq lr (if (> (length data) 1) (* r (second data)) r))
+				(push ps (path-stroke-polyline (scaled (first data)) lr joint cap cap)))
 			(:loop (path-stroke-polygons ps r joint (list (scaled (first data)))))
 			(:ring (path-stroke-polygons ps r +join_bevel (list (apply whole data))))
 			(:disc (push ps (apply whole data)))

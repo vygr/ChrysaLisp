@@ -46,6 +46,7 @@ that are filled. A symbol is a list of those, made with a small kit,
 | `(s-corners)` | the four corners of a frame |
 | `(s-mirror)` `(s-flip)` `(s-turn)` `(s-small)` | a thing changed |
 | `(s-all)` `(s-global)` | a thing with a badge |
+| `(s-heavy)` | a thing with strokes twice the weight, for one only drawn small |
 
 They give lists, put together with `cat`. The symbols are
 `lib/font/symbol_set.inc`, and the parts more than one of them use, the
@@ -87,7 +88,11 @@ makes a font for each:
 | `fonts/Symbols-Bold.ctf` | 3.0 | round |
 | `fonts/Symbols-Sharp.ctf` | 2.3 | square, mitred |
 
-The smallest symbols, 10 pixels, are drawn with the next weight up.
+The smallest size, 10 pixels, the arrows of a spinner, has symbols of its
+own in the same fonts, `small_up` and `small_down`. They are the strokes
+the rest are, as wide as the grid lets them be and twice the weight,
+`(s-heavy)`, so that small they look the weight the rest do on a toolbar.
+A symbol made for 24 pixels and drawn at 10 has a line of under a pixel.
 
 Which theme a desktop has is chosen in the Themes app, and is kept for
 the user, `usr/<user>/theme`. A change is seen at once: the GUI sends

@@ -3121,6 +3121,15 @@ top for bottom
 the head of an arrow, at x y, for a line that comes in along dx dy
 ```
 
+### s-heavy
+
+```code
+(s-heavy items [f]) -> items
+
+the strokes of a thing made f times the weight of the theme's, twice
+if not said. For a symbol that is only ever drawn small
+```
+
 ### s-line
 
 ```code
@@ -4134,13 +4143,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args
@@ -4704,12 +4713,12 @@ name and no more, it is read by every app as it starts, and there is
 nothing in it to go wrong
 ```
 
-### theme-files
+### theme-file
 
 ```code
-(theme-files name) -> (symbols_file tiny_file)
+(theme-file name) -> symbols_file
 
-the fonts of a theme, those of the first if there is none of that name
+the font of a theme, that of the first if there is none of that name
 ```
 
 ### theme-save

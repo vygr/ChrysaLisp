@@ -4,6 +4,30 @@
 
 ------
 
+The smallest symbols, the arrows of a spinner, are symbols of their own.
+
+*	At 10 pixels the spinner drew `up` and `down`, made for a toolbar, and
+	to give them some weight each theme named a second font, the next one
+	up, for that size alone. Chris: "we should have symbols in the
+	standard Symbols.ctf for them and we use them at a smaller font size",
+	and "they are part of our Symbols for toolbars/buttons font".
+
+*	`small_up` and `small_down`, on the end of the set, 114 symbols, in
+	all four fonts. Claude's first go was a filled triangle. Chris:
+	"Should meet the same style standard you did." They are the same
+	chevron, as wide as the grid lets it be, in strokes twice the weight,
+	a new part of the kit, `(s-heavy)`.
+
+*	A theme is a name and one font again. `(theme-file name)`, it was
+	`(theme-files)` and gave two. `*env_tiny_symbol_font*` is the theme's
+	own font at 10.
+
+*	4,899 pass on the M4, the x64 and the Pi, the fonts the same bytes on
+	each. Not seen: a spinner on a desktop, the PCB app has them. Looked
+	at as text, at twice the size.
+
+------
+
 A command whose file throws as it loads no longer hangs the terminal.
 
 *	A file with an error in it, before its `main`, `cmd/zz_bad.lisp` and

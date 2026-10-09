@@ -30,7 +30,7 @@
 
 ;the symbol fonts are those of the theme the user has, lib/theme/theme.inc
 (import "lib/theme/theme.inc")
-(bind '(*env_symbol_file* *env_tiny_symbol_file*) (theme-files (theme-current *env_home*)))
+(defq *env_symbol_file* (theme-file (theme-current *env_home*)))
 
 (defq *env_window_col* 0xffc0c0c0 *env_title_col* 0xffe0e0e0 *env_slider_col* 0xffe0e0e0
 	*env_toolbar_col* 0xffc0c0c0 *env_toolbar2_col* 0xffa0a0a0 *env_ink_col* 0xff000000
@@ -51,7 +51,7 @@
 	*env_symbol_font* (create-font *env_symbol_file* 28)
 	*env_medium_symbol_font* (create-font *env_symbol_file* 22)
 	*env_small_toolbar_font* (create-font *env_symbol_file* 16)
-	*env_tiny_symbol_font* (create-font *env_tiny_symbol_file* 10)
+	*env_tiny_symbol_font* (create-font *env_symbol_file* 10)
 	*env_terminal_font* (create-font "fonts/Hack-Regular.ctf" 16)
 	*env_medium_terminal_font* (create-font "fonts/Hack-Regular.ctf" 14)
 	*env_small_terminal_font* (create-font "fonts/Hack-Regular.ctf" 12)
