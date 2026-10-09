@@ -2,7 +2,6 @@
 ; onslaught window & ui layers hierarchy
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 (defclass ItemPanel () (View)
 	; (ItemPanel) -> items inventory panel view
 	(def this :color 0 :canvas :nil :items :nil :selected 0)
