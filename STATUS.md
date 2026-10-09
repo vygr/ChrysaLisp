@@ -60,9 +60,14 @@ topdf links which is good, only .md should work."
 	`symbols` command.
 
 Every test again, 5,031, on the x64 and the Pi; the M4 had his desktop
-up and was left out. Not seen: the two buttons, by anyone. The tree was
-changed under his desktop for this, the fonts with it, he was told to
-start it again.
+up and was left out. The tree was changed under his desktop for this,
+the fonts with it, he was told to start it again. Then, of links and the
+two buttons: "look good folowing links and history."
+
+A todo from him, item 45: "go through the docs/ folder and check if we
+have references to other docs that we never placed as links at the
+time." Counted, not started: 148 mentions of an `.md` by name in 43 of
+the 241 documents, 12 of them links.
 
 ------
 
