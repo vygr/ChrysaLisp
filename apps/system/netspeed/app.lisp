@@ -19,7 +19,7 @@
 	+retry_timeout (task-timeout 5))
 
 (ui-window *window* ()
-	(ui-title-bar _ "Network Speed" (0xea19) +event_close)
+	(ui-title-bar _ "Network Speed" (+sym_close) +event_close)
 	;the status line is at the bottom, and it is the charts of the nodes
 	;that stretch
 	(ui-flow _ (:flow_flags +flow_up_fill)

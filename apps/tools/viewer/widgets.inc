@@ -9,12 +9,12 @@
 	+vdu_max_height 46 +vdu_line_width 5 +status_min_size 48)
 
 (ui-window *window* (:color +argb_grey1)
-	(ui-title-bar *title* "Viewer" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar *title* "Viewer" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe9ca 0xe90d 0xe955 0xe93c 0xe93d) +event_copy))
+			(ui-buttons (+sym_copy +sym_select_paragraph +sym_select_form +sym_start_form +sym_end_form) +event_copy))
 		(ui-tool-bar *find_toolbar* (:color (const *env_toolbar2_col*))
-			(ui-buttons (0xe962 0xe9cd 0xe9a8 0xe9b1 0xe914 0xe91b) +event_region))
+			(ui-buttons (+sym_select_region +sym_whole_words +sym_regexp +sym_ignore_case +sym_find_down +sym_find_up) +event_region))
 		(. (ui-textfield *find_text* (:color +argb_white
 				:hint_text "find" :clear_text "")) :connect +event_find_down))
 	(ui-flow _ (:flow_flags +flow_right_fill)

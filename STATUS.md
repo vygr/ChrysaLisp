@@ -4,6 +4,50 @@
 
 ------
 
+A symbol font of our own, `fonts/Symbols.ctf`, and symbols by name.
+
+*	Chris: "We use a symbol font that comes from a generic Entypo font,
+	that is good, but it isn't actually built for what ChrysaLisp GUI
+	toolbars and so forth need... is it possible to generate a symbol
+	font, knowing the .ctf format, that actually is tailored for what we
+	do/want." It is. This is the first go at it, there to be looked at in
+	the UI and changed.
+
+*	What was wanted came from the apps. Every toolbar has its symbols and
+	its tooltips in the same order, and its events, so each of the 90
+	symbols in use could be given what it is for. 22 of them were doing
+	more than one job, the play triangle was also replace, the plus in a
+	circle was new and group, and three things were drawn two ways.
+
+*	`fonts/Symbols.ctf`, 109 symbols, one for each thing a button does, 75K
+	where Entypo is 171K for 335. Each is strokes on a grid of 24, all of
+	one weight, with round ends and joins, from a small kit of parts, one
+	document, one folder, one arrow head. A symbol with three dots is all
+	of them, save all, and one with a ring is everywhere, find global.
+
+*	A symbol has a name, `lib/consts/symbols.inc`, `+sym_undo`,
+	`+sym_save_all`. `(ui-buttons)`, `(ui-radio-bar)`, `(ui-toggle-bar)`
+	and `(ui-title-bar)` take names, `(ui-symbols)` looks them up. Every
+	toolbar is written with them, 275 codes in 51 files changed by what
+	each button's tooltip says it is, so a toolbar now reads
+	`(+sym_undo +sym_redo +sym_rewind +sym_cut +sym_copy +sym_paste ...)`.
+
+*	The user environments name the new font. Entypo is still in `fonts/`.
+
+*	Checked: all 49 apps load their source and build their windows as
+	before, with no desktop, and the tests pass on three machines. How it
+	looks in the UI is for Chris to say.
+
+*	Not done: the thing that makes the font is a script of Claude's
+	outside the repo, the symbols as data and a tracer that turns strokes
+	into outlines. It is to be written in Lisp, so the system makes its
+	own font. Till then the font and the names file are made together and
+	are not to be edited by hand. The outlines are straight lines only,
+	about 110 points a symbol. The smallest size, 10, wants simpler and
+	heavier symbols of its own.
+
+------
+
 The Network Map's workings in a file of their own, with a test.
 
 *	The links, their heat, the bedspring and the color of a machine are

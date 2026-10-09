@@ -131,7 +131,7 @@ which inherits from `Flow`.
 
     * When the counter exceeds the container's width bounds, the line wraps: a
       new horizontal `Flow` is created, the width counter resets, any hanging
-      indents or bullet icons (`0xe979`) are inserted, and word placement
+      indents or bullet icons (`+sym_small`) are inserted, and word placement
       continues.
 
 ## Dynamic Section Handlers
@@ -279,7 +279,7 @@ on the fly:
   ~~Strikethrough~~ (`~~strikethrough~~`) text.
 
 * **Lists:** Numbered lists (`1. `) and bullet lists (`* `, `- `) with automatic
-  hanging indents and custom bullet glyphs (`0xe979`).
+  hanging indents and custom bullet glyphs (`+sym_small`).
 
 * **Tables:** Markdown grid tables with column alignment syntax (`:---`,
   `:---:`, `---:`), multi-word cell wrapping, header underlines, and embedded

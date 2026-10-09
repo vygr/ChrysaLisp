@@ -41,10 +41,10 @@
 	+ball_size (n2r 0.09) +bar_size (n2r 0.016))
 
 (ui-window *window* ()
-	(ui-title-bar _ "Network Map" (0xea19) +event_close)
+	(ui-title-bar _ "Network Map" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xea43) +event_auto))
+			(ui-buttons (+sym_auto) +event_auto))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_width 1 :font *env_body_font*)

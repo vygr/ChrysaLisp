@@ -13,9 +13,9 @@
 	(ui-root entry (Flow) (:flow_flags +flow_right_fill)
 		(ui-tool-bar toolbar (:font *env_small_toolbar_font*)
 			(case column
-				(0 (ui-buttons (0xe93a 0xe94c) +event_todo_done))
-				(1 (ui-buttons (0xe938 0xe94c) +event_done_redo))
-				(2 (ui-buttons (0xe938 0xe94c) +event_del_redo))))
+				(0 (ui-buttons (+sym_done +sym_delete) +event_todo_done))
+				(1 (ui-buttons (+sym_reset +sym_delete) +event_done_redo))
+				(2 (ui-buttons (+sym_reset +sym_delete) +event_del_redo))))
 		(ui-textfield _ (:clear_text (setd text "")
 			:hint_text "todo item" :color +argb_white)))
 	(. flow :add_child entry)

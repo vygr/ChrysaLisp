@@ -7,10 +7,10 @@
 	+vdu_max_width 120 +vdu_max_height 40)
 
 (ui-window *window* (:color 0xc0000000)
-	(ui-title-bar *title* "Terminal" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar *title* "Terminal" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe9ca 0xe9c9 0xe90d) +event_copy))
+			(ui-buttons (+sym_copy +sym_paste +sym_select_paragraph) +event_copy))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_left_fill)
 		(. (ui-slider *yslider*) :connect +event_yscroll)

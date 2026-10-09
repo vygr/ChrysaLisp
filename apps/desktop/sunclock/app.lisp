@@ -200,7 +200,7 @@
 	(. canvas :swap +swap_write))
 
 (ui-window *window* ()
-	(ui-title-bar _ "World Sun Clock" (0xea19) +event_close)
+	(ui-title-bar _ "World Sun Clock" (+sym_close) +event_close)
 	; Controls Bar: Simulation & Time Travel
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_button_font*)
 		(ui-flow *time_bar* (:flow_flags +flow_right)

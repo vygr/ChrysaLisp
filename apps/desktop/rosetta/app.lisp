@@ -190,7 +190,7 @@
 		(select-algorithm (first target))))
 
 (ui-window *window* (:color +argb_grey15)
-	(ui-title-bar _ "Rosetta - Algorithm & Computer Science Explorer" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar _ "Rosetta - Algorithm & Computer Science Explorer" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow header_bar (:flow_flags +flow_right_fill :border 1 :font *env_button_font*)
 		(ui-label _ (:text " ROSE " :color +color_accent :ink_color +argb_white :font *env_bold_font* :border 1))
 		(. (ui-radio-bar *cat_bar* ("All" "Sorting" "Structures" "Compression" "Math" "Systems")

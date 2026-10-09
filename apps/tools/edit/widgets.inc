@@ -21,36 +21,36 @@
 	+vdu_line_width 5 +status_min_size 48)
 
 (ui-window *window* (:color +argb_grey1)
-	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar *title* "Edit" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe9fe 0xe99d 0xe9ff
-				0xea08 0xe9ca 0xe9c9
-				0xe901 0xe909 0xe90d 0xe90a 0xe90b
-				0xe955 0xe93c 0xe93d
-				0xea36 0xea33 0xea27 0xea28
-				0xea26 0xe9c4) +event_undo))
+			(ui-buttons (+sym_undo +sym_redo +sym_rewind
+				+sym_cut +sym_copy +sym_paste
+				+sym_split +sym_reflow +sym_select_paragraph +sym_outdent +sym_indent
+				+sym_select_form +sym_start_form +sym_end_form
+				+sym_upper_case +sym_lower_case +sym_sort +sym_unique
+				+sym_reverse +sym_comment) +event_undo))
 		(ui-tool-bar *macro_toolbar* (:color (const *env_toolbar2_col*))
-			(ui-buttons (0xe95c 0xe95e 0xe95a 0xe95f) +event_macro_playback))
+			(ui-buttons (+sym_play +sym_play_end +sym_play_global +sym_record) +event_macro_playback))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_left_fill)
 		(ui-tool-bar *debug_toolbar* (:color (const *env_toolbar2_col*))
-			(ui-buttons (0xe933 0xe9f0 0xe9d8 0xe98b 0xe98c 0xe989) +event_debug_launch))
+			(ui-buttons (+sym_save_debug +sym_breakpoint +sym_breakpoint_remove +sym_enable_all +sym_disable_all +sym_remove_all) +event_debug_launch))
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-tool-bar *buffer_toolbar* (:color (get :color *macro_toolbar*))
-				(ui-buttons (0xe91d 0xe91e 0xe94b 0xe94d 0xe94c 0xe980 0xe9b3 0xe954 0xea3e 0xe94e) +event_prev))
+				(ui-buttons (+sym_prev +sym_next +sym_scratchpad +sym_close_file +sym_close_all +sym_save +sym_save_all +sym_load +sym_load_all +sym_new) +event_prev))
 			(. (ui-textfield *name_text* (:color +argb_white
 					:hint_text "new file" :clear_text "")) :connect +event_new)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_height 1)
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar *find_toolbar* (:color (get :color *macro_toolbar*))
-					(ui-buttons (0xe9a1 0xe962 0xe9cd 0xe9a8 0xe9b1 0xe914 0xe91b) +event_global))
+					(ui-buttons (+sym_find_global +sym_select_region +sym_whole_words +sym_regexp +sym_ignore_case +sym_find_down +sym_find_up) +event_global))
 				(. (ui-textfield *find_text* (:color +argb_white
 						:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar *replace_toolbar* (:color (get :color *macro_toolbar*))
-					(ui-buttons (0xe95b 0xe959 0xe95c 0xe95e 0xe95a) +event_collect))
+					(ui-buttons (+sym_collect +sym_collect_global +sym_replace +sym_replace_all +sym_replace_global) +event_collect))
 				(. (ui-textfield *replace_text* (:color +argb_white
 						:hint_text "replace" :clear_text "")) :connect +event_replace))))
 	(ui-flow _ (:flow_flags +flow_right_fill)

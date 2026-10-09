@@ -235,7 +235,7 @@
 	(trigger-fetch-feed cat_name worker_mbox trash_mbox))
 
 (ui-window *window* (:color +argb_grey15)
-	(ui-title-bar _ "Hacker News" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar _ "Hacker News" (+sym_close +sym_max +sym_min) +event_close)
 	; Header Navigation Bar
 	(ui-flow header_bar (:flow_flags +flow_right_fill :border 1 :font *env_button_font*)
 		(ui-label _ (:text " HN " :color 0xffff6600 :ink_color +argb_white :font *env_bold_font* :border 1))

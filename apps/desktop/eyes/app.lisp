@@ -42,7 +42,7 @@
 	(enum main timer))
 
 (ui-window *window* (:resizable :nil)
-	(ui-title-bar _ "Eyes" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar _ "Eyes" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-backdrop *backdrop* (:style :grid :color +argb_black :ink_color +argb_grey6)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;

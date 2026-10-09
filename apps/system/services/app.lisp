@@ -8,7 +8,7 @@
 	(enum close max min))
 
 (ui-window *window* ()
-	(ui-title-bar _ "Services" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar _ "Services" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-scroll info_scroll +scroll_flag_vertical (:font *env_terminal_font*)
 		(ui-flow right_flow (:flow_flags +flow_right_fill)
 			(ui-flow service_flow (:flow_flags +flow_down_fill)

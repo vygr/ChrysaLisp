@@ -5,9 +5,9 @@
 
 (ui-window *window* :nil
 	(ui-flow _ (:flow_flags +flow_down_fill)
-		(ui-title-bar *window_title* "" (0xea19) +event_close)
+		(ui-title-bar *window_title* "" (+sym_close) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-buttons (0xe93a) +event_ok_action (:font *env_symbol_font*))
+			(ui-buttons (+sym_done) +event_ok_action (:font *env_symbol_font*))
 			(ui-label _ (:text "Filename:"))
 			(. (ui-textfield *filename* (:clear_text "" :hint_text "filename" :color +argb_white))
 				:connect +event_ok_action))

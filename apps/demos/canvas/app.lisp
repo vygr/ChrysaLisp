@@ -23,7 +23,7 @@
 	start_time (pii-time) frame_time 0 frame_shapes 0 frames 0 frames_us 0)
 
 (ui-window *window* (:resizable :nil)
-	(ui-title-bar _ "Canvas" (0xea19) +event_close)
+	(ui-title-bar _ "Canvas" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *mode* ("One task" "All nodes") (:font *env_body_font*)) :connect +event_mode)
 		(ui-label _ (:text "Shapes" :font *env_body_font*))

@@ -14,7 +14,7 @@
 	+rate (/ 1000000 30))
 
 (ui-window *window* ()
-	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar _ "Boing" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-backdrop *backdrop* (:color +argb_black :ink_color +argb_white :style :grid
 			:spacing 64 :min_width 640 :min_height 480)
 		(ui-element frame (first +frames))

@@ -19,7 +19,7 @@
 	shared_key (if shared_canvas (canvas-key shared_canvas) 0))
 
 (ui-window *window* (:resizable :nil)
-	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close)
+	(ui-title-bar _ "Mandelbrot" (+sym_close) +event_close)
 	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height +scale)) (:color 0)))
 
 (defun reset ()

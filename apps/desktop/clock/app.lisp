@@ -27,7 +27,7 @@
 	clock_face (list))
 
 (ui-window *window* (:resizable :nil)
-	(ui-title-bar _ "Clock" (0xea19) +event_close)
+	(ui-title-bar _ "Clock" (+sym_close) +event_close)
 	(if (eql *env_clock_analog* :t)
 		(ui-canvas clock clock_size clock_size clock_scale)
 		(defq clock :nil))

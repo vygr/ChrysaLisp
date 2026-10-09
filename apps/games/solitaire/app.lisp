@@ -36,9 +36,9 @@
 		(and (>= y 2) (<= y 4))))
 
 (ui-window *window* (:color +argb_grey1 :resizable :nil)
-	(ui-title-bar *title* "Peg Solitaire" (0xea19) +event_close)
+	(ui-title-bar *title* "Peg Solitaire" (+sym_close) +event_close)
 	(ui-tool-bar *toolbar* ()
-		(ui-buttons (0xe972 0xe9fe) +event_reset))
+		(ui-buttons (+sym_reset +sym_undo) +event_reset))
 
 	; Stack layout: Backdrop is behind, Grid is in front
 	(ui-flow *board_view* (:flow_flags +flow_stack_fill)

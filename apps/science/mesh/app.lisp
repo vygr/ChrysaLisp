@@ -37,11 +37,11 @@
 	(ifn (canvas-shared size size canvas_scale) (Canvas size size canvas_scale)))
 
 (ui-window *window* ()
-	(ui-title-bar *title* "Mesh" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar *title* "Mesh" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe962 0xea43) +event_mode))
-		(. (ui-radio-bar *style_toolbar* (0xe976 0xe9a3 0xe9f0)
+			(ui-buttons (+sym_mode +sym_auto) +event_mode))
+		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_axis)
 			(:color *env_toolbar2_col*)) :connect +event_style)
 		;what draws the faces, the nodes, a strip each, or the GPU of the GUI
 		(. (ui-radio-bar *gpu_toolbar* ("CPU" "GPU") (:font *env_body_font*)) :connect +event_gpu)

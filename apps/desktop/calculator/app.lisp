@@ -100,7 +100,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (ui-window *window* ()
-	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar _ "Calculator" (+sym_close +sym_max +sym_min) +event_close)
 	(. (ui-radio-bar base_bar ("dec" "hex" "bin" "oct")
 			(:color (const *env_toolbar2_col*) :font +calculator_font))
 		:connect +event_base_change)

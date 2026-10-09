@@ -39,7 +39,7 @@
 	+notice_time 4000000 notice_until 0)
 
 (ui-window *window* (:resizable :nil)
-	(ui-title-bar _ "Surface" (0xea19) +event_close)
+	(ui-title-bar _ "Surface" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font*)) :connect +event_mode)
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))

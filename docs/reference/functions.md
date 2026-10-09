@@ -3921,13 +3921,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args
@@ -4572,6 +4572,16 @@ iterative topological sort using a heap-allocated DFS stack
 
 ```code
 (ui-save stream view) -> tree | :nil
+```
+
+### ui-symbols
+
+```code
+(ui-symbols symbols) -> strs
+
+what a bar's buttons show, as text. A symbol of the symbol font by its
+name, +sym_undo, lib/consts/symbols.inc, or by its code, and a str is
+itself. A name is in a list that is not run, so it is looked up here
 ```
 
 ### ui-tool-tips

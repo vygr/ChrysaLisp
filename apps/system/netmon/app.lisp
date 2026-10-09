@@ -16,7 +16,7 @@
 	+retry_timeout (task-timeout 5))
 
 (ui-window *window* ()
-	(ui-title-bar _ "Network Monitor" (0xea19) +event_close)
+	(ui-title-bar _ "Network Monitor" (+sym_close) +event_close)
 	;the status line is at the bottom, and it is the charts that stretch
 	(ui-flow _ (:flow_flags +flow_up_fill)
 		(ui-label *status* (:text "..." :font *env_body_font*))

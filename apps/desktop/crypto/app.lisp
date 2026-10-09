@@ -128,7 +128,7 @@
 					(. canvas :swap +swap_write))))
 
 (ui-window *window* (:resizable :nil)
-	(ui-title-bar _ "Crypto Ticker" (0xea19) +event_close)
+	(ui-title-bar _ "Crypto Ticker" (+sym_close) +event_close)
 	; Controls Bar: Status & Refresh
 	(ui-flow *ctrl_bar* (:flow_flags +flow_right_fill)
 		(. (ui-button *btn_refresh* (:text "Refresh")) :connect +event_refresh)

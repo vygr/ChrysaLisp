@@ -127,7 +127,7 @@
 	(. canvas :swap +swap_write))
 
 (ui-window *window* ()
-	(ui-title-bar _ "Weather" (0xea19) +event_close)
+	(ui-title-bar _ "Weather" (+sym_close) +event_close)
 	; Row 1: Search & Controls
 	(ui-flow *ctrl_bar* (:flow_flags +flow_right_fill :font *env_button_font*)
 		(. (ui-button *btn_refresh* (:text "Fetch")) :connect +event_refresh)

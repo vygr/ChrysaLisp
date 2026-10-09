@@ -42,7 +42,7 @@
 	shared_canvas (canvas-shared +width +height 1))
 
 (ui-window *window* (:resizable :nil)
-	(ui-title-bar _ "Raymarch" (0xea19) +event_close)
+	(ui-title-bar _ "Raymarch" (+sym_close) +event_close)
 	(ui-label *status* (:text "..." :font *env_body_font*))
 	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1)) (:color 0)))
 

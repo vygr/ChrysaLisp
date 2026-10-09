@@ -133,9 +133,9 @@ This from the `apps/fonts/app.lisp` demo:
 	(enum prev next))
 
 (ui-window *window* ()
-	(ui-title-bar *window_title* "Fonts" (0xea19) +event_close)
+	(ui-title-bar *window_title* "Fonts" (+sym_close) +event_close)
 	(ui-tool-bar *main_toolbar* ()
-		(ui-buttons (0xe91d 0xe91e) +event_prev))
+		(ui-buttons (+sym_prev +sym_next) +event_prev))
 	(ui-scroll *symbol_scroll* +scroll_flag_vertical
 			(:min_width 256 :min_height 128)))
 
@@ -414,7 +414,7 @@ gui/lisp.inc "macro ui-title-bar" ""
 (ui-window *ui_title_bar*
 	(:min_width 256
 	:min_height 0)
-	(ui-title-bar _ "My Title Bar" (0xea19 0xea1b 0xea1a) +event_close))
+	(ui-title-bar _ "My Title Bar" (+sym_close +sym_max +sym_min) +event_close))
 
 *ui_title_bar*
 ```
@@ -525,7 +525,7 @@ gui/lisp.inc "macro ui-buttons" ""
 	(:min_width 0
 	:min_height 0
 	:font *env_symbol_font*)
-	(ui-buttons (0xe9fe 0xe99d 0xe9ff) +event_undo))
+	(ui-buttons (+sym_undo +sym_redo +sym_rewind) +event_undo))
 
 *ui_buttons*
 ```
@@ -554,7 +554,7 @@ gui/lisp.inc "macro ui-tool-bar" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-tool-bar view ()
-		(ui-buttons (0xe9fe 0xe99d 0xe9ff) +event_undo)))
+		(ui-buttons (+sym_undo +sym_redo +sym_rewind) +event_undo)))
 
 (ui-tool-tips view '("undo" "redo" "rewind"))
 
@@ -573,7 +573,7 @@ gui/lisp.inc "macro ui-radio-bar" ""
 (ui-window *ui_radiobar*
 	(:min_width 0
 	:min_height 0)
-	(ui-radio-bar view (0xe976 0xe9a3 0xe9d4 0xe9f0)
+	(ui-radio-bar view (+sym_plain +sym_grid +sym_lines +sym_axis)
 		(:color *env_toolbar2_col*)))
 
 (ui-tool-tips view '("plain" "grid" "lines" "axis"))
@@ -595,7 +595,7 @@ gui/lisp.inc "macro ui-toggle-bar" ""
 (ui-window *ui_togglebar*
 	(:min_width 0
 	:min_height 0)
-	(ui-toggle-bar view (0xe976 0xe9a3 0xe9d4 0xe9f0)
+	(ui-toggle-bar view (+sym_plain +sym_grid +sym_lines +sym_axis)
 		(:color *env_toolbar2_col*)))
 
 (ui-tool-tips view '("plain" "grid" "lines" "axis"))

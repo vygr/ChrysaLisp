@@ -1224,9 +1224,9 @@ combinations of widgets:
 (enums +my_events 0 (enum app_close tool_action1 tool_action2))
 
 (ui-window *main_win* (:title "Combo Example")
-    (ui-title-bar *app_title_bar* "My App" (0xea19) +my_events_app_close)
+    (ui-title-bar *app_title_bar* "My App" (+sym_close) +my_events_app_close)
     (ui-tool-bar *app_toolbar* ()
-        (ui-buttons (0xe9fe 0xe99d) +my_events_tool_action1
+        (ui-buttons (+sym_undo +sym_redo) +my_events_tool_action1
             (:tip_text "Action One" "Action Two"))
     )
     ;; ... rest of window content ...

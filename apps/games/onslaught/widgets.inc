@@ -36,7 +36,7 @@
 		this))
 
 (ui-window *window* (:resizable :nil)
-	(ui-title-bar *title* "Onslaught" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar *title* "Onslaught" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-view *world_scroll* (:min_width (* *zoom* +screen_width) :min_height (* *zoom* (- +screen_height +panel_height)))
 		(ui-view *world_layers* (:color 0)
 			(ui-view *layer_fx*)

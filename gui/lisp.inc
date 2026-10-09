@@ -1,5 +1,6 @@
 ;import symbols
 (import "lib/consts/colors.inc")
+(import "lib/consts/symbols.inc")
 
 ;lisp bindings
 (import "./view/lisp.inc")
@@ -136,9 +137,19 @@
 		:border *env_button_border*)
 	(static-qqp (ui-element ,n (Button) ,p ~x)))
 
+(defun ui-symbols (s)
+	; (ui-symbols symbols) -> strs
+	;what a bar's buttons show, as text. A symbol of the symbol font by its
+	;name, +sym_undo, lib/consts/symbols.inc, or by its code, and a str is
+	;itself. A name is in a list that is not run, so it is looked up here
+	(map (# (cond
+		((num? %0) (num-to-utf8 %0))
+		((and (sym? %0) (starts-with "+sym_" %0)) (num-to-utf8 (eval %0)))
+		(%0))) s))
+
 (defmacro ui-buttons (s e &optional p)
 	; (ui-buttons symbols event [props])
-	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
+	(setq s (ui-symbols s))
 	(ui-props p
 		:text %0)
 	(static-qqp (each! (# (. (ui-button __ ,p) :connect (if (< ,e 0) ,e (+ (!) ,e)))) (list '(~s)))))
@@ -175,6 +186,7 @@
 		:color *env_toolbar_col*
 		:font *env_symbol_font*
 		:border *env_button_border*)
+	(setq s (ui-symbols s))
 	(static-qqp (ui-element ,n (Radiobar '(~s)) ,p)))
 
 (defmacro ui-toggle-bar (n s &optional p)
@@ -183,6 +195,7 @@
 		:color *env_toolbar_col*
 		:font *env_symbol_font*
 		:border *env_button_border*)
+	(setq s (ui-symbols s))
 	(static-qqp (ui-element ,n (Radiobar '(~s) :t) ,p)))
 
 (defmacro ui-tool-bar (n &optional p &rest x)

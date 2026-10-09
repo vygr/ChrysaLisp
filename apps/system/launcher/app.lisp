@@ -91,7 +91,7 @@
 
 ; Main Window Layout
 (ui-window *window* (:resizable :nil)
-	(ui-title-bar _ "Launcher" (0xea19) +event_close)
+	(ui-title-bar _ "Launcher" (+sym_close) +event_close)
 	(ui-flow *main_flow* (:flow_flags +flow_down_fill)))
 
 (defun main ()

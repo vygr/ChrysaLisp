@@ -43,17 +43,17 @@
 	*env_button_font* (create-font "fonts/OpenSans-Regular.ctf" 18)
 	*env_small_font* (create-font "fonts/OpenSans-Regular.ctf" 12)
 	*env_tiny_font* (create-font "fonts/OpenSans-Regular.ctf" 10)
-	*env_title_buttons_font* (create-font "fonts/Entypo.ctf" 22)
-	*env_symbol_font* (create-font "fonts/Entypo.ctf" 28)
-	*env_medium_symbol_font* (create-font "fonts/Entypo.ctf" 22)
-	*env_small_toolbar_font* (create-font "fonts/Entypo.ctf" 16)
-	*env_tiny_symbol_font* (create-font "fonts/Entypo.ctf" 10)
+	*env_title_buttons_font* (create-font "fonts/Symbols.ctf" 22)
+	*env_symbol_font* (create-font "fonts/Symbols.ctf" 28)
+	*env_medium_symbol_font* (create-font "fonts/Symbols.ctf" 22)
+	*env_small_toolbar_font* (create-font "fonts/Symbols.ctf" 16)
+	*env_tiny_symbol_font* (create-font "fonts/Symbols.ctf" 10)
 	*env_terminal_font* (create-font "fonts/Hack-Regular.ctf" 16)
 	*env_medium_terminal_font* (create-font "fonts/Hack-Regular.ctf" 14)
 	*env_small_terminal_font* (create-font "fonts/Hack-Regular.ctf" 12)
 	*env_editor_font* (create-font "fonts/Hack-Regular.ctf" 20)
 	*env_tip_font* (create-font "fonts/OpenSans-Regular.ctf" 14)
-	*env_warning_font* (create-font "fonts/Entypo.ctf" 64))
+	*env_warning_font* (create-font "fonts/Symbols.ctf" 64))
 
 ;keyboard map module
 (defq

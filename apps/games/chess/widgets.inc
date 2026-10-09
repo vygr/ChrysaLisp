@@ -6,10 +6,10 @@
 (defq vdu_width 38 vdu_height 12 text_buf :nil)
 
 (ui-window *window* (:color +argb_black :resizable :nil)
-	(ui-title-bar _ "Chess" (0xea19) +event_close)
+	(ui-title-bar _ "Chess" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *toolbar* ()
-			(ui-buttons (0xe972 0xe9fe 0xe99d) +event_reset))
+			(ui-buttons (+sym_reset +sym_undo +sym_redo) +event_reset))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-grid chess_grid (:grid_width 8 :grid_height 8 :font (create-font "fonts/Chess.ctf" 42)
 			:border 1 :text " ")

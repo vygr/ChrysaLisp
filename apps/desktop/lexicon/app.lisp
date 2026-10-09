@@ -235,7 +235,7 @@
 	(select-word word worker_mbox trash_mbox))
 
 (ui-window *window* (:color +argb_grey15)
-	(ui-title-bar _ "Lexicon - Dictionary & Thesaurus" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar _ "Lexicon - Dictionary & Thesaurus" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow header_bar (:flow_flags +flow_right_fill :border 1 :font *env_button_font*)
 		(ui-label _ (:text " LEX " :color +color_accent :ink_color +argb_white :font *env_bold_font* :border 1))
 		(. (ui-textfield *search_input* (:color +argb_white :clear_text *current_word* :hint_text "Search word..." :min_width 180))

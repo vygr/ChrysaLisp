@@ -47,11 +47,11 @@
 ;;;; ── widget tree ────────────────────────────────────────────────────────────
 
 (ui-window *window* (:color +argb_grey15)
-	(ui-title-bar *title* "Chat" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar *title* "Chat" (+sym_close +sym_max +sym_min) +event_close)
 	; single toolbar: [Dial] [Hangup] then name textfield fills the rest
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe9ed 0xe9e8) +event_connect))
+			(ui-buttons (+sym_dial +sym_hangup) +event_connect))
 		(. (ui-textfield *chat_name* (:flow_flags +flow_right_fill :hint_text "your name..." :clear_text ""))
 			:connect +event_connect))
 	; main body: left channel list + right history pane

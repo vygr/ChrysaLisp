@@ -30,9 +30,9 @@
 	  *running* :t)
 
 (ui-window *window* (:resizable :nil)
-	(ui-title-bar *title* "Find Pairs" (0xea19) +event_close)
+	(ui-title-bar *title* "Find Pairs" (+sym_close) +event_close)
 	(ui-tool-bar *toolbar* ()
-		(ui-buttons (0xe972 0xe9ce) +event_scramble))
+		(ui-buttons (+sym_scramble +sym_peek) +event_scramble))
 	(ui-grid *grid* (:grid_width *grid_w* :grid_height *grid_h*
 					 :color *env_window_col* :font *font*)
 		(each (lambda (i)
