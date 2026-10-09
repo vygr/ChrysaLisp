@@ -4,6 +4,62 @@
 
 ------
 
+A network added by name can be a system of its own, `nodes -s ring -o`.
+
+*	Chris asked if the subnets get their own system id. They did not, a
+	node asks the host for it and every node of a machine has the one.
+	And that was the plan: "to eventually be able to launch a subnet, it
+	get a new system_id, and we can move toward running that subnet on a
+	sandboxed system with WAN security link into it, it can't send tasks
+	out, it can't get to the general file system". This is the first
+	step of that, the rest waits for the WAN side of links and security.
+
+*	The kernel takes a third option, `-sid`, with `-run` and `-l`: the
+	system id of the node is what is given, 16 characters, and not the
+	host's. `sys/kernel/class.vp`, no host change, no new snapshot.
+
+*	`(node-net)` and `(node-start)` take a system id for the nodes they
+	start. With one, the node that asks is not one of the shape. The
+	whole of it is new nodes, and one link from the asker to the first of
+	them is the way in. `nodes -s ring -n 4 -o`: its name and twelve
+	characters more are its system id.
+
+*	What a system id already was does the rest. A task left to find a
+	node, `+kn_call_run`, is not sent over a link to another system, so
+	none goes in and none comes out. `(lisp-nodes :t)` does not have its
+	nodes. It has `@` services of its own. The Network Map colors a node
+	by its system.
+
+*	It is not shut away. A task sent to one of its nodes runs there, and
+	one of its nodes can send a task out. It is on the same host with the
+	same files. Its link is shared memory, with no door. Those are the
+	steps that are parked.
+
+*	It is stopped by name as any other, `nodes -x`, the note of it has
+	its system id, so its nodes are asked along with this machine's.
+
+*	`tests/solo/test_nets.lisp`, 14 more: a ring of 4 of its own is 4
+	nodes with the id they were given, this machine has the nodes it
+	had, of 40 tasks left to find a node none goes there, one sent there
+	runs there, and stopped its processes end. Lint clean. 4,912 pass on
+	the M4, the x64 and the Pi.
+
+*	A fault of the morning's, found by the tests on the way. A network
+	stopped by name had its lines taken out of the note of what a node
+	started, and the note was left with no end to its last line. The
+	next network that node added ran on from it and was never found, to
+	list or to stop. Only on a node that had started nodes before, the
+	first of a session, which is where a rack session runs a test and
+	not where `run_tui.sh` does. `(node-stop)` in `sys/lisp.inc`.
+
+*	And one of the test's own. A node that has gone is known of for a
+	while, and a task left to find a node can be sent to it and is lost.
+	The test sent 40 straight after stopping a network, and on the Pi
+	waited 5 seconds for each that did not answer, 86 seconds where it
+	is 6. It waits now till the nodes are no longer seen.
+
+------
+
 Seen by Chris, on a desktop, 9 October: networks of a shape added to a
 running one from a Terminal, `nodes -s`, and stopped by name, `nodes -x`,
 with the Network Map open to watch them come and go. "That worked very

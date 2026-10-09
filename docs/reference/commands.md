@@ -627,6 +627,9 @@ Usage: nodes [options]
         -n --num cnt: how many nodes the shape has, with this one, or
             how wide a mesh or a cube is. Sized to the machine if not
             given.
+        -o --own: with -s, the shape is a system of its own. It has a
+            system id that is not this machine's, this node is not
+            one of it, and one link from here is the way in.
         -x --stop name: stop a network that was added with -s, all of
             its nodes at once, or all for every one there is.
         -i --info: this node's process id, and the processors
@@ -635,6 +638,7 @@ Usage: nodes [options]
     List the nodes known to this node, and the networks added by name.
 
         nodes -s ring -n 8    ; a ring of 8, this node one of them
+        nodes -s cube -n 2 -o ; a cube of 8, a system of its own
         nodes                 ; the nodes, and the networks
         nodes -x k3f9         ; stop that ring
 ```

@@ -440,6 +440,11 @@ links, and gives it a line of Lisp to run:
 	"(progn (node-net :ring 8) (import {service/gui/app.lisp}))"
 ```
 
+A node takes three options itself, the kernel reads them: `-run`, a file
+or a form to run, `-l`, the name of a shared memory link, and `-sid`, a
+system id to have in place of the one the host has for the machine, up to
+16 characters. Nodes given the same are a system of their own.
+
 That node starts the others. `(node-net shape [cnt fronts kind script])` in
 `sys/lisp.inc` works out the links of the shape, `(node-shape)`, makes a
 name for each, six characters of base 36 from a random number, starts each

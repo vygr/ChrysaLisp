@@ -2408,7 +2408,7 @@ starts one of the same name.
 ### node-net
 
 ```code
-(node-net shape [cnt fronts kind script id]) -> (pid ...)
+(node-net shape [cnt fronts kind script id sid]) -> (pid ...)
 
 make this node node 0 of a network of a shape, (node-shape) has them
 and what cnt is, and wait for the nodes to be seen. It is how a
@@ -2416,18 +2416,21 @@ session starts, from one node, and how a network is added to one
 that is running, hung from this node. The first fronts of them,
 default none, are of kind and run script, as (node-start) has it,
 the other desktops of a session. With an id, a name for these nodes,
-they are noted under it, to be stopped as one, (node-stop).
+they are noted under it, to be stopped as one, (node-stop). With a
+sid, a system id, they are a system of their own: this node is not
+one of the shape, the whole of it is new nodes with that id, and
+one link from here to the first of them is the way in.
 ```
 
 ### node-nets
 
 ```code
-(node-nets) -> ((id shape total (pid ...) (link ...) file) ...)
+(node-nets) -> ((id shape total (pid ...) (link ...) file sid) ...)
 
 the networks added to this machine's sessions by name, (node-net)
 with an id, each with the processes of its nodes, the names of its
-links, and the note it is in. Whichever node of the machine started
-them
+links, the note it is in, and its system id, :nil if it has this
+machine's. Whichever node of the machine started them
 ```
 
 ### node-shape
@@ -2457,7 +2460,7 @@ one.
 ### node-start
 
 ```code
-(node-start total pairs [fronts kind script net]) -> (pid ...)
+(node-start total pairs [fronts kind script net sid]) -> (pid ...)
 
 this node is node 0 of total, start the others, 1 on, linked as pairs
 has them, each a list of two node numbers. A pid of -1 is a node the
@@ -2466,7 +2469,8 @@ of kind, the host program, :gui or :tui, this node's own if not given,
 and run script. A node with a script is a front of its session, a way
 in to it, a desktop is service/gui/app.lisp. net is a line to head
 the note of them with, so they can be found and stopped as one,
-(node-nets) and (node-stop).
+(node-nets) and (node-stop). sid is a system id for them, in place
+of this machine's, 16 characters, the kernel's -sid option.
 ```
 
 ### node-stop
@@ -4132,13 +4136,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args

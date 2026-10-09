@@ -679,8 +679,36 @@
 	(endif)
 	(vp-ret)
 
+(vp-label 'opt_sid)
+	;inputs
+	;:r0 = argv pointer (pubyte)
+	;trashes
+	;:r0-:r4
+	;info
+	;the system id of this node is what is given, up to its size, and not
+	;the one the host has for the machine. Nodes given the same are a
+	;system of their own, tasks are not spread to them or from them
+
+	(entry '(:r0))
+
+	(vp-cpy-rr :r0 :r4)
+	(fn-bind 'sys/statics/statics :r0)
+	(vp-add-cr statics_sys_task_kernel_system_id :r0)
+	(call :sys_mem :fill '(:r0 +node_id_size 0))
+	(call :sys_str :length '(:r4) '(:r0 :r2))
+	(vpif '(:r2 > +node_id_size))
+		(vp-cpy-cr +node_id_size :r2)
+	(endif)
+	(fn-bind 'sys/statics/statics :r1)
+	(vp-add-cr statics_sys_task_kernel_system_id :r1)
+	(call :sys_mem :copy '(:r0 :r1 :r2))
+	(vp-ret)
+
 	(vp-align +ptr_size)
 (vp-label 'options_table)
+	(vp-long `(- ,(label-sym 'opt_sid) ,(label-sym 'options_table)))
+		(vp-cstr "-sid")
+		(vp-align +ptr_size)
 	(vp-long `(- ,(label-sym 'opt_run) ,(label-sym 'options_table)))
 		(vp-cstr "-run")
 		(vp-align +ptr_size)

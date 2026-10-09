@@ -416,6 +416,19 @@ nodes -x all           ; every network that was added
 
 Open the Network Map first and watch it arrive and go.
 
+With `-o` the shape is a system of its own:
+
+```code
+nodes -s ring -n 8 -o  ; started k3f9, a ring of 8, a system of its own
+```
+
+Its nodes have a system id that is not this machine's, so to the rest it
+is another machine, and the Network Map gives it a color of its own. The
+node the command ran on is not one of the ring, one link from it is the
+way in. Tasks that are left to find a node do not go to it or come from
+it, and it has `@` services of its own. It is on the same host all the
+same, with the same files, it is not shut away from them.
+
 The launch script starts only the first node. That node works out the links
 of the shape and starts the rest itself, `(node-net)` in `sys/lisp.inc`, so
 the shapes are written once, in Lisp, for every platform. In any shape but

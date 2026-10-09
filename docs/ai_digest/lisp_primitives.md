@@ -1480,13 +1480,16 @@ Direct host operating system primitives provided by the host engine.
 	and waits till the nodes are seen. It is what the launch scripts have
 	the first node run, `-t` and `-n`.
 
-	*	`(node-net shape [cnt fronts kind script id]) -> (pid ...)`
+	*	`(node-net shape [cnt fronts kind script id sid]) -> (pid ...)`
 
 *	**`node-nets`** / **`node-stop`**: The networks added to this machine's
 	sessions by name, `(node-net)` with an `id`, and one stopped, all of its
-	nodes, its links and the note of it. `nodes -s` and `nodes -x`.
+	nodes, its links and the note of it. `nodes -s` and `nodes -x`. With a
+	`sid`, 16 characters, the nodes of a `(node-net)` have that as their
+	system id and not the machine's, they are a system of their own with
+	one link from this node, `nodes -s -o`.
 
-	*	`(node-nets) -> ((id shape total (pid ...) (link ...) file) ...)`
+	*	`(node-nets) -> ((id shape total (pid ...) (link ...) file sid) ...)`
 
 	*	`(node-stop id) -> :nil | num`
 

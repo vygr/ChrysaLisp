@@ -59,8 +59,8 @@
 	(if (/= 0 (get-long link 0)) (mail-send link (cat name (char 0))))
 	link)
 
-(defun node-start (total pairs &optional fronts kind script net)
-	; (node-start total pairs [fronts kind script net]) -> (pid ...)
+(defun node-start (total pairs &optional fronts kind script net sid)
+	; (node-start total pairs [fronts kind script net sid]) -> (pid ...)
 	;this node is node 0 of total, start the others, 1 on, linked as pairs
 	;has them, each a list of two node numbers. A pid of -1 is a node the
 	;host could not start. The first fronts of them, all if not given, are
@@ -68,7 +68,8 @@
 	;and run script. A node with a script is a front of its session, a way
 	;in to it, a desktop is service/gui/app.lisp. net is a line to head
 	;the note of them with, so they can be found and stopped as one,
-	;(node-nets) and (node-stop).
+	;(node-nets) and (node-stop). sid is a system id for them, in place
+	;of this machine's, 16 characters, the kernel's -sid option.
 	(setd fronts total)
 	(defq links (map (lambda (&) (list)) (range 0 total)) names (list)
 		chars "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -83,7 +84,8 @@
 			(push (elem-get links j) name))
 		pairs)
 	(defq pids (map! (lambda (node_links)
-			(defq args (join (map (lambda (name) (cat "-l " name)) node_links) " "))
+			(defq args (cat (if sid (cat "-sid " sid " ") "")
+				(join (map (lambda (name) (cat "-l " name)) node_links) " ")))
 			(pii-spawn (if (<= (!) fronts) (cat host args run) args)))
 		(list links) 1))
 	(each (const node-link) (first links))
@@ -156,19 +158,26 @@
 			(range (inc i) total))) (range 0 total))))
 	(list total pairs))
 
-(defun node-net (shape &optional cnt fronts kind script id)
-	; (node-net shape [cnt fronts kind script id]) -> (pid ...)
+(defun node-net (shape &optional cnt fronts kind script id sid)
+	; (node-net shape [cnt fronts kind script id sid]) -> (pid ...)
 	;make this node node 0 of a network of a shape, (node-shape) has them
 	;and what cnt is, and wait for the nodes to be seen. It is how a
 	;session starts, from one node, and how a network is added to one
 	;that is running, hung from this node. The first fronts of them,
 	;default none, are of kind and run script, as (node-start) has it,
 	;the other desktops of a session. With an id, a name for these nodes,
-	;they are noted under it, to be stopped as one, (node-stop).
+	;they are noted under it, to be stopped as one, (node-stop). With a
+	;sid, a system id, they are a system of their own: this node is not
+	;one of the shape, the whole of it is new nodes with that id, and
+	;one link from here to the first of them is the way in.
 	(bind '(total pairs) (node-shape shape cnt))
+	(when sid
+		(setq pairs (cat (list (list 0 1)) (map (lambda ((i j)) (list (inc i) (inc j))) pairs))
+			total (inc total)))
 	(defq before (length (lisp-nodes))
 		pids (node-start total pairs (ifn fronts 0) kind script
-			(if id (cat id " " (rest (str shape)) " " (str total)))))
+			(if id (cat id " " (rest (str shape)) " " (str (if sid (dec total) total))
+				(if sid (cat " " sid) ""))) sid))
 	(node-wait (+ before (length (filter (lambda (pid) (> pid 0)) pids))))
 	pids)
 
@@ -185,11 +194,11 @@
 	pids)
 
 (defun node-nets ()
-	; (node-nets) -> ((id shape total (pid ...) (link ...) file) ...)
+	; (node-nets) -> ((id shape total (pid ...) (link ...) file sid) ...)
 	;the networks added to this machine's sessions by name, (node-net)
 	;with an id, each with the processes of its nodes, the names of its
-	;links, and the note it is in. Whichever node of the machine started
-	;them
+	;links, the note it is in, and its system id, :nil if it has this
+	;machine's. Whichever node of the machine started them
 	(defq out (list))
 	(each! (lambda (entry kind)
 		(when (and (eql kind "8") (starts-with "chrysalisp_" entry) (ends-with ".session" entry))
@@ -200,7 +209,8 @@
 					((empty? parts))
 					((eql (first parts) "net")
 						(setq net (if (>= (length parts) 4)
-							(list (second parts) (third parts) (str-as-num (elem-get parts 3)) (list) (list) file)))
+							(list (second parts) (third parts) (str-as-num (elem-get parts 3)) (list) (list) file
+								(if (> (length parts) 4) (elem-get parts 4)))))
 						(if net (push out net)))
 					((not net))
 					((eql (first parts) "link") (push (elem-get net 4) (second parts)))
@@ -219,17 +229,20 @@
 	;the one that asks may itself be a node of the network, and is given
 	;the time to say what it did
 	(when (defq nets (node-nets) net (some (# (if (eql (first %0) id) %0)) nets))
-		(bind '(& & & pids links file) net)
+		(bind '(& & & pids links file sid) net)
 		;a network that one of these nodes added is hung from it, and would
 		;be left with no way in, so it goes first. The note of a network is
 		;named for the process of the node that added it
 		(defq told 0)
-		(each (lambda ((other & & & & its_file))
+		(each (lambda ((other & & & & its_file &))
 			(if (find (str-as-num (slice its_file (const (length "/tmp/chrysalisp_"))
 					(- -1 (const (length ".session"))))) pids)
 				(setq told (+ told (ifn (node-stop other) 0)))))
 			nets)
-		(defq mbox (mail-mbox) nodes (lisp-nodes :t) doomed (list) stays :nil)
+		;the nodes of this machine, and of the network's system if it is
+		;one of its own
+		(defq mbox (mail-mbox) nodes (cat (lisp-nodes :t) (if sid (lisp-nodes sid) (list)))
+			doomed (list) stays :nil)
 		(each (# (open-task (str `(mail-send (hex-decode ,(hex-encode mbox))
 				(cat (str (pii-pid)) " " (hex-encode (task-nodeid)))))
 			%0 +kn_call_pin 0 (mail-mbox))) nodes)
@@ -244,12 +257,14 @@
 				(hex-decode stays) +kn_call_pin 0 (mail-mbox)))
 		(each (# (pii-remove (cat "/tmp/" %0))) links)
 		;the note, less this network's lines
+		;each line that stays ends as it did, what is noted next goes on
+		;the end of the file and would run on from a last line that did not
 		(defq keep :t)
-		(save (join (filter (lambda (line)
+		(save (apply (const cat) (cat (list "") (map (# (cat %0 (ascii-char 10))) (filter (lambda (line)
 				(cond
 					((starts-with "net " line) (setq keep (nql (second (split line " ")) id)))
 					(keep)))
-			(split (ifn (load file) "") (ascii-char 10))) (ascii-char 10)) file)
+			(split (ifn (load file) "") (ascii-char 10)))))) file)
 		(+ told (length doomed))))
 
 (defun mail-read-timeout (mbox &optional timeout)
