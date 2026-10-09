@@ -3121,15 +3121,6 @@ top for bottom
 the head of an arrow, at x y, for a line that comes in along dx dy
 ```
 
-### s-heavy
-
-```code
-(s-heavy items [f]) -> items
-
-the strokes of a thing made f times the weight of the theme's, twice
-if not said. For a symbol that is only ever drawn small
-```
-
 ### s-line
 
 ```code

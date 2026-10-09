@@ -178,12 +178,7 @@
 	(list "route" (cat (s-ring 5 18 2.4) (s-ring 19 6 2.4) (s-line 7.4 18 11 18 15 6 16.6 6)))
 	(list "pcb" (cat (s-rrect 3 5 21 19 2) (s-disc 7.5 9.5 1.5) (s-disc 16.5 14.5 1.5)
 		(s-line 7.5 9.5 12 9.5 16.5 14.5) (s-disc 7.5 15 1.5) (s-disc 16.5 9 1.5)))
-	(list "gerber" (cat (s-rrect 3 5 21 19 2) (s-ring 8 12 2.4) (s-ring 16 12 2.4) (s-line 10.4 12 13.6 12)))
-	;for the smallest size, 10 pixels: the same strokes, as wide as the
-	;grid lets them be, and twice the weight, so that small they look the
-	;weight the rest do on a toolbar
-	(list "small_up" (s-heavy (s-line 4 16 12 8 20 16)))
-	(list "small_down" (s-heavy (s-line 4 8 12 16 20 8)))))
+	(list "gerber" (cat (s-rrect 3 5 21 19 2) (s-ring 8 12 2.4) (s-ring 16 12 2.4) (s-line 10.4 12 13.6 12)))))
 
 ;;;;;;;;;;;;
 ; the themes

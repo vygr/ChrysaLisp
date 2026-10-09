@@ -10,6 +10,9 @@
 (import "././flow/lisp.inc")
 (import "lib/files/files.inc")
 
+;the toggle of a folder, the symbols its title bar has, drawn small
+(defq +files_shut (num-to-utf8 +sym_next) +files_open (num-to-utf8 +sym_up))
+
 (defclass Files (title event) (Flow)
 	; (Files title event) -> files
 	(defq my_id (. this :get_id))
@@ -44,7 +47,7 @@
 		; "a/b/c/file"
 		; "a/b/c/."
 		(raise :file_tree :action_event)
-		(bind '(toggle_width &) (font-glyph-bounds (get :font file_tree) ">"))
+		(bind '(toggle_width &) (font-glyph-bounds *env_tiny_symbol_font* +files_open))
 		(defq route (split route "/") root file_tree)
 		(each! (lambda (branch)
 			(cond
@@ -57,7 +60,8 @@
 					(def (defq tab (Backdrop)) :min_width toggle_width)
 					(def (defq tab_child (Flow)) :flow_flags +flow_down)
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
-					(def (defq toggle (Node)) :text "^" :min_width toggle_width)
+					(def (defq toggle (Node)) :text +files_open :min_width toggle_width
+						:font *env_tiny_symbol_font*)
 					(. toggle :connect (. this :get_id))
 					(.-> tab_flow (:add_child tab) (:add_child tab_child))
 					(.-> title_flow (:add_child toggle) (:add_child
@@ -104,10 +108,10 @@
 		(defq stack (list file_tree))
 		(while (defq node (pop stack))
 			(each (# (cond
-				((and (Node? %0) (find (get :text %0) "^>"))
+				((and (Node? %0) (or (eql (defq toggle_text (get :text %0)) +files_open) (eql toggle_text +files_shut)))
 					(defq flow (last (. (penv (penv %0)) :children)))
 					(. flow :set_flags 0 +view_flag_hidden)
-					(def %0 :text "^"))
+					(def %0 :text +files_open))
 				((push stack %0)))) (. node :children)))
 		(. this :layout_tree)
 		this)
@@ -118,10 +122,10 @@
 		(defq stack (list file_tree))
 		(while (defq node (pop stack))
 			(each (# (cond
-				((and (Node? %0) (find (get :text %0) "^>"))
+				((and (Node? %0) (or (eql (defq toggle_text (get :text %0)) +files_open) (eql toggle_text +files_shut)))
 					(defq flow (last (. (penv (penv %0)) :children)))
 					(. flow :set_flags +view_flag_hidden +view_flag_hidden)
-					(def %0 :text ">"))
+					(def %0 :text +files_shut))
 				((push stack %0)))) (. node :children)))
 		(. this :layout_tree)
 		this)
@@ -174,7 +178,7 @@
 				(defq node (last (. (penv (penv view)) :children))
 					hidden (logxor (logand (. node :get_flags) +view_flag_hidden) +view_flag_hidden))
 				(. node :set_flags hidden +view_flag_hidden)
-				(def view :text (if (= hidden +view_flag_hidden) ">" "^"))
+				(def view :text (if (= hidden +view_flag_hidden) +files_shut +files_open))
 				(. this :layout_tree))
 			((Button? view)
 				; It's a title bar button (collapse or expand)

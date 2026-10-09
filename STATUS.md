@@ -4,27 +4,34 @@
 
 ------
 
-The smallest symbols, the arrows of a spinner, are symbols of their own.
+One set of arrows, used small where a small one is wanted.
 
-*	At 10 pixels the spinner drew `up` and `down`, made for a toolbar, and
-	to give them some weight each theme named a second font, the next one
-	up, for that size alone. Chris: "we should have symbols in the
-	standard Symbols.ctf for them and we use them at a smaller font size",
-	and "they are part of our Symbols for toolbars/buttons font".
+*	At 10 pixels the spinner drew `up` and `down`, and to give them some
+	weight each theme named a second font, the next one up, for that size
+	alone. Chris: "we should have symbols in the standard Symbols.ctf for
+	them and we use them at a smaller font size".
 
-*	`small_up` and `small_down`, on the end of the set, 114 symbols, in
-	all four fonts. Claude's first go was a filled triangle. Chris:
-	"Should meet the same style standard you did." They are the same
-	chevron, as wide as the grid lets it be, in strokes twice the weight,
-	a new part of the kit, `(s-heavy)`.
+*	Claude read that as new symbols, and made two, a filled triangle and
+	then, told they "should meet the same style standard", a heavy
+	chevron, with a new part of the kit to draw it. Chris, looking at the
+	font: "we already had the set at 0xe063 !" They were `up` and `down`
+	again. They are taken out, the kit is as it was, 112 symbols.
 
-*	A theme is a name and one font again. `(theme-file name)`, it was
+*	A theme is a name and one font. `(theme-file name)`, it was
 	`(theme-files)` and gave two. `*env_tiny_symbol_font*` is the theme's
-	own font at 10.
+	own font at 10, and the spinner draws `up` and `down` with it.
 
-*	4,899 pass on the M4, the x64 and the Pi, the fonts the same bytes on
-	each. Not seen: a spinner on a desktop, the PCB app has them. Looked
-	at as text, at twice the size.
+*	Chris: "We should also use this for the collapse and expand for the
+	File widget ! We have several places there that use the same." The
+	toggle of a folder was the characters `^` and `>` in the font of the
+	file names, with the symbols in the title bar above it. It is `up`
+	and `next` in the small symbol font, `gui/files/lisp.inc`, and a
+	theme swaps it with the rest. The toggle of a category in the
+	launcher the same, at the size of a title's buttons.
+
+*	4,898 pass on the M4. A files widget made with no desktop: its
+	toggles are the symbols, shut when it is collapsed and open when
+	expanded. Not seen: any of it on a desktop.
 
 ------
 
