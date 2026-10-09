@@ -4,6 +4,33 @@
 
 ------
 
+A link is followed only to a document of the Docs app's own tree.
+
+*	Chris: "Docs app only scan a certain subset of the .md files... it
+	should not go outside that. But make sure that dection is dynamic,
+	as we may in future change the root of that scan."
+
+*	The app had "docs" and ".md" written in three places, the tree, the
+	search, and the check of a link put in earlier that day. They are
+	`+doc_root` and `+doc_types` in `apps/desktop/docs/app.lisp`, once.
+
+*	A link is not tested against the name of the folder. The tree at
+	the left is asked if it has the file, `(. *file_selector*
+	:find_node file)`, so whatever the tree was filled from is the
+	limit, and a link up and out of it, `../../README.md`, is not
+	followed. The file must end as a document does as well, a folder is
+	a node of the tree too.
+
+`tests/system/test_md.lisp`, 7 more, 33: a tree filled as the app fills
+its own, a document in it, one above the root, one not there, a pdf that
+is there, and the tree filled from another root. Every test, 5,038, on
+the M4, the x64 and the Pi. The record below said that test had 31
+after the links went in, it had 26, corrected.
+
+Not seen: on a desktop, a link out of the root pressed and not followed.
+
+------
+
 A link in a document can be followed. Item 40, Chris: "40. yes, make the
 links active".
 
@@ -34,7 +61,7 @@ links active".
 *	Docs also acts on `+event_zoom_in` and `+event_zoom_out`, the keys
 	it had for its page zoom.
 
-`tests/system/test_md.lisp`, 31 now. Every test, 5,031, on the M4, the
+`tests/system/test_md.lisp`, 26 now. Every test, 5,031, on the M4, the
 x64 and the Pi.
 
 Chris, on a desktop: "Seams to work, BUT would like to have a breadcrubs

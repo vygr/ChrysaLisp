@@ -11,6 +11,11 @@
 (enums +select 0
 	(enum main tip embedded))
 
+;the documents of the Docs app: the folder they are under, and what they
+;end with. The tree at the left is these, a search is of these, and a link
+;is followed only to one of these. Change them here and all three follow
+(defq +doc_root "docs" +doc_types '(".md"))
+
 (defq +margin_width (* 8 3)
 	+doc_font (first (font-info *env_window_font*))
 	+doc_font_bold (cat (first (split (first (font-info *env_window_font*)) "-")) "-Bold.ctf")
@@ -116,11 +121,11 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) handlers (Emap) syntax (Syntax)
-		scroll_pos (Fmap) *running* :t *config* :nil *current_file* "docs/ai_digest/summary.md"
+		scroll_pos (Fmap) *running* :t *config* :nil *current_file* (cat +doc_root "/ai_digest/summary.md")
 		*regexp* :nil *whole_words* :nil *ignore_case* :nil *last_key* "" *last_files* (list)
 		*history* (list) *history_idx* -1
 		*last_widget* :nil *search_widgets* (list) *mem_stream* :nil)
-	(.-> *file_selector* (:populate "docs" '(".md")) :pref_size)
+	(.-> *file_selector* (:populate +doc_root +doc_types) :pref_size)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(config-load)
 	(def *page_scroll* :min_height 800)

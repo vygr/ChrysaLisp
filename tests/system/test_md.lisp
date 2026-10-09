@@ -1,5 +1,6 @@
 (report-header "Md: a table keeps to the page, a long path is cut to fit its cell, and a table too wide is scrolled")
 
+(import "usr/env.inc")
 (import "gui/lisp.inc")
 
 (defun md-make (lines)
@@ -87,4 +88,21 @@
 (assert-eq "a place in a file is not part of its name" "docs/lisp/b.md" (md-link-file "docs/lisp/a.md" "b.md#here"))
 (assert-eq "from the root" "docs/b.md" (md-link-file "docs/lisp/a.md" "/docs/b.md"))
 (assert-eq "more folders up than there are stops at the root" "b.md" (md-link-file "docs/a.md" "../../../b.md"))
+
+;the Docs app follows a link only to a document of its tree, and asks the
+;tree, so whatever the tree was filled from is the limit. A tree as the
+;app fills its own
+(ui-window md_window ()
+	(ui-files md_files "Project" 0 :nil))
+(. md_files :populate "docs" '(".md"))
+(assert-true "a document under the root is in the tree" (. md_files :find_node "docs/gui/event_dispatch.md"))
+(assert-true "by a link from another, up and across"
+	(. md_files :find_node (md-link-file "docs/ai_digest/summary.md" "../gui/event_dispatch.md")))
+(assert-eq "one above the root is not" :nil (. md_files :find_node (md-link-file "docs/intro/intro.md" "../../README.md")))
+(assert-eq "nor one that is not there" :nil (. md_files :find_node "docs/gui/no_such.md"))
+(assert-eq "nor a file that is there and is not a document" :nil (. md_files :find_node "docs/history/press/1991-12_byte.pdf"))
+(. md_files :empty)
+(. md_files :populate "docs/gui" '(".md"))
+(assert-eq "with another root, what was in is out" :nil (. md_files :find_node "docs/ai_digest/summary.md"))
+(assert-true "and what is under it is in" (. md_files :find_node "docs/gui/event_dispatch.md"))
 

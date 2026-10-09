@@ -20,7 +20,7 @@
 	(if step
 		(setq *history_idx* (+ *history_idx* step))
 		(history-note file))
-	(if (starts-with "docs/" file) (. *file_selector* :select_node file))
+	(. *file_selector* :select_node file)
 	(populate-page file))
 
 (defun action-back ()
@@ -68,12 +68,13 @@
 		(populate-page *current_file*)))
 
 (defun action-link ()
-	;a link of the page was pressed. One to a document that is there is
-	;gone to. Only a document: a link to the web, a pdf, a picture, or to
-	;a file that is not there, does nothing
+	;a link of the page was pressed. It is followed if it is to one of the
+	;documents of the app, those of the tree at the left, which is asked.
+	;So not out of the folder they are under, +doc_root, whatever that is,
+	;not to the web, a pdf or a picture, and not to a file that is not there
 	(when (and (defq view (. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
 			(defq target (def? :link view))
 			(not (find ":" target)) (not (starts-with "#" target))
-			(ends-with ".md" (defq file (md-link-file *current_file* target)))
-			(/= (age file) 0))
+			(some (# (ends-with %0 (defq file (md-link-file *current_file* target)))) +doc_types)
+			(. *file_selector* :find_node file))
 		(show-file file)))
