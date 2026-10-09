@@ -108,9 +108,11 @@
 (each (# (open-task (str `(mail-send (hex-decode ,(hex-encode gn_mbox)) "there")) %0 +kn_call_pin 0 (mail-mbox))) gn_others)
 (assert-list-eq "and a task sent to each of them runs" '("there" "there" "there")
 	(map (lambda (&) (ifn (mail-read-timeout gn_mbox (task-timeout 5)) "none")) gn_others))
-(each (# (open-task "(pii-exit)" %0 +kn_call_pin 0 (mail-mbox))) gn_others)
+;each waits a moment before it goes. One of them is the way to the other
+;two now, and if it went at once what it had yet to pass on went with it
+(each (# (open-task "(progn (task-sleep 300000) (pii-exit))" %0 +kn_call_pin 0 (mail-mbox))) gn_others)
 (node-stop "gn_5")
-(assert-true "the ring is stopped" (gn-gone gn_pids))
+(assert-true "the ring of 5 is stopped" (gn-gone gn_pids))
 (defq gn_t0 (pii-time))
 (while (and (> (length (lisp-nodes)) gn_were) (< (- (pii-time) gn_t0) (task-timeout 15)))
 	(task-sleep 100000))

@@ -255,12 +255,12 @@
 (def-func-end)
 
 (defun lk-forget-peer ()
-	;emit the end of the peer's node, when its process is seen to be gone,
-	;and of the nodes that were only ever reached by way of it. None can
-	;be reached from here now. They are not taken from the node map, they
-	;are left in it with no way to them, not listed, till the kick the
-	;ping task gives as it sees the link change runs their time out. See
-	;+node_hops_none in sys/mail/class.inc.
+	;emit the end of the peer's node, when its process is seen to be gone.
+	;It is no longer a way to any node. Those it was the only way to, and
+	;it is that to itself, can not be reached from here now. They are not
+	;taken from the node map, they are left in it with no way to them, not
+	;listed, till the kick the ping task gives as it sees the link change
+	;runs their time out. See +node_hops_none in sys/mail/class.inc.
 	(call :hmap :each {statics->statics_sys_mail_node_map, $behind_callback,
 		&lk_node->lk_node_peer_node_id}))
 
@@ -598,42 +598,53 @@
 	;:r0 = predicate data, the node id of the peer that has gone (ptr)
 	;:r1 = element iterator (pptr)
 	;:r2 = bucket list pointer (ptr)
+	;info
+	;the peer is taken out of the ways to this node. If it was the only
+	;one, the node has no way to it now
 
-	(vp-rdef (data iter bucket tuple vias end pid1 pid2 vid1 vid2))
+	(vp-rdef (data iter dst tuple vias end pid1 pid2 vid1 vid2 dif1 dif2))
 
-	(entry :hmap :each_callback `(,data ,iter ,bucket))
+	(entry :hmap :each_callback `(,data ,iter ,dst))
 
 	(assign `((,iter ,+ptr_size)) `(,tuple))
 	(load-node-id data 0 pid1 pid2)
 	(class/array/get_both tuple vias end)
 	(vp-add-cr (* +node_vias +long_size) vias)
-	(switch 'keep)
-	(breakif `(,vias >= ,end))
-	(loop-start)
+	(vp-cpy-rr vias dst)
+	(loop-while `(,vias < ,end))
 		(assign `((,vias 0) (,vias ,+long_size)) `(,vid1 ,vid2))
-		(vp-sub-rr pid1 vid1)
-		(vp-sub-rr pid2 vid2)
-		(vp-or-rr vid2 vid1)
-		(breakif `(,vid1 /= 0) 'keep)
 		(vp-add-cr (* 2 +long_size) vias)
-	(loop-until `(,vias >= ,end))
-	(default)
-		;every way to it was by the peer, now there is none
+		(vp-cpy-rr vid1 dif1)
+		(vp-cpy-rr vid2 dif2)
+		(vp-sub-rr pid1 dif1)
+		(vp-sub-rr pid2 dif2)
+		(vp-or-rr dif2 dif1)
+		(vpif `(,dif1 /= 0))
+			(assign `(,vid1 ,vid2) `((,dst 0) (,dst ,+long_size)))
+			(vp-add-cr (* 2 +long_size) dst)
+		(endif)
+	(loop-end)
+	(vpif `(,dst < ,vias))
+		;it was one of them
 		(assign `((,tuple +array_begin)) `(,vias))
-		(vp-cpy-cr +node_vias vid1)
-		(assign `(,vid1) `((,tuple +array_length)))
-		(vp-cpy-cr +node_hops_none vid1)
-		(assign `(,vid1) `((,vias ,(* +node_hops +long_size))))
-		;and the peer itself will not be heard again
-		(assign `((,iter 0)) `(,end))
-		(load-node-id end +str_data vid1 vid2)
-		(vp-sub-rr pid1 vid1)
-		(vp-sub-rr pid2 vid2)
-		(vp-or-rr vid2 vid1)
-		(vpif `(,vid1 = 0))
-			(vp-cpy-cr +node_session_gone vid1)
-			(assign `(,vid1 ,vid1) `((,vias ,(* +node_session_cluster +long_size))
-				(,vias ,(* +node_session_sys +long_size))))
+		(vp-sub-rr vias dst)
+		(vp-shr-cr (log2 +long_size) dst)
+		(assign `(,dst) `((,tuple +array_length)))
+		(vpif `(,dst = ,+node_vias))
+			;and the only one
+			(vp-cpy-cr +node_hops_none vid1)
+			(assign `(,vid1) `((,vias ,(* +node_hops +long_size))))
+			;the peer itself will not be heard again
+			(assign `((,iter 0)) `(,end))
+			(load-node-id end +str_data vid1 vid2)
+			(vp-sub-rr pid1 vid1)
+			(vp-sub-rr pid2 vid2)
+			(vp-or-rr vid2 vid1)
+			(vpif `(,vid1 = 0))
+				(vp-cpy-cr +node_session_gone vid1)
+				(assign `(,vid1 ,vid1) `((,vias ,(* +node_session_cluster +long_size))
+					(,vias ,(* +node_session_sys +long_size))))
+			(endif)
 		(endif)
 	(endif)
 	(vp-ret)
