@@ -162,7 +162,10 @@
 				u (apply (const reals) (vector-cross-3d d across))
 				thick (/ +bar_size zoom)
 				u (nums-scale u (/ thick (sqrt (+ (nums-dot u u) (const (n2r 0.000001))))))
-				v (apply (const reals) (vector-cross-3d d u))
+				;u, the link and v go round the way x, y and z do. The other
+				;way and the bar is turned inside out, it is its far side
+				;that is seen, lit as that side is
+				v (apply (const reals) (vector-cross-3d u d))
 				v (nums-scale v (/ thick (sqrt (+ (nums-dot v v) (const (n2r 0.000001))))))
 				;cold is a dim blue, half way is red, and hot is white
 				heat (get :heat link) bar (get :bar link)
