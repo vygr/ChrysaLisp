@@ -222,9 +222,12 @@
 						(def board :band (list (min sx x) (min sy y) (max sx x) (max sy y)))
 						(. board :touch +board_dirty_overlay))))
 			(:eraser
-				(when (defq hit (cwb-hit (get :doc board) x y (/ +board_near (get :zoom board))))
-					(. board :remove (list (elem-get (first hit) +cwb_id)))
-					(elem-set state +stroke_moved :t)))
+				;from where it was to where it is, and it is shown there
+				(bind '(ox oy) points)
+				(if (. board :rub_along ox oy x y) (elem-set state +stroke_moved :t))
+				(elem-set state +stroke_points (list x y))
+				(def board :rubber (list x y (/ (get :rub_reach board) (get :zoom board))))
+				(. board :touch +board_dirty_overlay))
 			(:pan
 				(def board :pan (list (- x sx) (- y sy))))
 			(:t ;something is drawn
@@ -262,7 +265,9 @@
 							(band (. board :select (map (# (elem-get (first %0) +cwb_id))
 								(cwb-in-box (get :doc board) band)))))
 						(. board :touch +board_dirty_overlay))))
-			(:eraser (unless moved (. board :forget)))
+			(:eraser (unless moved (. board :forget))
+				(def board :rubber :nil)
+				(. board :touch +board_dirty_overlay))
 			(:pan)
 			(:t ;what was drawn goes into the document, if it is anything
 				(. board :drop_temp id)
@@ -504,6 +509,9 @@
 		:color 0xff000000 :fill 0 :width 3.0
 		:text "" :font "fonts/OpenSans-Regular.ctf" :font_size 32
 		:snap 0.0 :snap_angle 0.0 :keep_shape :t :zoom 1.0
+		;the eraser: how far it reaches, on the screen, and :part, it rubs
+		;out the part of a line it goes over, or :whole, the whole of it
+		:rub_reach 8.0 :rub_mode :part :rubber :nil
 		:temp (Fmap 11) :band :nil :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
 		:floating (list) :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
 	(def this :surface (Surface this) :handles (Handles this))
@@ -709,6 +717,57 @@
 		(def this :selected (filter (# (not (find %0 ids))) (get :selected this)))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
+	(defmethod :rub (x y &optional r)
+		; (. board :rub x y [r]) -> :t | :nil
+		;rub out at a point, as the eraser does, r is how far it reaches,
+		;default the board's by its zoom. Of a line that is near, the part
+		;that is within r goes, and what is left of it is lines in its
+		;place. If no line was touched, the thing on top at the point goes
+		;whole. With :rub_mode :whole a line goes whole too. No step is
+		;made. Was anything rubbed out
+		(defq doc (get :doc this) r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
+			x (n2f x) y (n2f y) reach (list (- x r) (- y r) (+ x r) (+ y r)) done :nil)
+		(when (eql (get :rub_mode this) :part)
+			(each (lambda ((name flags items))
+				(unless (or (bits? flags 1) (bits? flags 2))
+					(defq out (list) changed :nil)
+					(each (lambda (item)
+						(cond
+							((and (cwb-rub? item)
+									(defq box (cwb-bounds (list item)))
+									(cwb-box-meet? reach (list (- (first box) 1.0) (- (second box) 1.0)
+										(+ (third box) 1.0) (+ (elem-get box 3) 1.0)))
+									(defq pieces (cwb-rub item x y r)))
+								(setq changed :t done :t)
+								(def this :selected (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this)))
+								(each (# (push out (cwb-adopt doc %0))) pieces)
+								(. this :changed (map (# (elem-get %0 +cwb_id)) pieces)))
+							(:t (push out item))))
+						items)
+					(when changed
+						;what is left is where it was, among the rest
+						(clear items)
+						(each (# (push items %0)) out))))
+				(cwb-layers doc)))
+		(when (and (not done) (defq hit (cwb-hit doc x y (/ +board_near (get :zoom this)))))
+			(. this :remove (list (elem-get (first hit) +cwb_id)))
+			(setq done :t))
+		(if done (. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
+		done)
+
+	(defmethod :rub_along (x y x1 y1 &optional r)
+		; (. board :rub_along x y x1 y1 [r]) -> :t | :nil
+		;rub out from one point to another, as the eraser goes, at every
+		;step of half its reach
+		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
+			x (n2f x) y (n2f y) dx (- (n2f x1) x) dy (- (n2f y1) y)
+			steps (max 1 (n2i (/ (sqrt (+ (* dx dx) (* dy dy))) (* 0.5 r)))) done :nil)
+		(each (lambda (i)
+			(defq f (/ (n2f i) (n2f steps)))
+			(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r) (setq done :t)))
+			(range 0 (inc steps)))
+		done)
+
 	(defmethod :delete ()
 		; (. board :delete) -> board
 		;take out what is selected
@@ -906,6 +965,11 @@
 				(cwb-draw-items canvas (filter (# (find (elem-get %0 +cwb_id) floating)) items) m))
 				(cwb-layers (get :doc this))))
 		(. (get :temp this) :each (lambda (id shape) (cwb-draw-items canvas (list shape) m)))
+		(when (defq rubber (get :rubber this))
+			;the eraser, where it is, as far as it reaches
+			(bind '(x y r) rubber)
+			(cwb-draw-items canvas (list (cwb-shape (cwb-d-ellipse x y r)
+				:stroke 0xff808080 :width thin :fill 0x40ffffff)) m))
 		(when (defq band (get :band this))
 			(bind '(x y x1 y1) band)
 			(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)

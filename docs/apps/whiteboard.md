@@ -29,7 +29,8 @@ apps/media/whiteboard/widgets.inc *window* 512 512
 
 The second row of buttons says what the pen draws: a line by hand, a straight
 line, an arrow, an arrow at both ends, a box, an ellipse, either of those
-filled, words, and last the eraser, which takes out what it is dragged over.
+filled, words, and last the eraser. The eraser rubs out the part of a line it
+is dragged over, and leaves the rest. A box, a filled shape or words go whole.
 The row of colours says in what, and the three dots how thick.
 
 Words are typed into the field on that row, and put down where the pen next

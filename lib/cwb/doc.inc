@@ -606,6 +606,99 @@
 		(cwb-layers doc))
 	count)
 
+;;;;;;;;;;;;;;;;
+; rubbing out
+;;;;;;;;;;;;;;;;
+
+(defun cwb-rub-points (p cx cy r)
+	; (cwb-rub-points p cx cy r) -> :nil | ((x y x y ...) ...)
+	;a line through points, x y x y ..., with what of it is within r of a
+	;point taken out. What is left, each a line of two points or more,
+	;cut where it meets the circle, to the nearest sixteenth, a root is
+	;not exact and a path is text. :nil if none of it was within r
+	(defq runs (list) run (list) cut :nil r2 (* r r) pts (partition p 2)
+		near (# (/ (floor (+ (* %0 16.0) 0.5)) 16.0)))
+	(each! (lambda ((ax ay))
+		(bind '(bx by) (elem-get pts (inc (!))))
+		(defq dx (- bx ax) dy (- by ay) fx (- ax cx) fy (- ay cy)
+			a (+ (* dx dx) (* dy dy)) b (* 2.0 (+ (* fx dx) (* fy dy)))
+			c (- (+ (* fx fx) (* fy fy)) r2)
+			disc (- (* b b) (* 4.0 a c)) t1 2.0 t2 -1.0)
+		(cond
+			((= a 0.0)
+				;no length, it is in or it is out
+				(if (< c 0.0) (setq t1 0.0 t2 1.0)))
+			((> disc 0.0)
+				(defq root (sqrt disc))
+				(setq t1 (/ (- (neg b) root) (* 2.0 a)) t2 (/ (+ (neg b) root) (* 2.0 a)))))
+		(cond
+			((or (>= t1 1.0) (<= t2 0.0) (> t1 t2))
+				;none of it is in the circle
+				(if (empty? run) (push run ax ay))
+				(push run bx by))
+			(:t (setq cut :t)
+				(when (> t1 0.0)
+					;up to where it goes in
+					(if (empty? run) (push run ax ay))
+					(push run (near (+ ax (* dx t1))) (near (+ ay (* dy t1)))))
+				(if (>= (length run) 4) (push runs run))
+				(setq run (list))
+				(when (< t2 1.0)
+					;from where it comes out
+					(push run (near (+ ax (* dx t2))) (near (+ ay (* dy t2))) bx by)))))
+		(list pts) 0 (dec (length pts)))
+	(if (>= (length run) 4) (push runs run))
+	(if cut runs))
+
+(defun cwb-rub? (item)
+	; (cwb-rub? item) -> :t | :nil
+	;can part of it be rubbed out: a line, one that is drawn and not
+	;filled, and has an end. A box, a filled thing, words and a group can
+	;not, each is all there or not there
+	(and (cwb-shape? item) (not (eql (elem-get item +cwb_kind) :text))
+		(= (elem-get item +cwb_fill) 0) (/= (elem-get item +cwb_stroke) 0)
+		(nempty? (defq outline (cwb-outline item)))
+		(notany (const first) outline)))
+
+(defun cwb-rub (item x y r)
+	; (cwb-rub item x y r) -> :nil | items
+	;an item that (cwb-rub?) with what of it is within r of a point, of
+	;the space it is in, rubbed out. The lines that are left, each a new
+	;item like it, none if all of it went. :nil if none of it was that
+	;near. An end that was its own keeps how that end was drawn, an arrow
+	;say, and an end that was cut is round
+	(defq m (elem-get item +cwb_m) inv (cwb-mat-invert m) size 1.0)
+	(when m
+		(bind '(a b &ignore) m)
+		(defq c (elem-get m 3) d (elem-get m 4))
+		(setq size (max 0.001 (sqrt (abs (- (* a d) (* b c)))))))
+	(bind '(lx ly) (cwb-mat-point inv x y))
+	;as near as its own edge, half its width more than its middle
+	(defq lr (+ (/ (n2f r) size) (* 0.5 (n2f (elem-get item +cwb_width))))
+		pieces (list) cut :nil)
+	(each (lambda ((closed p))
+		(defq runs (cwb-rub-points p lx ly lr))
+		(cond
+			(runs (setq cut :t)
+				(each (lambda (run)
+					(defq piece (cat item))
+					(elem-set piece +cwb_id 0)
+					(elem-set piece +cwb_cache :nil)
+					(cwb-set piece :d (cwb-d-points run) :kind :pen
+						:cap1 (if (and (= (first run) (first p)) (= (second run) (second p)))
+							(elem-get item +cwb_cap1) :round)
+						:cap2 (if (and (= (elem-get run -3) (elem-get p -3)) (= (elem-get run -2) (elem-get p -2)))
+							(elem-get item +cwb_cap2) :round))
+					(push pieces piece)) runs))
+			(:t ;a line of it that was not touched is one of what is left
+				(defq piece (cat item))
+				(elem-set piece +cwb_id 0)
+				(elem-set piece +cwb_cache :nil)
+				(cwb-set piece :d (cwb-d-points (map (const identity) p)) :kind :pen)
+				(push pieces piece))))
+		(cwb-outline item))
+	(if cut pieces))
+
 ;;;;;;;;;;;;;
 ; what is hit
 ;;;;;;;;;;;;;

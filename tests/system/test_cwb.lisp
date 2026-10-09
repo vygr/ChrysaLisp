@@ -346,11 +346,13 @@
 	(list (cwb-get (last (cwb-items (. wb_board :get_doc))) :stroke) (cwb-get (last (cwb-items (. wb_board :get_doc))) :width)))
 (. wb_board :undo)
 
-;the other end of the pen rubs the first line out
+;the other end of the pen rubs the first line out, set to take a line whole
+(def wb_board :rub_mode :whole)
 (wb-drag 2 :eraser 1 '((20 15) (30 30)))
-(assert-list-eq "the eraser takes out the line it goes over" '(2 3 5) (wb-bids))
+(assert-list-eq "the eraser, set to take lines whole, takes out the line it goes over" '(2 3 5) (wb-bids))
 (wb-drag 2 :eraser 1 '((390 5) (395 8)))
 (assert-list-eq "and nothing where there is nothing" '(2 3 5) (wb-bids))
+(def wb_board :rub_mode :part)
 
 ;select mode, so that a mouse alone has the handles
 (def wb_board :mode :select)
@@ -497,3 +499,74 @@
 (. wb_board :select_all)
 (. wb_board :draw_overlay wb_canvas)
 (assert-true "what has changed is said once" (and (. wb_board :dirty? +board_dirty_doc) (not (. wb_board :dirty? +board_dirty_doc))))
+
+;rubbing out part of a line, as the eraser does unless it is set not to
+(defq rb_board (Board (cwb-doc 400 300)) rb_doc (. rb_board :get_doc))
+(defun rb-ds () (map (# (cwb-get %0 :d)) (cwb-items rb_doc)))
+(assert-list-eq "a line of points cut by a circle is what is outside it, cut where it meets it"
+	'((0 0 40 0) (60 0 100 0)) (map (# (map (const n2i) %0)) (cwb-rub-points (path 0.0 0.0 100.0 0.0) 50.0 0.0 10.0)))
+(assert-eq "one the circle is nowhere near is not cut" :nil (cwb-rub-points (path 0.0 0.0 100.0 0.0) 50.0 30.0 10.0))
+(assert-list-eq "one all inside it has nothing left" '() (cwb-rub-points (path 45.0 0.0 55.0 0.0) 50.0 0.0 10.0))
+(assert-list-eq "a line of three points, cut at the middle one, is its two ends"
+	'((0 0 40 0) (50 10 50 50)) (map (# (map (const n2i) %0)) (cwb-rub-points (path 0.0 0.0 50.0 0.0 50.0 50.0) 50.0 0.0 10.0)))
+(. rb_board :add (cwb-shape (cwb-d-line 0 100 200 100) :width 4 :cap1 :butt :cap2 :arrow :kind :arrow))
+(. rb_board :add (cwb-shape (cwb-d-rect 250 50 350 150) :fill 0xffff0000))
+(. rb_board :take_changes)
+(assert-list-eq "what can be rubbed out in part is a line, not a filled box" '(:t :nil) (map (const cwb-rub?) (cwb-items rb_doc)))
+(assert-eq "rubbed at its middle" :t (. rb_board :rub 100 100 10))
+(assert-list-eq "a line is two lines, the gap as wide as the eraser and the line's own width"
+	(list "M 0 100 L 88 100" "M 112 100 L 200 100" (cwb-d-rect 250 50 350 150)) (rb-ds))
+(assert-list-eq "they are new items, where the line was among the rest" '(3 4 2) (map (# (elem-get %0 +cwb_id)) (cwb-items rb_doc)))
+(assert-list-eq "an end that was the line's own is as it was, an arrow still, and an end that was cut is round"
+	'((:butt :round) (:round :arrow)) (map (# (list (cwb-get %0 :cap1) (cwb-get %0 :cap2))) (slice (cwb-items rb_doc) 0 2)))
+(assert-list-eq "what keeps a copy in step is told of the new ones" '(3 4) (. rb_board :take_changes))
+(assert-eq "rubbed where there is nothing, nothing is" :nil (. rb_board :rub 100 200 10))
+(. rb_board :rub 0 100 10)
+(assert-eq "rubbed at an end, the end is shorter" "M 12 100 L 88 100" (first (rb-ds)))
+(. rb_board :rub_along 12 100 88 100 10)
+(assert-list-eq "rubbed all along, it is gone" (list "M 112 100 L 200 100" (cwb-d-rect 250 50 350 150)) (rb-ds))
+(assert-list-eq "on the box, with no line there, the box goes whole" '(:t 1) (list (. rb_board :rub 300 100 10) (length (cwb-items rb_doc))))
+;a line that has been moved and made twice the size
+(. rb_board :clear)
+(. rb_board :add (cwb-shape (cwb-d-line 0 0 100 0) :width 2
+	:m (cwb-mat-mul (cwb-mat-move 50 200) (cwb-mat-scale 2.0))))
+(. rb_board :rub 150 200 10)
+(assert-list-eq "a line that is twice the size is cut in its own space, half as far" '("M 0 0 L 44 0" "M 56 0 L 100 0") (rb-ds))
+(assert-true "and what is left is where it was on the board"
+	(wb-near? (cwb-bounds (cwb-items rb_doc)) '(48 198 252 202) 0.1))
+;a line drawn by hand
+(. rb_board :clear)
+(. rb_board :add (cwb-shape (board-pen-d '(20 50 80 20 140 80 200 50)) :width 3 :kind :pen))
+(. rb_board :rub 110 50 8)
+(assert-eq "a curved line rubbed in the middle is two" 2 (length (cwb-items rb_doc)))
+(assert-true "one each side of where it was rubbed"
+	(and (< (third (cwb-bounds (slice (cwb-items rb_doc) 0 1))) 108.0) (> (first (cwb-bounds (slice (cwb-items rb_doc) 1 2))) 112.0)))
+;a box that is not filled is not a line with an end
+(. rb_board :clear)
+(. rb_board :add (cwb-shape (cwb-d-rect 100 100 200 200)))
+(. rb_board :rub 100 150 10)
+(assert-eq "a box, though not filled, goes whole" 0 (length (cwb-items rb_doc)))
+;the eraser itself, a pointer
+(. rb_board :clear)
+(. rb_board :add (cwb-shape (cwb-d-line 100 20 100 280) :width 4))
+(. rb_board :add (cwb-shape (cwb-d-line 200 20 200 280) :width 4))
+(defq rb_steps (length (get :undo_stack rb_board)))
+(. rb_board :pointers (list (ptr-event 2 :eraser 1 40 150)))
+(. rb_board :pointers (list (ptr-event 2 :eraser 1 260 150)))
+(assert-true "while it rubs, the eraser is to be drawn where it is" (wb-near? (get :rubber rb_board) '(260 150 8) 0.01))
+(. rb_board :pointers (list (ptr-event 2 :eraser 0 260 150)))
+(assert-eq "the eraser dragged across two lines in one move cuts both, it rubs all the way it went" 4 (length (cwb-items rb_doc)))
+(assert-eq "and is not drawn when it is up" :nil (get :rubber rb_board))
+(assert-eq "it is one step" (inc rb_steps) (length (get :undo_stack rb_board)))
+(. rb_board :undo)
+(assert-list-eq "that can be undone" (list (cwb-d-line 100 20 100 280) (cwb-d-line 200 20 200 280)) (rb-ds))
+(. rb_board :pointers (list (ptr-event 2 :eraser 1 300 250)))
+(. rb_board :pointers (list (ptr-event 2 :eraser 0 300 250)))
+(assert-eq "an eraser that rubbed nothing out is no step" rb_steps (length (get :undo_stack rb_board)))
+(def rb_board :zoom 2.0)
+(. rb_board :rub 100 150)
+(assert-list-eq "at twice the size it reaches half as far on the board"
+	(list "M 100 20 L 100 144" "M 100 156 L 100 280" (cwb-d-line 200 20 200 280)) (rb-ds))
+(def rb_board :zoom 1.0 :rub_mode :whole)
+(. rb_board :rub 200 150)
+(assert-eq "set to take a line whole, it does" 2 (length (cwb-items rb_doc)))

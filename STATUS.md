@@ -4,6 +4,30 @@
 
 ------
 
+The eraser rubs out part of a line. It took the whole of whatever it
+touched.
+
+*	`(cwb-rub-points)`, a line of points with what is in a circle
+	taken out, cut where it meets it. `(cwb-rub item x y r)`, the
+	items that are left of one. `(. board :rub x y [r])` and
+	`(:rub_along)`, which the eraser is: from where it was to where it
+	is at every half of its reach, so a quick move leaves no gaps.
+
+*	A line is what is drawn, not filled, and has ends. A box, a filled
+	thing, words, a group, go whole, and only where no line was
+	touched. An end that was the line's own keeps its arrow.
+
+*	The eraser is drawn where it is while it rubs. One drag is one
+	step to undo, and none if it rubbed nothing.
+
+*	`:rub_mode :whole` is the old way.
+
+Seen as a picture: three wavy lines with the eraser dragged down across
+them, each cut where it went. `test_cwb.lisp`, 26 more. Every test,
+5,486, on the M4, the x64 and the Pi.
+
+------
+
 Shapes are edited as shapes. Chris: "shape editing not polygon editing,
 control points for selected shape/group", and of the grid, "not sure the
 current way works very well".

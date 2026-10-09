@@ -47,8 +47,8 @@
 	"(wa-mode :text) (wa-mouse :down 120 300 1) (wa-mouse :up 120 300 0)"
 	"(print (list (wa-ids) (cwb-get (last (cwb-items (. *board* :get_doc))) :text)))"
 	;the eraser
-	"(wa-mode :eraser) (wa-drag 1 100 100 105 101) (print (wa-ids))"
-	"(print (list (wa-do +event_undo) (wa-ids)))"
+	"(def *board* :rub_mode :whole) (wa-mode :eraser) (wa-drag 1 100 100 105 101) (print (wa-ids))"
+	"(print (list (wa-do +event_undo) (wa-ids))) (def *board* :rub_mode :part)"
 	;the right button moves what it is on, whatever the mode
 	"(wa-mode :pen) (wa-drag 3 300 150 340 190) (print (list (wa-ids) (. *board* :get_selected) (map (const n2i) (cwb-bounds (. *board* :selected_items)))))"
 	;the middle button draws nothing
@@ -64,7 +64,7 @@
 (assert-eq "the ink bar sets the colour" "(:ok :t)" (elem-get wa_out 6))
 (assert-eq "a filled ellipse is filled with it" (str (list '(1 2 3) +argb_red)) (elem-get wa_out 7))
 (assert-eq "the words in the text field are put down where the pen goes down" "((1 2 3 4) \qHello\q)" (elem-get wa_out 8))
-(assert-eq "the eraser takes out the line it is dragged over" "(2 3 4)" (elem-get wa_out 9))
+(assert-eq "the eraser, set to take lines whole, takes out the line it is dragged over" "(2 3 4)" (elem-get wa_out 9))
 (assert-eq "and undo puts it back" "(:ok (1 2 3 4))" (elem-get wa_out 10))
 (assert-eq "the right button moves what it is on, whatever the mode, by how far it is dragged"
 	"((1 2 3 4) (2) (338 138 461 241))" (elem-get wa_out 11))

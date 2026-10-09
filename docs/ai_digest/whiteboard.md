@@ -169,6 +169,16 @@ back, so it stays a box and is never sheared. A group is one thing.
 written again, `M x y L x y`, in its own space. With angles that snap the
 line is held to the nearest 15 degrees from its other end.
 
+The eraser rubs out the part of a line it goes over. `(. board :rub x y)`
+takes what is within its reach out of every line that is near, and what is
+left of each is lines in its place, new items, cut where the circle of the
+eraser met them, `(cwb-rub)` in `lib/cwb/doc.inc`. A line is a shape that is
+drawn, not filled, and has ends: one drawn by hand, a straight one, an
+arrow, an arc from a protractor. An end that was its own keeps its arrow. A
+box, a filled thing, words and a group are each all there or not, and go
+whole, and only when no line was touched. `:rub_mode :whole` on a board has
+a line go whole too, as it did.
+
 A thing that is moved with snap on has the top left of the box round it go
 to the grid, not the pointer, so that what is moved lines up with the grid
 and with what else is on it.
@@ -405,7 +415,8 @@ nodes draw onto the canvas while it is shown, as the Canvas demo's do.
 * A whole draw is all of the canvas. Nothing draws only the part of it that
 changed, or only the part that shows in the window.
 
-* The eraser takes out a whole item. It does not rub out part of one.
+* What is left of a line that was rubbed is straight pieces, its curve as
+it was flattened. It looks the same and is more points than it was.
 
 * A shape can hold `:props`, anything, kept in the file, for the Lisp that is
 to act on it, what it collides with, how it moves. Nothing reads them yet.
