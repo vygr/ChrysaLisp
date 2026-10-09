@@ -149,6 +149,9 @@ tools of the surface.
 
 * `lib/cwb/tools.inc`, the instruments.
 
+* `lib/cwb/stripes.inc`, a board of very many shapes drawn by the nodes of the
+machine, a stripe each. The app does it by itself when a draw gets slow.
+
 * `apps/media/whiteboard/`, the window round a board: `view.inc` makes the
 mouse a pointer, `widgets.inc` is the toolbars, `ui.inc` what each does, and
 `app.lisp` the canvases and the loop.

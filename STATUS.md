@@ -4,6 +4,57 @@
 
 ------
 
+The Whiteboard draws a board of very many shapes with the nodes of the
+machine, a stripe each. Chris: "we would have to render in paraell like
+the canvas demo does, stripes across the canvas so we can cope with huge
+numbers of shapes ina file."
+
+*	`lib/cwb/stripes.inc`, `Stripes`, and its child. Each child keeps
+	its own copy of the document and what its shapes flatten to. The
+	board says which items change, `(. board :changed ids)`, the
+	document has a version, and a child that is behind is sent only the
+	items that changed, or the whole if that is not known, after an
+	undo say.
+
+*	A child knows which items are in each band of 64 rows, and a stripe
+	is the items of its bands, not all of them.
+
+*	The app times its own draw. Over 40ms and the next is the nodes',
+	onto the pixels of its canvas in shared memory, and it does not
+	wait for them. A change while a frame is out is drawn when it is
+	back. The first draw of a document, and one after an undo, is the
+	app's own, with the children brought in step behind it. A host
+	with no shared memory draws as before.
+
+*	`lib/cwb/paper.inc`, the paper, out of the app, so a child draws
+	the rows of it that are its own.
+
+*	`(cwb-box-of)`, the box round a moved box, by arithmetic and not
+	four points and eight passes over them. It is in every draw and
+	every hit.
+
+What it is worth, measured on the M4 with ten nodes, a board of 1600 by
+1200, a whole draw in milliseconds: 2,000 shapes, 11 by one task and 5
+by the nodes; 10,000, 57 and 24; 40,000, 230 and 77. So a little under
+three times, not ten: the pixels are a small part of a draw, most is
+Lisp walking the shapes. And the first frame is slower by the nodes, 3.3
+seconds for the 40,000 where one task takes one, each child reads and
+flattens it all. One task is good for some thousands of shapes at sixty
+a second with no help.
+
+`tests/system/test_cwb_stripes.lisp`, 40: what a copy is sent and is
+then; the paper in stripes is the paper whole; 600 shapes drawn by the
+nodes are to the pixel what one task draws, after changes, with items
+being moved left out, after undo, and at half size on another canvas.
+`test_whiteboard.lisp`, 8 more: the app's own redraw through it. Every
+test, 5,381, on the M4, the x64 and the Pi.
+
+Not seen: any of it on a screen. The nodes draw onto a canvas that is
+showing, and what that looks like part way through a frame nobody has
+looked at. The times are the M4's, none were taken on the x64 or the Pi.
+
+------
+
 A node that can not be told to go is ended by the host. Item 15, which
 Chris ruled "yes next host change", and the host was changed that night
 for pens and fingers.

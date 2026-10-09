@@ -7,6 +7,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "./widgets.inc")
+(import "lib/cwb/stripes.inc")
 
 ;The Whiteboard. What is on the board is a document of shapes,
 ;lib/cwb/doc.inc, a .cwb file. All that changes it is the board,
@@ -15,6 +16,11 @@
 ;the mouse a pointer, ./view.inc, and two canvases the board draws on, the
 ;document on one and what is over it, what is being drawn or moved, the
 ;handles, a ruler, on the other.
+;
+;A document that takes this task a while to draw, some thousands of shapes,
+;is drawn by the nodes of the machine in stripes, lib/cwb/stripes.inc,
+;straight onto the pixels of the first canvas, which are in shared memory
+;where the host has it. This task does not wait while they do.
 
 (enums +select 0
 	(enum main picker timer tip))
@@ -24,7 +30,12 @@
 
 (defq *zoom* 1.0 *style* :grid *snap* :nil *snap_angle* :nil *arc* :line
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
-	*committed* :nil *overlay* :nil rate (/ 1000000 60))
+	*committed* :nil *overlay* :nil rate (/ 1000000 60)
+	;a document that takes this task longer than that to draw is drawn in
+	;stripes, and one of fewer shapes than that is tried by this task again
+	*farm_ms* 40 *farm_shapes* 2000
+	*stripes* (Stripes *board*) *local_ms* 0 *framing* :nil *again* :nil
+	*farm_fails* 0 *kept* 0)
 
 (defun toolbar-states (toolbar states)
 	;a button that is on is the brighter
@@ -74,7 +85,8 @@
 	(bind '(w h) (canvas-size))
 	(if *committed* (. *committed* :sub))
 	(if *overlay* (. *overlay* :sub))
-	(setq *committed* (Canvas w h 1) *overlay* (Canvas w h 1))
+	;the pixels of the first are shared, if the host has that, for the nodes
+	(setq *committed* (ifn (canvas-shared w h 1) (Canvas w h 1)) *overlay* (Canvas w h 1))
 	(. *committed* :set_canvas_flags +canvas_flag_antialias)
 	(. *overlay* :set_canvas_flags +canvas_flag_antialias)
 	(def *committed* :color 0)
@@ -102,47 +114,77 @@
 		(.-> *image_scroll* :layout :dirty_all)))
 
 (defun draw-paper ()
-	;what is behind the document to work on, not part of it: its
-	;background, or paper if it has none, and lines by the style. The
-	;lines are where the grid is, every :grid of the document from its
-	;top left, so what snaps to the grid lands on a line
-	(defq doc (. *board* :get_doc) back (. doc :find :background)
-		gap (max 2 (n2i (* (n2f (. doc :find :grid)) *zoom*))))
+	;what is behind the document to work on, not part of it, lib/cwb/paper.inc
+	(defq doc (. *board* :get_doc))
 	(bind '(w h) (canvas-size))
-	(. *committed* :fill (if (= back 0) +paper_col back))
-	(. *committed* :set_color +paper_ink)
-	(case *style*
-		(:grid
-			(each (# (. *committed* :fbox %0 0 1 h)) (range gap w gap))
-			(each (# (. *committed* :fbox 0 %0 w 1)) (range gap h gap)))
-		(:lines
-			(each (# (. *committed* :fbox 0 %0 w 1)) (range gap h gap)))
-		(:axis
-			;the two lines through the middle, on the grid, and marks along them
-			(defq cx (* (/ (/ w 2) gap) gap) cy (* (/ (/ h 2) gap) gap))
-			(.-> *committed* (:fbox cx 0 1 h) (:fbox 0 cy w 1))
-			(each (# (. *committed* :fbox %0 (- cy 3) 1 7)) (range gap w gap))
-			(each (# (. *committed* :fbox (- cx 3) %0 7 1)) (range gap h gap)))))
+	(cwb-paper *committed* w h (. doc :find :background) *style*
+		(max 2 (n2i (* (n2f (. doc :find :grid)) *zoom*)))))
+
+(defun draw-local (m)
+	;all of the document, by this task, and how long it took. It is not
+	;yet shown
+	(defq start (pii-time))
+	(. *board* :take_appended)
+	(draw-paper)
+	(. *board* :draw *committed* m)
+	(setq *local_ms* (/ (- (pii-time) start) 1000)))
+
+(defun farm? ()
+	;is the document one for the nodes to draw: it took this task a while
+	;last time, the pixels are where they can reach, and it has not kept
+	;going wrong
+	(and (> *local_ms* *farm_ms*) (< *farm_fails* 3) (/= (canvas-key *committed*) 0)))
 
 (defun redraw ()
 	;draw what has changed. All of the document; or only what was put on
 	;top of it, on what is there; and what is over it
-	(defq m (view-matrix))
+	(defq m (view-matrix) doc_dirty (. *board* :dirty? +board_dirty_doc)
+		append_dirty (. *board* :dirty? +board_dirty_append) show :nil show_over :nil)
+	;what keeps the nodes' copies in step is told of every change
+	(if (or doc_dirty append_dirty) (. *stripes* :note))
 	(cond
-		((. *board* :dirty? +board_dirty_doc)
-			(. *board* :dirty? +board_dirty_append)
+		((and *framing* (or doc_dirty append_dirty))
+			;the nodes are drawing it as it was, it is drawn again when they have
+			(setq *again* :t))
+		((and doc_dirty (farm?) (. *stripes* :cheap?) (. *stripes* :frame *committed* *zoom* *style*))
+			;the nodes draw it, (frame-done) when they have
 			(. *board* :take_appended)
-			(draw-paper)
-			(. *board* :draw *committed* m)
-			(. *committed* :swap +swap_write))
-		((. *board* :dirty? +board_dirty_append)
+			(setq *framing* :t))
+		(doc_dirty
+			(draw-local m)
+			(setq show :t)
+			;the nodes are started, or brought in step, for the next time
+			(if (farm?) (.-> *stripes* :start :warm)))
+		(append_dirty
 			(cwb-draw-items *committed* (. *board* :take_appended) m)
-			(. *committed* :swap +swap_write)))
+			(setq show :t)))
 	(when (. *board* :dirty? +board_dirty_overlay)
 		(. *overlay* :fill 0)
 		(. *board* :draw_overlay *overlay* m)
 		(each (# (if (Instrument? %0) (. %0 :draw *overlay* m))) (. (. *board* :get_stage) :get_actors))
-		(. *overlay* :swap +swap_write)))
+		(setq show_over :t))
+	;shown last, when all else is done
+	(if show (. *committed* :swap +swap_write))
+	(if show_over (. *overlay* :swap +swap_write)))
+
+(defun frame-done (said)
+	;what the stripes said of what came to them: :done, the nodes have
+	;drawn a frame, :failed, one of them could not, or :warm or :nil
+	(case said
+		(:done
+			(setq *framing* :nil *farm_fails* 0)
+			;a document that is now small is this task's again
+			(if (< (get :drawn *stripes*) *farm_shapes*) (setq *local_ms* 0))
+			(when *again*
+				(setq *again* :nil)
+				(. *board* :touch +board_dirty_doc))
+			(. *committed* :swap +swap_write))
+		(:failed
+			;this task draws it, and the nodes are left alone if they keep at it
+			(setq *framing* :nil *again* :nil *farm_fails* (inc *farm_fails*))
+			(if (>= *farm_fails* 3) (. *stripes* :close))
+			(draw-local (view-matrix))
+			(. *committed* :swap +swap_write))))
 
 (defun board-save (file)
 	(setq *file* (cat (slice file 0 (if (defq i (rfind "." file)) (dec i) -1)) ".cwb"))
@@ -166,7 +208,8 @@
 	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
-	(defq select (task-mboxes +select_size) *id* :t)
+	;the mailboxes of the stripes are waited on after this task's own
+	(defq select (cat (task-mboxes +select_size) (. *stripes* :mboxes)) *id* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(board-resized)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -177,6 +220,9 @@
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
+			((>= idx +select_size)
+				;from the nodes that draw in stripes
+				(frame-done (. *stripes* :handle (- idx +select_size) *msg*)))
 			((= idx +select_tip)
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
@@ -186,7 +232,11 @@
 				(mail-timeout (elem-get select +select_timer) rate 0)
 				;the words that are put down are those in the text field now
 				(def *board* :text (. *text_field* :get_text))
-				(redraw))
+				(redraw)
+				;once a second the nodes that draw are looked to
+				(when (> (setq *kept* (inc *kept*)) 60)
+					(setq *kept* 0)
+					(. *stripes* :keep)))
 			((= idx +select_picker)
 				;save/load picker response
 				(setq *msg* (trim *msg*))
@@ -203,5 +253,6 @@
 				(. *window* :event *msg*))))
 	;close window
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
+	(. *stripes* :close)
 	(gui-sub-rpc *window*)
 	(profile-report "Whiteboard App"))

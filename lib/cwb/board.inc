@@ -414,7 +414,7 @@
 		:text "" :font "fonts/OpenSans-Regular.ctf" :font_size 32
 		:snap 0.0 :snap_angle 0.0 :keep_shape :t :zoom 1.0
 		:temp (Fmap 11) :band :nil :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
-		:floating (list) :appended (list))
+		:floating (list) :appended (list) :changes (list :all))
 	(def this :surface (Surface this) :handles (Handles this))
 	(.-> (get :stage this) (:add (get :surface this)) (:add (get :handles this)))
 
@@ -427,7 +427,9 @@
 	(defmethod :set_doc (doc)
 		; (. board :set_doc doc) -> board
 		;another document, nothing of the last is kept
-		(def this :doc doc :selected (list) :undo_stack (list) :redo_stack (list) :layer :nil :band :nil)
+		(def this :doc doc :selected (list) :undo_stack (list) :redo_stack (list) :layer :nil :band :nil
+			:floating (list) :appended (list))
+		(. this :changed :all)
 		(. (get :temp this) :empty)
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
@@ -448,8 +450,29 @@
 		; (. board :float ids) -> board
 		;these items are being moved about. They are drawn over the
 		;document, not in it, so that only they are drawn as they move
+		(. this :changed (get :floating this))
 		(def this :floating (cat ids))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
+
+	(defmethod :changed (ids)
+		; (. board :changed ids) -> board
+		;these items of the layers are not what they were, or are new, or
+		;:all for anything might be. It is kept till it is asked for, for
+		;what keeps a copy of the document in step with this one, the nodes
+		;that draw it in stripes, lib/cwb/stripes.inc. An item that is gone
+		;need not be said, the layers are told whole
+		(if (eql ids :all)
+			(def this :changes (list :all))
+			(unless (find :all (get :changes this))
+				(each (# (unless (find %0 (get :changes this)) (push (get :changes this) %0))) ids)))
+		this)
+
+	(defmethod :take_changes ()
+		; (. board :take_changes) -> :all | ids
+		;what has changed since this was last asked
+		(defq changes (get :changes this))
+		(def this :changes (list))
+		(if (find :all changes) :all changes))
 
 	(defmethod :take_appended ()
 		; (. board :take_appended) -> items
@@ -492,6 +515,7 @@
 
 	(defmethod :put_state (state)
 		(. (get :doc this) :insert :layers state)
+		(. this :changed :all)
 		(def this :selected (list) :floating (list) :appended (list))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
@@ -574,6 +598,7 @@
 		;put an item on the layer that is drawn on, as a step that can be undone
 		(. this :snapshot)
 		(cwb-add (get :doc this) item (. this :layer_index))
+		(. this :changed (list (elem-get item +cwb_id)))
 		;on the top layer it is on top of all there is, and can be drawn there
 		(if (= (. this :layer_index) (dec (length (cwb-layers (get :doc this)))))
 			(progn (push (get :appended this) item)
@@ -605,6 +630,7 @@
 		; (. board :clear) -> board
 		;take out everything
 		(. this :snapshot)
+		(. this :changed :all)
 		(each (lambda (layer) (elem-set layer 2 (list))) (cwb-layers (get :doc this)))
 		(def this :selected (list))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
@@ -614,6 +640,7 @@
 		;move what is selected by a matrix
 		(when (nempty? (defq items (. this :selected_items)))
 			(. this :snapshot)
+			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
 			(each (# (elem-set %0 +cwb_m (cwb-mat-mul m (elem-get %0 +cwb_m)))) items)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
@@ -624,6 +651,7 @@
 		;selected, those in groups too
 		(when (nempty? (defq items (. this :selected_items)))
 			(. this :snapshot)
+			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
 			(cwb-walk items :nil (lambda (shape m) (apply (const cwb-set) (cat (list shape) key_vals))))
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
@@ -634,6 +662,7 @@
 		(defq items (. this :selected_items))
 		(when (> (length items) 1)
 			(. this :snapshot)
+			(. this :changed :all)
 			(defq doc (get :doc this) top (last items) top_id (elem-get top +cwb_id)
 				holder (third (cwb-find doc top_id))
 				group (cwb-adopt doc (cwb-group items))
@@ -653,6 +682,7 @@
 		(defq groups (filter (const cwb-group?) (. this :selected_items)))
 		(when (nempty? groups)
 			(. this :snapshot)
+			(. this :changed :all)
 			(defq doc (get :doc this) ids (list))
 			(each (lambda (group)
 				(defq id (elem-get group +cwb_id) holder (third (cwb-find doc id))
@@ -694,6 +724,7 @@
 		(defq items (. this :selected_items))
 		(when (and (> (length items) 1) (defq all (cwb-bounds items)))
 			(. this :snapshot)
+			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
 			(bind '(ax ay ax1 ay1) all)
 			(each (lambda (item)
 				(when (defq box (cwb-bounds (list item)))
@@ -725,6 +756,7 @@
 				(push ids (elem-get copy +cwb_id)))
 				(board-copy-items items))
 			(def this :selected ids)
+			(. this :changed ids)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 

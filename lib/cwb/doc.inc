@@ -336,13 +336,16 @@
 
 (defun cwb-box-of (box m)
 	; (cwb-box-of box m) -> (x y x1 y1)
-	;the box round a box that a matrix has moved
-	(bind '(x y x1 y1) box)
-	(defq pts (list (cwb-mat-point m x y) (cwb-mat-point m x1 y) (cwb-mat-point m x1 y1) (cwb-mat-point m x y1)))
-	(list (reduce (# (min %0 (first %1))) pts (first (first pts)))
-		(reduce (# (min %0 (second %1))) pts (second (first pts)))
-		(reduce (# (max %0 (first %1))) pts (first (first pts)))
-		(reduce (# (max %0 (second %1))) pts (second (first pts)))))
+	;the box round a box that a matrix has moved. Each side is the least
+	;or the most of what each of its two parts can come to
+	(cond
+		(m (bind '(x y x1 y1) box)
+			(bind '(a b tx c d ty) m)
+			(defq ax (* a x) ax1 (* a x1) by (* b y) by1 (* b y1)
+				cx (* c x) cx1 (* c x1) dy (* d y) dy1 (* d y1))
+			(list (+ (min ax ax1) (min by by1) tx) (+ (min cx cx1) (min dy dy1) ty)
+				(+ (max ax ax1) (max by by1) tx) (+ (max cx cx1) (max dy dy1) ty)))
+		(:t box)))
 
 (defun cwb-box-join (a b)
 	; (cwb-box-join a b) -> box | :nil

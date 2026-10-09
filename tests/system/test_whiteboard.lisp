@@ -142,3 +142,56 @@
 (assert-eq "and the other end of the pen rubs it out" "()" (elem-get wa_out 2))
 (assert-eq "zoomed to one and a half, a pen draws where it is in the document" "M 100 100 L 200 100 200 200 100 200 Z" (elem-get wa_out 3))
 
+
+;a document of very many shapes is drawn by the nodes. The app's own redraw is
+;called, as its timer calls it, and what comes to the stripes' mailboxes is
+;given to them as its loop gives it. With no desktop the last step of a
+;draw, to a texture, throws, and is the last step, so it is caught
+(defq wa_out (wa-run (cat
+	"(defun wa-bytes (canvas) (defq stream (memory-stream)) (pixmap-write (getf canvas +canvas_pixmap 0) stream 32)"
+	" (stream-seek stream 0 0) (read-blk stream 100000000))"
+	"(defun wa-redraw () (catch (redraw) :t))"
+	"(defq wa_timer (mail-mbox) wa_select (cat (. *stripes* :mboxes) (list wa_timer)))"
+	"(defun wa-pump (done) (defq said :nil) (mail-timeout wa_timer (task-timeout 20) 0)"
+	" (until (or said (done)) (defq msg (mail-read (elem-get wa_select (defq idx (mail-select wa_select)))))"
+	" (if (= idx 3) (setq said :timeout) (progn (setq said (. *stripes* :handle idx msg)) (catch (frame-done said) :t))))"
+	" (mail-timeout wa_timer 0 0) said)"
+	"(defun wa-same () (defq canvas (Canvas 1024 768 1)) (. canvas :set_canvas_flags +canvas_flag_antialias)"
+	" (cwb-paper canvas 1024 768 0 *style* 32) (. *board* :draw canvas :nil) (eql (wa-bytes canvas) (wa-bytes *committed*)))"
+	"(defq doc (. *board* :get_doc))"
+	"(each (lambda (i) (defq x (% (* i 37) 980) y (% (* i 53) 730))"
+	" (cwb-add doc (cwb-shape (cwb-d-rect x y (+ x 40) (+ y 30) 6) :fill (+ 0xff000000 (% (* i 2654435761) 0xffffff)) :stroke 0xff000000 :width 2)))"
+	" (range 0 300))"
+	"(. *board* :changed :all) (. *board* :touch +board_dirty_doc)"
+	;a small document, this task draws it and no node is asked. What is a
+	;while is set, a slow machine is a while over 300 shapes
+	"(setq *farm_ms* 100000) (wa-redraw) (print (list (/= (canvas-key *committed*) 0) (farm?) (get :jobs *stripes*) (wa-same)))"
+	;with any time at all a while, and any document a big one: this task
+	;draws it this once, and the nodes are started
+	"(setq *farm_ms* -1 *farm_shapes* 0) (. *board* :touch +board_dirty_doc) (wa-redraw)"
+	"(print (list *framing* (if (get :jobs *stripes*) :started :not) (wa-same)))"
+	"(print (list (wa-pump (lambda () (. *stripes* :ready?))) (. *stripes* :cheap?)))"
+	;a change, and the nodes draw it
+	"(. *board* :select (list 5 6)) (. *board* :transform (cwb-mat-move 100 80)) (. *board* :select (list))"
+	"(. *committed* :fill 0) (wa-redraw) (print (list *framing* (. *stripes* :busy?)))"
+	;changed again while they do, it is drawn again when they have
+	"(. *board* :add (cwb-shape (cwb-d-ellipse 500 400 90 60) :fill 0xff00ff00))"
+	"(wa-redraw) (print (list *framing* *again*))"
+	"(print (list (wa-pump (lambda () :nil)) *framing* *again* (. *board* :dirty? +board_dirty_doc)))"
+	;300 shapes is a small document, as the app has it, and the next is this task's
+	"(setq *farm_ms* 40 *farm_shapes* 2000 *local_ms* 1000)"
+	"(. *board* :touch +board_dirty_doc) (wa-redraw) (print (list *framing* (wa-pump (lambda () :nil)) (wa-same)))"
+	"(print (list *local_ms* (farm?)))"
+	"(. *stripes* :close)")))
+(defq wa_shared (starts-with "(:t" (elem-get wa_out 0)))
+(cond
+	((not wa_shared) (test-skip "the app draws a big document by the nodes" "this host has no shared memory for pixels"))
+	(:t
+		(assert-eq "a small document is drawn by the app's task, and no node is started" "(:t :nil :nil :t)" (elem-get wa_out 0))
+		(assert-eq "one that took a while is drawn by it once more, and the nodes are started" "(:nil :started :t)" (elem-get wa_out 1))
+		(assert-eq "they come up in step with it" "(:warm :t)" (elem-get wa_out 2))
+		(assert-eq "the next change is drawn by them, the app does not wait" "(:t :t)" (elem-get wa_out 3))
+		(assert-eq "a change while they draw is kept for when they have" "(:t :t)" (elem-get wa_out 4))
+		(assert-eq "they have, and it is to be drawn again" "(:done :nil :nil :t)" (elem-get wa_out 5))
+		(assert-eq "drawn again by them it is, to the pixel, what the app's task draws" "(:t :done :t)" (elem-get wa_out 6))
+		(assert-eq "and being a small document after all, the next is the app's task's" "(0 :nil)" (elem-get wa_out 7))))

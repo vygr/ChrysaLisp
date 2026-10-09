@@ -21,6 +21,8 @@ lib/cwb/doc.inc         a document: layers, shapes, groups, the file
 lib/cwb/pointer.inc     pointers, a stage of actors, bindings
 lib/cwb/board.inc       a board: a document that is worked on
 lib/cwb/tools.inc       the instruments
+lib/cwb/paper.inc       what is behind a document while it is worked on
+lib/cwb/stripes.inc     a board drawn in stripes by the nodes
 lib/image/cwb.inc       a .cwb as a picture
 cmd/cwb.lisp            the command
 apps/media/whiteboard/  the app
@@ -219,6 +221,55 @@ screen:
 CL_TOUCH_TRACKPAD=1 ./run.sh
 ```
 
+## Many shapes: stripes
+
+A document is drawn by the task that has it, till that takes a while. The
+app times each whole draw, and one that took more than 40ms, some thousands
+of shapes, is from then on drawn by the nodes of the machine, a stripe of the
+rows each, straight onto the pixels of the app's canvas, which are in shared
+memory, `(canvas-shared)`. It is `Stripes` in `lib/cwb/stripes.inc` and its
+child `lib/cwb/stripes_child.lisp`, on `Jobs`, `lib/task/jobs.inc`.
+
+A child has to have the document, and is not sent it for each frame. Each
+keeps a copy, with what its shapes flatten to. The board says what changes,
+`(. board :changed ids)` at every place it changes an item, `:all` where it
+is not known, an undo, a new document. `(. stripes :note)` makes that a
+version, a number that goes up. A stripe to draw names the version. A child
+that is behind asks, and is sent the layers as ids in order and the items
+that are new or not what they were, as text, `(stripes-delta)`, or the whole
+of it if what happened since is not all known.
+
+A child does not look at every item for every stripe. For the version it
+has it knows which items have any part in each band of 64 rows of the
+document, and a stripe is the items of the bands it lies on.
+
+The app does not wait. `(. stripes :frame canvas zoom style)` sends the
+stripes and returns, the answers come to mailboxes the app waits on with
+its own, and `(. stripes :handle index msg)` says `:done` at the last. A
+change made while a frame is out is drawn when it is back. After a change
+that would have each child sent the whole document, `(. stripes :cheap?)`
+is `:nil`, and the app draws that one itself and has the children brought in
+step behind it, `(. stripes :warm)`.
+
+What it is worth, on a MacBook with ten nodes, a board of 1600 by 1200 with
+shapes all over it, in milliseconds:
+
+```vdu
+shapes     one task    ten nodes
+2,000         11           5
+10,000        57          24
+40,000       230          77
+```
+
+The first frame after a document is loaded is the other way about, each
+child reads and flattens all of it, 3.3 seconds for the 40,000 where one
+task takes one. That is why the app draws the first itself.
+
+It is tested with no screen: a board of 600 shapes drawn by the nodes is, to
+the pixel, what one task draws, through changes, an undo and another zoom,
+`tests/system/test_cwb_stripes.lisp`, and the app's own redraw is driven
+through it in `tests/system/test_whiteboard.lisp`.
+
 ## The command
 
 `cwb` is the board without a window. See `cwb -h`.
@@ -271,13 +322,16 @@ below, and all above it is tested with them made up, but there has been no
 touch screen and no pen to try. Only the SDL3 driver does; the framebuffer
 and raw drivers give a mouse.
 
-* Drawing is by one task. A document of very many shapes is drawn in stripes
-by the nodes, as the Canvas demo is, not yet.
+* Stripes have not been seen on a screen, only in tests of the pixels. The
+nodes draw onto the canvas while it is shown, as the Canvas demo's do.
+
+* A whole draw is all of the canvas. Nothing draws only the part of it that
+changed, or only the part that shows in the window.
 
 * The eraser takes out a whole item. It does not rub out part of one.
 
 * A shape can hold `:props`, anything, kept in the file, for the Lisp that is
 to act on it, what it collides with, how it moves. Nothing reads them yet.
 
-* The paper, plain, grid, lines or axis, is the app's. It is not in a picture
-of the document.
+* The paper, plain, grid, lines or axis, `lib/cwb/paper.inc`, is to work on.
+It is not in a picture of the document.
