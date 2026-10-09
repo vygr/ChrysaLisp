@@ -11,8 +11,7 @@
 (enums +select 0
 	(enum main tip timer worker trash))
 
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum refresh category))
 
 (defq +event_story_0 100 +max_stories 50

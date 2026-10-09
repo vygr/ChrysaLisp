@@ -1,5 +1,4 @@
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum undo redo rewind cut copy paste)
 	(enum button_1 button_2 button_3 button_4))
 

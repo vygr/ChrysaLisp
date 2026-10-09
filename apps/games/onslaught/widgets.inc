@@ -2,8 +2,6 @@
 ; onslaught window & ui layers hierarchy
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(enums +event 0
-	(enum close max min))
 
 (defclass ItemPanel () (View)
 	; (ItemPanel) -> items inventory panel view

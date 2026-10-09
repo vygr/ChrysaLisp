@@ -57,10 +57,30 @@ apps/demos/bubbles/app.lisp "+event" ""
 We are going to use these target ids when we construct the UI tree for the
 application.
 
-Please note that target id `0`, is reserved for, and should always be used to
-indicate the application needs to close ! This action event will be sent by the
-GUI service when the user wishes to logout or shutdown the system ! The best
-thing is use this for your close button event.
+A target id below 0 is the id of a view, and the event is for that view. One
+from 0 up is an action of the application's. The first 16 of those are the
+system's, they have the same id in every application, and are defined in
+`service/gui/lisp.inc`. An application's own start at `+event_user`.
+
+Anything that is not one of the application's own widgets may send a system
+event: the GUI service as the user logs out or the theme is changed, a window
+manager, an automater, a test. Each means the same to every application, and
+an application acts on those it has a use for, only it knows what a new theme
+or a new size is to it.
+
+* `+event_close`, the application is to end. Sent to all at logout or
+shutdown. Use it for your close button.
+
+* `+event_max, +event_min`, its window is to be its largest, its smallest.
+
+* `+event_theme`, the theme of the desktop is now this one, the name follows
+the action. Passed on to `(. window :event)`, as any event the application
+does not act on is, the window swaps the fonts of its symbols.
+
+* `+event_layout`, the space it has is not what it was, lay out again. Sent to
+all when the host window is resized.
+
+* `+event_zoom_in, +event_zoom_out`, what it shows is to be larger, smaller.
 
 * `+event_close, +event_min, +event_max` for our title bar window buttons.
 

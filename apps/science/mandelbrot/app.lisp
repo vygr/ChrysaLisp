@@ -3,9 +3,8 @@
 (import "gui/lisp.inc")
 (import "./app.inc")
 
-(enums +event 0
-	(enum close)
-	(enum zoom_in zoom_out home))
+(enums +event +event_user
+	(enum home))
 
 (enums +select 0
 	(enum main task reply timer tip))
@@ -24,7 +23,8 @@
 	(ui-title-bar _ "Mandelbrot" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (+sym_zoom_in +sym_zoom_out +sym_reset) +event_zoom_in))
+			(ui-buttons (+sym_zoom_in +sym_zoom_out) +event_zoom_in)
+			(ui-buttons (+sym_reset) +event_home))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height +scale)) (:color 0)))
 

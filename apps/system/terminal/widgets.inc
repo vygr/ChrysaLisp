@@ -1,6 +1,5 @@
-(enums +event 0
-	(enum close max min)
-	(enum layout xscroll yscroll)
+(enums +event +event_user
+	(enum xscroll yscroll)
 	(enum copy paste paragraph))
 
 (defq +vdu_min_width 60 +vdu_min_height 40

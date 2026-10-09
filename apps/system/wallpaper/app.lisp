@@ -7,8 +7,6 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 
-(enums +event 0
-	(enum close))
 
 (defun app-path (%0)
 	(cat "apps/" %0 "/app.lisp"))
@@ -43,7 +41,7 @@
 		(cond
 			((= id +event_close)
 				(setq id :nil))
-			((and (< id 0) (= (getf msg +ev_msg_type) +ev_type_gui))
+			((= id +event_layout)
 				;resized GUI
 				(refresh-wallpaper))
 			((= (getf msg +ev_msg_type) +ev_type_mouse)

@@ -15,8 +15,6 @@
 (if (and (not *env_clock_analog*) (not *env_clock_digital*))
 	(setq *env_clock_analog* :t))
 
-(enums +event 0
-	(enum close))
 
 (enums +select 0
 	(enum main timer))

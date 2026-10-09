@@ -11,8 +11,8 @@
 (import "lib/net/http.inc")
 (import "lib/net/json.inc")
 
-(enums +event 0
-	(enum close refresh select_coin)
+(enums +event +event_user
+	(enum refresh select_coin)
 	(enum coin_0 coin_1 coin_2 coin_3 coin_4 coin_5))
 
 (enums +select 0

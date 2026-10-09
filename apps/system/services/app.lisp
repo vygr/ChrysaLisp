@@ -4,8 +4,6 @@
 (enums +select 0
 	(enum main timer))
 
-(enums +event 0
-	(enum close max min))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Services" (+sym_close +sym_max +sym_min) +event_close)

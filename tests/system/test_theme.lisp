@@ -48,7 +48,8 @@
 (assert-true "and another, straight from that" (eql (get :font th_bar) (create-font "fonts/Symbols-Sharp.ctf" 28)))
 ;as an event, as the GUI sends it to a window
 (. th_window :event (cat (setf-> (str-alloc +ev_msg_theme_size)
-	(+ev_msg_type +ev_type_theme) (+ev_msg_target_id (. th_window :get_id))) "Light"))
+	(+ev_msg_type +ev_type_action) (+ev_msg_target_id +event_theme)
+	(+ev_msg_action_source_id (. th_window :get_id))) "Light"))
 (assert-true "the event does it" (eql (get :font th_bar) (create-font "fonts/Symbols-Light.ctf" 28)))
 (assert-true "the smallest symbols are the bold font, whatever the theme"
 	(eql *env_tiny_symbol_font* (create-font "fonts/Symbols-Bold.ctf" 10)))

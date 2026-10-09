@@ -1,5 +1,4 @@
-(enums +event 0
-	(enum close)
+(enums +event +event_user
 	(enum hvalue)
 	(enum play forward pause step clear)
 	(enum play_all forward_all pause_all step_all clear_all))

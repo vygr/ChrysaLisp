@@ -2,8 +2,7 @@
 (import "gui/lisp.inc")
 (import "service/lock/app.inc")
 
-(enums +event 0
-	(enum close)
+(enums +event +event_user
 	(enum reset undo)
 	(enum click))
 

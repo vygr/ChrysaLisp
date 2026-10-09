@@ -53,13 +53,13 @@
 
 (defun close-apps (quit)
 	;send quit action to all GUI apps
-	;action 0 is reserved for close !
+	;close is one of the events every app has, service/gui/lisp.inc
 	(each (lambda (child)
 		(when (and (nql child *mouse*) (defq mbox (. child :find_owner)))
 			(defq source_id (. child :get_id))
 			(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
 				(+ev_msg_type +ev_type_action)
-				(+ev_msg_target_id 0)
+				(+ev_msg_target_id +event_close)
 				(+ev_msg_action_source_id source_id)))))
 		(. *screen* :children))
 	;run login app or quit ?
@@ -116,8 +116,9 @@
 							(each (lambda (child)
 								(if (defq to (. child :find_owner))
 									(mail-send to (cat (setf-> (str-alloc +ev_msg_theme_size)
-										(+ev_msg_type +ev_type_theme)
-										(+ev_msg_target_id (. child :get_id))) name))))
+										(+ev_msg_type +ev_type_action)
+										(+ev_msg_target_id +event_theme)
+										(+ev_msg_action_source_id (. child :get_id))) name))))
 								(. *screen* :children))
 							(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))
 						(+gui_rpc_type_add_back

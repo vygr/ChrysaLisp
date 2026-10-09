@@ -22,11 +22,9 @@
 ;pulls harder, so nodes that talk draw together. Dr Ian Thomas did a
 ;bedspring model of a network for Taos, this is in his honour.
 
-(enums +event 0
-	(enum close)
+(enums +event +event_user
 	(enum auto)
-	(enum xrot yrot zrot)
-	(enum layout))
+	(enum xrot yrot zrot))
 
 (enums +select 0
 	(enum main task reply tip frame_timer poll_timer))

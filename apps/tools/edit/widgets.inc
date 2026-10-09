@@ -1,6 +1,5 @@
-(enums +event 0
-	(enum close max min)
-	(enum layout xscroll yscroll)
+(enums +event +event_user
+	(enum xscroll yscroll)
 	(enum file_folder_action file_leaf_action)
 	(enum open_folder_action open_leaf_action)
 	(enum undo redo rewind

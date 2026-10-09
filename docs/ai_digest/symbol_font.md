@@ -96,7 +96,7 @@ seen. A change of theme leaves them as they are.
 
 Which theme a desktop has is chosen in the Themes app, and is kept for
 the user, `usr/<user>/theme`. A change is seen at once: the GUI sends
-every window an event, `+ev_type_theme`, and `(. window :event)` swaps the
+every window the action `+event_theme`, and `(. window :event)` swaps the
 window's symbol fonts for the new theme's, lays it out and draws it. An
 app does nothing for this but pass on the events it does not know, as
 they all do. `lib/theme/theme.inc`.

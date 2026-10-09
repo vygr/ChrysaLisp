@@ -128,8 +128,7 @@ options.
 This from the `apps/fonts/app.lisp` demo:
 
 ```lisp
-(enums +event 0
-	(enum close)
+(enums +event +event_user
 	(enum prev next))
 
 (ui-window *window* ()
@@ -302,7 +301,7 @@ gui/lisp.inc "macro ui-files" ""
 ```
 
 ```lisp
-(enums +event 0
+(enums +event +event_user
 	(enum file_folder_action file_leaf_action))
 
 (ui-window *ui_files*
@@ -408,9 +407,6 @@ gui/lisp.inc "macro ui-title-bar" ""
 ```
 
 ```lisp
-(enums +event 0
-	(enum close max min))
-
 (ui-window *ui_title_bar*
 	(:min_width 256
 	:min_height 0)
@@ -518,7 +514,7 @@ gui/lisp.inc "macro ui-buttons" ""
 ```
 
 ```lisp
-(enums +event 0
+(enums +event +event_user
 	(enum undo redo rewind))
 
 (ui-window *ui_buttons*
@@ -547,7 +543,7 @@ gui/lisp.inc "macro ui-tool-bar" ""
 ```
 
 ```lisp
-(enums +event 0
+(enums +event +event_user
 	(enum undo redo rewind))
 
 (ui-window *ui_toolbar*

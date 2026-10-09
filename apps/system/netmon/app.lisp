@@ -4,8 +4,6 @@
 (import "lib/task/global.inc")
 (import "./app.inc")
 
-(enums +event 0
-	(enum close))
 
 (enums +select 0
 	(enum main task reply nodes))

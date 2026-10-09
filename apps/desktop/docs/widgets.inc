@@ -1,5 +1,4 @@
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum file_folder_action file_leaf_action)
 	(enum prev next)
 	(enum whole_words regexp ignore_case find_down find_up))

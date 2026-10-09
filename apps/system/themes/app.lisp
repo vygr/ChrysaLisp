@@ -6,9 +6,8 @@
 ;of its symbols as it draws them. Press one and every window that is open
 ;is drawn in it, and it is what an app starts in from then on.
 
-(enums +event 0
-	(enum close)
-	(enum theme))
+(enums +event +event_user
+	(enum pick))
 
 ;some symbols to show a theme by, and a size that no toolbar uses, so a
 ;row keeps its own theme's font when the rest of the desktop changes
@@ -34,7 +33,7 @@
 		(def row :flow_flags +flow_right_fill)
 		(def button :text name :min_width 96 :font *env_button_font* :border *env_button_border*)
 		(def strip :text +show :font (create-font symbols_file +show_size) :border 0)
-		(. button :connect (+ +event_theme (!)))
+		(. button :connect (+ +event_pick (!)))
 		(.-> row (:add_child button) (:add_child strip))
 		(. *rows* :add_child row))
 		*themes*)
@@ -47,10 +46,10 @@
 		(cond
 			((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 				(setq id :nil))
-			((and (>= id +event_theme) (< id (+ +event_theme (length *themes*)))
+			((and (>= id +event_pick) (< id (+ +event_pick (length *themes*)))
 					(= (getf msg +ev_msg_type) +ev_type_action))
 				;it is kept, for what starts next, and the GUI tells what is open
-				(defq name (first (elem-get *themes* (- id +event_theme))))
+				(defq name (first (elem-get *themes* (- id +event_pick))))
 				(theme-save *env_home* name)
 				(gui-theme-rpc name)
 				(show-current))

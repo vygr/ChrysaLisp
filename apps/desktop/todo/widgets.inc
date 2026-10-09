@@ -1,6 +1,4 @@
-(enums +event 0
-	(enum close max min)
-	(enum layout)
+(enums +event +event_user
 	(enum todo_done todo_del)
 	(enum done_redo done_del)
 	(enum del_redo del_del)

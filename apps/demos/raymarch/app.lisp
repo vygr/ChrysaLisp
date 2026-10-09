@@ -16,8 +16,6 @@
 ; draw it between them, as native code, straight onto the canvas.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(enums +event 0
-	(enum close))
 
 (enums +select 0
 	(enum main task reply timer))

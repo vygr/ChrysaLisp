@@ -4,6 +4,51 @@
 
 ------
 
+The first 16 action ids are the system's, the same in every app. Item
+41.
+
+*	Chris, on what is to be reserved: "My gut say anything that any app
+	automater or desktopmanager would want to control MUST be reserved
+	and defined." Put back to him as two tests: something that is not
+	the app's own widgets may send it, and it means the same in every
+	app. On zoom: "I think zoom is in." On whether a new theme stays an
+	event type the window acts on: "I would have said reserved events,
+	only the app realy know what it means to have been retheamed ?".
+	And on ids: an id below 0 is a view's, the event is for that
+	widget, which is how a front end is put in a page of the Docs app,
+	"The widgets are live, but the actions they would do are cut off by
+	filtering." The reserved ids are from 0 up, and that is not touched.
+
+*	`service/gui/lisp.inc`: `+event_close` 0, `+event_max` 1,
+	`+event_min` 2, `+event_theme` 3, `+event_layout` 4,
+	`+event_zoom_in` 5, `+event_zoom_out` 6, and `+event_user` 16 where
+	an app's own start. Close, max and min have the ids they had in
+	every app that had them.
+
+*	49 apps: each `(enums +event 0 ...)` is `(enums +event +event_user
+	...)` with those names taken out. The Themes app's own `theme` is
+	`pick`. PCB and Mandelbrot have their zoom buttons on the reserved
+	ids, PCB's are now in, out, as the ids are.
+
+*	The GUI service sends a change of theme as the action
+	`+event_theme`, the name after it, and the host window's new size
+	as `+event_layout`, both were event types of their own with the
+	window's id. `+ev_type_theme` is gone. Login, logout and the
+	wallpaper act on `+event_layout`. An app that does not act on
+	`+event_theme` passes it to its window as it does any event it does
+	not know, and the window swaps its symbol fonts, as before. One
+	that has more to do can act on it.
+
+What was run. Every test, 4,995, on the M4, the x64 and the Pi. A check
+by script that every `+event_` name an app uses is one of the reserved or
+in its own enum, 4 apps give some a fixed number, 100 and up.
+
+Not seen: any app on a desktop since. No test starts one. A change of
+theme with apps open, the host window resized at login, PCB's and
+Mandelbrot's zoom buttons, a title bar's three buttons.
+
+------
+
 A table in a document keeps to the page. Chris: "in the docs/press/
 folder the README.md shows in the Docs app with the mtulti column table
 extreamly wide, due to some files paths not been wrapped", to make paths

@@ -1,5 +1,3 @@
-(enums +event 0
-	(enum close))
 
 (defq +scale_size 3)
 

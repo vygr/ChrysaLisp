@@ -6,9 +6,8 @@
 (import "./viewer.inc")
 (import "service/lock/app.inc")
 
-(enums +event 0
-	(enum close)
-	(enum prev next reset zoom_out zoom_in)
+(enums +event +event_user
+	(enum prev next reset)
 	(enum mode)
 	(enum layer))
 
@@ -32,7 +31,8 @@
 	(ui-title-bar *window_title* "" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (+sym_prev +sym_next +sym_route +sym_zoom_out +sym_zoom_in) +event_prev))
+			(ui-buttons (+sym_prev +sym_next +sym_route) +event_prev)
+			(ui-buttons (+sym_zoom_in +sym_zoom_out) +event_zoom_in))
 		(. (ui-radio-bar *mode_toolbar* (+sym_pcb +sym_gerber)) :connect +event_mode)
 		(. (ui-radio-bar *layer_toolbar* ("0" "1" "2" "3" "4")
 				(:color (const *env_toolbar2_col*)
@@ -83,7 +83,7 @@
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	;a bar at a time, the two views and the layers are bars of their own
 	(ui-tool-tips *main_toolbar*
-		'("prev" "next" "route" "zoom out" "zoom in"))
+		'("prev" "next" "route" "zoom in" "zoom out"))
 	(ui-tool-tips *mode_toolbar*
 		'("pcb" "gerber"))
 	(ui-tool-tips *layer_toolbar*

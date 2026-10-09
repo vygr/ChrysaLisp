@@ -2,8 +2,8 @@
 (import "gui/lisp.inc")
 (import "./board.inc")
 
-(enums +event 0
-	(enum close beginner intermediate expert click))
+(enums +event +event_user
+	(enum beginner intermediate expert click))
 
 (ui-window *window* (:resizable :nil)
 	(ui-flow window_flow (:flow_flags +flow_down_fill)

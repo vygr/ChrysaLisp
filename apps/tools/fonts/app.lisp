@@ -3,8 +3,7 @@
 (import "lib/files/files.inc")
 (import "service/clipboard/app.inc")
 
-(enums +event 0
-	(enum close)
+(enums +event +event_user
 	(enum prev next)
 	(enum copy))
 

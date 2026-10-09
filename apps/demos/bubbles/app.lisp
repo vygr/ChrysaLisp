@@ -6,8 +6,7 @@
 (enums +select 0
 	(enum main task reply timer tip))
 
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum reset)
 	(enum style mode count))
 

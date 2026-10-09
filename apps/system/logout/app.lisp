@@ -1,8 +1,8 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 
-(enums +event 0
-	(enum close logout quit shutdown))
+(enums +event +event_user
+	(enum logout quit shutdown))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Logout Manager" () ())
@@ -23,8 +23,7 @@
 	(gui-add-front-rpc *window*)
 	(position-window)
 	(while (cond
-		((and (< (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) 0)
-			(= (getf msg +ev_msg_type) +ev_type_gui))
+		((= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_layout)
 			;resized GUI
 			(position-window))
 		((= id +event_close)

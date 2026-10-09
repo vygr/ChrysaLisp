@@ -2,8 +2,8 @@
 (import "usr/Guest/env.inc")
 (import "gui/lisp.inc")
 
-(enums +event 0
-	(enum close login create))
+(enums +event +event_user
+	(enum login create))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Login Manager" () ())
@@ -38,8 +38,7 @@
 	(gui-add-front-rpc *window*)
 	(position-window)
 	(while (cond
-		((and (< (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) 0)
-			(= (getf msg +ev_msg_type) +ev_type_gui))
+		((= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_layout)
 			;resized GUI
 			(position-window))
 		((= id +event_close)

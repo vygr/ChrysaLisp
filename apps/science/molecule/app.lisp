@@ -5,11 +5,9 @@
 (import "lib/files/files.inc")
 (import "lib/gpu/vp.inc")
 
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum prev next auto)
 	(enum xrot yrot zrot)
-	(enum layout)
 	(enum style))
 
 (enums +select 0

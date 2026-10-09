@@ -15,8 +15,8 @@
 (enums +select 0
 	(enum main timer tip))
 
-(enums +event 0
-	(enum close btn_now btn_prev_h btn_next_h btn_prev_d btn_next_d btn_play
+(enums +event +event_user
+	(enum btn_now btn_prev_h btn_next_h btn_prev_d btn_next_d btn_play
 		btn_city_0 btn_city_1 btn_city_2 btn_city_3 btn_city_4 btn_city_5))
 
 (defq *canvas_width* 480 *canvas_height* 240 +config_file (cat *env_home* "sunclock.tre")

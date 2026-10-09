@@ -4,8 +4,8 @@
 (import "lib/files/files.inc")
 
 ; Events
-(enums +event 0
-	(enum close launch toggle))
+(enums +event +event_user
+	(enum launch toggle))
 
 ; Mailbox selection enums
 (enums +select 0

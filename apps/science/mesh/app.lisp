@@ -7,11 +7,9 @@
 (import "lib/gpu/gui.inc")
 (import "./app.inc")
 
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum mode auto)
 	(enum xrot yrot zrot)
-	(enum layout)
 	(enum style gpu))
 
 ;the timers are last. A frame can take longer than the frame timer, and

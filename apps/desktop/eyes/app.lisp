@@ -44,8 +44,6 @@
 ; UI and State
 ;;;;;;;;;;;;;;
 
-(enums +event 0
-	(enum close max min))
 
 (enums +select 0
 	(enum main timer))

@@ -6,8 +6,7 @@
 (import "lib/gpu/tile.inc")
 (import "./app.inc")
 
-(enums +event 0
-	(enum close)
+(enums +event +event_user
 	(enum mode))
 
 (enums +select 0

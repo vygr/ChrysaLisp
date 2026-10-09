@@ -4,8 +4,7 @@
 (import "lib/consts/chars.inc")
 (import "lib/consts/scodes.inc")
 
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum base_change)
 	(enum button))
 

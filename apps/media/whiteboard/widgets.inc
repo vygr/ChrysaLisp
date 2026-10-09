@@ -1,5 +1,4 @@
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum undo redo save load clear)
 	(enum stroke)
 	(enum style radius ink)

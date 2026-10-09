@@ -11,8 +11,7 @@
 (enums +select 0
 	(enum main tip timer worker trash))
 
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum lookup random))
 
 (defq +event_hist_0 100 +event_syn_0 200 +event_ant_0 300

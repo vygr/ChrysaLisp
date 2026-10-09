@@ -180,9 +180,10 @@
 		(:set_flags +view_flag_dirty_all +view_flag_dirty_all))
 	(each (lambda (child)
 		(mail-send (. child :find_owner)
-			(setf-> (str-alloc +ev_msg_gui_size)
-				(+ev_msg_type +ev_type_gui)
-				(+ev_msg_target_id (. child :get_id))))) (. *screen* :children))
+			(setf-> (str-alloc +ev_msg_action_size)
+				(+ev_msg_type +ev_type_action)
+				(+ev_msg_target_id +event_layout)
+				(+ev_msg_action_source_id (. child :get_id))))) (. *screen* :children))
 	(gui-update *mouse_x* *mouse_y* 1))
 
 (defun action-shown ()

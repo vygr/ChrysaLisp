@@ -130,7 +130,12 @@
 		; (. window :event event) -> window
 		(defq target (. this :find_id (getf event +ev_msg_target_id))
 			type (getf event +ev_msg_type))
-		(if (= type +ev_type_theme) (. this :theme (slice event +ev_msg_theme_name -1)))
+		;an app that has no use of its own for a new theme passes the event
+		;on to here, as it does any it does not know, and the window does
+		;its part, the fonts of its symbols. One that has acts on
+		;+event_theme itself, and calls :theme, or not, as it sees fit
+		(if (and (= type +ev_type_action) (= (getf event +ev_msg_target_id) +event_theme))
+			(. this :theme (slice event +ev_msg_theme_name -1)))
 		(when target
 			(cond
 				((= type +ev_type_mouse)

@@ -6,8 +6,6 @@
 (enums +select 0
 	(enum main timer))
 
-(enums +event 0
-	(enum close max min))
 
 (defq +frames `',(exec '(map (# (canvas-load (str *app_root* "data/taoball_" %0 ".cpm") +load_flag_shared)) (range 1 13)))
 	+sframes `',(exec '(map (# (canvas-load (str *app_root* "data/taoball_s_" %0 ".cpm") +load_flag_shared)) (range 1 13)))

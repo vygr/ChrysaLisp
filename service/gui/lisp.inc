@@ -13,7 +13,23 @@
 ;gui events for Lisp level (getf)
 
 (enums +ev_type 0
-	(enum mouse key_down key_up action gui wheel enter exit theme))
+	(enum mouse key_down key_up action gui wheel enter exit))
+
+;the events every app has, with the same id in each. An id below 0 is that
+;of a view, and the event is for that view. One from 0 up is an action of
+;the app's. The first of those are the system's: what is not one of the
+;app's own widgets may send them, the GUI as a user logs out or the theme
+;is changed, a window manager, a test, and each means the same to every
+;app. An app acts on those it has a use for, only it knows what a new
+;theme or a new size is to it. Its own events start at +event_user.
+;	close		the app is to end. Sent to all at logout
+;	max, min	its window is to be its largest, its smallest
+;	theme		the theme of the desktop is now this, the name follows
+;	layout		the space it has is not what it was, lay out again.
+;				Sent to all when the host window is resized
+;	zoom_in, zoom_out	what it shows is to be larger, smaller
+(defq +event_close 0 +event_max 1 +event_min 2 +event_theme 3 +event_layout 4
+	+event_zoom_in 5 +event_zoom_out 6 +event_user 16)
 
 (structure +ev_msg 0
 	(long target_id type))
@@ -34,8 +50,8 @@
 
 (structure +ev_msg_gui +ev_msg_size)
 
-;the theme of the desktop has changed, its name follows
-(structure +ev_msg_theme +ev_msg_size
+;the theme of the desktop has changed, an action, its name follows
+(structure +ev_msg_theme +ev_msg_action_size
 	(offset name))
 
 (structure +ev_msg_enter +ev_msg_size)

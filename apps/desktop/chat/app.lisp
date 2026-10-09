@@ -12,8 +12,7 @@
 (defq +config_version 3 +heartbeat_us (* 10 1000000) +presence_timeout_us (* 15 1000000)
 	+max_display 100 +max_history 500 +max_channels 128)
 
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum connect disconnect send))
 
 (defq +event_channel_select_0 100 +event_channel_select_last (+ 100 +max_channels -1)

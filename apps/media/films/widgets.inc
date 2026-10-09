@@ -1,5 +1,4 @@
-(enums +event 0
-	(enum close max min)
+(enums +event +event_user
 	(enum file_folder_action file_leaf_action))
 
 (ui-window *window* ()

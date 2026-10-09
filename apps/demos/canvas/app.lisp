@@ -3,8 +3,8 @@
 (import "gui/lisp.inc")
 (import "./scene.inc")
 
-(enums +event 0
-	(enum close mode shapes))
+(enums +event +event_user
+	(enum mode shapes))
 
 (enums +select 0
 	(enum main task reply timer))

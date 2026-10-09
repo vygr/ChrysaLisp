@@ -1,5 +1,4 @@
-(enums +event 0
-	(enum close)
+(enums +event +event_user
 	(enum exts_action ok_action)
 	(enum file_action file_leaf_action))
 

@@ -12,8 +12,8 @@
 (import "lib/net/json.inc")
 (import "lib/net/url.inc")
 
-(enums +event 0
-	(enum close refresh unit_toggle city_search)
+(enums +event +event_user
+	(enum refresh unit_toggle city_search)
 	(enum city_0 city_1 city_2 city_3 city_4 city_5))
 
 (enums +select 0
