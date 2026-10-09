@@ -456,7 +456,9 @@ Primitives targeting mutable `:array` and `:list` data structures.
 
 	*	`(lmatch? list list) -> :nil | :t`
 
-*	**`copy`**: Creates a deep copy of a list or form.
+*	**`copy`**: Creates a deep copy of a list or form, the list and every
+	list in it. What is not a list is not copied, it is the same object in
+	both, and `(cat lst)` is the copy of one level alone.
 
 	*	`(copy form) -> 'form`
 

@@ -174,10 +174,24 @@ before taking it apart.
 The quoted list is part of the code, and `push` changes it. Use `(list)`
 for a list that will be changed.
 
-### A copy of a list is not a copy of what is in it
+### `(cat lst)` is a new list of the same things, `(copy lst)` is new all the way down
 
 `(cat lst)` is a new list of the same elements. A list inside it is the
-same list in both.
+same list in both. If the whole of it is to be copied, `(copy lst)` does,
+it copies the list and every list in it, however deep.
+
+```lisp
+(defq a (list 1 (list 2 3)) b (cat a) c (copy a))
+(push (second b) 9)
+(second a) ; -> (2 3 9), b has the same inner list
+(second c) ; -> (2 3), c has one of its own
+```
+
+It is lists that `copy` copies. What is in one that is not a list, a str,
+a `nums`, an `array`, is the same one in both, and `copy` of one of those
+by itself gives it back. And it is for plain lists: a map or an object is
+a list underneath, and `copy` of one is a plain list of what it is made
+of, no longer a map. An environment has `(env-copy)`.
 
 ### A str mailed on the one node is the str itself
 
