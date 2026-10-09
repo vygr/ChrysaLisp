@@ -1,35 +1,62 @@
-(enums +event +event_user
-	(enum undo redo save load clear)
-	(enum stroke)
-	(enum style radius ink)
-	(enum select move pen line arrow1 arrow2 box circle fbox fcircle)
-	(enum group ungroup delete align_left align_vcenter align_right align_top align_hcenter align_bottom))
+(import "./view.inc")
+(import "lib/cwb/tools.inc")
 
-(bits +group 0
-	(bit selected))
+(enums +event +event_user
+	(enum undo redo new load save clear)
+	(enum style)
+	(enum snap snap_angle)
+	(enum radius ink)
+	(enum mode)
+	(enum ruler protractor set_square)
+	(enum arc)
+	(enum group ungroup delete duplicate to_front to_back
+		align_left align_hcenter align_right align_top align_vcenter align_bottom)
+	(enum size text))
 
 (defun trans (%0)
 	;transparent colour
 	(+ (logand 0xffffff %0) 0x60000000))
 
-(defq +canvas_width 1024 +canvas_height 768 +min_width 320 +min_height 240
+(defq +min_width 480 +min_height 320 +paper_col 0xffF8F8FF +paper_ink 0xffADD8E6
+	;what a pen draws for each button of the mode bar, and how wide for each of the widths
+	*modes* (list :select :pen :line :arrow :arrow2 :rect :ellipse :frect :fellipse :text :eraser)
+	*widths* (list 3.0 6.0 12.0)
+	*styles* (list :plain :grid :lines :axis)
+	*arcs* (list :line :pie :circle)
 	*palette* (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
-	*palette* (cat *palette* (map (const trans) *palette*)))
+	*palette* (cat *palette* (map (const trans) *palette*))
+	*board* (Board))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Whiteboard" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (+sym_undo +sym_redo +sym_save +sym_open +sym_clear) +event_undo))
+			(ui-buttons (+sym_undo +sym_redo +sym_new +sym_open +sym_save +sym_clear) +event_undo))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_lines +sym_axis)
 			(:color *env_toolbar2_col*)) :connect +event_style)
+		(ui-tool-bar *snap_toolbar* ()
+			(ui-buttons (+sym_snap +sym_snap_angle) +event_snap))
+		(ui-tool-bar *zoom_toolbar* (:color *env_toolbar2_col*)
+			(ui-buttons (+sym_zoom_in +sym_zoom_out) +event_zoom_in))
+		(. (ui-textfield *size_field* (:color +argb_white :hint_text "width x height" :clear_text "1024x768"
+			:min_width 120)) :connect +event_size)
+		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(. (ui-radio-bar *mode_toolbar* (+sym_select +sym_pen +sym_line +sym_arrow +sym_double_arrow
+				+sym_rect +sym_circle +sym_filled_rect +sym_filled_circle +sym_text +sym_eraser)
+			(:color *env_toolbar2_col*)) :connect +event_mode)
 		(. (ui-radio-bar *radius_toolbar* (+sym_small +sym_medium +sym_large)) :connect +event_radius)
-		(. (ui-radio-bar *mode_toolbar* (+sym_select +sym_move +sym_pen +sym_line +sym_arrow +sym_double_arrow +sym_rect +sym_circle +sym_filled_rect +sym_filled_circle)
-			(:color *env_toolbar2_col*)) :connect +event_select)
+		(ui-tool-bar *tool_toolbar* (:color *env_toolbar2_col*)
+			(ui-buttons (+sym_ruler +sym_protractor +sym_set_square) +event_ruler))
+		(. (ui-radio-bar *arc_toolbar* (+sym_arc +sym_pie +sym_circle)) :connect +event_arc)
+		(. (ui-textfield *text_field* (:color +argb_white :hint_text "words to put down" :clear_text ""
+			:min_width 160)) :connect +event_text)
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *selection_toolbar* ()
-			(ui-buttons (+sym_group +sym_ungroup +sym_delete +sym_align_left +sym_align_vcenter +sym_align_right +sym_align_top +sym_align_hcenter +sym_align_bottom) +event_group))
+			(ui-buttons (+sym_group +sym_ungroup +sym_delete +sym_duplicate +sym_to_front +sym_to_back
+				+sym_align_left +sym_align_hcenter +sym_align_right
+				+sym_align_top +sym_align_vcenter +sym_align_bottom) +event_group))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *ink_toolbar* (+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen
@@ -37,32 +64,43 @@
 				(:font *env_medium_symbol_font* :color *env_toolbar2_col*)) :connect +event_ink))
 	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +min_width :min_height +min_height)
-		(ui-flow *strokes_stack* (:flow_flags +flow_stack_fill)
-			(. (ui-stroke *strokes*) :connect +event_stroke)
-			(ui-backdrop *backdrop* (:color 0xffF8F8FF :ink_color 0xffADD8E6 :style :grid)
-				(ui-canvas *committed_canvas* +canvas_width +canvas_height 1)
-				(ui-canvas *staging_canvas* +canvas_width +canvas_height 1)))))
+		(ui-flow *board_stack* (:flow_flags +flow_stack_fill)
+			(ui-element *board_view* (Board-view *board*))
+			(ui-backdrop *backdrop* (:color +paper_col)))))
 
 (ui-tool-tips *main_toolbar*
-	'("undo" "redo" "save" "open" "clear"))
+	'("undo" "redo" "new" "open" "save" "clear"))
 
 (ui-tool-tips *style_toolbar*
 	'("plain" "grid" "lines" "axis"))
 
-(ui-tool-tips *radius_toolbar*
-	'("small" "medium" "large"))
+(ui-tool-tips *snap_toolbar*
+	'("snap to the grid" "snap angles"))
+
+(ui-tool-tips *zoom_toolbar*
+	'("zoom in" "zoom out"))
 
 (ui-tool-tips *mode_toolbar*
-	'("select" "move" "pen" "line" "arrow" "double arrow" "rect"
-	"circle" "filled rect" "filled circle"))
+	'("select" "pen" "line" "arrow" "double arrow" "rect" "ellipse"
+	"filled rect" "filled ellipse" "words" "eraser"))
+
+(ui-tool-tips *radius_toolbar*
+	'("thin" "medium" "thick"))
+
+(ui-tool-tips *tool_toolbar*
+	'("ruler" "protractor" "set square"))
+
+(ui-tool-tips *arc_toolbar*
+	'("the protractor draws an arc" "a slice" "a circle"))
 
 (ui-tool-tips *selection_toolbar*
-	'("group" "ungroup" "delete" "align left" "align vcenter" "align right" "align top" "align hcenter" "align bottom"))
+	'("group" "ungroup" "delete" "duplicate" "to the front" "to the back"
+	"align left" "align centres" "align right" "align top" "align middles" "align bottom"))
 
 (each (# (def %0 :ink_color %1)) (. *ink_toolbar* :children) *palette*)
 (. *ink_toolbar* :set_selected 0)
-(. *mode_toolbar* :set_selected 2)
+(. *mode_toolbar* :set_selected 1)
 (. *radius_toolbar* :set_selected 0)
-(. *style_toolbar* :set_selected 0)
-(. *strokes_stack* :change 0 0 +canvas_width +canvas_height)
-(. *image_scroll* :layout)
+(. *style_toolbar* :set_selected 1)
+(. *arc_toolbar* :set_selected 0)
+(def *board_view* :scroll *image_scroll*)

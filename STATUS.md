@@ -4,6 +4,66 @@
 
 ------
 
+The Whiteboard, part two: the app.
+
+*	Claude can see what it draws now. A canvas is written out as its
+	pixels and made a PNG by a few lines of Python, and the picture is
+	looked at. So the board with shapes on it, the handles round what
+	is selected, the ruler with its marks and the protractor with its
+	degrees, the twelve new symbols beside four of the old, were each
+	looked at and not only counted. The desktop itself is still not
+	seen: the Mac's screen capture was not used, it can put a
+	permission question on his screen and takes more than our window.
+
+*	`apps/media/whiteboard/`, written again on the board. `view.inc`,
+	a `Board-view` over the canvases, makes each event of the mouse a
+	pointer event in the space of the document; the middle button is
+	the view's, it moves the view about in its scroll. `widgets.inc`:
+	undo, redo, new, open, save, clear; the paper, plain, grid, lines
+	or axis; snap to the grid and snap angles; zoom, on the reserved
+	zoom events; the size of the board, a field, "1024x768"; the modes,
+	select, pen, line, arrow, double arrow, box, ellipse, each filled,
+	words, eraser; three widths; the ruler, protractor and set square,
+	and what the protractor draws, arc, slice or circle; a field of
+	the words to put down; group, ungroup, delete, duplicate, to the
+	front, to the back and six ways to line up; sixteen colours.
+	`app.lisp` is the window round it and the two canvases, the
+	document on one and what is over it on the other.
+
+*	The lines of the paper are drawn by the app where the grid is,
+	every `:grid` of the document from its top left. The backdrop's own
+	grid is counted from the middle of the view, so what snapped to a
+	grid of 32 did not land on its lines unless the view was a multiple
+	of 64 wide. Chris had said of snapping "not sure the current way
+	works very well".
+
+*	What is being moved is drawn over the document and not in it, so
+	only it is drawn as it moves. A shape that is put on top of the top
+	layer is drawn onto what is there, the rest is not drawn again.
+
+*	Zoom is a table of zooms, stepped through, in and out is where it
+	was to the pixel: 1.25 times 0.8 is 0.99998 in fixed point.
+
+*	Words: a mode, the words in the field are put down where the
+	pointer goes down, as a shape whose outline is the font's.
+
+*	Twelve symbols, at the end of the set so no code moves, 126:
+	`eraser ruler protractor set_square snap snap_angle to_front
+	to_back duplicate arc pie text`.
+
+What was run. `tests/system/test_whiteboard.lisp`, 30: the app's file
+loaded in a task with no desktop, events of the mouse made as the GUI
+makes them and given to its view, and the actions of its toolbars called
+from its event map: each mode draws what it should, the right button
+moves, the middle draws nothing, the eraser, undo, the instruments, snap,
+zoom there and back, the size field, the selection's actions, save, new,
+load. Every test, 5,279, on the M4, the x64 and the Pi.
+
+Not seen: the window, its toolbars, a tooltip, the scroll, a real mouse
+on it. That is the first thing for Chris to do with it.
+
+------
+
 The Whiteboard, made again. Night of the 9th of October, Chris asleep,
 this is what was built and how far each part is proven. He asked for "a
 total revamp of the Whiteboard app, to use shape editing rather than

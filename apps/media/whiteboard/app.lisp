@@ -6,128 +6,158 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-(import "lib/math/vector.inc")
 (import "./widgets.inc")
+
+;The Whiteboard. What is on the board is a document of shapes,
+;lib/cwb/doc.inc, a .cwb file. All that changes it is the board,
+;lib/cwb/board.inc, which is given pointers and has methods. This file is
+;the window round it: toolbars that call those methods, a view that makes
+;the mouse a pointer, ./view.inc, and two canvases the board draws on, the
+;document on one and what is over it, what is being drawn or moved, the
+;handles, a ruler, on the other.
 
 (enums +select 0
 	(enum main picker timer tip))
 
-(bits +layer 0
-	(bit committed staging))
+;the zooms there are, stepped through, so that in and then out is where it was
+(defq +zooms ''(0.125 0.25 0.5 0.75 1.0 1.5 2.0 3.0 4.0 6.0 8.0))
 
-(defq +tol 3.0
-	*radiuss* (map (const n2f) '(2 6 12)) *stroke_radius* (first *radiuss*)
-	*undo_stack* (list) *redo_stack* (list)
-	*stroke_col* (first *palette*) *stroke_mode* +event_pen
-	*committed_groups* (list) *staging_paths* (list)
-	*grabbed_groups* (list) *moving_groups* (list)
-	*picker_mbox* :nil *picker_mode* :nil *running* :t
-	rate (/ 1000000 60) +layer_all (+ +layer_committed +layer_staging)
-	*redraw_mask* +layer_all
-	*last_commit_time* 0 *group_timeout* 2000000 *stroke_start_time* 0)
+(defq *zoom* 1.0 *style* :grid *snap* :nil *snap_angle* :nil *arc* :line
+	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
+	*committed* :nil *overlay* :nil rate (/ 1000000 60))
 
-(defun flatten_path ((mode col rad pnts))
-	;flatten_path path to polygon
-	(list col (cond
-		((< (length pnts) 2)
-			;a runt so nothing
-			'())
-		((= 2 (length pnts))
-			;just a point
-			(list (path-gen-arc (first pnts) (second pnts) 0.0 +fp_2pi rad (path))))
-		(:t ;is a polyline draw
-			(bind '(x y x1 y1 &rest _) pnts)
-			(cond
-				((= mode +event_arrow1)
-					;flatten to arrow1
-					(path-stroke-polylines (list) rad +join_bevel +cap_butt +cap_arrow (list pnts)))
-				((= mode +event_arrow2)
-					;flatten to arrow2
-					(path-stroke-polylines (list) rad +join_bevel +cap_arrow +cap_arrow (list pnts)))
-				((= mode +event_box)
-					;flatten to box
-					(path-stroke-polygons (list) rad +join_miter (list (path x y x1 y x1 y1 x y1))))
-				((= mode +event_circle)
-					;flatten to circle
-					(path-stroke-polygons (list) rad +join_bevel
-						(list (path-gen-arc x y 0.0 +fp_2pi (vector-length (vector-sub (path x y) (path x1 y1))) (path)))))
-				((= mode +event_fbox)
-					;flatten to filled box
-					(list (path x y x1 y x1 y1 x y1)))
-				((= mode +event_fcircle)
-					;flatten to filled circle
-					(list (path-gen-arc x y 0.0 +fp_2pi (vector-length (vector-sub (path x y) (path x1 y1))) (path))))
-				(:t ;flatten to pen stroke
-					(path-stroke-polylines (list) rad +join_bevel +cap_round +cap_round (list pnts))))))))
+(defun toolbar-states (toolbar states)
+	;a button that is on is the brighter
+	(defq radio_col (canvas-brighter (get :color toolbar)))
+	(each (# (undef (. %0 :dirty) :color)
+			(if %1 (def %0 :color radio_col)))
+		(. toolbar :children) states))
 
-(defun snapshot ()
-	;take a snapshot of the canvas state
-	(push *undo_stack* (cat *committed_groups*))
-	(clear *redo_stack*))
+(defun canvas-size ()
+	; (canvas-size) -> (width height)
+	;the size of the board on the screen, the document's by the zoom
+	(defq doc (. *board* :get_doc))
+	(list (max 1 (n2i (* (n2f (. doc :find :width)) *zoom*)))
+		(max 1 (n2i (* (n2f (. doc :find :height)) *zoom*)))))
 
-(defun redraw-layers (mask)
-	;flag layer/s for redraw
-	(setq *redraw_mask* (logior *redraw_mask* mask)))
+(defun field-size ()
+	; (field-size) -> (width height)
+	;what the size field says, width x height, or the size the board is
+	(defq doc (. *board* :get_doc)
+		nums (filter (# (> %0 0)) (map (# (ifn (str-to-num %0) 0))
+			(split (. *size_field* :get_text) (const (char-class " xX,*"))))))
+	(if (= (length nums) 2)
+		(list (min 16384 (n2i (first nums))) (min 16384 (n2i (second nums))))
+		(list (. doc :find :width) (. doc :find :height))))
 
-(defun create-group (strokes flags)
-	(bind '(& & (gmin gmax)) (first strokes))
-	(defq gmin (cat gmin) gmax (cat gmax))
-	(each! (lambda ((& & (min_v max_v)))
-			(vector-min min_v gmin gmin)
-			(vector-max max_v gmax gmax))
-		(list strokes) 1)
-	(list (list gmin gmax) strokes flags))
+(defun view-matrix ()
+	; (view-matrix) -> :nil | matrix
+	;from the document to the canvas
+	(if (= *zoom* 1.0) :nil (cwb-mat-scale *zoom*)))
 
-(defun commit-group (group front)
-	;commit a group to the canvas
-	(if front
-		(push *committed_groups* group)
-		(setq *committed_groups* (insert *committed_groups* 0 (list group)))))
+(defun view-middle ()
+	; (view-middle) -> (x y)
+	;the point of the document that is in the middle of what shows
+	(bind '(sw sh) (. *image_scroll* :get_size))
+	(bind '(cw ch) (canvas-size))
+	;a scroll that has not been laid out yet shows all of it
+	(if (<= sw 0) (setq sw cw))
+	(if (<= sh 0) (setq sh ch))
+	(defq hv (ifn (get :value (get :hslider *image_scroll*)) 0)
+		vv (ifn (get :value (get :vslider *image_scroll*)) 0))
+	(list (/ (n2f (+ hv (/ (min sw cw) 2))) *zoom*) (/ (n2f (+ vv (/ (min sh ch) 2))) *zoom*)))
 
-(defun commit (p front)
-	;commit a stroke to the canvas
-	(bind '(col poly) (flatten_path p))
-	(when (nempty? poly)
-		(defq stroke (list col poly (vector-bounds-2d poly)))
-		(if (and (< (- *stroke_start_time* *last_commit_time*) *group_timeout*) (nempty? *committed_groups*))
-			(defq target_idx (if front (dec (length *committed_groups*)) 0)
-				group (elem-get *committed_groups* target_idx)
-				; Use cat to create a new list so we don't mutate the version in the undo stack!
-				new_strokes (cat (second group) (list stroke))
-				; preserve existing flags (e.g. selected) when adding stroke to existing group
-				_ (elem-set *committed_groups* target_idx (create-group new_strokes (elem-get group 2))))
-			(commit-group (create-group (list stroke) 0) front))
-		(setq *last_commit_time* (pii-time))))
+(defun board-resized ()
+	;the board is another size on the screen, the document's or the zoom
+	;has changed. Two new canvases of that size take the place of the two
+	;there were, and everything is drawn again
+	(bind '(w h) (canvas-size))
+	(if *committed* (. *committed* :sub))
+	(if *overlay* (. *overlay* :sub))
+	(setq *committed* (Canvas w h 1) *overlay* (Canvas w h 1))
+	(. *committed* :set_canvas_flags +canvas_flag_antialias)
+	(. *overlay* :set_canvas_flags +canvas_flag_antialias)
+	(def *committed* :color 0)
+	(def *overlay* :color 0)
+	(.-> *backdrop* (:add_child *committed*) (:add_child *overlay*))
+	(def *board* :zoom *zoom*)
+	(def *board_view* :zoom *zoom*)
+	(defq doc (. *board* :get_doc))
+	(. *size_field* :set_text (cat (str (. doc :find :width)) "x" (str (. doc :find :height))))
+	(. *board_stack* :change 0 0 w h)
+	(.-> *image_scroll* :layout :dirty_all)
+	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
-(defun fpoly (canvas col mode _)
-	;draw a polygon on a canvas
-	(. canvas :set_color col)
-	(. canvas :fpoly 0.0 0.0 mode _))
+(defun step-zoom (step)
+	;to the next zoom up or down, what is in the middle of the view stays there
+	(defq at (ifn (find *zoom* +zooms) (find 1.0 +zooms))
+		zoom (elem-get +zooms (max 0 (min (dec (length +zooms)) (+ at step)))))
+	(unless (= zoom *zoom*)
+		(bind '(mx my) (view-middle))
+		(setq *zoom* zoom)
+		(board-resized)
+		(bind '(sw sh) (. *image_scroll* :get_size))
+		(def (get :hslider *image_scroll*) :value (max 0 (- (n2i (* mx *zoom*)) (/ sw 2))))
+		(def (get :vslider *image_scroll*) :value (max 0 (- (n2i (* my *zoom*)) (/ sh 2))))
+		(.-> *image_scroll* :layout :dirty_all)))
 
-(defun draw-group (canvas (group_bbox strokes flags))
-	;draw a group's strokes and optional selection bounding box onto canvas
-	(each (lambda ((col poly bbox))
-		(fpoly canvas col +winding_none_zero poly)) strokes)
-	(when (bits? flags +group_selected)
-		(bind '((gminx gminy) (gmaxx gmaxy)) group_bbox)
-		(fpoly canvas +argb_cyan +winding_none_zero
-			(path-stroke-polygons (list) 1.0 +join_miter
-				(list (path gminx gminy gmaxx gminy gmaxx gmaxy gminx gmaxy))))))
+(defun draw-paper ()
+	;what is behind the document to work on, not part of it: its
+	;background, or paper if it has none, and lines by the style. The
+	;lines are where the grid is, every :grid of the document from its
+	;top left, so what snaps to the grid lands on a line
+	(defq doc (. *board* :get_doc) back (. doc :find :background)
+		gap (max 2 (n2i (* (n2f (. doc :find :grid)) *zoom*))))
+	(bind '(w h) (canvas-size))
+	(. *committed* :fill (if (= back 0) +paper_col back))
+	(. *committed* :set_color +paper_ink)
+	(case *style*
+		(:grid
+			(each (# (. *committed* :fbox %0 0 1 h)) (range gap w gap))
+			(each (# (. *committed* :fbox 0 %0 w 1)) (range gap h gap)))
+		(:lines
+			(each (# (. *committed* :fbox 0 %0 w 1)) (range gap h gap)))
+		(:axis
+			;the two lines through the middle, on the grid, and marks along them
+			(defq cx (* (/ (/ w 2) gap) gap) cy (* (/ (/ h 2) gap) gap))
+			(.-> *committed* (:fbox cx 0 1 h) (:fbox 0 cy w 1))
+			(each (# (. *committed* :fbox %0 (- cy 3) 1 7)) (range gap w gap))
+			(each (# (. *committed* :fbox (- cx 3) %0 7 1)) (range gap h gap)))))
 
 (defun redraw ()
-	;redraw layer/s
-	(when (bits? *redraw_mask* +layer_committed)
-		(. *committed_canvas* :fill 0)
-		(each (# (draw-group *committed_canvas* %0)) *committed_groups*)
-		(. *committed_canvas* :swap +swap_write))
-	(when (bits? *redraw_mask* +layer_staging)
-		(. *staging_canvas* :fill 0)
-		(each (lambda (p)
-			(bind '(col poly) (flatten_path p))
-			(fpoly *staging_canvas* col +winding_none_zero poly)) *staging_paths*)
-		(each (# (draw-group *staging_canvas* %0)) *moving_groups*)
-		(. *staging_canvas* :swap +swap_write))
-	(setq *redraw_mask* 0))
+	;draw what has changed. All of the document; or only what was put on
+	;top of it, on what is there; and what is over it
+	(defq m (view-matrix))
+	(cond
+		((. *board* :dirty? +board_dirty_doc)
+			(. *board* :dirty? +board_dirty_append)
+			(. *board* :take_appended)
+			(draw-paper)
+			(. *board* :draw *committed* m)
+			(. *committed* :swap +swap_write))
+		((. *board* :dirty? +board_dirty_append)
+			(cwb-draw-items *committed* (. *board* :take_appended) m)
+			(. *committed* :swap +swap_write)))
+	(when (. *board* :dirty? +board_dirty_overlay)
+		(. *overlay* :fill 0)
+		(. *board* :draw_overlay *overlay* m)
+		(each (# (if (Instrument? %0) (. %0 :draw *overlay* m))) (. (. *board* :get_stage) :get_actors))
+		(. *overlay* :swap +swap_write)))
+
+(defun board-save (file)
+	(setq *file* (cat (slice file 0 (if (defq i (rfind "." file)) (dec i) -1)) ".cwb"))
+	(. (. *board* :get_doc) :insert :style *style*)
+	(cwb-save (. *board* :get_doc) (file-stream *file* +file_open_write)))
+
+(defun board-load (file)
+	(when (and (ends-with ".cwb" file) (defq doc (cwb-load (file-stream file))))
+		(setq *file* file)
+		(. *board* :set_doc doc)
+		;it is worked on as it was last
+		(when (defq at (find (. doc :find :style) *styles*))
+			(setq *style* (elem-get *styles* at))
+			(. *style_toolbar* :set_selected at))
+		(board-resized)))
 
 ;import actions and bindings
 (import "./actions.inc")
@@ -137,10 +167,8 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *id* :t)
-	(. *committed_canvas* :set_canvas_flags +canvas_flag_antialias)
-	(. *staging_canvas* :set_canvas_flags +canvas_flag_antialias)
-	(action-style)
 	(def *window* :tip_mbox (elem-get select +select_tip))
+	(board-resized)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 
@@ -156,6 +184,8 @@
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem-get select +select_timer) rate 0)
+				;the words that are put down are those in the text field now
+				(def *board* :text (. *text_field* :get_text))
 				(redraw))
 			((= idx +select_picker)
 				;save/load picker response
@@ -165,31 +195,8 @@
 				(cond
 					;closed picker
 					((eql *msg* ""))
-					;save whiteboard
-					(*picker_mode*
-						(tree-save
-							(file-stream
-								(cat (slice *msg* 0 (if (defq i (rfind "." *msg*)) (dec i) -1)) ".cwb")
-								+file_open_write)
-							(scatter (Emap)
-								:version 3
-								;strip selection flags before saving
-								:groups (map (lambda (g) (list (first g) (second g) 0)) *committed_groups*))))
-					;load whiteboard
-					(:t (when (ends-with ".cwb" *msg*)
-							(bind '(version groups polygons)
-								(gather (tree-load (file-stream *msg*))
-									:version :groups :polygons))
-							(when (>= version 2)
-								(snapshot)
-								(if (= version 2)
-									(setq *committed_groups* (map (lambda ((col poly))
-											(create-group (list (list col poly (vector-bounds-2d poly))) 0))
-										(filter (lambda ((col poly)) (nempty? poly)) polygons)))
-									;normalize v3 groups: ensure flags field present (default 0, never restore selection)
-									(setq *committed_groups* (map (lambda (g)
-											(list (first g) (second g) 0)) groups)))
-								(redraw-layers +layer_committed))))))
+					(*picker_mode* (board-save *msg*))
+					(:t (board-load *msg*))))
 			;must be gui event to main mailbox
 			((. *window* :dispatch *msg*))
 			(:t ;gui event

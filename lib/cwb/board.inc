@@ -25,8 +25,10 @@
 (import "./pointer.inc")
 
 ;what has changed since it was last drawn
+;the document, all of it. What is over it. And only that items were put on
+;top of it, :appended, which can be drawn on what is there
 (bits +board_dirty 0
-	(bit doc overlay))
+	(bit doc overlay append))
 
 (defq +board_handle 5.0 +board_near 4.0 +board_turn_gap 24.0)
 
@@ -152,10 +154,19 @@
 						(unless (find id_hit (get :selected board)) (. board :select (list id_hit)))
 						(. board :snapshot)
 						(elem-set state +stroke_snap :t)
-						(elem-set state +stroke_item (. this :things)))
+						(elem-set state +stroke_item (. this :things))
+						(. board :float (get :selected board)))
 					(:t (. board :select (list)))))
 			(:eraser (. board :snapshot))
 			(:pan)
+			(:text
+				;the words the board has are put down where the pointer is,
+				;they sit on the line through it, and that is all it does
+				(elem-set state +stroke_tool :idle)
+				(when (nempty? (defq words (get :text board)))
+					(. board :commit (cwb-text words (. board :snap_x x) (. board :snap_y y)
+						:fill (. (get :bindings board) :value event :color (get :color board))
+						:font (get :font board) :font_size (get :font_size board)))))
 			(:t ;something is drawn
 				(elem-set state +stroke_x (. board :snap_x x))
 				(elem-set state +stroke_y (. board :snap_y y))
@@ -189,7 +200,7 @@
 							(- (. board :snap_y y) (. board :snap_y sy))))
 						(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul move m0))) item)
 						(if (or (/= x sx) (/= y sy)) (elem-set state +stroke_moved :t))
-						(. board :touch (+ +board_dirty_doc +board_dirty_overlay)))
+						(. board :touch +board_dirty_overlay))
 					(:t ;a box is dragged out round things
 						(def board :band (list (min sx x) (min sy y) (max sx x) (max sy y)))
 						(. board :touch +board_dirty_overlay))))
@@ -217,7 +228,12 @@
 			(:idle)
 			(:hand
 				(cond
-					(item (if (and snap (not moved)) (. board :forget)))
+					(item (if (and snap (not moved)) (. board :forget))
+						;put down, if no other hand has hold of it
+						(unless (some (# (and (not (eql %0 state)) (eql (elem-get %0 +stroke_tool) :hand)
+								(elem-get %0 +stroke_item)))
+								(map (const second) (. (get :states this) :tolist)))
+							(. board :float (list))))
 					(:t (when (defq band (get :band board))
 							(. board :select (map (# (elem-get (first %0) +cwb_id))
 								(cwb-in-box (get :doc board) band)))
@@ -287,7 +303,7 @@
 				(defq move (board-two-point-mat pa0 pb0 pa pb))
 				(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul move m0))) things)
 				(each (lambda ((id state)) (elem-set state +stroke_moved :t)) hands)
-				(. board :touch (+ +board_dirty_doc +board_dirty_overlay)))))
+				(. board :touch +board_dirty_overlay))))
 	)
 
 ;;;;;;;;;;;;;
@@ -344,6 +360,7 @@
 				((and (not state) (/= buttons 0))
 					(when (and (defq spot (. this :spot_at x y)) (= (. this :held) 0))
 						(. board :snapshot)
+						(. board :float (get :selected board))
 						(bind '(bx by bx1 by1) (. this :box))
 						;the spot, the box as it was, where the pointer went
 						;down, and each thing as it was
@@ -375,8 +392,10 @@
 							(if (= scy 0.0) (setq scy 0.001))
 							(setq m (cwb-mat-scale scx scy ax ay))))
 					(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul m m0))) things)
-					(. board :touch (+ +board_dirty_doc +board_dirty_overlay))
-					(if (= buttons 0) (. this :set_state id :nil)))))
+					(. board :touch +board_dirty_overlay)
+					(when (= buttons 0)
+						(. this :set_state id :nil)
+						(. board :float (list))))))
 			events)
 		this)
 	)
@@ -390,8 +409,10 @@
 	(def this :doc (ifn doc (cwb-doc)) :stage (Stage) :bindings (bindings-default)
 		:mode :pen :layer :nil :selected (list) :undo_stack (list) :redo_stack (list)
 		:color 0xff000000 :fill 0 :width 3.0
+		:text "" :font "fonts/OpenSans-Regular.ctf" :font_size 28
 		:snap 0.0 :snap_angle 0.0 :keep_shape :t :zoom 1.0
-		:temp (Fmap 11) :band :nil :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay))
+		:temp (Fmap 11) :band :nil :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
+		:floating (list) :appended (list))
 	(def this :surface (Surface this) :handles (Handles this))
 	(.-> (get :stage this) (:add (get :surface this)) (:add (get :handles this)))
 
@@ -420,6 +441,20 @@
 		(defq dirty (get :dirty this))
 		(def this :dirty (logand dirty (lognot flags)))
 		(/= (logand dirty flags) 0))
+
+	(defmethod :float (ids)
+		; (. board :float ids) -> board
+		;these items are being moved about. They are drawn over the
+		;document, not in it, so that only they are drawn as they move
+		(def this :floating (cat ids))
+		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
+
+	(defmethod :take_appended ()
+		; (. board :take_appended) -> items
+		;the items put on top since this was last asked
+		(defq items (get :appended this))
+		(def this :appended (list))
+		items)
 
 	(defmethod :snap_x (x) (board-snap x (get :snap this)))
 	(defmethod :snap_y (y) (board-snap y (get :snap this)))
@@ -455,7 +490,7 @@
 
 	(defmethod :put_state (state)
 		(. (get :doc this) :insert :layers state)
-		(def this :selected (list))
+		(def this :selected (list) :floating (list) :appended (list))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 	(defmethod :undo ()
@@ -537,7 +572,11 @@
 		;put an item on the layer that is drawn on, as a step that can be undone
 		(. this :snapshot)
 		(cwb-add (get :doc this) item (. this :layer_index))
-		(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
+		;on the top layer it is on top of all there is, and can be drawn there
+		(if (= (. this :layer_index) (dec (length (cwb-layers (get :doc this)))))
+			(progn (push (get :appended this) item)
+				(. this :touch (+ +board_dirty_append +board_dirty_overlay)))
+			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		item)
 
 	(defmethod :add (item)
@@ -704,13 +743,17 @@
 	(defmethod :draw (canvas &optional m clip)
 		; (. board :draw canvas [m clip]) -> count
 		;the document, on a canvas, by the matrix it is seen by
-		(cwb-draw canvas (get :doc this) m clip))
+		(cwb-draw canvas (get :doc this) m clip (get :floating this)))
 
 	(defmethod :draw_overlay (canvas &optional m)
 		; (. board :draw_overlay canvas [m]) -> board
 		;what is over the document and not of it: what is being drawn,
 		;the box being dragged out, and the handles of what is selected
 		(defq zoom (get :zoom this) thin (/ 1.0 zoom))
+		(when (nempty? (defq floating (get :floating this)))
+			(each (lambda ((name flags items))
+				(cwb-draw-items canvas (filter (# (find (elem-get %0 +cwb_id) floating)) items) m))
+				(cwb-layers (get :doc this))))
 		(. (get :temp this) :each (lambda (id shape) (cwb-draw-items canvas (list shape) m)))
 		(when (defq band (get :band this))
 			(bind '(x y x1 y1) band)

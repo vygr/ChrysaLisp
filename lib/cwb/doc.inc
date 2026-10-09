@@ -572,13 +572,17 @@
 					(:fpoly 0.0 0.0 +winding_none_zero (cwb-mat-paths m strokes)))))))
 	count)
 
-(defun cwb-draw (canvas doc &optional m clip)
-	; (cwb-draw canvas doc [m clip]) -> count
-	;draw every layer that is not hidden, the first at the back
+(defun cwb-draw (canvas doc &optional m clip skip)
+	; (cwb-draw canvas doc [m clip skip]) -> count
+	;draw every layer that is not hidden, the first at the back. skip is
+	;ids, of items of the layers, that are not drawn, those being moved
+	;about, which are drawn over the rest
 	(defq count 0)
 	(each (lambda ((name flags items))
 		(unless (bits? flags 1)
-			(setq count (+ count (cwb-draw-items canvas items m clip)))))
+			(setq count (+ count (cwb-draw-items canvas
+				(if (and skip (nempty? skip)) (filter (# (not (find (elem-get %0 +cwb_id) skip))) items) items)
+				m clip)))))
 		(cwb-layers doc))
 	count)
 
