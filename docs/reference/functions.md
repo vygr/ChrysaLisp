@@ -161,6 +161,12 @@ are of a line, or a part of one that begins at the char start.
 (array? form) -> :t | :nil
 ```
 
+### array??
+
+```code
+(array?? form) -> :t | :nil
+```
+
 ### ascii-lower
 
 ```code
@@ -1501,10 +1507,22 @@ lines are not, and need no more than a look for a break that must be.
 (fixed? form) -> :t | :nil
 ```
 
+### fixed??
+
+```code
+(fixed?? form) -> :t | :nil
+```
+
 ### fixeds?
 
 ```code
 (fixeds? form) -> :t | :nil
+```
+
+### fixeds??
+
+```code
+(fixeds?? form) -> :t | :nil
 ```
 
 ### flatten
@@ -2441,10 +2459,22 @@ spread over them, and not for ever
 (num? form) -> :t | :nil
 ```
 
+### num??
+
+```code
+(num?? form) -> :t | :nil
+```
+
 ### nums?
 
 ```code
 (nums? form) -> :t | :nil
+```
+
+### nums??
+
+```code
+(nums?? form) -> :t | :nil
 ```
 
 ### obj-args
@@ -3938,6 +3968,12 @@ handles scientific notation like 1.5e-3 or 9.97231e-09
 
 ```code
 (str? form) -> :t | :nil
+```
+
+### str??
+
+```code
+(str?? form) -> :t | :nil
 ```
 
 ### stream-diff

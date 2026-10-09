@@ -237,11 +237,16 @@ in the chain, a number, and `0` is true, only `:nil` is false.
 ```
 
 A predicate with two, `list??`, asks if it is that class itself, the last
-of the chain, and no other.
+of the chain, and no other. There is one for each class that others are
+built on, `array??`, `list??`, `num??`, `fixed??`, `nums??`, `fixeds??`
+and `str??`.
 
 ```lisp
 (list?? (list))       ; -> :t
 (list?? (Fmap))       ; -> :nil
+(str? 'name)          ; -> 1, a symbol is a str
+(str?? 'name)         ; -> :nil
+(num?? 1.5)           ; -> :nil, it is a fixed
 ```
 
 So to tell a real from a fixed from a num, ask `real?` first, then

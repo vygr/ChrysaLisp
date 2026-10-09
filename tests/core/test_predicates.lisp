@@ -127,3 +127,27 @@
 (assert-eq "env-pop nested parent" :nil (penv e1))
 (undef e1 'pushed_env)
 (undef (env) 'old_env 'e1 'e2 'e3 'inner_ok 'nest_ok)
+
+; --- A predicate with two ?, the class itself and not what is built on it ---
+(defq pq_things (list 3 1.5 (n2r 1.5) "a" 'a (list) (array) (nums 1) (fixeds 1.0) (reals (n2r 1)) (path) (env 1)))
+(defun pq-which (pred) (map (# (if (pred %0) :t :nil)) pq_things))
+(assert-list-eq "num?? is a num that is not a fixed or a real"
+	'(:t :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num??)))
+(assert-list-eq "fixed?? is a fixed that is not a real"
+	'(:nil :t :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const fixed??)))
+(assert-list-eq "str?? is a str that is not a symbol"
+	'(:nil :nil :nil :t :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const str??)))
+(assert-list-eq "list?? is a list that is not a map"
+	'(:nil :nil :nil :nil :nil :t :nil :nil :nil :nil :nil :nil) (pq-which (const list??)))
+(assert-list-eq "array?? is an array that is not a list or a vector of numbers"
+	'(:nil :nil :nil :nil :nil :nil :t :nil :nil :nil :nil :nil) (pq-which (const array??)))
+(assert-list-eq "nums?? is a nums that is not a fixeds, a reals or a path"
+	'(:nil :nil :nil :nil :nil :nil :nil :t :nil :nil :nil :nil) (pq-which (const nums??)))
+(assert-list-eq "fixeds?? is a fixeds that is not a reals or a path"
+	'(:nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil :nil) (pq-which (const fixeds??)))
+(assert-list-eq "where one ? is true of all that are built on the class, a num here"
+	'(:t :t :t :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num?)))
+(assert-list-eq "an array here, all seven kinds of one"
+	'(:nil :nil :nil :nil :nil :t :t :t :t :t :t :t) (pq-which (const array?)))
+(assert-eq "a symbol is a str" 1 (str? 'a))
+(assert-eq ":nil is a symbol, so not a str itself" :nil (str?? :nil))

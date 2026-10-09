@@ -526,9 +526,14 @@ Type inspection and structural verification predicates.
 
 	*	`(quasi-quote? form) -> :t | :nil`
 
-*	**`array?` / `list?` / `list??`**: Type hierarchy tests for collections.
+*	**`array?` / `list?` / `array??` / `list??`**: Type hierarchy tests for
+	collections. One `?` is true of the class and of every class built on
+	it, a list is an array, a map is a list. Two is true of that class
+	itself and no other.
 
 	*	`(array? form) -> :t | :nil`
+
+	*	`(array?? form) -> :t | :nil`
 
 	*	`(list? form) -> :t | :nil`
 
@@ -540,23 +545,37 @@ Type inspection and structural verification predicates.
 
 	*	`(pmap? form) -> :t | :nil`
 
-*	**`num?` / `fixed?` / `real?`**: Numerical scalar type checks.
+*	**`num?` / `fixed?` / `real?` / `num??` / `fixed??`**: Numerical scalar
+	type checks. A real is a fixed, and a fixed is a num, `num??` is a num
+	that is neither, `fixed??` a fixed that is not a real.
 
 	*	`(num? form) -> :t | :nil`
 
+	*	`(num?? form) -> :t | :nil`
+
 	*	`(fixed? form) -> :t | :nil`
+
+	*	`(fixed?? form) -> :t | :nil`
 
 	*	`(real? form) -> :t | :nil`
 
-*	**`nums?` / `fixeds?` / `reals?`**: Numeric vector type checks.
+*	**`nums?` / `fixeds?` / `reals?` / `nums??` / `fixeds??`**: Numeric
+	vector type checks, and for one that is that class itself.
 
 	*	`(nums? form) -> :t | :nil`
 
+	*	`(nums?? form) -> :t | :nil`
+
 	*	`(fixeds? form) -> :t | :nil`
+
+	*	`(fixeds?? form) -> :t | :nil`
 
 	*	`(reals? form) -> :t | :nil`
 
-*	**`func?` / `str?` / `sym?` / `env?` / `seq?`**: Core object type checks.
+*	**`func?` / `str?` / `str??` / `sym?` / `env?` / `seq?`**: Core object type
+	checks. A symbol is a str, `str??` is a str that is not one.
+
+	*	`(str?? form) -> :t | :nil`
 
 	*	`(func? form) -> :t | :nil`
 

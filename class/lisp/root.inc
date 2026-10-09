@@ -609,6 +609,10 @@
 	; (array? form) -> :t | :nil
 	(find :array (type-of %0)))
 
+(defun array?? (%0)
+	; (array?? form) -> :t | :nil
+	(eql :array (pop (type-of %0))))
+
 (defun list? (%0)
 	; (list? form) -> :t | :nil
 	(rfind :list (type-of %0)))
@@ -629,9 +633,17 @@
 	; (num? form) -> :t | :nil
 	(find :num (type-of %0)))
 
+(defun num?? (%0)
+	; (num?? form) -> :t | :nil
+	(eql :num (pop (type-of %0))))
+
 (defun fixed? (%0)
 	; (fixed? form) -> :t | :nil
 	(find :fixed (type-of %0)))
+
+(defun fixed?? (%0)
+	; (fixed?? form) -> :t | :nil
+	(eql :fixed (pop (type-of %0))))
 
 (defun real? (%0)
 	; (real? form) -> :t | :nil
@@ -641,9 +653,17 @@
 	; (nums? form) -> :t | :nil
 	(find :nums (type-of %0)))
 
+(defun nums?? (%0)
+	; (nums?? form) -> :t | :nil
+	(eql :nums (pop (type-of %0))))
+
 (defun fixeds? (%0)
 	; (fixeds? form) -> :t | :nil
 	(find :fixeds (type-of %0)))
+
+(defun fixeds?? (%0)
+	; (fixeds?? form) -> :t | :nil
+	(eql :fixeds (pop (type-of %0))))
 
 (defun reals? (%0)
 	; (reals? form) -> :t | :nil
@@ -656,6 +676,10 @@
 (defun str? (%0)
 	; (str? form) -> :t | :nil
 	(find :str (type-of %0)))
+
+(defun str?? (%0)
+	; (str?? form) -> :t | :nil
+	(eql :str (pop (type-of %0))))
 
 (defun sym? (%0)
 	; (sym? form) -> :t | :nil
