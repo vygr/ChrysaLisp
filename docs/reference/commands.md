@@ -851,6 +851,21 @@ Usage: stats [options]
 
     Some simple object statistics.
 ```
+## symbols
+```code
+Usage: symbols [options]
+
+    options:
+        -h --help: this help info.
+        -l --list: list the symbols, each with its code.
+
+    Make the symbol fonts, fonts/Symbols*.ctf, one for each theme, and
+    the names of the symbols, lib/consts/symbols.inc, from the symbols
+    of lib/font/symbol_set.inc.
+
+    A theme is the same symbols with another weight of stroke, and other
+    ends and corners. Run it after a symbol is changed or added.
+```
 ## sync
 ```code
 Usage: sync [options]

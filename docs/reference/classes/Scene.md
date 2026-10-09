@@ -52,3 +52,13 @@ a pixel shader, with a depth buffer. Without it their vertices are,
 as dots
 ```
 
+### :set_shaders
+
+```code
+(. scene :set_shaders files) -> scene
+
+the files of the vertex and the pixel shader every object of the
+scene is drawn with, that has not two of its own. :nil is the
+scene's usual two
+```
+

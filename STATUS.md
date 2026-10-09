@@ -4,6 +4,53 @@
 
 ------
 
+The system makes its own symbol font.
+
+*	The font went in on the 9th made by a script of Claude's outside the
+	repo. It is now made here. `lib/font/symbols.inc` is a kit to draw a
+	symbol with, lines, loops, arcs, rings, arrows, on a grid of 24.
+	`lib/font/symbol_set.inc` is the symbols, each a name and a few lines
+	of that. The `symbols` command writes the fonts and
+	`lib/consts/symbols.inc`. Four fonts of 112 symbols in well under a
+	second. `docs/ai_digest/symbol_font.md`.
+
+*	It is done with the stroker the Canvas draws lines with. A stroke's
+	outline is asked for, `(path-stroke-polyline)`, and the outlines of a
+	symbol's strokes are its glyph. The script traced the edge of all the
+	strokes together, a field of distances and marching squares, 2.5
+	seconds of Python. That was to be rid of where strokes overlap, which
+	cut holes.
+
+*	They do not need to be rid of. The font class now fills a glyph by the
+	non zero rule, as a TrueType outline is meant to be, where it used
+	the odd even one. What overlaps is filled once. Every glyph of every
+	font in `fonts/`, 723 of them, was drawn both ways and is the same
+	picture, so nothing else is changed by it.
+
+*	The fonts are the same bytes made on the M4, the x86_64 Mac, the Pi
+	and the emulator. `tests/system/test_symbols.lisp`, 27, and five of
+	them are that the four fonts and the names file in the repo are what
+	the symbols make now, so the two can not drift.
+
+*	Themes, the same symbols with another stroke: `Symbols.ctf`,
+	`Symbols-Light.ctf`, `Symbols-Bold.ctf`, and `Symbols-Sharp.ctf` with
+	square ends and mitred corners. The 10 pixel symbols, the arrows of a
+	spinner, are drawn with the bold one. Nothing chooses between them
+	yet.
+
+*	Redrawn: `select_form`, whose brackets read as a 0, `dial`, `comment`.
+	New: `route`, `pcb` and `gerber`, for the PCB app, which had `reset`,
+	`image` and `layers`.
+
+*	Two things found. `(path-filter tol src dst)` writes past the end of
+	a `dst` that is smaller than `src`, it does not make room, and takes
+	the node down, it is only safe onto itself. `(path-simplify)` into a
+	new path gave half of each round shape. Neither is mended, the font
+	uses the filter onto itself. And a command whose file has an error as
+	it loads hangs the terminal, as one that is not there used to.
+
+------
+
 The Molecule demo's atoms are polished.
 
 *	Chris: "ditch the white colourised idea and just generate the 8

@@ -523,7 +523,10 @@
 		(call :canvas :create {w, h, 2} {sym_canvas})
 		(assign {+argb_white, 1} {sym_canvas->+canvas_color, sym_canvas->+canvas_flags})
 		(call :font :get_metrics {this} {_, h, _, _})
-		(call :canvas :fpoly {sym_canvas, 0, h << (+fp_shift + 1), +winding_odd_even, paths})
+		;by the non zero rule, as a TrueType outline is meant to be. Where
+		;two parts of a glyph overlap they are filled, they do not cut a
+		;hole, which is what lets a symbol be the outlines of its strokes
+		(call :canvas :fpoly {sym_canvas, 0, h << (+fp_shift + 1), +winding_none_zero, paths})
 
 		;take texture from canvas
 		(call :canvas :swap {sym_canvas, +pixmap_mode_glyph})

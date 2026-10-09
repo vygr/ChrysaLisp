@@ -2973,6 +2973,150 @@ a rule is kept as (weights low one fill pairs clauses), all worked out
 here, the once, so that applying a rule is only a matter of looking
 ```
 
+### s-arc
+
+```code
+(s-arc cx cy r a0 a1 [steps]) -> items
+
+part of a circle, a stroke, from one angle to another in degrees,
+anticlockwise as they grow
+```
+
+### s-arc-arrow
+
+```code
+(s-arc-arrow cx cy r a0 a1 [h]) -> items
+
+an arc with a head on its end
+```
+
+### s-arrow
+
+```code
+(s-arrow x y x1 y1 [h]) -> items
+
+a line with a head on its far end
+```
+
+### s-box
+
+```code
+(s-box x y x1 y1) -> items
+
+a rectangle, filled, its corners as round as a stroke's
+```
+
+### s-corners
+
+```code
+(s-corners [a b l]) -> items
+
+the four corners of a frame
+```
+
+### s-deg
+
+```code
+an angle in degrees as the system has angles
+```
+
+### s-disc
+
+```code
+(s-disc cx cy r) -> items
+
+a circle, filled
+```
+
+### s-fill
+
+```code
+(s-fill x y x y ...) -> items
+
+a shape, filled, its corners a little round
+```
+
+### s-flip
+
+```code
+(s-flip items) -> items
+
+top for bottom
+```
+
+### s-head
+
+```code
+(s-head x y dx dy [h]) -> items
+
+the head of an arrow, at x y, for a line that comes in along dx dy
+```
+
+### s-line
+
+```code
+(s-line x y x y ...) -> items
+
+a stroke from point to point
+```
+
+### s-loop
+
+```code
+(s-loop x y x y ...) -> items
+
+a stroke that comes back to where it began
+```
+
+### s-map
+
+```code
+(s-map items fx fy [fr]) -> items
+
+every point of a thing moved, x by fx and y by fy, and a radius by fr
+```
+
+### s-mirror
+
+```code
+(s-mirror items) -> items
+
+left for right
+```
+
+### s-ring
+
+```code
+(s-ring cx cy r) -> items
+
+a circle, its line
+```
+
+### s-rrect
+
+```code
+(s-rrect x y x1 y1 [r]) -> items
+
+a rectangle with round corners, its line
+```
+
+### s-small
+
+```code
+(s-small items [s]) -> items
+
+a thing made smaller, kept to the top left, its strokes as thick as
+ever. It leaves room for a badge
+```
+
+### s-turn
+
+```code
+(s-turn items) -> items
+
+across for down, a thing that lies along is made to stand
+```
+
 ### scan-line
 
 ```code
@@ -3921,13 +4065,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args
@@ -4258,6 +4402,45 @@ the VP source of the native function that places vertices
 
 ```code
 (swap list idx idx) -> list
+```
+
+### sym-code-hex
+
+```code
+a code as four hex digits, the high byte first
+```
+
+### sym-font
+
+```code
+(sym-font symbols radius joint cap) -> str
+
+the whole of a .ctf, of symbols each (name items), in the order they
+are given, from +sf_base
+```
+
+### sym-glyph
+
+```code
+(sym-glyph code paths) -> str
+
+a glyph of a .ctf, docs/ai_digest/ctf_command.md. Its left edge is at
+0, and its advance is how wide its ink is
+```
+
+### sym-names-text
+
+```code
+lib/consts/symbols.inc, the name of each symbol and its code
+```
+
+### sym-paths
+
+```code
+(sym-paths items radius joint cap) -> paths
+
+the outlines of a thing, at the size they are worked in. radius is
+half the weight of a stroke, on the grid
 ```
 
 ### sym?
