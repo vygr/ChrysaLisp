@@ -4,6 +4,43 @@
 
 ------
 
+Shapes are edited as shapes. Chris: "shape editing not polygon editing,
+control points for selected shape/group", and of the grid, "not sure the
+current way works very well".
+
+*	One thing selected has its handles in its own frame, its own box
+	by its own matrix. A box turned an eighth of a turn has them at
+	its own corners, is sized along its own sides, and is still a box
+	after. Before, they were on the box round it, level with the
+	board, and sizing a turned thing sheared it.
+
+*	A line or an arrow has a point at each end and no box. An end is
+	dragged to where it is to be, and the path is written again as a
+	line. With angles that snap it is held to 15 degrees from its
+	other end.
+
+*	Moved with snap on, the top left of the box round what is moved
+	goes to the grid. Before, the pointer did, and a thing that was
+	off the grid stayed as far off it.
+
+*	`cwb -o` draws the handles of what is selected, so they can be
+	looked at. I did: a turned box with its nine, a line with its two.
+
+`test_cwb.lisp`, 14 more. Every test, 5,459, on the M4, the x64 and the
+Pi.
+
+The Whiteboard's own loop was run on a desktop node, which the tests can
+not reach: started there by its node id, 3,000 shapes put on its board
+with the nodes made to draw, zoomed in, out and in by events to its
+mailbox, closed by one, and asked what it had. It said: the canvas
+shared, a frame of 3,137 shapes drawn by the nodes, none failed, zoom 2.
+The same started plain and closed, the memory of the node went up by its
+canvases and came back.
+
+Not seen: any of it by eye on a screen, only that it ran.
+
+------
+
 A palette that opens on the board. Chris: "Animating interactive pellets
 and menu's, mostly keep the surface c;ear for the user to weork
 unhindered", and "both left/right/middle buttons for each inputs source".

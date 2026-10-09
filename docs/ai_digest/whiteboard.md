@@ -153,8 +153,25 @@ Two hands on what is selected move it, turn it and size it, by where the two
 were when the second took hold and where they are; when one lets go the other
 carries on.
 
-The `Handles` are in front of it: eight squares and a ring round what is
-selected, in select mode. A point is on them only where one of those is.
+The `Handles` are in front of it, in select mode, and a point is on them
+only where one is. They are how a shape is edited as the shape it is:
+
+* One thing selected has eight squares and a ring in its own frame, the box
+of what it is with its own matrix, `(. handles :frame)`. A box that has been
+turned has them at its own corners and is sized along its own sides: the
+pointer is taken into the frame, the size is changed there, and it is put
+back, so it stays a box and is never sheared. A group is one thing.
+
+* Several things have them on the box round them all.
+
+* A line, an arrow, has neither. It has a point at each end,
+`(. handles :ends)`, and an end is dragged to where it is to be: its path is
+written again, `M x y L x y`, in its own space. With angles that snap the
+line is held to the nearest 15 degrees from its other end.
+
+A thing that is moved with snap on has the top left of the box round it go
+to the grid, not the pointer, so that what is moved lines up with the grid
+and with what else is on it.
 
 Everything a hand can do is a method, for a script: `:select`, `:select_all`,
 `:transform`, `:style`, `:group`, `:ungroup`, `:order`, `:align`, `:duplicate`,
@@ -332,7 +349,9 @@ cwb -n 640x420 a.cwb -s make.lisp -i -o a.tga -b 0xffffffff
 `-e` and `-s` run Lisp with `doc` and `board`. `-p` plays a file of pointer
 events, a line a moment, `id kind buttons x y` with `;` between those that
 are at once. `-i` lists what is in it, each item with its id, what it is and
-the box round it. `-o` draws it, a `.tga` or a `.cpm`. `-k` saves nothing.
+the box round it. `-o` draws it, a `.tga` or a `.cpm`, with what is on the
+board over it: the handles of what is selected, a ruler, a palette. `-k`
+saves nothing.
 
 The app's sample, `apps/media/whiteboard/data/test.cwb`, was made that way.
 

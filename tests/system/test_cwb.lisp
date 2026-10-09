@@ -375,11 +375,76 @@
 	(progn (bind '(nx ny nx1 ny1) (wb-box))
 		(and (wb-near? (- nx1 nx) (- y1 y) 0.2) (wb-near? (- ny1 ny) (- x1 x) 0.2))))
 (def wb_board :snap_angle (/ +fp_pi 12.0))
-(bind '(x y x1 y1) (wb-box))
-(defq wb_cx (* 0.5 (+ x x1)) wb_cy (* 0.5 (+ y y1)) wb_top (- y +board_turn_gap) wb_before (cwb-get (first (. wb_board :selected_items)) :m))
-(wb-drag 0 :mouse 1 (list (list wb_cx wb_top) (list (+ wb_cx 2.0) wb_top)))
+(defq wb_before (cwb-get (first (. wb_board :selected_items)) :m))
+;turned, the handle it is turned by is out from what was its top, which now faces the side
+(defq wb_tx (second (last (. wb_handles :spots))) wb_ty (third (last (. wb_handles :spots))))
+(assert-true "the handle it is turned by has gone round with it, to its side"
+	(progn (bind '(x y x1 y1) (wb-box))
+		(and (> wb_tx x1) (wb-near? wb_ty (* 0.5 (+ y y1)) 0.2))))
+(wb-drag 0 :mouse 1 (list (list wb_tx wb_ty) (list wb_tx (+ wb_ty 2.0))))
 (assert-true "with angles that snap, a small turn is no turn" (wb-near? (map (const identity) (cwb-get (first (. wb_board :selected_items)) :m)) (map (const identity) wb_before) 0.001))
 (def wb_board :snap_angle 0.0)
+
+;one thing has its handles in its own frame. A box turned an eighth of a turn
+(defq wb_doc2 (. wb_board :get_doc) wb_turned (. wb_board :add (cwb-shape (cwb-d-rect 0 0 100 40) :fill 0xff00ff00 :stroke 0
+	:m (cwb-mat-mul (cwb-mat-move 400 400) (cwb-mat-turn (/ +fp_pi 4.0))))))
+(. wb_board :select (list wb_turned))
+(defq wb_spots (. wb_handles :spots) wb_r (/ 100.0 (sqrt 2.0)))
+(assert-true "turned, its handles are at its own corners, not those of the box round it"
+	(and (wb-near? (slice (first wb_spots) 1 3) '(400 400) 0.05)
+		(wb-near? (slice (third wb_spots) 1 3) (list (+ 400.0 wb_r) (+ 400.0 wb_r)) 0.05)))
+(assert-true "and the frame drawn round it is its own four corners"
+	(wb-near? (slice (. wb_handles :corners) 0 4) (list 400 400 (+ 400.0 wb_r) (+ 400.0 wb_r)) 0.05))
+;pulled by the middle of its far end, along itself, to twice as long
+(defq wb_ex (second (elem-get wb_spots 4)) wb_ey (third (elem-get wb_spots 4)))
+(wb-drag 0 :mouse 1 (list (list wb_ex wb_ey) (list (+ wb_ex wb_r) (+ wb_ey wb_r))))
+(defq wb_m (cwb-get (first (. wb_board :selected_items)) :m))
+(defq wb_a (elem-get wb_m 0) wb_b (elem-get wb_m 1) wb_c (elem-get wb_m 3) wb_d (elem-get wb_m 4))
+(assert-true "pulled by the middle of an end it is twice as long along itself"
+	(wb-near? (sqrt (+ (* wb_a wb_a) (* wb_c wb_c))) 2.0 0.01))
+(assert-true "no wider" (wb-near? (sqrt (+ (* wb_b wb_b) (* wb_d wb_d))) 1.0 0.01))
+(assert-true "and still a box: its two sides are still square to each other"
+	(wb-near? (+ (* wb_a wb_b) (* wb_c wb_d)) 0.0 0.01))
+(assert-true "the end across from the one pulled has stayed where it was"
+	(wb-near? (slice (first (. wb_handles :spots)) 1 3) '(400 400) 0.05))
+(. wb_board :undo) (. wb_board :undo)
+
+;a line has an end to drag at each end, and nothing else
+(def wb_board :mode :line)
+(wb-drag 0 :mouse 1 '((500 100) (600 100)))
+(def wb_board :mode :select)
+(defq wb_line (last (cwb-items (. wb_board :get_doc))))
+(. wb_board :select (list (elem-get wb_line +cwb_id)))
+(assert-list-eq "a line that is selected has two handles, one at each end" '((:end 500 100 0) (:end 600 100 1))
+	(map (lambda ((kind x y which &ignore)) (list kind (n2i x) (n2i y) which)) (. wb_handles :spots)))
+(wb-drag 0 :mouse 1 '((600 100) (620 150) (640 180)))
+(assert-eq "one end dragged, the line goes from where it did to where that end now is" "M 500 100 L 640 180" (cwb-get wb_line :d))
+(wb-drag 0 :mouse 1 '((500 100) (520 60)))
+(assert-eq "and the other" "M 520 60 L 640 180" (cwb-get wb_line :d))
+(def wb_board :snap_angle (/ +fp_pi 12.0))
+(wb-drag 0 :mouse 1 '((640 180) (700 64)))
+(assert-true "with angles that snap it is level when it is pulled to nearly level, and as long as it was pulled"
+	(progn (defq wb_parts (map (const str-to-num) (filter (# (not (find %0 '("M" "L")))) (split (cwb-get wb_line :d) " "))))
+		(and (wb-near? (elem-get wb_parts 3) 60.0 0.05) (wb-near? (elem-get wb_parts 2) (+ 520.0 (sqrt (+ (* 180.0 180.0) 16.0))) 0.05))))
+(def wb_board :snap_angle 0.0)
+(. wb_board :transform (cwb-mat-move 0 100))
+(wb-drag 0 :mouse 1 (list (slice (second (. wb_handles :spots)) 1 3) '(700 300)))
+(assert-true "a line that has been moved has its end go to where the pointer is, not that far in its own space"
+	(wb-near? (slice (second (. wb_handles :spots)) 1 3) '(700 300) 0.05))
+(. wb_board :undo) (. wb_board :undo) (. wb_board :undo) (. wb_board :undo) (. wb_board :undo) (. wb_board :undo)
+
+;moved with a grid, the corner of the box round it goes to the grid
+(def wb_board :mode :select :snap 16.0)
+(defq wb_snapped (. wb_board :add (cwb-shape (cwb-d-rect 403 203 443 233) :fill 0xff0000ff :stroke 0)))
+(. wb_board :select (list wb_snapped))
+(wb-drag 0 :mouse 1 '((420 220) (440 229)))
+(assert-list-eq "moved with a grid of 16, the top left of what is moved is on the grid" '(416 208)
+	(map (const n2i) (slice (wb-box) 0 2)))
+(wb-drag 0 :mouse 1 '((430 220) (433 222)))
+(assert-list-eq "moved a little more it stays there" '(416 208) (map (const n2i) (slice (wb-box) 0 2)))
+(def wb_board :snap 0.0 :mode :line)
+(. wb_board :undo) (. wb_board :undo) (. wb_board :undo)
+(. wb_board :select (list))
 
 ;a grid that points snap to
 (def wb_board :mode :line :snap 16.0)

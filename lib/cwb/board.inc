@@ -98,7 +98,7 @@
 
 ;what is kept for a pointer that is down on the surface, a list
 (enums +stroke 0
-	(enum tool x y points item moved last_x last_y snap))
+	(enum tool x y points item moved last_x last_y snap box))
 
 (defclass Surface (board) (Actor)
 	; (Surface board) -> surface
@@ -134,7 +134,7 @@
 		;do everything
 		(if (eql tool :pen) (setq tool (. (get :bindings board) :value event :mode (get :mode board))))
 		(if (eql tool :select) (setq tool :hand))
-		(defq state (list tool x y (list x y) :nil :nil x y :nil)
+		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil)
 			holding (. this :holding))
 		(case tool
 			(:hand
@@ -160,6 +160,9 @@
 						(. board :snapshot)
 						(elem-set state +stroke_snap :t)
 						(elem-set state +stroke_item (. this :things))
+						;the box round it as it is picked up, a corner of which
+						;is what goes to the grid
+						(elem-set state +stroke_box (cwb-bounds (. board :selected_items)))
 						(. board :float (get :selected board)))
 					(:t ;on nothing. With nothing selected, and nothing put
 						;away by it, it may be a tap, see (:end)
@@ -204,9 +207,14 @@
 			(:idle)
 			(:hand
 				(cond
-					(item ;what is selected goes with it
-						(defq move (cwb-mat-move (- (. board :snap_x x) (. board :snap_x sx))
-							(- (. board :snap_y y) (. board :snap_y sy))))
+					(item ;what is selected goes with it. With snap, the top
+						;left of the box round it goes to the grid, not the
+						;pointer, so things line up with it and each other
+						(defq mx (- x sx) my (- y sy) box (elem-get state +stroke_box))
+						(when box
+							(setq mx (- (. board :snap_x (+ (first box) mx)) (first box))
+								my (- (. board :snap_y (+ (second box) my)) (second box))))
+						(defq move (cwb-mat-move mx my))
 						(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul move m0))) item)
 						(if (or (/= x sx) (/= y sy)) (elem-set state +stroke_moved :t))
 						(. board :touch +board_dirty_overlay))
@@ -232,7 +240,7 @@
 		;a pointer has come up
 		(raise :board)
 		(bind '(id kind buttons x y &ignore) event)
-		(bind '(tool sx sy points item moved lx ly snap) state)
+		(bind '(tool sx sy points item moved lx ly snap &ignore) state)
 		(case tool
 			(:idle)
 			(:hand
@@ -327,10 +335,16 @@
 
 (defclass Handles (board) (Actor)
 	; (Handles board) -> handles
-	;the box round what is selected, with a square at each corner and the
-	;middle of each side to size it by, and a round one above it to turn
-	;it by. It is in front of the surface, and a point is on it only where
-	;one of those is
+	;what is selected is sized and turned by these, in select mode. They
+	;are in front of the surface, and a point is on them only where one is.
+	;
+	;One thing selected has them in its own frame: the box of what it is,
+	;moved, turned and sized as it is. So a box that has been turned has its
+	;handles at its own corners, and is sized along its own sides, and
+	;stays a box. Several things have the box round them all.
+	;
+	;A line has none of that. It has a point at each end, and each is
+	;dragged to where that end is to be.
 	(def this :board board)
 
 	(defmethod :box ()
@@ -341,18 +355,65 @@
 		(and (eql (get :mode board) :select) (nempty? (get :selected board))
 			(cwb-bounds (. board :selected_items))))
 
+	(defmethod :frame ()
+		; (. handles :frame) -> :nil | (matrix box)
+		;the box the handles are on, and the matrix that puts it where it
+		;is. Of one thing, its own box and its own matrix. Of several, the
+		;box round them and no change
+		(raise :board)
+		(when (and (eql (get :mode board) :select) (nempty? (defq items (. board :selected_items))))
+			(cond
+				((= (length items) 1)
+					(defq item (first items)
+						box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
+					(if box (list (ifn (elem-get item +cwb_m) (cwb-mat)) box)))
+				((defq box (cwb-bounds items)) (list (cwb-mat) box)))))
+
+	(defmethod :ends ()
+		; (. handles :ends) -> :nil | (item (x y x1 y1))
+		;if what is selected is one line, it, and its two ends in its own space
+		(raise :board)
+		(when (and (eql (get :mode board) :select) (= (length (defq items (. board :selected_items))) 1)
+				(cwb-shape? (defq item (first items)))
+				(find (elem-get item +cwb_kind) '(:line :arrow :arrow2)))
+			(defq parts (split (elem-get item +cwb_d) " "))
+			(if (and (= (length parts) 6) (eql (first parts) "M") (eql (elem-get parts 3) "L"))
+				(list item (map (# (n2f (str-to-num (elem-get parts %0)))) '(1 2 4 5))))))
+
+	(defmethod :corners ()
+		; (. handles :corners) -> :nil | (x y x y x y x y)
+		;the four corners of the frame, where they are on the board
+		(when (defq frame (. this :frame))
+			(bind '(m (x y x1 y1)) frame)
+			(cat (cwb-mat-point m x y) (cwb-mat-point m x1 y) (cwb-mat-point m x1 y1) (cwb-mat-point m x y1))))
+
 	(defmethod :spots ()
 		; (. handles :spots) -> ((kind x y fx fy) ...)
-		;where each handle is. kind is :size or :turn, fx and fy say which
-		;way a size handle pulls, -1 0 or 1 each way
+		;where each handle is on the board. kind is :size, :turn or :end.
+		;fx and fy say which way a size handle pulls, -1 0 or 1 each way,
+		;in the frame. fx of an end is which, 0 or 1
 		(raise :board)
-		(when (defq box (. this :box))
-			(bind '(x y x1 y1) box)
-			(defq mx (* 0.5 (+ x x1)) my (* 0.5 (+ y y1)))
-			(list (list :size x y -1 -1) (list :size mx y 0 -1) (list :size x1 y 1 -1)
-				(list :size x my -1 0) (list :size x1 my 1 0)
-				(list :size x y1 -1 1) (list :size mx y1 0 1) (list :size x1 y1 1 1)
-				(list :turn mx (- y (/ +board_turn_gap (get :zoom board))) 0 0))))
+		(cond
+			((defq ends (. this :ends))
+				(bind '(item (x y x1 y1)) ends)
+				(defq m (elem-get item +cwb_m))
+				(list (cat (list :end) (cwb-mat-point m x y) (list 0 0))
+					(cat (list :end) (cwb-mat-point m x1 y1) (list 1 0))))
+			((defq frame (. this :frame))
+				(bind '(m (x y x1 y1)) frame)
+				(defq mx (* 0.5 (+ x x1)) my (* 0.5 (+ y y1))
+					spots (map (lambda ((lx ly fx fy)) (cat (list :size) (cwb-mat-point m lx ly) (list fx fy)))
+						(list (list x y -1 -1) (list mx y 0 -1) (list x1 y 1 -1)
+							(list x my -1 0) (list x1 my 1 0)
+							(list x y1 -1 1) (list mx y1 0 1) (list x1 y1 1 1))))
+				;the one to turn it by is out from the middle of its top side,
+				;the way that side faces
+				(bind '(tx ty) (cwb-mat-point m mx y))
+				(bind '(cx cy) (cwb-mat-point m mx my))
+				(defq ux (- tx cx) uy (- ty cy) len (sqrt (+ (* ux ux) (* uy uy)))
+					gap (/ +board_turn_gap (get :zoom board)))
+				(if (= len 0.0) (setq ux 0.0 uy -1.0 len 1.0))
+				(push spots (list :turn (+ tx (/ (* ux gap) len)) (+ ty (/ (* uy gap) len)) 0 0)))))
 
 	(defmethod :spot_at (x y)
 		; (. handles :spot_at x y) -> :nil | spot
@@ -376,37 +437,54 @@
 					(when (and (defq spot (. this :spot_at x y)) (= (. this :held) 0))
 						(. board :snapshot)
 						(. board :float (get :selected board))
-						(bind '(bx by bx1 by1) (. this :box))
-						;the spot, the box as it was, where the pointer went
-						;down, and each thing as it was
-						(. this :set_state id (list spot (list bx by bx1 by1) x y
+						;the spot, the frame and the ends as they were, where
+						;the pointer went down, and each thing as it was
+						(. this :set_state id (list spot (. this :frame) (. this :ends) x y
 							(map (# (list %0 (elem-get %0 +cwb_m))) (. board :selected_items))))))
 				(state
-					(bind '((skind sx sy fx fy) (bx by bx1 by1) dx dy things) state)
-					(defq cx (* 0.5 (+ bx bx1)) cy (* 0.5 (+ by by1)) m :nil)
-					(cond
-						((eql skind :turn)
-							(defq angle (- (path-angle (- x cx) (- y cy)) (path-angle (- dx cx) (- dy cy)))
-								step (get :snap_angle board))
+					(bind '((skind sx sy fx fy) frame ends dx dy things) state)
+					(defq px (. board :snap_x x) py (. board :snap_y y) step (get :snap_angle board))
+					(case skind
+						(:end ;that end of the line goes to the pointer, the other stays
+							(bind '(item (lx ly lx1 ly1)) ends)
+							(defq m0 (second (first things)))
+							(when (/= step 0.0)
+								;the line is at an angle that is a step, as long as it is pulled
+								(bind '(ox oy) (if (= fx 0) (cwb-mat-point m0 lx1 ly1) (cwb-mat-point m0 lx ly)))
+								(defq vx (- px ox) vy (- py oy) len (sqrt (+ (* vx vx) (* vy vy)))
+									angle (board-snap (path-angle vx vy) step))
+								(setq px (+ ox (* len (cos angle))) py (+ oy (* len (sin angle)))))
+							(bind '(qx qy) (cwb-mat-point (cwb-mat-invert m0) px py))
+							(cwb-set item :d (if (= fx 0) (cwb-d-line qx qy lx1 ly1) (cwb-d-line lx ly qx qy))))
+						(:turn ;about the middle of the frame
+							(bind '(fm (bx by bx1 by1)) frame)
+							(bind '(cx cy) (cwb-mat-point fm (* 0.5 (+ bx bx1)) (* 0.5 (+ by by1))))
+							(defq angle (- (path-angle (- x cx) (- y cy)) (path-angle (- dx cx) (- dy cy))))
 							(while (> angle +fp_pi) (setq angle (- angle +fp_2pi)))
 							(while (<= angle (neg +fp_pi)) (setq angle (+ angle +fp_2pi)))
 							(if (/= step 0.0) (setq angle (board-snap angle step)))
-							(setq m (cwb-mat-turn angle cx cy)))
-						(:t ;the side or corner across from the handle stays where it is
+							(defq m (cwb-mat-turn angle cx cy))
+							(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul m m0))) things))
+						(:t ;sized in the frame: the pointer is taken into it, and the
+							;side or corner across from the handle stays where it is
+							(bind '(fm (bx by bx1 by1)) frame)
+							(defq inv (cwb-mat-invert fm) cx (* 0.5 (+ bx bx1)) cy (* 0.5 (+ by by1)))
+							(bind '(qx qy) (cwb-mat-point inv px py))
 							(defq ax (cond ((< fx 0) bx1) ((> fx 0) bx) (:t cx))
 								ay (cond ((< fy 0) by1) ((> fy 0) by) (:t cy))
-								w0 (- sx ax) h0 (- sy ay)
-								px (. board :snap_x x) py (. board :snap_y y)
-								scx (if (or (= fx 0) (= w0 0.0)) 1.0 (/ (- px ax) w0))
-								scy (if (or (= fy 0) (= h0 0.0)) 1.0 (/ (- py ay) h0)))
+								w0 (- (cond ((< fx 0) bx) ((> fx 0) bx1) (:t cx)) ax)
+								h0 (- (cond ((< fy 0) by) ((> fy 0) by1) (:t cy)) ay)
+								scx (if (or (= fx 0) (= w0 0.0)) 1.0 (/ (- qx ax) w0))
+								scy (if (or (= fy 0) (= h0 0.0)) 1.0 (/ (- qy ay) h0)))
 							;a corner keeps the shape of the box unless the board says not
 							(if (and (/= fx 0) (/= fy 0) (get :keep_shape board))
 								(setq scx (if (> (abs scx) (abs scy)) scx (* (abs scy) (if (< scx 0.0) -1.0 1.0)))
 									scy (* (abs scx) (if (< scy 0.0) -1.0 1.0))))
 							(if (= scx 0.0) (setq scx 0.001))
 							(if (= scy 0.0) (setq scy 0.001))
-							(setq m (cwb-mat-scale scx scy ax ay))))
-					(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul m m0))) things)
+							;in the frame, so out of it, sized, and back into it
+							(defq m (cwb-mat-mul fm (cwb-mat-mul (cwb-mat-scale scx scy ax ay) inv)))
+							(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul m m0))) things)))
 					(. board :touch +board_dirty_overlay)
 					(when (= buttons 0)
 						(. this :set_state id :nil)
@@ -833,14 +911,22 @@
 			(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)
 				:stroke 0xff0080ff :width thin :fill 0x200080ff :join :miter)) m))
 		(when (nempty? (defq items (. this :selected_items)))
-			(when (defq box (cwb-bounds items))
-				(bind '(x y x1 y1) box)
-				(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)
-					:stroke 0xff0080ff :width thin :join :miter)) m))
-			(when (defq spots (. (get :handles this) :spots))
+			(defq handles (get :handles this))
+			(cond
+				;a line has only its two ends
+				((. handles :ends))
+				;the frame the handles are on, which may be turned
+				((defq corners (. handles :corners))
+					(cwb-draw-items canvas (list (cwb-shape (cwb-d-points corners :t)
+						:stroke 0xff0080ff :width thin :join :miter)) m))
+				((defq box (cwb-bounds items))
+					(bind '(x y x1 y1) box)
+					(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)
+						:stroke 0xff0080ff :width thin :join :miter)) m)))
+			(when (defq spots (. handles :spots))
 				(defq r (/ +board_handle zoom))
 				(cwb-draw-items canvas (map (lambda ((kind sx sy &ignore))
-					(cwb-shape (if (eql kind :turn) (cwb-d-ellipse sx sy r)
+					(cwb-shape (if (find kind '(:turn :end)) (cwb-d-ellipse sx sy r)
 							(cwb-d-rect (- sx r) (- sy r) (+ sx r) (+ sy r)))
 						:fill 0xffffffff :stroke 0xff0080ff :width thin :join :miter)) spots) m)))
 		this)

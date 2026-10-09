@@ -78,6 +78,11 @@ moves only that side. The side or corner across from it stays where it is.
 
 * Drag the ring above it to turn it.
 
+One thing that has been turned keeps its box turned with it, the squares are
+at its own corners and it is sized along its own sides. A line or an arrow
+has no box: it has a ring at each end, and each is dragged to where that end
+is to go.
+
 The third row acts on what is selected: group and ungroup, delete, duplicate,
 bring to the front, send to the back, and six ways to line things up. The
 colours and the thicknesses set the colour and thickness of what is selected
@@ -89,9 +94,10 @@ The first row has the paper, plain, a grid, lines, or two axes. It is there to
 work on and is not part of what is saved as the picture.
 
 The two buttons after it are snap. With the first on, a point that is drawn or
-dragged goes to the nearest point of the grid, and the lines of the paper are
-where the grid is. With the second on, a thing that is turned goes to the
-nearest 15 degrees.
+dragged goes to the nearest point of the grid, a thing that is moved has its
+top left corner go there, and the lines of the paper are where the grid is.
+With the second on, a thing that is turned goes to the nearest 15 degrees,
+and so does a line pulled by an end.
 
 Then zoom in and zoom out, and the size of the board, as `1024x768`. Type
 another size and press return and the board is that size, what is on it stays

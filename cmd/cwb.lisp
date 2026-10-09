@@ -150,9 +150,12 @@
 					(.-> canvas (:set_canvas_flags +canvas_flag_antialias)
 						(:fill (ifn opt_b (. doc :find :background))))
 					(. board :draw canvas m)
-					;what is on the board and not of the document, a ruler, a
-					;palette, is drawn too, as it is at the time it now is
+					;what is on the board and not of the document is drawn too: the
+					;handles of what is selected, a ruler, a palette, as it is at
+					;the time it now is
 					(. board :tick (max clock (get :time board)))
+					(def board :zoom zoom)
+					(. board :draw_overlay canvas m)
 					(. board :draw_actors canvas m)
 					(if (canvas-save canvas opt_o 32)
 						(print opt_o " " w "x" h)
