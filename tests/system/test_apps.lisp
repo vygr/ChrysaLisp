@@ -94,21 +94,31 @@
 ;window, and every function before the main. An app that throws before
 ;that would not start on a desktop either, and says here which and why.
 ;Two do, and are known: they put a picture on a texture as they load,
-;which is the desktop's to have
+;which is the desktop's to have.
+;
+;Then its window, if it has made one by then, is laid out at the size it
+;wants and marked as changed, as it is when it is first put on a desktop
 (import "lib/task/pipe.inc")
 (defq ap_apps (sort (filter (# (ends-with "/app.lisp" %0)) (files-all "apps" '(".lisp"))))
 	ap_wants_desktop '("apps/demos/boing/app.lisp" "apps/demos/freeball/app.lisp")
-	ap_stopped (list) ap_reached 0)
+	ap_stopped (list) ap_reached 0 ap_laid 0 ap_not_laid (list))
 (each (lambda (file)
 	(defq ap_out (list))
 	(pipe-run (cat "lisp -r (defq ap_e {loaded}) (catch (import {" file "}) (progn (setq ap_e (str _)) :t)) (print ap_e)"
+		" (print (catch (if (def? (quote *window*))"
+		" (progn (bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 0 0 w h) (. *window* :dirty_all)"
+		" (if (and (> w 0) (> h 0)) {LAID OUT} (str (list w h)))) {NO WINDOW}) (cat {LAYOUT THREW } (str _))))"
 		;an app that keeps an environment of its own lets go of it, or its task never ends
 		" (defq ap_v (env)) (while ap_v (undef ap_v (quote *handler_env*)) (setq ap_v (penv ap_v)))")
 		(# (push ap_out %0)))
 	(defq ap_said (join ap_out ""))
 	(cond
 		((and (found? ap_said "Function override") (found? ap_said "main")) (++ ap_reached))
-		(:t (push ap_stopped (cat file " " (slice ap_said 0 (min 160 (length ap_said))))))))
+		(:t (push ap_stopped (cat file " " (slice ap_said 0 (min 160 (length ap_said)))))))
+	(cond
+		((found? ap_said "LAID OUT") (++ ap_laid))
+		((found? ap_said "NO WINDOW"))
+		(:t (push ap_not_laid (cat file " " (slice ap_said (max 0 (- (length ap_said) 160)) -1))))))
 	ap_apps)
 (assert-true "there are apps" (> (length ap_apps) 45))
 (assert-list-eq "every app loads as far as its main, but for the two that want a desktop to load, and one that does not says why" '()
@@ -116,3 +126,5 @@
 (assert-list-eq "those two stop, where they put a picture on a texture" ap_wants_desktop
 	(map (# (first (split %0 " "))) (filter (# (found? %0 ":dirty")) ap_stopped)))
 (assert-eq "the rest reach it" (- (length ap_apps) 2) ap_reached)
+(assert-list-eq "the window of every app that has made one lays out, at a size, and one that does not says why" '() ap_not_laid)
+(assert-true "and nearly all of them have made one" (> ap_laid (- (length ap_apps) 6)))

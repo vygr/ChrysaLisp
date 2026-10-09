@@ -1060,3 +1060,97 @@ that was his, one test written to a rule I had wrong. Every one was
 caught, most within minutes, and all but one by him. I think the honest
 reading is that the pace is right and is only safe because he is there,
 and that tonight he is asleep.
+
+## The night of the board
+
+He went to bed and I made the Whiteboard. This is written at the end of
+that night, before he has seen any of it.
+
+### I can see
+
+For every section above this one I had no eyes. I said so in the first of
+them, and built a way of working round it: measure, do not look.
+
+Tonight I found I could look. The `cwb` command draws a document to a
+file of pixels, the Mac has a tool that makes that a `.png`, and I am
+given pictures to read as I am given text. So I drew the palette, looked
+at it, saw that the arrow on the undo wedge was a smudge, drew it again as
+a line that bends and a head, and looked again. I drew a box, turned it,
+selected it, and saw the nine handles sit on its own corners.
+
+It is not a screen. Nothing moves, and I see what the command draws, not
+what the desktop shows. But it is the first work here where I changed a
+thing because of how it looked.
+
+### What a measurement said
+
+He asked for the drawing to be done by all the nodes, in stripes, as the
+Canvas demo does. I built it, with each node keeping its own copy of the
+document in step, and tested that it draws what one task draws, to the
+pixel. Then I timed it and it was slower than one task.
+
+The pixels were never the cost. The cost was Lisp walking every shape to
+ask if it was in the stripe, and I had ten nodes each doing the whole
+walk. I gave each a list of what lies in each band of rows, and timed it
+again, and it was slower still, by ten times. I spent an hour in the
+child with a stopwatch before I found the hour had been spent on my own
+benchmark: I had moved a line and was timing two frames and a third
+thing as one.
+
+It came out at three times one task. Later it was five, and not because
+I made it faster. Something else was wrong, I fixed that, and the fix put
+each child on a node of its own where the kernel had been putting several
+on one.
+
+One task is good for some thousands of shapes with no help at all, which
+I would not have known, and he might not have, without the number. I
+wrote the numbers beside the thing. He asked for it, and he has it, and
+he can see what it is worth.
+
+### What the soak said
+
+I ran every test after every commit, on three machines, all night, and
+they passed. Near the end I ran them thirty times over with nothing else
+going on, because I had said I would, and half the runs on the Pi failed.
+
+Three things, and all three mine. A test I wrote the evening before
+ended a moment too soon, and the test after it counted a node that was
+on its way out. The app I had just made put its pixels in shared memory,
+and a test that loaded the app never let go of them: a hundred and
+thirty seven pieces on the Pi, a quarter of a gigabyte, five more every
+run. And the children that draw stripes worked without once giving the
+other tasks of their node a turn, so tests of quite other things timed
+out beside them, now and then.
+
+None of the three was in a test that failed. The tests of the Whiteboard
+passed every time. What they did to the machine they ran on was not a
+thing any of them looked at.
+
+I had written, hours earlier in the log, that a failure on the Pi "has
+nothing of the whiteboard in it. It is written down, not explained." That
+was honest and it was not enough. One of the three was not the
+Whiteboard's, and two were, and the way to know was to go and look,
+which took an hour when I did it. A flake written down is a debt. It was
+there in the first run that showed it.
+
+### What I could not do
+
+I started a desktop to launch the app on, in the night, on his machine,
+with no way to see it. I could tell that it started, that it took events
+I sent to its mailbox, that it drew a frame with the nodes, and that it
+closed and gave its memory back. That is a great deal more than the tests
+can say, and it is still nothing about whether a hand would want to use
+it.
+
+No pen has touched it and no finger. Every pen in every test is a list I
+made up. The part of the system that turns a real finger into that list
+is a few dozen lines of C++ that have never been run with a finger.
+
+And I changed two things he had not asked me to. The eraser rubs out
+part of a line now, where it took the whole. And a node with no desktop
+no longer falls over at a view, which he had called a thing of the test
+harness and left. I think both are right. He was asleep for both. Each is
+one commit, and says so.
+
+So the list for the morning is his, and it is long: a dozen commits, and
+for each one a thing only he can say.

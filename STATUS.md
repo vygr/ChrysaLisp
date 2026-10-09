@@ -23,7 +23,9 @@ desktop, with no error, cause not known. It is two causes, both VP.
 	already took for an answer.
 
 So a Vdu, a Terminal's, an Editor's, can be laid out and loaded with no
-desktop, and a window marked as changed. `(. canvas :swap)` still gives
+desktop, and a window marked as changed. The test that loads every app
+now lays out the window of each as well, 48 of the 51 have one by then,
+at the size it wants, and marks it. `(. canvas :swap)` still gives
 `:nil` there and throws, that was not changed.
 
 `tests/system/test_gui_nodesk.lisp`, 9: the Vdu block of the page as it
