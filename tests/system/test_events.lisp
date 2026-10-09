@@ -37,3 +37,19 @@
 (. ev_window :event ev_event)
 (assert-true "a window passed the event has the theme's symbols"
 	(eql (get :font (penv ev_title)) (create-font (theme-file "Sharp") (second (font-info (get :font (penv ev_title)))))))
+
+;the Todo app has three columns, each with two buttons of its own. It finds
+;which column a flow is with (find), and while two views that held the same
+;were the same, every flow was the first, and erase in the last column was
+;delete in the first
+(defq ev_said (test-output (cat
+	"(catch (import {apps/desktop/todo/app_impl.lisp}) :t)"
+	" (print (map (lambda (flow) (create-item flow {x})"
+	" (map (# (first (get :targets %0))) (filter (# (Button? %0)) (. (first (. flow :children)) :flatten))))"
+	" (list *todo_flow* *done_flow* *deleted_flow*))"
+	" { } (list +event_todo_done +event_todo_del +event_done_redo +event_done_del +event_del_redo +event_del_del))")))
+(assert-eq "Todo's three columns each have their own two buttons" "((16 17) (18 19) (20 21)) (16 17 18 19 20 21)\n" ev_said)
+(defq ev_a (Flow) ev_b (Flow))
+(assert-eq "two views that hold the same are two" :nil (eql ev_a ev_b))
+(assert-eq "and one is found in a list of them" 1 (find ev_b (list ev_a ev_b)))
+

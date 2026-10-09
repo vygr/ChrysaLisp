@@ -5,6 +5,10 @@
 (def-class :hmap :list
 	(dec-method :vtable class/hmap/vtable)
 	(dec-method :type class/hmap/type :override)
+	;a map is itself and no other, whatever the two hold. A list is the
+	;same as another by what is in it, and this is not a list to those
+	;who use it
+	(dec-method :eql class/obj/eql :final)
 	(dec-method :deinit class/hmap/deinit :override)
 	(dec-method :create class/hmap/create :static (:r0) (:r0))
 	(dec-method :init class/hmap/init :static (:r0 :r1 :r2))

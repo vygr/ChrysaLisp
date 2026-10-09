@@ -8,7 +8,7 @@
 	(dec-method :init class/array/init)
 	(dec-method :deinit class/array/deinit :override)
 	(dec-method :print class/array/print :override)
-	(dec-method :eql class/array/eql :final)
+	(dec-method :eql class/array/eql :override)
 	(dec-method :ref_elem class/array/ref_elem :override)
 	(dec-method :slice class/array/slice :override)
 	(dec-method :cat class/array/cat :override)

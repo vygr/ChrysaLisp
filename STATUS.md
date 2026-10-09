@@ -4,6 +4,59 @@
 
 ------
 
+A map, a set and a view are each equal to themselves and no other.
+
+*	Chris, on a desktop: "on the todo app, delete actin on the item in
+	the delet form, does not delete the item." Driven without a
+	desktop, the erase button of the deleted column had the id of the
+	delete of the todo column, and so did every column's. The app finds
+	which column a flow is with `(find flow (list ...))`, and it was 0
+	for all three: `(eql)` of two different Flows was `:t`.
+
+*	Since `34914b02a` of 3 August, ":hmap :hset now inherit from :list",
+	a map had the equality of an array, `:array :eql`, which was
+	`:final`: the same class, the same length, the very same elements.
+	Two views with the same properties, two empty environments, were
+	equal. Before that a map was equal to itself alone. So the Todo app
+	has been wrong since August, it was not the events work of today.
+
+*	Put to Chris as the class or the app: "1. yes, good catch". `:array
+	:eql` is `:override`, and `:hmap`, `:hset` and `:pset` have
+	`class/obj/eql`, as `:sym` has over `:str`. A list and an array are
+	as they were.
+
+*	`tests/core/test_predicates.lisp`, 10 more, and
+	`tests/system/test_events.lisp`, 3 more, Todo's three columns as
+	the app makes them. One of the new ones was wrong as first
+	written: two lists are equal when they hold the very same things,
+	not things that are alike, `(eql (list "a") (list "a"))` is `:nil`
+	and was before. The test says so now.
+
+Two faults from Martyn Blyss's port of the host to bare metal in Rust,
+both real.
+
+*	"ChrysaLisp sometimes flushes a stream whose buffer was already
+	reset, so it calls write with a negative length." A flush leaves a
+	file stream's `bufp` at 0. The next flush, with nothing written
+	between, took the buffer's address from 0 for the length, and as it
+	was not 0 called the host. `class/fstream/class.vp` writes when the
+	length is above 0. A test in `tests/streams/test_seek.lisp`, which
+	our hosts would have passed before, they refuse such a write.
+
+*	"ChrysaLisp doesn't check for a failed shared-memory mapping, which
+	crashed the kernel." The link task, `sys/link/class.vp`, read from
+	what the host gave it whatever that was. It now looks, says "Link:
+	no shared memory !", starts neither of its tasks, and takes itself
+	off the list of links.
+
+What was run. `make all boot`, `lint: clean`, the release images put
+back. Every test, 5,017, on the M4, the x64 and the Pi.
+
+Not seen: the Todo app on a desktop since. A mapping that fails, there
+is no way here to make one.
+
+------
+
 The first 16 action ids are the system's, the same in every app. Item
 41.
 

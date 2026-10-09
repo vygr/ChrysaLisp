@@ -151,3 +151,25 @@
 	'(:nil :nil :nil :nil :nil :t :t :t :t :t :t :t) (pq-which (const array?)))
 (assert-true "a symbol is a str" (str? 'a))
 (assert-eq ":nil is a symbol, so not a str itself" :nil (str?? :nil))
+
+;a list is the same as another that holds the very same things. A map, a set, and a view,
+;which is a map, is itself and no other: two that hold the same are still
+;two. They were the same as each other once maps were made a kind of list,
+;class/hmap/class.inc, and a view could not be found in a list of views
+(defq pr_e1 (env 1) pr_e2 (env 1))
+(assert-eq "an environment is itself" :t (eql pr_e1 pr_e1))
+(assert-eq "and not another that is empty too" :nil (eql pr_e1 pr_e2))
+(def pr_e1 'a 1) (def pr_e2 'a 1)
+(assert-eq "nor another that holds the same" :nil (eql pr_e1 pr_e2))
+(assert-eq "it is found in a list, where it is" 1 (find pr_e2 (list pr_e1 pr_e2)))
+(defq pr_m1 (Fmap) pr_m2 (Fmap) pr_s1 (Fset) pr_s2 (Fset) pr_x1 (Xmap) pr_x2 (Xmap) pr_l1 (Lmap) pr_l2 (Lmap))
+(assert-list-eq "two maps and two sets, of each kind, are two" '(:nil :nil :nil :nil)
+	(list (eql pr_m1 pr_m2) (eql pr_s1 pr_s2) (eql pr_x1 pr_x2) (eql pr_l1 pr_l2)))
+(assert-list-eq "and each is itself" '(:t :t :t :t)
+	(list (eql pr_m1 pr_m1) (eql pr_s1 pr_s1) (eql pr_x1 pr_x1) (eql pr_l1 pr_l1)))
+(defq pr_str "a")
+(assert-eq "two lists that hold the very same things are the same" :t (eql (list pr_str 'b) (list pr_str 'b)))
+(assert-eq "two that hold things that are only alike are not" :nil (eql (list "a") (list "a")))
+(assert-eq "and two arrays" :t (eql (array 1 2 3) (array 1 2 3)))
+(assert-eq "a list and an array of the same are not" :nil (eql (list 1 2 3) (array 1 2 3)))
+

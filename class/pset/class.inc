@@ -4,6 +4,8 @@
 (def-class :pset :list
 	(dec-method :vtable class/pset/vtable)
 	(dec-method :type class/pset/type :override)
+	;a set is itself and no other, whatever the two hold, class/hset/class.inc
+	(dec-method :eql class/obj/eql :final)
 	(dec-method :create class/pset/create)
 	(dec-method :vcreate class/pset/create :override)
 	(dec-method :pfind class/pset/find :virtual (:r0 :r1) (:r0 :r1 :r7 :r8))
