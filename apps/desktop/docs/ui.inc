@@ -3,15 +3,39 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "apps/tools/edit/ui.inc")
-(import "service/clipboard/app.inc")
+
+(defun history-note (file)
+	;a document has been gone to, by the tree, a link or a search. It is
+	;the newest of where the user has been, and what was ahead of where
+	;they had gone back to is forgotten, as a browser does. Going to the
+	;document they are on is not a move
+	(unless (and (>= *history_idx* 0) (eql (elem-get *history* *history_idx*) file))
+		(setq *history* (push (slice *history* 0 (inc *history_idx*)) file)
+			*history_idx* (dec (length *history*)))))
+
+(defun show-file (file &optional step)
+	;go to a document. With a step it is a move back or forward through
+	;where the user has been, and is not noted as a new place
+	(setq *current_file* file)
+	(if step
+		(setq *history_idx* (+ *history_idx* step))
+		(history-note file))
+	(if (starts-with "docs/" file) (. *file_selector* :select_node file))
+	(populate-page file))
+
+(defun action-back ()
+	(if (> *history_idx* 0)
+		(show-file (elem-get *history* (dec *history_idx*)) -1)))
+
+(defun action-forward ()
+	(if (< *history_idx* (dec (length *history*)))
+		(show-file (elem-get *history* (inc *history_idx*)) 1)))
 
 ;overload Edit app ui.inc
 (redefun action-file-leaf-action ()
 	;load up the file selected
-	(setq *current_file* (. *file_selector* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
-	(. *file_selector* :select_node *current_file*)
-	(populate-page *current_file*))
+	(show-file (. *file_selector* :get_route
+		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 
 (redefun action-close ()
 	(setq *running* :nil))
@@ -45,17 +69,11 @@
 
 (defun action-link ()
 	;a link of the page was pressed. One to a document that is there is
-	;gone to. One to a place on the web, a file that is not a document,
-	;or a file that is not there, is put on the clipboard, there is
-	;nothing here to show it with
+	;gone to. Only a document: a link to the web, a pdf, a picture, or to
+	;a file that is not there, does nothing
 	(when (and (defq view (. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
-			(defq target (def? :link view)))
-		(cond
-			((or (find ":" target) (starts-with "#" target))
-				(clip-put-rpc target))
-			((and (ends-with ".md" (defq file (md-link-file *current_file* target)))
-					(/= (age file) 0))
-				(setq *current_file* file)
-				(if (starts-with "docs/" file) (. *file_selector* :select_node file))
-				(populate-page file))
-			((clip-put-rpc file)))))
+			(defq target (def? :link view))
+			(not (find ":" target)) (not (starts-with "#" target))
+			(ends-with ".md" (defq file (md-link-file *current_file* target)))
+			(/= (age file) 0))
+		(show-file file)))

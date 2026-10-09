@@ -79,8 +79,7 @@
 			(setq *current_file* (elem-get
 				*last_files* (% (inc idx) (length *last_files*))))
 			(setq *current_file* (first *last_files*)))
-		(populate-page *current_file*)
-		(. *file_selector* :select_node *current_file*)
+		(show-file *current_file*)
 		(action-find-down)))
 
 (defun action-prev-doc ()
@@ -90,6 +89,5 @@
 			(setq *current_file* (elem-get
 				*last_files* (% (+ idx (length *last_files*) -1) (length *last_files*))))
 			(setq *current_file* (first *last_files*)))
-		(populate-page *current_file*)
-		(. *file_selector* :select_node *current_file*)
+		(show-file *current_file*)
 		(action-find-down)))

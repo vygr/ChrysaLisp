@@ -22,6 +22,8 @@
 	+event_find_up action-find-up
 	+event_file_leaf_action action-file-leaf-action
 	+event_link action-link
+	+event_back action-back
+	+event_forward action-forward
 	+event_zoom_in action-scale-up
 	+event_zoom_out action-scale-down)
 

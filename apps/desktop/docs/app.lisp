@@ -118,6 +118,7 @@
 	(defq select (task-mboxes +select_size) handlers (Emap) syntax (Syntax)
 		scroll_pos (Fmap) *running* :t *config* :nil *current_file* "docs/ai_digest/summary.md"
 		*regexp* :nil *whole_words* :nil *ignore_case* :nil *last_key* "" *last_files* (list)
+		*history* (list) *history_idx* -1
 		*last_widget* :nil *search_widgets* (list) *mem_stream* :nil)
 	(.-> *file_selector* (:populate "docs" '(".md")) :pref_size)
 	(def *window* :tip_mbox (elem-get select +select_tip))
@@ -125,6 +126,7 @@
 	(def *page_scroll* :min_height 800)
 	(populate-page *current_file*)
 	(. *file_selector* :select_node *current_file*)
+	(setq *history* (list *current_file*) *history_idx* 0)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(while *running*

@@ -37,9 +37,32 @@ links active".
 `tests/system/test_md.lisp`, 31 now. Every test, 5,031, on the M4, the
 x64 and the Pi.
 
-Not seen: a Link pressed, by anyone. The Docs app since, no test starts
-it; a try at loading it in a session with no desktop hung, it waits on
-the lock service.
+Chris, on a desktop: "Seams to work, BUT would like to have a breadcrubs
+back/forward button ! We allready have next/revious found, this is
+diffewrent." And of what a link to a pdf should do: "it block going
+topdf links which is good, only .md should work."
+
+*	The clipboard is taken out. A link to anything but a document that
+	is there does nothing.
+
+*	Back and forward. The Docs app keeps where the user has been,
+	`*history*`, a document gone to by the tree, a link or a search is
+	added, `(history-note)`, and what was ahead of where they had gone
+	back to is forgotten, as a browser has it. Two buttons at the left
+	of the toolbar, `+event_back` and `+event_forward`. The two that
+	were there, the document before and after of those a search found,
+	say "previous found" and "next found" now.
+
+*	Two symbols for them, `go_back` and `go_forward`, an arrow each
+	way, at the end of the set so no code moves, 114 symbols. They are
+	not prev and next, which are the one before and after in a list.
+	The four fonts and `lib/consts/symbols.inc` made again by the
+	`symbols` command.
+
+Every test again, 5,031, on the x64 and the Pi; the M4 had his desktop
+up and was left out. Not seen: the two buttons, by anyone. The tree was
+changed under his desktop for this, the fonts with it, he was told to
+start it again.
 
 ------
 
