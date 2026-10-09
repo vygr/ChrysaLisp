@@ -52,8 +52,12 @@ both real.
 What was run. `make all boot`, `lint: clean`, the release images put
 back. Every test, 5,017, on the M4, the x64 and the Pi.
 
-Not seen: the Todo app on a desktop since. A mapping that fails, there
-is no way here to make one.
+On a desktop on the M4 Chris was given a list to try: Todo's erase, a
+change of theme with apps open, the three buttons of a title bar, the
+zoom buttons of PCB and Mandelbrot, Logout's four, the host window
+resized. He said: "looks good". Which of them he tried he did not say.
+
+Not seen: a mapping that fails, there is no way here to make one.
 
 ------
 
