@@ -11,7 +11,7 @@
 ;every value a byte can have turns up in 64KB, and no one value far more
 ;than its share, which is 256. A source that was stuck, or was all text,
 ;would not pass
-(defq rb_big (random-bytes 65536) rb_counts (map (lambda (_) 0) (range 0 256)))
+(defq rb_big (random-bytes 65536) rb_counts (map (lambda (&) 0) (range 0 256)))
 (each (# (elem-set rb_counts (code %0) (inc (elem-get rb_counts (code %0))))) rb_big)
 (assert-eq "64KB of them" 65536 (length rb_big))
 (assert-eq "every value of a byte turns up" 256 (length (filter (# (> %0 0)) rb_counts)))

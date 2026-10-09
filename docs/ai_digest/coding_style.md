@@ -269,10 +269,15 @@ variables created with `defq`.
 `bind` supports the same powerful keywords as a function's lambda list,
 allowing for sophisticated pattern matching.
 
-*   **`_` (The "Ignore" Convention)** By convention, the underscore symbol is
-	used in a pattern to consume a positional value that will not be used. It
-	is a signal to the reader, but it **still performs a binding** to the `_`
-	symbol. It is best used for ignoring single, interspersed values.
+*   **`&` (Skip One)** An `&` in a pattern, or in the parameters of a
+	function, takes one positional value and binds nothing. It is the way to
+	ignore a single value, in the middle of a pattern or as the whole of it,
+	`(lambda (&) 0)`.
+
+*   **`_` (Not For Ignoring)** The underscore is a name like any other. Used
+	to consume a value that will not be used it **still performs a binding**
+	to the `_` symbol, each time, and takes a slot in the environment. Use
+	`&`.
 
 *   **`&rest <symbol>`** This keyword collects **all remaining** elements of
 	the source sequence into a single new list and binds that list to the

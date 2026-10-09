@@ -24,8 +24,8 @@
 (defq ed_same :t)
 (each (lambda ((lo hi))
 	(times 40
-		(defq a (apply nums (map (lambda (_) (ed-rand lo hi)) *ed_16*))
-			b (apply nums (map (lambda (_) (ed-rand lo hi)) *ed_16*)))
+		(defq a (apply nums (map (lambda (&) (ed-rand lo hi)) *ed_16*))
+			b (apply nums (map (lambda (&) (ed-rand lo hi)) *ed_16*)))
 		(unless (eql (str (ed-mul (ed-copy *ed_zero*) a b)) (str (ed-mul-ref (ed-copy *ed_zero*) a b)))
 			(setq ed_same :nil))))
 	'((0 65536) (-65536 65536) (0 2) (65535 65536) (-200000 200000) (-1 1)))

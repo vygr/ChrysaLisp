@@ -66,7 +66,7 @@
 
 (defun sha-bytes (value count)
 	;count bytes of that value
-	(apply (const cat) (map (lambda (_) (char value)) (range 0 count))))
+	(apply (const cat) (map (lambda (&) (char value)) (range 0 count))))
 
 ;the test cases of RFC 4231
 (assert-eq "case 1, a key of 20 bytes" "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"

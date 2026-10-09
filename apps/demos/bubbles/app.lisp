@@ -85,7 +85,7 @@
 	;the scene
 	(unless fresh (. jobs :restart))
 	(setq warming :t farming :nil)
-	(. jobs :add (map (lambda (_) (slice-job (bubble-count) 0 +height +height))
+	(. jobs :add (map (lambda (&) (slice-job (bubble-count) 0 +height +height))
 		(range 0 (. jobs :size)))))
 
 (defun start-farm-frame ()

@@ -624,7 +624,7 @@
 	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-varyings program))
 	(defq vary_slots (/ (- frame_size vary_at) 8)
 		*sv_maps* (list (list attr_at vary_at :r11 0) (list vary_at frame_size :r10 32)))
-	(bind '(s_n) (map (lambda (_) (sv-slots :int)) (range 0 1)))
+	(bind '(s_n) (map (lambda (&) (sv-slots :int)) (range 0 1)))
 	(bind '(& ret) (sv-program program "v"))
 	(defq lf (ascii-char 10) text (cat
 {(include "lib/asm/func.inc")
@@ -1042,7 +1042,7 @@
 			s_minx s_maxx s_y s_maxy s_x s_zi s_dptr s_work
 			f_iw0 f_iw1 f_iw2 f_z0 f_z1 f_z2 f_row0 f_row1 f_row2 f_e0 f_e1 f_e2
 			f_kx0 f_kx1 f_kx2 f_ky0 f_ky1 f_ky2)
-		(map (lambda (_) (sv-slots :int)) (range 0 43)))
+		(map (lambda (&) (sv-slots :int)) (range 0 43)))
 	(defq s_vary frame_size)
 	(times vary_slots (sv-slots :int))
 	;four vertices, where each is and its varyings, the three of the
@@ -1123,7 +1123,7 @@
 	;the frame starts with the inputs, then what the tile loop keeps
 	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) inputs)
 	(bind '(s_x0 s_x1 s_x s_y s_y1 s_mode s_height s_out s_skip s_work)
-		(map (lambda (_) (sv-slots :int)) (range 0 10)))
+		(map (lambda (&) (sv-slots :int)) (range 0 10)))
 	(bind '((frag) ret) (sv-program program "s"))
 	(defq lf (ascii-char 10) text (cat
 {(include "lib/asm/func.inc")

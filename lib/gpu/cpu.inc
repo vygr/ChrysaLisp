@@ -90,7 +90,7 @@
 (defun cpu-zero (type)
 	;what a value of the type is before it is set
 	(cond
-		((eql type :mat4) (apply (const reals) (map (lambda (_) +cpu_0) (range 0 16))))
+		((eql type :mat4) (apply (const reals) (map (lambda (&) +cpu_0) (range 0 16))))
 		((shader-dim type) (cpu-splat +cpu_0 (shader-dim type)))
 		((eql type :int) 0)
 		(+cpu_0)))
@@ -364,7 +364,7 @@
 			((eql type :float) (shader-real val))
 			((reals? val) val)
 			((apply (const reals) (map (const shader-real)
-				(if (seq? val) val (map (lambda (_) 0) (range 0 (shader-size type)))))))))
+				(if (seq? val) val (map (lambda (&) 0) (range 0 (shader-size type)))))))))
 		(cat (first program)
 			(if (eql (shader-stage program) :pixel) (shader-varyings program) (list)))))
 
@@ -428,7 +428,7 @@
 		picks (map (lambda ((name type))
 			(inc (some (# (if (eql (first %0) name) (!))) (shader-varyings vertex))))
 			(shader-varyings pixel))
-		out (str-alloc (* width height 4)) depth (map (lambda (_) +cpu_2) (range 0 (* width height)))
+		out (str-alloc (* width height 4)) depth (map (lambda (&) +cpu_2) (range 0 (* width height)))
 		fw (n2r width) fh (n2r height))
 	(each (# (set-long out %0 0)) (range 0 (length out) 8))
 	(each (lambda ((i0 i1 i2 &rest _))

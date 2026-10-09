@@ -93,8 +93,21 @@ both mean the usual thing.
 
 `(# ...)` makes a lambda of as many parameters as the highest `%n` in its
 body. One that uses only `(!)`, the index, or nothing of what it is given,
-has none, and is then called with one. Write `(lambda (_) ...)` for a
-function that ignores what it is given.
+has none, and is then called with one. Write `(lambda (&) ...)` for a
+function that ignores the one thing it is given, and `(lambda (&ignore)
+...)` for one that ignores all it is given, however many.
+
+Not `(lambda (_) ...)`. The `_` is a name like any other, it is bound each
+time the function is called, to a thing that is never looked at, and it
+has a slot in the hash of the environment to be found in. An `&` in a list
+of parameters, and in a `bind`, is a place that takes a thing and binds
+nothing.
+
+```lisp
+(map (lambda (&) 0) seq)            ; a 0 for each
+(each (lambda ((name & size)) ...)) ; the first and the third of each
+(bind '(a &ignore) seq)             ; the first, and no more is looked at
+```
 
 ### Scope is dynamic
 

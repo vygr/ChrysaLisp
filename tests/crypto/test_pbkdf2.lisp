@@ -23,7 +23,7 @@
 	"120fb6cffcf8b32c43e7225256c4f837a86548c92ccc35480805987cb70be17b4dbf3a2f3dad3377264bb7b8e8330d4efc7451418617dabef683735361cdc18c22"
 	(pk-hex (pbkdf2-sha256 "password" "salt" 1 65)))
 ;a password longer than a block is hashed first, as HMAC has it
-(defq pk_long (apply (const cat) (map (lambda (_) "0123456789") (range 0 10))))
+(defq pk_long (apply (const cat) (map (lambda (&) "0123456789") (range 0 10))))
 (assert-eq "a password longer than a block is the key its hash is"
 	(pk-hex (pbkdf2-sha256 (sha256 pk_long) "salt" 3 32)) (pk-hex (pbkdf2-sha256 pk_long "salt" 3 32)))
 ;the size asked for, and the same again

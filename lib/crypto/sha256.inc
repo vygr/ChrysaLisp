@@ -15,7 +15,7 @@
 ; (sha256-blocks state data offset count) -> state
 
 ;64 bytes of 0, for the padding
-(defq +sha256_zeros (apply (const cat) (map (lambda (_) (char 0 8)) (range 0 8))))
+(defq +sha256_zeros (apply (const cat) (map (lambda (&) (char 0 8)) (range 0 8))))
 
 ;how many blocks the native code is given at a time, 64KB, between which
 ;the other tasks of the node have a turn

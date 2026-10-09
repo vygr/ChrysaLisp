@@ -100,7 +100,7 @@
 ;a model is made the first time its opcode is drawn, and kept. There are
 ;a good many opcodes, and a child that made them all before its first
 ;slice would keep the app waiting
-(defq +opcode_count (length +vp_emit_ops) opcode_models (map (lambda (_) :nil) +vp_emit_ops))
+(defq +opcode_count (length +vp_emit_ops) opcode_models (map (lambda (&) :nil) +vp_emit_ops))
 
 (defun opcode-model (index)
 	; (opcode-model index) -> (name core outline glow col_outline col_core col_glow hw hh)

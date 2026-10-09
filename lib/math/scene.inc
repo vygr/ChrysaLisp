@@ -92,7 +92,7 @@
 	;from corner to corner and a ball of faces is round
 	(defq verts (. mesh :get_verts) norms (. mesh :get_norms)
 		tris (partition (. mesh :get_tris) +tri_size) out (list (reals))
-		sums (map (lambda (_) (reals +real_0 +real_0 +real_0))
+		sums (map (lambda (&) (reals +real_0 +real_0 +real_0))
 			(range 0 (/ (length verts) +vec4_size))))
 	(each (lambda ((i0 i1 i2 in))
 		(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))

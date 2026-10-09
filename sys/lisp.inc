@@ -68,7 +68,7 @@
 	;and run script. A node with a script is a front of its session, a way
 	;in to it, a desktop is service/gui/app.lisp.
 	(setd fronts total)
-	(defq links (map (lambda (_) (list)) (range 0 total)) names (list)
+	(defq links (map (lambda (&) (list)) (range 0 total)) names (list)
 		chars "0123456789abcdefghijklmnopqrstuvwxyz"
 		host (case kind (:gui "-gui ") (:tui "-tui ") (:t ""))
 		run (if script (cat " -run " script) ""))

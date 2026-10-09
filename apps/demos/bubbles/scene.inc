@@ -35,7 +35,7 @@
 
 (defun scene-fill (count val)
 	;an array of that many of a value
-	(apply (const fixeds) (map (lambda (_) val) (range 0 count))))
+	(apply (const fixeds) (map (lambda (&) val) (range 0 count))))
 
 (defun scene-make (seed count)
 	; (scene-make seed count) -> scene

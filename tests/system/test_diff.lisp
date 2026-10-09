@@ -31,7 +31,7 @@
 		(list "every line the same line" '("x" "x" "x" "x") '("x" "x" "y" "x" "x" "x"))
 		(list "one line each" '("a") '("b"))
 		(list "a block moved" df_base (cat (slice df_base 20 40) (slice df_base 0 20) (slice df_base 40 60)))
-		(list "every third line gone" df_base (filter (lambda (_) (/= 0 (% (!) 3))) df_base))
+		(list "every third line gone" df_base (filter (lambda (&) (/= 0 (% (!) 3))) df_base))
 		(list "a block put in" df_base (cat (slice df_base 0 30) '("new 1" "new 2" "new 3") (slice df_base 30 60)))))
 
 (assert-eq "two that are the same have no diff" "" (df-diff (df-text df_base) (df-text df_base)))

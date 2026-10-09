@@ -23,7 +23,13 @@
 (assert-eq "with another name it is looked at" :nil (tr-and-ok))
 
 (assert-error "a # with no %0 in it takes no arguments" (map (# (!)) (list 1 2 3)))
-(assert-list-eq "a lambda that ignores what it is given does" '(0 1 2) (map (lambda (_) (!)) (list 1 2 3)))
+(assert-list-eq "a lambda that ignores what it is given does" '(0 1 2) (map (lambda (&) (!)) (list 1 2 3)))
+(assert-list-eq "and one that ignores all it is given, however many" '(0 1 2)
+	(map (lambda (&ignore) (!)) (list 1 2 3) (list 4 5 6)))
+(assert-list-eq "an & takes a thing and binds nothing, the second of two here" '(4 5 6)
+	(map (lambda (& b) b) (list 1 2 3) (list 4 5 6)))
+(assert-true "where a _ is a name, and is bound in the function" (first (map (lambda (_) (def? '_ (env))) (list 7))))
+(assert-eq "and an & is not" :nil (first (map (lambda (&) (def? '& (env))) (list 7))))
 
 (defun tr-setd (&optional listen) (setd listen :t) listen)
 (assert-eq "an optional that defaults to :t can not be passed :nil" :t (tr-setd :nil))

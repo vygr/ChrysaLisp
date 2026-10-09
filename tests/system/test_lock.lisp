@@ -27,9 +27,9 @@
 
 ; --- Test save and cat command locking ---
 (import "lib/task/pipe.inc")
-(pipe-run "echo lock_test_data | save tmp_lock_test.txt" (lambda (_) :nil))
-(pipe-run "cat tmp_lock_test.txt" (lambda (_) :nil))
-(pipe-run "rm tmp_lock_test.txt" (lambda (_) :nil))
+(pipe-run "echo lock_test_data | save tmp_lock_test.txt" (lambda (&) :nil))
+(pipe-run "cat tmp_lock_test.txt" (lambda (&) :nil))
+(pipe-run "rm tmp_lock_test.txt" (lambda (&) :nil))
 
 (defq hist2 (lock-history-rpc))
 (assert-true "lock-history contains save write lock"
@@ -42,14 +42,14 @@
 	(nempty? (some (# (if (eql %0 "tmp_lock_test.txt (unlock read)") %0)) hist2)))
 
 ; --- Test cp, mv, dump, rle, lz4, rm locking ---
-(pipe-run "echo cp_data | save tmp_cp_src.txt" (lambda (_) :nil))
-(pipe-run "cp tmp_cp_src.txt tmp_cp_dst.txt" (lambda (_) :nil))
-(pipe-run "mv tmp_cp_dst.txt tmp_mv_dst.txt" (lambda (_) :nil))
-(pipe-run "dump tmp_mv_dst.txt" (lambda (_) :nil))
-(pipe-run "rle tmp_mv_dst.txt" (lambda (_) :nil))
-(pipe-run "lz4 tmp_mv_dst.txt" (lambda (_) :nil))
-(pipe-run "rm tmp_cp_src.txt" (lambda (_) :nil))
-(pipe-run "rm tmp_mv_dst.txt" (lambda (_) :nil))
+(pipe-run "echo cp_data | save tmp_cp_src.txt" (lambda (&) :nil))
+(pipe-run "cp tmp_cp_src.txt tmp_cp_dst.txt" (lambda (&) :nil))
+(pipe-run "mv tmp_cp_dst.txt tmp_mv_dst.txt" (lambda (&) :nil))
+(pipe-run "dump tmp_mv_dst.txt" (lambda (&) :nil))
+(pipe-run "rle tmp_mv_dst.txt" (lambda (&) :nil))
+(pipe-run "lz4 tmp_mv_dst.txt" (lambda (&) :nil))
+(pipe-run "rm tmp_cp_src.txt" (lambda (&) :nil))
+(pipe-run "rm tmp_mv_dst.txt" (lambda (&) :nil))
 
 (defq hist3 (lock-history-rpc))
 (assert-true "lock-history contains cp src read lock"
@@ -66,9 +66,9 @@
 	(nempty? (some (# (if (eql %0 "tmp_mv_dst.txt (lock write)") %0)) hist3)))
 
 ; --- Test edit command locking ---
-(pipe-run "echo original | save tmp_edit.txt" (lambda (_) :nil))
-(pipe-run "edit -q -c (edit-delete) tmp_edit.txt" (lambda (_) :nil))
-(pipe-run "rm tmp_edit.txt" (lambda (_) :nil))
+(pipe-run "echo original | save tmp_edit.txt" (lambda (&) :nil))
+(pipe-run "edit -q -c (edit-delete) tmp_edit.txt" (lambda (&) :nil))
+(pipe-run "rm tmp_edit.txt" (lambda (&) :nil))
 
 (defq hist4 (lock-history-rpc))
 (assert-true "lock-history contains edit read lock"
@@ -77,14 +77,14 @@
 	(nempty? (some (# (if (eql %0 "tmp_edit.txt (lock write)") %0)) hist4)))
 
 ; --- Test diff, patch, sed, huff locking ---
-(pipe-run "echo line1 | save tmp_da.txt" (lambda (_) :nil))
-(pipe-run "echo line2 | save tmp_db.txt" (lambda (_) :nil))
-(pipe-run "diff tmp_da.txt tmp_db.txt" (lambda (_) :nil))
-(pipe-run "patch tmp_da.txt tmp_db.txt" (lambda (_) :nil))
-(pipe-run "sed -e line1 -r changed tmp_da.txt" (lambda (_) :nil))
-(pipe-run "huff tmp_da.txt" (lambda (_) :nil))
-(pipe-run "rm tmp_da.txt" (lambda (_) :nil))
-(pipe-run "rm tmp_db.txt" (lambda (_) :nil))
+(pipe-run "echo line1 | save tmp_da.txt" (lambda (&) :nil))
+(pipe-run "echo line2 | save tmp_db.txt" (lambda (&) :nil))
+(pipe-run "diff tmp_da.txt tmp_db.txt" (lambda (&) :nil))
+(pipe-run "patch tmp_da.txt tmp_db.txt" (lambda (&) :nil))
+(pipe-run "sed -e line1 -r changed tmp_da.txt" (lambda (&) :nil))
+(pipe-run "huff tmp_da.txt" (lambda (&) :nil))
+(pipe-run "rm tmp_da.txt" (lambda (&) :nil))
+(pipe-run "rm tmp_db.txt" (lambda (&) :nil))
 
 (defq hist5 (lock-history-rpc))
 (assert-true "lock-history contains diff read lock"
@@ -101,27 +101,27 @@
 (assert-true "tmp_db.txt removed" (not (file-stream "tmp_db.txt")))
 
 ; --- Test trace command locking ---
-(pipe-run "trace sys/task/dump" (lambda (_) :nil))
+(pipe-run "trace sys/task/dump" (lambda (&) :nil))
 (defq hist6 (lock-history-rpc))
 (assert-true "lock-history contains trace read lock"
 	(nempty? (some (# (if (eql %0 "obj/vp/ (lock read)") %0)) hist6)))
 
 ; --- Test lib/files/ files-scan locking ---
 (import "lib/files/files.inc")
-(pipe-run "echo (import \qtest.inc\q) | save tmp_files_test.lisp" (lambda (_) :nil))
+(pipe-run "echo (import \qtest.inc\q) | save tmp_files_test.lisp" (lambda (&) :nil))
 (files-scan "tmp_files_test.lisp" (lambda (&rest _) :nil))
 (defq hist8 (lock-history-rpc))
 (assert-true "lock-history contains files-scan read lock"
 	(nempty? (some (# (if (eql %0 "tmp_files_test.lisp (lock read)") %0)) hist8)))
 (assert-true "lock-history contains files-scan read unlock"
 	(nempty? (some (# (if (eql %0 "tmp_files_test.lisp (unlock read)") %0)) hist8)))
-(pipe-run "rm tmp_files_test.lisp" (lambda (_) :nil))
+(pipe-run "rm tmp_files_test.lisp" (lambda (&) :nil))
 
 ; --- Test head and tail command locking ---
-(pipe-run "echo test_line | save tmp_head_tail.txt" (lambda (_) :nil))
-(pipe-run "head tmp_head_tail.txt" (lambda (_) :nil))
-(pipe-run "tail tmp_head_tail.txt" (lambda (_) :nil))
-(pipe-run "rm tmp_head_tail.txt" (lambda (_) :nil))
+(pipe-run "echo test_line | save tmp_head_tail.txt" (lambda (&) :nil))
+(pipe-run "head tmp_head_tail.txt" (lambda (&) :nil))
+(pipe-run "tail tmp_head_tail.txt" (lambda (&) :nil))
+(pipe-run "rm tmp_head_tail.txt" (lambda (&) :nil))
 
 (defq hist9 (lock-history-rpc))
 (assert-true "lock-history contains head read lock"
@@ -134,21 +134,21 @@
 	(nempty? (some (# (if (eql %0 "tmp_head_tail.txt (unlock read)") %0)) hist9)))
 
 ; --- Test ctf command locking ---
-(pipe-run "ctf fonts/Chess.ctf" (lambda (_) :nil))
+(pipe-run "ctf fonts/Chess.ctf" (lambda (&) :nil))
 (defq hist10 (lock-history-rpc))
 (assert-true "lock-history contains ctf read lock"
 	(nempty? (some (# (if (eql %0 "fonts/Chess.ctf (lock read)") %0)) hist10)))
 (assert-true "lock-history contains ctf read unlock"
 	(nempty? (some (# (if (eql %0 "fonts/Chess.ctf (unlock read)") %0)) hist10)))
 
-(pipe-run "cp fonts/Chess.ctf tmp_font.ctf" (lambda (_) :nil))
-(pipe-run "ctf -c tmp_font.ctf" (lambda (_) :nil))
+(pipe-run "cp fonts/Chess.ctf tmp_font.ctf" (lambda (&) :nil))
+(pipe-run "ctf -c tmp_font.ctf" (lambda (&) :nil))
 (defq hist11 (lock-history-rpc))
 (assert-true "lock-history contains ctf convert write lock"
 	(nempty? (some (# (if (eql %0 "tmp_font.ctf (lock write)") %0)) hist11)))
 (assert-true "lock-history contains ctf convert write unlock"
 	(nempty? (some (# (if (eql %0 "tmp_font.ctf (unlock write)") %0)) hist11)))
-(pipe-run "rm tmp_font.ctf" (lambda (_) :nil))
+(pipe-run "rm tmp_font.ctf" (lambda (&) :nil))
 
 ; --- Test with-lock macros ---
 (defq res_write (with-write-lock "tmp_macro_write.txt"
@@ -160,7 +160,7 @@
 	(load "tmp_macro_write.txt")))
 (assert-eq "with-read-lock returns body result" "macro_data" res_read)
 
-(pipe-run "rm tmp_macro_write.txt" (lambda (_) :nil))
+(pipe-run "rm tmp_macro_write.txt" (lambda (&) :nil))
 
 (defq hist12 (lock-history-rpc))
 (assert-true "lock-history contains macro write lock"

@@ -3,7 +3,7 @@
 (defun sh-count (shape num)
 	;how many nodes, how many links, and the most and fewest links a node has
 	(bind '(total pairs) (node-shape shape num))
-	(defq deg (map (lambda (_) 0) (range 0 total)))
+	(defq deg (map (lambda (&) 0) (range 0 total)))
 	(each (lambda ((i j))
 		(elem-set deg i (inc (elem-get deg i)))
 		(elem-set deg j (inc (elem-get deg j)))) pairs)

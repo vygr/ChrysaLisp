@@ -15,8 +15,8 @@
 ;every length about the edges of a block, with keys that have every bit
 ;set, which is where the sums are biggest
 (defq pl_text (apply (const cat) (map (# (char (logand (+ (* %0 13) 9) 0xff))) (range 0 200)))
-	pl_ones (apply (const cat) (map (lambda (_) (char 0xff)) (range 0 32)))
-	pl_ffs (apply (const cat) (map (lambda (_) (char 0xff)) (range 0 200))))
+	pl_ones (apply (const cat) (map (lambda (&) (char 0xff)) (range 0 32)))
+	pl_ffs (apply (const cat) (map (lambda (&) (char 0xff)) (range 0 200))))
 (assert-eq "0 bytes" "0103808afb0db2fd4abff6af4149f51b" (cr-hex (poly1305 pl_key (slice pl_text 0 0))))
 (assert-eq "1 bytes" "b8120c98f861df89aaa31f839008086b" (cr-hex (poly1305 pl_key (slice pl_text 0 1))))
 (assert-eq "15 bytes" "7b8d2890f95c6a79085a74bae1146381" (cr-hex (poly1305 pl_key (slice pl_text 0 15))))

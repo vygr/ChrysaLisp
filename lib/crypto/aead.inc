@@ -17,7 +17,7 @@
 (import "./chacha20.inc")
 (import "./poly1305.inc")
 
-(defq +aead_zeros (apply (const cat) (map (lambda (_) (char 0 8)) (range 0 8))))
+(defq +aead_zeros (apply (const cat) (map (lambda (&) (char 0 8)) (range 0 8))))
 
 (defun aead-tag (key nonce aad cipher)
 	;the tag of what was encrypted and what goes with it. The key of the

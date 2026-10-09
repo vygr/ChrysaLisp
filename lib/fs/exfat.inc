@@ -937,10 +937,10 @@
 				(+exfat_boot_fats 1) (+exfat_boot_drive 0x80) (+exfat_boot_percent 0xff))
 			mark (cat (char 0x55) (char 0xaa))
 			region (apply (const cat) (cat (list boot mark)
-				(map (lambda (_) (cat (exfat-zeros 510) mark)) (range 0 8))
+				(map (lambda (&) (cat (exfat-zeros 510) mark)) (range 0 8))
 				(list (exfat-zeros 1024))))
 			sum (char (exfat-sum region '(106 107 112)) 4)
-			region (cat region (apply (const cat) (map (lambda (_) sum) (range 0 128)))))
+			region (cat region (apply (const cat) (map (lambda (&) sum) (range 0 128)))))
 		;all that comes before the clusters is zero, but for these
 		(fput 0 (exfat-zeros (<< heap_offset 9)))
 		(fput 0 region)
@@ -949,7 +949,7 @@
 		;of the bitmap, of the upper case table, and of the root
 		(defq chain (list 0xfffffff8 +exfat_last))
 		(each (lambda (count)
-			(each (lambda (_) (push chain (+ (length chain) 1))) (range 1 count))
+			(each (lambda (&) (push chain (+ (length chain) 1))) (range 1 count))
 			(push chain +exfat_last)) (list bitmap_clusters upcase_clusters 1))
 		(fput fat_offset (fpad (apply (const cat) (map (# (char %0 4)) chain))
 			(logand (+ (* (length chain) 4) 511) -512)))

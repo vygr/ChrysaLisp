@@ -12,7 +12,7 @@
 (assert-eq "the long example" "8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909"
 	(s5-hex (sha512 "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")))
 (assert-eq "a million of the letter a" "e718483d0ce769644e2e42c7bc15b4638e1f98b13b2044285632a803afa973ebde0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b"
-	(s5-hex (sha512 (apply (const cat) (map (lambda (_) (const (apply (const cat) (map (lambda (_) "aaaaaaaaaa") (range 0 100))))) (range 0 1000))))))
+	(s5-hex (sha512 (apply (const cat) (map (lambda (_) (const (apply (const cat) (map (lambda (&) "aaaaaaaaaa") (range 0 100))))) (range 0 1000))))))
 
 ;every length about the edges of a block, where the padding changes. Byte i is (i*7+3)&255
 (defun s5-data (n) (apply (const cat) (cat (list "") (map (# (char (logand (+ (* %0 7) 3) 255))) (range 0 n)))))

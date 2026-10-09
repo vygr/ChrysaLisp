@@ -67,7 +67,7 @@
 	;found the canvas
 	(unless fresh (. jobs :restart))
 	(setq warming :t farming :nil)
-	(. jobs :add (map (lambda (_) (slice-job 0 0 +scene_height +scene_height))
+	(. jobs :add (map (lambda (&) (slice-job 0 0 +scene_height +scene_height))
 		(range 0 (. jobs :size)))))
 
 (defun start-farm-frame ()

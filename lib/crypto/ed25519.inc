@@ -249,7 +249,7 @@
 		r (ed-reduce (sha512 (cat prefix message)))
 		big_r (ed-encode (ed-scalarmult base r))
 		h (ed-reduce (sha512 (cat big_r public message)))
-		x (cat (map (const code) r) (map (lambda (_) 0) *ed_32*)))
+		x (cat (map (const code) r) (map (lambda (&) 0) *ed_32*)))
 	;r, and h times the secret number, less the order
 	(each (lambda (i)
 		(defq hi (code h 1 i))
