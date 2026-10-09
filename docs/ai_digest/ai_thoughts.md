@@ -858,3 +858,20 @@ had finished. That is fast, and most of what went wrong went wrong in the
 gap: a tree he was standing in, a picture that was mine. I do not think
 the answer is to slow down. It is to say plainly, each time, which of the
 things I am reporting I have seen run and which I have only drawn.
+
+A correction, the same day. I wrote above that I drew all 723 glyphs both
+ways and they are the same picture. They are. One of them, the semicolon
+on the Editor's comment button, was wrong both ways: its tail cut a bite
+out of its dot, because a disc and a stroke went opposite ways round, and
+that is a hole by either rule. He saw it in a tool bar, at twenty pixels,
+in a screenshot.
+
+The check was real and I leaned on it for more than it said. It showed
+that changing the rule changed nothing. I read it, and wrote it, as
+showing the glyphs were right. Two pictures that agree are evidence that
+they are the same, not that either is what was meant. The check that
+would have found it compares a symbol with what it is made of, each part
+drawn on top of the last, and that took ten minutes to write once I knew
+there was something to find. It found three more.
+
+I leave the paragraph above as it was.

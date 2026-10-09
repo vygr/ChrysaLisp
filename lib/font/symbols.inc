@@ -176,6 +176,23 @@
 ; making the font
 ;;;;;;;;;;;;;;;;;
 
+(defun sym-wind (paths)
+	; (sym-wind paths) -> paths
+	;the outlines of one item, all turned if they must be so that the
+	;biggest goes round the one way. A glyph is filled by the non zero
+	;rule, and two outlines that go round opposite ways cut a hole where
+	;they overlap, a disc on the end of a stroke did
+	(defq big 0.0)
+	(each (lambda (p)
+		(defq pts (partition p 2) a 0.0)
+		(each (lambda ((x y))
+			(bind '(x1 y1) (elem-get pts (% (inc (!)) (length pts))))
+			(setq a (+ a (- (* x y1) (* x1 y))))) pts)
+		(if (> (abs a) (abs big)) (setq big a))) paths)
+	(if (>= big 0.0) paths
+		(map (# (apply (const path) (reduce (# (push %0 (first %1) (second %1)))
+			(reverse (partition %0 2)) (list)))) paths)))
+
 (defun sym-paths (items radius joint cap)
 	; (sym-paths items radius joint cap) -> paths
 	;the outlines of a thing, at the size they are worked in. radius is
@@ -184,16 +201,17 @@
 		scaled (lambda (pts) (apply (const path) (map (# (* %0 +sf_work)) pts)))
 		whole (lambda (cx cy cr) (path-gen-arc (* cx +sf_work) (* cy +sf_work) 0.0 +fp_2pi (* cr +sf_work) (path))))
 	(each (lambda ((kind &rest data))
+		(defq ps (list))
 		(case kind
-			(:line (push out (path-stroke-polyline (scaled (first data)) r joint cap cap)))
-			(:loop (path-stroke-polygons out r joint (list (scaled (first data)))))
-			(:ring (path-stroke-polygons out r +join_bevel (list (apply whole data))))
-			(:disc (push out (apply whole data)))
-			(:box (push out (path-gen-rect (* (first data) +sf_work) (* (second data) +sf_work)
+			(:line (push ps (path-stroke-polyline (scaled (first data)) r joint cap cap)))
+			(:loop (path-stroke-polygons ps r joint (list (scaled (first data)))))
+			(:ring (path-stroke-polygons ps r +join_bevel (list (apply whole data))))
+			(:disc (push ps (apply whole data)))
+			(:box (push ps (path-gen-rect (* (first data) +sf_work) (* (second data) +sf_work)
 				(* (third data) +sf_work) (* (elem-get data 3) +sf_work) +sf_work +sf_work (path))))
-			(:fill (defq shape (scaled (first data)))
-				(push out shape)
-				(path-stroke-polygons out (* 0.6 +sf_work) +join_round (list shape)))))
+			(:fill (each (# (push out %0)) (sym-wind (list (scaled (first data)))))
+				(path-stroke-polygons ps (* 0.6 +sf_work) +join_round (list (scaled (first data))))))
+		(each (# (push out %0)) (sym-wind ps)))
 		items)
 	;a curve is more points than it wants, those nearer than half a step
 	;of the work size are let go. Onto itself, the filter does not make

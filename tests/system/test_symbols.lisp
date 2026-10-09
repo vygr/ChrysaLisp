@@ -33,6 +33,13 @@
 (assert-eq "an arm of it is" 255 (sy-pixel 60 60))
 (assert-eq "and between the arms is not" 0 (sy-pixel 96 50))
 
+;a disc and a stroke that overlap go round the one way, so there is no hole
+(defq sy_canvas (Canvas 192 192 1))
+(.-> sy_canvas (:set_color +argb_white) (:fpoly 0.0 0.0 +winding_none_zero
+	(sym-paths (second (elem-get *symbols* (find "comment" sy_names))) 1.15 +join_round +cap_round)))
+(assert-eq "where the tail of comment leaves its dot is filled" 255 (sy-pixel 104 126))
+(assert-eq "and its other dot is" 255 (sy-pixel 96 60))
+
 ;a font
 (defq sy_font (sym-font *symbols* 1.15 +join_round +cap_round))
 (assert-eq "a font starts with its ascent, 0.9375 of 8192" 7680 (get-short sy_font 0))

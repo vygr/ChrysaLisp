@@ -107,6 +107,14 @@ a TrueType outline is meant to be, so what overlaps is filled once. A ring
 has an outer and an inner outline that go opposite ways round, and the
 inner one is a hole.
 
+That holds only for outlines that go the same way round. Two that go
+opposite ways cut a hole where they overlap, by this rule as by the other.
+A stroke's outline always goes the one way, a disc from `(path-gen-arc)`
+went the other, and the dot of `comment` had a bite out of it where its
+tail left. So the outlines of each item are turned, `(sym-wind)`, all of
+them together, till the biggest goes the way a stroke's does. A ring's
+inner outline is still the opposite of its outer, and still a hole.
+
 The font class drew glyphs by the odd even rule before, by which an
 overlap is a hole. Every glyph of every font in `fonts/`, 723 of them, is
 the same picture by either rule, so nothing else changed.

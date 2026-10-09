@@ -4,6 +4,39 @@
 
 ------
 
+The dot of the `comment` symbol had a bite out of it. Chris saw it, in the
+Editor's tool bar.
+
+*	The symbol is two discs and a tail, the tail a stroke that starts in
+	the lower disc. A stroke's outline goes one way round and a disc, from
+	`(path-gen-arc)`, went the other, and by the non zero rule two
+	outlines that go opposite ways cut a hole where they overlap. At the
+	size of a button the dot was mostly hole, a comma and not a semicolon.
+
+*	The kit now turns the outlines of each item, `(sym-wind)` in
+	`lib/font/symbols.inc`, so the biggest goes the way a stroke's does.
+	An item's outlines are turned together, so a ring keeps its hole.
+
+*	Every symbol of the four fonts was drawn whole, and as its items one
+	on top of the other, and the two compared. Four differed, in every
+	font: `comment`, `dial`, `hangup` and `pcb`, each a disc on a stroke.
+	After, none. The four fonts are made again, the other 108 symbols
+	draw as they did.
+
+*	Claude's check of the 9th could not have found it. Every glyph was
+	drawn by both rules and was the same picture, and it was, the hole is
+	there by either. It compared two ways of being wrong.
+
+*	`tests/system/test_symbols.lisp`, 2 more, the dot of `comment` is
+	filled where the tail leaves it. It fails with the kit as it was. The
+	x64 and the Pi make the same bytes, 4,876 pass on each. On the M4 the
+	symbols and theme tests, Chris had a desktop up.
+
+*	Not seen: on a desktop. Looked at as a picture of the outlines, drawn
+	with no window. A desktop has to be started again to have the fonts.
+
+------
+
 The widgets, quieter. Rectangles as before, and no new mechanism.
 
 *	Chris: "I still think understated, but coherent design with the
