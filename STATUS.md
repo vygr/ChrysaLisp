@@ -4,6 +4,13 @@
 
 ------
 
+Seen by Chris, on a desktop, 9 October: networks of a shape added to a
+running one from a Terminal, `nodes -s`, and stopped by name, `nodes -x`,
+with the Network Map open to watch them come and go. "That worked very
+well."
+
+------
+
 Two from the list.
 
 *	An error in a command named the whole of the form its pipe had
