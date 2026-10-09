@@ -4,6 +4,50 @@
 
 ------
 
+A node with no way to it is kept, not listed, till its time is up. The
+tombstone. Chris, asked: "yes, do the tombstone, lets get those 8
+seconds back."
+
+*	He asked how the race is kept out, "that is gone" and "oh, no, he's
+	back again". Most of it by what gone is let to mean: only a process
+	the host says is not there, a node id is random for each process so
+	the same one is never back, and a link that is only quiet forgets
+	nothing. And a ping is set against the session held of its node, old
+	news does not beat new.
+
+*	But the session held is in the node's entry, and the change before
+	this one took the entry out in under a second, not five. A ping the
+	node sent before it went, still on its way round, would have found
+	no entry, been taken for new, and made the node again, for twice
+	the period it gave and the slack. Read in the code, not seen.
+
+*	So the entry stays. `+node_hops_none` and `+node_session_gone` in
+	`sys/mail/class.inc`. `(lk-forget-peer)` takes the vias of each
+	node that was only reached by the peer and gives it those hops. It
+	is left out of `(mail-nodes)`, so of `(lisp-nodes)`, and of
+	`(mail-enquire)`. Mail for it waits, there is no via to send by.
+	Its time is not touched, the kick runs it out, the spread and the
+	window, as it always did. A ping from it of the session held, by
+	another way, is a better route than none and it is back, a newer
+	one as any newer ping. The peer itself holds a session no ping is
+	newer than.
+
+What was run. A ring of 4 of its own system, stopped: off the list at
+883ms at the node with the link, 5.8s at one without, as before. A new
+part of `tests/solo/test_gone.lisp`: a ring of 5, the node next to this
+one goes, the one behind it has only the long way round left, and in the
+run it was seen to leave the list and come back; the one that went stays
+off it, and a task sent to each of the three runs. `lint: clean`, the
+release images put back. Every test, 4,983, on the M4 and the Pi, each
+by a session of its own.
+
+Not seen: a late ping from a node that has gone being turned away, there
+is no way here to hold one back. The x64, Chris was testing on it and it
+was not touched. The harness brings a machine level even when it leaves
+it out, so it was not used.
+
+------
+
 Nodes behind a node that has gone leave the list with it, at the node
 that had the link. Item 37, Chris: "yes, take the desktop down and look
 at it".

@@ -255,21 +255,12 @@
 (def-func-end)
 
 (defun lk-forget-peer ()
-	;emit the end of the peer's node, when its process is seen to be gone.
-	;That is certain, so the node is not left to run out its time, its time
-	;is set as up now, and the ping task purges it, at once if it sees the
-	;link change, or within the second.
-	(assign {lk_node, key} '(:r0 :r1))
-	(assign-node-id :r0 lk_node_peer_node_id :r1 +str_data)
-	(call :hmap :cfind {statics->statics_sys_mail_node_map, key, @class/nodeid/eql} {_, tuple, bucket})
-	(vpif {tuple})
-		(assign {(pptr tuple)[+ptr_size]} {tuple})
-		(call :array :set_elem {tuple, 0, +node_time})
-	(endif)
-	;and the nodes that were only ever reached by way of it can not be
-	;reached from here now, whether they are there or not. One that is
-	;there, by a longer way round, is heard again at its next ping, which
-	;the kick brings on
+	;emit the end of the peer's node, when its process is seen to be gone,
+	;and of the nodes that were only ever reached by way of it. None can
+	;be reached from here now. They are not taken from the node map, they
+	;are left in it with no way to them, not listed, till the kick the
+	;ping task gives as it sees the link change runs their time out. See
+	;+node_hops_none in sys/mail/class.inc.
 	(call :hmap :each {statics->statics_sys_mail_node_map, $behind_callback,
 		&lk_node->lk_node_peer_node_id}))
 
@@ -278,7 +269,7 @@
 	;:r0-:r14, :f0-:f15
 
 	(def-vars
-		(ptr statics lk_node key msg data tx head tail tuple bucket)
+		(ptr statics lk_node key msg data tx head tail)
 		(nodeid node_id system_id)
 		(long is_owner then now beat last gap timeout pid checked)
 		(ptr last_tail walk)
@@ -627,10 +618,23 @@
 		(vp-add-cr (* 2 +long_size) vias)
 	(loop-until `(,vias >= ,end))
 	(default)
-		;every way to it was by the peer, its time is up
+		;every way to it was by the peer, now there is none
 		(assign `((,tuple +array_begin)) `(,vias))
-		(vp-xor-rr vid1 vid1)
-		(assign `(,vid1) `((,vias ,(* +node_time +long_size))))
+		(vp-cpy-cr +node_vias vid1)
+		(assign `(,vid1) `((,tuple +array_length)))
+		(vp-cpy-cr +node_hops_none vid1)
+		(assign `(,vid1) `((,vias ,(* +node_hops +long_size))))
+		;and the peer itself will not be heard again
+		(assign `((,iter 0)) `(,end))
+		(load-node-id end +str_data vid1 vid2)
+		(vp-sub-rr pid1 vid1)
+		(vp-sub-rr pid2 vid2)
+		(vp-or-rr vid2 vid1)
+		(vpif `(,vid1 = 0))
+			(vp-cpy-cr +node_session_gone vid1)
+			(assign `(,vid1 ,vid1) `((,vias ,(* +node_session_cluster +long_size))
+				(,vias ,(* +node_session_sys +long_size))))
+		(endif)
 	(endif)
 	(vp-ret)
 

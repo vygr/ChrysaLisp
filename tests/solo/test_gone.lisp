@@ -74,9 +74,44 @@
 (each (# (open-task "(pii-exit)" %0 +kn_call_pin 0 (mail-mbox))) gn_others)
 (node-stop "gn_r")
 (assert-true "the ring is stopped" (gn-gone gn_pids))
-;a node that has gone is known of for a few seconds more. The test that
-;runs after this one may count the nodes, so they are waited out
+;a node that has gone is no longer listed by the node that had a link to
+;it, nor are those that were only reached by way of it, as these were.
+;The test that runs after this one may count the nodes
 (defq gn_t0 (pii-time))
 (while (and (> (length (lisp-nodes)) gn_were) (< (- (pii-time) gn_t0) (task-timeout 15)))
 	(task-sleep 100000))
 (assert-eq "and the nodes that were started are no longer seen" gn_were (length (lisp-nodes)))
+
+;a ring of 5, this node and four more. The node two round from here one way
+;is three round the other, and only the short way is held. The node next to
+;this one on the short way goes. The one behind it can not be reached, and
+;is not listed, till it is heard by the long way, which the kick brings on.
+;The one that went is not listed again, sys/link/class.vp, +node_hops_none
+(defq gn_before (lisp-nodes) gn_pids (node-net :ring 5 0 :nil :nil "gn_5"))
+(gn-seen (+ (length gn_before) 4))
+(defq gn_ring (filter (# (not (find %0 gn_before))) (lisp-nodes)))
+(assert-eq "a ring of 5 is four more" 4 (length gn_ring))
+(task-sleep 800000)
+(defq gn_victim (some (lambda (node)
+	(open-task (str `(mail-send (hex-decode ,(hex-encode gn_mbox)) (str (pii-pid)))) node +kn_call_pin 0 (mail-mbox))
+	(if (eql (mail-read-timeout gn_mbox (task-timeout 5)) (str (first gn_pids))) node)) gn_ring)
+	gn_others (filter (# (not (eql %0 gn_victim))) gn_ring))
+(assert-true "the first of them is next to this node" gn_victim)
+(open-task "(pii-exit)" gn_victim +kn_call_pin 0 (mail-mbox))
+(gn-gone (list (first gn_pids)))
+(defq gn_t0 (pii-time))
+(while (and (or (find gn_victim (lisp-nodes)) (notevery (# (find %0 (lisp-nodes))) gn_others))
+		(< (- (pii-time) gn_t0) (task-timeout 4)))
+	(task-sleep 20000))
+(assert-eq "the one that went is not listed" :nil (find gn_victim (lisp-nodes)))
+(assert-true "the three that are there are, the one behind it by the long way round" (every (# (find %0 (lisp-nodes))) gn_others))
+(each (# (open-task (str `(mail-send (hex-decode ,(hex-encode gn_mbox)) "there")) %0 +kn_call_pin 0 (mail-mbox))) gn_others)
+(assert-list-eq "and a task sent to each of them runs" '("there" "there" "there")
+	(map (lambda (&) (ifn (mail-read-timeout gn_mbox (task-timeout 5)) "none")) gn_others))
+(each (# (open-task "(pii-exit)" %0 +kn_call_pin 0 (mail-mbox))) gn_others)
+(node-stop "gn_5")
+(assert-true "the ring is stopped" (gn-gone gn_pids))
+(defq gn_t0 (pii-time))
+(while (and (> (length (lisp-nodes)) gn_were) (< (- (pii-time) gn_t0) (task-timeout 15)))
+	(task-sleep 100000))
+(assert-eq "and none of it is seen" gn_were (length (lisp-nodes)))

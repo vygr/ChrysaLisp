@@ -619,6 +619,14 @@
 
 	(entry :hmap :each_callback '(:r0 :r1 :r2))
 
+	;a node with no way to it has no services to find
+	(assign '((:r1 +ptr_size)) '(:r3))
+	(assign '((:r3 +array_begin)) '(:r3))
+	(assign `((:r3 ,(* +node_hops +long_size))) '(:r3))
+	(vpif '(:r3 = +node_hops_none))
+		(vp-ret)
+	(endif)
+
 	(assign '((:r1 +ptr_size) 0) '(:r2 :r1))
 	(class/array/get_elem :r2 :r1 :r1 :r2)
 	(jump :hset :each '(:r1 ($ callback2) :r0))
@@ -898,6 +906,14 @@
 	;:r2 = bucket list pointer (ptr)
 
 	(entry :hmap :each_callback '(:r0 :r1 :r2))
+
+	;a node with no way to it is not listed
+	(assign '((:r1 +ptr_size)) '(:r3))
+	(assign '((:r3 +array_begin)) '(:r3))
+	(assign `((:r3 ,(* +node_hops +long_size))) '(:r3))
+	(vpif '(:r3 = +node_hops_none))
+		(vp-ret)
+	(endif)
 
 	(vp-push :r0)
 	(assign '((:r1 0) (:r1 +ptr_size)) '(:r2 :r3))

@@ -11,6 +11,13 @@
 ;routes to the node, the node ids of the peers to send by, follow the hops.
 (defq +node_set 0 +node_time 1 +node_session_cluster 2 +node_session_sys 3
 	+node_system1 4 +node_system2 5 +node_hops 6 +node_vias 7)
+;a node with no way to it from here is kept till its time is up, with
+;no vias and these hops, and is not listed, nor are its services. So what
+;is held of its sessions is still there to set a late ping against. A
+;ping by another way, of the session held, is a better route and it is
+;back. One whose process is known to have gone holds this session, which
+;no ping is newer than, a node id is never used again.
+(defq +node_hops_none 0x7fffffff +node_session_gone 0x7fffffffffffffff)
 
 (def-class :sys_mail :nil
 	(dec-method :statics_init sys/mail/statics_init :static)
