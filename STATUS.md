@@ -28,8 +28,10 @@ content handlers do (:vdu etc)". The file is
 `tests/system/test_md.lisp`, 12, new. Against the widget as it was, 8 of
 them fail. Every test, 4,995, on the M4, the x64 and the Pi, twice.
 
-Not seen: any of it in the Docs app, by anyone. Links are still not
-followed, that is item 40.
+Seen by Chris in the Docs app on a desktop on the M4, the press README:
+"yes, that work well." Not seen: a table in a scroll, no document has
+one that wide, only the test makes one. Links are still not followed,
+that is item 40.
 
 ------
 
