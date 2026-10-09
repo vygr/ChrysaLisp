@@ -2900,6 +2900,7 @@ lines, one after another, and what they said. A session is started by
 the host, so it is on the boot image as it is on disk now, which a
 phase before it may have made. With a user the session is theirs, and
 not whoever last signed on to the machine, as run.sh -u has it
+the form has no space or tab in it, a node's args are split at those
 ```
 
 ### rack-run

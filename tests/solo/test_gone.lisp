@@ -1,0 +1,79 @@
+(report-header "Gone: a node that has just gone is not sent a task, and what was on its link is sent another way")
+
+;this starts and stops nodes, so it is in tests/solo/, and runs on its own
+
+;A link learns that its peer's process has gone at its next beat, a second.
+;Till then the kernel took the node for one with little to do, and a task
+;left to find a node, +kn_call_run, went to it and was lost, with whoever
+;waited to hear of it. And mail that was on the link for it to pass on went
+;with it. The kernel now asks the host if the process of the node it has
+;chosen is there, and the link, when it finds it gone, takes back what was
+;never taken and posts it again, sys/kernel/class.vp and sys/link/class.vp.
+
+(defun gn-seen (want)
+	;wait till that many nodes are seen, and not for ever
+	(defq t0 (pii-time))
+	(while (and (< (length (lisp-nodes)) want) (< (- (pii-time) t0) (task-timeout 10)))
+		(task-sleep 50000)))
+
+(defun gn-gone (pids)
+	;wait till these processes have gone, and not for ever
+	(defq t0 (pii-time))
+	(while (and (some (const pii-alive) pids) (< (- (pii-time) t0) (task-timeout 10)))
+		(task-sleep 2000))
+	(notany (const pii-alive) pids))
+
+;a node with one link to here starts six more, they are stopped, and at
+;once it leaves tasks to find a node. The six that have gone are the
+;neighbours it knows with the least to do, tests/solo/gone_node.lisp. It
+;is told what the tasks are by mail, they have this node's mailbox in them
+(defq gn_were (length (lisp-nodes)) gn_before (lisp-nodes) gn_pid (node-spawn 1) gn_mbox (mail-mbox) gn_done (mail-mbox) gn_kn (mail-mbox))
+(gn-seen (inc (length gn_before)))
+(defq gn_node (some (# (unless (find %0 gn_before) %0)) (lisp-nodes)))
+(assert-true "a node is started" gn_node)
+(open-task "tests/solo/gone_node.lisp" gn_node +kn_call_pin 0 gn_kn)
+(mail-send (getf (mail-read-timeout gn_kn (task-timeout 5)) +kn_msg_reply_id)
+	(cat gn_done (str `(mail-send (hex-decode ,(hex-encode gn_mbox)) "x"))))
+(assert-eq "it starts six, and stops them" "6" (mail-read-timeout gn_done (task-timeout 15)))
+(defq gn_got 0)
+(while (and (< gn_got 60) (mail-read-timeout gn_mbox (task-timeout 2))) (++ gn_got))
+(assert-eq "of 60 tasks it left to find a node at once after, every one runs" 60 gn_got)
+(open-task "(pii-exit)" gn_node +kn_call_pin 0 (mail-mbox))
+(assert-true "and it is stopped" (gn-gone gn_pid))
+
+;a ring of 4, this node and three more, so there are two ways round to the
+;node across it. One of the three stops taking from its links, as a busy
+;node does, and then goes. Mail sent meanwhile to the other two, some of it
+;by way of that one
+(defq gn_before (lisp-nodes) gn_pids (node-net :ring 4 0 :nil :nil "gn_r"))
+(gn-seen (+ (length gn_before) 3))
+(defq gn_ring (filter (# (not (find %0 gn_before))) (lisp-nodes))
+	gn_victim (first gn_ring) gn_others (rest gn_ring))
+(assert-eq "a ring of 4 is three more" 3 (length gn_ring))
+;the ways round are worked out from the pings, give them a moment
+(task-sleep 800000)
+(defq gn_counters (map (lambda (node)
+	(open-task (str `(progn (defq n 0 back (hex-decode ,(hex-encode gn_mbox)))
+			(mail-send back (task-mbox))
+			(while (nql (mail-read (task-mbox)) "report") (++ n))
+			(mail-send back (str n))))
+		node +kn_call_pin 0 (mail-mbox))
+	(mail-read-timeout gn_mbox (task-timeout 5))) gn_others))
+(assert-true "a counter on each of the other two" (every (const identity) gn_counters))
+(open-task "(progn (defq t0 (pii-time)) (while (< (- (pii-time) t0) 800000)) (pii-exit))"
+	gn_victim +kn_call_pin 0 (mail-mbox))
+(task-sleep 200000)
+(times 250 (each (# (mail-send %0 "x")) gn_counters))
+;it goes, its links find that it has within a beat, and what was on them is posted again
+(task-sleep (+ 800000 1000000 700000))
+(each (# (mail-send %0 "report")) gn_counters)
+(assert-list-eq "of 250 sent to each of the two, all arrive, what went by way of the one that has gone too"
+	'("250" "250") (map (lambda (&) (ifn (mail-read-timeout gn_mbox (task-timeout 5)) "none")) gn_counters))
+(node-stop "gn_r")
+(assert-true "the ring is stopped" (gn-gone gn_pids))
+;a node that has gone is known of for a few seconds more. The test that
+;runs after this one may count the nodes, so they are waited out
+(defq gn_t0 (pii-time))
+(while (and (> (length (lisp-nodes)) gn_were) (< (- (pii-time) gn_t0) (task-timeout 15)))
+	(task-sleep 100000))
+(assert-eq "and the nodes that were started are no longer seen" gn_were (length (lisp-nodes)))

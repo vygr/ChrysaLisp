@@ -23,7 +23,8 @@
 	;the host, so it is on the boot image as it is on disk now, which a
 	;phase before it may have made. With a user the session is theirs, and
 	;not whoever last signed on to the machine, as run.sh -u has it
-	(defq acc (list) tab (ascii-char 9))
+	;the form has no space or tab in it, a node's args are split at those
+	(defq acc (list) tab (ascii-char 11))
 	(each (lambda (cmds)
 		(if (pii-fstat +rack_out) (pii-remove +rack_out))
 		(save (join cmds (ascii-char 10)) +rack_cmds)

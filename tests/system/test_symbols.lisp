@@ -60,5 +60,7 @@
 	(assert-true (cat file " is the font the symbols make")
 		(eql (load file) (sym-font *symbols* radius joint cap))))
 	*sym_themes*)
+;a checkout on Windows may have a return before each end of line, the
+;names are what is held to
 (assert-true "lib/consts/symbols.inc is the names the symbols make"
-	(eql (load "lib/consts/symbols.inc") (sym-names-text)))
+	(eql (join (split (load "lib/consts/symbols.inc") (ascii-char 13)) "") (sym-names-text)))

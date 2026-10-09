@@ -145,17 +145,25 @@
 						(assign {link_cnt} {best_cnt})
 						(call :array :clear {best_nodes})
 					(endif)
-					(call :array :push_back2 {best_nodes,
-						link->lk_node_peer_node_id.+node_id_node1,
-						link->lk_node_peer_node_id.+node_id_node2})
+					(call :array :push_back {best_nodes, link})
 				(loop-end)
 				(gotoif {statics->statics_sys_task_task_count + statics->statics_sys_task_lag <= best_cnt} 'run_here)
 				;send to random better kernel
 				(call :array :get_length {best_nodes} {_, best_cnt})
-				(assign {(best_rand + 1 => best_rand) % (best_cnt >> 1)} {best_cnt})
-				(call :array :get_elem2 {best_nodes, best_cnt << 1}
-					{_, msg->+msg_dest.+net_id_node_id.+node_id_node1,
-						msg->+msg_dest.+net_id_node_id.+node_id_node2})
+				(assign {(best_rand + 1 => best_rand) % best_cnt} {best_cnt})
+				(call :array :get_elem {best_nodes, best_cnt} {_, link})
+				;is the node that was chosen still there ? Its link knows of
+				;a process that has gone only at its next beat, a second,
+				;and a task sent to it till then is lost, with whoever
+				;waits to hear of it. The host knows now, so it is asked,
+				;for a link whose peer is a process of this machine, and
+				;the task is run here if it has gone
+				(vpif {link->lk_node_peer_pid})
+					(call :host_os :pii_alive {link->lk_node_peer_pid} {link_cnt})
+					(gotoifnot {link_cnt} 'run_here)
+				(endif)
+				(assign {link->lk_node_peer_node_id.+node_id_node1, link->lk_node_peer_node_id.+node_id_node2}
+					{msg->+msg_dest.+net_id_node_id.+node_id_node1, msg->+msg_dest.+net_id_node_id.+node_id_node2})
 				(call :sys_mail :send {msg})
 				(break)
 			(vpcase '(:r0 = +kn_call_want))

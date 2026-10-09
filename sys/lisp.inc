@@ -77,9 +77,11 @@
 		;a session can have a user of its own, not the one the machine
 		;has. Each node of it has who in *env_node_user*, in the
 		;environment all its tasks share, and tells the nodes it starts as
-		;the first thing they run. A node's args are split at spaces, so
-		;the form is written with tabs
-		user (get '*env_node_user*) tab (ascii-char 9)
+		;the first thing they run. A node's args are split at spaces, and
+		;on Windows at tabs as well, so the form is written with neither,
+		;a vertical tab, which the reader takes for white space as it does
+		;anything up to a space
+		user (get '*env_node_user*) tab (ascii-char 11)
 		tell (if user (cat "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})"))
 		told (if user (cat " -run " tell) "")
 		run (cond

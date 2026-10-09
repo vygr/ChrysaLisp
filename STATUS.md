@@ -4,6 +4,76 @@
 
 ------
 
+A node that has just gone is not sent a task, and what was on its link
+for it to pass on is sent another way.
+
+*	Found in a test the day before: for a while after a node goes, a
+	task left to find a node, `+kn_call_run`, can be sent to it and is
+	lost. Put to Chris as a thing for his kernel. Chris: "yes, with the
+	caveat that there is still the possibility for the link to come back
+	up... but yes, both messages and task should ignore it from the
+	moment it flags blocked. ALSO any message it may be holding (if it
+	is) should be posted back onto the mail list so another link can
+	take it."
+
+*	How bad it was. Six nodes stopped, and 60 tasks left to find a node
+	at once after: not one ran. The nodes that had gone were the ones
+	with the least to do, as far as their neighbour knew, so every task
+	went to them. It was not 4 seconds, as Claude had it, that is how
+	long a node that has gone is still listed. A link asks the host if
+	its peer's process is running each beat, a second, and that second
+	is the gap.
+
+*	The kernel, when it has chosen a node to pass such a task to, asks
+	the host if that node's process is there, `pii_alive`, the call the
+	link uses. If it has gone the task is run where it is. One host call
+	for a task that is passed on, none for one that is not.
+	`sys/kernel/class.vp`.
+
+*	Mail and tasks already ignored a link from the moment it marked
+	itself down, its peer's ids are cleared, and it comes up again if the
+	peer is heard from. What was not done was the mail it held. A link
+	that finds its peer's process gone now takes back what it had put on
+	the link and the peer never took, and posts it again, for another
+	link to take. Only when the process has gone. A peer that is only
+	busy may yet take what is there, and it would arrive twice.
+	`sys/link/class.vp`.
+
+*	Shown on a ring of 4, which has two ways round. One node stops
+	taking from its links for most of a second, as a busy one does, and
+	then goes, while 250 messages are sent to each of the other two.
+	Before, one of the two got none of its 250, every time that node
+	was on the way. After, both get all 250, 6 runs of 6.
+
+*	`tests/solo/test_gone.lisp`, 9, with a helper that runs on a node the
+	test starts, `tests/solo/gone_node.lisp`. With the kernel and link of
+	before, 9 or 10 of the 60 tasks run and one of the two gets no mail.
+	Lint clean. Passes on the release emulator. 4,965 pass on the M4,
+	the x64 and the Pi.
+
+*	The test waits at its end for the nodes it stopped to be forgotten,
+	4 seconds, the test after it counts nodes and was 2 out. Every test
+	on the three machines is 33 to 37 seconds for it, it was 23 to 28.
+	That a node which is known to have gone is listed for 4 seconds
+	more is the next thing to look at.
+
+*	Windows, from Martyn Blyss's run of the push before: 4 tests failed.
+	Two were this day's work. A session's user is told to a node in a
+	form written with tabs, so that it is not split at its spaces, and
+	on Windows a node's args are split at tabs too. The node got `(def`
+	and no more, "missing )", and had the machine's user. It is written
+	with a vertical tab now, which the reader takes for white space and
+	no host splits at. And the file of the symbols' names is compared
+	with what the symbols make, to the byte, and a checkout on Windows
+	may have a return before each end of line, the test leaves those
+	out now. Neither is run on Windows yet. The fourth,
+	`test_pixmap_shared`, the key of a shared pixmap going with the one
+	that made it, is from the 7th and is not looked at. The host
+	programs have not changed since the snapshot of the 8th, so a new
+	snapshot would not have mended any of them.
+
+------
+
 The forward references of `lib/fs/exfat.inc` are put in order, five, and
 a release is tested for them. Chris: "yes do exfat and the release
 script." `(exfat-mount)` goes after what it calls, and `(exfat-begin)`

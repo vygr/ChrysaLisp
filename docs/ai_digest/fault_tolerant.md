@@ -369,6 +369,39 @@ tasks must adapt, is central to ChrysaLisp's robustness.
       aborted prematurely or the main task dies, `cmd.lisp` workers will
       eventually self-terminate due to their inactivity timeout.
 
+## A Node That Has Just Gone
+
+Under the libraries, the kernel and the links do what they can for a node
+that goes with no warning, a process that is killed or exits.
+
+* A shared memory link knows the process of its peer, and asks the host
+  each beat, a second, if it is still running. A peer that takes nothing
+  from the link is busy, or gone, and from the inside those look the same.
+  The host knows which. A peer that is only busy is not dropped, short of
+  a minute of it.
+
+* When a link finds its peer's process gone it marks itself down. Its
+  peer's ids are cleared, so no mail is taken for it and no task is sent
+  that way, and the node is purged from the routes. If a link was only
+  down because its peer was busy, it is up again when the peer is next
+  heard from.
+
+* For the second before the link knew, the node looked like one with
+  little to do. So when the kernel has chosen a node to pass a task on to,
+  one left to find a node, `+kn_call_run`, it asks the host if that node's
+  process is there, and if it is not the task is run where it is. Before
+  this such a task was lost, and whoever waited to hear it had started
+  waited for ever. Of 60 left to find a node straight after six nodes were
+  stopped, none ran.
+
+* Mail that was put on a link for the peer to pass on, and that it never
+  took, is taken back off the link when the peer's process is found gone,
+  and posted again. If there is another way to where it was going, another
+  link takes it. Only when the process has gone, a peer that is only busy
+  may yet take it, and it would then arrive twice.
+
+`tests/solo/test_gone.lisp` holds both, the tasks and the mail.
+
 ## Strategies for Building Fault-Tolerant Systems in ChrysaLisp
 
 The examples above highlight several common strategies:

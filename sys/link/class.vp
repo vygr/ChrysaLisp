@@ -275,9 +275,9 @@
 		(ptr statics lk_node key msg data tx head tail tuple bucket)
 		(nodeid node_id system_id)
 		(long is_owner then now beat last gap timeout pid checked)
-		(ptr last_tail)
+		(ptr last_tail walk)
 		(int free)
-		(uint last_count sleep_time seen down alive drop quiet))
+		(uint last_count sleep_time seen down alive drop quiet status length))
 
 	(push-scope)
 
@@ -516,6 +516,47 @@
 			(vpifnot {alive})
 				;its process is gone, that is certain
 				(lk-forget-peer)
+				;what was put on the link for it and it never took is not
+				;lost with it. It is taken back off, and posted again, for
+				;another link to take if there is another way there. Only
+				;when the process has gone: one that is only busy may yet
+				;take what is here, and then it would arrive twice
+				(assign {tail} {walk})
+				(loop-while {walk /= head})
+					(assign {walk->lk_buf_status, walk->lk_buf_length} {status, length})
+					(vpif {status = lk_chan_status_frag})
+						(call :sys_mail :alloc {walk->lk_buf_size.lk_frag_length} {msg, data})
+						(vp-rdef (msg rx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
+						(assign {msg, &walk->lk_buf_size} `(,msg ,rx_frag))
+						(assign-fields
+							rx_frag
+								`(lk_frag_length lk_frag_offset lk_frag_total
+								,(+ lk_frag_dest +net_id_mbox_id)
+								,(+ lk_frag_dest +net_id_node_id +node_id_node1)
+								,(+ lk_frag_dest +net_id_node_id +node_id_node2)
+								,(+ lk_frag_src +net_id_mbox_id)
+								,(+ lk_frag_src +net_id_node_id +node_id_node1)
+								,(+ lk_frag_src +net_id_node_id +node_id_node2))
+							msg
+								`(+msg_length +msg_offset +msg_total
+								,(+ +msg_dest +net_id_mbox_id)
+								,(+ +msg_dest +net_id_node_id +node_id_node1)
+								,(+ +msg_dest +net_id_node_id +node_id_node2)
+								,(+ +msg_src +net_id_mbox_id)
+								,(+ +msg_src +net_id_node_id +node_id_node1)
+								,(+ +msg_src +net_id_node_id +node_id_node2))
+							`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
+						(call :sys_mem :copy_from_ring {&walk->lk_buf_size.lk_frag_size,
+							data, walk->lk_buf_size.lk_frag_length, lk_chan_size, tx})
+						(call :sys_mail :send {msg})
+					(endif)
+					(assign {lk_chan_status_ready} {walk->lk_buf_status})
+					(assign {walk + length} {walk})
+					(vpif {walk >= tx + lk_chan_size})
+						(assign {walk - lk_chan_size} {walk})
+					(endif)
+				(loop-end)
+				(assign {head, head} {tail, last_tail})
 			(endif)
 			(assign {1, 1} {down, alive})
 			(vp-rdef (node zero))
