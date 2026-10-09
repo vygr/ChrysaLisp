@@ -421,6 +421,13 @@ Raster image loading, format conversion, and 2D canvas drawing operations.
 
 	*	`(canvas-darker col) -> col`
 
+	Each is half way, to white or to black. `canvas-tint` and `canvas-shade`
+	are a quarter of the way, the edges of a panel are those.
+
+	*	`(canvas-tint col) -> col`
+
+	*	`(canvas-shade col) -> col`
+
 *	**`canvas-flush`**: Purges unused shared pixmaps from the cache.
 
 	*	`(canvas-flush)`

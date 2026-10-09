@@ -22,6 +22,18 @@
 	; (canvas-brighter col) -> col
 	(num (+ (logand col 0xff000000) (>> (logand col 0xfefefe) 1) 0x808080)))
 
+(defun canvas-shade (col)
+	; (canvas-shade col) -> col
+	;a little darker, a quarter of the way to black, the edge of a thing
+	;that is in shadow
+	(num (- col (>> (logand col 0xfcfcfc) 2))))
+
+(defun canvas-tint (col)
+	; (canvas-tint col) -> col
+	;a little brighter, a quarter of the way to white, the edge of a thing
+	;that the light is on
+	(num (+ col (>> (logand (lognot col) 0xfcfcfc) 2))))
+
 (defclass Canvas-base () (View)
 	(def this :color 0)
 

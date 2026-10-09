@@ -4,6 +4,27 @@
 
 ------
 
+The widgets, quieter. Rectangles as before, and no new mechanism.
+
+*	Chris: "I still think understated, but coherent design with the
+	symbols, not particularly flat and not Windows 3.0 fat wobbly
+	buttons."
+
+*	A slider, so every scroll bar, and a progress bar: a trough, a shade of
+	the widget's color, with a thin edge a shade darker, where there was a
+	black line or a bright one, and what is in it sits a pixel clear of
+	the edge. Chris, of Netmon, which is all progress bars: "That makes a
+	'boring' system app, look worth staring at."
+
+*	The panel that buttons, labels, title bars, text fields and window
+	frames all stand up or sink by, `:ctx_panel`: its edges were half way
+	to white and half way to black, they are a quarter, `(canvas-tint)`
+	and `(canvas-shade)`. The same shape, and it does not shout.
+
+*	Not seen, the panel: a desktop has to be started again to have it.
+
+------
+
 Light is the theme a user starts with.
 
 *	Chris, having tried the four on a desktop: "light is the best default

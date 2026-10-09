@@ -200,6 +200,9 @@
 
 	(defmethod :ctx_panel (col flags depth x y width height)
 		; (. view :ctx_panel col flags depth x y width height) -> view
+		;a panel that stands up or is sunk, by its edges. They are a little
+		;brighter and a little darker than its face, enough to be seen
+		;and no more
 		(defq abs_depth (abs depth))
 		(when (/= flags 0)
 			;fill middle
@@ -211,19 +214,19 @@
 			((< depth 0)
 				;suncken
 				(.-> this
-					(:ctx_set_color (canvas-darker col))
+					(:ctx_set_color (canvas-shade col))
 					(:ctx_filled_box x y (- width abs_depth) abs_depth)
 					(:ctx_filled_box x (+ y abs_depth) abs_depth (- height abs_depth abs_depth))
-					(:ctx_set_color (canvas-brighter col))
+					(:ctx_set_color (canvas-tint col))
 					(:ctx_filled_box x (+ y height depth) width abs_depth)
 					(:ctx_filled_box (+ x width depth) y abs_depth (- height abs_depth))))
 			((> depth 0)
 				;raised
 				(.-> this
-					(:ctx_set_color (canvas-brighter col))
+					(:ctx_set_color (canvas-tint col))
 					(:ctx_filled_box x y width abs_depth)
 					(:ctx_filled_box x (+ y abs_depth) abs_depth (- height abs_depth))
-					(:ctx_set_color (canvas-darker col))
+					(:ctx_set_color (canvas-shade col))
 					(:ctx_filled_box (+ x abs_depth) (- (+ y height) abs_depth) (- width abs_depth) abs_depth)
 					(:ctx_filled_box (- (+ x width) abs_depth) (+ y abs_depth) abs_depth (- height abs_depth abs_depth)))))
 		this)
