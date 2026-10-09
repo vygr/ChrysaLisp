@@ -4,6 +4,29 @@
 
 ------
 
+The two tests Martyn Blyss still had failing on Windows, looked at.
+
+*	`system/test_symbols`. The names file starts with a header, and
+	that header is a string of many lines in `lib/font/symbol_set.inc`.
+	A checkout with a return before each end of line puts returns in
+	the string, so it was what the symbols make that had them, and the
+	test took them out of the file only. `(sym-names-text)` takes them
+	out of what it makes now, so the `symbols` command writes the same
+	file on any machine. Shown here with a copy of the set file given
+	returns: the comparison was `:nil` with the old, `:t` with the new.
+
+*	`system/test_pixmap_shared`, "the key went with the one that made
+	it". Not a fault, the hosts differ. On the Macs and Linux the maker
+	lets go of the name, `shm_unlink`, and those who hold the pixels
+	keep them. Windows has no such call, a name is there till the last
+	to hold it lets go. The test holds that line to the hosts that can,
+	and has a new one for all, the key has gone when no one holds it.
+
+4,976 pass on the M4, the x64 and the Pi. Not seen: either on Windows,
+that is Martyn's to run. `solo/test_tcp_link` there is not known either.
+
+------
+
 No function of the tree calls itself. Chris: "this is the ChrysaLisp
 way, we don't do recursive functions", "the stack will run out ! use a
 (list) as a user stack", and "They are slower as well, due to causeing

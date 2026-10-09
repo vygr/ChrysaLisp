@@ -221,4 +221,6 @@
 		(setq line (cat line item)))
 		*symbols*)
 	(push out (cat (ascii-char 10) (ascii-char 9) (trim-end line) (ascii-char 10)))
-	(apply (const cat) out))
+	;the header above is a string of this file, and a checkout on Windows
+	;may have a return before each of its ends of line
+	(join (split (apply (const cat) out) (ascii-char 13)) ""))

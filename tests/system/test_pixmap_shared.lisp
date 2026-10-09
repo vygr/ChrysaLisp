@@ -33,7 +33,12 @@
 (defq before (px-bytes found))
 (setq a :nil made :nil)
 (assert-eq "the pixels outlast the one that made them" before (px-bytes found))
-(assert-eq "the key went with the one that made it" :nil (pixmap-shared 64 32 key))
+;Windows has no way to let go of a name that is still held, there the key
+;goes with the last to hold it
+(unless (eql (os) 'Windows)
+	(assert-eq "the key went with the one that made it" :nil (pixmap-shared 64 32 key)))
+(setq b :nil found :nil)
+(assert-eq "the key has gone when no one holds it" :nil (pixmap-shared 64 32 key))
 
 ;a shader drawn straight into a pixmap is the same as one shaded into a
 ;string and put there a pixel at a time
