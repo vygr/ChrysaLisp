@@ -42,7 +42,7 @@
 (bind '(a r g b) (ey-at ey_out 43 32))
 (assert-true "next to it is the iris, the green it was given" (and (= a 255) (> g (* 2 (max r b)))))
 (bind '(a r g b) (ey-at ey_out 32 58))
-(assert-true "and out by the edge is the white" (and (= a 255) (> (min r g b) 100) (< (- (max r g b) (min r g b)) 60)))
+(assert-true "and out by the edge is the white" (and (= a 255) (> (min r g b) 50) (< (- (max r g b) (min r g b)) 60)))
 (assert-eq "the two eyes that look the same way are the same"
 	(str (map (# (ey-at ey_out %0 20)) (range 4 60))) (str (map (# (ey-at ey_out (+ %0 64) 20)) (range 4 60))))
 

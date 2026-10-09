@@ -15,9 +15,10 @@
 	;straight onto the pixels of the canvas
 	eyes_program (shader-load (cat (path-to-file) "eyes.shader"))
 	eyes_native (shader-vp eyes_program)
-	;how far in front of the screen the eyes take the mouse to be, in
-	;eyes, and the most they turn to it, as how far off it can be
-	+look_depth 1.2 +look_most 2.4)
+	;the most an eye turns, as how far from its middle the middle of the
+	;iris gets, of the eye. Further and the iris is seen so side on that
+	;it is flat
+	+look_most 0.66)
 
 (defun config-default ()
 	(scatter (Emap)
@@ -72,12 +73,14 @@
 (defun look (cx cy r mx my)
 	; (look cx cy r mx my) -> gaze
 	;the way an eye at cx cy, r across to its edge, looks to see the
-	;mouse, a unit vector, z out of the screen. It turns so far and no
-	;further, an eye does not look backwards
+	;mouse, a unit vector, z out of the screen. With the mouse on the eye
+	;the iris is under it, and as it goes off the eye turns less and less
+	;more, up to the most it turns, there is no stop that it hits
 	(defq off (Vec2-f (/ (- mx cx) r) (/ (- my cy) r))
-		dist (vector-length off))
-	(if (> dist +look_most) (setq off (vector-scale off (/ +look_most dist))))
-	(map (const n2r) (vector-norm (Vec3-f (first off) (second off) (const (neg +look_depth))))))
+		dist (/ (vector-length off) +look_most)
+		off (vector-scale off (/ 1.0 (sqrt (+ 1.0 (* dist dist))))))
+	(map (const n2r) (list (first off) (second off)
+		(neg (sqrt (- 1.0 (vector-dot off off)))))))
 
 (defun redraw (mx my)
 	(bind '(w h) (. *canvas* :pref_size))

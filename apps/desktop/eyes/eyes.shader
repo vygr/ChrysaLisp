@@ -6,8 +6,8 @@
 ; are on the ball, and go round to the side of it, and thin, as it
 ; looks away. The white is lit, and dim at its rim. The iris has
 ; fibres that run out from the pupil and a dark ring round it, and
-; the whole eye is wet, a highlight sits where the light is and
-; does not turn with it. Outside an eye is clear, and its edge is
+; the whole eye is wet, a highlight sits where the light is, up,
+; to the left and in front, and does not turn with it. Outside an eye is clear, and its edge is
 ; the share of the pixel that the ball covers. A pixmap is
 ; premultiplied, so the color is given times the alpha.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -23,8 +23,8 @@
 (definput iris_size :float 0.5 0.2 0.8)
 (definput pupil_size :float 0.4 0.1 0.9)
 
-(defconst ambient 0.5)
-(defconst diffuse 0.55)
+(defconst ambient 0.38)
+(defconst diffuse 0.54)
 ;how small the highlight is, and how bright
 (defconst shine 90.0)
 (defconst gleam 0.95)
@@ -65,12 +65,11 @@
 		ring (- 1.0 (* 0.75 (clamp (* (- out 0.82) 6.0) 0.0 1.0)))
 		iris (* iris_color (+ 0.5 (* 0.6 fibre)) (mix 1.25 0.75 (* out out)) ring)
 		;the iris is a dish, lit from the side the light is not
-		dish (+ 0.75 (* 0.35 (max (dot round_it (- light)) 0.0) out))
+		dish (+ 0.85 (* 0.2 (max (dot round_it (- light)) 0.0) out))
 		color (mix (* white shade) (* iris dish shade) in_iris)
 		color2 (mix color (vec3 0.02 0.02 0.03) in_pupil)
-		;wet, a highlight, and a small one across from it
-		wet (+ (* gleam (pow (max (dot n half_way) 0.0) shine))
-			(* 0.25 (pow (max (dot n (normalize (vec3 0.5 0.6 -1.0))) 0.0) 200.0)))
+		;wet, a highlight, where the light is
+		wet (* gleam (pow (max (dot n half_way) 0.0) shine))
 		lit (min (+ color2 (vec3 wet)) (vec3 1.0)))
 	(vec4 (* lit cover) cover))
 
