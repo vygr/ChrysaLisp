@@ -9,18 +9,20 @@
 ; draws again, (. window :event). The Themes app is how it is chosen.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;a theme, its name and the font of its symbols. The first is the one a
-;user who has not chosen has
+;a theme, its name, the font of its symbols, and the font of the smallest
+;of them, the arrows of a spinner and the toggles of a tree, which want
+;all the weight there is, the bold one, at a size where a line is a
+;pixel. The first is the one a user who has not chosen has
 (defq *themes* (list
-	(list "Light" "fonts/Symbols-Light.ctf")
-	(list "Regular" "fonts/Symbols.ctf")
-	(list "Bold" "fonts/Symbols-Bold.ctf")
-	(list "Sharp" "fonts/Symbols-Sharp.ctf")))
+	(list "Light" "fonts/Symbols-Light.ctf" "fonts/Symbols-Bold.ctf")
+	(list "Regular" "fonts/Symbols.ctf" "fonts/Symbols-Bold.ctf")
+	(list "Bold" "fonts/Symbols-Bold.ctf" "fonts/Symbols-Bold.ctf")
+	(list "Sharp" "fonts/Symbols-Sharp.ctf" "fonts/Symbols-Sharp.ctf")))
 
-(defun theme-file (name)
-	; (theme-file name) -> symbols_file
-	;the font of a theme, that of the first if there is none of that name
-	(second (ifn (some (# (if (eql (first %0) name) %0)) *themes*) (first *themes*))))
+(defun theme-files (name)
+	; (theme-files name) -> (symbols_file tiny_file)
+	;the fonts of a theme, those of the first if there is none of that name
+	(rest (ifn (some (# (if (eql (first %0) name) %0)) *themes*) (first *themes*))))
 
 (defun theme-current (home)
 	; (theme-current home) -> name

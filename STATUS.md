@@ -17,15 +17,18 @@ One set of arrows, used small where a small one is wanted.
 	font: "we already had the set at 0xe063 !" They were `up` and `down`
 	again. They are taken out, the kit is as it was, 112 symbols.
 
-*	A theme is a name and one font. `(theme-file name)`, it was
-	`(theme-files)` and gave two. `*env_tiny_symbol_font*` is the theme's
-	own font at 10, and the spinner draws `up` and `down` with it.
+*	The smallest of them are drawn with the bold font, in every theme
+	but Sharp, which has its own. Chris: "For these small spinner and
+	tree uses we may be best to use the Bold version of the font ?" A
+	theme named a second font for that size already, the next weight up,
+	Claude had taken it out an hour before and it is back. Light named
+	the regular one, it names the bold.
 
 *	Chris: "We should also use this for the collapse and expand for the
 	File widget ! We have several places there that use the same." The
 	toggle of a folder was the characters `^` and `>` in the font of the
 	file names, with the symbols in the title bar above it. It is `up`
-	and `next` in the small symbol font, `gui/files/lisp.inc`, and a
+	and `next` in that small symbol font, `gui/files/lisp.inc`, and a
 	theme swaps it with the rest. The toggle of a category in the
 	launcher the same, at the size of a title's buttons.
 

@@ -4704,12 +4704,12 @@ name and no more, it is read by every app as it starts, and there is
 nothing in it to go wrong
 ```
 
-### theme-file
+### theme-files
 
 ```code
-(theme-file name) -> symbols_file
+(theme-files name) -> (symbols_file tiny_file)
 
-the font of a theme, that of the first if there is none of that name
+the fonts of a theme, those of the first if there is none of that name
 ```
 
 ### theme-save
