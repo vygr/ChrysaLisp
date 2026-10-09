@@ -4,6 +4,38 @@
 
 ------
 
+A network of a shape added to a running one, by name, and stopped as one.
+
+*	Chris: "I'd like to be able to bring up a bunch of nodes following the
+	same -t -n of the command line", and "how we bring it down as a one
+	shot as well". `nodes -s ring -n 8` adds a ring of 8, with the node the
+	command runs on as one of them, and says the name it was given, four
+	characters. `nodes -x name` stops it, every node of it, and clears
+	away its links. `nodes -x all` is every one there is, and `nodes` lists
+	them under the nodes.
+
+*	It is `(node-net)`, what a launch script has the first node run, with
+	an `id`. The note a node leaves of what it started has a line for the
+	network first. `(node-nets)` reads the notes of the machine,
+	`(node-stop id)` stops one.
+
+*	A stop is done by a node that is staying, a moment later. The command
+	that asks may be running on a node of the network it is stopping, a
+	pipe puts a command where it likes, and it hung there. And a network
+	that was hung from a node of the one being stopped goes first, or it
+	would be left running with no way in to it.
+
+*	`tests/solo/test_nets.lisp`, 14: a ring of 4 is started, seen, noted
+	with its processes and links, stopped, and its processes end and its
+	link files go. Tried by hand with a ring and a star, one hung from the
+	other.
+
+*	Not on Windows, the note of what a node started is not kept there. And
+	a node is not stopped by its process, there is no host call to, only by
+	a task sent to it, so one that can not be reached is not stopped.
+
+------
+
 The system makes its own symbol font.
 
 *	The font went in on the 9th made by a script of Claude's outside the

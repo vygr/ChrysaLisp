@@ -621,10 +621,22 @@ Usage: nodes [options]
         -g --gui num: start num more nodes, each a GUI desktop.
         -t --tui num: start num more nodes on the TUI host,
             which is the lighter, it has no GUI.
+        -s --shape name: add a network of that shape, hung from this
+            node: full, ring, star, tree, mesh or cube. It is given a
+            name to stop it by.
+        -n --num cnt: how many nodes the shape has, with this one, or
+            how wide a mesh or a cube is. Sized to the machine if not
+            given.
+        -x --stop name: stop a network that was added with -s, all of
+            its nodes at once, or all for every one there is.
         -i --info: this node's process id, and the processors
             and memory of its machine.
 
-    List the nodes known to this node.
+    List the nodes known to this node, and the networks added by name.
+
+        nodes -s ring -n 8    ; a ring of 8, this node one of them
+        nodes                 ; the nodes, and the networks
+        nodes -x k3f9         ; stop that ring
 ```
 ## null
 ```code

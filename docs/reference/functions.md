@@ -2381,12 +2381,26 @@ starts one of the same name.
 ### node-net
 
 ```code
-(node-net shape [cnt fronts kind script]) -> (pid ...)
+(node-net shape [cnt fronts kind script id]) -> (pid ...)
 
-make this node, alone, node 0 of a network of a shape, (node-shape)
-has them and what cnt is, and wait for the nodes to be seen. The first
-fronts of them, default none, are of kind and run script, as
-(node-start) has it, the other desktops of a session.
+make this node node 0 of a network of a shape, (node-shape) has them
+and what cnt is, and wait for the nodes to be seen. It is how a
+session starts, from one node, and how a network is added to one
+that is running, hung from this node. The first fronts of them,
+default none, are of kind and run script, as (node-start) has it,
+the other desktops of a session. With an id, a name for these nodes,
+they are noted under it, to be stopped as one, (node-stop).
+```
+
+### node-nets
+
+```code
+(node-nets) -> ((id shape total (pid ...) (link ...) file) ...)
+
+the networks added to this machine's sessions by name, (node-net)
+with an id, each with the processes of its nodes, the names of its
+links, and the note it is in. Whichever node of the machine started
+them
 ```
 
 ### node-shape
@@ -2416,14 +2430,30 @@ one.
 ### node-start
 
 ```code
-(node-start total pairs [fronts kind script]) -> (pid ...)
+(node-start total pairs [fronts kind script net]) -> (pid ...)
 
 this node is node 0 of total, start the others, 1 on, linked as pairs
 has them, each a list of two node numbers. A pid of -1 is a node the
 host could not start. The first fronts of them, all if not given, are
 of kind, the host program, :gui or :tui, this node's own if not given,
 and run script. A node with a script is a front of its session, a way
-in to it, a desktop is service/gui/app.lisp.
+in to it, a desktop is service/gui/app.lisp. net is a line to head
+the note of them with, so they can be found and stopped as one,
+(node-nets) and (node-stop).
+```
+
+### node-stop
+
+```code
+(node-stop id) -> :nil | num
+
+stop the nodes of a network that was added by name, all of them, and
+clear away its links and the note of it. :nil if there is none of
+that name, else how many nodes are to go. Each node of this machine
+is asked which process it is. Those of the network are sent a task
+that exits them, by a node that is not one of them, and not at once:
+the one that asks may itself be a node of the network, and is given
+the time to say what it did
 ```
 
 ### node-wait
@@ -4065,13 +4095,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args

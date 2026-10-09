@@ -403,6 +403,19 @@ other shapes:
 ./run_tui.sh -t mesh -n 4
 ```
 
+A network of a shape can also be added to one that is running, from its
+Terminal, hung from the node the command runs on, and taken away again as
+one:
+
+```code
+nodes -s ring -n 8     ; started k3f9, a ring of 8 with this node
+nodes                  ; the nodes, and the networks added by name
+nodes -x k3f9          ; stop that ring, all of its nodes at once
+nodes -x all           ; every network that was added
+```
+
+Open the Network Map first and watch it arrive and go.
+
 The launch script starts only the first node. That node works out the links
 of the shape and starts the rest itself, `(node-net)` in `sys/lisp.inc`, so
 the shapes are written once, in Lisp, for every platform. In any shape but
