@@ -4,6 +4,42 @@
 
 ------
 
+Four documents threw each time the Docs app drew them.
+
+*	Chris pasted `symbol_not_bound ... Lisp handler(1) ... Obj:
+	shader-gui`, twice, and asked: "are thes old error reports." They
+	were not old. The Docs app runs what is between ```lisp and ```,
+	and shows what it gives; code that is only to be read is between
+	```vdu and ```. `docs/releases/v7.1.md` had two lines of a shader
+	call as the first, and threw as its page was drawn, to the terminal
+	the desktop was started from.
+
+*	Every such block of the hand written documents, 139, was run as the
+	app runs it. Those that threw were all in four documents Claude
+	wrote in the days before: `crypto.md`, an API written `(name args)
+	-> result`; `shader_language.md`, lines of the shader language;
+	`lisp_traps.md`, the traps as they are; `v7.1.md`. 53 blocks, all
+	now ```vdu. The documents with code that is meant to run,
+	`iteration.md`, `widgets.md`, `charclass.md`, `searching.md` and
+	the rest, ran clean and are as they were.
+
+*	`tests/system/test_apps.lisp`, 2 more: each ```lisp block of the
+	documents is run in an environment of its own, and none is to
+	throw. Against the four as they were it fails and lists them by
+	file and line. `docs/gui/` is left out of it, see below.
+
+*	A wrong turn. Run in a session with no desktop, the 15th block of
+	`docs/gui/widgets.md` took the node down, a segmentation fault, and
+	not when run alone. Chris: "manual checked the widgets.md, looks
+	fine." So it is the page's widgets made with nothing to draw them,
+	not the page, and it was let go. Not known what in it faults.
+
+Every test, 5,054, on the x64 and the Pi; the M4 had his desktop up.
+
+Not seen: the four pages drawn with no error, by Chris.
+
+------
+
 The Docs app would not start, and had not since `702237b77`, which was
 pushed.
 

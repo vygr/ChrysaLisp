@@ -52,7 +52,7 @@ rewrite of every shader.
 A shader file is a list of declarations. This one fades from black to a colour
 across the frame.
 
-```lisp
+```vdu
 (definput resolution :vec2)
 (definput level :float 0.5 0.0 1.0)
 
@@ -119,7 +119,7 @@ Each begins with `def`, as `defun` and `defq` do in ChrysaLisp.
 
 The value of a function is its last form. It need not say `return`.
 
-```lisp
+```vdu
 (defun hash :float ((n :float))
 	(fract (* (sin n) 43758.5453)))
 
@@ -166,7 +166,7 @@ gives where a vertex is. The two are files of their own, and any vertex
 shader goes with any pixel shader whose varyings it has, so one vertex shader
 serves many pixel shaders.
 
-```lisp
+```vdu
 (definput model :mat4)
 (definput view :mat4)
 
@@ -197,7 +197,7 @@ serves many pixel shaders.
   so a normal or a direction is turned and not moved, as `(mat4x4-vec3-mul)`
   has it. A matrix is an input, there is no way to make one in a shader.
 
-```lisp
+```vdu
 (defvarying shade :float)
 
 (defun main :vec4 ((frag :vec2))
@@ -207,7 +207,7 @@ serves many pixel shaders.
 That pixel shader goes with the vertex shader above, and with any other that
 has a `shade`.
 
-```lisp
+```vdu
 (defq pair (shader-pair vertex pixel))
 ```
 
@@ -224,7 +224,7 @@ it.
 
 The Lisp back end is the reference for it.
 
-```lisp
+```vdu
 (defq place (shader-cpu-vertex vertex)
 	placed (apply place (cat (list verts) (shader-cpu-args vertex vals))))
 ```
@@ -239,7 +239,7 @@ vertex is where `(mat4x4-vec4-mul)` puts it, and a normal where
 
 The VP back end has the vertex shader as native code.
 
-```lisp
+```vdu
 (defq native (shader-vp-vertex vertex)
 	frame (shader-vp-frame vertex native vals)
 	out (shader-vp-place native frame verts))
@@ -280,7 +280,7 @@ global or a local.
 A vertex shader and a pixel shader together draw triangles, as native code,
 on a pixmap, with a depth buffer.
 
-```lisp
+```vdu
 (defq pipeline (shader-vp-pipeline vertex pixel)
 	depth (shader-vp-depth width height))
 (shader-vp-draw-tris pipeline verts tris pixmap depth vvals pvals :t)
@@ -357,7 +357,7 @@ each, straight onto the pixels of the app's canvas, which are in shared
 memory, `(canvas-shared)`. `lib/gpu/tris.inc`, on the jobs library,
 `lib/task/jobs.inc`, as `lib/gpu/tile.inc` is for a pixel shader alone.
 
-```lisp
+```vdu
 (defq jobs (Jobs +shader_tris_child task_mbox reply_mbox '(64 3 0) :t))
 (. jobs :add (map (# (shader-strip vfile pfile ask_mbox (canvas-key canvas)
 	width height (/ (* %0 height) 3) (/ (* (inc %0) height) 3) :t draws)) (range 0 3)))
@@ -404,7 +404,7 @@ there is nothing in a register to save.
 The same two shader files are drawn by the GPU of the GUI, through Metal on
 a Mac and through Vulkan on a Raspberry Pi.
 
-```lisp
+```vdu
 (defq pair (shader-gui-pair vertex pixel :t)
 	mesh (shader-gui-mesh verts))
 (shader-gui-frame canvas (list (list pair mesh vblock pblock)))
@@ -479,7 +479,7 @@ its GPU button.
 A file with no `main` is not a shader. It is functions, each of which can be
 made into a native function that Lisp calls as it calls any other.
 
-```lisp
+```vdu
 (defq program (shader-compile (shader-read (string-stream (cat
 	"(defun place :vec4 ((m :mat4) (p :vec4)) (* m p))"
 	"(defun mix3 :vec3 ((a :vec3) (b :vec3) (t :float)) (+ (* a (- 1.0 t)) (* b t)))")))))
@@ -543,7 +543,7 @@ compute on a GPU, and is to come.
 
 ## Using It
 
-```lisp
+```vdu
 (import "lib/gpu/glsl.inc")
 (import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
@@ -731,7 +731,7 @@ that no pixmap has to cross a link, and a shader is drawn there too, by the
 host GUI driver, into the texture of a canvas. There is no service and no
 message. The texture is then composited like any other.
 
-```lisp
+```vdu
 (import "lib/gpu/gui.inc")
 
 (defq shader (shader-gui program))
@@ -815,7 +815,7 @@ the driver can not.
 
 `(shader-cpu program)` gives a Lisp lambda that shades a tile.
 
-```lisp
+```vdu
 (defq shade (shader-cpu program)
 	args (shader-cpu-args program '((time 2.0) (resolution (64.0 48.0)))))
 (defq pixels (apply shade (cat (list 0 0 64 48) args)))
@@ -853,7 +853,7 @@ of the power, and by repeated square roots for the rest.
 
 `(shader-vp program)` gives a native function for the program.
 
-```lisp
+```vdu
 (defq native (shader-vp program)
 	frame (shader-vp-frame program native '((time 2.0) (resolution (640.0 480.0))))
 	pixels (shader-vp-argb native frame 0 0 640 480 480))
@@ -889,7 +889,7 @@ grey, and draws them in the colour of the atom. The ball is a shader,
 `apps/science/molecule/atom.shader`. Clear outside the ball, and at
 its edge the alpha is the share of the pixel the ball covers.
 
-```lisp
+```vdu
 (defq canvas (Canvas size size 1))
 (shader-vp-draw native
 	(shader-vp-frame program native (list (list 'resolution (list size size))))

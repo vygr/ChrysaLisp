@@ -32,7 +32,7 @@ The hash of FIPS 180-4. 32 bytes that stand for any amount of data, such
 that no two different inputs have ever been found with the same hash. It is
 what would name a block of the store by its content.
 
-```lisp
+```vdu
 (import "lib/crypto/sha256.inc")
 
 (sha256 "abc")
@@ -42,7 +42,7 @@ what would name a block of the store by its content.
 
 For what does not come all at once, a file read a part at a time.
 
-```lisp
+```vdu
 (defq ctx (sha256-start))
 (while (defq part (read-blk stream 65536))
 	(sha256-add ctx part))
@@ -59,7 +59,7 @@ The parts can be of any size, the hash is the same as that of the whole.
 
 ### With a key
 
-```lisp
+```vdu
 (hmac-sha256 key data) -> str
 ```
 
@@ -68,7 +68,7 @@ has the key can make or check. It is SHA-256 twice over, and is all Lisp.
 
 ### A key from a password
 
-```lisp
+```vdu
 (import "lib/crypto/pbkdf2.inc")
 
 (defq salt (random-bytes 16)
@@ -96,7 +96,7 @@ scrypt and Argon2 do, only in time.
 
 ### The native code
 
-```lisp
+```vdu
 (sha256-blocks state data offset count) -> state
 ```
 
@@ -136,7 +136,7 @@ than a block, and that the size asked for is the size had.
 
 ## SHA-512
 
-```lisp
+```vdu
 (import "lib/crypto/sha512.inc")
 
 (sha512 data) -> str
@@ -159,7 +159,7 @@ native code refuses. The answers are Python's `hashlib`.
 
 ## Ed25519, A Signature
 
-```lisp
+```vdu
 (import "lib/crypto/ed25519.inc")
 
 (defq seed (random-bytes 32)
@@ -224,7 +224,7 @@ gives the RFC's own.
 The AEAD of RFC 8439, and what to use to hide data. It hides it, and it
 guards it, what is opened is what was sealed or it does not open.
 
-```lisp
+```vdu
 (import "lib/crypto/aead.inc")
 
 (defq sealed (aead-seal key nonce aad data))
@@ -256,7 +256,7 @@ wrong.
 
 ### ChaCha20
 
-```lisp
+```vdu
 (import "lib/crypto/chacha20.inc")
 
 (chacha20 key nonce counter data) -> str
@@ -270,7 +270,7 @@ stream, so `(chacha20 key nonce 3 ...)` is the stream from 192 bytes in.
 It hides and does not guard. A bit changed on the way is a bit changed when
 it is decrypted, and nothing says so. Use the seal.
 
-```lisp
+```vdu
 (chacha20-xor key nonce counter data out offset length) -> out
 ```
 
@@ -286,7 +286,7 @@ left is two shifts, an or, and an and.
 
 ### Poly1305
 
-```lisp
+```vdu
 (import "lib/crypto/poly1305.inc")
 
 (poly1305 key data) -> str
@@ -298,7 +298,7 @@ be worked out, which is why the seal makes one for each nonce.
 `(poly1305-start key)`, `(poly1305-add ctx data)` and `(poly1305-end ctx)`
 are for what comes a part at a time.
 
-```lisp
+```vdu
 (poly1305-blocks state data offset count top) -> state
 ```
 
@@ -323,7 +323,7 @@ of the RFC written for the job, which gives the RFC's own.
 
 ## Random Bytes
 
-```lisp
+```vdu
 (import "lib/crypto/random.inc")
 
 (defq key (random-bytes 32) nonce (random-bytes 12))

@@ -17,7 +17,7 @@ A symbol that starts with `+` is prebound, the value goes into the code in
 place of the name when the function is made. If the value is a list, that
 list is then run as a form.
 
-```lisp
+```vdu
 (defq +sizes (list 1 2 3))
 (defun f () (first +sizes))
 (f) ; -> (lambda ([arg ...]) body) not_a_function
@@ -27,14 +27,14 @@ Quote it twice, or give a list that is not a constant a `*name*`. The same
 goes for `(const (list ...))`, use `(static-q (...))` for a list that is
 made once.
 
-```lisp
+```vdu
 (defq +sizes ''(1 2 3))
 (defun f () (first (static-q (1 2 3))))
 ```
 
 ### A key of `case` that starts with `+` is the value, not the symbol
 
-```lisp
+```vdu
 (case op (+ :plus) (- :minus) (:t :other))
 ```
 
@@ -47,7 +47,7 @@ A parameter list is macro expanded with the rest. A parameter called `bits`
 or `when`, both macros, is seen as a call of the macro. The error is
 `symbol_not_bound`, and says nothing of the parameter.
 
-```lisp
+```vdu
 (defun f (bits) bits) ; no
 (defun f (nbits) nbits)
 ```
@@ -63,7 +63,7 @@ the function is made, a name at the head of a list that is a function is
 bound to it. So a local called `num`, `str`, `list`, `first`, any function,
 is called, with nothing, in place of being looked at.
 
-```lisp
+```vdu
 (defun f (&optional num) (and num (> num 0)))
 (f) ; -> (> num num ...) wrong_types, num was called, gave 0, and went on
 ```
@@ -74,7 +74,7 @@ the local another name, `cnt`, or write the term as a test, `(and (num? cnt)
 
 ### `setd` can not tell `:nil` from not given
 
-```lisp
+```vdu
 (defun f (&optional listen) (setd listen :t) listen)
 (f :nil) ; -> :t
 ```
@@ -86,7 +86,7 @@ both mean the usual thing.
 
 ### A `#` with no `%0` in it takes no arguments
 
-```lisp
+```vdu
 (filter (# (/= 0 (% (!) 3))) seq) ; wrong_num_of_args
 (pipe-run "echo x" (# :nil))      ; the same
 ```
@@ -103,7 +103,7 @@ has a slot in the hash of the environment to be found in. An `&` in a list
 of parameters, and in a `bind`, is a place that takes a thing and binds
 nothing.
 
-```lisp
+```vdu
 (map (lambda (&) 0) seq)            ; a 0 for each
 (each (lambda ((name & size)) ...)) ; the first and the third of each
 (bind '(a &ignore) seq)             ; the first, and no more is looked at
@@ -115,7 +115,7 @@ A name that is not a local of a function is looked for in the function
 that called it, and the one that called that. So a function can read, and
 `setq`, a local of its caller.
 
-```lisp
+```vdu
 (defun helper () (setq total 99))
 (defun f () (defq total 1) (helper) total)
 (f) ; -> 99
@@ -134,7 +134,7 @@ defined before it, as it is made. A call to one defined later is looked for
 by name when it runs, and by then the module's names have gone, all but the
 exported ones.
 
-```lisp
+```vdu
 (env-push)
 (defun first-one (n) (second-one n)) ; symbol_not_bound when called
 (defun second-one (n) n)
@@ -159,7 +159,7 @@ prefix the assembler does not use. There is no test of this one.
 
 `0`, `""` and an empty list are all true.
 
-```lisp
+```vdu
 (if (list) :yes :no) ; -> :yes
 ```
 
@@ -167,7 +167,7 @@ Ask `(empty? seq)` or `(nempty? seq)`, and `(= n 0)`.
 
 ### `:nil` is a symbol, and a symbol is a sequence
 
-```lisp
+```vdu
 (first (list))  ; -> :nil
 (first :nil)    ; -> ":", which is true
 ```
@@ -178,7 +178,7 @@ before taking it apart.
 
 ### A quoted list is the one list, every time
 
-```lisp
+```vdu
 (defun f () (defq out '()) (push out 1))
 (f) ; -> (1)
 (f) ; -> (1 1)
@@ -193,7 +193,7 @@ for a list that will be changed.
 same list in both. If the whole of it is to be copied, `(copy lst)` does,
 it copies the list and every list in it, however deep.
 
-```lisp
+```vdu
 (defq a (list 1 (list 2 3)) b (cat a) c (copy a))
 (push (second b) 9)
 (second a) ; -> (2 3 9), b has the same inner list
@@ -217,7 +217,7 @@ A message to a task on the same node is not copied, what arrives is the
 object that was sent. If the one who gets it writes into it, the sender's
 is written into, and so is any list or set the sender had put it in.
 
-```lisp
+```vdu
 (defq mbox (mail-mbox) sent (str-alloc 8))
 (mail-send mbox sent)
 (set-long (mail-read mbox) 0 5)
@@ -236,7 +236,7 @@ A number without is an integer. A real is a third kind, made with `(n2r)`.
 Arithmetic on two kinds is an error, `wrong_types`, which is easy to find.
 A compare is not.
 
-```lisp
+```vdu
 (+ 1 1.5)  ; wrong_types
 (= 1 1.0)  ; -> :nil, and no error
 ```
@@ -251,7 +251,7 @@ real that is exact use `(str-to-real "0.001")`.
 `(type-of)` gives the classes a thing is, the one it inherits from first
 and its own last. A real is a fixed, and a fixed is a num.
 
-```lisp
+```vdu
 (type-of 3)           ; -> (:num)
 (type-of 1.5)         ; -> (:num :fixed)
 (type-of (n2r 1.5))   ; -> (:num :fixed :real)
@@ -265,7 +265,7 @@ built on it, is its class in that chain. The answer is true or it is
 happens, `0` for one, and `0` is true, only `:nil` is false. It is an
 answer to test, not a value to read.
 
-```lisp
+```vdu
 (num? (n2r 1.5))      ; -> true, a real is a num
 (list? (Fmap))        ; -> true, a map is a list
 (if (num? 3) "yes")   ; -> "yes", though what (num? 3) gave was 0
@@ -276,7 +276,7 @@ of the chain, and no other. There is one for each class that others are
 built on, `array??`, `list??`, `num??`, `fixed??`, `nums??`, `fixeds??`
 and `str??`.
 
-```lisp
+```vdu
 (list?? (list))       ; -> :t
 (list?? (Fmap))       ; -> :nil
 (str? 'name)          ; -> true, a symbol is a str
@@ -293,7 +293,7 @@ as well, `(:seq :array :list :hmap :View :Label :Button)`.
 
 ### `trim` wants its characters in order
 
-```lisp
+```vdu
 (trim "  ab \n" " \t\r\n")              ; nothing is trimmed
 (trim "  ab \n" (char-class " \t\r\n")) ; -> "ab"
 ```
@@ -305,7 +305,7 @@ one, sorted, and with ranges, `"a-z0-9"`. Given one that is not in order,
 
 ### `find` with a str in a str looks for its first character
 
-```lisp
+```vdu
 (find "elx" "hello") ; -> 1
 ```
 
@@ -331,7 +331,7 @@ Work in the checked build. [`docs/ai_digest/exceptions.md`](exceptions.md).
 
 ### A handler that gives `:nil` passes the error on
 
-```lisp
+```vdu
 (catch (work) (progn (tidy-up) :nil)) ; the error carries on up
 (catch (work) (progn (tidy-up) :t))   ; the error ends here
 ```

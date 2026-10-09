@@ -24,3 +24,40 @@
 (assert-list-eq "no app has a + constant that is a list quoted once" '() ap_found)
 (assert-true "the pattern does find one" (nempty? (matches "(defq +a_b '(1 2))" "\\+[a-z_0-9]+ '\\(")))
 (assert-true "and tells it from one quoted twice" (empty? (matches "(defq +a_b ''(1 2))" "\\+[a-z_0-9]+ '\\(")))
+
+;The Docs app runs what a document has between ```lisp and ```, and shows
+;what it gives. Code that is only there to be read is between ```vdu and
+;```. A document that has the first for the second throws as its page is
+;drawn, each time, to the terminal the desktop was started from: an API
+;written as (name args) -> result, a line of a shader, a trap shown as it
+;is. So every such block of the documents is run here, as the app runs it,
+;in an environment of its own. Not those of docs/gui/, which make widgets
+;and want a desktop, nor docs/reference/, which the build writes
+(import "usr/env.inc")
+(import "gui/lisp.inc")
+(defq ap_threw (list) ap_blocks 0)
+(each (lambda (file)
+	(defq ap_src :nil ap_line 0 ap_at 0)
+	(lines! (lambda (line)
+			(++ ap_line)
+			(defq text (trim line (const (char-class " \t\r"))))
+			(cond
+				((and (not ap_src) (eql text "```lisp")) (setq ap_src (list) ap_at ap_line))
+				((and ap_src (starts-with "```" text))
+					(++ ap_blocks)
+					(defq ap_ss (string-stream (join ap_src "\n")))
+					(if (eval (static-qq (progn
+							(env-push)
+							(defq ap_bad (catch (progn (repl ,ap_ss "block") :nil) :t))
+							(export-symbols '(ap_bad))
+							(env-pop)
+							ap_bad)))
+						(push ap_threw (cat file ":" (str ap_at))))
+					(setq ap_src :nil))
+				(ap_src (push ap_src line)))
+			:nil)
+		(file-stream file)))
+	(filter (# (not (or (starts-with "docs/gui/" %0) (starts-with "docs/reference/" %0))))
+		(sort (files-all "docs" '(".md")))))
+(assert-true "the documents have blocks that the Docs app runs" (> ap_blocks 40))
+(assert-list-eq "and none of them throws" '() ap_threw)
