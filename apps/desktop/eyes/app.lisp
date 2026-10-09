@@ -2,6 +2,7 @@
 (import "gui/lisp.inc")
 (import "service/lock/app.inc")
 (import "lib/math/vector.inc")
+(import "lib/gpu/vp.inc")
 
 ;;;;;;;;;;;;;;;
 ; configuration
@@ -9,7 +10,14 @@
 
 (defq +min_width 256 +min_height 128 +max_width 512 +max_height 256
 	*canvas* :nil *config* :nil +config_version 2
-	+config_file (cat *env_home* "eyes.tre"))
+	+config_file (cat *env_home* "eyes.tre")
+	;the eyes are a shader, as native code, both of them in one go, drawn
+	;straight onto the pixels of the canvas
+	eyes_program (shader-load (cat (path-to-file) "eyes.shader"))
+	eyes_native (shader-vp eyes_program)
+	;how far in front of the screen the eyes take the mouse to be, in
+	;eyes, and the most they turn to it, as how far off it can be
+	+look_depth 1.2 +look_most 2.4)
 
 (defun config-default ()
 	(scatter (Emap)
@@ -53,7 +61,6 @@
 	(def *backdrop* :min_width pw :min_height ph)
 	(if *canvas* (. *canvas* :sub))
 	(setq *canvas* (Canvas pw ph 1))
-	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *backdrop* :add_child *canvas*)
 	; Get current position then fit window to screen
 	(bind '(x y) (. *window* :get_pos))
@@ -62,40 +69,33 @@
 	(. *window* :change_dirty x y fw fh :t)
 	(setq last_mx -1 last_my -1))
 
-(defun circle (r)
-	; Cached circle path generation
-	(memoize r (list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) 3))
-
-(defun draw-eye (cx rel_mx rel_my eye_cy eye_r iris_r pupil_r hr max_dist)
-	; Iris position clamped to the eyeball boundary
-	(defq vec (Vec2-f (- rel_mx cx) (- rel_my eye_cy))
-		dist (vector-length vec)
-		off (if (> dist 0.0)
-			(vector-scale (vector-norm vec) (min dist max_dist))
-			(Vec2-f 0.0 0.0)))
-	(bind '(ipx ipy) (vector-add (Vec2-f cx eye_cy) off))
-	; Highlight offset in the direction opposite to gaze
-	(bind '(nx ny) (if (> dist 0.0) (vector-norm vec) (Vec2-f -0.707 -0.707)))
-	(defq hx (+ ipx (* (- 0.0 nx) (* hr 1.33))) hy (+ ipy (* (- 0.0 ny) (* hr 1.33))))
-	(.-> *canvas*
-		(:set_color +argb_white) (:fpoly cx eye_cy +winding_odd_even (circle eye_r))
-		(:set_color iris_color) (:fpoly ipx ipy +winding_odd_even (circle iris_r))
-		(:set_color +argb_black) (:fpoly ipx ipy +winding_odd_even (circle pupil_r))
-		(:set_color +argb_white) (:fpoly hx hy +winding_odd_even (circle hr))))
+(defun look (cx cy r mx my)
+	; (look cx cy r mx my) -> gaze
+	;the way an eye at cx cy, r across to its edge, looks to see the
+	;mouse, a unit vector, z out of the screen. It turns so far and no
+	;further, an eye does not look backwards
+	(defq off (Vec2-f (/ (- mx cx) r) (/ (- my cy) r))
+		dist (vector-length off))
+	(if (> dist +look_most) (setq off (vector-scale off (/ +look_most dist))))
+	(map (const n2r) (vector-norm (Vec3-f (first off) (second off) (const (neg +look_depth))))))
 
 (defun redraw (mx my)
-	(bind '(w h) (map (const n2f) (. *canvas* :pref_size)))
-	(. *canvas* :fill 0)
+	(bind '(w h) (. *canvas* :pref_size))
 	; Relative mouse position within the canvas
-	(bind '(canvas_x canvas_y & &)
-		(map (const n2f) (. (penv *window*) :get_relative *canvas*)))
-	(defq rel_mx (- (n2f mx) canvas_x)
-		rel_my (- (n2f my) canvas_y))
-	; Shared eye geometry
-	(defq eye_r (* h 0.48) iris_r (* eye_r iris_scale) pupil_r (* iris_r pupil_scale)
-		hr (* pupil_r 0.3) max_d (- eye_r iris_r) eye_cy (* h 0.5))
-	(draw-eye (* w 0.25) rel_mx rel_my eye_cy eye_r iris_r pupil_r hr max_d)
-	(draw-eye (* w 0.75) rel_mx rel_my eye_cy eye_r iris_r pupil_r hr max_d)
+	(bind '(canvas_x canvas_y & &) (. (penv *window*) :get_relative *canvas*))
+	(defq fw (n2f w) fh (n2f h) rel_mx (n2f (- mx canvas_x)) rel_my (n2f (- my canvas_y))
+		eye_r (* fh 0.48) eye_cy (* fh 0.5))
+	(shader-vp-draw eyes_native
+		(shader-vp-frame eyes_program eyes_native (list
+			(list 'resolution (list w h))
+			(list 'look_left (look (* fw 0.25) eye_cy eye_r rel_mx rel_my))
+			(list 'look_right (look (* fw 0.75) eye_cy eye_r rel_mx rel_my))
+			(list 'iris_color (map (# (/ (n2f (logand (>> iris_color %0) 0xff)) 255.0)) '(16 8 0)))
+			;the iris is so much of the eye as it is seen flat, on the
+			;ball it is that far round
+			(list 'iris_size (* iris_scale 0.7))
+			(list 'pupil_size pupil_scale)))
+		(getf *canvas* +canvas_pixmap 0) 0 0 w h h :t)
 	(. *canvas* :swap +swap_write))
 
 ;;;;;;;;;;;

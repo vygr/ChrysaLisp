@@ -4,6 +4,30 @@
 
 ------
 
+The Eyes app, with a shader.
+
+*	Chris: "Eyes app with shaders ! :)" The eyes were four flat discs
+	each. They are now `apps/desktop/eyes/eyes.shader`, both eyes in one
+	pass, as native code straight onto the pixels of the canvas.
+
+*	An eye is a ball that turns to look at the mouse. The iris and pupil
+	are on the ball, so they go round to the side of it and thin as it
+	looks away. The white is lit from the top left and dim at its rim, the
+	iris has fibres and a dark ring, and the eye is wet, the highlight
+	stays where the light is as the eye turns.
+
+*	The app works out a gaze for each eye, `(look)`, a unit vector, the
+	mouse taken to be a little in front of the screen, and an eye turns
+	only so far. The colour and sizes are those of its config, as before.
+
+*	2ms a frame at the small size, 8ms at the large, on the M4, and only
+	when the mouse has moved. New test, `tests/gpu/test_eyes.lisp`.
+
+*	Not seen: on a desktop, following a mouse. The app's own drawing code
+	was run without a window, and its pictures looked at.
+
+------
+
 The Mandelbrot app, a facelift.
 
 *	Chris: "Mandelbrot facelift on the list. More depth and nicer
