@@ -66,6 +66,29 @@
 (assert-true "what is in a group is listed under it" (starts-with "    1 path" (elem-get cc_out 3)))
 (assert-eq "with -k the file is as it was" 4 (length (cwb-items (cwb-load (file-stream cc_file)))))
 
+;the palette, by pointers alone: the right button down and up on nothing opens
+;it, time goes by, a tap on the wedge that is a box, 54 below its middle, and
+;what the left button then draws is a box
+(save (cat "0 mouse 4 320 200" (ascii-char 10) "0 mouse 0 320 200" (ascii-char 10)
+	"wait 400" (ascii-char 10)) cc_ptr)
+(defq cc_out (cc-run (cat "cwb " cc_file " -p " cc_ptr " -o " cc_pic " -b 0xffffffff -k")))
+(defq cc_canvas (canvas-load cc_pic +load_flag_noswap))
+(when cc_canvas
+	(assert-true "a palette opened by a pointers file is in the picture, dark, where one of its wedges is"
+		(every (# (< (logand (>> (cc-pixel cc_canvas 343 69) %0) 0xff) 0x60)) '(0 8 16)))
+	(assert-eq "and not off it" 0xffffffff (cc-pixel cc_canvas 600 380)))
+(save (cat "0 mouse 4 320 200" (ascii-char 10) "0 mouse 0 320 200" (ascii-char 10)
+	"wait 400" (ascii-char 10)
+	"0 mouse 1 320 254" (ascii-char 10) "0 mouse 0 320 254" (ascii-char 10)
+	"wait 300" (ascii-char 10)
+	"0 mouse 1 420 40" (ascii-char 10) "0 mouse 1 600 100" (ascii-char 10) "0 mouse 0 600 100" (ascii-char 10)) cc_ptr)
+(defq cc_out (cc-run (cat "cwb " cc_file " -p " cc_ptr " -i -o " cc_pic " -b 0xffffffff -k")))
+(assert-eq "a tap on its box wedge, and the mouse draws a box" "  5 rect box 418.5 38.5 601.5 101.5 d M 420 40 L 600 40 600 100 420 100 Z"
+	(elem-get cc_out 6))
+(defq cc_canvas (canvas-load cc_pic +load_flag_noswap))
+(when cc_canvas
+	(assert-eq "the palette was put away by it, and is not in the picture" 0xffffffff (cc-pixel cc_canvas 343 69)))
+
 ;what it will not do
 (assert-list-eq "a file that is not one" (list (cat "Not a whiteboard document: " cc_ptr)) (cc-run (cat "cwb " cc_ptr " -i")))
 (assert-list-eq "a size that is not one" '("Not a size, 800x600: big") (cc-run (cat "cwb -n big " cc_file)))

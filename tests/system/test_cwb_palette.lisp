@@ -1,0 +1,202 @@
+(report-header "Whiteboard palette: rings of wedges that open where a hand taps on nothing, for the pointer that opened it")
+
+(import "usr/env.inc")
+(import "gui/lisp.inc")
+(import "lib/cwb/palette.inc")
+
+(defun pl-tap (board id kind buttons x y)
+	;a pointer down and up at a point
+	(. board :pointers (list (ptr-event id kind buttons x y)))
+	(. board :pointers (list (ptr-event id kind 0 x y))))
+
+(defun pl-drag (board id kind buttons x y x1 y1)
+	(. board :pointers (list (ptr-event id kind buttons x y)))
+	(. board :pointers (list (ptr-event id kind buttons x1 y1)))
+	(. board :pointers (list (ptr-event id kind 0 x1 y1))))
+
+(defun pl-pick (board palette id kind buttons what &optional val)
+	;a tap on a wedge, where the palette says it is
+	(apply (const pl-tap) (cat (list board id kind buttons) (. palette :where what val))))
+
+(defun pl-ink (canvas back)
+	;how many pixels are not what was behind
+	(defq stream (memory-stream) n 0)
+	(pixmap-write (getf canvas +canvas_pixmap 0) stream 32)
+	(stream-seek stream 0 0)
+	(defq bytes (read-blk stream 100000000) want (char back 4))
+	(each (# (unless (eql (slice bytes %0 (+ %0 4)) want) (++ n))) (range 0 (length bytes) 4))
+	n)
+
+;a board with no menu is as it was
+(defq pl_board (Board (cwb-doc 800 600)))
+(pl-tap pl_board 0 :mouse +pev_right 400 300)
+(assert-eq "a tap on nothing does nothing on a board that was not given a palette" 0 (length (palettes pl_board)))
+
+(palette-enable pl_board)
+(. pl_board :tick 0)
+(pl-tap pl_board 0 :mouse +pev_right 400 300)
+(defq pl_pal (first (palettes pl_board)))
+(assert-eq "the right button of the mouse, down and up on nothing, opens one" 1 (length (palettes pl_board)))
+(assert-list-eq "about where it tapped, and it is the mouse's" '(400 300 :mouse 0)
+	(cat (map (const n2i) (get :origin pl_pal)) (list (get :kind pl_pal) (get :id pl_pal))))
+(assert-eq "it is at the front of the stage" :t (eql pl_pal (last (. (. pl_board :get_stage) :get_actors))))
+(assert-eq "35 wedges: 11 tools, 12 colours and 4 widths, 8 things to do" 35 (length (. pl_pal :get_wedges)))
+
+;time
+(assert-eq "at the moment it opens no ring is open at all" 0 (n2i (* 100.0 (. pl_pal :ring_scale 0))))
+(assert-eq "and it is moving" :t (. pl_board :tick 60000))
+(assert-true "a little after, the inner ring is part open and the outer less so"
+	(and (> (. pl_pal :ring_scale 0) 0.2) (< (. pl_pal :ring_scale 2) (. pl_pal :ring_scale 0))))
+(assert-eq "what moves is to be drawn again" :t (. pl_board :dirty? +board_dirty_overlay))
+(assert-eq "after a second it is still" :nil (. pl_board :tick 1000000))
+(assert-list-eq "and all three rings are open" '(100 100 100)
+	(map (# (n2i (* 100.0 (. pl_pal :ring_scale %0)))) '(0 1 2)))
+
+;drawing
+(defq pl_canvas (Canvas 800 600 1))
+(. pl_canvas :set_canvas_flags +canvas_flag_antialias)
+(. pl_canvas :fill 0xffffffff)
+(. pl_board :draw_actors pl_canvas)
+(defq pl_open (pl-ink pl_canvas 0xffffffff))
+(assert-true "open, it is drawn, most of a disc 150 across each way" (and (> pl_open 55000) (< pl_open 72000)))
+
+;where a wedge is, and what is there
+(assert-list-eq "the middle is the middle" '(400 300) (map (const n2i) (. pl_pal :where :hub)))
+(defq pl_at (. pl_pal :where :tool :rect))
+(assert-eq "a point of a wedge is on that wedge" :rect
+	(elem-get (apply (# (. pl_pal :wedge_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1)) pl_at)) +wedge_val))
+(assert-eq "every wedge is where it says it is" 35
+	(length (filter (lambda (wedge)
+		(eql wedge (apply (# (. pl_pal :wedge_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1))
+			(. pl_pal :where (elem-get wedge +wedge_what) (elem-get wedge +wedge_val))))))
+		(. pl_pal :get_wedges))))
+(assert-eq "a point on it is on it" :t (. pl_pal :hit 400 440))
+(assert-eq "and one off it is not" :nil (. pl_pal :hit 400 460))
+
+;a pointer over it, not down
+(. pl_board :dirty? +board_dirty_overlay)
+(. pl_board :pointers (list (apply (const ptr-event) (cat (list 0 :mouse 0) pl_at))))
+(assert-eq "the wedge the mouse is over is the one drawn so" :rect (elem-get (get :hover pl_pal) +wedge_val))
+(assert-eq "which is to be drawn" :t (. pl_board :dirty? +board_dirty_overlay))
+(. pl_board :pointers (list (ptr-event 0 :mouse 0 700 500)))
+(assert-eq "and none when it has gone off" :nil (get :hover pl_pal))
+
+;colour and width, it stays
+(pl-pick pl_board pl_pal 0 :mouse +pev_left :color 0xffe03131)
+(pl-pick pl_board pl_pal 0 :mouse +pev_left :width 6.0)
+(assert-list-eq "a tap on a colour and one on a width set the board's" '(0xffe03131 6)
+	(list (get :color pl_board) (n2i (get :width pl_board))))
+(assert-eq "and it is still open" 1 (length (palettes pl_board)))
+;a tool, it goes
+(pl-pick pl_board pl_pal 0 :mouse +pev_left :tool :rect)
+(assert-eq "a tap on a tool sets what the board draws" :rect (get :mode pl_board))
+(assert-eq "and it shuts" 0 (length (palettes pl_board)))
+(assert-eq "shut, a point on it is not on it" :nil (. pl_pal :hit 400 300))
+(assert-eq "it is on the stage while it shuts" :t (. pl_board :tick 1050000))
+(assert-true "smaller" (< (. pl_pal :ring_scale 0) 0.7))
+(. pl_board :tick 1200000)
+(assert-eq "and then is off it" :nil (find pl_pal (. (. pl_board :get_stage) :get_actors)))
+;what was picked is what is drawn
+(pl-drag pl_board 0 :mouse +pev_left 100 100 220 180)
+(defq pl_item (last (cwb-items (. pl_board :get_doc))))
+(assert-list-eq "the mouse then draws a box, red, 6 wide" (list (cwb-d-rect 100 100 220 180) 0xffe03131 6)
+	(list (cwb-get pl_item :d) (cwb-get pl_item :stroke) (n2i (cwb-get pl_item :width))))
+
+;taps that do not open one
+(. pl_board :select (list (elem-get pl_item +cwb_id)))
+(pl-tap pl_board 0 :mouse +pev_right 600 500)
+(assert-list-eq "with something selected, a tap on nothing lets go of it and opens none" '(0 0)
+	(list (length (. pl_board :get_selected)) (length (palettes pl_board))))
+(pl-drag pl_board 0 :mouse +pev_right 500 400 700 560)
+(assert-eq "a hand dragged on nothing is a box round things, and opens none" 0 (length (palettes pl_board)))
+(pl-tap pl_board 0 :mouse +pev_right 600 500)
+(defq pl_pal (first (palettes pl_board)))
+(assert-eq "the next tap on nothing does" 1 (length (palettes pl_board)))
+(pl-tap pl_board 0 :mouse +pev_right 100 500)
+(assert-eq "a tap off it puts it away, and opens no other" 0 (length (palettes pl_board)))
+(pl-tap pl_board 0 :mouse +pev_right 100 500)
+(defq pl_pal (first (palettes pl_board)))
+(assert-list-eq "it is kept on the document, one opened near an edge" '(150 450) (map (const n2i) (get :origin pl_pal)))
+(pl-pick pl_board pl_pal 0 :mouse +pev_left :hub)
+(assert-eq "a tap on its middle puts it away" 0 (length (palettes pl_board)))
+;the left button draws, it is the pen
+(. pl_board :tick 2000000)
+(def pl_board :mode :select)
+(pl-tap pl_board 0 :mouse +pev_left 600 300)
+(assert-eq "with the board set to select the left button is a hand too, and opens one" 1 (length (palettes pl_board)))
+(. (first (palettes pl_board)) :pick :tool :pen)
+
+;things to do
+(. pl_board :tick 3000000)
+(defq pl_count (length (cwb-items (. pl_board :get_doc))))
+(pl-tap pl_board 0 :mouse +pev_right 400 300)
+(defq pl_pal (first (palettes pl_board)))
+(pl-pick pl_board pl_pal 0 :mouse +pev_left :action :undo)
+(assert-list-eq "undo takes the box out, and the palette stays" (list (dec pl_count) 1)
+	(list (length (cwb-items (. pl_board :get_doc))) (length (palettes pl_board))))
+(pl-pick pl_board pl_pal 0 :mouse +pev_left :action :redo)
+(assert-eq "redo puts it back" pl_count (length (cwb-items (. pl_board :get_doc))))
+(pl-pick pl_board pl_pal 0 :mouse +pev_left :action :snap)
+(assert-eq "snap is on, to the grid of the document" 32 (n2i (get :snap pl_board)))
+(pl-pick pl_board pl_pal 0 :mouse +pev_left :action :snap)
+(assert-eq "and off" 0 (n2i (get :snap pl_board)))
+(pl-pick pl_board pl_pal 0 :mouse +pev_left :action :ruler)
+(defq pl_ruler (some (# (if (Ruler? %0) %0)) (. (. pl_board :get_stage) :get_actors)))
+(assert-list-eq "a ruler is put where the palette was, and the palette goes" '(400 300 0)
+	(cat (map (const n2i) (get :origin pl_ruler)) (list (length (palettes pl_board)))))
+(. (. pl_board :get_stage) :sub pl_ruler)
+
+;a pen has its own
+(. pl_board :tick 4000000)
+(pl-tap pl_board 9 :pen +pev_right 300 300)
+(defq pl_pal (first (palettes pl_board)))
+(assert-list-eq "a pen with the button on its side held is a hand, and opens its own" '(:pen 9)
+	(list (get :kind pl_pal) (get :id pl_pal)))
+(pl-pick pl_board pl_pal 9 :pen +pev_left :color 0xff2f9e44)
+(pl-pick pl_board pl_pal 9 :pen +pev_left :width 12.0)
+(pl-pick pl_board pl_pal 9 :pen +pev_left :tool :ellipse)
+(assert-list-eq "what it picks is not the board's" '(:pen 0xffe03131 6)
+	(list (get :mode pl_board) (get :color pl_board) (n2i (get :width pl_board))))
+(pl-drag pl_board 9 :pen +pev_left 500 100 600 160)
+(defq pl_item (last (cwb-items (. pl_board :get_doc))))
+(assert-list-eq "that pen draws an ellipse, green, 12 wide" (list :ellipse 0xff2f9e44 12)
+	(list (cwb-get pl_item :kind) (cwb-get pl_item :stroke) (n2i (cwb-get pl_item :width))))
+(pl-drag pl_board 8 :pen +pev_left 500 200 600 260)
+(defq pl_item (last (cwb-items (. pl_board :get_doc))))
+(assert-list-eq "another pen draws what the board is set to, in its colour" (list :pen 0xffe03131)
+	(list (cwb-get pl_item :kind) (cwb-get pl_item :stroke)))
+(pl-drag pl_board 0 :mouse +pev_left 500 300 600 360)
+(assert-eq "and so does the mouse" :pen (cwb-get (last (cwb-items (. pl_board :get_doc))) :kind))
+(. pl_board :tick 5000000)
+(pl-tap pl_board 9 :pen +pev_right 300 300)
+(defq pl_pal (first (palettes pl_board)))
+(assert-list-eq "opened again by that pen, it shows what that pen has" (list :ellipse 0xff2f9e44 12)
+	(list (. pl_pal :value :mode) (. pl_pal :value :color) (n2i (. pl_pal :value :width))))
+(pl-pick pl_board pl_pal 9 :pen +pev_left :tool :line)
+(assert-eq "a pen that picks again is bound once, not once more each time" 1
+	(length (filter (# (and (eql (first %0) :pen) (eql (second %0) 9))) (get :rules (. pl_board :get_bindings)))))
+
+;two at once
+(. pl_board :tick 6000000)
+(pl-tap pl_board 0x10001 :touch +pev_left 200 200)
+(pl-tap pl_board 9 :pen +pev_right 600 400)
+(assert-list-eq "a finger opens one, and a pen another, both are there" '(:touch :pen)
+	(map (# (get :kind %0)) (palettes pl_board)))
+(pl-drag pl_board 0 :mouse +pev_left 50 500 80 560)
+(assert-eq "the mouse drawing elsewhere puts neither away, they are not its" 2 (length (palettes pl_board)))
+(pl-tap pl_board 0x10002 :touch +pev_left 700 100)
+(assert-list-eq "another finger down off them puts the finger's away" '(:pen) (map (# (get :kind %0)) (palettes pl_board)))
+(. (first (palettes pl_board)) :close)
+
+;zoomed, it is the same size on the screen
+(. pl_board :tick 7000000)
+(def pl_board :zoom 2.0)
+(defq pl_pal (palette-open pl_board 400 300))
+(assert-list-eq "at twice the size a wedge is half as far from the middle in the document" '(400 327)
+	(map (const n2i) (. pl_pal :where :tool :rect)))
+(assert-list-eq "and the palette is on half as much of it" '(:t :nil) (list (. pl_pal :hit 400 374) (. pl_pal :hit 400 377)))
+(. pl_pal :pick :hub)
+(def pl_board :zoom 1.0)
+(. pl_board :tick 8000000)
+(assert-eq "all are gone from the stage at the end" 0
+	(length (filter (const Palette?) (. (. pl_board :get_stage) :get_actors))))

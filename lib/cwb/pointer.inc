@@ -63,6 +63,14 @@
 		(def this :rules (cat (list (list kind id buttons what)) (get :rules this)))
 		this)
 
+	(defmethod :unbind (kind id buttons)
+		; (. bindings :unbind kind id buttons) -> bindings
+		;the rules that match just that are taken out
+		(def this :rules (filter (lambda ((rkind rid rbuttons &ignore))
+			(not (and (eql rkind kind) (eql rid id) (eql rbuttons buttons))))
+			(get :rules this)))
+		this)
+
 	(defmethod :find (event)
 		; (. bindings :find event) -> :nil | what
 		(bind '(id kind buttons &ignore) event)
@@ -82,13 +90,15 @@
 
 (defun bindings-default ()
 	; (bindings-default) -> bindings
-	;how a board starts out. A pen draws and its other end rubs out. The
-	;mouse draws with its left button, moves things with its right and the
-	;board itself with its middle. A finger moves things
+	;how a board starts out. A pen draws and its other end rubs out, and
+	;with the button on its side held it moves things. The mouse draws
+	;with its left button, moves things with its right and the board
+	;itself with its middle. A finger moves things
 	(.-> (Bindings)
 		(:bind :nil :nil :nil '(:tool :pen))
 		(:bind :touch :nil :nil '(:tool :hand))
 		(:bind :eraser :nil :nil '(:tool :eraser))
+		(:bind :pen :nil +pev_right '(:tool :hand))
 		(:bind :mouse :nil +pev_middle '(:tool :pan))
 		(:bind :mouse :nil +pev_right '(:tool :hand))))
 
@@ -115,6 +125,24 @@
 	(defmethod :leave (stage id)
 		; (. actor :leave stage id) -> actor
 		;a pointer that was over it, not down, is no longer
+		this)
+
+	(defmethod :tick (time)
+		; (. actor :tick time) -> :t | :nil
+		;the time is now that, microseconds, for one that moves by itself.
+		;Is it still moving, and so to be drawn again
+		:nil)
+
+	(defmethod :dismiss (event)
+		; (. actor :dismiss event) -> :t | :nil
+		;a pointer has gone down on the surface. One that is only there
+		;till then, a palette, goes. Did it
+		:nil)
+
+	(defmethod :draw (canvas &optional m)
+		; (. actor :draw canvas [m]) -> actor
+		;on a canvas, over the document, by the matrix the board is seen
+		;by, one that has anything to draw
 		this)
 
 	(defmethod :state (id)

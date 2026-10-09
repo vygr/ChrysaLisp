@@ -126,10 +126,13 @@
 		;a pointer has gone down
 		(raise :board)
 		(bind '(id kind buttons x y &ignore) event)
-		(defq tool (. (get :bindings board) :value event :tool :pen))
-		;a pen is whatever the board is set to draw, and in select mode it
-		;is the hand, so a mouse alone can do everything
-		(if (eql tool :pen) (setq tool (get :mode board)))
+		(defq tool (. (get :bindings board) :value event :tool :pen)
+			;what was only there till the next pointer went down goes
+			shut (. board :dismiss event))
+		;a pen is whatever the board is set to draw, or it is bound to
+		;itself, and in select mode it is the hand, so a mouse alone can
+		;do everything
+		(if (eql tool :pen) (setq tool (. (get :bindings board) :value event :mode (get :mode board))))
 		(if (eql tool :select) (setq tool :hand))
 		(defq state (list tool x y (list x y) :nil :nil x y :nil)
 			holding (. this :holding))
@@ -158,7 +161,11 @@
 						(elem-set state +stroke_snap :t)
 						(elem-set state +stroke_item (. this :things))
 						(. board :float (get :selected board)))
-					(:t (. board :select (list)))))
+					(:t ;on nothing. With nothing selected, and nothing put
+						;away by it, it may be a tap, see (:end)
+						(if (and (not shut) (empty? (get :selected board)))
+							(elem-set state +stroke_snap :tap))
+						(. board :select (list)))))
 			(:eraser (. board :snapshot))
 			(:pan)
 			(:text
@@ -236,11 +243,17 @@
 								(elem-get %0 +stroke_item)))
 								(map (const second) (. (get :states this) :tolist)))
 							(. board :float (list))))
-					(:t (when (defq band (get :band board))
-							(. board :select (map (# (elem-get (first %0) +cwb_id))
-								(cwb-in-box (get :doc board) band)))
-							(def board :band :nil)
-							(. board :touch +board_dirty_overlay)))))
+					(:t (defq band (get :band board) near (/ +board_near (get :zoom board)))
+						(def board :band :nil)
+						(cond
+							((and (eql snap :tap) (defq menu (get :menu board))
+									(<= (abs (- x sx)) near) (<= (abs (- y sy)) near))
+								;a tap on nothing, the board's menu, if it has
+								;one, lib/cwb/palette.inc
+								(menu board x y event))
+							(band (. board :select (map (# (elem-get (first %0) +cwb_id))
+								(cwb-in-box (get :doc board) band)))))
+						(. board :touch +board_dirty_overlay))))
 			(:eraser (unless moved (. board :forget)))
 			(:pan)
 			(:t ;what was drawn goes into the document, if it is anything
@@ -414,7 +427,7 @@
 		:text "" :font "fonts/OpenSans-Regular.ctf" :font_size 32
 		:snap 0.0 :snap_angle 0.0 :keep_shape :t :zoom 1.0
 		:temp (Fmap 11) :band :nil :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
-		:floating (list) :appended (list) :changes (list :all))
+		:floating (list) :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
 	(def this :surface (Surface this) :handles (Handles this))
 	(.-> (get :stage this) (:add (get :surface this)) (:add (get :handles this)))
 
@@ -768,6 +781,32 @@
 		; (. board :pointers events) -> board
 		;a batch of pointer events, each in the space of the document
 		(. (get :stage this) :pointers events)
+		this)
+
+	(defmethod :tick (time)
+		; (. board :tick time) -> :t | :nil
+		;the time is now that, microseconds, for what is on the stage that
+		;moves by itself. Is any of it still moving, it is then to be
+		;drawn again
+		(defq moving :nil)
+		(def this :time time)
+		(each (# (if (. %0 :tick time) (setq moving :t))) (cat (. (get :stage this) :get_actors)))
+		(if moving (. this :touch +board_dirty_overlay))
+		moving)
+
+	(defmethod :dismiss (event)
+		; (. board :dismiss event) -> :t | :nil
+		;a pointer has gone down on the surface, what is only there till
+		;then goes. Did any
+		(defq went :nil)
+		(each (# (if (. %0 :dismiss event) (setq went :t))) (cat (. (get :stage this) :get_actors)))
+		went)
+
+	(defmethod :draw_actors (canvas &optional m)
+		; (. board :draw_actors canvas [m]) -> board
+		;what is on the stage and not of the document, a ruler, a palette,
+		;the back one first. After (:draw_overlay), it is over that
+		(each (# (. %0 :draw canvas m)) (. (get :stage this) :get_actors))
 		this)
 
 	;;;;;;;;;

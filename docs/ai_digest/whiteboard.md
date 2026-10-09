@@ -21,6 +21,7 @@ lib/cwb/doc.inc         a document: layers, shapes, groups, the file
 lib/cwb/pointer.inc     pointers, a stage of actors, bindings
 lib/cwb/board.inc       a board: a document that is worked on
 lib/cwb/tools.inc       the instruments
+lib/cwb/palette.inc     a palette that opens on the board
 lib/cwb/paper.inc       what is behind a document while it is worked on
 lib/cwb/stripes.inc     a board drawn in stripes by the nodes
 lib/image/cwb.inc       a .cwb as a picture
@@ -127,13 +128,15 @@ and buttons to match, any of them `:nil` for any, and what a pointer that
 matches is to be:
 
 ```vdu
-(. bindings :bind :pen 9 :nil '(:tool :pen :color 0xffff0000 :width 8.0))
+(. bindings :bind :pen 9 :nil '(:tool :pen :mode :rect :color 0xffff0000 :width 8.0))
 (. bindings :bind :mouse :nil +pev_right '(:tool :hand))
 ```
 
 The first rule that matches is the one. `(bindings-default)` is how a board
-starts: a pen draws, its other end rubs out, the mouse draws with its left
-button and moves things with its right, a finger moves things.
+starts: a pen draws, its other end rubs out, and with the button on its side
+held it moves things; the mouse draws with its left button and moves things
+with its right; a finger moves things. A pointer that is a `:pen` draws what
+it is bound to, `:mode`, or what the board is set to.
 
 ## The board
 
@@ -191,6 +194,54 @@ parts move and turn it together.
 
 `Ruler`, `Protractor` and `Setsquare` are each a `:rebuild` that fills in that
 table from `:length`. Another instrument is another table.
+
+## The palette
+
+```image
+apps/media/whiteboard/data/palette.cwb
+```
+
+Chris: "Animating interactive pellets and menu's, mostly keep the surface
+clear for the user to work unhindered". A hand that goes down and comes up
+where there is nothing, with nothing selected, opens a `Palette` there,
+`lib/cwb/palette.inc`. The hand is the right button of a mouse, a finger, a
+pen with the button on its side held, or the left button when the board is
+set to select. `(palette-enable board)` is what makes a board do it, the app
+and the `cwb` command both do.
+
+It is three rings about the point. The tools. The colours and the widths.
+Things to do: undo, redo, a ruler, a protractor, a set square, snap,
+duplicate, delete. The wedge of what is set has a line of light at its rim,
+and the spot in the middle is the colour, as wide as the width. A tap on a
+tool sets it and puts the palette away. A colour or a width is set and it
+stays. A tap on its middle, or anywhere off it, puts it away.
+
+It is an actor on the stage, like a ruler, so it is in front of the
+document, takes any pointer, and there can be more than one. It belongs to
+the pointer that opened it. What a pen picks is that pen's: the pen is
+bound, by its id, to the tool, the colour and the width, and another pen, or
+the mouse, keeps what it had. So two people at a board with a pen each have
+a palette each. What a mouse or a finger picks is the board's, and the
+app's toolbars are made to show it.
+
+It opens out, a ring after a ring, each turning as it comes, and shuts
+quicker. It does not ask what the time is. `(. board :tick time)`,
+microseconds, tells everything on the stage, and says if anything is still
+moving. The app calls it from its timer. A test, or a script, steps it.
+
+For a script:
+
+```vdu
+(defq p (palette-open board 400 300))   ;or by a tap, as a hand does
+(. board :tick 1000000)                 ;a second on, it is open
+(. p :pick :tool :rect)                 ;what a tap on that wedge does
+(. p :where :color 0xffe03131)          ;where that wedge is, to tap it
+(palettes board)                        ;those that are open
+```
+
+A new kind of thing on the board is a class on `Actor` with `:hit`,
+`:pointers`, `:draw`, and `:tick` if it moves, `:dismiss` if it is to go when
+a pointer goes down elsewhere.
 
 ## Pens and fingers, from the host up
 
@@ -315,7 +366,14 @@ header of 18 bytes, and most things that show pictures show it.
 instrument is put on the board first, `-e "(. (. board :get_stage) :add (Ruler
 board 320 330))"`.
 
+* A line of a pointers file is a sixtieth of a second, and `wait 400` is 400
+thousandths more. A palette opened by a tap is in a picture as far open as it
+then is.
+
 ## What is not done
+
+* The palette has been seen as a picture, by the AI that made it, and not on
+a screen by anyone. How it feels to open and to pick from is not known.
 
 * A pen or a finger has never been on it. The SDL3 driver tells of them, see
 below, and all above it is tested with them made up, but there has been no

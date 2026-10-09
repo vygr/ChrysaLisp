@@ -143,6 +143,27 @@
 (assert-eq "zoomed to one and a half, a pen draws where it is in the document" "M 100 100 L 200 100 200 200 100 200 Z" (elem-get wa_out 3))
 
 
+;the palette on the board: the right button down and up on nothing opens it,
+;a tap on a wedge of it does what the toolbar would, and the toolbar shows it
+(defq wa_out (wa-run (cat
+	"(. *board* :tick 1000000)"
+	"(wa-drag 3 500 400 500 400) (defq pal (first (palettes *board*)))"
+	"(print (list (length (palettes *board*)) (map (const n2i) (get :origin pal))))"
+	"(. *board* :tick 2000000) (print (list (wa-draw)))"
+	"(defun wa-pick (what val) (bind '(x y) (map (const n2i) (. pal :where what val))) (wa-drag 1 x y x y))"
+	"(wa-pick :color +argb_red) (wa-pick :width 12.0) (wa-pick :action :snap) (wa-pick :tool :ellipse)"
+	"(print (list (get :mode *board*) (= (get :color *board*) +argb_red) (n2i (get :width *board*)) (n2i (get :snap *board*)) (length (palettes *board*))))"
+	"(wa-draw) (sync-ui)"
+	"(print (list (elem-get *modes* (. *mode_toolbar* :get_selected)) (. *ink_toolbar* :get_selected) (. *radius_toolbar* :get_selected) *snap*))"
+	"(wa-drag 1 100 100 200 160) (print (cwb-get (last (cwb-items (. *board* :get_doc))) :kind))"
+	"(. *board* :tick 3000000) (print (length (filter (const Palette?) (. (. *board* :get_stage) :get_actors))))")))
+(assert-eq "the right button, down and up on nothing, opens a palette there" "(1 (500 400))" (elem-get wa_out 0))
+(assert-eq "the board draws with it open" "(0)" (elem-get wa_out 1))
+(assert-eq "taps on it set the colour, the width, snap and the tool, and the tool puts it away" "(:ellipse :t 12 32 0)" (elem-get wa_out 2))
+(assert-eq "and the toolbars show what it set" "(:ellipse 2 2 :t)" (elem-get wa_out 3))
+(assert-eq "what is then drawn is that" ":ellipse" (elem-get wa_out 4))
+(assert-eq "shut, it is off the stage" "0" (elem-get wa_out 5))
+
 ;a document of very many shapes is drawn by the nodes. The app's own redraw is
 ;called, as its timer calls it, and what comes to the stripes' mailboxes is
 ;given to them as its loop gives it. With no desktop the last step of a

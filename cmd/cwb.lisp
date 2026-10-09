@@ -1,7 +1,7 @@
 (import "lib/options/options.inc")
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-(import "lib/cwb/tools.inc")
+(import "lib/cwb/palette.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -37,11 +37,17 @@
 
     A line of a pointers file is the events of one moment, one or more,
     with ; between: id kind buttons x y. kind is mouse, pen, eraser or
-    touch. buttons is 0 for up. # starts a note.
+    touch. buttons is 0 for up. # starts a note. Each line is a sixtieth
+    of a second after the last, for what on the board moves by itself,
+    and a line that is wait and a number is that many thousandths more.
 
         1 pen 1 100 100
         1 pen 1 180 140 ; 7 touch 1 400 300
-        1 pen 0 180 140 ; 7 touch 0 400 300")
+        1 pen 0 180 140 ; 7 touch 0 400 300
+        wait 500
+
+    A hand that taps where there is nothing opens a palette there, as
+    on the app's board, the right button of a mouse, or a finger.")
 (("-n" "--new") ,(opt-str 'opt_n))
 (("-e" "--eval") ,(opt-str 'opt_e))
 (("-s" "--script") ,(opt-str 'opt_s))
@@ -117,7 +123,7 @@
 				(print "Not a whiteboard document: " file))
 			(:t (when opt_n
 					(setq doc (apply (const cwb-doc) (size-of opt_n)) changed :t))
-				(defq board (Board doc))
+				(defq board (palette-enable (Board doc)) clock 0)
 				;what is done to it, in an environment that has board and doc
 				(each (lambda (text)
 					(when text
@@ -127,8 +133,13 @@
 					(list opt_e (if opt_s (load opt_s))))
 				(when opt_p
 					(setq changed :t)
+					;the time is told to the board as the lines go, microseconds
 					(lines! (lambda (line)
+						(defq words (split line (const (char-class " \t\r"))))
+						(if (and (= (length words) 2) (eql (first words) "wait") (defq ms (str-to-num (second words))))
+							(setq clock (+ clock (* (n2i ms) 1000))))
 						(if (defq events (pointer-events line)) (. board :pointers events))
+						(. board :tick (setq clock (+ (max clock (get :time board)) 16667)))
 						:nil) (file-stream opt_p)))
 				(setq doc (. board :get_doc))
 				(if opt_i (info doc))
@@ -139,8 +150,10 @@
 					(.-> canvas (:set_canvas_flags +canvas_flag_antialias)
 						(:fill (ifn opt_b (. doc :find :background))))
 					(. board :draw canvas m)
-					;what is on the board and not of the document, a ruler say, is drawn too
-					(each (# (if (Instrument? %0) (. %0 :draw canvas m))) (. (. board :get_stage) :get_actors))
+					;what is on the board and not of the document, a ruler, a
+					;palette, is drawn too, as it is at the time it now is
+					(. board :tick (max clock (get :time board)))
+					(. board :draw_actors canvas m)
 					(if (canvas-save canvas opt_o 32)
 						(print opt_o " " w "x" h)
 						(print "Not a kind of picture that can be made, .tga or .cpm: " opt_o)))

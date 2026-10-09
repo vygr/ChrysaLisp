@@ -8,6 +8,7 @@
 (import "gui/lisp.inc")
 (import "./widgets.inc")
 (import "lib/cwb/stripes.inc")
+(import "lib/cwb/palette.inc")
 
 ;The Whiteboard. What is on the board is a document of shapes,
 ;lib/cwb/doc.inc, a .cwb file. All that changes it is the board,
@@ -16,6 +17,10 @@
 ;the mouse a pointer, ./view.inc, and two canvases the board draws on, the
 ;document on one and what is over it, what is being drawn or moved, the
 ;handles, a ruler, on the other.
+;
+;A hand that taps on nothing opens a palette on the board, where it tapped,
+;lib/cwb/palette.inc. It can do what the toolbars do, and what it changes
+;of the board the toolbars are made to show, (sync-ui).
 ;
 ;A document that takes this task a while to draw, some thousands of shapes,
 ;is drawn by the nodes of the machine in stripes, lib/cwb/stripes.inc,
@@ -43,6 +48,22 @@
 	(each (# (undef (. %0 :dirty) :color)
 			(if %1 (def %0 :color radio_col)))
 		(. toolbar :children) states))
+
+;its colours are those of the ink bar that are solid, and four more
+(palette-enable *board* (cat (slice *palette* 0 8) '(0xff7f7f7f 0xfff08c00 0xff7048e8 0xff8d5524)))
+
+(defun sync-ui ()
+	;the toolbars show what the board has, which a palette on it may have changed
+	(defq at (find (get :mode *board*) *modes*))
+	(if (and at (not (eql at (. *mode_toolbar* :get_selected)))) (. *mode_toolbar* :set_selected at))
+	(setq at (find (get :color *board*) *palette*))
+	(if (and at (not (eql at (. *ink_toolbar* :get_selected)))) (. *ink_toolbar* :set_selected at))
+	(setq at (some (# (if (= %0 (get :width *board*)) (!))) *widths*))
+	(if (and at (not (eql at (. *radius_toolbar* :get_selected)))) (. *radius_toolbar* :set_selected at))
+	(defq on (/= (get :snap *board*) 0.0))
+	(unless (eql on *snap*)
+		(setq *snap* on)
+		(toolbar-states *snap_toolbar* (list *snap* *snap_angle*))))
 
 (defun canvas-size ()
 	; (canvas-size) -> (width height)
@@ -161,7 +182,9 @@
 	(when (. *board* :dirty? +board_dirty_overlay)
 		(. *overlay* :fill 0)
 		(. *board* :draw_overlay *overlay* m)
-		(each (# (if (Instrument? %0) (. %0 :draw *overlay* m))) (. (. *board* :get_stage) :get_actors))
+		;what is on the board and not of the document, a ruler, a palette
+		(. *board* :draw_actors *overlay* m)
+		(sync-ui)
 		(setq show_over :t))
 	;shown last, when all else is done
 	(if show (. *committed* :swap +swap_write))
@@ -232,6 +255,8 @@
 				(mail-timeout (elem-get select +select_timer) rate 0)
 				;the words that are put down are those in the text field now
 				(def *board* :text (. *text_field* :get_text))
+				;what is on the board that moves by itself is told the time
+				(. *board* :tick (pii-time))
 				(redraw)
 				;once a second the nodes that draw are looked to
 				(when (> (setq *kept* (inc *kept*)) 60)

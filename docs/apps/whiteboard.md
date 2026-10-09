@@ -39,6 +39,30 @@ The left button of the mouse is the pen. The right button is the hand: it
 picks up what it is on and moves it, whatever the pen is set to. The middle
 button moves the board about in its window.
 
+## The palette
+
+```image
+apps/media/whiteboard/data/palette.cwb
+```
+
+Click the right button where there is nothing, with nothing selected, and a
+palette opens there. So does a tap of a finger, a pen with the button on its
+side held, and the left button when the arrow is the tool.
+
+* The inner ring is the tools. Pick one and the palette goes.
+
+* The next is the colours, and four widths. Pick as many as you like, the
+spot in the middle shows what you have.
+
+* The outer ring is undo, redo, a ruler, a protractor, a set square, snap to
+the grid, duplicate and delete.
+
+* Click its middle, or anywhere off it, to put it away.
+
+A pen that opens a palette has what it picks to itself. Another pen, and the
+mouse, keep what they had. So two people with a pen each can each have their
+own tool and colour on the one board.
+
 ## Selecting, and changing what is selected
 
 The first button of the second row is the arrow, select. With it the left
@@ -148,6 +172,8 @@ pointer is.
 tools of the surface.
 
 * `lib/cwb/tools.inc`, the instruments.
+
+* `lib/cwb/palette.inc`, the palette that opens on the board.
 
 * `lib/cwb/stripes.inc`, a board of very many shapes drawn by the nodes of the
 machine, a stripe each. The app does it by itself when a draw gets slow.

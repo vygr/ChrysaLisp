@@ -4,6 +4,54 @@
 
 ------
 
+A palette that opens on the board. Chris: "Animating interactive pellets
+and menu's, mostly keep the surface c;ear for the user to weork
+unhindered", and "both left/right/middle buttons for each inputs source".
+
+*	`lib/cwb/palette.inc`, `Palette`. A hand that goes down and comes
+	up on nothing, with nothing selected, opens one there: the right
+	button of a mouse, a finger, a pen with the button on its side
+	held, the left button when the board is set to select. Three rings:
+	the tools; twelve colours and four widths; undo, redo, ruler,
+	protractor, set square, snap, duplicate, delete. A tap on a tool
+	puts it away, on its middle, or off it.
+
+*	It belongs to the pointer that opened it. What a pen picks is that
+	pen's, bound by its id, `:mode` `:color` `:width`, and another pen
+	and the mouse keep theirs. What a mouse or a finger picks is the
+	board's, and the app's toolbars are made to show it, `(sync-ui)`.
+
+*	It opens a ring after a ring, each turning as it comes. Time is
+	told, `(. board :tick time)`, to all on the stage, nothing asks for
+	it, so a test steps it. An actor now has `:tick`, `:dismiss` and
+	`:draw`, and a board `(:draw_actors)`.
+
+*	A pen with the button on its side held is a hand, as the right
+	button of a mouse is. It drew before.
+
+*	`cwb`: a board has the palette there too; a line of a pointers file
+	is a sixtieth of a second and `wait 400` is more; what is on the
+	stage is in the picture as it is at that time.
+
+I can see it, as a picture, `cwb -o` to a `.tga` and that to a `.png`,
+and drew the icons by looking. `apps/media/whiteboard/data/palette.cwb`
+is the palette as a document, for the two pages that tell of it.
+
+`tests/system/test_cwb_palette.lisp`, 48: opened by a tap and not by a
+drag or with a thing selected; every wedge where it says it is; hover;
+time; each kind of pick; a pen with its own while another pen and the
+mouse keep theirs; a finger's and a pen's open at once; the same size on
+the screen at twice the zoom. `test_whiteboard.lisp`, 6: the app's view
+and toolbars with it. `test_cwb_cmd.lisp`, 4: by a pointers file alone.
+Every test, 5,445, on the M4, the x64 and the Pi, three runs.
+
+Not seen: it on a screen, by anyone. In the first of the three runs
+`solo/test_nets` failed two on the Pi, one node of a ring not seen and
+then not seen to go, and passed the next two. It has nothing of the
+whiteboard in it. It is written down, not explained.
+
+------
+
 The Whiteboard draws a board of very many shapes with the nodes of the
 machine, a stripe each. Chris: "we would have to render in paraell like
 the canvas demo does, stripes across the canvas so we can cope with huge
