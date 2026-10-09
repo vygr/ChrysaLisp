@@ -1,7 +1,8 @@
 (enums +event +event_user
 	(enum file_folder_action file_leaf_action)
 	(enum prev next)
-	(enum whole_words regexp ignore_case find_down find_up))
+	(enum whole_words regexp ignore_case find_down find_up)
+	(enum link))
 
 (ui-window *window* (:color +argb_grey15)
 	(ui-title-bar _ "Docs" (+sym_close +sym_max +sym_min) +event_close)

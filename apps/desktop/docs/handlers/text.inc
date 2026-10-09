@@ -10,6 +10,7 @@
 				(def (defq md (Md))
 					:zoom (get :zoom *window*)
 					:page_width (get :min_width page)
+					:link_event +event_link
 					:font_doc +doc_font
 					:font_bold +doc_font_bold
 					:font_italic +doc_font_italic

@@ -13,20 +13,20 @@
 	(filter (const nempty?) (map (# (if (def? :text %0) (str (get :text %0)) ""))
 		(filter (# (Text? %0)) (. view :flatten)))))
 
-;the table of docs/history/press/README.md is where this was seen, a link
-;to a file with a long name made the Docs app page many times its width
-(defq md_path "1990-04_personal_computer_world.pdf"
+;the table of docs/history/press/README.md is where this was seen, a
+;file with a long name made the Docs app page many times its width
+(defq md_path "docs/history/press/1990-04_personal_computer_world.pdf"
 	md_lines (list
 		"| Date | Publication | Article | Author | File |"
 		"|------|-------------|---------|--------|------|"
-		(cat "| Apr 1990 | Personal Computer World | Newsprint | not credited | [pdf](" md_path ") |")
+		(cat "| Apr 1990 | Personal Computer World | Newsprint | not credited | " md_path " |")
 		"| Jan 1991 | Parallelogram | Tao Systems advertisement | | [pdf](a.pdf) |"))
 (bind '(md_md md_w) (md-make md_lines))
 (assert-true "a table with a long path in a cell is no wider than the page" (<= md_w 660))
 (defq md_all (md-texts md_md) md_joined (apply (const cat) (map (const trim) md_all)))
-(assert-true "the path is all there, in its parts" (nempty? (substr md_joined (cat "[pdf](" md_path ")"))))
+(assert-true "the path is all there, in its parts" (nempty? (substr md_joined md_path)))
 (assert-true "and is more than one part" (notany (# (nempty? (substr %0 md_path))) md_all))
-(assert-true "it is cut after a _ - . or /" (some (# (ends-with "_" (trim %0))) md_all))
+(assert-true "it is cut after a _ - . or /" (some (# (find (last (trim %0)) "_-./")) md_all))
 
 ;a cell with nothing in it is a cell
 (defq md_rows (filter (# (Grid? %0)) (. md_md :flatten)) md_last (. (last md_rows) :children))
@@ -52,3 +52,39 @@
 (assert-true "and the page is no wider for it" (<= md_w 660))
 (bind '(md_md md_w) (md-make md_lines))
 (assert-eq "one of 5 is not" :nil (some (# (Scroll? %0)) (. md_md :flatten)))
+
+;a link is its text, as a Link, which knows where it goes, in an Md that
+;was given an event for a Link to send
+(defq md_line "see [More power](a/b.md) and ![a pic](x.png), not [this] (that) nor `[code](x)`")
+(def (defq md_md (Md)) :page_width 640 :link_event 99)
+(. md_md :populate_lines (list md_line))
+(defq md_links (filter (# (Link? %0)) (. md_md :flatten)))
+(assert-list-eq "the text of a link is what is shown, each word of it" '("More " "power " "a " "pic")
+	(map (# (str (get :text %0))) md_links))
+(assert-list-eq "and each word knows where the link goes" '("a/b.md" "a/b.md" "x.png" "x.png")
+	(map (# (get :link %0)) md_links))
+(assert-list-eq "what is round a link is as it was, and a comma after one sits against it"
+	'("see " "More " "power " "and " "a " "pic" ", ")
+	(slice (md-texts md_md) 0 7))
+(assert-true "what is not a link, and what is quoted as code, is left"
+	(and (find "[this] " (md-texts md_md)) (find "[code](x) " (md-texts md_md))))
+(assert-true "each Link is connected to the event" (every (# (eql (get :targets %0) (array 99))) md_links))
+(def (defq md_md (Md)) :page_width 640 :link_event 99)
+(. md_md :populate_lines (list "# A title with [a link](t.md)"))
+(assert-list-eq "a link in a heading is one too" '("t.md" "t.md")
+	(map (# (get :link %0)) (filter (# (Link? %0)) (. md_md :flatten))))
+
+;an Md that was given none, the News app's say, has nothing to follow a
+;link with, and shows it as it is written, where it goes can be read
+(bind '(md_md md_w) (md-make (list md_line)))
+(assert-eq "with no event there are no Links" :nil (some (# (Link? %0)) (. md_md :flatten)))
+(assert-true "and a link is as it is written" (find "power](a/b.md) " (md-texts md_md)))
+
+;where a link of a document goes
+(assert-eq "a file beside the document" "docs/lisp/b.md" (md-link-file "docs/lisp/a.md" "b.md"))
+(assert-eq "one in a folder up and across" "docs/gui/b.md" (md-link-file "docs/lisp/a.md" "../gui/b.md"))
+(assert-eq "a . is no move" "docs/lisp/x/b.md" (md-link-file "docs/lisp/a.md" "./x/b.md"))
+(assert-eq "a place in a file is not part of its name" "docs/lisp/b.md" (md-link-file "docs/lisp/a.md" "b.md#here"))
+(assert-eq "from the root" "docs/b.md" (md-link-file "docs/lisp/a.md" "/docs/b.md"))
+(assert-eq "more folders up than there are stops at the root" "b.md" (md-link-file "docs/a.md" "../../../b.md"))
+

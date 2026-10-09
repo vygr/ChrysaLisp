@@ -4,6 +4,45 @@
 
 ------
 
+A link in a document can be followed. Item 40, Chris: "40. yes, make the
+links active".
+
+*	`gui/md/lisp.inc`. A link, `[text](target)` or `![text](target)`,
+	is found by `(link-text)` and its text made a `Link`, a new class,
+	a `Text` in blue with a line under it that knows where it goes,
+	`:link`, and emits when it is pressed. A link in a heading and in a
+	cell of a table too. A full stop or a comma straight after a link
+	sits against it.
+
+*	Only in an Md that was given an event for its Links to send,
+	`:link_event`. Chris asked: "will this work correctly/incorectly/go
+	wrong for the News app ?" News, Chat, Rosetta and the Lexicon use
+	the Md and give it none. News takes the tags out of what it
+	fetches, so it seldom has a link written this way, but one that
+	was would have been shown as its text alone, in blue, going
+	nowhere, with where it goes no longer to be read. So with no event
+	a link is left as it is written, as it was before today.
+
+*	The Docs app gives its pages `+event_link`. A link to a document
+	that is there is gone to, and picked out in the tree if it is
+	under `docs/`. `(md-link-file)` works out the file, from the folder
+	of the document, `..` and `.` as they are in a link. A link to the
+	web, to a file that is not a document, a pdf or a picture, or to
+	one that is not there, is put on the clipboard: there is nothing
+	here to show it with.
+
+*	Docs also acts on `+event_zoom_in` and `+event_zoom_out`, the keys
+	it had for its page zoom.
+
+`tests/system/test_md.lisp`, 31 now. Every test, 5,031, on the M4, the
+x64 and the Pi.
+
+Not seen: a Link pressed, by anyone. The Docs app since, no test starts
+it; a try at loading it in a session with no desktop hung, it waits on
+the lock service.
+
+------
+
 A map, a set and a view are each equal to themselves and no other.
 
 *	Chris, on a desktop: "on the todo app, delete actin on the item in

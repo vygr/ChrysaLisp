@@ -31,7 +31,43 @@
 		(f (first (font-info f)))
 		(:t +md_doc_font)))
 
-(defun parse-text (line)
+(defun md-link-file (file target)
+	; (md-link-file file target) -> path
+	;the file a link of a document is to. It is from the folder the
+	;document is in, unless it starts at the root with a /. Each .. is a
+	;folder up, each . is no move, and what is after a # is a place in
+	;the file, not part of its name
+	(defq out (if (starts-with "/" target) (list) (most (split file "/"))))
+	(each (lambda (part)
+		(cond
+			((eql part "."))
+			((eql part "..") (if (nempty? out) (pop out)))
+			((push out part))))
+		(split (first (split (cat target " ") "#")) (const (char-class "/ "))))
+	(join out "/"))
+
+(defun link-text (line)
+	; (link-text line) -> line
+	;each link of the line, [text](target) or ![text](target), is made
+	;the words " <l:target> text </l> ", for (format-words) to make the
+	;text a Link. One with no text, no target, or a space in its target
+	;is left as it is written
+	(defq out (list) done 0)
+	(each (lambda (((x1 x2)))
+		(when (and (>= x1 done) (defq open (rfind "[" (slice line done x1)))
+				(defq close (find ")" line x2)))
+			(defq open (+ done open) text (slice line open x1) target (slice line x2 close)
+				start (if (and (> open (inc done)) (eql (elem-get line (- open 2)) "!")) (- open 2) (dec open)))
+			(when (and (nempty? text) (nempty? target) (not (find " " target)))
+				(push out (slice line done start) " <l:" target "> " text " </l> ")
+				(setq done (inc close)))))
+		(substr line "]("))
+	(if (empty? out) line (apply (const cat) (push out (slice line done -1)))))
+
+(defun parse-text (line &optional links)
+	;links, if the links of the text are to be made Links. They are not for
+	;an Md that was given no :link_event, nothing would follow one, and it
+	;is shown as it is written, with where it goes to be read
 	(defq idxs (nums) quoted (list) match (matches line "\q[^\q]+\q|`[^`]+`"))
 	(when (nempty? match)
 		(defq x 0)
@@ -42,6 +78,7 @@
 				(:t (push idxs x x1 4 9) (slice line x1 x2)))))
 			(setq x x2)) match)
 		(setq line (splice line " <c> <q> </c> " (push idxs x -1))))
+	(if links (setq line (link-text line)))
 	(setq line (reduce! (lambda (line pattern tag c)
 		(cond
 			((nempty? (defq match (matches line pattern)))
@@ -62,8 +99,8 @@
 		(setq words (flatten words)))
 	words)
 
-(defun parse-line (line)
-	(bind '(tagged_text quoted) (parse-text line))
+(defun parse-line (line &optional links)
+	(bind '(tagged_text quoted) (parse-text line links))
 	(restore-quotes (split tagged_text +char_class_white_space) quoted))
 
 (defun word-state (word state)
@@ -82,12 +119,17 @@
 		("</s>" (logand state (lognot +state_strike)))
 		(:t -1)))
 
-(defun create-word (word state search_widgets flow &optional tail)
+(defun create-word (word state search_widgets flow &optional tail link)
 	;tail is what follows the word, a space, or nothing for a part of a
-	;word that goes on in the next line
-	(. flow :add_child (defq text (Text)))
+	;word that goes on in the next line. With a link, where it goes, the
+	;word is a Link, and is connected to the :link_event of the Md, if
+	;whoever made the Md gave it one
+	(. flow :add_child (defq text (if link (Link) (Text))))
 	(push search_widgets text)
 	(def text :text (sym (cat word (ifn tail " "))))
+	(when link
+		(def text :link link :ink_color +argb_blue)
+		(if (defq id (get :link_event flow)) (. text :connect id)))
 	(cond
 		((bits? state +state_bold_italic) (def text :font (get :font_bold_italic flow)))
 		((bits? state +state_bold) (def text :font (get :font_bold flow)))
@@ -151,7 +193,7 @@
 	out)
 
 (defun format-words (this container words indent style max_width search_widgets &optional underline font_size is_header)
-	(defq cnt 0 state 0 indent_width :nil flow (line-flow this container font_size))
+	(defq cnt 0 state 0 link :nil link_end :nil indent_width :nil flow (line-flow this container font_size))
 	(if is_header (setq state (logior state +state_bold)))
 	(unless (and (eql indent "") (eql style ""))
 		(defq text (Text))
@@ -167,9 +209,15 @@
 				(. flow :add_child text)))
 		(setq cnt (setq indent_width (first (. flow :pref_size)))))
 	(each (lambda (word)
-		(if (= (defq next_state (word-state word state)) -1)
-			(progn
-				(defq text (create-word word state search_widgets flow)
+		(cond
+			((starts-with "<l:" word) (setq link (slice word 3 -2)))
+			((eql word "</l>") (setq link :nil link_end (last search_widgets)))
+			((= (defq next_state (word-state word state)) -1)
+				;a full stop or a comma straight after a link sits against it
+				(if (and link_end (Link? link_end) (find (first word) ",.;:!?)"))
+					(def link_end :text (sym (trim-end (str (get :text link_end))))))
+				(setq link_end :nil)
+				(defq text (create-word word state search_widgets flow :nil link)
 					room (- max_width (ifn indent_width 0)))
 				(bind '(w &) (. text :pref_size))
 				(defq texts (list text))
@@ -181,7 +229,7 @@
 						(. text :sub)
 						(pop search_widgets)
 						(setq texts (map (# (create-word %0 state search_widgets flow
-							(if (= (!) (dec (length parts))) " " ""))) parts))))
+							(if (= (!) (dec (length parts))) " " "") link)) parts))))
 				(each (lambda (text)
 					(bind '(w &) (. text :pref_size))
 					(when (> (++ cnt w) max_width)
@@ -192,7 +240,7 @@
 							(setq w (+ w indent_width)))
 						(. flow :add_child text)
 						(setq cnt w))) texts))
-			(setq state next_state))) words)
+			(:t (setq state next_state)))) words)
 	(if underline (under-line this underline)))
 
 (defun paragraph (this words indent style search_widgets &optional underline font_size is_header)
@@ -288,13 +336,33 @@
 			(bind '(((& cx2) (sx1 sx2) &ignore)) match)
 			(setq style (slice first_line sx1 sx2))
 			(elem-set lines 0 (slice first_line cx2 -1)))
-		(bind '(tagged_text quoted) (parse-text (join lines "\n")))
+		(bind '(tagged_text quoted) (parse-text (join lines "\n") (get :link_event this)))
 		(cond
 			((try-render-table this tagged_text quoted search_widgets))
 			(:t (defq words (restore-quotes (split tagged_text +char_class_white_space) quoted))
 				(when (nempty? words)
 					(paragraph this words indent style search_widgets))))
 		(clear lines)))
+
+(defclass Link () (Text)
+	; (Link) -> link
+	;text that goes somewhere, :link is where. Pressed, it emits, to
+	;whatever it was connected to, and the action has its id, from which
+	;the one who gets it finds the Link and reads where
+
+	(defmethod :draw ()
+		; (. link :draw) -> link
+		(.super this :draw)
+		(bind '(w h) (. this :get_size))
+		(.-> this (:ctx_set_color (get :ink_color this)) (:ctx_filled_box 0 (- h 2) w 1)))
+
+	(defmethod :mouse_up (event)
+		; (. link :mouse_up event) -> link
+		(bind '(w h) (. this :get_size))
+		(defq rx (getf event +ev_msg_mouse_rx) ry (getf event +ev_msg_mouse_ry))
+		(if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h)) (. this :emit))
+		this)
+	)
 
 (defclass Md (&optional text_lines) (Flow)
 	; (Md [text_lines]) -> md
@@ -351,7 +419,7 @@
 						'("# " "## " "### " "#### " "##### " "###### ")))
 					(flush-lines this lines search_widgets)
 					(defq h_text (slice line (+ indent 2) -1))
-					(paragraph this (parse-line h_text) "" "" search_widgets (- 4 (* indent 2)) (- 34 (* indent 4))))
+					(paragraph this (parse-line h_text (get :link_event this)) "" "" search_widgets (- 4 (* indent 2)) (- 34 (* indent 4))))
 				((push lines line)))) text_lines)
 		(flush-lines this lines search_widgets)
 		this)
@@ -374,5 +442,6 @@
 	)
 
 ;module
-(export-classes '(Md))
+(export-symbols '(md-link-file))
+(export-classes '(Md Link))
 (env-pop)

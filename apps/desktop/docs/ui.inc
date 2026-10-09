@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "apps/tools/edit/ui.inc")
+(import "service/clipboard/app.inc")
 
 ;overload Edit app ui.inc
 (redefun action-file-leaf-action ()
@@ -41,3 +42,20 @@
 	(when (/= old_size new_size)
 		(def *window* :zoom new_size)
 		(populate-page *current_file*)))
+
+(defun action-link ()
+	;a link of the page was pressed. One to a document that is there is
+	;gone to. One to a place on the web, a file that is not a document,
+	;or a file that is not there, is put on the clipboard, there is
+	;nothing here to show it with
+	(when (and (defq view (. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
+			(defq target (def? :link view)))
+		(cond
+			((or (find ":" target) (starts-with "#" target))
+				(clip-put-rpc target))
+			((and (ends-with ".md" (defq file (md-link-file *current_file* target)))
+					(/= (age file) 0))
+				(setq *current_file* file)
+				(if (starts-with "docs/" file) (. *file_selector* :select_node file))
+				(populate-page file))
+			((clip-put-rpc file)))))

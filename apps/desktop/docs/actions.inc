@@ -20,7 +20,10 @@
 	+event_prev action-prev-doc
 	+event_find_down action-find-down
 	+event_find_up action-find-up
-	+event_file_leaf_action action-file-leaf-action)
+	+event_file_leaf_action action-file-leaf-action
+	+event_link action-link
+	+event_zoom_in action-scale-up
+	+event_zoom_out action-scale-down)
 
 *key_map* (scatter (Fmap))
 
