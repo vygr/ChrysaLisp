@@ -570,6 +570,14 @@ If the children are to be away from this node, and there is another,
 it is on one of the others, each in turn
 ```
 
+### create-word
+
+```code
+tail is what follows the word, a space, or nothing for a part of a
+
+word that goes on in the next line
+```
+
 ### csr-cmp
 
 ```code
@@ -4078,6 +4086,14 @@ the innermost open form that is not transparent
 the default fcmp is cmp, which is for strings
 ```
 
+### split-cells
+
+```code
+the cells of a row. One with nothing in it is a cell, it keeps what
+
+comes after it in its own column
+```
+
 ### spv-block
 
 ```code
@@ -4237,13 +4253,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args
@@ -5165,6 +5181,16 @@ reads the comments under a definition, and the lines of a key map.
 
 ```code
 (within-compile-env lambda)
+```
+
+### word-parts
+
+```code
+(word-parts word font room) -> (part ...)
+
+a word too long for a line, a file path or a link, as the parts that
+do fit. It is cut after a / _ - . or ) where it can be, and where a
+run between two of those is still too long, after any character
 ```
 
 ### zip

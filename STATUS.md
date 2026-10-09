@@ -4,6 +4,62 @@
 
 ------
 
+A table in a document keeps to the page. Chris: "in the docs/press/
+folder the README.md shows in the Docs app with the mtulti column table
+extreamly wide, due to some files paths not been wrapped", to make paths
+and links wrap, and "if we can't reduce width of a table grid by the
+wrapping of paths, we should auto place inside a scroll like the other
+content handlers do (:vdu etc)". The file is
+`docs/history/press/README.md`.
+
+*	`gui/md/lisp.inc`, the widget the Docs app and four others draw
+	markdown with. A word wider than its line, there or in a paragraph,
+	is cut into parts that fit, `(word-parts)`, after a `/ _ - .` or
+	`)` where it can be and after any character where it must.
+
+*	A cell with nothing in it was dropped, and what came after it moved
+	a column left, the row with no author in that table had its link
+	under Author. A cell that is empty is a cell now.
+
+*	A column is its share of the page and no less than 96 pixels at a
+	zoom of 1. A table of so many columns that it is wider than the
+	page for that is put in a `Scroll`, as a wide block of code is.
+
+`tests/system/test_md.lisp`, 12, new. Against the widget as it was, 8 of
+them fail. Every test, 4,995, on the M4, the x64 and the Pi, twice.
+
+Not seen: any of it in the Docs app, by anyone. Links are still not
+followed, that is item 40.
+
+------
+
+The peer that has gone is taken out of the ways to every node, and the
+8 seconds. After the tombstone a full run was no quicker, so each part
+of the two tests was timed.
+
+*	`tests/solo/test_nets.lisp` still waited 3.7 seconds for a stopped
+	ring to leave the list. A ring of 4 with this node in it: the node
+	across has two ways to it, by each neighbour. As each neighbour
+	went, the one across still had a way held, by the other, which had
+	gone too or was about to. Only a node with every way by the peer
+	was dealt with. `behind_callback` in `sys/link/class.vp` now takes
+	the peer out of the ways to each node, and one left with none is
+	the node with no way to it. The test, 8.5 seconds to 4.2.
+
+*	`tests/solo/test_gone.lisp` failed once in three full runs, "the
+	ring is stopped", and left a node running. It was the new part of
+	the test: three nodes told to go at once, and the one next to this
+	node went before it had passed on the mail for the two behind it.
+	Each waits 300ms before it goes, as `(node-stop)` has them do.
+	Seven runs after, none failed. It is 7.1 seconds, a second less
+	than it was and a ring of 5 more.
+
+What was run. `lint: clean`, the release images put back. Every test,
+4,995, on the M4, the x64 and the Pi, twice, a full run of 25 to 37
+seconds. The x64 has now run both link changes and the tombstone.
+
+------
+
 A node with no way to it is kept, not listed, till its time is up. The
 tombstone. Chris, asked: "yes, do the tombstone, lets get those 8
 seconds back."

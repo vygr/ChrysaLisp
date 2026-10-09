@@ -7,6 +7,7 @@
 (import "././grid/lisp.inc")
 (import "././text/lisp.inc")
 (import "././backdrop/lisp.inc")
+(import "././scroll/lisp.inc")
 (import "././font/lisp.inc")
 
 ;module
@@ -21,7 +22,8 @@
 	+md_doc_font_italic "fonts/OpenSans-Italic.ctf"
 	+md_doc_font_bold_italic "fonts/OpenSans-BoldItalic.ctf"
 	+md_terminal_font "fonts/Hack-Regular.ctf"
-	+md_symbol_font "fonts/Symbols.ctf")
+	+md_symbol_font "fonts/Symbols.ctf"
+	+md_min_cell_width 96)
 
 (defun md-font-name (f)
 	(cond
@@ -80,10 +82,12 @@
 		("</s>" (logand state (lognot +state_strike)))
 		(:t -1)))
 
-(defun create-word (word state search_widgets flow)
+(defun create-word (word state search_widgets flow &optional tail)
+	;tail is what follows the word, a space, or nothing for a part of a
+	;word that goes on in the next line
 	(. flow :add_child (defq text (Text)))
 	(push search_widgets text)
-	(def text :text (sym (cat word " ")))
+	(def text :text (sym (cat word (ifn tail " "))))
 	(cond
 		((bits? state +state_bold_italic) (def text :font (get :font_bold_italic flow)))
 		((bits? state +state_bold) (def text :font (get :font_bold flow)))
@@ -116,11 +120,35 @@
 	(def (defq text (Text)) :text "")
 	(. this :add_child text))
 
-(defun under-line (this size)
+(defun under-line (this size &optional container)
 	(when (and size (> size 0))
 		(raise :zoom)
 		(def (defq backdrop (Backdrop)) :color +argb_black :min_height (max 1 (md-scale size zoom)))
-		(. this :add_child backdrop)))
+		(. (ifn container this) :add_child backdrop)))
+
+(defun word-parts (word font room)
+	; (word-parts word font room) -> (part ...)
+	;a word too long for a line, a file path or a link, as the parts that
+	;do fit. It is cut after a / _ - . or ) where it can be, and where a
+	;run between two of those is still too long, after any character
+	(defq atoms (list) atom "")
+	(each (lambda (c)
+		(setq atom (cat atom c))
+		(when (find c "/_-.)")
+			(push atoms atom)
+			(setq atom ""))) word)
+	(if (nempty? atom) (push atoms atom))
+	(defq out (list) part "")
+	(each (lambda (atom)
+		(each (lambda (atom)
+				(when (and (nempty? part) (> (first (font-glyph-bounds font (cat part atom))) room))
+					(push out part)
+					(setq part ""))
+				(setq part (cat part atom)))
+			(if (> (first (font-glyph-bounds font atom)) room) (map (const identity) atom) (list atom))))
+		atoms)
+	(if (nempty? part) (push out part))
+	out)
 
 (defun format-words (this container words indent style max_width search_widgets &optional underline font_size is_header)
 	(defq cnt 0 state 0 indent_width :nil flow (line-flow this container font_size))
@@ -141,16 +169,29 @@
 	(each (lambda (word)
 		(if (= (defq next_state (word-state word state)) -1)
 			(progn
-				(defq text (create-word word state search_widgets flow))
+				(defq text (create-word word state search_widgets flow)
+					room (- max_width (ifn indent_width 0)))
 				(bind '(w &) (. text :pref_size))
-				(when (> (++ cnt w) max_width)
-					(setq flow (line-flow this container font_size))
-					(when indent_width
-						(def (defq indent_tab (Backdrop)) :min_width indent_width :color 0)
-						(. flow :add_child indent_tab)
-						(setq w (+ w indent_width)))
-					(. flow :add_child text)
-					(setq cnt w)))
+				(defq texts (list text))
+				(when (and (> w room) (> (length word) 1))
+					;it would not fit a line of its own, so it is cut into
+					;parts that do, each a line, the last with what follows it
+					(defq parts (word-parts word (get :font text) (- room (- w (first (font-glyph-bounds (get :font text) word))))))
+					(when (> (length parts) 1)
+						(. text :sub)
+						(pop search_widgets)
+						(setq texts (map (# (create-word %0 state search_widgets flow
+							(if (= (!) (dec (length parts))) " " ""))) parts))))
+				(each (lambda (text)
+					(bind '(w &) (. text :pref_size))
+					(when (> (++ cnt w) max_width)
+						(setq flow (line-flow this container font_size))
+						(when indent_width
+							(def (defq indent_tab (Backdrop)) :min_width indent_width :color 0)
+							(. flow :add_child indent_tab)
+							(setq w (+ w indent_width)))
+						(. flow :add_child text)
+						(setq cnt w))) texts))
 			(setq state next_state))) words)
 	(if underline (under-line this underline)))
 
@@ -167,7 +208,9 @@
 	(and (nempty? cells) (every (const separator-cell?) cells)))
 
 (defun split-cells (line)
-	(filter (const nempty?) (map (const trim) (split line "|"))))
+	;the cells of a row. One with nothing in it is a cell, it keeps what
+	;comes after it in its own column
+	(map (const trim) (split (trim line) "|")))
 
 (defun parse-align (cell)
 	(defq c (trim cell))
@@ -178,10 +221,10 @@
 			(bit-mask +flow_flag_down +flow_flag_align_hright))
 		(:t +flow_down)))
 
-(defun render-row (this cells q_stack num_cols cell_width alignments search_widgets is_header)
+(defun render-row (this container cells q_stack num_cols cell_width alignments search_widgets is_header)
 	(def (defq row_grid (Grid))
 		:grid_width num_cols :flow_flags +flow_down_fill)
-	(. this :add_child row_grid)
+	(. container :add_child row_grid)
 	(for 0 num_cols
 		(defq cell_text (if (< (!) (length cells)) (elem-get cells (!)) "")
 			flags (if (< (!) (length alignments)) (elem-get alignments (!)) +flow_down)
@@ -212,15 +255,28 @@
 			(list raw_rows))
 		(when (and (> num_cols 1)
 				(or has_sep (and (> (length raw_rows) 1) (every (# (> (length %0) 1)) raw_rows))))
-			(raise :page_width
-				(cell_width (/ page_width num_cols)
-				q_stack (if (nempty? quoted) (reverse quoted))))
+			;a column is its share of the page, and no narrower than a few
+			;words. A table of so many columns that it is then wider than
+			;the page is put in a scroll, as a wide block of code is
+			(raise :page_width :zoom
+				(cell_width (max (/ page_width num_cols) (md-scale +md_min_cell_width zoom))
+				q_stack (if (nempty? quoted) (reverse quoted))
+				table (Flow)))
+			(def table :flow_flags +flow_down_fill)
+			(. this :add_child table)
 			(when (and has_sep (nempty? headers))
-				(render-row this headers q_stack num_cols cell_width alignments search_widgets :t)
-				(under-line this 1))
+				(render-row this table headers q_stack num_cols cell_width alignments search_widgets :t)
+				(under-line this 1 table))
 			(each (lambda (row)
-				(render-row this row q_stack num_cols cell_width alignments search_widgets :nil))
+				(render-row this table row q_stack num_cols cell_width alignments search_widgets :nil))
 				data_rows)
+			(bind '(tw th) (. table :pref_size))
+			(when (> tw page_width)
+				(. table :sub)
+				(def (defq scroll (Scroll +scroll_flag_horizontal))
+					:min_width page_width :min_height th)
+				(. scroll :add_child (. table :change 0 0 tw th))
+				(. this :add_child scroll))
 			(blank-line this)
 			:t)))
 
