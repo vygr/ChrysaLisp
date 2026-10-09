@@ -52,6 +52,8 @@
 
 ### :host -> :nil
 
+### :kill -> :nil
+
 ### :memory -> :nil
 
 ### :mmap -> :nil
@@ -176,6 +178,20 @@ trashes
 info
 what this host program is, "cpu abi os", the names the build and the
 object folders have for them
+```
+
+### :pii_kill -> sys/pii/kill
+
+```code
+inputs
+:r0 = process id (long)
+outputs
+:r0 = 0 if told to end or not there, else -1 (long)
+trashes
+:r0, :f0-:f15
+info
+end a process that can not be asked to go. Only a host that says
+it is new enough has this, see (pii-kill) in sys/lisp.inc
 ```
 
 ### :pii_memory -> sys/pii/memory

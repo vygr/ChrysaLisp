@@ -28,6 +28,8 @@
 
 ```code
 (CWB-load stream [scale]) -> :nil | canvas
+
+each pixel is scale by scale samples, default 1
 ```
 
 ### SVG-info
@@ -52,6 +54,17 @@
 
 ```code
 (TGA-load stream) -> :nil | canvas
+```
+
+### TGA-save
+
+```code
+(TGA-save canvas stream type) -> canvas
+
+a canvas as a .tga, not packed, 32 bits a pixel whatever type is,
+the top row first. It is the pixels as they are with a header of 18
+bytes before them, so it is quick, and most things that show
+pictures show it
 ```
 
 ### XML-parse
@@ -97,6 +110,14 @@ step zoom up to +zoom_max (3x)
 
 ```code
 step zoom down to +zoom_min (1x)
+```
+
+### action-pointer
+
+```code
+a pen or a finger. It goes to the view it is on, or the one it went
+
+down on while it is down. The mouse is not moved by it
 ```
 
 ### action-quit
@@ -213,6 +234,16 @@ All of them if it is at the eye or behind it. The ball is as big as
 the most the matrix of its object stretches anything
 ```
 
+### bindings-default
+
+```code
+(bindings-default) -> bindings
+
+how a board starts out. A pen draws and its other end rubs out. The
+mouse draws with its left button, moves things with its right and the
+board itself with its middle. A finger moves things
+```
+
 ### bit-mask
 
 ```code
@@ -223,6 +254,42 @@ the most the matrix of its object stretches anything
 
 ```code
 (bitcnt n) -> num bits
+```
+
+### board-copy-items
+
+```code
+(board-copy-items items) -> items
+
+items that can be changed and leave those they were copied from as
+they were. What a shape is flattened to goes with it, it is the same
+```
+
+### board-pen-d
+
+```code
+(board-pen-d points) -> d
+
+the path of a line drawn by hand, points is x y x y ... It goes
+from the first to the last, and between is curved: each point is
+where the line turns toward, and it passes half way between each two
+```
+
+### board-snap
+
+```code
+(board-snap v step) -> v
+
+to the nearest step, as it is if the step is 0
+```
+
+### board-two-point-mat
+
+```code
+(board-two-point-mat a0 b0 a1 b1) -> matrix
+
+the move, turn and change of size that takes two points to where
+they are now, as two fingers on a thing do. Each is (x y)
 ```
 
 ### boot-id
@@ -575,7 +642,9 @@ it is on one of the others, each in turn
 ```code
 tail is what follows the word, a space, or nothing for a part of a
 
-word that goes on in the next line
+word that goes on in the next line. With a link, where it goes, the
+word is a Link, and is connected to the :link_event of the Md, if
+whoever made the Md gave it one
 ```
 
 ### csr-cmp
@@ -623,6 +692,432 @@ sort cursor so (cx cy) <= (ax ay)
 (csr-within csr1 csr2) -> :t | :nil
 
 returns :t if csr2 is enclosed within (or equal to) csr1
+```
+
+### cwb-add
+
+```code
+(cwb-add doc item [index]) -> item
+
+put an item on top of a layer, default the top one
+```
+
+### cwb-adopt
+
+```code
+(cwb-adopt doc item) -> item
+
+give an item, and each item in it if it is a group, an id of this
+document, if it has none
+a list that grows as it is gone along, so ids are in the order of
+the items, a group and then what is in it
+```
+
+### cwb-bounds
+
+```code
+(cwb-bounds items [m]) -> (x y x1 y1) | :nil
+
+the box round all that the items draw, :nil if they draw nothing
+```
+
+### cwb-box-join
+
+```code
+(cwb-box-join a b) -> box | :nil
+
+the box round two boxes, either can be :nil
+```
+
+### cwb-box-meet?
+
+```code
+(cwb-box-meet? a b) -> :t | :nil
+```
+
+### cwb-box-of
+
+```code
+(cwb-box-of box m) -> (x y x1 y1)
+
+the box round a box that a matrix has moved
+```
+
+### cwb-d
+
+```code
+(cwb-d [cmd | num] ...) -> d
+
+a path from its commands and numbers, (cwb-d "M" 0 0 "L" 10 5 "Z")
+```
+
+### cwb-d-arc
+
+```code
+(cwb-d-arc cx cy r a0 a1 [pie]) -> d
+
+part of a circle about a point, from one angle round to another the
+way the angle grows, in radians from the x axis. A slice of pie, with
+the two lines to the middle, if pie. Once round or more is a circle
+```
+
+### cwb-d-ellipse
+
+```code
+(cwb-d-ellipse cx cy rx [ry]) -> d
+
+an ellipse about a point, a circle if only one radius is given
+```
+
+### cwb-d-line
+
+```code
+(cwb-d-line x y x1 y1) -> d
+```
+
+### cwb-d-points
+
+```code
+(cwb-d-points points [closed]) -> d
+
+a line through each point in turn, points is x y x y ..., back to
+the first if closed
+```
+
+### cwb-d-rect
+
+```code
+(cwb-d-rect x y x1 y1 [r]) -> d
+
+a box from one corner to the other, its corners round by r if given
+```
+
+### cwb-doc
+
+```code
+(cwb-doc [width height]) -> doc
+
+a new document, of one empty layer. The background is a colour, 0
+for none, what is behind shows. The style is what the app draws
+behind it to work on, :plain :grid :lines or :axis, with :grid the
+gap, it is not part of the picture
+```
+
+### cwb-draw
+
+```code
+(cwb-draw canvas doc [m clip skip]) -> count
+
+draw every layer that is not hidden, the first at the back. skip is
+ids, of items of the layers, that are not drawn, those being moved
+about, which are drawn over the rest
+```
+
+### cwb-draw-items
+
+```code
+(cwb-draw-items canvas items m [clip]) -> count
+
+draw items on a canvas, by a matrix, :nil for as they are. With a
+clip, a box in the canvas's space, a shape that is nowhere in it is
+not drawn. How many shapes were drawn
+```
+
+### cwb-each
+
+```code
+(cwb-each doc fnc)
+
+call (fnc item layer_index holder) for every item of the document,
+those in groups too, the holder is the list it is in
+```
+
+### cwb-find
+
+```code
+(cwb-find doc id) -> :nil | (item layer_index holder)
+
+an item by its id, with the layer it is in and the list that holds it
+```
+
+### cwb-flat
+
+```code
+(cwb-flat shape) -> (fills strokes (x y x1 y1) | :nil)
+
+the polygons a shape is drawn with, those of its fill and those of
+its stroke, and the box they are all in, in its own space. :nil for
+the box of a shape that draws nothing. Worked out once and kept
+```
+
+### cwb-get
+
+```code
+(cwb-get item key) -> value
+```
+
+### cwb-group
+
+```code
+(cwb-group items [key val] ...) -> group
+```
+
+### cwb-hit
+
+```code
+(cwb-hit doc x y [tol m]) -> :nil | (item layer_index shape)
+
+the item of a layer a point is on, the one on top, in a layer that is
+not hidden or locked. The item is one of the layer's own, a group if
+the shape that was hit is in one. m is the matrix the document is
+seen by, if the point is in the space of a view of it
+```
+
+### cwb-hit-box
+
+```code
+(cwb-hit-box doc x y [m]) -> :nil | (item layer_index :nil)
+
+the item of a layer whose box a point is in, the smallest of them if
+it is in more than one, in a layer that is not hidden or locked. For
+a finger, which is not fine enough to be on the line of a box that is
+not filled, and means the box
+```
+
+### cwb-in-box
+
+```code
+(cwb-in-box doc box [m]) -> ((item layer_index) ...)
+
+the items of the layers that are wholly in a box, as a drag round
+them has it, not those of a layer that is hidden or locked
+```
+
+### cwb-item
+
+```code
+(cwb-item type key_vals) -> item
+```
+
+### cwb-item-in
+
+```code
+(cwb-item-in tree) -> item
+
+an item from what a file has of it. A key that is not known is left.
+Each item is put in its place in the list that is to hold it, which
+is made first, with a place for each
+```
+
+### cwb-item-out
+
+```code
+(cwb-item-out item) -> tree
+
+an item as it is in a file: its type, then each thing it has that is
+not what it would have anyway, a key and its value. A group has its
+items the same way. What is left to do is a list
+```
+
+### cwb-items
+
+```code
+(cwb-items doc [index]) -> items
+
+the items of a layer, default the top one, the list itself
+```
+
+### cwb-layer
+
+```code
+(cwb-layer doc [index]) -> (name flags items)
+
+a layer, default the top one
+```
+
+### cwb-load
+
+```code
+(cwb-load stream) -> :nil | doc
+
+a document from a .cwb file. One from before this version is made
+into one of this
+a file that is not a tree of one, any other text, is not a document
+and one that is not a tree at all throws as it is read, where there
+are errors to throw
+```
+
+### cwb-mat
+
+```code
+(cwb-mat [a b tx c d ty]) -> matrix
+```
+
+### cwb-mat-invert
+
+```code
+(cwb-mat-invert m) -> matrix | :nil
+
+the matrix that undoes it. One that flattens everything to a line
+has none, and that of no change is given
+```
+
+### cwb-mat-move
+
+```code
+(cwb-mat-move tx ty) -> matrix
+```
+
+### cwb-mat-mul
+
+```code
+(cwb-mat-mul ma mb) -> matrix | :nil
+
+the one matrix that does what mb does and then what ma does
+```
+
+### cwb-mat-paths
+
+```code
+(cwb-mat-paths m paths) -> paths
+
+new paths, each moved by the matrix, the same ones if it is :nil
+```
+
+### cwb-mat-point
+
+```code
+(cwb-mat-point m x y) -> (x y)
+```
+
+### cwb-mat-scale
+
+```code
+(cwb-mat-scale sx [sy cx cy]) -> matrix
+
+about a point, default the origin
+```
+
+### cwb-mat-turn
+
+```code
+(cwb-mat-turn angle [cx cy]) -> matrix
+
+by an angle in radians, the way from the x axis to the y axis, about
+a point, default the origin
+```
+
+### cwb-new-id
+
+```code
+(cwb-new-id doc) -> id
+```
+
+### cwb-num
+
+```code
+(cwb-num n) -> str
+
+a number as a path has it, no more of it than there is
+```
+
+### cwb-old-in
+
+```code
+(cwb-old-in data) -> doc
+
+a document from a file of before this, version 2 or 3: polygons, in
+groups in 3. Each polygon list is a shape that is filled, the size is
+the box round them all and a margin
+```
+
+### cwb-outline
+
+```code
+(cwb-outline shape) -> ((closed path) ...)
+
+the lines of a shape, each open or closed, in its own space. The
+letters of a :text are closed. A line of less than two points is
+left out
+```
+
+### cwb-remove
+
+```code
+(cwb-remove doc id) -> :nil | item
+
+take an item out of the document, a group goes with all in it
+```
+
+### cwb-save
+
+```code
+(cwb-save doc stream) -> stream
+```
+
+### cwb-set
+
+```code
+(cwb-set item [key val] ...) -> item
+
+set what an item has. What it was flattened to is let go of, unless
+all that was set was its matrix, its name or its props, which do not
+change what it is flattened to
+```
+
+### cwb-shape
+
+```code
+(cwb-shape d [key val] ...) -> shape
+
+a shape of that path, black, 2 wide and not filled unless it is said.
+The keys are :fill :stroke, each a colour, 0 for none, :width, :rule,
+:nonzero or :evenodd, :join, :miter :bevel or :round, :cap1 and :cap2,
+its two ends, :butt :square :tri :arrow or :round, :m, :name, :props
+```
+
+### cwb-shape-hit?
+
+```code
+(cwb-shape-hit? shape m x y [tol]) -> :t | :nil
+
+is a point on what a shape draws, its fill or its stroke, or within
+tol of it, default 0
+```
+
+### cwb-slot
+
+```code
+(cwb-slot key) -> index
+```
+
+### cwb-text
+
+```code
+(cwb-text text x y [key val] ...) -> shape
+
+words, their left end and the line they sit on at that point. :font
+and :font_size say which letters, they are filled, black unless it is said
+```
+
+### cwb-text-mid
+
+```code
+(cwb-text-mid text x y [key val] ...) -> shape
+
+words with their middle at a point, to label a box by its middle say
+```
+
+### cwb-walk
+
+```code
+(cwb-walk items m fnc)
+
+call (fnc shape matrix) for each shape of the items, and of the
+groups in them, the one at the back first. The matrix is the one that
+puts the shape where it is in the space the items are in, given one
+for that space, or :nil. A list of what is left to do, no function
+here calls itself
 ```
 
 ### date
@@ -2177,6 +2672,18 @@ the indent of a line, from the open forms and what it starts with
 the operator of the form the line starts with
 ```
 
+### link-text
+
+```code
+(link-text line) -> line
+
+each link of the line, [text](target) or ![text](target), is made
+the words " <l:target> text </l> ", for (format-words) to make the
+text a Link. One with no text, no target, or a space in its target
+is left as it is written. A word is drawn with a space after it, so
+where there is none in the text, before a link or after, it is said
+```
+
 ### lisp-nodes
 
 ```code
@@ -2290,6 +2797,28 @@ heard from has no system id, all zero.
 
 ```code
 (max-length list) -> max
+```
+
+### md-anchor
+
+```code
+(md-anchor text) -> name
+
+the name a heading is found by, as the place of a link, file.md#name.
+The text of the heading in lower case, each space a -, and all but
+letters, digits, - and _ left out, with where a link in it goes to.
+"A heading with [a link](x.md) in it!" is a-heading-with-a-link-in-it
+```
+
+### md-link-file
+
+```code
+(md-link-file file target) -> path
+
+the file a link of a document is to. It is from the folder the
+document is in, unless it starts at the root with a /. Each .. is a
+folder up, each . is no move, and what is after a # is a place in
+the file, not part of its name
 ```
 
 ### mesh-ball
@@ -2737,6 +3266,40 @@ scan the stdio args and process according to the optlist
 is argument j of a form, with this rule, the value of a binding
 ```
 
+### parse-text
+
+```code
+links, if the links of the text are to be made Links. They are not for
+
+an Md that was given no :link_event, nothing would follow one, and it
+is shown as it is written, with where it goes to be read
+```
+
+### path-angle
+
+```code
+(path-angle x y) -> angle
+
+the angle of a vector, from the x axis round towards the y axis, in
+radians, more than -pi and no more than pi. 0.0 for no vector at all.
+A first guess good to a part in 300, then stepped twice toward where
+the vector turned back by it lies along the x axis
+```
+
+### path-gen-earc
+
+```code
+(path-gen-earc x1 y1 rx ry phi large sweep x2 y2 dst) -> dst
+
+the arc of an ellipse from one point to another, as the A of an SVG
+path has it: the two radii, the turn of the ellipse in radians, the
+larger of the two arcs if large is not 0, drawn the way the angle
+grows if sweep is not 0. The first point is taken to be in dst, the
+rest are added, the last is the end point exactly. Radii too small
+to reach are made as big as is needed, and with no radius, or no
+distance to go, it is a line
+```
+
 ### path-gen-ellipse
 
 ```code
@@ -2812,6 +3375,19 @@ top byte first
 
 ```code
 (pbkdf2-sha256 password salt count size) -> str
+```
+
+### pii-kill
+
+```code
+(pii-kill pid) -> :t | :nil
+
+end a process that can not be asked to go, a node that does not
+answer. :t if it was told to end or was not there. The host has to be
+one that can, it says how new it is in the fourth word of (pii-host),
+and with one that is older nothing is done. The native function is
+looked up here, when it is called, and not in class/lisp/root.inc: a
+boot image of before it was written still starts
 ```
 
 ### pipe-farm
@@ -2920,6 +3496,16 @@ is added at the end
 (pset? form) -> :t | :nil
 ```
 
+### ptr-event
+
+```code
+(ptr-event id kind buttons x y [pressure time]) -> event
+
+kind is :mouse :pen :eraser or :touch. buttons is those held, 0 for a
+pointer that is only over the board, or has just come up. pressure is
+0.0 to 1.0, default 1.0 if a button is held. time in microseconds
+```
+
 ### quasi-quote?
 
 ```code
@@ -2957,14 +3543,16 @@ the form has no space or tab in it, a node's args are split at those
 ### rack-run
 
 ```code
-(rack-run cmdline [make_first leave_out gone user]) -> (line ...)
+(rack-run cmdline [make_first leave_out gone user tree]) -> (line ...)
 
 make every machine that takes a sync the same as this one, then run
 the command line on each, and on this one. With make_first, make and
 make all boot are run first, in a session before. leave_out is the
 machines not to run on, as (sync-services) names them, they are still
-made the same. gone is paths to remove on the others. The lines are
-SYNC and GONE for each other machine, RAN for each machine, and DONE
+made the same. gone is paths to remove on the others. tree is the one
+that is sent, default the system's own, the test of this sends a small
+one. The lines are SYNC and GONE for each other machine, RAN for each
+machine, and DONE
 ```
 
 ### range
@@ -4934,6 +5522,22 @@ the theme a user has from now on
 the token that opens a form, with the rule of the form, whether the
 form must be broken, and its operator, kept on the end of it. They are
 worked out the once, the first time the token is come to.
+```
+
+### tool-angle-wrap
+
+```code
+(tool-angle-wrap a) -> a
+
+an angle as one of more than -pi and no more than pi
+```
+
+### tool-nearest-on-line
+
+```code
+(tool-nearest-on-line x y x0 y0 x1 y1) -> (px py t)
+
+the point of a line nearest a point, and how far along it that is, 0 to 1
 ```
 
 ### transfer

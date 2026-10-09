@@ -243,6 +243,18 @@
 		(unzip (split (pii-dirlist "/tmp") ",") 2))
 	out)
 
+(defun pii-kill (pid)
+	; (pii-kill pid) -> :t | :nil
+	;end a process that can not be asked to go, a node that does not
+	;answer. :t if it was told to end or was not there. The host has to be
+	;one that can, it says how new it is in the fourth word of (pii-host),
+	;and with one that is older nothing is done. The native function is
+	;looked up here, when it is called, and not in class/lisp/root.inc: a
+	;boot image of before it was written still starts
+	(and (>= (length (defq host (split (pii-host) " "))) 4)
+		(>= (str-as-num (elem-get host 3)) 2)
+		((ffi "sys/pii/lisp_kill") pid)))
+
 (defun node-stop (id)
 	; (node-stop id) -> :nil | num
 	;stop the nodes of a network that was added by name, all of them, and
@@ -282,6 +294,12 @@
 				(defq wait (/ (task-timeout 1) 2))
 				(each (# (open-task (str `(if (find (pii-pid) (quote ,pids)) (progn (task-sleep ,wait) (pii-exit))))
 					%0 +kn_call_pin 0 (mail-mbox))) (cat (lisp-nodes :t) (if sid (lisp-nodes sid) (list))))
+				;one that could not be told, it is cut off or it is stuck, is
+				;still there when the rest have gone. A task here ends it, in a
+				;while, by the host, the caller does not wait for that
+				(open-task (str `(progn (task-sleep ,(* wait 5))
+						(each (# (if (pii-alive %0) (pii-kill %0))) (quote ,pids))))
+					(task-nodeid) +kn_call_pin 0 (mail-mbox))
 				(each (# (pii-remove (cat "/tmp/" %0))) links)
 				;the note, less this network's lines
 				;each line that stays ends as it did, what is noted next goes on

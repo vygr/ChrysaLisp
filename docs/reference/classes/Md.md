@@ -6,6 +6,14 @@
 (Md [text_lines]) -> md
 ```
 
+### :find_anchor
+
+```code
+(. md :find_anchor name) -> :nil | view
+
+the view a heading of that name was drawn as, see (md-anchor)
+```
+
 ### :get_page_width
 
 ### :get_search_widgets

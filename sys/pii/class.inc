@@ -32,6 +32,7 @@
 	(dec-method :shm_close :nil :virtual (abi-args 3) (:r0))
 	(dec-method :host :nil :virtual (abi-args 2) (:r0))
 	(dec-method :chmod :nil :virtual (abi-args 2) (:r0))
+	(dec-method :kill :nil :virtual (abi-args 1) (:r0))
 	(dec-method :pii_exit sys/pii/exit :static (:r0))
 	(dec-method :pii_mmap sys/pii/mmap :static (:r0 :r1 :r2) (:r0))
 	(dec-method :pii_munmap sys/pii/munmap :static (:r0 :r1 :r2) (:r0))
@@ -64,6 +65,7 @@
 	(dec-method :pii_shm_close sys/pii/shm_close :static (:r0 :r1 :r2) (:r0))
 	(dec-method :pii_host sys/pii/host :static (:r0 :r1) (:r0))
 	(dec-method :pii_chmod sys/pii/chmod :static (:r0 :r1) (:r0))
+	(dec-method :pii_kill sys/pii/kill :static (:r0) (:r0))
 	(dec-method :pii_flush sys/pii/flush :static (:r0) (:r0))
 	(dec-method :lisp_readchar sys/pii/lisp_readchar :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_writechar sys/pii/lisp_writechar :static (:r0 :r1) (:r0 :r1))
@@ -79,6 +81,7 @@
 	(dec-method :lisp_cpus sys/pii/lisp_cpus :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_host sys/pii/lisp_host :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_chmod sys/pii/lisp_chmod :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_kill sys/pii/lisp_kill :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_memory sys/pii/lisp_memory :static (:r0 :r1) (:r0 :r1)))
 
 (defun abi-call-table (%0 %1 %2 &optional %3 %4 %5)

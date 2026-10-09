@@ -4,6 +4,44 @@
 
 ------
 
+A node that can not be told to go is ended by the host. Item 15, which
+Chris ruled "yes next host change", and the host was changed that night
+for pens and fingers.
+
+*	`pii_kill(pid)` on the three hosts, `kill` with `SIGKILL` on the
+	Mac and Linux, `TerminateProcess` on Windows. Not this process, and
+	one that is not there is no trouble. `:host_os :pii_kill` and
+	`:lisp_kill` in `sys/pii/`.
+
+*	`(pii-kill pid)` is in `sys/lisp.inc`, not `class/lisp/root.inc`,
+	and looks the native function up when it is called. So nothing
+	names it as a boot image starts, and a boot image of before it
+	still starts: `make install` from the snapshot there is does not
+	break, and no snapshot is forced. That is said from what the code
+	does, an install from the snapshot was not run.
+
+*	A host says how new it is, a fourth word of `(pii-host)`, "arm64
+	ARM64 Darwin 2". `(pii-kill)` does nothing with a host that has no
+	fourth word, it has no such call to make, and to make it would be
+	a jump into nothing. `(cpu)`, `(abi)` and `(os)` are the first
+	three as they were.
+
+*	`(node-stop)` tells every node the processes that are to go, as
+	before, and now leaves a task behind that, two and a half seconds
+	on, ends any of them the host says is still there.
+
+`tests/solo/test_kill.lisp`, 11: a node ended by its id; one not there;
+this process not ended; and a ring by name with one node stuck in
+`(while :t)`, which could not be told and was left running before, all of
+it gone after `(node-stop)`. `lint: clean`, the release images put back.
+The host and the system built, and every test, 5,333, on the M4, the x64
+and the Pi. The Windows host cross builds.
+
+Not seen: the Windows `pii_kill` run. The notes of a network are not kept
+on Windows, so `(node-stop)` by name does nothing there still.
+
+------
+
 The Whiteboard, part four: pens and fingers from the host. Chris: "We
 don't want to be limited by songle pen input, we want full multi touch,
 mouse/pen and multi button", "both left/right/middle buttons for each

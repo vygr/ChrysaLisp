@@ -80,6 +80,46 @@ Usage: curl [options] <url>
 
     Fetch and display content from an HTTP URL.
 ```
+## cwb
+```code
+Usage: cwb [options] file.cwb
+
+    options:
+        -h --help: this help info.
+        -n --new size: an empty document of that size, 800x600, in
+            place of what the file has, if there is one.
+        -e --eval lisp: do this to it. The Lisp has board, the board
+            of the document, lib/cwb/board.inc, and doc, the document,
+            lib/cwb/doc.inc. Quote it for the shell.
+        -s --script path: as -e, the Lisp is in a file.
+        -p --pointers path: play a file of pointer events to the
+            board, as a pen, a mouse and fingers would give them.
+        -i --info: list what is in it.
+        -o --out path: draw it to a picture, a .tga or a .cpm.
+        -z --zoom num: the picture is that many times the size, 1.
+        -b --back colour: the picture has that behind it, a number,
+            0xffffffff is white. Default what the document has, which
+            is nothing unless it was given one.
+        -k --keep: do not save the file, whatever was done to it.
+
+    Make, change, look at and draw a whiteboard document without a
+    whiteboard. What is done is done in the order above, and then the
+    file is saved if -n, -e, -s or -p changed it.
+
+    A shape is an SVG path, text. Colours are 0xAARRGGBB.
+
+        cwb -n 400x300 a.cwb -e "(cwb-add doc (cwb-shape (cwb-d-rect 20 20 200 120 12) :fill 0xffffd070))"
+        cwb a.cwb -e "(cwb-add doc (cwb-text {Start} 60 80))" -i
+        cwb a.cwb -o a.tga -z 2 -b 0xffffffff
+
+    A line of a pointers file is the events of one moment, one or more,
+    with ; between: id kind buttons x y. kind is mouse, pen, eraser or
+    touch. buttons is 0 for up. # starts a note.
+
+        1 pen 1 100 100
+        1 pen 1 180 140 ; 7 touch 1 400 300
+        1 pen 0 180 140 ; 7 touch 0 400 300
+```
 ## diff
 ```code
 Usage: diff [options] file_a [file_b]

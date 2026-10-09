@@ -64,9 +64,25 @@
 
 ## apps/media/whiteboard/actions.inc
 
+### *key_map*
+
+```code
++char_backspace action-delete
++char_delete action-delete
++char_esc action-select-none
+```
+
 ### *key_map_control*
 
 ```code
+(ascii-code "z") action-undo
+(ascii-code "Z") action-redo
+(ascii-code "a") action-select-all
+(ascii-code "d") action-duplicate
+(ascii-code "g") action-group
+(ascii-code "G") action-ungroup
+(ascii-code "s") action-save
+(ascii-code "o") action-load
 (ascii-code "=") action-maximise
 (ascii-code "-") action-minimise
 ```
