@@ -31,7 +31,9 @@
 ;its answer, the first row, and how many bubbles it drew, -1 if it could
 ;not reach the pixels
 (structure +slice_reply +job_reply_size
-	(uint y drawn))
+	(uint y)
+	;-1 from a child that could not reach the pixels
+	(int drawn))
 
 (defun scene-fill (count val)
 	;an array of that many of a value

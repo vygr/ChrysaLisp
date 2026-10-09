@@ -16,7 +16,9 @@
 ;its answer, the first row, and how many shapes it drew, -1 if it could
 ;not reach the pixels
 (structure +slice_reply +job_reply_size
-	(uint y drawn))
+	(uint y)
+	;-1 from a child that could not reach the pixels
+	(int drawn))
 
 (defq +scene_width 1024 +scene_height 768
 	;the shapes are made at the size they had on a canvas of 600

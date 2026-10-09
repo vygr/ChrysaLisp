@@ -91,7 +91,7 @@
 (defun start-farm-frame ()
 	;a frame drawn by the nodes, a slice for each of them. The canvas is
 	;made clear here first, the bubbles are see through
-	(defq nodes (max 1 (length (lisp-nodes))) count (bubble-count) time (scene-time))
+	(defq nodes (max 1 (length (lisp-nodes :t))) count (bubble-count) time (scene-time))
 	(setq farming :t frame_time (pii-time) frame_drawn 0)
 	(. *canvas* :fill 0)
 	(. jobs :add (map (# (slice-job count time (/ (* %0 +height) nodes)
@@ -124,8 +124,11 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(def *image_scroll* :min_width +min_width :min_height +min_height)
+	;the children are on the nodes of this machine, and no other. They draw
+	;on the pixels of the canvas, in shared memory, and a node of another
+	;machine, there is one when the machines are a mesh, can not reach them
 	(setq jobs (Jobs (cat *app_root* "child.lisp")
-		(elem-get select +select_task) (elem-get select +select_reply)))
+		(elem-get select +select_task) (elem-get select +select_reply) (list 64)))
 	;it comes up on all the nodes, if their pixels can be shared
 	(. *mode* :set_selected (if shared_canvas 1 0))
 	(if shared_canvas (warm-farm :t))
@@ -157,10 +160,10 @@
 					(cond
 						(warming (if (= out 0) (setq warming :nil)))
 						(farming
-							(setq frame_drawn (+ frame_drawn (getf *msg* +slice_reply_drawn)))
+							(setq frame_drawn (+ frame_drawn (max 0 (getf *msg* +slice_reply_drawn))))
 							(when (= out 0)
 								(setq farming :nil)
-								(frame-done (cat (str (length (lisp-nodes))) " nodes, "
+								(frame-done (cat (str (length (lisp-nodes :t))) " nodes, "
 									(str frame_drawn) " drawn over the slices")))))))
 			((= idx +select_tip)
 				;tip time mail

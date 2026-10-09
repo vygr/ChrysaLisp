@@ -176,7 +176,7 @@
 (defun start-farm-frame ()
 	;a frame drawn by the nodes, a slice for each of them, and where every
 	;opcode is goes out with each slice
-	(defq count (max 1 (length (lisp-nodes))) packed (scene-pack bouncers))
+	(defq count (max 1 (length (lisp-nodes :t))) packed (scene-pack bouncers))
 	(setq farming :t frame_time (pii-time) frame_drawn 0)
 	(. jobs :add (map (# (slice-job (/ (* %0 +scene_height) count)
 		(/ (* (inc %0) +scene_height) count) packed)) (range 0 count))))
@@ -197,8 +197,11 @@
 	(set-count)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
+	;the children are on the nodes of this machine, and no other. They draw
+	;on the pixels of the canvas, in shared memory, and a node of another
+	;machine, there is one when the machines are a mesh, can not reach them
 	(setq jobs (Jobs (cat *app_root* "child.lisp")
-		(elem-get select +select_task) (elem-get select +select_reply)))
+		(elem-get select +select_task) (elem-get select +select_reply) (list 64)))
 	;it comes up on all the nodes, if their pixels can be shared
 	(. *mode* :set_selected (if shared_canvas 1 0))
 	(if shared_canvas (warm-farm :t))
@@ -228,10 +231,10 @@
 					(cond
 						(warming (if (= out 0) (setq warming :nil)))
 						(farming
-							(setq frame_drawn (+ frame_drawn (getf msg +slice_reply_drawn)))
+							(setq frame_drawn (+ frame_drawn (max 0 (getf msg +slice_reply_drawn))))
 							(when (= out 0)
 								(setq farming :nil)
-								(frame-done (cat (str (length (lisp-nodes))) " nodes, "
+								(frame-done (cat (str (length (lisp-nodes :t))) " nodes, "
 									(str frame_drawn) " opcodes drawn over the slices")))))))
 			(:t ;timer event, the next frame if the last is done
 				(mail-timeout (elem-get select +select_timer) +rate 0)
