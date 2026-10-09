@@ -28,8 +28,9 @@
 	sdf_files (sort (files-all (cat *app_root* "data") '(".sdf")))
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	+radius_quant (n2r 1.0)
-	;an atom is a shader, a lit grey ball, as native code. An image of it
-	;is made for each size that is drawn, and kept
+	;an atom is a shader, a polished ball of the atom's color, as native
+	;code. An image of it is made for each color and size that is drawn,
+	;and kept
 	atom_program (shader-load (cat *app_root* "atom.shader"))
 	atom_native (shader-vp atom_program)
 	;where the atoms are is a shader too, a vertex shader, as native code.
@@ -39,10 +40,12 @@
 	place_native (shader-vp-vertex place_program)
 	*atoms* (reals) +placed_size 9
 	+palette (push `(,quote) (map (lambda (%0) (Vec3-f
-			(n2f (/ (logand (>> %0 16) 0xff) 0xff))
-			(n2f (/ (logand (>> %0 8) 0xff) 0xff))
-			(n2f (/ (logand %0 0xff) 0xff))))
-		(list +argb_black +argb_white +argb_red +argb_green
+			(/ (n2f (logand (>> %0 16) 0xff)) 255.0)
+			(/ (n2f (logand (>> %0 8) 0xff)) 255.0)
+			(/ (n2f (logand %0 0xff)) 255.0)))
+		;the first was black, and a black ball shows only its highlight, a
+		;dark grey shows it is a ball
+		(list 0xff505050 +argb_white +argb_red +argb_green
 			+argb_cyan +argb_blue +argb_yellow +argb_magenta))))
 
 (defclass Molecule-backdrop () (Backdrop)
@@ -93,34 +96,36 @@
 (defun get-rot (slider)
 	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
 
-(defun lighting (col at)
-	;very basic attenuation and diffuse
-	(bind '(r g b) (vector-min (vector-add (vector-scale col (* (n2f at) 380.0) +fixeds_tmp3)
-		(const (Vec3-f 48.0 48.0 48.0)) +fixeds_tmp3)
-		(const (Vec3-f 255.0 255.0 255.0)) +fixeds_tmp3))
-	(+ 0xff000000 (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
+(defun lighting (at)
+	;how much of an atom's image is shown, less of it the further away it
+	;is. A grey, the image has the color and the highlight in it
+	(defq grey (min 255 (+ 96 (n2i (* (n2f at) 420.0)))))
+	(+ 0xff000000 (<< grey 16) (<< grey 8) grey))
 
-(defun get-atom-texture (radius)
-	; (get-atom-texture radius) -> (tid tw th) | (:nil 0 0)
-	;the image of an atom this big, a greyscale texture, to be drawn in
-	;the color of the atom. The shader draws it the first time it is asked
-	;for, straight onto the pixels of a canvas. It goes in the shared
-	;pixmap cache of the node, so every Molecule that is open has the one
-	;image of a size.
-	(defq key (n2i (+ (* (quant radius +radius_quant) (n2r 2.0)) (n2r 0.5))))
+(defun get-atom-texture (radius kind)
+	; (get-atom-texture radius kind) -> (tid tw th) | (:nil 0 0)
+	;the image of an atom this big and of this color, which of the
+	;palette. The shader draws it the first time it is asked for, straight
+	;onto the pixels of a canvas. It goes in the shared pixmap cache of
+	;the node, so every Molecule that is open has the one image of a
+	;color and a size.
+	(defq size (n2i (+ (* (quant radius +radius_quant) (n2r 2.0)) (n2r 0.5)))
+		key (+ (* size 16) kind))
 	(cond
-		((<= key 0) (list :nil 0 0))
+		((<= size 0) (list :nil 0 0))
 		(:t (unless (defq canvas (. atom_cache :find key))
-				(defq name (cat "molecule/atom_" (str key)))
+				(defq name (cat "molecule/ball_" (str kind) "_" (str size)))
 				(cond
 					((defq pixmap (. *pixmap_cache* :find name))
 						(setq canvas (Canvas-pixmap pixmap)))
-					(:t (setq canvas (Canvas key key 1))
+					(:t (setq canvas (Canvas size size 1))
 						(shader-vp-draw atom_native
-							(shader-vp-frame atom_program atom_native (list (list 'resolution (list key key))))
-							(defq pixmap (getf canvas +canvas_pixmap 0)) 0 0 key key key :t)
+							(shader-vp-frame atom_program atom_native (list
+								(list 'resolution (list size size))
+								(list 'color (map (const n2r) (elem-get +palette kind)))))
+							(defq pixmap (getf canvas +canvas_pixmap 0)) 0 0 size size size :t)
 						(. *pixmap_cache* :insert name pixmap)
-						(. canvas :swap (const (+ +swap_write +pixmap_mode_greyscale)))))
+						(. canvas :swap +swap_write)))
 				(. atom_cache :insert key canvas))
 			(texture-metrics (getf canvas +canvas_texture 0)))))
 
@@ -148,10 +153,9 @@
 	(each (lambda (i)
 		(bind '(sx sy r z at) (slice out (+ (* i +placed_size) 4) (* (inc i) +placed_size)))
 		(when (<= +real_-1 z +real_1)
-			(defq c (elem-get *colors* i))
-			(bind '(tid tw th) (get-atom-texture r))
+			(bind '(tid tw th) (get-atom-texture r (elem-get *colors* i)))
 			(when tid
-				(defq col (lighting c (* at +real_1/2))
+				(defq col (lighting (* at +real_1/2))
 					blit_x (n2i (- sx (n2r (/ tw 2))))
 					blit_y (n2i (- sy (n2r (/ th 2)))))
 				(push new_draw_list (list tid col blit_x blit_y tw th)))
@@ -173,15 +177,15 @@
 				(/ (n2r (str-as-num (elem-get line 1))) (const (n2r 65536)))
 				(/ (n2r (str-as-num (elem-get line 2))) (const (n2r 65536))))
 			(case (elem-get line 3)
-				("C" (push *radii* (const (n2r 70))) (push *colors* (first +palette)))
-				("H" (push *radii* (const (n2r 25))) (push *colors* (second +palette)))
-				("O" (push *radii* (const (n2r 60))) (push *colors* (third +palette)))
-				("N" (push *radii* (const (n2r 65))) (push *colors* (elem-get +palette 3)))
-				("F" (push *radii* (const (n2r 50))) (push *colors* (elem-get +palette 4)))
-				("S" (push *radii* (const (n2r 88))) (push *colors* (elem-get +palette 6)))
-				("Si" (push *radii* (const (n2r 111))) (push *colors* (elem-get +palette 6)))
-				("P" (push *radii* (const (n2r 98))) (push *colors* (elem-get +palette 7)))
-				(:t (push *radii* (const (n2r 100))) (push *colors* (const (Vec3-f 1.0 1.0 0.0))))))
+				("C" (push *radii* (const (n2r 70))) (push *colors* 0))
+				("H" (push *radii* (const (n2r 25))) (push *colors* 1))
+				("O" (push *radii* (const (n2r 60))) (push *colors* 2))
+				("N" (push *radii* (const (n2r 65))) (push *colors* 3))
+				("F" (push *radii* (const (n2r 50))) (push *colors* 4))
+				("S" (push *radii* (const (n2r 88))) (push *colors* 6))
+				("Si" (push *radii* (const (n2r 111))) (push *colors* 6))
+				("P" (push *radii* (const (n2r 98))) (push *colors* 7))
+				(:t (push *radii* (const (n2r 100))) (push *colors* 6))))
 		(bind '(center radius) (vector-bounds-sphere *verts* 3))
 		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius)
 			new_verts (reals))

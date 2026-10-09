@@ -1,18 +1,24 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; An atom of the Molecule app, a lit ball that fills the frame.
+; An atom of the Molecule app, a polished ball that fills the frame.
 ;
-; It is grey, the app draws it in the color of the atom. Outside
-; the ball is clear, and its edge is the share of the pixel that
-; the ball covers. A pixmap is premultiplied, so the grey is given
-; times the alpha.
+; It is the color of its atom, lit, with a white highlight that is
+; not that color, and a faint light round its edge, as a thing that
+; is polished has. Outside the ball is clear, and its edge is the
+; share of the pixel that the ball covers. A pixmap is
+; premultiplied, so the color is given times the alpha.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;inputs, name type default min max
 (definput resolution :vec2)
+;what the atom is the color of
+(definput color :vec3)
 
 (defconst ambient 0.3)
 (defconst diffuse 0.7)
-(defconst shine 256.0)
+;how small the highlight is, and how bright
+(defconst shine 56.0)
+(defconst gleam 0.95)
+(defconst rim 0.14)
 
 ;the light is up and to the left of the eye, and the highlight is where
 ;the ball faces half way between the light and the eye
@@ -26,8 +32,10 @@
 		ny (/ (- r (:y frag)) r)
 		d2 (+ (* nx nx) (* ny ny))
 		cover (clamp (* (- 1.0 (sqrt d2)) r) 0.0 1.0)
-		n (vec3 nx ny (- (sqrt (max (- 1.0 d2) 0.0))))
-		grey (min 1.0 (+ ambient
-			(* diffuse (max (dot n light) 0.0))
-			(pow (max (dot n half_way) 0.0) shine))))
-	(vec4 (* (vec3 grey) cover) cover))
+		facing (sqrt (max (- 1.0 d2) 0.0))
+		n (vec3 nx ny (- facing))
+		edge (- 1.0 facing)
+		white (+ (* gleam (pow (max (dot n half_way) 0.0) shine))
+			(* rim edge edge edge edge))
+		lit (min (+ (* color (+ ambient (* diffuse (max (dot n light) 0.0)))) (vec3 white)) (vec3 1.0)))
+	(vec4 (* lit cover) cover))

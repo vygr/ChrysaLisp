@@ -4,6 +4,25 @@
 
 ------
 
+The Molecule demo's atoms are polished.
+
+*	Chris: "ditch the white colourised idea and just generate the 8
+	colours we use for the atoms. Make it look like shiny polished
+	atoms." An atom was one grey ball for each size, drawn in the atom's
+	color, so its highlight was that color too. `atom.shader` now takes
+	the color, and gives a ball of it with a white highlight and a faint
+	light round its edge. The app keeps an image for each color and size,
+	in the cache as before, and draws it in a grey for how far off it is.
+
+*	Carbon was black, a black ball with a dot on it. It is a dark grey.
+	And the palette was worked out with whole numbers, so a color could
+	only be all or none of red, green and blue, any other came out black.
+
+*	Looked at as a picture, the atoms of a molecule placed by the app's
+	own shaders and put together outside it. Not seen on a desktop.
+
+------
+
 The Mesh demo shines.
 
 *	Chris: "We should Phong shade the mesh demo now we have the shader for
