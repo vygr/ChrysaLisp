@@ -485,6 +485,14 @@
 		(list inputs :lazy :lazy funcs (list kind attrs varyings) :nil :nil)
 		(list inputs consts globals funcs (list kind attrs varyings) (shader-key (str forms)) :nil)))
 
+(defun shader-read (stream)
+	; (shader-read stream) -> forms
+	(defq forms (list) next (ascii-code " "))
+	(while (/= next -1)
+		(bind '(form next) (read stream next))
+		(unless (and (= next -1) (not form)) (push forms form)))
+	forms)
+
 (defun shader-full (program)
 	; (shader-full program) -> program
 	;a program with all of it there. One that was loaded with only its
@@ -516,14 +524,6 @@
 			(sh-err "the vertex shader has no such varying" name)))
 		(shader-varyings pixel))
 	(list vertex pixel))
-
-(defun shader-read (stream)
-	; (shader-read stream) -> forms
-	(defq forms (list) next (ascii-code " "))
-	(while (/= next -1)
-		(bind '(form next) (read stream next))
-		(unless (and (= next -1) (not form)) (push forms form)))
-	forms)
 
 (defun shader-load (file)
 	; (shader-load file) -> program

@@ -4,6 +4,22 @@
 
 ------
 
+Seven more forward references put in order, in `lib/gpu/`, the ones that
+were only a function written below what calls it: `(sv-at)`,
+`(sv-define)`, `(shader-vp-draw-tris)` and `(shader-read)` are moved. 27
+are left and they are three real rings, `(sv-expr)` and `(sv-op)`, which
+also goes by way of `(sv-branch)`, in `lib/gpu/vp.inc`, and `(sh-block)`
+and `(sh-stmt)` in `lib/gpu/shader.inc`.
+
+Chris, on what a forward reference is: "the issue is not that they call
+each other, the issue is that there is an un-prebound reference and used
+like that in modules, the function symbol does not exist ! you can
+export it to make it exist, but it's still runtime lookups." Claude had
+put it to him as a matter of order, and of whether the tool should let
+some be.
+
+------
+
 A node that has just gone is not sent a task, and what was on its link
 for it to pass on is sent another way.
 

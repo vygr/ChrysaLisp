@@ -52,6 +52,13 @@
 	(push code form)
 	(each! (# (push code (list 'vp-pop %0))) (list keep) -1 0))
 
+(defun sv-at (offset)
+	; -> (register offset)
+	;where a slot of the frame is
+	(if (defq m (some (# (if (<= (first %0) offset (dec (second %0))) %0)) *sv_maps*))
+		(list (third m) (+ (- offset (first m)) (elem-get m 3)))
+		(list :r13 offset)))
+
 (defun sv-ld (offset reg)
 	;a float from a slot of the frame, or from where that slot really is
 	(bind '(base at) (sv-at offset))
@@ -66,13 +73,6 @@
 	(and (list? tree) (nempty? tree)
 		(or (and (find (first tree) '(:setq :setsw)) (> (length tree) 1) (eql (second tree) name))
 			(some (# (sv-sets? %0 name)) tree))))
-
-(defun sv-at (offset)
-	; -> (register offset)
-	;where a slot of the frame is
-	(if (defq m (some (# (if (<= (first %0) offset (dec (second %0))) %0)) *sv_maps*))
-		(list (third m) (+ (- offset (first m)) (elem-get m 3)))
-		(list :r13 offset)))
 
 (defun sv-q (label)
 	(list 'quote label))
@@ -173,22 +173,6 @@
 	(sv-put x)
 	(sv-puts regs)
 	out)
-
-(defun sv-define (name type e)
-	;a new variable, set to the value of an expression
-	(cond
-		((eql type :mat4)
-			;a product is in slots of its own already, and they are the
-			;variable. Another variable is copied, it may be set later
-			(defq at (sv-mat e))
-			(when (eql (second e) :var)
-				(sv-mat-copy at (defq to (sv-slots :mat4)))
-				(setq at to))
-			(push vars (list name at)))
-		(:t (defq regs (sv-expr e) offset (sv-slots type))
-			(push vars (list name offset))
-			(sv-store regs type offset)
-			(sv-puts regs))))
 
 (defun sv-const (val)
 	;a float constant, to a new register
@@ -505,6 +489,22 @@
 		(:t (defq r (sv-expr node))
 			(sv-emit (if sense 'vp-bne-cr 'vp-beq-cr) 0 (first r) (sv-q label))
 			(sv-puts r))))
+
+(defun sv-define (name type e)
+	;a new variable, set to the value of an expression
+	(cond
+		((eql type :mat4)
+			;a product is in slots of its own already, and they are the
+			;variable. Another variable is copied, it may be set later
+			(defq at (sv-mat e))
+			(when (eql (second e) :var)
+				(sv-mat-copy at (defq to (sv-slots :mat4)))
+				(setq at to))
+			(push vars (list name at)))
+		(:t (defq regs (sv-expr e) offset (sv-slots type))
+			(push vars (list name offset))
+			(sv-store regs type offset)
+			(sv-puts regs))))
 
 (defun sv-block (block)
 	(each (lambda ((tag &optional a b c d))
@@ -1529,46 +1529,6 @@
 		(while (< (length far) n) (setq far (cat far far)))
 		(slice far 0 (max 0 (- n 4)))) 31) (char -1 4)))
 
-(defun shader-vp-draw-tris (pipeline verts tris pixmap depth &optional vvals pvals cull tri_size x y x1 y1 depth_y)
-	; (shader-vp-draw-tris pipeline verts tris pixmap depth [vvals pvals cull tri_size x y x1 y1 depth_y]) -> pixmap
-	;draw triangles on a 32 bit pixmap. verts is a reals, the attrs of a
-	;vertex one after another, vertex after vertex, or the bytes of one
-	;in a str. tris is a nums, three
-	;numbers of vertices for each triangle, the first three of every
-	;tri_size, 3 if not given. vvals and pvals are the inputs of the two
-	;shaders. Where a vertex shader puts a vertex, x and y of -1 to 1 are
-	;the edges of the pixmap, y up, and z of -1 to 1 is in view, nearest
-	;first. With cull a triangle whose vertices go round clockwise as seen
-	;is left out, it faces away. A cull of :front leaves out those that go
-	;round the other way, for a mesh made the other way round, or a view
-	;that is turned over. Only the pixels of x y x1 y1 are drawn,
-	;all of the pixmap if they are not given, so that a frame can be drawn
-	;a part at a time, or by several tasks. A task that draws rows y to y1
-	;only can have a depth buffer of just those rows, and says so with a
-	;depth_y of y, the row its depth buffer starts at. A pixel whose alpha
-	;is 0 is not drawn, and leaves the depth buffer alone. One that is
-	;full on is written. One between goes over what is there, which is
-	;taken to have had its alpha multiplied in, and its depth is kept as
-	;any other, so what is see through is to be drawn after what is not,
-	;the furthest first.
-	;A triangle that the near plane goes through, where z is -w, is cut by
-	;it, and what is in front is drawn.
-	(bind '(vertex pixel place fill offsets) pipeline)
-	(defq width (getf pixmap +pixmap_width 0) height (getf pixmap +pixmap_height 0))
-	(setd tri_size 3 x 0 y 0 x1 width y1 height depth_y 0)
-	(defq placed (sv-place-again place (shader-vp-frame vertex place vvals) verts)
-		frame (shader-vp-frame pixel fill pvals))
-	(bind '(s_ntris s_stride s_tstride s_vw s_vh s_cx0 s_cy0 s_cx1 s_cy1 s_cull s_dy s_vary) (third fill))
-	(each (# (set-long frame %0 %1))
-		(list s_ntris s_stride s_tstride s_vw s_vh s_cx0 s_cy0 s_cx1 s_cy1 s_cull s_dy)
-		(list (/ (length tris) tri_size) (* (elem-get place 3) 8) (* tri_size 8) width height
-			(max x 0) (max y depth_y 0) (min x1 width) (min y1 height)
-			(cond ((not cull) 0) ((eql cull :front) 2) (1)) depth_y))
-	(each (# (set-long frame (+ s_vary (* (!) 8)) %0)) offsets)
-	(if (and (nempty? tris) (nempty? placed))
-		((first fill) frame placed tris pixmap depth))
-	pixmap)
-
 (defun sv-reals (n)
 	;a reals of n numbers, all 0
 	(defq out (reals (n2r 0) (n2r 0) (n2r 0) (n2r 0)))
@@ -1619,6 +1579,46 @@
 			((seq? val) (each (# (set-real frame (+ offset (* (!) 8)) (shader-real %0))) val)))
 		(setq offset (+ offset (* (shader-size type) 8)))) (first program))
 	frame)
+
+(defun shader-vp-draw-tris (pipeline verts tris pixmap depth &optional vvals pvals cull tri_size x y x1 y1 depth_y)
+	; (shader-vp-draw-tris pipeline verts tris pixmap depth [vvals pvals cull tri_size x y x1 y1 depth_y]) -> pixmap
+	;draw triangles on a 32 bit pixmap. verts is a reals, the attrs of a
+	;vertex one after another, vertex after vertex, or the bytes of one
+	;in a str. tris is a nums, three
+	;numbers of vertices for each triangle, the first three of every
+	;tri_size, 3 if not given. vvals and pvals are the inputs of the two
+	;shaders. Where a vertex shader puts a vertex, x and y of -1 to 1 are
+	;the edges of the pixmap, y up, and z of -1 to 1 is in view, nearest
+	;first. With cull a triangle whose vertices go round clockwise as seen
+	;is left out, it faces away. A cull of :front leaves out those that go
+	;round the other way, for a mesh made the other way round, or a view
+	;that is turned over. Only the pixels of x y x1 y1 are drawn,
+	;all of the pixmap if they are not given, so that a frame can be drawn
+	;a part at a time, or by several tasks. A task that draws rows y to y1
+	;only can have a depth buffer of just those rows, and says so with a
+	;depth_y of y, the row its depth buffer starts at. A pixel whose alpha
+	;is 0 is not drawn, and leaves the depth buffer alone. One that is
+	;full on is written. One between goes over what is there, which is
+	;taken to have had its alpha multiplied in, and its depth is kept as
+	;any other, so what is see through is to be drawn after what is not,
+	;the furthest first.
+	;A triangle that the near plane goes through, where z is -w, is cut by
+	;it, and what is in front is drawn.
+	(bind '(vertex pixel place fill offsets) pipeline)
+	(defq width (getf pixmap +pixmap_width 0) height (getf pixmap +pixmap_height 0))
+	(setd tri_size 3 x 0 y 0 x1 width y1 height depth_y 0)
+	(defq placed (sv-place-again place (shader-vp-frame vertex place vvals) verts)
+		frame (shader-vp-frame pixel fill pvals))
+	(bind '(s_ntris s_stride s_tstride s_vw s_vh s_cx0 s_cy0 s_cx1 s_cy1 s_cull s_dy s_vary) (third fill))
+	(each (# (set-long frame %0 %1))
+		(list s_ntris s_stride s_tstride s_vw s_vh s_cx0 s_cy0 s_cx1 s_cy1 s_cull s_dy)
+		(list (/ (length tris) tri_size) (* (elem-get place 3) 8) (* tri_size 8) width height
+			(max x 0) (max y depth_y 0) (min x1 width) (min y1 height)
+			(cond ((not cull) 0) ((eql cull :front) 2) (1)) depth_y))
+	(each (# (set-long frame (+ s_vary (* (!) 8)) %0)) offsets)
+	(if (and (nempty? tris) (nempty? placed))
+		((first fill) frame placed tris pixmap depth))
+	pixmap)
 
 (defun shader-vp-argb (native frame x y x1 y1 &optional height)
 	; (shader-vp-argb native frame x y x1 y1 [height]) -> str
