@@ -4,6 +4,26 @@
 
 ------
 
+A test that loads the GUI as the GUI service does.
+
+*	The service lists every file the GUI stands on and imports each by
+	itself, those that others import first. A test, and an app, imports
+	`gui/lisp.inc` top to bottom. So a GUI file that needed a name as it
+	loaded and did not import the file that has it passed every test and
+	stopped a desktop from starting, the files widget, 9 October.
+
+*	`tests/system/test_gui_load.lisp`: in a task of its own, into an
+	environment with none of the GUI in it, each file in the service's
+	order, then a user's `env.inc` on top as the service does next. With
+	the import the files widget needs taken out it fails, and says the
+	name that was not bound.
+
+*	An error in it is caught, so the environment it pushed is popped
+	whatever happens. The first go did not, and with the fault in the
+	task never ended.
+
+------
+
 Seen by Chris with the fix, 9 October: four networks of their own, a ring,
 a mesh, a cube and a full, 23 nodes, stopped by `nodes -x all` and all
 gone two seconds later. And again with a cube of 64.

@@ -213,9 +213,11 @@ Much of the work is for the eye, and an agent has none. The user looks.
 *	The GUI service loads the GUI a file at a time in the order of what
 	each file imports, not top to bottom as `(import "gui/lisp.inc")` does.
 	A GUI file that needs a name as it loads must import the file that has
-	it. After any change under `gui/`, start a real one before a commit:
-	`echo "echo up" | ./run.sh -n 1 -f`, it must print no error. A window
-	shows on the user's screen for a few seconds, tell them.
+	it. `tests/system/test_gui_load.lisp` loads it that way and fails if a
+	file does not. After a change under `gui/` that is more than that,
+	start a real one before a commit: `echo "echo up" | ./run.sh -n 1 -f`,
+	it must print no error. A window shows on the user's screen for a few
+	seconds, tell them.
 
 *	Nodes added to a member by hand are in the way of the test loop on
 	that machine till they are taken down, `./rack.sh down` then `up`.
