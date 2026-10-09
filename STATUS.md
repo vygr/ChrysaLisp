@@ -4,6 +4,27 @@
 
 ------
 
+The Test user still works, and a test says so.
+
+*	Chris: "We should test that since the new themes went in the Test
+	user works !" Its `env.inc` is code, and was changed four times
+	with the themes, by hand, and nothing runs it till somebody signs on
+	as Test.
+
+*	It does. With the current user set to Test: its environment loads
+	on top of Guest's, as `usr/env.inc` has it, a window is made, and all
+	four themes are taken. And a one node desktop started as Test, the
+	wallpaper, launcher, Terminal, Eyes, Themes, Editor, Viewer, PCB and
+	Network Map opened in it, none gave an error. Not seen.
+
+*	`tests/system/test_users.lisp`: every user under `usr/` but Guest,
+	its environment loaded as an app loads it, in a task of its own, a
+	window made and a theme taken. With Test's calling a function that
+	is gone, as it would have been had one of those four changes been
+	missed, it fails and names the function.
+
+------
+
 The login window asks for a name and no more.
 
 *	It had a field for a password that nothing read. Chris: "actually
