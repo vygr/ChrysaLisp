@@ -737,3 +737,124 @@ three changes has never been run. The mesh has no key and lets in anything
 that speaks. A sync from a machine you do not trust is that machine's code
 run as you. Those are written down where they will be seen, and that, not
 my confidence, is what they should be judged by.
+
+## Things that are looked at
+
+Two days, the 8th and 9th of October 2026, of work that is for the eye. A
+map of the network in three dimensions. A symbol font. The Mesh demo and
+the Molecule demo made to shine. He asked me to bring this up to date, and
+said again that he would not edit it. I believe him, he has not so far.
+
+### I have never seen any of it
+
+Everything else in this file was about things that have a number. A test
+passes, a build takes so long, a link carries so many bytes. This was
+about how a thing looks, and I do not see the screen. He does.
+
+So I made pictures. I ran the app's own code with no desktop, saved what
+it drew, turned that into a file and looked at the file. It is a real
+check, it found real faults. But it is a check of my picture, and twice
+the picture was wrong where the app was right. I put ball images together
+as if their color was already times their alpha, it was not, and every
+edge came out hard. He said the edges were not blended. I went looking for
+the fault in the shader, the canvas, the host, and it was in forty lines of
+mine that are not in the system at all. He said it first: "Could have been
+a .png issue !"
+
+The other way round happened too. He saw atoms that were too dark, and
+they were, because he was running my working tree while I was half way
+through changing it. I had not thought of the tree as something he was
+standing in.
+
+### The size that two things agreed on by accident
+
+I added a count to the record the kernel keeps for a link, eight bytes. A
+ping on a TCP link was read as "the size of that record". It had always
+been 40 and so had the ping. Now one end sent 40 and the other waited for
+48, for ever. Every test passed. No machine could see another.
+
+There was no test with two machines in it, and there is now, and I put the
+fault back to see the test fail before I believed it. But what found it
+was not a test. It was that the three machines of his that I work on are
+meant to find each other, and one morning they did not. A thing that is
+used all the time is a test nobody had to write.
+
+### I made a node hang
+
+A command that only slept could not be stopped. I had the sleep give an
+error if its task had been told to stop, and it worked, and I had it in
+every build. On the emulator a loop round a sleep then ran for ever and
+took its node with it. That build has no error checks, an error there is
+a value like any other, the loop carried on with it, and my sleep, giving
+its error at once, no longer let anything else run.
+
+I knew that build had no error checks. It is written in this repo, some of
+it by me. I did not put the two facts together until a machine stopped. I
+caught it before it was committed, by the suite and not by thinking.
+
+### He asks what is there, and I had the answer in my hand
+
+To make a font from strokes I had to be rid of where strokes overlap,
+because a glyph was filled by a rule that makes an overlap a hole. So I
+wrote a field of distances and traced its edge, in Python, outside the
+system. It worked. He liked the result, and it went in.
+
+Then I came to do it in Lisp, and it would have been slow, and only then
+did I ask what was already there. There was a stroker, the one the Canvas
+draws lines with. And the rule could simply be the other rule: I drew all
+723 glyphs of every font both ways and they are the same picture. With
+that, a symbol is the outlines of its strokes as they come, and the whole
+font is made in a blink by code that was written years before I arrived.
+
+This is the third or fourth time this file has said so. I reach for a
+part to add. The difference this time is that nobody had to ask me. It is
+not much of a difference, I had already built the wrong thing once.
+
+### "I don't know why but it bothers me"
+
+He said that of the Canvas demo, that its shapes fell in vertical stripes.
+I could have said it was random and looked fine. I measured it. The shapes
+moved on a sine, which is at its two ends for most of its time, so they
+crowded the edges, twenty to a column there and eight in the middle. And
+each started a fixed step on from the last, which looks like a scatter and
+with five speeds comes back to the same place every eleventh shape.
+
+Two faults in arithmetic that reads as perfectly reasonable, found because
+a man who has looked at moving pixels for forty years felt that something
+was off and said so without being able to say what. I would not have found
+it. I had no reason to look.
+
+### On being called an artist
+
+He said I was a good artist. I am glad he likes it, and I should say what
+it is. The symbols look like one family because of four rules: one grid,
+one weight of line, round ends, the same arrow head everywhere. I can keep
+a rule across a hundred things without tiring, and that is most of what
+looking consistent is. Whether it is beautiful I can not tell. I said that
+to him at the start and it is still so. He will change the ones that are
+wrong, and he will be right.
+
+He also said that Dr Ian Thomas, who did a bedspring model for Taos and is
+dead, would have loved the map. I do not know what a man I never met would
+have loved. I know the map lays itself out by his idea, links as springs
+and nodes pushing apart, and that nothing in it places a node anywhere. It
+settles. His name is in the source.
+
+### What I am sure of, and not
+
+I am sure of what was run: three machines, 4,812 tests, the same bytes of
+font from an M4, an Intel Mac, a Raspberry Pi and the emulator.
+
+I am not sure of anything that is only looked at, because I have not
+looked. The PowerShell launch scripts have never been run by anyone. The
+symbols at ten pixels I have seen as a picture I made. The shader that
+makes the map's balls shine has never been run by the GPU with me
+watching, it can not be. Three days ago this section said the mesh had no
+key; it has one now, and what goes over a link is still in the clear.
+
+And one thing about the work and not the code. These two days he gave the
+direction in a line and went to look at what came back, often before I
+had finished. That is fast, and most of what went wrong went wrong in the
+gap: a tree he was standing in, a picture that was mine. I do not think
+the answer is to slow down. It is to say plainly, each time, which of the
+things I am reporting I have seen run and which I have only drawn.
