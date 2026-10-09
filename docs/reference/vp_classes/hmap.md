@@ -101,6 +101,19 @@ trashes
 
 ### :each_callback -> class/obj/null
 
+### :eql -> class/obj/eql
+
+```code
+inputs
+:r0 = obj object (ptr)
+:r1 = obj object (ptr)
+outputs
+:r0 = obj object (ptr)
+:r1 = 0 if same, else not
+trashes
+:r1
+```
+
 ### :get -> class/hmap/get
 
 ```code
