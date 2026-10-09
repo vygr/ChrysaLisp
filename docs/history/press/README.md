@@ -26,7 +26,8 @@ Read with [How We Got Here](../history.md), which quotes from them.
 | undated | Tao Systems | Taos Raytracer flyer | | [pdf](1992_raytracer_flyer.pdf) |
 | Spring 1992 | Paratech "Solutions" newsletter | "Virtual Processor Station" | not credited | [pdf](1992-spring_paratech_solutions.pdf) |
 | Jun 1992 | PC Magazine (UK) | Kewney's News: "Taos leadership" | Guy Kewney's column | [pdf](1992-06_pc_magazine.pdf) |
-| Jun 1994 | Edge | Editorial, and "Taos: setting new standards" | not credited, photographs Jim Reitman | [pdf](1994-06_edge.pdf) |
+| Jun 1994 | Edge, issue 9 | The front cover, "Taos: Edge reveals how this new system could change the face of videogaming" | | [jpg](1994-06_edge_cover.jpg) |
+| Jun 1994 | Edge, issue 9 | Editorial, and "Taos: setting new standards" | not credited, photographs Jim Reitman | [pdf](1994-06_edge.pdf) |
 | Jul 1994 | BYTE | "Parallel Course" | Dick Pountain | [pdf](1994-07_byte.pdf) |
 | 1994 | Computing Awards for Excellence | UK IT Innovation, Gold: Taos Operating System 1.27 | not credited | [pdf](1994_computing_awards.pdf) |
 | Sep 1995 | Acorn User | "A thousand and one tools" | Steve Turnbull | [pdf](1995-09_acorn_user.pdf) |
@@ -51,5 +52,5 @@ Read with [How We Got Here](../history.md), which quotes from them.
 	of the UK's Institution of Electrical Engineers.
 
 *	The Edge cutting is five pages, the editorial, page 3 of the magazine,
-	and the four pages of the article. Chris remembers it as issue 9, with
-	Taos on the front cover as well. The cover is not in the collection.
+	and the four pages of the article. The front cover is a photograph of
+	Chris's framed copy, taken in 2026, not a scan.

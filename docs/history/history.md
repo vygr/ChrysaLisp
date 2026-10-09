@@ -263,13 +263,16 @@ and said in its editorial:
 > man's efforts, coding for his own benefit, rather than the cumulative
 > efforts of some corporate programming team."
 
-That was Edge of June 1994, which Chris has as issue 9. Taos had the front
-cover, he says, the editorial, on page 3, and a four page article, "Taos:
-setting new standards", from page 10. The picture at the head of the
-editorial is the one that was on the cover of the IEE Review, two linked
-rings of open cubes with a coloured ball in each, over a chequered floor. It
-was Tao's company logo, and it too is in the repo,
-`apps/media/images/data/rings.cpm`, drawn by Tim Moore's ray tracer.
+That was Edge of June 1994, issue 9. Taos had the front cover, the editorial,
+on page 3, and a four page article, "Taos: setting new standards", from page
+10. The cover line was "Taos: Edge reveals how this new system could change
+the face of videogaming". The picture that fills the cover, and is at the
+head of the editorial, is the one that was on the cover of the IEE Review,
+two linked rings of open cubes with a coloured ball in each, over a chequered
+floor. The cover says what it is: "Tao Systems have developed their own
+high-speed raytracing system, shown above rendering their logo." It too is in
+the repo, `apps/media/images/data/rings.cpm`. Chris has the cover framed, and
+[a photograph of it](press/1994-06_edge_cover.jpg) is with the cuttings.
 
 In 1994 Taos 1.27 won the gold award for UK IT Innovation at the Computing
 Awards for Excellence, ahead of the ARM 700 family of processors, which took
