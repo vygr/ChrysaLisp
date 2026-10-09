@@ -48,7 +48,7 @@
 		:items (remote-sprites *layer_items*)
 		:bans (remote-sprites *layer_bans*)
 		;peak task stack use on the game's node, and its memory use
-		:max_stack (last (defq stats (kernel-stats))) :mem_used (second stats)))
+		:max_stack (elem-get (defq stats (kernel-stats)) 3) :mem_used (second stats)))
 
 (defun remote-request (msg)
 	; act on a remote play request, anything malformed is just trash

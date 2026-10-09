@@ -17,9 +17,13 @@
 				;main mailbox, reset timeout and reply with this node, its
 				;load, and its links
 				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(defq links (net-links))
+				;a node whose kernel is older than the count of idle time
+				;says no time, and is not shown as at work
+				(defq links (net-links) stats (kernel-stats) timed (> (length stats) 4))
 				(mail-send msg (apply (const cat) (cat (list (setf-> (str-alloc +reply_size)
 					(+reply_node (task-nodeid))
 					(+reply_system (system-id))
-					(+reply_task_count (first (kernel-stats)))
+					(+reply_task_count (first stats))
+					(+reply_idle (if timed (elem-get stats 4) 0))
+					(+reply_time (if timed (pii-time) 0))
 					(+reply_num_links (length links)))) links)))))))

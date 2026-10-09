@@ -11,7 +11,7 @@
 (import "./map.inc")
 
 ;The network as it is, in three dimensions. A ball for each node, the
-;color of the machine it is on, bigger and whiter the more tasks it has. A
+;color of the machine it is on, bigger the more tasks it has, and whiter the harder it works. A
 ;bar for each link, hotter the more mail it carries, from blue through red
 ;to white. Each node is asked who its
 ;links are to, so it is the network that is there, not the one that was
@@ -110,6 +110,7 @@
 	;a node is seen, it gets a ball, and is put near the middle to be
 	;pushed out to where it belongs
 	(def (defq node (env 1)) :timestamp now :key key :tasks 0 :system "" :links (list)
+		:idle 0 :time 0 :busy +real_0
 		:pos (reals (rnd) (rnd) (rnd)) :vel (reals +real_0 +real_0 +real_0)
 		:ball (share (Scene-object ball_mesh (fixeds 1.0 1.0 1.0 1.0)) ball_proto))
 	(open-task (const (cat *app_root* "child.lisp")) key +kn_call_pin 0 (elem-get select +select_task))
@@ -127,6 +128,7 @@
 	(when (defq node (. global_tasks :find (getf msg +reply_node)))
 		(defq system (getf msg +reply_system) now (pii-time))
 		(unless (find system machines) (push machines system))
+		(node-busy node (getf msg +reply_idle) (getf msg +reply_time))
 		(def node :timestamp now :tasks (getf msg +reply_task_count) :system system
 			:links (map (lambda (i)
 					(defq link (slice msg (+ +reply_links (* i +link_size)) (+ +reply_links (* (inc i) +link_size))))
@@ -141,11 +143,12 @@
 		(defq ball (get :ball node) pos (get :pos node)
 			;as big on the screen however far out it is all drawn from
 			load (/ (n2r (min 40 (get :tasks node))) (const (n2r 40)))
+			busy (get :busy node)
 			size (/ (* +ball_size (+ +real_1 load)) zoom))
 		(.-> ball (:set_translation (first pos) (second pos) (third pos)) (:set_scale size size size))
-		;the color of its machine, and whiter the more it has to do
+		;the color of its machine, and whiter the harder it works
 		(def ball :color (apply (const fixeds) (cat (list 1.0)
-			(map (# (n2f (+ %0 (* (- +real_1 %0) load)))) (machine-color (get :system node))))))
+			(map (# (n2f (+ %0 (* (- +real_1 %0) busy)))) (machine-color (get :system node))))))
 		(push objs ball)))
 	(. links :each (lambda (name link)
 		(when (and (defq a (. global_tasks :find (get :a link)))

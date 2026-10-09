@@ -4,6 +4,40 @@
 
 ------
 
+How hard a node works, and the Network Map shows it.
+
+*	Chris: "running the Chess app, and the NetMap, I would have expected
+	to clearly see the node that was running the next move work ! It's a
+	heavy thing but only 1 task, so it doesn't actually show up as busy !"
+	The map had only the task count of a node, and one task flat out is
+	one task.
+
+*	The kernel had no measure of it. The lag it tells its neighbours is
+	how late a ready task is in getting to run, a stall, and a task that
+	works hard and gives way often makes none. So the kernel now counts
+	the time it is asleep with no task ready, `statics_sys_task_idle`,
+	timed either side of the host sleep. `(kernel-stats)` gives it as a
+	fifth number, `idle_time`. What of a stretch of time was not idle was
+	work.
+
+*	Measured on the x64 and the Pi: a node asleep 0%, one task flat out and
+	giving way 100%, one that works 50ms and sleeps 50ms, 49% and 50%.
+
+*	The Network Map: a ball is as big as its tasks, as before, and as
+	white as it is hard at work, it was both by tasks. Each node says its
+	idle time and its clock with its links, and `(node-busy)` in
+	`map.inc` is what was not idle since it last said, and half of what
+	it was before. A node with an older kernel is not shown as at work.
+
+*	Netmon and Onslaught read the stats by place, and are changed for the
+	fifth. New test, `tests/system/test_idle.lisp`.
+
+*	Not seen: on a desktop, and not built or run on the M4, Chris had
+	nodes up. Built, tested and linted on the x64, built and tested on
+	the Pi. The M4 needs `make` before its nodes have it.
+
+------
+
 The Eyes app, with a shader.
 
 *	Chris: "Eyes app with shaders ! :)" The eyes were four flat discs
@@ -14,11 +48,11 @@ The Eyes app, with a shader.
 	are on the ball, so they go round to the side of it and thin as it
 	looks away. The white is lit from the top left and dim at its rim, the
 	iris has fibres and a dark ring, and the eye is wet, the highlight
-	stays where the light is as the eye turns.
+	stays where the light is, up, left and in front, as the eye turns.
 
-*	The app works out a gaze for each eye, `(look)`, a unit vector, the
-	mouse taken to be a little in front of the screen, and an eye turns
-	only so far. The colour and sizes are those of its config, as before.
+*	The app works out a gaze for each eye, `(look)`, a unit vector. With
+	the mouse on an eye the iris is under it, and an eye turns no more
+	than about 40 degrees, further and the iris is side on and flat. The colour and sizes are those of its config, as before.
 
 *	2ms a frame at the small size, 8ms at the large, on the M4, and only
 	when the mouse has moved. New test, `tests/gpu/test_eyes.lisp`.

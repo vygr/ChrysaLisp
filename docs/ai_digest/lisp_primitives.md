@@ -1345,9 +1345,9 @@ Location-transparent messaging using ephemeral `netid` addresses.
 
 Task concurrency, cooperative scheduling, and process spawning.
 
-*	**`kernel-stats`**: Returns kernel telemetry `(task_count mem_used mem_avail max_stack)`.
+*	**`kernel-stats`**: Returns kernel telemetry `(task_count mem_used mem_avail max_stack idle_time)`.
 
-	*	`(kernel-stats) -> (task_count mem_used mem_avail max_stack)`
+	*	`(kernel-stats) -> (task_count mem_used mem_avail max_stack idle_time)`
 
 *	**`load-path`**: Returns the object binary directory path.
 

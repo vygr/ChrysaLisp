@@ -10,7 +10,12 @@ introspection.
 
 *	**`kernel-stats`**: Retrieves runtime telemetry from the local kernel.
 
-	*	`(kernel-stats) -> (task_count mem_used mem_avail max_stack)`
+	*	`(kernel-stats) -> (task_count mem_used mem_avail max_stack idle_time)`
+
+	`idle_time` is how long, in microseconds and in all, the node has had no
+	task ready to run. Ask twice: what of the time between was not idle is
+	how hard the node worked, one task flat out is all of it, forty asleep
+	are none.
 
 *	**`load-path`**: Returns the relative directory path where compiled object
 	files are loaded for the current architecture.

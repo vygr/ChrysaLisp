@@ -401,7 +401,16 @@
 		(endif)
 		(vp-min-rr :r7 :r6)
 		(vp-sub-rr :r0 :r6)
+		(assign '(:r0) {time})
 		(host-os-call :host_os :sleep '(:r6))
+
+		;how long that was is time the node was idle, (kernel-stats)
+		(call :host_os :pii_time :nil '(:r0))
+		(assign {time, statics} '(:r1 :r2))
+		(vp-sub-rr :r1 :r0)
+		(assign '((:r2 statics_sys_task_idle)) '(:r1))
+		(vp-add-rr :r1 :r0)
+		(assign '(:r0) '((:r2 statics_sys_task_idle)))
 	(loop-end)
 
 	;deinit best choice array

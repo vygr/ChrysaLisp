@@ -86,3 +86,22 @@
 (times 400 (spring-step))
 (assert-true "a hot link is shorter" (< (nm-dist 1 2) (* nm_linked (const (n2r 0.8)))))
 (assert-true "and its ends are not on top of each other" (> (nm-dist 1 2) (* nm_linked (const (n2r 0.3)))))
+
+;how hard a node works, from how long it says it has been idle
+(defun nm-worker () (def (defq node (env 1)) :idle 0 :time 0 :busy +real_0) node)
+(defq nm_work (nm-worker))
+(node-busy nm_work 5000 1000000)
+(assert-true "a node that is first heard of is not at work, there is nothing to set it against"
+	(= (get :busy nm_work) +real_0))
+(node-busy nm_work 5000 2000000)
+(assert-true "one that was not idle at all since, is half way to all of it"
+	(= (get :busy nm_work) +real_1/2))
+(each (lambda (i) (node-busy nm_work 5000 (+ 3000000 (* i 1000000)))) (range 0 8))
+(assert-true "and all but there if it goes on" (> (get :busy nm_work) (const (n2r 0.99))))
+(each (lambda (i) (node-busy nm_work (+ 5000 (* (inc i) 1000000)) (+ 11000000 (* i 1000000)))) (range 0 8))
+(assert-true "idle all of the time, it falls away to none" (< (get :busy nm_work) (const (n2r 0.01))))
+(node-busy nm_work 12000000 19000000)
+(assert-true "it is never less than none, a clock is not that good" (>= (get :busy nm_work) +real_0))
+(defq nm_old (nm-worker))
+(node-busy nm_old 0 0) (node-busy nm_old 0 0)
+(assert-true "a node that gives no time is not shown as at work" (= (get :busy nm_old) +real_0))

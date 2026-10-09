@@ -13,6 +13,10 @@
 	(struct sys_task_kernel_system_id +node_id_size)
 	(ptr sys_task_current_tcb sys_task_kernel_tcb)
 	(long sys_task_then)
+	;how long the node has been idle, in all, the kernel asleep with no
+	;task ready to run. What it has not been idle of a stretch of time, it
+	;was at work
+	(long sys_task_idle)
 	;the load of a node is what it tells its neighbours, for them to choose
 	;where to start a task. It is the task count, plus the lag, how late a
 	;task that is ready to run has lately been in getting to, in units of

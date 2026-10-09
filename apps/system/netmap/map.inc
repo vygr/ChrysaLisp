@@ -4,7 +4,8 @@
 ; tests/system/test_netmap.lisp.
 ;
 ; The nodes are a map, a node id to what is known of it: :pos and :vel,
-; three reals each, :system, the id of its machine, :tasks, and :links,
+; three reals each, :system, the id of its machine, :tasks, :busy, how
+; hard it works, with :idle and :time that it is worked out from, and :links,
 ; each (peer_node_id bytes_sent) as the node itself said. The links are a
 ; map made from those, links, each with its two ends :a and :b, :sent,
 ; :flow, :heat and :bar. These are worked on where they are, in the names
@@ -33,7 +34,7 @@
 	; (machine-color system) -> (r g b)
 	;the color of a machine, from its id, so it is the same color on every
 	;desktop and every time. The id picks where round the colors it is, and
-	;it is kept bright, and not too deep, it is whitened by load
+	;it is kept bright, and not too deep, it is whitened by how hard it works
 	(memoize system (progn
 		(defq h (if (< (length system) +node_id_size) 200
 				(% (logand (logxor (get-long system 0) (>>> (get-long system 0) 17)
@@ -48,6 +49,20 @@
 			(3 (list lo down +real_1))
 			(4 (list up lo +real_1))
 			(:t (list +real_1 lo down)))) 31))
+
+(defun node-busy (node idle time)
+	; (node-busy node idle time) -> node
+	;how hard a node works, :busy, none to all of it. A task count does
+	;not say, most tasks are asleep, and one that is flat out is one. It
+	;is what of the time since it was last asked the node was not idle,
+	;by its own clock, and half of what that was before, so it does not
+	;flicker. A node that gives no time, time of 0, is left as it is
+	(defq span (- time (get :time node)))
+	(when (and (/= (get :time node) 0) (> span 0))
+		(def node :busy (* +real_1/2 (+ (get :busy node)
+			(/ (n2r (max 0 (min span (- span (- idle (get :idle node)))))) (n2r span))))))
+	(def node :idle idle :time time)
+	node)
 
 (defun rnd ()
 	;somewhere between -1/2 and 1/2

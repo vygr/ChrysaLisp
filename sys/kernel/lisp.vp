@@ -23,7 +23,9 @@
 	(call :array :push_back2
 		'(:r0 (:r1 statics_sys_task_task_count) (:r1 statics_sys_mem_total))
 		'(:r0 _ _ _ _))
-	(call :array :push_back2 '(:r0 :r10 :r11) '(:r1 _ _ _ _))
+	(call :array :push_back2 '(:r0 :r10 :r11) '(:r0 _ _ _ _))
+	(fn-bind 'sys/statics/statics :r1)
+	(call :array :push_back '(:r0 (:r1 statics_sys_task_idle)) '(:r1 _ _ _))
 	(vp-pop :r0)
 
 	(exit :sys_kernel :lisp_stats '(:r0 :r1))
