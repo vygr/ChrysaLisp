@@ -11,12 +11,12 @@
 	(defmethod :draw ()
 		; (. slider :draw) -> slider
 		(defq maximum (get :maximum this) portion (get :portion this) col (get :color this))
-		;border
+		;a trough, a shade of the color with a thin edge a shade darker,
+		;and no black line
 		(bind '(w h) (. this :get_size))
-		(.-> this (:ctx_set_color 0xff000000) (:ctx_box 0 0 w h))
-		;fill middle
-		(.-> this (:ctx_set_color (canvas-darker col)) (:ctx_filled_box 1 1 (- w 2) (- h 2)))
-		;elevator
+		(.-> this (:ctx_set_color (canvas-darker (defq trough (canvas-darker col)))) (:ctx_box 0 0 w h)
+			(:ctx_set_color trough) (:ctx_filled_box 1 1 (- w 2) (- h 2)))
+		;elevator, the color, a pixel clear of the edge all round
 		(. this :ctx_set_color (if (= (get :state this) 0) col (canvas-brighter col)))
 		(cond
 			((> w h)
@@ -26,14 +26,14 @@
 						(setq portion (max (- h 2) (/ (* w portion) (+ maximum portion)))
 							w (/ (* (get :value this) (- w portion)) maximum)))
 					(:t (setq portion w w 0)))
-				(. this :ctx_filled_box (inc w) 1 portion (- h 2)))
+				(. this :ctx_filled_box (+ w 2) 2 (- portion 2) (- h 4)))
 			(:t (-- h 2)
 				(cond
 					((> maximum 0)
 						(setq portion (max (- w 2) (/ (* h portion) (+ maximum portion)))
 							h (/ (* (get :value this) (- h portion)) maximum)))
 					(:t (setq portion h h 0)))
-				(. this :ctx_filled_box 1 (inc h) (- w 2) portion))))
+				(. this :ctx_filled_box 2 (+ h 2) (- w 4) (- portion 2)))))
 
 	(defmethod :constraint ()
 		; (. slider :constraint) -> (width height)
