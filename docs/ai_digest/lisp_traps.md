@@ -187,6 +187,11 @@ it copies the list and every list in it, however deep.
 (second c) ; -> (2 3), c has one of its own
 ```
 
+Which object a thing is, is what `(weak-ref)` gives, a number, so the
+two can be told apart for sure: of a form of 8 lists, not one list of its
+`copy` has the number of a list of the original, and all but the top one
+of its `cat` have.
+
 It is lists that `copy` copies. What is in one that is not a list, a str,
 a `nums`, an `array`, is the same one in both, and `copy` of one of those
 by itself gives it back. And it is for plain lists: a map or an object is

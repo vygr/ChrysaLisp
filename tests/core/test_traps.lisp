@@ -68,6 +68,26 @@
 (assert-true "what is not a list is the same one in both, a nums here" (progn (elem-set (third tr_c) 0 9) (= (first tr_n) 9)))
 (assert-true "copy of what is not a list gives it back" (progn (elem-set (copy tr_n) 1 8) (= (second tr_n) 8)))
 (assert-eq "copy of a map is a plain list, not a map" :nil (find :hmap (type-of (copy (Fmap 1)))))
+;which object a thing is, is what (weak-ref) gives. So every list of a
+;copy can be shown to be a new one, and what is not a list the same one
+(defun tr-refs (form)
+	;the object of each list in a form, itself and all inside it, and of
+	;each thing that is not a list
+	(defq lists (list) others (list) stack (list form))
+	(while (defq it (pop stack))
+		(cond
+			((list?? it) (push lists (weak-ref it)) (each (# (push stack %0)) it))
+			((array? it) (push others (weak-ref it)))))
+	(list lists others))
+(defq tr_big (list (list 1 (list 2 (list 3 (nums 4)))) (list (list) (list (list (fixeds 5.0)))) (nums 6))
+	tr_orig (tr-refs tr_big) tr_copy (tr-refs (copy tr_big)) tr_cat (tr-refs (cat tr_big)))
+(assert-list-eq "a form of 8 lists and 3 vectors of numbers" '(8 3) (map (const length) tr_orig))
+(assert-list-eq "its copy has as many" '(8 3) (map (const length) tr_copy))
+(assert-true "and not one of the copy's lists is a list of the original"
+	(notany (# (find %0 (first tr_orig))) (first tr_copy)))
+(assert-list-eq "what is not a list is the same objects, every one" (sort (cat (second tr_orig)) (const -)) (sort (cat (second tr_copy)) (const -)))
+(assert-eq "a cat has one new list, the top, and the other 7 are the original's" 7
+	(length (filter (# (find %0 (first tr_orig))) (first tr_cat))))
 
 (defq tr_mbox (mail-mbox) tr_sent (str-alloc 8))
 (mail-send tr_mbox tr_sent)
