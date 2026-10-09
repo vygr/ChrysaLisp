@@ -4,6 +4,49 @@
 
 ------
 
+The Mandelbrot app, a facelift.
+
+*	Chris: "Mandelbrot facelift on the list. More depth and nicer
+	colouring ! That also is a great test for showing up the heat map on
+	the NetMap monitor."
+
+*	The colour has no bands. The depth of a point is how many turns it took
+	to get out and how far through the last one it was, and that picks from
+	a palette of 2048 colours, deep blue, to white, to gold, to near black
+	and round again, by its root, so the bands are no thinner deep in.
+
+*	It is lit. The loop keeps the derivative as well, and z over it is the
+	way the ground slopes at a pixel. A light from the top left makes the
+	edges of the set stand up off the picture.
+
+*	It goes deeper. A point had 255 turns to get out, whatever the zoom,
+	and deep in everything turned to set. It now has 256 and 64 more for
+	each level of zoom, to 42 levels, which is as far as a real can tell
+	one pixel from the next.
+
+*	All of it is in the native function, `shade` in
+	`apps/science/mandelbrot/lisp.vp`, that was `depth`. It takes the
+	palette and gives back the colour, so the child stores an int for a
+	pixel and the app no longer maps bytes to colours. There is no log
+	instruction, the smooth part is a count of halvings and a curve. The
+	emulator's pictures are the same, byte for byte, as the native ones.
+
+*	A square is filled without being worked out only where a ring of it is
+	all inside the set. A ring of one depth has more than one colour now.
+	A point in the heart or the disc is known inside without the loop.
+
+*	A tool bar, zoom in, zoom out and home. A click still zooms in on the
+	point, a right click out.
+
+*	`docs/ai_digest/app_acceleration.md` teaches from this function and is
+	brought up to it. New test, `tests/system/test_mandel.lisp`.
+
+*	Not seen: the tool bar and a click, on a desktop. The app was opened on
+	one and drew with no error, the pictures looked at were from the same
+	child over a farm of eight.
+
+------
+
 Themes, the symbol font of a desktop chosen and swapped while it runs.
 
 *	Chris: "Could we do several symbol themes ... And do a hot swappable

@@ -3,7 +3,13 @@
 (include "class/lisp/class.inc")
 (include "./app.inc")
 
-(def-func (path-to-absolute "./depth"))
+;the derivative grows with every turn of the loop, and is brought back
+;down, with the one that is added to it, before it can be too big for a
+;real to hold
+(defq +shade_big (reduce (lambda (r &) (* r r)) (range 0 8) +real_2)
+	+shade_small (/ +real_1 +shade_big))
+
+(def-func (path-to-absolute "./shade"))
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -11,47 +17,189 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r9, :r14, :f0-:f15
 
-	(vp-rdef (this args cnt ox0 oy0))
-	(vp-fdef (x0 y0 xc yc x2 y2 four two temp))
+	(vp-rdef (this args cnt top pal consts t0 t1 t2 col))
+	(vp-fdef (x0 y0 xc yc x2 y2 dx dy one two bail f0 f1 f2 f3))
 
 	(entry `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(errorif-lisp-args-sig 'error :r1 4)
 
 	(vp-push :r0)
-	(list-bind-args :r1 `(,ox0 ,oy0) '(:real :real) `(,x0 ,y0))
+	(list-bind-args :r1 `(,t0 ,t1 ,top ,pal) '(:real :real :num :str) `(,x0 ,y0 ,top ,pal))
+	(vp-lea-p 'fn_consts consts)
 
-	(vp-lea-p 'fn_consts cnt)
-	(load-fields cnt
-		(fn-consts (n2r 4.0) (n2r 2.0))
-		`(,four ,two))
+	;a point of the heart, or of the disc to its left, is in the set, and
+	;is most of what would run to the top
+	(load-fields consts
+		(fn-consts (n2r 0.25) (n2r 0.0625) +real_1)
+		`(,f2 ,f3 ,one))
+	;f0 = x0 - 1/4, f1 = q = f0^2 + y0^2, y2 = y0^2 / 4
+	(vp-cpy-ff x0 f0)
+	(vp-sub-ff f2 f0)
+	(vp-cpy-ff y0 y2)
+	(vp-mul-ff y0 y2)
+	(vp-cpy-ff f0 f1)
+	(vp-mul-ff f0 f1)
+	(vp-add-ff y2 f1)
+	(vp-add-ff f1 f0)
+	(vp-mul-ff f1 f0)
+	(vp-cpy-ff y2 x2)
+	(vp-mul-ff f2 x2)
+	(gotoif `(,f0 <= ,x2) 'inside)
+	;(x0 + 1)^2 + y0^2 <= 1/16
+	(vp-cpy-ff x0 f0)
+	(vp-add-ff one f0)
+	(vp-mul-ff f0 f0)
+	(vp-add-ff y2 f0)
+	(gotoif `(,f0 <= ,f3) 'inside)
 
-	;init i=0, xc=0.0, yc=0.0, x2=0.0, y2=0.0
+	(load-fields consts
+		(fn-consts +real_2 (n2r 65536))
+		`(,two ,bail))
+
+	;cnt = 0, z = 0, its derivative = 0
 	(vp-xor-rr cnt cnt)
-	(vp-simd vp-cvt-rf `(,cnt) `(,xc ,yc ,x2 ,y2))
+	(vp-simd vp-cvt-rf `(,cnt) `(,xc ,yc ,x2 ,y2 ,dx ,dy))
 
 	(loop-start)
-		(vp-cpy-ff x2 temp)
-		(vp-add-ff y2 temp)
-		(breakif `(,temp >= ,four))
+		(vp-cpy-ff x2 f0)
+		(vp-add-ff y2 f0)
+		(gotoif `(,f0 >= ,bail) 'outside)
 
-		; y = 2 * x * y + y0
+		;d = 2 * z * d + 1
+		(vp-simd vp-cpy-ff `(,xc ,xc) `(,f1 ,f2))
+		(vp-simd vp-mul-ff `(,dx ,dy) `(,f1 ,f2))
+		(vp-simd vp-mul-ff `(,yc ,yc) `(,dy ,dx))
+		(vp-sub-ff dy f1)
+		(vp-add-ff dx f2)
+		(vp-simd vp-cpy-ff `(,f1 ,f2) `(,dx ,dy))
+		(vp-simd vp-add-ff `(,f1 ,f2) `(,dx ,dy))
+		(vp-add-ff one dx)
+
+		;y = 2 * x * y + y0
 		(vp-mul-ff two yc)
 		(vp-mul-ff xc yc)
-		; x = x2 - y2 + x0
+		;x = x2 - y2 + x0
 		(vp-cpy-ff x2 xc)
 		(vp-sub-ff y2 xc)
 		(vp-simd vp-add-ff `(,x0 ,y0) `(,xc ,yc))
-		; x2 = x * x, y2 = y * y
+		;x2 = x * x, y2 = y * y
 		(vp-simd vp-cpy-ff `(,xc ,yc) `(,x2 ,y2))
 		(vp-simd vp-mul-ff `(,x2 ,y2) `(,x2 ,y2))
 
 		(vp-add-cr 1 cnt)
-	(loop-until `(,cnt = 255))
+		(vp-cpy-rr cnt t0)
+		(vp-and-cr 63 t0)
+		(vpif `(,t0 = 0))
+			;every 64 turns, is the derivative to be brought down
+			(vp-simd vp-cpy-ff `(,dx ,dy) `(,f1 ,f2))
+			(vp-simd vp-abs-ff `(,f1 ,f2) `(,f1 ,f2))
+			(vp-max-ff f2 f1)
+			(load-fields consts (fn-consts +shade_big) `(,f2))
+			(vpif `(,f1 > ,f2))
+				(load-fields consts (fn-consts +shade_small) `(,f2))
+				(vp-simd vp-mul-ff `(,f2) `(,dx ,dy ,one))
+			(endif)
+		(endif)
+	(loop-until `(,cnt = ,top))
 
-	(call :num :create `(,cnt) '(:r1))
+(vp-label 'inside)
+	(vp-cpy-cr -1 t0)
+	(call :num :create `(,t0) '(:r1))
+	(vp-pop :r0)
+	(exit `(,this ,args))
+	(vp-ret)
+
+(vp-label 'outside)
+	;how far through this turn of the loop the point got out, for a depth
+	;with no steps in it. f0 = |z|^2, at least 2^16, and f3 + log2 f0 is
+	;its log2 less the 16
+	(load-fields consts
+		(fn-consts (/ +real_1 (n2r 65536)) +real_1/2 +real_1 +real_0)
+		`(,f1 ,f2 ,one ,f3))
+	(vp-mul-ff f1 f0)
+	(loop-while `(,f0 >= ,two))
+		(vp-mul-ff f2 f0)
+		(vp-add-ff one f3)
+	(loop-end)
+	(load-fields consts
+		(fn-consts (n2r 1.3465) (n2r 0.3465) (n2r 0.0625))
+		`(,x2 ,y2 ,bail))
+	;log2 of 1 to 2 is near enough m * (1.3465 - 0.3465 * m), m from 0 to 1,
+	;and is right at both ends
+	(vp-sub-ff one f0)
+	(vp-cpy-ff f0 f1)
+	(vp-mul-ff y2 f1)
+	(vp-cpy-ff x2 f2)
+	(vp-sub-ff f1 f2)
+	(vp-mul-ff f2 f0)
+	(vp-add-ff f3 f0)
+	;f0 = log2 |z|^2 / 16 - 1, from 0 to 1, and the log2 of 1 more than
+	;that
+	(vp-mul-ff bail f0)
+	(vp-cpy-ff f0 f1)
+	(vp-mul-ff y2 f1)
+	(vp-sub-ff f1 x2)
+	(vp-mul-ff x2 f0)
+	;the depth, and the colour of it. The root of it, as the depths get
+	;closer together the deeper they are
+	(vp-cvt-rf cnt f1)
+	(vp-add-ff one f1)
+	(vp-sub-ff f0 f1)
+	(vp-sqrt-ff f1 f1)
+	(load-fields consts (fn-consts (n2r +mandel_pal_rate)) `(,f0))
+	(vp-mul-ff f0 f1)
+	(vp-cvt-fr f1 col)
+	(vp-add-cr +mandel_pal_base col)
+	(vp-and-cr (dec +mandel_pal_size) col)
+	(vp-shl-cr 2 col)
+	(vp-add-rr pal col)
+	(vp-cpy-ir-ui col 0 col)
+
+	;the light. z over its derivative points straight out from the set,
+	;which is the way the ground slopes there, and a slope that faces the
+	;light, up and to the left, is bright
+	(vp-simd vp-cpy-ff `(,xc ,yc) `(,f0 ,f1))
+	(vp-simd vp-mul-ff `(,dx ,dx) `(,f0 ,f1))
+	(vp-simd vp-mul-ff `(,dy ,dy) `(,yc ,xc))
+	(vp-add-ff yc f0)
+	(vp-sub-ff xc f1)
+	(vp-simd vp-cpy-ff `(,f0 ,f1) `(,x2 ,y2))
+	(vp-simd vp-mul-ff `(,x2 ,y2) `(,x2 ,y2))
+	(vp-add-ff y2 x2)
+	(vp-sqrt-ff x2 x2)
+	(load-fields consts
+		(fn-consts (n2r +mandel_light_base) (n2r +mandel_light_gain))
+		`(,f2 ,f3))
+	(vp-xor-rr t0 t0)
+	(vp-cvt-rf t0 y2)
+	(vpif `(,x2 > ,y2))
+		(vp-add-ff f1 f0)
+		(vp-div-ff x2 f0)
+		(vp-mul-ff f3 f0)
+		(vp-sub-ff f0 f2)
+	(endif)
+	(vp-cvt-fr f2 t0)
+
+	;each of red, green and blue by the light, and no more than 255
+	(vp-cpy-rr col t1)
+	(vp-cpy-rr col t2)
+	(vp-shr-cr 16 col)
+	(vp-shr-cr 8 t1)
+	(vp-simd vp-and-cr (list 0xff) `(,col ,t1 ,t2))
+	(vp-simd vp-mul-rr `(,t0) `(,col ,t1 ,t2))
+	(vp-simd vp-shr-cr (list 8) `(,col ,t1 ,t2))
+	(vp-simd vp-min-cr (list 0xff) `(,col ,t1 ,t2))
+	(vp-shl-cr 16 col)
+	(vp-shl-cr 8 t1)
+	(vp-add-rr t1 col)
+	(vp-add-rr t2 col)
+	(vp-cpy-cr 0xff000000 t0)
+	(vp-add-rr t0 col)
+
+	(call :num :create `(,col) '(:r1))
 	(vp-pop :r0)
 
 	(exit `(,this ,args))
@@ -59,7 +207,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(depth x0 y0)" +error_msg_wrong_types))
-	(signature '(:REAL :REAL)))
+	(jump :lisp :repl_error '(:r1 "(shade x0 y0 max palette)" +error_msg_wrong_types))
+	(signature '(:real :real :num :str)))
 
 (def-func-end)

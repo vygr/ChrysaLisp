@@ -5,59 +5,65 @@
 (import "lib/task/jobs.inc")
 
 ;a square for a child to work out, the size of the whole picture, the
-;key of the shared pixels it is drawn on, 0 if there are none, and
-;where in the set the picture is
+;key of the shared pixels it is drawn on, 0 if there are none, how many
+;turns a point is given to get out of the set, and where in the set the
+;picture is
 (structure +rect +job_size
 	(int x y x1 y1)
-	(long w h shared)
+	(long w h shared top)
 	(real cx cy z))
 
-;its answer. The square, the part of it that is all one depth, and that
-;depth, -1 if no part is. drawn says the child has drawn it on the
-;shared pixels. If it has not, and the fill is not the whole of it, the
-;depth of every pixel follows, a byte each
+;its answer. The square, and the part of it that is all inside the set,
+;if inside is not 0. drawn says the child has drawn it on the shared
+;pixels. If it has not, and not all of it is inside, the colour of every
+;pixel follows, an int each
 (structure +rect_reply +job_reply_size
 	(int x y x1 y1)
 	(int ix iy ix1 iy1)
-	(int fill_value drawn))
+	(int inside drawn))
 
 ;math
 
 (defun real-offset (x w z)
 	(* z (/ (* (- x (/ w +real_2)) +real_2) w)))
 
-;the colour of each depth
+;the colour of each depth. They go round and round, deep blue, to white,
+;to gold, to near black, and a depth is so far round them as the base and
+;its root times the rate, so the bands are no thinner deep in than they
+;are far out, and what is far from the set is the deep blue. The
+;light on a pixel is the base, and the gain more or less as the ground
+;faces the light or away, 256 is the colour as it is
 
-(defun generate-lut ()
-	(defq lut (list) i -1)
-	(while (< (++ i) 255)
-		(defq
-			; Frequency
-			f 0.1 fi (n2f i)
-			; Phase shifts for R, G, B
-			r (n2i (+ (* (sin (* f fi)) 127.0) 128.0))
-			g (n2i (+ (* (sin (+ (* f fi) 2.0)) 127.0) 128.0))
-			b (n2i (+ (* (sin (+ (* f fi) 4.0)) 127.0) 128.0)))
-		; Combine into ARGB, force Alpha 0xFF
-		(push lut (char (+ 0xFF000000 (<< r 16) (<< g 8) b) +int_size)))
-	; Set index 255 to Black
-	(push lut (char +argb_black +int_size)))
+(defq +mandel_pal_size 2048 +mandel_pal_rate 260.0 +mandel_pal_base 1560
+	+mandel_light_base 232.0 +mandel_light_gain 96.0)
 
-(defq +mandel_lut `',(generate-lut))
+(defun generate-pal ()
+	(defq out (cap +mandel_pal_size (list))
+		stops '((0 0 7 100) (328 32 107 203) (860 237 255 255)
+			(1316 255 170 0) (1756 26 6 44) (2048 0 7 100)))
+	(each! (lambda ((p0 r0 g0 b0))
+			(bind '(p1 r1 g1 b1) (elem-get stops (inc (!))))
+			(each (lambda (i)
+					;eased from one colour to the next
+					(defq k (/ (n2f (- i p0)) (n2f (- p1 p0)))
+						k (* k k (- 3.0 (* 2.0 k))))
+					(push out (char (+ 0xff000000
+						(<< (+ r0 (n2i (* k (n2f (- r1 r0))))) 16)
+						(<< (+ g0 (n2i (* k (n2f (- g1 g0))))) 8)
+						(+ b0 (n2i (* k (n2f (- b1 b0)))))) +int_size)))
+				(range p0 p1)))
+		(list stops) 0 (dec (length stops)))
+	(apply (const cat) out))
 
-(defun draw-rect (canvas depths x y x1 y1 ix iy ix1 iy1 fill_value)
-	;a square onto a canvas. depths is a byte for each pixel of it, and is
-	;not looked at if the fill is the whole of the square
+(defq +mandel_pal (generate-pal))
+
+(defun draw-rect (canvas pixels x y x1 y1 ix iy ix1 iy1 inside)
+	;a square onto a canvas. pixels is the colour of each pixel of it, and
+	;is not looked at if all of the square is inside the set
 	(cond
-		((and (/= fill_value -1) (= ix x) (= iy y) (= ix1 x1) (= iy1 y1))
-			;fill covers the WHOLE area, skip :tile completely!
-			(.-> canvas
-				(:set_color (get-int (elem-get +mandel_lut fill_value) 0))
-				(:fbox x y (- x1 x) (- y1 y))))
-		(:t ;tile the full buffer (draws computed perimeter rings + uninitialized interior garbage)
-			(. canvas :tile (apply (const cat) (map (# (elem-get +mandel_lut (code %0))) depths)) x y x1 y1)
-			;overwrite the uninitialized interior garbage with any solid fill!
-			(when (/= fill_value -1)
-				(.-> canvas
-					(:set_color (get-int (elem-get +mandel_lut fill_value) 0))
-					(:fbox ix iy (- ix1 ix) (- iy1 iy)))))))
+		((and (/= inside 0) (= ix x) (= iy y) (= ix1 x1) (= iy1 y1))
+			(.-> canvas (:set_color +argb_black) (:fbox x y (- x1 x) (- y1 y))))
+		(:t ;the rings that were worked out, and the middle is not yet set
+			(. canvas :tile pixels x y x1 y1)
+			(when (/= inside 0)
+				(.-> canvas (:set_color +argb_black) (:fbox ix iy (- ix1 ix) (- iy1 iy)))))))
