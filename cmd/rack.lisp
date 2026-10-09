@@ -13,6 +13,8 @@
             sync lists them, arm64/Linux, with a , between.
         -d --delete paths: files to remove on the other machines, with
             a : between.
+        -u --user name: the sessions are that user's, a folder of usr/,
+            and not whoever last signed on to each machine.
 
     Run a command line on every machine of the mesh. Each machine that
     takes a sync, sync -a, is first made the same as this one. Then each,
@@ -26,15 +28,16 @@
 (("-b" "--build") ,(opt-flag 'opt_b))
 (("-l" "--leave") ,(opt-str 'opt_l))
 (("-d" "--delete") ,(opt-str 'opt_d))
+(("-u" "--user") ,(opt-str 'opt_u))
 ))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_b :nil opt_l "" opt_d ""
+			(defq opt_b :nil opt_l "" opt_d "" opt_u :nil
 				args (options stdio usage)))
 		(if (<= (length args) 1)
 			(print "A command line to run is needed, rack -h.")
 			(each (const print) (rack-run (join (rest args) " ")
-				opt_b (split opt_l ",") (split opt_d ":"))))))
+				opt_b (split opt_l ",") (split opt_d ":") opt_u)))))

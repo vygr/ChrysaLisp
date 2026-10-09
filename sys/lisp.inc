@@ -74,7 +74,19 @@
 	(defq links (map (lambda (&) (list)) (range 0 total)) names (list)
 		chars "0123456789abcdefghijklmnopqrstuvwxyz"
 		host (case kind (:gui "-gui ") (:tui "-tui ") (:t ""))
-		run (if script (cat " -run " script) ""))
+		;a session can have a user of its own, not the one the machine
+		;has. Each node of it has who in *env_node_user*, in the
+		;environment all its tasks share, and tells the nodes it starts as
+		;the first thing they run. A node's args are split at spaces, so
+		;the form is written with tabs
+		user (get '*env_node_user*) tab (ascii-char 9)
+		tell (if user (cat "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})"))
+		told (if user (cat " -run " tell) "")
+		run (cond
+			((and script user) (cat " -run (progn" tab tell tab
+				(if (starts-with "(" script) script (cat "(import" tab "{" script "})")) ")"))
+			(script (cat " -run " script))
+			(:t told)))
 	(each (lambda ((i j))
 			;a link name is ???-???, the form the stop scripts clear away
 			(defq name (apply (const cat) (map (lambda (_)
@@ -86,7 +98,7 @@
 	(defq pids (map! (lambda (node_links)
 			(defq args (cat (if sid (cat "-sid " sid " ") "")
 				(join (map (lambda (name) (cat "-l " name)) node_links) " ")))
-			(pii-spawn (if (<= (!) fronts) (cat host args run) args)))
+			(pii-spawn (if (<= (!) fronts) (cat host args run) (cat args told))))
 		(list links) 1))
 	(each (const node-link) (first links))
 	;leave the pids and the link names for the launch script that started

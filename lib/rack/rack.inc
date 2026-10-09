@@ -16,17 +16,21 @@
 ;in. One for a machine, so one rack run on a machine at a time
 (defq +rack_cmds "/tmp/chrysalisp_rack_cmds" +rack_out "/tmp/chrysalisp_rack_out")
 
-(defun rack-fresh (phases)
-	; (rack-fresh phases) -> str
+(defun rack-fresh (phases &optional user)
+	; (rack-fresh phases [user]) -> str
 	;on this machine, a new session for each phase, a list of command
 	;lines, one after another, and what they said. A session is started by
 	;the host, so it is on the boot image as it is on disk now, which a
-	;phase before it may have made
-	(defq acc (list))
+	;phase before it may have made. With a user the session is theirs, and
+	;not whoever last signed on to the machine, as run.sh -u has it
+	(defq acc (list) tab (ascii-char 9))
 	(each (lambda (cmds)
 		(if (pii-fstat +rack_out) (pii-remove +rack_out))
 		(save (join cmds (ascii-char 10)) +rack_cmds)
-		(pii-spawn "-run lib/rack/session.lisp")
+		(pii-spawn (if user
+			(cat "-run (progn" tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})"
+				tab "(import" tab "{lib/rack/session.lisp}))")
+			"-run lib/rack/session.lisp"))
 		(defq t0 (pii-time) res :nil)
 		(while (and (not (setq res (load +rack_out))) (< (- (pii-time) t0) 170000000))
 			(task-sleep 100000))
@@ -34,8 +38,8 @@
 		phases)
 	(apply (const cat) (cat (list "") acc)))
 
-(defun rack-run (cmdline &optional make_first leave_out gone)
-	; (rack-run cmdline [make_first leave_out gone]) -> (line ...)
+(defun rack-run (cmdline &optional make_first leave_out gone user)
+	; (rack-run cmdline [make_first leave_out gone user]) -> (line ...)
 	;make every machine that takes a sync the same as this one, then run
 	;the command line on each, and on this one. With make_first, make and
 	;make all boot are run first, in a session before. leave_out is the
@@ -74,7 +78,7 @@
 			(:t (open-task (str `(progn
 					(import "lib/rack/rack.inc")
 					(mail-send (hex-decode ,(hex-encode reply_mbox))
-						(cat ,machine (ascii-char 10) (rack-fresh (quote ,phases))))))
+						(cat ,machine (ascii-char 10) (rack-fresh (quote ,phases) ,user)))))
 					(first nodes) +kn_call_pin 0 (mail-mbox))
 				(setq asked (inc asked)))))
 		ran)

@@ -78,6 +78,10 @@ RAN arm64/Linux Modules: 98, 2 run, 96 as they were Passed: 4644 Failed: 0 RESUL
 DONE 3711ms
 ```
 
+`-u name` makes the sessions that user's, a folder of `usr/`, and not
+whoever last signed on to each machine, so what a run writes of its own,
+an app's settings say, goes to that user's folder.
+
 `-l` names machines to bring level and not run on, as `sync` lists them,
 `arm64/Linux`, with a `,` between. For a machine someone is sat at.
 

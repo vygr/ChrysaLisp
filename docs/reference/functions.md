@@ -2893,18 +2893,19 @@ for it. An empty pattern stays empty, and matches as it would without.
 ### rack-fresh
 
 ```code
-(rack-fresh phases) -> str
+(rack-fresh phases [user]) -> str
 
 on this machine, a new session for each phase, a list of command
 lines, one after another, and what they said. A session is started by
 the host, so it is on the boot image as it is on disk now, which a
-phase before it may have made
+phase before it may have made. With a user the session is theirs, and
+not whoever last signed on to the machine, as run.sh -u has it
 ```
 
 ### rack-run
 
 ```code
-(rack-run cmdline [make_first leave_out gone]) -> (line ...)
+(rack-run cmdline [make_first leave_out gone user]) -> (line ...)
 
 make every machine that takes a sync the same as this one, then run
 the command line on each, and on this one. With make_first, make and

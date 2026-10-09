@@ -699,6 +699,8 @@ Usage: rack [options] "command line"
             sync lists them, arm64/Linux, with a , between.
         -d --delete paths: files to remove on the other machines, with
             a : between.
+        -u --user name: the sessions are that user's, a folder of usr/,
+            and not whoever last signed on to each machine.
 
     Run a command line on every machine of the mesh. Each machine that
     takes a sync, sync -a, is first made the same as this one. Then each,

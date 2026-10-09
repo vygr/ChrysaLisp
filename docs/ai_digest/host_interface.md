@@ -440,6 +440,15 @@ links, and gives it a line of Lisp to run:
 	"(progn (node-net :ring 8) (import {service/gui/app.lisp}))"
 ```
 
+A session can be some user's, `./run.sh -u name`, and not whoever last
+signed on to the machine, the file `usr/current`. The first node is told
+who in the form it runs, `*env_node_user*` in the environment all the
+tasks of a node share, `usr/env.inc` looks there first, and `(node-start)`
+tells each node it starts the same, as the first thing it runs. So two
+sessions on one machine can be two users at once. A desktop of such a
+session does not ask who, the login window is not shown. It is not
+security, a node can read any user's folder.
+
 A node takes three options itself, the kernel reads them: `-run`, a file
 or a form to run, `-l`, the name of a shared memory link, and `-sid`, a
 system id to have in place of the one the host has for the machine, up to

@@ -4,6 +4,45 @@
 
 ------
 
+A session can be some user's, `./run.sh -u Test`, and Claude's are.
+
+*	Chris: "how about the user switch for your work ? is that easy." Who
+	the user is was one file for the machine, `usr/current`, read by
+	every task as it starts, so it could not be another for one session
+	without being another for his desktop too.
+
+*	`-u name` on the launch scripts. The first node is told who, in the
+	form it runs: `*env_node_user*`, in the environment all the tasks of
+	a node share. `usr/env.inc` looks there before it reads the file.
+	And `(node-start)` tells each node it starts, as the first thing that
+	node runs, so the nodes of a session, those added to it, and a network
+	hung from it all have it. A node's args are split at spaces, the form
+	is written with tabs.
+
+*	It is all Lisp, with parts that were there, a node can run a form as
+	it starts. Claude's first go was a kernel option and a new native
+	function to read it. The build hung on it: the Lisp every task starts
+	with named a function the boot image that was running did not have.
+	The same would have stopped `make install` from the snapshot. It was
+	taken out, and Chris had been told "no new snapshot".
+
+*	A desktop of such a session does not ask who, the login window is
+	not shown, and `usr/current` is left as it was. So two users can be
+	on one machine at once. It is not security.
+
+*	`rack -u name`, the sessions of a rack run are that user's. Claude's
+	test loop runs as Test now, and nothing of it is written to Guest's
+	folder. The whole suite passes as Test and as Guest.
+
+*	`tests/solo/test_user.lisp`, 7: a node started by one that has a user
+	has it, so has a node that one starts, and one started by a node with
+	none has the machine's. 4,957 pass on the M4, the x64 and the Pi. A
+	one node desktop started as Test went straight to its services, one
+	started with no user waited at the login window. Runs on the release
+	emulator. The PowerShell scripts are not changed. Not seen.
+
+------
+
 Ctrl-R searches the history, in the Terminal and the TUI.
 
 *	Chris: "for the TUI and Terminal app, some form of ctrl-r, then type

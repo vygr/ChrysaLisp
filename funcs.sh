@@ -143,6 +143,12 @@ function first_run
 	then
 		piped="(defq *tui_scripted* :t) "
 	fi
+	#a session that is some user's, -u, and not whoever last signed on. The
+	#first node is told who, and tells each node it starts, (node-start)
+	if [ "$user" != "" ]
+	then
+		piped="(def *root_env* '*env_node_user* {$user}) $piped"
+	fi
 	if [ "${2:-0}" -gt 0 ]
 	then
 		echo "(progn $piped(node-net :$shape $num_cpu $2 :gui {service/gui/app.lisp}) (import {$1}))"
@@ -213,6 +219,7 @@ function main
 	front=""
 	help=""
 	script="apps/tui/tui.lisp"
+	user=""
 	while [ "$#" -gt 0 ]; do
 	case $1 in
 		-i)
@@ -243,9 +250,14 @@ function main
 			shape=$2
 			shift 2
 			;;
+		-u)
+			user=$2
+			shift 2
+			;;
 		*)	echo "[-n cnt] number of nodes, the width of a mesh or a cube, 0 to size to the machine, the default"
 			echo "[-t shape] full, ring, star, tree, mesh or cube, full is the default"
 			echo "[-g cnt] number of guis"
+			echo "[-u name] the user of this session, a folder of usr/, not whoever last signed on"
 			echo "[-s script_name] script mode"
 			echo "[-e] emulator mode"
 			echo "[-f] foreground mode"

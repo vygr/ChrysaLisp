@@ -419,6 +419,11 @@ nodes -x all           ; every network that was added
 
 Open the Network Map first and watch it arrive and go.
 
+A session can be started as a user, `./run.sh -u Test`, a folder of
+`usr/`. It goes straight to that user's desktop without asking, and leaves
+who last signed on to the machine as it was, so two can be on one machine
+at once, each with their own settings.
+
 With `-o` the shape is a system of its own:
 
 ```code

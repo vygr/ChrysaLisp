@@ -33,7 +33,7 @@
 	(open-child "service/audio/app.lisp" +kn_call_pin)
 	(open-child "service/net/app.lisp" +kn_call_run))
 
-(defun main ()
+(defun ask ()
 	;add centered
 	(gui-add-front-rpc *window*)
 	(position-window)
@@ -68,3 +68,8 @@
 				(:t :t)))
 		((. *window* :event msg))))
 	(gui-sub-rpc *window*))
+
+(defun main ()
+	;a session that was started as some user's, run.sh -u name, has no one
+	;to ask, and the user the machine has, usr/current, is left as it is
+	(if (get '*env_node_user*) (start-services) (ask)))

@@ -20,6 +20,9 @@ marked mandatory apply to every session.
 *	**[The Parts, And Where They Are](#the-parts-and-where-they-are)**
 	The repo commands the loop is made of, and the docs for each.
 
+*	**[Work As The Test User (Mandatory)](#work-as-the-test-user-mandatory)**
+	Every session of an agent's is started as Test, not as the user.
+
 *	**[Start Of A Session (Mandatory)](#start-of-a-session-mandatory)**
 	What to read and what to bring up before any work.
 
@@ -75,6 +78,27 @@ marked mandatory apply to every session.
 
 *	`STATUS.md`: the record of every change, newest first. Each entry says
 	what was run and on what, and what was "not seen".
+
+## Work As The Test User (Mandatory)
+
+An agent's sessions are not the user's, and should not write into the
+user's folder, `usr/Guest/`, their app settings and the like.
+
+*	Start every session of your own with `-u Test`: `echo "cmd" |
+	./run_tui.sh -n 1 -u Test -f`, and `./run.sh -n 1 -u Test -f`.
+
+*	Run the harness as `rack -u Test "tests"`.
+
+*	A desktop brought up for the user to look at is theirs, start it with
+	no `-u`, `./rack.sh run 'nodes -g 1'` from a member that has none.
+
+*	A session started as a user's goes straight to the desktop, the login
+	window is not shown, and `usr/current` is left alone. Never write
+	`usr/current` to try something as another user, that switches the
+	user's own desktop.
+
+*	What a script types into a TUI is kept out of the history by itself,
+	the launch script tells the terminal when its input is not a keyboard.
 
 ## Start Of A Session (Mandatory)
 
