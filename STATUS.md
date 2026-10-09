@@ -4,6 +4,52 @@
 
 ------
 
+Themes, the symbol font of a desktop chosen and swapped while it runs.
+
+*	Chris: "Could we do several symbol themes ... And do a hot swappable
+	themes selection app ? It should be possible to dynamically swap the
+	:font properties and call :dirty_all on the entire screen." There are
+	four, Regular, Light, Bold and Sharp, the fonts the `symbols` command
+	makes. New app, Themes, under System: a row for each, its name and a
+	dozen symbols as it draws them. Press one and every window that is
+	open is drawn in it.
+
+*	`lib/theme/theme.inc` has the themes, and which one a user has, kept
+	in `usr/<user>/theme`. `usr/*/env.inc` makes its symbol fonts from
+	that, so an app starts in the theme.
+
+*	A change goes round as an event. `(gui-theme-rpc name)` tells the GUI,
+	which sends every window's owner an event of a new type,
+	`+ev_type_theme`, as it does when the host window is resized. Nearly
+	every app hands what it does not know to `(. window :event)`, and that
+	now knows this one. So no app was changed.
+
+*	A view holds a font, not the name of one, and it is by which font it
+	is that it is found. `(. window :theme name)` takes each symbol font
+	the task has, makes the same size of the new theme's, puts it in the
+	task's name for it and in every view of the window that held the old
+	one, and lays the window out and draws it. A font an app made for
+	itself, and the fonts of text, are left.
+
+*	Seen to run on a desktop, the Themes app, the editor and the
+	whiteboard open, four changes one after the other. Not seen with the
+	eye. `tests/system/test_theme.lisp`, 17, with no desktop.
+
+*	Found: a request to the GUI that names no view has to say so with
+	`(weak-ref 0)`. A plain 0 takes the GUI down, it is given to
+	`(obj-ref)` as it is. The crash reports Chris saw were this, in test
+	desktops of Claude's.
+
+*	The user's theme is its name in a file and no more. It was a tree
+	file at first, and a tree that is not one hangs a release build, which
+	has no checks, as it is read. Every app reads this as it starts.
+
+*	Not done: colors. Two widgets can have the one color for two reasons,
+	so a color can not be found by what it is, a view has to say what its
+	color is for. And the rest of `env.inc` is still code.
+
+------
+
 A network of a shape added to a running one, by name, and stopped as one.
 
 *	Chris: "I'd like to be able to bring up a bunch of nodes following the

@@ -1,6 +1,7 @@
 ;import symbols
 (import "lib/consts/colors.inc")
 (import "lib/consts/symbols.inc")
+(import "lib/theme/theme.inc")
 
 ;lisp bindings
 (import "./view/lisp.inc")

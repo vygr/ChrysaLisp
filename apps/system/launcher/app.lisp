@@ -12,7 +12,7 @@
 	(enum main tip))
 
 ; Configuration state
-(defq *config* :nil +config_version 19 +config_file (cat *env_home* "launcher.tre"))
+(defq *config* :nil +config_version 20 +config_file (cat *env_home* "launcher.tre"))
 
 ; Default configuration if `launcher.tre`
 ; is missing, or version mismatch
@@ -23,7 +23,7 @@
 		:categories (scatter (Emap)
 			'System (scatter (Emap) :collapsed :nil
 				:apps '("terminal" "services" "debug" "profile" "netmon"
-					"netmap" "netspeed" "files" "logout"))
+					"netmap" "netspeed" "files" "themes" "logout"))
 			'Desktop (scatter (Emap) :collapsed :nil
 				:apps '("docs" "todo" "calculator" "chat" "clock" "eyes" "weather" "crypto" "sunclock" "news" "lexicon" "rosetta"))
 			'Tools (scatter (Emap) :collapsed :nil

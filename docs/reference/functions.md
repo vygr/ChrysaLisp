@@ -1711,6 +1711,15 @@ start children till the herd is the size the worker nodes call for
 (gui-rpc (view cmd) -> :nil | view
 ```
 
+### gui-theme-rpc
+
+```code
+(gui-theme-rpc name) -> :nil | name
+
+tell the GUI the theme of the desktop is now this one, it tells every
+window, lib/theme/theme.inc
+```
+
 ### handler
 
 ```code
@@ -4095,13 +4104,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args
@@ -4641,6 +4650,31 @@ path from the root, in order
 
 ```code
 (texture-metrics texture) -> (handle width height)
+```
+
+### theme-current
+
+```code
+(theme-current home) -> name
+
+the theme a user has, home is usr/<user>/. The first if none was
+ever chosen
+```
+
+### theme-files
+
+```code
+(theme-files name) -> (symbols_file tiny_file)
+
+the fonts of a theme, those of the first if there is none of that name
+```
+
+### theme-save
+
+```code
+(theme-save home name)
+
+the theme a user has from now on
 ```
 
 ### time-from-date

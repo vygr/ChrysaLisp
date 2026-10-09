@@ -87,7 +87,14 @@ makes a font for each:
 | `fonts/Symbols-Bold.ctf` | 3.0 | round |
 | `fonts/Symbols-Sharp.ctf` | 2.3 | square, mitred |
 
-The smallest symbols, 10 pixels, are drawn with the bold one.
+The smallest symbols, 10 pixels, are drawn with the next weight up.
+
+Which theme a desktop has is chosen in the Themes app, and is kept for
+the user, `usr/<user>/theme`. A change is seen at once: the GUI sends
+every window an event, `+ev_type_theme`, and `(. window :event)` swaps the
+window's symbol fonts for the new theme's, lays it out and draws it. An
+app does nothing for this but pass on the events it does not know, as
+they all do. `lib/theme/theme.inc`.
 
 ## How the font is made
 

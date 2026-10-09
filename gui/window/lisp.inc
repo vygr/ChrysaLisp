@@ -94,10 +94,43 @@
 				(setq y1 (max (- ay drag_offy) (+ y h))))
 			(.-> this (:change_dirty x y (- x1 x) (- y1 y)) :emit)))
 
+	(defmethod :theme (name)
+		; (. window :theme name) -> window
+		;the theme of the desktop is now this one. Each symbol font this
+		;task has is changed for the same size of the new theme's, here
+		;and in every view of the window that holds it, then the window is
+		;laid out again and drawn. A view has a font, not the name of one,
+		;so it is by which font it is that one is found. What an app made
+		;with another font, of its own, is left as it is
+		(bind '(symbols_file tiny_file) (theme-files name))
+		(defq swaps (reduce (lambda (out (var file))
+				;the task's own, found from here as any name is
+				(when (defq old (get var))
+					(defq new (create-font file (second (font-info old))))
+					(unless (eql new old)
+						(set (env) var new)
+						(push out (list old new))))
+				out)
+			(list (list '*env_title_buttons_font* symbols_file) (list '*env_symbol_font* symbols_file)
+				(list '*env_medium_symbol_font* symbols_file) (list '*env_small_toolbar_font* symbols_file)
+				(list '*env_tiny_symbol_font* tiny_file) (list '*env_warning_font* symbols_file))
+			(list)))
+		(when (nempty? swaps)
+			(each (lambda (view)
+				(when (def? :font view)
+					(defq font (get :font view))
+					(some (lambda ((old new)) (if (eql font old) (def view :font new))) swaps)))
+				(. this :flatten))
+			(bind '(x y) (. this :get_pos))
+			(bind '(w h) (. this :get_size))
+			(. this :change_dirty x y w h :t))
+		this)
+
 	(defmethod :event (event)
 		; (. window :event event) -> window
 		(defq target (. this :find_id (getf event +ev_msg_target_id))
 			type (getf event +ev_msg_type))
+		(if (= type +ev_type_theme) (. this :theme (slice event +ev_msg_theme_name -1)))
 		(when target
 			(cond
 				((= type +ev_type_mouse)

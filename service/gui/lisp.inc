@@ -13,7 +13,7 @@
 ;gui events for Lisp level (getf)
 
 (enums +ev_type 0
-	(enum mouse key_down key_up action gui wheel enter exit))
+	(enum mouse key_down key_up action gui wheel enter exit theme))
 
 (structure +ev_msg 0
 	(long target_id type))
@@ -34,6 +34,10 @@
 
 (structure +ev_msg_gui +ev_msg_size)
 
+;the theme of the desktop has changed, its name follows
+(structure +ev_msg_theme +ev_msg_size
+	(offset name))
+
 (structure +ev_msg_enter +ev_msg_size)
 
 (structure +ev_msg_exit +ev_msg_size)
@@ -52,7 +56,7 @@
 ;gui rpc msgs
 
 (enums +gui_rpc_type 0
-	(enum quit logout sub add_front add_back))
+	(enum quit logout sub add_front add_back theme))
 
 (structure +gui_rpc 0
 	(netid reply_id)
@@ -72,6 +76,22 @@
 			(+gui_rpc_weak_view (weak-ref (ifn view 0)))))
 		(when (mail-read-timeout mbox)
 			view)))
+
+(defun gui-theme-rpc (name)
+	; (gui-theme-rpc name) -> :nil | name
+	;tell the GUI the theme of the desktop is now this one, it tells every
+	;window, lib/theme/theme.inc
+	(when (nempty? (defq service (mail-enquire "Gui,")))
+		(defq service (hex-decode (second (split (pop service) ",")))
+			mbox (mail-mbox))
+		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
+			(+gui_rpc_type +gui_rpc_type_theme)
+			(+gui_rpc_reply_id mbox)
+			(+gui_rpc_owner_id (task-mbox))
+			;no view, said as the other requests say it
+			(+gui_rpc_weak_view (weak-ref 0))) name))
+		(when (mail-read-timeout mbox)
+			name)))
 
 (defmacro gui-quit-rpc () `(gui-rpc :nil +gui_rpc_type_quit))
 ; (gui-quit-rpc) -> :nil

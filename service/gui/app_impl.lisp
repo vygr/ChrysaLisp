@@ -110,6 +110,16 @@
 							(. view :set_owner owner)
 							(. *screen* :add_back view)
 							(. view :to_front))
+						(+gui_rpc_type_theme
+							;every window is told, each has fonts of its own to swap
+							(defq name (slice msg +gui_rpc_size -1))
+							(each (lambda (child)
+								(if (defq to (. child :find_owner))
+									(mail-send to (cat (setf-> (str-alloc +ev_msg_theme_size)
+										(+ev_msg_type +ev_type_theme)
+										(+ev_msg_target_id (. child :get_id))) name))))
+								(. *screen* :children))
+							(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))
 						(+gui_rpc_type_add_back
 							;add view at back
 							(. view :set_owner owner)
