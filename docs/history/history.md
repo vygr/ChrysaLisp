@@ -306,11 +306,13 @@ and whatever was running spread itself over both.
 At a graphics show at Alexandra Palace, Tao had a small stand showing Tim
 Moore's ray tracer, by then much optimised. It was next to Silicon Graphics,
 who were showing their new Iris workstation, ray tracing a single sphere in
-about a minute. Tao's scene was nine or so coloured, reflecting balls on a
-chequered floor, and it rendered in about five seconds. To prove it was not a
-recording, visitors were invited to edit the file of colours themselves and
-watch it render again. The PC ran so hot that Chris stood fanning it with a
-newspaper.
+about a minute. Tao's scene was nine coloured, reflecting balls on a floor
+tiled with the Taos name, at full PAL television resolution and anti-aliased,
+and it rendered in about five seconds. The picture itself is in the repo,
+`apps/media/images/data/balls.cpm`, the Images app shows it. To prove it was
+not a recording, visitors were invited to edit the file of colours themselves
+and watch it render again. The PC ran so hot that Chris stood fanning it with
+a newspaper.
 
 The PC was his own Dell, a 20MHz 386. It was the same machine on which he had
 written the Art Studio and the ST and Amiga games, with the PDS development
