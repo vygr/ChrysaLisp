@@ -12,7 +12,7 @@
 
 (defq +width 800 +height 800 +job_rect_size 32 +scale 2
 	+timer_rate (/ 500000 1) id :t dirty :nil
-	center_x +real_-1/2 center_y +real_0 zoom +real_1 level 0
+	center_x +real_-1/2 center_y +real_0 zoom +real_1 level 0 held 0
 	+retry_timeout (task-timeout 5) jobs :nil
 	+min_top 256 +level_top 64 +max_level 42
 	;the pixels of the canvas are in shared memory if the host has it, and
@@ -87,16 +87,21 @@
 						;close button
 						(setq id :nil))
 					((and (= id (. *canvas* :get_id))
-							(= (getf msg +ev_msg_type) +ev_type_mouse)
-							(/= (getf msg +ev_msg_mouse_buttons) 0))
-						;mouse click on the canvas view, zoom in/out, re-center
-						(bind '(w h) (. *canvas* :get_size))
-						(defq rx (- (getf msg +ev_msg_mouse_rx) (/ (- w +width) 2))
-							ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2)))
-						(setq center_x (+ center_x (real-offset (n2r rx) (const (n2r +width)) zoom))
-							center_y (+ center_y (real-offset (n2r ry) (const (n2r +height)) zoom)))
-						(zoom-by (if (bits? (getf msg +ev_msg_mouse_buttons) 2) -1 1))
-						(reset))
+							(= (getf msg +ev_msg_type) +ev_type_mouse))
+						;a press on the canvas, zoom in/out, re-center. Only as
+						;the button goes down, the mouse moving while it is
+						;held is more events with it down, and each would
+						;zoom and center again
+						(defq buttons (getf msg +ev_msg_mouse_buttons))
+						(when (and (= held 0) (/= buttons 0))
+							(bind '(w h) (. *canvas* :get_size))
+							(defq rx (- (getf msg +ev_msg_mouse_rx) (/ (- w +width) 2))
+								ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2)))
+							(setq center_x (+ center_x (real-offset (n2r rx) (const (n2r +width)) zoom))
+								center_y (+ center_y (real-offset (n2r ry) (const (n2r +height)) zoom)))
+							(zoom-by (if (bits? buttons 2) -1 1))
+							(reset))
+						(setq held buttons))
 					((= id +event_zoom_in)
 						(zoom-by 1)
 						(reset))
