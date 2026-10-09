@@ -4,6 +4,32 @@
 
 ------
 
+Two machines in the Network Map are never nearly the one color.
+
+*	A machine's color was its id hashed to a place round the colors, and
+	two ids can land side by side. The first network of its own that
+	Chris added was 7 degrees from the M4, both yellow, and looked like
+	more of the M4. Chris, asked if it should be mended: "yes, do the
+	Network Map colours, I like that app very much :)"
+
+*	A machine still starts from the hue of its id, so it is the color it
+	always was where nothing is in its way. One that is new and within
+	40 degrees of a machine that is there steps on round till it is
+	clear, `(hue-clear)`. It keeps what it got while it is there, none
+	changes color as others come and go. A machine with no node left is
+	gone and its hue is free. `apps/system/netmap/map.inc`.
+
+*	The count of machines in the status line only ever went up, a
+	machine that had gone was still counted. It is those that are there.
+
+*	`tests/system/test_netmap.lisp`, 16 more, with the two ids of that
+	afternoon, 65 and 58: the first has its own, the second is clear of
+	it. The app was run in a one node desktop with four networks of
+	their own added, stopped, and one more added, and gave no error.
+	Not seen.
+
+------
+
 The Test user still works, and a test says so.
 
 *	Chris: "We should test that since the new themes went in the Test

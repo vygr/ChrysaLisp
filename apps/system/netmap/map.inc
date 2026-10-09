@@ -9,7 +9,8 @@
 ; each (peer_node_id bytes_sent) as the node itself said. The links are a
 ; map made from those, links, each with its two ends :a and :b, :sent,
 ; :flow, :heat and :bar. These are worked on where they are, in the names
-; the app has them by: global_tasks, links, top_rate, zoom and changed.
+; the app has them by: global_tasks, links, top_rate, zoom and changed,
+; and machines and machine_hues, the machines there are and the hue of each.
 ; (make-bar) is the app's, the thing a link is drawn with.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -28,27 +29,73 @@
 	+ease (n2r 0.2)
 	;how far out the furthest node is drawn. The window is 2 from the
 	;middle to an edge, where the middle of it all is
-	+fit (n2r 1.65))
+	+fit (n2r 1.65)
+	;how far apart round the colors two machines have to be to be told
+	;apart, of 360. There is room for 9
+	+hue_gap 40)
+
+(defun machine-hue (system)
+	; (machine-hue system) -> hue
+	;where round the colors a machine is, 0 to 359, from its id, so it is
+	;the same on every desktop and every time. A node that has not said
+	;what machine it is on is a blue
+	(if (< (length system) +node_id_size) 200
+		(% (logand (logxor (get-long system 0) (>>> (get-long system 0) 17)
+			(get-long system 8) (>>> (get-long system 8) 29)) 0x7fffffff) 360)))
+
+(defun hue-clear (hue hues)
+	; (hue-clear hue hues) -> hue
+	;a hue that can be told from each of hues, those of the machines that
+	;are there already. Two ids can come to hues that are next to each
+	;other, and the two machines then look like one. It steps on round
+	;till it is clear of them all, and no further than once round, with
+	;more machines than there is room for two will be alike
+	(defq tries 0)
+	(while (and (< tries (const (/ 360 +hue_gap)))
+			(some (# (< (min (defq d (abs (- hue %0))) (- 360 d)) +hue_gap)) hues))
+		(setq hue (% (+ hue +hue_gap) 360) tries (inc tries)))
+	hue)
+
+(defun hue-color (h)
+	; (hue-color hue) -> (r g b)
+	;the color at a hue. It is kept bright, and not too deep, it is
+	;whitened by how hard a node works
+	(defq f (/ (n2r (% h 60)) (const (n2r 60)))
+		lo (const (n2r 0.25)) up (+ lo (* f (const (n2r 0.75))))
+		down (- +real_1 (* f (const (n2r 0.75)))))
+	(case (/ h 60)
+		(0 (list +real_1 up lo))
+		(1 (list down +real_1 lo))
+		(2 (list lo +real_1 up))
+		(3 (list lo down +real_1))
+		(4 (list up lo +real_1))
+		(:t (list +real_1 lo down))))
 
 (defun machine-color (system)
 	; (machine-color system) -> (r g b)
-	;the color of a machine, from its id, so it is the same color on every
-	;desktop and every time. The id picks where round the colors it is, and
-	;it is kept bright, and not too deep, it is whitened by how hard it works
-	(memoize system (progn
-		(defq h (if (< (length system) +node_id_size) 200
-				(% (logand (logxor (get-long system 0) (>>> (get-long system 0) 17)
-					(get-long system 8) (>>> (get-long system 8) 29)) 0x7fffffff) 360))
-			f (/ (n2r (% h 60)) (const (n2r 60)))
-			lo (const (n2r 0.25)) up (+ lo (* f (const (n2r 0.75))))
-			down (- +real_1 (* f (const (n2r 0.75)))))
-		(case (/ h 60)
-			(0 (list +real_1 up lo))
-			(1 (list down +real_1 lo))
-			(2 (list lo +real_1 up))
-			(3 (list lo down +real_1))
-			(4 (list up lo +real_1))
-			(:t (list +real_1 lo down)))) 31))
+	;the color of a machine by itself, with no other to be told from
+	(hue-color (machine-hue system)))
+
+(defun machines-heard (system)
+	; (machines-heard system) -> hue
+	;a node has said what machine it is on. A machine that is new is
+	;given its hue, clear of those that are there, and keeps it while it
+	;is there, so none changes color as others come and go. machines and
+	;machine_hues are the app's, side by side
+	(unless (defq at (find system machines))
+		(setq at (length machines))
+		(push machine_hues (hue-clear (machine-hue system) machine_hues))
+		(push machines system))
+	(elem-get machine_hues at))
+
+(defun machines-prune ()
+	; (machines-prune)
+	;a machine with no node left is gone, and its hue is free again
+	(defq there (list))
+	(. global_tasks :each (lambda (key node) (merge there (list (get :system node)))))
+	(defq keep (filter (# (find (elem-get machines %0) there)) (range 0 (length machines))))
+	(setq machine_hues (map (# (elem-get machine_hues %0)) keep)
+		machines (map (# (elem-get machines %0)) keep)))
 
 (defun node-busy (node idle time)
 	; (node-busy node idle time) -> node

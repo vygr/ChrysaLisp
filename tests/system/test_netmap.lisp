@@ -30,6 +30,35 @@
 (assert-true "it is bright, one part is all of it" (some (# (= %0 +real_1)) (machine-color nm_sys1)))
 (assert-eq "a node that has not said what machine it is on has a color" 3 (length (machine-color "")))
 
+;two machines whose ids come to hues that are next to each other are told apart
+(defun nm-apart (a b) (min (defq d (abs (- a b))) (- 360 d)))
+(test-cases
+	(hue-clear 200 (list 65)) 200
+	(hue-clear 58 (list 65)) 138
+	(hue-clear 350 (list 10)) 70
+	(hue-clear 58 (list)) 58)
+(assert-true "with no room left it still gives a hue, it does not go round for ever"
+	(<= 0 (hue-clear 5 (list 0 40 80 120 160 200 240 280 320)) 359))
+;a Mac, and a network of its own that was added to it, 7 apart, 9 October
+(defq machines (list) machine_hues (list)
+	nm_mac (hex-decode "8921786E6C1619AE9B9398F23F3CD8F6") nm_net "0axccjvvwn61rhle")
+(assert-eq "the hue of one machine is from its id" 65 (machine-hue nm_mac))
+(assert-eq "and of another, next to it" 58 (machine-hue nm_net))
+(assert-eq "the first there has its own" 65 (machines-heard nm_mac))
+(assert-true "the one that comes after is clear of it" (>= (nm-apart 65 (machines-heard nm_net)) +hue_gap))
+(assert-eq "and has the same again each time it is heard" (machines-heard nm_net) (machines-heard nm_net))
+(assert-eq "the first has not moved" 65 (machines-heard nm_mac))
+(assert-eq "there are two machines" 2 (length machines))
+;a machine with no node left is gone, and the hue it had is free
+(defq nm_keep global_tasks global_tasks (Fmap 11))
+(def (defq nm_node (env 1)) :system nm_net)
+(. global_tasks :insert "a" nm_node)
+(machines-prune)
+(assert-list-eq "a machine with no node left is gone" (list nm_net) machines)
+(assert-eq "its hue with it" 1 (length machine_hues))
+(assert-eq "one that comes back to an empty place has its own hue" 65 (machines-heard nm_mac))
+(setq global_tasks nm_keep)
+
 ;the links, from what each end says
 (nm-node 1 '(2 1000)) (nm-node 2 '(1 500) '(9 77)) (nm-node 3)
 (links-gather)

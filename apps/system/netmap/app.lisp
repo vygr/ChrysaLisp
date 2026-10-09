@@ -127,7 +127,7 @@
 	;a node has said who it is and what its links are
 	(when (defq node (. global_tasks :find (getf msg +reply_node)))
 		(defq system (getf msg +reply_system) now (pii-time))
-		(unless (find system machines) (push machines system))
+		(machines-heard system)
 		(node-busy node (getf msg +reply_idle) (getf msg +reply_time))
 		(def node :timestamp now :tasks (getf msg +reply_task_count) :system system
 			:links (map (lambda (i)
@@ -148,7 +148,10 @@
 		(.-> ball (:set_translation (first pos) (second pos) (third pos)) (:set_scale size size size))
 		;the color of its machine, and whiter the harder it works
 		(def ball :color (apply (const fixeds) (cat (list 1.0)
-			(map (# (n2f (+ %0 (* (- +real_1 %0) busy)))) (machine-color (get :system node))))))
+			(map (# (n2f (+ %0 (* (- +real_1 %0) busy))))
+				(if (defq at (find (get :system node) machines))
+					(hue-color (elem-get machine_hues at))
+					(machine-color (get :system node)))))))
 		(push objs ball)))
 	(. links :each (lambda (name link)
 		(when (and (defq a (. global_tasks :find (get :a link)))
@@ -221,7 +224,7 @@
 
 (defun main ()
 	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t canvas_size +size
-		machines (list) links (Fmap 31) top_rate (n2r +quiet) zoom +real_1
+		machines (list) machine_hues (list) links (Fmap 31) top_rate (n2r +quiet) zoom +real_1
 		auto :nil rotx (const (n2r 0.4)) roty +real_0 rotz +real_0
 		gpu_pair :nil gpu_shiny :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
 		ball_mesh (Mesh-sphere +real_1 16) bar_mesh (Mesh-cylinder +real_1 +real_1 8)
@@ -276,6 +279,7 @@
 				(mail-timeout (elem-get select +select_poll_timer) +poll_rate 0)
 				(. global_tasks :refresh +retry_timeout)
 				(links-gather)
+				(machines-prune)
 				(show-status)
 				(each (# (mail-send %0 (elem-get select +select_reply))) poll_que)
 				(clear poll_que))
