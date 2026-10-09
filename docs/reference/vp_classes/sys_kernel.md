@@ -2,7 +2,7 @@
 
 ## Lisp Bindings
 
-### (kernel-stats) -> (task_count mem_used mem_avail max_stack)
+### (kernel-stats) -> (task_count mem_used mem_avail max_stack idle_time)
 
 ### (system-id) -> nodeid
 

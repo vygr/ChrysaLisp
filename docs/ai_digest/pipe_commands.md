@@ -387,6 +387,18 @@ options.
   commands. The `Pipe`'s `:read` method can detect when a stream component
   (stderr/stdout) has closed, allowing the controlling application to react.
 
+* **A command that can not start:** There are two ways. A command with
+  no file is found by the `Pipe` before anything is started, and the `Pipe`
+  is `:nil`, "Pipe Error !" in a terminal. A command whose file is there
+  and throws as it loads is another matter: its task has no `main`, so it
+  never calls `(create-stdio)`, and the `Pipe` would wait for ever to hear
+  it was up. So a command is started as a form, not as its file,
+  `(pipe-task)`, a `(catch)` round the `(import)`. If the load throws, the
+  handler, in the command's own task, takes its stdio from the pipe as its
+  `main` would have, writes the error to its stderr, and the task goes. The
+  terminal that ran it shows why, and gets its prompt back. A release build
+  has no errors, there the `(catch)` is the `(import)` and no more.
+
 * **`pipe-farm` / `Local` Farm:** The `destroy` callback (which requeues
   jobs) and the `:refresh` method (which detects timeouts and triggers
   restarts) provide a degree_ of fault tolerance for worker tasks.

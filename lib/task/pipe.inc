@@ -19,6 +19,16 @@
 			(# (- (first (first %0)) (first (first %1))))) '((-1 0))))
 	out)
 
+(defun pipe-task (file)
+	; (pipe-task file) -> form
+	;a command is started as a form that loads its file, not as the file.
+	;If the load throws, the task has no main, and would go with the pipe
+	;still waiting to hear it was up. So it is caught, there, in the
+	;command's own task, which then takes its stdio from the pipe as its
+	;main would have, says what went wrong on its stderr, and goes
+	(cat "(catch (import \q" file "\q) (progn (when (create-stdio)"
+		" (write-line (io-stream 'stderr) _) (stream-flush (io-stream 'stderr))) :t))"))
+
 (defclass Pipe (cmdline &optional user_select) :nil
 	; (Pipe cmdline [user_select]) -> pipe | :nil
 	(setd user_select '())
@@ -29,8 +39,11 @@
 		(push (second %0) (cat "cmd/" (slice cmd_str x x1) ".lisp"))
 		(push (third %0) cmd_str) %0) (pipe-split cmdline) (lists 3)))
 	(cond
+		;a command that is not there ?
+		((some (# (= 0 (age %0))) cmdpipe)
+			(setq this :nil))
 		;error with pipe element ?
-		((some (# (= 0 (get-long %0 0))) (defq mboxs (open-pipe cmdpipe cmdmodes)))
+		((some (# (= 0 (get-long %0 0))) (defq mboxs (open-pipe (map (const pipe-task) cmdpipe) cmdmodes)))
 			;send abort to any started pipe elements
 			(each (# (if (/= 0 (get-long %0 0)) (mail-send %0 ""))) mboxs)
 			(setq this :nil))

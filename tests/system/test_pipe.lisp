@@ -176,4 +176,27 @@
 (pipe-run "echo one two" (# (push pipe_out %0)))
 (assert-true "and a pipe run after them is as ever" (nempty? pipe_out))
 
+;a command whose file is there and throws as it loads. Its task has no
+;main, and went with the pipe still waiting to hear it was up. It is
+;started as a form that catches the load, takes its stdio and says why
+(cond
+	((not *test_checked*) (test-skip "a command that throws as it loads" "needs an error checked build"))
+	(:t (save "(defq tmp_pipe_load (tmp-pipe-no-such-function 1))\n(defun main ()\n\t(print {never}))\n"
+			"cmd/tmp_pipe_bad_load.lisp")
+		(setq pipe_out (list) pipe_t0 (pii-time))
+		(pipe-run "tmp_pipe_bad_load" (# (push pipe_out %0)))
+		(defq pipe_said (apply (const cat) (cat (list "") pipe_out)))
+		(assert-true "a command that throws as it loads is over at once" (< (- (pii-time) pipe_t0) (task-timeout 10)))
+		(assert-true "and the pipe is told why" (nempty? (substr pipe_said "symbol_not_bound")))
+		(assert-true "with the name of what was not there" (nempty? (substr pipe_said "tmp-pipe-no-such-function")))
+		(assert-true "its main is not run" (empty? (substr pipe_said "never")))
+		(setq pipe_out (list))
+		(pipe-run "echo one | tmp_pipe_bad_load | cat" (# (push pipe_out %0)))
+		(assert-true "in the middle of a pipeline it is the same"
+			(nempty? (substr (apply (const cat) (cat (list "") pipe_out)) "symbol_not_bound")))
+		(pii-remove "cmd/tmp_pipe_bad_load.lisp")
+		(setq pipe_out (list))
+		(pipe-run "echo one two" (# (push pipe_out %0)))
+		(assert-true "and a pipe run after it is as ever" (nempty? pipe_out))))
+
 (undef (env) 'pipe_ask 'pipe_t0 'pipe_err 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply 'farmed)

@@ -4,6 +4,44 @@
 
 ------
 
+A command whose file throws as it loads no longer hangs the terminal.
+
+*	A file with an error in it, before its `main`, `cmd/zz_bad.lisp` and
+	`zz_bad`. The kernel finds the file and starts a task, `:lisp :run`
+	loads it, the load throws, there is no `main`, and the task goes. It
+	is `main` that calls `(create-stdio)`, which is where a command reads
+	what the pipe sent it and says it is up. So the pipe waited for ever,
+	and the error went to the console of the host, not to the terminal.
+
+*	Not the one of 8 October, a command with no file, `zyz`, "Pipe Error
+	!". Claude took Chris's test of that for this, and before that had
+	called this one reproduced from a time limit and no output read.
+
+*	Where to mend it was Chris's, a turn at a time. Not the kernel, it has
+	handed the file on. Not the first message, that is only the path. The
+	mailbox to answer is in the pipe's own message, and the task goes
+	before it reads it. And `:lisp :run` can not wait for that message,
+	it runs tasks that no pipe started.
+
+*	So a pipe starts a command as a form, `(pipe-task)` in
+	`lib/task/pipe.inc`, a `(catch)` round the `(import)` of its file, the
+	form path of a task that went in a month ago. If the load throws, the
+	handler, in the command's own task on its own node, calls
+	`(create-stdio)`, writes the error to the stderr it then has, and
+	goes. The pipe hears it was up, is told why, and sees it stop. The
+	pipe looks that each file is there itself, the kernel's look is of a
+	file name, so a command with no file is "Pipe Error !" as it was.
+
+*	A release build has no errors and nothing to catch. `(catch)` is
+	there and is its form and no more. The pipe tests on the release
+	emulator, 33 pass, and the 5 that need an error are skipped.
+
+*	`tests/system/test_pipe.lisp`, 6 more. 4,897 pass on the M4, the x64
+	and the Pi. Chris, of a `(catch)` where every command starts: "I'm
+	content with that catch".
+
+------
+
 Seen by Chris, on a desktop, 9 October, and good: the `comment` symbol
 and the three with its fault, the quieter panels and troughs, the Eyes
 app, the Mandelbrot tool bar and click, the Network Map whitening a node

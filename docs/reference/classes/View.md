@@ -124,6 +124,10 @@ override the default 'this' env with a View component
 
 ```code
 (. view :ctx_panel col flags depth x y width height) -> view
+
+a panel that stands up or is sunk, by its edges. They are a little
+brighter and a little darker than its face, enough to be seen
+and no more
 ```
 
 ### :ctx_set_color

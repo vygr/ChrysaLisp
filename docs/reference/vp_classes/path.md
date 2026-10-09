@@ -43,7 +43,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r7
+:r1-:r9, :f0-:f15
 ```
 
 ### :filter_polyline -> gui/path/filter_polyline
@@ -56,7 +56,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r7
+:r1-:r9, :f0-:f15
 ```
 
 ### :gen_arc -> gui/path/gen_arc

@@ -335,6 +335,15 @@ then a byte for the floats of each attr
 (canvas-save canvas file type [optionals...]) -> :nil | canvas
 ```
 
+### canvas-shade
+
+```code
+(canvas-shade col) -> col
+
+a little darker, a quarter of the way to black, the edge of a thing
+that is in shadow
+```
+
 ### canvas-shader-create
 
 ```code
@@ -370,6 +379,15 @@ machine can all draw on. With no key the pixels are made, and
 (canvas-key) is the key of them. Given that key, and the same size,
 a task on another node has a canvas on the same pixels. :nil if the
 host has no shared memory, or there are no pixels of that key.
+```
+
+### canvas-tint
+
+```code
+(canvas-tint col) -> col
+
+a little brighter, a quarter of the way to white, the edge of a thing
+that the light is on
 ```
 
 ### chacha20
@@ -2766,6 +2784,18 @@ that are still out have no result.
 (pipe-split cmdline) -> ((mode cmd) ...)
 ```
 
+### pipe-task
+
+```code
+(pipe-task file) -> form
+
+a command is started as a form that loads its file, not as the file.
+If the load throws, the task has no main, and would go with the pipe
+still waiting to hear it was up. So it is caught, there, in the
+command's own task, which then takes its stdio from the pipe as its
+main would have, says what went wrong on its stderr, and goes
+```
+
 ### pixmap-key
 
 ```code
@@ -4482,6 +4512,17 @@ the outlines of a thing, at the size they are worked in. radius is
 half the weight of a stroke, on the grid
 ```
 
+### sym-wind
+
+```code
+(sym-wind paths) -> paths
+
+the outlines of one item, all turned if they must be so that the
+biggest goes round the one way. A glyph is filled by the non zero
+rule, and two outlines that go round opposite ways cut a hole where
+they overlap, a disc on the end of a stroke did
+```
+
 ### sym?
 
 ```code
@@ -4658,7 +4699,9 @@ path from the root, in order
 (theme-current home) -> name
 
 the theme a user has, home is usr/<user>/. The first if none was
-ever chosen
+ever chosen, or if what the file says is not a theme. The file is the
+name and no more, it is read by every app as it starts, and there is
+nothing in it to go wrong
 ```
 
 ### theme-files
