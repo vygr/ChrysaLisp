@@ -61,3 +61,28 @@
 		(sort (files-all "docs" '(".md")))))
 (assert-true "the documents have blocks that the Docs app runs" (> ap_blocks 40))
 (assert-list-eq "and none of them throws" '() ap_threw)
+
+;the Docs app's action for a link that is pressed, as the app has it, with
+;a Link of its window to press. Each of these is not to be followed, and
+;none is to throw: the tree is asked, and it has none of them. One that is
+;followed draws the page, which wants a desktop, and is not tried here.
+;The app keeps the environment its ```lisp blocks run in, *handler_env*,
+;and lets go of it as its main ends. That environment's parent is the
+;app's own, the two hold each other, and a task that loads the app and
+;does not run its main has to let go of it or it never ends
+(defq ap_said (test-output (cat
+	"(catch (import {apps/desktop/docs/app.lisp}) :t)"
+	" (. *file_selector* :populate +doc_root +doc_types)"
+	" (. *window* :add_child (defq ap_link (Link)))"
+	" (defq *current_file* {docs/gui/widgets.md} ap_act (. *event_map* :find +event_link)"
+	" *msg* (setf-> (str-alloc +ev_msg_action_size) (+ev_msg_type +ev_type_action)"
+	" (+ev_msg_target_id +event_link) (+ev_msg_action_source_id (. ap_link :get_id))))"
+	" (print (map (lambda (target) (def ap_link :link target)"
+	" (catch (if (ap_act) :yes :no) :threw))"
+	" (list {../../README.md} {no_such.md} {http://x.org/a.md} {../history/press/1991-12_byte.pdf}))"
+	" { } (if (. *file_selector* :find_node {docs/gui/event_dispatch.md}) :in :out)"
+	" { } (list +doc_root +doc_types))"
+	;wherever it was put, this string is not run at the top of its task
+	" (defq ap_e (env)) (while ap_e (undef ap_e '*handler_env*) (setq ap_e (penv ap_e)))")))
+(assert-eq "a link out of the root, to no file, to the web or to a pdf is not followed, one in the tree is there to follow, and the root and kinds are as the app has them"
+	"(:no :no :no :no) :in (\qdocs\q (\q.md\q))\n" ap_said)

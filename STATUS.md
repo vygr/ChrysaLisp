@@ -4,6 +4,42 @@
 
 ------
 
+Why a task that had loaded the Docs app never ended, and a test of the
+app's link action.
+
+*	Chris, of what the app does with a page: "Docs sets up an
+	envirmonment that it runs `lisp` section within. it also embeds
+	widget tree and UI's by filtering out there events while letting
+	their negative id's through. for example widgets and there tooltips
+	still work."
+
+*	That environment was the cause. `*handler_env*` is made as the
+	app's file loads and put in the app's own environment, and its
+	parent is that environment: the two hold each other. The app lets
+	go of it as its `main` ends. A task that loads the file and never
+	runs `main`, as a test does, still held it, its environment was
+	never freed, and so its output was never closed and whoever waited
+	on it waited for ever. Tried both ways in a session: with the
+	`(undef)` it ends in a second, without it it was still running at
+	12.
+
+*	So the test taken out earlier is back, in
+	`tests/system/test_apps.lisp`: the app loaded, a Link put in its
+	window, the app's own action for a link called, from its event
+	map, for a link out of the root, one to no file, one to the web and
+	one to a pdf, and then the environment let go of. Against the link
+	action as it was pushed broken, `702237b77`, it fails: two of the
+	four threw.
+
+Every test, 5,055, on the M4, the x64 and the Pi.
+
+Not known still: why a block of `docs/gui/widgets.md` takes a node down
+when run with no desktop. In the app each widget a block makes is given
+the mailbox of the app's embedded events and one for its tips, a session
+with no desktop gives it neither; not tried.
+
+------
+
 Four documents threw each time the Docs app drew them.
 
 *	Chris pasted `symbol_not_bound ... Lisp handler(1) ... Obj:
