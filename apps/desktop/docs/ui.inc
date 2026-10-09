@@ -75,6 +75,7 @@
 	(when (and (defq view (. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
 			(defq target (def? :link view))
 			(not (find ":" target)) (not (starts-with "#" target))
-			(some (# (ends-with %0 (defq file (md-link-file *current_file* target)))) +doc_types)
+			(defq file (md-link-file *current_file* target))
+			(some (# (ends-with %0 file)) +doc_types)
 			(. *file_selector* :find_node file))
 		(show-file file)))

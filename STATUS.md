@@ -35,7 +35,21 @@ What was run. The lines that failed, in a session with the app loaded:
 the kinds, the files, the tree filled and a document found in it. Every
 test, 5,045, on the x64 and the Pi; the M4 had his desktop up.
 
-Not seen: the Docs app start, by Chris, since.
+Then it started, and a link pressed threw `symbol_not_bound`, `Obj:
+file`, Chris pasted it. The same commit: the file a link is to was
+worked out, `(defq file ...)`, inside the `(# ...)` that tests what it
+ends with, so it was bound in that lambda and gone when the tree was
+asked for it on the next line. It is worked out first.
+
+Run this time before it was called mended: the app loaded in a session,
+a Link put in its window, and the app's own action, from its event map,
+called for a link out of the root, one to no file, one to the web and
+one to a pdf. None followed, none threw. A link that is followed draws
+the page, which waits on the lock service, and was not tried. The same
+as a test hung the test runner, a task that has loaded the Docs app does
+not end, why is not known, so it is not a test.
+
+Not seen: a link pressed and followed, by Chris, since.
 
 ------
 
