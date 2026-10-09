@@ -45,47 +45,56 @@
 	;map shared object
 	(call :host_os :pii_mmap {lk_shmem_size, handle, +mmap_shared} {mem})
 
-	;try to claim host_a (embedded in chan_1 alignment padding)
-	(vpifnot {mem->lk_shmem_host_a.+node_id_node1})
-		(assign {node_id.+node_id_node1, node_id.+node_id_node2}
-			{mem->lk_shmem_host_a.+node_id_node1, mem->lk_shmem_host_a.+node_id_node2})
-		;wait a fraction for bus propagation / simultaneous write collisions
-		(call :sys_task :sleep '(100))
+	;no shared memory, no link. The host gives 0 or -1 for one it could
+	;not make or map, and there is nothing at either to claim
+	(vpif {mem + 1 > 1})
+		;try to claim host_a (embedded in chan_1 alignment padding)
+		(vpifnot {mem->lk_shmem_host_a.+node_id_node1})
+			(assign {node_id.+node_id_node1, node_id.+node_id_node2}
+				{mem->lk_shmem_host_a.+node_id_node1, mem->lk_shmem_host_a.+node_id_node2})
+			;wait a fraction for bus propagation / simultaneous write collisions
+			(call :sys_task :sleep '(100))
+		(endif)
+
+		;verify who won host_a
+		(assign {1} {is_owner})
+		(vpif {mem->lk_shmem_host_a.+node_id_node1 /= node_id.+node_id_node1})
+			(assign {0} {is_owner})
+			;register as guest in host_b
+			(assign {node_id.+node_id_node1, node_id.+node_id_node2}
+				{mem->lk_shmem_host_b.+node_id_node1, mem->lk_shmem_host_b.+node_id_node2})
+		(endif)
+
+		;start out link and send params
+		(call :sys_mail :alloc {24} {msg, data})
+		(call :sys_task :start (cat {@} (f-path :sys_link :out)) '(_ _ :r2 :r3 :r4))
+		(assign {msg, data, &lk_node, mem, is_owner} '(:r0 :r1 :r5 :r6 :r7))
+		(save-net-id :r0 +msg_dest)
+		(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
+		(call :sys_mail :send '(:r0))
+
+		;start in link and send params
+		(call :sys_mail :alloc {24} {msg, data})
+		(call :sys_task :start (cat {@} (f-path :sys_link :in)) '(_ _ :r2 :r3 :r4))
+		(assign {msg, data, &lk_node, mem, is_owner} '(:r0 :r1 :r5 :r6 :r7))
+		(save-net-id :r0 +msg_dest)
+		(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
+		(call :sys_mail :send '(:r0))
+
+		;wait till link dies or told to quit...
+		(loop-start)
+			(call :sys_task :sleep '(100000))
+			(breakif {lk_node.lk_node_task_count = -1})
+		(loop-end)
+
+		;wait for in link to exit before unmapping
+		(call :sys_task :sleep '(10000))
+
+		;unmap object
+		(call :host_os :pii_munmap {mem, lk_shmem_size, +mmap_shared})
+	(else)
+		(call :host_os :pii_write_str '(2 "Link: no shared memory !\n"))
 	(endif)
-
-	;verify who won host_a
-	(assign {1} {is_owner})
-	(vpif {mem->lk_shmem_host_a.+node_id_node1 /= node_id.+node_id_node1})
-		(assign {0} {is_owner})
-		;register as guest in host_b
-		(assign {node_id.+node_id_node1, node_id.+node_id_node2}
-			{mem->lk_shmem_host_b.+node_id_node1, mem->lk_shmem_host_b.+node_id_node2})
-	(endif)
-
-	;start out link and send params
-	(call :sys_mail :alloc {24} {msg, data})
-	(call :sys_task :start (cat {@} (f-path :sys_link :out)) '(_ _ :r2 :r3 :r4))
-	(assign {msg, data, &lk_node, mem, is_owner} '(:r0 :r1 :r5 :r6 :r7))
-	(save-net-id :r0 +msg_dest)
-	(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
-	(call :sys_mail :send '(:r0))
-
-	;start in link and send params
-	(call :sys_mail :alloc {24} {msg, data})
-	(call :sys_task :start (cat {@} (f-path :sys_link :in)) '(_ _ :r2 :r3 :r4))
-	(assign {msg, data, &lk_node, mem, is_owner} '(:r0 :r1 :r5 :r6 :r7))
-	(save-net-id :r0 +msg_dest)
-	(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
-	(call :sys_mail :send '(:r0))
-
-	;wait till link dies or told to quit...
-	(loop-start)
-		(call :sys_task :sleep '(100000))
-		(breakif {lk_node.lk_node_task_count = -1})
-	(loop-end)
-
-	;wait for in link to exit before unmapping
-	(call :sys_task :sleep '(10000))
 
 	;remove link node from link array
 	(call :array :get_both {statics->statics_sys_mail_links_array} {_, iter_begin, iter_end})
@@ -97,11 +106,10 @@
 		(assign {iter_begin + +ptr_size} {iter_begin})
 	(loop-end)
 
-	;unmap object
-	(call :host_os :pii_munmap {mem, lk_shmem_size, +mmap_shared})
-
 	;close it
-	(call :host_os :pii_close_shared {pdata, handle})
+	(vpif {handle + 1 > 1})
+		(call :host_os :pii_close_shared {pdata, handle})
+	(endif)
 
 	;free params msg
 	(call :sys_mail :free {params})

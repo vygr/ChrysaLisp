@@ -64,3 +64,23 @@
 ; Clean up stream to safely release OS file descriptor prior to removal
 (defq fs :nil)
 (pii-remove temp_file)
+
+;a file stream flushed, and flushed again with nothing written between.
+;The second had no buffer to send, and worked out a length less than
+;nothing for the host to write, class/fstream/class.vp. A host is free to
+;do what it likes with that, found on a host that did not ignore it
+(defq fl_file "tests/scratch/flush_twice.txt" fl_stream (file-stream fl_file +file_open_write))
+(write-blk fl_stream "one ")
+(stream-flush fl_stream)
+(stream-flush fl_stream)
+(stream-flush fl_stream)
+(write-blk fl_stream "two")
+(stream-flush fl_stream)
+(setq fl_stream :nil)
+(assert-eq "flushed more than once, a file is what was written to it" "one two" (load fl_file))
+(defq fl_stream (file-stream fl_file +file_open_write))
+(stream-flush fl_stream)
+(setq fl_stream :nil)
+(assert-eq "and one flushed with nothing ever written is empty" 0 (length (ifn (load fl_file) "")))
+(pii-remove fl_file)
+

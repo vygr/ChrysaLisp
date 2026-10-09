@@ -104,9 +104,12 @@
 	;not in read mode ?
 	(assign '((:r0 +fstream_mode)) '(:r1))
 	(vpif '(:r1 /= +file_open_read))
+		;a stream that was flushed and not written to since has no
+		;bufp, it is 0, and what it holds is not the buffer less than
+		;nothing, it is nothing
 		(assign '((:r0 +stream_buffer) (:r0 +stream_bufp)) '(:r1 :r2))
 		(vp-sub-rr :r1 :r2)
-		(vpif '(:r2 /= 0))
+		(vpif '(:r2 > 0))
 			(vp-push :r0)
 			(call :host_os :pii_write '((:r0 +fstream_handle) :r1 :r2))
 			(vp-pop :r0)
