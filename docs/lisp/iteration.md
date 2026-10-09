@@ -124,7 +124,7 @@ You can view theses as an error free way to get elements and slices. They
 return `:nil` or the empty slice if the element or slice range is unavailable.
 
 More detail is provided on these and function binding options in the
-`binding.md` document.
+[`binding.md`](binding.md) document.
 
 ## Iteration
 

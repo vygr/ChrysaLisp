@@ -106,7 +106,7 @@ make GUI=fb install
 `libasound2-dev` is for sound, through ALSA. Without it the build has no
 sound and says so, `No AUDIO driver.` Sound goes to the default ALSA device,
 which on a Pi is the headphone socket. For the TV, down the HDMI cable, see
-`docs/intro/sdl3.md`.
+[`docs/intro/sdl3.md`](sdl3.md).
 
 ### Running ChrysaLisp on FRAMEBUFFER after setup
 

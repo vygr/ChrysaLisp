@@ -34,7 +34,7 @@ property would be a good candidate to be searched for with `(def?)`.
 Use of `(set this :color +argb_red)` and `(def this :color +argb_black)`
 likewise work exactly as they do in Lisp source programs. `(set)` will search
 the tree, `(def)` will not. All the mechanisms described in the properties
-section of the `environment.md` document apply to UI trees !
+section of the [`environment.md`](../lisp/environment.md) document apply to UI trees !
 
 ## View class
 
@@ -66,7 +66,7 @@ interaction with the mouse or keyboard. `:mouse_down, :mouse_up, :mouse_move,
 for the keyboard.
 
 These interaction methods are called from the Window class `:event` method. We
-already covered that this call is made by an application for any internal
+[already covered](event_dispatch.md) that this call is made by an application for any internal
 widget events as the default `main` mailbox dispatch action.
 
 ## Layout classes
@@ -94,7 +94,7 @@ These layout widgets also override the `:pref_size` method, they gather
 information from their children in order to calculate what the preferred size
 of this container should be.
 
-For a more involved layout, take a look at the Flow widget,
+For a more involved layout, take a look at the [Flow](../reference/classes/Flow.md) widget,
 `gui/flow/lisp.inc`, this allows you to specify a direction of flow (or none),
 as well as various options for stretching and alignment of the child widgets.
 

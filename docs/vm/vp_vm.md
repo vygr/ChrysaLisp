@@ -392,7 +392,7 @@ into what these calls do to get your function compiled and written out, look in
 
 Next there is a section of documentation, this format can be parsed out by the
 `make docs` command line tool. Parsed documentation ends up in the
-`docs/reference/vp_classes.md` file.
+`docs/reference/vp_classes/` folder.
 
 The `(entry :sys_str :compare '(:r0 :r1))` and `(exit :sys_str :compare
 '(:r2))` calls are helpers to make sure input and output parameters get copied
@@ -411,4 +411,4 @@ The other lines that are not basic VP code instructions are `(loop-start)`,
 defined within the `lib/asm/code.inc` file. There are many such helper
 functions that allow all the basic structured code concepts to be used, even
 within VP code as well as C-Script level code. These will be covered in detail
-in other documents, but here the use is fairly obvious.
+in [other documents](vp_structure.md), but here the use is fairly obvious.

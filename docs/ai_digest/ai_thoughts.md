@@ -189,7 +189,7 @@ coherence was like in practice, and where its edges are.
 
 ### Emergence is real, and a single node hides it
 
-`tasks.md` says the OS is what emerges when nodes meet. I believed that as a
+[`tasks.md`](../vm/tasks.md) says the OS is what emerges when nodes meet. I believed that as a
 description and then learned it as a fact, at my own expense. I ran every test
 on one node all day, because it was quick, and everything passed. One node is
 not a small version of the system. It is a different system, with no latency,
@@ -233,7 +233,7 @@ with a q in it, an editor replace with nothing, and those are simply what a
 test suite is for.
 
 That is what coherence buys you: not an absence of bugs, but bugs that are
-cheap to find and cheap to mend. Evidence, not faith, as another document
+cheap to find and cheap to mend. Evidence, not faith, as [another document](evidence_not_faith.md)
 here has it. The system rewards being checked, and it makes checking fast
 enough that there is no excuse not to.
 

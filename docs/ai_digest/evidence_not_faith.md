@@ -146,7 +146,7 @@ than processors no longer helps.
 
 These are quicker than the 0.070 seconds, on 20 nodes, that this document gave
 until 2026-10-03. The difference is the work on the Lisp engine, see
-`docs/ai_digest/till_the_pips_squeak.md`.
+[`docs/ai_digest/till_the_pips_squeak.md`](till_the_pips_squeak.md).
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 

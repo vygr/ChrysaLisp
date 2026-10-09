@@ -8,7 +8,7 @@ When a GUI application receives an event message on its `main` mailbox these
 come from the GUI task. They consist of various types, mouse events, keyboard
 presses and UI widget notifications when objects like buttons are clicked etc.
 
-In the `EVENT_LOOPS` document we talked about applications allocating multiple
+In the [`EVENT_LOOPS`](event_loops.md) document we talked about applications allocating multiple
 mailboxes to differentiate between type of messages. But did not cover
 techniques for handling the events that come to the `main` mailbox from the
 GUI.
@@ -91,7 +91,7 @@ new set of bubbles.
 buttons.
 
 Here is the UI tree for the application. We will cover the UI builder macros in
-another document in detail, but just note for now that we use the start of
+[another document](widgets.md) in detail, but just note for now that we use the start of
 these three event blocks for each of the 3 button bars in this UI tree.
 
 ```file
@@ -166,7 +166,7 @@ going to end up not being able to see the wood for the trees !
 
 ## The `Fmap` event action dispatch loop
 
-The Editor application takes this approach and it has started to become the `go
+The [Editor](../apps/editor.md) application takes this approach and it has started to become the `go
 to` way to arrange things. I encourage folks to adopt this style apart from the
 very simplest or throw away code.
 
@@ -324,7 +324,7 @@ targeted at a Textfield object, if it was then we let it go to the default
 clause, only if not do we try to dispatch the key action.
 
 Another advantage of this method of dispatching is that we can reuse the
-actions within other applications. If you look at the Viewer application,
+actions within other applications. If you look at the [Viewer](../apps/viewer.md) application,
 `apps/tools/viewer/app.lisp`, you can see that its `actions` module imports several
 of the Editor action files as the functionality required is identical.
 
@@ -333,7 +333,7 @@ of the Editor action files as the functionality required is identical.
 This example is not about the dispatching of GUI events but illustrates an
 important technique that applications may find useful.
 
-The Docs application, `apps/desktop/docs/app.lisp`, uses the idea of a
+The [Docs](../apps/docs.md) application, `apps/desktop/docs/app.lisp`, uses the idea of a
 current state and searches an `Emap` of state to handler function in order to
 render each line of the document being scanned. If the state is not found in the
 `Emap` then it uses the state to create a module name and dynamically loads that

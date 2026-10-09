@@ -254,7 +254,7 @@ When you need to process a sub-section of a list, the iteration primitives all
 multiple sequences and take optional slice indices ! Even allow reverse
 iteration of multi sequences.
 
-See the document specifically on the "Rosinante" primitives for all the
+See the [document specifically on the "Rosinante" primitives](rocinante.md) for all the
 details.
 
 ```vdu

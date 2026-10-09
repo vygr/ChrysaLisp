@@ -14,7 +14,7 @@ SDL3 does not come ready made for.
 * There is no mixer library. The SDL3 audio driver does its own mixing.
 
 * On the SDL3 driver a shader can be drawn by the GPU, the GPU button of the
-  Surface demo, see `docs/ai_digest/shader_language.md`. That needs SDL 3.4 or
+  Surface demo, see [`docs/ai_digest/shader_language.md`](../ai_digest/shader_language.md). That needs SDL 3.4 or
   later. On SDL 3.2 the GUI is the same and the button says there is no GPU.
 
 * The SDL2 driver is still there and still works. It can not draw a shader.
@@ -103,7 +103,7 @@ printf "defaults.pcm.card 1\ndefaults.ctl.card 1\n" | sudo tee /etc/asound.conf
 `aplay -l` lists the cards, `vc4hdmi0` is the port next to the power socket.
 
 The frame buffer driver, `make GUI=fb install`, is still there for a Pi with
-no SDL at all, see `docs/intro/framebuffer.md`.
+no SDL at all, see [`docs/intro/framebuffer.md`](framebuffer.md).
 
 ## Windows
 

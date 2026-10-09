@@ -118,7 +118,7 @@ on, `sync -a`, and is not needed to join.
 `mesh -j` is two commands, `link -l 3333 -a` and `link -a`, and `mesh -k`
 is `link -k`. The `link` command has more, a port of your choice, a link
 to one named machine and no more. `link -h` lists it, and
-`docs/intro/intro.md` has the detail.
+[`docs/intro/intro.md`](intro.md) has the detail.
 
 Windows has all of this in it and has been tried the least. If it does not
 work there, the list above first, then tell us.

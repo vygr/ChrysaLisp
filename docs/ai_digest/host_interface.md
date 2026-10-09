@@ -178,7 +178,7 @@ the host.
 
     * The shader calls, at the end of the table. A driver that can not draw
       a shader has them all the same, and answers format 0. Only the sdl3
-      driver can. See `docs/ai_digest/shader_language.md`.
+      driver can. See [`docs/ai_digest/shader_language.md`](shader_language.md).
 
         * `host_gui_shader_format`: The shading language the driver takes, 0
           none, 1 Metal Shading Language text, 2 a SPIR-V module.

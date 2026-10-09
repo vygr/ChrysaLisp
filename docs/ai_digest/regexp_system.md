@@ -4,7 +4,7 @@ While ChrysaLisp emphasizes high-performance text parsing through simple binary
 search primitives (`bfind`, `bskip`), it also provides a robust and efficient
 Regular Expression engine. Implemented as the `Regexp` class, this system is
 used for complex pattern matching, global search, and sophisticated text
-transformations in tools like `grep`, `sed`, and the `Editor` application.
+transformations in tools like `grep`, `sed`, and the [`Editor`](../apps/editor.md) application.
 
 ## Architecture: The NFA Engine
 

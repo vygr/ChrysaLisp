@@ -6,7 +6,7 @@ Instead of treating text as a monolithic string canvas, it leverages
 ChrysaLisp's graphical composition tree, dynamic module loading, and functional
 primitives to build documents out of independent, interactive UI components.
 
-Historically, the Docs application implemented its own bespoke markdown parser
+Historically, the [Docs](../apps/docs.md) application implemented its own bespoke markdown parser
 and layout logic directly within its text handlers. In the modern architecture,
 this functionality is fully encapsulated in the reusable `Md` GUI widget
 (`gui/md/lisp.inc`). The Docs application delegates all text section rendering

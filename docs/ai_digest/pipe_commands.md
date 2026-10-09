@@ -341,7 +341,7 @@ options.
             * The `make-docs` function within `cmd/make.lisp` itself uses
               `pipe-farm` to execute other command-line tools (like `grep
               -h`, `cat -h`, etc.) with the `-h` option to capture their
-              help output for inclusion in the `commands.md` documentation.
+              help output for inclusion in the [`commands.md`](../reference/commands.md) documentation.
 
             * The scanning of source files for doc strings is done
               sequentially by the main `make-docs` process.

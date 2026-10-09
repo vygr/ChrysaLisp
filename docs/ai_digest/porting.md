@@ -62,8 +62,8 @@ This document will detail the steps and considerations for each phase.
 **Prerequisites:**
 
 * Familiarity with the ChrysaLisp architecture (refer to
-  `memory_architecture.md`, `vp_translation.md`, `host_os.md`, `host_gui.md`,
-  `host_audio.md`).
+  [`memory_architecture.md`](memory_architecture.md), [`vp_translation.md`](vp_translation.md), [`host_os.md`](../reference/vp_classes/host_os.md), [`host_gui.md`](../reference/vp_classes/host_gui.md),
+  [`host_audio.md`](../reference/vp_classes/host_audio.md)).
 
 * Proficiency in C/C++ for the bootstrap and PII layer.
 
@@ -107,14 +107,14 @@ audio) must be native to the new host.
       and `host_audio_funcs` arrays.
 
     * `host_os_funcs`: Core OS services like file I/O, memory mapping, time,
-      process exit (see `host_os.md`, `sys_pii.md`).
+      process exit (see [`host_os.md`](../reference/vp_classes/host_os.md), `sys_pii.md`).
 
     * `host_gui_funcs`: GUI operations like window creation, drawing
-      primitives, event polling (see `host_gui.md`,
+      primitives, event polling (see [`host_gui.md`](../reference/vp_classes/host_gui.md),
       `service/gui/class.inc`).
 
     * `host_audio_funcs`: Audio operations like init, play, stop (see
-      `host_audio.md`, `service/audio/class.inc`).
+      [`host_audio.md`](../reference/vp_classes/host_audio.md), `service/audio/class.inc`).
 
 ### 2.2. Makefile Adaptations (`src/host/Makefile`)
 
@@ -169,7 +169,7 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
 1. **Core OS Functions (`pii_myos_myarch.cpp`):**
 
     * Implement all functions declared in `sys/pii.h` and exposed via the
-      `host_os_funcs` array (see `host_os.md`, `sys_pii.md`). Examples:
+      `host_os_funcs` array (see [`host_os.md`](../reference/vp_classes/host_os.md), `sys_pii.md`). Examples:
 
         * `pii_open`, `pii_close`, `pii_read`, `pii_write`, `pii_seek`,
           `pii_stat`, `pii_remove`, `pii_unlink`, `pii_dirlist`: Use your
@@ -200,7 +200,7 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
     * If you intend to have a native GUI (not TUI-only):
 
         * Implement functions declared in `service/gui/class.inc` and exposed
-          via `host_gui_funcs` (see `host_gui.md`).
+          via `host_gui_funcs` (see [`host_gui.md`](../reference/vp_classes/host_gui.md)).
 
         * This may involve:
 
@@ -229,7 +229,7 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
 3. **Audio Functions (`audio_myos_myarch.cpp` - Optional):**
 
     * Similar to GUI, implement functions for `host_audio_funcs` (see
-      `host_audio.md`, `service/audio/class.inc`) using native audio APIs or
+      [`host_audio.md`](../reference/vp_classes/host_audio.md), `service/audio/class.inc`) using native audio APIs or
       a library.
 
     * Populate `host_audio_funcs`.
@@ -322,14 +322,14 @@ bootstrap environment.
 
 If your target platform's CPU architecture is not one for which ChrysaLisp
 already has a native code translator (e.g., x86-64, Arm64, RISC-V 64 as
-implied by `vp_translation.md`), you will need to create one.
+implied by [`vp_translation.md`](vp_translation.md)), you will need to create one.
 
 This involves writing Lisp code that translates VP assembly instructions
 into the native machine code for your target CPU.
 
 ### 3.1. Understanding VP-to-Native Translation
 
-* **`vp_translation.md`:** This document is key. It describes the VP
+* **[`vp_translation.md`](vp_translation.md):** This document is key. It describes the VP
   architecture (registers, instruction set) and the multi-pass translation
   pipeline.
 
@@ -379,7 +379,7 @@ into the native machine code for your target CPU.
 3. **Implement `emit-xxx` Emitter Functions:**
 
     * This is the most intensive part. For *each* VP instruction listed in
-      `vp_vm.md` (or inferred from existing translators), you must write a
+      [`vp_vm.md`](../vm/vp_vm.md) (or inferred from existing translators), you must write a
       Lisp function (e.g., `(defun emit-add-rr (s d) ...)`).
 
     * This function will receive native register numbers (as mapped by
@@ -549,7 +549,7 @@ platform:
 
     * Use `(print)` extensively in your Lisp translator code.
 
-    * The `*build_emit*` and `*build_inst*` flags (see `vp_assignment.md`)
+    * The `*build_emit*` and `*build_inst*` flags (see [`vp_assignment.md`](../vm/vp_assignment.md))
       can show the VP instructions before and after optimization, and the
       final Lisp forms passed to `emit-translate`.
 

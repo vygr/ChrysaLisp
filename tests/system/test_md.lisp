@@ -75,6 +75,17 @@
 (assert-list-eq "a link in a heading is one too" '("t.md" "t.md")
 	(map (# (get :link %0)) (filter (# (Link? %0)) (. md_md :flatten))))
 
+;the documents name each other in code quotes, and the name is the link
+(def (defq md_md (Md)) :page_width 640 :link_event 99)
+(. md_md :populate_lines (list "As stated in its own documentation ([`lisp.md`](../lisp/lisp.md)), and **in bold ([`a b.md`](c.md))**."))
+(defq md_links (filter (# (Link? %0)) (. md_md :flatten)))
+(assert-list-eq "a link whose text is quoted as code is a link" '("lisp.md" "a" "b.md")
+	(map (# (trim (str (get :text %0)))) md_links))
+(assert-list-eq "to where it says" '("../lisp/lisp.md" "c.md" "c.md") (map (# (get :link %0)) md_links))
+(assert-true "and is green, not the blue of code" (every (# (= (get :ink_color %0) +argb_green6)) md_links))
+(assert-list-eq "a bracket a link is written against sits against it, both sides"
+	'("documentation " "(" "lisp.md" "), ") (slice (md-texts md_md) 5 9))
+
 ;an Md that was given none, the News app's say, has nothing to follow a
 ;link with, and shows it as it is written, where it goes can be read
 (bind '(md_md md_w) (md-make (list md_line)))

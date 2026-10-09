@@ -23,7 +23,8 @@
 	+md_doc_font_bold_italic "fonts/OpenSans-BoldItalic.ctf"
 	+md_terminal_font "fonts/Hack-Regular.ctf"
 	+md_symbol_font "fonts/Symbols.ctf"
-	+md_min_cell_width 96)
+	+md_min_cell_width 96
+	+md_link_color +argb_green6)
 
 (defun md-font-name (f)
 	(cond
@@ -51,7 +52,8 @@
 	;each link of the line, [text](target) or ![text](target), is made
 	;the words " <l:target> text </l> ", for (format-words) to make the
 	;text a Link. One with no text, no target, or a space in its target
-	;is left as it is written
+	;is left as it is written. A word is drawn with a space after it, so
+	;where there is none in the text, before a link or after, it is said
 	(defq out (list) done 0)
 	(each (lambda (((x1 x2)))
 		(when (and (>= x1 done) (defq open (rfind "[" (slice line done x1)))
@@ -59,7 +61,11 @@
 			(defq open (+ done open) text (slice line open x1) target (slice line x2 close)
 				start (if (and (> open (inc done)) (eql (elem-get line (- open 2)) "!")) (- open 2) (dec open)))
 			(when (and (nempty? text) (nempty? target) (not (find " " target)))
-				(push out (slice line done start) " <l:" target "> " text " </l> ")
+				;what the link is written hard up against, a bracket say, is
+				;to sit against it, <j> says so to (format-words)
+				(push out (slice line done start)
+					(if (and (> start 0) (not (find (elem-get line (dec start)) " \t\n"))) " <j>" "")
+					" <l:" target "> " text " </l> ")
 				(setq done (inc close)))))
 		(substr line "]("))
 	(if (empty? out) line (apply (const cat) (push out (slice line done -1)))))
@@ -128,7 +134,7 @@
 	(push search_widgets text)
 	(def text :text (sym (cat word (ifn tail " "))))
 	(when link
-		(def text :link link :ink_color +argb_blue)
+		(def text :link link)
 		(if (defq id (get :link_event flow)) (. text :connect id)))
 	(cond
 		((bits? state +state_bold_italic) (def text :font (get :font_bold_italic flow)))
@@ -137,6 +143,9 @@
 	(if (bits? state +state_code) (def text :ink_color +argb_blue :font (get :font_terminal flow)))
 	(if (bits? state +state_strike) (def text :ink_color +argb_grey8))
 	(if (bits? state +state_highlight) (def text :color +argb_yellow :ink_color +argb_black))
+	;a link is green, whatever else it is. Blue is what is quoted as code,
+	;and a link to a document is often its name in code quotes
+	(if link (def text :ink_color +md_link_color))
 	text)
 
 (defun md-scale (s zoom)
@@ -193,7 +202,7 @@
 	out)
 
 (defun format-words (this container words indent style max_width search_widgets &optional underline font_size is_header)
-	(defq cnt 0 state 0 link :nil link_end :nil indent_width :nil flow (line-flow this container font_size))
+	(defq cnt 0 state 0 link :nil link_end :nil last_text :nil indent_width :nil flow (line-flow this container font_size))
 	(if is_header (setq state (logior state +state_bold)))
 	(unless (and (eql indent "") (eql style ""))
 		(defq text (Text))
@@ -211,10 +220,12 @@
 	(each (lambda (word)
 		(cond
 			((starts-with "<l:" word) (setq link (slice word 3 -2)))
-			((eql word "</l>") (setq link :nil link_end (last search_widgets)))
+			((eql word "<j>")
+				(if last_text (def last_text :text (sym (trim-end (str (get :text last_text)))))))
+			((eql word "</l>") (setq link :nil link_end last_text))
 			((= (defq next_state (word-state word state)) -1)
 				;a full stop or a comma straight after a link sits against it
-				(if (and link_end (Link? link_end) (find (first word) ",.;:!?)"))
+				(if (and link_end (find (first word) ",.;:!?)"))
 					(def link_end :text (sym (trim-end (str (get :text link_end))))))
 				(setq link_end :nil)
 				(defq text (create-word word state search_widgets flow :nil link)
@@ -239,7 +250,8 @@
 							(. flow :add_child indent_tab)
 							(setq w (+ w indent_width)))
 						(. flow :add_child text)
-						(setq cnt w))) texts))
+						(setq cnt w))) texts)
+				(setq last_text (last texts)))
 			(:t (setq state next_state)))) words)
 	(if underline (under-line this underline)))
 

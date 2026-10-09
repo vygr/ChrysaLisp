@@ -76,7 +76,7 @@ The naming convention is your primary tool for avoiding this mistake. By
 naming your local variables with underscores (`my_list`) and your functions
 with hyphens (`(list ...)`), you will never accidentally conflict.
 
-Tooling, such as the `Editor` app with syntax highlighting, also provides a
+Tooling, such as the [`Editor`](../apps/editor.md) app with syntax highlighting, also provides a
 strong visual cue when this error occurs.
 
 ## Efficient State Management with `defq` and `setq`

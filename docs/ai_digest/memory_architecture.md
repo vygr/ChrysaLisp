@@ -265,7 +265,7 @@ absence of a GC:
 	  references object B, and object B references object A, their reference counts
 	  will never drop to zero even if no external references to A or B exist.
 
-		* Common sources of cycles mentioned in `lisp.md`:
+		* Common sources of cycles mentioned in [`lisp.md`](../lisp/lisp.md):
 
 			* `(push my_list my_list)`
 
@@ -300,7 +300,7 @@ absence of a GC:
 1. **Compiled Functions as VP Objects:**
 
 	* Each compiled VP function (defined by `def-func` or `def-method`) is itself a
-	  structured block of memory, as detailed in `vp_functions.md` and
+	  structured block of memory, as detailed in [`vp_functions.md`](vp_functions.md) and
 	  `lib/asm/func.inc`. This block contains the machine code, a header with
 	  metadata (offsets to string pool, link table), the local string pool, and the
 	  external function path/link table.

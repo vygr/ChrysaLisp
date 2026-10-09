@@ -185,7 +185,7 @@ codebase depending on stream consumption:
 	"apps/desktop/docs/handlers/file.inc" "(with-read-lock file_path" "(setq stream :nil)))"
 	```
 
-	The ChrysaLisp documentation viewer (`apps/desktop/docs/handlers/file.inc`)
+	The ChrysaLisp [documentation viewer](../apps/docs.md) (`apps/desktop/docs/handlers/file.inc`)
 	illustrates this pattern when rendering embedded `file` blocks. It acquires a
 	shared read lock, streams matching lines into a memory buffer, closes the stream
 	via `(setq stream :nil)`, and releases the lock before widget rendering.

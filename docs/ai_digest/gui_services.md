@@ -14,11 +14,11 @@ The ChrysaLisp GUI architecture is built upon a few fundamental principles:
 
 1. **Widgets as Lisp Classes:** All UI elements are instances of Lisp
    classes (defined with `(defclass ...)` from `lib/class/class.inc`) that
-   inherit from a common base `View` class (`widgets.md`).
+   inherit from a common base `View` class ([`widgets.md`](../gui/widgets.md)).
 
 2. **`View` Inherits `:hmap`:** The `View` class, in turn, inherits from the
    Virtual Processor (VP) level `:hmap` class. An `:hmap` is the fundamental
-   structure for Lisp environments in ChrysaLisp (`environment.md`). This
+   structure for Lisp environments in ChrysaLisp ([`environment.md`](../lisp/environment.md)). This
    inheritance is crucial: **every UI widget IS a Lisp environment**.
 
 3. **The UI Tree:** Widgets are organized in a hierarchical parent-child
@@ -38,7 +38,7 @@ The ChrysaLisp GUI architecture is built upon a few fundamental principles:
       If not found, it recursively searches up the UI tree through its parent
       widgets until the property is found or the root is reached. If the
       property isn't found, `(get)` returns `:nil`. This is explicitly stated
-      in `widgets.md`: "When you use `(get :color this)` on a widget instance
+      in [`widgets.md`](../gui/widgets.md): "When you use `(get :color this)` on a widget instance
       a search will be made starting at this widget... all the way up to the
       parent widget, all the way up to the root widget if needed."
 
@@ -57,7 +57,7 @@ The ChrysaLisp GUI architecture is built upon a few fundamental principles:
 ## UI Builder Macros
 
 ChrysaLisp provides a set of Lisp macros, primarily found in `gui/lisp.inc`
-(and listed in `widgets.md` and `macros.md`), to simplify the construction
+(and listed in [`widgets.md`](../gui/widgets.md) and [`macros.md`](../reference/macros.md)), to simplify the construction
 of UI widget trees. These macros typically:
 
 * Create an instance of the respective widget class.
@@ -95,8 +95,8 @@ user-supplied ones within these builder macros.
 
 ## The Event System
 
-The GUI event system, as described in `event_dispatch.md` and
-`event_loops.md`, enables applications to respond to user interactions and
+The GUI event system, as described in [`event_dispatch.md`](../gui/event_dispatch.md) and
+[`event_loops.md`](../gui/event_loops.md), enables applications to respond to user interactions and
 system notifications.
 
 1. **Event Source:** The GUI task (a separate ChrysaLisp task managing the
@@ -126,7 +126,7 @@ system notifications.
 
     * **`Fmap` Dispatch:** For more complex applications, an `Fmap` (a hash
       map) can map event IDs or event types to handler functions. This is the
-      approach used in the **Editor application**
+      approach used in the **[Editor](../apps/editor.md) application**
       (`apps/tools/edit/actions.inc` defines `*event_map*`, `*key_map*`, etc.,
       which are `Fmap`s). The main loop in the Editor
       (`apps/tools/edit/app_impl.lisp`) then looks up the event/key in these
@@ -142,7 +142,7 @@ system notifications.
 
 4. **The Template Application (`apps/template/app.lisp`):**
 
-    * The Template application also uses an `*event_map*` (and key maps)
+    * The [Template](../apps/template.md) application also uses an `*event_map*` (and key maps)
       defined in `apps/template/actions.inc`.
 
     * Its main loop in `apps/template/app.lisp` follows a similar pattern to
@@ -161,7 +161,7 @@ system notifications.
                 (. *window* :event *msg*))))
     ```
 
-5. **Multiple Mailboxes for GUI Applications (`event_loops.md`):**
+5. **Multiple Mailboxes for GUI Applications ([`event_loops.md`](../gui/event_loops.md)):**
 
     * GUI applications often use `(task-mboxes)` to create and manage multiple
       mailboxes. This allows them to partition different types of events:
@@ -223,7 +223,7 @@ are made available via `gui/lisp.inc`.
 
     * User-defined properties.
 
-* **Key Methods (from `View.md` and `gui/view/lisp.inc`):**
+* **Key Methods (from [`View.md`](../reference/classes/View.md) and `gui/view/lisp.inc`):**
 
     * `(:add_child child)`, `(:add_front child)`, `(:add_back child)`: Adds a
       child widget.
@@ -304,9 +304,9 @@ are made available via `gui/lisp.inc`.
 
     * `:child`: The main content child (often a `Flow` layout).
 
-    * `:tip_mbox`: (As seen in `event_loops.md`) Mailbox for tooltip events.
+    * `:tip_mbox`: (As seen in [`event_loops.md`](../gui/event_loops.md)) Mailbox for tooltip events.
 
-* **Key Methods (from `Window.md` and `gui/window/lisp.inc`):**
+* **Key Methods (from [`Window.md`](../reference/classes/Window.md) and `gui/window/lisp.inc`):**
 
     * `(:add_child child)`: Sets the main content child.
 
@@ -355,7 +355,7 @@ are made available via `gui/lisp.inc`.
 
     * `:spacing`: Spacing for grid/lines.
 
-* **Key Methods (from `Backdrop.md` and `gui/backdrop/lisp.inc`):**
+* **Key Methods (from [`Backdrop.md`](../reference/classes/Backdrop.md) and `gui/backdrop/lisp.inc`):**
 
     * `(:draw)`: Draws the background and any style lines based on properties.
 
@@ -391,7 +391,7 @@ are made available via `gui/lisp.inc`.
 
     * `:tip_text`: Text for the tooltip.
 
-* **Key Methods (from `Button.md` and `gui/button/lisp.inc`):**
+* **Key Methods (from [`Button.md`](../reference/classes/Button.md) and `gui/button/lisp.inc`):**
 
     * `(:draw)`: Draws the button with 3D-like border based on its state.
 
@@ -430,7 +430,7 @@ are made available via `gui/lisp.inc`.
 
     * `:color` (for drawing operations, not background).
 
-* **Key Methods (from `Canvas-base.md`, `canvas.md`):**
+* **Key Methods (from [`Canvas-base.md`](../reference/classes/Canvas-base.md), [`canvas.md`](../reference/vp_classes/canvas.md)):**
 
     * `(:draw)`: Typically draws the canvas's texture if it has one (e.g.,
       from a `:swap`).
@@ -490,7 +490,7 @@ are made available via `gui/lisp.inc`.
       instances for rendering bracket matching, selections, find results and
       region highlights.
 
-* **Key Methods (from `Edit.md`):**
+* **Key Methods (from [`Edit.md`](../reference/classes/Edit.md)):**
 
     * `(:get_buffer)`, `(:set_buffer document)`
 
@@ -544,7 +544,7 @@ are made available via `gui/lisp.inc`.
 
     * `:min_width`, `:min_height`.
 
-* **Key Methods (from `Flow.md` and `gui/flow/lisp.inc`):**
+* **Key Methods (from [`Flow.md`](../reference/classes/Flow.md) and `gui/flow/lisp.inc`):**
 
     * `(:layout)`: Positions child widgets according to `:flow_flags` and
       their preferred sizes.
@@ -582,7 +582,7 @@ are made available via `gui/lisp.inc`.
     * `:grid_height`: Number of rows. If 0, calculated from children and
       `:grid_width`.
 
-* **Key Methods (from `Grid.md` and `gui/grid/lisp.inc`):**
+* **Key Methods (from [`Grid.md`](../reference/classes/Grid.md) and `gui/grid/lisp.inc`):**
 
     * `(:layout)`: Positions child widgets in grid cells, giving each equal
       space.
@@ -617,7 +617,7 @@ are made available via `gui/lisp.inc`.
 
     * `:maximum`: Maximum value for the chart scale.
 
-* **Key Methods (from `Hchart.md` and `gui/hchart/lisp.inc`):**
+* **Key Methods (from [`Hchart.md`](../reference/classes/Hchart.md) and `gui/hchart/lisp.inc`):**
 
     * `(:add_bar)`: Adds a new `Progress` bar to the chart and returns it.
 
@@ -663,7 +663,7 @@ are made available via `gui/lisp.inc`.
     * `:flow_flags` (on its internal `:label_flow`): Controls text alignment
       within the label.
 
-* **Key Methods (from `Label.md` and `gui/label/lisp.inc`):**
+* **Key Methods (from [`Label.md`](../reference/classes/Label.md) and `gui/label/lisp.inc`):**
 
     * `(:draw)`: Draws the label's panel (border and background).
 
@@ -693,7 +693,7 @@ are made available via `gui/lisp.inc`.
   responds to mouse clicks, visually changing its state. Often used in `Tree`
   widgets.
 
-* **Key Methods (from `Node.md` and `gui/node/lisp.inc`):**
+* **Key Methods (from [`Node.md`](../reference/classes/Node.md) and `gui/node/lisp.inc`):**
 
     * `(:mouse_down event)`, `(:mouse_move event)`, `(:mouse_up event)`:
       Handles mouse interactions to provide visual feedback and emit an
@@ -725,7 +725,7 @@ are made available via `gui/lisp.inc`.
 
     * `:maximum`: Maximum progress value.
 
-* **Key Methods (from `Progress.md` and `gui/progress/lisp.inc`):**
+* **Key Methods (from [`Progress.md`](../reference/classes/Progress.md) and `gui/progress/lisp.inc`):**
 
     * `(:draw)`: Draws the progress bar.
 
@@ -758,7 +758,7 @@ are made available via `gui/lisp.inc`.
 
     * `:mode`: `:t` for toggle mode, `:nil` (default) for radio mode.
 
-* **Key Methods (from `Radiobar.md` and `gui/radiobar/lisp.inc`):**
+* **Key Methods (from [`Radiobar.md`](../reference/classes/Radiobar.md) and `gui/radiobar/lisp.inc`):**
 
     * `(:action event)`: Handles button clicks to update selection state.
 
@@ -807,7 +807,7 @@ are made available via `gui/lisp.inc`.
 
     * `:child`: The single child widget to be scrolled.
 
-* **Key Methods (from `Scroll.md` and `gui/scroll/lisp.inc`):**
+* **Key Methods (from [`Scroll.md`](../reference/classes/Scroll.md) and `gui/scroll/lisp.inc`):**
 
     * `(:action data)`: Handles events from its internal sliders to scroll
       the child.
@@ -855,7 +855,7 @@ are made available via `gui/lisp.inc`.
 
     * `:state`: Internal state for visual feedback.
 
-* **Key Methods (from `Slider.md` and `gui/slider/lisp.inc`):**
+* **Key Methods (from [`Slider.md`](../reference/classes/Slider.md) and `gui/slider/lisp.inc`):**
 
     * `(:draw)`: Draws the slider track and thumb.
 
@@ -888,7 +888,7 @@ are made available via `gui/lisp.inc`.
 
     * `:maximum`, `:minimum`: Range constraints for the value.
 
-* **Key Methods (from `Spinner.md` and `gui/spinner/lisp.inc`):**
+* **Key Methods (from [`Spinner.md`](../reference/classes/Spinner.md) and `gui/spinner/lisp.inc`):**
 
     * `(:action event)`: Handles clicks on its internal up/down buttons to
       change the value.
@@ -919,7 +919,7 @@ are made available via `gui/lisp.inc`.
 
     * `:font` (for tab buttons).
 
-* **Key Methods (from `Stack.md` and `gui/stack/lisp.inc`):**
+* **Key Methods (from [`Stack.md`](../reference/classes/Stack.md) and `gui/stack/lisp.inc`):**
 
     * `(:action event)`: Handles tab button clicks to switch the visible
       child page.
@@ -958,7 +958,7 @@ are made available via `gui/lisp.inc`.
 
     * `:states`: Potentially indicating if a stroke is complete.
 
-* **Key Methods (from `Stroke.md`):**
+* **Key Methods (from [`Stroke.md`](../reference/classes/Stroke.md)):**
 
     * `(:clear)`: Clears completed strokes.
 
@@ -992,7 +992,7 @@ are made available via `gui/lisp.inc`.
 
     * `:offset`: Horizontal offset for the text within its bounds.
 
-* **Key Methods (from `Text.md` and `gui/text/lisp.inc`):**
+* **Key Methods (from [`Text.md`](../reference/classes/Text.md) and `gui/text/lisp.inc`):**
 
     * `(:draw)`: Renders the text using a cached texture if available.
 
@@ -1037,7 +1037,7 @@ are made available via `gui/lisp.inc`.
 
     * `:mode`: Can be `:t` for password mode (displays asterisks).
 
-* **Key Methods (from `Textfield.md` and `gui/textfield/lisp.inc`):**
+* **Key Methods (from [`Textfield.md`](../reference/classes/Textfield.md) and `gui/textfield/lisp.inc`):**
 
     * `(:draw)`: Draws the textfield, including selection and cursor.
 
@@ -1074,7 +1074,7 @@ are made available via `gui/lisp.inc`.
 * **Description:** A specialized label typically used as part of a `Window`'s
   title bar. It's draggable to move the window.
 
-* **Key Methods (from `Title.md` and `gui/title/lisp.inc`):**
+* **Key Methods (from [`Title.md`](../reference/classes/Title.md) and `gui/title/lisp.inc`):**
 
     * `(:mouse_down event)`, `(:mouse_move event)`: Handle mouse input to
       initiate and perform window dragging.
@@ -1172,7 +1172,7 @@ are made available via `gui/lisp.inc`.
 
     * `:font`, `:ink_color`.
 
-* **Key Methods (from `Vdu.md` and `gui/vdu/lisp.inc`):**
+* **Key Methods (from [`Vdu.md`](../reference/classes/Vdu.md) and `gui/vdu/lisp.inc`):**
 
     * `(:char_size)`: Returns (width height) of a character in pixels.
 
@@ -1194,7 +1194,7 @@ are made available via `gui/lisp.inc`.
 
 ## UI Combination Macros
 
-These macros from `gui/lisp.inc` (listed in `macros.md`) create common
+These macros from `gui/lisp.inc` (listed in [`macros.md`](../reference/macros.md)) create common
 combinations of widgets:
 
 * `(ui-title-bar name title symbols event [props]) -> flow`

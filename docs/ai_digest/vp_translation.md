@@ -40,7 +40,7 @@ Binary Interface).
     them to native registers.
 
 * **Instruction Set:** The VP instruction set is designed to be relatively
-  simple and orthogonal. Key categories include (refer to `vp_vm.md` for a
+  simple and orthogonal. Key categories include (refer to [`vp_vm.md`](../vm/vp_vm.md) for a
   full list):
 
     * **Constant to Register:** e.g., `(vp-cpy-cr constant rd)`

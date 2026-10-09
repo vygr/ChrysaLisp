@@ -289,7 +289,7 @@ So to tell a real from a fixed from a num, ask `real?` first, then
 are built on one, a map, a class of your own, it is `list??` that is
 wanted. `(. obj :type_of)` is the chain with the Lisp classes on the end
 as well, `(:seq :array :list :hmap :View :Label :Button)`.
-`docs/ai_digest/type_system.md` has the whole of it.
+[`docs/ai_digest/type_system.md`](type_system.md) has the whole of it.
 
 ### `trim` wants its characters in order
 
@@ -327,7 +327,7 @@ an index past the end, are each an error with the name of the function. A
 release build, `make it`, the snapshot, and the emulator's image, has none
 of those checks, and the same mistake there stops the node or worse. Nor
 does a `throw` from a function given to `(pipe-run)` get out of it there.
-Work in the checked build. `docs/ai_digest/exceptions.md`.
+Work in the checked build. [`docs/ai_digest/exceptions.md`](exceptions.md).
 
 ### A handler that gives `:nil` passes the error on
 

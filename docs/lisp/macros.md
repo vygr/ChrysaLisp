@@ -207,7 +207,7 @@ information.
 lib/debug/profile.inc
 ```
 
-Another example of wrapping code in a decorator macro is the Editor application
+Another example of wrapping code in a decorator macro is the [Editor](../apps/editor.md) application
 `(undoable)` macro. This macro can be used to wrap any code that mutates the
 text to ensure its effects can be undone.
 

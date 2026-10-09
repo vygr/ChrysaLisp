@@ -436,7 +436,7 @@ rule the native code has, though not its rounding, a see through pixel can
 be a level out.
 
 The host has three calls for it, and one to let go of a mesh,
-`docs/ai_digest/host_interface.md`. A pair is made from the code of the two
+[`docs/ai_digest/host_interface.md`](host_interface.md). A pair is made from the code of the two
 stages and a layout, a byte for how many attrs a vertex has, a byte for the
 cull, and a byte for the floats of each attr, and the driver makes a pipeline
 with a depth test. A frame is given to it as the one block, a count, then for
@@ -757,7 +757,7 @@ status line says so while the desktop carries on, where the whole GUI used to
 stop.
 
 One shader draw is on the go at a time for a canvas as well, and on a slow GPU
-for the whole GUI, `docs/ai_digest/host_interface.md` has the rule, so `:nil` is also the GPU not
+for the whole GUI, [`docs/ai_digest/host_interface.md`](host_interface.md) has the rule, so `:nil` is also the GPU not
 having finished the last one. On a fast GPU it
 never matters. On a slow one it is what keeps the desktop alive. The GUI is
 drawn by the same GPU, a GPU can not be stopped part way through a draw, and
@@ -788,7 +788,7 @@ Under that are three functions, `(canvas-shader-format)`,
 `(canvas-shader-create vertex fragment)` and `(canvas-shader-destroy shader)`,
 and six calls at the end of the host GUI table, `shader_format`,
 `shader_create`, `shader_destroy`, `shader_texture`, `shader_draw` and
-`read_texture`, see `docs/ai_digest/host_interface.md`. Every
+`read_texture`, see [`docs/ai_digest/host_interface.md`](host_interface.md). Every
 driver has them, the SDL2, raw and frame buffer drivers answer that they can
 not, format 0.
 

@@ -32,7 +32,7 @@ xcode-select --install
 brew install sdl3
 ```
 
-   On a Mac too old for Homebrew to have it, see `docs/intro/sdl3.md`.
+   On a Mac too old for Homebrew to have it, see [`docs/intro/sdl3.md`](sdl3.md).
 
 4. **Git**: For cloning the repository (if you choose that method).
 
@@ -57,7 +57,7 @@ sudo apt-get install pkg-config libsdl3-dev
 
    That gives the GUI. To draw shaders on the GPU it has to be SDL 3.4 or
    later, and Debian 13 has 3.2, so for that SDL3 is built from source, see
-   `docs/intro/sdl3.md`.
+   [`docs/intro/sdl3.md`](sdl3.md).
 
 3. Or **SDL2 and SDL2_mixer**, on a release with no SDL3. `make install` uses
    SDL2 when it finds no SDL3:
@@ -104,7 +104,7 @@ make -f Makefile.mingw windows_all
 ### Raspberry Pi Framebuffer Mode (Advanced)
 
 ChrysaLisp supports running directly on the Raspberry Pi's framebuffer, 
-bypassing the X11 desktop environment. This is detailed in `framebuffer.md`. 
+bypassing the X11 desktop environment. This is detailed in [`framebuffer.md`](framebuffer.md). 
 Here's a summary of the setup:
 
 1. **Install Raspberry Pi OS (64-bit)**:
@@ -231,7 +231,7 @@ make install
 2. **Run Text User Interface (TUI)**:
 
     This starts a network of ChrysaLisp nodes (default 10) and launches the 
-    Terminal application.
+    [Terminal](../apps/terminal.md) application.
 
 ```code
 ./run_tui.sh

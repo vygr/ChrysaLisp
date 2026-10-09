@@ -218,7 +218,7 @@ tasks must adapt, is central to ChrysaLisp's robustness.
 
         * If a worker task crashes or its node becomes unreachable, the
           `Farm`'s `:refresh` method (called periodically, as seen in
-          `event_loops.md` for Raymarch's main loop) detects the
+          [`event_loops.md`](../gui/event_loops.md) for Raymarch's main loop) detects the
           unresponsiveness based on a timeout (e.g., `retry_timeout`).
 
         * The `Farm` invokes the `destroy` callback. For these
@@ -302,7 +302,7 @@ tasks must adapt, is central to ChrysaLisp's robustness.
 
 * **Mechanism:**
 
-    * Uses `Global` as described in `event_loops.md`.
+    * Uses `Global` as described in [`event_loops.md`](../gui/event_loops.md).
 
     * The `create` callback (called by `Global`) starts
       `apps/system/netmon/child.lisp` on newly detected nodes. The `key`
@@ -321,7 +321,7 @@ tasks must adapt, is central to ChrysaLisp's robustness.
       `NetMon` adapts to network changes.
 
     * **Child Task Self-Termination:** The `apps/system/netmon/child.lisp`
-      (as shown in `comms.md`) has an inactivity timeout. If the parent
+      (as shown in [`comms.md`](../gui/comms.md)) has an inactivity timeout. If the parent
       stops polling it (e.g., because the parent itself crashed or the
       network link was severed), the child will eventually timeout and
       exit. This prevents orphaned monitoring agents.

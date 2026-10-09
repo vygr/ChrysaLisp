@@ -95,7 +95,7 @@ may send one, and for now that is anyone with a link.
 **Any machine that has a link to one that accepts can write its files.**
 Who can have a link is what a key settles. With the file `mesh_key` on each
 machine, the same on all, a machine links only to one that proves it has
-the key, see "A Key" in `docs/intro/intro.md`. With no key, any machine
+the key, see "A Key" in [`docs/intro/intro.md`](../intro/intro.md). With no key, any machine
 that can reach the port can link, and so can write. That is right for
 machines alone on their wire, and wrong for any that are not.
 

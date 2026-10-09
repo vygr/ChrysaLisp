@@ -82,7 +82,7 @@ that ARE NOT members of the given character class.
 It's very easy to create fast state machines to parse lines of text given these
 primatives.
 
-For example look at the Syntax highlighting class !
+For example look at the [Syntax](../reference/classes/Syntax.md) highlighting class !
 
 ```file
 lib/text/syntax.inc "while" "set this"

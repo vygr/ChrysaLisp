@@ -1,7 +1,7 @@
 # Hashes And Ciphers
 
 `lib/crypto/` is where the hash and cipher primitives go, for the storage
-service, `docs/ai_digest/storage_service.md`, and one day for TLS. A block of
+service, [`docs/ai_digest/storage_service.md`](storage_service.md), and one day for TLS. A block of
 data at a time is too much work for Lisp, so the part that is done for every
 byte is native code, `lib/crypto/lisp.vp`, and the part that is done once,
 the padding and the like, is Lisp.

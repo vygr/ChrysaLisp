@@ -14,7 +14,7 @@ lib/text/search.inc
 
 The syntax for regular expressions is similar to that used in the VIM text
 editor. Escape shortcuts are provided for many common character classes. Please
-refer to the `grep` command reference documentation for the complete list.
+refer to the [`grep` command reference documentation](../reference/commands.md) for the complete list.
 
 ## Provided matching and searching functions
 
@@ -76,7 +76,7 @@ You can use the `(query pattern word_flag regexp_flag) -> (search meta pattern)`
 function and let it build you the correct query to use, including the correct
 search instance and meta data.
 
-Here, in the `Docs` app find down action, you can see that it passes the search
+Here, in the [`Docs`](../apps/docs.md) app find down action, you can see that it passes the search
 settings into the query function and uses the returned engine and resulting
 meta data to perform the search.
 

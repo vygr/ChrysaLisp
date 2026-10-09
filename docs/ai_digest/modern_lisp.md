@@ -13,7 +13,7 @@ The core philosophy driving ChrysaLisp's Lisp can be summarized as:
 
 ## Breaking the Mold: Pragmatism Over Dogma
 
-As stated in its own documentation (`lisp.md`), ChrysaLisp is "not concerned
+As stated in its own documentation ([`lisp.md`](../lisp/lisp.md)), ChrysaLisp is "not concerned
 with sticking to 'the lisp way', or whatever your local Lisp guru says." This
 isn't disrespect; it's a conscious decision to prioritize what works best for
 its goals: creating an assembler and a system capable of high performance and
@@ -53,7 +53,7 @@ as the cons cell, but as the versatile, performant sequence.**
 
 * **Farewell `cons`, `car`, `cdr`:** The documentation is explicit: "There is
 no cons, cdr or car stuff. Lists are just vector objects and you use `(push)`,
-`(cat)`, `(slice)` etc to manipulate elements." (`lisp.md`). This is a radical
+`(cat)`, `(slice)` etc to manipulate elements." ([`lisp.md`](../lisp/lisp.md)). This is a radical
 departure, but one with profound implications.
 
 * **Lists as Arrays:** In ChrysaLisp, a Lisp `:list` is, under the hood, an
@@ -82,13 +82,13 @@ means lists are dynamic, vector-like structures, offering O(1) indexed access.
 * **The `:seq` Abstraction (`class/seq/class.inc`):** ChrysaLisp introduces
 `:seq` as an abstract base class. This is brilliant because it allows a wide
 variety of underlying data structures to present a unified sequence interface
-to the Lisp programmer. As `iteration.md` lists, `:array`, `:list`, `:nums`,
+to the Lisp programmer. As [`iteration.md`](../lisp/iteration.md) lists, `:array`, `:list`, `:nums`,
 `:fixeds`, `:reals`, `:str`, `:sym`, and even `gui/path` all inherit from (or
 conform to the interface of) `:seq`. This means Lisp functions like
 `(length)`, `(elem-get)`, `(slice)`, `(map)`, `(each)` can operate on all
 these types transparently.
 
-* **A Rich Toolkit for Sequence Manipulation (`iteration.md`, `functions.md`,
+* **A Rich Toolkit for Sequence Manipulation ([`iteration.md`](../lisp/iteration.md), [`functions.md`](../reference/functions.md),
 `class/lisp/root.inc`):** ChrysaLisp provides an extensive set of built-in
 functions and macros for sequence manipulation, all designed with performance
 in mind:
@@ -122,7 +122,7 @@ that are well-suited for modern hardware.
 
 While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
 
-* **Symbols and Environments (`environment.md`, `class/hmap/class.vp`):**
+* **Symbols and Environments ([`environment.md`](../lisp/environment.md), `class/hmap/class.vp`):**
 
     * Symbols are interned for efficiency (fast comparisons, unique
       instances).
@@ -142,7 +142,7 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
     * Application is handled by `:repl_apply`, which dispatches to native VP
       functions or sets up new environments for Lisp lambda execution.
 
-* **Macros (`macros.md`, `:lisp :repl_expand`):**
+* **Macros ([`macros.md`](../lisp/macros.md), `:lisp :repl_expand`):**
 
     * The full power of Lisp macros is present. Code is data.
 
@@ -153,7 +153,7 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
     for compile-time computation (`const`), and for DSL creation (e.g., UI
     macros like `ui-button`).
 
-* **Binding and Destructuring (`binding.md`, `:lisp :env_bind`):**
+* **Binding and Destructuring ([`binding.md`](../lisp/binding.md), `:lisp :env_bind`):**
 
     * The `(bind)` special form is exceptionally powerful, allowing
     destructuring of *any sequence type*, not just lists.
@@ -163,7 +163,7 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
     function signatures. This is a significant feature that makes function
     definitions clean and expressive.
 
-* **Lisp Classes (`classes.md`):**
+* **Lisp Classes ([`classes.md`](../lisp/classes.md)):**
 
     * A simple, `:hmap`-based object system is provided at the Lisp level.
 
@@ -178,7 +178,7 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
     runtime mixins, a feature hard to achieve in statically compiled
     languages like C++.
 
-* **Conditionals (`conditionals.md`, `:lisp :lisp_if`, `:lisp :lisp_cond`,
+* **Conditionals ([`conditionals.md`](../lisp/conditionals.md), `:lisp :lisp_if`, `:lisp :lisp_cond`,
 `lisp :lisp_while`):**
 
     * Standard conditional forms are available, implemented as efficient VP
@@ -228,7 +228,7 @@ efficient, register-level code generation.
 
 ### Error Handling: Pragmatic and Performant
 
-The error handling philosophy (`errors.md`) is "DON'T coddle!" and "First
+The error handling philosophy ([`errors.md`](../vm/errors.md)) is "DON'T coddle!" and "First
 rule of error club is we don't pass errors."
 
 * Low-level VP code assumes correct inputs and may crash on bad data.

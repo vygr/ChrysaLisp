@@ -173,7 +173,7 @@ It is three copies that buy the slack. With two the same wait is a gamble.
   file they have. Whether that matters depends on who can see a store.
 
 There is a hash now, SHA-256, and a cipher, ChaCha20 with Poly1305,
-`docs/ai_digest/crypto.md`. There is no field arithmetic yet. They are VP, a
+[`docs/ai_digest/crypto.md`](crypto.md). There is no field arithmetic yet. They are VP, a
 block at a time is too much for Lisp. ChaCha20 with Poly1305 is add, rotate
 and xor, no tables and nothing of any one CPU. The same cipher and hash
 would serve TLS.

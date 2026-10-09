@@ -4,6 +4,49 @@
 
 ------
 
+The documents link to each other. Item 45, Chris: "45 lets do that to
+refresh the docs for people."
+
+*	By name. Every mention of a document by its file name, outside a
+	block of code and not already a link, was found by script and made
+	a link to it, from the folder of the document it is in: 122, in 35
+	documents. All were names in code quotes, and are still, the name
+	is the text of the link. Six names were of more than one document,
+	`macros.md` and `lisp.md`, and were settled by what the line said.
+	The generated reference, `docs/reference/`, was read as a place to
+	link to and not written to, `make docs` writes it.
+
+*	Chris: "we may not currently have the name with the .md, we may
+	even refer to them in a short offhand manner." So by reading. 300
+	lines that speak of a document, a chapter, a guide, or of an app
+	that has a document of its own, were read, and 22 made links: "the
+	`EVENT_LOOPS` document", "another document", "the document
+	specifically on the "Rosinante" primitives", "the Flow widget",
+	the first naming of the Editor, the Viewer, the Terminal, the Docs
+	and the Template app in a document that is not its own. One stale
+	name was mended, `docs/reference/vp_classes.md` is a folder now.
+
+*	Every link of every document, 154 to a document, was checked by
+	script to be to a file that is there and under `docs/`.
+
+*	The Md widget, for what these showed. A link written hard against a
+	bracket, `([name](file))`, had a space put each side of it, `<j>`
+	now says there is none. And Chris: "Rather than blue, as other
+	quoted text is, why not use green for links." A link is green,
+	`+md_link_color`, the dark one, `+argb_green6`, the bright green is
+	not to be read on white; and green whatever else it is, a name in
+	code quotes was blue twice over.
+
+`tests/system/test_md.lisp`, 37. Every test, 5,042, on the M4, the x64
+and the Pi.
+
+Not seen: the green, and any of these links, on a desktop. Not done: a
+reference that names no document and uses none of the words looked for
+is not found by this. "The class documents" in `on_classes.md` was left,
+it could be either of two.
+
+------
+
 A link is followed only to a document of the Docs app's own tree.
 
 *	Chris: "Docs app only scan a certain subset of the .md files... it
