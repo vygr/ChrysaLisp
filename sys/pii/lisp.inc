@@ -7,7 +7,12 @@
 
 (enums +gui_ev 0
 	(enum none quit shown resized key_down key_up
-		mouse_motion mouse_down mouse_up mouse_wheel))
+		mouse_motion mouse_down mouse_up mouse_wheel
+		pointer_down pointer_motion pointer_up))
+
+;the kind of a pointer
+(enums +gui_kind 0
+	(enum mouse pen eraser touch))
 
 (structure +gui_event 0
 	(uint type)
@@ -20,4 +25,7 @@
 	;key, a USB HID usage number, see lib/consts/scodes.inc
 	(uint scode)
 	;wheel, 0 normal, 1 flipped
-	(uint direction))
+	(uint direction)
+	;a pointer event, of a pen or a finger: which one, what it is, and
+	;how hard it is pressed, 0 to 65535. Only set in one of those
+	(uint id kind pressure))

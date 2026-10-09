@@ -170,7 +170,10 @@ the host.
         * `host_gui_poll_event`: Polls for host system events (keyboard,
           mouse, window) and gives each as a `host_gui_event`, the one
           record every driver fills, see `src/host/gui_event.h` and
-          `sys/pii/lisp.inc`.
+          `sys/pii/lisp.inc`. A pen or a finger is a pointer event of it,
+          with an id, a kind and how hard it is pressed, there can be
+          many at once; the sdl3 driver gives them, see
+          [`whiteboard.md`](whiteboard.md).
 
         * `host_gui_clip_put`, `host_gui_clip_get`, `host_gui_clip_free`: Put
           text on the host clipboard, get the text that is on it, and free

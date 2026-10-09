@@ -115,3 +115,30 @@
 (assert-eq "new is an empty board of the size in the field" "(:ok () (800 500))" (elem-get wa_out 13))
 (assert-eq "of another size if the field says so" "(300 200)" (elem-get wa_out 14))
 (assert-eq "loaded, the board is the file's: its items, its size, and the field says so" "(3 (800 500) \q800x500\q 3)" (elem-get wa_out 15))
+
+;pens and fingers, as the GUI tells of them, a pointer event to the window for the view
+(defq wa_out (wa-run (cat
+	;the kinds of pointer, as the host has them: 1 a pen, 2 its eraser, 3 a finger
+	"(defun wa-ptr (id kind buttons rx ry) (. *window* :event (setf-> (str-alloc +ev_msg_pointer_size)"
+	" (+ev_msg_type +ev_type_pointer) (+ev_msg_target_id (. *board_view* :get_id))"
+	" (+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons) (+ev_msg_pointer_pressure 65535)"
+	" (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry) (+ev_msg_pointer_rx rx) (+ev_msg_pointer_ry ry))))"
+	;a pen draws a box, the board is set to boxes
+	"(wa-mode :rect) (wa-ptr 0x20001 1 1 100 100) (wa-ptr 0x20001 1 1 200 180) (wa-ptr 0x20001 1 0 200 180)"
+	"(print (list (wa-ids) (cwb-get (first (cwb-items (. *board* :get_doc))) :d)))"
+	;two fingers on it make it twice the size
+	"(wa-ptr 0x10001 3 1 110 110) (wa-ptr 0x10002 3 1 190 170)"
+	"(wa-ptr 0x10001 3 1 70 80) (wa-ptr 0x10002 3 1 230 200)"
+	"(wa-ptr 0x10001 3 0 70 80) (wa-ptr 0x10002 3 0 230 200)"
+	"(print (map (const n2i) (cwb-bounds (. *board* :selected_items))))"
+	;the other end of the pen rubs it out
+	"(wa-ptr 0x20001 2 1 48 60) (wa-ptr 0x20001 2 1 49 62) (wa-ptr 0x20001 2 0 49 62)"
+	"(print (wa-ids))"
+	;zoomed, a point of the view is a point of the document over the zoom
+	"(wa-do +event_zoom_in) (wa-ptr 0x20001 1 1 150 150) (wa-ptr 0x20001 1 1 300 300) (wa-ptr 0x20001 1 0 300 300)"
+	"(print (cwb-get (last (cwb-items (. *board* :get_doc))) :d))")))
+(assert-eq "a pen, told of by the GUI, draws" "((1) \qM 100 100 L 200 100 200 180 100 180 Z\q)" (elem-get wa_out 0))
+(assert-eq "two fingers on what it drew make it twice the size" "(47 57 252 222)" (elem-get wa_out 1))
+(assert-eq "and the other end of the pen rubs it out" "()" (elem-get wa_out 2))
+(assert-eq "zoomed to one and a half, a pen draws where it is in the document" "M 100 100 L 200 100 200 200 100 200 Z" (elem-get wa_out 3))
+

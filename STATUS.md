@@ -4,6 +4,58 @@
 
 ------
 
+The Whiteboard, part four: pens and fingers from the host. Chris: "We
+don't want to be limited by songle pen input, we want full multi touch,
+mouse/pen and multi button", "both left/right/middle buttons for each
+inputs source, clearly touch has only 1".
+
+*	The host. `src/host/gui_event.h` has three more events, pointer
+	down, motion and up, and three more fields, the pointer's id, its
+	kind, pen, eraser or touch, and how hard it is pressed. They are
+	after what was there, where 4 bytes of the record were not used,
+	and only set in those events, so a GUI service of before is given
+	what it knows as it was, and a host of before gives a service of
+	now nothing it does not know. No snapshot is forced by it.
+
+*	`src/host/gui_sdl3_event.h` fills them from SDL3's finger and pen
+	events. A finger has the left button while it touches. A pen has
+	the left while its tip touches, the right or the middle in its
+	place with a button of its barrel held, none when it is only near,
+	and its eraser end is a kind of its own. A pen says how hard on its
+	own, as an axis, and the last of that is kept for each pen.
+
+*	SDL makes a mouse out of a finger or a pen, and a finger out of a
+	pen. Neither is passed on. A finger on a trackpad is not a pointer,
+	it moves the mouse, unless `CL_TOUCH_TRACKPAD` is set where the
+	node is started, which is there so that many fingers can be tried
+	on a Mac.
+
+*	The GUI service, `(action-pointer)`: the event goes to the owner of
+	the view the pointer is on, or the one it went down on while it is
+	down, as `+ev_type_pointer`.
+
+*	`(. window :event)`: a view with a `:pointer` method is given it.
+	For one with none the first pointer that is down is its mouse,
+	down, moves and up. So a button pressed with a finger is pressed.
+
+*	The board's view has `:pointer`. And a finger in the box of a thing
+	is on the thing, `(cwb-hit-box)`, where the mouse in a box that is
+	not filled is on nothing: a finger is not fine enough for the line.
+
+What was run. The host built on the M4, the x64 and the Pi, SDL 3.4.18
+and 3.2.10, and the Windows one cross built, no errors. Tests of the
+record, of a window handing a pointer to a view that takes them and
+making a mouse for one that does not, and of a pen drawing, two fingers
+sizing and an eraser rubbing out through the Whiteboard's window. Every
+test, 5,322, on the three machines with the new host.
+
+Not seen, and it is most of it: a real finger or pen. None of the C that
+reads SDL's finger and pen events has ever been given one. That the mouse
+still works on a desktop with the new host, by Chris. The GUI service's
+part has no test, it is of the service's own screen.
+
+------
+
 The Whiteboard, part three: driven without a hand. Chris: "make sure its
 drivable by you AI guys !"
 

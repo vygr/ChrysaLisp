@@ -142,6 +142,8 @@
 						(defq box (cwb-bounds items))
 						(>= x (first box)) (>= y (second box)) (<= x (third box)) (<= y (elem-get box 3)))
 					(setq hit (list (first items) 0 :nil)))
+				;a finger in the box of a thing is on the thing
+				(if (and (not hit) (eql kind :touch)) (setq hit (cwb-hit-box (get :doc board) x y)))
 				(cond
 					((and hit holding (find (elem-get (first hit) +cwb_id) (get :selected board)))
 						;a second hand on what the first is holding, the two

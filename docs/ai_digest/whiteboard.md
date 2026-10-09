@@ -190,6 +190,35 @@ parts move and turn it together.
 `Ruler`, `Protractor` and `Setsquare` are each a `:rebuild` that fills in that
 table from `:length`. Another instrument is another table.
 
+## Pens and fingers, from the host up
+
+The mouse comes as it always did. A pen or a finger is three more events of
+the host, `src/host/gui_event.h`, pointer down, motion and up, with an id, a
+kind, pen, eraser or touch, the buttons it has held and how hard it is
+pressed. The SDL3 driver fills them from SDL's finger and pen events. A
+finger has the left button while it touches. A pen has the left while its
+tip touches, the right or the middle in its place if a button of its barrel
+is held, and none when it is only near.
+
+SDL makes a mouse out of a finger or a pen for programs that know no better.
+That mouse is not passed on. The GUI service sends a pointer event,
+`+ev_type_pointer`, to the owner of the view the pointer is on, or went down
+on. `(. window :event)` gives it to a view that has a `:pointer` method. For
+a view that has none, the first pointer that is down is made its mouse,
+down, moves and up, so every button and slider there is works by touch with
+nothing done to it.
+
+The board's view has `:pointer`, and gives the board the pointer as it is.
+
+A finger on a trackpad is not a pointer, it moves the mouse. With
+`CL_TOUCH_TRACKPAD` set in the environment a node is started in, it is taken
+as one, the pad is the window, to try many fingers on a machine with no touch
+screen:
+
+```vdu
+CL_TOUCH_TRACKPAD=1 ./run.sh
+```
+
 ## The command
 
 `cwb` is the board without a window. See `cwb -h`.
@@ -237,9 +266,10 @@ board 320 330))"`.
 
 ## What is not done
 
-* The host gives one pointer, the mouse. Everything above the host takes any
-number, of any kind, and is tested with them made up. A pen or a finger has
-never been on it.
+* A pen or a finger has never been on it. The SDL3 driver tells of them, see
+below, and all above it is tested with them made up, but there has been no
+touch screen and no pen to try. Only the SDL3 driver does; the framebuffer
+and raw drivers give a mouse.
 
 * Drawing is by one task. A document of very many shapes is drawn in stripes
 by the nodes, as the Canvas demo is, not yet.

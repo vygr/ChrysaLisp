@@ -173,6 +173,39 @@
 		(- *mouse_x* (getf view +view_ctx_x 0))
 		(- *mouse_y* (getf view +view_ctx_y 0))))
 
+;the view each pen or finger went down on, by its id. It is that view's
+;till it comes up, wherever it goes
+(defq *pointer_views* (Fmap 11))
+
+(defun action-pointer ()
+	;a pen or a finger. It goes to the view it is on, or the one it went
+	;down on while it is down. The mouse is not moved by it
+	(defq id (getf msg +gui_event_id) type (getf msg +gui_event_type)
+		x (getf msg +gui_event_x) y (getf msg +gui_event_y)
+		view (if (defq held (. *pointer_views* :find id)) (. *screen* :find_id held)))
+	(unless view
+		(bind '(view & &) (. *screen* :hit_tree x y))
+		(unless view (setq view *screen*)))
+	(cond
+		((= type +gui_ev_pointer_down)
+			(. *pointer_views* :insert id (. view :get_id))
+			;what is typed goes to a text field that is touched
+			(setq *focus* (if (Textfield? view) view)))
+		((= type +gui_ev_pointer_up)
+			(. *pointer_views* :erase id)))
+	(when (defq owner (. view :find_owner))
+		(mail-send owner (setf-> (str-alloc +ev_msg_pointer_size)
+			(+ev_msg_type +ev_type_pointer)
+			(+ev_msg_target_id (. view :get_id))
+			(+ev_msg_pointer_id id)
+			(+ev_msg_pointer_kind (getf msg +gui_event_kind))
+			(+ev_msg_pointer_buttons (getf msg +gui_event_buttons))
+			(+ev_msg_pointer_pressure (getf msg +gui_event_pressure))
+			(+ev_msg_pointer_x x)
+			(+ev_msg_pointer_y y)
+			(+ev_msg_pointer_rx (- x (getf view +view_ctx_x 0)))
+			(+ev_msg_pointer_ry (- y (getf view +view_ctx_y 0)))))))
+
 (defun action-resized ()
 	;the host window is a new size
 	(.-> *screen*
@@ -199,6 +232,9 @@
 	+gui_ev_mouse_motion action-mouse-motion
 	+gui_ev_mouse_down action-mouse-button-down
 	+gui_ev_mouse_up action-mouse-button-up
+	+gui_ev_pointer_down action-pointer
+	+gui_ev_pointer_motion action-pointer
+	+gui_ev_pointer_up action-pointer
 	+gui_ev_key_down action-key-down
 	+gui_ev_key_up action-key-up
 	+gui_ev_resized action-resized

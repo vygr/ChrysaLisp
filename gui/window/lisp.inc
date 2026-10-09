@@ -163,6 +163,32 @@
 								(:t ;is not down now, so hover
 									(if (defq fnc (.? target :mouse_hover))
 										(fnc target :mouse_hover event)))))))
+				((= type +ev_type_pointer)
+					;a pen or a finger. A view that takes pointers is given
+					;it. For one that does not, the first pointer that is
+					;down is its mouse: down, moves, and up, till it is up
+					(cond
+						((defq fnc (.? target :pointer)) (fnc target :pointer event))
+						(:t (defq id (getf event +ev_msg_pointer_id) buttons (getf event +ev_msg_pointer_buttons)
+								acting (get :pointer_id this)
+								mouse (setf-> (str-alloc +ev_msg_mouse_size)
+									(+ev_msg_type +ev_type_mouse)
+									(+ev_msg_target_id (getf event +ev_msg_target_id))
+									(+ev_msg_mouse_buttons buttons)
+									(+ev_msg_mouse_count 1)
+									(+ev_msg_mouse_x (getf event +ev_msg_pointer_x))
+									(+ev_msg_mouse_y (getf event +ev_msg_pointer_y))
+									(+ev_msg_mouse_rx (getf event +ev_msg_pointer_rx))
+									(+ev_msg_mouse_ry (getf event +ev_msg_pointer_ry))))
+							(cond
+								((and (not acting) (/= buttons 0))
+									(def this :pointer_id id)
+									(if (defq fnc (.? target :mouse_down)) (fnc target :mouse_down mouse)))
+								((and acting (= acting id) (/= buttons 0))
+									(if (defq fnc (.? target :mouse_move)) (fnc target :mouse_move mouse)))
+								((and acting (= acting id))
+									(def this :pointer_id :nil)
+									(if (defq fnc (.? target :mouse_up)) (fnc target :mouse_up mouse)))))))
 				((= type +ev_type_key_down)
 					(if (>= (getf event +ev_msg_key_scode) 0)
 						(if (defq fnc (.? target :key_down))

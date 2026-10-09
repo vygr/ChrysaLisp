@@ -13,7 +13,7 @@
 ;gui events for Lisp level (getf)
 
 (enums +ev_type 0
-	(enum mouse key_down key_up action gui wheel enter exit))
+	(enum mouse key_down key_up action gui wheel enter exit pointer))
 
 ;the events every app has, with the same id in each. An id below 0 is that
 ;of a view, and the event is for that view. One from 0 up is an action of
@@ -36,6 +36,15 @@
 
 (structure +ev_msg_mouse +ev_msg_size
 	(uint buttons count)
+	(int x y rx ry))
+
+;a pen or a finger, there can be many at once. id is which, kind is a
+;+gui_kind, buttons those it has held, 0 when it is up or only near, as a
+;mouse has them, and pressure how hard, 0 to 65535. A view that has a
+;:pointer method is given it. For one that has not, the first that is down
+;is made a mouse, see (. window :event)
+(structure +ev_msg_pointer +ev_msg_size
+	(uint id kind buttons pressure)
 	(int x y rx ry))
 
 (structure +ev_msg_wheel +ev_msg_size

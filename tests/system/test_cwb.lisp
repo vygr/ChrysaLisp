@@ -320,6 +320,16 @@
 		(and (wb-near? (- nx1 nx) (- y1 y) 0.1) (wb-near? (- ny1 ny) (- x1 x) 0.1))))
 (. wb_board :undo)
 
+;a finger in a box that is not filled is on the box, a mouse there is on nothing
+(. wb_board :select (list))
+(. wb_board :pointers (list (ptr-event 0 :mouse +pev_right 150 150)))
+(. wb_board :pointers (list (ptr-event 0 :mouse 0 150 150)))
+(assert-list-eq "the mouse, in a box that is not filled, is on nothing" '() (. wb_board :get_selected))
+(. wb_board :pointers (list (ptr-event 7 :touch 1 150 150)))
+(. wb_board :pointers (list (ptr-event 7 :touch 0 150 150)))
+(assert-list-eq "a finger there is on the box" '(2) (. wb_board :get_selected))
+(. wb_board :select (list))
+
 ;a pen draws while a finger holds something else, two owners at once
 (def wb_board :mode :pen)
 (. wb_board :pointers (list (ptr-event 7 :touch 1 300 230)))
