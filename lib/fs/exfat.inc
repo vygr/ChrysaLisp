@@ -258,63 +258,6 @@
 	(if (get :file vol) (stream-flush (get :stream vol)))
 	vol)
 
-(defun exfat-begin (vol)
-	; (exfat-begin vol) -> vol
-	;the start of some writing. Every (exfat-begin) has its (exfat-end), and
-	;they can be one inside another. The writing in between goes to the
-	;device at the last (exfat-end), so many small files cost little more
-	;than one.
-	(if (= (get :depth vol) 0) (exfat-busy vol :t))
-	(def vol :depth (inc (get :depth vol)))
-	vol)
-
-(defun exfat-end (vol)
-	; (exfat-end vol) -> vol
-	(def vol :depth (dec (get :depth vol)))
-	(when (= (get :depth vol) 0)
-		(exfat-bitmap-save vol)
-		(exfat-sync vol)
-		(exfat-busy vol :nil))
-	vol)
-
-(defun exfat-mount (device)
-	; (exfat-mount path | stream) -> :nil | vol
-	;a path is a file of the host that is the image of a disk, opened
-	;to be read and written. A stream can be a memory stream.
-	(when (defq stream (if (str? device) (file-stream device +file_open_append) device))
-		(def (defq vol (env 1)) :stream stream :file (str? device)
-			:cache (Fmap 101) :cached 0 :dirty (Fmap 31) :depth 0
-			:hint 2 :dirty_lo -1 :dirty_hi -1)
-		(defq boot (exfat-read vol 0 +exfat_boot_size))
-		(when (and boot (= (length boot) +exfat_boot_size)
-				(eql (getf boot +exfat_boot_name) "EXFAT   "))
-			(bind '(fat_offset heap_offset cluster_count root flags sector_shift cluster_shift)
-				(getf-> boot +exfat_boot_fat_offset +exfat_boot_heap_offset
-					+exfat_boot_cluster_count +exfat_boot_root +exfat_boot_flags
-					+exfat_boot_sector_shift +exfat_boot_cluster_shift))
-			(def vol
-				:unclean (/= (logand flags +exfat_flag_busy) 0)
-				:fat_offset fat_offset :heap_offset heap_offset
-				:cluster_count cluster_count :root root
-				:sector_shift sector_shift
-				:cluster_shift (+ sector_shift cluster_shift)
-				:bitmap :nil :bitmap_first 0 :upcase (Fmap 101))
-			;the root has an entry for the bitmap and one for the upper case table
-			(defq data (exfat-data vol root :nil :nil :t) i 0
-				n (/ (length data) +exfat_entry_size) type 1)
-			(while (and (< i n) (/= type +exfat_type_end))
-				(defq e (slice data (* i +exfat_entry_size) (* (inc i) +exfat_entry_size)))
-				(setq type (getf e +exfat_entry_type) i (inc i))
-				(cond
-					((= type +exfat_type_bitmap)
-						(bind '(start len) (getf-> e +exfat_bitmap_first_cluster +exfat_bitmap_data_length))
-						(def vol :bitmap_first start
-							:bitmap (cat (exfat-data vol start len :nil))))
-					((= type +exfat_type_upcase)
-						(bind '(start len) (getf-> e +exfat_upcase_first_cluster +exfat_upcase_data_length))
-						(exfat-upcase-load vol (exfat-data vol start len :nil)))))
-			(if (get :bitmap vol) vol))))
-
 (defun exfat-cluster-size (vol)
 	(<< 1 (get :cluster_shift vol)))
 
@@ -399,6 +342,44 @@
 				(setq c (+ c (get-ushort data (* i 2))) i (inc i)))
 			(:t (if (/= u c) (. map :insert c u))
 				(setq c (inc c))))))
+
+(defun exfat-mount (device)
+	; (exfat-mount path | stream) -> :nil | vol
+	;a path is a file of the host that is the image of a disk, opened
+	;to be read and written. A stream can be a memory stream.
+	(when (defq stream (if (str? device) (file-stream device +file_open_append) device))
+		(def (defq vol (env 1)) :stream stream :file (str? device)
+			:cache (Fmap 101) :cached 0 :dirty (Fmap 31) :depth 0
+			:hint 2 :dirty_lo -1 :dirty_hi -1)
+		(defq boot (exfat-read vol 0 +exfat_boot_size))
+		(when (and boot (= (length boot) +exfat_boot_size)
+				(eql (getf boot +exfat_boot_name) "EXFAT   "))
+			(bind '(fat_offset heap_offset cluster_count root flags sector_shift cluster_shift)
+				(getf-> boot +exfat_boot_fat_offset +exfat_boot_heap_offset
+					+exfat_boot_cluster_count +exfat_boot_root +exfat_boot_flags
+					+exfat_boot_sector_shift +exfat_boot_cluster_shift))
+			(def vol
+				:unclean (/= (logand flags +exfat_flag_busy) 0)
+				:fat_offset fat_offset :heap_offset heap_offset
+				:cluster_count cluster_count :root root
+				:sector_shift sector_shift
+				:cluster_shift (+ sector_shift cluster_shift)
+				:bitmap :nil :bitmap_first 0 :upcase (Fmap 101))
+			;the root has an entry for the bitmap and one for the upper case table
+			(defq data (exfat-data vol root :nil :nil :t) i 0
+				n (/ (length data) +exfat_entry_size) type 1)
+			(while (and (< i n) (/= type +exfat_type_end))
+				(defq e (slice data (* i +exfat_entry_size) (* (inc i) +exfat_entry_size)))
+				(setq type (getf e +exfat_entry_type) i (inc i))
+				(cond
+					((= type +exfat_type_bitmap)
+						(bind '(start len) (getf-> e +exfat_bitmap_first_cluster +exfat_bitmap_data_length))
+						(def vol :bitmap_first start
+							:bitmap (cat (exfat-data vol start len :nil))))
+					((= type +exfat_type_upcase)
+						(bind '(start len) (getf-> e +exfat_upcase_first_cluster +exfat_upcase_data_length))
+						(exfat-upcase-load vol (exfat-data vol start len :nil)))))
+			(if (get :bitmap vol) vol))))
 
 (defun exfat-upper (vol unit)
 	(ifn (. (get :upcase vol) :find unit) unit))
@@ -538,6 +519,25 @@
 				(slice bitmap at (min (length bitmap) (+ at size)))))
 			(range (/ lo size) (inc (/ hi size))))
 		(def vol :dirty_lo -1 :dirty_hi -1)))
+
+(defun exfat-begin (vol)
+	; (exfat-begin vol) -> vol
+	;the start of some writing. Every (exfat-begin) has its (exfat-end), and
+	;they can be one inside another. The writing in between goes to the
+	;device at the last (exfat-end), so many small files cost little more
+	;than one.
+	(if (= (get :depth vol) 0) (exfat-busy vol :t))
+	(def vol :depth (inc (get :depth vol)))
+	vol)
+
+(defun exfat-end (vol)
+	; (exfat-end vol) -> vol
+	(def vol :depth (dec (get :depth vol)))
+	(when (= (get :depth vol) 0)
+		(exfat-bitmap-save vol)
+		(exfat-sync vol)
+		(exfat-busy vol :nil))
+	vol)
 
 (defun exfat-fat-set (vol cluster next)
 	;the cluster that follows a cluster, to the allocation table

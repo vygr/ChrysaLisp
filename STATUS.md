@@ -4,6 +4,17 @@
 
 ------
 
+The forward references of `lib/fs/exfat.inc` are put in order, five, and
+a release is tested for them. Chris: "yes do exfat and the release
+script." `(exfat-mount)` goes after what it calls, and `(exfat-begin)`
+and `(exfat-end)` after the bitmap's save. The release script has a
+seventh stage, `files | forward`, that must say nothing but for
+`lib/gpu/vp.inc`, `lib/gpu/shader.inc` and the one test that means to,
+which are let be till it is said what is to be done with functions that
+call each other. 34 are left in those two files.
+
+------
+
 Two small ones, while Chris ate, and what they turned up.
 
 *	Forward references. `files | forward` named one, in a test,
