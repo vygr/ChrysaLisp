@@ -27,6 +27,13 @@ static bool host_gui_sdl3_trackpad(void)
 	return asked != 0;
 }
 
+/* Has a finger, or a pen, been told of as a pointer ? Only then is the mouse
+   that SDL makes of one left out. On a machine that has only ever given a
+   mouse, whatever SDL says that mouse is made of, it is passed on. */
+
+static bool host_gui_sdl3_fingers = false;
+static bool host_gui_sdl3_pens_seen = false;
+
 /* how hard each pen is pressed. It is told on its own, as an axis of the
    pen, and not with where the pen is, so the last of it is kept */
 
@@ -66,6 +73,7 @@ static void host_gui_sdl3_pen_event(host_gui_event *out, uint32_t type, uint32_t
 		: host_gui_buttons_left;
 	/* a pen that does not say how hard is pressed as hard as can be */
 	out->pressure = out->buttons ? (*pressure ? *pressure : 65535u) : 0;
+	host_gui_sdl3_pens_seen = true;
 }
 
 /* the next event the GUI service takes, not every SDL event is one */
@@ -119,6 +127,7 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			out->kind = host_gui_kind_touch;
 			out->buttons = up ? 0 : host_gui_buttons_left;
 			out->pressure = up ? 0 : e.tfinger.pressure > 0.0f ? (uint32_t)(e.tfinger.pressure * 65535.0f) : 65535u;
+			host_gui_sdl3_fingers = true;
 			return true;
 		}
 		case SDL_EVENT_PEN_DOWN:
@@ -147,7 +156,8 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 		case SDL_EVENT_MOUSE_MOTION:
 			/* not a mouse that SDL made out of a finger or a pen, that
 			   finger or pen is told as itself */
-			if (e.motion.which == SDL_TOUCH_MOUSEID || e.motion.which == SDL_PEN_MOUSEID) break;
+			if ((e.motion.which == SDL_TOUCH_MOUSEID && host_gui_sdl3_fingers)
+				|| (e.motion.which == SDL_PEN_MOUSEID && host_gui_sdl3_pens_seen)) break;
 			out->type = host_gui_event_mouse_motion;
 			out->x = (int32_t)e.motion.x;
 			out->y = (int32_t)e.motion.y;
@@ -155,7 +165,8 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			return true;
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		case SDL_EVENT_MOUSE_BUTTON_UP:
-			if (e.button.which == SDL_TOUCH_MOUSEID || e.button.which == SDL_PEN_MOUSEID) break;
+			if ((e.button.which == SDL_TOUCH_MOUSEID && host_gui_sdl3_fingers)
+				|| (e.button.which == SDL_PEN_MOUSEID && host_gui_sdl3_pens_seen)) break;
 			out->type = e.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? host_gui_event_mouse_down : host_gui_event_mouse_up;
 			out->x = (int32_t)e.button.x;
 			out->y = (int32_t)e.button.y;
