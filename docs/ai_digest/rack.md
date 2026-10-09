@@ -92,9 +92,12 @@ round a `run` task stands.
 
 ## The parts
 
-* `lib/rack/rack.inc`: `(rack-run cmdline [make_first leave_out gone]) ->
-  (line ...)`, and `(rack-fresh phases) -> str`, the sessions of one
-  machine.
+* `lib/rack/rack.inc`: `(rack-run cmdline [make_first leave_out gone user
+  tree]) -> (line ...)`, and `(rack-fresh phases [user]) -> str`, the
+  sessions of one machine. Each session has a pair of files of its own in
+  `/tmp`, so a rack run can be going inside a session of another, which is
+  how `tests/solo/test_rack.lisp` tests it: a node with a system id of
+  its own is the other machine, and a small tree is what is sent.
 * `lib/rack/session.lisp`, a session. `lib/rack/member.lisp`, a member.
 * `cmd/rack.lisp`, the command. `rack.sh`, the member from a shell.
 

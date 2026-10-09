@@ -13,7 +13,9 @@
 (import "././sync/sync.inc")
 
 ;the files a session is given its commands in, and leaves what they said
-;in. One for a machine, so one rack run on a machine at a time
+;in. Each session has a pair of its own, the name of the run is put on the
+;end of these, so more than one can be going on a machine: a rack run that
+;is itself run by a rack run, as the test of this is, or two at once
 (defq +rack_cmds "/tmp/chrysalisp_rack_cmds" +rack_out "/tmp/chrysalisp_rack_out")
 
 (defun rack-fresh (phases &optional user)
@@ -26,35 +28,46 @@
 	;the form has no space or tab in it, a node's args are split at those
 	(defq acc (list) tab (ascii-char 11))
 	(each (lambda (cmds)
-		(if (pii-fstat +rack_out) (pii-remove +rack_out))
-		(save (join cmds (ascii-char 10)) +rack_cmds)
-		(pii-spawn (if user
-			(cat "-run (progn" tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})"
-				tab "(import" tab "{lib/rack/session.lisp}))")
-			"-run lib/rack/session.lisp"))
-		(defq t0 (pii-time) res :nil)
-		(while (and (not (setq res (load +rack_out))) (< (- (pii-time) t0) 170000000))
+		;the name of this run, the session is told it as it is told its user
+		(defq run (cat "_" (str (pii-pid)) "_" (str (pii-time)))
+			cmds_file (cat +rack_cmds run) out_file (cat +rack_out run))
+		(save (join cmds (ascii-char 10)) cmds_file)
+		(pii-spawn (cat "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
+			(if user (cat tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})") "")
+			tab "(import" tab "{lib/rack/session.lisp}))"))
+		;the session's last line is how long it took, "[12s]". The file is
+		;there before it is all written, so it is that line that is waited
+		;for, not the file: taken as soon as it was there, it could be empty
+		(defq t0 (pii-time) res :nil done (cat "s]" (ascii-char 10)))
+		(while (and (not (and (setq res (load out_file)) (ends-with done res)))
+				(< (- (pii-time) t0) 170000000))
 			(task-sleep 100000))
+		(unless (and res (ends-with done res)) (setq res :nil))
+		(if (pii-fstat cmds_file) (pii-remove cmds_file))
+		(if (pii-fstat out_file) (pii-remove out_file))
 		(push acc (ifn res (cat "NO RESULT" (ascii-char 10)))))
 		phases)
 	(apply (const cat) (cat (list "") acc)))
 
-(defun rack-run (cmdline &optional make_first leave_out gone user)
-	; (rack-run cmdline [make_first leave_out gone user]) -> (line ...)
+(defun rack-run (cmdline &optional make_first leave_out gone user tree)
+	; (rack-run cmdline [make_first leave_out gone user tree]) -> (line ...)
 	;make every machine that takes a sync the same as this one, then run
 	;the command line on each, and on this one. With make_first, make and
 	;make all boot are run first, in a session before. leave_out is the
 	;machines not to run on, as (sync-services) names them, they are still
-	;made the same. gone is paths to remove on the others. The lines are
-	;SYNC and GONE for each other machine, RAN for each machine, and DONE
+	;made the same. gone is paths to remove on the others. tree is the one
+	;that is sent, default the system's own, the test of this sends a small
+	;one. The lines are SYNC and GONE for each other machine, RAN for each
+	;machine, and DONE
 	(defq out (list) t0 (pii-time) me (hex-encode (system-id))
-		rules_text (ifn (load ".gitignore") "")
+		rules_text (ifn (load (cat (setd tree ".") "/.gitignore")) "")
 		reply_mbox (mail-mbox) asked 0 ran (list (list me (cat (cpu) "/" (os))))
 		phases (if make_first (list (list "make" "make all boot") (list cmdline)) (list (list cmdline))))
 	(setd leave_out (list) gone (list))
 	(each (lambda ((svc id machine root))
-		(defq t1 (pii-time) result (sync-push svc "." rules_text :nil :nil
-			(cat "obj/" (cpu) "/" (abi) "/sync_hashes") (ends-with "/Windows" machine)))
+		;the hashes of the system's tree are kept from run to run, in obj/
+		(defq t1 (pii-time) result (sync-push svc tree rules_text :nil :nil
+			(if (eql tree ".") (cat "obj/" (cpu) "/" (abi) "/sync_hashes")) (ends-with "/Windows" machine)))
 		(push out (cond
 			((not result) (cat "SYNC " machine " no answer"))
 			((eql result :old) (setq result :nil) (cat "SYNC " machine " no answer, it has an older sync"))

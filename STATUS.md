@@ -4,6 +4,50 @@
 
 ------
 
+A test of `rack`. Item 16, Chris: "16. yes do the rack test".
+
+*	It could not be tested as it was. A session was given its commands
+	in one file and left what they said in another, one pair for a
+	machine. The tests are run by a rack run, in a session, so a rack
+	run in a test would have written over the files of the run it was
+	in. Each session has a pair of its own now, the name of its run on
+	the end, `lib/rack/rack.inc` and `session.lisp`, and they are
+	removed after. So a rack run can be going inside another, or two at
+	once.
+
+*	`tests/solo/test_rack.lisp`, 24. A session of two phases, the
+	lines of each run in order, no file left, none of its nodes joined
+	to this network, a command there is none of not hung on. Then
+	another machine: a node with a system id of its own, as a subnet
+	has from item 28's first step, that takes a sync into a small tree
+	of `tests/scratch/`. A run makes it the same as another small tree,
+	what the `.gitignore` leaves out not sent, removes a file there and
+	no other, and runs the command on both machines, in sessions of the
+	user asked for. And a run with that machine left out, made the same
+	and not run on.
+
+*	`(rack-run)` takes the tree to send, default the system's own, for
+	that. As first written the new name hid one the function already
+	had inside, the root of the machine sent to, and a machine was sent
+	its own tree, nothing. The test found it.
+
+*	It does nothing where a machine that takes a sync is in reach, it
+	is skipped. A rack run is of every machine there is, from a desktop
+	joined to the mesh it would have sent a tree to the x64 and the Pi
+	and run on them.
+
+*	One failure in the first six full runs, on the x64, a session's
+	line with no time on it. `(rack-fresh)` took a session's file as
+	soon as it was there, and it is there before it is all written. It
+	waits for the session's last line now. Nine full runs after, none
+	failed. That this was the cause is the reading of it, it was not
+	caught in the act.
+
+Every test, 5,090, on the M4, the x64 and the Pi, each several times. By
+itself the new test is 2 seconds on each.
+
+------
+
 A link to a place in a document goes to the place. Chris: "make the
 #place links jump to the place".
 
