@@ -17,7 +17,7 @@
 		+sym_find +sym_play +sym_grid +sym_zoom_in +sym_delete)))
 	+show_size 30)
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Themes" (+sym_close) +event_close)
 	(ui-label *status* (:text "" :font *env_body_font*))
 	(ui-grid *rows* (:grid_width 1)))
