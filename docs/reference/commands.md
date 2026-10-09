@@ -296,9 +296,17 @@ Usage: forward [options] [path] ...
         -h --help: this help info.
         -j --jobs num: max jobs per batch, default 1.
 
-    Scan source files for use of forward
-    references to functions or macros. What
-    is in a comment is not looked at.
+    Scan source files for a function or macro that is
+    used above where it is defined, and for a function
+    that calls itself.
+
+    Such a use is not bound to the function as the code
+    is read, the name is looked up each time it is run.
+    In a module the name is not there to find. And a
+    function that calls itself can run out of stack, a
+    list is the stack to use, as (flatten) does.
+
+    What is in a comment or a string is not looked at.
 
     If no paths given on command line
     then will test files from stdin.

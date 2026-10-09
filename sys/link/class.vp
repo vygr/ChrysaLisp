@@ -265,7 +265,13 @@
 	(vpif {tuple})
 		(assign {(pptr tuple)[+ptr_size]} {tuple})
 		(call :array :set_elem {tuple, 0, +node_time})
-	(endif))
+	(endif)
+	;and the nodes that were only ever reached by way of it can not be
+	;reached from here now, whether they are there or not. One that is
+	;there, by a longer way round, is heard again at its next ping, which
+	;the kick brings on
+	(call :hmap :each {statics->statics_sys_mail_node_map, $behind_callback,
+		&lk_node->lk_node_peer_node_id}))
 
 (def-method :sys_link :out)
 	;trashes
@@ -595,6 +601,38 @@
 
 	(pop-scope)
 	(return)
+
+(vp-label 'behind_callback)
+	;inputs
+	;:r0 = predicate data, the node id of the peer that has gone (ptr)
+	;:r1 = element iterator (pptr)
+	;:r2 = bucket list pointer (ptr)
+
+	(vp-rdef (data iter bucket tuple vias end pid1 pid2 vid1 vid2))
+
+	(entry :hmap :each_callback `(,data ,iter ,bucket))
+
+	(assign `((,iter ,+ptr_size)) `(,tuple))
+	(load-node-id data 0 pid1 pid2)
+	(class/array/get_both tuple vias end)
+	(vp-add-cr (* +node_vias +long_size) vias)
+	(switch 'keep)
+	(breakif `(,vias >= ,end))
+	(loop-start)
+		(assign `((,vias 0) (,vias ,+long_size)) `(,vid1 ,vid2))
+		(vp-sub-rr pid1 vid1)
+		(vp-sub-rr pid2 vid2)
+		(vp-or-rr vid2 vid1)
+		(breakif `(,vid1 /= 0) 'keep)
+		(vp-add-cr (* 2 +long_size) vias)
+	(loop-until `(,vias >= ,end))
+	(default)
+		;every way to it was by the peer, its time is up
+		(assign `((,tuple +array_begin)) `(,vias))
+		(vp-xor-rr vid1 vid1)
+		(assign `(,vid1) `((,vias ,(* +node_time +long_size))))
+	(endif)
+	(vp-ret)
 
 (vp-label 'write_buf)
 	;inputs

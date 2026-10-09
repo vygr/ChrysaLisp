@@ -63,6 +63,24 @@ break the stream into svg tokens, symbols, strings etc
 parse the commands and attributes calling back to the user functions
 ```
 
+### _structure
+
+```code
+a line of a structure, the base after it. A union is lines that all
+
+start at the one base, and it ends where the longest of them does. A
+union can have a union in it. This did call itself for each, by name,
+and it is a function of a module, its name is gone once the module
+has loaded, so a structure with a union in it could not be made. The
+unions that are open are a list, each (lines next base longest)
+```
+
+### _structure_line
+
+```code
+a line that is not a union, the base after it
+```
+
 ### abi
 
 ```code
@@ -447,6 +465,11 @@ forms for a block. With no flag it is the body of the function,
 
 and the value of the last form is the return value. With a flag
 it is the body of a loop, and the flag is set to leave the loop.
+The forms of a block go onto a list. An if and a for have lists of
+their own, for the blocks in them, and the rest of a block can go
+inside the arms of an if that leaves it. Each is a thing to do, a
+block, its flag and the list its forms go onto, on a list of those
+still to do. No function here calls itself
 ```
 
 ### cpu-edge-cut
@@ -460,7 +483,9 @@ behind it, crosses the plane, every number of the vertex
 ### cpu-exits?
 
 ```code
-does this block hold a return, or a break of the loop it is in ?
+does this block hold a return, or a break of the loop it is in ? The
+
+blocks in it are asked in turn, from a list of those still to ask
 ```
 
 ### cpu-fold
@@ -1709,6 +1734,15 @@ gather a list of [key|val|:nil]
 (get-cstr str idx) -> str
 ```
 
+### glsl-block
+
+```code
+the lines of a block. An if and a for have blocks in them: what is
+
+still to come is a list, the next thing last, a statement and how far
+in it is, or a line that closes what was opened before it
+```
+
 ### glsl-decls
 
 ```code
@@ -2297,6 +2331,15 @@ from corner to corner and a ball of faces is round
 
 ```code
 (msafe? o) -> :t | :nil
+```
+
+### msl-block
+
+```code
+the lines of a block. An if and a for have blocks in them: what is
+
+still to come is a list, the next thing last, a statement and how far
+in it is, or a line that closes what was opened before it
 ```
 
 ### msl-inputs
@@ -3241,7 +3284,12 @@ adjust text offset
 ### sh-block
 
 ```code
-statements in a scope of their own
+statements in a scope of their own. A block can have blocks in it, and
+
+they are done here one at a time, with a list as the stack of those
+that are part done, as (flatten) does it. A frame is a block: its
+forms, how far through them it is, its statements so far, how long
+syms was when it began, and what is to be made of it when it is done
 ```
 
 ### sh-const-int
@@ -3259,10 +3307,32 @@ to 4 decimal places, so that is what it is rounded to. A number that
 needs more is written as a str, and is taken as it stands.
 ```
 
+### sh-expr
+
+```code
+an expression, checked and typed. One can have others in it to any
+
+depth, and no function here calls itself: what is still to be done is
+a list, the next thing last, an expression or the making of one whose
+args are done, and what has been made so far is another
+```
+
 ### sh-float-to-real
 
 ```code
 a real from the bits of a 32 bit float
+```
+
+### sh-fold
+
+```code
+(sh-fold node fnc) -> value
+
+what a back end makes of an expression, from the bottom up. fnc is
+(lambda (node args) ...) -> value, called for each node with what was
+made of those under it, in order. A back end's own function for an
+expression then calls nothing that calls it, the walk is here, with a
+list as the stack of what is still to do, as (flatten) does it
 ```
 
 ### sh-literal
@@ -3300,7 +3370,19 @@ the bits of a 32 bit float, from a real, a fixed or an int
 ### sh-returns?
 
 ```code
-does every path through the block end at a return ?
+does every path through the block end at a return ? The arms of an
+
+if that is last are blocks to ask it of in turn, on a list
+```
+
+### sh-stmt
+
+```code
+a statement, checked and typed, onto out. One that has blocks in it
+
+does not do them, a function that calls itself has no stack to spare.
+It leaves each on frames for (sh-block) to do next, with what is to
+be made of it when it is done
 ```
 
 ### sh-swizzle
@@ -3317,6 +3399,8 @@ the last form of a function is its value, as in Lisp, so if it is not
 a statement it is returned. And so for the last form of each arm of an
 if that is last, and of a progn that is last. The back ends still see
 a return, they are statement languages.
+An arm can be an if again. Each form that is to be looked at is a
+place, a list and where in it, on a list of those still to do
 ```
 
 ### sha256
@@ -3997,7 +4081,12 @@ the default fcmp is cmp, which is for strings
 ### spv-block
 
 ```code
-the statements of a block, up to the one that leaves it
+the statements of a block, up to the one that leaves it. An if and a
+
+for have blocks in them, and no function here calls itself: what is
+still to be done is a list, the next thing last, a statement, or what
+comes after a block that was put there before it. A statement that
+leaves, a break or a return, has the rest of its own block taken off
 ```
 
 ### spv-block-var
@@ -4119,6 +4208,17 @@ and the constants and the globals are set
 the words of a string, it ends with a zero byte
 ```
 
+### spv-type
+
+```code
+the id of a type, made the first time it is asked for. A vector is of
+
+floats, and a matrix of vectors, its columns, and those are made here
+if they are not there, this does not call itself for them. The ids
+are given out in the order they always were, the float, then this
+type, then the vector a matrix is of
+```
+
 ### spv-var
 
 ```code
@@ -4216,6 +4316,14 @@ accepts standard "Normal diff" format
 (substr text substr) -> matches
 ```
 
+### sv-apply
+
+```code
+a built in op whose args are all worked out before it, they are in a,
+
+b and c, as many as it has
+```
+
 ### sv-arith
 
 ```code
@@ -4230,6 +4338,16 @@ one step of + - * /, by the types of the two sides
 where a slot of the frame is
 ```
 
+### sv-block
+
+```code
+code for the statements of a block. An if and a for have blocks in
+
+them, and no function here calls itself: what is still to be done is
+a list, the next thing last, a statement or what is to come after a
+block that was put there before it
+```
+
 ### sv-branch
 
 ```code
@@ -4239,7 +4357,9 @@ code to jump to the label if the bool is as sense says
 ### sv-calls?
 
 ```code
-does this expression call a function of the shader ?
+does this expression call a function of the shader ? Walked with a
+
+list as the stack of what is still to be looked at
 ```
 
 ### sv-code-text
@@ -4337,6 +4457,35 @@ whole, so if they are there it is
 a float from a slot of the frame, or from where that slot really is
 ```
 
+### sv-leaf
+
+```code
+a value with nothing under it, the registers that hold it
+```
+
+### sv-lin
+
+```code
+(sv-lin items) -> steps
+
+lay out what is to be done, in order. What is still to be laid out is
+on a stack, a list, and the next thing is the last of it
+```
+
+### sv-lin-branch
+
+```code
+the steps of a jump to a label if a bool is as sense says. The label
+
+is in a cell, a list of it, it may not be made till the steps are done
+```
+
+### sv-lin-expr
+
+```code
+the steps of an expression, those under it still to be laid out
+```
+
 ### sv-mat
 
 ```code
@@ -4345,7 +4494,10 @@ code for an expression that is a matrix, where in the frame it is. A
 variable is where it is kept. A product is worked out into new slots,
 each number of it a row of the one by a column of the other. With
 into, the last product of a chain is worked out there, a place that
-is no part of what it is made from
+is no part of what it is made from.
+A product can be of products. It is laid out as steps first, a list
+as the stack of what is still to be laid out, and the steps are then
+done with a list of where each matrix so far is
 ```
 
 ### sv-mat-copy
@@ -4377,12 +4529,6 @@ source, and which make of this back end it is
 
 the native function of this name, assembled from the text if this
 CPU has not got it yet
-```
-
-### sv-op
-
-```code
-a built in op
 ```
 
 ### sv-place-again
@@ -4418,10 +4564,21 @@ programs of a pair can be in the one native function.
 a reals of n numbers, all 0
 ```
 
+### sv-run
+
+```code
+(sv-run steps) -> values
+
+do the steps, the code comes out as they are done. The values are a
+stack, a list, each the registers a value is in
+```
+
 ### sv-sets?
 
 ```code
-does any statement of a block set this variable
+does any statement of a block set this variable. The block is walked
+
+with a list as the stack of what is still to be looked at
 ```
 
 ### sv-sin

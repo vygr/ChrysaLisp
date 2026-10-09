@@ -4,6 +4,48 @@
 
 ------
 
+Nodes behind a node that has gone leave the list with it, at the node
+that had the link. Item 37, Chris: "yes, take the desktop down and look
+at it".
+
+*	Measured first. A ring of 4, a system of its own, hung from a node
+	by one link, and stopped. The processes were gone in half a second.
+	The node with the link dropped its peer at 1 second, that was the
+	work of item 36, a link that asks the host and is told the process
+	has gone sets that node's time as up. The other three were listed
+	till 5 seconds: the kick, a spread of a second for every node to
+	ping in, and the window of 3 for a ping to be late in.
+
+*	Those three were only ever reached by way of the peer. With it gone
+	for certain they can not be reached from here, whether they are
+	there or not. `(lk-forget-peer)` in `sys/link/class.vp` now goes
+	over the node map and sets the time as up of each node whose every
+	way to it is that peer. All four are gone from the list at under a
+	second, 886ms and 992ms in two runs.
+
+*	A node that is there, by a longer way round that was not held as it
+	was not the shortest, goes from the list too, and is back at its
+	next ping, which the kick brings on within the spread. Till then it
+	was listed and mail to it went to a link that was down.
+
+*	Not done, and Chris's to say: a node of the network that does not
+	have the link. It is not told, and waits out the window as before,
+	5.8 seconds in the run. To tell it is for the node that saw it to
+	say so to the rest, a way withdrawn, and each that then has no way
+	left to say so in turn. That is new mail between kernels.
+
+What was run. `make all boot`, `lint: clean`, the release images put
+back. Every test, 4,976, on the M4 and the Pi. The reference docs are as
+the build made them, the earlier work of the day had not been built in.
+
+Not seen: the x64. It had a desktop up from 17:58 that Claude did not
+start, the harness leaves such a machine out, and it was left. Its
+member was stopped, its system built and its member started again
+before that was seen, under that desktop, which should not have been
+done without a look first.
+
+------
+
 The Editor, dragged smaller, stops at its minimum size from the start.
 
 *	Chris: "The Editor, after first being Launched, but not Viewer app,
