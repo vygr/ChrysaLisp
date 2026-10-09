@@ -237,7 +237,10 @@ make install
 ./run_tui.sh
 ```
 
-    You should see the "ChrysaLisp Terminal" prompt.
+    You should see the "ChrysaLisp Terminal" prompt. Up and down step
+    through the commands you have run. Type any part of one and press
+    Ctrl-R for the latest with that in it, and Ctrl-R again for the one
+    before. The Terminal app of the GUI does the same.
 
 3. **Run Graphical User Interface (GUI)**:
 

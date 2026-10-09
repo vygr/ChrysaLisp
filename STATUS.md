@@ -4,6 +4,31 @@
 
 ------
 
+Ctrl-R searches the history, in the Terminal and the TUI.
+
+*	Chris: "for the TUI and Terminal app, some form of ctrl-r, then type
+	to search history, so quick access to history via searching."
+
+*	Type any part of a command and press Ctrl-R. The line becomes the
+	latest command of the history with that in it, anywhere in it. Ctrl-R
+	again is the one before, and after the oldest it is the latest again.
+	Change the line and it is a new search. With nothing typed it steps
+	back through all of them. If none has it the line is left as it is.
+
+*	There is no mode to be in or out of, and nothing new to draw. The two
+	already share the history, and where they are in it, in
+	`apps/system/terminal/state.inc`. `(history-find line)` is there, 14
+	lines, and each of the two has a few lines to call it, Ctrl-R is key
+	18 to the TUI and control r to the Terminal.
+
+*	`tests/system/test_history.lisp`, 12. And in a real TUI session,
+	keys sent as they would be typed: three commands run, then `alpha`
+	and Ctrl-R ran the latest with alpha in it, and `alpha` and Ctrl-R
+	twice the one before. The Terminal app opens with it and gives no
+	error. Not seen: the key pressed in the Terminal app.
+
+------
+
 Two machines in the Network Map are never nearly the one color.
 
 *	A machine's color was its id hashed to a place round the colors, and

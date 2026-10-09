@@ -50,6 +50,17 @@
 				(:insert (cat *env_terminal_prompt* cmd))))
 		(refresh)))
 
+(defun action-history-find ()
+	;the latest of the history with what is typed in it, and again for
+	;the one before that
+	(unless *pipe*
+		(input-cursor
+			(when (defq cmd (history-find (slice (. buffer :get_text_line y) *margin_x* -2)))
+				(.-> buffer
+					(:set_cursor 0 y (dec (length (. buffer :get_text_line y))))
+					(:insert (cat *env_terminal_prompt* cmd)))))
+		(refresh)))
+
 (defun action-down ()
 	(unless *pipe*
 		(input-cursor

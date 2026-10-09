@@ -7,11 +7,11 @@
 
 (import "lib/files/urls.inc")
 (import "./utils.inc")
+(import "./state.inc")
 (import "./cursor.inc")
 (import "./edit.inc")
 (import "apps/tools/edit/select.inc")
 (import "./clipboard.inc")
-(import "./state.inc")
 (import "./ui.inc")
 
 (defq
@@ -49,6 +49,7 @@
 *key_map_control* (scatter (Fmap)
 	(ascii-code "d") action-escape
 	(ascii-code "D") action-abort
+	(ascii-code "r") action-history-find
 	(ascii-code "w") action-select-word
 	(ascii-code "W") action-copy-word
 	(ascii-code "l") action-select-line

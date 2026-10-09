@@ -115,6 +115,10 @@
 							(when (< cursor (length buffer))
 								(setq buffer (erase buffer cursor (inc cursor)))
 								(unless (mail-poll *select*) (redraw-line))))))
+				((= c 18) ; Ctrl-R, the latest of the history with what is typed in it
+					(when (and (not cmd) (defq found (history-find buffer)))
+						(setq buffer found cursor (length buffer))
+						(unless (mail-poll *select*) (redraw-line))))
 				((= c 9) ;Tab
 					(defq auto (url-ext buffer cursor))
 					(setq buffer (insert buffer cursor auto) cursor (+ cursor (length auto)))
