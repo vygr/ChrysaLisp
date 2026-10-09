@@ -214,11 +214,42 @@ Change one, `(n2f 1)`, `(n2i 1.5)`, `(n2r 1.5)`.
 A fixed is cut to its 16 bits as it is read, `0.001` is `0.00099`. For a
 real that is exact use `(str-to-real "0.001")`.
 
-### `num?`, `fixed?` and `real?` say how deep, and a real is all three
+### A type is a chain of classes, and `x?` asks if a class is in it
 
-Each gives `:nil` or a number, and the number can be `0`, which is true. A
-real is a fixed, and a fixed is a num. To tell them apart ask `real?`
-first, then `fixed?`, then `num?`.
+`(type-of)` gives the classes a thing is, the one it inherits from first
+and its own last. A real is a fixed, and a fixed is a num.
+
+```lisp
+(type-of 3)           ; -> (:num)
+(type-of 1.5)         ; -> (:num :fixed)
+(type-of (n2r 1.5))   ; -> (:num :fixed :real)
+(type-of (list))      ; -> (:seq :array :list)
+(type-of (Fmap))      ; -> (:seq :array :list :hmap)
+```
+
+A predicate with one `?` finds its class in that chain, so it is true of
+the class and of every class that inherits from it. What it gives is where
+in the chain, a number, and `0` is true, only `:nil` is false.
+
+```lisp
+(num? (n2r 1.5))      ; -> 0, a real is a num
+(list? (Fmap))        ; -> 2, a map is a list
+```
+
+A predicate with two, `list??`, asks if it is that class itself, the last
+of the chain, and no other.
+
+```lisp
+(list?? (list))       ; -> :t
+(list?? (Fmap))       ; -> :nil
+```
+
+So to tell a real from a fixed from a num, ask `real?` first, then
+`fixed?`, then `num?`. And where a list is to be told from the things that
+are built on one, a map, a class of your own, it is `list??` that is
+wanted. `(. obj :type_of)` is the chain with the Lisp classes on the end
+as well, `(:seq :array :list :hmap :View :Label :Button)`.
+`docs/ai_digest/type_system.md` has the whole of it.
 
 ### `trim` wants its characters in order
 
