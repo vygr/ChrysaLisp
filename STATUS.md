@@ -4,6 +4,20 @@
 
 ------
 
+Seen by Chris with the fix, 9 October: four networks of their own, a ring,
+a mesh, a cube and a full, 23 nodes, stopped by `nodes -x all` and all
+gone two seconds later. And again with a cube of 64.
+
+Not found: once, from the desktop's Terminal with those four up, `make
+docs` hung. It is not known why. It ran when tried through the member on
+that same network while it was up, in 121ms from each of the M4's nodes
+on a copy of it, 30 times more with networks being added as it ran, the
+slowest 137ms, and for Chris on his next go, with `make it` and `make
+all`. What was not copied is the Terminal app itself. If it is seen
+again, leave it hung, it is the only way to see what it waits on.
+
+------
+
 `nodes -x` left nodes running. Chris: "nodes -x all won't remove them."
 
 *	Not every time. Chris had a ring, and rings of their own added after
