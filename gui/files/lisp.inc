@@ -9,6 +9,7 @@
 (import "././scroll/lisp.inc")
 (import "././flow/lisp.inc")
 (import "lib/files/files.inc")
+(import "lib/consts/symbols.inc")
 
 ;the toggle of a folder, the symbols its title bar has, drawn small
 (defq +files_shut (num-to-utf8 +sym_next) +files_open (num-to-utf8 +sym_up))
