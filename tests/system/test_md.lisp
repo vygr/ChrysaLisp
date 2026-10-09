@@ -117,3 +117,28 @@
 (assert-eq "with another root, what was in is out" :nil (. md_files :find_node "docs/ai_digest/summary.md"))
 (assert-true "and what is under it is in" (. md_files :find_node "docs/gui/event_dispatch.md"))
 
+;docs/test.md is the page a person tries the text handler on, and its last
+;section is links of every kind. Here it is drawn, as the Docs app does,
+;and each link asked of the tree, so the page and the code are kept in step
+(defq md_page (list) md_on :nil)
+(lines! (lambda (line)
+	(if (eql line "### Links") (setq md_on :t))
+	(if md_on (push md_page line)) :nil) (file-stream "docs/test.md"))
+(assert-true "docs/test.md has a section of links" (> (length md_page) 30))
+(def (defq md_md (Md)) :page_width 640 :link_event 99)
+(. md_md :populate_lines md_page)
+(defq md_links (filter (# (Link? %0)) (. md_md :flatten))
+	md_targets (reduce (# (if (find (get :link %1) %0) %0 (push %0 (get :link %1)))) md_links (list)))
+(. md_files :empty)
+(. md_files :populate "docs" '(".md"))
+(defq md_go (filter (# (and (not (find ":" %0)) (ends-with ".md" (defq f (md-link-file "docs/test.md" %0)))
+	(. md_files :find_node f))) md_targets))
+(assert-eq "it has 16 places its links go" 16 (length md_targets))
+(assert-eq "11 of them are documents of the tree, and are followed" 11 (length md_go))
+(assert-list-eq "the rest are the web, a pdf, a picture, out of the root, and one not there"
+	'("https://github.com/vygr/ChrysaLisp" "history/press/1991-12_byte.pdf" "../screen_shot_5.png" "../README.md" "no_such_document.md")
+	(filter (# (not (find %0 md_go))) md_targets))
+(assert-eq "what is quoted there is not a link" :nil (some (# (eql (get :link %0) "target.md")) md_links))
+(assert-true "the link in the heading is one" (find "gui/comms.md" md_targets))
+(assert-true "and the page is no wider for a link too long for a line" (<= (first (. md_md :pref_size)) 660))
+

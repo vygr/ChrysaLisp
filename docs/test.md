@@ -185,3 +185,58 @@ Vector Font | Cubic and quadratic Bezier curves
 | `+view_flag_solid` | `bit` | `1` | Solid opaque hit test |
 | `+view_flag_dirty` | `bit` | `4` | Marked for compositor refresh |
 | `+view_w` | `int` | `1024` | Preferred widget width |
+---
+
+### Links
+
+A link to another document is green, and pressed, it is gone to. The back and
+forward buttons of the toolbar then step through where you have been.
+
+* A plain link in prose: the [introduction](intro/intro.md) to the system.
+
+* A link whose text is a name in code quotes: [`widgets.md`](gui/widgets.md).
+
+* A link of several words: [the system summary document](ai_digest/summary.md).
+
+* Links hard against brackets and punctuation: ([`macros.md`](lisp/macros.md)),
+  [macros](lisp/macros.md), [macros](lisp/macros.md). And [macros](lisp/macros.md)!
+
+* A link inside bold and italic: **see the [Flow](reference/classes/Flow.md)
+  class** and *the [history](history/history.md) of it all*.
+
+* Two links on a line: [widgets](gui/widgets.md) and
+  [event dispatch](gui/event_dispatch.md).
+
+* A link to a place within a document, the place is not gone to yet, the
+  document is: [iteration](lisp/iteration.md#iteration).
+
+* A long link that has to wrap:
+  [the whole of the text of this link is long enough that it will not fit on one line of the page and so wraps](ai_digest/summary.md).
+
+#### A heading with [a link](gui/comms.md) in it
+
+| A table | With links |
+| --- | --- |
+| [`event_loops.md`](gui/event_loops.md) | A name in code quotes in a cell |
+| [Press cuttings](history/press/README.md) | Words in a cell |
+
+Links that are not followed. Each is shown as a link, and pressed, nothing
+happens:
+
+* To the web: [ChrysaLisp on GitHub](https://github.com/vygr/ChrysaLisp).
+
+* To a file that is not a document: [a pdf](history/press/1991-12_byte.pdf).
+
+* To a picture, written as an image: ![the screen shot](../screen_shot_5.png).
+
+* Out of the folder the documents are in: [the README](../README.md).
+
+* To a document that is not there: [nothing](no_such_document.md).
+
+Text that is not a link, and is shown as it is written:
+
+* Quoted as code: `[text](target.md)`.
+
+* In double quotes: "[text](target.md) is literal here."
+
+* Brackets that are not a link: [this] (and that), and a (bracket) alone.
