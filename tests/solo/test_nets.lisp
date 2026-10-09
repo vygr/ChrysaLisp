@@ -70,6 +70,27 @@
 			(task-sleep 100000))
 		(assert-true "and its processes end" (notany (const pii-alive) nt_pids))
 		(assert-eq "as many are noted as before" nt_had (length (node-nets)))
+		;networks hung from the nodes of another, as a terminal makes them,
+		;each command placed on whichever node has least to do, and then all
+		;of them stopped. A node that goes cuts off those behind it
+		(import "lib/task/pipe.inc")
+		(defq nt_quiet (lambda (&)) nt_was (map (const first) (node-nets)))
+		(pipe-run "nodes -s ring -n 8" nt_quiet)
+		(times 3 (pipe-run "nodes -s ring -n 8 -o" nt_quiet))
+		(defq nt_new (filter (# (not (find (first %0) nt_was))) (node-nets))
+			nt_pids (reduce (# (cat %0 (elem-get %1 3))) nt_new (list)))
+		(assert-eq "a ring and three of their own are four networks" 4 (length nt_new))
+		(assert-eq "of 31 nodes" 31 (length nt_pids))
+		(assert-eq "three have a system id" 3 (length (filter (const last) nt_new)))
+		(task-sleep (task-timeout 1))
+		(each (# (pipe-run (cat "nodes -x " (first %0)) nt_quiet)) nt_new)
+		(defq nt_t0 (pii-time))
+		(while (and (some (const pii-alive) nt_pids) (< (- (pii-time) nt_t0) (task-timeout 10)))
+			(task-sleep 100000))
+		(assert-eq "stopped, not one is left" 0 (length (filter (const pii-alive) nt_pids)))
+		(assert-eq "nor noted" 0 (length (filter (# (not (find (first %0) nt_was))) (node-nets))))
+		(assert-eq "they are no longer seen" nt_before (nt-wait nt_before))
+
 		(assert-eq "the one that was there all along is stopped last" 1 (node-stop "tst0"))
 		;a stop is done a moment later, and the note of it is gone at once,
 		;so a session that ended now would leave the node behind

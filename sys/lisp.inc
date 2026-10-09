@@ -224,10 +224,9 @@
 	;stop the nodes of a network that was added by name, all of them, and
 	;clear away its links and the note of it. :nil if there is none of
 	;that name, else how many nodes are to go. Each node of this machine
-	;is asked which process it is. Those of the network are sent a task
-	;that exits them, by a node that is not one of them, and not at once:
-	;the one that asks may itself be a node of the network, and is given
-	;the time to say what it did
+	;is asked which process it is. Those of the network are each sent a
+	;task that exits them, not at once: the one that asks may itself be a
+	;node of the network, and is given the time to say what it did
 	(when (defq nets (node-nets) net (some (# (if (eql (first %0) id) %0)) nets))
 		(bind '(& & & pids links file sid) net)
 		;a network that one of these nodes added is hung from it, and would
@@ -242,19 +241,21 @@
 		;the nodes of this machine, and of the network's system if it is
 		;one of its own
 		(defq mbox (mail-mbox) nodes (cat (lisp-nodes :t) (if sid (lisp-nodes sid) (list)))
-			doomed (list) stays :nil)
+			doomed (list))
 		(each (# (open-task (str `(mail-send (hex-decode ,(hex-encode mbox))
 				(cat (str (pii-pid)) " " (hex-encode (task-nodeid)))))
 			%0 +kn_call_pin 0 (mail-mbox))) nodes)
 		(times (length nodes)
 			(when (defq reply (mail-read-timeout mbox (task-timeout 2)))
 				(bind '(pid node) (split reply " "))
-				(if (find (str-as-num pid) pids) (push doomed node) (setq stays node))))
-		(when (and stays (nempty? doomed))
-			(open-task (str `(progn (task-sleep 400000)
-					(each (lambda (node) (open-task "(pii-exit)" (hex-decode node) +kn_call_pin 0 (mail-mbox)))
-						(quote ,doomed))))
-				(hex-decode stays) +kn_call_pin 0 (mail-mbox)))
+				(if (find (str-as-num pid) pids) (push doomed node))))
+		;each is told now, while every one of them is up to pass it on, to
+		;go in a moment, by itself. One node told to tell them later may
+		;be gone by then, and a node that goes cuts off those the mail
+		;went through it to reach, the far side of a ring was left running
+		(defq wait (/ (task-timeout 1) 2))
+		(each (# (open-task (str `(progn (task-sleep ,wait) (pii-exit)))
+			(hex-decode %0) +kn_call_pin 0 (mail-mbox))) doomed)
 		(each (# (pii-remove (cat "/tmp/" %0))) links)
 		;the note, less this network's lines
 		;each line that stays ends as it did, what is noted next goes on

@@ -4,6 +4,43 @@
 
 ------
 
+`nodes -x` left nodes running. Chris: "nodes -x all won't remove them."
+
+*	Not every time. Chris had a ring, and rings of their own added after
+	it from a Terminal, and stopped them all. The notes of them went and
+	some of the nodes stayed, with nothing left to stop them by.
+
+*	A network was stopped by one node that was staying being told to
+	tell each of its nodes to go, a moment later. Two ways that failed.
+	The node told may itself be one of a network that is stopped in the
+	same breath, and gone before the moment is up. And the nodes were
+	told one after the other, the nearest first: a node that goes cuts
+	off those the mail went through it to reach, and the far side of a
+	ring, whose one way in is its first node, was left.
+
+*	Each node is now told at once, while every one of them is up to pass
+	the rest on, to go by itself in half a second. No node has to stay
+	for it. `(node-stop)` in `sys/lisp.inc`.
+
+*	It only showed where a command was placed on a node of a network
+	that had been added, which is where a terminal puts one, the node
+	with least to do. A test that added them all from its own node
+	passed with the fault in. As a terminal does it, 3 runs of 4 left 2
+	to 8 nodes of 31 before, and none of 8 runs after.
+
+*	`tests/solo/test_nets.lisp`, 6 more, a ring and three of their own
+	added and stopped by commands. With the code as it was 24 of 31 are
+	left. 4,918 pass on the M4, the x64 and the Pi. The module is some
+	12 seconds longer for it.
+
+*	Seen by Chris: a ring of its own is its own color in the Network
+	Map, pink where the M4 is yellow. The first he tried was yellow too,
+	its id made a hue 7 degrees from the M4's, and two more were yellow
+	because they were added without the `-o`. Claude watched the nodes
+	come and go from a log of the processes as he tried it.
+
+------
+
 A network added by name can be a system of its own, `nodes -s ring -o`.
 
 *	Chris asked if the subnets get their own system id. They did not, a
