@@ -30,7 +30,7 @@ How hard a node works, and the Network Map shows it.
 	it was before. A node with an older kernel is not shown as at work.
 
 *	Netmon and Onslaught read the stats by place, and are changed for the
-	fifth. New test, `tests/system/test_idle.lisp`.
+	fifth. New test, `tests/solo/test_idle.lisp`.
 
 *	Not seen: on a desktop, and not built or run on the M4, Chris had
 	nodes up. Built, tested and linted on the x64, built and tested on

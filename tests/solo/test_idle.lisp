@@ -10,8 +10,9 @@
 (while (< (- (pii-time) id_start) 50000))
 (assert-eq "no idle time goes by while a task is flat out" id_before (id-idle))
 
-;a task that sleeps. Other tests may be at work on this node, so it is
-;given a few goes to find the node with nothing to do
+;a task that sleeps. This is a solo module, it runs when the others are
+;done, a node that has other tests at work on it is not idle. It is given
+;a few goes all the same
 (assert-true "idle time goes by while every task is asleep"
 	(some (lambda (&)
 		(defq before (id-idle))
