@@ -25,8 +25,12 @@
 	(fn-bind 'sys/statics/statics :r0)
 	(class/obj/ref :r1 :r2)
 	(assign '(:r1) '((:r0 statics_gui_screen)))
-	;init region heap
-	(call :sys_heap :init '((& :r0 statics_gui_rect_heap) rect_size 32))
+	;the region heap is made with the first view of a node, gui/view/class.vp,
+	;which was before this. Were there none it is made here
+	(assign `((:r0 ,(+ statics_gui_rect_heap +hp_heap_cellsize))) '(:r2))
+	(vpif '(:r2 = 0))
+		(call :sys_heap :init '((& :r0 statics_gui_rect_heap) rect_size 32))
+	(endif)
 	;temp objects
 	(call :list :create :nil '(:r0))
 	(fn-bind 'sys/statics/statics :r1)
@@ -122,9 +126,12 @@
 		(host-gui-call :host_gui :deinit)
 	(endif)
 
-	;deinit region heap
+	;deinit region heap, and it is one that has not been made, for the
+	;next view of this node to make
 	(fn-bind 'sys/statics/statics :r0)
-	(call :sys_heap :deinit '((& :r0 statics_gui_rect_heap)))
+	(call :sys_heap :deinit '((& :r0 statics_gui_rect_heap)) '(:r0))
+	(vp-xor-rr :r1 :r1)
+	(assign '(:r1) '((:r0 +hp_heap_cellsize)))
 
 	;reset remaining gui statics
 	(fn-bind 'sys/statics/statics :r1)

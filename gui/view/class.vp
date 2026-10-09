@@ -35,6 +35,18 @@
 		(vp-cpy-cr +view_flag_solid :r1)
 		(assign '(:r1 (& :r0 +view_list)) '((:r0 +view_flags) :r1))
 		(lh-init :r1 :r2)
+		;the heap the regions of views are cut from. The GUI made it as it
+		;started, and a node with no GUI had none: a view that was given a
+		;size and marked as changed, in a test or a command, took a piece
+		;of nothing. It is made with the first view of a node
+		(fn-bind 'sys/statics/statics :r1)
+		(assign `((:r1 ,(+ statics_gui_rect_heap +hp_heap_cellsize))) '(:r2))
+		(vpif '(:r2 = 0))
+			(vp-push :r0)
+			(call :sys_heap :init '((& :r1 statics_gui_rect_heap) rect_size 32))
+			(vp-pop :r0)
+		(endif)
+		(vp-cpy-cr 1 :r1)
 	(endif)
 	(vp-ret)
 

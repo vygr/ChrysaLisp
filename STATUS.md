@@ -4,6 +4,42 @@
 
 ------
 
+A node with no GUI does not fall over at a view. It was open on the
+list: a block of `docs/gui/widgets.md`, the Vdu, ended a node that had no
+desktop, with no error, cause not known. It is two causes, both VP.
+
+*	The heap that the regions of views are cut from,
+	`statics_gui_rect_heap`, was made by the GUI service as it
+	started, and by nothing else. On a node with no GUI a view that had
+	a size and was marked as changed took a piece of a heap that was
+	never made. It is made with the first view of a node, in
+	`:view :init`. The GUI service makes it only if there has been
+	none, and when it lets go of it leaves it as one not made.
+
+*	A font makes a texture of each glyph, `:font :sym_texture`, by a
+	call of the host's driver through a table that a node with no GUI
+	does not have. `:pixmap :upload` asks if there is one, and with
+	none the pixmap is left with no texture, which those that asked
+	already took for an answer.
+
+So a Vdu, a Terminal's, an Editor's, can be laid out and loaded with no
+desktop, and a window marked as changed. `(. canvas :swap)` still gives
+`:nil` there and throws, that was not changed.
+
+`tests/system/test_gui_nodesk.lisp`, 9: the Vdu block of the page as it
+is; a window laid out, marked, moved; two hundred made and let go.
+`lint: clean`. Built on the M4, the x64 and the Pi, and every test, 5,503,
+on each. On the M4 a desktop node was started on the new system and the
+Whiteboard, the Terminal, the Editor and Docs opened and closed on it by
+events, the node up after.
+
+Not run: `make it`, so the other boot images, vp64 and the rest, are of
+before this. No snapshot. A desktop on the x64 or the Pi with it. Chris
+had it as a thing of the harness only, and may not want the GUI's heap
+made by a view: it is one commit, to take out if so.
+
+------
+
 Every app is loaded by a test, with no desktop. Offered the night before,
 after the Docs app went out not starting.
 
