@@ -277,7 +277,12 @@
 	(. *file_selector* :populate "." +file_types 2)
 	(populate-file-trees)
 	(populate-vdu *current_file*)
-	(bind '(x y w h) (view-fit *x* *y* *width* *height*))
+	;the saved size is used, but not below the minimum size, which is
+	;what a drag is then held to, as it is after action-minimise
+	(set *edit* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(set *vdu_lines* :min_height +vdu_min_height)
+	(bind '(w h) (. *window* :pref_size))
+	(bind '(x y w h) (view-fit *x* *y* (max w *width*) (max h *height*)))
 	(.-> *window* (:change x y w h) (:connect +event_layout))
 	(window-resize)
 	(gui-add-front-rpc *window*)

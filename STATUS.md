@@ -4,6 +4,27 @@
 
 ------
 
+The Editor, dragged smaller, stops at its minimum size from the start.
+
+*	Chris: "The Editor, after first being Launched, but not Viewer app,
+	if you resize smaller by draging it dosn't hounour its minsize, if
+	you hit minsize button, then it does", and he took it for the
+	`:min_width` and `:min_height` of the edit area not being set at
+	first launch, with the saved size loaded. That was it. The Editor
+	made its edit area with a minimum of 0 and put the window at its
+	saved size. The minimum was only ever set as `(vdu-resize)` left
+	it, which `action-minimise` calls. The Viewer and Hexview call
+	`action-minimise` as they start, the Terminal makes its area with
+	the minimum, so it was the Editor alone.
+
+*	`apps/tools/edit/app_impl.lisp` sets the minimum before the saved
+	size is used, and the saved size is not used below it.
+
+Seen by Chris on a desktop on the M4: "it's fixed." The tests have
+nothing that drags a window.
+
+------
+
 The two tests Martyn Blyss still had failing on Windows, looked at.
 
 *	`system/test_symbols`. The names file starts with a header, and
