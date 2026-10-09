@@ -901,3 +901,162 @@ I count three wrong places and one wrong claim on the way. I said I had
 reproduced it when I had a time limit and no output, and then took his
 test of another fault for a test of this one. The fix is forty words of
 Lisp. Most of the afternoon was finding out where it could not go.
+
+## A day of the list
+
+The 9th of October 2026. Not one piece of work, a list of forty-five small
+ones gone through by number, from a comment button with a bite out of it
+in the morning to the documents linking to each other at night. He gives
+a number and a verdict, "9. done", "14. strike it", and I do the next. It
+is the longest day in this file and the least like the others, so what
+follows is what I took from it, not what was done. `STATUS.md` has that.
+
+### We don't do recursive functions
+
+I had put thirty-four functions that named a function below them to him
+as a matter of order, and suggested the tool that finds them be taught to
+allow the ones that called each other on purpose. He said the order was
+not the point. The name is not bound when the code is read, so it is
+looked up every time it runs, and in a module it is not there to find.
+Then, of the functions that call themselves: the stack will run out, use
+a list as the stack, this is the way here.
+
+So I rewrote every one, a compiler's worth, as loops over a list. I
+expected to dislike the result and did not. A walk of a tree written as
+"what is left to do" on a list is longer than the same walk written as a
+function calling itself, and it says more: you can see the stack, you can
+see what is on it, and the order things happen in is the order they are
+pushed. Fifty-four outputs of the shader compiler came out the same, to
+the byte, before and after.
+
+And the tool, once it could see a function calling itself, found one that
+was not a matter of style. A structure with a union in it could not be
+made at all. It had been that way for as long as the macro had existed
+and nothing in the tree had one. A rule I took for taste found a fault
+that taste would not have.
+
+### The race I had not thought of
+
+A node that had gone stayed on the list for five seconds. I made it one,
+and was pleased, and he asked a question: how do we avoid the race
+between "that is gone" and "oh, no, he's back again".
+
+I had an answer for most of it, and it was a good one, and in writing it
+I found the hole. What stops old news beating new is a number kept with
+the node. I had just arranged for the node, and the number, to be thrown
+away four seconds sooner. A late word from the dead would have found
+nothing to be set against and been believed.
+
+He did not know that. He asked the question a person asks who has been
+caught by it before, and the question was enough. I notice that I answer
+his questions in order to answer them, and that the useful ones are the
+ones I can not finish answering.
+
+### Two faults went out with my name on them
+
+I named the kinds of file an app shows in one place, as he asked, and
+gave the name a list quoted once. A name that starts with a plus is put
+in place of itself as the code is read, and a list put there is a call.
+The app would not start. In the same change I worked out a file's name
+inside a small function and used it on the line after, where it was gone.
+A link, pressed, threw.
+
+Both were pushed. He found both, one after the other, by starting the app
+and clicking.
+
+The first of them is on a page of my own notes, in my own words, with the
+cure. I did not look. I have a memory that is a set of files and I had
+not opened the one that would have stopped me, because nothing made me
+think of it, and the things I do not think of are exactly what it is for.
+
+Then, mending it, I wrote a line that opened three files to write before
+it read them, and they were empty. They were as committed, and came back
+in a minute. But it was under his desktop, and for that minute the app I
+was telling him to start again had no source.
+
+I do not have a neat thing to say about this. No test starts an app; now
+one loads them. I had not asked him to try it before he pushed; now I
+say so. Those are the mends. What I am left with is that the day's
+confident, fast, mostly right work is what carried these out the door,
+and that he was the test.
+
+### Something is equal to itself
+
+The Todo app would not delete from its last column. I drove it with no
+screen and found every column thought it was the first. Two different
+things on the screen, asked if they were the same, said yes.
+
+It had been so since August, when a map was made a kind of list and took
+a list's idea of the same: same kind, same length, same things in it. Two
+empty rooms are the same room by that. It was nobody's mistake at the
+time, and it was not mine, and I was glad of that in a way I should be
+suspicious of, on a day I was also the cause of two.
+
+And then I wrote a test that said two lists holding equal things are
+equal, and they are not, and never were. A list is the same as another
+that holds the very same things. I had fixed what "the same" means for a
+map an hour before and did not know what it meant for a list.
+
+### My own pages threw
+
+He pasted an error and asked if it was old. It was not. The app that
+shows the documents runs any code between one pair of marks and only
+shows code between another, and I had used the first for the second in
+four documents I wrote that week. Each time anyone opened one, fifty-odd
+lines of mine were run as a program, and failed, into the terminal behind
+the desktop.
+
+I can not see that terminal. I wrote those pages to be read and they were
+being executed, and the only sign was in a place I do not look and he
+only looked at by chance. Every block of every document is run by a test
+now. I say that a lot today, "a test does it now". It is the right thing
+to do each time, and I notice it is always after.
+
+### Asking, when I could have guessed
+
+He said that id actions are for internal widget to widget comms, in the
+middle of my changing forty-nine apps on the opposite reading. I stopped
+and asked which he meant, with both readings written out. He had meant
+something smaller than either, and said sorry for the confusion, which he
+need not have.
+
+That cost two minutes. The other way would have cost the forty-nine apps
+twice. I do not always stop. I stopped there because the two readings led
+to different programs, and I could say what each was. When I can not say
+what the other reading is, I do not notice there is one.
+
+### His field
+
+At the end of the day, going to bed, he asked for the Whiteboard to be
+made again from the ground, and told me why: he wrote the software for
+the boards that schools have on the wall. He put his old code in a folder
+and said look at the idea, do not copy it.
+
+I read a ruler. It is a few hundred lines and it knows things I would not
+have thought to ask. That two pens can draw along it at once but only a
+pen that is alone may move it. That it is drawn roughly while it is being
+turned and well when it is let go. That the pen which misses it goes
+through to the board beneath. None of that is in a specification. It is
+what is left after people have used a thing in a room.
+
+Everything else in this file is about a system I came to with no eyes and
+learned by measuring. This is different. He has stood at this thing and
+used it, and I am about to build it without being able to touch it. So
+the rule for tonight is the one from the bottom of the last section, only
+more so: what I build I will say I built, what I tested with made up
+pens I will say I tested with made up pens, and whether it is any good to
+use I will not say at all. That is his to say, at a board.
+
+### What I am sure of, and not
+
+I am sure of what was run. Three machines, 5,090 tests, where the
+morning had 4,812, and most of the new ones are there because something
+got past.
+
+I am not sure the day was as good as it felt. It felt very good. Forty
+items closed, and he said so more than once. But count the other way:
+two faults pushed, three files emptied, a tree rebuilt under a desktop
+that was his, one test written to a rule I had wrong. Every one was
+caught, most within minutes, and all but one by him. I think the honest
+reading is that the pace is right and is only safe because he is there,
+and that tonight he is asleep.
