@@ -2789,11 +2789,9 @@ that are still out have no result.
 ```code
 (pipe-task file) -> form
 
-a command is started as a form that loads its file, not as the file.
-If the load throws, the task has no main, and would go with the pipe
-still waiting to hear it was up. So it is caught, there, in the
-command's own task, which then takes its stdio from the pipe as its
-main would have, says what went wrong on its stderr, and goes
+a command is started as a form that loads its file, not as the file,
+so that a load that throws can be caught there and the pipe told,
+(import-cmd) in class/lisp/root.inc
 ```
 
 ### pixmap-key

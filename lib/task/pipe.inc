@@ -21,13 +21,10 @@
 
 (defun pipe-task (file)
 	; (pipe-task file) -> form
-	;a command is started as a form that loads its file, not as the file.
-	;If the load throws, the task has no main, and would go with the pipe
-	;still waiting to hear it was up. So it is caught, there, in the
-	;command's own task, which then takes its stdio from the pipe as its
-	;main would have, says what went wrong on its stderr, and goes
-	(cat "(catch (import \q" file "\q) (progn (when (create-stdio)"
-		" (write-line (io-stream 'stderr) _) (stream-flush (io-stream 'stderr))) :t))"))
+	;a command is started as a form that loads its file, not as the file,
+	;so that a load that throws can be caught there and the pipe told,
+	;(import-cmd) in class/lisp/root.inc
+	(cat "(import-cmd \q" file "\q)"))
 
 (defclass Pipe (cmdline &optional user_select) :nil
 	; (Pipe cmdline [user_select]) -> pipe | :nil

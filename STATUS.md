@@ -4,6 +4,20 @@
 
 ------
 
+Two from the list.
+
+*	An error in a command named the whole of the form its pipe had
+	started it with, the `(catch)` and all, where it had named the file,
+	since the 9th. The form is `(import-cmd "cmd/name.lisp")` now, a
+	macro in `class/lisp/root.inc` that is what the pipe used to spell
+	out, and that is what an error names.
+
+*	A command that never calls `(task-slice)` can not be aborted. Struck
+	from the list, Chris: "strike it". It is what cooperative means, and
+	`docs/ai_digest/pipe_commands.md` says so.
+
+------
+
 One set of arrows, used small where a small one is wanted.
 
 *	At 10 pixels the spinner drew `up` and `down`, and to give them some

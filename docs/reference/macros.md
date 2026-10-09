@@ -301,6 +301,18 @@ should provide the concreate handler
 (gui-sub-rpc view) -> view
 ```
 
+### import-cmd
+
+```code
+(import-cmd path)
+
+what a pipe starts a command with, lib/task/pipe.inc, the import of
+its file. If the load throws, the task has no main, and would go with
+the pipe still waiting to hear it was up. So it is caught, here, in
+the command's own task, which then takes its stdio from the pipe as
+its main would have, says what went wrong on its stderr, and goes
+```
+
 ### inc
 
 ```code

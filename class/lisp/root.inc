@@ -1479,6 +1479,19 @@
 		(def dst_env import_sym :t)
 		(callback (const repl) dst_env (file-stream module) module)))
 
+(defmacro import-cmd (file)
+	; (import-cmd path)
+	;what a pipe starts a command with, lib/task/pipe.inc, the import of
+	;its file. If the load throws, the task has no main, and would go with
+	;the pipe still waiting to hear it was up. So it is caught, here, in
+	;the command's own task, which then takes its stdio from the pipe as
+	;its main would have, says what went wrong on its stderr, and goes
+	(static-qq (catch (import ,file)
+		(progn (when (create-stdio)
+				(write-line (io-stream 'stderr) _)
+				(stream-flush (io-stream 'stderr)))
+			:t))))
+
 (defun import-from (module &optional symbols classes)
 	; (import-from [symbols classes])
 	(if (= (age (setq module (path-to-absolute module))) 0)

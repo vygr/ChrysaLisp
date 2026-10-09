@@ -393,11 +393,19 @@ options.
   and throws as it loads is another matter: its task has no `main`, so it
   never calls `(create-stdio)`, and the `Pipe` would wait for ever to hear
   it was up. So a command is started as a form, not as its file,
-  `(pipe-task)`, a `(catch)` round the `(import)`. If the load throws, the
+  `(import-cmd "cmd/name.lisp")`, a macro of `class/lisp/root.inc` that is
+  a `(catch)` round the `(import)`. If the load throws, the
   handler, in the command's own task, takes its stdio from the pipe as its
   `main` would have, writes the error to its stderr, and the task goes. The
   terminal that ran it shows why, and gets its prompt back. A release build
   has no errors, there the `(catch)` is the `(import)` and no more.
+
+* **A command that never gives way:** An abort is a signal to the kernel of
+  the command's node, and a kernel runs when its tasks let it. A command
+  that works and never calls `(task-slice)`, reads, writes or sleeps lets
+  nothing else on its node run, the abort with the rest. It can not be
+  stopped from outside, that is what cooperative means. A long loop in a
+  command calls `(task-slice)`.
 
 * **`pipe-farm` / `Local` Farm:** The `destroy` callback (which requeues
   jobs) and the `:refresh` method (which detects timeouts and triggers
