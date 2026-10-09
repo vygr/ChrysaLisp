@@ -43,7 +43,18 @@ What was run. Every test, 4,995, on the M4, the x64 and the Pi. A check
 by script that every `+event_` name an app uses is one of the reserved or
 in its own enum, 4 apps give some a fixed number, 100 and up.
 
-Not seen: any app on a desktop since. No test starts one. A change of
+The Logout app was broken by it, found by Chris on a desktop: "logout
+app, can't quit or logout or shutdown, only cancel". Its four buttons
+were one row numbered on from close, Cancel, and the three after it were
+its own; with those moved to `+event_user` the row was still 0 1 2 3,
+which are close, max, min and theme. Cancel is close and the three are
+numbered from `+event_logout`. Every app was then gone over by script
+for a row of buttons whose ids ran on before and do not now: that one,
+and no other. `tests/system/test_events.lisp`, 7, new: the ids, a title
+bar's three, Logout's four as the app makes them, a theme as an action.
+Against the app as it was broken it fails.
+
+Not seen: any other app on a desktop since. No test starts one. A change of
 theme with apps open, the host window resized at login, PCB's and
 Mandelbrot's zoom buttons, a title bar's three buttons.
 

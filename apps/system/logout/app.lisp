@@ -11,7 +11,8 @@
 		:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))
 	(ui-label _ (:text "Do you wish to exit?" :color +argb_white))
 	(ui-grid _ (:grid_width 2)
-		(ui-buttons ("Cancel" "Logout" "Quit" "Shutdown") +event_close)))
+		(ui-buttons ("Cancel") +event_close)
+		(ui-buttons ("Logout" "Quit" "Shutdown") +event_logout)))
 
 (defun position-window ()
 	(bind '(w h) (. *window* :pref_size))
