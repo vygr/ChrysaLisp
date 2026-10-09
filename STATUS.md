@@ -49,7 +49,20 @@ the page, which waits on the lock service, and was not tried. The same
 as a test hung the test runner, a task that has loaded the Docs app does
 not end, why is not known, so it is not a test.
 
-Not seen: a link pressed and followed, by Chris, since.
+Chris asked for the page people try the text handler on to have them:
+"the test.md file in docs/ should have links for test pruposes."
+`docs/test.md` ends with a section of links: in prose, a name in code
+quotes, against brackets, in bold, in a heading, in a table, one too
+long for a line, and those not to be followed, the web, a pdf, a
+picture, out of the root, one not there, and text that is not a link at
+all. `tests/system/test_md.lisp` draws the section and asks a tree of
+each, 16 places, 11 followed. The numbers first written in the test, 19
+and 13, were miscounted, the code was right.
+
+On the desktop, with the Docs app started again and a link pressed, of
+that page: "test.md all works." So the app starts, and a link is
+followed, both seen. Every test, 5,052, on the x64 and the Pi; the M4
+had his desktop up.
 
 ------
 
@@ -89,7 +102,9 @@ refresh the docs for people."
 `tests/system/test_md.lisp`, 37. Every test, 5,042, on the M4, the x64
 and the Pi.
 
-Not seen: the green, and any of these links, on a desktop. Not done: a
+The green and the links were then seen on a desktop, see above, "test.md
+all works"; the 144 in the other documents were not gone through one by
+one. Not done: a
 reference that names no document and uses none of the words looked for
 is not found by this. "The class documents" in `on_classes.md` was left,
 it could be either of two.
