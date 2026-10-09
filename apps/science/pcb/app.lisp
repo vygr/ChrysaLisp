@@ -81,10 +81,13 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	(each (# (def %0 :tip_text %1))
-		(. *main_toolbar* :children)
-		'("prev" "next" "route" "zoom out" "zoom in" "pcb" "gerber"
-		"all layers" "layer 1" "layer 2" "layer 3" "layer 4")))
+	;a bar at a time, the two views and the layers are bars of their own
+	(ui-tool-tips *main_toolbar*
+		'("prev" "next" "route" "zoom out" "zoom in"))
+	(ui-tool-tips *mode_toolbar*
+		'("pcb" "gerber"))
+	(ui-tool-tips *layer_toolbar*
+		'("all layers" "layer 1" "layer 2" "layer 3" "layer 4")))
 
 (defun stop-route ()
 	(when child
