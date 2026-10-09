@@ -29,7 +29,11 @@
 
 (defun wa-run (body)
 	;what the app says when that is done to it, each thing printed on a line of its own
-	(split (test-output (cat wa_head " " body)) (ascii-char 10)))
+	;its canvas has pixels the nodes can reach, under a name that lasts
+	;till the canvas is let go of. The end of this task does not do that,
+	;its window still holds it, so it is taken out and let go here
+	(split (test-output (cat wa_head " " body
+		" (when *committed* (. *committed* :sub) (setq *committed* :nil))")) (ascii-char 10)))
 
 (defq wa_out (wa-run (cat
 	"(print (list (View? *window*) (Board? *board*) (Board-view? *board_view*)))"
@@ -179,7 +183,8 @@
 	" (mail-timeout wa_timer 0 0) said)"
 	"(defun wa-same () (defq canvas (Canvas 1024 768 1)) (. canvas :set_canvas_flags +canvas_flag_antialias)"
 	" (cwb-paper canvas 1024 768 0 *style* 32) (. *board* :draw canvas :nil) (eql (wa-bytes canvas) (wa-bytes *committed*)))"
-	"(defq doc (. *board* :get_doc))"
+	;no more than three children, other tests are running
+	"(def *stripes* :herd 3) (defq doc (. *board* :get_doc))"
 	"(each (lambda (i) (defq x (% (* i 37) 980) y (% (* i 53) 730))"
 	" (cwb-add doc (cwb-shape (cwb-d-rect x y (+ x 40) (+ y 30) 6) :fill (+ 0xff000000 (% (* i 2654435761) 0xffffff)) :stroke 0xff000000 :width 2)))"
 	" (range 0 300))"
@@ -203,6 +208,12 @@
 	"(setq *farm_ms* 40 *farm_shapes* 2000 *local_ms* 1000)"
 	"(. *board* :touch +board_dirty_doc) (wa-redraw) (print (list *framing* (wa-pump (lambda () :nil)) (wa-same)))"
 	"(print (list *local_ms* (farm?)))"
+	;a frame that never comes back: the nodes are let go and this task draws it
+	"(setq *farm_ms* -1 *farm_shapes* 0) (. *board* :touch +board_dirty_doc) (wa-redraw)"
+	"(. *board* :touch +board_dirty_doc) (wa-redraw)"
+	"(print (list *framing* (progn (frame-watch) *framing*)))"
+	"(def *stripes* :stamp (- (pii-time) 4000000)) (. *committed* :fill 0)"
+	"(print (list (catch (frame-watch) :t) *framing* *farm_fails* (if (get :jobs *stripes*) :up :gone) (wa-same)))"
 	"(. *stripes* :close)")))
 (defq wa_shared (starts-with "(:t" (elem-get wa_out 0)))
 (cond
@@ -215,4 +226,7 @@
 		(assert-eq "a change while they draw is kept for when they have" "(:t :t)" (elem-get wa_out 4))
 		(assert-eq "they have, and it is to be drawn again" "(:done :nil :nil :t)" (elem-get wa_out 5))
 		(assert-eq "drawn again by them it is, to the pixel, what the app's task draws" "(:t :done :t)" (elem-get wa_out 6))
-		(assert-eq "and being a small document after all, the next is the app's task's" "(0 :nil)" (elem-get wa_out 7))))
+		(assert-eq "and being a small document after all, the next is the app's task's" "(0 :nil)" (elem-get wa_out 7))
+		(assert-eq "a frame that is out is left be while it is new" "(:t :t)" (elem-get wa_out 8))
+		(assert-eq "one that has been out three seconds is given up: the nodes are let go, it is counted, and the app's task has drawn it"
+			"(:t :nil 1 :gone :t)" (elem-get wa_out 9))))

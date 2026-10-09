@@ -329,21 +329,32 @@ that would have each child sent the whole document, `(. stripes :cheap?)`
 is `:nil`, and the app draws that one itself and has the children brought in
 step behind it, `(. stripes :warm)`.
 
+The children are kept off the node of the app, each pinned to a node of its
+own in turn, `Jobs` with `away`, and give the other tasks of their node a
+turn as they read and flatten. A child that did not held its node for as
+long as that took, and tests of other things, on a slow machine, timed out
+beside it.
+
 What it is worth, on a MacBook with ten nodes, a board of 1600 by 1200 with
-shapes all over it, in milliseconds:
+shapes all over it, a whole draw in milliseconds:
 
 ```vdu
-shapes     one task    ten nodes
-2,000         11           5
-10,000        57          24
-40,000       230          77
+shapes     one task    the nodes
+2,000         11           3
+10,000        57          11
+40,000       243          42
 ```
 
 The first frame after a document is loaded is the other way about, each
-child reads and flattens all of it, 3.3 seconds for the 40,000 where one
-task takes one. That is why the app draws the first itself.
+child reads and flattens all of it, 3 seconds for the 40,000 where one task
+takes one. That is why the app draws the first itself, and has the children
+brought in step behind it.
 
-It is tested with no screen: a board of 600 shapes drawn by the nodes is, to
+The pixels are the small part of a draw. Most of it is Lisp going through
+the shapes, which is why the bands matter more than the stripes, and why one
+task is good for some thousands of shapes with no help.
+
+It is tested with no screen: a board of 240 shapes drawn by the nodes is, to
 the pixel, what one task draws, through changes, an undo and another zoom,
 `tests/system/test_cwb_stripes.lisp`, and the app's own redraw is driven
 through it in `tests/system/test_whiteboard.lisp`.

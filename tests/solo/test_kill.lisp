@@ -20,6 +20,13 @@
 	(while (and (< (length (lisp-nodes)) want) (< (- (pii-time) t0) (task-timeout 10)))
 		(task-sleep 50000)))
 
+(defun kl-unseen (want)
+	;wait till no more than that many nodes are seen, and not for ever. How many are
+	(defq t0 (pii-time))
+	(while (and (> (length (lisp-nodes)) want) (< (- (pii-time) t0) (task-timeout 15)))
+		(task-sleep 100000))
+	(length (lisp-nodes)))
+
 (assert-true "this host says how new it is, and is new enough to end a process"
 	(and (= (length (split (pii-host) " ")) 4) (>= (str-as-num (last (split (pii-host) " "))) 2)))
 (assert-list-eq "and is still the cpu, abi and os it was" (list (cpu) (abi) (os))
@@ -32,6 +39,9 @@
 (assert-eq "it is ended" :t (pii-kill (first kl_pids)))
 (assert-true "and has gone" (kl-gone kl_pids 5))
 (assert-eq "one that is not there is no trouble" :t (pii-kill (first kl_pids)))
+;it is listed here till the link to it finds it has gone, a beat. The
+;test that runs after this one may count the nodes
+(assert-eq "and is no longer seen" kl_before (kl-unseen kl_before))
 (assert-eq "this process is not one it will end" :nil (pii-kill (pii-pid)))
 (assert-true "and it is still here to say so" (pii-alive (pii-pid)))
 
@@ -47,4 +57,5 @@
 		(open-task "(while :t)" (first kl_ring) +kn_call_pin 0 (mail-mbox))
 		(task-sleep 300000)
 		(assert-eq "stopped by name, both are to go" 2 (node-stop "kl_r"))
-		(assert-true "and both do, the one that could not be told is ended" (kl-gone kl_pids 8))))
+		(assert-true "and both do, the one that could not be told is ended" (kl-gone kl_pids 8))
+		(assert-eq "and neither is seen any longer" (length kl_before) (kl-unseen (length kl_before)))))

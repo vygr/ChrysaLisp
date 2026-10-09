@@ -4,6 +4,51 @@
 
 ------
 
+A soak of the night's work, every test on the three machines over and
+over, found four things. None was in what the tests of the Whiteboard
+said.
+
+*	The Pi failed `solo/test_nets` in six runs of twelve. Not the
+	Whiteboard: `solo/test_kill`, of the evening before, ended while
+	the node it had killed was still listed, for the beat a link takes
+	to find its peer gone, and the test after it counted that node as
+	one that was there. It now waits till it is not seen, as
+	`test_gone` does. Nought in thirty two since.
+
+*	Pixels in shared memory were left behind, five pieces a run, on
+	every machine: 137 on the Pi, 276MB of its memory, 121 on the M4,
+	103 on the x64. The app's canvas is shared now, a test that loads
+	the app never let go of it, and the end of a task does not. The
+	test lets go. The app lets go of the name when the board is
+	another size and when it closes, seen on a desktop node: one piece
+	while it was open, none after. What was left was let go of with the
+	host's own `-shm_sweep`, which lets go only of what a process that
+	has gone made. I ran that on all three, with none of Chris's nodes
+	up.
+
+*	A child that draws stripes read and flattened a document without
+	once giving the other tasks of its node a turn, and `test_jobs` and
+	`test_pipe`, which time other tasks, each failed once beside it.
+	The children give way now, are kept off the node of the app, one to
+	a node in turn, and a test starts three at most.
+
+*	With each child on a node of its own the nodes are five times one
+	task, not three: 40,000 shapes, 243ms by one task and 42 by the
+	nodes; 10,000, 57 and 11. The kernel had been putting several on
+	one node. The page has the new table.
+
+*	A frame the nodes have had for three seconds is given up, the app
+	draws it, and after three of those the nodes are left alone.
+
+After all four, sixteen runs of every test, 5,490, on the M4, the x64 and
+the Pi: forty eight clean, and no piece of shared memory left on any of
+them.
+
+Not explained: `solo/test_gone` once counted a node more than it started,
+on the Pi, in a session of my own under a full run. Seen once.
+
+------
+
 The eraser rubs out part of a line. It took the whole of whatever it
 touched.
 

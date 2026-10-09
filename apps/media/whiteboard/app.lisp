@@ -104,7 +104,9 @@
 	;has changed. Two new canvases of that size take the place of the two
 	;there were, and everything is drawn again
 	(bind '(w h) (canvas-size))
-	(if *committed* (. *committed* :sub))
+	;the pixels of the one the nodes can reach are let go of by name, they
+	;last till then, whatever becomes of this task
+	(when *committed* (. *committed* :sub) (. *committed* :free))
 	(if *overlay* (. *overlay* :sub))
 	;the pixels of the first are shared, if the host has that, for the nodes
 	(setq *committed* (ifn (canvas-shared w h 1) (Canvas w h 1)) *overlay* (Canvas w h 1))
@@ -209,6 +211,13 @@
 			(draw-local (view-matrix))
 			(. *committed* :swap +swap_write))))
 
+(defun frame-watch ()
+	;a frame the nodes have had for three seconds is not coming. They are
+	;let go, this task draws it, and they are started again when next wanted
+	(when (and *framing* (> (- (pii-time) (get :stamp *stripes*)) 3000000))
+		(. *stripes* :close)
+		(frame-done :failed)))
+
 (defun board-save (file)
 	(setq *file* (cat (slice file 0 (if (defq i (rfind "." file)) (dec i) -1)) ".cwb"))
 	(. (. *board* :get_doc) :insert :style *style*)
@@ -261,6 +270,7 @@
 				;once a second the nodes that draw are looked to
 				(when (> (setq *kept* (inc *kept*)) 60)
 					(setq *kept* 0)
+					(frame-watch)
 					(. *stripes* :keep)))
 			((= idx +select_picker)
 				;save/load picker response
@@ -280,4 +290,5 @@
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(. *stripes* :close)
 	(gui-sub-rpc *window*)
+	(if *committed* (. *committed* :free))
 	(profile-report "Whiteboard App"))

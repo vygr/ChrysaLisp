@@ -82,9 +82,10 @@
 	((< (length (lisp-nodes :t)) 2) (test-skip "stripes drawn by the nodes" "there is one node"))
 	(:t
 		(. st_shared :set_canvas_flags +canvas_flag_antialias)
-		(defq st_board (Board (cwb-doc 640 480)) st_doc (. st_board :get_doc) st_stripes (Stripes st_board)
+		(defq st_board (Board (cwb-doc 640 480)) st_doc (. st_board :get_doc) st_stripes (Stripes st_board 3)
 			st_timer (mail-mbox) st_select (cat (. st_stripes :mboxes) (list st_timer)))
-		;600 shapes, of every kind, all over it
+		;240 shapes, of every kind, all over it, and no more than three
+		;children, other tests are running
 		(each (lambda (i)
 			(defq x (% (* i 37) 600) y (% (* i 53) 440) col (+ 0xff000000 (% (* i 2654435761) 0xffffff)))
 			(cwb-add st_doc (case (% i 5)
@@ -93,7 +94,7 @@
 				(2 (cwb-shape (cwb-d-line x y (+ x 50) (+ y 35)) :stroke col :width 4 :cap2 :arrow))
 				(3 (cwb-shape (cwb-d-arc (+ x 20) (+ y 20) 16 0.3 4.0 :t) :fill col))
 				(:t (cwb-shape (board-pen-d (list x y (+ x 15) (+ y 25) (+ x 30) y (+ x 45) (+ y 25))) :stroke col :width 3)))))
-			(range 0 600))
+			(range 0 240))
 		(. st_board :changed :all)
 		(defun st-pump (done secs)
 			;what comes to the stripes is handled, till done says so or it has been too long
@@ -112,7 +113,7 @@
 			(and (. st_stripes :frame st_shared zoom style)
 				(st-pump (lambda () :nil) 20)))
 		(. st_stripes :start)
-		(assert-eq "the children start, one for each node of this machine" :ok
+		(assert-eq "the children start" :ok
 			(progn (st-pump (lambda () (. st_stripes :ready?)) 30) (if (. st_stripes :ready?) :ok :not)))
 		(assert-true "and are in step with the document as it was, so a frame is cheap" (. st_stripes :cheap?))
 		(assert-eq "a frame can not be asked for of a canvas whose pixels are its own" :nil
@@ -120,7 +121,7 @@
 		(. st_stripes :note)
 		(assert-eq "a frame is drawn by them" :done (st-frame 1.0 :grid))
 		(assert-true "every shape was drawn, some by more than one, where it is in two stripes"
-			(>= (get :drawn st_stripes) 600))
+			(>= (get :drawn st_stripes) 240))
 		(assert-true "and it is, to the pixel, what one task draws"
 			(eql (st-bytes st_shared) (st-local st_board 640 480 1.0 :grid)))
 		;changed: one moved, one restyled, one gone, one new. The children are sent only those
@@ -129,13 +130,13 @@
 		(. st_board :remove (list 30 31 32))
 		(. st_board :add (cwb-shape (cwb-d-rect 100 100 300 200 20) :fill 0xc0ffffff :stroke 0xff000000 :width 5))
 		(. st_stripes :note)
-		(assert-list-eq "what changed is said item by item" '(10 11 20 601) (second (last (get :log st_stripes))))
+		(assert-list-eq "what changed is said item by item" '(10 11 20 241) (second (last (get :log st_stripes))))
 		(assert-true "which is cheap" (. st_stripes :cheap?))
 		(assert-eq "drawn again" :done (st-frame 1.0 :lines))
 		(assert-true "it is what one task draws of the document as it is now"
 			(eql (st-bytes st_shared) (st-local st_board 640 480 1.0 :lines)))
 		;what is being moved is left out, it is drawn over the rest by the app
-		(def st_board :floating (list 601 40))
+		(def st_board :floating (list 241 40))
 		(. st_stripes :note)
 		(assert-eq "drawn with two items being moved" :done (st-frame 1.0 :plain))
 		(assert-true "they are left out, as one task leaves them out"

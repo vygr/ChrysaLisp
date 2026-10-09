@@ -31,6 +31,9 @@
 	(map (lambda ((name flags layer_items))
 		(defq rows (map (lambda (&) (list)) (range 0 count)))
 		(each (lambda (item)
+			;every shape is flattened here, the first time, which is a
+			;while. The other tasks of the node are given a turn
+			(if (= (logand (!) 31) 31) (task-slice))
 			(when (defq box (cwb-bounds (list item)))
 				(defq entry (list (!) item))
 				;a row more each way, as the stripe has

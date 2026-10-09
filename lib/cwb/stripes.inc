@@ -88,7 +88,9 @@
 	;kept, with what they are flattened to. The version it is then at
 	(when (and (defq data (catch (tree-load (string-stream text)) :t)) (Emap? data))
 		(if (/= (. data :find :full) 0) (. items :empty))
-		(each (# (defq item (cwb-item-in %0)) (. items :insert (elem-get item +cwb_id) item))
+		;a node has other tasks, they are given a turn every so many items
+		(each (# (defq item (cwb-item-in %0)) (. items :insert (elem-get item +cwb_id) item)
+				(if (= (logand (!) 63) 63) (task-slice)))
 			(ifn (. data :find :items) (list)))
 		(. doc :insert :width (. data :find :width))
 		(. doc :insert :height (. data :find :height))
@@ -97,15 +99,19 @@
 			(ifn (. data :find :layers) (list))))
 		(. data :find :version)))
 
-(defclass Stripes (board) :nil
-	; (Stripes board) -> stripes
+(defclass Stripes (board &optional herd) :nil
+	; (Stripes board [herd]) -> stripes
+	;herd is the most children there are to be, default one for each node
+	;of the machine, up to 64. They are kept off the node of the app, if
+	;there is another: a child at work on a big document is a while
+	;between the turns it gives the other tasks of its node
 	;it has three mailboxes, (. stripes :mboxes), for the app to wait on
 	;with its own, and what comes to one of them is given to (:handle).
 	;
 	;The children are idle, or being brought in step, :warming, or have a
 	;:frame to draw. :sent is the version they were last sent word of,
 	;and :synced the last they all answered that they have
-	(def this :board board :jobs :nil :version 0 :log (list) :deltas (list)
+	(def this :board board :herd (ifn herd 64) :jobs :nil :version 0 :log (list) :deltas (list)
 		:task_mbox (mail-mbox) :reply_mbox (mail-mbox) :sync_mbox (mail-mbox)
 		:state :idle :up :nil :sent 0 :synced -1 :drawn 0 :bad 0 :stamp (pii-time))
 
@@ -129,7 +135,7 @@
 		;in step. Till they all answer (:ready?) is :nil
 		(unless (get :jobs this)
 			(def this :jobs (Jobs "lib/cwb/stripes_child.lisp" (get :task_mbox this) (get :reply_mbox this)
-				(list 64)) :up :nil :state :idle :synced -1)
+				(list (get :herd this)) :t) :up :nil :state :idle :synced -1)
 			(. this :warm))
 		this)
 
