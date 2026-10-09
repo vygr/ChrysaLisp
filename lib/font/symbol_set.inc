@@ -182,7 +182,25 @@
 	;where you were, and where you came back from. Not prev and next, which
 	;are the one before and the one after in a list
 	(list "go_back" (s-arrow 19 12 5 12))
-	(list "go_forward" (s-arrow 5 12 19 12))))
+	(list "go_forward" (s-arrow 5 12 19 12))
+	;a whiteboard: what rubs out, the instruments, and what is done to
+	;what is selected
+	(list "eraser" (cat (s-loop 13 4 20 11 11 20 7 20 3 16) (s-line 8 9 15 16) (s-line 11 20 21 20)))
+	(list "ruler" (cat (s-loop 3 17 17 3 21 7 7 21) (s-line 7 13 8.6 14.6) (s-line 10 10 12.2 12.2)
+		(s-line 13 7 14.6 8.6)))
+	(list "protractor" (cat (s-arc 12 17 9 0 180) (s-line 3 17 21 17) (s-line 12 17 12 13.5)
+		(s-line 12 8 12 10) (s-line 5.6 10.6 7 12) (s-line 18.4 10.6 17 12)))
+	(list "set_square" (cat (s-loop 4 20 4 4 20 20) (s-loop 7.5 16.5 7.5 11.5 12.5 16.5)))
+	(list "snap" (cat (s-line 12 3 12 7) (s-line 12 17 12 21) (s-line 3 12 7 12) (s-line 17 12 21 12)
+		(s-disc 12 12 3.4) (s-corners)))
+	(list "snap_angle" (cat (s-line 20 19 4 19 15 5) (s-arc 4 19 9 0 52)))
+	(list "to_front" (cat (s-rrect 9 9 20 20 1.5) (s-box 4 4 13 13)))
+	(list "to_back" (cat (s-box 11 11 20 20) (s-rrect 4 4 15 15 1.5)))
+	(list "duplicate" (cat (s-rrect 8 8 20 20 1.5) (s-line 4 15 4 5 5 4 15 4) (s-line 14 11.5 14 16.5)
+		(s-line 11.5 14 16.5 14)))
+	(list "arc" (s-arc 12 17 9 20 160))
+	(list "pie" (cat (s-arc 11 14 8 0 270) (s-line 19 14 11 14 11 22)))
+	(list "text" (cat (s-line 5 5 19 5) (s-line 12 5 12 20) (s-line 9 20 15 20)))))
 
 ;;;;;;;;;;;;
 ; the themes

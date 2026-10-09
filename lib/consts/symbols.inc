@@ -45,4 +45,7 @@
 	+sym_reset 0xe065 +sym_scramble 0xe066 +sym_solve 0xe067 +sym_peek 0xe068
 	+sym_done 0xe069 +sym_dial 0xe06a +sym_hangup 0xe06b +sym_warning 0xe06c
 	+sym_route 0xe06d +sym_pcb 0xe06e +sym_gerber 0xe06f +sym_go_back 0xe070
-	+sym_go_forward 0xe071)
+	+sym_go_forward 0xe071 +sym_eraser 0xe072 +sym_ruler 0xe073
+	+sym_protractor 0xe074 +sym_set_square 0xe075 +sym_snap 0xe076
+	+sym_snap_angle 0xe077 +sym_to_front 0xe078 +sym_to_back 0xe079
+	+sym_duplicate 0xe07a +sym_arc 0xe07b +sym_pie 0xe07c +sym_text 0xe07d)

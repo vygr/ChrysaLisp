@@ -62,7 +62,7 @@
 	;the path of a line drawn by hand, points is x y x y ... It goes
 	;from the first to the last, and between is curved: each point is
 	;where the line turns toward, and it passes half way between each two
-	(defq pts (partition points 2) n (length pts))
+	(defq pts (partition (map (const n2f) points) 2) n (length pts))
 	(cond
 		((= n 0) "")
 		((= n 1) (cwb-d "M" (first (first pts)) (second (first pts)) "L" (first (first pts)) (second (first pts))))
