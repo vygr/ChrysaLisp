@@ -4,6 +4,96 @@
 
 ------
 
+The Whiteboard, made again. Night of the 9th of October, Chris asleep,
+this is what was built and how far each part is proven. He asked for "a
+total revamp of the Whiteboard app, to use shape editing rather than
+polygon editing", on the SVG path tool, for a file that is "a layered
+colection of groups of those", driven by "full multi touch, mouse/pen and
+multi button", with instruments whose "shapes as well as lines ... end up
+in the document", and "drivable by you AI guys". He wrote the Promethean
+boards, and showed the idea of his instruments in a folder of his old
+code, `prototype1/`, not to be copied. His words are kept in the memory
+note of this, and in each part below.
+
+Part one, what is under the app. None of it needs a screen.
+
+*	The arc. The `A` of an SVG path threw "Not implemted", there was no
+	way to ask the angle of a vector. `(path-angle x y)` and
+	`(path-gen-earc ...)` in `gui/path/lisp.inc`, in Lisp, no new
+	native function: a first guess at the angle good to a part in 300,
+	then two steps toward it with `sin` and `cos`. Half a circle of 500
+	is within a hundredth of a pixel of true, and ends on its end. `A`
+	and `a` work in `(path-gen-paths)`.
+
+*	`lib/cwb/doc.inc`, the document. Layers of items, an item is a
+	shape or a group. A shape is the `d` of an SVG path as text, a
+	fill, a stroke, and a matrix that puts it where it is; to move,
+	turn or size it is to change the matrix. Words are a shape whose
+	outline is from a font. Every item has an id kept in the file. A
+	shape is flattened to polygons once and they are kept with it, not
+	saved. `(cwb-save)` and `(cwb-load)` are `(tree-save)`, a `.tre`,
+	as a `.cwb` always was, so it is text a person or a script can
+	write; a file with no ids and only what matters said loads. A file
+	of version 2 or 3 is made into one of this, 4.
+
+*	`lib/image/cwb.inc`, the loader, on that. A `.cwb` is an image of
+	the size the document says, on its background, which is nothing
+	unless it has one. The old sample of the app still loads.
+
+*	`lib/cwb/pointer.inc`. A pointer event has an id, a kind, `:mouse
+	:pen :eraser :touch`, its buttons, where, how hard. A `Stage` has
+	actors, back to front; a batch of events goes in, each pointer
+	belongs to the actor it went down on till it comes up, and each
+	actor is given all of its own at once. `Bindings` are rules that
+	say what a pointer is, by kind, id and buttons: a tool, a colour, a
+	width. As data.
+
+*	`lib/cwb/board.inc`. A `Board` is a document, a stage, bindings,
+	what is selected, and steps to undo. Its `Surface` is the actor at
+	the back: pen, line, arrow, box, ellipse, eraser, the hand that
+	picks up and moves, a box dragged round things. Two pointers on
+	what is selected move, turn and size it by where they were and
+	are, and when one lets go the other carries on. `Handles`, in
+	select mode, are eight squares to size by and a round one to turn
+	by, so a mouse alone can do it all. Group, ungroup, order, align,
+	duplicate, style, delete, undo and redo are methods, a script has
+	them without a pointer.
+
+*	`lib/cwb/tools.inc`, the instruments. An `Instrument` is where it
+	is, turned as it is, as long as it is, and the rest is a table of
+	paths in its own space: its outline, its edges, each a line or an
+	arc a pen is held to, its parts, each a region and what a pointer
+	in it does, move, turn, size, put away, and its marks. `Ruler`,
+	`Protractor` and `Setsquare` are each a table. A pen that goes
+	down near an edge draws that edge from where it went down to where
+	it is, a true line or a true `A`, in the document. The protractor
+	has `:mode` `:line`, `:pie` or `:circle`. Only a pointer that is
+	alone on an instrument moves it.
+
+What was run. `tests/system/test_cwb.lisp`, 120, and
+`test_cwb_tools.lisp`, 39, all with made up pointers: a pen draws a
+curve, the mouse a box, a finger moves it, two fingers double it and turn
+it, a pen draws while a finger moves something else, a pen bound to a
+colour draws in it, the eraser rubs out, the handles size and turn, a
+grid is snapped to; a wobbling pen along a ruler draws a straight line,
+two pens draw along its two sides at once, a finger holds it while a pen
+draws and neither moves it, the protractor draws an arc the way the pen
+went. The pixels of a `.cwb` loaded as an image are looked at. Every
+test, 5,249, on the M4, the x64 and the Pi. `forward` finds nothing in
+the new files.
+
+Not seen: any of it, by anyone. There is no app on it yet. No real pen,
+finger or mouse has touched it, the host gives one pointer and no touch.
+
+Also that night. The folder `prototype1/` was in the repo's folder, and
+the first run of the test suite sent all of it, 649 files and 260MB, to
+the x64 and the Pi, a sync is of the tree. It is in `.gitignore` now, so
+not committed and not sent, and the two copies were removed. And a soak:
+every test, 30 times over, on the three machines on the tree as
+committed, 90 runs, none failed.
+
+------
+
 A test of `rack`. Item 16, Chris: "16. yes do the rack test".
 
 *	It could not be tested as it was. A session was given its commands

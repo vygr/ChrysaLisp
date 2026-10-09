@@ -56,6 +56,71 @@
 		(push dst (+ cx (* rx (sin a))) (+ cy (* ry (cos a)))))
 	dst)
 
+(defun path-angle (x y)
+	; (path-angle x y) -> angle
+	;the angle of a vector, from the x axis round towards the y axis, in
+	;radians, more than -pi and no more than pi. 0.0 for no vector at all.
+	;A first guess good to a part in 300, then stepped twice toward where
+	;the vector turned back by it lies along the x axis
+	(defq len (sqrt (+ (* x x) (* y y))))
+	(cond
+		((= len 0.0) 0.0)
+		(:t (setq x (/ x len) y (/ y len))
+			(defq ax (abs x) ay (abs y)
+				r (if (>= ax ay) (/ ay ax) (/ ax ay))
+				a (+ (* (const (/ +fp_pi 4.0)) r) (* 0.273 r (- 1.0 r))))
+			(if (< ax ay) (setq a (- +fp_hpi a)))
+			(if (< x 0.0) (setq a (- +fp_pi a)))
+			(if (< y 0.0) (setq a (neg a)))
+			(times 2 (setq a (+ a (- (* (cos a) y) (* (sin a) x)))))
+			a)))
+
+(defun path-gen-earc (x1 y1 rx ry phi large sweep x2 y2 dst)
+	; (path-gen-earc x1 y1 rx ry phi large sweep x2 y2 dst) -> dst
+	;the arc of an ellipse from one point to another, as the A of an SVG
+	;path has it: the two radii, the turn of the ellipse in radians, the
+	;larger of the two arcs if large is not 0, drawn the way the angle
+	;grows if sweep is not 0. The first point is taken to be in dst, the
+	;rest are added, the last is the end point exactly. Radii too small
+	;to reach are made as big as is needed, and with no radius, or no
+	;distance to go, it is a line
+	(setq rx (abs rx) ry (abs ry))
+	(cond
+		((or (= rx 0.0) (= ry 0.0) (and (= x1 x2) (= y1 y2)))
+			(push dst x2 y2))
+		(:t (defq cp (cos phi) sp (sin phi)
+				hx (* 0.5 (- x1 x2)) hy (* 0.5 (- y1 y2))
+				;the half chord, turned to the ellipse, in units of its radii
+				a (/ (+ (* cp hx) (* sp hy)) rx) b (/ (- (* cp hy) (* sp hx)) ry)
+				m (max (abs a) (abs b)) am (/ a m) bm (/ b m)
+				lam (* m (sqrt (+ (* am am) (* bm bm)))))
+			(when (> lam 1.0)
+				;too small to reach, so as small as will
+				(setq rx (* rx lam) ry (* ry lam) a (/ a lam) b (/ b lam) lam 1.0))
+			(defq l2 (* lam lam)
+				coef (if (>= l2 1.0) 0.0 (sqrt (/ (- 1.0 l2) l2)))
+				coef (if (eql (/= large 0.0) (/= sweep 0.0)) (neg coef) coef)
+				;the centre, and the two ends as seen from it, on a unit circle
+				ux (- a (* coef b)) uy (+ b (* coef a))
+				vx (- (neg a) (* coef b)) vy (+ (neg b) (* coef a))
+				cxp (* coef rx b) cyp (neg (* coef ry a))
+				cx (+ (- (* cp cxp) (* sp cyp)) (* 0.5 (+ x1 x2)))
+				cy (+ (+ (* sp cxp) (* cp cyp)) (* 0.5 (+ y1 y2)))
+				t1 (path-angle ux uy)
+				dt (path-angle (+ (* ux vx) (* uy vy)) (- (* ux vy) (* uy vx))))
+			(cond
+				((and (= sweep 0.0) (> dt 0.0)) (setq dt (- dt +fp_2pi)))
+				((and (/= sweep 0.0) (< dt 0.0)) (setq dt (+ dt +fp_2pi))))
+			;a chord is never more than an eighth of a pixel from the curve
+			(defq n (max 2 (n2i (+ 1.0 (/ (abs dt) (sqrt (/ 1.0 (max 1.0 (max rx ry))))))))
+				step (/ dt (n2f n)))
+			(each (lambda (i)
+				(defq ang (+ t1 (* step (n2f i))) ex (* rx (cos ang)) ey (* ry (sin ang)))
+				(push dst (+ cx (- (* cp ex) (* sp ey))) (+ cy (+ (* sp ex) (* cp ey)))))
+				(range 1 n))
+			(push dst x2 y2)))
+	dst)
+
 (defun path-gen-paths (d)
 	; (path-gen-paths svg_d) -> ((:nil|:t path) ...)
 	; :t closed, :nil open
@@ -163,15 +228,21 @@
 					(path-gen-quadratic cpx cpy x1 y1 x y p)
 					(setq cpx x cpy y cx x1 cy y1)))
 			("A"
+				;an arc of an ellipse, its turn is in degrees
 				(while (num? (elem-get d i))
-					(throw "Not implemted path command !" cmd)
 					(bind '(rx ry x_axis_rotation large_arc_flag sweep_flag x y)
-						(slice d i (++ i 7)))))
+						(slice d i (++ i 7)))
+					(path-gen-earc cpx cpy rx ry (* x_axis_rotation (const (/ +fp_pi 180.0)))
+						large_arc_flag sweep_flag x y p)
+					(setq cpx x cpy y)))
 			("a"
 				(while (num? (elem-get d i))
-					(throw "Not implemted path command !" cmd)
-					(bind '(rx ry x_axis_rotation large_arc_flag sweep_flag dx dy)
-						(slice d i (++ i 7)))))
+					(bind '(rx ry x_axis_rotation large_arc_flag sweep_flag x y)
+						(slice d i (++ i 7)))
+					(setq x (+ cpx x) y (+ cpy y))
+					(path-gen-earc cpx cpy rx ry (* x_axis_rotation (const (/ +fp_pi 180.0)))
+						large_arc_flag sweep_flag x y p)
+					(setq cpx x cpy y)))
 			(("Z" "z")
 				(bind '(cpx cpy) (slice p 0 2))
 				(push p cpx cpy)
