@@ -4,6 +4,14 @@
 
 ------
 
+Seen by Chris, on a desktop, 9 October, and good: the `comment` symbol
+and the three with its fault, the quieter panels and troughs, the Eyes
+app, the Mandelbrot tool bar and click, the Network Map whitening a node
+that works, the Molecule atoms and the Mesh demo. Each was "not seen" in
+its entry below.
+
+------
+
 `(path-filter)` and `(path-simplify)`, two faults left on the 9th, mended.
 
 *	`(path-filter tol src dst)` into a path that was not the source wrote
