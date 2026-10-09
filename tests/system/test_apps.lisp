@@ -79,10 +79,10 @@
 	" (+ev_msg_target_id +event_link) (+ev_msg_action_source_id (. ap_link :get_id))))"
 	" (print (map (lambda (target) (def ap_link :link target)"
 	" (catch (if (ap_act) :yes :no) :threw))"
-	" (list {../../README.md} {no_such.md} {http://x.org/a.md} {../history/press/1991-12_byte.pdf}))"
+	" (list {../../README.md} {no_such.md} {http://x.org/a.md} {../history/press/1991-12_byte.pdf} {#a-place-in-no-page}))"
 	" { } (if (. *file_selector* :find_node {docs/gui/event_dispatch.md}) :in :out)"
 	" { } (list +doc_root +doc_types))"
 	;wherever it was put, this string is not run at the top of its task
 	" (defq ap_e (env)) (while ap_e (undef ap_e '*handler_env*) (setq ap_e (penv ap_e)))")))
-(assert-eq "a link out of the root, to no file, to the web or to a pdf is not followed, one in the tree is there to follow, and the root and kinds are as the app has them"
-	"(:no :no :no :no) :in (\qdocs\q (\q.md\q))\n" ap_said)
+(assert-eq "a link out of the root, to no file, to the web, to a pdf, or to a place with no page up is not followed, one in the tree is there to follow, and the root and kinds are as the app has them"
+	"(:no :no :no :no :no) :in (\qdocs\q (\q.md\q))\n" ap_said)

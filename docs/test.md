@@ -207,8 +207,14 @@ forward buttons of the toolbar then step through where you have been.
 * Two links on a line: [widgets](gui/widgets.md) and
   [event dispatch](gui/event_dispatch.md).
 
-* A link to a place within a document, the place is not gone to yet, the
-  document is: [iteration](lisp/iteration.md#iteration).
+* A link to a place within a document, a heading of it by its name:
+  [predication, in the iteration document](lisp/iteration.md#predication).
+
+* A link to a place in this page: [the first table](#standard-table-with-inline-styles),
+  and [the top of the page](#text-handler-master-test-suite).
+
+* A link to a place that is not there, the page stays where it is:
+  [nowhere](#no-such-heading).
 
 * A long link that has to wrap:
   [the whole of the text of this link is long enough that it will not fit on one line of the page and so wraps](ai_digest/summary.md).

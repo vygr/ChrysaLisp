@@ -4,6 +4,40 @@
 
 ------
 
+A link to a place in a document goes to the place. Chris: "make the
+#place links jump to the place".
+
+*	A place is a heading, by its name, `(md-anchor)` in
+	`gui/md/lisp.inc`: the heading in lower case, a `-` for each space,
+	only letters, digits, `-` and `_` kept, and where a link in the
+	heading goes left out. "Heading Level 1 (34pt)" is
+	`heading-level-1-34pt`, as it is on GitHub, so a link written for
+	one works on the other. Two headings of one name, the first is it.
+
+*	An Md notes each heading it draws and the view it drew it as,
+	`(. md :find_anchor name)`.
+
+*	The Docs app, `(show-place)`: the Md widgets of the page are asked
+	for the heading, and the page's slider is set to where it is, so it
+	is at the top. `file.md#place` goes to the document and then the
+	place. `#place` alone is a place in the page that is up, and is not
+	a move in the history. A place that is not there leaves the page
+	where it is.
+
+*	`docs/test.md` has four more links for it: to a heading of another
+	document, to two of its own, and to one that is not there.
+
+`tests/system/test_md.lisp`, 55: names of headings, the page's own
+places found and where they sit, the other document having the heading
+the page links to. `tests/system/test_apps.lisp`: the app's action given
+a place with no page up, not followed and no throw. Every test, 5,066, on
+the M4, the x64 and the Pi.
+
+Not seen: a page move to a place, by anyone. That needs a page drawn,
+which needs a desktop.
+
+------
+
 Why a task that had loaded the Docs app never ended, and a test of the
 app's link action.
 

@@ -47,6 +47,25 @@
 		(split (first (split (cat target " ") "#")) (const (char-class "/ "))))
 	(join out "/"))
 
+(defun md-anchor (text)
+	; (md-anchor text) -> name
+	;the name a heading is found by, as the place of a link, file.md#name.
+	;The text of the heading in lower case, each space a -, and all but
+	;letters, digits, - and _ left out, with where a link in it goes to.
+	;"A heading with [a link](x.md) in it!" is a-heading-with-a-link-in-it
+	(defq out (list) skip :nil prev "")
+	(each (lambda (c)
+		(defq n (code c))
+		(cond
+			(skip (if (eql c ")") (setq skip :nil)))
+			((and (eql c "(") (eql prev "]")) (setq skip :t))
+			((eql c " ") (push out "-"))
+			((or (<= 48 n 57) (<= 65 n 90) (<= 97 n 122) (eql c "-") (eql c "_"))
+				(push out (to-lower c))))
+		(setq prev c))
+		(trim text))
+	(join out ""))
+
 (defun link-text (line)
 	; (link-text line) -> line
 	;each link of the line, [text](target) or ![text](target), is made
@@ -400,6 +419,12 @@
 	(defsetmethod :page_width)
 	(defgetmethod :search_widgets)
 
+	(defmethod :find_anchor (name)
+		; (. md :find_anchor name) -> :nil | view
+		;the view a heading of that name was drawn as, see (md-anchor)
+		(if (defq anchors (def? :anchors this))
+			(some (# (if (eql (first %0) name) (second %0))) anchors)))
+
 	(defmethod :render ()
 		; (. md :render) -> md
 		(each (# (. %0 :sub)) (. this :children))
@@ -410,6 +435,7 @@
 			bullet_size (md-scale (/ (* base_font_size 4) 3) zoom)))
 		(def this
 			:search_widgets search_widgets
+			:anchors (defq anchors (list))
 			:min_width page_width
 			:font (create-font (md-font-name font_doc) base_size)
 			:font_bold (create-font (md-font-name font_bold) base_size)
@@ -430,8 +456,12 @@
 				((defq indent (some (# (if (starts-with %0 line) (!)))
 						'("# " "## " "### " "#### " "##### " "###### ")))
 					(flush-lines this lines search_widgets)
-					(defq h_text (slice line (+ indent 2) -1))
-					(paragraph this (parse-line h_text (get :link_event this)) "" "" search_widgets (- 4 (* indent 2)) (- 34 (* indent 4))))
+					;a heading is a place a link can be to, by its name. It is
+					;the first thing drawn for it, and the first of a name wins
+					(defq h_text (slice line (+ indent 2) -1) h_at (length (. this :children)))
+					(paragraph this (parse-line h_text (get :link_event this)) "" "" search_widgets (- 4 (* indent 2)) (- 34 (* indent 4)))
+					(unless (some (# (eql (first %0) (md-anchor h_text))) anchors)
+						(push anchors (list (md-anchor h_text) (elem-get (. this :children) h_at)))))
 				((push lines line)))) text_lines)
 		(flush-lines this lines search_widgets)
 		this)
@@ -454,6 +484,6 @@
 	)
 
 ;module
-(export-symbols '(md-link-file))
+(export-symbols '(md-link-file md-anchor))
 (export-classes '(Md Link))
 (env-pop)

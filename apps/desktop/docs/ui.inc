@@ -23,6 +23,17 @@
 	(. *file_selector* :select_node file)
 	(populate-page file))
 
+(defun show-place (place)
+	;bring a heading of the page to the top of it, by its name, the part
+	;of a link after the #. The page is a run of Md widgets, with what is
+	;not text between them, each knows its own headings. No such heading,
+	;or no name, and the page is left where it is
+	(when (and (nempty? place) (defq page (get :child *page_scroll*))
+			(defq view (some (# (and (Md? %0) (. %0 :find_anchor place))) (. page :flatten))))
+		(bind '(& y & &) (. page :get_relative view))
+		(def (get :vslider *page_scroll*) :value y)
+		(.-> *page_scroll* :layout :dirty_all)))
+
 (defun action-back ()
 	(if (> *history_idx* 0)
 		(show-file (elem-get *history* (dec *history_idx*)) -1)))
@@ -71,11 +82,18 @@
 	;a link of the page was pressed. It is followed if it is to one of the
 	;documents of the app, those of the tree at the left, which is asked.
 	;So not out of the folder they are under, +doc_root, whatever that is,
-	;not to the web, a pdf or a picture, and not to a file that is not there
+	;not to the web, a pdf or a picture, and not to a file that is not there.
+	;What is after a # is a place in the document, a heading by its name,
+	;and a link that is only that is to a place in the page that is up
 	(when (and (defq view (. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
 			(defq target (def? :link view))
-			(not (find ":" target)) (not (starts-with "#" target))
-			(defq file (md-link-file *current_file* target))
-			(some (# (ends-with %0 file)) +doc_types)
-			(. *file_selector* :find_node file))
-		(show-file file)))
+			(not (find ":" target)))
+		(defq place (if (defq at (find "#" target)) (slice target (inc at) -1) "")
+			file (if (starts-with "#" target) *current_file* (md-link-file *current_file* target)))
+		(cond
+			((eql file *current_file*)
+				(show-place place))
+			((and (some (# (ends-with %0 file)) +doc_types)
+					(. *file_selector* :find_node file))
+				(show-file file)
+				(show-place place)))))
