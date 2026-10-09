@@ -33,8 +33,8 @@ the page links to. `tests/system/test_apps.lisp`: the app's action given
 a place with no page up, not followed and no throw. Every test, 5,066, on
 the M4, the x64 and the Pi.
 
-Not seen: a page move to a place, by anyone. That needs a page drawn,
-which needs a desktop.
+Tried by Chris on a desktop on the M4, the links of `docs/test.md`: "the
+test worked."
 
 ------
 
