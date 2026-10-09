@@ -86,3 +86,33 @@
 	" (defq ap_e (env)) (while ap_e (undef ap_e '*handler_env*) (setq ap_e (penv ap_e)))")))
 (assert-eq "a link out of the root, to no file, to the web, to a pdf, or to a place with no page up is not followed, one in the tree is there to follow, and the root and kinds are as the app has them"
 	"(:no :no :no :no :no) :in (\qdocs\q (\q.md\q))\n" ap_said)
+
+;every app's file is loaded, each in a task of its own, with no desktop. A
+;task is started with a main, so the app's own, the last thing in its
+;file, is not taken, "Function override", and that is as far as a load
+;can go: every import, every constant, the whole tree of widgets of its
+;window, and every function before the main. An app that throws before
+;that would not start on a desktop either, and says here which and why.
+;Two do, and are known: they put a picture on a texture as they load,
+;which is the desktop's to have
+(import "lib/task/pipe.inc")
+(defq ap_apps (sort (filter (# (ends-with "/app.lisp" %0)) (files-all "apps" '(".lisp"))))
+	ap_wants_desktop '("apps/demos/boing/app.lisp" "apps/demos/freeball/app.lisp")
+	ap_stopped (list) ap_reached 0)
+(each (lambda (file)
+	(defq ap_out (list))
+	(pipe-run (cat "lisp -r (defq ap_e {loaded}) (catch (import {" file "}) (progn (setq ap_e (str _)) :t)) (print ap_e)"
+		;an app that keeps an environment of its own lets go of it, or its task never ends
+		" (defq ap_v (env)) (while ap_v (undef ap_v (quote *handler_env*)) (setq ap_v (penv ap_v)))")
+		(# (push ap_out %0)))
+	(defq ap_said (join ap_out ""))
+	(cond
+		((and (found? ap_said "Function override") (found? ap_said "main")) (++ ap_reached))
+		(:t (push ap_stopped (cat file " " (slice ap_said 0 (min 160 (length ap_said))))))))
+	ap_apps)
+(assert-true "there are apps" (> (length ap_apps) 45))
+(assert-list-eq "every app loads as far as its main, but for the two that want a desktop to load, and one that does not says why" '()
+	(filter (# (not (find (first (split %0 " ")) ap_wants_desktop))) ap_stopped))
+(assert-list-eq "those two stop, where they put a picture on a texture" ap_wants_desktop
+	(map (# (first (split %0 " "))) (filter (# (found? %0 ":dirty")) ap_stopped)))
+(assert-eq "the rest reach it" (- (length ap_apps) 2) ap_reached)

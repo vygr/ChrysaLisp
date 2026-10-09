@@ -4,6 +4,20 @@
 
 ------
 
+Every app is loaded by a test, with no desktop. Offered the night before,
+after the Docs app went out not starting.
+
+`tests/system/test_apps.lisp` loads the file of each of the 51, in a task
+of its own, as far as it can go with no desktop: every import and
+constant, the tree of widgets of its window, every function up to its
+main. One that throws before that is named, with what it threw. It is a
+second for all of them. Two are known to stop, Boing and Freeball put a
+picture on a texture as they load. It does not run a main, so what an app
+does first when it starts, as Docs fell at, is still only seen on a
+desktop.
+
+------
+
 A soak of the night's work, every test on the three machines over and
 over, found four things. None was in what the tests of the Whiteboard
 said.
