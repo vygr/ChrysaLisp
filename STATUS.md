@@ -4,6 +4,31 @@
 
 ------
 
+`(path-filter)` and `(path-simplify)`, two faults left on the 9th, mended.
+
+*	`(path-filter tol src dst)` into a path that was not the source wrote
+	over whatever that path had room for and no further, it made none. A
+	smaller one, an empty one, and the node went down, then or later. It
+	now makes the other path a copy of the source first, and filters that.
+	So a source of one point, or none, gives that too, it gave the other
+	path back as it was. Onto itself it does what it did, the stroker and
+	the symbol font use it so, and the fonts are the same bytes.
+
+*	`(path-simplify tol src dst)` gave half of a round shape. Three things.
+	The distance of a point from the line was asked for with the y of the
+	wrong point. The squares of the distances were kept in 32 bits, which
+	a shape more than 180 or so across does not fit. And the tolerance was
+	set against a distance squared as it was, it is squared now, as the
+	filter's is. Nothing in the tree called it.
+
+*	`tests/system/test_path.lisp`, 15. With the code as it was a node goes
+	down on them. Lint clean. 4,891 pass on the M4, the x64 and the Pi.
+
+*	The Onslaught skill, `sprite-model.md` 2.2, had the `:sp_update` of
+	before a sprite died on its own turn. It has the one in the source.
+
+------
+
 The dot of the `comment` symbol had a bite out of it. Chris saw it, in the
 Editor's tool bar.
 

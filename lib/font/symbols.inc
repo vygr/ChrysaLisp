@@ -214,8 +214,7 @@
 		(each (# (push out %0)) (sym-wind ps)))
 		items)
 	;a curve is more points than it wants, those nearer than half a step
-	;of the work size are let go. Onto itself, the filter does not make
-	;room in another path, and writes past the end of one that is smaller
+	;of the work size are let go
 	(map (# (path-filter 0.5 %0 %0)) out))
 
 (defun sym-glyph (code paths)

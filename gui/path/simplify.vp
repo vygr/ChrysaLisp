@@ -17,12 +17,15 @@
 		(union
 			(long span :span)
 			(uint first last index rlast))
+		(long eps max dist)
 		(int p1x p1y p2x p2y p3x p3y)
-		(uint length)
-		(int eps max dist))
+		(uint length))
 
 	(push-scope)
 	(entry :path :simplify {this, that, eps})
+
+	;distances are compared squared, as the filters do
+	(assign {eps *> eps} {eps})
 
 	;any point doing anything ?
 	(d-call :path :get_length {that} {_, length})
@@ -47,7 +50,7 @@
 				(call :path :get_elem2 {that, last} {_, p3x, p3y})
 				(loop-start)
 					(call :path :get_elem2 {that, length} {_, p1x, p1y})
-					(call :sys_math :f_dist_sqd {p1x, p2y, p2x, p2y, p3x, p3y} {dist})
+					(call :sys_math :f_dist_sqd {p1x, p1y, p2x, p2y, p3x, p3y} {dist})
 					(vpif {dist > max})
 						(assign {dist, length} {max, index})
 					(endif)

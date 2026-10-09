@@ -56,8 +56,8 @@ Key state properties on `this`:
 *	`:sp_flags`: Bitmask of runtime entity flags (`+fsp_*`), including
 	`+fsp_collide` and `+fsp_action` defined via `(bits +fsp 0 ...)`.
 
-*	`:sp_frame`: Current atlas frame index. Setting this to `-1` triggers
-	immediate destruction via `:sp_kill`.
+*	`:sp_frame`: Current atlas frame index. Setting this to `-1` marks the
+	sprite as killed, it dies on its own turn in `:sp_update` (section 2.5).
 
 *	`:sp_components`: List of component environments executed sequentially.
 
@@ -83,20 +83,15 @@ The `:sp_update` pipeline wraps component execution in `env-push` / `env-pop`:
 ```vdu
 (defmethod :sp_update ()
 	; (. sprite :sp_update) -> sprite
-	(if (or (= (get :sp_frame this) -1) (get :sp_dead this))
+	(each (lambda (comp)
+		(unless (= (get :sp_frame this) -1)
+			(env-push comp)
+			((get :update comp) this comp)
+			(env-pop)))
+		(get :sp_components this))
+	(when (= (get :sp_frame this) -1)
 		(. this :sp_kill)
-		(progn
-			(each (lambda (comp)
-				(unless (or (= (get :sp_frame this) -1) (get :sp_dead this))
-					(if (env? comp)
-						(progn
-							(env-push comp)
-							((get :update comp) this comp)
-							(env-pop))
-						(comp this :nil))))
-				(get :sp_components this))
-			(when (or (= (get :sp_frame this) -1) (get :sp_dead this))
-				(. this :sp_kill))))
+		(. this :sp_reap))
 	this)
 ```
 

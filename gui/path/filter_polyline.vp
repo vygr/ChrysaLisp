@@ -10,15 +10,24 @@
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
-	;:r1-:r7
+	;:r1-:r9, :f0-:f15
 
 	(def-vars
 		(ptr this that)
 		(plong iter_begin iter_end iter_this)
-		(int eps))
+		(int eps)
+		(uint length))
 
 	(push-scope)
 	(entry :path :filter_polyline {this, that, eps})
+
+	;room for all of the source, before any pointer is taken, and what
+	;is not filtered below, a point or none, is the source as it is
+	(vpif {this /= that})
+		(d-call :path :get_length {that} {_, length})
+		(d-call :path :clear {this})
+		(d-call :path :append {this, that, 0, length})
+	(endif)
 
 	(call :path :get_both {that} {_, iter_begin, iter_end})
 	(call :path :get_begin {this} {_, iter_this})
