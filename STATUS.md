@@ -45,6 +45,8 @@ Ctrl-R searches the history, in the Terminal and the TUI.
 	the history after, one typed at a real terminal, a pty, is. The
 	PowerShell scripts are not changed.
 
+*	Seen by Chris, Ctrl-R in the Terminal app of a desktop: "working".
+
 ------
 
 Two machines in the Network Map are never nearly the one color.
