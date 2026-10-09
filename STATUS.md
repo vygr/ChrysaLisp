@@ -12,7 +12,12 @@ The Molecule demo's atoms are polished.
 	color, so its highlight was that color too. `atom.shader` now takes
 	the color, and gives a ball of it with a white highlight and a faint
 	light round its edge. The app keeps an image for each color and size,
-	in the cache as before, and draws it in a grey for how far off it is.
+	in the cache as before. How far off an atom is, is in its image too,
+	one of six steps of light, from two thirds at the back to all of it
+	at the front: a texture with colors of its own is shown as it is, the
+	GUI dims only a glyph or a grey one as it draws. The steps are of how
+	far away it is, not of the depth the lens gives, most of which is the
+	far end.
 
 *	Carbon was black, a black ball with a dot on it. It is a dark grey.
 	And the palette was worked out with whole numbers, so a color could

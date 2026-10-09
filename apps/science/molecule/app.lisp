@@ -96,25 +96,30 @@
 (defun get-rot (slider)
 	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
 
-(defun lighting (at)
-	;how much of an atom's image is shown, less of it the further away it
-	;is. A grey, the image has the color and the highlight in it
-	(defq grey (min 255 (+ 96 (n2i (* (n2f at) 420.0)))))
-	(+ 0xff000000 (<< grey 16) (<< grey 8) grey))
+(defun lighting (z)
+	; (lighting z) -> 0 to 5
+	;how much light gets to an atom, less the further away it is, as one
+	;of six steps. z is how deep it is as the lens has it, -1 at the front
+	;and 1 at the back, which is not even, most of it is the far end, so
+	;it is turned back into how far away. The light is drawn into the
+	;atom's image, a texture with colors of its own is shown as it is and
+	;can not be dimmed after, so there is an image for each step
+	(defq away (/ (const (* +real_2 +far +near)) (- (const (+ +far +near)) (* z (const (- +far +near))))))
+	(max 0 (min 5 (n2i (* (- +far away) (const (/ (n2r 5.99) (- +far +near))))))))
 
-(defun get-atom-texture (radius kind)
-	; (get-atom-texture radius kind) -> (tid tw th) | (:nil 0 0)
-	;the image of an atom this big and of this color, which of the
-	;palette. The shader draws it the first time it is asked for, straight
-	;onto the pixels of a canvas. It goes in the shared pixmap cache of
-	;the node, so every Molecule that is open has the one image of a
-	;color and a size.
+(defun get-atom-texture (radius kind level)
+	; (get-atom-texture radius kind level) -> (tid tw th) | (:nil 0 0)
+	;the image of an atom this big, of this color, which of the palette,
+	;and this well lit, (lighting). The shader draws it the first time it
+	;is asked for, straight onto the pixels of a canvas. It goes in the
+	;shared pixmap cache of the node, so every Molecule that is open has
+	;the one image of a color, a size and a light.
 	(defq size (n2i (+ (* (quant radius +radius_quant) (n2r 2.0)) (n2r 0.5)))
-		key (+ (* size 16) kind))
+		key (+ (* size 128) (* level 16) kind))
 	(cond
 		((<= size 0) (list :nil 0 0))
 		(:t (unless (defq canvas (. atom_cache :find key))
-				(defq name (cat "molecule/ball_" (str kind) "_" (str size)))
+				(defq name (cat "molecule/ball_" (str kind) "_" (str level) "_" (str size)))
 				(cond
 					((defq pixmap (. *pixmap_cache* :find name))
 						(setq canvas (Canvas-pixmap pixmap)))
@@ -122,7 +127,9 @@
 						(shader-vp-draw atom_native
 							(shader-vp-frame atom_program atom_native (list
 								(list 'resolution (list size size))
-								(list 'color (map (const n2r) (elem-get +palette kind)))))
+								(list 'color (map (const n2r) (elem-get +palette kind)))
+								;from two thirds of the light at the back to all of it at the front
+								(list 'light_level (/ (n2r (+ level 10)) (const (n2r 15))))))
 							(defq pixmap (getf canvas +canvas_pixmap 0)) 0 0 size size size :t)
 						(. *pixmap_cache* :insert name pixmap)
 						(. canvas :swap +swap_write)))
@@ -153,9 +160,9 @@
 	(each (lambda (i)
 		(bind '(sx sy r z at) (slice out (+ (* i +placed_size) 4) (* (inc i) +placed_size)))
 		(when (<= +real_-1 z +real_1)
-			(bind '(tid tw th) (get-atom-texture r (elem-get *colors* i)))
+			(bind '(tid tw th) (get-atom-texture r (elem-get *colors* i) (lighting z)))
 			(when tid
-				(defq col (lighting (* at +real_1/2))
+				(defq col +argb_white
 					blit_x (n2i (- sx (n2r (/ tw 2))))
 					blit_y (n2i (- sy (n2r (/ th 2)))))
 				(push new_draw_list (list tid col blit_x blit_y tw th)))

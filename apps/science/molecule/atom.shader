@@ -10,8 +10,10 @@
 
 ;inputs, name type default min max
 (definput resolution :vec2)
-;what the atom is the color of
+;what the atom is the color of, and how much light gets to it, less the
+;further off it is, 1 is all of it
 (definput color :vec3)
+(definput light_level :float 1.0 0.0 1.0)
 
 (defconst ambient 0.3)
 (defconst diffuse 0.7)
@@ -38,4 +40,4 @@
 		white (+ (* gleam (pow (max (dot n half_way) 0.0) shine))
 			(* rim edge edge edge edge))
 		lit (min (+ (* color (+ ambient (* diffuse (max (dot n light) 0.0)))) (vec3 white)) (vec3 1.0)))
-	(vec4 (* lit cover) cover))
+	(vec4 (* lit light_level cover) cover))
