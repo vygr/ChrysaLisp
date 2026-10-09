@@ -27,6 +27,24 @@ Ctrl-R searches the history, in the Terminal and the TUI.
 	twice the one before. The Terminal app opens with it and gives no
 	error. Not seen: the key pressed in the Terminal app.
 
+*	And pressed there by Chris it was an error, `*history_found*` not
+	bound. The Terminal app loads its actions as a module, and what a
+	module does not send out is gone when it has loaded. A function of it
+	is still found, a variable of it is not. The two the search keeps
+	from one press to the next are sent out now. The TUI loads the same
+	file with no module round it, which is why it worked there, and the
+	test called the function the same way. The test now loads it as the
+	app does, and fails with the two not sent out.
+
+*	What a script types is kept out of the history. Chris: "might be an
+	idea to see if we can filter out your auto typing into the
+	TUI/Terminal history". The launch script knows if its input is a
+	keyboard, `[ -t 0 ]`, and when it is not, a pipe or a file, has the
+	first node told, `*tui_scripted*`, and the TUI then runs commands
+	and does not note them. Tried both ways: a command piped in is not in
+	the history after, one typed at a real terminal, a pty, is. The
+	PowerShell scripts are not changed.
+
 ------
 
 Two machines in the Network Map are never nearly the one color.

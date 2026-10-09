@@ -86,8 +86,10 @@
 								(catch (setq cmd (Pipe buffer (list (task-mbox))))
 									(progn (setq cmd :nil) :t))
 								(unless cmd (print "Pipe Error !" +LF))
-								;push new line history entry if not same as last entry
-								(when cmd
+								;push new line history entry if not same as last entry.
+								;Not what a script sends, the launch script says
+								;when its input is not from a keyboard
+								(when (and cmd (not (get '*tui_scripted*)))
 									(bind '(history) (gather *meta_map* :history))
 									(if (defq i (find buffer history))
 										(setq history (erase history i (inc i))))

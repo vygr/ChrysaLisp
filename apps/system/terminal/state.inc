@@ -41,7 +41,7 @@
 
 ;what was last looked for in the history, and the line that was found
 ;for it. A line that is still the one found is a search that goes on
-(defq *history_find* "" *history_found* :nil)
+(defq *history_find* "" *history_found* :none)
 
 (defun history-find (line)
 	; (history-find line) -> :nil | cmd

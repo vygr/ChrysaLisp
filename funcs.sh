@@ -136,11 +136,18 @@ function session_watch
 #start as well, they are the first of the nodes it starts.
 function first_run
 {
+	#input that is not from a keyboard, a pipe or a file, is a script's and
+	#not a person's. The terminal is told, and keeps it out of the history
+	local piped=""
+	if [ ! -t 0 ]
+	then
+		piped="(defq *tui_scripted* :t) "
+	fi
 	if [ "${2:-0}" -gt 0 ]
 	then
-		echo "(progn (node-net :$shape $num_cpu $2 :gui {service/gui/app.lisp}) (import {$1}))"
+		echo "(progn $piped(node-net :$shape $num_cpu $2 :gui {service/gui/app.lisp}) (import {$1}))"
 	else
-		echo "(progn (node-net :$shape $num_cpu) (import {$1}))"
+		echo "(progn $piped(node-net :$shape $num_cpu) (import {$1}))"
 	fi
 }
 

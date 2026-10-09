@@ -66,7 +66,10 @@
 ;module
 (export-symbols
 	'(*event_map* *key_map* *key_map_shift* *key_map_control*
-	action-insert config-load config-save))
+	action-insert config-load config-save
+	;what the history search keeps from one press to the next. This is a
+	;module, what is not sent out of it is gone when it has loaded
+	*history_find* *history_found*))
 (export-classes
 	'(Viewer-edit Terminal-edit))
 (env-pop)
