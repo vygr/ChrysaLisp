@@ -4,6 +4,18 @@
 
 ------
 
+The login window asks for a name and no more.
+
+*	It had a field for a password that nothing read. Chris: "actually
+	make the password sign on, in login, do something, or remove it",
+	and then "we remove the password, we will address that issue again
+	when it comes up in the WAN security issue". It is out,
+	`apps/system/login/app.lisp`.
+
+*	A one node GUI started with it and gave no error. Not seen.
+
+------
+
 A test that loads the GUI as the GUI service does.
 
 *	The service lists every file the GUI stands on and imports each by
