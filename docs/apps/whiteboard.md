@@ -1,6 +1,19 @@
 # Whiteboard
 
-The `Whiteboard` application is a vector graphics editor.
+The `Whiteboard` application is a board to draw on. What is on it is shapes,
+not pixels: lines, boxes, ellipses, arcs, words, lines drawn by hand, each one
+a thing that can be picked up, moved, turned, sized and grouped after it is
+drawn. A board is saved as a `.cwb` file, which is text, and can be shown as a
+picture anywhere a picture can, the `image` section of a page of the
+[`Docs`](docs.md) app among them. This is one:
+
+```image
+apps/media/whiteboard/data/test.cwb
+```
+
+It was not drawn by hand. It was made by a script, with the `cwb` command,
+see below. A board can be driven by a person, a script or an AI, and is the
+same board to each.
 
 If you hover the mouse over the embedded UI below you can see the kind of
 features available. There are more features available through the key bindings
@@ -12,180 +25,132 @@ which can be found in the [`keys.md`](../reference/keys.md) documentation.
 apps/media/whiteboard/widgets.inc *window* 512 512
 ```
 
-## Implementation Study
+## Drawing
 
-The ChrysaLisp Whiteboard, located in `apps/media/whiteboard/`, is a
-vector-based drawing and object manipulation application. It serves as an
-informative case study for developers transitioning from text-based utilities to
-interactive graphical environments, illustrating how to handle multi-touch
-inputs, manage complex transactional object states, perform spatial selection
-queries, and serialize vector data to disk.
+The second row of buttons says what the pen draws: a line by hand, a straight
+line, an arrow, an arrow at both ends, a box, an ellipse, either of those
+filled, words, and last the eraser, which takes out what it is dragged over.
+The row of colours says in what, and the three dots how thick.
 
-### 1. Core Architecture and Components
+Words are typed into the field on that row, and put down where the pen next
+goes down.
 
-The Whiteboard application is structured around a Model-View-Controller design
-tailored for ChrysaLisp's parallel, cooperative multitasking environment.
+The left button of the mouse is the pen. The right button is the hand: it
+picks up what it is on and moves it, whatever the pen is set to. The middle
+button moves the board about in its window.
 
-* **Model (The Drawing State):**
+## Selecting, and changing what is selected
 
-    The core data represents the state of the vector canvas. This is stored in
-    `app.lisp` through several state variables:
+The first button of the second row is the arrow, select. With it the left
+button is the hand as well, so a mouse with one button can do everything.
 
-    * **`*committed_groups*`**: A list of groups. Each group is structured as
-      `(group_bbox strokes flags)`, where `strokes` contains individual paths
-      with their respective color, polygon data, and local bounding box. It
-      represents the permanent vector state of the drawing.
+Press on a thing to select it, or drag a box round several. What is selected
+has a box round it with eight squares and a ring:
 
-    * **`*staging_paths*`**: A list of temporary, in-progress paths currently
-      being drawn or previewed on the canvas (e.g., pen lines, circle bounds,
-      selection boxes).
+* Drag inside the box to move it.
 
-    * **`*grabbed_groups*` and `*moving_groups*`**: Lists used to track and
-      render groups currently selected and actively translated across the screen
-      by the user.
+* Drag a square to size it. A corner keeps its shape, the middle of a side
+moves only that side. The side or corner across from it stays where it is.
 
-    * **`*undo_stack*` and `*redo_stack*`**: Stacks storing snapshots of
-      `*committed_groups*` to facilitate transactional state reversal.
+* Drag the ring above it to turn it.
 
-* **View (User Interface):**
+The third row acts on what is selected: group and ungroup, delete, duplicate,
+bring to the front, send to the back, and six ways to line things up. The
+colours and the thicknesses set the colour and thickness of what is selected
+too.
 
-    Defined in `apps/media/whiteboard/widgets.inc`, the drawing area utilizes a
-    `ui-flow` layout named `*strokes_stack*` with the `+flow_stack_fill` flag to
-    overlay several components:
+## The paper, snapping and zoom
 
-    1. **`*backdrop*` (bottom layer):** A `Backdrop` widget rendering background
-       styles (plain, grid, lines, or axis) and handling canvas snapping.
+The first row has the paper, plain, a grid, lines, or two axes. It is there to
+work on and is not part of what is saved as the picture.
 
-    2. **`*committed_canvas*` (middle layer):** A `Canvas` widget dedicated to
-       rendering finalized, static groups from `*committed_groups*`.
+The two buttons after it are snap. With the first on, a point that is drawn or
+dragged goes to the nearest point of the grid, and the lines of the paper are
+where the grid is. With the second on, a thing that is turned goes to the
+nearest 15 degrees.
 
-    3. **`*staging_canvas*` (top layer):** An independent `Canvas` widget
-       rendering active `*staging_paths*` and `*moving_groups*` dynamically
-       during drag operations.
+Then zoom in and zoom out, and the size of the board, as `1024x768`. Type
+another size and press return and the board is that size, what is on it stays
+where it is.
 
-    4. **`*strokes*` (input layer):** A transparent `ui-stroke` widget at the
-       very top of the stack, designed solely to capture mouse/touch events and
-       emit raw coordinates.
+## The instruments
 
-* **Controller (Event Handling and Logic):**
+The ruler, the protractor and the set square are on the second row. Each is
+put on the board, over what is drawn, and is not part of the document. What
+is drawn with it is.
 
-    * **`apps/media/whiteboard/app.lisp`**: Runs the main event loop, receiving
-      messages from the UI and timeouts. It implements the primary input
-      processing logic like `action-stroke`.
+* Run the pen along an edge of one and what is drawn is that edge, from where
+the pen went down to where it came up: a true straight line along a ruler, a
+true arc round a protractor, however the hand wobbles. The pen only has to go
+down near the edge.
 
-    * **`apps/media/whiteboard/ui.inc`**: Implements standard action handlers
-      mapped by `*event_map*` in `actions.inc`, such as toolbar selections,
-      undo/redo, file operations, grouping, and alignment.
+* The three buttons after them say what the round edge of the protractor
+draws: the arc, a slice with its two straight sides, or the whole circle.
 
-### 2. The Drawing Lifecycle: Input to Vector Geometry
+* Drag the middle of an instrument, with the hand, to move it.
 
-The drawing lifecycle handles coordinate conversion, path smoothing, and
-rendering across separated canvas layers:
+* Drag the strip along a long side of the ruler to turn it, about the far end
+of that side. Drag an end to make it longer or shorter.
 
-1. **Input Capture**: When the user drags across the canvas, `*strokes*`
-   (`gui/stroke/lisp.inc`) records the coordinate streams.
+* The ring in the middle puts it away.
 
-2. **Event Dispatch**: The `*strokes*` widget emits a `+event_stroke` message
-   containing the accumulated paths and touch states.
+More than one pen can draw along an instrument at once. One that is being
+held still is not moved by a pen that draws along it.
 
-3. **Active Staging**: The event loop dispatches the message to `action-stroke`
-   in `app.lisp`.
+## Driving it without a board: the cwb command
 
-    * If the selected tool is `+event_pen`, the coordinate stream is smoothed
-      using `path-smooth`.
+`cwb` makes, changes, lists and draws a `.cwb` file from a command line.
 
-    * The points are converted to fixed-point format via `n2f` and filtered
-      using `path-filter` with a tolerance threshold `+tol`.
+```vdu
+cwb -n 400x300 a.cwb -e "(cwb-add doc (cwb-shape (cwb-d-rect 20 20 200 120 12) :fill 0xffffd070))"
+cwb a.cwb -e "(cwb-add doc (cwb-text-mid {Start} 110 70))" -i
+cwb a.cwb -o a.tga -z 2 -b 0xffffffff
+```
 
-    * The path is passed to `flatten_path` to generate output shapes (polylines
-      with rounded caps for the pen, bevel caps for arrows, or calculated
-      polygons for boxes/circles).
+The first makes a new document and puts a box with round corners in it. The
+second puts a word in the middle of the box and lists what the document then
+has. The third draws it to a picture at twice the size on white.
 
-    * The temporary geometry is pushed to `*staging_paths*`. `redraw-layers`
-      flags `+layer_staging` to refresh the `*staging_canvas*` without redrawing
-      the static committed canvas beneath it.
+The Lisp given to `-e`, or in a file given to `-s`, has `doc`, the document,
+and `board`, the board of it, and everything in `lib/cwb/`. A shape is an SVG
+path, text: `(cwb-d-rect)`, `(cwb-d-ellipse)`, `(cwb-d-line)`, `(cwb-d-arc)`
+and `(cwb-d-points)` write the common ones, and `(cwb-d "M" 0 0 "L" 10 5 "Z")`
+writes any. A colour is `0xAARRGGBB`.
 
-4. **Committing the Stroke**: Upon releasing the mouse (`commits` evaluates to
-   true):
+`-p` plays a file of pointer events to the board, as a pen, a mouse and
+fingers would give them, so the tools can be driven too. Each line is one
+moment, one or more events with `;` between, each `id kind buttons x y`:
 
-    * A `(snapshot)` of the `*committed_groups*` is pushed onto `*undo_stack*`.
+```vdu
+# a finger holds the ruler while a pen is run along it
+7 touch 1 300 330
+1 pen 1 150 286 ; 7 touch 1 300 330
+1 pen 1 480 288 ; 7 touch 1 300 330
+1 pen 0 480 288 ; 7 touch 0 300 330
+```
 
-    * The path is committed to `*committed_groups*` via `(commit p front)`.
+The picture at the top of this page is `cwb -n 640x420 ... -s` of a script of
+twenty lines: a function that makes a box with a word in the middle of it, one
+that makes an arrow, and the calls to them.
 
-    * If consecutive strokes occur within the `*group_timeout*` threshold, the
-      new stroke is added directly to the existing group (using `cat` to create
-      a new list, preventing accidental mutation of shared undo stack entries).
-      Otherwise, a new group is initialized via `create-group`.
+## How it is made
 
-    * The temporary `*staging_paths*` list is cleared, and `+layer_all` is
-      flagged to trigger a complete redraw.
+[`docs/ai_digest/whiteboard.md`](../ai_digest/whiteboard.md) has the whole of it: the document and its file,
+pointers and the stage that hands them to what is on the board, the board, the
+instruments and how another is written, and what is not done yet.
 
-### 3. Selection, Grouping, and Alignment
+* `lib/cwb/doc.inc`, the document, shapes on SVG paths, the file.
 
-The Whiteboard provides advanced vector manipulation utilities beyond basic path
-drawing:
+* `lib/cwb/pointer.inc`, pointers, a stage, and bindings that say what each
+pointer is.
 
-* **Selection Mode (`+event_select`)**: The user drags a selection box. The
-  application performs a bounding box intersection check or an exact polygon
-  point-in-polygon test via `vector-point-in-polygon`. Matching groups are
-  tagged with `+group_selected` in their flags field.
+* `lib/cwb/board.inc`, the board: a document, what is selected, undo, and the
+tools of the surface.
 
-* **Move Mode (`+event_move`)**: When dragging selected items, `action-stroke`
-  uses `*grabbed_groups*` to track selected elements and offset their path
-  coordinates. It draws the displaced shapes onto `*staging_canvas*` as
-  `*moving_groups*` until committed.
+* `lib/cwb/tools.inc`, the instruments.
 
-* **Grouping & Ungrouping**:
+* `apps/media/whiteboard/`, the window round a board: `view.inc` makes the
+mouse a pointer, `widgets.inc` is the toolbars, `ui.inc` what each does, and
+`app.lisp` the canvases and the loop.
 
-    * `action-group` filters selected groups, concatenates their internal stroke
-      arrays, and generates a new merged group utilizing `create-group` with the
-      `+group_selected` flag set.
-
-    * `action-ungroup` splits composite groups back into individual stroke
-      elements, keeping each resulting group selected.
-
-* **Alignment**: `align-selected` calculates the collective bounding box of all
-  selected groups, determines the target alignment edge (`:left`, `:vcenter`,
-  `:right`, `:top`, `:hcenter`, `:bottom`), and applies a translation offset
-  vector to each polygon coordinate.
-
-### 4. Transactional State Snapshots (Undo / Redo)
-
-The undo/redo engine leverages Lisp's immutable list sharing characteristics to
-optimize memory usage:
-
-* **Shallow Copying**: The `(snapshot)` function performs `(push *undo_stack*
-  (cat *committed_groups*))`. By copying only the top-level list of group
-  references, it creates a fast, low-overhead snapshot.
-
-* **Preventing Mutability Leakage**: When appending a new stroke to an existing
-  group, `(commit)` creates a new list using `cat` to modify the group structure
-  rather than mutating it in-place. This ensures that historical snapshots
-  stored in the `*undo_stack*` remain preserved.
-
-### 5. File I/O and Service Integration
-
-The Whiteboard application demonstrates ChrysaLisp’s service-oriented design and
-inter-process messaging patterns:
-
-* **Leveraging External Services**: Instead of maintaining a complex, custom
-  file dialog within the whiteboard, the application requests the system's file
-  browser (`apps/system/files/child.lisp`) as an independent child task via
-  `(open-child ...)` with the `+kn_call_pin` flag.
-
-* **Asynchronous Message Exchange**: The Whiteboard passes a temporary mailbox
-  (`*picker_mbox*`) to the file browser. The main loop listens on this port.
-  When the user selects a file, the file browser sends the path back as a
-  string, and the temporary mailbox is closed.
-
-* **Structured Tree Serialization**:
-
-    * **Saving**: `action-save` serializes the vector model via `tree-save` into
-      a `.cwb` (ChrysaLisp Whiteboard) formatted text file. It strips out
-      selection flags from the exported group structures to ensure clean file
-      state on load.
-
-    * **Loading**: `tree-load` deserializes the file. The loader contains
-      backward-compatibility parsing logic for older versions (Version 2, which
-      used a flat list of `polygons`) and normalized validation for the current
-      Version 3 groups.
+* `cmd/cwb.lisp`, the command.

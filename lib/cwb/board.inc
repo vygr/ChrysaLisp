@@ -409,7 +409,7 @@
 	(def this :doc (ifn doc (cwb-doc)) :stage (Stage) :bindings (bindings-default)
 		:mode :pen :layer :nil :selected (list) :undo_stack (list) :redo_stack (list)
 		:color 0xff000000 :fill 0 :width 3.0
-		:text "" :font "fonts/OpenSans-Regular.ctf" :font_size 28
+		:text "" :font "fonts/OpenSans-Regular.ctf" :font_size 32
 		:snap 0.0 :snap_angle 0.0 :keep_shape :t :zoom 1.0
 		:temp (Fmap 11) :band :nil :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
 		:floating (list) :appended (list))

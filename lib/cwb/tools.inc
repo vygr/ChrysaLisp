@@ -328,7 +328,7 @@
 			(defq tick (cond ((= (% n 10) 0) 16.0) ((= (% n 5) 0) 11.0) (:t 6.0)))
 			(push ticks "M" x top "L" x (+ top tick))
 			(if (and (= (% n 10) 0) (< x (- inset 8.0)))
-				(push marks (cwb-text (str (/ n 10)) (+ x 2.0) (+ top 30.0) :font_size 11)))
+				(push marks (cwb-text (str (/ n 10)) (+ x 2.0) (+ top 30.0) :font_size 22)))
 			(setq n (inc n) x (+ x +ruler_tick)))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 1.0 :cap1 :butt :cap2 :butt))
 		;the ring to put it away by, and a cross in it
@@ -365,7 +365,7 @@
 				tick (if (= (% deg 30) 0) 16.0 9.0))
 			(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
 			(if (and (= (% deg 30) 0) (> deg 0) (< deg 180))
-				(push marks (cwb-text (str deg) (- (* (- r 30.0) c) 8.0) (+ (* (- r 30.0) s) 4.0) :font_size 11))))
+				(push marks (cwb-text (str deg) (- (* (- r 30.0) c) 8.0) (+ (* (- r 30.0) s) 4.0) :font_size 22))))
 			(range 0 181 10))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 1.0 :cap1 :butt :cap2 :butt))
 		(push marks (cwb-shape (cat (cwb-d-ellipse 0 (* -0.3 r) ring) " " (cwb-d-line -3 0 3 0) " " (cwb-d-line 0 -3 0 3))

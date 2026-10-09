@@ -4,6 +4,53 @@
 
 ------
 
+The Whiteboard, part three: driven without a hand. Chris: "make sure its
+drivable by you AI guys !"
+
+*	`cmd/cwb.lisp`. `-n 640x420` a new document, `-e` and `-s` Lisp
+	that is done to it, with `doc` and `board`, `-p` a file of pointer
+	events played to the board, a line a moment, `id kind buttons x y`
+	with `;` between those that are at once, `-i` what is in it, each
+	item with its id and the box round it, `-o` a picture of it, `-z`
+	how big, `-b` what is behind, `-k` save nothing.
+
+*	A picture to look at: `(TGA-save)` in `lib/image/tga.inc`, and
+	`(canvas-save)` takes `.tga`. It is the pixels with 18 bytes before
+	them, quick, and `sips` on a Mac makes it a PNG. The first header
+	was made with `(str-alloc)` and three fields set, and the rest of
+	it was whatever had been in that memory: `(str-alloc)` is not
+	empty. Every byte of it is said now.
+
+*	The app's sample, `apps/media/whiteboard/data/test.cwb`, is a
+	diagram of boxes with words in them, arrows, an arc, a slice and a
+	line by hand, made by `cwb` from a script of twenty lines. It was
+	looked at. Writing that script as its first user found two things.
+	Words were twice the size they said: a font gives its outlines at
+	twice the font's size, and a shape of words halves them now, 24 is
+	24. And a word in the middle of a box wanted arithmetic that mixed
+	whole numbers and not, which throws; `(cwb-text-mid text x y)` puts
+	words by their middle.
+
+*	`(cwb-load)` of a file that is not a document threw, a list is not
+	an `Emap` and other text is not a tree. It gives `:nil`.
+
+*	`docs/apps/whiteboard.md`, written again, with the sample shown in
+	an `image` section, so a `.cwb` in a page of the Docs app is on the
+	page that says so. `docs/ai_digest/whiteboard.md`, how it is made
+	and how an AI draws with it. The file shown in that page is loaded
+	by a test.
+
+`tests/system/test_cwb_cmd.lisp`, 22: the command run through a pipe, a
+document made, Lisp done to it, a finger holding a ruler while a pen is
+run along it from a pointers file, the listing, the pixels of the
+picture, `-k`, and what it will not do. Every test, 5,309, on the M4, the
+x64 and the Pi.
+
+Not seen: the sample in a page of the Docs app, the picture of it was
+looked at as a file.
+
+------
+
 The Whiteboard, part two: the app.
 
 *	Claude can see what it draws now. A canvas is written out as its

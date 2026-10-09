@@ -168,6 +168,15 @@
 	(elem-set item +cwb_m (cwb-mat-mul (cwb-mat-move x y) (elem-get item +cwb_m)))
 	item)
 
+(defun cwb-text-mid (text x y &rest key_vals)
+	; (cwb-text-mid text x y [key val] ...) -> shape
+	;words with their middle at a point, to label a box by its middle say
+	(defq item (apply (const cwb-text) (cat (list text 0 0) key_vals)))
+	(when (defq box (third (cwb-flat item)))
+		(bind '(bx by bx1 by1) box)
+		(elem-set item +cwb_m (cwb-mat-move (- (n2f x) (* 0.5 (+ bx bx1))) (- (n2f y) (* 0.5 (+ by by1))))))
+	item)
+
 (defun cwb-group (items &rest key_vals)
 	; (cwb-group items [key val] ...) -> group
 	(defq item (cwb-item :group key_vals))
@@ -263,7 +272,11 @@
 	;letters of a :text are closed. A line of less than two points is
 	;left out
 	(if (eql (elem-get shape +cwb_kind) :text)
-		(map (# (list :t %0))
+		;the outlines a font gives are twice the size of the font, as a
+		;canvas that is drawn at twice its size and made small wants them.
+		;Here a size is a size, words of 24 are as big as words of 24 are
+		;on a button
+		(map (# (list :t (path-transform (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) %0 %0)))
 			(if (nempty? (elem-get shape +cwb_text))
 				(font-glyph-paths (create-font (elem-get shape +cwb_font) (n2i (elem-get shape +cwb_font_size)))
 					(elem-get shape +cwb_text))
@@ -536,7 +549,11 @@
 	; (cwb-load stream) -> :nil | doc
 	;a document from a .cwb file. One from before this version is made
 	;into one of this
-	(when (and stream (defq data (tree-load stream)) (defq version (. data :find :version)))
+	;a file that is not a tree of one, any other text, is not a document
+	;and one that is not a tree at all throws as it is read, where there
+	;are errors to throw
+	(when (and stream (defq data (catch (tree-load stream) :t)) (Emap? data)
+			(defq version (. data :find :version)) (num? version))
 		(cond
 			((< version 2) :nil)
 			((< version +cwb_version) (cwb-old-in data))

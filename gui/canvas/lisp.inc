@@ -225,7 +225,7 @@
 	(if (defq stream (file-stream file +file_open_write))
 		(some (# (if (ends-with %0 file)
 					(apply %1 (cat (list canvas stream type) optionals))))
-			'(".cpm") (const `'(,CPM-save)))))
+			'(".cpm" ".tga") (const `'(,CPM-save ,TGA-save)))))
 
 (defun canvas-load (file flags &optional swap_mode)
 	; (canvas-load file flags [swap_mode]) -> :nil | canvas

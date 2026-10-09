@@ -138,6 +138,34 @@
 		(list (cwb-get (first (cwb-items wb_hand)) :fill) (cwb-get (first (cwb-items wb_hand)) :stroke)
 			(cwb-get (first (cwb-items wb_hand)) :width))))
 
+;the file shown in docs/ai_digest/whiteboard.md is a file
+(defq wb_page (list) wb_on :nil)
+(lines! (lambda (line)
+	(cond
+		((starts-with "((:Emap 1)" line) (setq wb_on :t) (push wb_page line))
+		((and wb_on (starts-with "```" line)) (setq wb_on :nil))
+		(wb_on (push wb_page line))) :nil)
+	(file-stream "docs/ai_digest/whiteboard.md"))
+(defq wb_shown (cwb-load (string-stream (join wb_page (ascii-char 10)))))
+(assert-true "the file shown in the page about this loads" wb_shown)
+(when wb_shown
+	(assert-list-eq "and is what the page says it is" '(640 420 (1 2) "M 40 360 L 220 360" "Start")
+		(list (. wb_shown :find :width) (. wb_shown :find :height) (wb-ids wb_shown)
+			(cwb-get (first (cwb-items wb_shown)) :d) (cwb-get (second (cwb-items wb_shown)) :text))))
+
+;words are as big as they say, and can be put by their middle
+(defq wb_w24 (cwb-bounds (list (cwb-text "Hxg" 0 0 :font_size 24))) wb_w48 (cwb-bounds (list (cwb-text "Hxg" 0 0 :font_size 48))))
+(assert-true "words of 24 are about 24 from the top of an H to the bottom of a g"
+	(wb-near? (- (elem-get wb_w24 3) (second wb_w24)) 23.0 2.0))
+(assert-true "and words of 48 are twice that" (wb-near? (- (elem-get wb_w48 3) (second wb_w48)) (* 2.0 (- (elem-get wb_w24 3) (second wb_w24))) 0.5))
+(bind '(x y x1 y1) (cwb-bounds (list (cwb-text-mid "Label" 200 100 :font_size 30))))
+(assert-true "words put by their middle have their middle there" (wb-near? (list (* 0.5 (+ x x1)) (* 0.5 (+ y y1))) '(200 100) 0.05))
+
+;what is not a document is not loaded as one
+(assert-eq "text that is not a tree is not a document" :nil (cwb-load (string-stream "7 touch 1 300 330")))
+(assert-eq "nor a tree of something else" :nil (cwb-load (string-stream "((:list 2) 1 2)")))
+(assert-eq "nor nothing" :nil (cwb-load (string-stream "")))
+
 ;a file of before this, polygons in groups
 (defq wb_stream (string-stream (cat "")))
 (tree-save wb_stream (scatter (Emap) :version 3 :groups (list
