@@ -39,8 +39,8 @@ One set of arrows, used small where a small one is wanted.
 	in a terminal session, where the whole GUI is imported in one go.
 	Chris found it by starting a desktop.
 
-*	4,898 pass on the M4, and a one node GUI starts. Not seen: any of it
-	on a desktop.
+*	4,898 pass on the M4, the x64 and the Pi, and a one node GUI starts.
+	Seen by Chris on a desktop: "the chevrons look good."
 
 ------
 
