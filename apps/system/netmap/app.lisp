@@ -29,7 +29,7 @@
 	(enum layout))
 
 (enums +select 0
-	(enum main task reply frame_timer poll_timer))
+	(enum main task reply tip frame_timer poll_timer))
 
 (defq +size 640 +min_size 320 +scale 1 +frame_rate (/ 1000000 20) +poll_rate (/ 1000000 4)
 	+retry_timeout (task-timeout 5)
@@ -62,6 +62,11 @@
 		(ui-label *status* (:text "..." :font *env_body_font*))
 		(ui-backdrop _ (:style :plain :color +argb_black :min_width +size :min_height +size)
 			(ui-element *canvas* (Canvas +size +size +scale) (:color 0)))))
+
+(defun tooltips (mbox)
+	(def *window* :tip_mbox mbox)
+	(ui-tool-tips *main_toolbar*
+		'("auto")))
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
@@ -228,6 +233,7 @@
 	(. scene :draws +left +right +top +bottom +near +far (* canvas_size +scale))
 	(defq global_tasks (Global create destroy))
 	(set-auto :t)
+	(tooltips (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -259,6 +265,9 @@
 					(def node :child child :timestamp (pii-time))
 					(push poll_que child)))
 			(+select_reply (node-heard msg))
+			(+select_tip
+				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
+					(. view :show_tip)))
 			(+select_poll_timer
 				(mail-timeout (elem-get select +select_poll_timer) +poll_rate 0)
 				(. global_tasks :refresh +retry_timeout)
