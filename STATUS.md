@@ -4,6 +4,25 @@
 
 ------
 
+Chris, of the layers as they now are: "Yeah that inlight layer change
+work very well, feels natural and easy." Of the eraser, that it works as
+built, and how his did it, which is on the list. Then: "Things where
+working fine till I click in the size textfiled, then crashed !"
+
+`Error: (slice seq start end) not_valid_index ... Obj: ("557x415" 0 8)`.
+Not the Whiteboard's, the text field's, and old. A text field shows the
+text of its last layout. `(:set_text)` changes the text and not what is
+shown till it is laid out again, and a click finds its place in what is
+shown. Saving had made the paper fit and set the size field from
+`1024x768` to `557x415`: a click at the end of the longer put the cursor
+at 8 in a text of 7. The place is held to the text it has, in
+`:mouse_down` and `:mouse_move`. Any app that sets a field to a shorter
+text had this.
+
+`test_gui_nodesk.lisp`, 2 more, which fail without it.
+
+------
+
 The layers, as Chris has them. "The whole model for the 'in flight'
 layer, is to be at the back or the front dependsing on your button of
 interaction. PLUS it's there to seperate the commited layers as one

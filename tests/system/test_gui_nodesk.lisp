@@ -45,3 +45,13 @@
 	(bind '(w h) (. nd_many :pref_size))
 	(.-> nd_many (:change 0 0 w h) :dirty))
 (assert-true "two hundred windows made, laid out, marked and let go" :t)
+
+;a text field whose text is set to a shorter one, and is then clicked past the end of what it showed
+(ui-window nd_form () (ui-textfield nd_field (:clear_text "1024x768" :min_width 120)))
+(bind '(w h) (. nd_form :pref_size))
+(. nd_form :change 0 0 w h)
+(. nd_field :set_text "557x415")
+(defq nd_click (setf-> (str-alloc +ev_msg_mouse_size) (+ev_msg_type +ev_type_mouse) (+ev_msg_mouse_rx 110) (+ev_msg_mouse_ry 8) (+ev_msg_mouse_buttons 1)))
+(assert-eq "a text field given a shorter text, and clicked where the end of the longer was, does not throw" :ok
+	(catch (progn (. nd_field :mouse_down nd_click) (. nd_field :mouse_move nd_click) (. nd_field :mouse_up nd_click) :ok) :threw))
+(assert-true "and its cursor is in the text it has" (<= (get :cursor nd_field) 7))

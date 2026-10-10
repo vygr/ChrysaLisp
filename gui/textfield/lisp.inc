@@ -185,7 +185,10 @@
 			(defq rx (- (getf event +ev_msg_mouse_rx) (get :offset label_text)) anchor -1)
 			(while (and (<= (++ anchor) (length text))
 						(> rx (first (font-glyph-bounds font (slice text 0 anchor))))))
-			(setq anchor (max 0 (dec anchor)))
+			;the text that is shown is that of the last layout. If the text
+			;was set since, (:set_text), to one that is shorter, a place
+			;past its end is its end
+			(setq anchor (max 0 (min (dec anchor) (length (get :clear_text this)))))
 			(lower :anchor (:cursor anchor :state -1))
 			;adjust text offset
 			(setoffset)
@@ -205,7 +208,7 @@
 			(defq rx (- (getf event +ev_msg_mouse_rx) (get :offset label_text)) cursor -1)
 			(while (and (<= (++ cursor) (length text))
 						(> rx (first (font-glyph-bounds font (slice text 0 cursor))))))
-			(setq cursor (max 0 (dec cursor)))
+			(setq cursor (max 0 (min (dec cursor) (length (get :clear_text this)))))
 			(lower :cursor)
 			;adjust text offset
 			(setoffset)
