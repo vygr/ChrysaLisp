@@ -69,7 +69,12 @@
 (assert-eq "close" 0 (. jobs :out))
 
 ;a herd, on the nodes of this machine, two and one more for each node
-;past the first, and no more than three
+;past the first, and no more than three. New mailboxes: the farm before
+;had a job that kills its child, and a child of it that was being started
+;again as it closed says so late, to the mailbox it was given. Told to
+;this farm, a child with that key is taken to be that one, which is gone,
+;and the job given to it is not done. Once in 14 runs on the Pi
+(defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
 (defq jobs (Jobs "tests/system/data/jobs_child.lisp"
 	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 2)))
 (assert-eq "a herd" (min 3 (inc (length (lisp-nodes :t)))) (. jobs :size))

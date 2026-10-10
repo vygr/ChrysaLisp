@@ -19,12 +19,15 @@
 	" (draw-paper) (defq n (. *board* :draw *committed* m)) (. *board* :dirty? +board_dirty_overlay)"
 	" (. *overlay* :fill 0) (. *board* :draw_overlay *overlay* m)"
 	" (each (# (if (Instrument? %0) (. %0 :draw *overlay* m))) (. (. *board* :get_stage) :get_actors)) n) :threw))"
-	" (defun wa-mouse (kind rx ry buttons)"
+	;the app's task lets the others of its node run as it goes. What it does here is a
+	;second or two with nothing waited for, on a small machine, and a test beside it
+	;that times a thing was then timed wrong
+	" (defun wa-mouse (kind rx ry buttons) (task-slice)"
 	" (defq e (setf-> (str-alloc +ev_msg_mouse_size) (+ev_msg_type +ev_type_mouse)"
 	" (+ev_msg_mouse_rx rx) (+ev_msg_mouse_ry ry) (+ev_msg_mouse_x rx) (+ev_msg_mouse_y ry) (+ev_msg_mouse_buttons buttons)))"
 	" (case kind (:down (. *board_view* :mouse_down e)) (:move (. *board_view* :mouse_move e)) (:up (. *board_view* :mouse_up e))))"
 	" (defun wa-drag (button x y x1 y1) (wa-mouse :down x y button) (wa-mouse :move x1 y1 (case button (3 4) (:t button))) (wa-mouse :up x1 y1 0))"
-	" (defun wa-do (id) (catch (progn ((. *event_map* :find id)) :ok) :threw))"
+	" (defun wa-do (id) (task-slice) (catch (progn ((. *event_map* :find id)) :ok) :threw))"
 	" (defun wa-mode (mode) (. *mode_toolbar* :set_selected (find mode *modes*)) (wa-do +event_mode))"
 	" (defun wa-ids () (map (# (elem-get %0 +cwb_id)) (cwb-items (. *board* :get_doc))))"))
 
@@ -392,7 +395,7 @@
 
 ;only a part of the document's picture drawn again is that part of all of it drawn again, to the pixel
 (defq wa_part (wa-run (cat
-	"(defun pic () (defq s (memory-stream)) (pixmap-write (getf *committed* +canvas_pixmap 0) s 32) (stream-seek s 0 0) (read-blk s 100000000))"
+	"(defun pic () (task-slice) (defq s (memory-stream)) (pixmap-write (getf *committed* +canvas_pixmap 0) s 32) (stream-seek s 0 0) (read-blk s 100000000))"
 	;boxes, a line and an ellipse that lie over one another
 	"(wa-mode :frect) (wa-drag 1 100 100 300 300) (. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (wa-drag 1 200 200 400 400)"
 	"(wa-mode :pen) (. *ink_toolbar* :set_selected 4) (wa-do +event_ink) (wa-drag 1 150 150 380 390) (wa-mode :ellipse) (wa-drag 1 250 120 420 330)"

@@ -4,6 +4,44 @@
 
 ------
 
+Chris, of a soak on the M4 before the push: "do it." And when I said the
+mesh did not reach the Pi: "What the pi4 issue ?", "is the x64 working ?"
+
+**The mesh.** It was neither. All day the M4's standing node saw only
+itself to run on, and every run fell back to ssh, twice as long. It had
+links to both the others. I had been starting only the M4's again, each
+time I brought a desktop up for him, the other two had been up since
+13:09. Started again, the next run was all three by the mesh. Which of
+two things it was I do not know: that a node that has been up does not
+show its sync service to one that comes back, or that the two were on
+the system they began on with a newer one on disk. On the list, with how
+to tell.
+
+**The first soak, 14 runs.** The M4 and the x64 14 of 14. The Pi 12 of
+14, one failure in each of two tests.
+
+*	`system/test_jobs`, "a herd does the work", `(4 6)` for `(2 4 6)`.
+	The second farm of the test had the mailboxes of the first, which has
+	a job that kills its child. A child of the first, being started again
+	as it closed, said so late, to that mailbox, and was taken by the
+	second for one of its own and given a job. It is what he said in the
+	morning of mailboxes that are let go of, and the third farm of the
+	same test had new ones for it already. The second has now.
+
+*	`system/test_pipe`, "closes at once after eof, echo one two", a close
+	that is to take under half a second. **Not explained.** Alone it
+	passes 20 of 20 on the Pi. I think a task beside it held the node:
+	the Whiteboard app's test does a second or two of work with nothing
+	waited for. It now lets the others run as it goes, `(task-slice)` at
+	each event and action. That is a guess that the second soak does not
+	contradict, no more.
+
+**The second soak, 20 runs,** with both in: 20 of 20 on the M4, the x64
+and the Pi, 5,676 each, by the mesh. No shared pixels and no nodes left
+on any.
+
+------
+
 Chris, of a great many things turned: "the rotate chug is fixed, smooth
 as silk."
 
