@@ -38,6 +38,10 @@ can be spawned across a network of VPs, forming a logical processing tree.
 This "sea of nodes" concept, where the network topology can change and
 tasks must adapt, is central to ChrysaLisp's robustness.
 
+```image
+docs/diagrams/fault_tree.cwb
+```
+
 ## Key `lib/task/` Components for Fault Tolerance
 
 1. **`Local` / `Farm` Classes (`lib/task/local.inc`, `lib/task/farm.inc`)**

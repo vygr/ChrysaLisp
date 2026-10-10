@@ -36,6 +36,10 @@ That's a very cold explanation of what happens and we can probably sum it up by
 saying, any source that looks like a macro function call is replaced by the
 result of that macro function call before the code is actuality 'executed'.
 
+```image
+docs/diagrams/macro_time.cwb
+```
+
 Let's look at a very simple macro.
 
 ```vdu

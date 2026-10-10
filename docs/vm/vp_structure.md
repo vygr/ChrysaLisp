@@ -323,6 +323,10 @@ if it becomes 0 automatically call the `:destroy` method !
 
 The `:destroy` method just calls `:deinit` followed by `:free`.
 
+```image
+docs/diagrams/object_life.cwb
+```
+
 ### VP Class and Object declaration
 
 This is an example of a 'pair class, first the `class.inc` file.

@@ -1,0 +1,582 @@
+((:Emap 1)
+	:version 4
+	:width 653
+	:height 266
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 40
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 12)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 -47.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							2
+							:d
+							"[M 320 44 L 125 100]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							3
+							:d
+							"[M 125 100 L 132.54615 93.67131 134.75428 101.36039 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					4
+					:m
+					((:path 6)
+						1.00000 0.00000 -47.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 13)
+							:shape
+							:id
+							5
+							:d
+							"[M 320 44 L 290 100]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					6
+					:m
+					((:path 6)
+						1.00000 0.00000 -47.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							7
+							:d
+							"[M 320 44 L 490 100]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							8
+							:d
+							"[M 490 100 L 480.20048 100.98333 482.70341 93.38507 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					9
+					:m
+					((:path 6)
+						1.00000 0.00000 -47.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							10
+							:d
+							"[M 290 144 L 290 196]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							11
+							:d
+							"[M 290 196 L 286 187 294 187 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					12
+					:m
+					((:path 6)
+						1.00000 0.00000 249.00000 0.00000 1.00000 187.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[anything it still says]"
+					:font_size
+					11
+				)
+				((:list 7)
+					:group
+					:id
+					13
+					:m
+					((:path 6)
+						1.00000 0.00000 63.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							14
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									15
+									:d
+									"[M 6 0 L 414 0 A 6 6 0 0 1 420 6 L 420 38 A 6 6 0 0 1 414 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									16
+									:m
+									((:path 6)
+										1.00000 0.00000 175.39404 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the root task]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									17
+									:m
+									((:path 6)
+										1.00000 0.00000 149.19116 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a mailbox for each branch]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					18
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 113.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							19
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									20
+									:d
+									"[M 6 0 L 124 0 A 6 6 0 0 1 130 6 L 130 38 A 6 6 0 0 1 124 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									21
+									:m
+									((:path 6)
+										1.00000 0.00000 48.94244 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a child]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									22
+									:m
+									((:path 6)
+										1.00000 0.00000 27.13983 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[works, answers]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					23
+					:m
+					((:path 6)
+						1.00000 0.00000 153.00000 0.00000 1.00000 113.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							24
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									25
+									:d
+									"[M 6 0 L 174 0 A 6 6 0 0 1 180 6 L 180 38 A 6 6 0 0 1 174 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294432727
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									26
+									:m
+									((:path 6)
+										1.00000 0.00000 35.70025 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a child, its node gone]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									27
+									:m
+									((:path 6)
+										1.00000 0.00000 47.93090 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[no answer in time]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					28
+					:m
+					((:path 6)
+						1.00000 0.00000 343.00000 0.00000 1.00000 113.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							29
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									30
+									:d
+									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 38 A 6 6 0 0 1 194 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									31
+									:m
+									((:path 6)
+										1.00000 0.00000 39.60809 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[made again, elsewhere]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									32
+									:m
+									((:path 6)
+										1.00000 0.00000 38.20288 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[answers to a new mailbox]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					33
+					:m
+					((:path 6)
+						1.00000 0.00000 178.00000 0.00000 1.00000 209.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							34
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									35
+									:d
+									"[M 6 0 L 124 0 A 6 6 0 0 1 130 6 L 130 38 A 6 6 0 0 1 124 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									36
+									:m
+									((:path 6)
+										1.00000 0.00000 25.06188 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the old mailbox]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									37
+									:m
+									((:path 6)
+										1.00000 0.00000 45.67279 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[let go of]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					38
+					:m
+					((:path 6)
+						1.00000 0.00000 323.00000 0.00000 1.00000 219.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[Nothing keeps track of what was lost. What a lost branch says late]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					39
+					:m
+					((:path 6)
+						1.00000 0.00000 323.00000 0.00000 1.00000 235.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[goes to a mailbox nobody reads, and the new one starts clean.]"
+					:font_size
+					11
+				)
+			)
+		)
+	)
+	:props :nil
+)

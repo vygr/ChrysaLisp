@@ -4,6 +4,19 @@
 
 ------
 
+Three more diagrams in the pages, 34: the life of a VP object,
+`vm/vp_structure.md`; when a macro runs, `lisp/macros.md`; a branch of
+the tree of tasks lost and made again, the digest's `fault_tolerant.md`.
+Each looked at as a picture by me.
+
+Chris asked, as they were made: "Will we show structure members in the
+diagrams ? with the type ? or is that too much." The card of a VP class
+has them, the fields of its own structure, each with its type. Not those
+of the classes it comes of, and not a structure that is no class's, a
+function's header, a link's channel, a task's control block.
+
+------
+
 **The second part of the night's work, diagrams placed in the pages.**
 
 *	A scene, in `lib/cwb/diagram.inc`: boxes put down by name, a layer
