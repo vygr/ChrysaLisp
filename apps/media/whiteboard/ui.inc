@@ -54,7 +54,9 @@
 
 (defun action-mode ()
 	(def *board* :mode (elem-get *modes* (. *mode_toolbar* :get_selected)))
-	;what was selected has no handles out of select mode, and has them in it
+	;out of select mode what was selected is let go of. It has no handles
+	;to show that it is, and the colours and widths would change it
+	(unless (eql (get :mode *board*) :select) (. *board* :select (list)))
 	(. *board* :touch +board_dirty_overlay))
 
 (defun action-style ()

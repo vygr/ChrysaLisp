@@ -164,6 +164,21 @@
 (assert-eq "zoomed to one and a half, a pen draws where it is in the document" "M 100 100 L 200 100 200 200 100 200 Z" (elem-get wa_out 3))
 
 
+;a thing that is selected is let go of when another tool is picked, so a colour picked next is not given to it
+(defq wa_out (wa-run (cat
+	"(wa-mode :frect) (wa-drag 1 100 100 200 180) (defq it (last (cwb-items (. *board* :get_doc))))"
+	"(wa-mode :select) (wa-mouse :down 150 140 1) (wa-mouse :up 150 140 0) (print (. *board* :get_selected))"
+	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (print (= (cwb-get it :stroke) +argb_red))"
+	"(wa-mode :pen) (print (. *board* :get_selected))"
+	"(. *ink_toolbar* :set_selected 3) (wa-do +event_ink) (print (= (cwb-get it :stroke) +argb_red))"
+	"(wa-mode :select) (wa-mouse :down 150 140 1) (wa-mouse :up 150 140 0) (def *board* :mode :pen)"
+	"(wa-drag 1 400 400 450 420) (print (. *board* :get_selected))")))
+(assert-eq "a thing is selected" "(1)" (elem-get wa_out 0))
+(assert-eq "a colour picked while it is gives it that colour" ":t" (elem-get wa_out 1))
+(assert-eq "another tool picked, it is let go of" "()" (elem-get wa_out 2))
+(assert-eq "and a colour picked then is for what is drawn next, it keeps its own" ":t" (elem-get wa_out 3))
+(assert-eq "what is selected when a line is begun, however it came to be, is let go of" "()" (elem-get wa_out 4))
+
 ;round the document there is a margin that is not it, where an instrument that
 ;lies half off the paper is seen. What is over the document covers that too
 (defq wa_out (wa-run (cat

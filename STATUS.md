@@ -4,6 +4,28 @@
 
 ------
 
+Chris, in a run I was watching by the record the app keeps of it: "The
+stroke I rew that join a group, changed colour as I selcted and drew a
+new stroke !"
+
+The record had it: the word, item 3, was selected with the arrow, and
+was still selected, `sel (3)`, through the eraser, the box tool and the
+pen. Out of select mode it has no handles to say so. The colour he
+picked for his next line was given to it, as a colour picked is given to
+what is selected.
+
+What is selected is let go of when a tool other than the arrow is
+picked, and when a line is begun or the eraser goes down, unless a hand
+has hold of it, a finger that holds a thing while a pen draws.
+`test_whiteboard.lisp`, 5 more.
+
+The record is a file the app writes when I am watching, a line for each
+action and each time the mouse comes up, with what the board then is. He
+said to: "You should add recording options for everyhting you want to
+check out." It is not committed.
+
+------
+
 Chris: "Di you add that feature where storkes drawn shortly (within a
 window) of the timestamp of the end (pen up) of the last stroke, get auto
 captured into a group ? That group can still be broken apart, but this

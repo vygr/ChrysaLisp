@@ -207,7 +207,7 @@
 						(if (and (not shut) (empty? (get :selected board)))
 							(elem-set state +stroke_snap :tap))
 						(. board :select (list)))))
-			(:eraser (. board :snapshot))
+			(:eraser (unless holding (. board :select (list))) (. board :snapshot))
 			(:pan)
 			(:text
 				;the words the board has are put down where the pointer is,
@@ -217,7 +217,12 @@
 					(. board :commit (cwb-text words (. board :snap_x x) (. board :snap_y y)
 						:fill (. (get :bindings board) :value event :color (get :color board))
 						:font (get :font board) :font_size (get :font_size board)))))
-			(:t ;something is drawn
+			(:t ;something is drawn. What was selected is let go of: it is
+				;not what is being worked on now, and a colour picked for
+				;what is drawn next is not to be given to it
+				;Unless a hand has hold of it, a finger that holds a thing
+				;still while a pen draws
+				(if (and (not holding) (nempty? (get :selected board))) (. board :select (list)))
 				(elem-set state +stroke_x (. board :snap_x x))
 				(elem-set state +stroke_y (. board :snap_y y))
 				(elem-set state +stroke_points (list (elem-get state +stroke_x) (elem-get state +stroke_y)))
