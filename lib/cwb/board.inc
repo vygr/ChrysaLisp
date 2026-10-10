@@ -1169,14 +1169,17 @@
 			(defq handles (get :handles this))
 			;of several things selected, each has a line round it, its own
 			;box, so that it is seen they are several and which they are: a
-			;group that was broken up is its parts, each one selected. Of a
-			;great many it is not, a thousand boxes are a blur and a
-			;thousand more things to draw as they are moved
-			(if (< 1 (length items) 200)
-				(cwb-draw-items canvas (reduce (lambda (out item)
+			;group that was broken up is its parts, each one selected.
+			;They are one shape of many boxes, one line drawn, not a shape
+			;each. While a hand moves a great many of them they are not
+			;drawn, it is a thousand boxes more each time, and are again
+			;when it lets go
+			(if (and (> (length items) 1)
+					(or (< (length items) 200) (not (. (get :surface this) :holding))))
+				(cwb-draw-items canvas (list (cwb-shape (join (reduce (lambda (out item)
 						(if (defq corners (board-item-corners item))
-							(push out (cwb-shape (cwb-d-points corners :t) :stroke 0xa00080ff :width thin :join :miter)))
-						out) items (list)) m))
+							(push out (cwb-d-points corners :t)))
+						out) items (list)) " ") :stroke 0xa00080ff :width thin :join :miter)) m))
 			(cond
 				;a line has only its two ends
 				((. handles :ends))

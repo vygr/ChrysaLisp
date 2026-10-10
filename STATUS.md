@@ -4,6 +4,33 @@
 
 ------
 
+Chris, on the new desktop: "ungroup is not ungrouping."
+
+It was. The recording has 10,672 things become 12,001 and 1,330 of them
+selected, three times. He could not see it: I had, an hour before,
+stopped drawing the line round each thing when more than 200 are
+selected, to make a drag faster, and that line is how a group broken up
+is seen to be its parts. It was put there for this same complaint, of
+his, on 2026-10-10 in the morning. I took out the answer to a thing he
+had asked for and did not see that I had.
+
+*	Every thing selected has its line again, however many. They are one
+	shape of many boxes now, one line drawn, 21ms for 1,300 where a
+	shape each was 47.
+
+*	Only while a hand is moving more than 200 are they left out, and
+	they are back when it lets go.
+
+*	A test: 149 things selected, and a row of the picture through them
+	has their lines on it; as one group it has none.
+
+Run: `test_cwb` and `test_whiteboard` on the M4, the full suite on the
+x64 and the Pi.
+
+Not seen: by him.
+
+------
+
 Chris, on the board of 12,000 shapes, `tests/scratch/big.cwb`, with
 1,300 of them selected: "right buton for selct is tricky if crowed like
 that. group action took a while...ungroup was faster. dragging a just
