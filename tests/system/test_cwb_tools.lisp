@@ -206,6 +206,19 @@
 (assert-true "a pen run along its straight side, the bottom of the strip below its middle, draws a line along it"
 	(wt-near? (wt-numbers (wt-last-d)) '(300 318 500 318)))
 (assert-eq "the strip is its too, a point in it is on it" :t (. wt_pro :hit 300 310))
+;the marks of its straight side are out from its middle, at any size
+(defun wt-base-marks (length)
+	;for a protractor of that size, how long the mark at the middle of its straight side is, and at 50 either side
+	(def wt_pro :length length) (. wt_pro :built)
+	(defq nums (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
+		(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))) found (list))
+	(each (lambda ((x y x1 y1)) (if (find (n2i x) '(0 50 -50)) (push found (list (n2i x) (n2i (abs (- y y1))))))) (partition nums 4))
+	(sort found (# (- (first %0) (first %1)))))
+(assert-list-eq "the marks of its straight side have a long one at its middle and at each centimetre from it"
+	'((-50 8) (0 8) (0 8) (50 8)) (wt-base-marks 360.0))
+(assert-list-eq "and so they have at another size, which is not a whole number of centimetres across"
+	'((-50 8) (0 8) (0 8) (50 8)) (wt-base-marks 437.0))
+(def wt_pro :length 360.0) (. wt_pro :built)
 
 ;;;;;;;;;;;;;;;;
 ; the set square

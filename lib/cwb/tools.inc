@@ -482,7 +482,10 @@
 		;and the line through it from 0 to 180, with the strip below marked
 		;in millimetres along the straight side
 		(push ticks "M" (neg r) 0 "L" r 0 "M" 0 base "L" 0 -14 "M" 0 (neg in0) "L" 0 (- 22.0 r))
-		(push marks (cwb-shape (tool-ticks (neg r) base r base 0.0 -1.0 +tool_mm 3.0 5.0 8.0)
+		;out from the middle both ways, so the middle is on a long mark and
+		;stays on it as the protractor is made bigger or smaller
+		(push marks (cwb-shape (cat (tool-ticks 0.0 base r base 0.0 -1.0 +tool_mm 3.0 5.0 8.0)
+				" " (tool-ticks 0.0 base (neg r) base 0.0 -1.0 +tool_mm 3.0 5.0 8.0))
 			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(def this :marks marks)

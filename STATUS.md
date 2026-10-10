@@ -4,6 +4,14 @@
 
 ------
 
+Chris: "The ruler marks on the protract straigh edge should stay centered
+at a majour mark. So scaling keeps the center of that ruler edge stable."
+They were counted from its left end, so the middle was on a long mark only
+at some sizes and the marks slid as it was sized. They are counted out
+from the middle, both ways. A test reads the marks at two sizes.
+
+------
+
 Chris: "On the rotate, I had 'magnetic' majour tick angles and super
 magnetic 90/45 degree angle ! So the rotate angles snap when near those
 angles."
