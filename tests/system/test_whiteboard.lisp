@@ -422,7 +422,11 @@
 	;taken by the left button, in front
 	"(wa-drag 1 350 340 360 350) (draw-over) (draw-flight) (defq front (wa-bits *flight*)) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank)))"
 	;taken by the right button, to the back
-	"(wa-drag 3 360 350 350 340) (draw-over) (draw-flight) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank) (eql (wa-bits *flight*) front)))")))
+	"(wa-drag 3 360 350 350 340) (draw-over) (draw-flight) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank) (eql (wa-bits *flight*) front)))"
+	;and as it is taken, the button only just down and nothing moved: they are there at once, not when it is first moved
+	"(wa-drag 1 350 340 350 340) (draw-over) (draw-flight) (defq front (wa-bits *flight*))"
+	"(wa-mouse :down 350 340 3) (draw-over) (draw-flight) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank) (eql (wa-bits *flight*) front))) (wa-mouse :up 350 340 0)")))
 (assert-eq "a thing taken by the left button has its box and handles in front, on what is over the board" "(:nil :nil)" (first wa_back))
 (assert-eq "taken by the right button to the back, nothing of it is in front: its box and handles are on its own canvas, with it"
 	"(:t :t :nil)" (second wa_back))
+(assert-eq "and they are at the back as soon as the right button goes down on it, before it is moved" "(:t :t :nil)" (third wa_back))

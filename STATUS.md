@@ -4,6 +4,25 @@
 
 ------
 
+Chris: "Ah, right button to push/drag, at first the controls diasapear,
+only on drag do they re-appear."
+
+As the right button went down what is selected was taken to the back,
+its box and handles were no longer drawn in front, and its own canvas,
+where they now belong, was not drawn again: nothing of it had moved, so
+the canvas was only put where it was, as for a thing that is dragged.
+Whether it was drawn in front or at the back is now kept with what was
+drawn, and a change of that draws it again. `(flight-shift)`,
+`apps/media/whiteboard/app.lisp`, and a test of the button just down.
+
+Only the app's own file is changed, so the app opened again has it, on
+the desktop that is up.
+
+Run: `test_whiteboard` 91 on the M4, the full suite on the x64 and the
+Pi.
+
+------
+
 Chris, of the box that selects what it touches and of the handles at the
 back with their shape: "I tried, it crashed", then on a new desktop,
 "yes, working".

@@ -236,9 +236,12 @@
 	;nothing else of them is changing, and nothing is being drawn
 	(when (and *flight_at* (= (. (get :temp *board*) :size) 0)
 			(or (. (get :surface *board*) :holding) (/= (. (get :handles *board*) :held) 0)))
-		(bind '(zoom ids ms ox oy) *flight_at*)
+		(bind '(zoom ids ms ox oy was_back) *flight_at*)
 		(defq now (. *board* :selected_items))
-		(when (and (= zoom *zoom*) (nempty? now) (= (length now) (length ids)))
+		;and it is still in front, or still at the back: taken to the back
+		;its box and handles are drawn with it, and in front they are not
+		(when (and (= zoom *zoom*) (nempty? now) (= (length now) (length ids))
+				(eql was_back (get :float_back *board*)))
 			(defq ident (const (fixeds 1.0 0.0 0.0 0.0 1.0 0.0))
 				m0 (ifn (elem-get (first now) +cwb_m) ident) o0 (ifn (first ms) ident)
 				dx (- (elem-get m0 2) (elem-get o0 2)) dy (- (elem-get m0 5) (elem-get o0 5)))
@@ -312,7 +315,7 @@
 		;far over it was drawn
 		(setq *flight_used* (or flying (nempty? down))
 			*flight_at* (if whole
-				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now) ox oy)))
+				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now) ox oy back)))
 		(cond
 			(moved
 				;its picture is shown while it is not seen, and then it is
