@@ -4,6 +4,14 @@
 
 ------
 
+Chris: "I would swap the angle display, so that when the ruler is lieing
+flat horizontal, the leftwards angle number show as the correct way, and
+the right side show as upside down. That's a human readin left to right
+thing." The ruler's angle that is the right way up is left of its middle
+now, and the one turned round is right of it.
+
+------
+
 Chris, of the ruler: "I had the rules zones, as, edge draw detectors,
 then rotate strip inside that, then drag." And: "The rotate was a strip
 roughtly where the numerics on the edge show."

@@ -500,7 +500,8 @@
 		(push marks (flip (cwb-text-mid "in" 0 0 :font_size 10) (- inset 24.0) (- bot 23.0)))
 		;the angle it is at, either side of its middle, the one for who
 		;reads the top side and the one for who reads the bottom
-		(def this :readouts (list (list 44.0 0.0) (list -44.0 0.0 +fp_pi)))
+		;The one that is the right way up is on the left, where reading starts
+		(def this :readouts (list (list -44.0 0.0) (list 44.0 0.0 +fp_pi)))
 		(def this :marks marks)
 		this)
 	)

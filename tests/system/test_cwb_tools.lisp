@@ -271,6 +271,9 @@
 (assert-list-eq "and twice on a ruler, for who reads its top side and for who reads its bottom, half a turn on" '("30" "210")
 	(map (# (. wt_ruler :degrees (if (> (length %0) 2) (third %0)))) (get :readouts wt_ruler)))
 (assert-eq "as two things to draw" 2 (length (. wt_ruler :readout)))
+(assert-list-eq "the one that is the right way up is left of its middle, the one turned round is right of it" '(-44 44 :t)
+	(list (n2i (first (first (get :readouts wt_ruler)))) (n2i (first (second (get :readouts wt_ruler))))
+		(= (length (first (get :readouts wt_ruler))) 2)))
 (. wt_stage :sub wt_ruler)
 
 
