@@ -555,7 +555,7 @@
 		;that is written is one thing. Microseconds, 0 for not at all. It
 		;goes by the time the board is told, (:tick), one that is told
 		;none does none of it
-		:auto_group 700000 :last_stroke :nil
+		:auto_group 1500000 :last_stroke :nil
 		:temp (Fmap 11) :band :nil :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
 		:floating (list) :float_back :nil :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
 	(def this :surface (Surface this) :handles (Handles this))

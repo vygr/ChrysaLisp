@@ -23,7 +23,9 @@ With it the eraser had to change: it took a group whole, and a word is
 now a group. It rubs the lines in a group as it rubs lines, in the
 group's own space, and a group with nothing left goes.
 
-The 0.7 is mine. `test_cwb.lisp`, 13 more. And of the scissors, from
+The 0.7 was mine. Chris, having tried it: "little too short on the
+window, I'd let folks have 1-2 seconds." It is a second and a half.
+`test_cwb.lisp`, 13 more. And of the scissors, from
 his go at them: "yeah, and it went."
 
 ------
