@@ -61,7 +61,14 @@
 	;laid out, the view over the board is not one that covers what is under it
 	"(bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 0 0 w h)"
 	"(print (list (bits? (getf *board_view* +view_flags 0) +view_flag_opaque) (bits? (getf *backdrop* +view_flags 0) +view_flag_opaque)"
-	" (. *board_view* :get_size) (. *committed* :get_size)))")))
+	" (. *board_view* :get_size) (. *committed* :get_size)))"
+	;what is over the document is in front of it, as the view is in front of the paper
+	"(defq kids (. *backdrop* :children) top (. *board_stack* :children))"
+	"(print (list (< (find *overlay* kids) (find *committed* kids)) (< (find *board_view* top) (find *backdrop* top))))"
+	;the left button draws, the right goes down too and the mouse moves with both: that is the middle
+	"(wa-mode :pen) (wa-mouse :down 600 500 1) (wa-mouse :move 640 520 1) (wa-mouse :move 640 520 3) (wa-mouse :move 660 540 5)"
+	"(print (list (get :held *board_view*) (wa-ids)))"
+	"(wa-mouse :move 700 600 4) (wa-mouse :up 700 600 0) (print (list (get :held *board_view*) (wa-ids)))")))
 (assert-eq "the app's file loads, and it has a window, a board and a view of it" "(4 4 5)" (elem-get wa_out 0))
 (assert-true "the window has a size it wants, no wider than a small screen"
 	(progn (defq wa_size (first (read (string-stream (elem-get wa_out 1))))) (and (> (first wa_size) 400) (< (first wa_size) 1000))))
@@ -80,6 +87,9 @@
 (assert-eq "and it all draws" "(4)" (elem-get wa_out 13))
 (assert-eq "laid out in its window, the view over the board lets what is under it show, the paper does not, and both are the size of the board"
 	"(:nil :t (1024 768) (1024 768))" (elem-get wa_out 14))
+(assert-eq "what is drawn over the document is in front of it, the way round that the view is in front of the paper" "(:t :t)" (elem-get wa_out 15))
+(assert-eq "the left and the right held together are the middle, and the line the left had begun is not kept" "(2 (1 2 3 4))" (elem-get wa_out 16))
+(assert-eq "one let go, it is the middle still, and with both up nothing was drawn" "(0 (1 2 3 4))" (elem-get wa_out 17))
 
 (defq wa_out (wa-run (cat
 	"(wa-drag 1 100 100 220 120) (wa-mode :rect) (wa-drag 1 300 100 420 200) (wa-drag 1 500 100 600 180)"

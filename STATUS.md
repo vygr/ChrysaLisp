@@ -4,6 +4,28 @@
 
 ------
 
+Two more from Chris's first go at the Whiteboard.
+
+*	"I draw with the pen, see nothing until I let go of the button.
+	Then the stroke appears." The canvas of what is being drawn was
+	behind the canvas of the document. A child that is added to a view
+	goes behind those there are, and it was added second. The old app
+	had them the same way round and it did not show, its document
+	canvas was clear and the paper was the backdrop's. The document's
+	is paper all over now. It is added first.
+
+*	"yes, make left and right together pan." His mouse has no middle
+	button. As the mouse moves the buttons held come as bits, and both
+	the left and the right, 5, is the middle from then till all are up.
+	What the first of them had begun is ended and, if it made a step,
+	taken back.
+
+`test_whiteboard.lisp`, 3 more: which canvas is in front, by the way the
+view is in front of the paper; the two buttons. Run on the x64 and the
+Pi, and on the M4 in a session of mine, his desktop being up.
+
+------
+
 The first time the Whiteboard was seen, the board was not drawn at all.
 Chris: "I see no main area redraw, probably a opaque flag or trandperncy
 issue." It was. The view that lies over the board to take the mouse draws

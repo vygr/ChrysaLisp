@@ -114,7 +114,9 @@
 	(. *overlay* :set_canvas_flags +canvas_flag_antialias)
 	(def *committed* :color 0)
 	(def *overlay* :color 0)
-	(.-> *backdrop* (:add_child *committed*) (:add_child *overlay*))
+	;a child that is added goes behind those there are, so what is over
+	;the document is added before it
+	(.-> *backdrop* (:add_child *overlay*) (:add_child *committed*))
 	(def *board* :zoom *zoom*)
 	(def *board_view* :zoom *zoom*)
 	(defq doc (. *board* :get_doc))

@@ -9,7 +9,9 @@
 ;
 ; The middle button is not the board's. It moves the view about in its
 ; scroll, by how far the mouse has gone on the screen, not in the view,
-; which moves under it.
+; which moves under it. The left and the right held together are the
+; middle, for a mouse that has none: what the first of them had begun is
+; let go and not kept.
 ;
 ; A pen or a finger comes as a pointer event of the GUI, :pointer, with an
 ; id and a kind of its own, and is given to the board as that. Nothing
@@ -44,17 +46,33 @@
 			held (case button (2 +pev_middle) (3 +pev_right) (:t +pev_left)))
 		(def this :held held)
 		(cond
-			((= held +pev_middle)
-				;where the mouse is on the screen, and where the view is in its scroll
-				(when (defq scroll (get :scroll this))
-					(def this :drag (list (getf event +ev_msg_mouse_x) (getf event +ev_msg_mouse_y)
-						(ifn (get :value (get :hslider scroll)) 0) (ifn (get :value (get :vslider scroll)) 0)))))
+			((= held +pev_middle) (. this :pan_from event))
 			(:t (. this :mouse_pointer event held)))
+		this)
+
+	(defmethod :pan_from (event)
+		; (. board_view :pan_from event) -> board_view
+		;the view is moved about from here: where the mouse is on the
+		;screen, and where the view is in its scroll
+		(when (defq scroll (get :scroll this))
+			(def this :drag (list (getf event +ev_msg_mouse_x) (getf event +ev_msg_mouse_y)
+				(ifn (get :value (get :hslider scroll)) 0) (ifn (get :value (get :vslider scroll)) 0))))
 		this)
 
 	(defmethod :mouse_move (event)
 		; (. board_view :mouse_move event) -> board_view
 		(defq held (get :held this))
+		;as the mouse moves the buttons held are told as bits, the left 1
+		;and the right 4. Both, and it is the middle from now till all are
+		;up. What the first had begun, a line say, ends here, and if that
+		;made a step it is taken back
+		(when (and (= (getf event +ev_msg_mouse_buttons) 5) (/= held +pev_middle))
+			(when (/= held 0)
+				(defq board (get :board this) steps (length (get :undo_stack board)))
+				(. this :mouse_pointer event 0)
+				(if (> (length (get :undo_stack board)) steps) (. board :undo)))
+			(def this :held (setq held +pev_middle))
+			(. this :pan_from event))
 		(cond
 			((= held +pev_middle)
 				(when (and (defq scroll (get :scroll this)) (defq drag (get :drag this)))
