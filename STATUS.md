@@ -4,6 +4,30 @@
 
 ------
 
+Chris: "Di you add that feature where storkes drawn shortly (within a
+window) of the timestamp of the end (pen up) of the last stroke, get auto
+captured into a group ? That group can still be broken apart, but this
+auto grouping is great for freeand writing of words, then you can just
+move the word as a whole around the canvas. simple but effective."
+
+It was not there. It is: a line drawn by hand that is begun within 0.7
+of a second of the end of the last, by the same pointer, and with that
+still under it, is put in a group with it, named "written", or joins the
+group the last went into. `(. board :written)`, `:auto_group` the time, 0
+for none. It goes by the time the board is told, so a board that is told
+none, a script, does none of it. Nothing is drawn again for it. It is
+part of the step of the line, undone with it. Another pen writes its own
+word. Ungroup breaks one apart.
+
+With it the eraser had to change: it took a group whole, and a word is
+now a group. It rubs the lines in a group as it rubs lines, in the
+group's own space, and a group with nothing left goes.
+
+The 0.7 is mine. `test_cwb.lisp`, 13 more. And of the scissors, from
+his go at them: "yeah, and it went."
+
+------
+
 Chris, of the layers as they now are: "Yeah that inlight layer change
 work very well, feels natural and easy." Of the eraser, that it works as
 built, and how his did it, which is on the list. Then: "Things where

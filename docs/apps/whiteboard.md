@@ -36,6 +36,11 @@ The row of colours says in what, and the three dots how thick.
 Words are typed into the field on that row, and put down where the pen next
 goes down.
 
+Lines drawn by hand one soon after another, as the letters of a word are,
+are put in a group as they are drawn, so a word that was written is picked
+up and moved as one thing. Ungroup breaks it into its lines again. The
+eraser still rubs out one line of it at a time.
+
 The left button of the mouse is the pen. The right button is the hand: it
 picks up what it is on and moves it, whatever the pen is set to. The middle
 button moves the board about in its window.

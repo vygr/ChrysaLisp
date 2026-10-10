@@ -77,6 +77,24 @@
 			(push out "L" (first (last pts)) (second (last pts)))
 			(apply (const cwb-d) out))))
 
+(defun board-rub-group (doc group x y r)
+	; (board-rub-group doc group x y r) -> :nil | items
+	;the items of a group with what of its lines is within r of a point,
+	;of the space the group is in, rubbed out. :nil if none was touched.
+	;What is in it that is not a line, or is a group itself, is left
+	(defq m (elem-get group +cwb_m) size 1.0 touched :nil out (list))
+	(when m
+		(setq size (max 0.001 (sqrt (abs (- (* (elem-get m 0) (elem-get m 4)) (* (elem-get m 1) (elem-get m 3))))))))
+	(bind '(lx ly) (cwb-mat-point (cwb-mat-invert m) x y))
+	(each (lambda (item)
+		(cond
+			((and (cwb-rub? item) (defq pieces (cwb-rub item lx ly (/ (n2f r) size))))
+				(setq touched :t)
+				(each (# (push out (cwb-adopt doc %0))) pieces))
+			(:t (push out item))))
+		(elem-get group +cwb_items))
+	(if touched out))
+
 (defun board-two-point-mat (a0 b0 a1 b1)
 	; (board-two-point-mat a0 b0 a1 b1) -> matrix
 	;the move, turn and change of size that takes two points to where
@@ -203,6 +221,8 @@
 				(elem-set state +stroke_x (. board :snap_x x))
 				(elem-set state +stroke_y (. board :snap_y y))
 				(elem-set state +stroke_points (list (elem-get state +stroke_x) (elem-get state +stroke_y)))
+				;when it was begun, for what is written, (:written)
+				(elem-set state +stroke_snap (get :time board))
 				(elem-set state +stroke_item (. board :new_shape event tool))))
 		state)
 
@@ -294,7 +314,9 @@
 						;a line drawn by hand has the points that matter, and is curved
 						(defq kept (if (> (length points) 4) (path-filter 0.5 (apply (const path) points) (path)) points))
 						(cwb-set item :d (board-pen-d (map (const identity) kept)))
-						(. board :commit item))
+						(. board :commit item)
+						;one written soon after the last is of the same word
+						(. board :written item id snap))
 					((and (/= (length points) 2) (third (cwb-flat item)))
 						(. board :commit item))))))
 
@@ -528,6 +550,12 @@
 		;the eraser: how far it reaches, on the screen, and :part, it rubs
 		;out the part of a line it goes over, or :whole, the whole of it
 		:rub_reach 8.0 :rub_mode :part :rubber :nil
+		;a line drawn by hand that is begun within this long of the end of
+		;the last, by the same pointer, is put in a group with it, a word
+		;that is written is one thing. Microseconds, 0 for not at all. It
+		;goes by the time the board is told, (:tick), one that is told
+		;none does none of it
+		:auto_group 700000 :last_stroke :nil
 		:temp (Fmap 11) :band :nil :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
 		:floating (list) :float_back :nil :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
 	(def this :surface (Surface this) :handles (Handles this))
@@ -737,6 +765,34 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		item)
 
+	(defmethod :written (item who began)
+		; (. board :written item who began) -> board
+		;a line drawn by hand has just been kept, on top of its layer, by
+		;that pointer, begun at that time. If the last such was ended a
+		;moment before, and is still under it, the two are a group, or it
+		;joins the group the last was put in, if that has not been moved.
+		;It is part of the step of keeping the line, and nothing is seen
+		;to change: they are where they were, in the order they were
+		(defq now (get :time this) before (get :last_stroke this) window (get :auto_group this)
+			items (cwb-items (get :doc this) (. this :layer_index)) target (elem-get item +cwb_id))
+		(when (and before (/= now 0) (> window 0) (= (elem-get before 2) who)
+				(<= (- began (elem-get before 0)) window) (>= (length items) 2)
+				(eql (elem-get items -2) item)
+				(= (elem-get (defq under (elem-get items -3)) +cwb_id) (elem-get before 1)))
+			(cond
+				((and (cwb-group? under) (eql (elem-get under +cwb_name) "written")
+						(or (not (defq gm (elem-get under +cwb_m))) (every (const =) gm (cwb-mat))))
+					(pop items)
+					(push (elem-get under +cwb_items) item)
+					(setq target (elem-get under +cwb_id)))
+				((cwb-shape? under)
+					(pop items) (pop items)
+					(push items (defq group (cwb-adopt (get :doc this) (cwb-group (list under item) :name "written"))))
+					(setq target (elem-get group +cwb_id))))
+			(. this :changed (list target)))
+		(def this :last_stroke (list now target who))
+		this)
+
 	(defmethod :add (item)
 		; (. board :add item) -> id
 		;as (:commit), and the id of it, for a script
@@ -774,6 +830,21 @@
 								(def this :selected (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this)))
 								(each (# (push out (cwb-adopt doc %0))) pieces)
 								(. this :changed (map (# (elem-get %0 +cwb_id)) pieces)))
+							;a group: the lines in it are rubbed as lines are, in its
+							;own space, so a word that was written is rubbed a letter
+							;at a time, not taken whole. A group with nothing left goes
+							((and (cwb-group? item)
+									(defq box (cwb-bounds (list item)))
+									(cwb-box-meet? reach (list (- (first box) 1.0) (- (second box) 1.0)
+										(+ (third box) 1.0) (+ (elem-get box 3) 1.0)))
+									(defq left (board-rub-group doc item x y r)))
+								(setq changed :t done :t)
+								(cond
+									((empty? left)
+										(def this :selected (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this))))
+									(:t (elem-set item +cwb_items left)
+										(. this :changed (list (elem-get item +cwb_id)))
+										(push out item))))
 							(:t (push out item))))
 						items)
 					(when changed
