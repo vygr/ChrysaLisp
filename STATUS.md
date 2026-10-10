@@ -4,6 +4,21 @@
 
 ------
 
+Chris: "The preview/inflight strokes layer while drawing should still
+clip to the drawable canvas !" With the margin, a line being drawn, a
+thing being moved and the handles were seen out in it, and then cut off
+when they were kept. What is of the document is drawn only where the
+document is, `(draw-over)` in the app. Instruments and a palette are
+still seen in the margin.
+
+He went on: "The canvas is an infinite area,, we can move/scale/rotate,
+the contents of the canvas ! What we see as the paper/grid, is just a
+choice of viewpirt to repreeent the 'paper' we are drawing on ... On my
+old interactive panel, you can grab/multi touch the paper back ground
+and drag/rotate/zoom globally." Not built. Asked of him before it is.
+
+------
+
 Chris: "ALL instruments, ruler edge markings should work like the Ruler !
 They don't zoom, they should show more markings range ! This does not
 apply to the circilar arc of the protractor, clearly."

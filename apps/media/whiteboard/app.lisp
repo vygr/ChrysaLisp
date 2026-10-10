@@ -170,6 +170,19 @@
 	(. *board* :draw *committed* m)
 	(setq *local_ms* (/ (- (pii-time) start) 1000)))
 
+(defun draw-over ()
+	;what is over the document, on its canvas, which has the margin round
+	;it. What is of the document, a line as it is drawn, a thing as it is
+	;moved, the handles, is only seen where the document is, as it will be
+	;when it is kept. An instrument or a palette is not of the document,
+	;and is seen in the margin too
+	(bind '(w h) (canvas-size))
+	(. *overlay* :fill 0)
+	(. *overlay* :set_clip *margin* *margin* (+ *margin* w) (+ *margin* h))
+	(. *board* :draw_overlay *overlay* (over-matrix))
+	(. *overlay* :set_clip 0 0 (+ w *margin* *margin*) (+ h *margin* *margin*))
+	(. *board* :draw_actors *overlay* (over-matrix)))
+
 (defun farm? ()
 	;is the document one for the nodes to draw: it took this task a while
 	;last time, the pixels are where they can reach, and it has not kept
@@ -200,10 +213,7 @@
 			(cwb-draw-items *committed* (. *board* :take_appended) m)
 			(setq show :t)))
 	(when (. *board* :dirty? +board_dirty_overlay)
-		(. *overlay* :fill 0)
-		(. *board* :draw_overlay *overlay* (over-matrix))
-		;what is on the board and not of the document, a ruler, a palette
-		(. *board* :draw_actors *overlay* (over-matrix))
+		(draw-over)
 		(sync-ui)
 		(setq show_over :t))
 	;shown last, when all else is done

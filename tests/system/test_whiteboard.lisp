@@ -172,14 +172,20 @@
 	"(wa-mode :rect) (wa-drag 1 340 340 440 400) (print (cwb-get (last (cwb-items (. *board* :get_doc))) :d))"
 	"(print (map (const n2i) (cwb-mat-point (over-matrix) 0 0)))"
 	"(. (. *board* :get_stage) :add (defq ruler (Ruler *board* -60 100)))"
-	"(. *overlay* :fill 0) (. *board* :draw_actors *overlay* (over-matrix))"
+	;a line being drawn, from off the document's left to on it, with the ruler there
+	"(wa-mode :line) (wa-mouse :down 60 700 1) (wa-mouse :move 500 700 1)"
+	"(draw-over)"
 	"(defq s (memory-stream)) (pixmap-write (getf *overlay* +canvas_pixmap 0) s 32) (stream-seek s 0 0) (defq d (read-blk s 100000000))"
-	"(print (list (/= 0 (get-uint d (+ (- (length d) (* 1504 1248 4)) (* 4 (+ (* 340 1504) 100))))) (get-uint d (+ (- (length d) (* 1504 1248 4)) (* 4 (+ (* 100 1504) 100))))))")))
+	"(defun px (x y) (get-uint d (+ (- (length d) (* 1504 1248 4)) (* 4 (+ (* y 1504) x)))))"
+	"(print (list (/= 0 (px 100 340)) (px 100 100)))"
+	"(print (list (px 150 700) (/= 0 (px 400 700))))"
+	"(wa-mouse :up 500 700 0)")))
 (assert-eq "the board with what is round it is 240 more each side, the document's canvas is in by that, and what is over it covers it all"
 	"((1504 1248) (240 240 1024 768) (0 0 1504 1248))" (elem-get wa_out 0))
 (assert-eq "a point of the view is a point of the document, less the margin" "M 100 100 L 200 100 200 160 100 160 Z" (elem-get wa_out 1))
 (assert-eq "what is over the document is drawn in by the margin" "(240 240)" (elem-get wa_out 2))
 (assert-eq "a ruler that lies off the left of the document is drawn there, in the margin, and not where it is not" "(:t 0)" (elem-get wa_out 3))
+(assert-eq "a line that is being drawn is seen where the document is and not in the margin" "(0 :t)" (elem-get wa_out 4))
 
 ;the palette on the board: the right button down and up on nothing opens it,
 ;a tap on a wedge of it does what the toolbar would, and the toolbar shows it
