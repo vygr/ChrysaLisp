@@ -118,12 +118,21 @@ down near the edge.
 * The three buttons after them say what the round edge of the protractor
 draws: the arc, a slice with its two straight sides, or the whole circle.
 
-* Drag the middle of an instrument, with the hand, to move it.
+* Each is marked as the real thing is, a ruler and a set square to the
+millimetre, a protractor to the degree, and the parts of it that do things
+are the parts it has, each with a sign on it.
 
-* Drag the strip along a long side of the ruler to turn it, about the far end
-of that side. Drag an end to make it longer or shorter.
+* Drag anywhere on an instrument that is not one of those to move it.
 
-* The ring in the middle puts it away.
+* To turn one, drag a part with the arrow that goes round: the hole by
+either end of the ruler, which turns it about its other end; the inner scale
+of the protractor; a sharp corner of the set square.
+
+* To make one bigger or smaller, drag a part with the arrow with two heads:
+an end of the ruler, a square by the straight side of the protractor, the
+mark of the square corner of the set square.
+
+* The ring with the cross puts it away.
 
 More than one pen can draw along an instrument at once. One that is being
 held still is not moved by a pen that draws along it.

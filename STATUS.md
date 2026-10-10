@@ -4,6 +4,38 @@
 
 ------
 
+The instruments, as Chris saw them: "I don't see how I rotate and zoom
+the math tools ? The old code had zones on the tools that allowed
+move/rotate/scale ? We should see more deatiled tick makrs on the math
+tools. degree/mm level marks." And: "the traditional area detail markings
+is what I used to define the control zones. So that folks associate the
+tranditional ares of the tools with drag/rotate/zoom."
+
+The zones were there and were not drawn, and the protractor and the set
+square had none to size them by.
+
+*	A part of an instrument that does a thing is drawn, a shade darker,
+	with a sign on it, `:glyphs` of the table: an arrow that goes round
+	to turn, one with two heads to size, a cross to put away.
+
+*	The parts are what the real thing has. The ruler: its two ends size
+	it, the hole by each end turns it about the other end. The
+	protractor: its inner scale, that reads the other way, turns it,
+	two squares by its straight side size it. The set square: its sharp
+	corners, each with its arc and its angle, turn it, the mark of its
+	square corner sizes it, and it has its hole.
+
+*	Marks: the ruler and the two square sides of the set square in
+	millimetres, 5 to one, longer at five and ten, numbered in
+	centimetres; the protractor every degree, numbered every ten, with
+	a cross at its middle and the line up from it.
+
+Looked at as a picture by me. `test_cwb_tools.lisp` turns the ruler by
+its hole. Not seen: whether these are the parts he had in mind, he had
+not said which when this was done.
+
+------
+
 Two more from Chris's first go at the Whiteboard.
 
 *	"I draw with the pen, see nothing until I let go of the button.

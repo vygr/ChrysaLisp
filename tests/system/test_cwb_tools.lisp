@@ -71,15 +71,18 @@
 (assert-true "two fingers that turn a quarter turn about their middle turn it a quarter turn, where it is"
 	(and (wt-near? (get :angle wt_ruler) +fp_hpi 0.001) (wt-near? (get :origin wt_ruler) '(400 300) 0.1)))
 
-;the strip along a side turns it about the far corner of that side
+;the square by an end turns it about the middle of its other end
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
-(defq wt_corner (. wt_ruler :to_board -184 -40))
-(wt-go '(0 :mouse 1 500 280)) (wt-go '(0 :mouse 1 500 380)) (wt-go '(0 :mouse 0 500 380))
-(assert-true "dragged by the strip along its top side, it turns" (> (get :angle wt_ruler) 0.2))
-(assert-true "and the far corner of that side stays where it was" (wt-near? (. wt_ruler :to_board -184 -40) wt_corner 0.05))
+(defq wt_corner (. wt_ruler :to_board -174 0))
+(assert-list-eq "a ruler has a part to put it away, two to make it longer, two to turn it and one to move it"
+	'(:close :size :size :turn :turn :move) (map (const first) (get :parts wt_ruler)))
+(assert-eq "and a sign is drawn for each but the one that moves it" 5 (length (get :glyphs wt_ruler)))
+(wt-go '(0 :mouse 1 548 308)) (wt-go '(0 :mouse 1 548 408)) (wt-go '(0 :mouse 0 548 408))
+(assert-true "dragged by the square by its right end, it turns" (> (get :angle wt_ruler) 0.2))
+(assert-true "and the middle of its other end stays where it was" (wt-near? (. wt_ruler :to_board -174 0) wt_corner 0.05))
 (def wt_board :snap_angle (/ +fp_pi 12.0))
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
-(wt-go '(0 :mouse 1 500 280)) (wt-go '(0 :mouse 1 500 380)) (wt-go '(0 :mouse 0 500 380))
+(wt-go '(0 :mouse 1 548 308)) (wt-go '(0 :mouse 1 548 408)) (wt-go '(0 :mouse 0 548 408))
 (assert-true "with angles that snap it is turned to a twelfth of a half turn" (wt-near? (get :angle wt_ruler) (* 1.0 (/ +fp_pi 12.0)) 0.001))
 (def wt_board :snap_angle 0.0)
 
