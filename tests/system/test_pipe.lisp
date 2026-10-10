@@ -200,3 +200,19 @@
 		(assert-true "and a pipe run after it is as ever" (nempty? pipe_out))))
 
 (undef (env) 'pipe_ask 'pipe_t0 'pipe_err 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply 'farmed)
+
+;what a command says on its stderr and what it says on its stdout are two
+;streams, and come in either order. A pipe that took the stdout stopping
+;for the end lost the stderr that came after it, the error a command ended
+;with, one time in some dozens on a machine with a lot to do. A command
+;says its stderr is stopping too now, and the pipe is closed when all it
+;says has stopped. Many times over, to see
+(defq pipe_lost 0 pipe_both 0)
+(times 60
+	(defq pipe_out (list))
+	(pipe-run "lisp -r (write-line (io-stream (quote stderr)) {oops, on stderr}) (print {said})" (# (push pipe_out %0)))
+	(defq pipe_said (apply (const cat) (cat (list "") pipe_out)))
+	(unless (find "oops, on stderr" pipe_said) (++ pipe_lost))
+	(if (and (find "oops, on stderr" pipe_said) (find "said" pipe_said)) (++ pipe_both)))
+(assert-eq "of 60 commands that say a thing on their stderr as they end, what not one says is lost" 0 pipe_lost)
+(assert-eq "and each says what it said on its stdout as well" 60 pipe_both)

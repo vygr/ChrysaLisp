@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defq +pipe_abort_delay 2000000)
+(defq +pipe_abort_delay 2000000 +pipe_stderr_delay 50000)
 
 (defun pipe-split (cmdline)
 	; (pipe-split cmdline) -> ((mode cmd) ...)
@@ -74,19 +74,45 @@
 		; (. pipe :read) -> :nil | :t | data
 		;:nil if pipe closed
 		;:t if user select
-		(when (get :state this)
-			(defq user_select_len (length (get :user_select this)))
+		;
+		;What a pipe says is its stdout and the stderr of each of its
+		;commands. They are streams of their own and what is on them comes
+		;in any order: a stderr can stop before the last of the stdout has
+		;been read, and the stdout can stop before what a command said on
+		;its stderr has come, the error it ended with. To close on the
+		;first to stop lost the rest of the others, and to close when the
+		;stdout did lost that error, now and then, on a machine with a lot
+		;to do.
+		;
+		;So the pipe is closed when its stdout has stopped and every stderr
+		;has. A command says its stderr is stopping as it ends,
+		;class/stdio/class.vp. A system of before it did only says so of
+		;its stdout, and this file may be run by one, as a system is built
+		;from a snapshot: so once the stdout has stopped a stderr is waited
+		;for no longer than a moment with nothing said, +pipe_stderr_delay
+		(defq result :nil)
+		(while (and (not result) (get :state this))
+			(defq user_select_len (length (get :user_select this)) select (get :select this)
+				draining (eql (get :state this) :draining))
+			(when draining
+				(mail-timeout (defq timer (mail-mbox)) +pipe_stderr_delay 0)
+				(setq select (cat select (list timer))))
 			(cond
-				((< (defq idx (mail-select (get :select this))) user_select_len))
-				(:t ;must be stdout or one of the stderr's. The pipe is
-					;closed when its stdout stops, a stderr can stop
-					;before the last of the stdout has been read
-					(if (and (/= (in-get-state (in-next-msg (defq msg_in
-									(elem-get (get :streams this) (inc (- idx user_select_len))))))
-								+stream_mail_state_started)
-							(eql msg_in (get :stdout this)))
-						(def this :state :nil))
-					(read-avail msg_in)))))
+				((< (defq idx (mail-select select)) user_select_len)
+					(setq result :t))
+				((and draining (= idx (dec (length select))))
+					;nothing more was said in that moment
+					(def this :state :nil))
+				(:t ;must be stdout or one of the stderr's
+					(in-next-msg (defq msg_in (elem-get (get :streams this) (inc (- idx user_select_len)))))
+					(cond
+						((every (# (/= (in-get-state %0) +stream_mail_state_started)) (rest (get :streams this)))
+							(def this :state :nil))
+						((/= (in-get-state (get :stdout this)) +stream_mail_state_started)
+							(def this :state :draining)))
+					(setq result (read-avail msg_in))))
+			(if draining (mail-timeout timer 0 0)))
+		result)
 
 	(defmethod :write (string)
 		; (. pipe :write string) -> pipe

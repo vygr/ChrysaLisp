@@ -109,7 +109,14 @@
 	(vp-push this)
 	(call :out :flush `((,this +stdio_stderr)))
 
-	;send stopping on stdout
+	;send stopping on stderr, and on stdout. Each is a stream of its own,
+	;and what reads them, a pipe, has them in whatever order they come.
+	;With no word that the stderr had no more to say, a pipe took the
+	;stdout stopping for the end of the command, and what the command had
+	;said on its stderr, the error it ended with, came after that now and
+	;then and was lost
+	(assign '((:rsp 0)) `(,this))
+	(call :out :set_state `((,this +stdio_stderr) +stream_mail_state_stopping) `(,this))
 	(assign '((:rsp 0)) `(,this))
 	(call :out :set_state `((,this +stdio_stdout) +stream_mail_state_stopping) `(,this))
 

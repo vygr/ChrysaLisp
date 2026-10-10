@@ -4,6 +4,51 @@
 
 ------
 
+Chris, of a test that failed once on the Pi and passed twice after:
+"that is suspcious ! how can that fail and then pass ? has the feeling of
+link corruption, or file corruption ? how does a ")" just come and go
+without deliberate action ?" And: "do we think we're triggering a slow
+machine over heat ? or maybe exposing a vp-sync issue in the link code ?"
+
+Neither. I had written it down three times in two days as a thing that
+happens on a loaded machine, and not looked. He would not have it, and
+it was a fault, in the pipe, there to be read.
+
+The `)` is the test's own: it runs `lisp -r (print 1))` and wants the
+error back. What came and went was the error. A command's stdout and its
+stderr are two streams to two mailboxes, and what is on them comes in
+either order. A command said its stdout was stopping as it ended, and
+nothing of its stderr. A `Pipe` took the stdout stopping for the end,
+since 2026-10-07, when it was changed from taking the first stream to
+stop, which lost the stdout the other way round. What the command had
+said on its stderr, if it came after, was not read. All three of the
+failures were a command's error not there.
+
+*	`:stdio :deinit` says the stderr is stopping too, before the stdout,
+	`class/stdio/class.vp`.
+
+*	`(. pipe :read)` closes the pipe when its stdout has stopped and
+	every stderr has. And it reads past a stream that stops with no
+	more to say, it does not give that as the pipe closed.
+
+*	My first go at it closed only when every stream had stopped, and
+	hung: the x64 and the Pi had the new `pipe.inc` by sync and the
+	system of before, whose commands never say their stderr has
+	stopped, and the build that would have made the new system is run
+	through a pipe. 56 nodes left up on the x64 and 24 on the Pi, all
+	mine, ended by their ids. So would an install from the snapshot
+	have hung. Once the stdout has stopped a stderr is waited for no
+	longer than a twentieth of a second with nothing said. Both
+	machines then built the new system from the old with it.
+
+`test_pipe.lisp`: 60 commands that say a thing on stderr as they end,
+none lost. `lint: clean`. Built on the x64 and the Pi from their older
+systems, every test, 5,636, on each. On the M4 the pipe tests, with his
+desktop up. Not done: a soak, the mesh did not reach the Pi after its
+member was started again.
+
+------
+
 Chris, after another run, which the record had as clean: "I would have
 the corner controls free to be dragged, not just locked, scaling ? Maybe
 we need a mode on the toolbar for that ? free/locked ?"
