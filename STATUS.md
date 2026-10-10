@@ -4,6 +4,29 @@
 
 ------
 
+Chris, on the new system: "pickup is now quick and no flicker, soon as I
+let go it flickers." "Yeah allways on letting go."
+
+So a part drawn again at once is the answer to the taking up. The
+letting go was mine, of an hour before: the flight canvas, moved as the
+hand moved, was put back where it began and then drawn on again and
+shown, and showing a canvas is a call that lets other tasks run. The
+screen was made between the two, the old picture where it began: the
+thing seen for a moment back where it was taken up.
+
+*	There are two flight canvases. The new picture is drawn on the one
+	that is not seen and shown there, and then the two change places in
+	the view that holds them, which is one step with nothing let run in
+	it. `*flight_spare*`, `app.lisp`.
+
+Run: `test_whiteboard` 87 on the M4, the full suite on the x64 and the
+Pi.
+
+Not seen: by him yet. That the screen is made inside `:swap` is how I
+read `gui/canvas/lisp.vp` and what he saw, I have not watched it.
+
+------
+
 Chris, when I said a part of a canvas could not be made clear and that
 it was his to say how: "Either add partial clear VP support, change the
 :fill to cal the :clear x y w h, method with the full extent, and then

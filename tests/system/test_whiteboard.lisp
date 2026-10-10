@@ -261,7 +261,8 @@
 	"(wa-mouse :down 410 410 1) (draw-flight) (wa-mouse :move 440 425 1) (defq sw (draw-flight))"
 	"(prin (list sw (slice (. *flight* :get_bounds) 0 2) (. *flight_clip* :get_bounds)))"
 	"(wa-mouse :move 450 400 1) (draw-flight) (prin (slice (. *flight* :get_bounds) 0 2))"
-	"(wa-mouse :up 450 400 0) (. *board* :touch +board_dirty_overlay) (print (list (draw-flight) (slice (. *flight* :get_bounds) 0 2)))")))
+	"(defq was *flight*) (wa-mouse :up 450 400 0) (. *board* :touch +board_dirty_overlay)"
+	"(print (list (draw-flight) (slice (. *flight* :get_bounds) 0 2) (eql was *flight_spare*) (length (. *flight_clip* :children)) (eql (first (. *flight_clip* :children)) *flight*)))")))
 (assert-eq "the board with what is round it is 240 more each side, the document's canvas is in by that, and what is over it covers it all"
 	"((1504 1248) (240 240 1024 768) (0 0 1504 1248))" (elem-get wa_out 0))
 (assert-eq "a point of the view is a point of the document, less the margin" "M 100 100 L 200 100 200 160 100 160 Z" (elem-get wa_out 1))
@@ -275,8 +276,8 @@
 (assert-eq "sized by a handle, it is still behind the document while it is" "((:paper :flight :doc :over) :t)" (elem-get wa_out 8))
 (assert-eq "a click on nothing lets go of it: nothing is in flight, and the document is to be drawn again, once, with it in" "(() :nil :t)" (elem-get wa_out 9))
 (assert-eq "taken by the left button it is in flight in front of the document" "(:paper :doc :flight :over)" (elem-get wa_out 10))
-(assert-eq "moved by a hand, its canvas is not drawn again but moved by as much, in a view that stays on the paper, and moved on; let go, it is drawn where it is"
-	"(:nil (30 15) (240 240 1024 768))(40 -10)(:t (0 0))" (elem-get wa_out 11))
+(assert-eq "moved by a hand, its canvas is not drawn again but moved by as much, in a view that stays on the paper, and moved on; let go, it is drawn where it is on the other canvas, which takes the place of the one that was moved"
+	"(:nil (30 15) (240 240 1024 768))(40 -10)(:nil (0 0) :t 1 :t)" (elem-get wa_out 11))
 
 ;the palette on the board: the right button down and up on nothing opens it,
 ;a tap on a wedge of it does what the toolbar would, and the toolbar shows it

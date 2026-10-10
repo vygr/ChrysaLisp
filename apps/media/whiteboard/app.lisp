@@ -43,6 +43,14 @@
 	;moved in that view, and the view cuts off what goes past the paper.
 	;*flight_at* is what was drawn on it and where each thing then was
 	*flight_clip* :nil *flight_at* :nil
+	;When a canvas that has been moved is to be drawn on again it must go
+	;back to where it began and have another picture, and the screen can
+	;be made between those two, a canvas is shown with a call that lets
+	;other tasks run: the old picture where it began, for a moment, a
+	;thing let go of seen back where it was taken up. So there are two.
+	;The new picture is drawn on the one that is not seen, *flight_spare*,
+	;and shown there, and then the two change places, which is one step
+	*flight_spare* :nil
 	;is only a part of the document's picture drawn again when only a part
 	;changed, (draw-damage). It is if a part of a canvas can be made clear,
 	;(. canvas :clear), which a system from before that was written can not
@@ -151,7 +159,9 @@
 	(setq *committed* (ifn (canvas-shared w h 1) (Canvas w h 1))
 		*overlay* (Canvas (+ w *margin* *margin*) (+ h *margin* *margin*) 1)
 		*flight* (Canvas w h 1) *paper* (Canvas w h 1) *paper_dirty* :t *flight_used* :nil *flight_back* :nil
-		*flight_clip* (View) *flight_at* :nil)
+		*flight_clip* (View) *flight_at* :nil *flight_spare* (Canvas w h 1))
+	(. *flight_spare* :set_canvas_flags +canvas_flag_antialias)
+	(def *flight_spare* :color 0)
 	;a view with no colour of its own has its parent's, and covers what is under it
 	(def *flight_clip* :color 0)
 	(. *flight_clip* :add_child *flight*)
@@ -265,21 +275,34 @@
 				(. *flight* :change_dirty (first shift) (second shift) w h))
 			:nil)
 		((or flying *flight_used* (nempty? down))
-		(unless (eql (str (. *flight* :get_bounds)) (str (list 0 0 w h)))
-			(. *flight* :change_dirty 0 0 w h))
-		(. *flight* :fill 0)
+		;on the canvas that is seen, if it is where it began, or on the other
+		(defq moved (not (eql (str (. *flight* :get_bounds)) (str (list 0 0 w h))))
+			onto (if moved *flight_spare* *flight*))
+		(. onto :fill 0)
 		(when (nempty? down)
 			(setq down (cwb-id-set down))
 			(each (lambda ((name flags items))
-				(unless (bits? flags 1) (cwb-draw-items *flight* (cwb-pick items down) (view-matrix))))
+				(unless (bits? flags 1) (cwb-draw-items onto (cwb-pick items down) (view-matrix))))
 				(cwb-layers (. *board* :get_doc))))
-		(if flying (. *board* :draw_flight *flight* (view-matrix)))
+		(if flying (. *board* :draw_flight onto (view-matrix)))
 		;what is on it, and where each thing was when it was put there
 		(defq now (if flying (. *board* :selected_items) (list)))
 		(setq *flight_used* (or flying (nempty? down))
 			*flight_at* (if (and (nempty? now) (empty? down))
 				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now))))
-		:t)))
+		(cond
+			(moved
+				;its picture is shown while it is not seen, and then it is
+				;put where the other was, and the other taken out
+				((const (ffi "gui/canvas/lisp_swap")) onto +swap_write)
+				(. *flight* :sub)
+				(. *flight_clip* :add_child onto)
+				(. onto :set_bounds 0 0 w h)
+				(. *flight* :set_bounds 0 0 w h)
+				(. *flight_clip* :dirty_all)
+				(setq *flight_spare* *flight* *flight* onto)
+				:nil)
+			(:t :t)))))
 
 (defun draw-damage (boxes m)
 	;only these parts of the document's picture, boxes of the document,
