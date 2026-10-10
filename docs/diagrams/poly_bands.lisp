@@ -1,0 +1,26 @@
+;docs/ai_digest/polygon_sets.md: the bands two shapes are cut into, and the pieces of the answer in them
+(import "lib/math/polygon.inc")
+(defq s (dia-scene) blue 0xffd7e6f7 gold 0xffffe8a8 green 0xffbfe3b4 line 0xff3c4650
+	a (list (path 40.0 10.0 230.0 60.0 90.0 190.0)) b (list (path 150.0 0.0 280.0 150.0 20.0 120.0))
+	r (poly-intersect a b) ys (list))
+;every y a point is at, of the two and of the answer: those of the answer
+;that are not of the two are where edges cross
+(each (lambda (p) (each (lambda ((_ y)) (push ys y)) (partition p 2))) (cat a b r))
+(setq ys (usort ys (const -)))
+(dia-put s :nil (list (cwb-shape (cwb-d-points (first a) :t) :fill blue :stroke line :width 1.4) 300 200) 0 0)
+(dia-put s :nil (list (cwb-shape (cwb-d-points (first b) :t) :fill gold :stroke line :width 1.4) 300 200) 0 0)
+(dia-put s :nil (list (cwb-shape (join (map (# (cwb-d-points %0 :t)) r) " ") :fill green :stroke line :width 1.4) 300 200) 0 0)
+(each (# (dia-put s :nil (list (cwb-shape (cwb-d-line 0 %0 300 %0) :stroke 0xff9aa4ae :width 0.8) 300 1) 0 0)) ys)
+(dia-say s "a" 70 40 12 :t 0xff202428)
+(dia-say s "b" 232 136 12 :t 0xff202428)
+(dia-say s (cat (str (dec (length ys))) " bands. A line is at each y a point of a or b is at,") 320 30 11)
+(dia-say s "and at each y two edges cross. So in a band no" 320 46 11)
+(dia-say s "edges cross, and each goes from its top to its bottom." 320 62 11)
+(dia-say s "In a band the edges are gone along from the left," 320 94 11)
+(dia-say s "counting how each of a and b is wound round. Where" 320 110 11)
+(dia-say s "what is asked for begins and where it ends, here in" 320 126 11)
+(dia-say s "both, are the two sides of a piece of the answer." 320 142 11)
+(dia-say s "The sides of the pieces, and the lines across where a" 320 174 11)
+(dia-say s "band has a piece and the next has none, join up" 320 190 11)
+(dia-say s "into rings: the answer, green." 320 206 11)
+(diagram "poly_bands" (dia-scene-doc s))

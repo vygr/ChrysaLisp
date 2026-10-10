@@ -4,6 +4,59 @@
 
 ------
 
+Item 53, set logic of polygons. Chris: "general polygon to polygon
+set logic", and that night: "remember with 53. that the paths are in
+fixed 48.16 format ! all the path generators and :fpoly work in that
+format, so no use doing work in 'real/s' and then it failing due to
+numerical errors in fixed mode !"
+
+`lib/math/polygon.inc`, in Lisp, and all of it in fixed point: a fixed
+number is taken as the whole number it is held as and every sum is of
+whole numbers. `docs/ai_digest/polygon_sets.md` has it all, with three
+pictures each drawn from what the library gave.
+
+*	`(poly-union a b)`, `(poly-intersect a b)`, `(poly-difference a b)`,
+	`(poly-xor a b)`, and `(poly-op op a b [mode_a mode_b])` that they
+	call. A set is a list of paths as `:fpoly` takes, a mode its winding
+	rule. The answer fills the same by either rule.
+*	`(poly-area paths)`, `(poly-hull paths)`.
+*	`(poly-sweep shape points)`, what a shape covers as it is moved
+	along a line: the shape at each point, the hull of each two, the
+	hulls made one. His swept eraser.
+
+How: the scan line of a fill with bands for lines. A band is cut at
+every y a point is at and every y two edges cross, so in a band none
+cross, and there is no nearly crossing to get wrong.
+
+What it does that I checked: two squares side by side are one box of
+four corners; a shape less itself is nothing, no slivers; 40 pairs of
+polygons of random points, crossing themselves and each other, each
+op tried at 40 points, none wrong (36,000 points on a longer run, none
+wrong); and the areas add up to a hundredth of a pixel in ten thousand.
+
+Time, one core of the M4, in Lisp: a box or an ellipse with an eraser
+stroke across it 1ms; a word of 200 points written joined up 25ms; one
+of 800 points in 20 loops over each other 378ms. It is the bands by
+the edges in each. No VP yet: the next thing, the loop over a band's
+edges.
+
+Not done: the Whiteboard's eraser does not use it. What a bite does to
+a shape there is his to say and he has, it is on the docs page, and it
+is a change to what a shape is that I would not make while he sleeps.
+
+Also: `files | forward` found two functions of mine in `lib/cwb/` used
+above where they are made, `(dia-doc)` and `(cwb-text-mid)`, from the
+10th. Moved. It gives only `tests/core/test_traps.lisp` again.
+
+Run: `tests/system/test_polygon.lisp`, 37. `cl_test.sh -a` on all
+three, 5817 each. The Pi's first run failed `test_pipe`, "closes at
+once after eof", and passed the second: the one that was seen once on
+the 10th and not explained.
+
+Not seen: by Chris.
+
+------
+
 Item 52, the modes of `make`. Chris, on the 10th: "make vp. Should we
 have 'make vp debug' and 'make vp release' default to 'debug'" then we
 have "make it" "make vp" "make apps" all being consistant in there

@@ -3862,6 +3862,145 @@ the key of the shared memory its pixels are in, 0 if they are its own
 (pmap? form) -> :t | :nil
 ```
 
+### poly-across
+
+```code
+(poly-across above below y segs) -> segs
+
+the lines across at a y: where what is above, (u v) each, is and what
+is below is not, a bottom, left to right, and where it is the other
+way, a top, right to left
+```
+
+### poly-area
+
+```code
+(poly-area paths) -> fixed
+
+the area of a list of paths, one that goes round the other way taken
+off, so what (poly-op) gives has the area that is filled. Not less
+than 0. Each path is summed about its first point, and the sum kept
+in two parts, so nothing is lost and nothing runs out of room
+```
+
+### poly-cuts
+
+```code
+(poly-cuts order xa xb ya yb) -> (y ...)
+
+the ys within a band at which two of its edges cross, in order, with
+the top and the bottom of the band. order is the edges across the
+top, xa and xb where each is at the top and at the bottom
+```
+
+### poly-edges
+
+```code
+(poly-edges raw set edges ys) -> edges
+
+the edges of a set, each (ytop ybot xtop xbot wind set id), those that
+lie flat left out, and every y a point is at
+```
+
+### poly-fixed
+
+```code
+(poly-fixed ((x y ...) ...)) -> paths
+```
+
+### poly-hull
+
+```code
+(poly-hull paths) -> path
+
+the least path with no dent in it that has every point of the paths
+in it or on it. Its points go round the one way, whatever the paths
+do. Points that are all in one line give the two ends of it
+```
+
+### poly-in?
+
+```code
+(poly-in? wind mode) -> :t | :nil
+```
+
+### poly-num
+
+```code
+(poly-num raw) -> fixed
+
+the fixed number that is held as this whole number, its whole part
+and its fraction made apart, so a big one has the room
+```
+
+### poly-op
+
+```code
+(poly-op op a b [mode_a mode_b]) -> paths
+
+op is :union, :intersect, :difference, a and not b, or :xor.
+a and b are lists of paths, either may be empty. A mode is the
+winding rule a set is filled by, as (:fpoly) has them, 0 odd even,
+the default, or 1 non zero
+```
+
+### poly-order
+
+```code
+(poly-order xs) -> (index ...)
+
+the places of a list of numbers, the least first. Each number is put
+with its place into one number, and those sorted, which is the sort
+with no function of Lisp called for each two it holds together
+```
+
+### poly-raw
+
+```code
+(poly-raw paths) -> ((x y ...) ...)
+
+the paths with each number as the whole number it is held as
+```
+
+### poly-rings
+
+```code
+(poly-rings segs) -> ((x y ...) ...)
+
+the lines, (x0 y0 x1 y1 id) each, joined end to start into rings.
+Lines that follow one another with the one id are one line
+```
+
+### poly-spans
+
+```code
+(poly-spans active order x0s x1s op mode_a mode_b) -> ((xl0 xl1 xr0 xr1 idl idr) ...)
+
+the pieces of the answer in a band no edges cross in, from the left.
+order is its edges across, x0s and x1s where each is at its top and
+at its bottom
+```
+
+### poly-sweep
+
+```code
+(poly-sweep shape points) -> paths
+
+what a shape covers as it is moved along a line. shape is a path
+about 0 0 with no dent in it, points the line it goes along, x y
+x y. At each point is the shape, each two that follow one another
+are joined by the hull of them both, and all of the hulls are made
+one
+```
+
+### poly-x
+
+```code
+(poly-x edge y) -> x
+
+where an edge is at a y, its ends as they are
+```
+
 ### poly1305
 
 ```code
@@ -5281,13 +5420,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args

@@ -168,15 +168,6 @@
 	(elem-set item +cwb_m (cwb-mat-mul (cwb-mat-move x y) (elem-get item +cwb_m)))
 	item)
 
-(defun cwb-text-mid (text x y &rest key_vals)
-	; (cwb-text-mid text x y [key val] ...) -> shape
-	;words with their middle at a point, to label a box by its middle say
-	(defq item (apply (const cwb-text) (cat (list text 0 0) key_vals)))
-	(when (defq box (third (cwb-flat item)))
-		(bind '(bx by bx1 by1) box)
-		(elem-set item +cwb_m (cwb-mat-move (- (n2f x) (* 0.5 (+ bx bx1))) (- (n2f y) (* 0.5 (+ by by1))))))
-	item)
-
 (defun cwb-group (items &rest key_vals)
 	; (cwb-group items [key val] ...) -> group
 	(defq item (cwb-item :group key_vals))
@@ -326,6 +317,15 @@
 					(bind '((x y) (x1 y1)) (vector-bounds-2d polys))
 					(list x y x1 y1)))))))
 	cache)
+
+(defun cwb-text-mid (text x y &rest key_vals)
+	; (cwb-text-mid text x y [key val] ...) -> shape
+	;words with their middle at a point, to label a box by its middle say
+	(defq item (apply (const cwb-text) (cat (list text 0 0) key_vals)))
+	(when (defq box (third (cwb-flat item)))
+		(bind '(bx by bx1 by1) box)
+		(elem-set item +cwb_m (cwb-mat-move (- (n2f x) (* 0.5 (+ bx bx1))) (- (n2f y) (* 0.5 (+ by by1))))))
+	item)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; walking a tree of items

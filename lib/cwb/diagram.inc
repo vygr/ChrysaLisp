@@ -189,6 +189,16 @@
 		order)
 	(list (cwb-group items) (- x gap) (+ (* pitch (n2f (max 1 slot))) -5.0)))
 
+(defun dia-doc (parts &optional pad)
+	; (dia-doc parts [pad]) -> doc
+	;a document of parts, each a group or a shape, as big as they are and
+	;pad round them, default 12. Nothing behind them, the page shows
+	(defq doc (cwb-doc 16 16))
+	(. doc :insert :style :plain)
+	(each (# (cwb-add doc %0)) parts)
+	(cwb-fit doc (ifn pad 12))
+	doc)
+
 (defun dia-hierarchy (nodes &optional alone)
 	; (dia-hierarchy nodes [alone]) -> doc
 	;the tree of nodes, ((name parent) ...), and under it, in rows, those
@@ -206,16 +216,6 @@
 		(push parts (dia-words (ifn alone "And those that come of nothing") 0.0 (+ h 34.0) 12 :t +dia_dim)
 			(dia-move (list row) 0.0 (+ h 44.0))))
 	(dia-doc parts))
-
-(defun dia-doc (parts &optional pad)
-	; (dia-doc parts [pad]) -> doc
-	;a document of parts, each a group or a shape, as big as they are and
-	;pad round them, default 12. Nothing behind them, the page shows
-	(defq doc (cwb-doc 16 16))
-	(. doc :insert :style :plain)
-	(each (# (cwb-add doc %0)) parts)
-	(cwb-fit doc (ifn pad 12))
-	doc)
 
 (defun dia-class (name under chain kids sections)
 	; (dia-class name under chain kids sections) -> doc
