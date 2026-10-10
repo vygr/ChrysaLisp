@@ -203,3 +203,23 @@
 (. pl_board :tick 8000000)
 (assert-eq "all are gone from the stage at the end" 0
 	(length (filter (const Palette?) (. (. pl_board :get_stage) :get_actors))))
+
+;a finger that goes down somewhere puts away nobody's palette. A tap of one
+;on nothing puts away one that is open, and opens one if there was none
+(defq pf_board (palette-enable (Board (cwb-doc 800 600))))
+(cwb-add (. pf_board :get_doc) (cwb-shape (cwb-d-rect 600 400 700 500) :fill 0xff0000ff :stroke 0))
+(pl-tap pf_board 0x10001 :touch 1 200 200)
+(assert-eq "a tap of a finger on nothing opens a palette" 1 (length (palettes pf_board)))
+(. pf_board :pointers (list (ptr-event 0x10002 :touch 1 650 450)))
+(. pf_board :pointers (list (ptr-event 0x10002 :touch 1 660 460)))
+(assert-eq "another finger takes hold of a thing and moves it: the palette is still open" 1 (length (palettes pf_board)))
+(. pf_board :pointers (list (ptr-event 0x10003 :touch 1 500 100)))
+(. pf_board :pointers (list (ptr-event 0x10003 :touch 1 560 160)))
+(assert-eq "and another drags a box out on nothing: still open" 1 (length (palettes pf_board)))
+(. pf_board :pointers (list (ptr-event 0x10003 :touch 0 560 160)))
+(. pf_board :pointers (list (ptr-event 0x10002 :touch 0 660 460)))
+(. pf_board :select (list))
+(pl-tap pf_board 0x10004 :touch 1 500 300)
+(assert-eq "a tap of a finger on nothing, off it, puts it away, and opens no other" 0 (length (palettes pf_board)))
+(pl-tap pf_board 0x10005 :touch 1 500 300)
+(assert-eq "and the next tap opens one" 1 (length (palettes pf_board)))

@@ -8,6 +8,10 @@
 (defq *env_window_x* 0 *env_window_y* 0
 	*env_window_width* 1280 *env_window_height* 960)
 
+;which way the mouse wheel scrolls, across and up and down: 1 as the
+;host gives it, -1 the other way
+(defq *env_wheel_x* 1 *env_wheel_y* 1)
+
 ;launcher placement from xy :center :top :bottom :left :right)
 (defq *env_launcher_position* :center)
 

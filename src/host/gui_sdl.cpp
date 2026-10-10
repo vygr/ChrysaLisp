@@ -66,6 +66,9 @@ void host_gui_init(SDL_Rect *rect, uint64_t flags)
 	SDL_SetTextureBlendMode(backbuffer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	if (flags) SDL_ShowCursor(SDL_DISABLE);
+	// a desktop started from a shell opens behind the shell's window, on a
+	// Mac, the shell is the program in front. It is asked to come forward
+	SDL_RaiseWindow(window);
 }
 
 void host_gui_deinit()

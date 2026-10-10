@@ -186,6 +186,9 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 #if defined(__APPLE__)
 	set_macos_activation_policy(0); // NSApplicationActivationPolicyRegular
 #endif
+	// a trackpad gives SDL no fingers unless it is told to, before it
+	// starts, and then it gives no mouse. CL_TOUCH_TRACKPAD asks for that
+	if (host_gui_sdl3_trackpad()) SDL_SetHint(SDL_HINT_TRACKPAD_IS_TOUCH_ONLY, "1");
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	// with no desktop, SDL on the bare display, a Raspberry Pi with no
 	// window system say, the window is the whole screen. Vulkan can only
@@ -225,6 +228,9 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 	backbuffer = create_backbuffer(rect->w, rect->h);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	if (flags) SDL_HideCursor();
+	// a desktop started from a shell opens behind the shell's window, on a
+	// Mac, the shell is the program in front. It is asked to come forward
+	SDL_RaiseWindow(window);
 }
 
 void host_gui_deinit()

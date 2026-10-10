@@ -4,6 +4,92 @@
 
 ------
 
+Chris tried fingers, on the trackpad of the M4 as a touch panel, the
+first there have been on a desktop. Five things were in the way before
+one reached the board, and four were mine.
+
+*	His trackpad was off: macOS was set to ignore it while a mouse is
+	there. I had him try twice and built a probe before he asked "Is my
+	trackpad just truned off in setting....."
+
+*	SDL3 gives no fingers from a trackpad unless it is told to before it
+	starts, `SDL_HINT_TRACKPAD_IS_TOUCH_ONLY`. `CL_TOUCH_TRACKPAD` now
+	sets it, `src/host/gui_sdl3.cpp`. I had written the trackpad up as
+	a way to try fingers and never tried it. A probe, three windows of
+	SDL alone, said which setting: that one, and not the other I had
+	guessed at.
+
+*	**The GUI service stopped at the first finger there ever was**, and
+	the desktop with it: `*pointer_views*` not bound. The actions of
+	`service/gui/actions.inc` are read as a module and done later by the
+	GUI's loop, where a function they name was found as they were read
+	and a thing they keep was not. It is exported now. No test did an
+	action of the service as the service does; one does now, a finger
+	down, moved, up, and a second.
+
+*	My recorder for the session named a function its file could not
+	see, and the Whiteboard stopped at the first finger. Twice in one
+	day a note of mine for watching was the fault.
+
+Then fingers reached the board, and he said what was wrong with it:
+"multi touch is constantly fighting for control of bring up menus and
+drag boxes ! ... I had the touches lock onto the objects they go down
+on, and until they come up again, only that object gets them in it's
+input touch/mouse list ! it's the act of first going down that decides
+who will get this touch/pen/mouse from now on ! release is what clears
+it. You can start a draw with finger one, and then use two more to
+start sizeing and draging a tool, and then sombody else on the other
+side of the panel starts to draw stroke and use yet another tool...
+none interfere with each other due to the lock on landing."
+
+The stage had that for a ruler and a palette. On the surface, the
+things of the document, there was one selection, one box and one rule
+for palettes for every pointer at once. Now, `Surface` in
+`lib/cwb/board.inc`:
+
+*	A hand that goes down on a thing has hold of that thing and no
+	other. Another hand on another thing has its own, both are
+	selected, each moves with its own finger. When one lifts and others
+	still hold, what it had is put down and is no longer selected.
+
+*	Two hands on the same thing move, turn and size it between them, as
+	before, and hands on other things go on as they were while they do.
+
+*	A box dragged out on nothing is its pointer's own, there can be
+	several, `:bands`. What is in it is selected with what other hands
+	have hold of.
+
+*	A finger that goes down somewhere puts away nobody's palette and
+	lets go of nothing another has hold of. A tap of a finger on
+	nothing puts away a palette that is open, and opens one if there
+	was none.
+
+*	"can you diaplay contect points on the Witeboard ?" A ring where
+	each finger is on the board, `:show_contacts`.
+
+From the team, by him: "Darren say's user config would be nice for
+mouse wheel direction and asking if SDL can open the GUI desktop in
+front, rather than behind." `*env_wheel_x*` and `*env_wheel_y*` in
+`usr/Guest/env.inc`, 1 or -1, used by the GUI service. The desktop's
+window is asked to come forward as it opens, `SDL_RaiseWindow`, both
+SDL drivers. And from him: "We should add a user preferences app to the
+todo list !", done, 56.
+
+He also told how his old board knew whose pen was whose, by the id of
+the device, a key to a map of colour and tool for each. That is what
+`Bindings` is, `lib/cwb/pointer.inc`, and a pen that picks from a
+palette has what it picks to itself. A finger has a new id each time it
+goes down, so it is nobody's.
+
+Run: the host programs built on all three. `test_cwb` 476 and
+`test_whiteboard` 88 on the M4, the full suite on the x64 and the Pi,
+5,701.
+
+Not seen: the hands each with their own, by him. The window in front,
+the wheel the other way. A soak.
+
+------
+
 Chris, of a soak on the M4 before the push: "do it." And when I said the
 mesh did not reach the Pi: "What the pi4 issue ?", "is the x64 working ?"
 

@@ -796,3 +796,79 @@
 (. cm_board :delete)
 (assert-list-eq "deleted, they are gone and nothing is selected, and undo has them back" (list 100 0 249)
 	(list (length (cwb-items cm_doc)) (length (. cm_board :get_selected)) (progn (. cm_board :undo) (length (cwb-items (. cm_board :get_doc))))))
+
+;where each finger is on the board is kept while it is down, and shown
+(defq ct_board (Board (cwb-doc 400 300)) ct_canvas (Canvas 400 300 1))
+(. ct_board :dirty? +board_dirty_overlay)
+(. ct_board :pointers (list (ptr-event 0x10001 :touch 1 100 100) (ptr-event 0x10002 :touch 1 300 200) (ptr-event 0 :mouse 0 50 50)))
+(assert-list-eq "two fingers down are two places kept, a mouse is not one, and what is over the board is to be drawn"
+	'(2 :t) (list (. (get :contacts ct_board) :size) (. ct_board :dirty? +board_dirty_overlay)))
+(. ct_canvas :fill 0) (. ct_board :draw_actors ct_canvas)
+(assert-list-eq "a ring is drawn where each is, and not where neither is" '(:t :t :nil)
+	(list (> (cm-row ct_canvas 100 80 120) 10) (> (cm-row ct_canvas 200 280 320) 10) (> (cm-row ct_canvas 100 180 220) 0)))
+(. ct_board :pointers (list (ptr-event 0x10001 :touch 1 120 100) (ptr-event 0x10002 :touch 0 300 200)))
+(assert-list-eq "one moved and one lifted: one place, where it now is" '(1 (120 100))
+	(list (. (get :contacts ct_board) :size) (map (const n2i) (. (get :contacts ct_board) :find 0x10001))))
+(def ct_board :show_contacts :nil)
+(. ct_canvas :fill 0) (. ct_board :draw_actors ct_canvas)
+(assert-eq "with them not to be shown, none is" 0 (cm-row ct_canvas 100 80 160))
+
+;a pointer belongs to what it went down on, till it comes up. Many fingers
+;on the board at once, each on its own thing, are none of them in the way
+;of the rest
+(defq mh_doc (cwb-doc 800 600) mh_board (Board mh_doc)
+	mh_a (elem-get (cwb-add mh_doc (cwb-shape (cwb-d-rect 100 100 160 160) :fill 0xff0000ff :stroke 0)) +cwb_id)
+	mh_b (elem-get (cwb-add mh_doc (cwb-shape (cwb-d-rect 400 100 460 160) :fill 0xffff0000 :stroke 0)) +cwb_id)
+	mh_c (elem-get (cwb-add mh_doc (cwb-shape (cwb-d-rect 100 400 160 460) :fill 0xff00ff00 :stroke 0)) +cwb_id))
+(defun mh-go (&rest events) (. mh_board :pointers (map (# (apply (const ptr-event) %0)) events)))
+(defun mh-at (id) (map (const n2i) (slice (cwb-bounds (list (first (cwb-find (. mh_board :get_doc) id)))) 0 2)))
+(defun mh-sel () (sort (cat (. mh_board :get_selected)) (const -)))
+(def mh_board :mode :select)
+;one finger on the first, then another on the second, and each is moved
+(mh-go '(1 :touch 1 130 130))
+(mh-go '(2 :touch 1 430 130))
+(assert-list-eq "a finger on one thing and another on a second: both are selected, each has hold of its own"
+	(list mh_a mh_b) (mh-sel))
+(mh-go '(1 :touch 1 130 230) '(2 :touch 1 530 130))
+(assert-list-eq "each goes with its own finger, one down and one across, and the third stays"
+	'((100 200) (500 100) (100 400)) (list (mh-at mh_a) (mh-at mh_b) (mh-at mh_c)))
+;a third finger drags a box out on nothing, round the third thing, while they hold theirs
+(mh-go '(3 :touch 1 80 380))
+(mh-go '(3 :touch 1 180 480) '(1 :touch 1 140 230))
+(assert-list-eq "a third finger drags a box out on nothing while they do: what they have is selected still, the box is its own, and the first goes on moving"
+	(list (list mh_a mh_b) 1 '(110 200)) (list (mh-sel) (. (get :bands mh_board) :size) (mh-at mh_a)))
+;and a fourth another, at the same time
+(mh-go '(4 :touch 1 600 400))
+(mh-go '(4 :touch 1 700 500))
+(assert-eq "a fourth drags another box, there are two" 2 (. (get :bands mh_board) :size))
+(mh-go '(4 :touch 0 700 500))
+(mh-go '(3 :touch 0 180 480))
+(assert-list-eq "the third lifted: what was in its box is selected with what the two have hold of, and no box is left"
+	(list (list mh_a mh_b mh_c) 0) (list (mh-sel) (. (get :bands mh_board) :size)))
+;the first finger lifts, the second has hold of its own still
+(mh-go '(1 :touch 0 140 230))
+(assert-list-eq "the first lifted: what it had is put down and is not selected, the rest is"
+	(list mh_b mh_c) (mh-sel))
+(mh-go '(2 :touch 1 530 180))
+(assert-list-eq "and the second goes on with its own, and with nothing else" '((110 200) (500 150) (100 400))
+	(list (mh-at mh_a) (mh-at mh_b) (mh-at mh_c)))
+;a second finger on the same thing, the two of them size it
+(mh-go '(5 :touch 1 550 200))
+(mh-go '(2 :touch 1 510 160) '(5 :touch 1 570 220))
+(bind '(mh_x mh_y mh_x1 mh_y1) (map (const n2i) (cwb-bounds (list (first (cwb-find mh_doc mh_b))))))
+(assert-true "a second finger on the thing the first has hold of: between them they make it bigger"
+	(and (> (- mh_x1 mh_x) 100) (> (- mh_y1 mh_y) 100)))
+(mh-go '(5 :touch 0 570 220))
+(mh-go '(2 :touch 1 520 170))
+(assert-list-eq "one of the two lifted, the other moves it on from where it is" (list (+ mh_x 10) (+ mh_y 10)) (mh-at mh_b))
+(mh-go '(2 :touch 0 520 170))
+(assert-list-eq "the last finger up: what it had is selected still" (list mh_b mh_c) (mh-sel))
+;a finger draws nothing and lets go of nothing that a mouse has hold of
+(. mh_board :select (list))
+(mh-go '(0 :mouse 1 130 430))
+(mh-go '(7 :touch 1 600 300))
+(mh-go '(0 :mouse 1 230 430) '(7 :touch 1 650 350))
+(assert-list-eq "a mouse has hold of a thing and a finger goes down on nothing: the mouse has it still, and moves it"
+	(list (list mh_c) '(200 400)) (list (mh-sel) (mh-at mh_c)))
+(mh-go '(7 :touch 0 650 350))
+(mh-go '(0 :mouse 0 230 430))

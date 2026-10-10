@@ -78,3 +78,43 @@
 (ge-send ge_mouse 0x20001 +gui_kind_pen 0 50 50)
 (assert-list-eq "a pen with the button of its barrel held is the right button" '((:down 4 50) (:up 0 50)) (get :got ge_mouse))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a pen or a finger, as the GUI service takes it from the host's driver
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;The actions of the GUI service, as it has them, service/gui/app_impl.lisp:
+;they are read in as a module and done later by its loop, with what the
+;loop has, the screen and the event. No test did one, and the first finger
+;on a desktop stopped the GUI: what the action kept, the view each pointer
+;went down on, was not to be found from the loop
+(defq *env_user* "Guest")
+(import "usr/Guest/env.inc")
+(import *env_keyboard_map*)
+(import "service/gui/actions.inc")
+(defq ga_mbox (mail-mbox) *screen* (View) ga_view (View) *mouse_x* 0 *mouse_y* 0 *mouse_id* 0 *mods* 0 *focus* :nil)
+(. *screen* :set_bounds 0 0 400 300)
+(. ga_view :set_bounds 100 50 200 100)
+(. *screen* :add_child ga_view)
+(. ga_view :set_owner ga_mbox)
+(defun ga-pointer (type id x y buttons)
+	;an event of the driver done as the GUI's loop does it, and what was sent to the owner of the view
+	(defq msg (setf-> (str-alloc +gui_event_size) (+gui_event_type type) (+gui_event_x x) (+gui_event_y y)
+		(+gui_event_id id) (+gui_event_kind +gui_kind_touch) (+gui_event_buttons buttons) (+gui_event_pressure 65535)))
+	(defq threw (catch (progn ((. *event_map* :find type)) :nil) (str _)))
+	(cond
+		(threw)
+		((mail-poll (list ga_mbox))
+			(defq ev (mail-read ga_mbox))
+			(list (getf ev +ev_msg_type) (getf ev +ev_msg_pointer_id) (getf ev +ev_msg_pointer_buttons)
+				(getf ev +ev_msg_pointer_rx) (getf ev +ev_msg_pointer_ry)))
+		(:t :none)))
+;where it is in the view is from where the view was last drawn, which here it has not been
+(assert-list-eq "a finger down on a view is told to its owner, as a pointer"
+	(list +ev_type_pointer 0x10007 1 150 80) (ga-pointer +gui_ev_pointer_down 0x10007 150 80 1))
+(assert-list-eq "moved off the view it is still that view's, it went down there"
+	(list +ev_type_pointer 0x10007 1 10 10) (ga-pointer +gui_ev_pointer_motion 0x10007 10 10 1))
+(assert-list-eq "and when it comes up" (list +ev_type_pointer 0x10007 0 10 10) (ga-pointer +gui_ev_pointer_up 0x10007 10 10 0))
+(assert-eq "after that, off the view, it is not" :none (ga-pointer +gui_ev_pointer_motion 0x10007 10 10 0))
+(assert-list-eq "a second finger is its own" (list +ev_type_pointer 0x10008 1 100 50) (ga-pointer +gui_ev_pointer_down 0x10008 100 50 1))
+(ga-pointer +gui_ev_pointer_up 0x10008 100 50 0)

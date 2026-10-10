@@ -113,8 +113,9 @@
 		(mail-send owner (setf-> (str-alloc +ev_msg_wheel_size)
 			(+ev_msg_type +ev_type_wheel)
 			(+ev_msg_target_id *mouse_id*)
-			(+ev_msg_wheel_x (getf msg +gui_event_x))
-			(+ev_msg_wheel_y (getf msg +gui_event_y))
+			;the way round the user has it, usr/Guest/env.inc
+			(+ev_msg_wheel_x (* *env_wheel_x* (getf msg +gui_event_x)))
+			(+ev_msg_wheel_y (* *env_wheel_y* (getf msg +gui_event_y)))
 			(+ev_msg_wheel_direction (getf msg +gui_event_direction))))))
 
 (defun action-mouse-motion ()
@@ -242,6 +243,10 @@
 	+gui_ev_quit action-quit))
 
 ;module
+;*pointer_views* with it: what an action is, is done later, by the GUI's
+;loop, where what is named in it is looked for then. A function was found
+;as this was read. A thing kept here was not, and the first pen or finger
+;there ever was on a desktop stopped the GUI, it was not bound
 (export-symbols
-	'(*event_map*))
+	'(*event_map* *pointer_views*))
 (env-pop)
