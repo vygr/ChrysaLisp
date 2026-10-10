@@ -4,6 +4,24 @@
 
 ------
 
+Chris: "Math tools shoukld be visible outside the bounds of the drawing
+canvas ! currently they clip to the canvas, this is a minnor layering
+issue."
+
+They were drawn on a canvas the size of the document. The board in its
+scroll has 240 round it now, each side, that is not the document, the
+colour of a desk. The canvas of what is over the document covers that
+too, and is drawn in by the margin. The document's canvas is in from the
+corner by it, and a point of the view is a point of the document less
+it. The window opens on the corner of the document with a little of the
+desk showing.
+
+`test_whiteboard.lisp`, 4 more: the sizes and places of the three, a box
+drawn through the margin, and a ruler half off the left of the document
+drawn there. Not seen: it.
+
+------
+
 Chris: "I would swap the angle display, so that when the ruler is lieing
 flat horizontal, the leftwards angle number show as the correct way, and
 the right side show as upside down. That's a human readin left to right

@@ -36,6 +36,11 @@
 (defq *zoom* 1.0 *style* :grid *snap* :nil *snap_angle* :nil *arc* :line
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
 	*committed* :nil *overlay* :nil rate (/ 1000000 60)
+	;the board has this much round it, on the screen, each side, that is
+	;not the document: an instrument lies half off the paper as a ruler
+	;does on a desk, and is seen there. What is over the document, the
+	;second canvas, covers it too
+	*margin* 240
 	;a document that takes this task longer than that to draw is drawn in
 	;stripes, and one of fewer shapes than that is tried by this task again
 	*farm_ms* 40 *farm_shapes* 2000
@@ -87,6 +92,13 @@
 	;from the document to the canvas
 	(if (= *zoom* 1.0) :nil (cwb-mat-scale *zoom*)))
 
+(defun over-matrix ()
+	; (over-matrix) -> :nil | matrix
+	;from the document to the canvas of what is over it, which has the
+	;margin round it
+	(if (= *margin* 0) (view-matrix)
+		(cwb-mat-mul (cwb-mat-move *margin* *margin*) (view-matrix))))
+
 (defun view-middle ()
 	; (view-middle) -> (x y)
 	;the point of the document that is in the middle of what shows
@@ -97,7 +109,7 @@
 	(if (<= sh 0) (setq sh ch))
 	(defq hv (ifn (get :value (get :hslider *image_scroll*)) 0)
 		vv (ifn (get :value (get :vslider *image_scroll*)) 0))
-	(list (/ (n2f (+ hv (/ (min sw cw) 2))) *zoom*) (/ (n2f (+ vv (/ (min sh ch) 2))) *zoom*)))
+	(list (/ (n2f (- (+ hv (/ (min sw cw) 2)) *margin*)) *zoom*) (/ (n2f (- (+ vv (/ (min sh ch) 2)) *margin*)) *zoom*)))
 
 (defun board-resized ()
 	;the board is another size on the screen, the document's or the zoom
@@ -109,7 +121,8 @@
 	(when *committed* (. *committed* :sub) (. *committed* :free))
 	(if *overlay* (. *overlay* :sub))
 	;the pixels of the first are shared, if the host has that, for the nodes
-	(setq *committed* (ifn (canvas-shared w h 1) (Canvas w h 1)) *overlay* (Canvas w h 1))
+	(setq *committed* (ifn (canvas-shared w h 1) (Canvas w h 1))
+		*overlay* (Canvas (+ w *margin* *margin*) (+ h *margin* *margin*) 1))
 	(. *committed* :set_canvas_flags +canvas_flag_antialias)
 	(. *overlay* :set_canvas_flags +canvas_flag_antialias)
 	(def *committed* :color 0)
@@ -117,11 +130,14 @@
 	;a child that is added goes behind those there are, so what is over
 	;the document is added before it
 	(.-> *backdrop* (:add_child *overlay*) (:add_child *committed*))
+	;the document's is in from the corner by the margin
+	(. *committed* :set_bounds *margin* *margin* w h)
 	(def *board* :zoom *zoom*)
-	(def *board_view* :zoom *zoom*)
+	(def *board_view* :zoom *zoom* :margin *margin*)
 	(defq doc (. *board* :get_doc))
 	(. *size_field* :set_text (cat (str (. doc :find :width)) "x" (str (. doc :find :height))))
-	(. *board_stack* :change 0 0 w h)
+	(. *board_stack* :change 0 0 (+ w *margin* *margin*) (+ h *margin* *margin*))
+	(. *committed* :set_bounds *margin* *margin* w h)
 	(.-> *image_scroll* :layout :dirty_all)
 	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
@@ -134,8 +150,8 @@
 		(setq *zoom* zoom)
 		(board-resized)
 		(bind '(sw sh) (. *image_scroll* :get_size))
-		(def (get :hslider *image_scroll*) :value (max 0 (- (n2i (* mx *zoom*)) (/ sw 2))))
-		(def (get :vslider *image_scroll*) :value (max 0 (- (n2i (* my *zoom*)) (/ sh 2))))
+		(def (get :hslider *image_scroll*) :value (max 0 (- (+ (n2i (* mx *zoom*)) *margin*) (/ sw 2))))
+		(def (get :vslider *image_scroll*) :value (max 0 (- (+ (n2i (* my *zoom*)) *margin*) (/ sh 2))))
 		(.-> *image_scroll* :layout :dirty_all)))
 
 (defun draw-paper ()
@@ -185,9 +201,9 @@
 			(setq show :t)))
 	(when (. *board* :dirty? +board_dirty_overlay)
 		(. *overlay* :fill 0)
-		(. *board* :draw_overlay *overlay* m)
+		(. *board* :draw_overlay *overlay* (over-matrix))
 		;what is on the board and not of the document, a ruler, a palette
-		(. *board* :draw_actors *overlay* m)
+		(. *board* :draw_actors *overlay* (over-matrix))
 		(sync-ui)
 		(setq show_over :t))
 	;shown last, when all else is done
@@ -248,6 +264,10 @@
 	(board-resized)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
+	;it opens on the corner of the document, a little of what is round it showing
+	(def (get :hslider *image_scroll*) :value (max 0 (- *margin* 24)))
+	(def (get :vslider *image_scroll*) :value (max 0 (- *margin* 24)))
+	(.-> *image_scroll* :layout :dirty_all)
 
 	;main event loop
 	(mail-timeout (elem-get select +select_timer) rate 0)

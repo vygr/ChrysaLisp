@@ -12,7 +12,8 @@
 (defq wa_head (cat
 	"(catch (import {apps/media/whiteboard/app.lisp}) :t)"
 	" (defq select (list (mail-mbox) (mail-mbox) (mail-mbox) (mail-mbox)))"
-	" (board-resized)"
+	;with nothing round the document, a point of the view is a point of it
+	" (setq *margin* 0) (board-resized)"
 	" (defun wa-draw () (catch (progn (defq m (view-matrix))"
 	" (. *board* :dirty? +board_dirty_doc) (. *board* :dirty? +board_dirty_append) (. *board* :take_appended)"
 	" (draw-paper) (defq n (. *board* :draw *committed* m)) (. *board* :dirty? +board_dirty_overlay)"
@@ -162,6 +163,23 @@
 (assert-eq "and the other end of the pen rubs it out" "()" (elem-get wa_out 2))
 (assert-eq "zoomed to one and a half, a pen draws where it is in the document" "M 100 100 L 200 100 200 200 100 200 Z" (elem-get wa_out 3))
 
+
+;round the document there is a margin that is not it, where an instrument that
+;lies half off the paper is seen. What is over the document covers that too
+(defq wa_out (wa-run (cat
+	"(setq *margin* 240) (board-resized) (bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 0 0 w h)"
+	"(print (list (. *board_stack* :get_size) (. *committed* :get_bounds) (. *overlay* :get_bounds)))"
+	"(wa-mode :rect) (wa-drag 1 340 340 440 400) (print (cwb-get (last (cwb-items (. *board* :get_doc))) :d))"
+	"(print (map (const n2i) (cwb-mat-point (over-matrix) 0 0)))"
+	"(. (. *board* :get_stage) :add (defq ruler (Ruler *board* -60 100)))"
+	"(. *overlay* :fill 0) (. *board* :draw_actors *overlay* (over-matrix))"
+	"(defq s (memory-stream)) (pixmap-write (getf *overlay* +canvas_pixmap 0) s 32) (stream-seek s 0 0) (defq d (read-blk s 100000000))"
+	"(print (list (/= 0 (get-uint d (+ (- (length d) (* 1504 1248 4)) (* 4 (+ (* 340 1504) 100))))) (get-uint d (+ (- (length d) (* 1504 1248 4)) (* 4 (+ (* 100 1504) 100))))))")))
+(assert-eq "the board with what is round it is 240 more each side, the document's canvas is in by that, and what is over it covers it all"
+	"((1504 1248) (240 240 1024 768) (0 0 1504 1248))" (elem-get wa_out 0))
+(assert-eq "a point of the view is a point of the document, less the margin" "M 100 100 L 200 100 200 160 100 160 Z" (elem-get wa_out 1))
+(assert-eq "what is over the document is drawn in by the margin" "(240 240)" (elem-get wa_out 2))
+(assert-eq "a ruler that lies off the left of the document is drawn there, in the margin, and not where it is not" "(:t 0)" (elem-get wa_out 3))
 
 ;the palette on the board: the right button down and up on nothing opens it,
 ;a tap on a wedge of it does what the toolbar would, and the toolbar shows it

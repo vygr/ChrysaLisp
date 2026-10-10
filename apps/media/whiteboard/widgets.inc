@@ -66,7 +66,8 @@
 			(:min_width +min_width :min_height +min_height)
 		(ui-flow *board_stack* (:flow_flags +flow_stack_fill)
 			(ui-element *board_view* (Board-view *board*))
-			(ui-backdrop *backdrop* (:color +paper_col)))))
+			;what is round the document, the desk it lies on
+			(ui-backdrop *backdrop* (:color 0xffa8acb0)))))
 
 (ui-tool-tips *main_toolbar*
 	'("undo" "redo" "new" "open" "save" "clear"))

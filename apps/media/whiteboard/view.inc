@@ -28,14 +28,15 @@
 	;one with no colour of its own has its parent's. So it has one, of
 	;nothing
 	(def (. this :set_flags +view_flag_solid +view_flag_solid)
-		:board board :zoom 1.0 :held 0 :scroll :nil :drag :nil :color 0)
+		:board board :zoom 1.0 :margin 0 :held 0 :scroll :nil :drag :nil :color 0)
 
 	(defmethod :mouse_pointer (event buttons)
 		; (. board_view :mouse_pointer event buttons) -> board_view
 		;an event of the mouse, with these buttons held, to the board
-		(defq zoom (get :zoom this))
+		;the document is in from the corner of the view by :margin
+		(defq zoom (get :zoom this) margin (get :margin this))
 		(. (get :board this) :pointers (list (ptr-event 0 :mouse buttons
-			(/ (n2f (getf event +ev_msg_mouse_rx)) zoom) (/ (n2f (getf event +ev_msg_mouse_ry)) zoom))))
+			(/ (n2f (- (getf event +ev_msg_mouse_rx) margin)) zoom) (/ (n2f (- (getf event +ev_msg_mouse_ry) margin)) zoom))))
 		this)
 
 	(defmethod :mouse_down (event)
@@ -94,12 +95,12 @@
 		; (. board_view :pointer event) -> board_view
 		;a pen or a finger, as the GUI tells of one, to the board as it is:
 		;its own id, its kind, what it has held and how hard it is pressed
-		(defq zoom (get :zoom this) buttons (getf event +ev_msg_pointer_buttons))
+		(defq zoom (get :zoom this) margin (get :margin this) buttons (getf event +ev_msg_pointer_buttons))
 		(. (get :board this) :pointers (list (ptr-event
 			(getf event +ev_msg_pointer_id)
 			(elem-get '(:mouse :pen :eraser :touch) (min 3 (getf event +ev_msg_pointer_kind)))
 			buttons
-			(/ (n2f (getf event +ev_msg_pointer_rx)) zoom) (/ (n2f (getf event +ev_msg_pointer_ry)) zoom)
+			(/ (n2f (- (getf event +ev_msg_pointer_rx) margin)) zoom) (/ (n2f (- (getf event +ev_msg_pointer_ry) margin)) zoom)
 			(/ (n2f (getf event +ev_msg_pointer_pressure)) 65535.0))))
 		this)
 
