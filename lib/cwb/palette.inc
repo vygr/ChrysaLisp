@@ -311,6 +311,11 @@
 					((>= (- time shut) +pal_shut)
 						(. (. (get :board this) :get_stage) :sub this)
 						(def this :gone :t)
+						;it is gone, and what is over the board is drawn once
+						;more, without it. It is no longer moving, so nothing
+						;else would, and the last of it as it shut, small,
+						;was left on the board till something else was drawn
+						(. (get :board this) :touch +board_dirty_overlay)
 						:nil)
 					(:t :t)))
 			((< (- time (get :start this)) (+ +pal_open (* 3 +pal_lag))) :t)))

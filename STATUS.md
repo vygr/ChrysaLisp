@@ -4,6 +4,24 @@
 
 ------
 
+Chris: "What exactly is the ring menu central button doing ? it seams
+to shrink it away to a small unusable version, and then you click that
+and it goes away completely ? What's the point of that small unusaable
+version/stage."
+
+There is none, it is a fault. The middle shuts the palette, which
+shrinks away and is taken off the board. On the tick it was taken off
+it said it was no longer moving, so nothing was drawn again, and the
+last of it as it shut, small, stayed on the board till something else
+was drawn: his click. It now asks for what is over the board to be
+drawn once more as it goes. `lib/cwb/palette.inc`, and a test.
+
+Run: `test_cwb` on the M4, the full suite on the x64 and the Pi.
+
+Not seen: by him.
+
+------
+
 Chris: "no flcker at all, however if I move a large group/item off the
 left edge of the canvas. Let go, then pick it up and drag it back on,
 the part that was off the canvs is transprent... not present." "Yes,

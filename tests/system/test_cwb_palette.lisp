@@ -94,8 +94,11 @@
 (assert-eq "shut, a point on it is not on it" :nil (. pl_pal :hit 400 300))
 (assert-eq "it is on the stage while it shuts" :t (. pl_board :tick 1050000))
 (assert-true "smaller" (< (. pl_pal :ring_scale 0) 0.7))
+(. pl_board :dirty? +board_dirty_overlay)
 (. pl_board :tick 1200000)
 (assert-eq "and then is off it" :nil (find pl_pal (. (. pl_board :get_stage) :get_actors)))
+(assert-eq "and what is over the board is to be drawn once more, without it: the last of it, small, is not left there"
+	:t (. pl_board :dirty? +board_dirty_overlay))
 ;what was picked is what is drawn
 (pl-drag pl_board 0 :mouse +pev_left 100 100 220 180)
 (defq pl_item (last (cwb-items (. pl_board :get_doc))))
