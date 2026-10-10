@@ -4,6 +4,26 @@
 
 ------
 
+Chris, of how his boards had it: "the actions default to drag if no
+colision with control areas, scale if on the outside control zone, (but
+not the edge draw detectors) and rotate if on the middle band. This is
+for the single contact point (ie pen or single finger) if more than 1
+contact point then we are in free form drag/scale/rotate."
+
+*	The protractor's outer scale, all of it outside the band that
+	turns it, sizes it, as well as the two squares. It is not drawn
+	darker, a part can be `:quiet`. A pen within reach of the round
+	side is still held to it and draws, that is looked for first.
+
+*	Two pointers on an instrument size it as well as move and turn
+	it, by how much further apart they are. It was moved and turned
+	only, I had written "it is a thing of a length".
+
+`test_cwb_tools.lisp`, 5 more. The ruler and the set square are as they
+were for one pointer, he spoke of the protractor.
+
+------
+
 Chris, with a pen on the edge of the protractor: "Error: (/ num num ...)
 wrong_types ... Obj: (1.00000 0.00000)", and with stack frames on, in
 `Board :draw_overlay`.

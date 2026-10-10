@@ -91,7 +91,9 @@
 	;	:parts		((what d) ...), what is :move :turn :size or :close,
 	;				the first that a point is in is the one, so put the
 	;				small ones first. A :turn can have the point it turns
-	;				about after its d, x y, default the middle
+	;				about after its d, x y, default the middle. A part
+	;				that ends with :quiet is not drawn darker, it is a
+	;				part of the thing that is plain to see already
 	;	:marks		shapes, drawn over the body
 	;	:glyphs		((what x y [angle]) ...), where the sign of a part is
 	;				drawn, so that it is seen what the part is for. A
@@ -110,13 +112,14 @@
 		;its length or what it is has changed, it is made again
 		(. this :rebuild)
 		(def this :body (cwb-shape (get :outline this) :fill 0x70808080 :stroke 0xff000000 :width 1.0 :join :miter)
-			:regions (map (lambda ((what d &rest pivot)) (list what (cwb-shape d :fill 0xff000000 :stroke 0) pivot))
+			:regions (map (lambda ((what d &rest pivot))
+					(list what (cwb-shape d :fill 0xff000000 :stroke 0) (filter (# (not (eql %0 :quiet))) pivot)))
 				(get :parts this))
 			;what is seen of the parts: each that is not the one to move it
 			;by, a shade darker with a line round it, and the signs
 			:zones (cat
 				(map (lambda ((what d &ignore)) (cwb-shape d :fill 0x30000000 :stroke 0x80000000 :width 0.75 :join :miter))
-					(filter (# (not (find (first %0) '(:move :close)))) (get :parts this)))
+					(filter (# (not (or (find (first %0) '(:move :close)) (eql (last %0) :quiet)))) (get :parts this)))
 				(map (lambda (glyph)
 					(cwb-group (tool-glyph (first glyph)) :m (cwb-mat-mul (cwb-mat-move (second glyph) (third glyph))
 						(cwb-mat-turn (if (> (length glyph) 3) (elem-get glyph 3) 0.0)))))
@@ -298,8 +301,9 @@
 
 	(defmethod :two_hands ()
 		; (. instrument :two_hands)
-		;two pointers on its parts, not its edges, move and turn it together,
-		;by where they were when the second went down and where they are
+		;two pointers on its parts, not its edges, whichever parts they are,
+		;move it, turn it and size it together, by where they were when the
+		;second went down and where they are
 		(defq hands (list) grab (get :grab this))
 		(. (get :states this) :each (lambda (id state)
 			(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (push hands state))))
@@ -318,15 +322,25 @@
 					pa (list (elem-get a +tool_state_last_x) (elem-get a +tool_state_last_y))
 					pb (list (elem-get b +tool_state_last_x) (elem-get b +tool_state_last_y)))
 				(unless grab
-					(def this :grab (setq grab (list pa pb (cat (get :origin this)) (get :angle this)))))
-				(bind '(pa0 pb0 origin angle) grab)
-				;it is moved and turned, not sized, it is a thing of a length
+					(def this :grab (setq grab (list pa pb (cat (get :origin this)) (get :angle this) (get :length this)))))
+				(bind '(pa0 pb0 origin angle length) grab)
+				;it is as much bigger as they are further apart, within what it can be
+				(defq d0 (max 1.0 (sqrt (+ (* (- (first pb0) (first pa0)) (- (first pb0) (first pa0)))
+						(* (- (second pb0) (second pa0)) (- (second pb0) (second pa0))))))
+					d1 (sqrt (+ (* (- (first pb) (first pa)) (- (first pb) (first pa)))
+						(* (- (second pb) (second pa)) (- (second pb) (second pa)))))
+					new_length (max (get :min_length this) (min (get :max_length this) (* length (/ d1 d0))))
+					by (/ new_length length))
 				(defq turn (tool-angle-wrap (- (path-angle (- (first pb) (first pa)) (- (second pb) (second pa)))
 						(path-angle (- (first pb0) (first pa0)) (- (second pb0) (second pa0)))))
 					m0x (* 0.5 (+ (first pa0) (first pb0))) m0y (* 0.5 (+ (second pa0) (second pb0)))
 					m1x (* 0.5 (+ (first pa) (first pb))) m1y (* 0.5 (+ (second pa) (second pb)))
-					m (cwb-mat-mul (cwb-mat-move (- m1x m0x) (- m1y m0y)) (cwb-mat-turn turn m0x m0y)))
+					m (cwb-mat-mul (cwb-mat-move (- m1x m0x) (- m1y m0y))
+						(cwb-mat-mul (cwb-mat-turn turn m0x m0y) (cwb-mat-scale by by m0x m0y))))
 				(def this :angle (+ angle turn) :origin (cwb-mat-point m (first origin) (second origin)))
+				(when (/= new_length (get :length this))
+					(def this :length new_length)
+					(. this :built))
 				(. (get :board this) :touch +board_dirty_overlay))))
 
 	(defmethod :draw (canvas &optional m)
@@ -395,7 +409,8 @@
 	;run round the round side draws an arc, with :mode :pie a slice, with
 	;:mode :circle the whole circle. :length is across its straight side.
 	;The band half way in turns it about its middle, the two squares by
-	;its straight side make it bigger or smaller, the rest moves it, the
+	;its straight side make it bigger or smaller, and so does the outer
+	;scale, the rest, its middle, moves it, the
 	;ring puts it away. Marked every degree, longer every five and ten,
 	;numbered every ten, with a cross where its middle is
 	(def this :length 360.0 :min_length 200.0 :max_length 1600.0)
@@ -410,6 +425,10 @@
 				(list :size (cwb-d-rect sq0 sqy0 sq1 sqy1))
 				(list :size (cwb-d-rect (neg sq1) sqy0 (neg sq0) sqy1))
 				(list :turn (cwb-d "M" (neg in1) 0 "A" in1 in1 0 0 1 in1 0 "L" in0 0 "A" in0 in0 0 0 0 (neg in0) 0 "Z"))
+				;the outer scale, all of it outside the band that turns it,
+				;sizes it too, as the squares do. A pen close on the round
+				;side is held to it and draws, that comes first
+				(list :size (cwb-d "M" (neg r) 0 "A" r r 0 0 1 r 0 "L" in1 0 "A" in1 in1 0 0 0 (neg in1) 0 "Z") :quiet)
 				(list :move (cwb-d "M" (neg r) 0 "A" r r 0 0 1 r 0 "Z")))
 			:glyphs (list (list :close 0.0 (* -0.3 r))
 				(list :size (* 0.5 (+ sq0 sq1)) (* 0.5 (+ sqy0 sqy1))) (list :size (* -0.5 (+ sq0 sq1)) (* 0.5 (+ sqy0 sqy1)))

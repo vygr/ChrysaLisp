@@ -71,6 +71,17 @@
 (assert-true "two fingers that turn a quarter turn about their middle turn it a quarter turn, where it is"
 	(and (wt-near? (get :angle wt_ruler) +fp_hpi 0.001) (wt-near? (get :origin wt_ruler) '(400 300) 0.1)))
 
+;two fingers that go apart make it longer, about their middle
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0 :length 400.0)
+(. wt_ruler :built)
+(wt-go '(7 :touch 1 350 300)) (wt-go '(8 :touch 1 450 300))
+(wt-go '(7 :touch 1 325 300) '(8 :touch 1 475 300))
+(wt-go '(7 :touch 0 325 300) '(8 :touch 0 475 300))
+(assert-true "two fingers that go half as far apart again make it half as long again, where it is"
+	(and (wt-near? (get :length wt_ruler) 600.0 0.5) (wt-near? (get :origin wt_ruler) '(400 300) 0.1) (wt-near? (get :angle wt_ruler) 0.0 0.001)))
+(def wt_ruler :length 400.0)
+(. wt_ruler :built)
+
 ;the hole by an end turns it about the 0 of its marks, on its top side. Put
 ;on a point, lines can be drawn from that point every way
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
@@ -154,6 +165,22 @@
 (assert-true "a pen held to the round side that has moved a hair has its arc drawn over the board"
 	(Board? (. wt_board :draw_overlay (Canvas 64 64 1))))
 (wt-go '(1 :pen 0 586 299.99))
+;one pointer on it: its middle moves it, the band half way in turns it, the
+;outer scale sizes it, and a pen close on the round side draws, as above
+(def wt_pro :origin (list 400.0 300.0) :angle 0.0 :length 360.0)
+(. wt_pro :built)
+(defun wt-part (x y) (first (. wt_pro :part_at x y)))
+(assert-list-eq "the parts of a protractor from its middle out, straight up: move, turn, size" '(:move :turn :size)
+	(list (wt-part 0 -75) (wt-part 0 -97) (wt-part 0 -140)))
+(wt-go '(0 :mouse 4 400 160)) (wt-go '(0 :mouse 4 400 90)) (wt-go '(0 :mouse 0 400 90))
+(assert-true "dragged out by its outer scale, half as far again from its middle, it is half as big again"
+	(and (wt-near? (get :length wt_pro) 540.0 0.5) (wt-near? (get :origin wt_pro) '(400 300) 0.01)))
+(def wt_pro :length 360.0)
+(. wt_pro :built)
+(wt-go '(0 :mouse 4 400 225)) (wt-go '(0 :mouse 4 420 205)) (wt-go '(0 :mouse 0 420 205))
+(assert-true "dragged by its middle it is moved, no bigger"
+	(and (wt-near? (get :origin wt_pro) '(420 280) 0.01) (wt-near? (get :length wt_pro) 360.0 0.01)))
+(def wt_pro :origin (list 400.0 300.0))
 ;its straight side is an edge too
 (wt-go '(1 :pen 1 300 306)) (wt-go '(1 :pen 1 500 309)) (wt-go '(1 :pen 0 500 309))
 (assert-true "a pen run along its straight side draws a line along it" (wt-near? (wt-numbers (wt-last-d)) '(300 300 500 300)))

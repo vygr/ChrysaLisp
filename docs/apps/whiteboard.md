@@ -133,6 +133,12 @@ of the protractor; a sharp corner of the set square.
 an end of the ruler, a square by the straight side of the protractor, the
 mark of the square corner of the set square.
 
+* The outer scale of the protractor makes it bigger or smaller too: drag it
+out or in. A pen close on its round edge draws along the edge instead.
+
+* Two fingers on an instrument, anywhere on it, move it, turn it and size it
+all at once.
+
 * The ring with the cross puts it away.
 
 More than one pen can draw along an instrument at once. One that is being
