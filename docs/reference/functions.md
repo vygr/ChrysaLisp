@@ -1190,6 +1190,16 @@ not, each is all there or not there
 (cwb-save doc stream) -> stream
 ```
 
+### cwb-seg-box?
+
+```code
+(cwb-seg-box? x0 y0 x1 y1 bx by bx1 by1) -> :t | :nil
+
+does a line from one point to another touch a box, be in it, cross
+it or end in it. The line is cut to each side of the box in turn, and
+touches if anything of it is left
+```
+
 ### cwb-set
 
 ```code
@@ -1220,6 +1230,17 @@ is a point on what a shape draws, its fill or its stroke, or within
 tol of it, default 0
 ```
 
+### cwb-shape-touch?
+
+```code
+(cwb-shape-touch? shape m box) -> :t | :nil
+
+does what a shape draws, its fill or its stroke, touch a box of the
+space m puts it in: is in it, crosses it, or has it inside. Not the
+box round the shape: a line that goes corner to corner of its box is
+not touched by a box in one of the other corners
+```
+
 ### cwb-slot
 
 ```code
@@ -1241,6 +1262,16 @@ and :font_size say which letters, they are filled, black unless it is said
 (cwb-text-mid text x y [key val] ...) -> shape
 
 words with their middle at a point, to label a box by its middle say
+```
+
+### cwb-touch-box
+
+```code
+(cwb-touch-box doc box [m]) -> ((item layer_index) ...)
+
+the items of the layers that a box touches, as a box dragged out to
+select has it: an item any shape of which is in it, crosses it or has
+it inside. Not those of a layer that is hidden or locked
 ```
 
 ### cwb-walk
@@ -3698,6 +3729,22 @@ is added at the end
 
 ```code
 (pset? form) -> :t | :nil
+```
+
+### ptr-contact
+
+```code
+(ptr-contact id) -> num
+
+which contact of its device a pointer is
+```
+
+### ptr-device
+
+```code
+(ptr-device id) -> device
+
+the device of a pointer's id, the id of its contact 0
 ```
 
 ### ptr-event

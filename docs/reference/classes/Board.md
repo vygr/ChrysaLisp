@@ -114,10 +114,23 @@ and what is being drawn and not yet kept
 ### :draw_overlay
 
 ```code
-(. board :draw_overlay canvas [m no_flight]) -> board
+(. board :draw_overlay canvas [m no_flight no_selected]) -> board
 
 what is over the document and not of it: what is in flight,
-the box being dragged out, and the handles of what is selected
+the box being dragged out, and the handles of what is selected.
+With no_selected the last is left out, whoever shows the board
+draws it where what is selected is, (:draw_selected)
+```
+
+### :draw_selected
+
+```code
+(. board :draw_selected canvas [m]) -> board
+
+the lines round what is selected, and its handles. They go with
+what they are of: a thing taken to the back has its box and its
+handles at the back with it, behind what it is behind, and is
+still turned and sized by them there
 ```
 
 ### :drop_temp
@@ -223,6 +236,7 @@ what is selected goes to the front of its layer, or the back
 (. board :pointers events) -> board
 
 a batch of pointer events, each in the space of the document
+where each finger that is down is, is kept, to be shown, (:draw_actors)
 ```
 
 ### :put_state

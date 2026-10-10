@@ -194,6 +194,11 @@ is the one thing that is spread out
 
 two pointers on its parts, not its edges, whichever parts they are,
 move it, turn it and size it together, by where they were when the
-second went down and where they are
+second went down and where they are.
+
+The first two that came are the two. A third that comes down on it
+while they have it does nothing, they have it. When one of the two
+lifts, those that are left carry on from where things are, the
+next two of them together
 ```
 

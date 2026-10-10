@@ -14,7 +14,10 @@ the general
 (. bindings :bind kind id buttons what) -> bindings
 
 a rule, put before those there are. kind, id and buttons are each
-what the pointer must have, or :nil for any. buttons matches if
+what the pointer must have, or :nil for any. id is a device, what
+(ptr-device) gives, and matches every contact of it: what a device
+is bound to, its colour and tool, is whoever has that device's,
+and each finger of a panel is the same hand. buttons matches if
 every one of them is held. what is a list of keys and values,
 (:tool :pen :color 0xff000000 :width 4.0)
 ```

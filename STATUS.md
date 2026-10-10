@@ -4,6 +4,20 @@
 
 ------
 
+Chris, of the box that selects what it touches and of the handles at the
+back with their shape: "I tried, it crashed", then on a new desktop,
+"yes, working".
+
+The crash was `cwb-touch-box` not bound, and mine a third time in the
+day: a desktop has `lib/cwb/doc.inc` from when it started, and I had
+told him to open the app again on the one that was up. The rule is
+written where I read it each sitting: before saying "open it again",
+look at what files changed since his desktop came up.
+
+The reference is made again, for the day's new functions.
+
+------
+
 Chris: "do oyu thinjk we should make the right drag box to select,
 select every object it touches ? rather than surounds ? I think that is
 actully a better UI". And: "Also the selection box and controls of a
