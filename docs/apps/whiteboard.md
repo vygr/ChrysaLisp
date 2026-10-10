@@ -147,9 +147,10 @@ all at once.
 is near one: strongly to every 45 degrees, and to every 10. Between them it
 is free.
 
-* A protractor or a set square that is made bigger is all bigger, its marks
-and its numbers too. A ruler is made longer, with more marks, and stays as
-wide as it was.
+* An instrument that is made bigger has more marks along its straight
+sides, as far apart as they were: a longer ruler, a bigger set square that
+measures further. The degrees round a protractor are the one thing that is
+spread out, and their numbers are bigger with it.
 
 * The angle it is turned to is written on it, in degrees. The ruler has it
 twice, once for each side it can be read from: its top side is centimetres

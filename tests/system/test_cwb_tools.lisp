@@ -231,20 +231,25 @@
 (wt-go '(1 :pen 0 586 299.99))
 ;one pointer on it: its middle moves it, the band half way in turns it, the
 ;outer scale sizes it, and a pen close on the round side draws, as above
-(def wt_pro :origin (list 400.0 300.0) :angle 0.0 :size 1.0)
+(def wt_pro :origin (list 400.0 300.0) :angle 0.0)
 (defun wt-part (x y) (first (. wt_pro :part_at x y)))
 (assert-list-eq "the parts of a protractor from its middle out, straight up: move, turn, size" '(:move :turn :size)
 	(list (wt-part 0 -75) (wt-part 0 -97) (wt-part 0 -140)))
 (wt-go '(0 :mouse 4 400 160)) (wt-go '(0 :mouse 4 400 90)) (wt-go '(0 :mouse 0 400 90))
 (assert-true "dragged out by its outer scale, half as far again from its middle, it is half as big again"
-	(and (wt-near? (get :size wt_pro) 1.5 0.002) (wt-near? (get :origin wt_pro) '(400 300) 0.01)))
-(def wt_pro :size 1.5)
+	(and (wt-near? (get :length wt_pro) 540.0 0.5) (wt-near? (get :origin wt_pro) '(400 300) 0.01)))
+(assert-list-eq "seen no bigger, it is made bigger: its round side is of that radius, and the marks of its straight side are as far apart, to further out"
+	'(1 270 5 265) (progn (defq wt_base (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
+			(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))))
+		(list (n2i (get :size wt_pro)) (n2i (elem-get (first (get :edges wt_pro)) 3))
+			(n2i (elem-get wt_base 4)) (n2i (reduce (# (max %0 (first %1))) (partition wt_base 4) 0.0)))))
+(. wt_pro :set_extent 540.0)
 (assert-true "a pen run round it then draws an arc of the radius it is seen at"
 	(progn (wt-go '(1 :pen 1 675 300)) (wt-go '(1 :pen 1 400 25)) (wt-go '(1 :pen 0 400 25)) (found? (wt-last-d) "A 270 270")))
-(def wt_pro :size 1.0)
+(. wt_pro :set_extent 360.0)
 (wt-go '(0 :mouse 4 400 225)) (wt-go '(0 :mouse 4 420 205)) (wt-go '(0 :mouse 0 420 205))
 (assert-true "dragged by its middle it is moved, no bigger"
-	(and (wt-near? (get :origin wt_pro) '(420 280) 0.01) (wt-near? (get :size wt_pro) 1.0 0.001)))
+	(and (wt-near? (get :origin wt_pro) '(420 280) 0.01) (wt-near? (get :length wt_pro) 360.0 0.01)))
 (def wt_pro :origin (list 400.0 300.0))
 ;its straight side is an edge too
 (wt-go '(1 :pen 1 300 306)) (wt-go '(1 :pen 1 500 309)) (wt-go '(1 :pen 0 500 309))
@@ -267,7 +272,7 @@
 (assert-eq "turned the other way, to a tenth of a degree, 342.8" "342.8" (. wt_pro :degrees))
 (assert-eq "it is written once on a protractor" 1 (length (. wt_pro :readout)))
 (def wt_pro :angle 0.0)
-(def wt_ruler :origin (list 400.0 300.0) :angle (/ +fp_pi -6.0) :size 1.0)
+(def wt_ruler :origin (list 400.0 300.0) :angle (/ +fp_pi -6.0))
 (assert-list-eq "and twice on a ruler, for who reads its top side and for who reads its bottom, half a turn on" '("30" "210")
 	(map (# (. wt_ruler :degrees (if (> (length %0) 2) (third %0)))) (get :readouts wt_ruler)))
 (assert-eq "as two things to draw" 2 (length (. wt_ruler :readout)))
@@ -295,7 +300,7 @@
 	(wt-near? (abs (/ (- y1 y0) (- x1 x0))) 0.57735 0.002))
 
 ;from a side of the set square in: the strip its numbers are on sizes it, its middle moves it
-(def wt_set :origin (list 400.0 300.0) :angle 0.0 :size 1.0)
+(def wt_set :origin (list 400.0 300.0) :angle 0.0)
 (defun wt-set-part (x y) (first (. wt_set :part_at x y)))
 (assert-list-eq "up from its bottom side: the strip sizes it, and its middle moves it" '(:size :size :move)
 	(list (wt-set-part 40 60) (wt-set-part 40 48) (wt-set-part 40 30)))
@@ -304,8 +309,9 @@
 (. wt_stage :add wt_set)
 (wt-go '(0 :mouse 4 440 360)) (wt-go '(0 :mouse 4 460 390)) (wt-go '(0 :mouse 0 460 390))
 (assert-true "dragged out by the strip of its bottom side, half as far again from its middle, it is half as big again, where it is"
-	(and (wt-near? (get :size wt_set) 1.5 0.02) (wt-near? (get :origin wt_set) '(400 300) 0.01)))
-(def wt_set :size 1.0)
+	(and (wt-near? (get :length wt_set) 540.0 8.0) (wt-near? (get :origin wt_set) '(400 300) 0.01)))
+(assert-true "its marks are as far apart as they were, and it has more numbers on its sides"
+	(> (length (get :marks wt_set)) (progn (defq wt_n (length (get :marks wt_set))) (. wt_set :set_extent 360.0) (length (get :marks wt_set)))))
 (. wt_stage :sub wt_set)
 
 ;which is in front. One that is taken hold of comes to the front of the instruments, one

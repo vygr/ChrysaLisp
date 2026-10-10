@@ -4,6 +4,27 @@
 
 ------
 
+Chris: "ALL instruments, ruler edge markings should work like the Ruler !
+They don't zoom, they should show more markings range ! This does not
+apply to the circilar arc of the protractor, clearly."
+
+Every instrument that is sized is made again at another `:length`, and
+none is seen bigger. The marks of a straight side, the set square's
+three and the protractor's one, are as far apart as they were and go
+further. What goes round a protractor, the marks of its degrees and
+their numbers, the inner scale, is as much bigger as the protractor is.
+`(:extent)` and `(:set_extent)` are the base class's, the ruler has none
+of its own.
+
+This is the third way round for sizing in a morning: made again with
+nothing bigger, then all seen bigger, now this. The second was mine
+from his "the numeric markings are not scaleing with the tools", which
+I took for all of them and was the protractor's degrees.
+
+Looked at as a picture, a protractor of 560 and a set square of 520.
+
+------
+
 Chris: "scaling along the area of the numerics on the edges, on the
 Setsqaure. Like those zones on the Ruler ?" The strip along each of its
 three sides, 26 deep, where its marks and numbers are, sizes it. A pen

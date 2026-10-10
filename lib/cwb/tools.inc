@@ -103,10 +103,10 @@
 
 (defclass Instrument (board x y) (Actor)
 	; (Instrument board x y) -> instrument
-	;what every instrument is. One of a kind sets :length, how big it is
-	;made, and has a :rebuild that sets what it is made of, at that size.
-	;It is then seen bigger or smaller by :size, 1.0 for as made, all of
-	;it, its marks and its numbers with it:
+	;what every instrument is. One of a kind sets :length, how big it is,
+	;and its limits, and has a :rebuild that sets what it is made of, at
+	;that size. :size is how much bigger all of it is seen, 1.0, and is
+	;not what a hand changes:
 	;	:outline	a d, closed
 	;	:edges		((kind ...) ...), (:line x0 y0 x1 y1) or (:arc cx cy r a0 a1)
 	;	:parts		((what d) ...), what is :move :turn :size or :close,
@@ -125,7 +125,7 @@
 	;				that, and says the angle that much on: a ruler seen
 	;				from its other side
 	(def this :board board :origin (list (n2f x) (n2f y)) :angle 0.0
-		:length 400.0 :size 1.0 :min_size 0.4 :max_size 5.0 :readouts (list) :said :nil
+		:length 400.0 :min_length 150.0 :max_length 2000.0 :size 1.0 :readouts (list) :said :nil
 		:outline "" :edges (list) :parts (list) :marks (list) :glyphs (list)
 		:mode :line :body :nil :regions :nil :zones :nil :grab :nil)
 
@@ -136,15 +136,20 @@
 	(defmethod :extent ()
 		; (. instrument :extent) -> num
 		;how big it is, the number that is made more or less when it is
-		;sized. :size, how much bigger than it was made all of it is seen.
-		;One of a kind may have another: a ruler has how long it is
-		(get :size this))
+		;sized: :length
+		(get :length this))
 
 	(defmethod :set_extent (extent)
 		; (. instrument :set_extent extent) -> instrument
-		;it is that big, or as near as it may be
-		(def this :size (max (get :min_size this) (min (get :max_size this) extent)))
-		(. (get :board this) :touch +board_dirty_overlay)
+		;it is that big, or as near as it may be, and is made again at
+		;that size. It is not seen bigger: the marks of a straight side are
+		;as far apart as they were, and there are more of them, as a
+		;longer ruler has. What goes round, the degrees of a protractor,
+		;is the one thing that is spread out
+		(defq length (max (get :min_length this) (min (get :max_length this) extent)))
+		(unless (= length (get :length this))
+			(def this :length length)
+			(. this :built))
 		this)
 
 	(defmethod :built ()
@@ -455,18 +460,6 @@
 	;centimetres from the left, its bottom side inches from the right
 	(def this :min_length 200.0 :max_length 3000.0)
 
-	;a ruler that is sized is a longer ruler, or a shorter, as wide as it
-	;was, with its marks as far apart and more of them or fewer. It is not
-	;seen bigger, a ruler is to be read
-	(defmethod :extent () (get :length this))
-
-	(defmethod :set_extent (extent)
-		(defq length (max (get :min_length this) (min (get :max_length this) extent)))
-		(unless (= length (get :length this))
-			(def this :length length)
-			(. this :built))
-		this)
-
 	(defmethod :rebuild ()
 		(defq half (* 0.5 (get :length this)) top (* -0.5 +ruler_height) bot (* 0.5 +ruler_height)
 			inset (- half +ruler_cap) marks (list))
@@ -538,10 +531,13 @@
 	;scale, the rest, its middle, moves it, the
 	;ring puts it away. Marked every degree, longer every five and ten,
 	;numbered every ten, with a cross where its middle is
-	(def this :length 360.0)
+	(def this :length 360.0 :min_length 200.0 :max_length 1600.0)
 
 	(defmethod :rebuild ()
-		(defq r (* 0.5 (get :length this)) in0 (* 0.46 r) in1 (* 0.62 r) marks (list) ticks (list)
+		;what goes round is as much bigger as the protractor is, by, the
+		;marks of the degrees and their numbers. The marks of its straight
+		;side are not
+		(defq r (* 0.5 (get :length this)) by (/ r 180.0) in0 (* 0.46 r) in1 (* 0.62 r) marks (list) ticks (list)
 			sq0 (* 0.16 r) sq1 (* 0.38 r) sqy0 (* -0.24 r) sqy1 (* -0.08 r)
 			;the strip below the line through its middle, as a protractor
 			;has, its straight side is the bottom of that
@@ -570,24 +566,24 @@
 		;a mark every degree round from the right, longer every five and every ten
 		(each (lambda (deg)
 			(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
-				tick (cond ((= (% deg 10) 0) 15.0) ((= (% deg 5) 0) 10.0) (:t 6.0)))
+				tick (* by (cond ((= (% deg 10) 0) 15.0) ((= (% deg 5) 0) 10.0) (:t 6.0))))
 			(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
 			(if (and (= (% deg 10) 0) (> deg 0) (< deg 180))
-				(push marks (cwb-text-mid (str deg) (* (- r 27.0) c) (* (- r 27.0) s) :font_size 12))))
+				(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0))))))
 			(range 0 181))
 		;the band that turns it is the inner scale, as a protractor has, that
 		;reads the other way round, marked every five and numbered every thirty
 		(each (lambda (deg)
 			(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
-				tick (if (= (% deg 10) 0) 8.0 4.0))
+				tick (* by (if (= (% deg 10) 0) 8.0 4.0)))
 			(push ticks "M" (* in1 c) (* in1 s) "L" (* (- in1 tick) c) (* (- in1 tick) s))
 			(if (and (= (% deg 30) 0) (> deg 0) (< deg 180))
-				(push marks (cwb-text-mid (str (- 180 deg)) (* (- in1 17.0) c) (* (- in1 17.0) s) :font_size 10))))
+				(push marks (cwb-text-mid (str (- 180 deg)) (* (- in1 (* by 17.0)) c) (* (- in1 (* by 17.0)) s) :font_size (n2i (* by 10.0))))))
 			(range 0 181 5))
 		;its middle, on the straight side, and the line straight up from it
 		;and the line through it from 0 to 180, with the strip below marked
 		;in millimetres along the straight side
-		(push ticks "M" (neg r) 0 "L" r 0 "M" 0 base "L" 0 -14 "M" 0 (neg in0) "L" 0 (- 22.0 r))
+		(push ticks "M" (neg r) 0 "L" r 0 "M" 0 base "L" 0 -14 "M" 0 (neg in0) "L" 0 (- (* by 22.0) r))
 		;out from the middle both ways, so the middle is on a long mark and
 		;stays on it as the protractor is made bigger or smaller
 		(push marks (cwb-shape (cat (tool-ticks 0.0 base across base 0.0 -1.0 +tool_mm 3.0 5.0 8.0)
@@ -612,7 +608,7 @@
 	;numbers are. Its middle moves it. Its two square sides are
 	;marked in millimetres from the square corner, and its long side from
 	;a little below its top corner, numbered in centimetres
-	(def this :length 360.0)
+	(def this :length 360.0 :min_length 200.0 :max_length 2000.0)
 
 	(defmethod :rebuild ()
 		(defq w (get :length this) h (* w 0.57735)
