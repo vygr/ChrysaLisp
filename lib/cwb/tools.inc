@@ -545,10 +545,12 @@
 			;to meet the straight side: it has the one straight side and the
 			;one round one. A tenth of the radius down, the circle is that
 			;much less than the radius across, and that much angle further
-			base (* 0.1 r) across (* 0.99499 r) past 0.10017
+			base (* 0.1 r) across (* 0.99499 r)
 			whole (cwb-d "M" (neg across) base "A" r r 0 0 1 0 (neg r) "A" r r 0 0 1 across base "Z"))
 		(def this :outline whole
-			:edges (list (list :arc 0.0 0.0 r (- (neg +fp_pi) past) past) (list :line (neg across) base across base))
+			;the round side is an edge from its 0 to its 180 and no further:
+			;below the line through the middle it is only the shape of the thing
+			:edges (list (list :arc 0.0 0.0 r (neg +fp_pi) 0.0) (list :line (neg across) base across base))
 			:parts (list
 				(list :close (cwb-d-ellipse 0 (* -0.3 r) 11))
 				(list :size (cwb-d-rect sq0 sqy0 sq1 sqy1))

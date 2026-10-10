@@ -4,6 +4,14 @@
 
 ------
 
+Chris: "we shoul dnot be able to drag arcs, beyond to 0 points of the arc
+edge." Mine of an hour before: when the round side was carried on round
+to meet the straight side, the edge a pen is held to went with it. The
+edge is from the 0 to the 180 again. Below the line through the middle
+the round side is the shape of the thing and no more.
+
+------
+
 Chris: "The preview/inflight strokes layer while drawing should still
 clip to the drawable canvas !" With the margin, a line being drawn, a
 thing being moved and the handles were seen out in it, and then cut off

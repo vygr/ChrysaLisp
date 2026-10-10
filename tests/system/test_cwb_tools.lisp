@@ -256,6 +256,11 @@
 (assert-true "a pen run along its straight side, the bottom of the strip below its middle, draws a line along it"
 	(wt-near? (wt-numbers (wt-last-d)) '(300 318 500 318)))
 (assert-eq "the strip is its too, a point in it is on it" :t (. wt_pro :hit 300 310))
+;an arc is drawn from its 0 to its 180 and no further, though the round side goes on below
+(def wt_pro :mode :line)
+(wt-go '(1 :pen 1 566 235)) (wt-go '(1 :pen 1 586 300)) (wt-go '(1 :pen 1 584 318)) (wt-go '(1 :pen 0 584 318))
+(bind '(x y x1 y1) (cwb-bounds (list (last (cwb-items (. wt_board :get_doc))))))
+(assert-true "a pen run round the round side and on down past its 0 draws an arc that stops at its 0" (wt-near? y1 301.5 0.6))
 ;the marks of its straight side are out from its middle
 (defq wt_found (list))
 (each (lambda ((x y x1 y1)) (if (find (n2i x) '(0 50 -50)) (push wt_found (list (n2i x) (n2i (abs (- y y1)))))))
