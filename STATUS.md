@@ -4,6 +4,29 @@
 
 ------
 
+Chris: "done with the trackpad, run the soak".
+
+The recorder of fingers is out of `apps/media/whiteboard/view.inc`, and
+what is in the tree is what is committed.
+
+**A soak, 20 runs,** on `78c129c4f`: 20 of 20 on the M4, the x64 and the
+Pi, 5,710 each, by the mesh. No shared pixels and no nodes left on any.
+Before it, one segment of shared pixels on each of the x64 and the Pi,
+of 16:56, the run in which the Whiteboard's test stopped at my recorder:
+let go of, and none after.
+
+That is the host programs of the day, the numbering of devices and
+contacts, a pointer belonging to what it went down on, and the pipe,
+all under it.
+
+For a push, from me: nothing I know of is in the way. Not seen by him,
+and said to him: fingers each on a different shape with their own line
+round them, the way of the wheel as a setting. Asked of him and not
+answered: what the barrel button of a pen is to be, and whether fingers
+that pick from a palette keep it to their device.
+
+------
+
 Chris, with a finger held still on one shape and another dragging a
 second: "yes, the held shape stayed held, both did, but they selected
 and the bounding box covered both of them." And: "We will have to come
