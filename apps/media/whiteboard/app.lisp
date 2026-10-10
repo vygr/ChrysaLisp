@@ -236,7 +236,7 @@
 	;nothing else of them is changing, and nothing is being drawn
 	(when (and *flight_at* (= (. (get :temp *board*) :size) 0)
 			(or (. (get :surface *board*) :holding) (/= (. (get :handles *board*) :held) 0)))
-		(bind '(zoom ids ms ox oy was_back) *flight_at*)
+		(bind '(zoom ids ms ox oy was_back ds) *flight_at*)
 		(defq now (. *board* :selected_items))
 		;and it is still in front, or still at the back: taken to the back
 		;its box and handles are drawn with it, and in front they are not
@@ -245,13 +245,15 @@
 			(defq ident (const (fixeds 1.0 0.0 0.0 0.0 1.0 0.0))
 				m0 (ifn (elem-get (first now) +cwb_m) ident) o0 (ifn (first ms) ident)
 				dx (- (elem-get m0 2) (elem-get o0 2)) dy (- (elem-get m0 5) (elem-get o0 5)))
-			(if (every (lambda (item id m)
+			;and each is the shape it was: an end of a line that is dragged
+			;changes the line, its path, and nothing of where it is
+			(if (every (lambda (item id m d)
 					(defq n (ifn (elem-get item +cwb_m) ident) o (ifn m ident))
-					(and (= (elem-get item +cwb_id) id)
+					(and (= (elem-get item +cwb_id) id) (eql (elem-get item +cwb_d) d)
 						(= (elem-get n 0) (elem-get o 0)) (= (elem-get n 1) (elem-get o 1))
 						(= (elem-get n 3) (elem-get o 3)) (= (elem-get n 4) (elem-get o 4))
 						(= (- (elem-get n 2) (elem-get o 2)) dx) (= (- (elem-get n 5) (elem-get o 5)) dy)))
-					now ids ms)
+					now ids ms ds)
 				(list (- (n2i (floor (+ (* dx *zoom*) 0.5))) ox) (- (n2i (floor (+ (* dy *zoom*) 0.5))) oy))))))
 
 (defun draw-flight ()
@@ -315,7 +317,8 @@
 		;far over it was drawn
 		(setq *flight_used* (or flying (nempty? down))
 			*flight_at* (if whole
-				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now) ox oy back)))
+				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now) ox oy back
+					(map (# (elem-get %0 +cwb_d)) now))))
 		(cond
 			(moved
 				;its picture is shown while it is not seen, and then it is

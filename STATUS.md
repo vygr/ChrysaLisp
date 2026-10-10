@@ -4,6 +4,26 @@
 
 ------
 
+Chris: "Drawing a double head arrow. selct it, the control points at
+the end, during drag the arrow and controls not show. on relese the
+arrow and control updates to the new position."
+
+Mine, of the canvas that is moved and not drawn again: it took a thing
+to have only moved if it was where it was by its matrix. An end of a
+line that is dragged changes the line, its path, and no matrix, so the
+picture of the line as it was stayed, moved by nothing, till the hand
+let go. What each thing's path was is now kept with where it was, and
+a change of it draws again. `(flight-shift)`, and a test of an end
+dragged.
+
+"works now", he said of the handles at the back as the right button
+goes down.
+
+Run: `test_whiteboard` 93 on the M4, the full suite on the x64 and the
+Pi. Only the app's file, the app opened again has it.
+
+------
+
 Chris: "Ah, right button to push/drag, at first the controls diasapear,
 only on drag do they re-appear."
 

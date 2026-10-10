@@ -430,3 +430,16 @@
 (assert-eq "taken by the right button to the back, nothing of it is in front: its box and handles are on its own canvas, with it"
 	"(:t :t :nil)" (second wa_back))
 (assert-eq "and they are at the back as soon as the right button goes down on it, before it is moved" "(:t :t :nil)" (third wa_back))
+
+;a line taken by an end, in select mode: it is drawn again as the end goes, it is not the picture of it that is moved
+(defq wa_end (wa-run (cat
+	"(defun wa-bits (c) (task-slice) (defq s (memory-stream)) (pixmap-write (getf c +canvas_pixmap 0) s 32) (stream-seek s 0 0) (read-blk s 100000000))"
+	"(wa-mode :arrow2) (wa-drag 1 300 300 500 300) (wa-mode :select) (wa-drag 1 400 300 400 300) (draw-over) (draw-flight) (defq was (wa-bits *flight*))"
+	"(print (list (. *board* :get_selected) (cwb-get (first (. *board* :selected_items)) :d)))"
+	;its far end, taken and moved down
+	"(wa-mouse :down 500 300 1) (draw-over) (draw-flight) (wa-mouse :move 500 420 1) (draw-over) (defq swapped (draw-flight))"
+	"(print (list (cwb-get (first (. *board* :selected_items)) :d) (eql (wa-bits *flight*) was) (slice (. *flight* :get_bounds) 0 2)))"
+	"(wa-mouse :up 500 420 0)")))
+(assert-eq "an arrow with two heads, selected" "((1) \qM 300 300 L 500 300\q)" (first wa_end))
+(assert-eq "its end dragged down: the line is to there, and what is seen of it is drawn again as it goes, not left as it was"
+	"(\qM 300 300 L 500 420\q :nil (0 0))" (second wa_end))
