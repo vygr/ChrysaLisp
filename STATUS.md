@@ -4,6 +4,18 @@
 
 ------
 
+Chris: "ungroup at the end there didn't do what I thought it would, the
+whole members should have broken into seperate shapes, all selected."
+
+By the record it had: 14 items, each a line, 14 selected. But several
+things selected were shown as one box round them all, which is what a
+group looks like, so nothing was seen to happen. Each of several things
+selected has a line round it now, its own box, turned as it is, and the
+box round them all with the handles as before. Looked at as a picture.
+`test_cwb.lisp`, 4 more.
+
+------
+
 Chris, in a run I was watching by the record the app keeps of it: "The
 stroke I rew that join a group, changed colour as I selcted and drew a
 new stroke !"

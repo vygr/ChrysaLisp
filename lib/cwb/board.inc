@@ -95,6 +95,15 @@
 		(elem-get group +cwb_items))
 	(if touched out))
 
+(defun board-item-corners (item)
+	; (board-item-corners item) -> :nil | (x y x y x y x y)
+	;the four corners of the box of an item, its own box by its own
+	;matrix, where they are in the space it is in. :nil if it draws nothing
+	(when (defq box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
+		(bind '(x y x1 y1) box)
+		(defq m (elem-get item +cwb_m))
+		(cat (cwb-mat-point m x y) (cwb-mat-point m x1 y) (cwb-mat-point m x1 y1) (cwb-mat-point m x y1))))
+
 (defun board-two-point-mat (a0 b0 a1 b1)
 	; (board-two-point-mat a0 b0 a1 b1) -> matrix
 	;the move, turn and change of size that takes two points to where
@@ -1138,6 +1147,14 @@
 				:stroke 0xff0080ff :width thin :fill 0x200080ff :join :miter)) m))
 		(when (nempty? (defq items (. this :selected_items)))
 			(defq handles (get :handles this))
+			;of several things selected, each has a line round it, its own
+			;box, so that it is seen they are several and which they are: a
+			;group that was broken up is its parts, each one selected
+			(if (> (length items) 1)
+				(cwb-draw-items canvas (reduce (lambda (out item)
+						(if (defq corners (board-item-corners item))
+							(push out (cwb-shape (cwb-d-points corners :t) :stroke 0xa00080ff :width thin :join :miter)))
+						out) items (list)) m))
 			(cond
 				;a line has only its two ends
 				((. handles :ends))
