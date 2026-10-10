@@ -44,10 +44,9 @@
 	;*flight_at* is what was drawn on it and where each thing then was
 	*flight_clip* :nil *flight_at* :nil
 	;is only a part of the document's picture drawn again when only a part
-	;changed, (draw-damage). Not yet: a part of a canvas can not be made
-	;clear, (. canvas :fill) is all of it and all else that draws leaves
-	;what is there where it draws nothing. Till it can be, all is drawn
-	*damage_parts* :nil
+	;changed, (draw-damage). It is if a part of a canvas can be made clear,
+	;(. canvas :clear), which a system from before that was written can not
+	*damage_parts* (not (eql :t (catch (ffi "gui/canvas/lisp_clear") :t)))
 	;what was in flight and has been let go, while the nodes have yet to
 	;draw the document with it in: *landing* is waiting for a frame to be
 	;begun, *landed* is in the frame they are drawing. Both are still drawn
@@ -295,8 +294,13 @@
 		(defq cx (max 0 (- (n2i (floor (* x *zoom*))) 3)) cy (max 0 (- (n2i (floor (* y *zoom*))) 3))
 			cx1 (min w (+ (n2i (floor (* x1 *zoom*))) 4)) cy1 (min h (+ (n2i (floor (* y1 *zoom*))) 4)))
 		(when (and (< cx cx1) (< cy cy1))
-			(. *committed* :tile (str-alloc (* (- cx1 cx) (- cy1 cy) 4)) cx cy cx1 cy1)
-			(. *committed* :set_clip cx cy cx1 cy1)
+			(. *committed* :clear 0 cx cy (- cx1 cx) (- cy1 cy))
+			;what is drawn with soft edges and cut to a box is not drawn in
+			;the first column of the box, (:fpoly) as it is. So the cut is
+			;a column wider on the left than what was made clear, and what
+			;is drawn is then just the part that was. A test holds a part
+			;drawn against all drawn, and will say if that changes
+			(. *committed* :set_clip (max 0 (dec cx)) cy cx1 cy1)
 			(cwb-draw *committed* doc m (list (n2f cx) (n2f cy) (n2f cx1) (n2f cy1)) skip)
 			(push parts (list cx cy cx1 cy1))))
 		boxes)

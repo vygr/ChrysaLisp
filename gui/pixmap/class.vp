@@ -263,20 +263,80 @@
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
-	;:r1-:r4
+	;:r1-:r4, :r7-:r11
+	;info
+	;all of it is a clear of all of it
 
 	(entry :pixmap :fill '(:r0 :r1))
 
-	(call :pixmap :to_premul '(:r1) '(:r1))
-	(vp-cpy-rr :r1 :r2)
-	(vp-shl-cr 32 :r1)
-	(vp-cpy-rr :r0 :r4)
-	(vp-add-rr :r1 :r2)
-	(assign '((:r0 +pixmap_height) (:r0 +pixmap_stride) (:r0 +pixmap_data)) '(:r1 :r3 :r0))
-	(vp-mul-rr :r3 :r1)
-	(call :sys_mem :fill '(:r0 :r1 :r2))
+	(assign '((:r0 +pixmap_width) (:r0 +pixmap_height)) '(:r9 :r10))
+	(vp-xor-rr :r7 :r7)
+	(vp-xor-rr :r8 :r8)
+	(jump :pixmap :clear '(:r0 :r1 :r7 :r8 :r9 :r10))
 
-	(exit :pixmap :fill '(:r4))
+(def-func-end)
+
+(def-method :pixmap :clear)
+	;inputs
+	;:r0 = pixmap object (ptr)
+	;:r1 = color (argb)
+	;:r7 = x (pixels)
+	;:r8 = y (pixels)
+	;:r9 = width (pixels)
+	;:r10 = height (pixels)
+	;outputs
+	;:r0 = pixmap object (ptr)
+	;trashes
+	;:r1-:r4, :r7-:r11
+	;info
+	;every pixel of the box, as much of it as is on the pixmap, is made
+	;the color. It is set, not laid over what is there, so a color with
+	;no alpha makes the box clear, which nothing that draws can
+
+	(entry :pixmap :clear '(:r0 :r1 :r7 :r8 :r9 :r10))
+
+	(call :pixmap :to_premul '(:r1) '(:r1))
+	;the far corner, and the box cut to the pixmap
+	(vp-add-rr :r7 :r9)
+	(vp-add-rr :r8 :r10)
+	(assign '((:r0 +pixmap_width) (:r0 +pixmap_height)) '(:r2 :r3))
+	(vpif '(:r7 < 0))
+		(vp-xor-rr :r7 :r7)
+	(endif)
+	(vpif '(:r8 < 0))
+		(vp-xor-rr :r8 :r8)
+	(endif)
+	(vpif '(:r9 > :r2))
+		(vp-cpy-rr :r2 :r9)
+	(endif)
+	(vpif '(:r10 > :r3))
+		(vp-cpy-rr :r3 :r10)
+	(endif)
+	(vpif '(:r7 < :r9) '(:r8 < :r10))
+		(vp-cpy-rr :r0 :r11)
+		(assign '((:r0 +pixmap_stride) (:r0 +pixmap_data)) '(:r2 :r0))
+		;the first pixel of the first row of it, and the bytes of a row
+		(vp-cpy-rr :r8 :r3)
+		(vp-mul-rr :r2 :r3)
+		(vp-add-rr :r3 :r0)
+		(vp-sub-rr :r7 :r9)
+		(vp-shl-cr (log2 +int_size) :r7)
+		(vp-shl-cr (log2 +int_size) :r9)
+		(vp-add-rr :r7 :r0)
+		(loop-start)
+			(vp-cpy-rr :r0 :r4)
+			(vp-lea-d :r0 :r9 :r3)
+			(loop-start)
+				(vp-cpy-ri-i :r1 :r4 0)
+				(vp-add-cr +int_size :r4)
+			(loop-until '(:r4 = :r3))
+			(vp-add-rr :r2 :r0)
+			(vp-add-cr 1 :r8)
+		(loop-until '(:r8 = :r10))
+		(vp-cpy-rr :r11 :r0)
+	(endif)
+
+	(exit :pixmap :clear '(:r0))
 	(vp-ret)
 
 (def-func-end)

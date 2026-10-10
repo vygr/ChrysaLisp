@@ -4,6 +4,60 @@
 
 ------
 
+Chris, when I said a part of a canvas could not be made clear and that
+it was his to say how: "Either add partial clear VP support, change the
+:fill to cal the :clear x y w h, method with the full extent, and then
+we can use the new :clear method." And of what chugs: "Chug, slow to
+respond, try rotate on a big group of selection, stuttering
+updates...not smooth. Chugs."
+
+*	`:pixmap :clear`, VP: a box of a pixmap, cut to it, is set to a
+	colour, not laid over what is there. `:pixmap :fill` is now that of
+	all of it, as he said. `(. canvas :clear argb x y width height)`,
+	`gui/canvas/lisp_clear`. The Lisp looks for the function when it is
+	called, so `gui/canvas/lisp.inc` still loads on a system from
+	before it.
+
+*	The Whiteboard draws only a part of the document's picture again
+	when a few things are taken up or put down: `*damage_parts*` is on
+	where the system has `:clear`. On the board of 12,000 a thing taken
+	up is out of the picture at once, drawn by this task, and not when
+	the nodes have been round. Only those parts are told to the GUI,
+	`:add_dirty`.
+
+*	A test holds the picture with a part drawn again against all of it
+	drawn again, to the pixel, for a thing among others and one off the
+	corner of the paper.
+
+**Found, and his to judge.** With soft edges on, `:fpoly` draws
+everything one pixel to the right of where it draws with them off. A
+box from 2 to 12: pixels 2 to 11 with them off, 3 to 12 with them on.
+A box from -10 to 12 does not reach column 0 with them on. It is in
+the flush of the coverage mask, as I read it: the pixel where an edge
+is, is drawn with the cover of the run before it, and the new run
+starts a pixel on. And so a thing cut by a clip on its left is not
+drawn in the first column of the clip. I have not changed it: it is
+every soft edge in the system, glyphs with them, moved a pixel. The
+part drawn again cuts a column wider on the left than it clears, which
+is right while this is so, and the test will say when it is not.
+
+He thought aloud of the edge table shared between the nodes that draw,
+as the pixels are, and then: "does the cache coherencey issues with
+such a small shared memory table kill our efforts ? We may be better
+have a table per child task like now", "My gues here is the cache line
+exchange will kill us." I think so too. Each node's canvas has its own
+table and its own row of cover now, on the shared pixels. Not started.
+
+Not done: turning or sizing a great many things. Each step draws them
+all again.
+
+Run: `make all boot`, `lint: clean`, the full suite on the M4, the
+x64 and the Pi, each on its own new system, 5,674.
+
+Not seen: on a screen, any of it.
+
+------
+
 Chris, after the drag was made a canvas that is moved: "Large groups
 unslecected still chug on controls. Also I notice flickering as I grab
 and move objects. Like somthing is delay catching up with the redraw

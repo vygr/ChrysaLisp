@@ -118,6 +118,15 @@
 		; (. canvas :fill argb) -> canvas
 		((const (ffi "gui/canvas/lisp_fill")) this argb))
 
+	(defmethod :clear (argb x y width height)
+		; (. canvas :clear argb x y width height) -> canvas
+		;a box of the pixmap, in its pixels, is made the color. It is set,
+		;not laid over what is there: with 0 the box is made clear, to be
+		;drawn in again, which nothing that draws can do. (:fill) is this
+		;of all of it. The function is looked for when this is called, a
+		;system from before it was written has none, and can still load this
+		((ffi "gui/canvas/lisp_clear") this argb x y width height))
+
 	(defmethod :tile (data x1 y1 x2 y2)
 		; (. canvas :tile data x1 y1 x2 y2) -> area
 		((const (ffi "gui/canvas/lisp_tile")) this data x1 y1 x2 y2))

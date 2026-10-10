@@ -30,6 +30,7 @@
 	(dec-method :lisp_mesh_create gui/canvas/lisp_mesh_create :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_mesh_destroy gui/canvas/lisp_mesh_destroy :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_fill gui/canvas/lisp_fill :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_clear gui/canvas/lisp_clear :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_plot gui/canvas/lisp_plot :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_fbox gui/canvas/lisp_fbox :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_fpoly gui/canvas/lisp_fpoly :static (:r0 :r1) (:r0 :r1))

@@ -375,3 +375,24 @@
 (assert-eq "one thing taken up is one part of the picture, the box round it" "(1 (200 200 400 400))" (first wa_dmg))
 (assert-eq "put down, the same part again" "(1 (200 200 400 400))" (second wa_dmg))
 (assert-eq "a thing drawn is no part, three taken up are three parts, and a change to them is all of it" "()3:all" (third wa_dmg))
+
+;only a part of the document's picture drawn again is that part of all of it drawn again, to the pixel
+(defq wa_part (wa-run (cat
+	"(defun pic () (defq s (memory-stream)) (pixmap-write (getf *committed* +canvas_pixmap 0) s 32) (stream-seek s 0 0) (read-blk s 100000000))"
+	;boxes, a line and an ellipse that lie over one another
+	"(wa-mode :frect) (wa-drag 1 100 100 300 300) (. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (wa-drag 1 200 200 400 400)"
+	"(wa-mode :pen) (. *ink_toolbar* :set_selected 4) (wa-do +event_ink) (wa-drag 1 150 150 380 390) (wa-mode :ellipse) (wa-drag 1 250 120 420 330)"
+	"(. *board* :select (list)) (. *board* :dirty? +board_dirty_doc) (. *board* :take_damage) (draw-local (view-matrix)) (defq p0 (pic))"
+	;the red box, in the middle of them, is taken up
+	"(. *board* :select (list 2)) (defq d1 (. *board* :take_damage) parts (draw-damage d1 (view-matrix)) p1 (pic))"
+	"(draw-local (view-matrix)) (defq p2 (pic))"
+	"(print (list *damage_parts* parts (> (length p0) 3000000) (eql p1 p2) (eql p0 p1) (. *committed* :get_clip)))"
+	;and put down again
+	"(. *board* :select (list)) (draw-damage (. *board* :take_damage) (view-matrix)) (print (eql (pic) p0))"
+	;one at the corner of the paper, part of it off it
+	"(. *board* :select (list 1)) (. *board* :transform (cwb-mat-move -150.0 -150.0)) (. *board* :select (list)) (. *board* :take_damage) (draw-local (view-matrix)) (defq p3 (pic))"
+	"(. *board* :select (list 1)) (draw-damage (. *board* :take_damage) (view-matrix)) (defq p4 (pic)) (draw-local (view-matrix)) (print (list (eql p4 (pic)) (eql p4 p3)))")))
+(assert-eq "one thing taken up: that part of the picture is made clear and drawn, and the picture is then what all of it drawn again is, and not what it was. The canvas is left whole to draw on"
+	"(:t ((197 197 404 404)) :t :t :nil (0 0 1024 768))" (first wa_part))
+(assert-eq "put down, the picture is what it was" ":t" (second wa_part))
+(assert-eq "and so with one that is partly off the corner of the paper" "(:t :nil)" (third wa_part))
