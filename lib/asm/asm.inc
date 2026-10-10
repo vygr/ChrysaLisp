@@ -181,6 +181,8 @@
 	+supported_cpu ''(x86_64 x86_64 arm64 riscv64 la64))
 
 (defun make-them (action &optional mode files)
+	;every platform. With a mode all of them are built in it. With none
+	;the native ones are debug and the VP64 is release
 	(setd files (all-vp-files))
 	(if mode (defq *build_mode* mode))
 	(each (# (action files %0 %1)) +supported_abi +supported_cpu)
@@ -188,7 +190,10 @@
 	(action files 'VP64 'vp64))
 
 (defun make-vp (action &optional mode files)
+	;only the VP64, in a mode, debug if none is given: it is made by
+	;itself for the lint, which is only right on a debug build
 	(setd files (all-vp-files))
+	(defq *build_mode* (ifn mode 1))
 	(action files 'VP64 'vp64))
 
 (defun make-platforms (&optional mode) (make-them (const make) mode))

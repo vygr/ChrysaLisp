@@ -556,7 +556,7 @@ Usage: lint [options]
     The trace lint works out what each function really
     trashes, and says where that is not what its header has
     written down. It is only right on a debug build, so this
-    makes one, 'make vp' then 'make apps debug', runs
+    makes one, 'make vp debug' then 'make apps debug', runs
     'files obj/vp/ | trace -i -l', and puts the release
     build back, 'make apps' then 'make all boot'.
 
@@ -599,7 +599,7 @@ Usage: lz4 [options] [file]
 ## make
 ```code
 Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
-    [release] [debug] [vp] [test] [fmt]
+    [vp] [release] [debug] [validate] [test] [fmt]
 
     options:
         -h --help: this help info.
@@ -609,16 +609,21 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
     boot:       create a boot image.
     platforms:  for all platforms not just the host.
     docs:       scan source files and create documentation.
-    vp:         the VP64 and obj/vp/ outputs.
+    vp:         only the VP64 and obj/vp/ outputs.
     it:         all of the above, and then a check of the include
                 and import lists, what includes and imports would
                 change is printed.
     apps:       only the apps !
-    release:    it/apps release mode.
-    debug:      it/apps debug mode.
-    validate:   it/apps validate mode.
+    release:    release mode, no error checks.
+    debug:      debug mode, with error checks.
+    validate:   validate mode, debug and more checks as it runs.
     test:       test make timings.
     fmt:        format all the source files, with the fmt command.
+
+    A mode goes with any build, and all that is built is built
+    in it. With none: 'it' and 'apps' build the VP64 in release
+    and the rest in debug, 'vp' builds it in debug, and the
+    others build this platform in debug.
 ```
 ## mesh
 ```code

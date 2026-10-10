@@ -584,8 +584,14 @@ sessions, developers and LLMs have direct access to the standard ChrysaLisp
 	mode (`*build_mode* = 0`). Also regenerates reference documentation under
 	`docs/reference/`.
 
-*	`make vp` — compile the debug VP64 emulator image (`*build_mode* = 1`) used
-	with `trace` (`cmd/trace.lisp`) for register clobber analysis. (Must never
+*	`release`, `debug` or `validate` after any of these builds all of it in
+	that mode: `make it validate`, `make all boot release`, `make vp release`.
+	With none, `it` and `apps` build the `VP64` in release and the rest in
+	debug, `vp` builds it in debug, and the others build this platform in
+	debug.
+
+*	`make vp`, the same as `make vp debug` — compile the debug VP64 emulator
+	image (`*build_mode* = 1`) used with `trace` (`cmd/trace.lisp`) for register clobber analysis. (Must never
 	go into `snapshot.zip`, which is executed by `make install` to cross-compile
 	the native host and needs the full speed of a release build; always restore
 	the release image with `make it`).

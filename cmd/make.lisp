@@ -6,7 +6,7 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
-    [release] [debug] [vp] [test] [fmt]
+    [vp] [release] [debug] [validate] [test] [fmt]
 
     options:
         -h --help: this help info.
@@ -16,16 +16,21 @@
     boot:       create a boot image.
     platforms:  for all platforms not just the host.
     docs:       scan source files and create documentation.
-    vp:         the VP64 and obj/vp/ outputs.
+    vp:         only the VP64 and obj/vp/ outputs.
     it:         all of the above, and then a check of the include
                 and import lists, what includes and imports would
                 change is printed.
     apps:       only the apps !
-    release:    it/apps release mode.
-    debug:      it/apps debug mode.
-    validate:   it/apps validate mode.
+    release:    release mode, no error checks.
+    debug:      debug mode, with error checks.
+    validate:   validate mode, debug and more checks as it runs.
     test:       test make timings.
-    fmt:        format all the source files, with the fmt command.")
+    fmt:        format all the source files, with the fmt command.
+
+    A mode goes with any build, and all that is built is built
+    in it. With none: 'it' and 'apps' build the VP64 in release
+    and the rest in debug, 'vp' builds it in debug, and the
+    others build this platform in debug.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 ))
 
@@ -456,10 +461,13 @@
 				"release" "debug" "validate" "test" "ai" "vp" "fmt"))
 		(defq mode (or (if validate 2) (if debug 1) (if release 0))
 			*build_verb* opt_v)
+		;a mode that was given is the mode of all that is built, for those
+		;below that do not take one themselves
+		(if mode (defq *build_mode* mode))
 		(cond
 			(fmt (make-fmt))
 			(test (make-test))
-			(vp (remake-all-vp 1))
+			(vp (remake-all-vp mode))
 			(it (remake-all-platforms mode) (make-docs) (make-check))
 			(apps (make-app-platforms mode))
 			((and boot all platforms) (remake-all-platforms))

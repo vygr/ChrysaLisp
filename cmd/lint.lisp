@@ -16,7 +16,7 @@
     The trace lint works out what each function really
     trashes, and says where that is not what its header has
     written down. It is only right on a debug build, so this
-    makes one, 'make vp' then 'make apps debug', runs
+    makes one, 'make vp debug' then 'make apps debug', runs
     'files obj/vp/ | trace -i -l', and puts the release
     build back, 'make apps' then 'make all boot'.
 
@@ -47,7 +47,7 @@
 			(defq opt_k :nil opt_v :nil args (options stdio usage)))
 		;all that is said goes into the one list, as it is said
 		(defq t0 (pii-time) said (list))
-		(build-errors "make vp" said)
+		(build-errors "make vp debug" said)
 		(build-errors "make apps debug" said)
 		(each (# (push said %0)) (run-step "files obj/vp/ | trace -i -l"))
 		(unless opt_k

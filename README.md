@@ -185,6 +185,12 @@ Once inside the ChrysaLisp TUI (Terminal app), you can rebuild the system:
 
 * `make it`: A comprehensive build that includes `all`, `boot`, `platforms`, and `docs`.
 
+* `make vp`: Builds only the VP64 emulator's image.
+
+* `make apps`: Builds only the apps, for all platforms.
+
+* `release`, `debug`, `validate`: the mode to build in, with any of the above, as `make it validate` or `make vp release`. With none, `it` and `apps` build the VP64 in release and the rest in debug, `vp` builds it in debug, and the others build this platform in debug.
+
 * `make test`: Runs internal timing tests for the make process.
 
 You can combine options, for example: `make all platforms boot`.

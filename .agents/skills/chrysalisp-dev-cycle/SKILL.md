@@ -190,7 +190,7 @@ From the machine the work is on:
 
 2.	`echo "lint" | ./run_tui.sh -n 0 -f`, it must say `lint: clean`. A
 	mismatch in a function you changed on purpose is written back with
-	`make vp`, `make apps debug`, then `files obj/vp/ | trace -i -l -w`,
+	`make vp debug`, `make apps debug`, then `files obj/vp/ | trace -i -l -w`,
 	and `lint` again.
 
 3.	`rack -b "tests"` on every machine, the native code is not the same on

@@ -4,6 +4,37 @@
 
 ------
 
+Item 52, the modes of `make`. Chris, on the 10th: "make vp. Should we
+have 'make vp debug' and 'make vp release' default to 'debug'" then we
+have "make it" "make vp" "make apps" all being consistant in there
+"release/debug/validate" options. And make only the lack of giving and
+option universally apply the VP64 is done in release, the rest in
+debug."
+
+As I read it, and built it:
+
+*	`release`, `debug` or `validate` goes with any build, and all that
+	is built is built in it: `make vp release`, `make all boot
+	release`, `make it validate`. Before, `it` and `apps` took one, `vp`
+	took none and was always debug, and the others took none.
+*	with none it is as it was: `it` and `apps` build the VP64 in
+	release and the rest in debug, `vp` builds it in debug, the others
+	build this platform in debug.
+*	`lint` says `make vp debug` now, what it means.
+
+The one place my reading may not be his: `make vp` with no mode is
+still debug, his "default to 'debug'", and not release by the rule
+for the VP64 in `it` and `apps`. The lint needs a debug VP64.
+
+Run: each form built and the image it made measured. VP64: release
+171,524, debug 201,620, validate 219,476. ARM64 with `make all boot
+release` 209,124, with none 247,252. `lint: clean`, `cl_test.sh -b -a`
+on all three, 5780 each. `make -h`, the README and the skills say it.
+
+Not seen: by Chris.
+
+------
+
 The night of 2026-10-11. Chris: "1, 2, 3 and 4, take the desktop
 down". Item 55 first, the soft edged fill a pixel off. His thought on
 it: "probably only needs the edge method to have 0.5x offset before
