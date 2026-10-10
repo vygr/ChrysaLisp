@@ -25,6 +25,18 @@ line up what is selected, each with the box round all of it. how is
 :left :right :top :bottom, or :hcenter or :vcenter for the middles
 ```
 
+### :bite
+
+```code
+(. board :bite points [r shape]) -> :t | :nil
+
+what an eraser covers as it goes along a line, x y x y ..., taken
+out of every thing it touches, each of which is then flat: a
+filled outline of what was left of it. The eraser is a path about
+0 0 with no dent in it, default a circle of r, default the
+board's reach by its zoom. No step is made. Was anything touched
+```
+
 ### :changed
 
 ```code

@@ -100,7 +100,15 @@
 	;the left button draws, the right goes down too and the mouse moves with both: that is the middle
 	"(wa-mode :pen) (wa-mouse :down 600 500 1) (wa-mouse :move 640 520 1) (wa-mouse :move 640 520 3) (wa-mouse :move 660 540 5)"
 	"(print (list (get :held *board_view*) (wa-ids)))"
-	"(wa-mouse :move 700 600 4) (wa-mouse :up 700 600 0) (print (list (get :held *board_view*) (wa-ids)))")))
+	"(wa-mouse :move 700 600 4) (wa-mouse :up 700 600 0) (print (list (get :held *board_view*) (wa-ids)))"
+	;the eraser that bites: a box, the eraser drawn through it, and undo. And the mode is kept
+	"(. *board* :clear) (cwb-add (. *board* :get_doc) (cwb-shape (cwb-d-rect 200 200 400 300) :fill 0xff808080 :stroke 0))"
+	"(defq bite_was (wa-ids)) (def *board* :rub_mode :bite) (wa-mode :eraser) (wa-drag 1 300 150 300 350)"
+	"(defq bite_is (wa-ids) bite_hit (if (cwb-hit (. *board* :get_doc) 300 250 0) :t :nil) bite_kept (. (config-state) :find :rub))"
+	"(wa-do +event_undo) (config-apply (scatter (config-state) :rub :part))"
+	"(print (list (length bite_was) (length bite_is) (eql (str bite_was) (str bite_is)) bite_hit bite_kept (eql (str bite_was) (str (wa-ids))) (get :rub_mode *board*)))")))
+(assert-eq "the eraser that bites, in the app: the box is another thing with the middle gone, it is kept as the mode, undo has the box back, and a board put back as :part is :part"
+	"(1 1 :nil :nil :bite :t :part)" (last wa_out))
 (assert-eq "the app's file loads, and it has a window, a board and a view of it" "(4 4 5)" (elem-get wa_out 0))
 (assert-true "the window has a size it wants, no wider than a small screen"
 	(progn (defq wa_size (first (read (string-stream (elem-get wa_out 1))))) (and (> (first wa_size) 400) (< (first wa_size) 1000))))

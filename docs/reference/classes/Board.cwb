@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 107
+	:next_id 108
 	:layers
 	((:list 1)
 		((:list 3)
@@ -27,7 +27,7 @@
 							:id
 							2
 							:items
-							((:list 104)
+							((:list 105)
 								((:list 11)
 									:shape
 									:id
@@ -998,7 +998,7 @@
 									:stroke
 									0
 									:text
-									:changed
+									:bite
 									:font_size
 									12
 								)
@@ -1017,7 +1017,7 @@
 									:stroke
 									0
 									:text
-									:clear
+									:changed
 									:font_size
 									12
 								)
@@ -1036,7 +1036,7 @@
 									:stroke
 									0
 									:text
-									:commit
+									:clear
 									:font_size
 									12
 								)
@@ -1055,7 +1055,7 @@
 									:stroke
 									0
 									:text
-									:crop
+									:commit
 									:font_size
 									12
 								)
@@ -1074,7 +1074,7 @@
 									:stroke
 									0
 									:text
-									:delete
+									:crop
 									:font_size
 									12
 								)
@@ -1093,7 +1093,7 @@
 									:stroke
 									0
 									:text
-									:dirty?
+									:delete
 									:font_size
 									12
 								)
@@ -1112,7 +1112,7 @@
 									:stroke
 									0
 									:text
-									:dismiss
+									:dirty?
 									:font_size
 									12
 								)
@@ -1131,7 +1131,7 @@
 									:stroke
 									0
 									:text
-									:draw
+									:dismiss
 									:font_size
 									12
 								)
@@ -1150,7 +1150,7 @@
 									:stroke
 									0
 									:text
-									:draw_actors
+									:draw
 									:font_size
 									12
 								)
@@ -1169,7 +1169,7 @@
 									:stroke
 									0
 									:text
-									:draw_flight
+									:draw_actors
 									:font_size
 									12
 								)
@@ -1188,7 +1188,7 @@
 									:stroke
 									0
 									:text
-									:draw_overlay
+									:draw_flight
 									:font_size
 									12
 								)
@@ -1207,7 +1207,7 @@
 									:stroke
 									0
 									:text
-									:draw_selected
+									:draw_overlay
 									:font_size
 									12
 								)
@@ -1226,7 +1226,7 @@
 									:stroke
 									0
 									:text
-									:drop_temp
+									:draw_selected
 									:font_size
 									12
 								)
@@ -1245,7 +1245,7 @@
 									:stroke
 									0
 									:text
-									:duplicate
+									:drop_temp
 									:font_size
 									12
 								)
@@ -1264,7 +1264,7 @@
 									:stroke
 									0
 									:text
-									:fit
+									:duplicate
 									:font_size
 									12
 								)
@@ -1283,7 +1283,7 @@
 									:stroke
 									0
 									:text
-									:float
+									:fit
 									:font_size
 									12
 								)
@@ -1302,7 +1302,7 @@
 									:stroke
 									0
 									:text
-									:forget
+									:float
 									:font_size
 									12
 								)
@@ -1321,7 +1321,7 @@
 									:stroke
 									0
 									:text
-									:get_bindings
+									:forget
 									:font_size
 									12
 								)
@@ -1340,7 +1340,7 @@
 									:stroke
 									0
 									:text
-									:get_doc
+									:get_bindings
 									:font_size
 									12
 								)
@@ -1359,7 +1359,7 @@
 									:stroke
 									0
 									:text
-									:get_selected
+									:get_doc
 									:font_size
 									12
 								)
@@ -1378,7 +1378,7 @@
 									:stroke
 									0
 									:text
-									:get_stage
+									:get_selected
 									:font_size
 									12
 								)
@@ -1397,7 +1397,7 @@
 									:stroke
 									0
 									:text
-									:group
+									:get_stage
 									:font_size
 									12
 								)
@@ -1416,7 +1416,7 @@
 									:stroke
 									0
 									:text
-									:in_flight?
+									:group
 									:font_size
 									12
 								)
@@ -1435,7 +1435,7 @@
 									:stroke
 									0
 									:text
-									:layer_index
+									:in_flight?
 									:font_size
 									12
 								)
@@ -1454,7 +1454,7 @@
 									:stroke
 									0
 									:text
-									:new
+									:layer_index
 									:font_size
 									12
 								)
@@ -1473,7 +1473,7 @@
 									:stroke
 									0
 									:text
-									:new_shape
+									:new
 									:font_size
 									12
 								)
@@ -1492,7 +1492,7 @@
 									:stroke
 									0
 									:text
-									:order
+									:new_shape
 									:font_size
 									12
 								)
@@ -1511,7 +1511,7 @@
 									:stroke
 									0
 									:text
-									:pointers
+									:order
 									:font_size
 									12
 								)
@@ -1530,7 +1530,7 @@
 									:stroke
 									0
 									:text
-									:put_state
+									:pointers
 									:font_size
 									12
 								)
@@ -1549,7 +1549,7 @@
 									:stroke
 									0
 									:text
-									:redo
+									:put_state
 									:font_size
 									12
 								)
@@ -1568,7 +1568,7 @@
 									:stroke
 									0
 									:text
-									:remove
+									:redo
 									:font_size
 									12
 								)
@@ -1587,7 +1587,7 @@
 									:stroke
 									0
 									:text
-									:resize
+									:remove
 									:font_size
 									12
 								)
@@ -1606,7 +1606,7 @@
 									:stroke
 									0
 									:text
-									:rub
+									:resize
 									:font_size
 									12
 								)
@@ -1625,7 +1625,7 @@
 									:stroke
 									0
 									:text
-									:rub_along
+									:rub
 									:font_size
 									12
 								)
@@ -1644,7 +1644,7 @@
 									:stroke
 									0
 									:text
-									:select
+									:rub_along
 									:font_size
 									12
 								)
@@ -1663,7 +1663,7 @@
 									:stroke
 									0
 									:text
-									:select_all
+									:select
 									:font_size
 									12
 								)
@@ -1682,7 +1682,7 @@
 									:stroke
 									0
 									:text
-									:selected_items
+									:select_all
 									:font_size
 									12
 								)
@@ -1701,7 +1701,7 @@
 									:stroke
 									0
 									:text
-									:set_doc
+									:selected_items
 									:font_size
 									12
 								)
@@ -1720,7 +1720,7 @@
 									:stroke
 									0
 									:text
-									:snap_x
+									:set_doc
 									:font_size
 									12
 								)
@@ -1739,7 +1739,7 @@
 									:stroke
 									0
 									:text
-									:snap_y
+									:snap_x
 									:font_size
 									12
 								)
@@ -1758,7 +1758,7 @@
 									:stroke
 									0
 									:text
-									:snapshot
+									:snap_y
 									:font_size
 									12
 								)
@@ -1777,7 +1777,7 @@
 									:stroke
 									0
 									:text
-									:state
+									:snapshot
 									:font_size
 									12
 								)
@@ -1796,7 +1796,7 @@
 									:stroke
 									0
 									:text
-									:style
+									:state
 									:font_size
 									12
 								)
@@ -1815,7 +1815,7 @@
 									:stroke
 									0
 									:text
-									:take_appended
+									:style
 									:font_size
 									12
 								)
@@ -1834,7 +1834,7 @@
 									:stroke
 									0
 									:text
-									:take_changes
+									:take_appended
 									:font_size
 									12
 								)
@@ -1853,7 +1853,7 @@
 									:stroke
 									0
 									:text
-									:take_damage
+									:take_changes
 									:font_size
 									12
 								)
@@ -1872,7 +1872,7 @@
 									:stroke
 									0
 									:text
-									:tick
+									:take_damage
 									:font_size
 									12
 								)
@@ -1891,7 +1891,7 @@
 									:stroke
 									0
 									:text
-									:touch
+									:tick
 									:font_size
 									12
 								)
@@ -1910,7 +1910,7 @@
 									:stroke
 									0
 									:text
-									:touch_order
+									:touch
 									:font_size
 									12
 								)
@@ -1929,7 +1929,7 @@
 									:stroke
 									0
 									:text
-									:transform
+									:touch_order
 									:font_size
 									12
 								)
@@ -1948,7 +1948,7 @@
 									:stroke
 									0
 									:text
-									:undo
+									:transform
 									:font_size
 									12
 								)
@@ -1967,7 +1967,7 @@
 									:stroke
 									0
 									:text
-									:ungroup
+									:undo
 									:font_size
 									12
 								)
@@ -1978,6 +1978,25 @@
 									:m
 									((:path 6)
 										1.00000 0.00000 201.78564 0.00000 1.00000 627.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:ungroup
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									107
+									:m
+									((:path 6)
+										1.00000 0.00000 201.78564 0.00000 1.00000 644.00000
 									)
 									:kind
 									:text

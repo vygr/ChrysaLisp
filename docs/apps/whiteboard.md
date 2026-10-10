@@ -41,6 +41,10 @@ are put in a group as they are drawn, so a word that was written is picked
 up and moved as one thing. Ungroup breaks it into its lines again. The
 eraser still rubs out one line of it at a time.
 
+There is a second eraser, not yet on a button, that takes out of anything
+just what it is drawn over: a notch out of a box, half a letter. See
+[`docs/ai_digest/whiteboard.md`](../ai_digest/whiteboard.md), an eraser that bites.
+
 The left button of the mouse is the pen. The right button is the hand: it
 picks up what it is on and moves it, whatever the pen is set to. The middle
 button moves the board about in its window.

@@ -22,6 +22,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./doc.inc")
+(import "././math/polygon.inc")
 (import "./pointer.inc")
 
 ;what has changed since it was last drawn
@@ -76,6 +77,86 @@
 				(list pts) 1 (dec n))
 			(push out "L" (first (last pts)) (second (last pts)))
 			(apply (const cwb-d) out))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a bite: what an eraser covers taken out of what it touches, exactly
+;
+; The other way to rub out, :rub_mode :bite. What the eraser covers as it
+; is moved is a polygon, (poly-sweep), and that is taken out of every
+; thing it touches, (poly-difference), lib/math/polygon.inc. A thing that
+; loses a bite is not what it was: it is flat, one shape for what was
+; left of its fill and one for what was left of its line, each a filled
+; outline. A thing not touched is left as it is.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun board-bite-shape (item full m swept)
+	; (board-bite-shape item full m swept) -> :nil | (shape ...)
+	;a shape with what swept covers taken out of it. swept is paths in
+	;the space of the document, full the matrix that puts the shape there,
+	;m the one that puts the space the shape is in there. :nil if it is
+	;not touched. What is to stand in its place, in the space it is in:
+	;nothing if all of it went
+	(bind '(fills strokes _) (cwb-flat item))
+	(defq mode (if (eql (elem-get item +cwb_rule) :evenodd) 0 1)
+		fills (cwb-mat-paths full fills) strokes (cwb-mat-paths full strokes))
+	(when (or (and (nempty? fills) (nempty? (poly-intersect fills swept mode 1)))
+			(and (nempty? strokes) (nempty? (poly-intersect strokes swept 1 1))))
+		(defq out (list) back (cwb-mat-invert m))
+		(each (lambda (polys mode color)
+			(when (nempty? polys)
+				(defq left (poly-difference polys swept mode 1))
+				(when (nempty? left)
+					(push out (cwb-shape (join (map (# (cwb-d-points %0 :t)) (cwb-mat-paths back left)) " ")
+						:fill color :stroke 0 :rule :evenodd :name (cwb-get item :name))))))
+			(list fills strokes) (list mode 1) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
+		out))
+
+(defun board-bite (doc swept)
+	; (board-bite doc swept) -> :nil | (made gone)
+	;what swept covers, paths in the space of the document, taken out of
+	;every thing of the layers that can be changed. The ids of the shapes
+	;that were made, and of those they stand in the place of, :nil if
+	;nothing was touched. A group whose things have all gone goes. A list
+	;of what is left to do, no function here calls itself
+	(bind '((x y) (x1 y1)) (vector-bounds-2d swept))
+	(defq reach (list x y x1 y1) made (list) gone (list) todo (list) seen (list))
+	(each (lambda ((name flags items))
+		(unless (or (bits? flags 1) (bits? flags 2)) (push todo (list items :nil))))
+		(cwb-layers doc))
+	(while (defq job (pop todo))
+		(bind '(items m) job)
+		(defq out (list) changed :nil)
+		(each (lambda (item)
+			(defq pieces :nil)
+			(cond
+				((cwb-group? item)
+					;what is in it, in its own space, later
+					(push todo (list (elem-get item +cwb_items) (cwb-mat-mul m (elem-get item +cwb_m)))))
+				((defq box (third (cwb-flat item)))
+					(defq full (cwb-mat-mul m (elem-get item +cwb_m)))
+					(if (cwb-box-meet? reach (cwb-box-of box full))
+						(setq pieces (board-bite-shape item full m swept)))))
+			(cond
+				(pieces
+					(setq changed :t)
+					(push gone (elem-get item +cwb_id))
+					(each (# (push out (cwb-adopt doc %0)) (push made (elem-get %0 +cwb_id))) pieces))
+				(:t (push out item))))
+			items)
+		(when changed
+			;what is left is where it was, among the rest
+			(clear items)
+			(each (# (push items %0)) out))
+		(push seen items))
+	;the groups with nothing left in them, the innermost first
+	(each (lambda (items)
+		(when (some (# (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items)))) items)
+			(defq out (filter (# (not (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items))))) items))
+			(each (# (if (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items))) (push gone (elem-get %0 +cwb_id)))) items)
+			(clear items)
+			(each (# (push items %0)) out)))
+		(reverse seen))
+	(if (nempty? gone) (list made gone)))
 
 (defun board-rub-group (doc group x y r)
 	; (board-rub-group doc group x y r) -> :nil | items
@@ -952,6 +1033,8 @@
 		;made. Was anything rubbed out
 		(defq doc (get :doc this) r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
 			x (n2f x) y (n2f y) reach (list (- x r) (- y r) (+ x r) (+ y r)) done :nil)
+		;a bite is another thing altogether
+		(if (eql (get :rub_mode this) :bite) (setq done (. this :bite (path x y) r)))
 		(when (eql (get :rub_mode this) :part)
 			(each (lambda ((name flags items))
 				(unless (or (bits? flags 1) (bits? flags 2))
@@ -989,7 +1072,8 @@
 						(clear items)
 						(each (# (push items %0)) out))))
 				(cwb-layers doc)))
-		(when (and (not done) (defq hit (cwb-hit doc x y (/ +board_near (get :zoom this)))))
+		(when (and (not done) (not (eql (get :rub_mode this) :bite))
+				(defq hit (cwb-hit doc x y (/ +board_near (get :zoom this)))))
 			(. this :remove (list (elem-get (first hit) +cwb_id)))
 			(setq done :t))
 		(if done (. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
@@ -1002,11 +1086,31 @@
 		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
 			x (n2f x) y (n2f y) dx (- (n2f x1) x) dy (- (n2f y1) y)
 			steps (max 1 (n2i (/ (sqrt (+ (* dx dx) (* dy dy))) (* 0.5 r)))) done :nil)
-		(each (lambda (i)
-			(defq f (/ (n2f i) (n2f steps)))
-			(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r) (setq done :t)))
-			(range 0 (inc steps)))
+		(cond
+			((eql (get :rub_mode this) :bite)
+				;all of the way at once, what it covers from the one to the other
+				(setq done (. this :bite (path x y (n2f x1) (n2f y1)) r)))
+			(:t (each (lambda (i)
+					(defq f (/ (n2f i) (n2f steps)))
+					(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r) (setq done :t)))
+					(range 0 (inc steps)))))
 		done)
+
+	(defmethod :bite (points &optional r shape)
+		; (. board :bite points [r shape]) -> :t | :nil
+		;what an eraser covers as it goes along a line, x y x y ..., taken
+		;out of every thing it touches, each of which is then flat: a
+		;filled outline of what was left of it. The eraser is a path about
+		;0 0 with no dent in it, default a circle of r, default the
+		;board's reach by its zoom. No step is made. Was anything touched
+		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
+			swept (poly-sweep (ifn shape (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) points))
+		(when (and (nempty? swept) (defq did (board-bite (get :doc this) swept)))
+			(bind '(made gone) did)
+			(def this :selected (filter (# (not (find %0 gone))) (get :selected this)))
+			(. this :changed made)
+			(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
+			:t))
 
 	(defmethod :delete ()
 		; (. board :delete) -> board

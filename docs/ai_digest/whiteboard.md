@@ -187,6 +187,58 @@ box, a filled thing, words and a group are each all there or not, and go
 whole, and only when no line was touched. `:rub_mode :whole` on a board has
 a line go whole too, as it did.
 
+### An eraser that bites
+
+`:rub_mode :bite` is the other eraser, the one Chris's boards had: what the
+eraser covers is taken out of whatever it touches, a box, a filled thing,
+words, a thing in a group, and no more than it covers.
+
+```image
+docs/diagrams/wb_bite.cwb
+```
+
+That picture is made by the board, as it is each time the docs are made.
+
+* `(. board :bite points [r shape]) -> :t | :nil`. `points` is the way the
+  eraser went, `x y x y ...`. What it covers on that way is a polygon,
+  `(poly-sweep)`, and that is taken out of each thing it touches,
+  `(poly-difference)`, [`polygon_sets.md`](polygon_sets.md). The eraser is a circle of
+  `r`, or `shape`, a path about `0 0` with no dent in it: a cloth, the side
+  of a hand.
+
+* With `:rub_mode :bite`, `(. board :rub)` and `(. board :rub_along)` are
+  that, so the eraser tool, the eraser end of a pen and `cwb -p` all bite.
+
+* A thing that loses a bite is flat from then on. It is one shape for what
+  is left of its fill and one for what is left of its line, each a filled
+  outline, `:rule :evenodd`, with the points of the outline for its path.
+  It is still a shape: it is selected, moved, turned, sized and coloured as
+  any is. It is not a box, a line or words any more, a line has no width
+  to change and words can not be typed again.
+
+* A thing that is not touched is not changed. Found by its box first, then
+  by what it draws.
+
+* It is a step like any other. The eraser makes one as it goes down, and
+  undo brings back the things as they were, not flat.
+
+* A thing in a group is bitten where it lies, turned and sized as the
+  group has it. A group that has nothing left in it goes.
+
+* Things on a layer that is hidden or locked are left.
+
+What it costs is the set logic, a millisecond or two for a thing and each
+move of the eraser, 12ms for a line of 3,000 points.
+
+It is not what the eraser tool does unless it is asked for. The board's
+default is `:part`, and the app has no button for it yet: where that goes
+is Chris's to say. Till then `:rub :bite` in `whiteboard.tre`, in the
+user's folder, with the app closed, turns it on, and `:rub :part` off.
+
+Not done of what he told: the shape of what touches the board is not
+known, the eraser is a circle; and the work is done by the board's own
+task as the eraser moves, not given out to others.
+
 A thing that is moved with snap on has the top left of the box round it go
 to the grid, not the pointer, so that what is moved lines up with the grid
 and with what else is on it.

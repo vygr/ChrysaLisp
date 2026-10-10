@@ -133,12 +133,13 @@ docs/diagrams/poly_sweep.cwb
 * `(poly-difference thing (poly-sweep shape points) rule 1)` is the thing
   with that rubbed out of it.
 
-The Whiteboard does not do this yet. Its eraser cuts a line where it is
-crossed and takes any other thing whole, `docs/ai_digest/whiteboard.md`.
-What a bite does to a shape there is Chris's to say, and he has: the shape
-becomes a flat polygon, the change is a step that undo takes back, the
-shapes that are really touched are found by their boxes and then their
-outlines, and each is given to a task of its own.
+The Whiteboard has this as a second way to rub out, `:rub_mode :bite` on a
+board, [`whiteboard.md`](whiteboard.md). Its default eraser still cuts a line
+where it is crossed and takes any other thing whole. What a bite does to a
+shape is as Chris told it: the shape becomes a flat polygon, the change
+is a step that undo takes back, and the shapes that are really touched are
+found by their boxes and then by what they draw. Giving each shape to a
+task of its own is not done, a bite is a millisecond or two.
 
 ## How long it takes
 

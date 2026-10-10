@@ -25,6 +25,8 @@
 		:mode (. *mode_toolbar* :get_selected) :ink (. *ink_toolbar* :get_selected)
 		:radius (. *radius_toolbar* :get_selected) :style (. *style_toolbar* :get_selected)
 		:snap *snap* :snap_angle *snap_angle* :keep_shape (get :keep_shape *board*)
+		;how the eraser rubs out, :part, :whole or :bite, lib/cwb/board.inc
+		:rub (get :rub_mode *board*)
 		:text (. *text_field* :get_text) :file *file*
 		;an instrument is what it is, where, turned how far, how long, and what it draws
 		:tools (map (# (list (cond ((Ruler? %0) :ruler) ((Circle? %0) :circle) ((Protractor? %0) :protractor) (:t :set_square))
@@ -37,9 +39,10 @@
 	;the board is made what it was. Where its window was and its view in
 	;it, :nil if this is not what a board was
 	(when (and (Emap? config) (eql (. config :find :version) +config_version))
-		(bind '(x y w h sx sy zoom mode ink radius style snap snap_angle keep_shape text file tools data)
+		(bind '(x y w h sx sy zoom mode ink radius style snap snap_angle keep_shape text file tools data rub)
 			(gather config :x :y :width :height :scroll_x :scroll_y :zoom :mode :ink :radius :style
-				:snap :snap_angle :keep_shape :text :file :tools :doc))
+				:snap :snap_angle :keep_shape :text :file :tools :doc :rub))
+		(if (find rub '(:part :whole :bite)) (def *board* :rub_mode rub))
 		(when (and data (defq doc (cwb-in data)))
 			(. *board* :set_doc doc))
 		(if (find zoom +zooms) (setq *zoom* zoom))
