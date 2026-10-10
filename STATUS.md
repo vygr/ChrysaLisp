@@ -4,6 +4,19 @@
 
 ------
 
+A last soak, twenty runs of every test on the three machines on what was
+committed: fifty nine of sixty clean, and no shared memory left. The one
+was `system/test_lock` on the Pi, the Lock service not yet heard of at the
+start of a session. `(ensure-lock-service)` waited half a second for it,
+by a count, and waits two now, by the clock, `service/lock/app.inc`. That
+half second was there before the night, the night's tests gave the Pi
+more to do in the first moments of a session.
+
+After it, every test, 5,505, on the three, and nine more runs on the Pi
+alone, all clean. That is not many for a thing seen once in sixty.
+
+------
+
 A node with no GUI does not fall over at a view. It was open on the
 list: a block of `docs/gui/widgets.md`, the Vdu, ended a node that had no
 desktop, with no error, cause not known. It is two causes, both VP.

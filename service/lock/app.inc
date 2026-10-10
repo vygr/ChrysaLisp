@@ -25,8 +25,11 @@
 
 (defun ensure-lock-service ()
 	; (ensure-lock-service) -> netid | :nil
-	(defq svc (lock-service) retries 50)
-	(while (and (not svc) (> (-- retries) 0))
+	;the service, waited for if it is not yet heard of, as it may not be
+	;in the first moments of a session. For two seconds, it was half of
+	;one, which a slow machine with a lot to do ran past now and then
+	(defq svc (lock-service) start (pii-time))
+	(while (and (not svc) (< (- (pii-time) start) (task-timeout 2)))
 		(task-sleep 10000)
 		(setq svc (lock-service)))
 	svc)
