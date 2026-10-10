@@ -669,9 +669,10 @@
 
 	(defmethod :state ()
 		; (. board :state) -> state
-		;the layers as they are, to go back to
-		(map (lambda ((name flags items)) (list name flags (board-copy-items items)))
-			(cwb-layers (get :doc this))))
+		;the layers as they are, and the size of the paper, to go back to
+		(defq doc (get :doc this))
+		(list (map (lambda ((name flags items)) (list name flags (board-copy-items items)))
+			(cwb-layers doc)) (. doc :find :width) (. doc :find :height)))
 
 	(defmethod :snapshot ()
 		; (. board :snapshot) -> board
@@ -687,7 +688,8 @@
 		this)
 
 	(defmethod :put_state (state)
-		(. (get :doc this) :insert :layers state)
+		(bind '(layers w h) state)
+		(.-> (get :doc this) (:insert :layers layers) (:insert :width w) (:insert :height h))
 		(. this :changed :all)
 		(def this :selected (list) :floating (list) :appended (list))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
@@ -931,6 +933,24 @@
 			(. this :remove gone)
 			(. this :changed :all))
 		(length gone))
+
+	(defmethod :new (w h)
+		; (. board :new width height) -> board
+		;an empty board of that size, as a step that can be undone: an
+		;hour's work is not lost to one press in the wrong place
+		(. this :clear)
+		(.-> (get :doc this) (:insert :width w) (:insert :height h))
+		this)
+
+	(defmethod :resize (w h)
+		; (. board :resize width height) -> board
+		;the paper is that size, what is on it stays, and it can be undone
+		(defq doc (get :doc this))
+		(unless (and (= w (. doc :find :width)) (= h (. doc :find :height)))
+			(. this :snapshot)
+			(.-> doc (:insert :width w) (:insert :height h))
+			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
+		this)
 
 	(defmethod :clear ()
 		; (. board :clear) -> board

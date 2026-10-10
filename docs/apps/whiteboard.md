@@ -113,6 +113,9 @@ Then zoom in and zoom out, and the size of the board, as `1024x768`. Type
 another size and press return and the board is that size, what is on it stays
 where it is.
 
+New, the first button, is an empty board. Like a change of size it is a step
+that undo takes back, with all that was on the board.
+
 ## The paper is the size of what is on it
 
 When a board is saved the paper is made the size of what is drawn, with a

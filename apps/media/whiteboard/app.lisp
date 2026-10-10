@@ -36,7 +36,7 @@
 (defq *zoom* 1.0 *style* :grid *snap* :nil *snap_angle* :nil
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
-	*flight_back* :nil
+	*flight_back* :nil *canvas_size* :nil
 	rate (/ 1000000 60)
 	;the board has this much round it, on the screen, each side, that is
 	;not the document: an instrument lies half off the paper as a ruler
@@ -126,7 +126,7 @@
 	;	*overlay*	the handles and the instruments, which are drawn as
 	;				they are and are in no other picture, with the
 	;				margin round it
-	(bind '(w h) (canvas-size))
+	(bind '(w h) (setq *canvas_size* (canvas-size)))
 	;the pixels of the one the nodes can reach are let go of by name, they
 	;last till then, whatever becomes of this task
 	(when *committed* (. *committed* :sub) (. *committed* :free))
@@ -224,6 +224,9 @@
 (defun redraw ()
 	;draw what has changed. All of the document; or only what was put on
 	;top of it, on what is there; and what is over it
+	;a paper that is another size, made so or put back by an undo, has
+	;new canvases first
+	(unless (eql (str (canvas-size)) (str *canvas_size*)) (board-resized))
 	(defq m (view-matrix) doc_dirty (. *board* :dirty? +board_dirty_doc)
 		append_dirty (. *board* :dirty? +board_dirty_append) show :nil show_over :nil show_under :nil)
 	;the paper, when it is another paper

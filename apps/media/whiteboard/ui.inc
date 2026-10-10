@@ -23,20 +23,16 @@
 (defun action-crop () (. *board* :crop))
 
 (defun action-new ()
-	;an empty board, of the size the size field says
+	;an empty board, of the size the size field says. It can be undone,
+	;and the board that was is back, at the size it was
 	(bind '(w h) (field-size))
-	(. *board* :set_doc (cwb-doc w h))
-	(setq *file* :nil)
-	(board-resized))
+	(. *board* :new w h)
+	(setq *file* :nil))
 
 (defun action-size ()
 	;the board is the size the size field says, what is on it stays
 	(bind '(w h) (field-size))
-	(defq doc (. *board* :get_doc))
-	(unless (and (= w (. doc :find :width)) (= h (. doc :find :height)))
-		(. doc :insert :width w)
-		(. doc :insert :height h)
-		(board-resized)))
+	(. *board* :resize w h))
 
 (defun action-zoom-in () (step-zoom 1))
 (defun action-zoom-out () (step-zoom -1))

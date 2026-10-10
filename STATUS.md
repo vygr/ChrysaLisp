@@ -4,6 +4,30 @@
 
 ------
 
+Chris: "clicking 'new' was not undoable ? is that a deliberate choice ?
+it's easy to acidently do that click after an hours work...."
+
+It was not a choice. New made another document and with it threw away
+every step that could be undone.
+
+*	`(. board :new w h)` is a step: what was on the board is taken out
+	and the paper made the size, and undo brings both back.
+
+*	What undo keeps is the layers and now the size of the paper too. So
+	a paper made another size by the size field, `(. board :resize)`,
+	and one made the size of what is on it by a save, go back with an
+	undo as well. They did not.
+
+*	The app makes its canvases again when the paper is found to be
+	another size as it draws, whoever changed it.
+
+Run: `test_cwb` 446 and `test_whiteboard` 80 on the M4, the full
+suite on the x64 and the Pi.
+
+Not seen: on a desktop.
+
+------
+
 Chris: "Full circle mode on half protactor is pointless ! it's not a
 circle !"
 

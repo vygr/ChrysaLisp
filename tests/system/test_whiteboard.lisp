@@ -147,7 +147,9 @@
 	;a file
 	"(board-save {tests/scratch/test_whiteboard.xyz}) (print (list *file* (> (length (load {tests/scratch/test_whiteboard.cwb})) 100)))"
 	"(print (list (wa-do +event_new) (wa-ids) (canvas-size)))"
-	"(. *size_field* :set_text {300x200}) (wa-do +event_new) (print (canvas-size))"
+	"(. *size_field* :set_text {300x200}) (wa-do +event_new) (prin (canvas-size))"
+	;new is a step like another, pressed by mistake it is undone
+	"(wa-do +event_undo) (prin (list (canvas-size) (length (wa-ids)))) (wa-do +event_undo) (print (list (canvas-size) (length (wa-ids))))"
 	"(board-load {tests/scratch/test_whiteboard.cwb}) (print (list (length (wa-ids)) (canvas-size) (. *size_field* :get_text) (wa-draw)))"
 	"(pii-remove {tests/scratch/test_whiteboard.cwb})")))
 (assert-eq "the ruler, the protractor and the set square are put on the board" "(:ok :ok :ok 3)" (elem-get wa_out 0))
@@ -164,7 +166,8 @@
 (assert-eq "ungrouped, copied, sent back, brought forward and deleted" "(1 :ok 3 :ok 6 :ok :ok :ok 3)" (elem-get wa_out 11))
 (assert-eq "saved, it is a .cwb whatever it was called" "(\qtests/scratch/test_whiteboard.cwb\q :t)" (elem-get wa_out 12))
 (assert-eq "saved, the paper is the size of what is on it, and new is an empty board of the size the field then says" "(:ok () (156 136))" (elem-get wa_out 13))
-(assert-eq "of another size if the field says so" "(300 200)" (elem-get wa_out 14))
+(assert-eq "of another size if the field says so. Undone, the board is the size it was, and again, what was on it is back"
+	"(300 200)((156 136) 0)((156 136) 3)" (elem-get wa_out 14))
 (assert-eq "loaded, the board is the file's: its items, the size of what is on it, and the field says so" "(3 (156 136) \q156x136\q 3)" (elem-get wa_out 15))
 
 ;pens and fingers, as the GUI tells of them, a pointer event to the window for the view
