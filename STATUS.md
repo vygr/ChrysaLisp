@@ -4,6 +4,21 @@
 
 ------
 
+Chris, of a great many things turned: "the rotate chug is fixed, smooth
+as silk."
+
+Seen by him on the board of 12,000 on 2026-10-10, each after it was
+made: the config kept and put back, a thing taken up with no flicker, a
+thing let go of with no flicker, a thing dragged off the paper and back
+all there, the ring menu shut in one go, a great many grouped, broken
+up, moved and turned.
+
+Left before a push: a soak on the M4, which wants his desktop down, and
+his word on `:fpoly` a pixel to the right with soft edges on, which I
+would leave as it is for now.
+
+------
+
 Chris: "the drag from edge overlap is fixed. ring menu is fixed." And of
 what was left: "try rotate on a big group of selection, stuttering
 updates...not smooth. Chugs."
