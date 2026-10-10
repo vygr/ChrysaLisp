@@ -71,6 +71,26 @@
 (assert-true "two fingers that turn a quarter turn about their middle turn it a quarter turn, where it is"
 	(and (wt-near? (get :angle wt_ruler) +fp_hpi 0.001) (wt-near? (get :origin wt_ruler) '(400 300) 0.1)))
 
+;turned, it is pulled to the angles that matter when it is near one
+(defun wt-deg (d) (* (n2f d) (/ +fp_pi 180.0)))
+(assert-list-eq "an angle near a 45 is the 45 from 4 degrees off, near a 10 the 10 from little more than 1, and else is as it is"
+	'(45 45 90 0 40 30 30 33 45 12)
+	(map (# (n2i (+ 0.5 (abs (/ (* (tool-magnet (wt-deg %0)) 180.0) +fp_pi))))) '(42 48.5 87 3.9 41 29 31.2 33 -47 12)))
+(assert-true "a quarter turn that is pulled to is a quarter turn, as near as a number can say"
+	(wt-near? (tool-magnet (wt-deg 88)) +fp_hpi 0.00005))
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
+;about the 0 of its marks, 226 260, from the hole by its right end, to 43 degrees and to 20
+(defun wt-turn-to (deg) (defq a (wt-deg deg))
+	(wt-go '(0 :mouse 1 548 312))
+	(wt-go (list 0 :mouse 1 (+ 226.0 (* 326.0 (cos (+ a 0.16)))) (+ 260.0 (* 326.0 (sin (+ a 0.16))))))
+	(wt-go (list 0 :mouse 0 (+ 226.0 (* 326.0 (cos (+ a 0.16)))) (+ 260.0 (* 326.0 (sin (+ a 0.16))))))
+	(defq got (get :angle wt_ruler))
+	(def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
+	got)
+(assert-true "a ruler turned to 43 degrees is at 45" (wt-near? (wt-turn-to 43) (wt-deg 45) 0.001))
+(assert-true "turned to 20.8 it is at 20" (wt-near? (wt-turn-to 20.8) (wt-deg 20) 0.001))
+(assert-true "and to 24 it is at 24, or as near as the hand was" (wt-near? (wt-turn-to 24) (wt-deg 24) 0.01))
+
 ;two fingers that go apart make it longer, about their middle
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0 :length 400.0)
 (. wt_ruler :built)

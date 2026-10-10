@@ -4,6 +4,24 @@
 
 ------
 
+Chris: "On the rotate, I had 'magnetic' majour tick angles and super
+magnetic 90/45 degree angle ! So the rotate angles snap when near those
+angles."
+
+An instrument that is turned, by one pointer or by two, is pulled to
+every 45 degrees from 4 degrees off, and to every 10, where a protractor
+has its long marks, from 1.25 off, `(tool-magnet)` and `+tool_magnets` in
+`lib/cwb/tools.inc`. With the board's angle snap on it is at a step of
+that and nowhere else, as before. The pull is worked out in degrees and
+taken back to radians by pi and then 180: by a degree in radians, a
+small fixed point number, 45 came back as 44.96.
+
+How far off each pulls from is my guess. `test_cwb_tools.lisp`, 5 more.
+A thing of the document turned by its handle is not pulled, only an
+instrument.
+
+------
+
 Two more of the instruments, from Chris looking at them.
 
 *	"The protractor also is msing that small part of the other

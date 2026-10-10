@@ -139,6 +139,10 @@ out or in. A pen close on its round edge draws along the edge instead.
 * Two fingers on an instrument, anywhere on it, move it, turn it and size it
 all at once.
 
+* An instrument that is turned is pulled to the angles that matter when it
+is near one: strongly to every 45 degrees, and to every 10. Between them it
+is free.
+
 * The ring with the cross puts it away.
 
 More than one pen can draw along an instrument at once. One that is being

@@ -33,6 +33,25 @@
 ;how near an edge a pen has to go down to be held to it, as the screen has it
 (defq +tool_band 14.0)
 
+;an instrument that is turned is pulled to the angles that matter, when it
+;is near one. Each is how far apart the angles are and from how far off
+;one pulls, in degrees: every 45 pulls from 4 away, every 10, where a
+;protractor has its long marks and its numbers, from 1.25. The first that
+;pulls is the one
+(defq +tool_magnets ''((45.0 4.0) (10.0 1.25)))
+
+(defun tool-magnet (angle)
+	; (tool-magnet angle) -> angle
+	;an angle, in radians, or the one that matters that it is near
+	;by 180 and then over pi, and back by pi and then over 180: a degree
+	;in radians is too small a number to be held well
+	(defq deg (/ (* angle 180.0) +fp_pi))
+	(if (defq to (some (lambda ((step pull))
+			(defq near (board-snap deg step))
+			(if (<= (abs (- deg near)) pull) near)) +tool_magnets))
+		(/ (* to +fp_pi) 180.0)
+		angle))
+
 (defun tool-glyph (what)
 	; (tool-glyph what) -> shapes
 	;the sign of a part of an instrument, about 0 0, some 20 across: an
@@ -253,7 +272,9 @@
 					(bind '(bx by) (if (nempty? pivot) (cwb-mat-point m0 (first pivot) (second pivot)) origin))
 					(defq turn (tool-angle-wrap (- (path-angle (- x bx) (- y by)) (path-angle (- sx bx) (- sy by))))
 						snap (get :snap_angle board))
-					(if (/= snap 0.0) (setq turn (- (board-snap (+ angle turn) snap) angle)))
+					;with angles that snap it is at a step and nowhere else. If
+					;not, it is free, but for the pull of the angles that matter
+					(setq turn (- (if (/= snap 0.0) (board-snap (+ angle turn) snap) (tool-magnet (+ angle turn))) angle))
 					(def this :angle (+ angle turn)
 						:origin (cwb-mat-point (cwb-mat-turn turn bx by) (first origin) (second origin)))
 					(. board :touch +board_dirty_overlay)))
@@ -333,6 +354,8 @@
 					by (/ new_length length))
 				(defq turn (tool-angle-wrap (- (path-angle (- (first pb) (first pa)) (- (second pb) (second pa)))
 						(path-angle (- (first pb0) (first pa0)) (- (second pb0) (second pa0)))))
+					;pulled to the angles that matter, as it is by one pointer
+					turn (- (tool-magnet (+ angle turn)) angle)
 					m0x (* 0.5 (+ (first pa0) (first pb0))) m0y (* 0.5 (+ (second pa0) (second pb0)))
 					m1x (* 0.5 (+ (first pa) (first pb))) m1y (* 0.5 (+ (second pa) (second pb)))
 					m (cwb-mat-mul (cwb-mat-move (- m1x m0x) (- m1y m0y))
