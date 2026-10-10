@@ -4,6 +4,36 @@
 
 ------
 
+Chris: "the drag from edge overlap is fixed. ring menu is fixed." And of
+what was left: "try rotate on a big group of selection, stuttering
+updates...not smooth. Chugs."
+
+Timed, 1,300 of 12,000 selected and turned: the shapes drawn, 10ms. The
+lines round them, 117ms. It was not the shapes. An hour before I had
+made the lines round all of them one shape, which was quicker while
+they stood square, 21ms: turned, they lie over one another, and one
+shape of 1,300 boxes is 5,000 edges for the fill to keep in order on
+every row.
+
+*	They are drawn 32 boxes to a shape, 35ms for the 1,300 turned.
+
+*	And not at all while the handles turn or size more than 200, as
+	while a hand moves them. I had left the handles out of that.
+
+Then: "if we have fixed the main outstanding issues and happy with he
+current .cwb file format, we can go for a push ?" "Thsi will be the
+first public visiblke version, so we want to be happy."
+
+The recorder and the stack frames, never committed, are out of
+`app.lisp` and `view.inc`.
+
+Run: `test_cwb` 456 and `test_whiteboard` 88 on the M4, the full
+suite on the x64 and the Pi.
+
+Not seen: a turn of a great many, by him.
+
+------
+
 Chris: "What exactly is the ring menu central button doing ? it seams
 to shrink it away to a small unusable version, and then you click that
 and it goes away completely ? What's the point of that small unusaable

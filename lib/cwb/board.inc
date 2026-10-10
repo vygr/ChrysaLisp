@@ -1203,16 +1203,20 @@
 			;of several things selected, each has a line round it, its own
 			;box, so that it is seen they are several and which they are: a
 			;group that was broken up is its parts, each one selected.
-			;They are one shape of many boxes, one line drawn, not a shape
-			;each. While a hand moves a great many of them they are not
-			;drawn, it is a thousand boxes more each time, and are again
-			;when it lets go
+			;They are drawn 32 boxes to a shape: a shape each is a
+			;thousand shapes, and one shape of them all, once they are
+			;turned and lie over one another, is a thousand edges on
+			;every row for the fill to keep in order, six times as long.
+			;While a hand moves or turns a great many of them they are
+			;not drawn, and are again when it lets go
 			(if (and (> (length items) 1)
-					(or (< (length items) 200) (not (. (get :surface this) :holding))))
-				(cwb-draw-items canvas (list (cwb-shape (join (reduce (lambda (out item)
+					(or (< (length items) 200)
+						(not (or (. (get :surface this) :holding) (/= (. handles :held) 0)))))
+				(cwb-draw-items canvas (map (# (cwb-shape (join %0 " ") :stroke 0xa00080ff :width thin :join :miter))
+					(partition (reduce (lambda (out item)
 						(if (defq corners (board-item-corners item))
 							(push out (cwb-d-points corners :t)))
-						out) items (list)) " ") :stroke 0xa00080ff :width thin :join :miter)) m))
+						out) items (list)) 32)) m))
 			(cond
 				;a line has only its two ends
 				((. handles :ends))
