@@ -64,10 +64,14 @@ Where it is not what he describes:
 	drawn is the instrument's till it is let go, so its end should be
 	kept in the instrument's space as its start is, and only a move
 	of the pen move it along the edge.
-3.	a pen on an edge and one finger: the finger moves the instrument
-	now only if it is the one pointer on it, a pen that draws does not
-	count, so one finger and a pen works as two fingers and a pen do.
-	That part is right already.
+3.	one finger and a pen is not two fingers and a pen. Two fingers on
+	its parts move it whatever else is on it, `:two_hands` takes only
+	those that move, turn or size. One finger moves it only if it is
+	the one pointer on it, `(. this :held)` is 1, and a pen that draws
+	is a pointer on it: so a finger with a pen holds it still, which
+	is what was wanted of that, a ruler held while a line is drawn
+	along it. I wrote here at first that one finger and a pen moved
+	it. I had not read `:held`, and it does not.
 
 What I would do, if he wants it: keep the last place of the pen on the
 edge in the instrument's space with the start; and when an instrument
