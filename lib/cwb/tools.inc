@@ -504,8 +504,8 @@
 
 (defclass Protractor (board x y) (Instrument board x y)
 	; (Protractor board x y) -> protractor
-	;half a circle and a strip below it, its round side and its straight
-	;side, the bottom of the strip, are edges. A pen
+	;half a circle and a little more, its round side goes on round below
+	;the line through its middle to its straight side. The two are edges. A pen
 	;run round the round side draws an arc, with :mode :pie a slice, with
 	;:mode :circle the whole circle. :length is across its straight side.
 	;The band half way in turns it about its middle, the two squares by
@@ -520,9 +520,14 @@
 			sq0 (* 0.16 r) sq1 (* 0.38 r) sqy0 (* -0.24 r) sqy1 (* -0.08 r)
 			;the strip below the line through its middle, as a protractor
 			;has, its straight side is the bottom of that
-			base (* 0.1 r) whole (cwb-d "M" (neg r) base "L" (neg r) 0 "A" r r 0 0 1 r 0 "L" r base "Z"))
+			;the round side goes on round, past the line through the middle,
+			;to meet the straight side: it has the one straight side and the
+			;one round one. A tenth of the radius down, the circle is that
+			;much less than the radius across, and that much angle further
+			base (* 0.1 r) across (* 0.99499 r) past 0.10017
+			whole (cwb-d "M" (neg across) base "A" r r 0 0 1 0 (neg r) "A" r r 0 0 1 across base "Z"))
 		(def this :outline whole
-			:edges (list (list :arc 0.0 0.0 r (neg +fp_pi) 0.0) (list :line (neg r) base r base))
+			:edges (list (list :arc 0.0 0.0 r (- (neg +fp_pi) past) past) (list :line (neg across) base across base))
 			:parts (list
 				(list :close (cwb-d-ellipse 0 (* -0.3 r) 11))
 				(list :size (cwb-d-rect sq0 sqy0 sq1 sqy1))
@@ -560,8 +565,8 @@
 		(push ticks "M" (neg r) 0 "L" r 0 "M" 0 base "L" 0 -14 "M" 0 (neg in0) "L" 0 (- 22.0 r))
 		;out from the middle both ways, so the middle is on a long mark and
 		;stays on it as the protractor is made bigger or smaller
-		(push marks (cwb-shape (cat (tool-ticks 0.0 base r base 0.0 -1.0 +tool_mm 3.0 5.0 8.0)
-				" " (tool-ticks 0.0 base (neg r) base 0.0 -1.0 +tool_mm 3.0 5.0 8.0))
+		(push marks (cwb-shape (cat (tool-ticks 0.0 base across base 0.0 -1.0 +tool_mm 3.0 5.0 8.0)
+				" " (tool-ticks 0.0 base (neg across) base 0.0 -1.0 +tool_mm 3.0 5.0 8.0))
 			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(def this :marks marks :readouts (list (list 0.0 (* -0.16 r))))

@@ -4,6 +4,15 @@
 
 ------
 
+Chris: "the extention edge on the protractor, its ends, should folow the
+circlualr arc of the instrument. The protractor has 1 straght edge and
+then a circluar arc for the other edge." The strip below the line through
+its middle had square ends. The round side goes on round to meet the
+straight side now, in what it looks like and in the edge a pen is held
+to, which is a little more than half way round.
+
+------
+
 Chris: "the idea of scale on the ruler is wrong ! It should have a fix
 width, sensible so that all the markings show clearly, but scaling the
 ruler actually make it a longer ruler with more markings visible".
