@@ -4,6 +4,12 @@
 
 ------
 
+Chris: "The magnetic angle are just a bit too grabby, tone down the range
+factor a bit." Every 45 pulls from 2.5 degrees off, it was 4, and every
+10 from 0.75, it was 1.25.
+
+------
+
 Chris: "When the start/end points of an arc edge draw are very close, we
 see the draged edge shape breaking off the edge and drawing wrong, are we
 filtering the points the edge is generating ? or is this an issue with

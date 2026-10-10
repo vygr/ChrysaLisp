@@ -73,9 +73,9 @@
 
 ;turned, it is pulled to the angles that matter when it is near one
 (defun wt-deg (d) (* (n2f d) (/ +fp_pi 180.0)))
-(assert-list-eq "an angle near a 45 is the 45 from 4 degrees off, near a 10 the 10 from little more than 1, and else is as it is"
+(assert-list-eq "an angle near a 45 is the 45 from 2.5 degrees off, near a 10 the 10 from 0.75, and else is as it is"
 	'(45 45 90 0 40 30 30 33 45 12)
-	(map (# (n2i (+ 0.5 (abs (/ (* (tool-magnet (wt-deg %0)) 180.0) +fp_pi))))) '(42 48.5 87 3.9 41 29 31.2 33 -47 12)))
+	(map (# (n2i (+ 0.5 (abs (/ (* (tool-magnet (wt-deg %0)) 180.0) +fp_pi))))) '(43 47 88 2 40.6 29.4 30.6 33 -47 12)))
 (assert-true "a quarter turn that is pulled to is a quarter turn, as near as a number can say"
 	(wt-near? (tool-magnet (wt-deg 88)) +fp_hpi 0.00005))
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
@@ -88,7 +88,8 @@
 	(def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
 	got)
 (assert-true "a ruler turned to 43 degrees is at 45" (wt-near? (wt-turn-to 43) (wt-deg 45) 0.001))
-(assert-true "turned to 20.8 it is at 20" (wt-near? (wt-turn-to 20.8) (wt-deg 20) 0.001))
+(assert-true "turned to 20.6 it is at 20" (wt-near? (wt-turn-to 20.6) (wt-deg 20) 0.001))
+(assert-true "and to 48, 3 off, it is not pulled to 45" (> (wt-turn-to 48) (wt-deg 47)))
 (assert-true "and to 24 it is at 24, or as near as the hand was" (wt-near? (wt-turn-to 24) (wt-deg 24) 0.01))
 
 ;two fingers that go apart make it bigger, about their middle

@@ -35,10 +35,10 @@
 
 ;an instrument that is turned is pulled to the angles that matter, when it
 ;is near one. Each is how far apart the angles are and from how far off
-;one pulls, in degrees: every 45 pulls from 4 away, every 10, where a
-;protractor has its long marks and its numbers, from 1.25. The first that
+;one pulls, in degrees: every 45 pulls from 2.5 away, every 10, where a
+;protractor has its long marks and its numbers, from 0.75. The first that
 ;pulls is the one
-(defq +tool_magnets ''((45.0 4.0) (10.0 1.25)))
+(defq +tool_magnets ''((45.0 2.5) (10.0 0.75)))
 
 (defun tool-magnet (angle)
 	; (tool-magnet angle) -> angle
