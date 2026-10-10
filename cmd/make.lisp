@@ -198,11 +198,19 @@
 			(diagram-save (dia-class name (if (nempty? info) (first info) "")
 					(chain-of name lisp_supers)
 					(sort (map (const first) (filter (# (eql (second %0) name)) lisp_nodes)) (const cmp))
-					;what it gives itself and what it looks for, then its methods
-					(filter (# (nempty? (second %0))) (list
+					;what each class it comes of gives itself, from the first, then
+					;what it gives itself, what it looks for that none of those
+					;gave, and its methods
+					(filter (# (nempty? (second %0))) (cat
+						(map (lambda (parent)
+								(defq given (if (defq pprops (. lisp_props :find (str parent))) (first pprops) (list)))
+								(each (# (. had :insert %0)) given)
+								(list (cat "properties of " parent) given))
+							(progn (defq had (Fset 11)) (chain-of name lisp_supers)))
+						(list
 						(list "properties it gives itself" (if (defq props (. lisp_props :find (str name))) (first props) (list)))
-						(list "properties it looks for" (if props (second props) (list)))
-						(list "methods" (sort (map (const first) methods) (const cmp))))))
+						(list "properties it looks for" (if props (filter (# (not (. had :find %0))) (second props)) (list)))
+						(list "methods" (sort (map (const first) methods) (const cmp)))))))
 				(cat "docs/reference/classes/" name ".cwb"))
 			(if pname (write-line stream (cat "## " pname +LF)))
 			(information stream info)

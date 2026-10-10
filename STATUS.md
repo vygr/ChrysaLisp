@@ -4,6 +4,23 @@
 
 ------
 
+Chris: "add the inherited properties to the Lisp class cards too"
+
+The card of a Lisp class has, above its own, a part for each class it
+comes of, from the first: "properties of View", "properties of Label",
+each what that class gives itself. As the fields of a VP class are.
+
+What a class looks for and a class it comes of gives is no longer
+under "looks for", it is there under that class: `Button` looked for
+`:label_flow`, which is `Label`'s.
+
+Run: `make docs`, the cards of `Button` and `Document` drawn and
+looked at; `cl_test.sh -a` clean on the x64 and the Pi.
+
+Not seen: by Chris. Close Docs and open it again to see them.
+
+------
+
 Chris: "the shared cache is quite important ! I think that a fail on
 my part, not the system, we should shared them, multiple docs reader
 don't want to waste memory on copies."

@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 4
 	:width 231
-	:height 231
+	:height 282
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 25
+	:next_id 28
 	:layers
 	((:list 1)
 		((:list 3)
@@ -171,13 +171,13 @@
 							:id
 							13
 							:items
-							((:list 11)
+							((:list 14)
 								((:list 11)
 									:shape
 									:id
 									14
 									:d
-									"[M 8 0 L 196.82995 0 A 8 8 0 0 1 204.82995 8 L 204.82995 157 A 8 8 0 0 1 196.82995 165 L 8 165 A 8 8 0 0 1 0 157 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 196.82995 0 A 8 8 0 0 1 204.82995 8 L 204.82995 208 A 8 8 0 0 1 196.82995 216 L 8 216 A 8 8 0 0 1 0 208 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -268,7 +268,7 @@
 									:stroke
 									0
 									:text
-									"[properties it looks for]"
+									"[properties of Iso]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -308,16 +308,73 @@
 									:stroke
 									0
 									:text
+									"[:depth]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									22
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 119.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:height]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									23
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 136.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
 									"[:scale]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									24
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 153.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:width]"
 									:font_size
 									12
 								)
 								((:list 13)
 									:shape
 									:id
-									22
+									25
 									:d
-									"[M 0 116 L 204.82995 116]"
+									"[M 0 167 L 204.82995 167]"
 									:stroke
 									4282140240
 									:width
@@ -330,10 +387,10 @@
 								((:list 17)
 									:shape
 									:id
-									23
+									26
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 132.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 183.00000
 									)
 									:kind
 									:text
@@ -351,10 +408,10 @@
 								((:list 15)
 									:shape
 									:id
-									24
+									27
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 151.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 202.00000
 									)
 									:kind
 									:text

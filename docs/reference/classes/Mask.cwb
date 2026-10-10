@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 4
 	:width 176
-	:height 231
+	:height 280
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 25
+	:next_id 28
 	:layers
 	((:list 1)
 		((:list 3)
@@ -171,13 +171,13 @@
 							:id
 							13
 							:items
-							((:list 11)
+							((:list 14)
 								((:list 11)
 									:shape
 									:id
 									14
 									:d
-									"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 157 A 8 8 0 0 1 142 165 L 8 165 A 8 8 0 0 1 0 157 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 206 A 8 8 0 0 1 142 214 L 8 214 A 8 8 0 0 1 0 206 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -268,7 +268,7 @@
 									:stroke
 									0
 									:text
-									"[properties it looks for]"
+									"[properties of View]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -289,7 +289,7 @@
 									:stroke
 									0
 									:text
-									"[:color]"
+									"[:targets]"
 									:font_size
 									12
 								)
@@ -323,7 +323,7 @@
 									:stroke
 									0
 									:text
-									"[methods]"
+									"[properties it looks for]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -344,6 +344,61 @@
 									:stroke
 									0
 									:text
+									"[:color]"
+									:font_size
+									12
+								)
+								((:list 13)
+									:shape
+									:id
+									24
+									:d
+									"[M 0 148 L 150 148]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									25
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 164.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[methods]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									26
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 183.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
 									:draw
 									:font_size
 									12
@@ -351,10 +406,10 @@
 								((:list 15)
 									:shape
 									:id
-									24
+									27
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 151.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 200.00000
 									)
 									:kind
 									:text

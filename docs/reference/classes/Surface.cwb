@@ -268,7 +268,7 @@
 									:stroke
 									0
 									:text
-									"[properties it gives itself]"
+									"[properties of Actor]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -289,35 +289,16 @@
 									:stroke
 									0
 									:text
-									"[:board]"
-									:font_size
-									12
-								)
-								((:list 15)
-									:shape
-									:id
-									21
-									:m
-									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 102.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:grab]"
+									"[:states]"
 									:font_size
 									12
 								)
 								((:list 13)
 									:shape
 									:id
-									22
+									21
 									:d
-									"[M 0 116 L 159.03173 116]"
+									"[M 0 99 L 159.03173 99]"
 									:stroke
 									4282140240
 									:width
@@ -330,10 +311,10 @@
 								((:list 17)
 									:shape
 									:id
-									23
+									22
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 132.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 115.00000
 									)
 									:kind
 									:text
@@ -342,11 +323,30 @@
 									:stroke
 									0
 									:text
-									"[properties it looks for]"
+									"[properties it gives itself]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
 									11
+								)
+								((:list 15)
+									:shape
+									:id
+									23
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 134.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:board]"
+									:font_size
+									12
 								)
 								((:list 15)
 									:shape
@@ -363,7 +363,7 @@
 									:stroke
 									0
 									:text
-									"[:states]"
+									"[:grab]"
 									:font_size
 									12
 								)
