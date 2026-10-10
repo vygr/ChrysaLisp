@@ -105,6 +105,10 @@ top left corner go there, and the lines of the paper are where the grid is.
 With the second on, a thing that is turned goes to the nearest 15 degrees,
 and so does a line pulled by an end.
 
+The lock after them is on to begin with: a corner that is dragged keeps the
+shape of what it sizes. With it off a corner goes where it is put, and the
+thing is made wider or taller.
+
 Then zoom in and zoom out, and the size of the board, as `1024x768`. Type
 another size and press return and the board is that size, what is on it stays
 where it is.

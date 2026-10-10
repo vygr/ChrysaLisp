@@ -4,6 +4,18 @@
 
 ------
 
+Chris, after another run, which the record had as clean: "I would have
+the corner controls free to be dragged, not just locked, scaling ? Maybe
+we need a mode on the toolbar for that ? free/locked ?"
+
+The board had it, `:keep_shape`, and nothing to set it by. A lock is on
+the toolbar after the two snaps, on to begin with: a corner keeps the
+shape of what it sizes. Off, a corner goes where it is put. A padlock is
+the 127th symbol of the font, looked at as a picture.
+`test_whiteboard.lisp`, 5 more.
+
+------
+
 Two things Chris saw reading code while he waited.
 
 *	"(long shared angle count) why not use the fixed type for angle if

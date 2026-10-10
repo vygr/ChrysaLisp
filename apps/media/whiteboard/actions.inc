@@ -24,6 +24,7 @@
 	+event_style action-style
 	+event_snap action-snap
 	+event_snap_angle action-snap-angle
+	+event_keep_shape action-keep-shape
 	+event_radius action-radius
 	+event_ink action-ink
 	+event_mode action-mode

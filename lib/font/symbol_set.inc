@@ -200,7 +200,9 @@
 		(s-line 11.5 14 16.5 14)))
 	(list "arc" (s-arc 12 17 9 20 160))
 	(list "pie" (cat (s-arc 11 14 8 0 270) (s-line 19 14 11 14 11 22)))
-	(list "text" (cat (s-line 5 5 19 5) (s-line 12 5 12 20) (s-line 9 20 15 20)))))
+	(list "text" (cat (s-line 5 5 19 5) (s-line 12 5 12 20) (s-line 9 20 15 20)))
+	(list "lock" (cat (s-rrect 5.5 11 18.5 20 1.5) (s-line 8.5 11 8.5 8 10.5 5 13.5 5 15.5 8 15.5 11)
+		(s-line 12 14.5 12 16.5)))))
 
 ;;;;;;;;;;;;
 ; the themes

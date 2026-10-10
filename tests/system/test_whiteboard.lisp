@@ -179,6 +179,22 @@
 (assert-eq "and a colour picked then is for what is drawn next, it keeps its own" ":t" (elem-get wa_out 3))
 (assert-eq "what is selected when a line is begun, however it came to be, is let go of" "()" (elem-get wa_out 4))
 
+;a corner that is dragged keeps the shape of the thing, or with the lock off is free
+(defq wa_out (wa-run (cat
+	"(wa-mode :frect) (wa-drag 1 100 100 200 150) (wa-mode :select) (wa-mouse :down 150 125 1) (wa-mouse :up 150 125 0)"
+	"(defun corner () (slice (elem-get (. (get :handles *board*) :spots) 7) 1 3))"
+	"(defun size () (bind (quote (x y x1 y1)) (cwb-bounds (. *board* :selected_items))) (list (n2i (- x1 x)) (n2i (- y1 y))))"
+	"(print (list (get :keep_shape *board*) (size)))"
+	"(bind (quote (cx cy)) (map (const n2i) (corner))) (wa-drag 1 cx cy (+ cx 100) (+ cy 10)) (print (size))"
+	"(print (list (wa-do +event_keep_shape) (get :keep_shape *board*)))"
+	"(bind (quote (cx cy)) (map (const n2i) (corner))) (wa-drag 1 cx cy (+ cx 50) (- cy 40)) (print (size))"
+	"(print (list (wa-do +event_keep_shape) (get :keep_shape *board*)))")))
+(assert-eq "a board starts with the shape kept, a box of 100 by 50" "(:t (100 50))" (elem-get wa_out 0))
+(assert-eq "its corner dragged 100 across and 10 down, it is twice as wide and twice as tall, the shape it was" "(200 100)" (elem-get wa_out 1))
+(assert-eq "the lock on the toolbar puts that off" "(:ok :nil)" (elem-get wa_out 2))
+(assert-eq "and the corner goes where it is put: 50 wider and 40 less tall" "(250 59)" (elem-get wa_out 3))
+(assert-eq "and on again" "(:ok :t)" (elem-get wa_out 4))
+
 ;round the document there is a margin that is not it, where an instrument that
 ;lies half off the paper is seen. What is over the document covers that too
 (defq wa_out (wa-run (cat

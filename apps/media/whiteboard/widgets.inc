@@ -4,7 +4,7 @@
 (enums +event +event_user
 	(enum undo redo new load save clear crop)
 	(enum style)
-	(enum snap snap_angle)
+	(enum snap snap_angle keep_shape)
 	(enum radius ink)
 	(enum mode)
 	(enum ruler protractor set_square)
@@ -35,7 +35,7 @@
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_lines +sym_axis)
 			(:color *env_toolbar2_col*)) :connect +event_style)
 		(ui-tool-bar *snap_toolbar* ()
-			(ui-buttons (+sym_snap +sym_snap_angle) +event_snap))
+			(ui-buttons (+sym_snap +sym_snap_angle +sym_lock) +event_snap))
 		(ui-tool-bar *zoom_toolbar* (:color *env_toolbar2_col*)
 			(ui-buttons (+sym_zoom_in +sym_zoom_out) +event_zoom_in))
 		(. (ui-textfield *size_field* (:color +argb_white :hint_text "width x height" :clear_text "1024x768"
@@ -76,7 +76,7 @@
 	'("plain" "grid" "lines" "axis"))
 
 (ui-tool-tips *snap_toolbar*
-	'("snap to the grid" "snap angles"))
+	'("snap to the grid" "snap angles" "a corner keeps the shape, or is free"))
 
 (ui-tool-tips *zoom_toolbar*
 	'("zoom in" "zoom out"))

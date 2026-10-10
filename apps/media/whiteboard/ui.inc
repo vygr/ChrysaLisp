@@ -69,12 +69,18 @@
 (defun action-snap ()
 	(setq *snap* (not *snap*))
 	(def *board* :snap (if *snap* (n2f (. (. *board* :get_doc) :find :grid)) 0.0))
-	(toolbar-states *snap_toolbar* (list *snap* *snap_angle*)))
+	(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*))))
 
 (defun action-snap-angle ()
 	(setq *snap_angle* (not *snap_angle*))
 	(def *board* :snap_angle (if *snap_angle* (const (/ +fp_pi 12.0)) 0.0))
-	(toolbar-states *snap_toolbar* (list *snap* *snap_angle*)))
+	(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*))))
+
+(defun action-keep-shape ()
+	;a corner that is dragged keeps the shape of what it sizes, locked, or
+	;goes where it is put, free, and the thing is made wider or taller
+	(def *board* :keep_shape (not (get :keep_shape *board*)))
+	(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*))))
 
 (defun action-text ()
 	;the words of the text field are put down where the pen next goes down
