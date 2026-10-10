@@ -4,6 +4,88 @@
 
 ------
 
+A second soak, the two other CPUs, and a fault in the LoongArch
+translator.
+
+The soak again, with all of the night in: every test on the three
+machines 20 times. 20 of 20 on each.
+
+RISC-V and LoongArch under QEMU, `cl_release.sh -Q`: the host program
+built there, a self hosted build the same to the byte, and every test.
+RISC-V passed. LoongArch failed `test_events`, four of them, each time:
+a window's buttons were not found.
+
+It was not of tonight. `(. view :flatten)` gave a window and its title
+bar and went no further down, 2 views where the M4 has 15. It uses
+`(vp-lnot-rr)`, make a register 1 if it is 0, else 0, and is the one
+thing in the tree that does. `lib/trans/la64.inc` wrote that as the
+register made of the *other* register it is given, the one to work in,
+which held whatever it held. One operand. `test_events` is of the 9th
+and LoongArch had not been run since before it.
+
+After: both pass, 5824 each, 2 skipped as before. So tonight's native
+code, the fill and the three of the polygon sets with their divisions,
+gives on RISC-V, LoongArch, x64, ARM64 and the VP64 emulator what the
+Lisp gives.
+
+------
+
+Item 60, his question as he went to bed, "not to answer but for you
+to consider": "what happens if I hold an instrument with two fingers
+so I can move and place it at will, and use my pen to draw along the
+edge as I do... the parcial drawn instrument shape, or line or arc
+should stay with the instrument until i remove the pen, it is only
+then that the shape/line/arc is injected into the document, at the
+final place it was released...."
+
+Considered, against `lib/cwb/tools.inc`. Nothing built.
+
+What happens now. It is nearer to that than I thought:
+
+*	where the pen went down on the edge is kept in the instrument's
+	own space, and so, for an arc, is how far round it has gone. The
+	line is not in the document while the pen is down, it is the
+	board's `:temp`, and goes in when the pen lifts, `:end`.
+*	each time the pen moves the line is made again from those: the
+	start put through the instrument as it is *now*, and the pen put
+	on the edge as it is now. So if the instrument has been moved the
+	start has gone with it.
+
+Where it is not what he describes:
+
+1.	the line is made again only when the *pen* moves. Move the
+	instrument with two fingers and hold the pen still and the part
+	drawn stays where it was on the board till the pen next moves,
+	then jumps to the instrument.
+2.	the far end is where the pen is. Move the instrument under a pen
+	that is still and, when the line is next made, its end is the pen's
+	place on the edge where the edge now is: the line has got longer
+	or shorter with no stroke of the pen. As he tells it the part
+	drawn is the instrument's till it is let go, so its end should be
+	kept in the instrument's space as its start is, and only a move
+	of the pen move it along the edge.
+3.	a pen on an edge and one finger: the finger moves the instrument
+	now only if it is the one pointer on it, a pen that draws does not
+	count, so one finger and a pen works as two fingers and a pen do.
+	That part is right already.
+
+What I would do, if he wants it: keep the last place of the pen on the
+edge in the instrument's space with the start; and when an instrument
+is moved, turned or sized, by one hand or two, make the line of every
+pen that is drawing along it again from those. Then the part drawn
+rides the instrument, a pen held still draws nothing as the ruler
+slides under it, and the lift puts it where the instrument then is,
+which `:end` does already. A dozen lines in `:step` and `:two_hands`,
+and a test with `cwb -p`: a finger pair that moves a ruler while a pen
+is held on it.
+
+One thing to ask him: a real pen held still on a real ruler that is
+slid along *does* mark the paper. His way the board is kinder than
+paper, the line is exactly what was run along the edge and no more. I
+take it that is what he means.
+
+------
+
 Two things that were not explained, and a soak.
 
 The soak: every test on all three machines 20 times, after items 55,

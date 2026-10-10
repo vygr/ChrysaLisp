@@ -256,7 +256,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun emit-lnot-rr (r d)
-	(la64-2ri12 0x02400000 d r 1)) ; sltui d, r, 1
+	;d is made 1 if it is 0, else 0. r is a register it may use to do that
+	;in, which this has no need of. It was d made of r, what r happened to
+	;hold, and (:view :flatten), the one thing that uses it, did not go
+	;down into the views of a view
+	(la64-2ri12 0x02400000 d d 1)) ; sltui d, d, 1
 
 (defun emit-land-rr (s d)
 	(la64-3r 0x00128000 +la64_rtmp1 +la64_rzero s) ; sltu tmp, zero, s
