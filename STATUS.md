@@ -4,6 +4,35 @@
 
 ------
 
+Item 4, more diagrams. 80 scripts in `docs/diagrams/` now. Each drawn
+to a picture and looked at.
+
+*	a symbol's place in a `:pmap` tried first, `case_for_pmap.md`.
+*	`map!` taking a slice of three sequences, with the example run,
+	`rocinante.md`.
+*	a closure beside a lambda and an object, `closure_or_not.md`.
+*	the `trace` command from the built functions to the lint,
+	`trace_command.md`.
+*	the three of the polygon set logic, above.
+*	two already made are in `art_of_the_call.md` too, a symbol's slot
+	and the call.
+
+The card of `:hmap` had `struct elems` twice, once under `:array` and
+once under its own fields. It is right that it does: its structure
+begins at that field of `:array` and lies over it, the only class that
+does. Its fields are now headed "fields, over elems of :array".
+
+Left without one, and I would leave them: `apps/viewer.md`, which is
+the Editor's parts again; the setup pages; the lists of functions; the
+pages that argue.
+
+Run: `make docs`, every `image` section points at a file that is
+there, `cl_test.sh -a` on all three.
+
+Not seen: by Chris.
+
+------
+
 Item 53, the native code. Chris: "53, will take some time and to be
 fast will need some VP helper code I think."
 

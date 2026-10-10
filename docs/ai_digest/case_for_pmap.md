@@ -22,6 +22,10 @@ The core performance of these collections is achieved through the
 `+str_hashslot` caching mechanism on globally interned symbols (`symbol`
 objects).
 
+```image
+docs/diagrams/pmap_slot.cwb
+```
+
 ### The Lookup Process in `pfind`
 
 When the virtual processor executes `:pfind` to search for a key, it follows a

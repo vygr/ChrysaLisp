@@ -1,0 +1,689 @@
+((:Emap 1)
+	:version 4
+	:width 607
+	:height 327
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 46
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 13)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 36.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							2
+							:d
+							"[M 180 22 L 240 22]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							3
+							:d
+							"[M 240 22 L 231 26 231 18 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					4
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 36.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							5
+							:d
+							"[M 290 136 L 230 136]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							6
+							:d
+							"[M 230 136 L 239 132 239 140 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					7
+					:m
+					((:path 6)
+						1.00000 0.00000 262.69287 0.00000 1.00000 167.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[runs]"
+					:font_size
+					11
+				)
+				((:list 7)
+					:group
+					:id
+					8
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 36.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							9
+							:d
+							"[M 250 226 L 320 226]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							10
+							:d
+							"[M 320 226 L 311 230 311 222 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					11
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 22.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[a closure, as other Lisps have]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+				)
+				((:list 7)
+					:group
+					:id
+					12
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 36.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							13
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									14
+									:d
+									"[M 6 0 L 174 0 A 6 6 0 0 1 180 6 L 180 38 A 6 6 0 0 1 174 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									15
+									:m
+									((:path 6)
+										1.00000 0.00000 63.35467 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a function]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									16
+									:m
+									((:path 6)
+										1.00000 0.00000 38.80206 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[code, and a pointer to]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					17
+					:m
+					((:path 6)
+						1.00000 0.00000 253.00000 0.00000 1.00000 27.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							18
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									19
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									20
+									:m
+									((:path 6)
+										1.00000 0.00000 41.73999 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the environment it was made in]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									21
+									:m
+									((:path 6)
+										1.00000 0.00000 51.91217 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[x: 5, and all else that was there,]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									22
+									:m
+									((:path 6)
+										1.00000 0.00000 46.41821 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[kept for as long as the function is]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					23
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 136.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[ChrysaLisp]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+				)
+				((:list 7)
+					:group
+					:id
+					24
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 150.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							25
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									26
+									:d
+									"[M 6 0 L 224 0 A 6 6 0 0 1 230 6 L 230 38 A 6 6 0 0 1 224 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									27
+									:m
+									((:path 6)
+										1.00000 0.00000 91.75994 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a lambda]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									28
+									:m
+									((:path 6)
+										1.00000 0.00000 38.16180 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a list: its arguments and its body]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					29
+					:m
+					((:path 6)
+						1.00000 0.00000 303.00000 0.00000 1.00000 141.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							30
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									31
+									:d
+									"[M 6 0 L 274 0 A 6 6 0 0 1 280 6 L 280 56 A 6 6 0 0 1 274 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									32
+									:m
+									((:path 6)
+										1.00000 0.00000 99.98400 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the interpreter]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									33
+									:m
+									((:path 6)
+										1.00000 0.00000 53.94500 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[has the environment that is current,]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									34
+									:m
+									((:path 6)
+										1.00000 0.00000 39.35577 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[when the lambda is called, not when made]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					35
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 240.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							36
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									37
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 38 A 6 6 0 0 1 244 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									38
+									:m
+									((:path 6)
+										1.00000 0.00000 74.32910 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[(Adder 5), an object]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									39
+									:m
+									((:path 6)
+										1.00000 0.00000 41.51239 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:x 5, what it was given and no more]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					40
+					:m
+					((:path 6)
+						1.00000 0.00000 333.00000 0.00000 1.00000 240.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							41
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									42
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 38 A 6 6 0 0 1 244 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									43
+									:m
+									((:path 6)
+										1.00000 0.00000 84.64562 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the class Adder]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									44
+									:m
+									((:path 6)
+										1.00000 0.00000 42.79742 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[its methods, each given the object]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					45
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 312.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[State that has to last is put in an object, by name. The environment it was made in goes when the call that made it returns.]"
+					:font_size
+					11
+				)
+			)
+		)
+	)
+	:props :nil
+)

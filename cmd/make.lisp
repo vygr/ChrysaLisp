@@ -108,6 +108,23 @@
 			(split (join text " ") "()")))
 	out)
 
+(defun vp-over (file name)
+	; (vp-over file name) -> :nil | str
+	;a VP class whose fields do not go after those of the class it comes
+	;of, but begin at one of them and lie over it, :hmap is one: that
+	;field, as "elems of :array". From what its structure begins at
+	(defq out :nil at (rfind "/" file)
+		stream (file-stream (cat (slice file 0 (ifn at 0)) "struct.inc")))
+	(when stream
+		(lines! (lambda (line)
+			(when (starts-with (cat "(structure +" name " +") line)
+				(defq from (trim (slice line (length (cat "(structure +" name " +")) -1) " \t\r)")
+					cut (find "_" from))
+				(if (and cut (not (ends-with "_size" from)))
+					(setq out (cat (slice from (inc cut) -1) " of :" (slice from 0 cut)))))
+			:nil) stream))
+	out)
+
 (defun chain-of (name supers)
 	; (chain-of name supers) -> (name ...)
 	;what a class comes of, from the first down to its parent, by a map
@@ -385,7 +402,9 @@
 							(list (cat "fields of " parent) (if pfile (vp-fields pfile (rest parent)) (list))))
 						(chain-of (str cls) vp_supers))
 					(list
-					(list "fields" (if file (vp-fields file (rest cls)) (list)))
+					;its own, and if they lie over a field of what it comes of, which
+					(list (if (and file (defq over (vp-over file (rest cls)))) (cat "fields, over " over) "fields")
+						(if file (vp-fields file (rest cls)) (list)))
 					(list "virtual methods" (named '(:virtual :final)))
 					(list "overrides" (named '(:override)))
 					(list "static methods" (named '(:static)))

@@ -103,6 +103,10 @@ Notice how `map!` effortlessly handles a `:str`, a `:nums` array, and a
 of arguments. This design completely obviates the need for a `zip` function in
 most cases, leading to cleaner, faster, and more memory-efficient code.
 
+```image
+docs/diagrams/rocinante_slice.cwb
+```
+
 ## A Deep Dive into Each Primitive
 
 ### `each!`

@@ -743,7 +743,7 @@
 									:stroke
 									0
 									:text
-									"[fields]"
+									"[fields, over elems of :array]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size

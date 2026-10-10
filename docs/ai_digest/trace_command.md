@@ -11,6 +11,10 @@ determines the precise footprint of register usage throughout the call graph,
 ensuring compiler safety and allowing the assembler to optimize registers across
 function boundaries.
 
+```image
+docs/diagrams/trace_flow.cwb
+```
+
 ## Symbolic Register-Trace Engine
 
 At the core of the tool is `analyze-function`, which simulates the execution of

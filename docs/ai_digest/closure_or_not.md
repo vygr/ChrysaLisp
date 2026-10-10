@@ -104,6 +104,10 @@ returned `lambda`, being just a list of instructions, has no memory of `x`.
 When it is later called, the interpreter searches for `x` in the current
 global environment, finds nothing, and fails with a `symbol_not_bound` error.
 
+```image
+docs/diagrams/closure_not.cwb
+```
+
 ### 3. Why This Design? Performance, Determinism, and the Rejection of the GC
 
 This design is a direct consequence of ChrysaLisp's architectural

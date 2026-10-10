@@ -90,6 +90,10 @@ ChrysaLisp `:str` (string) and `:sym` (symbol) objects, which serve as keys
 in environments, contain two fields dedicated to accelerating lookups. These
 are independent but complementary optimizations:
 
+```image
+docs/diagrams/hot_slot.cwb
+```
+
 * **`str_hashcode` (Cached Hash Value):**
 
     * **Purpose:** Stores the pre-calculated hash value of the
@@ -172,6 +176,10 @@ Lisp primitives, is a single-bucket `:hmap`.
 Traditional dynamic languages often struggle with the overhead of resolving
 function names at every call site. ChrysaLisp employs a two-pronged
 strategy:
+
+```image
+docs/diagrams/hot_call.cwb
+```
 
 * **A. Pre-Binding at "Compile-Time" (The `repl_bind` Kick):**
 
