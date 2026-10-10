@@ -105,6 +105,44 @@ static uint32_t host_gui_sdl3_contact(uint32_t device, uint64_t finger, bool up)
 	return dev.number[at];
 }
 
+/* Is a finger down on a trackpad that is being taken as a touch panel ? The
+   Mac goes on making a mouse of the pad whatever SDL is asked: one finger
+   moves the mouse, and two that move together are a wheel, which scrolls
+   what is under the mouse. A panel does neither. So while a finger is down
+   on the pad the moves of the mouse and the wheel are the pad's, and are
+   left out. A mouse that is moved while a finger is on the pad is left out
+   too, they can not be told apart. */
+
+static Uint64 host_gui_sdl3_pad_last = 0;
+
+static bool host_gui_sdl3_pad_down(void)
+{
+	if (!host_gui_sdl3_trackpad()) return false;
+	for (int i = 0; i < HOST_GUI_SDL3_DEVICES; i++)
+	{
+		if (host_gui_sdl3_devices[i].kind != HOST_GUI_SDL3_DEVICE_TOUCH) continue;
+		for (int j = 0; j < HOST_GUI_SDL3_CONTACTS; j++)
+		{
+			if (host_gui_sdl3_devices[i].down[j])
+			{
+				host_gui_sdl3_pad_last = SDL_GetTicks();
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+/* The wheel the Mac makes of two fingers runs on a while after they lift,
+   as a thing thrown would. That is the pad's too, for a second after. */
+
+static bool host_gui_sdl3_pad_wheel(void)
+{
+	if (host_gui_sdl3_pad_down()) return true;
+	return host_gui_sdl3_trackpad() && host_gui_sdl3_pad_last
+		&& SDL_GetTicks() - host_gui_sdl3_pad_last < 1000;
+}
+
 /* how hard each pen is pressed. It is told on its own, as an axis of the
    pen, and not with where the pen is, so the last of it is kept */
 
@@ -201,6 +239,7 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			out->buttons = up ? 0 : host_gui_buttons_left;
 			out->pressure = up ? 0 : e.tfinger.pressure > 0.0f ? (uint32_t)(e.tfinger.pressure * 65535.0f) : 65535u;
 			host_gui_sdl3_fingers = true;
+			if (host_gui_sdl3_trackpad()) host_gui_sdl3_pad_last = SDL_GetTicks();
 			return true;
 		}
 		case SDL_EVENT_PEN_DOWN:
@@ -231,6 +270,7 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			   finger or pen is told as itself */
 			if ((e.motion.which == SDL_TOUCH_MOUSEID && host_gui_sdl3_fingers)
 				|| (e.motion.which == SDL_PEN_MOUSEID && host_gui_sdl3_pens_seen)) break;
+			if (host_gui_sdl3_pad_down()) break;
 			out->type = host_gui_event_mouse_motion;
 			out->x = (int32_t)e.motion.x;
 			out->y = (int32_t)e.motion.y;
@@ -247,6 +287,7 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			out->count = e.button.clicks;
 			return true;
 		case SDL_EVENT_MOUSE_WHEEL:
+			if (host_gui_sdl3_pad_wheel()) break;
 			out->type = host_gui_event_mouse_wheel;
 #if SDL_VERSION_ATLEAST(3, 4, 0)
 			out->x = e.wheel.integer_x * host_gui_sdl3_wheel;

@@ -4,6 +4,25 @@
 
 ------
 
+Chris: "two fingers on the protractor work to interact with it, but the
+background canvas still treats that as pan/som of the canvas. I'm not
+touching the canvas ! only the math tool."
+
+It was the trackpad, not the board: the Mac makes a wheel of two fingers
+that move together, and the scroll view the board is in scrolls by it,
+as well as the two fingers going to the protractor. A touch panel makes
+no wheel. In trackpad mode the driver now leaves out the wheel, and the
+moves of the mouse, while a finger is on the pad, and the wheel for a
+second after the last lifts, the Mac lets it run on. A mouse's own wheel
+is as it was, he asked. `src/host/gui_sdl3_event.h`.
+
+Run: the host programs built on all three, the full suite on the x64
+and the Pi.
+
+Not seen: by him, the board still under two fingers on a tool.
+
+------
+
 Chris, with three fingers on the whole protractor: "what I did if a third
 contact point came down on the same tool was only use the first 2 that
 arive !", and "that was the object/tool itself that made that desision !
