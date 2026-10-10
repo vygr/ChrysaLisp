@@ -104,6 +104,15 @@ Then zoom in and zoom out, and the size of the board, as `1024x768`. Type
 another size and press return and the board is that size, what is on it stays
 where it is.
 
+## The paper is the size of what is on it
+
+When a board is saved the paper is made the size of what is drawn, with a
+little room round it, and so it is when one is loaded. The file, shown as a
+picture, is all that was drawn and no more.
+
+The scissors, after clear, take away everything that is nowhere on the
+paper. A thing that is partly on it stays. It can be undone.
+
 ## The instruments
 
 The ruler, the protractor and the set square are on the second row. Each is

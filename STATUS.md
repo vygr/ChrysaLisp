@@ -4,6 +4,29 @@
 
 ------
 
+Chris: "I think the loading/saving should auto size the 'paper' to the
+full bounds of the shapes." And: "We proabkty need an action to 'clip'
+shaeps away that fall outside the paper ! that a user action, not
+applied automatically. And fulluy undo/redo able !"
+
+*	`(cwb-fit doc [pad])`: every item is moved, all by the same whole
+	number of pixels, so the box round them is 16 in from the top left,
+	and the width and height are that box and 16 all round. `(. board
+	:fit)` is that as a step, with the instruments moved too. The app
+	does it as it saves and as it loads. A shape is moved by its
+	matrix. The `cwb` command does not, a script says what size it
+	wants.
+
+*	`(. board :crop)`: every item that is nowhere on the paper is taken
+	out, one step, undone and done again. One that is partly on it
+	stays whole: a shape is not cut at the edge of the paper. The app
+	has it on the scissors, after clear.
+
+`test_cwb.lisp`, 18 more. The 16 round it is mine. Not seen: either in
+the app.
+
+------
+
 Chris: "we shoul dnot be able to drag arcs, beyond to 0 points of the arc
 edge." Mine of an hour before: when the round side was carried on round
 to meet the straight side, the edge a pen is held to went with it. The

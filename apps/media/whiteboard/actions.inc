@@ -20,6 +20,7 @@
 	+event_load action-load
 	+event_save action-save
 	+event_clear action-clear
+	+event_crop action-crop
 	+event_style action-style
 	+event_snap action-snap
 	+event_snap_angle action-snap-angle

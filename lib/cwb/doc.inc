@@ -618,6 +618,32 @@
 		(cwb-layers doc))
 	count)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the paper is where the shapes are
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun cwb-fit (doc &optional pad)
+	; (cwb-fit doc [pad]) -> :nil | (dx dy)
+	;make the document the size of what is in it: every item of every
+	;layer is moved, all by the same, so that the box round them all is
+	;pad in from the top left, default 16, and the width and height are
+	;that box and pad all round. How far they were moved, :nil for a
+	;document with nothing in it, which is left as it is
+	(setd pad 16)
+	(defq box :nil pad (n2f pad))
+	(each (lambda ((name flags items)) (setq box (cwb-box-join box (cwb-bounds items)))) (cwb-layers doc))
+	(when box
+		(bind '(x y x1 y1) box)
+		;by whole pixels, so what was sharp on the grid is sharp still
+		(defq dx (- pad (floor x)) dy (- pad (floor y)) move (cwb-mat-move dx dy))
+		(unless (and (= dx 0.0) (= dy 0.0))
+			(each (lambda ((name flags items))
+				(each (# (elem-set %0 +cwb_m (cwb-mat-mul move (elem-get %0 +cwb_m)))) items))
+				(cwb-layers doc)))
+		(. doc :insert :width (max 1 (n2i (+ (- (+ x1 dx) 0.0) pad 0.9999))))
+		(. doc :insert :height (max 1 (n2i (+ (- (+ y1 dy) 0.0) pad 0.9999))))
+		(list dx dy)))
+
 ;;;;;;;;;;;;;;;;
 ; rubbing out
 ;;;;;;;;;;;;;;;;

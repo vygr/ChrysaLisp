@@ -249,12 +249,19 @@
 (defun board-save (file)
 	(setq *file* (cat (slice file 0 (if (defq i (rfind "." file)) (dec i) -1)) ".cwb"))
 	(. (. *board* :get_doc) :insert :style *style*)
-	(cwb-save (. *board* :get_doc) (file-stream *file* +file_open_write)))
+	;the paper is made the size of what is on it, so the file, shown as a
+	;picture, is all that was drawn and no more
+	(. *board* :fit)
+	(cwb-save (. *board* :get_doc) (file-stream *file* +file_open_write))
+	(board-resized))
 
 (defun board-load (file)
 	(when (and (ends-with ".cwb" file) (defq doc (cwb-load (file-stream file))))
 		(setq *file* file)
 		(. *board* :set_doc doc)
+		;the paper is the size of what is on it, whatever size the file said
+		(. *board* :fit)
+		(. *board* :forget)
 		;it is worked on as it was last
 		(when (defq at (find (. doc :find :style) *styles*))
 			(setq *style* (elem-get *styles* at))

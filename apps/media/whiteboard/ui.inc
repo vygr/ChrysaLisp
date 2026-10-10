@@ -20,6 +20,7 @@
 (defun action-undo () (. *board* :undo))
 (defun action-redo () (. *board* :redo))
 (defun action-clear () (. *board* :clear))
+(defun action-crop () (. *board* :crop))
 
 (defun action-new ()
 	;an empty board, of the size the size field says

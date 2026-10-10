@@ -133,9 +133,9 @@
 (assert-eq "what is selected is lined up and grouped" "(:ok :ok)" (elem-get wa_out 10))
 (assert-eq "ungrouped, copied, sent back, brought forward and deleted" "(1 :ok 3 :ok 6 :ok :ok :ok 3)" (elem-get wa_out 11))
 (assert-eq "saved, it is a .cwb whatever it was called" "(\qtests/scratch/test_whiteboard.cwb\q :t)" (elem-get wa_out 12))
-(assert-eq "new is an empty board of the size in the field" "(:ok () (800 500))" (elem-get wa_out 13))
+(assert-eq "saved, the paper is the size of what is on it, and new is an empty board of the size the field then says" "(:ok () (156 136))" (elem-get wa_out 13))
 (assert-eq "of another size if the field says so" "(300 200)" (elem-get wa_out 14))
-(assert-eq "loaded, the board is the file's: its items, its size, and the field says so" "(3 (800 500) \q800x500\q 3)" (elem-get wa_out 15))
+(assert-eq "loaded, the board is the file's: its items, the size of what is on it, and the field says so" "(3 (156 136) \q156x136\q 3)" (elem-get wa_out 15))
 
 ;pens and fingers, as the GUI tells of them, a pointer event to the window for the view
 (defq wa_out (wa-run (cat

@@ -776,6 +776,45 @@
 			(. this :remove (cat (get :selected this))))
 		this)
 
+	(defmethod :fit (&optional pad)
+		; (. board :fit [pad]) -> :nil | (dx dy)
+		;the document is made the size of what is in it, (cwb-fit), as a
+		;step that can be undone, and what is on the stage that has a
+		;place, an instrument, is moved with it. How far it all moved
+		(. this :snapshot)
+		(cond
+			((defq by (cwb-fit (get :doc this) pad))
+				(bind '(dx dy) by)
+				(each (lambda (actor)
+					(when (defq origin (def? :origin actor))
+						(def actor :origin (list (+ (first origin) dx) (+ (second origin) dy)))))
+					(. (get :stage this) :get_actors))
+				(. this :changed :all)
+				(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
+				by)
+			(:t (. this :forget) :nil)))
+
+	(defmethod :crop ()
+		; (. board :crop) -> num
+		;take out every item that is nowhere on the paper, the document's
+		;width and height from its top left, as a step that can be undone.
+		;One that is partly on it stays, all of it. Those in a layer that
+		;is locked stay. How many went
+		(defq doc (get :doc this) gone (list)
+			paper (list 0.0 0.0 (n2f (. doc :find :width)) (n2f (. doc :find :height))))
+		(each (lambda ((name flags items))
+			(unless (bits? flags 2)
+				(each (lambda (item)
+					(unless (and (defq box (cwb-bounds (list item))) (cwb-box-meet? paper box))
+						(push gone (elem-get item +cwb_id))))
+					items)))
+			(cwb-layers doc))
+		(when (nempty? gone)
+			(. this :snapshot)
+			(. this :remove gone)
+			(. this :changed :all))
+		(length gone))
+
 	(defmethod :clear ()
 		; (. board :clear) -> board
 		;take out everything
