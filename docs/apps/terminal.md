@@ -212,6 +212,10 @@ line-oriented, command-and-response behavior.
 The most distinctive feature of the Terminal is its ability to execute external
 commands. This is orchestrated by the `Pipe` class.
 
+```image
+docs/diagrams/terminal_pipe.cwb
+```
+
 1.  **User Input:** The user types a command at the prompt. This text is
     inserted into the shared `Buffer` object by `action-insert`.
 

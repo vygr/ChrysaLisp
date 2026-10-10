@@ -1,0 +1,12 @@
+;docs/ai_digest/turbo_charging.md: every map of the translator has every instruction, in the same order
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s 'sym (dia-box '("the symbol emit-add-rr" "str_hashslot: 42") 190 44 gold 11 :first) 0 62)
+(each (lambda (i)
+	(defq name (elem-get '("+emit_jmps" "+emit_funcs" "+arm64_fuse_map") i) val (elem-get '(":nil, not a jump" "its function" ":nil, not fused") i) k (sym (cat "m" (str i))))
+	(dia-put s k (dia-box (list name "(env 1): one bucket, a flat array" (cat "... 41   [42 emit-add-rr: " val "]   43 ...")) 380 62 (if (= i 1) green blue) 11 :first) 290 (* i 72))
+	(dia-join s 'sym k ""))
+	'(0 1 2))
+(dia-say s "Each map is filled from the one master list, so a symbol is at the same place in all of them. The place a symbol" 0 232 11)
+(dia-say s "remembers, from the last map it was found in, is right for the next. And every instruction is in every map, with" 0 248 11)
+(dia-say s ":nil where it has nothing to say, so none is ever not found: that would be a search of the whole bucket, each time." 0 264 11)
+(diagram "map_alignment" (dia-scene-doc s))

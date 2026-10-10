@@ -5,6 +5,10 @@ is architected around a strict separation of concerns. The text stack is
 composed of three primary layers: the **Buffer** (raw data), the **Document**
 (semantic logic), and the **Edit** widget (visual projection).
 
+```image
+docs/diagrams/text_layers.cwb
+```
+
 Crucially, **multi-cursor support is not a UI feature; it is a fundamental
 property of the Buffer class itself.** This means any application-whether a
 graphical text editor, a command-line refactoring tool, or a batch processing

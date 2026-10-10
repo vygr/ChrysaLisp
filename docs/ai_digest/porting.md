@@ -59,6 +59,10 @@ unsupported platform:
 
 This document will detail the steps and considerations for each phase.
 
+```image
+docs/diagrams/porting_phases.cwb
+```
+
 **Prerequisites:**
 
 * Familiarity with the ChrysaLisp architecture (refer to

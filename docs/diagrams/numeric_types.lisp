@@ -1,0 +1,13 @@
+;docs/ai_digest/numerics.md: the three kinds of number and what converts between them
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s 'num (dia-box '(":num" "64 bit signed integer" "read from 42, 0xff, 0b101") 200 62 blue 11 :first) 0 0)
+(dia-put s 'fixed (dia-box '(":fixed" "48.16 fixed point" "read from 1.5") 200 62 gold 11 :first) 280 0)
+(dia-put s 'real (dia-box '(":real" "64 bit IEEE double" "made by (n2r), +real_pi ...") 200 62 green 11 :first) 560 0)
+(dia-join s 'fixed 'num "comes of")
+(dia-join s 'real 'fixed "comes of")
+(dia-say s "(n2i x) to here" 0 84 11)
+(dia-say s "(n2f x) to here" 280 84 11)
+(dia-say s "(n2r x) to here" 560 84 11)
+(dia-say s "All three keep their value in the one field, num_value. Each of n2i, n2f, n2r takes any of the three, and gives back" 0 118 11)
+(dia-say s "what it is given if that is already of its kind. Going left the fraction is cut off, it is not rounded." 0 134 11)
+(diagram "numeric_types" (dia-scene-doc s))

@@ -1,0 +1,803 @@
+((:Emap 1)
+	:version 4
+	:width 606
+	:height 309
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 54
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 16)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 63.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							2
+							:d
+							"[M 125 112 L 125 150]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							3
+							:d
+							"[M 125 150 L 121 141 129 141 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					4
+					:m
+					((:path 6)
+						1.00000 0.00000 144.00000 0.00000 1.00000 198.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[comes of]"
+					:font_size
+					11
+				)
+				((:list 7)
+					:group
+					:id
+					5
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 63.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							6
+							:d
+							"[M 330 81 L 250 81]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							7
+							:d
+							"[M 250 81 L 259 77 259 85 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					8
+					:m
+					((:path 6)
+						1.00000 0.00000 284.76446 0.00000 1.00000 139.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[has one]"
+					:font_size
+					11
+				)
+				((:list 7)
+					:group
+					:id
+					9
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 63.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							10
+							:d
+							"[M 455 112 L 385 159]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							11
+							:d
+							"[M 385 159 L 390.2422 150.66223 394.70167 157.30395 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					12
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 63.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							13
+							:d
+							"[M 455 112 L 515 159]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							14
+							:d
+							"[M 515 159 L 505.44844 156.59898 510.38166 150.30125 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					15
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 63.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							16
+							:d
+							"[M 125 -6 L 125 50]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							17
+							:d
+							"[M 125 50 L 121 41 129 41 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					18
+					:m
+					((:path 6)
+						1.00000 0.00000 144.00000 0.00000 1.00000 89.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[uses one]"
+					:font_size
+					11
+				)
+				((:list 7)
+					:group
+					:id
+					19
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 213.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							20
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									21
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									22
+									:m
+									((:path 6)
+										1.00000 0.00000 56.42187 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[Buffer   lib/text/buffer.inc]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									23
+									:m
+									((:path 6)
+										1.00000 0.00000 58.92614 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[lines of text, undo and redo,]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									24
+									:m
+									((:path 6)
+										1.00000 0.00000 56.08282 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[cursors: each (cx cy ax ay sx)]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					25
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 113.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							26
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									27
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									28
+									:m
+									((:path 6)
+										1.00000 0.00000 36.10235 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[Document   lib/text/document.inc]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									29
+									:m
+									((:path 6)
+										1.00000 0.00000 43.07672 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[is a Buffer, and knows words, lines,]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									30
+									:m
+									((:path 6)
+										1.00000 0.00000 63.34387 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[paragraphs, blocks, forms]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					31
+					:m
+					((:path 6)
+						1.00000 0.00000 343.00000 0.00000 1.00000 113.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							32
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									33
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									34
+									:m
+									((:path 6)
+										1.00000 0.00000 70.57940 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[Edit   gui/edit/lisp.inc]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									35
+									:m
+									((:path 6)
+										1.00000 0.00000 43.26940 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a View with a Document in :buffer,]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									36
+									:m
+									((:path 6)
+										1.00000 0.00000 41.15856 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[(defproxymethod) passes calls to it]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					37
+					:m
+					((:path 6)
+						1.00000 0.00000 343.00000 0.00000 1.00000 222.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							38
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									39
+									:d
+									"[M 6 0 L 104 0 A 6 6 0 0 1 110 6 L 110 38 A 6 6 0 0 1 104 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									40
+									:m
+									((:path 6)
+										1.00000 0.00000 45.37030 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[Vdu]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									41
+									:m
+									((:path 6)
+										1.00000 0.00000 35.82989 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the text]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					42
+					:m
+					((:path 6)
+						1.00000 0.00000 463.00000 0.00000 1.00000 222.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							43
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									44
+									:d
+									"[M 6 0 L 124 0 A 6 6 0 0 1 130 6 L 130 38 A 6 6 0 0 1 124 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									45
+									:m
+									((:path 6)
+										1.00000 0.00000 33.95776 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[Mask layers]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									46
+									:m
+									((:path 6)
+										1.00000 0.00000 6.24291 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[cursors, selection, found]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					47
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							48
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									49
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 38 A 6 6 0 0 1 244 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									50
+									:m
+									((:path 6)
+										1.00000 0.00000 72.65802 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a command, a script]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									51
+									:m
+									((:path 6)
+										1.00000 0.00000 86.69873 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[no window at all]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					52
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 295.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[the model, no GUI]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					11
+				)
+				((:list 17)
+					:shape
+					:id
+					53
+					:m
+					((:path 6)
+						1.00000 0.00000 343.00000 0.00000 1.00000 295.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[the view]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					11
+				)
+			)
+		)
+	)
+	:props :nil
+)

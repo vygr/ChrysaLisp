@@ -29,6 +29,10 @@ So what does the CScript compiler do ? It consists of 4 phases:
 
 * Optimization of generated VP assembler.
 
+```image
+docs/diagrams/cscript_pipeline.cwb
+```
+
 I'm hoping this doc might demystify a few compiler things in general, but I'm
 not a compiler expert. Just an amateur playing with fire...
 

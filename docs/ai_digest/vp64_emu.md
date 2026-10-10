@@ -41,6 +41,10 @@ memory.
 The emulator uses a tight fetch-decode-execute loop. Each instruction (`ir`) is
 a 16-bit value.
 
+```image
+docs/diagrams/emu_loop.cwb
+```
+
 1. **Fetch**: The opcode is fetched from the current `pc`.
 
 2. **Decode**: The lower 8 bits of the instruction (`ir & 0xff`) represent the

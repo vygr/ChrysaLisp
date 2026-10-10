@@ -60,6 +60,10 @@ This atomic model is the foundation for the strict rules that govern its use.
 These rules are not arbitrary limitations; they are the necessary discipline
 to prevent data hazards that would break the contract.
 
+```image
+docs/diagrams/simd_lanes.cwb
+```
+
 ## The Rules of Engagement: Enforcing Determinism
 
 The Read-Execute-Write contract leads to two critical restrictions that

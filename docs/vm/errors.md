@@ -88,6 +88,10 @@ The main way to wrap code that we do not want to include in `release mode` is
 by use of the `(errorcase)` macro. This macro simply tests the value of
 `*build_mode*`, and if greater than 0, includes the wrapped code.
 
+```image
+docs/diagrams/error_checks.cwb
+```
+
 ```vdu
 (defmacro errorcase (&rest e) (if (> *build_mode* 0) `(progn ~e)))
 ```

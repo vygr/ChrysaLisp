@@ -55,6 +55,10 @@ precision scale:
 
 A `.ctf` file is arranged into three sequential binary blocks:
 
+```image
+docs/diagrams/ctf_file.cwb
+```
+
 #### I. Global Font Header (8 bytes)
 
 The header contains three signed 16-bit `short` integers in 3.13 format,

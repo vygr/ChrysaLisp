@@ -178,6 +178,10 @@ together and then, crucially, calls `eval` on each instruction form.
 When `(eval '(vp-cpy-rr :r1 :r2))` is executed, the Lisp function `vp-cpy-rr`
 is called, which emits the final bytecode into the function being compiled.
 
+```image
+docs/diagrams/compile_vs_run.cwb
+```
+
 ### 3.4. Putting It All Together: Compile Time vs. Runtime
 
 **At Compile Time:**

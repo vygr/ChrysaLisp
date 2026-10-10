@@ -1,0 +1,10 @@
+;docs/ai_digest/ctf_command.md: the three blocks of a .ctf font file
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s 'head (dia-box '("header, 8 bytes" "ascent, descent, xkern: shorts, 3.13" "2 bytes of 0") 250 62 grey 11 :first) 0 0)
+(dia-put s 'page (dia-box '("a page, for a run of character codes" "end, start: ushorts" "an offset for each code: uints, from the start of the file") 340 62 blue 11 :first) 0 72)
+(dia-put s 'more (dia-box '("more pages ..." "then a uint of 0 to end them") 340 44 blue 11 :first) 0 144)
+(dia-put s 'glyph (dia-box '("a glyph, 12 bytes and its data" "char_code ushort, advance short 3.13" "plen uint, klen uint" "path elements, plen bytes" "kerning pairs, klen of 4 bytes" "0s to the next 4 bytes") 280 122 green 11 :first) 430 72)
+(dia-put s 'gmore (dia-box "more glyphs ..." 280 30 green 11) 430 204)
+(dia-join s 'page 'glyph "an offset")
+(dia-say s "A code is looked for in the pages by its start and end, its offset is taken, and that is where its glyph is." 0 258 11)
+(diagram "ctf_file" (dia-scene-doc s))

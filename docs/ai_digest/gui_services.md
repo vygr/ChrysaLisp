@@ -49,6 +49,10 @@ The ChrysaLisp GUI architecture is built upon a few fundamental principles:
       `:ink_color` on a `Window` to be inherited by all children) and
       contextual data flow.
 
+```image
+docs/diagrams/widget_tree.cwb
+```
+
 5. **Widget Behavior via Methods:** Widgets have methods (defined with
    `(defmethod ...)`) that control their appearance and interactivity, such
    as `:draw`, `:layout`, `:mouse_down`, `:key_down`, etc. These methods can
@@ -98,6 +102,10 @@ user-supplied ones within these builder macros.
 The GUI event system, as described in [`event_dispatch.md`](../gui/event_dispatch.md) and
 [`event_loops.md`](../gui/event_loops.md), enables applications to respond to user interactions and
 system notifications.
+
+```image
+docs/diagrams/event_dispatch.cwb
+```
 
 1. **Event Source:** The GUI task (a separate ChrysaLisp task managing the
    overall GUI) sends event messages to an application's main mailbox.

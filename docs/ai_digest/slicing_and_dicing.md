@@ -92,6 +92,10 @@ alternating between chunks of `src1` and `src2` based on the `index_vector`.
     3. **Gather:** Loops through the index vector, `memcpy`ing chunks from
        `src1` and `src2` directly into the result.
 
+```image
+docs/diagrams/splice.cwb
+```
+
 **Implication for Lists:**
 
 In a linked-list Lisp, splicing often involves mutating pointers (O(1) if you

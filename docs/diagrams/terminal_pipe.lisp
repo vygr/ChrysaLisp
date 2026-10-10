@@ -1,0 +1,12 @@
+;docs/apps/terminal.md: a command typed at the Terminal, from Enter to the next prompt
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s 'edit (dia-box '("*edit*, a Terminal-edit" "shows the Buffer: the whole session," "only the last line can be changed") 250 62 blue 11 :first) 0 0)
+(dia-put s 'loop (dia-box '("the loop of app.lisp" "waits on *select*: the GUI," "and the pipe while there is one") 250 62 gold 11 :first) 0 120)
+(dia-put s 'pipe (dia-box '("*pipe*, a Pipe" "(Pipe cmdline *select*)" "its mailbox is put in *select*") 220 62 gold 11 :first) 330 120)
+(dia-put s 'cmd (dia-box '("the command" "a task of its own," "cmd/ls.lisp say") 170 62 green 11 :first) 630 120)
+(dia-join s 'edit 'loop "Enter: action-break takes the line")
+(dia-join s 'loop 'pipe "makes")
+(dia-join s 'pipe 'cmd "(open-pipe)")
+(dia-say s "stdout and stderr come back as mail. (. *pipe* :read) gives text, which action-insert puts on the end of the Buffer," 0 206 11)
+(dia-say s "or :nil when the command has ended: the Pipe is closed, *pipe* is :nil again, and a new prompt is printed." 0 222 11)
+(diagram "terminal_pipe" (dia-scene-doc s))

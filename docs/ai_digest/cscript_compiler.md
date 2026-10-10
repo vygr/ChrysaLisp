@@ -25,6 +25,10 @@ Implementation files:
 
 The compiler transforms an expression string through four sequential phases.
 
+```image
+docs/diagrams/cscript_pipeline.cwb
+```
+
 ### Phase 1 - Tokenization (`cscript-tokenize`)
 
 `(cscript-tokenize line)` scans the expression character by character,

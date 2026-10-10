@@ -39,6 +39,10 @@ Because of this strict geometric arrangement, the path from an object instance
 all the way to the root of the inheritance tree is just a simple singly-linked
 list.
 
+```image
+docs/diagrams/vtable_chain.cwb
+```
+
 When the VP needs to perform a type check (via the `class/obj/inst_of` method),
 it does not execute a complex algorithm. It simply walks this linked list,
 performing rapid pointer comparisons. Because inheritance trees in ChrysaLisp

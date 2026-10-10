@@ -254,6 +254,10 @@ encrypted, each made up with 0 to a whole 16 bytes, then how long each was.
 A tag is checked a byte at a time with every byte looked at, right or
 wrong.
 
+```image
+docs/diagrams/aead_seal.cwb
+```
+
 ### ChaCha20
 
 ```vdu

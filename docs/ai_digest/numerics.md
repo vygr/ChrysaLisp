@@ -13,6 +13,10 @@ All numeric objects in ChrysaLisp are instances of VP (Virtual Processor)
 classes, inheriting from the base `:obj` class and more specifically from the
 `:num` class (for scalar numbers).
 
+```image
+docs/diagrams/numeric_types.cwb
+```
+
 **`Num` (Integer)**
 
 * **Description:** Represents 64-bit signed integer numbers. This is the

@@ -4,6 +4,46 @@
 
 ------
 
+Chris: "carry on with the next diagram candidates".
+
+Fourteen more, 73 scripts in `docs/diagrams/` now, each drawn to a
+picture and looked at by me, each from what its page says:
+
+*	the CScript compiler's four phases, in the digest's
+	`cscript_compiler.md` and in `vm/cscript.md`.
+*	the two passes of layout over a tree of views, sizes up and space
+	down, `gui_views.md`.
+*	`Buffer`, `Document` and the `Edit` that shows one,
+	`text_buffers.md`.
+*	the three kinds of number and `n2i`, `n2f`, `n2r`, `numerics.md`.
+*	a `(vp-simd)` as read all, do all, write all, `vp_simd.md`.
+*	the emulator's state and its loop, `vp64_emu.md`.
+*	a command typed at the Terminal, from Enter to the next prompt,
+	`apps/terminal.md`.
+*	an object, its vtable and the vtables it comes of, `type_system.md`.
+*	what is written for a new host and what for a new CPU,
+	`porting.md`.
+*	Lisp that runs as the assembler does and what is left to run,
+	`dynamic_code.md`.
+*	what `(aead-seal)` makes and what its tag is of, `crypto.md`.
+*	the three blocks of a `.ctf` file, `ctf_command.md`.
+*	the translator's maps, every instruction in each at the same
+	place, `turbo_charging.md`.
+*	`(splice)`, with an example I ran: `(splice "abcdef" "XYZ" (nums 0
+	2 0 3 4 6))` is `"abXYZef"`, `slicing_and_dicing.md`.
+
+Three already made are shown in more pages: the tree of widgets and
+the path of an event in `gui_services.md`, the error checks in
+`vm/errors.md`.
+
+Run: `make docs`, every `image` section of the docs points at a file
+that is there, `cl_test.sh -a` clean on the x64 and the Pi. The M4
+left out, a desktop is up.
+
+Not seen: by Chris, any of the fourteen.
+
+------
+
 Chris: "add the inherited properties to the Lisp class cards too"
 
 The card of a Lisp class has, above its own, a part for each class it

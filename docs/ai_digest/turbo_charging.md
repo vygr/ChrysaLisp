@@ -98,6 +98,10 @@ the maps:
   exact same keys in the exact same order, **a symbol will possess the exact
   same array index across all maps**.
 
+```image
+docs/diagrams/map_alignment.cwb
+```
+
 ## Step-by-Step Execution
 
 Here is how this sequence plays out in the code:

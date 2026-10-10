@@ -58,6 +58,10 @@ Both these systems rely on the `:view :flatten` method. This method DFS
 enumerates a view tree without descending into `+view_flag_subtree` marked sub
 trees. For example a `Scroll` child view.
 
+```image
+docs/diagrams/view_passes.cwb
+```
+
 ### The Preferred Size Mechanism (Sizing Pass)
 
 This flow is used to determine the ideal size of a view and its entire subtree

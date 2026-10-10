@@ -1,0 +1,553 @@
+((:Emap 1)
+	:version 4
+	:width 736
+	:height 286
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 36
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 8)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							2
+							:d
+							"[M 340 103 L 430 133]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							3
+							:d
+							"[M 430 133 L 420.19708 133.94866 422.72686 126.35931 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					4
+					:m
+					((:path 6)
+						1.00000 0.00000 376.39477 0.00000 1.00000 126.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[an offset]"
+					:font_size
+					11
+				)
+				((:list 7)
+					:group
+					:id
+					5
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							6
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									7
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									8
+									:m
+									((:path 6)
+										1.00000 0.00000 85.30291 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[header, 8 bytes]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									9
+									:m
+									((:path 6)
+										1.00000 0.00000 42.19250 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[ascent, descent, xkern: shorts, 3.13]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									10
+									:m
+									((:path 6)
+										1.00000 0.00000 96.98101 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[2 bytes of 0]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					11
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 85.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							12
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									13
+									:d
+									"[M 6 0 L 334 0 A 6 6 0 0 1 340 6 L 340 56 A 6 6 0 0 1 334 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									14
+									:m
+									((:path 6)
+										1.00000 0.00000 77.25531 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a page, for a run of character codes]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									15
+									:m
+									((:path 6)
+										1.00000 0.00000 125.58239 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[end, start: ushorts]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									16
+									:m
+									((:path 6)
+										1.00000 0.00000 39.07354 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[an offset for each code: uints, from the start of the file]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					17
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 157.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							18
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									19
+									:d
+									"[M 6 0 L 334 0 A 6 6 0 0 1 340 6 L 340 38 A 6 6 0 0 1 334 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									20
+									:m
+									((:path 6)
+										1.00000 0.00000 134.02575 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[more pages ...]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									21
+									:m
+									((:path 6)
+										1.00000 0.00000 103.99932 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[then a uint of 0 to end them]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					22
+					:m
+					((:path 6)
+						1.00000 0.00000 443.00000 0.00000 1.00000 85.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							23
+							:items
+							((:list 7)
+								((:list 11)
+									:shape
+									:id
+									24
+									:d
+									"[M 6 0 L 274 0 A 6 6 0 0 1 280 6 L 280 116 A 6 6 0 0 1 274 122 L 6 122 A 6 6 0 0 1 0 116 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									25
+									:m
+									((:path 6)
+										1.00000 0.00000 64.29107 0.00000 1.00000 25.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a glyph, 12 bytes and its data]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									26
+									:m
+									((:path 6)
+										1.00000 0.00000 52.77075 0.00000 1.00000 41.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[char_code ushort, advance short 3.13]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									27
+									:m
+									((:path 6)
+										1.00000 0.00000 97.70062 0.00000 1.00000 57.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[plen uint, klen uint]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									28
+									:m
+									((:path 6)
+										1.00000 0.00000 78.63659 0.00000 1.00000 73.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[path elements, plen bytes]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									29
+									:m
+									((:path 6)
+										1.00000 0.00000 71.85760 0.00000 1.00000 89.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[kerning pairs, klen of 4 bytes]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									30
+									:m
+									((:path 6)
+										1.00000 0.00000 87.60565 0.00000 1.00000 105.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[0s to the next 4 bytes]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					31
+					:m
+					((:path 6)
+						1.00000 0.00000 443.00000 0.00000 1.00000 217.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							32
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									33
+									:d
+									"[M 6 0 L 274 0 A 6 6 0 0 1 280 6 L 280 24 A 6 6 0 0 1 274 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									34
+									:m
+									((:path 6)
+										1.00000 0.00000 105.73712 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[more glyphs ...]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					35
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 271.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[A code is looked for in the pages by its start and end, its offset is taken, and that is where its glyph is.]"
+					:font_size
+					11
+				)
+			)
+		)
+	)
+	:props :nil
+)

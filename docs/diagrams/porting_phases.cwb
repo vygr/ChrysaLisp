@@ -1,0 +1,690 @@
+((:Emap 1)
+	:version 4
+	:width 859
+	:height 318
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 47
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 15)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							2
+							:d
+							"[M 310 44 L 150 90]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							3
+							:d
+							"[M 150 90 L 157.54431 83.669 159.75476 91.35748 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					4
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							5
+							:d
+							"[M 310 44 L 470 90]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							6
+							:d
+							"[M 470 90 L 460.24523 91.35748 462.45568 83.669 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					7
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							8
+							:d
+							"[M 150 152 L 310 196]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							9
+							:d
+							"[M 310 196 L 300.26156 197.47044 302.38278 189.75682 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					10
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							11
+							:d
+							"[M 470 152 L 310 196]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							12
+							:d
+							"[M 310 196 L 317.61721 189.75682 319.73843 197.47044 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					13
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							14
+							:d
+							"[M 310 240 L 310 262]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							15
+							:d
+							"[M 310 262 L 306 253 314 253 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					16
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							17
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									18
+									:d
+									"[M 6 0 L 614 0 A 6 6 0 0 1 620 6 L 620 38 A 6 6 0 0 1 614 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									19
+									:m
+									((:path 6)
+										1.00000 0.00000 281.13238 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[ChrysaLisp]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									20
+									:m
+									((:path 6)
+										1.00000 0.00000 166.63208 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[VP assembly, and Lisp compiled to VP: not changed by a port]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					21
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 103.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							22
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									23
+									:d
+									"[M 6 0 L 294 0 A 6 6 0 0 1 300 6 L 300 56 A 6 6 0 0 1 294 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									24
+									:m
+									((:path 6)
+										1.00000 0.00000 110.65673 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[VP64 emulator]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									25
+									:m
+									((:path 6)
+										1.00000 0.00000 104.91101 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[src/host/vp64.cpp]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									26
+									:m
+									((:path 6)
+										1.00000 0.00000 72.23596 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[runs the VP64 boot image as it is]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					27
+					:m
+					((:path 6)
+						1.00000 0.00000 333.00000 0.00000 1.00000 103.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							28
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									29
+									:d
+									"[M 6 0 L 294 0 A 6 6 0 0 1 300 6 L 300 56 A 6 6 0 0 1 294 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									30
+									:m
+									((:path 6)
+										1.00000 0.00000 119.10009 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a translator]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									31
+									:m
+									((:path 6)
+										1.00000 0.00000 87.44958 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[lib/trans/mycpu_myabi.inc]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									32
+									:m
+									((:path 6)
+										1.00000 0.00000 72.19366 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[VP to the native code of the CPU]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					33
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 209.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							34
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									35
+									:d
+									"[M 6 0 L 614 0 A 6 6 0 0 1 620 6 L 620 38 A 6 6 0 0 1 614 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									36
+									:m
+									((:path 6)
+										1.00000 0.00000 242.29064 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the host bootstrap and PII]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									37
+									:m
+									((:path 6)
+										1.00000 0.00000 99.10803 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[src/host/main.cpp and the pii functions: files, memory, time, and GUI and audio if wanted]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					38
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 275.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							39
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									40
+									:d
+									"[M 6 0 L 614 0 A 6 6 0 0 1 620 6 L 620 24 A 6 6 0 0 1 614 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									41
+									:m
+									((:path 6)
+										1.00000 0.00000 217.52453 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the host OS, its C/C++ compiler and ABI]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					42
+					:m
+					((:path 6)
+						1.00000 0.00000 663.00000 0.00000 1.00000 113.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[phase 1, a new host: the blue parts.]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					43
+					:m
+					((:path 6)
+						1.00000 0.00000 663.00000 0.00000 1.00000 129.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[The emulator needs no translator,]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					44
+					:m
+					((:path 6)
+						1.00000 0.00000 663.00000 0.00000 1.00000 145.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[so the PII is tested first.]"
+					:font_size
+					11
+				)
+				((:list 17)
+					:shape
+					:id
+					45
+					:m
+					((:path 6)
+						1.00000 0.00000 663.00000 0.00000 1.00000 177.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[phase 2, a new CPU: the gold part,]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					46
+					:m
+					((:path 6)
+						1.00000 0.00000 663.00000 0.00000 1.00000 193.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[and a native boot image made with it.]"
+					:font_size
+					11
+				)
+			)
+		)
+	)
+	:props :nil
+)
