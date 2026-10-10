@@ -450,7 +450,8 @@
 	;of 3, so its corners are 30, 60 and 90 degrees. The two sharp corners
 	;turn it about its middle, the square by its square corner makes it
 	;bigger or smaller, the rest moves it. Its two square sides are
-	;marked in millimetres from the square corner, numbered in centimetres
+	;marked in millimetres from the square corner, and its long side from
+	;its top corner, numbered in centimetres
 	(def this :length 360.0 :min_length 160.0 :max_length 1600.0)
 
 	(defmethod :rebuild ()
@@ -475,8 +476,11 @@
 				(list :turn (+ bx (* 0.11 (- ax bx)) (* 0.05 (- cx bx))) (+ by (* 0.05 (- cy by)) -4.0))
 				(list :turn (+ cx (* 0.05 (- bx cx)) 6.0) (+ cy (* 0.12 (- ay cy)) (* 0.05 (- by cy))))))
 		;millimetres along the two square sides, from the square corner
+		;and along the long side, from its top corner, the marks pointing in
+		(defq long (sqrt (+ (* w w) (* h h))) ux (/ w long) uy (/ h long))
 		(push marks (cwb-shape (cat (tool-ticks ax ay (- bx 30.0) by 0.0 -1.0 +tool_mm)
-				" " (tool-ticks ax ay cx (+ cy 30.0) 1.0 0.0 +tool_mm))
+				" " (tool-ticks ax ay cx (+ cy 30.0) 1.0 0.0 +tool_mm)
+				" " (tool-ticks cx cy (- bx (* 30.0 ux)) (- by (* 30.0 uy)) (neg uy) ux +tool_mm))
 			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		;what a set square has: the hole in its middle, the same shape, the
 		;arc of each sharp corner with its angle, and the mark of a square corner
@@ -492,6 +496,8 @@
 		(while (< at (- w 60.0))
 			(push marks (cwb-text-mid (str n) (+ ax at) (- ay 22.0) :font_size 12))
 			(if (< at (- h 50.0)) (push marks (cwb-text-mid (str n) (+ ax 22.0) (- ay at) :font_size 12)))
+			(if (and (> at 60.0) (< at (- long 70.0)))
+				(push marks (cwb-text-mid (str n) (+ cx (* ux at) (* -22.0 uy)) (+ cy (* uy at) (* 22.0 ux)) :font_size 12)))
 			(setq n (inc n) at (+ at (* 10.0 +tool_mm))))
 		(def this :marks marks)
 		this)
