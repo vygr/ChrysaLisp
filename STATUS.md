@@ -4,6 +4,36 @@
 
 ------
 
+Chris: "After ungroup, manipulating the entire ungroup collection is
+slow !, that's tricky I know."
+
+It was 1,300 shapes drawn again each time they moved, 29ms, and I had
+said that was what it cost. His own model has the answer: what is in
+flight is a picture, kept apart so that it need not be drawn again.
+
+*	A thing, or a thousand, that a hand only moves is drawn on the
+	flight canvas once, as it is taken, and after that the canvas is
+	moved by as far as they have gone. `(flight-shift)` in `app.lisp`
+	finds if all that is in flight has moved by the same and no other
+	way since it was drawn. Turned or sized it is drawn again, as it
+	was. Let go, it is drawn where it is.
+
+*	The canvas is in a view the size of the paper, `*flight_clip*`,
+	that stays there and is what is stacked with the document's, so
+	what is moved past the edge of the paper is cut off as it was.
+
+*	Taking hold of what is selected looked through the ids for each
+	item of the layer, twice. `(cwb-pick)`.
+
+Run: `test_cwb` and `test_whiteboard` on the M4, a test that the
+canvas is moved and not drawn; the full suite on the x64 and the Pi.
+
+Not seen: on a screen. A view moved under a hand is the GUI's doing and
+no test has a GUI. To a part of a pixel the canvas is put to the nearest
+whole one while it moves, at a zoom that is not 1.
+
+------
+
 Chris, on the new desktop: "ungroup is not ungrouping."
 
 It was. The recording has 10,672 things become 12,001 and 1,330 of them

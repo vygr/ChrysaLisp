@@ -191,11 +191,11 @@
 						;instrument does among the instruments: it is how what is
 						;under it is got at. Where that changes what is in front of
 						;what, it is a change, though nothing is moved
-						(defq ids (get :selected board) back (= buttons +pev_right))
+						(defq ids (cwb-id-set (get :selected board)) back (= buttons +pev_right))
 						(each (lambda (layer)
 							(defq items (third layer)
-								these (filter (# (find (elem-get %0 +cwb_id) ids)) items)
-								others (filter (# (not (find (elem-get %0 +cwb_id) ids))) items)
+								these (cwb-pick items ids)
+								others (cwb-pick items ids :t)
 								now (if back (cat these others) (cat others these)))
 							(unless (or (empty? these) (every (const eql) now items))
 								(elem-set layer 2 now)
