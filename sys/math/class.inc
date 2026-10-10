@@ -247,17 +247,19 @@
 	(vec-flength-squared n))
 
 (defun vec-fnorm (n)
+	;each part over the length, a division each. Not by the length turned
+	;upside down, 1.0 over it has only 16 bits and a vector of 60 came out
+	;0.99976 long: a stroke 1.0 wide was not, and drew no pixel
 	(vec-dup n)
 	(vec-flength n)
-	(bind '(rl rh) (vec-tmp 2))
+	(bind '(rh) (vec-tmp 1))
 	(bind '(l) (vec-pop 1))
 	(vpif `(,l = 0))
 		(vec-clr n)
 	(else)
-		(vp-cpy-cr (<< (<< 1 +fp_shift) +fp_shift) rl)
-		(vp-xor-rr rh rh)
-		(vp-div-rrr l rh rl)
-		(vec-fscale n rl)
+		(each (# (vp-shl-cr +fp_shift %0)
+			(vp-ext-rr %0 rh)
+			(vp-div-rrr l rh %0)) (vec-top n))
 	(endif))
 
 (defun vec-manhattan (n)

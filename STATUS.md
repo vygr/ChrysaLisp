@@ -4,6 +4,65 @@
 
 ------
 
+The night of 2026-10-11. Chris: "1, 2, 3 and 4, take the desktop
+down". Item 55 first, the soft edged fill a pixel off. His thought on
+it: "probably only needs the edge method to have 0.5x offset before
+scanning out the edge table".
+
+Measured first, a box filled on a canvas of 20 and its pixels read.
+There were three things wrong with soft edges on, and a fourth in the
+stroker:
+
+*	across, the pixel an edge is on was drawn with the cover of the run
+	before it, so everything was one whole pixel to the right. In the
+	flush of the coverage row, `gui/canvas/fpoly.vp`: that pixel is now
+	the first of the run that begins there. An edge past the right of
+	the clip goes on the pixel after its last, the row is a byte longer
+	for it, and one to the left of the clip on its first, which is now
+	drawn.
+*	down, everything was half a pixel low: a box from 5 to 15 had half
+	of row 5 and half of row 15. `:set_edges` put 0.5 of a pixel on y
+	before the 8 scan lines of a pixel were made of it, where it wants
+	half a scan line. That is his 0.5, on y.
+*	the 8 samples across a pixel were at 0 to 0.875 of it, not about
+	its middle, so an edge a hair under a whole number lost one in
+	eight: a line 2.0 wide was 255 and 223. They are the middles of
+	eighths now.
+*	and the outline of a stroke was not as wide as asked. `(vec-fnorm)`,
+	`sys/math/class.inc`, scaled by 1.0 over the length, which has only
+	16 bits: a vector of 60 came out 0.99976 long, a stroke 1.0 wide
+	had edges at 39.50012 and 40.49987, and with hard edges that is
+	between two pixel middles: no pixel at all, what I found on the
+	10th. It divides each part by the length now, and the edges are
+	39.5 and 40.5.
+
+A box from 5 to 15 is now pixels 5 to 14 both ways, soft edges on or
+off; from 5.5 to 15.5 it has the same half at each end, both ways.
+
+What moved with it, each looked at and not just made to pass:
+
+*	the Whiteboard's `(draw-damage)` no longer cuts a column wider on
+	the left than it clears.
+*	the four symbol fonts are made again by `symbols`, their strokes
+	are the width asked for now.
+*	`test_whiteboard`, a box sized by two fingers: its bounds were
+	252.9998 cut to 252, and are 253.
+*	`test_cwb_cmd` read a pixel of a line 3 wide on its lower row, where
+	the ruler's own edge is drawn over it; it reads the upper.
+
+New: `tests/system/test_fpoly.lisp`, 28.
+
+Run: `make all boot`, `lint: clean`, `cl_test.sh -b -a` on all three,
+5780 each. A class card drawn at three times its size and looked at,
+its text is as it was.
+
+Not seen: by Chris, anything on a desktop. Every glyph and every soft
+edge in the GUI is drawn a pixel to the left of where it was and half
+a pixel up. I saw nothing that had allowed for the old place, but
+text in a button or a title is the thing to look at first.
+
+------
+
 Chris: "carry on with the next diagram candidates".
 
 Fourteen more, 73 scripts in `docs/diagrams/` now, each drawn to a

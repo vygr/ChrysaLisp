@@ -195,7 +195,7 @@
 	"(wa-do +event_zoom_in) (wa-ptr 0x20001 1 1 150 150) (wa-ptr 0x20001 1 1 300 300) (wa-ptr 0x20001 1 0 300 300)"
 	"(print (cwb-get (last (cwb-items (. *board* :get_doc))) :d))")))
 (assert-eq "a pen, told of by the GUI, draws" "((1) \qM 100 100 L 200 100 200 180 100 180 Z\q)" (elem-get wa_out 0))
-(assert-eq "two fingers on what it drew make it twice the size" "(47 57 252 222)" (elem-get wa_out 1))
+(assert-eq "two fingers on what it drew make it twice the size" "(47 57 253 223)" (elem-get wa_out 1))
 (assert-eq "and the other end of the pen rubs it out" "()" (elem-get wa_out 2))
 (assert-eq "zoomed to one and a half, a pen draws where it is in the document" "M 100 100 L 200 100 200 200 100 200 Z" (elem-get wa_out 3))
 

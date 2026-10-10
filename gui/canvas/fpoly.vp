@@ -34,7 +34,15 @@
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign '((:r0 +canvas_cy) (:r0 +canvas_cy1)) (list cy cy1))
 	(vp-xor-rr :r0 :r0)
-	(vp-simd vp-add-cr '(0.5) '(:r2 :r3))
+	;a pixel is filled if its middle is in, so half a pixel is added
+	;across. Down, it is the middle of a scan line, and with soft edges
+	;there are y scale of them to a pixel
+	(vp-cpy-cr 0.5 :r5)
+	(vpif '(:r4 /= 1))
+		(vp-cpy-cr 0.0625 :r5)
+	(endif)
+	(vp-add-cr 0.5 :r2)
+	(vp-add-rr :r5 :r3)
 	(vp-simd vp-cpy-cr `(,+max_int ,+min_int) `(,xs ,xe))
 	(vp-simd vp-mul-rr '(:r4) `(,cy ,cy1))
 	(assign '(:r0 :r2 :r3) '((:rsp local_length) (:rsp local_x) (:rsp local_y)))
@@ -180,7 +188,7 @@
 		(vpif {this->+canvas_flags})
 			(assign {+max_int, +min_int} {min_x, max_x})
 			(vpifnot {this->+canvas_coverage})
-				(call :sys_mem :calloc {this->+canvas_pixmap->+pixmap_width} {this->+canvas_coverage, _})
+				(call :sys_mem :calloc {this->+canvas_pixmap->+pixmap_width + 1} {this->+canvas_coverage, _})
 			(endif)
 		(endif)
 
@@ -234,7 +242,7 @@
 				;draw edges into coverage mask
 				(vp-rdef (tracker_node mask xo cx cx1 x xp xb xm min_x max_x w v))
 				(assign {&tracker_list, this->+canvas_coverage, int($sample_offsets + ((ys & 7) << 2)),
-					1 << (ys & 7), this->+canvas_cx << +fp_shift, (this->+canvas_cx1 - 1) << +fp_shift, min_x, max_x, mode}
+					1 << (ys & 7), this->+canvas_cx << +fp_shift, this->+canvas_cx1 << +fp_shift, min_x, max_x, mode}
 					(list tracker_node mask xo xm cx cx1 min_x max_x v))
 				(vpif `(,v = 0))
 					;odd even
@@ -305,21 +313,27 @@
 				(loop-start)
 					(assign {$mask_to_coverage} (list mask_to_coverage))
 					(vp-cpy-ir this +canvas_coverage mask)
-					(vp-cpy-rr x x1)
-					(vp-cpy-rr om m)
-					(loop-start)
-						(vp-cpy-dr-ub mask x1 c)
-						(vp-add-cr 1 x1)
-						(vp-xor-rr c m)
-						(breakif `(,x1 >= ,max_x))
-					(loop-until `(,m /= ,om))
-					(vp-lea-i x1 -1 v)
+					;the pixel an edge is on is the first of the run that
+					;begins there, so the cover from it on has that edge in
+					(vp-cpy-dr-ub mask x c)
+					(vp-xor-rr c om)
 					(vp-xor-rr c c)
-					(vp-cpy-rd-b c mask v)
+					(vp-cpy-rd-b c mask x)
+					(vp-lea-i x 1 x1)
+					(loop-while `(,x1 < ,max_x))
+						(vp-cpy-dr-ub mask x1 c)
+						(breakif `(,c /= 0))
+						(vp-add-cr 1 x1)
+					(loop-end)
 					(vp-cpy-dr-ub mask_to_coverage om c)
-					(assign (list m x1) {om, x})
-					(call :canvas :span_noclip (list this c x y x1) (list this))
-					(assign {x, max_x, y, om} (list x max_x y om))
+					(assign (list om x1) {om, x})
+					;an edge at or past the right of the clip is on the pixel
+					;after its last, where nothing is drawn
+					(assign (list (list this '+canvas_cx1)) (list v))
+					(vpif `(,c /= 0) `(,x < ,v))
+						(call :canvas :span_noclip (list this c x y x1) (list this))
+					(endif)
+					(assign {this, x, max_x, y, om} (list this x max_x y om))
 				(loop-until `(,x >= ,max_x))
 				(assign {+max_int, +min_int} {min_x, max_x})
 			(else)
@@ -385,8 +399,12 @@
 	(return)
 
 (vp-label 'sample_offsets)
+	;where across a pixel each of its 8 scan lines is sampled, less the
+	;half that (:set_edges) put on. They are the middles of eighths, the
+	;0.0625 more, so an edge on a whole number, or a hair off one, has
+	;every sample of a pixel to the same side of it
 	(apply (const vp-int) (map (lambda (o)
-		(- o 0.5)) '(0.25 0.875 0.5 0.125 0.75 0.375 0.0 0.625)))
+		(- o 0.4375)) '(0.25 0.875 0.5 0.125 0.75 0.375 0.0 0.625)))
 
 (vp-label 'mask_to_coverage)
 	(apply (const vp-byte) (map (lambda (m)

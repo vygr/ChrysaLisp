@@ -347,12 +347,7 @@
 			cx1 (min w (+ (n2i (floor (* x1 *zoom*))) 4)) cy1 (min h (+ (n2i (floor (* y1 *zoom*))) 4)))
 		(when (and (< cx cx1) (< cy cy1))
 			(. *committed* :clear 0 cx cy (- cx1 cx) (- cy1 cy))
-			;what is drawn with soft edges and cut to a box is not drawn in
-			;the first column of the box, (:fpoly) as it is. So the cut is
-			;a column wider on the left than what was made clear, and what
-			;is drawn is then just the part that was. A test holds a part
-			;drawn against all drawn, and will say if that changes
-			(. *committed* :set_clip (max 0 (dec cx)) cy cx1 cy1)
+			(. *committed* :set_clip cx cy cx1 cy1)
 			(cwb-draw *committed* doc m (list (n2f cx) (n2f cy) (n2f cx1) (n2f cy1)) skip)
 			(push parts (list cx cy cx1 cy1))))
 		boxes)

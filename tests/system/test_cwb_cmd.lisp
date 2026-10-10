@@ -55,7 +55,9 @@
 (when cc_canvas
 	(assert-eq "the box is its colour in it" 0xffffd070 (cc-pixel cc_canvas 40 140))
 	(assert-eq "what is behind is what was asked for" 0xffffffff (cc-pixel cc_canvas 600 20))
-	(assert-true "the line along the ruler is there, black" (< (logand (cc-pixel cc_canvas 300 290) 0xffffff) 0x101010))
+	;the line is 3 wide about 290: all of rows 289 and 290, the ruler's own
+	;edge is drawn over the second of them
+	(assert-true "the line along the ruler is there, black" (< (logand (cc-pixel cc_canvas 300 289) 0xffffff) 0x101010))
 	(assert-true "and the ruler, which is on the board and not in the document, is drawn too"
 		(/= 0xffffffff (cc-pixel cc_canvas 200 350))))
 
