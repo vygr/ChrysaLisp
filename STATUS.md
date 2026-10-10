@@ -4,6 +4,26 @@
 
 ------
 
+Chris tried the config on a desktop. First: "after close and reopen, the
+current doc was gone..." The save had thrown, `cwb-out` not bound, twice,
+and said so in the log now that it can: the desktop was one started
+before `cwb-out` was added to `lib/cwb/doc.inc`, and its nodes had that
+file from before. A node does not load again a file it has. I had told
+him to open the app again and not brought up a new desktop, which a
+change to a library that a desktop has at its start needs. Then, on a
+new desktop: "yeah all came back on quit/relaunch." `usr/Guest/
+whiteboard.tre` is there, 4K, his window at 147 221, 727x572, his words
+`[hi]`, his drawing.
+
+For the first push he chose, of what I listed: the config seen, done;
+the recorder out; a full run and a soak on the M4; what becomes of
+`test.cwb`; the digest's list of what is not done made true; and the
+rest of his tests, stripes, snap and fingers.
+
+The digest no longer says nobody has seen the palette on a screen.
+
+------
+
 Chris: "clicking 'new' was not undoable ? is that a deliberate choice ?
 it's easy to acidently do that click after an hours work...."
 

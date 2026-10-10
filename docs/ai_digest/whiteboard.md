@@ -430,9 +430,6 @@ then is.
 
 ## What is not done
 
-* The palette has been seen as a picture, by the AI that made it, and not on
-a screen by anyone. How it feels to open and to pick from is not known.
-
 * A pen or a finger has never been on it. The SDL3 driver tells of them, see
 below, and all above it is tested with them made up, but there has been no
 touch screen and no pen to try. Only the SDL3 driver does; the framebuffer
