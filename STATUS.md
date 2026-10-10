@@ -4,6 +4,29 @@
 
 ------
 
+Chris: "When the start/end points of an arc edge draw are very close, we
+see the draged edge shape breaking off the edge and drawing wrong, are we
+filtering the points the edge is generating ? or is this an issue with
+the underlying draw function."
+
+Neither filtering nor the fill. It is what the A of an SVG path is: it
+says where an arc ends, and its middle is worked out from the two ends.
+When they are close, an arc most of the way round, there is next to
+nothing to work it out from. Measured on a circle of 180: all but a five
+hundredth of a turn round, ends a third of a pixel apart, was 1.4 pixels
+off, and worse the closer. Ends across from each other, half a turn, 0.1
+to 0.3 off.
+
+`(cwb-d-arc)` writes an arc as arcs of no more than a third of a turn
+each. The same arcs are within 0.02 of a pixel. `test_cwb.lisp`, 4 more.
+
+And: "our ruler rotation center are not align on the 0 mark of each
+side." Mine, of the commit before: the point a ruler turns about was
+found without its size, so it was right only at size 1. A test turns a
+ruler that has been made bigger.
+
+------
+
 Chris: "The numeric markings are not scaleing with the tools. And we
 should have visible degrees angle visible on the tools. on the ruler we
 shoukld see 2 of those, for each orientation of the ruler. With the ruler

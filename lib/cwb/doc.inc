@@ -244,17 +244,26 @@
 	; (cwb-d-arc cx cy r a0 a1 [pie]) -> d
 	;part of a circle about a point, from one angle round to another the
 	;way the angle grows, in radians from the x axis. A slice of pie, with
-	;the two lines to the middle, if pie. Once round or more is a circle
+	;the two lines to the middle, if pie. Once round or more is a circle.
+	;
+	;It is written as arcs of no more than a third of a turn each. The A
+	;of a path says where an arc ends and not where its middle is, that
+	;is worked out from the two ends, and when they are close together,
+	;an arc most of the way round, or across from each other, half way,
+	;there is little to work it out from: the arc came off its circle
 	(defq cx (n2f cx) cy (n2f cy) r (n2f r) a0 (n2f a0) a1 (n2f a1) sweep (- a1 a0))
 	(cond
 		((>= (abs sweep) (const (- +fp_2pi 0.0005))) (cwb-d-ellipse cx cy r))
 		(:t (if (< sweep 0.0) (setq sweep (+ sweep +fp_2pi)))
-			(defq x0 (+ cx (* r (cos a0))) y0 (+ cy (* r (sin a0)))
-				x1 (+ cx (* r (cos a1))) y1 (+ cy (* r (sin a1)))
-				large (if (> sweep +fp_pi) 1 0))
-			(if pie
-				(cwb-d "M" cx cy "L" x0 y0 "A" r r 0 large 1 x1 y1 "Z")
-				(cwb-d "M" x0 y0 "A" r r 0 large 1 x1 y1)))))
+			(defq pieces (max 1 (n2i (+ 0.9999 (/ sweep (const (/ +fp_2pi 3.0))))))
+				out (if pie (list "M" cx cy "L") (list "M")))
+			(push out (+ cx (* r (cos a0))) (+ cy (* r (sin a0))))
+			(each (lambda (i)
+				(defq a (+ a0 (/ (* sweep (n2f i)) (n2f pieces))))
+				(push out "A" r r 0 0 1 (+ cx (* r (cos a))) (+ cy (* r (sin a)))))
+				(range 1 (inc pieces)))
+			(if pie (push out "Z"))
+			(apply (const cwb-d) out))))
 
 ;;;;;;;;;;;;
 ; flattening

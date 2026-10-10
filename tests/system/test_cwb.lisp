@@ -570,3 +570,21 @@
 (def rb_board :zoom 1.0 :rub_mode :whole)
 (. rb_board :rub 200 150)
 (assert-eq "set to take a line whole, it does" 2 (length (cwb-items rb_doc)))
+
+;an arc is written as arcs of no more than a third of a turn, each is on its circle
+(defun rb-arc-off (a0 sweep)
+	;the furthest a point of the arc from a0 round by sweep, about 400 300 of radius 180, is off its circle
+	(defq worst 0.0)
+	(each (lambda ((closed p))
+		(each (lambda ((x y)) (setq worst (max worst (abs (- (sqrt (+ (* (- x 400.0) (- x 400.0)) (* (- y 300.0) (- y 300.0)))) 180.0)))))
+			(partition p 2)))
+		(path-gen-paths (cwb-d-arc 400 300 180 a0 (+ a0 sweep))))
+	worst)
+(assert-list-eq "an arc of a quarter turn is one A, of half a turn two, of nearly all the way round three" '(1 2 3)
+	(map (# (length (filter (# (eql %0 "A")) (split (cwb-d-arc 0 0 100 0.5 (+ 0.5 %0)) " ")))) (list 1.5708 3.14159 6.2)))
+(assert-true "an arc all but a five hundredth of a turn round, its ends a third of a pixel apart, is on its circle to a twentieth of a pixel"
+	(< (reduce (# (max %0 (rb-arc-off (* (n2f %1) 0.0731) (- +fp_2pi 0.002)))) (range 0 40) 0.0) 0.05))
+(assert-true "and so is one of half a turn, and of a little more"
+	(< (reduce (# (max %0 (rb-arc-off (* (n2f %1) 0.0731) 3.14159) (rb-arc-off (* (n2f %1) 0.0731) 3.2832))) (range 0 40) 0.0) 0.05))
+(assert-true "a slice of pie is its two lines and those arcs"
+	(progn (defq rb_pie (cwb-d-arc 400 300 180 0 4.0 :t)) (and (starts-with "M 400 300 L 580 300 A" rb_pie) (ends-with "Z" rb_pie))))

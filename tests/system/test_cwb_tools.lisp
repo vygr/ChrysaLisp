@@ -139,6 +139,13 @@
 (assert-true "and is made as it was, it is seen bigger" (wt-near? (elem-get (first (get :edges wt_ruler)) 3) (- 200.0 +ruler_cap) 0.01))
 (wt-go '(1 :pen 1 300 232)) (wt-go '(1 :pen 1 500 235)) (wt-go '(1 :pen 0 500 235))
 (assert-true "a pen is held to its side where that now is" (wt-near? (wt-numbers (wt-last-d)) '(300 239.49 500 239.49) 0.3))
+;bigger, it still turns about the 0 of its marks, where that now is
+(defq wt_corner (. wt_ruler :to_board -174 -40) wt_hole (. wt_ruler :to_board 150 0))
+(wt-go (cat '(0 :mouse 1) wt_hole)) (wt-go (list 0 :mouse 1 (first wt_hole) (+ (second wt_hole) 120.0)))
+(wt-go (list 0 :mouse 0 (first wt_hole) (+ (second wt_hole) 120.0)))
+(assert-true "a ruler that has been made bigger turns about the 0 of its marks, where that is on the board"
+	(and (> (get :angle wt_ruler) 0.2) (wt-near? (. wt_ruler :to_board -174 -40) wt_corner 0.05)))
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
 (wt-go '(0 :mouse 1 695 300)) (wt-go '(0 :mouse 1 9000 300)) (wt-go '(0 :mouse 0 9000 300))
 (assert-eq "but no bigger than it may be" 5.0 (get :size wt_ruler))
 

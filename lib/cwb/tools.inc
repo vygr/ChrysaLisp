@@ -277,7 +277,8 @@
 			(:turn
 				(when (and (= (. this :held) 1) (not (get :grab this)))
 					;about a point of it, which stays where it is on the board
-					(defq pivot (third region) m0 (cwb-mat-mul (cwb-mat-move (first origin) (second origin)) (cwb-mat-turn angle)))
+					(defq pivot (third region) m0 (cwb-mat-mul (cwb-mat-move (first origin) (second origin))
+						(cwb-mat-mul (cwb-mat-turn angle) (cwb-mat-scale length))))
 					(bind '(bx by) (if (nempty? pivot) (cwb-mat-point m0 (first pivot) (second pivot)) origin))
 					(defq turn (tool-angle-wrap (- (path-angle (- x bx) (- y by)) (path-angle (- sx bx) (- sy by))))
 						snap (get :snap_angle board))
