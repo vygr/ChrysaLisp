@@ -15,9 +15,9 @@
 (bind '(dg_card dg_cw dg_ch) (dia-card "Thing" "what it is" (list (list "fields" '("int a" "int b")) (list "methods" '(":one")))))
 (bind '(dg_card2 dg_cw2 dg_ch2) (dia-card "Thing" "what it is" (list (list "fields" '("int a" "int b" "a very much longer row than the others are")))))
 (assert-true "a card with a longer row is wider, with a section more it is taller" (and (> dg_cw2 dg_cw) (> dg_ch dg_ch2)))
-(bind '(dg_many dg_mw dg_mh) (dia-card "Thing" :nil (list (list "methods" (map (# (cat ":a_method_with_a_name_" (str %0))) (range 0 30))))))
-(bind '(dg_few dg_fw dg_fh) (dia-card "Thing" :nil (list (list "methods" (map (# (cat ":a_method_with_a_name_" (str %0))) (range 0 14))))))
-(assert-true "thirty rows are set in two columns, a little taller than fourteen and not twice" (and (> dg_mw dg_fw) (< dg_mh (* 1.3 dg_fh))))
+(bind '(dg_many dg_mw dg_mh) (dia-card "Thing" :nil (list (list "methods" (map (# (cat ":a_method_with_a_name_" (str %0))) (range 0 20))))))
+(bind '(dg_few dg_fw dg_fh) (dia-card "Thing" :nil (list (list "methods" (map (# (cat ":a_method_with_a_name_" (str %0))) (range 0 8))))))
+(assert-true "twenty rows are set in two columns, a little taller than eight and not twice" (and (> dg_mw dg_fw) (< dg_mh (* 1.3 dg_fh))))
 
 ;a row goes onto another line when it is too wide
 (bind '(dg_row dg_rw dg_rh) (dia-row (map (# (dia-pill %0)) '("one" "two" "three" "four" "five" "six")) 8.0 120.0))

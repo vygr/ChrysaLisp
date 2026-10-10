@@ -310,7 +310,14 @@
 		(diagram-save (dia-class (str cls) (ifn file "")
 				(chain-of (str cls) vp_supers)
 				(sort (map (const first) (filter (# (eql (second %0) (str cls))) vp_nodes)) (const cmp))
-				(filter (# (nempty? (second %0))) (list
+				(filter (# (nempty? (second %0))) (cat
+					;the fields of each class it comes of, from the first, in the
+					;order they lie in an object, and then its own
+					(map (lambda (parent)
+							(defq pfile (. class_files :find (sym parent)))
+							(list (cat "fields of " parent) (if pfile (vp-fields pfile (rest parent)) (list))))
+						(chain-of (str cls) vp_supers))
+					(list
 					(list "fields" (if file (vp-fields file (rest cls)) (list)))
 					(list "virtual methods" (named '(:virtual :final)))
 					(list "overrides" (named '(:override)))
@@ -322,7 +329,7 @@
 							(if (and info (starts-with "(" info))
 								(first (split (rest info) (const (char-class " )"))))
 								(rest (str mthd))))
-						(filter (# (starts-with ":lisp_" (first %0))) mthds)) (const cmp))))))
+						(filter (# (starts-with ":lisp_" (first %0))) mthds)) (const cmp)))))))
 			(cat "docs/reference/vp_classes/" (rest cls) ".cwb"))
 		(unless (eql ":nil" super)
 			(write-line stream (cat "## " super +LF)))

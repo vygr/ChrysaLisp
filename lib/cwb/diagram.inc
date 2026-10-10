@@ -95,7 +95,7 @@
 			(if under (+ (dia-width under 11) pad pad) 0.0)))
 	;each section as columns of rows, and how wide that makes it
 	(each (lambda ((heading rows))
-		(defq n (length rows) across (cond ((> n 36) 3) ((> n 14) 2) (:t 1))
+		(defq n (length rows) across (cond ((> n 24) 3) ((> n 8) 2) (:t 1))
 			down (max 1 (/ (+ n across -1) across)) parts (partition rows down)
 			widths (map (lambda (part) (reduce (# (max %0 (dia-width %1 size))) part 0.0)) parts))
 		(push cols (list heading parts widths down))

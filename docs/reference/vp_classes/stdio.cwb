@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 4
 	:width 176
-	:height 429
+	:height 495
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 37
+	:next_id 41
 	:layers
 	((:list 1)
 		((:list 3)
@@ -171,13 +171,13 @@
 							:id
 							13
 							:items
-							((:list 23)
+							((:list 27)
 								((:list 11)
 									:shape
 									:id
 									14
 									:d
-									"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 355 A 8 8 0 0 1 142 363 L 8 363 A 8 8 0 0 1 0 355 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 421 A 8 8 0 0 1 142 429 L 8 429 A 8 8 0 0 1 0 421 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -268,7 +268,7 @@
 									:stroke
 									0
 									:text
-									"[fields]"
+									"[fields of :obj]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -289,7 +289,7 @@
 									:stroke
 									0
 									:text
-									"[ptr stdin]"
+									"[pptr vtable]"
 									:font_size
 									12
 								)
@@ -308,6 +308,80 @@
 									:stroke
 									0
 									:text
+									"[uint count]"
+									:font_size
+									12
+								)
+								((:list 13)
+									:shape
+									:id
+									22
+									:d
+									"[M 0 116 L 150 116]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									23
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 132.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[fields]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									24
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 151.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[ptr stdin]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									25
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 168.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
 									"[ptr stdout]"
 									:font_size
 									12
@@ -315,10 +389,10 @@
 								((:list 15)
 									:shape
 									:id
-									22
+									26
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 119.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 185.00000
 									)
 									:kind
 									:text
@@ -334,10 +408,10 @@
 								((:list 15)
 									:shape
 									:id
-									23
+									27
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 136.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 202.00000
 									)
 									:kind
 									:text
@@ -353,9 +427,9 @@
 								((:list 13)
 									:shape
 									:id
-									24
+									28
 									:d
-									"[M 0 150 L 150 150]"
+									"[M 0 216 L 150 216]"
 									:stroke
 									4282140240
 									:width
@@ -368,10 +442,10 @@
 								((:list 17)
 									:shape
 									:id
-									25
+									29
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 166.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 232.00000
 									)
 									:kind
 									:text
@@ -389,10 +463,10 @@
 								((:list 15)
 									:shape
 									:id
-									26
+									30
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 185.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 251.00000
 									)
 									:kind
 									:text
@@ -408,9 +482,9 @@
 								((:list 13)
 									:shape
 									:id
-									27
+									31
 									:d
-									"[M 0 199 L 150 199]"
+									"[M 0 265 L 150 265]"
 									:stroke
 									4282140240
 									:width
@@ -423,10 +497,10 @@
 								((:list 17)
 									:shape
 									:id
-									28
+									32
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 215.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 281.00000
 									)
 									:kind
 									:text
@@ -444,80 +518,6 @@
 								((:list 15)
 									:shape
 									:id
-									29
-									:m
-									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 234.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:type]"
-									:font_size
-									12
-								)
-								((:list 13)
-									:shape
-									:id
-									30
-									:d
-									"[M 0 248 L 150 248]"
-									:stroke
-									4282140240
-									:width
-									1.00000
-									:cap1
-									:butt
-									:cap2
-									:butt
-								)
-								((:list 17)
-									:shape
-									:id
-									31
-									:m
-									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 264.00000
-									)
-									:kind
-									:text
-									:fill
-									4284245616
-									:stroke
-									0
-									:text
-									"[static methods]"
-									:font
-									"[fonts/OpenSans-Bold.ctf]"
-									:font_size
-									11
-								)
-								((:list 15)
-									:shape
-									:id
-									32
-									:m
-									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 283.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:create]"
-									:font_size
-									12
-								)
-								((:list 15)
-									:shape
-									:id
 									33
 									:m
 									((:path 6)
@@ -530,7 +530,7 @@
 									:stroke
 									0
 									:text
-									"[:init]"
+									"[:type]"
 									:font_size
 									12
 								)
@@ -564,7 +564,7 @@
 									:stroke
 									0
 									:text
-									"[Lisp bindings]"
+									"[static methods]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -577,6 +577,80 @@
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 349.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:create]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									37
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 366.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:init]"
+									:font_size
+									12
+								)
+								((:list 13)
+									:shape
+									:id
+									38
+									:d
+									"[M 0 380 L 150 380]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									39
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 396.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[Lisp bindings]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									40
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 415.00000
 									)
 									:kind
 									:text

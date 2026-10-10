@@ -4,6 +4,27 @@
 
 ------
 
+Chris: "add the inherited fields to the class cards too".
+
+The card of a VP class has the fields of each class it comes of, from
+the first, in the order they lie in an object, each under "fields of"
+and the class, then its own under "fields". A class that adds none has
+no section. A list of more than 8 rows is set in two columns now, of
+more than 24 in three, so the cards are no longer for it: `:canvas` is
+1,069 high.
+
+One thing it says that is not quite so: `:hmap`'s structure starts at
+`:array`'s `elems`, in place of it, so `struct elems` is on the card
+under both.
+
+Every field row of all 53 read by the script again: a type that is one,
+a name that is a name.
+
+Run: `test_cwb_diagram` 19 on the M4, the full suite on the x64 and the
+Pi. `:canvas` and `:real` looked at by me.
+
+------
+
 Three more diagrams in the pages, 34: the life of a VP object,
 `vm/vp_structure.md`; when a macro runs, `lisp/macros.md`; a branch of
 the tree of tasks lost and made again, the digest's `fault_tolerant.md`.
