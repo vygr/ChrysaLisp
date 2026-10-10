@@ -235,6 +235,10 @@ order.
 Path relationships in `@Lock` are resolved using ChrysaLisp's native `split` and
 `every` primitives.
 
+```image
+docs/diagrams/lock_paths.cwb
+```
+
 ```file
 "service/lock/app_impl.lisp" "(defun conflict?" ""
 ```

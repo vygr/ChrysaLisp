@@ -61,3 +61,29 @@
 (defq dg_all (dia-hierarchy '((":obj" :nil) (":num" ":obj") (":sys_mem" :nil) (":sys_task" :nil))))
 (assert-true "the tree of them all has those that come of nothing set apart under it"
 	(> (. dg_all :find :height) 100))
+
+;a scene: boxes put down by name, and lines between names that leave and arrive at the sides that face
+(defq dg_scene (dia-scene))
+(dia-put dg_scene 'left (dia-box "left" 100 40) 0 100)
+(dia-put dg_scene 'right (dia-box '("right" "of it") 100 40 :nil 12 :first) 300 100)
+(dia-put dg_scene 'below (dia-box "below" 100 40) 0 300)
+(dia-under dg_scene (dia-box "" 500 400) -20 -20)
+(assert-list-eq "a box that is put down by a name is where it was put, the size it was made"
+	'(300 100 100 40) (map (const n2i) (. (third dg_scene) :find 'right)))
+(assert-list-eq "the middle of each side of it" '((300 120) (400 120) (350 100) (350 140))
+	(map (# (map (const n2i) (dia-side (. (third dg_scene) :find 'right) %0))) '(:left :right :top :bottom)))
+(dia-join dg_scene 'left 'right "across")
+(dia-join dg_scene 'left 'below "" :none)
+(dia-join dg_scene 'left 'nowhere "")
+(defun dg-line-ends (item)
+	;the two ends of the first line of an item that is a line or an arrow, a group of a line and its head
+	(defq shape (if (cwb-group? item) (first (elem-get item +cwb_items)) item))
+	(map (# (n2i (str-to-num %0))) (filter (# (not (find %0 '("M" "L" "Z")))) (split (cwb-get shape :d) " "))))
+(assert-list-eq "a line to a box beside leaves by the side that faces it and arrives at the side that faces back"
+	'(100 120 300 120) (dg-line-ends (first (first dg_scene))))
+(assert-list-eq "and to one below, from the bottom to the top" '(50 140 50 300)
+	(dg-line-ends (some (# (if (and (cwb-group? %0) (= (length (elem-get %0 +cwb_items)) 1)) %0)) (first dg_scene))))
+(assert-eq "a line to a name that is not there is no line: two lines and the words of one" 3 (length (first dg_scene)))
+(defq dg_sdoc (dia-scene-doc dg_scene))
+(assert-true "the document of a scene has what lies under first, then its lines, then its boxes"
+	(and (= (length (cwb-items dg_sdoc)) 7) (> (. dg_sdoc :find :width) 500)))

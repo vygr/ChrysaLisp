@@ -34,6 +34,10 @@ provides detailed examples using the `grep`, `forward`, and `make` commands.
 
     * The `|` is the ditrubuted operator, `!` is the pining operator.
 
+```image
+docs/diagrams/pipe_line.cwb
+```
+
 3. **Distribution:**
 
     * **Pipeline Distribution:** Each command in a pipeline can potentially

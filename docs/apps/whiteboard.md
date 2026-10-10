@@ -269,4 +269,8 @@ mouse a pointer, `widgets.inc` is the toolbars, `ui.inc` what each does, and
 `config.inc` what is kept when it is closed, and `app.lisp` the canvases and
 the loop.
 
+```image
+docs/diagrams/wb_layers.cwb
+```
+
 * `cmd/cwb.lisp`, the command.

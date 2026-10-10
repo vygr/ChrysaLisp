@@ -17,6 +17,10 @@ So the test of a change is as big as the change. An edit to a library runs
 the modules that use it. An edit to what is under everything, the boot
 image, runs them all. An edit to a doc runs none.
 
+```image
+docs/diagrams/test_cache.cwb
+```
+
 ## What A Module Stands On
 
 * The module itself.

@@ -440,6 +440,18 @@ how big it is, words are as wide as the font says they are, so a box is the
 size of what is in it. `(dia-doc parts)` makes a document of them, as big as
 they are.
 
+A diagram that is thought out and not worked out from data is a scene:
+`(dia-scene)`, then `(dia-put scene 'name (dia-box ...) x y)` for each box,
+`(dia-under)` for one that others are in, `(dia-join scene 'from 'to
+"label")` for a line between two names, which leaves and arrives at the
+sides that face, `(dia-say)` for words, and `(dia-scene-doc scene)`.
+
+The diagrams in the pages of the docs are scripts, `docs/diagrams/*.lisp`,
+a scene each, that end with `(diagram "name" doc)`. `make docs` runs every
+one and saves `docs/diagrams/name.cwb` beside it, and a page shows it with
+an `image` section. To change one, change its script and `make docs`. To
+see one as you write it, `cwb docs/diagrams/name.cwb -k -o name.tga`.
+
 `make docs` makes the diagrams of the reference with it, from the source,
 each time: a card for every VP class, `docs/reference/vp_classes/`, with
 what it comes of, its fields, its methods by kind and what comes of it; one

@@ -25,6 +25,10 @@ The **Translation System** is responsible for converting this VP bytecode
 into executable machine code for a specific target CPU and ABI (Application
 Binary Interface).
 
+```image
+docs/diagrams/vp_translate.cwb
+```
+
 ## VP Architecture
 
 * **Registers:** The VP has 16 general-purpose 64-bit registers, and 16 IEEE

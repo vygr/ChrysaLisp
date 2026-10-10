@@ -14,6 +14,10 @@ function pointers) to the ChrysaLisp environment. These tables define the Host
 Application Binary Interface (ABI) that ChrysaLisp code uses to interact with
 the host.
 
+```image
+docs/diagrams/host_layers.cwb
+```
+
 1. **`host_os_funcs` (Platform Interface Implementation - PII - OS Layer):**
 
     * Defined in `src/host/pii_*.cpp` (platform-specific: `pii_darwin.cpp`,

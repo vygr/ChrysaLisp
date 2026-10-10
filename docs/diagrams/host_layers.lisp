@@ -1,0 +1,11 @@
+;docs/ai_digest/host_interface.md: what is under the system, and how little of it
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s :nil (dia-box '("ChrysaLisp" "tasks, the kernel, Lisp, the GUI: all in the boot_image, the same on every host") 640 44 gold 11 :first) 0 0)
+(dia-put s :nil (dia-box '(":host_os" "files, memory, time") 150 44 blue 11 :first) 0 56)
+(dia-put s :nil (dia-box '(":host_gui" "a window, events, textures") 180 44 blue 11 :first) 160 56)
+(dia-put s :nil (dia-box '(":host_audio" "sound") 110 44 blue 11 :first) 350 56)
+(dia-put s :nil (dia-box '(":host_net, clipboard" "sockets") 170 44 blue 11 :first) 470 56)
+(dia-put s :nil (dia-box '("the host program, src/host/" "main_tui or main_gui: loads the boot_image and hands it tables of functions") 640 44 green 11 :first) 0 112)
+(dia-put s :nil (dia-box '("macOS, Linux, Windows, or a bare display" "SDL, a framebuffer, or raw; or the VP64 emulator running a boot_image for no real processor") 640 44 grey 11 :first) 0 168)
+(dia-say s "Everything the system asks of a host goes through those few tables. A port is the host program and an emit file." 0 240 12 :nil 0xff202428)
+(diagram "host_layers" (dia-scene-doc s))

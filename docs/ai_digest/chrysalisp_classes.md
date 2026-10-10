@@ -67,6 +67,10 @@ applications are written. This "Script" layer uses its own class system that
 implements the same *concept* of vtable-based polymorphism but with a
 completely different, radically more flexible implementation.
 
+```image
+docs/diagrams/dual_vtable.cwb
+```
+
 **Implementation and Object Representation**
 
 In the Lisp world, an object is not a `struct` with a fixed layout; it **is an

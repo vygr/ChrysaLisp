@@ -54,6 +54,10 @@ mesh -j
 It listens for the others, tells the network it is there, and looks for
 them. After a few seconds, up to half a minute, it lists who it has found:
 
+```image
+docs/diagrams/mesh_join.cwb
+```
+
 ```code
 Key:     mesh_key, only machines with the same file can join.
 Joined:  yes.

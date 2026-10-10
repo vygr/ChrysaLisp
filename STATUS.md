@@ -4,6 +4,60 @@
 
 ------
 
+**The second part of the night's work, diagrams placed in the pages.**
+
+*	A scene, in `lib/cwb/diagram.inc`: boxes put down by name, a layer
+	under them for a box that others are in, lines between names that
+	leave and arrive at the sides that face, words.
+
+*	Each diagram is a script, `docs/diagrams/<name>.lisp`, that `make
+	docs` runs, and the `.cwb` beside it is made again each time. 31 of
+	them, each in an `image` section of the page it is for:
+
+	vm: tasks and nodes, the registers, a function's sections.
+	gui: a message's journey, the net id, an event loop, event
+	dispatch, a widget tree and a property looked for up it.
+	lisp: the chain of environments.
+	intro: three machines joined.
+	apps: the Whiteboard's canvases.
+	digest: heaps and an object's cell, the compositor's passes,
+	fragments and a parcel, a ping's flood, a pipe of streams, a farm,
+	a task rolling downhill, the tree of hashes of sync, rack, the
+	rasteriser, the text stack, a page of the Docs app, the
+	Whiteboard's parts and a touch's path, lock paths, the two
+	vtables, the translator, a pipeline, the host, the test cache.
+
+*	Every one of the 31 was drawn to a picture and looked at by me, and
+	a third of them were changed for what I saw: a label under a box,
+	an arrow's head hidden by the box a thing was in, lines over words.
+
+*	What each says was taken from the page it is in, read first. Where
+	I was not sure a thing was so I left it out. One I changed after: a
+	task "started on any" machine, which the kernel does not do.
+
+**Chris, looking at the class diagrams while this went on:** "what are
+that ;xxxx ?", of `:pixmap`, whose fields had the words of a note in its
+structure as fields, "the", "other", "they". I had looked at classes
+with no notes in theirs. The fields are now read by the brackets of the
+form, with what is after a `;` left out, and only what is a type is a
+field: it also had a field that went over lines wrong, `:lisp`, and
+part of a sum as fields, `:array`. A script then read every field row
+of all 53: each has a type that is one and a name that is a name.
+
+Run: `test_cwb_diagram` 19 on the M4, the full suite on the x64 and the
+Pi.
+
+Not seen: by him, the 31, and the trees. In the Docs app a page may be
+narrower than a diagram is wide, the widest is 950.
+
+Not done: the rest of the pages. About a hundred have none, and for
+most a diagram would say no more than the words do. The ones I would do
+next: `vm/vp_structure`, `vm/vp_assignment`, `lisp/iteration`,
+`lisp/macros`, the digest's `fault_tolerant`, `net_stack`,
+`shader_language`, `storage_service`, `keeping_it_hot`.
+
+------
+
 Chris, for the night of 2026-10-10: "It's that task to go through the
 docsuments and add 'image' sections using .cwb diagrams, where needed.
 Plus the auto generation of the class informatic diagrams and the
