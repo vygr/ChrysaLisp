@@ -1,5 +1,9 @@
 # :netid
 
+```image
+docs/reference/vp_classes/netid.cwb
+```
+
 ## :str
 
 ## VP methods

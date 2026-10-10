@@ -1,5 +1,9 @@
 # Jobs
 
+```image
+docs/reference/classes/Jobs.cwb
+```
+
 ```code
 (Jobs path task_mbox reply_mbox [size away]) -> jobs
 

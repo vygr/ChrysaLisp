@@ -1,5 +1,9 @@
 # :host_os
 
+```image
+docs/reference/vp_classes/host_os.cwb
+```
+
 ## Lisp Bindings
 
 ### (pii-alive pid) -> :nil | :t

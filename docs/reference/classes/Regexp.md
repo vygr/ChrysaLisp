@@ -1,5 +1,9 @@
 # Regexp
 
+```image
+docs/reference/classes/Regexp.cwb
+```
+
 ## Search
 
 ```code

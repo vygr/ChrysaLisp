@@ -1,5 +1,9 @@
 # Xmap
 
+```image
+docs/reference/classes/Xmap.cwb
+```
+
 ## Map
 
 ```code

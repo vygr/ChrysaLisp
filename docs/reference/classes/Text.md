@@ -1,5 +1,9 @@
 # Text
 
+```image
+docs/reference/classes/Text.cwb
+```
+
 ## View
 
 ```code

@@ -1,5 +1,9 @@
 # :canvas
 
+```image
+docs/reference/vp_classes/canvas.cwb
+```
+
 ## :view
 
 ## Lisp Bindings

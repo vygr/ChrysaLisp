@@ -1,5 +1,9 @@
 # Lmap
 
+```image
+docs/reference/classes/Lmap.cwb
+```
+
 ## Map
 
 ```code

@@ -1,5 +1,9 @@
 # Search
 
+```image
+docs/reference/classes/Search.cwb
+```
+
 ```code
 (Search) -> search
 ```

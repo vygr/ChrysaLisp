@@ -1,5 +1,9 @@
 # Farm
 
+```image
+docs/reference/classes/Farm.cwb
+```
+
 ## Fmap
 
 ```code

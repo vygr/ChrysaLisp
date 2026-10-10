@@ -1,5 +1,9 @@
 # :pmap
 
+```image
+docs/reference/vp_classes/pmap.cwb
+```
+
 ## :pset
 
 ## Lisp Bindings

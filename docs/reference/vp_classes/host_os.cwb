@@ -1,0 +1,1733 @@
+((:Emap 1)
+	:version 4
+	:width 232
+	:height 852
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 93
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 1)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							2
+							:items
+							((:list 90)
+								((:list 11)
+									:shape
+									:id
+									3
+									:d
+									"[M 8 0 L 198.04589 0 A 8 8 0 0 1 206.04589 8 L 206.04589 818 A 8 8 0 0 1 198.04589 826 L 8 826 A 8 8 0 0 1 0 818 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									:fill
+									4294967295
+									:stroke
+									4282140240
+									:width
+									1.39999
+								)
+								((:list 11)
+									:shape
+									:id
+									4
+									:d
+									"[M 0 50 L 0 8 Q 0 0 8 0 L 198.04589 0 Q 206.04589 0 206.04589 8 L 206.04589 50 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.39999
+								)
+								((:list 17)
+									:shape
+									:id
+									5
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 24.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:host_os]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									18
+								)
+								((:list 15)
+									:shape
+									:id
+									6
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 40.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[sys/pii/class.inc]"
+									:font_size
+									11
+								)
+								((:list 13)
+									:shape
+									:id
+									7
+									:d
+									"[M 0 50 L 206.04589 50]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									8
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 66.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[virtual methods]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									9
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 85.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:alive]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									10
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 102.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:chmod]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									11
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 119.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:clear_icache]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									12
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 136.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:close]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									13
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 153.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:close_shared]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									14
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 170.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:cpus]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									15
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 187.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:dirlist]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									16
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 204.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:exit]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									17
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 221.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:gettime]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									18
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 238.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:host]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									19
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 255.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:kill]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									20
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 272.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:memory]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									21
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 289.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:mmap]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									22
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 306.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:mprotect]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									23
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 323.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:munmap]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									24
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 85.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:open]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									25
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 102.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:open_shared]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									26
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 119.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pid]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									27
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 136.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:rand]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									28
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 153.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:read]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									29
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 170.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:remove]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									30
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 187.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:seek]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									31
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 204.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:shm_close]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									32
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 221.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:shm_open]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									33
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 238.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:sleep]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									34
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 255.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:spawn]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									35
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 272.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:stat]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									36
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 289.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:sysid]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									37
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 306.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:unlink]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									38
+									:m
+									((:path 6)
+										1.00000 0.00000 103.60498 0.00000 1.00000 323.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:write]"
+									:font_size
+									12
+								)
+								((:list 13)
+									:shape
+									:id
+									39
+									:d
+									"[M 0 337 L 206.04589 337]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									40
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 353.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[static methods]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									41
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 372.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_alive]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									42
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 389.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_chmod]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									43
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 406.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_clear_icache]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									44
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 423.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_close]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									45
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 440.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_close_shared]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									46
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 457.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_cpus]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									47
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 474.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_dirlist]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									48
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 491.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_exit]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									49
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 508.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_flush]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									50
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 525.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_host]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									51
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 542.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_kill]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									52
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 559.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_memory]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									53
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 576.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_mmap]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									54
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 593.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_mprotect]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									55
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 610.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_munmap]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									56
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 627.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_open]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									57
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 644.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_open_shared]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									58
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 372.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_pid]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									59
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 389.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_rand]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									60
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 406.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_read]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									61
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 423.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_read_char]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									62
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 440.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_remove]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									63
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 457.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_seek]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									64
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 474.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_shm_close]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									65
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 491.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_shm_open]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									66
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 508.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_spawn]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									67
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 525.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_stat]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									68
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 542.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_sysid]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									69
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 559.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_time]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									70
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 576.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_unlink]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									71
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 593.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_write]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									72
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 610.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_write_char]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									73
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 627.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_write_num]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									74
+									:m
+									((:path 6)
+										1.00000 0.00000 120.16796 0.00000 1.00000 644.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:pii_write_str]"
+									:font_size
+									12
+								)
+								((:list 13)
+									:shape
+									:id
+									75
+									:d
+									"[M 0 658 L 206.04589 658]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									76
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 674.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[Lisp bindings]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									77
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 693.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[lisp_age]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									78
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 710.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[lisp_kill]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									79
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 727.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-alive]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									80
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 744.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-chmod]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									81
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 761.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-cpus]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									82
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 778.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-dirlist]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									83
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 795.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-exit]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									84
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 812.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-fstat]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									85
+									:m
+									((:path 6)
+										1.00000 0.00000 84.87109 0.00000 1.00000 693.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-host]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									86
+									:m
+									((:path 6)
+										1.00000 0.00000 84.87109 0.00000 1.00000 710.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-memory]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									87
+									:m
+									((:path 6)
+										1.00000 0.00000 84.87109 0.00000 1.00000 727.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-pid]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									88
+									:m
+									((:path 6)
+										1.00000 0.00000 84.87109 0.00000 1.00000 744.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-read-char]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									89
+									:m
+									((:path 6)
+										1.00000 0.00000 84.87109 0.00000 1.00000 761.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-remove]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									90
+									:m
+									((:path 6)
+										1.00000 0.00000 84.87109 0.00000 1.00000 778.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-spawn]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									91
+									:m
+									((:path 6)
+										1.00000 0.00000 84.87109 0.00000 1.00000 795.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-time]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									92
+									:m
+									((:path 6)
+										1.00000 0.00000 84.87109 0.00000 1.00000 812.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pii-write-char]"
+									:font_size
+									12
+								)
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+	:props :nil
+)

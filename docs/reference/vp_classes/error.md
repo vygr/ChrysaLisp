@@ -1,5 +1,9 @@
 # :error
 
+```image
+docs/reference/vp_classes/error.cwb
+```
+
 ## :obj
 
 ## VP methods

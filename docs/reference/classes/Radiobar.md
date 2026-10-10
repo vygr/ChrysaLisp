@@ -1,5 +1,9 @@
 # Radiobar
 
+```image
+docs/reference/classes/Radiobar.cwb
+```
+
 ## Flow
 
 ```code

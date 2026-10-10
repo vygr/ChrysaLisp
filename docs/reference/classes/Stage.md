@@ -1,5 +1,9 @@
 # Stage
 
+```image
+docs/reference/classes/Stage.cwb
+```
+
 ```code
 (Stage) -> stage
 ```

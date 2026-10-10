@@ -1,5 +1,9 @@
 # Iso-capsule
 
+```image
+docs/reference/classes/Iso-capsule.cwb
+```
+
 ## Iso
 
 ```code

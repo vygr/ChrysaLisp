@@ -1,5 +1,9 @@
 # Mesh-cylinder
 
+```image
+docs/reference/classes/Mesh-cylinder.cwb
+```
+
 ## Mesh
 
 ```code

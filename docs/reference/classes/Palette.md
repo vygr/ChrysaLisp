@@ -1,5 +1,9 @@
 # Palette
 
+```image
+docs/reference/classes/Palette.cwb
+```
+
 ## Actor
 
 ```code

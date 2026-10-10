@@ -1,5 +1,9 @@
 # :sys_mail
 
+```image
+docs/reference/vp_classes/sys_mail.cwb
+```
+
 ## Lisp Bindings
 
 ### (mail-declare mbox name info) -> key

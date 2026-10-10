@@ -1,5 +1,9 @@
 # Document
 
+```image
+docs/reference/classes/Document.cwb
+```
+
 ## Buffer
 
 ```code

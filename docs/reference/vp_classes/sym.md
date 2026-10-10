@@ -1,5 +1,9 @@
 # :sym
 
+```image
+docs/reference/vp_classes/sym.cwb
+```
+
 ## :str
 
 ## Lisp Bindings

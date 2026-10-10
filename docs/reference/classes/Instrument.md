@@ -1,5 +1,9 @@
 # Instrument
 
+```image
+docs/reference/classes/Instrument.cwb
+```
+
 ## Actor
 
 ```code

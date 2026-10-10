@@ -1,5 +1,9 @@
 # Substr
 
+```image
+docs/reference/classes/Substr.cwb
+```
+
 ## Search
 
 ```code

@@ -1,5 +1,9 @@
 # :font
 
+```image
+docs/reference/vp_classes/font.cwb
+```
+
 ## :obj
 
 ## Lisp Bindings

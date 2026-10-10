@@ -68,8 +68,49 @@
 	(when (defq i (find (char 0x22) %0))
 		(slice %0 (inc i) (find (char 0x22) %0 (inc i)))))
 
+(defun vp-fields (file name)
+	; (vp-fields file name) -> (str ...)
+	;the fields of a VP class, each as its type and its name, from the
+	;structure of that name in the struct.inc beside its class.inc
+	(defq out (list) state :nil at (rfind "/" file)
+		stream (file-stream (cat (slice file 0 (ifn at 0)) "struct.inc")))
+	(when stream
+		(lines! (lambda (line)
+			(cond
+				((not state)
+					(if (or (starts-with (cat "(structure +" name " ") line) (starts-with (cat "(def-struct +" name " ") line))
+						(setq state :in)))
+				((eql state :in)
+					(defq words (split line (const (char-class " ()\t\r"))))
+					(cond
+						((empty? words) (setq state :done))
+						((find (first words) '("offset" "align")))
+						((eql (first words) "struct") (push out (cat "struct " (second words))))
+						(:t (each (# (push out (cat (first words) " " %0))) (rest words))))
+					(if (ends-with "))" (trim line (const (char-class " \t\r")))) (setq state :done))))
+			:nil) stream))
+	out)
+
+(defun chain-of (name supers)
+	; (chain-of name supers) -> (name ...)
+	;what a class comes of, from the first down to its parent, by a map
+	;of each class to its parent
+	(defq out (list) seen 0)
+	(while (and (< (setq seen (inc seen)) 32) (defq parent (. supers :find name)))
+		(push out parent)
+		(setq name parent))
+	(reverse out))
+
+(defun diagram-save (doc file)
+	(cwb-save doc (file-stream file +file_open_write))
+	(if (> *build_verb* 0) (print "-> " file)))
+
 (defun make-docs ()
 	(print "Scanning source files...")
+	;the diagrams of the reference are made here too, lib/cwb/diagram.inc.
+	;It is brought in when docs are made and not as this file is read,
+	;a build of the system has no use for it
+	(import "lib/cwb/diagram.inc")
 
 	;scan for Lisp functions, macros, classes, ffi and keys info
 	(defq docs_map (string-stream ""))
@@ -80,11 +121,23 @@
 		(# (write-blk docs_map %0)))
 	(setq docs_map (tree-load (string-stream (str docs_map))))
 
-	;create classes docs
+	;create classes docs, each with its diagram: what it comes of, its
+	;methods, and what comes of it
+	(defq lisp_supers (Fmap 31) lisp_nodes (list))
+	(each (lambda ((name pname &ignore))
+		(push lisp_nodes (list name pname))
+		(if pname (. lisp_supers :insert name pname)))
+		(. docs_map :find :classes))
 	(each (lambda ((name pname methods info))
 			(defq document (cat "docs/reference/classes/" name ".md")
 				stream (file-stream document +file_open_write))
 			(write-line stream (cat "# " name +LF))
+			(write-line stream (cat "```image" +LF "docs/reference/classes/" name ".cwb" +LF "```" +LF))
+			(diagram-save (dia-class name (if (nempty? info) (first info) "")
+					(chain-of name lisp_supers)
+					(sort (map (const first) (filter (# (eql (second %0) name)) lisp_nodes)) (const cmp))
+					(list (list "methods" (sort (map (const first) methods) (const cmp)))))
+				(cat "docs/reference/classes/" name ".cwb"))
 			(if pname (write-line stream (cat "## " pname +LF)))
 			(information stream info)
 			(each (lambda ((name info))
@@ -93,6 +146,16 @@
 				(sort methods (# (cmp (first %0) (first %1)))))
 			(if (> *build_verb* 0) (print "-> " document)))
 		(sort (. docs_map :find :classes) (# (cmp (first %0) (first %1)))))
+	;and the tree of them all
+	(defq document "docs/reference/class_hierarchy.md" stream (file-stream document +file_open_write))
+	(write-line stream (cat "# The Lisp classes" +LF))
+	(write-line stream (cat "Every class of the Lisp side of the system, each to the right of the" +LF
+		"class it comes of. Each has a page of its own under `classes/`, with" +LF
+		"its methods. Made from the source by `make docs`." +LF))
+	(write-line stream (cat "```image" +LF "docs/reference/class_hierarchy.cwb" +LF "```" +LF))
+	(diagram-save (dia-hierarchy lisp_nodes "And the classes that come of no other, and have none come of them")
+		"docs/reference/class_hierarchy.cwb")
+	(if (> *build_verb* 0) (print "-> " document))
 
 	;create key bindings docs
 	(defq document "docs/reference/keys.md" current_file ""
@@ -146,7 +209,7 @@
 	(if (> *build_verb* 0) (print "-> " document))
 
 	;scan for VP classes info
-	(defq *abi* (abi) *cpu* (cpu) *imports* (all-vp-files) classes (list)
+	(defq *abi* (abi) *cpu* (cpu) *imports* (all-vp-files) classes (list) class_files (Fmap 31)
 		functions (list) docs (list) state :nil ffi_list (. docs_map :find :ffis))
 	(within-compile-env (lambda ()
 		(include "lib/asm/func.inc")
@@ -164,9 +227,15 @@
 						(include
 							(merge *imports* (list (path-to-absolute name file))))
 						(def-class
+							(. class_files :insert (sym name) file)
 							(push classes (list (sym name) (third line_split))))
 						(dec-method
-							(push (last classes) (list (sym name) (sym (third line_split)))))
+							;its name, the function that is it, and what kind it is,
+							;:static, :override, :final or :virtual, a virtual one if not said
+							(push (last classes) (list (sym name) (sym (third line_split))
+								(if (and (> (length line_split) 3)
+										(find (elem-get line_split 3) '(":static" ":override" ":final" ":virtual")))
+									(sym (elem-get line_split 3)) :virtual))))
 						(def-method
 							(setq state :info)
 							(push docs (list))
@@ -194,11 +263,47 @@
 				:nil)
 			(file-stream file))) *imports*)))
 
-	;create VP classes docs
+	;create VP classes docs, each with its diagram: what it comes of, its
+	;fields, its methods by kind, and what comes of it
 	(sort classes (# (cmp (first %0) (first %1))))
+	(defq vp_supers (Fmap 31) vp_nodes (list))
+	(each (lambda ((cls super &rest mthds))
+		(push vp_nodes (list (str cls) (if (eql ":nil" super) :nil super)))
+		(unless (eql ":nil" super) (. vp_supers :insert (str cls) super)))
+		classes)
+	(defq document "docs/reference/vp_hierarchy.md" stream (file-stream document +file_open_write))
+	(write-line stream (cat "# The VP classes" +LF))
+	(write-line stream (cat "Every class of the VP side of the system, each to the right of the" +LF
+		"class it comes of. Each has a page of its own under `vp_classes/`, with" +LF
+		"its fields and its methods. Made from the source by `make docs`." +LF))
+	(write-line stream (cat "```image" +LF "docs/reference/vp_hierarchy.cwb" +LF "```" +LF))
+	(diagram-save (dia-hierarchy vp_nodes "And the classes that are only functions, they come of no other and have none come of them")
+		"docs/reference/vp_hierarchy.cwb")
+	(if (> *build_verb* 0) (print "-> " document))
 	(each (lambda ((cls super &rest mthds))
 		(defq stream (file-stream (cat "docs/reference/vp_classes/" (rest cls) ".md") +file_open_write))
 		(write-line stream (cat "# " cls +LF))
+		(write-line stream (cat "```image" +LF "docs/reference/vp_classes/" (rest cls) ".cwb" +LF "```" +LF))
+		(defq file (. class_files :find cls) named (lambda (kinds)
+				(sort (map (# (str (first %0))) (filter (# (and (find (third %0) kinds)
+					(not (starts-with ":lisp_" (first %0))) (not (eql (first %0) :vtable)))) mthds)) (const cmp))))
+		(diagram-save (dia-class (str cls) (ifn file "")
+				(chain-of (str cls) vp_supers)
+				(sort (map (const first) (filter (# (eql (second %0) (str cls))) vp_nodes)) (const cmp))
+				(filter (# (nempty? (second %0))) (list
+					(list "fields" (if file (vp-fields file (rest cls)) (list)))
+					(list "virtual methods" (named '(:virtual :final)))
+					(list "overrides" (named '(:override)))
+					(list "static methods" (named '(:static)))
+					;by the name Lisp calls each by, where the function says it
+					(list "Lisp bindings" (sort (map (lambda ((mthd function &ignore))
+							(defq i (some (# (if (eql function (first %0)) (!))) ffi_list)
+								info (if i (first (second (elem-get ffi_list i)))))
+							(if (and info (starts-with "(" info))
+								(first (split (rest info) (const (char-class " )"))))
+								(rest (str mthd))))
+						(filter (# (starts-with ":lisp_" (first %0))) mthds)) (const cmp))))))
+			(cat "docs/reference/vp_classes/" (rest cls) ".cwb"))
 		(unless (eql ":nil" super)
 			(write-line stream (cat "## " super +LF)))
 		(sort mthds (# (cmp (first %0) (first %1))))
@@ -206,13 +311,13 @@
 			mthds (filter (# (not (starts-with ":lisp_" (first %0)))) mthds))
 		(when (nempty? lisp_mthds)
 			(write-line stream (cat "## Lisp Bindings" +LF))
-			(each (lambda ((mthd function))
+			(each (lambda ((mthd function &ignore))
 				(when (and (defq i (some (# (if (eql function (first %0)) (!))) ffi_list))
 						(defq info (first (second (elem-get ffi_list i)))))
 					(write-line stream (cat "### " info +LF)))) lisp_mthds))
 		(when (nempty? mthds)
 			(write-line stream (cat "## VP methods" +LF))
-			(each (lambda ((mthd function))
+			(each (lambda ((mthd function &ignore))
 				(write-line stream (cat "### " mthd " -> " function +LF))
 				(when (and (defq i (find function functions))
 						(/= 0 (length (defq info (elem-get docs i)))))

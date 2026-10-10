@@ -1,5 +1,9 @@
 # :host_audio
 
+```image
+docs/reference/vp_classes/host_audio.cwb
+```
+
 ## Lisp Bindings
 
 ### (audio-add path)

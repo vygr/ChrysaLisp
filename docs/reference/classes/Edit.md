@@ -1,5 +1,9 @@
 # Edit
 
+```image
+docs/reference/classes/Edit.cwb
+```
+
 ## View
 
 ```code

@@ -1,5 +1,9 @@
 # Fmap
 
+```image
+docs/reference/classes/Fmap.cwb
+```
+
 ## Map
 
 ```code

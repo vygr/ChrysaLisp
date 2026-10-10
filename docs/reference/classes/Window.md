@@ -1,5 +1,9 @@
 # Window
 
+```image
+docs/reference/classes/Window.cwb
+```
+
 ## View
 
 ```code

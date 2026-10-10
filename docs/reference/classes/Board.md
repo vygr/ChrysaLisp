@@ -1,5 +1,9 @@
 # Board
 
+```image
+docs/reference/classes/Board.cwb
+```
+
 ```code
 (Board [doc]) -> board
 ```

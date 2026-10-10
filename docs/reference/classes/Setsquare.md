@@ -1,5 +1,9 @@
 # Setsquare
 
+```image
+docs/reference/classes/Setsquare.cwb
+```
+
 ## Instrument
 
 ```code

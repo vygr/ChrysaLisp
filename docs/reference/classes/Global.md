@@ -1,5 +1,9 @@
 # Global
 
+```image
+docs/reference/classes/Global.cwb
+```
+
 ## Fmap
 
 ```code

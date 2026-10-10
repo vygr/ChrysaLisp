@@ -1,5 +1,9 @@
 # :region
 
+```image
+docs/reference/vp_classes/region.cwb
+```
+
 ## VP methods
 
 ### :bounds -> gui/region/bounds

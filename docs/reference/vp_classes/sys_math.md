@@ -1,5 +1,9 @@
 # :sys_math
 
+```image
+docs/reference/vp_classes/sys_math.cwb
+```
+
 ## VP methods
 
 ### :f_cos -> sys/math/f_cos

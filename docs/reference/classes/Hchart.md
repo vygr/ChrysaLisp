@@ -1,5 +1,9 @@
 # Hchart
 
+```image
+docs/reference/classes/Hchart.cwb
+```
+
 ## Flow
 
 ```code

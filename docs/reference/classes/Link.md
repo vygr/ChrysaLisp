@@ -1,5 +1,9 @@
 # Link
 
+```image
+docs/reference/classes/Link.cwb
+```
+
 ## Text
 
 ```code

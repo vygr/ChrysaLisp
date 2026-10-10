@@ -1,5 +1,9 @@
 # Local
 
+```image
+docs/reference/classes/Local.cwb
+```
+
 ## Fmap
 
 ```code

@@ -1,5 +1,9 @@
 # Iso-tetra
 
+```image
+docs/reference/classes/Iso-tetra.cwb
+```
+
 ## Iso
 
 ```code

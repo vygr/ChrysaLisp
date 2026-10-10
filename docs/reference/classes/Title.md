@@ -1,5 +1,9 @@
 # Title
 
+```image
+docs/reference/classes/Title.cwb
+```
+
 ## Label
 
 ```code

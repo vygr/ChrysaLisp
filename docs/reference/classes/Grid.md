@@ -1,5 +1,9 @@
 # Grid
 
+```image
+docs/reference/classes/Grid.cwb
+```
+
 ## View
 
 ```code

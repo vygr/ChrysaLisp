@@ -1,5 +1,9 @@
 # Mesh-data
 
+```image
+docs/reference/classes/Mesh-data.cwb
+```
+
 ## Mesh
 
 ```code

@@ -1,5 +1,9 @@
 # :nums
 
+```image
+docs/reference/vp_classes/nums.cwb
+```
+
 ## :array
 
 ## Lisp Bindings

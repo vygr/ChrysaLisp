@@ -1,5 +1,9 @@
 # :sys_mem
 
+```image
+docs/reference/vp_classes/sys_mem.cwb
+```
+
 ## VP methods
 
 ### :alloc -> sys/mem/alloc

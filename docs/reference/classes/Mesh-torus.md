@@ -1,5 +1,9 @@
 # Mesh-torus
 
+```image
+docs/reference/classes/Mesh-torus.cwb
+```
+
 ## Mesh
 
 ```code

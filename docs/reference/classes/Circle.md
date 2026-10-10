@@ -1,5 +1,9 @@
 # Circle
 
+```image
+docs/reference/classes/Circle.cwb
+```
+
 ## Protractor
 
 ```code

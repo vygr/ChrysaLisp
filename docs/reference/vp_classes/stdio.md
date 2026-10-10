@@ -1,5 +1,9 @@
 # :stdio
 
+```image
+docs/reference/vp_classes/stdio.cwb
+```
+
 ## :obj
 
 ## Lisp Bindings

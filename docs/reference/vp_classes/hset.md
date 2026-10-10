@@ -1,5 +1,9 @@
 # :hset
 
+```image
+docs/reference/vp_classes/hset.cwb
+```
+
 ## :list
 
 ## VP methods

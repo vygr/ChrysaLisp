@@ -1,5 +1,9 @@
 # Textfield
 
+```image
+docs/reference/classes/Textfield.cwb
+```
+
 ## Label
 
 ```code

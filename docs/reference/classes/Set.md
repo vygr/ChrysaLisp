@@ -1,5 +1,9 @@
 # Set
 
+```image
+docs/reference/classes/Set.cwb
+```
+
 ```code
 (Set) -> set
 ```

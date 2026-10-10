@@ -1,5 +1,9 @@
 # Canvas-pixmap
 
+```image
+docs/reference/classes/Canvas-pixmap.cwb
+```
+
 ## Canvas-base
 
 ```code

@@ -1,5 +1,9 @@
 # Actor
 
+```image
+docs/reference/classes/Actor.cwb
+```
+
 ```code
 (Actor) -> actor
 

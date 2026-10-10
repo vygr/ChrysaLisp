@@ -1,5 +1,9 @@
 # :host_gui
 
+```image
+docs/reference/vp_classes/host_gui.cwb
+```
+
 ## Lisp Bindings
 
 ### (gui-deinit) -> :nil

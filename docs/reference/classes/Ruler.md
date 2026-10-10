@@ -1,5 +1,9 @@
 # Ruler
 
+```image
+docs/reference/classes/Ruler.cwb
+```
+
 ## Instrument
 
 ```code

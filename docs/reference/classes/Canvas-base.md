@@ -1,5 +1,9 @@
 # Canvas-base
 
+```image
+docs/reference/classes/Canvas-base.cwb
+```
+
 ## View
 
 ### :clear

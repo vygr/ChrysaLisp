@@ -1,5 +1,9 @@
 # Scroll
 
+```image
+docs/reference/classes/Scroll.cwb
+```
+
 ## View
 
 ```code

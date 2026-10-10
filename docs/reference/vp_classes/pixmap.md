@@ -1,5 +1,9 @@
 # :pixmap
 
+```image
+docs/reference/vp_classes/pixmap.cwb
+```
+
 ## :obj
 
 ## Lisp Bindings

@@ -1,5 +1,9 @@
 # :pset
 
+```image
+docs/reference/vp_classes/pset.cwb
+```
+
 ## :list
 
 ## Lisp Bindings

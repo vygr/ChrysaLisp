@@ -1,5 +1,9 @@
 # Spinner
 
+```image
+docs/reference/classes/Spinner.cwb
+```
+
 ## Flow
 
 ```code

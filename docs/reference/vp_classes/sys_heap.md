@@ -1,5 +1,9 @@
 # :sys_heap
 
+```image
+docs/reference/vp_classes/sys_heap.cwb
+```
+
 ## VP methods
 
 ### :alloc -> sys/heap/alloc

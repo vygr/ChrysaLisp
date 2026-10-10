@@ -1,5 +1,9 @@
 # Node
 
+```image
+docs/reference/classes/Node.cwb
+```
+
 ## Text
 
 ```code

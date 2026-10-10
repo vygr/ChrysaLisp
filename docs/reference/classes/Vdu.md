@@ -1,5 +1,9 @@
 # Vdu
 
+```image
+docs/reference/classes/Vdu.cwb
+```
+
 ## View
 
 ```code

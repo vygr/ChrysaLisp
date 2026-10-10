@@ -1,5 +1,9 @@
 # :sstream
 
+```image
+docs/reference/vp_classes/sstream.cwb
+```
+
 ## :stream
 
 ## VP methods

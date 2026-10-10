@@ -1,5 +1,9 @@
 # :array
 
+```image
+docs/reference/vp_classes/array.cwb
+```
+
 ## :seq
 
 ## Lisp Bindings

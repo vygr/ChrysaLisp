@@ -1,5 +1,9 @@
 # Protractor
 
+```image
+docs/reference/classes/Protractor.cwb
+```
+
 ## Instrument
 
 ```code

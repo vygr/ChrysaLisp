@@ -1,5 +1,9 @@
 # :obj
 
+```image
+docs/reference/vp_classes/obj.cwb
+```
+
 ## Lisp Bindings
 
 ### (eql obj obj) -> :nil | :t

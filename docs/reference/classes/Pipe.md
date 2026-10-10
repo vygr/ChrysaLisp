@@ -1,5 +1,9 @@
 # Pipe
 
+```image
+docs/reference/classes/Pipe.cwb
+```
+
 ```code
 (Pipe cmdline [user_select]) -> pipe | :nil
 ```

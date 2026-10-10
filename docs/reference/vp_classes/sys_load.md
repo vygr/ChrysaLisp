@@ -1,5 +1,9 @@
 # :sys_load
 
+```image
+docs/reference/vp_classes/sys_load.cwb
+```
+
 ## Lisp Bindings
 
 ### (load-path) -> path

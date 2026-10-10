@@ -1,5 +1,9 @@
 # :sys_task
 
+```image
+docs/reference/vp_classes/sys_task.cwb
+```
+
 ## Lisp Bindings
 
 ### (task-count bias) -> count

@@ -1,5 +1,9 @@
 # Slider
 
+```image
+docs/reference/classes/Slider.cwb
+```
+
 ## View
 
 ```code

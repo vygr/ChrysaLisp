@@ -1,5 +1,9 @@
 # Fset
 
+```image
+docs/reference/classes/Fset.cwb
+```
+
 ## Set
 
 ```code

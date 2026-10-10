@@ -1,5 +1,9 @@
 # :host_net
 
+```image
+docs/reference/vp_classes/host_net.cwb
+```
+
 ## Lisp Bindings
 
 ### (net-accept handle)

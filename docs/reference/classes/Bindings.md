@@ -1,5 +1,9 @@
 # Bindings
 
+```image
+docs/reference/classes/Bindings.cwb
+```
+
 ```code
 (Bindings) -> bindings
 

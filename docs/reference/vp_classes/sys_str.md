@@ -1,5 +1,9 @@
 # :sys_str
 
+```image
+docs/reference/vp_classes/sys_str.cwb
+```
+
 ## VP methods
 
 ### :compare -> sys/str/compare

@@ -1,5 +1,9 @@
 # :reals
 
+```image
+docs/reference/vp_classes/reals.cwb
+```
+
 ## :fixeds
 
 ## Lisp Bindings

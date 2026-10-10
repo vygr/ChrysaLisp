@@ -1,5 +1,9 @@
 # Label
 
+```image
+docs/reference/classes/Label.cwb
+```
+
 ## View
 
 ```code

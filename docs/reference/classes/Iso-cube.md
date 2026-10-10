@@ -1,5 +1,9 @@
 # Iso-cube
 
+```image
+docs/reference/classes/Iso-cube.cwb
+```
+
 ## Iso
 
 ```code

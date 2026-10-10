@@ -1,5 +1,9 @@
 # Handles
 
+```image
+docs/reference/classes/Handles.cwb
+```
+
 ## Actor
 
 ```code

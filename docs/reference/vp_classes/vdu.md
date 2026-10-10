@@ -1,5 +1,9 @@
 # :vdu
 
+```image
+docs/reference/vp_classes/vdu.cwb
+```
+
 ## :view
 
 ## Lisp Bindings

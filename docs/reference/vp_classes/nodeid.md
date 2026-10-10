@@ -1,5 +1,9 @@
 # :nodeid
 
+```image
+docs/reference/vp_classes/nodeid.cwb
+```
+
 ## :str
 
 ## VP methods

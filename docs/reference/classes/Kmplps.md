@@ -1,5 +1,9 @@
 # Kmplps
 
+```image
+docs/reference/classes/Kmplps.cwb
+```
+
 ## Search
 
 ```code

@@ -1,5 +1,9 @@
 # Iso
 
+```image
+docs/reference/classes/Iso.cwb
+```
+
 ```code
 (Iso) -> iso
 ```

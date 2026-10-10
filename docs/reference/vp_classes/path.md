@@ -1,5 +1,9 @@
 # :path
 
+```image
+docs/reference/vp_classes/path.cwb
+```
+
 ## :fixeds
 
 ## Lisp Bindings

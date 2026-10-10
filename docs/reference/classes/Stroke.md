@@ -1,5 +1,9 @@
 # Stroke
 
+```image
+docs/reference/classes/Stroke.cwb
+```
+
 ## View
 
 ### :clear

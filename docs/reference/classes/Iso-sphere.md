@@ -1,5 +1,9 @@
 # Iso-sphere
 
+```image
+docs/reference/classes/Iso-sphere.cwb
+```
+
 ## Iso
 
 ```code

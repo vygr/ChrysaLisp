@@ -1,5 +1,9 @@
 # Mask
 
+```image
+docs/reference/classes/Mask.cwb
+```
+
 ## View
 
 ```code

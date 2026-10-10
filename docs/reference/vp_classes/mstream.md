@@ -1,5 +1,9 @@
 # :mstream
 
+```image
+docs/reference/vp_classes/mstream.cwb
+```
+
 ## :stream
 
 ## VP methods

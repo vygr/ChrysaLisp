@@ -1,5 +1,9 @@
 # Emap
 
+```image
+docs/reference/classes/Emap.cwb
+```
+
 ## Map
 
 ```code

@@ -1,5 +1,9 @@
 # Scene-node
 
+```image
+docs/reference/classes/Scene-node.cwb
+```
+
 ```code
 (Scene-node [name]) -> scene_node
 ```

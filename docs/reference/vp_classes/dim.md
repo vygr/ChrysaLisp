@@ -1,5 +1,9 @@
 # :dim
 
+```image
+docs/reference/vp_classes/dim.cwb
+```
+
 ## :obj
 
 ## Lisp Bindings

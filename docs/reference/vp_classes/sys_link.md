@@ -1,5 +1,9 @@
 # :sys_link
 
+```image
+docs/reference/vp_classes/sys_link.cwb
+```
+
 ## VP methods
 
 ### :in -> sys/link/in

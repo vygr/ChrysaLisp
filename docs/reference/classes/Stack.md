@@ -1,5 +1,9 @@
 # Stack
 
+```image
+docs/reference/classes/Stack.cwb
+```
+
 ## Flow
 
 ```code

@@ -1,5 +1,9 @@
 # :seq
 
+```image
+docs/reference/vp_classes/seq.cwb
+```
+
 ## :obj
 
 ## Lisp Bindings

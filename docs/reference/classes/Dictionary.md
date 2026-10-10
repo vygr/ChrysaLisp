@@ -1,5 +1,9 @@
 # Dictionary
 
+```image
+docs/reference/classes/Dictionary.cwb
+```
+
 ```code
 (Dictionary [num_buckets]) -> dictionary
 ```

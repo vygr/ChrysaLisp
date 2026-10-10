@@ -1,5 +1,9 @@
 # :texture
 
+```image
+docs/reference/vp_classes/texture.cwb
+```
+
 ## :obj
 
 ## VP methods

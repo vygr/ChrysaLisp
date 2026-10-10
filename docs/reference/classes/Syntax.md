@@ -1,5 +1,9 @@
 # Syntax
 
+```image
+docs/reference/classes/Syntax.cwb
+```
+
 ```code
 (Syntax) -> syntax
 

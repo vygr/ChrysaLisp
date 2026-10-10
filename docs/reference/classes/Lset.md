@@ -1,5 +1,9 @@
 # Lset
 
+```image
+docs/reference/classes/Lset.cwb
+```
+
 ## Set
 
 ```code

@@ -1,5 +1,9 @@
 # Flow
 
+```image
+docs/reference/classes/Flow.cwb
+```
+
 ## View
 
 ```code

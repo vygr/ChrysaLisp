@@ -1,5 +1,9 @@
 # :func
 
+```image
+docs/reference/vp_classes/func.cwb
+```
+
 ## :obj
 
 ## VP methods

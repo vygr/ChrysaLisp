@@ -1,5 +1,9 @@
 # Canvas
 
+```image
+docs/reference/classes/Canvas.cwb
+```
+
 ## Canvas-base
 
 ```code

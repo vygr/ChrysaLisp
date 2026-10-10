@@ -422,6 +422,25 @@ saves nothing.
 
 The app's sample, `apps/media/whiteboard/data/test.cwb`, was made that way.
 
+## Diagrams made by a program
+
+`lib/cwb/diagram.inc` lays a diagram out: `(dia-pill)`, words in a box;
+`(dia-card)`, a title and lists under headings; `(dia-row)`, pills in rows;
+`(dia-tree)`, a tree from a list of each thing and what it comes of;
+`(dia-arrow)` and `(dia-elbow)`, the lines between. Each gives a group and
+how big it is, words are as wide as the font says they are, so a box is the
+size of what is in it. `(dia-doc parts)` makes a document of them, as big as
+they are.
+
+`make docs` makes the diagrams of the reference with it, from the source,
+each time: a card for every VP class, `docs/reference/vp_classes/`, with
+what it comes of, its fields, its methods by kind and what comes of it; one
+for every Lisp class, `docs/reference/classes/`; and the tree of each kind,
+`docs/reference/vp_hierarchy.md` and `class_hierarchy.md`. They are `.cwb`
+files, shown in a page by an `image` section, and can be opened on a
+Whiteboard. None is drawn by hand, so none is out of date, and if the file
+format changes they are made again.
+
 ## For an AI that is to draw
 
 A picture is a script. Write Lisp that makes shapes and give it to `cwb`:

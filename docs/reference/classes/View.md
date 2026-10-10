@@ -1,5 +1,9 @@
 # View
 
+```image
+docs/reference/classes/View.cwb
+```
+
 ```code
 (View) -> view
 

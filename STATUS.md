@@ -4,6 +4,45 @@
 
 ------
 
+Chris, for the night of 2026-10-10: "It's that task to go through the
+docsuments and add 'image' sections using .cwb diagrams, where needed.
+Plus the auto generation of the class informatic diagrams and the
+overbiew for the entire class heirachy... only issue would be that
+question on stable enough .cwb file format." (Asked that morning, 49:
+"both, one per class and the inheritance trees".)
+
+Of the format I said it need not be settled for this: what `make docs`
+makes is made again, what is placed by hand in a page is made by a
+script that is kept, and a file of an older version is still read.
+
+**The first part, the reference, made from the source.**
+
+*	`lib/cwb/diagram.inc`: pills, cards, rows, a tree, arrows, laid out
+	by a program, words as wide as the font says. `tests/system/
+	test_cwb_diagram.lisp`, 13.
+
+*	`make docs` makes with it, each time: a diagram for each of the 53
+	VP classes, what it comes of along the top, its card with its
+	fields (from the structure in the `struct.inc` beside it), its
+	virtual methods, overrides, static methods and Lisp bindings by the
+	name Lisp calls them, and the classes that come of it; one for each
+	of the 78 Lisp classes, its methods; and the tree of each kind,
+	`docs/reference/vp_hierarchy.md` and `class_hierarchy.md`, with
+	those that come of nothing set apart under it. Each class page has
+	its diagram at its top.
+
+*	It adds under a second to `make docs`. The library is read when
+	docs are made, not when `make` is, a build of the system does not
+	pay for it.
+
+Looked at, by me, as pictures: the tree of the VP classes, `:canvas`,
+`:obj`, `Board`, `Canvas`. They read well to me. The other 128 are made
+the same way and not looked at one by one.
+
+Not seen: any of it by him, in the Docs app.
+
+------
+
 Chris: "take the desktop down and do the M4 run". Then: "we have the
 entire dev loop skill up to date ? all the tricks you learnt this time
 on the language updated in the skills ? If an update happen I'd hate to

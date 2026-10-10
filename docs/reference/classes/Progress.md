@@ -1,5 +1,9 @@
 # Progress
 
+```image
+docs/reference/classes/Progress.cwb
+```
+
 ## View
 
 ```code

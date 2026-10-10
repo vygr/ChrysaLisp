@@ -1,5 +1,9 @@
 # :hmap
 
+```image
+docs/reference/vp_classes/hmap.cwb
+```
+
 ## :list
 
 ## Lisp Bindings

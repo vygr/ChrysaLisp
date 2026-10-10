@@ -1,5 +1,9 @@
 # Mesh
 
+```image
+docs/reference/classes/Mesh.cwb
+```
+
 ```code
 (Mesh) -> mesh
 ```

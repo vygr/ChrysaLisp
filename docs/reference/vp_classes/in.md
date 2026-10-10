@@ -1,5 +1,9 @@
 # :in
 
+```image
+docs/reference/vp_classes/in.cwb
+```
+
 ## :stream
 
 ## Lisp Bindings

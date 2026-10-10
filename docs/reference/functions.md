@@ -1328,6 +1328,123 @@ here calls itself
 a child is told to go, the job it had goes back on the queue
 ```
 
+### dia-arrow
+
+```code
+(dia-arrow x y x1 y1 [heads]) -> group
+
+a line from a point to a point, an arrow at its far end, or with
+heads :none no arrow, :both one at each
+```
+
+### dia-card
+
+```code
+(dia-card title under sections [fill]) -> (group width height)
+
+a card: a band with a title and a line of smaller words under it,
+then sections, each a heading and its rows, ((heading (row ...)) ...).
+A section of many rows is set in columns. Its top left is at 0 0
+```
+
+### dia-class
+
+```code
+(dia-class name under chain kids sections) -> doc
+
+the diagram of a class: what it comes of, from the first to it,
+along the top, its card, name under and sections as (dia-card), and
+below that the classes that come of it. chain and kids are names
+```
+
+### dia-doc
+
+```code
+(dia-doc parts [pad]) -> doc
+
+a document of parts, each a group or a shape, as big as they are and
+pad round them, default 12. Nothing behind them, the page shows
+```
+
+### dia-elbow
+
+```code
+(dia-elbow x y x1 y1 [heads]) -> shape
+
+from a point across, down or up, and across to a point, as the
+branches of a tree are drawn
+```
+
+### dia-head
+
+```code
+(dia-head x y x1 y1) -> shape
+
+the head of an arrow that comes from a point and ends at another, a
+filled triangle big enough to be seen at the width a diagram's lines are
+```
+
+### dia-hierarchy
+
+```code
+(dia-hierarchy nodes [alone]) -> doc
+
+the tree of nodes, ((name parent) ...), and under it, in rows, those
+that come of nothing and have nothing come of them, with alone, a
+line of words, over them. They are not in the tree, a tree of one each
+```
+
+### dia-move
+
+```code
+(dia-move items x y) -> group
+
+items as one thing, put at a point
+```
+
+### dia-pill
+
+```code
+(dia-pill text [size bold fill]) -> (group width height)
+
+words in a box with round corners, its top left at 0 0
+```
+
+### dia-row
+
+```code
+(dia-row pills gap max_width) -> (group width height)
+
+pills, each (group width height), set left to right, onto another
+line when they would be wider than max_width. Top left at 0 0
+```
+
+### dia-tree
+
+```code
+(dia-tree nodes [here]) -> (group width height)
+
+a tree, its root at the left and what comes of each thing to the
+right of it. nodes is ((name parent) ...), parent :nil or a name not
+among them for a root. here, a name, is marked. Top left at 0 0
+```
+
+### dia-width
+
+```code
+(dia-width text size [bold]) -> width
+
+how wide words are in letters of that size
+```
+
+### dia-words
+
+```code
+(dia-words text x y size [bold color]) -> shape
+
+words, their left end at x and the line they sit on at y
+```
+
 ### diff-hunk
 
 ```code

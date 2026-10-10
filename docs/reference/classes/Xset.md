@@ -1,5 +1,9 @@
 # Xset
 
+```image
+docs/reference/classes/Xset.cwb
+```
+
 ## Set
 
 ```code

@@ -1,5 +1,9 @@
 # Map
 
+```image
+docs/reference/classes/Map.cwb
+```
+
 ```code
 (Map) -> map
 ```

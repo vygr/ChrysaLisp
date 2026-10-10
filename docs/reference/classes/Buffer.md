@@ -1,5 +1,9 @@
 # Buffer
 
+```image
+docs/reference/classes/Buffer.cwb
+```
+
 ```code
 (Buffer [flags syntax]) -> buffer
 ```

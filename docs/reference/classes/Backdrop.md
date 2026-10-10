@@ -1,5 +1,9 @@
 # Backdrop
 
+```image
+docs/reference/classes/Backdrop.cwb
+```
+
 ## View
 
 ```code

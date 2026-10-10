@@ -1,5 +1,9 @@
 # Files
 
+```image
+docs/reference/classes/Files.cwb
+```
+
 ## Flow
 
 ```code

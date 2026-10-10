@@ -1,5 +1,9 @@
 # Button
 
+```image
+docs/reference/classes/Button.cwb
+```
+
 ## Label
 
 ```code

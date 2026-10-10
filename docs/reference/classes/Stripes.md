@@ -1,5 +1,9 @@
 # Stripes
 
+```image
+docs/reference/classes/Stripes.cwb
+```
+
 ```code
 (Stripes board [herd]) -> stripes
 
