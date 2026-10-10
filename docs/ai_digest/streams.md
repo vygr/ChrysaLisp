@@ -163,6 +163,10 @@ The `:in` and `:out` streams create the ChrysaLisp pipe system, a
 location-transparent communication mechanism that allows tasks to interact as
 if they were reading from and writing to a simple file.
 
+```image
+docs/diagrams/stream_pipe.cwb
+```
+
 1.  **Establishment**: A receiving task creates an `(in-stream)` and shares its
     `netid`.
 

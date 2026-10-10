@@ -44,6 +44,10 @@ whose hashes differ are gone into. One file changed five folders down is
 six folders asked for, a few hundred bytes each. Only a file that is not
 there, or is not the same, then goes over.
 
+```image
+docs/diagrams/sync_tree.cwb
+```
+
 `sync` with no options asks each machine for its top and says if its tree
 is the same as this one's. That number is the version of a tree, the same
 on every machine that has the same files.

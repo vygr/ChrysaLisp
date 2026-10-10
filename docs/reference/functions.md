@@ -1462,7 +1462,8 @@ words on the scene, their left end and the line they sit on at a point
 ```code
 (dia-scene) -> scene
 
-nothing yet: the lines, the boxes, and where each box that has a name is
+nothing yet: the lines, the boxes, where each box that has a name
+is, and what lies under it all
 ```
 
 ### dia-scene-doc
@@ -1489,6 +1490,15 @@ the middle of a side of a box, (x y w h): :left :right :top :bottom
 a tree, its root at the left and what comes of each thing to the
 right of it. nodes is ((name parent) ...), parent :nil or a name not
 among them for a root. here, a name, is marked. Top left at 0 0
+```
+
+### dia-under
+
+```code
+(dia-under scene part x y) -> scene
+
+put a part under everything, the lines too: a box that others are
+in, a node with its tasks, which a line to one of them crosses
 ```
 
 ### dia-width

@@ -12,6 +12,10 @@ mesh. A tree is made the same as another, `sync`. A node starts a node, the
 host call the launch scripts use. A task is sent to a node of another
 machine. `rack` is those four, in a row.
 
+```image
+docs/diagrams/rack_run.cwb
+```
+
 ## A member
 
 A machine is in the mesh while it has a node that is. `./rack.sh up` starts

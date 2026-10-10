@@ -43,6 +43,10 @@ timestamps and network presence of all workers. If a worker has vanished or
 exceeded the timeout, `fnc_destroy` is called, followed by `fnc_create` to heal
 the pool.
 
+```image
+docs/diagrams/task_farm.cwb
+```
+
 ### Real-World Examples
 
 * **`apps/demos/raymarch/app.lisp` & `apps/science/mandelbrot/app.lisp`**: Both
@@ -184,6 +188,10 @@ When you use `+kn_call_run` in your `create` function (via `open-task` or
 
 4. This repeats until the request finds a "local minimum" (a valley in the
    network load) and spawns there.
+
+```image
+docs/diagrams/task_downhill.cwb
+```
 
 Because of this, simply picking a random node:
 

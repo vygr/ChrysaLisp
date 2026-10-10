@@ -273,8 +273,9 @@
 
 (defun dia-scene ()
 	; (dia-scene) -> scene
-	;nothing yet: the lines, the boxes, and where each box that has a name is
-	(list (list) (list) (Fmap 31)))
+	;nothing yet: the lines, the boxes, where each box that has a name
+	;is, and what lies under it all
+	(list (list) (list) (Fmap 31) (list)))
 
 (defun dia-put (scene name part x y)
 	; (dia-put scene name part x y) -> scene
@@ -283,6 +284,13 @@
 	(bind '(item w h) part)
 	(push (second scene) (dia-move (list item) x y))
 	(if name (. (third scene) :insert name (list (n2f x) (n2f y) w h)))
+	scene)
+
+(defun dia-under (scene part x y)
+	; (dia-under scene part x y) -> scene
+	;put a part under everything, the lines too: a box that others are
+	;in, a node with its tasks, which a line to one of them crosses
+	(push (elem-get scene 3) (dia-move (list (first part)) x y))
 	scene)
 
 (defun dia-say (scene text x y &optional size bold color)
@@ -337,4 +345,4 @@
 (defun dia-scene-doc (scene &optional pad)
 	; (dia-scene-doc scene [pad]) -> doc
 	;the document of a scene, its lines under its boxes
-	(dia-doc (cat (first scene) (second scene)) pad))
+	(dia-doc (cat (elem-get scene 3) (first scene) (second scene)) pad))

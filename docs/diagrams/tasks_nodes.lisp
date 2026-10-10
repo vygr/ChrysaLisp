@@ -2,7 +2,7 @@
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
 (defun node-at (s tag x in)
 	;a node: its kernel, its tasks, in from its left side by in
-	(dia-put s :nil (dia-box "" 300 240 grey) x 0)
+	(dia-under s (dia-box "" 300 240 grey) x 0)
 	(dia-say s "VP node" (+ x 12) 22 13 :t 0xff202428)
 	(dia-say s "node_id, 128 bits" (+ x 12) 38 11)
 	(dia-put s (sym (cat tag "_kernel")) (dia-box '("Kernel task" "mailbox 0") 126 46 gold 12 :first) (+ x 16) 54)

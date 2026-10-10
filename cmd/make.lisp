@@ -71,24 +71,36 @@
 (defun vp-fields (file name)
 	; (vp-fields file name) -> (str ...)
 	;the fields of a VP class, each as its type and its name, from the
-	;structure of that name in the struct.inc beside its class.inc
-	(defq out (list) state :nil at (rfind "/" file)
+	;structure of that name in the struct.inc beside its class.inc. The
+	;form is taken from its first line to the bracket that closes it,
+	;with what is said after a ; left out, and each bracketed part of it
+	;is a type and the names that are of that type, on as many lines as
+	;they are
+	(defq out (list) state :nil depth 0 text (list) at (rfind "/" file)
 		stream (file-stream (cat (slice file 0 (ifn at 0)) "struct.inc")))
 	(when stream
 		(lines! (lambda (line)
+			(defq note (find ";" line) code (if note (slice line 0 note) line))
+			(if (and (not state)
+					(or (starts-with (cat "(structure +" name " ") code) (starts-with (cat "(def-struct +" name " ") code)))
+				(setq state :in))
+			(when (eql state :in)
+				(push text code)
+				(each (# (cond ((eql %0 "(") (setq depth (inc depth))) ((eql %0 ")") (setq depth (dec depth))))) code)
+				(if (<= depth 0) (setq state :done)))
+			:nil) stream)
+		(each (lambda (part)
+			(defq words (split part (const (char-class " \t\r\n"))))
 			(cond
-				((not state)
-					(if (or (starts-with (cat "(structure +" name " ") line) (starts-with (cat "(def-struct +" name " ") line))
-						(setq state :in)))
-				((eql state :in)
-					(defq words (split line (const (char-class " ()\t\r"))))
-					(cond
-						((empty? words) (setq state :done))
-						((find (first words) '("offset" "align")))
-						((eql (first words) "struct") (push out (cat "struct " (second words))))
-						(:t (each (# (push out (cat (first words) " " %0))) (rest words))))
-					(if (ends-with "))" (trim line (const (char-class " \t\r")))) (setq state :done))))
-			:nil) stream))
+				((empty? words))
+				;a struct has a name and then how big it is, which may be worked out
+				((eql (first words) "struct") (if (> (length words) 1) (push out (cat "struct " (second words)))))
+				;only what is a type is a field: the rest is the form's own first
+				;line, an offset, or part of what works a size out
+				((find (first words) '("byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr" "pptr"
+						"pbyte" "pubyte" "pshort" "pushort" "pint" "puint" "plong" "pulong" "netid" "nodeid" "fixed" "real"))
+					(each (# (push out (cat (first words) " " %0))) (rest words)))))
+			(split (join text " ") "()")))
 	out)
 
 (defun chain-of (name supers)
