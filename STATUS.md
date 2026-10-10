@@ -4,6 +4,19 @@
 
 ------
 
+Chris is trying it, a thing at a time, as I ask. The palette: "Test 1
+all works", "Lovely animation BTW !", and of whether it is antialiased,
+"Looking closer now, and yes". The handles of a turned box: "The box did
+all you said, but I'd say right button should have puhed it to the
+back... standing idea."
+
+A thing of the document taken by the right button alone goes to the back
+of its layer, as an instrument goes to the back of the instruments. It is
+selected and can be moved as before, and it is a step. `test_cwb.lisp`,
+6 more.
+
+------
+
 Chris: "I think the loading/saving should auto size the 'paper' to the
 full bounds of the shapes." And: "We proabkty need an action to 'clip'
 shaeps away that fall outside the paper ! that a user action, not

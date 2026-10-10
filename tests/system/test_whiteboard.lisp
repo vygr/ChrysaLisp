@@ -82,15 +82,15 @@
 (assert-eq "the words in the text field are put down where the pen goes down" "((1 2 3 4) \qHello\q)" (elem-get wa_out 8))
 (assert-eq "the eraser, set to take lines whole, takes out the line it is dragged over" "(2 3 4)" (elem-get wa_out 9))
 (assert-eq "and undo puts it back" "(:ok (1 2 3 4))" (elem-get wa_out 10))
-(assert-eq "the right button moves what it is on, whatever the mode, by how far it is dragged"
-	"((1 2 3 4) (2) (338 138 461 241))" (elem-get wa_out 11))
-(assert-eq "the middle button is the view's, to move it about, and draws nothing" "(1 2 3 4)" (elem-get wa_out 12))
+(assert-eq "the right button moves what it is on, whatever the mode, by how far it is dragged, and puts it at the back"
+	"((2 1 3 4) (2) (338 138 461 241))" (elem-get wa_out 11))
+(assert-eq "the middle button is the view's, to move it about, and draws nothing" "(2 1 3 4)" (elem-get wa_out 12))
 (assert-eq "and it all draws" "(4)" (elem-get wa_out 13))
 (assert-eq "laid out in its window, the view over the board lets what is under it show, the paper does not, and both are the size of the board"
 	"(:nil :t (1024 768) (1024 768))" (elem-get wa_out 14))
 (assert-eq "what is drawn over the document is in front of it, the way round that the view is in front of the paper" "(:t :t)" (elem-get wa_out 15))
-(assert-eq "the left and the right held together are the middle, and the line the left had begun is not kept" "(2 (1 2 3 4))" (elem-get wa_out 16))
-(assert-eq "one let go, it is the middle still, and with both up nothing was drawn" "(0 (1 2 3 4))" (elem-get wa_out 17))
+(assert-eq "the left and the right held together are the middle, and the line the left had begun is not kept" "(2 (2 1 3 4))" (elem-get wa_out 16))
+(assert-eq "one let go, it is the middle still, and with both up nothing was drawn" "(0 (2 1 3 4))" (elem-get wa_out 17))
 
 (defq wa_out (wa-run (cat
 	"(wa-drag 1 100 100 220 120) (wa-mode :rect) (wa-drag 1 300 100 420 200) (wa-drag 1 500 100 600 180)"

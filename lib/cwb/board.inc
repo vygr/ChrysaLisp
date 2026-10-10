@@ -159,6 +159,20 @@
 						(unless (find id_hit (get :selected board)) (. board :select (list id_hit)))
 						(. board :snapshot)
 						(elem-set state +stroke_snap :t)
+						;taken by the right button alone, what is selected goes to
+						;the back of its layer, as an instrument goes to the back
+						;of the instruments: it is how what is under it is got at.
+						;That is a change, though it is not moved
+						(when (= buttons +pev_right)
+							(defq ids (get :selected board))
+							(each (lambda (layer)
+								(defq items (third layer)
+									these (filter (# (find (elem-get %0 +cwb_id) ids)) items))
+								(if (nempty? these)
+									(elem-set layer 2 (cat these (filter (# (not (find (elem-get %0 +cwb_id) ids))) items)))))
+								(cwb-layers (get :doc board)))
+							(elem-set state +stroke_moved :t)
+							(. board :touch +board_dirty_doc))
 						(elem-set state +stroke_item (. this :things))
 						;the box round it as it is picked up, a corner of which
 						;is what goes to the grid
