@@ -24,7 +24,7 @@
 ; drive the board, makes events and gives them to the stage.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/collections/collections.inc")
+(import "././collections/collections.inc")
 
 ;an event of a pointer, a list
 (enums +pev 0

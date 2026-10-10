@@ -8,7 +8,7 @@
 ;items of each layer have any part in it, in their order. A stripe is the
 ;items of the bands it lies on.
 (import "gui/lisp.inc")
-(import "lib/cwb/stripes.inc")
+(import "./stripes.inc")
 
 (enums +select 0
 	(enum main timeout))

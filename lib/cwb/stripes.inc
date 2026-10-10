@@ -23,7 +23,7 @@
 ; the pixels.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/task/jobs.inc")
+(import "././task/jobs.inc")
 (import "./board.inc")
 (import "./paper.inc")
 

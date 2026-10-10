@@ -27,8 +27,8 @@
 (import "gui/path/lisp.inc")
 (import "gui/canvas/struct.inc")
 (import "gui/font/lisp.inc")
-(import "lib/math/vector.inc")
-(import "lib/collections/collections.inc")
+(import "././math/vector.inc")
+(import "././collections/collections.inc")
 
 (defq +cwb_version 4)
 

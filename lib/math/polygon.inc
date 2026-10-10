@@ -33,7 +33,7 @@
 ; beside it, a -ref, which a test holds it to. All else is Lisp. No function here calls itself.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/math/vector.inc")
+(import "./vector.inc")
 
 ;two edges of a band this close at both ends, in the units a fixed number
 ;is held in, are the one edge: an edge of each set that lie along each

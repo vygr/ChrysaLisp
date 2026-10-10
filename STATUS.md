@@ -4,6 +4,28 @@
 
 ------
 
+The include and import lists, and the emulator.
+
+`make it` prints what `includes` and `imports` would change, and it
+had six files to say: an include `gui/pixmap/class.vp` no longer needs,
+from the 10th, and imports written from the root where the tree writes
+them from the file, in `lib/cwb/` from the 10th and in tonight's
+`lib/math/polygon.inc`. My rule is to have both clean before a VP
+commit and I had not run them. `files | includes -w` and `files |
+imports -w` have written them, and both say nothing now.
+
+On the VP64 emulator, a release image from `make it`:
+`tests/system/test_polygon.lisp` 40 and `test_fpoly.lisp` 28, all
+pass. So the three new native functions and the changed fill give on
+the emulator what the Lisp gives.
+
+Run: `lint: clean`, `make it`, `cl_test.sh -b -a` on all three, 5820
+each.
+
+Not run: RISC-V and LoongArch under QEMU.
+
+------
+
 Item 4, more diagrams. 80 scripts in `docs/diagrams/` now. Each drawn
 to a picture and looked at.
 
