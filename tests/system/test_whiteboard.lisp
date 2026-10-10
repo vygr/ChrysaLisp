@@ -361,3 +361,17 @@
 		(assert-eq "a frame that is out is left be while it is new" "(:t :t)" (elem-get wa_out 8))
 		(assert-eq "one that has been out three seconds is given up: the nodes are let go, it is counted, and the app's task has drawn it"
 			"(:t :nil 1 :gone :t)" (elem-get wa_out 9))))
+
+;a thing taken up, or put down, changes only its part of the document's picture, and the board says which
+(defq wa_dmg (wa-run (cat
+	"(wa-mode :frect) (wa-drag 1 100 100 300 300) (. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (wa-drag 1 200 200 400 400)"
+	"(wa-mode :pen) (wa-drag 1 150 150 380 390)"
+	"(. *board* :select (list)) (. *board* :take_damage)"
+	"(. *board* :select (list 2)) (defq d1 (. *board* :take_damage)) (print (list (length d1) (map (const n2i) (first d1))))"
+	"(. *board* :select (list)) (defq d2 (. *board* :take_damage)) (print (list (length d2) (map (const n2i) (first d2))))"
+	;a thing drawn is put on top and is no part to draw again, a few taken up are parts, and a change to them is all of it
+	"(wa-mode :frect) (wa-drag 1 500 500 520 520) (prin (. *board* :take_damage))"
+	"(. *board* :select (list 1 2 3)) (prin (length (. *board* :take_damage))) (. *board* :style :stroke 0xff00ff00) (print (. *board* :take_damage))")))
+(assert-eq "one thing taken up is one part of the picture, the box round it" "(1 (200 200 400 400))" (first wa_dmg))
+(assert-eq "put down, the same part again" "(1 (200 200 400 400))" (second wa_dmg))
+(assert-eq "a thing drawn is no part, three taken up are three parts, and a change to them is all of it" "()3:all" (third wa_dmg))

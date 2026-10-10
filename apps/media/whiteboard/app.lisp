@@ -43,6 +43,11 @@
 	;moved in that view, and the view cuts off what goes past the paper.
 	;*flight_at* is what was drawn on it and where each thing then was
 	*flight_clip* :nil *flight_at* :nil
+	;is only a part of the document's picture drawn again when only a part
+	;changed, (draw-damage). Not yet: a part of a canvas can not be made
+	;clear, (. canvas :fill) is all of it and all else that draws leaves
+	;what is there where it draws nothing. Till it can be, all is drawn
+	*damage_parts* :nil
 	;what was in flight and has been let go, while the nodes have yet to
 	;draw the document with it in: *landing* is waiting for a frame to be
 	;begun, *landed* is in the frame they are drawing. Both are still drawn
@@ -256,14 +261,13 @@
 	(cond
 		((list? shift)
 			;only moved: the canvas is put where they now are, as it is
+			;where it was and where it now is are told to the GUI as changed
 			(unless (eql (str shift) (str (slice (. *flight* :get_bounds) 0 2)))
-				(. *flight* :set_bounds (first shift) (second shift) w h)
-				(. *flight_clip* :dirty_all))
+				(. *flight* :change_dirty (first shift) (second shift) w h))
 			:nil)
 		((or flying *flight_used* (nempty? down))
 		(unless (eql (str (. *flight* :get_bounds)) (str (list 0 0 w h)))
-			(. *flight* :set_bounds 0 0 w h)
-			(. *flight_clip* :dirty_all))
+			(. *flight* :change_dirty 0 0 w h))
 		(. *flight* :fill 0)
 		(when (nempty? down)
 			(setq down (cwb-id-set down))
@@ -278,6 +282,34 @@
 				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now))))
 		:t)))
 
+(defun draw-damage (boxes m)
+	;only these parts of the document's picture, boxes of the document,
+	;by this task: each is made clear and what of the document is in it
+	;drawn, cut to it. A thing taken up or put down on a board of ten
+	;thousand is then drawn at once, and not when the nodes have been round.
+	;The parts that were drawn, in pixels of the canvas, for (show-parts)
+	(bind '(w h) (canvas-size))
+	(defq doc (. *board* :get_doc) skip (get :floating *board*) parts (list))
+	(each (lambda ((x y x1 y1))
+		;in pixels of the canvas, and a little more for the soft edge of a line
+		(defq cx (max 0 (- (n2i (floor (* x *zoom*))) 3)) cy (max 0 (- (n2i (floor (* y *zoom*))) 3))
+			cx1 (min w (+ (n2i (floor (* x1 *zoom*))) 4)) cy1 (min h (+ (n2i (floor (* y1 *zoom*))) 4)))
+		(when (and (< cx cx1) (< cy cy1))
+			(. *committed* :tile (str-alloc (* (- cx1 cx) (- cy1 cy) 4)) cx cy cx1 cy1)
+			(. *committed* :set_clip cx cy cx1 cy1)
+			(cwb-draw *committed* doc m (list (n2f cx) (n2f cy) (n2f cx1) (n2f cy1)) skip)
+			(push parts (list cx cy cx1 cy1))))
+		boxes)
+	(. *committed* :set_clip 0 0 w h)
+	parts)
+
+(defun show-parts (canvas parts)
+	;the pixels of a canvas are shown, and only these parts of it are told
+	;to the GUI as changed, (. view :add_dirty), so only they are drawn
+	;again on the screen. (. canvas :swap) tells it all of the canvas
+	(when ((const (ffi "gui/canvas/lisp_swap")) canvas +swap_write)
+		(each (lambda ((x y x1 y1)) (. canvas :add_dirty x y (- x1 x) (- y1 y))) parts)))
+
 (defun farm? ()
 	;is the document one for the nodes to draw: it took this task a while
 	;last time, the pixels are where they can reach, and it has not kept
@@ -291,7 +323,10 @@
 	;new canvases first
 	(unless (eql (str (canvas-size)) (str *canvas_size*)) (board-resized))
 	(defq m (view-matrix) doc_dirty (. *board* :dirty? +board_dirty_doc)
-		append_dirty (. *board* :dirty? +board_dirty_append) show :nil show_over :nil show_under :nil)
+		append_dirty (. *board* :dirty? +board_dirty_append) show :nil show_over :nil show_under :nil show_parts :nil
+		;all of the document's picture, or only parts of it
+		damage (if doc_dirty (. *board* :take_damage)))
+	(unless *damage_parts* (setq damage :all))
 	;the paper, when it is another paper
 	(defq show_paper *paper_dirty*)
 	(when *paper_dirty*
@@ -307,6 +342,10 @@
 		((and *framing* (or doc_dirty append_dirty))
 			;the nodes are drawing it as it was, it is drawn again when they have
 			(setq *again* :t))
+		((and doc_dirty (list? damage))
+			;only where a few things were taken up or put down
+			(if (nempty? damage) (setq show_parts (draw-damage damage m)))
+			(setq *landing* (list)))
 		((and doc_dirty (farm?) (. *stripes* :cheap?)
 				;they draw the shapes and no paper, on pixels made clear for them.
 				;What shows is as it was till they have done
@@ -330,6 +369,7 @@
 		(setq show_over :t))
 	;shown last, when all else is done
 	(if show (. *committed* :swap +swap_write))
+	(if show_parts (show-parts *committed* show_parts))
 	(if show_paper (. *paper* :swap +swap_write))
 	(if show_under (. *flight* :swap +swap_write))
 	(if show_over (. *overlay* :swap +swap_write)))

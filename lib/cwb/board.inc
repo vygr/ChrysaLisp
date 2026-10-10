@@ -200,7 +200,7 @@
 							(unless (or (empty? these) (every (const eql) now items))
 								(elem-set layer 2 now)
 								(elem-set state +stroke_moved :t)
-								(. board :touch +board_dirty_doc)))
+								(. board :touch_order)))
 							(cwb-layers (get :doc board)))
 						(elem-set state +stroke_item (. this :things))
 						;the box round it as it is picked up, a corner of which
@@ -571,7 +571,7 @@
 		;none does none of it
 		:auto_group 1500000 :last_stroke :nil
 		:temp (Fmap 11) :band :nil :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
-		:floating (list) :float_back :nil :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
+		:floating (list) :float_back :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
 	(def this :surface (Surface this) :handles (Handles this))
 	(.-> (get :stage this) (:add (get :surface this)) (:add (get :handles this)))
 
@@ -601,8 +601,24 @@
 		;when it is no longer selected. So here, where every change comes,
 		;what is in flight is made what is selected, and if that is not
 		;what it was the document is to be drawn again, once
+		;
+		;Not all of it need be. When a few things go into flight or come
+		;out of it the picture of the document changes only where they
+		;are: :damage is the box round each, and (:take_damage) gives them
+		;to what draws. Anything else that changes the document is told
+		;here with +board_dirty_doc, and then it is all of it
+		(if (bits? flags +board_dirty_doc) (def this :damage_full :t))
 		(defq selected (get :selected this) floating (get :floating this))
 		(unless (and (= (length selected) (length floating)) (every (const =) selected floating))
+			(defq was (cwb-id-set floating) is (cwb-id-set selected)
+				moved (cat (filter (# (not (cwb-id? was %0))) selected) (filter (# (not (cwb-id? is %0))) floating)))
+			(cond
+				((> (length moved) 32) (def this :damage_full :t))
+				((not (get :damage_full this))
+					(each (lambda ((name flags items))
+						(each (# (if (defq box (cwb-bounds (list %0))) (push (get :damage this) box)))
+							(cwb-pick items moved)))
+						(cwb-layers (get :doc this)))))
 			(. this :changed floating)
 			(. this :changed selected)
 			(def this :floating (cat selected))
@@ -611,6 +627,23 @@
 			(setq flags (logior flags +board_dirty_doc +board_dirty_overlay)))
 		(def this :dirty (logior (get :dirty this) flags))
 		this)
+
+	(defmethod :touch_order ()
+		; (. board :touch_order) -> board
+		;the order of things in flight has changed and nothing else. The
+		;picture of the document is as it was, they are not in it, but
+		;what keeps a copy of the document is to be told
+		(def this :dirty (logior (get :dirty this) +board_dirty_doc))
+		this)
+
+	(defmethod :take_damage ()
+		; (. board :take_damage) -> :all | boxes
+		;what of the document's picture is to be drawn again, since this
+		;was last asked: all of it, or only these boxes of it, which may
+		;be none
+		(defq out (if (get :damage_full this) :all (get :damage this)))
+		(def this :damage (list) :damage_full :nil)
+		out)
 
 	(defmethod :dirty? (flags)
 		; (. board :dirty? flags) -> :t | :nil

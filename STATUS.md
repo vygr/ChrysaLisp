@@ -4,6 +4,54 @@
 
 ------
 
+Chris, after the drag was made a canvas that is moved: "Large groups
+unslecected still chug on controls. Also I notice flickering as I grab
+and move objects. Like somthing is delay catching up with the redraw
+cycle ? Like a refresh was done (probably the shift to the inflight
+layer) and then things catch up, but you see a momentry glitch while is
+happens?" And as I said I would draw only a part again: "when you say
+repainting ?", "with :add_dirty ?"
+
+What I think the glitch is, not seen by me: on the board of 12,000 the
+document's picture is drawn by the nodes, and comes a few frames after
+it is asked for. A thing taken up is on the flight canvas at once and
+still in the document's picture till that comes, so for a moment it is
+twice, and one of them is left behind as the hand goes.
+
+What was done:
+
+*	The board says what of the document's picture has changed,
+	`(. board :take_damage)`: all of it, or only the box round each of
+	a few things that went into flight or came out of it. A change of
+	only the order of things in flight is none of it,
+	`(. board :touch_order)`.
+
+*	`(draw-damage)` and `(show-parts)` in `app.lisp` draw only those
+	boxes, this task, at once, and tell the GUI only those parts are
+	changed, `(. view :add_dirty)`, which is what he asked of. They are
+	there and **not used**, `*damage_parts*` is `:nil`: a part of a
+	canvas can not be made clear. `(. canvas :fill)` is all of it, and
+	`:plot`, `:tile`, `:fbox` and `:fpoly` leave what is there where
+	the colour has no alpha. A test of mine held the picture of a part
+	drawn again against all of it drawn again, and they were not the
+	same, which is how it was found. It wants a thing of the canvas, in
+	VP, that is his to say.
+
+*	The flight canvas is moved with `(. view :change_dirty)`, the
+	view's own way, where I had set its bounds and marked all of its
+	holder.
+
+*	Not answered: what chugs. I do not know if he means the handles
+	turning and sizing a great many things, which are drawn again each
+	time, 1,300 shapes, or the toolbars.
+
+Run: `test_cwb` 455 and `test_whiteboard` 84 on the M4, the full
+suite on the x64 and the Pi.
+
+Not seen: the glitch, before or after.
+
+------
+
 Chris: "After ungroup, manipulating the entire ungroup collection is
 slow !, that's tricky I know."
 
