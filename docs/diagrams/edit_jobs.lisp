@@ -1,0 +1,13 @@
+;docs/ai_digest/edit_command.md: one script, many files, many nodes
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s 'cmd (dia-box '("edit -j 4 -c \q...\q" "a script in ChrysaLisp, and paths") 230 44 gold 11 :first) 0 76)
+(each (lambda (i)
+	(dia-under s (dia-box "" 380 62 grey) 300 (* i 72))
+	(dia-say s (cat "node " (str (inc i))) 308 (+ 16 (* i 72)) 11 :t)
+	(dia-put s (sym (cat "n" (str i))) (dia-box '("the script" "made native, once") 130 40 blue 11 :first) 310 (+ 18 (* i 72)))
+	(dia-put s (sym (cat "f" (str i))) (dia-box '("a file at a time" "a Document, *edit*") 150 40 green 11 :first) 500 (+ 18 (* i 72)))
+	(dia-join s (sym (cat "n" (str i))) (sym (cat "f" (str i))) "")
+	(dia-join s 'cmd (sym (cat "n" (str i))) ""))
+	'(0 1 2))
+(dia-say s "Each file is read into a Document with no screen, the script is run on it, and if it changed it is written back." 0 240 12 :nil 0xff202428)
+(diagram "edit_jobs" (dia-scene-doc s))

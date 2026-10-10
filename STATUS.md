@@ -4,6 +4,39 @@
 
 ------
 
+Chris: "carry on with the next diagram candidates".
+
+Thirteen more, 59 scripts in `docs/diagrams/` now, each drawn to a
+picture and looked at by me, each from the page it is in:
+
+*	vm: `(assign)` and the order of its copies, with the ring it can
+	not sort.
+*	lisp: the four kinds of map, a class and two objects of it, what a
+	call binds, and where an index points, which is in `iteration.md`
+	too and takes the place of a table typed out in the digest's
+	`sequence_indexing.md`.
+*	digest: the storage service's two maps and the rule for where a
+	block is kept; the shader language's back ends; a pattern to a
+	match; the three coding domains; where a wrong argument is caught
+	and that a release build does not; an app's configuration from one
+	run to the next; `(import)` and a module; the `edit` command over
+	files and nodes. The pipeline's diagram is in `task_pipelines.md`
+	as well.
+
+Not done, and why: pages that are lists of functions or of options, a
+reference in all but name, `lisp_primitives`, `library_primitives`,
+`coding_style`, `host_interface` past its first part; and the pages
+that are an argument and not a mechanism, `the_philosophy`,
+`know_thyself`, `the_tao_of_now`, `ai_thoughts`. A picture of those
+would be decoration.
+
+Run: `make docs`, `test_cwb_diagram` 19, the full suite on the x64 and
+the Pi.
+
+Not seen: by him, any but `:pixmap`.
+
+------
+
 Chris: "if I do mouse wheel up/down actions on a scrol area a) it works,
 b) if I stop useing the wheel and move over a new scroll, say move on
 the docs app from the main page to the selector scroll, the selector

@@ -14,6 +14,10 @@ can be trivially distributed across the network using the `-j` (jobs) flag,
 allowing you to refactor thousands of files simultaneously across a compute
 cluster.
 
+```image
+docs/diagrams/edit_jobs.cwb
+```
+
 ## Usage
 
 ```code

@@ -63,6 +63,10 @@ Ouch, no way to sort that, so you're going to have to help out manually.
 Assignment will never attempt to use registers not provided or spill to the
 stack. It's there to make your life easier, not to be a full blown compiler !
 
+```image
+docs/diagrams/assign_order.cwb
+```
+
 You can use all of the VP addressing modes as well as registers.
 
 ```vdu

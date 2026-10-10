@@ -11,6 +11,10 @@ The entire system is built upon three cooperating mechanisms: the `(import)`
 function, the `(include)` macro, and a disciplined module pattern using
 environment manipulation.
 
+```image
+docs/diagrams/import_module.cwb
+```
+
 ## The Core Mechanisms
 
 ### 1. `(import)`: The REPL-as-Loader
