@@ -860,6 +860,74 @@
 		(cwb-layers doc))
 	found)
 
+(defun cwb-seg-box? (x0 y0 x1 y1 bx by bx1 by1)
+	; (cwb-seg-box? x0 y0 x1 y1 bx by bx1 by1) -> :t | :nil
+	;does a line from one point to another touch a box, be in it, cross
+	;it or end in it. The line is cut to each side of the box in turn, and
+	;touches if anything of it is left
+	(defq dx (- x1 x0) dy (- y1 y0) t0 0.0 t1 1.0 ok :t)
+	(each (lambda ((p q))
+		(when ok
+			(cond
+				((= p 0.0) (if (< q 0.0) (setq ok :nil)))
+				(:t (defq r (/ q p))
+					(cond
+						((< p 0.0) (cond ((> r t1) (setq ok :nil)) ((> r t0) (setq t0 r))))
+						(:t (cond ((< r t0) (setq ok :nil)) ((< r t1) (setq t1 r)))))))))
+		(list (list (neg dx) (- x0 bx)) (list dx (- bx1 x0)) (list (neg dy) (- y0 by)) (list dy (- by1 y0))))
+	ok)
+
+(defun cwb-shape-touch? (shape m box)
+	; (cwb-shape-touch? shape m box) -> :t | :nil
+	;does what a shape draws, its fill or its stroke, touch a box of the
+	;space m puts it in: is in it, crosses it, or has it inside. Not the
+	;box round the shape: a line that goes corner to corner of its box is
+	;not touched by a box in one of the other corners
+	(bind '(fills strokes sbox) (cwb-flat shape))
+	(when sbox
+		(bind '(sx sy sx1 sy1) (cwb-box-of sbox m))
+		(bind '(bx by bx1 by1) (map (const n2f) box))
+		(cond
+			;nowhere near
+			((or (> sx bx1) (< sx1 bx) (> sy by1) (< sy1 by)) :nil)
+			;all of it in the box
+			((and (>= sx bx) (>= sy by) (<= sx1 bx1) (<= sy1 by1)) :t)
+			(:t (defq fills (cwb-mat-paths m fills) strokes (cwb-mat-paths m strokes)
+					mid (path (* 0.5 (+ bx bx1)) (* 0.5 (+ by by1))))
+				(or
+					;an edge of what is drawn crosses the box, or ends in it
+					(some (lambda (p)
+						(defq n (length p) hit :nil i 0)
+						(when (>= n 4)
+							(defq px (elem-get p (- n 2)) py (elem-get p (dec n)))
+							(while (and (not hit) (< i n))
+								(defq x (elem-get p i) y (elem-get p (inc i)))
+								(if (cwb-seg-box? px py x y bx by bx1 by1) (setq hit :t))
+								(setq px x py y i (+ i 2))))
+						hit) (cat fills strokes))
+					;or the box is inside it, no edge near
+					(and (nempty? fills) (vector-point-in-polygon mid fills
+						(if (eql (elem-get shape +cwb_rule) :evenodd) +winding_odd_even +winding_none_zero)))
+					(and (nempty? strokes) (vector-point-in-polygon mid strokes +winding_none_zero)))))))
+
+(defun cwb-touch-box (doc box &optional m)
+	; (cwb-touch-box doc box [m]) -> ((item layer_index) ...)
+	;the items of the layers that a box touches, as a box dragged out to
+	;select has it: an item any shape of which is in it, crosses it or has
+	;it inside. Not those of a layer that is hidden or locked
+	(defq out (list))
+	(each (lambda ((name flags items))
+		(unless (or (bits? flags 1) (bits? flags 2))
+			(defq layer_index (!))
+			(each (lambda (item)
+				(defq hit :nil)
+				(cwb-walk (list item) m (lambda (shape sm)
+					(if (and (not hit) (cwb-shape-touch? shape sm box)) (setq hit :t))))
+				(if hit (push out (list item layer_index))))
+				items)))
+		(cwb-layers doc))
+	out)
+
 (defun cwb-in-box (doc box &optional m)
 	; (cwb-in-box doc box [m]) -> ((item layer_index) ...)
 	;the items of the layers that are wholly in a box, as a drag round

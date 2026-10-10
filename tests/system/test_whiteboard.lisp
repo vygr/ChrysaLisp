@@ -413,3 +413,16 @@
 	"(:t ((197 197 404 404)) :t :t :nil (0 0 1024 768))" (first wa_part))
 (assert-eq "put down, the picture is what it was" ":t" (second wa_part))
 (assert-eq "and so with one that is partly off the corner of the paper" "(:t :nil)" (third wa_part))
+
+;the box and handles of what is selected go with it: taken to the back they are at the back with it, on its canvas, and not in front
+(defq wa_back (wa-run (cat
+	"(defun wa-bits (c) (task-slice) (defq s (memory-stream)) (pixmap-write (getf c +canvas_pixmap 0) s 32) (stream-seek s 0 0) (read-blk s 100000000))"
+	"(. *overlay* :fill 0) (defq blank (wa-bits *overlay*))"
+	"(wa-mode :frect) (wa-drag 1 300 300 400 380) (wa-mode :select)"
+	;taken by the left button, in front
+	"(wa-drag 1 350 340 360 350) (draw-over) (draw-flight) (defq front (wa-bits *flight*)) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank)))"
+	;taken by the right button, to the back
+	"(wa-drag 3 360 350 350 340) (draw-over) (draw-flight) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank) (eql (wa-bits *flight*) front)))")))
+(assert-eq "a thing taken by the left button has its box and handles in front, on what is over the board" "(:nil :nil)" (first wa_back))
+(assert-eq "taken by the right button to the back, nothing of it is in front: its box and handles are on its own canvas, with it"
+	"(:t :t :nil)" (second wa_back))

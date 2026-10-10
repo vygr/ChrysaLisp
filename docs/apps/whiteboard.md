@@ -74,7 +74,8 @@ own tool and colour on the one board.
 The first button of the second row is the arrow, select. With it the left
 button is the hand as well, so a mouse with one button can do everything.
 
-Press on a thing to select it, or drag a box round several. What is selected
+Press on a thing to select it, or drag a box across several: everything
+the box touches is selected, it need not go all the way round a thing. What is selected
 has a box round it with eight squares and a ring:
 
 * Drag inside the box to move it.

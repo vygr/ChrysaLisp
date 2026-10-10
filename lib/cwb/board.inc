@@ -366,9 +366,11 @@
 								;there was none to put away
 								(unless (and (eql kind :touch) (. board :dismiss event))
 									(menu board x y event)))
-							;what is in the box is selected, with what other
-							;hands have hold of, which stays so
-							(band (defq found (map (# (elem-get (first %0) +cwb_id)) (cwb-in-box (get :doc board) band))
+							;what the box touches is selected, it need not be
+							;all round a thing: a long line, or a thing at
+							;the edge of the paper, can not be got round. With
+							;what other hands have hold of, which stays so
+							(band (defq found (map (# (elem-get (first %0) +cwb_id)) (cwb-touch-box (get :doc board) band))
 									kept (if holding (get :selected board) (list)))
 								(. board :select (cat kept (filter (# (not (find %0 kept))) found)))))
 						(. board :touch +board_dirty_overlay))))
@@ -1287,10 +1289,12 @@
 		(. (get :temp this) :each (lambda (id shape) (cwb-draw-items canvas (list shape) m)))
 		this)
 
-	(defmethod :draw_overlay (canvas &optional m no_flight)
-		; (. board :draw_overlay canvas [m no_flight]) -> board
+	(defmethod :draw_overlay (canvas &optional m no_flight no_selected)
+		; (. board :draw_overlay canvas [m no_flight no_selected]) -> board
 		;what is over the document and not of it: what is in flight,
-		;the box being dragged out, and the handles of what is selected
+		;the box being dragged out, and the handles of what is selected.
+		;With no_selected the last is left out, whoever shows the board
+		;draws it where what is selected is, (:draw_selected)
 		(defq zoom (get :zoom this) thin (/ 1.0 zoom))
 		;what is in flight, unless it is not wanted here: whoever shows the
 		;board may have a picture of its own for it, to put in front of
@@ -1305,6 +1309,16 @@
 		(. (get :bands this) :each (lambda (id (x y x1 y1))
 			(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)
 				:stroke 0xff0080ff :width thin :fill 0x200080ff :join :miter)) m)))
+		(unless no_selected (. this :draw_selected canvas m))
+		this)
+
+	(defmethod :draw_selected (canvas &optional m)
+		; (. board :draw_selected canvas [m]) -> board
+		;the lines round what is selected, and its handles. They go with
+		;what they are of: a thing taken to the back has its box and its
+		;handles at the back with it, behind what it is behind, and is
+		;still turned and sized by them there
+		(defq zoom (get :zoom this) thin (/ 1.0 zoom))
 		(when (nempty? (defq items (. this :selected_items)))
 			(defq handles (get :handles this))
 			;of several things selected, each has a line round it, its own

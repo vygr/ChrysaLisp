@@ -4,6 +4,34 @@
 
 ------
 
+Chris: "do oyu thinjk we should make the right drag box to select,
+select every object it touches ? rather than surounds ? I think that is
+actully a better UI". And: "Also the selection box and controls of a
+shape pushed to, the back with right button, don't apear at the back
+with the shape it is for."
+
+*	A box dragged out selects what it touches. I said yes, and that it
+	should be what a thing draws that is touched, not the box round it:
+	a line from corner to corner of its box is not touched by a box in
+	one of the other corners. `(cwb-touch-box)`, `lib/cwb/doc.inc`: a
+	shape is touched if it is all in the box, or an edge of its fill or
+	its stroke crosses the box or ends in it, or the box is inside a
+	thing that is filled. `(cwb-in-box)`, wholly in, is still there.
+
+*	The lines round what is selected and its handles are their own
+	step, `(. board :draw_selected)`. The app draws them in front, on
+	what is over the board, unless what is selected has been taken to
+	the back: then on the flight canvas, behind the document with it.
+	They are still what turns and sizes it there, where they are, seen
+	or not.
+
+Run: `test_cwb` 494 and `test_whiteboard` 90 on the M4, the full suite
+on the x64 and the Pi.
+
+Not seen: either, by him.
+
+------
+
 Chris: "done with the trackpad, run the soak".
 
 The recorder of fingers is out of `apps/media/whiteboard/view.inc`, and

@@ -909,3 +909,29 @@
 (assert-list-eq "each has its line, and there is none from the one to the other"
 	'(:t :t 0 0) (list (> (cm-row tw_canvas 40 40 100) 30) (> (cm-row tw_canvas 200 300 360) 30)
 		(cm-row tw_canvas 40 110 290) (cm-row tw_canvas 150 355 365)))
+
+;a box dragged out selects what it touches, what is drawn, not the box round it
+(defq tx_doc (cwb-doc 800 600))
+(defq tx_ids (map (# (elem-get (cwb-add tx_doc %0) +cwb_id)) (list
+	(cwb-shape (cwb-d-line 100 100 300 300) :stroke 0xff000000 :width 4.0)
+	(cwb-shape (cwb-d-rect 400 100 600 300) :fill 0xff0000ff :stroke 0)
+	(cwb-shape (cwb-d-rect 100 400 300 550) :stroke 0xff000000 :width 2.0)
+	(cwb-shape (cwb-d-ellipse 600 450 80 60) :stroke 0xff000000 :width 2.0))))
+(defun tx-touch (x y x1 y1) (map (# (elem-get (first %0) +cwb_id)) (cwb-touch-box tx_doc (list x y x1 y1))))
+(bind '(tx_line tx_fill tx_box tx_oval) tx_ids)
+(assert-list-eq "a box across the middle of a line touches it" (list tx_line) (tx-touch 180 190 220 210))
+(assert-list-eq "a box in the corner of the box round the line, where the line is not, touches nothing" (list) (tx-touch 240 110 290 150))
+(assert-list-eq "a box over the end of the line touches it" (list tx_line) (tx-touch 90 90 110 110))
+(assert-list-eq "a box wholly inside a thing that is filled touches it" (list tx_fill) (tx-touch 480 180 520 220))
+(assert-list-eq "a box wholly inside a box that is not filled touches nothing, its line is not there" (list) (tx-touch 150 440 250 510))
+(assert-list-eq "a box across its side touches it" (list tx_box) (tx-touch 290 450 320 470))
+(assert-list-eq "a box in the corner of the box round an ellipse, outside its line, touches nothing" (list) (tx-touch 522 392 532 400))
+(assert-list-eq "a box round a thing touches it, as before, and one across two touches both"
+	(list (list tx_oval) (list tx_line tx_fill)) (list (tx-touch 500 380 700 520) (tx-touch 280 150 420 290)))
+;the board's own: a box dragged out with the hand
+(defq tx_board (Board tx_doc))
+(def tx_board :mode :select)
+(. tx_board :pointers (list (ptr-event 0 :mouse 1 350 20)))
+(. tx_board :pointers (list (ptr-event 0 :mouse 1 450 200)))
+(. tx_board :pointers (list (ptr-event 0 :mouse 0 450 200)))
+(assert-list-eq "a box dragged out over a corner of a thing selects it" (list tx_fill) (. tx_board :get_selected))

@@ -221,7 +221,9 @@
 	(bind '(w h) (canvas-size))
 	(. *overlay* :fill 0)
 	(. *overlay* :set_clip *margin* *margin* (+ *margin* w) (+ *margin* h))
-	(. *board* :draw_overlay *overlay* (over-matrix) :t)
+	;the lines and handles of what is selected are here, in front, unless
+	;it has been taken to the back: then they are with it, (draw-flight)
+	(. *board* :draw_overlay *overlay* (over-matrix) :t (get :float_back *board*))
 	(. *overlay* :set_clip 0 0 (+ w *margin* *margin*) (+ h *margin* *margin*))
 	(. *board* :draw_actors *overlay* (over-matrix)))
 
@@ -286,7 +288,10 @@
 			quiet (and (nempty? now) (empty? down) (= (. (get :temp *board*) :size) 0)))
 		(when (and quiet (defq box (cwb-bounds now)))
 			(bind '(bx by bx1 by1) (map (# (* %0 *zoom*)) box))
-			(defq bx (- (n2i (floor bx)) 4) by (- (n2i (floor by)) 4) bx1 (+ (n2i (floor bx1)) 5) by1 (+ (n2i (floor by1)) 5))
+			;with room for its handles, if they are drawn with it
+			(defq room (if back 34 4)
+				bx (- (n2i (floor bx)) room) by (- (n2i (floor by)) room)
+				bx1 (+ (n2i (floor bx1)) room 1) by1 (+ (n2i (floor by1)) room 1))
 			(when (and (<= (- bx1 bx) w) (<= (- by1 by) h))
 				(setq whole :t ox (cond ((< bx 0) (neg bx)) ((> bx1 w) (- w bx1)) (:t 0))
 					oy (cond ((< by 0) (neg by)) ((> by1 h) (- h by1)) (:t 0)))))
@@ -301,6 +306,8 @@
 				(unless (bits? flags 1) (cwb-draw-items onto (cwb-pick items down) m)))
 				(cwb-layers (. *board* :get_doc))))
 		(if flying (. *board* :draw_flight onto m))
+		;taken to the back, its box and handles are at the back with it
+		(if (and flying back) (. *board* :draw_selected onto m))
 		;what is on it, where each thing was when it was put there, and how
 		;far over it was drawn
 		(setq *flight_used* (or flying (nempty? down))
