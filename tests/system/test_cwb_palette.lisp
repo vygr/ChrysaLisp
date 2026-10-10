@@ -40,7 +40,7 @@
 (assert-list-eq "about where it tapped, and it is the mouse's" '(400 300 :mouse 0)
 	(cat (map (const n2i) (get :origin pl_pal)) (list (get :kind pl_pal) (get :id pl_pal))))
 (assert-eq "it is at the front of the stage" :t (eql pl_pal (last (. (. pl_board :get_stage) :get_actors))))
-(assert-eq "35 wedges: 11 tools, 12 colours and 4 widths, 8 things to do" 35 (length (. pl_pal :get_wedges)))
+(assert-eq "36 wedges: 11 tools, 12 colours and 4 widths, 9 things to do" 36 (length (. pl_pal :get_wedges)))
 
 ;time
 (assert-eq "at the moment it opens no ring is open at all" 0 (n2i (* 100.0 (. pl_pal :ring_scale 0))))
@@ -65,7 +65,7 @@
 (defq pl_at (. pl_pal :where :tool :rect))
 (assert-eq "a point of a wedge is on that wedge" :rect
 	(elem-get (apply (# (. pl_pal :wedge_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1)) pl_at)) +wedge_val))
-(assert-eq "every wedge is where it says it is" 35
+(assert-eq "every wedge is where it says it is" 36
 	(length (filter (lambda (wedge)
 		(eql wedge (apply (# (. pl_pal :wedge_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1))
 			(. pl_pal :where (elem-get wedge +wedge_what) (elem-get wedge +wedge_val))))))

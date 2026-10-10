@@ -7,8 +7,7 @@
 	(enum snap snap_angle keep_shape)
 	(enum radius ink)
 	(enum mode)
-	(enum ruler protractor set_square)
-	(enum arc)
+	(enum ruler protractor set_square full_protractor)
 	(enum group ungroup delete duplicate to_front to_back
 		align_left align_hcenter align_right align_top align_vcenter align_bottom)
 	(enum size text))
@@ -22,7 +21,6 @@
 	*modes* (list :select :pen :line :arrow :arrow2 :rect :ellipse :frect :fellipse :text :eraser)
 	*widths* (list 3.0 6.0 12.0)
 	*styles* (list :plain :grid :lines :axis)
-	*arcs* (list :line :pie :circle)
 	*palette* (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
 	*palette* (cat *palette* (map (const trans) *palette*))
 	*board* (Board))
@@ -47,8 +45,7 @@
 			(:color *env_toolbar2_col*)) :connect +event_mode)
 		(. (ui-radio-bar *radius_toolbar* (+sym_small +sym_medium +sym_large)) :connect +event_radius)
 		(ui-tool-bar *tool_toolbar* (:color *env_toolbar2_col*)
-			(ui-buttons (+sym_ruler +sym_protractor +sym_set_square) +event_ruler))
-		(. (ui-radio-bar *arc_toolbar* (+sym_arc +sym_pie +sym_circle)) :connect +event_arc)
+			(ui-buttons (+sym_ruler +sym_protractor +sym_set_square +sym_full_protractor) +event_ruler))
 		(. (ui-textfield *text_field* (:color +argb_white :hint_text "words to put down" :clear_text ""
 			:min_width 160)) :connect +event_text)
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
@@ -89,10 +86,8 @@
 	'("thin" "medium" "thick"))
 
 (ui-tool-tips *tool_toolbar*
-	'("ruler" "protractor" "set square"))
+	'("ruler" "protractor" "set square" "whole protractor"))
 
-(ui-tool-tips *arc_toolbar*
-	'("the protractor draws an arc" "a slice" "a circle"))
 
 (ui-tool-tips *selection_toolbar*
 	'("group" "ungroup" "delete" "duplicate" "to the front" "to the back"
@@ -103,5 +98,4 @@
 (. *mode_toolbar* :set_selected 1)
 (. *radius_toolbar* :set_selected 0)
 (. *style_toolbar* :set_selected 1)
-(. *arc_toolbar* :set_selected 0)
 (def *board_view* :scroll *image_scroll*)

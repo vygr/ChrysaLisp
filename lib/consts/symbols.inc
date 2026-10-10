@@ -49,4 +49,4 @@
 	+sym_protractor 0xe074 +sym_set_square 0xe075 +sym_snap 0xe076
 	+sym_snap_angle 0xe077 +sym_to_front 0xe078 +sym_to_back 0xe079
 	+sym_duplicate 0xe07a +sym_arc 0xe07b +sym_pie 0xe07c +sym_text 0xe07d
-	+sym_lock 0xe07e)
+	+sym_lock 0xe07e +sym_full_protractor 0xe07f)

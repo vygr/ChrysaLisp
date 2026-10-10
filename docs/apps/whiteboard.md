@@ -60,8 +60,8 @@ side held, and the left button when the arrow is the tool.
 * The next is the colours, and four widths. Pick as many as you like, the
 spot in the middle shows what you have.
 
-* The outer ring is undo, redo, a ruler, a protractor, a set square, snap to
-the grid, duplicate and delete.
+* The outer ring is undo, redo, a ruler, a protractor, a whole protractor, a
+set square, snap to the grid, duplicate and delete.
 
 * Click its middle, or anywhere off it, to put it away.
 
@@ -124,8 +124,8 @@ paper. A thing that is partly on it stays. It can be undone.
 
 ## The instruments
 
-The ruler, the protractor and the set square are on the second row. Each is
-put on the board, over what is drawn, and is not part of the document. What
+The ruler, the protractor, the whole protractor, a circle of 360 degrees,
+and the set square are on the second row. Each is put on the board, over what is drawn, and is not part of the document. What
 is drawn with it is.
 
 * Run the pen along an edge of one and what is drawn is that edge, from where
@@ -133,8 +133,15 @@ the pen went down to where it came up: a true straight line along a ruler, a
 true arc round a protractor, however the hand wobbles. The pen only has to go
 down near the edge.
 
-* The three buttons after them say what the round edge of the protractor
-draws: the arc, a slice with its two straight sides, or the whole circle.
+* A straight edge is an edge from the 0 of its marks to where they end. A
+line drawn along it stops there, however far the pen goes on.
+
+* What the round edge of a protractor draws is set on the protractor: the
+ring near its middle shows it, an arc, a slice with its two straight sides,
+or the whole circle, and a tap on the ring goes to the next.
+
+* The whole protractor is numbered both ways from its 0, round the outside
+one way and round the inner scale the other.
 
 * Each is marked as the real thing is, a ruler and a set square to the
 millimetre, a protractor to the degree, and the parts of it that do things
@@ -150,6 +157,10 @@ either end of the ruler, which turns it about the 0 of the marks at its
 other end, the top side is marked from the left and the bottom from the
 right, so with a 0 on a point lines can be drawn from that point every way; the inner scale
 of the protractor; a sharp corner of the set square.
+
+* An end of the ruler dragged makes it longer or shorter at that end. Its
+other end stays where it is, so a ruler with its 0 on a point can be pulled
+out as far as a line from that point is to go.
 
 * To make one bigger or smaller, drag a part with the arrow with two heads:
 an end of the ruler, a square by the straight side of the protractor, the

@@ -87,22 +87,18 @@
 	(. *mode_toolbar* :set_selected (find :text *modes*))
 	(action-mode))
 
-(defun action-arc ()
-	;what the protractors draw
-	(setq *arc* (elem-get *arcs* (. *arc_toolbar* :get_selected)))
-	(each (# (if (Protractor? %0) (def %0 :mode *arc*))) (. (. *board* :get_stage) :get_actors)))
-
 (defun add-instrument (instrument)
 	;in the middle of what shows of the board, each a little off the last
 	;so that two are not one on the other
 	(defq others (length (filter (const Instrument?) (. (. *board* :get_stage) :get_actors))))
 	(bind '(x y) (get :origin instrument))
-	(def instrument :mode *arc* :origin (list (+ x (* 30.0 (n2f others))) (+ y (* 30.0 (n2f others)))))
+	(def instrument :origin (list (+ x (* 30.0 (n2f others))) (+ y (* 30.0 (n2f others)))))
 	(. (. *board* :get_stage) :add instrument)
 	(. *board* :touch +board_dirty_overlay))
 
 (defun action-ruler () (add-instrument (apply (const Ruler) (cat (list *board*) (view-middle)))))
 (defun action-protractor () (add-instrument (apply (const Protractor) (cat (list *board*) (view-middle)))))
+(defun action-full-protractor () (add-instrument (apply (const Circle) (cat (list *board*) (view-middle)))))
 (defun action-set-square () (add-instrument (apply (const Setsquare) (cat (list *board*) (view-middle)))))
 
 (defun action-group () (. *board* :group))

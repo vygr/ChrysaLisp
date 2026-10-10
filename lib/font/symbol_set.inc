@@ -202,7 +202,9 @@
 	(list "pie" (cat (s-arc 11 14 8 0 270) (s-line 19 14 11 14 11 22)))
 	(list "text" (cat (s-line 5 5 19 5) (s-line 12 5 12 20) (s-line 9 20 15 20)))
 	(list "lock" (cat (s-rrect 5.5 11 18.5 20 1.5) (s-line 8.5 11 8.5 8 10.5 5 13.5 5 15.5 8 15.5 11)
-		(s-line 12 14.5 12 16.5)))))
+		(s-line 12 14.5 12 16.5)))
+	(list "full_protractor" (cat (s-ring 12 12 8.5) (s-line 12 3.5 12 7) (s-line 20.5 12 17 12)
+		(s-line 12 20.5 12 17) (s-line 3.5 12 7 12) (s-line 11 12 13 12) (s-line 12 11 12 13)))))
 
 ;;;;;;;;;;;;
 ; the themes

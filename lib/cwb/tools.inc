@@ -52,13 +52,19 @@
 		(/ (* to +fp_pi) 180.0)
 		angle))
 
-(defun tool-glyph (what)
-	; (tool-glyph what) -> shapes
+(defun tool-glyph (what &optional mode)
+	; (tool-glyph what [mode]) -> shapes
 	;the sign of a part of an instrument, about 0 0, some 20 across: an
 	;arrow that goes round for :turn, one with two heads for :size, a
-	;cross for :close
+	;cross for :close. For :mode, in a ring, what the instrument is set
+	;to draw: an arc, a slice of pie, or a circle
 	(defq ink 0xff000000)
 	(case what
+		(:mode (list (cwb-shape (cwb-d-ellipse 0 0 11) :stroke ink :width 1.0 :fill 0x40ffffff)
+			(case mode
+				(:pie (cwb-shape "M 0 3 L 6.5 3 A 6.5 6.5 0 1 0 0 9.5 Z" :stroke ink :width 1.5 :fill 0x60000000 :join :round))
+				(:circle (cwb-shape (cwb-d-ellipse 0 0 6) :stroke ink :width 1.5))
+				(:t (cwb-shape "M -6.5 3 A 6.5 6.5 0 0 1 6.5 3" :stroke ink :width 1.8)))))
 		(:turn (list (cwb-shape "M -7 4 A 8 8 0 1 1 7 4 M 7 4 L 3 3.5 M 7 4 L 8.5 0 M -7 4 L -3 3.5 M -7 4 L -8.5 0"
 			:stroke ink :width 1.6 :join :round)))
 		(:size (list (cwb-shape "M -9 0 L 9 0 M -9 0 L -5 -4 M -9 0 L -5 4 M 9 0 L 5 -4 M 9 0 L 5 4"
@@ -109,7 +115,9 @@
 	;not what a hand changes:
 	;	:outline	a d, closed
 	;	:edges		((kind ...) ...), (:line x0 y0 x1 y1) or (:arc cx cy r a0 a1)
-	;	:parts		((what d) ...), what is :move :turn :size or :close,
+	;	:parts		((what d) ...), what is :move :turn :size :close, or
+	;				:mode, which when tapped has it draw the next of an
+	;				arc, a slice and a circle,
 	;				the first that a point is in is the one, so put the
 	;				small ones first. A :turn can have the point it turns
 	;				about after its d, x y, default the middle. A part
@@ -164,9 +172,9 @@
 			;by, a shade darker with a line round it, and the signs
 			:zones (cat
 				(map (lambda ((what d &ignore)) (cwb-shape d :fill 0x30000000 :stroke 0x80000000 :width 0.75 :join :miter))
-					(filter (# (not (or (find (first %0) '(:move :close)) (eql (last %0) :quiet)))) (get :parts this)))
+					(filter (# (not (or (find (first %0) '(:move :close :mode)) (eql (last %0) :quiet)))) (get :parts this)))
 				(map (lambda (glyph)
-					(cwb-group (tool-glyph (first glyph)) :m (cwb-mat-mul (cwb-mat-move (second glyph) (third glyph))
+					(cwb-group (tool-glyph (first glyph) (get :mode this)) :m (cwb-mat-mul (cwb-mat-move (second glyph) (third glyph))
 						(cwb-mat-turn (if (> (length glyph) 3) (elem-get glyph 3) 0.0)))))
 					(get :glyphs this))))
 		(. (get :board this) :touch +board_dirty_overlay)
@@ -325,7 +333,18 @@
 						:origin (cwb-mat-point (cwb-mat-turn turn bx by) (first origin) (second origin)))
 					(. board :touch +board_dirty_overlay)))
 			(:size
-				(when (and (= (. this :held) 1) (not (get :grab this)))
+				(when (and (= (. this :held) 1) (not (get :grab this)) (= (length (third region)) 1))
+					;a part that sizes it from one end: it is longer by as far as
+					;the pointer has gone along it, that way, and its other end
+					;stays where it is on the board. A ruler with its 0 on a
+					;point is made longer and the 0 is still on the point
+					(defq way (first (third region)) c (cos angle) s (sin angle)
+						along (* way (+ (* (- x sx) c) (* (- y sy) s))))
+					(. this :set_extent (+ length along))
+					(defq half (* 0.5 way (- (. this :extent) length)))
+					(def this :origin (list (+ (first origin) (* half c)) (+ (second origin) (* half s))))
+					(. board :touch +board_dirty_overlay))
+				(when (and (= (. this :held) 1) (not (get :grab this)) (/= (length (third region)) 1))
 					;by how much further from its middle the pointer is
 					(defq d0 (max 1.0 (sqrt (+ (* (- sx (first origin)) (- sx (first origin))) (* (- sy (second origin)) (- sy (second origin))))))
 						d1 (sqrt (+ (* (- x (first origin)) (- x (first origin))) (* (- y (second origin)) (- y (second origin))))))
@@ -345,7 +364,14 @@
 				(bind '(lx ly) (. this :to_own x y))
 				(when (and (defq now (. this :part_at lx ly)) (eql (first now) :close))
 					(. stage :sub this)
-					(. board :touch +board_dirty_overlay)))))
+					(. board :touch +board_dirty_overlay)))
+			(:mode
+				;what it draws is the next of the three, if it came up where
+				;it went down. Its sign is of that, so it is made again
+				(bind '(lx ly) (. this :to_own x y))
+				(when (and (defq now (. this :part_at lx ly)) (eql (first now) :mode))
+					(def this :mode (case (get :mode this) (:line :pie) (:pie :circle) (:t :line)))
+					(. this :built)))))
 
 	(defmethod :pointers (stage events)
 		(unless (get :body this) (. this :built))
@@ -467,8 +493,10 @@
 			:edges (list (list :line (neg inset) top inset top) (list :line (neg inset) bot inset bot))
 			:parts (list
 				(list :close (cwb-d-ellipse 0 0 11))
-				(list :size (cwb-d-rect (neg half) top (neg inset) bot))
-				(list :size (cwb-d-rect inset top half bot))
+				;each end makes it longer or shorter that way, the other end
+				;stays where it is
+				(list :size (cwb-d-rect (neg half) top (neg inset) bot) -1.0)
+				(list :size (cwb-d-rect inset top half bot) 1.0)
 				;the hole by each end, as a ruler has to hang it by. Each
 				;turns it about the 0 of the marks at the other end: the top
 				;side's are from the left, the bottom side's from the right.
@@ -552,7 +580,8 @@
 			;below the line through the middle it is only the shape of the thing
 			:edges (list (list :arc 0.0 0.0 r (neg +fp_pi) 0.0) (list :line (neg across) base across base))
 			:parts (list
-				(list :close (cwb-d-ellipse 0 (* -0.3 r) 11))
+				(list :close (cwb-d-ellipse 0 (* -0.27 r) 11))
+				(list :mode (cwb-d-ellipse 0 (* -0.115 r) 12))
 				(list :size (cwb-d-rect sq0 sqy0 sq1 sqy1))
 				(list :size (cwb-d-rect (neg sq1) sqy0 (neg sq0) sqy1))
 				(list :turn (cwb-d "M" (neg in1) 0 "A" in1 in1 0 0 1 in1 0 "L" in0 0 "A" in0 in0 0 0 0 (neg in0) 0 "Z"))
@@ -561,7 +590,7 @@
 				;side is held to it and draws, that comes first
 				(list :size (cwb-d "M" (neg r) 0 "A" r r 0 0 1 r 0 "L" in1 0 "A" in1 in1 0 0 0 (neg in1) 0 "Z") :quiet)
 				(list :move whole))
-			:glyphs (list (list :close 0.0 (* -0.3 r))
+			:glyphs (list (list :close 0.0 (* -0.27 r)) (list :mode 0.0 (* -0.115 r))
 				(list :size (* 0.5 (+ sq0 sq1)) (* 0.5 (+ sqy0 sqy1))) (list :size (* -0.5 (+ sq0 sq1)) (* 0.5 (+ sqy0 sqy1)))
 				(list :turn (* 0.54 r 0.7071) (* -0.54 r 0.7071) (* 0.25 +fp_pi))
 				(list :turn (* -0.54 r 0.7071) (* -0.54 r 0.7071) (* -0.25 +fp_pi))))
@@ -592,7 +621,61 @@
 				" " (tool-ticks 0.0 base (neg across) base 0.0 -1.0 +tool_mm 3.0 5.0 8.0))
 			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
-		(def this :marks marks :readouts (list (list 0.0 (* -0.16 r))))
+		(def this :marks marks :readouts (list (list 0.0 (* -0.4 r))))
+		this)
+	)
+
+;;;;;;;;;;;;;;;;;;;;;;
+; the whole protractor
+;;;;;;;;;;;;;;;;;;;;;;
+
+(defclass Circle (board x y) (Protractor board x y)
+	; (Circle board x y) -> circle
+	;a protractor that is the whole circle, with no straight side. Its
+	;rim is its one edge, all the way round, and draws as a protractor's
+	;round side does, an arc, a slice or the circle. It is numbered every
+	;ten degrees round from the right, the way the angle is counted, and
+	;on its inner scale the other way round. The inner scale turns it, the
+	;outer and the two squares size it, the middle moves it
+	(defmethod :rebuild ()
+		(defq r (* 0.5 (get :length this)) by (/ r 180.0) in0 (* 0.46 r) in1 (* 0.62 r) marks (list) ticks (list)
+			sq0 (* 0.16 r) sq1 (* 0.38 r) sqy (* 0.08 r)
+			;a ring is its outer round one way and its inner the other
+			ring (lambda (r0 r1) (cwb-d "M" r1 0 "A" r1 r1 0 1 1 (neg r1) 0 "A" r1 r1 0 1 1 r1 0 "Z"
+				"M" r0 0 "A" r0 r0 0 1 0 (neg r0) 0 "A" r0 r0 0 1 0 r0 0 "Z")))
+		(def this :outline (cwb-d-ellipse 0 0 r)
+			:edges (list (list :arc 0.0 0.0 r (neg +fp_pi) +fp_pi))
+			:parts (list
+				(list :close (cwb-d-ellipse 0 (* -0.3 r) 11))
+				(list :mode (cwb-d-ellipse 0 (* 0.3 r) 12))
+				(list :size (cwb-d-rect sq0 (neg sqy) sq1 sqy))
+				(list :size (cwb-d-rect (neg sq1) (neg sqy) (neg sq0) sqy))
+				(list :move (cwb-d-ellipse 0 0 in0))
+				(list :turn (ring in0 in1))
+				(list :size (cwb-d-ellipse 0 0 r) :quiet))
+			:glyphs (list (list :close 0.0 (* -0.3 r)) (list :mode 0.0 (* 0.3 r))
+				(list :size (* 0.5 (+ sq0 sq1)) 0.0) (list :size (* -0.5 (+ sq0 sq1)) 0.0)
+				(list :turn (* 0.54 r 0.7071) (* -0.54 r 0.7071) (* 0.25 +fp_pi))
+				(list :turn (* -0.54 r 0.7071) (* 0.54 r 0.7071) (* 1.25 +fp_pi))))
+		(each (lambda (deg)
+			(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
+				tick (* by (cond ((= (% deg 10) 0) 15.0) ((= (% deg 5) 0) 10.0) (:t 6.0))))
+			(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
+			(if (= (% deg 10) 0)
+				(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0)))))
+			(when (= (% deg 5) 0)
+				(defq tick (* by (if (= (% deg 10) 0) 8.0 4.0)))
+				(push ticks "M" (* in1 c) (* in1 s) "L" (* (- in1 tick) c) (* (- in1 tick) s))
+				(if (= (% deg 30) 0)
+					(push marks (cwb-text-mid (str (% (- 360 deg) 360)) (* (- in1 (* by 17.0)) c) (* (- in1 (* by 17.0)) s)
+						:font_size (n2i (* by 10.0)))))))
+			(range 0 360))
+		;its middle, and the four lines out from the inner scale
+		(push ticks "M" -12 0 "L" 12 0 "M" 0 -12 "L" 0 12)
+		(each (lambda ((c s)) (push ticks "M" (* in1 c) (* in1 s) "L" (* (- r (* by 38.0)) c) (* (- r (* by 38.0)) s)))
+			'((1.0 0.0) (0.0 1.0) (-1.0 0.0) (0.0 -1.0)))
+		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
+		(def this :marks marks :readouts (list (list 0.0 (* 0.16 r))))
 		this)
 	)
 
@@ -623,10 +706,17 @@
 			marks (list)
 			;how far the point as far from all three sides is from them, and
 			;where it is, and how much smaller the middle is
-			ir (* 0.5 (- (+ w h) (sqrt (+ (* w w) (* h h))))) ix (+ ax ir) iy (- ay ir)
+			long (sqrt (+ (* w w) (* h h))) ux (/ w long) uy (/ h long)
+			ir (* 0.5 (- (+ w h) long)) ix (+ ax ir) iy (- ay ir)
 			ik (/ (max 1.0 (- ir 26.0)) ir))
 		(def this :outline (cwb-d "M" ax ay "L" bx by cx cy "Z")
-			:edges (list (list :line ax ay bx by) (list :line bx by cx cy) (list :line cx cy ax ay))
+			;a side is an edge from the 0 of its marks. The two square sides
+			;have theirs at the square corner. The long side has its 0 a
+			;little in from the top corner, and its marks end as far short of
+			;the other
+			:edges (list (list :line ax ay bx by)
+				(list :line (- bx (* 40.0 ux)) (- by (* 40.0 uy)) (+ cx (* 40.0 ux)) (+ cy (* 40.0 uy)))
+				(list :line cx cy ax ay))
 			:parts (list
 				(list :close (cwb-d-ellipse 0 0 11))
 				(list :size (cwb-d-rect (+ ax 28.0) (- ay 62.0) (+ ax 62.0) (- ay 28.0)))
@@ -649,7 +739,6 @@
 		;down from its top corner to a little short of the other, as a
 		;ruler's are in from its ends: at a sharp corner a mark would go
 		;out through the other side
-		(defq long (sqrt (+ (* w w) (* h h))) ux (/ w long) uy (/ h long))
 		(push marks (cwb-shape (cat (tool-ticks ax ay (- bx 30.0) by 0.0 -1.0 +tool_mm)
 				" " (tool-ticks ax ay cx (+ cy 30.0) 1.0 0.0 +tool_mm)
 				" " (tool-ticks (+ cx (* 40.0 ux)) (+ cy (* 40.0 uy)) (- bx (* 40.0 ux)) (- by (* 40.0 uy)) (neg uy) ux +tool_mm))

@@ -151,7 +151,20 @@
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
 (defq wt_marks (length (get :marks wt_ruler)))
 (wt-go '(0 :mouse 1 595 300)) (wt-go '(0 :mouse 1 695 300)) (wt-go '(0 :mouse 0 695 300))
-(assert-true "dragged by an end, half as far again from its middle, it is half as long again" (wt-near? (get :length wt_ruler) 605.1 0.5))
+(assert-true "dragged out by its right end by 100, it is 100 longer" (wt-near? (get :length wt_ruler) 500.0 0.01))
+(assert-true "and its other end has stayed where it was: the 0 of its top side is still on its point"
+	(wt-near? (. wt_ruler :to_board (neg (elem-get (first (get :edges wt_ruler)) 3)) -40) '(226 260) 0.01))
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0) (. wt_ruler :set_extent 400.0)
+(wt-go '(0 :mouse 1 205 300)) (wt-go '(0 :mouse 1 145 300)) (wt-go '(0 :mouse 0 145 300))
+(assert-true "dragged out by its left end by 60, it is 60 longer, and its right end has stayed, the 0 of its bottom side"
+	(and (wt-near? (get :length wt_ruler) 460.0 0.01)
+		(wt-near? (. wt_ruler :to_board (elem-get (first (get :edges wt_ruler)) 3) 40) '(574 340) 0.01)))
+(def wt_ruler :origin (list 400.0 300.0) :angle (/ +fp_pi 2.0)) (. wt_ruler :set_extent 400.0)
+(wt-go '(0 :mouse 1 400 495)) (wt-go '(0 :mouse 1 400 545)) (wt-go '(0 :mouse 0 400 545))
+(assert-true "turned a quarter turn, its end dragged along it, down, makes it longer that way, the top end staying"
+	(and (wt-near? (get :length wt_ruler) 450.0 0.01) (wt-near? (. wt_ruler :to_board -225 0) '(400 100) 0.01)))
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0) (. wt_ruler :set_extent 400.0)
+(wt-go '(0 :mouse 1 595 300)) (wt-go '(0 :mouse 1 695 300)) (wt-go '(0 :mouse 0 695 300))
 (assert-true "its sides are as long as it is" (wt-near? (elem-get (first (get :edges wt_ruler)) 3) (- (* 0.5 (get :length wt_ruler)) +ruler_cap) 0.01))
 (assert-true "it has more numbers on it" (> (length (get :marks wt_ruler)) wt_marks))
 (assert-list-eq "and is as wide as it was, seen no bigger" '(1 260) (list (n2i (get :size wt_ruler)) (n2i (second (. wt_ruler :to_board 0 -40)))))
@@ -163,9 +176,9 @@
 (assert-true "a ruler that has been made longer turns about the 0 of its marks, where that is on the board"
 	(and (> (get :angle wt_ruler) 0.2) (wt-near? (. wt_ruler :to_board (neg wt_inset) -40) wt_corner 0.05)))
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
-(wt-go '(0 :mouse 1 695 300)) (wt-go '(0 :mouse 1 9000 300)) (wt-go '(0 :mouse 0 9000 300))
+(wt-go '(0 :mouse 1 640 300)) (wt-go '(0 :mouse 1 9000 300)) (wt-go '(0 :mouse 0 9000 300))
 (assert-eq "but no longer than it may be" 3000.0 (get :length wt_ruler))
-(. wt_ruler :set_extent 400.0)
+(def wt_ruler :origin (list 400.0 300.0)) (. wt_ruler :set_extent 400.0)
 
 ;the ring in its middle puts it away, if the pointer comes up where it went down
 (wt-go '(0 :mouse 1 400 300)) (wt-go '(0 :mouse 1 300 100)) (wt-go '(0 :mouse 0 300 100))
@@ -318,6 +331,40 @@
 (assert-true "its marks are as far apart as they were, and it has more numbers on its sides"
 	(> (length (get :marks wt_set)) (progn (defq wt_n (length (get :marks wt_set))) (. wt_set :set_extent 360.0) (length (get :marks wt_set)))))
 (. wt_stage :sub wt_set)
+
+;the long side of the set square is an edge from the 0 of its marks to where they end, and no further
+(def wt_set :origin (list 400.0 300.0) :angle 0.0)
+(. wt_stage :add wt_set)
+(bind '(kind lx0 ly0 lx1 ly1) (elem-get (get :edges wt_set) 1))
+(defq wt_from (. wt_set :to_board (+ (* 0.5 lx0) (* 0.5 lx1)) (- (+ (* 0.5 ly0) (* 0.5 ly1)) 3.0))
+	wt_past (. wt_set :to_board (- lx1 60.0) (- ly1 37.0)) wt_zero (. wt_set :to_board lx1 ly1))
+(wt-go (cat '(1 :pen 1) wt_from)) (wt-go (cat '(1 :pen 1) wt_past)) (wt-go (cat '(1 :pen 0) wt_past))
+(assert-true "a pen run up its long side and on past the 0 of its marks draws a line that stops at the 0"
+	(wt-near? (slice (wt-numbers (wt-last-d)) 2 4) wt_zero 0.05))
+(. wt_stage :sub wt_set)
+
+;the whole protractor, a circle, and what an instrument draws is set on it
+(defq wt_circle (Circle wt_board 400 300))
+(. wt_stage :add wt_circle)
+(. wt_circle :built)
+(assert-list-eq "a whole protractor is a protractor, with one edge, all the way round" '(:t 1 :arc)
+	(list (if (Protractor? wt_circle) :t) (length (get :edges wt_circle)) (first (first (get :edges wt_circle)))))
+(assert-list-eq "from its middle out, down: it is moved, turned, sized" '(:move :turn :size)
+	(map (# (first (. wt_circle :part_at 30 %0))) '(40 97 150)))
+(wt-go '(1 :pen 1 586 300)) (wt-go '(1 :pen 1 400 486)) (wt-go '(1 :pen 1 214 300)) (wt-go '(1 :pen 1 400 114)) (wt-go '(1 :pen 0 400 114))
+(bind '(x y x1 y1) (cwb-bounds (list (last (cwb-items (. wt_board :get_doc))))))
+(assert-true "a pen run three quarters of the way round it, down past the bottom and up the far side, draws that arc"
+	(wt-near? (list x y x1 y1) '(218.5 118.5 581.5 481.5) 1.0))
+(assert-eq "it starts by drawing an arc" :line (get :mode wt_circle))
+(defq wt_mode (. wt_circle :to_board 0 54))
+(wt-go (cat '(0 :mouse 1) wt_mode)) (wt-go (cat '(0 :mouse 0) wt_mode))
+(assert-eq "a tap on the part of it that says what it draws, and it draws a slice" :pie (get :mode wt_circle))
+(wt-go (cat '(0 :mouse 1) wt_mode)) (wt-go (cat '(0 :mouse 0) wt_mode))
+(wt-go (cat '(0 :mouse 1) wt_mode)) (wt-go (cat '(0 :mouse 0) wt_mode))
+(assert-eq "and again a circle, and again an arc" :line (get :mode wt_circle))
+(wt-go (cat '(0 :mouse 1) wt_mode)) (wt-go (list 0 :mouse 0 400 300))
+(assert-eq "a press on it that comes up somewhere else changes nothing" :line (get :mode wt_circle))
+(. wt_stage :sub wt_circle)
 
 ;which is in front. One that is taken hold of comes to the front of the instruments, one
 ;taken by the right button alone goes to the back of them, and one that is drawn along stays where it is

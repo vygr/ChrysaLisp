@@ -4,6 +4,63 @@
 
 ------
 
+Chris, on the instruments, four things one after another:
+
+"OK, when scaleing the ruler, the side pivot point of the ruler should
+not move ! So you can position it on a point, then drag thje scale
+bigger then draw a line..."
+
+"You should not be able to drag an edge line beyond the 0 mark of an
+edge, genral rule, for Ruler and SetSquare, the setsqure is allowing
+that for the long edge ATM"
+
+"How do I change the shape mode of the Protactor ? I have edge draw
+mode, but where is the pie slice mode ? Also we need a full protractor
+instrument, the full circle ! allmost the same code really. but no
+straight edge, that should have the numeral marking bot forward and
+backwards from 0 ! Probably do that for the half protractor too."
+
+"the control for the instrument mode should be on the instrument, not
+the toolbar !"
+
+*	An end of the ruler that is dragged makes it longer at that end, by
+	how far the pointer goes along it, and the other end stays where it
+	is on the board. It was made longer about its middle, so both ends
+	moved. `lib/cwb/tools.inc`, a `:size` part that has a way, -1.0 or
+	1.0.
+
+*	The long side of the set square is an edge between the 0 of its
+	marks and their end, 40 in from each corner, as its two short sides
+	and the ruler's were. It ran corner to corner.
+
+*	`Circle`, a whole protractor, a `Protractor`: one edge all the way
+	round, degrees numbered every 10 round the outside one way and every
+	30 round the inner scale the other. The half protractor had both
+	already. A symbol for it, `full_protractor`, 128 now, a button
+	after the protractor's, and a wedge of the palette, 36.
+
+*	What a protractor draws is set on it: a ring by its middle shows an
+	arc, a slice or a circle, and a tap on it goes to the next. The
+	three buttons of the toolbar for it are gone, and `*arc*`.
+
+*	I had answered his question about the pie mode with where the
+	buttons were. That they were not where he looked was the point.
+
+His Whiteboard would not open while this was being made: "I tried to
+Launch the Whitebaord... hung/nothing happend." His desktop was up on
+the tree I was changing, its nodes had `lib/consts/symbols.inc` from
+before the symbol, and the app stopped at `+sym_full_protractor` not
+bound. I had not said the tree was changing under him. A fresh desktop
+was brought up.
+
+Run: `test_cwb` 440 and `test_whiteboard` 75 on the M4, the full suite
+on the x64 and the Pi. All four instruments drawn to a picture and
+looked at, the half protractor's angle moved off its inner scale.
+
+Not seen: any of it under his hand yet.
+
+------
+
 Chris, of a test that failed once on the Pi and passed twice after:
 "that is suspcious ! how can that fail and then pass ? has the feeling of
 link corruption, or file corruption ? how does a ")" just come and go

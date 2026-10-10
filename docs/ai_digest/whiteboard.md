@@ -211,15 +211,23 @@ the rest is a table of paths in its own space, about its own middle:
 ```vdu
 :outline	a path, closed. A point in it is on the instrument
 :edges		((:line x0 y0 x1 y1) | (:arc cx cy r a0 a1) ...)
-:parts		((what path [x y]) ...) what is :move :turn :size or :close
+:parts		((what path [x y]) ...) what is :move :turn :size :close
+		or :mode
 :marks		shapes, the ticks and numbers, which are only drawn
 ```
 
 A pen that goes down near an edge is held to it, and what it draws is that
 edge from where it went down to where it is: a line along a line, an arc
 round an arc, the way the pen went. It is a true `L` or a true `A` in the
-document, not the points of the hand. A protractor has `:mode`, `:line`,
-`:pie` or `:circle`.
+document, not the points of the hand. An edge is as long as its marks, from
+their 0 to where they end, and the pen is held to that: nothing is drawn
+along an edge past its 0. A protractor has `:mode`, `:line`, `:pie` or
+`:circle`, and a part of it, `:mode`, that a tap takes to the next. The
+instrument says what it does, no toolbar does.
+
+A `:size` part with a third thing, -1.0 or 1.0, is an end: dragged along
+the instrument, that end goes with the pointer and the other end stays
+where it is on the board. The two ends of a ruler are.
 
 A pointer that goes down in a part does what the part is for: moves the
 instrument, turns it about a point of it, makes it longer, puts it away. Only
@@ -227,7 +235,8 @@ a pointer that is alone on it does. A finger that holds a ruler while a pen
 draws along it does not move it, and nor does the pen. Two pointers on its
 parts move and turn it together.
 
-`Ruler`, `Protractor` and `Setsquare` are each a `:rebuild` that fills in that
+`Ruler`, `Protractor`, `Circle`, the whole protractor, which is a
+`Protractor`, and `Setsquare` are each a `:rebuild` that fills in that
 table from `:length`. Another instrument is another table.
 
 ## The palette

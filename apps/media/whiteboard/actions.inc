@@ -30,8 +30,8 @@
 	+event_mode action-mode
 	+event_ruler action-ruler
 	+event_protractor action-protractor
+	+event_full_protractor action-full-protractor
 	+event_set_square action-set-square
-	+event_arc action-arc
 	+event_group action-group
 	+event_ungroup action-ungroup
 	+event_delete action-delete

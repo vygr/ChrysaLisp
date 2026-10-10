@@ -98,7 +98,9 @@
 	"(print (list (wa-do +event_ruler) (wa-do +event_protractor) (wa-do +event_set_square)"
 	" (length (filter (const Instrument?) (. (. *board* :get_stage) :get_actors)))))"
 	"(print (map (# (map (const n2i) (get :origin %0))) (filter (const Instrument?) (. (. *board* :get_stage) :get_actors))))"
-	"(. *arc_toolbar* :set_selected 1) (print (list (wa-do +event_arc) (get :mode (some (# (if (Protractor? %0) %0)) (. (. *board* :get_stage) :get_actors)))))"
+	;what a protractor draws is set on it, by a tap on its part that says
+	"(defq pro (some (# (if (Protractor? %0) %0)) (. (. *board* :get_stage) :get_actors))) (. (. *board* :get_stage) :add pro)"
+	"(bind (quote (mx my)) (map (const n2i) (. pro :to_board 0 -21))) (wa-drag 1 mx my mx my) (print (list :ok (get :mode pro)))"
 	;snapping
 	"(print (list (wa-do +event_snap) (get :snap *board*) (wa-do +event_snap) (get :snap *board*)))"
 	"(print (list (wa-do +event_snap_angle) (> (get :snap_angle *board*) 0.2)))"
@@ -122,7 +124,7 @@
 	"(pii-remove {tests/scratch/test_whiteboard.cwb})")))
 (assert-eq "the ruler, the protractor and the set square are put on the board" "(:ok :ok :ok 3)" (elem-get wa_out 0))
 (assert-eq "in the middle of it, each a little off the last" "((512 384) (542 414) (572 444))" (elem-get wa_out 1))
-(assert-eq "the arc bar says what a protractor draws" "(:ok :pie)" (elem-get wa_out 2))
+(assert-eq "a tap on the protractor's own part for it says what it draws" "(:ok :pie)" (elem-get wa_out 2))
 (assert-eq "snap is on, to the grid of the document, and off" "(:ok 32.00000 :ok 0.00000)" (elem-get wa_out 3))
 (assert-eq "angles snap" "(:ok :t)" (elem-get wa_out 4))
 (assert-eq "zoomed in, the board is that much bigger on the screen, and the canvases are" "(:ok 1.50000 (1536 1152) (1536 1152) 1.50000)" (elem-get wa_out 5))

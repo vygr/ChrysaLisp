@@ -33,7 +33,7 @@
 ;the zooms there are, stepped through, so that in and then out is where it was
 (defq +zooms ''(0.125 0.25 0.5 0.75 1.0 1.5 2.0 3.0 4.0 6.0 8.0))
 
-(defq *zoom* 1.0 *style* :grid *snap* :nil *snap_angle* :nil *arc* :line
+(defq *zoom* 1.0 *style* :grid *snap* :nil *snap_angle* :nil
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
 	*flight_back* :nil

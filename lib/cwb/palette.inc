@@ -33,7 +33,7 @@
 	+pal_colors ''(0xff000000 0xff7f7f7f 0xffffffff 0xffe03131 0xfff08c00 0xffffd43b
 		0xff2f9e44 0xff15aabf 0xff1971c2 0xff7048e8 0xffd6336c 0xff8d5524)
 	+pal_widths ''(1.5 3.0 6.0 12.0)
-	+pal_actions ''(:undo :redo :ruler :protractor :set_square :snap :duplicate :delete))
+	+pal_actions ''(:undo :redo :ruler :protractor :full_protractor :set_square :snap :duplicate :delete))
 
 ;a wedge, a list
 (enums +wedge 0
@@ -83,6 +83,8 @@
 			(:ruler (list (pal-line (cwb-d-rect -9 -3.5 9 3.5) :width 1.6 :join :miter)
 				(pal-line "M -5 -3.5 L -5 0 M -1 -3.5 L -1 0 M 3 -3.5 L 3 0 M 7 -3.5 L 7 0" :width 1.4)))
 			(:protractor (list (pal-line "M -8.5 4 A 8.5 8.5 0 0 1 8.5 4 Z" :width 1.6) (pal-line "M 0 4 L 0 1" :width 1.4)))
+			(:full_protractor (list (pal-line (cwb-d-ellipse 0 0 8.5) :width 1.6)
+				(pal-line "M 0 -8.5 L 0 -5 M 8.5 0 L 5 0 M 0 8.5 L 0 5 M -8.5 0 L -5 0 M -1.5 0 L 1.5 0 M 0 -1.5 L 0 1.5" :width 1.4)))
 			(:set_square (list (pal-line "M -7 6 L 7 6 L -7 -7 Z" :width 1.6)))
 			(:snap (list (pal-line "M -7 -2.5 L 7 -2.5 M -7 2.5 L 7 2.5 M -2.5 -7 L -2.5 7 M 2.5 -7 L 2.5 7" :width 1.4)))
 			(:duplicate (list (pal-line (cwb-d-rect -7 -7 3 3) :width 1.6 :join :miter)
@@ -224,6 +226,7 @@
 					(:redo (. board :redo))
 					(:ruler (. (. board :get_stage) :add (Ruler board ox oy)) (. this :close))
 					(:protractor (. (. board :get_stage) :add (Protractor board ox oy)) (. this :close))
+					(:full_protractor (. (. board :get_stage) :add (Circle board ox oy)) (. this :close))
 					(:set_square (. (. board :get_stage) :add (Setsquare board ox oy)) (. this :close))
 					(:snap (def board :snap (if (= (get :snap board) 0.0)
 						(n2f (. (. board :get_doc) :find :grid)) 0.0)))
