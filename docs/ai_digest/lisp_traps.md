@@ -349,6 +349,19 @@ one, sorted, and with ranges, `"a-z0-9"`. Given one that is not in order,
 inside a str use `(substr text pattern)`, or `(split)` the text and `find`
 a whole line in the list.
 
+### The last element is at -2
+
+An index from the end counts the place after the last as `-1`, as the end
+of a `slice` is. So `(elem-get seq -2)` is the last element and
+`(slice seq 0 -1)` is all of it.
+
+### In a file run by a command, the command's names are taken
+
+A script that a command runs, a diagram of `make docs` say, is read with all
+the command has. `(defq make (lambda ...))` there is not a new `make`: where
+the script then calls `(make)` it was bound, as it was read, to the function
+of that name the command has. Give what a script defines names of its own.
+
 ### `sort` needs to be told how, for anything but strs
 
 `(sort (list 3 1 2))` is an error. `(sort lst (const -))` for numbers. It

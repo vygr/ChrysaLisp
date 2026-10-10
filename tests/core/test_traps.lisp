@@ -141,4 +141,8 @@
 (assert-error "a chain breaks at a method that does not give the object back"
 	(.-> (Fmap 1) (:insert 1 2) (:find 1) (:insert 3 4)))
 
+;an index from the end counts the place after the last as -1
+(assert-eq "the last element is at -2" 3 (elem-get (list 1 2 3) -2))
+(assert-eq "and a slice to -1 is to the end" "(2 3)" (str (slice (list 1 2 3) 1 -1)))
+
 (undef (env) 'tr_a 'tr_b 'tr_sort 'tr_mbox 'tr_sent 'tr_shown)
