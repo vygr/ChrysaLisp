@@ -4,6 +4,19 @@
 
 ------
 
+Chris: "the idea of scale on the ruler is wrong ! It should have a fix
+width, sensible so that all the markings show clearly, but scaling the
+ruler actually make it a longer ruler with more markings visible".
+
+I had made it scale whole with the other two, two commits back, and said
+so as a thing to check. A ruler that is sized is longer or shorter, 200
+to 3,000, as wide as it was, its marks as far apart and more or fewer of
+them. What is sized is an instrument's `(:extent)`: `:size` for the
+protractor and the set square, which are seen bigger whole, `:length`
+for the ruler, which is made again.
+
+------
+
 Chris: "The magnetic angle are just a bit too grabby, tone down the range
 factor a bit." Every 45 pulls from 2.5 degrees off, it was 4, and every
 10 from 0.75, it was 1.25.

@@ -92,16 +92,15 @@
 (assert-true "and to 48, 3 off, it is not pulled to 45" (> (wt-turn-to 48) (wt-deg 47)))
 (assert-true "and to 24 it is at 24, or as near as the hand was" (wt-near? (wt-turn-to 24) (wt-deg 24) 0.01))
 
-;two fingers that go apart make it bigger, about their middle
-(def wt_ruler :origin (list 400.0 300.0) :angle 0.0 :size 1.0)
+;two fingers that go apart make it longer, about their middle
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
 (wt-go '(7 :touch 1 350 300)) (wt-go '(8 :touch 1 450 300))
 (wt-go '(7 :touch 1 325 300) '(8 :touch 1 475 300))
 (wt-go '(7 :touch 0 325 300) '(8 :touch 0 475 300))
-(assert-true "two fingers that go half as far apart again make it half as big again, where it is"
-	(and (wt-near? (get :size wt_ruler) 1.5 0.002) (wt-near? (get :origin wt_ruler) '(400 300) 0.1) (wt-near? (get :angle wt_ruler) 0.0 0.001)))
-(assert-true "all of it: a point of it is half as far again from its middle on the board"
-	(wt-near? (. wt_ruler :to_board 100 -40) '(550 240) 0.01))
-(def wt_ruler :size 1.0)
+(assert-true "two fingers that go half as far apart again make it half as long again, where it is"
+	(and (wt-near? (get :length wt_ruler) 600.0 0.5) (wt-near? (get :origin wt_ruler) '(400 300) 0.1) (wt-near? (get :angle wt_ruler) 0.0 0.001)))
+(assert-true "no wider, and seen no bigger: a point of it is where it was" (wt-near? (. wt_ruler :to_board 100 -40) '(500 260) 0.01))
+(. wt_ruler :set_extent 400.0)
 
 ;the hole by an end turns it about the 0 of the marks at its other end, the
 ;top side's at the left, the bottom side's at the right. Put on a point,
@@ -133,22 +132,25 @@
 (assert-true "a line along a ruler turned an eighth of a turn goes down as far as it goes across"
 	(wt-near? (- x1 x0) (- y1 y0) 0.05))
 
-;an end makes it bigger, all of it, its marks and its numbers with it
+;an end makes it longer: a longer ruler, with more marks, no wider
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
+(defq wt_marks (length (get :marks wt_ruler)))
 (wt-go '(0 :mouse 1 595 300)) (wt-go '(0 :mouse 1 695 300)) (wt-go '(0 :mouse 0 695 300))
-(assert-true "dragged by an end, half as far again from its middle, it is half as big again" (wt-near? (get :size wt_ruler) 1.5128 0.003))
-(assert-true "and is made as it was, it is seen bigger" (wt-near? (elem-get (first (get :edges wt_ruler)) 3) (- 200.0 +ruler_cap) 0.01))
-(wt-go '(1 :pen 1 300 232)) (wt-go '(1 :pen 1 500 235)) (wt-go '(1 :pen 0 500 235))
-(assert-true "a pen is held to its side where that now is" (wt-near? (wt-numbers (wt-last-d)) '(300 239.49 500 239.49) 0.3))
-;bigger, it still turns about the 0 of its marks, where that now is
-(defq wt_corner (. wt_ruler :to_board -174 -40) wt_hole (. wt_ruler :to_board 150 0))
+(assert-true "dragged by an end, half as far again from its middle, it is half as long again" (wt-near? (get :length wt_ruler) 605.1 0.5))
+(assert-true "its sides are as long as it is" (wt-near? (elem-get (first (get :edges wt_ruler)) 3) (- (* 0.5 (get :length wt_ruler)) +ruler_cap) 0.01))
+(assert-true "it has more numbers on it" (> (length (get :marks wt_ruler)) wt_marks))
+(assert-list-eq "and is as wide as it was, seen no bigger" '(1 260) (list (n2i (get :size wt_ruler)) (n2i (second (. wt_ruler :to_board 0 -40)))))
+;longer, it still turns about the 0 of its marks, where that now is
+(defq wt_inset (elem-get (first (get :edges wt_ruler)) 3) wt_corner (. wt_ruler :to_board (neg wt_inset) -40)
+	wt_hole (. wt_ruler :to_board (- wt_inset 24.0) 0))
 (wt-go (cat '(0 :mouse 1) wt_hole)) (wt-go (list 0 :mouse 1 (first wt_hole) (+ (second wt_hole) 120.0)))
 (wt-go (list 0 :mouse 0 (first wt_hole) (+ (second wt_hole) 120.0)))
-(assert-true "a ruler that has been made bigger turns about the 0 of its marks, where that is on the board"
-	(and (> (get :angle wt_ruler) 0.2) (wt-near? (. wt_ruler :to_board -174 -40) wt_corner 0.05)))
+(assert-true "a ruler that has been made longer turns about the 0 of its marks, where that is on the board"
+	(and (> (get :angle wt_ruler) 0.2) (wt-near? (. wt_ruler :to_board (neg wt_inset) -40) wt_corner 0.05)))
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
 (wt-go '(0 :mouse 1 695 300)) (wt-go '(0 :mouse 1 9000 300)) (wt-go '(0 :mouse 0 9000 300))
-(assert-eq "but no bigger than it may be" 5.0 (get :size wt_ruler))
+(assert-eq "but no longer than it may be" 3000.0 (get :length wt_ruler))
+(. wt_ruler :set_extent 400.0)
 
 ;the ring in its middle puts it away, if the pointer comes up where it went down
 (wt-go '(0 :mouse 1 400 300)) (wt-go '(0 :mouse 1 300 100)) (wt-go '(0 :mouse 0 300 100))

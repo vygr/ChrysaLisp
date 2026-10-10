@@ -133,6 +133,20 @@
 		; (. instrument :rebuild) -> instrument
 		this)
 
+	(defmethod :extent ()
+		; (. instrument :extent) -> num
+		;how big it is, the number that is made more or less when it is
+		;sized. :size, how much bigger than it was made all of it is seen.
+		;One of a kind may have another: a ruler has how long it is
+		(get :size this))
+
+	(defmethod :set_extent (extent)
+		; (. instrument :set_extent extent) -> instrument
+		;it is that big, or as near as it may be
+		(def this :size (max (get :min_size this) (min (get :max_size this) extent)))
+		(. (get :board this) :touch +board_dirty_overlay)
+		this)
+
 	(defmethod :built ()
 		; (. instrument :built) -> instrument
 		;its length or what it is has changed, it is made again
@@ -244,7 +258,7 @@
 		(bind '(lx ly) (. this :to_own x y))
 		(defq near (. this :edge_near lx ly) region (. this :part_at lx ly)
 			tool (. (get :bindings board) :value event :tool :pen)
-			state (list :none region :nil x y (cat (get :origin this)) (get :angle this) (get :size this)
+			state (list :none region :nil x y (cat (get :origin this)) (get :angle this) (. this :extent)
 				:nil near 0.0 0.0 x y))
 		(cond
 			((and near (find tool '(:pen)))
@@ -278,7 +292,7 @@
 				(when (and (= (. this :held) 1) (not (get :grab this)))
 					;about a point of it, which stays where it is on the board
 					(defq pivot (third region) m0 (cwb-mat-mul (cwb-mat-move (first origin) (second origin))
-						(cwb-mat-mul (cwb-mat-turn angle) (cwb-mat-scale length))))
+						(cwb-mat-mul (cwb-mat-turn angle) (cwb-mat-scale (get :size this)))))
 					(bind '(bx by) (if (nempty? pivot) (cwb-mat-point m0 (first pivot) (second pivot)) origin))
 					(defq turn (tool-angle-wrap (- (path-angle (- x bx) (- y by)) (path-angle (- sx bx) (- sy by))))
 						snap (get :snap_angle board))
@@ -293,8 +307,7 @@
 					;by how much further from its middle the pointer is
 					(defq d0 (max 1.0 (sqrt (+ (* (- sx (first origin)) (- sx (first origin))) (* (- sy (second origin)) (- sy (second origin))))))
 						d1 (sqrt (+ (* (- x (first origin)) (- x (first origin))) (* (- y (second origin)) (- y (second origin))))))
-					(def this :size (max (get :min_size this) (min (get :max_size this) (* length (/ d1 d0)))))
-					(. board :touch +board_dirty_overlay)))))
+					(. this :set_extent (* length (/ d1 d0)))))))
 
 	(defmethod :end (stage event state)
 		; (. instrument :end stage event state)
@@ -348,20 +361,19 @@
 						(elem-set state +tool_state_y (elem-get state +tool_state_last_y))
 						(elem-set state +tool_state_origin (cat (get :origin this)))
 						(elem-set state +tool_state_angle (get :angle this))
-						(elem-set state +tool_state_length (get :size this))) hands)))
+						(elem-set state +tool_state_length (. this :extent))) hands)))
 			(:t (defq a (first hands) b (second hands)
 					pa (list (elem-get a +tool_state_last_x) (elem-get a +tool_state_last_y))
 					pb (list (elem-get b +tool_state_last_x) (elem-get b +tool_state_last_y)))
 				(unless grab
-					(def this :grab (setq grab (list pa pb (cat (get :origin this)) (get :angle this) (get :size this)))))
+					(def this :grab (setq grab (list pa pb (cat (get :origin this)) (get :angle this) (. this :extent)))))
 				(bind '(pa0 pb0 origin angle length) grab)
 				;it is as much bigger as they are further apart, within what it can be
 				(defq d0 (max 1.0 (sqrt (+ (* (- (first pb0) (first pa0)) (- (first pb0) (first pa0)))
 						(* (- (second pb0) (second pa0)) (- (second pb0) (second pa0))))))
 					d1 (sqrt (+ (* (- (first pb) (first pa)) (- (first pb) (first pa)))
 						(* (- (second pb) (second pa)) (- (second pb) (second pa)))))
-					new_length (max (get :min_size this) (min (get :max_size this) (* length (/ d1 d0))))
-					by (/ new_length length))
+					by (/ (. (. this :set_extent (* length (/ d1 d0))) :extent) length))
 				(defq turn (tool-angle-wrap (- (path-angle (- (first pb) (first pa)) (- (second pb) (second pa)))
 						(path-angle (- (first pb0) (first pa0)) (- (second pb0) (second pa0)))))
 					;pulled to the angles that matter, as it is by one pointer
@@ -371,7 +383,6 @@
 					m (cwb-mat-mul (cwb-mat-move (- m1x m0x) (- m1y m0y))
 						(cwb-mat-mul (cwb-mat-turn turn m0x m0y) (cwb-mat-scale by by m0x m0y))))
 				(def this :angle (+ angle turn) :origin (cwb-mat-point m (first origin) (second origin)))
-				(def this :size new_length)
 				(. (get :board this) :touch +board_dirty_overlay))))
 
 	(defmethod :draw (canvas &optional m)
@@ -420,10 +431,24 @@
 (defclass Ruler (board x y) (Instrument board x y)
 	; (Ruler board x y) -> ruler
 	;a straight edge, its two long sides are edges. Each end makes it
-	;longer or shorter. The hole by each end turns it, about the 0 of the
+	;longer or shorter, a longer ruler with more marks, no wider. The hole by each end turns it, about the 0 of the
 	;marks at its other end. The rest moves it, and the ring puts it away. It is
 	;marked in millimetres along both sides, the bottom the other way to
 	;the top, longer every five, and numbered in centimetres
+	(def this :min_length 200.0 :max_length 3000.0)
+
+	;a ruler that is sized is a longer ruler, or a shorter, as wide as it
+	;was, with its marks as far apart and more of them or fewer. It is not
+	;seen bigger, a ruler is to be read
+	(defmethod :extent () (get :length this))
+
+	(defmethod :set_extent (extent)
+		(defq length (max (get :min_length this) (min (get :max_length this) extent)))
+		(unless (= length (get :length this))
+			(def this :length length)
+			(. this :built))
+		this)
+
 	(defmethod :rebuild ()
 		(defq half (* 0.5 (get :length this)) top (* -0.5 +ruler_height) bot (* 0.5 +ruler_height)
 			inset (- half +ruler_cap) marks (list))
