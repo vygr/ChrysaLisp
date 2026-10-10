@@ -239,9 +239,10 @@ the most the matrix of its object stretches anything
 ```code
 (bindings-default) -> bindings
 
-how a board starts out. A pen draws and its other end rubs out. The
-mouse draws with its left button, moves things with its right and the
-board itself with its middle. A finger moves things
+how a board starts out. A pen draws and its other end rubs out, and
+with the button on its side held it moves things. The mouse draws
+with its left button, moves things with its right and the board
+itself with its middle. A finger moves things
 ```
 
 ### bit-mask
@@ -265,6 +266,15 @@ items that can be changed and leave those they were copied from as
 they were. What a shape is flattened to goes with it, it is the same
 ```
 
+### board-item-corners
+
+```code
+(board-item-corners item) -> :nil | (x y x y x y x y)
+
+the four corners of the box of an item, its own box by its own
+matrix, where they are in the space it is in. :nil if it draws nothing
+```
+
 ### board-pen-d
 
 ```code
@@ -273,6 +283,16 @@ they were. What a shape is flattened to goes with it, it is the same
 the path of a line drawn by hand, points is x y x y ... It goes
 from the first to the last, and between is curved: each point is
 where the line turns toward, and it passes half way between each two
+```
+
+### board-rub-group
+
+```code
+(board-rub-group doc group x y r) -> :nil | items
+
+the items of a group with what of its lines is within r of a point,
+of the space the group is in, rubbed out. :nil if none was touched.
+What is in it that is not a line, or is a group itself, is left
 ```
 
 ### board-snap
@@ -740,7 +760,8 @@ the box round two boxes, either can be :nil
 ```code
 (cwb-box-of box m) -> (x y x1 y1)
 
-the box round a box that a matrix has moved
+the box round a box that a matrix has moved. Each side is the least
+or the most of what each of its two parts can come to
 ```
 
 ### cwb-d
@@ -758,7 +779,13 @@ a path from its commands and numbers, (cwb-d "M" 0 0 "L" 10 5 "Z")
 
 part of a circle about a point, from one angle round to another the
 way the angle grows, in radians from the x axis. A slice of pie, with
-the two lines to the middle, if pie. Once round or more is a circle
+the two lines to the middle, if pie. Once round or more is a circle.
+
+It is written as arcs of no more than a third of a turn each. The A
+of a path says where an arc ends and not where its middle is, that
+is worked out from the two ends, and when they are close together,
+an arc most of the way round, or across from each other, half way,
+there is little to work it out from: the arc came off its circle
 ```
 
 ### cwb-d-ellipse
@@ -840,6 +867,18 @@ those in groups too, the holder is the list it is in
 an item by its id, with the layer it is in and the list that holds it
 ```
 
+### cwb-fit
+
+```code
+(cwb-fit doc [pad]) -> :nil | (dx dy)
+
+make the document the size of what is in it: every item of every
+layer is moved, all by the same, so that the box round them all is
+pad in from the top left, default 16, and the width and height are
+that box and pad all round. How far they were moved, :nil for a
+document with nothing in it, which is left as it is
+```
+
 ### cwb-flat
 
 ```code
@@ -882,6 +921,33 @@ the item of a layer whose box a point is in, the smallest of them if
 it is in more than one, in a layer that is not hidden or locked. For
 a finger, which is not fine enough to be on the line of a box that is
 not filled, and means the box
+```
+
+### cwb-id-set
+
+```code
+(cwb-id-set ids) -> ids | set
+
+ids as what is quick to ask of: the list if it is short, or a set of
+them. One that is a set already is that set
+a set says it is a list too, so it is asked if it is a set, first
+```
+
+### cwb-id?
+
+```code
+(cwb-id? ids id) -> :nil | found
+
+is an id one of these, a list or what (cwb-id-set) made of one
+```
+
+### cwb-in
+
+```code
+(cwb-in data) -> :nil | doc
+
+a document from the tree of one, (cwb-out). One from before this
+version is made into one of this. Anything else is not a document
 ```
 
 ### cwb-in-box
@@ -940,10 +1006,8 @@ a layer, default the top one
 ```code
 (cwb-load stream) -> :nil | doc
 
-a document from a .cwb file. One from before this version is made
-into one of this
-a file that is not a tree of one, any other text, is not a document
-and one that is not a tree at all throws as it is read, where there
+a document from a .cwb file
+a file that is not a tree at all throws as it is read, where there
 are errors to throw
 ```
 
@@ -1031,6 +1095,15 @@ groups in 3. Each polygon list is a shape that is filled, the size is
 the box round them all and a margin
 ```
 
+### cwb-out
+
+```code
+(cwb-out doc) -> emap
+
+a document as the tree a .cwb file is, to be saved by itself or as a
+part of something else that is
+```
+
 ### cwb-outline
 
 ```code
@@ -1041,12 +1114,74 @@ letters of a :text are closed. A line of less than two points is
 left out
 ```
 
+### cwb-paper
+
+```code
+(cwb-paper canvas width height back style gap [y y1]) -> canvas
+
+on a canvas that is width by height: back, a colour, 0 for plain
+paper, and the lines of the style, gap apart. Only rows y up to y1 if
+given. It is all boxes, so that a clip, if the canvas has one, holds
+```
+
+### cwb-pick
+
+```code
+(cwb-pick items ids [out]) -> items
+
+those of the items whose id is one of the ids, in the order they are
+in, or with out those whose id is not
+```
+
 ### cwb-remove
 
 ```code
 (cwb-remove doc id) -> :nil | item
 
 take an item out of the document, a group goes with all in it
+```
+
+### cwb-remove-ids
+
+```code
+(cwb-remove-ids doc ids) -> doc
+
+take many items out at once. Those that are items of a layer, as
+what is selected is, go in one pass of each layer. Any that are not,
+inside a group, are then taken out one by one
+```
+
+### cwb-rub
+
+```code
+(cwb-rub item x y r) -> :nil | items
+
+an item that (cwb-rub?) with what of it is within r of a point, of
+the space it is in, rubbed out. The lines that are left, each a new
+item like it, none if all of it went. :nil if none of it was that
+near. An end that was its own keeps how that end was drawn, an arrow
+say, and an end that was cut is round
+```
+
+### cwb-rub-points
+
+```code
+(cwb-rub-points p cx cy r) -> :nil | ((x y x y ...) ...)
+
+a line through points, x y x y ..., with what of it is within r of a
+point taken out. What is left, each a line of two points or more,
+cut where it meets the circle, to the nearest sixteenth, a root is
+not exact and a path is text. :nil if none of it was within r
+```
+
+### cwb-rub?
+
+```code
+(cwb-rub? item) -> :t | :nil
+
+can part of it be rubbed out: a line, one that is drawn and not
+filled, and has an end. A box, a filled thing, words and a group can
+not, each is all there or not there
 ```
 
 ### cwb-save
@@ -3266,6 +3401,75 @@ scan the stdio args and process according to the optlist
 is argument j of a form, with this rule, the value of a binding
 ```
 
+### pal-ease
+
+```code
+(pal-ease x) -> num
+
+0 to 1, by a little past 1 and back, as a thing that springs open does
+```
+
+### pal-icon
+
+```code
+(pal-icon what val) -> shapes
+
+what is drawn on a wedge, about 0 0, in a box of 20 or so
+```
+
+### pal-line
+
+```code
+(pal-line d [key val] ...) -> shape
+
+a line of an icon, round at its ends and its corners unless it is said
+```
+
+### pal-point
+
+```code
+(pal-point r a) -> (x y)
+
+the point that far from the middle, at an angle from straight up
+round the way a clock goes
+```
+
+### pal-wedge-d
+
+```code
+(pal-wedge-d r0 r1 a0 a1) -> d
+
+the path of a wedge of a ring, between two radii and two angles
+```
+
+### palette-enable
+
+```code
+(palette-enable board [colors widths]) -> board
+
+from now a hand that taps where there is nothing, with nothing
+selected, opens a palette there, its own. With the colours and the
+widths given, or its own twelve and four
+```
+
+### palette-open
+
+```code
+(palette-open board x y [kind id]) -> palette
+
+a palette on the board, about a point, for the pointer of that kind
+and id, default the mouse. One that pointer had open shuts. It is kept
+on the document, if that is big enough to hold it
+```
+
+### palettes
+
+```code
+(palettes board) -> palettes
+
+those that are open on a board
+```
+
 ### parse-text
 
 ```code
@@ -4914,6 +5118,37 @@ patch stream a with stream b, write to stream c
 accepts standard "Normal diff" format
 ```
 
+### stripes-apply
+
+```code
+(stripes-apply doc items text) -> :nil | version
+
+make a copy of a document what the text of a delta says it is. items
+is the copy's items by id, an Fmap, those that are not sent again are
+kept, with what they are flattened to. The version it is then at
+```
+
+### stripes-delta
+
+```code
+(stripes-delta doc log have version) -> text
+
+what a copy of the document at version have needs to be the document
+as it is, at version: the layers, as the ids of their items, and the
+items that changed, or all of them
+```
+
+### stripes-full?
+
+```code
+(stripes-full? log have version) -> :t | :nil
+
+does a copy at version have need the whole document to be at
+version. log is ((version changes) ...), the newest last, changes is
+ids or :all. It does if what happened since have is not all in the
+log, or any of it was :all
+```
+
 ### substr
 
 ```code
@@ -5532,12 +5767,43 @@ worked out the once, the first time the token is come to.
 an angle as one of more than -pi and no more than pi
 ```
 
+### tool-glyph
+
+```code
+(tool-glyph what [mode]) -> shapes
+
+the sign of a part of an instrument, about 0 0, some 20 across: an
+arrow that goes round for :turn, one with two heads for :size, a
+cross for :close. For :mode, in a ring, what the instrument is set
+to draw: an arc, a slice of pie, or a circle, either of those filled
+```
+
+### tool-magnet
+
+```code
+(tool-magnet angle) -> angle
+
+an angle, in radians, or the one that matters that it is near
+by 180 and then over pi, and back by pi and then over 180: a degree
+in radians is too small a number to be held well
+```
+
 ### tool-nearest-on-line
 
 ```code
 (tool-nearest-on-line x y x0 y0 x1 y1) -> (px py t)
 
 the point of a line nearest a point, and how far along it that is, 0 to 1
+```
+
+### tool-ticks
+
+```code
+(tool-ticks x0 y0 x1 y1 nx ny step [small mid big]) -> d
+
+marks along a line, every step from its start, each a little line
+the way nx ny points, which is one long. Every fifth is longer and
+every tenth longer still
 ```
 
 ### transfer

@@ -21,6 +21,18 @@ line up what is selected, each with the box round all of it. how is
 :left :right :top :bottom, or :hcenter or :vcenter for the middles
 ```
 
+### :changed
+
+```code
+(. board :changed ids) -> board
+
+these items of the layers are not what they were, or are new, or
+:all for anything might be. It is kept till it is asked for, for
+what keeps a copy of the document in step with this one, the nodes
+that draw it in stripes, lib/cwb/stripes.inc. An item that is gone
+need not be said, the layers are told whole
+```
+
 ### :clear
 
 ```code
@@ -35,6 +47,17 @@ take out everything
 (. board :commit item) -> item
 
 put an item on the layer that is drawn on, as a step that can be undone
+```
+
+### :crop
+
+```code
+(. board :crop) -> num
+
+take out every item that is nowhere on the paper, the document's
+width and height from its top left, as a step that can be undone.
+One that is partly on it stays, all of it. Those in a layer that
+is locked stay. How many went
 ```
 
 ### :delete
@@ -53,6 +76,15 @@ take out what is selected
 has that changed, and it is taken as drawn
 ```
 
+### :dismiss
+
+```code
+(. board :dismiss event) -> :t | :nil
+
+a pointer has gone down on the surface, what is only there till
+then goes. Did any
+```
+
 ### :draw
 
 ```code
@@ -61,12 +93,30 @@ has that changed, and it is taken as drawn
 the document, on a canvas, by the matrix it is seen by
 ```
 
+### :draw_actors
+
+```code
+(. board :draw_actors canvas [m]) -> board
+
+what is on the stage and not of the document, a ruler, a palette,
+the back one first. After (:draw_overlay), it is over that
+```
+
+### :draw_flight
+
+```code
+(. board :draw_flight canvas [m]) -> board
+
+what is in flight and nothing else: the items being moved about,
+and what is being drawn and not yet kept
+```
+
 ### :draw_overlay
 
 ```code
-(. board :draw_overlay canvas [m]) -> board
+(. board :draw_overlay canvas [m no_flight]) -> board
 
-what is over the document and not of it: what is being drawn,
+what is over the document and not of it: what is in flight,
 the box being dragged out, and the handles of what is selected
 ```
 
@@ -81,13 +131,23 @@ a copy of what is selected, moved a little, default 16 each way,
 and the copy is what is selected
 ```
 
+### :fit
+
+```code
+(. board :fit [pad]) -> :nil | (dx dy)
+
+the document is made the size of what is in it, (cwb-fit), as a
+step that can be undone, and what is on the stage that has a
+place, an instrument, is moved with it. How far it all moved
+```
+
 ### :float
 
 ```code
-(. board :float ids) -> board
+(. board :float ids [back]) -> board
 
-these items are being moved about. They are drawn over the
-document, not in it, so that only they are drawn as they move
+these items are selected, and so in flight, in front of the
+document or with back behind it
 ```
 
 ### :forget
@@ -114,12 +174,29 @@ nothing was done after all, the last (:snapshot) is dropped
 what is selected becomes one group, where the top one of them was
 ```
 
+### :in_flight?
+
+```code
+(. board :in_flight?) -> :t | :nil
+
+is anything in flight: being moved about, or being drawn
+```
+
 ### :layer_index
 
 ```code
 (. board :layer_index) -> index
 
 the layer that is drawn on, the top one unless one was chosen
+```
+
+### :new
+
+```code
+(. board :new width height) -> board
+
+an empty board of that size, as a step that can be undone: an
+hour's work is not lost to one press in the wrong place
 ```
 
 ### :new_shape
@@ -162,6 +239,36 @@ a batch of pointer events, each in the space of the document
 (. board :remove ids) -> board
 
 take items out, no step is made, see (:delete)
+```
+
+### :resize
+
+```code
+(. board :resize width height) -> board
+
+the paper is that size, what is on it stays, and it can be undone
+```
+
+### :rub
+
+```code
+(. board :rub x y [r]) -> :t | :nil
+
+rub out at a point, as the eraser does, r is how far it reaches,
+default the board's by its zoom. Of a line that is near, the part
+that is within r goes, and what is left of it is lines in its
+place. If no line was touched, the thing on top at the point goes
+whole. With :rub_mode :whole a line goes whole too. No step is
+made. Was anything rubbed out
+```
+
+### :rub_along
+
+```code
+(. board :rub_along x y x1 y1 [r]) -> :t | :nil
+
+rub out from one point to another, as the eraser goes, at every
+step of half its reach
 ```
 
 ### :select
@@ -210,7 +317,7 @@ what is about to be done can be undone
 ```code
 (. board :state) -> state
 
-the layers as they are, to go back to
+the layers as they are, and the size of the paper, to go back to
 ```
 
 ### :style
@@ -230,12 +337,64 @@ selected, those in groups too
 the items put on top since this was last asked
 ```
 
+### :take_changes
+
+```code
+(. board :take_changes) -> :all | ids
+
+what has changed since this was last asked
+```
+
+### :take_damage
+
+```code
+(. board :take_damage) -> :all | boxes
+
+what of the document's picture is to be drawn again, since this
+was last asked: all of it, or only these boxes of it, which may
+be none
+```
+
+### :tick
+
+```code
+(. board :tick time) -> :t | :nil
+
+the time is now that, microseconds, for what is on the stage that
+moves by itself. Is any of it still moving, it is then to be
+drawn again
+```
+
 ### :touch
 
 ```code
 (. board :touch flags) -> board
 
-something has changed that is drawn
+something has changed that is drawn.
+
+What is selected is in flight: it is not drawn with the document,
+it is drawn by itself, (:draw_flight), in front of the document or
+behind it, :float_back, and the document is not drawn again while
+it is moved, turned or sized, however long that goes on. It lands
+when it is no longer selected. So here, where every change comes,
+what is in flight is made what is selected, and if that is not
+what it was the document is to be drawn again, once
+
+Not all of it need be. When a few things go into flight or come
+out of it the picture of the document changes only where they
+are: :damage is the box round each, and (:take_damage) gives them
+to what draws. Anything else that changes the document is told
+here with +board_dirty_doc, and then it is all of it
+```
+
+### :touch_order
+
+```code
+(. board :touch_order) -> board
+
+the order of things in flight has changed and nothing else. The
+picture of the document is as it was, they are not in it, but
+what keeps a copy of the document is to be told
 ```
 
 ### :transform
@@ -259,5 +418,18 @@ move what is selected by a matrix
 
 each group that is selected becomes its items, where it was, each
 where it was on the board
+```
+
+### :written
+
+```code
+(. board :written item who began) -> board
+
+a line drawn by hand has just been kept, on top of its layer, by
+that pointer, begun at that time. If the last such was ended a
+moment before, and is still under it, the two are a group, or it
+joins the group the last was put in, if that has not been moved.
+It is part of the step of keeping the line, and nothing is seen
+to change: they are where they were, in the order they were
 ```
 

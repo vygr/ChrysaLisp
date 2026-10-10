@@ -96,6 +96,18 @@ start again any child that has gone, or has had its job for
 longer than the timeout
 ```
 
+### :reply_to
+
+```code
+(. jobs :reply_to reply_mbox) -> jobs
+
+answers are to come to another mailbox from now on. The queue is
+emptied, and the jobs that are out are forgotten, each child is
+as one with nothing to do. Their answers go to the old mailbox,
+and when that has been let go of they go nowhere: nothing that is
+late can come in, and nothing has to be looked at to see if it is
+```
+
 ### :restart
 
 ```code

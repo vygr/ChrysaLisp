@@ -2,6 +2,18 @@
 
 ## View
 
+### :clear
+
+```code
+(. canvas :clear argb x y width height) -> canvas
+
+a box of the pixmap, in its pixels, is made the color. It is set,
+not laid over what is there: with 0 the box is made clear, to be
+drawn in again, which nothing that draws can do. (:fill) is this
+of all of it. The function is looked for when this is called, a
+system from before it was written has none, and can still load this
+```
+
 ### :constraint
 
 ```code

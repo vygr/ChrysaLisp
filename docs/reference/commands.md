@@ -114,11 +114,17 @@ Usage: cwb [options] file.cwb
 
     A line of a pointers file is the events of one moment, one or more,
     with ; between: id kind buttons x y. kind is mouse, pen, eraser or
-    touch. buttons is 0 for up. # starts a note.
+    touch. buttons is 0 for up. # starts a note. Each line is a sixtieth
+    of a second after the last, for what on the board moves by itself,
+    and a line that is wait and a number is that many thousandths more.
 
         1 pen 1 100 100
         1 pen 1 180 140 ; 7 touch 1 400 300
         1 pen 0 180 140 ; 7 touch 0 400 300
+        wait 500
+
+    A hand that taps where there is nothing opens a palette there, as
+    on the app's board, the right button of a mouse, or a finger.
 ```
 ## diff
 ```code

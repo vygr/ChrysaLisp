@@ -40,6 +40,26 @@ trashes
 :r1-:r7
 ```
 
+### :clear -> gui/pixmap/clear
+
+```code
+inputs
+:r0 = pixmap object (ptr)
+:r1 = color (argb)
+:r7 = x (pixels)
+:r8 = y (pixels)
+:r9 = width (pixels)
+:r10 = height (pixels)
+outputs
+:r0 = pixmap object (ptr)
+trashes
+:r1-:r4, :r7-:r11
+info
+every pixel of the box, as much of it as is on the pixmap, is made
+the color. It is set, not laid over what is there, so a color with
+no alpha makes the box clear, which nothing that draws can
+```
+
 ### :create -> gui/pixmap/create
 
 ```code
@@ -73,7 +93,9 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r4
+:r1-:r4, :r7-:r11
+info
+all of it is a clear of all of it
 ```
 
 ### :flip_x -> gui/pixmap/flip_x

@@ -7,6 +7,24 @@ something on a stage that pointers can be on. It keeps what it likes
 for each pointer it has, by the pointer's id
 ```
 
+### :dismiss
+
+```code
+(. actor :dismiss event) -> :t | :nil
+
+a pointer has gone down on the surface. One that is only there
+till then, a palette, goes. Did it
+```
+
+### :draw
+
+```code
+(. actor :draw canvas [m]) -> actor
+
+on a canvas, over the document, by the matrix the board is seen
+by, one that has anything to draw
+```
+
 ### :held
 
 ```code
@@ -51,5 +69,14 @@ what is kept for a pointer, :nil for nothing more
 
 ```code
 (. actor :state id) -> :nil | state
+```
+
+### :tick
+
+```code
+(. actor :tick time) -> :t | :nil
+
+the time is now that, microseconds, for one that moves by itself.
+Is it still moving, and so to be drawn again
 ```
 

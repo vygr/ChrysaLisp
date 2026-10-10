@@ -25,6 +25,14 @@ every one of them is held. what is a list of keys and values,
 (. bindings :find event) -> :nil | what
 ```
 
+### :unbind
+
+```code
+(. bindings :unbind kind id buttons) -> bindings
+
+the rules that match just that are taken out
+```
+
 ### :value
 
 ```code
