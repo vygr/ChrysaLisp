@@ -1,0 +1,466 @@
+((:Emap 1)
+	:version 4
+	:width 576
+	:height 246
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 30
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 7)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							2
+							:d
+							"[M 190 40 L 300 80]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							3
+							:d
+							"[M 300 80 L 290.17495 80.68353 292.90884 73.16522 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					4
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							5
+							:d
+							"[M 190 141 L 300 80]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							6
+							:d
+							"[M 300 80 L 294.06907 87.8627 290.18943 80.86648 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					7
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							8
+							:items
+							((:list 5)
+								((:list 11)
+									:shape
+									:id
+									9
+									:d
+									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 74 A 6 6 0 0 1 184 80 L 6 80 A 6 6 0 0 1 0 74 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									10
+									:m
+									((:path 6)
+										1.00000 0.00000 44.19415 0.00000 1.00000 20.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[an object, an :hmap]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									11
+									:m
+									((:path 6)
+										1.00000 0.00000 71.47259 0.00000 1.00000 36.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:text \qOK\q]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									12
+									:m
+									((:path 6)
+										1.00000 0.00000 77.89709 0.00000 1.00000 52.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:color ...]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									13
+									:m
+									((:path 6)
+										1.00000 0.00000 78.76049 0.00000 1.00000 68.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:vtable]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					14
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 123.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							15
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									16
+									:d
+									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 56 A 6 6 0 0 1 184 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									17
+									:m
+									((:path 6)
+										1.00000 0.00000 48.33593 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[another, an :hmap]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									18
+									:m
+									((:path 6)
+										1.00000 0.00000 63.18701 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:text \qCancel\q]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									19
+									:m
+									((:path 6)
+										1.00000 0.00000 78.76049 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:vtable]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					20
+					:m
+					((:path 6)
+						1.00000 0.00000 313.00000 0.00000 1.00000 43.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							21
+							:items
+							((:list 6)
+								((:list 11)
+									:shape
+									:id
+									22
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 94 A 6 6 0 0 1 244 100 L 6 100 A 6 6 0 0 1 0 94 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									23
+									:m
+									((:path 6)
+										1.00000 0.00000 53.27777 0.00000 1.00000 22.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the class's vtable, an :hmap]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									24
+									:m
+									((:path 6)
+										1.00000 0.00000 86.37109 0.00000 1.00000 38.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:draw    a lambda]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									25
+									:m
+									((:path 6)
+										1.00000 0.00000 85.50299 0.00000 1.00000 54.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:layout  a lambda]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									26
+									:m
+									((:path 6)
+										1.00000 0.00000 68.31213 0.00000 1.00000 70.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:mouse_down  a lambda]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									27
+									:m
+									((:path 6)
+										1.00000 0.00000 59.71435 0.00000 1.00000 86.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[and all its parent's, copied in]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					28
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 213.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[(. this :draw) looks :draw up in the object's :vtable and calls it with the object.]"
+					:font_size
+					12
+				)
+				((:list 15)
+					:shape
+					:id
+					29
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 231.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[The vtable is not fixed: a method can be put into a class, or changed, while it runs.]"
+					:font_size
+					11
+				)
+			)
+		)
+	)
+	:props :nil
+)

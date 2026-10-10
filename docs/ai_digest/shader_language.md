@@ -8,6 +8,10 @@ runs on, which can be farmed over the nodes of a network. One gives a Lisp
 lambda that does the same, interpreted, the reference the others are checked
 against. The same source, the same inputs, the same picture.
 
+```image
+docs/diagrams/shader_backends.cwb
+```
+
 This is the first step towards GPU support. There is no host GPU interface
 yet, and no `@Gpu` service, see "What Is Not Here Yet". What is here is the
 part that had no decisions waiting on it, the language, the three back ends,

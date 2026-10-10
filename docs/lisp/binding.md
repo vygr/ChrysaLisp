@@ -59,6 +59,10 @@ The `(apply)` function does the `(env-push)` and the `(bind)` calls, followed
 by running the body of the function as if a `(progn)`, and finally the
 `(env-pop)`.
 
+```image
+docs/diagrams/bind_call.cwb
+```
+
 You can call the function directly with `(apply)` yourself ! Sometimes this is
 very useful. If you have a sequence you wish to process, but you are not in a
 situation where that can be a function call, you can still apply a function to

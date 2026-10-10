@@ -10,6 +10,10 @@ itself a single VP `:hmap` object that holds the instance property data for that
 object plus a `:vtable` property that holds a reference to the shared virtual
 function `:hmap` for that class.
 
+```image
+docs/diagrams/class_object.cwb
+```
+
 The idea of this structure is to indirect the method calls of an object through
 the object instance itself. The object class knows what the named methods do.
 This is why the same named method on different objects can perform different

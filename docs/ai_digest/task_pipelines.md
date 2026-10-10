@@ -19,6 +19,10 @@ placement across the network topology:
 
 * **`!` (The Grouping/Pinning Operator)**
 
+```image
+docs/diagrams/pipe_line.cwb
+```
+
 ### The `|` Operator: Emergent Distribution
 
 The standard pipe operator `|` is designed to maximize parallel distribution and

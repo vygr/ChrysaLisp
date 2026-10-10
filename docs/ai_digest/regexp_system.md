@@ -23,6 +23,10 @@ The process follows a classic three-stage pipeline:
 3. **Compilation:** The postfix expression is compiled into a list of NFA
    instructions (meta-data), which represents the state machine.
 
+```image
+docs/diagrams/regexp_pipeline.cwb
+```
+
 ### NFA Instructions
 
 The compiled "meta" object consists of instructions like:

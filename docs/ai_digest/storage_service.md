@@ -116,6 +116,10 @@ first three hold it. Every service works out the same answer from the list
 of members and nothing else, so there is no table of placements and nobody
 in charge of one.
 
+```image
+docs/diagrams/storage_blocks.cwb
+```
+
 * A new machine comes out in the first three for its share of the blocks,
   and only those move. Rank with a weight for the size of the disk, and a
   bigger machine takes more.

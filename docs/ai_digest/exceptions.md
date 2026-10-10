@@ -25,6 +25,10 @@ The system is built on a strict division of responsibility:
 * **The Application Layer:** Application developers are entirely responsible for
   validating user-facing inputs.
 
+```image
+docs/diagrams/error_checks.cwb
+```
+
 The exception system (`catch` and `throw`) and all FFI-level type checking are
 designed strictly as **development and testing tools**. They exist to help the
 programmer prove their logic is flawless before deployment.

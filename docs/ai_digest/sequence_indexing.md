@@ -33,10 +33,8 @@ it to serve as an exclusive upper bound for slices.
 
 Given a sequence of length **5** (e.g., "HELLO"):
 
-```
-Item:		 H	 E	 L	 L	 O	 <Boundary>
-Positive:	 0	 1	 2	 3	 4	 5
-Negative:	-6	-5	-4	-3	-2	-1
+```image
+docs/diagrams/seq_index.cwb
 ```
 
 ### The Resolution Formula

@@ -1,0 +1,371 @@
+((:Emap 1)
+	:version 4
+	:width 672
+	:height 264
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 23
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 7)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							2
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									3
+									:d
+									"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 56 A 6 6 0 0 1 514 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									4
+									:m
+									((:path 6)
+										1.00000 0.00000 249.99499 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[Lisp]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									5
+									:m
+									((:path 6)
+										1.00000 0.00000 168.75921 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[.lisp and .inc: apps, commands, libraries]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									6
+									:m
+									((:path 6)
+										1.00000 0.00000 106.19134 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[objects, no registers, no pointers; reaches the system by FFI calls]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					7
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 85.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							8
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									9
+									:d
+									"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 56 A 6 6 0 0 1 514 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									10
+									:m
+									((:path 6)
+										1.00000 0.00000 241.19445 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[CScript]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									11
+									:m
+									((:path 6)
+										1.00000 0.00000 160.81536 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[.vp: the class library, (assign) and (def-vars)]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									12
+									:m
+									((:path 6)
+										1.00000 0.00000 95.60156 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[like C in brackets: variables and expressions, registers allotted for you]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					13
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 157.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							14
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									15
+									:d
+									"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 56 A 6 6 0 0 1 514 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									16
+									:m
+									((:path 6)
+										1.00000 0.00000 224.45208 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[VP assembler]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									17
+									:m
+									((:path 6)
+										1.00000 0.00000 188.91625 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[.vp: the kernel, the inner loops]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									18
+									:m
+									((:path 6)
+										1.00000 0.00000 120.02593 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[(vp-add-rr :r0 :r1): every register and every instruction said]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					19
+					:m
+					((:path 6)
+						1.00000 0.00000 553.00000 0.00000 1.00000 47.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[run by the interpreter]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					20
+					:m
+					((:path 6)
+						1.00000 0.00000 553.00000 0.00000 1.00000 119.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[made into native code]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					21
+					:m
+					((:path 6)
+						1.00000 0.00000 553.00000 0.00000 1.00000 191.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[made into native code]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					22
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 249.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[All three are s-expressions, and what is right in one may mean nothing in another. Know which you are in.]"
+					:font_size
+					12
+				)
+			)
+		)
+	)
+	:props :nil
+)

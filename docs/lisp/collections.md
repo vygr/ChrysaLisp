@@ -50,6 +50,10 @@ has excellent cache line characteristics and minimal memory overhead.
 
 All map classes inherit from the `Map` base class, `lib/collections/map.inc`.
 
+```image
+docs/diagrams/map_kinds.cwb
+```
+
 ```file
 lib/collections/map.inc
 ```

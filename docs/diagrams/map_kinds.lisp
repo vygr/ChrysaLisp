@@ -1,0 +1,12 @@
+;docs/lisp/collections.md: the four kinds of map, what each is made of
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(defun kind-at (s x title lines parts)
+	(dia-put s :nil (dia-box title 180 30 gold 13 :t) x 0)
+	(each (# (dia-put s :nil (dia-box %0 180 26 (if (= (!) 0) green blue) 11) x (+ 40 (* (!) 30)))) parts)
+	(each (# (dia-say s %0 x (+ 40 (* (length parts) 30) 18 (* (!) 16)) 11)) lines))
+(kind-at s 0 "Emap" '("a VP :hmap, in machine code" "keys are symbols only") '("bucket" "bucket" "bucket"))
+(kind-at s 200 "Lmap" '("one flat (pmap), (pfind)" "few keys: all in a cache line or two") '("key value key value ..."))
+(kind-at s 400 "Fmap" '("(hash key) picks a bucket," "(pfind) searches it: many keys") '("(pmap) bucket" "(pmap) bucket" "(pmap) bucket"))
+(kind-at s 600 "Xmap" '("your own hash and equal:" "a key can be anything") '("keys list, values list" "keys list, values list" "keys list, values list"))
+(dia-say s "All are a Map, lib/collections/map.inc: :find :insert :erase :each, so one can be put in place of another." 0 196 12 :nil 0xff202428)
+(diagram "map_kinds" (dia-scene-doc s))

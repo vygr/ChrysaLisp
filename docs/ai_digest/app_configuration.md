@@ -78,6 +78,10 @@ configuration lifecycle:
 
 1.  **Startup**: The application's `main` function calls `(config-load)`.
 
+```image
+docs/diagrams/config_life.cwb
+```
+
 2.  **Initialization**: The app reads values from the now-populated `*config*`
     variable to set its initial state (e.g., window position, loading user
     data).

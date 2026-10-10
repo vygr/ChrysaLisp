@@ -8,6 +8,10 @@ language. There are three distinct coding domains (or layers): **Lisp**,
 Understanding which domain you are in is critical, as valid syntax in one
 domain is often undefined or functionally broken in another.
 
+```image
+docs/diagrams/coding_domains.cwb
+```
+
 ## 1. The Lisp Layer (Application Domain)
 
 **File Extensions:** `.lisp`, `.inc`
