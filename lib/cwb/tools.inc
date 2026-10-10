@@ -388,35 +388,38 @@
 (defclass Ruler (board x y) (Instrument board x y)
 	; (Ruler board x y) -> ruler
 	;a straight edge, its two long sides are edges. Each end makes it
-	;longer or shorter. The hole by each end turns it, about the 0 of its
-	;marks. The rest moves it, and the ring puts it away. It is
-	;marked in millimetres along its top side, longer every five, and
-	;numbered in centimetres
+	;longer or shorter. The hole by each end turns it, about the 0 of the
+	;marks at its other end. The rest moves it, and the ring puts it away. It is
+	;marked in millimetres along both sides, the bottom the other way to
+	;the top, longer every five, and numbered in centimetres
 	(defmethod :rebuild ()
 		(defq half (* 0.5 (get :length this)) top (* -0.5 +ruler_height) bot (* 0.5 +ruler_height)
 			inset (- half +ruler_cap) marks (list))
 		(def this :outline (cwb-d-rect (neg half) top half bot)
 			:edges (list (list :line (neg inset) top inset top) (list :line (neg inset) bot inset bot))
 			:parts (list
-				(list :close (cwb-d-ellipse 0 8 11))
+				(list :close (cwb-d-ellipse 0 0 11))
 				(list :size (cwb-d-rect (neg half) top (neg inset) bot))
 				(list :size (cwb-d-rect inset top half bot))
-				;the hole by each end, as a ruler has to hang it by
-				;and both turn it about the 0 of its marks, on its top side:
-				;with that on a point, lines are drawn from the point every way
-				(list :turn (cwb-d-ellipse (+ (neg inset) 26.0) 12.0 15.0) (neg inset) top)
-				(list :turn (cwb-d-ellipse (- inset 26.0) 12.0 15.0) (neg inset) top)
+				;the hole by each end, as a ruler has to hang it by. Each
+				;turns it about the 0 of the marks at the other end: the top
+				;side's are from the left, the bottom side's from the right.
+				;With a 0 on a point, lines are drawn from the point every way
+				(list :turn (cwb-d-ellipse (+ (neg inset) 24.0) 0.0 12.0) inset bot)
+				(list :turn (cwb-d-ellipse (- inset 24.0) 0.0 12.0) (neg inset) top)
 				(list :move (cwb-d-rect (neg half) top half bot)))
-			:glyphs (list (list :close 0.0 8.0)
+			:glyphs (list (list :close 0.0 0.0)
 				(list :size (- (neg half) (* -0.5 +ruler_cap)) 0.0) (list :size (- half (* 0.5 +ruler_cap)) 0.0)
-				(list :turn (+ (neg inset) 26.0) 12.0) (list :turn (- inset 26.0) 12.0)))
-		;millimetres along the top side, from its left end, and along the bottom
+				(list :turn (+ (neg inset) 24.0) 0.0) (list :turn (- inset 24.0) 0.0)))
+		;millimetres along the top side, from its left end, and along the
+		;bottom side the other way, from its right end
 		(push marks (cwb-shape (cat (tool-ticks (neg inset) top inset top 0.0 1.0 +tool_mm)
-				" " (tool-ticks (neg inset) bot inset bot 0.0 -1.0 (* 5.0 +tool_mm) 4.0 4.0 8.0))
+				" " (tool-ticks inset bot (neg inset) bot 0.0 -1.0 +tool_mm))
 			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
-		(defq n 0 at (neg inset))
-		(while (< at (- inset 6.0))
-			(push marks (cwb-text-mid (str n) (+ at (if (= n 0) 6.0 0.0)) (+ top 24.0) :font_size 15))
+		(defq n 0 at 0.0)
+		(while (< at (- (* 2.0 inset) 6.0))
+			(push marks (cwb-text-mid (str n) (+ (neg inset) at (if (= n 0) 6.0 0.0)) (+ top 22.0) :font_size 13))
+			(push marks (cwb-text-mid (str n) (- inset at (if (= n 0) 6.0 0.0)) (- bot 22.0) :font_size 13))
 			(setq n (inc n) at (+ at (* 10.0 +tool_mm))))
 		(def this :marks marks)
 		this)

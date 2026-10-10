@@ -82,32 +82,39 @@
 	;larger of the two arcs if large is not 0, drawn the way the angle
 	;grows if sweep is not 0. The first point is taken to be in dst, the
 	;rest are added, the last is the end point exactly. Radii too small
-	;to reach are made as big as is needed, and with no radius, or next
-	;to no distance to go, it is a line
+	;to reach are made as big as is needed, and with no radius, or no
+	;distance to go, it is a line
 	(setq rx (abs rx) ry (abs ry))
-	(defq cp (cos phi) sp (sin phi)
+	;the half chord, turned to the ellipse, in units of its radii, is a
+	;small number for a short arc of a big circle, and a fixed point
+	;number holds a small one badly: the middle of the circle came out
+	;pixels off, and a short arc jumped about as it was drawn. So it is
+	;kept a thousand times bigger, ka kb and kl its length, and what is
+	;wanted of it is its direction, ka and kb over kl, which is held well
+	(defq cp (cos phi) sp (sin phi) k 1024.0
 		hx (* 0.5 (- x1 x2)) hy (* 0.5 (- y1 y2))
-		;the half chord, turned to the ellipse, in units of its radii
-		a (if (= rx 0.0) 0.0 (/ (+ (* cp hx) (* sp hy)) rx))
-		b (if (= ry 0.0) 0.0 (/ (- (* cp hy) (* sp hx)) ry))
-		m (max (abs a) (abs b))
-		lam (if (= m 0.0) 0.0 (* m (sqrt (+ (* (/ a m) (/ a m)) (* (/ b m) (/ b m)))))))
+		ka (if (= rx 0.0) 0.0 (/ (* (+ (* cp hx) (* sp hy)) k) rx))
+		kb (if (= ry 0.0) 0.0 (/ (* (- (* cp hy) (* sp hx)) k) ry))
+		m (max (abs ka) (abs kb))
+		kl (if (= m 0.0) 0.0 (* m (sqrt (+ (* (/ ka m) (/ ka m)) (* (/ kb m) (/ kb m)))))))
 	(cond
-		;no radius, or so little way to go for the size of it that the
-		;square of it is nothing, the start of an arc as a pen sets off
-		;round a protractor: a line
-		((or (= rx 0.0) (= ry 0.0) (= (* lam lam) 0.0))
+		;no radius, or no way to go at all: a line
+		((or (= rx 0.0) (= ry 0.0) (= kl 0.0))
 			(push dst x2 y2))
-		(:t (when (> lam 1.0)
+		(:t (when (> kl k)
 				;too small to reach, so as small as will
-				(setq rx (* rx lam) ry (* ry lam) a (/ a lam) b (/ b lam) lam 1.0))
-			(defq l2 (* lam lam)
-				coef (if (>= l2 1.0) 0.0 (sqrt (/ (- 1.0 l2) l2)))
-				coef (if (eql (/= large 0.0) (/= sweep 0.0)) (neg coef) coef)
+				(defq lam (/ kl k))
+				(setq rx (* rx lam) ry (* ry lam) ka (/ ka lam) kb (/ kb lam) kl k))
+			(defq a (/ ka k) b (/ kb k) q (/ kl k)
+				;how far the middle is from the chord, over half the chord,
+				;by the direction of the chord: coef times a and times b
+				far (sqrt (max 0.0 (- 1.0 (* q q))))
+				far (if (eql (/= large 0.0) (/= sweep 0.0)) (neg far) far)
+				ca (/ (* far ka) kl) cb (/ (* far kb) kl)
 				;the centre, and the two ends as seen from it, on a unit circle
-				ux (- a (* coef b)) uy (+ b (* coef a))
-				vx (- (neg a) (* coef b)) vy (+ (neg b) (* coef a))
-				cxp (* coef rx b) cyp (neg (* coef ry a))
+				ux (- a cb) uy (+ b ca)
+				vx (- (neg a) cb) vy (+ (neg b) ca)
+				cxp (* rx cb) cyp (neg (* ry ca))
 				cx (+ (- (* cp cxp) (* sp cyp)) (* 0.5 (+ x1 x2)))
 				cy (+ (+ (* sp cxp) (* cp cyp)) (* 0.5 (+ y1 y2)))
 				t1 (path-angle ux uy)

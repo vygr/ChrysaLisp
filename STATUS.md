@@ -4,6 +4,39 @@
 
 ------
 
+Chris: "Ruler, marks on opisite sides should run in oposite direction !
+And rotate of ruler depends on what side you grabbed, and it rotaes
+around the oposite ends 0 mark."
+
+The bottom side is marked in millimetres from the right, numbered, as the
+top is from the left. The hole by the right end turns it about the 0 at
+the top left, the hole by the left end about the 0 at the bottom right.
+That is how I took "the oposite ends 0 mark". The holes and the ring are
+on the line along its middle now, between the two rows of numbers.
+
+------
+
+Chris, drawing round the protractor: "the middle flickers left/right and
+jumps off the edge, somtimes by large amounts."
+
+`(path-gen-earc)` again, and the same cause as the divide. It works in
+units of the radii, where the half chord of a short arc on a big circle
+is a small number, and from the square of that it found the middle of
+the circle. A fixed point number holds a small one to a few bits. Short
+arcs round a circle of 180 had points up to 15 pixels off it, and 51 off
+one of 600. I measured it only after he saw it.
+
+The half chord is kept 1,024 times bigger, and what is taken from it is
+its direction. The same arcs are now within 0.008 of a pixel at 180 and
+0.026 at 600. A test draws eighty short arcs at three sizes and asks that
+every point is on the circle.
+
+Every arc of the night's tests went a good way round and had round
+numbers in it. The arc of an SVG path has been in since the first
+commit of this, so any short arc in any document was wrong till now.
+
+------
+
 Chris: "The ruler marks on the protract straigh edge should stay centered
 at a majour mark. So scaling keeps the center of that ruler edge stable."
 They were counted from its left end, so the middle was on a long mark only
