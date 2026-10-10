@@ -159,25 +159,30 @@
 						(unless (find id_hit (get :selected board)) (. board :select (list id_hit)))
 						(. board :snapshot)
 						(elem-set state +stroke_snap :t)
-						;taken by the right button alone, what is selected goes to
-						;the back of its layer, as an instrument goes to the back
-						;of the instruments: it is how what is under it is got at.
-						;That is a change, though it is not moved
-						(when (= buttons +pev_right)
-							(defq ids (get :selected board))
-							(each (lambda (layer)
-								(defq items (third layer)
-									these (filter (# (find (elem-get %0 +cwb_id) ids)) items))
-								(if (nempty? these)
-									(elem-set layer 2 (cat these (filter (# (not (find (elem-get %0 +cwb_id) ids))) items)))))
-								(cwb-layers (get :doc board)))
-							(elem-set state +stroke_moved :t)
-							(. board :touch +board_dirty_doc))
+						;what is taken hold of comes to the front of its layer, and
+						;taken by the right button alone it goes to the back, as an
+						;instrument does among the instruments: it is how what is
+						;under it is got at. Where that changes what is in front of
+						;what, it is a change, though nothing is moved
+						(defq ids (get :selected board) back (= buttons +pev_right))
+						(each (lambda (layer)
+							(defq items (third layer)
+								these (filter (# (find (elem-get %0 +cwb_id) ids)) items)
+								others (filter (# (not (find (elem-get %0 +cwb_id) ids))) items)
+								now (if back (cat these others) (cat others these)))
+							(unless (or (empty? these) (every (const eql) now items))
+								(elem-set layer 2 now)
+								(elem-set state +stroke_moved :t)
+								(. board :touch +board_dirty_doc)))
+							(cwb-layers (get :doc board)))
 						(elem-set state +stroke_item (. this :things))
 						;the box round it as it is picked up, a corner of which
 						;is what goes to the grid
 						(elem-set state +stroke_box (cwb-bounds (. board :selected_items)))
-						(. board :float (get :selected board)))
+						;at the front it is drawn over the document as it is
+						;moved, which is where it is. At the back it is not: it
+						;is drawn in its place, under what is in front of it
+						(unless back (. board :float (get :selected board))))
 					(:t ;on nothing. With nothing selected, and nothing put
 						;away by it, it may be a tap, see (:end)
 						(if (and (not shut) (empty? (get :selected board)))
@@ -231,7 +236,9 @@
 						(defq move (cwb-mat-move mx my))
 						(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul move m0))) item)
 						(if (or (/= x sx) (/= y sy)) (elem-set state +stroke_moved :t))
-						(. board :touch +board_dirty_overlay))
+						;what is not drawn over the document is drawn in it
+						(. board :touch (if (empty? (get :floating board))
+							(+ +board_dirty_doc +board_dirty_overlay) +board_dirty_overlay)))
 					(:t ;a box is dragged out round things
 						(def board :band (list (min sx x) (min sy y) (max sx x) (max sy y)))
 						(. board :touch +board_dirty_overlay))))

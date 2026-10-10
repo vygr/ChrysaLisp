@@ -4,6 +4,28 @@
 
 ------
 
+Chris, of the line ends and of sending to the back: "Drag with left or
+right, pulls the line to the front, while draggin (I think it should stay
+where the left/right drag say it should be ... The push to back or pull
+to front dosn't stick, when you let go it jumps layers."
+
+What is being moved was drawn over the document, so it was in front of
+everything while it moved and went back to its place when it was let go.
+And only the right button changed its place.
+
+*	A thing taken hold of comes to the front of its layer, as an
+	instrument does. Taken by the right button it goes to the back.
+	Either is a step if it changed what is in front of what.
+
+*	At the front it is drawn over the document as it moves, which is
+	where it is. At the back it is drawn in the document, in its
+	place, and the document is drawn again as it moves.
+
+The handles still draw what they size or turn over the document.
+`test_cwb.lisp`, 6 more.
+
+------
+
 Chris is trying it, a thing at a time, as I ask. The palette: "Test 1
 all works", "Lovely animation BTW !", and of whether it is antialiased,
 "Looking closer now, and yes". The handles of a turned box: "The box did
