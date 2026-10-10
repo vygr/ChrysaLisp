@@ -405,27 +405,42 @@
 		; (. instrument :two_hands)
 		;two pointers on its parts, not its edges, whichever parts they are,
 		;move it, turn it and size it together, by where they were when the
-		;second went down and where they are
-		(defq hands (list) grab (get :grab this))
+		;second went down and where they are.
+		;
+		;The first two that came are the two. A third that comes down on it
+		;while they have it does nothing, they have it. When one of the two
+		;lifts, those that are left carry on from where things are, the
+		;next two of them together
+		(defq hands (list) grab (get :grab this) pair :nil)
 		(. (get :states this) :each (lambda (id state)
-			(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (push hands state))))
+			(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (push hands (list id state)))))
+		;in the order they came, a contact that lands later has the bigger
+		;number. What is kept of them comes in no order, and the two must be
+		;the same way round each time: the other way round they are a half
+		;turn from where they began
+		(sort hands (# (- (first %0) (first %1))))
+		(when grab
+			(setq pair (filter (# (find (first %0) (elem-get grab 5))) hands))
+			(when (< (length pair) 2)
+				(def this :grab (setq grab :nil pair :nil))
+				;each that is left carries on from where things are
+				(each (lambda ((id state))
+					(elem-set state +tool_state_x (elem-get state +tool_state_last_x))
+					(elem-set state +tool_state_y (elem-get state +tool_state_last_y))
+					(elem-set state +tool_state_origin (cat (get :origin this)))
+					(elem-set state +tool_state_angle (get :angle this))
+					(elem-set state +tool_state_length (. this :extent))) hands)))
+		;the two that came first
+		(if (and (not pair) (>= (length hands) 2)) (setq pair (slice hands 0 2)))
 		(cond
-			((< (length hands) 2)
-				(when grab
-					(def this :grab :nil)
-					;the one that is left carries on from where things are
-					(each (lambda (state)
-						(elem-set state +tool_state_x (elem-get state +tool_state_last_x))
-						(elem-set state +tool_state_y (elem-get state +tool_state_last_y))
-						(elem-set state +tool_state_origin (cat (get :origin this)))
-						(elem-set state +tool_state_angle (get :angle this))
-						(elem-set state +tool_state_length (. this :extent))) hands)))
-			(:t (defq a (first hands) b (second hands)
+			((not pair))
+			(:t (defq a (second (first pair)) b (second (second pair))
 					pa (list (elem-get a +tool_state_last_x) (elem-get a +tool_state_last_y))
 					pb (list (elem-get b +tool_state_last_x) (elem-get b +tool_state_last_y)))
 				(unless grab
-					(def this :grab (setq grab (list pa pb (cat (get :origin this)) (get :angle this) (. this :extent)))))
-				(bind '(pa0 pb0 origin angle length) grab)
+					(def this :grab (setq grab (list pa pb (cat (get :origin this)) (get :angle this) (. this :extent)
+						(list (first (first pair)) (first (second pair)))))))
+				(bind '(pa0 pb0 origin angle length &ignore) grab)
 				;it is as much bigger as they are further apart, within what it can be
 				(defq d0 (max 1.0 (sqrt (+ (* (- (first pb0) (first pa0)) (- (first pb0) (first pa0)))
 						(* (- (second pb0) (second pa0)) (- (second pb0) (second pa0))))))

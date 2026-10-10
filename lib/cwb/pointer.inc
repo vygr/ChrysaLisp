@@ -45,21 +45,23 @@
 
 ;Devices and contacts. Everything that points is a device, the mouse, each
 ;pen, each touch panel, and a device has contacts, the places it touches at
-;once: a pen one, a panel one for each finger, numbered from 0 as they land,
-;a number that is freed used again. The host's driver gives both, and the
-;id of a pointer is the two, device << 16 | contact, the mouse device 0.
-;Whose a touch is, is its device. An id below 65536 is a device of the one
-;contact, as the mouse is, and as a test or a script may name a pen
+;once: a pen one, a panel one for each finger. Each finger that lands is
+;given the next number, counting up, and no number is given again, so of
+;two contacts of a device the one that landed later has the bigger. The
+;host's driver gives both, and the id of a pointer is the two, device << 24
+;| contact, the mouse device 0. Whose a touch is, is its device. An id
+;below 16777216 is a device of the one contact, as the mouse is, and as a
+;test or a script may name a pen or a finger
 
 (defun ptr-device (id)
 	; (ptr-device id) -> device
 	;the device of a pointer's id, the id of its contact 0
-	(if (< id 0x10000) id (logand id -65536)))
+	(if (< id 0x1000000) id (logand id -16777216)))
 
 (defun ptr-contact (id)
 	; (ptr-contact id) -> num
 	;which contact of its device a pointer is
-	(if (< id 0x10000) 0 (logand id 0xffff)))
+	(if (< id 0x1000000) 0 (logand id 0xffffff)))
 
 ;;;;;;;;;;
 ; bindings

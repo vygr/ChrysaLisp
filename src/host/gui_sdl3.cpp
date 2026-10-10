@@ -228,6 +228,20 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 	backbuffer = create_backbuffer(rect->w, rect->h);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	if (flags) SDL_HideCursor();
+#if defined(__APPLE__)
+	// a finger that rests on a trackpad while another moves is taken by the
+	// Mac for a hand lying on it, and is cancelled: it is seen to lift, and
+	// to land again when it moves. A finger that holds a thing still while
+	// another works is the very thing to be tried, so the view is told it
+	// wants fingers that rest
+	if (host_gui_sdl3_trackpad())
+	{
+		id nswindow = (id)SDL_GetPointerProperty(SDL_GetWindowProperties(window),
+			SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr);
+		id view = nswindow ? ((id (*)(id, SEL))objc_msgSend)(nswindow, sel_registerName("contentView")) : nullptr;
+		if (view) ((void (*)(id, SEL, BOOL))objc_msgSend)(view, sel_registerName("setWantsRestingTouches:"), YES);
+	}
+#endif
 	// a desktop started from a shell opens behind the shell's window, on a
 	// Mac, the shell is the program in front. It is asked to come forward
 	SDL_RaiseWindow(window);

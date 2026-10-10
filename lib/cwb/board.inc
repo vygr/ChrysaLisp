@@ -429,6 +429,11 @@
 		(. (get :states this) :each (lambda (id state)
 			(if (and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item))
 				(push hands (list id state)))))
+		;in the order they came, a contact that lands later has the bigger
+		;number. What is kept of them comes in no order, and the two must be
+		;the same way round each time: the other way round they are a half
+		;turn from where they began
+		(sort hands (# (- (first %0) (first %1))))
 		;the two of a grab there is, if both are still down, or the first two
 		;that have hold of the same things
 		(when grab
@@ -1324,6 +1329,13 @@
 				((. handles :ends))
 				;the frame the handles are on, which may be turned
 				((defq corners (. handles :corners))
+					(cwb-draw-items canvas (list (cwb-shape (cwb-d-points corners :t)
+						:stroke 0xff0080ff :width thin :join :miter)) m))
+				;out of select mode there are no handles, a hand or a finger
+				;has it. One thing has its own box, turned as it is turned:
+				;the box round that, square to the board, is a bigger and
+				;looser one that does not turn with it and looks wrong
+				((and (= (length items) 1) (defq corners (board-item-corners (first items))))
 					(cwb-draw-items canvas (list (cwb-shape (cwb-d-points corners :t)
 						:stroke 0xff0080ff :width thin :join :miter)) m))
 				((defq box (cwb-bounds items))

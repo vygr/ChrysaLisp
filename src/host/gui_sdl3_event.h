@@ -36,13 +36,16 @@ static bool host_gui_sdl3_pens_seen = false;
 
 /* Devices and contacts. Everything that points is a device: the mouse, each
    pen, each touch panel. A device has contacts, the places it touches at
-   once. A pen has one, contact 0. A panel has one for each finger: the first
-   finger down is contact 0, the next 1, and a finger that lifts frees its
-   number for the next that lands, the lowest free one first. The id of a
-   pointer is the two together, device << 16 | contact, and the mouse is
-   device 0. So what is above this knows whose a touch is by its device, and
-   which of that device's it is by its contact, and neither is a number that
-   SDL happened to give. */
+   once. A pen has one, contact 0. A panel has one for each finger, and each
+   finger that lands is given the next number, counting up, and no number is
+   given again: a number is a touch, from when it lands to when it lifts, and
+   no other touch. So a later one is a bigger number, what is above this can
+   tell which came first by it, and nothing said late of a touch that has
+   gone can be taken for one that came after. Numbers that were freed and
+   given again, the lowest first, put a new finger before one that had been
+   down all along. The id of a pointer is the two together, device << 24 |
+   contact, and the mouse is device 0. The count goes round after sixteen
+   million touches of a device. */
 
 #define HOST_GUI_SDL3_DEVICES 16
 #define HOST_GUI_SDL3_CONTACTS 32
@@ -52,6 +55,8 @@ static struct
 {
 	uint32_t kind;	/* 0 for a slot not used */
 	uint64_t key;	/* what SDL calls the device */
+	uint32_t next;	/* the number the next contact to land is given */
+	uint32_t number[HOST_GUI_SDL3_CONTACTS];	/* the number each contact that is down was given */
 	uint64_t finger[HOST_GUI_SDL3_CONTACTS];	/* what SDL calls each contact that is down */
 	bool down[HOST_GUI_SDL3_CONTACTS];
 } host_gui_sdl3_devices[HOST_GUI_SDL3_DEVICES];
@@ -74,7 +79,7 @@ static uint32_t host_gui_sdl3_device(uint32_t kind, uint64_t key)
 }
 
 /* the number of a contact of a device, the one this finger has if it is
-   down, or the lowest that is free. With up it is free again after this */
+   down, or the next there is. With up the finger is no longer down after this */
 
 static uint32_t host_gui_sdl3_contact(uint32_t device, uint64_t finger, bool up)
 {
@@ -93,9 +98,11 @@ static uint32_t host_gui_sdl3_contact(uint32_t device, uint64_t finger, bool up)
 		/* more fingers than there is room for share the last */
 		if (at < 0) at = HOST_GUI_SDL3_CONTACTS - 1;
 		dev.finger[at] = finger;
+		dev.number[at] = dev.next;
+		dev.next = (dev.next + 1) & 0xffffffu;
 	}
 	dev.down[at] = !up;
-	return (uint32_t)at;
+	return dev.number[at];
 }
 
 /* how hard each pen is pressed. It is told on its own, as an axis of the
@@ -123,7 +130,7 @@ static void host_gui_sdl3_pen_event(host_gui_event *out, uint32_t type, uint32_t
 	uint32_t state, float x, float y)
 {
 	/* a pen is a device of its own, with the one contact */
-	uint32_t id = host_gui_sdl3_device(HOST_GUI_SDL3_DEVICE_PEN, which) << 16;
+	uint32_t id = host_gui_sdl3_device(HOST_GUI_SDL3_DEVICE_PEN, which) << 24;
 	uint32_t *pressure = host_gui_sdl3_pen(id);
 	out->type = type;
 	out->x = (int32_t)x;
@@ -189,7 +196,7 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			out->x = (int32_t)(e.tfinger.x * (float)w);
 			out->y = (int32_t)(e.tfinger.y * (float)h);
 			out->id = host_gui_sdl3_device(HOST_GUI_SDL3_DEVICE_TOUCH, (uint64_t)e.tfinger.touchID);
-			out->id = (out->id << 16) | host_gui_sdl3_contact(out->id, (uint64_t)e.tfinger.fingerID, up);
+			out->id = (out->id << 24) | host_gui_sdl3_contact(out->id, (uint64_t)e.tfinger.fingerID, up);
 			out->kind = host_gui_kind_touch;
 			out->buttons = up ? 0 : host_gui_buttons_left;
 			out->pressure = up ? 0 : e.tfinger.pressure > 0.0f ? (uint32_t)(e.tfinger.pressure * 65535.0f) : 65535u;
@@ -213,7 +220,7 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 		case SDL_EVENT_PEN_AXIS:
 			if (e.paxis.axis == SDL_PEN_AXIS_PRESSURE)
 			{
-				*host_gui_sdl3_pen(host_gui_sdl3_device(HOST_GUI_SDL3_DEVICE_PEN, e.paxis.which) << 16) = (uint32_t)(e.paxis.value * 65535.0f);
+				*host_gui_sdl3_pen(host_gui_sdl3_device(HOST_GUI_SDL3_DEVICE_PEN, e.paxis.which) << 24) = (uint32_t)(e.paxis.value * 65535.0f);
 				host_gui_sdl3_pen_event(out, host_gui_event_pointer_motion,
 					e.paxis.which, e.paxis.pen_state, e.paxis.x, e.paxis.y);
 				return true;

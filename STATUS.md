@@ -4,6 +4,56 @@
 
 ------
 
+Chris, with three fingers on the whole protractor: "what I did if a third
+contact point came down on the same tool was only use the first 2 that
+arive !", and "that was the object/tool itself that made that desision !
+The event distributer just honours handing out the dev/contacts to who
+they lock onto." Then: "when my third finger goes down on the tool is
+distrubes what is hapening. I suspect it's anot a stable list based on
+contact id sorted ?", "Or maybe that is the problme ? realocating
+contact id and it is lower number !!!", "maybe we shou just hav the
+contactid as an incrementing 32bit value ?", "no realocation, just use
+the next id..."
+
+He had it, both halves, before I did.
+
+*	A contact is given the next number of its device, counting up, and
+	none is given again. A number is one touch, from landing to lifting.
+	The id is device << 24 | contact. It was the lowest free number
+	first, as he had first said, which put a finger that had just
+	landed before one that had been down all along.
+
+*	An instrument, and the surface for the things of the document, has
+	the first two contacts that came, and keeps to those two till one
+	lifts. A third does nothing. Then those left carry on from where
+	things are. "exactly what I did !"
+
+*	What disturbed it was neither the third finger nor which two: the
+	two came out of what is kept of them in no order, and one moment to
+	the next could be the other way round, which is a half turn from
+	where they began. I had fixed which two and still had that. They are
+	taken in the order they came, every time. Found by a test of mine
+	that put the ruler at the third finger.
+
+*	The Mac cancels a finger that rests on a trackpad while another
+	moves. The view is told it wants fingers that rest, in trackpad
+	mode. After it, no finger in the recording lifts and lands again
+	where it was.
+
+*	"the bounds box seams wrong": out of select mode one thing held had
+	the box square to the board round it, loose and not turned with it.
+	It has its own box, turned as it is.
+
+*	"came up in front."
+
+Run: the host programs built on all three, `test_cwb` 484 and
+`test_whiteboard` 88 on the M4, the full suite on the x64 and the Pi,
+5,709.
+
+Not seen: three fingers on a tool with this, by him. A soak.
+
+------
+
 Chris, of pointers: "but it's all just device_id and contact point
 numbering/allocation." "when a touch went down it got contact_id 0, the
 next finger c_ud 1, etc, as each finger came up we could resuse free

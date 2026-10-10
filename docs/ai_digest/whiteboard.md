@@ -312,10 +312,12 @@ The board's view has `:pointer`, and gives the board the pointer as it is.
 
 Everything that points is a device: the mouse, each pen, each touch panel. A
 device has contacts, the places it touches at once. A pen has one. A panel
-has one for each finger: the first finger down is contact 0, the next 1, and
-a finger that lifts frees its number for the next that lands, the lowest
-free first. The driver gives both numbers, `src/host/gui_sdl3_event.h`, and
-the id of a pointer is the two together, device << 16 | contact. The mouse
+has one for each finger, and each finger that lands is given the next
+number, counting up, and no number is given again: a number is one touch,
+from when it lands to when it lifts. So a later touch has a bigger number,
+and nothing said late of one that has gone can be taken for another. The
+driver gives both numbers, `src/host/gui_sdl3_event.h`, and the id of a
+pointer is the two together, device << 24 | contact. The mouse
 is device 0. `(ptr-device id)` and `(ptr-contact id)`, `lib/cwb/pointer.inc`.
 
 What a pointer is bound to, its tool and colour, `Bindings`, is its

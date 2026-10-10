@@ -877,10 +877,21 @@
 (assert-list-eq "the mouse is device 0, a pen named by a small number is that device, and both are contact 0"
 	'(0 0 9 0) (list (ptr-device 0) (ptr-contact 0) (ptr-device 9) (ptr-contact 9)))
 (assert-list-eq "the third finger of the second device is contact 2 of it, and its device is the id of its contact 0"
-	(list 0x20000 2 0x20000 0) (list (ptr-device 0x20002) (ptr-contact 0x20002) (ptr-device 0x20000) (ptr-contact 0x20000)))
-(defq dv_bind (.-> (Bindings) (:bind :nil :nil :nil '(:color 1)) (:bind :touch (ptr-device 0x20003) :nil '(:color 2))
-	(:bind :pen (ptr-device 0x30000) :nil '(:color 3))))
+	(list 0x2000000 2 0x2000000 0) (list (ptr-device 0x2000002) (ptr-contact 0x2000002) (ptr-device 0x2000000) (ptr-contact 0x2000000)))
+(defq dv_bind (.-> (Bindings) (:bind :nil :nil :nil '(:color 1)) (:bind :touch (ptr-device 0x2000003) :nil '(:color 2))
+	(:bind :pen (ptr-device 0x3000000) :nil '(:color 3))))
 (assert-list-eq "what one panel is bound to is every finger of it, and no finger of another panel, and a pen its own"
 	'(2 2 1 3 1) (map (# (. dv_bind :value %0 :color))
-		(list (ptr-event 0x20000 :touch 1 0 0) (ptr-event 0x20007 :touch 1 0 0) (ptr-event 0x40000 :touch 1 0 0)
-			(ptr-event 0x30000 :pen 1 0 0) (ptr-event 0x50000 :pen 1 0 0))))
+		(list (ptr-event 0x2000000 :touch 1 0 0) (ptr-event 0x2000007 :touch 1 0 0) (ptr-event 0x4000000 :touch 1 0 0)
+			(ptr-event 0x3000000 :pen 1 0 0) (ptr-event 0x5000000 :pen 1 0 0))))
+
+;out of select mode, one thing that has been turned has its own box round it, turned with it
+(defq tb_doc (cwb-doc 400 300) tb_board (Board tb_doc)
+	tb_id (elem-get (cwb-add tb_doc (cwb-shape (cwb-d-rect 150 130 250 170) :fill 0xff0000ff :stroke 0)) +cwb_id)
+	tb_canvas (Canvas 400 300 1))
+(. tb_board :select (list tb_id))
+(. tb_board :transform (cwb-mat-turn (/ +fp_pi 4.0) 200.0 150.0))
+(. tb_canvas :fill 0) (. tb_board :draw_overlay tb_canvas :nil :t)
+;the box square to the board round it would have a line down x 147 or so, from y 97 to y 203. Its own box has none there
+(assert-list-eq "the line round a thing turned an eighth of a turn is along its own sides, not a square box round it"
+	'(:t :t) (list (= (cm-row tb_canvas 105 140 160) 0) (> (cm-row tb_canvas 150 140 260) 0)))

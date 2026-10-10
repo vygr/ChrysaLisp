@@ -65,7 +65,7 @@ typedef struct host_gui_event
 	uint32_t count;		/* clicks, in a down or up */
 	uint32_t scode;		/* key, a USB HID usage number */
 	uint32_t direction;	/* wheel, 0 normal, 1 flipped */
-	uint32_t id;		/* pointer, which one, never 0: its device << 16 | which contact of it */
+	uint32_t id;		/* pointer, which one, never 0: its device << 24 | which contact of it */
 	uint32_t kind;		/* pointer, pen, eraser or touch */
 	uint32_t pressure;	/* pointer, how hard, 0 to 65535 */
 } host_gui_event;
