@@ -723,11 +723,9 @@
 		; (. board :selected_items) -> items
 		;the items that are selected, each one of a layer's own, in the
 		;order they are in, the back one first
-		(defq ids (get :selected this) out (list))
-		(each (lambda ((name flags items))
-			(each (# (if (find (elem-get %0 +cwb_id) ids) (push out %0))) items))
-			(cwb-layers (get :doc this)))
-		out)
+		(defq ids (cwb-id-set (get :selected this)))
+		(reduce (lambda (out (name flags items)) (cat out (cwb-pick items ids)))
+			(cwb-layers (get :doc this)) (list)))
 
 	(defmethod :select_all ()
 		; (. board :select_all) -> board
@@ -817,8 +815,9 @@
 	(defmethod :remove (ids)
 		; (. board :remove ids) -> board
 		;take items out, no step is made, see (:delete)
-		(each (# (cwb-remove (get :doc this) %0)) ids)
-		(def this :selected (filter (# (not (find %0 ids))) (get :selected this)))
+		(cwb-remove-ids (get :doc this) ids)
+		(defq gone (cwb-id-set ids))
+		(def this :selected (filter (# (not (cwb-id? gone %0))) (get :selected this)))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 	(defmethod :rub (x y &optional r)
@@ -995,7 +994,7 @@
 				kept (map (# (if (= (elem-get %0 +cwb_id) top_id) group %0)) holder))
 			(clear holder)
 			(each (# (push holder %0)) kept)
-			(each (# (unless (= (elem-get %0 +cwb_id) top_id) (cwb-remove doc (elem-get %0 +cwb_id)))) items)
+			(cwb-remove-ids doc (filter (# (/= %0 top_id)) (map (# (elem-get %0 +cwb_id)) items)))
 			;the group is in the list, the items are now only in the group
 			(def this :selected (list (elem-get group +cwb_id)))
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
@@ -1141,8 +1140,9 @@
 		;what is in flight and nothing else: the items being moved about,
 		;and what is being drawn and not yet kept
 		(when (nempty? (defq floating (get :floating this)))
+			(setq floating (cwb-id-set floating))
 			(each (lambda ((name flags items))
-				(cwb-draw-items canvas (filter (# (find (elem-get %0 +cwb_id) floating)) items) m))
+				(cwb-draw-items canvas (cwb-pick items floating) m))
 				(cwb-layers (get :doc this))))
 		(. (get :temp this) :each (lambda (id shape) (cwb-draw-items canvas (list shape) m)))
 		this)
@@ -1169,8 +1169,10 @@
 			(defq handles (get :handles this))
 			;of several things selected, each has a line round it, its own
 			;box, so that it is seen they are several and which they are: a
-			;group that was broken up is its parts, each one selected
-			(if (> (length items) 1)
+			;group that was broken up is its parts, each one selected. Of a
+			;great many it is not, a thousand boxes are a blur and a
+			;thousand more things to draw as they are moved
+			(if (< 1 (length items) 200)
 				(cwb-draw-items canvas (reduce (lambda (out item)
 						(if (defq corners (board-item-corners item))
 							(push out (cwb-shape (cwb-d-points corners :t) :stroke 0xa00080ff :width thin :join :miter)))

@@ -37,6 +37,12 @@
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
 	*flight_back* :nil *canvas_size* :nil
+	;what was in flight and has been let go, while the nodes have yet to
+	;draw the document with it in: *landing* is waiting for a frame to be
+	;begun, *landed* is in the frame they are drawing. Both are still drawn
+	;with what is in flight, or a thing let go would be nowhere till the
+	;frame came, a blink. *flown* is what was in flight when last looked
+	*flown* (list) *landing* (list) *landed* (list)
 	rate (/ 1000000 60)
 	;the board has this much round it, on the screen, each side, that is
 	;not the document: an instrument lies half off the paper as a ruler
@@ -199,7 +205,8 @@
 	;what is in flight, on its canvas, which is put in front of the
 	;document's or behind it, as the board says. Is the canvas not what it
 	;was: it has something on it now, or had and has not
-	(defq back (get :float_back *board*) flying (. *board* :in_flight?))
+	(defq back (get :float_back *board*) flying (. *board* :in_flight?)
+		down (cat *landing* *landed*))
 	(when (and flying (not (eql back *flight_back*)))
 		;the three that are the size of the document are taken out and put
 		;back in the order they are now in. One added goes behind those there
@@ -209,10 +216,15 @@
 		(bind '(w h) (canvas-size))
 		(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight* *paper*))
 		(. *backdrop* :dirty_all))
-	(when (or flying *flight_used*)
+	(when (or flying *flight_used* (nempty? down))
 		(. *flight* :fill 0)
+		(when (nempty? down)
+			(setq down (cwb-id-set down))
+			(each (lambda ((name flags items))
+				(unless (bits? flags 1) (cwb-draw-items *flight* (cwb-pick items down) (view-matrix))))
+				(cwb-layers (. *board* :get_doc))))
 		(if flying (. *board* :draw_flight *flight* (view-matrix)))
-		(setq *flight_used* flying)
+		(setq *flight_used* (or flying (nempty? down)))
 		:t))
 
 (defun farm? ()
@@ -236,6 +248,10 @@
 		(draw-paper))
 	;what keeps the nodes' copies in step is told of every change
 	(if (or doc_dirty append_dirty) (. *stripes* :note))
+	;what has been let go of since this last looked is landing
+	(when doc_dirty
+		(defq now (get :floating *board*) held (cwb-id-set now))
+		(setq *landing* (cat *landing* (filter (# (not (cwb-id? held %0))) *flown*)) *flown* (cat now)))
 	(cond
 		((and *framing* (or doc_dirty append_dirty))
 			;the nodes are drawing it as it was, it is drawn again when they have
@@ -244,12 +260,13 @@
 				;they draw the shapes and no paper, on pixels made clear for them.
 				;What shows is as it was till they have done
 				(progn (. *committed* :fill 0) (. *stripes* :frame *committed* *zoom* :nil)))
-			;the nodes draw it, (frame-done) when they have
+			;the nodes draw it, (frame-done) when they have. What was
+			;landing is in this frame
 			(. *board* :take_appended)
-			(setq *framing* :t))
+			(setq *framing* :t *landed* *landing* *landing* (list)))
 		(doc_dirty
 			(draw-local m)
-			(setq show :t)
+			(setq show :t *landing* (list) *landed* (list))
 			;the nodes are started, or brought in step, for the next time
 			(if (farm?) (.-> *stripes* :start :warm)))
 		(append_dirty
@@ -277,11 +294,18 @@
 			(when *again*
 				(setq *again* :nil)
 				(. *board* :touch +board_dirty_doc))
+			;what landed in that frame is in the document's picture now,
+			;and is no longer drawn with what is in flight
+			(when (nempty? *landed*)
+				(setq *landed* (list))
+				(. *board* :touch +board_dirty_overlay))
 			(. *committed* :swap +swap_write))
 		(:failed
 			;this task draws it, and the nodes are left alone if they keep at it
 			(setq *framing* :nil *again* :nil *farm_fails* (inc *farm_fails*))
 			(if (>= *farm_fails* 3) (. *stripes* :close))
+			(setq *landing* (list) *landed* (list))
+			(. *board* :touch +board_dirty_overlay)
 			(draw-local (view-matrix))
 			(. *committed* :swap +swap_write))))
 

@@ -469,6 +469,52 @@
 		(each (# (push holder %0)) kept)
 		item))
 
+;Many ids at once. A list of ids is looked through for each item it is
+;asked of, which for a thousand ids and ten thousand items is ten million
+;looks. So a long list is made a set first, once.
+
+(defun cwb-id-set (ids)
+	; (cwb-id-set ids) -> ids | set
+	;ids as what is quick to ask of: the list if it is short, or a set of
+	;them. One that is a set already is that set
+	;a set says it is a list too, so it is asked if it is a set, first
+	(if (and (not (Fset? ids)) (> (length ids) 12))
+		(reduce (# (. %0 :insert %1)) ids (Fset (/ (length ids) 4)))
+		ids))
+
+(defun cwb-id? (ids id)
+	; (cwb-id? ids id) -> :nil | found
+	;is an id one of these, a list or what (cwb-id-set) made of one
+	(if (Fset? ids) (. ids :find id) (find id ids)))
+
+(defun cwb-pick (items ids &optional out)
+	; (cwb-pick items ids [out]) -> items
+	;those of the items whose id is one of the ids, in the order they are
+	;in, or with out those whose id is not
+	(defq ids (cwb-id-set ids))
+	(cond
+		((Fset? ids)
+			(if out (filter (# (not (. ids :find (elem-get %0 +cwb_id)))) items)
+				(filter (# (. ids :find (elem-get %0 +cwb_id))) items)))
+		(out (filter (# (not (find (elem-get %0 +cwb_id) ids))) items))
+		(:t (filter (# (find (elem-get %0 +cwb_id) ids)) items))))
+
+(defun cwb-remove-ids (doc ids)
+	; (cwb-remove-ids doc ids) -> doc
+	;take many items out at once. Those that are items of a layer, as
+	;what is selected is, go in one pass of each layer. Any that are not,
+	;inside a group, are then taken out one by one
+	(defq wanted (cwb-id-set ids) gone 0)
+	(each (lambda ((name flags holder))
+		(defq kept (cwb-pick holder wanted :t))
+		(when (< (length kept) (length holder))
+			(setq gone (+ gone (- (length holder) (length kept))))
+			(clear holder)
+			(each (# (push holder %0)) kept)))
+		(cwb-layers doc))
+	(if (< gone (length ids)) (each (# (cwb-remove doc %0)) ids))
+	doc)
+
 ;;;;;;;;;;;;;;;;;;;
 ; saving and loading
 ;;;;;;;;;;;;;;;;;;;
@@ -618,11 +664,11 @@
 	;draw every layer that is not hidden, the first at the back. skip is
 	;ids, of items of the layers, that are not drawn, those being moved
 	;about, which are drawn over the rest
-	(defq count 0)
+	(defq count 0 skip (if (and skip (nempty? skip)) (cwb-id-set skip)))
 	(each (lambda ((name flags items))
 		(unless (bits? flags 1)
 			(setq count (+ count (cwb-draw-items canvas
-				(if (and skip (nempty? skip)) (filter (# (not (find (elem-get %0 +cwb_id) skip))) items) items)
+				(if skip (cwb-pick items skip :t) items)
 				m clip)))))
 		(cwb-layers doc))
 	count)

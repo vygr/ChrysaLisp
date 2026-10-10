@@ -745,3 +745,34 @@
 (. ug_board :draw_overlay ug_canvas :nil :t)
 (pixmap-write (getf ug_canvas +canvas_pixmap 0) (setq ug_s (memory-stream)) 32) (stream-seek ug_s 0 0) (setq ug_d (read-blk ug_s 10000000))
 (assert-true "with one selected there is the one line round it" (/= 0 (ug_px 70 80)))
+
+;many at once. A board of hundreds of things, hundreds of them selected:
+;what is asked of each is asked of a set, and many are taken out in a pass
+(defq cm_doc (cwb-doc 800 600) cm_board (Board cm_doc))
+(each (# (cwb-add cm_doc (cwb-shape (cwb-d-rect (* %0 2) 10 (+ (* %0 2) 1) 20)))) (range 0 300))
+(defq cm_all (map (# (elem-get %0 +cwb_id)) (cwb-items cm_doc)) cm_some (slice cm_all 100 250))
+(assert-list-eq "a few ids are asked of as the list they are, many as a set, and a set is left a set"
+	'(:nil :t :t) (map (# (if (Fset? %0) :t)) (list (cwb-id-set (slice cm_all 0 5)) (cwb-id-set cm_some) (cwb-id-set (cwb-id-set cm_some)))))
+(assert-list-eq "an id is one of them or is not, whichever they are asked of"
+	'(:t :nil :t :nil) (map (# (if %0 :t)) (list (cwb-id? (cwb-id-set cm_some) (first cm_some)) (cwb-id? (cwb-id-set cm_some) (first cm_all))
+		(cwb-id? (slice cm_all 0 5) (first cm_all)) (cwb-id? (slice cm_all 0 5) (last cm_all)))))
+(assert-list-eq "the items that are of the ids, and those that are not, in the order they were in"
+	(list 150 150 (first cm_some) (last cm_some) (first cm_all))
+	(progn (defq cm_in (cwb-pick (cwb-items cm_doc) cm_some) cm_out (cwb-pick (cwb-items cm_doc) cm_some :t))
+		(list (length cm_in) (length cm_out) (elem-get (first cm_in) +cwb_id) (elem-get (last cm_in) +cwb_id) (elem-get (first cm_out) +cwb_id))))
+(. cm_board :select cm_some)
+(assert-eq "150 of 300 selected are the 150" 150 (length (. cm_board :selected_items)))
+(defq cm_group (. cm_board :group))
+(assert-list-eq "grouped, they are one thing of 150, where the top one of them was, and 151 things are on the board"
+	(list 151 150 100) (list (length (cwb-items cm_doc)) (length (elem-get (first (cwb-find cm_doc cm_group)) +cwb_items))
+		(some (# (if (= (elem-get %0 +cwb_id) cm_group) (!))) (cwb-items cm_doc))))
+;one inside the group and many outside it, taken out together
+(cwb-remove-ids cm_doc (cat (slice cm_all 0 50) (list (elem-get cm_some 7))))
+(assert-list-eq "many taken out at once go, those of a layer and one that is in a group"
+	(list 101 149) (list (length (cwb-items cm_doc)) (length (elem-get (first (cwb-find cm_doc cm_group)) +cwb_items))))
+(. cm_board :ungroup)
+(assert-list-eq "broken up, its 149 are on the board again and selected" (list 249 149)
+	(list (length (cwb-items cm_doc)) (length (. cm_board :selected_items))))
+(. cm_board :delete)
+(assert-list-eq "deleted, they are gone and nothing is selected, and undo has them back" (list 100 0 249)
+	(list (length (cwb-items cm_doc)) (length (. cm_board :get_selected)) (progn (. cm_board :undo) (length (cwb-items (. cm_board :get_doc))))))

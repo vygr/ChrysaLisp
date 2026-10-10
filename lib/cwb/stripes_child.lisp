@@ -84,7 +84,7 @@
 		(getf-> msg +stripe_shared +stripe_version +stripe_zoom +stripe_back +stripe_sync
 			+stripe_width +stripe_height +stripe_y +stripe_y1 +stripe_gap +stripe_style))
 	(defq
-		skip (map (const str-as-num) (split (slice msg +stripe_skip -1) " "))
+		skip (cwb-id-set (map (const str-as-num) (split (slice msg +stripe_skip -1) " ")))
 		drawn (cond
 			;no rows at all is the app asking this child to be in step
 			((>= y y1)
@@ -106,9 +106,7 @@
 							(progn
 								(defq found (band-items rows none (/ (second clip) zoom) (/ (elem-get clip 3) zoom)))
 								(+ count (cwb-draw-items canvas
-									(if (nempty? skip)
-										(filter (# (not (find (elem-get %0 +cwb_id) skip))) found)
-										found)
+									(if (and (not (Fset? skip)) (empty? skip)) found (cwb-pick found skip :t))
 									m clip)))))
 					bands 0))))
 	(mail-send reply (setf-> (str-alloc +stripe_reply_size)

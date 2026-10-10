@@ -4,6 +4,63 @@
 
 ------
 
+Chris, on the board of 12,000 shapes, `tests/scratch/big.cwb`, with
+1,300 of them selected: "right buton for selct is tricky if crowed like
+that. group action took a while...ungroup was faster. dragging a just
+ungroup'd selected group a little slow. Can see a fliker as you switch
+drags on different items, probably just the ltency of the child render
+catching up ?"
+
+Timed, in a task with no desktop, 1,300 of the 12,000 selected:
+
+	                 was      is
+	group            2434ms   8ms
+	delete           2260ms   4ms
+	selected_items   15ms     1ms
+	draw_overlay     47ms     6ms
+	transform        15ms     3ms
+	draw_flight      41ms     29ms
+
+*	Group and delete took each item out by itself, a search of the
+	whole document for each. `(cwb-remove-ids doc ids)` takes many out
+	in one pass of each layer. `lib/cwb/doc.inc`.
+
+*	Wherever an item was asked if its id was one of a list, the list
+	was looked through: 12,000 items by 1,300 ids. `(cwb-id-set)` makes
+	a long list an `Fset` once, `(cwb-pick items ids [out])` is the
+	items that are or are not of them. What is selected, what is in
+	flight, what the document's draw leaves out, and the same in the
+	nodes that draw stripes.
+
+*	More than 200 things selected do not each have a line round them,
+	only the frame round them all. It was 1,300 boxes to draw each time
+	one moved.
+
+*	What is left of the drag is the drawing of 1,300 shapes each time,
+	29ms. That is what it costs here to draw them.
+
+*	The flicker was as he thought, and it was a thing let go being
+	nowhere: out of what is in flight at once, and not in the
+	document's picture till the nodes' frame with it in came. Now what
+	has been let go is still drawn with what is in flight till that
+	frame is shown. `*landing*` and `*landed*`, `app.lisp`.
+
+*	I had the test session fall over five times making this, a
+	segmentation fault with nothing said. `(list? x)` is true of an
+	`Fset`, and of a `pset`, and `(find)` or `(nempty?)` on one is a
+	fault, not an error, in a system built for release. And a `pset`
+	is a flat list, not hashed.
+
+*	A crowded board is hard to pick one thing from with the hand. Not
+	changed. He said it, and I have no answer yet that is not a guess.
+
+Run: `test_cwb` and `test_whiteboard` on the M4, the full suite on the
+x64 and the Pi.
+
+Not seen: the flicker gone. No test has nodes drawing a frame late.
+
+------
+
 Chris tried the config on a desktop. First: "after close and reopen, the
 current doc was gone..." The save had thrown, `cwb-out` not bound, twice,
 and said so in the log now that it can: the desktop was one started
