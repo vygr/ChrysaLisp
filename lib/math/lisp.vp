@@ -1,0 +1,557 @@
+(include "lib/asm/func.inc")
+(include "class/nums/class.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+
+;an edge, as lib/math/polygon.inc has it, longs
+(structure +pe 0
+	(long yt yb xt xb wind set id x0 x1 key))
+
+;the mode, as it has it
+(defq +pm_op 3 +pm_mode_a 4 +pm_mode_b 8 +pm_by_middle 16 +pe_near 2)
+
+(defun pe-edge (iter e ebase)
+	;the edge an entry of active is the place of
+	(assign `((,iter 0)) `(,e))
+	(vp-mul-cr +pe_size e)
+	(vp-add-rr ebase e))
+
+(defun pe-x-at (y yt yb xt xb xlow xhigh d)
+	;where an edge is at a y, its ends as they are
+	(vp-cpy-rr xt xlow)
+	(vpif `(,y /= ,yt))
+		(vp-cpy-rr xb xlow)
+		(vpif `(,y /= ,yb))
+			(vp-cpy-rr y xhigh)
+			(vp-sub-rr xt xlow)
+			(vp-sub-rr yt xhigh)
+			(vp-cpy-rr yb d)
+			(vp-mul-rr xhigh xlow)
+			(vp-sub-rr yt d)
+			(vp-ext-rr xlow xhigh)
+			(vp-div-rrr d xhigh xlow)
+			(vp-add-rr xt xlow)
+		(endif)
+	(endif))
+
+(defun pe-wound (wind bit mode in tmp)
+	;is a set wound round here by its rule, 0 or 1
+	(vp-cpy-rr mode tmp)
+	(vp-cpy-rr wind in)
+	(vp-and-cr bit tmp)
+	(vpif `(,tmp = 0))
+		(vp-and-cr 1 in)
+	(elseif `(,in /= 0))
+		(vp-cpy-cr 1 in)
+	(endif))
+
+(defun pe-line (sw a ya b yb id)
+	;a line on the end of segs
+	(assign `(,a ,ya ,b ,yb ,id)
+		`((,sw 0) (,sw ,+long_size) (,sw ,(* 2 +long_size)) (,sw ,(* 3 +long_size)) (,sw ,(* 4 +long_size))))
+	(vp-add-cr (* 5 +long_size) sw))
+
+(def-func (path-to-absolute "./poly_band"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;(poly-band edges active y0 y1 mode out) -> :nil | out
+	;the pieces of the answer in a band of a set op of polygons, see
+	;(poly-band) in lib/math/polygon.inc, which this does as that does
+
+	(structure local 0
+		(ptr this edges active out optr)
+		(long y0 y1 mode inside lx0 lx1 lid))
+
+	(vp-rdef (xlow t xhigh ebase aiter aend y0 y1 e yt yb xt xb witer d))
+
+	(entry `(,xlow ,t))
+
+	(errorif-lisp-args-sig 'error :r1 6)
+
+	(vp-alloc local_size)
+	(assign `(,xlow) '((:rsp local_this)))
+	(list-bind-args t `(,ebase ,aiter ,y0 ,y1 ,witer ,d) '(:nums :nums :num :num :num :nums))
+	(assign `(,ebase ,aiter ,d ,y0 ,y1 ,witer)
+		'((:rsp local_edges) (:rsp local_active) (:rsp local_out) (:rsp local_y0) (:rsp local_y1) (:rsp local_mode)))
+
+	;room in out for the most pieces there can be, one to each two edges
+	(assign `((,aiter +array_length)) `(,t))
+	(vp-mul-cr 3 t)
+	(vp-add-cr 6 t)
+	(call :array :set_cap `(,d ,t))
+
+	(assign '((:rsp local_edges) (:rsp local_active) (:rsp local_y0) (:rsp local_y1))
+		`(,ebase ,aiter ,y0 ,y1))
+	(assign `((,aiter +array_length)) `(,aend))
+	(assign `((,ebase +array_begin) (,aiter +array_begin)) `(,ebase ,aiter))
+	(vp-shl-cr (log2 +long_size) aend)
+	(vp-cpy-rr aiter witer)
+	(vp-add-rr aiter aend)
+
+	;an edge that ends at or above the top of the band is not in it and
+	;goes. Where each of the rest is at the top and the bottom of the
+	;band, and what it is ordered by
+	(loop-while `(,aiter /= ,aend))
+		(pe-edge aiter e ebase)
+		(vp-simd vp-cpy-ir `(,e) `(,+pe_yt ,+pe_yb ,+pe_xt ,+pe_xb) `(,yt ,yb ,xt ,xb))
+		(vpif `(,yb > ,y0))
+			(pe-x-at y0 yt yb xt xb xlow xhigh d)
+			(assign `(,xlow) `((,e +pe_x0)))
+			(vp-cpy-rr xlow t)
+			(pe-x-at y1 yt yb xt xb xlow xhigh d)
+			(assign `(,xlow) `((,e +pe_x1)))
+			(assign '((:rsp local_mode)) `(,xhigh))
+			(vp-and-cr +pm_by_middle xhigh)
+			(vpif `(,xhigh /= 0))
+				(vp-add-rr xlow t)
+			(endif)
+			(assign `(,t (,aiter 0)) `((,e +pe_key) ,xhigh))
+			(assign `(,xhigh) `((,witer 0)))
+			(vp-add-cr +long_size witer)
+		(endif)
+		(vp-add-cr +long_size aiter)
+	(loop-end)
+	;how many are left
+	(assign '((:rsp local_active)) `(,aiter))
+	(vp-cpy-rr witer aend)
+	(assign `((,aiter +array_begin)) `(,t))
+	(vp-sub-rr t witer)
+	(vp-shr-cr (log2 +long_size) witer)
+	(assign `(,witer) `((,aiter +array_length)))
+
+	;in order, each put back past those that are after it
+	(vp-rdef (kv xv ku ebase abegin aend i j v eu xu))
+	(assign '((:rsp local_active)) `(,abegin))
+	(assign `((,abegin +array_begin)) `(,abegin))
+	(vp-lea-i abegin +long_size i)
+	(loop-while `(,i < ,aend))
+		(assign `((,i 0)) `(,v))
+		(vp-cpy-rr v eu)
+		(vp-mul-cr +pe_size eu)
+		(vp-add-rr ebase eu)
+		(assign `((,eu +pe_key) (,eu +pe_x1)) `(,kv ,xv))
+		(vp-cpy-rr i j)
+		(loop-while `(,j /= ,abegin) 'back)
+			(assign `((,j ,(* -1 +long_size))) `(,eu))
+			(vp-mul-cr +pe_size eu)
+			(vp-add-rr ebase eu)
+			(assign `((,eu +pe_key)) `(,ku))
+			(breakif `(,ku < ,kv) 'back)
+			(vpif `(,ku = ,kv))
+				(assign `((,eu +pe_x1)) `(,xu))
+				(breakif `(,xu <= ,xv) 'back)
+			(endif)
+			(assign `((,j ,(* -1 +long_size))) `(,xu))
+			(assign `(,xu) `((,j 0)))
+			(vp-sub-cr +long_size j)
+		(loop-end)
+		(assign `(,v) `((,j 0)))
+		(vp-add-cr +long_size i)
+	(loop-end)
+
+	;do any cross: is one further left at the bottom than one before it
+	(vp-rdef (top x t ebase aiter aend e x0 x1 wa wb px0 px1 mode gid))
+	(assign '((:rsp local_mode)) `(,mode))
+	(vp-cpy-rr mode t)
+	(vp-and-cr +pm_by_middle t)
+	(vpif `(,t = 0))
+		(vp-cpy-cr +min_long top)
+		(loop-while `(,aiter /= ,aend))
+			(pe-edge aiter e ebase)
+			(assign `((,e +pe_x1)) `(,x))
+			(gotoif `(,x < ,top) 'cross)
+			(vp-cpy-rr x top)
+			(vp-add-cr +long_size aiter)
+		(loop-end)
+		(assign '((:rsp local_active)) `(,aiter))
+		(assign `((,aiter +array_begin)) `(,aiter))
+	(endif)
+
+	;go along them, counting how each set is wound round, and where what
+	;is asked for begins and ends is a piece
+	(vp-rdef (gx0 gx1 t ebase aiter aend e x0 x1 wa wb px0 px1 mode gid))
+	(assign '((:rsp local_out)) `(,t))
+	(assign `((,t +array_begin)) `(,t))
+	(vp-xor-rr wa wa)
+	(vp-xor-rr wb wb)
+	(assign `(,t ,wa) '((:rsp local_optr) (:rsp local_inside)))
+	(vp-cpy-cr +min_long px0)
+	(vp-cpy-cr -1 gid)
+	(vp-cpy-rr px0 px1)
+	(loop-while `(,aiter /= ,aend))
+		(pe-edge aiter e ebase)
+		(assign `((,e +pe_x0) (,e +pe_x1)) `(,x0 ,x1))
+		;none is to the left of the one before it, at either end
+		(vp-max-rr px0 x0)
+		(vp-max-rr px1 x1)
+		(vp-cpy-rr x0 px0)
+		(vp-cpy-rr x1 px1)
+		(vpif `(,gid >= 0))
+			(vp-cpy-rr x0 t)
+			(vp-sub-rr gx0 t)
+			(vpif `(,t <= ,+pe_near))
+				(vp-cpy-rr x1 t)
+				(vp-sub-rr gx1 t)
+				(vpif `(,t <= ,+pe_near))
+					;one edge with the last
+					(assign `((,e +pe_id)) `(,t))
+					(vp-min-rr t gid)
+					(goto 'wind)
+				(endif)
+			(endif)
+			;is what is wound round here in the answer. x0 and x1 are
+			;kept in px0 and px1, and are used to work it out in
+			(pe-wound wa +pm_mode_a mode x0 t)
+			(pe-wound wb +pm_mode_b mode x1 t)
+			(vp-cpy-rr mode t)
+			(vp-and-cr +pm_op t)
+			(vpif `(,t = 0))
+				(vp-or-rr x1 x0)
+			(elseif `(,t = 1))
+				(vp-and-rr x1 x0)
+			(elseif `(,t = 2))
+				(vp-xor-cr 1 x1)
+				(vp-and-rr x1 x0)
+			(else)
+				(vp-xor-rr x1 x0)
+			(endif)
+			(assign '((:rsp local_inside)) `(,t))
+			(vpif `(,x0 /= ,t))
+				(assign `(,x0) '((:rsp local_inside)))
+				(vpif `(,x0 /= 0))
+					;it begins
+					(assign `(,gx0 ,gx1 ,gid) '((:rsp local_lx0) (:rsp local_lx1) (:rsp local_lid)))
+				(else)
+					;it ends, a piece
+					(assign '((:rsp local_optr) (:rsp local_lx0)) `(,t ,x0))
+					(assign '((:rsp local_lx1)) `(,x1))
+					(assign `(,x0 ,x1 ,gx0 ,gx1) `((,t 0) (,t ,+long_size) (,t ,(* 2 +long_size)) (,t ,(* 3 +long_size))))
+					(assign '((:rsp local_lid)) `(,x0))
+					(assign `(,x0 ,gid) `((,t ,(* 4 +long_size)) (,t ,(* 5 +long_size))))
+					(vp-add-cr (* 6 +long_size) t)
+					(assign `(,t) '((:rsp local_optr)))
+				(endif)
+			(endif)
+			(vp-cpy-rr px0 x0)
+			(vp-cpy-rr px1 x1)
+		(endif)
+		;an edge that is not one with the last begins the next
+		(vp-cpy-rr x0 gx0)
+		(vp-cpy-rr x1 gx1)
+		(assign `((,e +pe_id)) `(,gid))
+	(vp-label 'wind)
+		(assign `((,e +pe_wind) (,e +pe_set)) `(,t ,x0))
+		(vpif `(,x0 = 0))
+			(vp-add-rr t wa)
+		(else)
+			(vp-add-rr t wb)
+		(endif)
+		(vp-add-cr +long_size aiter)
+	(loop-end)
+
+	;after the last edge nothing is wound round, so a piece that is open ends at it
+	(assign '((:rsp local_optr) (:rsp local_inside)) `(,t ,x0))
+	(vpif `(,gid >= 0) `(,x0 /= 0))
+		(assign '((:rsp local_lx0) (:rsp local_lx1)) `(,x0 ,x1))
+		(assign `(,x0 ,x1 ,gx0 ,gx1) `((,t 0) (,t ,+long_size) (,t ,(* 2 +long_size)) (,t ,(* 3 +long_size))))
+		(assign '((:rsp local_lid)) `(,x0))
+		(assign `(,x0 ,gid) `((,t ,(* 4 +long_size)) (,t ,(* 5 +long_size))))
+		(vp-add-cr (* 6 +long_size) t)
+	(endif)
+
+	;how many numbers that is, and out is what comes back
+	(vp-rdef (this out t len))
+	(assign '((:rsp local_out) (:rsp local_this)) `(,out ,this))
+	(assign `((,out +array_begin)) `(,len))
+	(vp-sub-rr len t)
+	(vp-shr-cr (log2 +long_size) t)
+	(assign `(,t) `((,out +array_length)))
+	(class/obj/ref out t)
+	(vp-free local_size)
+	(exit `(,this ,out))
+	(vp-ret)
+
+(vp-label 'cross)
+	;some cross, nothing is made
+	(assign '((:rsp local_this)) '(:r0))
+	(assign '((:r0 +lisp_sym_nil)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-free local_size)
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(poly-band edges active y0 y1 mode out)" +error_msg_wrong_types))
+	(signature '(:nums :nums :num :num :num :nums)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./poly_cuts"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;(poly-cuts edges active ya yb cuts) -> cuts
+	;the ys within a band at which two of its edges cross, put on the end
+	;of cuts, see (poly-cuts-ref) in lib/math/polygon.inc
+
+	(structure local 0
+		(ptr this cuts))
+
+	(vp-rdef (xlow elm xhigh x3 den t ebase iiter jiter aend ya yb x0 x1 e))
+
+	(entry `(,xlow ,elm))
+
+	(errorif-lisp-args-sig 'error :r1 5)
+
+	(vp-alloc local_size)
+	(assign `(,xlow) '((:rsp local_this)))
+	(list-bind-args elm `(,ebase ,iiter ,ya ,yb ,t) '(:nums :nums :num :num :nums))
+	(assign `(,t) '((:rsp local_cuts)))
+	(assign `((,iiter +array_length)) `(,aend))
+	(assign `((,ebase +array_begin) (,iiter +array_begin)) `(,ebase ,iiter))
+	(vp-shl-cr (log2 +long_size) aend)
+	(vp-add-rr iiter aend)
+
+	;each with each that is after it across the top
+	(loop-while `(,iiter /= ,aend))
+		(pe-edge iiter e ebase)
+		(assign `((,e +pe_x0) (,e +pe_x1)) `(,x0 ,x1))
+		(vp-lea-i iiter +long_size jiter)
+		(loop-while `(,jiter /= ,aend))
+			(pe-edge jiter e ebase)
+			(assign `((,e +pe_x1)) `(,x3))
+			(vpif `(,x1 > ,x3))
+				;they cross: as far down the band as the gap at its top is of
+				;the gap at its top and the gap, the other way, at its bottom
+				(assign `((,e +pe_x0)) `(,xlow))
+				(vp-cpy-rr x1 den)
+				(vp-sub-rr x0 xlow)
+				(vp-sub-rr x3 den)
+				(vp-cpy-rr yb t)
+				(vp-add-rr xlow den)
+				(vp-sub-rr ya t)
+				(vp-mul-rr t xlow)
+				(vp-ext-rr xlow xhigh)
+				(vp-div-rrr den xhigh xlow)
+				(vp-add-rr ya xlow)
+				(vpif `(,xlow > ,ya) `(,xlow < ,yb))
+					(vp-cpy-rr xlow elm)
+					(assign '((:rsp local_cuts)) `(,xlow))
+					(call :array :push_back `(,xlow ,elm))
+				(endif)
+			(endif)
+			(vp-add-cr +long_size jiter)
+		(loop-end)
+		(vp-add-cr +long_size iiter)
+	(loop-end)
+
+	(assign '((:rsp local_this) (:rsp local_cuts)) '(:r0 :r1))
+	(class/obj/ref :r1 :r2)
+	(vp-free local_size)
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(poly-cuts edges active ya yb cuts)" +error_msg_wrong_types))
+	(signature '(:nums :nums :num :num :nums)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./poly_lines"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;(poly-lines out y0 y1 above below segs openl openr) -> below
+	;the lines of the pieces of a band, see (poly-lines-ref) in
+	;lib/math/polygon.inc, which this does as that does
+
+	(structure local 0
+		(ptr this out above below segs openl openr)
+		(long y0 y1))
+
+	(vp-rdef (a b id i t sbase sw oiter oend y0 y1 ol or bw))
+
+	(entry `(,a ,b))
+
+	(errorif-lisp-args-sig 'error :r1 8)
+
+	(vp-alloc local_size)
+	(assign `(,a) '((:rsp local_this)))
+	(list-bind-args b `(,oiter ,y0 ,y1 ,i ,bw ,sbase ,ol ,or) '(:nums :num :num :nums :nums :nums :nums :nums))
+	(assign `(,oiter ,y0 ,y1 ,i ,bw ,sbase ,ol ,or)
+		'((:rsp local_out) (:rsp local_y0) (:rsp local_y1) (:rsp local_above) (:rsp local_below)
+		(:rsp local_segs) (:rsp local_openl) (:rsp local_openr)))
+
+	;room in below for the bottom of each piece
+	(assign `((,oiter +array_length)) `(,b))
+	(vp-add-cr 6 b)
+	(call :array :set_cap `(,bw ,b))
+	;and in segs for the two sides of each, and a line across for each
+	;end of a piece of this band and of the band above
+	(assign '((:rsp local_out) (:rsp local_above) (:rsp local_segs)) `(,oiter ,i ,a))
+	(assign `((,oiter +array_length) (,i +array_length) (,a +array_length)) `(,b ,i ,t))
+	(vp-mul-cr 4 b)
+	(vp-mul-cr 5 i)
+	(vp-add-rr t b)
+	(vp-add-rr i b)
+	(vp-add-cr 10 b)
+	(call :array :set_cap `(,a ,b))
+
+	(assign '((:rsp local_out) (:rsp local_y0) (:rsp local_y1) (:rsp local_below) (:rsp local_segs)
+		(:rsp local_openl) (:rsp local_openr)) `(,oiter ,y0 ,y1 ,bw ,sbase ,ol ,or))
+	(assign `((,oiter +array_length) (,sbase +array_length)) `(,oend ,sw))
+	(assign `((,oiter +array_begin) (,sbase +array_begin) (,bw +array_begin) (,ol +array_begin) (,or +array_begin))
+		`(,oiter ,sbase ,bw ,ol ,or))
+	(vp-shl-cr (log2 +long_size) oend)
+	(vp-shl-cr (log2 +long_size) sw)
+	(vp-add-rr oiter oend)
+	(vp-add-rr sbase sw)
+
+	;down the left of each piece and up its right
+	(loop-while `(,oiter /= ,oend))
+		(assign `((,oiter 0) (,oiter ,+long_size) (,oiter ,(* 4 +long_size))) `(,a ,b ,id))
+		(assign `(,b) `((,bw 0)))
+		(vp-shl-cr (log2 +long_size) id)
+		(assign `((,ol ,id)) `(,i))
+		(vpif `(,i >= 0) 'left)
+			;the left of this edge in the band above: does this go on from it
+			(vp-shl-cr (log2 +long_size) i)
+			(vp-add-rr sbase i)
+			(assign `((,i ,(* 2 +long_size))) `(,t))
+			(vpif `(,t = ,a))
+				(assign `((,i ,(* 3 +long_size))) `(,t))
+				(vpif `(,t = ,y0))
+					(assign `(,b ,y1) `((,i ,(* 2 +long_size)) (,i ,(* 3 +long_size))))
+					(goto 'left_done)
+				(endif)
+			(endif)
+		(endif)
+		(vp-cpy-rr sw t)
+		(vp-sub-rr sbase t)
+		(vp-shr-cr (log2 +long_size) t)
+		(assign `(,t) `((,ol ,id)))
+		(vp-shr-cr (log2 +long_size) id)
+		(pe-line sw a y0 b y1 id)
+	(vp-label 'left_done)
+		(assign `((,oiter ,(* 2 +long_size)) (,oiter ,(* 3 +long_size)) (,oiter ,(* 5 +long_size))) `(,a ,b ,id))
+		(assign `(,b) `((,bw ,+long_size)))
+		(vp-add-cr (* 2 +long_size) bw)
+		(vp-shl-cr (log2 +long_size) id)
+		(assign `((,or ,id)) `(,i))
+		(vpif `(,i >= 0) 'right)
+			(vp-shl-cr (log2 +long_size) i)
+			(vp-add-rr sbase i)
+			(assign `((,i 0)) `(,t))
+			(vpif `(,t = ,a))
+				(assign `((,i ,+long_size)) `(,t))
+				(vpif `(,t = ,y0))
+					(assign `(,b ,y1) `((,i 0) (,i ,+long_size)))
+					(goto 'right_done)
+				(endif)
+			(endif)
+		(endif)
+		(vp-cpy-rr sw t)
+		(vp-sub-rr sbase t)
+		(vp-shr-cr (log2 +long_size) t)
+		(assign `(,t) `((,or ,id)))
+		(vp-shr-cr (log2 +long_size) id)
+		(pe-line sw b y1 a y0 id)
+	(vp-label 'right_done)
+		(vp-add-cr (* 6 +long_size) oiter)
+	(loop-end)
+
+	;how long below is now
+	(assign '((:rsp local_below)) `(,t))
+	(assign `((,t +array_begin)) `(,i))
+	(vp-sub-rr i bw)
+	(vp-shr-cr (log2 +long_size) bw)
+	(assign `(,bw) `((,t +array_length)))
+
+	;across: the ends of what is above and of the tops of these, each in
+	;order, taken the least first
+	(vp-rdef (xa xb x px t sbase sw oiter oend y0 step aiter aend ia ib))
+	(assign '((:rsp local_out) (:rsp local_above)) `(,oiter ,aiter))
+	(assign `((,aiter +array_length)) `(,aend))
+	(assign `((,oiter +array_begin) (,aiter +array_begin)) `(,oiter ,aiter))
+	(vp-shl-cr (log2 +long_size) aend)
+	(vp-xor-rr ia ia)
+	(vp-xor-rr ib ib)
+	(vp-xor-rr px px)
+	(vp-add-rr aiter aend)
+	(vp-cpy-cr (* 2 +long_size) step)
+	(loop-start 'across)
+		(vp-cpy-cr +max_long xa)
+		(vp-cpy-cr +max_long xb)
+		(vpif `(,aiter /= ,aend))
+			(assign `((,aiter 0)) `(,xa))
+		(endif)
+		(vpif `(,oiter /= ,oend))
+			(assign `((,oiter 0)) `(,xb))
+		(elseif `(,aiter = ,aend))
+			(goto 'across_done)
+		(endif)
+		(vp-cpy-rr xa x)
+		(vp-min-rr xb x)
+		(vpif `(,x > ,px))
+			(vpif `(,ia /= ,ib))
+				(vpif `(,ia /= 0))
+					;above and not below, a bottom, left to right
+					(vp-cpy-cr -1 t)
+					(pe-line sw px y0 x y0 t)
+				(else)
+					;below and not above, a top, right to left
+					(vp-cpy-cr -1 t)
+					(pe-line sw x y0 px y0 t)
+				(endif)
+			(endif)
+		(endif)
+		(vpif `(,xa <= ,xb))
+			(vp-xor-cr 1 ia)
+			(vp-add-cr +long_size aiter)
+		(else)
+			(vp-xor-cr 1 ib)
+			(vp-add-rr step oiter)
+			(vp-xor-cr (* 6 +long_size) step)
+		(endif)
+		(vp-cpy-rr x px)
+	(loop-end)
+(vp-label 'across_done)
+
+	;how long segs is now, and below is what comes back
+	(assign '((:rsp local_segs)) `(,t))
+	(vp-sub-rr sbase sw)
+	(vp-shr-cr (log2 +long_size) sw)
+	(assign `(,sw) `((,t +array_length)))
+	(assign '((:rsp local_this) (:rsp local_below)) '(:r0 :r1))
+	(class/obj/ref :r1 :r2)
+	(vp-free local_size)
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(poly-lines out y0 y1 above below segs openl openr)" +error_msg_wrong_types))
+	(signature '(:nums :num :num :nums :nums :nums :nums :nums)))
+
+(def-func-end)

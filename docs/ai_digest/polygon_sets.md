@@ -105,8 +105,8 @@ It is the scan line of a fill, with bands in the place of lines.
 
 Step 1 is why it is exact: within a band no edge crosses another, so
 there is no case of two edges that nearly cross, or cross at a point, to
-get wrong. A function per step: `(poly-cuts)`, `(poly-spans)`,
-`(poly-across)`, `(poly-rings)`.
+get wrong. Steps 1 to 3 are `(poly-band)` and `(poly-cuts)`, step 4
+`(poly-lines)`, step 5 `(poly-rings)`.
 
 ## An eraser
 
@@ -142,18 +142,71 @@ outlines, and each is given to a task of its own.
 
 ## How long it takes
 
-On one core of an Apple M4 Max, in Lisp:
+On one core of an Apple M4 Max:
 
-| | points | time |
-|---|---|---|
-| a box, an eraser stroke across it | 4 and 52 | 1ms |
-| an ellipse, the same | 63 and 52 | 1ms |
-| a word of 50 points written joined up, 2 wide | 206 and 52 | 5ms |
-| one of 200 points | 808 and 52 | 25ms |
-| one of 800 points, 20 loops over each other | 3208 and 52 | 378ms |
+| | points | all Lisp | with the native code |
+|---|---|---|---|
+| a box, an eraser stroke across it | 4 and 52 | 1ms | under 1ms |
+| an ellipse, the same | 63 and 52 | 1ms | under 1ms |
+| a word of 50 points written joined up, 2 wide | 206 and 52 | 5ms | under 1ms |
+| one of 200 points | 808 and 52 | 25ms | 3ms |
+| one of 800 points, 20 loops over each other | 3208 and 52 | 378ms | 12ms |
+| a scribble of 100 points at random, one of 25 across it | 577 and 198 | 1,536ms | 16ms |
+| one of 200, and 50 | 1104 and 432 | 10,392ms | 61ms |
 
 The time is the bands by the edges in each. A long line that goes back
-over itself has many of both.
+over itself has many of both, and a scribble at random is the worst there
+is, every part of it crosses every other.
+
+## The native code
+
+The work of a band is three functions in `lib/math/lisp.vp`, 2,856 bytes
+of ARM64 in the boot image:
+
+* `(poly-band edges active y0 y1 mode out)`, the pieces of the answer in a
+  band: it drops the edges that have ended, works out where each of the
+  rest is at the top and the bottom, puts them in order, and goes along
+  them. If two cross in the band it makes nothing and says so.
+
+* `(poly-cuts edges active ya yb cuts)`, the ys at which the edges of a
+  band cross.
+
+* `(poly-lines out y0 y1 above below segs openl openr)`, the lines of the
+  pieces: down the left of each, up its right, and across where the band
+  above differs.
+
+The edges are one array of whole numbers, ten to an edge, and so is all
+that passes between Lisp and these, so nothing is made and thrown away for
+each band. What is left in Lisp runs once for each y a point is at, and
+then joins the lines into rings.
+
+Each has the Lisp it was written from beside it in `polygon.inc`, with
+`-ref` on its name. That is not used. It is there to say what the native
+code does, and a test gives both the same bands at random, 800 of them
+with edges that end, cross, and lie along each other, and holds every
+number that comes back from one to what comes back from the other. It
+runs on every machine, so a translator that got a division or a compare
+wrong on one CPU would be seen.
+
+How it got fast, in the order it was done:
+
+1. All Lisp, a list for each edge, a sort for each band with a Lisp
+   function to hold two edges together: 542ms for the word of 800.
+
+2. The sort given whole numbers, each an x and a place packed in one, and
+   no sort at all when the edges of a band come in order: 378ms.
+
+3. `(poly-band)` made native: 265ms. Less than hoped. What was left in
+   Lisp, taking out the edges that had ended and making two lines for each
+   piece of each band, was as much work as what had been moved.
+
+4. Ended edges dropped inside `(poly-band)`, and `(poly-lines)` native:
+   12ms. And a side that goes on from where it ended in the band above is
+   made longer and is not a new line, so what Lisp has to join into rings
+   at the end is a few hundred lines and not a hundred thousand.
+
+5. `(poly-cuts)` native, which only a band that edges cross in needs: the
+   scribble of 200 from 10 seconds to 61ms.
 
 ## Tests
 
@@ -161,4 +214,4 @@ over itself has many of both.
 shape with itself, a hole and what fills it, the two winding rules on a
 star, 40 pairs of random polygons each tried at 40 points with all four
 ops and their areas summed, a line with a bite out of it, the hull and
-the sweep.
+the sweep, and the native code held to its Lisp.

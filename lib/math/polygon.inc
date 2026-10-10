@@ -28,7 +28,9 @@
 ; * lines that follow one another along the one edge are one line, so
 ;   a ring has a point only where the edge it follows changes.
 ;
-; No function here calls itself.
+; The work of a band is native code, lib/math/lisp.vp: (poly-band),
+; (poly-cuts) and (poly-lines), each with the Lisp it was written from
+; beside it, a -ref, which a test holds it to. All else is Lisp. No function here calls itself.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/math/vector.inc")
@@ -37,6 +39,19 @@
 ;is held in, are the one edge: an edge of each set that lie along each
 ;other are worked out apart, and may not come to the very same number
 (defq +poly_near 2)
+
+;the edges are in one array of whole numbers, this many to an edge: its
+;top and bottom y, its x at each, which way it goes, 1 down and -1 up,
+;which set it is of, 0 or 1, its number, and, for the band it is in, its
+;x at the top of the band and at the bottom, and what it is ordered by
+(defq +poly_yt 0 +poly_yb 1 +poly_xt 2 +poly_xb 3 +poly_wind 4 +poly_set 5
+	+poly_id 6 +poly_x0 7 +poly_x1 8 +poly_key 9 +poly_edge 10)
+
+;what is asked of a band, in one number: the op, the winding rule of each
+;set, and that the edges are to be ordered by their middle and not tried
+;for crossing
+(defq +poly_op_union 0 +poly_op_intersect 1 +poly_op_difference 2 +poly_op_xor 3
+	+poly_mode_a 4 +poly_mode_b 8 +poly_by_middle 16)
 
 (defun poly-raw (paths)
 	; (poly-raw paths) -> ((x y ...) ...)
@@ -55,7 +70,7 @@
 
 (defun poly-edges (raw set edges ys)
 	; (poly-edges raw set edges ys) -> edges
-	;the edges of a set, each (ytop ybot xtop xbot wind set id), those that
+	;the edges of a set, each (ytop ybot xtop xbot wind set), those that
 	;lie flat left out, and every y a point is at
 	(each (lambda (p)
 		(defq n (length p))
@@ -65,125 +80,209 @@
 				(defq x1 (elem-get p i) y1 (elem-get p (inc i)))
 				(push ys y1)
 				(cond
-					((< y0 y1) (push edges (list y0 y1 x0 x1 1 set (length edges))))
-					((> y0 y1) (push edges (list y1 y0 x1 x0 -1 set (length edges)))))
+					((< y0 y1) (push edges (list y0 y1 x0 x1 1 set)))
+					((> y0 y1) (push edges (list y1 y0 x1 x0 -1 set))))
 				(setq x0 x1 y0 y1 i (+ i 2)))))
 		raw)
 	edges)
 
-(defun poly-x (e y)
-	; (poly-x edge y) -> x
-	;where an edge is at a y, its ends as they are
-	(bind '(yt yb xt xb &ignore) e)
+(defun poly-band-ref (edges active y0 y1 mode out)
+	; (poly-band-ref edges active y0 y1 mode out) -> :nil | out
+	;the pieces of the answer in a band, from the left, put in out, 6
+	;numbers each: its left at the top and at the bottom, its right at
+	;each, the number of its left edge and of its right.
+	;
+	;active is the edges that are in the band, the place of each in
+	;edges. Those that end at its top are taken out of it, and it is put
+	;in order across. With +poly_by_middle in the mode
+	;that is by the middle of each, for a band none cross in. Without, it
+	;is by the top, and if any two cross in the band nothing is made and
+	;:nil comes back: the band is to be cut where they cross.
+	;
+	;This is the reference, in Lisp, and is not what is used: the native
+	;(poly-band) below does the very same, and a test holds the two
+	;together on every machine, a band at a time.
+	(defq by_middle (/= 0 (logand mode +poly_by_middle)))
+	;those that end at or above the top of the band are not in it, and go
+	(defq stay (filter (# (> (elem-get edges (+ (* %0 +poly_edge) +poly_yb)) y0)) active))
+	(clear active)
+	(each (# (push active %0)) stay)
+	(defq n (length active) i 0)
+	;where each is at the top and the bottom of the band, its ends as they are
+	(each (lambda (e)
+		(defq o (* e +poly_edge) yt (elem-get edges o) yb (elem-get edges (+ o +poly_yb))
+			xt (elem-get edges (+ o +poly_xt)) xb (elem-get edges (+ o +poly_xb))
+			x0 (cond ((= y0 yt) xt) ((= y0 yb) xb) (:t (+ xt (/ (* (- xb xt) (- y0 yt)) (- yb yt)))))
+			x1 (cond ((= y1 yt) xt) ((= y1 yb) xb) (:t (+ xt (/ (* (- xb xt) (- y1 yt)) (- yb yt))))))
+		(elem-set edges (+ o +poly_x0) x0)
+		(elem-set edges (+ o +poly_x1) x1)
+		(elem-set edges (+ o +poly_key) (if by_middle (+ x0 x1) x0)))
+		active)
+	;in order, each put back past those that are after it. They were in
+	;order in the band above, so few move, and not far
+	(setq i 1)
+	(while (< i n)
+		(defq v (elem-get active i) kv (elem-get edges (+ (* v +poly_edge) +poly_key))
+			xv (elem-get edges (+ (* v +poly_edge) +poly_x1)) j i more :t)
+		(while (and more (> j 0))
+			(defq u (elem-get active (dec j)) ku (elem-get edges (+ (* u +poly_edge) +poly_key)))
+			(cond
+				((or (< ku kv) (and (= ku kv) (<= (elem-get edges (+ (* u +poly_edge) +poly_x1)) xv)))
+					(setq more :nil))
+				(:t (elem-set active j u) (setq j (dec j)))))
+		(elem-set active j v)
+		(setq i (inc i)))
+	;do any cross: is one further left at the bottom than one before it
+	(defq cross :nil)
+	(unless by_middle
+		(defq top +min_long)
+		(each (lambda (e)
+			(defq x (elem-get edges (+ (* e +poly_edge) +poly_x1)))
+			(if (< x top) (setq cross :t) (setq top x)))
+			active))
 	(cond
-		((= y yt) xt)
-		((= y yb) xb)
-		(:t (+ xt (/ (* (- xb xt) (- y yt)) (- yb yt))))))
+		(cross :nil)
+		(:t (clear out)
+			(defq wa 0 wb 0 inside 0 px0 +min_long px1 +min_long
+				gx0 0 gx1 0 gid -1 lx0 0 lx1 0 lid 0 op (logand mode 3))
+			(each (lambda (e)
+				;none is to the left of the one before it, at either end
+				(defq o (* e +poly_edge) x0 (max (elem-get edges (+ o +poly_x0)) px0)
+					x1 (max (elem-get edges (+ o +poly_x1)) px1))
+				(setq px0 x0 px1 x1)
+				(cond
+					((and (>= gid 0) (<= (- x0 gx0) +poly_near) (<= (- x1 gx1) +poly_near))
+						;one edge with the last
+						(setq gid (min gid (elem-get edges (+ o +poly_id)))))
+					(:t (when (>= gid 0)
+							;is what is wound round here in the answer
+							(defq ia (if (= 0 (logand mode +poly_mode_a)) (logand wa 1) (if (= wa 0) 0 1))
+								ib (if (= 0 (logand mode +poly_mode_b)) (logand wb 1) (if (= wb 0) 0 1))
+								now (case op
+									(0 (logior ia ib))
+									(1 (logand ia ib))
+									(2 (logand ia (logxor ib 1)))
+									(:t (logxor ia ib))))
+							(cond
+								((= now inside))
+								((= now 1) (setq lx0 gx0 lx1 gx1 lid gid inside 1))
+								(:t (push out lx0 lx1 gx0 gx1 lid gid) (setq inside 0))))
+						(setq gx0 x0 gx1 x1 gid (elem-get edges (+ o +poly_id)))))
+				(if (= (elem-get edges (+ o +poly_set)) 0)
+					(setq wa (+ wa (elem-get edges (+ o +poly_wind))))
+					(setq wb (+ wb (elem-get edges (+ o +poly_wind))))))
+				active)
+			;after the last edge nothing is wound round, so a piece that is open ends at it
+			(if (and (>= gid 0) (= inside 1)) (push out lx0 lx1 gx0 gx1 lid gid))
+			out)))
 
-(defun poly-order (xs)
-	; (poly-order xs) -> (index ...)
-	;the places of a list of numbers, the least first. Each number is put
-	;with its place into one number, and those sorted, which is the sort
-	;with no function of Lisp called for each two it holds together
-	(map (# (logand %0 0xfffff)) (sort (map (# (+ (<< %0 20) (!))) xs) (const -))))
+;the native one, lib/math/lisp.vp
+(ffi (path-to-absolute "./poly_band") poly-band)
+; (poly-band edges active y0 y1 mode out) -> :nil | out
 
-(defun poly-cuts (order xa xb ya yb)
-	; (poly-cuts order xa xb ya yb) -> (y ...)
-	;the ys within a band at which two of its edges cross, in order, with
-	;the top and the bottom of the band. order is the edges across the
-	;top, xa and xb where each is at the top and at the bottom
-	(defq cuts (list ya yb) n (length order) i 0)
+(defun poly-cuts-ref (edges active ya yb cuts)
+	; (poly-cuts-ref edges active ya yb cuts) -> cuts
+	;the ys within a band at which two of its edges cross, put on the end
+	;of cuts. As (poly-band) left them: active in order across the top,
+	;and each edge with where it is at the top and at the bottom.
+	;The reference, as (poly-band-ref) is
+	(defq n (length active) i 0)
 	(while (< i (dec n))
-		(defq e (elem-get order i) x0 (elem-get xa e) x1 (elem-get xb e) j (inc i))
+		(defq o (* (elem-get active i) +poly_edge) x0 (elem-get edges (+ o +poly_x0))
+			x1 (elem-get edges (+ o +poly_x1)) j (inc i))
 		(while (< j n)
-			(defq f (elem-get order j) x3 (elem-get xb f))
+			(defq o (* (elem-get active j) +poly_edge) x3 (elem-get edges (+ o +poly_x1)))
 			(when (> x1 x3)
 				;as far down the band as the gap at its top is of the
 				;gap at its top and the gap, the other way, at its bottom
-				(defq num (- (elem-get xa f) x0) den (+ num (- x1 x3))
+				(defq num (- (elem-get edges (+ o +poly_x0)) x0) den (+ num (- x1 x3))
 					y (+ ya (/ (* (- yb ya) num) den)))
 				(if (< ya y yb) (push cuts y)))
 			(setq j (inc j)))
 		(setq i (inc i)))
-	(usort cuts (const -)))
+	cuts)
 
-(defun poly-in? (wind mode)
-	; (poly-in? wind mode) -> :t | :nil
-	(if (= mode 0) (/= 0 (logand wind 1)) (/= 0 wind)))
+;the native one
+(ffi (path-to-absolute "./poly_cuts") poly-cuts)
+; (poly-cuts edges active ya yb cuts) -> cuts
 
-(defun poly-spans (active order x0s x1s op mode_a mode_b)
-	; (poly-spans active order x0s x1s op mode_a mode_b) -> ((xl0 xl1 xr0 xr1 idl idr) ...)
-	;the pieces of the answer in a band no edges cross in, from the left.
-	;order is its edges across, x0s and x1s where each is at its top and
-	;at its bottom
-	(defq out (list) wa 0 wb 0 inside :nil px0 +min_long px1 +min_long
-		gx0 :nil gx1 0 gid 0 lx0 0 lx1 0 lid 0)
-	(each (lambda (i)
-		;none is to the left of the one before it, at either end
-		(defq e (elem-get active i) x0 (max (elem-get x0s i) px0) x1 (max (elem-get x1s i) px1))
-		(setq px0 x0 px1 x1)
+(defun poly-lines-ref (out y0 y1 above below segs openl openr)
+	; (poly-lines-ref out y0 y1 above below segs openl openr) -> below
+	;the lines of the pieces of a band, as (poly-band) gave them, put on
+	;segs, 5 numbers each, from x y to x y and the number of the edge it
+	;is along, -1 for one that goes across: down the left of each piece,
+	;up its right, and across at the top of the band where it or the band
+	;above, above, u v u v ..., has a piece and the other has none.
+	;
+	;A side that goes on from where the same side of the same edge ended
+	;in the band above is not a new line, that one is made longer: openl
+	;and openr have, for each edge, where in segs its last left and its
+	;last right are, -1 for none.
+	;
+	;below is made what is along the bottom, for the band below.
+	;The reference, as (poly-band-ref) is
+	(clear below)
+	(defq k 0 n (length out))
+	(while (< k n)
+		(defq xl0 (elem-get out k) xl1 (elem-get out (+ k 1)) xr0 (elem-get out (+ k 2))
+			xr1 (elem-get out (+ k 3)) idl (elem-get out (+ k 4)) idr (elem-get out (+ k 5))
+			i (elem-get openl idl))
+		(push below xl1 xr1)
 		(cond
-			((and gx0 (<= (- x0 gx0) +poly_near) (<= (- x1 gx1) +poly_near))
-				;one edge with the last
-				(setq gid (min gid (elem-get e 6))))
-			(:t (when gx0
-					(defq now (case op
-						(:union (or (poly-in? wa mode_a) (poly-in? wb mode_b)))
-						(:intersect (and (poly-in? wa mode_a) (poly-in? wb mode_b)))
-						(:difference (and (poly-in? wa mode_a) (not (poly-in? wb mode_b))))
-						(:t (not (eql (poly-in? wa mode_a) (poly-in? wb mode_b))))))
-					(cond
-						((eql now inside))
-						(now (setq lx0 gx0 lx1 gx1 lid gid inside :t))
-						(:t (push out (list lx0 lx1 gx0 gx1 lid gid)) (setq inside :nil))))
-				(setq gx0 x0 gx1 x1 gid (elem-get e 6))))
-		(if (= (elem-get e 5) 0)
-			(setq wa (+ wa (elem-get e 4)))
-			(setq wb (+ wb (elem-get e 4)))))
-		order)
-	;after the last edge nothing is wound round, so a piece that is open ends at it
-	(if (and gx0 inside) (push out (list lx0 lx1 gx0 gx1 lid gid)))
-	out)
+			((and (>= i 0) (= (elem-get segs (+ i 2)) xl0) (= (elem-get segs (+ i 3)) y0))
+				(elem-set segs (+ i 2) xl1) (elem-set segs (+ i 3) y1))
+			(:t (elem-set openl idl (length segs))
+				(push segs xl0 y0 xl1 y1 idl)))
+		(setq i (elem-get openr idr))
+		(cond
+			((and (>= i 0) (= (elem-get segs i) xr0) (= (elem-get segs (+ i 1)) y0))
+				(elem-set segs i xr1) (elem-set segs (+ i 1) y1))
+			(:t (elem-set openr idr (length segs))
+				(push segs xr1 y1 xr0 y0 idr)))
+		(setq k (+ k 6)))
+	;across: the ends of what is above and of the tops of these, each in
+	;order, taken the least first
+	(defq pa 0 na (length above) pb 0 nb (/ n 3) ia :nil ib :nil px 0)
+	(while (or (< pa na) (< pb nb))
+		(defq xa (if (< pa na) (elem-get above pa) +max_long)
+			xb (if (< pb nb) (elem-get out (+ (* (>>> pb 1) 6) (* (logand pb 1) 2))) +max_long)
+			x (min xa xb))
+		(when (> x px)
+			(cond
+				((and ia (not ib)) (push segs px y0 x y0 -1))
+				((and ib (not ia)) (push segs x y0 px y0 -1))))
+		(if (<= xa xb)
+			(setq ia (not ia) pa (inc pa))
+			(setq ib (not ib) pb (inc pb)))
+		(setq px x))
+	below)
 
-(defun poly-across (above below y segs)
-	; (poly-across above below y segs) -> segs
-	;the lines across at a y: where what is above, (u v) each, is and what
-	;is below is not, a bottom, left to right, and where it is the other
-	;way, a top, right to left
-	(when (or (nempty? above) (nempty? below))
-		(defq at (list) ia :nil ib :nil px 0)
-		;each end as one number, where it is and which of the two it is of
-		(each (lambda ((u v)) (push at (<< u 1) (<< v 1))) above)
-		(each (lambda ((u v)) (push at (inc (<< u 1)) (inc (<< v 1)))) below)
-		(each (lambda (end)
-			(defq x (>>> end 1))
-			(when (> x px)
-				(cond
-					((and ia (not ib)) (push segs (list px y x y -1)))
-					((and ib (not ia)) (push segs (list x y px y -1)))))
-			(if (= (logand end 1) 0) (setq ia (not ia)) (setq ib (not ib)))
-			(setq px x))
-			(sort at (const -))))
-	segs)
+;the native one
+(ffi (path-to-absolute "./poly_lines") poly-lines)
+; (poly-lines out y0 y1 above below segs openl openr) -> below
 
 (defun poly-rings (segs)
 	; (poly-rings segs) -> ((x y ...) ...)
-	;the lines, (x0 y0 x1 y1 id) each, joined end to start into rings.
-	;Lines that follow one another with the one id are one line
-	(defq from (Fmap 101) used (map (lambda (_) 0) segs) out (list))
-	(each (lambda ((x y &ignore))
-		(defq key (+ (<< x 32) (+ y 0x80000000)))
-		(if (defq l (. from :find key)) (push l (!)) (. from :insert key (list (!)))))
-		segs)
-	(each (lambda (seg)
-		(when (= 0 (elem-get used (!)))
-			(defq ring (list) ids (list) i (!))
+	;the lines, 5 numbers each, joined end to start into rings. Lines that
+	;follow one another with the one number are one line
+	(defq n (/ (length segs) 5) from (Fmap (max 31 n)) used (cap n (list)) out (list) s 0)
+	(while (< s n)
+		(defq key (+ (<< (elem-get segs (* s 5)) 32) (+ (elem-get segs (inc (* s 5))) 0x80000000)))
+		(if (defq l (. from :find key)) (push l s) (. from :insert key (list s)))
+		(push used 0)
+		(setq s (inc s)))
+	(setq s 0)
+	(while (< s n)
+		(when (= 0 (elem-get used s))
+			(defq ring (list) ids (list) i s)
 			(while i
 				(elem-set used i 1)
-				(bind '(x0 y0 x1 y1 id) (elem-get segs i))
+				(defq o (* i 5) id (elem-get segs (+ o 4)))
 				;a point, unless this goes on along the line before it
-				(unless (and (nempty? ids) (= id (last ids))) (push ring x0 y0) (push ids id))
-				(defq l (. from :find (+ (<< x1 32) (+ y1 0x80000000))))
+				(unless (and (nempty? ids) (= id (last ids)))
+					(push ring (elem-get segs o) (elem-get segs (+ o 1)))
+					(push ids id))
+				(defq l (. from :find (+ (<< (elem-get segs (+ o 2)) 32) (+ (elem-get segs (+ o 3)) 0x80000000))))
 				(setq i :nil)
 				(while (and l (nempty? l) (not i))
 					(defq j (pop l))
@@ -193,15 +292,15 @@
 				(setq ring (slice ring 2 -1)))
 			;a point that is on the line from the one before it to the one
 			;after it is not a corner, two edges that lay along each other met there
-			(defq n (length ring) tidy (list) k 0)
-			(while (< k n)
-				(defq ax (elem-get ring (% (+ k n -2) n)) ay (elem-get ring (% (+ k n -1) n))
+			(defq m (length ring) tidy (list) k 0)
+			(while (< k m)
+				(defq ax (elem-get ring (% (+ k m -2) m)) ay (elem-get ring (% (+ k m -1) m))
 					bx (elem-get ring k) by (elem-get ring (inc k))
-					cx (elem-get ring (% (+ k 2) n)) cy (elem-get ring (% (+ k 3) n)))
+					cx (elem-get ring (% (+ k 2) m)) cy (elem-get ring (% (+ k 3) m)))
 				(unless (= 0 (- (* (- bx ax) (- cy ay)) (* (- by ay) (- cx ax)))) (push tidy bx by))
 				(setq k (+ k 2)))
-			(if (>= (length tidy) 6) (push out tidy))))
-		segs)
+			(if (>= (length tidy) 6) (push out tidy)))
+		(setq s (inc s)))
 	out)
 
 (defun poly-op (op a b &optional mode_a mode_b)
@@ -211,46 +310,46 @@
 	;winding rule a set is filled by, as (:fpoly) has them, 0 odd even,
 	;the default, or 1 non zero
 	(setd mode_a 0 mode_b 0)
-	(defq ys (list) edges (list) segs (list) above (list))
-	(poly-edges (poly-raw a) 0 edges ys)
-	(poly-edges (poly-raw b) 1 edges ys)
+	(defq ys (list) found (list) segs (nums) above (nums) below (nums) out (nums) edges (nums)
+		openl (nums) openr (nums) cuts (nums)
+		mode (+ (case op (:union +poly_op_union) (:intersect +poly_op_intersect)
+				(:difference +poly_op_difference) (:t +poly_op_xor))
+			(if (= mode_a 0) 0 +poly_mode_a) (if (= mode_b 0) 0 +poly_mode_b)))
+	(poly-edges (poly-raw a) 0 found ys)
+	(poly-edges (poly-raw b) 1 found ys)
 	(setq ys (usort ys (const -)))
-	(sort edges (# (- (first %0) (first %1))))
-	(defq next 0 n (length edges) active (list) yi 0)
+	;the edges, the highest first, each with its place for a number
+	(each (lambda ((yt yb xt xb wind set))
+			(push edges yt yb xt xb wind set (!) 0 0 0)
+			(push openl -1) (push openr -1))
+		(sort found (# (- (first %0) (first %1)))))
+	(defq next 0 n (length found) active (nums) yi 0 swap :nil)
 	(while (< yi (dec (length ys)))
 		(defq ya (elem-get ys yi) yb (elem-get ys (inc yi)))
-		;those that end here go, those that begin here come
-		(setq active (filter (# (> (second %0) ya)) active))
-		(while (and (< next n) (= (first (elem-get edges next)) ya))
-			(push active (elem-get edges next))
+		;those that begin here come, those that end here (poly-band) takes out
+		(while (and (< next n) (= (elem-get edges (* next +poly_edge)) ya))
+			(push active next)
 			(setq next (inc next)))
-		(when (nempty? active)
-			;across the top, and is each no further left at the bottom than
-			;all before it: then none cross, and that is their order all down
-			(defq xa (map (# (poly-x %0 ya)) active) xb (map (# (poly-x %0 yb)) active)
-				order (poly-order xa) top +min_long cross :nil)
-			(each (# (defq x (elem-get xb %0)) (if (< x top) (setq cross :t) (setq top x))) order)
-			(cond
-				(cross
-					(defq cuts (poly-cuts order xa xb ya yb) ci 0)
-					(while (< ci (dec (length cuts)))
-						(defq y0 (elem-get cuts ci) y1 (elem-get cuts (inc ci))
-							x0s (map (# (poly-x %0 y0)) active) x1s (map (# (poly-x %0 y1)) active)
-							spans (poly-spans active (poly-order (map (const +) x0s x1s)) x0s x1s op mode_a mode_b))
-						(poly-across above (map (lambda ((xl0 _ xr0 &ignore)) (list xl0 xr0)) spans) y0 segs)
-						(each (lambda ((xl0 xl1 xr0 xr1 idl idr))
-							(push segs (list xl0 y0 xl1 y1 idl) (list xr1 y1 xr0 y0 idr))) spans)
-						(setq above (map (lambda ((_ xl1 _ xr1 &ignore)) (list xl1 xr1)) spans) ci (inc ci))))
-				(:t (defq spans (poly-spans active order xa xb op mode_a mode_b))
-					(poly-across above (map (lambda ((xl0 _ xr0 &ignore)) (list xl0 xr0)) spans) ya segs)
-					(each (lambda ((xl0 xl1 xr0 xr1 idl idr))
-						(push segs (list xl0 ya xl1 yb idl) (list xr1 yb xr0 ya idr))) spans)
-					(setq above (map (lambda ((_ xl1 _ xr1 &ignore)) (list xl1 xr1)) spans)))))
-		(when (empty? active)
-			(poly-across above (list) ya segs)
-			(setq above (list)))
+		(cond
+			((poly-band edges active ya yb mode out)
+				;none cross in it
+				(poly-lines out ya yb above below segs openl openr)
+				(setq swap above above below below swap))
+			(:t ;some do, and it is cut where they do
+				(clear cuts)
+				(push cuts ya yb)
+				(poly-cuts edges active ya yb cuts)
+				(defq at (usort (map (# %0) cuts) (const -)) ci 0)
+				(while (< ci (dec (length at)))
+					(defq y0 (elem-get at ci) y1 (elem-get at (inc ci)))
+					(poly-band edges active y0 y1 (+ mode +poly_by_middle) out)
+					(poly-lines out y0 y1 above below segs openl openr)
+					(setq swap above above below below swap ci (inc ci)))))
 		(setq yi (inc yi)))
-	(if (nempty? ys) (poly-across above (list) (last ys) segs))
+	;and across the bottom of the last
+	(when (nempty? ys)
+		(clear out)
+		(poly-lines out (last ys) (last ys) above below segs openl openr))
 	(poly-fixed (poly-rings segs)))
 
 (defun poly-union (a b &optional mode_a mode_b) (poly-op :union a b mode_a mode_b))

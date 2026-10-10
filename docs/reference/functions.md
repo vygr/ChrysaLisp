@@ -3862,16 +3862,6 @@ the key of the shared memory its pixels are in, 0 if they are its own
 (pmap? form) -> :t | :nil
 ```
 
-### poly-across
-
-```code
-(poly-across above below y segs) -> segs
-
-the lines across at a y: where what is above, (u v) each, is and what
-is below is not, a bottom, left to right, and where it is the other
-way, a top, right to left
-```
-
 ### poly-area
 
 ```code
@@ -3883,14 +3873,36 @@ than 0. Each path is summed about its first point, and the sum kept
 in two parts, so nothing is lost and nothing runs out of room
 ```
 
-### poly-cuts
+### poly-band-ref
 
 ```code
-(poly-cuts order xa xb ya yb) -> (y ...)
+(poly-band-ref edges active y0 y1 mode out) -> :nil | out
 
-the ys within a band at which two of its edges cross, in order, with
-the top and the bottom of the band. order is the edges across the
-top, xa and xb where each is at the top and at the bottom
+the pieces of the answer in a band, from the left, put in out, 6
+numbers each: its left at the top and at the bottom, its right at
+each, the number of its left edge and of its right.
+
+active is the edges that are in the band, the place of each in
+edges. Those that end at its top are taken out of it, and it is put
+in order across. With +poly_by_middle in the mode
+that is by the middle of each, for a band none cross in. Without, it
+is by the top, and if any two cross in the band nothing is made and
+:nil comes back: the band is to be cut where they cross.
+
+This is the reference, in Lisp, and is not what is used: the native
+(poly-band) below does the very same, and a test holds the two
+together on every machine, a band at a time.
+```
+
+### poly-cuts-ref
+
+```code
+(poly-cuts-ref edges active ya yb cuts) -> cuts
+
+the ys within a band at which two of its edges cross, put on the end
+of cuts. As (poly-band) left them: active in order across the top,
+and each edge with where it is at the top and at the bottom.
+The reference, as (poly-band-ref) is
 ```
 
 ### poly-edges
@@ -3898,7 +3910,7 @@ top, xa and xb where each is at the top and at the bottom
 ```code
 (poly-edges raw set edges ys) -> edges
 
-the edges of a set, each (ytop ybot xtop xbot wind set id), those that
+the edges of a set, each (ytop ybot xtop xbot wind set), those that
 lie flat left out, and every y a point is at
 ```
 
@@ -3918,10 +3930,24 @@ in it or on it. Its points go round the one way, whatever the paths
 do. Points that are all in one line give the two ends of it
 ```
 
-### poly-in?
+### poly-lines-ref
 
 ```code
-(poly-in? wind mode) -> :t | :nil
+(poly-lines-ref out y0 y1 above below segs openl openr) -> below
+
+the lines of the pieces of a band, as (poly-band) gave them, put on
+segs, 5 numbers each, from x y to x y and the number of the edge it
+is along, -1 for one that goes across: down the left of each piece,
+up its right, and across at the top of the band where it or the band
+above, above, u v u v ..., has a piece and the other has none.
+
+A side that goes on from where the same side of the same edge ended
+in the band above is not a new line, that one is made longer: openl
+and openr have, for each edge, where in segs its last left and its
+last right are, -1 for none.
+
+below is made what is along the bottom, for the band below.
+The reference, as (poly-band-ref) is
 ```
 
 ### poly-num
@@ -3944,16 +3970,6 @@ winding rule a set is filled by, as (:fpoly) has them, 0 odd even,
 the default, or 1 non zero
 ```
 
-### poly-order
-
-```code
-(poly-order xs) -> (index ...)
-
-the places of a list of numbers, the least first. Each number is put
-with its place into one number, and those sorted, which is the sort
-with no function of Lisp called for each two it holds together
-```
-
 ### poly-raw
 
 ```code
@@ -3967,18 +3983,8 @@ the paths with each number as the whole number it is held as
 ```code
 (poly-rings segs) -> ((x y ...) ...)
 
-the lines, (x0 y0 x1 y1 id) each, joined end to start into rings.
-Lines that follow one another with the one id are one line
-```
-
-### poly-spans
-
-```code
-(poly-spans active order x0s x1s op mode_a mode_b) -> ((xl0 xl1 xr0 xr1 idl idr) ...)
-
-the pieces of the answer in a band no edges cross in, from the left.
-order is its edges across, x0s and x1s where each is at its top and
-at its bottom
+the lines, 5 numbers each, joined end to start into rings. Lines that
+follow one another with the one number are one line
 ```
 
 ### poly-sweep
@@ -3991,14 +3997,6 @@ about 0 0 with no dent in it, points the line it goes along, x y
 x y. At each point is the shape, each two that follow one another
 are joined by the hull of them both, and all of the hulls are made
 one
-```
-
-### poly-x
-
-```code
-(poly-x edge y) -> x
-
-where an edge is at a y, its ends as they are
 ```
 
 ### poly1305
@@ -5420,13 +5418,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### stdio-get-args

@@ -11,7 +11,7 @@
 (assert-eq "either: the two less what they share" 2800.0 (poly-area (poly-union pg_sq pg_sq2)))
 (assert-eq "one ring of 8 corners" "(8)" (str (pg-points (poly-union pg_sq pg_sq2))))
 (assert-eq "both: what they share" 400.0 (poly-area (poly-intersect pg_sq pg_sq2)))
-(assert-eq "its corners" "((50.00000 30.00000 30.00000 30.00000 30.00000 50.00000 50.00000 50.00000))"
+(assert-eq "its corners" "((30.00000 30.00000 30.00000 50.00000 50.00000 50.00000 50.00000 30.00000))"
 	(str (poly-intersect pg_sq pg_sq2)))
 (assert-eq "the first and not the second" 1200.0 (poly-area (poly-difference pg_sq pg_sq2)))
 (assert-eq "an L of 6 corners" "(6)" (str (pg-points (poly-difference pg_sq pg_sq2))))
@@ -20,7 +20,7 @@
 ;edges that lie along each other
 (defq pg_a (list (path 0.0 0.0 40.0 0.0 40.0 40.0 0.0 40.0)) pg_b (list (path 40.0 0.0 80.0 0.0 80.0 40.0 40.0 40.0))
 	pg_c (list (path 40.0 10.0 80.0 10.0 80.0 30.0 40.0 30.0)) pg_in (list (path 10.0 10.0 30.0 10.0 30.0 30.0 10.0 30.0)))
-(assert-eq "two squares side by side are one box, of 4 corners" "((80.00000 0.00000 0.00000 0.00000 0.00000 40.00000 80.00000 40.00000))"
+(assert-eq "two squares side by side are one box, of 4 corners" "((0.00000 0.00000 0.00000 40.00000 80.00000 40.00000 80.00000 0.00000))"
 	(str (poly-union pg_a pg_b)))
 (assert-eq "and share nothing" 0 (length (poly-intersect pg_a pg_b)))
 (assert-eq "a side shared in part: 8 corners" "(8)" (str (pg-points (poly-union pg_a pg_c))))
@@ -102,3 +102,57 @@
 (assert-eq "not moved it is where it is" "((2.00000 2.00000 12.00000 2.00000 12.00000 12.00000 2.00000 12.00000))"
 	(str (poly-sweep pg_cloth (path 7.0 7.0))))
 (assert-eq "and nowhere is nothing" 0 (length (poly-sweep pg_cloth (path))))
+
+;the native code of a band and the Lisp it was written from, held together:
+;bands of edges at random, in any order, some that end at the top of the
+;band, some that cross and some that lie along each other, by every op and
+;rule. And what is made of the pieces, the lines and the ys of the crossings
+(defq pg_seed 777 pg_bands 0 pg_differ 0 pg_cross 0 pg_lines 0)
+(times 400
+	(defq n (+ 1 (pg-rnd 12)) edges (nums) active (nums) y0 (+ 1000 (pg-rnd 5000)) y1 (+ y0 1 (pg-rnd 5000)))
+	(times n
+		;an edge that is in the band, from at or above its top to at or below
+		;its bottom, or now and then one that ends at its top
+		(defq yt (- y0 (if (= 0 (pg-rnd 3)) 0 (pg-rnd 3000))) yb (+ y1 (if (= 0 (pg-rnd 3)) 0 (pg-rnd 3000)))
+			xt (* 64 (pg-rnd 600)) xb (if (= 0 (pg-rnd 4)) xt (* 64 (pg-rnd 600))))
+		(when (= 0 (pg-rnd 8)) (setq yt (- y0 500) yb y0))
+		(push edges yt yb xt xb (if (= 0 (pg-rnd 2)) 1 -1) (pg-rnd 2) (/ (length edges) +poly_edge) 0 0 0)
+		(push active (length active)))
+	;now and then one over another
+	(when (and (> n 2) (= 0 (pg-rnd 3)))
+		(each (# (elem-set edges (+ +poly_edge %0) (elem-get edges %0))) (range 0 4)))
+	(shuffle active)
+	(each (lambda (mode)
+		(defq e1 (cat edges) a1 (cat active) o1 (nums) e2 (cat edges) a2 (cat active) o2 (nums 7 7 7)
+			r1 (poly-band-ref e1 a1 y0 y1 mode o1) r2 (poly-band e2 a2 y0 y1 mode o2))
+		(setq pg_bands (inc pg_bands))
+		(unless (and (eql (str r1) (str r2)) (eql (str a1) (str a2)) (eql (str e1) (str e2)))
+			(setq pg_differ (inc pg_differ)))
+		(cond
+			(r1 ;the lines of the pieces, on what a band above might have left
+				(defq above (nums) segs (nums) openl (nums) openr (nums) x (* 64 (pg-rnd 100)))
+				(times (pg-rnd 4)
+					(push above x (setq x (+ x 64 (* 64 (pg-rnd 200)))))
+					(setq x (+ x (* 64 (pg-rnd 200)))))
+				(times n (push openl -1) (push openr -1))
+				;a line or two from that band, that a piece here may go on from
+				(when (and (>= (length o1) 6) (= 0 (pg-rnd 2)))
+					(push segs (elem-get o1 0) (- y0 640) (elem-get o1 0) y0 (elem-get o1 4))
+					(elem-set openl (elem-get o1 4) 0)
+					(push segs (elem-get o1 2) y0 (elem-get o1 2) (- y0 640) (elem-get o1 5))
+					(elem-set openr (elem-get o1 5) 5))
+				(defq s1 (cat segs) l1 (cat openl) p1 (cat openr) b1 (nums 1 2)
+					s2 (cat segs) l2 (cat openl) p2 (cat openr) b2 (nums))
+				(poly-lines-ref o1 y0 y1 above b1 s1 l1 p1)
+				(poly-lines o2 y0 y1 above b2 s2 l2 p2)
+				(setq pg_lines (+ pg_lines (/ (length s1) 5)))
+				(unless (and (eql (str s1) (str s2)) (eql (str b1) (str b2)) (eql (str l1) (str l2)) (eql (str p1) (str p2)))
+					(setq pg_differ (inc pg_differ))))
+			(:t ;where they cross
+				(setq pg_cross (inc pg_cross))
+				(unless (eql (str (poly-cuts-ref e1 a1 y0 y1 (nums y0 y1))) (str (poly-cuts e2 a2 y0 y1 (nums y0 y1))))
+					(setq pg_differ (inc pg_differ))))))
+		(list (pg-rnd 16) (+ 16 (pg-rnd 16)))))
+(assert-eq "800 bands, the native code gives what the Lisp gives, every number of it" 0 pg_differ)
+(assert-true "and some of them were bands that edges cross in, and some were not" (< 50 pg_cross 350))
+(assert-true "and lines were made of them" (> pg_lines 1000))

@@ -4,6 +4,43 @@
 
 ------
 
+Item 53, the native code. Chris: "53, will take some time and to be
+fast will need some VP helper code I think."
+
+It did. `lib/math/lisp.vp`, three functions, 2,856 bytes of ARM64 in
+the boot image: `(poly-band)`, the pieces of the answer in a band,
+`(poly-cuts)`, where the edges of a band cross, and `(poly-lines)`,
+the lines of the pieces. The edges are now one array of whole numbers
+and so is all that goes between Lisp and these.
+
+| | all Lisp | now |
+|---|---|---|
+| a word of 200 points written joined up, an eraser across it | 25ms | 3ms |
+| one of 800 points in 20 loops | 378ms | 12ms |
+| a scribble of 200 points at random, one of 50 across it | 10,392ms | 61ms |
+
+Each has the Lisp it was written from beside it, a `-ref`, not used
+but held to: a test gives both 800 bands at random, with edges that
+end, cross and lie along each other, and every number that comes back
+is the same. The first of them was the same on its first build, 18,960
+bands of real polygons and none different.
+
+What did not work at first: `(poly-band)` alone took the word of 800
+from 378ms only to 265ms. The Lisp left round it, dropping ended edges
+and making lines, was as much work as what had moved. That is on the
+docs page with the rest of how it got fast.
+
+Run: `make all boot`, `lint: clean`, `cl_test.sh -b -a` on all three,
+5820 each, so the x64's native code gives what the Lisp gives too.
+`files | forward` clean.
+
+Not run: the VP64 emulator, RISC-V, LoongArch. The test that holds
+the native code to the Lisp will say, when the release run is done.
+
+Not seen: by Chris.
+
+------
+
 Item 53, set logic of polygons. Chris: "general polygon to polygon
 set logic", and that night: "remember with 53. that the paths are in
 fixed 48.16 format ! all the path generators and :fpoly work in that
