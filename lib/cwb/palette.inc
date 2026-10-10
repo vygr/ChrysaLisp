@@ -196,10 +196,10 @@
 
 	(defmethod :set_value (key val)
 		; (. palette :set_value key val) -> palette
-		(defq board (get :board this) id (get :id this))
+		(defq board (get :board this) id (ptr-device (get :id this)))
 		(cond
 			((eql (get :kind this) :pen)
-				;the pen, by its id, with its tip down, is what it was and this
+				;the pen, by its device, with its tip down, is what it was and this
 				(defq what (list :tool :pen :mode (. this :value :mode)
 					:color (. this :value :color) :width (. this :value :width)))
 				(elem-set what (inc (find key what)) val)
@@ -248,7 +248,7 @@
 		;pointer is the one it belongs to: of its kind, and for a pen the
 		;same pen. Did it
 		(when (and (not (get :shut this)) (eql (elem-get event +pev_kind) (get :kind this))
-				(or (not (eql (get :kind this) :pen)) (= (elem-get event +pev_id) (get :id this))))
+				(or (not (eql (get :kind this) :pen)) (= (ptr-device (elem-get event +pev_id)) (ptr-device (get :id this)))))
 			(. this :close)
 			:t))
 

@@ -308,10 +308,36 @@ nothing done to it.
 
 The board's view has `:pointer`, and gives the board the pointer as it is.
 
+### Devices and contacts
+
+Everything that points is a device: the mouse, each pen, each touch panel. A
+device has contacts, the places it touches at once. A pen has one. A panel
+has one for each finger: the first finger down is contact 0, the next 1, and
+a finger that lifts frees its number for the next that lands, the lowest
+free first. The driver gives both numbers, `src/host/gui_sdl3_event.h`, and
+the id of a pointer is the two together, device << 16 | contact. The mouse
+is device 0. `(ptr-device id)` and `(ptr-contact id)`, `lib/cwb/pointer.inc`.
+
+What a pointer is bound to, its tool and colour, `Bindings`, is its
+device's: a rule that names a device matches every contact of it. So whose
+a touch is, is its device, and each device can be its own colour and tool.
+Two pens are two devices. Two mice are two where the host tells them
+apart, which a Mac does not.
+
+A pointer belongs to what it went down on till it comes up. The stage has
+that for a ruler or a palette, and the surface has it for the things of the
+document: each hand has hold of the thing it landed on and no other, a box
+dragged out is its pointer's own, and a finger that goes down somewhere
+puts away nobody's palette. Many hands on the board are none of them in
+the way of the rest.
+
 A finger on a trackpad is not a pointer, it moves the mouse. With
 `CL_TOUCH_TRACKPAD` set in the environment a node is started in, it is taken
 as one, the pad is the window, to try many fingers on a machine with no touch
-screen:
+screen. The pad then moves no mouse in the window, SDL gives one or the
+other. And on a Mac the pad must be on: with a mouse there it may be set to
+be ignored, System Settings, Accessibility, Pointer Control. The board
+draws a ring where each finger is:
 
 ```vdu
 CL_TOUCH_TRACKPAD=1 ./run.sh

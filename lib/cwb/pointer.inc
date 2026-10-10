@@ -43,6 +43,24 @@
 
 (defun ptr-down? (event) (/= (elem-get event +pev_buttons) 0))
 
+;Devices and contacts. Everything that points is a device, the mouse, each
+;pen, each touch panel, and a device has contacts, the places it touches at
+;once: a pen one, a panel one for each finger, numbered from 0 as they land,
+;a number that is freed used again. The host's driver gives both, and the
+;id of a pointer is the two, device << 16 | contact, the mouse device 0.
+;Whose a touch is, is its device. An id below 65536 is a device of the one
+;contact, as the mouse is, and as a test or a script may name a pen
+
+(defun ptr-device (id)
+	; (ptr-device id) -> device
+	;the device of a pointer's id, the id of its contact 0
+	(if (< id 0x10000) id (logand id -65536)))
+
+(defun ptr-contact (id)
+	; (ptr-contact id) -> num
+	;which contact of its device a pointer is
+	(if (< id 0x10000) 0 (logand id 0xffff)))
+
 ;;;;;;;;;;
 ; bindings
 ;;;;;;;;;;
@@ -57,7 +75,10 @@
 	(defmethod :bind (kind id buttons what)
 		; (. bindings :bind kind id buttons what) -> bindings
 		;a rule, put before those there are. kind, id and buttons are each
-		;what the pointer must have, or :nil for any. buttons matches if
+		;what the pointer must have, or :nil for any. id is a device, what
+		;(ptr-device) gives, and matches every contact of it: what a device
+		;is bound to, its colour and tool, is whoever has that device's,
+		;and each finger of a panel is the same hand. buttons matches if
 		;every one of them is held. what is a list of keys and values,
 		;(:tool :pen :color 0xff000000 :width 4.0)
 		(def this :rules (cat (list (list kind id buttons what)) (get :rules this)))
@@ -76,7 +97,7 @@
 		(bind '(id kind buttons &ignore) event)
 		(some (lambda ((rkind rid rbuttons what))
 			(if (and (or (not rkind) (eql rkind kind))
-					(or (not rid) (= rid id))
+					(or (not rid) (= rid (ptr-device id)))
 					(or (not rbuttons) (= (logand buttons rbuttons) rbuttons)))
 				what))
 			(get :rules this)))

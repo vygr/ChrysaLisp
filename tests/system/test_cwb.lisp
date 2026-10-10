@@ -872,3 +872,15 @@
 	(list (list mh_c) '(200 400)) (list (mh-sel) (mh-at mh_c)))
 (mh-go '(7 :touch 0 650 350))
 (mh-go '(0 :mouse 0 230 430))
+
+;a pointer is a device and a contact of it, and what a pointer is bound to is its device's
+(assert-list-eq "the mouse is device 0, a pen named by a small number is that device, and both are contact 0"
+	'(0 0 9 0) (list (ptr-device 0) (ptr-contact 0) (ptr-device 9) (ptr-contact 9)))
+(assert-list-eq "the third finger of the second device is contact 2 of it, and its device is the id of its contact 0"
+	(list 0x20000 2 0x20000 0) (list (ptr-device 0x20002) (ptr-contact 0x20002) (ptr-device 0x20000) (ptr-contact 0x20000)))
+(defq dv_bind (.-> (Bindings) (:bind :nil :nil :nil '(:color 1)) (:bind :touch (ptr-device 0x20003) :nil '(:color 2))
+	(:bind :pen (ptr-device 0x30000) :nil '(:color 3))))
+(assert-list-eq "what one panel is bound to is every finger of it, and no finger of another panel, and a pen its own"
+	'(2 2 1 3 1) (map (# (. dv_bind :value %0 :color))
+		(list (ptr-event 0x20000 :touch 1 0 0) (ptr-event 0x20007 :touch 1 0 0) (ptr-event 0x40000 :touch 1 0 0)
+			(ptr-event 0x30000 :pen 1 0 0) (ptr-event 0x50000 :pen 1 0 0))))

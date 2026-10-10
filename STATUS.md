@@ -4,6 +4,39 @@
 
 ------
 
+Chris, of pointers: "but it's all just device_id and contact point
+numbering/allocation." "when a touch went down it got contact_id 0, the
+next finger c_ud 1, etc, as each finger came up we could resuse free
+contact_id's... pens/mouse only ever used c_id 0, due to only having 1
+down event possoble, but intheory plug 2 mice in and you get 2 mouse
+dev_id..." And when I asked if he would finish his tests first: "shal we
+just skip to the new host interface ? It has to work like this or we
+wqill never get sencible multi user multi touch to work."
+
+*	The driver numbers both, `src/host/gui_sdl3_event.h`. Each pen and
+	each touch panel is a device, 1 up, the mouse is device 0. A contact
+	of a device is the lowest number free as it lands, and is free
+	again when it lifts. The id of a pointer is device << 16 | contact.
+	It was a number SDL gave with its low 16 bits kept, which two
+	fingers could have had the same.
+
+*	`(ptr-device id)` and `(ptr-contact id)`. A rule of `Bindings` that
+	names a device matches every contact of it, so what a device is
+	bound to is whoever has that device's.
+
+*	Two mice are not two devices here: the events of a mouse have no id
+	in them, and a Mac gives every mouse as one. Said to him.
+
+*	Not changed: what a finger that picks from a palette sets. It sets
+	the board's, as the mouse does, a pen its own.
+
+Run: the host programs built on all three, the full suite on the M4,
+the x64 and the Pi, 5,704.
+
+Not seen: by him, fingers numbered 0 and 1 on the pad.
+
+------
+
 Chris tried fingers, on the trackpad of the M4 as a touch panel, the
 first there have been on a desktop. Five things were in the way before
 one reached the board, and four were mine.
