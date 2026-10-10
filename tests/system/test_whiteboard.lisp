@@ -262,7 +262,18 @@
 	"(prin (list sw (slice (. *flight* :get_bounds) 0 2) (. *flight_clip* :get_bounds)))"
 	"(wa-mouse :move 450 400 1) (draw-flight) (prin (slice (. *flight* :get_bounds) 0 2))"
 	"(defq was *flight*) (wa-mouse :up 450 400 0) (. *board* :touch +board_dirty_overlay)"
-	"(print (list (draw-flight) (slice (. *flight* :get_bounds) 0 2) (eql was *flight_spare*) (length (. *flight_clip* :children)) (eql (first (. *flight_clip* :children)) *flight*)))")))
+	"(print (list (draw-flight) (slice (. *flight* :get_bounds) 0 2) (eql was *flight_spare*) (length (. *flight_clip* :children)) (eql (first (. *flight_clip* :children)) *flight*)))"
+	;a thing dragged part off the left of the paper and let go is drawn all on its canvas, moved over, the canvas as far the other way: taken up again and dragged back it is all there
+	"(bind (quote (bx by bx1 by1)) (map (const n2i) (cwb-bounds (. *board* :selected_items))))"
+	"(defq gx (+ 240 bx (/ (- bx1 bx) 2)) gy (+ 240 by (/ (- by1 by) 2)) off (+ bx 40))"
+	;it is drawn again where it is, as it is when it is let go of or turned, and then moved on
+	"(wa-mouse :down gx gy 1) (draw-flight) (wa-mouse :move (- gx off) gy 1) (setq *flight_at* :nil) (draw-flight)"
+	"(bind (quote (fx fy)) (slice (. *flight* :get_bounds) 0 2))"
+	"(prin (list (first (map (const n2i) (cwb-bounds (. *board* :selected_items)))) fx fy (slice *flight_at* 3 5)))"
+	"(wa-mouse :move gx gy 1) (prin (list (draw-flight) (slice (. *flight* :get_bounds) 0 2)))"
+	;and off the bottom right
+	"(wa-mouse :move (+ 240 1024 -20) (+ 240 768 -10) 1) (setq *flight_at* :nil) (draw-flight) (bind (quote (fx fy)) (slice (. *flight* :get_bounds) 0 2))"
+	"(print (list (> fx 0) (> fy 0) (- 0 fx (elem-get *flight_at* 3)) (- 0 fy (elem-get *flight_at* 4)))) (wa-mouse :move gx gy 1) (wa-mouse :up gx gy 0)")))
 (assert-eq "the board with what is round it is 240 more each side, the document's canvas is in by that, and what is over it covers it all"
 	"((1504 1248) (240 240 1024 768) (0 0 1504 1248))" (elem-get wa_out 0))
 (assert-eq "a point of the view is a point of the document, less the margin" "M 100 100 L 200 100 200 160 100 160 Z" (elem-get wa_out 1))
@@ -278,6 +289,8 @@
 (assert-eq "taken by the left button it is in flight in front of the document" "(:paper :doc :flight :over)" (elem-get wa_out 10))
 (assert-eq "moved by a hand, its canvas is not drawn again but moved by as much, in a view that stays on the paper, and moved on; let go, it is drawn where it is on the other canvas, which takes the place of the one that was moved"
 	"(:nil (30 15) (240 240 1024 768))(40 -10)(:nil (0 0) :t 1 :t)" (elem-get wa_out 11))
+(assert-eq "dragged 40 off the left of the paper and drawn there, it is drawn all on its canvas, moved over by 44, the canvas put as far to the left; dragged back, the canvas is moved and not drawn on. Off the bottom right, the canvas is put right and down"
+	(cat "(-40 -44 0 (44 0))(:nil (" (str (- (+ 158 40) 44)) " 0))(:t :t 0 0)") (elem-get wa_out 12))
 
 ;the palette on the board: the right button down and up on nothing opens it,
 ;a tap on a wedge of it does what the toolbar would, and the toolbar shows it

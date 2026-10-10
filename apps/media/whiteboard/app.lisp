@@ -234,7 +234,7 @@
 	;nothing else of them is changing, and nothing is being drawn
 	(when (and *flight_at* (= (. (get :temp *board*) :size) 0)
 			(or (. (get :surface *board*) :holding) (/= (. (get :handles *board*) :held) 0)))
-		(bind '(zoom ids ms) *flight_at*)
+		(bind '(zoom ids ms ox oy) *flight_at*)
 		(defq now (. *board* :selected_items))
 		(when (and (= zoom *zoom*) (nempty? now) (= (length now) (length ids)))
 			(defq ident (const (fixeds 1.0 0.0 0.0 0.0 1.0 0.0))
@@ -247,7 +247,7 @@
 						(= (elem-get n 3) (elem-get o 3)) (= (elem-get n 4) (elem-get o 4))
 						(= (- (elem-get n 2) (elem-get o 2)) dx) (= (- (elem-get n 5) (elem-get o 5)) dy)))
 					now ids ms)
-				(list (n2i (floor (+ (* dx *zoom*) 0.5))) (n2i (floor (+ (* dy *zoom*) 0.5))))))))
+				(list (- (n2i (floor (+ (* dx *zoom*) 0.5))) ox) (- (n2i (floor (+ (* dy *zoom*) 0.5))) oy))))))
 
 (defun draw-flight ()
 	; (draw-flight) -> :t | :nil
@@ -275,21 +275,37 @@
 				(. *flight* :change_dirty (first shift) (second shift) w h))
 			:nil)
 		((or flying *flight_used* (nempty? down))
-		;on the canvas that is seen, if it is where it began, or on the other
-		(defq moved (not (eql (str (. *flight* :get_bounds)) (str (list 0 0 w h))))
+		;What is in flight may be partly off the paper, or all off it, and
+		;be dragged back on. So that all of it is on the canvas, to be moved
+		;with it, it is drawn moved over by what brings it all on, ox oy,
+		;and the canvas put as far the other way. If it is too big for
+		;that, or other things are drawn with it, it is drawn where it is,
+		;and then it is not moved as a picture, (flight-shift), but drawn
+		;each time
+		(defq now (if flying (. *board* :selected_items) (list)) ox 0 oy 0 whole :nil
+			quiet (and (nempty? now) (empty? down) (= (. (get :temp *board*) :size) 0)))
+		(when (and quiet (defq box (cwb-bounds now)))
+			(bind '(bx by bx1 by1) (map (# (* %0 *zoom*)) box))
+			(defq bx (- (n2i (floor bx)) 4) by (- (n2i (floor by)) 4) bx1 (+ (n2i (floor bx1)) 5) by1 (+ (n2i (floor by1)) 5))
+			(when (and (<= (- bx1 bx) w) (<= (- by1 by) h))
+				(setq whole :t ox (cond ((< bx 0) (neg bx)) ((> bx1 w) (- w bx1)) (:t 0))
+					oy (cond ((< by 0) (neg by)) ((> by1 h) (- h by1)) (:t 0)))))
+		;on the canvas that is seen, if it is where it is to be, or on the other
+		(defq m (if (and (= ox 0) (= oy 0)) (view-matrix) (cwb-mat-mul (cwb-mat-move ox oy) (view-matrix)))
+			moved (not (eql (str (. *flight* :get_bounds)) (str (list (neg ox) (neg oy) w h))))
 			onto (if moved *flight_spare* *flight*))
 		(. onto :fill 0)
 		(when (nempty? down)
 			(setq down (cwb-id-set down))
 			(each (lambda ((name flags items))
-				(unless (bits? flags 1) (cwb-draw-items onto (cwb-pick items down) (view-matrix))))
+				(unless (bits? flags 1) (cwb-draw-items onto (cwb-pick items down) m)))
 				(cwb-layers (. *board* :get_doc))))
-		(if flying (. *board* :draw_flight onto (view-matrix)))
-		;what is on it, and where each thing was when it was put there
-		(defq now (if flying (. *board* :selected_items) (list)))
+		(if flying (. *board* :draw_flight onto m))
+		;what is on it, where each thing was when it was put there, and how
+		;far over it was drawn
 		(setq *flight_used* (or flying (nempty? down))
-			*flight_at* (if (and (nempty? now) (empty? down))
-				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now))))
+			*flight_at* (if whole
+				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now) ox oy)))
 		(cond
 			(moved
 				;its picture is shown while it is not seen, and then it is
@@ -297,7 +313,7 @@
 				((const (ffi "gui/canvas/lisp_swap")) onto +swap_write)
 				(. *flight* :sub)
 				(. *flight_clip* :add_child onto)
-				(. onto :set_bounds 0 0 w h)
+				(. onto :set_bounds (neg ox) (neg oy) w h)
 				(. *flight* :set_bounds 0 0 w h)
 				(. *flight_clip* :dirty_all)
 				(setq *flight_spare* *flight* *flight* onto)

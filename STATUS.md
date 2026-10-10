@@ -4,6 +4,31 @@
 
 ------
 
+Chris: "no flcker at all, however if I move a large group/item off the
+left edge of the canvas. Let go, then pick it up and drag it back on,
+the part that was off the canvs is transprent... not present." "Yes,
+confirmed, off the canvas in any direction."
+
+I had said so when I made the canvas one that is moved, and left it.
+What is in flight is drawn on a canvas the size of the paper, and what
+of it was off the paper was not on the canvas to be moved back.
+
+*	What is in flight is drawn moved over by as much as brings all of
+	it onto its canvas, and the canvas is put as far the other way, so
+	on the screen it is where it is and the view that holds the canvas
+	cuts it at the paper. Dragged back, all of it is there.
+
+*	If it is bigger than the canvas, or a line is being drawn or a
+	thing is landing with it, it is drawn where it is and each time it
+	moves, as it was before today.
+
+Run: `test_whiteboard` 88 on the M4, off the left and off the bottom
+right; the full suite on the x64 and the Pi.
+
+Not seen: by him yet.
+
+------
+
 Chris, on the new system: "pickup is now quick and no flicker, soon as I
 let go it flickers." "Yeah allways on letting go."
 
