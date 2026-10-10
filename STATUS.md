@@ -4,6 +4,18 @@
 
 ------
 
+Chris, of the ruler: "I had the rules zones, as, edge draw detectors,
+then rotate strip inside that, then drag." And: "The rotate was a strip
+roughtly where the numerics on the edge show."
+
+The strip along each long side, 26 deep, its marks and its numbers,
+turns the ruler, about the 0 of that side: the top's at the left, the
+bottom's at the right. It is not drawn darker. A pen close on a side is
+still held to it and draws, that is looked for first. The middle moves
+it. The two holes turn it too, as they did.
+
+------
+
 Chris: "the extention edge on the protractor, its ends, should folow the
 circlualr arc of the instrument. The protractor has 1 straght edge and
 then a circluar arc for the other edge." The strip below the line through

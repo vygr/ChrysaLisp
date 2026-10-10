@@ -107,8 +107,23 @@
 ;lines can be drawn from that point every way
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
 (defq wt_corner (. wt_ruler :to_board -174 -40))
-(assert-list-eq "a ruler has a part to put it away, two to make it longer, two to turn it and one to move it"
-	'(:close :size :size :turn :turn :move) (map (const first) (get :parts wt_ruler)))
+(assert-list-eq "a ruler has a part to put it away, two to make it longer, four to turn it and one to move it"
+	'(:close :size :size :turn :turn :turn :turn :move) (map (const first) (get :parts wt_ruler)))
+;from a side in: a pen close on the side draws, then the strip its marks and numbers are on turns it, then its middle moves it
+(assert-list-eq "down from its top side: the strip of its numbers turns it, its middle moves it, the strip of the bottom's turns it"
+	'(:turn :turn :move :turn :turn) (map (# (first (. wt_ruler :part_at 60 %0))) '(-38 -20 -8 20 38)))
+(wt-go '(0 :mouse 4 460 280)) (wt-go '(0 :mouse 4 460 360)) (wt-go '(0 :mouse 0 460 360))
+(assert-true "dragged by the strip of its top side it turns about the 0 of that side, at its left"
+	(and (> (get :angle wt_ruler) 0.2) (wt-near? (. wt_ruler :to_board -174 -40) '(226 260) 0.05)))
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
+(wt-go '(0 :mouse 4 340 322)) (wt-go '(0 :mouse 4 340 250)) (wt-go '(0 :mouse 0 340 250))
+(assert-true "by the strip of its bottom side, about the 0 of that side, at its right"
+	(and (> (get :angle wt_ruler) 0.2) (wt-near? (. wt_ruler :to_board 174 40) '(574 340) 0.05)))
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
+(wt-go '(0 :mouse 4 460 296)) (wt-go '(0 :mouse 4 480 316)) (wt-go '(0 :mouse 0 480 316))
+(assert-true "and by its middle it is moved, not turned"
+	(and (wt-near? (get :origin wt_ruler) '(420 320) 0.01) (wt-near? (get :angle wt_ruler) 0.0 0.001)))
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
 (assert-eq "and a sign is drawn for each but the one that moves it" 5 (length (get :glyphs wt_ruler)))
 (wt-go '(0 :mouse 1 550 300)) (wt-go '(0 :mouse 1 550 400)) (wt-go '(0 :mouse 0 550 400))
 (assert-true "dragged by the hole by its right end, it turns" (> (get :angle wt_ruler) 0.2))

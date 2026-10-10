@@ -124,6 +124,9 @@ are the parts it has, each with a sign on it.
 
 * Drag anywhere on an instrument that is not one of those to move it.
 
+* A ruler is turned by the strip along either side, where its numbers are,
+about the 0 of that side. Its middle moves it.
+
 * To turn one, drag a part with the arrow that goes round: the hole by
 either end of the ruler, which turns it about the 0 of the marks at its
 other end, the top side is marked from the left and the bottom from the

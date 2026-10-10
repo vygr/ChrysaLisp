@@ -431,10 +431,11 @@
 (defclass Ruler (board x y) (Instrument board x y)
 	; (Ruler board x y) -> ruler
 	;a straight edge, its two long sides are edges. Each end makes it
-	;longer or shorter, a longer ruler with more marks, no wider. The hole by each end turns it, about the 0 of the
-	;marks at its other end. The rest moves it, and the ring puts it away. It is
-	;marked in millimetres along both sides, the bottom the other way to
-	;the top, longer every five, and numbered in centimetres
+	;longer or shorter, a longer ruler with more marks, no wider. The
+	;strip of marks along each side turns it, about the 0 of that side,
+	;and so does the hole by each end, about the 0 at the other end. The
+	;middle moves it, and the ring puts it away. Its top side is
+	;centimetres from the left, its bottom side inches from the right
 	(def this :min_length 200.0 :max_length 3000.0)
 
 	;a ruler that is sized is a longer ruler, or a shorter, as wide as it
@@ -464,6 +465,12 @@
 				;With a 0 on a point, lines are drawn from the point every way
 				(list :turn (cwb-d-ellipse (+ (neg inset) 24.0) 0.0 12.0) inset bot)
 				(list :turn (cwb-d-ellipse (- inset 24.0) 0.0 12.0) (neg inset) top)
+				;from the outside in: a pen close on a side is held to it and
+				;draws, that is looked for before any part. Then the strip
+				;along each side, its marks and its numbers, turns it, about
+				;the 0 of that side's marks. Then the middle moves it
+				(list :turn (cwb-d-rect (neg inset) top inset (+ top 26.0)) (neg inset) top :quiet)
+				(list :turn (cwb-d-rect (neg inset) (- bot 26.0) inset bot) inset bot :quiet)
 				(list :move (cwb-d-rect (neg half) top half bot)))
 			:glyphs (list (list :close 0.0 0.0)
 				(list :size (- (neg half) (* -0.5 +ruler_cap)) 0.0) (list :size (- half (* 0.5 +ruler_cap)) 0.0)
