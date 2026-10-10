@@ -307,6 +307,9 @@
 						(push strokes p1 p2))
 					(:t (push strokes (path-stroke-polyline p radius join cap1 cap2)))))
 				outline))
+		;a line too short to have a width, the first hair of one that is
+		;being drawn, is stroked to nothing at all, and is left out
+		(setq strokes (filter (# (>= (length %0) 6)) strokes))
 		(defq polys (cat fills strokes))
 		(elem-set shape +cwb_cache (setq cache (list fills strokes
 			(if (nempty? polys)

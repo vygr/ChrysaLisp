@@ -4,6 +4,24 @@
 
 ------
 
+Chris, with a pen on the edge of the protractor: "Error: (/ num num ...)
+wrong_types ... Obj: (1.00000 0.00000)", and with stack frames on, in
+`Board :draw_overlay`.
+
+A pen that has just set off round the protractor has drawn an arc of a
+hundredth of a pixel on a circle of 180. `(path-gen-earc)` works in units
+of the radii, the square of so short a way is nothing in a fixed point
+number, and it divided by it. So little way to go is a line now. Then the
+same shape fell over once more: a line that short is stroked to no
+polygon at all, and the box round nothing was asked for. `(cwb-flat)`
+leaves such a stroke out.
+
+Both were there to find in the night: every arc in a test went a good
+way round. `test_cwb_tools.lisp`, 3 more, the arc, a shape of it, and a
+pen that has moved a hair with the overlay drawn.
+
+------
+
 The instruments, as Chris saw them: "I don't see how I rotate and zoom
 the math tools ? The old code had zones on the tools that allowed
 move/rotate/scale ? We should see more deatiled tick makrs on the math
@@ -19,7 +37,10 @@ square had none to size them by.
 	to turn, one with two heads to size, a cross to put away.
 
 *	The parts are what the real thing has. The ruler: its two ends size
-	it, the hole by each end turns it about the other end. The
+	it, the hole by each end turns it about the 0 of its marks. Chris:
+	"it should rotate around the 0 mark on the ruler edge ! ... You can
+	place the ruker with that mark on a target and rotate the ruler to
+	draw radial connected line to that mark". The
 	protractor: its inner scale, that reads the other way, turns it,
 	two squares by its straight side size it. The set square: its sharp
 	corners, each with its arc and its angle, turn it, the mark of its

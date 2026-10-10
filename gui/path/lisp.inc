@@ -82,19 +82,23 @@
 	;larger of the two arcs if large is not 0, drawn the way the angle
 	;grows if sweep is not 0. The first point is taken to be in dst, the
 	;rest are added, the last is the end point exactly. Radii too small
-	;to reach are made as big as is needed, and with no radius, or no
-	;distance to go, it is a line
+	;to reach are made as big as is needed, and with no radius, or next
+	;to no distance to go, it is a line
 	(setq rx (abs rx) ry (abs ry))
+	(defq cp (cos phi) sp (sin phi)
+		hx (* 0.5 (- x1 x2)) hy (* 0.5 (- y1 y2))
+		;the half chord, turned to the ellipse, in units of its radii
+		a (if (= rx 0.0) 0.0 (/ (+ (* cp hx) (* sp hy)) rx))
+		b (if (= ry 0.0) 0.0 (/ (- (* cp hy) (* sp hx)) ry))
+		m (max (abs a) (abs b))
+		lam (if (= m 0.0) 0.0 (* m (sqrt (+ (* (/ a m) (/ a m)) (* (/ b m) (/ b m)))))))
 	(cond
-		((or (= rx 0.0) (= ry 0.0) (and (= x1 x2) (= y1 y2)))
+		;no radius, or so little way to go for the size of it that the
+		;square of it is nothing, the start of an arc as a pen sets off
+		;round a protractor: a line
+		((or (= rx 0.0) (= ry 0.0) (= (* lam lam) 0.0))
 			(push dst x2 y2))
-		(:t (defq cp (cos phi) sp (sin phi)
-				hx (* 0.5 (- x1 x2)) hy (* 0.5 (- y1 y2))
-				;the half chord, turned to the ellipse, in units of its radii
-				a (/ (+ (* cp hx) (* sp hy)) rx) b (/ (- (* cp hy) (* sp hx)) ry)
-				m (max (abs a) (abs b)) am (/ a m) bm (/ b m)
-				lam (* m (sqrt (+ (* am am) (* bm bm)))))
-			(when (> lam 1.0)
+		(:t (when (> lam 1.0)
 				;too small to reach, so as small as will
 				(setq rx (* rx lam) ry (* ry lam) a (/ a lam) b (/ b lam) lam 1.0))
 			(defq l2 (* lam lam)

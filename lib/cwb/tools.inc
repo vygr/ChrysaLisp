@@ -351,8 +351,8 @@
 (defclass Ruler (board x y) (Instrument board x y)
 	; (Ruler board x y) -> ruler
 	;a straight edge, its two long sides are edges. Each end makes it
-	;longer or shorter. The hole by each end turns it, about the middle
-	;of its other end. The rest moves it, and the ring puts it away. It is
+	;longer or shorter. The hole by each end turns it, about the 0 of its
+	;marks. The rest moves it, and the ring puts it away. It is
 	;marked in millimetres along its top side, longer every five, and
 	;numbered in centimetres
 	(defmethod :rebuild ()
@@ -365,8 +365,10 @@
 				(list :size (cwb-d-rect (neg half) top (neg inset) bot))
 				(list :size (cwb-d-rect inset top half bot))
 				;the hole by each end, as a ruler has to hang it by
-				(list :turn (cwb-d-ellipse (+ (neg inset) 26.0) 12.0 15.0) inset 0.0)
-				(list :turn (cwb-d-ellipse (- inset 26.0) 12.0 15.0) (neg inset) 0.0)
+				;and both turn it about the 0 of its marks, on its top side:
+				;with that on a point, lines are drawn from the point every way
+				(list :turn (cwb-d-ellipse (+ (neg inset) 26.0) 12.0 15.0) (neg inset) top)
+				(list :turn (cwb-d-ellipse (- inset 26.0) 12.0 15.0) (neg inset) top)
 				(list :move (cwb-d-rect (neg half) top half bot)))
 			:glyphs (list (list :close 0.0 8.0)
 				(list :size (- (neg half) (* -0.5 +ruler_cap)) 0.0) (list :size (- half (* 0.5 +ruler_cap)) 0.0)

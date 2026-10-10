@@ -71,15 +71,20 @@
 (assert-true "two fingers that turn a quarter turn about their middle turn it a quarter turn, where it is"
 	(and (wt-near? (get :angle wt_ruler) +fp_hpi 0.001) (wt-near? (get :origin wt_ruler) '(400 300) 0.1)))
 
-;the square by an end turns it about the middle of its other end
+;the hole by an end turns it about the 0 of its marks, on its top side. Put
+;on a point, lines can be drawn from that point every way
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
-(defq wt_corner (. wt_ruler :to_board -174 0))
+(defq wt_corner (. wt_ruler :to_board -174 -40))
 (assert-list-eq "a ruler has a part to put it away, two to make it longer, two to turn it and one to move it"
 	'(:close :size :size :turn :turn :move) (map (const first) (get :parts wt_ruler)))
 (assert-eq "and a sign is drawn for each but the one that moves it" 5 (length (get :glyphs wt_ruler)))
 (wt-go '(0 :mouse 1 548 308)) (wt-go '(0 :mouse 1 548 408)) (wt-go '(0 :mouse 0 548 408))
-(assert-true "dragged by the square by its right end, it turns" (> (get :angle wt_ruler) 0.2))
-(assert-true "and the middle of its other end stays where it was" (wt-near? (. wt_ruler :to_board -174 0) wt_corner 0.05))
+(assert-true "dragged by the hole by its right end, it turns" (> (get :angle wt_ruler) 0.2))
+(assert-true "and the 0 of its marks stays where it was" (wt-near? (. wt_ruler :to_board -174 -40) wt_corner 0.05))
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
+(wt-go '(0 :mouse 1 252 312)) (wt-go '(0 :mouse 1 252 340)) (wt-go '(0 :mouse 0 252 340))
+(assert-true "by the hole by its left end too, about the same 0"
+	(and (> (get :angle wt_ruler) 0.1) (wt-near? (. wt_ruler :to_board -174 -40) wt_corner 0.05)))
 (def wt_board :snap_angle (/ +fp_pi 12.0))
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
 (wt-go '(0 :mouse 1 548 308)) (wt-go '(0 :mouse 1 548 408)) (wt-go '(0 :mouse 0 548 408))
@@ -140,6 +145,15 @@
 (assert-true "an arc is drawn the way the pen went, clockwise too" (found? wt_d "A 180 180"))
 (bind '(x y x1 y1) (cwb-bounds (list (last (cwb-items (. wt_board :get_doc))))))
 (assert-true "from 170 degrees round over the top to 10" (wt-near? (list x y x1 y1) '(221.2 118.5 578.8 270.3) 0.6))
+;a pen that has only just set off: an arc of next to no length on a big circle
+(assert-list-eq "an arc of a hundredth of a pixel on a circle of 180 is a line to where it ends, and does not throw" '(180 0 179 0)
+	(map (const n2i) (path-gen-earc 180.0 0.0 180.0 180.0 0.0 0.0 1.0 179.99999 0.01 (path 180.0 0.0))))
+(assert-true "and so does a shape of one draw" (list? (cwb-flat (cwb-shape "M 580 300 A 180 180 0 0 0 579.99999 299.99"))))
+(def wt_pro :mode :line)
+(wt-go '(1 :pen 1 586 300)) (wt-go '(1 :pen 1 586 299.99))
+(assert-true "a pen held to the round side that has moved a hair has its arc drawn over the board"
+	(Board? (. wt_board :draw_overlay (Canvas 64 64 1))))
+(wt-go '(1 :pen 0 586 299.99))
 ;its straight side is an edge too
 (wt-go '(1 :pen 1 300 306)) (wt-go '(1 :pen 1 500 309)) (wt-go '(1 :pen 0 500 309))
 (assert-true "a pen run along its straight side draws a line along it" (wt-near? (wt-numbers (wt-last-d)) '(300 300 500 300)))

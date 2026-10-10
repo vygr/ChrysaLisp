@@ -125,7 +125,8 @@ are the parts it has, each with a sign on it.
 * Drag anywhere on an instrument that is not one of those to move it.
 
 * To turn one, drag a part with the arrow that goes round: the hole by
-either end of the ruler, which turns it about its other end; the inner scale
+either end of the ruler, which turns it about the 0 of its marks, so with
+the 0 on a point lines can be drawn from that point every way; the inner scale
 of the protractor; a sharp corner of the set square.
 
 * To make one bigger or smaller, drag a part with the arrow with two heads:
