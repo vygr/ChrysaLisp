@@ -4,6 +4,38 @@
 
 ------
 
+Chris: "if I do mouse wheel up/down actions on a scrol area a) it works,
+b) if I stop useing the wheel and move over a new scroll, say move on
+the docs app from the main page to the selector scroll, the selector
+scrol starts to scroll !... like the wheel actions either got stored, or
+something, and even after I stopped using the whell, they would still be
+delivered to the new scroll !"
+
+They are not stored here. A wheel of a Mac, or two fingers on its pad,
+runs on after the hand has left it, and the Mac goes on sending turns
+for a second or more. The GUI service gave each turn to the view under
+the mouse as it came, so when the mouse moved the rest of the run went
+to the next scroll. Not new that night, I think it has always been so.
+
+*	A turn of the wheel belongs to the view it began over. While turns
+	come one within `+wheel_latch` of the last, 350ms, they go where
+	the first went, wherever the mouse is. After a pause the next is a
+	new one. `service/gui/actions.inc`. The host tells nothing of
+	whether a turn is of the hand or of the run on, so it is by time.
+
+*	Tests, in `test_gui_event`: a turn, the mouse moved and a turn at
+	once, a pause and a turn; and the wheel's way as a setting, which
+	had none.
+
+It is in the GUI service, so a new desktop.
+
+Run: `test_gui_event` 22 on the M4, the full suite on the x64 and the
+Pi.
+
+Not seen: by him.
+
+------
+
 Chris: "I noticed a few other potentail diagrams, the Editor app docs
 has a few places that a diagram would be really benifial and replace
 rough 'code' section ascii art. Some other 'code' ascii art around as

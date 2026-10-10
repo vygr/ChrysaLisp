@@ -105,14 +105,29 @@
 			(+ev_msg_key_key (cook-key scode))
 			(+ev_msg_key_mod *mods*)))))
 
+;A turn of the wheel belongs to the view it began over. A wheel, or two
+;fingers on a pad, runs on after the hand has left it, as a thing thrown
+;does, and the host goes on sending its turns for a second or more. They
+;are still of the scroll that was thrown: the mouse moved on over another
+;view, they were given to that one, which scrolled with nobody turning
+;anything. So while turns come one soon after another they go where the
+;first went, wherever the mouse now is. A pause longer than +wheel_latch,
+;microseconds, and the next turn is a new one, for what is under the mouse
+(defq +wheel_latch 350000 *wheel_id* :nil *wheel_time* 0)
+
 (defun action-mouse-wheel ()
 	(mouse-type (defq view (held-mouse-id))
 		(- *mouse_x* (getf view +view_ctx_x 0))
 		(- *mouse_y* (getf view +view_ctx_y 0)))
+	(defq now (pii-time) id *mouse_id*)
+	(if (and *wheel_id* (< (- now *wheel_time*) +wheel_latch) (defq began (. *screen* :find_id *wheel_id*)))
+		(setq view began id *wheel_id*)
+		(setq *wheel_id* id))
+	(setq *wheel_time* now)
 	(if (defq owner (. view :find_owner))
 		(mail-send owner (setf-> (str-alloc +ev_msg_wheel_size)
 			(+ev_msg_type +ev_type_wheel)
-			(+ev_msg_target_id *mouse_id*)
+			(+ev_msg_target_id id)
 			;the way round the user has it, usr/Guest/env.inc
 			(+ev_msg_wheel_x (* *env_wheel_x* (getf msg +gui_event_x)))
 			(+ev_msg_wheel_y (* *env_wheel_y* (getf msg +gui_event_y)))
@@ -248,5 +263,5 @@
 ;as this was read. A thing kept here was not, and the first pen or finger
 ;there ever was on a desktop stopped the GUI, it was not bound
 (export-symbols
-	'(*event_map* *pointer_views*))
+	'(*event_map* *pointer_views* *wheel_id* *wheel_time*))
 (env-pop)
