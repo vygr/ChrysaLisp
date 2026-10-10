@@ -269,8 +269,25 @@
 					(bind '(kind cx cy &ignore) edge)
 					(elem-set state +tool_state_last_angle (path-angle (- px cx) (- py cy))))
 				(elem-set state +tool_state_shape (. board :new_shape event :line)))
-			(region (elem-set state +tool_state_what (first region))))
+			(region (elem-set state +tool_state_what (first region))
+				;taken hold of, not drawn along, it comes to the front of the
+				;instruments. By the right button alone it goes to the back
+				;of them, which is how one that is under another is got at
+				(. this :restack stage (/= buttons +pev_right))))
 		state)
+
+	(defmethod :restack (stage front)
+		; (. instrument :restack stage front) -> instrument
+		;to the front of the instruments on a stage, or to the back of
+		;them. They stay in front of the surface and the handles, the two
+		;at the back, and behind what else is there, a palette
+		(defq actors (. stage :get_actors)
+			tools (filter (# (and (Instrument? %0) (not (eql %0 this)))) actors)
+			low (filter (# (not (Instrument? %0))) (slice actors 0 (min 2 (length actors))))
+			high (filter (# (not (Instrument? %0))) (slice actors (min 2 (length actors)) -1)))
+		(def stage :actors (cat low (if front (cat tools (list this)) (cat (list this) tools)) high))
+		(. (get :board this) :touch +board_dirty_overlay)
+		this)
 
 	(defmethod :step (stage event state)
 		; (. instrument :step stage event state)

@@ -294,6 +294,28 @@
 (assert-true "a line along its long side is at 30 degrees"
 	(wt-near? (abs (/ (- y1 y0) (- x1 x0))) 0.57735 0.002))
 
+;which is in front. One that is taken hold of comes to the front of the instruments, one
+;taken by the right button alone goes to the back of them, and one that is drawn along stays where it is
+(defq wt_b2 (Board (cwb-doc 800 600)) wt_s2 (. wt_b2 :get_stage)
+	wt_ra (Ruler wt_b2 300 200) wt_rb (Ruler wt_b2 300 320) wt_rc (Protractor wt_b2 560 420))
+(each (# (. wt_s2 :add %0)) (list wt_ra wt_rb wt_rc))
+(defun wt-order () (map (# (cond ((eql %0 wt_ra) :a) ((eql %0 wt_rb) :b) ((eql %0 wt_rc) :c) ((Instrument? %0) :tool) (:t :other))) (. wt_s2 :get_actors)))
+(defun wt-tap (buttons kind x y) (. wt_b2 :pointers (list (ptr-event 0 kind buttons x y))) (. wt_b2 :pointers (list (ptr-event 0 kind 0 x y))))
+(assert-list-eq "three instruments, in front of the surface and the handles, the last put there at the front" '(:other :other :a :b :c) (wt-order))
+(wt-tap +pev_left :mouse 320 204)
+(assert-list-eq "one that is taken hold of, by its middle, comes to the front of them" '(:other :other :b :c :a) (wt-order))
+(wt-tap +pev_right :mouse 320 204)
+(assert-list-eq "taken by the right button alone it goes to the back of them" '(:other :other :a :b :c) (wt-order))
+(wt-tap +pev_left :pen 320 363)
+(assert-list-eq "a pen that draws along the side of one does not move it" '(:other :other :a :b :c) (wt-order))
+(wt-tap +pev_left :touch 320 324)
+(assert-list-eq "a finger on one brings it to the front" '(:other :other :a :c :b) (wt-order))
+(import "lib/cwb/palette.inc")
+(defq wt_pal (palette-open wt_b2 600 150))
+(wt-tap +pev_left :mouse 320 204)
+(assert-list-eq "and a palette that is open stays in front of them all" '(:other :other :c :b :a :other) (wt-order))
+(assert-eq "it is the palette" :t (eql wt_pal (last (. wt_s2 :get_actors))))
+
 ;they draw themselves
 (defq wt_canvas (Canvas 800 600 1))
 (. wt_canvas :set_canvas_flags +canvas_flag_antialias)

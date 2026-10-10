@@ -4,6 +4,22 @@
 
 ------
 
+Chris: "The math tools, iteraction with them, not the drawing detectors,
+should bring that tool to the front of the math tools layer. but single
+right button down interaction should 'push' it to the back of the tools
+layer."
+
+An instrument taken hold of by a part of it, to move, turn or size, comes
+to the front of the instruments, `(. instrument :restack stage front)`.
+Taken with the right button alone held it goes to the back of them. A pen
+drawing along a side leaves it where it is. They stay in front of the
+surface and the handles and behind a palette. `test_cwb_tools.lisp`, 7.
+
+The right button is also the hand that moves an instrument with a mouse,
+so one that is moved that way goes to the back as it is.
+
+------
+
 Chris: "Math tools shoukld be visible outside the bounds of the drawing
 canvas ! currently they clip to the canvas, this is a minnor layering
 issue."

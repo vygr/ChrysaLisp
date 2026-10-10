@@ -156,6 +156,9 @@ twice, once for each side it can be read from: its top side is centimetres
 from the left, its bottom side inches from the right, written the other way
 up.
 
+* Take hold of an instrument and it comes in front of the others. Press the
+right button on one and it goes behind them, to get at one that is under it.
+
 * The ring with the cross puts it away.
 
 More than one pen can draw along an instrument at once. One that is being
