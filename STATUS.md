@@ -4,6 +4,29 @@
 
 ------
 
+Chris: "the shared cache is quite important ! I think that a fail on
+my part, not the system, we should shared them, multiple docs reader
+don't want to waste memory on copies."
+
+The image section of a page loads a `.cwb` through the shared cache
+again, as every other picture. What I added in its place is one call
+of what was already there and that nothing called: `(canvas-flush)`,
+which lets go of the cached pictures no one is showing. The Docs app
+calls it once as it starts. So readers share, and a Docs opened when
+no other reader has a picture up reads that picture again.
+
+A reader that is left open still shows what it first drew, and a
+second reader opened beside it shares that. That is the cache doing
+its job.
+
+Run: `cl_test.sh -a` clean on the x64 and the Pi.
+
+Not seen: `(canvas-flush)` working in a desktop, by me or by Chris. If
+its count of who holds a picture is wrong the worst it does is not
+let go, or let go of one in use, which those showing it still hold.
+
+------
+
 Chris: "Buffer show no properties, and I know it has some..."
 
 The card's file had them. The Docs app showed the card it had drawn

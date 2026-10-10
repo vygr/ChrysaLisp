@@ -132,6 +132,10 @@
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(config-load)
 	(def *page_scroll* :min_height 800)
+	;pictures are shared by every reader on the node, from a cache. One
+	;that no reader is showing is let go of here, so a picture that was
+	;drawn again since, a diagram of make docs, is read again
+	(canvas-flush)
 	(populate-page *current_file*)
 	(. *file_selector* :select_node *current_file*)
 	(setq *history* (list *current_file*) *history_idx* 0)
