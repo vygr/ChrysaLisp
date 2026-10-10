@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 4
 	:width 226
-	:height 444
+	:height 395
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 36
+	:next_id 32
 	:layers
 	((:list 1)
 		((:list 3)
@@ -27,13 +27,13 @@
 							:id
 							2
 							:items
-							((:list 33)
+							((:list 29)
 								((:list 11)
 									:shape
 									:id
 									3
 									:d
-									"[M 8 0 L 191.89941 0 A 8 8 0 0 1 199.89941 8 L 199.89941 410 A 8 8 0 0 1 191.89941 418 L 8 418 A 8 8 0 0 1 0 410 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 191.89941 0 A 8 8 0 0 1 199.89941 8 L 199.89941 361 A 8 8 0 0 1 191.89941 369 L 8 369 A 8 8 0 0 1 0 361 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -145,7 +145,7 @@
 									:stroke
 									0
 									:text
-									"[::state]"
+									"[:ink_comments]"
 									:font_size
 									12
 								)
@@ -164,7 +164,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_comments]"
+									"[:ink_constants]"
 									:font_size
 									12
 								)
@@ -183,7 +183,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_constants]"
+									"[:ink_globals]"
 									:font_size
 									12
 								)
@@ -202,7 +202,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_globals]"
+									"[:ink_keysyms]"
 									:font_size
 									12
 								)
@@ -221,7 +221,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_keysyms]"
+									"[:ink_keyword1]"
 									:font_size
 									12
 								)
@@ -240,7 +240,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_keyword1]"
+									"[:ink_keyword2]"
 									:font_size
 									12
 								)
@@ -259,7 +259,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_keyword2]"
+									"[:ink_keyword3]"
 									:font_size
 									12
 								)
@@ -278,7 +278,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_keyword3]"
+									"[:ink_keyword4]"
 									:font_size
 									12
 								)
@@ -297,7 +297,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_keyword4]"
+									"[:ink_numbers]"
 									:font_size
 									12
 								)
@@ -316,7 +316,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_numbers]"
+									"[:ink_strings]"
 									:font_size
 									12
 								)
@@ -335,7 +335,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_strings]"
+									"[:ink_text]"
 									:font_size
 									12
 								)
@@ -354,7 +354,7 @@
 									:stroke
 									0
 									:text
-									"[:ink_text]"
+									"[:keywords]"
 									:font_size
 									12
 								)
@@ -373,25 +373,6 @@
 									:stroke
 									0
 									:text
-									"[:keywords]"
-									:font_size
-									12
-								)
-								((:list 15)
-									:shape
-									:id
-									22
-									:m
-									((:path 6)
-										1.00000 0.00000 111.78759 0.00000 1.00000 187.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
 									"[:state]"
 									:font_size
 									12
@@ -399,7 +380,7 @@
 								((:list 13)
 									:shape
 									:id
-									23
+									22
 									:d
 									"[M 0 201 L 199.89941 201]"
 									:stroke
@@ -414,65 +395,10 @@
 								((:list 17)
 									:shape
 									:id
-									24
+									23
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 217.00000
-									)
-									:kind
-									:text
-									:fill
-									4284245616
-									:stroke
-									0
-									:text
-									"[properties it looks for]"
-									:font
-									"[fonts/OpenSans-Bold.ctf]"
-									:font_size
-									11
-								)
-								((:list 15)
-									:shape
-									:id
-									25
-									:m
-									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 236.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[::keywords]"
-									:font_size
-									12
-								)
-								((:list 13)
-									:shape
-									:id
-									26
-									:d
-									"[M 0 250 L 199.89941 250]"
-									:stroke
-									4282140240
-									:width
-									1.00000
-									:cap1
-									:butt
-									:cap2
-									:butt
-								)
-								((:list 17)
-									:shape
-									:id
-									27
-									:m
-									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 266.00000
 									)
 									:kind
 									:text
@@ -490,10 +416,10 @@
 								((:list 15)
 									:shape
 									:id
-									28
+									24
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 285.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 236.00000
 									)
 									:kind
 									:text
@@ -509,10 +435,10 @@
 								((:list 15)
 									:shape
 									:id
-									29
+									25
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 302.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 253.00000
 									)
 									:kind
 									:text
@@ -528,10 +454,10 @@
 								((:list 15)
 									:shape
 									:id
-									30
+									26
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 319.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 270.00000
 									)
 									:kind
 									:text
@@ -547,10 +473,10 @@
 								((:list 15)
 									:shape
 									:id
-									31
+									27
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 336.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 287.00000
 									)
 									:kind
 									:text
@@ -566,10 +492,10 @@
 								((:list 15)
 									:shape
 									:id
-									32
+									28
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 353.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 304.00000
 									)
 									:kind
 									:text
@@ -585,10 +511,10 @@
 								((:list 15)
 									:shape
 									:id
-									33
+									29
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 370.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 321.00000
 									)
 									:kind
 									:text
@@ -604,10 +530,10 @@
 								((:list 15)
 									:shape
 									:id
-									34
+									30
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 387.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 338.00000
 									)
 									:kind
 									:text
@@ -623,10 +549,10 @@
 								((:list 15)
 									:shape
 									:id
-									35
+									31
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 404.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 355.00000
 									)
 									:kind
 									:text

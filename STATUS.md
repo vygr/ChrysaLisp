@@ -4,6 +4,29 @@
 
 ------
 
+Chris: "Buffer show no properties, and I know it has some..."
+
+The card's file had them. The Docs app showed the card it had drawn
+before: it loads every picture through the cache of shared pictures,
+which keeps the first it was given under that path for as long as the
+node is up, and nothing empties it. Right for an icon, wrong for a
+`.cwb` that `make docs` draws again. `apps/desktop/docs/handlers/image.inc`
+now loads a `.cwb` without the cache, so a page opened again shows the
+file as it is.
+
+Looking at Buffer's card found a fault of mine too: a property named
+by `(defgetmethod)` or `(defsetmethod)` was listed a second time with
+two colons, `::cursors`. Fixed, 11 cards changed.
+
+Run: `make docs`, Buffer's card drawn and looked at, 20 properties
+and none doubled; `cl_test.sh -a` clean on the x64 and the Pi.
+
+Not seen: the Docs app showing a fresh card. I could not load a `.cwb`
+to a canvas from a terminal session to check it, with or without the
+cache, so that is for Chris to see: close Docs and open it again.
+
+------
+
 Chris: "For Lisp class diagrams are we able to add properties of the
 class or is that a bit difficult ?"
 
