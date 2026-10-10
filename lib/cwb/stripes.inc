@@ -28,11 +28,13 @@
 (import "./paper.inc")
 
 ;a stripe for a child to draw: the key of the shared pixels and their size,
-;the version of the document and where to ask for it, the rows, the zoom as
-;a fixed in a whole number, and the paper. After it, text, the ids of the
+;the version of the document and where to ask for it, the rows, the zoom,
+;and the paper. After it, text, the ids of the
 ;items not to draw, those being moved about, with a space between
 (structure +stripe +job_size
-	(long shared version zoom back)
+	(long shared version)
+	(fixed zoom)
+	(long back)
 	(netid sync)
 	(uint width height y y1 gap style)
 	(offset skip))
@@ -171,7 +173,7 @@
 		; (. stripes :job key width height y y1 zoom back style gap skip) -> job
 		(cat (setf-> (str-alloc +stripe_size)
 				(+stripe_shared (ifn key 0)) (+stripe_version (get :version this))
-				(+stripe_zoom (n2i (* (n2f zoom) 65536.0))) (+stripe_back back)
+				(+stripe_zoom (n2f zoom)) (+stripe_back back)
 				(+stripe_sync (get :sync_mbox this))
 				(+stripe_width width) (+stripe_height height) (+stripe_y y) (+stripe_y1 y1)
 				(+stripe_gap gap) (+stripe_style (ifn (find style +stripe_styles) 0)))

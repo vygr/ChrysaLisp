@@ -83,7 +83,7 @@
 	(bind '(shared version zoom back sync width height y y1 gap style)
 		(getf-> msg +stripe_shared +stripe_version +stripe_zoom +stripe_back +stripe_sync
 			+stripe_width +stripe_height +stripe_y +stripe_y1 +stripe_gap +stripe_style))
-	(defq zoom (/ (n2f zoom) 65536.0)
+	(defq
 		skip (map (const str-as-num) (split (slice msg +stripe_skip -1) " "))
 		drawn (cond
 			;no rows at all is the app asking this child to be in step

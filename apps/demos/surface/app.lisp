@@ -143,9 +143,12 @@
 		(drawn
 			(unless gpu_mode
 				;the shader is built, the GPU draws the frames from here on. What
-				;is left of a CPU frame is dropped, a tile that comes in late is
-				;not shown. The wait for the build says nothing of the GPU.
-				(. jobs :clear)
+				;is left of a CPU frame is dropped: the tiles are to answer to
+				;another mailbox, and the one they were to answer to is let go
+				;of, so a tile that is late comes nowhere. The wait for the
+				;build says nothing of the GPU.
+				(elem-set select +select_reply (mail-mbox))
+				(. jobs :reply_to (elem-get select +select_reply))
 				(setq gpu_mode :t cpu_running :nil
 					gpu_frames 0 gpu_time (pii-time) ticks 0 gpu_wait 1))
 			;a strip should take the GPU more than one tick and less than two,
@@ -211,9 +214,8 @@
 				;a child has started
 				(. jobs :launched msg))
 			(+select_reply
-				;a tile is shaded. One that comes in after the GPU has taken
-				;over is not shown
-				(when (and (defq out (. jobs :answered msg)) (not gpu_mode))
+				;a tile is shaded
+				(when (defq out (. jobs :answered msg))
 					;a child that could not reach the canvas sends the pixels
 					(shader-tile-show *canvas* msg)
 					(when (= out 0)

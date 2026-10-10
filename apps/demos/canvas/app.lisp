@@ -67,7 +67,7 @@
 	;found the canvas
 	(unless fresh (. jobs :restart))
 	(setq warming :t farming :nil)
-	(. jobs :add (map (lambda (&) (slice-job 0 0 +scene_height +scene_height))
+	(. jobs :add (map (lambda (&) (slice-job 0.0 0 +scene_height +scene_height))
 		(range 0 (. jobs :size)))))
 
 (defun start-farm-frame ()
@@ -75,7 +75,7 @@
 	;that was slower when it was timed, a shape near the edge of a slice is
 	;worked on by both sides of it
 	(defq count (max 1 (length (lisp-nodes :t)))
-		angle (n2i (* (scene-angle) 65536.0)) shapes (shape-count))
+		angle (scene-angle) shapes (shape-count))
 	(setq farming :t frame_time (pii-time) frame_shapes 0)
 	(. jobs :add (map (# (slice-job angle shapes (/ (* %0 +scene_height) count)
 		(/ (* (inc %0) +scene_height) count))) (range 0 count))))

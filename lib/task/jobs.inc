@@ -146,6 +146,17 @@
 			(. farm :restart key val)
 			(get :out this)))
 
+	(defmethod :reply_to (reply_mbox)
+		; (. jobs :reply_to reply_mbox) -> jobs
+		;answers are to come to another mailbox from now on. The queue is
+		;emptied, and the jobs that are out are forgotten, each child is
+		;as one with nothing to do. Their answers go to the old mailbox,
+		;and when that has been let go of they go nowhere: nothing that is
+		;late can come in, and nothing has to be looked at to see if it is
+		(. (get :farm this) :each (lambda (key val) (undef val :job :timestamp)))
+		(def this :reply_mbox reply_mbox :queue (list) :out 0 :tried (Fmap) :tries 0)
+		this)
+
 	(defmethod :clear ()
 		; (. jobs :clear) -> jobs
 		;the queue is emptied, the jobs the children have now are left

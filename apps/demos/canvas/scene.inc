@@ -8,9 +8,11 @@
 (import "lib/task/jobs.inc")
 
 ;a slice for a child to draw, the key of the shared pixels, the turn of
-;the scene as a fixed, how many shapes there are, and the rows
+;the scene, how many shapes there are, and the rows
 (structure +slice +job_size
-	(long shared angle count)
+	(long shared)
+	(fixed angle)
+	(long count)
 	(uint y y1))
 
 ;its answer, the first row, and how many shapes it drew, -1 if it could

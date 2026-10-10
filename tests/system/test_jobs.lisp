@@ -94,4 +94,15 @@
 (assert-true "none of them on this node, if there is another"
 	(or (<= (length (lisp-nodes :t)) 1) (notany (# (eql %0 (task-nodeid))) jt_nodes)))
 (assert-list-eq "and they work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3)) (task-timeout 10)))
+
+;answers moved to another mailbox, and the old one let go of: work that is
+;out is forgotten, and what it answers, late, comes nowhere
+(. jobs :add (map (const jt-work) '(20 21 22 23 24 25)))
+(elem-set jt_select +jt_reply (mail-mbox))
+(. jobs :reply_to (elem-get jt_select +jt_reply))
+(assert-eq "moved to another mailbox, nothing is out, though six were" 0 (. jobs :out))
+(assert-list-eq "work given after is answered there, and none of the six that were forgotten is among it" '(2 4 6)
+	(jt-run (map (const jt-work) '(1 2 3)) (task-timeout 10)))
+(task-sleep 300000)
+(assert-eq "nor does one come in late" :nil (mail-poll (list (elem-get jt_select +jt_reply))))
 (. jobs :close)

@@ -4,6 +4,31 @@
 
 ------
 
+Two things Chris saw reading code while he waited.
+
+*	"(long shared angle count) why not use the fixed type for angle if
+	that's what it is ?" The Canvas demo sent the turn of its scene as
+	a fixed times 65,536 in a long, and took it back out by dividing. A
+	structure has a `(fixed name)` field. It is one. So is the zoom the
+	Whiteboard's stripes are sent, which I had written the same way
+	the day before.
+
+*	"Why do we have logic in the surface demo for ignoring late child
+	messages when the GPU takes over ? We should just re allocate the
+	select mailbox and then we are done. Nothing can come in that is
+	late." And: "The etherial nature of the local mailbox is core idea
+	of ChrysaLisp, no complex state tracking needed." The Surface demo
+	looked at `gpu_mode` for each tile that came in. It makes a new
+	mailbox as the GPU takes over and lets the old one go.
+	`(. jobs :reply_to mbox)` is that for a farm: answers come to the
+	new one, and what is out is forgotten.
+
+`test_jobs.lisp`, 3 more: six jobs out, the mailbox changed, work given
+after is answered and none of the six comes in. Neither demo was run on
+a screen after this.
+
+------
+
 Chris: "ungroup at the end there didn't do what I thought it would, the
 whole members should have broken into seperate shapes, all selected."
 

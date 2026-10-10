@@ -27,7 +27,7 @@
 		(+slice_reply_drawn (cond
 			((not (attach canvas_key)) -1)
 			((>= y y1) 0)
-			((scene-draw canvas (/ (n2f angle) 65536.0) count y y1)))))))
+			((scene-draw canvas angle count y y1)))))))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
