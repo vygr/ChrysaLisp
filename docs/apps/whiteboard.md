@@ -138,10 +138,11 @@ line drawn along it stops there, however far the pen goes on.
 
 * What the round edge of a protractor draws is set on the protractor: the
 ring near its middle shows it, an arc, a slice with its two straight sides,
-or the whole circle, and a tap on the ring goes to the next.
+a slice that is filled, the whole circle, or a circle that is filled, and a
+tap on the ring goes to the next.
 
-* The whole protractor is numbered both ways from its 0, round the outside
-one way and round the inner scale the other.
+* A protractor is numbered every ten degrees both ways from its 0, as a
+real one is: the bigger numbers one way, the smaller under them the other.
 
 * Each is marked as the real thing is, a ruler and a set square to the
 millimetre, a protractor to the degree, and the parts of it that do things
@@ -193,6 +194,14 @@ right button on one and it goes behind them, to get at one that is under it.
 
 More than one pen can draw along an instrument at once. One that is being
 held still is not moved by a pen that draws along it.
+
+## It opens as it was closed
+
+When the Whiteboard is closed it keeps what it was, in `whiteboard.tre` in
+your folder under `usr/`, as every app keeps its own: where its window was
+and how big, what each toolbar was set to, the zoom and where the view was,
+the words in the text field, the instruments that were out, and what was
+drawn. Opened again, it is that. What could be undone is not kept.
 
 ## Driving it without a board: the cwb command
 
@@ -253,6 +262,7 @@ machine, a stripe each. The app does it by itself when a draw gets slow.
 
 * `apps/media/whiteboard/`, the window round a board: `view.inc` makes the
 mouse a pointer, `widgets.inc` is the toolbars, `ui.inc` what each does, and
-`app.lisp` the canvases and the loop.
+`config.inc` what is kept when it is closed, and `app.lisp` the canvases and
+the loop.
 
 * `cmd/cwb.lisp`, the command.

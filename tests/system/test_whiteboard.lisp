@@ -36,6 +36,34 @@
 	(split (test-output (cat wa_head " " body
 		" (when *committed* (. *committed* :sub) (setq *committed* :nil))")) (ascii-char 10)))
 
+;what the board is, kept and put back: lines, an instrument turned and set
+;to draw slices, the toolbars, the zoom. As the app does it when it is
+;closed and opened, through the text of a file
+(defq wa_cfg (wa-run (cat
+	"(wa-drag 1 100 100 220 120) (wa-mode :rect) (wa-drag 1 300 100 420 200)"
+	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (. *radius_toolbar* :set_selected 2) (wa-do +event_radius)"
+	"(wa-do +event_snap) (wa-do +event_keep_shape) (wa-do +event_zoom_in) (. *text_field* :set_text {Hello})"
+	"(wa-do +event_full_protractor) (defq tool (last (. (. *board* :get_stage) :get_actors)))"
+	"(def tool :angle 0.5 :mode :pie :origin (list 300.0 200.0)) (. tool :set_extent 260.0)"
+	"(defq was (list (wa-ids) (get :mode *board*) (get :color *board*) (get :width *board*) (get :snap *board*) (get :keep_shape *board*) *zoom* (canvas-size)))"
+	"(defq ss (string-stream (cat {}))) (tree-save ss (config-state)) (defq text (str ss))"
+	;another board altogether
+	"(. *board* :set_doc (cwb-doc 200 100)) (. (. *board* :get_stage) :sub tool) (wa-mode :pen)"
+	"(. *ink_toolbar* :set_selected 0) (wa-do +event_ink) (wa-do +event_snap) (wa-do +event_keep_shape) (wa-do +event_zoom_out) (. *text_field* :set_text {})"
+	"(defq place (config-apply (tree-load (string-stream text))))"
+	"(defq now (list (wa-ids) (get :mode *board*) (get :color *board*) (get :width *board*) (get :snap *board*) (get :keep_shape *board*) *zoom* (canvas-size)))"
+	"(print (list (str was) (eql (str was) (str now))))"
+	"(print (list (. *mode_toolbar* :get_selected) (. *ink_toolbar* :get_selected) (. *radius_toolbar* :get_selected) (. *text_field* :get_text) (get :text *board*)))"
+	"(defq tool (last (. (. *board* :get_stage) :get_actors)))"
+	"(print (list (if (Circle? tool) :t) (get :mode tool) (map (const n2i) (get :origin tool)) (n2i (. tool :extent)) (< (abs (- (get :angle tool) 0.5)) 0.001)))"
+	"(print (list (length place) (slice place 2 4) (. *window* :pref_size)))"
+	"(print (list (config-apply (Emap)) (config-apply (scatter (Emap) :version 99)) (config-apply :nil) (wa-ids)))")))
+(assert-true (cat "a board kept and put back is the board it was: " (first wa_cfg)) (ends-with " :t)" (first wa_cfg)))
+(assert-eq "its toolbars and its words as they were" "(5 2 2 \qHello\q \qHello\q)" (second wa_cfg))
+(assert-eq "its instrument where it was, turned as it was, as big, drawing what it drew" "(:t :pie (300 200) 260 :t)" (third wa_cfg))
+(assert-true (cat "and where its window was is given back, with where its view was: " (elem-get wa_cfg 3)) (starts-with "(6 " (elem-get wa_cfg 3)))
+(assert-eq "what is not a board kept, or one of another version, changes nothing" "(:nil :nil :nil (1 2))" (elem-get wa_cfg 4))
+
 (defq wa_out (wa-run (cat
 	"(print (list (View? *window*) (Board? *board*) (Board-view? *board_view*)))"
 	"(print (. *window* :pref_size))"

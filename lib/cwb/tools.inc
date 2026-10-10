@@ -57,13 +57,15 @@
 	;the sign of a part of an instrument, about 0 0, some 20 across: an
 	;arrow that goes round for :turn, one with two heads for :size, a
 	;cross for :close. For :mode, in a ring, what the instrument is set
-	;to draw: an arc, a slice of pie, or a circle
+	;to draw: an arc, a slice of pie, or a circle, either of those filled
 	(defq ink 0xff000000)
 	(case what
 		(:mode (list (cwb-shape (cwb-d-ellipse 0 0 11) :stroke ink :width 1.0 :fill 0x40ffffff)
 			(case mode
-				(:pie (cwb-shape "M 0 3 L 6.5 3 A 6.5 6.5 0 1 0 0 9.5 Z" :stroke ink :width 1.5 :fill 0x60000000 :join :round))
+				(:pie (cwb-shape "M -1 1 L 5.5 1 A 6.5 6.5 0 1 0 -1 7.5 Z" :stroke ink :width 1.5 :join :round))
+				(:fpie (cwb-shape "M -1 1 L 5.5 1 A 6.5 6.5 0 1 0 -1 7.5 Z" :stroke ink :width 1.5 :fill ink :join :round))
 				(:circle (cwb-shape (cwb-d-ellipse 0 0 6) :stroke ink :width 1.5))
+				(:fcircle (cwb-shape (cwb-d-ellipse 0 0 6) :stroke ink :width 1.5 :fill ink))
 				(:t (cwb-shape "M -6.5 3 A 6.5 6.5 0 0 1 6.5 3" :stroke ink :width 1.8)))))
 		(:turn (list (cwb-shape "M -7 4 A 8 8 0 1 1 7 4 M 7 4 L 3 3.5 M 7 4 L 8.5 0 M -7 4 L -3 3.5 M -7 4 L -8.5 0"
 			:stroke ink :width 1.6 :join :round)))
@@ -239,7 +241,8 @@
 		;what a pen held to an edge has drawn, now it is at a point, in the
 		;board's space. A line along a line. Along an arc, the arc from
 		;where it went down, round the way it has gone, or with :mode :pie
-		;a slice of that, or :circle all the way round
+		;a slice of that, or :circle all the way round. :fpie and :fcircle
+		;are those filled, which is the shape's doing, (:begin)
 		(bind '(edge sx sy) (elem-get state +tool_state_near))
 		(bind '(px py) (. this :on_edge edge x y))
 		(case (first edge)
@@ -257,9 +260,9 @@
 					a0 (+ turn (if (>= turned 0.0) a_from (+ a_from turned)))
 					a1 (+ turn (if (>= turned 0.0) (+ a_from turned) a_from)))
 				(cond
-					((or (eql mode :circle) (>= (abs turned) +fp_2pi)) (cwb-d-ellipse bcx bcy r))
+					((or (find mode '(:circle :fcircle)) (>= (abs turned) +fp_2pi)) (cwb-d-ellipse bcx bcy r))
 					((= turned 0.0) "")
-					(:t (cwb-d-arc bcx bcy r a0 a1 (eql mode :pie)))))
+					(:t (cwb-d-arc bcx bcy r a0 a1 (find mode '(:pie :fpie))))))
 			(:t (bind '(bx0 by0) (. this :to_board sx sy))
 				(bind '(bx1 by1) (. this :to_board px py))
 				(cwb-d-line bx0 by0 bx1 by1))))
@@ -281,7 +284,11 @@
 				(when (eql (first edge) :arc)
 					(bind '(kind cx cy &ignore) edge)
 					(elem-set state +tool_state_last_angle (path-angle (- px cx) (- py cy))))
-				(elem-set state +tool_state_shape (. board :new_shape event :line)))
+				(defq shape (. board :new_shape event :line))
+				;round an arc, a slice or a circle that is filled is all of its colour
+				(if (and (eql (first edge) :arc) (find (get :mode this) '(:fpie :fcircle)))
+					(cwb-set shape :fill (cwb-get shape :stroke) :stroke 0))
+				(elem-set state +tool_state_shape shape))
 			(region (elem-set state +tool_state_what (first region))
 				;taken hold of, not drawn along, it comes to the front of the
 				;instruments. By the right button alone it goes to the back
@@ -366,11 +373,11 @@
 					(. stage :sub this)
 					(. board :touch +board_dirty_overlay)))
 			(:mode
-				;what it draws is the next of the three, if it came up where
+				;what it draws is the next of the five, if it came up where
 				;it went down. Its sign is of that, so it is made again
 				(bind '(lx ly) (. this :to_own x y))
 				(when (and (defq now (. this :part_at lx ly)) (eql (first now) :mode))
-					(def this :mode (case (get :mode this) (:line :pie) (:pie :circle) (:t :line)))
+					(def this :mode (case (get :mode this) (:line :pie) (:pie :fpie) (:fpie :circle) (:circle :fcircle) (:t :line)))
 					(. this :built)))))
 
 	(defmethod :pointers (stage events)
@@ -599,8 +606,11 @@
 			(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
 				tick (* by (cond ((= (% deg 10) 0) 15.0) ((= (% deg 5) 0) 10.0) (:t 6.0))))
 			(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
-			(if (and (= (% deg 10) 0) (> deg 0) (< deg 180))
-				(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0))))))
+			;numbered every ten both ways, as a protractor is: from the right
+			;round the outside, and under those, smaller, from the left
+			(when (and (= (% deg 10) 0) (> deg 0) (< deg 180))
+				(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0)))
+					(cwb-text-mid (str (- 180 deg)) (* (- r (* by 44.0)) c) (* (- r (* by 44.0)) s) :font_size (n2i (* by 9.0))))))
 			(range 0 181))
 		;the band that turns it is the inner scale, as a protractor has, that
 		;reads the other way round, marked every five and numbered every thirty
@@ -614,7 +624,7 @@
 		;its middle, on the straight side, and the line straight up from it
 		;and the line through it from 0 to 180, with the strip below marked
 		;in millimetres along the straight side
-		(push ticks "M" (neg r) 0 "L" r 0 "M" 0 base "L" 0 -14 "M" 0 (neg in0) "L" 0 (- (* by 22.0) r))
+		(push ticks "M" (neg r) 0 "L" r 0 "M" 0 base "L" 0 -14 "M" 0 (neg in0) "L" 0 (- (* by 53.0) r))
 		;out from the middle both ways, so the middle is on a long mark and
 		;stays on it as the protractor is made bigger or smaller
 		(push marks (cwb-shape (cat (tool-ticks 0.0 base across base 0.0 -1.0 +tool_mm 3.0 5.0 8.0)
@@ -662,7 +672,8 @@
 				tick (* by (cond ((= (% deg 10) 0) 15.0) ((= (% deg 5) 0) 10.0) (:t 6.0))))
 			(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
 			(if (= (% deg 10) 0)
-				(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0)))))
+				(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0)))
+					(cwb-text-mid (str (% (- 360 deg) 360)) (* (- r (* by 44.0)) c) (* (- r (* by 44.0)) s) :font_size (n2i (* by 9.0)))))
 			(when (= (% deg 5) 0)
 				(defq tick (* by (if (= (% deg 10) 0) 8.0 4.0)))
 				(push ticks "M" (* in1 c) (* in1 s) "L" (* (- in1 tick) c) (* (- in1 tick) s))
@@ -672,7 +683,7 @@
 			(range 0 360))
 		;its middle, and the four lines out from the inner scale
 		(push ticks "M" -12 0 "L" 12 0 "M" 0 -12 "L" 0 12)
-		(each (lambda ((c s)) (push ticks "M" (* in1 c) (* in1 s) "L" (* (- r (* by 38.0)) c) (* (- r (* by 38.0)) s)))
+		(each (lambda ((c s)) (push ticks "M" (* in1 c) (* in1 s) "L" (* (- r (* by 53.0)) c) (* (- r (* by 53.0)) s)))
 			'((1.0 0.0) (0.0 1.0) (-1.0 0.0) (0.0 -1.0)))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(def this :marks marks :readouts (list (list 0.0 (* 0.16 r))))

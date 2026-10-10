@@ -519,9 +519,11 @@
 			(partition (rest tree) 2)))
 	(first root))
 
-(defun cwb-save (doc stream)
-	; (cwb-save doc stream) -> stream
-	(tree-save stream (scatter (Emap)
+(defun cwb-out (doc)
+	; (cwb-out doc) -> emap
+	;a document as the tree a .cwb file is, to be saved by itself or as a
+	;part of something else that is
+	(scatter (Emap)
 		:version +cwb_version
 		:width (. doc :find :width) :height (. doc :find :height)
 		:background (. doc :find :background)
@@ -529,7 +531,11 @@
 		:next_id (. doc :find :next_id)
 		:layers (map (lambda ((name flags items))
 			(list name flags (map (const cwb-item-out) items))) (cwb-layers doc))
-		:props (. doc :find :props))))
+		:props (. doc :find :props)))
+
+(defun cwb-save (doc stream)
+	; (cwb-save doc stream) -> stream
+	(tree-save stream (cwb-out doc)))
 
 (defun cwb-old-in (data)
 	; (cwb-old-in data) -> doc
@@ -560,15 +566,11 @@
 	(. doc :insert :style :plain)
 	doc)
 
-(defun cwb-load (stream)
-	; (cwb-load stream) -> :nil | doc
-	;a document from a .cwb file. One from before this version is made
-	;into one of this
-	;a file that is not a tree of one, any other text, is not a document
-	;and one that is not a tree at all throws as it is read, where there
-	;are errors to throw
-	(when (and stream (defq data (catch (tree-load stream) :t)) (Emap? data)
-			(defq version (. data :find :version)) (num? version))
+(defun cwb-in (data)
+	; (cwb-in data) -> :nil | doc
+	;a document from the tree of one, (cwb-out). One from before this
+	;version is made into one of this. Anything else is not a document
+	(when (and (Emap? data) (defq version (. data :find :version)) (num? version))
 		(cond
 			((< version 2) :nil)
 			((< version +cwb_version) (cwb-old-in data))
@@ -580,6 +582,13 @@
 				;an item with no id, one written by hand, is given one
 				(each (lambda ((name flags items)) (each (# (cwb-adopt doc %0)) items)) (cwb-layers doc))
 				doc))))
+
+(defun cwb-load (stream)
+	; (cwb-load stream) -> :nil | doc
+	;a document from a .cwb file
+	;a file that is not a tree at all throws as it is read, where there
+	;are errors to throw
+	(if stream (cwb-in (catch (tree-load stream) :t))))
 
 ;;;;;;;;;
 ; drawing

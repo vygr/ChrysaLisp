@@ -313,6 +313,7 @@
 
 ;import actions and bindings
 (import "./actions.inc")
+(import "./config.inc")
 
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (prin _) (print) :t)))
@@ -324,11 +325,16 @@
 	;a corner keeps the shape of what it sizes, till the lock is put off
 	(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*)))
 	(board-resized)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	;as it was when it was last closed, if it has been: where it was and
+	;how big, as far as that is on the screen there now is
+	(defq config (catch (config-load) :t)
+		place (if (list? config) (apply view-fit (slice config 0 4)) (apply view-locate (. *window* :pref_size))))
+	(bind '(x y w h) place)
 	(gui-add-front-rpc (. *window* :change x y w h))
-	;it opens on the corner of the document, a little of what is round it showing
-	(def (get :hslider *image_scroll*) :value (max 0 (- *margin* 24)))
-	(def (get :vslider *image_scroll*) :value (max 0 (- *margin* 24)))
+	;it opens where the view was, or on the corner of the document, a
+	;little of what is round it showing
+	(def (get :hslider *image_scroll*) :value (max 0 (if (list? config) (elem-get config 4) (- *margin* 24))))
+	(def (get :vslider *image_scroll*) :value (max 0 (if (list? config) (elem-get config 5) (- *margin* 24))))
 	(.-> *image_scroll* :layout :dirty_all)
 
 	;main event loop
@@ -371,6 +377,7 @@
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	;close window
+	(catch (config-save) :t)
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(. *stripes* :close)
 	(gui-sub-rpc *window*)

@@ -4,6 +4,57 @@
 
 ------
 
+Chris: "Whiteboard need to save config... re-size and toobar selections
+etc, current drawing... follow the same config .tre rules and other
+apps." And as that was being made: "Forward and backward numeral
+markings on the protractors." and "protractor should alow filed amnd
+none filed pie slice drawing."
+
+*	`apps/media/whiteboard/config.inc`, as Eyes, Todo, the PCB app and
+	the Viewer have theirs: `whiteboard.tre` in the user's folder, an
+	`Emap` with a version, read under a read lock in `main` and written
+	under a write lock as the window closes. In it: where the window
+	was and how big, the zoom, where the view was in its scroll, what
+	the mode, ink, width and paper bars were set to, the two snaps and
+	the lock, the words of the text field, the file it was, the
+	instruments that were out, each with where, turned how far, how
+	long and what it draws, and the drawing.
+
+*	The drawing is in it as the tree a `.cwb` file is. `(cwb-out doc)`
+	and `(cwb-in data)` are that tree without a file, `(cwb-save)` and
+	`(cwb-load)` are now those and a stream. `lib/cwb/doc.inc`.
+
+*	A window that was on a screen bigger than the one there is now is
+	brought onto it, `(view-fit)`. A file that is not of this version
+	changes nothing.
+
+*	It is written when the window is closed, as the other apps do. A
+	desktop that is taken down under it keeps nothing of that sitting.
+	The steps that could be undone are not kept.
+
+*	A protractor is numbered every ten both ways, the second row
+	smaller and under the first, the half one to 180 and the whole one
+	to 350. The numbers of the inner scale, every thirty, are still
+	there.
+
+*	The ring on a protractor goes through five now: arc, slice, slice
+	filled, circle, circle filled. A filled one is all of the pen's
+	colour with no line round it, as a filled box is.
+
+*	While I was in it a bracket was missing from `tools.inc` for a
+	minute or two, on the tree his desktop runs from. A Whiteboard
+	opened then would not have.
+
+Run: `test_cwb` 445 and `test_whiteboard` 80 on the M4, the full suite
+on the x64 and the Pi. Both protractors drawn to a picture and looked
+at.
+
+Not seen: a window closed and opened on a desktop. The test keeps a
+board and puts it back through the text of the file, in a task with no
+desktop, and does not go through `main`.
+
+------
+
 Chris, on the instruments, four things one after another:
 
 "OK, when scaleing the ruler, the side pivot point of the ruler should
