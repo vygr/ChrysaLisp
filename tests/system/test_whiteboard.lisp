@@ -57,7 +57,11 @@
 	"(wa-mode :pen) (wa-drag 3 300 150 340 190) (print (list (wa-ids) (. *board* :get_selected) (map (const n2i) (cwb-bounds (. *board* :selected_items)))))"
 	;the middle button draws nothing
 	"(wa-drag 2 50 50 90 90) (print (wa-ids))"
-	"(print (list (wa-draw)))")))
+	"(print (list (wa-draw)))"
+	;laid out, the view over the board is not one that covers what is under it
+	"(bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 0 0 w h)"
+	"(print (list (bits? (getf *board_view* +view_flags 0) +view_flag_opaque) (bits? (getf *backdrop* +view_flags 0) +view_flag_opaque)"
+	" (. *board_view* :get_size) (. *committed* :get_size)))")))
 (assert-eq "the app's file loads, and it has a window, a board and a view of it" "(4 4 5)" (elem-get wa_out 0))
 (assert-true "the window has a size it wants, no wider than a small screen"
 	(progn (defq wa_size (first (read (string-stream (elem-get wa_out 1))))) (and (> (first wa_size) 400) (< (first wa_size) 1000))))
@@ -74,6 +78,8 @@
 	"((1 2 3 4) (2) (338 138 461 241))" (elem-get wa_out 11))
 (assert-eq "the middle button is the view's, to move it about, and draws nothing" "(1 2 3 4)" (elem-get wa_out 12))
 (assert-eq "and it all draws" "(4)" (elem-get wa_out 13))
+(assert-eq "laid out in its window, the view over the board lets what is under it show, the paper does not, and both are the size of the board"
+	"(:nil :t (1024 768) (1024 768))" (elem-get wa_out 14))
 
 (defq wa_out (wa-run (cat
 	"(wa-drag 1 100 100 220 120) (wa-mode :rect) (wa-drag 1 300 100 420 200) (wa-drag 1 500 100 600 180)"

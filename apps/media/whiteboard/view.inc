@@ -21,8 +21,12 @@
 
 (defclass Board-view (board) (View)
 	; (Board-view board) -> board_view
+	;it draws nothing, what is under it shows. A view with a colour that is
+	;solid is taken, when it is laid out, to cover what is under it, and
+	;one with no colour of its own has its parent's. So it has one, of
+	;nothing
 	(def (. this :set_flags +view_flag_solid +view_flag_solid)
-		:board board :zoom 1.0 :held 0 :scroll :nil :drag :nil)
+		:board board :zoom 1.0 :held 0 :scroll :nil :drag :nil :color 0)
 
 	(defmethod :mouse_pointer (event buttons)
 		; (. board_view :mouse_pointer event buttons) -> board_view

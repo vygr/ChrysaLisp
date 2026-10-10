@@ -4,6 +4,21 @@
 
 ------
 
+The first time the Whiteboard was seen, the board was not drawn at all.
+Chris: "I see no main area redraw, probably a opaque flag or trandperncy
+issue." It was. The view that lies over the board to take the mouse draws
+nothing, and had no colour of its own, so it had its parent's, a solid
+one, and a view with a solid colour is taken, when it is laid out, to
+cover what is under it. The paper and the canvases under it were never
+drawn. It has a colour of nothing now, as the Stroke view it took the
+place of had. Chris: "OK, I now se the grid".
+
+A test lays the window out and asks that the view is not one that covers.
+Every test the night ran passed with this wrong, and so did the app on a
+desktop node I could not see: that it ran is not that it drew.
+
+------
+
 A last soak, twenty runs of every test on the three machines on what was
 committed: fifty nine of sixty clean, and no shared memory left. The one
 was `system/test_lock` on the Pi, the Lock service not yet heard of at the
