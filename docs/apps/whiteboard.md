@@ -144,6 +144,14 @@ all at once.
 is near one: strongly to every 45 degrees, and to every 10. Between them it
 is free.
 
+* An instrument that is made bigger is all bigger, its marks and its numbers
+too.
+
+* The angle it is turned to is written on it, in degrees. The ruler has it
+twice, once for each side it can be read from: its top side is centimetres
+from the left, its bottom side inches from the right, written the other way
+up.
+
 * The ring with the cross puts it away.
 
 More than one pen can draw along an instrument at once. One that is being

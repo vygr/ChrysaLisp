@@ -103,8 +103,10 @@
 
 (defclass Instrument (board x y) (Actor)
 	; (Instrument board x y) -> instrument
-	;what every instrument is. One of a kind sets :length and its limits,
-	;and has a :rebuild that sets what it is made of:
+	;what every instrument is. One of a kind sets :length, how big it is
+	;made, and has a :rebuild that sets what it is made of, at that size.
+	;It is then seen bigger or smaller by :size, 1.0 for as made, all of
+	;it, its marks and its numbers with it:
 	;	:outline	a d, closed
 	;	:edges		((kind ...) ...), (:line x0 y0 x1 y1) or (:arc cx cy r a0 a1)
 	;	:parts		((what d) ...), what is :move :turn :size or :close,
@@ -117,8 +119,13 @@
 	;	:glyphs		((what x y [angle]) ...), where the sign of a part is
 	;				drawn, so that it is seen what the part is for. A
 	;				part other than :move is drawn too, a shade darker
+	;	:readouts	((x y [turn]) ...), where the angle it is turned to
+	;				is written, in degrees, the way a protractor counts,
+	;				up from level. One with a turn is written turned by
+	;				that, and says the angle that much on: a ruler seen
+	;				from its other side
 	(def this :board board :origin (list (n2f x) (n2f y)) :angle 0.0
-		:length 400.0 :min_length 150.0 :max_length 2000.0
+		:length 400.0 :size 1.0 :min_size 0.4 :max_size 5.0 :readouts (list) :said :nil
 		:outline "" :edges (list) :parts (list) :marks (list) :glyphs (list)
 		:mode :line :body :nil :regions :nil :zones :nil :grab :nil)
 
@@ -150,7 +157,8 @@
 		; (. instrument :matrix) -> matrix
 		;from its own space to the board's
 		(bind '(ox oy) (get :origin this))
-		(cwb-mat-mul (cwb-mat-move ox oy) (cwb-mat-turn (get :angle this))))
+		(cwb-mat-mul (cwb-mat-move ox oy)
+			(cwb-mat-mul (cwb-mat-turn (get :angle this)) (cwb-mat-scale (get :size this)))))
 
 	(defmethod :to_own (x y)
 		; (. instrument :to_own x y) -> (x y)
@@ -166,7 +174,7 @@
 		;and the point of the edge that is nearest
 		;the nearest, and of two as near the first, so the order they are
 		;given in says which has a corner where two meet
-		(defq band (/ +tool_band (get :zoom (get :board this))) best :nil best_d (+ band 0.001))
+		(defq band (/ +tool_band (* (get :zoom (get :board this)) (get :size this))) best :nil best_d (+ band 0.001))
 		(each (lambda (edge)
 			(defq near (. this :on_edge edge x y) dx (- x (first near)) dy (- y (second near))
 				d (sqrt (+ (* dx dx) (* dy dy))))
@@ -217,7 +225,8 @@
 				(elem-set state +tool_state_last_angle a)
 				;where it is on the board: its middle, and its turn added to each angle
 				(bind '(bcx bcy) (. this :to_board cx cy))
-				(defq turn (get :angle this) mode (get :mode this)
+				;and it is as big on the board as the instrument is seen
+				(defq turn (get :angle this) mode (get :mode this) r (* r (get :size this))
 					a0 (+ turn (if (>= turned 0.0) a_from (+ a_from turned)))
 					a1 (+ turn (if (>= turned 0.0) (+ a_from turned) a_from)))
 				(cond
@@ -235,7 +244,7 @@
 		(bind '(lx ly) (. this :to_own x y))
 		(defq near (. this :edge_near lx ly) region (. this :part_at lx ly)
 			tool (. (get :bindings board) :value event :tool :pen)
-			state (list :none region :nil x y (cat (get :origin this)) (get :angle this) (get :length this)
+			state (list :none region :nil x y (cat (get :origin this)) (get :angle this) (get :size this)
 				:nil near 0.0 0.0 x y))
 		(cond
 			((and near (find tool '(:pen)))
@@ -283,8 +292,8 @@
 					;by how much further from its middle the pointer is
 					(defq d0 (max 1.0 (sqrt (+ (* (- sx (first origin)) (- sx (first origin))) (* (- sy (second origin)) (- sy (second origin))))))
 						d1 (sqrt (+ (* (- x (first origin)) (- x (first origin))) (* (- y (second origin)) (- y (second origin))))))
-					(def this :length (max (get :min_length this) (min (get :max_length this) (* length (/ d1 d0)))))
-					(. this :built)))))
+					(def this :size (max (get :min_size this) (min (get :max_size this) (* length (/ d1 d0)))))
+					(. board :touch +board_dirty_overlay)))))
 
 	(defmethod :end (stage event state)
 		; (. instrument :end stage event state)
@@ -338,19 +347,19 @@
 						(elem-set state +tool_state_y (elem-get state +tool_state_last_y))
 						(elem-set state +tool_state_origin (cat (get :origin this)))
 						(elem-set state +tool_state_angle (get :angle this))
-						(elem-set state +tool_state_length (get :length this))) hands)))
+						(elem-set state +tool_state_length (get :size this))) hands)))
 			(:t (defq a (first hands) b (second hands)
 					pa (list (elem-get a +tool_state_last_x) (elem-get a +tool_state_last_y))
 					pb (list (elem-get b +tool_state_last_x) (elem-get b +tool_state_last_y)))
 				(unless grab
-					(def this :grab (setq grab (list pa pb (cat (get :origin this)) (get :angle this) (get :length this)))))
+					(def this :grab (setq grab (list pa pb (cat (get :origin this)) (get :angle this) (get :size this)))))
 				(bind '(pa0 pb0 origin angle length) grab)
 				;it is as much bigger as they are further apart, within what it can be
 				(defq d0 (max 1.0 (sqrt (+ (* (- (first pb0) (first pa0)) (- (first pb0) (first pa0)))
 						(* (- (second pb0) (second pa0)) (- (second pb0) (second pa0))))))
 					d1 (sqrt (+ (* (- (first pb) (first pa)) (- (first pb) (first pa)))
 						(* (- (second pb) (second pa)) (- (second pb) (second pa)))))
-					new_length (max (get :min_length this) (min (get :max_length this) (* length (/ d1 d0))))
+					new_length (max (get :min_size this) (min (get :max_size this) (* length (/ d1 d0))))
 					by (/ new_length length))
 				(defq turn (tool-angle-wrap (- (path-angle (- (first pb) (first pa)) (- (second pb) (second pa)))
 						(path-angle (- (first pb0) (first pa0)) (- (second pb0) (second pa0)))))
@@ -361,9 +370,7 @@
 					m (cwb-mat-mul (cwb-mat-move (- m1x m0x) (- m1y m0y))
 						(cwb-mat-mul (cwb-mat-turn turn m0x m0y) (cwb-mat-scale by by m0x m0y))))
 				(def this :angle (+ angle turn) :origin (cwb-mat-point m (first origin) (second origin)))
-				(when (/= new_length (get :length this))
-					(def this :length new_length)
-					(. this :built))
+				(def this :size new_length)
 				(. (get :board this) :touch +board_dirty_overlay))))
 
 	(defmethod :draw (canvas &optional m)
@@ -374,7 +381,31 @@
 		(cwb-draw-items canvas (list (get :body this)) m)
 		(cwb-draw-items canvas (get :zones this) m)
 		(cwb-draw-items canvas (get :marks this) m)
+		(cwb-draw-items canvas (. this :readout) m)
 		this)
+
+	(defmethod :degrees (&optional turn)
+		; (. instrument :degrees [turn]) -> str
+		;the angle it is turned to, in degrees, to a tenth, counted the way
+		;a protractor's numbers go, up from level, 0 to 360. With a turn,
+		;that much on
+		(defq deg (/ (* (neg (+ (get :angle this) (ifn turn 0.0))) 180.0) +fp_pi)
+			tenths (% (+ (% (n2i (floor (+ (* deg 10.0) 0.5))) 3600) 3600) 3600))
+		(cat (str (/ tenths 10)) (if (= (% tenths 10) 0) "" (cat "." (str (% tenths 10))))))
+
+	(defmethod :readout ()
+		; (. instrument :readout) -> shapes
+		;the angle, written at each of its :readouts, made again only when
+		;what it says is not what it said
+		(defq says (map (lambda (at) (. this :degrees (if (> (length at) 2) (third at)))) (get :readouts this))
+			said (get :said this))
+		(unless (and said (= (length (first said)) (length says)) (every (const eql) (first said) says))
+			(def this :said (setq said (list says (map (lambda (at text)
+				(defq shape (cwb-text-mid text 0 0 :font_size 13))
+				(elem-set shape +cwb_m (cwb-mat-mul (cwb-mat-move (first at) (second at))
+					(cwb-mat-mul (cwb-mat-turn (if (> (length at) 2) (third at) 0.0)) (elem-get shape +cwb_m))))
+				shape) (get :readouts this) says)))))
+		(second said))
 	)
 
 ;;;;;;;;;;;
@@ -411,16 +442,32 @@
 			:glyphs (list (list :close 0.0 0.0)
 				(list :size (- (neg half) (* -0.5 +ruler_cap)) 0.0) (list :size (- half (* 0.5 +ruler_cap)) 0.0)
 				(list :turn (+ (neg inset) 24.0) 0.0) (list :turn (- inset 24.0) 0.0)))
-		;millimetres along the top side, from its left end, and along the
-		;bottom side the other way, from its right end
-		(push marks (cwb-shape (cat (tool-ticks (neg inset) top inset top 0.0 1.0 +tool_mm)
-				" " (tool-ticks inset bot (neg inset) bot 0.0 -1.0 +tool_mm))
-			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
-		(defq n 0 at 0.0)
+		;centimetres along the top side, in millimetres, from its left end.
+		;Inches along the bottom side, in sixteenths, from its right end,
+		;and written the other way up: the bottom is the top turned half
+		;round about the middle, to be read from the other side
+		(defq inch (* 25.4 +tool_mm) ticks (list (tool-ticks (neg inset) top inset top 0.0 1.0 +tool_mm))
+			n 0 at 0.0 flip (lambda (shape x y)
+				;words, about their own middle, turned half round, and put at a point
+				(elem-set shape +cwb_m (cwb-mat-mul (cwb-mat-move x y) (cwb-mat-mul (cwb-mat-turn +fp_pi) (elem-get shape +cwb_m))))
+				shape))
+		(while (<= at (+ (* 2.0 inset) 0.01))
+			(defq tick (cond ((= (% n 16) 0) 14.0) ((= (% n 8) 0) 11.0) ((= (% n 4) 0) 8.0) ((= (% n 2) 0) 6.0) (:t 4.0)))
+			(push ticks (cwb-d "M" (- inset at) bot "L" (- inset at) (- bot tick)))
+			(if (and (= (% n 16) 0) (< at (- (* 2.0 inset) 6.0)))
+				(push marks (flip (cwb-text-mid (str (/ n 16)) 0 0 :font_size 13) (- inset at (if (= n 0) 6.0 0.0)) (- bot 22.0))))
+			(setq n (inc n) at (/ (* (n2f n) inch) 16.0)))
+		(push marks (cwb-shape (join ticks " ") :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
+		(setq n 0 at 0.0)
 		(while (< at (- (* 2.0 inset) 6.0))
 			(push marks (cwb-text-mid (str n) (+ (neg inset) at (if (= n 0) 6.0 0.0)) (+ top 22.0) :font_size 13))
-			(push marks (cwb-text-mid (str n) (- inset at (if (= n 0) 6.0 0.0)) (- bot 22.0) :font_size 13))
 			(setq n (inc n) at (+ at (* 10.0 +tool_mm))))
+		;what each side is in, by its 0
+		(push marks (cwb-text-mid "cm" (+ (neg inset) 26.0) (+ top 23.0) :font_size 10))
+		(push marks (flip (cwb-text-mid "in" 0 0 :font_size 10) (- inset 24.0) (- bot 23.0)))
+		;the angle it is at, either side of its middle, the one for who
+		;reads the top side and the one for who reads the bottom
+		(def this :readouts (list (list 44.0 0.0) (list -44.0 0.0 +fp_pi)))
 		(def this :marks marks)
 		this)
 	)
@@ -440,7 +487,7 @@
 	;scale, the rest, its middle, moves it, the
 	;ring puts it away. Marked every degree, longer every five and ten,
 	;numbered every ten, with a cross where its middle is
-	(def this :length 360.0 :min_length 200.0 :max_length 1600.0)
+	(def this :length 360.0)
 
 	(defmethod :rebuild ()
 		(defq r (* 0.5 (get :length this)) in0 (* 0.46 r) in1 (* 0.62 r) marks (list) ticks (list)
@@ -491,7 +538,7 @@
 				" " (tool-ticks 0.0 base (neg r) base 0.0 -1.0 +tool_mm 3.0 5.0 8.0))
 			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
-		(def this :marks marks)
+		(def this :marks marks :readouts (list (list 0.0 (* -0.16 r))))
 		this)
 	)
 
@@ -508,7 +555,7 @@
 	;bigger or smaller, the rest moves it. Its two square sides are
 	;marked in millimetres from the square corner, and its long side from
 	;a little below its top corner, numbered in centimetres
-	(def this :length 360.0 :min_length 160.0 :max_length 1600.0)
+	(def this :length 360.0)
 
 	(defmethod :rebuild ()
 		(defq w (get :length this) h (* w 0.57735)
@@ -559,6 +606,6 @@
 			(if (< at (- long 110.0))
 				(push marks (cwb-text-mid (str n) (+ cx (* ux (+ at 40.0)) (* -22.0 uy)) (+ cy (* uy (+ at 40.0)) (* 22.0 ux)) :font_size 12)))
 			(setq n (inc n) at (+ at (* 10.0 +tool_mm))))
-		(def this :marks marks)
+		(def this :marks marks :readouts (list (list -14.0 17.0)))
 		this)
 	)

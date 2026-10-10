@@ -91,16 +91,16 @@
 (assert-true "turned to 20.8 it is at 20" (wt-near? (wt-turn-to 20.8) (wt-deg 20) 0.001))
 (assert-true "and to 24 it is at 24, or as near as the hand was" (wt-near? (wt-turn-to 24) (wt-deg 24) 0.01))
 
-;two fingers that go apart make it longer, about their middle
-(def wt_ruler :origin (list 400.0 300.0) :angle 0.0 :length 400.0)
-(. wt_ruler :built)
+;two fingers that go apart make it bigger, about their middle
+(def wt_ruler :origin (list 400.0 300.0) :angle 0.0 :size 1.0)
 (wt-go '(7 :touch 1 350 300)) (wt-go '(8 :touch 1 450 300))
 (wt-go '(7 :touch 1 325 300) '(8 :touch 1 475 300))
 (wt-go '(7 :touch 0 325 300) '(8 :touch 0 475 300))
-(assert-true "two fingers that go half as far apart again make it half as long again, where it is"
-	(and (wt-near? (get :length wt_ruler) 600.0 0.5) (wt-near? (get :origin wt_ruler) '(400 300) 0.1) (wt-near? (get :angle wt_ruler) 0.0 0.001)))
-(def wt_ruler :length 400.0)
-(. wt_ruler :built)
+(assert-true "two fingers that go half as far apart again make it half as big again, where it is"
+	(and (wt-near? (get :size wt_ruler) 1.5 0.002) (wt-near? (get :origin wt_ruler) '(400 300) 0.1) (wt-near? (get :angle wt_ruler) 0.0 0.001)))
+(assert-true "all of it: a point of it is half as far again from its middle on the board"
+	(wt-near? (. wt_ruler :to_board 100 -40) '(550 240) 0.01))
+(def wt_ruler :size 1.0)
 
 ;the hole by an end turns it about the 0 of the marks at its other end, the
 ;top side's at the left, the bottom side's at the right. Put on a point,
@@ -132,13 +132,15 @@
 (assert-true "a line along a ruler turned an eighth of a turn goes down as far as it goes across"
 	(wt-near? (- x1 x0) (- y1 y0) 0.05))
 
-;an end makes it longer
+;an end makes it bigger, all of it, its marks and its numbers with it
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
 (wt-go '(0 :mouse 1 595 300)) (wt-go '(0 :mouse 1 695 300)) (wt-go '(0 :mouse 0 695 300))
-(assert-true "dragged by an end it is longer" (wt-near? (get :length wt_ruler) 605.1 0.5))
-(assert-true "and its sides are as long as it is" (wt-near? (elem-get (first (get :edges wt_ruler)) 3) (- (* 0.5 (get :length wt_ruler)) +ruler_cap) 0.01))
-(wt-go '(0 :mouse 1 695 300)) (wt-go '(0 :mouse 1 5000 300)) (wt-go '(0 :mouse 0 5000 300))
-(assert-eq "but no longer than it may be" 2000.0 (get :length wt_ruler))
+(assert-true "dragged by an end, half as far again from its middle, it is half as big again" (wt-near? (get :size wt_ruler) 1.5128 0.003))
+(assert-true "and is made as it was, it is seen bigger" (wt-near? (elem-get (first (get :edges wt_ruler)) 3) (- 200.0 +ruler_cap) 0.01))
+(wt-go '(1 :pen 1 300 232)) (wt-go '(1 :pen 1 500 235)) (wt-go '(1 :pen 0 500 235))
+(assert-true "a pen is held to its side where that now is" (wt-near? (wt-numbers (wt-last-d)) '(300 239.49 500 239.49) 0.3))
+(wt-go '(0 :mouse 1 695 300)) (wt-go '(0 :mouse 1 9000 300)) (wt-go '(0 :mouse 0 9000 300))
+(assert-eq "but no bigger than it may be" 5.0 (get :size wt_ruler))
 
 ;the ring in its middle puts it away, if the pointer comes up where it went down
 (wt-go '(0 :mouse 1 400 300)) (wt-go '(0 :mouse 1 300 100)) (wt-go '(0 :mouse 0 300 100))
@@ -204,38 +206,48 @@
 (wt-go '(1 :pen 0 586 299.99))
 ;one pointer on it: its middle moves it, the band half way in turns it, the
 ;outer scale sizes it, and a pen close on the round side draws, as above
-(def wt_pro :origin (list 400.0 300.0) :angle 0.0 :length 360.0)
-(. wt_pro :built)
+(def wt_pro :origin (list 400.0 300.0) :angle 0.0 :size 1.0)
 (defun wt-part (x y) (first (. wt_pro :part_at x y)))
 (assert-list-eq "the parts of a protractor from its middle out, straight up: move, turn, size" '(:move :turn :size)
 	(list (wt-part 0 -75) (wt-part 0 -97) (wt-part 0 -140)))
 (wt-go '(0 :mouse 4 400 160)) (wt-go '(0 :mouse 4 400 90)) (wt-go '(0 :mouse 0 400 90))
 (assert-true "dragged out by its outer scale, half as far again from its middle, it is half as big again"
-	(and (wt-near? (get :length wt_pro) 540.0 0.5) (wt-near? (get :origin wt_pro) '(400 300) 0.01)))
-(def wt_pro :length 360.0)
-(. wt_pro :built)
+	(and (wt-near? (get :size wt_pro) 1.5 0.002) (wt-near? (get :origin wt_pro) '(400 300) 0.01)))
+(def wt_pro :size 1.5)
+(assert-true "a pen run round it then draws an arc of the radius it is seen at"
+	(progn (wt-go '(1 :pen 1 675 300)) (wt-go '(1 :pen 1 400 25)) (wt-go '(1 :pen 0 400 25)) (found? (wt-last-d) "A 270 270")))
+(def wt_pro :size 1.0)
 (wt-go '(0 :mouse 4 400 225)) (wt-go '(0 :mouse 4 420 205)) (wt-go '(0 :mouse 0 420 205))
 (assert-true "dragged by its middle it is moved, no bigger"
-	(and (wt-near? (get :origin wt_pro) '(420 280) 0.01) (wt-near? (get :length wt_pro) 360.0 0.01)))
+	(and (wt-near? (get :origin wt_pro) '(420 280) 0.01) (wt-near? (get :size wt_pro) 1.0 0.001)))
 (def wt_pro :origin (list 400.0 300.0))
 ;its straight side is an edge too
 (wt-go '(1 :pen 1 300 306)) (wt-go '(1 :pen 1 500 309)) (wt-go '(1 :pen 0 500 309))
 (assert-true "a pen run along its straight side, the bottom of the strip below its middle, draws a line along it"
 	(wt-near? (wt-numbers (wt-last-d)) '(300 318 500 318)))
 (assert-eq "the strip is its too, a point in it is on it" :t (. wt_pro :hit 300 310))
-;the marks of its straight side are out from its middle, at any size
-(defun wt-base-marks (length)
-	;for a protractor of that size, how long the mark at the middle of its straight side is, and at 50 either side
-	(def wt_pro :length length) (. wt_pro :built)
-	(defq nums (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
-		(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))) found (list))
-	(each (lambda ((x y x1 y1)) (if (find (n2i x) '(0 50 -50)) (push found (list (n2i x) (n2i (abs (- y y1))))))) (partition nums 4))
-	(sort found (# (- (first %0) (first %1)))))
+;the marks of its straight side are out from its middle
+(defq wt_found (list))
+(each (lambda ((x y x1 y1)) (if (find (n2i x) '(0 50 -50)) (push wt_found (list (n2i x) (n2i (abs (- y y1)))))))
+	(partition (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
+		(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))) 4))
 (assert-list-eq "the marks of its straight side have a long one at its middle and at each centimetre from it"
-	'((-50 8) (0 8) (0 8) (50 8)) (wt-base-marks 360.0))
-(assert-list-eq "and so they have at another size, which is not a whole number of centimetres across"
-	'((-50 8) (0 8) (0 8) (50 8)) (wt-base-marks 437.0))
-(def wt_pro :length 360.0) (. wt_pro :built)
+	'((-50 8) (0 8) (0 8) (50 8)) (sort wt_found (# (- (first %0) (first %1)))))
+;the angle it is at is written on it
+(def wt_pro :angle 0.0)
+(assert-eq "level, a protractor says 0" "0" (. wt_pro :degrees))
+(def wt_pro :angle (/ +fp_pi -6.0))
+(assert-eq "turned up a twelfth of a turn, the way its numbers go, 30" "30" (. wt_pro :degrees))
+(def wt_pro :angle 0.3)
+(assert-eq "turned the other way, to a tenth of a degree, 342.8" "342.8" (. wt_pro :degrees))
+(assert-eq "it is written once on a protractor" 1 (length (. wt_pro :readout)))
+(def wt_pro :angle 0.0)
+(def wt_ruler :origin (list 400.0 300.0) :angle (/ +fp_pi -6.0) :size 1.0)
+(assert-list-eq "and twice on a ruler, for who reads its top side and for who reads its bottom, half a turn on" '("30" "210")
+	(map (# (. wt_ruler :degrees (if (> (length %0) 2) (third %0)))) (get :readouts wt_ruler)))
+(assert-eq "as two things to draw" 2 (length (. wt_ruler :readout)))
+(. wt_stage :sub wt_ruler)
+
 
 ;;;;;;;;;;;;;;;;
 ; the set square

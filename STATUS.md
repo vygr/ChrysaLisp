@@ -4,6 +4,37 @@
 
 ------
 
+Chris: "The numeric markings are not scaleing with the tools. And we
+should have visible degrees angle visible on the tools. on the ruler we
+shoukld see 2 of those, for each orientation of the ruler. With the ruler
+in effect everything is mirrored aorund the central point. We used to
+have cm/inches though on the scales, one side cm, the other inches."
+
+*	To size an instrument is to see all of it bigger, `:size`, 0.4 to
+	5, in its matrix. It was made again at another `:length`, with its
+	marks as far apart and its numbers as big as before. It is made
+	once now. A ruler is no longer made longer by its ends, it is made
+	bigger. An arc drawn round a protractor is of the radius it is
+	seen at.
+
+*	The angle it is turned to is written on it, in degrees to a tenth,
+	counted as a protractor's numbers go, `(. instrument :degrees)`,
+	at its `:readouts`. The ruler has two, either side of its middle,
+	the second turned half round and half a turn on.
+
+*	The ruler's top side is centimetres from the left. Its bottom side
+	is inches from the right, in sixteenths, the numbers the other way
+	up: the bottom is the top turned half round about the middle. Each
+	side says what it is in by its 0.
+
+Looked at as a picture: a ruler turned 17.2 says 17.2 and 197.2, a
+protractor at 1.4 has numbers 1.4 the size. `test_cwb_tools.lisp`, 68.
+
+He added: "We can, later reuse the markings code, as part of a graphs
+drawing library". `(tool-ticks)` is that code, noted, not begun.
+
+------
+
 Chris: "Ruler, marks on opisite sides should run in oposite direction !
 And rotate of ruler depends on what side you grabbed, and it rotaes
 around the oposite ends 0 mark."
