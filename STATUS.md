@@ -4,6 +4,22 @@
 
 ------
 
+Two more of the instruments, from Chris looking at them.
+
+*	"The protractor also is msing that small part of the other
+	hemisphere that didn't have markings." It has the strip below the
+	line through its middle, a tenth of its radius deep. Its straight
+	side, the edge a pen is held to, is the bottom of the strip, marked
+	in millimetres, and the line from 0 to 180 is drawn across.
+
+*	"markings on the long edge of the set square off the end. we
+	should finish slightly before the ends, like the ruler does." They
+	start 40 down from the top corner and stop 40 short of the other. A
+	mark at a sharp corner went out through the other side. Numbers
+	are left out where a corner has its arc.
+
+------
+
 Chris, of how his boards had it: "the actions default to drag if no
 colision with control areas, scale if on the outside control zone, (but
 not the edge draw detectors) and rotate if on the middle band. This is

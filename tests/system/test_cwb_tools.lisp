@@ -183,7 +183,9 @@
 (def wt_pro :origin (list 400.0 300.0))
 ;its straight side is an edge too
 (wt-go '(1 :pen 1 300 306)) (wt-go '(1 :pen 1 500 309)) (wt-go '(1 :pen 0 500 309))
-(assert-true "a pen run along its straight side draws a line along it" (wt-near? (wt-numbers (wt-last-d)) '(300 300 500 300)))
+(assert-true "a pen run along its straight side, the bottom of the strip below its middle, draws a line along it"
+	(wt-near? (wt-numbers (wt-last-d)) '(300 318 500 318)))
+(assert-eq "the strip is its too, a point in it is on it" :t (. wt_pro :hit 300 310))
 
 ;;;;;;;;;;;;;;;;
 ; the set square

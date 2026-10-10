@@ -405,7 +405,8 @@
 
 (defclass Protractor (board x y) (Instrument board x y)
 	; (Protractor board x y) -> protractor
-	;half a circle, its round side and its straight side are edges. A pen
+	;half a circle and a strip below it, its round side and its straight
+	;side, the bottom of the strip, are edges. A pen
 	;run round the round side draws an arc, with :mode :pie a slice, with
 	;:mode :circle the whole circle. :length is across its straight side.
 	;The band half way in turns it about its middle, the two squares by
@@ -417,9 +418,12 @@
 
 	(defmethod :rebuild ()
 		(defq r (* 0.5 (get :length this)) in0 (* 0.46 r) in1 (* 0.62 r) marks (list) ticks (list)
-			sq0 (* 0.16 r) sq1 (* 0.38 r) sqy0 (* -0.24 r) sqy1 (* -0.08 r))
-		(def this :outline (cwb-d "M" (neg r) 0 "A" r r 0 0 1 r 0 "Z")
-			:edges (list (list :arc 0.0 0.0 r (neg +fp_pi) 0.0) (list :line (neg r) 0.0 r 0.0))
+			sq0 (* 0.16 r) sq1 (* 0.38 r) sqy0 (* -0.24 r) sqy1 (* -0.08 r)
+			;the strip below the line through its middle, as a protractor
+			;has, its straight side is the bottom of that
+			base (* 0.1 r) whole (cwb-d "M" (neg r) base "L" (neg r) 0 "A" r r 0 0 1 r 0 "L" r base "Z"))
+		(def this :outline whole
+			:edges (list (list :arc 0.0 0.0 r (neg +fp_pi) 0.0) (list :line (neg r) base r base))
 			:parts (list
 				(list :close (cwb-d-ellipse 0 (* -0.3 r) 11))
 				(list :size (cwb-d-rect sq0 sqy0 sq1 sqy1))
@@ -429,7 +433,7 @@
 				;sizes it too, as the squares do. A pen close on the round
 				;side is held to it and draws, that comes first
 				(list :size (cwb-d "M" (neg r) 0 "A" r r 0 0 1 r 0 "L" in1 0 "A" in1 in1 0 0 0 (neg in1) 0 "Z") :quiet)
-				(list :move (cwb-d "M" (neg r) 0 "A" r r 0 0 1 r 0 "Z")))
+				(list :move whole))
 			:glyphs (list (list :close 0.0 (* -0.3 r))
 				(list :size (* 0.5 (+ sq0 sq1)) (* 0.5 (+ sqy0 sqy1))) (list :size (* -0.5 (+ sq0 sq1)) (* 0.5 (+ sqy0 sqy1)))
 				(list :turn (* 0.54 r 0.7071) (* -0.54 r 0.7071) (* 0.25 +fp_pi))
@@ -452,7 +456,11 @@
 				(push marks (cwb-text-mid (str (- 180 deg)) (* (- in1 17.0) c) (* (- in1 17.0) s) :font_size 10))))
 			(range 0 181 5))
 		;its middle, on the straight side, and the line straight up from it
-		(push ticks "M" -10 0 "L" 10 0 "M" 0 0 "L" 0 -14 "M" 0 (neg in0) "L" 0 (- 22.0 r))
+		;and the line through it from 0 to 180, with the strip below marked
+		;in millimetres along the straight side
+		(push ticks "M" (neg r) 0 "L" r 0 "M" 0 base "L" 0 -14 "M" 0 (neg in0) "L" 0 (- 22.0 r))
+		(push marks (cwb-shape (tool-ticks (neg r) base r base 0.0 -1.0 +tool_mm 3.0 5.0 8.0)
+			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(def this :marks marks)
 		this)
@@ -470,7 +478,7 @@
 	;turn it about its middle, the square by its square corner makes it
 	;bigger or smaller, the rest moves it. Its two square sides are
 	;marked in millimetres from the square corner, and its long side from
-	;its top corner, numbered in centimetres
+	;a little below its top corner, numbered in centimetres
 	(def this :length 360.0 :min_length 160.0 :max_length 1600.0)
 
 	(defmethod :rebuild ()
@@ -495,11 +503,14 @@
 				(list :turn (+ bx (* 0.11 (- ax bx)) (* 0.05 (- cx bx))) (+ by (* 0.05 (- cy by)) -4.0))
 				(list :turn (+ cx (* 0.05 (- bx cx)) 6.0) (+ cy (* 0.12 (- ay cy)) (* 0.05 (- by cy))))))
 		;millimetres along the two square sides, from the square corner
-		;and along the long side, from its top corner, the marks pointing in
+		;and along the long side, the marks pointing in, from a little way
+		;down from its top corner to a little short of the other, as a
+		;ruler's are in from its ends: at a sharp corner a mark would go
+		;out through the other side
 		(defq long (sqrt (+ (* w w) (* h h))) ux (/ w long) uy (/ h long))
 		(push marks (cwb-shape (cat (tool-ticks ax ay (- bx 30.0) by 0.0 -1.0 +tool_mm)
 				" " (tool-ticks ax ay cx (+ cy 30.0) 1.0 0.0 +tool_mm)
-				" " (tool-ticks cx cy (- bx (* 30.0 ux)) (- by (* 30.0 uy)) (neg uy) ux +tool_mm))
+				" " (tool-ticks (+ cx (* 40.0 ux)) (+ cy (* 40.0 uy)) (- bx (* 40.0 ux)) (- by (* 40.0 uy)) (neg uy) ux +tool_mm))
 			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		;what a set square has: the hole in its middle, the same shape, the
 		;arc of each sharp corner with its angle, and the mark of a square corner
@@ -513,10 +524,11 @@
 		(push marks (cwb-text-mid "60" (+ cx (* 0.2 arc_c)) (+ cy (* 0.82 arc_c)) :font_size 12))
 		(defq n 1 at (* 10.0 +tool_mm))
 		(while (< at (- w 60.0))
-			(push marks (cwb-text-mid (str n) (+ ax at) (- ay 22.0) :font_size 12))
-			(if (< at (- h 50.0)) (push marks (cwb-text-mid (str n) (+ ax 22.0) (- ay at) :font_size 12)))
-			(if (and (> at 60.0) (< at (- long 70.0)))
-				(push marks (cwb-text-mid (str n) (+ cx (* ux at) (* -22.0 uy)) (+ cy (* uy at) (* 22.0 ux)) :font_size 12)))
+			;no number where a corner has its arc and its angle
+			(if (< at (* 0.72 w)) (push marks (cwb-text-mid (str n) (+ ax at) (- ay 22.0) :font_size 12)))
+			(if (< at (* 0.72 h)) (push marks (cwb-text-mid (str n) (+ ax 22.0) (- ay at) :font_size 12)))
+			(if (< at (- long 110.0))
+				(push marks (cwb-text-mid (str n) (+ cx (* ux (+ at 40.0)) (* -22.0 uy)) (+ cy (* uy (+ at 40.0)) (* 22.0 ux)) :font_size 12)))
 			(setq n (inc n) at (+ at (* 10.0 +tool_mm))))
 		(def this :marks marks)
 		this)
