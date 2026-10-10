@@ -190,9 +190,17 @@ Everything a hand can do is a method, for a script: `:select`, `:select_all`,
 Every point is in the space of the document. A size that is of the screen,
 how near is near enough, how big a handle is, is divided by `:zoom`.
 
-What is being moved is `:floating`: it is drawn over the document, not in it,
-so only it is drawn as it moves. What is put on top of the top layer is
-`:appended`, and can be drawn onto what is already there.
+What is selected is in flight, `:floating`: it is not drawn with the
+document, `(. board :draw)`, it is drawn by itself, `(. board :draw_flight)`,
+and so is a line as it is drawn. The document is one picture that is not
+drawn again while a thing is moved, turned or sized. Its flight is in front
+of the document or behind it, `:float_back`: a thing taken hold of comes to
+the front of its layer, one taken by the right button goes to the back, and
+it stays there while its handles are used. It lands when it is let go of.
+The app has a canvas for each: the paper, the document, what is in flight,
+which it puts in front of the document's or behind, and the handles and
+instruments. What is put on top of the top layer is `:appended`, and can be
+drawn onto what is already there.
 
 ## The instruments
 

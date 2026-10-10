@@ -94,7 +94,8 @@
 			((not (attach shared width height)) -1)
 			((not (in-step version sync)) -1)
 			(:t (. canvas :set_clip 0 y width y1)
-				(cwb-paper canvas width height back (elem-get +stripe_styles style) gap y y1)
+				;no gap between the lines of the paper is no paper
+				(if (> gap 0) (cwb-paper canvas width height back (elem-get +stripe_styles style) gap y y1))
 				(unless bands (setq bands (make-bands)))
 				;a row more each way, an edge that lies on the line between
 				;two rows can shade the one it is not in

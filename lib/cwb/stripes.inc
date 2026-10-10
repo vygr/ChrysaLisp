@@ -180,7 +180,10 @@
 	(defmethod :frame (canvas zoom style)
 		; (. stripes :frame canvas zoom style) -> :t | :nil
 		;draw the document, all of it, onto a canvas whose pixels are
-		;shared, a stripe for each child. :nil, and nothing is done, if
+		;shared, a stripe for each child. With a style the paper is drawn
+		;behind it, lib/cwb/paper.inc. With :nil there is none, the
+		;shapes are drawn on what is there, which the caller has made
+		;clear, for a board whose paper is a picture of its own. :nil, and nothing is done, if
 		;the children are not ready or the canvas is not shared. When the
 		;last stripe is answered (:handle) says :done
 		(defq key (canvas-key canvas) board (get :board this) doc (. board :get_doc))
@@ -190,7 +193,7 @@
 			(def this :state :frame :sent (get :version this) :drawn 0 :bad 0 :stamp (pii-time))
 			(. jobs :add (map (# (. this :job key w h (/ (* %0 h) count) (/ (* (inc %0) h) count)
 					zoom (. doc :find :background) style
-					(max 2 (n2i (* (n2f (. doc :find :grid)) (n2f zoom)))) (get :floating board)))
+					(if style (max 2 (n2i (* (n2f (. doc :find :grid)) (n2f zoom)))) 0) (get :floating board)))
 				(range 0 count)))
 			:t))
 

@@ -4,6 +4,46 @@
 
 ------
 
+The layers, as Chris has them. "The whole model for the 'in flight'
+layer, is to be at the back or the front dependsing on your button of
+interaction. PLUS it's there to seperate the commited layers as one
+pixmap so we don't have to redraw every single shape on the commited
+layer each time." "Why do we need a back and front 'in flight' layer ?
+It the 'in flight' layer and it just moves within the oveall layering."
+"The instruments layer dosn't reuire a 'commited' layer etc, those are
+live and just hounor the depth arangements." "The slect mode, is just on
+the 'in flight' layer ? until you commit it back ... I don't see any
+issue with folks slecting a shape, then pushing it to the back AND then
+manipulating the controls while it's still at the back ! ... We WANT
+folkd to be able to choose there own work flow for this."
+
+The commit before this had a thing at the back drawn in the document,
+and the document drawn again at every move of it. That was the opposite
+of what the layer is for. And then I made two flight layers.
+
+The app has four canvases, from the back:
+
+*	the paper, drawn when the paper changes and not else;
+*	the document, one picture, clear where nothing is, not drawn again
+	while anything is moved, turned, sized or drawn;
+*	what is in flight, one canvas, in front of the document's or put
+	behind it;
+*	the handles and the instruments, drawn as they are.
+
+What is selected is in flight, for as long as it is selected, not only
+while it is dragged: `(. board :touch)` makes what is in flight what is
+selected, and the document is drawn once as a thing takes off and once
+as it lands. A line being drawn is in flight too. Its flight is in front
+when it was taken by the left button and behind when by the right,
+`:float_back`, and stays so while the handles are used, till it is taken
+again. The stripes draw with no paper, onto pixels made clear.
+
+`test_whiteboard.lisp`: the order of the four, a thing taken by the
+right button behind the document, sized by a handle still behind, let
+go, and taken by the left in front. Not seen: any of it.
+
+------
+
 Chris, of the line ends and of sending to the back: "Drag with left or
 right, pulls the line to the front, while draggin (I think it should stay
 where the left/right drag say it should be ... The push to back or pull

@@ -179,10 +179,11 @@
 						;the box round it as it is picked up, a corner of which
 						;is what goes to the grid
 						(elem-set state +stroke_box (cwb-bounds (. board :selected_items)))
-						;at the front it is drawn over the document as it is
-						;moved, which is where it is. At the back it is not: it
-						;is drawn in its place, under what is in front of it
-						(unless back (. board :float (get :selected board))))
+						;what is selected is in flight, (:touch), and its flight is
+						;in front of the document or behind it as it was taken,
+						;and stays there till it is taken again
+						(def board :float_back (if back :t))
+						(. board :touch +board_dirty_overlay))
 					(:t ;on nothing. With nothing selected, and nothing put
 						;away by it, it may be a tap, see (:end)
 						(if (and (not shut) (empty? (get :selected board)))
@@ -236,9 +237,7 @@
 						(defq move (cwb-mat-move mx my))
 						(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul move m0))) item)
 						(if (or (/= x sx) (/= y sy)) (elem-set state +stroke_moved :t))
-						;what is not drawn over the document is drawn in it
-						(. board :touch (if (empty? (get :floating board))
-							(+ +board_dirty_doc +board_dirty_overlay) +board_dirty_overlay)))
+						(. board :touch +board_dirty_overlay))
 					(:t ;a box is dragged out round things
 						(def board :band (list (min sx x) (min sy y) (max sx x) (max sy y)))
 						(. board :touch +board_dirty_overlay))))
@@ -271,10 +270,8 @@
 				(cond
 					(item (if (and snap (not moved)) (. board :forget))
 						;put down, if no other hand has hold of it
-						(unless (some (# (and (not (eql %0 state)) (eql (elem-get %0 +stroke_tool) :hand)
-								(elem-get %0 +stroke_item)))
-								(map (const second) (. (get :states this) :tolist)))
-							(. board :float (list))))
+						;put down, it is selected still, and in flight still
+						(. board :touch +board_dirty_overlay))
 					(:t (defq band (get :band board) near (/ +board_near (get :zoom board)))
 						(def board :band :nil)
 						(cond
@@ -462,7 +459,6 @@
 				((and (not state) (/= buttons 0))
 					(when (and (defq spot (. this :spot_at x y)) (= (. this :held) 0))
 						(. board :snapshot)
-						(. board :float (get :selected board))
 						;the spot, the frame and the ends as they were, where
 						;the pointer went down, and each thing as it was
 						(. this :set_state id (list spot (. this :frame) (. this :ends) x y
@@ -513,8 +509,7 @@
 							(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul m m0))) things)))
 					(. board :touch +board_dirty_overlay)
 					(when (= buttons 0)
-						(. this :set_state id :nil)
-						(. board :float (list))))))
+						(. this :set_state id :nil)))))
 			events)
 		this)
 	)
@@ -534,7 +529,7 @@
 		;out the part of a line it goes over, or :whole, the whole of it
 		:rub_reach 8.0 :rub_mode :part :rubber :nil
 		:temp (Fmap 11) :band :nil :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
-		:floating (list) :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
+		:floating (list) :float_back :nil :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
 	(def this :surface (Surface this) :handles (Handles this))
 	(.-> (get :stage this) (:add (get :surface this)) (:add (get :handles this)))
 
@@ -555,7 +550,23 @@
 
 	(defmethod :touch (flags)
 		; (. board :touch flags) -> board
-		;something has changed that is drawn
+		;something has changed that is drawn.
+		;
+		;What is selected is in flight: it is not drawn with the document,
+		;it is drawn by itself, (:draw_flight), in front of the document or
+		;behind it, :float_back, and the document is not drawn again while
+		;it is moved, turned or sized, however long that goes on. It lands
+		;when it is no longer selected. So here, where every change comes,
+		;what is in flight is made what is selected, and if that is not
+		;what it was the document is to be drawn again, once
+		(defq selected (get :selected this) floating (get :floating this))
+		(unless (and (= (length selected) (length floating)) (every (const =) selected floating))
+			(. this :changed floating)
+			(. this :changed selected)
+			(def this :floating (cat selected))
+			;a flight of other things starts in front
+			(def this :float_back :nil)
+			(setq flags (logior flags +board_dirty_doc +board_dirty_overlay)))
 		(def this :dirty (logior (get :dirty this) flags))
 		this)
 
@@ -566,13 +577,13 @@
 		(def this :dirty (logand dirty (lognot flags)))
 		(/= (logand dirty flags) 0))
 
-	(defmethod :float (ids)
-		; (. board :float ids) -> board
-		;these items are being moved about. They are drawn over the
-		;document, not in it, so that only they are drawn as they move
-		(. this :changed (get :floating this))
-		(def this :floating (cat ids))
-		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
+	(defmethod :float (ids &optional back)
+		; (. board :float ids [back]) -> board
+		;these items are selected, and so in flight, in front of the
+		;document or with back behind it
+		(. this :select ids)
+		(def this :float_back (if (and back (nempty? ids)) :t))
+		(. this :touch +board_dirty_overlay))
 
 	(defmethod :changed (ids)
 		; (. board :changed ids) -> board
@@ -1015,16 +1026,31 @@
 		;the document, on a canvas, by the matrix it is seen by
 		(cwb-draw canvas (get :doc this) m clip (get :floating this)))
 
-	(defmethod :draw_overlay (canvas &optional m)
-		; (. board :draw_overlay canvas [m]) -> board
-		;what is over the document and not of it: what is being drawn,
-		;the box being dragged out, and the handles of what is selected
-		(defq zoom (get :zoom this) thin (/ 1.0 zoom))
+	(defmethod :in_flight? ()
+		; (. board :in_flight?) -> :t | :nil
+		;is anything in flight: being moved about, or being drawn
+		(or (nempty? (get :floating this)) (> (. (get :temp this) :size) 0)))
+
+	(defmethod :draw_flight (canvas &optional m)
+		; (. board :draw_flight canvas [m]) -> board
+		;what is in flight and nothing else: the items being moved about,
+		;and what is being drawn and not yet kept
 		(when (nempty? (defq floating (get :floating this)))
 			(each (lambda ((name flags items))
 				(cwb-draw-items canvas (filter (# (find (elem-get %0 +cwb_id) floating)) items) m))
 				(cwb-layers (get :doc this))))
 		(. (get :temp this) :each (lambda (id shape) (cwb-draw-items canvas (list shape) m)))
+		this)
+
+	(defmethod :draw_overlay (canvas &optional m no_flight)
+		; (. board :draw_overlay canvas [m no_flight]) -> board
+		;what is over the document and not of it: what is in flight,
+		;the box being dragged out, and the handles of what is selected
+		(defq zoom (get :zoom this) thin (/ 1.0 zoom))
+		;what is in flight, unless it is not wanted here: whoever shows the
+		;board may have a picture of its own for it, to put in front of
+		;the document or behind
+		(unless no_flight (. this :draw_flight canvas m))
 		(when (defq rubber (get :rubber this))
 			;the eraser, where it is, as far as it reaches
 			(bind '(x y r) rubber)

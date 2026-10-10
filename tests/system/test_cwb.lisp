@@ -656,13 +656,13 @@
 (. bk_board :dirty? (+ +board_dirty_doc +board_dirty_overlay))
 (. bk_board :pointers (list (ptr-event 0 :mouse +pev_right 80 100)))
 (. bk_board :pointers (list (ptr-event 0 :mouse +pev_right 120 130)))
-(assert-list-eq "a thing dragged by the right button is at the back as it goes, in the document and not over it"
-	(list '(1 2 3) '() :t) (list (bk-ids) (get :floating bk_board) (. bk_board :dirty? +board_dirty_doc)))
+(assert-list-eq "a thing dragged by the right button is at the back as it goes, in flight, and its flight is behind the document"
+	(list '(1 2 3) '(1) :t) (list (bk-ids) (get :floating bk_board) (get :float_back bk_board)))
 (. bk_board :pointers (list (ptr-event 0 :mouse 0 120 130)))
 (assert-list-eq "and is at the back when it is let go, where it was dragged to" '((1 2 3) (90 80 190 180))
 	(list (bk-ids) (map (const n2i) (cwb-bounds (slice (cwb-items bk_doc) 0 1)))))
 (. bk_board :pointers (list (ptr-event 0 :mouse +pev_left 240 100)))
 (. bk_board :pointers (list (ptr-event 0 :mouse +pev_left 250 110)))
-(assert-list-eq "one dragged by the left button is at the front, and drawn over the document as it goes" '((1 2 3) (3))
-	(list (bk-ids) (get :floating bk_board)))
+(assert-list-eq "one dragged by the left button is at the front, in flight in front of the document" '((1 2 3) (3) :nil :t)
+	(list (bk-ids) (get :floating bk_board) (get :float_back bk_board) (. bk_board :in_flight?)))
 (. bk_board :pointers (list (ptr-event 0 :mouse 0 250 110)))

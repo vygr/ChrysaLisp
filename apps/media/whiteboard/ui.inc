@@ -60,7 +60,9 @@
 (defun action-style ()
 	(setq *style* (elem-get *styles* (. *style_toolbar* :get_selected)))
 	(. (. *board* :get_doc) :insert :style *style*)
-	(. *board* :touch +board_dirty_doc))
+	;the paper is another paper, the document on it is as it was
+	(setq *paper_dirty* :t)
+	(. *board* :touch +board_dirty_overlay))
 
 (defun action-snap ()
 	(setq *snap* (not *snap*))
