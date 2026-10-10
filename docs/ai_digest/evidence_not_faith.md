@@ -20,20 +20,8 @@ pre-warmed, monolithic compiler cached in memory.
 In ChrysaLisp, that is not what happens. Every build cycle executes a complete,
 cold, and hermetic lifecycle across a shared-nothing cluster:
 
-```
-[Zero State: No Compiler/Build Tools in RAM]
-       |
-       V (Phase 1: Genesis in microseconds)
-[Synthesize 28 Independent Toolchains Across 16 Nodes]
-       |
-       V (Phase 2: Parallel MIMD Compilation & Linking)
-[Assemble OS, Route Packets, Arbitrate Locks Across Herd]
-       |
-       V (Phase 3: Total Teardown & Reclamation)
-[Destroy Toolchains, Dereference ASTs, Reclaim All Heap Memory]
-       |
-       V
-[Return to Zero State: Clean RAM]
+```image
+docs/diagrams/build_cycle.cwb
 ```
 
 ### 1. Phase 1: Synthesizing 28 Independent Toolchains Across 16 Nodes

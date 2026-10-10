@@ -1,0 +1,11 @@
+;docs/ai_digest/vp_functions.md: the boot image, functions one after another with their path tables taken out
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s :nil (dia-box '("function A" "header, code, links: each an offset to the header of the function it is to") 500 44 blue 11 :first) 0 0)
+(dia-put s :nil (dia-box '("vtable B" "header, links: a class's vtable is a function with no code") 500 44 gold 11 :first) 0 44)
+(dia-put s :nil (dia-box '("function C" "header, code, links") 500 44 blue 11 :first) 0 88)
+(dia-put s :nil (dia-box "... every function of the system" 500 34 grey 11) 0 132)
+(dia-say s "the path tables are gone:" 520 30 11)
+(dia-say s "a link no longer names a" 520 46 11)
+(dia-say s "function, it points at it" 520 62 11)
+(dia-say s "When it is loaded each link is made the address of the code it is to." 0 196 12 :nil 0xff202428)
+(diagram "boot_image_layout" (dia-scene-doc s))

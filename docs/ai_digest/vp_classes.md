@@ -1,67 +1,12 @@
 # VP Class Inheritance Hierarchy
 
-This diagram shows the inheritance relationships between the core classes
-defined in `class/`. Indentation indicates that a class inherits from the one
-above it.
+This diagram shows the inheritance relationships between the VP classes, each
+to the right of the class it comes of. It is made from the source by `make
+docs`, so it is as the source is: [`vp_hierarchy.md`](../reference/vp_hierarchy.md), and each class has a
+page of its own with its fields and methods under `docs/reference/vp_classes/`.
 
-```
-    obj
-	|
-	+-> error
-	|
-	+-> dim
-	|
-	+-> lisp
-	|
-	+-> num
-	|	|
-	|	+-> fixed
-	|	|	|
-	|	|	+-> real
-	|	|
-	|	+-> func
-	|
-	+-> seq
-	|	|
-	|	+-> array
-	|	|	|
-	|	|	+-> list
-	|	|	|	|
-	|	|	|	+-> hset
-	|	|	|	|
-	|	|	|	+-> hmap
-	|	|	|	|
-	|	|	|	+-> pset
-	|	|	|		|
-	|	|	|		+-> pmap
-	|	|	|
-	|	|	+-> nums
-	|	|		 |
-	|	|		 +-> fixeds
-	|	|			|
-	|	|			+-> reals
-	|	|
-	|	+-> str
-	|		 |
-	|		 +-> nodeid
-	|		 |
-	|		 +-> netid
-	|		 |
-	|		 +-> sym
-	|
-	+-> stream
-	|	|
-	|	+-> fstream
-	|	|
-	|	+-> in
-	|	|
-	|	+-> out
-	|	|
-	|	+-> sstream
-	|	|
-	|	+-> mstream
-	|
-	+-> stdio
+```image
+docs/reference/vp_hierarchy.cwb
 ```
 
 ## Class Descriptions

@@ -20,18 +20,8 @@ Every function invocation requires storage for its lexical environment. In
 ChrysaLisp, this allocation never touches the host OS kernel or a general-purpose
 heap manager during standard execution.
 
-```
-                  +-----------------------------------+
-                  |      Heap Free List (LIFO)        |
-                  |  [ Cell 0 ] -> [ Cell 1 ] -> ...  |
-                  +-----------------------------------+
-                       |                         ^
-            (env-push) |                         | (env-pop)
-                       v                         |
-                  +-----------------------------------+
-                  |         Hot L1 Data Cache         |
-                  |     Active Environment Frame      |
-                  +-----------------------------------+
+```image
+docs/diagrams/hot_cells.cwb
 ```
 
 ### Power-of-Two Cell Heaps
@@ -63,14 +53,8 @@ Traditional systems allocate an environment record and then allocate a separate
 backing array for variable bindings. ChrysaLisp eliminates this second pointer
 indirection through **embedded inline storage**.
 
-```
-+-----------------------------------------------------------------------+
-|                         Single Heap Cell                              |
-| +------------------------------------+------------------------------+ |
-| |       HMap / Object Header         |     Inline Storage Array     | |
-| | (vtable, count, parent, cap, len)  | [Key 0 | Val 0 | Key 1 ... ] | |
-| +------------------------------------+------------------------------+ |
-+-----------------------------------------------------------------------+
+```image
+docs/diagrams/hot_cell.cwb
 ```
 
 *	The `:hmap` class inherits from `:list` and `:array`.
@@ -108,18 +92,8 @@ A single bucket with linear scanning would typically degrade performance to
 `O(N)`. ChrysaLisp achieves strict **`O(1)` access** through its self-repairing
 **`str_hashslot`** symbol cache.
 
-```
-Symbol Object (:sym)
-+------------------------------------+
-|  ... | +str_hashslot: [ Index 2 ]  |
-+------------------------------------+
-                   |
-                   | (Direct Index Dereference)
-                   v
-Environment HMap (+hmap_elems)
-+------------+------------+-------------------------+------------+
-| Key0, Val0 | Key1, Val1 | Key2 (:sym), Val2 (42)  | Key3, Val3 |
-+------------+------------+-------------------------+------------+
+```image
+docs/diagrams/hot_slot.cwb
 ```
 
 ### Proactive Cache Population
@@ -165,34 +139,8 @@ Environment HMap (+hmap_elems)
 
 Here is the step-by-step execution flow when evaluating `(my-func arg0 arg1)`:
 
-```
-[ Call Site: repl_eval ]
-       |
-       v
-[ 1. Look at the Operator ] ---> Special form (:func)? ---> [ Jump Native Code ]
-       |
-       v (Built in :func, or Lambda Template)
-[ 2. Evaluate Arguments ]        <--- Takes an args list from the chain
-       |
-       +---> Built in (:func)? ---> [ Call Native Code ] ---> [ Args list back to the chain ]
-       |
-       v (Lambda Template)
-[ 3. Take Scope (env_push) ]     <--- Takes an environment from the chain
-       |
-       v
-[ 4. Bind Parameters (env_bind) ] ---> Sets symbol +str_hashslot
-       |
-       v
-[ Args list back to the chain ]
-       |
-       v
-[ 5. Execute Body (repl_progn) ]  ---> O(1) cached variable reads
-       |
-       v
-[ 6. Give back Scope (env_pop) ]  ---> Environment back to the chain
-       |
-       v
-[ Return Value to Caller ]
+```image
+docs/diagrams/hot_call.cwb
 ```
 
 All of this is in line in `:lisp :repl_eval`, which is the heart of the

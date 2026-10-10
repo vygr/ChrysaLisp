@@ -1,0 +1,12 @@
+;docs/ai_digest/evidence_not_faith.md: a build starts from nothing and ends with nothing
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s 'zero (dia-box '("nothing" "no compiler and no build tools in memory") 340 44 grey 11 :first) 0 0)
+(dia-put s 'p1 (dia-box '("phase 1, in microseconds" "28 toolchains made, each its own, across 16 nodes") 340 44 gold 11 :first) 0 76)
+(dia-put s 'p2 (dia-box '("phase 2, in parallel" "the system assembled and linked: mail routed, locks taken") 340 44 blue 11 :first) 0 152)
+(dia-put s 'p3 (dia-box '("phase 3, all of it taken down" "the toolchains gone, every cell back on its heap") 340 44 green 11 :first) 0 228)
+(dia-put s 'end (dia-box '("nothing again" "memory as it was") 340 44 grey 11 :first) 0 304)
+(dia-join s 'zero 'p1 "")
+(dia-join s 'p1 'p2 "")
+(dia-join s 'p2 'p3 "")
+(dia-join s 'p3 'end "")
+(diagram "build_cycle" (dia-scene-doc s))

@@ -31,32 +31,8 @@ function is a block of data containing a descriptive header whose fields are
 
 **On-Disk `.vp` File Layout:**
 
-```
-+---------------------------------+ <-- Function Address (F)
-|          FN_HEADER              |
-| - uint64 ln_fnode               | (For linking into lists by the loader)
-| - ushort length (total size)    |
-| - ushort entry                  | ---------> relative offset to code start
-| - ushort links                  | ---------> relative offset to links table
-| - ushort paths                  | ---------> relative offset to paths table
-| - ushort stack (req'd size)     |
-| - offset pathname (symbolic)    |
-+---------------------------------+ <-- Address (F + entry offset)
-|                                 |
-|         EXECUTABLE CODE         |
-|         (VP Instructions)       |
-|                                 |
-+---------------------------------+ <-- Address (F + links offset)
-|                                 |
-|           LINKS TABLE           |
-|   (Parallel to Paths Table)     |
-|                                 |
-+---------------------------------+ <-- Address (F + paths offset)
-|                                 |
-|           PATHS TABLE           |
-|   (Symbolic names for links)    |
-|                                 |
-+---------------------------------+
+```image
+docs/diagrams/vp_function.cwb
 ```
 
 *   **Header:** Provides metadata, including offsets to the other sections.
@@ -128,17 +104,8 @@ evolves through three distinct states from source code to a running system.
 
 **Optimized `boot_image` Layout on Disk:**
 
-```
-+-----------------------------------------------+
-| Func A Header                                 |
-| Func A Code                                   |
-| Func A Links (rel. offsets to header paths)   |
-+-----------------------------------------------+ <-- Original paths table STRIPPED
-| VTable B Header                               |
-| VTable B Links (rel. offsets to header paths) |
-+-----------------------------------------------+ <-- Original paths table STRIPPED
-| ... etc ...                                   |
-+-----------------------------------------------+
+```image
+docs/diagrams/boot_image_layout.cwb
 ```
 
 #### Stage 3: Load Time - Final Wiring

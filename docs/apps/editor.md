@@ -81,35 +81,8 @@ The ChrysaLisp Editor utilizes several key architectural elements of the OS:
 The editor uses a Model-View-Controller (MVC) design pattern that is tightly
 coupled with ChrysaLisp's cooperative internal scheduling.
 
-```code
-          +------------------+     (RPC/Service)
-          |   Edit Service   | <-----------------+
-          +------------------+                   |
-                   |                             |
-                   v                             |
-          +------------------+                   |
-          |  app_impl.lisp   | <-------+         |
-          |   (Controller)   |         |         |
-          +------------------+         |         |
-             |            |            |         |
-             v            v            |         |
-      +------------+  +------------+   |         |
-      | widgets.inc|  |   ui.inc   |   |         |
-      |   (View)   |  | (Editor-   |   |         |
-      +------------+  |   edit)    |   |         |
-                      +------------+   |         |
-                            |          |         |
-                            v          |         |
-                      +------------+   |         |
-                      |  Edit/VDU  |   |         |
-                      |   Layers   |   |         |
-                      +------------+   |         |
-                            |          |         |
-                            v          |         |
-                      +------------+   |         |
-                      |  Document  | --+ (Undo)  |
-                      |   Model    | ------------+
-                      +------------+
+```image
+docs/diagrams/editor_architecture.cwb
 ```
 
 #### 2.1 Entry Point and Event Loop (`app_impl.lisp`)
@@ -358,31 +331,8 @@ The top header organizes actions into six functional toolbars:
 Events are routed through the `dispatch-action` function, which maps key inputs
 and UI events to their corresponding routines.
 
-```code
-              +--------------------+
-              |  Keyboard / Mouse  |
-              +--------------------+
-                        |
-                        v
-              +--------------------+
-              |    app_impl.lisp   |
-              |  (dispatch-action) |
-              +--------------------+
-                        |
-            +-----------+-----------+
-            |           |           |
-            v           v           v
-      +----------+ +-----------+ +---------+
-      |  Macro   | | Undo/Redo | | Cursor  |
-      | Recorder | |  Tracker  | |  Stack  |
-      +----------+ +-----------+ +---------+
-            |           |           |
-            +-----------+-----------+
-                        |
-                        v
-              +--------------------+
-              |  Action Execution  | (e.g., action-insert)
-              +--------------------+
+```image
+docs/diagrams/editor_dispatch.cwb
 ```
 
 Keyboard events are categorized into three distinct maps to handle modifiers cleanly:

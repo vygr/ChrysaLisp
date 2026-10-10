@@ -114,30 +114,8 @@ Each function is represented as an `Emap` containing:
 The databases are generated through a strict, multi-stage pipeline triggered
 when the database files on disk are missing or out of date.
 
-```
-                  +-----------------------+
-                  |  files-classes-info   |
-                  +-----------+-----------+
-                              |
-                     [Checks Stale State]
-                              |
-                              v
-                +---------------------------+
-                | build-and-save-databases  |
-                +-------------+-------------+
-                              |
-             +----------------+----------------+
-             |                                 |
-             v                                 v
-      [unified-pass]                 [inherit-signatures]
-             |                                 |
-             v                                 v
-      [link-databases]              [build-method-overrides]
-             |                                 |
-             +----------------+----------------+
-                              |
-                              v
-                         [tree-save]
+```image
+docs/diagrams/source_db_pipeline.cwb
 ```
 
 ### 1. Staleness Verification

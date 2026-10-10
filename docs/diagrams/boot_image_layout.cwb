@@ -1,0 +1,366 @@
+((:Emap 1)
+	:version 4
+	:width 665
+	:height 222
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 24
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 8)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							2
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									3
+									:d
+									"[M 6 0 L 494 0 A 6 6 0 0 1 500 6 L 500 38 A 6 6 0 0 1 494 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									4
+									:m
+									((:path 6)
+										1.00000 0.00000 222.23748 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[function A]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									5
+									:m
+									((:path 6)
+										1.00000 0.00000 83.68743 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[header, code, links: each an offset to the header of the function it is to]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					6
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 57.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							7
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									8
+									:d
+									"[M 6 0 L 494 0 A 6 6 0 0 1 500 6 L 500 38 A 6 6 0 0 1 494 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									9
+									:m
+									((:path 6)
+										1.00000 0.00000 228.59149 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[vtable B]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									10
+									:m
+									((:path 6)
+										1.00000 0.00000 120.73791 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[header, links: a class's vtable is a function with no code]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					11
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 101.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							12
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									13
+									:d
+									"[M 6 0 L 494 0 A 6 6 0 0 1 500 6 L 500 38 A 6 6 0 0 1 494 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									14
+									:m
+									((:path 6)
+										1.00000 0.00000 223.04046 0.00000 1.00000 18.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[function C]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									15
+									:m
+									((:path 6)
+										1.00000 0.00000 207.15142 0.00000 1.00000 34.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[header, code, links]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					16
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 145.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							17
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									18
+									:d
+									"[M 6 0 L 494 0 A 6 6 0 0 1 500 6 L 500 28 A 6 6 0 0 1 494 34 L 6 34 A 6 6 0 0 1 0 28 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									19
+									:m
+									((:path 6)
+										1.00000 0.00000 175.13702 0.00000 1.00000 21.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[... every function of the system]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					20
+					:m
+					((:path 6)
+						1.00000 0.00000 533.00000 0.00000 1.00000 43.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[the path tables are gone:]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					21
+					:m
+					((:path 6)
+						1.00000 0.00000 533.00000 0.00000 1.00000 59.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[a link no longer names a]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					22
+					:m
+					((:path 6)
+						1.00000 0.00000 533.00000 0.00000 1.00000 75.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[function, it points at it]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					23
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 209.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[When it is loaded each link is made the address of the code it is to.]"
+					:font_size
+					12
+				)
+			)
+		)
+	)
+	:props :nil
+)

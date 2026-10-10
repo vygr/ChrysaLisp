@@ -1,0 +1,255 @@
+((:Emap 1)
+	:version 4
+	:width 686
+	:height 138
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 17
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 5)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							2
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									3
+									:d
+									"[M 6 0 L 654 0 A 6 6 0 0 1 660 6 L 660 80 A 6 6 0 0 1 654 86 L 6 86 A 6 6 0 0 1 0 80 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 13)
+									:shape
+									:id
+									4
+									:m
+									((:path 6)
+										1.00000 0.00000 330.00000 0.00000 1.00000 48.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:font_size
+									13
+								)
+							)
+						)
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					5
+					:m
+					((:path 6)
+						1.00000 0.00000 25.00000 0.00000 1.00000 31.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[a single heap cell]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+				)
+				((:list 7)
+					:group
+					:id
+					6
+					:m
+					((:path 6)
+						1.00000 0.00000 25.00000 0.00000 1.00000 41.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							7
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									8
+									:d
+									"[M 6 0 L 284 0 A 6 6 0 0 1 290 6 L 290 40 A 6 6 0 0 1 284 46 L 6 46 A 6 6 0 0 1 0 40 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									9
+									:m
+									((:path 6)
+										1.00000 0.00000 89.79388 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the :hmap, its header]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									10
+									:m
+									((:path 6)
+										1.00000 0.00000 55.28527 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[vtable, count, parent, capacity, length]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					11
+					:m
+					((:path 6)
+						1.00000 0.00000 315.00000 0.00000 1.00000 41.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							12
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									13
+									:d
+									"[M 6 0 L 340 0 A 6 6 0 0 1 346 6 L 346 40 A 6 6 0 0 1 340 46 L 6 46 A 6 6 0 0 1 0 40 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									14
+									:m
+									((:path 6)
+										1.00000 0.00000 127.45849 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[its storage, in line]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									15
+									:m
+									((:path 6)
+										1.00000 0.00000 105.99829 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[key 0, value 0, key 1, value 1 ...]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					16
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 123.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[No second piece of memory for the bindings, and no pointer to follow to reach them.]"
+					:font_size
+					12
+				)
+			)
+		)
+	)
+	:props :nil
+)

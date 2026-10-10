@@ -209,14 +209,8 @@ ChrysaLisp isolates raw TCP socket management within the Net service.
 `lib/net/http.inc` interacts with this service through message-based Remote
 Procedure Calls (RPC):
 
-```code
-+-------------+   RPC Connect   +--------------------+
-| HTTP Client | --------------> | Net Service Daemon |
-|             | <-------------- |                    |
-+-------------+  in/out streams +--------------------+
-       |                                  |
-       |  HTTP/1.1 Request / Response     |
-       +--------------------------------->| Remote Server
+```image
+docs/diagrams/http_client.cwb
 ```
 
 * `(net-service)` discovers the active service mailbox using `(mail-enquire "@Net,")`.

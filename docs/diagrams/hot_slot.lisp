@@ -1,0 +1,10 @@
+;docs/ai_digest/keeping_it_hot.md: a symbol remembers where it was found
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s 'sym (dia-box '("a symbol, :sym" "+str_hashslot: 2") 180 44 gold 11 :first) 190 0)
+(dia-say s "the environment's :hmap, +hmap_elems" 0 100 12 :t 0xff202428)
+(each (lambda (i)
+	(dia-put s (sym (cat "e" (str i))) (dia-box (if (= i 2) '("key 2: the symbol" "value 2: 42") (list (cat "key " (str i)) (cat "value " (str i)))) (if (= i 2) 170 110) 44 (if (= i 2) green grey) 11 (if (= i 2) :first :nil)) (elem-get '(0 110 220 390) i) 110))
+	'(0 1 2 3))
+(dia-join s 'sym 'e2 "straight to that slot")
+(dia-say s "If the slot does not hold the symbol, it is looked for and the slot is put right: the next look is straight there again." 0 184 12 :nil 0xff202428)
+(diagram "hot_slot" (dia-scene-doc s))

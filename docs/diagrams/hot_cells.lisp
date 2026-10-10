@@ -1,0 +1,10 @@
+;docs/ai_digest/keeping_it_hot.md: an environment for a call is a cell taken from a list and given back to it
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-say s "the heap's free list, last in first out" 0 12 12 :t 0xff202428)
+(dia-put s 'top (dia-box '("the cell on top" "the one last given back") 220 44 gold 11 :first) 0 22)
+(each (# (dia-put s :nil (dia-box "cell" 70 44 grey 11) (+ 226 (* %0 76)) 22)) '(0 1 2))
+(dia-say s "..." 460 48 12)
+(dia-put s 'frame (dia-box '("the environment of the call" "still in the L1 data cache") 220 44 green 11 :first) 0 140)
+(dia-join s 'top 'frame "(env-push) takes it, (env-pop) gives it back" :both)
+(dia-say s "No call of a function asks the host, or a general heap, for memory." 0 214 12 :nil 0xff202428)
+(diagram "hot_cells" (dia-scene-doc s))

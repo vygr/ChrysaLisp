@@ -1,0 +1,10 @@
+;docs/ai_digest/net_stack.md: the HTTP client reaches a server through the Net service
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s 'client (dia-box '("the HTTP client" "lib/net/http.inc") 170 44 blue 11 :first) 0 20)
+(dia-put s 'net (dia-box '("the Net service" "@Net: the only thing" "that has sockets") 180 62 gold 11 :first) 280 11)
+(dia-put s 'server (dia-box '("a server" "somewhere") 130 44 grey 11 :first) 570 20)
+(dia-join s 'client 'net "RPC: connect" :both)
+(dia-join s 'net 'server "TCP" :both)
+(dia-say s "The service gives back an :in and an :out stream for the connection." 0 110 11)
+(dia-say s "The request is written to one and the response read from the other, as to any pipe." 0 126 11)
+(diagram "http_client" (dia-scene-doc s))

@@ -4,6 +4,48 @@
 
 ------
 
+Chris: "I noticed a few other potentail diagrams, the Editor app docs
+has a few places that a diagram would be really benifial and replace
+rough 'code' section ascii art. Some other 'code' ascii art around as
+well."
+
+A script went through every fenced block of the docs for the marks of a
+drawing made of letters, boxes of + and -, arrows, lines of |. Fifteen,
+and two more on a second, looser pass. Each is a diagram now, in its
+place:
+
+*	`apps/editor.md`: the Editor's parts, and the way every key and
+	click goes through `(dispatch-action)`.
+*	The digest's `keeping_it_hot.md`, four: a cell from the free list
+	and back, an environment and its bindings in the one cell, a
+	symbol's slot, and the steps of a call.
+*	`vp_functions.md`, two: a function's sections, the one diagram
+	already made for `vm/vp_functions.md`, and the boot image.
+*	`vp_classes.md`: its tree drawn in letters, which was of some of
+	the classes, is the tree `make docs` makes of them all.
+*	`source_database.md`, `net_stack.md`, `async_pipelines.md` two,
+	`evidence_not_faith.md`.
+
+Left as they are: three blocks of `cscript_skills.md` and one each of
+`dynamic_code.md` and `intro/framebuffer.md`, which are code with an
+arrow in a note, not drawings.
+
+Each new one drawn to a picture and looked at by me. What each says is
+what the letters it takes the place of said, and the words round them.
+
+46 scripts in `docs/diagrams/` now.
+
+A desktop of his had no window: the program in the Dock, alive, its
+window known to the window server and not on the screen, on no other
+Space. I do not know why. Started again, the window was there. I ask
+the window server now each time I bring one up.
+
+Run: `make docs`, the full suite on the x64 and the Pi.
+
+Not seen: by him.
+
+------
+
 Chris: "add the inherited fields to the class cards too".
 
 The card of a VP class has the fields of each class it comes of, from

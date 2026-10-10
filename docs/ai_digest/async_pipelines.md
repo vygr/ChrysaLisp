@@ -26,20 +26,8 @@ To appreciate the async pipeline model, consider the canonical CPM/FLM image
 format (`lib/image/cpm.inc`). A compressed CPM image frame consists of layered
 compression algorithms applied sequentially:
 
-```code
-[Raw File / Network Stream]
-            |
-            v
-Layer 1: LZ4 Compression
-            |
-            v
-Layer 2: RLE Compression (Token-bounded Run-Length Encoding)
-            |
-            v
-Layer 3: Pixmap Pixel Formatting (12, 15, 16, 24, or 32-bit ARGB/RGB)
-            |
-            v
-[Target Canvas]
+```image
+docs/diagrams/cpm_layers.cwb
 ```
 
 ### The Legacy Synchronous Implementation
@@ -200,8 +188,8 @@ robust serialization:
 The fundamental insight of ChrysaLisp streaming is that **compression and
 filtering algorithms are purely stream-to-stream functions**:
 
-```code
-in_stream ---> [ Filter ] ---> out_stream
+```image
+docs/diagrams/stream_filter.cwb
 ```
 
 Neither `lz4-decompress`, `rle-decompress`, `huffman-decompress`, nor any

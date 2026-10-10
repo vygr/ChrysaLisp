@@ -1,0 +1,12 @@
+;docs/ai_digest/async_pipelines.md: the layers a CPM picture is unpacked through
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s 'file (dia-box "a file, or a stream from the network" 300 34 grey 11) 0 0)
+(dia-put s 'lz4 (dia-box '("layer 1" "LZ4") 300 44 blue 11 :first) 0 64)
+(dia-put s 'rle (dia-box '("layer 2" "run lengths, bounded by tokens") 300 44 blue 11 :first) 0 138)
+(dia-put s 'pix (dia-box '("layer 3" "pixels: 12, 15, 16, 24 or 32 bits") 300 44 blue 11 :first) 0 212)
+(dia-put s 'canvas (dia-box "the canvas" 300 34 green 11) 0 286)
+(dia-join s 'file 'lz4 "")
+(dia-join s 'lz4 'rle "")
+(dia-join s 'rle 'pix "")
+(dia-join s 'pix 'canvas "")
+(diagram "cpm_layers" (dia-scene-doc s))
