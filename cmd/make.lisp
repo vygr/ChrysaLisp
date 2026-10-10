@@ -286,7 +286,10 @@
 			(when (nempty? info)
 				(write-line stream (cat "### " name +LF))
 				(information stream info)))
-		(sort (. docs_map :find :functions) (# (cmp (first %0) (first %1)))))
+		;two of the one name, a function of an app and one of another, are in
+		;the order of what they say, or they change places from build to build
+		(sort (. docs_map :find :functions) (# (if (eql (first %0) (first %1))
+			(cmp (str (second %0)) (str (second %1))) (cmp (first %0) (first %1))))))
 	(if (> *build_verb* 0) (print "-> " document))
 
 	;create macros docs

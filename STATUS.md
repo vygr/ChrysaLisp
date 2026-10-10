@@ -4,6 +4,89 @@
 
 ------
 
+Two things that were not explained, and a soak.
+
+The soak: every test on all three machines 20 times, after items 55,
+52 and 53. The M4 20 of 20, the x64 20 of 20, the Pi 19 of 20:
+`test_pipe`, "closes at once after eof, echo one two", the one seen
+once on the 10th, and once more tonight before the soak.
+
+It is the test's limit, not the pipe. Looked for on the Pi:
+
+*	400 closes of `echo one two` by themselves, and 400 with all the
+	tests run beside them in another session: each under a millisecond.
+*	a recorder in the Pi's copy of the test, and all the tests run
+	over and over: one close of `echo one two` took 174ms, with both
+	its streams stopping and not yet stopped. A command says its
+	streams are stopping and then, when its own input has stopped, that
+	they have stopped, `class/stdio/class.vp`, and between the two its
+	task waited. Scheduling is by giving way, a task that does not
+	holds its node, and the tests are all on the same nodes.
+*	the test wanted it under half a second, to tell it from the abort
+	timer of 2 seconds that the fault it guards was. It holds to three
+	quarters of the timer now. What I do not know: which task did not
+	give way.
+
+The mesh that did not see its peers after one member was restarted,
+the 10th: not a fault. A member runs the boot image it was started on.
+One restarted after a rebuild is on a different build from the two
+left up, and the mesh will not work with a peer on a different build:
+`./rack.sh run mesh` on it says "Heard, and not right: ... is on a
+different build". I restarted the M4's alone tonight and saw it, then
+all three and it was gone. In the dev cycle skill: all three together,
+never one.
+
+Still not looked at: whether a Whiteboard closed in the normal way
+leaves a shared pixel segment. It needs a desktop and a hand.
+
+------
+
+The eraser that bites, on the set logic. Not asked for tonight, I had
+said the library was as far as I would get. There was the night left,
+and Chris had told what it is to do, on the 10th: "that gave you a full
+swept erase polygon and THAT polygon was substracted from all shapes on
+the canvas", and "shapes that get 'bites' taken out got flatern to the
+polygon (which was still manipulated by control points like any flat
+polygon) but the shape change was recorded in the todo/redo like
+anything else".
+
+So it is built as a second way to rub out, and **what the eraser does
+is not changed**: a board is `:rub_mode :part` as it was. `:rub_mode
+:bite` is the other.
+
+*	`(. board :bite points [r shape])`, `lib/cwb/board.inc`: what the
+	eraser covers on its way, `(poly-sweep)`, is taken out of each
+	thing it touches, `(poly-difference)`. A box, a filled thing, words,
+	a thing in a turned group. A thing that loses a bite is flat after,
+	a shape for what is left of its fill and one for what is left of its
+	line. A thing not touched is not changed. Undo has them back as they
+	were. With the mode on, the eraser tool, a pen's eraser end and
+	`cwb -p` all do it.
+*	a millisecond for a thing, each move of the eraser.
+*	there is no button for it. The mode is kept in `whiteboard.tre` as
+	`:rub`, so to try it: close the Whiteboard, change `:rub :part` to
+	`:rub :bite` in `usr/<you>/whiteboard.tre`, open it, and use the
+	eraser. Where a switch for it goes, or whether it is simply the
+	eraser, is his to say.
+*	a picture of it, made by the board each `make docs`, is in
+	`docs/ai_digest/whiteboard.md`, "An eraser that bites".
+
+Not done of what he told: the eraser is a circle, the shape of what
+touches is not known to the app; and the work is the board's own task,
+not farmed.
+
+Also: `functions.md` had two entries of the one name change places
+from build to build, they are in the order of what they say now.
+
+Run: `tests/system/test_cwb_bite.lisp`, 34, and the app driven through
+it in `test_whiteboard.lisp`: the eraser tool with the mode on, the
+mode kept, undo. All tests on the M4, 5853.
+
+Not seen: by Chris, any of it, and it is a thing for the eye and the
+hand: how it feels to rub with, on a real board.
+
+------
+
 The include and import lists, and the emulator.
 
 `make it` prints what `includes` and `imports` would change, and it

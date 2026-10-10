@@ -421,6 +421,12 @@ are not there, make them again from this.
 
 *	**mesh**, `up|down|restart|status [machines]`: `./rack.sh <what>` in the
 	tree of each machine, by `ssh` for those that are not this one.
+	Restart all the machines together, never one: a member runs the boot
+	image it was started on, and one restarted after a rebuild is on a
+	different build from those left up, which the mesh will not work
+	with. `./rack.sh run mesh` says so, "Heard, and not right: ... is on
+	a different build", and is the first place to look when a job is not
+	run on every machine.
 
 *	**test**, `[-b] [tests args]`: works out which machines have nodes up
 	that are not the member, those are left out with `-l`, lists files

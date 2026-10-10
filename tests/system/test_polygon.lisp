@@ -60,6 +60,8 @@
 (defun pg-in? (x y paths) (if (vector-point-in-polygon (path x y) paths +winding_odd_even) :t :nil))
 (defq pg_bad 0 pg_out 0.0)
 (times 40
+	;a long loop of Lisp holds its node, and what times a task beside it fails
+	(task-slice)
 	(defq a (pg-any (+ 3 (pg-rnd 8)) 100) b (pg-any (+ 3 (pg-rnd 8)) 100)
 		u (poly-union a b) i (poly-intersect a b) d (poly-difference a b) d2 (poly-difference b a) x (poly-xor a b))
 	(times 40
@@ -109,6 +111,7 @@
 ;rule. And what is made of the pieces, the lines and the ys of the crossings
 (defq pg_seed 777 pg_bands 0 pg_differ 0 pg_cross 0 pg_lines 0)
 (times 400
+	(task-slice)
 	(defq n (+ 1 (pg-rnd 12)) edges (nums) active (nums) y0 (+ 1000 (pg-rnd 5000)) y1 (+ y0 1 (pg-rnd 5000)))
 	(times n
 		;an edge that is in the band, from at or above its top to at or below

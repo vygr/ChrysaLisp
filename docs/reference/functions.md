@@ -257,6 +257,30 @@ itself with its middle. A finger moves things
 (bitcnt n) -> num bits
 ```
 
+### board-bite
+
+```code
+(board-bite doc swept) -> :nil | (made gone)
+
+what swept covers, paths in the space of the document, taken out of
+every thing of the layers that can be changed. The ids of the shapes
+that were made, and of those they stand in the place of, :nil if
+nothing was touched. A group whose things have all gone goes. A list
+of what is left to do, no function here calls itself
+```
+
+### board-bite-shape
+
+```code
+(board-bite-shape item full m swept) -> :nil | (shape ...)
+
+a shape with what swept covers taken out of it. swept is paths in
+the space of the document, full the matrix that puts the shape there,
+m the one that puts the space the shape is in there. :nil if it is
+not touched. What is to stand in its place, in the space it is in:
+nothing if all of it went
+```
+
 ### board-copy-items
 
 ```code
@@ -5418,13 +5442,13 @@ The gap before a comment at the end is kept, it may line comments up.
 ### start
 
 ```code
-start a child, on the worker nodes in turn
+start a child
 ```
 
 ### start
 
 ```code
-start a child
+start a child, on the worker nodes in turn
 ```
 
 ### stdio-get-args
