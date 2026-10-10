@@ -4,6 +4,25 @@
 
 ------
 
+Chris: "Full circle mode on half protactor is pointless ! it's not a
+circle !"
+
+The ring on a half protractor goes through three: arc, slice, slice
+filled. The whole one has the two circles as well. An instrument's
+`:modes` says which. `lib/cwb/tools.inc`.
+
+A save or a load of the config that throws now says so, it was caught
+and nothing said. He asked if the window's place and size were still to
+do: no `whiteboard.tre` had been written for him at all, and I do not
+yet know if that was a board opened before the code was there.
+
+Run: `test_cwb` and `test_whiteboard` on the M4, the full suite on the
+x64 and the Pi.
+
+Not seen: a window closed and opened on a desktop, still.
+
+------
+
 Chris: "Whiteboard need to save config... re-size and toobar selections
 etc, current drawing... follow the same config .tre rules and other
 apps." And as that was being made: "Forward and backward numeral

@@ -327,7 +327,7 @@
 	(board-resized)
 	;as it was when it was last closed, if it has been: where it was and
 	;how big, as far as that is on the screen there now is
-	(defq config (catch (config-load) :t)
+	(defq config (catch (config-load) (progn (prin _) (print) :t))
 		place (if (list? config) (apply view-fit (slice config 0 4)) (apply view-locate (. *window* :pref_size))))
 	(bind '(x y w h) place)
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -377,7 +377,7 @@
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	;close window
-	(catch (config-save) :t)
+	(catch (config-save) (progn (prin _) (print) :t))
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(. *stripes* :close)
 	(gui-sub-rpc *window*)

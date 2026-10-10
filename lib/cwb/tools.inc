@@ -373,11 +373,14 @@
 					(. stage :sub this)
 					(. board :touch +board_dirty_overlay)))
 			(:mode
-				;what it draws is the next of the five, if it came up where
-				;it went down. Its sign is of that, so it is made again
+				;what it draws is the next of what it can, its :modes, if it
+				;came up where it went down. A half protractor has no circle
+				;to draw, a whole one has. Its sign is of that, so it is made again
 				(bind '(lx ly) (. this :to_own x y))
 				(when (and (defq now (. this :part_at lx ly)) (eql (first now) :mode))
-					(def this :mode (case (get :mode this) (:line :pie) (:pie :fpie) (:fpie :circle) (:circle :fcircle) (:t :line)))
+					(defq modes (ifn (def? :modes this) '(:line :pie :fpie))
+						at (ifn (find (get :mode this) modes) -1))
+					(def this :mode (elem-get modes (% (inc at) (length modes))))
 					(. this :built)))))
 
 	(defmethod :pointers (stage events)
@@ -653,7 +656,7 @@
 			;a ring is its outer round one way and its inner the other
 			ring (lambda (r0 r1) (cwb-d "M" r1 0 "A" r1 r1 0 1 1 (neg r1) 0 "A" r1 r1 0 1 1 r1 0 "Z"
 				"M" r0 0 "A" r0 r0 0 1 0 (neg r0) 0 "A" r0 r0 0 1 0 r0 0 "Z")))
-		(def this :outline (cwb-d-ellipse 0 0 r)
+		(def this :modes '(:line :pie :fpie :circle :fcircle) :outline (cwb-d-ellipse 0 0 r)
 			:edges (list (list :arc 0.0 0.0 r (neg +fp_pi) +fp_pi))
 			:parts (list
 				(list :close (cwb-d-ellipse 0 (* -0.3 r) 11))

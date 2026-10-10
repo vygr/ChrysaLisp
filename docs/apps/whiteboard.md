@@ -138,8 +138,8 @@ line drawn along it stops there, however far the pen goes on.
 
 * What the round edge of a protractor draws is set on the protractor: the
 ring near its middle shows it, an arc, a slice with its two straight sides,
-a slice that is filled, the whole circle, or a circle that is filled, and a
-tap on the ring goes to the next.
+or a slice that is filled, and a tap on the ring goes to the next. The whole
+protractor has the whole circle too, and a circle that is filled.
 
 * A protractor is numbered every ten degrees both ways from its 0, as a
 real one is: the bigger numbers one way, the smaller under them the other.

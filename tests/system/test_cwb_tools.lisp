@@ -380,6 +380,15 @@
 (assert-eq "a press on it that comes up somewhere else changes nothing" :line (get :mode wt_circle))
 (. wt_stage :sub wt_circle)
 
+;a half protractor is no circle, and does not offer to draw one
+(defq wt_half (Protractor wt_board 400 300))
+(. wt_stage :add wt_half)
+(. wt_half :built)
+(defq wt_mode (. wt_half :to_board 0 (* -0.115 180.0)))
+(assert-list-eq "tapped and tapped, a half protractor draws a slice, a slice filled, and an arc again" '(:pie :fpie :line :pie)
+	(map (lambda (_) (wt-go (cat '(0 :mouse 1) wt_mode)) (wt-go (cat '(0 :mouse 0) wt_mode)) (get :mode wt_half)) '(0 1 2 3)))
+(. wt_stage :sub wt_half)
+
 ;which is in front. One that is taken hold of comes to the front of the instruments, one
 ;taken by the right button alone goes to the back of them, and one that is drawn along stays where it is
 (defq wt_b2 (Board (cwb-doc 800 600)) wt_s2 (. wt_b2 :get_stage)

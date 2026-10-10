@@ -222,7 +222,8 @@ round an arc, the way the pen went. It is a true `L` or a true `A` in the
 document, not the points of the hand. An edge is as long as its marks, from
 their 0 to where they end, and the pen is held to that: nothing is drawn
 along an edge past its 0. A protractor has `:mode`, `:line`, `:pie`, `:fpie`,
-`:circle` or `:fcircle`, the two with an f filled, and a part of it, `:mode`, that a tap takes to the next. The
+`:circle` or `:fcircle`, the two with an f filled, of which it offers those in its `:modes`, a half
+one no circle, and a part of it, `:mode`, that a tap takes to the next. The
 instrument says what it does, no toolbar does.
 
 A `:size` part with a third thing, -1.0 or 1.0, is an end: dragged along
