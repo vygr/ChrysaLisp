@@ -146,6 +146,42 @@ Put a helper above what uses it. A function that calls itself is fine if it
 is exported, and is not if it is not. `((const f) ...)` inside `f` does not
 help, `f` is not bound yet.
 
+### In a module, what an exported function keeps must be exported too
+
+A function made in a module finds the functions above it as it is made,
+and they stay found. A thing it keeps, a `(defq)` of the module, is looked
+for when the function runs, in whatever called it. By then the module's
+names have gone.
+
+```vdu
+(env-push)
+(defq *held* (Fmap 11))
+(defun action-pointer () (. *held* :find 1)) ; symbol_not_bound when called
+(defq *event_map* (scatter (Fmap) 1 action-pointer))
+(export-symbols '(*event_map*))
+(env-pop)
+```
+
+Export the thing as well as what uses it. A test that loads the file and
+calls the function straight away, inside the same load, does not show
+this. One that calls it later, as its user will, does. The GUI service
+stopped at the first finger there ever was on a desktop for this.
+
+### What a map gives is in no order
+
+`(. map :each ...)` gives what is in an `Fmap` or an `Emap` in the order of
+its buckets, not the order it was put in, and the order can be another one
+the next time something is put in. Two things taken out of one are not the
+same way round each time. If the order matters, put them in a list and
+`(sort)` it by something that says the order. Two fingers on a ruler came
+out the other way round now and then, which is a half turn.
+
+### `.->` wants each method to give the object back
+
+`(.-> obj (:a) (:b))` calls `:b` on what `:a` gave. Most methods give the
+object. One that gives a number, `(. canvas :tile ...)` gives how many it
+set, breaks the chain with a `wrong_types` at the next. Call it by itself.
+
 ### Your names are live while the assembler runs
 
 Code that makes VP, inside `within-compile-env`, shares names with the
@@ -328,6 +364,11 @@ release build, `make it`, the snapshot, and the emulator's image, has none
 of those checks, and the same mistake there stops the node or worse. Nor
 does a `throw` from a function given to `(pipe-run)` get out of it there.
 Work in the checked build. [`docs/ai_digest/exceptions.md`](exceptions.md).
+
+Not every wrong type is caught in the checked build either. A set or a map
+is a list to `(list? x)`, see above, and `(find k x)` or `(nempty? x)` on
+one is a segmentation fault with nothing said, and what the session had
+printed is lost. Ask `(list?? x)`, or the class, `(Fset? x)`, first.
 
 ### A handler that gives `:nil` passes the error on
 

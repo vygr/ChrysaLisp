@@ -4,6 +4,39 @@
 
 ------
 
+Chris: "take the desktop down and do the M4 run". Then: "we have the
+entire dev loop skill up to date ? all the tricks you learnt this time
+on the language updated in the skills ? If an update happen I'd hate to
+loose you." and "our todo list saved and up to date ?"
+
+**The run.** The whole suite four times on the M4, the x64 and the Pi,
+on `94e15ac0f`: all twelve clean, 5,724. Four notes of shared pixels
+were on the M4 before it, of 18:46 to 18:58, the Whiteboards he had
+open on desktops that were taken down or that stopped under him. Let go
+of, and none after a run. Whether a Whiteboard that is closed by its
+button leaves one is not known, to be looked at.
+
+**The skill and the traps.** They were not up to date. Now:
+
+*	`.agents/skills/chrysalisp-dev-cycle/SKILL.md`: what a desktop that
+	is up will pick up and what needs a new one; members started again
+	together; fingers on a trackpad; seeing a thing drawn; a recorder
+	is code; a soak, what to count and how to read it; a new clone
+	before a first push; and four more rules learned the hard way.
+
+*	`docs/ai_digest/lisp_traps.md`: what a function of a module keeps
+	must be exported with it; what a map gives is in no order; `.->`
+	wants the object back; a set given to `(find)` is a fault with
+	nothing said. Two of them pinned in `tests/core/test_traps.lisp`.
+
+*	One I walked into was on the page already, with its test: a map is a
+	list to `(list?)`. I had not read the page again before writing code
+	that asks it.
+
+The soak is a script with the others, outside the repo.
+
+------
+
 Chris: "Drawing a double head arrow. selct it, the control points at
 the end, during drag the arrow and controls not show. on relese the
 arrow and control updates to the new position."

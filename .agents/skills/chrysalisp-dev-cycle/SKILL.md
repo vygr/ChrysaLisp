@@ -234,6 +234,42 @@ Much of the work is for the eye, and an agent has none. The user looks.
 	form a new pipe sends is unknown to old nodes. If a change has to be
 	made, say so first, and say the desktop must be started again.
 
+*	**What a desktop that is up will pick up, and what it will not.** An
+	app opened again reads its own files under `apps/`, and what only it
+	imports. It does not read again what the desktop had at its start,
+	which is more than it looks: everything under `gui/` and
+	`service/gui/`, `lib/consts/symbols.inc`, the fonts, the host
+	program, and whatever the GUI itself imports, which includes
+	`lib/cwb/doc.inc` by way of `lib/image/cwb.inc`. A function added to
+	one of those is `symbol_not_bound` in an app opened on the old
+	desktop. Before saying "open the app again", list what changed since
+	the desktop came up, `git diff --stat` and what is not committed, and
+	if any of it is on that list start a new desktop and say so. This was
+	got wrong three times in one day.
+
+*	A member that is started again is a new node to the other machines,
+	and one that has been up a long time may not show its sync service
+	to it: the mesh then runs on this machine alone and the test loop
+	falls back to `ssh`. Start all the members again together, not one.
+
+*	Fingers without a touch screen: `CL_TOUCH_TRACKPAD=1 ./rack.sh up`
+	before the desktop is added, and each finger on the trackpad is a
+	contact, the pad is the window. The pad then moves no mouse in the
+	window. On a Mac the pad must not be set to be ignored while a mouse
+	is there, System Settings, Accessibility, Pointer Control. It is a
+	stand in: the Mac makes a wheel of two fingers and cancels a finger
+	that rests, the driver undoes both, a panel does neither.
+
+*	To see a thing yourself, draw it to a file and look: `cwb file.cwb
+	-s script.lisp -o out.tga`, `sips -s format png out.tga --out
+	out.png`, and read the picture. A script, not `-e`, for more than a
+	line.
+
+*	A recorder put in to watch the user's session is code like any other:
+	run the path it is on with no desktop before the user is asked to,
+	keep it out of every commit, and take it out when the watching is
+	done. Two of them stopped the app under the user in one day.
+
 *	The GUI service loads the GUI a file at a time in the order of what
 	each file imports, not top to bottom as `(import "gui/lisp.inc")` does.
 	A GUI file that needs a name as it loads must import the file that has
@@ -264,6 +300,39 @@ Much of the work is for the eye, and an agent has none. The user looks.
 	`origin/master` by git, on each: fetch, remove untracked files that
 	the push now tracks, they were put there by a sync, and check out.
 	Then the harness once more.
+
+## A Soak
+
+One run that passes says little about a thing that goes wrong one time in
+ten. After a batch that adds tests or tasks, or changes the host program,
+the pointer handling, pipes or the mesh, run the whole suite on every
+machine a dozen times or more, with no desktop up, and read every line:
+
+```code
+for i in $(seq 1 20); do <the test wrapper> -a | tail -4; done
+```
+
+*	Look at the slow machine's line first, it is the one that shows a
+	race.
+
+*	Count the notes of shared pixels before and after, `ls
+	/tmp/chrysalisp_shm_* | wc -l` on each machine, they must not grow.
+	`./obj/*/*/*/main_tui -shm_sweep` lets go of what a process that has
+	gone left. A test, or an app, that stops part way leaves one.
+
+*	A failure that comes once and not again is a fault to be found, not a
+	loaded machine. Run the module alone twenty times: if it passes
+	alone, something beside it holds its node, a task that does a second
+	of work with nothing waited for. `(task-slice)` in it.
+
+*	For "none since the fix", count the runs after the fix.
+
+## Before A First Push To A Public Place
+
+A new clone of what is to be pushed, somewhere outside the tree, `make
+install` in it from the snapshot it carries, and the whole suite there. It
+is what a stranger will do first. `git clone --local . <dir>`. `make
+install` there stops no nodes of the machine.
 
 ## A Session Of Your Own That Hangs
 
@@ -325,6 +394,23 @@ Much of the work is for the eye, and an agent has none. The user looks.
 
 *	What is done by hand more than twice becomes a command or a script,
 	and is then timed like one.
+
+*	A session of yours that ends with "Segmentation fault" and nothing
+	said has given a function for sequences a thing that is not one. What
+	it printed before is lost. Find it with a script a call.
+
+*	A command started in the background must not ask anything. A shell
+	that has `cp` ask before it writes over a file sat at that question
+	for half an hour.
+
+*	A thing the user reports as odd, once, is to be looked at as a fault
+	before it is called the machine, the load or the network. Each one
+	that was looked at on 2026-10-10 was a fault.
+
+*	A shortcut that draws less has to know everything that changes what is
+	drawn. One that moved a picture in place of drawing it knew of where
+	a thing was and not of its path, nor of which layer it was on, and
+	each was found by the user.
 
 ## Helper Scripts Outside The Repo
 

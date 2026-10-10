@@ -129,4 +129,16 @@
 	(catch (catch (throw "inner" 1) :nil) :outer))
 (assert-eq "one that gives :t ends it" :t (catch (throw "inner" 1) :t))
 
-(undef (env) 'tr_a 'tr_b 'tr_sort 'tr_mbox 'tr_sent)
+;what a function of a module keeps is not found when it is called later, unless it is exported too
+(env-push)
+(defq tr_kept 7 tr_shown 9)
+(defun tr-keeps () tr_kept)
+(defun tr-shows () tr_shown)
+(export-symbols '(tr-keeps tr-shows tr_shown))
+(env-pop)
+(assert-error "a thing a module keeps and does not export is not bound when its function is called" (tr-keeps))
+(assert-eq "exported with the function, it is" 9 (tr-shows))
+(assert-error "a chain breaks at a method that does not give the object back"
+	(.-> (Fmap 1) (:insert 1 2) (:find 1) (:insert 3 4)))
+
+(undef (env) 'tr_a 'tr_b 'tr_sort 'tr_mbox 'tr_sent 'tr_shown)
