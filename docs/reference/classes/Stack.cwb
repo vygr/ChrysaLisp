@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 4
 	:width 223
-	:height 250
+	:height 433
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 33
+	:next_id 44
 	:layers
 	((:list 1)
 		((:list 3)
@@ -261,13 +261,13 @@
 							:id
 							20
 							:items
-							((:list 12)
+							((:list 23)
 								((:list 11)
 									:shape
 									:id
 									21
 									:d
-									"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 176 A 8 8 0 0 1 142 184 L 8 184 A 8 8 0 0 1 0 176 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 143.42114 0 A 8 8 0 0 1 151.42114 8 L 151.42114 359 A 8 8 0 0 1 143.42114 367 L 8 367 A 8 8 0 0 1 0 359 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -280,7 +280,7 @@
 									:id
 									22
 									:d
-									"[M 0 50 L 0 8 Q 0 0 8 0 L 142 0 Q 150 0 150 8 L 150 50 Z]"
+									"[M 0 50 L 0 8 Q 0 0 8 0 L 143.42114 0 Q 151.42114 0 151.42114 8 L 151.42114 50 Z]"
 									:fill
 									4292339447
 									:stroke
@@ -333,7 +333,7 @@
 									:id
 									25
 									:d
-									"[M 0 50 L 150 50]"
+									"[M 0 50 L 151.42114 50]"
 									:stroke
 									4282140240
 									:width
@@ -358,7 +358,7 @@
 									:stroke
 									0
 									:text
-									"[methods]"
+									"[properties it gives itself]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -379,7 +379,7 @@
 									:stroke
 									0
 									:text
-									:action
+									"[:flow_flags]"
 									:font_size
 									12
 								)
@@ -398,7 +398,7 @@
 									:stroke
 									0
 									:text
-									:add_child
+									"[:radio_bar]"
 									:font_size
 									12
 								)
@@ -417,7 +417,7 @@
 									:stroke
 									0
 									:text
-									:get_radio_bar
+									"[:stack_children]"
 									:font_size
 									12
 								)
@@ -436,6 +436,211 @@
 									:stroke
 									0
 									:text
+									"[:stack_flow]"
+									:font_size
+									12
+								)
+								((:list 13)
+									:shape
+									:id
+									31
+									:d
+									"[M 0 150 L 151.42114 150]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									32
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 166.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[properties it looks for]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									33
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 185.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[::radio_bar]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									34
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 202.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[::stack_children]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									35
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 219.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[::stack_flow]"
+									:font_size
+									12
+								)
+								((:list 13)
+									:shape
+									:id
+									36
+									:d
+									"[M 0 233 L 151.42114 233]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									37
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 249.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[methods]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									38
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 268.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:action
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									39
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 285.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:add_child
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									40
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 302.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_radio_bar
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									41
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 319.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
 									:get_stack_children
 									:font_size
 									12
@@ -443,10 +648,10 @@
 								((:list 15)
 									:shape
 									:id
-									31
+									42
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 153.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 336.00000
 									)
 									:kind
 									:text
@@ -462,10 +667,10 @@
 								((:list 15)
 									:shape
 									:id
-									32
+									43
 									:m
 									((:path 6)
-										1.00000 0.00000 12.00000 0.00000 1.00000 170.00000
+										1.00000 0.00000 12.00000 0.00000 1.00000 353.00000
 									)
 									:kind
 									:text

@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 4
 	:width 210
-	:height 124
+	:height 199
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 18
+	:next_id 23
 	:layers
 	((:list 1)
 		((:list 3)
@@ -171,13 +171,13 @@
 							:id
 							13
 							:items
-							((:list 4)
+							((:list 9)
 								((:list 11)
 									:shape
 									:id
 									14
 									:d
-									"[M 8 0 L 175.41809 0 A 8 8 0 0 1 183.41809 8 L 183.41809 50 A 8 8 0 0 1 175.41809 58 L 8 58 A 8 8 0 0 1 0 50 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 175.41809 0 A 8 8 0 0 1 183.41809 8 L 183.41809 125 A 8 8 0 0 1 175.41809 133 L 8 133 A 8 8 0 0 1 0 125 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -237,6 +237,99 @@
 									"[(Mesh-sphere radius eps) -> mesh]"
 									:font_size
 									11
+								)
+								((:list 13)
+									:shape
+									:id
+									18
+									:d
+									"[M 0 50 L 183.41809 50]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									19
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 66.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[properties it gives itself]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									20
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 85.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:norms]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									21
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 102.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:tris]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									22
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 119.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:verts]"
+									:font_size
+									12
 								)
 							)
 						)

@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 4
 	:width 398
-	:height 199
+	:height 333
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 30
+	:next_id 38
 	:layers
 	((:list 1)
 		((:list 3)
@@ -261,13 +261,13 @@
 							:id
 							20
 							:items
-							((:list 9)
+							((:list 17)
 								((:list 11)
 									:shape
 									:id
 									21
 									:d
-									"[M 8 0 L 363.88708 0 A 8 8 0 0 1 371.88708 8 L 371.88708 125 A 8 8 0 0 1 363.88708 133 L 8 133 A 8 8 0 0 1 0 125 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 363.88708 0 A 8 8 0 0 1 371.88708 8 L 371.88708 259 A 8 8 0 0 1 363.88708 267 L 8 267 A 8 8 0 0 1 0 259 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -358,7 +358,7 @@
 									:stroke
 									0
 									:text
-									"[methods]"
+									"[properties it gives itself]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -379,7 +379,7 @@
 									:stroke
 									0
 									:text
-									:close
+									"[:create]"
 									:font_size
 									12
 								)
@@ -398,7 +398,7 @@
 									:stroke
 									0
 									:text
-									:refresh
+									"[:destroy]"
 									:font_size
 									12
 								)
@@ -409,6 +409,156 @@
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 119.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:herd_growth]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									30
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 136.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:herd_init]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									31
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 153.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:herd_max]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									32
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 170.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:key]"
+									:font_size
+									12
+								)
+								((:list 13)
+									:shape
+									:id
+									33
+									:d
+									"[M 0 184 L 371.88708 184]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									34
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 200.00000
+									)
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[methods]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									35
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 219.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:close
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									36
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 236.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:refresh
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									37
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 253.00000
 									)
 									:kind
 									:text

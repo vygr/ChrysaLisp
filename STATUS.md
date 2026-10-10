@@ -4,6 +4,38 @@
 
 ------
 
+Chris: "For Lisp class diagrams are we able to add properties of the
+class or is that a bit difficult ?"
+
+Not difficult. The card of a Lisp class has two more parts above its
+methods, 73 of the 78 have at least one:
+
+*	properties it gives itself: what it sets on `this`, with
+	`(def this :k v ...)`, `(set this ...)`, `(lower ...)` and
+	`(defsetmethod)`.
+*	properties it looks for: what it reads with `(get :k this)`,
+	`(def? :k this)`, `(raise ...)` and `(defgetmethod)` and does not
+	set. For a widget those are what it takes from the tree it is in,
+	`:color`, `:border`, `:font`, `:min_width`.
+
+`(class-props)` in `cmd/make.lisp` reads each file as the reader does,
+forms and not text, and goes through each `(defclass)`. `make docs` is
+1.1s, as it was.
+
+What it can not see: a property set on an object from outside its
+class, by the app that makes it or by a parent class, is under "looks
+for" or not there; one whose name is worked out as the code runs is
+not there; and the properties of the classes it comes of are not
+repeated on its card, as the fields of a VP class are.
+
+Run: `make docs`, the cards of `Button` and `Board` drawn and looked
+at, `cl_test.sh -a` clean on the x64 and the Pi, 5752 each. The M4 left
+out, a desktop is up.
+
+Not seen: by Chris, any of it.
+
+------
+
 Chris: "carry on with the next diagram candidates".
 
 Thirteen more, 59 scripts in `docs/diagrams/` now, each drawn to a

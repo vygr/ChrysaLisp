@@ -113,6 +113,55 @@
 		(setq name parent))
 	(reverse out))
 
+(defun class-props (files)
+	; (class-props files) -> fmap
+	;the properties of each Lisp class, by its name: those it gives itself,
+	;and those it looks for. Found by reading each file as the reader does,
+	;forms and not text, and going through each (defclass) for what is
+	;done to this: (def this :k v ...) and (set this ...) and (lower :k)
+	;give, (get :k this), (def? :k this) and (raise :k) look. A list of
+	;what is left to look at, no function here calls itself
+	(defq out (Fmap 31) key? (# (and (sym? %0) (starts-with ":" %0)))
+		this? (lambda (form)
+			;is it this, or a form with this in it, (. this :method ...) gives this back
+			(defq todo (list form) found :nil)
+			(while (and (not found) (defq node (pop todo)))
+				(cond
+					((eql node 'this) (setq found :t))
+					((list?? node) (each (# (push todo %0)) node))))
+			found))
+	(each (lambda (file)
+		(catch (progn
+			(defq stream (file-stream file) next (ascii-code " "))
+			(while (and stream (/= next -1))
+				(bind '(form next) (read stream next))
+				(when (and (list?? form) (> (length form) 2) (eql (first form) 'defclass))
+					(defq gives (Fset 11) looks (Fset 11) todo (list form))
+					(while (defq node (pop todo))
+						(when (and (list?? node) (nempty? node))
+							(defq op (first node) n (length node))
+							(cond
+								((and (find op '(def set)) (> n 3) (this? (second node)))
+									(each! (# (if (and (= 0 (logand (!) 1)) (key? %0)) (. gives :insert %0))) (list node) 2))
+								((and (find op '(get def?)) (= n 3) (key? (second node)) (eql (third node) 'this))
+									(. looks :insert (second node)))
+								((eql op 'raise)
+									(each! (# (if (key? %0) (. looks :insert %0))) (list node) 1))
+								((eql op 'lower)
+									(each! (# (cond ((key? %0) (. gives :insert %0))
+										((and (list?? %0) (nempty? %0) (key? (first %0))) (. gives :insert (first %0)))))
+										(list node) 1))
+								((and (eql op 'defgetmethod) (> n 1)) (. looks :insert (sym (cat ":" (second node)))))
+								((and (eql op 'defsetmethod) (> n 1)) (. gives :insert (sym (cat ":" (second node))))))
+							(each (# (if (list?? %0) (push todo %0))) node)))
+					(defq given (list) looked (list))
+					(. gives :each (# (push given (str %0))))
+					(. looks :each (# (unless (. gives :find %0) (push looked (str %0)))))
+					(. out :insert (str (second form)) (list (sort given (const cmp)) (sort looked (const cmp))))))
+			:t) :t))
+		files)
+	out)
+
 (defun diagram-save (doc file)
 	(cwb-save doc (file-stream file +file_open_write))
 	(if (> *build_verb* 0) (print "-> " file)))
@@ -126,16 +175,17 @@
 
 	;scan for Lisp functions, macros, classes, ffi and keys info
 	(defq docs_map (string-stream ""))
-	(pipe-run (cat "docs -j 8 " (join (sanitize (cat
+	(defq lisp_files (sanitize (cat
 			(files-all "." '("lisp.inc" "actions.inc") 2)
 			(files-all "./lib" '(".inc") 2)
-			'("class/lisp/root.inc" "class/lisp/task.inc"))) " "))
+			'("class/lisp/root.inc" "class/lisp/task.inc"))))
+	(pipe-run (cat "docs -j 8 " (join lisp_files " "))
 		(# (write-blk docs_map %0)))
 	(setq docs_map (tree-load (string-stream (str docs_map))))
 
 	;create classes docs, each with its diagram: what it comes of, its
 	;methods, and what comes of it
-	(defq lisp_supers (Fmap 31) lisp_nodes (list))
+	(defq lisp_supers (Fmap 31) lisp_nodes (list) lisp_props (class-props lisp_files))
 	(each (lambda ((name pname &ignore))
 		(push lisp_nodes (list name pname))
 		(if pname (. lisp_supers :insert name pname)))
@@ -148,7 +198,11 @@
 			(diagram-save (dia-class name (if (nempty? info) (first info) "")
 					(chain-of name lisp_supers)
 					(sort (map (const first) (filter (# (eql (second %0) name)) lisp_nodes)) (const cmp))
-					(list (list "methods" (sort (map (const first) methods) (const cmp)))))
+					;what it gives itself and what it looks for, then its methods
+					(filter (# (nempty? (second %0))) (list
+						(list "properties it gives itself" (if (defq props (. lisp_props :find (str name))) (first props) (list)))
+						(list "properties it looks for" (if props (second props) (list)))
+						(list "methods" (sort (map (const first) methods) (const cmp))))))
 				(cat "docs/reference/classes/" name ".cwb"))
 			(if pname (write-line stream (cat "## " pname +LF)))
 			(information stream info)
