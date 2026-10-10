@@ -140,6 +140,10 @@ The document parser in `apps/desktop/docs/app.lisp` does not hardcode the logic
 for every possible markdown block. Instead, it utilizes a Delegation Pattern
 driven by Markdown's fenced code blocks ("```tag").
 
+```image
+docs/diagrams/docs_sections.cwb
+```
+
 * **Lazy Module Loading**
 
     * When the parser encounters a fenced block, it reads the tag (e.g.,

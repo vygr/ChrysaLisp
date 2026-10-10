@@ -255,3 +255,7 @@ When a command like `(edit-insert "A")` is executed:
 This architecture ensures zero duplication of effort, high performance, and
 total consistency between graphical and command-line text manipulation
 tools.
+
+```image
+docs/diagrams/text_stack.cwb
+```

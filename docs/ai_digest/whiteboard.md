@@ -31,6 +31,10 @@ apps/media/whiteboard/  the app
 
 Each stands on the ones above it. Only the app needs a screen.
 
+```image
+docs/diagrams/wb_parts.cwb
+```
+
 ## A document
 
 A document is a size, a background, and layers. A layer is a name, flags, 1
@@ -122,6 +126,10 @@ than one for a pointer, is given to it, `(. stage :pointers events)`:
 So two fingers on a thing arrive together and can be seen as two fingers, and
 a pen on a ruler and a finger on a shape are two actors' business at the same
 moment. An actor has `:hit`, is a point on me, `:pointers`, and `:leave`.
+
+```image
+docs/diagrams/wb_pointers.cwb
+```
 
 What a pointer does is looked up. `Bindings` are rules, each a kind, an id
 and buttons to match, any of them `:nil` for any, and what a pointer that

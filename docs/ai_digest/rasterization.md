@@ -13,6 +13,10 @@ The pipeline consists of two distinct stages:
 2. **Rasterization:** Converting 2D polygons into pixels using a scanline
    edge-walker with anti-aliasing.
 
+```image
+docs/diagrams/raster_pipeline.cwb
+```
+
 ## Part 1: The Path Stroking System (`gui/path`)
 
 Before a line can be drawn, it must be "stroked." A mathematical line has zero

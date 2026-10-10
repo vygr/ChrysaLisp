@@ -1,0 +1,12 @@
+;docs/ai_digest/whiteboard.md: the canvases of the app, from the back
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s :nil (dia-box '("*overlay*" "handles, instruments, palettes, contact rings: drawn as they are, with a margin round the paper") 620 44 blue 11 :first) 60 0)
+(dia-put s :nil (dia-box '("*flight*, in front" "what is selected, or being drawn: one picture, moved while it is only dragged") 560 44 gold 11 :first) 40 56)
+(dia-put s :nil (dia-box '("*committed*" "the document, one picture, clear where nothing is. Drawn by the nodes in stripes when it is big") 560 44 green 11 :first) 20 112)
+(dia-put s :nil (dia-box '("*flight*, behind" "the same canvas, put here for what the right button took to the back") 560 44 gold 11 :first) 40 168)
+(dia-put s :nil (dia-box '("*paper*" "plain, grid, lines or axes: to work on, not part of the picture") 560 44 grey 11 :first) 0 224)
+(dia-say s "front" 0 26 12 :t 0xff202428)
+(dia-say s "back" 580 250 12 :t 0xff202428)
+(dia-say s "A thing taken up leaves the document's picture and is in flight; put down, it lands. Only the part of the" 0 300 11)
+(dia-say s "document's picture where it was, or lands, is drawn again." 0 316 11)
+(diagram "wb_layers" (dia-scene-doc s))
