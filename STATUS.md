@@ -4,6 +4,37 @@
 
 ------
 
+Chris, with a finger held still on one shape and another dragging a
+second: "yes, the held shape stayed held, both did, but they selected
+and the bounding box covered both of them." And: "We will have to come
+up with some idea on how to have sepearte devices having seperate
+selection boxes and groups etc, but at least we do have the device ID
+to use."
+
+*	Out of select mode several things selected each have their own line
+	round them and no box round them all: a box round the lot says they
+	are one thing to take hold of, and each may be in a different hand.
+	The one box is drawn only when the lines round each are left out, a
+	great many being moved.
+
+*	Not done, and his to shape: what is selected is still one list for
+	the whole board, that every hand adds to. A selection for each
+	device, with its own box, handles and groups, is the thing he
+	means. On the list, 58.
+
+He has now seen, on the trackpad as a panel: two fingers on a tool, a
+third that does nothing and takes over when one lifts, "quite smooth
+transition"; the board still behind a tool, "much better"; a finger
+held still while another works.
+
+Found in a test, not his: with soft edges off, a line one pixel wide
+along whole numbers draws no pixel. The app's canvases have them on.
+With 55 on the list.
+
+Run: `test_cwb` 485 on the M4, the full suite on the x64 and the Pi.
+
+------
+
 Chris: "two fingers on the protractor work to interact with it, but the
 background canvas still treats that as pan/som of the canvas. I'm not
 touching the canvas ! only the math tool."

@@ -1316,9 +1316,10 @@
 			;every row for the fill to keep in order, six times as long.
 			;While a hand moves or turns a great many of them they are
 			;not drawn, and are again when it lets go
-			(if (and (> (length items) 1)
+			(defq each_one (and (> (length items) 1)
 					(or (< (length items) 200)
-						(not (or (. (get :surface this) :holding) (/= (. handles :held) 0)))))
+						(not (or (. (get :surface this) :holding) (/= (. handles :held) 0))))))
+			(if each_one
 				(cwb-draw-items canvas (map (# (cwb-shape (join %0 " ") :stroke 0xa00080ff :width thin :join :miter))
 					(partition (reduce (lambda (out item)
 						(if (defq corners (board-item-corners item))
@@ -1338,7 +1339,12 @@
 				((and (= (length items) 1) (defq corners (board-item-corners (first items))))
 					(cwb-draw-items canvas (list (cwb-shape (cwb-d-points corners :t)
 						:stroke 0xff0080ff :width thin :join :miter)) m))
-				((defq box (cwb-bounds items))
+				;several things, out of select mode: each has its own line
+				;round it, and that is all. A box round them all says they
+				;are one thing to take hold of, and they are not, each may
+				;be in a different hand. Only when the lines round each are
+				;left out, a great many being moved, is there the one box
+				((and (not each_one) (defq box (cwb-bounds items)))
 					(bind '(x y x1 y1) box)
 					(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)
 						:stroke 0xff0080ff :width thin :join :miter)) m)))

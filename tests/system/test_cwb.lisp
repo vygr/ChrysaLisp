@@ -895,3 +895,17 @@
 ;the box square to the board round it would have a line down x 147 or so, from y 97 to y 203. Its own box has none there
 (assert-list-eq "the line round a thing turned an eighth of a turn is along its own sides, not a square box round it"
 	'(:t :t) (list (= (cm-row tb_canvas 105 140 160) 0) (> (cm-row tb_canvas 150 140 260) 0)))
+
+;two things held, each by its own finger, out of select mode: a line round each, and no box round the two
+(defq tw_doc (cwb-doc 400 300) tw_board (Board tw_doc) tw_canvas (Canvas 400 300 1))
+(cwb-add tw_doc (cwb-shape (cwb-d-rect 40 40 100 100) :fill 0xff0000ff :stroke 0))
+(cwb-add tw_doc (cwb-shape (cwb-d-rect 300 200 360 260) :fill 0xffff0000 :stroke 0))
+;with soft edges, as the app's canvases have: a line one pixel wide along whole numbers is not drawn without
+(. tw_canvas :set_canvas_flags +canvas_flag_antialias)
+(. tw_board :pointers (list (ptr-event 0x1000000 :touch 1 70 70)))
+(. tw_board :pointers (list (ptr-event 0x1000001 :touch 1 330 230)))
+(. tw_canvas :fill 0) (. tw_board :draw_overlay tw_canvas :nil :t)
+;a box round both would have a line along the top, y 40, from x 100 to x 360, and down x 360 from y 40 to y 200
+(assert-list-eq "each has its line, and there is none from the one to the other"
+	'(:t :t 0 0) (list (> (cm-row tw_canvas 40 40 100) 30) (> (cm-row tw_canvas 200 300 360) 30)
+		(cm-row tw_canvas 40 110 290) (cm-row tw_canvas 150 355 365)))
