@@ -294,6 +294,20 @@
 (assert-true "a line along its long side is at 30 degrees"
 	(wt-near? (abs (/ (- y1 y0) (- x1 x0))) 0.57735 0.002))
 
+;from a side of the set square in: the strip its numbers are on sizes it, its middle moves it
+(def wt_set :origin (list 400.0 300.0) :angle 0.0 :size 1.0)
+(defun wt-set-part (x y) (first (. wt_set :part_at x y)))
+(assert-list-eq "up from its bottom side: the strip sizes it, and its middle moves it" '(:size :size :move)
+	(list (wt-set-part 40 60) (wt-set-part 40 48) (wt-set-part 40 30)))
+(assert-list-eq "in from its upright side, and in from its long side, the same" '(:size :move :size :move)
+	(list (wt-set-part -110 0) (wt-set-part -85 -30) (wt-set-part 60 -20) (wt-set-part 20 10)))
+(. wt_stage :add wt_set)
+(wt-go '(0 :mouse 4 440 360)) (wt-go '(0 :mouse 4 460 390)) (wt-go '(0 :mouse 0 460 390))
+(assert-true "dragged out by the strip of its bottom side, half as far again from its middle, it is half as big again, where it is"
+	(and (wt-near? (get :size wt_set) 1.5 0.02) (wt-near? (get :origin wt_set) '(400 300) 0.01)))
+(def wt_set :size 1.0)
+(. wt_stage :sub wt_set)
+
 ;which is in front. One that is taken hold of comes to the front of the instruments, one
 ;taken by the right button alone goes to the back of them, and one that is drawn along stays where it is
 (defq wt_b2 (Board (cwb-doc 800 600)) wt_s2 (. wt_b2 :get_stage)

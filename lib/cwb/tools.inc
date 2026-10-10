@@ -608,7 +608,8 @@
 	;:length is its longest square side, the other is that over the root
 	;of 3, so its corners are 30, 60 and 90 degrees. The two sharp corners
 	;turn it about its middle, the square by its square corner makes it
-	;bigger or smaller, the rest moves it. Its two square sides are
+	;bigger or smaller, and so does the strip along each side, where its
+	;numbers are. Its middle moves it. Its two square sides are
 	;marked in millimetres from the square corner, and its long side from
 	;a little below its top corner, numbered in centimetres
 	(def this :length 360.0)
@@ -621,7 +622,11 @@
 			corner (lambda (px py qx qy rx ry)
 				(cwb-d "M" px py "L" (+ px (* 0.25 (- qx px))) (+ py (* 0.25 (- qy py)))
 					(+ px (* 0.25 (- rx px))) (+ py (* 0.25 (- ry py))) "Z"))
-			marks (list))
+			marks (list)
+			;how far the point as far from all three sides is from them, and
+			;where it is, and how much smaller the middle is
+			ir (* 0.5 (- (+ w h) (sqrt (+ (* w w) (* h h))))) ix (+ ax ir) iy (- ay ir)
+			ik (/ (max 1.0 (- ir 26.0)) ir))
 		(def this :outline (cwb-d "M" ax ay "L" bx by cx cy "Z")
 			:edges (list (list :line ax ay bx by) (list :line bx by cx cy) (list :line cx cy ax ay))
 			:parts (list
@@ -629,7 +634,14 @@
 				(list :size (cwb-d-rect (+ ax 28.0) (- ay 62.0) (+ ax 62.0) (- ay 28.0)))
 				(list :turn (corner bx by ax ay cx cy))
 				(list :turn (corner cx cy ax ay bx by))
-				(list :move (cwb-d "M" ax ay "L" bx by cx cy "Z")))
+				;from a side in, as a ruler: a pen close on the side draws.
+				;Then the strip along each side, where its marks and numbers
+				;are, makes it bigger or smaller. Then its middle moves it.
+				;The middle is the same shape, 26 in from each side, about
+				;the point that is as far from all three
+				(list :move (cwb-d "M" (+ ix (* ik (- ax ix))) (+ iy (* ik (- ay iy)))
+					"L" (+ ix (* ik (- bx ix))) (+ iy (* ik (- by iy))) (+ ix (* ik (- cx ix))) (+ iy (* ik (- cy iy))) "Z"))
+				(list :size (cwb-d "M" ax ay "L" bx by cx cy "Z") :quiet))
 			:glyphs (list (list :close 0.0 0.0)
 				(list :size (+ ax 45.0) (- ay 45.0) (* -0.25 +fp_pi))
 				(list :turn (+ bx (* 0.11 (- ax bx)) (* 0.05 (- cx bx))) (+ by (* 0.05 (- cy by)) -4.0))

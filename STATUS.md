@@ -4,6 +4,14 @@
 
 ------
 
+Chris: "scaling along the area of the numerics on the edges, on the
+Setsqaure. Like those zones on the Ruler ?" The strip along each of its
+three sides, 26 deep, where its marks and numbers are, sizes it. A pen
+close on a side still draws along it, and its middle, the same shape
+further in, moves it. Its corners and its square mark do what they did.
+
+------
+
 Chris: "The math tools, iteraction with them, not the drawing detectors,
 should bring that tool to the front of the math tools layer. but single
 right button down interaction should 'push' it to the back of the tools
