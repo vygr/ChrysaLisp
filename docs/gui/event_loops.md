@@ -23,6 +23,10 @@ order to keep those separate from your other activities.
 the higher priority messages going to the earlier entries in that selection
 list.
 
+```image
+docs/diagrams/event_loop.cwb
+```
+
 Most applications in ChrysaLisp, like Taos before it, are asynchronous
 distributed state machines. ChrysaLisp provides the tools (tasks, mailboxes and
 messages) for you to create such applications, it does not dictate how you do

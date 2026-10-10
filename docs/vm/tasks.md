@@ -77,6 +77,10 @@ point to point link. Each node is executing a group of VP tasks. These tasks are
 communicating with each other via sending and receiving messages, see the
 [`comms.md`](../gui/comms.md) document for that discussion.
 
+```image
+docs/diagrams/tasks_nodes.cwb
+```
+
 This is an abstract model ! On a particular native machine or collection of
 native machines, a VP node might be a Host OS process, OS Thread, or be running
 on the bare metal, it can even be running as a C/C++/Rust VP64 EMU !

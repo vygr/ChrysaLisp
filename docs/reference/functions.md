@@ -1337,6 +1337,16 @@ a line from a point to a point, an arrow at its far end, or with
 heads :none no arrow, :both one at each
 ```
 
+### dia-box
+
+```code
+(dia-box text w h [fill size bold]) -> (group width height)
+
+a box of a size that is given, with words in the middle of it. text
+is a str, or a list of them for lines one under another, the first
+bold if bold is :first
+```
+
 ### dia-card
 
 ```code
@@ -1394,6 +1404,17 @@ that come of nothing and have nothing come of them, with alone, a
 line of words, over them. They are not in the tree, a tree of one each
 ```
 
+### dia-join
+
+```code
+(dia-join scene from to [label heads bend]) -> scene
+
+a line from one named box to another, with an arrow at the far end,
+heads :none or :both for none or two. It leaves and arrives at the
+sides that face each other. label, words at its middle. bend :elbow
+for a line that goes across, then up or down, then across
+```
+
 ### dia-move
 
 ```code
@@ -1410,6 +1431,15 @@ items as one thing, put at a point
 words in a box with round corners, its top left at 0 0
 ```
 
+### dia-put
+
+```code
+(dia-put scene name part x y) -> scene
+
+put a part, (group width height), with its top left at a point. With
+a name it can be joined to, :nil for one that is only there
+```
+
 ### dia-row
 
 ```code
@@ -1417,6 +1447,38 @@ words in a box with round corners, its top left at 0 0
 
 pills, each (group width height), set left to right, onto another
 line when they would be wider than max_width. Top left at 0 0
+```
+
+### dia-say
+
+```code
+(dia-say scene text x y [size bold color]) -> scene
+
+words on the scene, their left end and the line they sit on at a point
+```
+
+### dia-scene
+
+```code
+(dia-scene) -> scene
+
+nothing yet: the lines, the boxes, and where each box that has a name is
+```
+
+### dia-scene-doc
+
+```code
+(dia-scene-doc scene [pad]) -> doc
+
+the document of a scene, its lines under its boxes
+```
+
+### dia-side
+
+```code
+(dia-side box way) -> (x y)
+
+the middle of a side of a box, (x y w h): :left :right :top :bottom
 ```
 
 ### dia-tree

@@ -17,6 +17,10 @@ Each GUI event message has a common header format which contains a `type` field
 so your code can tell what to do with it. But there are various ways you can
 handle how to decide what to do.
 
+```image
+docs/diagrams/event_dispatch.cwb
+```
+
 Some ways are more flexible than others and can help with code reuse and
 maintenance, others while not so flexible, may be fine for applications with
 not many event types to handle.

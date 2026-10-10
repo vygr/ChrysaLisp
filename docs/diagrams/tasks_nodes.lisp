@@ -1,0 +1,22 @@
+;docs/vm/tasks.md: two nodes of a network, what is in each, and the link between them
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(defun node-at (s tag x in)
+	;a node: its kernel, its tasks, in from its left side by in
+	(dia-put s :nil (dia-box "" 300 240 grey) x 0)
+	(dia-say s "VP node" (+ x 12) 22 13 :t 0xff202428)
+	(dia-say s "node_id, 128 bits" (+ x 12) 38 11)
+	(dia-put s (sym (cat tag "_kernel")) (dia-box '("Kernel task" "mailbox 0") 126 46 gold 12 :first) (+ x 16) 54)
+	(dia-put s (sym (cat tag "_ping")) (dia-box '("ping task" "service directory") 126 46 0xffffffff 11) (+ x 158) 54)
+	(each (# (dia-put s :nil (dia-box '("task" "mailbox_id") 76 44 blue 11 :first) (+ x in (* %0 82)) 122)) '(0 1 2))
+	(dia-say s "tasks, scheduled by priority," (+ x 16) 196 11)
+	(dia-say s "each with a TCB and a stack" (+ x 16) 212 11))
+(node-at s "l" 0 12)
+(node-at s "r" 420 44)
+;the link task of each is one of its tasks, at the side that faces the other node
+(dia-put s 'l_link (dia-box '("link" "task") 56 44 green 11 :first) 262 122)
+(dia-put s 'r_link (dia-box '("link" "task") 56 44 green 11 :first) 402 122)
+(dia-join s 'l_link 'r_link "" :both)
+(dia-say s "a link," 340 170 11)
+(dia-say s "point to point" 322 186 11)
+(dia-say s "A message goes by its net_id, node_id + mailbox_id: to the node first, then into the mailbox of the task" 0 270 12 :nil 0xff202428)
+(diagram "tasks_nodes" (dia-scene-doc s))

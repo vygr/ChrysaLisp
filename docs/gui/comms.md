@@ -39,6 +39,10 @@ packets are routed from the source node to the destination node and
 reconstructed at the destination into the original message before delivery into
 the target mailbox.
 
+```image
+docs/diagrams/comms_message.cwb
+```
+
 Individual message packets travel via parallel communication routes across the
 network from source to destination. No guarantee is given for the order in which
 message packets will arrive. Large messages that have been broken down into
@@ -82,6 +86,10 @@ by the `:sys_mail :poll` and `:sys_mail :select` function calls.
 A `net_id` task mailbox ID consists of a combination of the local mailbox ID and
 the VP node `node_id`. The VP node `node_id` occupies the later 128 bits, the
 local mailbox ID occupies the first 64 bits.
+
+```image
+docs/diagrams/comms_net_id.cwb
+```
 
 Message routing first of all routes messages from the source VP node to the
 destination VP node and then the local mailbox ID is validated before delivery

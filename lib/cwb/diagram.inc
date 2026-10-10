@@ -244,3 +244,97 @@
 		(bind '(row w h) (dia-row (map (# (dia-pill %0 12 :nil +dia_soft)) kids) 8.0 (max wide 620.0)))
 		(push parts (dia-move (list row) 0.0 (+ y 32.0))))
 	(dia-doc parts))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a scene: boxes that are put down by name, and lines between them by name
+;
+; For a diagram that is thought out and not worked out from data: what
+; talks to what, what is made of what, what happens after what. A script
+; puts each box where it is to be and gives it a name, then joins names.
+; A line knows where the two boxes are, and leaves and arrives at the
+; sides that face. docs/diagrams/ has the scripts of those in the docs,
+; and make docs runs them.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun dia-box (text w h &optional fill size bold)
+	; (dia-box text w h [fill size bold]) -> (group width height)
+	;a box of a size that is given, with words in the middle of it. text
+	;is a str, or a list of them for lines one under another, the first
+	;bold if bold is :first
+	(setd size 13)
+	(defq w (n2f w) h (n2f h) lines (if (str? text) (list text) text) pitch (+ (n2f size) 5.0)
+		top (+ (* 0.5 (- h (* pitch (n2f (length lines))))) (n2f size) 1.0)
+		items (list (cwb-shape (cwb-d-rect 0 0 w h 6) :fill (ifn fill +dia_paper) :stroke +dia_line :width 1.2)))
+	(each (lambda (line)
+		(defq strong (or (eql bold :t) (and (eql bold :first) (= (!) 0))))
+		(push items (dia-words line (* 0.5 (- w (dia-width line size strong))) (+ top (* pitch (n2f (!)))) size strong)))
+		lines)
+	(list (cwb-group items) w h))
+
+(defun dia-scene ()
+	; (dia-scene) -> scene
+	;nothing yet: the lines, the boxes, and where each box that has a name is
+	(list (list) (list) (Fmap 31)))
+
+(defun dia-put (scene name part x y)
+	; (dia-put scene name part x y) -> scene
+	;put a part, (group width height), with its top left at a point. With
+	;a name it can be joined to, :nil for one that is only there
+	(bind '(item w h) part)
+	(push (second scene) (dia-move (list item) x y))
+	(if name (. (third scene) :insert name (list (n2f x) (n2f y) w h)))
+	scene)
+
+(defun dia-say (scene text x y &optional size bold color)
+	; (dia-say scene text x y [size bold color]) -> scene
+	;words on the scene, their left end and the line they sit on at a point
+	(push (second scene) (dia-words text x y (ifn size 12) bold (ifn color +dia_dim)))
+	scene)
+
+(defun dia-side (box way)
+	; (dia-side box way) -> (x y)
+	;the middle of a side of a box, (x y w h): :left :right :top :bottom
+	(bind '(x y w h) box)
+	(case way
+		(:left (list x (+ y (* 0.5 h))))
+		(:right (list (+ x w) (+ y (* 0.5 h))))
+		(:top (list (+ x (* 0.5 w)) y))
+		(:t (list (+ x (* 0.5 w)) (+ y h)))))
+
+(defun dia-join (scene from to &optional label heads bend)
+	; (dia-join scene from to [label heads bend]) -> scene
+	;a line from one named box to another, with an arrow at the far end,
+	;heads :none or :both for none or two. It leaves and arrives at the
+	;sides that face each other. label, words at its middle. bend :elbow
+	;for a line that goes across, then up or down, then across
+	(defq a (. (third scene) :find from) b (. (third scene) :find to))
+	(when (and a b)
+		(bind '(ax ay aw ah) a)
+		(bind '(bx by bw bh) b)
+		(defq dx (- (+ bx (* 0.5 bw)) (+ ax (* 0.5 aw))) dy (- (+ by (* 0.5 bh)) (+ ay (* 0.5 ah)))
+			;apart across, if they do not lie one over the other
+			across (or (>= bx (+ ax aw)) (>= ax (+ bx bw)))
+			p (dia-side a (if across (if (> dx 0.0) :right :left) (if (> dy 0.0) :bottom :top)))
+			q (dia-side b (if across (if (> dx 0.0) :left :right) (if (> dy 0.0) :top :bottom))))
+		(bind '(px py) p)
+		(bind '(qx qy) q)
+		(cond
+			((and (eql bend :elbow) across)
+				(defq mx (* 0.5 (+ px qx)))
+				(push (first scene) (cwb-shape (cwb-d "M" px py "L" mx py mx qy qx qy) :stroke +dia_line :width 1.4
+					:join :miter :cap1 :butt :cap2 :butt))
+				(unless (eql heads :none) (push (first scene) (dia-head mx qy qx qy)))
+				(if (eql heads :both) (push (first scene) (dia-head mx py px py))))
+			(:t (push (first scene) (dia-arrow px py qx qy heads))))
+		(when (and label (nempty? label))
+			(defq lw (dia-width label 11) mx (* 0.5 (+ px qx)) my (* 0.5 (+ py qy)))
+			;beside an upright line, over one that lies flat
+			(push (first scene) (if across
+				(dia-words label (- mx (* 0.5 lw)) (- (if (eql bend :elbow) (min py qy) my) 5.0) 11 :nil +dia_dim)
+				(dia-words label (+ mx 6.0) (+ my 4.0) 11 :nil +dia_dim)))))
+	scene)
+
+(defun dia-scene-doc (scene &optional pad)
+	; (dia-scene-doc scene [pad]) -> doc
+	;the document of a scene, its lines under its boxes
+	(dia-doc (cat (first scene) (second scene)) pad))

@@ -157,6 +157,14 @@
 		"docs/reference/class_hierarchy.cwb")
 	(if (> *build_verb* 0) (print "-> " document))
 
+	;the diagrams that are thought out and not worked out, each a script
+	;in docs/diagrams/ that makes a scene and saves it beside itself by
+	;its own name, (diagram name doc). Made again each time, as the rest
+	(defun diagram (name doc)
+		(diagram-save doc (cat "docs/diagrams/" name ".cwb")))
+	(each (# (catch (repl (file-stream %0) %0) (progn (print "Diagram " %0 ": " _) :t)))
+		(sort (files-all "docs/diagrams" '(".lisp") 0)))
+
 	;create key bindings docs
 	(defq document "docs/reference/keys.md" current_file ""
 		stream (file-stream document +file_open_write))

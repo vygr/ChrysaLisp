@@ -15,6 +15,10 @@ At the lowest level, ChrysaLisp's memory management is handled by the static
 `:sys_mem` class. This class is the primary interface for all memory allocation
 and deallocation requests within the system.
 
+```image
+docs/diagrams/memory_heaps.cwb
+```
+
 1. **`:sys_mem` - The Central Allocator:**
 
 	* **Tiered Heap Management:** `:sys_mem` doesn't typically allocate directly

@@ -1,0 +1,13 @@
+;docs/ai_digest/gui_composition.md: what the compositor does with the view tree to draw only what must be
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-put s 'dirty (dia-box '("a view is marked dirty" "(. view :dirty), :add_dirty" "its view_dirty_region") 190 62 grey 11 :first) 0 0)
+(dia-put s 'p1 (dia-box '("pass 1, from the back up" "dirty areas gather to the root," "less what opaque views cover") 220 62 blue 11 :first) 240 0)
+(dia-put s 'p2 (dia-box '("pass 2, from the root down" "each view is given the part" "of it that it must draw") 220 62 green 11 :first) 510 0)
+(dia-put s 'p3 (dia-box '("pass 3, the draw list" "each view's :draw, clipped" "to its region") 220 62 gold 11 :first) 510 100)
+(dia-put s 'flush (dia-box '("flush" "that part of the back buffer" "to the screen") 220 62 grey 11 :first) 240 100)
+(dia-join s 'dirty 'p1 "")
+(dia-join s 'p1 'p2 "")
+(dia-join s 'p2 'p3 "")
+(dia-join s 'p3 'flush "")
+(dia-say s "Nothing under an opaque view is drawn, and nothing that has not changed." 0 190 12 :nil 0xff202428)
+(diagram "compositor_passes" (dia-scene-doc s))

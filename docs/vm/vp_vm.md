@@ -31,6 +31,10 @@ to rax and rdx when it comes to scheduling VP div and rem code ! It makes no
 difference to the arm64 emit functions, so one does tend to make VP divide code
 use `:r0` and `:r2` as it really helps the x86_64 code generation quality.
 
+```image
+docs/diagrams/vp_registers.cwb
+```
+
 You can use the `(vp-rdef)` and `(vp-fdef)` macros to assign register equated
 symbols to help your source look nice. Or bind symbols to registers, via
 `(method-input)` and `(method-output)`, that match function entry/exit

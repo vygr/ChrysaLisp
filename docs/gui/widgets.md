@@ -19,6 +19,10 @@ if needed.
 Although widgets inherit their methods from the parent class, they in effect
 inherit their properties from the parent UI tree at run time.
 
+```image
+docs/diagrams/widget_tree.cwb
+```
+
 This is extremely useful and very powerful in a UI context. As we already
 mentioned above we could have a single property `:color` held at the root
 widget and, if no descendant in the UI tree also defines that property, any

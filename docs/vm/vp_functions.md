@@ -25,6 +25,10 @@ no entries required. When a function is in bound format sections such as the
 path string pool may have been stripped after binding in order to save memory
 space.
 
+```image
+docs/diagrams/vp_function.cwb
+```
+
 The total size of a function and the start of the code and path Vtable sections
 are aligned to a `+ptr_size`.
 

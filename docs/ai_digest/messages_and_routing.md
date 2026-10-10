@@ -120,6 +120,10 @@ The `:in` task (`sys/link/in.vp`) handles incoming ring data:
 Messages larger than `lk_data_size` are broken down into Fragments by a
 "Postman" task and reassembled seamlessly by the receiver.
 
+```image
+docs/diagrams/routing_fragments.cwb
+```
+
 ### Fragmentation (`sys/mail/out.vp`)
 
 When `:sys_mail :send` sees a message bound for an off-chip destination, if it
@@ -206,6 +210,10 @@ sends a ping when one is due.
 ### Flood Fill Logic
 
 When a kernel receives a Ping (`flood_fill` in `sys/kernel/class.vp`):
+
+```image
+docs/diagrams/routing_flood.cwb
+```
 
 1. **New Session:** If `session` > known session:
 

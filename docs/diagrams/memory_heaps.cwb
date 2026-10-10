@@ -1,0 +1,1242 @@
+((:Emap 1)
+	:version 4
+	:width 689
+	:height 290
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 87
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 22)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							2
+							:d
+							"[M 190 91 L 250 20]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							3
+							:d
+							"[M 250 20 L 247.24615 29.45593 241.1358 24.29235 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					4
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							5
+							:d
+							"[M 190 91 L 250 68]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							6
+							:d
+							"[M 250 68 L 243.02812 74.95625 240.16471 67.4864 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					7
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							8
+							:d
+							"[M 190 91 L 250 116]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							9
+							:d
+							"[M 250 116 L 240.15396 116.23074 243.23086 108.84622 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					10
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							11
+							:d
+							"[M 190 91 L 250 164]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							12
+							:d
+							"[M 250 164 L 241.19517 159.58702 247.37547 154.5073 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					13
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							14
+							:d
+							"[M 420 68 L 480 55]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							15
+							:d
+							"[M 480 55 L 472.05119 60.81495 470.35722 52.99647 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					16
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 73.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							17
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									18
+									:d
+									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 56 A 6 6 0 0 1 184 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									19
+									:m
+									((:path 6)
+										1.00000 0.00000 54.53485 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:sys_mem :alloc]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									20
+									:m
+									((:path 6)
+										1.00000 0.00000 25.27044 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[adds a header, picks the heap]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									21
+									:m
+									((:path 6)
+										1.00000 0.00000 30.19305 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[of the smallest cell that fits]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					22
+					:m
+					((:path 6)
+						1.00000 0.00000 263.00000 0.00000 1.00000 13.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							23
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									24
+									:d
+									"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 34 A 6 6 0 0 1 164 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									25
+									:m
+									((:path 6)
+										1.00000 0.00000 59.66052 0.00000 1.00000 16.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:sys_heap]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									26
+									:m
+									((:path 6)
+										1.00000 0.00000 46.79541 0.00000 1.00000 32.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[cells of 24 bytes]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					27
+					:m
+					((:path 6)
+						1.00000 0.00000 263.00000 0.00000 1.00000 61.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							28
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									29
+									:d
+									"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 34 A 6 6 0 0 1 164 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									30
+									:m
+									((:path 6)
+										1.00000 0.00000 59.66052 0.00000 1.00000 16.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:sys_heap]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									31
+									:m
+									((:path 6)
+										1.00000 0.00000 46.62017 0.00000 1.00000 32.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[cells of 48 bytes]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					32
+					:m
+					((:path 6)
+						1.00000 0.00000 263.00000 0.00000 1.00000 109.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							33
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									34
+									:d
+									"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 34 A 6 6 0 0 1 164 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									35
+									:m
+									((:path 6)
+										1.00000 0.00000 59.66052 0.00000 1.00000 16.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:sys_heap]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									36
+									:m
+									((:path 6)
+										1.00000 0.00000 46.99346 0.00000 1.00000 32.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[cells of 96 bytes]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					37
+					:m
+					((:path 6)
+						1.00000 0.00000 263.00000 0.00000 1.00000 157.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							38
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									39
+									:d
+									"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 34 A 6 6 0 0 1 164 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									40
+									:m
+									((:path 6)
+										1.00000 0.00000 59.66052 0.00000 1.00000 16.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:sys_heap]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									41
+									:m
+									((:path 6)
+										1.00000 0.00000 37.76123 0.00000 1.00000 32.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[... doubling, to 96MB]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					42
+					:m
+					((:path 6)
+						1.00000 0.00000 493.00000 0.00000 1.00000 37.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							43
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									44
+									:d
+									"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 56 A 6 6 0 0 1 164 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									45
+									:m
+									((:path 6)
+										1.00000 0.00000 62.33666 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[hp_block]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									46
+									:m
+									((:path 6)
+										1.00000 0.00000 27.92138 0.00000 1.00000 35.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[one piece from the host]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									47
+									:m
+									((:path 6)
+										1.00000 0.00000 39.74450 0.00000 1.00000 51.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:host_os :pii_mmap]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					48
+					:m
+					((:path 6)
+						1.00000 0.00000 493.00000 0.00000 1.00000 127.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							49
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									50
+									:d
+									"[M 6 0 L 34 0 A 6 6 0 0 1 40 6 L 40 24 A 6 6 0 0 1 34 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									51
+									:m
+									((:path 6)
+										1.00000 0.00000 13.11694 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[cell]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					52
+					:m
+					((:path 6)
+						1.00000 0.00000 536.00000 0.00000 1.00000 127.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							53
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									54
+									:d
+									"[M 6 0 L 34 0 A 6 6 0 0 1 40 6 L 40 24 A 6 6 0 0 1 34 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									55
+									:m
+									((:path 6)
+										1.00000 0.00000 13.11694 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[cell]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					56
+					:m
+					((:path 6)
+						1.00000 0.00000 579.00000 0.00000 1.00000 127.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							57
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									58
+									:d
+									"[M 6 0 L 34 0 A 6 6 0 0 1 40 6 L 40 24 A 6 6 0 0 1 34 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									59
+									:m
+									((:path 6)
+										1.00000 0.00000 13.11694 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[cell]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					60
+					:m
+					((:path 6)
+						1.00000 0.00000 622.00000 0.00000 1.00000 127.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							61
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									62
+									:d
+									"[M 6 0 L 34 0 A 6 6 0 0 1 40 6 L 40 24 A 6 6 0 0 1 34 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									63
+									:m
+									((:path 6)
+										1.00000 0.00000 13.11694 0.00000 1.00000 19.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[cell]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					64
+					:m
+					((:path 6)
+						1.00000 0.00000 493.00000 0.00000 1.00000 177.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[carved into cells, the free ones on a list]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					65
+					:m
+					((:path 6)
+						1.00000 0.00000 493.00000 0.00000 1.00000 25.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[when it has no cell free]"
+					:font_size
+					11
+				)
+				((:list 7)
+					:group
+					:id
+					66
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 213.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							67
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									68
+									:d
+									"[M 6 0 L 124 0 A 6 6 0 0 1 130 6 L 130 34 A 6 6 0 0 1 124 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									69
+									:m
+									((:path 6)
+										1.00000 0.00000 19.44372 0.00000 1.00000 16.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[sys_mem_header]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									70
+									:m
+									((:path 6)
+										1.00000 0.00000 46.53350 0.00000 1.00000 32.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[its heap]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					71
+					:m
+					((:path 6)
+						1.00000 0.00000 143.00000 0.00000 1.00000 213.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							72
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									73
+									:d
+									"[M 6 0 L 74 0 A 6 6 0 0 1 80 6 L 80 34 A 6 6 0 0 1 74 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									74
+									:m
+									((:path 6)
+										1.00000 0.00000 23.04211 0.00000 1.00000 16.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[vtable]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									75
+									:m
+									((:path 6)
+										1.00000 0.00000 30.02587 0.00000 1.00000 32.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pptr]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					76
+					:m
+					((:path 6)
+						1.00000 0.00000 223.00000 0.00000 1.00000 213.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							77
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									78
+									:d
+									"[M 6 0 L 74 0 A 6 6 0 0 1 80 6 L 80 34 A 6 6 0 0 1 74 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									79
+									:m
+									((:path 6)
+										1.00000 0.00000 25.04687 0.00000 1.00000 16.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[count]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									80
+									:m
+									((:path 6)
+										1.00000 0.00000 31.30017 0.00000 1.00000 32.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[uint]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					81
+					:m
+					((:path 6)
+						1.00000 0.00000 303.00000 0.00000 1.00000 213.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							82
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									83
+									:d
+									"[M 6 0 L 224 0 A 6 6 0 0 1 230 6 L 230 34 A 6 6 0 0 1 224 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									84
+									:m
+									((:path 6)
+										1.00000 0.00000 61.12927 0.00000 1.00000 16.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the fields of its class]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+								)
+								((:list 15)
+									:shape
+									:id
+									85
+									:m
+									((:path 6)
+										1.00000 0.00000 46.71527 0.00000 1.00000 32.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[and of each class it comes of]"
+									:font_size
+									11
+								)
+							)
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					86
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 275.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[A cell that holds an object. :free finds the heap by the header, :deref frees it when the count is 0.]"
+					:font_size
+					11
+				)
+			)
+		)
+	)
+	:props :nil
+)

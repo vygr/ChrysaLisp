@@ -151,6 +151,10 @@ before your function body starts to run it'll already be able to 'see' the
 formal parameter symbol bindings. It's then free to add more and use the
 current bindings as it wishes.
 
+```image
+docs/diagrams/environment_chain.cwb
+```
+
 `(defq)` or `(bind)` functions will always bind symbols in the current
 environment. `(setq)` will search the environment parentage to find a bound
 symbol to operate on.

@@ -1,0 +1,224 @@
+((:Emap 1)
+	:version 4
+	:width 506
+	:height 113
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 14
+	:layers
+	((:list 1)
+		((:list 3)
+			"[Layer 1]"
+			0
+			((:list 5)
+				((:list 7)
+					:group
+					:id
+					1
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 30.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							2
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									3
+									:d
+									"[M 6 0 L 154 0 A 6 6 0 0 1 160 6 L 160 42 A 6 6 0 0 1 154 48 L 6 48 A 6 6 0 0 1 0 42 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									4
+									:m
+									((:path 6)
+										1.00000 0.00000 49.81689 0.00000 1.00000 20.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[mailbox_id]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									5
+									:m
+									((:path 6)
+										1.00000 0.00000 62.43286 0.00000 1.00000 37.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[64 bits]"
+									:font_size
+									12
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					6
+					:m
+					((:path 6)
+						1.00000 0.00000 173.00000 0.00000 1.00000 30.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							7
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									8
+									:d
+									"[M 6 0 L 314 0 A 6 6 0 0 1 320 6 L 320 42 A 6 6 0 0 1 314 48 L 6 48 A 6 6 0 0 1 0 42 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									9
+									:m
+									((:path 6)
+										1.00000 0.00000 138.42724 0.00000 1.00000 20.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[node_id]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									10
+									:m
+									((:path 6)
+										1.00000 0.00000 140.65454 0.00000 1.00000 37.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[128 bits]"
+									:font_size
+									12
+								)
+							)
+						)
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					11
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 22.00000
+					)
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[net_id]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+				)
+				((:list 15)
+					:shape
+					:id
+					12
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 98.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[which mailbox, on that node]"
+					:font_size
+					11
+				)
+				((:list 15)
+					:shape
+					:id
+					13
+					:m
+					((:path 6)
+						1.00000 0.00000 173.00000 0.00000 1.00000 98.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[which node, anywhere in the network: routed to first]"
+					:font_size
+					11
+				)
+			)
+		)
+	)
+	:props :nil
+)

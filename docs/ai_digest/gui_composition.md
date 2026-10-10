@@ -93,6 +93,10 @@ a key characteristic.
 The compositing process is typically triggered by the `gui-update` Lisp
 function, which calls the C++ `:host_gui :update` method.
 
+```image
+docs/diagrams/compositor_passes.cwb
+```
+
 **1. `:host_gui :update` (service/gui/class.vp)**
 
 * Checks if the GUI is initialized (`statics_gui_init`). If not, calls
