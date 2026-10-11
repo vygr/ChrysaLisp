@@ -603,3 +603,16 @@
 (assert-eq "two fingers on nothing, the one turned about the other: nothing at a quarter of the way, a quarter turn once it is past half way, and no more at all the way"
 	"(0 1 1 (200 400))" (elem-get wa_out 5))
 (assert-eq "how it is turned is kept with the document, the fourth of what is kept, and put back" "(4 1)" (elem-get wa_out 6))
+;min puts the middle of the document back in the middle of the paper, at the zoom there is
+(defq wa_home (wa-run (cat
+	"(pan-by 70 -40) (zoom-set 2.0 0 0) (defq away (map (const n2i) (view-middle)))"
+	"(view-home) (bind '(cw ch) (canvas-size))"
+	"(print (list (eql (str away) (str (list (/ cw 2) (/ ch 2)))) (eql (str (map (const n2i) (view-middle))) (str (list (/ cw 2) (/ ch 2)))) *zoom*))"
+	;and when the board is turned a quarter too
+	"(view-turn 1) (pan-by -90 25) (view-home) (bind '(cw ch) (canvas-size))"
+	"(print (list (map (const n2i) (view-middle)) (list (/ ch 2) (/ cw 2)) *turn*))")))
+(assert-eq "moved away and zoomed, then home: the middle of the document is in the middle of the paper, the zoom as it was"
+	"(:nil :t 2.00000)" (first wa_home))
+(defq wa_turned (first (read (string-stream (second wa_home)) (ascii-code " "))))
+(assert-eq "and the same with the board turned a quarter" (str (first wa_turned)) (str (second wa_turned)))
+(assert-eq "still turned" "1" (str (third wa_turned)))
