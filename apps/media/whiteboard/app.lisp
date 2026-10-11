@@ -44,6 +44,14 @@
 	;*zoom* how big it is seen. *zoom_to* is where the zoom is going,
 	;(zoom x y), a little each tick till it is there, and about what point
 	*pan_x* 0.0 *pan_y* 0.0 *zoom_to* :nil
+	;and *turn*, how many quarters the board is turned, 0 to 3, the way
+	;from the x axis to the y axis. It turns about the middle of the
+	;paper, and a paper that is wider than tall is taller than wide when
+	;it is turned one or three. Chris: "Full canvas rotation is a rae
+	;thing to do and that mainly for people wanting to change from
+	;horizontal to vertical", "set the magnets for angles on the canvas
+	;as 90 degrees, full locks"
+	*turn* 0
 	;how far what is seen has yet to go for the turns of a wheel there
 	;have been, pixels: a wheel says so many steps, and it glides them
 	*pan_go* (list 0.0 0.0)
@@ -172,10 +180,40 @@
 
 (defun canvas-size ()
 	; (canvas-size) -> (width height)
-	;the size of the paper on the screen, what the document says. The
-	;zoom does not make it bigger, it makes what is seen on it bigger
-	(defq doc (. *board* :get_doc))
-	(list (max 1 (. doc :find :width)) (max 1 (. doc :find :height))))
+	;the size of the paper on the screen, what the document says, the
+	;other way up if the board is turned a quarter or three. The zoom
+	;does not make it bigger, it makes what is seen on it bigger
+	(defq doc (. *board* :get_doc) w (max 1 (. doc :find :width)) h (max 1 (. doc :find :height)))
+	(if (= (logand *turn* 1) 1) (list h w) (list w h)))
+
+(defun turn-matrix (turn)
+	; (turn-matrix turn) -> :nil | matrix
+	;so many quarters round, about 0 0, as numbers that are exactly so
+	(case (logand turn 3)
+		(1 (Mat3x2 0.0 -1.0 0.0 1.0 0.0 0.0))
+		(2 (Mat3x2 -1.0 0.0 0.0 0.0 -1.0 0.0))
+		(3 (Mat3x2 0.0 1.0 0.0 -1.0 0.0 0.0))
+		(:t :nil)))
+
+(defun turn-angle ()
+	; (turn-angle) -> angle
+	(* (n2f *turn*) +fp_hpi))
+
+(defun view-turned ()
+	; (view-turned) -> :nil | matrix
+	;from the paper as it would be not turned, to the paper as it is:
+	;turned about its middle, which is the middle of both
+	(when (/= *turn* 0)
+		(bind '(cw ch) (canvas-size))
+		(defq doc (. *board* :get_doc))
+		(Mat3x2-mul (Mat3x2-translate (/ (n2f cw) 2.0) (/ (n2f ch) 2.0))
+			(Mat3x2-mul (turn-matrix *turn*)
+				(Mat3x2-translate (/ (n2f (max 1 (. doc :find :width))) -2.0) (/ (n2f (max 1 (. doc :find :height))) -2.0))))))
+
+(defun view-unturn (cx cy)
+	; (view-unturn cx cy) -> (x y)
+	;a point of the paper as a point of the paper not turned
+	(Mat3x2-point (Mat3x2-invert (view-turned)) cx cy))
 
 (defun field-size ()
 	; (field-size) -> (width height)
@@ -190,10 +228,11 @@
 (defun view-matrix ()
 	; (view-matrix) -> :nil | matrix
 	;from the document to the canvas: what is at the pan is at its top
-	;left, and it is as big as the zoom
-	(cond
-		((and (= *zoom* 1.0) (= *pan_x* 0.0) (= *pan_y* 0.0)) :nil)
-		(:t (Mat3x2-mul (Mat3x2-scale *zoom*) (Mat3x2-translate (neg *pan_x*) (neg *pan_y*))))))
+	;left, it is as big as the zoom, and then it is turned
+	(Mat3x2-mul (view-turned)
+		(cond
+			((and (= *zoom* 1.0) (= *pan_x* 0.0) (= *pan_y* 0.0)) :nil)
+			(:t (Mat3x2-mul (Mat3x2-scale *zoom*) (Mat3x2-translate (neg *pan_x*) (neg *pan_y*)))))))
 
 (defun over-matrix ()
 	; (over-matrix) -> :nil | matrix
@@ -207,7 +246,7 @@
 	;the point of the document that is in the middle of the paper, which
 	;is the middle of what shows: the paper is always in the middle of it
 	(bind '(cw ch) (canvas-size))
-	(list (+ *pan_x* (/ (n2f (/ cw 2)) *zoom*)) (+ *pan_y* (/ (n2f (/ ch 2)) *zoom*))))
+	(Mat3x2-point (Mat3x2-invert (view-matrix)) (/ (n2f cw) 2.0) (/ (n2f ch) 2.0)))
 
 (defun tools-stack ()
 	;every canvas there is, taken out and put back in the order they lie
@@ -231,13 +270,15 @@
 	(bind '(ox oy) (get :origin tool))
 	;where its own 0 0 is on the screen, the pixel, and the part of one
 	;over, to an eighth. A canvas is put at whole pixels
-	(defq sx (+ (* (- ox *pan_x*) *zoom*) (n2f *margin*)) sy (+ (* (- oy *pan_y*) *zoom*) (n2f *margin*))
+	(bind '(sx sy) (Mat3x2-point (over-matrix) ox oy))
+	(defq
 		ix (n2i (floor (+ sx 0.5))) iy (n2i (floor (+ sy 0.5)))
 		fx (/ (n2f (n2i (floor (+ (* (- sx (n2f ix)) 8.0) 0.5)))) 8.0)
 		fy (/ (n2f (n2i (floor (+ (* (- sy (n2f iy)) 8.0) 0.5)))) 8.0)
 		;how big it is on the screen, not its size and the zoom apart: it
 		;is the same picture at any zoom, it stays the size it is there
-		key (str (list (get :angle tool) (get :length tool) (n2i (* (get :size tool) *zoom* 4096.0)) (get :mode tool)
+		;and the angle it is at on the screen, its own and the board's
+		key (str (list (+ (get :angle tool) (turn-angle)) (get :length tool) (n2i (* (get :size tool) *zoom* 4096.0)) (get :mode tool)
 			(first (get :said tool))))
 		canvas (elem-get entry +tv_canvas)
 		same (and canvas (eql key (elem-get entry +tv_key)))
@@ -260,8 +301,8 @@
 			;own 0 0 falls is kept: turned about that, it stays on the
 			;one pixel
 			(bind '(bx by bx1 by1) (Mat3x2-box (third (cwb-flat (get :body tool)))
-				(Mat3x2-mul (Mat3x2-scale *zoom*)
-					(Mat3x2-mul (Mat3x2-rot (get :angle tool)) (Mat3x2-scale (get :size tool))))))
+				(Mat3x2-mul (turn-matrix *turn*) (Mat3x2-mul (Mat3x2-scale *zoom*)
+					(Mat3x2-mul (Mat3x2-rot (get :angle tool)) (Mat3x2-scale (get :size tool)))))))
 			(defq x0 (- (n2i (floor (+ bx fx))) 3) y0 (- (n2i (floor (+ by fy))) 3)
 				;in steps of 32, so that one turned a little is as big as it was
 				w (logand (+ (- (n2i (floor (+ bx1 fx))) x0) 4 31) -32)
@@ -273,7 +314,7 @@
 			(def onto :color 0)
 			(. onto :fill 0)
 			(. tool :draw onto (Mat3x2-mul (Mat3x2-translate (+ (n2f px) fx) (+ (n2f py) fy))
-				(Mat3x2-mul (Mat3x2-scale *zoom*) (Mat3x2-translate (neg ox) (neg oy)))))
+				(Mat3x2-mul (turn-matrix *turn*) (Mat3x2-mul (Mat3x2-scale *zoom*) (Mat3x2-translate (neg ox) (neg oy))))))
 			;its picture is shown while it is not seen. That call lets
 			;other tasks run, the screen may be made then: so the one
 			;that is seen is left where it is, as it is, till every
@@ -361,7 +402,7 @@
 	;the document's, and the two behind it, are in from the corner by the margin
 	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *paper*))
 	(def *board* :zoom *zoom*)
-	(def *board_view* :zoom *zoom* :margin *margin* :pan (list *pan_x* *pan_y*))
+	(def *board_view* :zoom *zoom* :margin *margin* :inv (Mat3x2-invert (over-matrix)))
 	(defq doc (. *board* :get_doc))
 	(. *size_field* :set_text (cat (str (. doc :find :width)) "x" (str (. doc :find :height))))
 	(. *board_stack* :change 0 0 (+ w *margin* *margin*) (+ h *margin* *margin*))
@@ -376,18 +417,16 @@
 	;way, is from the first of what is drawn or of the view, whichever is
 	;first, to the last of either: so there is never an end to come to,
 	;a view moved out past the drawing is part of what there is. The
-	;thumb is the view
+	;thumb is the view. In pixels of the paper as it is seen, turned too
 	(bind '(cw ch) (canvas-size))
-	(defq vw (/ (n2f cw) *zoom*) vh (/ (n2f ch) *zoom*)
-		box (ifn (cwb-bounds (apply (const cat) (cat (list (list)) (map (const third) (cwb-layers (. *board* :get_doc))))))
-			(list *pan_x* *pan_y* (+ *pan_x* vw) (+ *pan_y* vh)))
-		x0 (min *pan_x* (first box)) y0 (min *pan_y* (second box))
-		x1 (max (+ *pan_x* vw) (third box)) y1 (max (+ *pan_y* vh) (elem-get box 3)))
-	(setq *bars_from* (list x0 y0) *bars_stale* :nil)
-	(def (get :hslider *image_scroll*) :maximum (max 0 (n2i (* (- (- x1 x0) vw) *zoom*))) :portion cw
-		:value (max 0 (n2i (* (- *pan_x* x0) *zoom*))))
-	(def (get :vslider *image_scroll*) :maximum (max 0 (n2i (* (- (- y1 y0) vh) *zoom*))) :portion ch
-		:value (max 0 (n2i (* (- *pan_y* y0) *zoom*))))
+	(defq box (if (defq drawn (cwb-bounds (apply (const cat) (cat (list (list)) (map (const third) (cwb-layers (. *board* :get_doc)))))))
+			(Mat3x2-box drawn (view-matrix)) (list 0.0 0.0 (n2f cw) (n2f ch)))
+		x0 (min 0.0 (first box)) y0 (min 0.0 (second box))
+		x1 (max (n2f cw) (third box)) y1 (max (n2f ch) (elem-get box 3)))
+	(def (get :hslider *image_scroll*) :maximum (max 0 (n2i (- (- x1 x0) (n2f cw)))) :portion cw :value (max 0 (n2i (neg x0))))
+	(def (get :vslider *image_scroll*) :maximum (max 0 (n2i (- (- y1 y0) (n2f ch)))) :portion ch :value (max 0 (n2i (neg y0))))
+	;where the thumbs were put, to know how far one is moved from there
+	(setq *bars_from* (list (get :value (get :hslider *image_scroll*)) (get :value (get :vslider *image_scroll*))) *bars_stale* :nil)
 	(. (get :hslider *image_scroll*) :dirty_all)
 	(. (get :vslider *image_scroll*) :dirty_all))
 
@@ -401,7 +440,8 @@
 	;again, the paper too. What is in flight is drawn, not moved as a
 	;picture, it is in another place on its canvas
 	(def *board* :zoom *zoom*)
-	(def *board_view* :zoom *zoom* :pan (list *pan_x* *pan_y*))
+	(def *board* :view_turn (turn-angle))
+	(def *board_view* :zoom *zoom* :inv (Mat3x2-invert (over-matrix)))
 	;what a hand holds is in flight and stays in the hand, Chris: "If I
 	;hold a shape, and somone else moves the canvas, my shape comes with
 	;me !" Each pointer that is down is told to the board where it is now
@@ -419,25 +459,37 @@
 	;"Instrument move with the whell, that's definately not wanted."
 	;A palette that is open lies on the glass too, it has a place and
 	;no size of its own
+	;Where it is, is from the middle of the paper: that is what stays
+	;where it is in the window when the paper is another size, turned
+	(defq m (view-matrix))
+	(bind '(cw ch) (canvas-size))
 	(map (lambda (tool)
 			(bind '(ox oy) (get :origin tool))
-			(list tool (* (- ox *pan_x*) *zoom*) (* (- oy *pan_y*) *zoom*)
-				(if (Instrument? tool) (* (get :size tool) *zoom*))))
+			(bind '(sx sy) (Mat3x2-point m ox oy))
+			;where, how big, and at what angle, on the screen
+			(list tool (- sx (/ (n2f cw) 2.0)) (- sy (/ (n2f ch) 2.0)) (if (Instrument? tool) (* (get :size tool) *zoom*))
+				(if (Instrument? tool) (+ (get :angle tool) (turn-angle)))))
 		(filter (# (or (Instrument? %0) (Palette? %0))) (. (. *board* :get_stage) :get_actors))))
 
 (defun tools-hold (held)
 	;each is put back where it was on the screen, the size it was there,
 	;now that the pan and the zoom are another, (tools-held)
-	(each (lambda ((tool sx sy on))
-		(def tool :origin (list (+ *pan_x* (/ sx *zoom*)) (+ *pan_y* (/ sy *zoom*))))
-		(if on (def tool :size (/ on *zoom*))))
+	(defq back (Mat3x2-invert (view-matrix)))
+	(bind '(cw ch) (canvas-size))
+	(each (lambda ((tool sx sy on angle))
+		(def tool :origin (Mat3x2-point back (+ sx (/ (n2f cw) 2.0)) (+ sy (/ (n2f ch) 2.0))))
+		(if on (def tool :size (/ on *zoom*)))
+		(if angle (def tool :angle (- angle (turn-angle)))))
 		held))
 
 (defun pan-by (dx dy)
 	;what is seen is moved by that many pixels of the screen, as far as
 	;is asked: the things of a document are anywhere, there is no edge
 	(defq held (tools-held))
-	(setq *pan_x* (- *pan_x* (/ (n2f dx) *zoom*)) *pan_y* (- *pan_y* (/ (n2f dy) *zoom*)))
+	;so many pixels of the paper as it is seen: of the paper not turned,
+	;the other way round by as much
+	(bind '(dx dy) (Mat3x2-point (turn-matrix (- 4 *turn*)) dx dy))
+	(setq *pan_x* (- *pan_x* (/ dx *zoom*)) *pan_y* (- *pan_y* (/ dy *zoom*)))
 	(tools-hold held)
 	(view-changed))
 
@@ -450,9 +502,11 @@
 		;seen is everybody's: the bar is put back where it was
 		((. *board* :busy?) (setq *bars_at* 0 *bars_stale* :t))
 		(:t (setq *bars_at* (pii-time))
-			(bind '(x0 y0) *bars_from*)
-			(pan-by (* (- *pan_x* (+ x0 (/ (n2f (get :value (get :hslider *image_scroll*))) *zoom*))) *zoom*)
-				(* (- *pan_y* (+ y0 (/ (n2f (get :value (get :vslider *image_scroll*))) *zoom*))) *zoom*)))))
+			;by how far the thumbs have gone since they were last looked at
+			(bind '(hx vy) *bars_from*)
+			(defq hv (get :value (get :hslider *image_scroll*)) vv (get :value (get :vslider *image_scroll*)))
+			(setq *bars_from* (list hv vv))
+			(pan-by (- hx hv) (- vy vv)))))
 
 (defun pan-glide (dx dy)
 	;so many pixels more to go, for a turn of a wheel: gone a part of
@@ -478,9 +532,37 @@
 	;the paper stays there
 	(setq zoom (max (first +zooms) (min (last +zooms) (n2f zoom))))
 	(unless (= zoom *zoom*)
-		(defq dx (+ *pan_x* (/ (n2f cx) *zoom*)) dy (+ *pan_y* (/ (n2f cy) *zoom*)) held (tools-held))
-		(setq *zoom* zoom *pan_x* (- dx (/ (n2f cx) zoom)) *pan_y* (- dy (/ (n2f cy) zoom)))
+		;the point of the paper, as one of the paper not turned
+		(bind '(cx cy) (view-unturn cx cy))
+		(defq dx (+ *pan_x* (/ cx *zoom*)) dy (+ *pan_y* (/ cy *zoom*)) held (tools-held))
+		(setq *zoom* zoom *pan_x* (- dx (/ cx zoom)) *pan_y* (- dy (/ cy zoom)))
 		(tools-hold held)
+		(view-changed)))
+
+(defun view-turn (by)
+	;the board is turned so many quarters, about the middle of the
+	;paper, which is made the other way up if it is one or three. Not
+	;while anybody is drawing. What lies on the glass stays where it is
+	;and as it is. It is a jump, Chris: "the action and the final jump of
+	;the canvas is enough in this use case, it more of a gesture than a
+	;micro control action."
+	(unless (. *board* :busy?)
+		(defq held (tools-held) doc (. *board* :get_doc))
+		(bind '(cw ch) (canvas-size))
+		;the point of the document in the middle of the paper stays there
+		(bind '(mx my) (view-middle))
+		(setq *turn* (logand (+ *turn* by 4) 3))
+		;a board that is all of the screen has a paper the size of the
+		;screen whichever way up: the document's is its sides changed over
+		(when *full*
+			(defq w (. doc :find :width) h (. doc :find :height))
+			(.-> doc (:insert :width h) (:insert :height w)))
+		(bind '(cw ch) (canvas-size))
+		(bind '(nx ny) (Mat3x2-point (view-matrix) mx my))
+		(bind '(dx dy) (Mat3x2-point (turn-matrix (- 4 *turn*)) (- nx (/ (n2f cw) 2.0)) (- ny (/ (n2f ch) 2.0))))
+		(setq *pan_x* (+ *pan_x* (/ dx *zoom*)) *pan_y* (+ *pan_y* (/ dy *zoom*)))
+		(tools-hold held)
+		(board-resized)
 		(view-changed)))
 
 (defun zoom-pinch (zoom cx cy)
@@ -531,7 +613,7 @@
 
 ;the wheel, the middle button and two fingers move what is seen, two
 ;fingers zoom it, and when they let go it comes to rest, view.inc
-(def *board_view* :on_pan pan-by :on_wheel pan-glide :on_zoom zoom-pinch :on_rest zoom-rest)
+(def *board_view* :on_pan pan-by :on_wheel pan-glide :on_zoom zoom-pinch :on_rest zoom-rest :on_turn view-turn)
 (def *image_scroll* :on_bar bars-moved)
 
 (defun draw-paper ()
@@ -552,7 +634,10 @@
 		shade (# (+ (<< (max 0 (min 255 (n2i (* %0 255.0)))) 24) ink)))
 	(def *paper* :color (if (= (logand back 0xff000000) 0xff000000) back +cwb_paper_col)
 		:style (if (eql *style* :plain) :nil *style*)
-		:origin_x (* (neg *pan_x*) *zoom*) :origin_y (* (neg *pan_y*) *zoom*)
+		;where the document's 0 0 is seen. A grid turned a quarter is
+		;the same grid, lines that go across go up and down
+		:origin_x (first (Mat3x2-point (view-matrix) 0 0)) :origin_y (second (Mat3x2-point (view-matrix) 0 0))
+		:turned (if (= (logand *turn* 1) 1) :t)
 		:spacing gap :ink_color (shade 1.0)
 		:rules (list (list (/ gap 4.0) (shade (* 0.5 part))) (list (/ gap 2.0) (shade (+ 0.5 (* 0.5 part))))
 			(list gap (shade 1.0))))
@@ -631,7 +716,7 @@
 	;thousand things dragged are then drawn once, as a hand takes them, and
 	;not again each time they move. Only while a hand has hold of them, when
 	;nothing else of them is changing, and nothing is being drawn
-	(when (and *flight_at* (= (. (get :temp *board*) :size) 0)
+	(when (and *flight_at* (= *turn* 0) (= (. (get :temp *board*) :size) 0)
 			(or (. (get :surface *board*) :holding) (/= (. (get :handles *board*) :held) 0)))
 		(bind '(zoom ids ms ox oy was_back ds) *flight_at*)
 		(defq now (. *board* :selected_items))
@@ -689,8 +774,7 @@
 		(defq now (if flying (. *board* :selected_items) (list)) ox 0 oy 0 whole :nil
 			quiet (and (nempty? now) (empty? down) (= (. (get :temp *board*) :size) 0)))
 		(when (and quiet (defq box (cwb-bounds now)))
-			(bind '(bx by bx1 by1) (list (* (- (first box) *pan_x*) *zoom*) (* (- (second box) *pan_y*) *zoom*)
-				(* (- (third box) *pan_x*) *zoom*) (* (- (elem-get box 3) *pan_y*) *zoom*)))
+			(bind '(bx by bx1 by1) (Mat3x2-box box (view-matrix)))
 			;with room for its handles, if they are drawn with it
 			(defq room (if back 34 4)
 				bx (- (n2i (floor bx)) room) by (- (n2i (floor by)) room)
@@ -741,8 +825,9 @@
 	(defq doc (. *board* :get_doc) skip (get :floating *board*) parts (list))
 	(each (lambda ((x y x1 y1))
 		;in pixels of the canvas, and a little more for the soft edge of a line
-		(defq cx (max 0 (- (n2i (floor (* (- x *pan_x*) *zoom*))) 3)) cy (max 0 (- (n2i (floor (* (- y *pan_y*) *zoom*))) 3))
-			cx1 (min w (+ (n2i (floor (* (- x1 *pan_x*) *zoom*))) 4)) cy1 (min h (+ (n2i (floor (* (- y1 *pan_y*) *zoom*))) 4)))
+		(bind '(x y x1 y1) (Mat3x2-box (list x y x1 y1) m))
+		(defq cx (max 0 (- (n2i (floor x)) 3)) cy (max 0 (- (n2i (floor y)) 3))
+			cx1 (min w (+ (n2i (floor x1)) 4)) cy1 (min h (+ (n2i (floor y1)) 4)))
 		(when (and (< cx cx1) (< cy cy1))
 			(. *committed* :clear 0 cx cy (- cx1 cx) (- cy1 cy))
 			(. *committed* :set_clip cx cy cx1 cy1)
@@ -766,7 +851,7 @@
 	;and it is seen from 0 0 at 1: the nodes do not know of a pan, and
 	;draw rows of a canvas that is the document's own size
 	(and (> *local_ms* *farm_ms*) (< *farm_fails* 3) (/= (canvas-key *committed*) 0)
-		(= *zoom* 1.0) (= *pan_x* 0.0) (= *pan_y* 0.0)))
+		(= *zoom* 1.0) (= *pan_x* 0.0) (= *pan_y* 0.0) (= *turn* 0)))
 
 (defun redraw ()
 	;draw what has changed. All of the document; or only what was put on
@@ -865,15 +950,17 @@
 
 (defun view-to-doc ()
 	;how the document is seen now is kept with it, when it is saved
-	(. (. *board* :get_doc) :insert :view (list *pan_x* *pan_y* *zoom*)))
+	(. (. *board* :get_doc) :insert :view (list *pan_x* *pan_y* *zoom* *turn*)))
 
 (defun view-from-doc ()
 	;a document is seen as it was when it was saved, one that does not
 	;say from 0 0 at 1. Its zoom is one it rests at
 	(defq view (. (. *board* :get_doc) :find :view))
-	(setq *zoom_to* :nil *pan_go* (list 0.0 0.0) *pan_x* 0.0 *pan_y* 0.0 *zoom* 1.0)
-	(when (and (list? view) (= (length view) 3) (every (const num?) view))
-		(setq *pan_x* (n2f (first view)) *pan_y* (n2f (second view)) *zoom* (zoom-magnet (n2f (third view))))))
+	(setq *zoom_to* :nil *pan_go* (list 0.0 0.0) *pan_x* 0.0 *pan_y* 0.0 *zoom* 1.0 *turn* 0)
+	(when (and (list? view) (>= (length view) 3) (every (const num?) view))
+		(setq *pan_x* (n2f (first view)) *pan_y* (n2f (second view)) *zoom* (zoom-magnet (n2f (third view))))
+		;one kept before a board could be turned has no turn
+		(if (> (length view) 3) (setq *turn* (logand (n2i (elem-get view 3)) 3)))))
 
 (defun board-save (file)
 	(setq *file* (cat (slice file 0 (if (defq i (rfind "." file)) (dec i) -1)) ".cwb"))

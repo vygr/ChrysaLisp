@@ -311,8 +311,8 @@
 	;for none, what is behind shows. The style is what the app draws
 	;behind it to work on, :plain :grid :lines or :axis, with :grid the
 	;gap, it is not part of the picture. Nor is :view, how it was last
-	;looked at, (x y zoom): the point of it at the top left of what
-	;showed it, and how big. The things of a document are anywhere, what
+	;looked at, (x y zoom turn): the point of it at the top left of what
+	;showed it, how big, and how many quarters turned. The things of a document are anywhere, what
 	;shows it is a view of some of that, and :nil is from 0 0 at 1
 	(scatter (Emap) :version +cwb_version
 		:width (ifn width 1024) :height (ifn height 768)

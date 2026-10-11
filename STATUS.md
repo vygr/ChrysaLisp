@@ -4,6 +4,47 @@
 
 ------
 
+The board turns a quarter.
+
+Chris: "go ahead with the quarter turn gesture, I'll make a cup of tea
+!" It is the last of what he asked for as pan, zoom and rotate, and
+what he had said of it: "Full canvas rotation is a rae thing to do and
+that mainly for people wanting to change from horizontal to vertical",
+"set the magnets for angles on the canvas as 90 degrees, full locks",
+"the action and the final jump of the canvas is enough". And of the
+matrix: "It also would still reprent the zoom factor, and angle, even
+thoug the angle is magtectic ro 90 degree values."
+
+`*turn*`, quarters, is the third part of the one matrix the app draws
+by: what is at the pan at the top left, as big as the zoom, then turned
+about the middle of the paper by numbers that are exactly a quarter.
+The paper is the other way up when it is one or three. A point of the
+view goes to the document by that matrix the other way.
+
+Two fingers on nothing, the one turned about the other past half way to
+a quarter, turn it once, a jump. Control and R does too. Not while
+anybody is drawing. An instrument is where it was on the screen, from
+the middle of the paper, and at the angle it was there; an open palette
+is the right way up. The paper's lines are the same lines. It is kept
+with the document, the fourth of `:view`.
+
+What moving what is seen, the bars, the flight of a held thing and the
+part of a picture drawn again each took the pan and the zoom apart for
+is done through the matrix now.
+
+The app's tests, 113: the paper the other way up and its middle where
+it was; a pen across the top of it a line up the document's side; an
+instrument and its angle; a move of 30; three more quarters back to the
+start; the twist once past half way and no more; kept and put back.
+Every test on the x64 Mac and the Pi, 5968.
+
+He: "quarter turn works well, commit it".
+
+Turned, a thing dragged is drawn each time, not slid as a picture, and
+the nodes do not draw in stripes.
+
+------
+
 The eraser keeps up with the hand, bites what is held, and is as big
 as the pen is thick; full screen leaves the window whole.
 

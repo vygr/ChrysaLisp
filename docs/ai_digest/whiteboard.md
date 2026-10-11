@@ -473,9 +473,37 @@ The snap is to every line that shows at the zoom it rests at, the fine
 ones, at half, too, `(snap-gap)`. Chris: "Snap are gird lines, should be
 to the 5mm !"
 
+### Turned
+
+`*turn*`, quarters, 0 to 3. Chris: "Full canvas rotation is a rae thing
+to do and that mainly for people wanting to change from horizontal to
+vertical", "set the magnets for angles on the canvas as 90 degrees, full
+locks", "the action and the final jump of the canvas is enough in this
+use case, it more of a gesture than a micro control action."
+
+It is a third part of the one matrix, `(view-matrix)`: what is at the pan
+at the top left, as big as the zoom, and then turned about the middle of
+the paper, `(view-turned)`, by numbers that are exactly a quarter,
+`(turn-matrix)`. The paper is the document's size the other way up when
+it is one or three, `(canvas-size)`. A point of the view is taken to the
+document by the matrix the other way, `:inv` of the app's view.
+
+`(view-turn by)`. Two fingers on nothing, the one turned about the other
+past half way to a quarter, ask for it, `:on_turn`, once, and not again
+till they are half way to the next. Control and R asks too. It is not
+done while anybody is drawing. What lies on the glass is held by where it
+is from the middle of the paper, which is what stays put in the window,
+and by its angle there: an instrument is as it was on the screen, and an
+open palette is the right way up, `:view_turn` of the board. The paper's
+lines are the same lines, those of `:lines` go the other way, `:turned`.
+
+A move of what is seen is so many pixels of the paper as it is seen, and
+is turned back to move the pan, `(pan-by)`. The bars are worked out in
+pixels of the paper as it is seen, what is drawn put through the matrix.
+
 ### Kept with the document
 
-`:view` of a document, `(x y zoom)`, is how it was last seen. The app
+`:view` of a document, `(x y zoom turn)`, is how it was last seen. The app
 writes it as it saves and reads it as it loads. It is not a step that is
 undone, and nothing of `lib/cwb` reads it: a `.cwb` shown as a picture is
 all of what was drawn, from wherever it was looked at.
@@ -487,10 +515,6 @@ all of what was drawn, from wherever it was looked at.
   task draws it otherwise.
 
 * A move of the view draws all of it again. Nothing is slid.
-
-* Turning the board. Chris: "Full canvas rotation is a rae thing to do",
-  "set the magnets for angles on the canvas as 90 degrees, full locks",
-  "the action and the final jump of the canvas is enough".
 
 Saving makes the paper the size of what is drawn, with a little room
 round it, and brings it to the top left, as it did. Chris: "yes,

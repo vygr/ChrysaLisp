@@ -153,9 +153,12 @@
 		; (. palette :to_own x y) -> (x y)
 		;a point of the document, about the middle of the palette at the
 		;size it is on the screen
+		;and the way up it is there, if what shows the board has turned
+		;it, :view_turn of the board, an angle: a palette lies on the
+		;glass, it is the right way up whichever way the board is
 		(bind '(ox oy) (get :origin this))
-		(defq zoom (get :zoom (get :board this)))
-		(list (* (- (n2f x) ox) zoom) (* (- (n2f y) oy) zoom)))
+		(defq zoom (get :zoom (get :board this)) turn (get :view_turn (get :board this)))
+		(Mat3x2-point (if (and turn (/= turn 0.0)) (Mat3x2-rot turn)) (* (- (n2f x) ox) zoom) (* (- (n2f y) oy) zoom)))
 
 	(defmethod :wedge_at (px py)
 		; (. palette :wedge_at px py) -> :nil | :hub | wedge
@@ -361,7 +364,9 @@
 			mode (. this :value :mode) color (. this :value :color) width (. this :value :width)
 			snap (/= (get :snap board) 0.0))
 		(bind '(ox oy) (get :origin this))
-		(defq base (Mat3x2-mul m (Mat3x2-mul (Mat3x2-translate ox oy) (Mat3x2-scale (/ 1.0 (get :zoom board))))))
+		(defq turn (get :view_turn board)
+			base (Mat3x2-mul m (Mat3x2-mul (Mat3x2-translate ox oy)
+				(Mat3x2-mul (if (and turn (/= turn 0.0)) (Mat3x2-rot (neg turn))) (Mat3x2-scale (/ 1.0 (get :zoom board)))))))
 		;the outer ring first, so one that is part open is under those inside it
 		(each (lambda (k)
 			(defq open (. this :ring_scale k))

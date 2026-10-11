@@ -127,6 +127,9 @@ the time is now that, microseconds. Is it still moving
 
 a point of the document, about the middle of the palette at the
 size it is on the screen
+and the way up it is there, if what shows the board has turned
+it, :view_turn of the board, an angle: a palette lies on the
+glass, it is the right way up whichever way the board is
 ```
 
 ### :value

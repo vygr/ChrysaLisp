@@ -64,6 +64,7 @@
 	(ascii-code "G") action-ungroup
 	(ascii-code "s") action-save
 	(ascii-code "o") action-load
+	(ascii-code "r") action-turn
 	(ascii-code "=") action-maximise
 	(ascii-code "-") action-minimise))
 

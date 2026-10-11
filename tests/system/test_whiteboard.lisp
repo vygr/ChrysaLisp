@@ -225,7 +225,7 @@
 	"(zoom-set 2.0 0 0)"
 	;the bars: all of one is what is drawn and what is seen, its thumb is what is seen. Things from 75 across, seen from 300 on at twice, 512 of it
 	"(defun wa-bars () (map (# (list (get :maximum %0) (get :portion %0) (get :value %0))) (list (get :hslider *image_scroll*) (get :vslider *image_scroll*))))"
-	"(setq *pan_x* 300.0 *pan_y* -15.0) (view-changed) (bars-update) (print (list (first (wa-bars)) (first *bars_from*)))"
+	"(setq *pan_x* 300.0 *pan_y* -15.0) (view-changed) (bars-update) (print (first (wa-bars)))"
 	;the bar moved back by hand to 200: what is seen is from 100 on from where there is anything, and the bars are left as they are while it goes on
 	"(def (get :hslider *image_scroll*) :value 200) (bars-moved) (print (list *pan_x* (first (wa-bars)) *bars_stale*))"
 	"(setq *pan_x* -25.0 *pan_y* -15.0 *bars_at* 0) (view-changed)"
@@ -259,11 +259,11 @@
 (assert-eq "the paper's lines are drawn from where the document's 0 0 is seen: the grid full, half of it at half, a quarter of it not at all"
 	"(50.00000 30.00000 ((8.00000 0) (16.00000 127) (32.00000 255)))" (elem-get wa_out 5))
 (assert-eq "an instrument lies on the glass: what is seen moved, zoomed and glided under it, it is where it was on the screen and the size it was there, and so twice the size in the document at half"
-	"((650 430 100) (650 430 100) (650 430 100) (650 430 100) (1026 705) 2.00000 -274)" (elem-get wa_out 6))
+	"((138 46 100) (138 46 100) (138 46 100) (138 46 100) (1026 705) 2.00000 -274)" (elem-get wa_out 6))
 (assert-eq "an instrument that shows is left; with four pixels of it showing it is left; with none of it showing it is put away"
 	"(0 1 0 1 0)" (elem-get wa_out 7))
 (assert-eq "a bar is all there is to see that way, from the first thing drawn, at 47, to the end of the view, at twice: 506 more than shows, the 1024 that shows its thumb, at the end"
-	"((506 1024 506) 47.00000)" (elem-get wa_out 8))
+	"(506 1024 506)" (elem-get wa_out 8))
 (assert-eq "moved back by hand to 200, what is seen is from 100 on from the first thing, and the bar is not set again under the hand"
 	"(147.00000 (506 1024 200) :t)" (elem-get wa_out 9))
 (assert-eq "half way to the next zoom the lines are half as far apart again, the next finer three quarters up and the finest a quarter"
@@ -563,3 +563,43 @@
 	"(:t :t (6 (400 300) :nil :nil 37))" (first wa_out))
 (assert-eq "all of the screen: the frame the board lies in is the screen, and the rest of the window is off its edges, nothing taken out of it; the paper is the size of the screen, no bars, and one more thing on the palette, the window back"
 	"((0 0 1280 800) (:t :t :t :t) (6 (1280 800) :bare :t 38))" (second wa_out))
+
+;the board turned a quarter, about the middle of the paper, which is then the other way up
+(defq wa_out (wa-run (cat
+	"(defun wa-ptr (id kind buttons rx ry) (. *window* :event (setf-> (str-alloc +ev_msg_pointer_size)"
+	" (+ev_msg_type +ev_type_pointer) (+ev_msg_target_id (. *board_view* :get_id))"
+	" (+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons) (+ev_msg_pointer_pressure 65535)"
+	" (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry) (+ev_msg_pointer_rx rx) (+ev_msg_pointer_ry ry))))"
+	"(setq *margin* 0) (. *board* :new 400 200) (board-resized)"
+	"(defun wa-d () (cwb-get (last (cwb-items (. *board* :get_doc))) :d))"
+	"(defun wa-mid () (map (const n2i) (view-middle)))"
+	"(. (. *board* :get_stage) :add (defq ruler (Ruler *board* 300 100)))"
+	;where the ruler is from the middle of the paper, in pixels, how big, and its angle there
+	"(defun wa-on () (map (# (n2i (+ %0 0.5))) (first (map (# (list (second %0) (third %0) (* 100.0 (elem-get %0 3)) (* 100.0 (elem-get %0 4)))) (tools-held)))))"
+	"(defq m0 (wa-mid) s0 (canvas-size) on0 (wa-on)) (view-turn 1) (draw-paper)"
+	"(print (list s0 (canvas-size) *turn* m0 (wa-mid) (get :turned *paper*)))"
+	;a pen across the top of the paper as it is seen now, 200 wide: in the document that is down its left side, from the bottom up
+	"(wa-mode :line) (wa-ptr 0x20001 1 1 20 10) (wa-ptr 0x20001 1 1 180 10) (wa-ptr 0x20001 1 0 180 10) (print (wa-d))"
+	;the instrument is where it was on the screen and at the angle it was there, so in the document it is turned the other way
+	"(print (list on0 (wa-on) (n2i (* 100.0 (get :angle ruler)))))"
+	;moved 30 across the screen: that is 30 up the document, turned as it is
+	"(defq p0 (list *pan_x* *pan_y*)) (pan-by 30 0) (print (list (n2i (- *pan_x* (first p0))) (n2i (- *pan_y* (second p0)))))"
+	;and three more quarters is where it began
+	"(pan-by -30 0) (view-turn 1) (view-turn 1) (view-turn 1) (print (list (canvas-size) *turn* (wa-mid) (wa-on) (map (const n2i) (get :origin ruler)) (n2i (* 100.0 (get :angle ruler)))))"
+	;two fingers on nothing, the one turned about the other past half way to a quarter: it is turned a quarter, once
+	"(. (. *board* :get_stage) :sub ruler) (wa-mode :select) (wa-ptr 0x10001 3 1 50 180) (wa-ptr 0x10002 3 1 150 180)"
+	"(wa-ptr 0x10002 3 1 140 220) (defq t1 *turn*) (wa-ptr 0x10002 3 1 100 265) (defq t2 *turn*) (wa-ptr 0x10002 3 1 50 280) (defq t3 *turn*)"
+	"(wa-ptr 0x10001 3 0 50 180) (wa-ptr 0x10002 3 0 50 280) (print (list t1 t2 t3 (canvas-size)))"
+	;kept with the document, and put back
+	"(view-to-doc) (defq kept (. (. *board* :get_doc) :find :view)) (setq *turn* 0) (view-from-doc) (print (list (length kept) *turn*))")))
+(assert-eq "turned a quarter the paper is the other way up, and what was in the middle of it is in the middle of it; its lines that went across go up and down"
+	"((400 200) (200 400) 1 (200 100) (200 100) :t)" (elem-get wa_out 0))
+(assert-eq "a pen across the top of the paper as it is seen is, in the document, a line up its left side" "M 10 180 L 10 20" (elem-get wa_out 1))
+(assert-eq "an instrument is where it was on the screen, from the middle of the paper, and at the angle it was there: in the document it is a quarter the other way"
+	"((100 0 100 0) (100 0 100 0) -158)" (elem-get wa_out 2))
+(assert-eq "moved 30 across the screen, what is seen is 30 on up the document" "(0 30)" (elem-get wa_out 3))
+(assert-eq "three more quarters and it is as it began, the paper, what is in the middle of it, and the instrument where it was in the document at the angle it was"
+	"((400 200) 0 (200 100) (100 0 100 0) (300 100) 0)" (elem-get wa_out 4))
+(assert-eq "two fingers on nothing, the one turned about the other: nothing at a quarter of the way, a quarter turn once it is past half way, and no more at all the way"
+	"(0 1 1 (200 400))" (elem-get wa_out 5))
+(assert-eq "how it is turned is kept with the document, the fourth of what is kept, and put back" "(4 1)" (elem-get wa_out 6))

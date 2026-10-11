@@ -33,7 +33,10 @@
 		(setq *full* (list (. *window* :get_bounds) (. doc :find :width) (. doc :find :height)))
 		;no bars, and it is to be the size of the screen
 		(def *image_scroll* :bare :t :min_width sw :min_height sh)
-		(.-> doc (:insert :width sw) (:insert :height sh))
+		;the paper is the size of the screen as it is seen, turned or not
+		(if (= (logand *turn* 1) 1)
+			(.-> doc (:insert :width sh) (:insert :height sw))
+			(.-> doc (:insert :width sw) (:insert :height sh)))
 		(def *board* :on_window (# (setq *full_go* :t)))
 		;laid out at the size that makes it so, to find where the frame
 		;is in it, and put so the frame is at the corner of the screen
@@ -166,6 +169,7 @@
 (defun action-align-bottom () (. *board* :align :bottom))
 (defun action-select-all () (. *board* :select_all))
 (defun action-select-none () (. *board* :select (list)))
+(defun action-turn () (view-turn 1))
 
 (defun action-escape ()
 	;out of what one is in: a board that is all of the screen is a window

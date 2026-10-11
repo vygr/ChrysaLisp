@@ -74,6 +74,12 @@ where you are looking now, and its thumb is what you see of that: how
 much, and where in it. Move out past the drawing and the bar takes that
 in, it has no end to come to.
 
+* Two fingers on empty board, the one turned about the other, turn the
+board a quarter: past half way it jumps there, it has no other angle to
+be at. It turns about the middle of the paper, and a paper that was wider
+than tall is taller than wide. Control and R does the same. What lies on
+the glass, the instruments and an open palette, stays as it is.
+
 The paper does not grow when it is zoomed, what is seen on it does. And
 the zoom always comes to rest at twice or half of where it was, however
 far the fingers went: it eases there when they let go. That is for the

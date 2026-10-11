@@ -104,11 +104,11 @@
 	;nothing
 	(def (. this :set_flags +view_flag_solid +view_flag_solid)
 		:board board :zoom 1.0 :margin 0 :held 0 :scroll :nil :drag :nil :color 0
-		;the point of the document at the top left of the paper. The
-		;fingers that are down, each where it is in the view. The two that
+		;the matrix from a point of this to a point of the document, :nil
+		;for they are the same. The fingers that are down, each where it is in the view. The two that
 		;have hold of what is seen, and how they and it were when they
 		;took it. And what the app is called by, see above
-		:pan (list 0.0 0.0) :fingers (Fmap 11) :grip :nil :on_pan :nil :on_wheel :nil :on_zoom :nil :on_rest :nil
+		:inv :nil :fingers (Fmap 11) :grip :nil :on_pan :nil :on_wheel :nil :on_zoom :nil :on_rest :nil :on_turn :nil
 		;every pointer that is down, the mouse too: its kind, what it
 		;holds, where it is in the view and how hard it is pressed
 		:down (Fmap 11))
@@ -117,9 +117,9 @@
 		; (. board_view :to_doc rx ry) -> (x y)
 		;a point of the view as a point of the document. The paper is in
 		;from the corner of the view by :margin
-		(defq zoom (get :zoom this) margin (get :margin this))
-		(bind '(px py) (get :pan this))
-		(list (+ px (/ (n2f (- rx margin)) zoom)) (+ py (/ (n2f (- ry margin)) zoom))))
+		;by the matrix the app has for it, the other way to the one it
+		;draws by: moved, zoomed and turned
+		(Mat3x2-point (get :inv this) rx ry))
 
 	(defmethod :mouse_pointer (event buttons)
 		; (. board_view :mouse_pointer event buttons) -> board_view
@@ -228,7 +228,7 @@
 		;one of the two has come up: what is seen is let go of, and if it
 		;was zoomed it comes to rest, about where the two last were
 		(when (and grip (not (and (. fingers :find (first grip)) (. fingers :find (second grip)))))
-			(bind '(ida idb mx my apart zoom zoomed) grip)
+			(bind '(ida idb mx my apart zoom zoomed &ignore) grip)
 			(if (and zoomed (defq on_rest (get :on_rest this))) (on_rest (- mx margin) (- my margin)))
 			(def this :grip (setq grip :nil)))
 		(unless grip
@@ -244,11 +244,12 @@
 				(bind '(bx by) (. fingers :find idb))
 				;who they are, the middle of them, how far apart they
 				;are, the zoom there is, and that it has not been zoomed
+				;and the angle the one is at from the other
 				(def this :grip (setq grip (list ida idb (/ (+ ax bx) 2) (/ (+ ay by) 2)
 					(max 1.0 (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))))
-					(get :zoom this) :nil)))))
+					(get :zoom this) :nil (path-angle (n2f (- bx ax)) (n2f (- by ay))))))))
 		(when grip
-			(bind '(ida idb mx my apart zoom zoomed) grip)
+			(bind '(ida idb mx my apart zoom zoomed angle) grip)
 			(bind '(ax ay) (. fingers :find ida))
 			(bind '(bx by) (. fingers :find idb))
 			(defq nx (/ (+ ax bx) 2) ny (/ (+ ay by) 2)
@@ -277,7 +278,17 @@
 					(:t (setq by_far 1.0)))
 				(when (or zoomed (/= by_far 1.0))
 					(elem-set grip 6 :t)
-					(on_zoom (* zoom by_far) (- nx margin) (- ny margin)))))
+					(on_zoom (* zoom by_far) (- nx margin) (- ny margin))))
+			;turned, the one about the other: past half way to a quarter
+			;the board is turned a quarter, a jump, and there it is till
+			;they are half way to the next. It has no other angle to be at
+			(when (and on_pan (defq on_turn (get :on_turn this)))
+				(defq turned (- (path-angle (n2f (- bx ax)) (n2f (- by ay))) angle))
+				(while (> turned +fp_pi) (setq turned (- turned +fp_2pi)))
+				(while (<= turned (neg +fp_pi)) (setq turned (+ turned +fp_2pi)))
+				(when (> (abs turned) (const (/ +fp_pi 4.0)))
+					(elem-set grip 7 (+ angle (if (> turned 0.0) +fp_hpi (neg +fp_hpi))))
+					(on_turn (if (> turned 0.0) 1 -1)))))
 		this)
 
 	(defmethod :mouse_hover (event)
