@@ -29,6 +29,9 @@
 (enums +select 0
 	(enum main task reply tip frame_timer poll_timer))
 
+;what is added to a length that is divided by, so that none is nothing.
+;The number as it is written is a fixed, and one smaller than this is 0
+(defq +tiny (n2r 0.0001))
 (defq +size 640 +min_size 320 +scale 1 +frame_rate (/ 1000000 20) +poll_rate (/ 1000000 4)
 	+retry_timeout (task-timeout 5)
 	+focal_dist +real_2 +near +focal_dist +far (+ +near +real_4)
@@ -152,8 +155,10 @@
 					(machine-color (get :system node)))))))
 		(push objs ball)))
 	(. links :each (lambda (name link)
+		;a link from a node to itself has no length, there is no bar to draw
 		(when (and (defq a (. global_tasks :find (get :a link)))
-				(defq b (. global_tasks :find (get :b link))))
+				(defq b (. global_tasks :find (get :b link)))
+				(not (eql a b)))
 			;a bar is a cylinder that stands on y, one long. Its matrix is
 			;made here, y laid along the link, and two more across it
 			(defq pa (get :pos a) pb (get :pos b) d (nums-sub pb pa)
@@ -162,12 +167,12 @@
 					(reals +real_0 +real_1 +real_0))
 				u (apply (const reals) (vector-cross-3d d across))
 				thick (/ +bar_size zoom)
-				u (nums-scale u (/ thick (sqrt (+ (nums-dot u u) (const (n2r 0.000001))))))
+				u (nums-scale u (/ thick (sqrt (+ (nums-dot u u) +tiny))))
 				;u, the link and v go round the way x, y and z do. The other
 				;way and the bar is turned inside out, it is its far side
 				;that is seen, lit as that side is
 				v (apply (const reals) (vector-cross-3d u d))
-				v (nums-scale v (/ thick (sqrt (+ (nums-dot v v) (const (n2r 0.000001))))))
+				v (nums-scale v (/ thick (sqrt (+ (nums-dot v v) +tiny))))
 				;cold is a dim blue, half way is red, and hot is white
 				heat (get :heat link) bar (get :bar link)
 				red (min +real_1 (* heat +real_2)) cool (- +real_1 red)

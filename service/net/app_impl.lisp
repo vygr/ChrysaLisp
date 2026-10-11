@@ -268,8 +268,11 @@
 							(defq data (first pkt) src_ip (second pkt))
 							(when (defq beacon (mesh-beacon-read data))
 								(bind '(tcp_port peer_sys_id peer_inst_id dials build) beacon)
-								;what is heard is noted, the links are made below
-								(unless (eql peer_inst_id my_inst_id)
+								;what is heard is noted, the links are made below.
+								;Not my own, nor that of another session of this
+								;machine: it is this system, there is no link to
+								;make to it, and its address is my own
+								(unless (or (eql peer_inst_id my_inst_id) (eql peer_sys_id my_sys_id))
 									(mesh-beacon mesh_peers peer_sys_id src_ip tcp_port dials
 										(nempty? beacon_ports) now build)))))
 					; The mesh. A link to each peer there is none to, and a hello to

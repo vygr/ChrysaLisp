@@ -104,6 +104,9 @@
 	; (mesh-dial? peer my_sys sys linked now) -> :nil | :t
 	;is a link to be made to this peer, now ? If so it is noted as dialled
 	(cond
+		;it is this system, another session of this machine: no link is
+		;made to oneself
+		((eql sys my_sys) :nil)
 		;there is a link
 		(linked (elem-set peer +mesh_peer_t_wait 0)
 			(elem-set peer +mesh_peer_tries 0)

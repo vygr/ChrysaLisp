@@ -263,6 +263,10 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 	// a desktop started from a shell opens behind the shell's window, on a
 	// Mac, the shell is the program in front. It is asked to come forward
 	SDL_RaiseWindow(window);
+	// CL_FULLSCREEN asks for the desktop to have the whole screen from the
+	// start, as it has when its window is told to by hand. The GUI is told
+	// the new size as it is of any other
+	if (SDL_getenv("CL_FULLSCREEN")) SDL_SetWindowFullscreen(window, true);
 }
 
 void host_gui_deinit()

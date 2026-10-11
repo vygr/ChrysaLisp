@@ -132,3 +132,10 @@
 
 (undef (env) 'ms_id 'ms_other 'ms_lines)
 (undef (env) 'ms_peers 'ms_peer 'ms_cpeers 'ms_bpeers 'ms_text 'ms_text2 'ms_said 'ms_t2 'ms_ids 'ms_dials)
+
+;another session of this machine is this system: its beacon gives this
+;machine's own address, and no link is made to oneself. A machine with two
+;addresses, a wire and a radio, dialled itself by the other
+(defq ms_own (Fmap 7) ms_me (mesh-beacon ms_own ms_a "192.168.1.65" 3333 :t :t ms_now))
+(assert-true "a peer that is this system is never dialled" (not (mesh-dial? ms_me ms_a ms_a :nil ms_now)))
+(assert-true "nor after any wait" (not (mesh-dial? ms_me ms_a ms_a :nil (+ ms_now (* 100 +mesh_redial)))))

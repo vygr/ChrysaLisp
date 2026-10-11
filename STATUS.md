@@ -4,6 +4,44 @@
 
 ------
 
+A machine with two addresses linked to itself, and the Network Map fell
+over at it.
+
+Chris, asked to open the Network Map on a desktop that had joined the
+mesh by itself: "It open, starts to fill out and then dies." Two things.
+
+The M4 has a wire and a radio, .65 and .189, Chris: "ethernbet and wifi !
+a real world senario." Two sessions of it were up, his desktop, which
+had the port, and my standing node. They are one system. Each took the
+other's beacon for a machine not met, and the desktop dialled the
+address in it, its own: `192.168.1.65:60925->192.168.1.65:3333`, both
+ends in the one process. A beacon of my own system is now not noted,
+`service/net/app_impl.lisp`, and `(mesh-dial?)` makes no link to a peer
+that is this system, `service/net/mesh.inc`, with a test.
+
+A link from a node to itself has no length. The Network Map divided by
+it: the small number added so that no length is nothing was written
+0.000001, which as a fixed is 0. It is one that is not, and a link whose
+two ends are the one node has no bar, `apps/system/netmap/app.lisp`.
+
+Seen by Chris: the map up with "4 nodes, 1 red 1 blue 2 yelow" on the
+desktop of before, then on a new one 3 nodes and, when my node was
+started beside it, "another yellow appeared". I read the sockets of both
+sessions then: each has a link to the x64 Mac and to the Pi, and none to
+.65. So a desktop joining the mesh by itself is seen, both ends.
+
+Also, Chris: "can you start these test GUI full screen ? is that doable
+?" `CL_FULLSCREEN` in the environment, `src/host/gui_sdl3.cpp`. He:
+"started full screen."
+
+Run: tests net 197 and solo 117 on the x64 Mac and the Pi by rsync, net
+197 on the M4; the hosts built on all three; the three standing nodes
+started again.
+
+Not seen: Windows.
+
+------
+
 Whiteboard: a pen that is near is shown the catch of the edge that would
 hold it, item 57.
 

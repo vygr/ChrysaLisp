@@ -702,6 +702,12 @@ draws a ring where each finger is:
 CL_TOUCH_TRACKPAD=1 ./run.sh
 ```
 
+Two more of the SDL3 host are read the same way, as a desktop is started.
+`CL_FULLSCREEN` has its window take the whole screen from the start.
+`CL_GPU_DEBUG` has SDL check every call made of the GPU and stop at what it
+finds wrong, for work on the driver: without it nothing is checked, and a
+thing SDL finds wrong is written to the terminal and passed.
+
 ## Many shapes: stripes
 
 A document is drawn by the task that has it, till that takes a while. The
