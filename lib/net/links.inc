@@ -12,9 +12,9 @@
 
 ;the node at the other end, the machine it is on, how many tasks it has,
 ;its process if it is on this machine, and the bytes of mail this node
-;has sent on the link, which only grows
+;has sent on the link, which only grows, and 1 if it is over the network
 (structure +link 0
 	(struct peer_node +node_id_size)
 	(struct peer_system +node_id_size)
 	(uint peer_tasks peer_pid)
-	(long sent))
+	(long sent remote))

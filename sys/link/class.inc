@@ -42,6 +42,8 @@
 	(nodeid peer_system_id)
 	(uint task_count peer_pid)
 	(long sent)
+	;1 if the link is over the network, 0 if it is shared memory
+	(long remote)
 	(align))
 
 ;fragment info

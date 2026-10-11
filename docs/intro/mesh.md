@@ -78,6 +78,10 @@ first served, the first to start. The others are by themselves, and
 `mesh` in one of them says it has not joined. When the first is closed
 another takes its place, within ten seconds or so.
 
+A session started with `-a`, `./run_tui.sh -a`, alone, never does: it is
+for a script or a run of the tests, that is not to become the machine's
+member for the few seconds it is up.
+
 ## See it
 
 Open **Network Map**, under System in the launcher. Each node is a ball,

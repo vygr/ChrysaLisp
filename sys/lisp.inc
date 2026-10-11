@@ -87,9 +87,13 @@
 		;same system, and its Net service knows it is not the machine's
 		;own and keeps off the network, service/net/app_impl.lisp
 		sid (ifn sid (get '*env_node_sid*))
-		tell (if (or user sid) (cat "(def" tab "*root_env*"
+		;and with a session that keeps to itself, that does not join the
+		;mesh unasked, *env_node_solo*
+		solo (get '*env_node_solo*)
+		tell (if (or user sid solo) (cat "(def" tab "*root_env*"
 			(if user (cat tab "'*env_node_user*" tab "{" user "}") "")
-			(if sid (cat tab "'*env_node_sid*" tab "{" sid "}") "") ")"))
+			(if sid (cat tab "'*env_node_sid*" tab "{" sid "}") "")
+			(if solo (cat tab "'*env_node_solo*" tab ":t") "") ")"))
 		told (if tell (cat " -run " tell) "")
 		run (cond
 			((and script tell) (cat " -run (progn" tab tell tab

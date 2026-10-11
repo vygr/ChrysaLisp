@@ -609,10 +609,10 @@
 
 	;every link of this node that is over the network, and not shared
 	;memory to a node of this machine, is told it is closed. Its tasks see
-	;that and go, and its connection is closed after them. Such a link has
-	;no process at its other end that the host can be asked of. How many
-	;there were is given: a ping that comes as this is done can undo it,
-	;so it is called till it gives 0
+	;that and go, and its connection is closed after them. Its record
+	;says which it is, lk_node_remote. How many there were is given: a
+	;ping that comes as this is done can undo it, so it is called till it
+	;gives 0
 
 	(entry :host_net :lisp_drop '(:r0 :r1))
 	(errorif-lisp-args-len 'error :r1 /= 0)
@@ -626,8 +626,8 @@
 		(breakif '(:r1 = :r2))
 		(assign '((:r1 0)) '(:r0))
 		(vp-add-cr +ptr_size :r1)
-		(assign '((:r0 lk_node_peer_pid ui)) '(:r4))
-		(vpif '(:r4 = 0))
+		(assign '((:r0 lk_node_remote)) '(:r4))
+		(vpif '(:r4 /= 0))
 			(vp-cpy-cr -1 :r4)
 			(assign '(:r4) '((:r0 lk_node_task_count i)))
 			(vp-add-cr 1 :r3)

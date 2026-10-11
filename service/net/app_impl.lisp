@@ -86,6 +86,9 @@
 		;to each node of one. The key of this machine, if it has one, is
 		;worked out the once, and again when the file is another
 		own (not (get '*env_node_sid*))
+		;a session told to keep to itself does not join by itself, a run
+		;of the tests say. It links when it is asked to, as any does
+		solo (get '*env_node_solo*)
 		key_age (age +door_key_file)
 		net_key (if own (door-key))
 		;is this the session that listens for the machine, its member of
@@ -232,7 +235,7 @@
 						;listens for the machine, says so to the network, and looks
 						;for the others. One that finds the port taken asks again
 						;later, the session that had it may have gone
-						(when (and net_key *net_can_mesh* (not member) (not dropping) (>= now next_join))
+						(when (and net_key *net_can_mesh* (not solo) (not member) (not dropping) (>= now next_join))
 							(defq said (mail-mbox) gate (open-child "service/net/gate.lisp" +kn_call_pin))
 							(when (/= (get-long gate 0) 0)
 								(mail-send gate (cat net_key (str +mesh_tcp_port) " " (hex-encode said)))

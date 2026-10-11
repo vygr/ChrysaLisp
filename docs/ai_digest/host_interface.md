@@ -447,6 +447,11 @@ links, and gives it a line of Lisp to run:
 	"(progn (node-net :ring 8) (import {service/gui/app.lisp}))"
 ```
 
+A session can keep to itself, `./run.sh -a`, alone: its Net service does
+not join the mesh by itself, as one does, `docs/intro/mesh.md`. It is told
+as the user is, `*env_node_solo*`, and tells the nodes it starts. A run of
+the tests is one, and so is each session a `rack` run starts.
+
 A session can be some user's, `./run.sh -u name`, and not whoever last
 signed on to the machine, the file `usr/current`. The first node is told
 who in the form it runs, `*env_node_user*` in the environment all the

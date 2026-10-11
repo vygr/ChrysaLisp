@@ -84,8 +84,12 @@ marked mandatory apply to every session.
 An agent's sessions are not the user's, and should not write into the
 user's folder, `usr/Guest/`, their app settings and the like.
 
-*	Start every session of your own with `-u Test`: `echo "cmd" |
-	./run_tui.sh -n 1 -u Test -f`, and `./run.sh -n 1 -u Test -f`.
+*	Start every session of your own with `-u Test -a`: `echo "cmd" |
+	./run_tui.sh -n 1 -u Test -a -f`, and `./run.sh -n 1 -u Test -a -f`.
+	`-a` is alone: the session does not join the mesh by itself, as a
+	session does. Without it, on a machine with no member up, a run of
+	the tests is the machine's member, links to the other machines, and
+	two machines testing at once see each other's `*` services.
 
 *	Run the harness as `rack -u Test "tests"`.
 

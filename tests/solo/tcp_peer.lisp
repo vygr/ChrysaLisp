@@ -3,6 +3,8 @@
 ;by the address of this machine itself, and stays till it is told to go,
 ;or its link has gone and it is alone again, or a minute, so one that is
 ;forgotten does not stay for ever
+;it keeps to itself: its Net service is not to join the mesh for the machine
+(def *root_env* '*env_node_solo* :t)
 (import "lib/task/pipe.inc")
 (import "lib/net/links.inc")
 (pipe-run "link 127.0.0.1:34581" (const prin))

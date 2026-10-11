@@ -149,6 +149,12 @@ function first_run
 	then
 		piped="(def *root_env* '*env_node_user* {$user}) $piped"
 	fi
+	#a session that keeps to itself, -a: it does not join the mesh by
+	#itself, as a session does. A run of the tests is one
+	if [ "$alone" != "" ]
+	then
+		piped="(def *root_env* '*env_node_solo* :t) $piped"
+	fi
 	if [ "${2:-0}" -gt 0 ]
 	then
 		echo "(progn $piped(node-net :$shape $num_cpu $2 :gui {service/gui/app.lisp}) (import {$1}))"
@@ -220,6 +226,7 @@ function main
 	help=""
 	script="apps/tui/tui.lisp"
 	user=""
+	alone=""
 	while [ "$#" -gt 0 ]; do
 	case $1 in
 		-i)
@@ -254,10 +261,15 @@ function main
 			user=$2
 			shift 2
 			;;
+		-a)
+			alone=1
+			shift
+			;;
 		*)	echo "[-n cnt] number of nodes, the width of a mesh or a cube, 0 to size to the machine, the default"
 			echo "[-t shape] full, ring, star, tree, mesh or cube, full is the default"
 			echo "[-g cnt] number of guis"
 			echo "[-u name] the user of this session, a folder of usr/, not whoever last signed on"
+			echo "[-a] alone, the session does not join the mesh by itself"
 			echo "[-s script_name] script mode"
 			echo "[-e] emulator mode"
 			echo "[-f] foreground mode"

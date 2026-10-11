@@ -4,6 +4,39 @@
 
 ------
 
+The M4 has the network work, a session can be told to keep to itself,
+and a link's record says if it is over the network.
+
+Chris: "M4 is free". And of a way for the harness not to join: "yes
+sounds good."
+
+On the M4: `make`, `make all boot`, lint clean, the standing node
+started again. Then the tests through the mesh, and they showed a fault
+of this morning's on the other two: `(net-drop)` took a link with no
+process at its other end to be one over the network, and a shared
+memory link is that too until its peer first says who it is, and again
+when its peer has gone. So a link's record, `lk_node` in
+`sys/link/class.inc`, has a field for it, `remote`, 1 for a link over
+the network. `(net-drop)` goes by that. `(net-links)` gives it,
+`lib/net/links.inc`.
+
+`-a`, alone, on `run.sh` and `run_tui.sh`: the session's Net service
+does not join the mesh by itself. `*env_node_solo*`, told to each node
+as the user is, `(node-start)`. Every session a `rack` run starts has
+it, and the other end of the solo TCP test. Asked to, `mesh -j`, such a
+session joins as any does. Not on Windows, `funcs.ps1` has no `-u`
+either.
+
+Run: the three standing nodes down, every test on all three machines
+at once, each session with `-a`: 5899 on each, where this morning the
+x64 Mac and the Pi met in the mesh and a test failed. The standing
+nodes up, `mesh` on the M4: the three, a node each. Every test through
+the mesh: 5899 on each, and the mesh the same three after.
+
+Not seen: a desktop. Windows.
+
+------
+
 The network sets itself up: a key at install, joined at the start, and
 a key that is changed is seen.
 

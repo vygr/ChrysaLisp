@@ -34,6 +34,8 @@
 		(save (join cmds (ascii-char 10)) cmds_file)
 		(pii-spawn (cat "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
 			(if user (cat tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})") "")
+			;a run keeps to itself, the member is what is in the mesh
+			tab "(def" tab "*root_env*" tab "'*env_node_solo*" tab ":t)"
 			tab "(import" tab "{lib/rack/session.lisp}))"))
 		;the session's last line is how long it took, "[12s]". The file is
 		;there before it is all written, so it is that line that is waited
