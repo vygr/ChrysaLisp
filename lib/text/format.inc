@@ -741,6 +741,10 @@
 	(defq out (list) stack (list) top_blocks 0 instr :nil raw :nil note :nil
 		joinable :nil line_idx -1)
 	(while (< (++ line_idx) (length lines))
+		;a file of thousands of lines is seconds of work on a small machine,
+		;and whatever else is on the node waits for all of it unless this
+		;gives way
+		(task-slice)
 		(defq line (elem-get lines line_idx) start_instr instr
 			body (if instr line (trim-start line +cls_space))
 			lead (slice line 0 (- (length line) (length body))))

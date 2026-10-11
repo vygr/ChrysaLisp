@@ -113,13 +113,18 @@
 	+exfat_direct_blocks 4)
 
 (defun exfat-raw-read (vol offset len)
-	;whole blocks from the device, :nil if they are not all there
+	;whole blocks from the device, :nil if they are not all there. Each
+	;time the device is gone to, the task gives way first: a volume at
+	;work is a great deal of reading and writing, and the node is not its
+	;alone
+	(task-slice)
 	(defq stream (get :stream vol))
 	(stream-seek stream offset 0)
 	(and (defq data (read-blk stream len)) (= (length data) len) data))
 
 (defun exfat-raw-write (vol offset data)
 	;whole sectors to the device
+	(task-slice)
 	(defq stream (get :stream vol))
 	(stream-seek stream offset 0)
 	(write-blk stream data))
@@ -447,6 +452,9 @@
 (defun exfat-path (vol path)
 	; (exfat-path vol path) -> :nil | (root ... entry)
 	;the entries from the root down to a path
+	;every file that is found, saved or removed comes by here, and many
+	;of them in one batch touch the device not at all: it gives way here too
+	(task-slice)
 	(defq found (list (exfat-root vol)))
 	(each (lambda (part)
 		(when found

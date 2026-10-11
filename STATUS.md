@@ -4,6 +4,58 @@
 
 ------
 
+**Why one run in sixty failed on the Pi: a test that held its node for
+three seconds.**
+
+The soak of 24 had one failure, the Pi, `system/test_lock`, claims of
+free keys not granted in 2 seconds. It is in the list of old, "59 of 60,
+the one was test_lock on the Pi", and Chris's rule is that a flake is a
+fault till it is read.
+
+A task gives way to the others of its node only when it says so. So a
+task was put on every node of the Pi that sleeps 10 ms and writes down
+how late it wakes, and every test was run beside them:
+
+	longest a task was kept waiting, each node    3,218 ms   91   85   400
+	times over a second                           3          0    0    0
+
+Then each of 131 modules alone on one node with one such task, which
+finds who:
+
+	tests/text/test_format.lisp       3,019 ms of its 3,032
+	tests/system/test_exfat.lisp      1,759 ms of 3,817
+	the next, test_cwb_palette          615 ms
+	the four of the store, at most      102 ms
+
+The formatter laid out a whole file, `class/lisp/root.inc` among them,
+with never a `(task-slice)`. Whatever was on that node, the Lock service
+as a session starts, a command of a pipe, waited for all of it, and a
+test that gives a second or two by the clock failed. Not the store: it
+had been made to give way an hour before, on this guess, and was at a
+tenth of a second.
+
+`lib/text/format.inc` gives way at each line. `lib/fs/exfat.inc` each
+time it goes to the device and each time a path is looked up, and the
+exFAT test's maker of bytes as it goes. Both libraries are mine.
+
+	test_format   3,019 to 72 ms       test_exfat   1,759 to 380 ms
+
+And every test on the Pi again, twice, with the watchers:
+
+	longest a task was kept waiting, each node    619  465  652  358
+	                                              457  357  732  588
+	times over a second                           none
+
+Run: `test_format` 138, exfat 94, the store's 294 on all three. A soak
+of 24 follows.
+
+Not done: a way to have this from the tests themselves. The watcher is a
+script of twenty lines that was sent to the Pi; a `tests -w` that says
+the longest wait on each node at the end would have found this the first
+day.
+
+------
+
 The store gives way, and a soak of 24: 71 of 72.
 
 The soak after the lighter tests was again 35 of 36, the Pi again, the
