@@ -4,6 +4,32 @@
 
 ------
 
+A window gone to the whole screen stopped the desktop at a box from SDL.
+
+Chris, with a picture of it, "Assertion failure at SDL_SetGPUViewport
+... Viewport size exceeds current render target dimensions": "I hit full
+screen mode, this used to work !" SDL makes a GPU device that checks
+every call unless it is told not to, and stops the program at a box for
+what it finds. As a window goes to the whole screen there is a frame
+whose viewport is bigger than what it is drawn to. The SDL here is
+3.4.18, put in on the 9th; whether the one before checked that I do not
+know.
+
+`src/host/gui_sdl3.cpp`: the device is made with no checking, and a thing
+SDL finds wrong is written once where the desktop writes and the desktop
+goes on. `CL_GPU_DEBUG` in the environment has both as they were, for
+work on the driver.
+
+Chris, on the M4 with the host built again: "your fix worked."
+
+Run: the hosts built on the M4, the x64 Mac and the Pi; tests gui 45 on
+the x64 and the Pi; a desktop started on the Pi with it.
+
+Not seen: Windows, whose two host programs in `snapshot.zip` are as they
+were.
+
+------
+
 Where a run of the tests goes, and two fixed waits made to ask.
 
 Chris: "What takes the most time in these runs ? Is it the Pi4 or a
