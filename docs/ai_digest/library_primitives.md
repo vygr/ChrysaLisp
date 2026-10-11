@@ -275,11 +275,6 @@ Filesystem traversal, dependency analysis, and path resolution.
 
 	*	`(files-all-depends paths [imps end]) -> paths`
 
-*	**`files-scan`**: Scans files line-by-line with a user-defined processing
-	callback.
-
-	*	`(files-scan files handler [split_class comment]) -> files`
-
 *	**`files-classes-info`**: Builds or loads the cached class database
 	(`class_db.tre`).
 

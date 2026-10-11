@@ -1,8 +1,8 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 (import "lib/files/files.inc")
+(import "lib/text/syntax.inc")
 (import "service/lock/app.inc")
-
 
 (defq usage `(
 (("-h" "--help")
@@ -62,11 +62,30 @@
 (defun find-file (cls)
 	(if (defq file (. defs_map :find cls)) file +implicit_file))
 
+;all a file includes, and all those include. Not (files-all-depends), which
+;puts in what the root environment imports: that is there for every file,
+;but a file says what it uses all the same
+(defun depends-of (file)
+	(defq files (list file))
+	(each-mergeable (# (each (lambda (&rest %0) (merge files %0)) (files-depends %0))) files)
+	files)
+
 ;do the work on a file
 (defun work (file)
 	(defq includes (list) classes (list) requires (list +implicit_file))
+	;The file is read as the highlighter reads it, a token at a time, so
+	;what is in a comment is not looked at, on a line of its own or on
+	;the end of one. The words of a line are its tokens, each taken apart
+	;at what is not of a name: a string in braces has names in it
 	(with-read-lock file
-		(files-scan file (lambda (input file line idx)
+		(defq syntax (Syntax))
+		(lines! (lambda (line)
+			(task-slice)
+			(bind '(toks states) (. syntax :tokenize (trim-end line "\r")))
+			(defq input (list))
+			(each (lambda (tok state)
+				(unless (eql state :comment)
+					(each (# (push input %0)) (split tok +split_class)))) toks states)
 			(case (first input)
 				(("include")
 					(merge includes (list (second input))))
@@ -97,7 +116,7 @@
 					;file that defines it is needed, (hmap-search) say
 					((and (not (starts-with ":" token)) (defq inline_file (. defs_map :find token)))
 						(merge requires (list inline_file)))))
-				input) :nil) +split_class))
+				input) :nil) (file-stream file)))
 	;convert to the files we need, keep any apps/ include files !
 	(merge requires (map (const find-file) classes))
 	(defq includes (map (# (path-to-absolute %0 file)) includes)
@@ -108,8 +127,7 @@
 	(each (lambda (file)
 		(each (# (. depends_set :insert %0))
 			(. depends_cache :update file (# (ifn %0
-				(filter (# (nql %0 file))
-					(files-all-depends (list file)))))))) requires)
+				(filter (# (nql %0 file)) (depends-of file))))))) requires)
 	(setq requires (filter (# (not (. depends_set :find %0))) requires))
 	;sort and see if we need to report a difference and maybe rewrite
 	(sort includes) (sort requires)

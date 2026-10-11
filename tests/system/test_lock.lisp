@@ -106,17 +106,6 @@
 (assert-true "lock-history contains trace read lock"
 	(nempty? (some (# (if (eql %0 "obj/vp/ (lock read)") %0)) hist6)))
 
-; --- Test lib/files/ files-scan locking ---
-(import "lib/files/files.inc")
-(pipe-run "echo (import \qtest.inc\q) | save tmp_files_test.lisp" (lambda (&) :nil))
-(files-scan "tmp_files_test.lisp" (lambda (&rest _) :nil))
-(defq hist8 (lock-history-rpc))
-(assert-true "lock-history contains files-scan read lock"
-	(nempty? (some (# (if (eql %0 "tmp_files_test.lisp (lock read)") %0)) hist8)))
-(assert-true "lock-history contains files-scan read unlock"
-	(nempty? (some (# (if (eql %0 "tmp_files_test.lisp (unlock read)") %0)) hist8)))
-(pipe-run "rm tmp_files_test.lisp" (lambda (&) :nil))
-
 ; --- Test head and tail command locking ---
 (pipe-run "echo test_line | save tmp_head_tail.txt" (lambda (&) :nil))
 (pipe-run "head tmp_head_tail.txt" (lambda (&) :nil))

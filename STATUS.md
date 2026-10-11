@@ -4,6 +4,56 @@
 
 ------
 
+Includes reads by Syntax and the line scanner is gone. Syntax is not in
+the root environment: I put it there and stopped Chris's desktop from
+starting.
+
+Chris: "See if we should mocve includes over as well, that is a fast
+rointe anyway. if it works well then we shoul dprune the files lib."
+"Maybe place the Syntax class into root.inc as well."
+
+`cmd/includes.lisp` takes the words of a line from `(. syntax :tokenize)`
+and not from a split of it, so a comment on the end of a line is not
+looked at. Every `.vp` file, 555ms where it was 615ms, and still nothing
+to report. `(files-scan)` had no other user and is out of
+`lib/files/files.inc`, with its lock test and its line in the digest.
+`includes` took what the root environment imports as there for every
+file; it follows the includes of a file and no more, `(depends-of)`.
+
+What went wrong. `lib/text/syntax.inc` imports `gui/canvas/lisp.inc`,
+the canvas widget and every image loader, for one function that makes a
+pixel of an ink. I made it import `gui/pixmap/lisp.inc`, and put it in
+`class/lisp/root.inc`. Every test passed on three machines, 5,989, and I
+asked Chris to start his desktop on it. It did not start: `CPM-load` not
+bound, `gui/canvas/lisp.inc`. Both are put back.
+
+Why. The canvas and each image loader import each other. The canvas
+names the loaders in a `(const)`, so they have to be there as it is
+read, and they are only if the canvas is come to first. The GUI service
+imports its files one at a time in an order made from who imports whom,
+and it was `syntax.inc`, early in it, that came to the canvas first.
+With that import gone a loader did, the canvas was read inside it, and
+its `(const)` had a name that was not there yet. That does not stop the
+load. It stops the first use, the first picture a desktop loads. Tried
+on the Pi, where I can start a desktop: the import alone does it, the
+promotion with the old import does not.
+
+Why no test said so. `tests/system/test_gui_load.lisp` did the service's
+loop and looked for an error, and there is none till a picture is
+loaded. It now loads one of each kind, cpm, tga, svg and cwb, and fails
+on the Pi with the import cut and passes without.
+
+So: Syntax stays out of the root environment till the canvas and its
+loaders do not need an order, which is Chris's to say. And a change to
+what the root environment or the GUI imports is tried by starting a
+desktop on the Pi before he is asked to start his.
+
+Run: tests -a on the M4, the x64 Mac and the Pi; lint, includes, imports
+clean, forward clean but for the traps file; make docs; a desktop
+started on the Pi with no error.
+
+------
+
 The class database scanner reads the tree too.
 
 Chris, of `lib/files/info.inc`: "yeah lets go the whole way."

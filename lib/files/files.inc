@@ -2,8 +2,6 @@
 ; directory utils
 ;;;;;;;;;;;;;;;;;
 
-(import "service/lock/app.inc")
-
 ;module
 (env-push)
 
@@ -58,29 +56,6 @@
 		(setq files (merge (merge (usort (cat files)) (ifn imps '()))
 			'("class/lisp/root.inc" "class/lisp/task.inc")))) files)
 
-(defun files-scan (files handler &optional split_class comment)
-	; (scan-files files handler [split_class comment]) -> files
-	;iterates through files, processing lines.
-	;new files returned by the handler are merged into the work list.
-	(setd comment ";")
-	(defq callback_e (penv))
-	(unless (list?? files) (setq files (list files)))
-	(each-mergeable (lambda (file)
-		(with-read-lock file
-			(when (defq stream (file-stream file))
-				(lines! (lambda (line) (task-slice)
-					;skip empty lines and comments
-					(unless (or (eql (defq linet (trim line)) +char_class_space)
-								(and comment (starts-with comment linet)))
-						;prepare input (tokens or trimmed line)
-						(defq input (if split_class (split linet split_class) linet))
-						;call user handler
-						;merge any new dependencies returned by handler into files list
-						(merge files (ifn (callback handler callback_e input file line (!)) '())))
-					:nil)
-					stream)
-				(setq stream :nil)))) files))
-
 ;module
-(export-symbols '(files-all files-dirs files-all-depends files-depends files-scan))
+(export-symbols '(files-all files-dirs files-all-depends files-depends))
 (env-pop)

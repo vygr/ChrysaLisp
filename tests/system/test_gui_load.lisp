@@ -17,8 +17,18 @@
 	" (catch (progn (reach (# (import %0 gl_env))"
 	" (files-all-depends (list {sys/lisp.inc} {class/lisp.inc} {gui/lisp.inc}) :nil 40))"
 	" (defq *env_user* {Guest}) (import {usr/Guest/env.inc})"
-	" (print (if (def? (quote Files)) {loaded} {no Files class})))"
+	" (print (if (def? (quote Files)) {loaded} {no Files class}))"
+	;and what was loaded is used. A name a file wants as it is read, in a
+	;(const), that is not there yet, a loader that came before the canvas
+	;that imports it, does not stop the load: it stops the first use, the
+	;first picture a desktop loads. Seen 2026-10-11, a desktop that did
+	;not start with every test passing
+	" (each (lambda (file) (print (if (> (first (canvas-info file)) 0) {info} {no info})"
+	" (if (canvas-load file +load_flag_noswap) {load} {no load})))"
+	" (list {apps/demos/boing/data/taoball_1.cpm} {apps/media/images/data/wallpaper.tga}"
+	" {apps/media/images/data/burger.svg} {apps/media/whiteboard/data/palette.cwb})))"
 	" (progn (print _) :t))"
 	" (env-pop)")))
-(assert-eq "every file of the GUI loads by itself, in the order the service has them" "loaded\n" gl_said)
+(assert-eq "every file of the GUI loads by itself, in the order the service has them, and a picture of each kind is loaded by it"
+	"loaded\ninfoload\ninfoload\ninfoload\ninfoload\n" gl_said)
 (assert-true "and none of them says there is an error" (empty? (substr gl_said "Error")))
