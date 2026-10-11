@@ -4,6 +4,52 @@
 
 ------
 
+**The night of 11 to 12 October, for the morning.**
+
+A soak of 24 at the end of it, every module on the M4, the x64 Mac and
+the Pi: **72 of 72**, 6,389 and 0 failed each, 139 modules. No note, no
+link file and no store left behind on any of the three.
+
+What there is, each with its own entry below, newest first:
+
+*	**Storage**, begun on his word: the store of one member; the
+	service, its tender and the gopher; a store of many members, tried
+	with five on one node and then on the three machines, each a member;
+	the flash stick; `storage` the command; and an app to look at it,
+	Storage, under System in the launcher, with a store of five members
+	of its own if there is none. `docs/ai_digest/storage_service.md` has
+	what was settled with him, what is built, and what is open.
+*	**`check`** has ten checks, three of them from this night's own
+	faults: `enum`, `capture`, `held`.
+*	**Three flakes read**, as he asks of a flake. The Pi's one in sixty:
+	the formatter's test held a node for 3 seconds, found with a task
+	that notes how late it wakes, now `tests -w`. The Pi's pipe test: a
+	second by the clock was too little, measured. The x64's pipe test: a
+	command that would not load let go of its stdio before it said why,
+	a fault of two days before, made to happen every time and mended.
+
+For his eye, nobody has seen these:
+
+*	The Storage app. Its buttons have been pressed by no hand.
+*	The sun clock and the crypto app, whose numbers moved a little when
+	`check` found five that were written as 0.
+*	The Whiteboard's size field, its event has another name.
+
+His to say:
+
+*	Does Storage start by itself. It does not: a session that does not
+	ask has nothing of it.
+*	The numbers he did not talk through: 64KB a block, three copies,
+	five minutes before a missing member's blocks are made up.
+*	`tests -w` is asked for. Should the soak always have it.
+
+Left as it was found: the flash stick is a store named ChrysaLisp, not
+mounted. The M4 has 12 old link files in /tmp from before the leak was
+mended, left because I could not tell whose they were while his desktop
+was up.
+
+------
+
 **The other pipe failure, found: a command that would not load let go of
 its stdio before it said why.**
 
