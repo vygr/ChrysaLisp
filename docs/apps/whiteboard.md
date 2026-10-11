@@ -81,7 +81,8 @@ the coarse ones, faint at first, till they are the coarse ones and
 fainter ones are coming up between them. At rest the coarse lines are
 full and the fine ones half, never between.
 
-With snap on, things go to the coarse lines as they are at that zoom.
+With snap on, things go to the lines that show at that zoom, the fine
+ones as well as the coarse.
 
 What is seen is everybody's, and more than one can be at a board. So
 none of these moves it while anybody is drawing a line: it moves when

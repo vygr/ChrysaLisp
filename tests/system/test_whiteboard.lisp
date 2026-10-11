@@ -170,7 +170,7 @@
 (assert-eq "the ruler, the protractor and the set square are put on the board" "(:ok :ok :ok 3)" (elem-get wa_out 0))
 (assert-eq "in the middle of it, each a little off the last" "((512 384) (542 414) (572 444))" (elem-get wa_out 1))
 (assert-eq "a tap on the protractor's own part for it says what it draws" "(:ok :pie)" (elem-get wa_out 2))
-(assert-eq "snap is on, to the grid of the document, and off" "(:ok 32.00000 :ok 0.00000)" (elem-get wa_out 3))
+(assert-eq "snap is on, to every line of the paper that shows, half the grid of the document at 1, and off" "(:ok 16.00000 :ok 0.00000)" (elem-get wa_out 3))
 (assert-eq "angles snap" "(:ok :t)" (elem-get wa_out 4))
 (assert-eq "zoomed in is twice, and the paper and its canvases are the size they were: it is what is seen on it that is bigger" "(:ok 2.00000 (1024 768) (1024 768) 2.00000)" (elem-get wa_out 5))
 (assert-eq "out twice is a half" "(:ok :ok 0.50000 (1024 768))" (elem-get wa_out 6))

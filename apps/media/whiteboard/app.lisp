@@ -180,11 +180,13 @@
 
 (defun snap-gap ()
 	; (snap-gap) -> gap
-	;what a thing goes to when the snap is on: the coarse lines of the
-	;paper as they are at the zoom it rests at, the grid of the document
-	;halved for each time the zoom is doubled
+	;what a thing goes to when the snap is on: every line of the paper
+	;that shows at the zoom it rests at, the fine ones, at half, as well
+	;as the coarse. Chris: "Snap are gird lines, should be to the 5mm !"
+	;So half the grid of the document, halved again for each time the
+	;zoom is doubled
 	(bind '(level &ignore) (zoom-level (zoom-magnet (if *zoom_to* (first *zoom_to*) *zoom*))))
-	(defq gap (n2f (. (. *board* :get_doc) :find :grid)))
+	(defq gap (* 0.5 (n2f (. (. *board* :get_doc) :find :grid))))
 	(times (abs level) (setq gap (if (> level 0) (/ gap 2.0) (* gap 2.0))))
 	gap)
 

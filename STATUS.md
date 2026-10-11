@@ -4,6 +4,19 @@
 
 ------
 
+Snap is to every line of the paper that shows.
+
+Chris: "Snap are gird lines, should be to the 5mm ! It works but now we
+have that etra 1/2 line." It went to the coarse lines only, and the
+fine ones, at half, could not be drawn to. `(snap-gap)` is half the
+grid of the document at 1, halved for each time the zoom is doubled.
+He, having tried it: "works well, zoom and then snap draw, all feels
+natural."
+
+The app's tests, 104, on the three machines.
+
+------
+
 Many at one board: what is everybody's waits for a line, what is held
 stays in the hand, and a thing is the one's who took it.
 

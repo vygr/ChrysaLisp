@@ -403,7 +403,9 @@ go, the zoom goes to the nearest, a third of the way each tick,
 `(zoom-go)` and `(zoom-tick)`: "ease to the magnet on release. it's
 better than a jump." The zoom buttons go to the next the same way.
 
-The snap is to the coarse lines of the zoom it rests at, `(snap-gap)`.
+The snap is to every line that shows at the zoom it rests at, the fine
+ones, at half, too, `(snap-gap)`. Chris: "Snap are gird lines, should be
+to the 5mm !"
 
 ### Kept with the document
 
