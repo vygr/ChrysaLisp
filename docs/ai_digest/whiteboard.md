@@ -296,6 +296,34 @@ comes to rest it is drawn once more just where it is, to an eighth of a
 pixel. `(draw-tools)` and `(tool-show)` in `app.lisp`. A palette, and the
 rings where fingers are, are on one more canvas in front of them all.
 
+## Two fingers on nothing
+
+Two fingers down on empty board are not the board's, they have hold of
+the view, `apps/media/whiteboard/view.inc`, `(:finger)`. The board has
+each finger first, as it has every pointer, and is then asked which are
+on nothing, `(. board :pointer_free? id)`: the first two that are take
+the view, and the board is told to give up what each was doing, a box
+dragged out, a tap that opens the palette, `(. board :pointer_idle id)`.
+
+Moved together, the view is moved in its scroll by how far the middle of
+the two has gone on the screen, not in the view, which moves under them.
+Moved apart or together, the zoom wanted is the zoom there was by how far
+apart they are now over how far they were. The nearest of the zooms there
+are is taken, once it is clearly nearer than the one there is, and not
+till the two are a fifth nearer or further than they began: two fingers
+that only move a view do not keep their distance. The app makes the
+zoom, `(zoom-at)`, new canvases and all drawn again, with the point of the
+document between the fingers left where it was.
+
+It is a step of the zooms at a time and not smooth. For it to be, what
+puts the screen together would have to draw a picture at another size
+while the fingers move, and `(. view :ctx_blit)` can not: it draws a
+texture point for point, cut to the parts of the view that show.
+
+Turning the board is not here. Chris: "Full canvas rotation is a rae
+thing to do", "set the magnets for angles on the canvas as 90 degrees,
+full locks", "the action and the final jump of the canvas is enough".
+
 ## The instruments
 
 An `Instrument` lies on the board in front of what is drawn, and is not part

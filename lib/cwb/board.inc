@@ -1352,6 +1352,25 @@
 	; pointers
 	;;;;;;;;;;
 
+	(defmethod :pointer_free? (id)
+		; (. board :pointer_free? id) -> :t | :nil
+		;is a pointer down on the board on nothing: it has the hand, and
+		;no thing in it. It is dragging a box out, or may be a tap
+		(and (defq state (. (get :surface this) :state id))
+			(eql (elem-get state +stroke_tool) :hand) (not (elem-get state +stroke_item))))
+
+	(defmethod :pointer_idle (id)
+		; (. board :pointer_idle id) -> board
+		;what a pointer that is down on the board was doing is given up:
+		;its box is not dragged out, and when it comes up it was no tap.
+		;What shows the board says so when it takes two fingers that are
+		;on nothing to move its view by
+		(when (defq state (. (get :surface this) :state id))
+			(elem-set state +stroke_tool :idle)
+			(. (get :bands this) :erase id)
+			(. this :touch +board_dirty_overlay))
+		this)
+
 	(defmethod :pointers (events)
 		; (. board :pointers events) -> board
 		;a batch of pointer events, each in the space of the document

@@ -4,6 +4,48 @@
 
 ------
 
+Two fingers on empty board move the view and zoom it.
+
+Chris: "How do I pan/zoom/rotate the entire canvas ?" There was the
+middle button and the two zoom buttons, and nothing for fingers. Then:
+"pan first, then pinch zoom, rotation on the list", and of rotation,
+that it is rare, quarter turns, a gesture and a jump.
+
+`apps/media/whiteboard/view.inc`, `(:finger)`. The board has every
+finger first. Two that are on nothing take the view: the board is told
+to give up the box each was dragging out and the tap each might have
+been, `(. board :pointer_idle id)`, new, with `(:pointer_free?)`.
+
+Moved together the view goes with them, by how far their middle has
+gone on the screen. Moved apart or together it is zoomed to the nearest
+of the zooms there are to what they ask, with what is between them left
+where it was, `(zoom-at)` in `app.lisp`.
+
+It is not smooth, it steps. I had said what puts the screen together
+could scale the picture while the fingers moved, and one true draw at
+the end. It can not: a view's blit is point for point through the
+parts of it that show, `gui/ctx/blit`. That is VP work in the GUI, and
+is not done. Each step is new canvases and all drawn again.
+
+Two things the test taught: a finger moved 60 while the other stood
+still is a pinch, and zoomed out, so there is no zoom till the two are
+a fifth nearer or further than they began; and the zoom is by how far
+apart they are against when they took hold, not against the last step,
+or twice as far apart came to three times.
+
+In the app's test, with fingers told of as the GUI tells of them: the
+view went the way they went, 60 and 40, twice as far apart was twice,
+and nothing of the board was done, no box, no palette, nothing
+selected. 95. Every test on the three machines.
+
+Not seen: fingers. There is no touch screen here, the trackpad as one,
+`CL_TOUCH_TRACKPAD=1 ./run.sh`, is the only way, and that is Chris's
+hand. In the test where a finger is in the view does not move as the
+view scrolls, as it does on a screen: what is between the fingers
+staying there is worked out, not seen.
+
+------
+
 The Whiteboard's two window buttons mean something.
 
 Chris: "Wat does min/max buton do on Whiteboard ? What is the

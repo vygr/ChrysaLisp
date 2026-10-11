@@ -248,6 +248,26 @@ document till it is kept
 what is selected goes to the front of its layer, or the back
 ```
 
+### :pointer_free?
+
+```code
+(. board :pointer_free? id) -> :t | :nil
+
+is a pointer down on the board on nothing: it has the hand, and
+no thing in it. It is dragging a box out, or may be a tap
+```
+
+### :pointer_idle
+
+```code
+(. board :pointer_idle id) -> board
+
+what a pointer that is down on the board was doing is given up:
+its box is not dragged out, and when it comes up it was no tap.
+What shows the board says so when it takes two fingers that are
+on nothing to move its view by
+```
+
 ### :pointers
 
 ```code

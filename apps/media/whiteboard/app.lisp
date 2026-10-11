@@ -312,6 +312,22 @@
 		(def (get :vslider *image_scroll*) :value (max 0 (- (+ (n2i (* my *zoom*)) *margin*) (/ sh 2))))
 		(.-> *image_scroll* :layout :dirty_all)))
 
+(defun zoom-at (zoom sx sy)
+	;the zoom is that, and the point of the document that is at sx sy of
+	;what the scroll shows stays there: between two fingers that pinch
+	(unless (= zoom *zoom*)
+		(defq hslider (get :hslider *image_scroll*) vslider (get :vslider *image_scroll*)
+			dx (/ (n2f (- (+ (ifn (get :value hslider) 0) sx) *margin*)) *zoom*)
+			dy (/ (n2f (- (+ (ifn (get :value vslider) 0) sy) *margin*)) *zoom*))
+		(setq *zoom* zoom)
+		(board-resized)
+		(def hslider :value (max 0 (- (+ (n2i (* dx *zoom*)) *margin*) sx)))
+		(def vslider :value (max 0 (- (+ (n2i (* dy *zoom*)) *margin*) sy)))
+		(.-> *image_scroll* :layout :dirty_all)))
+
+;two fingers on nothing zoom the view by this, apps/media/whiteboard/view.inc
+(def *board_view* :zooms +zooms :pinch zoom-at)
+
 (defun draw-paper ()
 	;what is behind the document to work on, not part of it, lib/cwb/paper.inc
 	(defq doc (. *board* :get_doc))

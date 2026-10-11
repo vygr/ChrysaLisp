@@ -455,3 +455,26 @@
 (assert-eq "an arrow with two heads, selected" "((1) \qM 300 300 L 500 300\q)" (first wa_end))
 (assert-eq "its end dragged down: the line is to there, and what is seen of it is drawn again as it goes, not left as it was"
 	"(\qM 300 300 L 500 420\q :nil (0 0))" (second wa_end))
+
+;two fingers on nothing have hold of the view: moved together it goes with them, moved apart it zooms
+(defq wa_out (wa-run (cat
+	"(defun wa-ptr (id kind buttons rx ry) (. *window* :event (setf-> (str-alloc +ev_msg_pointer_size)"
+	" (+ev_msg_type +ev_type_pointer) (+ev_msg_target_id (. *board_view* :get_id))"
+	" (+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons) (+ev_msg_pointer_pressure 65535)"
+	" (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry) (+ev_msg_pointer_rx rx) (+ev_msg_pointer_ry ry))))"
+	"(setq *margin* 240 *zoom* 1.0) (. *board* :new 1024 768) (board-resized) (bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 0 0 w h)"
+	"(defun wa-view () (list (ifn (get :value (get :hslider *image_scroll*)) 0) (ifn (get :value (get :vslider *image_scroll*)) 0) *zoom*))"
+	"(def (get :hslider *image_scroll*) :value 300) (def (get :vslider *image_scroll*) :value 200) (.-> *image_scroll* :layout)"
+	"(defq was (wa-view) ids (wa-ids))"
+	;two fingers down on empty paper, and both moved 60 right and 40 down
+	"(wa-mode :select) (wa-ptr 0x10001 3 1 600 500) (wa-ptr 0x10002 3 1 700 500)"
+	;a little at a time, first the one and then the other, as hands do
+	"(each (lambda (i) (wa-ptr 0x10001 3 1 (+ 600 (* i 6)) (+ 500 (* i 4))) (wa-ptr 0x10002 3 1 (+ 700 (* i 6)) (+ 500 (* i 4)))) (range 1 11))"
+	"(defq moved (wa-view))"
+	;then twice as far apart
+	"(each (lambda (i) (wa-ptr 0x10001 3 1 (- 660 (* i 5)) 540) (wa-ptr 0x10002 3 1 (+ 760 (* i 5)) 540)) (range 1 11))"
+	"(defq zoomed (wa-view))"
+	"(wa-ptr 0x10001 3 0 610 540) (wa-ptr 0x10002 3 0 810 540)"
+	"(print (list was moved (third zoomed) (eql (str ids) (str (wa-ids))) (. *board* :get_selected) (length (palettes *board*)) (. (get :bands *board*) :size)))")))
+(assert-eq "the view goes the way the two fingers went, zooms to twice when they are twice as far apart, and nothing of the board was done: no box, no palette, nothing selected"
+	"((300 200 1.00000) (240 160 1.00000) 2.00000 :t () 0 0)" (last wa_out))

@@ -51,6 +51,12 @@ The left button of the mouse is the pen. The right button is the hand: it
 picks up what it is on and moves it, whatever the pen is set to. The middle
 button moves the board about in its window.
 
+Two fingers down on empty board have hold of the view. Moved together
+they move the board about, as the middle button does. Moved apart, or
+together, they zoom it, a step at a time, and what is between them stays
+between them. One finger on empty board drags a box out to select with,
+as it did.
+
 ## The palette
 
 ```image
