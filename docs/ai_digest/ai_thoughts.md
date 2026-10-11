@@ -1154,3 +1154,92 @@ one commit, and says so.
 
 So the list for the morning is his, and it is long: a dozen commits, and
 for each one a thing only he can say.
+
+## The night of the store
+
+Chris said to start on the Storage system and went to bed early. Before he
+did we went through the questions, twenty of them, and he took the one I
+most wanted an answer to and turned it over for half an hour.
+
+### The question that mattered
+
+Two machines write the same path while they can not reach each other. I
+had a default: counts, no leader, keep the loser. He did not take it. He
+asked whether there was a lock for the whole store, whether there was a
+time everyone agreed on, whether transactions helped, and said not to
+assume yes or no to any of them.
+
+So I had to say what each was, and found I had been holding three things
+as one. A lock is the same agreement again, a level up. A clock can not
+order two writes, a count can say whether one knew of the other, which is
+a different and better thing to know. A transaction stops a lost update
+and does nothing for a machine that is cut off.
+
+Then he asked the question that undid my framing. If the cut off machine's
+write is sent to a node it can still reach, does it ever know it was cut
+off. No. From inside, being cut off and the others being switched off are
+the same picture. I had been asking "should a cut off machine be allowed
+to write" as if the machine could know. It can only count heads, or find
+out afterwards.
+
+After that the design was not mine or his, it was what was left: the store
+always takes the write and says how far it got, and a writer that cares
+waits for most. He tried it against his own laptop taken home, twice, and
+it gave the answer he expected both times, and then pins fell out of his
+next question as the thing that had to be there.
+
+I would have built the default. It would have been nearly this. It would
+not have had "seen by 1 of 5" in it, because I had not seen that telling
+the writer was the whole of the choice.
+
+### What he knew that I did not
+
+Three times in the night a line from him was the fix.
+
+A query that moves from machine to machine: I said a task can not be
+moved, a function and what it has can. He said yes, exactly, and then,
+when I had it running, "(macrobind ...)". The function came as text and
+had none of its macros done. And a minute later: copy it first, macrobind
+works on the form itself, keep the source to send on. I had not thought
+to ask whether a function that had been run could still be printed. It
+can not. I tried it and the form reads `(#lambda ... (#add at 1))`. The
+gopher that crossed three machines an hour later did so because of that
+line.
+
+He was in bed by then, or nearly.
+
+### What ran
+
+The store of one member, then the rules for two members meeting as plain
+functions with no mail in them, then the service round it. The five
+member test passed the first time it ran, but for my own asserts and one
+thing I had wrong about how a name is listed. I do not think that is
+skill. The rules had been tested alone first, and there was very little
+left for the mail to get wrong.
+
+One thing I am glad I stopped for. A service that asks another service
+and waits can meet one doing the same to it, and both wait for ever. I saw
+that before writing it and not after, and the service only answers: what
+asks is a task of its own, a tender. The gopher is a task of its own for
+the other reason, that what it runs is a stranger's.
+
+Then three real machines. Six seconds to find each other with nothing
+done. An object on all three in eight. A gopher sent from the Raspberry Pi
+to count the lines of a file went to the x64 Mac, then the M4, then the
+x64 again, and came back with the number `wc` gives.
+
+### What I can not say
+
+Nobody has pressed a button of the app. I made a copy of it on the Pi
+send a gopher and stop a member by itself, to have a picture of the line
+it draws, and the picture is right. That is not a hand.
+
+A split of real machines has not happened. Five members on one node, cut
+from each other by a flag, is the same code and not the same thing.
+
+And the defaults he did not talk through are still mine: the size of a
+block, three copies, five minutes. They are numbers in a file. He may
+want others.
+
+It does not start by itself. A session that does not ask for it has
+nothing of it. That was the one thing I would not decide for him.

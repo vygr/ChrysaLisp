@@ -11,7 +11,7 @@
 
 (defun sn-image (id) (cat "tests/scratch/members_" sn_pid "_" id ".img"))
 (defun sn-start (id)
-	(storage-start (sn-image id) :size 0x400000 :id "shared" :name (cat "@SM" sn_pid id) :block 4096
+	(storage-start (sn-image id) :size 0x100000 :id "shared" :name (cat "@SM" sn_pid id) :block 4096
 		:group sn_group :member id :tick 0 :grace 0))
 (defun sn-of (id) (elem-get sn_svcs (find id sn_ids)))
 

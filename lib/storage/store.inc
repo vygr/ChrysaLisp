@@ -170,7 +170,7 @@
 	(when (and (exfat-format device size (ifn label "STORE")) (defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
-			:map (Fmap 11) :members (list member) :retired (list) :pins (list))
+			:map (Fmap 11) :members (list member) :retired (list) :pins (list) :held (Fset 11) :manifests (Fmap 11))
 		(exfat-begin vol)
 		(store-head-save store)
 		(exfat-mkdir vol "blocks")
@@ -207,6 +207,9 @@
 			(if (defq entry (store-entry-read line))
 				(. (get :map store) :insert (first entry) entry)))
 			(store-lines (exfat-load vol "paths")))
+		;the names of the blocks it has
+		(def store :held (Fset 101) :manifests (Fmap 101))
+		(each (# (. (get :held store) :insert %0)) (store-blocks store))
 		(unless (eql had member)
 			;it is this member's now
 			(def store :was had
@@ -236,7 +239,10 @@
 
 (defun store-block-has? (store name)
 	; (store-block-has? store name) -> :nil | :t
-	(if (exfat-find (get :vol store) (store-block-file name)) :t))
+	;is a block of that name kept here. The names of what is kept are
+	;held, read from the volume once as it is opened: to look one up on
+	;the volume is to read two directories of it
+	(if (. (get :held store) :find name) :t))
 
 (defun store-block-put (store data)
 	; (store-block-put store data) -> :nil | name
@@ -245,12 +251,14 @@
 	(defq vol (get :vol store) name (sha256 data) file (store-block-file name)
 		folder (slice file 0 (const (length "blocks/xx"))))
 	(cond
-		((exfat-find vol file) name)
+		((store-block-has? store name) name)
 		(:t (exfat-begin vol)
 			(unless (exfat-find vol folder) (exfat-mkdir vol folder))
 			(defq kept (exfat-save vol file data))
 			(exfat-end vol)
-			(if kept name))))
+			(when kept
+				(. (get :held store) :insert name)
+				name))))
 
 (defun store-block-get (store name)
 	; (store-block-get store name) -> :nil | data
@@ -261,11 +269,21 @@
 
 (defun store-block-drop (store name)
 	; (store-block-drop store name) -> :nil | :t
+	(. (get :held store) :erase name)
+	(. (get :manifests store) :erase name)
 	(exfat-delete (get :vol store) (store-block-file name)))
+
+(defun store-held (store)
+	; (store-held store) -> (name ...)
+	;the names of the blocks kept here, as they are held: what
+	;(store-block-has?) goes by. No reading of the volume
+	(defq out (list))
+	(. (get :held store) :each (# (push out %0)))
+	out)
 
 (defun store-blocks (store)
 	; (store-blocks store) -> (name ...)
-	;every block that is kept here, whatever is in it
+	;every block that is kept here, whatever is in it, as the volume has it
 	(defq out (list))
 	(exfat-walk (get :vol store) "blocks" (lambda (file entry)
 		(unless (second entry)
@@ -291,10 +309,16 @@
 
 (defun store-manifest (store hash)
 	; (store-manifest store hash) -> :nil | (size names)
-	;the object of that name, if its manifest is kept here
-	(and (defq lines (store-lines (store-block-get store hash)))
-			(> (length lines) 1) (eql (first lines) +store_object_magic)
-		(list (str-as-num (second lines)) (map (const hex-decode) (slice lines 2 -1)))))
+	;the object of that name, if its manifest is kept here. One that has
+	;been read is held: a name is of the one thing for ever, and what an
+	;object is made of is asked again and again
+	(defq known (get :manifests store))
+	(cond
+		((. known :find hash))
+		((and (defq lines (store-lines (store-block-get store hash)))
+				(> (length lines) 1) (eql (first lines) +store_object_magic))
+			(. known :insert hash (defq object (list (str-as-num (second lines)) (map (const hex-decode) (slice lines 2 -1)))))
+			object)))
 
 (defun store-find (store name)
 	; (store-find store path) -> :nil | entry
@@ -662,13 +686,13 @@
 (defun store-info (store)
 	; (store-info store) -> (objects blocks free)
 	;how many objects, how many blocks kept, and the room left in bytes
-	(list (length (store-list store)) (length (store-blocks store)) (exfat-free (get :vol store))))
+	(list (length (store-list store)) (length (store-held store)) (exfat-free (get :vol store))))
 
 ;module
 (export-symbols '(store-make store-open store-close store-save
 	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
 	store-entries store-holders store-seen store-share
-	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-block-file
+	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file
 	store-cut store-manifest store-manifest-text store-find store-stat store-now
 	store-commit store-put store-delete store-get store-read store-fold store-walk store-list
 	store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-info

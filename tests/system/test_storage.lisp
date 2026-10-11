@@ -7,7 +7,7 @@
 (defq sg_name (cat "@StoreTest" (str (pii-pid)))
 	sg_image (cat "tests/scratch/store_" (str (pii-pid)) ".img")
 	sg_group (cat "*StoreTest" (str (pii-pid)))
-	sg_svc (storage-start sg_image :size 0x400000 :id "testing" :name sg_name :block 4096 :group sg_group :tick 0))
+	sg_svc (storage-start sg_image :size 0x100000 :id "testing" :name sg_name :block 4096 :group sg_group :tick 0))
 
 (defun sg-walk (&rest args)
 	;what a gopher came back with, in a list, less where it had been

@@ -4,6 +4,34 @@
 
 ------
 
+A soak of 12 with the store in it: 35 of 36, and why not 36.
+
+One failure, on the Pi, `system/test_pipe`, "a pipe let go of open is
+gone", which gives it a second by the clock. And the Pi's runs were 57
+to 88 seconds where they had been 52. The four storage modules were 34
+seconds of work on the Pi, by themselves 7.5, 14.9, 1.2 and 10.5, beside
+everything else in the stage that is run over its four cores.
+
+Where it went, timed on the M4: to ask if a block is kept was to look it
+up on the volume, two directories read, 285 us; a manifest was read from
+the volume every time an object was asked of; and to count the blocks
+kept, which `(storage-info)` does and the app asks twice a second of
+each member, was to walk the volume.
+
+`lib/storage/store.inc`: the names of the blocks kept are held, read
+once as the store is opened, `(store-block-has?)` and `(store-held)`; a
+manifest that has been read is held, it is of the one thing for ever.
+`(store-share)` 5.9 ms to 0.9. And the tests' stores are 1MB and 512KB
+where they were 4MB and 2MB, and their big objects made of blocks, not
+set a byte at a time.
+
+On the Pi now 1.8, 3.5, 1.1 and 4.2 seconds, each with a session started
+for it, 5 seconds the four in one.
+
+Run: the four modules, 294, on all three. A soak of 12 after, below.
+
+------
+
 `check`: two more, from the two things that stopped me writing the store.
 
 Chris, that evening: "this new tool is great, we should add to it every

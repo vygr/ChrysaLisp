@@ -6,8 +6,8 @@
 
 (defun sm-new (member &optional members)
 	;a store of the one id, this member's, that knows who the members are
-	(defq stream (string-stream (cat (exfat-zeros 0x200000))))
-	(store-make stream 0x200000 "meet" member 4096)
+	(defq stream (string-stream (cat (exfat-zeros 0x80000))))
+	(store-make stream 0x80000 "meet" member 4096)
 	(defq store (store-open stream member))
 	(store-join store (ifn members sm_all))
 	store)
@@ -15,7 +15,8 @@
 (defun sm-tell (from to)
 	;one member tells another what it has, its blocks too. How many paths
 	;were not as they were there
-	(each (# (if (defq data (store-block-get from %0)) (store-block-put to data))) (store-blocks from))
+	(each (# (unless (store-block-has? to %0) (if (defq data (store-block-get from %0)) (store-block-put to data))))
+		(store-held from))
 	(length (store-meet to (store-entries from))))
 
 (defun sm-talk (&rest stores)

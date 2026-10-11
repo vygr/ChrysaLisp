@@ -20,7 +20,7 @@
 ; made, opened, and whose
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(bind '(so stream) (so-new 0x400000 "games" "aaaa" 4096))
+(bind '(so stream) (so-new 0x100000 "games" "aaaa" 4096))
 (assert-true "a store is made and opened" so)
 (assert-eq "it is the store it was made as" "games" (get :id so))
 (assert-eq "and its member's" "aaaa" (get :member so))
@@ -253,10 +253,11 @@
 
 (bind '(so_tiny so_tiny_stream) (so-new 0x100000 "tiny" "aaaa" 32768))
 (assert-eq "an object that fits" :ok (so-is (store-put so_tiny "x" (so-bytes 20000 6))))
+(defq so_turn (so-bytes 0x10000 7))
 (assert-eq "an object of a pattern that comes round is few blocks, however long: 2MB in a store of 1MB" :ok
-	(so-is (store-put so_tiny "round" (so-bytes 0x200000 7))))
+	(so-is (store-put so_tiny "round" (apply (const cat) (map (lambda (&) so_turn) (range 0 32))))))
 ;bytes of which no two blocks are the same
-(defq so_much (apply (const cat) (map (# (sha256 (str "much" %0))) (range 0 (/ 0x140000 32)))))
+(defq so_much (apply (const cat) (map (# (cat (sha256 (str "much" %0)) (exfat-zeros 32736))) (range 0 40))))
 (assert-eq "one there is no room for" :full (so-is (store-put so_tiny "y" so_much)))
 (assert-eq "has no path" :nil (store-stat so_tiny "y"))
 (assert-eq "and what was there is" (so-bytes 20000 6) (store-get so_tiny "x"))
