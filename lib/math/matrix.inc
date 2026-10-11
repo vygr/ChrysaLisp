@@ -105,9 +105,8 @@
 		(bind '(a b tx c d ty) m)
 		(defq det (- (* a d) (* b c)))
 		(if (= det 0.0) (Mat3x2)
-			(progn
-				(defq ia (/ d det) ib (/ (neg b) det) ic (/ (neg c) det) id (/ a det))
-				(fixeds ia ib (neg (+ (* ia tx) (* ib ty))) ic id (neg (+ (* ic tx) (* id ty))))))))
+			(defq ia (/ d det) ib (/ (neg b) det) ic (/ (neg c) det) id (/ a det))
+			(fixeds ia ib (neg (+ (* ia tx) (* ib ty))) ic id (neg (+ (* ic tx) (* id ty)))))))
 
 (defun Mat3x2-point (m x y)
 	; (Mat3x2-point m x y) -> (x y)

@@ -29,10 +29,9 @@
 		(.-> canvas (:set_canvas_flags +canvas_flag_antialias) (:fill (. doc :find :background)))
 		(cwb-draw canvas doc (if (= scale 1) :nil (Mat3x2-scale scale)))
 		(if (= scale 1) canvas
-			(progn
-				;drawn big, and made the size it is to be
-				(bind '(w h) (. canvas :pref_size))
-				(. (Canvas w h 1) :resize canvas)))))
+			;drawn big, and made the size it is to be
+			(bind '(w h) (. canvas :pref_size))
+			(. (Canvas w h 1) :resize canvas))))
 
 ;module
 (export-symbols '(CWB-load CWB-info))

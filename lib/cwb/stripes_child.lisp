@@ -103,11 +103,10 @@
 					clip (list 0.0 (n2f (dec y)) (n2f width) (n2f (inc y1))))
 				(reduce (lambda (count (flags rows none))
 						(if (bits? flags 1) count
-							(progn
-								(defq found (band-items rows none (/ (second clip) zoom) (/ (elem-get clip 3) zoom)))
-								(+ count (cwb-draw-items canvas
-									(if (and (not (Fset? skip)) (empty? skip)) found (cwb-pick found skip :t))
-									m clip)))))
+							(defq found (band-items rows none (/ (second clip) zoom) (/ (elem-get clip 3) zoom)))
+							(+ count (cwb-draw-items canvas
+								(if (and (not (Fset? skip)) (empty? skip)) found (cwb-pick found skip :t))
+								m clip))))
 					bands 0))))
 	(mail-send reply (setf-> (str-alloc +stripe_reply_size)
 		(+job_reply_key key) (+stripe_reply_y y) (+stripe_reply_drawn drawn))))

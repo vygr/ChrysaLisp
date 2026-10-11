@@ -4,6 +4,19 @@
 
 ------
 
+Three `(progn)` that an `(if)` did not need.
+
+Chris: "CWB-load 'if' has implicit progn." "for else forms". The else
+of an `(if)` is as many forms as are there, and I had wrapped them:
+`(CWB-load)` in `lib/image/cwb.inc`, the draw of a stripe in
+`lib/cwb/stripes_child.lisp`, `(Mat3x2-invert)`. The matrix and the
+seven cwb modules of the tests pass on the M4, as the Test user.
+
+There are 77 more in the tree, written before this by many hands, the
+translators among them. Not touched.
+
+------
+
 The geometry the Whiteboard wrote for itself is in `lib/math`.
 
 Chris: "did any lib/math/vector.inc lib come in handy for that work ?
