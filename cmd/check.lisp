@@ -40,8 +40,10 @@
             quoted once: it is run as a form where the
             constant is used, and is no form.
     style   (if tst (progn ...)) with no else, a (when);
-            (if (not tst) ...), an (ifn); and a (cond) of
-            one clause.
+            (if (not tst) form else ...), an (ifn), and
+            with no else an (unless); the same of an (ifn),
+            the other way about; and a (cond) or a (condn)
+            of one clause.
     doc     a ; (name args) -> result comment under a
             (defun) or (defmacro) that is of another name,
             or of more or fewer things than it takes.
@@ -138,13 +140,24 @@
 		kids (rest kids) (rest (rest kids))))
 
 (defun check-style (file node forms head)
+	;an (ifn) has the test of an (if) the other way about, and a (condn)
+	;that of a (cond): what is said of the one is said of the other, with
+	;the form that it is turned to the other of the pair too
+	(defq other (if (eql head "if") "ifn" "if")
+		;with no else: what runs a body when the test is so, and when it is not
+		runs (if (eql head "if") "when" "unless") runs_not (if (eql head "if") "unless" "when"))
 	(cond
-		((and (eql head "if") (= (length forms) 3) (tree-form? (third forms) "progn"))
-			(found file node "style" "(if tst (progn ...)) with no else is a (when)"))
-		((and (eql head "if") (> (length forms) 2) (tree-form? (second forms) "not"))
-			(found file node "style" "(if (not tst) ...) is an (ifn tst ...)"))
-		((and (eql head "cond") (= (length forms) 2) (eql (first (second forms)) :form))
-			(found file node "style" "a (cond) of one clause"))))
+		((and (find head '("if" "ifn")) (= (length forms) 3) (tree-form? (third forms) "progn"))
+			(found file node "style" "(" head " tst (progn ...)) with no else is a (" runs ")"))
+		;with an else it is the other of the pair. With none it is not: an
+		;(ifn) with no else gives its test when that is not :nil, where an
+		;(if) gives :nil, so it is the (when) or the (unless)
+		((and (find head '("if" "ifn")) (> (length forms) 3) (tree-form? (second forms) "not"))
+			(found file node "style" "(" head " (not tst) form else ...) is an (" other " tst form else ...)"))
+		((and (find head '("if" "ifn")) (= (length forms) 3) (tree-form? (second forms) "not"))
+			(found file node "style" "(" head " (not tst) form) with no else is a (" runs_not " tst form)"))
+		((and (find head '("cond" "condn")) (= (length forms) 2) (eql (first (second forms)) :form))
+			(found file node "style" "a (" head ") of one clause"))))
 
 (defun doc-words (text)
 	; (doc-words text) -> (word ...)

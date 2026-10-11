@@ -67,8 +67,10 @@ Usage: check [options] [path] ...
             quoted once: it is run as a form where the
             constant is used, and is no form.
     style   (if tst (progn ...)) with no else, a (when);
-            (if (not tst) ...), an (ifn); and a (cond) of
-            one clause.
+            (if (not tst) form else ...), an (ifn), and
+            with no else an (unless); the same of an (ifn),
+            the other way about; and a (cond) or a (condn)
+            of one clause.
     doc     a ; (name args) -> result comment under a
             (defun) or (defmacro) that is of another name,
             or of more or fewer things than it takes.

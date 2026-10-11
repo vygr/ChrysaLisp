@@ -161,7 +161,7 @@
 (defun update-ui ()
 	(when (> (length *coins_data*) 0)
 		(defq selected_coin (some (# (if (eql (first %0) *selected_symbol*) %0)) *coins_data*))
-		(ifn selected_coin
+		(unless selected_coin
 			(setq selected_coin (first *coins_data*)
 				*selected_symbol* (first selected_coin)))
 		(bind '(coin_sym name price change rank spark) selected_coin)

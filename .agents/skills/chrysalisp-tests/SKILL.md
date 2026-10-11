@@ -213,8 +213,11 @@ check and what it found. It must say nothing. `-c` names the checks to run:
 	as a test of an `(and)`, an `(or)` or a clause of a `(cond)`: there the
 	function is what is taken, and it is always true. `(and path x)`.
 *	`const`, a `+` constant given a list of strings or numbers quoted once.
-*	`style`, `(if tst (progn ...))` with no else, `(if (not tst) ...)`, and a
-	`(cond)` of one clause.
+*	`style`, `(if tst (progn ...))` with no else, a `(when)`; `(if (not tst)
+	form else ...)`, an `(ifn)`, and with no else an `(unless)`, not an
+	`(ifn)`: `(ifn 7 1)` is 7 where `(if (not 7) 1)` is `:nil`; the same of
+	an `(ifn)`, the other way about; and a `(cond)` or a `(condn)` of one
+	clause.
 *	`doc`, a `; (name args) -> result` comment under a `(defun)` or
 	`(defmacro)` that is of another name, or of more or fewer things than
 	it takes.

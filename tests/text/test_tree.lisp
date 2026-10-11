@@ -81,10 +81,20 @@
 	'("(1) const: +a is a list quoted once, ''(...)" "(4) const: +n is a list quoted once, ''(...)")
 	(tt-check "const" (cat "(defq +a '(" (ascii-char 34) ".md" (ascii-char 34) ") b '(1 2)")
 		(cat "	+c ''(" (ascii-char 34) ".md" (ascii-char 34) ")") "	+d '(lambda))" "(defq +n '(1 2 3))"))
-(assert-list-eq "style: an if of a progn with no else, an if of a not, a cond of one clause"
-	'("(1) style: (if tst (progn ...)) with no else is a (when)" "(2) style: (if (not tst) ...) is an (ifn tst ...)"
-		"(3) style: a (cond) of one clause")
-	(tt-check "style" "(if a (progn b c))" "(if (not a) b c)" "(cond ((a) b))" "(if a (progn b) c)" "(cond ((a) b) (:t c))" "(cond)"))
+(assert-list-eq "style: an if of a progn with no else, an if of a not with an else and with none, a cond of one clause"
+	'("(1) style: (if tst (progn ...)) with no else is a (when)" "(2) style: (if (not tst) form else ...) is an (ifn tst form else ...)"
+		"(3) style: a (cond) of one clause" "(7) style: (if (not tst) form) with no else is a (unless tst form)")
+	(tt-check "style" "(if a (progn b c))" "(if (not a) b c)" "(cond ((a) b))" "(if a (progn b) c)" "(cond ((a) b) (:t c))" "(cond)"
+		"(if (not a) b)"))
+(assert-list-eq "style: and of an ifn and a condn, the other way about"
+	'("(1) style: (ifn tst (progn ...)) with no else is a (unless)" "(2) style: (ifn (not tst) form else ...) is an (if tst form else ...)"
+		"(3) style: a (condn) of one clause" "(5) style: (ifn (not tst) form) with no else is a (when tst form)")
+	(tt-check "style" "(ifn a (progn b c))" "(ifn (not a) b c)" "(condn ((a) b))" "(condn ((a) b) (:t c))" "(ifn (not a) b)" "(ifn a b c)"))
+;why the two are told apart: an (ifn) with no else is not an (if) of a (not) with none
+(assert-list-eq "an (ifn) with an else is the (if) of a (not); with none it gives its test, the (if) gave :nil, as an (unless) does"
+	'(1 2 1 2 7 :nil :nil)
+	;check off, the forms themselves are what is tried
+	(list (ifn :nil 1 2) (ifn 7 1 2) (if (not :nil) 1 2) (if (not 7) 1 2) (ifn 7 1) (if (not 7) 1) (unless 7 1)))
 (assert-list-eq "doc: a comment of another name, or of more or fewer things than it takes; a list or a choice is one thing, a rest may be named"
 	'("(2) doc: says (h ...), this is (g ...)" "(5) doc: (k) is said to take 1, it takes 2" "(8) doc: (m) is said to take 3, it takes 2")
 	(tt-check "doc" "(defun g (a b &optional c)" "	; (h a b [c]) -> x" "	1)" "(defun k (a b)" "	; (k a) -> x" "	1)"

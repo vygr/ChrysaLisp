@@ -4,6 +4,36 @@
 
 ------
 
+`check`: an `(ifn)` with no else is not an `(if)` of a `(not)` with none.
+
+Chris, of the style check: "style, ifn has the reverse tests that 'if
+does !", then "so both 'if' rules an 'ifn' tests." and "'cond' and
+'condn'". I had made six `(if (not tst) ...)` into `(ifn tst ...)`. With
+an else the two are the same. With none they are not: `(ifn 7 1)` is 7,
+its test, where `(if (not 7) 1)` is `:nil`. Four of the six had no else,
+in the crypto app, Pairs, Solitaire and `wc`: they are `(unless)` now,
+which gives `:nil` as the `(if)` did. None of the four had its value
+used, I read each, so nothing ran wrong in between.
+
+The check tells the two apart, and says of an `(ifn)` what it says of an
+`(if)`, the other way about, and of a `(condn)` what it says of a
+`(cond)`:
+
+	(if tst (progn ...))             a (when)
+	(ifn tst (progn ...))            an (unless)
+	(if (not tst) form else ...)     an (ifn tst form else ...)
+	(ifn (not tst) form else ...)    an (if tst form else ...)
+	(if (not tst) form)              an (unless tst form)
+	(ifn (not tst) form)             a (when tst form)
+	a (cond) or a (condn) of one clause
+
+A test holds what the forms give, the seven of them side by side.
+
+Run: `test_tree` 86 and core on the M4, the x64 Mac and the Pi; `files |
+check` says nothing; `make docs`.
+
+------
+
 `check`, what can be seen to be wrong from the source, seven checks.
 
 Chris: "now we have the syntax aware scanning, we could extend the

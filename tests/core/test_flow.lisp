@@ -93,7 +93,7 @@
 	(:t "C")))
 (assert-eq "condn" "B" condn_res)
 
-(assert-eq "condn passthrough" 456 (condn (456)))
+(assert-eq "condn passthrough" 456 (condn (456))) ;check off, a (condn) of one clause is what is tried
 (assert-eq "condn false passthrough" :nil (condn (123) (:nil)))
 
 ; --- Logical Macros ---
