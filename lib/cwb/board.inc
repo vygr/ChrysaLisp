@@ -233,8 +233,9 @@
 ;;;;;;;;;;;;;
 
 ;what is kept for a pointer that is down on the surface, a list
+;again is that what a hand went down on was selected already, (:end)
 (enums +stroke 0
-	(enum tool x y points item moved last_x last_y snap box))
+	(enum tool x y points item moved last_x last_y snap box again))
 
 (defclass Surface (board) (Actor)
 	; (Surface board) -> surface
@@ -318,7 +319,7 @@
 		;do everything
 		(if (eql tool :pen) (setq tool (. (get :bindings board) :value event :mode (get :mode board))))
 		(if (eql tool :select) (setq tool :hand))
-		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil)
+		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil :nil)
 			holding (. this :holding))
 		(case tool
 			(:hand
@@ -347,6 +348,8 @@
 							(elem-set state +stroke_item (elem-get (second other) +stroke_item))
 							(elem-set state +stroke_tool :idle)))
 					(hit (defq id_hit (elem-get (first hit) +cwb_id) selected (get :selected board) mine :nil)
+						;on what was selected already, and no other hand at work
+						(if (and (not holding) (find id_hit selected)) (elem-set state +stroke_again :t))
 						(cond
 							(holding
 								;other hands have hold of other things. This
@@ -476,6 +479,17 @@
 			(:hand
 				(cond
 					(item (if (and (eql snap :t) (not moved)) (. board :forget))
+						;a tap on what was selected already, the hand up where
+						;it went down, is asking for the board's menu, if it
+						;has one. It is how the menu is had where there is
+						;nothing to tap on that is nothing: a thing that covers
+						;all there is to see, on a board with no toolbars. The
+						;first tap on such a thing selects it, the next asks
+						(defq near (/ +board_near (get :zoom board)))
+						(if (and (elem-get state +stroke_again) (defq menu (get :menu board))
+								(<= (abs (- x sx)) near) (<= (abs (- y sy)) near))
+							(unless (and (eql kind :touch) (. board :dismiss event))
+								(menu board x y event)))
 						;put down, it is selected still, and in flight still.
 						;Unless other hands have hold of other things: then
 						;what this one had is put down and is no longer

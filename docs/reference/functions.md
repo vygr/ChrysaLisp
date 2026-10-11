@@ -3709,8 +3709,11 @@ widths given, or its own twelve and four
 (palette-open board x y [kind id]) -> palette
 
 a palette on the board, about a point, for the pointer of that kind
-and id, default the mouse. One that pointer had open shuts. It is kept
-on the document, if that is big enough to hold it
+and id, default the mouse. One that pointer had open shuts. It is
+about the point, wherever that is: under the hand that asked for it.
+The things of a document are anywhere, there is no edge of it to
+keep a palette inside, and what shows the board has room round the
+paper for it
 ```
 
 ### palettes

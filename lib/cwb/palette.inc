@@ -87,6 +87,8 @@
 				(pal-line "M 0 -8.5 L 0 -5 M 8.5 0 L 5 0 M 0 8.5 L 0 5 M -8.5 0 L -5 0 M -1.5 0 L 1.5 0 M 0 -1.5 L 0 1.5" :width 1.4)))
 			(:set_square (list (pal-line "M -7 6 L 7 6 L -7 -7 Z" :width 1.6)))
 			(:set_square45 (list (pal-line "M -9 5 L 9 5 L 0 -4 Z" :width 1.6)))
+			(:window (list (pal-line (cwb-d-rect -8 -6 8 6) :width 1.6 :join :miter)
+				(pal-line "M -8 -2 L 8 -2" :width 1.4)))
 			(:snap (list (pal-line "M -7 -2.5 L 7 -2.5 M -7 2.5 L 7 2.5 M -2.5 -7 L -2.5 7 M 2.5 -7 L 2.5 7" :width 1.4)))
 			(:duplicate (list (pal-line (cwb-d-rect -7 -7 3 3) :width 1.6 :join :miter)
 				(cwb-shape (cwb-d-rect -3 -3 7 7) :fill +pal_ink :stroke 0)))
@@ -135,7 +137,10 @@
 			(list (map (# (list :tool %0)) +pal_tools)
 				(cat (map (# (list :color %0)) (ifn (get :menu_colors (get :board this)) +pal_colors))
 					(map (# (list :width %0)) (ifn (get :menu_widths (get :board this)) +pal_widths)))
-				(map (# (list :action %0)) +pal_actions)))
+				;and one more, if the board is shown with nothing round it, to
+				;have what was round it back: what shows the board says so
+				;by giving it something to call, :on_window
+				(map (# (list :action %0)) (if (get :on_window (get :board this)) (cat +pal_actions '(:window)) +pal_actions))))
 		(def this :wedges wedges)
 		this)
 
@@ -230,6 +235,7 @@
 					(:full_protractor (. (. board :get_stage) :add (Circle board ox oy)) (. this :close))
 					(:set_square (. (. board :get_stage) :add (Setsquare board ox oy)) (. this :close))
 					(:set_square45 (. (. board :get_stage) :add (Setsquare45 board ox oy)) (. this :close))
+					(:window (if (defq on_window (get :on_window board)) (on_window)) (. this :close))
 					(:snap (def board :snap (if (= (get :snap board) 0.0)
 						(n2f (. (. board :get_doc) :find :grid)) 0.0)))
 					(:duplicate (. board :duplicate) (. this :close))
@@ -277,19 +283,35 @@
 	(defmethod :pointers (stage events)
 		; (. palette :pointers stage events) -> palette
 		;a pointer that comes up on a wedge picks it, wherever on the
-		;palette it went down
+		;palette it went down. Unless it went down on the middle and was
+		;dragged: that moves the palette
 		(each (lambda (event)
 			(bind '(pid pkind buttons x y &ignore) event)
 			(bind '(px py) (. this :to_own x y))
 			(defq wedge (. this :wedge_at px py) state (. this :state pid))
 			(cond
-				((/= buttons 0)
-					(unless state (. this :set_state pid (list wedge)))
+				((and (/= buttons 0) (not state))
+					;where it went down, on what, and where the palette then was
+					(. this :set_state pid (list wedge x y :nil (get :origin this)))
 					(. this :hot wedge))
+				((/= buttons 0)
+					;down on its middle and dragged, the palette goes with
+					;the pointer: it is how it is moved. A little way is
+					;not a drag, a hand is not that still
+					(bind '(was sx sy dragged (ox oy)) state)
+					(defq dx (- x sx) dy (- y sy) slack (/ 5.0 (get :zoom (get :board this))))
+					(cond
+						((and (eql was :hub) (or dragged (> (abs dx) slack) (> (abs dy) slack)))
+							(elem-set state 3 :t)
+							(def this :origin (list (+ ox dx) (+ oy dy)))
+							(. (get :board this) :touch +board_dirty_overlay))
+						(:t (. this :hot wedge))))
 				(state
 					(. this :set_state pid :nil)
 					(. this :hot :nil)
 					(cond
+						;moved, and put down: nothing is picked
+						((elem-get state 3))
 						((eql wedge :hub) (. this :pick :hub))
 						(wedge (. this :pick (elem-get wedge +wedge_what) (elem-get wedge +wedge_val)))))
 				(:t (. this :hot wedge))))
@@ -375,14 +397,13 @@
 (defun palette-open (board x y &optional kind id)
 	; (palette-open board x y [kind id]) -> palette
 	;a palette on the board, about a point, for the pointer of that kind
-	;and id, default the mouse. One that pointer had open shuts. It is kept
-	;on the document, if that is big enough to hold it
+	;and id, default the mouse. One that pointer had open shuts. It is
+	;about the point, wherever that is: under the hand that asked for it.
+	;The things of a document are anywhere, there is no edge of it to
+	;keep a palette inside, and what shows the board has room round the
+	;paper for it
 	(setd kind :mouse id 0)
-	(defq stage (. board :get_stage) doc (. board :get_doc)
-		r (/ (second (last +pal_radii)) (get :zoom board))
-		w (n2f (. doc :find :width)) h (n2f (. doc :find :height)) x (n2f x) y (n2f y))
-	(if (> w (* 2.0 r)) (setq x (max r (min (- w r) x))))
-	(if (> h (* 2.0 r)) (setq y (max r (min (- h r) y))))
+	(defq stage (. board :get_stage) x (n2f x) y (n2f y))
 	(each (# (if (and (Palette? %0) (eql (get :kind %0) kind) (= (get :id %0) id)) (. %0 :close)))
 		(. stage :get_actors))
 	(. stage :add (defq palette (Palette board x y kind id)))

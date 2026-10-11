@@ -116,6 +116,10 @@ the two set squares, snap to the grid, duplicate and delete.
 
 * Click its middle, or anywhere off it, to put it away.
 
+* Drag it by its middle to move it.
+
+It opens about the point you asked for it at, under your hand.
+
 A pen that opens a palette has what it picks to itself. Another pen, and the
 mouse, keep what they had. So two people with a pen each can each have their
 own tool and colour on the one board.
@@ -175,10 +179,21 @@ on, and is not part of the document: an instrument can lie half off the
 paper there, as a ruler does on a real desk, and a thing can be dragged
 out onto it and back.
 
-The two buttons of the title bar size the window to those. The smaller
-makes it as tight round the paper as it can be, the paper and no desk.
-The bigger shows all of the desk, the paper in its middle, or as much as
-the screen has room for.
+The two buttons of the title bar are the two ways to have it.
+
+* The smaller makes the window as tight round the paper as it can be,
+the paper and no desk.
+
+* The bigger makes the board all there is on the screen: no title, no
+toolbars, no bars, and the paper the size of the screen. What you do
+there you do with the palette, the ring that opens where you tap on
+nothing. While it is so the palette has one more thing in its outer
+ring, a window: pick it and the window is back as it was, where it was.
+The escape key does the same.
+
+* The palette opens where you tap on nothing. If there is nothing that is
+nothing, a thing covers all there is to see, tap the thing to select it
+and tap it again: a tap on what is selected opens the palette too.
 
 ## The paper is the size of what is on it
 

@@ -4,6 +4,51 @@
 
 ------
 
+The Whiteboard has a full screen, and its palette is under the hand.
+
+Chris, of the two buttons of the title bar: "min, fine. max only maxes
+the height to the screen ? width seams half way ? Why don't see say
+that max mean fullscreen mode ? the canvas is made to be the only thing
+visibale on the screen ! BUT we need a way on the ring menu to go
+restore back to the Window with furtiture look." And: "we are allow to
+place the window wherever we want ! The gui calls are just info, not
+restrictions."
+
+`(full-screen)` and `(full-window)`, `ui.inc`. The title, the four
+rows of toolbars and the bars are taken out and kept, the window has no
+edge and is the screen, the paper is the size of the screen. While it
+is so the palette has one more wedge, a window, and the escape key does
+the same: "Maybe esc key as well comes out of full screen mode".
+Closed so, it is kept as a window.
+
+On the way back: "the window border shows old remains of canvas through
+! I think the Window needs a :dirty_all". A window with no shadow says
+it is all solid, `(. window :layout)`, and with its shadow back it did
+not say otherwise, so what was behind the shadow was not drawn. It is
+told it is not solid, and all of it is drawn. That is in the Window
+widget for anything that takes a shadow away and puts it back, and is
+only got round here.
+
+"How do you move the ring menu ? and why does it not appear under your
+click ?" It was kept inside the paper, from when the paper was what
+things were on: on a paper smaller than itself it was always in the
+middle, and it took no account of where the board was seen from. It
+opens about the point it is asked for at. Dragged by its middle it is
+moved. Open, it lies on the glass as an instrument does.
+
+"I cannot open the ring menu to change view modes when I have selected
+an item that covers the entire screen !" A tap on what is selected
+already opens it, there. I had written a hand held still for half a
+second first, and took it out: a hand that holds a thing still is what
+waits while somebody else moves the board to where it is to be put.
+
+He: "that work really well ! And we now have fullscreen mode :)"
+
+The app's tests, 106, the cwb modules, 573. Every test on the x64 Mac
+and the Pi.
+
+------
+
 Snap is to every line of the paper that shows.
 
 Chris: "Snap are gird lines, should be to the 5mm ! It works but now we

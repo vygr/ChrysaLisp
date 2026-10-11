@@ -94,7 +94,8 @@ do what a tap on a wedge does, see (:where)
 (. palette :pointers stage events) -> palette
 
 a pointer that comes up on a wedge picks it, wherever on the
-palette it went down
+palette it went down. Unless it went down on the middle and was
+dragged: that moves the palette
 ```
 
 ### :ring_scale

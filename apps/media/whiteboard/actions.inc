@@ -51,7 +51,7 @@
 *key_map* (scatter (Fmap)
 	+char_backspace action-delete
 	+char_delete action-delete
-	+char_esc action-select-none)
+	+char_esc action-escape)
 
 *key_map_shift* (scatter (Fmap))
 
@@ -69,5 +69,5 @@
 
 ;module
 (export-symbols
-	'(*event_map* *key_map* *key_map_shift* *key_map_control* action-style action-mode))
+	'(*event_map* *key_map* *key_map_shift* *key_map_control* action-style action-mode full-screen full-window))
 (env-pop)

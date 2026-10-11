@@ -69,7 +69,7 @@
 ```code
 +char_backspace action-delete
 +char_delete action-delete
-+char_esc action-select-none
++char_esc action-escape
 ```
 
 ### *key_map_control*

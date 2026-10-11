@@ -119,7 +119,15 @@
 (assert-eq "a tap off it puts it away, and opens no other" 0 (length (palettes pl_board)))
 (pl-tap pl_board 0 :mouse +pev_right 100 500)
 (defq pl_pal (first (palettes pl_board)))
-(assert-list-eq "it is kept on the document, one opened near an edge" '(150 450) (map (const n2i) (get :origin pl_pal)))
+(assert-list-eq "it is about the point it was asked for at, near an edge too: under the hand" '(100 500) (map (const n2i) (get :origin pl_pal)))
+;down on its middle and dragged it goes with the pointer, and put down nothing is picked: it is still there
+(. pl_board :pointers (list (ptr-event 0 :mouse +pev_left 100 500)))
+(. pl_board :pointers (list (ptr-event 0 :mouse +pev_left 102 501)))
+(assert-list-eq "a hair of a move on its middle is not a drag" '(100 500) (map (const n2i) (get :origin pl_pal)))
+(. pl_board :pointers (list (ptr-event 0 :mouse +pev_left 260 380)))
+(. pl_board :pointers (list (ptr-event 0 :mouse 0 260 380)))
+(assert-list-eq "dragged by its middle it is where it was put, and is still open" '(260 380 1)
+	(cat (map (const n2i) (get :origin pl_pal)) (list (length (palettes pl_board)))))
 (pl-pick pl_board pl_pal 0 :mouse +pev_left :hub)
 (assert-eq "a tap on its middle puts it away" 0 (length (palettes pl_board)))
 ;the left button draws, it is the pen
@@ -223,3 +231,18 @@
 (assert-eq "a tap of a finger on nothing, off it, puts it away, and opens no other" 0 (length (palettes pf_board)))
 (pl-tap pf_board 0x10005 :touch 1 500 300)
 (assert-eq "and the next tap opens one" 1 (length (palettes pf_board)))
+
+;a thing that covers all there is: nowhere to tap that is nothing. The first tap on it selects it, a tap on what is selected asks for the palette
+(defq pl_board (Board (cwb-doc 400 300)) pl_doc (. pl_board :get_doc))
+(palette-enable pl_board)
+(def pl_board :mode :select)
+(. pl_board :add (cwb-shape (cwb-d-rect -1000 -1000 2000 2000) :fill 0xff808080 :stroke 0))
+(pl-tap pl_board 0 :mouse +pev_left 200 150)
+(assert-list-eq "a tap on a thing selects it, and opens nothing" '(1 0) (list (length (. pl_board :get_selected)) (length (palettes pl_board))))
+(pl-tap pl_board 0 :mouse +pev_left 210 160)
+(assert-list-eq "a tap on it now it is selected opens a palette there, under the hand" '(1 210 160)
+	(cat (list (length (palettes pl_board))) (map (const n2i) (get :origin (first (palettes pl_board))))))
+(. (first (palettes pl_board)) :pick :hub)
+;dragged, it is moved and nothing opens
+(pl-drag pl_board 0 :mouse +pev_left 210 160 260 200)
+(assert-list-eq "dragged, it is moved, and no palette opens" '(0 1) (list (length (palettes pl_board)) (length (. pl_board :get_selected))))

@@ -361,6 +361,22 @@ finger of the device that has it is the same one's other hand, and the
 two of them move, turn and size it between them as they did. An id is a
 device and which of its contacts, `lib/cwb/pointer.inc`.
 
+### All of the screen
+
+Chris: "Why don't see say that max mean fullscreen mode ? the canvas is
+made to be the only thing visibale on the screen ! BUT we need a way on
+the ring menu to go restore back to the Window with furtiture look."
+
+`(full-screen)` and `(full-window)`, `ui.inc`. All that is in the window
+but the frame the board lies in is taken out and kept, the window has no
+edge and is the size of the screen, the frame has no bars, `:bare`, and
+the paper is made the size of the screen: it is a view, it is no change
+to what is drawn. The board is given `:on_window`, and a palette that
+finds a board with that has one more thing to do, `:window`,
+`lib/cwb/palette.inc`. It asks, and the app does it on its next tick, not
+in the middle of what the palette is doing. Closed while it is so, it is
+made a window first, and is kept as one.
+
 ### The bars
 
 The paper and the desk round it lie in a `Board-frame`, `view.inc`, in the

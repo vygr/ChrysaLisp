@@ -59,7 +59,8 @@
 	;of it shows, and where in it. The app sets them, and is called when
 	;one is moved, :on_bar. Chris, of bars that moved the paper: "they just
 	;don't marry up with what you do in the app."
-	(def this :child :nil :min_width 0 :min_height 0 :on_bar :nil
+	;:bare, and it has no bars: a board that is all there is on the screen
+	(def this :child :nil :min_width 0 :min_height 0 :on_bar :nil :bare :nil
 		:vslider (Slider) :hslider (Slider))
 	(each (# (. %0 :connect (. this :get_id)) (. this :add_front %0))
 		(list (get :vslider this) (get :hslider this)))
@@ -78,14 +79,15 @@
 
 	(defmethod :constraint ()
 		; (. board_frame :constraint) -> (width height)
-		(list (+ (ifn (def? :min_width this) 0) (first (. (get :vslider this) :get_constraint)))
-			(+ (ifn (def? :min_height this) 0) (second (. (get :hslider this) :get_constraint)))))
+		(defq bare (get :bare this))
+		(list (+ (ifn (def? :min_width this) 0) (if bare 0 (first (. (get :vslider this) :get_constraint))))
+			(+ (ifn (def? :min_height this) 0) (if bare 0 (second (. (get :hslider this) :get_constraint))))))
 
 	(defmethod :layout ()
 		; (. board_frame :layout) -> board_frame
 		(bind '(w h) (. this :get_size))
-		(defq vslider (get :vslider this) hslider (get :hslider this)
-			sw (first (. vslider :get_constraint)) sh (second (. hslider :get_constraint)))
+		(defq vslider (get :vslider this) hslider (get :hslider this) bare (get :bare this)
+			sw (if bare 0 (first (. vslider :get_constraint))) sh (if bare 0 (second (. hslider :get_constraint))))
 		(. vslider :set_bounds (- w sw) 0 sw (- h sh))
 		(. hslider :set_bounds 0 (- h sh) (- w sw) sh)
 		(when (defq child (get :child this))

@@ -16,16 +16,66 @@
 	(def *image_scroll* :min_width +min_width :min_height +min_height)
 	(.-> *image_scroll* :layout :dirty_all))
 
+(defun full-screen (&optional sw sh)
+	;the board is all there is on the screen: no title, no toolbars, no
+	;bars, no edge, and the paper the size of the screen. Chris: "the
+	;canvas is made to be the only thing visibale on the screen !" What
+	;is done there is done with the palette, the ring that opens where a
+	;hand taps on nothing, and it has one more thing to do while this is
+	;so: have the window back
+	(unless (and sw sh) (bind '(& & sw sh) (gui-info)))
+	(unless *full*
+		(defq flow (get :child *window*) doc (. *board* :get_doc)
+			others (filter (# (not (eql %0 *image_scroll*))) (. flow :children)))
+		(setq *full* (list (. *window* :get_bounds) others (get :border *window*) (get :shadow *window*)
+			(. doc :find :width) (. doc :find :height) (get :resizable *window*)))
+		(each (# (. %0 :sub)) others)
+		(def *window* :border 0 :shadow 0 :resizable :nil)
+		(def *image_scroll* :bare :t)
+		(.-> doc (:insert :width sw) (:insert :height sh))
+		(def *board* :on_window (# (setq *full_go* :t)))
+		(. *window* :change_dirty 0 0 sw sh)
+		(board-resized)
+		(view-changed)))
+
+(defun full-window ()
+	;it is a window again, as it was, where it was, the paper the size
+	;it was
+	(when *full*
+		(bind '(bounds others border shadow pw ph resizable) *full*)
+		(setq *full* :nil)
+		(defq flow (get :child *window*) doc (. *board* :get_doc))
+		;put back in the order they were made in: one added goes after those there
+		(. *image_scroll* :sub)
+		(each (# (. flow :add_child %0)) others)
+		(. flow :add_child *image_scroll*)
+		(def *window* :border border :shadow shadow :resizable resizable)
+		(def *image_scroll* :bare :nil)
+		(.-> doc (:insert :width pw) (:insert :height ph))
+		(undef *board* :on_window)
+		;with no edge it was all solid, and said so, (. window :layout).
+		;With its edge and its shadow back it is not: what is behind
+		;shows through the shadow, and has to be drawn there. So it is
+		;told it is not solid before it is laid out again, and all of
+		;it is drawn again where it now is. Chris: "the window border
+		;shows old remains of canvas through !"
+		(. *window* :set_flags 0 +view_flag_opaque)
+		(bind '(x y w h) bounds)
+		(. *window* :change_dirty x y w h)
+		(. *window* :dirty_all)
+		(board-resized)
+		(view-changed)))
+
 (defun action-minimise ()
 	;as tight round the paper as it can be: the paper and no more. Chris:
 	;"I think min should shrink evrything and position so that the window
 	;is tight as possible around the paper"
+	(full-window)
 	(window-round 0))
 
 (defun action-maximise ()
-	;all of the desk: the paper and the margin round it, where an
-	;instrument can lie half off the paper, or as much as will fit
-	(window-round *margin*))
+	;the board is all there is on the screen, or, if it is, a window again
+	(if *full* (full-window) (full-screen)))
 
 (defun action-undo () (. *board* :undo))
 (defun action-redo () (. *board* :redo))
@@ -122,6 +172,12 @@
 (defun action-align-bottom () (. *board* :align :bottom))
 (defun action-select-all () (. *board* :select_all))
 (defun action-select-none () (. *board* :select (list)))
+
+(defun action-escape ()
+	;out of what one is in: a board that is all of the screen is a window
+	;again, and one that is a window has nothing selected. Chris: "Maybe
+	;esc key as well comes out of full screen mode"
+	(if *full* (full-window) (action-select-none)))
 
 (defun action-save ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))

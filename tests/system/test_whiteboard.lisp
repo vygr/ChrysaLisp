@@ -502,7 +502,8 @@
 	;taken by the right button, to the back
 	"(wa-drag 3 360 350 350 340) (draw-over) (draw-flight) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank) (eql (wa-bits *flight*) front)))"
 	;and as it is taken, the button only just down and nothing moved: they are there at once, not when it is first moved
-	"(wa-drag 1 350 340 350 340) (draw-over) (draw-flight) (defq front (wa-bits *flight*))"
+	;let go of first: a tap on what is selected already asks for the palette, and that is not what is being looked at here
+	"(. *board* :select (list)) (wa-drag 1 350 340 350 340) (draw-over) (draw-flight) (defq front (wa-bits *flight*))"
 	"(wa-mouse :down 350 340 3) (draw-over) (draw-flight) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank) (eql (wa-bits *flight*) front))) (wa-mouse :up 350 340 0)")))
 (assert-eq "a thing taken by the left button has its box and handles in front, on what is over the board" "(:nil :nil)" (first wa_back))
 (assert-eq "taken by the right button to the back, nothing of it is in front: its box and handles are on its own canvas, with it"
@@ -545,3 +546,17 @@
 	"(print (list was moved (third zoomed) (elem-get going 3) (third rested) (eql (str ids) (str (wa-ids))) (. *board* :get_selected) (length (palettes *board*)) (. (get :bands *board*) :size)))")))
 (assert-eq "what is seen goes the way the two fingers went; twice as far apart it is zoomed, not quite twice as the first twelfth is let go by; let go it is on its way to twice and gets there; and nothing of the board was done: no box, no palette, nothing selected"
 	"((0 0 1.00000 :nil) (-60 -40 1.00000 :nil) 1.85186 2.00000 2.00000 :t () 0 0)" (last wa_out))
+
+;max is the board and nothing else, all of the screen: no title, no toolbars, no bars, the paper the size of the screen. The palette has one more thing to do then, the window back
+(defq wa_out (wa-run (cat
+	"(setq *margin* 240) (. *board* :new 400 300) (board-resized) (bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 30 40 w h)"
+	"(defun wa-look () (list (. *window* :get_bounds) (length (. (get :child *window*) :children)) (canvas-size) (get :border *window*) (if (get :bare *image_scroll*) :bare) (if (get :on_window *board*) :t)"
+	" (length (. (Palette *board* 100 100) :get_wedges))))"
+	"(defq w0 (wa-look)) (full-screen 1280 800) (defq w1 (wa-look))"
+	;the palette's wedge asks, and it is done on the next tick
+	"((get :on_window *board*)) (defq asked *full_go*) (full-window) (defq w2 (wa-look))"
+	"(print (list (eql (str w0) (str w2)) asked (rest w0))) (print w1)")))
+(assert-eq "a window: a title, four rows and the board in it, a paper of 400 by 300, an edge, bars, and 37 things on the palette. Made all of the screen and back it is that again, and the palette's wedge asked for it"
+	"(:t :t (6 (400 300) 1 :nil :nil 37))" (first wa_out))
+(assert-eq "all of the screen: the board alone in it, the paper the size of the screen, no edge, no bars, and one more thing on the palette, the window back"
+	"((0 0 1280 800) 1 (1280 800) 0 :bare :t 38)" (second wa_out))

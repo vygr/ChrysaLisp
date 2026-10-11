@@ -51,6 +51,15 @@
 	;one was last moved by hand, while that is going on they are left as
 	;they are; and whether they are behind what is seen now
 	*bars_from* (list 0.0 0.0) *bars_at* 0 *bars_stale* :t
+	;the palette has asked for the window back, done on the next tick,
+	;not in the middle of what the palette is doing
+	*full_go* :nil
+	;what the window was, while the board is all there is on the screen:
+	;where it was and how big, what else was in it, its edge, and the
+	;size of the paper. :nil when it is a window, (full-screen) in ui.inc.
+	;It is here and not there: what is in that file is read as a module,
+	;and a thing of it that changes is not there to find afterwards
+	*full* :nil
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
 	*flight_back* :nil *canvas_size* :nil
@@ -405,16 +414,20 @@
 	;it: what is seen goes by under it, and gets bigger and smaller
 	;under it, and it stays where it is and the size it is. Chris:
 	;"Instrument move with the whell, that's definately not wanted."
+	;A palette that is open lies on the glass too, it has a place and
+	;no size of its own
 	(map (lambda (tool)
 			(bind '(ox oy) (get :origin tool))
-			(list tool (* (- ox *pan_x*) *zoom*) (* (- oy *pan_y*) *zoom*) (* (get :size tool) *zoom*)))
-		(filter (const Instrument?) (. (. *board* :get_stage) :get_actors))))
+			(list tool (* (- ox *pan_x*) *zoom*) (* (- oy *pan_y*) *zoom*)
+				(if (Instrument? tool) (* (get :size tool) *zoom*))))
+		(filter (# (or (Instrument? %0) (Palette? %0))) (. (. *board* :get_stage) :get_actors))))
 
 (defun tools-hold (held)
 	;each is put back where it was on the screen, the size it was there,
 	;now that the pan and the zoom are another, (tools-held)
 	(each (lambda ((tool sx sy on))
-		(def tool :origin (list (+ *pan_x* (/ sx *zoom*)) (+ *pan_y* (/ sy *zoom*))) :size (/ on *zoom*)))
+		(def tool :origin (list (+ *pan_x* (/ sx *zoom*)) (+ *pan_y* (/ sy *zoom*))))
+		(if on (def tool :size (/ on *zoom*))))
 		held))
 
 (defun pan-by (dx dy)
@@ -932,6 +945,9 @@
 				(. *board* :tick (pii-time))
 				;and the zoom, if it is on its way somewhere, and what is
 				;seen, if a wheel has it going
+				(when *full_go*
+					(setq *full_go* :nil)
+					(full-window))
 				(zoom-tick)
 				(pan-tick)
 				(bars-tick)
@@ -956,8 +972,8 @@
 			((. *window* :dispatch *msg*))
 			(:t ;gui event
 				(. *window* :event *msg*))))
-	;close window
-	(catch (config-save) (progn (prin _) (print) :t))
+	;close window. It is kept as a window, not as all of the screen
+	(catch (progn (full-window) (config-save)) (progn (prin _) (print) :t))
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(. *stripes* :close)
 	(gui-sub-rpc *window*)
